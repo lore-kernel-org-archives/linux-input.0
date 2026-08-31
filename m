@@ -1,172 +1,195 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94AAA3CC7EA
-	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 08:28:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ED8C3D25A2
+	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 11:12:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788164901; cv=none; b=dU1hesFl2ZItoGipXa03W/6xFyJEbji42M1E2YIVvHNLeKIDRJQQHvB+cc851dg24SBrKsqMd7K7a+S7PxXRcym26SboCrnfigfWZ2K4JNh+H9BSSETmRPn5ql9rYokTlXp5VZEWIUv+8x6Y2sNLte2hY+nX/Lqpm8ueV4uy0Io=
+	t=1788174741; cv=none; b=MgBrW1XnlPwsbSvvsisztuD6DZf2nxhaENeXdwaZ9yoi7HbuLs8+NVTVh6zf1WYV33xQr8HrYxak+F1jvnd+2epePODr/XD6s0SUOweyfPQ61lH2bIf8hAw+Mj64zA0M7UtDaVS/FpaBxBlrghwwLapYcjVY4RahaFw2tyef/Xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788164901; c=relaxed/simple;
-	bh=rk/RtQGUqa4je87E0MF9GWbu0/T3ERV1oTSRlN0aUu0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jGi9zGenkoLgpgPaioVld15AzI94EO5PPbECjGeblNGGH1H79tZZkmAgFQWfmBH3qvEFtKGT/2tJZ2DsmFMHBm10f3TPbUpPvW6jWxzmUcd3lMI9SdlZoOn2wNjtKbtsuy7tJNR8EjtLmV2fxdVTh10GS1Io7KLA6cnlaqFVCxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VJ/LHiaV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788174741; c=relaxed/simple;
+	bh=AsOz+oNscCl9RZI3te2sew7N0y+pek6xru3C7aqS9XE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=OTpNvYaqG9Fc1aVR3nhQrQ3PKnlYjxoXB2RCxhR4xPYmu1RFOsqF8i+YCTkX1GqNTvDrGfjHT5t29Tvaa3HL+GL2CwWgRY3bu1GLDSO2ybB+txRsTKBfTLKIxfIJRUVy5zUpu1YCVCU+DGSFohFd1AP2ALtO99geaQhVAkbM1ZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=FSnwQYTR; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VJ/LHiaV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 063D81F00A3D;
-	Mon, 31 Aug 2026 08:28:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788164900;
-	bh=jcG3orvgsawqnp04zywibxntSjzGuC7VlJBwY0J8HzU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VJ/LHiaVHX0R7vMtBHBArhbATQf+akx2D17D6o75llW60CT8dZZNCu9x+B4LEOo4R
-	 50qlHcK2TBqfCVxjXNewkn3qjnQYjPn16haGUnKJCWS3of2fZCNsaYFdIEKA/YT9Iq
-	 MBgIFxSseGv1zQp7eTfY3pj/wPwYArGilnOEjxEDwWrRfG34d/JXo9NIeXyfUn9NNI
-	 FwUsa51K0Y/OlYEp0dRxxH/E/2s2FhjiJeDwmCFlnWOBU2BsKwH3ZLpJaJccuUWgrr
-	 jPy49KWYEbM57bUFo5nUzYUeGxKVbHSmiFUT570YCLJsrm6KO8DOvJO5XqhYBEqJid
-	 7D/tGUI7PMZDw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6] Input: drv260x: Fix suspend and resume sequencing
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Maurizio Casciano" <mauriziocasciano7@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260831081227.1794986-1-mauriziocasciano7@gmail.com>
-References: <20260831011526.24AB11F000E9@smtp.kernel.org>
- <20260831081227.1794986-1-mauriziocasciano7@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 31 Aug 2026 08:28:19 +0000
-Message-Id: <20260831082820.063D81F00A3D@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="FSnwQYTR"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5aec201b582so4030474e87.1
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 04:12:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1788174736; x=1788779536; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=l5ZB320lDl+SnNWGHnW1xzOqG/h1rSK0736CPhMeVKE=;
+        b=FSnwQYTRviy92oVyI5AmbFcpP2beHu65BS6bKAIrAz9APJSMeZj2Y4c2lXT5rVRLcJ
+         IeqBzhcDCBN8bqoEFZ9Lgz71XPu/QmdJ91eZcYikiZ1kCK4Tzi2UcnU2iJ0WUHokjo0P
+         hKUzKB5119DLZPuJ1ae9FaASkxwccsyYuNtHE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788174736; x=1788779536;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=l5ZB320lDl+SnNWGHnW1xzOqG/h1rSK0736CPhMeVKE=;
+        b=NBDlW7XzZsyGr/HAG9zq6c5tb0za38q2i81AKHQXMvuvyprSYFoDV6o0ktIqjIDW93
+         1PZtqnb1ybn+Kq+/ducI1SLninhscg3Zl0LG5Ih0qCtbzusPhSgaOPFyNpHQ7b4niiEG
+         CLr4yknMF9JW3fV4BtaRlATWoiPcr1n3y0proRKH3ZYvZv3yQUg4/LYWVJtPDXU5hCox
+         qvs6+CcO+IYW0++81mnpK2qY6xjYCd9aHZ1DLeUgyYZQPQrzPQPWnayxxV/R9Ohx8jVo
+         uubZNOr1kN2NrasRzTxe1G1Dao/qOBHu6bp7HeVdG/hRBOyb11PoU3L4eeY0g8zxffoR
+         sp/g==
+X-Gm-Message-State: AFuF++lrlc6rfOKsKFIgsvD+A6bGD4FxE4GUXABeOKA06LAaZPTMybXY
+	0ubmTgFVpU1T3bgZXBZXGSyEn/skt+gRM/7kXzkhZaISxPHYGHJYbUqfWz9Cjx5DdA==
+X-Gm-Gg: AYBFou3Mojswyyak7inePka1q34lAJP+JNOCKANWKk6Zu4+54WWnuQlmUb7oO7PQSkh
+	kn0q84fycOC2jtvQ3qH02zJNVrVjp/mOXs74l/ZJwbjoJ0hDJ2AaLvN13lOwOnWeOAYPayuUA1J
+	KlIVZ7WIf3F7NJuPFHhwyYqzsVrZiLcMDZFba+mnpeLhDDeUNYAXOh0jdG6XpkDld3QxO62Mlw7
+	/Gcdv09kpNs5UZrvzL3PTNxgw0riIrZDMjSWNqDdYnvruG3H3YUbOQQ6ACUztZHVxeg4WZddYJ4
+	sQTcglE20eefuuew5Y1i7x9BS55OvPWJqjr5sCWXTj/eGh6zE2JVH+R1gg1S0ZkSug4rOjfiXBK
+	KA0NtcWz3WMipxAIM770Xafm2wWSG3Uw6A4HSHf68EPC4yOCOy62Rp8PXT21+6jCy5/eWrx+V1R
+	eI8D2iOMiP1BK3pxHY0ftB9S/I71IL5KMC6SK2gOM+YVXPQ1hyIYmIcvxwAdAmxH38OltV6oli/
+	CTIEn/tDwJtUIpObgZ1cDd3ETG10GfT1FNedergb/sOhqiMLA==
+X-Received: by 2002:a05:6512:3b98:b0:5b4:a8c3:d26f with SMTP id 2adb3069b0e04-5b5e6907269mr7993088e87.23.1788174736051;
+        Mon, 31 Aug 2026 04:12:16 -0700 (PDT)
+Received: from ribalda.c.googlers.com (11.36.88.34.bc.googleusercontent.com. [34.88.36.11])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b5e89cfae5sm2042767e87.23.2026.08.31.04.12.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Aug 2026 04:12:15 -0700 (PDT)
+From: Ricardo Ribalda <ribalda@chromium.org>
+Date: Mon, 31 Aug 2026 11:12:11 +0000
+Subject: [PATCH] HID: Merge duplicated documentation for Lenovo Legion
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260831-lenovo-go-v1-1-e9526e88ee09@chromium.org>
+X-B4-Tracking: v=1; b=H4sIAIphlWoC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDC2ND3ZzUvPyyfN30fF3zJJPUZJOkNIPkFFMloPqCotS0zAqwWdGxtbU
+ AqGTbjlsAAAA=
+X-Change-ID: 20260831-lenovo-go-7b4ec4bf0cd5
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>, 
+ Mark Pearson <mpearson-lenovo@squebb.ca>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>
+X-Mailer: b4 0.14.3
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+Lenovo Legion Go and Lenovo Legion Go S share some definitions. Merge them in
+sysfs-driver-hid-lenovo-go to avoid this warning:
 
-New issues:
-- [High] The `work_disabled` flag becomes permanently wedged to `true` if t=
-he device is closed after a system resume failure, breaking force-feedback =
-functionality on subsequent opens.
-- [Low] Direct return of error code from regmap_bulk_write in a function wi=
-th multiple failure points.
+WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:364; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:234
+[WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:373; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:243
+[WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:636; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:252
+[WARNING] /sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index is defined 2 times: ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go:645; ./Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s:261
 
-Pre-existing issues:
-- [High] Device configuration is permanently lost if system power is cut du=
-ring suspend while the input device is closed, leading to hardware misconfi=
-guration upon the next open.
-- [High] Uncancelled work item leads to Use-After-Free during device unbind=
- due to asynchronous ff-memless timer.
---
+Cc: stable@vger.kernel.org
+Fixes: 168c91839139 ("HID: Add documentation for Lenovo Legion Go drivers")
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+---
+ .../ABI/testing/sysfs-driver-hid-lenovo-go         | 11 +++----
+ .../ABI/testing/sysfs-driver-hid-lenovo-go-s       | 35 ----------------------
+ 2 files changed, 6 insertions(+), 40 deletions(-)
 
-commit 0cbbdf5958f6ed62525dabc219437a115afe42b3
-Author: Maurizio Casciano <mauriziocasciano7@gmail.com>
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+index c8221373ef76..f3ba3504939d 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
++++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go
+@@ -364,11 +364,12 @@ Description:	This displays the available options for the mode attribute.
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode
+ Date:		April 2026
+ Contact:	linux-input@vger.kernel.org
+-Description:	This controls the behavior of built in chord combinations.
++Description:	This controls the behavior of built-in chord combinations.
++		For the Legion Go S, this controls the touchpad's operating mode.
+ 
+ 		Values are windows or linux.
+ 
+-		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
++		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index
+ Date:		April 2026
+@@ -377,7 +378,7 @@ Description:	This displays the available options for the os_mode attribute.
+ 
+ 		Values are windows or linux.
+ 
+-		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
++		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/product_version
+ Date:		April 2026
+@@ -640,7 +641,7 @@ Description:	This controls enabling or disabling the touchpad.
+ 
+ 		Values are true, false.
+ 
+-		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
++		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index
+ Date:		April 2026
+@@ -649,7 +650,7 @@ Description:	This displays the available options for the touchpad/enabled attrib
+ 
+ 		Values are true, false.
+ 
+-		Applies to Lenovo Legion Go and Go 2 line of handheld devices.
++		Applies to Lenovo Legion Go, Go 2, and Go S line of handheld devices.
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/vibration_enabled
+ Date:		April 2026
+diff --git a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+index 4d317074bb7e..218164cfe544 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
++++ b/Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s
+@@ -231,41 +231,6 @@ Description:	This displays the available options for the mouse/step attribute.
+ 
+ 		Applies to Lenovo Legion Go S line of handheld devices.
+ 
+-What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode
+-Date:		April 2026
+-Contact:	linux-input@vger.kernel.org
+-Description:	This controls which value is used for the touchpads operating mode.
+-
+-		Values are windows or linux.
+-
+-		Applies to Lenovo Legion Go S line of handheld devices.
+-
+-What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/os_mode_index
+-Date:		April 2026
+-Contact:	linux-input@vger.kernel.org
+-Description:	This displays the available options for the os_mode attribute.
+-
+-		Values are windows or linux.
+-
+-		Applies to Lenovo Legion Go S line of handheld devices.
+-
+-What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled
+-Date:		April 2026
+-Contact:	linux-input@vger.kernel.org
+-Description:	This controls enabling or disabling the built-in touchpad.
+-
+-		Values are true or false.
+-
+-		Applies to Lenovo Legion Go S line of handheld devices.
+-
+-What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/enabled_index
+-Date:		April 2026
+-Contact:	linux-input@vger.kernel.org
+-Description:	This displays the available options for the touchpad/enabled attribute.
+-
+-		Values are true or false.
+-
+-		Applies to Lenovo Legion Go S line of handheld devices.
+ 
+ What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>.<interface num>/<hid-bus>:<vendor-id>:<product-id>.<num>/touchpad/linux_mode
+ Date:		April 2026
 
-Input: drv260x: Fix suspend and resume sequencing
+---
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+change-id: 20260831-lenovo-go-7b4ec4bf0cd5
 
-Force-feedback playback is queued asynchronously, but system suspend can
-cut power while the worker is pending. Disable and drain the work item
-before entering standby, and keep force-feedback quiesced until resume has
-restored communication.
+Best regards,
+-- 
+Ricardo Ribalda <ribalda@chromium.org>
 
-Link: https://lore.kernel.org/linux-input/20260831011526.24AB11F000E9@smtp.=
-kernel.org/
-Link: https://lore.kernel.org/linux-input/20260830143050.03E081F000E9@smtp.=
-kernel.org/
-Link: https://lore.kernel.org/linux-input/20260829230740.126461F000E9@smtp.=
-kernel.org/
-Link: https://lore.kernel.org/linux-input/apLD91vzHIrLOPWC@google.com/
-Link: https://www.ti.com/lit/ds/symlink/drv2604.pdf
-
-> diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-> --- a/drivers/input/misc/drv260x.c
-> +++ b/drivers/input/misc/drv260x.c
-[ ... ]
-> @@ -258,11 +282,29 @@ static int drv260x_haptics_play(struct input_dev *i=
-nput, void *data,
->  	return 0;
->  }
-> =20
-> +static int drv260x_open(struct input_dev *input)
-> +{
-> +	struct drv260x_data *haptics =3D input_get_drvdata(input);
-> +
-> +	if (haptics->work_disabled)
-> +		return -EIO;
-> +
-> +	gpiod_set_value(haptics->enable_gpio, 1);
-> +	/* Data sheet says to wait 250us before trying to communicate */
-> +	fsleep(250);
-> +
-> +	return 0;
-> +}
-
-[Severity: High]
-This is a pre-existing issue, but will device configuration be permanently
-lost if system power is cut during suspend while the input device is closed?
-
-During system suspend, VDD power can be cut. Because drv260x_resume() checks
-input_device_enabled(), it skips drv260x_init() if the device was closed.
-When userspace later opens the device, drv260x_open() asserts the enable
-GPIO but does not reinitialize the hardware registers, leaving the device
-in an erratic default state.
-
->  static void drv260x_close(struct input_dev *input)
->  {
->  	struct drv260x_data *haptics =3D input_get_drvdata(input);
->  	int error;
-> =20
-> +	/* PM has not restored register access yet. */
-> +	if (haptics->work_disabled)
-> +		return;
-
-[Severity: High]
-Could this early return leave the device permanently wedged if it is closed
-after a system resume failure?
-
-If drv260x_resume() fails, it leaves work_disabled =3D true. If userspace
-then closes the device, this early return skips clearing the wedge state. On
-the next suspend/resume cycle, drv260x_resume() skips recovery entirely
-because input_device_enabled() evaluates to false (since users is 0). The
-work_disabled flag would remain stuck to true, returning -EIO on all future
-opens.
-
-> =20
->  	cancel_work_sync(&haptics->work);
-
-[Severity: High]
-This is a pre-existing issue, but does relying on close() for cancellation
-risk a use-after-free during device unbind?
-
-When the device is unbound, input_unregister_device() calls drv260x_close()
-and then stops the background ff-memless timer. If the asynchronous timer
-fires in that window, it can reschedule the work item after
-cancel_work_sync() has already returned. Because the work item lacks a
-registered devm cleanup action, it remains pending and could execute after
-the memory has been freed.
-
-[ ... ]
-> @@ -398,6 +440,11 @@ static int drv260x_init(struct drv260x_data *haptics)
->  		return 0;
->  	}
-> =20
-> +	if (haptics->calibration_valid)
-> +		return regmap_bulk_write(haptics->regmap, DRV260X_CAL_COMP,
-> +					 haptics->calibration_data,
-> +					 ARRAY_SIZE(haptics->calibration_data));
-> +
-
-[Severity: Low]
-Does returning the error code from regmap_bulk_write() directly violate the
-explicit failure paths coding style?
-
-The input subsystem maintainer guidelines prefer the expanded error checking
-form instead of returning the action directly in functions with multiple
-failure points.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831081227.1794=
-986-1-mauriziocasciano7@gmail.com?part=3D1

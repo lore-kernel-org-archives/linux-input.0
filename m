@@ -1,145 +1,143 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E816E28C5B1
-	for <linux-input@vger.kernel.org>; Sun, 30 Aug 2026 23:58:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1218CDF72
+	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 00:02:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788134313; cv=none; b=aMuqitOt0WGr/4E7XRO3n1O8CIuT2vqu6cxEzixC2Le2vokjDeJ+DV7Rl6V/WuoVu130mlg6JypFxOrxyfXyXzNtrn/Vs2ap0kOsF62CGQLjkcuU931xAPj4fAQ4Em//ulppq8vkF2ClpQNpTp33dHPFHdi9w2Xd7u7gDB/ZZnI=
+	t=1788134534; cv=none; b=AIfJQCpSZGZU/WeYIScjUUtIrHp6svRfzZt+GlG9zH6ruhO4WY7jjJ5rhlBLE/iQCbs4/VNifCw09y4+GO7wcbZiW2CNNnYOlV4vJMEnbTf5hhnvWeuWmVxXcUQARUeHT4eYOS22nTlDa3lShGmXCJoim/TOWiLz2pRq/PzPMiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788134313; c=relaxed/simple;
-	bh=ykhzphmIVATgabJk0zy0P7Ek34d0B32IVyoF02NAdiU=;
+	s=arc-20240116; t=1788134534; c=relaxed/simple;
+	bh=ilZZ3whotYbXUtMwFlPo3L+tvk+92ZZCEIpwLcZdJHw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HhDZ59OivCQvsTQy087xid0fncv4QOEpPn/Hgmz7Qcz7HZTdj/oRzQ0MD2S8FQNVXCrVemS557/S/TTfv1Vx6vUoWQYhO5YfBZyZCFlmil+32Q0Pl4rI70AeuAx8ibCrnJ1PA0aal+IzRNc1YAQflmcfqgYlA/wZqquDRDK9yvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MHRJo/+p; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BbN0dxaqa3oXdFqE3y9hREPdeSUMZdAy61WzAmxio+4LY0W0P6YawRxd6YCae8P8QgSMFgQ+nzciNh/VYQ988H1YzXKncfVGtrHeUWvzH+6ymHL92YGuHOieu5xvCKhPpJMG9aFqMyasnf5bRWCLkHtfLoa/XFxzTxoDiTuT1c4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dySxJQoJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MHRJo/+p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 585A41F000E9;
-	Sun, 30 Aug 2026 23:58:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dySxJQoJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6425B1F00ACA;
+	Mon, 31 Aug 2026 00:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788134311;
-	bh=tl8V796Vn0Amhy1JlYSoFzOD/oI94MvMIwIRJ+T9i08=;
+	s=k20260515; t=1788134532;
+	bh=Bt7Eh2KFpLiS5OZP9DRmYYOVQQXtSANfPKspuEotqN8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MHRJo/+pLLaK3adj4rKYUooPqC9C4gLbs7Z9uMNuNI+dgmIOcr10jN5yQiZo7Py7L
-	 1GuE8fL4sm4xL3nt22+L8r766LyoIQAzfXMUj88X7+qA1xg+PidrTGklhY5iQWThV7
-	 +zB3KYrD3OM2owSnd/VzU8Pyp3/RA0WxByDapmPLmTg8MmooRVlVcMONLXxfSgsvp5
-	 7ZrrJbkMAsRkYoUXQC9ksYjVXSxqu8GzEEBJNI5nhSbkcTOjrprUeabPALO77Ls4ad
-	 85zEbgSRpCAtzNOnGVOy4nriL8rE8tceowWuPwbJnSFzSz+QgKL/EpPWcwzoA8OxYx
-	 Y+mfeKY7NgLlQ==
+	b=dySxJQoJ3DhQJwuqCKNq8j/i9kP6ANKyczM0T5gHUd9uXMPlbWunAUavVszE6nAiX
+	 VXOYklbrS+VxAlPX+y/bnWICIm/5TzfXmAriRpFqwpeSLw5POrwpfF80v5yRGoXdsT
+	 cgO9zFLif8dlXPt/YSLt+1ehcDcj7VSvrKE5cKhVHVLETfnIKygd1sZtqg8IRc1ctw
+	 yn3Vo44pQMHalecCsphwzFa3E0rKSDywIN4xbS1jvgdbAbjVQLfwYAa3+qnJyjmt5J
+	 EvES4Ze5UCd+F/yBNwj2HEIOOtSwgUMPoTV/4Yiq06PHq9WYydP7V/RrPe4iy5DI6g
+	 6QtBVi6yF6rRQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 07/13] HID: asus: add triggers inner and outer range
- configuration
+Subject: Re: [PATCH v4 10/13] HID: asus: add support to force feedback
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260830234320.114356-8-denis.benato@linux.dev>
+In-Reply-To: <20260830234320.114356-11-denis.benato@linux.dev>
 References: <20260830234320.114356-1-denis.benato@linux.dev>
- <20260830234320.114356-8-denis.benato@linux.dev>
+ <20260830234320.114356-11-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 30 Aug 2026 23:58:30 +0000
-Message-Id: <20260830235831.585A41F000E9@smtp.kernel.org>
+Date: Mon, 31 Aug 2026 00:02:12 +0000
+Message-Id: <20260831000212.6425B1F00ACA@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] The configuration pointer ally_drvdata.config is never initialized=
-, causing all sysfs configurations to silently fail.
-- [Medium] Sysfs attributes are registered before their backing driver stat=
-e is initialized.
+- [High] Concurrent execution of the config interface probe/resume and game=
+pad interface unbind causes a use-after-free on HID hardware resources.
 --
 
-commit 80d5926aadeb16828c5f704e5f821fff45eb12b6
+commit b62ad34c16f335dc9dd774f0d7548d234839ba8d
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add triggers inner and outer range configuration
-
-This patch allows userspace to configure the inner and outer ranges for
-the trigger buttons on ROG Ally devices by exposing new sysfs attributes.
+    HID: asus: add support to force feedback
+   =20
+    Unlike ROG ally the X version and following ones uses DInput protocol
+    and the force feedback needs to be implemented as its protocol is
+    vendor-specific, therefore add support for FF_RUMBLE with magnitude
+    scaling on a work-queue based approach to avoid using possibly
+    sleeping calls in atomic context.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 7702427bde451..6688615f644a1 100644
+> index bd488acdb5d49..61330ae082b16 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-> @@ -1318,6 +1318,350 @@ static struct device_attribute dev_attr_right_joy=
-stick_outer_threshold =3D
+
 [ ... ]
-> +static ssize_t left_trigger_range_lower_limit_show(struct device *dev,
-> +						   struct device_attribute *attr, char *buf)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +	struct ally_handheld *const ally =3D drvdata->rog_ally;
-> +	struct ally_config *cfg;
+
+> @@ -2756,19 +2912,43 @@ static int ally_x_setup_input(struct hid_device *=
+hdev, struct ally_handheld *all
+> =20
+>  	return 0;
+>  ally_x_setup_input_err:
+> +	spin_lock_irqsave(&ally_data_lock, flags);
+> +	if (ally->ally_x_hdev =3D=3D hdev)
+> +		ally->ally_x_hdev =3D NULL;
+> +	spin_unlock_irqrestore(&ally_data_lock, flags);
+>  	return ret;
+>  }
+> =20
+>  static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handh=
+eld *ally)
+>  {
+> +	struct hid_device *x_hdev;
+>  	struct ally_config *cfg;
+> +	unsigned long flags;
+>  	int ret;
+> =20
+> -	/* Failure at this point is non-critical */
+> -	ret =3D ally_gamepad_send_packet(ally, hdev, ALLY_FORCE_FEEDBACK_OFF,
+> -				       sizeof(ALLY_FORCE_FEEDBACK_OFF));
+> -	if (ret < 0)
+> -		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
+> +	/*
+> +	 * The force-feedback "off" packet belongs to the gamepad interface,
+> +	 * which consumes it as an output report: the config interface probed
+> +	 * here would reject it. The gamepad probe path sends the packet itself,
+> +	 * so this only matters when the gamepad interface is already bound,
+> +	 * e.g. after a reset resume that re-initialized the MCU.
+> +	 */
+> +	spin_lock_irqsave(&ally_data_lock, flags);
+> +	x_hdev =3D ally->ally_x_hdev;
+> +	if (x_hdev)
+> +		get_device(&x_hdev->dev);
+> +	spin_unlock_irqrestore(&ally_data_lock, flags);
 > +
-> +	if (!ally)
-> +		return -ENODEV;
-> +
-> +	cfg =3D ally_get_config(ally);
-> +	if (!cfg)
-> +		return -ENODEV;
+> +	if (x_hdev) {
+> +		/* Failure at this point is non-critical */
+> +		ret =3D ally_x_send_ff_off(ally, x_hdev);
 
 [Severity: High]
-This is a pre-existing issue, but does ally_drvdata.config ever get
-initialized?
+Can this cross-device call cause a use-after-free on transport data structu=
+res?
 
-In hid_asus_ally_probe(), the pointer returned by ally_config_create() is
-stored in a local variable ally_cfg, but it is never assigned to the global
-state struct:
+While taking a reference to x_hdev->dev with get_device() prevents the
+struct hid_device memory from being freed, does it stop the peer's
+transport resources from being torn down?
 
-drivers/hid/hid-asus.c:hid_asus_ally_probe() {
-    ...
-        spin_lock_irqsave(&ally_data_lock, flags);
-        ally_drvdata.cfg_hdev =3D hdev;
-        spin_unlock_irqrestore(&ally_data_lock, flags);
-        break;
-    ...
-}
+If the configuration interface probes or resumes concurrently with the
+gamepad interface being unbound (e.g., via sysfs or a reset/disconnect cycl=
+e),
+it appears the transport driver could destroy the transport driver data once
+hid_destroy_device() returns, while we are still holding the device referen=
+ce.
+Would the subsequent call to hid_hw_output_report() via ally_x_send_ff_off()
+then dereference that freed memory?
 
-As a result, ally_get_config() permanently returns NULL, causing every sysfs
-callback, including this new one, to immediately abort with -ENODEV.
-
-[ ... ]
-> @@ -1429,6 +1801,10 @@ static struct ally_config *ally_config_create(stru=
-ct hid_device *hdev, struct al
->  	cfg->left_outer_threshold =3D 90;
->  	cfg->right_deadzone =3D 10;
->  	cfg->right_outer_threshold =3D 90;
-> +	cfg->left_trigger_min =3D 0;
-> +	cfg->left_trigger_max =3D 100;
-> +	cfg->right_trigger_min =3D 0;
-> +	cfg->right_trigger_max =3D 100;
-
-[Severity: Medium]
-This is a pre-existing issue, but do these driver states get initialized too
-late?
-
-The sysfs nodes for the trigger ranges become active and accessible to
-userspace earlier in ally_config_create() when devm_device_add_group() is
-called:
-
-drivers/hid/hid-asus.c:ally_config_create() {
-    ...
-    ret =3D devm_device_add_group(&hdev->dev,
-                                ally_cal_attr_groups[sysfs_i]);
-    ...
-}
-
-This creates a window where udev or another userspace process can access the
-newly created sysfs nodes immediately upon registration and read uninitiali=
-zed
-defaults before the configuration is initialized here.
-
->  	cfg->vibration_intensity_left =3D 100;
->  	cfg->vibration_intensity_right =3D 100;
->
+> +
+> +		if (ret < 0)
+> +			hid_err(hdev, "Ally failed to init force-feedback off: %d\n",
+> +				ret);
+> +
+> +		put_device(&x_hdev->dev);
+> +	}
+> =20
+>  	cfg =3D ally_get_config(ally);
+>  	if (!cfg)
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260830234320.1143=
-56-1-denis.benato@linux.dev?part=3D7
+56-1-denis.benato@linux.dev?part=3D10

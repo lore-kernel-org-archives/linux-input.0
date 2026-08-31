@@ -1,143 +1,94 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D44684CCDDB
-	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 18:30:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E0536212C
+	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 18:42:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788201043; cv=none; b=boJJ8vh/NTL1m6c/QUrHlOBOf2ATdhtD7c5StEa8A0KDKtL6lJEhFtzA6W9T6QeGH62LcLJqoUePb63FSzZUj0hJ1Vy/EbfgCXl4m+0u2gdRcbs0i9zi/cLDB2pHZpRUlAINojG0qQ++19hNn2A+o1vuJo9PQeG0NmzGL5RPiBo=
+	t=1788201752; cv=none; b=dYK/68IxGiJ50DdlxkhrBwko9oFLFknuxT5qDRBLHAgKVTg25S0XVuQzpNmuWVy4sdMRjzga7rdaEkwymmJTx08n5MDi50QFGAjZqw82S+XEwRCA+Ys5Kd75t7UC50i40xxzSpvGmvhnAkllSs/7y44gl96lrm0mthtB6LmSs+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788201043; c=relaxed/simple;
-	bh=wsPrMGdf5df4jyZ1Vbx42k8Dqvatgie/fWx9R9nsbhM=;
+	s=arc-20240116; t=1788201752; c=relaxed/simple;
+	bh=kzo44AwYWj6Cq8Y8YcAc1b5Yp9P739kug4D3j/NhuCc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qGHLmRIbmE2gNlVWdQnErzM7iLaNWJU72oAuF8Vaz+O7puql+jy4W6dLSnKvF0AO1l/Cy2Rfe1QWtjXeah28tAMxge53fXpjcLVT6Nb0BdKURLga77WT4ntwP+Yva1WML/VDumJGUTWNCX7nsu5gFlUSZaxOjHMCb9smGx/dAco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UmrB4XW1; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=T4KJwHE0a/L1SPfFWRDzGEwS4NhMZcMK26lefWNFkCQjRYZG4gPt+8clUQ7ZxpdlnVZMnDG2Dk6EDfv7giNxLa0ASdnjqJ+7TGiEpw05MRYu3jOjEjGYuB9DxrLJAr+3w+nWz9aGJe0xQLdU6x5wrs0k3voyvsUWdoO8WaeCSI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nWqTpIeV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UmrB4XW1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A2C21F000E9;
-	Mon, 31 Aug 2026 18:30:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nWqTpIeV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 649881F000E9;
+	Mon, 31 Aug 2026 18:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788201041;
-	bh=IAINS8d3uUZK58ifxIgCcvQzr20s94z4OFwvovxYTuo=;
+	s=k20260515; t=1788201750;
+	bh=y0t5uoF/JC+j8gWi+Q9qMHXClH3eeyhFdVojV4nU44w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UmrB4XW1+8SIJT7iixg9PX7CzsM9GFLtCIhGSx7cUp6/aaje+4FLwf4B65ajWMCnu
-	 3hhNDAq+TMT+SWUclmDqtr8GAsZDSxNTpFglQopWOKYfcjcG5bjjrwhHGghHC6tJxV
-	 Us9JknIcv4InFe12l+xBr7lg6GtoSfVFrroJSSF0TZSlCJUKgtvthrktiWDAF7RJMw
-	 wKnecq/Hu40SPbsqM2pSMPQ9O5kdDfXxWN9gweZ9feWR0kUtzv0wneK0HesilSu8/L
-	 ZUdEE2xQ2TzqtMlxsZUcGjlR2CWD4AvOUp0jytqYrjLhUhf885Zdf6SBPw0tG5m92f
-	 ycgP66QazWCtw==
+	b=nWqTpIeVUUUTMq78lEC3xIo6/3td2uMxyzzyNeMIXnGq3NGsVskuCxecA++N+Eu8O
+	 rsLzIX/g/FToZsJ0Z6BTliqPfeUWJHe7arSk5R5J2ZTuLciblz4QGTSwwxfWE4swa3
+	 cJhmASuMHwW6zYqBpwDT915Dr1NL+wLwrPJRDge84kGH/cxSZQ1WW2wBwQIF45XRxN
+	 jupdHnSIoRRdFjye9kp9TkTqOZWvzXl7BmKuhX7YMgTU7aU86VRjtoafOGi71W8q1z
+	 VQBD4FbCr0J4u65QOsYlWQ1bzkfeDF40/A6UqjO4w4pDoQ6EMWwmUdcuc1OabZN0sX
+	 TXmOtD8evJDyw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 1/2] Input: evdev: propagate EVIOCSFF copy errors
- correctly
+Subject: Re: [PATCH v1 2/2] Input: uinput: align UI_ABS_SETUP validation
+ with uapi docs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?SXbDoW4gRXplcXVpZWwgUm9kcmlndWV6?= <ivanrwcm25@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260831152156.166514-2-ivanrwcm25@gmail.com>
+In-Reply-To: <20260831152156.166514-3-ivanrwcm25@gmail.com>
 References: <20260831152156.166514-1-ivanrwcm25@gmail.com>
- <20260831152156.166514-2-ivanrwcm25@gmail.com>
+ <20260831152156.166514-3-ivanrwcm25@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 31 Aug 2026 18:30:40 +0000
-Message-Id: <20260831183041.5A2C21F000E9@smtp.kernel.org>
+Date: Mon, 31 Aug 2026 18:42:29 +0000
+Message-Id: <20260831184230.649881F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Kernel stack memory leak via EVIOCSABS and EVIOCGABS ioctls.
-- [High] Kernel stack memory leak and KMSAN uninit-value bug in EVIOCSFF io=
-ctl for compat tasks.
+- [Critical] Adding a strict minimum =3D=3D 0 validation for ABS_MT_SLOT br=
+eaks backward compatibility by rejecting previously accepted configurations.
 --
 
-commit a43660053a9496b6179da4d914ad9411bf768ddb
+commit 12ce67adcfd7a78984b09163e522a86103b65a3c
 Author: Iv=C3=A1n Ezequiel Rodriguez <ivanrwcm25@gmail.com>
 
-Input: evdev: propagate EVIOCSFF copy errors correctly
+Input: uinput: align UI_ABS_SETUP validation with uapi docs
 
-Return the error from input_ff_effect_from_user() instead of always
-mapping failures to -EFAULT, so wrong buffer sizes surface as -EINVAL.
+This commit updates uinput to align with UAPI documentation by returning
+-EINVAL for out-of-range axis codes. It also adds a strict validation check
+to reject ABS_MT_SLOT configurations if the minimum value is not zero.
 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index c7325226cb866..405d43f840f3e 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -1175,8 +1175,9 @@ static long evdev_do_ioctl(struct file *file, unsig=
-ned int cmd,
-[ ... ]
->  	case EVIOC_MASK_SIZE(EVIOCSFF):
-> -		if (input_ff_effect_from_user(p, size, &effect))
-> -			return -EFAULT;
-> +		error =3D input_ff_effect_from_user(p, size, &effect);
-> +		if (error)
-> +			return error;
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index d32fa4b508fc5..e05c80182252d 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -424,6 +424,13 @@ static int uinput_validate_absinfo(struct input_dev =
+*dev, unsigned int code,
+>  	min =3D abs->minimum;
+>  	max =3D abs->maximum;
 > =20
->  		error =3D input_ff_upload(dev, &effect, file);
+> +	if (code =3D=3D ABS_MT_SLOT && min !=3D 0) {
+> +		printk(KERN_DEBUG
+> +		       "%s: abs[%02x] minimum must be 0\n",
+> +		       UINPUT_NAME, code);
+> +		return -EINVAL;
+> +	}
 
-[Severity: High]
-This is a pre-existing issue, but can this leak kernel stack memory and
-cause a use of uninitialized memory in compat mode?
+[Severity: Critical]
+Does adding this strict validation break backward compatibility for existing
+userspace applications?=20
 
-In evdev_do_ioctl(), struct ff_effect effect is declared on the stack
-without initialization. When a 32-bit compat userspace process calls the
-EVIOCSFF ioctl, input_ff_effect_from_user() copies 44 bytes into the 48-byte
-native struct, leaving 4 bytes uninitialized:
+Applications that historically passed non-zero minimum values for ABS_MT_SL=
+OT
+(which the kernel silently accepted and later clamped to 0) will now fail to
+initialize uinput devices, receiving -EINVAL during the UI_ABS_SETUP ioctl.
+This introduces a userspace regression by rejecting previously accepted=20
+configurations.
 
-drivers/input/input-compat.c:input_ff_effect_from_user() {
-    ...
-    if (copy_from_user(compat_effect, buffer,
-                       sizeof(struct ff_effect_compat)))
-    ...
-}
-
-The kernel then copies the full 48-byte struct to the heap in
-input_ff_upload():
-
-drivers/input/ff-core.c:input_ff_upload() {
-    ...
-    ff->effects[id] =3D *effect;
-    ...
-}
-
-If the input device is a uinput virtual device managed by a 64-bit daemon,
-could the UI_BEGIN_FF_UPLOAD ioctl copy the full 48-byte struct to the
-daemon, leaking the 4 bytes of uninitialized kernel stack memory?
-
-
-While reviewing this, I noticed a similar pre-existing issue in the same
-function with the EVIOCSABS and EVIOCGABS ioctls.
-
-[Severity: High]
-This is a pre-existing issue, but does this code leak kernel stack memory
-to userspace?
-
-In evdev_do_ioctl(), struct input_absinfo abs is declared without
-initialization. A malicious user can provide a small size in the EVIOCSABS
-ioctl command, causing only a partial copy and leaving the rest of the
-struct uninitialized:
-
-drivers/input/evdev.c:evdev_do_ioctl() {
-    ...
-    if (copy_from_user(&abs, p, min_t(size_t, size,
-                                      sizeof(struct input_absinfo))))
-    ...
-}
-
-The uninitialized stack memory is copied into the device's heap allocation:
-
-drivers/input/evdev.c:evdev_do_ioctl() {
-    ...
-    dev->absinfo[t] =3D abs;
-    ...
-}
-
-Can this memory subsequently be leaked to userspace when read back via the
-EVIOCGABS ioctl?
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831152156.1665=
-14-1-ivanrwcm25@gmail.com?part=3D1
+14-1-ivanrwcm25@gmail.com?part=3D2

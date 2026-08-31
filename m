@@ -1,122 +1,119 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A67BD4CCDF9
-	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 19:51:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788205910; cv=none; b=h9ThIOsX1eQoCjs/UZm8OVcNh323s4AGKluffPk3bRD8oc2xwpW0dEjIuxavhUlh9GPTX+9PsRMENdpz1LebkulRg1J3FE8TAzU0hk0lVfCffc4znXAvU0uGphrZlo1gW5L9zSDxlbizz1AV2L89h89+6+qojdjdiM96fgjz7cY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788205910; c=relaxed/simple;
-	bh=8GBQbMASl8cHfqRHybIZtP+fZITVL+GKBwJbBDhA8Vg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HKur5va35e3KsfNeaWHzXITd4YOfPtpawUdMZwo+ZIzshnDkwGVvAuZ3yAhKFsPX2fYeL1/E11OrQH4HXoyJfpC1p3cZUSlckqVsrXGEK3E1TYGE8mKEOh/nMp3k+cc3MImO3U/B6fGxDcX7zOtVd4jNyS0/84GXA5JCInsQHKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A+lWDkjr; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3701A3803DD
+	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 19:54:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.175
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788206086; cv=pass; b=pcst4pUEot8f9o/fHjyxemuQvAa4BCpvg3sCxn3LnZpSjrexWP8gg5FXlur1Z9p9J21i1Hal/oIvsf0oyRRMI3SLneLMS42Wi/3No2ktH0AEZ5mitaZxDfGbXRUQnGwwzHb/1KdC8FAcS1JcjWNoJYqBOqfitX5Q8OJO2IDW6/E=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788206086; c=relaxed/simple;
+	bh=+vxCOoBvQKdVqFqRYns1+6RMpaZQVpPY0ezVOH7CkKs=;
+	h=MIME-Version:In-Reply-To:References:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Tzyw/tVWVKGI0BDGLjtCrpukLZYEz+Ff/AqMgY9y0sNWfm9RW+mB2FbdxxcCMlq1VQuTLlW453lClGpzaejNbSPnMa1InPqJfpmwkwABw/xjIxRAh3wXidZl7FwawXvQgpzOqjO3lRTBcR8dsf2MfJLCEtQaYuBVcbhlQJv9dfg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qbaRv2Bl; arc=pass smtp.client-ip=209.85.167.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+lWDkjr"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-cc1cb472b76so3576810a12.0
-        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 12:51:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qbaRv2Bl"
+Received: by mail-oi1-f175.google.com with SMTP id 5614622812f47-4b28d7c729fso49907b6e.0
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 12:54:44 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788206084; cv=none;
+        d=google.com; s=arc-20260327;
+        b=qkvFSPUwVAY4rDDKtwdv7QaRwfHb/AbuP4Q3UaGzUPuzUubwx9IkQxJcgfJe/+ZRW3
+         1/OiDlqnK4s22obDAmrzvO7bd+ZGj9p3H7C2ROabuLUNGolpUOv4xVpMWqmM2k5w9PtJ
+         0eqnapaY4QyCOXE8X3lOP9js2qVPPh1kkk/mrUUym1sMwyOirkFe26ROG7E/7Q71ai5/
+         Lf6E5GEPXxGfP+kF28qkldalr52dLJ/861nlFja9Tp0cV5R8qYlETJtHTmsGuSypSJDJ
+         AKFRWgPYuQmXwDDPuMu6/qVKXLo2v9UbdwwNGbpKHhEMhf9dK1MOrRaQAxCyFMxvztSi
+         lbmg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:references:in-reply-to
+         :mime-version:dkim-signature;
+        bh=+vxCOoBvQKdVqFqRYns1+6RMpaZQVpPY0ezVOH7CkKs=;
+        fh=UcC90ngqAqc4GNuOhC/QSbXA65W4AiKPQffaGXIAR9M=;
+        b=VZ/2FwfgzjNKu/DVRCKL/UjiqAD6nfP+GdRJ0/flrT9D77Q/KpO5u7UGaqmJPX6sGR
+         d4ZKyEML2DLbwCwG/d65wQeaCTpEKsyRlM783pHnAM3NycQn4eQf6NSeztgcOW16xy2i
+         U1tNFX+ON40Wn06IE/JRnHb+wHpHadFfZnx+LzVIJNl9ZYChdzgeG8BV8iP/64eE25E0
+         kZ2X/mEGmBIaHjF24X1T1HEibjbZOgwALn13aKCoCZykjMCcleV9JFiCfFuYityONy3r
+         5KUHkSGeQ5SMfKCJL+j+sC2JyfjventMv2wPIFUhMVcY1xafdWDekLaUwd/gIM+rYR78
+         Xzhg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788205908; x=1788810708; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=WSN6irl0QN6cVOL+8O5NBiukOolBZFdP9haTkLxleH0=;
-        b=A+lWDkjrLPzJmkreVb5+3hzX0T4ifNL5yLAcaS2kCOF5KiSmK40ch3/kCc1I2e67u8
-         9zqGhyLVUtn2fAKtEoQ+awd2mnejfDsOJWEWa0DlNeC8rFGNDkK0ULU2NaTbeQsKenvE
-         0B+eBr8/poDFiOK3JBxRUdK/vtBzRUrerOQWZL/THFLHfsckYDByMXmE4+ORHwFu3wo0
-         +JDrXTj6oK9OyjCOYUcqAaBBGn5QhTtxxoFoI+RFRqLDz/myilQau6X6DCFQQxnLJrkC
-         HUadymq4ZtGvoG6AUlap6sG1TqmMxcVN+i2f+jfhezFw4Fr7q5lE4e7ZpLZxUgDqL0OF
-         bNHw==
+        d=gmail.com; s=20251104; t=1788206084; x=1788810884; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:references
+         :in-reply-to:mime-version:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=+vxCOoBvQKdVqFqRYns1+6RMpaZQVpPY0ezVOH7CkKs=;
+        b=qbaRv2Bl7If3vIcFikYdZ30jmkjpwFq+lylihpg1dp3PChABqXpTofdvKcp5nslCE5
+         xnkVsL9Q8jPVDntlLiCWCh8cnk2tTXpXZmta4u5ZC7nfr0kPc+UxyPHd/ZcDlWpETzgt
+         7H6C/+q95NLZb0wlMKEVyJxjsjT0S3vAeYuSViTCWdr5/JksJEAx63Uw+utXKhJhX9cV
+         FEr39kTQkarHU3KLyhJxVzvG+cKlRIBhqIP/WG7m7ViV8BQer8RVy1uxHO9YNrL7nB5r
+         hrgzXZbBW2SsAlTSOj6grYR0581pRDpIaiV34Jj5bsRyneweqsQYahQGpl+Va8Jhw33Q
+         tMgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788205908; x=1788810708;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=WSN6irl0QN6cVOL+8O5NBiukOolBZFdP9haTkLxleH0=;
-        b=OpOxbY1zTlDBxB+mERy282Q9A316KAhIhJWDMyxO123arWCOiSEDdMQKdU6yCySiuf
-         oyOOcb7htK43o5VM5xxHWRLjHcCTf8kkBNZEm9k6vC/WLxNgGcbVAnSwGHEl8bZNhAg2
-         IbbFjyL6xvcBV1kuz1cRf9GTuqKsTrmJqOBRzLohc0J61PlLeeev1ywx5pGlHVCYNiN3
-         u+Nf3WWySlQd5C/Q9XlorJ2k6A6TRNzSIIYtN8APuHflYTd1rvFHSPWPj6pTtyMMGh72
-         h//0HeLv7BXBC8xNgUGNKoinOsHMyKMCmF8YkIO3rN18xG4TXZpPomzO1QhMeZNiuJdJ
-         dCnA==
-X-Gm-Message-State: AFuF++nbLeJnkeCxdshk2+coayKxD/76NRib2nYe2NBpFBJHuk9VZeK0
-	e/6auxUyfIa4cwGPJtCjocxV8VJsAbOv+Gr/wwUmA55BmlyyvBADFY3o3eOXSo1S
-X-Gm-Gg: AR+sD10q6kYDU6+HM/BJ3AfpfmHWWx9adexurtfQRgzvWGxZyMmdw4afPwU7Otyger8
-	mZXg3LWplAH4Gg2u8ql9Vzxm9EqTo5V+dPajVJMc8Tz409cYLG5A76fyA0PXAZEWrNVkI6Z3PT/
-	GbtbUr2vKF+cjgX+EsznCk/JsVB5c63w2wsBN9nOHrfPrjRUhnjqZxIof/prjIZyaZBfOMoEnZS
-	4QzT67ZlBIjSR07Kl4cLAS7XIxk2mcYPWLMeAOxezMKlDu4NnY/DBaB32c9wU89gn0tLNVRzSb5
-	0VIK36DkxhyrbXrrwKiCAj9vbR5e90Mp7xoeJebAepenMMsuVHRk8BYzoPBxiKenUTNhNLlTON9
-	2W2ewy5qLqWf8DClHz9GYoWk8NUo8IJHw7fvJG6hrRNnVLetfHeOSs7kyB84eYa82+gcunO6miV
-	Ja7N2PCB5EJCb0gUgi1XxFrb8aUxMbFc+CDPq7Do6NTi1xR/7EWej5z8y6xtVeHTPYu8yuNZEhP
-	9Gq67DW7mFs4Va6HnfvmkXmb+3u5g==
-X-Received: by 2002:a05:6a20:9f90:b0:3cc:9620:5816 with SMTP id adf61e73a8af0-3d266571fbemr49712922637.8.1788205907655;
-        Mon, 31 Aug 2026 12:51:47 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:15e9:e9f4:23e3:4f32])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3286f7bc825sm37387665eec.9.2026.08.31.12.51.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Aug 2026 12:51:47 -0700 (PDT)
-Date: Mon, 31 Aug 2026 12:51:44 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RESEND PATCH] Input: tsc2007 - Read "ti,poll-period" as u32
-Message-ID: <apXaYJhFnC0UCHb0@google.com>
-References: <20260831194352.1185860-1-robh@kernel.org>
+        d=1e100.net; s=20251104; t=1788206084; x=1788810884;
+        h=content-type:cc:to:subject:message-id:date:from:references
+         :in-reply-to:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=+vxCOoBvQKdVqFqRYns1+6RMpaZQVpPY0ezVOH7CkKs=;
+        b=fsHDEEjcL9AAbdPLmXVEgJYnucqcW89OFdcHj2d342c36FHMqQ5qCLtUsr2gUVGVlw
+         DFCOWxp51uc6hYRMEwqzs0LQosCWSJ/dqHrCqaqY532yKXz8bMrgQVoL1HE4TnHA9BW0
+         sx7JzdxuWulUGJ8XV84/dIb+e1v/8hbNLKb+CKOHugnQMUNGJftcRrvRdo49xHCZTnJ+
+         3lQvqhgO5a/scv+HzMGLy7bkxNISffGHQRw25Bkk6yqTMJWFn46XH/uWclaA8TzSEdRp
+         wMnUjz4InIgGaOU523Q0J4cG8ddohJFuhXnIEp+LPYLAsQV6R5vQmoAkQAIy3+rfm/30
+         qprA==
+X-Gm-Message-State: AFuF++lAvT5LK05D+Q72W0kkFDQSEwM2newW64PLX78c+5GUeeElKbVb
+	tZ54TJysKipiPC0/zTEF+7tK++aa5fVP4T56+lX4+fLCgNsU0fZzyaA6paJOh3L3BgNFi6WYLyg
+	XnMHtqElpFsyWcOEyWLqmkedBvxhYKcM=
+X-Gm-Gg: AR+sD11Ko5o+eHgSwMbOPlGST29svKAh1oNcm2aT6v2O2tSh2bd5acm7RkU9PCUYPoA
+	drdT5ciVgImdEdENGUG9luFV4dLexm8Jn0l7dXOwBqq0ediXyaXl8egkCiqnug9QN1Fwu2GgIZ5
+	yAOZl0PvLmRsgSfYtayCA5kj+rPuwzwL7T4qGnFpTJQpunR4FuGPpr4OrzlDW3uSjWyptm7iIjY
+	txj8QOocJzAfEKs+0EO1OT8hGoKT+6XX1c99NzdzcjxIQcpe6Ik2Ppx9Oqkkm42tX2X2bDZ+cGl
+	C3hAgSb14UOp/fOYGbvBHTs+7SY5dLuifc3Di2Ei93Lw7Ox7kbYbyj78sgvvOQzkK7s/hDwbqQO
+	mrI5NqqhmI4jeUIG8kUj8ff1k
+X-Received: by 2002:a05:6808:15a1:b0:4b2:8e24:799 with SMTP id
+ 5614622812f47-4b39832064amr27707262b6e.17.1788206083778; Mon, 31 Aug 2026
+ 12:54:43 -0700 (PDT)
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Mon, 31 Aug 2026 12:54:43 -0700
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Mon, 31 Aug 2026 12:54:43 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260831194352.1185860-1-robh@kernel.org>
+In-Reply-To: <apLOXaWFZ8ueIEAm@google.com>
+References: <apLOXaWFZ8ueIEAm@google.com>
+From: Maurizio Casciano <mauriziocasciano7@gmail.com>
+Date: Mon, 31 Aug 2026 12:54:43 -0700
+X-Gm-Features: AcwNN1WYmwScQQ-E8__J5Z0hveXA-w3_zLjxbl_iackDpkTfBKU5rR8Vf_KpjDw
+Message-ID: <CAO7O_xi_egv9oa6ZSWgka6B9nExHeR2qTdix5g7QMcwqNxDA0Q@mail.gmail.com>
+Subject: Re: [PATCH] Input: drv260x - switch to using fsleep()
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Rob,
+Hi Dmitry,
 
-On Mon, Aug 31, 2026 at 02:43:51PM -0500, Rob Herring (Arm) wrote:
-> The "ti,poll-period" property is documented as a normal uint32 cell.
-> The driver used a u64 helper, which makes the helper type disagree with
-> the schema even though the stored value is still small.
-> 
-> Read "ti,poll-period" with the u32 helper matching the documented DT
-> cell size.
-> 
-> Assisted-by: Codex:gpt-5-5
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
->  drivers/input/touchscreen/tsc2007_core.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
-> index e4d7da0f4434..e2f49b37e18c 100644
-> --- a/drivers/input/touchscreen/tsc2007_core.c
-> +++ b/drivers/input/touchscreen/tsc2007_core.c
-> @@ -221,7 +221,6 @@ static int tsc2007_get_pendown_state_gpio(struct device *dev)
->  static int tsc2007_probe_properties(struct device *dev, struct tsc2007 *ts)
->  {
->  	u32 val32;
-> -	u64 val64;
->  
->  	if (!device_property_read_u32(dev, "ti,max-rt", &val32))
->  		ts->max_rt = val32;
-> @@ -237,8 +236,8 @@ static int tsc2007_probe_properties(struct device *dev, struct tsc2007 *ts)
->  	if (!device_property_read_u32(dev, "ti,fuzzz", &val32))
->  		ts->fuzzz = val32;
->  
-> -	if (!device_property_read_u64(dev, "ti,poll-period", &val64))
-> -		ts->poll_period = msecs_to_jiffies(val64);
-> +	if (!device_property_read_u32(dev, "ti,poll-period", &val32))
+I tested this patch unchanged on a Lenovo Yoga Book YB1-X91L with
+both onboard TI DRV2604 devices (ACPI DRV2604:00 and DRV2604:01).
 
-Do we need to handle -EOVERFLOW and keep compatibility with device trees
-that used /64/ to match driver implementation? Or we expect that there
-were/are none?
+The test kernel was built from commit
+e5e85128bb7ce1bda7cfd7055be9821ac42b8108 and reported
+7.2.0-yogabook-20260831-202310. The validation covered:
 
-Thanks.
+- 20 open/upload/close cycles on each device;
+- strong and weak FF_RUMBLE effects on both devices;
+- three s2idle suspend/resume cycles;
+- repeated FF_RUMBLE playback on both devices after every resume.
 
--- 
-Dmitry
+All operations completed successfully, and the kernel log contained no
+drv260x, I2C, regulator, or workqueue errors related to these devices.
+
+Tested-by: Maurizio Casciano <mauriziocasciano7@gmail.com>
+
+With Best Regards,
+Maurizio Casciano

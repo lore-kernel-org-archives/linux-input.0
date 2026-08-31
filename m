@@ -1,256 +1,199 @@
-Received: from mta1.migadu.com (out-110.mta1.migadu.com [95.215.58.110])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06744368D66
-	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 16:42:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECD09439F78
+	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 17:39:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788194535; cv=none; b=CoaLYuy0vJ1nQer3H/xEEjAdpp8BnvDP3Z0oWruPWCEiAUS30WUwfIjfWHCG7uL7XsBYHPMF4sis0Cc3H1GGZfooxMKr3+sqT0KcAWxedTTzIj5sa8BEjY4yzhvRxv/ObxQODdwQBPshiTfmqrvJR0s1kJ/7hDzf4EDvT4k8WLE=
+	t=1788197976; cv=none; b=CwTeySJ8udtKCX4FfS2VbXP1RjhjFTQ/cfC1R/tKo6tp++BWS3sEmpn4dQJDnRGMNyw7gIFgUzg7wilsncxfcRHlJioP9AeZGecIa9jDoyQORi2m7McbmWOEpdoCZCaWL4rjkxJe5C0jtuRZwm815Db3tfa7mgVGHQXi4Ujbas8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788194535; c=relaxed/simple;
-	bh=tdHcWsi0AaT2ukB84G+9Y6w92gG5pzB05rU1WCPqkkM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Q94pkPjVUdhUMsphT2DbMltCQ4orXQYIsXDcKCiiDJb5j95lRfZ8t7G6JXJYzkFNWgwk4eBNJYII9KY6lt0uWQCgEkY4dDuK0PH37HXJqzEeDKucMNCeHRYw8eblyKoCmYBJCBjpZo/WCDtxQIZ635MS+fEbxasJSd67r9z2Tno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=e/bgbYZO; arc=none smtp.client-ip=95.215.58.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1788197976; c=relaxed/simple;
+	bh=w0F21NhBP1DaAH5916IeI0CcqGRcA8IW2Hq4/2ZB2F0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=U8ZRKGE0P3+0NfOjYLO5hBMkdEsejfq1O9sdjmbWWrt4b5+WsKaoo1dkS7dFUoMD16m5+srHG4/L4C7186J119tu/DwAgoge4oORZCNYlrcssvCmRR8kKmZtbUQYCjXi7ztnEi5fs34FK4UBtYfAoCAmHg+OE12sJQDJMku7J/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cHIweGrp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="e/bgbYZO"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=tdHcWsi0AaT2ukB84G+9Y6w92gG5pzB05rU1WCPqkkM=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788194531; v=1; x=1788799331;
- b=e/bgbYZO3CtzoAtgTXgEkj6oh2lTvqcDFoMARhIVTMa4ssFR6D4PLt7MQEkW9IrJmwE0z+C4
- odgP3NjRw7WJkVSY7SGEJOryYgpQ4NXmvlRXwTLrOzLZbMn1gx09HA0uSR3fBUhYEc6sY5zdBbN
- gbjGIq9NJ0c8xKQ0098yIpUo=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 26a930ce5f2a0f09;
-	Mon, 31 Aug 2026 16:42:01 +0000
-X-Mizu-Trace-ID: 26a930ce5f2a0f09
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <46079ae8-8b8f-41b5-8cf6-0fe1664b0848@linux.dev>
-Date: Mon, 31 Aug 2026 10:41:55 -0600
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cHIweGrp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D2E21F000E9;
+	Mon, 31 Aug 2026 17:39:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788197974;
+	bh=I2/qR8kljNIbjrXoGPeydEAN/oGrI5VDK/6Xz4XJfx8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=cHIweGrpdvcBt74t32XXi8x4c5AW5aAydoJ38lT+dBr1dpdcb8XZusfajdhJUMhdi
+	 KsqHrWrdtHDzLli9/lz6CVJPBCoxQk2lkPrsWw801zIFwLkR0hAfUlO7eoPvzfSK6O
+	 MG3po4ldyOFcchyvHynbfYZnLvxjS/LTv6SAMP4j3RS8i6cbL16NPGecLz6W2F0uLu
+	 tFSQzOn14WFmvJZyRCm4spYZ7xZlDe4aUPfBnON3xsylySMcxG+h5n2ccVVRTAy1Es
+	 6yQgLINTyEqDMTD4hS3ONW8e5lKDaFAyWIQEueKcAFBp3oZdz1N1W9n0kAVOP1A8g4
+	 V7yveqP0i/Nmg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH AUTOSEL 6.18-6.1] HID: hidpp: fix potential UAF in
+ hidpp_connect_event()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sasha Levin" <sashal@kernel.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260831133314.4125787-633-sashal@kernel.org>
+References: <20260831133314.4125787-1-sashal@kernel.org>
+ <20260831133314.4125787-633-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 31 Aug 2026 17:39:34 +0000
+Message-Id: <20260831173934.8D2E21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] HID: hyperv: add KUnit coverage for device info
- bounds
-To: Michael Bommarito <michael.bommarito@gmail.com>,
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- kys@microsoft.com, Haiyang Zhang <haiyangz@microsoft.com>,
- Wei Liu <wei.liu@kernel.org>
-Cc: Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
- linux-input@vger.kernel.org, linux-hyperv@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20260710022854.3739558-1-michael.bommarito@gmail.com>
- <20260710022854.3739558-3-michael.bommarito@gmail.com>
-Content-Language: en-US, en-ZM
-From: "Nico Pache (Red Hat)" <nico.pache@linux.dev>
-In-Reply-To: <20260710022854.3739558-3-michael.bommarito@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
+Pre-existing issues:
+- [Critical] Force feedback initialization in `hidpp_ff_init()` creates a T=
+OCTOU race that leads to a guaranteed NULL pointer dereference in `input_ff=
+_upload()`.
+- [Critical] Missing `hid_hw_stop()` and resource cleanup in the `probe()` =
+error path for G920 devices leads to a catastrophic Use-After-Free.
+- [High] Concurrent access to `hidpp->input` between `hidpp_connect_event()=
+` error path and `hidpp_raw_event()` leaves a race window leading to a Use-=
+After-Free.
+- [High] Unhandled permanent Use-After-Free for non-delayed initialization =
+devices if `hidinput_connect()` fails.
+- [High] Missing `cancel_work_sync(&hidpp->reset_hi_res_work)` in the `hidp=
+p_probe()` error path leads to a Use-After-Free if the work was scheduled.
+--
 
-On 7/9/26 8:28 PM, Michael Bommarito wrote:
-> Add KUnit coverage for Hyper-V synthetic HID initial device-info parsing.
-> The tests cover zero bLength, a valid descriptor plus report descriptor,
-> and a malformed report descriptor length that exceeds the received
-> message.
-> 
-> The same-translation-unit test uses a KUnit-only ACK bypass so parser
-> coverage does not require a live VMBus channel.
-> 
-> Assisted-by: Codex:gpt-5-5-xhigh
-> Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
-> ---
+commit 4c51abc31c5c6d9a8be9e395178ab70d3b017d36
+Author: Jiri Kosina <jikos@kernel.org>
+Subject: HID: hidpp: fix potential UAF in hidpp_connect_event()
 
-Hi this is breaking builds when compiling the kunit framework as modules.
+This commit attempts to fix a potential use-after-free (UAF) by setting
+hidpp->input to NULL before calling input_free_device() in the error
+path of hidpp_connect_event().
 
-See below.
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
+hidpp.c
+> index 5e763de4b94fd..bc8761ed41a1c 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -4276,6 +4276,7 @@ static void hidpp_connect_event(struct work_struct =
+*work)
+> =20
+>  	ret =3D input_register_device(input);
+>  	if (ret) {
+> +		hidpp->input =3D NULL;
 
->  drivers/hid/Kconfig      |  10 ++++
->  drivers/hid/hid-hyperv.c | 117 ++++++++++++++++++++++++++++++++++++---
->  2 files changed, 120 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index c1d9f7c6a5f23..41ca48d9adc9e 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -1183,6 +1183,16 @@ config HID_HYPERV_MOUSE
->  	help
->  	Select this option to enable the Hyper-V mouse driver.
->  
-> +config HID_HYPERV_MOUSE_KUNIT_TEST
-> +	bool "KUnit tests for Hyper-V mouse driver" if !KUNIT_ALL_TESTS
+[Severity: High]
+This is a pre-existing issue, but does this still leave a TOCTOU race windo=
+w?
 
-This should either be tristate (instead of bool) or...
+hidpp_populate_input() assigns the allocated input to hidpp->input before
+calling input_register_device(), exposing it to concurrent raw hardware
+events processed in SoftIRQ (like wtp_raw_event()).
 
-> +	depends on KUNIT && HID_HYPERV_MOUSE
+If a concurrent SoftIRQ thread evaluates !hidpp->input just before it is
+set to NULL here, will it subsequently dereference the freed pointer?
 
-... this should be 'KUNIT=y'
+>  		input_free_device(input);
+>  		return;
+>  	}
 
-Im not familar with this test so I cant judge what is right. Can this test run
-as a module or does it have to be builtin?
+[Severity: High]
+This isn't a bug introduced by this patch, but does this leave a permanent
+dangling pointer if registration fails?
 
-Cheers,
--- Nico
+drivers/hid/hid-logitech-hidpp.c:hidpp_input_configured() {
+	...
+	if (!hidpp)
+		return 0;
 
+	hidpp_populate_input(hidpp, input);
+	...
+}
 
-> +	default KUNIT_ALL_TESTS
-> +	help
-> +	  Builds unit tests for the Hyper-V synthetic HID driver.
-> +	  These tests exercise the initial device-info parser with
-> +	  malformed host-provided HID descriptors and are only useful
-> +	  for kernel developers running KUnit.
-> +
->  config HID_SMARTJOYPLUS
->  	tristate "SmartJoy PLUS PS2/USB adapter support"
->  	help
-> diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-> index fd90196430e29..6579bd19da13a 100644
-> --- a/drivers/hid/hid-hyperv.c
-> +++ b/drivers/hid/hid-hyperv.c
-> @@ -13,6 +13,9 @@
->  #include <linux/hiddev.h>
->  #include <linux/hyperv.h>
->  
-> +#if IS_ENABLED(CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST)
-> +#include <kunit/test.h>
-> +#endif
->  
->  struct hv_input_dev_info {
->  	unsigned int size;
-> @@ -240,13 +243,18 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
->  	ack.ack.header.size = 1;
->  	ack.ack.reserved = 0;
->  
-> -	ret = vmbus_sendpacket(input_device->device->channel,
-> -			&ack,
-> -			sizeof(struct pipe_prt_msg) +
-> -			sizeof(struct synthhid_device_info_ack),
-> -			(unsigned long)&ack,
-> -			VM_PKT_DATA_INBAND,
-> -			VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
-> +	if (IS_ENABLED(CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST) &&
-> +	    !input_device->device) {
-> +		ret = 0;
-> +	} else {
-> +		ret = vmbus_sendpacket(input_device->device->channel,
-> +				       &ack,
-> +				       sizeof(struct pipe_prt_msg) +
-> +				       sizeof(struct synthhid_device_info_ack),
-> +				       (unsigned long)&ack,
-> +				       VM_PKT_DATA_INBAND,
-> +				       VMBUS_DATA_PACKET_FLAG_COMPLETION_REQUESTED);
-> +	}
->  
->  	if (!ret)
->  		input_device->dev_info_status = 0;
-> @@ -635,5 +643,100 @@ static void __exit mousevsc_exit(void)
->  MODULE_LICENSE("GPL");
->  MODULE_DESCRIPTION("Microsoft Hyper-V Synthetic HID Driver");
->  
-> +#if IS_ENABLED(CONFIG_HID_HYPERV_MOUSE_KUNIT_TEST)
-> +static struct mousevsc_dev *mousevsc_kunit_alloc_dev(struct kunit *test)
-> +{
-> +	struct mousevsc_dev *input_dev;
-> +
-> +	input_dev = kunit_kzalloc(test, sizeof(*input_dev), GFP_KERNEL);
-> +	if (!input_dev)
-> +		return NULL;
-> +
-> +	init_completion(&input_dev->wait_event);
-> +
-> +	return input_dev;
-> +}
-> +
-> +static void mousevsc_device_info_zero_blength(struct kunit *test)
-> +{
-> +	struct synthhid_device_info *info;
-> +	struct mousevsc_dev *input_dev;
-> +
-> +	input_dev = mousevsc_kunit_alloc_dev(test);
-> +	KUNIT_ASSERT_NOT_NULL(test, input_dev);
-> +	info = kunit_kzalloc(test, sizeof(*info), GFP_KERNEL);
-> +	KUNIT_ASSERT_NOT_NULL(test, info);
-> +
-> +	info->hid_descriptor.bLength = 0;
-> +
-> +	mousevsc_on_receive_device_info(input_dev, info, sizeof(*info));
-> +
-> +	KUNIT_EXPECT_EQ(test, input_dev->dev_info_status, -ENOMEM);
-> +}
-> +
-> +static void mousevsc_device_info_valid_descriptor(struct kunit *test)
-> +{
-> +	struct synthhid_device_info *info;
-> +	struct mousevsc_dev *input_dev;
-> +	u8 *report;
-> +
-> +	input_dev = mousevsc_kunit_alloc_dev(test);
-> +	KUNIT_ASSERT_NOT_NULL(test, input_dev);
-> +	info = kunit_kzalloc(test, sizeof(*info) + 4, GFP_KERNEL);
-> +	KUNIT_ASSERT_NOT_NULL(test, info);
-> +
-> +	info->hid_descriptor.bLength = sizeof(struct hid_descriptor);
-> +	info->hid_descriptor.rpt_desc.wDescriptorLength = cpu_to_le16(4);
-> +	report = ((u8 *)&info->hid_descriptor) + info->hid_descriptor.bLength;
-> +	memset(report, 0x42, 4);
-> +
-> +	mousevsc_on_receive_device_info(input_dev, info, sizeof(*info) + 4);
-> +
-> +	KUNIT_EXPECT_EQ(test, input_dev->dev_info_status, 0);
-> +	KUNIT_EXPECT_EQ(test, input_dev->report_desc_size, 4);
-> +	KUNIT_EXPECT_MEMEQ(test, input_dev->report_desc, report, 4);
-> +
-> +	kfree(input_dev->hid_desc);
-> +	kfree(input_dev->report_desc);
-> +}
-> +
-> +static void mousevsc_device_info_report_desc_oob(struct kunit *test)
-> +{
-> +	struct synthhid_device_info *info;
-> +	struct mousevsc_dev *input_dev;
-> +	u8 *report;
-> +
-> +	input_dev = mousevsc_kunit_alloc_dev(test);
-> +	KUNIT_ASSERT_NOT_NULL(test, input_dev);
-> +	info = kunit_kzalloc(test, sizeof(*info) + 8, GFP_KERNEL);
-> +	KUNIT_ASSERT_NOT_NULL(test, info);
-> +
-> +	info->hid_descriptor.bLength = sizeof(struct hid_descriptor);
-> +	info->hid_descriptor.rpt_desc.wDescriptorLength = cpu_to_le16(64);
-> +	report = ((u8 *)&info->hid_descriptor) + info->hid_descriptor.bLength;
-> +	memset(report, 0x42, 8);
-> +
-> +	mousevsc_on_receive_device_info(input_dev, info, sizeof(*info) + 8);
-> +
-> +	KUNIT_EXPECT_EQ(test, input_dev->dev_info_status, -EINVAL);
-> +
-> +	kfree(input_dev->hid_desc);
-> +}
-> +
-> +static struct kunit_case mousevsc_test_cases[] = {
-> +	KUNIT_CASE(mousevsc_device_info_zero_blength),
-> +	KUNIT_CASE(mousevsc_device_info_valid_descriptor),
-> +	KUNIT_CASE(mousevsc_device_info_report_desc_oob),
-> +	{}
-> +};
-> +
-> +static struct kunit_suite mousevsc_test_suite = {
-> +	.name = "hid_hyperv_mouse",
-> +	.test_cases = mousevsc_test_cases,
-> +};
-> +
-> +kunit_test_suite(mousevsc_test_suite);
-> +#endif
-> +
->  module_init(mousevsc_init);
->  module_exit(mousevsc_exit);
+hidinput_connect() allocates input_dev and calls .input_configured, which
+unconditionally sets hidpp->input =3D input here.
 
+If input_register_device() then fails inside hidinput_connect(), the core
+branches to out_unwind and frees the input device.
+
+However, hid_connect() may still return success (e.g., if hidraw binds
+successfully), allowing probe to finish. hidpp->input is never cleared and
+remains a dangling pointer, accessed on the next hardware event.
+
+[Severity: Critical]
+This is a pre-existing issue, but does this FF initialization create a TOCT=
+OU
+race leading to a NULL pointer dereference?
+
+drivers/hid/hid-logitech-hidpp.c:hidpp_probe() {
+	...
+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
+		struct hidpp_ff_private_data data;
+
+		ret =3D g920_get_config(hidpp, &data);
+		if (!ret)
+			ret =3D hidpp_ff_init(hidpp, &data);
+	...
+}
+
+hid_connect() registers the input device, making it exposed to userspace.
+Then hidpp_ff_init() is called, which calls input_ff_create() setting the
+EV_FF bit.
+
+If a subsequent memory allocation in hidpp_ff_init() fails, it returns
+-ENOMEM leaving ff->upload as NULL. Because the device is already
+registered, userspace can open it and issue the EVIOCSFF ioctl, which
+will blindly execute ff->upload(dev, effect, old).
+
+[Severity: Critical]
+This is a pre-existing issue, but does this bypass the error cleanup labels
+and skip hid_hw_stop() when G920 initialization fails?
+
+drivers/hid/hid-logitech-hidpp.c:hidpp_probe() {
+	...
+		if (ret)
+			hid_warn(hidpp->hid_dev,
+		     "Unable to initialize force feedback support, errno %d\n",
+				 ret);
+	}
+
+	/*
+	 * This relies on logi_dj_ll_close() being a no-op so that DJ connection
+	 * events will still be received.
+	 */
+	hid_hw_close(hdev);
+	return ret;
+	...
+}
+
+When ret is non-zero, it returns directly here. This leaves the device
+active in the HID subsystem, processing hardware interrupts, while the
+driver's devm resources are freed by the core, leading to a Use-After-Free.
+
+[Severity: High]
+This is a pre-existing issue, but does this error path fail to cancel
+reset_hi_res_work?
+
+drivers/hid/hid-logitech-hidpp.c:hidpp_probe() {
+	...
+hid_hw_start_fail:
+	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
+	cancel_work_sync(&hidpp->work);
+	mutex_destroy(&hidpp->send_mutex);
+	return ret;
+}
+
+hidpp_probe() calls hid_device_io_start(), enabling incoming hardware event=
+s.
+A battery online event can trigger hidpp_raw_hidpp_event() to schedule
+reset_hi_res_work.
+
+If a subsequent step in probe (like hid_connect()) fails, the error cleanup
+path cancels hidpp->work but misses hidpp->reset_hi_res_work. The hidpp
+struct is then freed by devres, leaving the scheduled work item pointing to
+freed memory.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831133314.4125=
+787-633-sashal@kernel.org?part=3D1

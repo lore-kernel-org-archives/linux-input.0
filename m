@@ -1,94 +1,87 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E0536212C
-	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 18:42:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A707D37C10C
+	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 19:16:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788201752; cv=none; b=dYK/68IxGiJ50DdlxkhrBwko9oFLFknuxT5qDRBLHAgKVTg25S0XVuQzpNmuWVy4sdMRjzga7rdaEkwymmJTx08n5MDi50QFGAjZqw82S+XEwRCA+Ys5Kd75t7UC50i40xxzSpvGmvhnAkllSs/7y44gl96lrm0mthtB6LmSs+A=
+	t=1788203808; cv=none; b=U4u3omozRtEU9jt7bfyKyB5OpDVeEkHHyu2hV/a0MBd7F+ecHz5j9Bvgu0FwjJo3wlTeIrNDaRffQcq33PlRfznhuSwZ94DR63XUgNeUsALDJev0khzhDMMLS5EIKQBcH6UYAd8iFge7IPASQyFFOqq6mOgM69upg2AjDWlBDtI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788201752; c=relaxed/simple;
-	bh=kzo44AwYWj6Cq8Y8YcAc1b5Yp9P739kug4D3j/NhuCc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=T4KJwHE0a/L1SPfFWRDzGEwS4NhMZcMK26lefWNFkCQjRYZG4gPt+8clUQ7ZxpdlnVZMnDG2Dk6EDfv7giNxLa0ASdnjqJ+7TGiEpw05MRYu3jOjEjGYuB9DxrLJAr+3w+nWz9aGJe0xQLdU6x5wrs0k3voyvsUWdoO8WaeCSI8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nWqTpIeV; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788203808; c=relaxed/simple;
+	bh=1l9Qnwy6fOAZnRDv4fKE40BBxLJirspE0kOwbtTf1+s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JrLIdBghL+hp8xwy3C/0+osEp9BN1nfIwdqPljuRldKlESXQHvn+SfyA4PQnIpeGiDJ6MCPI9CI1Dq/6rMDbz4TC8hBby1aTzSeiH07VcJ7lb1qFAirabeZx2/+6P3xyKCkY/CreuCBBoZyUQaCS5jKI6xsUUlecjuWKGmuDXQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c73zA0c2; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nWqTpIeV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 649881F000E9;
-	Mon, 31 Aug 2026 18:42:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788201750;
-	bh=y0t5uoF/JC+j8gWi+Q9qMHXClH3eeyhFdVojV4nU44w=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nWqTpIeVUUUTMq78lEC3xIo6/3td2uMxyzzyNeMIXnGq3NGsVskuCxecA++N+Eu8O
-	 rsLzIX/g/FToZsJ0Z6BTliqPfeUWJHe7arSk5R5J2ZTuLciblz4QGTSwwxfWE4swa3
-	 cJhmASuMHwW6zYqBpwDT915Dr1NL+wLwrPJRDge84kGH/cxSZQ1WW2wBwQIF45XRxN
-	 jupdHnSIoRRdFjye9kp9TkTqOZWvzXl7BmKuhX7YMgTU7aU86VRjtoafOGi71W8q1z
-	 VQBD4FbCr0J4u65QOsYlWQ1bzkfeDF40/A6UqjO4w4pDoQ6EMWwmUdcuc1OabZN0sX
-	 TXmOtD8evJDyw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 2/2] Input: uinput: align UI_ABS_SETUP validation
- with uapi docs
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?SXbDoW4gRXplcXVpZWwgUm9kcmlndWV6?= <ivanrwcm25@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260831152156.166514-3-ivanrwcm25@gmail.com>
-References: <20260831152156.166514-1-ivanrwcm25@gmail.com>
- <20260831152156.166514-3-ivanrwcm25@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 31 Aug 2026 18:42:29 +0000
-Message-Id: <20260831184230.649881F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c73zA0c2"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2d5335cf904so37371745ad.2
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 12:16:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788203807; x=1788808607; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=1l9Qnwy6fOAZnRDv4fKE40BBxLJirspE0kOwbtTf1+s=;
+        b=c73zA0c2imTcdYHBeUrTbd6ciNNKrN5ya7R5oOBJagOWAZPJ13nFiI2MaHTIbaLNHA
+         8W+rKMjeXEkxRGmuAuUpL3NxBXUGl12FQuN+5ixncPGOKzkIFyYvoJ5aicBkp39WSc/s
+         4BqPdYivxAQlI0BVMTYUNBitEnIHAVjuE5B9/S0jtohLbIwr9VtdlAqTQ6d+fRILLC35
+         ms24rpjYUqXg04wOhqBp9Rb9tZvk88PLtCOxWLg6WFkz+1t00teBNFLT9ZMrIUBqJ2KY
+         30ONvJyVTCs2toO5l3Pqq1V1duq0e+0k7tq3dCa0nQf0pYwyNqfmL/5FmSVO/OEK1YS/
+         wJFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788203807; x=1788808607;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1l9Qnwy6fOAZnRDv4fKE40BBxLJirspE0kOwbtTf1+s=;
+        b=rDcd++C1lC+YUdckzZPmRvXlrzYYzOXgCqqFdHl535uSvSC3UFXe44is6N7oDHHacq
+         6DYFtyNCSwWnL9S9n5tKKEeqTOylxB5ihBjzF66JMyHQV6eWGCt6qjqVvMJQ1fCE1cyz
+         9ImsvGE03UwW8G3dRz+Hd23woAeyt/ufsD+BlcxVtgeKpDXwbgN8VZLMvXtGfyoa9tmg
+         +KHgDsqH0wWQMRyUOeZl1htY9CP0Gbj77Xe77Zo84ETG19l56cFCKSV3lHAZ3dMvLkSM
+         Pn9pQ3N8VNFIT0J7ugjtmT7TltCOs2pU4YuDRJSviEqZIjMnEWL0TV8tv1D/x+nqCDfn
+         rHbw==
+X-Gm-Message-State: AFuF++n1qB+XC+rd5xHqRSJH0lR9okfAt4UOa4UV2iX7+2HDyw8SkaF/
+	zq0vhQUsOM+ZNQdgt/tLWrRmf2HmDIAwSiiDLKYAXRc10f2K5YJNR3bi
+X-Gm-Gg: AYBFou0fo1zvRhpygEK7inU0wqT48ys2MuImB2MoRK9/E9u1FsnHvyKZ8FIwUzl+QqS
+	aHWwevabOqCvq2hcFJq9xMnXXIorOyzP3vI1GEgcXFq4Sp8L9xBdPKLTZ+hAXL2v33AsfKUdUin
+	fyOwljgk1uTLfhtzUPinc8ObjSUat21PCj6xPKQe9WKE8pEZBxrNLXa4xT2oOfkvhY49pq19QZZ
+	63SpBohPAsJga4YQ0RLYn/9r5YIdZYt2A4MtARDbYBhzPaj3nbbIT2eQgptQcI4Fz+N1wmsK/AB
+	NsIXlUGTqRQEs/R4oOvKnbcUboLXV5nxm1Pfi67njw2RkuUujaP3uH9H6v0kX15sRgNa5aKUIoZ
+	HTqiDEJZwvSX7m7xyY/0ADrfEw60dwf0yC8tDJbsuIOJaFuxekFkVYMcjulKux4+z0FbgfdHj7C
+	16knui10u3sh7t02UNwJLgMMh4jX/CmBQ5359guvWUiy0Q6L1NLqa7hpPMpLhpfHfMtMpVNS2dl
+	HiqTGFnrRxGBg78KCEQIolI6Rhp
+X-Received: by 2002:a17:902:d54c:b0:2d8:d4cc:be63 with SMTP id d9443c01a7336-2d94a904a83mr39320705ad.16.1788203806601;
+        Mon, 31 Aug 2026 12:16:46 -0700 (PDT)
+Received: from localhost ([2409:40c4:13b:7a31:95ce:ef4b:57cf:6fd])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d759640becsm40286735ad.36.2026.08.31.12.16.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 Aug 2026 12:16:45 -0700 (PDT)
+Date: Tue, 1 Sep 2026 00:46:42 +0530
+From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+To: jikos@kernel.org, bentiss@kernel.org, rydberg@bitmath.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	mayhemandcoffee <mayhemandcoffee@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: Add report ID mismatch quirk for ASUS
+ ROG Z13 Folio
+Message-ID: <apXSkmMq_y7Lq8cV@eggarch>
+References: <20260804202031.75738-1-lovekeshsolanki00@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260804202031.75738-1-lovekeshsolanki00@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Critical] Adding a strict minimum =3D=3D 0 validation for ABS_MT_SLOT br=
-eaks backward compatibility by rejecting previously accepted configurations.
---
+Gentle ping on this patch, just making sure it didn't fall through
+cracks.
 
-commit 12ce67adcfd7a78984b09163e522a86103b65a3c
-Author: Iv=C3=A1n Ezequiel Rodriguez <ivanrwcm25@gmail.com>
+Please let me know if there are any concerns or fixes on the patch.
 
-Input: uinput: align UI_ABS_SETUP validation with uapi docs
-
-This commit updates uinput to align with UAPI documentation by returning
--EINVAL for out-of-range axis codes. It also adds a strict validation check
-to reject ABS_MT_SLOT configurations if the minimum value is not zero.
-
-> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-> index d32fa4b508fc5..e05c80182252d 100644
-> --- a/drivers/input/misc/uinput.c
-> +++ b/drivers/input/misc/uinput.c
-> @@ -424,6 +424,13 @@ static int uinput_validate_absinfo(struct input_dev =
-*dev, unsigned int code,
->  	min =3D abs->minimum;
->  	max =3D abs->maximum;
-> =20
-> +	if (code =3D=3D ABS_MT_SLOT && min !=3D 0) {
-> +		printk(KERN_DEBUG
-> +		       "%s: abs[%02x] minimum must be 0\n",
-> +		       UINPUT_NAME, code);
-> +		return -EINVAL;
-> +	}
-
-[Severity: Critical]
-Does adding this strict validation break backward compatibility for existing
-userspace applications?=20
-
-Applications that historically passed non-zero minimum values for ABS_MT_SL=
-OT
-(which the kernel silently accepted and later clamped to 0) will now fail to
-initialize uinput devices, receiving -EINVAL during the UI_ABS_SETUP ioctl.
-This introduces a userspace regression by rejecting previously accepted=20
-configurations.
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831152156.1665=
-14-1-ivanrwcm25@gmail.com?part=3D2
+Thanks,
+Lovekesh

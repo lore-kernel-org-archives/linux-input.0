@@ -1,71 +1,75 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56FD846D08B
-	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 15:22:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3638046D0A9
+	for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 15:22:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788189745; cv=none; b=I6s1F//8DlxfbZ/Y+qMULD3YcxSCC28tdIBYAQagpvsuwSo+sq/7SZxOt89ACNN3YDs/wBgQQnnHFUb7g7bXY2RX4q02SmBMSW4pvYvFt6MJEaF51E2wDIvlAAYCK4zekDdSoHu3txYBD4697n+bVk1aTmBWWGmjo8cg3YX1g1A=
+	t=1788189754; cv=none; b=BCc1WSxzyWNqAAD/G8wm99quINsB+NHyGqFBt2jyOwzfubt+OK7la0endhZ1MdLvGJuMRZbuau2Xtmwth1LBBGdKqaCpTF44IO64Tb9zfwdbSH8tkbO36/r5stUs1+uVlzx8InIor7kfKpCIgSuwuiyMz5WWdrtWFoBGwvHaDhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788189745; c=relaxed/simple;
-	bh=a7QmT6D6ZzTDIpRpEEw8yAEqutSch+PYx1h132MhJHU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Iwt0KvXvJdnSOb+K41fqcKJE67U64QFPgIYQEw4OVe/NAHS4A893FQIQeFk1VAxZ+v5l3824Ri/7QLfhFetLEc7uvpb0ncyMLHH/tHw+QrA7thIXd/LPOVOyEGZOdldlyUCtFsRAFEXyQ1isxFlEhkj/2Y4dafSOfoe99YXVtic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cjRUNgT6; arc=none smtp.client-ip=209.85.221.50
+	s=arc-20240116; t=1788189754; c=relaxed/simple;
+	bh=xF4vDxhZsiTA4r2A8/vCm1EiUkqmg5AbA5+SGktjuhg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=PG5SOhEPOQRdF4fmlMWMrZ5G/fmtRniIUMGMOAetFDg0oBJlUG7tdo/p5NBa+Q3UwSjpCysquLnIand0FihYn1+Jr/SZWsXziKiI/KClZJ/6VrO0AKjafR1czXBLYZ9MfwRORRZ3KU1h3SRTzn02xgXy0SU1/DxgJrW94nk7Smo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TVC7eJ0K; arc=none smtp.client-ip=209.85.128.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cjRUNgT6"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47de0093c42so3339384f8f.3
-        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 08:22:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TVC7eJ0K"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-49b8eeb3ff2so26768315e9.2
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 08:22:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788189743; x=1788794543; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xAabvW/LFOQnUFGSsqKGiAJ7IJMbUXTCA25C9OFUDGo=;
-        b=cjRUNgT6hqSgSQAIwljHckZ5jpp0orCXSXgTlzO5D9jCW7aiEz3cZwF/h8UxsyaECM
-         ArsWJjWIL2tSb7lN7Pv28Xb0i47sz50rDl8oXsSSNOM97XoJQZ7aEPsIEOvagbMOaDZ1
-         Yv7Cmgqk4XoIKE7oqsNUvGSfaeLpGVRZprHJFSwlk/UtBhZRgWr1yqbuSAWbutPedTWH
-         dApZChhOX03OvVLr4sgwbxN98ZLgWQT2TMmGeMDwv7uQmHovWXWvZG0FSBKBhIA9umrh
-         25mgtPwjJj9qChd3JylVj/isOCpfMdiokvEi/2TEyML4vgxkd500p0dxjxUuC0RMJPjj
-         xX8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788189743; x=1788794543;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1788189751; x=1788794551; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=xAabvW/LFOQnUFGSsqKGiAJ7IJMbUXTCA25C9OFUDGo=;
-        b=iNOLjFJGTPvrbWNwcs+yOTPtxhii1Tx7ZSLJON68bbmomxeI9eEIW2m79+tucYKDbx
-         mgclrp6NaBNnGF/jbWtFl5FDG/zMDmxN9RcU8qsDFFEJG61i5SROKhRB5GJ9CUXuA+zu
-         OCm5Pf3IidFsnnzYnxgvLr+koHfKBf+o/au13lq7cLYNuC+Rq38HSi8BIxhjKnarj6BH
-         REe9QIAuqWTM18uegH6q8qFIOotRCUYTebHGi4vQ0Od0JJX8YyttJ58wezp1a0R/qjeN
-         HtKPm4pJC54Du8WMKetpU2o8g+ARogEYm/cqSIB+3qJWj0dcVIoKASMpYn09Xb+ER/+H
-         YN0w==
-X-Gm-Message-State: AFuF++k0rXsw4LHMfAJH1C9TiucF2A0LcjQ+0fu+eNyrfrA6jyUrqGXD
-	hzxI+Lrty2sg9F+pKc1O+6DuKt7+sKq4GF17vS713EoFv2DsSQZdesE200vLxU8TN7M=
-X-Gm-Gg: AYBFou24KjjvxVdb2KkGbufmUna9Z8pTjYyQhKHr60DzlYYzuq0Q8cR2/jmlffzqKjb
-	C6u20WWcZVd0FrfMpy4X+m3fiZnedajU1+9YhUF1jClqIcRKXVhUlVfb9jVWn2f5vMFgfbDoOV2
-	efkcMdFzy7/xvZk2LgkgXwixGYH402KAx+Cxjem8k+mgdSrSJ8zbgcYRxvJiCAzX0E+9p42as/W
-	ksEiJSgBFToYiNsPzonXh5qHabKsBDjCCMwzsgNVo0eu5IHGy2HPq1UpWXtqwi8fuZWK+yt1h2m
-	PF0TzlpZyxjtNOiDzVmyUNS+60qEg20wROMCv2o45jxT1H4C46/VkmVlks7FzNHL3T1HBUePIA+
-	iJucZptH5ddnvE/qGzjmvEf3har9CPeX3hvWOgqFbpIqxTI6wLEv60vbVy3xtRNkh3cc/3YZciM
-	efWSAxwP2wbAg1OzfrtbndAzmNbfJUnvDr6MwrMTZWosGKpppZpk7n9K7jGEYY7jeB+yTq4Cc5s
-	zLkf3PPSU3YD64Jl7VF6lm/
-X-Received: by 2002:a5d:5d12:0:b0:484:3313:fd87 with SMTP id ffacd0b85a97d-484331400a9mr27452685f8f.28.1788189742553;
-        Mon, 31 Aug 2026 08:22:22 -0700 (PDT)
+        bh=0rSuKTGURsC+BjATOKT6I6iefn9uhHjm15dQZzDRO74=;
+        b=TVC7eJ0K0D1sriZ9t62OwxLOetT5Oz50xrZW0yBKOFXQ4ISRb4BvNH75Yea+/f95aP
+         UnUwht9BaogaVQKG6X20c2gQUgN5wE86ei0ap+iHCG3WBs00SUS7ZZBXmCcMEPdx0pCX
+         FjCb9znoknMbRulscor/RsYe7pP7ETuWHA0bacgowTE5sTZjqWf38rPo2U0x5v3McycJ
+         TRKM9woWjRQR5oCj5pKQr25Cc0kwI3P77eTje6MaH6h+C0cfrWeXPhUkMGNzDJDEqMQy
+         8rvfCo4WM50op4Jdmr3l62+Ii6U+e4xkvyfm6Y+/fqbPy3QI5cqqh1l3HWBYf73SukSb
+         XaSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788189751; x=1788794551;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0rSuKTGURsC+BjATOKT6I6iefn9uhHjm15dQZzDRO74=;
+        b=gA9CaRHtMYglRy5gcaaMez9vM/I+wDUB6nHIJY05kqDLSBCJbzUUtIw87tMwCdSdtp
+         pgLQWEnCjcZsJGw/xL0HZr0bduw46u7yFH7URl8YagoTBrLZHmFhYMgtwx6Uadn1pgQl
+         bayj/zv3nO0h4Hrn1x6YPbFaRb2Tt5mjGDXGBlkIchMvffHHqEDizSWt7exIQLbWCbx8
+         +sAcbeMLKM8Omit0tj7Dhp/HDOwTxjdIJ2uiYA9z5zDAgBNjOgIQzWtATId74N1tTTwu
+         KF6WmNlKArPzOkaxg7JjwYTeC4lIzdiSOD/5EytpHOfjnb0Xi0K4iaqtzzaRXJoG6axz
+         FWXQ==
+X-Gm-Message-State: AFuF++lrbcoCrZEvcZZEWmlCz3YtNfFV87OJw21c/bdaQ1dpJHpZHCc5
+	+UXlN+CoIdprxoE5/iRYkTwIfCpjL7f4fC3JnOLqVcCxM3fvQgbkAOkP
+X-Gm-Gg: AR+sD139X5jAvrlp7tAofgUiinY3TbWoWZiEr/sES/uwbBkp51QwEeITkN3/t7ML9Gm
+	bbsCn3lywMDdgv6ysqO8ZTCku0uAdnETbvYvCRYOXdyi+H1rE8Syo6tTBY30NwwxDdMLprBF+Sw
+	KTRmXj7QRsXrXtdXq5xbupBADjPf41fp1CvffkmH5BeWoTS9FqgAX88GL1+wJ+KpLII3zFWOYqf
+	ZOLDIEoAVx3As36BGLIb8jEtKY0JbCBSr6LWvZQffdRIuGilMIN1M7RhuLPnxWQFYsfYA10atg9
+	bY3Yr9QXuCZ3IwQMHUyuwmtMjhhmWuql+pjuA4dT7stAOb5z/3S2EScjFb0P8P9Qpn6bjFOtwK4
+	APQ0DE1M/b1hpauSLHa1/oISau7rXfBovnF6Hs6qUXcVKu2id4PR5RXMPHWtfdDGAbK8CjUUV8Z
+	c6l+O/6TeHkluvt/g3HqoagOsfIKYCf+cy1Z/DdbagXpmF1L5Fb+CGzaAMbdHWBw0a6TNKzv5an
+	7KndxrvAwXgSeGweUiOWBqR
+X-Received: by 2002:a05:600c:c113:b0:497:fecd:5b00 with SMTP id 5b1f17b1804b1-49cdc435d58mr25770285e9.9.1788189751203;
+        Mon, 31 Aug 2026 08:22:31 -0700 (PDT)
 Received: from unix.. (244.red-81-44-253.staticip.rima-tde.net. [81.44.253.244])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-484322ce2a6sm17342585f8f.19.2026.08.31.08.22.07
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-484322ce2a6sm17342585f8f.19.2026.08.31.08.22.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Aug 2026 08:22:14 -0700 (PDT)
+        Mon, 31 Aug 2026 08:22:29 -0700 (PDT)
 From: =?UTF-8?q?Iv=C3=A1n=20Ezequiel=20Rodriguez?= <ivanrwcm25@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	=?UTF-8?q?Iv=C3=A1n=20Ezequiel=20Rodriguez?= <ivanrwcm25@gmail.com>
-Subject: [PATCH v1 0/2] Input: evdev/uinput errno alignment
-Date: Mon, 31 Aug 2026 12:21:54 -0300
-Message-ID: <20260831152156.166514-1-ivanrwcm25@gmail.com>
+Subject: [PATCH v1 1/2] Input: evdev: propagate EVIOCSFF copy errors correctly
+Date: Mon, 31 Aug 2026 12:21:55 -0300
+Message-ID: <20260831152156.166514-2-ivanrwcm25@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260831152156.166514-1-ivanrwcm25@gmail.com>
+References: <20260831152156.166514-1-ivanrwcm25@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,37 +79,30 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Hi,
+Return the error from input_ff_effect_from_user() instead of always
+mapping failures to -EFAULT, so wrong buffer sizes surface as -EINVAL.
 
-Two small fixes so ioctl failures match what helpers and uapi docs
-already document.
+Signed-off-by: Iván Ezequiel Rodriguez <ivanrwcm25@gmail.com>
+---
+ drivers/input/evdev.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Patch 1 propagates the return value of input_ff_effect_from_user()
-from EVIOCSFF instead of always mapping failures to -EFAULT (wrong
-size becomes -EINVAL).
-
-Patch 2 returns -EINVAL for UI_ABS_SETUP when the axis code is out of
-range (was -ERANGE) and rejects ABS_MT_SLOT with a non-zero minimum.
-
-Base: v7.3-rc1
-
-Tested: built bzImage with CONFIG_INPUT_UINPUT=y and CONFIG_INPUT_EVDEV=y;
-QEMU initramfs smoke:
-
-  - UI_ABS_SETUP with code > ABS_MAX → EINVAL
-  - UI_ABS_SETUP ABS_MT_SLOT with min != 0 → EINVAL
-  - EVIOCSFF with wrong size → EINVAL
-
-Thanks,
-Iván
-
-Iván Ezequiel Rodriguez (2):
-  Input: evdev: propagate EVIOCSFF copy errors correctly
-  Input: uinput: align UI_ABS_SETUP validation with uapi docs
-
- drivers/input/evdev.c       | 5 +++--
- drivers/input/misc/uinput.c | 9 ++++++++-
- 2 files changed, 11 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 3a718d600006..27bcf4f099be 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -1180,8 +1180,9 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 		return str_to_user(dev->uniq, size, p);
+ 
+ 	case EVIOC_MASK_SIZE(EVIOCSFF):
+-		if (input_ff_effect_from_user(p, size, &effect))
+-			return -EFAULT;
++		error = input_ff_effect_from_user(p, size, &effect);
++		if (error)
++			return error;
+ 
+ 		error = input_ff_upload(dev, &effect, file);
+ 		if (error)
 -- 
 2.43.0
+

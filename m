@@ -1,218 +1,167 @@
-Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2982640BCAD
-	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 15:57:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788278269; cv=pass; b=WqKBPQ5HRfFQ2S0XyIH8SKwaz3Xu1Ccnp2ZieAqtUhTMoU3hsgCV3fLPGfJkdnWlFbqhhjlVymiYdJeXY1gcnaIuubqDTCNEn9ORfl/QItMOug9raAEu0aReqEuAxQiemuu/qGKauyteHD+ifDgDXpEGTgJ+jal2XsCxPHic27I=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788278269; c=relaxed/simple;
-	bh=LGO4QPEZD4tJNdCuCHdQdsMS8+RzFkzYI9X0O6NCqO4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RAu+yKbEvP/G4ENpmOEe2Ts5EoWibQvYCN4UjI1qetD2uNS0DWhD8wLOkjU2w4a9SNQ6cb4ujr77P8rN/+/He6AXRJbgkyC/0yOA6w031lOP6L+w/qwYpaAwwHKZD12ILGqzjXlabUVw7OdKpRmGHW8h8rBbgT7IzS4X3lXgFPk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oysREbCg; arc=pass smtp.client-ip=209.85.217.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01D2246D559;
+	Tue,  1 Sep 2026 16:22:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788279748; cv=none; b=QWkPCFcpJCF65eN/zoXx0vDF2ub8qH+IhPcOQYpeqzttmUavCeQklHTXNDkXwX0V0U+4mos/b9JyYf/HnOlMSNHg9FQkpiRL2daLo1zpmerxZo8da2ZaWR1vezjumdStVrcGUpnulMK8YLqLkgZolYuN7B9a8D4wxftrrkuQ6QU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788279748; c=relaxed/simple;
+	bh=kj0j6z3kbnxsseR9rjLpttztN9o2mOtGm9BfWCwFU8U=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=LEIzIfFNdYuXwluyLyVnsf4avnWTI74FFR786x7H6zvvue9qKohgE9oJECvLt55+x69uPWD2yfvjM9ke2izEUtpexojgcQqw4nujrjRE0dA9ljG1JAaGTOmns6Ia8DZUVtkaCUKtgVk/0jXCfck//5B5G1LWUwzh4vDB8wTdARU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AaXjY4KY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oysREbCg"
-Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-784a1696a21so45575137.2
-        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2026 08:57:47 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788278267; cv=none;
-        d=google.com; s=arc-20260327;
-        b=pIExuCdn3kaU1chdLumOsEWcXXsaoo5CYDlqvcIE7kH0CLrk7ol6rBA1lEWrOXtSoR
-         iiM5AbybNyEMPAkBIMVffbZ+1FARt4zItSyDIJ07r6jVi+vC3wwyLJv2tuet6vS1mxqg
-         dHMWbFbXTsbputdIsQ8PYI+5qfmDqC6uJYijalObwIK4pstZViSM530N0gGCsmVEwUbX
-         bGddQkFI/Zvzage80QTYk+q61JUTccdWBH50jcw2+pgcBcBobwkkTuBJiDJ3Sj+H4BPD
-         flPeQ+lf18eaFmqNJMJjJXY78JUxSPLqbutW/G8/Cuj85NPDD9KRMcqyrepzHYxIQ5aW
-         JMhA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=RoXKQvXjgiKqIUHVbbm0BfOC/USzZLLHG1ls27syuEg=;
-        fh=nCOLXCgVKjXncsmDao7a3j5z6tleF1Nf74261Y+4IgY=;
-        b=O+t21r5jyoVI37bB4aC6u9zGHogHNhcWwJgOu+Fej2fP8HcJzJ70UHgRUASzk3Kyty
-         DfOPqqMM4hmv8YRs3p1Pn1v7G924BTIJwqX5e/43XBWsZkqtRSw59n1hE35lCDelXP55
-         +xsi22vgLCbOtoWe2NA7CYYi6T8NhIPaxz+k5u2VL7ks5ahzNTGI4csutP3yvbeo7JCN
-         fqI3egBcp3ewOKUbHCgiAKMD1i72uWr4rc1yn8r244OWVOfAC4OJHPNwy7VT8HL6wrC6
-         XYiXM0pEXa8hqxGbRoYWxLUiJ8fDv+j+2z4yhSeuAmIPqwRCr1DzGMPLoqCU+y9sXjS0
-         P+wg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788278267; x=1788883067; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=RoXKQvXjgiKqIUHVbbm0BfOC/USzZLLHG1ls27syuEg=;
-        b=oysREbCgArG9Y3QdTRV0lu/5KZOM2WIau1KDCEumHgDk3gLOJ/z0jlXzbDGzxY0t1I
-         Ue8DrKosLC9MWoArQ7/CZVa4t57IUPm2m+fgKLmRtN39K4FH4WhXP/MvSItlEp3+TeNX
-         c5p2SK/BUdAUFC3/hZi0nab3VYUSgmx1iL+hFaKVNrZ+qOnygjBonn8kPxs1yMayRd7e
-         r+FeFb/UN1JfqWsDWvTNOGziqIHLWGeQLHyo3Q2pKawwZWywY4fAUYyCBh2mbdhhNGZ8
-         EO1qgwzMHQcH619BXDQphsLlvL7J9iquH+/JkIqMVeVMxPeH9U+KIkZaiTRYnpLWSGfj
-         8x/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788278267; x=1788883067;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RoXKQvXjgiKqIUHVbbm0BfOC/USzZLLHG1ls27syuEg=;
-        b=Nmn9C1U3RzhL9NWM8s3foYDiDSEgVFHTn91cjzUY7MDArPgCgeY/sOu3gXRJehZwqv
-         /BZnEqWdQiAOVriXr/IgGvLiLINYlPpyFYOpPJAFBx/hb3Xm6JPdEGzNkqxv4RafqQA3
-         qEo9gEoYcCj3QyF1DHQbCrnoAv6elJ4Y6H3CqOeuf4I9bpbd9P3gH6CKH4WCZlbffep5
-         EjfeDaJk7IzXvhTx/8otTLrRMgNFyCAY7xd0znIiHCURmv+a8utr1QYmJ6kp+5fswwdu
-         EZPiYW3o89UCoaWKU3pR/Ue73H1eiWwdjSe60snfv4wi2toDyhJNoO9pUeaRovoULqzg
-         ZFsA==
-X-Forwarded-Encrypted: i=1; AHgh+RrBKFu/EOYjZZ9h0W9EOvasRQ3V5ryfKUG1p+Gedk1r1pBfA44UUUMTFJrevfzdcDJyHAUA1GrJInef4Q==@vger.kernel.org
-X-Gm-Message-State: AFuF++kzKC3/rTjmYAWXLSb9NvHHNyJqrKOUrHZmljWvy+/H8u+Ww4my
-	L/bWGllATKeSqTu+77BB70cmrnCplAr7oR863gs1dEMJt9rYqAihQGSQb4Pb6uj9giXqx12+pCo
-	4UWVE5EfFm4edBn1nG6wmCZK4KKYgnto=
-X-Gm-Gg: AR+sD12pz6pLuB7XQBMEjMVQKDe4f1V9FBaNpwEyVWXDT/54iJtoIVbPI5lfSbPGcHw
-	hZMyMPV0e4T8QGUaAh+xzgTecpG7YcxxXKJGhi6AdQeVd7rOnwB8y1s/jNvlwajmVLm9gjJWgNl
-	9a7ei0NELLFOCrFS7wWPpnIYs34EHvT4S7dbAnGpF0s8F4rKZARSupTVnzLFm3bP5dYk3EI2eiP
-	m4sKKbjqu8fj9l85SP+je78D9Is8fiY5VgbqGtHmo4PfLTkyy+GSyv0/XXxbuuQRaOINfeWfEXc
-	GLxRqobmRMoon3RXO07vjCvAWRQkTfACN9w4iE7khY+Ze3vdkuF9kOcEqAD8zZxPYL+gCQbdngO
-	+emk=
-X-Received: by 2002:a05:6102:2b92:b0:784:a169:194a with SMTP id
- ada2fe7eead31-78599051f0emr16194428137.10.1788278266962; Tue, 01 Sep 2026
- 08:57:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AaXjY4KY"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 68B52C2BCF4;
+	Tue,  1 Sep 2026 16:22:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1788279747;
+	bh=kj0j6z3kbnxsseR9rjLpttztN9o2mOtGm9BfWCwFU8U=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=AaXjY4KYc8CfJyQtirh4FATFUyygY58/s6ArWr0pCVAhZJuUdOrlBIUVBKSooP3pl
+	 SPnsN4eeknK4560cErBSJ5a4MedjR7ejESXpQEfwQ5iAIwUeIL0ON1dm59FCzc8Hcs
+	 kIW5U7dOX9srI1521zHWnapxUFA5ALv5MnFU2ZZuWhXx6ym72QIwwPfyqGUCUQnSAX
+	 JRUyzzRdVNIVnJIlsdlFCahdJhpDP9F+JvNcr7mcVdoNvv3xz5clBLOzLL+ym5r2uf
+	 Vsesif8wir08K2hqUkDn07+9/hjGpaj9DwL4IzEDpYQp6asUiZOJeBIMearNxa6Mfc
+	 OD8P87HirQIDw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4499BC624D3;
+	Tue,  1 Sep 2026 16:22:27 +0000 (UTC)
+From: =?utf-8?q?Gr=C3=A9goire_Stein_via_B4_Relay?= <devnull+greyxor.protonmail.com@kernel.org>
+Date: Tue, 01 Sep 2026 18:22:10 +0200
+Subject: [PATCH] HID: logitech-dj: forward Bolt receiver input to the dj
+ child device
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1788222001.git.mradityadash@gmail.com> <49b6e07395d2fe555e844758bd8ccf34ac0cbf0c.1788222001.git.mradityadash@gmail.com>
-In-Reply-To: <49b6e07395d2fe555e844758bd8ccf34ac0cbf0c.1788222001.git.mradityadash@gmail.com>
-From: Derek John Clark <derekjohn.clark@gmail.com>
-Date: Tue, 1 Sep 2026 08:57:33 -0700
-X-Gm-Features: AcwNN1W0m4Ib34PML6CQ2EODgklRtSrXz623ENRC4RuSjDFoDzq1Hu4wP9yQ6VM
-Message-ID: <CAFqHKT=7xMJAvTt3__6CtBiS2duGu6eoHq4FWiGONMvjFE2CtA@mail.gmail.com>
-Subject: Re: [PATCH v3 5/7] HID: hid-lenovo-go: normalize calibration failure status
-To: Aditya Dash <mradityadash@gmail.com>
-Cc: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-	Mark Pearson <mpearson-lenovo@squebb.ca>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20260901-bolt-scroll-fix-v1-1-58bca7ae487f@protonmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDSwND3aT8nBLd4uSi/Jwc3bTMCl2DNAtDE0OjtERjU0MloK6ColSgMNj
+ E6FgIv7g0KSs1uQRkjFJtLQCmfyvgcwAAAA==
+X-Change-ID: 20260901-bolt-scroll-fix-0f81412fa351
+To: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ =?utf-8?q?Gr=C3=A9goire_Stein?= <greyxor@protonmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788279746; l=4267;
+ i=greyxor@protonmail.com; s=20260901; h=from:subject:message-id;
+ bh=itIUMHlbFIHiCL6Z9BZTI0RVz1yrubLT7rZTaR4xcUs=;
+ b=BpfwbfVdt1sbrQZafmBXtfHOu38PI1uFluYELm08MOejPV5ZSkRYIMB0jCgzMjYFaXGBFJYll
+ UPX8pcGOqNhDOnCQpWfQC+0KkN4xNoCFRyivZn1vgeZNfok8opYhNE9
+X-Developer-Key: i=greyxor@protonmail.com; a=ed25519;
+ pk=y2UVq46rpGIETwZNhJelO8GDWaI6jfO2G/BCdy5Vu8U=
+X-Endpoint-Received: by B4 Relay for greyxor@protonmail.com/20260901 with
+ auth_id=994
+X-Original-From: =?utf-8?q?Gr=C3=A9goire_Stein?= <greyxor@protonmail.com>
+Reply-To: greyxor@protonmail.com
 
-On Mon, Aug 31, 2026 at 11:36=E2=80=AFPM Aditya Dash <mradityadash@gmail.co=
-m> wrote:
->
-> The driver stores the firmware result byte as an index into the
-> calibration status text. A Legion Go 1 returned 0x08 after an idle Stop.
-> The status table has only three entries, so a later read returns -EINVAL.
->
-> Keep the defined values 0x00 through 0x02. Treat larger result values as
-> failure before storing them.
+From: Grégoire Stein <greyxor@protonmail.com>
 
-Hi Aditya,
+Since Bolt receivers got support in hid-logitech-dj, one detent of the
+wheel on an MX Master 4 scrolls 2 to 5 times too far.
 
-The 0x08 thing seemed odd to me and I meant to dig into the docs sooner.
-I think the real reason for the bug you were seeing is a mixup of what data
-bytet means what. There is an off by 1 error with using data[1] since
-device_type is really the 0 byte for the information payload. data[1] is th=
-e
-reason code for the failure.
+For Bolt only LOGITECH_DJ_INTERFACE_NUMBER is kept as a dj interface and
+everything else is left as a generic-hid device. Interface 1 therefore
+registers an input device of its own, and the paired device's reports
+are never forwarded to the dj child device, which ends up receiving
+nothing at all.
 
-From the docs:
-Byte 0: Device Type:
-    0x01: Gyroscope
-    0x02: Joystick
-    0x03: Trigger
-    0x04: Joystick Trigger (Currently Unused)
-Byte 1: Calibration Status:
-    0x01: Calibration Successful
-    0x02: Calibration Failed
-Byte 2-3: Failure Reason:
-Gyro:
-    0x0001 - Not stationary, timeout
-    0x0002 - Connection status changed
-Joystick:
-    0x0100 - Joystick not fully deflected
-    0x0200 - Joystick not centered
-    0x0400 - Joystick not rotated two turns
-    0x0800 - Connection status changed
-Trigger:
-    0x0001 - Trigger not fully depressed
-    0x0002 - Trigger not returned to starting position
-    0x0004 - Trigger not pressed twice
-    0x0008 - Connection status changed
+hid-logitech-hidpp still binds to that child and enables hi-res
+scrolling through feature 0x2121. The wheel starts emitting several
+ticks per detent, but hidpp_event() applies the multiplier on an input
+device that never sees a report. The ticks reach userspace over the
+receiver's own mouse interface, where hid-input has no resolution
+multiplier and scales each one by 120:
+
+  [Logitech USB Receiver Mouse]      REL_WHEEL=2  REL_WHEEL_HI_RES=240
+  [Logitech USB Receiver Mouse]      REL_WHEEL=3  REL_WHEEL_HI_RES=360
+  [Logitech Wireless Mouse PID:b042] (nothing)
+
+Interface 0 is the keyboard endpoint, interface 1 the mouse endpoint and
+interface 2 carries DJ/HID++, which is the same layout as the other
+HID++ receivers. Set no_dj_interfaces to 3 and drop the special case, so
+interfaces 0 and 1 are claimed by the dj driver and their reports get
+forwarded to the child, where the multiplier is applied.
+
+Bolt support was tested with a keyboard, and a keyboard has no wheel
+multiplier to get wrong, which is probably why this was missed.
+
+Fixes: 022eb347ff3a ("HID: logitech: add Bolt receiver support for Logitech HID++ devices")
+Signed-off-by: Grégoire Stein <greyxor@protonmail.com>
+---
+Tested on 7.3-rc1 with an MX Master 4 on a Bolt receiver (046d:c548).
+Before the patch one detent gives REL_WHEEL 2-5 / REL_WHEEL_HI_RES
+240-600 on the receiver's own mouse endpoint, and the dj child device
+gets no reports at all. After it everything comes in on the child device
+at 120 per detent.
+
+checkpatch says "trailing statements should be on next line" for the
+added case, it is written like the eight cases already in that switch.
+
+I only have a mouse here. Erik, could you check that the MX Keys for
+Business still works with this applied?
+---
+ drivers/hid/hid-logitech-dj.c | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 1d619d2345e1..5a8f63ced627 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1907,9 +1907,6 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 	 * treat these as logitech-dj interfaces then this causes input events
+ 	 * reported through this extra interface to not be reported correctly.
+ 	 * To avoid this, we treat these as generic-hid devices.
+-	 *
+-	 * Bolt receivers only use LOGITECH_DJ_INTERFACE_NUMBER for receiver
+-	 * reporting. Treat all other Bolt interfaces as generic-hid devices.
+ 	 */
+ 	switch (id->driver_data) {
+ 	case recvr_type_dj:		no_dj_interfaces = 3; break;
+@@ -1920,23 +1917,14 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 	case recvr_type_27mhz:		no_dj_interfaces = 2; break;
+ 	case recvr_type_bluetooth:	no_dj_interfaces = 2; break;
+ 	case recvr_type_dinovo:		no_dj_interfaces = 2; break;
++	case recvr_type_bolt:		no_dj_interfaces = 3; break;
+ 	}
+ 	if (hid_is_usb(hdev)) {
+ 		intf = to_usb_interface(hdev->dev.parent);
+-		if (intf) {
+-			bool generic_hid_interface;
+-
+-			if (id->driver_data == recvr_type_bolt)
+-				generic_hid_interface =
+-					intf->altsetting->desc.bInterfaceNumber !=
+-					LOGITECH_DJ_INTERFACE_NUMBER;
+-			else
+-				generic_hid_interface =
+-					intf->altsetting->desc.bInterfaceNumber >= no_dj_interfaces;
+-			if (generic_hid_interface) {
+-				hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
+-				return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+-			}
++		if (intf && intf->altsetting->desc.bInterfaceNumber >=
++							no_dj_interfaces) {
++			hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
++			return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 		}
+ 	}
+ 
+
+---
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+change-id: 20260901-bolt-scroll-fix-0f81412fa351
+
+Best regards,
+--  
+Grégoire Stein <greyxor@protonmail.com>
 
 
-Since we're matching on cmd_rep->device_type(byte 0 corollary) I think
-switching to data[0] is sufficient to resolve the bug. If my hunch is
-correct a trigger and gyro calibration will always succeed in the
-driver as it stands. I won't be able to validate this myself for a
-couple of hours on actual hardware, but I'll respond after I do.
-
-Thanks,
-Derek
-
-
-> Fixes: 995887a10da1 ("HID: hid-lenovo-go: Add Calibration Settings")
-> Assisted-by: Pi:gpt-5.6-sol
-> Signed-off-by: Aditya Dash <mradityadash@gmail.com>
-> ---
->  drivers/hid/hid-lenovo-go.c | 17 +++++++++++------
->  1 file changed, 11 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-> index deed7acd2dc4..59b457683357 100644
-> --- a/drivers/hid/hid-lenovo-go.c
-> +++ b/drivers/hid/hid-lenovo-go.c
-> @@ -648,17 +648,22 @@ static int hid_go_light_event(struct command_report=
- *cmd_rep)
->
->  static int hid_go_device_status_event(struct command_report *cmd_rep)
->  {
-> +       u8 status =3D cmd_rep->data[1];
-> +
-> +       if (status > CAL_STAT_FAILURE)
-> +               status =3D CAL_STAT_FAILURE;
-> +
->         switch (cmd_rep->device_type) {
->         case LEFT_CONTROLLER:
->                 switch (cmd_rep->data[0]) {
->                 case CALDEV_GYROSCOPE:
-> -                       drvdata.gp_left_gyro_cal_status =3D cmd_rep->data=
-[1];
-> +                       drvdata.gp_left_gyro_cal_status =3D status;
->                         return 0;
->                 case CALDEV_JOYSTICK:
-> -                       drvdata.gp_left_joy_cal_status =3D cmd_rep->data[=
-1];
-> +                       drvdata.gp_left_joy_cal_status =3D status;
->                         return 0;
->                 case CALDEV_TRIGGER:
-> -                       drvdata.gp_left_trigg_cal_status =3D cmd_rep->dat=
-a[1];
-> +                       drvdata.gp_left_trigg_cal_status =3D status;
->                         return 0;
->                 default:
->                         return -EINVAL;
-> @@ -667,13 +672,13 @@ static int hid_go_device_status_event(struct comman=
-d_report *cmd_rep)
->         case RIGHT_CONTROLLER:
->                 switch (cmd_rep->data[0]) {
->                 case CALDEV_GYROSCOPE:
-> -                       drvdata.gp_right_gyro_cal_status =3D cmd_rep->dat=
-a[1];
-> +                       drvdata.gp_right_gyro_cal_status =3D status;
->                         return 0;
->                 case CALDEV_JOYSTICK:
-> -                       drvdata.gp_right_joy_cal_status =3D cmd_rep->data=
-[1];
-> +                       drvdata.gp_right_joy_cal_status =3D status;
->                         return 0;
->                 case CALDEV_TRIGGER:
-> -                       drvdata.gp_right_trigg_cal_status =3D cmd_rep->da=
-ta[1];
-> +                       drvdata.gp_right_trigg_cal_status =3D status;
->                         return 0;
->                 default:
->                         return -EINVAL;
-> --
-> 2.55.0
->

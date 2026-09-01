@@ -1,61 +1,63 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7507A3FCC
-	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 06:36:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4F17372B2B
+	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 06:36:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788244576; cv=none; b=TNRLxD7TPIOjRJuHn5sLKuSUO/DbEt1fe8GMte+0X1WgV+43WIhI6Bj220g7fsZLINbzvS/ejDcKWu9QLX3Q1lUCHnp5D24XH6I1aRl87MWk0Pepj3bvHlyIy/xH3ZwOCphMsBrlWcshbuaE2GXZ68ZXTc2onJh/JYZmJ3Bmr8M=
+	t=1788244580; cv=none; b=hSw3Ka1uiM88d4/MCxY7tmgVB39GneeAFPfuOOh1/xrRPLra0NpUpgz0Xa0e8Ae9J8IX0V1SRvlUwddU8wg+p8asEbgGdJRVo/sNcr2qzCPGzIaACl4tgoG7toUXDNb2Y4M8AI3GMHEu0b4XnfAKPBVw1cmTOmNpTzimQNlDy5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788244576; c=relaxed/simple;
-	bh=P6MeT8W7qtZhiqChdyIm/E7LrwCHu6XwLN9XJu1c7vg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K6fo7Pav9BfZn8hhYYiEzfWtlsFBGsRXnSFCec/feH8iaAoD75QBeJyTDfGPla2vc2gHUjC/4RKS/9Tn6gQc3cb1aEcRX1jnIbP3B5NR99CAD7G1J6d9ztWQUvdVVayfxvtinJgFl8pNqvmdDbQ0i/RTEQcmR9d9VXK+ihzUhUM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bJk3TrV4; arc=none smtp.client-ip=209.85.216.46
+	s=arc-20240116; t=1788244580; c=relaxed/simple;
+	bh=reLdAq8P0t49kvDWPzWt8gweqMKLVAKU+JnfiiZyo8k=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Vl+pYdcT2MsWbdoQ9Fc/e2obEAOHgX4r5t09gT8h65VOJUkRXXoGeNLv9vP5BGGu4njAO8S7s/uFFNN1qx40TuC0NDq5mFZKkI7lmR3YztI6SpW2CA78czdV7M1f1kgR1yG/UBxFu/kt1R/5w2QusQjEsOzCCwKyqfNOzm4bYnA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FtSpiDIJ; arc=none smtp.client-ip=209.85.215.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bJk3TrV4"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-39927410578so212738a91.1
-        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 23:36:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FtSpiDIJ"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-ca12086c06eso3519747a12.0
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 23:36:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788244575; x=1788849375; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=8vuUnYwdPlWQZL61wKlADov8uSdQzUztFQCSWnijrRI=;
-        b=bJk3TrV4CkOeS74KQirafpyU0cNlgmo7dkZTrHbLp4niNREcKgzbsaED+Dz+NdqVkB
-         e7sVNEgMR04LvXK2ASebcns9vBevBtUpYq95Taxg0+kXbbQiSk5GzJmruV1p06A23BiU
-         +0tzt2AF60acjqjQPKgteSrA7kVIeZNTgUSbvM0Jlhv2APOB9xSX9lmVLVznH4so68XY
-         l+QegFjVesZrJGhTfrOAl+hkqMPu3yBaABjVkx/sasIIly1sDnyMQ+NHW9FWTkVYWAQQ
-         QFWAXedqX/sh3nJlsK3LggYdrJ0S6Due65ObMHG+ClOm7bHJNlt+Lm+vqgIkUcmCABR9
-         /iLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788244575; x=1788849375;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1788244578; x=1788849378; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=8vuUnYwdPlWQZL61wKlADov8uSdQzUztFQCSWnijrRI=;
-        b=cny3LD17F5Y+w7JTms6rAFOHQXWUieYFtV1iwOyKjlJssEenWZBRVdjhspAYy5WHnz
-         1YGnnq/JQzYSUDNHzuoWwmdz55e3D0cvUszfApRyjpn08GpnbM35qI//x3FiQGVL6CE+
-         Cxh5GMmKyOIDbGTI80I8QJSYTZJH3HENtKG8crICK00rH9dSn1R40dZa6S7/PuVdZxFA
-         l9C4YSRdVsmOqniG6Qwlru034rJq4a3SWJRtork+xVNRJiNbwFtHopRqHbCmLCpW7HZy
-         6SGQenPHnIDmNMVEGOr6iUfxPtoXtiO8FyfqI44PACKlqLKcx7qffG3IImY5x29VufIO
-         20Zg==
-X-Gm-Message-State: AFuF++mBrYin87JMzcj6xvPw63EnvJ7C/suf7GyUPyRlP2MnR29/d1or
-	u1kszYs+xpIOgUKgSKoEHiJfEEN3Rh5WnUfq4lgT8/tBKp30tcNNk4yt
-X-Gm-Gg: AYBFou3UPcOQuVcELdTKob7iV8sQY9Z5ZtLmrtoVaYCKGu4m6FUXac2oDgICa98TAlP
-	OPatRsfksquC4FZBIWJywxyAjeGjwbFv5YclhoPOsZXzfWFdFGse2jBCqNijDbvTzPsLHqV4Ho5
-	WnGVIuhhcEWNKhDX1hGg8hBOI3oysWu6cU6W+sVWu2sR3a+O9jIEBpd+xeeVtH8Vtl+sJyk0c1y
-	lDl4LwC/sd3TZaTYcnSLRWpQSPXtK/LYalotYji/07zVZm+qi5gT4/iykB1t0NtnPsQUeF7Nfnx
-	Y28TgOGdYSTmGFhkri+MDrirFVR9dzcep2vNecGFYD266KcXIqQOsxXQYp8irYwlAvFgnRYPylD
-	DBkMO96gGg4YO9aNdGamthjCVZaoU4bhElL5ZvZ5UZh2XUD09wl/Rvst2X73abKTbZB+Ki36e+U
-	Ow6E32gI6tT3EmaXx52WNygh1NRwAVWqmTXpGJp68egLk7aiITdnKMLMoRq/OyxKj952eHskZtO
-	XyV90J75l/vjg==
-X-Received: by 2002:a17:90b:2e48:b0:398:e969:87ef with SMTP id 98e67ed59e1d1-39907ec6baamr9073478a91.24.1788244574741;
-        Mon, 31 Aug 2026 23:36:14 -0700 (PDT)
+        bh=LxJQOF7esWYVaSzzh3UuNgbHtz6kTLWO9YCyNun8jQU=;
+        b=FtSpiDIJPEgFZ7plO/7E82h1VqtthVqVzPO2N6F/U4mGIbUVQWKqf0IAiwvWfbhsnk
+         Vpnfk5xLtrht2uuLSBMgNpmVYnIe/jD+cy9qwI+0xo7QvCxLauA0n3LKcfUf8z7UKcL5
+         OIgoJWbFQtSAO8ad8xn6ujseuwZ8JQsDE9yGHNOvnjOoeVEMs5U6CQAQjj1hB6sHWGfm
+         GjOBSF7KJ5CBSC+Aa1vhBIK+RG/c/r3SqNovgtlcFJDuxbiVAhG4liDGszpCazWb+LiE
+         SxnlnssdsCloWEgY/JzAWt8h/XDHi66ztJ0GO5qucr2/Lrp1rQK8UcdVLMfvJi32F7Qb
+         VnqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788244578; x=1788849378;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LxJQOF7esWYVaSzzh3UuNgbHtz6kTLWO9YCyNun8jQU=;
+        b=KcZa1dnv5qYArxas1Vefa6yCUwsC81LYL+fy+iHEiMSmqqSLZcjKNTttpskYhmWesq
+         IQphU/kpkB2eT/674Gh+OQKXZiYE9T28ycUNx/Sza9iCpwtqoaCiqf9y+E2L5imSJO/Y
+         o2iqDzyYTfsLvVuQXamq78o8A4anCIYDj/yUkJ6teFFoNO5Flj9D5ou9SI1Y+HePQIVz
+         rYx1Dtcq/rXDsC8V5ueLDLmbX85Lh8EC4EF7cBgqkyDdwPr5kAcBQ/p9GxtxU8KuaLbI
+         9gycZlOdCR8d3xPQaFHhCBxD4ijQ2ZjuBG0b/fhcf7X4Ncew62W5pZhnSonAAymmD2q+
+         bxGA==
+X-Gm-Message-State: AFuF++k+55A9N9Ne+HnJP8UJDd8jE0Z6HkLkWFvQ1GVIFNumh0VLvVbX
+	qcnqOmHo7OmoF+HvPbTYZjsJI//UeGztOEQqNgZAD/ppA3IOEpHfYx+j
+X-Gm-Gg: AYBFou27YUzlKt8qi5qEOJDqmw99zHuRbyc/VO4UlKXCe2TT7Rp3BMb8a2J3+rAZjs/
+	+hvmVMjvtRp5HS+cGu/nhqEjm/JyUe448EYOOb/5XJdsuYcsKz7TmScy+NO/Nb6n+9ydzcfYGMs
+	pG2XpEEokFNoWSdPG7geKftSvKiLV6g8WJ/kegOPA74XaA3/1ZsuA4UD4YpXJX8KPzc16uJU6nX
+	PKyEN6aJYWB/+j6DsDV7enjB8Gf6Pgr4CVBl14vDI/LuycS4L+NSqP6WOKvt4kMfuAqCsQL5/dQ
+	yBbn2wRfu0vAsYFCsV0dm+vuogCAO6ccU/U4NiJiEZ1+78WoKG2qlEFP4e0KbDA3MiCi58jgpod
+	30LmyI2JAR1vBx2GUnm3ed20Tk/za9+i7iltonuByXXgpm23LPlu/+2VBAgoYlMKvuYXUNWIgwN
+	FaJkUBKPxzAt4+CMVy06gSv7DgouciDtpyJYdsYjiugYkEK6Hann/6q3mTLs6z48wN4iI9qgHbj
+	7xRjsBBqNH/Gg==
+X-Received: by 2002:a17:90a:e185:b0:37f:eafd:3505 with SMTP id 98e67ed59e1d1-396d0ecbdb9mr52394238a91.6.1788244578206;
+        Mon, 31 Aug 2026 23:36:18 -0700 (PDT)
 Received: from localhost.localdomain ([103.16.69.192])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0dc854dsm32694425c88.10.2026.08.31.23.36.11
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0dc854dsm32694425c88.10.2026.08.31.23.36.15
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 31 Aug 2026 23:36:14 -0700 (PDT)
+        Mon, 31 Aug 2026 23:36:17 -0700 (PDT)
 From: Aditya Dash <mradityadash@gmail.com>
 To: Benjamin Tissoires <bentiss@kernel.org>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
@@ -63,10 +65,12 @@ To: Benjamin Tissoires <bentiss@kernel.org>,
 	Mark Pearson <mpearson-lenovo@squebb.ca>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 0/7] HID: hid-lenovo-go: fix controller configuration
-Date: Tue,  1 Sep 2026 12:06:01 +0530
-Message-ID: <cover.1788222001.git.mradityadash@gmail.com>
+Subject: [PATCH v3 1/7] HID: hid-lenovo-go: use the correct calibration commands
+Date: Tue,  1 Sep 2026 12:06:02 +0530
+Message-ID: <d10f7771d20d356dbba45047894aca0b41e7a3ae.1788222001.git.mradityadash@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <cover.1788222001.git.mradityadash@gmail.com>
+References: <cover.1788222001.git.mradityadash@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,101 +79,85 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series fixes several issues in the controller configuration and
-calibration paths in hid-lenovo-go.
+The calibration attributes pass the calibration operation as the command
+and the configuration command as the sub-command. This sends each request
+with the two fields reversed.
 
-1/7 fixes the calibration attributes, where the command and sub-command
-are swapped. 2/7 fixes two right-controller attributes: imu_enabled
-selects the bypass feature, and reset targets the left controller.
+Swap the command and sub-command values for all six calibration attributes.
+For example, the malformed left joystick Start request is:
 
-The configuration interface initializes its command completion after the
-HID hardware starts and opens. 3/7 moves that initialization before both
-hardware operations.
+  05 00 04 0c 03 01 ...
 
-Before 4/7, any decoded configuration reply completes the shared
-completion. The driver then ignores the result of the wait, so an
-unrelated reply, a firmware error, an interrupted wait, or a timeout can
-still be reported as success.
+The corrected request is:
 
-4/7 tracks one pending request in the driver data and matches replies by
-command ID, command, sub-command, and device. It initializes the new
-completion and spinlock at the pre-hardware point established by 3/7. It
-also returns request errors to the caller.
+  05 00 0c 04 03 01 ...
 
-The firmware has no sequence number, so a late reply with the same tuple
-can still match a newer request.
+The bytes identify the output report, configuration group, command,
+sub-command, left controller, and Start action, in that order.
 
-The remaining patches fix calibration status handling.
-
-The calibration status table defines 0x00 as unknown, 0x01 as success,
-and 0x02 as failure. A Legion Go 1 returned 0x08 after a Stop was sent
-while no calibration was active. The driver stores the raw value as a
-status-text index, so a later read returns -EINVAL.
-
-5/7 preserves the defined values and maps larger status values to
-failure.
-
-6/7 rejects 'unknown' as an action. The action table contains it at index
-zero, but the options attribute advertises only 'start' and 'stop'.
-
-A previous result can also hide a new calibration attempt:
-
-failure -> start -> failure
-
-The status appears unchanged for the whole operation. 7/7 clears the
-selected status to unknown before submitting a Start. Stop leaves the
-status unchanged.
-
-I built every patch against kernel 7.2.1-ogc3.1.fc44.x86_64 with
-W=1 and KCFLAGS=-Werror. I tested the exact final module on an Original
-Legion Go. The configuration interface bound without a kernel fault.
-An idle Stop result of 0x08 was reported as failure. Writing 'unknown'
-returned -EINVAL without an output report or status change. A later Start
-produced failure -> unknown -> failure; the final report contained result
-0x02 and error 0x0007. The five unselected statuses stayed unchanged.
-
+Fixes: 995887a10da1 ("HID: hid-lenovo-go: Add Calibration Settings")
+Assisted-by: Pi:gpt-5.6-sol
+Signed-off-by: Aditya Dash <mradityadash@gmail.com>
+Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
+Tested-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
-Changes in v3:
-- Initialize command completion state before hid_hw_start() and
-  hid_hw_open().
-- Remove the unreachable zero-length calibration action path after
-  rejecting 'unknown'.
+ drivers/hid/hid-lenovo-go.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-v2 review:
-https://lore.kernel.org/all/CAFqHKTnQiTQc6joz-Y6tmjR=C5giF-MuHeBwu3rw+bmFVMQtqw@mail.gmail.com/
-
-v2:
-https://lore.kernel.org/all/cover.1788096666.git.mradityadash@gmail.com/
-
-Changes in v2:
-- Drop the FPS DPI patch; the existing request is correct.
-- Drop the v1 Boolean calibration-result mapping. Preserve values 0x00
-  through 0x02 and map only larger failure values.
-- Move the existing pending command state into the driver data and
-  initialize it in cfg_probe().
-- Use scoped IRQ-save guards and validate the report size and ID together.
-- Drop the v1 no-wait calibration path. Correct requests receive their
-  matching SET replies within the existing 50 ms timeout.
-- Reject 'unknown' and clear only the selected status on Start.
-
-v1:
-https://lore.kernel.org/all/20260821214810.87826-1-mradityadash@gmail.com/
-
-
-Aditya Dash (7):
-  HID: hid-lenovo-go: use the correct calibration commands
-  HID: hid-lenovo-go: use the right controller selectors
-  HID: hid-lenovo-go: initialize command completion before hardware
-  HID: hid-lenovo-go: return configuration request errors
-  HID: hid-lenovo-go: normalize calibration failure status
-  HID: hid-lenovo-go: reject unknown calibration action
-  HID: hid-lenovo-go: clear calibration status on start
-
- drivers/hid/hid-lenovo-go.c | 191 +++++++++++++++++++++++++++---------
- 1 file changed, 142 insertions(+), 49 deletions(-)
-
-
-base-commit: 1292bca0f8d835d2ad96d309595b2e97f3106d3d
+diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
+index 318b1152ff8b..b8248bf8965c 100644
+--- a/drivers/hid/hid-lenovo-go.c
++++ b/drivers/hid/hid-lenovo-go.c
+@@ -1911,18 +1911,18 @@ LEGO_DEVICE_ATTR_RW(rumble_notification_left, "rumble_notification",
+ static DEVICE_ATTR_RO_NAMED(rumble_notification_left_index,
+ 			    "rumble_notification_index");
+ 
+-static struct go_cfg_attr cal_trigg_left = { TRIGGER_CALIBRATE };
+-LEGO_CAL_DEVICE_ATTR(cal_trigg_left, "calibrate_trigger", SET_TRIGGER_CFG,
++static struct go_cfg_attr cal_trigg_left = { SET_TRIGGER_CFG };
++LEGO_CAL_DEVICE_ATTR(cal_trigg_left, "calibrate_trigger", TRIGGER_CALIBRATE,
+ 		     LEFT_CONTROLLER, index);
+ static DEVICE_ATTR_RO_NAMED(cal_trigg_left_index, "calibrate_trigger_index");
+ 
+-static struct go_cfg_attr cal_joy_left = { JOYSTICK_CALIBRATE };
+-LEGO_CAL_DEVICE_ATTR(cal_joy_left, "calibrate_joystick", SET_JOYSTICK_CFG,
++static struct go_cfg_attr cal_joy_left = { SET_JOYSTICK_CFG };
++LEGO_CAL_DEVICE_ATTR(cal_joy_left, "calibrate_joystick", JOYSTICK_CALIBRATE,
+ 		     LEFT_CONTROLLER, index);
+ static DEVICE_ATTR_RO_NAMED(cal_joy_left_index, "calibrate_joystick_index");
+ 
+-static struct go_cfg_attr cal_gyro_left = { GYRO_CALIBRATE };
+-LEGO_CAL_DEVICE_ATTR(cal_gyro_left, "calibrate_gyro", SET_GYRO_CFG,
++static struct go_cfg_attr cal_gyro_left = { SET_GYRO_CFG };
++LEGO_CAL_DEVICE_ATTR(cal_gyro_left, "calibrate_gyro", GYRO_CALIBRATE,
+ 		     LEFT_CONTROLLER, index);
+ static DEVICE_ATTR_RO_NAMED(cal_gyro_left_index, "calibrate_gyro_index");
+ 
+@@ -2018,18 +2018,18 @@ LEGO_DEVICE_ATTR_RW(rumble_notification_right, "rumble_notification",
+ static DEVICE_ATTR_RO_NAMED(rumble_notification_right_index,
+ 			    "rumble_notification_index");
+ 
+-static struct go_cfg_attr cal_trigg_right = { TRIGGER_CALIBRATE };
+-LEGO_CAL_DEVICE_ATTR(cal_trigg_right, "calibrate_trigger", SET_TRIGGER_CFG,
++static struct go_cfg_attr cal_trigg_right = { SET_TRIGGER_CFG };
++LEGO_CAL_DEVICE_ATTR(cal_trigg_right, "calibrate_trigger", TRIGGER_CALIBRATE,
+ 		     RIGHT_CONTROLLER, index);
+ static DEVICE_ATTR_RO_NAMED(cal_trigg_right_index, "calibrate_trigger_index");
+ 
+-static struct go_cfg_attr cal_joy_right = { JOYSTICK_CALIBRATE };
+-LEGO_CAL_DEVICE_ATTR(cal_joy_right, "calibrate_joystick", SET_JOYSTICK_CFG,
++static struct go_cfg_attr cal_joy_right = { SET_JOYSTICK_CFG };
++LEGO_CAL_DEVICE_ATTR(cal_joy_right, "calibrate_joystick", JOYSTICK_CALIBRATE,
+ 		     RIGHT_CONTROLLER, index);
+ static DEVICE_ATTR_RO_NAMED(cal_joy_right_index, "calibrate_joystick_index");
+ 
+-static struct go_cfg_attr cal_gyro_right = { GYRO_CALIBRATE };
+-LEGO_CAL_DEVICE_ATTR(cal_gyro_right, "calibrate_gyro", SET_GYRO_CFG,
++static struct go_cfg_attr cal_gyro_right = { SET_GYRO_CFG };
++LEGO_CAL_DEVICE_ATTR(cal_gyro_right, "calibrate_gyro", GYRO_CALIBRATE,
+ 		     RIGHT_CONTROLLER, index);
+ static DEVICE_ATTR_RO_NAMED(cal_gyro_right_index, "calibrate_gyro_index");
+ 
 -- 
 2.55.0
 

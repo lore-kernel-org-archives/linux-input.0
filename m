@@ -1,176 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B9E23A6EF1;
-	Tue,  1 Sep 2026 12:49:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF3A333263B
+	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 13:06:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788266999; cv=none; b=AaimCSAV85KJP8QqwD1sJtqC5+ioA6qYNBjQdu91VGTpxgGUUPtTrn1lwEBaCdUfaKbpsbkrG4OupiStTUY9JWZ2zeEhLSJiy7k1jAcWduxBZxIzQw4tuHFa8Ul9oSK6QpbBIezgYr2qUMDFGeWU8nA9OBisTEMF1rWjnEqKZWs=
+	t=1788267997; cv=none; b=Ack5TmnaxwVf5P6oZZLqZt80Cnz1YzugHvk/mITrG7XuuLEyfFsjDlFT8F5LLYQS2I62BXsL7Jfipr+pF6qKS/CDDBfcpiUxVuuZDR81lH/wOKNJVHj2eYyAg2KKe+C0ERBd2HPCgsLdUiYn3Ort8ndiMQqcU9Ik+eVqUw49ze0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788266999; c=relaxed/simple;
-	bh=0y/J+ZrGVGMj9MZbwWSpoeWcdu9a6xHt/2v43+J8Qjk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=N0VgUSbRMpO8beU/uRg9I+lTxL0U1RUejkfsZTn0nSCF1GxLPlMylIuNYIXk33abc04fsKxyQJAaFp+K3YLYS2zlWbte/KufeOKTxfHuKk7oeJnHeJxjvGaE4AblP+6Rp8h9v3/KPjHFqw6X1dsIYlJY6rZFqBHgz6Il/rx1zqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LcxiLZWg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788267997; c=relaxed/simple;
+	bh=+aSS3GsUC+5ykoHOso9YQs/0VWovAtIdiffXxIc9lCU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=sr1VxHxd7Etb/uNbPpYOx66Z1kwu/crIcdPoPjBwv6bpjcHYjcwI/2j20+y3LpwVY32sZk5I3DgIijUTCK/7tHxY9EguForwhTP6S3PTTLq/4CgKVhwTSkMb5pF9XRXv5jHzI3FZ1oKs4S0U2xrLn8hENkyfTHIvXu4fOWAvYqY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bLliAHWA; arc=none smtp.client-ip=209.85.128.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LcxiLZWg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFD3A1F000E9;
-	Tue,  1 Sep 2026 12:49:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788266997;
-	bh=3TBUnZS2wZlydfWZ9SQNfEhIEqbNu72wtUedh0Vl0VQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LcxiLZWgDzGROdU3Th8y8ahBPmE+fPR9Eg+Pgy1M/KbnzUOmSMbU42Y06Rb0T65t+
-	 HiS/svZU7vGrV7NFR1QFspK0qbEIxzl3WzUgpphdmgYvNjdke0yxnIlM9Tir28IS9o
-	 EsZDH6Hol1k8e9WmoiHs7vyRL8VDLnECIsFIGA8FpXwtj+a67kpLZg5mdftwzf0GnE
-	 xvsAQ1twoPLWZiVOuYRgti9Ba+IKw3DNzOJPhpwT0L0Wwv8+G2xF2P8lg4U03NL2Cm
-	 q0alWaA2U71rP3KY8TPL8MKBbcpS7gHSc7KAShKF2cSgL7mGJOmhY8WZrV7Mhvlzr1
-	 jGee60sH+qx5A==
-Date: Tue, 1 Sep 2026 13:49:52 +0100
-From: Lee Jones <lee@kernel.org>
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Aaron Skomra <aaron.skomra@wacom.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Peter Hutterer <peter.hutterer@who-t.net>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] HID: wacom: Use hdev->product in
- wacom_setup_touch_input_capabilities
-Message-ID: <20260901124952.GK2943942@google.com>
-References: <20260825151242.576456-1-lee@kernel.org>
- <CAF8JNhKWr7v7tY-tH_CGeLUQQpidx2_7J49c17TD0bw6xEi9BA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bLliAHWA"
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-861a2ae9c51so7283627b3.0
+        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2026 06:06:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788267995; x=1788872795; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=3/VKJC3MqZBrocLkf3UenbeidJdbk9BN7cs7RjfXB2Q=;
+        b=bLliAHWAROTalquPY8T8YzaXupd8fBk+hx/8ptRKzbN8E5Ss8rUlx4MEROXzn0cPMT
+         H+yBc3Q9QGFpC6GQdpV8MdWfEljWDP1bpWRClnijKlP7FwugWjzRMPTQZAfbVhlDSrHR
+         I6MzyH24FCTFf1vnflWPiKlDaSdLjipH37euz0OhnxxwvFJt8sX9KIiGTPXO2/vOo9w8
+         tgEOcz6Fp51Xa86k7BQtx3n2w9uaqvx3d/YvfhrKQe3q9lD68jen4f1mu7Tq6XFIPEAo
+         u6ZNI9FYkvtYOXzB7Pr0SUz7FCxIiK3yZKW8UCnSItNqqG6NUBvyicHUcaX1Cu5f9zS6
+         rTFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788267995; x=1788872795;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=3/VKJC3MqZBrocLkf3UenbeidJdbk9BN7cs7RjfXB2Q=;
+        b=bdUrp8wmmyxN/f9Shb1WdKoFak/2FEtI0yDGE+3F5qA7VpBmHz4cAATwiskR1Ue7F6
+         mZ+coxQLrY3OZ6BYvuedzk/SPO7PuS/lxamF2ej/5l6qh8Iucd12sa4R4bb8SKt224hq
+         WeVbTIjzJATbBSlvR9TbzCjquHG25+CMHSIhu9zZexswSVrY8GYCQQYxM6oTfCbA746K
+         uuK6bSvPJh16+2oaGSttB/gylSyLD9tK4OsMVQOXw42rzOUiEUkXLiIIx6/cRt4tXeDr
+         nIAO8SHyDnC1UmSldtqHTZhy/LFQi/MyLhZdv9B7DmCOkqrxO/D4oW0vVgvxhDoz9Ldn
+         dF9g==
+X-Gm-Message-State: AFuF++kffpEJ21kXVzlDHjuvtxRzDxXDWu2iLWkM4H/pb+YOh19CiGsq
+	1MtVrNunJeDCdXUY8TBM/8vugcVvF4fivTqPOZpfPuXNJph1x3NzPmlC
+X-Gm-Gg: AYBFou2DM7A77T6cTSnTjrH61mXRuWhNZDol45/gNsFiVxzEWPy+W/wIZSI9avFf70f
+	K6jL6za7bKIJTQ0xq5VcMU4s2gjTndBfTC0Bcl0k4zdMMp/Zz7J7RsdevENqNJ6Lmgwn9gSMY2h
+	cyuvf0wSsBB2PyUlnxNVKedxeGc0gMSYS5MKdyi2kxxWnOtkyyCHIsqYWgcbw1wJgHUmq7q9V/H
+	MmxJbbqNvDVB2U5/F8XgOi5gZdDWycxE+XUU/yq9LqecnyicD47PNs23IcZqEkSrCAhvMLvSGsh
+	Co7NtoBPDi1bY+2RoKKBwE+DZsEr9sQv8ZbnuPFjmh0rZVWqhW2KRS/KWuKV7O0wZi8S47TpZre
+	hhgcSbjmOGsOurM0+w1/ZmM/UzqeDe+RXIs4/D+VaZfLmEURNhj3djOL+tsD5lUGVbn98u9mLTT
+	e0x6qajlKblhgbs1P8r28WV3sO6aDFrjZU4AYWuOriepS/ysE+Df5jubYHkjAYdhf7
+X-Received: by 2002:a05:690c:f:b0:866:4769:d60d with SMTP id 00721157ae682-86647793634mr55746487b3.22.1788267994609;
+        Tue, 01 Sep 2026 06:06:34 -0700 (PDT)
+Received: from unix.. ([181.229.23.179])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-85e5ed1cd5bsm73290547b3.17.2026.09.01.06.06.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2026 06:06:34 -0700 (PDT)
+From: =?UTF-8?q?Iv=C3=A1n=20Ezequiel=20Rodriguez?= <ivanrwcm25@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	=?UTF-8?q?Iv=C3=A1n=20Ezequiel=20Rodriguez?= <ivanrwcm25@gmail.com>
+Subject: [PATCH 0/2] Input: fix two kernel stack disclosures via ioctl
+Date: Tue,  1 Sep 2026 10:06:26 -0300
+Message-ID: <20260901130629.24078-1-ivanrwcm25@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAF8JNhKWr7v7tY-tH_CGeLUQQpidx2_7J49c17TD0bw6xEi9BA@mail.gmail.com>
 
-Ping, Jason,
+Two places in the input layer copy a user supplied, possibly short
+buffer into an uninitialized on-stack structure and then keep the whole
+structure, including the part that was never written. In both cases the
+stale stack bytes can be read back from userspace.
 
-> Thank you for your effort and persistence! We (Wacom and Wacom's
-> customers) are lucky to have people like you working in this
-> community!
+Patch 1: EVIOCSABS copies min(_IOC_SIZE(cmd), sizeof(struct
+input_absinfo)) bytes into an uninitialized struct and stores the result
+in dev->absinfo[]. EVIOCGABS returns it. Only the resolution field is
+currently cleared for short sizes.
 
-Thank you! :)
+Patch 2: the compat path of input_ff_effect_from_user() aliases the
+native struct ff_effect with the smaller struct ff_effect_compat and
+copies only the compat sized prefix, leaving the tail untouched.
+input_ff_upload() stores the full structure, which a uinput based force
+feedback daemon can read back via UI_BEGIN_FF_UPLOAD.
 
-> In addition to making sure that you know your contribution is greatly
-> appreciated, I am giving you an initial testing feedback so you know
-> you are on the right track.
-> 
-> I manually tested a few older and new Wacom tablets. Some of them have
-> touch switches, some don't. They all worked well!
-> 
-> Two more details I'd like to share.
-> 
-> The first one is about the touch-only tablet. In all the models of
-> Wacom tablets, there was only one model that is touch-only. It was a
-> Bamboo Touch (model CTT-460) released on September 24, 2009. So, it
-> was more than 17 years ago. However, the quality of Wacom tablets are
-> so high, it is possible that some people are still using those ones
-> ;).
-> 
-> The second one is about the type of touch on/off switches. There are
-> two types of touch on/off switches: it can be a soft key or hardware
-> switch. The hardware touch switch is easy to understand. The soft key
-> touch switch is actually an on-screen display in the shape of fingers,
-> where the touch on/off is controlled by the driver: [1]. This softkey
-> touch switch, somehow, is not reported to the userland by the existing
-> driver. Your patchset doesn't show it either.
-> 
-> I will do more testing to figure out the root cause of the softkey issue.
+Both are fixed by zeroing the structure before the copy. The patches are
+independent of each other.
 
-Is there anything left for me to do?
+Compile tested on x86_64 with CONFIG_INPUT_EVDEV, CONFIG_INPUT_UINPUT
+and CONFIG_IA32_EMULATION enabled.
 
-> [1] ttps://github.com/linuxwacom/input-wacom/blob/master/4.18/wacom_wac.c#L2063
-> 
-> On Tue, Aug 25, 2026 at 10:09 AM Lee Jones <lee@kernel.org> wrote:
-> >
-> > Replace the lookup-dependent 'wacom_wac->shared->touch->product' references
-> > with 'hdev->product' inside wacom_setup_touch_input_capabilities() since
-> > 'hdev' is already available (via container_of) and represents the touch
-> > device itself.
-> >
-> > Signed-off-by: Lee Jones <lee@kernel.org>
-> > ---
-> >
-> > v7 -> v8: New patch
-> >
-> >  drivers/hid/wacom_wac.c | 18 +++++++++---------
-> >  1 file changed, 9 insertions(+), 9 deletions(-)
-> >
-> > diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> > index a29bf051ada7..4436faf2d2bb 100644
-> > --- a/drivers/hid/wacom_wac.c
-> > +++ b/drivers/hid/wacom_wac.c
-> > @@ -3953,8 +3953,8 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
-> >  int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
-> >                                          struct wacom_wac *wacom_wac)
-> >  {
-> > +       struct hid_device *hdev = container_of(wacom_wac, struct wacom, wacom_wac)->hdev;
-> >         struct wacom_features *features = &wacom_wac->features;
-> > -
-> >         if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
-> >                 return -ENODEV;
-> >
-> > @@ -3963,9 +3963,11 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
-> >         else
-> >                 __set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-> >
-> > -       if (features->type == HID_GENERIC)
-> > +       if (features->type == HID_GENERIC) {
-> > +               hid_dbg(hdev, "generic touch setup\n");
-> >                 /* setup has already been done */
-> >                 return 0;
-> > +       }
-> >
-> >         input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> >         __set_bit(BTN_TOUCH, input_dev->keybit);
-> > @@ -3997,19 +3999,17 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
-> >                 input_dev->evbit[0] |= BIT_MASK(EV_SW);
-> >                 __set_bit(SW_MUTE_DEVICE, input_dev->swbit);
-> >
-> > -               if (wacom_wac->shared->touch->product == 0x361) {
-> > +               if (hdev->product == 0x361) {
-> >                         input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> >                                              0, 12440, 4, 0);
-> >                         input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> >                                              0, 8640, 4, 0);
-> > -               }
-> > -               else if (wacom_wac->shared->touch->product == 0x360) {
-> > +               } else if (hdev->product == 0x360) {
-> >                         input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> >                                              0, 8960, 4, 0);
-> >                         input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> >                                              0, 5920, 4, 0);
-> > -               }
-> > -               else if (wacom_wac->shared->touch->product == 0x393) {
-> > +               } else if (hdev->product == 0x393) {
-> >                         input_set_abs_params(input_dev, ABS_MT_POSITION_X,
-> >                                              0, 6400, 4, 0);
-> >                         input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
-> > @@ -4039,8 +4039,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
-> >                 fallthrough;
-> >
-> >         case WACOM_27QHDT:
-> > -               if (wacom_wac->shared->touch->product == 0x32C ||
-> > -                   wacom_wac->shared->touch->product == 0xF6) {
-> > +               if (hdev->product == 0x32C ||
-> > +                   hdev->product == 0xF6) {
-> >                         input_dev->evbit[0] |= BIT_MASK(EV_SW);
-> >                         __set_bit(SW_MUTE_DEVICE, input_dev->swbit);
-> >                         wacom_wac->has_mute_touch_switch = true;
-> > --
-> > 2.55.0.887.g758fc8c411-goog
-> >
-> >
+Iván Ezequiel Rodriguez (2):
+  Input: evdev: zero absinfo before partial copy in EVIOCSABS
+  Input: zero ff_effect before compat copy in input_ff_effect_from_user
+
+ drivers/input/evdev.c        | 2 ++
+ drivers/input/input-compat.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
 -- 
-Lee Jones
+2.43.0
+

@@ -1,72 +1,72 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 925C73B0AD4
-	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 13:06:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 264F54052D1
+	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 13:06:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788268000; cv=none; b=ky80qafZu80ZDSDAgu7DYULxmyIZQhQqQF+265J8h2nVXfyI6+Db/hPHhIxv5FCNBtO0roWDBUgruzQIqH7tBCb+bqhGAoWYbEx6brWXd0o/FNhA8h1P1bCcJFCMxyN7BNC7RlhMDNnGqCwino58tiXtQHfqqQknRTx7dPBnDXY=
+	t=1788268002; cv=none; b=nOhzXLk32kByqgt8ArJ5MSkZsli243T7rbUlu22pHt7o5x7hr14oDyO7NS7M91PzWcHJnaR8vLD7nv4RmqkPFa9Nuaws50g95nifAS8SSGMIqdz58HsLHxHRJ5fDrfUBRLiD7jCn3mVQYERByzScCune2IGbQYaSOFou5ZrJEbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788268000; c=relaxed/simple;
-	bh=P2zz5GWw5QOn8YaZoIVLc4DNYCylv7L4DbveOHsNUOw=;
+	s=arc-20240116; t=1788268002; c=relaxed/simple;
+	bh=8oafQKn5E1afmjR0jBaThKt8NuujDHb/1wpNQn0jknc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GX3gWswcw71jGlW9Sztg5/GeFzijwXD70S5nLvLE5bFbA2MdB1llqY6Nf/bFR68csmA8dCNSI6/Jppp1HPkSxbzF0MyGuznuHD5prtacNOVE6+Izo3jjcmYpLdSCMDchFOBwPG4P5NarWXBy2mvIK1Geqjz9KqUH9plxpu1usNs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jXXf+Jb9; arc=none smtp.client-ip=209.85.128.178
+	 MIME-Version:Content-Type; b=ByYiR7P8Ue6JaPUBdmsDoSScFc+PeFLuxBcF1CDm/G6oEwXwDx1cwJNhhzEyLAaOS3kF+TwQNvSCGGKJUQsGMP4rR1TvYV4Zr9xue7o+mKBrBj5RYN73tBk1DMu8yqO4YMos9c/c/Qwg9PoFNSuN9ySEHOVz/IjwzZnKai73Fws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R6Btcb3b; arc=none smtp.client-ip=209.85.128.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jXXf+Jb9"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-86b03b75fecso3528187b3.0
-        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2026 06:06:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R6Btcb3b"
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-836cb2fa1bcso45107937b3.1
+        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2026 06:06:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788267997; x=1788872797; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788268000; x=1788872800; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=5yfDIPBjmDhoPL2UJgt15HMxvXWs2DkCFmbgzNrEbnE=;
-        b=jXXf+Jb9w2nG0z9AsmUV9dAvDyjXOKrAcjzL7xBAmHTOdwUZBrXwNwVw2ynJ5wRFkc
-         J6/G7TCGLbS7KiGh+ouqNFGYbWqiOqMfQwXOvs04CoHOnYLS5yWVw35pIRzrB+sxpGY+
-         5KFX22I16wAi97gkfM8aC5VGPRe2WIJt7Blw0eT83OtMwt+B4ciYce+BZQUvbwjkFHJ8
-         5DCG6BLxSRFWE2WWP2/l8kVznLTZclvExZntdQSL9EpBM8+k8t8F+bPPnMFsJakMjS3B
-         YkwtfdZHMdGp5e/8GgRR17xz5v535hhT40VS3i8pvaf8MlluUSLb+BgZaQcM/y0UnNb2
-         7Z+g==
+        bh=o7XTCNgZ64MJCC1OTIr3HJaK9bEsF0FVXR7920AQRVk=;
+        b=R6Btcb3brXw0ZKyH1xCJstdChuCpgMpeYfUIsBtKfGAR7lkq5AQ/CeYmxfwmTsOLtn
+         DDzUZvH95Jik2Kk1/VsnuWNSLvZDx1jUfhI9PUXfqagtgBHxkxv4WE65xxZoqXJZnTzM
+         BNGuyx4QOHNUPLbjJaq3EnshgS4maAQhID4hzwXrYaPyxh6KxR/1rXhiuRvReioaZU6H
+         rfqJ386QyyT85P02c5suurWspHRq0BtZYvEbvR3QGQt9yE4BExmbHkZS+UyUsxDNmzKC
+         l5qKc6tOIDF/tX31HyqbePEjCmcarbc0lnnjqODh6G+Pv/i2gQ1/s6USKxtcwqhcxpQT
+         A2Yg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788267997; x=1788872797;
+        d=1e100.net; s=20251104; t=1788268000; x=1788872800;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=5yfDIPBjmDhoPL2UJgt15HMxvXWs2DkCFmbgzNrEbnE=;
-        b=ljFzsePSi6m1CEPoV4vmot59dLUR6yi42+9s7rz0r4AjMdBnvEXQ09FKYKMbHkRvZV
-         wg54TlD6C9uklwc40q2hnL62DRy47KzDGY7CZBs83fpb3V1LdPJ7Ja6wZOIAglPSWf3A
-         jseQm44wkbdtcRfe6Prin5ufcXi5vDcQ4CmDCXrLv4zSJA0vEofx/A5YvsAtiqBgzmE8
-         ySu0g4CaFHtyTrsrRZOU44p1Qd20k4sSgpvRg7oaDjZPM2xE/iEkbPzUlK2dl9S2t0iv
-         082oSKTTuGAf+Smaybupw5SuFEzxSYuaN3vqV2apAFxa2GoQWgbrjVhlJOh9Dv+5gZOZ
-         4EEQ==
-X-Gm-Message-State: AFuF++mik4cHxObcNwijIjALlu1Rodi6CjG17Ze13N1PmXeakD1WGiFi
-	5kz8h1Hs1hdsz5ZOsU0/d97Zj1aaCnqaM6zXaTNiaiChvIElSQoyrCuu
-X-Gm-Gg: AYBFou2VmEmPKSpYH1xFH7JmUX8EwpKlddtDolcEUgostkjNi0g5vQ9XSr9COFg/ord
-	DdmXgJZqfcwQVO/wD8sk6Cs/DgfP8zhdfklBOeLI6JK353C+JUxeJgVqFb+7c2hmA2PIII8Fvne
-	oojYb3NE9gIWFrBLF+hGo8V/yF8O4xAe8YmVTjzjiJR7RI3w/kCVUHUuOZOyw9f00fwQDOoh38m
-	ML8J0dG24m15mx00ZJsWYLXQzvRLbU2jPiWyiHJFm5bR7OEqgn6D5NvDVlcdawo2emw+7oPvh2m
-	fkEI4h9tDQ8e8JIS9Is1PhwRSKdg+lNxkOCjX/L2nMZ/0wn80em9n85ZJgzPbAmkSJDV483r+kf
-	vFtyQy94wIzIH8/L+ASI3c7998CD2+I+U2PDbZOf/Fw8CdvmeOLRJgVKaU/AiVmbV9VSU0YjwLD
-	V3KQjdGCwZoMrel91B74qhM13SYJVZTB9yilVwgi4OZKOlGWMzY4+ukAop/OrGHxO3
-X-Received: by 2002:a05:690c:e3c4:b0:814:7a54:3a93 with SMTP id 00721157ae682-86873382f72mr35758917b3.23.1788267997408;
-        Tue, 01 Sep 2026 06:06:37 -0700 (PDT)
+        bh=o7XTCNgZ64MJCC1OTIr3HJaK9bEsF0FVXR7920AQRVk=;
+        b=Vzxx0ovQOxYCxXILCf6KjcvjAEpyEVGPX/FSnb61aey8GnZzZlRmhIC5xfSTaSFVhj
+         yw0vacaKDfr0Hidi91JQYFdL7DbBA2TLwwFFJKi0ypxaNacU6C6iuQb5z52lAiDnnDEV
+         FW+mcRw21JxB3iv3ejps+/sPv/qFnM3Q2QkgNQKJZcbDGV6zTHlE3bzDWtr8jvBLsCAN
+         qMWryzX1a5+hf15OlJKjiLdnZ+wX3i33LUb6alw46wn1izq+jwVvdc691IfpdV88j9Qh
+         jH1xZvDnmQe7gzxAKr96fwdjrxY6Wz9CZXlzahzZrEQVKaTEGnLhTH3DJ08HCEh6IXqo
+         9yXw==
+X-Gm-Message-State: AFuF++npIPEN5HJN49f97knLPGe5Bsxo6Odn5OdRDsYKygCgrUhZjIPX
+	/Q+MZ8A4rFi/dRc6nN/HZebTR0x6qgldrKQ1kp2eyyoGNPzpJKfjpD6CraC1dpOtS50=
+X-Gm-Gg: AYBFou211hYYDG3TcnBI1hHb3id/WvO15DU5+HyakaA/Z/I+ULDoefTmbcoScvIMnRC
+	sV3S9HijSxcYQHCQFPgJis5Xhzrm/8kH3iF3j/0QkBNmXX7ULlJmsIvpSVRgTZ6jvlXx8Cy8kRV
+	tVmuKtdZQ9aoS1eBKtv1eEU1MFJz5fVQfDS7cBlpGNPCUlR1Z1cxGij7sflvnJjbPl2eIorx6Ma
+	utjByxXdZurqOymrLVxrtWSiMdxzuc4sAXZwyVIUFOGH/ND+CqblOkZN0PXSWYLUR8XCt790Iui
+	WG+EzXAulCVZ45Vu+qmCim/IPZTnWYKAithKl9UIwO1gptW/voyPZNZ/+zpITfOICeCnZp2XQUe
+	w1RNYPXXLzrdkStE+y+q6QHBGdNiVyRvbowlvnWoMAb0JV8UY8Aspzo+usykt3+0Ms/vZrtTAdM
+	f9ot1Uhz8tI6V1nj8P20VIsYi23czCxt58Fq/6vMDCPIOvVyp/k1+4w2yEFi1TGwO2
+X-Received: by 2002:a05:690c:4005:b0:856:98e2:6e9b with SMTP id 00721157ae682-85d69640f36mr102875907b3.5.1788267999872;
+        Tue, 01 Sep 2026 06:06:39 -0700 (PDT)
 Received: from unix.. ([181.229.23.179])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-85e5ed1cd5bsm73290547b3.17.2026.09.01.06.06.35
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-85e5ed1cd5bsm73290547b3.17.2026.09.01.06.06.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2026 06:06:36 -0700 (PDT)
+        Tue, 01 Sep 2026 06:06:39 -0700 (PDT)
 From: =?UTF-8?q?Iv=C3=A1n=20Ezequiel=20Rodriguez?= <ivanrwcm25@gmail.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org,
 	=?UTF-8?q?Iv=C3=A1n=20Ezequiel=20Rodriguez?= <ivanrwcm25@gmail.com>
-Subject: [PATCH 1/2] Input: evdev: zero absinfo before partial copy in EVIOCSABS
-Date: Tue,  1 Sep 2026 10:06:27 -0300
-Message-ID: <20260901130629.24078-2-ivanrwcm25@gmail.com>
+Subject: [PATCH 2/2] Input: zero ff_effect before compat copy in input_ff_effect_from_user
+Date: Tue,  1 Sep 2026 10:06:28 -0300
+Message-ID: <20260901130629.24078-3-ivanrwcm25@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260901130629.24078-1-ivanrwcm25@gmail.com>
 References: <20260901130629.24078-1-ivanrwcm25@gmail.com>
@@ -79,47 +79,45 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The EVIOCSABS handler copies at most the user supplied ioctl size into
-an uninitialized on-stack struct input_absinfo:
+In the compat path input_ff_effect_from_user() aliases the caller's
+native struct ff_effect with the smaller struct ff_effect_compat and
+copies only the compat sized prefix:
 
-	if (copy_from_user(&abs, p, min_t(size_t,
-			size, sizeof(struct input_absinfo))))
+	compat_effect = (struct ff_effect_compat *)effect;
 
-The size comes from _IOC_SIZE() of the ioctl command and is therefore
-fully controlled by userspace. A short size leaves the trailing part of
-the structure holding whatever was on the kernel stack, and the whole
-structure is then stored into the device:
+	if (copy_from_user(compat_effect, buffer,
+			   sizeof(struct ff_effect_compat)))
 
-	dev->absinfo[t] = abs;
+The tail of the native structure is never written. Callers pass an
+uninitialized on-stack object, for example evdev_do_ioctl() for
+EVIOCSFF, so those bytes keep their previous stack contents.
+input_ff_upload() then stores the full native structure in
+ff->effects[id], from where a uinput based force feedback daemon can
+read it back via UI_BEGIN_FF_UPLOAD, disclosing kernel stack memory to
+userspace.
 
-EVIOCGABS hands that back to userspace, disclosing the stale stack
-bytes. Only the resolution field is currently cleared, which covers the
-legacy struct layout but not an arbitrarily short size.
+Zero the effect before the compat copy.
 
-Zero the structure before the copy so any part not supplied by the
-caller reads back as zero. The existing resolution fixup is kept, since
-it also handles a size that partially overlaps that field.
-
-Fixes: 448cd1664a57 ("Input: evdev - rearrange ioctl handling")
+Fixes: 2d56f3a32c0e ("Input: refactor evdev 32bit compat to be shareable with uinput")
 Cc: stable@vger.kernel.org
 Signed-off-by: Iván Ezequiel Rodriguez <ivanrwcm25@gmail.com>
 ---
- drivers/input/evdev.c | 2 ++
+ drivers/input/input-compat.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 3a718d600006..8bfaaa45e0b9 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -1229,6 +1229,8 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+diff --git a/drivers/input/input-compat.c b/drivers/input/input-compat.c
+index a5043193ead8..8860a0730294 100644
+--- a/drivers/input/input-compat.c
++++ b/drivers/input/input-compat.c
+@@ -76,6 +76,8 @@ int input_ff_effect_from_user(const char __user *buffer, size_t size,
+ 		 */
+ 		compat_effect = (struct ff_effect_compat *)effect;
  
- 			t = _IOC_NR(cmd) & ABS_MAX;
- 
-+			memset(&abs, 0, sizeof(abs));
++		memset(effect, 0, sizeof(*effect));
 +
- 			if (copy_from_user(&abs, p, min_t(size_t,
- 					size, sizeof(struct input_absinfo))))
- 				return -EFAULT;
+ 		if (copy_from_user(compat_effect, buffer,
+ 				   sizeof(struct ff_effect_compat)))
+ 			return -EFAULT;
 -- 
 2.43.0
 

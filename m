@@ -1,63 +1,63 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4F17372B2B
-	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 06:36:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4820834DB72
+	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 06:36:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788244580; cv=none; b=hSw3Ka1uiM88d4/MCxY7tmgVB39GneeAFPfuOOh1/xrRPLra0NpUpgz0Xa0e8Ae9J8IX0V1SRvlUwddU8wg+p8asEbgGdJRVo/sNcr2qzCPGzIaACl4tgoG7toUXDNb2Y4M8AI3GMHEu0b4XnfAKPBVw1cmTOmNpTzimQNlDy5U=
+	t=1788244583; cv=none; b=O9FKf9UlOHLgvsVXo475W8gF6ZhzG+CNwKpBehf0c/QV5I6Rc6AxPEHeePp+bj6tYZCYrOdF/nAYKm56UOULu93YK3olrpQmsWSvJkkGFNrbY+zpyeS2qqUhKq+wIkYuZ7fZWmBAXxZfIvVn8fLyZ7YrK+U0VsViEYU9J3eYqes=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788244580; c=relaxed/simple;
-	bh=reLdAq8P0t49kvDWPzWt8gweqMKLVAKU+JnfiiZyo8k=;
+	s=arc-20240116; t=1788244583; c=relaxed/simple;
+	bh=aEjxZJwZLa+q7K9xSjUy2o9VFRy7tyW3hxCACheKEzQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Vl+pYdcT2MsWbdoQ9Fc/e2obEAOHgX4r5t09gT8h65VOJUkRXXoGeNLv9vP5BGGu4njAO8S7s/uFFNN1qx40TuC0NDq5mFZKkI7lmR3YztI6SpW2CA78czdV7M1f1kgR1yG/UBxFu/kt1R/5w2QusQjEsOzCCwKyqfNOzm4bYnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FtSpiDIJ; arc=none smtp.client-ip=209.85.215.180
+	 MIME-Version; b=VMPIU6Pl54d/RIb7njfygZ89P9mqknfTEQxWu9MoOmMv4gu2SX0RPIHE6R1yn7qm2mclyEuw0QsYIxOLGng8BP52oP/PCMTiPXCRfATPCz4i5jc2cHZgW4bxTJs10ctUiktCIIZhfLQL6eDnDDHGJux+it8hbO4qfo8UxzbL0zU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LW0/eV0G; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FtSpiDIJ"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-ca12086c06eso3519747a12.0
-        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 23:36:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LW0/eV0G"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-cbedf433a99so722762a12.2
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 23:36:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788244578; x=1788849378; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788244582; x=1788849382; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=LxJQOF7esWYVaSzzh3UuNgbHtz6kTLWO9YCyNun8jQU=;
-        b=FtSpiDIJPEgFZ7plO/7E82h1VqtthVqVzPO2N6F/U4mGIbUVQWKqf0IAiwvWfbhsnk
-         Vpnfk5xLtrht2uuLSBMgNpmVYnIe/jD+cy9qwI+0xo7QvCxLauA0n3LKcfUf8z7UKcL5
-         OIgoJWbFQtSAO8ad8xn6ujseuwZ8JQsDE9yGHNOvnjOoeVEMs5U6CQAQjj1hB6sHWGfm
-         GjOBSF7KJ5CBSC+Aa1vhBIK+RG/c/r3SqNovgtlcFJDuxbiVAhG4liDGszpCazWb+LiE
-         SxnlnssdsCloWEgY/JzAWt8h/XDHi66ztJ0GO5qucr2/Lrp1rQK8UcdVLMfvJi32F7Qb
-         VnqA==
+        bh=xWOAHh0q81CutOvcz4kXnkwApjt4e2WZQIvquKf0gdA=;
+        b=LW0/eV0GCjU5Q7Eegs7cRAqdww3dwYBE4QHdHXYHGB/jHl46hpsLwRe24TXaikARaK
+         7CokcoxkzO0uFk1arXsaLSiIK9wrWANM7+gNNkGjNihkUG0ORthzofRyGnLLiZm4k7eT
+         Opj4ooTqYc6h0mNR0rrKLmA0EqsdgJC/Lv7tz8iR4tD3LJx1YxYhjSMKg0WE6NmRrD5T
+         ify/7M91krvUx/TAGIAw47SnAeWQ5YmGv6805gsYxFbuWGDr5Dro4GGuKwCO0TmCAXeK
+         2PauxsYQMIQVOv02/6Yym03Qid8gLhYFWTFZ3BYWwfAkDqUAvfxTBmKIyQXvDL//H2ud
+         FD0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788244578; x=1788849378;
+        d=1e100.net; s=20251104; t=1788244582; x=1788849382;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=LxJQOF7esWYVaSzzh3UuNgbHtz6kTLWO9YCyNun8jQU=;
-        b=KcZa1dnv5qYArxas1Vefa6yCUwsC81LYL+fy+iHEiMSmqqSLZcjKNTttpskYhmWesq
-         IQphU/kpkB2eT/674Gh+OQKXZiYE9T28ycUNx/Sza9iCpwtqoaCiqf9y+E2L5imSJO/Y
-         o2iqDzyYTfsLvVuQXamq78o8A4anCIYDj/yUkJ6teFFoNO5Flj9D5ou9SI1Y+HePQIVz
-         rYx1Dtcq/rXDsC8V5ueLDLmbX85Lh8EC4EF7cBgqkyDdwPr5kAcBQ/p9GxtxU8KuaLbI
-         9gycZlOdCR8d3xPQaFHhCBxD4ijQ2ZjuBG0b/fhcf7X4Ncew62W5pZhnSonAAymmD2q+
-         bxGA==
-X-Gm-Message-State: AFuF++k+55A9N9Ne+HnJP8UJDd8jE0Z6HkLkWFvQ1GVIFNumh0VLvVbX
-	qcnqOmHo7OmoF+HvPbTYZjsJI//UeGztOEQqNgZAD/ppA3IOEpHfYx+j
-X-Gm-Gg: AYBFou27YUzlKt8qi5qEOJDqmw99zHuRbyc/VO4UlKXCe2TT7Rp3BMb8a2J3+rAZjs/
-	+hvmVMjvtRp5HS+cGu/nhqEjm/JyUe448EYOOb/5XJdsuYcsKz7TmScy+NO/Nb6n+9ydzcfYGMs
-	pG2XpEEokFNoWSdPG7geKftSvKiLV6g8WJ/kegOPA74XaA3/1ZsuA4UD4YpXJX8KPzc16uJU6nX
-	PKyEN6aJYWB/+j6DsDV7enjB8Gf6Pgr4CVBl14vDI/LuycS4L+NSqP6WOKvt4kMfuAqCsQL5/dQ
-	yBbn2wRfu0vAsYFCsV0dm+vuogCAO6ccU/U4NiJiEZ1+78WoKG2qlEFP4e0KbDA3MiCi58jgpod
-	30LmyI2JAR1vBx2GUnm3ed20Tk/za9+i7iltonuByXXgpm23LPlu/+2VBAgoYlMKvuYXUNWIgwN
-	FaJkUBKPxzAt4+CMVy06gSv7DgouciDtpyJYdsYjiugYkEK6Hann/6q3mTLs6z48wN4iI9qgHbj
-	7xRjsBBqNH/Gg==
-X-Received: by 2002:a17:90a:e185:b0:37f:eafd:3505 with SMTP id 98e67ed59e1d1-396d0ecbdb9mr52394238a91.6.1788244578206;
-        Mon, 31 Aug 2026 23:36:18 -0700 (PDT)
+        bh=xWOAHh0q81CutOvcz4kXnkwApjt4e2WZQIvquKf0gdA=;
+        b=JxMtjNQixON+ZB19evKutuyJbqRBfCogkZZCbXC2yNNDTwRkhQzTXJzbVgmonI6bcx
+         8aZAXebVoIoSwGdD+whebNe/BbXO2YMdTALnT/vRoi0RNHdWadNT7zAP4zclq8qEj79l
+         j4eCbszIh9Z7nVQbtka61De6ucjfEi6tzDScbXY8Jn7ULrd+if18Ig8ITpfMP0JsA8QF
+         VUXyVzHpBit/VFIfcW0jkoR9W8wd3hf/vxNi7J8V85PDZQY2BriVtpMXS6MV2OhNCxFB
+         acdo5GXmoSLyrkzUYLKtl4y9+6RUgBJg9fDiHw7ZQ3c0tx8UsV/BvOLIaJDxaD3CzHKu
+         ktAA==
+X-Gm-Message-State: AFuF++kXHr7goTkRGoPyGy8g8+YYjYDSZ/w3mPwG5lKctYH9bKrdNMK2
+	ss9oFwIYrwifm82a+rOMHKY1FMzkvB5uJgEwecJOpM2D+rk4/xuxVkd/
+X-Gm-Gg: AYBFou3ZhiTGy4UmrLdXspTmoR/tEZbLylEBc6GBOwCtmwnXyT1nmN+JWUSVtIRxw3C
+	6J6t/OHpy+Jskv3/8vfRFkquGorW4CM61zmFEwKFTH2eDQ/LvGIjftXAM3irR+Bw4RUuQitTL3X
+	f+QpnI8UfIrN5z3srB26iZnRK0sJu4HFeG6l7Wbf3hHr/BJKsWapU0+3sGzQZ1/d2zrjhpZofFx
+	ZX9Ccp+w1DDuFCxZNGnq6bwGswNlLVTmCMGZj5wytVqOl7NIuE71cKMjma54KCBdfVkWvD8gDo7
+	TbuaXWuQWBUNR4oGmallg97k/O12ugXOd0RHEqKSw+oA7H437fgwhp0dqvAiuZKgpIq3XeyOgE3
+	7aZWj2zGu16pruLA8h0EWFcA8JmF4QjDYtw1a7QeyxkfYe7ft+WKRl0OcaeAzC82vcH09twOhGy
+	MoR9xtEzQusJ3E/r6lFMKX9jZhxtuzZXDY+bktwEVqAw5+XCivEDjhTJdShUm30JVC+RKXsJHjv
+	WhQFOgtaqhV6bZ8NKn1l5gh
+X-Received: by 2002:a17:90b:164b:b0:38e:4f41:83df with SMTP id 98e67ed59e1d1-396d1007e54mr46589908a91.15.1788244581535;
+        Mon, 31 Aug 2026 23:36:21 -0700 (PDT)
 Received: from localhost.localdomain ([103.16.69.192])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0dc854dsm32694425c88.10.2026.08.31.23.36.15
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0dc854dsm32694425c88.10.2026.08.31.23.36.18
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 31 Aug 2026 23:36:17 -0700 (PDT)
+        Mon, 31 Aug 2026 23:36:20 -0700 (PDT)
 From: Aditya Dash <mradityadash@gmail.com>
 To: Benjamin Tissoires <bentiss@kernel.org>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
@@ -65,9 +65,9 @@ To: Benjamin Tissoires <bentiss@kernel.org>,
 	Mark Pearson <mpearson-lenovo@squebb.ca>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/7] HID: hid-lenovo-go: use the correct calibration commands
-Date: Tue,  1 Sep 2026 12:06:02 +0530
-Message-ID: <d10f7771d20d356dbba45047894aca0b41e7a3ae.1788222001.git.mradityadash@gmail.com>
+Subject: [PATCH v3 2/7] HID: hid-lenovo-go: use the right controller selectors
+Date: Tue,  1 Sep 2026 12:06:03 +0530
+Message-ID: <ec070d00bfb9c9a83b2883ccee62cba7da62028b.1788222001.git.mradityadash@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <cover.1788222001.git.mradityadash@gmail.com>
 References: <cover.1788222001.git.mradityadash@gmail.com>
@@ -79,85 +79,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The calibration attributes pass the calibration operation as the command
-and the configuration command as the sub-command. This sends each request
-with the two fields reversed.
+The right imu_enabled attribute selects FEATURE_IMU_BYPASS, and the right
+reset attribute targets the left controller.
 
-Swap the command and sub-command values for all six calibration attributes.
-For example, the malformed left joystick Start request is:
+Select FEATURE_IMU_ENABLE for the right imu_enabled attribute. Target the
+right controller for a right reset.
 
-  05 00 04 0c 03 01 ...
-
-The corrected request is:
-
-  05 00 0c 04 03 01 ...
-
-The bytes identify the output report, configuration group, command,
-sub-command, left controller, and Start action, in that order.
-
-Fixes: 995887a10da1 ("HID: hid-lenovo-go: Add Calibration Settings")
+Fixes: 82cd9bc866e1 ("HID: hid-lenovo-go: Add Feature Status Attributes")
 Assisted-by: Pi:gpt-5.6-sol
 Signed-off-by: Aditya Dash <mradityadash@gmail.com>
 Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
 Tested-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
- drivers/hid/hid-lenovo-go.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/hid/hid-lenovo-go.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-index 318b1152ff8b..b8248bf8965c 100644
+index b8248bf8965c..b937d11dd6f6 100644
 --- a/drivers/hid/hid-lenovo-go.c
 +++ b/drivers/hid/hid-lenovo-go.c
-@@ -1911,18 +1911,18 @@ LEGO_DEVICE_ATTR_RW(rumble_notification_left, "rumble_notification",
- static DEVICE_ATTR_RO_NAMED(rumble_notification_left_index,
- 			    "rumble_notification_index");
+@@ -1999,13 +1999,13 @@ LEGO_DEVICE_ATTR_RW(imu_bypass_right, "imu_bypass_enabled", RIGHT_CONTROLLER,
+ 		    index, feature_status);
+ static DEVICE_ATTR_RO_NAMED(imu_bypass_right_index, "imu_bypass_enabled_index");
  
--static struct go_cfg_attr cal_trigg_left = { TRIGGER_CALIBRATE };
--LEGO_CAL_DEVICE_ATTR(cal_trigg_left, "calibrate_trigger", SET_TRIGGER_CFG,
-+static struct go_cfg_attr cal_trigg_left = { SET_TRIGGER_CFG };
-+LEGO_CAL_DEVICE_ATTR(cal_trigg_left, "calibrate_trigger", TRIGGER_CALIBRATE,
- 		     LEFT_CONTROLLER, index);
- static DEVICE_ATTR_RO_NAMED(cal_trigg_left_index, "calibrate_trigger_index");
+-static struct go_cfg_attr imu_enabled_right = { FEATURE_IMU_BYPASS };
++static struct go_cfg_attr imu_enabled_right = { FEATURE_IMU_ENABLE };
+ LEGO_DEVICE_ATTR_RW(imu_enabled_right, "imu_enabled", RIGHT_CONTROLLER, index,
+ 		    feature_status);
+ static DEVICE_ATTR_RO_NAMED(imu_enabled_right_index, "imu_enabled_index");
  
--static struct go_cfg_attr cal_joy_left = { JOYSTICK_CALIBRATE };
--LEGO_CAL_DEVICE_ATTR(cal_joy_left, "calibrate_joystick", SET_JOYSTICK_CFG,
-+static struct go_cfg_attr cal_joy_left = { SET_JOYSTICK_CFG };
-+LEGO_CAL_DEVICE_ATTR(cal_joy_left, "calibrate_joystick", JOYSTICK_CALIBRATE,
- 		     LEFT_CONTROLLER, index);
- static DEVICE_ATTR_RO_NAMED(cal_joy_left_index, "calibrate_joystick_index");
+ static struct go_cfg_attr reset_right = { FEATURE_RESET_GAMEPAD };
+-LEGO_DEVICE_ATTR_WO(reset_right, "reset", LEFT_CONTROLLER, feature_status);
++LEGO_DEVICE_ATTR_WO(reset_right, "reset", RIGHT_CONTROLLER, feature_status);
  
--static struct go_cfg_attr cal_gyro_left = { GYRO_CALIBRATE };
--LEGO_CAL_DEVICE_ATTR(cal_gyro_left, "calibrate_gyro", SET_GYRO_CFG,
-+static struct go_cfg_attr cal_gyro_left = { SET_GYRO_CFG };
-+LEGO_CAL_DEVICE_ATTR(cal_gyro_left, "calibrate_gyro", GYRO_CALIBRATE,
- 		     LEFT_CONTROLLER, index);
- static DEVICE_ATTR_RO_NAMED(cal_gyro_left_index, "calibrate_gyro_index");
- 
-@@ -2018,18 +2018,18 @@ LEGO_DEVICE_ATTR_RW(rumble_notification_right, "rumble_notification",
- static DEVICE_ATTR_RO_NAMED(rumble_notification_right_index,
- 			    "rumble_notification_index");
- 
--static struct go_cfg_attr cal_trigg_right = { TRIGGER_CALIBRATE };
--LEGO_CAL_DEVICE_ATTR(cal_trigg_right, "calibrate_trigger", SET_TRIGGER_CFG,
-+static struct go_cfg_attr cal_trigg_right = { SET_TRIGGER_CFG };
-+LEGO_CAL_DEVICE_ATTR(cal_trigg_right, "calibrate_trigger", TRIGGER_CALIBRATE,
- 		     RIGHT_CONTROLLER, index);
- static DEVICE_ATTR_RO_NAMED(cal_trigg_right_index, "calibrate_trigger_index");
- 
--static struct go_cfg_attr cal_joy_right = { JOYSTICK_CALIBRATE };
--LEGO_CAL_DEVICE_ATTR(cal_joy_right, "calibrate_joystick", SET_JOYSTICK_CFG,
-+static struct go_cfg_attr cal_joy_right = { SET_JOYSTICK_CFG };
-+LEGO_CAL_DEVICE_ATTR(cal_joy_right, "calibrate_joystick", JOYSTICK_CALIBRATE,
- 		     RIGHT_CONTROLLER, index);
- static DEVICE_ATTR_RO_NAMED(cal_joy_right_index, "calibrate_joystick_index");
- 
--static struct go_cfg_attr cal_gyro_right = { GYRO_CALIBRATE };
--LEGO_CAL_DEVICE_ATTR(cal_gyro_right, "calibrate_gyro", SET_GYRO_CFG,
-+static struct go_cfg_attr cal_gyro_right = { SET_GYRO_CFG };
-+LEGO_CAL_DEVICE_ATTR(cal_gyro_right, "calibrate_gyro", GYRO_CALIBRATE,
- 		     RIGHT_CONTROLLER, index);
- static DEVICE_ATTR_RO_NAMED(cal_gyro_right_index, "calibrate_gyro_index");
- 
+ static struct go_cfg_attr rumble_mode_right = { RUMBLE_MODE };
+ LEGO_DEVICE_ATTR_RW(rumble_mode_right, "rumble_mode", RIGHT_CONTROLLER, index,
 -- 
 2.55.0
 

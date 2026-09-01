@@ -1,63 +1,63 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A4CD37AA91
-	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 06:36:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4FD836B932
+	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 06:36:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788244595; cv=none; b=HMSdp+BCttzoAncpkt40POmJ/8aqygz2WHeKscEKSc4uXNn0OorMnltMHR7F4+2+4/59NqdO6pKVBvWVLItoKYKnrqaAQV95430CdNcnAJhfPtLuDkwsQ8L4gdiv1vhzqY/o89EDY7mJKb81thR/fddufFGa1zR96BkBWyzZ68g=
+	t=1788244598; cv=none; b=NNTq2n8oBc0oh95tZEHhTNVnDtK1pb+SD/xkul4JbWX/rdlAbfnTqRRO6pGowcbZtliQ+EoXUMaLxnWjokTdVW3/eDb/w1B5mV3KDT1mJ2CLFNytQGl33LvzvfpgzT1YycYA88NIUQndS7KxOpTu2BdCzu+LURnwdYiQbWQ9QvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788244595; c=relaxed/simple;
-	bh=jp1mxh4u0k5EkhsGC+WkntxjcMOROSMx+LhpJ5PkGTc=;
+	s=arc-20240116; t=1788244598; c=relaxed/simple;
+	bh=5ElyCADy86YGx8LmfNKyKR9rlYrYoGai5Bk7t6+Z1uU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oVLJ9T2lp8LzWFKEH/OZ3BRa3/dKnB9Q4E4TKq873dKIy0sYnwoKBIvokS5rFDNX4vssrOqeThSLWou5A/620WiETQfNqwOC4gZPZxYp58oYzNOav/5cRcSwa1VJfyQdvOcdqF4P4LnHOAFxeEfRolNTupzOFWAxl6EScDtK/fs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PrRM9oaO; arc=none smtp.client-ip=209.85.216.50
+	 MIME-Version; b=J1LVYB0iVISgVJ0Mx/eoyvuoPzAO4Ye1XLko5Zl31rMZ1uA83dbB/QfpY3R4aFIpfkPhj7PICFb6Bk0ZSogEXBb/nFDQFkeGpiZLA0dsYN7Ve4Mieune0rnd70ZGKhHv1AqRPl/zrRb0oBp1X7tVC1YNzMHuRjUfjW9fhk/iqqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a4BUXm0k; arc=none smtp.client-ip=209.85.215.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PrRM9oaO"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-39927410578so213161a91.1
-        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 23:36:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a4BUXm0k"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-cc1cf287ef8so4153715a12.3
+        for <linux-input@vger.kernel.org>; Mon, 31 Aug 2026 23:36:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788244592; x=1788849392; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788244596; x=1788849396; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=daPhvcx3JqOGViV9zMVaZQKBED8orEBgOrh4gs4v0qM=;
-        b=PrRM9oaOD5oibbwf4boNBo6qcrkcXXq4jFqPpvjpgz1wZDdRmVru618TzQffasaUxb
-         eaSuap16qutCl6uY7AalIBEQ8uypSfm8XluG6jsBsdyvBasPwX4Mfnyic/F0y2a2yesT
-         vpnHeDEvMRfe+PIVtwtWTAwnFhMjWQ2KvOvoeianbltbMA7ux/Fh25hecUltdHWJzr4J
-         AzwUjp3T+auuaHjxlFLZo0mHS1NJMkh0Nm8yzgCJkkjCQ9WMaiAFLETlE3ABi54Lq3q+
-         QOWhSsZPQwqaHqkwkUpLuCDdiXbcQEz5zai9t4d3uUslHOZ/rRNwvZZhViuj2LqHzXlM
-         7PbQ==
+        bh=xYHq+ZU5PMyiId4alqJVSCjs93dNyfWLqqb7EGDh7Zo=;
+        b=a4BUXm0khJ3tMsvLHtPNaAregRJaCGoCReO3aeaQKT24194QrsN4zpDjT2FEdA3BTA
+         aTRUc6oOrUD8aKT3S4zV75LXt20rQvZ5pwCzQuDbDtsXxakXHZKLCiEc8ZnuSJX03C4Z
+         YnJO5IGSlRXOt17NX3o2YrL7WNrHb5KgnjeckVQLszwWeyGfmrcd5Qwz6wRjS5NapIhn
+         mxLfkrN30zaEr3MnXhywrgcu6ccoeBqSOCtYCN6DHqp8+rniV/x3juFkDXK+hdmmKP2N
+         KNAt+5XmXheGIlXl8m+qsko/VDLUxYwES20HEWFYHjWQyiD5tJrTQDaxndJef1NLh3xZ
+         HrMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788244592; x=1788849392;
+        d=1e100.net; s=20251104; t=1788244596; x=1788849396;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=daPhvcx3JqOGViV9zMVaZQKBED8orEBgOrh4gs4v0qM=;
-        b=cX0TeyNAklCF/7JXatqxZ7ZRb5bcbQEZspbCkPon170lU6E1yndj2EC5OFsA1idSnZ
-         tbSLnmk277ktg7Nu9CQImEJxkI8LeNfGr7ySTciSN2BPTe8RdbOur7BzApuoYcGQiP5A
-         2ztjZAhEeusIRay+qIWBvGZoPvZl8yCo1Pbg/dcwldqjPKD8EL/UPQ/fe5Kkt5DRrcRm
-         3WuDgHMdgBvDOfLTiPUjGl1yziMllNt40nt+cRxasvKco+MrXWZu8fgxWJyCc0miQ/km
-         RnaTrwxM1hzaxiichYt5YdyksurgP7pPa1TRgtkl3TtCCUrsppE/H7nzw8RCsLL/8R5j
-         fEsA==
-X-Gm-Message-State: AFuF++ncpwKwTzzmNNIAszNWsOuafofx/ZVw1a0uR4HG+bznPsSt+lWA
-	YDf5w8iYwB56JL5WKc2Azvo98hcSvbkaMaJao9I62yxr1b7EN3RYIk93
-X-Gm-Gg: AYBFou24OXY2IL9cRHPuMqIp5B9hpkLXqVVA9GVEOTv1CO1tX5KaoVHnEU+aTIJnxP7
-	bs1YthIeKQ7MIy0UsAXhKn2Npc3haJRMKHmZS5dEaQBoeSNYNlnx2BhLgM82VAyTqJd/qFoC+Go
-	wSZDER8Feusq7Aos/gWHaYDVrVtCxg9KbtOkBk7xpYkNCv/FjfMMtTSyGP63Upz4wsJ3V8qCpZM
-	O7b2r20LYGHrIeVOG5UuWJOUD5uWu3In0RirmrBY2YExM8Hv0HAxB4mhzODiHCv5YLD0QEdiIlC
-	wGplm0qjUiwYXx5qZF8cIH9vYc7Il71lwJRqhWtTlEZL8F5J5iti4rwPuMQgSz4oNIP/y0VvPEs
-	y3+JL0fMmn4859lUmHw+aBh+ptQIXqPuUHNl/tUWqmXVbg8ywMghzE9v9ut/Gwy5LlHmbXbuDGy
-	eew/Bw1GsfVxPfqMWwiPwmbycfN6kXD5opSMSUNmzYL+1A/rhQTCYitGjBekbRYUZUiDSCWCZsq
-	Js9JCObDCMi4g==
-X-Received: by 2002:a17:90b:2e48:b0:398:e969:87ef with SMTP id 98e67ed59e1d1-39907ec6baamr9076075a91.24.1788244592502;
-        Mon, 31 Aug 2026 23:36:32 -0700 (PDT)
+        bh=xYHq+ZU5PMyiId4alqJVSCjs93dNyfWLqqb7EGDh7Zo=;
+        b=ExEmzZsj1m+CJcXqtHUCE9sZVxRdPt4wul7h+l4eg4giMkSd0NTsDh4wq3Ky+ovn7z
+         zYSOWrse3wEekV/QLStTajx3bGb8iRjmREWCNQPNM6OXneNsU62dubowBS6T44QaF/Be
+         Ba57cgbvFesm3IjiRjNxac5LR9OBLow+/uA3lGHdCV08OeeYIpeBTBHgEZE9ALkqUu7+
+         z1VP4F/1/cJ/1hTpEmzf7fr9dPA8Wdh11SUa/yP2Tf0twirikhbYmVa3LyLUGMJdmX/L
+         crUtGQOiElEx+Vx4dmY8AQ7ZG0VtgBJJi21M2S911sHAZDgCVGrL+g/QIxlEkI6iOPae
+         wS7w==
+X-Gm-Message-State: AFuF++nSTrkWswGaUn5T5EsLQBiYGtHhpprBFVpmV8lGw0y6+EG+43bY
+	MwU4zmK9evorszH5/mY0wXFBJzmAkwSGA6bMjHZcISGBkxj0ZjH5O7N27KnsnZ/J
+X-Gm-Gg: AR+sD11kZy11p1z7wsQWI0ASpvLV5kG2n9F+uRvP4g9qKqPypZxESHoM5+rzZEDGTWE
+	aCkG4MP7F8MbI2DF8LOG1ftBPe52DbU/D5C4pwFZKUypo0GlaCTZZ0+pJwqqbIo9PE/XxXN2oSP
+	60yOn1fU3rhiZRigM5fW2snyNSIAAkqqXUhymC282fu3G3XbdybYsApL2tG+PE/trRg0EbjLO6o
+	nlxu4MxA0bfrf3pVlHJ3aY4kzPSS2eEpgJkSgUXF0XPh+l+zRIr8BA09AU15XTIqdpz3FmGol2m
+	AvTyA8VQ+Kqk6nssLlVp2eitQRBorQFL5d7j7nijXstohaR+FWFzpHqRZwqwdkByLWdeYiilc3P
+	jfwaSXwPfJPVk38fSCAO988YnBJwn1BlgeUgaejY5s4QOjuVvgV4klriStQFKsOb0YLW/WKdYSS
+	a4M5lOy+8UvfJBXhWfKB4I8eNkFlpyflt0rxT/gdq+XnhzFWtCuV0WxjaYl0pcZVcEMYSyK7sfI
+	H+4nHSX4zC1ZQ==
+X-Received: by 2002:a05:6a20:748b:b0:3c3:9070:96b3 with SMTP id adf61e73a8af0-3d265a3ec4bmr37708099637.3.1788244595913;
+        Mon, 31 Aug 2026 23:36:35 -0700 (PDT)
 Received: from localhost.localdomain ([103.16.69.192])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0dc854dsm32694425c88.10.2026.08.31.23.36.29
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-142e0dc854dsm32694425c88.10.2026.08.31.23.36.32
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 31 Aug 2026 23:36:31 -0700 (PDT)
+        Mon, 31 Aug 2026 23:36:35 -0700 (PDT)
 From: Aditya Dash <mradityadash@gmail.com>
 To: Benjamin Tissoires <bentiss@kernel.org>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
@@ -65,9 +65,9 @@ To: Benjamin Tissoires <bentiss@kernel.org>,
 	Mark Pearson <mpearson-lenovo@squebb.ca>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 5/7] HID: hid-lenovo-go: normalize calibration failure status
-Date: Tue,  1 Sep 2026 12:06:06 +0530
-Message-ID: <49b6e07395d2fe555e844758bd8ccf34ac0cbf0c.1788222001.git.mradityadash@gmail.com>
+Subject: [PATCH v3 6/7] HID: hid-lenovo-go: reject unknown calibration action
+Date: Tue,  1 Sep 2026 12:06:07 +0530
+Message-ID: <0c37a763177a5b8b45e94ac678094165cd965bf1.1788222001.git.mradityadash@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <cover.1788222001.git.mradityadash@gmail.com>
 References: <cover.1788222001.git.mradityadash@gmail.com>
@@ -79,67 +79,50 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The driver stores the firmware result byte as an index into the
-calibration status text. A Legion Go 1 returned 0x08 after an idle Stop.
-The status table has only three entries, so a later read returns -EINVAL.
+The calibration action table includes 'unknown' at index zero. The options
+attribute skips that entry and lists only 'start' and 'stop', but the store
+searches the full table. Writing 'unknown' sends a request without an
+action byte.
 
-Keep the defined values 0x00 through 0x02. Treat larger result values as
-failure before storing them.
+Reject CAL_UNKNOWN before building the request. Start and Stop both use a
+one-byte action, so pass that size directly.
 
 Fixes: 995887a10da1 ("HID: hid-lenovo-go: Add Calibration Settings")
 Assisted-by: Pi:gpt-5.6-sol
 Signed-off-by: Aditya Dash <mradityadash@gmail.com>
 ---
- drivers/hid/hid-lenovo-go.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/hid/hid-lenovo-go.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo-go.c b/drivers/hid/hid-lenovo-go.c
-index deed7acd2dc4..59b457683357 100644
+index 59b457683357..a6dec5490d17 100644
 --- a/drivers/hid/hid-lenovo-go.c
 +++ b/drivers/hid/hid-lenovo-go.c
-@@ -648,17 +648,22 @@ static int hid_go_light_event(struct command_report *cmd_rep)
- 
- static int hid_go_device_status_event(struct command_report *cmd_rep)
+@@ -1412,20 +1412,18 @@ static ssize_t calibrate_config_store(struct device *dev,
+ 				      const char *buf, u8 cmd, u8 sub_cmd,
+ 				      size_t count, enum dev_type device_type)
  {
-+	u8 status = cmd_rep->data[1];
-+
-+	if (status > CAL_STAT_FAILURE)
-+		status = CAL_STAT_FAILURE;
-+
- 	switch (cmd_rep->device_type) {
- 	case LEFT_CONTROLLER:
- 		switch (cmd_rep->data[0]) {
- 		case CALDEV_GYROSCOPE:
--			drvdata.gp_left_gyro_cal_status = cmd_rep->data[1];
-+			drvdata.gp_left_gyro_cal_status = status;
- 			return 0;
- 		case CALDEV_JOYSTICK:
--			drvdata.gp_left_joy_cal_status = cmd_rep->data[1];
-+			drvdata.gp_left_joy_cal_status = status;
- 			return 0;
- 		case CALDEV_TRIGGER:
--			drvdata.gp_left_trigg_cal_status = cmd_rep->data[1];
-+			drvdata.gp_left_trigg_cal_status = status;
- 			return 0;
- 		default:
- 			return -EINVAL;
-@@ -667,13 +672,13 @@ static int hid_go_device_status_event(struct command_report *cmd_rep)
- 	case RIGHT_CONTROLLER:
- 		switch (cmd_rep->data[0]) {
- 		case CALDEV_GYROSCOPE:
--			drvdata.gp_right_gyro_cal_status = cmd_rep->data[1];
-+			drvdata.gp_right_gyro_cal_status = status;
- 			return 0;
- 		case CALDEV_JOYSTICK:
--			drvdata.gp_right_joy_cal_status = cmd_rep->data[1];
-+			drvdata.gp_right_joy_cal_status = status;
- 			return 0;
- 		case CALDEV_TRIGGER:
--			drvdata.gp_right_trigg_cal_status = cmd_rep->data[1];
-+			drvdata.gp_right_trigg_cal_status = status;
- 			return 0;
- 		default:
- 			return -EINVAL;
+-	size_t size = 1;
+-	u8 val = 0;
++	u8 val;
+ 	int ret;
+ 
+ 	ret = sysfs_match_string(cal_enabled_text, buf);
+ 	if (ret < 0)
+ 		return ret;
++	if (ret == CAL_UNKNOWN)
++		return -EINVAL;
+ 
+ 	val = ret;
+-	if (!val)
+-		size = 0;
+-
+ 	ret = mcu_property_out(drvdata.hdev, MCU_CONFIG_DATA, cmd, sub_cmd,
+-			       device_type, &val, size);
++			       device_type, &val, sizeof(val));
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.55.0
 

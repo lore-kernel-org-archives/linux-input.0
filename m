@@ -1,130 +1,113 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77F0733C192;
-	Tue,  1 Sep 2026 14:02:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BF7E37F01D
+	for <linux-input@vger.kernel.org>; Tue,  1 Sep 2026 14:03:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788271379; cv=none; b=nX8eVYba4J+a+eVijXHTAoGEiApyrHmwTEoFhzQ049ouvUfgTRONFJw2Bpxmn3SefItsnc8ygXOAUBZb6O9n7d0a/gKcVTaIMff5d7blumG2PjN7+HjYzO2189m6+JBcMRn/yLb6JtA7fkRmcufzfiFSa2r1hSpaekcF7SEhjAk=
+	t=1788271428; cv=none; b=OVgnxHYfgSNnJ/GC+pOh1HXfzMr2x75WBEWZDPHU90ii+qvDoJapgyFEscIgtE/CwECrTH2eBqf7TzOGRheprzuMdZuNNOy+hULN3ZeH8Byg52gUBTZ3UtBVuHjgJxteeVttNhEoJzrVSi9HjaA/D3hF6Y7gN05c3g8Nyou/Al4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788271379; c=relaxed/simple;
-	bh=hWUJTaZkCXIjQprvWTtogTZt6wej3aAuj55Iw5RSm/c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lnuWbE4T43rm0b5ZQop7iLdTnRqdj8D0FWDWhVusNNWemZRu65Av7ml1eQICTb3YbCSrYO5xrTLFnlZOxk7I7u6VB8tSMXGMNXL//IpLQLRt9LZJc1ND/y2p+vevSD5oSJ2p7S9Ap/PpmVYsug/cEF3I36dBBHVxhPB77/EW5iA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EPtcXMbX; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788271428; c=relaxed/simple;
+	bh=xeduSlkh5F/g1QDxornBkeh3jnYm61LoxT+eaLcg9ls=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AuXaS2abjO3Dm36H/Ctd9NgWjS+PmokbDUYQhBnBfvdlJ+uQFeT5kVR9TBwENDKp1drWI3o3s5cOwCvcuubhhVqa5vQvKfg6CNhjj/OvdcB2jEPOIKZ6GtLT2EAuWdmpiRIXPDdWbq1cQnr1escuD+A1rkiyBazRpMiMRIHWJBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QQuF09hU; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EPtcXMbX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27D9E1F00A3D;
-	Tue,  1 Sep 2026 14:02:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788271378;
-	bh=lkZhtGJry6jaZ3PtQ5+ne71QEsfKiPG+5TwJ1CPt2WI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=EPtcXMbXjNCGpT++gWFCoJVKRXqcm61WqqCTVEcJ9zQly3/OaAV9stMwAM/mMfKBV
-	 8rgOIQso64094Wp7W7aYTjJWnb2XaTWw1Um1441cJOcyHZdCG4+7uIifUAuMh3U7kv
-	 6Hqn2uIASlx5F/32e2Iesd76y2D56sfxYw5PJTWszZQYVdlBeQTVz7Q62SmFc/7o9f
-	 I6GLeC1igW80atW8n6CCXqGw2ViY9KQCjsQ4+NWFGUlvD7K/D+KXG16pEd1lZunGib
-	 jVDst3diXaUAgaeu9Y5Uhpfrc545X40/ilA9kv/7kLRivfBm7di4WMrZG83He3qxAl
-	 oOKL/jojRuAlQ==
-Date: Tue, 1 Sep 2026 16:02:53 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Michael Zaidman <michael.zaidman@gmail.com>
-Cc: lee@kernel.org, linusw@kernel.org, jikos@kernel.org, brgl@kernel.org, 
-	linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C
- fixes
-Message-ID: <apaLLD4ZXhNV-Dph@beelink>
-References: <20260827205116.GJ2943942@google.com>
- <20260827222550.24634-1-michael.zaidman@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QQuF09hU"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-381b831d535so1598654a91.0
+        for <linux-input@vger.kernel.org>; Tue, 01 Sep 2026 07:03:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788271426; x=1788876226; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=kxoZFsWluIEGR9m2/BmFPDYm372qjUJBFtS59WloRzM=;
+        b=QQuF09hUGxQniiltnGO3fq03rWIJ0Oi/MHiOLGRg4mG8N8bWgL4068qbjSonMzVhVi
+         hIT13YKCrd5b8fNcXROz0IPR9/0AbLdT486aGX+1eks4jdVhIvsITQ449Z+LWoV0RbCE
+         0lkUCkX9q4O9MFqXoUWav+ywlctabLHMDLdlalKH0a1m2/zzcolOswXwndhbewL75cTL
+         8vvCfi+xaWSzeWlawyg9I9LlpsUpP4cB3Ocbfrn7EteI0w+ib+uQlokBSsy5Ihip7Hza
+         XwavEV4YgW0KbnC51Wci742OiGzr2ymZvyj2GyyYwRPgDiYD0v1k94c9jVF9zqoUHJBx
+         I2vg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788271426; x=1788876226;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=kxoZFsWluIEGR9m2/BmFPDYm372qjUJBFtS59WloRzM=;
+        b=ZoHzbpuszt6iawYGHfxt2N493CccIZs36Vl9odwV5qMYVu7/1Xflkpe6UDOQPJXa28
+         F/gS5Ke3C1u2x8R8PSqovvbHmRqlEoB4YOStiicAjVDzj3rOewrYaBmLTWCUCY4yHE1D
+         ubxzzfkEPcvNOO9DGHMVaSdH/ddl+tCGiS/kGHQiaS9u07zBjiX1DkrE7Xg8XcrmjVu4
+         JrD/INQdvrrn27kBjDIJrzrfV8m5FYnj8zl4blo2yJVJIrmo4RbXIXd5quKLoMivZX0F
+         tJQbjmPlEl/RBUSMYvRS/zzwp/HaqFIgjjJBy+UuVF2KOcKzj13AwD8PBYb18q5NCbBG
+         wHbg==
+X-Gm-Message-State: AFuF++nlWQeQ4nxBfEQByA8n+UAfsJQX3ajLZ74JdusQO0OEb8KTuUgm
+	Z1wwPp6h5Zuu5onpOJZ+lfq7/mj8hjpVrY4h3fHbObLordcsHhhF0EHvyfonUYACrJbJDU59O7k
+	=
+X-Gm-Gg: AYBFou1e7qkuLjwt5jMeSGr0yPXdVfvy/VTrwyt+bd8RtWyNQdw3atN3dO2Uqms2cao
+	LHOvonlbrRGDo3CQBgA2rG+WSyiB+f8mGt+edKWbGWaCAhCDjBigeL46bi9bcTaCQ1hwWdDCrWy
+	5J+2fSfdhZsqRz5KIG4GEje/xev7itgqa4/bdSIT1l3a1qDtBJBSYiNpSDpun/OPwtq7Hyun7f4
+	QDtbrx++FAZhLC1FGnohjV2Ug8oHiP42ZDHveqTX7DCEvV4xuXkkS1hQiYc4mc/KLA3BO3jtFHq
+	av8Bk5yPfSFC/vK9WcHha1gtHENo72zm2uSLgWpTSjuB7EFZ8CZJk//b/sJVbIUqjIX75maBFJA
+	ZdJuVjDrQQERIvZCLtABv1hbWA0h2ORTFSJ+55H3zsE96bUE9GaOLvSxU5/Wy4r2EgZRZomheLx
+	npAUKSQQ/Usk3BWmld1tXxSJwl6EXyBzICKFcTopWp
+X-Received: by 2002:a17:90b:164b:b0:38e:4f41:83df with SMTP id 98e67ed59e1d1-396d1007e54mr50590119a91.15.1788271426092;
+        Tue, 01 Sep 2026 07:03:46 -0700 (PDT)
+Received: from ArchLinux ([185.244.208.14])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3990bcf8079sm6872467a91.1.2026.09.01.07.03.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Sep 2026 07:03:45 -0700 (PDT)
+From: Tao juncheng <tjc1437@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	stable@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Tao juncheng <tjc1437@gmail.com>,
+	stable@kernel.org
+Subject: [PATCH] Input: atkbd - skip deactivate for HONOR NWB-G's internal keyboard
+Date: Tue,  1 Sep 2026 14:03:36 +0000
+Message-ID: <20260901140336.10568-1-tjc1437@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260827222550.24634-1-michael.zaidman@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Aug 28 2026, Michael Zaidman wrote:
-> On Thu, 27 Aug 2026 at 21:51 +0100, Lee Jones wrote:
-> > That's precisely what MFD is.  It's one chip, usually with a shared and
-> > overlapping register spaces, that conducts multiple functions.  This is
-> > no different to any other single-chip device or SoC.
-> >
-> > Shoving everything into a single driver isn't how things are done in
-> > Linux.  This should be divided up into the associated sub-systems where
-> > each part can be reviewed and looked after by the appropriate SMEs.
-> 
-> Understood, and I am not going to argue MFD scope with you. But this
-> is not specific to my series, so I would rather not decide it here on
-> my own.
-> 
-> drivers/hid already registers other subsystems' devices from a
-> hid_driver: hid-cp2112 adds an i2c_adapter and a gpiochip, hid-mcp2221
-> adds an i2c_adapter, a gpiochip and an IIO device, and hid-ft260 has
-> hosted the I2C adapter since v5.13, commit 6a82582d9fa4 ("HID: ft260:
-> add usb hid to i2c host bridge driver").
-> 
-> So the split you are asking for is not a change to this series. It
-> means moving code that has been in drivers/hid since v5.13 into an MFD
-> parent with cells, and the same reasoning would apply to cp2112 and
-> mcp2221. I am willing to discuss that as its own conversion, but it
-> needs the HID maintainers to agree on the direction first, and I do
-> not think the UART and GPIO support should wait behind it.
+After commit 9cf6e24c9fbf17e52de9fff07f12be7565ea6d61 ("Input: atkbd -
+do not skip atkbd_deactivate() when skipping ATKBD_CMD_GETID"), HONOR
+NWB-G, aka HONOR WIN Gaming H7's internal keyboard stops
+working. Adding the atkbd_deactivate_fixup quirk fixes it.
 
-I don't think Lee or Linus ever asked you to do any conversion of
-existing drivers. Just show the example on how things should be done :)
+DMI: HONOR NWB-G/NWB-G-PCB, BIOS 1.10
 
-If moving to MFD gives real benefits, these other drivers can be done
-later.
+Fixes: 9cf6e24c9fbf17e52de9fff07f12be7565ea6d61 ("Input: atkbd - do not skip atkbd_deactivate() when skipping ATKBD_CMD_GETID")
+Cc: stable@kernel.org
+Tested-by: Tao juncheng <tjc1437@gmail.com>
+Signed-off-by: Tao juncheng <tjc1437@gmail.com>
+---
+ drivers/input/keyboard/atkbd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-> 
-> It would also spread the driver over four trees, so a fix touching the
-> shared chip state becomes a cross-tree series with coordinated merges
-> between four maintainers - a cost the single driver does not have.
-> 
-> Jiri, Benjamin - this is your call. Do you want FT260 functionality to
-> keep growing inside hid-ft260, as cp2112 and mcp2221 do today, or do
-> you want a drivers/hid to MFD conversion for this class of USB HID
-> bridge chips?
-
-TBH, I'm not a big fan of having multiple subsystems children into HID.
-Mostly because I can't review the best practive in each of them. However,
-for quite a long time, HID was mostly for input devices, and input is a
-different subsystem.
-
-That being said, there are 2 types of HID devices:
-- ones with defined standard usages (keyboards, mice, touchscreen,
-	battery, etc) and using MFD for those would certainly be overthinking
-- others use raw HID device with a custom protocol (cp2112, mcp2221,
-	ft260), these could be MFD candidates
-
-And of course, we have the exception with the standardly defined sensors
-through hid-sensor-hub.c which goes through MFD :)
-
-TL;DR: I'm not opposed to a MFD conversion of hid-ft260.c, nor I'm not
-formally pushing towards it. I think we need to take the pragmatic
-approach and see if the benefits for it are worth it.
-
-From the description on how the ft260 works and the intrications between
-all functions, this seems like a lot of pain to maintain a single core
-MFD chip, but not having to maintain I2C, UART, GPIO is appealing.
-
-The question about the cross tree merging is something that can't really
-be discussed without having seen the code. Assuming you can split all
-the drivers into their own subsystem + MFD HID parent, we could very
-well merge the newly additions independently, assuming the MFD HID
-parent API is stable enough. The only cross subsystem we need to take
-care of today is the existing functionality, but that can be sorted out
-by splitting the i2c_adapter part into its own file, and then let the
-I2C maintainer move the file into their tree later.
-
-It is maybe a lot to ask, but Michael, can you demo the MFD split on
-one/two functionality so we can check which approach is the best?
-Ideally 2 features that would be intricating well enough to demonstrate
-how hard/easy it would be.
-
-Cheers,
-Benjamin
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index c8ad55f26ea8..de8edab3cb0f 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1923,6 +1923,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
+ 	},
++	{
++		/* HONOR WIN Gaming H7 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "HONOR"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "NWB-G"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
+ 	{ }
+ };
+ 
+-- 
+2.47.0

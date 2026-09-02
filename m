@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08E6D4CCDFB;
-	Wed,  2 Sep 2026 20:25:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C11BE4AA1CA;
+	Wed,  2 Sep 2026 20:37:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788380702; cv=none; b=gIljD2yiWKTa4Mzc4GRaDBPlMw+HTHWd5183EHvlMouXxduIeZlSsQ6N9llfvVzKAwUoXh308yLYOjVXesNf+1gVSMnNlujKrbLKp4eWI8dBA9SnyaVhi+hTAKvoFvapRa5AMWqa4nnFXNSc5kaITV0X/BQotphjzrCmEvbbmi8=
+	t=1788381468; cv=none; b=ckPxZehV3JLb/wnEDLdYF5RlxkIWmsaNAED1j85f1dJMRLRT1FlV86gp1ayuTIiAU6PD6aKhSRIbqk4MX7QxWMPj4gTpE1sYhtHUIU6SRk4dyzazUY/ZVu5LCqdLj6UEHKSZNRhasgqgrTb6z0s9mmNS71WetWHAYApdDesNQFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788380702; c=relaxed/simple;
-	bh=fSiltKOcb3v69E6wjt8E5Ko78Hw/y50obDkazcedyc8=;
+	s=arc-20240116; t=1788381468; c=relaxed/simple;
+	bh=Owt70xUXDhwuMdSXJ+xFM783KX41nmpIrz72os0JRe0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mC35lJbC78nXPPBHhNIf7ymiwuYrG18BytPM28nSh1n8vIS9ggiYR5K5h57GhR6Pd/0pDPZpyHKyxkHVXneq8dQnnTrDTX3JqoxU78WgK7jeQ5yOaHKqYwYJ/3AO35WK0ns8cUI/e/5Fo4hCInNWC+PFWGa1E9OYW063+1p8bqE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k5J+kQO1; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=EaV2yfvpIQ8yrz4/40IXn8mpPzVFCuwizV/OO89+cSFxzOzTI+nvb3MrqMbg7Dvl9EfSj/2/Bmklbj0Yw3+pfYAfd5/wSy5fEqbIWQk7i9fk4y4SPYQ3DMgcuPjTh7HwVYUr/KWTxPUeZwREyc2O0PfYIpkL74fObsOwptOU9Z8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DipGL7JN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k5J+kQO1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D11551F000E9;
-	Wed,  2 Sep 2026 20:24:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DipGL7JN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F05A21F00A3E;
+	Wed,  2 Sep 2026 20:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788380700;
-	bh=2pPfC1eZm+OvLJcrh/RYH2wsmeUSw3MxD4E5z0eOcZc=;
+	s=k20260515; t=1788381466;
+	bh=iMoEO0xdj7+ah6tVSa9vIzmVF9zurQDc9q99sX/Pet0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=k5J+kQO1w70m4sBaGabZxeLo8N966mEWYN1hVUFu9COnssyWo2cf5LVKBpYFMuhU/
-	 ol2AkuGMBPvf5kJH+NRDZuGTmlf/yscMA4ESyJo5K/aJIb1I3dSxxxwkXeQl/hebME
-	 4EsERx2kMndnK3ohKYj0nwUver8gQwLZ30AXJABlmkdksXTQtky1GZjmTqNxGikDaf
-	 PfMOrBFnSgpJZiykRnm7rBg0uM/cQPVuSdfXVzb4Gnrs0wAZJK0rBLcZugRLV89I+H
-	 kuXMdKcGyx/c6qU4jvtnTLgDxKpZ+n+p2Gdx04SvRjsYIcATQUd5nUP7rDkPLj+9pW
-	 CJMJ/3Mew0Wgg==
+	b=DipGL7JNjxbtujnEHAytlnbC2ySornpNcml4NSkXavDQAqZXiyZv3NlwN+D593q93
+	 zxnI16wBpHIlDevLDdkwMwhk7VBjFLY84VK0Vs+UB+rBAeaUCnhzuZSDgDMN5T1LsB
+	 Du0zKJLPp8wDpW654VhKEdZO7A7wfYY6JnoplOvPzLX1T1BF1F7hED9jbTRP+Qlhtd
+	 Y3i9M1J+c99wIZm15jbaqyw9wekiHykj47tPnnAuw3t40j1RM/hoYLZBUEyfEB8En6
+	 K7EQ/gH5CQAczkLTmXdYjblPRCgAQu/gpByPv8TXZCXXFJvQcZHj4FrPilth98U6cJ
+	 xRb74AwLN1BxQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 5/9] mfd: mt6397: Add support for MT6392 PMIC
+Subject: Re: [PATCH v10 6/9] input: keyboard: mtk-pmic-keys: Add MT6392
+ support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
-Cc: conor+dt@kernel.org, robh@kernel.org, lee@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, mfd@lists.linux.dev
-In-Reply-To: <20260902193351.185771-6-l.scorcia@gmail.com>
+Cc: conor+dt@kernel.org, mfd@lists.linux.dev, devicetree@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
+In-Reply-To: <20260902193351.185771-7-l.scorcia@gmail.com>
 References: <20260902193351.185771-1-l.scorcia@gmail.com>
- <20260902193351.185771-6-l.scorcia@gmail.com>
+ <20260902193351.185771-7-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 20:24:59 +0000
-Message-Id: <20260902202459.D11551F000E9@smtp.kernel.org>
+Date: Wed, 02 Sep 2026 20:37:45 +0000
+Message-Id: <20260902203745.F05A21F00A3E@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,115 +48,80 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [Low] Driver-specific header files were added to the global include/linux=
-/mfd/ directory, violating MFD subsystem guidelines.
-
 Pre-existing issues:
-- [High] Incomplete resource cleanup in probe error path and missing driver=
- `.remove` callback lead to Use-After-Free and resource leaks.
+- [High] Array out-of-bounds read and write due to mismatched DT child node=
+ counting and iteration.
+- [High] Incorrect macro MTK_PMIC_HOMEKEY_INDEX used for homekey reset mask=
+ in mt6357_regs configuration.
 --
 
-commit cf917ffc4ed0ebfc40bb77132283778e31d7ae09
-Author: Fabien Parent <parent.f@gmail.com>
+commit 93a2f6ac06eb96960eb8f140af657b42448c3d24
+Author: Val Packett <val@packett.cool>
 
-mfd: mt6397: Add support for MT6392 PMIC
+input: keyboard: mtk-pmic-keys: Add MT6392 support
 
-Align the MT6397 PMIC driver to other MFD drivers by passing only an
-identifier through mt6397_of_match[*].data and add support for the MT6392
-PMIC and its regulator, RTC, keys and pinctrl devices.
+Add support for the MT6392 PMIC to the keys driver.
 
-> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> index 3e08179002fad..f284d3885ae18 100644
-> --- a/drivers/mfd/mt6397-core.c
-> +++ b/drivers/mfd/mt6397-core.c
+> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keybo=
+ard/mtk-pmic-keys.c
+> index c78d9f6d97c4f..d758c7743f6a1 100644
+> --- a/drivers/input/keyboard/mtk-pmic-keys.c
+> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
+
 [ ... ]
-> @@ -282,6 +317,7 @@ static int mt6397_probe(struct platform_device *pdev)
->  	unsigned int id =3D 0;
->  	struct mt6397_chip *pmic;
->  	const struct chip_data *pmic_core;
-> +	int chip_variant;
-> =20
->  	pmic =3D devm_kzalloc(&pdev->dev, sizeof(*pmic), GFP_KERNEL);
->  	if (!pmic)
+
+While reviewing this patch, I noticed two pre-existing issues in the same
+file.
+
+In mt6357_regs:
+
+> 		MTK_PMIC_KEYS_REGS(MT6357_TOPSTATUS,
+> 				   0x8, MT6357_PSC_TOP_INT_CON0, 0xa,
+> 				   MTK_PMIC_HOMEKEY_INDEX),
 
 [Severity: High]
-This isn't a bug introduced by this patch, but doesn't the lack of a .remove
-callback and incomplete probe error handling leak resources and cause a
-use-after-free?
+This is a pre-existing issue, but does this incorrectly use
+MTK_PMIC_HOMEKEY_INDEX instead of the intended reset mask
+MTK_PMIC_HOMEKEY_RST?
 
-If devm_mfd_add_devices() fails during mt6397_probe(), or if the driver is
-unbound via sysfs, devres automatically frees the mt6397_chip structure.
-However, mt6397_irq_init() registers a PM notifier:
+If MTK_PMIC_HOMEKEY_INDEX is used, it expands to 1 instead of the correct
+bitmask. This causes mtk_pmic_keys_lp_reset_setup() to clear the wrong bit
+in the MT6357_TOP_RST_MISC register and fail to configure the home key's
+reset mask.
 
-drivers/mfd/mt6397-irq.c:mt6397_irq_init() {
-    ...
-    register_pm_notifier(&chip->pm_nb);
-    return 0;
-}
 
-This is never unregistered because there is no explicit cleanup on the probe
-error path, and no .remove callback is defined in mt6397_driver:
+In mtk_pmic_keys_probe():
 
-drivers/mfd/mt6397-core.c:
-static struct platform_driver mt6397_driver =3D {
-    .probe =3D mt6397_probe,
-    .driver =3D {
-        .name =3D "mt6397",
-        .of_match_table =3D mt6397_of_match,
-    },
-};
+> 	keycount =3D of_get_available_child_count(node);
+> 	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
+> 	    keycount > ARRAY_SIZE(irqnames)) {
+> 		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
+> 		return -EINVAL;
+> 	}
+>=20
+> 	for_each_child_of_node_scoped(node, child) {
+> 		keys->keys[index].regs =3D &mtk_pmic_regs->keys_regs[index];
+>=20
+> 		keys->keys[index].irq =3D
+> 			platform_get_irq_byname(pdev, irqnames[index]);
 
-When the system subsequently suspends, the PM core invokes the dangling
-notifier_call, causing a UAF.
+[Severity: High]
+This is a pre-existing issue, but can this lead to an out-of-bounds array
+access if disabled nodes are present in the device tree?
 
-Additionally, the error path destroys the irq domain while the managed IRQ
-thread is still active:
+The bounds check counts available children using
+of_get_available_child_count(). However, the loop uses
+for_each_child_of_node_scoped(), which iterates over all child nodes
+regardless of their status.
 
-drivers/mfd/mt6397-core.c:mt6397_probe() {
-    ...
-    if (ret) {
-        irq_domain_remove(pmic->irq_domain);
-        dev_err(&pdev->dev, "failed to add child devices: %d\n", ret);
-    }
-    ...
-}
+If a device tree contains three or more child nodes, but some are disabled
+such that the available count is 2 or fewer, the bounds check passes. The
+loop then processes all nodes, causing the index variable to exceed
+MTK_PMIC_MAX_KEY_COUNT and corrupt memory.
 
-Does this create a UAF window if an interrupt fires before devres cleans up
-the devm-managed IRQ handler mt6397_irq_thread?
-
-> diff --git a/include/linux/mfd/mt6392/core.h b/include/linux/mfd/mt6392/c=
-ore.h
-> new file mode 100644
-> index 0000000000000..8777b3abf9292
-> --- /dev/null
-> +++ b/include/linux/mfd/mt6392/core.h
-> @@ -0,0 +1,43 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-
-[Severity: Low]
-Does placing this driver-specific header file in the global include/linux/m=
-fd/
-directory violate MFD subsystem layering guidelines?
-
-The MFD subsystem guidelines state: "Do not include driver-specific header
-files in the global include/linux/mfd/ directory if they are only used by t=
-he
-parent and its immediate children. Keep them local to drivers/mfd/."
-
-> diff --git a/include/linux/mfd/mt6392/registers.h b/include/linux/mfd/mt6=
-392/registers.h
-> new file mode 100644
-> index 0000000000000..68fe9af448f5d
-> --- /dev/null
-> +++ b/include/linux/mfd/mt6392/registers.h
-> @@ -0,0 +1,488 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-
-[Severity: Low]
-Is it intentional to place these driver-specific registers in the global
-include directory rather than keeping them local to drivers/mfd/?
+Could we change the loop to use for_each_available_child_of_node_scoped()
+to match the bounds check?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902193351.1857=
-71-1-l.scorcia@gmail.com?part=3D5
+71-1-l.scorcia@gmail.com?part=3D6

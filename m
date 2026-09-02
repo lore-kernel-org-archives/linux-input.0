@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382E939B4AE
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 10:04:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A46C30D3F6
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 10:04:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788343450; cv=none; b=bda3GlHmqEOsOhgCpPjgYlY1yRZf13Y3OIwnTUPGaL1F23Yh6cNU2b3t/MhiEW0HnL/CRiXZvVsQDWVTqVaD7yJUq3TTdFO/oUw6yM6q9LQXoFoiy/JmRB72Yg2YhKlIIzP7rYrpW+SjQwuzpVn4JIapw7fHpqaNP4ox8YrqulY=
+	t=1788343456; cv=none; b=csTsQWAK6UgYkv3NrQEREUX8turSVFMhJq7lk/THEQUfZq+IAEYBtJJ+M+C2QRy7O4E+L6BmD/GTpZWLjtbzj5Wi0gPVTJqKB7DkY9ukIA1Gn868JhfNVqJQuIJTE0HPnuL/rkdW7ASV6k0A/dugn8FRHrqN2ACiU9OVxNqYlC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788343450; c=relaxed/simple;
-	bh=B8ca5vFL8+puu1HTSJ6D59ggkm3R4VclSDkILfrGT2A=;
+	s=arc-20240116; t=1788343456; c=relaxed/simple;
+	bh=U+6OSj4fGbiMRa7IW1c5O+xqIcEENWStUWTz7QTHVMo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Zj2lR/GxQQnGqX58g2wicFdfjOvhVxgLuJoCXrMy/odGIwpfLWfBrskaMoa7C9PQWyUUAOcADYNvclmfSLvS3oQdkeRkAOn4W5GoBGnwDmR/LIX7sLyv/YzTimM6DeuA2g3eRV9Z97MToZ5Iv+KVmTt2OFmDF4utQE6cb7RRIEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hCuSBAz6; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MPKbYt4Ua2MpBO9NuDo1pv3i9xiXRGuz1IKNeUPoS2yjncQhE319LcO8tcuDmMjWLWubR2BIO+X/uw5eM5rLbExHZHGIpLuxGJz0CPFtQZTz67cqQO0cunF+hweqLSCkYthg1nnsgVTXmDuWFfkyzdfksyrGddYPVnn8X80vqs4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cvq+4vvr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hCuSBAz6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C5681F000E9;
-	Wed,  2 Sep 2026 10:04:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cvq+4vvr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F4F1F000E9;
+	Wed,  2 Sep 2026 10:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788343448;
-	bh=RSZdtWUXnIrmFSs4SXHNVs27m+m+72qs2Xtadl074YU=;
+	s=k20260515; t=1788343454;
+	bh=qvmNFCh7D/DhKvC52cHWFKNg4s88Cb0fdq41H8c4cB8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hCuSBAz6htyE3ZSR/jFmxjWhy2CzXHl1j56Sx9BFsr6ZvDuXqBwOaOrK43XdYlvxN
-	 xc4lOy2LehJ8qCzdc05TcnzDQ9HUeFOAW+yBdfGwW6Ipvf6RMNt71tnS0yqI4y47hF
-	 I7Vq4mW2FAk20HmweEOjM14F+Qe9TcbuUNDhqyLe8u1qp5Ll0aTlxwysb89LwOC6rl
-	 DEWa8CZdBzRBKVTDgQmpY11GQfKYQ1gIzpi2R0W0zhXUQa4XsdKjuholCCAKcDsE0V
-	 gdLLfqEjPGzBdInQocnamHVBYBVdXMWF2Yd7qansmJ/INquuwacFrKh6eBVzwloilU
-	 jymVl71XmKoqg==
+	b=cvq+4vvrbBsMHeOCcFSUx/SJCq3u6eASTUHugtsEdsGKiMO2vEXgmntOOl0/cXxs/
+	 03vY346V9a21UxCl39lQMf5fSLudYNAEBly1EhuCze3s/8YtiuHrYI3tgSkEbT+7lg
+	 D1ZvQAirSQPQkpd0Hhd/B45viGFnCAQMA7ZuZj1/uoBj9SRznTcMbcV4x7WORwIk39
+	 QtKOQYb3+4djAIFkKhb5rs4tXPhp0A2IEdL67h3vUDG5JCkmdFbo4LyviVU2l/QS4i
+	 VPuuv1K9DEHV5HmjkTIPgubTmdT0OUQHG+QlxsdvbdQRtVUhkxTAH/pT2X6QDRKCga
+	 uSnbf5NSy7UoQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: roccat: fix locking in roccat_connect() and
- roccat_disconnect()
+Subject: Re: [PATCH 2/2] HID: roccat: use kref to manage device instances
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Antipov" <dmantipov@yandex.ru>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260902094551.200587-1-dmantipov@yandex.ru>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260902094551.200587-2-dmantipov@yandex.ru>
 References: <20260902094551.200587-1-dmantipov@yandex.ru>
+ <20260902094551.200587-2-dmantipov@yandex.ru>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 10:04:08 +0000
-Message-Id: <20260902100408.9C5681F000E9@smtp.kernel.org>
+Date: Wed, 02 Sep 2026 10:04:13 +0000
+Message-Id: <20260902100414.54F4F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,130 +47,145 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
+New issues:
+- [Critical] Removal of the unconditional `devices[minor] =3D NULL` in `roc=
+cat_disconnect()` leaves a dangling pointer in the global array, allowing r=
+acing `open()` calls to access a freed `hid_device`.
+- [High] Mismatched kref accounting permanently leaks `struct roccat_device=
+` references on every open cycle.
+
 Pre-existing issues:
-- [High] Lockless access to `devices` array in `roccat_report_event()` race=
-s with `roccat_disconnect()`, leading to a NULL pointer dereference.
-- [High] `roccat_report_event()` incorrectly calls sleeping `mutex_lock()` =
-functions inside an atomic interrupt context.
-- [High] Tear-down ordering violation in hardware-specific sub-drivers free=
-s private data before calling `hid_hw_stop()`, leading to a Use-After-Free =
-in `raw_event`.
+- [Critical] Pre-existing logic flaw: `roccat_release()` incorrectly looks =
+up the device via the global `devices` array instead of using `file->privat=
+e_data`.
 --
 
-commit 703610255dcd5d9ce2d448d2494e1361c5869fcf
+commit 215425e9faf722882019fabfa914bec7f0229c93
 Author: Dmitry Antipov <dmantipov@yandex.ru>
 
-HID: roccat: fix locking in roccat_connect() and roccat_disconnect()
-   =20
-Extend critical section in roccat_connect() to ensure that partially
-initialized 'struct roccat_device' is never exposed in 'devices' list,
-and do the same in roccat_disconnect() to avoid racy 'devices' access
-against roccat_release().
+    HID: roccat: use kref to manage device instances
+
+This patch introduces a kref to manage the lifecycle of roccat_device
+instances. It replaces custom lifecycle tracking in an attempt to resolve
+Use-After-Free conditions between open/release and connect/disconnect.
+
+Link: https://syzkaller.appspot.com/bug?extid=3Dd632e93ffcd1452bc61e
 
 > diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index 4f15eb9510396..5deb6da8d4f74 100644
+> index 5deb6da8d4f74..264977e8e3010 100644
 > --- a/drivers/hid/hid-roccat.c
 > +++ b/drivers/hid/hid-roccat.c
+
 [ ... ]
-> @@ -369,15 +368,12 @@ void roccat_disconnect(int minor)
+
+> @@ -193,6 +196,7 @@ static int roccat_open(struct inode *inode, struct fi=
+le *file)
+>  		}
+>  	}
+> =20
+> +	kref_get(&device->ref);
+
+[Severity: High]
+Does this unconditionally acquire a reference for every open file descriptor
+without a corresponding unconditional release?
+
+In roccat_connect(), the kref is initialized to 1. Here in roccat_open(), a
+reference is added for every reader.
+
+However, roccat_release() only drops a reference if it is the last reader a=
+nd
+the device is already disconnected. Any open/close cycle while the device is
+still connected will leak a reference.
+
+[ ... ]
+
+> @@ -235,7 +239,8 @@ static int roccat_release(struct inode *inode, struct=
+ file *file)
+>  			hid_hw_power(device->hid, PM_HINT_NORMAL);
+>  			hid_hw_close(device->hid);
+>  		} else {
+> -			roccat_free_device(device);
+> +			if (kref_put(&device->ref, roccat_free_device))
+> +				devices[minor] =3D NULL;
+>  		}
+>  	}
+
+[Severity: Critical]
+This is a pre-existing issue, but does roccat_release() look up the device
+incorrectly?
+
+roccat_release() retrieves the device from the global array:
+
+    device =3D devices[minor];
+
+If the original device was disconnected and a new device connected in the s=
+ame
+minor slot, this lookup grabs the new device instead of the one associated
+with the closing file descriptor via reader->device. This can corrupt the
+readers list and incorrectly alter the open count of the new device.
+
+[Severity: High]
+Additionally, since kref_put() is only called in the else branch (when it is
+the last reader and the device no longer exists), won't this leak references
+for all standard open/close operations when the device is still connected?
+
+[ ... ]
+
+> @@ -367,21 +373,22 @@ void roccat_disconnect(int minor)
+>  	struct roccat_device *device;
 > =20
 >  	mutex_lock(&devices_lock);
+> +
 >  	device =3D devices[minor];
-> -	mutex_unlock(&devices_lock);
+> +	if (!device)
+> +		goto out;
 > =20
 >  	device->exist =3D 0; /* TODO exist maybe not needed */
-> =20
+> -
 >  	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
 > =20
-> -	mutex_lock(&devices_lock);
->  	devices[minor] =3D NULL;
-> -	mutex_unlock(&devices_lock);
-[Severity: High]
-This is a pre-existing issue, but does setting `devices[minor] =3D NULL` he=
-re
-without stopping the hardware polling first create a race condition?
+> -	devices[minor] =3D NULL;
+> -
 
-When a Roccat device is unplugged and has no open references, this sets
-`devices[minor] =3D NULL` and frees the device. Because this occurs before
-`hid_hw_stop()` is called in the sub-drivers, hardware polling is still act=
-ive.
+[Severity: Critical]
+Can removing this unconditional clearance leave a dangling pointer in the
+global devices array?
 
-If an interrupt fires during this window, could `roccat_report_event()`
-locklessly fetch the device and encounter a NULL pointer dereference?
+If the device is disconnected while held open, the open count is > 0, so the
+kref_put() below is bypassed. This means devices[minor] is not cleared to
+NULL.
 
-drivers/hid/hid-roccat.c:roccat_report_event() {
-	...
-	device =3D devices[minor];
-	new_value =3D kmemdup(data, device->report_size, GFP_ATOMIC);
-	...
-}
+After disconnect, the HID subsystem will eventually free the underlying
+device->hid. If a user subsequently closes their file descriptor, the
+device->open count reaches 0. Due to the kref leaks, the device structure is
+still not freed.
 
-[Severity: High]
-This is a pre-existing issue, but is it possible for `roccat_report_event()`
-to attempt to acquire sleeping locks in an atomic context?
+If a new roccat_open() call occurs, it will find the stale pointer in
+devices[minor]. Because device->open is now 0, it will execute:
 
-`roccat_report_event()` is called synchronously from HID `raw_event` handle=
-rs
-which execute in an atomic softirq context. While it correctly uses
-`GFP_ATOMIC` for its allocation, it seems to call `mutex_lock()` immediately
-after:
+    error =3D hid_hw_power(device->hid, PM_HINT_FULLON);
 
-drivers/hid/hid-roccat.c:roccat_report_event() {
-	...
-	mutex_lock(&device->readers_lock);
-	mutex_lock(&device->cbuf_lock);
-	...
-}
+Can this cause a use-after-free on the hid_device pointer?
 
-Can this lead to a kernel panic or a 'scheduling while atomic' bug?
-
-[Severity: High]
-This is a pre-existing issue, but is there a tear-down ordering violation in
-hardware-specific sub-drivers like `hid-roccat-kone.c`?
-
-During driver unbind or device unplug, the `remove` function calls
-`kone_remove_specials()` which frees the private data before calling
-`hid_hw_stop()`:
-
-drivers/hid/hid-roccat-kone.c:kone_remove_specials() {
-	...
-		kfree(hid_get_drvdata(hdev));
-	...
-}
-
-drivers/hid/hid-roccat-kone.c:kone_remove() {
-	...
-	kone_remove_specials(hdev);
-	hid_hw_stop(hdev);
-	...
-}
-
-Because hardware polling isn't stopped before freeing, incoming reports cou=
-ld
-execute the `raw_event` handler, which fetches the freed pointer:
-
-drivers/hid/hid-roccat-kone.c:kone_raw_event() {
-	struct kone_device *kone =3D hid_get_drvdata(hdev);
-	...
-	if (memcmp(&kone->last_mouse_event.tilt, &event->tilt, 5))
-	...
-}
-
-Could this result in a Use-After-Free memory corruption if `kone` is
-dereferenced for reads or writes here?
-
-> =20
 >  	if (device->open) {
 >  		hid_hw_close(device->hid);
-> @@ -385,6 +381,8 @@ void roccat_disconnect(int minor)
+>  		wake_up_interruptible(&device->wait);
 >  	} else {
->  		roccat_free_device(device);
+> -		roccat_free_device(device);
+> +		if (kref_put(&device->ref, roccat_free_device))
+> +			devices[minor] =3D NULL;
 >  	}
-> +
-> +	mutex_unlock(&devices_lock);
->  }
->  EXPORT_SYMBOL_GPL(roccat_disconnect);
+
+[Severity: High]
+Does this also fail to drop the initial connection reference if the device =
+is
+disconnected while open?
+
+Because the kref_put() is only in the else branch, a device that is unplugg=
+ed
+while open will never drop its initial reference from roccat_connect(),
+causing it to permanently leak.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902094551.2005=
-87-1-dmantipov@yandex.ru?part=3D1
+87-1-dmantipov@yandex.ru?part=3D2

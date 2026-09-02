@@ -1,49 +1,71 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010067.outbound.protection.outlook.com [52.101.201.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A90244A0906;
-	Wed,  2 Sep 2026 13:44:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788356684; cv=none; b=FtBcZ5DnAn4jFgrFH7jKjQl5fWVhnkoIi1FaKk+dxoq6lVdqhjJjLJspwHX4OlWgPJnVpnIBQMZ2EmqpFvS6z2Qs3zwCR01/1WpZlOJTwuA24NFn9u96Cu6DR+M0sSmVfKJZR314OBhyvpR67fWmdYVzwx8HlLMEFN5/WyIVAsk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788356684; c=relaxed/simple;
-	bh=Bgbauw2/8PHd1zyiV+8EGeTixjcSZEmcmgDfOCd01VE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VLrNhnnkUgjrxMWqiAibxEIq1GrxlWbonlP9eaUAPf9N9AEkyDVbtM0mD6v1s4B2DaD9uCaH6u3pJCW4NShGA5FgfugTCXh5M4I/7BAdSENlog8THCJ8yZ7k+nMi41nxv37YX/g3paklI5i5UHN4KSgU4FUzUhCFw52x8093k/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SCzcF9Ug; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12B3447CA7D
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 13:45:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.67
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788356717; cv=fail; b=sCl3w6w8kEaF4PhnyyrvRXtqyoHIDdh9C6mRrmuDNnLrYgPT9b9swF6uWtd0WccaLEMhs9zUGhXYASdznqCB/vmKO/sW4WTSVQEokh3mR7zKB2jVxALC5MYxt45J6hv5KP78X2y52V7zttnG6Mu9FlhUJI0QGPWXXBc4H+sNbLU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788356717; c=relaxed/simple;
+	bh=wYbQ3Cql9cMx/Ivx28M3xxOvtFYEmst/1G5GNj0fi7Y=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=aRbqN5IPUgARdbGZXhKVFlZdvcqcnH2keAXKWF8k36eFvEANol6rogjyJd6HKDPkJWP6FTtoiNa5nGoygkVMAshejH2lUy+l2b5VUzbF5Y4fOXDrum3mX0/JnrYX3d0e7G/apZ9QtMdafruVe0T1DPF77Sikv3dRafgMsbZ6x+o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=XpGtt1IP; arc=fail smtp.client-ip=52.101.201.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SCzcF9Ug"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74BD81F00A3A;
-	Wed,  2 Sep 2026 13:44:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788356682;
-	bh=aIST0kyAvmm/hcGI7MAHNtpWOoWo9oYV9/FEa43LLwE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=SCzcF9Ugy5vy0aSKzCpURtPEWR0jFPchIDKruUg45/P6W6r6JwwPXVNbeRtz4FZyc
-	 mYT8ycTYqwL4xNnEKrVnoiW0IL6Wyf/7lq0Y/d5t0szSLqroOjWuBCo9Jl+Sr0KKpM
-	 sg+rttEGEGYlDkWx+sijNyWBP+SVAomBNd3UbCcfSWp/PQZo4tuR2LaPe1VPTARnP1
-	 7+wbJj6kH5ZmfygFkQiJlJQMuk2rak2QFtUWjWf6sSbmKW5VLzJqppVTGefD0Y1y5V
-	 u1A6BeLw6YrbVIVZk1q3EY9Me+Fh/WG1/kyzPErRnqcm69ivir/FZ62aTxafY4WaCr
-	 hUQznvWyzPGVQ==
-From: Lee Jones <lee@kernel.org>
-To: lee@kernel.org,
-	Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Aaron Skomra <aaron.skomra@wacom.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Peter Hutterer <peter.hutterer@who-t.net>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Subject: [PATCH v9 5/5] HID: wacom: Redesign shared sibling data lifecycle
-Date: Wed,  2 Sep 2026 13:44:05 +0000
-Message-ID: <20260902134417.1270552-5-lee@kernel.org>
-X-Mailer: git-send-email 2.55.0.966.g6673acef38-goog
-In-Reply-To: <20260902134417.1270552-1-lee@kernel.org>
-References: <20260902134417.1270552-1-lee@kernel.org>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="XpGtt1IP"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=WwNmd8J3meNU8K4Xd+QVBJFi3JiwGF4smGWN5LVgUarcMT6mAg9CwQp6FunLcDHWV4VO0JVBeobTGd4Ib3XSam5dZsgefHnbDx8rCPNoumLr09RrwRYm/v0QI1UmOxBFeuGO/+HkodslT5LNXDU+nHBO5jEk4KIkFEYOPraD6cuNdoSjhpnc+T4DDmXstXHj6ZVKpTigRvkpvWrJeKyK/nV1hkdqsqciVx+9mk4DIewiMDTC4T3VsGJyynOc+5WA2nLcq9wX73iK9dJKP57xKuAXEgQCB2l9g7e5P8zJG/fnwNoUfOwFEwiL2WDipjTZuCUbvr5QfO51qtP+8Xe5kg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZQWGqWsoY5LQRy+YivVPrt/FVl5/6AQ7yfkSPDvngdE=;
+ b=Okj3UYD6wMBasywCG9UNHc06+3jeE/bn6oCCwgogr5UwAlGMLgZCmnqcVoI1SN2Wn0bZSffCuhiLLKfwd2x4GUk2AM1ioaNrMSWl8+eXN+Y9FqCYsXGDZnxgoLIlN/G6fevDb9Lcbvvt0r9PJvUP8gHvmga9KaRpqDeC5GNdIEq8M5Gewk6TmD3eiQrNCllO9jeELwdFz+sJsP52WuQdqyHLBEOygJ/VRXyr//r3gKu2B36SLtIIRippPEvT+IJ5uB7PG7ciBfb+Q/E8AMZNsqWfwTzXwkY6/Wp7M5vMNUSsIM/5+Y6AQZ60B/ojAvXmnyWN3G1Hl+i9AsGldNgd/g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZQWGqWsoY5LQRy+YivVPrt/FVl5/6AQ7yfkSPDvngdE=;
+ b=XpGtt1IPmM9Xln2Z541VD8xrh32Q/EFQV4HvxKG6aBKlOIo2A2/WPf4VMzezHuY2gyRKHRWcGqPAGTw74nC5Qgy8KFV1TCWfskeEraO081eItOiCyaxkpuGfn+RLl1OsPdB5oxPcgq86rlp7edhUwTtT3Nf6xi+wBQsQj8OhxJs=
+Received: from CH5P222CA0002.NAMP222.PROD.OUTLOOK.COM (2603:10b6:610:1ee::22)
+ by CY1PR12MB9673.namprd12.prod.outlook.com (2603:10b6:930:104::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Wed, 2 Sep
+ 2026 13:45:12 +0000
+Received: from BN2PEPF00004FBB.namprd04.prod.outlook.com
+ (2603:10b6:610:1ee:cafe::58) by CH5P222CA0002.outlook.office365.com
+ (2603:10b6:610:1ee::22) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.382.11 via Frontend Transport; Wed, 2
+ Sep 2026 13:45:11 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ BN2PEPF00004FBB.mail.protection.outlook.com (10.167.243.181) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.382.8 via Frontend Transport; Wed, 2 Sep 2026 13:45:11 +0000
+Received: from airavat.amd.com (10.180.168.240) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.46; Wed, 2 Sep
+ 2026 08:44:54 -0500
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+To: <jikos@kernel.org>, <bentiss@kernel.org>
+CC: <linux-input@vger.kernel.org>, Basavaraj Natikar
+	<Basavaraj.Natikar@amd.com>, Guruvendra Punugupati
+	<Guruvendra.Punugupati@amd.com>
+Subject: [PATCH 4/4] HID: amd_sfh: Add device mode support for latest AMD SOC.
+Date: Wed, 2 Sep 2026 19:14:31 +0530
+Message-ID: <20260902134431.3146117-5-Basavaraj.Natikar@amd.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260902134431.3146117-1-Basavaraj.Natikar@amd.com>
+References: <20260902134431.3146117-1-Basavaraj.Natikar@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -51,239 +73,107 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: satlexmb07.amd.com (10.181.42.216) To satlexmb07.amd.com
+ (10.181.42.216)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN2PEPF00004FBB:EE_|CY1PR12MB9673:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5f270c8f-f92c-4122-4314-08df08f8691e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|36860700016|23010399003|82310400026|10067099003|56012099006|11063799006|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	7YbNV/iMOxJgdcHL6774lF1DXYsTlAe5fWkp6wwBc29zrFSUO31IyvN26enPm9cuPYhaRCf6HC+ywipleUEdRlp+zUO6Hlzsz9yRGKZSjEZIpMDEyZKNkQe3fA6MDW1TWR+BTg8LZrPeCFSd3E4PscvNbBQDT2fh/Ir9GVz9msgHfNYiKLB0O1GJlbn6IF0xIZH0jJ8iD5ZmEhqBf0H7a/Ha+xZxquMeoTGHDgiQQzAkrOiks/ZVKTydISJ681vrtXV7t5K6h7I6t6DX13tNSvV8ZTxN89LJhuZfHoThZdc/KQs1AO858a/R3cRMIUqvnghWQjNz1OPdyDJCTB3+8GgnmB8g3W6Tm7reQkcnLWv8Rc4crG/GJSr4K/PQvTeYfbouJmZyq5xAE0Gv3Fcv72wCIVGJ/VuTTUplRgPvrTEtqz7LijP52NRlngutekve3vB/Nydpic5g40pD0ZQWog4TlJrPJMh8ZDoz9f1ylv0EsEFfeyI5wG4CcFpIYsPMaNoSeODzPEua8pnnPTykryHr4YOgKTGmL1lnafM1kY6tZfhuzjSh5y6ag+5vutllH3vqqU/W1LNKnF3yagG8Lk8aOlXAUM1oM4Ms1rnneLrJv7bjiyrJ4kYqOfcUvs1aSJhnFRJK40Un/2r/cnHpWbHvcm788ZQoIJOzXWOldXrj8icZrjoJ/6UQMaarFa74g8M4tfMXKQxzQdU+eshFBA==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(376014)(36860700016)(23010399003)(82310400026)(10067099003)(56012099006)(11063799006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	YCW44KaJUsmaSyKoe5Fu4TPGUYa+jWFdCTm0GD+b37R0+npN9/3vuyBwFLX1PDQYXlzHS/clhBQwy44mZmAS6JlrFOaoEP+MU2RJxFAQ/JkHyiuh01H8Xj247kz1aqHCwk+TXkFeOHa024LKTvANtzCrfVMtU+naFYJcT73mzZkOW8rGfLSqh8IlIgm2BQnvIApqPc3d/Hmx2XefvQ15ykCMej8H6AEuv4W6N5gU2LfYVdkNdK49EQkMa06peJ4Q4cv9PeqTPuCMFLO201POh0anlvLuict5s1eNar0V3Vz7Nz7PGJlB8UtQ/84hVrjgf7jW3ZG5T8qD1CQ5OHrmjy6GnOF4hMNykszVnp8AH3r437A+yzL5A6FJq7jUaSDHphfnNYffNhoSCRVlpCRMi0VpnTLp8VgeJyTDEOCKeByGrNW8MjwWMYVSEGwKK5ei
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Sep 2026 13:45:11.7969
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5f270c8f-f92c-4122-4314-08df08f8691e
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN2PEPF00004FBB.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1PR12MB9673
 
-The Wacom driver coordinates state between sibling interfaces of
-the same physical device using a shared structure 'wacom_shared'
-inside 'wacom_hdev_data'.  The driver kept a volatile representative
-pointer 'data->dev' pointing to a sibling 'hid_device' for physical
-path comparisons during sibling matching.
+Use device mode data from DRAM instead of reading from the C2P
+register in latest AMD SOC.
 
-This pointer management is fragile.  When the representative device
-is disconnected, wacom_remove_shared_data() failed to clear/update
-'data->dev', leading to a Use-After-Free vulnerability when
-subsequent sibling probes dereference the dangling 'data->dev'
-pointer.
-
-Resolve this issue by redesigning the sibling data lifecycle:
-
- - Eliminate the volatile 'data->dev' representative pointer
-   completely
- - Redesign 'wacom_hdev_data' to store stable static copies of the
-   required attributes upon first allocation: 'phys' path string,
-   'vendor', 'product' IDs and the sibling's 'device_type'
- - Use these static attributes for stable sibling matching in
-   wacom_are_sibling() and wacom_get_hdev_data()
-
-This ensures sibling matching remains safe and stable even if
-individual siblings are dynamically added or removed.
-
-To secure the lifecycle against concurrent probe/disconnect races:
-
- - Switch kref_put() to kref_put_mutex() in
-   wacom_remove_shared_data() to serialize refcount drops with list
-   traversal and lookup
- - Modify wacom_release_shared_data() to assume the list lock is
-   already held
-
-Also, do not accumulate the 'device_type' capability flag during
-subsequent sibling probes.  Keeping only the first probed sibling's
-device_type exactly preserves the original sibling matching behavior
-without introducing side effects.
-
-Cc: stable@vger.kernel.org
-Fixes: 4492efffffeb ("Input: wacom - share pen info with touch of the same ID")
-Signed-off-by: Lee Jones <lee@kernel.org>
+Co-developed-by: Guruvendra Punugupati <Guruvendra.Punugupati@amd.com>
+Signed-off-by: Guruvendra Punugupati <Guruvendra.Punugupati@amd.com>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 ---
+ .../amd-sfh-hid/sfh1_1/amd_sfh_interface.c    | 23 +++++++++++++++++--
+ .../amd-sfh-hid/sfh1_1/amd_sfh_interface.h    |  1 +
+ 2 files changed, 22 insertions(+), 2 deletions(-)
 
-v1 -> v2: Split and use RCU as per Dmitry's review
-v2 -> v3: Sashiko fixes
-v3 -> v4: No change
-v4 -> v5: No change
-v5 -> v6: No change
-v6 -> v7: No change
-v7 -> v8: No change
-v8 -> v9: No change
-
- drivers/hid/wacom_sys.c | 70 +++++++++++++++++++++++++++--------------
- 1 file changed, 46 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 12f6a32cbc5f..9b991078a36d 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -757,27 +757,47 @@ static void wacom_retrieve_hid_descriptor(struct hid_device *hdev,
- struct wacom_hdev_data {
- 	struct list_head list;
- 	struct kref kref;
--	struct hid_device *dev;
-+	char phys[64];
-+	__u32 vendor;
-+	__u32 product;
-+	__u32 device_type;
- 	struct wacom_shared shared;
- };
+diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+index 034ec237659a..bc0adb789896 100644
+--- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
++++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+@@ -98,6 +98,25 @@ void sfh_interface_init(struct amd_mp2_dev *mp2)
+ 	emp2 = mp2;
+ }
  
-+static bool wacom_compare_device_paths(struct hid_device *hdev_a,
-+				       const char *phys_b, char separator)
++static unsigned int amd_sfh_read_c2p3(struct amd_mp2_dev *mp2)
 +{
-+	const char *p1 = strrchr(hdev_a->phys, separator);
-+	const char *p2 = strrchr(phys_b, separator);
-+	int n1, n2;
++	struct sfh_accel_data accel_data;
++	void __iomem *sensoraddr;
++	u32 val;
 +
-+	if (!p1 || !p2)
-+		return false;
++	if (mp2->mp2_ver >= MP2_VER_1_2) {
++		sensoraddr = mp2->vsbase +
++			(SRA_IDX * SENSOR_DATA_MEM_SIZE_DEFAULT) +
++			OFFSET_SENSOR_DATA_DEFAULT;
++		memcpy_fromio(&accel_data, sensoraddr, sizeof(struct sfh_accel_data));
++		val = accel_data.c2p3_data;
++	} else {
++		val = readl(mp2->mmio + amd_get_c2p_val(mp2, 3));
++	}
 +
-+	n1 = p1 - hdev_a->phys;
-+	n2 = p2 - phys_b;
-+
-+	if (n1 != n2 || n1 <= 0 || n2 <= 0)
-+		return false;
-+
-+	return !strncmp(hdev_a->phys, phys_b, n1);
++	return val;
 +}
 +
- static LIST_HEAD(wacom_udev_list);
- static DEFINE_MUTEX(wacom_udev_list_lock);
- 
- static bool wacom_are_sibling(struct hid_device *hdev,
--		struct hid_device *sibling)
-+		struct wacom_hdev_data *data)
+ static int amd_sfh_op_mode_info(u32 *op_mode)
  {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_features *features = &wacom->wacom_wac.features;
--	struct wacom *sibling_wacom = hid_get_drvdata(sibling);
--	struct wacom_features *sibling_features = &sibling_wacom->wacom_wac.features;
- 	__u32 oVid = features->oVid ? features->oVid : hdev->vendor;
- 	__u32 oPid = features->oPid ? features->oPid : hdev->product;
+ 	struct sfh_op_mode mode;
+@@ -114,7 +133,7 @@ static int amd_sfh_op_mode_info(u32 *op_mode)
+ 	if (!present)
+ 		return -ENODEV;
  
- 	/* The defined oVid/oPid must match that of the sibling */
--	if (features->oVid != HID_ANY_ID && sibling->vendor != oVid)
-+	if (features->oVid != HID_ANY_ID && data->vendor != oVid)
- 		return false;
--	if (features->oPid != HID_ANY_ID && sibling->product != oPid)
-+	if (features->oPid != HID_ANY_ID && data->product != oPid)
- 		return false;
+-	mode.val = readl(emp2->mmio + amd_get_c2p_val(emp2, 3));
++	mode.val = amd_sfh_read_c2p3(emp2);
+ 	dev_dbg(&emp2->pdev->dev, "op-mode: %s (mode=%u)\n",
+ 		mode.op_mode.mode == SFH_MODE_TABLET ? "tablet" : "laptop",
+ 		mode.op_mode.mode);
+@@ -133,7 +152,7 @@ static int amd_sfh_mode_info(u32 *platform_type, u32 *laptop_placement)
+ 	if (!emp2 || !emp2->dev_en.is_sra_present)
+ 		return -ENODEV;
  
- 	/*
-@@ -785,11 +805,11 @@ static bool wacom_are_sibling(struct hid_device *hdev,
- 	 * device path, while those with different VID/PID must share
- 	 * the same physical parent device path.
- 	 */
--	if (hdev->vendor == sibling->vendor && hdev->product == sibling->product) {
--		if (!hid_compare_device_paths(hdev, sibling, '/'))
-+	if (hdev->vendor == data->vendor && hdev->product == data->product) {
-+		if (!wacom_compare_device_paths(hdev, data->phys, '/'))
- 			return false;
- 	} else {
--		if (!hid_compare_device_paths(hdev, sibling, '.'))
-+		if (!wacom_compare_device_paths(hdev, data->phys, '.'))
- 			return false;
- 	}
+-	mode.val = readl(emp2->mmio + amd_get_c2p_val(emp2, 3));
++	mode.val = amd_sfh_read_c2p3(emp2);
  
-@@ -802,7 +822,7 @@ static bool wacom_are_sibling(struct hid_device *hdev,
- 	 * devices.
- 	 */
- 	if ((features->device_type & WACOM_DEVICETYPE_DIRECT) &&
--	    !(sibling_features->device_type & WACOM_DEVICETYPE_DIRECT))
-+	    !(data->device_type & WACOM_DEVICETYPE_DIRECT))
- 		return false;
+ 	*platform_type = mode.op_mode.devicemode;
  
- 	/*
-@@ -810,17 +830,17 @@ static bool wacom_are_sibling(struct hid_device *hdev,
- 	 * devices.
- 	 */
- 	if (!(features->device_type & WACOM_DEVICETYPE_DIRECT) &&
--	    (sibling_features->device_type & WACOM_DEVICETYPE_DIRECT))
-+	    (data->device_type & WACOM_DEVICETYPE_DIRECT))
- 		return false;
+diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h
+index 11c7a86ac52e..eaa90c689049 100644
+--- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h
++++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h
+@@ -130,6 +130,7 @@ struct sfh_accel_data {
+ 	struct sfh_common_data commondata;
+ 	struct sfh_float32 acceldata;
+ 	u32 accelstatus;
++	u32 c2p3_data;
+ };
  
- 	/* Pen devices may only be siblings of touch devices */
- 	if ((features->device_type & WACOM_DEVICETYPE_PEN) &&
--	    !(sibling_features->device_type & WACOM_DEVICETYPE_TOUCH))
-+	    !(data->device_type & WACOM_DEVICETYPE_TOUCH))
- 		return false;
- 
- 	/* Touch devices may only be siblings of pen devices */
- 	if ((features->device_type & WACOM_DEVICETYPE_TOUCH) &&
--	    !(sibling_features->device_type & WACOM_DEVICETYPE_PEN))
-+	    !(data->device_type & WACOM_DEVICETYPE_PEN))
- 		return false;
- 
- 	/*
-@@ -836,7 +856,7 @@ static struct wacom_hdev_data *wacom_get_hdev_data(struct hid_device *hdev)
- 
- 	/* Try to find an already-probed interface from the same device */
- 	list_for_each_entry(data, &wacom_udev_list, list) {
--		if (hid_compare_device_paths(hdev, data->dev, '/')) {
-+		if (wacom_compare_device_paths(hdev, data->phys, '/')) {
- 			kref_get(&data->kref);
- 			return data;
- 		}
-@@ -844,7 +864,7 @@ static struct wacom_hdev_data *wacom_get_hdev_data(struct hid_device *hdev)
- 
- 	/* Fallback to finding devices that appear to be "siblings" */
- 	list_for_each_entry(data, &wacom_udev_list, list) {
--		if (wacom_are_sibling(hdev, data->dev)) {
-+		if (wacom_are_sibling(hdev, data)) {
- 			kref_get(&data->kref);
- 			return data;
- 		}
-@@ -858,18 +878,15 @@ static void wacom_release_shared_data(struct kref *kref)
- 	struct wacom_hdev_data *data =
- 		container_of(kref, struct wacom_hdev_data, kref);
- 
--	mutex_lock(&wacom_udev_list_lock);
- 	list_del(&data->list);
--	mutex_unlock(&wacom_udev_list_lock);
--
- 	kfree(data);
- }
- 
- static void wacom_remove_shared_data(void *res)
- {
--	struct wacom *wacom = res;
-+	struct wacom *res_wacom = res;
- 	struct wacom_hdev_data *data;
--	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_wac *wacom_wac = &res_wacom->wacom_wac;
- 
- 	if (wacom_wac->shared) {
- 		data = container_of(wacom_wac->shared, struct wacom_hdev_data,
-@@ -883,17 +900,19 @@ static void wacom_remove_shared_data(void *res)
- 				rcu_dereference_protected(wacom_wac->shared->pen,
- 							  lockdep_is_held(&wacom_udev_list_lock));
- 
--			if (touch == wacom->hdev) {
-+			if (touch == res_wacom->hdev) {
- 				rcu_assign_pointer(wacom_wac->shared->touch, NULL);
- 				rcu_assign_pointer(wacom_wac->shared->touch_input, NULL);
--			} else if (pen == wacom->hdev) {
-+			} else if (pen == res_wacom->hdev) {
- 				rcu_assign_pointer(wacom_wac->shared->pen, NULL);
- 			}
- 		}
- 
- 		synchronize_rcu();
- 
--		kref_put(&data->kref, wacom_release_shared_data);
-+		if (kref_put_mutex(&data->kref, wacom_release_shared_data, &wacom_udev_list_lock))
-+			mutex_unlock(&wacom_udev_list_lock);
-+
- 		wacom_wac->shared = NULL;
- 	}
- }
-@@ -916,7 +935,10 @@ static int wacom_add_shared_data(struct hid_device *hdev)
- 		}
- 
- 		kref_init(&data->kref);
--		data->dev = hdev;
-+		strscpy(data->phys, hdev->phys, sizeof(data->phys));
-+		data->vendor = hdev->vendor;
-+		data->product = hdev->product;
-+		data->device_type = wacom_wac->features.device_type;
- 		list_add_tail(&data->list, &wacom_udev_list);
- 	}
- 
+ struct sfh_gyro_data {
 -- 
-2.55.0.966.g6673acef38-goog
+2.34.1
 

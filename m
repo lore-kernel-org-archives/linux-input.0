@@ -1,238 +1,205 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29221348C7F
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:04:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 011821DC198
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:19:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788311070; cv=none; b=meWtHJAT3VozSS8wruplb7zJGHxOhV3cX6baqewj09kIfrQM5YH3QHPouWlAhF1aEU4nmHDHKdcmKu0ABMfZPbXix7ZEw9k4LLUdQldDSMTOdE7KtuJkE4omZc6OcYeH2ENSkZHi3qtaOJ74iWnDmGRKIM7wcueycKAFl+jIQj0=
+	t=1788311989; cv=none; b=MVgrkVxdyG+1orFlhIy3MGQU6Oo5MbvJV0oBuBjuYjUkHg27vaLDbY/7Ag7KiVYJ1NgFmOgFtZPOS7n6smx1TAwyRD3RFPWn8zvmB906s7wJEt1dZid7u9FTI6WA3zWtZdOTp25o1D9X2NODUCNkQm4nXZYEnoOIVGgMpGXwQUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788311070; c=relaxed/simple;
-	bh=21vkvjmRAIZZGd0HJynGGbNwT/fc3y8oXY92w/h6hfk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BelqwIdWHPWo06WDpwqo0yltu0QWk9mbtuGX8BQfAkvHqgA3476HawI9RGrY7cQ8KjEvlx64Bjvgtury/ch0wCOAYBbVE8dLI7OaWM6TU/f7sytQtBsjG0EUc6vRyms66eXAjjhC0vl8AZvQvgTZnWvKuoFQocWKBAtP2YKmd9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=fpAav+Pk; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1788311989; c=relaxed/simple;
+	bh=TquPLuHA6yONnd/uJHH2rgxI3AsnNpj0zHfr5J0FjI8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=NKXRC1/8OpQ9roMJBt0TT2lo8iYnCNHOCtOCioqhY1tJgeQEb4VNfTW6xlEGLbvthyV62L2lyX2S+PloeADUjw3ZddtRjoMcaT6u5qO2bMhQcWbZ011cwow6CX67V+bl1/81GMVfNs5MS6dPlof3z3Lbw0hqVnQJJ7eo2zVB+As=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k5DKZgOA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="fpAav+Pk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1788311060; bh=21vkvjmRAIZZGd0HJynGGbNwT/fc3y8oXY92w/h6hfk=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=fpAav+PkC4NjXG9gBNSNDDqIjCaUh1SmnUWbbGMNjEhvy3RXHsantAcQXhyBOnQiO
-	 EKRJY874+QD9gMIX0HBwWcFGJztXO/p0wiQLny3Way6jNF42J1wzHzdAUCoZx41Z1U
-	 vK9aUPs1Wpl0L6v9O79gOyCA/UsXYT7H97dbqxSS6hZFsTs8JwoOoA+PGvuoahQ9CZ
-	 Wulr1Q4JEOFGclPFCJCiJnCXNmfyaACUpmwlNY4AG2o9haXbCs/E0j3LPUfYOcfTIr
-	 /WflQkiZpl2OXUWb6PrHJ5e/B/FfECQaBQ3YndB3of8hlEJyRVuN683BUoM5I6OzA2
-	 FU6Wn6/E3BenQ==
-Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 0C91013208A;
-	Tue, 01 Sep 2026 18:04:20 -0700 (PDT)
-From: Vicki Pfau <vi@endrift.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org
-Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v5 09/12] Input: xbox_gip - Add support for PDP guitar controllers
-Date: Tue,  1 Sep 2026 18:02:30 -0700
-Message-ID: <20260902010237.865772-10-vi@endrift.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260902010237.865772-1-vi@endrift.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k5DKZgOA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5607D1F000E9;
+	Wed,  2 Sep 2026 01:19:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788311987;
+	bh=Nqi+b1SCxHsavnrjDyW99fEeNIeiQWeGDIKoHXleJlo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=k5DKZgOAeAhQWtRrGeqBkwcvxeihzF2XYYBze9yMFFEauT/IsfNX6Kf5sToU4qcn0
+	 WF5nG9OWqLLxYYx80ptCe9DtWt0D1LBF2bJo84QF+rAB4HzRDk6iNGYd2wxttXsyF9
+	 B01c+vfve3Hi7ufrAA9UOzlvWze0H6zt3Xlo4Vahd67LPF5FqDB7iiKiFdqTaBP88n
+	 6UTz+rXl7uAOOJ866yBhNJ1LHBjEwqt6lfD2ClWjH02fDtYWxpaAdUqIWgnLFhYfZM
+	 U1CBj5VUXPdUfXThDIrUW/DspFK1XMLiIuyc96D8UOyH2LnBA5HikshfaUu60xoNfi
+	 kVB8ei9s2Wn3A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 06/12] Input: xbox_gip - Allow sending fragmented and
+ ACME messages
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vicki Pfau" <vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260902010237.865772-7-vi@endrift.com>
 References: <20260902010237.865772-1-vi@endrift.com>
+ <20260902010237.865772-7-vi@endrift.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 02 Sep 2026 01:19:46 +0000
+Message-Id: <20260902011947.5607D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-This patch adds support for the PDP guitar controllers, namely the Fender
-Jaguar and RiffMaster models. These use mostly the same protocol, but the
-RiffMaster appears t use a slightly newer variant.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [Critical] Unconditional dereference of NULL fragment pointer on error pa=
+th for non-fragmented messages.
+- [High] Missing synchronization when allocating and initializing `out_frag=
+ments` slots.
+- [High] Unsynchronized read-modify-write of the `intf->has_pending_out` bi=
+tmask.
+- [High] Dropped ACKs permanently leak `out_fragments` slots.
+--
 
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/input/joystick/gip/Makefile         |   1 +
- drivers/input/joystick/gip/gip-core.c       |   1 +
- drivers/input/joystick/gip/gip-pdp-jaguar.c | 129 ++++++++++++++++++++
- drivers/input/joystick/gip/gip.h            |   2 +
- 4 files changed, 133 insertions(+)
- create mode 100644 drivers/input/joystick/gip/gip-pdp-jaguar.c
+commit 317888ee9cccdc0f09f7f1c8d616d2664382777a
+Author: Vicki Pfau <vi@endrift.com>
 
-diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
-index 9ed59caec4d9..62c016d6c11e 100644
---- a/drivers/input/joystick/gip/Makefile
-+++ b/drivers/input/joystick/gip/Makefile
-@@ -4,3 +4,4 @@ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
- xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
- # Additional device support
- xbox-gip-y += gip-arcade-stick.o
-+xbox-gip-y += gip-pdp-jaguar.o
-diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index e8075a99306d..166fc420ffb2 100644
---- a/drivers/input/joystick/gip/gip-core.c
-+++ b/drivers/input/joystick/gip/gip-core.c
-@@ -330,6 +330,7 @@ static const struct gip_driver *base_drivers[] = {
- 	&gip_driver_navigation,
- 	&gip_driver_gamepad,
- 	&gip_driver_arcade_stick,
-+	&gip_driver_pdp_jaguar,
- 	NULL /* Sentinel */
- };
- 
-diff --git a/drivers/input/joystick/gip/gip-pdp-jaguar.c b/drivers/input/joystick/gip/gip-pdp-jaguar.c
-new file mode 100644
-index 000000000000..ec0e9d811d12
---- /dev/null
-+++ b/drivers/input/joystick/gip/gip-pdp-jaguar.c
-@@ -0,0 +1,129 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Drivers for GIP PDP Jaguar-style guitars
-+ *
-+ * Copyright (c) 2026 Valve Software
-+ */
-+
-+#include <linux/unaligned.h>
-+#include "gip.h"
-+
-+#define GIP_QUIRK_PDP_HAS_RIGHT_STICK	BIT(31)
-+
-+static int gip_setup_pdp_jaguar_input(struct gip_attachment *attachment, struct input_dev *input)
-+{
-+	/*
-+	 * Despite having the navigation controller GUID, we don't want to use
-+	 * those mappings. Instead, we use the xone mappings for compatibility
-+	 * reasons.
-+	 */
-+
-+	/* Lower fret */
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY2);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY3);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY4);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY5);
-+	/* Upper fret */
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY6);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY7);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY8);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY9);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY10);
-+
-+	input_set_capability(input, EV_KEY, BTN_START);
-+	input_set_capability(input, EV_KEY, BTN_SELECT);
-+
-+	/* Whammy bar */
-+	input_set_abs_params(input, ABS_Y, 0, 255, 0, 0);
-+	/* Tilt */
-+	input_set_abs_params(input, ABS_Z, 0, 255, 0, 0);
-+
-+	input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
-+
-+	if (attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) {
-+		input_set_capability(input, EV_KEY, BTN_THUMBR);
-+		input_set_abs_params(input, ABS_RX, -32768, 32767, 16, 128);
-+		input_set_abs_params(input, ABS_RY, -32768, 32767, 16, 128);
-+	}
-+
-+	return 0;
-+}
-+
-+static int gip_handle_pdp_jaguar_report(struct gip_attachment *attachment,
-+	struct input_dev *input, const uint8_t *bytes, int num_bytes)
-+{
-+	bool lower;
-+
-+	if (num_bytes < 4) {
-+		gip_dbg(attachment, "Discarding too-short input report\n");
-+		return -EINVAL;
-+	}
-+
-+	input_report_key(input, BTN_START, bytes[0] & BIT(2));
-+	input_report_key(input, BTN_SELECT, bytes[0] & BIT(3));
-+
-+	if (num_bytes >= 7 && (bytes[5] || bytes[6])) {
-+		/* Newer report version on the RiffMaster */
-+		input_report_key(input, BTN_TRIGGER_HAPPY1, bytes[5] & BIT(0));
-+		input_report_key(input, BTN_TRIGGER_HAPPY2, bytes[5] & BIT(1));
-+		input_report_key(input, BTN_TRIGGER_HAPPY3, bytes[5] & BIT(2));
-+		input_report_key(input, BTN_TRIGGER_HAPPY4, bytes[5] & BIT(3));
-+		input_report_key(input, BTN_TRIGGER_HAPPY5, bytes[5] & BIT(4));
-+
-+		input_report_key(input, BTN_TRIGGER_HAPPY6, bytes[6] & BIT(0));
-+		input_report_key(input, BTN_TRIGGER_HAPPY7, bytes[6] & BIT(1));
-+		input_report_key(input, BTN_TRIGGER_HAPPY8, bytes[6] & BIT(2));
-+		input_report_key(input, BTN_TRIGGER_HAPPY9, bytes[6] & BIT(3));
-+		input_report_key(input, BTN_TRIGGER_HAPPY10, bytes[6] & BIT(4));
-+	} else {
-+		lower = bytes[1] & BIT(6);
-+		input_report_key(input, BTN_TRIGGER_HAPPY1, !lower && (bytes[0] & BIT(4)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY2, !lower && (bytes[0] & BIT(5)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY3, !lower && (bytes[0] & BIT(7)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY4, !lower && (bytes[0] & BIT(6)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY5, !lower && (bytes[1] & BIT(4)));
-+
-+		input_report_key(input, BTN_TRIGGER_HAPPY6, lower && (bytes[0] & BIT(4)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY7, lower && (bytes[0] & BIT(5)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY8, lower && (bytes[0] & BIT(7)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY9, lower && (bytes[0] & BIT(6)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY10, lower && (bytes[1] & BIT(4)));
-+	}
-+
-+	input_report_abs(input, ABS_Y, bytes[2]);
-+	input_report_abs(input, ABS_Z, bytes[3]);
-+
-+	input_report_abs(input, ABS_HAT0X,
-+		!!(bytes[1] & BIT(3)) - !!(bytes[1] & BIT(2)));
-+	input_report_abs(input, ABS_HAT0Y,
-+		!!(bytes[1] & BIT(1)) - !!(bytes[1] & BIT(0)));
-+
-+	if ((attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) && num_bytes >= 14) {
-+		input_report_key(input, BTN_THUMBR, bytes[1] & BIT(6));
-+		input_report_abs(input, ABS_RX, (int16_t)get_unaligned_le16(&bytes[10]));
-+		input_report_abs(input, ABS_RY, ~(int16_t)get_unaligned_le16(&bytes[12]));
-+	}
-+
-+	return 0;
-+}
-+
-+const struct gip_driver gip_driver_pdp_jaguar = {
-+	.types = (const char *const[]) { "PDP.Xbox.Guitar.Jaguar", NULL },
-+	.guid = GUID_INIT(0x1a266af6, 0x3a46, 0x45e3, 0xb9, 0xb6,
-+		0x0f, 0x2c, 0x0b, 0x2c, 0x1e, 0xbe),
-+
-+	.quirks = (const struct gip_quirks[]) {
-+		/* PDP RiffMaster */
-+		{ GIP_VID_PDP, GIP_PID_PDP_RIFFMASTER, 0,
-+			.quirks = GIP_QUIRK_PDP_HAS_RIGHT_STICK, },
-+
-+		{0},
-+	},
-+	.probe = NULL,
-+	.remove = NULL,
-+	.init = NULL,
-+	.setup_input = gip_setup_pdp_jaguar_input,
-+	.handle_input_report = gip_handle_pdp_jaguar_report,
-+};
-diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index f44a312ae0c9..7d4628dea684 100644
---- a/drivers/input/joystick/gip/gip.h
-+++ b/drivers/input/joystick/gip/gip.h
-@@ -41,6 +41,7 @@
- #define GIP_PID_XBOX_WIRELESS			0x0b12
- 
- #define GIP_PID_PDP_ROCK_CANDY	0x0246
-+#define GIP_PID_PDP_RIFFMASTER	0x0248
- 
- #define GIP_PID_BDA_XB1_CLASSIC		0x581a
- #define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
-@@ -420,4 +421,5 @@ void gip_security_release(struct gip_security *security);
- extern const struct gip_driver gip_driver_navigation;
- extern const struct gip_driver gip_driver_gamepad;
- extern const struct gip_driver gip_driver_arcade_stick;
-+extern const struct gip_driver gip_driver_pdp_jaguar;
- #endif
--- 
-2.54.0
+Input: xbox_gip - Allow sending fragmented and ACME messages
 
+This commit introduces support for sending fragmented messages that exceed =
+the
+MTU length and messages requiring ACKs using the ACME flag in the GIP proto=
+col.
+It adds queuing, processing, and acknowledgment handling logic to the xbox_=
+gip
+driver.
+
+> diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
+ck/gip/gip-core.c
+> index 57d638408daf4..544becf8badd6 100644
+> --- a/drivers/input/joystick/gip/gip-core.c
+> +++ b/drivers/input/joystick/gip/gip-core.c
+[ ... ]
+> +static void gip_free_fragment(struct gip_out_fragment *fragment)
+> +{
+> +	kfree(fragment->data);
+> +	memset(fragment, 0, sizeof(*fragment));
+> +}
+[ ... ]
+>  static int gip_send_raw_message(struct gip_attachment *attachment,
+>  	uint8_t message_type, uint8_t flags, uint8_t seq, const uint8_t *bytes,
+>  	int num_bytes)
+> @@ -486,20 +529,25 @@ static int gip_send_raw_message(struct gip_attachme=
+nt *attachment,
+>  	struct gip_interface *intf;
+>  	int offset =3D 3;
+>  	struct gip_urb *urb =3D NULL;
+> +	struct gip_out_fragment *fragment =3D NULL;
+>  	int i;
+>  	int rc =3D 0;
+[ ... ]
+> +	if (num_bytes > reduced_mtu ||
+> +		(flags & (GIP_FLAG_ACME | GIP_FLAG_FRAGMENT)) =3D=3D GIP_FLAG_ACME) {
+> +		for (i =3D 0; i < MAX_OUT_FRAGMENTS; i++) {
+> +			if (attachment->out_fragments[i].active)
+> +				continue;
+> +
+> +			fragment =3D &attachment->out_fragments[i];
+> +			break;
+> +		}
+
+[Severity: High]
+Does this code have a missing synchronization issue?
+
+The fragment slot is claimed and initialized locklessly here. If concurrent
+callers (like force feedback workers, sysfs, or incoming message handlers)
+pick the same inactive slot, could this lead to double-allocation (a memory
+leak) and state corruption?
+
+> +
+> +		if (!fragment) {
+> +			gip_err(attachment, "Fragmented message queue is full; dropping messa=
+ge\n");
+> +			return -EALREADY;
+> +		}
+> +
+> +		fragment->data =3D kmalloc(num_bytes, GFP_KERNEL);
+> +		if (!fragment->data)
+> +			return -ENOMEM;
+> +		fragment->active =3D true;
+
+[Severity: High]
+Can these out_fragments slots permanently leak if ACKs are dropped?
+
+When an outgoing message requires an ACK, the slot is marked active here and
+relies entirely on a device-initiated ACK to be freed. Because there is no
+timeout mechanism, if the device drops the message or fails to respond, cou=
+ld
+the slot remain locked forever? Since MAX_OUT_FRAGMENTS is only 2, a couple
+of dropped packets might permanently exhaust the queue.
+
+[ ... ]
+>  	guard(spinlock_irqsave)(&attachment->device->message_lock);
+>  	for (i =3D 0; i < MAX_OUT_MESSAGES && !urb; i++) {
+>  		if (!intf->out_queue[i].urb)
+[ ... ]
+> +	if (fragment) {
+> +		/*
+> +		 * Sending further fragments is handled in gip_urb_out if this fragmen=
+t doesn't need
+> +		 * ACKing or in gip_handle_command_protocol_control if it does. The fl=
+ag should also
+> +		 * be cleared if we're done sending this packet.
+> +		 */
+> +		if (fragment->total_length > reduced_mtu && !(flags & GIP_FLAG_ACME))
+> +			intf->has_pending_out |=3D gip_fragment_id(attachment, fragment);
+> +		else
+> +			intf->has_pending_out &=3D ~gip_fragment_id(attachment, fragment);
+>  	}
+> =20
+>  	return rc;
+> +
+> +err_free_fragment:
+> +	gip_free_fragment(fragment);
+> +	return rc;
+> +}
+
+[Severity: Critical]
+Does this error path unconditionally dereference a NULL pointer?
+
+If gip_send_raw_message() is called for a standard, non-fragmented message,
+the fragment pointer remains NULL. If the output queue is full or
+usb_submit_urb() fails, the function jumps to err_free_fragment and calls
+gip_free_fragment().
+
+Since gip_free_fragment() unconditionally accesses fragment->data and calls
+memset(fragment, ...), won't this immediately crash the kernel when fragment
+is NULL?
+
+[ ... ]
+> +static int gip_send_next_fragment(struct gip_attachment *attachment,
+> +	struct gip_out_fragment *fragment)
+> +{
+> +	struct gip_interface *intf;
+[ ... ]
+> +	if (fragment->fragment_offset =3D=3D fragment->total_length) {
+> +		if ((fragment->message & GIP_DATA_CLASS_MASK) =3D=3D GIP_DATA_CLASS_AU=
+DIO)
+> +			intf =3D &attachment->device->audio;
+> +		else
+> +			intf =3D &attachment->device->data;
+> +
+> +		next_bytes =3D 0;
+> +		intf->has_pending_out &=3D ~gip_fragment_id(attachment, fragment);
+
+[Severity: High]
+Is there an unsynchronized read-modify-write data race here?
+
+Here in gip_send_next_fragment(), intf->has_pending_out is updated without
+holding message_lock. However, as seen in gip_send_raw_message(), this shar=
+ed
+bitmask is also modified under message_lock.
+
+Could concurrent updates to this shared variable cause lost updates,
+permanently stalling fragment transmission for any attachments whose bits g=
+et
+lost?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902010237.8657=
+72-1-vi@endrift.com?part=3D6

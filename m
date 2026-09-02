@@ -1,123 +1,188 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76B9733BBC0
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:20:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB83266565
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:20:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788312040; cv=none; b=YfOld4NDKH/okqNFr76l9GH1AIvrycAX3rmd11yDtuRE0Xa9QGAxnTSs8Wic32YLTUXem5lIgees+SLklp4NnyAD8Ss4PT0b9RKQzqgDlN9pWVC7wUJVPyuXTvrdnSOVb9eVUnqnVU8du5sKQhGgDDHLzl0M5UU+GABmzj1uPFI=
+	t=1788312051; cv=none; b=K8XFTZIcy1cXZeDJiMO4FgmpBIxgUkOGMssZuaJYR6KL2jgo1Xt+OydUc7pcMEWfEQV04xD8H4qPQ/ZpDgTf4kcqu89hso0dreaSxcEf73k54PqlW3s+Cs151Rc2XD50ulzi1P5pnH6SEj2wAgfStaBBzZHFnfEXYPLRH4mUZcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788312040; c=relaxed/simple;
-	bh=5YgX4yVoaaIdK4ryggKXIljnDMy4+aX9wMvCEUhkRso=;
+	s=arc-20240116; t=1788312051; c=relaxed/simple;
+	bh=L9vQ/3W2+tll7C0ygLYIXxhpAA1cpn+IMbk+ZE+dJ/4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AP0j1NdB5genZUEW0ah2hDmsqj0rjpoJ7w6KABmVffU6bx/w0MTq2dmsW/u8WmwKmwEoF4BnhrePEXAsf7wBSYSdVa1rRB3apXnhofJJaV9KvIEZyHAPgLFhfXd0MLSy1MNsTqFDVXoIQ6r4GiD8juCS1nNXJ+W7oGSl14VnkP4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eSOA0O7A; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Of8cdM1pk/UMD7MKB+TRq7/ZpEarpJ3QAMrd+5++21acNh8F/xvG2mo6GbQIKZxff62b3fW/CROi6l1veYpyC6lUXl0rjlvSzThH3VkGK7UrZ6/HMh9Q+aOaGVbd81sGqSBa5tonzJQzOv3dqjp73kvH5+q2IZjd0Uojb4PmuVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eeSXD9IO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eSOA0O7A"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDBBA1F000E9;
-	Wed,  2 Sep 2026 01:20:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eeSXD9IO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A657A1F000E9;
+	Wed,  2 Sep 2026 01:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788312039;
-	bh=TxWGkHMKrDjZbwr0zNJA12HpENglSS5ydBUu/zXOO6c=;
+	s=k20260515; t=1788312049;
+	bh=qi2cCkvpu0GZ/X8vSuetWgHX91l8Ie0p4YOtz8FNpBs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eSOA0O7AsHp6lFy6Ywcb1fBmOiwTSld2kp42AJOOFO1W4Q9Hn3cjsYi1TkT4f9WxO
-	 tdwMjnuEAFqeYui2I5yVRLr+j2fz2Nc55y82uAaT1QJKGAcHzjjxzlz1tk5AfPil2+
-	 HS4vWgoNdHoGEYu6/I4N+LOk859JwayrLLXfwjZqrJj6oig1Qb7fGdX8y8ldvdGu/f
-	 UDUll2wEo5yL5hTSd4wPnTiOZz3KHy8hPAMBQ1g9TlKd4JccVv6NwfAmzFXwL84E4s
-	 KWhhkQAwvDKtXADp4HQSnfwGrdubz5lKTJV0uHxIsehy1yVU2kpS6QlInXD/GbiuRJ
-	 rjR6+YYy0Keqw==
+	b=eeSXD9IOutpJ+x7rhyuPQFXMOH8YgpmuMKeIRmufW7fl9pwg2Qa8rVVj7B/Qljztv
+	 gfOVu90T5UiTTl0gQLs4tqAP3TxmsM16Rc+t5CVJVMO/3h4kgQO8/VvmTE/azTj1xE
+	 Ryr2XmVcdcvqSGR/7YaGaT8olj8Bn4uHw9HhEdwE3uxEZAzF9KQNeDVvBb/luoVqAc
+	 2xQ915Qhyq5VWB6MLPasSte4d9NOvbjNCOBo2JgarjyPSODTWe3GWvy1mTm96j6AJY
+	 840HLMROXMwuCzLEVNuLh4DGz/blb/x4kiWkDr6g33mn4NDerYjXsyrKFYeJ2/OM8S
+	 tC7sg4sN7LURA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 05/12] Input: xbox_gip - Add battery support
+Subject: Re: [PATCH v5 03/12] Input: xbox_gip - Add controllable LED support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260902010237.865772-6-vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260902010237.865772-4-vi@endrift.com>
 References: <20260902010237.865772-1-vi@endrift.com>
- <20260902010237.865772-6-vi@endrift.com>
+ <20260902010237.865772-4-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 01:20:38 +0000
-Message-Id: <20260902012038.DDBBA1F000E9@smtp.kernel.org>
+Date: Wed, 02 Sep 2026 01:20:49 +0000
+Message-Id: <20260902012049.A657A1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Devres actions on `input->dev` are delayed until userspace drops a=
-ll references, causing the power supply to outlive the `attachment` structu=
-re and resulting in a Use-After-Free.
-- [High] Manually unregistering a devm-managed power supply and freeing its=
- name on an error path leads to a double-unregister and UAF when devres cle=
-anup executes.
+- [High] LED classdev remains registered after driver disconnect, leading t=
+o a Use-After-Free vulnerability.
 --
 
-commit 7a0e19630adf51b35545780bfe01529fdc2adba8
+commit c366b72f3332d21395d97672e39c1566b23f91d5
 Author: Vicki Pfau <vi@endrift.com>
 
-Input: xbox_gip - Add battery support
+Input: xbox_gip - Add controllable LED support
 
-This commit adds battery support to the xbox_gip driver by exposing the
-controller's battery information as a power_supply device.
+This commit adds controllable LED support for Xbox One controllers. It supp=
+orts
+both monochrome white LEDs and RGBW addressable LEDs for Elite 2 controller=
+s,
+exposing them as LED class devices.
 
 > diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
 ck/gip/gip-core.c
+> index 11196afdce33f..23ab0768580f5 100644
 > --- a/drivers/input/joystick/gip/gip-core.c
 > +++ b/drivers/input/joystick/gip/gip-core.c
+
 [ ... ]
-> @@ -1199,6 +1206,106 @@ static int gip_guide_led_probe(struct gip_attachm=
-ent *attachment, struct device
-[ ... ]
-> +static int gip_battery_create(struct gip_attachment *attachment, struct =
-device *dev)
+
+> +static int gip_guide_led_probe(struct gip_attachment *attachment, struct=
+ device *dev)
 > +{
-> +	struct power_supply_config supply_config =3D { .drv_data =3D attachment=
-, };
-> +	int rc;
-[ ... ]
-> +	attachment->battery =3D devm_power_supply_register(dev,
-> +		&attachment->battery_desc, &supply_config);
-> +	if (IS_ERR(attachment->battery)) {
-> +		rc =3D PTR_ERR(attachment->battery);
-> +		goto err_out;
-> +	}
+> +	int rc =3D 0;
 > +
-> +	rc =3D power_supply_powers(attachment->battery, dev);
-> +	if (rc < 0) {
-> +		power_supply_unregister(attachment->battery);
-> +		goto err_out;
-> +	}
+> +	if (!gip_supports_system_message(attachment, GIP_CMD_LED, false))
+> +		return 0;
+> +
+> +	if (attachment->features & GIP_FEATURE_GUIDE_COLOR) {
+> +		struct mc_subled *mc_led_info;
+> +		struct led_classdev_mc *mc_cdev =3D &attachment->guide_led.color;
+> +		struct led_classdev *cdev =3D &mc_cdev->led_cdev;
+> +
+> +		mc_led_info =3D devm_kcalloc(dev, 4,
+> +			sizeof(*mc_led_info), GFP_KERNEL);
+> +		if (!mc_led_info)
+> +			return -ENOMEM;
+> +
+> +		mc_led_info[0].color_index =3D LED_COLOR_ID_RED;
+> +		mc_led_info[0].intensity =3D 51;
+> +		mc_led_info[1].color_index =3D LED_COLOR_ID_GREEN;
+> +		mc_led_info[1].intensity =3D 51;
+> +		mc_led_info[2].color_index =3D LED_COLOR_ID_BLUE;
+> +		mc_led_info[2].intensity =3D 51;
+> +		mc_led_info[3].color_index =3D LED_COLOR_ID_WHITE;
+> +		mc_led_info[3].intensity =3D 51;
+> +
+> +		mc_cdev->subled_info =3D mc_led_info;
+> +		mc_cdev->num_colors =3D 4;
+> +
+> +		cdev->brightness =3D 51;
+> +		cdev->max_brightness =3D 255;
+> +		cdev->flags =3D LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
+> +		cdev->brightness_set_blocking =3D gip_guide_color_led_set;
+> +		cdev->name =3D devm_kasprintf(dev, GFP_KERNEL,
+> +			"%s:rgb:power", dev_name(dev));
+> +		if (!cdev->name)
+> +			rc =3D -ENOMEM;
+> +
+> +		if (!rc)
+> +			rc =3D devm_led_classdev_multicolor_register(dev,
+> +				mc_cdev);
 
 [Severity: High]
-Because attachment->battery was allocated using devm_power_supply_register(=
-),
-a devres action is already queued to unregister it. If power_supply_powers()
-fails and we manually call power_supply_unregister() here, will devres
-attempt to unregister it again later when the input device is cleaned up,
-leading to a double-free?
+Does binding this LED to the input device's lifecycle cause a use-after-free
+if the controller is disconnected while an input event node is still open?
+
+Since the devres action for unregistering the LED is bound to the input dev=
+ice
+(&input->dev), the LED will remain registered as long as userspace holds an
+evdev file descriptor open.
+
+However, during driver unbind, gip_disconnect() calls:
+devm_kfree(to_gip_device(attachment), attachment);
+
+This immediately frees the attachment structure containing the registered=20
+led_classdev and led_classdev_mc structures. Subsequent accesses to the LED=
+'s=20
+sysfs attributes (such as changing brightness via gip_guide_color_led_set)=
+=20
+would then dereference this freed memory.
+
+Should this register against the physical device instead, such as=20
+to_gip_device(attachment), to ensure the LED is unregistered synchronously=
+=20
+during driver unbind?
 
 [ ... ]
-> @@ -1494,6 +1604,8 @@ static void gip_free_devices(struct gip_attachment =
-*attachment)
-> =20
->  	rcu_assign_pointer(attachment->input, NULL);
->  	rcu_assign_pointer(attachment->hdev, NULL);
-> +	/* The following are freed by devres */
-> +	attachment->battery =3D NULL;
->  	synchronize_rcu();
+
+> +	} else {
+> +		struct led_classdev *cdev =3D &attachment->guide_led.standard;
+> +
+> +		cdev->max_brightness =3D GIP_LED_GUIDE_MAX_BRIGHTNESS;
+> +		cdev->brightness =3D GIP_LED_GUIDE_INIT_BRIGHTNESS;
+> +		cdev->flags =3D LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
+> +		cdev->brightness_set_blocking =3D gip_guide_led_set;
+> +		cdev->name =3D devm_kasprintf(dev, GFP_KERNEL,
+> +			"%s:white:power", dev_name(dev));
+> +		if (!cdev->name)
+> +			return -ENOMEM;
+> +
+> +		rc =3D devm_led_classdev_register(dev, cdev);
 
 [Severity: High]
-The battery was registered with devm using the input device (input->dev).
-Since input device devres actions are delayed until userspace drops all
-evdev file descriptor references, does setting attachment->battery to NULL
-here leave the power supply active after the driver disconnects?
+Can this similarly cause a use-after-free since the standard LED is also
+registered using the input device as the devres parent?
 
-If a user reads the sysfs attributes for the power supply after the device
-is unplugged, could gip_battery_get_property() attempt to access the freed
-attachment structure?
+[ ... ]
+
+> @@ -1150,6 +1261,10 @@ static int gip_setup_input_device(struct gip_attac=
+hment *attachment)
+>  	if (rc)
+>  		goto err_free_device;
+> =20
+> +	rc =3D gip_guide_led_probe(attachment, &input->dev);
+
+[Severity: High]
+By passing &input->dev instead of the physical device to gip_guide_led_prob=
+e(),
+the LED lifecycle becomes tied to the input device.
+
+Input devices only run their devres actions when the last userspace referen=
+ce
+is released. If the LED memory resides in attachment, shouldn't the LED be
+tied to the attachment's device so that unregistration happens before the
+attachment is freed?
+
+> +	if (rc)
+> +		gip_err(attachment, "Failed to register LEDs: %d\n", rc);
+> +
+>  	return 0;
+> =20
+>  err_free_device:
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902010237.8657=
-72-1-vi@endrift.com?part=3D5
+72-1-vi@endrift.com?part=3D3

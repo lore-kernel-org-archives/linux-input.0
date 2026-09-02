@@ -1,191 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A46C30D3F6
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 10:04:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944EE472762
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 12:09:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788343456; cv=none; b=csTsQWAK6UgYkv3NrQEREUX8turSVFMhJq7lk/THEQUfZq+IAEYBtJJ+M+C2QRy7O4E+L6BmD/GTpZWLjtbzj5Wi0gPVTJqKB7DkY9ukIA1Gn868JhfNVqJQuIJTE0HPnuL/rkdW7ASV6k0A/dugn8FRHrqN2ACiU9OVxNqYlC4=
+	t=1788350985; cv=none; b=FPABquZT0K16N/ghUbsksd7DUNnSDMLK3/nWVAELU9lpK3VpCxdXClQjWLEog8XTz2PwiBRNYzHg3xSynhyCiYIlg7AOjmFzDePPlgmhj+YyK1sD20ystMHr21RmufMbRDdoEA0Mhm6RaDpH8+J0AYl2JGNL3AWATyeunf8MzZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788343456; c=relaxed/simple;
-	bh=U+6OSj4fGbiMRa7IW1c5O+xqIcEENWStUWTz7QTHVMo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MPKbYt4Ua2MpBO9NuDo1pv3i9xiXRGuz1IKNeUPoS2yjncQhE319LcO8tcuDmMjWLWubR2BIO+X/uw5eM5rLbExHZHGIpLuxGJz0CPFtQZTz67cqQO0cunF+hweqLSCkYthg1nnsgVTXmDuWFfkyzdfksyrGddYPVnn8X80vqs4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cvq+4vvr; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788350985; c=relaxed/simple;
+	bh=GTLCTugw7PjjvVnLCGl/oOTPq/b39jKFstNMsphi4vM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=R+X1T+jEPJwrf0Dc83uLaqzww5YJz/43dD4zGxD7fVgSHX8IBZj5uI/cA2mgt1OE+apMZIG57s1PeQW2zekvkZCenjwnFj9tdNK9vK/6wGC6GoigEKYnxFEF7VxodSy+Z9SxIuM2ZdPUATSGyMxW9WwmYwtuu4OXgbuBHwfH1Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Fx9WXIjc; arc=none smtp.client-ip=209.85.221.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cvq+4vvr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F4F1F000E9;
-	Wed,  2 Sep 2026 10:04:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788343454;
-	bh=qvmNFCh7D/DhKvC52cHWFKNg4s88Cb0fdq41H8c4cB8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cvq+4vvrbBsMHeOCcFSUx/SJCq3u6eASTUHugtsEdsGKiMO2vEXgmntOOl0/cXxs/
-	 03vY346V9a21UxCl39lQMf5fSLudYNAEBly1EhuCze3s/8YtiuHrYI3tgSkEbT+7lg
-	 D1ZvQAirSQPQkpd0Hhd/B45viGFnCAQMA7ZuZj1/uoBj9SRznTcMbcV4x7WORwIk39
-	 QtKOQYb3+4djAIFkKhb5rs4tXPhp0A2IEdL67h3vUDG5JCkmdFbo4LyviVU2l/QS4i
-	 VPuuv1K9DEHV5HmjkTIPgubTmdT0OUQHG+QlxsdvbdQRtVUhkxTAH/pT2X6QDRKCga
-	 uSnbf5NSy7UoQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] HID: roccat: use kref to manage device instances
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Antipov" <dmantipov@yandex.ru>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260902094551.200587-2-dmantipov@yandex.ru>
-References: <20260902094551.200587-1-dmantipov@yandex.ru>
- <20260902094551.200587-2-dmantipov@yandex.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 10:04:13 +0000
-Message-Id: <20260902100414.54F4F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Fx9WXIjc"
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-47fe89fb333so619258f8f.3
+        for <linux-input@vger.kernel.org>; Wed, 02 Sep 2026 05:09:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1788350977; x=1788955777; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=cpv4ZZhQaX1kdYbkUZt5Cm50+G2KZgBu15PDYo6wGO0=;
+        b=Fx9WXIjc9tFoB+puGS7uNB+7hiVoiTnw/bXD8PoBgNROG/eDIV0ogbpD7WkdmfIoph
+         eyaCG1UYCyuu/DFeMW46YqPg1Jk1/duzRSRsBJW877JWSksGvz3ze01zhJyoW3pHla2K
+         ffHleycdGK9KpU+lKApuGpLylXbWuneU+bDHTogu+VESouaUAdnSFHnaBsbBVK3qpSzv
+         SknU520PLpW3QZdIObCmM7DR3pCF9fDxz1yLQR6ok5H8WlgVZz449rmoecS/gdAbtwsQ
+         Gxp5SYGpJZuM7ZmOZx5sRDQkK41Jy+bwr/oJVRJp7IFX8UaXEkGNhaKaDQwrEp/MVyf4
+         zOFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788350977; x=1788955777;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=cpv4ZZhQaX1kdYbkUZt5Cm50+G2KZgBu15PDYo6wGO0=;
+        b=TnLt64WLWiapH9BlUeGCC3hDNF9IdArcVTIViBqlZI4JTzvZvCaKFdM9pcj6NmTfmd
+         OCfRdrcGLuEBoEaU5Pvfh4Epj5GSd4aroj5UUAZZhTmGosizphUiEjWx8h0Kdjpawq2c
+         ZJJmiICn6ucRMys7FW1zVYb5woEZ+t+9wnkT7nruz7DsyMIQ/mVwf5wOTfa7LAG40RaX
+         ItNyQjfhxlCJZzuc21IL2O1AbxDuIxEqkumkGWNeS8HFvQeZCgmZdGd1fRof8HNJ3g6R
+         JgFfabD7IHXSkr5oZaeJva9tkzixzmmqdoX66skpmxWaRVe3B9nX3Fm38Wb8cca2XNpR
+         NfwQ==
+X-Gm-Message-State: AFuF++m4Yay/nTMGO568vMXGQ5LzP7VKgqwTJGBRxoUgBlBxjbAbBc5Q
+	35yBIwRU6B2dp6tdhSu1JyKArJjXvqDT4FN16+YYIAeofoZx2SVwjS6QeOPomPr9UbA=
+X-Gm-Gg: AYBFou2cSp3CthIJrfbFfKD5nzOhc0H0t2VNX+WGyJagMP1dF0zrhtBvC7XxSPUXNWq
+	Iw7vq1KeYMRHoTEJLL/yXIdhLt45nTOVx5LhpA/fSd50DPAMC0E2vW+VFra29IfmfmWQ134euV8
+	NJHApDJH6ajsprGOPkR+m8ACo11lZtZ3KB7nQbTUo2joDrjcc6vMz1nPy1wtivZI6Oc64A/AW0f
+	u67PNyeM2yOkYY3EUiSibazU1nFsytpP4WoKCiClieHBC7kiTs79JdiK33ehJHzEx4wZSLBsDbB
+	s0ZRFeXzx7l5HXF6AWT51EYuBB8mwFUEJqJNO4OhmQ+ubU7QpKTEv2DJbCS9tiEpIfWgNBZbfFN
+	4oziCltnDjCPhodNSAeaCvEPVWFzJwHbSA263MrHJSyMRwzzVwFdGIICwvD3m6JgMaekUr1tG/h
+	EO70IAYwvR6tRjE4cQJtX/Gq2GCTVCIq/ibN9hoJT1oz84/kgZd8BqDLYWndUa2BUfjjmlL4/MZ
+	BSfISQEVEjlkX89u3cF0Oz8YCNIPxLcbDltucnl
+X-Received: by 2002:a05:6000:61e:b0:484:36c8:ffde with SMTP id ffacd0b85a97d-4847b625aafmr8604788f8f.0.1788350976883;
+        Wed, 02 Sep 2026 05:09:36 -0700 (PDT)
+Received: from ?IPV6:2001:a61:1304:a201:f0d3:bdff:55cd:3f16? ([2001:a61:1304:a201:f0d3:bdff:55cd:3f16])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48448e6f604sm6073105f8f.2.2026.09.02.05.09.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 02 Sep 2026 05:09:36 -0700 (PDT)
+Message-ID: <c79e754b-2ef4-49f2-8bb4-60b36ab9a36d@suse.com>
+Date: Wed, 2 Sep 2026 14:09:35 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [syzbot] [usb?] [input?] KASAN: slab-use-after-free Read in
+ k90_record_led_work
+To: Jeffin Philip <jeffinphilip14@gmail.com>,
+ syzbot+0b8bff5929865345b29e@syzkaller.appspotmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <6a937393.1d9ded08.62e62.0113.GAE@google.com>
+ <20260831054632.18179-1-jeffinphilip14@gmail.com>
+Content-Language: en-US
+From: Oliver Neukum <oneukum@suse.com>
+In-Reply-To: <20260831054632.18179-1-jeffinphilip14@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On 31.08.26 07:46, Jeffin Philip wrote:
 
-New issues:
-- [Critical] Removal of the unconditional `devices[minor] =3D NULL` in `roc=
-cat_disconnect()` leaves a dangling pointer in the global array, allowing r=
-acing `open()` calls to access a freed `hid_device`.
-- [High] Mismatched kref accounting permanently leaks `struct roccat_device=
-` references on every open cycle.
+> I believe there is a patch for this already[1], but it has not been merged
+> yet. Was written just as the merge window for v7.3 opened, so might have
+> been the reason for not being merged.
+> 
+> [1]: https://lore.kernel.org/all/20260817072831.139954-1-ccc194101@163.com/
 
-Pre-existing issues:
-- [Critical] Pre-existing logic flaw: `roccat_release()` incorrectly looks =
-up the device via the global `devices` array instead of using `file->privat=
-e_data`.
---
+Looking at this patch the following sequence seems possible:
 
-commit 215425e9faf722882019fabfa914bec7f0229c93
-Author: Dmitry Antipov <dmantipov@yandex.ru>
+CPU A				CPU B
 
-    HID: roccat: use kref to manage device instances
+enter k90_brightness_set()
 
-This patch introduces a kref to manage the lifecycle of roccat_device
-instances. It replaces custom lifecycle tracking in an attempt to resolve
-Use-After-Free conditions between open/release and connect/disconnect.
+if (led->removed) [FALSE]
+				Enter k90_cleanup_backlight()
+				drvdata->backlight->removed = true; [TOO LATE]
+				cancel_work_sync(&drvdata->backlight->work); [NOP]
+schedule_work(&led->work); [THIS IS BAD]
 
-Link: https://syzkaller.appspot.com/bug?extid=3Dd632e93ffcd1452bc61e
+Just cancelling the work is not enough.
 
-> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index 5deb6da8d4f74..264977e8e3010 100644
-> --- a/drivers/hid/hid-roccat.c
-> +++ b/drivers/hid/hid-roccat.c
+	Regards
+		Oliver
 
-[ ... ]
-
-> @@ -193,6 +196,7 @@ static int roccat_open(struct inode *inode, struct fi=
-le *file)
->  		}
->  	}
-> =20
-> +	kref_get(&device->ref);
-
-[Severity: High]
-Does this unconditionally acquire a reference for every open file descriptor
-without a corresponding unconditional release?
-
-In roccat_connect(), the kref is initialized to 1. Here in roccat_open(), a
-reference is added for every reader.
-
-However, roccat_release() only drops a reference if it is the last reader a=
-nd
-the device is already disconnected. Any open/close cycle while the device is
-still connected will leak a reference.
-
-[ ... ]
-
-> @@ -235,7 +239,8 @@ static int roccat_release(struct inode *inode, struct=
- file *file)
->  			hid_hw_power(device->hid, PM_HINT_NORMAL);
->  			hid_hw_close(device->hid);
->  		} else {
-> -			roccat_free_device(device);
-> +			if (kref_put(&device->ref, roccat_free_device))
-> +				devices[minor] =3D NULL;
->  		}
->  	}
-
-[Severity: Critical]
-This is a pre-existing issue, but does roccat_release() look up the device
-incorrectly?
-
-roccat_release() retrieves the device from the global array:
-
-    device =3D devices[minor];
-
-If the original device was disconnected and a new device connected in the s=
-ame
-minor slot, this lookup grabs the new device instead of the one associated
-with the closing file descriptor via reader->device. This can corrupt the
-readers list and incorrectly alter the open count of the new device.
-
-[Severity: High]
-Additionally, since kref_put() is only called in the else branch (when it is
-the last reader and the device no longer exists), won't this leak references
-for all standard open/close operations when the device is still connected?
-
-[ ... ]
-
-> @@ -367,21 +373,22 @@ void roccat_disconnect(int minor)
->  	struct roccat_device *device;
-> =20
->  	mutex_lock(&devices_lock);
-> +
->  	device =3D devices[minor];
-> +	if (!device)
-> +		goto out;
-> =20
->  	device->exist =3D 0; /* TODO exist maybe not needed */
-> -
->  	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
-> =20
-> -	devices[minor] =3D NULL;
-> -
-
-[Severity: Critical]
-Can removing this unconditional clearance leave a dangling pointer in the
-global devices array?
-
-If the device is disconnected while held open, the open count is > 0, so the
-kref_put() below is bypassed. This means devices[minor] is not cleared to
-NULL.
-
-After disconnect, the HID subsystem will eventually free the underlying
-device->hid. If a user subsequently closes their file descriptor, the
-device->open count reaches 0. Due to the kref leaks, the device structure is
-still not freed.
-
-If a new roccat_open() call occurs, it will find the stale pointer in
-devices[minor]. Because device->open is now 0, it will execute:
-
-    error =3D hid_hw_power(device->hid, PM_HINT_FULLON);
-
-Can this cause a use-after-free on the hid_device pointer?
-
->  	if (device->open) {
->  		hid_hw_close(device->hid);
->  		wake_up_interruptible(&device->wait);
->  	} else {
-> -		roccat_free_device(device);
-> +		if (kref_put(&device->ref, roccat_free_device))
-> +			devices[minor] =3D NULL;
->  	}
-
-[Severity: High]
-Does this also fail to drop the initial connection reference if the device =
-is
-disconnected while open?
-
-Because the kref_put() is only in the else branch, a device that is unplugg=
-ed
-while open will never drop its initial reference from roccat_connect(),
-causing it to permanently leak.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902094551.2005=
-87-1-dmantipov@yandex.ru?part=3D2

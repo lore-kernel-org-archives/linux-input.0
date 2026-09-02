@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682ED33CEBD
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 688DB33D6FD
 	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:04:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788311066; cv=none; b=Fb+IFQSvDIn+Ijha+GHGIVT/ojaB5KXMF6QlQryWIx39zMsBDleP044sxLLYdV8arY5eZ3NE3/POUaG0Ib/uJ12bMORHapv0hJtvV+n1mQwuVJ80NLlYWhSNMPraZYCUmTMzO7XO6m0USQ4Jw+dg5hNYilhjMtcVrzYM9CNPg8c=
+	t=1788311067; cv=none; b=o73lCKJlojSe+JQGlCeGDbakEY7K3PN1oM3Cx1NVhHQPmQc8cNZ7X4nNmagcUsOjhKd+2RhIWA4xcWruMJJurFSoqBIlFB3992oS6gbMpPeGhhmdCnFCiWExyyZMQow9aZ6wfnhmfjvqRq/Q3yr/7cTBP3dL6Y7QBP/fZfIFzLI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788311066; c=relaxed/simple;
-	bh=1BN7SKIcdtvXsXiShDhZDkPEmBkvVA5U0zvVDSPBzOA=;
+	s=arc-20240116; t=1788311067; c=relaxed/simple;
+	bh=8hlbYSaddH44KRAM8RfFC6Dl0+lad2dccbUHGtBVXts=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HWb0FG7jWl+njyHXNFHfM0J7LaXI0EMdY+mQ4quTRCELzumzHmAjaE5WYY4kD4Rtm/548jxCi1DelgpnMKwpsYSFDdzCknxpuseIkm/O4OKO2q9H3hCePLMF69TQnc+1Ab2JxqHKqeNL63fk7ZRBvk6Vbd1j9vbxBiH0PAgsqeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=ltuqQGQw; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=pljt2H192Kp6TqK/dhcihMedHPYHd7+NyrIdaAC8oKcIazQpCSef2GF93paI1GBJEV9oFkjJAa6XNdP2yRP13Vk9Jxy1CIkEJcoptDCvwFbsXOFiv/vtqKbAYdyW9/FmCkupaTYaC3KENyUi/aZX1aP0RABApso4K97OSjAEtHY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=ZyMi0QmL; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="ltuqQGQw"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="ZyMi0QmL"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1788311058; bh=1BN7SKIcdtvXsXiShDhZDkPEmBkvVA5U0zvVDSPBzOA=;
+	t=1788311058; bh=8hlbYSaddH44KRAM8RfFC6Dl0+lad2dccbUHGtBVXts=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ltuqQGQwPnTSPc040T3vRf3ScQbv+xrau1hI7K7BtEolyFkBYoeHElrba0KzCUV4d
-	 7IyObcgUa0qAjgzLoQau/4IsnNy64VGiCc7XMtv9qFxTUSgOUr5RMNEeP0aTTh9ENy
-	 BXRqZ8ApZdLIMLFGWedcmAe9asnikrlFolVItyeDrSj6EhA2G0ywDigN1Q7WP/jVju
-	 NFE/gqBBZU1l34sjaJrrX6hzm9NmuKH96/ClAOgOAcA07iyZ5SG0XfG02MNa4s2gk3
-	 io6PXc6y2a3z1cMTmmJfbsgRXVuaIY49WyqJ2g5aDvjN0Q5ZnyGsuZbJAUGLYxCasK
-	 Byg1EV49osKnQ==
+	b=ZyMi0QmLQXPiJLOzOaSspDDIRIXLaCShqXfy4oVgG86O7o9sZUntJX1Yoj2/EO76o
+	 p7oB0LNwWOV1l/YHvN+6GPVNRDQp+Q8B17qOd1sRcWw69V5zDkxSLEY4vP5rDuOQOl
+	 8Y+w+AxL4KWLoIaCeXUOO0GL21Do6ilHblwWaoxR3PEz2YycgLBkvPUm/Uyh+oS3nW
+	 215KbV5e3UcEdSIAPG8KdKHJRorh272od0qdL3qeLetscL5l5ZHX1RQlN/CznwKBr6
+	 Y0akRIx2MYYu4R3AIf5uPXJkZyS/5uw9eiQW/3tAS+L8DjdMTUbbv/Mnra6HJunZcq
+	 OI4ZBdKWqUkWQ==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 73B4B132033;
+	by endrift.com (Postfix) with ESMTPSA id 26D5A132031;
 	Tue, 01 Sep 2026 18:04:18 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v5 04/12] Input: xbox_gip - Add HID relaying
-Date: Tue,  1 Sep 2026 18:02:25 -0700
-Message-ID: <20260902010237.865772-5-vi@endrift.com>
+Subject: [PATCH v5 03/12] Input: xbox_gip - Add controllable LED support
+Date: Tue,  1 Sep 2026 18:02:24 -0700
+Message-ID: <20260902010237.865772-4-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260902010237.865772-1-vi@endrift.com>
 References: <20260902010237.865772-1-vi@endrift.com>
@@ -46,217 +46,200 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-GIP allows tunneling of HID packets, with the HID descriptor embedded in
-the GIP metadata exchanged during the initial handshake. This patch creates
-a hid_device for this HID descriptor if found, as well as relaying the HID
-packets.
+Xbox One controllers have two different types of controllable LED support:
+
+- Monochrome white, which most controllers have.
+- RGBW addressible, which the Elite 2 controllers have.
+
+This exposes both types as led cdevs.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/input/joystick/gip/gip-core.c | 114 +++++++++++++++++++++++++-
- drivers/input/joystick/gip/gip.h      |   2 +
- include/uapi/linux/input.h            |   1 +
- 3 files changed, 114 insertions(+), 3 deletions(-)
+ drivers/input/joystick/gip/Kconfig    |   2 +-
+ drivers/input/joystick/gip/gip-core.c | 115 ++++++++++++++++++++++++++
+ drivers/input/joystick/gip/gip.h      |   6 +-
+ 3 files changed, 121 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/joystick/gip/Kconfig b/drivers/input/joystick/gip/Kconfig
+index 2ce789d23178..3422bf84cb89 100644
+--- a/drivers/input/joystick/gip/Kconfig
++++ b/drivers/input/joystick/gip/Kconfig
+@@ -4,7 +4,7 @@
+ #
+ config JOYSTICK_XBOX_GIP
+ 	tristate "Xbox One/Series controller support"
+-	depends on USB && USB_ARCH_HAS_HCD
++	depends on USB && USB_ARCH_HAS_HCD && LEDS_CLASS_MULTICOLOR
+ 	help
+ 	  Say Y here if you want to use Xbox One and Series controllers with your
+ 	  computer. Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYDEV)
 diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index 23ab0768580f..3b033fe65dc4 100644
+index 11196afdce33..23ab0768580f 100644
 --- a/drivers/input/joystick/gip/gip-core.c
 +++ b/drivers/input/joystick/gip/gip-core.c
-@@ -560,6 +560,54 @@ int gip_send_vendor_message(struct gip_attachment *attachment,
- 		bytes, num_bytes);
+@@ -1037,9 +1037,120 @@ static int gip_send_guide_button_led(struct gip_attachment *attachment,
+ 	if (!gip_supports_system_message(attachment, GIP_CMD_LED, false))
+ 		return 0;
+ 
++	if (!(attachment->features & GIP_FEATURE_GUIDE_COLOR))
++		attachment->guide_led.standard.brightness = intensity;
++
+ 	return gip_send_system_message(attachment, GIP_CMD_LED, 0, buffer, sizeof(buffer));
  }
  
-+static int gip_hid_ll_parse(struct hid_device *hdev)
++static int gip_send_guide_button_color_led(struct gip_attachment *attachment,
++	uint8_t r, uint8_t g, uint8_t b, uint8_t w)
 +{
-+	struct gip_attachment *attachment = hdev->driver_data;
++	uint8_t buffer[] = { 0x00, w, r, g, b };
 +
-+	return hid_parse_report(hdev,
-+		attachment->metadata.device.hid_descriptor,
-+		attachment->metadata.device.hid_descriptor_size);
++	if (!(attachment->features & GIP_FEATURE_GUIDE_COLOR))
++		return -EINVAL;
++
++	attachment->guide_led.color.subled_info[0].brightness = r;
++	attachment->guide_led.color.subled_info[1].brightness = g;
++	attachment->guide_led.color.subled_info[2].brightness = b;
++	attachment->guide_led.color.subled_info[3].brightness = w;
++
++	return gip_send_vendor_message(attachment, GIP_CMD_GUIDE_COLOR, 0, buffer, sizeof(buffer));
 +}
 +
-+static int gip_hid_ll_start(struct hid_device *hdev)
++static int gip_guide_led_set(struct led_classdev *led,
++	enum led_brightness value)
 +{
-+	return 0;
++	struct gip_attachment *attachment = container_of(led,
++		struct gip_attachment, guide_led.standard);
++
++	guard(mutex)(&attachment->lock);
++	return gip_send_guide_button_led(attachment, GIP_LED_GUIDE_ON, value);
 +}
 +
-+static void gip_hid_ll_stop(struct hid_device *hdev)
++static int gip_guide_color_led_set(struct led_classdev *led,
++	enum led_brightness value)
 +{
++	struct led_classdev_mc *mc_cdev = container_of(led,
++		struct led_classdev_mc, led_cdev);
++	struct gip_attachment *attachment = container_of(mc_cdev,
++		struct gip_attachment, guide_led.color);
++
++	guard(mutex)(&attachment->lock);
++	led_mc_calc_color_components(mc_cdev, value);
++	return gip_send_guide_button_color_led(attachment,
++		mc_cdev->subled_info[0].brightness,
++		mc_cdev->subled_info[1].brightness,
++		mc_cdev->subled_info[2].brightness,
++		mc_cdev->subled_info[3].brightness);
 +}
 +
-+static int gip_hid_ll_open(struct hid_device *hdev)
++static int gip_guide_led_probe(struct gip_attachment *attachment, struct device *dev)
 +{
-+	return 0;
-+}
++	int rc = 0;
 +
-+static void gip_hid_ll_close(struct hid_device *hdev)
-+{
-+}
-+
-+static int gip_hid_ll_raw_request(struct hid_device *hdev,
-+	unsigned char reportnum, uint8_t *buf, size_t count,
-+	unsigned char report_type, int reqtype)
-+{
-+	/*
-+	 * TODO: Based on the metadata, output reports appear to be possible,
-+	 * but the chatpad doesn't have the LEDs it claims to support, so
-+	 * it's not clear how to test we're sending them properly.
-+	 */
-+	return 0;
-+}
-+
-+static const struct hid_ll_driver gip_hid_ll_driver = {
-+	.parse = gip_hid_ll_parse,
-+	.start = gip_hid_ll_start,
-+	.stop = gip_hid_ll_stop,
-+	.open = gip_hid_ll_open,
-+	.close = gip_hid_ll_close,
-+	.raw_request = gip_hid_ll_raw_request,
-+};
-+
- static void gip_metadata_free(struct device *dev, struct gip_metadata *metadata)
- {
- 	devm_kfree(dev, metadata->device.audio_formats);
-@@ -1303,6 +1351,48 @@ static int gip_init_input_device(struct gip_attachment *attachment)
- 	return rc;
- }
- 
-+static int gip_create_hdev(struct gip_attachment *attachment)
-+{
-+	struct hid_device *hdev;
-+	int rc;
-+
-+	if (!attachment->metadata.device.hid_descriptor)
++	if (!gip_supports_system_message(attachment, GIP_CMD_LED, false))
 +		return 0;
 +
-+	rcu_read_lock();
-+	hdev = rcu_dereference(attachment->hdev);
-+	rcu_read_unlock();
-+	if (hdev)
-+		return 0;
++	if (attachment->features & GIP_FEATURE_GUIDE_COLOR) {
++		struct mc_subled *mc_led_info;
++		struct led_classdev_mc *mc_cdev = &attachment->guide_led.color;
++		struct led_classdev *cdev = &mc_cdev->led_cdev;
 +
-+	hdev = hid_allocate_device();
++		mc_led_info = devm_kcalloc(dev, 4,
++			sizeof(*mc_led_info), GFP_KERNEL);
++		if (!mc_led_info)
++			return -ENOMEM;
 +
-+	if (IS_ERR(hdev))
-+		return PTR_ERR(hdev);
++		mc_led_info[0].color_index = LED_COLOR_ID_RED;
++		mc_led_info[0].intensity = 51;
++		mc_led_info[1].color_index = LED_COLOR_ID_GREEN;
++		mc_led_info[1].intensity = 51;
++		mc_led_info[2].color_index = LED_COLOR_ID_BLUE;
++		mc_led_info[2].intensity = 51;
++		mc_led_info[3].color_index = LED_COLOR_ID_WHITE;
++		mc_led_info[3].intensity = 51;
 +
-+	hdev->ll_driver = &gip_hid_ll_driver;
-+	hdev->bus = BUS_GIP;
-+	hdev->vendor = attachment->vendor_id;
-+	hdev->product = attachment->product_id;
-+	hdev->dev.parent = to_gip_device(attachment);
-+	hdev->driver_data = attachment;
-+	if (attachment->name)
-+		strscpy(hdev->name, attachment->name);
-+	else
-+		strscpy(hdev->name, "Xbox Chatpad");
-+	strscpy(hdev->phys, attachment->phys);
-+	rc = hid_add_device(hdev);
-+	if (rc) {
-+		gip_err(attachment, "HID device add failed: %d\n", rc);
-+		hid_destroy_device(hdev);
++		mc_cdev->subled_info = mc_led_info;
++		mc_cdev->num_colors = 4;
++
++		cdev->brightness = 51;
++		cdev->max_brightness = 255;
++		cdev->flags = LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
++		cdev->brightness_set_blocking = gip_guide_color_led_set;
++		cdev->name = devm_kasprintf(dev, GFP_KERNEL,
++			"%s:rgb:power", dev_name(dev));
++		if (!cdev->name)
++			rc = -ENOMEM;
++
++		if (!rc)
++			rc = devm_led_classdev_multicolor_register(dev,
++				mc_cdev);
++
++		if (rc)
++			devm_kfree(dev, mc_led_info);
 +	} else {
-+		rcu_assign_pointer(attachment->hdev, hdev);
-+		synchronize_rcu();
++		struct led_classdev *cdev = &attachment->guide_led.standard;
++
++		cdev->max_brightness = GIP_LED_GUIDE_MAX_BRIGHTNESS;
++		cdev->brightness = GIP_LED_GUIDE_INIT_BRIGHTNESS;
++		cdev->flags = LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
++		cdev->brightness_set_blocking = gip_guide_led_set;
++		cdev->name = devm_kasprintf(dev, GFP_KERNEL,
++			"%s:white:power", dev_name(dev));
++		if (!cdev->name)
++			return -ENOMEM;
++
++		rc = devm_led_classdev_register(dev, cdev);
++
++		if (rc)
++			devm_kfree(dev, cdev->name);
 +	}
 +
 +	return rc;
 +}
 +
- static int gip_send_init_sequence(struct gip_attachment *attachment)
+ static bool gip_send_set_device_state(struct gip_attachment *attachment, uint8_t state)
  {
- 	int rc = 0;
-@@ -1368,7 +1458,11 @@ static int gip_send_init_sequence(struct gip_attachment *attachment)
+ 	uint8_t buffer[] = { state };
+@@ -1150,6 +1261,10 @@ static int gip_setup_input_device(struct gip_attachment *attachment)
  	if (rc)
- 		return rc;
+ 		goto err_free_device;
  
--	return 0;
-+	rc = gip_create_hdev(attachment);
++	rc = gip_guide_led_probe(attachment, &input->dev);
 +	if (rc)
-+		return rc;
++		gip_err(attachment, "Failed to register LEDs: %d\n", rc);
 +
-+	return rc;
- }
+ 	return 0;
  
- static void gip_fragment_timeout(struct work_struct *work)
-@@ -1388,19 +1482,25 @@ static void gip_fragment_timeout(struct work_struct *work)
- static void gip_free_devices(struct gip_attachment *attachment)
- {
- 	struct input_dev *input;
-+	struct hid_device *hdev;
- 
- 	if (attachment->driver && attachment->driver->remove)
- 		attachment->driver->remove(attachment);
- 
- 	rcu_read_lock();
- 	input = rcu_dereference(attachment->input);
-+	hdev = rcu_dereference(attachment->hdev);
- 	rcu_read_unlock();
- 
- 	rcu_assign_pointer(attachment->input, NULL);
-+	rcu_assign_pointer(attachment->hdev, NULL);
- 	synchronize_rcu();
- 
- 	if (input)
- 		input_unregister_device(input);
-+
-+	if (hdev)
-+		hid_destroy_device(hdev);
- }
- 
- static void gip_reset_metadata(struct gip_attachment *attachment)
-@@ -1768,9 +1868,17 @@ static int gip_handle_command_firmware(struct gip_attachment *attachment,
- static int gip_handle_command_hid_report(struct gip_attachment *attachment,
- 	const struct gip_header *header, uint8_t *bytes, int num_bytes)
- {
--	gip_warn(attachment, "Unimplemented HID report message\n");
-+	struct hid_device *hdev;
- 
--	return -EOPNOTSUPP;
-+	guard(rcu)();
-+	hdev = rcu_dereference(attachment->hdev);
-+	if (hdev)
-+		return hid_safe_input_report(hdev, HID_INPUT_REPORT, bytes,
-+			num_bytes, umin(header->length, num_bytes), true);
-+
-+	gip_warn(attachment, "Got HID report with no HID descriptor\n");
-+
-+	return -EPROTO;
- }
- 
- static int gip_handle_command_extended(struct gip_attachment *attachment,
+ err_free_device:
 diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index 2e78aad508c3..fbcf66e18158 100644
+index d48ab64ab2eb..2e78aad508c3 100644
 --- a/drivers/input/joystick/gip/gip.h
 +++ b/drivers/input/joystick/gip/gip.h
 @@ -12,6 +12,7 @@
  #ifndef _GIP_H
  #define _GIP_H
  
-+#include <linux/hid.h>
- #include <linux/led-class-multicolor.h>
++#include <linux/led-class-multicolor.h>
  #include <linux/rcupdate.h>
  #include <linux/usb/input.h>
-@@ -250,6 +251,7 @@ struct gip_attachment {
+ 
+@@ -234,6 +235,10 @@ struct gip_attachment {
+ 	uint8_t seq_vendor;
+ 
+ 	uint8_t device_state;
++	union {
++		struct led_classdev standard;
++		struct led_classdev_mc color;
++	} guide_led;
+ 
+ 	struct gip_extended_status status;
+ 
+@@ -245,7 +250,6 @@ struct gip_attachment {
  	int extra_axes;
  
  	bool dpad_as_buttons;
-+	struct hid_device __rcu *hdev;
+-	struct hid_device __rcu *hdev;
  };
  
  struct gip_urb {
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 6aa703fcfcfb..d9c630ff8292 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -276,6 +276,7 @@ struct input_mask {
- #define BUS_INTEL_ISHTP		0x1F
- #define BUS_AMD_SFH		0x20
- #define BUS_SDW			0x21
-+#define BUS_GIP			0x22
- 
- /*
-  * MT_TOOL types
 -- 
 2.54.0
 

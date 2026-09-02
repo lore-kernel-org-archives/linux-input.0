@@ -1,140 +1,130 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B96A74137AE
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 13:54:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B31EF4A0903
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 13:59:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788357295; cv=none; b=ss42+KJah019PEtjHmcj6NDpM5dl0wyfmLZSOylYG08XczU90na7OZ+U/fCwnu8+vdAMOd6pL9AJPk3CgCLMWdJcqQCvqOeryYyuZMRmEinrPUVtxSr3YoeMo2DSfORE+GCczA0K0ckD9E7pZQpexi/PJiop/oOvJDfI9w/TTq8=
+	t=1788357543; cv=none; b=jQe86mJUiDr+OmvT0rpCLh0NawVZQvX34TzijGv9PyLWt92a477S1BOzpTKglmCkxDYxLL01LVrV3lEjM/r7rzgWUShL15L/5fjqMVg0ns0ByP2hfSvArvZury5bJou5p5u4KUmq86AJI9r++98Irem9h60tuGujTIbBQBHLiZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788357295; c=relaxed/simple;
-	bh=Ge+ZEAKkEPejJ939TQ9T+kZVkHn7AUMjXowCxMD5pko=;
+	s=arc-20240116; t=1788357543; c=relaxed/simple;
+	bh=rb9Qg+qGlu5sTUWpiIWcbtxUlyPiBUZs9hZyLEbPRwg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tQh1X0yDZzjCa18IuWk2Hw8NtxCTl7eDGPgHbPDcoqt8jUtZgyUF0rah1P5OKvVZpOfnVEkB6DWQRm2oQnq2bSsDwaLfy39rP8WmmEsJZZt1ON5bmxOff7Er4MBf8UEW+6SvKaxZ8zkhQ8ZiCLJoC4k7ZgpTwC8NVlhkUTMsAeE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Duiz3x33; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Mq5WFdJVyl8uQvH7K74BaoNHu7rPqoH9oC6qV181hhmXWbGacIghrOU5ewzAjpXJMDGodekMpco7QlyMsJrCd1gnILuPAW0CAyLAMXlZsOaBzH/ozZxU1ucsp6Dnv1sD2Q+Nbpa9rAjlkX7JvkiVPgiEOT/MQ0TUNBlzc0l6nxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kAGy4l9b; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Duiz3x33"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C9351F000E9;
-	Wed,  2 Sep 2026 13:54:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kAGy4l9b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6AC1F000E9;
+	Wed,  2 Sep 2026 13:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788357293;
-	bh=1JbNuAO8y+fyoD84I8dDFGXYO+q+ZlbqlR1DiO8IjM4=;
+	s=k20260515; t=1788357541;
+	bh=hKTwtwOo49L527UMnYDbAopFiEIACvos94EFxYcWmnU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Duiz3x33tZT3FihknKotRi8UzDo+6ZIc1NiJAPcrZvjt+rNDY5jjQVzbQvq7hk/vb
-	 yWVmxSaXnGJbVbCHZfmOBxmGQKnNuw5BTZCeHiGNKc4wU/bnnqCF02P39O2Cgl4He2
-	 Uz6hyJ13g19Qvjab+pKXjvY8roOna3ELKMqib+Ki6neU356UqJD9HC6zbnXW6bvb2T
-	 xJ2iljeP0gPkU80cUT8uyvliO9D7X4ovaX2UEfvSLHP5TauyVPfPtx3C0+NyvKDZ1F
-	 dAQXvvYiaLhzKeguE74IDXpMgYFSZCaRpyKWfu3aGxzJoTM7AZdagZU+i2kNmoRJ5S
-	 PzojUh93VPpjQ==
+	b=kAGy4l9bVntbCI0pop8dtM0jr4fLseO4JXX0ugnSxkzqrSYJEonRRmU+j/Cd1NwkB
+	 1QU1NyoUE4c13fJVPC4o8C+McD5sw5XB1qjDc79mq6PMr7DhpecnzE+lMXiBIYz9lN
+	 Ap2o7RQlTn6UypOdmGbgn5zZVpJRvEazRKjtPaLSCFZ+mD1C/mzU1FkxyQQPwnWbwm
+	 co8LcM9hfhQEbSo7hgnLDIL+gWZG3aa7ZV6BlJm8CarmZ4qFX5e4jCMyjG/HAgDi65
+	 n9nWkp/nyY46UscINTD91xbzTBD9hPcwMjPmLUCS4cBC+CAJ0ljFMqf+FSv3Fn3IyD
+	 E5gZ6EdrS3S+w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] HID: amd_sfh: Add DMI quirk and module param to
- disable interrupts
+Subject: Re: [PATCH 4/4] HID: amd_sfh: Add device mode support for latest
+ AMD SOC.
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Basavaraj Natikar" <Basavaraj.Natikar@amd.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260902134431.3146117-2-Basavaraj.Natikar@amd.com>
+In-Reply-To: <20260902134431.3146117-5-Basavaraj.Natikar@amd.com>
 References: <20260902134431.3146117-1-Basavaraj.Natikar@amd.com>
- <20260902134431.3146117-2-Basavaraj.Natikar@amd.com>
+ <20260902134431.3146117-5-Basavaraj.Natikar@amd.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 13:54:52 +0000
-Message-Id: <20260902135453.5C9351F000E9@smtp.kernel.org>
+Date: Wed, 02 Sep 2026 13:59:00 +0000
+Message-Id: <20260902135900.CD6AC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] The DMI quirk for ASUS VivoBook inadvertently ENABLES hardware int=
-errupts, directly contradicting the commit message which states the device =
-requires them DISABLED.
-- [Medium] The DMI quirk unconditionally overwrites the module parameter du=
-ring probe, making it impossible for a user to override the quirk on matchi=
-ng hardware.
-- [Low] The module parameter permissions are read-only, preventing the 'run=
-time override' advertised in the commit message.
+
+Pre-existing issues:
+- [High] Stack memory disclosure in `get_input_rep` (and `get_feature_rep`)=
+ due to uninitialized struct fields.
 --
 
-commit ec52ca66216e002a750c44dedd096bba34993086
-Author: Helge Bahmann <hcb@chaoticmind.net>
+commit ee34af1b468d9118272d016d00f5ca0dd24501d8
+Author: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-HID: amd_sfh: Add DMI quirk and module param to disable interrupts
+HID: amd_sfh: Add device mode support for latest AMD SOC.
 
-This commit exposes the intr_disable variable as a module parameter
-and adds a DMI quirk for the ASUSTeK VivoBook.
+Use device mode data from DRAM instead of reading from the C2P
+register in latest AMD SOC.
 
-> Expose intr_disable as a module parameter to allow runtime override.
-
-[Severity: Low]
-The commit message mentions allowing a runtime override, but the module
-parameter is defined with 0444 permissions. Doesn't this make it read-only
-and prevent runtime modification via sysfs?
-
-> Add DMI quirk for ASUSTeK VivoBook TP420UA/TM420UA which requires
-> interrupts disabled for correct sensor operation.
->=20
-> Signed-off-by: Helge Bahmann <hcb@chaoticmind.net>
-> Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-
-> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh=
--hid/amd_sfh_pcie.c
-> index eda26a094d3f1..92486f25460bc 100644
-> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> @@ -41,6 +41,8 @@ module_param_named(sensor_mask, sensor_mask_override, i=
-nt, 0444);
->  MODULE_PARM_DESC(sensor_mask, "override the detected sensors mask");
-> =20
->  static bool intr_disable =3D true;
-> +module_param_named(intr_disable, intr_disable, bool, 0444);
-
-[Severity: Medium]
-Does the DMI quirk evaluation in amd_mp2_pci_probe() unconditionally
-overwrite this module parameter?
-
-During probe, dmi_check_system(dmi_sfh_table) is called, which executes
-mp2_disable_intr() for matching hardware. If a user attempts to override the
-interrupt setting via module parameters, won't their setting be silently
-ignored and clobbered by the quirk's callback?
-
-> +MODULE_PARM_DESC(intr_disable, "override the interrupt disable sensor bi=
-t");
-> =20
->  static int amd_sfh_wait_response_v2(struct amd_mp2_dev *mp2, u8 sid, u32=
- sensor_sts)
-
+> diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c b/drivers=
+/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+> index d2021f5cc6e59..711174184d2d9 100644
+> --- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+> +++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
 [ ... ]
-
-> @@ -313,6 +315,13 @@ static const struct dmi_system_id dmi_sfh_table[] =
-=3D {
->  			DMI_MATCH(DMI_PRODUCT_NAME, "HP ProBook x360 435 G7"),
->  		},
->  	},
-> +	{
-> +		.callback =3D mp2_disable_intr,
+> @@ -132,7 +151,7 @@ static int amd_sfh_mode_info(u32 *platform_type, u32 =
+*laptop_placement)
+>  	if (!emp2 || !emp2->dev_en.is_sra_present)
+>  		return -ENODEV;
+> =20
+> -	mode.val =3D readl(emp2->mmio + amd_get_c2p_val(emp2, 3));
+> +	mode.val =3D amd_sfh_read_c2p3(emp2);
+> =20
+>  	*platform_type =3D mode.op_mode.devicemode;
+> =20
 
 [Severity: High]
-Does this quirk actually enable interrupts rather than disable them?
+This isn't a bug introduced by this patch, but I noticed a pre-existing
+stack memory disclosure in this subsystem when constructing HID input
+reports.
 
-The commit message states the ASUS VivoBook requires interrupts disabled.
-However, the mp2_disable_intr() callback sets the global intr_disable =3D f=
-alse.
+In drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c:get_input_rep():
 
-By setting this to false, the hardware is configured with
-cmd_v2.intr_disable =3D 0, which turns interrupts on. Is this the intended
-behavior for a device that requires them to be disabled?
+	struct accel3_input_report acc_input;
+	...
+	case ACCEL_IDX: /* accelerometer */
+		...
+		get_common_inputs(&acc_input.common_property, report_id);
+		acc_input.in_accel_x_value =3D amd_sfh_float_to_int(...) / 100;
+		acc_input.in_accel_y_value =3D amd_sfh_float_to_int(...) / 100;
+		acc_input.in_accel_z_value =3D amd_sfh_float_to_int(...) / 100;
+		memcpy(input_report, &acc_input, sizeof(acc_input));
 
-> +		.matches =3D {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "VivoBook_ASUSLaptop TP420UA_TM420UA"),
-> +		},
-> +	},
->  	{}
->  };
->
+Since acc_input is allocated on the stack without being zero-initialized,
+could uninitialized fields (like in_accel_shake_detection or compiler
+padding bytes) retain old kernel stack data and be leaked to userspace
+when the entire struct size is copied into the report buffer?
+
+The same pattern appears in get_input_rep() for als_input, where some
+fields are only conditionally initialized:
+
+	struct als_input_report als_input;
+	...
+	case ALS_IDX:
+		...
+		als_input.illuminance_value =3D amd_sfh_float_to_int(als_data.lux);
+
+		memcpy_fromio(&binfo, mp2->vsbase, sizeof(struct sfh_base_info));
+		if (binfo.sbase.s_prop[ALS_IDX].sf.feat & 0x2) {
+			als_input.light_color_temp =3D als_data.light_color_temp;
+			...
+		}
+
+		report_size =3D sizeof(als_input);
+		memcpy(input_report, &als_input, sizeof(als_input));
+
+If the if-condition is false, are the uninitialized light_color_temp and
+chromaticity fields leaking kernel memory into the HID report?
+
+Does this same issue also exist in get_feature_rep() where structs like
+acc_feature and als_feature are allocated on the stack and copied
+directly into feature_report?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902134431.3146=
-117-1-Basavaraj.Natikar@amd.com?part=3D1
+117-1-Basavaraj.Natikar@amd.com?part=3D4

@@ -1,110 +1,126 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944EE472762
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 12:09:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F16490BE6
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 12:40:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788350985; cv=none; b=FPABquZT0K16N/ghUbsksd7DUNnSDMLK3/nWVAELU9lpK3VpCxdXClQjWLEog8XTz2PwiBRNYzHg3xSynhyCiYIlg7AOjmFzDePPlgmhj+YyK1sD20ystMHr21RmufMbRDdoEA0Mhm6RaDpH8+J0AYl2JGNL3AWATyeunf8MzZM=
+	t=1788352834; cv=none; b=DopPrTyo7ez8wyLZSBFQkoW/K+K2MRAStCEUaFY2oEkfqaPVB0aLg7sk9/cb+xF0IgpkwAhe7xK2ua1oyOopTfuIj+scG0LvptFtjQaW/4I/cCWBV5vXwk9V3Q6J14PEozXpRA/9WSITKy6rTxkiA9eYzWLoNq0wXHC5mFhma8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788350985; c=relaxed/simple;
-	bh=GTLCTugw7PjjvVnLCGl/oOTPq/b39jKFstNMsphi4vM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R+X1T+jEPJwrf0Dc83uLaqzww5YJz/43dD4zGxD7fVgSHX8IBZj5uI/cA2mgt1OE+apMZIG57s1PeQW2zekvkZCenjwnFj9tdNK9vK/6wGC6GoigEKYnxFEF7VxodSy+Z9SxIuM2ZdPUATSGyMxW9WwmYwtuu4OXgbuBHwfH1Mo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Fx9WXIjc; arc=none smtp.client-ip=209.85.221.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1788352834; c=relaxed/simple;
+	bh=/0FlnvMgf8ucFbML07sLt62uDSw38M/o6+5iK1tany0=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=YOAUT7bIhQYT8iqwlzAX8sGkzg4ZAKnRrZBeNH2UuGF7fPhv94mDcvcG031lkHHaCuX9895/yu3czOGr86BvcH5iC/NVAM8obvWNYj4z/PQbPJuJfQkfjtn7zBzcgjDM36UaIcDTRFyovFZsYHVmk0W7haADgc6tNNG8Zxt+Ihs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X8tcQlrv; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Fx9WXIjc"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-47fe89fb333so619258f8f.3
-        for <linux-input@vger.kernel.org>; Wed, 02 Sep 2026 05:09:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X8tcQlrv"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-ca97d139d5fso986650a12.0
+        for <linux-input@vger.kernel.org>; Wed, 02 Sep 2026 05:40:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1788350977; x=1788955777; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=cpv4ZZhQaX1kdYbkUZt5Cm50+G2KZgBu15PDYo6wGO0=;
-        b=Fx9WXIjc9tFoB+puGS7uNB+7hiVoiTnw/bXD8PoBgNROG/eDIV0ogbpD7WkdmfIoph
-         eyaCG1UYCyuu/DFeMW46YqPg1Jk1/duzRSRsBJW877JWSksGvz3ze01zhJyoW3pHla2K
-         ffHleycdGK9KpU+lKApuGpLylXbWuneU+bDHTogu+VESouaUAdnSFHnaBsbBVK3qpSzv
-         SknU520PLpW3QZdIObCmM7DR3pCF9fDxz1yLQR6ok5H8WlgVZz449rmoecS/gdAbtwsQ
-         Gxp5SYGpJZuM7ZmOZx5sRDQkK41Jy+bwr/oJVRJp7IFX8UaXEkGNhaKaDQwrEp/MVyf4
-         zOFQ==
+        d=gmail.com; s=20251104; t=1788352832; x=1788957632; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id
+         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=pN9+CUjHm3nUnn6kbT0jqG6pViZcVeuyzSfqXWpIynU=;
+        b=X8tcQlrvM9VYKg+8vg1Pd3+KTZAlBBJliu/95LwtfaAWuURqy8ZDzYr3ZyOuqcjLNB
+         w6KqEEAkkg6RSaMN14rtt5ceWFTKLOsFjgmySje7tkLlcNfP+pU4RB/YxkAznf4t3qjA
+         Pg6xUkgqN3RKVVrGE5PrBaJP/dCOcicoEc5nVycDJxvSd+G0kbW6huRpT1taiEgBadEQ
+         GvVfciEp/yOhLAliZno7kQJ26Apa69fGl8AfwyefFe4xrZ2gvzoK3U3F8Zbgg9w8kEp4
+         1C2fAgY3VeeNcJuKv6NmpmnvefgrKFSOTJqxmv38q+367zBfQvs/VbrvmZBcCsYOjeGg
+         6jcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788350977; x=1788955777;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=cpv4ZZhQaX1kdYbkUZt5Cm50+G2KZgBu15PDYo6wGO0=;
-        b=TnLt64WLWiapH9BlUeGCC3hDNF9IdArcVTIViBqlZI4JTzvZvCaKFdM9pcj6NmTfmd
-         OCfRdrcGLuEBoEaU5Pvfh4Epj5GSd4aroj5UUAZZhTmGosizphUiEjWx8h0Kdjpawq2c
-         ZJJmiICn6ucRMys7FW1zVYb5woEZ+t+9wnkT7nruz7DsyMIQ/mVwf5wOTfa7LAG40RaX
-         ItNyQjfhxlCJZzuc21IL2O1AbxDuIxEqkumkGWNeS8HFvQeZCgmZdGd1fRof8HNJ3g6R
-         JgFfabD7IHXSkr5oZaeJva9tkzixzmmqdoX66skpmxWaRVe3B9nX3Fm38Wb8cca2XNpR
-         NfwQ==
-X-Gm-Message-State: AFuF++m4Yay/nTMGO568vMXGQ5LzP7VKgqwTJGBRxoUgBlBxjbAbBc5Q
-	35yBIwRU6B2dp6tdhSu1JyKArJjXvqDT4FN16+YYIAeofoZx2SVwjS6QeOPomPr9UbA=
-X-Gm-Gg: AYBFou2cSp3CthIJrfbFfKD5nzOhc0H0t2VNX+WGyJagMP1dF0zrhtBvC7XxSPUXNWq
-	Iw7vq1KeYMRHoTEJLL/yXIdhLt45nTOVx5LhpA/fSd50DPAMC0E2vW+VFra29IfmfmWQ134euV8
-	NJHApDJH6ajsprGOPkR+m8ACo11lZtZ3KB7nQbTUo2joDrjcc6vMz1nPy1wtivZI6Oc64A/AW0f
-	u67PNyeM2yOkYY3EUiSibazU1nFsytpP4WoKCiClieHBC7kiTs79JdiK33ehJHzEx4wZSLBsDbB
-	s0ZRFeXzx7l5HXF6AWT51EYuBB8mwFUEJqJNO4OhmQ+ubU7QpKTEv2DJbCS9tiEpIfWgNBZbfFN
-	4oziCltnDjCPhodNSAeaCvEPVWFzJwHbSA263MrHJSyMRwzzVwFdGIICwvD3m6JgMaekUr1tG/h
-	EO70IAYwvR6tRjE4cQJtX/Gq2GCTVCIq/ibN9hoJT1oz84/kgZd8BqDLYWndUa2BUfjjmlL4/MZ
-	BSfISQEVEjlkX89u3cF0Oz8YCNIPxLcbDltucnl
-X-Received: by 2002:a05:6000:61e:b0:484:36c8:ffde with SMTP id ffacd0b85a97d-4847b625aafmr8604788f8f.0.1788350976883;
-        Wed, 02 Sep 2026 05:09:36 -0700 (PDT)
-Received: from ?IPV6:2001:a61:1304:a201:f0d3:bdff:55cd:3f16? ([2001:a61:1304:a201:f0d3:bdff:55cd:3f16])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48448e6f604sm6073105f8f.2.2026.09.02.05.09.36
+        d=1e100.net; s=20251104; t=1788352832; x=1788957632;
+        h=content-transfer-encoding:content-type:mime-version:message-id
+         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=pN9+CUjHm3nUnn6kbT0jqG6pViZcVeuyzSfqXWpIynU=;
+        b=iuoqpWG55iAzh73FEGiEtgboUxi0NWwbeElGImdox+HU7dWmH70+UA+A0Kbm+ahvE/
+         GUti44+doq12cTcU/8mC83Z4/A95NiOH9lrnOAoQd6auZomzeNDZHhPOFCzuoGKa0iRE
+         4l+PI+H3iKCbpIinOm+kfLlm1owyE3kgHBtP26jiVwAOYkifFLIX7MURrbetqVZxf+r7
+         bcyXgtFwmnDG3bfvCnMIso67PXb24Genhq0F3CWXQN+oC8FQOk8fkNvTpflwJOjLsxJv
+         choPXDIwHcEZXEjRtARtKP0AHGCjuhytEKX0oPm3q3JGcA2E1Fkya3APE1SO0FiGazrG
+         105w==
+X-Forwarded-Encrypted: i=1; AKwUvBzR9Ovgm1eDpGiFnnwfEaXjGndPp6eNuke231frrjDw+rxayhdG1/dS7Cwcp7qksoXRN8QZNpHqDomwhg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mZ8htM+Coa95Wg9b7PJLFhH+Eu0aEIRyBdhJNR9pGZAFiNMXW1
+	22PKuJPe+c2ekUR4JLAHzRjK2VP4NLkYislvFfdEf8eaa7o8DB6GX+Ta
+X-Gm-Gg: AYBFou2u7B4P8hsUQDWgMCmJDVv3QveeXCH8UjHVZsUmYU01Xkw0Q/XKhVJ/vxhFmd/
+	pogEGm5yJmm0Xb6TOglMlrA4rrooH/spYljz5iwZCmLfUt0/6iijk04eVsVpQDBWCrYPWszJog0
+	gXQMdrhjqR+JeMSOEvljwdVNWNLIpLO6fOVMG81GTM8AUIrzeuF67iGApM8sCGJPeDessHd1hTx
+	0lNwsYsiUDbP+lSHReeUD1/21RUqsSxQXkiqYiR16lM7v2ewDGCrPZDTJIbJ/CdKz2VYhVXEBJ5
+	XkoKhBYqEAom84XwoH9tquv8mv8u5xcKBPJWe3qhmADWdB5QguMV5Var3AIPBQvB1q18Cftb0In
+	rfx2XtQHEtNX9D2GVJdrqTPDub76dL1leGO1S+M2EukLfWe8mu3XdhRCRfpbB2uT23cLnNK7AmH
+	s8NKvXHK3Csjudgy6NWiNWDCH0aOH9BHrPDx+G4rfl0bqhT90i8NA4mAyfTkREPEryR3X7GbeB2
+	vB+ACAyFthEphtz3FNiBtrVGth4ZwE/STS9w5uj6LfMNohWebaqyVKBGrfvsgEqfNtL/h8=
+X-Received: by 2002:a17:90b:3d84:b0:392:ca3b:370a with SMTP id 98e67ed59e1d1-39aedf7cc2cmr7542665a91.2.1788352832210;
+        Wed, 02 Sep 2026 05:40:32 -0700 (PDT)
+Received: from ehlo.thunderbird.net (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1430eb4854csm6767338c88.15.2026.09.02.05.40.28
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Sep 2026 05:09:36 -0700 (PDT)
-Message-ID: <c79e754b-2ef4-49f2-8bb4-60b36ab9a36d@suse.com>
-Date: Wed, 2 Sep 2026 14:09:35 +0200
+        Wed, 02 Sep 2026 05:40:29 -0700 (PDT)
+Date: Wed, 02 Sep 2026 05:40:25 -0700
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Aditya <mradityadash@gmail.com>
+CC: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ Mark Pearson <mpearson-lenovo@squebb.ca>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v3_5/7=5D_HID=3A_hid-lenovo-go?=
+ =?US-ASCII?Q?=3A_normalize_calibration_failure_status?=
+User-Agent: Thunderbird for Android
+In-Reply-To: <CAH7J6R-Vh7uEtG=+Shj0CVgxm1RNpuxjuEmNfLJevhTmCz_3Cg@mail.gmail.com>
+References: <cover.1788222001.git.mradityadash@gmail.com> <49b6e07395d2fe555e844758bd8ccf34ac0cbf0c.1788222001.git.mradityadash@gmail.com> <CAFqHKT=7xMJAvTt3__6CtBiS2duGu6eoHq4FWiGONMvjFE2CtA@mail.gmail.com> <CAH7J6R-Vh7uEtG=+Shj0CVgxm1RNpuxjuEmNfLJevhTmCz_3Cg@mail.gmail.com>
+Message-ID: <205C547F-BF6B-43D3-A8F0-829B657167EC@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [syzbot] [usb?] [input?] KASAN: slab-use-after-free Read in
- k90_record_led_work
-To: Jeffin Philip <jeffinphilip14@gmail.com>,
- syzbot+0b8bff5929865345b29e@syzkaller.appspotmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
-References: <6a937393.1d9ded08.62e62.0113.GAE@google.com>
- <20260831054632.18179-1-jeffinphilip14@gmail.com>
-Content-Language: en-US
-From: Oliver Neukum <oneukum@suse.com>
-In-Reply-To: <20260831054632.18179-1-jeffinphilip14@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 31.08.26 07:46, Jeffin Philip wrote:
+On September 1, 2026 10:06:18 AM PDT, Aditya <mradityadash@gmail=2Ecom> wro=
+te:
+>Hi Derek,
+>
+>Just to clarify, this behaviour was seen when sending a left
+>calibration joystick stop command when no calibration was
+>being performed=2E
+>
+>Sending a respective start command returns after 10 seconds
+>with the error codes you have provided=2E
+>
+>Here are the exact requests and responses=2E Consider ellipsis
+>to mean that the rest of it is zeros:
+>
+>Left joystick calibration start:
+>Request:
+>    05 00 0c 04 03 01 =2E=2E=2E
+>Response (after 10s, no movement):
+>    04 00 a0 02 03 02 02 07 =2E=2E=2E
+This makes it look like the reason code is a bitmask rather than a specifi=
+c value=2E Probably more difficult to present in sysfs than the value it pr=
+ovides=2E=20
 
-> I believe there is a patch for this already[1], but it has not been merged
-> yet. Was written just as the merge window for v7.3 opened, so might have
-> been the reason for not being merged.
-> 
-> [1]: https://lore.kernel.org/all/20260817072831.139954-1-ccc194101@163.com/
+> Left joystick calibration stop (when no calibration is running):
+>Request:
+>    05 00 0c 04 03 02 =2E=2E=2E
+>Response (this is near immediate):
+>    04 00 a0 02 03 02 08 00 =2E=2E=2E
 
-Looking at this patch the following sequence seems possible:
+Interesting=2E This wouldn't be the first time documentation was incomplet=
+e or inaccurate from Lenovo so I'm not super surprised=2E We can then consi=
+der a 0x08 response on the status byte as stopped with no call running, vic=
+e failed, if you think that information is relevant to the end user=2E I th=
+ink it might be=2E If you stop it with a cal running is there a meaningful =
+difference in the response?=20
 
-CPU A				CPU B
+Thanks,=20
+Derek
 
-enter k90_brightness_set()
-
-if (led->removed) [FALSE]
-				Enter k90_cleanup_backlight()
-				drvdata->backlight->removed = true; [TOO LATE]
-				cancel_work_sync(&drvdata->backlight->work); [NOP]
-schedule_work(&led->work); [THIS IS BAD]
-
-Just cancelling the work is not enough.
-
-	Regards
-		Oliver
+>Thanks,
+>Aditya
 

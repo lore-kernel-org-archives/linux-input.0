@@ -1,149 +1,176 @@
-Received: from forward205d.mail.yandex.net (forward205d.mail.yandex.net [178.154.239.216])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B41537DAA9
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 09:53:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.216
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382E939B4AE
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 10:04:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788342784; cv=none; b=lX3+v6ulnKjq6q8ytqIuW9bdg6oXpX8ZKv4C2ja0BhCpE4SH/jIrI2p/kNYj6XR8tNPoai2WOqnzrRG86MTL8vSFl3qMtvqCBP+bhMhS4w4/m52q4GgX8PIblsv64JDVTix5FdMZMwqaExzS/+/Ub3snnZdEf1Xvl6ZZHc2fG+A=
+	t=1788343450; cv=none; b=bda3GlHmqEOsOhgCpPjgYlY1yRZf13Y3OIwnTUPGaL1F23Yh6cNU2b3t/MhiEW0HnL/CRiXZvVsQDWVTqVaD7yJUq3TTdFO/oUw6yM6q9LQXoFoiy/JmRB72Yg2YhKlIIzP7rYrpW+SjQwuzpVn4JIapw7fHpqaNP4ox8YrqulY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788342784; c=relaxed/simple;
-	bh=O1+89g1CP0tCqKCchILRJTM2QC1uVHx7hpMtStRpQos=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=adSndMGOoXuwUjvvHvD0aXJPWYL2/bsSXEioeWvNyg2BLrX+zIUwhrUCy1A2QT82ZEcCfhNf0FYN+Be38hDHuMdcgsPyssYEZ1BCKB+c1KeRL5YyVHAUhuFFSuSeBLAFOcqLH9/JyUaMv4ttBLxNdyV33IWb9+HawU2PYdCRrpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=eUCvi/l0; arc=none smtp.client-ip=178.154.239.216
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
+	s=arc-20240116; t=1788343450; c=relaxed/simple;
+	bh=B8ca5vFL8+puu1HTSJ6D59ggkm3R4VclSDkILfrGT2A=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Zj2lR/GxQQnGqX58g2wicFdfjOvhVxgLuJoCXrMy/odGIwpfLWfBrskaMoa7C9PQWyUUAOcADYNvclmfSLvS3oQdkeRkAOn4W5GoBGnwDmR/LIX7sLyv/YzTimM6DeuA2g3eRV9Z97MToZ5Iv+KVmTt2OFmDF4utQE6cb7RRIEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hCuSBAz6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="eUCvi/l0"
-Received: from forward100d.mail.yandex.net (forward100d.mail.yandex.net [IPv6:2a02:6b8:c41:1300:1:45:d181:d100])
-	by forward205d.mail.yandex.net (postfix) with ESMTPS id E2ED487001
-	for <linux-input@vger.kernel.org>; Wed, 02 Sep 2026 12:46:47 +0300 (MSK)
-Received: from mail-nwsmtp-smtp-production-main-81.klg.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-81.klg.yp-c.yandex.net [IPv6:2a02:6b8:c43:1743:0:640:287f:0])
-	by forward100d.mail.yandex.net (postfix) with ESMTPS id 7A808C00B9;
-	Wed, 02 Sep 2026 12:46:40 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-81.klg.yp-c.yandex.net (smtp) with ESMTPSA id bkghxsHexKo0-SMG6Lnod;
-	Wed, 02 Sep 2026 12:46:39 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1788342399; bh=LcN78cANkLDCgEPBIQwXwaH7FTF8Ea80yUmBZjnyMzM=;
-	h=Message-ID:Date:In-Reply-To:Cc:Subject:References:To:From;
-	b=eUCvi/l0ORzQP3MA61wYXaPxnP0lSbO/G0aIVjbezJVakTOQP87urY9fhIXxDCSNR
-	 18jg/Vymgc3IBLla0EUjJYohOwHT8ABW31NTEYZy2nuqdKIS16ZScFWHBqUV/Q9A38
-	 Inz+4BDAOvZpXqvvjrIp/1YQ6BU0BWenA8HLu8x4=
-Authentication-Results: mail-nwsmtp-smtp-production-main-81.klg.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
-From: Dmitry Antipov <dmantipov@yandex.ru>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	lvc-project@linuxtesting.org,
-	Dmitry Antipov <dmantipov@yandex.ru>,
-	syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com
-Subject: [PATCH 2/2] HID: roccat: use kref to manage device instances
-Date: Wed,  2 Sep 2026 12:45:50 +0300
-Message-ID: <20260902094551.200587-2-dmantipov@yandex.ru>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hCuSBAz6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C5681F000E9;
+	Wed,  2 Sep 2026 10:04:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788343448;
+	bh=RSZdtWUXnIrmFSs4SXHNVs27m+m+72qs2Xtadl074YU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hCuSBAz6htyE3ZSR/jFmxjWhy2CzXHl1j56Sx9BFsr6ZvDuXqBwOaOrK43XdYlvxN
+	 xc4lOy2LehJ8qCzdc05TcnzDQ9HUeFOAW+yBdfGwW6Ipvf6RMNt71tnS0yqI4y47hF
+	 I7Vq4mW2FAk20HmweEOjM14F+Qe9TcbuUNDhqyLe8u1qp5Ll0aTlxwysb89LwOC6rl
+	 DEWa8CZdBzRBKVTDgQmpY11GQfKYQ1gIzpi2R0W0zhXUQa4XsdKjuholCCAKcDsE0V
+	 gdLLfqEjPGzBdInQocnamHVBYBVdXMWF2Yd7qansmJ/INquuwacFrKh6eBVzwloilU
+	 jymVl71XmKoqg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/2] HID: roccat: fix locking in roccat_connect() and
+ roccat_disconnect()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Antipov" <dmantipov@yandex.ru>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 In-Reply-To: <20260902094551.200587-1-dmantipov@yandex.ru>
 References: <20260902094551.200587-1-dmantipov@yandex.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 02 Sep 2026 10:04:08 +0000
+Message-Id: <20260902100408.9C5681F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Use kref to manage 'struct roccat_device' instances and fix
-UaF-triggering race between roccat_open()/roccat_release()
-and roccat_connect()/roccat_disconnect() pairs.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Reported-by: syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=d632e93ffcd1452bc61e
-Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
----
- drivers/hid/hid-roccat.c | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+Pre-existing issues:
+- [High] Lockless access to `devices` array in `roccat_report_event()` race=
+s with `roccat_disconnect()`, leading to a NULL pointer dereference.
+- [High] `roccat_report_event()` incorrectly calls sleeping `mutex_lock()` =
+functions inside an atomic interrupt context.
+- [High] Tear-down ordering violation in hardware-specific sub-drivers free=
+s private data before calling `hid_hw_stop()`, leading to a Use-After-Free =
+in `raw_event`.
+--
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index 5deb6da8d4f7..264977e8e301 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -41,6 +41,7 @@ struct roccat_device {
- 	int report_size;
- 	int open;
- 	int exist;
-+	struct kref ref;
- 	wait_queue_head_t wait;
- 	struct device *dev;
- 	struct hid_device *hid;
-@@ -70,10 +71,12 @@ static struct roccat_device *devices[ROCCAT_MAX_DEVICES];
- /* protects modifications of devices array */
- static DEFINE_MUTEX(devices_lock);
- 
--static void roccat_free_device(struct roccat_device *device)
-+static void roccat_free_device(struct kref *ref)
- {
-+	struct roccat_device *device;
- 	int i;
- 
-+	device = container_of(ref, struct roccat_device, ref);
- 	for (i = 0; i < ROCCAT_CBUF_SIZE; i++)
- 		kfree(device->cbuf[i].value);
- 	kfree(device);
-@@ -193,6 +196,7 @@ static int roccat_open(struct inode *inode, struct file *file)
- 		}
- 	}
- 
-+	kref_get(&device->ref);
- 	reader->device = device;
- 	/* new reader doesn't get old events */
- 	reader->cbuf_start = device->cbuf_end;
-@@ -235,7 +239,8 @@ static int roccat_release(struct inode *inode, struct file *file)
- 			hid_hw_power(device->hid, PM_HINT_NORMAL);
- 			hid_hw_close(device->hid);
- 		} else {
--			roccat_free_device(device);
-+			if (kref_put(&device->ref, roccat_free_device))
-+				devices[minor] = NULL;
- 		}
- 	}
- 
-@@ -348,6 +353,7 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
- 	INIT_LIST_HEAD(&device->readers);
- 	mutex_init(&device->readers_lock);
- 	mutex_init(&device->cbuf_lock);
-+	kref_init(&device->ref);
- 	device->minor = minor;
- 	device->hid = hid;
- 	device->exist = 1;
-@@ -367,21 +373,22 @@ void roccat_disconnect(int minor)
- 	struct roccat_device *device;
- 
- 	mutex_lock(&devices_lock);
-+
- 	device = devices[minor];
-+	if (!device)
-+		goto out;
- 
- 	device->exist = 0; /* TODO exist maybe not needed */
--
- 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
- 
--	devices[minor] = NULL;
--
- 	if (device->open) {
- 		hid_hw_close(device->hid);
- 		wake_up_interruptible(&device->wait);
- 	} else {
--		roccat_free_device(device);
-+		if (kref_put(&device->ref, roccat_free_device))
-+			devices[minor] = NULL;
- 	}
--
-+out:
- 	mutex_unlock(&devices_lock);
- }
- EXPORT_SYMBOL_GPL(roccat_disconnect);
--- 
-2.55.0
+commit 703610255dcd5d9ce2d448d2494e1361c5869fcf
+Author: Dmitry Antipov <dmantipov@yandex.ru>
 
+HID: roccat: fix locking in roccat_connect() and roccat_disconnect()
+   =20
+Extend critical section in roccat_connect() to ensure that partially
+initialized 'struct roccat_device' is never exposed in 'devices' list,
+and do the same in roccat_disconnect() to avoid racy 'devices' access
+against roccat_release().
+
+> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+> index 4f15eb9510396..5deb6da8d4f74 100644
+> --- a/drivers/hid/hid-roccat.c
+> +++ b/drivers/hid/hid-roccat.c
+[ ... ]
+> @@ -369,15 +368,12 @@ void roccat_disconnect(int minor)
+> =20
+>  	mutex_lock(&devices_lock);
+>  	device =3D devices[minor];
+> -	mutex_unlock(&devices_lock);
+> =20
+>  	device->exist =3D 0; /* TODO exist maybe not needed */
+> =20
+>  	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
+> =20
+> -	mutex_lock(&devices_lock);
+>  	devices[minor] =3D NULL;
+> -	mutex_unlock(&devices_lock);
+[Severity: High]
+This is a pre-existing issue, but does setting `devices[minor] =3D NULL` he=
+re
+without stopping the hardware polling first create a race condition?
+
+When a Roccat device is unplugged and has no open references, this sets
+`devices[minor] =3D NULL` and frees the device. Because this occurs before
+`hid_hw_stop()` is called in the sub-drivers, hardware polling is still act=
+ive.
+
+If an interrupt fires during this window, could `roccat_report_event()`
+locklessly fetch the device and encounter a NULL pointer dereference?
+
+drivers/hid/hid-roccat.c:roccat_report_event() {
+	...
+	device =3D devices[minor];
+	new_value =3D kmemdup(data, device->report_size, GFP_ATOMIC);
+	...
+}
+
+[Severity: High]
+This is a pre-existing issue, but is it possible for `roccat_report_event()`
+to attempt to acquire sleeping locks in an atomic context?
+
+`roccat_report_event()` is called synchronously from HID `raw_event` handle=
+rs
+which execute in an atomic softirq context. While it correctly uses
+`GFP_ATOMIC` for its allocation, it seems to call `mutex_lock()` immediately
+after:
+
+drivers/hid/hid-roccat.c:roccat_report_event() {
+	...
+	mutex_lock(&device->readers_lock);
+	mutex_lock(&device->cbuf_lock);
+	...
+}
+
+Can this lead to a kernel panic or a 'scheduling while atomic' bug?
+
+[Severity: High]
+This is a pre-existing issue, but is there a tear-down ordering violation in
+hardware-specific sub-drivers like `hid-roccat-kone.c`?
+
+During driver unbind or device unplug, the `remove` function calls
+`kone_remove_specials()` which frees the private data before calling
+`hid_hw_stop()`:
+
+drivers/hid/hid-roccat-kone.c:kone_remove_specials() {
+	...
+		kfree(hid_get_drvdata(hdev));
+	...
+}
+
+drivers/hid/hid-roccat-kone.c:kone_remove() {
+	...
+	kone_remove_specials(hdev);
+	hid_hw_stop(hdev);
+	...
+}
+
+Because hardware polling isn't stopped before freeing, incoming reports cou=
+ld
+execute the `raw_event` handler, which fetches the freed pointer:
+
+drivers/hid/hid-roccat-kone.c:kone_raw_event() {
+	struct kone_device *kone =3D hid_get_drvdata(hdev);
+	...
+	if (memcmp(&kone->last_mouse_event.tilt, &event->tilt, 5))
+	...
+}
+
+Could this result in a Use-After-Free memory corruption if `kone` is
+dereferenced for reads or writes here?
+
+> =20
+>  	if (device->open) {
+>  		hid_hw_close(device->hid);
+> @@ -385,6 +381,8 @@ void roccat_disconnect(int minor)
+>  	} else {
+>  		roccat_free_device(device);
+>  	}
+> +
+> +	mutex_unlock(&devices_lock);
+>  }
+>  EXPORT_SYMBOL_GPL(roccat_disconnect);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902094551.2005=
+87-1-dmantipov@yandex.ru?part=3D1

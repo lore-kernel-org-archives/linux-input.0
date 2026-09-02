@@ -1,172 +1,78 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8087333A9E1
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:33:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 652CF326939;
+	Wed,  2 Sep 2026 08:48:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788312842; cv=none; b=Nq8y+c+4+eBD4zJVCROLPR2J2rPp7kFHwEQjpgAVCfZgJMTCpvQUxFn2iEaDjt2oafSOPkUI3FM5Mf4/9c8jlGpXdmUF/abH72RgtZircmwJlMyY9X8dsL0zPKBI4BBmyRWV9VdUuyxypTDo9S6W0SUVFrWNIv6LiKDUGuS2MP0=
+	t=1788338937; cv=none; b=Hwy8sBt0vSwzS9aBVMcv38Jb5MnMyJtbFGNiJMxWq+82wqKqx6VW2vEPIjQGpZG+0LxCIMG9RfFlKTRQEXeQX8L4vn73C25gk/ANamiwD7r2PJSMkWJZMSFcGihYa38aJNIPJovijZ2hZE94wQqdlfS5AEKO15k9FNOBcKTvS1I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788312842; c=relaxed/simple;
-	bh=h6n35aCTmpytn2EpiFI0V0BS93BRg028tcOgUDK/LV4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HKPjFpvrynp2DvRzkh26B4Rio8EjkGa3wWtQIGeRKgtSeuD/513YG0Zd7U/fAGhCdFxxMumwXsaG//srUH5wThFsp9jpXioTZMET2nVXSygaCMPCYrWNG9Zm7B72EUKrpfbD2WW9L5E4WHoihGpjq0g8iRp69Pf48cqpF/fyIcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nwTqX8Gf; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nwTqX8Gf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B3131F000E9;
-	Wed,  2 Sep 2026 01:33:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788312839;
-	bh=SSMOhCh3jGccAkuo/WTiNboyNTBq4tTQRwoUfz/ZboM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nwTqX8GfnYEZpIsS/BtvVXE+31vRdaYGWQvqbG7s71ogP6NqHhsMoFuJ6QhEuX+vH
-	 nvTioClAAlxBMshxVcrWXXSJXdM+55VEaDGabFBxIs/eMGCGZdQm1C0NY2A7IfI0D+
-	 Xl2NM/LCA+HxKXAJd8qOBGSWmmTj8G/QcUdG2IBGmci7wCDHGWK3d4+IQ2NPM1SxyB
-	 x0kVkoQ3qreVmJ42GqdOldX7ss0dOu6hh9ODsAhIycBypoxPtlko9C+a1pegDBd09L
-	 uKxbCyGwwX5PL+SULjSamNAd38IQl0GJBMpc0b+caE7DtL2ly++UtsD6jNcxEoll+1
-	 oSlgNvPi60lvA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 12/12] Input: xbox_gip - Add wheel support
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260902010237.865772-13-vi@endrift.com>
-References: <20260902010237.865772-1-vi@endrift.com>
- <20260902010237.865772-13-vi@endrift.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 01:33:58 +0000
-Message-Id: <20260902013359.2B3131F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1788338937; c=relaxed/simple;
+	bh=XcX6RoQsxLhi/vMravhensPRZs1yNCYjPjC6XWpk2BQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=V0oSfjG5aJOSfj6OIn3VJpNqdL6aweuSRy4C7vcx7x1autyEvBOPQ2SSSWv1W/R67jOtMr8Ncnf0UHVCxC3BIMyX2Nl5fL5zsrwsXjzLZvfmytUmLDI+N/qyW2LgwFm2WNrntXF96P5y+lurQY9fhI07W3rVBg//Ir1/a5YxNZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 1d0a4feea6ab11f19a56ed5b684f684d-20260902
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:933b90b0-bd4a-48b3-8dba-bc5f98f8ccfc,IP:0,U
+	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:-5
+X-CID-META: VersionHash:7db8b62,CLOUDID:0ab97c0f6fb818826c370bb1e51b71dd,BulkI
+	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50,EDM:-3,IP:n
+	il,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LE
+	S:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 1d0a4feea6ab11f19a56ed5b684f684d-20260902
+X-User: gonglinkai@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <gonglinkai@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1860067746; Wed, 02 Sep 2026 16:48:48 +0800
+From: Linkai Gong <gonglinkai@kylinos.cn>
+To: Giulio Benetti <giulio.benetti@benettiengineering.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	gonglinkai@kylinos.cn
+Subject: [PATCH] Input: hycon-hy46xx - bound the checksum length
+Date: Wed,  2 Sep 2026 16:48:42 +0800
+Message-Id: <20260902084842.1999180-1-gonglinkai@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+The checksum loop uses a length byte from the report as the
+upper bound. The report buffer is only HY46XX_REPORT_PKT_LEN
+bytes.
 
-New issues:
-- [Medium] Improper wrap-around calculation for REL_DIAL in TrueForce wheel=
- driver.
-- [Medium] Packet length validation happens after partial event reporting, =
-causing input event desync on short packets.
+Fixes: aa2f62cf211a ("Input: add driver for the Hycon HY46XX touchpanel series")
+Signed-off-by: Linkai Gong <gonglinkai@kylinos.cn>
+---
+ drivers/input/touchscreen/hycon-hy46xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Pre-existing issues:
-- [Critical] Workqueues are synchronously cancelled before killing URBs in =
-gip_disconnect, causing a Use-After-Free.
---
+diff --git a/drivers/input/touchscreen/hycon-hy46xx.c b/drivers/input/touchscreen/hycon-hy46xx.c
+index 1513f20cbf51..bb8b82b11301 100644
+--- a/drivers/input/touchscreen/hycon-hy46xx.c
++++ b/drivers/input/touchscreen/hycon-hy46xx.c
+@@ -84,7 +84,7 @@ static bool hycon_hy46xx_check_checksum(struct hycon_hy46xx_data *tsdata, u8 *bu
+ 	u8 chksum = 0;
+ 	int i;
+ 
+-	for (i = 2; i < buf[HY46XX_CHKSUM_LEN]; i++)
++	for (i = 2; i < min_t(int, buf[HY46XX_CHKSUM_LEN], HY46XX_REPORT_PKT_LEN); i++)
+ 		chksum += buf[i];
+ 
+ 	if (chksum == buf[HY46XX_CHKSUM_CODE])
+-- 
+2.25.1
 
-commit f290772c9ca66efd1e7d5ec4dd73e7af098deefd
-Author: Vicki Pfau <vi@endrift.com>
-
-Input: xbox_gip - Add wheel support
-
-This adds preliminary support for racing wheel support in xbox_gip,
-exposing them mapped to the newly added axes.
-
-> diff --git a/drivers/input/joystick/gip/gip-wheel.c b/drivers/input/joyst=
-ick/gip/gip-wheel.c
-> new file mode 100644
-> --- /dev/null
-> +++ b/drivers/input/joystick/gip/gip-wheel.c
-[ ... ]
-> +static int gip_handle_wheel_report(struct gip_attachment *attachment,
-> +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
-> +{
-> +	uint8_t connections;
-> +	struct gip_wheel_info *info =3D attachment->driver_data;
-> +	int rc =3D gip_driver_navigation.handle_input_report(attachment, input,=
- bytes, num_bytes);
-> +
-> +	if (rc < 0)
-> +		return rc;
-> +
-> +	if (!info)
-> +		return -ENODEV;
-> +
-> +	if (num_bytes < 17)
-> +		return -EINVAL;
-
-[Severity: Medium]
-Does this cause input events to be desynced on short packets?
-
-If a short packet arrives (between 2 and 16 bytes), the base navigation han=
-dler
-above successfully processes the first bytes and queues events. The length
-check here then fails and returns -EINVAL, which causes an early exit before
-the core can call input_sync().
-
-This could leave the device in an inconsistent state with phantom inputs or
-stuck keys until the next valid packet arrives.
-
-[ ... ]
-> +static int gip_handle_trueforce_wheel_report(struct gip_attachment *atta=
-chment,
-> +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
-> +{
-> +	int rc =3D gip_driver_wheel.handle_input_report(attachment, input, byte=
-s, num_bytes);
-> +	struct gip_trueforce_wheel_state *state =3D attachment->driver_data;
-> +	int dial;
-> +
-> +	if (rc < 0)
-> +		return rc;
-> +
-> +	if (num_bytes < 18)
-> +		return -EINVAL;
-
-[Severity: Medium]
-Similarly, does this early return skip input synchronization for short pack=
-ets?
-
-Like the base wheel handler, events are queued by
-gip_driver_wheel.handle_input_report() before this check fails.
-
-[ ... ]
-> +	if (dial =3D=3D 0 && state->dial =3D=3D 7)
-> +		input_report_rel(input, REL_DIAL, -1);
-> +	else if (dial =3D=3D 7 && state->dial =3D=3D 0)
-> +		input_report_rel(input, REL_DIAL, 1);
-> +	else
-> +		input_report_rel(input, REL_DIAL,
-> +			state->dial - dial);
-> +	state->dial =3D dial;
-> +
-> +	return 0;
-> +}
-
-[Severity: Medium]
-Can this calculation magnify offsets if the dial is turned quickly?
-
-If the wheel's dial is turned fast enough to jump multiple steps between USB
-reports (e.g., from 6 to 0, crossing the boundary), this falls through the
-1-step boundary checks.
-
-The fallback calculation of state->dial - dial would then result in a
-reported offset of 6 (6 - 0) instead of the actual -2 steps taken.
-
-As a quick aside, I noticed a separate issue in the core code while reviewi=
-ng:
-
-[Severity: Critical]
-This is a pre-existing issue, but does gip_disconnect() have a Use-After-Fr=
-ee
-race window during device unbind?
-
-drivers/input/joystick/gip/gip-core.c:gip_disconnect() {
-    ...
-    gip_shutdown(gip);
-    usb_kill_urb(gip->data.urb_in);
-    ...
-}
-
-Since workqueues are synchronously cancelled in gip_shutdown() before calli=
-ng
-usb_kill_urb(), if an URB completes in that window, its completion handler
-can reschedule the work on memory that is actively being torn down.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902010237.8657=
-72-1-vi@endrift.com?part=3D12

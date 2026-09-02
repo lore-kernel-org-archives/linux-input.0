@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6861333D6EE
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:04:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98738343D75
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:04:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788311069; cv=none; b=UKwMxq3BoeiaDqQduNeKOgI1Jz3HQnYMfHmp5i4nZ/WmQUz24fcXKehetSbz2H9oyzicSVogwbQ5uW2diU3T7knxojw/GKwh7e2UXPBB+AyRyyczm1Dl1LtKU2b4urJ/TJyKN3NemOmm3roJ+EGhQgt/yXl8wRHW6sjJy4vlqwY=
+	t=1788311069; cv=none; b=Of4yadyzdrqMG+7Gjp+jnwAdUPX0FRHYcymGXXw3XF4URaiWEr5/tEk8P0QavbSXqNEnnghruclrNE3F5gxOoL+1/HmM7t/iDegH8NinFqai7muDIgIZBkMymtXLYWaDGzhYOQ7V8fB7ky7bye9r0JD+ghZHKc+0gCbGL/mPfd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788311069; c=relaxed/simple;
-	bh=/J+mCbee8An5lMpRi5UpDsqkHcB6B5Uaen7/zea5mwI=;
+	bh=SHTrfDDDwCNorry8IZQ0GFUsj/uJtHIyrY50jja0wGI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZVhK55rD4qP9LhJMoBxVxjWUQ3pJjlBlCG3O5RUt+aXwQA08rscpElxoZaxFm/UnJepeiVFmf6Mul0hmI3QDmCZamRS21MRKTbVi7FA2P3196wORWUPq+XDvSp/3SynT/UR/DyH2kZx+Y+28tFzpci3h5UYlE2+FuFdmKcCY4Qw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=bVBUJ8s7; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=VjCxxMWfVqJKrQkH5ajy8mJKnAiYdmRRjNWCyIMZJp3uKedmKP3DMaQ9lqOQdZqwvXvp8Y9GYPqdr/I3lTiB01rXuWMh/t0E/xYjAJNPToPoTYigwseJl6MMZvuEHi8P/Pa7KqaRhEVXvmlHMeZRK/ZWYg5d0EXpblLDqu7nB5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=WS+s7aMH; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="bVBUJ8s7"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="WS+s7aMH"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1788311058; bh=/J+mCbee8An5lMpRi5UpDsqkHcB6B5Uaen7/zea5mwI=;
+	t=1788311059; bh=SHTrfDDDwCNorry8IZQ0GFUsj/uJtHIyrY50jja0wGI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=bVBUJ8s7xQ0eRihsM+3IEHRPVDAHyu/xR+cs8JnfYP1MCr2MJvrl7S5+KeZ48kZRv
-	 5YUohiMs+wiKRgpSeG2d1NrCV9vOzHPn/kEGCs7pfUWbKwhUMkaTyRfuAKv1STApUm
-	 1cLNe2jT6bhwBfKgtxI8RLDiQqEiVa4eCO+H/BzbUWgOX5mhzJToduG1a/p96H9UCI
-	 MMZiSD/miZ5lM7sRUO9LQZJxPdSplROUAOA2VrRurKUs/LQmf2OWj10ct3A9WneRRq
-	 Ayiubh1yWfV7BDXDi0LaltLceSJOTs782LafSiInSaCmWi0rhx5D1L6pe4OtkGF01P
-	 GdJRM2hsQ7SkA==
+	b=WS+s7aMHfZGDfuv7dD41R5J7oe9zdY1msHIF4in+NfeggOXy6yoCnTWANlqFZQb1Z
+	 TmOPTxP49Ygx8lu8/MOzNsYgJa8VJD2v/vZr8MPhqyBo+6TpNOnv5x9p8EUrEVvX8O
+	 bgMFMd33GiXI/eg4bVRgSkRJi3S9EL7xxvWjYaMC2VTccdU/5swKTHpNPWwAipRewl
+	 iuu3uIR8IcKQmtRucYuzSvwwcKwEGgzSqOWR5YKGQFNMr9XWjQQkvbbqKMgeID36Xj
+	 i4jrUCwYgJB0qf3u+arKC5QwS4bpD8P29nIejDwbHiNVBBdl7SNECmSD1eguJbXqjN
+	 6gY3gcGz4SUMQ==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id CCE3BA141;
-	Tue, 01 Sep 2026 18:04:17 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 680E9132037;
+	Tue, 01 Sep 2026 18:04:19 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v5 02/12] Input: xpad - Remove Xbox One support
-Date: Tue,  1 Sep 2026 18:02:23 -0700
-Message-ID: <20260902010237.865772-3-vi@endrift.com>
+Subject: [PATCH v5 07/12] Input: xbox_gip - Add security implementation from xone
+Date: Tue,  1 Sep 2026 18:02:28 -0700
+Message-ID: <20260902010237.865772-8-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260902010237.865772-1-vi@endrift.com>
 References: <20260902010237.865772-1-vi@endrift.com>
@@ -46,1123 +46,1104 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-It has been superseded by xbox_gip. As the new driver is already at feature
-parity, removing the fairly rough Xbox One support from xpad is safe and
-will prevent any potential conflicts.
+This patch imports and adapts the security message implementation from the
+out-of-tree xone driver, which is licensed under the GPL 2.0. This message
+is necessary for most controllers that use wireless dongles. The
+implementation is largely unchanged, with minor changes being made to adapt
+it to the xbox_gip driver and renaming components as appropriate for the
+official terminology from the released spec.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- Documentation/input/devices/xpad.rst |  17 +-
- drivers/input/joystick/xpad.c        | 684 +--------------------------
- 2 files changed, 11 insertions(+), 690 deletions(-)
+ drivers/input/joystick/gip/Kconfig        |   2 +-
+ drivers/input/joystick/gip/Makefile       |   2 +-
+ drivers/input/joystick/gip/gip-core.c     |  48 +-
+ drivers/input/joystick/gip/gip-drivers.c  |   8 +
+ drivers/input/joystick/gip/gip-security.c | 795 ++++++++++++++++++++++
+ drivers/input/joystick/gip/gip.h          |  54 +-
+ 6 files changed, 883 insertions(+), 26 deletions(-)
+ create mode 100644 drivers/input/joystick/gip/gip-security.c
 
-diff --git a/Documentation/input/devices/xpad.rst b/Documentation/input/devices/xpad.rst
-index a480bc781565..fd2afdd7b405 100644
---- a/Documentation/input/devices/xpad.rst
-+++ b/Documentation/input/devices/xpad.rst
-@@ -2,19 +2,19 @@
- xpad - Linux USB driver for Xbox compatible controllers
- =======================================================
- 
--This driver exposes all first-party and third-party Xbox compatible
--controllers. It has a long history and has enjoyed considerable usage
--as Windows' xinput library caused most PC games to focus on Xbox
--controller compatibility.
-+This driver exposes all first-party and third-party Xbox and Xbox 360
-+compatible controllers. It has a long history and has enjoyed considerable
-+usage as Windows' xinput library caused most PC games to focus on Xbox
-+controller compatibility. Xbox One/Series controller support has been
-+superseded by the xbox_gip driver, which specializes in the Gaming Input
-+Protocl that is introduced on the Xbox One.
- 
- Due to backwards compatibility all buttons are reported as digital.
- This only affects Original Xbox controllers. All later controller models
- have only digital face buttons.
- 
- Rumble is supported on some models of Xbox 360 controllers but not of
--Original Xbox controllers nor on Xbox One controllers. As of writing
--the Xbox One's rumble protocol has not been reverse-engineered but in
--the future could be supported.
-+Original Xbox controllers.
- 
- 
- Notes
-@@ -98,9 +98,6 @@ All generations of Xbox controllers speak USB over the wire.
- - Wireless Xbox 360 controllers require a 'Xbox 360 Wireless Gaming Receiver
-   for Windows'
- - Wired Xbox 360 controllers use standard USB connectors.
--- Xbox One controllers can be wireless but speak Wi-Fi Direct and are not
--  yet supported.
--- Xbox One controllers can be wired and use standard Micro-USB connectors.
- 
- 
- 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f368f834..206007e0cafb 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -17,7 +17,6 @@
-  *  - the iForce driver    drivers/char/joystick/iforce.c
-  *  - the skeleton-driver  drivers/usb/usb-skeleton.c
-  *  - Xbox 360 information http://www.free60.org/wiki/Gamepad
-- *  - Xbox One information https://github.com/quantus/xbox-one-controller-protocol
+diff --git a/drivers/input/joystick/gip/Kconfig b/drivers/input/joystick/gip/Kconfig
+index 3422bf84cb89..b933583d325f 100644
+--- a/drivers/input/joystick/gip/Kconfig
++++ b/drivers/input/joystick/gip/Kconfig
+@@ -4,7 +4,7 @@
+ #
+ config JOYSTICK_XBOX_GIP
+ 	tristate "Xbox One/Series controller support"
+-	depends on USB && USB_ARCH_HAS_HCD && LEDS_CLASS_MULTICOLOR
++	depends on USB && USB_ARCH_HAS_HCD && LEDS_CLASS_MULTICOLOR && CRYPTO_ECDH
+ 	help
+ 	  Say Y here if you want to use Xbox One and Series controllers with your
+ 	  computer. Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYDEV)
+diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
+index d39f946db1ae..a5ad301a9063 100644
+--- a/drivers/input/joystick/gip/Makefile
++++ b/drivers/input/joystick/gip/Makefile
+@@ -1,4 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-or-later
+ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
+ # Base driver
+-xbox-gip-y := gip-core.o gip-drivers.o
++xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
+diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
+index 544becf8badd..db4d2956e7d9 100644
+--- a/drivers/input/joystick/gip/gip-core.c
++++ b/drivers/input/joystick/gip/gip-core.c
+@@ -6,7 +6,6 @@
   *
-  * Thanks to:
-  *  - ITO Takayuki for providing essential xpad information on his website
-@@ -46,10 +45,6 @@
- #define MAP_DPAD_TO_BUTTONS		BIT(0)
- #define MAP_TRIGGERS_TO_BUTTONS		BIT(1)
- #define MAP_STICKS_TO_NULL		BIT(2)
--#define MAP_SHARE_BUTTON		BIT(3)
--#define MAP_PADDLES			BIT(4)
--#define MAP_PROFILE_BUTTON		BIT(5)
--#define MAP_SHARE_OFFSET		BIT(6)
+  * TODO:
+  * - Audio device support
+- * - Security packet handshake
+  * - Event logging
+  * - Raw character device
+  * - Wheel support
+@@ -1760,17 +1759,6 @@ static int gip_send_init_sequence(struct gip_attachment *attachment)
+ 	if (rc)
+ 		return rc;
  
- #define DANCEPAD_MAP_CONFIG	(MAP_DPAD_TO_BUTTONS |			\
- 				MAP_TRIGGERS_TO_BUTTONS | MAP_STICKS_TO_NULL)
-@@ -57,22 +52,13 @@
- #define XTYPE_XBOX        0
- #define XTYPE_XBOX360     1
- #define XTYPE_XBOX360W    2
--#define XTYPE_XBOXONE     3
--#define XTYPE_UNKNOWN     4
-+#define XTYPE_UNKNOWN     3
- 
- /* Send power-off packet to xpad360w after holding the mode button for this many
-  * seconds
-  */
- #define XPAD360W_POWEROFF_TIMEOUT 5
- 
--#define PKT_XB              0
--#define PKT_XBE1            1
--#define PKT_XBE2_FW_OLD     2
--#define PKT_XBE2_FW_5_EARLY 3
--#define PKT_XBE2_FW_5_11    4
+-	if (gip_supports_system_message(attachment, GIP_CMD_SECURITY, false)
+-		&& !(attachment->features & GIP_FEATURE_SECURITY_OPT_OUT)) {
+-		/* TODO: Implement Security command property */
+-		uint8_t buffer[] = { 0x1, 0x0 };
 -
--#define FLAG_DELAY_INIT BIT(0)
+-		rc = gip_send_system_message(attachment, GIP_CMD_SECURITY, 0,
+-			buffer, sizeof(buffer));
+-		if (rc)
+-			return rc;
+-	}
 -
- static bool dpad_to_buttons;
- module_param(dpad_to_buttons, bool, S_IRUGO);
- MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
-@@ -105,16 +91,11 @@ static const struct xpad_device {
- 	{ 0x03eb, 0xff02, "Wooting Two (Legacy)", 0, XTYPE_XBOX360 },
- 	{ 0x03f0, 0x038D, "HyperX Clutch", 0, XTYPE_XBOX360 },			/* wired */
- 	{ 0x03f0, 0x048D, "HyperX Clutch", 0, XTYPE_XBOX360 },			/* wireless */
--	{ 0x03f0, 0x0495, "HyperX Clutch Gladiate", 0, XTYPE_XBOXONE },
--	{ 0x03f0, 0x07A0, "HyperX Clutch Gladiate RGB", 0, XTYPE_XBOXONE },
--	{ 0x03f0, 0x08B6, "HyperX Clutch Gladiate", MAP_SHARE_BUTTON, XTYPE_XBOXONE },		/* v2 */
--	{ 0x03f0, 0x09B4, "HyperX Clutch Tanto", 0, XTYPE_XBOXONE },
- 	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f10, "Thrustmaster Modena GT Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0xb326, "Thrustmaster Gamepad GP XID", 0, XTYPE_XBOX360 },
--	{ 0x044f, 0xd01e, "ThrustMaster, Inc. ESWAP X 2 ELDEN RING EDITION", 0, XTYPE_XBOXONE },
- 	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", 0, XTYPE_XBOX },
-@@ -124,14 +105,7 @@ static const struct xpad_device {
- 	{ 0x045e, 0x028f, "Microsoft X-Box 360 pad v2", 0, XTYPE_XBOX360 },
- 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
- 	{ 0x045e, 0x02a9, "Xbox 360 Wireless Receiver (Unofficial)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
--	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
--	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, XTYPE_XBOXONE },
--	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", MAP_PADDLES, XTYPE_XBOXONE },
--	{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE },
- 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
--	{ 0x045e, 0x0b00, "Microsoft X-Box One Elite 2 pad", MAP_PADDLES, XTYPE_XBOXONE },
--	{ 0x045e, 0x0b0a, "Microsoft X-Box Adaptive Controller", MAP_PROFILE_BUTTON, XTYPE_XBOXONE },
--	{ 0x045e, 0x0b12, "Microsoft Xbox Series S|X Controller", MAP_SHARE_BUTTON | MAP_SHARE_OFFSET, XTYPE_XBOXONE },
- 	{ 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
-@@ -151,7 +125,6 @@ static const struct xpad_device {
- 	{ 0x06a3, 0x0200, "Saitek Racing Wheel", 0, XTYPE_XBOX },
- 	{ 0x06a3, 0x0201, "Saitek Adrenalin", 0, XTYPE_XBOX },
- 	{ 0x06a3, 0xf51a, "Saitek P3600", 0, XTYPE_XBOX360 },
--	{ 0x0738, 0x4503, "Mad Catz Racing Wheel", 0, XTYPE_XBOXONE },
- 	{ 0x0738, 0x4506, "Mad Catz 4506 Wireless Controller", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4516, "Mad Catz Control Pad", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4520, "Mad Catz Control Pad Pro", 0, XTYPE_XBOX },
-@@ -173,7 +146,6 @@ static const struct xpad_device {
- 	{ 0x0738, 0x4740, "Mad Catz Beat Pad", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4743, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x0738, 0x4758, "Mad Catz Arcade Game Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
--	{ 0x0738, 0x4a01, "Mad Catz FightStick TE 2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x0738, 0x9871, "Mad Catz Portable Drum", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0xb726, "Mad Catz Xbox controller - MW2", 0, XTYPE_XBOX360 },
-@@ -184,12 +156,8 @@ static const struct xpad_device {
- 	{ 0x0738, 0xcb29, "Saitek Aviator Stick AV8R02", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0xf738, "Super SFIV FightStick TE S", 0, XTYPE_XBOX360 },
- 	{ 0x07ff, 0xffff, "Mad Catz GamePad", 0, XTYPE_XBOX360 },
--	{ 0x0b05, 0x1a38, "ASUS ROG RAIKIRI", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
--	{ 0x0b05, 0x1abb, "ASUS ROG RAIKIRI PRO", 0, XTYPE_XBOXONE },
- 	{ 0x0b05, 0x1c91, "ASUS ROG RAIKIRI II", 0, XTYPE_XBOX360 },
- 	{ 0x0b05, 0x1c92, "ASUS ROG RAIKIRI II WIRELESS", 0, XTYPE_XBOX360 },
--	{ 0x0b05, 0x1c96, "ASUS ROG RAIKIRI II XBOX", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
--	{ 0x0b05, 0x1d04, "ASUS ROG RAIKIRI II XBOX WIRELESS", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x0c12, 0x0005, "Intec wireless", 0, XTYPE_XBOX },
- 	{ 0x0c12, 0x8801, "Nyko Xbox Controller", 0, XTYPE_XBOX },
- 	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", 0, XTYPE_XBOX },
-@@ -212,34 +180,10 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x011f, "Rock Candy Gamepad Wired Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0131, "PDP EA Sports Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0133, "Xbox 360 Wired Controller", 0, XTYPE_XBOX360 },
--	{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x013a, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0146, "Rock Candy Wired Controller for Xbox One", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0147, "PDP Marvel Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x015c, "PDP Xbox One Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x015d, "PDP Mirror's Edge Official Wired Controller for Xbox One", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0161, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0162, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0163, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0164, "PDP Battlefield One", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0165, "PDP Titanfall 2", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0201, "Pelican PL-3601 'TSZ' Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
--	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02a0, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02a1, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02a2, "PDP Wired Controller for Xbox One - Crimson Red", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02a4, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02a6, "PDP Wired Controller for Xbox One - Camo Series", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02a7, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02a8, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02ab, "PDP Controller for Xbox One", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02ad, "PDP Wired Controller for Xbox One - Stealth Series", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02b3, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x02b8, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
--	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0501, "PDP Xbox 360 Controller", 0, XTYPE_XBOX360 },
-@@ -251,23 +195,13 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x0016, "Hori Real Arcade Pro.EX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0f0d, 0x001b, "Hori Real Arcade Pro VX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
--	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
--	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
--	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
--	{ 0x0f0d, 0x00c5, "Hori Fighting Commander ONE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x00dc, "HORIPAD FPS for Nintendo Switch", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
--	{ 0x0f0d, 0x0151, "Hori Racing Wheel Overdrive for Xbox Series X", 0, XTYPE_XBOXONE },
--	{ 0x0f0d, 0x0152, "Hori Racing Wheel Overdrive for Xbox Series X", 0, XTYPE_XBOXONE },
--	{ 0x0f0d, 0x01b2, "HORI Taiko No Tatsujin Drum Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
- 	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", 0, XTYPE_XBOX },
- 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
- 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
--	{ 0x10f5, 0x7005, "Turtle Beach Recon Controller", 0, XTYPE_XBOXONE },
--	{ 0x10f5, 0x7008, "Turtle Beach Recon Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
--	{ 0x10f5, 0x7073, "Turtle Beach Stealth Ultra Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
- 	{ 0x11ff, 0x0511, "PXN V900", 0, XTYPE_XBOX360 },
- 	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
-@@ -280,9 +214,6 @@ static const struct xpad_device {
- 	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
- 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x146b, 0x0604, "Bigben Interactive DAIJA Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
--	{ 0x1532, 0x0a00, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
--	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
--	{ 0x1532, 0x0a29, "Razer Wolverine V2", 0, XTYPE_XBOXONE },
- 	{ 0x1532, 0x0a57, "Razer Wolverine V3 Pro (Wired)", 0, XTYPE_XBOX360 },
- 	{ 0x1532, 0x0a59, "Razer Wolverine V3 Pro (2.4 GHz Dongle)", 0, XTYPE_XBOX360 },
- 	{ 0x15e4, 0x3f00, "Power A Mini Pro Elite", 0, XTYPE_XBOX360 },
-@@ -334,12 +265,7 @@ static const struct xpad_device {
- 	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
- 	{ 0x20bc, 0x5134, "BETOP BTP-KP50B Xinput Dongle", 0, XTYPE_XBOX360 },
- 	{ 0x20bc, 0x514a, "BETOP BTP-KP50C Xinput Dongle", 0, XTYPE_XBOX360 },
--	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
--	{ 0x20d6, 0x2009, "PowerA Enhanced Wired Controller for Xbox Series X|S", 0, XTYPE_XBOXONE },
--	{ 0x20d6, 0x2064, "PowerA Wired Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
--	{ 0x20d6, 0x400b, "PowerA FUSION Pro 4 Wired Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
--	{ 0x20d6, 0x890b, "PowerA MOGA XP-Ultra Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x2345, 0xe00b, "Machenike G5 Pro Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
-@@ -347,9 +273,6 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x530a, "Xbox 360 Pro EX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x531a, "PowerA Pro Ex", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5397, "FUS1ON Tournament Controller", 0, XTYPE_XBOX360 },
--	{ 0x24c6, 0x541a, "PowerA Xbox One Mini Wired Controller", 0, XTYPE_XBOXONE },
--	{ 0x24c6, 0x542a, "Xbox ONE spectra", 0, XTYPE_XBOXONE },
--	{ 0x24c6, 0x543a, "PowerA Xbox One wired controller", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x5500, "Hori XBOX 360 EX 2 with Turbo", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5501, "Hori Real Arcade Pro VX-SA", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
-@@ -358,29 +281,18 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5510, "Hori Fighting Commander ONE (Xbox 360/PC Mode)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
--	{ 0x24c6, 0x551a, "PowerA FUSION Pro Controller", 0, XTYPE_XBOXONE },
--	{ 0x24c6, 0x561a, "PowerA FUSION Controller", 0, XTYPE_XBOXONE },
--	{ 0x24c6, 0x581a, "ThrustMaster XB1 Classic Controller", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x5b00, "ThrustMaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5b02, "Thrustmaster, Inc. GPX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x2563, 0x058d, "OneXPlayer Gamepad", 0, XTYPE_XBOX360 },
--	{ 0x294b, 0x3303, "Snakebyte GAMEPAD BASE X", 0, XTYPE_XBOXONE },
--	{ 0x294b, 0x3404, "Snakebyte GAMEPAD RGB X", 0, XTYPE_XBOXONE },
- 	{ 0x2993, 0x2001, "TECNO Pocket Go", 0, XTYPE_XBOX360 },
--	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
--	{ 0x2dc8, 0x200f, "8BitDo Ultimate 3-mode Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x2dc8, 0x3106, "8BitDo Ultimate Wireless / Pro 2 Wired Controller", 0, XTYPE_XBOX360 },
- 	{ 0x2dc8, 0x3109, "8BitDo Ultimate Wireless Bluetooth", 0, XTYPE_XBOX360 },
- 	{ 0x2dc8, 0x310a, "8BitDo Ultimate 2C Wireless Controller", 0, XTYPE_XBOX360 },
- 	{ 0x2dc8, 0x310b, "8BitDo Ultimate 2 Wireless Controller", 0, XTYPE_XBOX360 },
- 	{ 0x2dc8, 0x6001, "8BitDo SN30 Pro", 0, XTYPE_XBOX360 },
--	{ 0x2e24, 0x0423, "Hyperkin DuchesS Xbox One pad", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
--	{ 0x2e24, 0x0652, "Hyperkin Duke X-Box One pad", 0, XTYPE_XBOXONE },
--	{ 0x2e24, 0x1688, "Hyperkin X91 X-Box One pad", 0, XTYPE_XBOXONE },
--	{ 0x2e95, 0x0504, "SCUF Gaming Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
- 	{ 0x31e3, 0x1100, "Wooting One", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
-@@ -388,17 +300,11 @@ static const struct xpad_device {
- 	{ 0x31e3, 0x1230, "Wooting Two HE (ARM)", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
--	{ 0x3285, 0x0603, "Nacon Pro Compact controller for Xbox", 0, XTYPE_XBOXONE },
- 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
--	{ 0x3285, 0x0614, "Nacon Pro Compact", 0, XTYPE_XBOXONE },
--	{ 0x3285, 0x0646, "Nacon Pro Compact", 0, XTYPE_XBOXONE },
- 	{ 0x3285, 0x0662, "Nacon Revolution5 Pro", 0, XTYPE_XBOX360 },
--	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
- 	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
- 	{ 0x3537, 0x100f, "GameSir Nova 2 Lite", 0, XTYPE_XBOX360 },
--	{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
- 	{ 0x3651, 0x1000, "CRKD SG", 0, XTYPE_XBOX360 },
--	{ 0x366c, 0x0005, "ByoWave Proteus Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE, FLAG_DELAY_INIT },
- 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0x37d7, 0x2501, "Flydigi Apex 5", 0, XTYPE_XBOX360 },
- 	{ 0x413d, 0x2104, "Black Shark Green Ghost Gamepad", 0, XTYPE_XBOX360 },
-@@ -456,13 +362,6 @@ static const signed short xpad_abs_triggers[] = {
- 	-1
+ 	usb_make_path(attachment->device->udev, attachment->phys,
+ 		sizeof(attachment->phys));
+ 	len = strlen(attachment->phys);
+@@ -1809,6 +1797,8 @@ static void gip_free_devices(struct gip_attachment *attachment)
+ 	struct input_dev *input;
+ 	struct hid_device *hdev;
+ 
++	gip_security_release(&attachment->security);
++
+ 	if (attachment->driver && attachment->driver->remove)
+ 		attachment->driver->remove(attachment);
+ 
+@@ -1891,7 +1881,6 @@ static void gip_reset_attachment(struct gip_attachment *attachment)
+ 	}
+ 
+ 	gip_free_devices(attachment);
+-
+ }
+ 
+ static int gip_handle_command_protocol_control(struct gip_attachment *attachment,
+@@ -2070,6 +2059,24 @@ static int gip_handle_command_status_device(struct gip_attachment *attachment,
+ 		}
+ 	}
+ 
++	if (attachment->security.status == GIP_SECURITY_PENDING) {
++		if (attachment->quirks & GIP_QUIRK_SKIP_SECURITY)
++			/*
++			 * Some BDA/PowerA Xbox One controllers have a security
++			 * handshake implementation that is very sensitive to
++			 * the precise message ordering. It's very hard to get
++			 * this just right, so for now we just skip it. Most
++			 * wired controllers don't need the security flow to
++			 * work anyway.
++			 */
++			rc = gip_security_skip_handshake(&attachment->security);
++		else
++			rc = gip_security_start_handshake(&attachment->security);
++
++		if (rc)
++			return rc;
++	}
++
+ 	rc = gip_init_input_device(attachment);
+ 	if (rc)
+ 		return rc;
+@@ -2187,20 +2194,16 @@ static int gip_handle_command_metadata_respose(struct gip_attachment *attachment
+ 			GIP_CMD_GUIDE_COLOR, false))
+ 		attachment->features &= ~GIP_FEATURE_GUIDE_COLOR;
+ 
++	if (!gip_supports_system_message(attachment, GIP_CMD_SECURITY, false) ||
++		(attachment->features & GIP_FEATURE_SECURITY_OPT_OUT))
++		attachment->security.status = GIP_SECURITY_SKIPPED;
++
+ 	gip_dbg(attachment, "Attachment %i has features: %02x\n",
+ 		attachment->attachment_index, attachment->features);
+ 
+ 	return gip_send_init_sequence(attachment);
+ }
+ 
+-static int gip_handle_command_security(struct gip_attachment *attachment,
+-	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
+-{
+-	/* TODO: Needed for controllers that connect via dongles */
+-	gip_warn(attachment, "Unimplemented Security message\n");
+-	return -EOPNOTSUPP;
+-}
+-
+ static int gip_handle_command_guide_button_status(struct gip_attachment *attachment,
+ 	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
+ {
+@@ -2474,8 +2477,7 @@ static int gip_handle_system_message(struct gip_attachment *attachment,
+ 		return gip_handle_command_metadata_respose(attachment, header,
+ 			bytes, num_bytes);
+ 	case GIP_CMD_SECURITY:
+-		return gip_handle_command_security(attachment, header, bytes,
+-			num_bytes);
++		return gip_security_handle_message(&attachment->security, bytes, num_bytes);
+ 	case GIP_CMD_GUIDE_BUTTON:
+ 		return gip_handle_command_guide_button_status(attachment,
+ 			header, bytes, num_bytes);
+diff --git a/drivers/input/joystick/gip/gip-drivers.c b/drivers/input/joystick/gip/gip-drivers.c
+index 2c2297b1fed8..74bc858e71cc 100644
+--- a/drivers/input/joystick/gip/gip-drivers.c
++++ b/drivers/input/joystick/gip/gip-drivers.c
+@@ -81,6 +81,14 @@ const struct gip_driver gip_driver_gamepad = {
+ 		0xa3, 0x12, 0x7a, 0xf1, 0x97, 0xb5),
+ 
+ 	.quirks = (const struct gip_quirks[]) {
++		/* PowerA Xbox One Classic Controller */
++		{ GIP_VID_BDA, GIP_PID_BDA_XB1_CLASSIC, 0,
++			.quirks = GIP_QUIRK_SKIP_SECURITY },
++
++		/* PowerA Xbox One Fusion Pro */
++		{ GIP_VID_BDA, GIP_PID_BDA_XB1_FUSION_PRO, 0,
++			.quirks = GIP_QUIRK_SKIP_SECURITY },
++
+ 		/* Xbox One Controller (model 1573) */
+ 		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ONE_1573, 0,
+ 			.override_name = "Xbox One Controller" },
+diff --git a/drivers/input/joystick/gip/gip-security.c b/drivers/input/joystick/gip/gip-security.c
+new file mode 100644
+index 000000000000..58de547aa1dd
+--- /dev/null
++++ b/drivers/input/joystick/gip/gip-security.c
+@@ -0,0 +1,795 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Gaming Input Protocol security message driver for Xbox One/Series controllers
++ *
++ * This file is based on files from the xone project
++ * - https://github.com/dlundqvist/xone/blob/master/auth/auth.c
++ * - https://github.com/dlundqvist/xone/blob/master/auth/crypto.c
++ *
++ * Copyright (C) 2023 Severin von Wnuck-Lipinski <severinvonw@outlook.de>
++ * Copyright (c) 2026 Valve Software
++ */
++
++#include <linux/scatterlist.h>
++#include <linux/version.h>
++#include <crypto/hash.h>
++#include <crypto/sha2.h>
++#include <crypto/akcipher.h>
++#include <crypto/kpp.h>
++#include <crypto/ecdh.h>
++
++#include "gip.h"
++
++/* trailer is required for v1 clients */
++#define GIP_SECURITY_TRAILER_LEN 8
++#define GIP_SECURITY_CERTIFICATE_MAX_LEN 1024
++#define GIP_SECURITY_ENCRYPTED_PMS_LEN 256
++#define GIP_SECURITY_TRANSCRIPT_LEN 32
++#define GIP_SECURITY_SESSION_KEY_LEN 16
++
++#define GIP_SECURITY_ECDH_SECRET_LEN 32
++
++enum gip_security_context {
++	GIP_SECURITY_CTX_HANDSHAKE = 0x00,
++	GIP_SECURITY_CTX_CONTROL = 0x01,
++};
++
++enum gip_security_command_handshake {
++	GIP_SECURITY_CMD_HOST_HELLO = 0x01,
++	GIP_SECURITY_CMD_CLIENT_HELLO = 0x02,
++	GIP_SECURITY_CMD_CLIENT_CERTIFICATE = 0x03,
++	GIP_SECURITY_CMD_HOST_SECRET = 0x05,
++	GIP_SECURITY_CMD_HOST_FINISH = 0x07,
++	GIP_SECURITY_CMD_CLIENT_FINISH = 0x08,
++
++	GIP_SECURITY2_CMD_HOST_HELLO = 0x21,
++	GIP_SECURITY2_CMD_CLIENT_HELLO = 0x22,
++	GIP_SECURITY2_CMD_CLIENT_CERTIFICATE = 0x23,
++	GIP_SECURITY2_CMD_CLIENT_PUBKEY = 0x24,
++	GIP_SECURITY2_CMD_HOST_PUBKEY = 0x25,
++	GIP_SECURITY2_CMD_HOST_FINISH = 0x26,
++	GIP_SECURITY2_CMD_CLIENT_FINISH = 0x27,
++};
++
++enum gip_security_command_control {
++	GIP_SECURITY_CTRL_COMPLETE = 0x00,
++	GIP_SECURITY_CTRL_RESET = 0x01,
++};
++
++enum gip_security_option {
++	GIP_SECURITY_OPT_ACKNOWLEDGE = BIT(0),
++	GIP_SECURITY_OPT_REQUEST = BIT(1),
++	GIP_SECURITY_OPT_FROM_HOST = BIT(6),
++	GIP_SECURITY_OPT_FROM_CLIENT = BIT(6) | BIT(7),
++};
++
++struct gip_security_header_handshake {
++	u8 context;
++	u8 options;
++	u8 error;
++	u8 command;
++	__be16 length;
++} __packed;
++
++struct gip_security_header_data {
++	u8 command;
++	u8 version;
++	__be16 length;
++} __packed;
++
++struct gip_security_header_full {
++	struct gip_security_header_handshake handshake;
++	struct gip_security_header_data data;
++} __packed;
++
++struct gip_security_header_control {
++	u8 context;
++	u8 control;
++} __packed;
++
++struct gip_security_request {
++	struct gip_security_header_handshake header;
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_host_hello {
++	struct gip_security_header_full header;
++
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown1[4];
++	u8 unknown2[4];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_host_secret {
++	struct gip_security_header_full header;
++
++	u8 encrypted_pms[GIP_SECURITY_ENCRYPTED_PMS_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_host_finish {
++	struct gip_security_header_full header;
++
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_client_hello {
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown[48];
++} __packed;
++
++struct gip_security_client_finish {
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++	u8 unknown[32];
++} __packed;
++
++struct gip_security2_host_hello {
++	struct gip_security_header_full header;
++
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown[4];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security2_host_pubkey {
++	struct gip_security_header_full header;
++
++	u8 pubkey[GIP_SECURITY2_PUBKEY_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security2_host_finish {
++	struct gip_security_header_full header;
++
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security2_client_hello {
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown1[108];
++	u8 unknown2[32];
++} __packed;
++
++struct gip_security2_client_cert {
++	char header[4];
++	u8 unknown1[136];
++	char chip[32];
++	char revision[20];
++	u8 unknown2[576];
++} __packed;
++
++struct gip_security2_client_pubkey {
++	u8 pubkey[GIP_SECURITY2_PUBKEY_LEN];
++	u8 unknown[64];
++} __packed;
++
++struct gip_security2_client_finish {
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++	u8 unknown[32];
++} __packed;
++
++static void gip_security_get_transcript(struct sha256_ctx *ctx, void *transcript)
++{
++	struct sha256_ctx state;
++
++	memcpy(&state, ctx, sizeof(state));
++	sha256_final(&state, transcript);
++	memzero_explicit(&state, sizeof(state));
++}
++
++static void gip_security_compute_prf(const char *label,
++	u8 *raw_key, int key_len, u8 *seed, int seed_len, u8 *out, int out_len)
++{
++	u8 hash[SHA256_DIGEST_SIZE], hash_out[SHA256_DIGEST_SIZE];
++	struct hmac_sha256_ctx ctx;
++	struct hmac_sha256_key key;
++
++	hmac_sha256_preparekey(&key, raw_key, key_len);
++
++	hmac_sha256_init(&ctx, &key);
++	hmac_sha256_update(&ctx, label, strlen(label));
++	hmac_sha256_update(&ctx, seed, seed_len);
++	hmac_sha256_final(&ctx, hash);
++
++	while (out_len > 0) {
++		hmac_sha256_init(&ctx, &key);
++		hmac_sha256_update(&ctx, hash, sizeof(hash));
++		hmac_sha256_update(&ctx, label, strlen(label));
++		hmac_sha256_update(&ctx, seed, seed_len);
++		hmac_sha256_final(&ctx, hash_out);
++
++		memcpy(out, hash_out, min_t(int, out_len, sizeof(hash)));
++		out += sizeof(hash);
++		out_len -= sizeof(hash);
++
++		hmac_sha256(&key, hash, sizeof(hash), hash);
++	}
++
++	memzero_explicit(&ctx, sizeof(ctx));
++	memzero_explicit(&key, sizeof(key));
++}
++
++static int gip_security_encrypt_rsa(u8 *key, int key_len, u8 *in, int in_len, u8 *out, int out_len)
++{
++	struct crypto_akcipher *tfm;
++	int err;
++
++	tfm = crypto_alloc_akcipher("pkcs1pad(rsa)", 0, 0);
++	if (IS_ERR(tfm))
++		return PTR_ERR(tfm);
++
++	err = crypto_akcipher_set_pub_key(tfm, key, key_len);
++	if (err)
++		goto err_free_tfm;
++
++	err = crypto_akcipher_sync_encrypt(tfm, in, in_len, out, out_len);
++
++err_free_tfm:
++	crypto_free_akcipher(tfm);
++
++	return err;
++}
++
++static int gip_security_ecdh_get_pubkey(struct crypto_kpp *tfm, u8 *out, int len)
++{
++	struct kpp_request *req;
++	struct scatterlist dest;
++	struct ecdh key = {};
++	DECLARE_CRYPTO_WAIT(wait);
++	void *privkey, *pubkey;
++	unsigned int privkey_len;
++	int err = 0;
++
++	privkey_len = crypto_ecdh_key_len(&key);
++	privkey = kzalloc(privkey_len, GFP_KERNEL);
++	if (!privkey)
++		return -ENOMEM;
++
++	pubkey = kzalloc(len, GFP_KERNEL);
++	if (!pubkey) {
++		err = -ENOMEM;
++		goto err_free_privkey;
++	}
++
++	/* generate private key */
++	err = crypto_ecdh_encode_key(privkey, privkey_len, &key);
++	if (err)
++		goto err_free_pubkey;
++
++	err = crypto_kpp_set_secret(tfm, privkey, privkey_len);
++	if (err)
++		goto err_free_pubkey;
++
++	req = kpp_request_alloc(tfm, GFP_KERNEL);
++	if (!req) {
++		err = -ENOMEM;
++		goto err_free_pubkey;
++	}
++
++	sg_init_one(&dest, pubkey, len);
++
++	kpp_request_set_input(req, NULL, 0);
++	kpp_request_set_output(req, &dest, len);
++	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
++				 crypto_req_done, &wait);
++	err = crypto_wait_req(crypto_kpp_generate_public_key(req), &wait);
++	if (!err)
++		memcpy(out, pubkey, len);
++
++	kpp_request_free(req);
++
++err_free_pubkey:
++	kfree(pubkey);
++err_free_privkey:
++	memzero_explicit(privkey, privkey_len);
++	kfree(privkey);
++
++	return err;
++}
++
++static int gip_security_ecdh_get_secret(struct crypto_kpp *tfm, u8 *pubkey,
++	int pubkey_len, u8 *secret, int secret_len)
++{
++	struct kpp_request *req;
++	struct scatterlist src, dest;
++	DECLARE_CRYPTO_WAIT(wait);
++	int err;
++
++	req = kpp_request_alloc(tfm, GFP_KERNEL);
++	if (!req)
++		return -ENOMEM;
++
++	sg_init_one(&src, pubkey, pubkey_len);
++	sg_init_one(&dest, secret, secret_len);
++
++	kpp_request_set_input(req, &src, pubkey_len);
++	kpp_request_set_output(req, &dest, secret_len);
++	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
++				 crypto_req_done, &wait);
++	err = crypto_wait_req(crypto_kpp_compute_shared_secret(req), &wait);
++
++	kpp_request_free(req);
++
++	return err;
++}
++
++static int gip_security_compute_ecdh(u8 *pubkey_in, u8 *pubkey_out, int pubkey_len, u8 *secret_hash)
++{
++	struct crypto_kpp *tfm_ecdh;
++	u8 secret[GIP_SECURITY_ECDH_SECRET_LEN] = {0};
++	int err;
++
++	tfm_ecdh = crypto_alloc_kpp("ecdh-nist-p256", 0, 0);
++	if (IS_ERR(tfm_ecdh)) {
++		err = PTR_ERR(tfm_ecdh);
++		goto err_free_secret;
++	}
++
++	err = gip_security_ecdh_get_pubkey(tfm_ecdh, pubkey_out, pubkey_len);
++	if (err)
++		goto err_free_ecdh;
++
++	err = gip_security_ecdh_get_secret(tfm_ecdh, pubkey_in, pubkey_len,
++		secret, sizeof(secret));
++	if (err)
++		goto err_free_ecdh;
++
++	sha256(secret, sizeof(secret), secret_hash);
++
++err_free_ecdh:
++	crypto_free_kpp(tfm_ecdh);
++err_free_secret:
++	memzero_explicit(&secret, sizeof(secret));
++
++	return err;
++}
++
++static int gip_security_send_message(struct gip_security *security,
++	enum gip_security_command_handshake cmd, void *message, u16 len)
++{
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_header_full *hdr = message;
++	u16 data_len = len - sizeof(hdr->handshake) - GIP_SECURITY_TRAILER_LEN;
++
++	hdr->handshake.context = GIP_SECURITY_CTX_HANDSHAKE;
++	hdr->handshake.options = GIP_SECURITY_OPT_ACKNOWLEDGE | GIP_SECURITY_OPT_FROM_HOST;
++	hdr->handshake.command = cmd;
++	hdr->handshake.length = cpu_to_be16(data_len);
++
++	hdr->data.command = cmd;
++	hdr->data.version = cmd >= GIP_SECURITY2_CMD_HOST_HELLO ? 0x02 : 0x01;
++	hdr->data.length = cpu_to_be16(data_len - sizeof(hdr->data));
++
++	security->last_sent_command = cmd;
++	sha256_update(&security->transcript, message + sizeof(hdr->handshake), data_len);
++
++	return gip_send_system_message(attachment, GIP_CMD_SECURITY, GIP_FLAG_ACME, message, len);
++}
++
++static int gip_security_send_request(struct gip_security *security,
++	enum gip_security_command_handshake cmd, u16 len)
++{
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_request req = {};
++	u16 data_len = len + sizeof(struct gip_security_header_data);
++
++	req.header.context = GIP_SECURITY_CTX_HANDSHAKE;
++	req.header.options = GIP_SECURITY_OPT_REQUEST | GIP_SECURITY_OPT_FROM_HOST;
++	req.header.command = cmd;
++	req.header.length = cpu_to_be16(data_len);
++
++	return gip_send_system_message(attachment, GIP_CMD_SECURITY,
++		GIP_FLAG_ACME, &req, sizeof(req));
++}
++
++static int gip_security2_send_hello(struct gip_security *security)
++{
++	struct gip_security2_host_hello message = {};
++
++	get_random_bytes(security->random_host, sizeof(security->random_host));
++	memcpy(message.random, security->random_host, sizeof(message.random));
++
++	return gip_security_send_message(security, GIP_SECURITY2_CMD_HOST_HELLO,
++		&message, sizeof(message));
++}
++
++static int gip_security2_handle_hello(struct gip_security *security, const void *data, u32 len)
++{
++	const struct gip_security2_client_hello *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	memcpy(security->random_client, message->random, sizeof(security->random_client));
++
++	return gip_security_send_request(security,
++		GIP_SECURITY2_CMD_CLIENT_CERTIFICATE,
++		sizeof(struct gip_security2_client_cert));
++}
++
++static int gip_security2_handle_certificate(struct gip_security *security,
++	const void *data, u32 len)
++{
++	const struct gip_security2_client_cert *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	gip_dbg(security,
++		"%s: header=%.*s, chip=%.*s, revision=%.*s\n", __func__,
++		(int)sizeof(message->header), message->header,
++		(int)sizeof(message->chip), message->chip,
++		(int)sizeof(message->revision), message->revision);
++
++	return gip_security_send_request(security,
++		GIP_SECURITY2_CMD_CLIENT_PUBKEY,
++		sizeof(struct gip_security2_client_pubkey));
++}
++
++static int gip_security2_handle_pubkey(struct gip_security *security,
++	const void *data, u32 len)
++{
++	const struct gip_security2_client_pubkey *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	memcpy(security->pubkey_client2, message->pubkey, sizeof(message->pubkey));
++	schedule_work(&security->work_exchange_ecdh);
++
++	return 0;
++}
++
++static void gip_security2_exchange_ecdh(struct work_struct *work)
++{
++	struct gip_security *security = container_of(work, typeof(*security), work_exchange_ecdh);
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security2_host_pubkey message = {};
++	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
++	u8 secret[GIP_SECURITY2_SECRET_LEN];
++	int err;
++
++	guard(mutex)(&attachment->lock);
++	memcpy(random, security->random_host, sizeof(security->random_host));
++	memcpy(random + sizeof(security->random_host), security->random_client,
++		sizeof(security->random_client));
++
++	err = gip_security_compute_ecdh(security->pubkey_client2,
++		message.pubkey, sizeof(message.pubkey), secret);
++	if (err) {
++		gip_err(security, "%s: compute ECDH failed: %d\n", __func__, err);
++		return;
++	}
++
++	gip_security_compute_prf("Master Secret", secret, sizeof(secret),
++		random, sizeof(random), security->master_secret,
++		sizeof(security->master_secret));
++
++	err = gip_security_send_message(security, GIP_SECURITY2_CMD_HOST_PUBKEY,
++		&message, sizeof(message));
++	if (err)
++		gip_err(security, "%s: send message failed: %d\n", __func__, err);
++}
++
++static int gip_security_send_hello(struct gip_security *security)
++{
++	struct gip_security_host_hello message = {};
++
++	get_random_bytes(security->random_host, sizeof(security->random_host));
++	memcpy(message.random, security->random_host, sizeof(message.random));
++
++	return gip_security_send_message(security, GIP_SECURITY_CMD_HOST_HELLO,
++		&message, sizeof(message));
++}
++
++static int gip_security_send_finish(struct gip_security *security,
++	enum gip_security_command_handshake cmd)
++{
++	struct gip_security_host_finish message = {};
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	gip_security_get_transcript(&security->transcript, transcript);
++	gip_security_compute_prf("Host Finished", security->master_secret,
++		sizeof(security->master_secret), transcript, sizeof(transcript),
++		message.transcript, sizeof(message.transcript));
++
++	return gip_security_send_message(security, cmd, &message, sizeof(message));
++}
++
++static int gip_security_handle_acknowledge(struct gip_security *security)
++{
++	switch (security->last_sent_command) {
++	case GIP_SECURITY2_CMD_HOST_HELLO:
++		return gip_security_send_request(security,
++			GIP_SECURITY2_CMD_CLIENT_HELLO,
++			sizeof(struct gip_security2_client_hello));
++	case GIP_SECURITY2_CMD_HOST_PUBKEY:
++		return gip_security_send_finish(security, GIP_SECURITY2_CMD_HOST_FINISH);
++	case GIP_SECURITY2_CMD_HOST_FINISH:
++		return gip_security_send_request(security,
++			GIP_SECURITY2_CMD_CLIENT_FINISH,
++			sizeof(struct gip_security2_client_finish));
++	case GIP_SECURITY_CMD_HOST_HELLO:
++		return gip_security_send_request(security,
++			GIP_SECURITY_CMD_CLIENT_HELLO,
++			sizeof(struct gip_security_client_hello));
++	case GIP_SECURITY_CMD_HOST_SECRET:
++		return gip_security_send_finish(security, GIP_SECURITY_CMD_HOST_FINISH);
++	case GIP_SECURITY_CMD_HOST_FINISH:
++		return gip_security_send_request(security,
++			GIP_SECURITY_CMD_CLIENT_FINISH,
++			sizeof(struct gip_security_client_finish));
++	default:
++		return -EPROTO;
++	}
++}
++
++static int gip_security_handle_hello(struct gip_security *security, const void *data, u32 len)
++{
++	const struct gip_security_client_hello *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	memcpy(security->random_client, message->random, sizeof(message->random));
++
++	return gip_security_send_request(security, GIP_SECURITY_CMD_CLIENT_CERTIFICATE,
++		GIP_SECURITY_CERTIFICATE_MAX_LEN);
++}
++
++static int gip_security_handle_certificate(struct gip_security *security, const void *data, u32 len)
++{
++	/* ASN.1 SEQUENCE (len = 0x04 + 0x010a) */
++	u8 asn1_seq[] = { 0x30, 0x82, 0x01, 0x0a };
++	int i;
++
++	if (len > GIP_SECURITY_CERTIFICATE_MAX_LEN)
++		return -EINVAL;
++
++	/*
++	 * Poor way of extracting a pubkey from an X.509 certificate.
++	 * The certificates issued by Microsoft do not comply with RFC 5280.
++	 * They have an empty subject and no subjectAltName.
++	 * This is explicitly forbidden by section 4.2.1.6 of the RFC.
++	 * The kernel's ASN.1 parser will fail when using x509_cert_parse.
++	 */
++	for (i = 0; i + sizeof(asn1_seq) <= len; i++) {
++		if (memcmp(data + i, asn1_seq, sizeof(asn1_seq)))
++			continue;
++
++		if (i + GIP_SECURITY_PUBKEY_LEN > len)
++			return -EINVAL;
++
++		memcpy(security->pubkey_client, data + i, GIP_SECURITY_PUBKEY_LEN);
++		schedule_work(&security->work_exchange_rsa);
++
++		return 0;
++	}
++
++	return -EPROTO;
++}
++
++static int gip_security_handle_finish(struct gip_security *security, const void *data, u32 len)
++{
++	const struct gip_security_client_finish *message = data;
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++	u8 finished[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	gip_security_get_transcript(&security->transcript, transcript);
++	gip_security_compute_prf("Device Finished",
++		security->master_secret, sizeof(security->master_secret),
++		transcript, sizeof(transcript), finished, sizeof(finished));
++
++	if (memcmp(message->transcript, finished, sizeof(finished))) {
++		gip_err(security, "%s: transcript mismatch\n", __func__);
++		return -EPROTO;
++	}
++
++	schedule_work(&security->work_complete);
++
++	return 0;
++}
++
++static void gip_security_exchange_rsa(struct work_struct *work)
++{
++	struct gip_security *security = container_of(work, typeof(*security), work_exchange_rsa);
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_host_secret message = {};
++	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
++	int err;
++
++	guard(mutex)(&attachment->lock);
++	memcpy(random, security->random_host, sizeof(security->random_host));
++	memcpy(random + sizeof(security->random_host), security->random_client,
++		sizeof(security->random_client));
++
++	/* get random premaster secret */
++	get_random_bytes(security->pms, sizeof(security->pms));
++
++	err = gip_security_encrypt_rsa(security->pubkey_client,
++		sizeof(security->pubkey_client), security->pms,
++		sizeof(security->pms), message.encrypted_pms,
++		sizeof(message.encrypted_pms));
++	if (err) {
++		gip_err(security, "%s: encrypt RSA failed: %d\n", __func__, err);
++		return;
++	}
++
++	gip_security_compute_prf("Master Secret", security->pms,
++		sizeof(security->pms), random, sizeof(random),
++		security->master_secret, sizeof(security->master_secret));
++
++	err = gip_security_send_message(security, GIP_SECURITY_CMD_HOST_SECRET,
++		&message, sizeof(message));
++	if (err)
++		gip_err(security, "%s: send message failed: %d\n", __func__, err);
++}
++
++static void gip_security_complete_handshake(struct work_struct *work)
++{
++	struct gip_security *security = container_of(work, typeof(*security), work_complete);
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_header_control hdr = {
++		.context = GIP_SECURITY_CTX_CONTROL,
++		.control = GIP_SECURITY_CTRL_COMPLETE,
++	};
++	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
++	u8 key[GIP_SECURITY_SESSION_KEY_LEN];
++	int err;
++
++	guard(mutex)(&attachment->lock);
++	memcpy(random, security->random_host, sizeof(security->random_host));
++	memcpy(random + sizeof(security->random_host), security->random_client,
++		sizeof(security->random_client));
++
++	gip_security_compute_prf(
++		"EXPORTER DAWN data channel session key for controller",
++		security->master_secret, sizeof(security->master_secret),
++		random, sizeof(random), key, sizeof(key));
++
++	gip_dbg(security, "%s: key=%*phD\n", __func__, (int)sizeof(key), key);
++
++	err = gip_send_system_message(attachment, GIP_CMD_SECURITY,
++		0, &hdr, sizeof(hdr));
++	if (err) {
++		gip_err(security, "%s: send complete failed: %d\n", __func__, err);
++		return;
++	}
++
++	security->status = GIP_SECURITY_DONE;
++}
++
++static int gip_security_dispatch_message(struct gip_security *security,
++	enum gip_security_command_handshake cmd, const void *data, u32 len)
++{
++	switch (cmd) {
++	case GIP_SECURITY2_CMD_CLIENT_HELLO:
++		return gip_security2_handle_hello(security, data, len);
++	case GIP_SECURITY2_CMD_CLIENT_CERTIFICATE:
++		return gip_security2_handle_certificate(security, data, len);
++	case GIP_SECURITY2_CMD_CLIENT_PUBKEY:
++		return gip_security2_handle_pubkey(security, data, len);
++	case GIP_SECURITY2_CMD_CLIENT_FINISH:
++		return gip_security_handle_finish(security, data, len);
++	case GIP_SECURITY_CMD_CLIENT_HELLO:
++		return gip_security_handle_hello(security, data, len);
++	case GIP_SECURITY_CMD_CLIENT_CERTIFICATE:
++		return gip_security_handle_certificate(security, data, len);
++	case GIP_SECURITY_CMD_CLIENT_FINISH:
++		return gip_security_handle_finish(security, data, len);
++	default:
++		return -EPROTO;
++	}
++}
++
++int gip_security_handle_message(struct gip_security *security, const void *bytes, int num_bytes)
++{
++	const struct gip_security_header_handshake *handshake = bytes;
++	const struct gip_security_header_full *hdr;
++	int err;
++
++	if (security->status != GIP_SECURITY_SENT) {
++		gip_err(security, "%s: security message received when none expected: 0x%02x\n",
++			__func__, handshake->command);
++		return -EPROTO;
++	}
++
++	if (num_bytes < sizeof(*handshake))
++		return -EINVAL;
++
++	if (handshake->error)
++		return -EPROTO;
++
++	if (handshake->options & GIP_SECURITY_OPT_ACKNOWLEDGE) {
++		if (handshake->command == 0x01)
++			return gip_security_handle_acknowledge(security);
++
++		gip_err(security, "%s: handshake failed: 0x%02x\n",
++			__func__, handshake->command);
++		return -EPROTO;
++	}
++
++	if (num_bytes < sizeof(*hdr))
++		return -EINVAL;
++
++	hdr = bytes;
++	/* client uses v2 */
++	if (handshake->command != hdr->data.command) {
++		/* reset transcript hash and restart handshake */
++		gip_dbg(security, "%s: protocol upgrade\n", __func__);
++		sha256_init(&security->transcript);
++		return gip_security2_send_hello(security);
++	}
++
++	err = gip_security_dispatch_message(security, hdr->data.command,
++		bytes + sizeof(*hdr), num_bytes - sizeof(*hdr));
++	if (err)
++		return err;
++
++	sha256_update(&security->transcript, bytes + sizeof(hdr->handshake),
++		num_bytes - sizeof(hdr->handshake));
++
++	return 0;
++}
++
++void gip_security_release(struct gip_security *security)
++{
++	if (security->status < GIP_SECURITY_SENT)
++		return;
++
++	cancel_work_sync(&security->work_exchange_rsa);
++	cancel_work_sync(&security->work_exchange_ecdh);
++	cancel_work_sync(&security->work_complete);
++
++	memzero_explicit(&security->transcript, sizeof(security->transcript));
++
++	security->status = GIP_SECURITY_PENDING;
++}
++
++int gip_security_start_handshake(struct gip_security *security)
++{
++	int err;
++
++	sha256_init(&security->transcript);
++
++	INIT_WORK(&security->work_exchange_rsa, gip_security_exchange_rsa);
++	INIT_WORK(&security->work_exchange_ecdh, gip_security2_exchange_ecdh);
++	INIT_WORK(&security->work_complete, gip_security_complete_handshake);
++
++	err = gip_security_send_hello(security);
++	if (err < 0)
++		return err;
++
++	security->status = GIP_SECURITY_SENT;
++	return 0;
++}
++
++int gip_security_skip_handshake(struct gip_security *security)
++{
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_header_control hdr = {
++		.context = GIP_SECURITY_CTX_CONTROL,
++		.control = GIP_SECURITY_CTRL_COMPLETE,
++	};
++	int err;
++
++	err = gip_send_system_message(attachment, GIP_CMD_SECURITY, 0, &hdr, sizeof(hdr));
++	if (err < 0)
++		return err;
++
++	security->status = GIP_SECURITY_SKIPPED;
++	return 0;
++}
+diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
+index c7751f96e8ac..0abd44ada89f 100644
+--- a/drivers/input/joystick/gip/gip.h
++++ b/drivers/input/joystick/gip/gip.h
+@@ -12,6 +12,7 @@
+ #ifndef _GIP_H
+ #define _GIP_H
+ 
++#include <crypto/sha2.h>
+ #include <linux/hid.h>
+ #include <linux/led-class-multicolor.h>
+ #include <linux/power_supply.h>
+@@ -29,6 +30,7 @@
+ 
+ #define GIP_VID_MICROSOFT	0x045e
+ #define GIP_VID_PDP		0x0e6f
++#define GIP_VID_BDA		0x24c6
+ 
+ #define GIP_PID_XBOX_ONE_1573			0x02d1
+ #define GIP_PID_XBOX_ONE_1697			0x02dd
+@@ -40,9 +42,13 @@
+ 
+ #define GIP_PID_PDP_ROCK_CANDY	0x0246
+ 
++#define GIP_PID_BDA_XB1_CLASSIC		0x581a
++#define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
++
+ #define GIP_QUIRK_NO_HELLO		BIT(0)
+ #define GIP_QUIRK_NO_IMPULSE_VIBRATION	BIT(1)
+ #define GIP_QUIRK_SWAP_LB_RB		BIT(2)
++#define GIP_QUIRK_SKIP_SECURITY		BIT(3)
+ /*
+  * Driver-specific quirks should start from 31 and go downwards to avoid
+  * conflicts with newly-added core quirks
+@@ -90,13 +96,21 @@
+ #define GIP_LL_STATIC_CONFIGURATION	0x21
+ #define GIP_LL_BUTTON_INFO_REPORT	0x22
+ 
++#define GIP_SECURITY_RANDOM_LEN 32
++#define GIP_SECURITY_PUBKEY_LEN 270
++#define GIP_SECURITY_SECRET_LEN 48
++
++#define GIP_SECURITY2_PUBKEY_LEN 64
++#define GIP_SECURITY2_SECRET_LEN 32
++
+ #define MAX_GIP_CMD 0x80
+ 
+ #define to_gip_device(p) \
+ 	_Generic((p), \
+ 		struct gip_attachment * : gip_attachment_dev, \
+ 		struct gip_interface * : gip_interface_dev, \
+-		struct gip_device * : gip_device_dev)(p)
++		struct gip_device * : gip_device_dev, \
++		struct gip_security * : gip_security_dev)(p)
+ 
+ #define gip_dbg(dev, ...)	dev_dbg(to_gip_device(dev), __VA_ARGS__)
+ #define gip_info(dev, ...)	dev_info(to_gip_device(dev), __VA_ARGS__)
+@@ -120,6 +134,13 @@ enum gip_metadata_status {
+ 	GIP_METADATA_PENDING = 3,
  };
  
--/* used when the controller has extra paddle buttons */
--static const signed short xpad_btn_paddles[] = {
--	BTN_GRIPR, BTN_GRIPR2, /* paddle upper right, lower right */
--	BTN_GRIPL, BTN_GRIPL2, /* paddle upper left, lower left */
--	-1						/* terminating entry */
--};
--
- /*
-  * Xbox 360 has a vendor-specific class, so we cannot match it with only
-  * USB_INTERFACE_INFO (also specifically refused by USB subsystem), so we
-@@ -479,49 +378,30 @@ static const signed short xpad_btn_paddles[] = {
- 	{ XPAD_XBOX360_VENDOR_PROTOCOL((vend), 1) }, \
- 	{ XPAD_XBOX360_VENDOR_PROTOCOL((vend), 129) }
- 
--/* The Xbox One controller uses subclass 71 and protocol 208. */
--#define XPAD_XBOXONE_VENDOR_PROTOCOL(vend, pr) \
--	.match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_INFO, \
--	.idVendor = (vend), \
--	.bInterfaceClass = USB_CLASS_VENDOR_SPEC, \
--	.bInterfaceSubClass = 71, \
--	.bInterfaceProtocol = (pr)
--#define XPAD_XBOXONE_VENDOR(vend) \
--	{ XPAD_XBOXONE_VENDOR_PROTOCOL((vend), 208) }
--
- static const struct usb_device_id xpad_table[] = {
- 	/*
--	 * Please keep this list sorted by vendor ID. Note that there are 2
--	 * macros - XPAD_XBOX360_VENDOR and XPAD_XBOXONE_VENDOR.
-+	 * Please keep this list sorted by vendor ID
- 	 */
- 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* Xbox USB-IF not-approved class */
- 	XPAD_XBOX360_VENDOR(0x0079),		/* GPD Win 2 controller */
- 	XPAD_XBOX360_VENDOR(0x0351),		/* CRKD Controllers */
- 	XPAD_XBOX360_VENDOR(0x03eb),		/* Wooting Keyboards (Legacy) */
- 	XPAD_XBOX360_VENDOR(0x03f0),		/* HP HyperX Xbox 360 controllers */
--	XPAD_XBOXONE_VENDOR(0x03f0),		/* HP HyperX Xbox One controllers */
- 	XPAD_XBOX360_VENDOR(0x044f),		/* Thrustmaster Xbox 360 controllers */
--	XPAD_XBOXONE_VENDOR(0x044f),		/* Thrustmaster Xbox One controllers */
- 	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft Xbox 360 controllers */
--	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft Xbox One controllers */
- 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech Xbox 360-style controllers */
- 	XPAD_XBOX360_VENDOR(0x0502),		/* Acer Inc. Xbox 360 style controllers */
- 	XPAD_XBOX360_VENDOR(0x056e),		/* Elecom JC-U3613M */
- 	XPAD_XBOX360_VENDOR(0x06a3),		/* Saitek P3600 */
- 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz Xbox 360 controllers */
- 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
--	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
- 	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz Gamepad */
- 	XPAD_XBOX360_VENDOR(0x0b05),		/* ASUS controllers */
--	XPAD_XBOXONE_VENDOR(0x0b05),		/* ASUS controllers */
- 	XPAD_XBOX360_VENDOR(0x0c12),		/* Zeroplus X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x0db0),		/* Micro Star International X-Box 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f Xbox 360 controllers */
--	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f Xbox One controllers */
- 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori controllers */
--	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori controllers */
- 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries controllers */
--	XPAD_XBOXONE_VENDOR(0x10f5),		/* Turtle Beach Controllers */
- 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
- 	XPAD_XBOX360_VENDOR(0x11ff),		/* PXN V900 */
- 	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
-@@ -529,7 +409,6 @@ static const struct usb_device_id xpad_table[] = {
- 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane Xbox 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x146b),		/* Bigben Interactive controllers */
- 	XPAD_XBOX360_VENDOR(0x1532),		/* Razer Sabertooth */
--	XPAD_XBOXONE_VENDOR(0x1532),		/* Razer Wildcat */
- 	XPAD_XBOX360_VENDOR(0x15e4),		/* Numark Xbox 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech Xbox 360 controllers */
- 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
-@@ -540,27 +419,18 @@ static const struct usb_device_id xpad_table[] = {
- 	XPAD_XBOX360_VENDOR(0x1ee9),		/* ZOTAC Technology Limited */
- 	XPAD_XBOX360_VENDOR(0x20bc),		/* BETOP wireless dongles */
- 	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA controllers */
--	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA controllers */
- 	XPAD_XBOX360_VENDOR(0x2345),		/* Machenike Controllers */
- 	XPAD_XBOX360_VENDOR(0x24c6),		/* PowerA controllers */
--	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA controllers */
- 	XPAD_XBOX360_VENDOR(0x2563),		/* OneXPlayer Gamepad */
- 	XPAD_XBOX360_VENDOR(0x260d),		/* Dareu H101 */
--	XPAD_XBOXONE_VENDOR(0x294b),		/* Snakebyte */
- 	XPAD_XBOX360_VENDOR(0x2993),		/* TECNO Mobile */
- 	XPAD_XBOX360_VENDOR(0x2c22),		/* Qanba Controllers */
- 	XPAD_XBOX360_VENDOR(0x2dc8),		/* 8BitDo Controllers */
--	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Controllers */
--	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Controllers */
- 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir Controllers */
--	XPAD_XBOXONE_VENDOR(0x2e95),		/* SCUF Gaming Controller */
- 	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
- 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
--	XPAD_XBOXONE_VENDOR(0x3285),		/* Nacon Evol-X */
- 	XPAD_XBOX360_VENDOR(0x3537),		/* GameSir Controllers */
--	XPAD_XBOXONE_VENDOR(0x3537),		/* GameSir Controllers */
- 	XPAD_XBOX360_VENDOR(0x3651),		/* CRKD Controllers */
--	XPAD_XBOXONE_VENDOR(0x366c),		/* ByoWave controllers */
- 	XPAD_XBOX360_VENDOR(0x37d7),		/* Flydigi Controllers */
- 	XPAD_XBOX360_VENDOR(0x3958),		/* RedOctane Games Controllers */
- 	XPAD_XBOX360_VENDOR(0x413d),		/* Black Shark Green Ghost Controller */
-@@ -569,162 +439,6 @@ static const struct usb_device_id xpad_table[] = {
- 
- MODULE_DEVICE_TABLE(usb, xpad_table);
- 
--struct xboxone_init_packet {
--	u16 idVendor;
--	u16 idProduct;
--	const u8 *data;
--	u8 len;
--};
--
--#define XBOXONE_INIT_PKT(_vid, _pid, _data)		\
--	{						\
--		.idVendor	= (_vid),		\
--		.idProduct	= (_pid),		\
--		.data		= (_data),		\
--		.len		= ARRAY_SIZE(_data),	\
--	}
--
--/*
-- * starting with xbox one, the game input protocol is used
-- * magic numbers are taken from
-- * - https://github.com/xpadneo/gip-dissector/blob/main/src/gip-dissector.lua
-- * - https://github.com/medusalix/xone/blob/master/bus/protocol.c
-- */
--#define GIP_CMD_ACK      0x01
--#define GIP_CMD_ANNOUNCE 0x02
--#define GIP_CMD_IDENTIFY 0x04
--#define GIP_CMD_POWER    0x05
--#define GIP_CMD_AUTHENTICATE 0x06
--#define GIP_CMD_VIRTUAL_KEY  0x07
--#define GIP_CMD_RUMBLE   0x09
--#define GIP_CMD_LED      0x0a
--#define GIP_CMD_FIRMWARE 0x0c
--#define GIP_CMD_INPUT    0x20
--
--#define GIP_SEQ0 0x00
--
--#define GIP_OPT_ACK      0x10
--#define GIP_OPT_INTERNAL 0x20
--
--/*
-- * length of the command payload encoded with
-- * https://en.wikipedia.org/wiki/LEB128
-- * which is a no-op for N < 128
-- */
--#define GIP_PL_LEN(N) (N)
--
--/*
-- * payload specific defines
-- */
--#define GIP_PWR_ON 0x00
--#define GIP_LED_ON 0x01
--
--#define GIP_MOTOR_R  BIT(0)
--#define GIP_MOTOR_L  BIT(1)
--#define GIP_MOTOR_RT BIT(2)
--#define GIP_MOTOR_LT BIT(3)
--#define GIP_MOTOR_ALL (GIP_MOTOR_R | GIP_MOTOR_L | GIP_MOTOR_RT | GIP_MOTOR_LT)
--
--#define GIP_WIRED_INTF_DATA 0
--#define GIP_WIRED_INTF_AUDIO 1
--
--/*
-- * This packet is required for all Xbox One pads with 2015
-- * or later firmware installed (or present from the factory).
-- */
--static const u8 xboxone_power_on[] = {
--	GIP_CMD_POWER, GIP_OPT_INTERNAL, GIP_SEQ0, GIP_PL_LEN(1), GIP_PWR_ON
--};
--
--/*
-- * This packet is required for Xbox One S (0x045e:0x02ea)
-- * and Xbox One Elite Series 2 (0x045e:0x0b00) pads to
-- * initialize the controller that was previously used in
-- * Bluetooth mode.
-- */
--static const u8 xboxone_s_init[] = {
--	GIP_CMD_POWER, GIP_OPT_INTERNAL, GIP_SEQ0, 0x0f, 0x06
--};
--
--/*
-- * This packet is required to get additional input data
-- * from Xbox One Elite Series 2 (0x045e:0x0b00) pads.
-- * We mostly do this right now to get paddle data
-- */
--static const u8 extra_input_packet_init[] = {
--	0x4d, 0x10, 0x01, 0x02, 0x07, 0x00
--};
--
--/*
-- * This packet is required for the Titanfall 2 Xbox One pads
-- * (0x0e6f:0x0165) to finish initialization and for Hori pads
-- * (0x0f0d:0x0067) to make the analog sticks work.
-- */
--static const u8 xboxone_hori_ack_id[] = {
--	GIP_CMD_ACK, GIP_OPT_INTERNAL, GIP_SEQ0, GIP_PL_LEN(9),
--	0x00, GIP_CMD_IDENTIFY, GIP_OPT_INTERNAL, 0x3a, 0x00, 0x00, 0x00, 0x80, 0x00
--};
--
--/*
-- * This packet is sent by default on Windows, and is required for some pads to
-- * start sending input reports, including most (all?) of the PDP. These pads
-- * include: (0x0e6f:0x02ab), (0x0e6f:0x02a4), (0x0e6f:0x02a6).
-- */
--static const u8 xboxone_led_on[] = { GIP_CMD_LED, GIP_OPT_INTERNAL, GIP_SEQ0,
--GIP_PL_LEN(3), 0x00, GIP_LED_ON, 0x14 };
--
--/*
-- * This packet is required for most (all?) of the PDP pads to start
-- * sending input reports. These pads include: (0x0e6f:0x02ab),
-- * (0x0e6f:0x02a4), (0x0e6f:0x02a6).
-- */
--static const u8 xboxone_auth_done[] = {
--	GIP_CMD_AUTHENTICATE, GIP_OPT_INTERNAL, GIP_SEQ0, GIP_PL_LEN(2), 0x01, 0x00
--};
--
--/*
-- * A specific rumble packet is required for some PowerA pads to start
-- * sending input reports. One of those pads is (0x24c6:0x543a).
-- */
--static const u8 xboxone_rumblebegin_init[] = {
--	GIP_CMD_RUMBLE, 0x00, GIP_SEQ0, GIP_PL_LEN(9),
--	0x00, GIP_MOTOR_ALL, 0x00, 0x00, 0x1D, 0x1D, 0xFF, 0x00, 0x00
--};
--
--/*
-- * A rumble packet with zero FF intensity will immediately
-- * terminate the rumbling required to init PowerA pads.
-- * This should happen fast enough that the motors don't
-- * spin up to enough speed to actually vibrate the gamepad.
-- */
--static const u8 xboxone_rumbleend_init[] = {
--	GIP_CMD_RUMBLE, 0x00, GIP_SEQ0, GIP_PL_LEN(9),
--	0x00, GIP_MOTOR_ALL, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
--};
--
--/*
-- * This specifies the selection of init packets that a gamepad
-- * will be sent on init *and* the order in which they will be
-- * sent. The correct sequence number will be added when the
-- * packet is going to be sent.
-- */
--static const struct xboxone_init_packet xboxone_init_packets[] = {
--	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_ack_id),
--	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_ack_id),
--	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_power_on),
--	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
--	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
--	XBOXONE_INIT_PKT(0x045e, 0x0b00, extra_input_packet_init),
--	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_led_on),
--	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_auth_done),
--	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumbleend_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumbleend_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumbleend_init),
--};
--
- struct xpad_output_packet {
- 	u8 data[XPAD_PKT_LEN];
- 	u8 len;
-@@ -754,14 +468,12 @@ struct usb_xpad {
- 	struct urb *irq_out;		/* urb for interrupt out report */
- 	struct usb_anchor irq_out_anchor;
- 	bool irq_out_active;		/* we must not use an active URB */
--	u8 odata_serial;		/* serial number for xbox one protocol */
- 	unsigned char *odata;		/* output data */
- 	dma_addr_t odata_dma;
- 	spinlock_t odata_lock;
- 
- 	struct xpad_output_packet out_packets[XPAD_NUM_OUT_PACKETS];
- 	int last_out_packet;
--	int init_seq;
- 
- #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
- 	struct xpad_led *led;
-@@ -771,19 +483,14 @@ struct usb_xpad {
- 
- 	int mapping;			/* map d-pad to buttons or to axes */
- 	int xtype;			/* type of xbox device */
--	int packet_type;		/* type of the extended packet */
- 	int pad_nr;			/* the order x360 pads were attached */
- 	const char *name;		/* name of the device */
- 	struct work_struct work;	/* init/remove device from callback */
- 	time64_t mode_btn_down_ts;
--	bool delay_init;		/* init packets should be delayed */
--	bool delayed_init_done;
++enum gip_security_status {
++	GIP_SECURITY_PENDING = 0,
++	GIP_SECURITY_SKIPPED,
++	GIP_SECURITY_SENT,
++	GIP_SECURITY_DONE,
++};
++
+ enum gip_elite_button_format {
+ 	GIP_BTN_FMT_UNKNOWN,
+ 	GIP_BTN_FMT_XBE1,
+@@ -206,6 +227,26 @@ struct gip_out_fragment {
+ 	uint8_t *data;
  };
  
- static int xpad_init_input(struct usb_xpad *xpad);
- static void xpad_deinit_input(struct usb_xpad *xpad);
--static int xpad_start_input(struct usb_xpad *xpad);
--static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
- static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
++struct gip_security {
++	struct sha256_ctx transcript;
++
++	struct work_struct work_exchange_rsa;
++	struct work_struct work_exchange_ecdh;
++	struct work_struct work_complete;
++
++	enum gip_security_status status;
++	uint8_t last_sent_command;
++
++	uint8_t random_host[GIP_SECURITY_RANDOM_LEN];
++	uint8_t random_client[GIP_SECURITY_RANDOM_LEN];
++
++	uint8_t pubkey_client[GIP_SECURITY_PUBKEY_LEN];
++	uint8_t pubkey_client2[GIP_SECURITY2_PUBKEY_LEN];
++
++	uint8_t pms[GIP_SECURITY_SECRET_LEN];
++	uint8_t master_secret[GIP_SECURITY_SECRET_LEN];
++};
++
+ struct gip_attachment;
+ typedef int (*gip_command_handler)(struct gip_attachment *a, const struct gip_header *header,
+ 		const uint8_t *bytes, int num_bytes);
+@@ -243,6 +284,7 @@ struct gip_attachment {
+ 	struct delayed_work metadata_next;
+ 	int metadata_retries;
+ 	struct gip_metadata metadata;
++	struct gip_security security;
  
- /*
-@@ -1021,187 +728,6 @@ static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned cha
- 	rcu_read_unlock();
+ 	uint8_t seq_system;
+ 	uint8_t seq_security;
+@@ -356,6 +398,11 @@ static inline struct device *gip_device_dev(struct gip_device *device)
+ 	return &device->udev->dev;
  }
  
--/*
-- *	xpadone_process_packet
-- *
-- *	Completes a request by converting the data into events for the
-- *	input subsystem. This version is for the Xbox One controller.
-- *
-- *	The report format was gleaned from
-- *	https://github.com/kylelemons/xbox/blob/master/xbox.go
-- */
--static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data, u32 len)
--{
--	struct input_dev *dev = xpad->dev;
--	bool do_sync = false;
--
--	/* the xbox button has its own special report */
--	if (data[0] == GIP_CMD_VIRTUAL_KEY) {
--		/*
--		 * The Xbox One S controller requires these reports to be
--		 * acked otherwise it continues sending them forever and
--		 * won't report further mode button events.
--		 */
--		if (data[1] == (GIP_OPT_ACK | GIP_OPT_INTERNAL))
--			xpadone_ack_mode_report(xpad, data[2]);
--
--		input_report_key(dev, BTN_MODE, data[4] & GENMASK(1, 0));
--		input_sync(dev);
--
--		do_sync = true;
--	} else if (data[0] == GIP_CMD_FIRMWARE) {
--		/* Some packet formats force us to use this separate to poll paddle inputs */
--		if (xpad->packet_type == PKT_XBE2_FW_5_11) {
--			/* Mute paddles if controller is in a custom profile slot
--			 * Checked by looking at the active profile slot to
--			 * verify it's the default slot
--			 */
--			if (data[19] != 0)
--				data[18] = 0;
--
--			/* Elite Series 2 split packet paddle bits */
--			input_report_key(dev, BTN_GRIPR, data[18] & BIT(0));
--			input_report_key(dev, BTN_GRIPR2, data[18] & BIT(1));
--			input_report_key(dev, BTN_GRIPL, data[18] & BIT(2));
--			input_report_key(dev, BTN_GRIPL2, data[18] & BIT(3));
--
--			do_sync = true;
--		}
--	} else if (data[0] == GIP_CMD_ANNOUNCE) {
--		int error;
--
--		if (xpad->delay_init && !xpad->delayed_init_done) {
--			xpad->delayed_init_done = true;
--			error = xpad_start_input(xpad);
--			if (error)
--				dev_warn(&xpad->dev->dev,
--					 "unable to start delayed input: %d\n",
--					 error);
--		}
--	} else if (data[0] == GIP_CMD_INPUT) { /* The main valid packet type for inputs */
--		/* menu/view buttons */
--		input_report_key(dev, BTN_START,  data[4] & BIT(2));
--		input_report_key(dev, BTN_SELECT, data[4] & BIT(3));
--		if (xpad->mapping & MAP_SHARE_BUTTON) {
--			u32 offset = (xpad->mapping & MAP_SHARE_OFFSET) ? 26 : 18;
--
--			if (len >= offset)
--				input_report_key(dev, KEY_RECORD, data[len - offset] & BIT(0));
--		}
--
--		/* buttons A,B,X,Y */
--		input_report_key(dev, BTN_A,	data[4] & BIT(4));
--		input_report_key(dev, BTN_B,	data[4] & BIT(5));
--		input_report_key(dev, BTN_X,	data[4] & BIT(6));
--		input_report_key(dev, BTN_Y,	data[4] & BIT(7));
--
--		/* digital pad */
--		if (xpad->mapping & MAP_DPAD_TO_BUTTONS) {
--			/* dpad as buttons (left, right, up, down) */
--			input_report_key(dev, BTN_DPAD_LEFT, data[5] & BIT(2));
--			input_report_key(dev, BTN_DPAD_RIGHT, data[5] & BIT(3));
--			input_report_key(dev, BTN_DPAD_UP, data[5] & BIT(0));
--			input_report_key(dev, BTN_DPAD_DOWN, data[5] & BIT(1));
--		} else {
--			input_report_abs(dev, ABS_HAT0X,
--					!!(data[5] & 0x08) - !!(data[5] & 0x04));
--			input_report_abs(dev, ABS_HAT0Y,
--					!!(data[5] & 0x02) - !!(data[5] & 0x01));
--		}
--
--		/* TL/TR */
--		input_report_key(dev, BTN_TL,	data[5] & BIT(4));
--		input_report_key(dev, BTN_TR,	data[5] & BIT(5));
--
--		/* stick press left/right */
--		input_report_key(dev, BTN_THUMBL, data[5] & BIT(6));
--		input_report_key(dev, BTN_THUMBR, data[5] & BIT(7));
--
--		if (!(xpad->mapping & MAP_STICKS_TO_NULL)) {
--			/* left stick */
--			input_report_abs(dev, ABS_X,
--					(__s16) le16_to_cpup((__le16 *)(data + 10)));
--			input_report_abs(dev, ABS_Y,
--					~(__s16) le16_to_cpup((__le16 *)(data + 12)));
--
--			/* right stick */
--			input_report_abs(dev, ABS_RX,
--					(__s16) le16_to_cpup((__le16 *)(data + 14)));
--			input_report_abs(dev, ABS_RY,
--					~(__s16) le16_to_cpup((__le16 *)(data + 16)));
--		}
--
--		/* triggers left/right */
--		if (xpad->mapping & MAP_TRIGGERS_TO_BUTTONS) {
--			input_report_key(dev, BTN_TL2,
--					(__u16) le16_to_cpup((__le16 *)(data + 6)));
--			input_report_key(dev, BTN_TR2,
--					(__u16) le16_to_cpup((__le16 *)(data + 8)));
--		} else {
--			input_report_abs(dev, ABS_Z,
--					(__u16) le16_to_cpup((__le16 *)(data + 6)));
--			input_report_abs(dev, ABS_RZ,
--					(__u16) le16_to_cpup((__le16 *)(data + 8)));
--		}
--
--		/* Profile button has a value of 0-3, so it is reported as an axis */
--		if (xpad->mapping & MAP_PROFILE_BUTTON)
--			input_report_abs(dev, ABS_PROFILE, data[34]);
--
--		/* paddle handling */
--		/* based on SDL's SDL_hidapi_xboxone.c */
--		if (xpad->mapping & MAP_PADDLES) {
--			if (xpad->packet_type == PKT_XBE1) {
--				/* Mute paddles if controller has a custom mapping applied.
--				 * Checked by comparing the current mapping
--				 * config against the factory mapping config
--				 */
--				if (memcmp(&data[4], &data[18], 2) != 0)
--					data[32] = 0;
--
--				/* OG Elite Series Controller paddle bits */
--				input_report_key(dev, BTN_GRIPR, data[32] & BIT(1));
--				input_report_key(dev, BTN_GRIPR2, data[32] & BIT(3));
--				input_report_key(dev, BTN_GRIPL, data[32] & BIT(0));
--				input_report_key(dev, BTN_GRIPL2, data[32] & BIT(2));
--			} else if (xpad->packet_type == PKT_XBE2_FW_OLD) {
--				/* Mute paddles if controller has a custom mapping applied.
--				 * Checked by comparing the current mapping
--				 * config against the factory mapping config
--				 */
--				if (data[19] != 0)
--					data[18] = 0;
--
--				/* Elite Series 2 4.x firmware paddle bits */
--				input_report_key(dev, BTN_GRIPR, data[18] & BIT(0));
--				input_report_key(dev, BTN_GRIPR2, data[18] & BIT(1));
--				input_report_key(dev, BTN_GRIPL, data[18] & BIT(2));
--				input_report_key(dev, BTN_GRIPL2, data[18] & BIT(3));
--			} else if (xpad->packet_type == PKT_XBE2_FW_5_EARLY) {
--				/* Mute paddles if controller has a custom mapping applied.
--				 * Checked by comparing the current mapping
--				 * config against the factory mapping config
--				 */
--				if (data[23] != 0)
--					data[22] = 0;
--
--				/* Elite Series 2 5.x firmware paddle bits
--				 * (before the packet was split)
--				 */
--				input_report_key(dev, BTN_GRIPR, data[22] & BIT(0));
--				input_report_key(dev, BTN_GRIPR2, data[22] & BIT(1));
--				input_report_key(dev, BTN_GRIPL, data[22] & BIT(2));
--				input_report_key(dev, BTN_GRIPL2, data[22] & BIT(3));
--			}
--		}
--
--		do_sync = true;
--	}
--
--	if (do_sync)
--		input_sync(dev);
--}
--
- static void xpad_irq_in(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
-@@ -1234,9 +760,6 @@ static void xpad_irq_in(struct urb *urb)
- 	case XTYPE_XBOX360W:
- 		xpad360w_process_packet(xpad, 0, xpad->idata);
- 		break;
--	case XTYPE_XBOXONE:
--		xpadone_process_packet(xpad, 0, xpad->idata, urb->actual_length);
--		break;
- 	default:
- 		xpad_process_packet(xpad, 0, xpad->idata);
- 	}
-@@ -1248,56 +771,12 @@ static void xpad_irq_in(struct urb *urb)
- 			__func__, retval);
- }
++static inline struct device *gip_security_dev(struct gip_security *security)
++{
++	return gip_attachment_dev(container_of(security, struct gip_attachment, security));
++}
++
+ bool gip_supports_vendor_message(struct gip_attachment *attachment, uint8_t command, bool upstream);
  
--/* Callers must hold xpad->odata_lock spinlock */
--static bool xpad_prepare_next_init_packet(struct usb_xpad *xpad)
--{
--	const struct xboxone_init_packet *init_packet;
--
--	if (xpad->xtype != XTYPE_XBOXONE)
--		return false;
--
--	/*
--	 * Some dongles will discard init packets if they're sent before the
--	 * controller connects. In these cases, we need to wait until we get
--	 * an announce packet from them to send the init packet sequence.
--	 */
--	if (xpad->delay_init && !xpad->delayed_init_done)
--		return false;
--
--	/* Perform initialization sequence for Xbox One pads that require it */
--	while (xpad->init_seq < ARRAY_SIZE(xboxone_init_packets)) {
--		init_packet = &xboxone_init_packets[xpad->init_seq++];
--
--		if (init_packet->idVendor != 0 &&
--		    init_packet->idVendor != xpad->dev->id.vendor)
--			continue;
--
--		if (init_packet->idProduct != 0 &&
--		    init_packet->idProduct != xpad->dev->id.product)
--			continue;
--
--		/* This packet applies to our device, so prepare to send it */
--		memcpy(xpad->odata, init_packet->data, init_packet->len);
--		xpad->irq_out->transfer_buffer_length = init_packet->len;
--
--		/* Update packet with current sequence number */
--		xpad->odata[2] = xpad->odata_serial++;
--		return true;
--	}
--
--	return false;
--}
--
- /* Callers must hold xpad->odata_lock spinlock */
- static bool xpad_prepare_next_out_packet(struct usb_xpad *xpad)
- {
- 	struct xpad_output_packet *pkt, *packet = NULL;
- 	int i;
+ int gip_send_system_message(struct gip_attachment *attachment,
+@@ -363,6 +410,11 @@ int gip_send_system_message(struct gip_attachment *attachment,
+ int gip_send_vendor_message(struct gip_attachment *attachment,
+ 	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes);
  
--	/* We may have init packets to send before we can send user commands */
--	if (xpad_prepare_next_init_packet(xpad))
--		return true;
--
- 	for (i = 0; i < XPAD_NUM_OUT_PACKETS; i++) {
- 		if (++xpad->last_out_packet >= XPAD_NUM_OUT_PACKETS)
- 			xpad->last_out_packet = 0;
-@@ -1473,57 +952,6 @@ static int xpad_inquiry_pad_presence(struct usb_xpad *xpad)
- 	return xpad_try_sending_next_out_packet(xpad);
- }
- 
--static int xpad_start_xbox_one(struct usb_xpad *xpad)
--{
--	int error;
--
--	if (usb_ifnum_to_if(xpad->udev, GIP_WIRED_INTF_AUDIO)) {
--		/*
--		 * Explicitly disable the audio interface. This is needed
--		 * for some controllers, such as the PowerA Enhanced Wired
--		 * Controller for Series X|S (0x20d6:0x200e) to report the
--		 * guide button.
--		 */
--		error = usb_set_interface(xpad->udev,
--					  GIP_WIRED_INTF_AUDIO, 0);
--		if (error)
--			dev_warn(&xpad->dev->dev,
--				 "unable to disable audio interface: %d\n",
--				 error);
--	}
--
--	guard(spinlock_irqsave)(&xpad->odata_lock);
--
--	/*
--	 * Begin the init sequence by attempting to send a packet.
--	 * We will cycle through the init packet sequence before
--	 * sending any packets from the output ring.
--	 */
--	xpad->init_seq = 0;
--	return xpad_try_sending_next_out_packet(xpad);
--}
--
--static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num)
--{
--	struct xpad_output_packet *packet =
--			&xpad->out_packets[XPAD_OUT_CMD_IDX];
--	static const u8 mode_report_ack[] = {
--		GIP_CMD_ACK, GIP_OPT_INTERNAL, GIP_SEQ0, GIP_PL_LEN(9),
--		0x00, GIP_CMD_VIRTUAL_KEY, GIP_OPT_INTERNAL, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00
--	};
--
--	guard(spinlock_irqsave)(&xpad->odata_lock);
--
--	packet->len = sizeof(mode_report_ack);
--	memcpy(packet->data, mode_report_ack, packet->len);
--	packet->data[2] = seq_num;
--	packet->pending = true;
--
--	/* Reset the sequence so we send out the ack now */
--	xpad->last_out_packet = -1;
--	xpad_try_sending_next_out_packet(xpad);
--}
--
- #ifdef CONFIG_JOYSTICK_XPAD_FF
- static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
- {
-@@ -1582,24 +1010,6 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
- 		packet->pending = true;
- 		break;
- 
--	case XTYPE_XBOXONE:
--		packet->data[0] = GIP_CMD_RUMBLE; /* activate rumble */
--		packet->data[1] = 0x00;
--		packet->data[2] = xpad->odata_serial++;
--		packet->data[3] = GIP_PL_LEN(9);
--		packet->data[4] = 0x00;
--		packet->data[5] = GIP_MOTOR_ALL;
--		packet->data[6] = 0x00; /* left trigger */
--		packet->data[7] = 0x00; /* right trigger */
--		packet->data[8] = strong / 512;	/* left actuator */
--		packet->data[9] = weak / 512;	/* right actuator */
--		packet->data[10] = 0xFF; /* on period */
--		packet->data[11] = 0x00; /* off period */
--		packet->data[12] = 0xFF; /* repeat count */
--		packet->len = 13;
--		packet->pending = true;
--		break;
--
- 	default:
- 		dev_dbg(&xpad->dev->dev,
- 			"%s - rumble command sent to unsupported xpad type: %d\n",
-@@ -1778,13 +1188,6 @@ static int xpad_start_input(struct usb_xpad *xpad)
- 	if (usb_submit_urb(xpad->irq_in, GFP_KERNEL))
- 		return -EIO;
- 
--	if (xpad->xtype == XTYPE_XBOXONE) {
--		error = xpad_start_xbox_one(xpad);
--		if (error) {
--			usb_kill_urb(xpad->irq_in);
--			return error;
--		}
--	}
- 	if (xpad->xtype == XTYPE_XBOX360) {
- 		/*
- 		 * Some third-party controllers Xbox 360-style controllers
-@@ -1890,8 +1293,6 @@ static void xpad_close(struct input_dev *dev)
- 
- static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
- {
--	struct usb_xpad *xpad = input_get_drvdata(input_dev);
--
- 	switch (abs) {
- 	case ABS_X:
- 	case ABS_Y:
-@@ -1901,18 +1302,12 @@ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
- 		break;
- 	case ABS_Z:
- 	case ABS_RZ:	/* the triggers (if mapped to axes) */
--		if (xpad->xtype == XTYPE_XBOXONE)
--			input_set_abs_params(input_dev, abs, 0, 1023, 0, 0);
--		else
--			input_set_abs_params(input_dev, abs, 0, 255, 0, 0);
-+		input_set_abs_params(input_dev, abs, 0, 255, 0, 0);
- 		break;
- 	case ABS_HAT0X:
- 	case ABS_HAT0Y:	/* the d-pad (only if dpad is mapped to axes */
- 		input_set_abs_params(input_dev, abs, -1, 1, 0, 0);
- 		break;
--	case ABS_PROFILE: /* 4 value profile button (such as on XAC) */
--		input_set_abs_params(input_dev, abs, 0, 4, 0, 0);
--		break;
- 	default:
- 		input_set_abs_params(input_dev, abs, 0, 0, 0, 0);
- 		break;
-@@ -1967,12 +1362,9 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 		input_set_capability(input_dev, EV_KEY, xpad_common_btn[i]);
- 
- 	/* set up model-specific ones */
--	if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype == XTYPE_XBOX360W ||
--	    xpad->xtype == XTYPE_XBOXONE) {
-+	if (xpad->xtype == XTYPE_XBOX360 || xpad->xtype == XTYPE_XBOX360W) {
- 		for (i = 0; xpad360_btn[i] >= 0; i++)
- 			input_set_capability(input_dev, EV_KEY, xpad360_btn[i]);
--		if (xpad->mapping & MAP_SHARE_BUTTON)
--			input_set_capability(input_dev, EV_KEY, KEY_RECORD);
- 	} else {
- 		for (i = 0; xpad_btn[i] >= 0; i++)
- 			input_set_capability(input_dev, EV_KEY, xpad_btn[i]);
-@@ -1984,12 +1376,6 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 					     xpad_btn_pad[i]);
- 	}
- 
--	/* set up paddles if the controller has them */
--	if (xpad->mapping & MAP_PADDLES) {
--		for (i = 0; xpad_btn_paddles[i] >= 0; i++)
--			input_set_capability(input_dev, EV_KEY, xpad_btn_paddles[i]);
--	}
--
- 	/*
- 	 * This should be a simple else block. However historically
- 	 * xbox360w has mapped DPAD to buttons while xbox360 did not. This
-@@ -2011,10 +1397,6 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
- 	}
- 
--	/* setup profile button as an axis with 4 possible values */
--	if (xpad->mapping & MAP_PROFILE_BUTTON)
--		xpad_set_up_abs(input_dev, ABS_PROFILE);
--
- 	error = xpad_init_ff(xpad);
- 	if (error)
- 		goto err_free_input;
-@@ -2080,18 +1462,13 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	xpad->mapping = xpad_device[i].mapping;
- 	xpad->xtype = xpad_device[i].xtype;
- 	xpad->name = xpad_device[i].name;
--	if (xpad_device[i].flags & FLAG_DELAY_INIT)
--		xpad->delay_init = true;
- 
--	xpad->packet_type = PKT_XB;
- 	INIT_WORK(&xpad->work, xpad_presence_work);
- 
- 	if (xpad->xtype == XTYPE_UNKNOWN) {
- 		if (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC) {
- 			if (intf->cur_altsetting->desc.bInterfaceProtocol == 129)
- 				xpad->xtype = XTYPE_XBOX360W;
--			else if (intf->cur_altsetting->desc.bInterfaceProtocol == 208)
--				xpad->xtype = XTYPE_XBOXONE;
- 			else
- 				xpad->xtype = XTYPE_XBOX360;
- 		} else {
-@@ -2106,17 +1483,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 			xpad->mapping |= MAP_STICKS_TO_NULL;
- 	}
- 
--	if (xpad->xtype == XTYPE_XBOXONE &&
--	    intf->cur_altsetting->desc.bInterfaceNumber != GIP_WIRED_INTF_DATA) {
--		/*
--		 * The Xbox One controller lists three interfaces all with the
--		 * same interface class, subclass and protocol. Differentiate by
--		 * interface number.
--		 */
--		error = -ENODEV;
--		goto err_free_in_urb;
--	}
--
- 	ep_irq_in = ep_irq_out = NULL;
- 
- 	for (i = 0; i < 2; i++) {
-@@ -2149,38 +1515,6 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 
- 	usb_set_intfdata(intf, xpad);
- 
--	/* Packet type detection */
--	if (le16_to_cpu(udev->descriptor.idVendor) == 0x045e) { /* Microsoft controllers */
--		if (le16_to_cpu(udev->descriptor.idProduct) == 0x02e3) {
--			/* The original elite controller always uses the oldest
--			 * type of extended packet
--			 */
--			xpad->packet_type = PKT_XBE1;
--		} else if (le16_to_cpu(udev->descriptor.idProduct) == 0x0b00) {
--			/* The elite 2 controller has seen multiple packet
--			 * revisions. These are tied to specific firmware
--			 * versions
--			 */
--			if (le16_to_cpu(udev->descriptor.bcdDevice) < 0x0500) {
--				/* This is the format that the Elite 2 used
--				 * prior to the BLE update
--				 */
--				xpad->packet_type = PKT_XBE2_FW_OLD;
--			} else if (le16_to_cpu(udev->descriptor.bcdDevice) <
--				   0x050b) {
--				/* This is the format that the Elite 2 used
--				 * prior to the update that split the packet
--				 */
--				xpad->packet_type = PKT_XBE2_FW_5_EARLY;
--			} else {
--				/* The split packet format that was introduced
--				 * in firmware v5.11
--				 */
--				xpad->packet_type = PKT_XBE2_FW_5_11;
--			}
--		}
--	}
--
- 	if (xpad->xtype == XTYPE_XBOX360W) {
- 		/*
- 		 * Submit the int URB immediately rather than waiting for open
-@@ -2282,7 +1616,6 @@ static int xpad_resume(struct usb_interface *intf)
- 	struct usb_xpad *xpad = usb_get_intfdata(intf);
- 	struct input_dev *input = xpad->dev;
- 
--	xpad->delayed_init_done = false;
- 	if (xpad->xtype == XTYPE_XBOX360W)
- 		return xpad360w_start_input(xpad);
- 
-@@ -2291,15 +1624,6 @@ static int xpad_resume(struct usb_interface *intf)
- 	if (input_device_enabled(input))
- 		return xpad_start_input(xpad);
- 
--	if (xpad->xtype == XTYPE_XBOXONE) {
--		/*
--		 * Even if there are no users, we'll send Xbox One pads
--		 * the startup sequence so they don't sit there and
--		 * blink until somebody opens the input device again.
--		 */
--		return xpad_start_xbox_one(xpad);
--	}
--
- 	return 0;
- }
- 
++int gip_security_handle_message(struct gip_security *security, const void *bytes, int num_bytes);
++int gip_security_start_handshake(struct gip_security *security);
++int gip_security_skip_handshake(struct gip_security *security);
++void gip_security_release(struct gip_security *security);
++
+ extern const struct gip_driver gip_driver_navigation;
+ extern const struct gip_driver gip_driver_gamepad;
+ extern const struct gip_driver gip_driver_arcade_stick;
 -- 
 2.54.0
 

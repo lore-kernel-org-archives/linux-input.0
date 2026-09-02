@@ -1,236 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0C1C3203B4
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:20:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76B9733BBC0
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 01:20:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788312009; cv=none; b=CpynB4Nk7bd8eixnqdvnmgh41LFbCIDUe0o1m/fMD0h3NcwNSIpXZZ6hnPxDS2zvgXZhTpAr5I48DSJjCu826fTWSiSdmM8jnJoaKn2CJowAhuVwhS7tY4tHEJmDhOrt5fMjM9w1vub8wDFkZCzW22dCqjPbb7SjSbeMZkhQAEM=
+	t=1788312040; cv=none; b=YfOld4NDKH/okqNFr76l9GH1AIvrycAX3rmd11yDtuRE0Xa9QGAxnTSs8Wic32YLTUXem5lIgees+SLklp4NnyAD8Ss4PT0b9RKQzqgDlN9pWVC7wUJVPyuXTvrdnSOVb9eVUnqnVU8du5sKQhGgDDHLzl0M5UU+GABmzj1uPFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788312009; c=relaxed/simple;
-	bh=ecj7bEIa2OT7a9rseQXPtayPIiSehH/Dcs93aU1qfd0=;
+	s=arc-20240116; t=1788312040; c=relaxed/simple;
+	bh=5YgX4yVoaaIdK4ryggKXIljnDMy4+aX9wMvCEUhkRso=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ovH8XRmJOzLaumwk9qJk+4uSa1TpjEU5bpOx2pHnFZ/PzgXsMLLGH1J1SJVP7ytdYY+OVmPktqVgHQW9QzY8JfJMj5o8D4mDjZv5UdY2/5SS5x8udbvckll1j2/Cw/oBoFFCRb4Ye+Vi2FFUO7oAPpemwWXp09sTFZGZUU3MKBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JBQwFq1s; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=AP0j1NdB5genZUEW0ah2hDmsqj0rjpoJ7w6KABmVffU6bx/w0MTq2dmsW/u8WmwKmwEoF4BnhrePEXAsf7wBSYSdVa1rRB3apXnhofJJaV9KvIEZyHAPgLFhfXd0MLSy1MNsTqFDVXoIQ6r4GiD8juCS1nNXJ+W7oGSl14VnkP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eSOA0O7A; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JBQwFq1s"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5951F000E9;
-	Wed,  2 Sep 2026 01:20:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eSOA0O7A"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDBBA1F000E9;
+	Wed,  2 Sep 2026 01:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788312008;
-	bh=st5v9KjlPHB4ddzEu2v6tf009HKucqpf9K3aviMwfpU=;
+	s=k20260515; t=1788312039;
+	bh=TxWGkHMKrDjZbwr0zNJA12HpENglSS5ydBUu/zXOO6c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JBQwFq1sxs0g7b7TIoSeuxLG8xoglA2EBnqhtx4xUOTR/SxzUjtOyMmPK7OVn2JTU
-	 oZv08RHptqXI5mrIiCeIVJPrJo1rsvLrj4Kd8ZRArAiVsawVhIkTg27mDjlZrkHVMg
-	 mHD95IrX1szCxZa+F8WR7g9r0u5p/6TOMAt0YvS8WQ9+EFaPyFhV4ml8Ejc3ATFoWb
-	 iJFg4wRb7yKHfzbNYlDF114wW9bqBYuiVM3jPRFuf00VvqIOUjY8Bg5o3RMLcf9V2C
-	 mj0J/aDEOtxQS/GLtLgak8EgebgPNdmgOGRRAyXBP31e8uaVs0PP2BsRSWp1yqBmJK
-	 /zDE7bkb5tXFg==
+	b=eSOA0O7AsHp6lFy6Ywcb1fBmOiwTSld2kp42AJOOFO1W4Q9Hn3cjsYi1TkT4f9WxO
+	 tdwMjnuEAFqeYui2I5yVRLr+j2fz2Nc55y82uAaT1QJKGAcHzjjxzlz1tk5AfPil2+
+	 HS4vWgoNdHoGEYu6/I4N+LOk859JwayrLLXfwjZqrJj6oig1Qb7fGdX8y8ldvdGu/f
+	 UDUll2wEo5yL5hTSd4wPnTiOZz3KHy8hPAMBQ1g9TlKd4JccVv6NwfAmzFXwL84E4s
+	 KWhhkQAwvDKtXADp4HQSnfwGrdubz5lKTJV0uHxIsehy1yVU2kpS6QlInXD/GbiuRJ
+	 rjR6+YYy0Keqw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 07/12] Input: xbox_gip - Add security implementation
- from xone
+Subject: Re: [PATCH v5 05/12] Input: xbox_gip - Add battery support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260902010237.865772-8-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260902010237.865772-6-vi@endrift.com>
 References: <20260902010237.865772-1-vi@endrift.com>
- <20260902010237.865772-8-vi@endrift.com>
+ <20260902010237.865772-6-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 01:20:07 +0000
-Message-Id: <20260902012008.1F5951F000E9@smtp.kernel.org>
+Date: Wed, 02 Sep 2026 01:20:38 +0000
+Message-Id: <20260902012038.DDBBA1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-
-New issues:
-- [High] Stack-allocated buffers are used for cryptographic scatterlists, v=
-iolating DMA constraints and causing kernel panics on architectures with vi=
-rtually mapped stacks.
-- [High] An ABBA deadlock occurs between `attachment->lock` and `cancel_wor=
-k_sync()` during device teardown or reset.
-- [Medium] The driver utilizes CRYPTO_LIB_SHA256 and CRYPTO_RSA but lacks t=
-he required Kconfig declarations, which can lead to build and runtime failu=
-res.
-
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but incorrect teardo=
-wn order in `gip_disconnect()` allows the URB completion handler to re-queu=
-e a work item after it was cancelled, leading to a Use-After-Free.
+- [High] Devres actions on `input->dev` are delayed until userspace drops a=
+ll references, causing the power supply to outlive the `attachment` structu=
+re and resulting in a Use-After-Free.
+- [High] Manually unregistering a devm-managed power supply and freeing its=
+ name on an error path leads to a double-unregister and UAF when devres cle=
+anup executes.
 --
 
-commit 0028f224002448741826a03077075da976d732d6
+commit 7a0e19630adf51b35545780bfe01529fdc2adba8
 Author: Vicki Pfau <vi@endrift.com>
-Subject: Input: xbox_gip - Add security implementation from xone
-   =20
-This patch imports and adapts the security message implementation from the
-out-of-tree xone driver. This message is necessary for most controllers that
-use wireless dongles. The implementation hooks into the xbox_gip driver to
-handle security commands.
 
-> diff --git a/drivers/input/joystick/gip/Kconfig b/drivers/input/joystick/=
-gip/Kconfig
-> index 3422bf84cb895..b933583d325f7 100644
-> --- a/drivers/input/joystick/gip/Kconfig
-> +++ b/drivers/input/joystick/gip/Kconfig
-> @@ -4,7 +4,7 @@
->  #
->  config JOYSTICK_XBOX_GIP
->  	tristate "Xbox One/Series controller support"
-> -	depends on USB && USB_ARCH_HAS_HCD && LEDS_CLASS_MULTICOLOR
-> +	depends on USB && USB_ARCH_HAS_HCD && LEDS_CLASS_MULTICOLOR && CRYPTO_E=
-CDH
+Input: xbox_gip - Add battery support
 
-[Severity: Medium]
-This patch introduces a dependency on CRYPTO_LIB_SHA256 and CRYPTO_RSA (used
-in gip-security.c), but these are missing from the Kconfig depends block.
-Can this lead to build and runtime failures when compiling without these
-crypto options, or when a device requiring the security handshake connects?
-
->  	help
->  	  Say Y here if you want to use Xbox One and Series controllers with yo=
-ur
->  	  computer. Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYD=
-EV)
-
-[ ... ]
+This commit adds battery support to the xbox_gip driver by exposing the
+controller's battery information as a power_supply device.
 
 > diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
 ck/gip/gip-core.c
-> index 544becf8badd6..db4d2956e7d9b 100644
 > --- a/drivers/input/joystick/gip/gip-core.c
 > +++ b/drivers/input/joystick/gip/gip-core.c
-
 [ ... ]
-
-> @@ -1809,6 +1797,8 @@ static void gip_free_devices(struct gip_attachment =
-*attachment)
->  	struct input_dev *input;
->  	struct hid_device *hdev;
-> =20
-> +	gip_security_release(&attachment->security);
-> +
-
-[Severity: High]
-This is a pre-existing issue, but the teardown order in the pre-existing
-gip_disconnect() function appears to cancel work items before stopping the
-USB URB.=20
-
-gip_disconnect() calls gip_shutdown() (which eventually calls
-gip_security_release() here), and only afterwards calls usb_kill_urb(). If
-the incoming URB completes in this window, it can process messages and
-re-queue the cancelled work items (e.g., work_exchange_rsa).
-
-After the device is freed by devres, can the re-queued work item execute and
-dereference freed pointers, leading to a Use-After-Free?
-
->  	if (attachment->driver && attachment->driver->remove)
->  		attachment->driver->remove(attachment);
-
+> @@ -1199,6 +1206,106 @@ static int gip_guide_led_probe(struct gip_attachm=
+ent *attachment, struct device
 [ ... ]
-
-> diff --git a/drivers/input/joystick/gip/gip-security.c b/drivers/input/jo=
-ystick/gip/gip-security.c
-> new file mode 100644
-> index 0000000000000..58de547aa1dd1
-> --- /dev/null
-> +++ b/drivers/input/joystick/gip/gip-security.c
-
-[ ... ]
-
-> +static int gip_security_ecdh_get_secret(struct crypto_kpp *tfm, u8 *pubk=
-ey,
-> +	int pubkey_len, u8 *secret, int secret_len)
+> +static int gip_battery_create(struct gip_attachment *attachment, struct =
+device *dev)
 > +{
-> +	struct kpp_request *req;
-> +	struct scatterlist src, dest;
-> +	DECLARE_CRYPTO_WAIT(wait);
-> +	int err;
-> +
-> +	req =3D kpp_request_alloc(tfm, GFP_KERNEL);
-> +	if (!req)
-> +		return -ENOMEM;
-> +
-> +	sg_init_one(&src, pubkey, pubkey_len);
-> +	sg_init_one(&dest, secret, secret_len);
-
-[Severity: High]
-Does this code use a stack-allocated buffer (secret) for a cryptographic
-scatterlist? Passing stack memory to sg_init_one() violates DMA constraints
-and can cause a kernel panic/Oops (due to BUG_ON(!virt_addr_valid(buf))) on
-architectures with virtually mapped stacks.
-
-> +	kpp_request_set_input(req, &src, pubkey_len);
-> +	kpp_request_set_output(req, &dest, secret_len);
-
+> +	struct power_supply_config supply_config =3D { .drv_data =3D attachment=
+, };
+> +	int rc;
 [ ... ]
-
-> +static int gip_security_compute_ecdh(u8 *pubkey_in, u8 *pubkey_out, int =
-pubkey_len, u8 *secret_hash)
-> +{
-> +	struct crypto_kpp *tfm_ecdh;
-> +	u8 secret[GIP_SECURITY_ECDH_SECRET_LEN] =3D {0};
-> +	int err;
-> +
-> +	tfm_ecdh =3D crypto_alloc_kpp("ecdh-nist-p256", 0, 0);
-> +	if (IS_ERR(tfm_ecdh)) {
-> +		err =3D PTR_ERR(tfm_ecdh);
-> +		goto err_free_secret;
+> +	attachment->battery =3D devm_power_supply_register(dev,
+> +		&attachment->battery_desc, &supply_config);
+> +	if (IS_ERR(attachment->battery)) {
+> +		rc =3D PTR_ERR(attachment->battery);
+> +		goto err_out;
 > +	}
 > +
-> +	err =3D gip_security_ecdh_get_pubkey(tfm_ecdh, pubkey_out, pubkey_len);
-> +	if (err)
-> +		goto err_free_ecdh;
-> +
-> +	err =3D gip_security_ecdh_get_secret(tfm_ecdh, pubkey_in, pubkey_len,
-> +		secret, sizeof(secret));
-
-[ ... ]
-
-> +static void gip_security_exchange_rsa(struct work_struct *work)
-> +{
-> +	struct gip_security *security =3D container_of(work, typeof(*security),=
- work_exchange_rsa);
-> +	struct gip_attachment *attachment =3D container_of(security, struct gip=
-_attachment, security);
-> +	struct gip_security_host_secret message =3D {};
-> +	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
-> +	int err;
-> +
-> +	guard(mutex)(&attachment->lock);
-
-[ ... ]
-
-> +void gip_security_release(struct gip_security *security)
-> +{
-> +	if (security->status < GIP_SECURITY_SENT)
-> +		return;
-> +
-> +	cancel_work_sync(&security->work_exchange_rsa);
+> +	rc =3D power_supply_powers(attachment->battery, dev);
+> +	if (rc < 0) {
+> +		power_supply_unregister(attachment->battery);
+> +		goto err_out;
+> +	}
 
 [Severity: High]
-Can this cause an ABBA deadlock during device teardown?
+Because attachment->battery was allocated using devm_power_supply_register(=
+),
+a devres action is already queued to unregister it. If power_supply_powers()
+fails and we manually call power_supply_unregister() here, will devres
+attempt to unregister it again later when the input device is cleaned up,
+leading to a double-free?
 
-During hot-unplug, gip_shutdown() in gip-core.c acquires attachment->lock
-and then calls gip_security_release(), which synchronously waits for the
-work item using cancel_work_sync().=20
+[ ... ]
+> @@ -1494,6 +1604,8 @@ static void gip_free_devices(struct gip_attachment =
+*attachment)
+> =20
+>  	rcu_assign_pointer(attachment->input, NULL);
+>  	rcu_assign_pointer(attachment->hdev, NULL);
+> +	/* The following are freed by devres */
+> +	attachment->battery =3D NULL;
+>  	synchronize_rcu();
 
-Simultaneously, the running gip_security_exchange_rsa() work item blocks
-trying to acquire the same attachment->lock mutex.
+[Severity: High]
+The battery was registered with devm using the input device (input->dev).
+Since input device devres actions are delayed until userspace drops all
+evdev file descriptor references, does setting attachment->battery to NULL
+here leave the power supply active after the driver disconnects?
 
-> +	cancel_work_sync(&security->work_exchange_ecdh);
-> +	cancel_work_sync(&security->work_complete);
-> +
-> +	memzero_explicit(&security->transcript, sizeof(security->transcript));
-> +
-> +	security->status =3D GIP_SECURITY_PENDING;
-> +}
+If a user reads the sysfs attributes for the power supply after the device
+is unplugged, could gip_battery_get_property() attempt to access the freed
+attachment structure?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902010237.8657=
-72-1-vi@endrift.com?part=3D7
+72-1-vi@endrift.com?part=3D5

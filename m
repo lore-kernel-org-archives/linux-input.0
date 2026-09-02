@@ -1,312 +1,280 @@
-Received: from mail-oi2-f0.google.com (mail-oi2-f0.google.com [74.125.231.192])
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2679C4A92CB
-	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 18:57:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.192
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCDAA4A3D34
+	for <linux-input@vger.kernel.org>; Wed,  2 Sep 2026 19:34:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788375451; cv=none; b=ZFquRLg6C+B6SzpD2UPkI0KkOFCbIzoAJ7nl8zbCnTEdtsp5lTRS+/FFvZvoWuTAEPgslHTryBvddxJkWmwhSXjd3cT7uVsWmwim+Adq2s/API2ec29P/b3r1+TPvk5ia+SaocnwqkXirxRD3dxkt5DjQxM5NpJhgVw5TWFOMkk=
+	t=1788377671; cv=none; b=EQB3P6q+6LtIZ9FGX0EEV7QiKv+8S0+cfLC7i/4XKFYUr5sRIjDHQgdg8jegaw+ZaRdK1jtHKPCdrku2h5/+Jw/YG+1OfY66xba1xPp75QI1paFt2Y9mNWIcgn6yM/j/vdc/GqSkwqt0GPeBxrYTniKITIc3cxsWmAeK9yzsq4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788375451; c=relaxed/simple;
-	bh=kiesjv3DAnooB5mKW2mH3QVtjU/2LZnbgwV+XWb8zOM=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=ATfzHUbCqEjEgGHsGwTQE0mzM9/8/ZDLoR7d54MHicBVK9kEWN0spioXPqm3OBAM2Nf+azx/tcy+8C4rUUjR9f+NxjyNTlDcv9CC58bB1raDeZlED//y66r0Ben2CGNLJWogi1kbDH0p1uaXG+hY+VtAXchEX1Bb884wqP5rXbc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.192
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi2-f0.google.com with SMTP id 5614622812f47-4a4492f5cd1so130894b6e.1
-        for <linux-input@vger.kernel.org>; Wed, 02 Sep 2026 11:57:28 -0700 (PDT)
+	s=arc-20240116; t=1788377671; c=relaxed/simple;
+	bh=eYrnMB7bcQ9tZrk9TdZFWbZtcH84ppkhNhwV/tshEyI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jpGOWUE0xG78rHXo1WIPnSyJlfbkq9ZxYIdga0ScJ8hTC7J+ZNCuGenC/oMh+Ka9eNf8ALXanrVfDZhzEF4k3aSp1Er942NiA0zE22gNwUp89EN5lH2PCeGerEICBDzmeoWe/lFG7lRaqb5eQd7oN4/nREQOB0Gb/J1DzuirU7U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sqaC50gU; arc=none smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sqaC50gU"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-48433fad54aso988883f8f.1
+        for <linux-input@vger.kernel.org>; Wed, 02 Sep 2026 12:34:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788377656; x=1788982456; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Dql7ivfqyvhGH9YThZE2gyCfSsqd8ytrUGm38vXWCVI=;
+        b=sqaC50gUFCMACIqiQRCky/JuLJZIooo+QFFBrkma67uscoF/b7DaN7wk1lh6RSFGdf
+         hS9hp96pifohhAYoJEuOafr6mW1FqG1cW2WK+UI2KxvuVaaM8zPybIn3UhO6acPmqkYq
+         JhsV7KXsrfxOZT7a2j5JPR0QS3Sx8iQvie8IOidhCXb50S7iCC8hB7L+Nitar0tRjOv5
+         bsoQf6RzGmPAmUfYfUW6Ho+k+f6cENvYNt0qJM1Wpw/eV45dPXQv2BWaGqPfczf4Ev+2
+         aImbNVCurYOjEajk+CFkVDfh8HHLjANFIY8nOMDEBQSa08uk6yyE9iK2TlW1/ymxnttp
+         5JaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788375448; x=1788980248;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=iXHpZOtfqy/6MQ0L0wo4gDzYilLZQj6Ff+oumc0GfnQ=;
-        b=eG9pUmJVsn1MqczVE91ixSSx0rQrb3c6KqCqMBEWtPorO+rhTsJ80oA17pWnnWYbJ5
-         tEy2ca/jGOFRqIa954A4ZiMHzEzcJlsf8S+MvaoZ5DDZqocynce7sPeb9Y0NrxPUQLKm
-         aq7r/vjSn0/zxRBHB2zzWLBBnFh29FAKTDiTSCEisT9uoXW6n6gh1M5DuiTuvKryL7fj
-         bLqKb0tFdVJ0WPToWM7ffgcbpxs1t2fPLT/5yIN/ysjcUFXZxzEM1/wzVjjO1GLOuD17
-         Jvlx3GpUFBiAl3op933gLHMfmNuo6KQ/71mFz11A/UClPgpHlG79u1UUgdK2ABI2TH95
-         QMww==
-X-Gm-Message-State: AFuF++l72h1q1YOG9JRkx0EoCMC/dUKUCIo8qszbIofX0B80/0Ozir1r
-	X8XmO/lBjtzbI9WovG7/tHMZS9f4D+iJLMHoKd+CCMfpIg283p2PBYLvBHYCnx80NqKtd/Cd7r2
-	0kQbQuSBDaw+qn5sDB/sO+3jewkQlHE4e3KgYgIz15cbFnDrLfDXWqzgE4cCNPg==
+        d=1e100.net; s=20251104; t=1788377656; x=1788982456;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Dql7ivfqyvhGH9YThZE2gyCfSsqd8ytrUGm38vXWCVI=;
+        b=KRRXge6v9MYpOJVHpMnr5bzK4vFKK/mwlPhoO9cp5ul5IssQTKf9IUHTeo8Y7r2zgK
+         jPAfFnTqdcfejjKmgt2jdBbMic3SiRGS9IvwWvG46eqkXkJZ+5QN3elmNCxCJC36euzu
+         nZ7r6oDSGipdeiqNWI+p0eo0fPSgIN0R5Qwre5tO5e6DNVWB352OiNBwg/Xa0b5yoOSv
+         2DHKxUwSJOyTMOBCIPN5PMr3FuAz2qUsV2tUQgM5ofZhdUt1GacKxwIggkU8cu1k/qZE
+         Y3mHMOT0J06e7JUYtoNA3DzlSX23p+xNYnXPHcSmfNM5x7zck39Uwrb2DWoA8mNBAntZ
+         naFQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwstKe8DJBscodzOrjaJ+BCzSZmuYuBMV2dCkdqw3fHhZ/rQcC2chzZlJisS8d1GQTwdnwz1GXKKlAo2A==@vger.kernel.org
+X-Gm-Message-State: AFuF++lIIvi73j3FegO6cmIumTRHmLGm47c22neLUWRtEGuoTvxGCyZi
+	Ba2KqKzl4ALoiuKi002HPQqiLUj8/hnJYzujk3EnsWhBowZ73Zjl25RP
+X-Gm-Gg: AYBFou1y4wWhsiB+LyxXRei6WW+hBtSVeoQKRJL3RNCDv7yYNTJ/PqQgWwAyYhrFKR8
+	UQ4XqK2Lfr4dmY7vg6/O7tPrhDNEBrRqJ0DnPQIXPQa/0Ju3c6ACzkeWBV23PG4DUKr9tCHHN3R
+	QLepN/5AwF+kqmeqbItu/ev+yWVYhxLec5Q1ZJwKmFnhStgxNdQJfr0R2+prwZjUL6ShG9VzOOo
+	WD/dhSJtvtjse0CdgwhYsdgLjTXiPmkfMEeVZzPqE+AVyFieelbVi2DSbAVjKGDRsVSaNN44UTe
+	/t9F9PMsq/pDchR4k9r200VDyxLph90Slp48dy+jemqZtDw13XQRzvvQiMRH02JQaRQg0hxwNbm
+	fe583OrZqtKMI8Ti5kuPg7UsqcGW/+Nh1NeJhNqFpc2tmRJOXZMU8uBJiN1zW7krUaWAmjSUkwZ
+	PW7PDUBJmvn6cM6e4mlHbEaYV1LZEr3m4yBopnRfgRMER7mgd7xCzifZ5P
+X-Received: by 2002:a05:6000:40d9:b0:47f:86d5:d1d7 with SMTP id ffacd0b85a97d-48488e037efmr14500352f8f.6.1788377656038;
+        Wed, 02 Sep 2026 12:34:16 -0700 (PDT)
+Received: from luca-vm.lan ([154.61.61.58])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-484492cdc37sm8889191f8f.34.2026.09.02.12.34.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 02 Sep 2026 12:34:15 -0700 (PDT)
+From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+To: linux-mediatek@lists.infradead.org
+Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Sen Chu <sen.chu@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>,
+	Lee Jones <lee@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
+	Linus Walleij <linusw@kernel.org>,
+	Julien Massot <julien.massot@collabora.com>,
+	Val Packett <val@packett.cool>,
+	Fabien Parent <parent.f@gmail.com>,
+	Akari Tsuyukusa <akkun11.open@gmail.com>,
+	Chen Zhong <chen.zhong@mediatek.com>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	mfd@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-gpio@vger.kernel.org
+Subject: [PATCH v10 0/9] Add support for MT6392 PMIC
+Date: Wed,  2 Sep 2026 21:25:36 +0200
+Message-ID: <20260902193351.185771-1-l.scorcia@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:1515:b0:6ae:ab01:9199 with SMTP id
- 006d021491bc7-6b48222d424mr5180730eaf.34.1788375447625; Wed, 02 Sep 2026
- 11:57:27 -0700 (PDT)
-Date: Wed, 02 Sep 2026 11:57:27 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a987197.9266084e.bf0d7.000d.GAE@google.com>
-Subject: [syzbot] [input?] [usb?] KASAN: slab-use-after-free Read in roccat_disconnect
-From: syzbot <syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com>
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello,
+The MediaTek MT6392 PMIC is usually found on devices powered by
+the MT8516/MT8167 SoC and is yet another MT6323/MT6397 variant.
 
-syzbot found the following issue on:
+This series is mostly based around patches submitted a couple
+years ago by Fabien Parent and not merged and from Val Packett's
+submission from Jan 2025 that included extra cleanups, fixes, and a
+new dtsi file similar to ones that exist for other PMICs. Some
+comments weren't addressed and the series was ultimately not merged.
 
-HEAD commit:    786262be6048 Merge tag 'edac_updates_for_v7.3_rc2' of git:..
-git tree:       upstream
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=14479f79580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b454dc6b1b7acd30
-dashboard link: https://syzkaller.appspot.com/bug?extid=c492a9e154f81127551f
-compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10e3e779580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10c88125580000
+These patches enable four functions: keys, regulator, pinctrl and RTC.
+Mono speaker amp will follow later as I need to work further on the
+audio codec.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/c3e528ebf709/disk-786262be.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/46f3418d2828/vmlinux-786262be.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/60ab8a27c4f7/bzImage-786262be.xz
+I added a handful of device tree improvements to fix some dtbs_check
+errors, added support for the pinctrl device and addressed the comments
+from last year's reviews.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
+Please note that patch 0006 and 0008 depend on patch 0005 as they need the
+registers.h file, but belong to different driver areas. I'm not sure if
+I'm supposed to squash them even if they belong to different driver
+areas of if it's fine like this. Any advice is welcome.
 
-==================================================================
-BUG: KASAN: slab-use-after-free in roccat_disconnect+0x246/0x250 drivers/hid/hid-roccat.c:382
-Read of size 4 at addr ffff888040392808 by task kworker/0:2/197
+Patch 0009 also depends on patch 0003 because of mt6392-regulator.h.
 
-CPU: 0 UID: 0 PID: 197 Comm: kworker/0:2 Not tainted syzk
-CPU: 0 UID: 0 PID: 197 Comm: kworker/0:2 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- print_address_description+0x55/0x1e0 mm/kasan/report.c:378
- print_report+0x58/0x70 mm/kasan/report.c:482
- kasan_report+0x117/0x150 mm/kasan/report.c:595
- roccat_disconnect+0x246/0x250 drivers/hid/hid-roccat.c:382
- savu_remove_specials drivers/hid/hid-roccat-savu.c:110 [inline]
- savu_remove+0xe9/0x160 drivers/hid/hid-roccat-savu.c:150
- hid_device_remove+0xc8/0x1d0 drivers/hid/hid-core.c:2897
- device_remove drivers/base/dd.c:616 [inline]
- __device_release_driver drivers/base/dd.c:1349 [inline]
- device_release_driver_internal+0x48b/0x880 drivers/base/dd.c:1372
- bus_remove_device+0x449/0x560 drivers/base/bus.c:664
- device_del+0x528/0x8f0 drivers/base/core.c:3965
- hid_remove_device drivers/hid/hid-core.c:3126 [inline]
- hid_destroy_device+0x6b/0x1b0 drivers/hid/hid-core.c:3148
- usbhid_disconnect+0x9f/0xc0 drivers/hid/usbhid/hid-core.c:1479
- usb_unbind_interface+0x295/0x9f0 drivers/usb/core/driver.c:461
- device_remove drivers/base/dd.c:618 [inline]
- __device_release_driver drivers/base/dd.c:1349 [inline]
- device_release_driver_internal+0x4f5/0x880 drivers/base/dd.c:1372
- bus_remove_device+0x449/0x560 drivers/base/bus.c:664
- device_del+0x528/0x8f0 drivers/base/core.c:3965
- usb_disable_device+0x3d4/0x8d0 drivers/usb/core/message.c:1478
- usb_disconnect+0x32d/0x990 drivers/usb/core/hub.c:2350
- hub_port_connect drivers/usb/core/hub.c:5420 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5720 [inline]
- port_event drivers/usb/core/hub.c:5884 [inline]
- hub_event+0x1bb7/0x4cf0 drivers/usb/core/hub.c:5966
- process_one_work kernel/workqueue.c:3396 [inline]
- process_scheduled_works+0xc3d/0x1630 kernel/workqueue.c:3479
- worker_thread+0xa47/0xfb0 kernel/workqueue.c:3560
- kthread+0x38b/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
+The series has been tested on Xiaomi Mi Smart Clock X04G, on the
+Lenovo Smart Clock 2 CD-24502F and on Sony PlayStation Classic Mini
+SCPH-1000R.
 
-Allocated by task 9:
- kasan_save_stack mm/kasan/common.c:57 [inline]
- kasan_save_track+0x3e/0x80 mm/kasan/common.c:78
- poison_kmalloc_redzone mm/kasan/common.c:398 [inline]
- __kasan_kmalloc+0x93/0xb0 mm/kasan/common.c:415
- kasan_kmalloc include/linux/kasan.h:263 [inline]
- __kmalloc_cache_noprof+0x3d5/0x680 mm/slub.c:5563
- _kmalloc_noprof include/linux/slab.h:991 [inline]
- _kzalloc_noprof include/linux/slab.h:1312 [inline]
- roccat_connect+0x5d/0x4b0 drivers/hid/hid-roccat.c:315
- savu_init_specials drivers/hid/hid-roccat-savu.c:84 [inline]
- savu_probe+0x18e/0x340 drivers/hid/hid-roccat-savu.c:134
- __hid_device_probe drivers/hid/hid-core.c:2839 [inline]
- hid_device_probe+0x46a/0x870 drivers/hid/hid-core.c:2878
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x254/0xae0 drivers/base/dd.c:706
- __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
- driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
- __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
- bus_for_each_drv+0x25b/0x2f0 drivers/base/bus.c:500
- __device_attach+0x2c7/0x450 drivers/base/dd.c:1098
- device_initial_probe+0xa1/0xd0 drivers/base/dd.c:1153
- bus_probe_device+0x12d/0x220 drivers/base/bus.c:620
- device_add+0x7d7/0xb80 drivers/base/core.c:3776
- hid_add_device+0x272/0x3e0 drivers/hid/hid-core.c:3065
- usbhid_probe+0x9dc/0xde0 drivers/hid/usbhid/hid-core.c:1452
- usb_probe_interface+0x788/0xe50 drivers/usb/core/driver.c:399
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x254/0xae0 drivers/base/dd.c:706
- __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
- driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
- __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
- bus_for_each_drv+0x25b/0x2f0 drivers/base/bus.c:500
- __device_attach+0x2c7/0x450 drivers/base/dd.c:1098
- device_initial_probe+0xa1/0xd0 drivers/base/dd.c:1153
- bus_probe_device+0x12d/0x220 drivers/base/bus.c:620
- device_add+0x7d7/0xb80 drivers/base/core.c:3776
- usb_set_configuration+0x1ad8/0x2180 drivers/usb/core/message.c:2268
- usb_generic_driver_probe+0x8d/0x150 drivers/usb/core/generic.c:250
- usb_probe_device+0x1c3/0x3b0 drivers/usb/core/driver.c:293
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x254/0xae0 drivers/base/dd.c:706
- __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
- driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
- __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
- bus_for_each_drv+0x25b/0x2f0 drivers/base/bus.c:500
- __device_attach+0x2c7/0x450 drivers/base/dd.c:1098
- device_initial_probe+0xa1/0xd0 drivers/base/dd.c:1153
- bus_probe_device+0x12d/0x220 drivers/base/bus.c:620
- device_add+0x7d7/0xb80 drivers/base/core.c:3776
- usb_new_device+0x99a/0x1680 drivers/usb/core/hub.c:2708
- hub_port_connect drivers/usb/core/hub.c:5580 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5720 [inline]
- port_event drivers/usb/core/hub.c:5884 [inline]
- hub_event+0x28cf/0x4cf0 drivers/usb/core/hub.c:5966
- process_one_work kernel/workqueue.c:3396 [inline]
- process_scheduled_works+0xc3d/0x1630 kernel/workqueue.c:3479
- worker_thread+0xa47/0xfb0 kernel/workqueue.c:3560
- kthread+0x38b/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+Changes in v10:
+- Removed the fallback on mediatek,mt6323 in the MFD binding document
+  and in the dtsi file. Suggested by Sashiko [11], thus removed the
+  Reviewed-by tag provided by Kryzsztof Kozlowski in patch #1, version 9.
 
-Freed by task 5626:
- kasan_save_stack mm/kasan/common.c:57 [inline]
- kasan_save_track+0x3e/0x80 mm/kasan/common.c:78
- kasan_save_free_info+0x40/0x50 mm/kasan/generic.c:584
- poison_slab_object mm/kasan/common.c:253 [inline]
- __kasan_slab_free+0x5c/0x80 mm/kasan/common.c:285
- kasan_slab_free include/linux/kasan.h:235 [inline]
- slab_free_hook mm/slub.c:2748 [inline]
- slab_free mm/slub.c:6499 [inline]
- kfree+0x1c5/0x6d0 mm/slub.c:6792
- roccat_release+0x2b3/0x380 drivers/hid/hid-roccat.c:238
- __fput+0x42a/0xa80 fs/file_table.c:512
- task_work_run+0x1d9/0x270 kernel/task_work.c:233
- exit_task_work include/linux/task_work.h:40 [inline]
- do_exit+0x73a/0x2360 kernel/exit.c:1008
- do_group_exit+0x22d/0x2f0 kernel/exit.c:1151
- __do_sys_exit_group kernel/exit.c:1162 [inline]
- __se_sys_exit_group kernel/exit.c:1160 [inline]
- __x64_sys_exit_group+0x3f/0x40 kernel/exit.c:1160
- x64_sys_call+0x18c6/0x18d0 arch/x86/include/generated/asm/syscalls_64.h:232
- do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
- do_syscall_64+0x166/0x520 arch/x86/entry/syscall_64.c:84
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
+Changes in v9 [10]:
+- Correct binding for vrtc as it does not support mode setting.
 
-The buggy address belongs to the object at ffff888040392800
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 8 bytes inside of
- freed 1024-byte region [ffff888040392800, ffff888040392c00)
+From Sashiko:
+- Added missing include in MFD documentation example.
+- Fixed constraints for regulator-initial-mode in regulator binding.
+- Fixed wrong register write while setting LDO standby mode.
+- Added missing pmic interrupt definition in the pumpkin-common include.
 
-The buggy address belongs to the physical page:
-page: refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x40390
-head: order:3 mapcount:0 entire_mapcount:0 nr_pages_mapped:0 pincount:0
-flags: 0x80000000000040(head|node=0|zone=1)
-page_type: f5(slab)
-raw: 0080000000000040 ffff88813ffbbdc0 dead000000000100 dead000000000122
-raw: 0000000000000000 0000000000100010 00000000f5000000 0000000000000000
-head: 0080000000000040 ffff88813ffbbdc0 dead000000000100 dead000000000122
-head: 0000000000000000 0000000000100010 00000000f5000000 0000000000000000
-head: 0080000000000003 fffffffffffffe01 00000000ffffffff 00000000ffffffff
-head: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000008
-page dumped because: kasan: bad access detected
-page_owner tracks the page as allocated
-page last allocated via order 3, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 997, tgid 997 (kworker/1:2), ts 104151206576
- set_page_owner include/linux/page_owner.h:33 [inline]
- post_alloc_hook+0x1f9/0x250 mm/page_alloc.c:1871
- prep_new_page mm/page_alloc.c:1879 [inline]
- get_page_from_freelist+0x2591/0x2600 mm/page_alloc.c:3943
- __alloc_frozen_pages_noprof+0x230/0x5c0 mm/page_alloc.c:5436
- alloc_slab_page mm/slub.c:3347 [inline]
- allocate_slab+0x7d/0x620 mm/slub.c:3462
- new_slab mm/slub.c:3513 [inline]
- refill_objects+0x2d8/0x350 mm/slub.c:7410
- refill_sheaf mm/slub.c:2885 [inline]
- __pcs_replace_empty_main+0x339/0x690 mm/slub.c:4774
- alloc_from_pcs mm/slub.c:4850 [inline]
- slab_alloc_node mm/slub.c:4984 [inline]
- __kmalloc_cache_noprof+0x46f/0x680 mm/slub.c:5559
- _kmalloc_noprof include/linux/slab.h:991 [inline]
- _kzalloc_noprof include/linux/slab.h:1312 [inline]
- roccat_connect+0x5d/0x4b0 drivers/hid/hid-roccat.c:315
- savu_init_specials drivers/hid/hid-roccat-savu.c:84 [inline]
- savu_probe+0x18e/0x340 drivers/hid/hid-roccat-savu.c:134
- __hid_device_probe drivers/hid/hid-core.c:2839 [inline]
- hid_device_probe+0x46a/0x870 drivers/hid/hid-core.c:2878
- call_driver_probe drivers/base/dd.c:-1 [inline]
- really_probe+0x254/0xae0 drivers/base/dd.c:706
- __driver_probe_device+0x1e8/0x360 drivers/base/dd.c:868
- driver_probe_device+0x4f/0x240 drivers/base/dd.c:898
- __device_attach_driver+0x270/0x410 drivers/base/dd.c:1026
- bus_for_each_drv+0x25b/0x2f0 drivers/base/bus.c:500
- __device_attach+0x2c7/0x450 drivers/base/dd.c:1098
-page last free pid 4949 tgid 4949 ts 104086626399 stack trace:
- reset_page_owner include/linux/page_owner.h:26 [inline]
- __free_pages_prepare mm/page_alloc.c:1418 [inline]
- __free_frozen_pages+0xf8e/0x1070 mm/page_alloc.c:2962
- __slab_free+0x250/0x2a0 mm/slub.c:5815
- qlink_free mm/kasan/quarantine.c:163 [inline]
- qlist_free_all+0x99/0x100 mm/kasan/quarantine.c:179
- kasan_quarantine_reduce+0x148/0x160 mm/kasan/quarantine.c:286
- __kasan_slab_alloc+0x22/0x80 mm/kasan/common.c:350
- kasan_slab_alloc include/linux/kasan.h:253 [inline]
- slab_post_alloc_hook mm/slub.c:4683 [inline]
- slab_alloc_node mm/slub.c:4996 [inline]
- kmem_cache_alloc_node_noprof+0x3fc/0x660 mm/slub.c:5068
- __alloc_skb+0x1db/0x7a0 net/core/skbuff.c:704
- netlink_sendmsg+0x5d4/0xb40 net/netlink/af_netlink.c:1875
- sock_sendmsg_nosec+0x13a/0x180 net/socket.c:800
- __sock_sendmsg net/socket.c:815 [inline]
- ____sys_sendmsg+0x565/0x870 net/socket.c:2713
- ___sys_sendmsg+0x2a5/0x360 net/socket.c:2767
- __sys_sendmsg net/socket.c:2799 [inline]
- __do_sys_sendmsg net/socket.c:2804 [inline]
- __se_sys_sendmsg net/socket.c:2802 [inline]
- __x64_sys_sendmsg+0x1b7/0x290 net/socket.c:2802
- do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
- do_syscall_64+0x166/0x520 arch/x86/entry/syscall_64.c:84
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
+Changes in v8 [9]:
+From reviewers:
+- Added example code to the MFD device binding, removed it from the
+  regulators docs.
+- Added minItems/maxItems constraints on the regulator mode definitions,
+  improved the mode constants.
+- Fixed formatting issues in the regulator binding.
+- Import the mt6392.dtsi file in pumpkin-common.dtsi, as it was originally
+  meant in [8].
 
-Memory state around the buggy address:
- ffff888040392700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff888040392780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff888040392800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
- ffff888040392880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff888040392900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
+From sashiko:
+- Added more explicit constraints on the regulator modes definitions.
+- Use the appropriate modeget register for LDO regulators, Buck registers
+  don't have the corresponding register according to the data sheet.
+- Added the missing of_map_mode function.
+- Removed some debugging code that had no use and masked error codes.
 
+Changes in v7 [7]:
+- Removed patch 0008 dependency on patch 0003.
+- Reintroduced the regulator driver. In earlier revisions of this series,
+  it was proposed to remove the dedicated compatible for the regulator
+  device [3]. The driver does not use actually it, but it is not possible
+  at this time to remove it from the bindings since it's a required
+  property.
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+  Making the regulator-required property conditional was NACKed in [5],
+  with the suggestion to create a separate binding altogether for devices
+  that do not require the compatible property. I tried implementing this,
+  but since the parent device needs to be declared as compatible with
+  mt6323, it leads to a warning in dt_binding_check since mt6323 would
+  be declared as a compatible in both mt6392 and mt6397.
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+  In the end the only regulator driver from the mt6397 documentation that
+  still declares an of_match is mt6397-regulator and it does not seem
+  to be necessary, so it should be possible to remove it and make the
+  regulator compatible optional for all regulators, but that change would
+  probably deserve its own separate patch series.
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+Changes in v6 [6]:
+- Dropped the regulators driver for the moment
+- Explained the FCHR key name origin in the commit message
+- Introduced the MFD_CELL_* macro in the sub-devices definitions.
+  A separate, independent commit introduced MFD_CELL_* to all the
+  subdevices in the mt6397-core.c file for consistency
+- Replaced of_device_get_match_data with device_get_match_data
+- Removed the mfd_match_data enum in favor of the preexisting
+  chip_id enum
+- Adjusted the error message if the device is unsupported
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+Changes in v5 [5]:
+- Double checked regulator driver with data sheet and Android sources.
+  The data sheet I have misses a lot of register descriptions, but
+  Android sources have been helpful to fill the gaps
+- Reintroduced the required attribute for the regulator compatible
+  in the bindings
+- Fixed the missing reference to the MT6392 schema
+- Fixed casts/unused vars reported by kernel test robot
+- Removed Reviewed-by tags from the regulator patches as they have been
+  modified in this version
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+Changes in v4 [4]:
+- Dropped usage of the regulator compatible
+- Fixed commit messages text to properly reference the target subsystem
+- Added supply rails to the regulator
+- Reworked the regulator schema and PMIC dtsi. Now all supplies are
+  documented and the schema no longer includes voltage information
+- Removed redundant ldo- / buck- prefixes
+- Renamed the pinfunc header to mediatek,mt6392-pinfunc.h
+- Modified the MFD driver to use a simple identifier in the of_match
+  data properties
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+Changes in v3 [3]:
+- Added pinctrl device
+- Changed mt6397-rtc fallback to mt6323-rtc
+- Added schema for regulators
+- Fixed checkpatch issues
 
-If you want to undo deduplication, reply with:
-#syz undup
+Changes in v2 [2]:
+- Replaced explicit compatibles with fallbacks
+
+Initial version: [1]
+
+[1] https://lore.kernel.org/linux-mediatek/cover.1771865014.git.l.scorcia@gmail.com/
+[2] https://lore.kernel.org/linux-mediatek/20260306120521.163654-1-l.scorcia@gmail.com/
+[3] https://lore.kernel.org/linux-mediatek/20260317184507.523060-1-l.scorcia@gmail.com/
+[4] https://lore.kernel.org/linux-mediatek/20260330083429.359819-1-l.scorcia@gmail.com/
+[5] https://lore.kernel.org/linux-mediatek/20260420213529.1645560-1-l.scorcia@gmail.com/
+[6] https://lore.kernel.org/linux-mediatek/20260612200717.361018-1-l.scorcia@gmail.com/
+[7] https://lore.kernel.org/linux-mediatek/20260615071836.362883-1-l.scorcia@gmail.com/
+[8] https://lore.kernel.org/linux-mediatek/20190323211612.860-25-fparent@baylibre.com/
+[9] https://lore.kernel.org/linux-mediatek/20260620200032.334192-1-l.scorcia@gmail.com/
+[10] https://lore.kernel.org/linux-mediatek/20260820122242.120039-1-l.scorcia@gmail.com/
+[11] https://sashiko.dev/#/message/20260820125850.3B34D1F000E9%40smtp.kernel.org
+
+Fabien Parent (3):
+  dt-bindings: input: mtk-pmic-keys: Add MT6392 PMIC keys
+  mfd: mt6397: Add support for MT6392 PMIC
+  regulator: Add MediaTek MT6392 regulator
+
+Luca Leonardo Scorcia (4):
+  dt-bindings: mfd: mt6397: Add MT6392 PMIC
+  regulator: dt-bindings: Add MediaTek MT6392 PMIC
+  mfd: mt6397: Use MFD_CELL_* to describe sub-devices
+  pinctrl: mediatek: mt6397: Add MediaTek MT6392
+
+Val Packett (2):
+  input: keyboard: mtk-pmic-keys: Add MT6392 support
+  arm64: dts: mediatek: Add MediaTek MT6392 PMIC dtsi
+
+ .../bindings/input/mediatek,pmic-keys.yaml    |   1 +
+ .../bindings/mfd/mediatek,mt6397.yaml         |  72 ++
+ .../regulator/mediatek,mt6392-regulator.yaml  | 112 +++
+ arch/arm64/boot/dts/mediatek/mt6392.dtsi      | 145 ++++
+ .../boot/dts/mediatek/pumpkin-common.dtsi     |   7 +
+ drivers/input/keyboard/mtk-pmic-keys.c        |  18 +
+ drivers/mfd/mt6397-core.c                     | 307 ++++---
+ drivers/mfd/mt6397-irq.c                      |   8 +
+ drivers/pinctrl/mediatek/pinctrl-mt6397.c     |  37 +-
+ drivers/pinctrl/mediatek/pinctrl-mtk-mt6392.h |  64 ++
+ drivers/regulator/Kconfig                     |   9 +
+ drivers/regulator/Makefile                    |   1 +
+ drivers/regulator/mt6392-regulator.c          | 764 ++++++++++++++++++
+ .../regulator/mediatek,mt6392-regulator.h     |  23 +
+ include/linux/mfd/mt6392/core.h               |  43 +
+ include/linux/mfd/mt6392/registers.h          | 488 +++++++++++
+ include/linux/mfd/mt6397/core.h               |   1 +
+ include/linux/regulator/mt6392-regulator.h    |  42 +
+ 18 files changed, 1974 insertions(+), 168 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/regulator/mediatek,mt6392-regulator.yaml
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+ create mode 100644 drivers/pinctrl/mediatek/pinctrl-mtk-mt6392.h
+ create mode 100644 drivers/regulator/mt6392-regulator.c
+ create mode 100644 include/dt-bindings/regulator/mediatek,mt6392-regulator.h
+ create mode 100644 include/linux/mfd/mt6392/core.h
+ create mode 100644 include/linux/mfd/mt6392/registers.h
+ create mode 100644 include/linux/regulator/mt6392-regulator.h
+
+-- 
+2.43.0
+

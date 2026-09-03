@@ -1,189 +1,186 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66EF9443AB9
-	for <linux-input@vger.kernel.org>; Thu,  3 Sep 2026 12:12:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02E044A3D52
+	for <linux-input@vger.kernel.org>; Thu,  3 Sep 2026 12:27:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788437538; cv=none; b=RW6rE7mTsj/4tMCzyRHoJAZZoVgQ+E2IRl5nh2vCbf/VQoxIFGqkozQ79hucH2OYgXygh0VrmKjg89O+HIkD+zxi8cHK/yH+KchNjry0T2TdyEmFGEUAFXpZMik5YqG6ybJ0qIT/XacWPFkYmUkgq62gnaglHX6yoL4RowCw2ww=
+	t=1788438437; cv=none; b=pAozF62UzQ89jpMrQ2DA8+XD/x0Q6O+iyd02kl7deeyayCC67cm1YqWvJEEjosfoG7dONmiAekUeDddObxGkez/HEWzQWzdi8PCR/2yGVEPgiq9sWcEOhzeXun+KC0XOfQaBUCHvYQTYHxyCa3TLXlaskikenzTMtxpVFO5hxEk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788437538; c=relaxed/simple;
-	bh=56+I37CAmNf4CelGNtFiICat1Q7M8dA45WGA6QLWtJM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NWC56YF7MasS4hgMhIsEXqM2IMYzalzOyJvc2TQx1D+7B7vibPvInACbW8pO/r/W1mhhL6eplmPENOGH1hmcAeJSfB8slDkNClFb7bA61nkLrsr6HGsqe9EBBNoQHMuxTGqO0CMZxOQ7TjjURqrQgDa+iZpWBZs7updKRDZIHbo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jj7pdjWP; arc=none smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788438437; c=relaxed/simple;
+	bh=aOft3Jsclo0KWuwJmwEXl+hNGpdc2hoJypHdEtGP4lk=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=t6DbXkg+YDRmwz4Zh4VqgB/yfduw3EETuyPTgmaSikU/5CmmaenxzC87eAIogA/+q3GjyEjbr3DEG8LYMbf/KoVLa2rag9+B5ixJ4ul9Nu0WqzSUfxFW+CyEfxvm6ye96+RvnEjeyBGvcGG9j4/CtZ0I8WkP1paicHjuLtDrO/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ozqXxqCe; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jj7pdjWP"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-84830c774a0so2510282b3a.1
-        for <linux-input@vger.kernel.org>; Thu, 03 Sep 2026 05:12:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788437537; x=1789042337; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=HAnTfZ+uyXvnMZO7sfUerYlqL7ZR6YBm7QziJYa0EhA=;
-        b=jj7pdjWPWOhR/F9n6EqFW+1yP/xwp5gA8+SoaDtODTCnCYKNyQ3LaGr/Tdcs9hY4RN
-         0H7GjjI8TmpKZwdECGEpDP4SGxHGnKt+1Ml4sMmXOyCAJh2G5kQjgXSkDvjDpncECzgo
-         yKtVK0EF2sx1SLvVkfIVF5yHBQ5Vr8vE8NfZ+xIzbyldBFzU3W6KGkm0eCxxgIqWTKxt
-         P9TrONRbk9w8C7CXgx2nlQpU6ClbUsYjrtMB+kG+rSJyeiOZxq9JhFNDRXDM3i23gmgJ
-         dilfnzagyqW8WpHhtNJtfOXAeUI+DTTj+SCWFFMfsNlnEiD39xnCrdjE2ll/+usloBqW
-         Vupg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788437537; x=1789042337;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=HAnTfZ+uyXvnMZO7sfUerYlqL7ZR6YBm7QziJYa0EhA=;
-        b=PONhQrcqfH3Lgwno3OgO0rF61YxLrDwrd4r58okmamsYkzauON0pyv8IdzipPEMJDI
-         eiRfo2SgIBmZCRbIr5UQak5mPns0m9Ho5VvXTX20wR/A20JxD/tLRnL3bycaLVlM0AiP
-         nGTACRi7aB8L7yAs0V2arOmzNvK2zaFth1Ze8XFRQ6bB8Av8lUIwQaI5pHvI9phblBdi
-         GNU9tyg1LbpEq6n2MDlEbyOSHP3E8IBTfeaZt3W5VLrScgUQ/dbuxgwT8iTRfwsOq01Z
-         1t9LNFFcjydGclZCDg+iCUDfRfEr17C3iOEAQTo+1qvgAa8wxFPhvrrvczhXaaTBBiLf
-         bigw==
-X-Gm-Message-State: AFuF++nwJui6ZNs5Llh2ZEa1WkUSMpssRuNBTYeu9ltMweuxWtsz+heP
-	+ErjRMuMgVXK8n0c6aR2ThdURycrwxm07ogRkZ2L82xlXa11k7xcljw6oaILCg==
-X-Gm-Gg: AYBFou0awFWYDSQ0Nsa8tyNErpvECOeLnzi+GAeDEEnSPBNx0MoQYaiBQN4YnEeKBH5
-	/Zm3k79sBF9R6ZqB2K1jZ0gdhMMHjR+5AzVIvZxQg97L8SnSdWdYhaJ88BSyof8KLk/GcBBAQPt
-	9KnhGpycNhozgiwEr3ATN7e+EIvSLRc7HnwyvQRHT32N7lFWV1oeUFNlHpvJUNWwAB8Gn6Sq+G4
-	WXsQ9jpdTrE8tP88OaUHnfbwPW1DRWhFz3pLkywt1onQEa26WvxfesnEJ+HJLgBDACYDt8LnO6l
-	2ej5nsfIC8wID+AW1keZKhd18w00rlEWGPbwsMJBHUzuBXxfTn1NDzVL5GHGdoDtzCS8Vx0CprF
-	BVsrXYoz8lBTR8OyFe0R/Rk25slOLFvzWpVIJlMQMstweQ0z80KDfB3G4HQTC19ae8jx/UjcoH3
-	UchGxIjZrqFSnNn6s4xGZzzFrr+0biqYAFZIHnEC/+3hIBO9ch1L1Pd1iR/c4YaOc3fuWzSa4oK
-	rdQKkfZnrBuMZGmUt091t3aoeEDY0AbDY0+CpxQDoYGz7bJpfgXFw==
-X-Received: by 2002:a05:6a00:1c90:b0:853:59ed:5539 with SMTP id d2e1a72fcca58-85ed3793128mr18904299b3a.16.1788437536341;
-        Thu, 03 Sep 2026 05:12:16 -0700 (PDT)
-Received: from deepanshu-Legion-Pro-5-16AFR10.. ([2405:201:682f:383f:d01b:7a44:ef5d:7899])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-85dc11fbc41sm2731135b3a.60.2026.09.03.05.12.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 05:12:15 -0700 (PDT)
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-To: erazor_de@users.sourceforge.net,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Deepanshu Kartikey <kartikey406@gmail.com>,
-	syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
-Subject: [PATCH] HID: roccat: fix use-after-free and uninitialized-mutex races
-Date: Thu,  3 Sep 2026 17:42:06 +0530
-Message-ID: <20260903121206.6893-1-kartikey406@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ozqXxqCe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E3F1F00A3A;
+	Thu,  3 Sep 2026 12:27:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788438435;
+	bh=8G95IK19uxuwBw2qyBSnLdk/fIhRqjjT/DufmJhm2D0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ozqXxqCewzZjsiImeNgchhCQqd0r0YbA4FGDTI//T8a7XgdXBwK1d43wZufs7g5yj
+	 /5nOtepLlRgaeXi3vr/MyjamXOA0NTJDT2CEo1B594y+g6JhZhEXI4pVho5NjI2c+N
+	 VzEj3Q85m7ATADsSRk8UNXHdgAvjWMcEGfLvTIVES/+pskrLaFeynUElABGN60Jf3C
+	 EUqp+IkBLUeCaWNgBu9d1zZ69wqu6MowCiIlWcJ7aeDlX2/UZ/BCTnSg78YzmsMWvi
+	 PamvMPXKTojA8uQU1mMNiBXpgUW2qkHrRebqg+YF5xqILUc7dgpbzfQ2UzqaqkpOJm
+	 1iAlppu+bvR3Q==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: roccat: fix use-after-free and uninitialized-mutex
+ races
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Deepanshu Kartikey" <kartikey406@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260903121206.6893-1-kartikey406@gmail.com>
+References: <20260903121206.6893-1-kartikey406@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 03 Sep 2026 12:27:14 +0000
+Message-Id: <20260903122715.45E3F1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-roccat_disconnect() dropped devices_lock between reading device->exist
-and later checking device->open to decide whether to free the device,
-letting a concurrent roccat_release() free it first and turning the
-later check into a use-after-free. Fix by keeping the whole lookup,
-state update, and free-or-keep decision inside one devices_lock
-critical section.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-roccat_connect() also published the device via devices[minor] and
-device_create() before initializing device->readers_lock and
-device->cbuf_lock, letting a racing open() on the newly created node
-take an uninitialized mutex. Fix by completing all initialization
-before publishing the device.
+Pre-existing issues:
+- [Critical] roccat_release looks up the device by minor from the global ar=
+ray instead of using reader->device, causing memory leaks and cross-device =
+UAF/list corruption after a disconnect.
+- [Critical] Multiple roccat sub-drivers free their private data before cal=
+ling hid_hw_stop(), creating a Use-After-Free window in raw_event handlers.
+- [High] roccat_report_event() accesses devices[minor] locklessly and witho=
+ut NULL checks, leading to a NULL pointer dereference.
+- [High] roccat_report_event() calls mutex_lock() while executing in an ato=
+mic context.
+--
 
-Reported-by: syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=c492a9e154f81127551f
-Tested-by: syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
-Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
----
- drivers/hid/hid-roccat.c | 32 +++++++++++++++-----------------
- 1 file changed, 15 insertions(+), 17 deletions(-)
+commit f1bc16383a0353c41082cf198a1495d5e17e528e
+Author: Deepanshu Kartikey <kartikey406@gmail.com>
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index 4f15eb951039..1d57f8a44a3d 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -316,6 +316,14 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
- 	if (!device)
- 		return -ENOMEM;
- 
-+	init_waitqueue_head(&device->wait);
-+	INIT_LIST_HEAD(&device->readers);
-+	mutex_init(&device->readers_lock);
-+	mutex_init(&device->cbuf_lock);
-+	device->hid = hid;
-+	device->exist = 1;
-+	device->cbuf_end = 0;
-+	device->report_size = report_size;
- 	mutex_lock(&devices_lock);
- 
- 	for (minor = 0; minor < ROCCAT_MAX_DEVICES; ++minor) {
-@@ -324,37 +332,28 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
- 		break;
- 	}
- 
--	if (minor < ROCCAT_MAX_DEVICES) {
--		devices[minor] = device;
--	} else {
-+	if (minor >= ROCCAT_MAX_DEVICES) {
- 		mutex_unlock(&devices_lock);
- 		kfree(device);
- 		return -EINVAL;
- 	}
- 
-+	device->minor = minor;
-+
- 	device->dev = device_create(klass, &hid->dev,
- 			MKDEV(roccat_major, minor), NULL,
- 			"%s%s%d", "roccat", hid->driver->name, minor);
- 
- 	if (IS_ERR(device->dev)) {
--		devices[minor] = NULL;
- 		mutex_unlock(&devices_lock);
- 		temp = PTR_ERR(device->dev);
- 		kfree(device);
- 		return temp;
- 	}
- 
--	mutex_unlock(&devices_lock);
-+	devices[minor] = device;
- 
--	init_waitqueue_head(&device->wait);
--	INIT_LIST_HEAD(&device->readers);
--	mutex_init(&device->readers_lock);
--	mutex_init(&device->cbuf_lock);
--	device->minor = minor;
--	device->hid = hid;
--	device->exist = 1;
--	device->cbuf_end = 0;
--	device->report_size = report_size;
-+	mutex_unlock(&devices_lock);
- 
- 	return minor;
- }
-@@ -369,15 +368,12 @@ void roccat_disconnect(int minor)
- 
- 	mutex_lock(&devices_lock);
- 	device = devices[minor];
--	mutex_unlock(&devices_lock);
- 
- 	device->exist = 0; /* TODO exist maybe not needed */
- 
- 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
- 
--	mutex_lock(&devices_lock);
- 	devices[minor] = NULL;
--	mutex_unlock(&devices_lock);
- 
- 	if (device->open) {
- 		hid_hw_close(device->hid);
-@@ -385,6 +381,8 @@ void roccat_disconnect(int minor)
- 	} else {
- 		roccat_free_device(device);
- 	}
-+
-+	mutex_unlock(&devices_lock);
- }
- EXPORT_SYMBOL_GPL(roccat_disconnect);
- 
--- 
-2.43.0
+    HID: roccat: fix use-after-free and uninitialized-mutex races
 
+This commit fixes a use-after-free in roccat_disconnect() by keeping the
+whole lookup, state update, and free decision inside a single devices_lock
+critical section. It also fixes an uninitialized-mutex race in
+roccat_connect().
+
+Closes: https://syzkaller.appspot.com/bug?extid=3Dc492a9e154f81127551f
+
+> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+> index 4f15eb9510396..1d57f8a44a3dc 100644
+> --- a/drivers/hid/hid-roccat.c
+> +++ b/drivers/hid/hid-roccat.c
+[ ... ]
+> @@ -369,15 +368,12 @@ void roccat_disconnect(int minor)
+> =20
+>  	mutex_lock(&devices_lock);
+>  	device =3D devices[minor];
+> -	mutex_unlock(&devices_lock);
+> =20
+>  	device->exist =3D 0; /* TODO exist maybe not needed */
+> =20
+>  	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
+> =20
+> -	mutex_lock(&devices_lock);
+>  	devices[minor] =3D NULL;
+
+[Severity: Critical]
+This is a pre-existing issue, but does roccat_release() mishandle the device
+lookup after this disconnect clears devices[minor]?
+
+drivers/hid/hid-roccat.c:roccat_release() {
+	...
+	device =3D devices[minor];
+	if (!device) {
+		mutex_unlock(&devices_lock);
+		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
+		return -ENODEV;
+	}
+	...
+}
+
+If a user holds an open file descriptor while the USB device is disconnecte=
+d,
+roccat_disconnect() clears devices[minor] to NULL here. When the user later
+closes the file descriptor, roccat_release() returns early because
+devices[minor] is NULL, which seems to leak both roccat_reader and
+roccat_device.
+
+Also, if a new device is plugged in before the old file descriptor is close=
+d,
+reusing the minor number, won't roccat_release() fetch the new device and
+incorrectly delete the old reader from the new device's list, corrupting the
+list and the open count?
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does roccat_report_event() l=
+ack
+NULL checks and synchronization when accessing the global array?
+
+drivers/hid/hid-roccat.c:roccat_report_event() {
+	...
+	device =3D devices[minor];
+
+	new_value =3D kmemdup(data, device->report_size, GFP_ATOMIC);
+	...
+}
+
+If an incoming hardware interrupt invokes this function concurrently with a
+physical disconnection, could roccat_disconnect() clearing devices[minor] h=
+ere
+cause roccat_report_event() to dereference a NULL pointer for
+device->report_size?
+
+[Severity: High]
+This is a pre-existing issue, but is it safe to use mutex_lock() inside
+roccat_report_event()?
+
+drivers/hid/hid-roccat.c:roccat_report_event() {
+	...
+	mutex_lock(&device->readers_lock);
+	mutex_lock(&device->cbuf_lock);
+	...
+}
+
+Since roccat_report_event() is called from the driver's .raw_event handlers
+(like kone_raw_event), which execute in an atomic context (such as URB
+completion softirq or hardirq), won't these mutexes sleep and lead to a
+scheduling while atomic panic?
+
+> -	mutex_unlock(&devices_lock);
+> =20
+>  	if (device->open) {
+>  		hid_hw_close(device->hid);
+[ ... ]
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but does kone_remove() free
+resources before stopping the hardware?
+
+drivers/hid/hid-roccat-kone.c:kone_remove_specials() {
+	...
+	kfree(hid_get_drvdata(hdev));
+	...
+}
+
+drivers/hid/hid-roccat-kone.c:kone_remove() {
+	...
+	kone_remove_specials(hdev);
+	hid_hw_stop(hdev);
+}
+
+If a hardware interrupt arrives between the kfree() in kone_remove_specials=
+()
+and hid_hw_stop(), couldn't the HID core route it to the kone_raw_event()
+handler? That handler would then dereference the dangling private data poin=
+ter,
+causing a use-after-free.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260903121206.6893=
+-1-kartikey406@gmail.com?part=3D1

@@ -1,274 +1,167 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D27CC46985F;
-	Thu,  3 Sep 2026 10:03:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8377648D89C
+	for <linux-input@vger.kernel.org>; Thu,  3 Sep 2026 10:19:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788429795; cv=none; b=u0ctwo0zY6oebFNavQ9DBHLbeGhBCZJN7Kw54WDODexFCcvoY4OA3CoC38d3Wf4AbBk5SZ1+cBzSmD7AroTjFfL3P/0lx31r85ElMZcBPFRSDF1iD83W5BNvdIZDsnoNfyOCvVvi3czLnfPo+48mS508oowbWNXBH7Rzsa0+uuM=
+	t=1788430786; cv=none; b=kmUm7y4U9QaljK2YIS0gSer5x14CouU2TgDNQSmKGC7lbm5cUOThCEZ9SVgSgrEf/L4JZ7K96bCGJhPHKHJg3Cpt24L4/uVrmevYdRC4w8D6YAPf27MPF4Izwi1voCwK+O9RkEeUhe0lKXDiOUkfAGgelA6HZyPLGowoqDSN3Aw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788429795; c=relaxed/simple;
-	bh=4Y+xkOPvotxu8kSe8itzUqADLnJOuMR+mw1mvcLMfaw=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DXhFAoEPpeHT/IaHUCKdvzvsXtmoSQ+lbO6ewIAfwp+N8fYrTxSV0BjOQwjS0Refe6jcLmkbwR8DNreHS3wQhbysgq9dUZxkKbmGg630o5mhoRAyv7kplVSw3SWsCriCrp7A5mqaRBnZ9sJX3+a2nV29maz+nGHHMvNgOxWFdAg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=G8CvtA9H; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=peYfkNe0; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=T8mP7DjK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4qx7h88y; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1788430786; c=relaxed/simple;
+	bh=GxTeiwZN7CTGejE/bsamQnbdRvyaVhuispEpqp11CKw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kxI4AZYU86KT2p4BTmnh/UNfLrEwxPno4P07ZoQMbm4EAJNbpwFvd+APkiFAZly3AuOli7vo+42lC8oHqMyCOVCJWQ76RPOxx8sa1NxsWpQjUKbJXM42q34tcgiLASplhYKgHsMIqFa/dJ5Ul6dNQk9DkU9nlozE4aMWL0tHuxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UE/JOkRZ; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="G8CvtA9H";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="peYfkNe0";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="T8mP7DjK";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4qx7h88y"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 8BCFE1FDF1;
-	Thu,  3 Sep 2026 10:02:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788429782; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JfjX8OMdzOfmsSKRQLumUwNMDxPX52hDczOlJXnl7OE=;
-	b=G8CvtA9H6xmCFK02GG9X/tWxMuqner3+2MEgoiSei1fCYYI8IsLqrPKDR8k3VbIf8rT38g
-	U7D+/x0xJfJUesHRRhWkFNEeK5hWvziatOmf8AWHjYqgEbNV0vZc3RKxYM0F5mMgmSxQeL
-	36WODGXxJMExnpWzaJ9C5JCfV3Sj5NA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788429782;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JfjX8OMdzOfmsSKRQLumUwNMDxPX52hDczOlJXnl7OE=;
-	b=peYfkNe0RKGY9WY99GhPCrEI301XcOpfRzZloLtn/e8B8ymGzt9mO/grmZfGQQcYazWbxz
-	r8NbHWb2TxCHxICA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788429778; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JfjX8OMdzOfmsSKRQLumUwNMDxPX52hDczOlJXnl7OE=;
-	b=T8mP7DjKe5lj9xolx754Bl9eCMZXwbFLYRQ1TjfDFIdS5R8ZwzSgFrzVXRCndaR0Yk9DBT
-	9+ehPCIvqe37oTALOlwgNfEwpLpVPmOKXOcxu42HX/D4lG6UnGOPp/mtkNr+sbJ1Jhe5xZ
-	pKL5rkIjcChqd294eRI1ybQd1pPYKOc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788429778;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JfjX8OMdzOfmsSKRQLumUwNMDxPX52hDczOlJXnl7OE=;
-	b=4qx7h88ybarzAuYVLneNXmzyGHT74QCvWbppPj3zJyeFR78tStUbsxANELOT9VmM7W6dHu
-	douwGDqkYYa/ZQAA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DA4C813738;
-	Thu,  3 Sep 2026 10:02:57 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id a5+jM9FFmWrqBwAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Thu, 03 Sep 2026 10:02:57 +0000
-Date: Thu, 03 Sep 2026 12:02:57 +0200
-Message-ID: <87mrty8xf2.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UE/JOkRZ"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6a668cacdadso3292247a12.2
+        for <linux-input@vger.kernel.org>; Thu, 03 Sep 2026 03:19:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788430773; x=1789035573; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=W3+ctbJocyD7cPa19hLn883tfSf+5YYD4Wsi8oERH+o=;
+        b=UE/JOkRZI2w6ytWUVrlZm+g+t433+A0q9lAive0un5EeYQlWmtwQ2vcXwZz2xoCXJo
+         Dtz1uYrcqlaoF1LP5wrLb9aJHsSYi7GqQDc/VJy9Si0pVhhrsgnN58XWaJMEcyweV3jP
+         OZe9R37JzQ7678h70k+oP0I0A1NY+9IQ0eNWgkPCM4TP/IHn3a6HLyHs2FApWCT+/a4E
+         WvQVuFZxYazg/AhnOS/2PeXdWmJmFC+Upz9oPVpjcjtdKWhDDCBNd1nRrllpFuKqjY43
+         xlXl228jlRwXF6Yz8sSFNA8b4Tb3hjOZbUWdtxadLQ9qxTVKIn2iJDQ0fWqtLJKHd+HY
+         TFNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788430773; x=1789035573;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=W3+ctbJocyD7cPa19hLn883tfSf+5YYD4Wsi8oERH+o=;
+        b=RAMhs9+47QddxkSNAb+vuPEJPxiOn6MfW7GzbTgVtLaLN28OUeKfpdOVXlYVNNkZub
+         EDh6Au1w8a3BqAKac4khpG+bkPTrScXQFD/pCvaF+8bWrUkinplTGTbXKCSXpjErRs8x
+         V+q2ciOXBQyP8y3yFvdqKk0e8uaHvybxRKW1ZdxlQEehKVtPLaxknzmhe0co4mMJtti4
+         Jjsj0yWO/tbO2gJWaDRPicohGFCPYFAgrDZnukvj8wBMknEE2a+4oKJeEVLvy0cWVTzP
+         /t9x6Os7NCoODfBZKaJstNalAj8dS4AlVBNTPvP9l6m7lTzt3VQkM6xQqMy9vS6Zz/Mp
+         nYRQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzWM43ufgjF0yHI/Vf4RqFwgZlE69f15qrAZdgLSvYceKJrAmKLGVeBNuqPru+JfdAdPthWkC2K1Veeiw==@vger.kernel.org
+X-Gm-Message-State: AFuF++lB9GUJmnX4KSTxt59nDf/F1cSJSB2H1YxDZmJT0nSvLG8VQc2S
+	/vJnwo5jLdxTpxvl9FMUaScRjX0KdMO2BMPD+zUbY16yKj3wutoejzI7
+X-Gm-Gg: AYBFou2L7v1xoHwwLqf7ZN5p4FmklGM5/qybgbcgmKyteGHncDQvlVTpLyTNsoZfdGU
+	It9qXqu2Kmt1lTLNees8NqQ8nzHa1GW4qzKkE8lsLTJCIoRQwxZ28rTphG1sZpXIbB54DSFSYwG
+	1T1E22aqy0ILu+eRbeleksFbYlyYC9/EoXgN6jph+bfAob+vG9AYG7Rl/80/hsozD8AvzLI0sN9
+	9tlm0OA/ngagZDQMfD9HDbYLrX8cAoDjDF0VWZZ6Xlza6PcJ/sZve+TqW/f7hS68jAYJyfsXOvO
+	DYaxph/Ca3MKVqLAxELLi2ZY+PJKTiNCIKW138Lt5lsqHpTnzOcKMNnRpLBMsh0QCVDx2/TLN4a
+	J4nbyDQ7plnE9kGXVw4OCwp1DMoyiO1C4wtK25E//WGoLIqc1QSKTpaOk3wha52peQcFqyeooWk
+	gtf2LRTRYulEHSR8v4GM6UItVFlwypbA0PWa4CeQpL5bU1WijbytgzJ8q/7jYBPzOyiUE60TYmD
+	AreVJvaO1qH05fn4vqwMr9OUV2OCSpZ608r5zse+ogbLmxdn8MbolUaW+K/
+X-Received: by 2002:a17:907:da16:b0:c1f:29ce:76a1 with SMTP id a640c23a62f3a-c25d550e29emr666393066b.19.1788430772687;
+        Thu, 03 Sep 2026 03:19:32 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c25f41a6019sm78190366b.33.2026.09.03.03.19.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Sep 2026 03:19:32 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
 Cc: tiwai@suse.de,
 	tiwai@suse.com,
 	perex@perex.cz,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-sound@vger.kernel.org,
 	linux-input@vger.kernel.org,
+	linux-sound@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v8 0/2] ALSA: usb-audio: the Topping M62's vendor controls
-In-Reply-To: <20260903093510.23387-1-mikhail.v.gavrilov@gmail.com>
-References: <87se3q91oq.wl-tiwai@suse.de>
-	<20260903093510.23387-1-mikhail.v.gavrilov@gmail.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
+Date: Thu,  3 Sep 2026 15:19:29 +0500
+Message-ID: <20260903101929.34492-1-mikhail.v.gavrilov@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <87mrty8xf2.wl-tiwai@suse.de>
+References: <87mrty8xf2.wl-tiwai@suse.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Level: 
-X-Spam-Score: -1.80
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-1.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_TO(0.00)[gmail.com];
-	ARC_NA(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[9];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Thu, 03 Sep 2026 11:35:10 +0200,
-Mikhail Gavrilov wrote:
-> 
-> On Thu, 03 Sep 2026 10:30:45 +0200, Takashi Iwai wrote:
-> >
-> > Thinking more on this, I see another possibility.  Namely, create an
-> > individual HID driver like your previous plan 2, but instead of
-> > creating an own snd_card object, use the component framework
-> > (include/linux/component.h) for binding between the audio and the HID
-> > drivers.
-> 
-> Thank you -- and this answers more than the mail it replies to.  The v2
-> cover letter asked whether snd-usb-audio registering the hid_driver
-> itself would be a better shape than either road posted, and the question
-> has been repeated in every letter since.  It is answered now, and the
-> answer is neither of the two roads I had drawn.
-> 
-> I will rebuild the series in this shape.  What follows is the plan and
-> the three things I could not settle by reading, so that they are asked
-> before the code is written rather than after.
-> 
-> What the shape becomes.  A new drivers/hid/hid-topping-m62.c owns the
-> vendor interface the ordinary way and speaks the protocol; it registers
-> a component in probe.  sound/usb/mixer_topping.c keeps only
-> snd_topping_init(), which allocates a small context in devres on the
-> audio control interface, adds one match and registers the master.  The
-> master's bind calls component_bind_all() with the snd_card; the HID
-> side creates the kcontrols there and drops them in unbind.  I took
-> sound/hda/core/component.c as the model, including devres_find() keyed
-> on the release function to recover the master's context, since drvdata
-> on a usb_interface is snd-usb-audio's own.
-> 
-> What that deletes.  snd_usb_claim_iface() and snd_usb_release_iface()
-> in card.c go, and with them the only change this series made outside
-> its own files; usb_driver_claim_interface(), the interface reference,
-> the "claimed" bookkeeping and the search for the HID interface by class
-> go with them; and the hid_ignore_list entry goes, because the device
-> now has a driver of its own.  The defect I wrote to you about two weeks
-> ago goes too: with no claim there is no interface marked
-> USB_AUDIO_IFACE_UNUSED, so none of the three shapes I offered is needed
-> and card.c is not touched at all.
-> 
-> Now the three questions.
-> 
-> 1. The match.
-> 
-> Neither helper fits.  component_compare_dev() compares device pointers
-> and the audio side has no pointer to the HID device; component_compare_
-> dev_name() would need "0003:152A:875C.000X", whose instance counter is
-> not predictable.  is_usb_interface() would have made a tidy predicate
-> but it lives in drivers/usb/core/usb.h, which is private to usbcore.
-> 
-> What I plan instead is a test of descent alone.  The HID device sits
-> two levels below the USB device -- hid_device, usb_interface,
-> usb_device -- so the master passes &chip->dev->dev as compare_data and
-> the compare function is
-> 
-> 	return dev->parent && dev->parent->parent == data;
-> 
-> Which interface it is stays the HID driver's business: it returns
-> -ENODEV for anything but the vendor interface, so it registers a
-> component for that one and no other.  That keeps sound/usb free of both
-> HID symbols and any opinion about this card's interface numbering, and
-> the function is only ever called against devices that registered with
-> component_add(), so it does not have to defend itself against the wider
-> device tree.
-> 
-> Is that acceptable, or would you rather the audio side knew which
-> interface it was looking for?
+On Thu, 03 Sep 2026 12:02:57 +0200, Takashi Iwai wrote:
+>
+> > Would you rather see this as a driver-local clear, as
+> > HID_CONNECT_DRIVER plus the clear, or as something usbhid ought to
+> > offer to drivers that resynchronise on resume?
+>
+> I think it's rather a question to HID people...
 
-It's along my rough idea, too.  We can simply compare the common
-parent USB device in the match function.
+Jiri, Benjamin -- putting it to you then, with enough context to answer
+it without reading the rest of the thread.  The wider design question,
+whether this belongs in a HID driver at all, is settled with Takashi
+upstream in this thread; what follows is narrower than that.
 
+The device is a Topping M62 USB audio interface, 152a:875c.  Its
+analogue gains, output volumes and source selectors are not described
+by the USB Audio Class; they are reached over a vendor protocol on a
+HID-class interface whose report descriptor is a fig leaf -- a Generic
+Desktop application collection, eight usages stretched over sixteen
+unnamed bytes in and out, no report ID -- so hid-generic can only make
+a nonexistent pointer of it.  The plan under discussion is a small HID
+driver that speaks that protocol and hands the values to snd-usb-audio
+as mixer controls.  It wants raw input reports and nothing else: no
+input device, no hiddev.
 
-> 2. When the controls appear.
-> 
-> try_to_bring_up_aggregate_device() reports an incomplete set as "not
-> ready" and returns 0, not -EPROBE_DEFER, so a card whose HID module is
-> absent comes up with no vendor controls and nothing said about it.  And
-> mixer quirks run inside snd_usb_create_mixer(), before
-> snd_card_register(), so even when both halves are present the controls
-> are added to a card that is already registered, arriving as add events
-> some time after the card itself.
-> 
-> Neither is wrong, but both are visible from userspace: a restore can
-> race the controls into existence, and a missing module looks like a
-> card that simply has no gains.  Would you want a MODULE_SOFTDEP on the
-> audio side, or is late arrival the expected behaviour for this pattern?
+The trouble is that asking usbhid for input reports arms the device for
+remote wakeup, and there is no way to ask for one without the other.
+usbhid_open() sets
 
-I'm afraid that the softdep is problematic because it'd bring this
-always no matter which device is used.  In the case of USB-audio, the
-state restoration is always racy per design of multiple USB interfaces
-(the probe happens multiple times and the instances are added at each
-probe).
+	usbhid->intf->needs_remote_wakeup = 1;
 
+and usbhid_start() sets the same on the HID_QUIRK_ALWAYS_POLL path, so
+both roads to hid_start_in() go through it.
 
-> 3. Remote wakeup, which is the one I have no good answer to.
-> 
-> usbhid arms every device it opens: usbhid_open() sets
-> intf->needs_remote_wakeup = 1, and so does usbhid_start() on the
-> HID_QUIRK_ALWAYS_POLL path, so there is no way to receive input reports
-> from usbhid without asking for it.  This card does not offer it --
-> bmAttributes is 0xc0, and there is no power/wakeup under its sysfs
-> node, so device_can_wakeup() is false -- and usb_suspend_both() then
-> refuses autosuspend for the whole device:
-> 
-> 	if (w && !device_can_wakeup(&udev->dev))
-> 		return -EOPNOTSUPP;
-> 
-> That would take back what v7 fixed.  It is worth saying that the
-> driver's own two-second keepalive already keeps the card awake at the
-> default autosuspend delay, so the loss is structural rather than
-> observable today -- but structural is worse.
-> 
-> This driver genuinely does not need remote wakeup, and its own resume
-> path is the proof: it subscribes again and asks the card for its whole
-> state, so a knob turned while the host slept is picked up on the way
-> back.  So the smallest thing that works is to clear the flag after
-> opening, with a comment saying why.  The field is not private --
-> cdc-acm and usbnet both set it directly -- but clearing it from outside
-> usbhid is unusual enough that I would rather ask than post it.
-> 
-> It also decides a question I was going to raise separately.  I had
-> meant to keep HID_CONNECT_HIDRAW, because a hidraw node is how the
-> protocol was read in the first place and how the parts this driver does
-> not expose stay reachable.  But a hidraw open calls hid_hw_open() again
-> and sets the flag back, so clearing it only holds under
-> HID_CONNECT_DRIVER.  If you prefer the flag left alone, hidraw can
-> stay; if you prefer runtime suspend kept, it cannot.
-> 
-> Would you rather see this as a driver-local clear, as
-> HID_CONNECT_DRIVER plus the clear, or as something usbhid ought to
-> offer to drivers that resynchronise on resume?
+This card does not offer remote wakeup: bmAttributes is 0xc0, and
+there is no power/wakeup attribute under its sysfs node, so
+device_can_wakeup() is false.  usb_suspend_both() then refuses
+autosuspend, and not merely for that interface:
 
-I think it's rather a question to HID people...
+	if (w && !device_can_wakeup(&udev->dev)) {
+		dev_dbg(&udev->dev, "remote wakeup needed for autosuspend\n");
+		return -EOPNOTSUPP;
+	}
 
+So binding this driver would forbid runtime suspend to the whole
+device, including its audio interfaces.  An earlier revision of this
+series had to fix runtime suspend once already, and I would rather not
+hand it back.
 
-> Whatever you decide on these, the next posting will be the new shape
-> rather than a v9 of this one, and it will cross into drivers/hid, so I
-> will send it to both lists.  I will mark v8 superseded in patchwork
-> once it goes out.
+What makes this feel like the wrong flag rather than an unlucky device
+is that the driver does not depend on the device to wake anything.  The
+card stops reporting to a host it has not heard from, so the driver's
+resume path subscribes again and asks for the whole state; a knob
+turned on the front panel while the host slept is picked up on the way
+back, by asking, not by being told.  A device-initiated wakeup would be
+of no use to it.
 
-Well, let's experiment the component stuff a bit.  The v8 doesn't look
-too bad, and the disconnection notification handling can be added
-easily there, too.  Although I think the component is cleaner from the
-design POV, the actual behavior might be problematic in practice (such
-as the mixer state restore delay as you described) -- or the
-implementation might become too complex than wished.  Let's see.
+Three shapes, and I do not know which you would want:
 
+  (a) the driver clears intf->needs_remote_wakeup after hid_hw_open(),
+      with a comment saying why.  The field is not private -- cdc-acm
+      and usbnet both set it directly -- but clearing it from outside
+      usbhid is unusual enough that I did not want to just post it;
 
-thanks,
+  (b) the same, plus HID_CONNECT_DRIVER instead of HID_CONNECT_HIDRAW.
+      A hidraw open calls hid_hw_open() again and sets the flag back,
+      so (a) only holds if userspace cannot open the device.  That is a
+      real cost here: the hidraw node is how this protocol was read in
+      the first place, and how the parts the driver does not expose --
+      the mixer matrix, the mutes, the EQ -- stay reachable at all;
 
-Takashi
+  (c) something in usbhid, so that a driver which resynchronises on
+      resume can say so once and have both roads to hid_start_in()
+      honour it.  That would cover any driver in this position rather
+      than this one.
+
+Or a fourth I have not seen: is there an existing way to take raw input
+reports from usbhid without arming the device?
+
+I lean to (c) as the honest fix and (a) as what I can post today, but
+this is your subsystem and I would rather ask than guess.
+
+-- 
+Mikhail

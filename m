@@ -1,117 +1,138 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 077294A440B
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:06:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE7D54F0554
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:11:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788534387; cv=none; b=IPFiTFNZ644QBrEQq91pDxQ4E+oNpAIIdyDiBedS5MAciDb6KKTMlN+ya9Mf4+Ca+IbKIzEp7A04T6RQ2axvaJcRE6APWjRoDl7MthXNYJ1TiFolTALkSm0gJ4zk2npqrRMPWktskTNSb84ih1elDkgRyvIiLpcYgt1kNGLziG0=
+	t=1788534720; cv=none; b=WTEDGodUJgmAhp2dVevSiwWrwqDg0al8lqMVbBWczmjmq1EM7ttimbZV33XWEKOGU1XijevBI3MV5w6J1oZ4p+DWojJEvD8RB1tyFoPDdVY+i9KPxhnbNDjqLa+tDiKsbQ6q7odC/cvMOKJPDHMMPQJTA45lKJMNUxYTQhT0W8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788534387; c=relaxed/simple;
-	bh=7gNCncRwcYB9lWmv5bcgCTAj/WG9KBrvFMQ3voJc5e4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XMYvz4lWE4ETZkDiLSLpLO+N+QluHRAP4t0xjQ3x8JNJHAaJd6kFK2Jar76vSmleuoVEm/4WF1CYiiW1YqZyIoslFcQcgthLL4bs2QjdnKUSFyBVqrMZ9Yh61tgnv93YLT6qepAlY+Nc902Op68H+Jrm9UsruVGCVKVm3n50zJc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Wz8eiQ2z; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1788534720; c=relaxed/simple;
+	bh=dSDAGSGdeMYfU5TFBDGyvhEuA4jGnTzqs/AquFxd5NQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=NXgUm5eEr5vcE5P7ZfnPQ42dGAs/lne6f9M3tq97fniwFZa8Z8tj/U8W01NFTvFF/eoWLJeN/mrrzYX/Ij/rnbSzc7Cy40E15WGcCaD6kScFBGed19RI1t9VvnPt8oWZaACrV4SGSwDby5ns97HOQmXmYb3pfomDYOiSoK13bO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lDNVjiyA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Wz8eiQ2z"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6a600a1caf8so1803715a12.2
-        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 08:06:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1788534380; x=1789139180; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=7gNCncRwcYB9lWmv5bcgCTAj/WG9KBrvFMQ3voJc5e4=;
-        b=Wz8eiQ2z1484J2c1rF0s1mwShxk+Y9bTSnU/VMDPn/iIJ1Hzsh8Tm2kqHd2oYgXUcb
-         FtEL0CHtyWa6rHNHXNSvv45xaJtjEWXjrfuenAfct5ir3kGFG0dsibjjkIaMjziL8zaX
-         av+ancBzzQCvP2GzHaeThJAUeWnZlWCrI3cE0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788534380; x=1789139180;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=7gNCncRwcYB9lWmv5bcgCTAj/WG9KBrvFMQ3voJc5e4=;
-        b=VL+kSkndSxQKa260FwrZlAEkG2Uu42MB0t+PQqTzbx3mHeI02W/NqajOMmVeTNPi/D
-         ZsNffz89ekxUQMzFs4s7gtr4ipcPel6xlzHNtR01PKHh9Spwb+VhAGHHNLG/s8RtPUYc
-         DxVC80WHQIu7cUsdBFMfuxhDlupS/qFd6U9U/8qgHKWMFVFZBa2xuSG5xvzcUvPY65Ff
-         RhTp0nuCNyTRFvifum9FHOC3s5DMIv6AJXQOeNzVOTgna718kGXNBWlI0rcBEjCVOmMo
-         MWDxD+faaykE8AFw55fykRtL0H7b2OVVzFeHIs4BjOJrWIBHEsAKuVOMUtxoCQj5vFqc
-         NeMw==
-X-Forwarded-Encrypted: i=1; AKwUvBwG52bP6M+TbTRezm3y9mOgsb61RpkiIrDeBSNQcnZM+6SONIGhG4H9ok1nSIL2EHS75aP7toO0YlFlGw==@vger.kernel.org
-X-Gm-Message-State: AFuF++lukJTdCx7S/44+JLQ31juEw1mvARfl3sHYKrjHoPbFMj2XuYyH
-	nJZrwZr4irIJlKEHY28j2HBvC7bvK8P6Yv1jJQsw9MOyUMPj8UpCHLUtiQS+xf3Nf4ARskZXhdD
-	XIF0=
-X-Gm-Gg: AYBFou00kpnuyrqDEDuntz48tzkwL6Xf6wtqlWKp5fd/ShYEKgnc6j2w5il9p+VQvK+
-	9GscfzHK5yYx1WkWKbpMFc+Cw2lU24lGKaguemZn5KUB5se/1hIlxLykOjjpi3ivOLFwJzZsq8n
-	z+9tkjL5YQqdB4damS+W38u5yNXadhRniNGrcgIFDC3+sN5RDGaM4Rq0FsMVwgFkB39kxRCM5t3
-	ScYnND/LVx43GEXpwNeppu0HLRA5QCgjtAXN0dg3RiL+7jqFMl963RBGQixUFwrj9OHnKI3YWYC
-	qP4hrOWlineiBHbIi9tF2a5IrisM97YHF4BG8fJUPwqnxPbC/YTwG760wd2n6pbcro5/NnrE7uC
-	midVmYRF8f2O9GW1nTbnYVG5ftlQanWsuOYV8iK95Xp29kLwRN2IBA2T0FCEUl1YnC3Y63Z5/El
-	Xpj8npkf+XHb5dueyVET6SCr7S8wJ0IiFPwJBv31KV8Z7K0K5yuzYmBb5SD1aqIKVqOGP0NTxvO
-	KTsNZ7uxA9Dxdp+v2TW8L2pOB6MWDHqFhXD0fMb
-X-Received: by 2002:a05:6402:21d5:b0:6a6:7249:41bb with SMTP id 4fb4d7f45d1cf-6a7e8d25d0cmr2379958a12.4.1788534379769;
-        Fri, 04 Sep 2026 08:06:19 -0700 (PDT)
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com. [209.85.221.48])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a7e66eb790sm1456935a12.3.2026.09.04.08.06.08
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Sep 2026 08:06:11 -0700 (PDT)
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-482ea739de2so747654f8f.0
-        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 08:06:08 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBwHCxjfrVctZq7NBc5MYM4hy7MXS4e5w/wje3UFzBgdshOplSLREtcV6Ew/WRvJ84MpLuUtKQkyR1cHgQ==@vger.kernel.org
-X-Received: by 2002:a05:6000:60e:b0:485:8c16:a355 with SMTP id
- ffacd0b85a97d-4858c16a6c2mr4328911f8f.45.1788534366728; Fri, 04 Sep 2026
- 08:06:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lDNVjiyA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D85601F00A3D;
+	Fri,  4 Sep 2026 15:11:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788534718;
+	bh=Wu7YYfGQTcn8eWF9uXPVhM89DbgWcWWtI3Ufhi2xQus=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=lDNVjiyArIH53M25FCWtW7DNF8p8G2DrAfiApYHD9rU+ta/cvcIZf3t52lrhfxeP5
+	 E0BHEqzgjcFtqyhad2wCrIf/m0dPoPY3+1O1L3xR0Cea2f4aYRyU+1lvshwUWgqqUZ
+	 ylKqluzU7BIAewFgMRPu9XyWXmbfFrk3qdwlkI/Pr6+CiEiyElijrC3aPCP6L3Qy1n
+	 DcglJGsxUvBTsmL0RxeTkrKsxMJdBZkKTh9VIoIvIccV3xVAhGzXYHvQvM6LRpJZIQ
+	 Jmu5nfjPVgZV3cH/N87lw1LiHJ7WrGDe6Ubbad4TvxJFF8FIWb2G52JhoxB/YqraG0
+	 7jrRHDslPKjWw==
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH v3 2/2] ALSA: usb-audio: bind the Topping M62's
+ vendor controls
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260904144300.529289-3-mikhail.v.gavrilov@gmail.com>
+References: <20260904141158.33398-1-mikhail.v.gavrilov@gmail.com>
+ <20260904144300.529289-1-mikhail.v.gavrilov@gmail.com>
+ <20260904144300.529289-3-mikhail.v.gavrilov@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 04 Sep 2026 15:11:57 +0000
+Message-Id: <20260904151157.D85601F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260904035009.4114363-1-justin.yeh@mediatek.com>
-In-Reply-To: <20260904035009.4114363-1-justin.yeh@mediatek.com>
-From: Doug Anderson <dianders@chromium.org>
-Date: Fri, 4 Sep 2026 08:05:55 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=Us7FrQ2GYYSfm+freDNTWv8xd260kA2Z3B5jFzw5OBgw@mail.gmail.com>
-X-Gm-Features: AcwNN1U5Q3Et8gbm1HfFEKvqA92RRKLIkp4skB9nrMClbBiYdjjt_11lut00YBI
-Message-ID: <CAD=FV=Us7FrQ2GYYSfm+freDNTWv8xd260kA2Z3B5jFzw5OBgw@mail.gmail.com>
-Subject: Re: [PATCH] HID: i2c-hid: Skip SET_POWER on shutdown for panel followers
-To: Justin Yeh <justin.yeh@mediatek.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Maxime Ripard <mripard@kernel.org>, Project_Global_Chrome_Upstream_Group@mediatek.com, 
-	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Use-after-free of `tm` devres allocation in `topping_private_free(=
+)` when probe fails on a secondary interface.
+--
 
-On Thu, Sep 3, 2026 at 8:50=E2=80=AFPM Justin Yeh <justin.yeh@mediatek.com>=
- wrote:
->
-> When an i2c-hid device is a panel follower, drm_atomic_helper_shutdown()
-> unprepares the panel before device_shutdown() gets around to the i2c
-> client. The panel_unpreparing() callback already calls
-> i2c_hid_core_suspend() with force_poweroff set, which sends
-> SET_POWER(SLEEP) and then drops the device's regulators.
->
-> So by the time i2c_hid_core_shutdown() runs, the controller is unpowered
-> and can no longer complete a transfer. On MT8196 the SET_POWER(SLEEP)
-> issued there burns the full i2c-mt65xx bus timeout before failing,
-> adding two seconds to every reboot.
+commit 609b467189291cd5e9a1099df6471716a2475cca
+Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 
-I don't think there is any guarantee here though, is there? In your
-case the panel might have been powered off before
-i2c_hid_core_shutdown(), but is there something that ensures that? I'm
-not aware of it.
+ALSA: usb-audio: bind the Topping M62's vendor controls
 
-Would it be better to follow in the example of i2c_hid_core_remove()
-and just remove ourselves as a panel follower? That would
-automatically call the power-off functions if needed, right?
+This commit adds a component master for the Topping M62 vendor controls
+to bind the ALSA sound card to the corresponding HID driver. It uses the
+component framework to manage the lifetime between the ALSA card and the
+HID vendor controls, allocating its context using devres on the audio
+control interface.
 
--Doug
+> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
+> new file mode 100644
+> index 0000000000000..d97d895a4493d
+> --- /dev/null
+> +++ b/sound/usb/mixer_topping.c
+[ ... ]
+> +static void topping_private_free(struct usb_mixer_interface *mixer)
+> +{
+> +	struct topping_master *tm =3D mixer->private_data;
+> +
+> +	if (!tm)
+> +		return;
+> +
+> +	/*
+> +	 * Reached from snd_usb_mixer_disconnect(), on an unplug and on an
+> +	 * unbind of the audio interface alike.  component_master_del() runs
+> +	 * topping_master_unbind() on the way, so the HID side has taken its
+> +	 * kcontrols off this card before the card is taken apart.
+> +	 */
+> +	component_master_del(tm->dev, &topping_master_ops);
+
+[Severity: High]
+Can this result in a use-after-free of the `tm` structure if probe fails on=
+ a
+secondary interface?
+
+If a USB device matching the Topping M62 quirk has multiple interfaces, and
+the primary interface probes successfully but the secondary interface's pro=
+be
+fails (e.g., due to ALSA card slots being exhausted or memory allocation
+failure), the USB core will clean up the secondary interface's devres, free=
+ing
+`tm`.
+
+However, looking at `usb_audio_probe()` in `sound/usb/card.c`:
+
+    if (!chip->num_interfaces)
+        snd_card_free(chip->card);
+
+For a secondary interface (`chip->num_interfaces > 0`), the ALSA card and
+`chip->mixer_list` are intentionally not freed when probe fails. The mixer
+appended during the failed probe remains in the list.
+
+Later, when the primary interface unbinds, `snd_usb_mixer_disconnect()` is
+called and invokes this `topping_private_free()` function, which will access
+the already freed `tm->dev`.
+
+> +	devres_destroy(tm->dev, topping_master_release, NULL, NULL);
+> +	mixer->private_data =3D NULL;
+> +}
+> +
+> +int snd_topping_init(struct usb_mixer_interface *mixer)
+> +{
+> +	struct snd_usb_audio *chip =3D mixer->chip;
+> +	struct component_match *match =3D NULL;
+> +	struct usb_interface *intf;
+> +	struct topping_master *tm;
+> +	struct device *dev;
+> +	int err;
+[ ... ]
+> +	tm =3D devres_alloc(topping_master_release, sizeof(*tm), GFP_KERNEL);
+> +	if (!tm)
+> +		return -ENOMEM;
+> +	tm->dev =3D dev;
+> +	tm->card =3D chip->card;
+> +	devres_add(dev, tm);
+> +
+> +	mixer->private_data =3D tm;
+> +	mixer->private_free =3D topping_private_free;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904144300.5292=
+89-1-mikhail.v.gavrilov@gmail.com?part=3D2

@@ -1,118 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD3DE3B71AF
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 16:02:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FF213E7150
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 16:14:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788537755; cv=none; b=ths3H4C74j8MYMoVblaUYqKhBLx3P3k0YqWl58H8yRsFg+4gQCah3fv1miIvO71h8ib4tiOKe2dqbgwDs7TutPh9TtkMjUegeREJ/nf15mHixggTeKA+S+IamnXEX3AdBYUteg4Hee96FpTBrs7dUD53cCIQBy/FkRnvGge5MjE=
+	t=1788538468; cv=none; b=H0BuNUPPb6sjIctR4NwaveroN/LWvvKpF8VvKTCXzLRDhJgdHKwKoeZfonvXdE3mKyd/cumt4Ic0cdIhgorrnlxyKfApenPQ7kz7Ox53GoR32FLJ7PDxST8lD2PkxyZqMfCXWJDTunRiwmDAl/7rILlcy1vE2HqhXdX8kAjcz2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788537755; c=relaxed/simple;
-	bh=O6nQvRi18xJw2CVf3GxOluzWQurZxEHX6vCRpld7zvM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iOnW5eqyWrEqmbk6KkAtwq+VWRv6FwJqXfVkFz5DGQsiTEQt1n1hL33/H5wF+i2SKlRkjaFHcwyylsY92p6M3Nk1soW5UK4OFfU6QxG/B9t+2mmjVpqd41f7bZPSLlV5AHtsfKITeS3vfrvKSvFhXpVe60HBizf9BT7QTYKA/iQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ur2YmQvs; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788538468; c=relaxed/simple;
+	bh=XUtnp+JADse6tbTIpqBlX90KrkWPNgb62TRGVh/J61E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=FldjJVALgwOCtIT1J+wEzBf9duehNAAskMGj0lPG/rOgutQb0Y3gFDz7l53C+qaAI86QBwOjt8vUnqTBvkz7KY6qzC6WvOXWjHsQuF9vZwFZTdAgpFAozXxIu6JZA2ArZ7dvlYRpqTZXH5AH3qvMFHLsLYlxXXaX/8Hf989ujOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QuWNG9j7; arc=none smtp.client-ip=209.85.160.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ur2YmQvs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB26C1F00A3D;
-	Fri,  4 Sep 2026 16:02:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788537751;
-	bh=XXIbNLnKmUIHu/nNqo/rlKrUlv3+LnHTuKJRQLPslEo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ur2YmQvsQrAggCPdVFvcUKjmu5wLA5LHqxl6J9YqvTXqTok3RqfkMdnL6Iquaay1z
-	 oCcRCAHGG6ThVCm5DFooFF+3WTFItkx7BtBFF1cqM4gckZ5CARpQj/tSpTBaNVGsRX
-	 apAg9EqEA7yli9BqDg8NXqGR6XoGaxnoJs04M267GYFa81tIHKipDoYZzDnwodDPTd
-	 ZADNrM7f/u9UgF8RJMvC4C2Pf/EhN0IOqyxmircIclaD8WOvy+j0ah+1YcJ89fFOJH
-	 PGGQPwp+c9ARjr1nWDPxSM5MRx2Q5EBtmL9YAV+548y/o0aYeyi97vvWEvidaAdYDy
-	 RyDvVQ5aqEznA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 12/13] HID: asus: add support for turbo buttons
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260904145845.184887-13-denis.benato@linux.dev>
-References: <20260904145845.184887-1-denis.benato@linux.dev>
- <20260904145845.184887-13-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 16:02:31 +0000
-Message-Id: <20260904160231.AB26C1F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QuWNG9j7"
+Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-46b037da544so631213fac.3
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 09:14:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788538466; x=1789143266; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=XUtnp+JADse6tbTIpqBlX90KrkWPNgb62TRGVh/J61E=;
+        b=QuWNG9j7QjnHx1HvdtTlOYWHELh+hsE4IbQH4tXdbF2Xo2LpaKZdNIxZuWiLdW22gW
+         AgzlFoDuucH1hE1MCCz85VW2vE1JakdcxIoRBQ04CvVyhHTZdYEsY9coLtHcMP4xVeW/
+         X6erGwR0qXZB8ZikX8T2ROEy4sWhSe8ArcCbZSC5q8RI6cWwNd/BWAr6S+bkZOCCBHxe
+         9ta70EaCILTEcsb8P+9tLwAvMFgJ2w1whVy1f80gzOiD3AFW8xXzgxeRqmSxnHwbFK4W
+         nbhRKmBVmkMAQ+nNvOVBWyNMiwR0ZPbFTjugSjvNT8BlkCIq0enoIIhL5iJN16uDS0I1
+         P5+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788538466; x=1789143266;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=XUtnp+JADse6tbTIpqBlX90KrkWPNgb62TRGVh/J61E=;
+        b=U+MQIEjSFmHLkpfNzv07CCemM/pZ1ARr4PBAE9FmFI0Ce/GuyXPKGQXBgOYzT9JtKy
+         1aQMywfFjZ1nxRDhV6z8zFlra+nbK4I4aqspUozaDYgPsyExs3BupohMqG8Tv3HLj0ff
+         aqylQXyrvhSfQzll3I9owqRGLdky+XaRJ/mcgs/qJTUHIl5+DKGKYN98+kvx54kzKxxn
+         YL1bgdJWGmYFyc6rPkOa8Qv1KdBmn7RF/L8qukOy0CptuLkK4lZ6CkIFf8X06vqkRkWb
+         QH5WBBe9WfYSh0jQB8XtE5ysHqV0ORUfJGuc/o7JnMP+lnJ1MsOV1kqUrmrl2f2aozcd
+         7LdQ==
+X-Gm-Message-State: AFuF++k/sWg4jkFEkrFYsv46RPw8TOQCLT6B6imPp65oo4PylnkLqZa6
+	I1WM3syT/RzIy23C2joojAOwOYsKx8lHpv8SYxMiFpjoYkBPG6RwaUO0BV3B7z41rpk=
+X-Gm-Gg: AYBFou0yvbAbn0YNPcfpOP2Ambe3ocfXuZPgsdDWg1BcgCRoth87zLJrOeuap0dnbM+
+	Nk7B8rUvte52RCvVUb+BUee16haKVXTQnSk27bKmbRs5lLNPGK7FyBSpGQbkfG+j+PSsQAxLL2R
+	JVBcQre3uRsVt7UisSDkndPcNoQv+vQ2z1efYthgPGJ85i35AQtmAo47djcbzKysyspmwitXgQ8
+	Hek3DQXpR9iKWRCbU4dATjH3I7T0W/oewWzLaIq98don5RGH4U7Ovxkgdj46R0exhviEF05H87y
+	cG8DEtfZ81O4Goz3skAwCQqjaKb7OAPYVx5AH2aZU86k52Rn1v/ZZQdoTnKG0PeI6nsCm9KIefl
+	/Y4eg8NMFMsUBJ1An1Ruk4VBYwruhe4PzOkVmC1D7rxRzYMfFlRGQyAtzoG9pqf4+nq727uLHa2
+	+UK0858E5odYhZVg/byzLFWPUIpGQO3ZH4LbSf+A6/PSUWn09ahiPTS7RFLVoLQ7+l3ydTdagSi
+	jvN+ajI3Y/KlvVHRzz1JphJOHFSb0U=
+X-Received: by 2002:a05:6820:a281:10b0:6b7:8415:d798 with SMTP id 006d021491bc7-6b78415d8b0mr2054381eaf.67.1788538466305;
+        Fri, 04 Sep 2026 09:14:26 -0700 (PDT)
+Received: from archlinux.lan ([136.34.156.120])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6b6dd07214bsm3597912eaf.10.2026.09.04.09.14.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2026 09:14:25 -0700 (PDT)
+From: Danish Khateeb <danishkhateeb03@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	sashiko-reviews@lists.linux.dev,
+	Danish Khateeb <danishkhateeb03@gmail.com>
+Subject: Re: [PATCH] HID: corsair: cancel worker after unregistering LED, not before
+Date: Fri,  4 Sep 2026 11:13:54 -0500
+Message-ID: <20260904161354.159922-1-danishkhateeb03@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260904145330.BD9E41F00A3D@smtp.kernel.org>
+References: <20260904143610.119808-1-danishkhateeb03@gmail.com> <20260904145330.BD9E41F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Missing cleanup of user calibration sysfs groups (`ally_cal_attr_g=
-roups`) in the probe error path of `ally_config_create()`.
---
+> - [High] Reordering `led_classdev_unregister()` before
+> `cancel_work_sync()` reintroduces a Time-of-Check to Time-of-Use
+> (TOCTOU) Use-After-Free race condition on `led->cdev.dev` inside the
+> worker threads.
 
-commit 64475826d55426435b32a4fe5bb92d505b7ed1b7
-Author: Denis Benato <denis.benato@linux.dev>
+You are right. Please drop v1.
 
-HID: asus: add support for turbo buttons
-   =20
-ROG ally devices supports a feature called turbo buttons that allows
-the user to quickly toggle button state by keeping a button pressed.
-This commit allows userspace to configure the feature by exposing
-relevant sysfs attributes.
+There are two races here and each ordering fixes only one. Cancelling
+first leaves led_classdev_unregister() free to re-arm the worker via
+led_set_brightness(LED_OFF), so the structure is freed while still
+linked into the worklist. Cancelling last leaves a worker that has
+already tested led->removed free to dereference led->cdev.dev after
+device_unregister() has freed it -- the race eb51c9f8cb4f fixed. v1 was
+in effect a revert of it, which I should have caught: that race is
+spelled out in the changelog of the commit in my own Fixes: tag.
 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 63efda8938386..7c10e6de438b7 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
+v2 uses disable_work_sync(), which waits for a running worker and makes
+the later schedule_work() fail rather than queue, closing both. It also
+converts the fail_sysfs error path, which still had the second race.
 
-[ ... ]
-
-> @@ -2697,6 +3126,14 @@ static struct ally_config *ally_config_create(stru=
-ct hid_device *hdev, struct al
->  		}
->  	}
-> =20
-> +	if (cfg->turbo_support) {
-> +		ret =3D ally_create_button_attributes(hdev, ally, cfg);
-> +		if (ret < 0) {
-> +			hid_err(hdev, "Failed to create button attributes: %d\n", ret);
-> +			goto ally_config_create_sysfs_err;
-
-[Severity: High]
-If ally_create_button_attributes() fails here, does this jump leak the
-sysfs groups that were previously created for ally_cal_attr_groups?
-
-This newly added code introduces a failure point after ally_cal_attr_groups
-has already been successfully created, making the missing cleanup reachable.
-
-> +		}
-> +	}
-> +
->  	/* So far the only hardware this is supported is the Ally 1 */
->  	if (cfg->xbox_controller_support) {
->  		ret =3D ally_set_xbox_controller(hdev, ally, cfg, true);
-> @@ -2717,6 +3154,9 @@ static struct ally_config *ally_config_create(struc=
-t hid_device *hdev, struct al
-> =20
->  	return cfg;
->  ally_config_create_sysfs_err:
-> +	if (cfg->button_entries)
-> +		ally_remove_button_attributes(hdev, cfg);
-> +
-
-[Severity: High]
-Does this error recovery path completely omit the sysfs_remove_group()
-cleanup loop for ally_cal_attr_groups?
-
-Leaking these sysfs group directories and attributes can cause subsequent
-attempts to probe the device to trigger a kernel warning for duplicate sysfs
-nodes (-EEXIST). This would render the device permanently unusable without a
-reboot.
-
->  	/* The sysfs groups are not devm-managed: undo the created ones. */
->  	while (sysfs_i-- > 0)
->  		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[sysfs_i]);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904145845.1848=
-87-1-denis.benato@linux.dev?part=3D12
+My reproducer only covered the re-arm race; the other is a few
+instructions wide and I could not trigger it. v2 says so.

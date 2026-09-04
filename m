@@ -1,78 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B157A364052
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 17:03:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA0F94FDE76
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 17:16:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788541425; cv=none; b=PEo8qz5NWHz35C37sp2YtHQW7sT8lJRT4TRq0azxuhKCa0JbcyEygwuzf2CW3RG1b0SKvDhF5KlY3QCAdiBwSZDjFKeBoJIXjKkRLEzilBEaO2tRSgt26E71sSJdAZCsa6gx1htyh3qzYvRIUd0/57FzKoIkeimX1/y+VCo+Nn4=
+	t=1788542208; cv=none; b=JAvgqef0npy3PRh9VhoBHJST+KTAuWc3MyIWPMV+s45K9VvbyLjx88O7kr4IqPXcO3xuxGB8M9D9FItQ9ixK8GGsAV6RKoUhh13zc4JEyY6906Z5ODrESBjCxDS33cl/p7VuKwy7hnorKnsvz4MHq46icz6eS/pQrDqZvtalYQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788541425; c=relaxed/simple;
-	bh=9GNevXAtGS/2lU26WLQzSmaXODEHwft7UHmQzEQh/sU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Cs+WwZz5UyE4TQzT+UIQYdg637L39T4dTHv8RvcJAOKJU0F3gPC3kwDSW5HMYBS/VhOug9urrdaoS6fjtlkPdi+vAXWQDP/rZkdKFKJhfvNPDxXoj880zIMRpdGHki368TbEorupzv+eaOIoc64oq/E06UcguBoWbp2RELL5z5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D5DKp93E; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788542208; c=relaxed/simple;
+	bh=oG9i3YH4mjn7DiGoGWrca8vvSqh6kNw4/n81jv6vzhw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=OthCIZohgLVVWvnoBf6nCCWSPtmqFXFgJiCmPBZdroyosyFV8HD5g59xUACBm4gll8tnFyJstRUiakajC+C0A9Rg0/jY2nfhwEeWTW1u6+OxqYkPeIfNxc9UAWl/55FdFD2mlT8gi68J138+lEl/Ob/kZ25hDl5L6LJrgKEy5XQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=o1hnDTVr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D5DKp93E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63AD31F00A3D;
-	Fri,  4 Sep 2026 17:03:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="o1hnDTVr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5301B1F00A3D;
+	Fri,  4 Sep 2026 17:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788541424;
-	bh=9GNevXAtGS/2lU26WLQzSmaXODEHwft7UHmQzEQh/sU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=D5DKp93EkGMC0+AimTl9uAB+gfKcX6bhRxNxTzARHzgb9nnUf5ZbqkNaDTKAM1NE1
-	 jwRZopFkWtsX2PK4IpFywCXQs3bIUU23YR8v5GCJgI0K4rbsGuB5/XBx0fN8qxwo5x
-	 aLXLExkRYuKJTWKCn0jWI0shAHuxRrKI49CWmTLZztK51kJA/p3QQ7hc9QTbEWEtua
-	 cDeqStMWIr3A2wJppvhdE3zBo+mGJktUZGuOcskOcQl+s/l/GWQsDmx95+R6FYMu3L
-	 tBoHJSBm2WL5tYoPNpoHqs45UhkOJsP0buvWJ/DHBXWlsrBh7W/uegv9CodWkk4ckY
-	 VnkRHzOB4Ip0w==
-Date: Fri, 4 Sep 2026 19:03:39 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Erik =?utf-8?Q?H=C3=A5kansson?= <erikhakan@gmail.com>
-Cc: Alexey Zagorodnikov <xglooom@gmail.com>, 
-	Rafael Passos <rafael@rcpassos.me>, lains@riseup.net, hadess@hadess.net, jikos@kernel.org, 
-	Shuah Khan <skhan@linuxfoundation.org>, Brigham Campbell <me@brighamcampbell.com>, 
-	Jori Koolstra <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
-Subject: Re: [PATCH] HID: logitech-hidpp: fix hi-res scroll for
- Bolt-connected MX Master
-Message-ID: <apr493wpBH50vXNi@beelink>
-References: <20260904034843.1340846-1-rafael@rcpassos.me>
- <96cd3161-3a6c-455e-a63c-f3226b27f74f@gmail.com>
- <119cd005-ece9-4e2a-aded-0d6d66c5bcfc@gmail.com>
+	s=k20260515; t=1788542206;
+	bh=L4c5UyrEzdXzBzMEpdWFdJUBWMY2YxbLGUdxN2NOKpQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=o1hnDTVr75ZBIGCQ4MU50w15j+OAdGHb9P3BMyv4nr23s1bOaT3a3itNBkWRNKzer
+	 PQjprBVZqnDg5waC8Ca126x/2k7d/ev+YBSD4dx99w6uyRW5y/luk/WEiyycl4r8Md
+	 +Oyoc2it1E4WLgomOMzlkyX2fHHe22X0n3+mBlrUilHhHbJuIotVFKdU972u9VFMR0
+	 ABI5UmWgizg/01No/bd6lX0I4MROHz6MqIrSMf6lPiKwOhW3pJEi3dPTAQBayln5Xe
+	 oBGVjoO5Pfo6mbvDENgnBs0VGualbvHvHqXSGhuImc4S1oL2/JHNOqIcZ5ToirWTMD
+	 l/LJk7+V2GS7g==
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH v6 2/2] ALSA: usb-audio: bind the Topping M62's
+ vendor controls
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260904165848.3940603-3-mikhail.v.gavrilov@gmail.com>
+References: <20260904162236.3212370-1-mikhail.v.gavrilov@gmail.com>
+ <20260904165848.3940603-1-mikhail.v.gavrilov@gmail.com>
+ <20260904165848.3940603-3-mikhail.v.gavrilov@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 04 Sep 2026 17:16:45 +0000
+Message-Id: <20260904171646.5301B1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <119cd005-ece9-4e2a-aded-0d6d66c5bcfc@gmail.com>
 
-On Sep 04 2026, Erik Håkansson wrote:
-> Hi!
-> Is this the same issue as in
-> https://lore.kernel.org/linux-input/20260901-bolt-scroll-fix-v1-1-58bca7ae487f@protonmail.com/
-> The symptoms seem similar at least, and if so the approach to fixing
-> it in that case is to simply treat Bolt devices like previous DJ
-> devices, rather than having special treatment for Bolt.
-> Can you who have Bolt mice maybe test that patch too to see if it
-> solves the same issue?
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Race condition between devres unwinding on a failing secondary int=
+erface and snd_usb_mixer_disconnect leads to Use-After-Free of `struct topp=
+ing_master`.
+--
 
-FWIW, my initial decision a few years back when Bolt was introduced was
-to not include it in the kernel, because there are too many things it's
-missing, the most problematic one being that we don't know which device
-sends which event.
+commit 5c451ddb148b4a001ba73165f1af998978db8641
+Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 
-So basically, there is a chance that the driver sets high-resolution
-scrolling on a bolt device, when 2 mice are connected, and one is
-capable of it and the other is not. This is unlikely to happen, but is
-hard to solve in the kernel.
+ALSA: usb-audio: bind the Topping M62's vendor controls
 
-So I'm happy to wait for testing and patches, but I would also like a
-conclusion where bolt doesn't belong to the kernel, and we just revert
-the inclusion of the receiver in the dj driver.
+This adds a component master for the Topping M62's vendor controls to conne=
+ct
+the USB audio interface with the HID interface. The lifecycle context is
+stored in devres on the audio control interface.
 
-Cheers,
-Benjamin
+> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
+> new file mode 100644
+> --- /dev/null
+> +++ b/sound/usb/mixer_topping.c
+[ ... ]
+> +static void topping_master_teardown(void *data)
+> +{
+> +	struct topping_master *tm =3D data;
+> +
+> +	component_master_del(tm->dev, &topping_master_ops);
+> +
+> +	if (tm->mixer) {
+> +		tm->mixer->private_data =3D NULL;
+> +		tm->mixer->private_free =3D NULL;
+
+[Severity: High]
+Is there a missing lock here when clearing the mixer's private fields?
+
+If usb_audio_probe() fails on a secondary interface, devres is synchronously
+unwound and topping_master_teardown() runs while the orphaned mixer is still
+in chip->mixer_list. If an unbind happens concurrently on the first
+interface, snd_usb_mixer_disconnect() can race with this teardown.
+
+Since snd_usb_mixer_disconnect() reads mixer->private_free without holding
+register_mutex, modifying these pointers without synchronization introduces=
+ a
+Time-of-Check to Time-of-Use (TOCTOU) race.
+
+> +	}
+> +}
+> +
+> +static void topping_private_free(struct usb_mixer_interface *mixer)
+> +{
+> +	struct topping_master *tm =3D mixer->private_data;
+> +
+> +	if (!tm)
+> +		return;
+> +
+> +	/*
+> +	 * Reached from snd_usb_mixer_disconnect(), on an unplug and on an
+> +	 * unbind of the audio interface alike.  The action clears
+> +	 * mixer->private_data on its way through, so nothing is left
+> +	 * pointing at the storage dropped below.
+> +	 */
+> +	devm_release_action(tm->dev, topping_master_teardown, tm);
+
+[Severity: High]
+Could this dereference tm->dev after tm has already been freed?
+
+Due to the race condition described above, snd_usb_mixer_disconnect() might
+read mixer->private_free just before it is cleared by
+topping_master_teardown().
+
+If the teardown finishes and devres frees the struct topping_master memory,
+topping_private_free() will then be executed with a freed tm pointer,
+leading to a Use-After-Free when accessing tm->dev.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904165848.3940=
+603-1-mikhail.v.gavrilov@gmail.com?part=3D2

@@ -1,212 +1,229 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84282361979
-	for <linux-input@vger.kernel.org>; Thu,  3 Sep 2026 22:36:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788475018; cv=pass; b=LVK6wDLjRPE/zTlOWUIIIhsw6JoFGmRFEFpBc/KyoQMrLP3IwcMAfRoL6M6N8xlRelzCUT3ft1FkTABbjaZ9SaRSLIkhXwo3A2tbdg5hj287YcC7nA6Z5noAkAiKgcmTQ0cDsnPf488vARI2kxGbOhJW/8/QKthBbCLmSshHp2o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788475018; c=relaxed/simple;
-	bh=mFiJ08W4a5OBXJwVwrhjRDGXwqW9MrIAwZAygtDyiuY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BPFZJ+QMHu45Bhf1/TT1or4wkvLWBtucy0UIwFevqW7EWTAxJN5Swml9tvcuVejPhpHC949RTKDJcUntgQ8rSHiOxwkO3PHxyLWEG9FN5tKIPDXpGoCtwNPcfiS40fHUuXStODF4Zablp4jl3GesZBV+mIsrNMN9giJX36usikM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jTVom41g; arc=pass smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4CB71DE8BF
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 00:18:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788481106; cv=none; b=Ry0ptZxE3c8NBVGKh21MGGBrZ1gfq0VXWMSvb/NTL7tMhTzKu6eFpJ1L3EsYZDrxAjtiPCNRWUQEO1leCD8RJB37poYO5bdc6S+eE0XqBNSyUDCxRDJK4OjOyjMdBY4zmQdVN7v9mzEJKa/z1txda/ad18PxqSc4Z0wDjvm7194=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788481106; c=relaxed/simple;
+	bh=Y9qWNNOcmsXNVqzd+GFCwszjXpfdR4NAiC3qVQoR96c=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=akr0ubV6VwLgd1eXGON4rAwUfD03lKdUnwNdHNnvOtdVl674S3/fg7QiPa/9J8ot8+S7AwrtSfm+CMeaTBAR5Nfv3bCOq4zO3hZz5PcXw0HTuBtyjTcY1kyUAd0VQkR3G8KWw2YuFHGxjSHI/BMw2PwKJMc6BlOM5adCX92bE7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o1S4Dpif; arc=none smtp.client-ip=209.85.218.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jTVom41g"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-90ce3971a86so4924586d6.0
-        for <linux-input@vger.kernel.org>; Thu, 03 Sep 2026 15:36:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788475015; cv=none;
-        d=google.com; s=arc-20260327;
-        b=dXUk36QGgNouD5MHP+lg/gSRUilNGyDhpciSmKH3kv6VybmMjjcxz06YEdLP36wFJd
-         Yamnvc5MBwZJ0zBkmtHwTDTGPpYih3fpN4mFapawBolrXjJ5iWQ7hHb0IVc2sXvGPQ2G
-         4IEFcCMoJ5K0NL9gh0U5gKqRae9KpiOa7kjEMRp3jdb1aurBG48/69j9rendg9NKcYPJ
-         LDhjDhbqARp+gQ1fY8HcJZt9ONF/6Jn4t/QLLvwkw1U3NTNd/pv4sZRxlrevd+DaensT
-         0OooFAKW/Lz2ziFuRIODfvw7l/l3XYdTN4UIgpJ8fE4VAKb91MZc7IHrUmeefXGDu5NT
-         IlwQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=LLwHncsTbuxPzx5yYNEBeAPEkhiwNDT/H784knECcqk=;
-        fh=RXmTlq8NOfIf7bnU2C7LwHpEY72bRqcA1gmVDmkZaYk=;
-        b=ct9UqrmwleX4pTmXRXxhd19TRFYJGAqYO6+FLaAQfUBxVnonqOetWsk7Gec8X7w9Qz
-         Aj5psTYe+4H9zazZ9cKjBx7q55H46wbJa9J2EbW24MH3Df7sQRJ5mttuTkpMQjGJPbvm
-         ZseKhT1YGB7CVN8NddqsOWuTJaK7LcA0RGHQuwGOAUXc/neUZiWJ4MlCwor7sCSrHOY/
-         kVGROr659fSOX9C2GXR8iglO+pmP+/LbBIkhLo9eBgNxEcSmXtenLx2enYTwh0yqtQ8F
-         92bk8n58JYNUCzzcyf0lxNv0rnfg9BBHdvBgTn0TKZUbF6mcn6OXPAOwFeg3Xxfyryku
-         KDdg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o1S4Dpif"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-c247f6687dcso60937566b.2
+        for <linux-input@vger.kernel.org>; Thu, 03 Sep 2026 17:18:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788475015; x=1789079815; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=LLwHncsTbuxPzx5yYNEBeAPEkhiwNDT/H784knECcqk=;
-        b=jTVom41gTJ/QUY33W75BX5Laj9qV7Bhvb40FlPApjflL2RVqYMRK7VzUoZhyYzKuht
-         mEdP32TX9LBhVGEMqeJgoCUP6iIaGcnwAdYpuG5HLRMRtcwOw2cPI2izdPm0w//U4S1R
-         vbv+pwnCQ7Ol5w+0/iUSscvDkx8k1fCnel8HMHhNxfYNpLgqI1wNl+SS0qgBlmfR4Vp3
-         v6GHEF6YCLsYqRP1qMgTmt8s8gM6FLpmMp6xrOODRSgy29Wi/qFkfi0/46g2JnV/r0RF
-         P2NMKzutLHt8ecRXmYLn0nwlVZigqBzvH4FQpTRFeRYfbGD71ADZRk4BUwXXRijY0lLt
-         tasw==
+        d=gmail.com; s=20251104; t=1788481103; x=1789085903; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=3Pn1aEbcO0f3BAISnT6H9S3U4eX/tv1UuXBAlv+8tiE=;
+        b=o1S4DpifDr4bTRVtiZk5YXl3YG/PtiKIomlo45hpnTWsJKI2F/cO7ihoXTtuIRFr3x
+         YpPTqXFFifcHHXFSf3GFNPcvrFwHRKicf1k+AH3cTllNEIezNTuRvMKzR6oFfZjS+v40
+         zNcLYzxv6RCS+sQV2DKCWahplkSW8g7GIXSneLxsW2eaH1tcKO2YKeC6WlqpUQ4go6KL
+         Y9QxTCqKN6WiY6So/ZqW5WYXmGqfln5D+l3M0wHUvFXe8KRJEecaBI+AJ6FhXvuOyVZ9
+         Yz6JTwR5iFdKpeQAqNG9nHx6ud+MMoB1hIfBiKooGwieuilNVeUJCKXGX1r+FyPbQOdF
+         +/Pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788475015; x=1789079815;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LLwHncsTbuxPzx5yYNEBeAPEkhiwNDT/H784knECcqk=;
-        b=FwTxJtCQKxO0p5nxZns/Ce7aqay9S3GDzQ67GkN24f7xNbAgDD+963cC/g2jN2FBH3
-         MpSmbfxmyp0r+NqMDnWC+0BZyGnXQ4la8WTW3s6qjbemqXB5A6kjF/+NbfkIPG1I7rQf
-         kPD+WTfCZvb2IjKuZ8cA8qdaQBvV0pky6n+yAXdW3Ox9mgXKQONEB63+uGCAzJz8q2NL
-         pP9x4rhHW8kXo1IXAJ2lqf5mmibwTM+NqqxPbyQsPZlO2rxTf9W2GuU/5Rm4po+YJxz3
-         UzFNJmdiFo5zyHJOM9j7RO5VeNHJnRX4XRIshnbQwNriVcz5uX+Bv35nBeQd/NVdFueT
-         lpwQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwSWSQC8tMjdTxTSrke3eiWpmm+m1Or75TthymuS3m0lNJoJ87DrgL1V+QcR/4hV7G373yGJxtk5TUeCQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++nC6CGgsrfuphwmnOHlAn4wP6JkvZ+PvMWfgBLDKcituse0LDYh
-	CNfDRxs+sVAAjTCsGl3dhReaSxB4nc4m8WspOrmjwh+CdAsdtEio0eu0frEd6N+U8ONfACDPeS3
-	qDeMgEhkt9cCXJrl7I0LAx10R+Tt2gw6xUWI9
-X-Gm-Gg: AYBFou1q6QDIINhcb9KXlUCSQvzWOX6xhP70nexiHZVom/0VSbxlOva+glOLR0iW6wm
-	qK6z2u89rNiWRh/T5eEQAw8rT+yysYMiqWLGsfgAjjw4t/DcssXcQkQ/uor72OnWraAnGn04kWA
-	PqVS+K2mviCllhL4UJrPmPmIE2RsfIJ4PbktCyUr8HDG/dUb3KJ5ch3flnyoOKONIvJS3oZUicU
-	JYJfjmaUdPeOa3gOEqmkwBJ/njihb9qeJzjU72Sf1/3TrvjT7/Ntken6vXOP7rcvi0JK5qcCpXx
-	oLgB1WpYtGuVPPp3Q6Zw1mn9fu7dZn2mkpawa1gc6Ffg
-X-Received: by 2002:a05:6214:3389:b0:910:39e7:dbb9 with SMTP id
- 6a1803df08f44-9103efbf07dmr36517936d6.33.1788475015314; Thu, 03 Sep 2026
- 15:36:55 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1788481103; x=1789085903;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=3Pn1aEbcO0f3BAISnT6H9S3U4eX/tv1UuXBAlv+8tiE=;
+        b=gdAW6JP43oz/B3aEw2pSUhO1cCgkWEVbsNG4f3Pww7GLK8XkqXQDktjP+KuRMm6z+0
+         s2jd5PlE/eSuWzLerPRVp1jPE9/aZVya7HMFBUQuef0qz1DheqGt8Z4GwQu1ZDemIR77
+         sYRqovJMWp1S2tP794quNpOhaIIUjYHU53MxEHEipVvnFqk/L8fm8BtM6CrV++Z7d7+F
+         pfVuOqNmMumcuJH8adtn49ZKt1GX+LorpTesRrfmU69osO+Yak6sYMwWsqFf4SU8jnow
+         lmAgm/ZBKbYjuDfd1aUSFxTg4QbOxfkITJDoUL7wmZlxsUzwaVAPRtz9bVWwvV69nxQA
+         pNPw==
+X-Forwarded-Encrypted: i=1; AKwUvBzcJVow2q6LZiPD+EMULFtmO9eu1mNQewUYk1i1fofxOaGKbbf5tZdaV58phsso7pAWRw1t5QYBoyFTxQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lgSMPyckCTiSLTlfxXOtNVcEL1pHw5oJEYyEr4JXYtbww8sWV1
+	S46+zkKKMLzQewReEYqneHWqevJa439EPPv3JFn0bhC352eXWiwdYzbk
+X-Gm-Gg: AYBFou1TRlWFnoMUaL36A77jsgw8P5lzzwE8daWwMojnWNXb/NV6TL0DOt+o4p8vXgy
+	TzGfe9nN9NEFo/7/mbPjppt67sc573tu9O4FkIg+zQyEzDIiDbRcootbwcm7LPXkS5npVudvhad
+	NN9NvUKHb8BDSAsUy6ShT8blGkYHq1UyvyDUe4TpKs3mRcv5BDUj63+Oo0FaLjwuKTG6b8F57f7
+	gOviTshVKrB1sT8mLpZNJAQtfrp1/f6hbU6nk/P0nWlGUNfeQAi3tXMWUoMSf/iT03TklTsDBw1
+	pyYruuE+hA3X2Bn52yLMo4a/VPakFIIfXvyVmcBObs2lZ6a2HQn89fplVbt0I2KzGNApOs18/qj
+	7G7kLDvfu57Z5wOPePMm52Vqq8ln0Ut63wACr7GhuwqdvG/20BjK97hZREImghV4428WXGS3O2y
+	gKXOxIN68GR10TgyQ2GlO5af2l+5BBjw8uTuvnUq2elwf5R9MHLcQlwBPipSA5BDmfCBN7BWqpc
+	WqPeB6GyoKorS7aN+R3y6fWrsLfJCzWEU0u1icqQTdAJ5Ybqa43uB3IDC17
+X-Received: by 2002:a17:907:1c22:b0:c25:5a7:87f with SMTP id a640c23a62f3a-c260c448d9fmr121109866b.0.1788481102884;
+        Thu, 03 Sep 2026 17:18:22 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c260d53e0b1sm31671066b.33.2026.09.03.17.18.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Sep 2026 17:18:21 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: tiwai@suse.de
+Cc: tiwai@suse.com,
+	perex@perex.cz,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v8 0/2] ALSA: usb-audio: the Topping M62's vendor controls
+Date: Fri,  4 Sep 2026 05:18:18 +0500
+Message-ID: <20260904001818.66423-1-mikhail.v.gavrilov@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <87mrty8xf2.wl-tiwai@suse.de>
+References: <87mrty8xf2.wl-tiwai@suse.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CANRwn3TWTHxP=ZEpgZzjRweC8vqifoi2koKgSQTEuPuY4FZxcQ@mail.gmail.com>
- <20260828033323.82958-1-98lawweijie@gmail.com>
-In-Reply-To: <20260828033323.82958-1-98lawweijie@gmail.com>
-From: Jason Gerecke <killertofu@gmail.com>
-Date: Thu, 3 Sep 2026 15:36:44 -0700
-X-Gm-Features: AcwNN1Uf8W0B_NasShubMPyX2tl_dv_s_spNFLKUekhbNr4EO8bPhewHWVRjrA8
-Message-ID: <CANRwn3RFVDy+y-fpLkb1mfjiKyQgp1Jg0tyBTO+G0xem2s1jkQ@mail.gmail.com>
-Subject: Re: [PATCH v3] HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
-To: Wei Jie LAW <98lawweijie@gmail.com>
-Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 27, 2026 at 8:33=E2=80=AFPM Wei Jie LAW <98lawweijie@gmail.com>=
- wrote:
+On Thu, 03 Sep 2026 12:02:57 +0200, Takashi Iwai wrote:
 >
-> From: Wei Jie Law <98lawweijie@gmail.com>
->
-> wacom_wac_pen_serial_enforce() iterates over a field's usages (up to
-> field->maxusage) but indexes the report bits by j * report_size, the
-> position of value slot j -- and only the field->report_count value
-> slots reserved by the Report Count exist in the report:
->
+> Well, let's experiment the component stuff a bit.
 
-Thanks for the v3!
+I did, and it works. But while testing it I measured something that
+undercuts the premise of the whole series, so that comes first and the
+component question is at the bottom, where it now belongs.
 
-I'm still finding the above paragraph kinda hard to understand. What
-do you think of something like the following instead?
+**The card cannot be read. Not by this driver, and not by the vendor's
+own application.**
 
-* * * *
+Every version of this series has rested on one sentence, which is in
+the v8 commit message: that a single write of 0x11/0x26 makes the
+device announce its whole state, and that this is how the controls are
+populated without caching what we wrote. That is wrong, and I am sorry
+it stood for eight postings.
 
-The 'wacom_wac_pen_serial_enforce' function may calculate and pass an
-invalid offset to 'hid_field_extract', resulting in memory reads at
-incorrect addresses--possibly beyond the end of the report. If a field
-in the HID descriptor lists more usages than its Report Count actually
-reserves space for, the function's inner 'j' will walk past the end of
-the field:
+Six captures, on two operating systems.
 
-* * * *
+Four with usbmon here: a cold start with the card powered down first,
+an ordinary replug, a module unload and reload with the card left in
+place, and one with every state restorer disabled -- alsa-restore and
+alsa-state masked, the 90-alsa-restore udev rule symlinked to
+/dev/null, wireplumber and pipewire stopped, asound.state moved aside.
+That last one: thirty-one seconds, seventeen frames out, 2589 in,
+every incoming frame a level meter. The 0x11/0x26 write elicited
+nothing at all.
 
-Other than the above language issue:
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com
+Two of the vendor's application on macOS. Its connect sequence is:
 
-Jason (she/they)
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+	0.000  OUT  0x11/0x01 = 1      handshake, device answers 3
+	0.034  OUT  0x11/0x20 = 1      opens a bulk transaction
+	 ...        149 writes         gains, mixer, EQ, routing
+	1.070  OUT  0x11/0x20 = 0      closes it
+	1.072  OUT  0x11/0x26 = 1
+	1.074  OUT  0x11/0x24 = 1      subscribe, then every ~2 s
 
->         for (i =3D 0; i < report->maxfield; i++) {
->                 for (j =3D 0; j < report->field[i]->maxusage; j++) {
->                         ...
->                         value =3D hid_field_extract(hdev, raw_data + 1,
->                                                   offset + j * size, size=
-);
->
-> hid_add_field() sizes the usage array with max(usage_index,
-> report_count), so a report descriptor can declare far more usages
-> than its Report Count reserves room for in the report.  One listing
-> 12288 usages against Report Count 1 has the loop extract the usage
-> at index 12287 from bit offset 98296 -- about 12 KB past a 2-byte
-> received report.  The value is stored in wacom_wac->serial[0] and
-> can reach userspace as an MSC_SERIAL event, making this an
-> information disclosure.
->
-> Clamp the loop to field->report_count, the number of value slots the
-> report holds. Value slots past the last declared usage are still
-> scanned; they reuse that usage (HID 1.11, 6.2.2.8).
->
-> Verified on v6.12.105 with a UHID reproducer: a 2-byte report from
-> such a descriptor trips KASAN before the patch and not after it.
->
-> Fixes: 83417206427b ("HID: wacom: Queue events with missing type/serial d=
-ata for later processing")
-> Suggested-by: Jason Gerecke <killertofu@gmail.com>
-> Cc: stable@vger.kernel.org
-> Assisted-by: Claude:claude-opus-5
-> Assisted-by: GLM:glm-5.3
-> Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
-> ---
-> Changes in v3, per Jason Gerecke's review:
->
->  - reworded the explanation: the usage array is sized for maxusage;
->    the descriptor just declares more usages than its Report Count
->    reserves room for in the report, and the loop trusted maxusage
->    over report_count
->
->  - bound inner loop to field->report_count
->
-> The reproducer is available on request.
->
-> Compile-tested on 6ba2c27cb9aa (x86_64, wacom_sys.o); the runtime
-> verification used the identical wacom_sys.c built as a module for
-> v6.12.105.
->
-> v2: https://lore.kernel.org/linux-input/20260825103104.12090-1-98lawweiji=
-e@gmail.com/
-> v1: https://lore.kernel.org/linux-input/20260822120926.153849-1-98lawweij=
-ie@gmail.com/
->
->  drivers/hid/wacom_sys.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 0eafa483b7f7..40770affdbde 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -113,8 +113,9 @@ static int wacom_wac_pen_serial_enforce(struct hid_de=
-vice *hdev,
->
->         /* Queue events which have invalid tool type or serial number */
->         for (i =3D 0; i < report->maxfield; i++) {
-> -               for (j =3D 0; j < report->field[i]->maxusage; j++) {
-> -                       struct hid_field *field =3D report->field[i];
-> +               struct hid_field *field =3D report->field[i];
-> +
-> +               for (j =3D 0; j < field->report_count; j++) {
->                         struct hid_usage *usage =3D &field->usage[j];
->                         unsigned int equivalent_usage =3D wacom_equivalen=
-t_usage(usage->hid);
->                         unsigned int offset;
-> --
-> 2.43.0
->
+All 162 outgoing frames are writes. There is not one read. The
+application never asks the card anything: it opens a transaction and
+pushes its own stored workspace in, including every one of the nine
+values this series exposes. And 0x11/0x26 goes out *after* the upload,
+so whatever it is, it is not a request for state. I had it backwards.
+
+The second macOS capture was taken deliberately. I set Mic-1 to 70
+from the front panel here and confirmed it through the control; the
+Mac had 50 stored. Forty milliseconds after connecting, the
+application wrote 0x21/0x04 = 50 and the panel followed. That write is
+the only mention of 0x21/0x04 anywhere in the capture.
+
+So the plausible values in my earlier testing were the driver's own
+writes coming back. topping_ctl_write() updates the cache before
+sending, and alsactl restored the stored state within about 80 ms of
+the bind on every plug. My asound.state held "value 28" for Mic-1, and
+28 is what the control read for two days. Reload the module -- no
+card-add uevent, so no restorer runs -- and it reads 0 while the panel
+is plainly not at zero.
+
+This is what the vendor told me in August: there is no read command.
+They were describing their hardware accurately.
+
+**How this differs from an ordinary card.**
+
+An HDA codec keeps its amp values in registers and
+snd_hda_codec_amp_read() asks for them; a UAC device answers GET_CUR.
+Both drivers then cache, which is why a mixer control looks like plain
+software state from the outside. The M62 remembers too -- better than
+either, since it has a battery and survives being unplugged -- but
+there is no way to ask it. The cache has nothing to start from, so it
+starts from zero.
+
+That is not merely inaccurate. The output volumes use a TLV whose
+index 0 is DB_GAIN_MUTE and whose index 99 is the top of the scale, so
+the driver can report "muted" for a card sitting at maximum. The input
+gains are no better in kind: this card is bought for measurement, and
+a preamplifier reading 28 while the hardware is at 70 makes every
+number taken through it wrong, quietly and later.
+
+The two source selectors are worse than either, because a wrong one is
+silent rather than loud. If the headphone output is pointed at Mix A
+and the host plays into Playback 1/2, nothing comes out and nothing
+says why: the card is playing correctly, from a source no one is
+feeding. No log line, no error, no clue short of reading the panel.
+The vendor application writes 0x64/0x02 on connect for exactly this
+reason.
+
+**What I think the answer is.**
+
+There is no "do nothing" option: publishing a control at all makes
+alsactl store and restore it, so the driver imposes state on the card
+whether it means to or not.
+
+While looking for a convention I found that usb-audio already has one
+for this, in mixer.c:
+
+	/* forcibly initialize the current mixer value; if GET_CUR fails,
+	 * set to the minimum as default
+	 */
+	static void init_cur_mix_raw(...)
+	{
+		err = snd_usb_get_cur_mix_value(cval, ch, idx, &val);
+		if (!err)
+			return;
+		...
+		snd_usb_set_cur_mix_value(cval, ch, idx, cval->min);
+	}
+
+If a device will not answer GET_CUR -- and there is a get_cur_broken
+flag and a check_mixer_get_cur() that detects it -- the mixer writes
+the minimum and caches that. It does not display an unverified number
+and it does not make the control write-only. The reported value is
+true because the driver made it true, and safe because the minimum is
+the safe end.
+
+That is what I would like to do here: write the minimum to all seven
+gains and volumes at bind, and cache it. alsactl restore then puts the
+user's stored values over the top a moment later, exactly as it does
+for any other card. A hand-set panel value is lost on connect, which
+is a real cost -- but the vendor's own application already destroys it,
+with its stored value rather than the minimum.
+
+The selectors do not fit that shape, since their minimum is the
+"Unknown" item and writing it is a no-op. Either the driver picks a
+sensible default source at bind, and takes over routing the user may
+have set deliberately, or it leaves them alone and the card can be
+silent for reasons nothing on the host can explain. I do not have a
+good answer and would rather be told.
+
+So: is init_cur_mix_raw()'s behaviour the right precedent to follow
+for a vendor protocol that has no read at all, rather than only a
+broken GET_CUR? And what would you do about the selectors?
+
+**The component experiment**, briefly. It works. The master goes up
+from snd_topping_init() inside snd_usb_create_mixer(), so on an
+ordinary plug the bind is synchronous and the controls exist before
+try_to_register_card() -- the same ordering as v8, and the restore
+timing worry does not bite there. From HID probe to component bind:
+54 to 57 ms across five replugs. Only a module reload onto a live card
+adds controls after registration, and there a desktop mixer does not
+follow the renumbered elements until wireplumber is restarted.
+
+I will hold the prototype until the above is settled, because the
+answer decides what these controls are.
+
+-- 
+Mikhail

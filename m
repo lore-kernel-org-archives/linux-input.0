@@ -1,33 +1,33 @@
-Received: from mta1.migadu.com (out-97.mta1.migadu.com [95.215.58.97])
+Received: from mta0.migadu.com (out-88.mta0.migadu.com [91.218.175.88])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2BC74EBAC6
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:01:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C0E54EC67D
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:01:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.88
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788534093; cv=none; b=J2LMEnn/i2OpKH47vNvXGseXpHuprebDGQ0RRDqwIFO0l53vQEWaCUS+/IwwhqBYiY3M0rLBDgIfLAobreBACt2BwbUErmiv5W6rj3Wj3PEIg+PkuTl4p2fVW22c30Qg1SDakW38fi6ZHFkivPlC/5WvUuh4IrxW62xzl6dw8xE=
+	t=1788534098; cv=none; b=Z4rBGxJkY5FiLvoGdNC9yAS42cSHRO2W9koIl5gCBLqeGPTR79KOKXLEZeRzroq7mZfqiQ6hSYmWX08VFT7BwNesyFG37c0T6JchfIbhKsWC50DvWMe3M85U9rNeKDxS6FX5Kx7a9s8futdihmEpGuxzgQemJ+lREOv24L3bRrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788534093; c=relaxed/simple;
-	bh=XBJosoJKLU6Crb80DZyltkF75V7Rf2etBi1uyvs/djI=;
+	s=arc-20240116; t=1788534098; c=relaxed/simple;
+	bh=ZP+VhVA1KoG09GWCay87QJp46X+GBfZROMv3M2JvsNo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RQfdIH4XQMZ4hDudpOkZT2uzjf7QaJ+a6xgdEndrUntOBoZymp2HZKNypBt/4ktyAVfzgY8Ys2O5sr3Xx/jaAkeEHPM4VikNW8HMUScMDegkcoILBPKlCQNLTmCiGzp1xEnSFFn4Vt5r+zXW3N+NJuKNb5+hB0S6+8nN20LIcBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=IHj942a7; arc=none smtp.client-ip=95.215.58.97
+	 MIME-Version; b=dVsjiHjP/abuoMjtlJRK4QRSVzmVKSb+U2Jd3IPTwHgZkRFMHlJlrZweTo2cQm1Kx5AxkdcxOU3eSu6ScaUIBaomn0MdD0n08Bm3Rj308szJHQkgNvtNSZsNcAT9WfKS1bt+V34+u+hf+sTHQy0egfoOt+mMy/nFfLeRkvKzCHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=GgxtbxdU; arc=none smtp.client-ip=91.218.175.88
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="IHj942a7"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="GgxtbxdU"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=XBJosoJKLU6Crb80DZyltkF75V7Rf2etBi1uyvs/djI=;
+DKIM-Signature: a=rsa-sha256; bh=ZP+VhVA1KoG09GWCay87QJp46X+GBfZROMv3M2JvsNo=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788534088; v=1; x=1789138888;
- b=IHj942a7UbIf/ZxX4hEAUNUn6RzY7Vv1S1FHLP9x+xqq3s6TxkSp6bo5P4+/5LNvUr/I46HO
- wt9UcxnIndOdMGXRogqHXx7el9FzmWoQWkrrQOftwa7Dqn5VtqyJ5p0Zgd9fPmO28vQ4cLUp25Y
- NsYjvRjKIsEGDXA1MXp3+mF0=
+ t=1788534094; v=1; x=1789138894;
+ b=GgxtbxdU8r9tTqbyF9LThx+JvW8OkBKPt5ngRF/kvqloVVtNJW28GGSHOsZ2VJ0TP2au3wGB
+ pIkdFCtGhqYXxRZpIF610phn6Vf86jpwQlX1wGrNjnl4W9oqU5qNWFZ6Q7SnNryEavEZsmT5hxZ
+ zX1fLepHauY2kwXhdGhPPR8Q=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id cf7244353a0abf94;
-	Fri, 04 Sep 2026 15:01:28 +0000
-X-Mizu-Trace-ID: cf7244353a0abf94
+Received: by smtp.migadu.com with ESMTPS id 750d5d8d67a6bbf1;
+	Fri, 04 Sep 2026 15:01:33 +0000
+X-Mizu-Trace-ID: 750d5d8d67a6bbf1
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -41,9 +41,9 @@ Cc: linux-input@vger.kernel.org,
 	"Khamunetri Clark" <khamunetriclark@gmail.com>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v5 04/13] HID: asus: add gamepad configuration
-Date: Fri,  4 Sep 2026 14:58:35 +0000
-Message-ID: <20260904145845.184887-5-denis.benato@linux.dev>
+Subject: [PATCH v5 05/13] HID: asus: add vibration strength configuration
+Date: Fri,  4 Sep 2026 14:58:36 +0000
+Message-ID: <20260904145845.184887-6-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260904145845.184887-1-denis.benato@linux.dev>
 References: <20260904145845.184887-1-denis.benato@linux.dev>
@@ -55,230 +55,66 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add the base configuration structures for the gamepad configuration,
-detect capabilities and initialize the device in a known state.
+ASUS ROG Ally handhelds support the vibration strength to be configured:
+add sysfs attributes to allow userspace configure motors vibration
+intensity.
 
 Assisted-by: opencode:glm-5.2
-Assisted-by: Claude:claude-fable-5
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 Signed-off-by: Luke Jones <luke@ljones.dev>
-Signed-off-by: Jonathan LoBue <jlobue10@gmail.com>
 ---
- drivers/hid/hid-asus.c | 401 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 398 insertions(+), 3 deletions(-)
+ drivers/hid/hid-asus.c | 195 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 195 insertions(+)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 129cec7e27ec..4714ebb4a543 100644
+index 4714ebb4a543..659956ebaefc 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -22,6 +22,7 @@
- 
- #include <linux/acpi.h>
- #include <linux/cleanup.h>
-+#include <linux/device.h>
- #include <linux/dmi.h>
- #include <linux/hid.h>
- #include <linux/jiffies.h>
-@@ -34,6 +35,7 @@
- #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
- #include <linux/power_supply.h>
- #include <linux/stddef.h>
-+#include <linux/sysfs.h>
- #include <linux/leds.h>
- #include <linux/unaligned.h>
- 
-@@ -176,6 +178,45 @@ struct asus_touchpad_info {
- 	int report_size;
+@@ -206,6 +206,10 @@ struct ally_config {
+ 	u8 left_trigger_max;
+ 	u8 right_trigger_min;
+ 	u8 right_trigger_max;
++
++	/* Vibration settings */
++	u8 vibration_intensity_left;
++	u8 vibration_intensity_right;
  };
  
-+struct ally_config {
-+	/* Must be locked if the data is being changed */
-+	struct mutex config_mutex;
-+	bool initialized;
-+
-+	/* Device capabilities flags */
-+	bool is_ally_x;
-+	bool xbox_controller_support;
-+	bool user_cal_support;
-+	bool turbo_support;
-+	bool resp_curve_support;
-+	bool dir_to_btn_support;
-+	bool gyro_support;
-+	bool anti_deadzone_support;
-+
-+	/* Current settings */
-+	bool xbox_controller_enabled;
-+	u8 gamepad_mode;
-+	u8 left_deadzone;
-+	u8 left_outer_threshold;
-+	u8 right_deadzone;
-+	u8 right_outer_threshold;
-+	u8 left_anti_deadzone;
-+	u8 right_anti_deadzone;
-+	u8 left_trigger_min;
-+	u8 left_trigger_max;
-+	u8 right_trigger_min;
-+	u8 right_trigger_max;
-+};
-+
-+/*
-+ * The Ally configuration is allocated when the controller first appears and
-+ * is released only on module removal: the embedded controller can disappear
-+ * and re-enumerate at any time (it powers off during suspend when powersave
-+ * is enabled), and on re-probe the driver must re-apply the recorded
-+ * configuration instead of factory defaults.
-+ */
-+static struct ally_config *ally_config;
-+
- struct ally_handheld {
- 	/* All read/write to IN interfaces must lock */
- 	struct mutex intf_mutex;
-@@ -197,6 +238,8 @@ struct ally_handheld {
- 	unsigned long cad_last_event_time;
+ /*
+@@ -829,15 +833,193 @@ static ssize_t xbox_controller_store(struct device *dev,
  
- 	struct delayed_work resume_work;
-+
-+	struct ally_config *config;
- };
- 
- struct asus_drvdata {
-@@ -590,11 +633,20 @@ static int ally_gamepad_send_receive_packet(struct ally_handheld *ally,
-  * responsibility to free the buffer using kfree().
-  *
-  * Return: the newly allocated buffer containing the command, or NULL on
-- * allocation failure
-+ * allocation failure or if the payload would not fit in the report
-  */
- static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
- {
--	u8 *hidbuf = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
-+	u8 *hidbuf;
-+
-+	/*
-+	 * The payload is written after the 4-byte command header:
-+	 * reject one that would spill past the end of the report.
-+	 */
-+	if (payload_size > ROG_ALLY_REPORT_SIZE - 4)
-+		return NULL;
-+
-+	hidbuf = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
- 
- 	if (!hidbuf)
- 		return NULL;
-@@ -610,6 +662,272 @@ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
- 	return hidbuf;
- }
+ static DEVICE_ATTR_RW(xbox_controller);
  
 +/**
-+ * ally_check_capability() - Check if a specific capability is supported
-+ * @hdev: HID device
++ * ally_set_vibration_intensity() - Set vibration intensity values
 + * @ally: ally handheld structure
-+ * @check_cmd: capability command code to query
++ * @hdev: HID device
++ * @left: Left motor intensity (0-100)
++ * @right: Right motor intensity (0-100)
 + *
-+ * Return: true if the capability is supported, false otherwise
++ * Return: 0 on success, negative errno on failure
 + */
-+static bool ally_check_capability(struct hid_device *hdev, struct ally_handheld *ally,
-+				  enum ally_command_codes check_cmd)
++static int ally_set_vibration_intensity(struct ally_handheld *ally,
++					struct hid_device *hdev, u8 left, u8 right)
 +{
-+	u8 payload[] = { 0x00 };
++	const u8 data[] = { left, right };
 +	int ret;
 +
-+	u8 *buf __free(kfree) = ally_alloc_cmd(check_cmd, payload, sizeof(payload));
-+	if (!buf) {
-+		hid_err(hdev, "Failed to allocate buffer for capability check.\n");
-+		return false;
-+	}
-+
-+	ret = ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
-+	if (ret < 0) {
-+		hid_err(hdev, "Failed to check capability 0x%02x: %d\n", check_cmd, ret);
-+		return false;
-+	}
-+
-+	return buf[1] == HID_ALLY_FEATURE_CODE_PAGE && buf[2] == check_cmd &&
-+	       buf[4] == 0x01;
-+}
-+
-+static int ally_detect_capabilities(struct hid_device *hdev, struct ally_handheld *ally,
-+				    struct ally_config *cfg)
-+{
-+	if (!hdev || !cfg || !ally)
-+		return -EINVAL;
-+
-+	scoped_guard(mutex, &cfg->config_mutex) {
-+		cfg->is_ally_x = (hdev->product == USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X);
-+
-+		cfg->xbox_controller_support =
-+			ally_check_capability(hdev, ally, CMD_CHECK_XBOX_SUPPORT);
-+		cfg->user_cal_support =
-+			ally_check_capability(hdev, ally, CMD_CHECK_USER_CAL_SUPPORT);
-+		cfg->turbo_support =
-+			ally_check_capability(hdev, ally, CMD_CHECK_TURBO_SUPPORT);
-+		cfg->resp_curve_support =
-+			ally_check_capability(hdev, ally, CMD_CHECK_RESP_CURVE_SUPPORT);
-+		cfg->dir_to_btn_support =
-+			ally_check_capability(hdev, ally, CMD_CHECK_DIR_TO_BTN_SUPPORT);
-+		cfg->gyro_support =
-+			ally_check_capability(hdev, ally, CMD_CHECK_GYRO_TO_JOYSTICK);
-+		cfg->anti_deadzone_support =
-+			ally_check_capability(hdev, ally, CMD_CHECK_ANTI_DEADZONE);
-+	}
-+
-+	return 0;
-+}
-+
-+static int ally_set_xbox_controller(struct hid_device *hdev,
-+				    struct ally_handheld *ally,
-+				    struct ally_config *cfg, bool enabled)
-+{
-+	u8 payload[] = { enabled ? 0x01 : 0x00 };
-+	int ret;
-+
-+	if (!cfg || !cfg->xbox_controller_support)
-+		return -ENODEV;
-+
-+	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_XBOX_CONTROLLER, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_VIBRATION_INTENSITY, data, sizeof(data));
 +	if (!buf)
 +		return -ENOMEM;
 +
 +	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
 +	if (ret < 0) {
-+		hid_err(hdev, "Failed to set Xbox controller mode: %d\n", ret);
++		hid_err(hdev, "Failed to set vibration intensity: %d\n", ret);
 +		return ret;
 +	}
 +
-+	cfg->xbox_controller_enabled = enabled;
 +	return 0;
 +}
 +
-+/**
-+ * ally_get_config() - Get the configuration of the Ally device
-+ * @ally: ally handheld structure
-+ *
-+ * Fetch the configuration published by hid_asus_ally_probe() under
-+ * ally_data_lock: the pointer is also cleared by hid_asus_ally_remove(),
-+ * so reading it without the lock would race with interface removal.
-+ *
-+ * The returned configuration outlives the sysfs callbacks using it: it is
-+ * allocated once on the ally probe path and released only on module
-+ * removal, when every sysfs attribute referencing it is gone.
-+ *
-+ * Return: the ally config, or NULL if no configuration is published
-+ */
-+static struct ally_config *ally_get_config(struct ally_handheld *ally)
-+{
-+	struct ally_config *cfg;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	cfg = ally->config;
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+	return cfg;
-+}
-+
-+static ssize_t xbox_controller_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
++static ssize_t left_vibration_intensity_show(struct device *dev, struct device_attribute *attr,
++					     char *buf)
 +{
 +	struct hid_device *hdev = to_hid_device(dev);
 +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
@@ -294,21 +130,17 @@ index 129cec7e27ec..4714ebb4a543 100644
 +
 +	guard(mutex)(&cfg->config_mutex);
 +
-+	if (!cfg->xbox_controller_support)
-+		return -ENODEV;
-+
-+	return sysfs_emit(buf, "%d\n", cfg->xbox_controller_enabled ? 1 : 0);
++	return sysfs_emit(buf, "%u\n", cfg->vibration_intensity_left);
 +}
 +
-+static ssize_t xbox_controller_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
++static ssize_t left_vibration_intensity_store(struct device *dev, struct device_attribute *attr,
++					      const char *buf, size_t count)
 +{
 +	struct hid_device *hdev = to_hid_device(dev);
 +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
 +	struct ally_handheld *ally = drvdata->rog_ally;
 +	struct ally_config *cfg;
-+	bool enabled;
++	u8 value;
 +	int ret;
 +
 +	if (!ally)
@@ -318,276 +150,158 @@ index 129cec7e27ec..4714ebb4a543 100644
 +	if (!cfg)
 +		return -ENODEV;
 +
-+	ret = kstrtobool(buf, &enabled);
-+	if (ret)
-+		return ret;
++	ret = kstrtou8(buf, 10, &value);
++	if (ret || value > 100)
++		return -EINVAL;
 +
 +	guard(mutex)(&cfg->config_mutex);
 +
-+	if (!cfg->xbox_controller_support)
-+		return -ENODEV;
-+
-+	ret = ally_set_xbox_controller(hdev, ally, cfg, enabled);
++	ret = ally_set_vibration_intensity(ally, hdev, value,
++					   cfg->vibration_intensity_right);
 +	if (ret < 0)
 +		return ret;
++
++	cfg->vibration_intensity_left = value;
 +
 +	return count;
 +}
 +
-+static DEVICE_ATTR_RW(xbox_controller);
++static ssize_t left_vibration_intensity_range_show(struct device *dev,
++						   struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "0 100\n");
++}
 +
-+static struct attribute *ally_config_attrs[] = {
-+	&dev_attr_xbox_controller.attr,
++static ssize_t right_vibration_intensity_show(struct device *dev, struct device_attribute *attr,
++					      char *buf)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++
++	if (!ally)
++		return -ENODEV;
++
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	return sysfs_emit(buf, "%u\n", cfg->vibration_intensity_right);
++}
++
++static ssize_t right_vibration_intensity_store(struct device *dev, struct device_attribute *attr,
++					       const char *buf, size_t count)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++	u8 value;
++	int ret;
++
++	if (!ally)
++		return -ENODEV;
++
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
++
++	ret = kstrtou8(buf, 10, &value);
++	if (ret || value > 100)
++		return -EINVAL;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	ret = ally_set_vibration_intensity(ally, hdev,
++					   cfg->vibration_intensity_left, value);
++	if (ret < 0)
++		return ret;
++
++	cfg->vibration_intensity_right = value;
++
++	return count;
++}
++
++static ssize_t right_vibration_intensity_range_show(struct device *dev,
++						    struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "0 100\n");
++}
++
++static struct device_attribute dev_attr_left_vibration_intensity =
++	__ATTR(intensity, 0644, left_vibration_intensity_show, left_vibration_intensity_store);
++
++static struct device_attribute dev_attr_left_vibration_intensity_range =
++	__ATTR(intensity_range, 0444, left_vibration_intensity_range_show, NULL);
++
++static struct device_attribute dev_attr_right_vibration_intensity =
++	__ATTR(intensity, 0644, right_vibration_intensity_show, right_vibration_intensity_store);
++
++static struct device_attribute dev_attr_right_vibration_intensity_range =
++	__ATTR(intensity_range, 0444, right_vibration_intensity_range_show, NULL);
++
+ static struct attribute *ally_config_attrs[] = {
+ 	&dev_attr_xbox_controller.attr,
+ 	NULL
+ };
+ 
++static struct attribute *ally_left_vibration_attrs[] = {
++	&dev_attr_left_vibration_intensity.attr,
++	&dev_attr_left_vibration_intensity_range.attr,
 +	NULL
 +};
 +
-+static const struct attribute_group ally_attr_groups[] = {
-+	{
-+		.attrs = ally_config_attrs,
-+	},
++static struct attribute *ally_right_vibration_attrs[] = {
++	&dev_attr_right_vibration_intensity.attr,
++	&dev_attr_right_vibration_intensity_range.attr,
++	NULL
 +};
 +
-+/**
-+ * ally_config_create() - Initialize configuration and create sysfs entries
-+ * @hdev: HID device
-+ * @ally: non-NULL ally device data with uninitialized config pointer
-+ *
-+ * Return: valid pointer on success, error pointer on failure
-+ */
-+static struct ally_config *ally_config_create(struct hid_device *hdev, struct ally_handheld *ally)
-+{
-+	struct ally_config *cfg;
-+	int ret, sysfs_i;
-+
-+	/*
-+	 * Allocate the configuration only once and keep it until module
-+	 * removal: the controller can disappear and re-enumerate while
-+	 * suspended, and the recorded settings must survive that to be
-+	 * re-applied when the controller comes back.
-+	 */
-+	if (!ally_config) {
-+		ally_config = kzalloc_obj(*ally_config, GFP_KERNEL);
-+		if (!ally_config)
-+			return ERR_PTR(-ENOMEM);
-+
-+		mutex_init(&ally_config->config_mutex);
-+	}
-+
-+	cfg = ally_config;
-+
-+	ret = ally_detect_capabilities(hdev, ally, cfg);
-+	if (ret < 0) {
-+		hid_err(hdev, "Failed to detect Ally capabilities: %d\n", ret);
-+		goto ally_config_create_err;
-+	}
-+
-+	if (!cfg->initialized) {
-+		cfg->gamepad_mode = 0x01;
-+		cfg->left_deadzone = 10;
-+		cfg->left_outer_threshold = 90;
-+		cfg->right_deadzone = 10;
-+		cfg->right_outer_threshold = 90;
-+	}
-+
-+	for (sysfs_i = 0; sysfs_i < ARRAY_SIZE(ally_attr_groups); sysfs_i++) {
-+		ret = sysfs_create_group(&hdev->dev.kobj,
-+					 &ally_attr_groups[sysfs_i]);
-+		if (ret < 0) {
-+			hid_err(hdev, "Failed to create sysfs group '%s': %d\n",
-+				ally_attr_groups[sysfs_i].name ?: "", ret);
-+			goto ally_config_create_sysfs_err;
-+		}
-+	}
-+
-+	/* So far the only hardware this is supported is the Ally 1 */
-+	if (cfg->xbox_controller_support) {
-+		ret = ally_set_xbox_controller(hdev, ally, cfg, true);
-+		if (ret < 0)
-+			hid_warn(hdev, "Failed to set default Xbox controller mode: %d\n",
-+				ret);
-+	}
-+
-+	cfg->initialized = true;
-+
-+	return cfg;
-+ally_config_create_sysfs_err:
-+	/* The sysfs groups are not devm-managed: undo the created ones. */
-+	while (sysfs_i-- > 0)
-+		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[sysfs_i]);
-+
-+ally_config_create_err:
-+	return ERR_PTR(ret);
-+}
-+
-+/**
-+ * ally_config_remove() - Clean up configuration resources
-+ * @hdev: HID device
-+ * @cfg: ally config to clean up, may be NULL
-+ */
-+static void ally_config_remove(struct hid_device *hdev, struct ally_config *cfg)
-+{
-+	int i;
-+
-+	if (!cfg || !cfg->initialized)
-+		return;
-+
-+	for (i = 0; i < ARRAY_SIZE(ally_attr_groups); i++)
-+		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[i]);
-+}
-+
+ static const struct attribute_group ally_attr_groups[] = {
+ 	{
+ 		.attrs = ally_config_attrs,
+ 	},
++	{
++		.name = "left_vibration",
++		.attrs = ally_left_vibration_attrs,
++	},
++	{
++		.name = "right_vibration",
++		.attrs = ally_right_vibration_attrs,
++	},
+ };
+ 
  /**
-  * ally_gamepad_check_ready() - Wait for the gamepad MCU to report ready
-  * @ally: ally handheld structure
-@@ -874,6 +1192,7 @@ static int ally_x_setup_input(struct hid_device *hdev, struct ally_handheld *all
+@@ -880,6 +1062,8 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
+ 		cfg->left_outer_threshold = 90;
+ 		cfg->right_deadzone = 10;
+ 		cfg->right_outer_threshold = 90;
++		cfg->vibration_intensity_left = 100;
++		cfg->vibration_intensity_right = 100;
+ 	}
  
- static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *ally)
- {
-+	struct ally_config *cfg;
- 	int ret;
+ 	for (sysfs_i = 0; sysfs_i < ARRAY_SIZE(ally_attr_groups); sysfs_i++) {
+@@ -1215,6 +1399,17 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
+ 				 ret);
+ 	}
  
- 	/* Failure at this point is non-critical */
-@@ -882,6 +1201,20 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
- 	if (ret < 0)
- 		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
- 
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return 0;
-+
-+	/* The MCU may have just been reset: restore the cached state. */
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	if (cfg->xbox_controller_enabled) {
-+		ret = ally_set_xbox_controller(hdev, ally, cfg, true);
-+		if (ret < 0)
-+			hid_warn(hdev, "Failed to restore Xbox controller mode: %d\n",
-+				 ret);
-+	}
++	/*
++	 * The MCU does not keep the vibration intensity across a reset:
++	 * send the recorded values again, whichever interface probed.
++	 */
++	ret = ally_set_vibration_intensity(ally, hdev,
++					   cfg->vibration_intensity_left,
++					   cfg->vibration_intensity_right);
++	if (ret < 0)
++		hid_warn(hdev, "Failed to restore vibration intensity: %d\n",
++			 ret);
 +
  	return 0;
  }
  
-@@ -959,11 +1292,15 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
- 	unsigned long flags;
- 	int ret, ep = ally_get_endpoint_address(hdev);
- 	struct usb_device *udev;
-+	struct ally_config *ally_cfg;
- 	struct hid_input *hidinput;
- 
- 	if (ep < 0)
- 		return ERR_PTR(ep);
- 
-+	if (!hid_is_usb(hdev))
-+		return ERR_PTR(-ENODEV);
-+
- 	/*
- 	 * The ROG Ally controller is integrated into a handheld PC, so at
- 	 * most one device can exist and the shared global state relies on
-@@ -1023,6 +1360,14 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
- 			return ERR_PTR(ret);
- 		}
- 
-+		ally_cfg = ally_config_create(hdev, &ally_drvdata);
-+		if (IS_ERR(ally_cfg)) {
-+			hid_err(hdev, "Failed to create Ally cfg: %ld\n",
-+				PTR_ERR(ally_cfg));
-+			ally_put_udev_if_orphaned();
-+			return ERR_PTR(PTR_ERR(ally_cfg));
-+		}
-+
- 		ret = hid_asus_ally_init(hdev, &ally_drvdata);
- 		if (ret < 0) {
- 			ally_put_udev_if_orphaned();
-@@ -1030,6 +1375,7 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
- 		}
- 
- 		spin_lock_irqsave(&ally_data_lock, flags);
-+		ally_drvdata.config = ally_cfg;
- 		ally_drvdata.cfg_hdev = hdev;
- 		spin_unlock_irqrestore(&ally_data_lock, flags);
- 		break;
-@@ -1066,7 +1412,9 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
- static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *ally)
- {
- 	struct input_dev *x_input = NULL;
-+	struct ally_config *cfg = NULL;
- 	unsigned long flags;
-+	bool owns_cfg;
- 
- 	if (!ally)
- 		return;
-@@ -1096,8 +1444,25 @@ static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *
- 		ally->keyboard_input = NULL;
- 		ally->keyboard_hdev = NULL;
- 	}
-+
-+	owns_cfg = ally->cfg_hdev == hdev;
-+	if (owns_cfg) {
-+		cfg = ally->config;
-+		ally->cfg_hdev = NULL;
-+		ally->config = NULL;
-+	}
-+
- 	spin_unlock_irqrestore(&ally_data_lock, flags);
- 
-+	/*
-+	 * The config teardown removes sysfs groups and takes sleeping locks:
-+	 * it must not run under ally_data_lock. The config pointer has been
-+	 * unpublished above, so no new sysfs callback can find it while the
-+	 * groups are being removed.
-+	 */
-+	if (owns_cfg)
-+		ally_config_remove(hdev, cfg);
-+
- 	if (x_input)
- 		input_unregister_device(x_input);
- 
-@@ -1124,6 +1489,16 @@ static int hid_asus_ally_reset_resume(struct hid_device *hdev, struct ally_handh
- 	if (ep != HID_ALLY_INTF_CFG_IN)
- 		return 0;
- 
-+	/*
-+	 * This function assumes the asus-specific initialization
-+	 * to have been performed already at this point.
-+	 */
-+	ret = ally_gamepad_check_ready(ally, hdev);
-+	if (ret < 0) {
-+		hid_err(hdev, "ROG Ally device is not ready: %d\n", ret);
-+		return ret;
-+	}
-+
- 	ret = hid_asus_ally_init(hdev, ally);
- 	if (ret < 0)
- 		return ret;
-@@ -2707,7 +3082,27 @@ static struct hid_driver asus_driver = {
- 	.event			= asus_event,
- 	.raw_event		= asus_raw_event
- };
--module_hid_driver(asus_driver);
-+static int __init asus_init(void)
-+{
-+	return hid_register_driver(&asus_driver);
-+}
-+
-+/*
-+ * The Ally configuration is not tied to any device lifetime: interface
-+ * removal keeps it so that it can be re-applied on re-probe. Release it
-+ * only when the module itself is removed, once no sysfs attribute can
-+ * reach it anymore.
-+ */
-+static void __exit asus_exit(void)
-+{
-+	hid_unregister_driver(&asus_driver);
-+
-+	kfree(ally_config);
-+	ally_config = NULL;
-+}
-+
-+module_init(asus_init);
-+module_exit(asus_exit);
- 
- MODULE_IMPORT_NS("ASUS_WMI");
- MODULE_LICENSE("GPL");
 -- 
 2.47.3
 

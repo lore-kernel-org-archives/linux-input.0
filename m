@@ -1,33 +1,33 @@
-Received: from mta0.migadu.com (out-82.mta0.migadu.com [91.218.175.82])
+Received: from mta1.migadu.com (out-97.mta1.migadu.com [95.215.58.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 638F14DF4D7
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:01:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.82
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2BC74EBAC6
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:01:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788534091; cv=none; b=Ts30Vn9A0ycOVXQmqfYi2JhjqVVLYiNdJQTUsyTeIs2wsEHxkRSVD55wBaTtXvAX16hqcJtKNJUcxqVmh+O1U6sAaaLmrVMxiNr0oDRc9xTZ2q5uRjA9v3Yqx2oLL3f5Xq/iXFCBZ7LjizHQpa+h2HjXMXHCwYgQDX9y9crqUJQ=
+	t=1788534093; cv=none; b=J2LMEnn/i2OpKH47vNvXGseXpHuprebDGQ0RRDqwIFO0l53vQEWaCUS+/IwwhqBYiY3M0rLBDgIfLAobreBACt2BwbUErmiv5W6rj3Wj3PEIg+PkuTl4p2fVW22c30Qg1SDakW38fi6ZHFkivPlC/5WvUuh4IrxW62xzl6dw8xE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788534091; c=relaxed/simple;
-	bh=XkY4tsvVuICrIYWIZnd6SI8lphd6f2lcc3N16ZTfxbs=;
+	s=arc-20240116; t=1788534093; c=relaxed/simple;
+	bh=XBJosoJKLU6Crb80DZyltkF75V7Rf2etBi1uyvs/djI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fcEHf42lswdWEbhXm+9FbleTMHaTXDoXC/9tpGX7d68JbT4xZ+9dIXM8FEytA83fxHfwx4BXdmnvL0uGAkkoiBkZDzjwexM6myr4Qrrggrj1X3/WufoCOa5vh2TArvznBAgD+JoEpdp2YT8JIr6f06tvFA0A1Ke4M+tn/EiOMso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=DmfVzAwY; arc=none smtp.client-ip=91.218.175.82
+	 MIME-Version; b=RQfdIH4XQMZ4hDudpOkZT2uzjf7QaJ+a6xgdEndrUntOBoZymp2HZKNypBt/4ktyAVfzgY8Ys2O5sr3Xx/jaAkeEHPM4VikNW8HMUScMDegkcoILBPKlCQNLTmCiGzp1xEnSFFn4Vt5r+zXW3N+NJuKNb5+hB0S6+8nN20LIcBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=IHj942a7; arc=none smtp.client-ip=95.215.58.97
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="DmfVzAwY"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="IHj942a7"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=XkY4tsvVuICrIYWIZnd6SI8lphd6f2lcc3N16ZTfxbs=;
+DKIM-Signature: a=rsa-sha256; bh=XBJosoJKLU6Crb80DZyltkF75V7Rf2etBi1uyvs/djI=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788534085; v=1; x=1789138885;
- b=DmfVzAwY37luMqAVGa8vhkB6lBgiXFI6mwWzsQEf2W3XPudEXClTSpOyo+U1A/QygK0HZ/HY
- 3EI/U4hxFFhTwYyo3/ffllGvxdd0i0fOTTdiEkwxspgsEzsEVP0FPu/O52wtF3VN3OOhgD+3hw6
- PMcQWMyMvH1zAicbILdu3o/4=
+ t=1788534088; v=1; x=1789138888;
+ b=IHj942a7UbIf/ZxX4hEAUNUn6RzY7Vv1S1FHLP9x+xqq3s6TxkSp6bo5P4+/5LNvUr/I46HO
+ wt9UcxnIndOdMGXRogqHXx7el9FzmWoQWkrrQOftwa7Dqn5VtqyJ5p0Zgd9fPmO28vQ4cLUp25Y
+ NsYjvRjKIsEGDXA1MXp3+mF0=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id e6af6f49842d08f5;
-	Fri, 04 Sep 2026 15:01:25 +0000
-X-Mizu-Trace-ID: e6af6f49842d08f5
+Received: by smtp.migadu.com with ESMTPS id cf7244353a0abf94;
+	Fri, 04 Sep 2026 15:01:28 +0000
+X-Mizu-Trace-ID: cf7244353a0abf94
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -41,9 +41,9 @@ Cc: linux-input@vger.kernel.org,
 	"Khamunetri Clark" <khamunetriclark@gmail.com>,
 	"Derek J. Clark" <derekjohn.clark@gmail.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v5 03/13] HID: asus: add support for ROG Ally handhelds
-Date: Fri,  4 Sep 2026 14:58:34 +0000
-Message-ID: <20260904145845.184887-4-denis.benato@linux.dev>
+Subject: [PATCH v5 04/13] HID: asus: add gamepad configuration
+Date: Fri,  4 Sep 2026 14:58:35 +0000
+Message-ID: <20260904145845.184887-5-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260904145845.184887-1-denis.benato@linux.dev>
 References: <20260904145845.184887-1-denis.benato@linux.dev>
@@ -55,1090 +55,539 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Implement the core functionality for ASUS handhelds:
-- extend functionality of hid-asus if driver is enabled
-- initialise the device to a "ready" state
-- implement Ally X input mapping
-- emit a single proper event for AC button long press
-- reject probes from a different controller and from duplicated
-  interfaces of the same one, which could evict the shared state
+Add the base configuration structures for the gamepad configuration,
+detect capabilities and initialize the device in a known state.
 
 Assisted-by: opencode:glm-5.2
 Assisted-by: Claude:claude-fable-5
-Signed-off-by: Khamunetri Clark <khamunetriclark@gmail.com>
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
-Signed-off-by: Matthew Schwartz <matthew.schwartz@linux.dev>
 Signed-off-by: Luke Jones <luke@ljones.dev>
 Signed-off-by: Jonathan LoBue <jlobue10@gmail.com>
 ---
- drivers/hid/hid-asus.c | 938 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 938 insertions(+)
+ drivers/hid/hid-asus.c | 401 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 398 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 2125680c7eff..129cec7e27ec 100644
+index 129cec7e27ec..4714ebb4a543 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -24,12 +24,18 @@
+@@ -22,6 +22,7 @@
+ 
+ #include <linux/acpi.h>
  #include <linux/cleanup.h>
++#include <linux/device.h>
  #include <linux/dmi.h>
  #include <linux/hid.h>
-+#include <linux/jiffies.h>
-+#include <linux/list.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/platform_data/x86/asus-wmi.h>
-+#include <linux/types.h>
- #include <linux/input/mt.h>
+ #include <linux/jiffies.h>
+@@ -34,6 +35,7 @@
  #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
  #include <linux/power_supply.h>
-+#include <linux/stddef.h>
+ #include <linux/stddef.h>
++#include <linux/sysfs.h>
  #include <linux/leds.h>
-+#include <linux/unaligned.h>
+ #include <linux/unaligned.h>
  
- #include "hid-ids.h"
- 
-@@ -37,6 +43,9 @@ MODULE_AUTHOR("Yusuke Fujimaki <usk.fujimaki@gmail.com>");
- MODULE_AUTHOR("Brendan McGrath <redmcg@redmandi.dyndns.org>");
- MODULE_AUTHOR("Victor Vlasenko <victor.vlasenko@sysgears.com>");
- MODULE_AUTHOR("Frederik Wenigwieser <frederik.wenigwieser@gmail.com>");
-+MODULE_AUTHOR("Denis Benato <denis.benato@linux.dev>");
-+MODULE_AUTHOR("Luke Jones <luke@ljones.dev>");
-+MODULE_AUTHOR("Khamunetri Clark <khamunetriclark@gmail.com>");
- MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- 
- #define T100_TPAD_INTF 2
-@@ -55,6 +64,19 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define ROG_ALLY_X_MIN_MCU 313
- #define ROG_ALLY_MIN_MCU 319
- 
-+#define HID_ALLY_INTF_KEYBOARD_IN 0x81
-+#define HID_ALLY_INTF_CFG_IN 0x83
-+#define HID_ALLY_X_INTF_IN 0x87
-+
-+#define HID_ALLY_GET_REPORT_ID 0x0D
-+#define HID_ALLY_SET_REPORT_ID 0x5A
-+#define HID_ALLY_FEATURE_CODE_PAGE 0xD1
-+
-+#define HID_ALLY_X_INPUT_REPORT_SIZE 16
-+#define HID_ALLY_X_INPUT_REPORT 0x0B
-+
-+#define HID_ALLY_READY_MAX_TRIES 6
-+
- /* Spurious HID codes sent by QUIRK_ROG_NKEY_KEYBOARD devices */
- #define ASUS_SPURIOUS_CODE_0XEA 0xea
- #define ASUS_SPURIOUS_CODE_0XEC 0xec
-@@ -154,6 +176,29 @@ struct asus_touchpad_info {
+@@ -176,6 +178,45 @@ struct asus_touchpad_info {
  	int report_size;
  };
  
-+struct ally_handheld {
-+	/* All read/write to IN interfaces must lock */
-+	struct mutex intf_mutex;
-+	/*
-+	 * USB device of the connected controller, held with a reference:
-+	 * at most one ROG Ally can exist, so probes from any other USB
-+	 * device are rejected to protect the shared state.
-+	 */
-+	struct usb_device *udev;
-+	struct hid_device *cfg_hdev;
++struct ally_config {
++	/* Must be locked if the data is being changed */
++	struct mutex config_mutex;
++	bool initialized;
 +
-+	struct input_dev *ally_x_input;
-+	struct hid_device *ally_x_hdev;
++	/* Device capabilities flags */
++	bool is_ally_x;
++	bool xbox_controller_support;
++	bool user_cal_support;
++	bool turbo_support;
++	bool resp_curve_support;
++	bool dir_to_btn_support;
++	bool gyro_support;
++	bool anti_deadzone_support;
 +
-+	struct hid_device *keyboard_hdev;
-+	struct input_dev *keyboard_input;
-+
-+	u8 cad_sequence_state;
-+	unsigned long cad_last_event_time;
-+
-+	struct delayed_work resume_work;
++	/* Current settings */
++	bool xbox_controller_enabled;
++	u8 gamepad_mode;
++	u8 left_deadzone;
++	u8 left_outer_threshold;
++	u8 right_deadzone;
++	u8 right_outer_threshold;
++	u8 left_anti_deadzone;
++	u8 right_anti_deadzone;
++	u8 left_trigger_min;
++	u8 left_trigger_max;
++	u8 right_trigger_min;
++	u8 right_trigger_max;
 +};
 +
++/*
++ * The Ally configuration is allocated when the controller first appears and
++ * is released only on module removal: the embedded controller can disappear
++ * and re-enumerate at any time (it powers off during suspend when powersave
++ * is enabled), and on re-probe the driver must re-apply the recorded
++ * configuration instead of factory defaults.
++ */
++static struct ally_config *ally_config;
++
+ struct ally_handheld {
+ 	/* All read/write to IN interfaces must lock */
+ 	struct mutex intf_mutex;
+@@ -197,6 +238,8 @@ struct ally_handheld {
+ 	unsigned long cad_last_event_time;
+ 
+ 	struct delayed_work resume_work;
++
++	struct ally_config *config;
+ };
+ 
  struct asus_drvdata {
- 	unsigned long quirks;
- 	struct hid_device *hdev;
-@@ -161,6 +206,7 @@ struct asus_drvdata {
- 	struct input_dev *tp_kbd_input;
- 	struct asus_worker *worker;
- 	unsigned int kbd_backlight_brightness;
-+	struct ally_handheld *rog_ally;
- 	const struct asus_touchpad_info *tp;
- 	struct power_supply *battery;
- 	struct power_supply_desc battery_desc;
-@@ -232,12 +278,859 @@ static const struct asus_touchpad_info medion_e1239t_tp = {
- 	.report_size = 32 /* 2 byte header + 5 * 5 + 5 byte footer */,
- };
- 
-+enum ally_command_codes {
-+	CMD_SET_GAMEPAD_MODE            = 0x01,
-+	CMD_SET_MAPPING                 = 0x02,
-+	CMD_SET_JOYSTICK_MAPPING        = 0x03,
-+	CMD_SET_JOYSTICK_DEADZONE       = 0x04,
-+	CMD_SET_TRIGGER_RANGE           = 0x05,
-+	CMD_SET_VIBRATION_INTENSITY     = 0x06,
-+	CMD_LED_CONTROL                 = 0x08,
-+	CMD_CHECK_READY                 = 0x0A,
-+	CMD_SET_XBOX_CONTROLLER         = 0x0B,
-+	CMD_CHECK_XBOX_SUPPORT          = 0x0C,
-+	CMD_USER_CAL_DATA               = 0x0D,
-+	CMD_CHECK_USER_CAL_SUPPORT      = 0x0E,
-+	CMD_SET_TURBO_PARAMS            = 0x0F,
-+	CMD_CHECK_TURBO_SUPPORT         = 0x10,
-+	CMD_CHECK_RESP_CURVE_SUPPORT    = 0x12,
-+	CMD_SET_RESP_CURVE              = 0x13,
-+	CMD_CHECK_DIR_TO_BTN_SUPPORT    = 0x14,
-+	CMD_SET_GYRO_PARAMS             = 0x15,
-+	CMD_CHECK_GYRO_TO_JOYSTICK      = 0x16,
-+	CMD_CHECK_ANTI_DEADZONE         = 0x17,
-+	CMD_SET_ANTI_DEADZONE           = 0x18,
-+};
-+
-+static const u8 ALLY_FORCE_FEEDBACK_OFF[] = {
-+	0x0D, 0x0F, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB
-+};
-+
-+/*
-+ * The ROG Ally device presents multiple USB interfaces (keyboard, mouse, gamepad,
-+ * and custom configuration interface) that bind to the same module. Since only
-+ * one ROG Ally device can be connected at a time, we use a single global static
-+ * ally_handheld structure to share state across these separate HID interfaces.
-+ */
-+static void ally_resume_work_fn(struct work_struct *work);
-+
-+/*
-+ * Changes to ally_drvdata must lock: the raw_event callbacks, which may
-+ * run in atomic (URB completion) context, also take this lock, so it must
-+ * be a spinlock.
-+ */
-+static DEFINE_SPINLOCK(ally_data_lock);
-+static struct ally_handheld ally_drvdata = {
-+	.intf_mutex = __MUTEX_INITIALIZER(ally_drvdata.intf_mutex),
-+	/*
-+	 * Initialised statically so it is always safe to cancel, whichever
-+	 * of the interfaces probed or failed to probe.
-+	 */
-+	.resume_work = __DELAYED_WORK_INITIALIZER(ally_drvdata.resume_work,
-+						  ally_resume_work_fn, 0),
-+};
-+
-+/*
-+ * Drop the recorded USB device if no Ally interface is bound anymore:
-+ * probe failures never run remove(), so without this cleanup a failed
-+ * probe would leave a stale record behind and the driver would then
-+ * reject the real controller when it reconnects.
-+ */
-+static void ally_put_udev_if_orphaned(void)
-+{
-+	struct usb_device *udev;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	if (!ally_drvdata.udev || ally_drvdata.keyboard_hdev ||
-+	    ally_drvdata.cfg_hdev || ally_drvdata.ally_x_hdev) {
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+		return;
-+	}
-+
-+	udev = ally_drvdata.udev;
-+	ally_drvdata.udev = NULL;
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+	usb_put_dev(udev);
-+}
-+
- static const u8 asus_report_id_init[] = {
- 	FEATURE_KBD_REPORT_ID,
- 	FEATURE_KBD_LED_REPORT_ID1,
- 	FEATURE_KBD_LED_REPORT_ID2
- };
- 
-+static inline int ally_dev_set_report(struct hid_device *hdev, const u8 *buf, size_t len)
-+{
-+	u8 *dmabuf __free(kfree) = kmemdup(buf, len, GFP_KERNEL);
-+	if (!dmabuf)
-+		return -ENOMEM;
-+
-+	return hid_hw_raw_request(hdev, buf[0], dmabuf, len,
-+					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+}
-+
-+static inline int ally_dev_get_report(struct hid_device *hdev, u8 *out, size_t len)
-+{
-+	return hid_hw_raw_request(hdev, HID_ALLY_GET_REPORT_ID, out, len,
-+		HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+}
-+
-+static void ally_resume_work_fn(struct work_struct *work)
-+{
-+	struct ally_handheld *ally = container_of(work, struct ally_handheld,
-+						  resume_work.work);
-+	struct input_dev *keyboard_input, *x_input;
-+	unsigned long flags;
+@@ -590,11 +633,20 @@ static int ally_gamepad_send_receive_packet(struct ally_handheld *ally,
+  * responsibility to free the buffer using kfree().
+  *
+  * Return: the newly allocated buffer containing the command, or NULL on
+- * allocation failure
++ * allocation failure or if the payload would not fit in the report
+  */
+ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
+ {
+-	u8 *hidbuf = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
++	u8 *hidbuf;
 +
 +	/*
-+	 * Snapshot the very pointers that get dereferenced under the lock
-+	 * protecting them, and take a reference on each input_dev: probe
-+	 * sets keyboard_hdev even when the interface exposes no input_dev,
-+	 * removal clears the two fields one after the other, and the input
-+	 * devices are freed with their own interface.
++	 * The payload is written after the 4-byte command header:
++	 * reject one that would spill past the end of the report.
 +	 */
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	keyboard_input = input_get_device(ally->keyboard_input);
-+	x_input = input_get_device(ally->ally_x_input);
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+	/*
-+	 * Force release all vendor buttons to prevent "stuck" ghosting on
-+	 * resume (workaround for Ally X USB re-probing during suspend/resume).
-+	 */
-+	if (keyboard_input) {
-+		input_report_key(keyboard_input, KEY_F16, 0);
-+		input_report_key(keyboard_input, KEY_F17, 0);
-+		input_report_key(keyboard_input, KEY_F18, 0);
-+		input_report_key(keyboard_input, KEY_F19, 0);
-+		input_report_key(keyboard_input, KEY_F20, 0);
-+		input_report_key(keyboard_input, KEY_PROG1, 0);
-+		input_sync(keyboard_input);
-+		input_put_device(keyboard_input);
-+	}
-+
-+	if (x_input) {
-+		input_report_key(x_input, KEY_F16, 0);
-+		input_report_key(x_input, KEY_F17, 0);
-+		input_report_key(x_input, KEY_F18, 0);
-+		input_report_key(x_input, KEY_PROG1, 0);
-+		input_sync(x_input);
-+		input_put_device(x_input);
-+	}
-+}
-+
-+/**
-+ * handle_ctrl_alt_del() - detect a left button long press
-+ * @hdev: HID device the report arrived on
-+ * @ally: ally handheld structure holding the sequence state
-+ * @data: raw report buffer, rewritten in place when the sequence matches
-+ * @size: length of @data in bytes
-+ *
-+ * The Ally left button emits a sequence of ctrl+alt+del events. Capture that
-+ * and emit only a single code for that single event.
-+ *
-+ * Return: true iff the event has been managed
-+ */
-+static bool handle_ctrl_alt_del(struct hid_device *hdev,
-+				struct ally_handheld *ally, u8 *data, int size)
-+{
-+	bool time_is_past = time_after(jiffies, ally->cad_last_event_time + msecs_to_jiffies(100));
-+
-+	if (size < 16 || data[0] != 0x01)
-+		return false;
-+
-+	if (ally->cad_sequence_state > 0 && time_is_past)
-+		ally->cad_sequence_state = 0;
-+
-+	ally->cad_last_event_time = jiffies;
-+
-+	switch (ally->cad_sequence_state) {
-+	case 0:
-+		if (data[1] == 0x01 && data[2] == 0x00 && data[3] == 0x00) {
-+			ally->cad_sequence_state = 1;
-+			data[1] = 0x00;
-+			return true;
-+		}
-+		break;
-+	case 1:
-+		if (data[1] == 0x05 && data[2] == 0x00 && data[3] == 0x00) {
-+			ally->cad_sequence_state = 2;
-+			data[1] = 0x00;
-+			return true;
-+		}
-+		break;
-+	case 2:
-+		if (data[1] == 0x05 && data[2] == 0x00 && data[3] == 0x4c) {
-+			ally->cad_sequence_state = 3;
-+			data[1] = 0x00;
-+			data[3] = 0x6F; // F20;
-+			return true;
-+		}
-+		break;
-+	case 3:
-+		if (data[1] == 0x04 && data[2] == 0x00 && data[3] == 0x4c) {
-+			ally->cad_sequence_state = 4;
-+			data[1] = data[3] = 0x00;
-+			return true;
-+		}
-+		break;
-+	case 4:
-+		if (data[1] == 0x00 && data[2] == 0x00 && data[3] == 0x4c) {
-+			ally->cad_sequence_state = 5;
-+			data[3] = 0x00;
-+			return true;
-+		}
-+		break;
-+	}
-+	ally->cad_sequence_state = 0;
-+	return false;
-+}
-+
-+static bool handle_ally_event(struct hid_device *hdev, struct ally_handheld *ally,
-+			      u8 *data, int size)
-+{
-+	struct input_dev *keyboard_input;
-+	unsigned long flags;
-+	int keycode = 0;
-+
-+	if (size < 2)
-+		return false;
-+
-+	if (data[0] == 0x5A) {
-+		switch (data[1]) {
-+		case 0x38:
-+			keycode = KEY_F19;
-+			break;
-+		case 0xA6:
-+			keycode = KEY_F16;
-+			break;
-+		case 0xA7:
-+			keycode = KEY_F17;
-+			break;
-+		case 0xA8:
-+			keycode = KEY_F18;
-+			break;
-+		default:
-+			return false;
-+		}
-+
-+		/*
-+		 * Take a reference on the input_dev before dropping the lock:
-+		 * the keyboard interface can be unbound concurrently, and its
-+		 * input_dev is freed with it.
-+		 */
-+		spin_lock_irqsave(&ally_data_lock, flags);
-+		keyboard_input = input_get_device(ally->keyboard_input);
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+		if (!keyboard_input)
-+			return false;
-+
-+		input_report_key(keyboard_input, keycode, 1);
-+		input_sync(keyboard_input);
-+		input_report_key(keyboard_input, keycode, 0);
-+		input_sync(keyboard_input);
-+		input_put_device(keyboard_input);
-+		return true;
-+	}
-+	return false;
-+}
-+
-+/**
-+ * ally_gamepad_send_packet() - Send a raw packet to the gamepad device
-+ * @ally: ally handheld structure
-+ * @hdev: HID device
-+ * @buf: buffer containing the packet data
-+ * @len: length of data to send
-+ *
-+ * Return: count of data transferred, negative if error
-+ */
-+static int ally_gamepad_send_packet(struct ally_handheld *ally,
-+				    struct hid_device *hdev, const u8 *buf, size_t len)
-+{
-+	guard(mutex)(&ally->intf_mutex);
-+	return ally_dev_set_report(hdev, buf, len);
-+}
-+
-+/**
-+ * ally_gamepad_send_receive_packet() - Send a packet and receive the response
-+ * @ally: ally handheld structure
-+ * @hdev: HID device
-+ * @buf: buffer containing the packet data to send and receive response in
-+ * @len: length of buffer
-+ *
-+ * Return: count of data transferred, negative if error
-+ */
-+static int ally_gamepad_send_receive_packet(struct ally_handheld *ally,
-+					    struct hid_device *hdev,
-+					    u8 *buf, size_t len)
-+{
-+	int ret;
-+
-+	scoped_guard(mutex, &ally->intf_mutex) {
-+		ret = ally_dev_set_report(hdev, buf, len);
-+		if (ret >= 0) {
-+			memset(buf, 0, len);
-+			ret = ally_dev_get_report(hdev, buf, len);
-+		}
-+	}
-+
-+	return ret;
-+}
-+
-+/**
-+ * ally_alloc_cmd() - Construct a command buffer for the gamepad
-+ * @cmd: Command code to send
-+ * @payload: Optional payload data to include in the command
-+ * @payload_size: Size of the payload data
-+ *
-+ * The constructed buffer is 64 bytes long, and it is the caller
-+ * responsibility to free the buffer using kfree().
-+ *
-+ * Return: the newly allocated buffer containing the command, or NULL on
-+ * allocation failure
-+ */
-+static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
-+{
-+	u8 *hidbuf = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
-+
-+	if (!hidbuf)
++	if (payload_size > ROG_ALLY_REPORT_SIZE - 4)
 +		return NULL;
 +
-+	hidbuf[0] = HID_ALLY_SET_REPORT_ID;
-+	hidbuf[1] = HID_ALLY_FEATURE_CODE_PAGE;
-+	hidbuf[2] = cmd;
-+	hidbuf[3] = payload_size;
-+
-+	if (payload_size > 0 && payload)
-+		memcpy(&hidbuf[4], payload, payload_size);
-+
-+	return hidbuf;
-+}
-+
++	hidbuf = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
+ 
+ 	if (!hidbuf)
+ 		return NULL;
+@@ -610,6 +662,272 @@ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
+ 	return hidbuf;
+ }
+ 
 +/**
-+ * ally_gamepad_check_ready() - Wait for the gamepad MCU to report ready
-+ * @ally: ally handheld structure
++ * ally_check_capability() - Check if a specific capability is supported
 + * @hdev: HID device
++ * @ally: ally handheld structure
++ * @check_cmd: capability command code to query
 + *
-+ * This should be called before any remapping attempts, and on driver
-+ * init/resume, after the asus handshake has been performed on the
-+ * configuration endpoint.
-+ *
-+ * Return: 0 on success, negative errno on failure
++ * Return: true if the capability is supported, false otherwise
 + */
-+static int ally_gamepad_check_ready(struct ally_handheld *ally, struct hid_device *hdev)
++static bool ally_check_capability(struct hid_device *hdev, struct ally_handheld *ally,
++				  enum ally_command_codes check_cmd)
 +{
 +	u8 payload[] = { 0x00 };
 +	int ret;
 +
-+	for (int i = 0; i < HID_ALLY_READY_MAX_TRIES; i++) {
-+		u8 *buf __free(kfree) = ally_alloc_cmd(CMD_CHECK_READY, payload, sizeof(payload));
-+		if (!buf)
-+			return -ENOMEM;
-+
-+		ret = ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
-+		if (ret < 0) {
-+			hid_dbg(hdev, "ROG Ally check %d/%d failed: %d\n", i,
-+				HID_ALLY_READY_MAX_TRIES, ret);
-+			continue;
-+		}
-+
-+		if (buf[2] == CMD_CHECK_READY)
-+			return 0;
-+
-+		usleep_range(1000, 2000);
++	u8 *buf __free(kfree) = ally_alloc_cmd(check_cmd, payload, sizeof(payload));
++	if (!buf) {
++		hid_err(hdev, "Failed to allocate buffer for capability check.\n");
++		return false;
 +	}
 +
-+	hid_err(hdev, "ROG Ally never responded with a ready\n");
-+	return -ENODEV;
-+}
-+
-+static int ally_get_endpoint_address(struct hid_device *hdev)
-+{
-+	struct usb_host_endpoint *ep;
-+	struct usb_interface *intf;
-+
-+	if (!hid_is_usb(hdev))
-+		return -ENODEV;
-+
-+	intf = to_usb_interface(hdev->dev.parent);
-+	if (!intf || !intf->cur_altsetting)
-+		return -ENODEV;
-+
-+	if (intf->cur_altsetting->desc.bNumEndpoints == 0)
-+		return -ENODEV;
-+
-+	ep = intf->cur_altsetting->endpoint;
-+	if (!ep)
-+		return -ENODEV;
-+
-+	return ep->desc.bEndpointAddress;
-+}
-+
-+struct ally_x_input_report {
-+	__le16 x, y;
-+	__le16 rx, ry;
-+	__le16 z, rz;
-+	u8 buttons[3];
-+} __packed;
-+
-+/* The hatswitch outputs integers, we use them to index this X|Y pair */
-+static const int hat_values[][2] = {
-+	{ 0, 0 }, { 0, -1 }, { 1, -1 }, { 1, 0 },   { 1, 1 },
-+	{ 0, 1 }, { -1, 1 }, { -1, 0 }, { -1, -1 },
-+};
-+
-+/**
-+ * ally_x_raw_event() - Parse and report an Ally X gamepad input report
-+ * @input: input device to report the events on
-+ * @hdev: HID device
-+ * @report: HID report the raw data arrived in
-+ * @data: raw report buffer
-+ * @size: length of @data in bytes
-+ *
-+ * Return: true if the event was handled, otherwise false
-+ */
-+static bool ally_x_raw_event(struct input_dev *input, struct hid_device *hdev,
-+			     struct hid_report *report, u8 *data, int size)
-+{
-+	struct ally_x_input_report *in_report;
-+	u16 x, y, rx, ry, z, rz;
-+	u8 byte;
-+
-+	if (!input)
++	ret = ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	if (ret < 0) {
++		hid_err(hdev, "Failed to check capability 0x%02x: %d\n", check_cmd, ret);
 +		return false;
-+
-+	if (size < 1)
-+		return false;
-+
-+	/*
-+	 * The size check above only guarantees one valid byte: do not
-+	 * read the code of a truncated report.
-+	 */
-+	if (data[0] == 0x5A) {
-+		if (size < 2)
-+			return false;
-+
-+		input_report_key(input, KEY_PROG1, data[1] == 0x38);
-+		input_report_key(input, KEY_F16, data[1] == 0xA6);
-+		input_report_key(input, KEY_F17, data[1] == 0xA7);
-+		input_report_key(input, KEY_F18, data[1] == 0xA8);
-+		input_sync(input);
-+
-+		return data[1] == 0xA6 || data[1] == 0xA7 || data[1] == 0xA8 || data[1] == 0x38;
 +	}
 +
-+	if (data[0] != HID_ALLY_X_INPUT_REPORT)
-+		return false;
-+
-+	/*
-+	 * hid-core only guarantees size >= 1 and does not zero-pad short
-+	 * reports before ->raw_event, so a truncated transfer would leave the
-+	 * payload below pointing at stale DMA buffer contents.
-+	 */
-+	if (size < 1 + sizeof(*in_report))
-+		return false;
-+
-+	in_report = (struct ally_x_input_report *)&data[1];
-+
-+	/* USB HID payloads are little-endian: convert them explicitly. */
-+	x = get_unaligned_le16(&in_report->x);
-+	y = get_unaligned_le16(&in_report->y);
-+	rx = get_unaligned_le16(&in_report->rx);
-+	ry = get_unaligned_le16(&in_report->ry);
-+	z = get_unaligned_le16(&in_report->z);
-+	rz = get_unaligned_le16(&in_report->rz);
-+
-+	input_report_abs(input, ABS_X, x - 32768);
-+	input_report_abs(input, ABS_Y, y - 32768);
-+	input_report_abs(input, ABS_RX, rx - 32768);
-+	input_report_abs(input, ABS_RY, ry - 32768);
-+	input_report_abs(input, ABS_Z, z);
-+	input_report_abs(input, ABS_RZ, rz);
-+
-+	byte = in_report->buttons[0];
-+	input_report_key(input, BTN_A, byte & BIT(0));
-+	input_report_key(input, BTN_B, byte & BIT(1));
-+	input_report_key(input, BTN_X, byte & BIT(2));
-+	input_report_key(input, BTN_Y, byte & BIT(3));
-+	input_report_key(input, BTN_TL, byte & BIT(4));
-+	input_report_key(input, BTN_TR, byte & BIT(5));
-+	input_report_key(input, BTN_SELECT, byte & BIT(6));
-+	input_report_key(input, BTN_START, byte & BIT(7));
-+
-+	byte = in_report->buttons[1];
-+	input_report_key(input, BTN_THUMBL, byte & BIT(0));
-+	input_report_key(input, BTN_THUMBR, byte & BIT(1));
-+	input_report_key(input, BTN_MODE, byte & BIT(2));
-+
-+	/* The hatswitch byte is device-controlled; treat anything the table
-+	 * does not cover as centred rather than indexing out of bounds.
-+	 */
-+	byte = in_report->buttons[2];
-+	if (byte >= ARRAY_SIZE(hat_values))
-+		byte = 0;
-+	input_report_abs(input, ABS_HAT0X, hat_values[byte][0]);
-+	input_report_abs(input, ABS_HAT0Y, hat_values[byte][1]);
-+
-+	input_sync(input);
-+
-+	return true;
++	return buf[1] == HID_ALLY_FEATURE_CODE_PAGE && buf[2] == check_cmd &&
++	       buf[4] == 0x01;
 +}
 +
-+static int ally_x_input_open(struct input_dev *dev)
++static int ally_detect_capabilities(struct hid_device *hdev, struct ally_handheld *ally,
++				    struct ally_config *cfg)
 +{
-+	struct hid_device *hdev = input_get_drvdata(dev);
++	if (!hdev || !cfg || !ally)
++		return -EINVAL;
 +
-+	return hid_hw_open(hdev);
-+}
++	scoped_guard(mutex, &cfg->config_mutex) {
++		cfg->is_ally_x = (hdev->product == USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X);
 +
-+static void ally_x_input_close(struct input_dev *dev)
-+{
-+	hid_hw_close(input_get_drvdata(dev));
-+}
-+
-+static struct input_dev *ally_x_alloc_input_dev(struct hid_device *hdev)
-+{
-+	struct input_dev *input_dev = input_allocate_device();
-+
-+	if (!input_dev)
-+		return ERR_PTR(-ENOMEM);
-+
-+	input_dev->dev.parent = &hdev->dev;
-+	input_dev->id.bustype = hdev->bus;
-+	input_dev->id.vendor = hdev->vendor;
-+	input_dev->id.product = hdev->product;
-+	input_dev->id.version = hdev->version;
-+	input_dev->uniq = hdev->uniq;
-+	input_dev->name = "ASUS ROG Ally X Gamepad";
-+
-+	input_set_drvdata(input_dev, hdev);
-+	/*
-+	 * Let the input core hold the hardware open while the device node
-+	 * is in use: without these the interface could be runtime-suspended
-+	 * and drop events.
-+	 */
-+	input_dev->open = ally_x_input_open;
-+	input_dev->close = ally_x_input_close;
-+
-+	return input_dev;
-+}
-+
-+static int ally_x_setup_input(struct hid_device *hdev, struct ally_handheld *ally)
-+{
-+	struct input_dev *input = ally_x_alloc_input_dev(hdev);
-+	unsigned long flags;
-+	int ret;
-+
-+	if (IS_ERR(input))
-+		return PTR_ERR(input);
-+
-+	input_set_abs_params(input, ABS_X, -32768, 32767, 0, 0);
-+	input_set_abs_params(input, ABS_Y, -32768, 32767, 0, 0);
-+	input_set_abs_params(input, ABS_RX, -32768, 32767, 0, 0);
-+	input_set_abs_params(input, ABS_RY, -32768, 32767, 0, 0);
-+	input_set_abs_params(input, ABS_Z, 0, 1023, 0, 0);
-+	input_set_abs_params(input, ABS_RZ, 0, 1023, 0, 0);
-+	input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
-+	input_set_capability(input, EV_KEY, BTN_A);
-+	input_set_capability(input, EV_KEY, BTN_B);
-+	input_set_capability(input, EV_KEY, BTN_X);
-+	input_set_capability(input, EV_KEY, BTN_Y);
-+	input_set_capability(input, EV_KEY, BTN_TL);
-+	input_set_capability(input, EV_KEY, BTN_TR);
-+	input_set_capability(input, EV_KEY, BTN_SELECT);
-+	input_set_capability(input, EV_KEY, BTN_START);
-+	input_set_capability(input, EV_KEY, BTN_MODE);
-+	input_set_capability(input, EV_KEY, BTN_THUMBL);
-+	input_set_capability(input, EV_KEY, BTN_THUMBR);
-+
-+	input_set_capability(input, EV_KEY, KEY_PROG1);
-+	input_set_capability(input, EV_KEY, KEY_F16);
-+	input_set_capability(input, EV_KEY, KEY_F17);
-+	input_set_capability(input, EV_KEY, KEY_F18);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
-+
-+	ret = input_register_device(input);
-+	if (ret) {
-+		hid_err(hdev, "Failed to register Ally X gamepad device: %d\n", ret);
-+		goto ally_x_setup_input_err;
++		cfg->xbox_controller_support =
++			ally_check_capability(hdev, ally, CMD_CHECK_XBOX_SUPPORT);
++		cfg->user_cal_support =
++			ally_check_capability(hdev, ally, CMD_CHECK_USER_CAL_SUPPORT);
++		cfg->turbo_support =
++			ally_check_capability(hdev, ally, CMD_CHECK_TURBO_SUPPORT);
++		cfg->resp_curve_support =
++			ally_check_capability(hdev, ally, CMD_CHECK_RESP_CURVE_SUPPORT);
++		cfg->dir_to_btn_support =
++			ally_check_capability(hdev, ally, CMD_CHECK_DIR_TO_BTN_SUPPORT);
++		cfg->gyro_support =
++			ally_check_capability(hdev, ally, CMD_CHECK_GYRO_TO_JOYSTICK);
++		cfg->anti_deadzone_support =
++			ally_check_capability(hdev, ally, CMD_CHECK_ANTI_DEADZONE);
 +	}
-+
-+	/* Publish the input_dev only when it is fully set up. */
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	ally->ally_x_input = input;
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+	return 0;
-+ally_x_setup_input_err:
-+	input_free_device(input);
-+	return ret;
-+}
-+
-+static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *ally)
-+{
-+	int ret;
-+
-+	/* Failure at this point is non-critical */
-+	ret = ally_gamepad_send_packet(ally, hdev, ALLY_FORCE_FEEDBACK_OFF,
-+				       sizeof(ALLY_FORCE_FEEDBACK_OFF));
-+	if (ret < 0)
-+		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
 +
 +	return 0;
 +}
 +
++static int ally_set_xbox_controller(struct hid_device *hdev,
++				    struct ally_handheld *ally,
++				    struct ally_config *cfg, bool enabled)
++{
++	u8 payload[] = { enabled ? 0x01 : 0x00 };
++	int ret;
++
++	if (!cfg || !cfg->xbox_controller_support)
++		return -ENODEV;
++
++	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_XBOX_CONTROLLER, payload, sizeof(payload));
++	if (!buf)
++		return -ENOMEM;
++
++	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	if (ret < 0) {
++		hid_err(hdev, "Failed to set Xbox controller mode: %d\n", ret);
++		return ret;
++	}
++
++	cfg->xbox_controller_enabled = enabled;
++	return 0;
++}
++
 +/**
-+ * hid_asus_ally_raw_event() - Route raw reports from the Ally interfaces
-+ * @hdev: HID device
++ * ally_get_config() - Get the configuration of the Ally device
 + * @ally: ally handheld structure
-+ * @report: HID report the raw data arrived in
-+ * @data: raw report buffer
-+ * @size: length of @data in bytes
 + *
-+ * Called from the raw_event callback, which may run in atomic (URB
-+ * completion) context: only spinlock-protected accesses to the shared
-+ * state are allowed here.
++ * Fetch the configuration published by hid_asus_ally_probe() under
++ * ally_data_lock: the pointer is also cleared by hid_asus_ally_remove(),
++ * so reading it without the lock would race with interface removal.
 + *
-+ * Return: true if the event was handled, otherwise false
++ * The returned configuration outlives the sysfs callbacks using it: it is
++ * allocated once on the ally probe path and released only on module
++ * removal, when every sysfs attribute referencing it is gone.
++ *
++ * Return: the ally config, or NULL if no configuration is published
 + */
-+static bool hid_asus_ally_raw_event(struct hid_device *hdev, struct ally_handheld *ally,
-+			    struct hid_report *report, u8 *data, int size)
++static struct ally_config *ally_get_config(struct ally_handheld *ally)
 +{
-+	struct input_dev *x_input;
-+	struct hid_device *x_hdev;
++	struct ally_config *cfg;
 +	unsigned long flags;
-+	bool handled;
-+
-+	if (!ally)
-+		return false;
-+
-+	switch (ally_get_endpoint_address(hdev)) {
-+	case HID_ALLY_X_INTF_IN:
-+		/*
-+		 * Take a reference on the input_dev while using it: the
-+		 * gamepad interface can be unbound concurrently, and its
-+		 * input_dev is freed with it.
-+		 */
-+		spin_lock_irqsave(&ally_data_lock, flags);
-+		x_input = input_get_device(ally->ally_x_input);
-+		x_hdev = ally->ally_x_hdev;
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+
-+		handled = ally_x_raw_event(x_input, x_hdev, report, data, size);
-+		input_put_device(x_input);
-+		if (handled)
-+			return true;
-+		break;
-+	case HID_ALLY_INTF_CFG_IN:
-+		if (handle_ally_event(hdev, ally, data, size))
-+			return true;
-+		break;
-+	case HID_ALLY_INTF_KEYBOARD_IN:
-+		if (handle_ctrl_alt_del(hdev, ally, data, size))
-+			return false;
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return false;
-+}
-+
-+/**
-+ * hid_asus_ally_probe() - Initialize the ROG Ally HID extension
-+ * @hdev: HID device
-+ *
-+ * This module works alongside the main Asus HID driver to handle
-+ * Ally-specific features and quirks.
-+ *
-+ * Return: an ally_handheld struct pointer on success, an ERR_PTR on
-+ * failure. The caller is not expected to use the returned pointer, but it
-+ * should check for errors by using IS_ERR and PTR_ERR and pass NULL to
-+ * other functions if there was an error.
-+ */
-+static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
-+{
-+	unsigned long flags;
-+	int ret, ep = ally_get_endpoint_address(hdev);
-+	struct usb_device *udev;
-+	struct hid_input *hidinput;
-+
-+	if (ep < 0)
-+		return ERR_PTR(ep);
-+
-+	/*
-+	 * The ROG Ally controller is integrated into a handheld PC, so at
-+	 * most one device can exist and the shared global state relies on
-+	 * that: reject a probe from a different USB device, or a spoofed
-+	 * peripheral could overwrite the state of the real controller. The
-+	 * recorded device is dropped when the last interface of the
-+	 * controller is unbound, so the re-enumeration the embedded
-+	 * controller performs after a suspend cycle (it cuts the controller
-+	 * power when powersave is enabled) is still accepted.
-+	 */
-+	udev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
 +
 +	spin_lock_irqsave(&ally_data_lock, flags);
-+	if (ally_drvdata.udev && ally_drvdata.udev != udev) {
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+		hid_err(hdev, "A ROG Ally controller is already connected\n");
-+		return ERR_PTR(-ENODEV);
-+	}
-+
-+	/*
-+	 * Interfaces of an already connected controller are equally
-+	 * untrusted: a crafted descriptor could present the same
-+	 * endpoint twice, and a second probe of one role would evict
-+	 * the state recorded by the first one, whose input_dev would
-+	 * then never be unregistered.
-+	 */
-+	if ((ep == HID_ALLY_INTF_CFG_IN && ally_drvdata.cfg_hdev) ||
-+	    (ep == HID_ALLY_X_INTF_IN && ally_drvdata.ally_x_hdev) ||
-+	    (ep == HID_ALLY_INTF_KEYBOARD_IN && ally_drvdata.keyboard_hdev)) {
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+		hid_err(hdev,
-+			"An interface of a ROG Ally controller is already connected\n");
-+		return ERR_PTR(-ENODEV);
-+	}
-+
-+	if (!ally_drvdata.udev) {
-+		usb_get_dev(udev);
-+		ally_drvdata.udev = udev;
-+	}
++	cfg = ally->config;
 +	spin_unlock_irqrestore(&ally_data_lock, flags);
 +
-+	/*
-+	 * The interface initialization sleeps (it performs USB transfers),
-+	 * so it must run before taking the spinlock guarding the shared
-+	 * state; pointers are published only once it succeeded.
-+	 */
-+	switch (ep) {
-+	case HID_ALLY_INTF_CFG_IN:
-+		/*
-+		 * This function assumes the asus-specific initialization
-+		 * to have been performed already at this point.
-+		 */
-+		ret = ally_gamepad_check_ready(&ally_drvdata, hdev);
-+		if (ret < 0) {
-+			hid_err(hdev, "ROG Ally device is not ready: %d\n", ret);
-+			ally_put_udev_if_orphaned();
-+			return ERR_PTR(ret);
-+		}
-+
-+		ret = hid_asus_ally_init(hdev, &ally_drvdata);
-+		if (ret < 0) {
-+			ally_put_udev_if_orphaned();
-+			return ERR_PTR(ret);
-+		}
-+
-+		spin_lock_irqsave(&ally_data_lock, flags);
-+		ally_drvdata.cfg_hdev = hdev;
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+		break;
-+	case HID_ALLY_X_INTF_IN:
-+		/* This will create and populate ally_x_input */
-+		ret = ally_x_setup_input(hdev, &ally_drvdata);
-+		if (ret) {
-+			hid_err(hdev, "Failed to create Ally X gamepad device.\n");
-+			ally_put_udev_if_orphaned();
-+			return ERR_PTR(ret);
-+		}
-+
-+		spin_lock_irqsave(&ally_data_lock, flags);
-+		ally_drvdata.ally_x_hdev = hdev;
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+		break;
-+	case HID_ALLY_INTF_KEYBOARD_IN:
-+		spin_lock_irqsave(&ally_data_lock, flags);
-+		ally_drvdata.keyboard_hdev = hdev;
-+		if (!list_empty(&hdev->inputs)) {
-+			hidinput = list_first_entry(&hdev->inputs, struct hid_input, list);
-+			ally_drvdata.keyboard_input = hidinput->input;
-+		}
-+		spin_unlock_irqrestore(&ally_data_lock, flags);
-+		break;
-+	default:
-+		/* This is normally supposed to happen */
-+		break;
-+	}
-+
-+	return &ally_drvdata;
++	return cfg;
 +}
 +
-+static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *ally)
++static ssize_t xbox_controller_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
 +{
-+	struct input_dev *x_input = NULL;
-+	unsigned long flags;
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *ally = drvdata->rog_ally;
++	struct ally_config *cfg;
 +
 +	if (!ally)
-+		return;
++		return -ENODEV;
 +
-+	/*
-+	 * Any of the three interfaces can own an input_dev the resume work
-+	 * reports through, and they are torn down in an arbitrary order, so
-+	 * drain it before clearing anything. Cancel outside ally_data_lock so
-+	 * a handler that wants the lock cannot deadlock against us.
-+	 */
-+	cancel_delayed_work_sync(&ally->resume_work);
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
 +
-+	spin_lock_irqsave(&ally_data_lock, flags);
-+	if (ally->ally_x_hdev == hdev) {
-+		x_input = ally->ally_x_input;
-+		ally->ally_x_input = NULL;
-+		ally->ally_x_hdev = NULL;
-+	}
++	guard(mutex)(&cfg->config_mutex);
 +
-+	/*
-+	 * The keyboard interface is torn down before the config one, and
-+	 * its input_dev is freed with it. handle_ally_event() and
-+	 * ally_resume_work_fn() both report keys through it from the
-+	 * config endpoint, so drop the references here or they dangle.
-+	 */
-+	if (ally->keyboard_hdev == hdev) {
-+		ally->keyboard_input = NULL;
-+		ally->keyboard_hdev = NULL;
-+	}
-+	spin_unlock_irqrestore(&ally_data_lock, flags);
++	if (!cfg->xbox_controller_support)
++		return -ENODEV;
 +
-+	if (x_input)
-+		input_unregister_device(x_input);
-+
-+	/*
-+	 * Drop the recorded USB device when the last interface of the
-+	 * controller has been unbound: the driver is then ready to accept
-+	 * the controller again when it reconnects.
-+	 */
-+	ally_put_udev_if_orphaned();
++	return sysfs_emit(buf, "%d\n", cfg->xbox_controller_enabled ? 1 : 0);
 +}
 +
-+static int hid_asus_ally_reset_resume(struct hid_device *hdev, struct ally_handheld *ally)
++static ssize_t xbox_controller_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
 +{
-+	int ep, ret;
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++	bool enabled;
++	int ret;
 +
-+	/*
-+	 * The extensions failed to probe and the device is operating as a
-+	 * generic HID device: do not fail the resume because of that.
-+	 */
 +	if (!ally)
-+		return 0;
++		return -ENODEV;
 +
-+	ep = ally_get_endpoint_address(hdev);
-+	if (ep != HID_ALLY_INTF_CFG_IN)
-+		return 0;
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
 +
-+	ret = hid_asus_ally_init(hdev, ally);
++	ret = kstrtobool(buf, &enabled);
++	if (ret)
++		return ret;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	if (!cfg->xbox_controller_support)
++		return -ENODEV;
++
++	ret = ally_set_xbox_controller(hdev, ally, cfg, enabled);
 +	if (ret < 0)
 +		return ret;
 +
-+	return 0;
++	return count;
 +}
 +
- /*
-  * Send events to asus-wmi driver for handling special keys
-  */
-@@ -505,6 +1398,17 @@ static int asus_raw_event(struct hid_device *hdev,
- 	if (drvdata->quirks & QUIRK_MEDION_E1239T)
- 		return asus_e1239t_event(drvdata, data, size);
- 
-+	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-+		/*
-+		 * Return -1 to suppress further processing by the generic HID
-+		 * input parser for reports we fully handle for the Gamepad (0x0B):
-+		 * letting 0x0B reach the default parser creates a generic gamepad
-+		 * causing Steam Input overlaps (i.e. L1 stuck on screenshot).
-+		 */
-+		if (hid_asus_ally_raw_event(hdev, drvdata->rog_ally, report, data, size))
-+			return -1;
++static DEVICE_ATTR_RW(xbox_controller);
++
++static struct attribute *ally_config_attrs[] = {
++	&dev_attr_xbox_controller.attr,
++	NULL
++};
++
++static const struct attribute_group ally_attr_groups[] = {
++	{
++		.attrs = ally_config_attrs,
++	},
++};
++
++/**
++ * ally_config_create() - Initialize configuration and create sysfs entries
++ * @hdev: HID device
++ * @ally: non-NULL ally device data with uninitialized config pointer
++ *
++ * Return: valid pointer on success, error pointer on failure
++ */
++static struct ally_config *ally_config_create(struct hid_device *hdev, struct ally_handheld *ally)
++{
++	struct ally_config *cfg;
++	int ret, sysfs_i;
++
++	/*
++	 * Allocate the configuration only once and keep it until module
++	 * removal: the controller can disappear and re-enumerate while
++	 * suspended, and the recorded settings must survive that to be
++	 * re-applied when the controller comes back.
++	 */
++	if (!ally_config) {
++		ally_config = kzalloc_obj(*ally_config, GFP_KERNEL);
++		if (!ally_config)
++			return ERR_PTR(-ENOMEM);
++
++		mutex_init(&ally_config->config_mutex);
 +	}
 +
- 	/*
- 	 * Skip these report ID, the device emits a continuous stream associated
- 	 * with the AURA mode it is in which looks like an 'echo'.
-@@ -1254,6 +2158,7 @@ static int asus_input_mapping(struct hid_device *hdev,
- 		case 0x5f: asus_map_key_clear(KEY_PROG2);	break; /* S-shaped programmable key */
- 		case 0x6b: asus_map_key_clear(KEY_F21);		break; /* ASUS touchpad toggle */
- 		case 0x38: asus_map_key_clear(KEY_PROG1);	break; /* ROG key */
-+		case 0x93: asus_map_key_clear(KEY_PROG1);	break; /* ROG Ally X AC button */
- 		case 0xba: asus_map_key_clear(KEY_PROG2);	break; /* Fn+C ASUS Splendid */
- 		case 0x5c: asus_map_key_clear(KEY_PROG3);	break; /* Fn+Space Power4Gear */
- 		case 0x99: asus_map_key_clear(KEY_PROG4);	break; /* Fn+F5 "fan" symbol */
-@@ -1385,6 +2290,8 @@ static void asus_initialize_reports(struct hid_device *hdev)
- static int __maybe_unused asus_resume(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	int ep;
- 
- 	/*
- 	 * If we have a backlight listener registered, restore the previous state,
-@@ -1394,12 +2301,19 @@ static int __maybe_unused asus_resume(struct hid_device *hdev)
- 	if (drvdata->listener.brightness_set)
- 		asus_kbd_backlight_set(&drvdata->listener, drvdata->kbd_backlight_brightness);
- 
-+	if (ally && (drvdata->quirks & QUIRK_ROG_ALLY_XPAD)) {
-+		ep = ally_get_endpoint_address(hdev);
-+		if (ep == HID_ALLY_INTF_CFG_IN)
-+			schedule_delayed_work(&ally->resume_work, msecs_to_jiffies(500));
++	cfg = ally_config;
++
++	ret = ally_detect_capabilities(hdev, ally, cfg);
++	if (ret < 0) {
++		hid_err(hdev, "Failed to detect Ally capabilities: %d\n", ret);
++		goto ally_config_create_err;
 +	}
 +
- 	return 0;
- }
- 
- static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	int ret;
- 
- 	if (!drvdata->tp)
- 		asus_initialize_reports(hdev);
-@@ -1407,6 +2321,14 @@ static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
- 	if (drvdata->tp)
- 		return asus_start_multitouch(hdev);
- 
-+	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-+		ret = hid_asus_ally_reset_resume(hdev, drvdata->rog_ally);
-+		if (ret) {
-+			hid_err(hdev, "Failed to resume ROG Ally HID extensions: %d\n", ret);
-+			return ret;
++	if (!cfg->initialized) {
++		cfg->gamepad_mode = 0x01;
++		cfg->left_deadzone = 10;
++		cfg->left_outer_threshold = 90;
++		cfg->right_deadzone = 10;
++		cfg->right_outer_threshold = 90;
++	}
++
++	for (sysfs_i = 0; sysfs_i < ARRAY_SIZE(ally_attr_groups); sysfs_i++) {
++		ret = sysfs_create_group(&hdev->dev.kobj,
++					 &ally_attr_groups[sysfs_i]);
++		if (ret < 0) {
++			hid_err(hdev, "Failed to create sysfs group '%s': %d\n",
++				ally_attr_groups[sysfs_i].name ?: "", ret);
++			goto ally_config_create_sysfs_err;
 +		}
 +	}
 +
++	/* So far the only hardware this is supported is the Ally 1 */
++	if (cfg->xbox_controller_support) {
++		ret = ally_set_xbox_controller(hdev, ally, cfg, true);
++		if (ret < 0)
++			hid_warn(hdev, "Failed to set default Xbox controller mode: %d\n",
++				ret);
++	}
++
++	cfg->initialized = true;
++
++	return cfg;
++ally_config_create_sysfs_err:
++	/* The sysfs groups are not devm-managed: undo the created ones. */
++	while (sysfs_i-- > 0)
++		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[sysfs_i]);
++
++ally_config_create_err:
++	return ERR_PTR(ret);
++}
++
++/**
++ * ally_config_remove() - Clean up configuration resources
++ * @hdev: HID device
++ * @cfg: ally config to clean up, may be NULL
++ */
++static void ally_config_remove(struct hid_device *hdev, struct ally_config *cfg)
++{
++	int i;
++
++	if (!cfg || !cfg->initialized)
++		return;
++
++	for (i = 0; i < ARRAY_SIZE(ally_attr_groups); i++)
++		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[i]);
++}
++
+ /**
+  * ally_gamepad_check_ready() - Wait for the gamepad MCU to report ready
+  * @ally: ally handheld structure
+@@ -874,6 +1192,7 @@ static int ally_x_setup_input(struct hid_device *hdev, struct ally_handheld *all
+ 
+ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *ally)
+ {
++	struct ally_config *cfg;
+ 	int ret;
+ 
+ 	/* Failure at this point is non-critical */
+@@ -882,6 +1201,20 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
+ 	if (ret < 0)
+ 		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
+ 
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return 0;
++
++	/* The MCU may have just been reset: restore the cached state. */
++	guard(mutex)(&cfg->config_mutex);
++
++	if (cfg->xbox_controller_enabled) {
++		ret = ally_set_xbox_controller(hdev, ally, cfg, true);
++		if (ret < 0)
++			hid_warn(hdev, "Failed to restore Xbox controller mode: %d\n",
++				 ret);
++	}
++
  	return 0;
  }
  
-@@ -1414,6 +2336,7 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct hid_report_enum *rep_enum;
- 	struct asus_drvdata *drvdata;
-+	struct ally_handheld *ally;
- 	struct hid_report *rep;
- 	bool is_vendor = false;
- 	int ret;
-@@ -1527,6 +2450,15 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		(asus_kbd_register_leds(hdev)))
- 		hid_warn(hdev, "Failed to initialize backlight.\n");
+@@ -959,11 +1292,15 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
+ 	unsigned long flags;
+ 	int ret, ep = ally_get_endpoint_address(hdev);
+ 	struct usb_device *udev;
++	struct ally_config *ally_cfg;
+ 	struct hid_input *hidinput;
  
-+	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD) {
-+		ally = hid_asus_ally_probe(hdev);
-+		if (IS_ERR(ally))
-+			hid_err(hdev, "Failed to initialize ROG Ally HID extensions: %ld\n",
-+				PTR_ERR(ally));
-+		else
-+			drvdata->rog_ally = ally;
-+	}
+ 	if (ep < 0)
+ 		return ERR_PTR(ep);
+ 
++	if (!hid_is_usb(hdev))
++		return ERR_PTR(-ENODEV);
 +
  	/*
- 	 * For ROG keyboards, skip rename for consistency and ->input check as
- 	 * some devices do not have inputs.
-@@ -1558,6 +2490,9 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (drvdata->listener.brightness_set)
- 		asus_hid_unregister_listener(&drvdata->listener);
+ 	 * The ROG Ally controller is integrated into a handheld PC, so at
+ 	 * most one device can exist and the shared global state relies on
+@@ -1023,6 +1360,14 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
+ 			return ERR_PTR(ret);
+ 		}
  
-+	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD)
-+		hid_asus_ally_remove(hdev, drvdata->rog_ally);
++		ally_cfg = ally_config_create(hdev, &ally_drvdata);
++		if (IS_ERR(ally_cfg)) {
++			hid_err(hdev, "Failed to create Ally cfg: %ld\n",
++				PTR_ERR(ally_cfg));
++			ally_put_udev_if_orphaned();
++			return ERR_PTR(PTR_ERR(ally_cfg));
++		}
 +
- 	asus_worker_stop(drvdata->worker);
- 	hid_hw_stop(hdev);
- 	return ret;
-@@ -1570,6 +2505,9 @@ static void asus_remove(struct hid_device *hdev)
- 	if (drvdata->listener.brightness_set)
- 		asus_hid_unregister_listener(&drvdata->listener);
+ 		ret = hid_asus_ally_init(hdev, &ally_drvdata);
+ 		if (ret < 0) {
+ 			ally_put_udev_if_orphaned();
+@@ -1030,6 +1375,7 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
+ 		}
  
-+	if (drvdata->quirks & QUIRK_ROG_ALLY_XPAD)
-+		hid_asus_ally_remove(hdev, drvdata->rog_ally);
+ 		spin_lock_irqsave(&ally_data_lock, flags);
++		ally_drvdata.config = ally_cfg;
+ 		ally_drvdata.cfg_hdev = hdev;
+ 		spin_unlock_irqrestore(&ally_data_lock, flags);
+ 		break;
+@@ -1066,7 +1412,9 @@ static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
+ static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *ally)
+ {
+ 	struct input_dev *x_input = NULL;
++	struct ally_config *cfg = NULL;
+ 	unsigned long flags;
++	bool owns_cfg;
+ 
+ 	if (!ally)
+ 		return;
+@@ -1096,8 +1444,25 @@ static void hid_asus_ally_remove(struct hid_device *hdev, struct ally_handheld *
+ 		ally->keyboard_input = NULL;
+ 		ally->keyboard_hdev = NULL;
+ 	}
 +
- 	asus_worker_stop(drvdata->worker);
- 	hid_hw_stop(hdev);
- }
++	owns_cfg = ally->cfg_hdev == hdev;
++	if (owns_cfg) {
++		cfg = ally->config;
++		ally->cfg_hdev = NULL;
++		ally->config = NULL;
++	}
++
+ 	spin_unlock_irqrestore(&ally_data_lock, flags);
+ 
++	/*
++	 * The config teardown removes sysfs groups and takes sleeping locks:
++	 * it must not run under ally_data_lock. The config pointer has been
++	 * unpublished above, so no new sysfs callback can find it while the
++	 * groups are being removed.
++	 */
++	if (owns_cfg)
++		ally_config_remove(hdev, cfg);
++
+ 	if (x_input)
+ 		input_unregister_device(x_input);
+ 
+@@ -1124,6 +1489,16 @@ static int hid_asus_ally_reset_resume(struct hid_device *hdev, struct ally_handh
+ 	if (ep != HID_ALLY_INTF_CFG_IN)
+ 		return 0;
+ 
++	/*
++	 * This function assumes the asus-specific initialization
++	 * to have been performed already at this point.
++	 */
++	ret = ally_gamepad_check_ready(ally, hdev);
++	if (ret < 0) {
++		hid_err(hdev, "ROG Ally device is not ready: %d\n", ret);
++		return ret;
++	}
++
+ 	ret = hid_asus_ally_init(hdev, ally);
+ 	if (ret < 0)
+ 		return ret;
+@@ -2707,7 +3082,27 @@ static struct hid_driver asus_driver = {
+ 	.event			= asus_event,
+ 	.raw_event		= asus_raw_event
+ };
+-module_hid_driver(asus_driver);
++static int __init asus_init(void)
++{
++	return hid_register_driver(&asus_driver);
++}
++
++/*
++ * The Ally configuration is not tied to any device lifetime: interface
++ * removal keeps it so that it can be re-applied on re-probe. Release it
++ * only when the module itself is removed, once no sysfs attribute can
++ * reach it anymore.
++ */
++static void __exit asus_exit(void)
++{
++	hid_unregister_driver(&asus_driver);
++
++	kfree(ally_config);
++	ally_config = NULL;
++}
++
++module_init(asus_init);
++module_exit(asus_exit);
+ 
+ MODULE_IMPORT_NS("ASUS_WMI");
+ MODULE_LICENSE("GPL");
 -- 
 2.47.3
 

@@ -1,72 +1,80 @@
-Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D34423921CD
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 14:36:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48FB43A0E8B
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 14:43:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788532576; cv=none; b=Ll1OyWS8Nn/dgn+vQGVbip9PjEzDmZ7XA+Y0eudLGowEpg/T+xW5RNl2r0EVgdMD3003l2CyhKE4teMeNlYcL1NoS5BN2SB3757pynBRRp5YCpVmbAdFTPveLOAr3jDAA5kT4kOeHn7oOW4ozZWhmQbOxCsXGuNQ9PMUsZNBxRw=
+	t=1788532993; cv=none; b=fCSFWrPYFj04JrPcM9dv7Vs5D/vGtr/C0iZaMtTlEGyo7hphvH3fxPse600wmZXBB0rKpAD+iZIFcvuU/el3UbsWNUaY2TMFBHELqE9zyvbtiRDwJipbPb0SA2645m8TnYNYj3e5zwRflBFLFsCq4UIp5+8S5cx43XjUiFp962M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788532576; c=relaxed/simple;
-	bh=PWY3km9ar9a7dimSAUmiVRUvDX2p8whPPHsTRITwIwk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E8+f+DoNOjCyrYZckuwZX18MBvMz2fMqY+HUw9gJEUIki+PR4lDjBD4IveWyv3Gh2ANbudyXAfDe6I4sJJAZXxD/6LpphYVjNZymILF+zKDH1cm5lQYVBqhWn4/dNzGnJ5EMFsx+12PksDdDkd+BO4iH/3SoMRNNfQbJAp7zgHI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Zsu9Z3Kk; arc=none smtp.client-ip=209.85.167.170
+	s=arc-20240116; t=1788532993; c=relaxed/simple;
+	bh=HZWJUJYl5qzZUZNxhWFbl4RPscpqQuHfVQ96gb8EV/c=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MNTwn/EgbB1wA9buS7pJeMap3JS37fYdj2KxXDrWm00el8rpfF0sapBLKszV5u9cVm5EuciHDp8FTfLP5End+MSO93ddH5yW9iUqz7bLB4SYEf4lb49RQKZvLa2djPa8ndxpP6AR9zkfNnmATe0ffUvXl/0Z6YynEp2hOKILqlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sam3CX/M; arc=none smtp.client-ip=209.85.167.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zsu9Z3Kk"
-Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-4af81963f35so653881b6e.0
-        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 07:36:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sam3CX/M"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5b159850b16so1046415e87.3
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 07:43:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788532573; x=1789137373; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=pihMfb33QLwKDJyjnDPrNw+DJpGm8Za4dV4SX6WTjj0=;
-        b=Zsu9Z3KkZ2XQD1+X2jCm7YSJ7ZDhcBpI1e8HzF5++QjzXzxzJyE8M9RYMTH0nJtPDC
-         jBIX12oZ9b7gOBf0qQ4xTtfwboIWppidrhlZb1x/5486U1g7cIF3YRmtiqRGAbKE6ycF
-         HlTJKPesSHZtb4T6YYvn1Acsk3em9rIGWqzW+AD8Xt7S/NooE2ZRe9GpdKtGMUp+RP6h
-         pNyfQVRyBtO1/ykqT4qAQGx82Ob7at+wNK/pFft2gmSzdT6NqEH5dhAbaly91bfAjWPq
-         6Q3ilBnVB/+POYAOm5VPm0dAitB5tfYJAHAfODnbiWhIiNQDHtySSJYGuKE+dRznOGiL
-         o06w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788532573; x=1789137373;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1788532988; x=1789137788; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=pihMfb33QLwKDJyjnDPrNw+DJpGm8Za4dV4SX6WTjj0=;
-        b=DezSSeHPQpvICvh9BsEOarA9/CMkjixT5WPvuNB2pHOo8eg9IH7iGi7F2/TFtgx9jB
-         Ccl7Al5pfZWryec29IPQHAAGyftAeZ1YXFh0rJu4kOdDu37UZNh6T32MFdtuVtHk4tT7
-         UUYRzTyruOt0bIY2u+M+OgQDUCiBcz9r+cicVfd7t5Cttt62IRi5Qc3aZwQHv2fe5NO/
-         SqWxnXwPNdpk4oVEQnqc/mX32WKa5hbbAJQhGT0lxJQZVC3b5EwxQEAWBSoO6O5JP9rU
-         q6xQcPlKkCS7cl7vw1CZFzyciPkwE1q6S4dRjoemUo0JZJk0BwxofbCAACg2bVQM1o3p
-         aoNQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwWIOt8LKvg0zP5aIhOV+iuAuu5S26wohfUNh+jfjak8zdgpACJhWwLpchBU+mcyEv7ZG8qUhtr2oWdIg==@vger.kernel.org
-X-Gm-Message-State: AFuF++mOZsY1NlroTp4vgmkE5RLcykqRjyp+SWIIihqXGNtAzlbL+LHd
-	5zJqOoIzqe49YheO5RQjLrbL5uNzEwyTDic9PuI68qZS7Puz8AJpasMQfLjoq+n1nEE=
-X-Gm-Gg: AYBFou10mh71TgdxLx7rtPTYgIJ1B7whDjFNbwzmy07I/CWu36gLvuWpHhX6rOpzh8S
-	e1SmkzrkQvYKbTnjf/VvyAtLSDUK0YtreH+klaJv8sZW6u5RicUuXCyLGdg7cK/vpkRYlyZ1v2v
-	mh51/L/npMDWEAA+6dd8V3p+ei2vclmXopFblbQBl+hJ43pX5P8gHZGg14olTFyXof3opN3oxUU
-	wT23CMLBYSzNdZqchBogLsZgcwl9kRJ4x4gFQpROckAVW6waz7c3MEZ1Cn/7AjF/ItUWtOi78VB
-	JbHrvN+LH36W5QTdJ3W3Or1jBSH5qH8yEoKRLLTIk9D8wwOyERJow397mlXMyPvaxI5jw1JNGVJ
-	mNmsZz0kABhCvL3xktbyoOCS7f1KtQ6rG9bFnOqKfEgw66qOHqsWO30mkTSN522DQvjWo9WWh1G
-	6zdJ28ewQbDGxirfFGXGxVbpGb13zzCtUxMx3X6c25rsaXKJMjrheJF6XnbZdiUtvgj5dgM+gaj
-	QDadRhjR5Qg9dPTyyjj+XESLHuhnsDsYgkGM2sU28g=
-X-Received: by 2002:a05:6808:4fcb:b0:4b3:8ff9:72b3 with SMTP id 5614622812f47-4b95fd5b2e4mr6721009b6e.2.1788532573522;
-        Fri, 04 Sep 2026 07:36:13 -0700 (PDT)
-Received: from archlinux.lan ([136.34.156.120])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-4b971675f82sm2169396b6e.12.2026.09.04.07.36.10
+        bh=Frach9V7xuyTlDSnYyXixBxqHiyY2R8LaYBpW7CwPLw=;
+        b=Sam3CX/MevqP4Q5y5K9h2Zm/hpUVgLwEpW7yiAfuI68xyAcGyBBLWmddoOoYuUreG9
+         IAmPmxua2FxihUtkeT0xGpkkBrj0pnSZZMxBfS0zj/KnilIfqgVnbFJuUV9Wv+uQSnWd
+         E5wCtjpSWfgMnEYnQw3+ZQya5zGI7hquAAamZMC5hYQ9Cxa9CXfhw28isvvocbFtLuUA
+         bjCqu3th6oYP1fIGlBmY35vV6s/dFJS+iZXyuK+WqnZ6tKbbL9hn8jtR+luxElq+Agwk
+         jqkWy4Bkgd9BQPHRhYXdnHxyOFTghc+HalLdr7xELCeFc7Xkj22TDEfcl6i0qBNbtAUV
+         sQng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788532988; x=1789137788;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Frach9V7xuyTlDSnYyXixBxqHiyY2R8LaYBpW7CwPLw=;
+        b=ljYy9plniEsOV3gcAZC+29r6qebK7kBAN8o/5JCMc9oRhTKhPWs/TiquCApw8pdWIU
+         hOdyvzIuSArgARYvNoV+kHEdmwFrscLYMcsqFHekvJQMYkiEvoPJqp5Fnoul4AgwBeMi
+         hSRzXw8pt+9AX7+Wh1tO5zX9CIpdu73wXG9CENV0VovKrMtpv8kKwxXaPXK6ygZbbWHJ
+         RApfq2LMI+1QVzis0f7v7XKjTB36XhczyF0YtKUl2kfi+ubrjJQNU3HuYShG+irDyPGa
+         Ysyu5pBv+7QEzBCmlacX1Ya//rZJYBfQTjA1HcVvCFySLfT7s1syfeE4yOBPqWTcTNSe
+         DguA==
+X-Forwarded-Encrypted: i=1; AKwUvBxy+p7p2UO8c1BLjziWNgXWeZ0GjkRkis9QXUQuIDqSdsQTzAqxiQU/Wm6FWoT8VMmlT0uV1gMXjRtXNA==@vger.kernel.org
+X-Gm-Message-State: AFuF++mdKkkRzWb7potp4GJGnfK+cvMKTQbD8dufds8vLH2JWgXMBenu
+	iZvIv2DxdzWt179SX5dlBM5zexce8nweZkLTCQQa5jLoDWL6Va0iIkWA
+X-Gm-Gg: AYBFou3jEU9TQZWjAbP5umqTdrP0SaHbHjus27HZv9PjKrNVF3FrvIsYHFnlh8Nx0qq
+	RdT44qpn+bMui9e3QtHRgUTBxfm5ZwrZNrMHxsjlYlMY28FFfwWN8CV982aKIcJtzTeBMf4hlPw
+	Sn9R5vovZ+GU6esTv4Pv4ySaJBvbCYFI30vVX5M7GR7Plou1q/cRCq9+hZ0X/mWSj41Mj6cRBg4
+	CE4tR4Bmb3OvYUndKk1Z97Vgcs9tT+YEDX3/u+kHBZIOXc2q4KE8RX9TyQU0MNyQ9/iIPV1jdAP
+	ByDCN4a25lzABXSYSX4Eb/pykeJaHOVnlDINFQ/9vMMXE+ZKANyeD2xJT+bCQxcf9LD7s9o2QG2
+	ShPWdfla0BSWOlGgB9of8wgfShGs7K1Ct1zTtiMSWaJLb+Z981P14Kx7sjsRlhwM9I5jzHJjMkG
+	sdyCkdUznj4MQA6pcwurItoi3jRbSQfoobzryZ/pSJWHH+Zp6IZ1alIM4jmKorWmtLbs7QcKXO/
+	yapTy1LmxVSh/zlp2vo2FdZoctHnp3EhwsUL9uyh2+OncN8OQT4SVp5fWh1UgwbboKHYi8=
+X-Received: by 2002:a05:6512:3a8d:b0:5b6:7fa:e96b with SMTP id 2adb3069b0e04-5b616f075bdmr2148081e87.14.1788532987650;
+        Fri, 04 Sep 2026 07:43:07 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b61670537esm549289e87.66.2026.09.04.07.43.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2026 07:36:12 -0700 (PDT)
-From: Danish Khateeb <danishkhateeb03@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Chen Changcheng <chenchangcheng@kylinos.cn>,
+        Fri, 04 Sep 2026 07:43:06 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: tiwai@suse.de
+Cc: tiwai@suse.com,
+	perex@perex.cz,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-sound@vger.kernel.org,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: corsair: cancel worker after unregistering LED, not before
-Date: Fri,  4 Sep 2026 09:36:10 -0500
-Message-ID: <20260904143610.119808-1-danishkhateeb03@gmail.com>
+	linux-kernel@vger.kernel.org,
+	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Subject: [RFC PATCH v3 0/2] the Topping M62's vendor controls, on the component framework
+Date: Fri,  4 Sep 2026 19:42:58 +0500
+Message-ID: <20260904144300.529289-1-mikhail.v.gavrilov@gmail.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260904141158.33398-1-mikhail.v.gavrilov@gmail.com>
+References: <20260904141158.33398-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,172 +83,190 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-corsair_remove() tears down each LED with:
+This is the experiment Takashi suggested in the v8 thread: an
+individual HID driver joined to snd-usb-audio through the component
+framework, instead of a mixer quirk that claims the HID interface for
+itself. It is posted as an RFC rather than as v9 because v8 is not
+withdrawn -- it remains the alternative, and the choice between the two
+is the question this series exists to answer.
 
-	removed = true;
-	cancel_work_sync(&led->work);
-	led_classdev_unregister(&led->cdev);
-	kfree(...);
+I said this morning that I would hold this until the questions in that
+thread were answered. I am sending it anyway, because a patch gets a
+better answer than a question does, and because the last of those
+questions answered itself: the correction I sent a few hours ago
+proposed deferring the controls until the card reports, and working out
+how that lands in code showed why it cannot -- which is in the section
+below. The only question still genuinely open is the HID one, and it
+touches one line.
 
-led_classdev_unregister() calls led_set_brightness(led_cdev, LED_OFF),
-which reaches the driver's k90_brightness_set() and re-arms the worker
-with schedule_work(). That happens after cancel_work_sync() has already
-run, so the work item is queued again and the structure holding it is
-then freed while it is still linked into the worklist.
-
-The corruption surfaces on the next worklist insertion rather than in
-the driver itself:
-
-  BUG: KASAN: slab-use-after-free in __list_add_valid_or_report+0x186/0x210
-  Read of size 8 at addr ffff888102a1ead0 by task kworker/0:1/11
-    __queue_work+0xade/0x1350
-    queue_work_on+0xb6/0xc0
-    led_classdev_unregister+0x26b/0x340
-    corsair_remove+0x1c2/0x2d0
-    hid_device_remove+0xba/0x1e0
-    usbhid_disconnect+0xa0/0xe0
-  Allocated by task 129:
-    corsair_probe+0x560/0xd50
-  Freed by task 11:
-    corsair_remove+0xec/0x2d0
-
-k90 is freed in k90_cleanup_macro_functions(), and the stale
-record_led.work entry left on the worklist is then tripped over by the
-queue_work() that k90_cleanup_backlight() performs immediately
-afterwards. The syzbot report appears to be the same bug on the other
-LED, surfacing later when the worker itself runs and reads led->removed
-from freed memory, but that variant was not reproduced here.
-
-Cancel the worker after led_classdev_unregister() so that nothing can
-re-arm it before the memory goes away. The removed flag is still set
-first, so a worker already past the flag check returns without
-dereferencing led->cdev.dev, which is what commit eb51c9f8cb4f ("HID:
-corsair: cancel worker before unregistering LED to fix use-after-free")
-set out to prevent. The fail_sysfs error path in
-k90_init_macro_functions() already uses this ordering.
-
-Reproduced by binding a configfs USB gadget carrying the K90's IDs
-(1b1c:1b02) to dummy_hcd and then unbinding it; the splat above is from
-the first unbind. With this patch the same sequence runs cleanly under
-KASAN.
-
-Fixes: eb51c9f8cb4f ("HID: corsair: cancel worker before unregistering LED to fix use-after-free")
-Reported-by: syzbot+abcedffc9201f2bb66c2@syzkaller.appspotmail.com
-Link: https://syzkaller.appspot.com/bug?extid=abcedffc9201f2bb66c2
-Assisted-by: LLM
-Signed-off-by: Danish Khateeb <danishkhateeb03@gmail.com>
----
-
-Reproducer, for anyone wanting to confirm the fix. Needs CONFIG_HID_CORSAIR,
-CONFIG_USB_DUMMY_HCD, CONFIG_USB_CONFIGFS_F_HID and KASAN. It fakes a K90 with
-a configfs gadget on dummy_hcd and unbinds it; unpatched, the splat above fires
-on the first unbind. syzbot has no reproducer for this one.
-
-  #!/bin/sh
-  # Reproducer for the hid-corsair teardown use-after-free.
-  #
-  # Emulates a Corsair K90 (1b1c:1b02) with a configfs USB gadget bound to
-  # dummy_hcd, so hid-corsair probes and registers its two LEDs. Unbinding the
-  # gadget drives corsair_remove(), which is the path under test:
-  #
-  #	removed = true;
-  #	cancel_work_sync(&work);        <- work cancelled
-  #	led_classdev_unregister(&cdev); <- led_set_brightness(LED_OFF) re-queues it
-  #	kfree(k90);                     <- freed while still on the worklist
-  #
-  # The splat surfaces on the *next* worklist insertion, as a KASAN
-  # slab-use-after-free in __list_add_valid_or_report() under __queue_work().
-  #
-  # Run inside a KASAN guest. Fires on the first unbind.
-  set -e
-
-  G=/sys/kernel/config/usb_gadget/k90
-
-  mountpoint -q /sys/kernel/config || mount -t configfs none /sys/kernel/config
-
-  UDC=$(ls /sys/class/udc | head -1)
-  [ -n "$UDC" ] || { echo "no UDC found (need CONFIG_USB_DUMMY_HCD)"; exit 1; }
-  echo "using UDC: $UDC"
-
-  cleanup() {
-  	[ -d "$G" ] || return 0
-  	echo "" > "$G/UDC" 2>/dev/null || true
-  	rm -f "$G"/configs/c.1/hid.usb0 2>/dev/null || true
-  	rmdir "$G"/configs/c.1/strings/0x409 "$G"/configs/c.1 2>/dev/null || true
-  	rmdir "$G"/functions/hid.usb0 "$G"/strings/0x409 "$G" 2>/dev/null || true
-  }
-  cleanup
-
-  mkdir -p "$G"
-  cd "$G"
-  echo 0x1b1c > idVendor          # USB_VENDOR_ID_CORSAIR
-  echo 0x1b02 > idProduct         # USB_DEVICE_ID_CORSAIR_K90
-
-  mkdir -p strings/0x409
-  echo "0001"    > strings/0x409/serialnumber
-  echo "Corsair" > strings/0x409/manufacturer
-  echo "K90"     > strings/0x409/product
-
-  mkdir -p functions/hid.usb0
-  echo 1 > functions/hid.usb0/protocol      # keyboard
-  echo 1 > functions/hid.usb0/subclass
-  echo 8 > functions/hid.usb0/report_length
-  # Standard HID boot-keyboard report descriptor, 63 bytes.
-  # NOTE: octal escapes, not \xHH -- Debian's /bin/sh is dash, whose printf does
-  # not implement \xHH and would write the escapes out as literal ASCII text.
-  printf '\005\001\011\006\241\001\005\007\031\340\051\347\025\000\045\001\165\001\225\010\201\002\225\001\165\010\201\003\225\005\165\001\005\010\031\001\051\005\221\002\225\001\165\003\221\003\225\006\165\010\025\000\045\145\005\007\031\000\051\145\201\000\300' \
-  	> functions/hid.usb0/report_desc
-
-  desc_sz=$(wc -c < functions/hid.usb0/report_desc)
-  [ "$desc_sz" -eq 63 ] || { echo "BAD DESCRIPTOR ($desc_sz bytes, want 63)"; exit 1; }
-
-  mkdir -p configs/c.1/strings/0x409
-  echo "c1" > configs/c.1/strings/0x409/configuration
-  ln -s functions/hid.usb0 configs/c.1/
-
-  echo "binding gadget..."
-  echo "$UDC" > UDC
-  sleep 2
-
-  dev=$(ls /sys/bus/hid/drivers/corsair/ 2>/dev/null | grep ':' || true)
-  [ -n "$dev" ] || { echo "hid-corsair did not bind - check dmesg"; cleanup; exit 1; }
-  echo "bound: $dev"
-  echo "LEDs: $(ls /sys/class/leds 2>/dev/null | grep "$dev" | tr '\n' ' ')"
-
-  echo "--- unbinding (triggers corsair_remove) ---"
-  echo "" > UDC
-  sleep 2
-
-  cleanup
-  echo "done (no splat)"
-
- drivers/hid/hid-corsair.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-index 278c6efb565d..ac12877a6db7 100644
---- a/drivers/hid/hid-corsair.c
-+++ b/drivers/hid/hid-corsair.c
-@@ -524,8 +524,8 @@ static void k90_cleanup_backlight(struct hid_device *dev)
+Changes since v2:
  
- 	if (drvdata->backlight) {
- 		drvdata->backlight->removed = true;
--		cancel_work_sync(&drvdata->backlight->work);
- 		led_classdev_unregister(&drvdata->backlight->cdev);
-+		cancel_work_sync(&drvdata->backlight->work);
- 		kfree(drvdata->backlight->cdev.name);
- 		kfree(drvdata->backlight);
- 	}
-@@ -540,8 +540,8 @@ static void k90_cleanup_macro_functions(struct hid_device *dev)
- 		sysfs_remove_group(&dev->dev.kobj, &k90_attr_group);
+  - topping_bind()'s error path dropped the controls before clearing
+    m62->card, so a report arriving while a half-built set was being
+    unwound could still find a control that snd_ctl_remove() had just
+    freed. It is the race v2 fixed in topping_unbind() and left here.
+    err_drop now clears the card under the lock first, as unbind does.
  
- 		k90->record_led.removed = true;
--		cancel_work_sync(&k90->record_led.work);
- 		led_classdev_unregister(&k90->record_led.cdev);
-+		cancel_work_sync(&k90->record_led.work);
- 		kfree(k90->record_led.cdev.name);
+  - snd_topping_init() passed component_match_add()'s result straight
+    to component_master_add_with_match(). The former reports a failed
+    allocation by storing ERR_PTR(-ENOMEM) in the match pointer rather
+    than by returning, and the latter reads match->num without an
+    IS_ERR() check, so an allocation failure would have dereferenced
+    an error pointer. There is now a check, and the two failure exits
+    share one label.
+
+What the shape buys, measured rather than argued:
+
+  - card.c is not touched at all. The v8 series had to add
+    snd_usb_claim_iface() and snd_usb_release_iface() there, and had a
+    defect I reported separately: an interface claimed and marked
+    USB_AUDIO_IFACE_UNUSED never gets told to wind down, because
+    usb_audio_disconnect() returns at its first line. With no claim
+    there is no such interface and the defect has nothing to attach
+    to. Watching the wire with usbmon: unbind the audio interface and
+    the keepalive stops. In v8 it kept going.
+
+  - the hid_ignore_list entry goes away, so hidraw stays available.
+    That matters because five of the card's functions -- the mixer
+    matrix, the mutes, the loopback routing, the input power and the
+    EQ -- are reachable only through the vendor protocol, and v8 made
+    them unreachable from userspace as the price of the quirk.
+
+  - two M62s on one host bind to their own cards. The match is by
+    descent from the shared USB device, and it holds: gains set on one
+    do not appear on the other, and unplugging one leaves the other's
+    controls in place. The quirk road could not be tested for this at
+    all.
+
+On the timing worry from that thread: it does not bite on an ordinary
+plug. The master goes up from snd_topping_init() inside
+snd_usb_create_mixer(), so the bind is synchronous and the controls
+exist before try_to_register_card() -- the same ordering as v8. From
+HID probe to component bind, 54 to 57 ms across five replugs. Only a
+module reload onto a live card adds controls after registration, and
+there a desktop mixer does not follow the renumbered elements until
+wireplumber is restarted. That is a real wart and I have not found a
+way around it that is worth the code.
+
+What the card does and does not report
+
+I got this wrong twice in the v8 thread and would rather state it
+plainly here, since the design follows from it.
+
+After a subscribe the card reports itself in two waves: jacks at about
+0.9 s, then at about 5.2 s the jacks again plus the output mutes plus
+the gain of every input whose jack is present. Every turn of a
+front-panel knob is reported as it happens, gains and output volumes
+alike. What is never reported is a source selector, because the card
+reports events and a selector has no front-panel control, so no event
+can exist; and an output volume before anyone has touched it, because
+it is a setting rather than a physical fact.
+
+So five of the nine controls have a source of truth on the card, two
+have one only after a hand moves them, and two never do.
+
+That looked at first like an argument for deferring the controls until
+the first report lands, so that a value read at connect would be the
+panel's rather than something restored over it. I have not done that,
+and here is why: alsactl restores once, at card add, and does not
+come back for elements that appear later. Deferring would therefore
+trade an accurate value for five controls against no restore at all
+for nine, and would wait forever for an input with nothing plugged
+into it -- which on a five-input card is the normal case.
+The controls are published at bind, as in v8, and the value at
+connect is the restored one.
+
+Open question, not blocking the review
+
+hid_hw_open() sets intf->needs_remote_wakeup, and usbhid offers no way
+to take input reports without it. This card does not advertise remote
+wakeup (bmAttributes 0xc0, no power/wakeup node), so that forbids
+runtime suspend to the whole device -- undoing something an earlier
+revision of the v8 series had to fix. The driver clears the flag after
+opening, with a comment saying so, because it resynchronises on resume
+and has no use for a device-initiated wakeup. Jiri and Benjamin have
+been asked whether that is acceptable or whether usbhid should offer
+something; the question is in the same thread and unanswered. If the
+answer is that the clear must go, HID_CONNECT_DRIVER replaces
+HID_CONNECT_HIDRAW and the hidraw node goes with it.
+
+Tested
+
+Fedora, 7.3.0-rc1-bc35965f6940 plus this series, with KASAN,
+PROVE_LOCKING and UBSAN enabled. One M62, firmware V87.05.45.48.27,
+and a second of the same for the two-card test. Everything below was
+run after the fixes listed above, not before them.
  
- 		kfree(k90);
+All nine controls read and written from amixer and from the front
+panel, values cross-checked against the panel.
+ 
+One hundred cycles of module load and unload against a live card,
+which is the path the fixes touch: the controls come and go while the
+meter stream keeps arriving, so .raw_event() runs against a set of
+controls that is being taken apart. No splat and no lockdep complaint,
+including on the lock order the first fix introduces -- m62->lock is
+now held across snd_ctl_notify(), which takes the card's
+controls_rwlock inside it.
+ 
+An audio-side unbind and rebind, exercising topping_unbind() through
+the master rather than through the HID driver's own remove.
+ 
+The cable pulled out of a card while a control was being written in a
+loop. That produces a run of failed writes and then the disconnect,
+and after the last fix it does so without a line of complaint each.
+ 
+System suspend and resume: the subscription survives it -- turning a
+front-panel knob afterwards still moves the control -- and the
+selectors are written back on the way out, as they must be since the
+card never reports them.
+ 
+Two cards on one host, on different ports of the same hub: the
+component match is by descent from the shared USB device and it holds
+-- dmesg shows snd-usb-audio 3-1.3:1.0 binding one HID device and
+3-1.4.2:1.0 the other, each card carries its own nine controls, gains
+set from one front panel move only that card's controls, and
+unplugging one leaves the other's in place.
+ 
+Not tested:
+ 
+  - hibernation, and with it .reset_resume, which shares
+    topping_resume() with .resume. This machine is not set up for it:
+    there is no resume= on the command line and zram takes swap
+    priority, so the attempt logs "PM: Image not found (code -16)" and
+    powers off instead of saving an image. That is the same on a stock
+    kernel and has nothing to do with this series, but it does mean
+    the path is unexercised;
+  - kmemleak, compiled in on this system but disabled at boot;
+  - a card whose battery has run down;
+  - anything on a big-endian host.
+
+Ordering
+
+The HID driver comes first. Between the two patches it binds, speaks
+to the card and creates no controls, which is harmless; the reverse
+order leaves a master that never matches, which is equally harmless
+but leaves hid-generic making a bogus input device out of the
+descriptor in the meantime.
+
+Mikhail Gavrilov (2):
+  HID: topping-m62: driver for the M62's vendor controls
+  ALSA: usb-audio: bind the Topping M62's vendor controls
+
+ MAINTAINERS                   |   9 +
+ drivers/hid/Kconfig           |  19 +
+ drivers/hid/Makefile          |   1 +
+ drivers/hid/hid-ids.h         |   3 +
+ drivers/hid/hid-quirks.c      |   3 +
+ drivers/hid/hid-topping-m62.c | 898 ++++++++++++++++++++++++++++++++++
+ sound/usb/Makefile            |   1 +
+ sound/usb/mixer_quirks.c      |   5 +
+ sound/usb/mixer_topping.c     | 186 +++++++
+ sound/usb/mixer_topping.h     |   7 +
+ 10 files changed, 1132 insertions(+)
+ create mode 100644 drivers/hid/hid-topping-m62.c
+ create mode 100644 sound/usb/mixer_topping.c
+ create mode 100644 sound/usb/mixer_topping.h
+
 -- 
 2.55.0
 

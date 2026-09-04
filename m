@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E0C14A2A79;
-	Fri,  4 Sep 2026 13:59:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B3E284B4F;
+	Fri,  4 Sep 2026 14:11:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788530351; cv=none; b=R4tv87sBzVpOWqUDiN4A48TvhfwZNHg7YSyc3UY5gPl1JbHSSpDX9v4xqxd8DbpKs+wa5HLzGHtDpyQmzGbfGdGzXZ9EErb5nyLy8hAPgUEUWN6SmqBuufYRfCl8FiKU0rqPC5KVTf8V8/7dmGfZyFM4MO3BkKxXP5kZ+S8E8OU=
+	t=1788531109; cv=none; b=F6wnCkSxApJu4LleIa6bDye5JPkJL/u0eAexplbBlj0cEYEbG+hGbtu9blSmMDijt1a8NF/0CWhQ2gZZt4ovF9NswvzfykDgVp/RetG7YwaZuNzmwzKUhzmf6qtZX56+oBylsUW1/SdXADXK8IdHYWyUMThpjpAmen1lLL1jXO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788530351; c=relaxed/simple;
-	bh=Cjpw3a81f/rcZiWDCEodWm86ZLBGBe+MT08VVug6MWQ=;
+	s=arc-20240116; t=1788531109; c=relaxed/simple;
+	bh=6DkFsycShLR1u2Zwsaq9Qz26riEMfjv9aH4D9RuY/eo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BmTbvn8flne2L1F0WUp9EKPmy3ur5grfpsMg+UG4y15wggIlCC+RrqFbJjcL2dIN9b01eL/KO2rMkc9442KAbVQ6xzpDrYLhlqpQA76OXXFX+qOAT1q3MBMV/bYnUPRZCrnS1x8OdIbiaeFsGEFsQ9uD/coSvdQP7ajaCB0vlts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nzO6+BFo; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=UWNqzToeYkwJ0FpHk3ct07nZwco4pi+2Xt6gsTJSbYWMJDIWQRuAFs/77kUsn2fnbx7ilE/tHzVQ3ApVJbezYEsvZOBT5aCtUbtokw6R+chxASm6D1qhOzZ20Bcv2IkdBNTipYZonoJ/hTHwb6h4LJGoDovHwfkExzYbQYZToYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AztKYxVc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nzO6+BFo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08B291F00A3D;
-	Fri,  4 Sep 2026 13:59:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AztKYxVc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DCB61F00A3D;
+	Fri,  4 Sep 2026 14:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788530349;
-	bh=ub/H5EV5rHEQmVWi3kq9DYUDWf3fOZm8HoE9J/8V61w=;
+	s=k20260515; t=1788531108;
+	bh=p0TIVjxGW79UaSz0A6FR6XVFc32IWgbgWnSVNO92cjg=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=nzO6+BFoNZZIGQINVukiMVoYPwdIGleStNPeQoR3GadsebE6Fdzf7Cy2a7RL1IoNd
-	 qM/eTDYDtSw9WmUTdfIPEI/5FWv0ehkLgfw6ZOW7ryZxezKjtqCbsE3nSsFJYC9z+f
-	 jG660LJrQovR+vCBCK6U7cGmFXX3NvOn5bjD8pP9y04igbLen0zyjiZQV88Wcyi5bB
-	 U89zpHWCE18oSmPgNB6XPFi/B0V5e4TRcPVmm/gb9XBMRAMxEZMeChptQqNCn5ICQO
-	 Ng1bf/hzoGto6yHBkvM/rq8UX7PQGNrcKObnV9ztIxnaq7aVOCQ2jx7tqDIgEtDCjq
-	 vJ/xN+60F1vHw==
-Message-ID: <48506863-848c-43c0-9088-40ebe776cedc@kernel.org>
-Date: Fri, 4 Sep 2026 15:58:59 +0200
+	b=AztKYxVcBjGISkSZ5O4+2xKFQjXGeoLBu6aeCP2DYZ2si3oSyXM/DvVg08IY7kOoL
+	 HPFnNr5yBBg3O/DTdfxOh/paGigizVsIxiaMojTHKK2UrXhF/R601rv0ouQT1cgn25
+	 zQNV1ke9SQmjMQCWiaMDham1/j6L5wERm6uG5bqR5+3F2vM2BGJ/XNb0OsNeLfqswe
+	 h9NAfMpbeXtPaoVuBzglMzgznQdvFik4Gz/tlctCFe6gbHa+L4k4xK8My1kX/fBCj0
+	 1EJJgw6g1T7X38Ozk1AJyJ7unkoEFZq0YSloOBloIjp5peq2kI9eLg/YYOzSy5q8+m
+	 7w5O5UCBCHP5w==
+Message-ID: <dcc33c42-c897-4fcb-ac25-6d7c63402d35@kernel.org>
+Date: Fri, 4 Sep 2026 16:11:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -35,23 +35,23 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 07/10] mfd: wm831x: support software nodes for DCDC
- regulators
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Lee Jones <lee@kernel.org>, Mark Brown <broonie@kernel.org>,
- Charles Keepax <ckeepax@opensource.cirrus.com>, Arnd Bergmann
- <arnd@arndb.de>, Sam Protsenko <semen.protsenko@linaro.org>,
- Peter Griffin <peter.griffin@linaro.org>, linux-input@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- Linus Walleij <linusw@kernel.org>, linux-arm-kernel@lists.infradead.org,
+Subject: Re: [PATCH v3 00/10] Remove support for platform data from samsung
+ keypad
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Peter Griffin
+ <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>,
+ Russell King <linux@armlinux.org.uk>, Mark Brown <broonie@kernel.org>,
+ Linus Walleij <linusw@kernel.org>,
+ Charles Keepax <ckeepax@opensource.cirrus.com>,
+ Sam Protsenko <semen.protsenko@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+ Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
  linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com,
- Bartosz Golaszewski <brgl@bgdev.pl>, Russell King <linux@armlinux.org.uk>,
- Conor Dooley <conor+dt@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>
+ Conor Dooley <conor.dooley@microchip.com>,
+ Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 References: <20260711-samsung-kp-v3-0-b2fcaba77aff@gmail.com>
- <20260711-samsung-kp-v3-7-b2fcaba77aff@gmail.com>
- <0306eaba-b59c-4f8b-9151-9f39685398ba@kernel.org>
- <aprLYn4VzSTnZWuw@google.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -97,41 +97,38 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <aprLYn4VzSTnZWuw@google.com>
+In-Reply-To: <20260711-samsung-kp-v3-0-b2fcaba77aff@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 04/09/2026 15:46, Dmitry Torokhov wrote:
-> On Fri, Sep 04, 2026 at 03:41:21PM +0200, Krzysztof Kozlowski wrote:
->> On 12/07/2026 04:12, Dmitry Torokhov wrote:
->>> Allow passing software nodes to wm831x DCDC regulators via PMIC platform
->>> data. This is useful for non-DT/non-ACPI platforms that want to
->>> associate device properties (like DVS GPIOs) with the regulator devices
->>> using software nodes.
->>>
->>> We add 'dcdc_swnodes' to the PMIC platform data 'struct wm831x_pdata' and
->>> have the MFD core assign these software nodes to the buckv cells.
->>>
->>> Assisted-by: Antigravity:gemini-3.5-flash
->>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>> ---
->>>  drivers/mfd/wm831x-core.c        | 47 ++++++++++++++++++++++++++++++----------
->>>  include/linux/mfd/wm831x/pdata.h |  2 ++
->>>  2 files changed, 37 insertions(+), 12 deletions(-)
->>
->> I still need Ack for this from Lee... and the problem is that you did
->> not Cc him.
+On 12/07/2026 04:12, Dmitry Torokhov wrote:
+> Hi,
 > 
-> Hmm, indeed. not sure wheat happened...
+> This series converts the Samsung keypad driver and the Cragganmore 6410
+> board to generic device properties, allowing the removal of legacy platform
+> data and GPIO lookup tables.
 > 
->>
->> Please resend everything or spin v4 with MFD maintainers included for
->> acking.
+> We rework the Samsung keypad driver to stop using platform data, utilizing
+> a new compact matrix keypad binding. To support this on the Cragganmore
+> board, we add infrastructure to associate software nodes with Samsung
+> gpio_chips, and add software node propagation support to the wm831x MFD
+> core to route DVS GPIO to the PMIC regulator.
 > 
-> Maybe you could take patches 1-6 now and then I'll continue with the
-> rest of cleanups?
+> Finally, we convert all peripherals on the Cragganmore board (including
+> keypad, GPIO keys, PMIC, WM1250, SPI0, basic-mmio-gpio, and LEDs) to
+> software properties. This allows us to eliminate all legacy GPIO lookup
+> tables and fixes incorrect GPIO chip names from previous conversions.
+> 
+> Mark, it would be great if you could give this a spin on Cragganmore.
+> 
+> The majority of changes are in arch/board code, with a couple of input
+> matches and one for MFD. If everyone agrees maybe we can merge it all
+> through the soc tree?
+> 
+> Thanks!
 
-Sure, that works for me.
+Appplied 1-6 with conflicts needing manual resolution around
+linux/gpio/legacy.h (commit 8c44b5f068a36d168687d64f3801c11d3252c1d2).
 
 Best regards,
 Krzysztof

@@ -1,80 +1,48 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from e3i605.smtp2go.com (e3i605.smtp2go.com [158.120.86.93])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 475D028373
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 02:02:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3239938E135
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 02:44:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.86.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788487372; cv=none; b=N0hdIG/cyAfbX3VFoMyCucKpk3aHmpbPEqjJqb8B3Db+MONi5386NcbhXQVnWlXvgIsJNjAJCSHqIovHIAbZF36IquUm6YAE7I34W4lwlGK1kWlMTmqqLBEqE3xrjpclzxwHOwLBR/7omB67xJI8qdXd3zschTkM+EEfC/HA+SE=
+	t=1788489861; cv=none; b=T8GzawI4+BbDtrCWm5dd48fjjV3GJpyX4xvvjO7otx2PYYAAEUolSabGvIP2hzIPXCWvqEEk3LpSUUoN0Kte/q9huxNijh9cT1hDbprNMP29jpMooE8gZvQlnjImXK846KYPly+Ti44iRjNgFmhC2fPBHdlmQYkzgmY/ntFv13g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788487372; c=relaxed/simple;
-	bh=34Z8DPG6Kp1PMhLkp+d1BQuCa8F7adfXlCWa4tGzx7o=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=JBZIecZhWgtI4xCeSxLHS9rkpRhAcKgyAyWEA1uLN6W1AeiL/rNRkYQ4Z8Ki3lzbqxIGMDrNCDH8fiesgCdWrB2k8IBDTe/qaDeJTIrXWOUo8jpd05zONrdZy7N6p8ikD0MMZEKlNsjZ15Rw9FZTBhEOlh0rtSI0nPBefoXFdXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LTY7jrO+; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788489861; c=relaxed/simple;
+	bh=HdmRsQ0oWz0pzPHVEpRH/Owyu2ppe304S5oRqL5q5R8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=awEOPZN5SCkELbslQ6/8ANQUbRf+WQkmGws+Aqt0WDAUklxPxaEmocOBMZHIhkall0ggxlFE8mVjXdENt7rEi4PVGXHg3sAgYMG1mE5KiqPijk8nnVUADZ81/bfUNqj1klxxQZlGtQyPJGFCqwOx8xlQajgRIC/z9dWp/XlQIEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place; spf=pass smtp.mailfrom=em943033.ait.place; dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b=kQ9vhZvh; arc=none smtp.client-ip=158.120.86.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em943033.ait.place
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LTY7jrO+"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2caced6038eso5305845ad.0
-        for <linux-input@vger.kernel.org>; Thu, 03 Sep 2026 19:02:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788487368; x=1789092168; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=34Z8DPG6Kp1PMhLkp+d1BQuCa8F7adfXlCWa4tGzx7o=;
-        b=LTY7jrO+vAtZxmCQ/C3ElmbukHQTIoTnnF7+J9gmgB7AFCx6FqwTZFWEltbwc4IS5E
-         P+zrfqDAD/e0TZj4bde38JQZ3ZJhw0kd+RXDFKAOo9huVWVPUD5sd8Xw/kE/Dg+tJE6y
-         6ITzhAVUiWUJAAZHltlM80hqggESApEP7jeVpUML64L64YPc3aRMM0HbjU8HsQo1cS9e
-         6qfgP5EboopO9uIrg9C11mgn32S1NBf4cLrKp+5QWM3j/O2iR70NabmgDLXUsHxZ2MY+
-         D/NAOX40ra24+SNevUFSkDNiA5YFcy/68WNizwLYHbv1xewOvLBr9GRFFUhW9QY3rg6l
-         juHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788487368; x=1789092168;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=34Z8DPG6Kp1PMhLkp+d1BQuCa8F7adfXlCWa4tGzx7o=;
-        b=D/rq4QEZYuD21/bEQXEQbP/ynerqyp4zT95LayVC1pULHTrjZJWztoPcM9dj2XGbz+
-         yQnYsuAIW3Gp34sB/R7F1W5n+k5PVcxcQssY2GzLT6hzh8qdsiZ554W6Avc00AEQkio5
-         8F8TILgtVcLnJ6dAg6083aUF7OFdxlLikriVvy5Z4H6C+LNYpUI3QMNGpZNBK5XXzdLw
-         gY3EwKqt4yBfxkmENJsP5+zbYRvM01+vpuYlnuTOoRtVeuKgOSE37iAA0BXXOWGN3Euf
-         mRU8Aa7Ho5Q9X2N9iJT5XxNbYdxC1ZHUmA18+XmiEs7Px9FIei7RRxE2wioeKnhX++J8
-         EBGw==
-X-Forwarded-Encrypted: i=1; AKwUvBzz3Lu839p8pFXcbPuf94PkKv6fwMJ1imgq8jyU2AbasNhWDwbDa3NFWc9tEhdFM1UIitgW/vD2yQ6LVA==@vger.kernel.org
-X-Gm-Message-State: AFuF++nJh4ovYLrIN5Ecz9+JudxHJj544kea411G9gq391Yrwb2KpfbW
-	uqIouMb2WWreSsoZKlUNFPsvTQaKMwHJ/RRn7PybxOXErKtn/+ikq3xkkQCuyQ0x6n0bIA==
-X-Gm-Gg: AYBFou3KNKuRADf0UrD3r8MZMDx+D//wFwgUee5amsYpNtx88Nf0nuLHP5IVzVWAh6b
-	YpFHzQVltW3z1mDp8FR+/GHyxEle9yDqN5AfUtKCE7Fk4CYhk3nM9uzMgGJLkf4oovWboIrR6Db
-	xblbi8om8KEF5mrpqWdMHCLH/FCS8J1Z8gig0ni2cYQ5VE9uvLAOcCpTMhdsRkrMkFe2S/20stD
-	NvhTen1GMZ0U/yAeWXgNavbaByfvUarrfeCP2Zf2kfBzlWiYgJs8cSxndPoqFFvKj4mNj8AL9R9
-	0zw1CiVF7HDkhld7TQUt6L2+za82KXWR8Twbuj6FdR2wdXx3PsQfv7anif2gZ1cfQk5eHXxFAvn
-	T/X/fO0EXJveJOEluym5R++vTkqq9XyDMe9P0rKpFRYmQjdiNwuPPP1uMjiYi9K8XkbCt+bHt1G
-	9AQmJBRrZ7d1gQhTyYZZdWgcS/UqHLE4dW3aKMSf0aNIHkOdD/RM2dDJ01zkkGh4LNk32AN058j
-	RFe+m2KyPim7zjRRQHoCUj7vd730meW+436ws7q+CRBqBnNvhIddGYfJHkvVO/ez54QFJF9
-X-Received: by 2002:a17:903:8d0:b0:2d6:fddf:a890 with SMTP id d9443c01a7336-2dafaf31cedmr99763755ad.6.1788487368267;
-        Thu, 03 Sep 2026 19:02:48 -0700 (PDT)
-Received: from LAPTOP-UUUVNN1I.localdomain ([129.126.57.197])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2db1495acf7sm2983195ad.25.2026.09.03.19.02.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Sep 2026 19:02:47 -0700 (PDT)
-From: Wei Jie LAW <98lawweijie@gmail.com>
-To: killertofu@gmail.com
-Cc: 98lawweijie@gmail.com,
-	bentiss@kernel.org,
-	jason.gerecke@wacom.com,
-	jikos@kernel.org,
+	dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b="kQ9vhZvh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ait.place;
+ i=@ait.place; q=dns/txt; s=s943033; t=1788488950; h=from : subject :
+ to : message-id : date : list-unsubscribe : list-unsubscribe-post;
+ bh=xXZlOcCTr+E0XNy1fQaeGQiQCz9QBsCdB1zl9NIC7A8=;
+ b=kQ9vhZvh6BiEXbAU0Smpd3fAY+8Tgot5tTxxSJtHGW7/D6E0dDsM/G6uuoWXixRCyXmFo
+ UEYMNCz+yt7n+4ivu4ZerJ/oIsgtrc1yHDyB0+2o4L0DvE5dkLCHoGlnUWHQwhPi3Noy03B
+ vLQ7rQwovD5Yfl1k/0UxmE+sOi3p81RbA+JXXtAh0zAPfzQSYOKWlnDf7yjrZNtvZzjIceX
+ tZJ1X1fp4pxtgxaPODubuYG4je4z7K/zkSDZhOJtJjcX0VBuf8w3ggLoR2OXfDZY4DBnUbS
+ UCHFdhvhMoWffDgmvLimZxhp6L4TDq+xQobz5DgB6lGI+Nufy0Whl32PpouA==
+Received: from [10.191.245.51] (helo=omarchy.bb.online.no)
+	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.99.4)
+	(envelope-from <ait@ait.place>)
+	id 1x2Jfv-FnQW0hPnlyJ-nLce;
+	Fri, 04 Sep 2026 02:29:07 +0000
+From: ait <ait@ait.place>
+To: ait@ait.place
+Cc: Jonathan Jansen <jonathanjansen@ait.place>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	ping.cheng@wacom.com,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3] HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
-Date: Fri,  4 Sep 2026 10:02:35 +0800
-Message-ID: <20260904020235.8227-1-98lawweijie@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <CANRwn3RFVDy+y-fpLkb1mfjiKyQgp1Jg0tyBTO+G0xem2s1jkQ@mail.gmail.com>
-References: <CANRwn3RFVDy+y-fpLkb1mfjiKyQgp1Jg0tyBTO+G0xem2s1jkQ@mail.gmail.com>
+	linux-api@vger.kernel.org,
+	Your Name <you@example.com>
+Subject: [PATCH] HID: input: map System Microphone Mute LED
+Date: Fri,  4 Sep 2026 04:29:03 +0200
+Message-ID: <20260904022903.607880-1-ait@ait.place>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,20 +50,95 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
+Feedback-ID: 943033m:943033ayMjrpg:943033ssDv2ghnHS
+X-smtpcorp-track: Qf4Tnscky74k.ha2apLyH_zVx.q4KuNw6ikNz
 
+From: Jonathan Jansen <jonathanjansen@ait.place>
 
-On Thu, Sep 3, 2026 at 3:36 PM Jason Gerecke <killertofu@gmail.com> wrote:
->
-> I'm still finding the above paragraph kinda hard to understand. What
-> do you think of something like the following instead?
+HUTRR110 (approved 2022, part of HID Usage Tables since v1.4) defines:
 
-Your version is definitely easier to understand. I'm good with it!
+  Generic Desktop (0x01)  0xa9  System Microphone Mute  OOC (input)
+  LED Page (0x08)         0x57  System Microphone Mute  OOC (output)
 
-> Other than the above language issue:
-> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com
+The input usage already maps to KEY_MICMUTE, so the button works on
+HUTRR110 devices.  The LED output usage is ignored, though, so the
+indicator stays dark and userspace depends on per-vendor hacks
+(hid-lenovo, hid-lg-g15, hid-playstation, hid-plantronics) or platform
+drivers instead.
 
-Thanks. Should I submit a v4 patch with your "Reviewed-by" and the
-updated language, or is leaving it as-is (here) just fine?
+Map LED page usage 0x57 to a new LED_MICMUTE input LED.  It shows up
+as /sys/class/leds/inputN::micmute with the "audio-micmute" trigger
+that snd-ctl-led registers, so the LED tracks the audio stack's
+system-wide microphone mute state, like the existing "Mute" (LED page
+0x09) mapping does for speaker mute.
 
-Regards,
-Wei Jie
+LED_MICMUTE takes the next free input LED code (0x0b, below LED_MAX
+0x0f), so nothing existing breaks.
+
+Link: https://www.usb.org/sites/default/files/hutrr110-systemmicrophonemute.pdf
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Cc: linux-api@vger.kernel.org
+Signed-off-by: Your Name <you@example.com>
+---
+ drivers/hid/hid-debug.c                | 2 +-
+ drivers/hid/hid-input.c                | 1 +
+ drivers/input/input-leds.c             | 1 +
+ include/uapi/linux/input-event-codes.h | 1 +
+ 4 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index f44e6e708..92a950105 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -3550,7 +3550,7 @@ static const char *leds[LED_MAX + 1] = {
+ 	[LED_KANA] = "Kana",		[LED_SLEEP] = "Sleep",
+ 	[LED_SUSPEND] = "Suspend",	[LED_MUTE] = "Mute",
+ 	[LED_MISC] = "Misc",		[LED_MAIL] = "Mail",
+-	[LED_CHARGING] = "Charging",
++	[LED_CHARGING] = "Charging",	[LED_MICMUTE] = "Mic Mute",
+ };
+ 
+ static const char *repeats[REP_MAX + 1] = {
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index edd6bbf83..727374dd5 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -990,6 +990,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x27:  map_led (LED_SLEEP);    break;    /*   "Stand-By"                 */
+ 		case 0x4c:  map_led (LED_SUSPEND);  break;    /*   "System Suspend"           */
+ 		case 0x09:  map_led (LED_MUTE);     break;    /*   "Mute"                     */
++		case 0x57:  map_led (LED_MICMUTE);  break;    /*   "System Microphone Mute"   */
+ 		case 0x4b:  map_led (LED_MISC);     break;    /*   "Generic Indicator"        */
+ 		case 0x19:  map_led (LED_MAIL);     break;    /*   "Message Waiting"          */
+ 		case 0x4d:  map_led (LED_CHARGING); break;    /*   "External Power Connected" */
+diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
+index b08d1d08d..6522079a4 100644
+--- a/drivers/input/input-leds.c
++++ b/drivers/input/input-leds.c
+@@ -36,6 +36,7 @@ static const struct {
+ 	[LED_SLEEP]	= { "sleep" } ,
+ 	[LED_SUSPEND]	= { "suspend" },
+ 	[LED_MUTE]	= { "mute", AUDIO_TRIGGER("audio-mute") },
++	[LED_MICMUTE]	= { "micmute", AUDIO_TRIGGER("audio-micmute") },
+ 	[LED_MISC]	= { "misc" },
+ 	[LED_MAIL]	= { "mail" },
+ 	[LED_CHARGING]	= { "charging" },
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 3528168f7..bc374821c 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -983,6 +983,7 @@
+ #define LED_MISC		0x08
+ #define LED_MAIL		0x09
+ #define LED_CHARGING		0x0a
++#define LED_MICMUTE		0x0b
+ #define LED_MAX			0x0f
+ #define LED_CNT			(LED_MAX+1)
+ 
+-- 
+2.51.0
+

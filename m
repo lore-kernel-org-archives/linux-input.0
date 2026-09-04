@@ -1,74 +1,80 @@
-Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE48446EF6A
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 11:19:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 005B04052BB
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 11:26:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788520765; cv=none; b=FH9hV4dshgoLLQ2FcnLrlufWQvKwW/xja5EMVh5Ye6aSQucXXyjsSgde2O43d7jc1KeHvZ5nXeEC/lCI09YiPfYE1RGdkj8fW+YpyHisfa7swNh1Mb0ezUnO9Ca18sVH1+xC2k/cCVw3daArHa9HcDcOExbs5NKAZfaVvOgecUM=
+	t=1788521179; cv=none; b=qVh5Qcd1h2h2DgazKoljy6iueDbUo4+eV9Q7cMBkVk/v1H+Wo1dToqqOIWyunpDBDvG4jN1T5sTaM4DYuFsmT7CulniDxx7nvb7oZzy+sELEj3MNpfOMZbJaoJ3Rtw3xoq2dkAA5687V2k1LMJnExB47C8frGXk8ccoGAH5R4/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788520765; c=relaxed/simple;
-	bh=B/y2Mw7A6/bFmMUH3pc1OZgqSvoNPfBN5iK3touTpPY=;
+	s=arc-20240116; t=1788521179; c=relaxed/simple;
+	bh=CQzOS+rZGbncjCLOFoQoiDEmny0rCYJyS6C1FLbJGSI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gmxc2b+uStT0t2D2DIAlbLGe9PGm/dpYsYRc3AfAhk28TZotBLQkESLVUpNiGX7km00qTBrpWqOuahWd57yoeG1D7V6vwFGk+bRxSl/37ED9p2cqd9DC8caY17q19YY7tfk2XcBcqH3UrQ87LGyG6WatjzLnF1GfkF+ZxK6ICtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oBmoeYDI; arc=none smtp.client-ip=209.85.161.53
+	 MIME-Version; b=PfYtlU3sTJi5rjwqnFCAFf9xxkYA00Es9iwrkBAAPrXqSvcjgCOIh9DzO2+ZuUuSc1GiFph1Zhp1erYKKNwoT4Az+kSTKd4zp/p961jm5Lo10Aalm4sNCa5NcYqBRjPj6dXuM2RoxjvujK2+D9RF5qTqFgUS7csRKoQii9P/MeY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UEz4sbH/; arc=none smtp.client-ip=209.85.167.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oBmoeYDI"
-Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-6b1b881a8e9so341618eaf.1
-        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 04:19:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UEz4sbH/"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5b28c91fba5so1162346e87.1
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 04:26:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788520762; x=1789125562; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788521175; x=1789125975; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=P73s6aLu8k3XruFSDI05GxMhH8qbnt+DqPfiaMUnLfk=;
-        b=oBmoeYDI2DPO/G8Zy/UoiHuDQd9wNhJuYzKWCyXsxvzbNZSIVtkMbFVMVoPElC9tVU
-         zj21vCeF2lvWlQzZzG0p86TOzOiz+AznQ90H06Kmza9Z/twh4eMYCve9xxdXC1w6uH27
-         sIo6eqQvvTFh5H2VU+fF8ImiqOvwWlJ1WOxcMvGoeA/L7acDOFx8uD/c7NGn1DOBvUfV
-         xg2LNQfQ+SYl1jaPYdF/5nPYqPwC9YZ20rBRHA8HDWOdZO3hOvPOChGSripmYdsbeN/u
-         35HxwYxKjYyDfHMuEJXAEoyFdmmVRLTSUV2w8IwKsffT+TY3s2nLVP+8+eU6Xa51JGEW
-         LoYg==
+        bh=U4aY3uNjbAyDvlcOheeRnD6wUmUcErbQzc0yYkJMYFI=;
+        b=UEz4sbH/yqum3LecnBzPBK8LlibxKwCAc3cLPBfUeh3jG8rTCUPe7pIAlgkW7fJ2ZM
+         k+O85RZ8S3AtgUnWWvsMG5CmcMfpJIFIl7hPyshL2urD82sNfTizlQBVT/1H5f9JEl31
+         h8/ePJgP4mm+yPLBukYF1G/D1mlNLmqmraMgHBCL50P69JJChZFZDVuV5u4vYg1vCWYP
+         9dAo7g7OttHI4o0ChN+B6treHWRb7NZuACWBq2qpCahX11mgIrTC9IzepgGnwsIEGI/p
+         xxcoZ4wn4WYQTrG+Lzx3m7cXtCsNULCJTu3CKdHnFIGAO4A5/nhCNgiFLg32g9Cm3Ifg
+         U6Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788520762; x=1789125562;
+        d=1e100.net; s=20251104; t=1788521175; x=1789125975;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=P73s6aLu8k3XruFSDI05GxMhH8qbnt+DqPfiaMUnLfk=;
-        b=aEOUclOKLRHZWxy8viqeh2GWC+BhoE+N59jK5ptjgeSun7pQXhxelPuWaCXyfK1xnr
-         z5XpDwhBwfhhdaT4DpB1XU1ZTmq7mYLb9Rvap6fnhuEXXDajxyKkjUv1E2K1aahD8C/G
-         ArZ1/EMTcVhJ94T9nY0TYNtrxcih/ULokA1ZajPE0+7OuxGod7HyCUH7zvJLXIuMWIJH
-         noqoHguo74Aps1ecjOt0iCo/I0ZXTcIIuDFFV1X3z8usMnKuGaMosLeNoBX8OtPsJHdJ
-         JqZnOHKSnt1MAep38p2GBEwhHbk0eIr5SjgCPEx3XcUMQnV3JPw8IOqtcPPTvE3O78Tk
-         /QkQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz4ZhEz+kaK+OMUcXYkH2X7QdJf11XA3NGcAWBrxMMzHrET1qPs5AIN/zcGp8sJNoZVqYk4HLWDcDIJNw==@vger.kernel.org
-X-Gm-Message-State: AFuF++m1FH90U541J/8A8hfe3+Zjaq7nm/FxwtBvO4IBz3VCrz2jMMR8
-	+kpSnjEGD+thpI54CMFVe8ColDq4cqBTuDfpxyK/MYDvl0PhKJHqm4nsWkgDLQ1bSZ4=
-X-Gm-Gg: AYBFou2IZQm1cRk3rHmHMC7tzi7XixMkcav5ovO4PFxzD9A1K7hJ4FHN/hPCftsuIq9
-	Y5TBNWn/ceGpABs3subnKA5PMQ9brB0/iZUYPCtSENUKpfFmlBT2xa7ZXe80ZmU43U73GF/rw+A
-	//lYVX8lDBfYww05EA48nyAHn5aIVLGb6t7UEr9CS2Yu9dlXsBqxbcyug+hnINjQDjynsaZyJcg
-	TDimcLfpaXMQzSQStN/T4VyTsqvB5WfhASVmjNsY0B6ZCuD2mIh2JBA0xoTbcDbn2EM7pgw2ZH9
-	5h35wusbJmGrcIGhBxVl0XRhQebZtXtTQecWp1DqWr7x0uGZzVcS8YqHZnf1c0Yea8yFWMkYZhJ
-	hP5VqPsB6SzlyYB15QArqPrWQL093B/3KGEvBtMi++0iRIh+WGgjRiQqb+PSD072of/pO3OB8V/
-	9XVLh5A0zrdWGxTgEwipQjjLUnfZrrGMEJwCmawQYb/TtDBGamBQfVBf0vQqhEALn+LWVxlXTPc
-	8hXVT0emvGDzZ8=
-X-Received: by 2002:a05:6820:217:b0:6b7:8396:f3d2 with SMTP id 006d021491bc7-6b78396f8a2mr1276910eaf.52.1788520762568;
-        Fri, 04 Sep 2026 04:19:22 -0700 (PDT)
-Received: from volcano9f6e-hostos.amd.com ([165.204.217.251])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339befdefcsm5190103eec.29.2026.09.04.04.19.20
+        bh=U4aY3uNjbAyDvlcOheeRnD6wUmUcErbQzc0yYkJMYFI=;
+        b=U0ZuBecezXbw/UlertqxaBsKox8T80mzyM8UDBVQsxmwVkRr/HHBiti7fvGMvAKOI0
+         myfnE/qB2XVf33MOPaJgeX2F16RHIFfG7tMR0nzDvOAotV8LN94yQ8sRmiv1CJC/4Duw
+         50Cg8C4kUeq9xUNcODeUm+8RVBxnJccGL+r4tYBwNdEU0gBxUndbkkp1KbA1YYEyjxbg
+         2sk3mZvhPo2oGpMgsSIuUr/q/hOmI7xUC5eivx1BnntBYUIbc+0LHnpkwgy9ZylA53MU
+         /X02e54ca0/o02T6bs1BafVJONB/+pvYaQS3suiiQtfU4hxG09G69c3B5X+JA1um+lc9
+         Petw==
+X-Forwarded-Encrypted: i=1; AKwUvBzbKB2S3cepBCfSygqp/yxIKEMmnHFdwu+56c2etlq/0G0dnkXAYJNR3C7/Ksh5LCVwGnh98lCDhSVHug==@vger.kernel.org
+X-Gm-Message-State: AFuF++kS33668fbkZPubN77chCXrILLJCbSxGf9tcR1TPUc5n1Mce512
+	bnP5PmElFK42LPWQ+GHIqjO950BlYxkELaxKI3ZtjKuGqcxVukRdo0Jr
+X-Gm-Gg: AYBFou08U94qwseqCavgdoGx3d+uPgxPs0iIiAcmNhuzUVio2e32RMKUQ4w/0JFaWeF
+	VjL6oXyzzGgVdtk3ud4HmplJ4txFJ3rDQ4+TXLUuwokdurmSb+YBDgUrrQSKSGYuRMe8Vv9MIus
+	hrAsniihV2Qk+Fq21w/GS8LrRqq26iapsijRLt0PHr2c8/3WJXzLuiTBbKyBRQ+keN31mGGTm62
+	Pr0sgpn3ockHh5YY7k8nh+1UElSVpB1Q5x2Q7JCwPNKGthk4BSaep9ptvZgxqX7sYDwiMw02FiE
+	Qu4QDjSl8RTWlp44JCaZsSL+VxvBrcv8MsT0PICuuvSAEHQfszaoH4Z8+hIaTg69/FzIcuqsmwM
+	P0vBEeUkkcZkThRGpBaRKb9o8BWp6usAxf4Wt4bhD2ZvjrTM7JEJr7Ie1UCzlRN1lKWHfJfNMsx
+	YlFs56q3cXhkcSSYcnTg8hyNYZETda9xi8ivPyunmAGXVkaNR04+WltGDOplxY/MLifXN9/MJ+D
+	FSRPdgFyZ8iLzv59+noelA2eiqqmjlfFaj5glowzpEUhGIqvAUnr+32O23W
+X-Received: by 2002:a05:6512:6d3:b0:5b6:10bc:b864 with SMTP id 2adb3069b0e04-5b61769bbddmr802323e87.18.1788521174292;
+        Fri, 04 Sep 2026 04:26:14 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b61669aedesm478911e87.10.2026.09.04.04.26.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2026 04:19:22 -0700 (PDT)
-From: Hemanth Selam <hemanth.selam@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: [PATCH 2/2] input: fix repeated words in comments
-Date: Fri,  4 Sep 2026 16:49:08 +0530
-Message-ID: <20260904111911.32224-3-hemanth.selam@gmail.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20260904111911.32224-1-hemanth.selam@gmail.com>
-References: <20260904111911.32224-1-hemanth.selam@gmail.com>
+        Fri, 04 Sep 2026 04:26:13 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: tiwai@suse.de
+Cc: tiwai@suse.com,
+	perex@perex.cz,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Subject: [RFC PATCH 0/2] the Topping M62's vendor controls, on the component framework
+Date: Fri,  4 Sep 2026 16:26:08 +0500
+Message-ID: <20260904112610.3286659-1-mikhail.v.gavrilov@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260904070530.195389-1-mikhail.v.gavrilov@gmail.com>
+References: <20260904070530.195389-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,42 +83,145 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Drop words accidentally written twice, reported by checkpatch.pl as a
-possible repeated word.  Only touches comments, no code changes.
+This is the experiment Takashi suggested in the v8 thread: an
+individual HID driver joined to snd-usb-audio through the component
+framework, instead of a mixer quirk that claims the HID interface for
+itself. It is posted as an RFC rather than as v9 because v8 is not
+withdrawn -- it remains the alternative, and the choice between the two
+is the question this series exists to answer.
 
-Assisted-by: Cursor:claude-opus-5
-Signed-off-by: Hemanth Selam <hemanth.selam@gmail.com>
----
- drivers/input/mouse/cyapa.c  | 2 +-
- drivers/input/serio/q40kbd.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+I said this morning that I would hold this until the questions in that
+thread were answered. I am sending it anyway, because a patch gets a
+better answer than a question does, and because the last of those
+questions answered itself: the correction I sent a few hours ago
+proposed deferring the controls until the card reports, and working out
+how that lands in code showed why it cannot -- which is in the section
+below. The only question still genuinely open is the HID one, and it
+touches one line.
 
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index 47000c30e4d8..96b79796864a 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -1322,7 +1322,7 @@ static int cyapa_probe(struct i2c_client *client)
- 
- 	/*
- 	 * Register the device in the input subsystem when it's operational.
--	 * Otherwise, keep in this driver, so it can be be recovered or updated
-+	 * Otherwise, keep in this driver, so it can be recovered or updated
- 	 * through the sysfs mode and update_fw interfaces by user or apps.
- 	 */
- 	if (cyapa->operational) {
-diff --git a/drivers/input/serio/q40kbd.c b/drivers/input/serio/q40kbd.c
-index 2f553efbe649..7ab4db61e46f 100644
---- a/drivers/input/serio/q40kbd.c
-+++ b/drivers/input/serio/q40kbd.c
-@@ -72,7 +72,7 @@ static void q40kbd_stop(void)
- 
- /*
-  * q40kbd_open() is called when a port is open by the higher layer.
-- * It allocates the interrupt and enables in in the chip.
-+ * It allocates the interrupt and enables in the chip.
-  */
- 
- static int q40kbd_open(struct serio *port)
+What the shape buys, measured rather than argued:
+
+  - card.c is not touched at all. The v8 series had to add
+    snd_usb_claim_iface() and snd_usb_release_iface() there, and had a
+    defect I reported separately: an interface claimed and marked
+    USB_AUDIO_IFACE_UNUSED never gets told to wind down, because
+    usb_audio_disconnect() returns at its first line. With no claim
+    there is no such interface and the defect has nothing to attach
+    to. Watching the wire with usbmon: unbind the audio interface and
+    the keepalive stops. In v8 it kept going.
+
+  - the hid_ignore_list entry goes away, so hidraw stays available.
+    That matters because five of the card's functions -- the mixer
+    matrix, the mutes, the loopback routing, the input power and the
+    EQ -- are reachable only through the vendor protocol, and v8 made
+    them unreachable from userspace as the price of the quirk.
+
+  - two M62s on one host bind to their own cards. The match is by
+    descent from the shared USB device, and it holds: gains set on one
+    do not appear on the other, and unplugging one leaves the other's
+    controls in place. The quirk road could not be tested for this at
+    all.
+
+On the timing worry from that thread: it does not bite on an ordinary
+plug. The master goes up from snd_topping_init() inside
+snd_usb_create_mixer(), so the bind is synchronous and the controls
+exist before try_to_register_card() -- the same ordering as v8. From
+HID probe to component bind, 54 to 57 ms across five replugs. Only a
+module reload onto a live card adds controls after registration, and
+there a desktop mixer does not follow the renumbered elements until
+wireplumber is restarted. That is a real wart and I have not found a
+way around it that is worth the code.
+
+  What the card does and does not report
+  --------------------------------------
+
+I got this wrong twice in the v8 thread and would rather state it
+plainly here, since the design follows from it.
+
+After a subscribe the card reports itself in two waves: jacks at about
+0.9 s, then at about 5.2 s the jacks again plus the output mutes plus
+the gain of every input whose jack is present. Every turn of a
+front-panel knob is reported as it happens, gains and output volumes
+alike. What is never reported is a source selector, because the card
+reports events and a selector has no front-panel control, so no event
+can exist; and an output volume before anyone has touched it, because
+it is a setting rather than a physical fact.
+
+So five of the nine controls have a source of truth on the card, two
+have one only after a hand moves them, and two never do.
+
+That looked at first like an argument for deferring the controls until
+the first report lands, so that a value read at connect would be the
+panel's rather than something restored over it. I have not done that,
+and here is why: alsactl restores once, at card add, and does not
+come back for elements that appear later. Deferring would therefore
+trade an accurate value for five controls against no restore at all
+for nine, and would wait forever for an input with nothing plugged
+into it -- which on a five-input card is the normal case.
+The controls are published at bind, as in v8, and the value at
+connect is the restored one.
+
+  Open question, not blocking the review
+  --------------------------------------
+
+hid_hw_open() sets intf->needs_remote_wakeup, and usbhid offers no way
+to take input reports without it. This card does not advertise remote
+wakeup (bmAttributes 0xc0, no power/wakeup node), so that forbids
+runtime suspend to the whole device -- undoing something an earlier
+revision of the v8 series had to fix. The driver clears the flag after
+opening, with a comment saying so, because it resynchronises on resume
+and has no use for a device-initiated wakeup. Jiri and Benjamin have
+been asked whether that is acceptable or whether usbhid should offer
+something; the question is in the same thread and unanswered. If the
+answer is that the clear must go, HID_CONNECT_DRIVER replaces
+HID_CONNECT_HIDRAW and the hidraw node goes with it.
+
+  Tested
+  ------
+
+Fedora, 7.2.0-rc1 plus this series, KASAN, PROVE_LOCKING, UBSAN and
+kmemleak enabled. One M62, firmware V87.05.45.48.27, and a second of
+the same for the two-card test.
+
+All nine controls read and written from amixer and from the front
+panel, values cross-checked against the panel. Module load and unload
+against a live card, audio-side unbind and rebind, unplug while
+playing and while writing in a loop, and fifty cycles of module
+load/unload with kmemleak scanned afterwards: no splat, no leak.
+System suspend and resume, with the selectors written back on resume
+as they must be. Two cards on one host.
+
+Not tested: hibernate and the reset_resume path; a card whose battery
+has run down; anything on a big-endian host.
+
+  Ordering
+  --------
+
+The HID driver comes first. Between the two patches it binds, speaks
+to the card and creates no controls, which is harmless; the reverse
+order leaves a master that never matches, which is equally harmless
+but leaves hid-generic making a bogus input device out of the
+descriptor in the meantime.
+
+Mikhail Gavrilov (2):
+  HID: topping-m62: driver for the M62's vendor controls
+  ALSA: usb-audio: bind the Topping M62's vendor controls
+
+ MAINTAINERS                   |   9 +
+ drivers/hid/Kconfig           |  19 +
+ drivers/hid/Makefile          |   1 +
+ drivers/hid/hid-ids.h         |   3 +
+ drivers/hid/hid-quirks.c      |   3 +
+ drivers/hid/hid-topping-m62.c | 855 ++++++++++++++++++++++++++++++++++
+ sound/usb/Makefile            |   1 +
+ sound/usb/mixer_quirks.c      |   5 +
+ sound/usb/mixer_topping.c     | 173 +++++++
+ sound/usb/mixer_topping.h     |   7 +
+ 10 files changed, 1076 insertions(+)
+ create mode 100644 drivers/hid/hid-topping-m62.c
+ create mode 100644 sound/usb/mixer_topping.c
+ create mode 100644 sound/usb/mixer_topping.h
+
 -- 
-2.48.1
+2.55.0
 

@@ -1,94 +1,101 @@
-Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B4CE3D9DB6;
-	Fri,  4 Sep 2026 21:11:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD84836D9EE
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 21:17:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788556317; cv=none; b=kGSZcXjy6uMBTnc3HMtQVoMWf0c+IfoINqtp940JqQJSe9jlDi9nxEpTNCdzEhp8dJYdZjHimsmW/uKvBIyOsYCy5SCGotdkxousj1VDxE3ynyEfAJEYHphwd1ftDBc158/SjkuNjBieG9MbYko0wyKPShv6+vT8LLPHxh+BJdM=
+	t=1788556628; cv=none; b=T6Sv2laFeslYbPDUwBYI8+kGDh3A3X7dIYAEL4wNxM1jnvdOHoAe2IVsvmBq5TOz+jYd7XT5L1YQpMqr6RuzPxvVJ7WP845drLlU6dE5/g/YGmJrLRc5ph8h5yGj9s2Ln3VrJmd2RpYaED8LB0Jh0lCFULg4QrQowXBtYIp2sxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788556317; c=relaxed/simple;
-	bh=jAdsQN8ZDF9wbOvwOq+hlFM7kwRCSGwY8z2a6ld169M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=E/I73iy+73DVj8rfnoPARMnNS8yE9qkX0emztJ9bDdUb16lyRZjASbik0SyQ525YRHjS1KkK/QS1xXPM001cmVY2EZ3Tnj4EnAVv0/7jC46MeK1csYOPvRIui6r7GwoEK0GJeTs3Bk7NiessRF985J4uM7yr9evEFPQ+9ozdvcA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=dAifU/Bx; arc=none smtp.client-ip=198.137.202.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1788556628; c=relaxed/simple;
+	bh=fbcfuCNP59X+xpC5IcevYHcbPlbySqO8B0ppbV4rWIo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=QaoJdr6QlD90Z0miioK5PFqb5oJTrEIbF00uL06iQRM91RGBSfGOuvHb2QVTn2txhetU885pRHdVhauX1LlaDjaO9g7kDUe/Bu/+XMmwRfFcDnBNf2pciX8bre4b8TWP2gkPtuIzK0VqcZ19vXpgJBO/FJ6gKB12c744/8FE4dA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PawRyZl3; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="dAifU/Bx"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
-	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
-	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
-	bh=80YkBy/N40/LySzZOO2d7Mox9B++1wDT5cgA4S/RNiU=; b=dAifU/BxGPCfTmmGxPoZa5ITgu
-	hfQCLx0q5KXEv4uznTj9BovZlq8hkmWf1OdyISHT+kwhFApKqnX7WKMVt7uuf2OTfcaCQn89Kxs4+
-	hKA3d7TbcBNNKhhJs6bqwUQXElrtAGXmQB0UYa+N1IYFZzjDJthWNuWUOqJzpGDsW1eP5snmuRxvH
-	pQ5cDV2st5D2i5weVWgMH1OgA3JpvHi5hJEAhyedL2+BbL5kfHMNh4mpJBLkHTfwvmmJjfvnBQ7GD
-	Col7X5Yvg0Q0Rn+VaD93xZaVTSg4JxbDSh93XZscsFSnGywSDQl4RM5XVL/VOFylO2Y3rLw0C6L9M
-	ClWX2r8A==;
-Received: from [50.53.43.113] (helo=[192.168.254.34])
-	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1x2bCD-00000003Inp-2omT;
-	Fri, 04 Sep 2026 21:11:38 +0000
-Message-ID: <1969e90f-1286-4ad7-9bbc-8f3800a44353@infradead.org>
-Date: Fri, 4 Sep 2026 14:11:35 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PawRyZl3"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-49556f97a9dso12817415e9.1
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 14:17:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788556625; x=1789161425; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=QMge+xrP5bwgHdzm4UEAERiB2kJzyUIFVLBR/fB/uZk=;
+        b=PawRyZl30RpsIFWClGmdd5nmrJpROzKDJfL5WiC3/1bYqUf+GJfpC7BOgtce7NkiJZ
+         +fw1/nLgFZBbiMdda4pZaXaOs8+Aknc74gh+XfsCqlYuEupkBcTv67FPaCMJ0VkDcSgU
+         TvdMer0cq5zfEH94Io+tmQXiV5hVPKj0mh8bWaHE+m7k6lW3ns/x860RAVO+OZuZ/Knw
+         F8WV1nHKz4xEtcMz7WmoHYfGL7UeyNX4wZjBKQ7jBXxVg20FdVDkLtGcGHONTbvGsfOI
+         Ihm3yCF/s6CY4FTkKK+43P6fA1JXmv8wQgG1TY3VY5g+rWQ5E6sElA//aGg+4P+gCfgQ
+         zGIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788556625; x=1789161425;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=QMge+xrP5bwgHdzm4UEAERiB2kJzyUIFVLBR/fB/uZk=;
+        b=F9lxlqvVrgAc+3aG5a+rxvDHHDNy60XvvGtGtcQ0G2jQk4fkSriqaCadUp3e9uoXbV
+         xFhaZV6tcOuYBubcw2/0fA+i6aOErdmwjXlsVHo3mcIm1GvdOZgukpD8A7bgrN06xIeC
+         ttQOFe1CWz7jZpu0CnyG7i5AlARHKF0BlFRdOd7zwNSSAqPH2WNtUl8sovk3+UbornD0
+         /d71HTisLInZzHfeM7UlfE0DldFhmKDlKhbAyBZ/0iDlasCLyGY+xCKFdqBNiUc9Y3ub
+         9E+L+IBD7MERPRZG5SMiInzeeowz8p7CxeO0SqwhJSGfhIQNl4BAuK09YWWXUDhlAXCi
+         VYRA==
+X-Gm-Message-State: AFuF++m8FZ10YfUFQJZhDNrtcQ0E2tMnDAXKc+tFU8PS/IcMXuFdU9bZ
+	9B7q9qzBqaaRxX5PmaIdLHNOTV46E21M1mxkXNQ6S5rSsFiasAziBjosXn91
+X-Gm-Gg: AYBFou388PJI194Ww5cbR+bSDnGQX9NJugPajoEqDy7ld4o2bjZiBVRrxyuKjF9WY1V
+	7UNO0JMhZB1J75rmRqqzm3CUHL8JHiQwMcOznybQ6VYlHiipkNGHJwqWWq8pEZCdY6ZCR7SH7kl
+	j710SW5fi2FOGrAun68z/SnNNKiQAOAP8B5JKExROp1Rs7GKHmWSpjL921vCYhNS/z2egTeQD/j
+	I+FhbunLmnUsYaRAdSRwsiZsrnRGcj2jc8eTJSTYA7bBbyUVLSNy2wAtgZtOWeMcgG+dv9WKKbe
+	OAO5foGYVIbtPlW/OxYUYsN4vt9TXbEh52A0d2dSK6+J4yfltNAAeLIfK0zrrNOCZjOXPN0iQNU
+	DXlTSGzH/PXlsqj/WWFoHdoYbeayIL7nxng90E2W9fvM/Ah4cGmP7ZWy9Yc80SqsrIjf4p+UOzX
+	nhFStLmFKgBvgdjq8ZMVrxp7ZXGzibwc/VyS6pMdqvLtCF+6lCu2LTMKO/kxYG4jCL12DczYdsb
+	EE=
+X-Received: by 2002:a05:600c:350f:b0:499:b65d:124f with SMTP id 5b1f17b1804b1-49cf825d1dcmr82117795e9.11.1788556624926;
+        Fri, 04 Sep 2026 14:17:04 -0700 (PDT)
+Received: from kali (88-170-213-78.subs.proxad.net. [88.170.213.78])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49ce591f846sm102532995e9.1.2026.09.04.14.17.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2026 14:17:03 -0700 (PDT)
+From: Tristan Madani <tristmd@gmail.com>
+To: Derek J. Clark <derekjohn.clark@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, Tristan Madani <tristan@talencesecurity.com>
+Subject: Re: [PATCH] HID: hid-oxp: use cancel_delayed_work_sync() in remove
+Date: Fri, 04 Sep 2026 21:17:02 -0000
+Message-ID: <178855662286.3192124.2102579968112413785@gmail.com>
+In-Reply-To: <949B786B-375B-4F2F-B209-C135EC62E1A5@gmail.com>
+References: <20260904105800.3923987-1-tristmd@gmail.com>
+ <949B786B-375B-4F2F-B209-C135EC62E1A5@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 20/32] Input: yealink.rst: Fix bracket
-To: Manuel Ebner <manuelebnerli@mailbox.org>,
- Henk Vergonet <Henk.Vergonet@gmail.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet
- <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260904121026.759218-3-manuelebnerli@mailbox.org>
-Content-Language: en-US
-From: Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <20260904121026.759218-3-manuelebnerli@mailbox.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
+Hi Derek,
 
+Thanks for the review.
 
-On 9/4/26 5:10 AM, Manuel Ebner wrote:
-> Remove needless '['.
-> 
-> Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
-> ---
->  Documentation/input/devices/yealink.rst | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/input/devices/yealink.rst b/Documentation/input/devices/yealink.rst
-> index bb5a1aafe..de86cf7f5 100644
-> --- a/Documentation/input/devices/yealink.rst
-> +++ b/Documentation/input/devices/yealink.rst
-> @@ -205,7 +205,7 @@ Troubleshooting
->  :Q: Module yealink compiled and installed without any problem but phone
->      is not initialized and does not react to any actions.
->  :A: If you see something like:
-> -    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone
-> +    hiddev0: USB HID v1.00 Device Yealink Network Technology Ltd. VOIP USB Phone
->      in dmesg, it means that the hid driver has grabbed the device first. Try to
->      load module yealink before any other usb hid driver. Please see the
->      instructions provided by your distribution on module configuration.
+One thing the Sashiko bot flagged, and I think it's valid: if
+oxp_hid_probe() returns early on an unknown usage page (the
+default: return 0 path), the delayed work items are never
+initialized via INIT_DELAYED_WORK().  In that case,
+cancel_delayed_work_sync() in remove() would call __flush_work()
+on a zero-filled work struct, which hits WARN_ON(!work->func).
 
-According to drivers/hid/hid-core.c (near line 2395 in today's linux-next tree),
-this documentation should have a ']' added to it:
+The non-sync cancel_delayed_work() didn't trigger this because it
+never calls __flush_work().
 
-	hid_info(hdev, "%s: %s HID v%x.%02x %s [%s] on %s\n",
-		 buf, bus, hdev->version >> 8, hdev->version & 0xff,
-		 type, hdev->name, hdev->phys);
+Do you think this path is actually reachable in practice, or are
+the usage page IDs exhaustive for all matched devices?  If it can
+happen, I can send a v2 that guards the cancels.
 
-so
-+    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone]
-
-AFAICT.
-
--- 
-~Randy
-
+Thanks,
+Tristan

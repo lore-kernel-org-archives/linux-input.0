@@ -1,144 +1,129 @@
-Received: from e3i605.smtp2go.com (e3i605.smtp2go.com [158.120.86.93])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3239938E135
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 02:44:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.86.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21ED73ACF10;
+	Fri,  4 Sep 2026 02:56:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788489861; cv=none; b=T8GzawI4+BbDtrCWm5dd48fjjV3GJpyX4xvvjO7otx2PYYAAEUolSabGvIP2hzIPXCWvqEEk3LpSUUoN0Kte/q9huxNijh9cT1hDbprNMP29jpMooE8gZvQlnjImXK846KYPly+Ti44iRjNgFmhC2fPBHdlmQYkzgmY/ntFv13g=
+	t=1788490603; cv=none; b=EwO57FmHyR4RXv8koPNuLAZwuz9rF/7QWdI0JwlVPA2HGEP68FEDOGOYY277g7i+5GU33fmkSXmn1IHbvkOyBSRm/xjL5zAgpCI4FEVK1HSIOVgtEVelFyxD8bJ37VMttfdFtF1urpZ4vrG8z4x4duUxnhCPqDEGO2HZ34CVenQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788489861; c=relaxed/simple;
-	bh=HdmRsQ0oWz0pzPHVEpRH/Owyu2ppe304S5oRqL5q5R8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=awEOPZN5SCkELbslQ6/8ANQUbRf+WQkmGws+Aqt0WDAUklxPxaEmocOBMZHIhkall0ggxlFE8mVjXdENt7rEi4PVGXHg3sAgYMG1mE5KiqPijk8nnVUADZ81/bfUNqj1klxxQZlGtQyPJGFCqwOx8xlQajgRIC/z9dWp/XlQIEE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place; spf=pass smtp.mailfrom=em943033.ait.place; dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b=kQ9vhZvh; arc=none smtp.client-ip=158.120.86.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em943033.ait.place
+	s=arc-20240116; t=1788490603; c=relaxed/simple;
+	bh=3107Y7JX220AjVb1rk1TFIvZqJnS2YlFKglQU81emTg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=at0ip91yeJW4LE5BHA8m+Oso1zRl/8GxLNqI2/bwH7eMqW7/wM1XekGmMEN+XLWe72Zv0iV1VndtzKtsUgBgNspIXYMxzhuRGXXgP1XXg73Jt4Q8ilZCJQQ0+5gQ3TH309AvzowHEAOtKxcP1MkL2jXxc1WmApXfHJuHa2ScLSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VHeozWzm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b="kQ9vhZvh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ait.place;
- i=@ait.place; q=dns/txt; s=s943033; t=1788488950; h=from : subject :
- to : message-id : date : list-unsubscribe : list-unsubscribe-post;
- bh=xXZlOcCTr+E0XNy1fQaeGQiQCz9QBsCdB1zl9NIC7A8=;
- b=kQ9vhZvh6BiEXbAU0Smpd3fAY+8Tgot5tTxxSJtHGW7/D6E0dDsM/G6uuoWXixRCyXmFo
- UEYMNCz+yt7n+4ivu4ZerJ/oIsgtrc1yHDyB0+2o4L0DvE5dkLCHoGlnUWHQwhPi3Noy03B
- vLQ7rQwovD5Yfl1k/0UxmE+sOi3p81RbA+JXXtAh0zAPfzQSYOKWlnDf7yjrZNtvZzjIceX
- tZJ1X1fp4pxtgxaPODubuYG4je4z7K/zkSDZhOJtJjcX0VBuf8w3ggLoR2OXfDZY4DBnUbS
- UCHFdhvhMoWffDgmvLimZxhp6L4TDq+xQobz5DgB6lGI+Nufy0Whl32PpouA==
-Received: from [10.191.245.51] (helo=omarchy.bb.online.no)
-	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.99.4)
-	(envelope-from <ait@ait.place>)
-	id 1x2Jfv-FnQW0hPnlyJ-nLce;
-	Fri, 04 Sep 2026 02:29:07 +0000
-From: ait <ait@ait.place>
-To: ait@ait.place
-Cc: Jonathan Jansen <jonathanjansen@ait.place>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-api@vger.kernel.org,
-	Your Name <you@example.com>
-Subject: [PATCH] HID: input: map System Microphone Mute LED
-Date: Fri,  4 Sep 2026 04:29:03 +0200
-Message-ID: <20260904022903.607880-1-ait@ait.place>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VHeozWzm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A507E1F000E9;
+	Fri,  4 Sep 2026 02:56:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788490601;
+	bh=elq1oOXS9izL1eLEUjPGPGm9Oywm4DVxZpNoEOogJK8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=VHeozWzmYAkZZvr/Z1IWKOW4YdwtfBCJoGgRQnGnwxA0Uzgm582QN+aoboEJryMxw
+	 AU38nuQCgXvFtP3t7Yv5A+K31aPrEiN3ftc+9ep4iIYtN5/tMdtzdmaOxF1m+BgOE3
+	 bu849CgT4SoYG6dcCcFnKbe+QftS9ojVD0SU/o4ifYRCC+kWRDQK95/F8290Mx6Ga+
+	 TFNdHohZCuHf3XoYc1O4zmPHncAtYQ+UAUioTwE115iOk5nO3mapj4AbHRNeHD45md
+	 nb3fOkwmKrnVYX5Lw/3bdUKm43V9ukO2kAQYhanN0Se5vMxab/345qUtQtsYz/i5Oi
+	 qj7lfOWfXG0Fg==
+Date: Fri, 4 Sep 2026 03:56:32 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Eliav Farber <farbere@amazon.com>
+Cc: <rafael@kernel.org>, <tony.luck@intel.com>, <bp@alien8.de>,
+ <guohanjun@huawei.com>, <mchehab@kernel.org>, <xueshuai@linux.alibaba.com>,
+ <lenb@kernel.org>, <laurent.pinchart@ideasonboard.com>,
+ <linusw@kernel.org>, <brgl@kernel.org>, <orsonzhai@gmail.com>,
+ <baolin.wang@linux.alibaba.com>, <zhang.lyra@gmail.com>,
+ <dlechner@baylibre.com>, <nuno.sa@analog.com>, <andy@kernel.org>,
+ <dmitry.torokhov@gmail.com>, <hansg@kernel.org>,
+ <ilpo.jarvinen@linux.intel.com>, <W_Armin@gmx.de>, <ukleinek@kernel.org>,
+ <fabio.m.de.francesco@linux.intel.com>, <kaihengf@nvidia.com>,
+ <ankita@nvidia.com>, <leitao@debian.org>, <pedro.pbg@usp.br>,
+ <paulmck@kernel.org>, <frederic@kernel.org>, <kees@kernel.org>,
+ <saket.dumbre@intel.com>, <linux-acpi@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+ <linux-pwm@vger.kernel.org>, <linux-iio@vger.kernel.org>,
+ <linux-input@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>,
+ <acpica-devel@lists.linux.dev>, Jonathan Cameron
+ <jonathan.cameron@oss.qualcomm.com>
+Subject: Re: [PATCH v5 03/13] iio: light: iqs621-als: use
+ devm_blocking_notifier_chain_register()
+Message-ID: <20260904035632.4aaf4eab@jic23-huawei>
+In-Reply-To: <20260816060648.4030-4-farbere@amazon.com>
+References: <20260816060648.4030-1-farbere@amazon.com>
+	<20260816060648.4030-4-farbere@amazon.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
-Feedback-ID: 943033m:943033ayMjrpg:943033ssDv2ghnHS
-X-smtpcorp-track: Qf4Tnscky74k.ha2apLyH_zVx.q4KuNw6ikNz
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-From: Jonathan Jansen <jonathanjansen@ait.place>
+On Sun, 16 Aug 2026 06:06:02 +0000
+Eliav Farber <farbere@amazon.com> wrote:
 
-HUTRR110 (approved 2022, part of HID Usage Tables since v1.4) defines:
+> Replace the blocking_notifier_chain_register() +
+> devm_add_action_or_reset() pattern with a single call to
+> devm_blocking_notifier_chain_register(), removing the
+> iqs621_als_notifier_unregister() callback.
+> 
+> Signed-off-by: Eliav Farber <farbere@amazon.com>
+> Acked-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+Applied (on top of merging the branch) to the testing branch of iio.git
+Upgraded that ack to an SoB as a result.
 
-  Generic Desktop (0x01)  0xa9  System Microphone Mute  OOC (input)
-  LED Page (0x08)         0x57  System Microphone Mute  OOC (output)
-
-The input usage already maps to KEY_MICMUTE, so the button works on
-HUTRR110 devices.  The LED output usage is ignored, though, so the
-indicator stays dark and userspace depends on per-vendor hacks
-(hid-lenovo, hid-lg-g15, hid-playstation, hid-plantronics) or platform
-drivers instead.
-
-Map LED page usage 0x57 to a new LED_MICMUTE input LED.  It shows up
-as /sys/class/leds/inputN::micmute with the "audio-micmute" trigger
-that snd-ctl-led registers, so the LED tracks the audio stack's
-system-wide microphone mute state, like the existing "Mute" (LED page
-0x09) mapping does for speaker mute.
-
-LED_MICMUTE takes the next free input LED code (0x0b, below LED_MAX
-0x0f), so nothing existing breaks.
-
-Link: https://www.usb.org/sites/default/files/hutrr110-systemmicrophonemute.pdf
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-api@vger.kernel.org
-Signed-off-by: Your Name <you@example.com>
----
- drivers/hid/hid-debug.c                | 2 +-
- drivers/hid/hid-input.c                | 1 +
- drivers/input/input-leds.c             | 1 +
- include/uapi/linux/input-event-codes.h | 1 +
- 4 files changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index f44e6e708..92a950105 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -3550,7 +3550,7 @@ static const char *leds[LED_MAX + 1] = {
- 	[LED_KANA] = "Kana",		[LED_SLEEP] = "Sleep",
- 	[LED_SUSPEND] = "Suspend",	[LED_MUTE] = "Mute",
- 	[LED_MISC] = "Misc",		[LED_MAIL] = "Mail",
--	[LED_CHARGING] = "Charging",
-+	[LED_CHARGING] = "Charging",	[LED_MICMUTE] = "Mic Mute",
- };
- 
- static const char *repeats[REP_MAX + 1] = {
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index edd6bbf83..727374dd5 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -990,6 +990,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x27:  map_led (LED_SLEEP);    break;    /*   "Stand-By"                 */
- 		case 0x4c:  map_led (LED_SUSPEND);  break;    /*   "System Suspend"           */
- 		case 0x09:  map_led (LED_MUTE);     break;    /*   "Mute"                     */
-+		case 0x57:  map_led (LED_MICMUTE);  break;    /*   "System Microphone Mute"   */
- 		case 0x4b:  map_led (LED_MISC);     break;    /*   "Generic Indicator"        */
- 		case 0x19:  map_led (LED_MAIL);     break;    /*   "Message Waiting"          */
- 		case 0x4d:  map_led (LED_CHARGING); break;    /*   "External Power Connected" */
-diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
-index b08d1d08d..6522079a4 100644
---- a/drivers/input/input-leds.c
-+++ b/drivers/input/input-leds.c
-@@ -36,6 +36,7 @@ static const struct {
- 	[LED_SLEEP]	= { "sleep" } ,
- 	[LED_SUSPEND]	= { "suspend" },
- 	[LED_MUTE]	= { "mute", AUDIO_TRIGGER("audio-mute") },
-+	[LED_MICMUTE]	= { "micmute", AUDIO_TRIGGER("audio-micmute") },
- 	[LED_MISC]	= { "misc" },
- 	[LED_MAIL]	= { "mail" },
- 	[LED_CHARGING]	= { "charging" },
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 3528168f7..bc374821c 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -983,6 +983,7 @@
- #define LED_MISC		0x08
- #define LED_MAIL		0x09
- #define LED_CHARGING		0x0a
-+#define LED_MICMUTE		0x0b
- #define LED_MAX			0x0f
- #define LED_CNT			(LED_MAX+1)
- 
--- 
-2.51.0
+> ---
+>  drivers/iio/light/iqs621-als.c | 24 +++---------------------
+>  1 file changed, 3 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/iio/light/iqs621-als.c b/drivers/iio/light/iqs621-als.c
+> index cd5843e3e2c3..f9d215ef1970 100644
+> --- a/drivers/iio/light/iqs621-als.c
+> +++ b/drivers/iio/light/iqs621-als.c
+> @@ -179,19 +179,6 @@ static int iqs621_als_notifier(struct notifier_block *notifier,
+>  	return NOTIFY_OK;
+>  }
+>  
+> -static void iqs621_als_notifier_unregister(void *context)
+> -{
+> -	struct iqs621_als_private *iqs621_als = context;
+> -	struct iio_dev *indio_dev = iqs621_als->indio_dev;
+> -	int ret;
+> -
+> -	ret = blocking_notifier_chain_unregister(&iqs621_als->iqs62x->nh,
+> -						 &iqs621_als->notifier);
+> -	if (ret)
+> -		dev_err(indio_dev->dev.parent,
+> -			"Failed to unregister notifier: %d\n", ret);
+> -}
+> -
+>  static int iqs621_als_read_raw(struct iio_dev *indio_dev,
+>  			       struct iio_chan_spec const *chan,
+>  			       int *val, int *val2, long mask)
+> @@ -563,19 +550,14 @@ static int iqs621_als_probe(struct platform_device *pdev)
+>  	mutex_init(&iqs621_als->lock);
+>  
+>  	iqs621_als->notifier.notifier_call = iqs621_als_notifier;
+> -	ret = blocking_notifier_chain_register(&iqs621_als->iqs62x->nh,
+> -					       &iqs621_als->notifier);
+> +	ret = devm_blocking_notifier_chain_register(&pdev->dev,
+> +						    &iqs621_als->iqs62x->nh,
+> +						    &iqs621_als->notifier);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "Failed to register notifier: %d\n", ret);
+>  		return ret;
+>  	}
+>  
+> -	ret = devm_add_action_or_reset(&pdev->dev,
+> -				       iqs621_als_notifier_unregister,
+> -				       iqs621_als);
+> -	if (ret)
+> -		return ret;
+> -
+>  	return devm_iio_device_register(&pdev->dev, indio_dev);
+>  }
+>  
 

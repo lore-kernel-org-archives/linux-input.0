@@ -1,153 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3F5E4C8FF7
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 14:21:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4192E48383F
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 14:23:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788531682; cv=none; b=X3BAIiv4QOmEosLXuNXINOUl4T4zapySWagCNRCjGPX1PrJEoAkF/L0+9XUAhLZ1eQLLjAJ++H4q/Rju0EHKMNtRkCPMyx2ZymWP8C8qiFLVIyMC93sfe+8jutzphwj+jDqK5hiPQhpehyELRn8DITWc9idjG2lK4C3xVj38yfM=
+	t=1788531818; cv=none; b=YNfqwC5E+xrxxg8K98qVhJfSyi3FkdaNFbJfVPWotxVS17Xmts8JBW6HAB2BHtbgYsQA3xu4YhzHKROD3e7gwmR3VAMFtIZDE1oDZSc6126k7KERnWXZgTeKpAVxVFENE8YuTrCcnC07QbUE2jTMi8FXDV3BWPyFEOofAbO7WBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788531682; c=relaxed/simple;
-	bh=/Cd6amBtNiHUGdtYKALKbijIOffdJk9R3O8eEiHQ+SM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=VToswAzhjL24W0gyNbRf6HXXI806nwho3zhgxBS7pxyZX3SsHP1wd04mhTOPuQFAWwJp/NCM4RCePHiUOAe/JWMjME5jTEwogmv4Cy+xUapMjHXsrX2meatKf1btD3+9Bte9PBERbw2FKts6Sx50J1Y9pC7EMA8G+vWArSnA448=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BxVGK+mJ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788531818; c=relaxed/simple;
+	bh=l5o0Kxh4QHmzyssrBdh7uVhR0p9YGe21u5DbK/NG40s=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=h6E0HHI3hfMeTHzcCuUbFcKXgaJAlRlvkdYtoeKR+IdijYAHhB5URR4j/eRkZB157cEEnAWe4mD5+fUU1AOmLDNQOQPlbu64UQHlTlVmJFdrnSIeZL5C/K+L0dxhILtajODl/W/ZCc4IOEwaw+yJ+u19pBjlmSFpX13pFf1iTsc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n+PbgRrK; arc=none smtp.client-ip=209.85.167.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BxVGK+mJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D2F31F00A3D;
-	Fri,  4 Sep 2026 14:21:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788531681;
-	bh=x4azLc3AjcGPDlfxtNwUZiny5SsaslratC90ok1OAhA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BxVGK+mJ3Ncv/4H1J0iHjB4fYtYz/5p5z7FRoyXUpAnWI8UhqS8kj3P0JnmejtSSd
-	 5VbJH+YSR9LjdUXVLba0nI+vUqDbl+ZtCYH4THHQ7oW0MQOdCZLVKIC7P7ztJzau7o
-	 RwRrl0Uej0ZKyvSLLTgTvc7Yc8Jjag0ja8n950B1RPbXNywYtseQbOOqj9ESVA2qRu
-	 rwmZpsz+IdvJ46wlh5PbwM5wx8JPo/LDUuVRdmRNcOX6pvNHGYRsd8Ownc/Xj9gShG
-	 mjxNYubxMGT6ALt5j3SJWmw9QV79hQE0TBJe4lsyPZa15RjBK/9N5IH9/NwBjzhPyb
-	 8dIPfCn1ctCCw==
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v2 1/2] HID: topping-m62: driver for the M62's
- vendor controls
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260904141158.33398-2-mikhail.v.gavrilov@gmail.com>
-References: <20260904112610.3286659-1-mikhail.v.gavrilov@gmail.com>
- <20260904141158.33398-1-mikhail.v.gavrilov@gmail.com>
- <20260904141158.33398-2-mikhail.v.gavrilov@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 14:21:20 +0000
-Message-Id: <20260904142121.1D2F31F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n+PbgRrK"
+Received: by mail-oi1-f175.google.com with SMTP id 5614622812f47-495b27007d0so908179b6e.1
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 07:23:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788531815; x=1789136615; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id
+         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=OPLJDNKSQZ2RpNMuFTNGRTC/xRNgD/y0SY0GD8UQRl0=;
+        b=n+PbgRrKUYff2XKoDG0RMPlt+S4R8DjRRFqoAG87cbG1V6hwTN//ZZBjJDq5X7A+2+
+         h5W0lgLNzDAb8n2aiVRBpJpSNuGECEejyXwldMnq4+ZerUgTLbkzi0kOSeJC+pte+Qcc
+         Lx1rZi5GVtRhmfRZTHRIiX1rgOUKImfJQ9rORNM0jMP0vckKWM2dmi7te/DWfi+fvd+S
+         uWbNoty1JRJkmNjoHOXMMwtQPtlNi6vng/y/cnrlFN8HtYADClG46V0g5ZN57B8e9JVv
+         8ApPhZj7+HWIqWFKFwI8JG3iCnlhivEGoqz3/3J5JXmHOZ1Zr+IoHSviIfzn9qfP5jx1
+         AAeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788531815; x=1789136615;
+        h=content-transfer-encoding:content-type:mime-version:message-id
+         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=OPLJDNKSQZ2RpNMuFTNGRTC/xRNgD/y0SY0GD8UQRl0=;
+        b=V+9Rpw1rNRBRubFjLVw2/XnhvE/BYStaawGR38RMAxKGOzp/Ke7a6Jp6rOCnvDEQ8V
+         xCJmseq6tTedIaMy+M6uoAQd/aFD5aXxwIbigVbEn3nxJte3BwwKFYQFQXI9V/iE8RLu
+         N1M9WCBR5DXoSwX/JM2JJqWsGJzJvYayHbfF5hOTOz4SYUNeF31vUCsuGwWdIiO+kMhy
+         YF3+xSVMEPhIfRrh+FJSvkUCXWFJkMe5YayRCqnpGcM98BhsWUH3esoXpB03gv3DE4Ka
+         fmN0UP9VLFFjGAk6QFunEmgd1ecErYAwEJOllLaS7gHzqMm87fjCaaPaX2lxgYIAbX0t
+         eYCQ==
+X-Gm-Message-State: AFuF++mUILJKM5URYtZbGuaqVkUm6xmYnn5OFKRW+eHe9YzluEWVOm4a
+	I5hkqMFXAwKI+Bksm5oxu2FB62q3VbOM3RVsUczM02BT4rfk5PSIEqvl/5ZXnA==
+X-Gm-Gg: AYBFou3SpadNaPalWculAvaQ+fp0yfCA0lKEJhbsu0oVeUX2YSuGk/yapj6+lCrMTtw
+	62bEuNI/ZDNZbrbwT8mEEQtNLCR1R2DCjKLBB8r8J7EwVEbt0CJPT4WLULHPsU4q2DqmtL8lrY4
+	hAju05PstWvSw1xcQXt8TvxgxOYHNLy7xyekiWQKX/imY30Z1i2uYzj9s6Lm9/ZuDck9JQyE6VI
+	/BWjxKDbR5XHn74WXGxwBOEPLuR3pEuiixGySlLXx/uVvjX/jOMlctJkQh84b2kQcWX7gzk9ddX
+	272qchXIkjiLQ3N4c2NaXaZIsIbm2VpC0RZn8ZPZnnX16c7S0OpACZh2Uuw4MAwjlm1Xaw8T/7Z
+	AdCwIHu5Zo8jNCYGqZ8XeiNGOXJfLAJ0Hr65cnzrAakuJ4mvPZ9ejy7TKUN9dcPxwSmWgmrjs//
+	JAxx78vYZI2OPimwxuWvZlqBhQ62lg79Cb7gI9PcXoMXw+dswVxZoDvt55d1Y8GZrXjdS9xEnVV
+	ZoaCeGpiwJ3qmkyRO8+mJIKwagoUoe+7ra1Arm73e2jjoue33S/YouReQA=
+X-Received: by 2002:a05:6820:1f07:b0:6b1:c181:9386 with SMTP id 006d021491bc7-6b6fd5d0472mr4653800eaf.29.1788531814720;
+        Fri, 04 Sep 2026 07:23:34 -0700 (PDT)
+Received: from ehlo.thunderbird.net (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339b6036fcsm7789074eec.20.2026.09.04.07.23.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Sep 2026 07:23:34 -0700 (PDT)
+Date: Fri, 04 Sep 2026 07:23:20 -0700
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Tristan Madani <tristmd@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>
+CC: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Tristan Madani <tristan@talencesecurity.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] HID: hid-oxp: use cancel_delayed_work_sync() in remove
+User-Agent: Thunderbird for Android
+In-Reply-To: <20260904105800.3923987-1-tristmd@gmail.com>
+References: <20260904105800.3923987-1-tristmd@gmail.com>
+Message-ID: <949B786B-375B-4F2F-B209-C135EC62E1A5@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Use-After-Free in topping_bind error path when handling concurrent=
- USB events.
---
+On September 4, 2026 3:58:00 AM PDT, Tristan Madani <tristmd@gmail=2Ecom> w=
+rote:
+>From: Tristan Madani <tristan@talencesecurity=2Ecom>
+>
+>oxp_hid_remove() uses cancel_delayed_work() for all three delayed work
+>items=2E  cancel_delayed_work() only dequeues a pending work item without
+>waiting for a currently executing callback to finish=2E  If any of the
+>work callbacks (oxp_rgb_queue_fn, oxp_btn_queue_fn, oxp_mcu_init_fn) is
+>running at the time of removal, the callback continues executing
+>concurrently with hid_hw_close() and hid_hw_stop(), accessing the HID
+>device after it has been closed and stopped=2E
+>
+>Use cancel_delayed_work_sync() instead to ensure that any in-progress
+>work callback completes before device teardown proceeds=2E
+>
+>Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
+>Cc: stable@vger=2Ekernel=2Eorg
+>Signed-off-by: Tristan Madani <tristan@talencesecurity=2Ecom>
 
-commit a582809964c0e1ad990a6ee419fbee8c5cf85dae
-Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 
-HID: topping-m62: driver for the M62's vendor controls
+Hi Tristan,
 
-This commit adds a HID driver for the Topping M62 USB audio interface to
-expose vendor-specific controls like analog input gains, output volumes,=20
-and source selectors. These controls are exposed as ALSA mixer elements on
-the sound card created by snd-usb-audio.
+LGTM, thanks=2E
 
-> diff --git a/drivers/hid/hid-topping-m62.c b/drivers/hid/hid-topping-m62.c
-> new file mode 100644
-> index 0000000000000..66c037e2b8688
-> --- /dev/null
-> +++ b/drivers/hid/hid-topping-m62.c
-[ ... ]
-> +static int topping_raw_event(struct hid_device *hdev,
-> +			     struct hid_report *report, u8 *data, int size)
-> +{
-[ ... ]
-> +	guard(spinlock_irqsave)(&m62->lock);
-> +
-> +	if (m62->val[idx] =3D=3D value)
-> +		return 0;
-> +	m62->val[idx] =3D value;
-> +
-> +	if (m62->card && m62->kctl[idx])
-> +		snd_ctl_notify(m62->card, SNDRV_CTL_EVENT_MASK_VALUE,
-> +			       &m62->kctl[idx]->id);
+Reviewed-by: Derek J=2E Clark <derekjohn=2Eclark@gmail=2Ecom>
+>---
+> drivers/hid/hid-oxp=2Ec | 6 +++---
+> 1 file changed, 3 insertions(+), 3 deletions(-)
+>
+>diff --git a/drivers/hid/hid-oxp=2Ec b/drivers/hid/hid-oxp=2Ec
+>index d2ded6b08ce9e=2E=2E1e691ebc1199e 100644
+>--- a/drivers/hid/hid-oxp=2Ec
+>+++ b/drivers/hid/hid-oxp=2Ec
+>@@ -1552,9 +1552,9 @@ static int oxp_hid_probe(struct hid_device *hdev,
+>=20
+> static void oxp_hid_remove(struct hid_device *hdev)
+> {
+>-	cancel_delayed_work(&drvdata=2Eoxp_rgb_queue);
+>-	cancel_delayed_work(&drvdata=2Eoxp_btn_queue);
+>-	cancel_delayed_work(&drvdata=2Eoxp_mcu_init);
+>+	cancel_delayed_work_sync(&drvdata=2Eoxp_rgb_queue);
+>+	cancel_delayed_work_sync(&drvdata=2Eoxp_btn_queue);
+>+	cancel_delayed_work_sync(&drvdata=2Eoxp_mcu_init);
+> 	hid_hw_close(hdev);
+> 	hid_hw_stop(hdev);
+> }
 
-[Severity: High]
-If an interrupt packet arrives while the controls are being freed, could
-this lead to a use-after-free?
-
-Since hid_device_io_start() was called earlier in probe, topping_raw_event()
-can execute concurrently with the error path in topping_bind().
-
-> +
-> +	return 0;
-> +}
-[ ... ]
-> +static void topping_drop_kctls(struct topping_m62 *m62, struct snd_card =
-*card)
-> +{
-> +	int i;
-> +
-> +	for (i =3D 0; i < TOPPING_NUM_KCTLS; i++) {
-> +		snd_ctl_remove(card, m62->kctl[i]);
-> +		m62->kctl[i] =3D NULL;
-> +	}
-> +}
-[ ... ]
-> +static int topping_bind(struct device *comp, struct device *master,
-> +			void *master_data)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(comp);
-> +	struct topping_m62 *m62 =3D hid_get_drvdata(hdev);
-> +	struct snd_card *card =3D master_data;
-> +	int i, err;
-> +
-> +	scoped_guard(spinlock_irqsave, &m62->lock)
-> +		m62->card =3D card;
-> +
-> +	for (i =3D 0; i < TOPPING_NUM_CTLS; i++) {
-> +		err =3D topping_add_kctl(m62, &topping_ctl,
-> +				       topping_m62_ctls[i].name, i, i,
-> +				       topping_m62_ctls[i].tlv);
-> +		if (err < 0)
-> +			goto err_drop;
-> +	}
-[ ... ]
-> +err_drop:
-> +	topping_drop_kctls(m62, card);
-> +	scoped_guard(spinlock_irqsave, &m62->lock)
-> +		m62->card =3D NULL;
-> +	return err;
-> +}
-
-[Severity: High]
-Could this error path allow the race described above?
-
-If topping_add_kctl() fails, we jump to err_drop and call
-topping_drop_kctls(). The controls are removed and freed via snd_ctl_remove=
-()
-without holding m62->lock.
-
-Because m62->card is still non-NULL until after topping_drop_kctls() finish=
-es,
-a concurrent topping_raw_event() could take the lock, see m62->card is vali=
-d,
-and access the already-freed m62->kctl[idx]->id.
-
-It looks like topping_unbind() avoids this exact issue by clearing m62->card
-under the lock before removing the controls. Should err_drop follow the same
-ordering to prevent the race?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904141158.3339=
-8-1-mikhail.v.gavrilov@gmail.com?part=3D1

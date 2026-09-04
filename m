@@ -1,174 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from e3i605.smtp2go.com (e3i605.smtp2go.com [158.120.86.93])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D4EF3F54C5
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 04:02:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D188941D641
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 04:47:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.86.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788494576; cv=none; b=KnNnl3lbVCZEAcuaSb+GcP9afmNEMBbmbtBww+GhZkcihpb86wEP/GbFc0CVkrDS+E1tJ0XyirPU26d3Hp9rkX0JTaGSJiqiZ1WCiaMjLPzaTMsvzqjqhO/RiS5wNQMTY0vxWFjoQaHOuQ/i0UD6pGgzH9dIwXKYnuSuDUczlVU=
+	t=1788497252; cv=none; b=M5s95xf551IYuEkOfhFN21QPfQ+vMamZ+j38qnhY+WfCjk4ztMS7Tv6eye5FI0br/lHidHz/t+XJ5y1ExFYO/6NnWd9oWX7MPVZE7ZMGn34di+bCDccBPAJRXTG79aYCRoDuEPu+jXadXrF5bu9RGS1GnV3CwW3/lPkcLTNuTAM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788494576; c=relaxed/simple;
-	bh=vqS7uAQE2V8QdQC9hAoLvGz3Wgh9zJB2thncoFqrpWo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=D7ApyPz1pF8BwvteCkum9ROyR0OEcuEkEkNWhL3kYYSC3H53xBKDvtVbRhlVvRWcJk+SlOFxUph0InmUZsVI8n9BrqQdPdaQiAJmcRjhS/s2IwURklRfDQK1IdTN2jSt44mWTAkge9ef8dg0fcTnzQAisy4XL4rDpvVWcSsFH/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DRrkxHKl; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788497252; c=relaxed/simple;
+	bh=9E68qfCxaPzmD3m+GTXzaxJVndMAABhJd88SvAymKvw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bk7yK8vM8EgUWs6uluk3+hLQjXt3KQuRcyuYD+gtlmpuw/zGdQGCd11G572+MwdP7bDo14Kzjz7B1FmY4v3sEqICTGZhbBzSWoTyHXhYwvNtWv/7MHE2H0qdy7FQMMEaxQD/hJUs/A/DB/PhTuY0RLJ4MailzY8+b04kPMPXtc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place; spf=pass smtp.mailfrom=em943033.ait.place; dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b=R7qlW6cu; arc=none smtp.client-ip=158.120.86.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em943033.ait.place
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DRrkxHKl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0257D1F00A3D;
-	Fri,  4 Sep 2026 04:02:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788494575;
-	bh=8SaFynkBtG6D1V8Q6OXwP9LQIgXUhq/OFQrlib3w9eA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DRrkxHKlGw0FnHQtI34FL6xPCow71HRg0X+cEvirOu4OJsydTujeXugfRc09HARAY
-	 NYeMxe0Ycuh64NBt8gzOUBBpI7nXGyaDBwUqcwiLbpxylPPClYYf8pnaQuksd0aSV2
-	 ze3XZ7aoNPkLO4ahsKpm1Z8JQvVjvKY31PNOJgJFHT62dA1leGDp4ebw+TvBNd9Y/5
-	 lIUKOVGMsX0fHyHQYpWu9NQ3Ogp+/1D4KIUXnebdntx8AFDrMVvfmgQAWeVoE64/Jo
-	 mGoER1ks9vQlBit9eWWLTB9uOnxs7mVpPpnyUYkBd/3PNmrUdq2hoOTW1KzCp+xiQ1
-	 3aP7PWSVQZlcA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: logitech-hidpp: fix hi-res scroll for
- Bolt-connected MX Master
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rafael Passos" <rafael@rcpassos.me>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260904034843.1340846-1-rafael@rcpassos.me>
-References: <20260904034843.1340846-1-rafael@rcpassos.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 04:02:54 +0000
-Message-Id: <20260904040255.0257D1F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b="R7qlW6cu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ait.place;
+ i=@ait.place; q=dns/txt; s=s943033; t=1788497233; h=from : subject :
+ to : message-id : date : list-unsubscribe : list-unsubscribe-post;
+ bh=621XTYcsZ6zvvOUg6Eb3VR5r2xUBCu+A38ELVbjgWac=;
+ b=R7qlW6cuPfN6JHV0Ne21DjuL62N+8TQ3BxXu3YNilwnEDig/uSRMjx998CvOgPGLj+83V
+ ll8Q2iewYsF6Qy8qScnmJ639IGV+u44ujco7ERJCYjDw2gSQKYsfCX96G4MQExPurMkwtBh
+ OCTVEQ5D+3igUcmi4j3oyKFKX8CPBxF8KH6YZdJNwNlj6o/MnPWmANj+5AXL2OhjaYbLUlO
+ xrvj30Gub7AosRDhXoKS6H3gTbkmeFOVh88UdGbhABCQ68UlANst1R/MnEPvZHkZQVU17tc
+ gxCpEcHkjk1zBVr9WRcVLwiCgtudctbd8WejfGzZrm+WILV+VoDpLN4I0arQ==
+Received: from [10.191.245.51] (helo=omarchy.bb.online.no)
+	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.99.4)
+	(envelope-from <jonathanjansen@ait.place>)
+	id 1x2LpT-4o5NDgrjDEn-oUeG;
+	Fri, 04 Sep 2026 04:47:07 +0000
+From: Jonathan Jansen <jonathanjansen@ait.place>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	jikos@kernel.org,
+	bentiss@kernel.org,
+	dmitry.torokhov@gmail.com,
+	linux-api@vger.kernel.org,
+	jonathanjansen@ait.place
+Subject: [PATCH v2] HID: input: map System Microphone Mute LED
+Date: Fri,  4 Sep 2026 06:47:05 +0200
+Message-ID: <20260904044705.1060507-1-jonathanjansen@ait.place>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260904022903.607880-1-ait@ait.place>
+References: <20260904022903.607880-1-ait@ait.place>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
+Feedback-ID: 943033m:943033ayMjrpg:943033soucOInEYf
+X-smtpcorp-track: X7xQ1apq60yB.HJik8Zr5wd8I.O5IZvQsANxa
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Unconditional and improperly guarded cast of the parent device to =
-`struct hid_device` in `hidpp_is_bolt_child()` causes type confusion and ou=
-t-of-bounds memory access for Bluetooth and native USB devices.
-- [High] Time-of-check to time-of-use (TOCTOU) data race between `hidpp20_h=
-ires_wheel_raw_event()` and `hidpp_connect_event()` leading to a Use-After-=
-Free of `hidpp->input`.
---
+HUTRR110 defines LED page usage 0x57 as System Microphone Mute.
 
-commit 1aae454b03bbd4a45bdfdb3bc2a196f15d06fbfa
-Author: Rafael Passos <rafael@rcpassos.me>
+The usage is currently ignored, so the indicator stays dark and
+userspace falls back to per-vendor code in hid-lenovo,
+hid-playstation, hid-plantronics.
 
-HID: logitech-hidpp: fix hi-res scroll for Bolt-connected MX Master
+Map it to a new LED_MICMUTE. It appears as
+/sys/class/leds/inputN::micmute and uses the "audio-micmute"
+trigger from snd-ctl-led, so the LED follows the system-wide
+mic mute state the same way LED_MUTE (page 0x09) already does
+for speaker mute.
 
-This commit fixes hi-res scrolling on the MX Master 3S when connected
-via the Bolt receiver by routing wheel events through the HID++ driver
-instead of hid_generic. It also adjusts initialization checks for Bolt
-devices.
+LED_MICMUTE takes the next free code (0x0b).
 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index 1504de32b1c84..960543bfd5ea1 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -3900,6 +3900,19 @@ static int hidpp10_consumer_keys_raw_event(struct =
-hidpp_device *hidpp,
->  	return 1;
->  }
-> =20
-> +static bool hidpp_is_bolt_child(struct hid_device *hdev)
-> +{
-> +	struct device *parent =3D hdev->dev.parent;
-> +	struct hid_device *receiver_hdev;
-> +
-> +	if (!parent)
-> +		return false;
-> +
-> +	receiver_hdev =3D to_hid_device(parent);
-> +	return receiver_hdev->vendor =3D=3D USB_VENDOR_ID_LOGITECH &&
-> +	       receiver_hdev->product =3D=3D USB_DEVICE_ID_LOGITECH_BOLT_RECEIV=
-ER;
-> +}
-> +
+Link: https://www.usb.org/sites/default/files/hutrr110-systemmicrophonemute.pdf
 
-[Severity: High]
-Does this safely handle native USB devices? When this is called for a native
-USB device, the parent device is a struct usb_interface, not a struct
-hid_device.=20
+Signed-off-by: Jonathan Jansen <jonathanjansen@ait.place>
+---
 
-Using to_hid_device(parent) subtracts the container_of offset for a
-hid_device from the dev pointer, resulting in a pointer well before the
-allocated usb_interface structure. Accessing receiver_hdev->vendor will then
-cause an out-of-bounds memory read.
+Notes:
+    Changes since v1: rewrote the commit message; no functional changes.
 
-[ ... ]
+ drivers/hid/hid-debug.c                | 2 +-
+ drivers/hid/hid-input.c                | 1 +
+ drivers/input/input-leds.c             | 1 +
+ include/uapi/linux/input-event-codes.h | 1 +
+ 4 files changed, 4 insertions(+), 1 deletion(-)
 
-> @@ -3910,7 +3923,9 @@ static int hi_res_scroll_enable(struct hidpp_device=
- *hidpp)
->  	u8 multiplier =3D 1;
-> =20
->  	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_HI_RES_WHEEL) {
-> -		ret =3D hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
-> +		bool use_hidpp =3D hidpp_is_bolt_child(hidpp->hid_dev);
-> +
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index f44e6e708..92a950105 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -3550,7 +3550,7 @@ static const char *leds[LED_MAX + 1] = {
+ 	[LED_KANA] = "Kana",		[LED_SLEEP] = "Sleep",
+ 	[LED_SUSPEND] = "Suspend",	[LED_MUTE] = "Mute",
+ 	[LED_MISC] = "Misc",		[LED_MAIL] = "Mail",
+-	[LED_CHARGING] = "Charging",
++	[LED_CHARGING] = "Charging",	[LED_MICMUTE] = "Mic Mute",
+ };
+ 
+ static const char *repeats[REP_MAX + 1] = {
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index edd6bbf83..727374dd5 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -990,6 +990,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		case 0x27:  map_led (LED_SLEEP);    break;    /*   "Stand-By"                 */
+ 		case 0x4c:  map_led (LED_SUSPEND);  break;    /*   "System Suspend"           */
+ 		case 0x09:  map_led (LED_MUTE);     break;    /*   "Mute"                     */
++		case 0x57:  map_led (LED_MICMUTE);  break;    /*   "System Microphone Mute"   */
+ 		case 0x4b:  map_led (LED_MISC);     break;    /*   "Generic Indicator"        */
+ 		case 0x19:  map_led (LED_MAIL);     break;    /*   "Message Waiting"          */
+ 		case 0x4d:  map_led (LED_CHARGING); break;    /*   "External Power Connected" */
+diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
+index b08d1d08d..6522079a4 100644
+--- a/drivers/input/input-leds.c
++++ b/drivers/input/input-leds.c
+@@ -36,6 +36,7 @@ static const struct {
+ 	[LED_SLEEP]	= { "sleep" } ,
+ 	[LED_SUSPEND]	= { "suspend" },
+ 	[LED_MUTE]	= { "mute", AUDIO_TRIGGER("audio-mute") },
++	[LED_MICMUTE]	= { "micmute", AUDIO_TRIGGER("audio-micmute") },
+ 	[LED_MISC]	= { "misc" },
+ 	[LED_MAIL]	= { "mail" },
+ 	[LED_CHARGING]	= { "charging" },
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 3528168f7..bc374821c 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -983,6 +983,7 @@
+ #define LED_MISC		0x08
+ #define LED_MAIL		0x09
+ #define LED_CHARGING		0x0a
++#define LED_MICMUTE		0x0b
+ #define LED_MAX			0x0f
+ #define LED_CNT			(LED_MAX+1)
+ 
+-- 
+2.55.0
 
-[Severity: High]
-Could this unconditionally trigger the out-of-bounds read described above f=
-or
-all HID++ 2.0 devices? This includes native USB and Bluetooth devices where
-the parent is not a hid_device.
-
-[ ... ]
-
-> @@ -3998,6 +4013,19 @@ static int hidpp20_hires_wheel_raw_event(struct hi=
-dpp_device *hidpp,
->  		return 1;
->  	}
-> =20
-> +	/* wheel movement event: 16-bit signed delta in HID++ ticks */
-> +	if ((data[3] & 0xf0) =3D=3D 0x00 && size >=3D 7 && hidpp->input &&
-> +	    hidpp->vertical_wheel_counter.wheel_multiplier) {
-> +		s16 delta =3D get_unaligned_be16(&data[5]);
-> +
-> +		if (delta) {
-> +			hidpp_scroll_counter_handle_scroll(hidpp->input,
-> +				&hidpp->vertical_wheel_counter, delta);
-
-[Severity: High]
-Is there a Time-of-Check to Time-of-Use (TOCTOU) race condition here?
-
-Since hid_device_io_start() has already been called during probe, hardware
-events can fire concurrently with hidpp_connect_event().
-
-If this raw event handler checks hidpp->input and proceeds, but
-concurrently hidpp_connect_event() encounters an error (e.g. from
-input_register_device failing) and executes:
-
-    hidpp->input =3D NULL;
-    input_free_device(input);
-
-Could this lockless dereference of hidpp->input in
-hidpp_scroll_counter_handle_scroll() result in a use-after-free?
-
-[ ... ]
-
-> @@ -4579,7 +4594,9 @@ static void hidpp_connect_event(struct work_struct =
-*work)
->  	}
-> =20
->  	hidpp_initialize_battery(hidpp);
-> -	if (!hid_is_usb(hidpp->hid_dev))
-> +
-> +	if (!hid_is_usb(hidpp->hid_dev) ||
-> +	    hidpp_is_bolt_child(hidpp->hid_dev))
->  		hidpp_initialize_hires_scroll(hidpp);
-
-[Severity: High]
-Could this also trigger the out-of-bounds read in hidpp_is_bolt_child() for
-native USB devices?
-
-For a native USB device, hid_is_usb() is true, so !hid_is_usb() evaluates to
-false. This forces the logical OR to evaluate hidpp_is_bolt_child(), passing
-the USB device into the function that unsafely casts the parent device.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904034843.1340=
-846-1-rafael@rcpassos.me?part=3D1

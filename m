@@ -1,138 +1,189 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE7D54F0554
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:11:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 781C64EE859
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:21:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788534720; cv=none; b=WTEDGodUJgmAhp2dVevSiwWrwqDg0al8lqMVbBWczmjmq1EM7ttimbZV33XWEKOGU1XijevBI3MV5w6J1oZ4p+DWojJEvD8RB1tyFoPDdVY+i9KPxhnbNDjqLa+tDiKsbQ6q7odC/cvMOKJPDHMMPQJTA45lKJMNUxYTQhT0W8s=
+	t=1788535290; cv=none; b=CJL69dWY6bzf9VWuqPL3REK5a5K21Rj3YSjeamw0IG9X57oAlzqCSWOTN6sL0hE2js9RjVmVRiljMPNR3KPKtjctdbGJGCkerpSyPyVAPZxfTt916B4GiSuBNq/6/ZDInxbzHTBUEtyXOeZMjOpavKSSQQebt4yrgWjwesw5DR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788534720; c=relaxed/simple;
-	bh=dSDAGSGdeMYfU5TFBDGyvhEuA4jGnTzqs/AquFxd5NQ=;
+	s=arc-20240116; t=1788535290; c=relaxed/simple;
+	bh=02hHFY1HyHlZDNDGmL5audzm7rNjqBwuIRKVW6/yjKs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NXgUm5eEr5vcE5P7ZfnPQ42dGAs/lne6f9M3tq97fniwFZa8Z8tj/U8W01NFTvFF/eoWLJeN/mrrzYX/Ij/rnbSzc7Cy40E15WGcCaD6kScFBGed19RI1t9VvnPt8oWZaACrV4SGSwDby5ns97HOQmXmYb3pfomDYOiSoK13bO8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lDNVjiyA; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Shl6zKtn5Uv+R9rZho8cJ1D0NOOIrQy8rPT94oZ41laV436kR9E0KLv9j+kyKNiPNcNoNn414frs8YeAwe9Phfi10F5Zx5oh8dl+jQUNgJxNmci89t3e1s+sna9OsUdANAovIkuojQlS1PSG1BergnNWYkmvtG6xUm4F0K5cEOg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TGtbDKAt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lDNVjiyA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D85601F00A3D;
-	Fri,  4 Sep 2026 15:11:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TGtbDKAt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23ADB1F00A3D;
+	Fri,  4 Sep 2026 15:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788534718;
-	bh=Wu7YYfGQTcn8eWF9uXPVhM89DbgWcWWtI3Ufhi2xQus=;
+	s=k20260515; t=1788535289;
+	bh=xVeSFsigQTrVCjJscSWGuHJvNosxclHzlsCmWN/S9og=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lDNVjiyArIH53M25FCWtW7DNF8p8G2DrAfiApYHD9rU+ta/cvcIZf3t52lrhfxeP5
-	 E0BHEqzgjcFtqyhad2wCrIf/m0dPoPY3+1O1L3xR0Cea2f4aYRyU+1lvshwUWgqqUZ
-	 ylKqluzU7BIAewFgMRPu9XyWXmbfFrk3qdwlkI/Pr6+CiEiyElijrC3aPCP6L3Qy1n
-	 DcglJGsxUvBTsmL0RxeTkrKsxMJdBZkKTh9VIoIvIccV3xVAhGzXYHvQvM6LRpJZIQ
-	 Jmu5nfjPVgZV3cH/N87lw1LiHJ7WrGDe6Ubbad4TvxJFF8FIWb2G52JhoxB/YqraG0
-	 7jrRHDslPKjWw==
+	b=TGtbDKAtLfZbHAqgjD2j5iqWQncUHFX1A0veusmPcXvaOGYq9CaNUQeZSrrCfVnhz
+	 Rp0DQvdfg9cJhAnWjVKHwYkLDY/Z96GW5Sz5Mf2vF55P3024hN8HdGmM5nFJQR5ZJa
+	 Dm87MF93LwvCtM5L/E8gx7DW7PGfAlfVGXU4b/3RFkk7IT+H6AUM9xor+g+d6ICAjh
+	 XkG0ZEONDHYW20Zw41u7sjefqPmdOvGT3CgYm39SA+vx8+GdIF+vIvC2AGXuvi7voV
+	 VCDGbRsJ3j3+xRR5GrbSwRXxHJ/2qYGiGVzTAxxfTAsM69iyTKkrXJlRl7v0xSwhEf
+	 FwIp2PQoHm8Eg==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 2/2] ALSA: usb-audio: bind the Topping M62's
- vendor controls
+Subject: Re: [PATCH v5 04/13] HID: asus: add gamepad configuration
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260904144300.529289-3-mikhail.v.gavrilov@gmail.com>
-References: <20260904141158.33398-1-mikhail.v.gavrilov@gmail.com>
- <20260904144300.529289-1-mikhail.v.gavrilov@gmail.com>
- <20260904144300.529289-3-mikhail.v.gavrilov@gmail.com>
+To: "Denis Benato" <denis.benato@linux.dev>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260904145845.184887-5-denis.benato@linux.dev>
+References: <20260904145845.184887-1-denis.benato@linux.dev>
+ <20260904145845.184887-5-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 15:11:57 +0000
-Message-Id: <20260904151157.D85601F00A3D@smtp.kernel.org>
+Date: Fri, 04 Sep 2026 15:21:28 +0000
+Message-Id: <20260904152129.23ADB1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Use-after-free of `tm` devres allocation in `topping_private_free(=
-)` when probe fails on a secondary interface.
+- [High] State initialization and restoration logic errors corrupt user set=
+tings on re-probe.
+- [Medium] Sysfs attributes are exposed to userspace before the device data=
+ is fully linked, causing spurious -ENODEV errors.
 --
 
-commit 609b467189291cd5e9a1099df6471716a2475cca
-Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+commit 396e8f687c336ca0b0f9ddcf54fbc96925c6f82f
+Author: Denis Benato <denis.benato@linux.dev>
 
-ALSA: usb-audio: bind the Topping M62's vendor controls
+    HID: asus: add gamepad configuration
+   =20
+    Add the base configuration structures for the gamepad configuration,
+    detect capabilities and initialize the device in a known state.
 
-This commit adds a component master for the Topping M62 vendor controls
-to bind the ALSA sound card to the corresponding HID driver. It uses the
-component framework to manage the lifetime between the ALSA card and the
-HID vendor controls, allocating its context using devres on the audio
-control interface.
-
-> diff --git a/sound/usb/mixer_topping.c b/sound/usb/mixer_topping.c
-> new file mode 100644
-> index 0000000000000..d97d895a4493d
-> --- /dev/null
-> +++ b/sound/usb/mixer_topping.c
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 129cec7e27ec4..4714ebb4a5435 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
 [ ... ]
-> +static void topping_private_free(struct usb_mixer_interface *mixer)
-> +{
-> +	struct topping_master *tm =3D mixer->private_data;
+> @@ -610,6 +662,272 @@ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload=
+, u8 payload_size)
+[ ... ]
+> +	for (sysfs_i =3D 0; sysfs_i < ARRAY_SIZE(ally_attr_groups); sysfs_i++) {
+> +		ret =3D sysfs_create_group(&hdev->dev.kobj,
+> +					 &ally_attr_groups[sysfs_i]);
+> +		if (ret < 0) {
+> +			hid_err(hdev, "Failed to create sysfs group '%s': %d\n",
+> +				ally_attr_groups[sysfs_i].name ?: "", ret);
+> +			goto ally_config_create_sysfs_err;
+> +		}
+> +	}
+
+[Severity: Medium]
+Will this expose sysfs attributes to userspace before the device data is fu=
+lly
+linked?
+
+Since ally_drvdata.config is not assigned until later in hid_asus_ally_prob=
+e(),
+if a userspace tool like udev reads an attribute in this window,
+ally_get_config() will return NULL, causing a spurious -ENODEV error.
+
 > +
-> +	if (!tm)
-> +		return;
+> +	/* So far the only hardware this is supported is the Ally 1 */
+> +	if (cfg->xbox_controller_support) {
+> +		ret =3D ally_set_xbox_controller(hdev, ally, cfg, true);
+> +		if (ret < 0)
+> +			hid_warn(hdev, "Failed to set default Xbox controller mode: %d\n",
+> +				ret);
+> +	}
 > +
-> +	/*
-> +	 * Reached from snd_usb_mixer_disconnect(), on an unplug and on an
-> +	 * unbind of the audio interface alike.  component_master_del() runs
-> +	 * topping_master_unbind() on the way, so the HID side has taken its
-> +	 * kcontrols off this card before the card is taken apart.
-> +	 */
-> +	component_master_del(tm->dev, &topping_master_ops);
+> +	cfg->initialized =3D true;
 
 [Severity: High]
-Can this result in a use-after-free of the `tm` structure if probe fails on=
- a
-secondary interface?
+Does this code unconditionally overwrite the user's previously saved prefer=
+ence
+back to true on every probe?
 
-If a USB device matching the Topping M62 quirk has multiple interfaces, and
-the primary interface probes successfully but the secondary interface's pro=
-be
-fails (e.g., due to ALSA card slots being exhausted or memory allocation
-failure), the USB core will clean up the secondary interface's devres, free=
-ing
-`tm`.
+Because this block is outside the `if (!cfg->initialized)` check above, it
+seems it will force the hardware and software state to true whenever the de=
+vice
+suspends/resumes or re-enumerates, destroying any saved settings.
 
-However, looking at `usb_audio_probe()` in `sound/usb/card.c`:
-
-    if (!chip->num_interfaces)
-        snd_card_free(chip->card);
-
-For a secondary interface (`chip->num_interfaces > 0`), the ALSA card and
-`chip->mixer_list` are intentionally not freed when probe fails. The mixer
-appended during the failed probe remains in the list.
-
-Later, when the primary interface unbinds, `snd_usb_mixer_disconnect()` is
-called and invokes this `topping_private_free()` function, which will access
-the already freed `tm->dev`.
-
-> +	devres_destroy(tm->dev, topping_master_release, NULL, NULL);
-> +	mixer->private_data =3D NULL;
-> +}
-> +
-> +int snd_topping_init(struct usb_mixer_interface *mixer)
-> +{
-> +	struct snd_usb_audio *chip =3D mixer->chip;
-> +	struct component_match *match =3D NULL;
-> +	struct usb_interface *intf;
-> +	struct topping_master *tm;
-> +	struct device *dev;
-> +	int err;
 [ ... ]
-> +	tm =3D devres_alloc(topping_master_release, sizeof(*tm), GFP_KERNEL);
-> +	if (!tm)
-> +		return -ENOMEM;
-> +	tm->dev =3D dev;
-> +	tm->card =3D chip->card;
-> +	devres_add(dev, tm);
+> @@ -882,6 +1201,20 @@ static int hid_asus_ally_init(struct hid_device *hd=
+ev, struct ally_handheld *all
+>  	if (ret < 0)
+>  		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
+> =20
+> +	cfg =3D ally_get_config(ally);
+> +	if (!cfg)
+> +		return 0;
+
+[Severity: High]
+Will this silently fail to restore cached user settings to the hardware dur=
+ing
+probe?
+
+Because hid_asus_ally_init() is called before ally_drvdata.config is publis=
+hed
+in hid_asus_ally_probe(), ally_get_config() will return NULL here, causing =
+it
+to bail out early.
+
 > +
-> +	mixer->private_data =3D tm;
-> +	mixer->private_free =3D topping_private_free;
+> +	/* The MCU may have just been reset: restore the cached state. */
+> +	guard(mutex)(&cfg->config_mutex);
+> +
+> +	if (cfg->xbox_controller_enabled) {
+> +		ret =3D ally_set_xbox_controller(hdev, ally, cfg, true);
+> +		if (ret < 0)
+> +			hid_warn(hdev, "Failed to restore Xbox controller mode: %d\n",
+> +				 ret);
+> +	}
+> +
+>  	return 0;
+>  }
+
+[Severity: High]
+If the hardware reset to true but the user had disabled the Xbox controller
+(cfg->xbox_controller_enabled =3D=3D false), does this incorrectly fail to =
+restore
+the state to false?
+
+It looks like this code only restores the state if it was true, and hardcod=
+es
+the value passed to ally_set_xbox_controller() to true instead of passing
+cfg->xbox_controller_enabled.
+
+[ ... ]
+> @@ -1023,6 +1360,14 @@ static struct ally_handheld *hid_asus_ally_probe(s=
+truct hid_device *hdev)
+>  			return ERR_PTR(ret);
+>  		}
+> =20
+> +		ally_cfg =3D ally_config_create(hdev, &ally_drvdata);
+> +		if (IS_ERR(ally_cfg)) {
+> +			hid_err(hdev, "Failed to create Ally cfg: %ld\n",
+> +				PTR_ERR(ally_cfg));
+> +			ally_put_udev_if_orphaned();
+> +			return ERR_PTR(PTR_ERR(ally_cfg));
+> +		}
+> +
+>  		ret =3D hid_asus_ally_init(hdev, &ally_drvdata);
+>  		if (ret < 0) {
+>  			ally_put_udev_if_orphaned();
+> @@ -1030,6 +1375,7 @@ static struct ally_handheld *hid_asus_ally_probe(st=
+ruct hid_device *hdev)
+>  		}
+> =20
+>  		spin_lock_irqsave(&ally_data_lock, flags);
+> +		ally_drvdata.config =3D ally_cfg;
+
+[Severity: High]
+This publishes the configuration pointer to the shared state after
+hid_asus_ally_init() has already run, which hides it from the initialization
+function above.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904144300.5292=
-89-1-mikhail.v.gavrilov@gmail.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904145845.1848=
+87-1-denis.benato@linux.dev?part=3D4

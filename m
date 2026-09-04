@@ -1,152 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta0.migadu.com (out-71.mta0.migadu.com [91.218.175.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEC4C4CC286
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 14:57:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4854EA362
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 15:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788533874; cv=none; b=uripfxHsJY1m64ACrp4loIIOAwUHYx06SbCzI8CR3UCb8XZvSMkcLvYR24HsTm4s2fjf6gcaGCniU/2hihZxtZKtfjHAySNALCnburBigmCV7NOhtTwsFmN0gWzF9JLi46gGLEsjIG70kThKyOrYGp0eP+i19ecRtRAMX9TCE1c=
+	t=1788534081; cv=none; b=iS/bY22vv4LUe4AmYi4FBYaapyLWJq01Mx0F8Q5a7rn4+PlGEUE4/D7f+/2RP8vYBmqRW/Ondtfmzq7KHhZc8NYdz3QJ7jdy1rdlgBExcJ+LnkB14ZP3egJacmXSrQCSAuF6KGdvgPvYuYhom5KmPwVPahzJZOEsQGDpAN8pLrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788533874; c=relaxed/simple;
-	bh=k2CtgMW+COB12lgJ22F6Erzpzx3e4w6lpW1tIE0gAqg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UqAifNZ5vqO6m4fdQJnHuUqMIb5+cQBumPUgPbDPt3cdLiTRHfttybR94htVbN2tz8ElHRibzXqEbYBvcqPgQa9ma5OPQaTFE0rDSvSLmB8eAV6q8MaDQOliyNDx+ygiFXGLRTME7RIVF5Qwz8PYOxFIqtJ0IKVxslD3vELO40U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UepDogJE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788534081; c=relaxed/simple;
+	bh=zLK9ilxnouBl8OfzKtWT4IUHOCTEywTf0m+xYBuIXWw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=B47vx0efHBuUSsHFY+2u+YjJQiGdzwM3J2zyF6z4zfuxgGYi12G2z8KS3Xf3memWscFN6Z+m5JokC1YhfY/ycIqxNRaG4FXR/nmYMVIqvgbQJhQ9f2DYzo27bPJXvIfAQVhW+SxZTIKo+32zkr2huZHnu3I/nVtFnP1Ug5c3x3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=V3LHfiJU; arc=none smtp.client-ip=91.218.175.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UepDogJE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 259581F00A3D;
-	Fri,  4 Sep 2026 14:57:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788533873;
-	bh=QqpKogcU7FK9XmaWrd0UHJOHVUzJ6uQkyAwHN4KNskg=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UepDogJE4Tzo1O50S+NVM/KhaXRY289GFNOjeoRJFXWbqlI/zRKOZj1HEd42aTvtK
-	 rXrgIkmA8Cg/cGajV/9RwsUSgIaOxTqE1g8nrOsNnLT9Bxl0zITrcr8vNuc8v9c1bx
-	 429goQmnEHW+SR0M4PCljHmxH4NAdM0WNiDdt1+Gn7bvKMAO7MuuYwnvdQ/2NjyrII
-	 0ogSoYbbjjliFP/X7+5Gg8iejrngOI6ehkvheOF+R8LyXF4jccAdpAyn4SJnqP31VS
-	 om2KwFdrikGtgomYX8rDewlnUx6/ISTnV1d0uNyd46K6vQd6+QMqbngzZ51e3/3mqY
-	 B/GkHEwxC73yQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 1/2] HID: topping-m62: driver for the M62's
- vendor controls
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260904144300.529289-2-mikhail.v.gavrilov@gmail.com>
-References: <20260904141158.33398-1-mikhail.v.gavrilov@gmail.com>
- <20260904144300.529289-1-mikhail.v.gavrilov@gmail.com>
- <20260904144300.529289-2-mikhail.v.gavrilov@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 14:57:52 +0000
-Message-Id: <20260904145753.259581F00A3D@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="V3LHfiJU"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=zLK9ilxnouBl8OfzKtWT4IUHOCTEywTf0m+xYBuIXWw=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1788534074; v=1; x=1789138874;
+ b=V3LHfiJUIxU1qKpEOdjkp+UGXzn/h/lfSc6BJv5soB5hsIY5tPB3VJbvUCXXqIOBA/7rkkfF
+ Mv1WZX2QVf0xktYS1xHP73khMRMu+blNzYJ2f+v7aPrZ2LGPWDhUaW3+hjxoTa7nPgyrb3+SV42
+ mPioYAJniUxU2i8oK2bl+Y3Y=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id a2426e4042a516b5;
+	Fri, 04 Sep 2026 15:01:14 +0000
+X-Mizu-Trace-ID: a2426e4042a516b5
+X-Migadu-Flow: FLOW_OUT
+From: Denis Benato <denis.benato@linux.dev>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org,
+	"Benjamin Tissoires" <bentiss@kernel.org>,
+	"Jiri Kosina" <jikos@kernel.org>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	"Mateusz Schwartz" <matthew.schwartz@linux.dev>,
+	"Denis Benato" <benato.denis96@gmail.com>,
+	"Jonathan LoBue" <jlobue10@gmail.com>,
+	"Khamunetri Clark" <khamunetriclark@gmail.com>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Panz Dev <panz.development@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v5 01/13] HID: asus: do not send keyboard init reports to touchpads
+Date: Fri,  4 Sep 2026 14:58:32 +0000
+Message-ID: <20260904145845.184887-2-denis.benato@linux.dev>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260904145845.184887-1-denis.benato@linux.dev>
+References: <20260904145845.184887-1-denis.benato@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Lockless access to newly initialized ALSA controls (m62->kctl) wit=
-hout memory barriers causing a data race.
-- [Low] Mixing goto-based error handling with scope-based cleanup helpers (=
-`scoped_guard`) in the same function.
---
+From: Panz Dev <panz.development@gmail.com>
 
-commit 0bcb87ac2e7106ce707298feca287dd58398496f
-Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Commit 0919db9f3583 ("HID: asus: always fully initialize devices") added a
+loop during asus_probe() to send keyboard feature report initializations
+(asus_kbd_init) to all ASUS HID devices.
 
-HID: topping-m62: driver for the M62's vendor controls
+On ASUS laptops with I2C/HID touchpads (such as the ASUS E200HA), sending
+keyboard feature reports (FEATURE_KBD_REPORT_ID) to touchpad endpoints
+sends invalid feature requests to touchpad hardware, corrupting probe
+state and causing the touchpad to become unresponsive.
 
-This commit adds a driver for the Topping M62 USB audio interface to expose
-vendor controls (such as analogue input gains, output volumes, and output
-source selectors) through a HID-class interface. It registers a component
-that interacts with the snd-usb-audio driver to add the controls to the
-master sound card.
+Wrap the asus_report_id_init loop in an `if (!drvdata->tp)` check so
+keyboard feature initialization only runs for actual keyboards.
 
-> diff --git a/drivers/hid/hid-topping-m62.c b/drivers/hid/hid-topping-m62.c
-> new file mode 100644
-> index 0000000000000..3c1b8e7626f69
-> --- /dev/null
-> +++ b/drivers/hid/hid-topping-m62.c
+Tested on ASUS E200HA (where touchpad functionality is fully restored)
+and ASUS VivoBook Flip 14 TP401MA (confirming zero regressions).
 
-[ ... ]
+Fixes: 0919db9f3583 ("HID: asus: always fully initialize devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Panz Dev <panz.development@gmail.com>
+---
+ drivers/hid/hid-asus.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-> +static int topping_raw_event(struct hid_device *hdev,
-> +			     struct hid_report *report, u8 *data, int size)
-> +{
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index ec966fc0a411..bd46aba6622a 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1493,12 +1493,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return ret;
+ 	}
+ 
+-	for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
+-		if (asus_has_report_id(hdev, asus_report_id_init[r])) {
+-			ret = asus_kbd_init(hdev, asus_report_id_init[r]);
+-			if (ret < 0)
+-				hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
+-					 asus_report_id_init[r], ret);
++	if (!drvdata->tp) {
++		for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
++			if (asus_has_report_id(hdev, asus_report_id_init[r])) {
++				ret = asus_kbd_init(hdev, asus_report_id_init[r]);
++				if (ret < 0)
++					hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
++						 asus_report_id_init[r], ret);
++			}
+ 		}
+ 	}
+ 
+-- 
+2.47.3
 
-[ ... ]
-
-> +	guard(spinlock_irqsave)(&m62->lock);
-> +
-> +	if (m62->val[idx] =3D=3D value)
-> +		return 0;
-> +	m62->val[idx] =3D value;
-> +
-> +	if (m62->card && m62->kctl[idx])
-> +		snd_ctl_notify(m62->card, SNDRV_CTL_EVENT_MASK_VALUE,
-> +			       &m62->kctl[idx]->id);
-
-[Severity: High]
-Can this lockless read of m62->kctl[idx] race with the initialization
-in topping_add_kctl()?
-
-Because hid_device_io_start() is called in topping_probe() before the
-component binds, USB interrupts can arrive while topping_bind() is running.
-
-In topping_bind(), m62->card is set early under a lock:
-
-        scoped_guard(spinlock_irqsave, &m62->lock)
-                m62->card =3D card;
-
-This exposes it to the interrupt handler. When topping_bind() subsequently
-allocates controls, it publishes them to m62->kctl locklessly in
-topping_add_kctl():
-
-        m62->kctl[slot] =3D kctl;
-
-Without memory barriers or lock synchronization here, could the CPU reorder
-the initialization, causing this interrupt handler to observe a non-NULL
-pointer but crash or misbehave when snd_ctl_notify() dereferences it?
-
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> +static int topping_bind(struct device *comp, struct device *master,
-> +			void *master_data)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(comp);
-> +	struct topping_m62 *m62 =3D hid_get_drvdata(hdev);
-> +	struct snd_card *card =3D master_data;
-> +	int i, err;
-> +
-> +	scoped_guard(spinlock_irqsave, &m62->lock)
-> +		m62->card =3D card;
-> +
-> +	for (i =3D 0; i < TOPPING_NUM_CTLS; i++) {
-> +		err =3D topping_add_kctl(m62, &topping_ctl,
-> +				       topping_m62_ctls[i].name, i, i,
-> +				       topping_m62_ctls[i].tlv);
-> +		if (err < 0)
-> +			goto err_drop;
-
-[Severity: Low]
-This is a stylistic issue, but does this function mix goto-based error
-handling with scope-based cleanup helpers?
-
-According to the kernel's cleanup subsystem guidelines, functions should not
-mix goto labels (like err_drop) with scope-based cleanups (like
-scoped_guard). This is to prevent confusing ownership semantics and fragile
-cleanup paths. Should this function be converted entirely to scope-based
-cleanups or revert to traditional locking?
-
-> +	}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904144300.5292=
-89-1-mikhail.v.gavrilov@gmail.com?part=3D1

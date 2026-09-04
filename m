@@ -1,50 +1,79 @@
-Received: from e3i605.smtp2go.com (e3i605.smtp2go.com [158.120.86.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D188941D641
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 04:47:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.86.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FB3332ED4E
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 07:05:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788497252; cv=none; b=M5s95xf551IYuEkOfhFN21QPfQ+vMamZ+j38qnhY+WfCjk4ztMS7Tv6eye5FI0br/lHidHz/t+XJ5y1ExFYO/6NnWd9oWX7MPVZE7ZMGn34di+bCDccBPAJRXTG79aYCRoDuEPu+jXadXrF5bu9RGS1GnV3CwW3/lPkcLTNuTAM=
+	t=1788505539; cv=none; b=FPtIIUut188Yk3cHvjkErN7jblz6onlmMYeMRDd7P6/Us3LLQxOqFzQAkSWivcl6xZacP1ql0SYLdATplhkmAl4y6nPn5gE+ybE1IgPkyYy8qyAdLDWVrzrksC93bJwnoXNUFEHE8IJG8k8iBTOoX4RzvlnMnIJzcqonI1uI/EM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788497252; c=relaxed/simple;
-	bh=9E68qfCxaPzmD3m+GTXzaxJVndMAABhJd88SvAymKvw=;
+	s=arc-20240116; t=1788505539; c=relaxed/simple;
+	bh=FO7Ei7qQa/upriKmLpsNBP2XveFeD36mtVUieyMK2Dk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bk7yK8vM8EgUWs6uluk3+hLQjXt3KQuRcyuYD+gtlmpuw/zGdQGCd11G572+MwdP7bDo14Kzjz7B1FmY4v3sEqICTGZhbBzSWoTyHXhYwvNtWv/7MHE2H0qdy7FQMMEaxQD/hJUs/A/DB/PhTuY0RLJ4MailzY8+b04kPMPXtc4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place; spf=pass smtp.mailfrom=em943033.ait.place; dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b=R7qlW6cu; arc=none smtp.client-ip=158.120.86.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ait.place
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em943033.ait.place
+	 MIME-Version; b=Ri+3g1ejZ7ub/J57vDZYfwXBD7E79cB1VPSDZQgq8jAJs8w0fWt3C96w/JCLSggoFH5OW/6qEmxLi7Y4BieEWpPfezAuFtfTsPBzYUHtavZuOs0x+NbJuNN2J7/UIkqF3hkn9ygF8QiQowFtXt5RKoib8RU96FnzAaa8Foj3oQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p/rY+LU+; arc=none smtp.client-ip=209.85.167.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ait.place header.i=@ait.place header.b="R7qlW6cu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ait.place;
- i=@ait.place; q=dns/txt; s=s943033; t=1788497233; h=from : subject :
- to : message-id : date : list-unsubscribe : list-unsubscribe-post;
- bh=621XTYcsZ6zvvOUg6Eb3VR5r2xUBCu+A38ELVbjgWac=;
- b=R7qlW6cuPfN6JHV0Ne21DjuL62N+8TQ3BxXu3YNilwnEDig/uSRMjx998CvOgPGLj+83V
- ll8Q2iewYsF6Qy8qScnmJ639IGV+u44ujco7ERJCYjDw2gSQKYsfCX96G4MQExPurMkwtBh
- OCTVEQ5D+3igUcmi4j3oyKFKX8CPBxF8KH6YZdJNwNlj6o/MnPWmANj+5AXL2OhjaYbLUlO
- xrvj30Gub7AosRDhXoKS6H3gTbkmeFOVh88UdGbhABCQ68UlANst1R/MnEPvZHkZQVU17tc
- gxCpEcHkjk1zBVr9WRcVLwiCgtudctbd8WejfGzZrm+WILV+VoDpLN4I0arQ==
-Received: from [10.191.245.51] (helo=omarchy.bb.online.no)
-	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.99.4)
-	(envelope-from <jonathanjansen@ait.place>)
-	id 1x2LpT-4o5NDgrjDEn-oUeG;
-	Fri, 04 Sep 2026 04:47:07 +0000
-From: Jonathan Jansen <jonathanjansen@ait.place>
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p/rY+LU+"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5b4af730f8aso689283e87.1
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 00:05:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788505535; x=1789110335; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=PCK1kuLgzLkj4k85zYq4Xi9yEBNBYbg/y2hUJYnpxsA=;
+        b=p/rY+LU+K25oq0L5VbQvWeBnrzJqcdDD86o0HWOfdvVjX+SVgsNlyJsvQQtMrpceRW
+         qXp6gHjtV1gwwgcoYxjAsidKoQbcSxYZmw/wpcfj40CG4O3dAqCtnX6314VHjUzalsyk
+         tqeOwKoqicyIK7qN0u67oBPUqBEplLrHex0IxSwCEgof5hwmimyE9pib2tezDAACnpl6
+         0Jv76VE1OKkPdgGTvSIjXIoD9rYss38IoDI4vnvGQSM15B6IqnZEq/JBefJww1NLNjrG
+         Bz8uGYm6+5YFA3dEOrjWw/SQNXQxT0tfC2hF9XewH96yGySMieNbfXVxcfTmoQQ+vLWL
+         CvMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788505535; x=1789110335;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=PCK1kuLgzLkj4k85zYq4Xi9yEBNBYbg/y2hUJYnpxsA=;
+        b=W8Gwq+zC/nZMQb1mrsxxP7vTWJqKhseukzkumeGc/QRnpUoZObj3QziDlGwkIDolU7
+         pA3WpjoIoT9Fc+BSYSQQwS+s//bX87WreDdc8hOuAJT1SDS3VV/pR0AgN9wR9ag1sFjA
+         VWMF8WG4rEuR6j3GegcyD6nNiEbsCffsha8UPW+MlUBpwN+AhXbVHNkJtOghaKOy1q7d
+         aLDzcu7vdHuK0iwBbAj90iPmkfoXZzYRTkbfq7fsHIZSpB17NsXY4fvZwyXOp989aM+z
+         sr+kpzAvQvDpMQwn+dnvQW/Rrm1UjIeiwDkCoRUPRL7NliEAS6itEiO3bbjgs4BV6OKs
+         k/qg==
+X-Forwarded-Encrypted: i=1; AKwUvBzIF05n2L5K+N2yrdFVoKuY2SGPaidaY1wWVsEUUgbtbkHFWu3ThsYXy50hMuKpE4NLEWReO7SMIs2q+A==@vger.kernel.org
+X-Gm-Message-State: AFuF++lkzI4ajJOgD08T4JHyrVIqRNOdiYIWpr+doLS8dty8bCeCGB7U
+	Xpml8N3vB3KpslB6D1vpecXZwB6E4voyHPJRnu7dLzo24/pnGG+pCmayDHLd6eVFmIuxl464
+X-Gm-Gg: AYBFou3s0XgNcjszBPKVW6OR9xy4RHTWSIn0Zxxom+KA0LomyBbShR6ETlh8t594W2Z
+	hafygolIQxinID0DJxzPW6MddbIptAFK4IGequEHFCMEsMOtJrsjaJCL2cz7vVM2u2oW+xzGe/1
+	TMTcZCKrvXjpOxP5NkJEzvKqU3enDeIj+ZrwrtN5LNNu2LOKZo373aowk3cEx/YIoXOQJ+WpzNA
+	7VnqdyeA9nCJZ5VacZQMTfpZATCqnCajmb16YysFOFWs1hrTp8IjgjVYaaE7DpWrDMUd8xv/Erb
+	34GPDI5XT9MPRrHY7GEZgLrQcGkqvqbPPfLP//rB+t9j7Z/Pl6qHhx3Ag38IeZjyV7IpTZbbEMn
+	MGM95qgZKBTuWcX0ByNlTYzDEjdMynxROzTiczxLIHtdFjlSnzIscxVT/+zdYPah7t7HlK4Bfno
+	64bbWbMu3s0WFP/vTKLUt0qdTNgf5vG5aAMwLw4tMnFOt3o8jVvtEkKKBAIT4Rng1O1Tytx6nWQ
+	jvKK1sC0sM5/3Gr6wAHOfX1dyNsHGnpmj0nJUO3Jx01eNkbymCHmw84sQBk
+X-Received: by 2002:ac2:51cb:0:b0:5b6:183c:5c8a with SMTP id 2adb3069b0e04-5b6183c5d4emr335765e87.40.1788505534925;
+        Fri, 04 Sep 2026 00:05:34 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b6166ecebesm355911e87.27.2026.09.04.00.05.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2026 00:05:33 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: tiwai@suse.de
+Cc: tiwai@suse.com,
+	perex@perex.cz,
 	jikos@kernel.org,
 	bentiss@kernel.org,
-	dmitry.torokhov@gmail.com,
-	linux-api@vger.kernel.org,
-	jonathanjansen@ait.place
-Subject: [PATCH v2] HID: input: map System Microphone Mute LED
-Date: Fri,  4 Sep 2026 06:47:05 +0200
-Message-ID: <20260904044705.1060507-1-jonathanjansen@ait.place>
+	linux-sound@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v8 0/2] ALSA: usb-audio: the Topping M62's vendor controls
+Date: Fri,  4 Sep 2026 12:05:30 +0500
+Message-ID: <20260904070530.195389-1-mikhail.v.gavrilov@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260904022903.607880-1-ait@ait.place>
-References: <20260904022903.607880-1-ait@ait.place>
+In-Reply-To: <20260904001818.66423-1-mikhail.v.gavrilov@gmail.com>
+References: <20260904001818.66423-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -52,87 +81,92 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
-Feedback-ID: 943033m:943033ayMjrpg:943033soucOInEYf
-X-smtpcorp-track: X7xQ1apq60yB.HJik8Zr5wd8I.O5IZvQsANxa
 
-HUTRR110 defines LED page usage 0x57 as System Microphone Mute.
+On Fri, 04 Sep 2026 05:18:18 +0500, I wrote:
+>
+> **The card cannot be read. Not by this driver, and not by the vendor's
+> own application.**
 
-The usage is currently ignored, so the indicator stays dark and
-userspace falls back to per-vendor code in hid-lenovo,
-hid-playstation, hid-plantronics.
+That is wrong, and I would rather correct it before it is answered.
+The card does report its state. It reports rather a lot of it. What I
+had was two blind spots that happened to hide the same thing.
 
-Map it to a new LED_MICMUTE. It appears as
-/sys/class/leds/inputN::micmute and uses the "audio-micmute"
-trigger from snd-ctl-led, so the LED follows the system-wide
-mic mute state the same way LED_MUTE (page 0x09) already does
-for speaker mute.
+**What I missed.** In four of the six captures the state restorers on
+this machine wrote to the card about 90 ms after the bind, so the
+report that arrives at 5.2 s described their write and was
+indistinguishable from silence. In the one capture with the restorers
+disabled, nothing was plugged into any input -- and the card reports
+the gain only of an input whose jack is present, so there was nothing
+for it to report. Each blind spot alone would have been enough.
 
-LED_MICMUTE takes the next free code (0x0b).
+Repeating that capture with a coupler in IN 1 and every restorer
+masked: the card sent 0x21/0x04 = 50 at 5.17 s, which is exactly what
+I had set by hand on the front panel. Twenty-two outgoing frames in
+the whole run, all of them 0x11/0x24 or 0x11/0x26. Nothing was
+written; that value came from the card.
 
-Link: https://www.usb.org/sites/default/files/hutrr110-systemmicrophonemute.pdf
+Then I turned the knobs by hand, still with nothing writing:
 
-Signed-off-by: Jonathan Jansen <jonathanjansen@ait.place>
----
+  - Mic-1, 50 up to 53 and back to 50: every step reported, seventeen
+    frames of 0x21/0x04;
+  - the headphone volume, likewise: five frames of 0x64/0x03, 32, 33,
+    33, 32, 31.
 
-Notes:
-    Changes since v1: rewrote the commit message; no functional changes.
+So the corrected picture:
 
- drivers/hid/hid-debug.c                | 2 +-
- drivers/hid/hid-input.c                | 1 +
- drivers/input/input-leds.c             | 1 +
- include/uapi/linux/input-event-codes.h | 1 +
- 4 files changed, 4 insertions(+), 1 deletion(-)
+                        announced at connect       when a hand moves it
+  five input gains      yes, if the jack is        yes
+                        present, ~5.2 s after
+                        subscribe
+  two output volumes    no                         yes
+  two selectors         no                         never
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index f44e6e708..92a950105 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -3550,7 +3550,7 @@ static const char *leds[LED_MAX + 1] = {
- 	[LED_KANA] = "Kana",		[LED_SLEEP] = "Sleep",
- 	[LED_SUSPEND] = "Suspend",	[LED_MUTE] = "Mute",
- 	[LED_MISC] = "Misc",		[LED_MAIL] = "Mail",
--	[LED_CHARGING] = "Charging",
-+	[LED_CHARGING] = "Charging",	[LED_MICMUTE] = "Mic Mute",
- };
- 
- static const char *repeats[REP_MAX + 1] = {
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index edd6bbf83..727374dd5 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -990,6 +990,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x27:  map_led (LED_SLEEP);    break;    /*   "Stand-By"                 */
- 		case 0x4c:  map_led (LED_SUSPEND);  break;    /*   "System Suspend"           */
- 		case 0x09:  map_led (LED_MUTE);     break;    /*   "Mute"                     */
-+		case 0x57:  map_led (LED_MICMUTE);  break;    /*   "System Microphone Mute"   */
- 		case 0x4b:  map_led (LED_MISC);     break;    /*   "Generic Indicator"        */
- 		case 0x19:  map_led (LED_MAIL);     break;    /*   "Message Waiting"          */
- 		case 0x4d:  map_led (LED_CHARGING); break;    /*   "External Power Connected" */
-diff --git a/drivers/input/input-leds.c b/drivers/input/input-leds.c
-index b08d1d08d..6522079a4 100644
---- a/drivers/input/input-leds.c
-+++ b/drivers/input/input-leds.c
-@@ -36,6 +36,7 @@ static const struct {
- 	[LED_SLEEP]	= { "sleep" } ,
- 	[LED_SUSPEND]	= { "suspend" },
- 	[LED_MUTE]	= { "mute", AUDIO_TRIGGER("audio-mute") },
-+	[LED_MICMUTE]	= { "micmute", AUDIO_TRIGGER("audio-micmute") },
- 	[LED_MISC]	= { "misc" },
- 	[LED_MAIL]	= { "mail" },
- 	[LED_CHARGING]	= { "charging" },
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 3528168f7..bc374821c 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -983,6 +983,7 @@
- #define LED_MISC		0x08
- #define LED_MAIL		0x09
- #define LED_CHARGING		0x0a
-+#define LED_MICMUTE		0x0b
- #define LED_MAX			0x0f
- #define LED_CNT			(LED_MAX+1)
- 
+The model that fits: **the card reports what a hand does to the
+hardware, not what its settings are.** Jack states, mutes, battery and
+the gain of a connected input are all physical facts it knows by
+itself. An output volume is a setting, so it is not in the connect
+report -- but its knob is on the front panel, so turning it is an
+event and that is reported. A source selector has no front-panel
+control at all, which is why nothing about it ever arrives: there is
+no event to report, not a missing command.
+
+That last point is worth stating plainly because it retires a question
+I have been asking since v2. The "Unknown" first item on the two
+selectors is not a compromise; it is the accurate description of a
+control the host can set and can never learn. If another host set it,
+this one cannot find out, and no firmware change short of adding a
+query would alter that.
+
+**I withdraw the proposal at the end of my last mail.** Writing the
+minimum to the gains at bind, after init_cur_mix_raw(), would destroy
+a value the card is about to report 5.2 s later. It was the right
+shape for a device that cannot be read and the wrong shape for this
+one.
+
+What the measurement suggests instead is that the driver's problem is
+a race it need not enter. alsactl restores at 90 ms; the truth arrives
+at 5.2 s; the driver loses by a factor of fifty and publishes an
+invented number in between. But the component road you suggested can
+simply not publish yet: hold component_add() until the first report
+lands, and the controls appear late, once, with the values the panel
+actually has. Nothing restores over them because they do not exist to
+be restored. A mixer quirk cannot express that; the component split
+can, which is an argument for it I did not have this morning.
+
+The output volumes stay unknown until someone touches them, and the
+selectors stay Unknown until someone writes them. That is honest
+incompleteness rather than invention, and it is as good as this
+hardware allows.
+
+What stands from the last mail: the vendor application still issues
+162 frames on connect and not one read; 0x11/0x26 still goes out after
+its bulk push rather than before; a value set by hand still does not
+survive being plugged into another host, since MCC overwrote my 70
+with its stored 50 forty milliseconds after connecting. What does not
+stand is the conclusion I drew from those, and the recommendation.
+
+Sorry for the noise. I would rather send this than have you answer the
+version I got wrong.
+
 -- 
-2.55.0
-
+Mikhail

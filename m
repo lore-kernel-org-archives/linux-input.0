@@ -1,123 +1,108 @@
-Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-106118.protonmail.ch (mail-106118.protonmail.ch [79.135.106.118])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B08BC4A3F25
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 13:46:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82CD4A3F30
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 13:54:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788529608; cv=none; b=AqoVhLkrnFLoCqswe5idPvll149YlGMtbRkMSzwyk76KPt6avoQpMPOAk7j7VZmMcM13ImqdQtzGJH40dQ+oLOSBxZ9YObXt0lkQMo9U00BlWJT8IDgg644icn7z/XmLs+BBjPArTOsDFfvpYaibhdTpHtjgc8UbpPx74FpmaRE=
+	t=1788530047; cv=none; b=kQfccWFpd5alg9h/IOPxkKiR2liKmLqTQtMu4XTIt8LU+kthBIxeMEKOmVmM2rtthy757tRVMV8v0Vni3qNPtLTZjIuzwv7ZR2P55L9e8xFm7HzuucEhEAplWWIhuLbgq6x6rYTKmGyESy1iQP2THX1nEwR6S/L+QLFETBdXnwk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788529608; c=relaxed/simple;
-	bh=VcKuCeSMQ4I5yw0ljiiq4L1snVizmWQm18XxRE0uO/E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TOLixvlirD9R68ZLNoMGKe5EkJ7and3Cun/7qtk3Gn79pgvq1sITv21ttzp3rWuceQA8vJmWH4/6bMdSI3u14C2wX7BsgYe/fjsNgtj9eMF7FfGLcFWEGqZk6BHGtuLACf1kxxuSQmZ1joKeQAL1q4R1TZwEPO75Hfa3ZqAoLQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e2IKQTFc; arc=none smtp.client-ip=209.85.210.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788530047; c=relaxed/simple;
+	bh=s17lTiy+D6tADAFYc9Xowx8cyyRfUwA/rqR3C3PbYTc=;
+	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=O79ZRA2tZlKRDlpIdYldyLbfjyf5QJkb/cwTf9afuRk3qgdIJRLwqMoqCa7so7EReYLkbscliw+nvCX0ULr7xJODcEHHDYrrUuQH1BWd51UCQVdZRrH+4VLfzwW29jk/AvYxG7058Nlv+unJwuDFbCpktlJlNwRJVnMFKQsmFyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=exwU6QmR; arc=none smtp.client-ip=79.135.106.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e2IKQTFc"
-Received: by mail-ot1-f49.google.com with SMTP id 46e09a7af769-7f6617c7536so590583a34.1
-        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 06:46:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788529605; x=1789134405; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=MZTXMZGnnVv6fSvtGBrE1wHaAf9xygy4G9N0vOtIQdo=;
-        b=e2IKQTFc3YbZN3ypwX5yUCc+DsU03AvtA4towAyv1iY7augKUcyGpi7zcej+n0gH/W
-         YlKp0xM7ph4DcCy4t6ngtLpCXzKtxdoTMHVfgF6voqG43XDO6wRJM3LsWYyZpsTiGqT4
-         RAN5Ydx02OQJ4YqPRZgYahO2LuNoSaSFRysLwn8STC8lEap+t64mKmgiyeC0uqL5kokT
-         4JUvv05WFRn5DptkYllwqBn5utqH3zuhuhp40osprNWxNympUw1AjEsHCvIDO4o/dbQg
-         8phcTYJLtsheIpLOizcR44HtHc4w/X6s2Uu/yh9lHSmrkRBYyYaeT6hAVNfUnrqf+T92
-         cYAg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788529605; x=1789134405;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=MZTXMZGnnVv6fSvtGBrE1wHaAf9xygy4G9N0vOtIQdo=;
-        b=q84s8GMKsd6BhTEDPO2v01tajRJB0LOCdWUmzaJAUZMrBL5vn7X7Pho6GXiCm9cXTr
-         179ObTJAVJILghhtlS02fY4O8pmgdC/ZEgqm8jlDWCINdDCG67KRwZCfznnyAOeVmNuQ
-         DkSs3mqF227T4u/uWFmXVf5+tRjyMJ0TgXarlI0mLieX5uUcaJC9JkuZNu3xJYBr20Xj
-         +Qcp+cX32mc+3z8T2m6rqbhaMEqla2ggsApcfHHUy1KoUisaEfDQs1I5ELlomOieGDTB
-         0wyHGD/0X7LPXrqTVp4hiIk0xtH2c3+WE51q011bh4fSoUnri7JDeMnJiHHM8dim3OSf
-         xNXQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxs0cawPo+xSyBTdDcan4pA95hiLRC6KDEcaiR2ezXP5mgfy28h3izg6ubJv+tv0MzDIKR5H9nTJE4ifQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++kT4m+gTHlJtEVazBErfrD2c2khZMoyfZIvTM08JafZB5BzuwSo
-	71lKPJdqtAWj/3KIkwSZXiUtEEPNPensz0wYMErT+v66/hpewJFxna8Z
-X-Gm-Gg: AYBFou0t+W8huBsumjq01Gxa/wsRskXLMig/x23r9/Gk32O31Ni0Kd4RXx8FzyLhfTp
-	ijOs6Agmk1ellvf8U8W5qX7CBYNm2xQ+FgCZoPVm2ONf4NvwOIgrYtg8r3iVwt833OYrUby/J6U
-	GRze55jkfjeasv1pt0VFxpWChOR4HUJVgD7FjyicAulU9N05w4cNIf00NhnVxtj8K14UCkLFB91
-	swpudCdne1DHzGkOQ+KQA8/ACbT5YCVNEicPzpkegd0Kd3iFKXnl4d1Cq1GWeyywlZd70NgCdoE
-	yq3Szt3PH9EvBJ6do14bHLJJfgNlImTvJVzlIcgAmTV/3MHLhpngHW43wWinbOA9AUgE/I1Kmow
-	5eIvqWCt48Tqhznq3o3vJwtxoYM/piRI8dWWRjp80XZqfpr3Xlj+9U4RvObF4zH/Vm/rCT5CdkT
-	3c3IX6qrl/sTqC7p+z41Ckamykl6/JaMqcx9Wcwwgcj1TF8reASIeQ8iaiV5xKDXNqWwyI5dLAe
-	IIReeMr1nEfjgzD3j67nswHk+YL
-X-Received: by 2002:a05:6820:c86:b0:6b7:46e9:96f7 with SMTP id 006d021491bc7-6b746e9a200mr2294144eaf.39.1788529605201;
-        Fri, 04 Sep 2026 06:46:45 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:3ed6:cbf9:9a8:24d0])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339a534d25sm7174899eec.5.2026.09.04.06.46.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Sep 2026 06:46:44 -0700 (PDT)
-Date: Fri, 4 Sep 2026 06:46:40 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Lee Jones <lee@kernel.org>, Mark Brown <broonie@kernel.org>, 
-	Charles Keepax <ckeepax@opensource.cirrus.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Sam Protsenko <semen.protsenko@linaro.org>, Peter Griffin <peter.griffin@linaro.org>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Linus Walleij <linusw@kernel.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-samsung-soc@vger.kernel.org, patches@opensource.cirrus.com, 
-	Bartosz Golaszewski <brgl@bgdev.pl>, Russell King <linux@armlinux.org.uk>, 
-	Conor Dooley <conor+dt@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>
-Subject: Re: [PATCH v3 07/10] mfd: wm831x: support software nodes for DCDC
- regulators
-Message-ID: <aprLYn4VzSTnZWuw@google.com>
-References: <20260711-samsung-kp-v3-0-b2fcaba77aff@gmail.com>
- <20260711-samsung-kp-v3-7-b2fcaba77aff@gmail.com>
- <0306eaba-b59c-4f8b-9151-9f39685398ba@kernel.org>
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="exwU6QmR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1788530036; x=1788789236;
+	bh=jn9QoafObVGn9ANtJC6LKK9l5ZfioNjymM1zIlYTw74=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=exwU6QmR/P6C+JvZuhwAlQ5oluMjNuAVoy2hr23VKDJybDfjLfm3imAHAE5Dr1Gtd
+	 P/K+Q+45wkIQLGu3nzjckwrX/oWCsquSAkRX/2lh7C6TzJfk8E1n/OqcpPiNWsiNKD
+	 zMBkN5zH5PZPdwAhv0+kENOGFa7wEA3Du4ca6hliaBKpkmL572+UU/t/GH4zB7M/5S
+	 1wlJUlf9eqOW574f3g0qRhzGdwRuumc4LpK57mVG4XAGRyZ8Yo3INZ5leyADMrBSu8
+	 w+QyV0G2GqVTbN4I+8oqQv0DA9XyhJr7kybjcdh9ESkiuyNGtaNLRgHERqvHxSp3Dg
+	 GPbYQkpML+PrQ==
+Date: Fri, 04 Sep 2026 13:53:54 +0000
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+From: budcomfort <budcomfort@pm.me>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "bentiss@kernel.org" <bentiss@kernel.org>, "ian.ray@gehealthcare.com" <ian.ray@gehealthcare.com>, "buingoc67@gmail.com" <buingoc67@gmail.com>
+Subject: Dell Latitude 7220: eGalax P80H84 0eef:c003 factory passive stylus not detected
+Message-ID: <62t8PiydnEWbOsSM0byy1IRKtFwxg7nfDZUtsgbE_1liuwRpKtyKZYsYwOe52IZ--zdy1QJg11p8u13QajhgH25DexN-Fx71z5TSlcLE6Mw=@pm.me>
+Feedback-ID: 145930226:user:proton
+X-Pm-Message-ID: 3bf12295e8c47eb4dde3039cffc74a2ab3e57298
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0306eaba-b59c-4f8b-9151-9f39685398ba@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 04, 2026 at 03:41:21PM +0200, Krzysztof Kozlowski wrote:
-> On 12/07/2026 04:12, Dmitry Torokhov wrote:
-> > Allow passing software nodes to wm831x DCDC regulators via PMIC platform
-> > data. This is useful for non-DT/non-ACPI platforms that want to
-> > associate device properties (like DVS GPIOs) with the regulator devices
-> > using software nodes.
-> > 
-> > We add 'dcdc_swnodes' to the PMIC platform data 'struct wm831x_pdata' and
-> > have the MFD core assign these software nodes to the buckv cells.
-> > 
-> > Assisted-by: Antigravity:gemini-3.5-flash
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/mfd/wm831x-core.c        | 47 ++++++++++++++++++++++++++++++----------
-> >  include/linux/mfd/wm831x/pdata.h |  2 ++
-> >  2 files changed, 37 insertions(+), 12 deletions(-)
-> 
-> I still need Ack for this from Lee... and the problem is that you did
-> not Cc him.
+Hello,
 
-Hmm, indeed. not sure wheat happened...
+I'm trying to determine whether support for the eGalax P80H84 0eef:c003 use=
+d in the Dell Latitude 7220 Rugged Extreme is a known issue or is currently=
+ being worked on.
 
-> 
-> Please resend everything or spin v4 with MFD maintainers included for
-> acking.
+The tablet is running Linux Mint with kernel 7.0.0-31-generic. The touchscr=
+een is:
 
-Maybe you could take patches 1-6 now and then I'll continue with the
-rest of cleanups?
+0eef:c003 D-WAV Scientific Co., Ltd eGalaxTouch P80H84 0710 vA1_N k47_45
 
-Thanks.
+It binds to hid-multitouch, and normal finger touch works correctly.
 
--- 
-Dmitry
+The problem concerns the small factory Dell tethered, buttonless, batteryle=
+ss hard-tip stylus that stores in the tablet chassis. This is not the optio=
+nal Dell PN720R active pen.
+
+The factory stylus works with this hardware under Windows, but under Linux =
+it produces no input.
+
+The tablet originally ran Windows, where the factory stylus worked correctl=
+y. Windows has since been removed and replaced with Linux Mint, so I no lon=
+ger have the Windows installation available for comparison testing. I would=
+ prefer not to reinstall Windows, although I can perform additional Linux-s=
+ide diagnostics and test patches or configuration changes on the actual har=
+dware.
+
+So far I have tested:
+
+-   Finger input produces events on /dev/input/event5.
+-   The factory passive stylus produces no events on event5.
+-   /dev/input/event6 is exposed as a tablet/stylus device with pressure, t=
+ilt, in-range, etc., apparently for an active pen. The factory passive styl=
+us produces no events there either.
+-   Most importantly, I tested the eGalax device directly through /dev/hidr=
+aw4. Finger contact produces raw HID traffic. The factory passive stylus pr=
+oduces no raw HID traffic at all.
+-   The device's HID descriptor exposes Report 24 for multitouch and Report=
+ 26 for the Pen collection.
+-   It also exposes Digitizers.DeviceConfiguration, Feature Report 5, conta=
+ining Digitizers.DeviceMode and Digitizers.DeviceIdentifier.
+-   Reading Feature Report 5 with HIDIOCGFEATURE currently returns: 05 00 0=
+0
+
+I noticed the recent MT_CLS_EGALAX_P80H84 work for 0eef:c002, as well as th=
+e more recent eGalax/Dell Rugged HID work.
+
+Since the passive stylus produces no report at the hidraw level, I suspect =
+this may involve controller initialization/sensitivity/device mode rather t=
+han merely parsing an incoming HID report.
+
+Before experimenting with eGalax vendor feature reports or controller modes=
+, I wanted to ask:
+
+Is 0eef:c003 already a known variant/problem, and is anyone currently worki=
+ng on support for it?
+
+I have the Dell Latitude 7220 hardware available and would be happy to run =
+additional diagnostics or test patches. I can also provide the complete HID=
+ report descriptor, dmesg, evtest, libinput, and raw HID results.
+
+Thank you,
+Orley E Mosher III, TSgt, USAF, Retired

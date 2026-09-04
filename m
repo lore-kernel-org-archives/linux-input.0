@@ -1,252 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9E1542252E
-	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 11:11:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAAB744AB81
+	for <linux-input@vger.kernel.org>; Fri,  4 Sep 2026 11:19:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788520282; cv=none; b=H3KG2a4gDvnj587EotYq91JGGBM9JUK8mjpa4upEOyi6yi5p4n2FcajK9o8bAkatzwSoVSEIeSl4crX+qeyAeme8S7LtlUfXRiupXARTc6ydHLGL8Mw974iTjNQUCu7LrB1uI6UkOQKvqmadMq1dv5gJ9O2TOtUXgbE//kqj4bw=
+	t=1788520762; cv=none; b=sMyqCxkMY3LIJrSH5FREcsebIHD23zgiipcL/xr05LbUxnN5HX1d/Xidxp/dA5MUnr88itoX08XlTLj//RvK5l/rPn5RhjeBKWsxMnn7PxlvnnsKbr+yypN3H7rghIqAAuV21D5slpGsZZgGdRmBrIXGYIMWmASmX4BtZi8yers=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788520282; c=relaxed/simple;
-	bh=eJtek3yq7BIBxa2eXGoRCpt7LlJKn21iuQ27mYKZlAg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tiCVylZ4DFKtx5mfIU/ajZ18CoWtcdnG0jQAjevinn9f+aswHZqDEdFGe1Q74upyXvvqMO4Mkk+rf6ZB/+gboFfypi/P4o7lu8j2nA8ACN4AogZUKMFACiSOrDSj2k99gYDo/w4Z+ZyDngKa1m9S7v0hQTR4IQbXW0ph2Bi34As=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F+qSY5FA; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788520762; c=relaxed/simple;
+	bh=4FbJsU1y3bxVZb6uLxAYt9aA6kLq4fX8b3TGqqY0Ujs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=IIkWhreSzVqYmV0ZXkpZT19a8j8ksGW01b7Kro0PlevkXvcrGDPuhKRcfI1z0/6G6PsMnYUA438R4v+r0b00j/xMpdkVVaBcUkW1IUKkDcJlylz/eagUYCh4Mr/puUxzZDq01qXkOn0FHuQNi7trEJ1J0FYVgTVPkXjpRiH8n8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fvEp6orl; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F+qSY5FA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB621F00A3D;
-	Fri,  4 Sep 2026 11:11:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788520280;
-	bh=ndejirZsp3d0DZFh/3vX5++YBsBDTGE5i3abMRmlg4g=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=F+qSY5FAhHX19i8ocHwZHiJiAFOG3muEuoAA2XhYM2Ublllsfh++sZgzUNRgF7f1W
-	 JTQauI7dNmV/YMlpyJK+P+f+zX10zZwzAGOtFEBhtkoDkoeseG0dxcSNIf5b8BvxAu
-	 vGYVhP9byH9lpp/mfSwqnrS5sB1zGlv6PBPXZ4D5Yw1wRv89ucCpT2FR2xSZIPB3tO
-	 eg+jTu3j1sqtG/9Z38X0s8HijCwcTzP06uVYz0zN1iJNIRHLA3AUPDMT5tc/MDP1K8
-	 NZe7lZBKS4+GQn/2A8MoZzKnX9ZxVbihMtswmyj7ZSxMu09V3pRDj4VDAbhlRCCb3u
-	 psO0pyoQjdtGw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: hid-oxp: use cancel_delayed_work_sync() in remove
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Tristan Madani" <tristmd@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260904105800.3923987-1-tristmd@gmail.com>
-References: <20260904105800.3923987-1-tristmd@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 11:11:19 +0000
-Message-Id: <20260904111120.2CB621F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fvEp6orl"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2d91ff7d9acso7845895ad.3
+        for <linux-input@vger.kernel.org>; Fri, 04 Sep 2026 04:19:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788520760; x=1789125560; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=bRH9NLWj3veDgRtEBUkvu/4GOMF1+Ix0zuaRZ5NgKNI=;
+        b=fvEp6orlikW1WCggwTRT8UiTk7rXDKtPkjmwmxtG/Z284ihvb9QcIyPgoLGkyU35J3
+         vTfj+38aJ41rGRJRUAunnh5Dcom4JJ71cpan+roUaYqpIBitAxE7bEVn/uhO6coGxQne
+         W9V+DbW6XhclqumwGwz7VcaWt/iZZVxRgvxROTol/bxm9pWTPE0b9+aORVHROhgwrjV3
+         Fd73WG1x/JcEtTpWCYnubSHwETZ3vCNsCXGju6W6PMwWc73V2QeJxeng9MYaFv+5IhpU
+         +6reb6FBLGidLBoHTtdi4KDqyDKNoqcKCxG+VpIx5GpYhzxnOMMzgX5bhoDf4tjRjYXX
+         fx8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788520760; x=1789125560;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=bRH9NLWj3veDgRtEBUkvu/4GOMF1+Ix0zuaRZ5NgKNI=;
+        b=X2g6H8DFklGXQMRThHYOGMLzjUMCkgv71Kf+TnumGDM+S+CruzmVsOClPchDjE1V4s
+         O6sx7IYrnvlEUcBHBInfuw+VSlO8ihdFQhQqyCwvrWT1jteDZlpjaFo6cMI0/HUDvTOk
+         HTDqZ0id/cKfR/JSqHiUcha+2HBUAWqs6S5cJSAMw+YWNM1bEOOgShNIlKKHeLLNiEk0
+         /PGSV5Yvwx39SEq6/iWVv0bm1WupBt8b1rBxQs9TVTsdFyurBjg/9EfXz/fZVRLlHe+c
+         VjeDeRQii1r3Ihn7Jj70fKzvaFMvngwBYrBZOcoSqMas8xIFoa3ncOUY20Ju48p0DeeS
+         iagg==
+X-Forwarded-Encrypted: i=1; AKwUvBxQnY5VeIpMMkX6GRFKMFLo4Sf6Yog9U1/De6ZsTr7HXzfM120v4UyJskNT8+0Zv/2+K+RPlJ+5G1OQ8g==@vger.kernel.org
+X-Gm-Message-State: AFuF++llgT5mBrpm6iz/McApQ1nwGTLxc4/5yd4SvdwEJKbrCX1QSkW8
+	QYwFhXdlSbmEtmH3RcNyvkMRJzcT+MDTsb+BL0EEn9uLsc521BsyCO9P
+X-Gm-Gg: AYBFou3G9xpjZz9xaagzlEYI83+2DfUKi98rAv7MezdskR4Dg5u1bhdL7Rl1SogEUc/
+	jz4EG8/2Jyrci4dImv3eSiCYhOsHROq2bSUMqfZnrCFR245onYgchyYDTVemNxxs58+YTCHju76
+	1Utk9YfVlJ9oUfNeh50k2BxMNiBAkV3DT2RXpGmfd8+uEvNXR/10OcWYMQc13wHZvgybBy5MY5j
+	agHwjyl/YLBz7tkrlJA4vECU/SO4QJG8BhrEbI/pD+m+r7V/U8AhJsFOhMCwh4no9SB5iIuL+lE
+	OFkDAGA++RE+XkdtJnPV6g3W5qg3gjpzVqGTa9R1YGNa+ECHp2KjWKCWLNLfUCb3BY5Yx3gR+ES
+	Rg/vZnN7gZPMCqXtHGS94kKxkdHeIdlvr0SxvHYkSCPVfSzVgyM36n749PKic46m+Fvg0dIh7CK
+	UrX8Sn9vMZJU7qMcP1a5mvPCSMW/FWA9ePu2H6jqAfKzgbBdZWHtRQtnrFZhu4At5SY5JqJuG44
+	/AG57f2NodqQ9sVMrE7FRhqVr4tr6I3rhNH8g==
+X-Received: by 2002:a17:90b:39a7:b0:381:cef1:11ac with SMTP id 98e67ed59e1d1-39b26125efemr7563823a91.10.1788520759802;
+        Fri, 04 Sep 2026 04:19:19 -0700 (PDT)
+Received: from volcano9f6e-hostos.amd.com ([165.204.217.251])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3339befdefcsm5190103eec.29.2026.09.04.04.19.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Sep 2026 04:19:19 -0700 (PDT)
+From: Hemanth Selam <hemanth.selam@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org
+Subject: [PATCH 1/2] input: fix typos in comments
+Date: Fri,  4 Sep 2026 16:49:07 +0530
+Message-ID: <20260904111911.32224-2-hemanth.selam@gmail.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20260904111911.32224-1-hemanth.selam@gmail.com>
+References: <20260904111911.32224-1-hemanth.selam@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+Fix typos in comments, reported by scripts/checkpatch.pl using the
+misspelling list in scripts/spelling.txt.  Only touches comments, no code
+changes.
 
-New issues:
-- [High] The patch replaces `cancel_delayed_work()` with `cancel_delayed_wo=
-rk_sync()`, which triggers a kernel warning dump when unbinding devices wit=
-h unhandled usage pages.
+Assisted-by: Cursor:claude-opus-5
+Signed-off-by: Hemanth Selam <hemanth.selam@gmail.com>
+---
+ drivers/input/keyboard/imx_keypad.c        | 2 +-
+ drivers/input/keyboard/pxa27x_keypad.c     | 2 +-
+ drivers/input/mouse/elantech.h             | 2 +-
+ drivers/input/rmi4/rmi_f54.c               | 2 +-
+ drivers/input/touchscreen/exc3000.c        | 2 +-
+ drivers/input/touchscreen/usbtouchscreen.c | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
 
-Pre-existing issues:
-- [High] The `probe()` error path fails to cancel scheduled delayed work it=
-ems, leading to a Use-After-Free when they execute after device cleanup.
-- [High] Improper teardown order in `remove()` allows cancelled delayed wor=
-ks to be immediately re-armed by active hardware or devm-managed interfaces=
-, causing Use-After-Free.
-- [High] The driver stores per-device private data in a single static globa=
-l struct, preventing support for multiple devices and causing cross-device =
-memory corruption.
-- [High] Raw event handlers unconditionally dereference `led_mc`, which can=
- be NULL due to early events or being explicitly bypassed for hybrid MCU de=
-vices.
-- [High] Raw event handlers blindly access report data without validating t=
-he payload size, leading to out-of-bounds reads.
---
+diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+index ccde60cd6bb3..9e0898588e06 100644
+--- a/drivers/input/keyboard/imx_keypad.c
++++ b/drivers/input/keyboard/imx_keypad.c
+@@ -396,7 +396,7 @@ static int imx_keypad_open(struct input_dev *dev)
+ 
+ 	imx_keypad_config(keypad);
+ 
+-	/* Sanity control, not all the rows must be actived now. */
++	/* Sanity control, not all the rows must be activated now. */
+ 	if ((readw(keypad->mmio_base + KPDR) & keypad->rows_en_mask) == 0) {
+ 		dev_err(&dev->dev,
+ 			"too many keys pressed, control pins initialisation\n");
+diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
+index 4519eecb317b..320021e9d81b 100644
+--- a/drivers/input/keyboard/pxa27x_keypad.c
++++ b/drivers/input/keyboard/pxa27x_keypad.c
+@@ -522,7 +522,7 @@ static void pxa27x_keypad_config(struct pxa27x_keypad *keypad)
+ 		direct_key_num = keypad->direct_key_num;
+ 
+ 	/*
+-	 * Direct keys usage may not start from KP_DKIN0, check the platfrom
++	 * Direct keys usage may not start from KP_DKIN0, check the platform
+ 	 * mask data to config the specific.
+ 	 */
+ 	if (!keypad->direct_key_mask)
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index 571e6ca11d33..a2ab57a11b64 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -57,7 +57,7 @@
+ 
+ /*
+  * One hard to find application note states that X axis range is 0 to 576
+- * and Y axis range is 0 to 384 for harware version 1.
++ * and Y axis range is 0 to 384 for hardware version 1.
+  * Edge fuzz might be necessary because of bezel around the touchpad
+  */
+ #define ETP_EDGE_FUZZ_V1		32
+diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+index 6c6cdec7da9e..43a4e262cd2b 100644
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -193,7 +193,7 @@ static int rmi_f54_request_report(struct rmi_function *fn, u8 report_type)
+ 
+ 	/*
+ 	 * Small delay after disabling interrupts to avoid race condition
+-	 * in firmare. This value is a bit higher than absolutely necessary.
++	 * in firmware. This value is a bit higher than absolutely necessary.
+ 	 * Should be removed once issue is resolved in firmware.
+ 	 */
+ 	usleep_range(2000, 3000);
+diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+index 037bb35238a3..e18e74781c58 100644
+--- a/drivers/input/touchscreen/exc3000.c
++++ b/drivers/input/touchscreen/exc3000.c
+@@ -406,7 +406,7 @@ static int exc3000_probe(struct i2c_client *client)
+ 	 * ensures, that the device probe will not fail for temporary issues
+ 	 * on the bus.  This is not needed for the sysfs calls (userspace
+ 	 * will receive the error code and can start another query) and
+-	 * cannot be done for touch events (but that only means loosing one
++	 * cannot be done for touch events (but that only means losing one
+ 	 * or two touch events anyways).
+ 	 */
+ 	for (retry = 0; retry < 3; retry++) {
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index 0bbacb517c28..81d24f5fbcc4 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -51,7 +51,7 @@ static bool hwcalib_xy;
+ module_param(hwcalib_xy, bool, 0644);
+ MODULE_PARM_DESC(hwcalib_xy, "If set hw-calibrated X/Y are used if available");
+ 
+-/* device specifc data/functions */
++/* device specific data/functions */
+ struct usbtouch_usb;
+ struct usbtouch_device_info {
+ 	int min_xc, max_xc;
+-- 
+2.48.1
 
-commit 950755ef4b37410fb2c6c0a59c421a32eadb69c4
-Author: Tristan Madani <tristan@talencesecurity.com>
-
-HID: hid-oxp: use cancel_delayed_work_sync() in remove
-   =20
-oxp_hid_remove() uses cancel_delayed_work() for all three delayed work
-items.  cancel_delayed_work() only dequeues a pending work item without
-waiting for a currently executing callback to finish.  If any of the
-work callbacks (oxp_rgb_queue_fn, oxp_btn_queue_fn, oxp_mcu_init_fn) is
-running at the time of removal, the callback continues executing
-concurrently with hid_hw_close() and hid_hw_stop(), accessing the HID
-device after it has been closed and stopped.
-   =20
-Use cancel_delayed_work_sync() instead to ensure that any in-progress
-work callback completes before device teardown proceeds.
-
-> diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-> index d2ded6b08ce9e..1e691ebc1199e 100644
-> --- a/drivers/hid/hid-oxp.c
-> +++ b/drivers/hid/hid-oxp.c
-> @@ -1552,9 +1552,9 @@ static int oxp_hid_probe(struct hid_device *hdev,
-> =20
->  static void oxp_hid_remove(struct hid_device *hdev)
->  {
-> -	cancel_delayed_work(&drvdata.oxp_rgb_queue);
-> -	cancel_delayed_work(&drvdata.oxp_btn_queue);
-> -	cancel_delayed_work(&drvdata.oxp_mcu_init);
-> +	cancel_delayed_work_sync(&drvdata.oxp_rgb_queue);
-> +	cancel_delayed_work_sync(&drvdata.oxp_btn_queue);
-> +	cancel_delayed_work_sync(&drvdata.oxp_mcu_init);
-
-[Severity: High]
-Will this trigger a warning if oxp_hid_probe() returns early without
-initializing these work items?
-
-If oxp_hid_probe() encounters an unknown usage page, it returns 0 without
-calling oxp_cfg_probe():
-
-drivers/hid/hid-oxp.c:oxp_hid_probe() {
-    ...
-    default:
-        return 0;
-    }
-}
-
-This leaves the global drvdata structure zero-filled and the delayed works
-uninitialized. When the device is unbound, oxp_hid_remove() unconditionally
-calls cancel_delayed_work_sync() on these uninitialized items.=20
-
-Since __flush_work() triggers WARN_ON(!work->func) for zero-filled work ite=
-ms,
-could this cause kernel warning dumps during device removal?
-
-[Severity: High]
-This is a pre-existing issue, but does cancelling the work items before
-stopping the hardware allow them to be re-armed?
-
-Because the work items are cancelled before calling hid_hw_stop() and
-before devm-managed sysfs interfaces are torn down, active hardware can
-send a report to oxp_hid_raw_event_gen_2() and re-queue oxp_mcu_init.
-
-Similarly, userspace can write to the map_button_store sysfs attribute
-and re-arm oxp_btn_queue:
-
-drivers/hid/hid-oxp.c:map_button_store() {
-    ...
-    mod_delayed_work(system_dfl_wq, &drvdata.oxp_btn_queue,
-                     msecs_to_jiffies(50));
-}
-
-Since devres will free the backing memory after oxp_hid_remove() returns,
-if a work item is re-armed during this window, could it execute after the
-memory is freed and cause a use-after-free?
-
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
->  }
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does the oxp_hid_probe()
-error path leak scheduled workers?
-
-During initialization in oxp_cfg_probe(), the delayed work is armed:
-
-drivers/hid/hid-oxp.c:oxp_cfg_probe() {
-    ...
-    mod_delayed_work(system_dfl_wq, &drvdata.oxp_mcu_init,
-                     msecs_to_jiffies(50));
-    ...
-}
-
-If a failure occurs, the error path in oxp_hid_probe() stops the hardware
-but does not cancel the work items:
-
-drivers/hid/hid-oxp.c:oxp_hid_probe() {
-    ...
-    ret =3D oxp_cfg_probe(hdev, up);
-    if (ret) {
-        hid_hw_close(hdev);
-        hid_hw_stop(hdev);
-    }
-    ...
-}
-
-When probe() returns the error, devres releases memory like drvdata.bmap_1.
-When the delayed work executes later, will it access the freed devres
-memory and cause a use-after-free?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does using a single static
-global structure for driver data break support for multiple devices?
-
-The driver stores state globally instead of allocating it per-device:
-
-drivers/hid/hid-oxp.c:
-static struct oxp_hid_cfg {
-    struct delayed_work oxp_rgb_queue;
-    ...
-} drvdata;
-
-Since oxp_cfg_probe() writes device-specific pointers like hdev directly to
-this global structure, if multiple supported devices are connected, will
-they overwrite each other's state?=20
-
-Furthermore, if one device is removed, will its cleanup cancel the workqueu=
-es
-and destroy the global state used by other active devices?
-
-[Severity: High]
-This is a pre-existing issue, but can led_mc be unconditionally dereferenced
-in raw event handlers before it is initialized?
-
-In oxp_hid_probe(), the hardware is started via hid_hw_start() before
-oxp_cfg_probe() initializes drvdata.led_mc. Additionally, if the device is a
-hybrid MCU, initialization is explicitly bypassed:
-
-drivers/hid/hid-oxp.c:oxp_cfg_probe() {
-    ...
-    if (up =3D=3D GEN2_USAGE_PAGE && oxp_hybrid_mcu_device())
-        goto skip_rgb;
-    ...
-}
-
-If an early event arrives, or if a hybrid MCU device sends a status event,
-oxp_hid_raw_event_gen_2() accesses the pointer directly:
-
-drivers/hid/hid-oxp.c:oxp_hid_raw_event_gen_2() {
-    ...
-    led_mc->led_cdev.brightness =3D rgb_rep->brightness / 4 *
-                                  led_mc->led_cdev.max_brightness;
-    ...
-}
-
-Will this lead to a NULL pointer dereference?
-
-[Severity: High]
-This is a pre-existing issue, but do the raw event handlers blindly access
-report data without validating the size?
-
-The raw event handler receives a data buffer and its size, but uses a
-hardcoded length for debug printing:
-
-drivers/hid/hid-oxp.c:oxp_hid_raw_event() {
-    ...
-    dev_dbg(&hdev->dev, "raw event data: [%*ph]\n", OXP_PACKET_SIZE, data);
-    ...
-}
-
-Then, oxp_hid_raw_event_gen_2() accesses array indices without verifying
-the incoming size:
-
-drivers/hid/hid-oxp.c:oxp_hid_raw_event_gen_2() {
-    ...
-    if (data[3] =3D=3D OXP_EFFECT_MONO_TRUE) {
-    ...
-}
-
-If a malicious or malfunctioning device sends a short report, will this
-cause an out-of-bounds read?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904105800.3923=
-987-1-tristmd@gmail.com?part=3D1

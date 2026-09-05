@@ -1,90 +1,84 @@
-Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D12AD3603EF;
-	Sat,  5 Sep 2026 07:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6951426AC3;
+	Sat,  5 Sep 2026 08:01:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788594137; cv=none; b=bvwk7XbXSoylPCOJ9a1Uy6dOVWwtZeOKzaPFhsAkZRvN78MwfXGZuiDZOmUJUSqHgAGTiGJcESsotdJjdOtPer13GziiqXPMdGIdHkPro8Rrpgh9L+DnCEXDcdyhpI+cDqyjAQRacBCK3qsgCoUW8NY+mvqKFbC1xbu1IcNm25o=
+	t=1788595267; cv=none; b=BDRu8U3U9lLKfZMm+7uU2gpECOKm7wgda72DowQicO2T9GLvJVElLEtGKRx37PI3IGpG/PMGW9Fnlp95BeJ5OiaBNlQvUBuWBD5vsdXfb3MhS6TwDePlt3KNRFWVXotRjG+ZthED78lD7CbjyF4cofwi3e8Ps0pIqKJ/ZiMCG9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788594137; c=relaxed/simple;
-	bh=H/eaZqgq6qpTvuLcQTGlhufT/bMaJTRmkMp3ieW6DoE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rwLMJlhjgQZQJQNGabftR4H76iQiUKwgYof0JlPT64DUQXYhT1EX8C7TPt2OyF5wEW0BUQMpbj9wnzSsggumMo/90KuRD6TPGyW6dbI2zPGbqiomZw/uxExEnCjYTX8ubobdAgl+S3yXDTDH2R1qMcS0YB/kzTPCfj2Z9Ka5j6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=XARi4o6T; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=nQPnyGt0; arc=none smtp.client-ip=80.241.56.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1788595267; c=relaxed/simple;
+	bh=y4hlWk9ZEJA6jYo3iCVEIFOERUQU8wyIz8sHPRPAkk4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=C+1zdGeSaxNFsuzQZwtsaHYV+HQK+6DT66ruWLTPSn4fWVPdasucyvWsMrJYiNdwmuAzgaGuGBiSWMiuSKtO2t2TofJnREE5jNY3cFz44KLgJmy7EaGLllYi9poA63/sFdBS1SdOC32Oe8B9FcGC0OB/SdRpvveqNGDECsZ6loA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tzd//Lv1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="XARi4o6T";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="nQPnyGt0"
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4hcQK01SvQzMlYK;
-	Sat, 05 Sep 2026 09:42:12 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1788594132;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=X5Hd7Q71LOMdduJNGEqX9EOif90ZZA++3BDP9oMJwCQ=;
-	b=XARi4o6TUXXS0xBx752ui8uGwmgh5PXlExAs6PrTcima0obBd5zUxljp+XciXwtbo+mcg5
-	B7wYjd+6d6zB1RaOZAkkSoCSirlRIpZuS2s/u26xmuMgRmRyfeFxQB2fZPjIPFJDB+nPzt
-	VtcxOwE/7O5vVRezh4BzKsEA32AbOM+3tGAYYcWE0JPLy0q87p8emBrLWAzPANxUOMCU6I
-	LokYg1PCpaSwQ8LOpoCKqbjDm+U1oBojr5s/UNVm5d6WYxGvoi18ss6BBPVpmVo2hKUECU
-	WEEDNdsLMBb5N4G9YwXaxahPVDspXoA+Imubd8j/bjhcucsSXJdpiWGX4Tq7GA==
-From: Manuel Ebner <manuelebnerli@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1788594130;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=X5Hd7Q71LOMdduJNGEqX9EOif90ZZA++3BDP9oMJwCQ=;
-	b=nQPnyGt0V+XhPTPKmu279j5+cRyP3KqJyCu3gdI/YLnuFRByAArENSVKe4lXqamFNHLiMz
-	e/qsakJ7ZmRvFfXW5SOjHX6y+iJnCkCvBqo/8i9zPyMqYVWKB3rXp81TmjBDjRAoyn3Iq1
-	Rowczdd+4mo0kBzw9HnaPNul8p33MKE7La+s1pUHPg1aX8mISDcJOmu4ziEcqdIGElznGp
-	cFlp5KYnoltMlLwz3BnDEhPMC68znn/kPz63dQwMYdF3kwpc9sjD1DyP0rgbSvCLdfevj2
-	SdMi8ZE1+hhcCmly9CqdB7P7+OTzqp37kDouorhm5AkBPX2Lbb66rcn5umwfVg==
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>
-Cc: Manuel Ebner <manuelebnerli@mailbox.org>,
-	linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation: input: Fix bracket
-Date: Sat,  5 Sep 2026 09:41:42 +0200
-Message-ID: <20260905074142.810529-2-manuelebnerli@mailbox.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tzd//Lv1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DCB91F00A3D;
+	Sat,  5 Sep 2026 08:01:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788595266;
+	bh=57c8Q441YCTfAzPWDpB534N08KkDAY1tKDYFjbar4Sk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Tzd//Lv1GCVMF2Nk2OOIDP1wRyuNyZfaFTWI4T6yaczfAbrvD0reuhb9zmpb7goit
+	 6vIQ30ma5hTbKi/gLlsU+4kONtUSwX3g7CuCUSasbdoOOankk+UMiqTrK/kc+TYrbi
+	 ddthFwYT56YXbZv8ubzvemzBkWc8LSupkqT+vFrueABmEzQjZqSNY+3JfEBqX4nfeL
+	 jjD2MROQP/ujoSRsa++wU6RwIHO8N7qKT3iEWR+ceEl5T5daV22LdAbX74WIOSAwVI
+	 toUy0wNpPFAi1rT5fkmaDhVkw2AdhxjLJ4jUdS01NfUzDO4ust/xfs99g/Rz2mnhPm
+	 f469vj6TKclnA==
+Message-ID: <bfd2fd19-0671-44f0-a2b8-a159be6a1c7d@kernel.org>
+Date: Sat, 5 Sep 2026 17:01:00 +0900
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-META: g9zofrnjn499zh5m3pm1kwrtdtb9n8oy
-X-MBO-RS-ID: 321062bde63ba77fbae
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 9/9] docs: kernel-parameters: Drop the pata_legacy.qdi and
+ pata_legacy.winbond entries
+To: Karl Mehltretter <kmehltretter@gmail.com>,
+ Jonathan Corbet <corbet@lwn.net>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+ linux-m68k@lists.linux-m68k.org, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
+ linux-doc@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich
+ <dimitri.sivanich@hpe.com>, Tony Luck <tony.luck@intel.com>,
+ linux-edac@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, linux-samsung-soc@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, Tony Lindgren <tony@atomide.com>,
+ Kevin Hilman <khilman@baylibre.com>, linux-omap@vger.kernel.org,
+ Dominik Brodowski <linux@dominikbrodowski.net>,
+ Niklas Cassel <cassel@kernel.org>, linux-ide@vger.kernel.org
+References: <20260905070347.25902-1-kmehltretter@gmail.com>
+ <20260905070347.25902-10-kmehltretter@gmail.com>
+Content-Language: en-US
+From: Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <20260905070347.25902-10-kmehltretter@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Add missing '(' to C snippet.
+On 9/5/26 16:03, Karl Mehltretter wrote:
+> pata_legacy no longer has qdi or winbond module parameters. The QDI
+> support went away with commit 0dcd0a76370a ("libata: remove no longer
+> needed pata_qdi driver") and the Winbond VLB support with commit
+> 3c4d783f6922 ("ata: pata_legacy: remove VLB support"). The entries also
+> refer to CONFIG_PATA_QDI_MODULE and CONFIG_PATA_WINBOND_VLB_MODULE,
+> which do not exist either.
+> 
+> Drop both entries.
+> 
+> Fixes: 0dcd0a76370a ("libata: remove no longer needed pata_qdi driver")
+> Fixes: 3c4d783f6922 ("ata: pata_legacy: remove VLB support")
+> Assisted-by: LLM
+> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
 
-Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
----
- Documentation/input/notifier.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Acked-by: Damien Le Moal <dlemoal@kernel.org>
 
-diff --git a/Documentation/input/notifier.rst b/Documentation/input/notifier.rst
-index 824379399..e7facd1a1 100644
---- a/Documentation/input/notifier.rst
-+++ b/Documentation/input/notifier.rst
-@@ -31,7 +31,7 @@ In a rough C snippet, we have::
-     kbd_keycode(keycode) {
- 	...
- 	params.value = keycode;
--	if (notifier_call_chain(KBD_KEYCODE,&params) == NOTIFY_STOP)
-+	if ((notifier_call_chain(KBD_KEYCODE,&params) == NOTIFY_STOP)
- 	    || !bound) {
- 		notifier_call_chain(KBD_UNBOUND_KEYCODE,&params);
- 		return;
 -- 
-2.54.0
-
+Damien Le Moal
+Western Digital Research

@@ -1,94 +1,141 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A54B4370D71
-	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 09:37:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 512A3391E77
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 09:47:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788601053; cv=none; b=bYtLYS4XWQZUJu4YcpBt/Cs2JT9Kk+oNp5vdHEmEH5Zi0NEuUiSo9rXa66IN+63ZCMkXesTom5WCHP8Fk09FKkBPv9EeLyH5mWyLWlPHFgRmg6egN63hh2xgDYOHkdwLnO3eyMi4OKTg6gKekfIusRNqQl2pbxVd11uDhJ4x+Cs=
+	t=1788601629; cv=none; b=erR/hVzn6qRqGZtscGbjQ9XhGoxevBgWyAhatOmX62610KBE0TBYaZf+Xy8EsOoAeFfqsO30dxnfJ0kgaAl/kvm97zlm//X3yoaCrjiQOh7u/wIQnbVm5M2N+rjcRiV8BWo45sbXW4dl7Ig4MRNO0JP86Upk28yeaTXv6ijAMyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788601053; c=relaxed/simple;
-	bh=ezr4BNZLWb6MT7EgMXHLkLvSrE/gd0KLEILyGK6/znQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=aV3UAFd5QjlBqYj2hITCAvYDe2ovLNQDXPjY/bi8trXFyfjJn5CnzLWvfSoyD1IpSF0HO9WlOa8o48OHMP+y7V54FnrFvycvbRyPkcTFHN3EE39m16HnKOSRfwOymKixauraLrxuGRZBqbEZbGfILLNFCHD47y6BN/w+aKZL5kE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hjxdkRk1; arc=none smtp.client-ip=209.85.215.181
+	s=arc-20240116; t=1788601629; c=relaxed/simple;
+	bh=r1zTAstGx+IQRZSz2V3LqeUHrdmsIckPyGpER4pVwcw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=GNPVWm8+vvU2iAFIEIM6GiFB7rhvIH44T5njE+W4l2kkS0eFVyyiU/wKC3R1QwqsVKI+EgCS2M37oSxb5HOlaDRomLv9bC60sW5ul/TexzO7PNxMRvTtpe69atKJ4GSXwD38kU12eKkJc9GaVxuQaJ+ck1xy6c2uz84rPk4LaVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mqzc5uFI; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hjxdkRk1"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-cc1c3d79b9bso1452102a12.3
-        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 02:37:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mqzc5uFI"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-49b8687630fso16356525e9.3
+        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 02:47:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788601051; x=1789205851; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=qIk+EbZ1mbotjHlbU5KOJAFSs4jlrNY2j9DG/30vshg=;
-        b=hjxdkRk1rYsDF2Z2Xz7i+HMiA6qcpVdLGu4qy3MAVYnrTuTsaqy47IvcF1HJIo2pKx
-         Qc9WRhZMRVRf7P6emHQ1FIqnb5iGq8gUCgk8pZfJWCoxkPoaqYEDzEGacs3+906zyTir
-         tglM3DUVSgrqdYRKPMEYwztinxZPcepwRwxnEOxuKPQ+SLTWxB2GC0RzKWGdxV/gln5z
-         oO1Ou6Lzem+3x0vK7i/nGiOwj07V1becodaPaomEaHd6KN74kwf7M/znWr9WkLHj+xT6
-         jvve+Of2eSu8eoWy5gd1bhbEOXMtv5QxxGGHbRqnPTHk19n9IH6pQ7D7zw1DZ2UFrHGY
-         43Ow==
+        d=gmail.com; s=20251104; t=1788601620; x=1789206420; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=0rL+/iAM/i65sRrJdGWBjEYqO95wvZ81bUVdK7eRsAk=;
+        b=Mqzc5uFIvQMGJH/Qvx9JF0IzrPctKlDeb9yowyBBnvUHbJf5jBARJGIOZJ45uNB28k
+         8Z4q/bv2SqU25SFGtZ61Xd7F777i2Dq9EaTA/Zrj/rZFEXnioKAWjArU0Qu7i5h7gHXF
+         Ner24Ov6fTQNGs33qhIXnkra+vE1dBm7taglV8UME4MALkC9WK/JVUhq9u+mXQj+o59b
+         wKASP4FMp090Fsvh9lvAmn3il43ycNJs1EMS0myNTLfxMK+UoErDjiHTKDGPBw0vwUq3
+         KnFQWL1E5SlZeG2rkKaJMNU9CyAE4Ob48i9+WHPenGupCpxuQvAs1KuJ5+jSwkCkwIDA
+         +G8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788601051; x=1789205851;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qIk+EbZ1mbotjHlbU5KOJAFSs4jlrNY2j9DG/30vshg=;
-        b=pEIWhLB/9+Kz1MrjLeF2U8G8UG/39oIGVKHR8vZ6ZHcU+wXEnlSKTLgl+cq6+lY6qE
-         cQH08aXv3DjRZLnhqu8I/NFrq74bWjYlPyYyTSCv7tVD0DZXo4PuJeuvNhvMHV/c/MQO
-         RefY59+pNx6lXFCZ6qbhoChMJaWKwHjBhFx7FuqMReYW9sIIXTA0lgWea1HVEHeNRT3W
-         XAwlryt8EDaXPrzK94qt2Bordpvr/iB3kqIuHCR+9E7g+E4KmVthk68/gKK69jCOvk/c
-         mdXk7CV3wJI+H6xvLr1MVUpNOz6Regqe0ktnrZ1niRmYpVXnFBAfxF2r/y16MV8mDdbc
-         YEMQ==
-X-Gm-Message-State: AFuF++k6M9XCqaqPMCMZrArlgw0CwzgLyROX83jdaLkZKw6NTHEM3MSR
-	UffMn3/YCRbfKLDO5S1ifGPRX0upHzf5uzOXMNvLxd3nlFDI6wYDnyJ0
-X-Gm-Gg: AYBFou2fRBO0TrbPATw3dLHoWyrJSwXNiazOhIUBPIDHQT8xsu2tTxLiswQEUm+1dd6
-	WoGbIYBGQQTovpNc4sl347RKnq9QVRdp8Ld65G9JSFlLuvpA/yJpaQKNspN9j60d8oyq7cnnHGO
-	Tvjgai01OkUPrufTGIb6e1bsI7L6+ET3wvlJIR78xN0U9C6nxniBRXk44IzjJb6aolzKUrNEUMR
-	H8Pus2UvDDIRvUtd0fN3Lkd2x7yiAdALRn1AswLHI43OZ2Q0imgC2HJXdILGOcyGBf0tNTu1qQ+
-	JbQyylAW6nzDuRWAXqapN77KXnAN5f8nJsvOM11S5N51I1OsWdxvdafzfUxqXGSsNd/D5146Sx6
-	wiSIq4tgMnvlgrApiqVN/Lk0oIgAG8nvkffztFQz0BAF3XufysOq62LNeydR2ZotYqk/BSGP3J0
-	93ccgB70zVfBKCn7izAtz8/CBf0qxkatK4GqVFSBAKGd+w/8c+v8Hr3XtrY/lQ+hoe0C1gHyIkE
-	/MPwxySzXWs++LL00QLG/csLhfbiQ==
-X-Received: by 2002:a05:6a21:3397:b0:3bf:63af:855 with SMTP id adf61e73a8af0-3da39d18db4mr19264229637.1.1788601050951;
-        Sat, 05 Sep 2026 02:37:30 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:ff40:39da:76d2:2e7d])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14324356931sm18718525c88.4.2026.09.05.02.37.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Sep 2026 02:37:29 -0700 (PDT)
-Date: Sat, 5 Sep 2026 02:37:27 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Zhian Liang <liangzhan5dev@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] Input: tca8418_keypad -  Add devm cleanup to disable
- interrupts on unload
-Message-ID: <apvip-xz2GFH96uU@google.com>
-References: <20260903192942.21906-1-liangzhan5dev@gmail.com>
+        d=1e100.net; s=20251104; t=1788601620; x=1789206420;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=0rL+/iAM/i65sRrJdGWBjEYqO95wvZ81bUVdK7eRsAk=;
+        b=hz98RPlW91p+K95SGixVBp45ZmDpcdRxfHNBqN3rHy00TI9o7dQi931yaAHqzqaqyb
+         plI4IrEA0LT5G/3BT7tfwZ8jHKSBBYDYaJvgmjQqHup31p0hN/1XJGs31l/yiiJGA0c7
+         Qfa37D8Iezd4uhdK61mCPdWkTFNUnbuBNtFVVoVkW3FHiXyOATA2ytsdXAadd1yZMHXX
+         PuYxb1JQ+pey2OFr+KHn4Wn8nmiOQ+/G4BQi13ugDpgnG9TMrmYNt4rgorjZBJevy3PH
+         uIc3P9fcVavW9I+eP6q2q2XsYs5B1Bep9wniHFs7wGYrBumnY69KvYiu9QeIkEcpJ+iX
+         zd9g==
+X-Forwarded-Encrypted: i=1; AKwUvByf+Ju+jMp0d4wouTUSKDVs/D/XjpA9YGM4R5nGPLhVkMvtwYYccCCNxiLxm96cwKYcST0ciJHaeowqEg==@vger.kernel.org
+X-Gm-Message-State: AFuF++n5sH2WdDFUKsNYkMl8yZdfVTffJD+na17SH4gZFsJ/qT3WTQmU
+	Iy7xVBRhC1cTBnHjmczIxrLMTbimVozThEwjEdMPa4UFFg7o0S1iBC/0
+X-Gm-Gg: AYBFou2CbHBffdhqGnD9e7jVnwQwMgdN1S24jFP9EQkltXjr1gxm7Z70g8CbWjQX/eu
+	xJy/yNmHm2nVemE/4JK9eDLMwG/4jMp1WAkJbbRhjMQ+UxxrWHBHWMeVlpdHXblzmQqDtBOJHne
+	nPxQryNPknApK6hcaSnM47a0SVmF6+KJ2Pi/DlrVAeKG2UHXptBIzpSmEldT3oP+z58+IkNMozG
+	9vjc0qvQn35EnMFySTUAkDozT50g4QK5rGdSVTsyLt3HRVzwVSLtkB16Jgnr8eDQ7gDGfAed08e
+	Vpjss6gtQRQJ4g3cQ/3Bv77IsF0IaEDJhlKml6UI1j6zO/z5G2GfxIhLSNFpWatVWtNeiSfXpER
+	TnylxvaTmF9huWklTqb9x3CvWsjLwFiQFtHWWVVgBcbDyBzqN9VXi7cXgO6w105I/S4EOOlVdN3
+	J4QG253Rp1GuQr0wtUnrB4AJtgciQh3QATolEi19/kk8UenEtBMMik5E6bNfHG3edXefF2Tpj+E
+	SlJQ20WxSSMSFUdd6TTxM6yPlE/8gmVRXk+cYjfYSFmgWBmgCngvSw8lUE0MarFoLz5NNySFCGP
+	vz7HhlouIdSOvuN9xJudTs737OqM8wdpuo+e3zcK1F4sOmokTU+u3Nlv1PzIfzfvGtg=
+X-Received: by 2002:a05:600c:3e0a:b0:495:6e68:5df2 with SMTP id 5b1f17b1804b1-49cf8267a36mr138818915e9.12.1788601620145;
+        Sat, 05 Sep 2026 02:47:00 -0700 (PDT)
+Received: from localhost.localdomain (dynamic-2a02-3100-a4eb-3001-c06d-af27-9fa2-ea53.310.pool.telefonica.de. [2a02:3100:a4eb:3001:c06d:af27:9fa2:ea53])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485883c6ba4sm14232013f8f.25.2026.09.05.02.46.58
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 05 Sep 2026 02:46:59 -0700 (PDT)
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	linux-m68k@lists.linux-m68k.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	Steve Wahl <steve.wahl@hpe.com>,
+	Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+	Mike Travis <mike.travis@hpe.com>,
+	Tony Luck <tony.luck@intel.com>,
+	linux-edac@vger.kernel.org,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-samsung-soc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Tony Lindgren <tony@atomide.com>,
+	Kevin Hilman <khilman@baylibre.com>,
+	linux-omap@vger.kernel.org,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Niklas Cassel <cassel@kernel.org>,
+	linux-ide@vger.kernel.org,
+	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Michael Schmitz <schmitzmic@gmail.com>,
+	Andreas Kemnade <andreas@kemnade.info>
+Subject: [PATCH v2 0/9] docs: kernel-parameters: Remove ten entries for parameters that no longer exist
+Date: Sat,  5 Sep 2026 11:46:40 +0200
+Message-Id: <20260905094649.41996-1-kmehltretter@gmail.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260903192942.21906-1-liangzhan5dev@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Zhian,
+kernel-parameters.txt still documents ten boot parameters whose parsing
+code was removed with the drivers or platforms that used them, one of
+them (atarimouse=) since before the git history. One patch per
+parameter, each with a Fixes: tag for the commit that removed the
+parser, so the maintainers of that area are on their own patch only;
+the two pata_legacy module parameters share the last one. Each entry
+was checked with git grep for its __setup(), early_param() and
+module_param() handler and with git log -S for the removing commit.
 
-On Fri, Sep 04, 2026 at 03:29:41AM +0800, Zhian Liang wrote:
-> tca8418_configure() enables TCA8418 interrupts by writing the CFG
-> register.  If input_register_device() fails afterwards, probe returns
-> an error and devres releases the IRQ handler, but the hardware is
-> left with interrupts still enabled.
+Changes in v2:
+- patch 9: drop the Fixes: tag for 0dcd0a76370a, which removed the
+  separate pata_qdi driver and not the pata_legacy parameter; both
+  parameters went away in 3c4d783f6922 alone
+- collect the Reviewed-by and Acked-by tags from v1
 
-What kind of issues does it cause?
+v1: https://lore.kernel.org/all/20260905070347.25902-1-kmehltretter@gmail.com/
 
-Thanks.
+Karl Mehltretter (9):
+  docs: kernel-parameters: Drop the atarimouse= entry
+  docs: kernel-parameters: Drop the bau= entry
+  docs: kernel-parameters: Drop the edac_report= entry
+  docs: kernel-parameters: Drop the enable_timer_pin_1 entry
+  docs: kernel-parameters: Drop the mini2440= entry
+  docs: kernel-parameters: Drop the nomfgpt entry
+  docs: kernel-parameters: Drop the omap_mux= entry
+  docs: kernel-parameters: Drop the pcmv= entry
+  docs: kernel-parameters: Drop the pata_legacy.qdi and
+    pata_legacy.winbond entries
+
+ .../admin-guide/kernel-parameters.txt         | 67 -------------------
+ 1 file changed, 67 deletions(-)
 
 -- 
-Dmitry
+2.53.0
+

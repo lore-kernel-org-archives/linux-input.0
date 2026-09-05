@@ -1,142 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F22B4B048D;
-	Sat,  5 Sep 2026 15:34:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23C2F367F41;
+	Sat,  5 Sep 2026 15:34:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788622443; cv=none; b=RhAlopsnYqC1Tb7k4zZd3l0qv6FeP1whirUCVE0iXduIXKqgVhocVVl/6Mpe81vERQBjibcDsycj4YiIkpk3ejfJmxcGOTaPqtIEDYWSbuM0B1tus1t/Ov3R7tPAbNMBKlyx+y5mpuwGB/XZkGAOa/4ucRCncQ+qAERC3AmT9J0=
+	t=1788622466; cv=none; b=nMM27dSLv5HUcyrkKpps7Cjp3E9sW9Z2IC2jHynNz2uprV8mrsxRbi45Xewmodv8fbqk+VN+KxVRR0yXWG9LWQAUHRBYVp6NHbwYvMlFE9U94PuNJfztvUgg4E+eHLCgpd8IfADj0GoA9SHWe3iRfcwefhe7V6T5yoN4SUOlW98=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788622443; c=relaxed/simple;
-	bh=8i33O11FOJVHhfhYVzpI9JhAjcGMHikLFOWynTzx+tk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=a1aLMux9mIPiPSGQik2HyEWhLsD8WvXH1rGYI4CVaMgQZINo8I0Wm88UNGG+4HF1isSoUb3m91bTY0YyzzL2UgiovZdPUZ9WYFH8En9644dLJpww9Zobw+6wPWq7kBo2hwEDIa6DfE0TkazxRR6tyja4jV2zFnzWNxJ69MqH0g4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dGM8LUYr; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788622466; c=relaxed/simple;
+	bh=Rl6nFKx3ixn0IjNS7sUjrCBuTyy5Wi14vvgdemM8Bgs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zj3fappUfG8snwmx+kJzeNb4dxvRTKZCvVeo65bEqvTmpZ6BnUepN356tZH//zBTZBG4shmLejDpbjw/LOtp8BO4u312BAE35NFjPZ8xY0yENx3dipOMWeAO7l+fRTkk4WkHjAZZ5s+6HJ5Mmdz3ayAoYKdqUN3k2wck1tukGDc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=TGQCkVys; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dGM8LUYr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE5E1F00A3A;
-	Sat,  5 Sep 2026 15:33:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788622438;
-	bh=NiAGBPcr3P+16GwhJ4Wx+8stKz4FlNOzwQ8HlHCvwKo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dGM8LUYr/7zVYfrRUSuFKag1Ybt8c0N+YnGLdyoOiz+xvYHwUrSWeHnJkUR5ObU4R
-	 MoOxp+dZvmR6Ic7wSnqb4n2ImYLx87TrX547PCfVuIJfyRkCKB4S9lKtiMW97f96Ys
-	 0EIFFj40jLOJ2aeRZ2lHtcrFK2CbXXv2ReOLYEZz53J/q7hErAmBTH/y/Yo0+/6HAP
-	 D0Bt9qXoLns0OYbn14QEu1CEszSn4T0EgnDFpFnur7PHzRA4CB4qXR7Gu9Qk/O87cG
-	 54poCz5HxJ8Bs1MLXyUEwrvtq6bKWrfJNvgA8PIox3xaTrbT9Ho2iBq94tHa1YEgsj
-	 17Eym9Lvo27Kg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/3] virtio_input: stop callbacks before
- unregistering input device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Karl Mehltretter" <kmehltretter@gmail.com>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260905152059.89560-3-kmehltretter@gmail.com>
-References: <20260905152059.89560-1-kmehltretter@gmail.com>
- <20260905152059.89560-3-kmehltretter@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 05 Sep 2026 15:33:57 +0000
-Message-Id: <20260905153357.7FE5E1F00A3A@smtp.kernel.org>
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="TGQCkVys"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 837B340E039E;
+	Sat,  5 Sep 2026 15:34:22 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
+	header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id ULOSdY5268Q1; Sat,  5 Sep 2026 15:34:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1788622452; bh=C5qV9YRKbU///+gaY6staRDNAJPfLuOO2/9JFJF8rhE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=TGQCkVysyMXAB87/+ol43xmiMSwThSsWet9I4UIylepz0fV2xir/vYc2o4DQnINpi
+	 4Vk4QVlAYCNhr22LajTQN71xRDL5fZpQDj8OOGMXA5iKczt27qYfb+OCqX6muSriKP
+	 ywQBrjTJPehGG9DwpYm/KRlD3wBUi6UjgVq82SiJZNR/EAPMIiKycHSk/oH33tM4/k
+	 116rLuX0d6+qAIHpe+WMrrmSO5QpdDXzCalcGGJPp330gQJ/f9q+8THqwfzZYOs3IW
+	 q8rheoYvdHhHSuN6fLU1DU0aSwx4/rIuZQHhEqXWtSntzGBt9a+7RL6EPMjeFFvSJm
+	 hjmUatERnV4DmZ1U99TGxewY8+zBAKUg2Zwv419UMnh8DzuZBvhokTa8mLmk7tQKNL
+	 BkRP/8r+GpeK+ccBD6XPO2t+SeTsMaobf1Ae5docKjcwC1ygAG2GuE1zIfoPurg/g0
+	 UiTn2mIkHpgKEgfl0ilxntuQfA5vEykAt9OXDIhs6eQiXcwRNbd++QEQUcrDv2zVja
+	 vJggKDyAgK2aRTSpxNSPEkvGteH/47g5zbjcq10XJRvvKa9rNBnSbJMYTYUb84rrYB
+	 3ZsBNc61jaopJ+j/I1afMVPDhfvXiG2dEpu6eZNvikLNVAaRDOMUHgkh7cLxGHa2jb
+	 zxv+hR1sv0OpkE/XW5atFbFw=
+Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::1f])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 950F140E03BE;
+	Sat,  5 Sep 2026 15:33:39 +0000 (UTC)
+Date: Sat, 5 Sep 2026 08:33:36 -0700
+From: Borislav Petkov <bp@alien8.de>
+To: Karl Mehltretter <kmehltretter@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	linux-m68k@lists.linux-m68k.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	Steve Wahl <steve.wahl@hpe.com>,
+	Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+	Mike Travis <mike.travis@hpe.com>, Tony Luck <tony.luck@intel.com>,
+	linux-edac@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>, linux-samsung-soc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Tony Lindgren <tony@atomide.com>,
+	Kevin Hilman <khilman@baylibre.com>, linux-omap@vger.kernel.org,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Niklas Cassel <cassel@kernel.org>, linux-ide@vger.kernel.org,
+	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Michael Schmitz <schmitzmic@gmail.com>,
+	Andreas Kemnade <andreas@kemnade.info>
+Subject: Re: [PATCH v2 3/9] docs: kernel-parameters: Drop the edac_report=
+ entry
+Message-ID: <20260905153336.GBapw2UFa7Sdc0ve_A@fat_crate.local>
+References: <20260905094649.41996-1-kmehltretter@gmail.com>
+ <20260905094649.41996-4-kmehltretter@gmail.com>
+ <20260905151345.GAapwxqT93wPWHF7u4@fat_crate.local>
+ <apwzmSr6b0WEkW86@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <apwzmSr6b0WEkW86@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Sat, Sep 05, 2026 at 05:22:33PM +0200, Karl Mehltretter wrote:
+> Good catch! I will send a v3.
 
-Pre-existing issues:
-- [High] Missing `virtio_reset_device()` in the error path of `virtinput_pr=
-obe()` before deleting virtqueues, potentially leading to use-after-free or=
- memory corruption by the active hardware/hypervisor.
-- [High] The driver leaks DMA mappings for unconsumed buffers in the event =
-virtqueue (`vi->evt`) upon device removal or suspend/freeze.
---
+Just don't send it immediately but wait a couple of days to gather review
+feedback first.
 
-commit 71bbbcca0b03e3c67fa905a8357e9d3ad23e7fe4
-Author: Karl Mehltretter <kmehltretter@gmail.com>
+-- 
+Regards/Gruss,
+    Boris.
 
-virtio_input: stop callbacks before unregistering input device
-
-virtinput_remove() unregisters the input device before resetting the
-virtio device. virtinput_recv_events() drops vi->lock around input_event(),
-so clearing vi->ready does not stop a callback that passed the entry check.
-It can still use vi->idev, requeue buffers and kick the queue.
-
-> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-> index deec24e8e6828..7b654af0a42cb 100644
-> --- a/drivers/virtio/virtio_input.c
-> +++ b/drivers/virtio/virtio_input.c
-[ ... ]
-> @@ -350,8 +353,9 @@ static void virtinput_remove(struct virtio_device *vd=
-ev)
->  	vi->ready =3D false;
->  	spin_unlock_irqrestore(&vi->lock, flags);
-> =20
-> -	input_unregister_device(vi->idev);
-> +	/* Callbacks use vi->idev. */
->  	virtio_reset_device(vdev);
-> +	input_unregister_device(vi->idev);
->  	while ((buf =3D virtqueue_detach_unused_buf(vi->sts)) !=3D NULL)
->  		kfree(buf);
->  	vdev->config->del_vqs(vdev);
-
-[Severity: High]
-This is a pre-existing issue, but does this cleanup leak DMA mappings for
-the event virtqueue (vi->evt)?
-
-The cleanup loop correctly detaches and unmaps vi->sts using
-virtqueue_detach_unused_buf(), but it ignores vi->evt. Since
-virtinput_fill_evt() populates vi->evt with buffers using
-virtqueue_add_inbuf_cache_clean(), which establishes DMA mappings under
-the hood, omitting the detachment step leaves these mappings active.
-
-Does this result in a persistent DMA mapping leak every time the device is
-unbound? Furthermore, since the memory for these buffers (vi->evts) is free=
-d,
-does this leave active DMA mappings pointing to freed memory, posing a memo=
-ry
-corruption risk if delayed DMA occurs?
-
-Does this exact same DMA mapping leak also occur during the power management
-suspend cycle in virtinput_freeze() which performs the same cleanup?
-
-[Severity: High]
-This is also a pre-existing issue, but is there a missing
-virtio_reset_device() in the error path of virtinput_probe()?
-
-Looking at virtinput_probe(), the device is marked as ready:
-
-drivers/virtio/virtio_input.c:virtinput_probe() {
-    ...
-	virtio_device_ready(vdev);
-	vi->ready =3D true;
-	err =3D input_register_device(vi->idev);
-	if (err)
-		goto err_input_register;
-    ...
-}
-
-If input_register_device() fails, the error path deletes the virtqueues:
-
-drivers/virtio/virtio_input.c:virtinput_probe() {
-    ...
-err_input_alloc:
-	vdev->config->del_vqs(vdev);
-    ...
-}
-
-Since virtio_device_ready() sets the device status to DRIVER_OK and enables
-the host/hardware to start processing virtqueues, does deleting the active
-virtqueue structures without first calling virtio_reset_device() to halt
-the device risk a use-after-free or memory corruption by the host backend
-if it continues to access the freed vring memory?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260905152059.8956=
-0-1-kmehltretter@gmail.com?part=3D2
+https://people.kernel.org/tglx/notes-about-netiquette

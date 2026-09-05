@@ -1,141 +1,166 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-161.mta1.migadu.com [95.215.58.161])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A39A35B136;
-	Sat,  5 Sep 2026 14:12:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F6A5221FB6
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 14:38:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.161
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788617555; cv=none; b=aSql1DDpp0ZkC6NJIg92AGB40lW9cIKL9XaZRKpe8QWi5+rYljElFh1+7PpJKU8VspyBZkMUQye1/gDnF8kzfKoFoHxV6zucmq8HYGzJJdGH7OGbjYeWsDA928ZL2Ui8G94KX+8diYR01azv2w44mCHXCLgGRkxSGRfefCOghIk=
+	t=1788619099; cv=none; b=hZcwNZDBEQ6ZbiAGD2hxoFcpiFYgxLOopJCKEMBYeBNvu28eTq/a2bgojasoiTgfDwSBx3nS0DGLCaQlp583kFOYvWafHZW8BJYi9O/13Ii0QzYzf2Olck3ZBgRR5C4Sf+OaS/mYcKgySCyZUMPuijcnDY9Ob0rcuL60rxvlvx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788617555; c=relaxed/simple;
-	bh=mv8VZ74PWKpzPwh6Aj6UXXfAmUnYMMAFFXKLqSkxTfM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JT3Y5jShUQUKtrNlhFc7G0Lgyg2gs7rglPNlkVPlC69SDkis+0EVWkW9X+RPnEaavYZ8xhkhWOBiwMqP1Xo+xPa2OF2qd9eYOkfGgs4uuoWfWRniZm8FY1mZrgowDNTlWw1l0hpT9PQPoEvpmfUXpQlDHk6Wnw1NNWAvnvWVB4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ncQ8xU0L; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788619099; c=relaxed/simple;
+	bh=3wGqbn17po5AEueOlErsMrsMXEIynNxXtbVEnvYfXI8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h5gYYbp+S5w3TcT8bONBYJf4QA7EUlM0vbxIBGKYZrGbbaWnechDJb1xPXDnhBTwP92i6DX7MWZYhMRA6aeNQ7HWQGCt+7Y+23qlZYSn3xOGb/2J+JMqHz6obGr1qqxLv8CIn3i9dY0dCwj47krZom3Y3NcdXwigxMWY6fynTVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=sVmZwrgv; arc=none smtp.client-ip=95.215.58.161
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ncQ8xU0L"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A1F1F00A3D;
-	Sat,  5 Sep 2026 14:12:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788617553;
-	bh=Vs884suqopPYagEUw6uw5u4ScRF6rdzLaNwPfM1Khy4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ncQ8xU0LVoxgf0Eu3BMIY4C3V0Miz0HgDYFwZmDGJvkynJT/x2RrA8YB4A0F6fobt
-	 r1/vZTMQiputYLGaJcVK/s6Lv7dAzhcuhSjLv7YX0A0TgN6eUPrMNrGEbKObI+4ped
-	 tuR1QTXBWo2PffcrT16sPWgAM4fJrQ+aFcLwzj+ycaZ34Sorjmj21JB4mUJwA3O++5
-	 ZwQp3ZurvEb/CPKBzYPIcWEL+uZR9DI08SeBVPvRGdY9n8tHE4gm3lpji1tP0en+zW
-	 wAV6rzc3OifqhKhVVzL4sHpZ8zNKQw7akslWt0Bj3xz88Awtalb3R7qWiVI5uvsFzz
-	 dXlH72u915gWA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 3/3] media: dvb-core: extirpate defective and unsafe
- ULE debug block
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Breno Rodrigues Alves" <breno3011alves@gmail.com>
-Cc: linux-pci@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-clk@vger.kernel.org, media-ci@linuxtv.org
-In-Reply-To: <20260905140113.21638-3-breno3011alves@gmail.com>
-References: <20260905140113.21638-1-breno3011alves@gmail.com>
- <20260905140113.21638-3-breno3011alves@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 05 Sep 2026 14:12:32 +0000
-Message-Id: <20260905141233.39A1F1F00A3D@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="sVmZwrgv"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=3wGqbn17po5AEueOlErsMrsMXEIynNxXtbVEnvYfXI8=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1788619089; v=1; x=1789223889;
+ b=sVmZwrgvG6XIUyd1vKzgSulgShaWIjBao1q5JI5m6d8ra64mYaTOahga+meIQHj3Yc+1MM4Z
+ 0dKC5yRW5AjH40zxE8RDVhjLrrcVVVKo/FqESAoYYm1fitWOMJmj6y8CFaYJsDzp7iFE2F9D5Rz
+ 6PrqcA6t+qNYfmeFBzLbDT3c=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 72c34e03a9092963;
+	Sat, 05 Sep 2026 14:37:59 +0000
+X-Mizu-Trace-ID: 72c34e03a9092963
+X-Migadu-Flow: FLOW_OUT
+From: Aditya Garg <aditya.garg@linux.dev>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Linux Input Mailing List <linux-input@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andre Eikmeyer <dev@deq.rocks>
+Subject: [PATCH v4] HID: appletb-kbd: support layer switching on Fn double press
+Date: Sat,  5 Sep 2026 20:07:33 +0530
+Message-ID: <20260905143733.17819-1-aditya.garg@linux.dev>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+Holding Fn temporarily switches the Touch Bar between media controls and
+function keys. Users who want to keep the alternate layer currently need
+to change the mode through sysfs.
 
-New issues:
-- [Low] The patch introduces a severe compilation failure by modifying the =
-call to `dvb_net_ule_check_crc()` to pass 3 arguments instead of 4, without=
- updating the function's signature to match.
+An optional double_press_switch_time module parameter makes a double press
+persistently switch the default layer. Its value specifies the double-press
+interval in milliseconds, while zero leaves the behavior disabled.
 
-Pre-existing issues:
-- [Critical] The network device is unregistered after flushing the workqueu=
-es, allowing callbacks to queue works during unregistration, which leads to=
- a Use-After-Free.
-- [Critical] Missing bounds checks when parsing ULE extension headers allow=
-s malformed packets to cause out-of-bounds memory reads.
---
+Signed-off-by: Aditya Garg <aditya.garg@linux.dev>
+Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
+---
+Changes in v2:
+- Added a check to ensure negative fn switch times are ignored.
 
-commit e9caeb2ec9c58e63757d73d1d8a17bcadf35a678
-Author: Breno Rodrigues Alves <breno3011alves@gmail.com>
+Changes in v3:
+- Renamed the backing variable to match the module parameter.
+- Fixed the reported code style issues.
 
-media: dvb-core: extirpate defective and unsafe ULE debug block
+Changes in v4:
+- Added missing "break;" in case statements.
+- Change author's email to aditya.garg@linux.dev
 
-This commit removes the unmaintained DVB_ULE_DEBUG code block from
-dvb_net.c and its Kconfig definition. It aims to eliminate race
-conditions and clean up unused function signature parameters.
+ drivers/hid/hid-appletb-kbd.c | 56 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 49 insertions(+), 7 deletions(-)
 
-> diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dv=
-b_net.c
-> index a2159b2bc1766..5060b8866de8a 100644
-> --- a/drivers/media/dvb-core/dvb_net.c
-> +++ b/drivers/media/dvb-core/dvb_net.c
+diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+index 5cc27066f..f10d093c2 100644
+--- a/drivers/hid/hid-appletb-kbd.c
++++ b/drivers/hid/hid-appletb-kbd.c
+@@ -56,6 +56,12 @@ static int appletb_tb_idle_timeout = 15;
+ module_param_named(idle_timeout, appletb_tb_idle_timeout, int, 0644);
+ MODULE_PARM_DESC(idle_timeout, "Idle timeout in sec");
+ 
++static int appletb_tb_double_press_switch_time;
++module_param_named(double_press_switch_time,
++		   appletb_tb_double_press_switch_time, int, 0644);
++MODULE_PARM_DESC(double_press_switch_time,
++		 "Fn double-press interval in ms (0 disables layer switching)");
++
+ struct appletb_kbd {
+ 	struct hid_field *mode_field;
+ 	struct input_handler inp_handler;
+@@ -68,6 +74,7 @@ struct appletb_kbd {
+ 	bool has_turned_off;
+ 	u8 saved_mode;
+ 	u8 current_mode;
++	unsigned long last_fn_press;
+ };
+ 
+ static const struct key_entry appletb_kbd_keymap[] = {
+@@ -243,6 +250,20 @@ static int appletb_kbd_hid_event(struct hid_device *hdev, struct hid_field *fiel
+ 	return kbd->current_mode == APPLETB_KBD_MODE_OFF;
+ }
+ 
++static u8 appletb_switch_mode(u8 mode)
++{
++	switch (mode) {
++	case APPLETB_KBD_MODE_SPCL:
++		return APPLETB_KBD_MODE_FN;
++		break;
++	case APPLETB_KBD_MODE_FN:
++		return APPLETB_KBD_MODE_SPCL;
++		break;
++	default:
++		return mode;
++	}
++}
++
+ static void appletb_kbd_inp_event(struct input_handle *handle, unsigned int type,
+ 			      unsigned int code, int value)
+ {
+@@ -250,15 +271,36 @@ static void appletb_kbd_inp_event(struct input_handle *handle, unsigned int type
+ 
+ 	reset_inactivity_timer(kbd);
+ 
+-	if (type == EV_KEY && code == KEY_FN && appletb_tb_fn_toggle &&
+-		(kbd->current_mode == APPLETB_KBD_MODE_SPCL ||
+-		 kbd->current_mode == APPLETB_KBD_MODE_FN)) {
++	if (type == EV_KEY && code == KEY_FN &&
++	    (kbd->current_mode == APPLETB_KBD_MODE_SPCL ||
++	     kbd->current_mode == APPLETB_KBD_MODE_FN)) {
+ 		if (value == 1) {
+-			kbd->saved_mode = kbd->current_mode;
+-			appletb_kbd_set_mode(kbd, kbd->current_mode == APPLETB_KBD_MODE_SPCL
+-						? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
++			if (appletb_tb_double_press_switch_time > 0) {
++				unsigned long now = jiffies;
++
++				if (time_before(now, kbd->last_fn_press +
++					msecs_to_jiffies(appletb_tb_double_press_switch_time))) {
++					appletb_tb_def_mode =
++						appletb_switch_mode(appletb_tb_def_mode);
++
++					appletb_kbd_set_mode(kbd, appletb_tb_def_mode);
++
++					kbd->saved_mode = appletb_tb_def_mode;
++					kbd->last_fn_press = 0;
++
++					return;
++				}
++
++				kbd->last_fn_press = now;
++			}
++			if (appletb_tb_fn_toggle) {
++				kbd->saved_mode = kbd->current_mode;
++
++				appletb_kbd_set_mode(kbd, appletb_switch_mode(kbd->current_mode));
++			}
+ 		} else if (value == 0) {
+-			if (kbd->saved_mode != kbd->current_mode)
++			if (appletb_tb_fn_toggle &&
++			    kbd->saved_mode != kbd->current_mode)
+ 				appletb_kbd_set_mode(kbd, kbd->saved_mode);
+ 		}
+ 	}
+-- 
+2.53.0
 
-[ ... ]
-
-> @@ -843,7 +803,7 @@ static void dvb_net_ule(struct net_device *dev, const=
- u8 *buf, size_t buf_len)
->  				       *(tail - 2) << 8 |
->  				       *(tail - 1);
-> =20
-> -			dvb_net_ule_check_crc(&h, iov, ule_crc, expected_crc);
-> +			dvb_net_ule_check_crc(&h, ule_crc, expected_crc);
-
-[Severity: Low]
-Does this change miss updating the function signature of
-dvb_net_ule_check_crc()?=20
-
-It looks like the invocation now passes 3 arguments, but the function
-definition for dvb_net_ule_check_crc() still expects the iov array as its
-second argument, which causes a compilation failure due to too few argument=
-s.
-
-> =20
->  			/* Prepare for next SNDU. */
->  			reset_ule(h.priv);
-
-
-While reviewing this code, I also noticed a couple of issues that are not
-introduced by this patch, but might be worth addressing:
-
-[Severity: Critical]
-This is a pre-existing issue, but I noticed a potential use-after-free
-when unregistering the network device.
-
-In dvb_net_remove_if(), the workqueues are flushed before the device is
-unregistered:
-
-	flush_work(&priv->set_multicast_list_wq);
-	flush_work(&priv->restart_net_feed_wq);
-	pr_info("removed network interface %s\n", net->name);
-	unregister_netdev(net);
-
-When unregister_netdev() is called, callbacks can be triggered (such as
-ndo_set_rx_mode mapping to dvb_net_set_multicast_list) which schedule work
-back onto set_multicast_list_wq. Could this result in a use-after-free
-when the pending work executes later, since the priv memory gets freed
-during teardown?
-
-[Severity: Critical]
-This is a pre-existing issue, but it looks like there might be an
-out-of-bounds read when parsing ULE extension headers.
-
-The handle_ule_extensions() loop iterates over extension headers using
-handle_one_ule_extension(), which reads memory and advances the pointer:
-
-	p->ule_next_hdr +=3D ext_len;
-	p->ule_sndu_type =3D ntohs( *(__be16 *)(p->ule_next_hdr-2) );
-
-Is it possible for a malformed payload to specify extension lengths that
-push p->ule_next_hdr past the end of the allocated skb buffer? The loop
-appears to continue without bounds checking against skb->len, which could
-cause a page fault on malicious inputs.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260905140113.2163=
-8-1-breno3011alves@gmail.com?part=3D3

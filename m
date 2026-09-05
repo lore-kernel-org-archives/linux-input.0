@@ -1,97 +1,111 @@
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 679E523EA8B;
-	Sat,  5 Sep 2026 08:21:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4077862809
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 08:53:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788596516; cv=none; b=HVJVgZbSouIFBN2WRtAlewPpsNYVd4ikwd6d+HbFlZQymzjaL/bkJVJvQ+McQmh94wLuDEC6w3Rwjrx1iOcxx1vf6npzWcF7TvhLHdGOY8jm5Fi2MjMujFSBCC6CTMgJGtZANJVNG/oyypOXtXpjP8/dYd3se1eQmGhRTqLVpQY=
+	t=1788598399; cv=none; b=FBAj7s05bWB/o8fWKoy6n0wm5ZKqPNJO3ryPiTcqxOL4//7Nh82qkhza5iRkEQVOlECKIDq2fyIQTY/759CZFRknTohzOuuWYWTn2P45/olFktY9RKwpKA2SQqZ2J9oYVYUmKIOUeP4XRihATMhk7Qib3+lh3Bppuc+ysmF08Bc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788596516; c=relaxed/simple;
-	bh=fn4NxiT4jn6QUWX8zX732tVu6ZhQloWWXrxTG6Wqax8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=d98HLU8Vrveyrv99pFjD4puxPDtwj7Lssw1eWsdoeh8inJhH/nG/fyZR+6TcKw5z3UTVCCgZRA2UMvIbzwdaeFO3GJquD22ORZ/Hk2PMxnb0prgI/dLlFWEF1ZbCq67Sssfpr4qoV4OVa8Lf5dbH/sTE/PsVYNxv8AAXh3ywbSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=GW0d1A4n; arc=none smtp.client-ip=178.238.236.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1788598399; c=relaxed/simple;
+	bh=nJ/Jzm/pLywrqXaRF1jReqVrMyMWidF2B+SXrUTd/jQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=JpzVzUm7mbCA7IQgz2AMYWCw0TzbA7d2it07MECEG38IFQFS0RR7DekYZ//Mjq9Q4d39XwemWTpWG9cyINlTmE6qef1QY98SAZuJ77Y8VaRhQZrQL3xobHMqx8bW10l/X2GpidRf/HMrG5+hSrHTqd6MbaA/BaYET1ffmjPbM6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q6aT9gwt; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="GW0d1A4n"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=References:In-Reply-To:Subject:Cc:To:From:
-	Reply-To:Content-ID:Content-Description;
-	bh=pVISZRhqeUbbG63nkEbrVHxYxMTirBscwLs3Wje3fLI=; t=1788596514; x=1789806114; 
-	b=GW0d1A4nZiuH6M7yc7pEFUp0c2CjZDav9+HrWCCWJ9gQhUCOtPoYP1UGFOthgjFaB6rdanxZ1MX
-	MnaJ5OdvxWO393utNbT35qN7oEVMkPiFvb7JpSWY1BSiMoLAjc9yucFfL7OXoS1DqYUfl7Vozhdqo
-	2EvsFIm5r9OKahM7Pg+yGy0rivrH9dbjDhgPIj9xu0vpTxMvW7YO+YpO2hyGiaa7+4OUc51HJS+Zy
-	VfpuyZDyYxslNjNQNmdZ5iZGmAUmrsdUID1ts/Z/zWjRWhjletGb2+P3T0TXPZMC37F/mv9JfiEAn
-	PHqVlV1kCHTIaeOwY54zPWeOpW/T9zlkutoQ==;
-Date: Sat, 5 Sep 2026 10:21:34 +0200
-From: Andreas Kemnade <andreas@kemnade.info>
-To: Karl Mehltretter <kmehltretter@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Geert Uytterhoeven
- <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
- linux-doc@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar
- <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, Steve Wahl
- <steve.wahl@hpe.com>, Dimitri Sivanich <dimitri.sivanich@hpe.com>, Tony
- Luck <tony.luck@intel.com>, linux-edac@vger.kernel.org, Krzysztof Kozlowski
- <krzk@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@baylibre.com>,
- linux-omap@vger.kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>,
- Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
- linux-ide@vger.kernel.org
-Subject: Re: [PATCH 7/9] docs: kernel-parameters: Drop the omap_mux= entry
-Message-ID: <20260905102134.69ef3092@kemnade.info>
-In-Reply-To: <20260905070347.25902-8-kmehltretter@gmail.com>
-References: <20260905070347.25902-1-kmehltretter@gmail.com>
-	<20260905070347.25902-8-kmehltretter@gmail.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q6aT9gwt"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-39b2ad862bdso1759601a91.2
+        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 01:53:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788598398; x=1789203198; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=/Oflo3Ik3xMRYIr0nUxXMW+sR1gdqaunhaM2vyLgzQM=;
+        b=Q6aT9gwtq2ZUBDL3WxI7hPe/sykX8mvQM0bA95KjKIQj6DgWamVT66tJp4rZdSDW/Y
+         23xuUefg3kk845w9a89Ub4emJ7qLF8xLy9Vavn8y7SPtA0wT7JjtiJ/Bo2Gc7OKEwLZs
+         7uLhNGnoH7dvAvWRXvsusY4pwqnPBzIfqFE8rGb6bNfxRQC8Vhfu54C4I8YXvK+meg77
+         iD6tfrPPSSU6sSM3+DS5Czv0/iZzZDpe6ecPhAcfnllQWpVqzVopbWjGOZHRPVk+5KuS
+         Q5xv6einPgzl0TxsEsxRPCpmxOneJAX/KSNs9UrzFFerBwKKQFncHetxG4pt8k4e8xlj
+         eYDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788598398; x=1789203198;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=/Oflo3Ik3xMRYIr0nUxXMW+sR1gdqaunhaM2vyLgzQM=;
+        b=cXUbYiMSdmKY3BPorWlPUTi9xFGYTXvdC9sdnbM/XKPkWF0oM+Bs8UNbXGAjY6loGj
+         YgFWpwa6DKfpl9YKO+Tp5DsUBePxBRHj9yzK8TQ1flX4hvx1JCVvCPOwCcNl2PeUq5aw
+         BXb1e1V41XXOd3nvpB/BsBGkjZeTMFm74fzyUCY+oPvXydPBjqMe1o0E8eDapa5FW5AE
+         aVbrsivF2QdOkfk6PDqmGncQsBerbKPo/vVnL6lDQFcLNcTXDN5rN+SOmULeCdivMjMr
+         BE5D2w45Eha6Gb2GzKo0e0pBsnZjryrYukgay4GJkuwBhQIiY8vBoI1n+GIqqbEeLFZa
+         YyeQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzYZVg8Wwa3ws6NZBENrWz/uivVUK7KneGjeVmVg6YjaeMYjiuUJ5c8Rl54vJKRWpIXQTwWhyLfzUcPGg==@vger.kernel.org
+X-Gm-Message-State: AFuF++lwPdJa3k5Trt4irCWEKOreylyX8Fx6gFOIErqghZoWL0K+CinF
+	r0QoUOTt8xj8+iHHABbr1h53azbErk889uPVqohJBg9VR3kL5sWaFe4G
+X-Gm-Gg: AYBFou3zgLMGAVMrOheXkbkOc0M+UlWbU2GrkB3C8Q/+bCxRdW0jzqYG0TxRWEZAYRw
+	LjuvbC1ZWmheX6uPZvvs8YkbEpXbeMX4v9Q/bBgkq4/aOARYVGXFX1w6WO89/ti0eCtVSSC3Zl8
+	MqAR4Kju/8asU8b2B60DGrv42cstOWwCq6tdDabXtTD52cDVwObzO0h4ahrbOfPzwgqYGji0txi
+	UWRGGk19HUx02B8x+ETINLslIzml3yDS8EzM6gYFSXmOZRYgq10hyKmvYjyHaW47jhCU1UfhOol
+	4XcxHml3R0Yu68VItQFil/2eQrQq9WIM6NgHekOkphlsJTB+wgl8jlVHyooLc4DWZ1EL23u6vRW
+	tHx2ZV0uMr6J/FRlo+yOiHbxB8UJ9yKZMWvdN48A1b+aKLwFLu2w0e8c/m7Zw4vXXuiLMI5nKEM
+	aYo7rNxY+CBkb60B9K6hzRmVa8GCVLwuBbOvSZVNNW/UJbh0QwuFCMNq6lyWIf7f9xbwoT6iD+n
+	uPx
+X-Received: by 2002:a17:90b:4c41:b0:398:9bd5:490e with SMTP id 98e67ed59e1d1-39b2623ac0fmr15992379a91.21.1788598397524;
+        Sat, 05 Sep 2026 01:53:17 -0700 (PDT)
+Received: from Default ([2409:40f4:101a:e710:d0dc:4c0c:d338:73ae])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14324410092sm11404796c88.14.2026.09.05.01.53.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Sep 2026 01:53:17 -0700 (PDT)
+From: Jeffin Philip <jeffinphilip14@gmail.com>
+To: oneukum@suse.com
+Cc: jeffinphilip14@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	syzbot+0b8bff5929865345b29e@syzkaller.appspotmail.com,
+	syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot] [usb?] [input?] KASAN: slab-use-after-free Read in k90_record_led_work
+Date: Sat,  5 Sep 2026 14:22:46 +0530
+Message-ID: <20260905085246.11121-1-jeffinphilip14@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <c79e754b-2ef4-49f2-8bb4-60b36ab9a36d@suse.com>
+References: <c79e754b-2ef4-49f2-8bb4-60b36ab9a36d@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Sat,  5 Sep 2026 09:03:45 +0200
-Karl Mehltretter <kmehltretter@gmail.com> wrote:
+On Wed, 2 Sep 2026 14:09:35 +0200, Oliver Neukum wrote:
+>On 31.08.26 07:46, Jeffin Philip wrote:
+>
+>> I believe there is a patch for this already[1], but it has not been merged
+>> yet. Was written just as the merge window for v7.3 opened, so might have
+>> been the reason for not being merged.
+>> 
+>> [1]: https://lore.kernel.org/all/20260817072831.139954-1-ccc194101@163.com/
+>
+>Looking at this patch the following sequence seems possible:
+>
+>CPU A				CPU B
+>
+>enter k90_brightness_set()
+>
+>if (led->removed) [FALSE]
+>				Enter k90_cleanup_backlight()
+>				drvdata->backlight->removed = true; [TOO LATE]
+>				cancel_work_sync(&drvdata->backlight->work); [NOP]
+>schedule_work(&led->work); [THIS IS BAD]
+>
+>Just cancelling the work is not enough.
 
-> omap_mux= went away with commit e9f5f1e45608 ("ARM: OMAP2+: Remove
-> legacy mux code"); nothing parses it any more.
-> 
-> Drop the entry.
-> 
-> Found by cross-checking every documented name against the __setup(),
-> early_param() and core_param() registrations in the tree.
-> 
-> Fixes: e9f5f1e45608 ("ARM: OMAP2+: Remove legacy mux code")
-> Assisted-by: LLM
-> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
+Hmm, we are in cleanup path, so wouldn't it be more sensible to use disable_work_sync
+rather than cancel_work_sync to prevent this kind of issue?
 
-Reviewed-by: Andreas Kemnade <andreas@kemnade.info>
-
-> ---
->  Documentation/admin-guide/kernel-parameters.txt | 5 -----
->  1 file changed, 5 deletions(-)
-> 
-> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-> index d44728a45506..48dd273eaf6c 100644
-> --- a/Documentation/admin-guide/kernel-parameters.txt
-> +++ b/Documentation/admin-guide/kernel-parameters.txt
-> @@ -4765,11 +4765,6 @@ Kernel parameters
->  			waiting for the ACK, so if this is set too high
->  			interrupts *may* be lost!
->  
-> -	omap_mux=	[OMAP] Override bootloader pin multiplexing.
-> -			Format: <mux_mode0.mode_name=value>...
-> -			For example, to override I2C bus2:
-> -			omap_mux=i2c2_scl.i2c2_scl=0x100,i2c2_sda.i2c2_sda=0x100
-> -
->  	onenand.bdry=	[HW,MTD] Flex-OneNAND Boundary Configuration
->  
->  			Format: [die0_boundary][,die0_lock][,die1_boundary][,die1_lock]
-
+Thanks,
+Jeffin.

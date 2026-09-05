@@ -1,166 +1,79 @@
-Received: from mta1.migadu.com (out-161.mta1.migadu.com [95.215.58.161])
+Received: from mta1.migadu.com (out-25.mta1.migadu.com [95.215.58.25])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F6A5221FB6
-	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 14:38:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.161
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E0B12DCF57
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 14:49:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788619099; cv=none; b=hZcwNZDBEQ6ZbiAGD2hxoFcpiFYgxLOopJCKEMBYeBNvu28eTq/a2bgojasoiTgfDwSBx3nS0DGLCaQlp583kFOYvWafHZW8BJYi9O/13Ii0QzYzf2Olck3ZBgRR5C4Sf+OaS/mYcKgySCyZUMPuijcnDY9Ob0rcuL60rxvlvx0=
+	t=1788619762; cv=none; b=NLvTSv3zG5KOm/eQUDb8Oe0o9JFNv1LLKuyFImjzRMSbwp1ONXIERaDzxH1/C1Ovxd0/MoheILKvxeFQc68XYLYbUkxZ1YnUSYrxVQX6GrHXgeC+FiBOQWLF3hqISPxp0ga45wHNWIUV7aZvPi3ndUwjlbqROiP9ZCvnh+NPlHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788619099; c=relaxed/simple;
-	bh=3wGqbn17po5AEueOlErsMrsMXEIynNxXtbVEnvYfXI8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h5gYYbp+S5w3TcT8bONBYJf4QA7EUlM0vbxIBGKYZrGbbaWnechDJb1xPXDnhBTwP92i6DX7MWZYhMRA6aeNQ7HWQGCt+7Y+23qlZYSn3xOGb/2J+JMqHz6obGr1qqxLv8CIn3i9dY0dCwj47krZom3Y3NcdXwigxMWY6fynTVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=sVmZwrgv; arc=none smtp.client-ip=95.215.58.161
+	s=arc-20240116; t=1788619762; c=relaxed/simple;
+	bh=KMsll9iQFNSUTrh8N8anWA8Wgq6/rLAsmD1HO/f5UgQ=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=J5u0KS74jjaGghmVX0NNXr6eh9atw52maudq3oR9Ywoya2HqdVKUAul/0kQ/AD38YLk5wtkWWhDROFCD6a8VkcJvUjP0iTtiaSM36yHRJp16qnyDtvBLIr+lrGE6iE7oLl28elyNG1D3Ib0PPB3KHq27ila9T6QbHC1P5kdFhyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=AhzBn0S/; arc=none smtp.client-ip=95.215.58.25
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="sVmZwrgv"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="AhzBn0S/"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=3wGqbn17po5AEueOlErsMrsMXEIynNxXtbVEnvYfXI8=;
+DKIM-Signature: a=rsa-sha256; bh=KMsll9iQFNSUTrh8N8anWA8Wgq6/rLAsmD1HO/f5UgQ=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788619089; v=1; x=1789223889;
- b=sVmZwrgvG6XIUyd1vKzgSulgShaWIjBao1q5JI5m6d8ra64mYaTOahga+meIQHj3Yc+1MM4Z
- 0dKC5yRW5AjH40zxE8RDVhjLrrcVVVKo/FqESAoYYm1fitWOMJmj6y8CFaYJsDzp7iFE2F9D5Rz
- 6PrqcA6t+qNYfmeFBzLbDT3c=
+ t=1788619759; v=1; x=1789224559;
+ b=AhzBn0S/kJPwc+139MuoUD1UXTazKXpX6Ov5E0ppE8MZ9SQyoZtIjasdnjb1QSvthF7Zxdjz
+ 91RHYBLLMnDISnp/Ui5+uXfu8MKupjLnKQVapxdplCfA6rcjggLf0gr/NGBY6NGEYjjBTDbkDGd
+ c8RJfJ2fOFuNBoexwCRHjN0g=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 72c34e03a9092963;
-	Sat, 05 Sep 2026 14:37:59 +0000
-X-Mizu-Trace-ID: 72c34e03a9092963
+Received: by smtp.migadu.com with ESMTPS id c050fd726f4a85f9;
+	Sat, 05 Sep 2026 14:49:09 +0000
+X-Mizu-Trace-ID: c050fd726f4a85f9
 X-Migadu-Flow: FLOW_OUT
-From: Aditya Garg <aditya.garg@linux.dev>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Linux Input Mailing List <linux-input@vger.kernel.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andre Eikmeyer <dev@deq.rocks>
-Subject: [PATCH v4] HID: appletb-kbd: support layer switching on Fn double press
-Date: Sat,  5 Sep 2026 20:07:33 +0530
-Message-ID: <20260905143733.17819-1-aditya.garg@linux.dev>
-X-Mailer: git-send-email 2.53.0
+Message-ID: <cf9ff462-1a77-44c7-92fd-2b11518aeb69@linux.dev>
+Date: Sat, 5 Sep 2026 20:19:06 +0530
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] HID: appletb-kbd: support layer switching on Fn double
+ press
+From: Aditya Garg <aditya.garg@linux.dev>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Linux Input Mailing List <linux-input@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Andre Eikmeyer <dev@deq.rocks>
+References: <20260905143733.17819-1-aditya.garg@linux.dev>
+Content-Language: en-US
+In-Reply-To: <20260905143733.17819-1-aditya.garg@linux.dev>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Holding Fn temporarily switches the Touch Bar between media controls and
-function keys. Users who want to keep the alternate layer currently need
-to change the mode through sysfs.
 
-An optional double_press_switch_time module parameter makes a double press
-persistently switch the default layer. Its value specifies the double-press
-interval in milliseconds, while zero leaves the behavior disabled.
 
-Signed-off-by: Aditya Garg <aditya.garg@linux.dev>
-Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
----
-Changes in v2:
-- Added a check to ensure negative fn switch times are ignored.
+On 9/5/26 8:07 PM, Aditya Garg wrote:
+> Holding Fn temporarily switches the Touch Bar between media controls and
+> function keys. Users who want to keep the alternate layer currently need
+> to change the mode through sysfs.
+> 
+> An optional double_press_switch_time module parameter makes a double press
+> persistently switch the default layer. Its value specifies the double-press
+> interval in milliseconds, while zero leaves the behavior disabled.
+> 
+> Signed-off-by: Aditya Garg <aditya.garg@linux.dev>
+> Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
+> ---
+> Changes in v2:
+> - Added a check to ensure negative fn switch times are ignored.
+> 
+> Changes in v3:
+> - Renamed the backing variable to match the module parameter.
+> - Fixed the reported code style issues.
+> 
+> Changes in v4:
+> - Added missing "break;" in case statements.
+> - Change author's email to aditya.garg@linux.dev
 
-Changes in v3:
-- Renamed the backing variable to match the module parameter.
-- Fixed the reported code style issues.
-
-Changes in v4:
-- Added missing "break;" in case statements.
-- Change author's email to aditya.garg@linux.dev
-
- drivers/hid/hid-appletb-kbd.c | 56 ++++++++++++++++++++++++++++++-----
- 1 file changed, 49 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
-index 5cc27066f..f10d093c2 100644
---- a/drivers/hid/hid-appletb-kbd.c
-+++ b/drivers/hid/hid-appletb-kbd.c
-@@ -56,6 +56,12 @@ static int appletb_tb_idle_timeout = 15;
- module_param_named(idle_timeout, appletb_tb_idle_timeout, int, 0644);
- MODULE_PARM_DESC(idle_timeout, "Idle timeout in sec");
- 
-+static int appletb_tb_double_press_switch_time;
-+module_param_named(double_press_switch_time,
-+		   appletb_tb_double_press_switch_time, int, 0644);
-+MODULE_PARM_DESC(double_press_switch_time,
-+		 "Fn double-press interval in ms (0 disables layer switching)");
-+
- struct appletb_kbd {
- 	struct hid_field *mode_field;
- 	struct input_handler inp_handler;
-@@ -68,6 +74,7 @@ struct appletb_kbd {
- 	bool has_turned_off;
- 	u8 saved_mode;
- 	u8 current_mode;
-+	unsigned long last_fn_press;
- };
- 
- static const struct key_entry appletb_kbd_keymap[] = {
-@@ -243,6 +250,20 @@ static int appletb_kbd_hid_event(struct hid_device *hdev, struct hid_field *fiel
- 	return kbd->current_mode == APPLETB_KBD_MODE_OFF;
- }
- 
-+static u8 appletb_switch_mode(u8 mode)
-+{
-+	switch (mode) {
-+	case APPLETB_KBD_MODE_SPCL:
-+		return APPLETB_KBD_MODE_FN;
-+		break;
-+	case APPLETB_KBD_MODE_FN:
-+		return APPLETB_KBD_MODE_SPCL;
-+		break;
-+	default:
-+		return mode;
-+	}
-+}
-+
- static void appletb_kbd_inp_event(struct input_handle *handle, unsigned int type,
- 			      unsigned int code, int value)
- {
-@@ -250,15 +271,36 @@ static void appletb_kbd_inp_event(struct input_handle *handle, unsigned int type
- 
- 	reset_inactivity_timer(kbd);
- 
--	if (type == EV_KEY && code == KEY_FN && appletb_tb_fn_toggle &&
--		(kbd->current_mode == APPLETB_KBD_MODE_SPCL ||
--		 kbd->current_mode == APPLETB_KBD_MODE_FN)) {
-+	if (type == EV_KEY && code == KEY_FN &&
-+	    (kbd->current_mode == APPLETB_KBD_MODE_SPCL ||
-+	     kbd->current_mode == APPLETB_KBD_MODE_FN)) {
- 		if (value == 1) {
--			kbd->saved_mode = kbd->current_mode;
--			appletb_kbd_set_mode(kbd, kbd->current_mode == APPLETB_KBD_MODE_SPCL
--						? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
-+			if (appletb_tb_double_press_switch_time > 0) {
-+				unsigned long now = jiffies;
-+
-+				if (time_before(now, kbd->last_fn_press +
-+					msecs_to_jiffies(appletb_tb_double_press_switch_time))) {
-+					appletb_tb_def_mode =
-+						appletb_switch_mode(appletb_tb_def_mode);
-+
-+					appletb_kbd_set_mode(kbd, appletb_tb_def_mode);
-+
-+					kbd->saved_mode = appletb_tb_def_mode;
-+					kbd->last_fn_press = 0;
-+
-+					return;
-+				}
-+
-+				kbd->last_fn_press = now;
-+			}
-+			if (appletb_tb_fn_toggle) {
-+				kbd->saved_mode = kbd->current_mode;
-+
-+				appletb_kbd_set_mode(kbd, appletb_switch_mode(kbd->current_mode));
-+			}
- 		} else if (value == 0) {
--			if (kbd->saved_mode != kbd->current_mode)
-+			if (appletb_tb_fn_toggle &&
-+			    kbd->saved_mode != kbd->current_mode)
- 				appletb_kbd_set_mode(kbd, kbd->saved_mode);
- 		}
- 	}
--- 
-2.53.0
-
+Now that I see it, the case statements were ending in return. break was not needed. Sorry for the brainfart.

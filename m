@@ -1,106 +1,153 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 694C9340DA6
-	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 10:20:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2376A370D5E
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 10:29:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788603646; cv=none; b=F14nh1xiDD/sp5/Y9kqnqYLftKqeEu9ryCWzIORyoX6blN60LF9OEm4/Cc90hjPogf26ipa+LzIHYT8eoei5Ziz2WXXrRDAZle808E3nM0zV500An5eG/ztT+1lPbLSvQRacmcGxhEWOmaEmw7/7de+zCY9IOV0e0keC3Bm90bo=
+	t=1788604151; cv=none; b=KVkq49G3T6mafPLfRy1NCaAgXyiuNF39JGJkreqx3tLLwWBp40Vv/AclRCO2e44s6aCtuDg7WQv2nS2o/GJyz0odLHoMQAc/nGVDsQGAEXPl3Gu//URkyvIJibjWcQGLlV4j/gJ8ExQNR4SOX2Tb7SLSxU6KnZScXtcdCJhn1xQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788603646; c=relaxed/simple;
-	bh=DcDVWEoGw4mU+hURnvGHMh0XA7ZJW3eTiASybXL99+8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=m8tQ8N0c7UW+TYpDnzMEH4XpPiTWLyzQUz/OnpWg7XoDFgOgmiphF/jEJoAvzcXY+C+PR00ESEX86F+tLnQYqbuoRQJqBqVEZBjCsZcjbpf11WbM4f5EPGjm2nqPK5bP0zgsM6+RGpqNdsKfBbWFemIQ9cOL4/CEtOLz3uOfm7U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J76liRv1; arc=none smtp.client-ip=209.85.221.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788604151; c=relaxed/simple;
+	bh=ePm+vx7ZpeY+nJWxPPupLAGuQd+/G62japQnm3OTLkc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=b0A9kgQTHGGfzMdWJpXvYXmJmdDBuRINb7m+8VhK2/rCz/scleLV4M+PeiAJi24KMcUoGkUuSgUNRyH1+o5WQYRCoLHSStW8j8DGLDBXVr8cd8eGufMjMSWfZHHl2vGgf+096dkYig0bNxdHN5tF9hT4y5P9m1+i3slhocfxeYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nh0Ucr88; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J76liRv1"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-485843aeab8so1992062f8f.1
-        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 03:20:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788603644; x=1789208444; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rkpTTROaXEWImpK11bVrCYbCSBvilUTGEzzvHACOOW4=;
-        b=J76liRv15ZXBJ80n4femml/Dm8dAgVIB26zAhiSneq+/ch+FH9cP0I1+ZcD0jAB4Lq
-         N3lxQ9N2TR8LBPwL+mcku1gkmG4Y3HM+/yaBDZshXrgka5u9CY2NmU3ewjsVLY3hJGBk
-         vfyzF3r7Dph7h/vjWvvUc7Jec15JlssMSBw32WqfC6BQkcZBKPqioaNBcVllYZrxfSiT
-         iaFnJsuCCK8Sm2qT2z6NO0V2dycxLnwQNM2904qj5bKmwHiExmw0vHX1FM1h1Bdb4yMs
-         I9OSkACVgLrmgpcTKgc+duIQoFOw1zXj7wOpi22F7RPeZtvmimXpMx8bz35RAU9FYWmW
-         GOKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788603644; x=1789208444;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=rkpTTROaXEWImpK11bVrCYbCSBvilUTGEzzvHACOOW4=;
-        b=q1l4yS6akkRhLYeJBwImfAVbEz/QwnwGBL5NBVcuuSLTrcQdDSlV8kjvy7yCwRLjvO
-         JzxdxrfBz66OPOCitZcQfbbs5kKQ1Tq3wZLI1+nA380zAG1xwqjO3RG2vYEJY0iwWu5a
-         KHFelChDmwXqIlwS247gmaqYNIwgrB2Hf6CKxiZbbOFcjmAORSHFlgeeD361ew2CMkhO
-         SBqtX6V6gD/jI3ptX6wUkcCZDg51j3xK0PVIqCZEDq46+uEMbpQFddQcmzroieKTJR3N
-         5I2WuuhA2HHKhsXig1nmQRWbDlVf9fIHRN/Wjok3N6qobfBLDJZHjDgJZgCU2L1PHVnl
-         sL4Q==
-X-Forwarded-Encrypted: i=1; AKwUvByw+RdQyfy5ZsYT5bwr8Br5P9AepsmAKxMUNg7NlVTxTBhBCZA78q4JYECOrAVzc0JiRddtGT56WEucvw==@vger.kernel.org
-X-Gm-Message-State: AFuF++lfUB90IHGJ8f4eaUcGuQfRJ1on4mE5mAGSc4jt3nLFGmx8RA72
-	yAYAC2QfuHYrMCSyFGjXIb3KsfvQewjxpMtu3cyNZ11tXveY85T4RI0d
-X-Gm-Gg: AYBFou0dMvOiZLWMztpWT0K2tskFM4lv5pS8n+Lr5SxTY4JfSBlv46zg26pnFXGlsvp
-	Dsm8m3ypaPwFKmYg7Dje+75Jb8IiZb03izl2iKKprWOgWAX1OIMPH9Iiz3eUXuOliUdVsFWIU1J
-	3dz3qMxeINJ7FTp0jRq/6ArNhgg5nR6efR7qNh/kRNt45UX/Okh5V3RuItaBBnN50SlD9Nwr0nR
-	4vjZjCEHtnRWkyNxB2SN9GHizrYmIJ3Ri0pRdeGFpIcTVoHsYykdneK92VYjoeHLhkwOO7ghQm9
-	I3Ee0QOSKGKegPgBklOZD6Yy6Abyu+U9hDA/cM+8sa0gdZdIou7+wljnXnbiQ08YfBmKeyWSZ0f
-	DinFe8XjyIKzFRficQHABp20WLJADSKtnmOh0uwW2I1f37XB0yaTi9AlV3EaxWSWfXW6LqS0SUr
-	JnJ281n7zu+fufIh/u2JxpTccDUKnDdJVBWSgMaz3T2eidYbOqIgRoQpQcZY6R8z9NhmH73OWB5
-	qXmBEbzYkZFdZ4OMTisbHWhiLaWJj8dAo/HhwjE9vpQ37uKpFQbrio3sOotCSfggDhvTYtNedxD
-	dIqATt9fGXnHBxX7HVRzJMK8wTFrO5C1OzPqK6RzbwcwcOwrAYjimVEiKp1fg4lk6mY=
-X-Received: by 2002:a05:600c:4f4b:b0:499:83f1:398 with SMTP id 5b1f17b1804b1-49cf823f53emr215342755e9.9.1788603643468;
-        Sat, 05 Sep 2026 03:20:43 -0700 (PDT)
-Received: from localhost.localdomain (dynamic-2a02-3100-a4eb-3001-c06d-af27-9fa2-ea53.310.pool.telefonica.de. [2a02:3100:a4eb:3001:c06d:af27:9fa2:ea53])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee7febb4sm238448575e9.14.2026.09.05.03.20.42
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 05 Sep 2026 03:20:43 -0700 (PDT)
-From: Karl Mehltretter <kmehltretter@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Karl Mehltretter <kmehltretter@gmail.com>,
-	linux-input@vger.kernel.org,
-	Aishwarya Pant <aishpant@gmail.com>
-Subject: [PATCH] Input: trackpoint: Fix the inertia attribute name in the ABI document
-Date: Sat,  5 Sep 2026 12:20:38 +0200
-Message-Id: <20260905102038.42882-1-kmehltretter@gmail.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nh0Ucr88"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE1F1F00A3D;
+	Sat,  5 Sep 2026 10:29:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788604148;
+	bh=2aMX8DYJfMSW/LawhK8He4ncaBnHIvEIVszzA+diuCI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Nh0Ucr88AgGQfqXGcUckcT653RXsY7oc7WZQiwtOPB/WXgcHg9xgibMel1FA7Riqk
+	 w9xDl+c94/6C2cDwfILvXFq9W+uu8LlRwRBBdJfFI1716HKUYIagTj8xswY0sWgLhZ
+	 l30dHAxw+bkhhuTaJu0OR14wHUtOBHVGxVTWpF8afgbcs3k/So84lwCZ1X5cKuZedG
+	 o1IczO43wKdpz9XW3Ay3zwTNpm/EIvSLbFBDf/TgP+ORcq0EmTd0u+8QAW+p4u0kPE
+	 3KsTC5jJZvS7dyz6tGztkekNGDmHc4DG4O4VJANP6yNKVYyFbRiW846VqauOdu1xeh
+	 1auuItsF/UXvA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: wacom: validate GRAPHIRE_BT report length
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aamir Ahmed" <elb12345@hotmail.co.uk>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <AS8P251MB00012F559DCFF177B19F767BC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
+References: <AS8P251MB00012F559DCFF177B19F767BC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 05 Sep 2026 10:29:08 +0000
+Message-Id: <20260905102908.ADE1F1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The attribute is created as "inertia" (TRACKPOINT_INT_ATTR(inertia, ...)
-in drivers/input/mouse/trackpoint.c); the ABI file spells the path
-"intertia". The description below it already says inertia.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Fix the spelling.
+Pre-existing issues:
+- [High] The length check added to wacom_graphire_irq is scoped exclusively=
+ to GRAPHIRE_BT devices, leaving other device types (e.g., WACOM_MO, WACOM_=
+G4, GRAPHIRE) and other handlers (e.g., wacom_intuos_irq) vulnerable to ide=
+ntical stale-buffer reads.
+- [High] Missing cancellation of asynchronous timers and workqueues in the =
+wacom_probe() error path leads to Use-After-Free.
+--
 
-Fixes: aebb47d4e7a9 ("Input: trackpoint: document sysfs interface")
-Assisted-by: LLM
-Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
----
- Documentation/ABI/testing/sysfs-devices-platform-trackpoint | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+commit 60032e23affbdf87e0c943f82b7987db425fb939
+Author: Aamir Ahmed <elb12345@hotmail.co.uk>
 
-diff --git a/Documentation/ABI/testing/sysfs-devices-platform-trackpoint b/Documentation/ABI/testing/sysfs-devices-platform-trackpoint
-index df11901a6b3d..7954434b0434 100644
---- a/Documentation/ABI/testing/sysfs-devices-platform-trackpoint
-+++ b/Documentation/ABI/testing/sysfs-devices-platform-trackpoint
-@@ -5,7 +5,7 @@ Contact:	linux-input@vger.kernel.org
- Description:
- 		(RW) Trackpoint sensitivity.
- 
--What:		/sys/devices/platform/i8042/.../intertia
-+What:		/sys/devices/platform/i8042/.../inertia
- Date:		Aug, 2005
- KernelVersion:	2.6.14
- Contact:	linux-input@vger.kernel.org
--- 
-2.53.0
+HID: wacom: validate GRAPHIRE_BT report length
 
+This commit adds a length check for GRAPHIRE_BT reports in
+wacom_graphire_irq() to prevent out-of-bounds reads on short packets.
+If the report length is less than expected, it logs a warning and exits.
+
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 8feb8027be95e..31da8b9566077 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+
+[ ... ]
+
+> @@ -350,6 +350,12 @@ static int wacom_graphire_irq(struct wacom_wac *waco=
+m)
+>  	int retval =3D 0;
+> =20
+>  	if (features->type =3D=3D GRAPHIRE_BT) {
+> +		if (len < WACOM_PKGLEN_PENABLED) {
+> +			dev_warn(input->dev.parent,
+> +				 "Graphire BT report too short: %zu bytes\n",
+> +				 len);
+> +			goto exit;
+> +		}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this bounds check
+mistakenly limit itself to GRAPHIRE_BT devices?
+
+If a spoofed or malfunctioning WACOM_MO, WACOM_G4, or GRAPHIRE HID device
+sends a report with a length shorter than 9 bytes and a valid report ID,
+wacom_graphire_irq() bypasses this new check.
+
+It then proceeds to the fallback branch:
+
+} else if (data[0] !=3D WACOM_REPORT_PENABLED) {
+
+and later accesses data[8] unconditionally for WACOM_MO:
+
+	case WACOM_MO:
+		prox =3D (data[7] & 0xf8) || data[8];
+
+Can this result in an out-of-bounds read of the HID transport buffer,
+leaking up to 8 bytes of uninitialized or stale memory into the input
+subsystem?
+
+> @@ -3475,7 +3481,7 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, siz=
+e_t len)
+>  	case GRAPHIRE:
+>  	case GRAPHIRE_BT:
+>  	case WACOM_MO:
+> -		sync =3D wacom_graphire_irq(wacom_wac);
+> +		sync =3D wacom_graphire_irq(wacom_wac, len);
+>  		break;
+> =20
+>  	case PTU:
+
+[Severity: High]
+This is a pre-existing issue, but is it possible to validate the report
+length for other handlers like wacom_intuos_irq()?
+
+Currently, wacom_intuos_irq() does not accept a len argument, which seems
+to leave it vulnerable to identical stale-buffer reads.
+
+
+[Severity: High]
+This is a pre-existing issue, but is there a missing cancellation of
+asynchronous timers and workqueues in the wacom_probe() error path?
+
+In drivers/hid/wacom_sys.c:wacom_probe(), if a subsequent initialization
+step fails after wacom_parse_and_register(), it propagates the failure:
+
+	error =3D wacom_parse_and_register(wacom, false);
+	if (error)
+		return error;
+
+Inside wacom_parse_and_register(), the failure path stops the hardware
+but fails to cancel pending works like wacom->init_work or
+wacom->battery_work:
+
+fail_hw_stop:
+	hid_hw_stop(hdev);
+fail:
+	wacom_release_resources(wacom);
+	return error;
+
+Since wacom is allocated via devm_kzalloc, it is immediately freed upon
+probe failure.  When the pending work subsequently executes, might it
+access the freed wacom struct, causing a use-after-free?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/AS8P251MB00012F559D=
+CFF177B19F767BC8B42@AS8P251MB0001.EURP251.PROD.OUTLOOK.COM?part=3D1

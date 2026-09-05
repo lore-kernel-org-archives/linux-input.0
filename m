@@ -1,111 +1,172 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10F523C0A08;
-	Sat,  5 Sep 2026 15:14:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E3DF4A1E13
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 15:21:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788621278; cv=none; b=rYPq7URhOHfbx+8FlTBCOtGHzqE6RmvUxmf9lRDQklC0QzQ/AlZLIku7QoXupkSohiar6uI6nSgGDnKqF/nsJa2VqBV2uD0O47fjI+rL+SlH45sX+FrUyoa2lV8J74FD2bKOROcT534W3Dc7lFw0b1gatlVGWof8beB+Lm1g/XQ=
+	t=1788621681; cv=none; b=tzBdE9I+QXxpKdk+H4goH2LVhBPw+Dto0ja4kq7je0Wyp/umDOMpJDs0Ox7BcHftqJN71Or4qZWRAWgSK7MVAkyNQL4BiQL0h32amyLK/K+MjhpDBv/WuOWMpP7e6UqdVzn+Qtbc0SqJZdvSH4gw2LIw/wTqypy7WQTouNG748I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788621278; c=relaxed/simple;
-	bh=ptQDlIgbLicnK80Gpqy0tzeZDRrQTFqIIQk9THXhks8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jwZMSq20iCpqV04XF4Wm5wcZdD3ud++wM8s1WpfPdtR1oKnmW0PO+wCLrTFwr4c0F7LLTyAa90B/whYQBMSFtNfsccNKtAV99WbM3GtzVk3QYBpLZt9ZiRRaiQcV+QkPLAUz9YH0UWxKCGqH3Kcs5sbZlh9s9xSktOHlpLxSVZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=Sqc2kxW5; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1788621681; c=relaxed/simple;
+	bh=8uVPDx/td51aPS2alcJ1aZOS4zzVv+wny8A2GZu+Kcc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pc18x820BJx1vE6z7Ut+86T5s2g21B8IPBkiQkV0W7RO+0UU7ojq7AqDiutFBC+GtJSKbcTi0KpEOQAfHW3lzqeGUX96m4fzPa1vDb9ZoP0nczZ+ixCYBUJZ6ZljwvtiOVg/d/rZHjee0BPW+QkuGqVmwzYJDW6q1Om97Zf0QWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SkAv5ibx; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="Sqc2kxW5"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id C914D40E02C2;
-	Sat,  5 Sep 2026 15:14:31 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 1HIhP_I34F-L; Sat,  5 Sep 2026 15:14:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1788621261; bh=FONSvainkhZyR+GqgqzxbgjHLuUUwJa+U3QdoTXH0vI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Sqc2kxW553DlZwdvzxxQAZLrbuEWzoW053Da06kVpvIMhG/w09Utt1KsME6FE8EA7
-	 4bmXqAlMUyiS4uSmS1AnVyUiRLtwqPt0nl8K3fVENBlwp7sgw/Tw0nEzcEG37loFCB
-	 mgS1PIm7zCP/0Ssn/kzUdG66hBPSm0DNJe9xDVY4AE7kTwhUz4YRybbAUhHTl4CDIH
-	 K+Y0Dh/gls5JwcexaHzpg1TJ69xD4QC1wBX0Ck1liC07o2RjsQ8z1rDigOfOrZXaRK
-	 g6mIAqrcmv4C2IjahRW7eWbaabrLpCqDUIf4zRGzXQzJknEeGu+AgcZvvP4xyYOIF3
-	 T3O8Fli+So/ZctqpvNK4agzCRKsqhdI5ZK/35dqJOlU9pZTgGG1waZhUSB+9pdm2ll
-	 2YsxS8nxe2/Wrl/GPvOOi8Ms+eJriGvs2xcuQJ5PufEPjZLGuWFAgsnBZEAmFifz5P
-	 OKSzs9s82ckTztlOpPziAO9GwuTvz+/g0aq3IweKR5/LpyQOrFiBzriR7ifp4fLMLR
-	 fcL3Dg2ckoPZpiK2BRFnc/3Js/PS4aQpBlni4PLwUgCM5zVYdOTcJnbb08M+iiG4BY
-	 Z4sS7sWpWoQ1FLxQRaX0Cq2oNJM4MaSH62nXcMiK2+xut+yoH2jAR+KL1eu0JokBJe
-	 Fop3BulcRULz8wF9jjCR7eag=
-Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::1f])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D53D940E0301;
-	Sat,  5 Sep 2026 15:13:48 +0000 (UTC)
-Date: Sat, 5 Sep 2026 08:13:45 -0700
-From: Borislav Petkov <bp@alien8.de>
-To: Karl Mehltretter <kmehltretter@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	linux-m68k@lists.linux-m68k.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SkAv5ibx"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-49b0d78a801so19197895e9.2
+        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 08:21:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788621676; x=1789226476; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Mje6MYnRuPoV/Y41DYCjMHdpBcGzemV8rMOix0c43HA=;
+        b=SkAv5ibxItcgoih+oVUDj0FFrIVxzD6xxZ3tO5tO74YHrsSsip6Vmf/smEJ4IO004z
+         HQCxhfoNKrXu8ANgYHizNFKiEer3+7/7Sfjf5+X/215ngdkS0Fjqrou/0jfvoBASAfOq
+         j7RFHc4P7UrXaWbEMsZ8V5kidC5fwRyb5nJ3SWv+ZNPnmuy0wHJVIpaNFOf/Jil01ZT6
+         +pHfVWoE5TcfuC02bFbcL68k+uWJWpB/OQQuxEvPQVBmWwow/DhI93iFyxii7dKlwabI
+         hjVaQMV6QONpChvUSrtxtlUw9lIEGKQGHCqquEPKxFrEMY4b2evcpUsHh3qkLMG7Vsio
+         Aghw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788621676; x=1789226476;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Mje6MYnRuPoV/Y41DYCjMHdpBcGzemV8rMOix0c43HA=;
+        b=XRo27egobpp+iILIgsn/AFJxVWZaU1sdnMIEf/ld/5Np3hh7PcxYvoksphokr8L3uc
+         1fTy9hJewVliCoR+HIOWn0fBH+Mj7cHH9Xuhz5YpvvWtCtWFgXGQk6xgMDSpW6ndiMQt
+         4mQ/GAs8MsRYDWeZcO51FBoiQPd6WwN6OrQizR/YbSLpxBSgMyzpFrc0qpMTGVtx4/3b
+         /6cVttkfIBQLRRQIfSH1mpjRhRC1uExNtMbbF/QKRI3dUrD6VPXJNxzHhVltvtSEtcd6
+         cf6M0mLBxuQcBjlEy0/RJaPrKYLp9S2kRT1oofEkMMNKZUSWcnCRNcvytt2G8MAxiR0j
+         aRIA==
+X-Forwarded-Encrypted: i=1; AKwUvBxoI8cqOxkW6JAqSA9Dw6HzD799Gsqqemx2/57AsYFPHjkxRWR5HMONOYaQSgwsB/MuArXbjQ1QgAkHBQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lCeOhqIVKgCAMhWqRmOmtwjsSW0/P1j14XPNMDeDWjO2AFv8zE
+	NIKd6Xb3jwS1s7lMR8Jya5ye6WkCAtck2153FlkoGvyZLeKYVFcj8Qlj
+X-Gm-Gg: AYBFou2DFU6Ru2FxSnK9p/pXBg7CWn27Gu37jqD0Wbv1dPUt1IKE79SsUKvmoD0+Fn6
+	44gVvDOienmEoMWHI4ulppU+aWGuocdUVIkeaOIUQ78rigilzzLYqm/TcilNB97LrOc4dllKGy8
+	ea+pomCf3jGaR1G9aREqxq5a8K8Y3byXOhgUnTibmT9ZNj/j2bI6ls8zOXIDeGp9ZzvwD5yU6pZ
+	seVBGJNZwImTHFz6UBvdlo0eUO0Ipn7yin+z7UZzthJiXwTYJR65hmqp7FH5DCSsYKdZXlTLGvS
+	S00zayux94Iuwja9i/tyR5MLsbvjCdKGxR3tQi+HknDbjaArFiij+dnEMp1sylAHkV3pQkCI2jQ
+	3pk1bS5TJiy3wPlS9/i6ldbRGS2hb01wE5c8bv8Ucq89o/519Oro245fYCSWJMPNk4vnc7rToOn
+	5IbnIGZfbS2FF2jqk/dI9UEXexhnEZZbNPyqbVDqr9xCHl/c16f1+NHfosMhRShnNWucbURtFdX
+	dnjeA/Qp7MyR5Av3iGhm9KMqHh0P4uivIdbXwKJ3fTpeoiaqFimH0Vz7LG/B4ngSXPFhdfz/kcn
+	VBLrMzUEFvIFdkkdkGIIpAMbnczuZVaxafgcv8MaGRv8pwdUV7qOt+Ot8Eyl7IYo4sI=
+X-Received: by 2002:a05:600c:5493:b0:49b:8f18:714a with SMTP id 5b1f17b1804b1-49cf824a6c5mr137927365e9.12.1788621675623;
+        Sat, 05 Sep 2026 08:21:15 -0700 (PDT)
+Received: from localhost.localdomain (dynamic-2a02-3100-a4eb-3001-c06d-af27-9fa2-ea53.310.pool.telefonica.de. [2a02:3100:a4eb:3001:c06d:af27:9fa2:ea53])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cf75ce49esm267779515e9.1.2026.09.05.08.21.12
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sat, 05 Sep 2026 08:21:14 -0700 (PDT)
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Gerd Hoffmann <kraxel@redhat.com>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	Steve Wahl <steve.wahl@hpe.com>,
-	Dimitri Sivanich <dimitri.sivanich@hpe.com>,
-	Mike Travis <mike.travis@hpe.com>, Tony Luck <tony.luck@intel.com>,
-	linux-edac@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, linux-samsung-soc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Tony Lindgren <tony@atomide.com>,
-	Kevin Hilman <khilman@baylibre.com>, linux-omap@vger.kernel.org,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Niklas Cassel <cassel@kernel.org>, linux-ide@vger.kernel.org,
-	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-	Michael Schmitz <schmitzmic@gmail.com>,
-	Andreas Kemnade <andreas@kemnade.info>
-Subject: Re: [PATCH v2 3/9] docs: kernel-parameters: Drop the edac_report=
- entry
-Message-ID: <20260905151345.GAapwxqT93wPWHF7u4@fat_crate.local>
-References: <20260905094649.41996-1-kmehltretter@gmail.com>
- <20260905094649.41996-4-kmehltretter@gmail.com>
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Pawel Moll <pawel.moll@arm.com>,
+	Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hansg@kernel.org>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	virtualization@lists.linux.dev,
+	linux-input@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/3] virtio: synchronize callbacks during device reset
+Date: Sat,  5 Sep 2026 17:20:56 +0200
+Message-Id: <20260905152059.89560-1-kmehltretter@gmail.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260905094649.41996-4-kmehltretter@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Sat, Sep 05, 2026 at 11:46:43AM +0200, Karl Mehltretter wrote:
-> edac_report= went away with commit fee27d7d9788 ("EDAC: Delete
-> edac_stub.c"); nothing parses it any more.
+A virtqueue callback can outlive virtio_reset_device() and race with a
+driver freeing the state it uses. The reset helper documents that no
+callbacks remain in progress, but that depends on the transport:
+virtio-pci waits in vp_reset(), while virtio-mmio does not.
 
-Nope, it was:
+virtio_input has a related ordering problem: it unregisters the input
+device before resetting the virtio device, while an event callback may
+still be using the input device.
 
-7fc0b9b995f2 ("EDAC: Drop the EDAC report status checks")
+Patch 1 moves the callback wait into the core, using the existing
+virtio_synchronize_cbs() operation. Patch 2 fixes the virtio_input teardown
+order. Patch 3 adds the missing synchronize_cbs hooks for UML, TmFIFO,
+remoteproc and virtio-vdpa. Remoteproc uses one SRCU domain per processor.
 
-> Drop the entry.
-> 
-> Found by cross-checking every documented name against the __setup(),
-> early_param() and core_param() registrations in the tree.
+The new hooks wait for callbacks already running. UML, TmFIFO and
+remoteproc still allow new callbacks after reset; fixing that is separate
+work. The event-virtqueue DMA mapping issue is also separate.
 
-If you look at fee27d7d9788, you'd read:
+Changes in v2:
+- Patch 1: move the wait into the core instead of fixing only MMIO, as
+  Michael suggested. Remove the duplicate PCI wait, preserve its shutdown
+  wait, and fix CCW callback locking. Drop the MMIO polling: reset polling
+  for v3 and newer is already in fa8833c085b6 ("virtio-mmio: add support
+  for transport version 3").
+- Patch 2: keep draining completed events when ready becomes false,
+  instead of breaking out, so teardown does not truncate an input packet.
+- Patch 3 is new, at Michael's request.
 
-    Move the remaining functionality to edac_mc.c. Convert "edac_report=" to
-    a module parameter.
+I reran the 120-cycle unbind/rebind test in an arm64 KASAN guest with four
+vCPUs and a 5 ms busy delay per event. With patch 2 alone over virtio-mmio,
+reset returned with the callback still running in all 84 overlapping
+cycles. With the series, it waited in all 103. Over PCI with per-queue
+MSI-X, it waited in all 66, including runs with threadirqs. No KASAN or
+lockdep reports. These runs predate the per-rproc change, which leaves
+the tested MMIO and PCI paths unchanged. They confirmed the missing wait,
+but did not reproduce a use-after-free: with evdev attached,
+input_unregister_device() waits for an RCU grace period that the IRQ
+callback blocks.
 
+That version also passed QEMU input, rebind and shutdown checks on arm64
+MMIO and x86-64 PCI, including arm64 RT, KASAN and KCSAN builds, and x86
+UP/Tiny SRCU. A legacy INTx NIC was present for an additional x86
+shutdown check. The changed objects built with W=1 without warnings on
+arm64, x86-64, s390 and SMP UML. The per-rproc version built with W=1
+on arm64 KASAN and x86 Tiny SRCU, and passed six remoteproc callback and
+lifetime KUnit tests on each, using mock remoteproc devices.
+
+Link: https://lore.kernel.org/r/20260818040433.66986-1-kmehltretter@gmail.com
+
+Karl Mehltretter (3):
+  virtio: synchronize callbacks during device reset
+  virtio_input: stop callbacks before unregistering input device
+  virtio: implement synchronize_cbs for remaining transports
+
+ arch/um/drivers/virtio_uml.c             | 10 ++++++++++
+ drivers/platform/mellanox/mlxbf-tmfifo.c | 14 ++++++++++++++
+ drivers/remoteproc/remoteproc_core.c     | 10 ++++++++++
+ drivers/remoteproc/remoteproc_virtio.c   | 20 +++++++++++++++++---
+ drivers/s390/virtio/virtio_ccw.c         |  6 +-----
+ drivers/virtio/virtio.c                  |  2 ++
+ drivers/virtio/virtio_input.c            |  8 ++++++--
+ drivers/virtio/virtio_pci_legacy.c       |  2 --
+ drivers/virtio/virtio_pci_modern.c       |  3 ---
+ drivers/virtio/virtio_vdpa.c             | 21 ++++++++++++++++++++-
+ include/linux/remoteproc.h               |  3 +++
+ include/linux/virtio_config.h            |  6 +++---
+ 12 files changed, 86 insertions(+), 19 deletions(-)
+
+base-commit: a500db7819c50db59e55f1b4fa1c3baa5a2616f3
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+2.39.5 (Apple Git-154)

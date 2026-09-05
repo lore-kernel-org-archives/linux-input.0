@@ -1,79 +1,148 @@
-Received: from mta1.migadu.com (out-25.mta1.migadu.com [95.215.58.25])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E0B12DCF57
-	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 14:49:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78AA9367293
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 14:51:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788619762; cv=none; b=NLvTSv3zG5KOm/eQUDb8Oe0o9JFNv1LLKuyFImjzRMSbwp1ONXIERaDzxH1/C1Ovxd0/MoheILKvxeFQc68XYLYbUkxZ1YnUSYrxVQX6GrHXgeC+FiBOQWLF3hqISPxp0ga45wHNWIUV7aZvPi3ndUwjlbqROiP9ZCvnh+NPlHU=
+	t=1788619871; cv=none; b=X/VUowMDk0L/IhFW2DzYEhimYWiFJa+GsYWx53rdKIakfgZ/hxY2+N9idENJ00R7f1hyNh7Pgnfty/BT33Qf/nOI6zXXJX2WndySrxZ7jN8NgLs44b9HHpLf2R23DTD1jQ1FiZJC/ehjM7gsZAqm2UbMfvx8BY+feIi/9gJd6MM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788619762; c=relaxed/simple;
-	bh=KMsll9iQFNSUTrh8N8anWA8Wgq6/rLAsmD1HO/f5UgQ=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=J5u0KS74jjaGghmVX0NNXr6eh9atw52maudq3oR9Ywoya2HqdVKUAul/0kQ/AD38YLk5wtkWWhDROFCD6a8VkcJvUjP0iTtiaSM36yHRJp16qnyDtvBLIr+lrGE6iE7oLl28elyNG1D3Ib0PPB3KHq27ila9T6QbHC1P5kdFhyQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=AhzBn0S/; arc=none smtp.client-ip=95.215.58.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1788619871; c=relaxed/simple;
+	bh=3Vk7mKzSKmEp/zQZxZAZI39YyaSFDrnGSoBqwrGDM3w=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=NHfuDyt9TurrG4eHqMIK3FU+IE4HfVAcjqRr8M9zLhOOwvfAkqJ4y+WibQ+RPkemoT2/zF2WIBXVVfKS2XfRwqCFZZl6m1QHxuy3FYCad5lt0G4WyiwMp72yxp/LIwAa16zP6YYMjpi3OkGMbS2ZdO0qNjgTfWtjAjyx4WnxpGk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gq7bhwCG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="AhzBn0S/"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=KMsll9iQFNSUTrh8N8anWA8Wgq6/rLAsmD1HO/f5UgQ=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1788619759; v=1; x=1789224559;
- b=AhzBn0S/kJPwc+139MuoUD1UXTazKXpX6Ov5E0ppE8MZ9SQyoZtIjasdnjb1QSvthF7Zxdjz
- 91RHYBLLMnDISnp/Ui5+uXfu8MKupjLnKQVapxdplCfA6rcjggLf0gr/NGBY6NGEYjjBTDbkDGd
- c8RJfJ2fOFuNBoexwCRHjN0g=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id c050fd726f4a85f9;
-	Sat, 05 Sep 2026 14:49:09 +0000
-X-Mizu-Trace-ID: c050fd726f4a85f9
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <cf9ff462-1a77-44c7-92fd-2b11518aeb69@linux.dev>
-Date: Sat, 5 Sep 2026 20:19:06 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gq7bhwCG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C86BB1F00A3A;
+	Sat,  5 Sep 2026 14:51:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788619870;
+	bh=5Ts4UJXPPsj3BkdBNRiXh+htF4Noa01M2JyZDDhCq6c=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Gq7bhwCG5H+5ZzkVJt2xgeyocxEud8XnftDUYSQoVLRKa6yAjQpQ8KxT+L69FNkrK
+	 dSj5baP3ud/dtB/oSraKCVJG3SFlZxcO/os14p0J7PYycZpssvDanVzZFTRHhOpV7l
+	 2Gylf4GQNtm9zloYaC7cf9u7Vmj6e13cLP+78xOh0Tl6BasXk2lAw/twYtP+mVJ9sU
+	 cF5z1HfY0XDwAapPN1IltxqenFsONfYruCttypTgqouYCqj3Nfs4usaDWlS5KBCIpw
+	 fHP9DwNllhQ1ouZJMGjhSwz9yi2bOPFS/TGc9aI4ueh4lbjQbKb8erUQ6yavXMmWQv
+	 LlHXfAyJl0lkA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4] HID: appletb-kbd: support layer switching on Fn
+ double press
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aditya Garg" <aditya.garg@linux.dev>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260905143733.17819-1-aditya.garg@linux.dev>
+References: <20260905143733.17819-1-aditya.garg@linux.dev>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 05 Sep 2026 14:51:09 +0000
+Message-Id: <20260905145109.C86BB1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] HID: appletb-kbd: support layer switching on Fn double
- press
-From: Aditya Garg <aditya.garg@linux.dev>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Linux Input Mailing List <linux-input@vger.kernel.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Andre Eikmeyer <dev@deq.rocks>
-References: <20260905143733.17819-1-aditya.garg@linux.dev>
-Content-Language: en-US
-In-Reply-To: <20260905143733.17819-1-aditya.garg@linux.dev>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
+New issues:
+- [Medium] Logic Error / Jiffies Wrap. Zero-initialized timer incorrectly t=
+riggers layer switch on every key press during early boot.
+- [Low] Dead Code. The switch block contains unreachable break statements.
 
-On 9/5/26 8:07 PM, Aditya Garg wrote:
-> Holding Fn temporarily switches the Touch Bar between media controls and
-> function keys. Users who want to keep the alternate layer currently need
-> to change the mode through sysfs.
-> 
-> An optional double_press_switch_time module parameter makes a double press
-> persistently switch the default layer. Its value specifies the double-press
-> interval in milliseconds, while zero leaves the behavior disabled.
-> 
-> Signed-off-by: Aditya Garg <aditya.garg@linux.dev>
-> Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
-> ---
-> Changes in v2:
-> - Added a check to ensure negative fn switch times are ignored.
-> 
-> Changes in v3:
-> - Renamed the backing variable to match the module parameter.
-> - Fixed the reported code style issues.
-> 
-> Changes in v4:
-> - Added missing "break;" in case statements.
-> - Change author's email to aditya.garg@linux.dev
+Pre-existing issues:
+- [High] Sleeping in Atomic Context. The input event handler calls a sleepa=
+ble HID power management function, causing a kernel panic.
+--
 
-Now that I see it, the case statements were ending in return. break was not needed. Sorry for the brainfart.
+commit 2e557c5f2297282525c11706211299ba134eef07
+Author: Aditya Garg <aditya.garg@linux.dev>
+
+HID: appletb-kbd: support layer switching on Fn double press
+
+This commit adds an optional module parameter to allow a double press of th=
+e Fn
+key to persistently switch the Touch Bar's default layer, avoiding the need
+to change the mode through sysfs.
+
+> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+> index 5cc27066f6026..f10d093c2b3e3 100644
+> --- a/drivers/hid/hid-appletb-kbd.c
+> +++ b/drivers/hid/hid-appletb-kbd.c
+[ ... ]
+> @@ -243,6 +250,20 @@ static int appletb_kbd_hid_event(struct hid_device *=
+hdev, struct hid_field *fiel
+>  	return kbd->current_mode =3D=3D APPLETB_KBD_MODE_OFF;
+>  }
+> =20
+> +static u8 appletb_switch_mode(u8 mode)
+> +{
+> +	switch (mode) {
+> +	case APPLETB_KBD_MODE_SPCL:
+> +		return APPLETB_KBD_MODE_FN;
+> +		break;
+[Severity: Low]
+Are these break statements unreachable since the cases return directly?
+
+> +	case APPLETB_KBD_MODE_FN:
+> +		return APPLETB_KBD_MODE_SPCL;
+> +		break;
+> +	default:
+> +		return mode;
+> +	}
+> +}
+> +
+>  static void appletb_kbd_inp_event(struct input_handle *handle, unsigned =
+int type,
+>  			      unsigned int code, int value)
+>  {
+[ ... ]
+> +			if (appletb_tb_double_press_switch_time > 0) {
+> +				unsigned long now =3D jiffies;
+> +
+> +				if (time_before(now, kbd->last_fn_press +
+> +					msecs_to_jiffies(appletb_tb_double_press_switch_time))) {
+[Severity: Medium]
+Will this condition incorrectly evaluate to true on every key press during
+early boot on 32-bit systems?
+
+Since jiffies initializes to a large negative value (-300 seconds) on 32-bit
+architectures, now will be negative. Because kbd->last_fn_press is initially
+zero, time_before(negative, positive) will evaluate to true.
+
+> +					appletb_tb_def_mode =3D
+> +						appletb_switch_mode(appletb_tb_def_mode);
+> +
+> +					appletb_kbd_set_mode(kbd, appletb_tb_def_mode);
+[Severity: High]
+This isn't a bug introduced by this patch, but could calling
+appletb_kbd_set_mode() from appletb_kbd_inp_event() result in sleeping
+in atomic context?
+
+The input subsystem invokes the ->event callback (which maps to
+appletb_kbd_inp_event) with the per-device spinlock held and local interrup=
+ts
+disabled.
+
+appletb_kbd_set_mode() calls hid_hw_power(hdev, PM_HINT_FULLON), which
+resolves to usbhid_power() and uses pm_runtime_get_sync() (a sleeping
+function).
+
+> +
+> +					kbd->saved_mode =3D appletb_tb_def_mode;
+> +					kbd->last_fn_press =3D 0;
+[Severity: Medium]
+Might resetting last_fn_press to 0 guarantee the above time_before() bug wi=
+ll
+indefinitely trigger on every press during the 5 minute boot window before
+jiffies crosses zero?
+
+> +
+> +					return;
+> +				}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260905143733.1781=
+9-1-aditya.garg@linux.dev?part=3D1

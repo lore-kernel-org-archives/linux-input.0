@@ -1,40 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE103E00A5;
-	Sat,  5 Sep 2026 11:30:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A76553655EA
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 12:25:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788607858; cv=none; b=JYSszwqa3Z/E5Ox6zflXxZRvIZJi8jhTuSxDpSohRaMhstPvBRgmWT9s9HdjVt11HeKmCHUHFkKZYPym9jqq5gatV1Xu2ymHTgFUJveRoYrHAqcIG4YqJLuKnEr2Nfd5Q2OUhxoWjXkN1t5a/M1hMVkeG3pwutMjVDqBYpuova0=
+	t=1788611110; cv=none; b=LDn9Z3WHapfbofRixJ0q4/BefBQu+axDJVg5kLwjgYwul+H+g+wTjRSRK9vwDBCqXZecG03Q0GnwEZ8FunMWO7UzzI4iEIYMzcSJBssqJIESeXocgC2Vm/nU/B7E9b+v6K8EDBtpgEzfIIPUN+Oj4P7U+2L++2ah8bo3U2UbMDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788607858; c=relaxed/simple;
-	bh=maFTYAXrslngym6UpC8jN+SMqgee7/aOIO+WCHPCdcM=;
+	s=arc-20240116; t=1788611110; c=relaxed/simple;
+	bh=7FDVdWewnpg54EuU9ucLHlKJB14SIxO1UfQn4Ib5/nI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jbWzSt8+SSyebILk8xBK4tmGjk4s5sydU+lnDDSK6d2dQr2syBG9T0Nm5uG0oswXnT6VYnI889+pjqf1XfZSLsWeTfT+yQDUcQZ3tanok9nzOMHUtf89+4h2E45o4x78cV3LBbcdPm77W2n54Dbk4wKx2wLcE9fgI7JgtjNkUNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=ljyzQ61h; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=BfTsNZRCv4g87Z6TefJydA3YAWOX0kqXxVvHgwwvQzlJy5mqzJM3eo/wYHIkTIf2+KelbU9AVab2jNCfpLMcU88/LiwtiRDA/7o1JUCVWpul4VF2+sPaR9yw20ypnndseMTqcDUwMW1laGr/6r3ughsgTKDiHlFKY/C8DEyWMyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NIppZdlg; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="ljyzQ61h"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C6561F00A3D;
-	Sat,  5 Sep 2026 11:30:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1788607856;
-	bh=cjQbOv3OS+Rkr81lmfPRnC5MozHa05tocJXmiA0asO4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ljyzQ61hM09ESjFJs65ThgWUZDNoEDzICBUfHo/ulPccb0xn7jkTnroPMrzBW6Ir3
-	 4oA6vDclfjOGYg76awApxJuR8CvsUyKBGUN0vjCn0rhefGK2h7LitSacHVUmsuhfnK
-	 bN495BehPGVK4Vuk94Juezhzz2dZoR7+lESotFIs=
-Date: Sat, 5 Sep 2026 13:29:11 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Breno Rodrigues Alves <breno3011alves@gmail.com>
-Cc: torvalds@linux-foundation.org, linux-kernel@vger.kernel.org,
-	arnd@arndb.de, linux-clk@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-	linux-pci@vger.kernel.org, linux-usb@vger.kernel.org,
-	linux-sound@vger.kernel.org, linux-staging@lists.linux.dev,
-	linux-fbdev@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH] Kconfig: purge twenty-nine legacy ghost options
-Message-ID: <2026090551-abrasion-fool-3586@gregkh>
-References: <20260904231240.87106-1-breno3011alves@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NIppZdlg"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-485888b3c3dso2007090f8f.2
+        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 05:25:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788611107; x=1789215907; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=6jyEkPF9QjFxAuLX7joeVpRJHHAcWObix5FAN064Z/Y=;
+        b=NIppZdlgCAPQoL9WttB6AfgdCQRal5wFr5AQEERkH6DIce3Ho5ioUFe8AsyN6mXF9X
+         WTTLdt+yXULuDEsYVloplBF5n/DkRxynvvEDu8QzFlq983/ccKEtRGDoYtIGDzuhDQGy
+         szamzdSZUWmm0H2dVvJyYZ2SAxK2uruAjLFEeTSx//uFzCfaqKK9B8LjdX2yIvIgFQw/
+         opc6X+p+Qz/vZykF3mkz59Wkj+ik/zH4gU6pkTwM6mRUq9BCOmXeuPQPy5IIZlEY3Gbp
+         OnF1+6TLj7aJtaC9kVDZRK7DgVMt72mQKzvVKHsXAPYlL707BaFhHimeyEAaI0zC6f0s
+         8FRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788611107; x=1789215907;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=6jyEkPF9QjFxAuLX7joeVpRJHHAcWObix5FAN064Z/Y=;
+        b=Mfuz82d+ckAU753SrdI7MqWFWhNgSZnlKqDAPxliu6HNhotBlfF++/Pxol7fDL0ZRC
+         91LswNnt3AKfdaVeokVTsNiuDHyJ6bTSbbdLMIhzFD/n1CVS/m7ySz9/mi+iC4zrxPGI
+         j7A4Wmk7KIkhFvmGrZTEIAtX9tg9XMaVoBH/xaEY/H1oTONwNhZ3fWshVIBYKR1n6PpX
+         8lJQtnZffq198zEoayXTdiLPy5ITjmcwm03uEEvHPj2PvPnOkyxBW+i0Ol1IxO0dzNPF
+         RcZ+Ky/YnzAc3Gl3cAKwUQCOZRRrv3ZuT2IhUs/g2vmCLoKaBZlgrpb/aMW2gC4HwwS2
+         +/SQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxkf+h0pKWHGPoVfEI9PyEE9/T6lT4fwrB5EcOmepiJu1AqHEe7Y5lnW5QjMMgtJEPUCOgB4tCKuOmMvQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lmXbe+UdcQof4in/VyXZJW/OKmZm34idmil9Ve3iWwmYMI109o
+	g5o7UWc63izXJv1XKaIq6lm/A7aRabazZy4XJYQb1IY9KFTv19XlUr8X
+X-Gm-Gg: AYBFou0yUz028nkyGic/3DbNBUf/WB+N9DmI5474Y0jaDZE9V5MjkaRjbYfwo+a2nr9
+	Ox2AeC4SLA+mMmdGnXscNQrfN1RMusAhvxB+dGd3u+TmfWMmTTQuWbqFZvTQyBnVXoIG38rbqEf
+	sD1kClBTKBAtZ/ahACHhtWmFBNuS2fdmV50xDk9SX00+3XZmY4MTYo9+O3VNveV7La2OC9Q/OMD
+	PQPEX08x7c8ZzX5VWz2KeXTXfYdj32sFRPgVj+Zm5Sy+Fi6KHCnoeevCgkh+N2obMiyQHTMoJL7
+	o+a9lYrxGFYPg6D1BunndXbUf6ityCiqUI31fNbofrFeCXeIve2yI5WPKHM++3NZTXUJ8JrpY6q
+	TsgcmILCT5TCxOXv/rVExxAd/csX2iVgEKHAHWWpqdbenhBw/ujl1wM0YKanqC1CCUSQIAnKtTw
+	v4z51WsV/U1oBtYrTO9FDMc/bYrtjeg1OSe5rwMO58wQ3eZMzwVTRmYeuY+Llq76w9BulvT3VR6
+	J+qYXxUFVTHMy2UOMPBLFg14lHuKgjKXX2qcfReM/Fck1NLn97dRslnKCdUPBRIrL9/kT68l0c5
+	tO0GUTwTKwCwvvegMFy8T3NVTXMiegfjayMAjkb4M7mWVGAQXEVrgAwmXCn1yA3Z
+X-Received: by 2002:a05:6000:41db:b0:485:82f9:44b4 with SMTP id ffacd0b85a97d-4858709c044mr15925496f8f.7.1788611106580;
+        Sat, 05 Sep 2026 05:25:06 -0700 (PDT)
+Received: from unknown748F3CBA5068 (dynamic-2a02-3100-a4eb-3001-c06d-af27-9fa2-ea53.310.pool.telefonica.de. [2a02:3100:a4eb:3001:c06d:af27:9fa2:ea53])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48588392b3esm15549562f8f.12.2026.09.05.05.25.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Sep 2026 05:25:05 -0700 (PDT)
+Date: Sat, 5 Sep 2026 14:25:02 +0200
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jonathan Corbet <corbet@lwn.net>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-doc@vger.kernel.org, 
+	Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Steve Wahl <steve.wahl@hpe.com>, 
+	Dimitri Sivanich <dimitri.sivanich@hpe.com>, Mike Travis <mike.travis@hpe.com>, 
+	Tony Luck <tony.luck@intel.com>, "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, linux-samsung-soc@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, Tony Lindgren <tony@atomide.com>, 
+	Kevin Hilman <khilman@baylibre.com>, Linux-OMAP <linux-omap@vger.kernel.org>, 
+	Dominik Brodowski <linux@dominikbrodowski.net>, Damien Le Moal <dlemoal@kernel.org>, 
+	Niklas Cassel <cassel@kernel.org>, linux-ide@vger.kernel.org, 
+	Ethan Nelson-Moore <enelsonmoore@gmail.com>, Michael Schmitz <schmitzmic@gmail.com>, 
+	Andreas Kemnade <andreas@kemnade.info>
+Subject: Re: [PATCH v2 0/9] docs: kernel-parameters: Remove ten entries for
+ parameters that no longer exist
+Message-ID: <apwIbDr0kyquxVoL@gmail.com>
+References: <20260905094649.41996-1-kmehltretter@gmail.com>
+ <693303da-350b-4295-b008-6fee8bb4c591@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,56 +92,148 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260904231240.87106-1-breno3011alves@gmail.com>
+In-Reply-To: <693303da-350b-4295-b008-6fee8bb4c591@app.fastmail.com>
 
-On Fri, Sep 04, 2026 at 08:12:40PM -0300, Breno Rodrigues Alves wrote:
-> You can keep a dead config option around for a while out of sympathy.
-> After a couple of releases it stops being "transitional" and starts
-> being "you are confusing every user who greps for it". These options
-> select nothing, gate nothing, and -- I checked by hand, this is not a
-> regex accident -- are referenced by exactly nobody in the tree.
+On Sat, Sep 05, 2026 at 12:12:51PM +0100, Arnd Bergmann wrote:
+> On Sat, Sep 5, 2026, at 11:46, Karl Mehltretter wrote:
+> > kernel-parameters.txt still documents ten boot parameters whose parsing
+> > code was removed with the drivers or platforms that used them, one of
+> > them (atarimouse=) since before the git history. One patch per
+> > parameter, each with a Fixes: tag for the commit that removed the
+> > parser, so the maintainers of that area are on their own patch only;
+> > the two pata_legacy module parameters share the last one. Each entry
+> > was checked with git grep for its __setup(), early_param() and
+> > module_param() handler and with git log -S for the removing commit.
 > 
-> Evidence for each removal:
->   * no CONFIG_<sym> reference outside the Kconfig definition itself
->   * no <sym> reference as an 'if'/'select'/'depends on' target
->   * no mention in any defconfig, any Documentation, or any source build
->   * the code they used to gate is gone (removed or folded into a real
->     driver that already has its own, functioning config symbol)
+> These all look good to me,
 > 
-> Headliners of the graveyard:
->   - HID_THINGM: help text literally said "will be removed soon". Well.
->     Gone now. The blink(1) driver is HJID_LED.
->   - USB_CONFIGFS_F_TCM: the real fabric always built via USB_F_TCM; the
->     "CONFIGFS" name was a leftover from when someone could not decide
->     what to call the thing.
->   - USB_EHCI_TEGRA, USB_OCTEON_OHCI, USB_OHCI_HCD_SSB: help text says
->     "driver was removed, use X instead". The other X already exists.
->   - PANEL: proudly labeled "OLD OPTION" with its own "Deprecated
->     options" section in the file. The actual parport lcd driver has
->     always been PARPORT_PANEL.
->   - COMMON_CLK_MT6765_*: seven sysclk entries with no matching object
->     in the Makefile. Zero files built, zero regrets.
->   - The usual kconfig-vandalism suspects (HAVE_PWRCTL, REGULATOR_MT6316,
->     INTERCONNECT_MTK_MT8196, CLK_SUNXI_PRCM_SUN9I, DVB_ULE_DEBUG, ...).
+> Acked-by: Arnd Bergmann <arnd@arndb.de>
 > 
-> Validated: defconfig, olddefconfig and randconfig parse clean on both
-> x86_64 and arm64; headers_install (the target that replaced the dearly
-> departed headers_check, which this tree does not have) succeeds with a
-> clean UAPI on both architectures. Because someone will ask: yes, I
-> checked the s390/arm/riscv No, I did not delete any arch/* Kconfig, and
-> no, I did not touch a single include/uapi/ file.
+> If you have a script that you can easily run on another tree,
+> could you send me the script or the output for this one?
 > 
-> Why should you care? Because "make menuconfig" allegedly lets people
-> configure the kernel, and leaving a menu full of options that do
-> nothing makes them feel like they have a choice when they really are
-> just being sold snake oil. Clean it up.
+> https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/log/?h=board-remove
 > 
-> Signed-off-by: Breno Rodrigues Alves <breno3011alves@gmail.com>
 
-Did you forget the Assisted-by: tag here?
+Thanks for the review! Yes, here is the script, improved a bit since the
+series was made.
 
-ANd this should be broken up per subsystem please.
+It does not show anything on your branch though. board-remove at
+c12d647b0229 removes 40 registrations, none of them a documented
+parameter that loses its parser. The three documented names among them
+(debug, irq, noalign) are still registered by other code.
 
-thanks,
+Run it with
+    check-kernel-parameters.py -C ~/soc --diff 8d3ae59288f1 board-remove
 
-greg k-h
+Its report mode turned up a second batch of stale entries on mainline
+(r128=, mga=, i810=, tdfx=, smart2=, shapers=, hd=, goldfish, js= and a
+few more), which I might send later.
+
+Thanks
+Karl
+
+The script:
+
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-2.0
+"""Find documented boot parameters that nothing parses any more.
+
+Reads Documentation/admin-guide/kernel-parameters.txt at a git revision and
+looks for the registration of every documented name in the code at the same
+revision: __setup(), early_param(), core_param(), module_param() and friends.
+Names without a registration are printed together with whether the name at
+least still appears as a string somewhere (cmdline_find_option() style
+parsing), so a human can decide. A parameter that was only ever parsed by
+hand, without any of the macros, is invisible in both modes.
+
+Usage:
+    check-kernel-parameters.py [-C tree] [REV]           report for one revision
+    check-kernel-parameters.py [-C tree] --diff A B      names parsed at A but not at B
+
+Runs entirely on git objects (git grep / git show), no checkout needed.
+"""
+import argparse, re, subprocess, sys
+
+REG = r'(__setup|__setup_param|early_param|early_param_on_off|core_param|core_param_unsafe|late_param|module_param|module_param_unsafe|module_param_named|module_param_named_unsafe|module_param_cb|module_param_cb_unsafe|module_param_call|device_param_cb|module_param_string|module_param_array|module_param_array_named|module_param_hw|module_param_hw_named|module_param_hw_array|__core_param_cb|torture_param|param_check_\w+)\s*\('
+LEGEND_STOP = 'Kernel parameters'   # the tag legend ends at this heading, the parameter list follows
+
+def git(tree, *a):
+    r = subprocess.run(['git', '-C', tree, *a], capture_output=True, text=True, errors='replace')
+    if r.returncode and 'grep' not in a[0]:
+        sys.exit(f'git {a[0]} failed: {r.stderr.strip()}')
+    return r.stdout
+
+def documented(tree, rev):
+    """Return {name: line} for every parameter entry in kernel-parameters.txt at rev."""
+    txt = git(tree, 'show', f'{rev}:Documentation/admin-guide/kernel-parameters.txt')
+    names = {}
+    in_list = False
+    for n, line in enumerate(txt.split('\n'), 1):
+        if not in_list:
+            if line.strip() == LEGEND_STOP: in_list = True
+            continue
+        m = re.match(r'^\t([A-Za-z][A-Za-z0-9_.-]*)(?:=|\s|$)', line)
+        if not m: continue
+        name = m.group(1)
+        if name.isupper() and '.' not in name: continue     # a stray tag, not a parameter
+        names.setdefault(name, n)
+    return names
+
+def registered(tree, rev):
+    """Return the set of names registered by the parameter macros at rev."""
+    out = git(tree, 'grep', '-h', '-E', REG, rev, '--', ':!Documentation', ':!tools', ':!scripts')
+    names = set()
+    for line in out.split('\n'):
+        for m in re.finditer(REG + r'\s*"?([A-Za-z0-9_.-]+)', line):
+            name = m.group(2)
+            if m.group(1) == 'torture_param':     # torture_param(type, name, init, msg): the type comes first
+                mm = re.search(r'torture_param\s*\(\s*\w+\s*,\s*([A-Za-z0-9_]+)', line)
+                if mm: name = mm.group(1)
+            names.add(name.rstrip('='))
+    return names
+
+def string_hits(tree, rev, name):
+    """Files at rev that contain the name as a quoted string (manual command line parsing);
+    a dotted name is looked up whole first (arm64.nobti style tables), then by its last part."""
+    for probe in ([name, name.rsplit('.', 1)[-1]] if '.' in name else [name]):
+        out = git(tree, 'grep', '-l', '-F', f'"{probe}', rev, '--', ':!Documentation', ':!tools', ':!scripts')
+        hits = [l.split(':', 1)[1] for l in out.split('\n') if l]
+        if hits: return hits
+    return []
+
+def parsed_at(tree, rev):
+    docs = documented(tree, rev)
+    regs = registered(tree, rev)
+    def ok(name):
+        if name in regs: return True
+        base = name.rsplit('.', 1)[-1]          # module.param= is registered as module_param(param)
+        return base in regs
+    return docs, {n for n in docs if ok(n)}
+
+def report(tree, rev):
+    docs, ok = parsed_at(tree, rev)
+    missing = sorted(n for n in docs if n not in ok)
+    print(f'{len(docs)} documented parameters at {rev}, {len(missing)} without a registration macro:')
+    for n in missing:
+        hits = string_hits(tree, rev, n)
+        tag = f'string appears in {hits[0]}' + (f' (+{len(hits)-1})' if len(hits) > 1 else '') if hits else 'NOT FOUND anywhere'
+        print(f'  {n:40} kernel-parameters.txt:{docs[n]:<6} {tag}')
+
+def diff(tree, a, b):
+    docs_a, ok_a = parsed_at(tree, a)
+    docs_b, ok_b = parsed_at(tree, b)
+    lost = sorted(n for n in ok_a if n in docs_b and n not in ok_b)
+    print(f'documented parameters parsed at {a} but no longer at {b}: {len(lost)}')
+    for n in lost:
+        hits = string_hits(tree, b, n)
+        print(f'  {n:40} kernel-parameters.txt:{docs_b[n]:<6} ' + (f'string still in {hits[0]}' if hits else 'no string left either'))
+
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-C', dest='tree', default='.')
+    ap.add_argument('--diff', nargs=2, metavar=('A', 'B'))
+    ap.add_argument('rev', nargs='?', default='HEAD')
+    a = ap.parse_args()
+    if a.diff: diff(a.tree, *a.diff)
+    else: report(a.tree, a.rev)

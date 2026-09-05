@@ -1,122 +1,108 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C221D2E7BD6;
-	Sat,  5 Sep 2026 12:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67E1C4A0155
+	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 12:44:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788612135; cv=none; b=AHTKBM6cqnQ2MkIWQ4y/u0JNpRhqfDjn4bJJsQeeM+NH3LLXDqmUt/Mdx6XEaWsJjX3NRrHFTH2AwuXk6SFJhVykWX8LTwZXDrqBUoJyrrcdM1cZU3RTZxhwtLii0yXnS+OQS566L6NDuw+TBaAn9AsVRj7Gg5b1YXLZYkzTWnQ=
+	t=1788612282; cv=none; b=tv9z3DBstBIn5eo2x43daUxsekyUHRWaGvR9hvm0iEa/W7RTNVyAJL3ktXAUjoZRyihyK9l3h80Hv/rdYnUBQwmJzGkrWMGqTJx9jffhFEOLOrAMhNPunTiIUCr4iDm+yHuJFzGQjyMxoeWXyei07zzZAlWgaf+SClvbhbBBTqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788612135; c=relaxed/simple;
-	bh=6g4N7ZWYpHeM2bDF+cbgZum7pz0WkkYOOWN7e1zATJE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jIN2TzSQ9304wR29TiYP4bEza5VgbCxZItTsX3426gi2Y1HWH46HzLlznwENXgvAIo0BB863s3/Z5ieFdMyjB8t13UG7BD6dg/VT7aVEaoeDZ1AY+AxrfVRj4L/G5Uek9lTCJ+pabBUKz6mI2LjAjq5aavsijdTiyFdTE9koOh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nI0bl9jg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788612282; c=relaxed/simple;
+	bh=6f5p//qeeEhJiLT6hla2lNz47zEGEWS2WmSvXXHcHig=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fExON892vxJ5loJyXYp8HFI5g5htpjjJ5KCbPrY2JpDWQCJoAQLWoHbJXC1ncxJik3ID7GXLl4olmKNRtsHajl2BTwVMLInW4UXmR1/pVgBMUu9V0PBOpGipr6dvP21yMJtrbXngMLzs8MjWdYCesBPGhgk+VdZ4FrUjPdJzs8Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jzBSFuhs; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nI0bl9jg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 010D81F00A3D;
-	Sat,  5 Sep 2026 12:42:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788612134;
-	bh=tO5OseRptbV49LjJbJjeU0zXCobceuFU31HSM8yp0F0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nI0bl9jgobSbcDs5SR3BhT3f/PdlJnHqC2Din6WHVCSip1Xqn3EDgW0NNNB3CB8B2
-	 P/o+FwYp8TAsdaLi4OTZbuVHOPIrNXvUBB7vb50hRm2EGCqb2cV6Gw6VfpyQyknatu
-	 JMSUTPFrvFbuvVoPywoet7ACXQ4yrX66jdyGbgUnYx7jaR/mxXjiMVDnSuIoUzZeLd
-	 qe2JC3tQWi7/+G0I0WE9JPoNTTY17LQmU1igHAKosdIeG3ONuZajMFliPz3i9Fox/n
-	 73VYiNx9e8zOnax8L5YYSdg7h3Ji53UvdU7+3B5lCD3QkVXsV9FO8vcSorjnMEYMFS
-	 iHYM1VSdTf4ug==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 3/4] media: dvb-core: remove defective and unsafe ULE
- debug block
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Breno Rodrigues Alves" <breno3011alves@gmail.com>
-Cc: linux-clk@vger.kernel.org, dmitry.torokhov@gmail.com, linux-pci@vger.kernel.org, media-ci@linuxtv.org, linux-input@vger.kernel.org
-In-Reply-To: <20260905123450.5620-3-breno3011alves@gmail.com>
-References: <20260905123450.5620-1-breno3011alves@gmail.com>
- <20260905123450.5620-3-breno3011alves@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 05 Sep 2026 12:42:13 +0000
-Message-Id: <20260905124214.010D81F00A3D@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jzBSFuhs"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2cace91f112so16487685ad.0
+        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 05:44:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788612280; x=1789217080; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=sCkeW/rlDEZbQRwhNQlqYVSLXnulFlxF+aDVtk4kLrI=;
+        b=jzBSFuhsbkrPCo505JQz3G+xdlugkLc+IBPvSy0XsIfFSJd/c8mRnEylKYpvF/ZV+K
+         iQUQvk2s2tPlR5qay3SW81SyUF3LUWrPBD3BL+8kQzuMGyi+PCzUPb2ziwy44odAhWxJ
+         KTAOHC2ufuge6vYiRCOS/R/oyBcXjCrVSqvelyemGLd9ZIkupmKYvwNzB5GYnZNZPujQ
+         Hjn7VrXRaVdL0DKmXwRFpiet0mtZDoEHvKcaCOFkF1M4dpc5T65ijaEJtaFuAXazWNgX
+         EnDpoQPToYSNlZENI5dBX7MQGfVkGX5FExIrLz0LfI9EpCnPlAHcMuO4m31CgfjJ6jSx
+         hELg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788612280; x=1789217080;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=sCkeW/rlDEZbQRwhNQlqYVSLXnulFlxF+aDVtk4kLrI=;
+        b=qTynliWdYak+dmRJ4MyOd5qfrIsDd1T6UnliU5WIoGfZKHaGJA5w/xx/3GLOUp4HGX
+         RaLwkyae9mGQjPoT0cXGKvK+HTYg5yjOCiYc1qjbShJl4raeD/e3ds6pGKTP1bLG8LT1
+         vovOq73QoJZyusapNtRtmX2wJVICBs2Ja6Gx/DceV4zfLGCR0uSlN+IkwyG+8OggLv//
+         UFaKXrXqcdlm7vziQ9KncmV/+RAnaG2a2csOdZHGkbAsEmw6pAdPBLl51piFvXOk+k1c
+         XZOu25wZjY3ezfWuuF4jwvirsXBQnaZBsWuaHCXugMMnHIZUiMYL25ssDqhfxn/jeZI5
+         xlWA==
+X-Forwarded-Encrypted: i=1; AKwUvBxv3iDemL+LcNVj+a4bWD8//8wJ+5C7fT80gcx2GWO69V2V7l1O9tI18cQZ6JplSaiw8lhvAPlsFRo/Bw==@vger.kernel.org
+X-Gm-Message-State: AFuF++lKg8pAxognzcZ4+YmoGz37+fqQpBFPvEmJGoyypvEB+z353Hb7
+	YZ5C04ZBKEU8Ip7B99NfTTY9a4YwW8OgMK8B6tkMUQ/Fc2gnVGoZxA6K
+X-Gm-Gg: AYBFou0bqxj5p9cQI63B938XtpsSbVlirAEEYMoXfjgMrbSZBJWdOJKUtOd+fQog8r7
+	B37mLBeIRIzQtmhTWHDjZ76mE5KOfC8eDmjXkDlO8qD9MIa9Aix6plrPsfxpChXzZjU1ZxMOb3N
+	iIPiE/Ci6bJP1G5UlHPWhn+jvru1fxs1yzUAQJi493g+/800mzNvk8M/0r4nLN+h1igh8KMarlz
+	pWzNZwrht83G+liRUMz5h1ERrw5d95Lbc4elFqsG2I2YsIeKh02aLCKqr1Xt2SSjoP7u/GO2h3k
+	bkWYyMkah2ROLG0hei3e6SBQtIzw2veazSpSxAL9BNQebmGONl7EXWzwHFV6IVaRqKH9Pv72YGe
+	QGZn0lDCCwY9AqH6kAjkqVRbDuIYHSWfvQlY+rkZuJfJ8y6AW+Bzu4zdsiI9bmMO6svAmE+smQ/
+	9qqxWdMo5O13IE8sbwcfagA+JkCOwMfIcX/54wyl2rq2839b7YD4RqXL53au3zdaURrHuB1F8Yh
+	PxD5EyLHVm+pRpA9pWE8o00sx38zEbp
+X-Received: by 2002:a17:902:e805:b0:2db:3b35:1ac6 with SMTP id d9443c01a7336-2db3b351c2emr5928535ad.5.1788612279984;
+        Sat, 05 Sep 2026 05:44:39 -0700 (PDT)
+Received: from Biostar-A520MT.. ([187.94.13.245])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3346ea43377sm11740417eec.3.2026.09.05.05.44.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Sep 2026 05:44:39 -0700 (PDT)
+From: Breno Rodrigues Alves <breno3011alves@gmail.com>
+To: gregkh@linuxfoundation.org
+Cc: torvalds@linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	arnd@arndb.de,
+	linux-clk@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-staging@lists.linux.dev,
+	linux-fbdev@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	Breno Rodrigues Alves <breno3011alves@gmail.com>
+Subject: [PATCH v7 1/3] interconnect: mediatek: fix Makefile typo for mt8196
+Date: Sat,  5 Sep 2026 09:44:32 -0300
+Message-ID: <20260905124434.6163-1-breno3011alves@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Critical] The patch claims to completely purge the unmaintained DVB_ULE_=
-DEBUG code block due to severe lockless race conditions and buffer overflow=
- vulnerabilities. Instead, it only renames the macro to `CONFIG_DVB_ULE_DEB=
-UG`. This effectively connects the previously dormant code to the Kconfig b=
-uild system, enabling the compilation of the vulnerable code and exposing t=
-he kernel to the exact vulnerabilities the patch claimed to mitigate.
---
+Correct a copy-paste typo in the MediaTek interconnect Makefile that
+mapped mt8196.o to CONFIG_INTERCONNECT_MTK_MT8195 instead of MT8196.
 
-commit dbd3a4787c312d697a3d80cb3e2c0e2207187d0b
-Author: Breno Rodrigues Alves <breno3011alves@gmail.com>
+Assisted-by: OpenCode AI
+Signed-off-by: Breno Rodrigues Alves <breno3011alves@gmail.com>
+---
+ drivers/interconnect/mediatek/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-media: dvb-core: remove defective and unsafe ULE debug block
+diff --git a/drivers/interconnect/mediatek/Makefile b/drivers/interconnect/mediatek/Makefile
+index 6bd656668..64170ab16 100644
+--- a/drivers/interconnect/mediatek/Makefile
++++ b/drivers/interconnect/mediatek/Makefile
+@@ -3,4 +3,4 @@
+ obj-$(CONFIG_INTERCONNECT_MTK_DVFSRC_EMI) += icc-emi.o
+ obj-$(CONFIG_INTERCONNECT_MTK_MT8183) += mt8183.o
+ obj-$(CONFIG_INTERCONNECT_MTK_MT8195) += mt8195.o
+-obj-$(CONFIG_INTERCONNECT_MTK_MT8195) += mt8196.o
++obj-$(CONFIG_INTERCONNECT_MTK_MT8196) += mt8196.o
+-- 
+2.43.0
 
-Completely purge the unmaintained DVB_ULE_DEBUG code block from dvb_net.c
-due to severe lockless race conditions and buffer overflow vulnerabilities
-on global network state variables.
-
->     media: dvb-core: remove defective and unsafe ULE debug block
->    =20
->     Completely purge the unmaintained DVB_ULE_DEBUG code block from
->     dvb_net.c due to severe lockless race conditions and buffer overflow
->     vulnerabilities on global network state variables.
-
-[Severity: Critical]
-Does this patch actually purge the code block as stated in the commit
-message? It appears the patch merely renames the macro to match the Kconfig
-build system, which actively enables compiling the exact vulnerable code it
-claims to mitigate.
-
-> diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dv=
-b_net.c
-> index a2159b2bc1766..3b503695e3b64 100644
-> --- a/drivers/media/dvb-core/dvb_net.c
-> +++ b/drivers/media/dvb-core/dvb_net.c
-[ ... ]
-> @@ -320,7 +320,7 @@ static int dvb_net_ule_new_ts_cell(struct dvb_net_ule=
-_handle *h)
->  {
->  	/* We are about to process a new TS cell. */
-> =20
-> -#ifdef DVB_ULE_DEBUG
-> +#ifdef CONFIG_DVB_ULE_DEBUG
->  	if (ule_where >=3D &ule_hist[100*TS_SZ])
->  		ule_where =3D ule_hist;
->  	memcpy(ule_where, h->ts, TS_SZ);
-
-[Severity: Critical]
-If compiled with CONFIG_DVB_ULE_DEBUG=3Dy, will multiple concurrent threads
-processing TS streams via dvb_net_ule_new_ts_cell() race on the ule_where
-pointer?=20
-
-Since there is no synchronization, could multiple threads bypass the bounds
-check and cause an out-of-bounds write on the ule_hist array?
-
-[ ... ]
-> @@ -659,7 +659,7 @@ static void dvb_net_ule_check_crc(struct dvb_net_ule_=
-handle *h,
->  			h->ts_remain > 2 ?
->  				*(unsigned short *)h->from_where : 0);
-> =20
-> -	#ifdef DVB_ULE_DEBUG
-> +	#ifdef CONFIG_DVB_ULE_DEBUG
->  		hexdump(iov[0].iov_base, iov[0].iov_len);
->  		hexdump(iov[1].iov_base, iov[1].iov_len);
->  		hexdump(iov[2].iov_base, iov[2].iov_len);
-
-[Severity: Critical]
-Similarly, can concurrent reads on the global ule_where variable here result
-in out-of-bounds memory reads while dvb_net_ule_new_ts_cell() modifies it?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260905123450.5620=
--1-breno3011alves@gmail.com?part=3D3

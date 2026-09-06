@@ -1,104 +1,119 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0918C366542
-	for <linux-input@vger.kernel.org>; Sun,  6 Sep 2026 16:32:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A7F118C02E;
+	Sun,  6 Sep 2026 16:33:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788712369; cv=none; b=RV/VI1pzTyaJ6XzACHQTacqpAi6vsW2ck4YiGREdiiduWDDTRrHXaLCfmjKwOQRo2QIPoiKL6nJ3f52YB0fdk6stWqHHmgtMxZcpfo7mRIgdId4Sh/kcmu00mGkoQWRW3DvG/ePKsD48gBICSpDp9r69q9LR3x2qeABzknBhwWs=
+	t=1788712397; cv=none; b=RdIJxe2gGlJF8FAWwgdqk5pSF1I1zJIN7tKNxw/Tmjksd3xyRhwH4HagsdAG1t5PdRm4FzEODnlIwu8YzsksgfjSrYFGd0966Pz0op8Gnkul2DOID2a+qFzq7lDppxBgFlxqFJs1Y0rs+zlM3fNB7bOqCekcfJ2QJrI0y93a+J8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788712369; c=relaxed/simple;
-	bh=VC9CS50hEkPgNN2KRwyNAMzImJHMiYhWfiuDpnpliw4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IThogdINeCbbBL2ZEVzHZ2c7Ey6eWKOaQlFuhLggX2dpvhNgha0ON+SLpPua/89Z/i6ACm7rEVQWxjqWNsYkC8xtWUwbFOnq65Ix2rUztlaroZ720E/DL2r+xu9lK8FX/ViTuqQpw03s1ikzc+c2MzkqpwUkxYoWRHisNX7/sRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qaRAjTK8; arc=none smtp.client-ip=209.85.128.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788712397; c=relaxed/simple;
+	bh=Tie5WgjU5KyJKEnl6PZshbAyDG1ICfU1FixfVzf8BIg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mnreh63PqVc+adCVHSmqN/7UjUdgWx0qGbySGNUI387sjaV+dfWGZXG5h2eFkhWlB6yVRZg/eCOH334t2bko4RsVyDCtz9tBFl4VOCg6WsY4hf2XTVK8U/xDiLsHdF6oGjm8cFHmnbRZW3ZP7usit+qNcdYvhG0EV2+GmR8eKYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=AD2Abu1F; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qaRAjTK8"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-49ccfae359fso23361495e9.3
-        for <linux-input@vger.kernel.org>; Sun, 06 Sep 2026 09:32:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788712364; x=1789317164; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=oSMRVQ2ffl+GqdtcpJsergu6EJ70aiuLEE/q2zryERM=;
-        b=qaRAjTK8Gl9qdB2NOyEyV9nOSsFGJeUA9eZ/2aZ06snn8uHZ+JTqqP9KEYdvEetq1K
-         ks2p/PxsJ0P7cY9wOJq77cghACviGLg4vtBEGYnzkS3OuZi6yt7teb2zLbsqJdulZxNC
-         n97SiAFduflUhXxPDIZTzC1Z7iPU9mrsrpsQXPKhsLsmb86Z3m0uXq0CSJpGx+fopu9S
-         wvAvdt+SqsWW/l/T18gMcN0qwQKxdqdAJa8b2lmVAb1KJ/N3sH2mkkJPz75lUMmtVIqZ
-         51NmQjr+VBfU+mOPsSOiK9uFBE+XNwkOmKhBA2PRBAmFVSG3sgAyDrPlz/DprkqsF7bu
-         V0SQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788712364; x=1789317164;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=oSMRVQ2ffl+GqdtcpJsergu6EJ70aiuLEE/q2zryERM=;
-        b=bnYJ6EwF294AyK5p+n6SQ/ii8bB/qLOe5UgADuVPbqfEpNeesV4oQ4p3JldxmbeEGJ
-         nWLS0YGU7ZyvxAZiUFo9KtmncEtVVJIvqf2pI52Od0XOCaKFSJx2iyzZyy+ak97/++xt
-         XxAP0bnpeF2+aGBp4SQqSzUWAR3G1ib5r6wjdEx36zjk6PaNgffrXvv93uTZC52xReoZ
-         oRwSVlnWrGNVuQ+0z+fHB3QCzT43zNCrKsEE4NN0G2ycpJbFFBackMip8RzXHtqSsTtJ
-         LEecaCoHDxHb7g2Q3O1ZhvkZS6THxwGiVDs8/isZk4x1EnvsMgBf9RSw6cyHp3mYEWcK
-         A0zA==
-X-Forwarded-Encrypted: i=1; AKwUvBz5lnXKb5DUZNtSkCVYNogW3ep0vqNlNoGWnx45RUyo5LmdJMbcF6kLzjg+MCLaj4veZxsSnpm7/9K2Sw==@vger.kernel.org
-X-Gm-Message-State: AFuF++lB4bwlRM1nQda+rvjqmGXTFeLeofMLKNUe3+/7fjrt24n93YjF
-	n+g1N08iNFOqCbYg2jgPgfa0DMqobdpCnkoPjiL+iAAXb+m9fLKv7gve
-X-Gm-Gg: AYBFou2UlCucYomuqlX5RvZscopNi5TIfzS+HUsla+xCkaDMH1DFSpIdCw/vGXTZeR/
-	/ISTBIL6qQVBoe+lnAzekk6NbTdrPg3kjlZ+qNMU5fb34TmqQHeDnYuQTqTeB1++yns+kjjevDy
-	VL7zt4QBIHErVhO1XBpi5TqD9bhFvZTuplpGe5RO/mOIW1ALiC1JV3B2ZU+U5250BSt4KsNz2S8
-	jdCUTONKMxOL4vG9cMJbCuc0PgOWKybKIcUo06LLN1T5rx66hrTBltHmvyGRCj3lTTmIEyoicXl
-	u/dqiZ89HZJa8Vdi4Plye9eFLXL8xH8+AT1x94RDUGOkcYMmSYRhqb3RN7mYn9E5BY7u7ufstGd
-	WiO/Kon8FXrWR6EGj6/w+ezR50w8mU+3VKRn0cdpznrpDibPvoAfsIB91bJPhcyRGIv1icbnCR7
-	vkQOE3nqe8Lt+Sr80fQFk9hbBOp8C+dibW6HW1WBTBeGAC3YqErhP1oCfe5auSxvjeyp5s5j8IK
-	EH1Mnlr9fDQempbxzT+vYux04taH50SY7gzacCsg4HUKLgvSzAvkcI7gUxQQiblPEXDRznwt7fF
-	mma+DlgOU7EweG3PwyqcG0M0SXtFMs0J6HLHZWrkSwgXx+GvWjEdGKy97zeJOBMiCmeQ/fCjQPZ
-	n3siQ
-X-Received: by 2002:a05:600c:8b04:b0:49c:fc6c:be11 with SMTP id 5b1f17b1804b1-49cfc6cc0c3mr138648845e9.23.1788712363826;
-        Sun, 06 Sep 2026 09:32:43 -0700 (PDT)
-Received: from unknown748F3CBA5068 (dynamic-2a02-3100-9d84-5101-9c80-d25b-14b6-410c.310.pool.telefonica.de. [2a02:3100:9d84:5101:9c80:d25b:14b6:410c])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48588394fa1sm21761428f8f.8.2026.09.06.09.32.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 06 Sep 2026 09:32:43 -0700 (PDT)
-Date: Sun, 6 Sep 2026 18:32:40 +0200
-From: Karl Mehltretter <kmehltretter@gmail.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, 
-	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Hans de Goede <hansg@kernel.org>, 
-	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, Vadim Pasternak <vadimp@nvidia.com>, 
-	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
-	virtualization@lists.linux.dev, linux-input@vger.kernel.org, linux-s390@vger.kernel.org, 
-	kvm@vger.kernel.org, linux-um@lists.infradead.org, 
-	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] virtio: synchronize callbacks during device reset
-Message-ID: <ap2VJkoIsBbsqcNm@gmail.com>
-References: <20260905152059.89560-1-kmehltretter@gmail.com>
- <20260906025249-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="AD2Abu1F"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=IsLASocooih29G5Sb0KQIMEiPt/sx4znIp07c1gmSYc=; b=AD2Abu1F/qzk6k/hapSBkTxm15
+	pQnkxlQR/rGSaF1oUc5vZPqpXS1kYH9mDIsTcuc95oO6+i6Q33qmxnDWHw4TPl9tYlT+qV7gdcCxl
+	Opo0ftMR04ktgCSkOLnKNtvzQgDwlIiAs2sqqR5pbFlXC6L+DCC03ycRglf55XO6ogIHCmTp0VMeW
+	r950UmbhoBjHP+CGswk2bDpZ4HNmj1W0YY7KGfpwDiFIp8+8VOoxm+C8aXQ37hxxatLa/vOi8Kxmb
+	QnP/XmkUdm9aQkjCWOZUUvpXD/KDEN388p+rANtkVJeaO31ljZAL6sj9LWzgJU81e5RNzF0US8psj
+	v+7d7SbA==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1x3Fnq-00000005BJS-3vH8;
+	Sun, 06 Sep 2026 16:33:10 +0000
+Message-ID: <06cc9fc4-28ba-4076-917e-5ac30336806a@infradead.org>
+Date: Sun, 6 Sep 2026 09:33:10 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260906025249-mutt-send-email-mst@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] Input: yealink.rst: Fix typos and wording
+To: Manuel Ebner <manuelebnerli@mailbox.org>,
+ Henk Vergonet <Henk.Vergonet@gmail.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet
+ <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260906095502.1116994-2-manuelebnerli@mailbox.org>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20260906095502.1116994-2-manuelebnerli@mailbox.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sun, Sep 06, 2026 at 02:53:05AM +0100, Michael S. Tsirkin wrote:
-> You didn't send patch 3.
+Hi,
+
+On 9/6/26 2:55 AM, Manuel Ebner wrote:
+> Improve readability.
 > 
+> Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
+> CC: Randy Dunlap <rdunlap@infradead.org>
+> ---
+> [v3]
+>  fix wording
+>  droped white-space fixes
+> 
+> [v2]
+>  add ']' instead of remove '[' as randy suggested
+>  fix a couple more issues in the file
+> 
+> [v1]
+>  https://lore.kernel.org/all/20260904121026.759218-3-manuelebnerli@mailbox.org/
+> ---
+>  Documentation/input/devices/yealink.rst | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/input/devices/yealink.rst b/Documentation/input/devices/yealink.rst
+> index bb5a1aafe..de1460b6b 100644
+> --- a/Documentation/input/devices/yealink.rst
+> +++ b/Documentation/input/devices/yealink.rst
+> @@ -120,9 +120,10 @@ Reading /sys/../lineX will return the format string with its current value.
+>  Writing to /sys/../lineX will set the corresponding LCD line.
+>  
+>   - Excess characters are ignored.
+> - - If less characters are written than allowed, the remaining digits are
+> + - If fewer characters than allowed are written, the remaining digits are
+>     unchanged.
+> - - The tab '\t'and '\n' char does not overwrite the original content.
+> + - The tab '\t' and newline '\n' characters do not overwrite the original
+> +   content.
 
-I resent it to just you now. Mail must have gotton lost somewhere.
+In looking at the produced html, the backslashes above are missing.
+This fixes it, although I don't know if it's the best or only fix:
 
-If all else fails, it's on lore:
-https://lore.kernel.org/r/20260905152059.89560-4-kmehltretter@gmail.com/
+ - The tab '\\t' and newline '\\n' characters do not overwrite the original
+   content.
 
-Thanks,
-Karl
+With that fixed:
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+
+Thanks.
+
+>   - Writing a space to an icon will always hide its content.
+>  
+>    Example::
+> @@ -205,7 +206,7 @@ Troubleshooting
+>  :Q: Module yealink compiled and installed without any problem but phone
+>      is not initialized and does not react to any actions.
+>  :A: If you see something like:
+> -    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone
+> +    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone]
+>      in dmesg, it means that the hid driver has grabbed the device first. Try to
+>      load module yealink before any other usb hid driver. Please see the
+>      instructions provided by your distribution on module configuration.
+
+-- 
+~Randy

@@ -1,108 +1,117 @@
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F2430CD9E;
-	Sun,  6 Sep 2026 08:19:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 571D230EF8F;
+	Sun,  6 Sep 2026 09:55:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788682766; cv=none; b=rwTWmvVCyASDdpxG/mSWJM63UIEue7a3Z2JUWgXYp+RHrVZ/FNrdtP9vMVP9voxaDNF2PkWLZUqEJW7yCrfLxIyYKH9jbR0g0BvJe94QdGDgE5Sf3bvD8yjN0/SPGvRs5DKwwJfhZ3W8IGqKYO5FhVi3toPuDQus0tir00zf0Lw=
+	t=1788688550; cv=none; b=WcLA/OYoA1/JAbor7cUJyYsqKhtx0NqaOIl8vS1Nk1+I/2ag6y8NbbJK//gjT9ylhP4DAhRLYORF09evHPVy8LUorMniceIirMxe4OXqFB4gNHuD8xn3nEICHMAzZds7ON8G0OTcdoUsn2wTqOW4xUvY3PWrtw5MezngnvFd/ps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788682766; c=relaxed/simple;
-	bh=L5srEMJP1B5M0FdrqGNhOEFicz2UgHY3O0TahFjuZNE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nNSqKwks7cPTF/mYWT7y/bzx2yIt+gRtAMjbNQDJI5GrQGLenn0XEvI7Yt6SEly1N03Os3/tf8eXUC48e1NLcpkJ0AHqoFSAWxS4odFHg2agFII+sOUoelj+Yt72y49zdZ5Q0D4Ay0Lbki8jkTTkRy521WrVpogrmzMH9TAtZBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=wo6/G8dN; arc=none smtp.client-ip=178.238.236.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1788688550; c=relaxed/simple;
+	bh=PdHtFQrEZxRfQaRuGUkHWy8lBIJMWWh/R5WreXfjkjs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=idevH/3yj1KMTMa4s4hcbD2wWfVyp1IGI9iWl3Q6UYuxbayPxyKxhumzM9ZydydJDu4GcdKKXYTJYn/5XbSbxF0fDEcYwVl5s2cbdU8e5+VzL88Hsn6YrOWts++33kck1nqupIcDxB6WNsMW7WvU4KGLT777prwV+0EJ6fawhM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=G6AmEr6R; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=N1UXkGmk; arc=none smtp.client-ip=80.241.56.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="wo6/G8dN"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=References:In-Reply-To:Subject:Cc:To:From:
-	Reply-To:Content-ID:Content-Description;
-	bh=qVqBaro4u6j4vDM7zRBqf26XGAFIlsvWCm284+Ot/Vs=; t=1788682764; x=1789892364; 
-	b=wo6/G8dNlvO19ndW8r5EKUPJU55fREq9XbZnwqmi2UI5H9VtIpSoTd4YB45Eh65kTjGHfh5OPOs
-	1xGZoCDHEmEyLss3xDq0fzrpmgw4e9SAxyM+gVPRBY1VXwPk8Pp8e1sN5FP57ZjX65nW25ihHJRip
-	1j7Je0Q2O0Lkp276MmHhDQisv7mZMuPykCFrBd1mO/32x6L54pb5lqbiE0+fWJ8IHLsJCOmJdDdfV
-	S5iurhY0IRFxWpLqbOh1/mg57KJ9aRulrTP0+s1/+dapHaVjZTSlWHOci7Nmph/YJeKaDrahZQk0m
-	lFnav5vk7UAQnd16UeLzpUyMF+QHRM7BIS6g==;
-Date: Sun, 6 Sep 2026 10:19:10 +0200
-From: Andreas Kemnade <andreas@kemnade.info>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Karl Mehltretter <kmehltretter@gmail.com>, Jonathan Corbet
- <corbet@lwn.net>, Geert Uytterhoeven <geert@linux-m68k.org>,
- linux-m68k@lists.linux-m68k.org, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
- linux-doc@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>, Randy
- Dunlap <rdunlap@infradead.org>, Thomas Gleixner <tglx@kernel.org>, Ingo
- Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich
- <dimitri.sivanich@hpe.com>, Mike Travis <mike.travis@hpe.com>, Tony Luck
- <tony.luck@intel.com>, linux-edac@vger.kernel.org, Krzysztof Kozlowski
- <krzk@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@baylibre.com>,
- linux-omap@vger.kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>,
- Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
- linux-ide@vger.kernel.org, Ethan Nelson-Moore <enelsonmoore@gmail.com>,
- Michael Schmitz <schmitzmic@gmail.com>
-Subject: Re: [PATCH v2 3/9] docs: kernel-parameters: Drop the edac_report=
- entry
-Message-ID: <20260906101910.588d055e@kemnade.info>
-In-Reply-To: <20260905185037.GDapxkfbPNUxJgaMH8@fat_crate.local>
-References: <20260905094649.41996-1-kmehltretter@gmail.com>
-	<20260905094649.41996-4-kmehltretter@gmail.com>
-	<20260905151345.GAapwxqT93wPWHF7u4@fat_crate.local>
-	<apwzmSr6b0WEkW86@gmail.com>
-	<20260905153336.GBapw2UFa7Sdc0ve_A@fat_crate.local>
-	<871pb7zn36.fsf@trenco.lwn.net>
-	<20260905162742.GCapxC_ra7hJd27LDR@fat_crate.local>
-	<apxDtqM8UMN5KNjs@gmail.com>
-	<20260905194720.7033b956@kemnade.info>
-	<20260905185037.GDapxkfbPNUxJgaMH8@fat_crate.local>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="G6AmEr6R";
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="N1UXkGmk"
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [10.196.197.102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4hd5Dd008HzKpkK;
+	Sun, 06 Sep 2026 11:55:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1788688545;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=oPXfaCRDk1r/LjHJS3QxVcLwQH8nVFZEFREmgckGdOk=;
+	b=G6AmEr6RaopjbGSxBwMiK8t1vyFIFYWGHzGlL+3arXcB1O15URIGmPA7sTZCE114BVPeA2
+	aGoZkEaVat4xF1yQO9dAOlHrkbO2a4Rpa7Ghrtk/nPmTqsYIykh9huCZu+77AFGMdNXz8D
+	DzK1Tw7h7ku8kTsCqnHBMU/+zXKEykIFAVna1YdNWxZmlY54nMCHo6a72xv6CnfoHNDUo1
+	F+wxCQsgpiU+avHQ1Wm0ZKYE7LnbaphYFxcCTkhCUD0k0AnmyuA4TQQDvaSZt9vvZnul4N
+	wRhw7/OUK47W/pvv49h0i+57vY4sgpzFJik83ctSmI0P6/fYxE7mm6lFmG40eg==
+From: Manuel Ebner <manuelebnerli@mailbox.org>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1788688542;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=oPXfaCRDk1r/LjHJS3QxVcLwQH8nVFZEFREmgckGdOk=;
+	b=N1UXkGmkM2ryxKWzH9GT4IQgi9FbZE92gnEcG87GCFBT/ydlnnYNpcIMWL/oE/svTHuDB9
+	olFLqg1CbxyokVqjtpsS1iwmvlrOizzQx5z7NDSpoEbHyGio8ABG9uYlvwdrHZAz5iJ9El
+	Hn5ji7vXO/8k2wtoGMnQ5i6UF58pNa76DWstDaoBAwuPP1SycX6sVRJgW6QJAtisTTGt2k
+	RleaBsthkV22OJXTEetmwJ/GJ2wLSzGBaEM7WDz/r7qJ6kGyyBl4F9l9rW4GoKT4KdqTcw
+	zqShrBCFmtY0dUupFReY4dzeU5+jSbvXKqUVeLaUJGldMYme87ZR7+L8DKxpsQ==
+To: Henk Vergonet <Henk.Vergonet@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>
+Cc: Manuel Ebner <manuelebnerli@mailbox.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3] Input: yealink.rst: Fix typos and wording
+Date: Sun,  6 Sep 2026 11:55:02 +0200
+Message-ID: <20260906095502.1116994-2-manuelebnerli@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-MBO-RS-META: dgeho1ku1ge6gj44tqtkhfm8g9na5b19
+X-MBO-RS-ID: 74edc56615892b4233d
 
-On Sat, 5 Sep 2026 11:50:37 -0700
-Borislav Petkov <bp@alien8.de> wrote:
+Improve readability.
 
-> On Sat, Sep 05, 2026 at 07:47:20PM +0200, Andreas Kemnade wrote:
-> > > That's for "not getting any answers" which is not the case here.  
-> 
-> No, that's the case ALWAYS. If you spam maintainers with too often
-> submissions, you end up achieving the opposite to what you're trying to do.
->
-This particular set was sent too fast, I agree, but reading that document again, it
-sounds like the summary is being patient with busy people.
+Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
+CC: Randy Dunlap <rdunlap@infradead.org>
+---
+[v3]
+ fix wording
+ droped white-space fixes
 
-Some subsystems even discourage waiting in such cases:
-e.g.
-https://docs.kernel.org/process/maintainer-netdev.html
-"Do not wait too long (weeks) between postings either as it will make it
-harder for reviewers to recall all the context."
+[v2]
+ add ']' instead of remove '[' as randy suggested
+ fix a couple more issues in the file
 
-[...] 
-> > But if the main maintainers (which is a bit harder to say in this series) found
-> > time to review, than IMHO (also seen from my maintainer perspective), improve
-> > as soon as you find time and submit the improved version.  
-> 
-> If you want an earlier submission, feel free to ask the person.
-> 
-> In the general case, though, one should do a good testing before submitting
-> and all the issues caught after that, one can work in in her/his next version
-> locally and perhaps even state so.
-> 
-Hmm, maybe I was misunderstood. Just to avoid that I accidentially provoke
-patch-flooding with my comments:
-The next revision should come only after you have finished your homework
-(improve according to review comments, tests,...) and any further review
-comments are unlikely.
+[v1]
+ https://lore.kernel.org/all/20260904121026.759218-3-manuelebnerli@mailbox.org/
+---
+ Documentation/input/devices/yealink.rst | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Regards,
-Andreas
+diff --git a/Documentation/input/devices/yealink.rst b/Documentation/input/devices/yealink.rst
+index bb5a1aafe..de1460b6b 100644
+--- a/Documentation/input/devices/yealink.rst
++++ b/Documentation/input/devices/yealink.rst
+@@ -120,9 +120,10 @@ Reading /sys/../lineX will return the format string with its current value.
+ Writing to /sys/../lineX will set the corresponding LCD line.
+ 
+  - Excess characters are ignored.
+- - If less characters are written than allowed, the remaining digits are
++ - If fewer characters than allowed are written, the remaining digits are
+    unchanged.
+- - The tab '\t'and '\n' char does not overwrite the original content.
++ - The tab '\t' and newline '\n' characters do not overwrite the original
++   content.
+  - Writing a space to an icon will always hide its content.
+ 
+   Example::
+@@ -205,7 +206,7 @@ Troubleshooting
+ :Q: Module yealink compiled and installed without any problem but phone
+     is not initialized and does not react to any actions.
+ :A: If you see something like:
+-    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone
++    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone]
+     in dmesg, it means that the hid driver has grabbed the device first. Try to
+     load module yealink before any other usb hid driver. Please see the
+     instructions provided by your distribution on module configuration.
+-- 
+2.54.0
+

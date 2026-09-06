@@ -1,108 +1,135 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa2-f10.google.com (mail-oa2-f10.google.com [74.125.231.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FBDB331EB3
-	for <linux-input@vger.kernel.org>; Sat,  5 Sep 2026 22:09:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EC6830C168
+	for <linux-input@vger.kernel.org>; Sun,  6 Sep 2026 02:07:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788646154; cv=none; b=hAt/QiuHOucAJS9klwF74LK1fP29+m3YiDlQ4vJP1/ZippysGY+TcKIp0c9RCJMDBytpFM2kdJIfum7PuGyz3VMC3/qneg/WrtVH1E07fnYGu09JtX/xXvwH6Zxu0Wygtaw5oNENrEjogcyYVbAkyBKphqPCtlWG5Pu2+DKHxW8=
+	t=1788660455; cv=none; b=L5Bb/3QYPTxBJcox7TQkPwbPDSyDDGIP+c5Sc7ZzgJIF+Vj0I16QReIVk1MhLyuC0jWBzcEaextUDNrhDY8PFl7KGCrcI6t6gO/mnw+Q1s6SjqTYeeCM12KegHzOWSpyPfx+de+vSj0W1JGkU9S7rAhtrOtn0okvBdcDLTbPs7M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788646154; c=relaxed/simple;
-	bh=wHcQ5HgGMjVMQTN78BaVxXvxvXISkf6HevQyQ6z/9vw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qwatRzLdP172HMdsdWb0cPi6uKAiveUwog+jReCqBPws4DykReljrnXN9ot0K7/ffKPgkV8kefKLRJj2DgtRRQ66dBOhAwAGu5/DFxFvs6/SqS9952DcFxyosNZM45ykemMwc766icbEBHD2uPAIPsTxEvE6mPQbMd+BSq8mmhg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cvDMRSFT; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cvDMRSFT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC1711F00A3A;
-	Sat,  5 Sep 2026 22:09:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788646152;
-	bh=r7mZkt7HJj8rXKdAlfljRqNPCbrATST867ztUss0guk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cvDMRSFT5NO8QLyQO/dgnEu9nWt+j+KUhjSVbpTulGKH5im5B4Bma9e2R/CCbN0r1
-	 w5nzFKBlVrxuqt8eq4I87+iv7RsXgWqyGvm8+N9o2Vdw4pXrub9mTtnSnmN0i4DPR2
-	 FL+r1IfF2YHNvzF+bCacFr8iGt584dSXSh7ZfHy4sRVupq958NE/AJeSdHL+nMhs6d
-	 Wd7EeAfaWQfr9XIMTwh+Z8mlVQGaZN74uh8X1vkMTftElqb6WohQuyggJ67AADW6lh
-	 +VL8xaGkMglXmYi5nsh4loFsKOs+1VLS+kEWTBVOhopIo87ueszeDNd3Qrv0XLDYCq
-	 dbzE1TxVdELBw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: wacom: Cancel init_work when probe fails after
- scheduling it
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aamir Ahmed" <elb12345@hotmail.co.uk>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <PAXP251MB001050EFD88752318EBA75F5C8B42@PAXP251MB0010.EURP251.PROD.OUTLOOK.COM>
-References: <PAXP251MB001050EFD88752318EBA75F5C8B42@PAXP251MB0010.EURP251.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 05 Sep 2026 22:09:12 +0000
-Message-Id: <20260905220912.AC1711F00A3A@smtp.kernel.org>
+	s=arc-20240116; t=1788660455; c=relaxed/simple;
+	bh=gztWfCq/vgHwaRddjXmXRhV5bycCMcFDGUBN8zECPXI=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=To47Ij6TCKknHnfRevQMQEkhzZbbenTcL1hv/+hbCaLr4wYKeU6yDdzyl/L5E41bC77E87VfBByQiXxE7oqsKAtFpeNbQpiNOKNlXpb44eTSQVapJ8Tu+Uu0itm2M74ZAoc4xGffLVrrh1Oviih2AsiQB3lEZGCBaQSDOBNrx44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oa2-f10.google.com with SMTP id 586e51a60fabf-46adea418f3so781001fac.1
+        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 19:07:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788660452; x=1789265252;
+        h=content-type:to:from:subject:message-id:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=srPOfqJi5oSn7adtwegC18uxRYHW7fCgQ8V5uhp5GPk=;
+        b=k0+IXfacokw85ZIATDUxjPGoxE05EeMlGWHMho0WU43mP0F189uE1olULAK1eBP3rl
+         QDFNM5eym+WZYlwX109qUThOrkZHixL1XrLb2MHlEZ8xo3r65dAjrMGvVbd3LmaSfEm/
+         Nnuc7JqxCo+CXWeeoHIiLZr34y8VmUwXLxZP3ORQBI9Jyf/dfai/0SJV/zejf1mgkar6
+         uZEBBMEUbvDvZ6O8V80qEITCGEeFvwTwfMPFBxdJaI1fyOkIDisrEBXVO6LRq7nCd5B3
+         RuAFDxOrQWpoAU8CUS4bJ764v1H4OHRn5HUzxwDkfmIlnms3JMmd4O7EAwQFn3xTP2Vl
+         Wgqg==
+X-Forwarded-Encrypted: i=1; AKwUvBxxKud5qtP/tJ/PN/NggBzefx5pERAvmZasuDF6zuzn56/VcBLeEa4YoIKPNAafzlBjETP8tAyDl+VBeA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nf88KW0scU1lgDFk5tu+djHeHIbQao19h3LJL4yj4LV2XbOMH+
+	oOmoVp8ZUNg2lNdJvtRHc/PMdSDBlQMzySSMmYu/dLiSkG4QOCT+e+L5fjSm77QrwnzbqxIy/VM
+	5qsyEQd3GHpuw5SD3RU5RJpNfxHPybi7NYylIfjoYekl1mvOl8KnQpmANCZw=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-Received: by 2002:a05:6820:c2c1:10b0:6b7:46fc:1e4 with SMTP id
+ 006d021491bc7-6b746fc0349mr6003032eaf.67.1788660452543; Sat, 05 Sep 2026
+ 19:07:32 -0700 (PDT)
+Date: Sat, 05 Sep 2026 19:07:32 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a9ccae4.37659fcc.e790.0006.GAE@google.com>
+Subject: [syzbot] [input?] INFO: trying to register non-static key in roccat_open
+From: syzbot <syzbot+9f7405999979761b6cfc@syzkaller.appspotmail.com>
+To: bentiss@kernel.org, erazor_de@users.sourceforge.net, jikos@kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Hello,
 
-Pre-existing issues:
-- [High] Uncancelled background workers and timers in the wacom_parse_and_r=
-egister() error path lead to UAF when called outside of probe().
---
+syzbot found the following issue on:
 
-commit 611f293eb48407c71bbdfd98b12f13ec53358ab0
-Author: Aamir Ahmed <elb12345@hotmail.co.uk>
+HEAD commit:    bc35965f6940 Merge tag 'mm-hotfixes-stable-2026-09-03-17-4..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=1066ab49580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=b454dc6b1b7acd30
+dashboard link: https://syzkaller.appspot.com/bug?extid=9f7405999979761b6cfc
+compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
 
-HID: wacom: Cancel init_work when probe fails after scheduling it
+Unfortunately, I don't have any reproducer for this issue yet.
 
-This commit cancels init_work on the shared error path in
-wacom_parse_and_register() to prevent a use-after-free when probe fails
-and devres cleans up driver resources.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/8cbf7acceedb/disk-bc35965f.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/203c0c282c1c/vmlinux-bc35965f.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/de1170205619/bzImage-bc35965f.xz
 
-Closes: https://lore.kernel.org/linux-input/20260905102908.ADE1F1F00A3D@smt=
-p.kernel.org/
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+9f7405999979761b6cfc@syzkaller.appspotmail.com
 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 0eafa483b7f75..ba8adefd93266 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-[ ... ]
-> @@ -2501,6 +2501,7 @@ static int wacom_parse_and_register(struct wacom *w=
-acom, bool wireless)
-> =20
->  fail_hw_stop:
->  	hid_hw_stop(hdev);
-> +	cancel_delayed_work_sync(&wacom->init_work);
->  fail:
->  	wacom_release_resources(wacom);
->  	return error;
+INFO: trying to register non-static key.
+The code is fine but needs lockdep annotation, or maybe
+you didn't initialize this object before use?
+turning off the locking correctness validator.
+CPU: 1 UID: 0 PID: 7946 Comm: syz.4.562 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ assign_lock_key+0x133/0x150 kernel/locking/lockdep.c:1000
+ register_lock_class+0xcc/0x2e0 kernel/locking/lockdep.c:1315
+ __lock_acquire+0xaf/0x2e40 kernel/locking/lockdep.c:5128
+ lock_acquire+0x115/0x350 kernel/locking/lockdep.c:5908
+ __mutex_lock_common kernel/locking/rtmutex_api.c:559 [inline]
+ mutex_lock_nested+0x5a/0x1d0 kernel/locking/rtmutex_api.c:578
+ roccat_open+0xf6/0x5d0 drivers/hid/hid-roccat.c:178
+ chrdev_open+0x4dc/0x600 fs/char_dev.c:411
+ do_dentry_open+0x849/0x1420 fs/open.c:996
+ vfs_open+0x3b/0x350 fs/open.c:1101
+ do_open fs/namei.c:4837 [inline]
+ path_openat+0x1448/0x1d60 fs/namei.c:5000
+ do_file_open+0x23e/0x4a0 fs/namei.c:5029
+ do_sys_openat2+0x115/0x200 fs/open.c:1417
+ do_sys_open fs/open.c:1423 [inline]
+ __do_sys_openat fs/open.c:1439 [inline]
+ __se_sys_openat fs/open.c:1434 [inline]
+ __x64_sys_openat+0x138/0x170 fs/open.c:1434
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x166/0x520 arch/x86/entry/syscall_64.c:84
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fde12ede159
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fde11136028 EFLAGS: 00000246 ORIG_RAX: 0000000000000101
+RAX: ffffffffffffffda RBX: 00007fde13165fa0 RCX: 00007fde12ede159
+RDX: 0000000000000002 RSI: 0000200000000100 RDI: ffffffffffffff9c
+RBP: 00007fde12f75024 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007fde13166038 R14: 00007fde13165fa0 R15: 00007ffe150b2898
+ </TASK>
 
-[Severity: High]
-This is a pre-existing issue, but can this error path still result in a
-use-after-free if it is reached outside of probe()?
 
-The commit message notes that reports cannot reach the driver during probe
-because driver_input_lock is held, preventing other work items from being
-scheduled.
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-However, looking at wacom_wireless_work() and wacom_mode_change_work(),
-they also call wacom_parse_and_register(). In these workqueue contexts,
-driver_input_lock is not held.
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
-Once hid_hw_start() is called earlier in this function, could incoming
-reports immediately schedule asynchronous tasks like remote_work,
-battery_work, and aes_battery_work?
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
-If a subsequent step like hid_hw_open() fails, execution jumps to
-fail_hw_stop. While init_work is cancelled here, the other background
-tasks are not.
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
 
-Will wacom_release_resources() then free the devres group containing
-wacom->remote and other structures, leaving those uncancelled tasks to
-execute and access freed memory?
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/PAXP251MB001050EFD8=
-8752318EBA75F5C8B42@PAXP251MB0010.EURP251.PROD.OUTLOOK.COM?part=3D1
+If you want to undo deduplication, reply with:
+#syz undup

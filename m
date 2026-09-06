@@ -1,135 +1,111 @@
-Received: from mail-oa2-f10.google.com (mail-oa2-f10.google.com [74.125.231.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EC6830C168
-	for <linux-input@vger.kernel.org>; Sun,  6 Sep 2026 02:07:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B1033E360;
+	Sun,  6 Sep 2026 03:58:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788660455; cv=none; b=L5Bb/3QYPTxBJcox7TQkPwbPDSyDDGIP+c5Sc7ZzgJIF+Vj0I16QReIVk1MhLyuC0jWBzcEaextUDNrhDY8PFl7KGCrcI6t6gO/mnw+Q1s6SjqTYeeCM12KegHzOWSpyPfx+de+vSj0W1JGkU9S7rAhtrOtn0okvBdcDLTbPs7M=
+	t=1788667135; cv=none; b=o4TZJ82YIE20oDELjk+Pd7uNLbGV4MbLyLT5gHr2k74ESLz1MKcNkjwl3w+dv/Hv2fxHJ3gre0NvAdJ613ntnAtlXytLshdmGrFCqf1HNMX02uPxRqLQQXr0TXCwRmpQOoS9Oy5NoRxQnRIOd2kH4Syx0gbVIQZGJiURwoXGAcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788660455; c=relaxed/simple;
-	bh=gztWfCq/vgHwaRddjXmXRhV5bycCMcFDGUBN8zECPXI=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=To47Ij6TCKknHnfRevQMQEkhzZbbenTcL1hv/+hbCaLr4wYKeU6yDdzyl/L5E41bC77E87VfBByQiXxE7oqsKAtFpeNbQpiNOKNlXpb44eTSQVapJ8Tu+Uu0itm2M74ZAoc4xGffLVrrh1Oviih2AsiQB3lEZGCBaQSDOBNrx44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=74.125.231.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oa2-f10.google.com with SMTP id 586e51a60fabf-46adea418f3so781001fac.1
-        for <linux-input@vger.kernel.org>; Sat, 05 Sep 2026 19:07:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788660452; x=1789265252;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=srPOfqJi5oSn7adtwegC18uxRYHW7fCgQ8V5uhp5GPk=;
-        b=k0+IXfacokw85ZIATDUxjPGoxE05EeMlGWHMho0WU43mP0F189uE1olULAK1eBP3rl
-         QDFNM5eym+WZYlwX109qUThOrkZHixL1XrLb2MHlEZ8xo3r65dAjrMGvVbd3LmaSfEm/
-         Nnuc7JqxCo+CXWeeoHIiLZr34y8VmUwXLxZP3ORQBI9Jyf/dfai/0SJV/zejf1mgkar6
-         uZEBBMEUbvDvZ6O8V80qEITCGEeFvwTwfMPFBxdJaI1fyOkIDisrEBXVO6LRq7nCd5B3
-         RuAFDxOrQWpoAU8CUS4bJ764v1H4OHRn5HUzxwDkfmIlnms3JMmd4O7EAwQFn3xTP2Vl
-         Wgqg==
-X-Forwarded-Encrypted: i=1; AKwUvBxxKud5qtP/tJ/PN/NggBzefx5pERAvmZasuDF6zuzn56/VcBLeEa4YoIKPNAafzlBjETP8tAyDl+VBeA==@vger.kernel.org
-X-Gm-Message-State: AFuF++nf88KW0scU1lgDFk5tu+djHeHIbQao19h3LJL4yj4LV2XbOMH+
-	oOmoVp8ZUNg2lNdJvtRHc/PMdSDBlQMzySSMmYu/dLiSkG4QOCT+e+L5fjSm77QrwnzbqxIy/VM
-	5qsyEQd3GHpuw5SD3RU5RJpNfxHPybi7NYylIfjoYekl1mvOl8KnQpmANCZw=
+	s=arc-20240116; t=1788667135; c=relaxed/simple;
+	bh=vvyAxBwYRuSuFr1Lfde/jLWfJLW5ponsOXKY2bOsW2s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GFuArtvUBnkTKVsVBD6e1xk4gmVknkGgFsufL3z/rpUBAUQuJ2RGNfqDuUf72bVJ2PJqB/r7qijA9Fro5QLw+DLS4jnca5yvWxRbLoZHOUxJxRXklpo8iftv0B5dHNctLcZVHJUznXqSVZH+bGA24dfSXGl/T7RRsii5pdr3x6w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=0N2GaVta; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="0N2GaVta"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+	Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+	Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+	bh=0HkFo0ybA+orVFH/u7Fk4Ze5CEEmhF31UK62O8mlgwM=; b=0N2GaVtaoti9ntZUVjraUk/TwS
+	zA8FVp8lzNBR2HsnmRGGC+MadsLt1fIXrbhnQePRLjD374qnAommHTW7fhlrvbV5vyvdaoWEjnO0n
+	KNWc9m8l0qcTsQF0tnL1DxxznmoXytuzdQSq4KolMxbAc2v/BY78G7Q8LnAL/Hl9BdANR9meNTaIt
+	/rKx9NH8XePfZUmzfEX4Abjvj89pFQyLSPP2gZAijeNsL6l2HB/N5OTYv/q8jmmNrDxlirrPI/G6Q
+	i2zM97uJb1DXPy1u1aBpQJij0dY0uOfY9cg5txILtiHQo16jVXZUGayAKMhiDogZSG4iiT+wqqsB7
+	LONEM9PA==;
+Received: from [50.53.43.113] (helo=[192.168.254.34])
+	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1x341k-00000004es3-2eE6;
+	Sun, 06 Sep 2026 03:58:45 +0000
+Message-ID: <f241beab-4c83-4f18-bb02-9d6e3fd5ecc3@infradead.org>
+Date: Sat, 5 Sep 2026 20:58:42 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:c2c1:10b0:6b7:46fc:1e4 with SMTP id
- 006d021491bc7-6b746fc0349mr6003032eaf.67.1788660452543; Sat, 05 Sep 2026
- 19:07:32 -0700 (PDT)
-Date: Sat, 05 Sep 2026 19:07:32 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a9ccae4.37659fcc.e790.0006.GAE@google.com>
-Subject: [syzbot] [input?] INFO: trying to register non-static key in roccat_open
-From: syzbot <syzbot+9f7405999979761b6cfc@syzkaller.appspotmail.com>
-To: bentiss@kernel.org, erazor_de@users.sourceforge.net, jikos@kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/9] docs: kernel-parameters: Remove ten entries for
+ parameters that no longer exist
+To: Karl Mehltretter <kmehltretter@gmail.com>,
+ Jonathan Corbet <corbet@lwn.net>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+ linux-m68k@lists.linux-m68k.org, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
+ linux-doc@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, Steve Wahl <steve.wahl@hpe.com>,
+ Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+ Mike Travis <mike.travis@hpe.com>, Tony Luck <tony.luck@intel.com>,
+ linux-edac@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, linux-samsung-soc@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, Tony Lindgren <tony@atomide.com>,
+ Kevin Hilman <khilman@baylibre.com>, linux-omap@vger.kernel.org,
+ Dominik Brodowski <linux@dominikbrodowski.net>,
+ Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
+ linux-ide@vger.kernel.org, Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ Michael Schmitz <schmitzmic@gmail.com>,
+ Andreas Kemnade <andreas@kemnade.info>
+References: <20260905094649.41996-1-kmehltretter@gmail.com>
+Content-Language: en-US
+From: Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20260905094649.41996-1-kmehltretter@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello,
+Hi,
 
-syzbot found the following issue on:
+On 9/5/26 2:46 AM, Karl Mehltretter wrote:
+> kernel-parameters.txt still documents ten boot parameters whose parsing
+> code was removed with the drivers or platforms that used them, one of
+> them (atarimouse=) since before the git history. One patch per
+> parameter, each with a Fixes: tag for the commit that removed the
+> parser, so the maintainers of that area are on their own patch only;
+> the two pata_legacy module parameters share the last one. Each entry
+> was checked with git grep for its __setup(), early_param() and
+> module_param() handler and with git log -S for the removing commit.
+> 
+> Changes in v2:
+> - patch 9: drop the Fixes: tag for 0dcd0a76370a, which removed the
+>   separate pata_qdi driver and not the pata_legacy parameter; both
+>   parameters went away in 3c4d783f6922 alone
+> - collect the Reviewed-by and Acked-by tags from v1
+> 
+> v1: https://lore.kernel.org/all/20260905070347.25902-1-kmehltretter@gmail.com/
+> 
+> Karl Mehltretter (9):
+>   docs: kernel-parameters: Drop the atarimouse= entry
+>   docs: kernel-parameters: Drop the bau= entry
+>   docs: kernel-parameters: Drop the edac_report= entry
+>   docs: kernel-parameters: Drop the enable_timer_pin_1 entry
+>   docs: kernel-parameters: Drop the mini2440= entry
+>   docs: kernel-parameters: Drop the nomfgpt entry
+>   docs: kernel-parameters: Drop the omap_mux= entry
+>   docs: kernel-parameters: Drop the pcmv= entry
+>   docs: kernel-parameters: Drop the pata_legacy.qdi and
+>     pata_legacy.winbond entries
+> 
+>  .../admin-guide/kernel-parameters.txt         | 67 -------------------
+>  1 file changed, 67 deletions(-)
 
-HEAD commit:    bc35965f6940 Merge tag 'mm-hotfixes-stable-2026-09-03-17-4..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=1066ab49580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=b454dc6b1b7acd30
-dashboard link: https://syzkaller.appspot.com/bug?extid=9f7405999979761b6cfc
-compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+For patches 1/9, 2/9, 4/9, 5/9, 6/9, 7/9, and 8/9:
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
 
-Unfortunately, I don't have any reproducer for this issue yet.
-
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/8cbf7acceedb/disk-bc35965f.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/203c0c282c1c/vmlinux-bc35965f.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/de1170205619/bzImage-bc35965f.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+9f7405999979761b6cfc@syzkaller.appspotmail.com
-
-INFO: trying to register non-static key.
-The code is fine but needs lockdep annotation, or maybe
-you didn't initialize this object before use?
-turning off the locking correctness validator.
-CPU: 1 UID: 0 PID: 7946 Comm: syz.4.562 Not tainted syzkaller #0 PREEMPT_{RT,(full)} 
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- assign_lock_key+0x133/0x150 kernel/locking/lockdep.c:1000
- register_lock_class+0xcc/0x2e0 kernel/locking/lockdep.c:1315
- __lock_acquire+0xaf/0x2e40 kernel/locking/lockdep.c:5128
- lock_acquire+0x115/0x350 kernel/locking/lockdep.c:5908
- __mutex_lock_common kernel/locking/rtmutex_api.c:559 [inline]
- mutex_lock_nested+0x5a/0x1d0 kernel/locking/rtmutex_api.c:578
- roccat_open+0xf6/0x5d0 drivers/hid/hid-roccat.c:178
- chrdev_open+0x4dc/0x600 fs/char_dev.c:411
- do_dentry_open+0x849/0x1420 fs/open.c:996
- vfs_open+0x3b/0x350 fs/open.c:1101
- do_open fs/namei.c:4837 [inline]
- path_openat+0x1448/0x1d60 fs/namei.c:5000
- do_file_open+0x23e/0x4a0 fs/namei.c:5029
- do_sys_openat2+0x115/0x200 fs/open.c:1417
- do_sys_open fs/open.c:1423 [inline]
- __do_sys_openat fs/open.c:1439 [inline]
- __se_sys_openat fs/open.c:1434 [inline]
- __x64_sys_openat+0x138/0x170 fs/open.c:1434
- do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
- do_syscall_64+0x166/0x520 arch/x86/entry/syscall_64.c:84
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fde12ede159
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fde11136028 EFLAGS: 00000246 ORIG_RAX: 0000000000000101
-RAX: ffffffffffffffda RBX: 00007fde13165fa0 RCX: 00007fde12ede159
-RDX: 0000000000000002 RSI: 0000200000000100 RDI: ffffffffffffff9c
-RBP: 00007fde12f75024 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007fde13166038 R14: 00007fde13165fa0 R15: 00007ffe150b2898
- </TASK>
-
-
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
+thanks.
+-- 
+~Randy

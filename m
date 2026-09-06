@@ -1,62 +1,71 @@
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 571D230EF8F;
-	Sun,  6 Sep 2026 09:55:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE6AF241CB7
+	for <linux-input@vger.kernel.org>; Sun,  6 Sep 2026 14:31:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788688550; cv=none; b=WcLA/OYoA1/JAbor7cUJyYsqKhtx0NqaOIl8vS1Nk1+I/2ag6y8NbbJK//gjT9ylhP4DAhRLYORF09evHPVy8LUorMniceIirMxe4OXqFB4gNHuD8xn3nEICHMAzZds7ON8G0OTcdoUsn2wTqOW4xUvY3PWrtw5MezngnvFd/ps=
+	t=1788705106; cv=none; b=KVGXoK5zbSF9oxgzcc9q7d/EEcNM3FJj4P4xWhxSdyO4WoT2OGPxa1aSpWgVdiJM7CKrV+mTzdaayoSCYvdQmR4sJieJnYW3MEv8geuv9w1qqcsM269n5le+S6Ma8TEBV4ciEZuXEbNpMmoO+w0tl+JGrnqbEqUMSjtrLNI2QzU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788688550; c=relaxed/simple;
-	bh=PdHtFQrEZxRfQaRuGUkHWy8lBIJMWWh/R5WreXfjkjs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=idevH/3yj1KMTMa4s4hcbD2wWfVyp1IGI9iWl3Q6UYuxbayPxyKxhumzM9ZydydJDu4GcdKKXYTJYn/5XbSbxF0fDEcYwVl5s2cbdU8e5+VzL88Hsn6YrOWts++33kck1nqupIcDxB6WNsMW7WvU4KGLT777prwV+0EJ6fawhM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=G6AmEr6R; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=N1UXkGmk; arc=none smtp.client-ip=80.241.56.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1788705106; c=relaxed/simple;
+	bh=FEJ6ksSgxvTdOy0xYTkGUfK8SZkcZ599E5hHSPIxE+8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VXrIsUZpDOujvPmJWVlupmUa9N0cBE/9ciSCKtnN78zWZtkyoWiJa1EF45yPIte7PnvGr1XASc69kMfDWftGRclYHgBMyyy5cHL1qYHDHnvHWmqYFFzGoci7FavBdRfZoyOCuOQ0vBJckhTrgrT/Fn/Q4CfdoxEjvvB56ATkNIg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=azeron.eu; spf=pass smtp.mailfrom=azeron.eu; dkim=pass (2048-bit key) header.d=azeron.eu header.i=@azeron.eu header.b=S5GpCxef; arc=none smtp.client-ip=209.85.208.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=azeron.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=azeron.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="G6AmEr6R";
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="N1UXkGmk"
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [10.196.197.102])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4hd5Dd008HzKpkK;
-	Sun, 06 Sep 2026 11:55:45 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1788688545;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=oPXfaCRDk1r/LjHJS3QxVcLwQH8nVFZEFREmgckGdOk=;
-	b=G6AmEr6RaopjbGSxBwMiK8t1vyFIFYWGHzGlL+3arXcB1O15URIGmPA7sTZCE114BVPeA2
-	aGoZkEaVat4xF1yQO9dAOlHrkbO2a4Rpa7Ghrtk/nPmTqsYIykh9huCZu+77AFGMdNXz8D
-	DzK1Tw7h7ku8kTsCqnHBMU/+zXKEykIFAVna1YdNWxZmlY54nMCHo6a72xv6CnfoHNDUo1
-	F+wxCQsgpiU+avHQ1Wm0ZKYE7LnbaphYFxcCTkhCUD0k0AnmyuA4TQQDvaSZt9vvZnul4N
-	wRhw7/OUK47W/pvv49h0i+57vY4sgpzFJik83ctSmI0P6/fYxE7mm6lFmG40eg==
-From: Manuel Ebner <manuelebnerli@mailbox.org>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1788688542;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=oPXfaCRDk1r/LjHJS3QxVcLwQH8nVFZEFREmgckGdOk=;
-	b=N1UXkGmkM2ryxKWzH9GT4IQgi9FbZE92gnEcG87GCFBT/ydlnnYNpcIMWL/oE/svTHuDB9
-	olFLqg1CbxyokVqjtpsS1iwmvlrOizzQx5z7NDSpoEbHyGio8ABG9uYlvwdrHZAz5iJ9El
-	Hn5ji7vXO/8k2wtoGMnQ5i6UF58pNa76DWstDaoBAwuPP1SycX6sVRJgW6QJAtisTTGt2k
-	RleaBsthkV22OJXTEetmwJ/GJ2wLSzGBaEM7WDz/r7qJ6kGyyBl4F9l9rW4GoKT4KdqTcw
-	zqShrBCFmtY0dUupFReY4dzeU5+jSbvXKqUVeLaUJGldMYme87ZR7+L8DKxpsQ==
-To: Henk Vergonet <Henk.Vergonet@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>
-Cc: Manuel Ebner <manuelebnerli@mailbox.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	linux-input@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3] Input: yealink.rst: Fix typos and wording
-Date: Sun,  6 Sep 2026 11:55:02 +0200
-Message-ID: <20260906095502.1116994-2-manuelebnerli@mailbox.org>
+	dkim=pass (2048-bit key) header.d=azeron.eu header.i=@azeron.eu header.b="S5GpCxef"
+Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-3a20f06cce6so27434321fa.1
+        for <linux-input@vger.kernel.org>; Sun, 06 Sep 2026 07:31:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=azeron.eu; s=google; t=1788705102; x=1789309902; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=hXosXQh/qCQRDJ2kIL7AYaEw1+cwVQMlFTVGAul04ok=;
+        b=S5GpCxef4YdF2/QnLbqSpKMWH1chNqxUpr6IHtod534PKIdYtKc9Saz9Q1lQl1K/dZ
+         5ACq1rVTE3bZsGqcYsRszGvC65DxYdrm6jSh9EquLgHqlPw2CeDwluB0QkREZtVPSyPp
+         oxAsez6uwXyu+fiWHmOcok1wolpFkiC+onI/obxlvXoU3/yOYyXBqD6roEw8BBBvvxs3
+         wecw78drSEkgZqeO2tgVtqNzmFKPlQqF//7SPSg3I49o9gXJNMzcgNYl+JpgalYyViF6
+         LZ9XthtxzZGmR8ZYQJ/6fu1V/Lk/GOfPtef06aEZPHJl9G+VEoWxttj3uhsdvSmLvGt4
+         Y+cQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788705102; x=1789309902;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=hXosXQh/qCQRDJ2kIL7AYaEw1+cwVQMlFTVGAul04ok=;
+        b=pUNrKHq0WccM/4yHH9hc4SwLbf8//T7vKX7m2oby3gHV7xy/W3Mq+hVRjoXccKeZY6
+         HEtDP7Js0F/anK1Wh7SZlsQBvggq1QWEaWI4DHFG9zySwoBUT9jY+Omdg/j90ubn/dnQ
+         oqqu5p0K+zZUVezz/WNWDfNP8ZbKm+SUtjSBgdl5aZxWmMJDNjU0FV0WEB2/evgNSa+F
+         UWhiZPAaPY8Fj7hyLhzExj62X4IfrqV7cEKfYnoxNwh+8+G8aVyyXuA8qg7436Wc/nOK
+         B0QeStJTOT4n4PbJEF7zs3kqCjM8FEvt/F1bjn/+bCghB1yCCqGmE8Fv9LmjZA4eYipn
+         7hVw==
+X-Gm-Message-State: AFuF++nhDb0kKxNbbpXQGUCMOiHeFIVSKyaqbcpHf6Pr1TTtOCpGGdxM
+	ENWSPcBofk1CV0FYnwoRl2b5KVG4uOIB6kZ0BonwIe29LrrjwV4LU+NInucgANGjiZUbzXe7gmM
+	2/SR74ok=
+X-Gm-Gg: AYBFou3I5kc9quzzsTcEnoJvAhbycT1hi6XEDcbzunXnRsQ4II+38CJUBo8ohY8IJjc
+	bhxsIVkuMBdGtT8oQJEO8rcVIh1hPnBSufmQ9mjYtp394u+dLlQNiFtPrijjcoMOJlRWSpm2rAB
+	9sw8/jZ5bVZMAfjGa1UCKG+AZGVMksVKS0czsPVRsiB3g7fqSS3OlVtITpC4hLqJrkzZr3HHTi9
+	vHqtHoR2o4GMlfmrZh8mwBE5XpbAH2M+/Q1pRQVQmMQ+KKgDf9APy7YT+F4UvhGw1IEBHGe3Evz
+	DUyfEY9uRcb0eP8vqCsuAw0xgggvkoPg5y4a7hOun9st9FIyOxQ+1ZQnVvm3e1aRfXeStIDFKx3
+	PIxNHt60jFUhkQLLQ69YiFowz29yRJ2yGn3zcEM39N6Oo1rkLHhRmikEJDwe5GZANMcIs3vSVCP
+	56dQ8jv+A1sJzjfmRWyf372PW0KKDg1CDH4ekqkte9lWvyvH5uRnJRg6HRY6NxWiUtOr1KkeFN5
+	AIqOA0rr6Wa
+X-Received: by 2002:a2e:b88f:0:b0:3a3:3fa3:25a6 with SMTP id 38308e7fff4ca-3a35b4ebaa7mr26182601fa.3.1788705101458;
+        Sun, 06 Sep 2026 07:31:41 -0700 (PDT)
+Received: from nixos.apollo.lv ([78.84.112.193])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a3705ed75dsm21560641fa.40.2026.09.06.07.31.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Sep 2026 07:31:40 -0700 (PDT)
+From: Roberts Kursitis <roberts.kursitis@azeron.eu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Roberts Kursitis <roberts.kursitis@azeron.eu>
+Subject: [PATCH v5] Input: xpad - add support for Azeron devices
+Date: Sun,  6 Sep 2026 17:30:40 +0300
+Message-ID: <20260906143040.162418-1-roberts.kursitis@azeron.eu>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -64,54 +73,62 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-MBO-RS-META: dgeho1ku1ge6gj44tqtkhfm8g9na5b19
-X-MBO-RS-ID: 74edc56615892b4233d
 
-Improve readability.
+Azeron controllers (Cyro, Cyborg, Classic/Compact, Cyro Lefty,
+Cyborg II and Keyzen) present a standard Xbox 360 controller
+interface, so they work with the existing xpad driver once their
+USB IDs are added.
 
-Signed-off-by: Manuel Ebner <manuelebnerli@mailbox.org>
-CC: Randy Dunlap <rdunlap@infradead.org>
+The 0x16d0 vendor ID is a shared block, but this is safe because
+xpad only binds interfaces that match the Xbox 360 signature.
+
+Tested with an Azeron Keyzen.
+
+Signed-off-by: Roberts Kursitis <roberts.kursitis@azeron.eu>
+Cc: stable@vger.kernel.org
 ---
-[v3]
- fix wording
- droped white-space fixes
+v4 -> v5:
+ - Rebased on current dtor/input next. No functional changes; resending
+   as the v4 posting was not picked up during the 7.3 merge window.
 
-[v2]
- add ']' instead of remove '[' as randy suggested
- fix a couple more issues in the file
+v3 -> v4:
+ - Dropped the FLAG_NO_LED / FLAG_NO_RUMBLE quirk. Testing an Azeron
+   Keyzen showed it accepts the LED and rumble packets without the
+   -EPIPE stall assumed in v3, so the quirk is not needed. The patch
+   is now just the device-ID additions.
 
-[v1]
- https://lore.kernel.org/all/20260904121026.759218-3-manuelebnerli@mailbox.org/
----
- Documentation/input/devices/yealink.rst | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+v2 -> v3:
+ - Moved the 0x16d0 entries after 0x1689 to keep both tables sorted
+   by vendor ID.
 
-diff --git a/Documentation/input/devices/yealink.rst b/Documentation/input/devices/yealink.rst
-index bb5a1aafe..de1460b6b 100644
---- a/Documentation/input/devices/yealink.rst
-+++ b/Documentation/input/devices/yealink.rst
-@@ -120,9 +120,10 @@ Reading /sys/../lineX will return the format string with its current value.
- Writing to /sys/../lineX will set the corresponding LCD line.
- 
-  - Excess characters are ignored.
-- - If less characters are written than allowed, the remaining digits are
-+ - If fewer characters than allowed are written, the remaining digits are
-    unchanged.
-- - The tab '\t'and '\n' char does not overwrite the original content.
-+ - The tab '\t' and newline '\n' characters do not overwrite the original
-+   content.
-  - Writing a space to an icon will always hide its content.
- 
-   Example::
-@@ -205,7 +206,7 @@ Troubleshooting
- :Q: Module yealink compiled and installed without any problem but phone
-     is not initialized and does not react to any actions.
- :A: If you see something like:
--    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone
-+    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone]
-     in dmesg, it means that the hid driver has grabbed the device first. Try to
-     load module yealink before any other usb hid driver. Please see the
-     instructions provided by your distribution on module configuration.
+ drivers/input/joystick/xpad.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index feb8f368f834..ed6ae7bf0d3a 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -292,6 +292,12 @@ static const struct xpad_device {
+ 	{ 0x1689, 0xfd00, "Razer Onza Tournament Edition", 0, XTYPE_XBOX360 },
+ 	{ 0x1689, 0xfd01, "Razer Onza Classic Edition", 0, XTYPE_XBOX360 },
+ 	{ 0x1689, 0xfe00, "Razer Sabertooth", 0, XTYPE_XBOX360 },
++	{ 0x16d0, 0x1103, "Azeron Cyro", 0, XTYPE_XBOX360 },
++	{ 0x16d0, 0x113c, "Azeron Cyborg", 0, XTYPE_XBOX360 },
++	{ 0x16d0, 0x1192, "Azeron Classic/Compact", 0, XTYPE_XBOX360 },
++	{ 0x16d0, 0x1212, "Azeron Cyro Lefty", 0, XTYPE_XBOX360 },
++	{ 0x16d0, 0x12f7, "Azeron Cyborg II", 0, XTYPE_XBOX360 },
++	{ 0x16d0, 0x13ea, "Azeron Keyzen", 0, XTYPE_XBOX360 },
+ 	{ 0x17ef, 0x6182, "Lenovo Legion Controller for Windows", 0, XTYPE_XBOX360 },
+ 	{ 0x1949, 0x041a, "Amazon Game Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1a86, 0xe310, "Legion Go S", 0, XTYPE_XBOX360 },
+@@ -533,6 +539,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x15e4),		/* Numark Xbox 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech Xbox 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
++	XPAD_XBOX360_VENDOR(0x16d0),		/* Azeron controllers */
+ 	XPAD_XBOX360_VENDOR(0x17ef),		/* Lenovo */
+ 	XPAD_XBOX360_VENDOR(0x1949),		/* Amazon controllers */
+ 	XPAD_XBOX360_VENDOR(0x1a86),		/* Nanjing Qinheng Microelectronics (WCH) */
 -- 
-2.54.0
+2.55.0
 

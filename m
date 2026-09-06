@@ -1,206 +1,132 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61E54126C02
-	for <linux-input@vger.kernel.org>; Sun,  6 Sep 2026 17:27:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.215.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788715654; cv=pass; b=jJ/Nx7PlcH2hGAgqYwwBg2meY5Bzo/PNlucpo6EvCHNHoqYIDKv8vWHcdLiO1v3zv/eot41FBboqU97LGbhGOVHO2czs4aHA9EBC70inkxGRUwwGow4lwnhtggIo+m+ySadK1epCMHtbTEclOb7Kqh/mxQomF6uCfJSfF9bz6TI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788715654; c=relaxed/simple;
-	bh=MraagOlUbpoH3oPLClVqeUHGrTt1DDjhELOYW/M7Pj8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XAe/I0dpk6q0EIK78/vwDcTz3tfwAYnziyu/PidVMvBgz3/vkP1WuR9yO65tVGokNglVCKdx60SCZhmSCzRNc5m/NNpFdKB3nWFWVemV5T2w6OwcxgFR63w1vdnadiPP40nlG7Opd9iZ/vlMXXAikj7ipsbCYxhkvYEZTIiv0lo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tBRGmHtY; arc=pass smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E353630A0
+	for <linux-input@vger.kernel.org>; Sun,  6 Sep 2026 18:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788720991; cv=none; b=gG4d2YzVYiP4l58uNaI5DVjpruC2uh+dshXyvbmuWaZ5ZYI6fXbmpxLY9UdanUfU2E190mhT667UdpzxUOvNXHxRIK8GtnCaZYEMPWUqwGjF5L8mXiVmX1AIvs7uX2rm0vLG2HZ4fTmG9AFDKx+oLMn9vT8Bw5Lj8yWOEilhDxs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788720991; c=relaxed/simple;
+	bh=6a+HZ1EYXYHu9PlV9ZIMitFPuM02tFoBs0QnqvSqpU0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ShwDS8XqLdPmgJ+5i8Vs7aA69UgieAU4yIajAyuLXXRR0mIV59nQU0PEUSHIEX9y1jhX82pLxknjlsU2b7ubK1etwnG5ljFNdlzWP7EkKPCLR37Ggz6wtA3Q+ULtgoo5vgQ1F2b08DSNwO1wdhcRRG06exYzxEG2jP19e+PlwhA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NTs0Dq6I; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=qAY1gG4+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tBRGmHtY"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c9b373d5af0so2154573a12.2
-        for <linux-input@vger.kernel.org>; Sun, 06 Sep 2026 10:27:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788715653; cv=none;
-        d=google.com; s=arc-20260327;
-        b=hD0ymVkHoXXgtO7ZnelX07uiNC2NPcCK0Te7eASXl/NSLqEPR+bdh/yW7iMPct49Hb
-         TgaRBgoE0foLqBQ1jsvjHi/kCjkRngkJTgZdaKtR/eME1d3QMtmSjxxcxdG2T/7xUuA3
-         HOTh/On5YVDQQ9T4hLsKUug7M5LsOmrS6QeNLjvSfeQfp7qONC/HsaCpepQYZMeGrXUO
-         QyQRxwQoUp85RAh4E2CLtjPrKkxhXu9PozW2adRnJ0ahpzd+4nQCwy99KL0kahHZrO8y
-         XlYkJ+cn1PIFiv1WS03wq4GsJzCjq35tjUsSXLwyJtqpXTsFMj8yZ7h4cipJQdj07SBU
-         YcCw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=HTHe80Xg7+ZeuYbrgbgsluol6fsDFnRR/at+m3TB9OE=;
-        fh=VJDp2sjWVsbLhZSmIimA3SG6lt5QQLAr2YnwNaD0sNE=;
-        b=DzRLJN1yw8aUQTcK2uBGCdWiySGG3RvtPD3yNgqroaShH8EjAOKP1G9nhqlMgALpsL
-         C0KNmGYEnqyym22H3UqlIWAWtBYPGvGmiKv6GfFYMYELDySM/1enuiy9r1giP7ddygng
-         pmkH3onwBGQDscWVMBKHUPyxjfEljLXwKYjnqSYtiIXe3s2RpOpCquOyY7M/iviyycST
-         UUH+MSKYZVm5Kj0uHziW41ACtv17gvYzYu1V+7lt+UPzGEV2l6kufa2R+GoUGF85zYLO
-         6BcJs9b+ccjXQDaZxkIZpR+yq+Zo2p+gFmtgn2Wo5cpJ+8T1ZBXRH6Hl/9KvkVvTzzIY
-         iizg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NTs0Dq6I";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="qAY1gG4+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788720988;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UoPs+GJMD19+2K8VaVNyBFab1idZZJbQk2Q9rWXgiCY=;
+	b=NTs0Dq6ID7Utpl8vuq/dAPjs+dNnBvQiCCVqu4/+kh6I37jUoOBjwPz+gARVGZT7DEbGMY
+	SeNCqj1pqObM7Q1xUl1k9ljmeR2btIP7aYpQL8y6KywPZyAPTubAiu68zYQ1JztrFXM6IV
+	QJm4fZkYeTTB0rh3JWFtUOt617gmMBY=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-657-4EHnW4mnOQqfmZUadG7_2A-1; Sun, 06 Sep 2026 14:56:27 -0400
+X-MC-Unique: 4EHnW4mnOQqfmZUadG7_2A-1
+X-Mimecast-MFC-AGG-ID: 4EHnW4mnOQqfmZUadG7_2A_1788720986
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-48589603501so1503205f8f.3
+        for <linux-input@vger.kernel.org>; Sun, 06 Sep 2026 11:56:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788715653; x=1789320453; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+        d=redhat.com; s=google; t=1788720986; x=1789325786; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=HTHe80Xg7+ZeuYbrgbgsluol6fsDFnRR/at+m3TB9OE=;
-        b=tBRGmHtYOWv+ER41CDeEHk2vkJodO9MamNNG3ITftTNWohvwTqpT8hLHt6hnq2aN3W
-         /6jxpnx2bPtTiAQRhnrbeyCsqJjrHN9m6161Vq+0+jfNejLl1y3XIHDFwg+uZSev/7iz
-         Z9UtyeQah2Pvm9MxCIu9s0ZN7FAMH2GtRdhqzl5Wp4fYhhvD9k4MaBxAlHReovTS0yat
-         XudzQ77nwXHYDqaUtGMWirPVRPuTm4o+NMgBBo2m267H14dqYkXmLdJ0TtJfsOyZAaYr
-         ErAZLiCIaWiWC0dbZVopnN7y9z1bhJat2xLtxZyHuoWTl+rvC7hYDYsLYPb3XvsscaOl
-         jhZw==
+        bh=UoPs+GJMD19+2K8VaVNyBFab1idZZJbQk2Q9rWXgiCY=;
+        b=qAY1gG4+yO5TNsgyDVxBEQ5IKAY697kE9ikocMWvlK39MGKHQ6VVqwtH1opDhpqerj
+         SYhnChjpqlLxmgLslYvfLosbJcXzXRUcSJYNejP0HWSuGmFhFy8lDmWCO2wzlNJovqj2
+         ZdhcTFbnbJMDFdFLq6/NRgGysqGYK3qIQnR/N5zs70tSsxVeRYfy/NlNO/MspDvJJk1z
+         P3F9Bm3ETQhMpZ6N7NIHWNGzgaxh7SCbVsyGCMs+KNv8qg263ou4AZ+nBJdIw8A1nUj0
+         OkmQItCtMTumqP3K3LDmziqqebMSUfDR0Gnp1HTEBQzgtrxUFRCMLkakHe39aSJxyvWG
+         Aqaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788715653; x=1789320453;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1788720986; x=1789325786;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=HTHe80Xg7+ZeuYbrgbgsluol6fsDFnRR/at+m3TB9OE=;
-        b=Yxl3G8yFhTH3+7FLtwehiD0f5LejGYjUnFCfPLw/3S/VC6Y3ZM23L4qXpkglSUgRLC
-         ivy5O1+ZHIp+vMhIDnLAsmlvX+JNEFhnXax/PjIcmSHoA7NjVIbAvommZeHDi4oXm05q
-         0Dvaz1tJjKgeaaR869h5CIkcv6otpWw+kwcjrzUsP9PAp+xlmlfb2UdltW2HLvpgBpQE
-         i84tWtoPt83fXgDQG6brvrwcCNu8WKz78GTENicarZgMz7qSsnWkza0HM1WkU35Z8HI1
-         G2KoMMHZSZ3x/ZsQgB0W6wCBBqKzrMMdFebU3mcszGBXwI7An3xvE4Cu1FGQ5mmGdtCS
-         kPlg==
-X-Gm-Message-State: AFuF++ncsN0eZcHNbyVppQLYM7FcxlZ2D3jVOmwWXVm6cbbPp26kBH+4
-	EtNVIMjfxUCeM8410ZKb1O4ebR1CQ7cCz7UtgadShrvKfzqYmcWl00wYX68B6URQiA/fLyonAlb
-	9IqpbAvbYwx5HqIZeIz+XYcEQE2484aE=
-X-Gm-Gg: AYBFou2lJpuK2/yLjZW4XGBBjxYMvNV0nsRRj5bJ/vsFFoSg6XrKRX4MpFkoWt4jgPT
-	YZtS2NcRrsF3FRfA4CRRdC1LeGLeb0ofywSb3icyv9an4WH1EqyXuvjQWG90LIFa37Na3o7Ajpb
-	YpLpscljCOFj449AdcHqB9ROcodNyhK1e3Q5yexf7aRUaJ1Xpa6YpcAqf1I4jq5Bq+JrGOQN14j
-	tg4k/HZGeaONSznFKR7fs+4fP5772l00NFfWtzjQSqvaAQszRs4/YrhNhIei/i0pDO+LjWDNqwb
-	wbgkbvlylOZTcwZzNqZvpk6n/MCBe8RBeLO85DqwnHBkDt9Lft711PYz04xTcLh2fApgj4BuF4O
-	KUw==
-X-Received: by 2002:a05:6a20:9397:b0:3c3:a3f4:5485 with SMTP id
- adf61e73a8af0-3da39cff434mr30724224637.6.1788715652668; Sun, 06 Sep 2026
- 10:27:32 -0700 (PDT)
+        bh=UoPs+GJMD19+2K8VaVNyBFab1idZZJbQk2Q9rWXgiCY=;
+        b=rly4Kmo8cnBWFafnug7uliJsjI+hPv711XVGzbHF9Fnn1K0e+bnVP5tCI+lAbImiW/
+         lLb7Fxcxce/98DJg4JiNmwj+JtP+5hpGLjbfOeVg7xVi7XmAo2msSfT7etkx5+sWyqhF
+         XUnAEU0mRLVbpPOn5mSAmJM8cMusiegRhNAde450BNt9Ww66hQoNqJRb6qVYtMVo6Vsf
+         mvGYe6aUWg2yCnFoaxiLHqPYmOPcGVGsNws/RxAola0rxzYnAQyJ//u+Hjvhy/lC2E9R
+         7VMDoq0a2365QKvwc3kY0v+FumPdFmZQSCnwlVS0veK3oDGTtavuq56VbL7Sr/KJ6Byd
+         T3tQ==
+X-Forwarded-Encrypted: i=1; AKwUvByObWUGN7oJx3bXQSPV1tJW/25IFF620Osahy4Pj+qw4yBU/b0c4Q6ROui73MhuI+1TQULAuczl9o0aMg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mX0GMagEUl5q1kYvh0ePww+nYvxsvFscFwxtQQcidy/JJq9Paa
+	PaVMsQCwNIS4FURyRyq7zCBZO389nXJv9dUcYqkQcY6GnKWo/YY6enJ7q78HyCJGw4JJWmjJRY7
+	Db2EGT8M5/2zbFbg3Ig70MWH+sByiJbQJ3Ak/Lc3/tmOrdyKAkOVxju61Bm6086ZA
+X-Gm-Gg: AYBFou0aXQzhbZVoAXH3NoXwFbdLUi29XI8JaYzT5PZ+u5Cn5+obnSxs+cYL98QS1UT
+	dVT3weuMgsvo7tSw47wNSvjJut79R6AkfojVQZDLzmJ/cKo1Wm4Qqmc7lwDhxwa8kMYzM/gBxga
+	k7LkvjAC+a8yZlpMnIIFGaM5ZbD45t37EVTN7I2rNxdss2pMgX9514NdWACOOz1fuPpmz2MQDCa
+	iy89uKEuBvy3IfbWosx5ZpAdQgzLZXkxiKdYDbe5sT4ZjTinydGSj7uSp6HvdRlr4HkOjO31Vym
+	T/qvL174+8NDNr/F7BkkL7hSX5mJor/z1OxJYQ7l2SaZ17W8BbQhNftBKK3ozS2EQvUA4GxrR8v
+	k/0QRWSHafRVn93DKoxri0dI=
+X-Received: by 2002:a05:600c:8b29:b0:49c:ee22:364c with SMTP id 5b1f17b1804b1-49cf824743cmr196985085e9.9.1788720985717;
+        Sun, 06 Sep 2026 11:56:25 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b29:b0:49c:ee22:364c with SMTP id 5b1f17b1804b1-49cf824743cmr196984675e9.9.1788720985146;
+        Sun, 06 Sep 2026 11:56:25 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d084d62b0sm80311485e9.2.2026.09.06.11.56.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 06 Sep 2026 11:56:24 -0700 (PDT)
+Date: Sun, 6 Sep 2026 14:56:20 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Karl Mehltretter <kmehltretter@gmail.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	virtualization@lists.linux.dev, linux-input@vger.kernel.org,
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+	linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] virtio: synchronize callbacks during device reset
+Message-ID: <20260906145605-mutt-send-email-mst@kernel.org>
+References: <20260905152059.89560-1-kmehltretter@gmail.com>
+ <20260906025249-mutt-send-email-mst@kernel.org>
+ <ap2VJkoIsBbsqcNm@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260721095654.429346-1-clamor95@gmail.com> <CAPVz0n3u0D=0swsO4n6LROFurO=as1w-ZRwaje08BN9dY=JhXQ@mail.gmail.com>
- <20260827141457.GA2943942@google.com>
-In-Reply-To: <20260827141457.GA2943942@google.com>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Sun, 6 Sep 2026 20:27:20 +0300
-X-Gm-Features: AcwNN1US6VGLlyitJNPleGZ36XvgnLU1yQ7kLv1UGW2us5RAJXeSTeJhWP7qGxo
-Message-ID: <CAPVz0n1bTHph3nquDNzrp+kpRcbzHsBBddHGxY3qt9qiHf7zWw@mail.gmail.com>
-Subject: Re: [PATCH v7 0/6] mfd: cpcap: convert documentation to schema and
- add Mot board support
-To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
-	Conor Dooley <conor+dt@kernel.org>, Pavel Machek <pavel@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ap2VJkoIsBbsqcNm@gmail.com>
 
-=D1=87=D1=82, 27 =D1=81=D0=B5=D1=80=D0=BF. 2026=E2=80=AF=D1=80. =D0=BE 17:1=
-5 Lee Jones <lee@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> On Wed, 19 Aug 2026, Svyatoslav Ryhel wrote:
->
-> > =D0=B2=D1=82, 21 =D0=BB=D0=B8=D0=BF. 2026=E2=80=AF=D1=80. =D0=BE 12:57 =
-Svyatoslav Ryhel <clamor95@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
-> > >
-> > > The initial goal was only to add support for the CPCAP used in the Mo=
-t
-> > > Tegra20 board; however, since the documentation was already partially
-> > > converted, I decided to complete the conversion to schema too.
-> > >
-> > > The CPCAP regulator, leds, rtc, pwrbutton and core files were convert=
-ed
-> > > from TXT to YAML while preserving the original structure. Mot board
-> > > compatibility was added to the regulator and core schema. Since these
-> > > were one-line patches, they were not separated into dedicated commits=
-;
-> > > however, the commit message notes this for both cases.
-> > >
-> > > Finally, the CPCAP MFD was slightly refactored to improve support for
-> > > multiple subcell compositions.
-> > >
-> > > ---
-> > > Changes in v2:
-> > > - fixed code style
-> > > - rtc conversion was picked, so patch dropped
-> > > - added audio ports description into mfd schema
-> > > - splitted schema conversion and compatible addition
-> > > - minor style improvements and typo fixes
-> > >
-> > > Changes in v3:
-> > > - added regulator node names list into pattern
-> > > - filled spi_device_id with driver data
-> > > - ADC patches were picked, so changes dropped
-> > >
-> > > Changes in v4:
-> > > - dropped regulator patches (applied)
-> > >
-> > > Changes in v5:
-> > > - switched to MFD_CELL_* macros
-> > > - switched to use determinator of model
-> > > - switched to spi_get_device_match_data
-> > >
-> > > Changes in v6:
-> > > - removed address-cells and size-cells from main node
-> > > - changed macros formatting and OF matches
-> > > - factored out common devices and made device addition staged
-> > > - dropped cpcap->variant check for 0
-> > > - EINVAL > ENODEV in variant checking switch
-> > >
-> > > Changes in v7:
-> > > - adjusted spi_device_id entries (name/driver_data)
-> > > ---
-> > >
-> > > Svyatoslav Ryhel (6):
-> > >   dt-bindings: leds: leds-cpcap: convert to DT schema
-> > >   dt-bindings: input: cpcap-pwrbutton: convert to DT schema
-> > >   dt-bindings: mfd: motorola-cpcap: convert to DT schema
-> > >   dt-bindings: mfd: motorola-cpcap: document Mapphone and Mot CPCAP
-> > >   mfd: motorola-cpcap: diverge configuration per-board
-> > >   mfd: motorola-cpcap: add support for Mot CPCAP composition
-> > >
-> > >  .../bindings/input/cpcap-pwrbutton.txt        |  20 -
-> > >  .../input/motorola,cpcap-pwrbutton.yaml       |  32 ++
-> > >  .../devicetree/bindings/leds/leds-cpcap.txt   |  29 --
-> > >  .../bindings/leds/motorola,cpcap-leds.yaml    |  42 ++
-> > >  .../bindings/mfd/motorola,cpcap.yaml          | 408 ++++++++++++++++=
-++
-> > >  .../bindings/mfd/motorola-cpcap.txt           |  78 ----
-> > >  drivers/mfd/motorola-cpcap.c                  | 143 +++---
-> > >  include/linux/mfd/motorola-cpcap.h            |   7 +
-> > >  8 files changed, 571 insertions(+), 188 deletions(-)
-> > >  delete mode 100644 Documentation/devicetree/bindings/input/cpcap-pwr=
-button.txt
-> > >  create mode 100644 Documentation/devicetree/bindings/input/motorola,=
-cpcap-pwrbutton.yaml
-> > >  delete mode 100644 Documentation/devicetree/bindings/leds/leds-cpcap=
-.txt
-> > >  create mode 100644 Documentation/devicetree/bindings/leds/motorola,c=
-pcap-leds.yaml
-> > >  create mode 100644 Documentation/devicetree/bindings/mfd/motorola,cp=
-cap.yaml
-> > >  delete mode 100644 Documentation/devicetree/bindings/mfd/motorola-cp=
-cap.txt
-> > >
-> > > --
-> > > 2.53.0
-> > >
-> >
-> > Hello Lee! May you please pick this patch set? I have included changes
-> > asked by Rob and Uwe. Thank you!
->
-> Nope! =3D:-)
->
-> There are still a bunch of unanswered Sashiko reviews and one from Rob's =
-bot.
->
+On Sun, Sep 06, 2026 at 06:32:40PM +0200, Karl Mehltretter wrote:
+> On Sun, Sep 06, 2026 at 02:53:05AM +0100, Michael S. Tsirkin wrote:
+> > You didn't send patch 3.
+> > 
+> 
+> I resent it to just you now. Mail must have gotton lost somewhere.
 
-It seems that Rob may be quite busy. Which Sashiko Rob's bot reviews
-concern you? Maybe I can clarify those?
+got it now, thanks!
 
-> --
-> Lee Jones
+> If all else fails, it's on lore:
+> https://lore.kernel.org/r/20260905152059.89560-4-kmehltretter@gmail.com/
+> 
+> Thanks,
+> Karl
+

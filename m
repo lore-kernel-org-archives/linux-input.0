@@ -1,129 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from ixit.cz (ixit.cz [84.42.129.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C63442050;
-	Sun,  6 Sep 2026 16:40:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1929450F2;
+	Sun,  6 Sep 2026 16:45:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788712818; cv=none; b=L1gwlLeEXkzUTLHijfi7pxNouuJ1TY07BzNIDk8UyCxS1TgNXg83YWvd9+cdIKdCgcsj5ogPa9FVOiWbvVj5Ya169hV/rgzz/wie26IQ7p7m+bDtLjiJTNIWjAd5pk9ebS0xAgN1VWOVD400CTc8zjqMIbQ8ViUJs7eX7sr0pAo=
+	t=1788713113; cv=none; b=qZCxvPThVU0QqQbGwbbf3MFLYIdC5dli/TY0JNCATjj98ogkAG5ZTmlZLTgLvspL115tEafJsQQvJLEh+pJvmgq9mDeQlLHgIfqeT75mqn9/+dJYtf59B0MdWv6QlZYnCDBLwtTC9+54rbFSgLlTVPx3kmKN3YSOEyK3XGvgUak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788712818; c=relaxed/simple;
-	bh=1RDC8MiDuWlDVtP3Wl9kRmhLbpPHePMfXsv6FLzgaZM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Z7EgNNn6+xTaPAhUdVvC0S00oNVKuHdCW5IIiRZfQKGRI1v4c22rV2CFVmkOJ6uIO1aPjN7ilmIdDjW0CanwhSr92sCYfI/GVR4blsPSR+Plb3MILr/SDOOw85dMyFW57jw/VHXIVOkYwlmPZRGDAphU5MWaa17vVxInjbHZByI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QbNLuNdA; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788713113; c=relaxed/simple;
+	bh=eN0ubARDOq7O1dumkQ6O8j0OFl0g5NmviOisoEMNOT4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SoQELyY97uZq/oVKTJr+AlNZhINp2B/vSdcIl40kQ2TvYIsNYf4R92cKR/4E9mv3Vi7Izk6Zj+YjmWHdJ0H9a6Qfw8AZD0DtY1XyrhqYUh2miH7DhSAAhOPe8rOa2ZmJFATjugSKdbvPU+zsnk3wrL78PPK+m8EBCkkUmnNuCI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=1BKSdZsf; arc=none smtp.client-ip=84.42.129.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QbNLuNdA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 773C01F00A3A;
-	Sun,  6 Sep 2026 16:40:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788712816;
-	bh=dOvuXSvEQ99KCUSNpMpy7ppcwksXVk1XhoRxAKsBHdw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QbNLuNdA1DzCTUbEF1cbQgSrx476jXjAHt+On/tKc46KXi79Gq6V/BJrXXESQVw96
-	 159zYkgzjDbL6Rx+15cxjLABECLvZfgIGo0rfnEvjPdrWobRMZUaRNWjtKv3/d9zOU
-	 jIVOVxHBokF01u1DHgrTU3GMbYGBDybSgpUSroW0TMShY2YzyZp2pJU7WeiFzVrAQ0
-	 ob76Cb7LIJdpT8kF4DXjANY8BeDMmHpu1pRVY3CR+I1NJTjM/7rXYN3h87OdhKtEu5
-	 SAzhQK10AVoPUIy8nd/C/zg/ClM3pNg6aRb44wo6quDmoCF8qg6IewBVFETbd0JXKF
-	 GrG/MbLr6g6xw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 1/3] dt-bindings: input: touchscreen: st,stmfts:
- Introduce STM FTS5
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "David Heidelberg" <david@ixit.cz>
-Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260906-stmfts5-v6-1-50fbf6af8718@ixit.cz>
-References: <20260906-stmfts5-v6-0-50fbf6af8718@ixit.cz>
- <20260906-stmfts5-v6-1-50fbf6af8718@ixit.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 06 Sep 2026 16:40:16 +0000
-Message-Id: <20260906164016.773C01F00A3A@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="1BKSdZsf"
+Received: from [10.0.0.152] (unknown [10.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by ixit.cz (Postfix) with ESMTPSA id EB4DF53402E3;
+	Sun, 06 Sep 2026 18:45:08 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+	t=1788713109;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=bbtTwSSPjDHEFthpcY3sCGYaQJ0bclCPKmJn8+c4CPA=;
+	b=1BKSdZsfoyC3PjLmVnw0KBqCFB6sypIp2IGwXB3GMC04dLZ1xbS2CH6KlG4gcKCyGkpOZp
+	HG0FiZKLcIegE5eeVIs+W+QD9WluB8V8jIZSWKue0vTifR/gqScwUcLwnmXy3wC0a+4Bvs
+	xh1xFUHUcrLqv1OE5ut/YKdXTnr2ADY=
+Message-ID: <5071af17-ffcf-48f9-a662-6da03c4b483c@ixit.cz>
+Date: Sun, 6 Sep 2026 18:45:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 0/3] Input: support for STM FTS5
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org,
+ Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+ Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+References: <20260906-stmfts5-v6-0-50fbf6af8718@ixit.cz>
+Content-Language: en-US, cs-CZ
+From: David Heidelberg <david@ixit.cz>
+Autocrypt: addr=david@ixit.cz; keydata=
+ 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
+In-Reply-To: <20260906-stmfts5-v6-0-50fbf6af8718@ixit.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] The `if` condition matching the `compatible` property against `s=
-t,stmfts5` incorrectly uses `const` instead of `contains: const`, breaking =
-the conditional logic and improperly forbidding `mode-switch-gpios` for the=
- new variant.
-- [Medium] The patch contains undocumented modifications to the existing `s=
-t,stmfts` device tree example and file structure.
---
+On 06/09/2026 18:33, David Heidelberg via B4 Relay wrote:
+> Used on various phones. Minimal viable driver.
+> 
+> Includes device-tree enabling touchscreen on Pixel 3.
+> Also, tested on Xiaomi Mi 8 (device-tree is not yet inside the mainline).
+> 
+> What is missing:
+>   - switching between AP and SLPI mode (to be able to wake up phone by touch)
+>   - firmware loading
+>   - anything above basic touch
+> 
+> Signed-off-by: David Heidelberg <david@ixit.cz>
+> ---
+Sorry for the noise, seems the wake up sequence isn't right yet, FTS5 on Mi 8 
+after some time off stops working - on Pixel 3 there is kept vdd-supply 
+always-on, so likely it ignores incorrect suspend.
 
-commit b15460ebf5a9b2a2c1695b3d9fb6f5007a3c46e1
-Author: David Heidelberg <david@ixit.cz>
+I'll send v7 fixing the issue today.
 
-dt-bindings: input: touchscreen: st,stmfts: Introduce STM FTS5
-   =20
-Introduce more recent STM FTS5 touchscreen support.
-
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmft=
-s.yaml b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> index 64c4f24ea3dd0..3de4bc5cd3f78 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-[ ... ]
-> @@ -51,6 +54,17 @@ required:
->    - interrupts
->    - vdd-supply
-> =20
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +  - if:
-> +      not:
-> +        properties:
-> +          compatible:
-> +            const: st,stmfts5
-
-[Severity: Medium]
-In Device Tree json-schema representation, the compatible property evaluates
-as an array of strings. Does this use of const: instead of contains: const:
-incorrectly compare the array to a single string?
-
-Since the comparison would always evaluate to false, the not condition nega=
-tes
-this to true, which means the then clause is always applied. This appears to
-incorrectly enforce mode-switch-gpios: false for all devices, breaking the
-schema validation for the new st,stmfts5 variant.
-
-> +    then:
-> +      properties:
-> +        mode-switch-gpios: false
-> +
->  unevaluatedProperties: false
-> =20
->  examples:
-> @@ -64,10 +78,9 @@ examples:
->          touchscreen@49 {
->              compatible =3D "st,stmfts";
->              reg =3D <0x49>;
-> -            interrupt-parent =3D <&gpa1>;
-> -            interrupts =3D <1 IRQ_TYPE_LEVEL_LOW>;
-> -            touchscreen-size-x =3D <1599>;
-> -            touchscreen-size-y =3D <2559>;
-> +            interrupts-extended =3D <&gpa1 1 IRQ_TYPE_LEVEL_LOW>;
-> +            touchscreen-size-x =3D <1600>;
-> +            touchscreen-size-y =3D <2560>;
-
-[Severity: Medium]
-Are these modifications to the existing st,stmfts example and the earlier
-restructuring of the allOf block missing from the commit message?
-
-The commit message explicitly states only that it introduces STM FTS5
-touchscreen support. While migrating to interrupts-extended and changing the
-touchscreen size might be valid cleanups, they are undocumented side-effects
-and likely should be explicitly mentioned in the commit message to justify
-the changes.
-
->              touch-key-connected;
->              avdd-supply =3D <&ldo30_reg>;
->              vdd-supply =3D <&ldo31_reg>;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260906-stmfts5-v6=
--0-50fbf6af8718@ixit.cz?part=3D1
+David

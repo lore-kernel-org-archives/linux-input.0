@@ -1,170 +1,196 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0AE3BAD9A
-	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 20:50:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 663933AEF20
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 21:20:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788814239; cv=none; b=ki2IwDkxX3RZ5q8nTtdzfGrElxcphe3vz7kjVcPXWPse28vd+dQwsIvqn89K4/D7IyKtXt3JFsoyfAZ+L10KbkJX11lK/Ql8cXljbTAh1RIRL5XgBxtu3qQLY+l2gnbQaqMkcGn8gpGCWjQ+TyZ3WK2hjFqKlV05VAI2bmrNTYU=
+	t=1788816007; cv=none; b=HufP57yvCGTS5JP7xGDy6CzBNEqOkZw6IU3n1DJSyErtJMCOcB1DG7r49+cbtq3XbUEzLbaAqH/eSMd22kA+kQm4yW7Qv1eWcmnwcDGJiEOoLbMdcECia+tHpYD6ITIItWUif57yVrS320D5DkhUL7enL+kt55fL4ad2J6YY/yc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788814239; c=relaxed/simple;
-	bh=J4pCQZJgm2dE+4L8MOiPCH66HA1hlwNZZZjnbQkdENI=;
+	s=arc-20240116; t=1788816007; c=relaxed/simple;
+	bh=k/QImo2NCCg/3TCmY5Vmxee1X5XnCsMH8Zic6TCGMok=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t8B8EC3vgdWNUytP5GnZwD5+uIxiZ5zBiHNZJv7ZGiXMtZ9KprstzxrlWXA89ZqQjAJnAQQlpTC9pfxyjkKhvqyIF3EqwLZnvpiESseKY9icgdqa5BKUSHeGxlsNfw0D67ZM8hNWBgaxIjWKz5FEUpON0lp3XkqTe2EMNd8eaws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ih3cleus; arc=none smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=vGPKdOwHwGdAjum4IjrCL+sGyiCIgFtSYZUfnaO2EXILwRn9HClXWT0OUY1SlwC460ahwAla9hq5J1DglO8txrLCX113iIjoMkatCoR0FfVgikXLGVp6oKp1lS0915NwX738yF1VXLwj3eC0Htif4wqX+YZjsJaN9gmkEr963VA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GPfpvjV4; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=heMfVXUn; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ih3cleus"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84864086bfeso3408402b3a.1
-        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 13:50:38 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GPfpvjV4";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="heMfVXUn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788816005;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dNqMvmk3XjOuru6dfpLyr8VojH7qEb8Z1Jw+8letoJM=;
+	b=GPfpvjV4KK3GVMD9YFmKKVm9YX8RrQNW/1u7yco+0lcm/O9Iiq1zPPMtmyWEhCF5uU+L3g
+	JyQ1qXRuJTfBhjAAgNp4W+9VBol07MqfwwCFbaQA4Ro2j+xzxoMvK/ELTvVLFJglWIK4qx
+	c7iZSXf4vnWCLDAwkDiqmSTmQ+mRQi4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-611-3UQXRTP3PH-RkBF5r-FWaA-1; Mon, 07 Sep 2026 17:20:04 -0400
+X-MC-Unique: 3UQXRTP3PH-RkBF5r-FWaA-1
+X-Mimecast-MFC-AGG-ID: 3UQXRTP3PH-RkBF5r-FWaA_1788816003
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49991beee7aso36451295e9.2
+        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 14:20:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788814238; x=1789419038; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=nsixEv23b14+93tpF7Zi+UwN7prwGg8DzwEVHkEb3zk=;
-        b=Ih3cleusc8Ixi6vd47GxiemmBymnD3lvcquelEHWzA+GZcUZb6tcvXrpSVqA9kib80
-         ZkXp9297e8rayBMgOj1wrZyZBF0lFecj+s+WvDdvaJzysMSAeWRDQwhf+ZzrX12+id/3
-         Oy2yJ45NsSYN91/jlnwaDEZeZ3gJwQ2qhVjWs0zUuN4G8gllA8+4nKrFQ1BlsuDn+qG7
-         ZPcw6P5kg3r7p2LaDxL9CetZI/ID1vPcVf6ZvtqNWbhR5j4y4yjwHO1cQ5VyVNO8jD6j
-         GYXisyhisBMJQsMZR7WmrhRrqMY/zMx5qGpqeC5dsDGZH61ZlyibIt39kb+Qw0s1gLnX
-         ye5g==
+        d=redhat.com; s=google; t=1788816003; x=1789420803; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=dNqMvmk3XjOuru6dfpLyr8VojH7qEb8Z1Jw+8letoJM=;
+        b=heMfVXUnYTwR6xc7/U0xMCI+YcZkGMs6MdIGGA2wbN0FXU81vlTc05NbefxBxN7M3S
+         FgMj5p+YV/95MbLAtwI3MKUF3PWL4ls7kFyizcQ5+JJiSL0WnAkzdCY7uwMI9DLOwBCp
+         Z+bdjTYnn1yMutTH/5WymTo8evVdflZIUymfw8TV0mxOqKqdJzhanLZ5xsOVTlEtFl6M
+         08wDpAJZAtUD3k4fZUslpqph4G/Pe+flPXAFzdJPK4A2Vv6sZl7G43knGc+7n5OyXDjY
+         WX8TS267PQTPlVoNsjzYBNw3DHMJSfOEW0DKGHBqSUO3x8zDhcYd8GFnXvjpW3MFbBQK
+         yBuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788814238; x=1789419038;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=nsixEv23b14+93tpF7Zi+UwN7prwGg8DzwEVHkEb3zk=;
-        b=ZDX2Zw9HNZxgUH51PbhM2x5k6RybDqNLdZj04jN/x+/Hw39JRw8HFFZ0E8Jd/62/Ym
-         zZzof3QbtEm39CN2voedvcSz8o2naCV/Dh7Lbs3fBMqSn3Mo+APub3hi76aa+STedD3u
-         Jp7HDgMjL8d/YeF9mXAJ+bpRD+MoqBoBtMxMuI05gA2nRxuzTykDexUCdxn7kFHb8ChV
-         nS4dM3PT5BER8MWrvtDsWJ2ySU+6qAvwQFAT2T3chsFrOS4ZkbEKkjjDyZje4yMRs4jv
-         XzVhrP1fvOghvvIK9+adDT5ReXnnsMZYwaXRLLFci+kLXlBdAE3nVd05ppzA4OlaIXNr
-         IdtQ==
-X-Forwarded-Encrypted: i=1; AKwUvByxdmDfXvo0MMfej/vAL6Er7aTniZazxiGTKPHueScODEnBBBf2WBZ7LdqeinS4ZML1remiFa56onIiog==@vger.kernel.org
-X-Gm-Message-State: AFuF++mXSGT5WpLSAZ36hW4CzrWctacEIhFlj6lpeQablrcBtn9WrfmK
-	IEcRmqjw08Q7P6lrHddCYlylkrCGJ9m5AO0Q1jS1T4U5SKhhn2CwSj7a
-X-Gm-Gg: AYBFou1BnSPuaUYsVkAAwgqG6ECcwJ4ag0wnym7QI+/XGzEyUzc57JOBmlwaIuEJlI4
-	fQrbPz4J5hJMCYtX7bfHztT6Nwfn+qv5HAtnIH94nZhpQExS73ZM2/XZ9aV2W/Q5v1TDwACVs1/
-	vIJKXXa+ULDRnu+/DvCYJYS1xy+bWyLoY43rYjtCJdunEeT9WRuI9AXQ1RqmxH98FbjXTRWom7s
-	a5hLO2ZDE3IPw5IM+DzW/06nDSQDEZACLfp+a/Fcq6sRm0IXdBL02oOCQt0GLNvJLfFayL+0Yq6
-	GfbXbeeHAlRXMQA2GpYQB/zwqmcpZkSgO08druknKZ1fCTsqa7zV10hCzs5T1CJttkOOqJ1fCSe
-	Y5Ket3vI5he5zpMzIbx1XyfAh7dKVqZcPdVD1cD9CbJk4Gzn+JKrfyCKA3VHBarQbbH9vyaYfYp
-	VpQGRzpYaQPF59W6kVgk5wOQ7dKWgB6HB+kfYn1vzioJNTRcR5m9nkWjhZKqBIdw16zYMlXWsXM
-	sqNExDM0Z91SvmX6VdfU3JH1gjI
-X-Received: by 2002:a05:6a21:748e:b0:3d2:5eb3:596 with SMTP id adf61e73a8af0-3da3a043152mr38526367637.16.1788814237511;
-        Mon, 07 Sep 2026 13:50:37 -0700 (PDT)
-Received: from localhost ([2409:40c4:ed:964b:4e88:5fd3:6ed7:a9fd])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1434bb7d71fsm361998c88.15.2026.09.07.13.50.35
+        d=1e100.net; s=20251104; t=1788816003; x=1789420803;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=dNqMvmk3XjOuru6dfpLyr8VojH7qEb8Z1Jw+8letoJM=;
+        b=OBM5br/y/PJpuThIbZpSxAnxomHjvpBvDh4+X4PFFBytwTZ4PsfE/naS57a+3WbWNA
+         rRsTYmQjznvzyLd7m9uR1BX+c388EKWpDh5lCGleS/aGh5wy90lzSwpqYzBCCfbSsSHl
+         9whEESz4f/WVgdXwaR+SLlwd0yEWC386GQiq/NULOCAkrifF6LPA3kaGilDiZ1GZAf3+
+         J4tjqIMQe4RuV7kilVrHFMWjh50SbhMUkjCpT6wBjPs4u/HRak4S6bmXo0sYYRwOgWtF
+         NIcMnm1NiOsENyESbE9yY0E312ol92js4qiZtvjoQp3O1py1N+li0NGWjEL2Jz/675MR
+         Q40g==
+X-Forwarded-Encrypted: i=1; AKwUvByArjXbrJntBkbCoaP5YlPaSWSksfFy8olZNnQfQvvr0NgPlyy5Zp02KO7o6XLVc/tJojIfedYqi1T4OA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nGpzN6EUQqOBWbKUb/H71Iuj0PeozyXQ8UkDEHvOjjmUytZLGP
+	iWjPODTOFdSk/YX697ZmMHqkPI3oNg4efiajh7nwMMWAz5fvjMWzID3GpI7A4uQUPtiYU5HlJ/a
+	vxCzQiZm59AVoP/UVWAoksxwRJAYBW4jMGpNiq+KIJW4uaKGXD9KkukV1F9aJO/g4
+X-Gm-Gg: AYBFou3CRxl5I9JL2RW4fET8wKSWA4AdboJbpZrEgWcGyVFeiXqLN1agzyYt4GMh3SO
+	/k8YjAyqLyH0fhKJRXGBIt5+a1Tmx2tIaWJjXDJZ+pL7FGffNQ87kvWK8gZeMPnQYG/bCQjI+lJ
+	5XL01+SFryNm1AUuPStXMF6gmkkQyV2irlh/71WCLkVgFzxFDTrnG8g1TePDQyxUEG3HuGmzLsa
+	Ni3UYU9S3LIS8hZojjAU4irr63uHdt7mUQxLbPHOXQ8ynLCfFv9bWztqckEFrkI0b2tgAVZXkX9
+	MoJOqWBeE51+Nx3JG0ZOT6icu/QqPZGfe4Rbu3qcDSoPvq/HV53vYXuzbL87q/rgt5j/sU9iA31
+	bxy/5M5gmtsOJzwdPrDON2Pg=
+X-Received: by 2002:a05:6000:491a:b0:47f:9254:d453 with SMTP id ffacd0b85a97d-4858704a9d7mr51670315f8f.8.1788816002924;
+        Mon, 07 Sep 2026 14:20:02 -0700 (PDT)
+X-Received: by 2002:a05:6000:491a:b0:47f:9254:d453 with SMTP id ffacd0b85a97d-4858704a9d7mr51670251f8f.8.1788816002441;
+        Mon, 07 Sep 2026 14:20:02 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485885bbb51sm32653149f8f.30.2026.09.07.14.20.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2026 13:50:36 -0700 (PDT)
-Date: Tue, 8 Sep 2026 02:20:31 +0530
-From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-To: Adam <testyiprywatnosc@gmail.com>
-Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, 
-	linux-input@vger.kernel.org
-Subject: Re: [BUG] HID: i2c-hid: ELAN 04F3:30FD touchpad reset race causes
- -EREMOTEIO on HP Pavilion Gaming 15-ec1xxx
-Message-ID: <ap8JsxbZDmWxigZv@eggarch>
-References: <CAEru=6LrMqg93AKrmbTJtvRNPx=arYuhSf4zMw4bK1SjWQQvrw@mail.gmail.com>
- <aoC-aI_7Dq_nJTHg@eggarch>
- <CAEru=6K=P_oJfksvRf2BfHZF9AFrQD4=izAwrSsz_Xit_i96xA@mail.gmail.com>
- <CAEru=6+Lnwn+UHcpGA29gcET=ERgiYCOqkR0ijShcfOFR1m-1g@mail.gmail.com>
- <CAEru=6K8gYwNWHFoYmwpQY8GGJ3HrqoJxKyu41nSSGQWOTVOdw@mail.gmail.com>
- <aoyO68JLUeCZbStK@eggarch>
- <CAEru=6JrUqo34ZtDES+VE3vbLGAFYd5UjnrpLOELKoEVg1Zx=A@mail.gmail.com>
- <CAEru=6+AJAJDw4uCi0=HFXH8XrOQhixHFk2e__o+hdd1m1ju5A@mail.gmail.com>
+        Mon, 07 Sep 2026 14:20:01 -0700 (PDT)
+Date: Mon, 7 Sep 2026 17:19:58 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: Karl Mehltretter <kmehltretter@gmail.com>, linux-s390@vger.kernel.org,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>, kvm@vger.kernel.org,
+	linux-input@vger.kernel.org, dmitry.torokhov@gmail.com,
+	Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH v2 2/3] virtio_input: stop callbacks before unregistering
+ input device
+Message-ID: <20260907171921-mutt-send-email-mst@kernel.org>
+References: <20260905152059.89560-1-kmehltretter@gmail.com>
+ <20260905152059.89560-3-kmehltretter@gmail.com>
+ <20260905153357.7FE5E1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <CAEru=6+AJAJDw4uCi0=HFXH8XrOQhixHFk2e__o+hdd1m1ju5A@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260905153357.7FE5E1F00A3A@smtp.kernel.org>
 
-On Sat, Sep 05, 2026 at 10:25:46AM +0200, Adam wrote:
-> One more finding, potentially significant: I found that holding/tapping
-> F9 at boot (HP's boot menu) repeatedly, or alternatively entering the
-> UEFI Firmware Settings from GRUB and immediately continuing boot, gives
-> the touchpad a reliable, working boot on my Ubuntu installation
-> (tested this handful of times, consistently works).
-Hmm.. I guess the f9 trick just moves probe's luck, nothing more.
+On Sat, Sep 05, 2026 at 03:33:57PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+> 
+> Pre-existing issues:
+> - [High] Missing `virtio_reset_device()` in the error path of `virtinput_probe()` before deleting virtqueues, potentially leading to use-after-free or memory corruption by the active hardware/hypervisor.
 
-I wonder what would happen if we added a good amount of bounded
-retries on -EREMOTEIO and -EIO errors on the two reads
-[i2c_hid_fetch_hid_descriptor(), i2c_hid_parse()] retries are
-missing. I suppose firmware still responds to reads but NACKs any
-write during the 'unresponsive' window which lasts far longer than
-current retries can cover.
+This one is fixed in my tree.
 
-Could you test a patch below with dyndbg enabled, on a mix of warm/cold
-boots, see if it improves this situation, if some boots still fail,
-include their probe timestamps.
+> - [High] The driver leaks DMA mappings for unconsumed buffers in the event virtqueue (`vi->evt`) upon device removal or suspend/freeze.
+> --
+> 
+> commit 71bbbcca0b03e3c67fa905a8357e9d3ad23e7fe4
+> Author: Karl Mehltretter <kmehltretter@gmail.com>
+> 
+> virtio_input: stop callbacks before unregistering input device
+> 
+> virtinput_remove() unregisters the input device before resetting the
+> virtio device. virtinput_recv_events() drops vi->lock around input_event(),
+> so clearing vi->ready does not stop a callback that passed the entry check.
+> It can still use vi->idev, requeue buffers and kick the queue.
+> 
+> > diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+> > index deec24e8e6828..7b654af0a42cb 100644
+> > --- a/drivers/virtio/virtio_input.c
+> > +++ b/drivers/virtio/virtio_input.c
+> [ ... ]
+> > @@ -350,8 +353,9 @@ static void virtinput_remove(struct virtio_device *vdev)
+> >  	vi->ready = false;
+> >  	spin_unlock_irqrestore(&vi->lock, flags);
+> >  
+> > -	input_unregister_device(vi->idev);
+> > +	/* Callbacks use vi->idev. */
+> >  	virtio_reset_device(vdev);
+> > +	input_unregister_device(vi->idev);
+> >  	while ((buf = virtqueue_detach_unused_buf(vi->sts)) != NULL)
+> >  		kfree(buf);
+> >  	vdev->config->del_vqs(vdev);
+> 
+> [Severity: High]
+> This is a pre-existing issue, but does this cleanup leak DMA mappings for
+> the event virtqueue (vi->evt)?
+> 
+> The cleanup loop correctly detaches and unmaps vi->sts using
+> virtqueue_detach_unused_buf(), but it ignores vi->evt. Since
+> virtinput_fill_evt() populates vi->evt with buffers using
+> virtqueue_add_inbuf_cache_clean(), which establishes DMA mappings under
+> the hood, omitting the detachment step leaves these mappings active.
+> 
+> Does this result in a persistent DMA mapping leak every time the device is
+> unbound? Furthermore, since the memory for these buffers (vi->evts) is freed,
+> does this leave active DMA mappings pointing to freed memory, posing a memory
+> corruption risk if delayed DMA occurs?
+> 
+> Does this exact same DMA mapping leak also occur during the power management
+> suspend cycle in virtinput_freeze() which performs the same cleanup?
+> 
+> [Severity: High]
+> This is also a pre-existing issue, but is there a missing
+> virtio_reset_device() in the error path of virtinput_probe()?
+> 
+> Looking at virtinput_probe(), the device is marked as ready:
+> 
+> drivers/virtio/virtio_input.c:virtinput_probe() {
+>     ...
+> 	virtio_device_ready(vdev);
+> 	vi->ready = true;
+> 	err = input_register_device(vi->idev);
+> 	if (err)
+> 		goto err_input_register;
+>     ...
+> }
+> 
+> If input_register_device() fails, the error path deletes the virtqueues:
+> 
+> drivers/virtio/virtio_input.c:virtinput_probe() {
+>     ...
+> err_input_alloc:
+> 	vdev->config->del_vqs(vdev);
+>     ...
+> }
+> 
+> Since virtio_device_ready() sets the device status to DRIVER_OK and enables
+> the host/hardware to start processing virtqueues, does deleting the active
+> virtqueue structures without first calling virtio_reset_device() to halt
+> the device risk a use-after-free or memory corruption by the host backend
+> if it continues to access the freed vring memory?
+> 
+> -- 
+> Sashiko AI review · https://sashiko.dev/#/patchset/20260905152059.89560-1-kmehltretter@gmail.com?part=2
 
-Also, on windows, does it start working immediatly after boot on all boots?
-
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 0ff07fdab442..b0e8e2cc24ff 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -241,6 +241,30 @@ static int i2c_hid_read_register(struct i2c_hid *ihid, __le16 reg,
- 	return i2c_hid_xfer(ihid, ihid->cmdbuf, sizeof(__le16), buf, len);
- }
- 
-+#define I2C_HID_DESC_FETCH_TRIES 10
-+
-+static int i2c_hid_read_register_retry(struct i2c_hid *ihid, __le16 reg, void *buf, size_t len) {
-+	int error;
-+	int i;
-+
-+	for(i = 0; i < I2C_HID_DESC_FETCH_TRIES; i++){
-+		if(i){
-+			msleep(1000);
-+
-+			if(i2c_hid_probe_address(ihid) < 0)
-+				continue;
-+		}
-+
-+		error = i2c_hid_read_register(ihid, reg, buf, len);
-+		if(!error || (error != -EREMOTEIO && error != -EIO))
-+			break;
-+
-+		i2c_hid_dbg(ihid, "register read failed (%d), retrying\n", error);
-+	}
-+
-+	return error;
-+}
-+
- static size_t i2c_hid_encode_command(u8 *buf, u8 opcode,
- 				     int report_type, int report_id)
- {
-@@ -790,9 +814,7 @@ static int i2c_hid_parse(struct hid_device *hid)
- 
- 		i2c_hid_dbg(ihid, "asking HID report descriptor\n");
- 
--		ret = i2c_hid_read_register(ihid,
--					    ihid->hdesc.wReportDescRegister,
--					    rdesc, rsize);
-+		ret = i2c_hid_read_register_retry(ihid, ihid->hdesc.wReportDescRegister, rdesc, rsize);
- 		if (ret) {
- 			dev_err(&client->dev, "reading report descriptor failed\n");
- 			goto out;
-@@ -909,10 +931,9 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
- 			*i2c_hid_get_dmi_i2c_hid_desc_override(client->name);
- 	} else {
- 		i2c_hid_dbg(ihid, "Fetching the HID descriptor\n");
--		error = i2c_hid_read_register(ihid,
--					      ihid->wHIDDescRegister,
--					      &ihid->hdesc,
--					      sizeof(ihid->hdesc));
-+
-+		error = i2c_hid_read_register_retry(ihid, ihid->wHIDDescRegister, &ihid->hdesc, sizeof(ihid->hdesc));
-+
- 		if (error) {
- 			dev_err(&ihid->client->dev,
- 				"failed to fetch HID descriptor: %d\n",

@@ -1,118 +1,252 @@
-Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010052.outbound.protection.outlook.com [52.101.46.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DB9C2512C8;
-	Mon,  7 Sep 2026 06:11:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788761461; cv=fail; b=PfZIuRrgf5m2z641pBwvRUvsjcLIdXZI9ZmQCUo9byhCbOZBlkwYuChsm7K7EsYxPVPpH23zxFr0VIsHqMcVrMyk/bzc6yNH/MQpbljvDORKfm4uAKGilrCteQyADKlDu2q/U6qMeLn+EPTPNSeS5ckzZh7O8jk3l9z8lNCj9/M=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788761461; c=relaxed/simple;
-	bh=ghP37LM/uP+412tuzi4Dl7xqXWdxunAZdbVrWBD2SrU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DJhzNKDd7lNwH3z3tNOYR0qtuGt3u50IGXoZinVxwoALqo1/Fcn8bZnWi3pb1pxAYBDHqHGJUmFCRcwnVOhXcyqXZdKVjVXKrfj8AN0z3fVnDfNw//6Ahve5DTCbz26OCadzFo9MtCNBpYTlq2j2k9HrbvT5ZoVKjppXJA9CXtM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com; spf=pass smtp.mailfrom=gehealthcare.com; dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b=PCFGUYTD; arc=fail smtp.client-ip=52.101.46.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gehealthcare.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 104D940EB8D;
+	Mon,  7 Sep 2026 06:59:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788764389; cv=none; b=ZuwtiEc6MKt2rPmi6BzMKi/O+g7OLWCGgzQxIiGj/SHQFJuw4PgJx0w7FgpOWY6BIF5aahCwSSKS9T20pnccOyPW1el0zq7jL9P6VSOAjd7gD/JWMqOdQczawCE9W06kmagvl3wsRhSJZYcuKxDogpbQCHV78Gzu9oukTXOX+Xs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788764389; c=relaxed/simple;
+	bh=68zq9K51Ay0P16Ip57VHSJhSwyjNPhK8KfIuClbnaR0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bY9GqpoLfVkxt0WT3FyziVMBIG4fu9NvVKyPvAT1F3b5ZLi37U8Yl50H/pOFcm12yn4i1S8lVDGDixTzWFZQr0NwLVurrAovUkgxoxEkXaPZtbWVblPgG6QvurwOmKQXLd5f+Z4A3A60M395yOQSjpHmC5ie0XxFFlIS1vJ/NzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=wlIPwCRp; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Cx9KJBXU; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=e0rZrifk; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=5f9VZldn; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b="PCFGUYTD"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=wlwce6byimiYKA7ws8PylAk3A0W5eO7AuQQ8utKQQwml/NUIqzeU5Czp3i63fP4XYTuDUxEmvRSdD0QpMHxySrnf7DALaAXovo5RtjkhgQFbOGgKLtLbqFVUcqZ2Y8dwRfeiSiAzmkgySJ386KDsRbRj0x0xpBnoJxndcXjl6DJJ7ZF8eoNFx79LjeN9f0LRmrXIVlNe/rsa2uIiZdXUEzfmNoUviLqhjp4iBhBvsUqiyLt/v+PzARVE+p/mw6KHbn1WPuvotESKDajv423DEElbtTo7fjxWoS5krAJtLZaO8ALgGNU/cOxmjJIubC4FtGdE+dpP+Ld3b8XYMP9jyw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PIGz7hkh1JLUWmN8+M5d948EhmjRlHePmb+QrUM2OXo=;
- b=f+CgPQSUv4fnbomptfT+18uUWdbtIVDCt9KnzmVMLbIWMucjkyhMAdB+mZM40VB4Y+GtPRhRzSEdWo4o/acGzEJvTN4cDpe18Kh7z6/NU/41WYcXUL24m6/Wrvk3Ri5HH1OYXJPqUSJv0zqRLjBiMj+XkY4MrVrCnFx+Eb0rqoLp0jooMlNEkRguQi3wgCrF1VM7EKyrKruIr7MBExr7toL8v6lxxDRkmjnnGkHu2vE0ljdHLyyUCnzWswt0NFwbRbqtMyRBxQqdFBQeBdHGBxDfFgl6zWvAH+ShZtBbn1RTudp3UTTi6s63RaFgXwIvY6Xzdk4vgSWLIvBY1zi+ag==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
- 165.85.157.49) smtp.rcpttodomain=vger.kernel.org
- smtp.mailfrom=gehealthcare.com; dmarc=fail (p=quarantine sp=quarantine
- pct=100) action=quarantine header.from=gehealthcare.com; dkim=none (message
- not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gehealthcare.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PIGz7hkh1JLUWmN8+M5d948EhmjRlHePmb+QrUM2OXo=;
- b=PCFGUYTD+pdAIUc+ZlrepynhgpGPfq4eEcfPIW5c/U1LLqa70e10Z2YZzkyk+2a5v/Z3D4993OPDaFxKI4Ycri5NB7bvQHEtQPZtRbVODE1ZBf1IbKKpyotB2t7p5vEFm6FCIj24re+8feBHDv5Ch9txI9Vc0gcK+X5i5LHjihAuQxesYkL2TyWpF7exJM+UMasq/9+8hkqTIrfY6uYxEBGPcviibZFgV61GEB4pohlAdnJ7jJFvzphkfVuTncDqFkoR8Ja59ibLogRuZDAc+EPAXqLp5Xft0zhPpVPWShQ+xumQhZt2yDy+eqApiGFlGxYTDnzdu9bsFpSUPenUNw==
-Received: from SN7PR04CA0003.namprd04.prod.outlook.com (2603:10b6:806:f2::8)
- by BL1PPF71FD9CFFF.namprd22.prod.outlook.com (2603:10b6:20f:fc04::f31) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.382.15; Mon, 7 Sep
- 2026 06:10:58 +0000
-Received: from SN1PEPF000397AF.namprd05.prod.outlook.com
- (2603:10b6:806:f2:cafe::4d) by SN7PR04CA0003.outlook.office365.com
- (2603:10b6:806:f2::8) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.382.15 via Frontend Transport; Mon, 7
- Sep 2026 06:10:57 +0000
-X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 165.85.157.49)
- smtp.mailfrom=gehealthcare.com; dkim=none (message not signed)
- header.d=none;dmarc=fail action=quarantine header.from=gehealthcare.com;
-Received-SPF: Fail (protection.outlook.com: domain of gehealthcare.com does
- not designate 165.85.157.49 as permitted sender)
- receiver=protection.outlook.com; client-ip=165.85.157.49;
- helo=atlrelay1.compute.ge-healthcare.net;
-Received: from atlrelay1.compute.ge-healthcare.net (165.85.157.49) by
- SN1PEPF000397AF.mail.protection.outlook.com (10.167.248.53) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.406.5 via Frontend Transport; Mon, 7 Sep 2026 06:10:57 +0000
-Received: from zeus (zoo13.fihel.lab.ge-healthcare.net [10.168.174.111])
-	by builder1.fihel.lab.ge-healthcare.net (Postfix) with SMTP id 25E00E4DB;
-	Mon,  7 Sep 2026 09:10:55 +0300 (EEST)
-Date: Mon, 7 Sep 2026 09:10:54 +0300
-From: Ian Ray <ian.ray@gehealthcare.com>
-To: budcomfort <budcomfort@pm.me>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"jikos@kernel.org" <jikos@kernel.org>,
-	"bentiss@kernel.org" <bentiss@kernel.org>,
-	"buingoc67@gmail.com" <buingoc67@gmail.com>
-Subject: Re: Dell Latitude 7220: eGalax P80H84 0eef:c003 factory passive
- stylus not detected
-Message-ID: <ap5VbrllY_qDf_Y2@zeus>
-References: <62t8PiydnEWbOsSM0byy1IRKtFwxg7nfDZUtsgbE_1liuwRpKtyKZYsYwOe52IZ--zdy1QJg11p8u13QajhgH25DexN-Fx71z5TSlcLE6Mw=@pm.me>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="wlIPwCRp";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Cx9KJBXU";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="e0rZrifk";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="5f9VZldn"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 5FA391F750;
+	Mon,  7 Sep 2026 06:59:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1788764373; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
+	b=wlIPwCRpbSjG1YwZQLRGeVaoTAbjDlZ5mQUVIr4JXo/iBT3a4Q0iH6q3KuiIBzJUKfxnX9
+	/Oxidgg3nxHJKpUzDbw6cBurL8wqFfjnExlFpplf04hO2aRAAa7RStxV7HsL02DYMbRZNr
+	3UDtjGBoTvoHszkZaN/z9Q3bUK9ze6g=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1788764373;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
+	b=Cx9KJBXUtp5fhYyVV4hzQS2p48f2jp5NsH1gki5wAXk89bfUrjPfS2krewBdl6mcSHoSJy
+	NapMeisj3ThAF8Dg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1788764369; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
+	b=e0rZrifkg5vEXUNAp301FUAS6arueahh02Qtfk9f0nOM+BgnLLgvHz6Sgvz7rpoid5c1qs
+	BFjB+Zfp+bwj+/p7iA4LqSH5FFkiqvlLvqZjogfaaPbwca795R1Clm3gRhoh2ncfN5mBo9
+	e+bwzWMbc0kej1wlII9bg9vhYMRLVqQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1788764369;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
+	b=5f9VZldnsThtR5Ool3IzbjkvtPK6c0RIReUaSQm+sGldhPOHl7PvojatmPqO4560OylauL
+	+3SEaaWT2ZkZcbCw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E7AE513432;
+	Mon,  7 Sep 2026 06:59:28 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id vHVEN9BgnmpDaQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 07 Sep 2026 06:59:28 +0000
+Message-ID: <22707a1f-970b-4309-905d-13ac794c51fa@suse.de>
+Date: Mon, 7 Sep 2026 08:59:28 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <62t8PiydnEWbOsSM0byy1IRKtFwxg7nfDZUtsgbE_1liuwRpKtyKZYsYwOe52IZ--zdy1QJg11p8u13QajhgH25DexN-Fx71z5TSlcLE6Mw=@pm.me>
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF000397AF:EE_|BL1PPF71FD9CFFF:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7541ac12-c8d4-4a5e-ea0d-08df0ca6c887
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|1800799024|376014|82310400026|23010399003|10067099003|11063799006|56012099006|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	ijeH0skEWzmrCG8kNEwP0Pf6Fb7ohXvKkRAtUaD/Ik2Dhb0Dw4BzPWyEyoCmSF1sLXhf1Ie6bd9wHLnCFNXyfOoUNMVo+JaBvohFVFvrclxXjjZmayimpBINLKZt9YXNf6SbsM9Ozv2Ff8T63+ckFUDu+F19wDGKaWq7BGboRyauvg5EXc0wLbyOXWP6vxQP7+9fCawNKHVqM30x4rDAqWQHX0Wl0tD5mK5mGr2C3jrW3fZ567CxRG2WeshnsL7ebqLbq+bTlcUD6TK09EYritUmrB+oUcgJ+d8txUvYocjALFsyoAzozLMpElEadwWT+PUl/wZjXBS8JHvPlSdRblbgxr4oRNer0SyBJN+stAZoax89GcFLSz/ajzzbTp1ZVc68iKwPbcp5dW8g22Yr6y3t8hiJr7Y65gWWGE7ripnYhLz2IRE5qnWn/4plNHMYbuNP+7nnaF9OAG85n/HOp7ovKiHByGvdkI9apRGquMAUKuhU4s/DcdH5G9g3kV3e1lCNmmmNPjmEwqP8pqC4poiINM1uPj9iWIaimO9f5GrIf5x5/kJWUaTdpWXbSIZEGb5NwZhYbUf+gQljm5x+pjkU/WQ8esu8WtvrCXtDHUb0qnLzB+YieJiE5tRGIesZdGkMrdLNS8CZirpgCcxHnrU4cAxCeeuuoTsRMHze33gzRNTO6kSmo3BXU9fDDI5UxdTC2G8nMWDNymnECyHczg==
-X-Forefront-Antispam-Report:
-	CIP:165.85.157.49;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:atlrelay1.compute.ge-healthcare.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(1800799024)(376014)(82310400026)(23010399003)(10067099003)(11063799006)(56012099006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	XG+SifmIKPn7/V9Ry98QBN655eV/fHTAwJJdjtwtndxoIGmeO9H1BQT+7l/emUbGVNMMdpHm/0IJZFzpVzrWcBLmSJc4cpC0t2Yim+MUoW9+S8WHAU0XKNd2URBCNUhGZX0UDmjKoBAl8NjOJtHx8NoqTa0/SXmQqbONlGQtxoAjWQFEy3oRC1Yq5O5GX9KE9KjOq6orixfrluaeXAKOg9VA0p1b7f4bSGGGPy1YMMFs4DDLZXnmtFmVjn2/480UBLeGcDTlcWnYmYmaKmwStvGuuiX4c7gawRp1pnPEjVn4zD9MxoW/N27HASqk64pAbjAjs6yFIhtmMJr1ymt9VS5H2/Y+odYXj/yCx/62zto+MmAINA2/1hGUpeKbl36tAmtwiCWy4TkytP88HLL3je/IaZLVvidFsdXL4VgcnJKqoqFEorwYeM051uFUd5iF
-X-OriginatorOrg: gehealthcare.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Sep 2026 06:10:57.5685
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7541ac12-c8d4-4a5e-ea0d-08df0ca6c887
-X-MS-Exchange-CrossTenant-Id: 9a309606-d6ec-4188-a28a-298812b4bbbf
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=9a309606-d6ec-4188-a28a-298812b4bbbf;Ip=[165.85.157.49];Helo=[atlrelay1.compute.ge-healthcare.net]
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-SN1PEPF000397AF.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PPF71FD9CFFF
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5] Kconfig: fix typos in core makefiles and purge
+ defective DVB debug (v5)
+To: Breno Rodrigues Alves <breno3011alves@gmail.com>,
+ torvalds@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de,
+ linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-usb@vger.kernel.org, linux-sound@vger.kernel.org,
+ linux-staging@lists.linux.dev, linux-fbdev@vger.kernel.org,
+ linux-security-module@vger.kernel.org
+References: <20260905003005.118245-1-breno3011alves@gmail.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20260905003005.118245-1-breno3011alves@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Spam-Score: -2.80
+X-Spam-Flag: NO
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	FREEMAIL_TO(0.00)[gmail.com,linux-foundation.org];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:url,suse.de:mid]
 
-On Fri, Sep 04, 2026 at 01:53:54PM +0000, budcomfort wrote:
-> Hello,
-> 
-> I'm trying to determine whether support for the eGalax P80H84 0eef:c003 used in the Dell Latitude 7220 Rugged Extreme is a known issue or is currently being worked on.
-> ...
+Please stop spamming this list with revisions.
 
-Hello there,
+Am 05.09.26 um 02:30 schrieb Breno Rodrigues Alves:
+> Automated review from Sashiko AI revealed that re-enabling the legacy
+> DVB_ULE_DEBUG code via CONFIG_DVB_ULE_DEBUG exposes severe race conditions
+> on global state variables, leading to out-of-bounds memory corruption.
+> Additionally, the debug block suffers from undeclared identifiers (TS_SZ).
+>
+> Following the core kernel principle of eliminating dangerous, unmaintained
+> code, this patch completely extirpates the defective DVB_ULE_DEBUG block
+> from dvb_net.c and purges its corresponding configuration symbol from
+> the Kconfig tree.
+>
+> This version retains the verified MediaTek bugfixes and ghost purges:
+>    - Fixes MediaTek interconnect typo mapping mt8196.o to MT8196.
+>    - Fixes MediaTek regulator typo mapping mt6316-regulator to MT6316.
+>    - Cleans up the dangling comment in drivers/leds/Kconfig.
+>    - Purges verified legacy ghost weight.
+>
+> Signed-off-by: Breno Rodrigues Alves <breno3011alves@gmail.com>
+> ---
+>   drivers/interconnect/mediatek/Makefile | 2 +-
+>   drivers/leds/Kconfig                   | 1 -
+>   drivers/media/dvb-core/dvb_net.c       | 6 +++---
+>   drivers/regulator/Makefile             | 2 +-
+>   4 files changed, 5 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/interconnect/mediatek/Makefile b/drivers/interconnect/mediatek/Makefile
+> index 6bd656668..64170ab16 100644
+> --- a/drivers/interconnect/mediatek/Makefile
+> +++ b/drivers/interconnect/mediatek/Makefile
+> @@ -3,4 +3,4 @@
+>   obj-$(CONFIG_INTERCONNECT_MTK_DVFSRC_EMI) += icc-emi.o
+>   obj-$(CONFIG_INTERCONNECT_MTK_MT8183) += mt8183.o
+>   obj-$(CONFIG_INTERCONNECT_MTK_MT8195) += mt8195.o
+> -obj-$(CONFIG_INTERCONNECT_MTK_MT8195) += mt8196.o
+> +obj-$(CONFIG_INTERCONNECT_MTK_MT8196) += mt8196.o
+> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+> index d0d318223..800fbd560 100644
+> --- a/drivers/leds/Kconfig
+> +++ b/drivers/leds/Kconfig
+> @@ -873,7 +873,6 @@ config LEDS_UPBOARD
+>   	  This driver can also be built as a module. If so the module will be
+>   	  called leds-upboard.
+>   
+> -comment "LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)"
+>   
+>   config LEDS_BLINKM
+>   	tristate "LED support for the BlinkM I2C RGB LED"
+> diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dvb_net.c
+> index a2159b2bc..3b503695e 100644
+> --- a/drivers/media/dvb-core/dvb_net.c
+> +++ b/drivers/media/dvb-core/dvb_net.c
+> @@ -68,7 +68,7 @@ static inline __u32 iov_crc32( __u32 c, struct kvec *iov, unsigned int cnt )
+>   
+>   #define DVB_NET_MULTICAST_MAX 10
+>   
+> -#ifdef DVB_ULE_DEBUG
+> +#ifdef CONFIG_DVB_ULE_DEBUG
+>   /*
+>    * The code inside DVB_ULE_DEBUG keeps a history of the
+>    * last 100 TS cells processed.
+> @@ -320,7 +320,7 @@ static int dvb_net_ule_new_ts_cell(struct dvb_net_ule_handle *h)
+>   {
+>   	/* We are about to process a new TS cell. */
+>   
+> -#ifdef DVB_ULE_DEBUG
+> +#ifdef CONFIG_DVB_ULE_DEBUG
+>   	if (ule_where >= &ule_hist[100*TS_SZ])
+>   		ule_where = ule_hist;
+>   	memcpy(ule_where, h->ts, TS_SZ);
+> @@ -659,7 +659,7 @@ static void dvb_net_ule_check_crc(struct dvb_net_ule_handle *h,
+>   			h->ts_remain > 2 ?
+>   				*(unsigned short *)h->from_where : 0);
+>   
+> -	#ifdef DVB_ULE_DEBUG
+> +	#ifdef CONFIG_DVB_ULE_DEBUG
+>   		hexdump(iov[0].iov_base, iov[0].iov_len);
+>   		hexdump(iov[1].iov_base, iov[1].iov_len);
+>   		hexdump(iov[2].iov_base, iov[2].iov_len);
+> diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
+> index 5a764cec8..f81d1f31a 100644
+> --- a/drivers/regulator/Makefile
+> +++ b/drivers/regulator/Makefile
+> @@ -107,7 +107,7 @@ obj-$(CONFIG_REGULATOR_MP886X) += mp886x.o
+>   obj-$(CONFIG_REGULATOR_MPQ7920) += mpq7920.o
+>   obj-$(CONFIG_REGULATOR_MT6311) += mt6311-regulator.o
+>   obj-$(CONFIG_REGULATOR_MT6315) += mt6315-regulator.o
+> -obj-$(CONFIG_REGULATOR_MT6315)  += mt6316-regulator.o
+> +obj-$(CONFIG_REGULATOR_MT6316)  += mt6316-regulator.o
+>   obj-$(CONFIG_REGULATOR_MT6323)	+= mt6323-regulator.o
+>   obj-$(CONFIG_REGULATOR_MT6331)	+= mt6331-regulator.o
+>   obj-$(CONFIG_REGULATOR_MT6332)	+= mt6332-regulator.o
 
-Sorry, this is not something I am working on.
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
 
-Blue skies,
-Ian
+

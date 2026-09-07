@@ -1,171 +1,176 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF4630F7FF
-	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 21:42:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 133B4346AFD
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 21:46:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788817340; cv=none; b=dGj8Ji/gBakkAwNbXdGTtdkXb6NBXc40nyr3uaCZDvhgy9BfKuh4cYUq0GQs2mIhlw3g7eD8M11gAmaZskvUhUDeDkSEsHeAiefaCecS8gDgcJmzkmXzNCKELKgU553cbp4QH3diWd/1ZX0vST9s5OVPbWBVBNcKyO8G3DzAKZk=
+	t=1788817579; cv=none; b=lPIMyRu9KpIGILWdtdONrqON0AZ2ZNiEkKG2/G03cjEYooBVa3LPhhuDmNXLGJk5VwQwznMhSSMe20Yq66YRDQuRGb411ExVMbWffUuG8RWVccJ4CuZ/7nrDv9x65qRS2EJsnkalgn7l9ttx7uVRmy79s4Ewl1ZK9+3qcTsS0hs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788817340; c=relaxed/simple;
-	bh=UqKY/MzcnFpIEo0VStzm2PWHkdbFOV+TJY/ZqslFeQw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Qa0C1ec5VxqcYIYIv/qZ4szYIuDYEkMbu5THfwe9P52A0TNZtLM1fwGpw2FWhmUzV3uq2WcqJsVI/mXprRxuYCBERRshxJaPfBUghPlQV7/HRuYBrdqCND3xf5FOPIyVoiuHkGK5bkDyv2+WTJ/YeCA1saQrAc2MMrgndUsxE2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EoFxmOA8; arc=none smtp.client-ip=74.125.225.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788817579; c=relaxed/simple;
+	bh=BjK9vT7j+uUDxOu31cZD0dg87r12JRq28IJVMhS7if4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rvpQl8JN5Z2eZcjPw3UzYiNZqIWSBIn113o2kNfmIhfn2++bHfXe+3BUHdKjwgW8PcPsaDnguq6IWe1mrnATPKcqUatmpjJlSMOzkgDulYlw43eCkpHvYefJGYAKuPHM1yKMcgTc3Q5d3jH0hpMRpiH+Sw/G1ALhOvr5Z6ZLfL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dqd9iSfA; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=NeBinvfQ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EoFxmOA8"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4858a186d5bso296327f8f.2
-        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 14:42:18 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dqd9iSfA";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="NeBinvfQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788817577;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GC0WWsmiiFckjnXpIAV44INGlQO0KgKkCU7zQg2E+YY=;
+	b=dqd9iSfAvIzg2LVYt3LXQy7E5x0lXcXDzt9n3MbAlJBaA1vTFIxlZnjdrdidEo+tVpMMvX
+	oaV5yRrMfugtVc6IIAIqGwC2BmSJG2qo9dDbIuFpkqaWRtbtVw5x2+YzEIon4xB+dYDX+L
+	w6guYl2scbwlzIhEwcmZDzUwGs9FjG8=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-529-ESeV5YtGNSKKSRp0GuoMrg-1; Mon, 07 Sep 2026 17:46:13 -0400
+X-MC-Unique: ESeV5YtGNSKKSRp0GuoMrg-1
+X-Mimecast-MFC-AGG-ID: ESeV5YtGNSKKSRp0GuoMrg_1788817573
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-499b99a8a10so35310645e9.0
+        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 14:46:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788817337; x=1789422137; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=G+tmRRf0zWlKgTs1hoSvPxKFPwPUfj4JYA5rqqyQA7Y=;
-        b=EoFxmOA8IjlcjIDPBxDIe6muXdL4KdQu0RGmDpY5aOouKTW70Y/g6gaWzO15erzcae
-         j6xW6VAxPP0l/fPRMYliZAIZZZyjgLWS7KYQgrdkk7LFfdrrnun/cvmDyHexkStByEG/
-         Er55DGPbZflaXIh2SepyazU22lIS+0CeZH67ZrRXpPtcFrm0th8b0IrZ6nX/toDq6/XD
-         FVnDVcay5qnbnzVYNl8YEcc97gIRVJe3GB3iFDTQQ1QU8DDFBP6tVI35uw7vxItFtWc2
-         wExlqyHl/7+NAniOoPXaXLLS6xBHXKVV0EStO1L38A8ymYd7L4aK805DIvvhkYLCKcwT
-         2JKg==
+        d=redhat.com; s=google; t=1788817573; x=1789422373; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=GC0WWsmiiFckjnXpIAV44INGlQO0KgKkCU7zQg2E+YY=;
+        b=NeBinvfQFy0qoVXjCAhCzqPc20h7PTe4SpLTH0wZDqd+M4Typ1Xs1o7jKZo/3WxcSl
+         vc1WH4pq7LFiNdcf+b8B0V2N4j8vZcvhavlGxmhyWKPAC22YfKukUd3awYNZVz3aaPtP
+         /aoWLnhr62znw1D2w9jCF/cOUYnTBxL2Me75H8C/POEIINcp45QMrZN7Dm3oAsVT/WOH
+         iDEqPvNLYjYjmOWcLkY5//a/bAPssX+rslxvHf7KjeUVTVY5nQYFg/dEZDPj4F1TcrZi
+         DDUrGwtKpgwQCqLHUCh9OYUj/6U3W9aQUPtuVXGJ6W3pMMnrWjiS2gsgQ8Skiru+XyKV
+         qi/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788817337; x=1789422137;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=G+tmRRf0zWlKgTs1hoSvPxKFPwPUfj4JYA5rqqyQA7Y=;
-        b=qvBPNKDmvh9k7DtlXJ4ZbC/fMB2rVClEgHe/mnhVxJ+uWPU/WD38HwSA5j5kiZY478
-         F2uTcWaS4gEVaoHWycDMGaSgT725hbnPgFeg+X1DxkZMALBlQKUAADnV/eFtaPGw+ry5
-         NEBZS4nNyx2yxNZ4HzR2AbgckSDNd4bhp3XfVH+OOC5Es/2g+cqIze10m1zPSGSEUYw+
-         FDvSSawST65V5/BXjJdEYzK1SfmzuzZRQKaVTpTzIZjTeMex1t2sFNuBIWeWqPI6foQN
-         31Qw5iwu6rAzVrYlwUBec98btPN6AjJjN5Yqsse1XLsHrhF1RItkFSezW6rhomibMvI6
-         w6Hw==
-X-Forwarded-Encrypted: i=1; AKwUvBxbW+AcHbiFc+fjXdOLmT6j/7BNkdUWw9aN8hrYcDPQZWRNxLa46YWW3RoRr1pibpkkClC7aJjQFo/C5Q==@vger.kernel.org
-X-Gm-Message-State: AFuF++mmTaX+Z/oNSaREaVj7c3ztZdpxiT1cqB63pC+GWoUutm6mA966
-	N9a3PXp9+eNz7FVYqp/8o+zjjH3jVQZMU+J2PoH/EgC4rmS+g0TQ4s5hZiWokaevlMDbYQ==
-X-Gm-Gg: AYBFou3bN2bsSFnsR9A5Wb7rG5G/TjTtLb9oDa3jUAjc9k/HzjSJ9V05lT09Vm8drwy
-	8bw1kqufuZmHuWoeu0lNbm0GhjUjuuKbpxA6X+8f0FjImjk8EiZcmnr4Px6//Wnu1Wf2WhwWB2r
-	Ffb8buP8sKk3yAJgBJP8o5bkMs4gMGcyTDcxIW7Cre1AL0SQCD/cdGkWWGTnLIDDSddRU+tCCO4
-	2DOHL1x/sUZQvqas7oMVIY4HiJQEvDZJB/Z3K7sjyx8Bzsn4raWNa6FjOtdN2wshyaLoLpAvIM/
-	Fm10eB4VXctRjTqBSqmhY4CWaMlSpcxEOhAvbhog3uXKeKz+U3WWvmYgUbB1MrDqzioe8OR7VyK
-	mqjOtofd4pZQH8DUOarnXSH6S7qe9QBtpO6ISrUpu9k8u4Y8AUkfaHvawuVmKyHvyZYT6C1Qtlo
-	RpCLDM+46bDE/aemLl7ZTB7pIm6CJwvpQIo1WTCAcRVjrlJibMmfkdjgYbwDlx2P8fWBERyygN9
-	pnt2QFfG72eJ+7cM6QbmCsbNsyYOFx9MSu053C/re1YBzsotH1IpJn6dvWRe78DbmoSBFQPlVht
-	Q4yCcCAMeFNGeQ==
-X-Received: by 2002:a05:6000:144e:b0:485:8ad5:dbbb with SMTP id ffacd0b85a97d-485907f1861mr16244420f8f.4.1788817336896;
-        Mon, 07 Sep 2026 14:42:16 -0700 (PDT)
-Received: from pop-os.. (98.102.222.87.dynamic.jazztel.es. [87.222.102.98])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485885be01bsm30507425f8f.31.2026.09.07.14.42.14
+        d=1e100.net; s=20251104; t=1788817573; x=1789422373;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=GC0WWsmiiFckjnXpIAV44INGlQO0KgKkCU7zQg2E+YY=;
+        b=i+8h5ddr4PHrYWA8fnvlnCBc5DvwevLwxxIdDDs65Uoq0Z7xMuOS6wMbesywr420iT
+         uwTMYwAdtpra6KdasMejyYnQHrunSqMsUVBV5yHoOe1P+msa5uO7R50y+gIkyD5N0GBA
+         1qrOObi7hklP+N65njs4E9E+lmWPhlbV+ji53CFqOjyOTJVSSGGjRhHuVceQUNN+ThnO
+         LkUL5K2gSZ3UH5qwd6njrMPDta9yabBPtrLy45JTjNBSWylasGyEefG2XQKyzgHPVbsO
+         R5ZhlHUd5cCJIa4Wa847yuaItuMESysUUBNjbjsP1ffoReAjz2lXCh6+K+5+Vb5YaZFJ
+         JvsQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzzfmXpEH5gxonSJadTj1BqGimGyfJa+OfF6GFWraI5f5leRKatBKEKqneiVGUEp76JcyLn3j/XZ8T0ZA==@vger.kernel.org
+X-Gm-Message-State: AFuF++laF17jme6WHHRD1kV6pXd2R9vexZ09HXvOZ1iwWiDRGKSZYrEk
+	8dheYpFcXh4fHhI6AA17wE1knZL/zGA4U3xf9nblnLyjPCecCz54vuyHXaypIMQoY55Gdbl/EkB
+	Vh7PoPytdj9LyKdbC89whYgM9/hZPly7JnAI8IdXTZPeCWOU+WD4YwVPzRcLqi8eA
+X-Gm-Gg: AYBFou0xd+SYlnSGxyfnmr0KHqQBisp4OLloSUChh4aJ1M+XspVElJCwlQcD94O6RDk
+	Fz/Lk2v9dJVeJAV/5kTK/LLJw09P471Ye2WV7GXuNJ3K0rV+HLHKFBe2ra+/t+fInyj8/v7FFIu
+	JgFaXfuPueG2+98HLRdd3IkoSexs3caXGrXc/uAhuNDyuBfS7Rw55eV+Jr6y+JZRse/U2Zf4KOX
+	c9OjVFqxKW4AoREgn2PIkTyRi00cPfPIxclYg7xSshnT+m2Ff/NXMqCwaJ6NjhevYoNtJwyDqYe
+	MxwjHi3l6Ztth6GKK5G/oUZWWbDJhe9RVlmFGuAwnSk5sx6X7AmIX3Cx+4Q/UUzKueo94vJ+yTr
+	BOgqMg6pvpBFjvWHzFHH11Oo=
+X-Received: by 2002:a05:600c:3145:b0:49c:f13e:e4c with SMTP id 5b1f17b1804b1-49d1757294bmr35387155e9.9.1788817572577;
+        Mon, 07 Sep 2026 14:46:12 -0700 (PDT)
+X-Received: by 2002:a05:600c:3145:b0:49c:f13e:e4c with SMTP id 5b1f17b1804b1-49d1757294bmr35386945e9.9.1788817572138;
+        Mon, 07 Sep 2026 14:46:12 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d0af538d0sm194010325e9.8.2026.09.07.14.46.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2026 14:42:15 -0700 (PDT)
-From: Miguel Garcia <miguelgarciaroman8@gmail.com>
-To: stable@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	gregkh@linuxfoundation.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 5.15.y] Input: aiptek - switch to using dev_groups for driver-specific attributes
-Date: Mon,  7 Sep 2026 23:42:13 +0200
-Message-ID: <20260907214213.1817320-1-miguelgarciaroman8@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        Mon, 07 Sep 2026 14:46:11 -0700 (PDT)
+Date: Mon, 7 Sep 2026 17:46:07 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Karl Mehltretter <kmehltretter@gmail.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	virtualization@lists.linux.dev, linux-input@vger.kernel.org,
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+	linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/3] virtio_input: stop callbacks before unregistering
+ input device
+Message-ID: <20260907174559-mutt-send-email-mst@kernel.org>
+References: <20260905152059.89560-1-kmehltretter@gmail.com>
+ <20260905152059.89560-3-kmehltretter@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260905152059.89560-3-kmehltretter@gmail.com>
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Sat, Sep 05, 2026 at 05:20:58PM +0200, Karl Mehltretter wrote:
+> virtinput_remove() unregisters the input device before resetting the
+> virtio device. virtinput_recv_events() drops vi->lock around input_event(),
+> so clearing vi->ready does not stop a callback that passed the entry check.
+> It can still use vi->idev, requeue buffers and kick the queue.
+> 
+> Reset first, as virtinput_freeze() already does. With the preceding core
+> change, reset waits for callbacks before input_unregister_device() can
+> free vi->idev. Recheck vi->ready after taking the lock again: keep draining
+> completed events so an input packet is not truncated, but stop requeueing
+> buffers and kicking the queue.
+> 
+> With evdev attached, input_unregister_handle() currently waits for an RCU
+> grace period, which also waits out IRQ callbacks. This masks the lifetime
+> bug on PCI and MMIO, but does not protect sleepable callbacks on other
+> transports.
+> 
+> Fixes: 271c865161c5 ("Add virtio-input driver.")
+> Assisted-by: LLM
 
-commit f4e7a254299bcdfe7bced700a7d96690b1b9a6f2 upstream.
+which llm and which agent?
 
-On 5.15.y, the attributes are removed manually from disconnect after
-intfdata has been cleared and the input device unregistered. A concurrent
-sysfs callback can therefore observe cleared driver data or use the input
-device after unregistration. Letting the driver core manage the group
-removes and drains it before the disconnect callback.
-
-The driver core now has the ability to handle the creation and removal
-of device-specific sysfs files, let's use it instead of registering and
-unregistering attributes by hand.
-
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20220903051119.1332808-3-dmitry.torokhov@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Miguel Garcia <miguelgarciaroman8@gmail.com>
----
- drivers/input/tablet/aiptek.c | 20 ++++----------------
- 1 file changed, 4 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-index 1581f6ef09279..a2c999631b25e 100644
---- a/drivers/input/tablet/aiptek.c
-+++ b/drivers/input/tablet/aiptek.c
-@@ -1618,7 +1618,7 @@ static ssize_t show_firmwareCode(struct device *dev, struct device_attribute *at
- 
- static DEVICE_ATTR(firmware_code, S_IRUGO, show_firmwareCode, NULL);
- 
--static struct attribute *aiptek_attributes[] = {
-+static struct attribute *aiptek_dev_attrs[] = {
- 	&dev_attr_size.attr,
- 	&dev_attr_pointer_mode.attr,
- 	&dev_attr_coordinate_mode.attr,
-@@ -1642,9 +1642,7 @@ static struct attribute *aiptek_attributes[] = {
- 	NULL
- };
- 
--static const struct attribute_group aiptek_attribute_group = {
--	.attrs	= aiptek_attributes,
--};
-+ATTRIBUTE_GROUPS(aiptek_dev);
- 
- /***********************************************************************
-  * This routine is called when a tablet has been identified. It basically
-@@ -1843,26 +1841,16 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 	 */
- 	usb_set_intfdata(intf, aiptek);
- 
--	/* Set up the sysfs files
--	 */
--	err = sysfs_create_group(&intf->dev.kobj, &aiptek_attribute_group);
--	if (err) {
--		dev_warn(&intf->dev, "cannot create sysfs group err: %d\n",
--			 err);
--		goto fail3;
--        }
--
- 	/* Register the tablet as an Input Device
- 	 */
- 	err = input_register_device(aiptek->inputdev);
- 	if (err) {
- 		dev_warn(&intf->dev,
- 			 "input_register_device returned err: %d\n", err);
--		goto fail4;
-+		goto fail3;
-         }
- 	return 0;
- 
-- fail4:	sysfs_remove_group(&intf->dev.kobj, &aiptek_attribute_group);
-  fail3: usb_free_urb(aiptek->urb);
-  fail2:	usb_free_coherent(usbdev, AIPTEK_PACKET_LENGTH, aiptek->data,
- 			  aiptek->data_dma);
-@@ -1887,7 +1875,6 @@ static void aiptek_disconnect(struct usb_interface *intf)
- 		 */
- 		usb_kill_urb(aiptek->urb);
- 		input_unregister_device(aiptek->inputdev);
--		sysfs_remove_group(&intf->dev.kobj, &aiptek_attribute_group);
- 		usb_free_urb(aiptek->urb);
- 		usb_free_coherent(interface_to_usbdev(intf),
- 				  AIPTEK_PACKET_LENGTH,
-@@ -1901,6 +1888,7 @@ static struct usb_driver aiptek_driver = {
- 	.probe = aiptek_probe,
- 	.disconnect = aiptek_disconnect,
- 	.id_table = aiptek_ids,
-+	.dev_groups = aiptek_dev_groups,
- };
- 
- module_usb_driver(aiptek_driver);
--- 
-2.43.0
+> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
+> ---
+>  drivers/virtio/virtio_input.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+> index deec24e8e682..7b654af0a42c 100644
+> --- a/drivers/virtio/virtio_input.c
+> +++ b/drivers/virtio/virtio_input.c
+> @@ -49,9 +49,12 @@ static void virtinput_recv_events(struct virtqueue *vq)
+>  				    le16_to_cpu(event->code),
+>  				    le32_to_cpu(event->value));
+>  			spin_lock_irqsave(&vi->lock, flags);
+> +			if (!vi->ready)
+> +				continue;
+>  			virtinput_queue_evtbuf(vi, event);
+>  		}
+> -		virtqueue_kick(vq);
+> +		if (vi->ready)
+> +			virtqueue_kick(vq);
+>  	}
+>  	spin_unlock_irqrestore(&vi->lock, flags);
+>  }
+> @@ -350,8 +353,9 @@ static void virtinput_remove(struct virtio_device *vdev)
+>  	vi->ready = false;
+>  	spin_unlock_irqrestore(&vi->lock, flags);
+>  
+> -	input_unregister_device(vi->idev);
+> +	/* Callbacks use vi->idev. */
+>  	virtio_reset_device(vdev);
+> +	input_unregister_device(vi->idev);
+>  	while ((buf = virtqueue_detach_unused_buf(vi->sts)) != NULL)
+>  		kfree(buf);
+>  	vdev->config->del_vqs(vdev);
+> -- 
+> 2.39.5 (Apple Git-154)
 

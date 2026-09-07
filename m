@@ -1,169 +1,188 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FF36470444;
-	Mon,  7 Sep 2026 11:04:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6059F45FFB1;
+	Mon,  7 Sep 2026 11:06:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788779084; cv=none; b=Cb0fgIisJ4R6BuU/pk9gQN7mT9ZdIH4QyUG426YzwZwr7jQXgpSqefRtUAmbFLfLhbH37knetC2wzMGm3DfTjvjj9O10cfUmE+sAqQZxSJYPdthEbzeqU6fpJLq5Lnh2jK5tMM3sNBQ6Fn0jFvfnZjKHlZMJ9DBU2kEOxsflGd0=
+	t=1788779206; cv=none; b=NM6z01d5Bl6J8L5K2fFPmBlVSSaFYWTrl7f/4tSLTZJvgpKPBeeCUSrcy5zjZTKawW1cyP538uCPgl1cUpSZHv5jFUzicL9/18atMq5z3kXyKjCtGgaZKjlCv2hH5UHVArgBiU9FxPHOzaD3cjSvvlIko94V5bHJzW1lx5ODBUU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788779084; c=relaxed/simple;
-	bh=0hCVn0f4EBDaDcQ/BTyw91QenIAjFpnFb9Glpz2YRtc=;
+	s=arc-20240116; t=1788779206; c=relaxed/simple;
+	bh=54JTb8/eMEvnsKTX04M/wtEJCLgNW8dn1kWtQc/OW7g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cxFhJXzfYolEXihIhIE0vvpQ10PIW05HJSNhjIPTrVRU2gfueZJwBxTI5K6HxAPqtU4bozfP3+Igh5U0SXge7OpRnvZ+aX/BmVLplPxJpMMZrPioNGfPquOz9hpy4Evg+VtkECGFnqCgwVb2cxDvCAIY/ad/zmptm5D2SSkX4fY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m02rmuK5; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=THL0Y+Ms0oSPOpkxKymGUSKwzD+FpVJ3D5euq56fvm184mRV0KMeiGKO389OgegF+n69QrJK16zOETXUaWzUTiVi9cgZ9NgIYC4EWQZh0uFzJPjMN4i9uxX3MOnWSfQC4GXwbQa42+DrlCsNStqYJ4ce9+dh5TZnZSqqTSASUpI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SqMTD0H0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m02rmuK5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BEBE1F00A3E;
-	Mon,  7 Sep 2026 11:04:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SqMTD0H0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 941161F00A3A;
+	Mon,  7 Sep 2026 11:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788779082;
-	bh=hBLMR0Lv02o8iJdW3skpsP3HsYSEPCwE4aMrRL6027Y=;
+	s=k20260515; t=1788779204;
+	bh=Dbkicljb3VyWC6LbXIiFWxT1oy5hveAtpAfNwTRSlZE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=m02rmuK55DJpHdmYLxyuSqXC5Bu781FAjD4XH52Mjfz45vzTAsdDtARYlsHEDGrgm
-	 yheh2JXC8SAbwN2thqdJNrc4KGd3szd7cLimfp+iVCkYo2QONQ2EUaLqyku1aTuSlQ
-	 zG9m7zaBw9sPbztOkI0XRsBS1TSvd6a/iUUxcfpHT2YA5wEWUBgxcnARow4HByJJzL
-	 sp2jAaU3pEKjbn6aduqQvgEhXUtz0PE4qv5XsAPRzVM9uIi8O3tG/quWa8nxLfgKXt
-	 rXidH6H3xYBPlv2OWte2QrcFm2MkCj669dD27UQetm/ng8yunsB7TxVcF+opY3N3hT
-	 x6uAk6pIIwkPQ==
+	b=SqMTD0H04Df3qhkqjy2tewI+7mVbdvbDlqZd7Q+SUH6UatKMY9WHDlreGntDtOpdg
+	 p4qOoWkgrncFv9wDft8iem7Ovva8IVLaZDKF446OJsuJn166VoceVE5VvU3/1B6YN1
+	 RqXrHz8Eet95rshhJPqPGSSj9Pm3JNf621y8s3/43DfN+ckptSFBVfEeBJb12BQ4A+
+	 3/02TDFj0DgRFEq8PhfJxdkTup1PicVmCmwE+z1+yaBNQ7hMwCMlt3KEOdWWIpCAuo
+	 6Nvdfh9Fjr54utCj5zEOW50i4Fp1AsQ1N3g9Px+dBIQQMZgkB9xPbZz4I9W4FPmUaT
+	 cRzSpaim+PF/w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 3/4] Input: stmfts - support FTS5
+Subject: Re: [PATCH v7 1/4] Input: stmfts - wait for controller ready after
+ reset
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "David Heidelberg" <david@ixit.cz>
-Cc: conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260907-stmfts5-v7-3-4a53381cd038@ixit.cz>
+Cc: devicetree@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260907-stmfts5-v7-1-4a53381cd038@ixit.cz>
 References: <20260907-stmfts5-v7-0-4a53381cd038@ixit.cz>
- <20260907-stmfts5-v7-3-4a53381cd038@ixit.cz>
+ <20260907-stmfts5-v7-1-4a53381cd038@ixit.cz>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 07 Sep 2026 11:04:41 +0000
-Message-Id: <20260907110442.6BEBE1F00A3E@smtp.kernel.org>
+Date: Mon, 07 Sep 2026 11:06:43 +0000
+Message-Id: <20260907110644.941161F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
-New issues:
-- [Medium] The FTS5 driver silently drops all stylus and palm tool-type eve=
-nts because the ABS_MT_TOOL_TYPE capability is never configured on the inpu=
-t device.
-- [Medium] Prematurely exiting the event parsing loop on non-terminal event=
-s can cause dropped touch events and partial frames.
-
 Pre-existing issues:
-- [High] sysfs attribute returns uninitialized kernel memory due to incorre=
-ct error check.
+- [High] Unbalanced disable_irq() and regulator_bulk_disable() on consecuti=
+ve suspend/resume failures.
+- [High] System resume fails to restore the touchscreen's active state, lea=
+ving the hardware locked in SLEEP_IN mode if it was in use prior to suspend.
+- [High] The driver fragments multi-touch frames by calling `input_sync()` =
+after parsing every individual contact event.
+- [High] Information leak of uninitialized kernel stack memory via the 'sta=
+tus' sysfs attribute, and functional bug where valid status reads return un=
+initialized buffer data.
 --
 
-commit aa502b398bf6eeb31cabf6ce200968e3d20a68a7
+commit 1a68dcc09b6690980cb8297285fc328a7de4c568
 Author: David Heidelberg <david@ixit.cz>
-Subject: Input: stmfts - support FTS5
 
-This commit introduces support for the FTS5 protocol in the stmfts
-touchscreen driver. It adds FTS5-specific functions for device configuratio=
-n,
-input setup (including initial stylus handling), and event parsing.
+Input: stmfts - wait for controller ready after reset
 
-This is a pre-existing issue, but while reviewing I noticed a potential
-memory leak in the sysfs read handler stmfts_sysfs_read_status() that
-was not introduced by this patch:
-
-drivers/input/touchscreen/stmfts.c:stmfts_sysfs_read_status() {
-    ...
-    err =3D i2c_smbus_read_i2c_block_data(sdata->client, STMFTS_READ_STATUS,
-                                        sizeof(status), status);
-    if (err)
-        return err;
-
-    return sysfs_emit(buf, "%#02x\n", status[0]);
-}
-
-[Severity: High]
-Does this error check leak uninitialized memory? The function
-i2c_smbus_read_i2c_block_data() returns the positive number of bytes read
-on success. By treating any non-zero return value as an error, a successful
-read will immediately return this positive byte count to the sysfs core,
-bypassing sysfs_emit() and potentially leaking up to 4 bytes of uninitializ=
-ed
-kernel memory to userspace.
+After releasing the reset line stmfts_reset() sleeps a fixed 50 ms and
+stmfts_power_on() another 50 ms before the first I2C access.  That is
+enough for a warm reset, but when both supplies were really cut during
+system suspend the controller boots from cold and can need longer.  If
+it does, the first read fails, stmfts_resume() returns an error and the
+touchscreen is left powered off with its interrupt disabled.
 
 > diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscre=
 en/stmfts.c
+> index 972687797f826..711e3ad8587a0 100644
 > --- a/drivers/input/touchscreen/stmfts.c
 > +++ b/drivers/input/touchscreen/stmfts.c
+
 [ ... ]
-> +static void stmfts5_report_contact_event(struct stmfts_data *sdata,
-> +					 const u8 event[])
-> +{
-[ ... ]
-> +	switch (touch_type) {
-> +	case STMFTS_TOUCH_TYPE_STYLUS:
-> +		if (sdata->stylus_enabled) {
-> +			tool =3D MT_TOOL_PEN;
-> +			break;
+
+> @@ -598,16 +607,21 @@ static int stmfts_power_on(struct stmfts_data *sdat=
+a)
+>  	 */
+>  	msleep(20);
+> =20
+> -	if (sdata->reset_gpio)
+> -		stmfts_reset(sdata);
+> +	if (sdata->reset_gpio) {
+> +		err =3D stmfts_reset(sdata);
+> +		if (err) {
+> +			dev_err(&sdata->client->dev,
+> +				"controller not ready after reset: %d\n", err);
+> +			goto err_disable_irq;
 > +		}
-> +		fallthrough; /* Report as finger if stylus not enabled */
-[ ... ]
-> +	input_mt_slot(sdata->input, touch_id);
-> +	input_mt_report_slot_state(sdata->input, tool, true);
-[ ... ]
-> +static void stmfts5_parse_events(struct stmfts_data *sdata)
-> +{
-> +	for (int i =3D 0; i < STMFTS_STACK_DEPTH; i++) {
-> +		u8 *event =3D &sdata->data[i * STMFTS_EVENT_SIZE];
-[ ... ]
-> +		switch (event[0] & STMFTS5_MASK_EVENT_ID) {
-> +		case STMFTS5_EV_STATUS_UPDATE:
-> +		case STMFTS5_EV_USER_REPORT:
-> +		case STMFTS5_EV_DEBUG:
-> +			goto sync;
+> +	} else {
+> +		enable_irq(sdata->client->irq);
+> +		msleep(50);
+> +	}
 
-[Severity: Medium]
-Could this premature loop exit cause subsequent touch events in the same
-buffer to be dropped?
-
-If STMFTS5_EV_STATUS_UPDATE, STMFTS5_EV_USER_REPORT, or STMFTS5_EV_DEBUG=20
-occurs alongside standard touch events in a single read buffer, the=20
-goto sync; statement will break out of the event parsing loop entirely.=20
-Would using continue be more appropriate here to skip the non-touch event=20
-and continue processing the rest of the buffer?
-
-> +
-> +		case STMFTS5_EV_MULTI_TOUCH_ENTER:
-> +		case STMFTS5_EV_MULTI_TOUCH_MOTION:
-> +			stmfts5_report_contact_event(sdata, event);
-> +			break;
-[ ... ]
-> +static int stmfts5_setup_input(struct stmfts_data *sdata)
-> +{
-[ ... ]
-> +	input_set_abs_params(sdata->input, ABS_MT_DISTANCE, 0, 255, 0, 0);
-> +
-> +	/* Enable stylus support if requested */
-> +	sdata->stylus_enabled =3D device_property_read_bool(dev, "stylus-enable=
-d");
-> +
-> +	return input_mt_init_slots(sdata->input, STMFTS_MAX_FINGERS,
-> +				   INPUT_MT_DIRECT);
-> +}
-
-[Severity: Medium]
-Does this driver need to configure the ABS_MT_TOOL_TYPE capability for
-stylus and palm events to be processed?
-
-In stmfts5_report_contact_event() above, the tool type is reported to the
-input core. However, because input_set_abs_params() or input_set_capability=
+[Severity: High]
+This is a pre-existing issue, but if system resume fails here in
+stmfts_reset(), stmfts_power_on() cleans up and returns an error. On the ne=
+xt
+suspend cycle, won't stmfts_suspend() unconditionally call stmfts_power_off=
 ()
-is not called for ABS_MT_TOOL_TYPE here in stmfts5_setup_input(), the input=
-=20
-subsystem will silently drop these tool type events, degrading the hardware=
-=20
-functionality to basic finger touches.
+again?
+
+drivers/input/touchscreen/stmfts.c:stmfts_suspend() {
+    ...
+	stmfts_power_off(sdata);
+    ...
+}
+
+And won't this increment the IRQ disable depth to 2 and unbalanced regulator
+usage counts, eventually causing the touchscreen to become permanently
+unresponsive?
+
+
+[Severity: High]
+This is a pre-existing issue, but stmfts_power_on() ends with a command to =
+put
+the controller to sleep:
+
+drivers/input/touchscreen/stmfts.c:stmfts_power_on() {
+    ...
+	/*
+	 * At this point no one is using the touchscreen
+	 * and I don't really care about the return value
+	 */
+	(void)i2c_smbus_write_byte(sdata->client, STMFTS_SLEEP_IN);
+
+	return 0;
+    ...
+}
+
+If the touchscreen was held open by userspace (sdata->running) prior to
+suspend, won't this leave the hardware asleep upon system resume? Since the=
+ PM
+core does not automatically invoke runtime_resume, does the driver need to
+check sdata->running and manually wake the device here?
+
+
+[Severity: High]
+This is a pre-existing issue, but is it intentional to call input_sync() for
+every individual contact event here?
+
+drivers/input/touchscreen/stmfts.c:stmfts_report_contact_event() {
+    ...
+	input_mt_report_slot_state(sdata->input, MT_TOOL_FINGER, true);
+	input_report_abs(sdata->input, ABS_MT_POSITION_X, x);
+    ...
+	input_sync(sdata->input);
+}
+
+Since this is called for each finger during multi-finger touch frames, does=
+n't
+this fragment multi-touch frames by emitting a sync after each finger rather
+than grouping them at the end of the event parsing loop?
+
+
+[Severity: High]
+This is a pre-existing issue, but is the return value of
+i2c_smbus_read_i2c_block_data() handled correctly here?
+
+drivers/input/touchscreen/stmfts.c:stmfts_sysfs_read_status() {
+    ...
+	err =3D i2c_smbus_read_i2c_block_data(sdata->client, STMFTS_READ_STATUS,
+					    sizeof(status), status);
+	if (err)
+		return err;
+
+	return sysfs_emit(buf, "%#02x\n", status[0]);
+}
+
+Since i2c_smbus_read_i2c_block_data() returns the number of bytes read on
+success (e.g. 4), won't "if (err)" evaluate to true and return the byte cou=
+nt
+directly, bypassing sysfs_emit()?=20
+
+Additionally, if it were to return 0, wouldn't sysfs_emit() leak uninitiali=
+zed
+kernel stack memory (status[0]) to userspace?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907-stmfts5-v7=
--0-4a53381cd038@ixit.cz?part=3D3
+-0-4a53381cd038@ixit.cz?part=3D1

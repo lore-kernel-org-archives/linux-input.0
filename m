@@ -1,253 +1,151 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37421B67E
-	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 22:58:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8C1D1D47AC
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 23:31:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788821918; cv=none; b=QXDz6XMeXQwZcO7q1JLcGW6d4dMD6n3tGPPtWiemiJhSna5nLh9OXjrd/SgBInoXA3282mshpfUx2Q24VUchroC7giSdjXxxqHTBE1T6uwKAHwI7SNuTRq847isFr5GOc3YGJcHEOR40U0ud7nAdg54QyGayovQSicVI10WJdKI=
+	t=1788823908; cv=none; b=bAtL1ZCJ5v35wILh8sS93qx6z2M36wCeBfc4mWzke/hKD8ATx9XjwtdwAEl07eujkDJ3GoYj82QQxG988FtwUqvEaxF01a76rZKmE9pzKffeLiow7liCI4J+9yPSUkHqh2+83VkDYB9N1iu7lBpbbah7zSiFKAfIhN0A3S063f4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788821918; c=relaxed/simple;
-	bh=48Nlo8+lw00kL+NJlxp0GwmNHHSY9NI2A0S0Pq2LrnU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=RKn8bTLwZTkblUplnIH8VTpRnWLnG2AFsgowfl81vuPHQYIm9kpfzqoGaUliq8+YZop5lKc6EDWIhALIRWP+MYt5RPgiQqwY70eJibpFwM8/e0WxRAVs02pSCnwP0HjUEwZiim58KxysiVncsqafDZ5CbMxrJ300uDdy2uRqWfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nOw+euDR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788823908; c=relaxed/simple;
+	bh=HgDN1MpFbS4W/vsKCiwJPQjvz53zJEphIjgnaPy0Y2o=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=cJCGVQv3CZdqCYrd8jZlqSe9P8eBh9u9MqinVz2jrpGjE71O0UiphLJ4fOlSUlLH6KRMCd4qIsxhSirgSqfvquMXbe1KSAG8xgXOGpVX/Kf+Jni75/7Vga796ttfGNXrwJGmkHIOvQzs2k5cX7kwH/2t4pqf6iKrrtyBys0Ar3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FzzUmtUZ; arc=none smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nOw+euDR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EB8D1F00A3A;
-	Mon,  7 Sep 2026 22:58:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788821916;
-	bh=ZWEDUOyT5DkjoUnh1c2w0hjGax4APVdiMykQbvNSCBo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nOw+euDRcqEaFPhIpIofKhHV1E0dci0V02oWxTa/ZPfAhxH2U6oIkiFBGv21QliRE
-	 hRuuP9HNYFEkoGmr7+7WUAZsPbMn6XC8bw0+bKM2ueUJnG82RClYJkfU0rdB8xap4u
-	 iCl6BkT9aoEq/fG8vqZrDjDybjctiioGZMMf8H25eP5gFb2AEcTBpYovO+wEq2ALUr
-	 sZTZhFaNj0jv3xT21a6B3+OZUNpcwDZ5d5RZVChAN6b2P84REOo27GRpVVwsVJA6W+
-	 fWCkTIw4K1Ucri/3fVdfFj/b/CwApP+mBU9uW4jxTKIzsjpi7jK7+aetu3rWQ6VwX9
-	 /+3LuVt9NfN7A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: roccat: fully initialize device before publishing
- to devices[]
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ivy Lopez" <skunkolee@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260907224426.159104-1-skunkolee@gmail.com>
-References: <6a9ccae4.37659fcc.e790.0006.GAE@google.com>
- <20260907224426.159104-1-skunkolee@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 07 Sep 2026 22:58:36 +0000
-Message-Id: <20260907225836.8EB8D1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FzzUmtUZ"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c9aea40d799so2129124a12.0
+        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 16:31:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788823906; x=1789428706; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=B8uEeW1oFdxHFuFPP5kN2+8012BsBDEccQ4thUlP5Kk=;
+        b=FzzUmtUZtxYV1Cyty8nQp9PLzWSQVJc+7PNCvmwYfAc+IRp5vqWycjKSWEZQMv3U5I
+         7KAIYHFfidQJdjS8w2MuRAnZzfMQ0lqDRmPTAL8DOQstuScFLB6GxY6BJ/C3+6k2bBrd
+         JS2k90ls05GcWr7VR69Kvny1M2Y4BTw9mV/lE7cNrDTV1NCcXIwb0O+3wMqaeNgOJg5r
+         CjK24LYG8eelTamF03GsL+yOL71tQ1c7geAHrf1YvGJd13d7ZvUbhWWfnRPFxNADJBvw
+         EqwKJWxo7975AeMq8KzCeJAEq5UGGgEvKw5Mv/kyTqkAvOHrFon9zVx4PE4LkKBNso/o
+         7vfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788823906; x=1789428706;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=B8uEeW1oFdxHFuFPP5kN2+8012BsBDEccQ4thUlP5Kk=;
+        b=f5y7EgPYhj77wM4VPB5+gIq+ASYvoRDfNQao03mm5HiuMO//R0JI1uEJzhh7eANiIl
+         3dB0CmAlwUQl9awGG85jZ50wPLgTZJ3VsO/POGQgE9fLCyRRPXp3cb8/dHU+gU3PnvQs
+         XJmo1fiemuydwTNMI1RGHDU/SMj1ckXMl1G2zvBVT/FBFPhrN/0RONqzfGpLed4t810I
+         F1xqKN/Lra7ZAn5pxUOm84RV67G8OQSA06DaQ7r7HzfoUKB6fhQ1nlJKiD8uidYwKiIc
+         EB1yLeaYcUgeA1QCe2dil+prV7EmAMn1QMfXRurb5/VTsOIefXQaXXkfx/SJDFHKZZGR
+         U5UA==
+X-Gm-Message-State: AFuF++n6yNgDoiqW/l6zSTs9Iqe0ZnQJYsrxEckUJqaA32QA90eTYnE/
+	JVI7PnXNltyJhwVzIpo7SprIuFMwQ789GoortKxOfA4qApIoYorGKHWX9VB5dg==
+X-Gm-Gg: AYBFou1ZELRCh6JvBJcnL/BGVAAVJEL3T42z7Se4HgPo7JomtE5buWCL+BGletjBTYa
+	VlhEx2bM9Yv2hRoyli1PBfpjlRxfnOh9d364UxJASA4p7EZDQUxEw1aXYqTdmb7/H2vY9XCYJ21
+	jI0CjsAylTYlTWLBU4lUsOkMag5YE2tmgbxgl3TFWPXEK6oBYgqq6nOrBaBsKtHWLVTDMD0VWv5
+	ok1NTxCrQEh7a9hO1S3prHNSyVbsNC7qYVFJD0KA0jzsOvT9Gg5ZeamyqXzqmOau3vtthOmW9mx
+	wjDl2K3q5axJKCfeFVVfkzUDJ5/Wp36vZ8mzMa5Fj1CiiDOwWmiJxMKOYlU+YJLa8L3lTwjfyOq
+	YVCJMQiV63p5ZX7dSzz5NBWtOt5TIMc1P3hfIdrE2jlM/XZVnnplbgh47aVrwWgouBo/6/cpvQA
+	+bmUekseUH5fKGIBurOJVzfOx42EmY1ytPtEXtEAAtB+Xpve1nGo8TzQ==
+X-Received: by 2002:a17:90b:3852:b0:38e:9ef9:eb97 with SMTP id 98e67ed59e1d1-39b26272d69mr38739085a91.16.1788823906015;
+        Mon, 07 Sep 2026 16:31:46 -0700 (PDT)
+Received: from bloom.localdomain ([2604:3d09:178e:e100::3820])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39b260f64ecsm23105029a91.8.2026.09.07.16.31.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2026 16:31:45 -0700 (PDT)
+From: Ivy Lopez <skunkolee@gmail.com>
+To: erazor_de@users.sourceforge.net,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ivy Lopez <skunkolee@gmail.com>
+Subject: [PATCH] HID: roccat: use reader->device instead of re-deriving from devices[]
+Date: Mon,  7 Sep 2026 17:31:41 -0600
+Message-ID: <20260907233141.174635-1-skunkolee@gmail.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260907225836.8EB8D1F00A3A@smtp.kernel.org>
+References: <20260907225836.8EB8D1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+roccat_release() looked up the device via devices[minor] instead of
+using the reader's own reader->device pointer, which was already set
+at open() time and is guaranteed to reference the same device the
+reader was created against.
 
-Pre-existing issues:
-- [Critical] `roccat_release()` leaks memory and corrupts state by looking =
-up the device from the global array instead of the reader struct when handl=
-ing hot-unplug.
-- [High] `roccat_report_event()` calls sleepable `mutex_lock()` from within=
- a hardirq/atomic context.
-- [High] A race between `roccat_disconnect()` and `roccat_release()` causes=
- a Use-After-Free of the `roccat_device` structure.
---
+This causes two problems on unplug-before-close:
 
-commit 46468883b2be9805a5a149d03c123b3d8fe1868c
-Author: Ivy Lopez <skunkolee@gmail.com>
+If a device is unplugged while a reader still has it open,
+roccat_disconnect() clears devices[minor] to NULL but leaves the
+device itself allocated (since device->open is still nonzero at that
+point). When the reader is later closed, roccat_release() looks up
+devices[minor], finds NULL, and returns -ENODEV immediately, leaking
+both the reader and the now-unreachable device without ever running
+list_del(), kfree(reader), or decrementing device->open.
 
-    HID: roccat: fully initialize device before publishing to devices[]
-   =20
-    The patch moves the initialization of a roccat device's private state a=
-head
-    of the point where it is inserted into the global devices array. This e=
-nsures
-    the object is fully constructed before it becomes visible to concurrent
-    readers.
-   =20
-    Reported-by: syzbot+9f7405999979761b6cfc@syzkaller.appspotmail.com
-    Signed-off-by: Ivy Lopez <skunkolee@gmail.com>
+If a new device is connected before the old reader is closed, it can
+reuse the same minor, so devices[minor] instead points to the new
+device by the time the stale reader is released, causing release() to
+mutate the wrong device's readers list and open count.
 
-> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index 4f15eb9510396..2d8b0da6fbb21 100644
-> --- a/drivers/hid/hid-roccat.c
-> +++ b/drivers/hid/hid-roccat.c
-> @@ -316,26 +316,32 @@ int roccat_connect(const struct class *klass, struc=
-t hid_device *hid, int report
->  	if (!device)
->  		return -ENOMEM;
-> =20
-> -	mutex_lock(&devices_lock);
-> +	init_waitqueue_head(&device->wait);
-> +	INIT_LIST_HEAD(&device->readers);
-> +	mutex_init(&device->readers_lock);
-> +	mutex_init(&device->cbuf_lock);
-> +	device->hid =3D hid;
-> +	device->exist =3D 1;
-> +	device->cbuf_end =3D 0;
-> +	device->report_size =3D report_size;
-> =20
-> +	mutex_lock(&devices_lock);
->  	for (minor =3D 0; minor < ROCCAT_MAX_DEVICES; ++minor) {
->  		if (devices[minor])
->  			continue;
->  		break;
->  	}
-> -
-> -	if (minor < ROCCAT_MAX_DEVICES) {
-> -		devices[minor] =3D device;
-> -	} else {
-> +	if (minor >=3D ROCCAT_MAX_DEVICES) {
->  		mutex_unlock(&devices_lock);
->  		kfree(device);
->  		return -EINVAL;
->  	}
-> +	device->minor =3D minor;
-> +	devices[minor] =3D device;
-> =20
->  	device->dev =3D device_create(klass, &hid->dev,
->  			MKDEV(roccat_major, minor), NULL,
->  			"%s%s%d", "roccat", hid->driver->name, minor);
-> -
->  	if (IS_ERR(device->dev)) {
->  		devices[minor] =3D NULL;
->  		mutex_unlock(&devices_lock);
-> @@ -343,19 +349,8 @@ int roccat_connect(const struct class *klass, struct=
- hid_device *hid, int report
->  		kfree(device);
->  		return temp;
->  	}
-> -
->  	mutex_unlock(&devices_lock);
-> =20
-> -	init_waitqueue_head(&device->wait);
-> -	INIT_LIST_HEAD(&device->readers);
-> -	mutex_init(&device->readers_lock);
-> -	mutex_init(&device->cbuf_lock);
-> -	device->minor =3D minor;
-> -	device->hid =3D hid;
-> -	device->exist =3D 1;
-> -	device->cbuf_end =3D 0;
-> -	device->report_size =3D report_size;
-> -
->  	return minor;
->  }
->  EXPORT_SYMBOL_GPL(roccat_connect);
+Use reader->device directly, matching the pattern already used by
+roccat_read() and roccat_poll() elsewhere in this file, so release()
+always operates on the device it was actually opened against.
 
-[Severity: Critical]
-This is a pre-existing issue, but does roccat_release() leak memory and
-corrupt state by looking up the device from the global array instead of the
-reader struct when handling hot-unplug?
+Fixes: 206f5f2fcb5f ("HID: roccat: propagate special events of roccat hardware to userspace")
+Signed-off-by: Ivy Lopez <skunkolee@gmail.com>
+---
+Thanks to Sashiko AI review for flagging this on the prior patch to
+this file.
+---
+ drivers/hid/hid-roccat.c | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
-If the device is unplugged, roccat_disconnect() clears the global minor
-pointer:
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 53358297e96c..bbaa782fb7da 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -202,19 +202,10 @@ static int roccat_open(struct inode *inode, struct file *file)
+ 
+ static int roccat_release(struct inode *inode, struct file *file)
+ {
+-	unsigned int minor = iminor(inode);
+ 	struct roccat_reader *reader = file->private_data;
+-	struct roccat_device *device;
++	struct roccat_device *device = reader->device;
+ 
+ 	mutex_lock(&devices_lock);
+-
+-	device = devices[minor];
+-	if (!device) {
+-		mutex_unlock(&devices_lock);
+-		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
+-		return -ENODEV;
+-	}
+-
+ 	mutex_lock(&device->readers_lock);
+ 	list_del(&reader->node);
+ 	mutex_unlock(&device->readers_lock);
+@@ -229,9 +220,7 @@ static int roccat_release(struct inode *inode, struct file *file)
+ 			kfree(device);
+ 		}
+ 	}
+-
+ 	mutex_unlock(&devices_lock);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.55.0
 
-drivers/hid/hid-roccat.c:roccat_disconnect() {
-    ...
-	mutex_lock(&devices_lock);
-	devices[minor] =3D NULL;
-	mutex_unlock(&devices_lock);
-    ...
-}
-
-If userspace later closes the file descriptor, roccat_release() retrieves t=
-he
-device from the global array rather than using the safe reader->device poin=
-ter:
-
-drivers/hid/hid-roccat.c:roccat_release() {
-    ...
-	mutex_lock(&devices_lock);
-
-	device =3D devices[minor];
-	if (!device) {
-		mutex_unlock(&devices_lock);
-		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
-		return -ENODEV;
-	}
-    ...
-}
-
-Does this cause an early return that permanently leaks the device and reader
-structs?
-
-If a new Roccat device is plugged in before the file descriptor is closed,
-could it assume the old minor slot, causing roccat_release() to operate on =
-the
-new device, prematurely decrementing its open count and potentially powerin=
-g it
-down while the old device leaks?
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does roccat_report_event() c=
-all
-sleepable mutex_lock() from within a hardirq/atomic context?
-
-The HID core triggers the raw_event callback (e.g., kone_raw_event) from an
-atomic context when the low-level transport driver completes an URB. This
-callback invokes roccat_report_event(), which acquires sleepable mutexes:
-
-drivers/hid/hid-roccat.c:roccat_report_event() {
-    ...
-	new_value =3D kmemdup(data, device->report_size, GFP_ATOMIC);
-	if (!new_value)
-		return -ENOMEM;
-
-	mutex_lock(&device->readers_lock);
-	mutex_lock(&device->cbuf_lock);
-    ...
-}
-
-Can this lead to a scheduling while atomic panic or system deadlock upon
-receiving device events?
-
-[Severity: High]
-This is a pre-existing issue, but does a race between roccat_disconnect() a=
-nd
-roccat_release() cause a Use-After-Free of the roccat_device structure?
-
-When roccat_disconnect() runs, it releases devices_lock before calling
-device_destroy():
-
-drivers/hid/hid-roccat.c:roccat_disconnect() {
-    ...
-	mutex_lock(&devices_lock);
-	device =3D devices[minor];
-	mutex_unlock(&devices_lock);
-
-	device->exist =3D 0;
-
-	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
-    ...
-}
-
-If this is preempted after setting device->exist =3D 0, a concurrent
-roccat_release() can lock devices_lock, find devices[minor] is still non-NU=
-LL,
-decrement device->open to 0, and free the device because exist is 0:
-
-drivers/hid/hid-roccat.c:roccat_release() {
-    ...
-	if (!--device->open) {
-		/* removing last reader */
-		if (device->exist) {
-            ...
-		} else {
-			roccat_free_device(device);
-		}
-	}
-    ...
-}
-
-When roccat_disconnect() resumes, is it possible that it calls device_destr=
-oy()
-using the freed device->dev pointer, causing a Use-After-Free?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907224426.1591=
-04-1-skunkolee@gmail.com?part=3D1

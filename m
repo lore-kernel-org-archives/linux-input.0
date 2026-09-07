@@ -1,207 +1,153 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A5BE3C3F7C;
-	Mon,  7 Sep 2026 10:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 636FB485CD1
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 10:58:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788778227; cv=none; b=u3rRPrhgQZA+twUyuXFGO/12IzjsPtjHLed+MSSCZyKMQ64u1ns5ktEfTriraAVRqmPlydw+TBLxWPuofgrJSHUaFeHMcJt9t3WK2pBD4bDg9olp5BdV1FmaO7ttOeUvqL5TfD6Rz9xGabiNekx7SwUibGbwBaBaYi+x80Gvj5M=
+	t=1788778694; cv=none; b=RUzCbIf7aO5W+L/DrX7zi/RCpNCcJ/NjWdnYoBlrIDo6SOEz9tNKzBbxaYN1UUb/OJa3z6prtW1Qf1BwmTm2z+0hgLvKbHbq6sw7kF1xqU+jWs1JE8g87h62v3R+2yG+I3+D3Ae+dDJlNts1lU4/gDhzoP29YcRvWqWX3El4Kvw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788778227; c=relaxed/simple;
-	bh=328YlRURSnwE9509rxzvq5+6g3dgVhnXmI0R4w081vU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=LyLCQl/3ftICaSE5bcEWGGVC0KHp7VVIeW7y27i8f4+0yj2jOKaz0uLyAOxVCnfUtvKP6YGUGYBq+a4vL+Pd5c44+djobnBGFF2tXZwOyHLkzFawSspeKWPaHbpFkgPo4fKwmxpo7VAL3MCqpgBfpkiH8zlRowQL8yHuNxwE/fA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qJ5iK1vj; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1788778694; c=relaxed/simple;
+	bh=226zFTrt61gC5bUJe6htzJbBh6DTMpofqMeezkvIwVg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pTrhvbDnyumcN5NWhUcOWK7LzkvY0z+z6La9aVUQvq5nrNYoycb9gO0WJiE3MBr2PehPIUb3XvGApuTHDhUf4qJuVSUdE2kbbpNPmRUOw2RIfcZjuYAUCjuW6GZ3npCkZWthDIvef4/1ixpZqU8bHVeIU2Cfm+y6kRIPrLkWUJw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=dkvbUMDt; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=GprQ5nRQ; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qJ5iK1vj"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id ED89CC2BCC7;
-	Mon,  7 Sep 2026 10:50:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1788778227;
-	bh=328YlRURSnwE9509rxzvq5+6g3dgVhnXmI0R4w081vU=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=qJ5iK1vjE1U7Wm4gUbqV0GSA6A8jdMPerSIPWSKUIiuNjXgwLmcbobN5vVmt1REtE
-	 O0D+3jTYA3e/KLuDn74ivfpe+5ST9LAKqZO0GdBLrJoeIqv7rUgCKH4h2Jz6MA6ghG
-	 lXiFd9RbLTq5J6V1u6htFlM2s7RTU9oXEFqIRNkg/s/RVsgdkdhYLmkyBsCgAdzTbX
-	 K0fB8ubECxj0fD6JmD99+r3jf3RV10eQHbvOrzBmKgfkjv6uBTQ1OWCnjQ+w0uzuOl
-	 Iw4/gHoyZeNQzLJLjy87NbpuCyXBSxwuZdpMCDWS38kjAiAzte6J6sBy7sQ1HNL2li
-	 pQHZlfUFmzKCQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD889C79F9E;
-	Mon,  7 Sep 2026 10:50:26 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Subject: [PATCH v7 0/4] Input: support for STM FTS5
-Date: Mon, 07 Sep 2026 12:50:18 +0200
-Message-Id: <20260907-stmfts5-v7-0-4a53381cd038@ixit.cz>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="dkvbUMDt";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="GprQ5nRQ"
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 687AnADb4064247
+	for <linux-input@vger.kernel.org>; Mon, 7 Sep 2026 10:58:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=rlgWTU4l5TU2Z3+onQ2BGvvK
+	P4C66DgncaDRweKJZts=; b=dkvbUMDt9tIZsDKDnW/qumgRf0QCoKn5DITnjLmh
+	09vpx1rYA6zQJtZew/7pgFSenXB/eCXeg6CNmQBsaURlD0X549nMthQPOWaVkRwR
+	clG0iVrhlcekgF2caXDAI3A1nipprDRsu9UaMTkpOHTVWN/r/4suIF+E/OjxFHw8
+	QZCH4vfnAUlU3aW9rcVs81J/P/FLmquBkGRldolZ4VJg6IVOq2BAaobr7FG975zG
+	i5zajboEKOrLseTmU42I6pXdkQHGPQcPcBPYm1V5Qa6/1aFvSN4AZc+4wJIVU2Zy
+	v1dvJzE/XKGO0aWY7t7Lq5yHKO4SksM6X9N7N5gkdBkWSw==
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ghs86ru9m-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 10:58:11 +0000 (GMT)
+Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-93909014c85so560303985a.0
+        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 03:58:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1788778691; x=1789383491; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=rlgWTU4l5TU2Z3+onQ2BGvvKP4C66DgncaDRweKJZts=;
+        b=GprQ5nRQWl0kq61gpkpZiRJFz7cbahjbRSnDS9VCKXD3mRKZM8Z2a0ADsRqgVuPnbl
+         Bne3Shr4MLO0Hl1XtLYaUTkMPnfh/UPHq/msL4LPrZWtDNGCS+86teb6JHguyBJJBQQ7
+         FNr32RTiRZImgvqTu49Q13GbH7GyKANJMzMSio84xZSArwmAfxEo2zMKtF8ttruRWqMJ
+         ei738JA6YOXHuxoKRnN0MHfBZbr74MjPe+l6dAWBJM7SHNYLwx13X5w45TD1MlXD6GFM
+         7wWqyYGESGOOJWoxZniv3b8n8P4nr6Hfn5pEfaknL92bMmT+u034kgBD3jQ6WxTXsabN
+         nX9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788778691; x=1789383491;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=rlgWTU4l5TU2Z3+onQ2BGvvKP4C66DgncaDRweKJZts=;
+        b=K3ixCc33hXWnm+s/3IgqpeLWUT01OTFaBiM9BnLdT/wLStzFd2S5odY39SBUY3V22a
+         mT9d8CrLsQhy7EFa7s1cKcNpmEcavM7alagz7Pi9X9CTl5GjTAwGgqsm5efYzuRhkLc6
+         o5DwY0AHaD/vzyRGyrzedtVF1y7c0eJlLk1+tle2bWcXANXNJ5tbXaw9sSsh2GOoC8PJ
+         XHNxkAJI/s2P3O+nOa9TsfOresXr6nPqjV92/cbUH9VvU6sqcBmPyAGi/C10qE6ulfMw
+         tKJWXDctsUQo2GP3Mdxg+YAv0JYojmcB7dOVZ0Kd5y20SnX97Kcj3jo9lj5AGmmTvVKP
+         QcHA==
+X-Forwarded-Encrypted: i=1; AKwUvBx3JB8qO8xoY6jpzAdxYEOBNLiNs56ObiPoZNy8j7Ead8l8lrpev/o/kSKwMMprK6xPKH9PEz9VYbQaaQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lyzpkZoJVzZlo0vRj5veqyNxj6Qj5hN5s4edP43TRqWQ2nqHRO
+	WLtYJzEHTsB2WQsQLCRXtP8KsR5uAVTZnyte/2sgkBbVobYg82emDFJZjJE5cZP9WilqCCp0w0T
+	hqIwxBd21mrzgs2qrhvwiKafoGZmfVo9HcT8vuC/WShFNQzd1jQGyYRKQY2zgBoHjJA==
+X-Gm-Gg: AYBFou0MLFLY1RN4Yt8mUj1r3mnnQogJsEEbSvf5lt78U4HShHwPTrGXnOY3yfXOugA
+	CzgN5Ri5Xtk+xlGJ/qrbj5otFpX3kxcWpF/MLJwBl+dzf6CgNz2jliJKm9WMPeUYRcWAK4PoFWq
+	1hZ6IEGDC2IiRr1We5DmT8pGnhXF027MFNIx2Irj/Eg+fYkvsFLRErOZ++RihkZTgzOCEhDz96j
+	lzpT3mmVXQVTwBAOiuPGqjcqR9lrWxhXjxRGPtpPlPcoHCBqwPND+k1kqR1mwGL9Z6w/riVJwRG
+	G9DnchUfv8pCTPRytdNCQYnO6Ickv1H4HmggZX0qOR+bnPEnNEp6/87xLVr0lX2jap0bmc05Ckc
+	oENBZGMG4r38ksw==
+X-Received: by 2002:a05:620a:a495:b0:936:883d:89c6 with SMTP id af79cd13be357-9398043579bmr1824664285a.28.1788778690491;
+        Mon, 07 Sep 2026 03:58:10 -0700 (PDT)
+X-Received: by 2002:a05:620a:a495:b0:936:883d:89c6 with SMTP id af79cd13be357-9398043579bmr1824659485a.28.1788778689899;
+        Mon, 07 Sep 2026 03:58:09 -0700 (PDT)
+Received: from oss.qualcomm.com ([86.121.170.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d0656e7bbsm200216825e9.10.2026.09.07.03.58.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2026 03:58:08 -0700 (PDT)
+Date: Mon, 7 Sep 2026 13:58:06 +0300
+From: Abel Vesa <abel.vesa@oss.qualcomm.com>
+To: david@ixit.cz
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>,
+        Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+Subject: Re: [PATCH v7 4/4] arm64: dts: qcom: sdm845-google: Add STM FTS
+ touchscreen support
+Message-ID: <bif2vhuzfskrniqvp4acoxfjvpyypr533ulwpvo3f7pwkcods3@wa47jbyowcpr>
+References: <20260907-stmfts5-v7-0-4a53381cd038@ixit.cz>
+ <20260907-stmfts5-v7-4-4a53381cd038@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/13Qy07DMBAF0F+pvMZo/JqxWfEfqIv4Rb2greIoK
- q3y7zhFwgnLO55zNfKD1TSWVNnb4cHGNJdaLucW6OXAwmk4fyZeYstMgkSQQvM6feWpGu41KSG
- yj6Qka9vXMeVyezZ9HFs+lTpdxu9n8SzW6W+HAvHXMQsOXMqgjfVuCGjfy61Mr+HO1oZZbpQwX
- cmmCHywKiVnnNgr1ZUG1ZVqysSB0IYcJfxTeqtcV7op1Dlhe6LozV6ZrqyArkxTEEhRdNI5wr3
- CrhxgV7heCNlnHLIlsfmNZVl+AKQTNa2qAQAA
-X-Change-ID: 20260214-stmfts5-b47311fbd732
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org, 
- linux-stm32@st-md-mailman.stormreply.com, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
- David Heidelberg <david@ixit.cz>, stable@vger.kernel.org, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
- Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5373; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=328YlRURSnwE9509rxzvq5+6g3dgVhnXmI0R4w081vU=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBqnpbw7CTfQD20iAy7QP722kBWmhdyptr4YGf1q
- TlII4vMoZCJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCap6W8AAKCRBgAj/E00kg
- cpD+EACUOpDB08iVN6wok2XLH/J1kMoL3X0OxfHA5gMFmX/l54JuGUdTJf0wyL6m/bijWlnZ5uq
- E2MC5UM24BbSzYtlNPXobJSkhpLOwEw9ZlVaDWJ45FEMICupqK6KEFgZZZC98m03gYPy9wiWj0N
- WDihKrS16KroCHUO1kHfHHBxnh5hYIMfPfaD0QFEokVH4ZWDupR4JF1VT4eOX25+ltRur/pkYom
- TtMxfclsNuBdlO6gOnk3SGglEO4kUg+jinkHgZyWRRm88U9n3u4AnQ+VVgrfNLf2Y2OwZhXVC5P
- W9XgD/3jO9kJaC64qtkeZv99W+OoS4Km5bS81IpPV8+hG15gH7N6A723BnPVHjNiglmwbBS3+VO
- HbvdI7ARXTm7SR5sM1zk8A4YUpz1Vqp7yFtCUyvoBN6jB7V5/Tgf36j1kx/FOp8ZD55F8qD6KHJ
- acyqM59Ccx8hi1Re0BwZ4yc9yFqzwHo4uHlIuGYCbYBgjgyZMnQslZR0/bVWlGxVUW6oSYEfAfF
- WI/rXRmuVL5CvsQUwOPSmmqJUc3oQiPclVSiT2lSyZpLQ97nrnOFAkxf0sLyiH5Rucu7SlV70Fg
- eoYxclNX3Fo0PRuRjQpV4+KQ5hi9+awS9ncc8HlrdlOfk6ihvwhESXeaz8hh1x4wMgJ2W0XsdmD
- HOCI0f4V7/JoSlQ==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260907-stmfts5-v7-4-4a53381cd038@ixit.cz>
+X-Proofpoint-GUID: 8AAB-McsbSy6lK4cjxN--tOW1ZQTWPjY
+X-Proofpoint-ORIG-GUID: 8AAB-McsbSy6lK4cjxN--tOW1ZQTWPjY
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA3MDEyMCBTYWx0ZWRfX3syuJFDyu/E+
+ Db9HJfR2bc9vRTcA93kwyMDFbZKApuM91zVVRaNpRmKUdplFgiC7tlN8opbUJySqM0dBGZ0vHvh
+ MOLy4I7ske7n0Vm7JHr17ght3/EZypk=
+X-Authority-Analysis: v=2.4 cv=LseiDHdc c=1 sm=1 tr=0 ts=6a9e98c3 cx=c_pps
+ a=qKBjSQ1v91RyAK45QCPf5w==:117 a=q7XEBjOi5DRkXzmV0jSBjQ==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
+ a=sfOm8-O8AAAA:8 a=EUspDBNiAAAA:8 a=edXKPL0xb2b_iQIxsCMA:9 a=CjuIK1q_8ugA:10
+ a=NFOGd7dJGGMPyQGDc5-O:22 a=TvTJqdcANYtsRzA46cdi:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA3MDEyMCBTYWx0ZWRfXxe8Jo3SJFYtQ
+ k6eW2RkWf216kvv+hyXBIoIxcYXS83hIZx5dmZZ2HRD6p7LHYrNqqW0EWrDhSjXMrvwr9hjbzCN
+ Guftf53A3HB8OhrqfmU/WoroX0XdoDJKPC9ZGKuZRRvCfUAMC6c4aJ334EbOj2P+EZ1kwrTuce6
+ XwRhte/nGdO43O6pzN4elnERtNSaquYLDlz4Wfds2lbE45SgAkaos/MuZ5MJMaGMNgpWu4ETHUO
+ jzxbQGlKjmEIl0CvczpPCbjrzFMM8yu2GXFCDEvlhdnZrnhqCL51zdQSRm/nRmmEV/ZtIp0zlPB
+ yLRWfixuXlOHvmE0CBUo0XHwyeTOArXKg5aemTLXpXS7FM1KhI61rN8c70MVirSoe/P2FAQwDN2
+ GZv7FbGdGsJMWyGi6yH5oFCVLkkk8CIqTqH2VHHJYbOIM5uilxeSKYznqdnATNZUTWUOS0Zy3rk
+ m0EB7Mthlm1u9OmowBg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-07_03,2026-09-07_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 suspectscore=0
+ adultscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 clxscore=1015
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609070120
 
-Used on various phones. Minimal viable driver.
+On 26-09-07 12:50:22, David Heidelberg via B4 Relay wrote:
+> From: Petr Hodina <petr.hodina@protonmail.com>
+> 
+> Basic touchscreen connected to second i2c bus.
+> 
+> Signed-off-by: Petr Hodina <petr.hodina@protonmail.com>
+> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+> Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
+> Co-developed-by: David Heidelberg <david@ixit.cz>
+> Signed-off-by: David Heidelberg <david@ixit.cz>
 
-Includes device-tree enabling touchscreen on Pixel 3.
-Also, tested on Xiaomi Mi 8 (device-tree is not yet inside the mainline).
-
-What is missing:
- - switching between AP and SLPI mode (to be able to wake up phone by touch)
- - firmware loading
- - anything above basic touch
-
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
-Changes in v7:
-- Added 'Input: stmfts - wait for controller ready after reset',
-  the waiting is done for both FTS4 and FTS5, similarly to the
-  downstream driver. Should improve reliability everywhere.
-- Link to v6: https://patch.msgid.link/20260906-stmfts5-v6-0-50fbf6af8718@ixit.cz
-
-Changes in v6:
-- Enable only the multi-touch scan on FTS5 sense-on (0xff was wrong,
-  only 0x01 is needed. This broke Xiaomi Mi 8 toucschreen).
-- Fixed Y-coordinate comments. (Dmitry)
-- Corrected event[0] parsing. (Dmitry)
-- Dropped checking < 0 on unsigned area. (Dmitry)
-- Dropped unnecessary i2c writes after reset. Verified against
-  downstream driver. (Dmitry, Sashiko)
-- Added pieces for supporting non-OF integration. (Sashiko)
-- Shared input open/close into one impl. (Dmitry).
-- Link to v5: https://patch.msgid.link/20260810-stmfts5-v5-0-0c737d929976@ixit.cz
-
-Changes in v5:
-- 3.3V is analog, 1.8V is digital supply. Fix that.
-- Name the error variables "err" (Dmitry)
-- Use scoped_guard() for ->running, and only set it once the scan
-  mode has actually been enabled. (Dmitry)
-- Use i2c_master_send() instead of open-coding a single-message
-  i2c_transfer(). (Dmitry)
-- Drivers may report coordinates outside the declared min/max, so
-  remove the clamping. (Dmitry)
-- BTN_TOUCH and INPUT_PROP_DIRECT are already set up by
-  input_mt_init_slots(..., INPUT_MT_DIRECT). (Dmitry)
-- Let the input core track contacts: drop the touch_id/stylus_id
-  bitmaps and the hand-rolled BTN_TOUCH reporting, and sync the frame
-  once per interrupt with input_mt_sync_frame() instead of calling
-  input_sync() per contact event. The controller pushes contacts one
-  by one into the event FIFO and only resends the ones that changed,
-  so INPUT_MT_DROP_UNUSED is wrong here and is dropped as well. (Dmitry)
-- Restore the FTS4 interrupts accidentally dropped by introduction of
-  FTS5.
-- mode-switch-gpios isn't required with stmfts5. Some designs, such as
-  Xiaomi Mi 8, has no such GPIO connected and is limited to AP mode.
-- Nit: updated example to use interrupts-extended.
-- Nit: (maximum x/y coordinate reported + 1), corrected example.
-- Link to v4: https://lore.kernel.org/r/20260409-stmfts5-v4-0-64fe62027db5@ixit.cz
-
-Changes in v4:
-- Wrap everything below enabling the supplies into stmfts_configure()
-  to avoid bunch of gotos to power off on error (Dmitry T.)
-- Finished chip specific ops and removed is_fts5. (Dmitry T.)
-- Link to v3: https://lore.kernel.org/r/20260403-stmfts5-v3-0-5da768cfd201@ixit.cz
-
-Changes in v3:
-- s/touchscreen_pins/touchscreen_irq_n. (Konrad)
-- Use interrupts-extended. (Konrad)
-- Fixed rebase conflict against 8665ceb926ec ("Input: stmfts - use guard notation when acquiring mutex")
-- Rename switch-gpios to mode-switch-gpios.
-- Do not define properties in if:then: branches. (Krzysztof)
-- Link to v2: https://lore.kernel.org/r/20260315-stmfts5-v2-0-70bc83ee9591@ixit.cz
-
-Changes in v2:
-- Fix typo in the binding s/switch-gpio/switch-gpios/.
-- Deduplacate allOf. (Rob yamllint)
-- Add missing S-off-by. (Dmitry B.)
-- Dropped irq-gpios as it's not needed. (Konrad)
-- Correct x and y touchscreen area size. (Konrad)
-- Correct reset introduction commit description. (Krzysztof)
-- Partially implemented chip specific ops. (Dmitry T.)
-- Separeted license naming cleanup into separate commit (Dmitry T.)
-- Link to v1: https://lore.kernel.org/r/20260301-stmfts5-v1-0-22c458b9ac68@ixit.cz
-
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-To: Alexandre Torgue <alexandre.torgue@foss.st.com>
-To: Petr Hodina <petr.hodina@protonmail.com>
-To: David Heidelberg <david@ixit.cz>
-To: Rob Herring <robh@kernel.org>
-To: Krzysztof Kozlowski <krzk+dt@kernel.org>
-To: Conor Dooley <conor+dt@kernel.org>
-To: Henrik Rydberg <rydberg@bitmath.org>
-To: Bjorn Andersson <andersson@kernel.org>
-To: Konrad Dybcio <konradybcio@kernel.org>
-Cc: linux-input@vger.kernel.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: devicetree@vger.kernel.org
-Cc: linux-arm-msm@vger.kernel.org
-
----
-David Heidelberg (3):
-      Input: stmfts - wait for controller ready after reset
-      dt-bindings: input: touchscreen: st,stmfts: Introduce STM FTS5
-      Input: stmfts - support FTS5
-
-Petr Hodina (1):
-      arm64: dts: qcom: sdm845-google: Add STM FTS touchscreen support
-
- .../bindings/input/touchscreen/st,stmfts.yaml      |  29 +-
- .../arm64/boot/dts/qcom/sdm845-google-blueline.dts |  19 +-
- arch/arm64/boot/dts/qcom/sdm845-google-common.dtsi |   2 +-
- drivers/input/touchscreen/stmfts.c                 | 438 ++++++++++++++++++---
- 4 files changed, 429 insertions(+), 59 deletions(-)
----
-base-commit: 7079a12d7506b07fb53b54a664bfad5fa9b16d70
-change-id: 20260214-stmfts5-b47311fbd732
-
-Best regards,
---  
-David Heidelberg <david@ixit.cz>
-
-
+Reviewed-by: Abel Vesa <abel.vesa@oss.qualcomm.com>

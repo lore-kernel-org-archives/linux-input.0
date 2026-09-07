@@ -1,109 +1,170 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 063C4393DE9
-	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 19:03:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C0AE3BAD9A
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 20:50:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788807782; cv=none; b=p+kldkEJxI6eUbUkQYat7QnnAsFu1EL/0HsUok5tEvLBGO7IwLEyHTrqDq6HfRkN+lYofKBM8T5KQgJAhxWyL6atJ8tdBnQmZDnRBoiiZtYSTF9ZpItT1MutvJiNG38Uzl4mUyvDzM8ytcvb/xq+f6MO/e1o0dFhQJEC8mno0hQ=
+	t=1788814239; cv=none; b=ki2IwDkxX3RZ5q8nTtdzfGrElxcphe3vz7kjVcPXWPse28vd+dQwsIvqn89K4/D7IyKtXt3JFsoyfAZ+L10KbkJX11lK/Ql8cXljbTAh1RIRL5XgBxtu3qQLY+l2gnbQaqMkcGn8gpGCWjQ+TyZ3WK2hjFqKlV05VAI2bmrNTYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788807782; c=relaxed/simple;
-	bh=4Nf1MMPR6MSZZo2YwzdwZmo+Jr+KGlGU/OWoSsWgdvk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=n6KH4JrZGjif3gAWzV+rB0uAnCy75/blxODcKTZ5NM1oRE0vC8A6tnNXuIulkMY+J3MGh8xmcESgoqrN8ETrAXMDpsf7gjvSwetEeVPPb5WEi5AsPjtV7xnAAiq7OG56KwBhKs1ZpNjlOWODb5U1gQiRP/j1TcSvQ0GH0d+e6T0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RCdGUCvM; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788814239; c=relaxed/simple;
+	bh=J4pCQZJgm2dE+4L8MOiPCH66HA1hlwNZZZjnbQkdENI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=t8B8EC3vgdWNUytP5GnZwD5+uIxiZ5zBiHNZJv7ZGiXMtZ9KprstzxrlWXA89ZqQjAJnAQQlpTC9pfxyjkKhvqyIF3EqwLZnvpiESseKY9icgdqa5BKUSHeGxlsNfw0D67ZM8hNWBgaxIjWKz5FEUpON0lp3XkqTe2EMNd8eaws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ih3cleus; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RCdGUCvM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B40E1F00A3A;
-	Mon,  7 Sep 2026 19:03:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788807780;
-	bh=bxF5fTWMz+IYl0sNS5wnsUiUJkIjuHgupYCjP91LMk4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RCdGUCvMnEAuCG30QTp45CZ4ncT3WRl5Au598vqHyA3+CdJR/bwUMH4mgUeK/nkPu
-	 2hsZ4qA/sZmMcUYYL+3Fo/HGflCsuyGyzhRCe3dVqittXXQTbwDUdEcQgAu6qQeASq
-	 H1Vq3JG8XkeTnbSaPPeTtbSF36XylpSQJnMw4dqX41ugvF9jMr45Qf7mwoMV3PTQTa
-	 IVB/rwZyYRC33avHpKZ7VS5OvZIfq2KUwQAER+yB3w6qAo2shL3hH0LlPevPH5QR/P
-	 4D/lqqDOrohy2Yo69vCi0D2KQODnd+g26u6eboxcfNxvafsVAdr6LNgfjvrd+WsS25
-	 /V161DYf2x9bw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6.6.y] Input: aiptek - validate raw macro indices before
- updating state
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Miguel Garcia" <miguelgarciaroman8@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260907185001.1567957-1-miguelgarciaroman8@gmail.com>
-References: <20260907185001.1567957-1-miguelgarciaroman8@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 07 Sep 2026 19:02:59 +0000
-Message-Id: <20260907190300.6B40E1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ih3cleus"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84864086bfeso3408402b3a.1
+        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 13:50:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788814238; x=1789419038; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=nsixEv23b14+93tpF7Zi+UwN7prwGg8DzwEVHkEb3zk=;
+        b=Ih3cleusc8Ixi6vd47GxiemmBymnD3lvcquelEHWzA+GZcUZb6tcvXrpSVqA9kib80
+         ZkXp9297e8rayBMgOj1wrZyZBF0lFecj+s+WvDdvaJzysMSAeWRDQwhf+ZzrX12+id/3
+         Oy2yJ45NsSYN91/jlnwaDEZeZ3gJwQ2qhVjWs0zUuN4G8gllA8+4nKrFQ1BlsuDn+qG7
+         ZPcw6P5kg3r7p2LaDxL9CetZI/ID1vPcVf6ZvtqNWbhR5j4y4yjwHO1cQ5VyVNO8jD6j
+         GYXisyhisBMJQsMZR7WmrhRrqMY/zMx5qGpqeC5dsDGZH61ZlyibIt39kb+Qw0s1gLnX
+         ye5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788814238; x=1789419038;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=nsixEv23b14+93tpF7Zi+UwN7prwGg8DzwEVHkEb3zk=;
+        b=ZDX2Zw9HNZxgUH51PbhM2x5k6RybDqNLdZj04jN/x+/Hw39JRw8HFFZ0E8Jd/62/Ym
+         zZzof3QbtEm39CN2voedvcSz8o2naCV/Dh7Lbs3fBMqSn3Mo+APub3hi76aa+STedD3u
+         Jp7HDgMjL8d/YeF9mXAJ+bpRD+MoqBoBtMxMuI05gA2nRxuzTykDexUCdxn7kFHb8ChV
+         nS4dM3PT5BER8MWrvtDsWJ2ySU+6qAvwQFAT2T3chsFrOS4ZkbEKkjjDyZje4yMRs4jv
+         XzVhrP1fvOghvvIK9+adDT5ReXnnsMZYwaXRLLFci+kLXlBdAE3nVd05ppzA4OlaIXNr
+         IdtQ==
+X-Forwarded-Encrypted: i=1; AKwUvByxdmDfXvo0MMfej/vAL6Er7aTniZazxiGTKPHueScODEnBBBf2WBZ7LdqeinS4ZML1remiFa56onIiog==@vger.kernel.org
+X-Gm-Message-State: AFuF++mXSGT5WpLSAZ36hW4CzrWctacEIhFlj6lpeQablrcBtn9WrfmK
+	IEcRmqjw08Q7P6lrHddCYlylkrCGJ9m5AO0Q1jS1T4U5SKhhn2CwSj7a
+X-Gm-Gg: AYBFou1BnSPuaUYsVkAAwgqG6ECcwJ4ag0wnym7QI+/XGzEyUzc57JOBmlwaIuEJlI4
+	fQrbPz4J5hJMCYtX7bfHztT6Nwfn+qv5HAtnIH94nZhpQExS73ZM2/XZ9aV2W/Q5v1TDwACVs1/
+	vIJKXXa+ULDRnu+/DvCYJYS1xy+bWyLoY43rYjtCJdunEeT9WRuI9AXQ1RqmxH98FbjXTRWom7s
+	a5hLO2ZDE3IPw5IM+DzW/06nDSQDEZACLfp+a/Fcq6sRm0IXdBL02oOCQt0GLNvJLfFayL+0Yq6
+	GfbXbeeHAlRXMQA2GpYQB/zwqmcpZkSgO08druknKZ1fCTsqa7zV10hCzs5T1CJttkOOqJ1fCSe
+	Y5Ket3vI5he5zpMzIbx1XyfAh7dKVqZcPdVD1cD9CbJk4Gzn+JKrfyCKA3VHBarQbbH9vyaYfYp
+	VpQGRzpYaQPF59W6kVgk5wOQ7dKWgB6HB+kfYn1vzioJNTRcR5m9nkWjhZKqBIdw16zYMlXWsXM
+	sqNExDM0Z91SvmX6VdfU3JH1gjI
+X-Received: by 2002:a05:6a21:748e:b0:3d2:5eb3:596 with SMTP id adf61e73a8af0-3da3a043152mr38526367637.16.1788814237511;
+        Mon, 07 Sep 2026 13:50:37 -0700 (PDT)
+Received: from localhost ([2409:40c4:ed:964b:4e88:5fd3:6ed7:a9fd])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1434bb7d71fsm361998c88.15.2026.09.07.13.50.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Sep 2026 13:50:36 -0700 (PDT)
+Date: Tue, 8 Sep 2026 02:20:31 +0530
+From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+To: Adam <testyiprywatnosc@gmail.com>
+Cc: benjamin.tissoires@redhat.com, jikos@kernel.org, 
+	linux-input@vger.kernel.org
+Subject: Re: [BUG] HID: i2c-hid: ELAN 04F3:30FD touchpad reset race causes
+ -EREMOTEIO on HP Pavilion Gaming 15-ec1xxx
+Message-ID: <ap8JsxbZDmWxigZv@eggarch>
+References: <CAEru=6LrMqg93AKrmbTJtvRNPx=arYuhSf4zMw4bK1SjWQQvrw@mail.gmail.com>
+ <aoC-aI_7Dq_nJTHg@eggarch>
+ <CAEru=6K=P_oJfksvRf2BfHZF9AFrQD4=izAwrSsz_Xit_i96xA@mail.gmail.com>
+ <CAEru=6+Lnwn+UHcpGA29gcET=ERgiYCOqkR0ijShcfOFR1m-1g@mail.gmail.com>
+ <CAEru=6K8gYwNWHFoYmwpQY8GGJ3HrqoJxKyu41nSSGQWOTVOdw@mail.gmail.com>
+ <aoyO68JLUeCZbStK@eggarch>
+ <CAEru=6JrUqo34ZtDES+VE3vbLGAFYd5UjnrpLOELKoEVg1Zx=A@mail.gmail.com>
+ <CAEru=6+AJAJDw4uCi0=HFXH8XrOQhixHFk2e__o+hdd1m1ju5A@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAEru=6+AJAJDw4uCi0=HFXH8XrOQhixHFk2e__o+hdd1m1ju5A@mail.gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Sat, Sep 05, 2026 at 10:25:46AM +0200, Adam wrote:
+> One more finding, potentially significant: I found that holding/tapping
+> F9 at boot (HP's boot menu) repeatedly, or alternatively entering the
+> UEFI Firmware Settings from GRUB and immediately continuing boot, gives
+> the touchpad a reliable, working boot on my Ubuntu installation
+> (tested this handful of times, consistently works).
+Hmm.. I guess the f9 trick just moves probe's luck, nothing more.
 
-Pre-existing issues:
-- [High] Unbounded user input in sysfs 'delay' attribute allows arbitrary u=
-ninterruptible sleep, hanging USB unbind and device hotplug.
---
+I wonder what would happen if we added a good amount of bounded
+retries on -EREMOTEIO and -EIO errors on the two reads
+[i2c_hid_fetch_hid_descriptor(), i2c_hid_parse()] retries are
+missing. I suppose firmware still responds to reads but NACKs any
+write during the 'unresponsive' window which lasts far longer than
+current retries can cover.
 
-commit ba9154b0332977963ad5bed995346ca93b2e47dc
-Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Could you test a patch below with dyndbg enabled, on a mix of warm/cold
+boots, see if it improves this situation, if some boots still fail,
+include their probe timestamps.
 
-Input: aiptek - validate raw macro indices before updating state
+Also, on windows, does it start working immediatly after boot on all boots?
 
-This commit adds bounds checking for raw macro key indices derived from
-tablet reports before updating the state in the driver. It ensures the
-index does not exceed the macroKeyEvents array bounds to prevent out of
-bounds access.
 
-Link: https://patch.msgid.link/20260329001711.88076-1-pengpeng@iscas.ac.cn
-
-> diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-> index baabc51547b83..6210cd99d6291 100644
-> --- a/drivers/input/tablet/aiptek.c
-> +++ b/drivers/input/tablet/aiptek.c
-
-[ ... ]
-
-[Severity: High]
-This is a pre-existing issue, and was not introduced by the patch under
-review, but while reviewing this file I noticed unbounded user input in the
-sysfs delay attribute allows an arbitrary uninterruptible sleep.
-
-In drivers/input/tablet/aiptek.c:store_tabletProgrammableDelay():
-
-    err =3D kstrtoint(buf, 10, &d);
-    if (err)
-        return err;
-
-    aiptek->newSetting.programmableDelay =3D d;
-
-User input is parsed into an integer and stored without bounds checking.
-When the execute attribute is subsequently written, this value is used
-in aiptek_query():
-
-    msleep(aiptek->curSetting.programmableDelay);
-
-Can this cause a task to block indefinitely in TASK_UNINTERRUPTIBLE?
-
-If a user writes a huge positive or negative integer to the delay sysfs
-attribute, the unbounded value is passed to msleep(). While holding a sysfs
-active reference, this prevents the sysfs node from being removed.
-
-If this is triggered and the USB device is subsequently disconnected, does
-this force the kernel's USB hub event thread to hang indefinitely in
-kernfs_drain()? This would deadlock the USB hub and prevent further device
-enumeration or disconnection.
-
-Should this sysfs input be clamped to a safe maximum value before being
-stored in programmableDelay?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907185001.1567=
-957-1-miguelgarciaroman8@gmail.com?part=3D1
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 0ff07fdab442..b0e8e2cc24ff 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -241,6 +241,30 @@ static int i2c_hid_read_register(struct i2c_hid *ihid, __le16 reg,
+ 	return i2c_hid_xfer(ihid, ihid->cmdbuf, sizeof(__le16), buf, len);
+ }
+ 
++#define I2C_HID_DESC_FETCH_TRIES 10
++
++static int i2c_hid_read_register_retry(struct i2c_hid *ihid, __le16 reg, void *buf, size_t len) {
++	int error;
++	int i;
++
++	for(i = 0; i < I2C_HID_DESC_FETCH_TRIES; i++){
++		if(i){
++			msleep(1000);
++
++			if(i2c_hid_probe_address(ihid) < 0)
++				continue;
++		}
++
++		error = i2c_hid_read_register(ihid, reg, buf, len);
++		if(!error || (error != -EREMOTEIO && error != -EIO))
++			break;
++
++		i2c_hid_dbg(ihid, "register read failed (%d), retrying\n", error);
++	}
++
++	return error;
++}
++
+ static size_t i2c_hid_encode_command(u8 *buf, u8 opcode,
+ 				     int report_type, int report_id)
+ {
+@@ -790,9 +814,7 @@ static int i2c_hid_parse(struct hid_device *hid)
+ 
+ 		i2c_hid_dbg(ihid, "asking HID report descriptor\n");
+ 
+-		ret = i2c_hid_read_register(ihid,
+-					    ihid->hdesc.wReportDescRegister,
+-					    rdesc, rsize);
++		ret = i2c_hid_read_register_retry(ihid, ihid->hdesc.wReportDescRegister, rdesc, rsize);
+ 		if (ret) {
+ 			dev_err(&client->dev, "reading report descriptor failed\n");
+ 			goto out;
+@@ -909,10 +931,9 @@ static int i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+ 			*i2c_hid_get_dmi_i2c_hid_desc_override(client->name);
+ 	} else {
+ 		i2c_hid_dbg(ihid, "Fetching the HID descriptor\n");
+-		error = i2c_hid_read_register(ihid,
+-					      ihid->wHIDDescRegister,
+-					      &ihid->hdesc,
+-					      sizeof(ihid->hdesc));
++
++		error = i2c_hid_read_register_retry(ihid, ihid->wHIDDescRegister, &ihid->hdesc, sizeof(ihid->hdesc));
++
+ 		if (error) {
+ 			dev_err(&ihid->client->dev,
+ 				"failed to fetch HID descriptor: %d\n",

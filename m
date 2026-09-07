@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25E9F3FD137
-	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 19:00:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 063C4393DE9
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 19:03:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788807615; cv=none; b=ITVJxDgdx0ZaIrj/rJjdO0s4aa7qIQptazbD3endmXsXt8zCaBBZPhPLtOWBQpYnNLCSAGeKm13ncg9PaAYeJtt2yvILzKmmRSilFb6ntiY1081N5ecJdfU1wawVJZmGsa4LVZx5HsXVj58XYhFO0VoK6qFWrhVSd9oTWna/Mf8=
+	t=1788807782; cv=none; b=p+kldkEJxI6eUbUkQYat7QnnAsFu1EL/0HsUok5tEvLBGO7IwLEyHTrqDq6HfRkN+lYofKBM8T5KQgJAhxWyL6atJ8tdBnQmZDnRBoiiZtYSTF9ZpItT1MutvJiNG38Uzl4mUyvDzM8ytcvb/xq+f6MO/e1o0dFhQJEC8mno0hQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788807615; c=relaxed/simple;
-	bh=6VxZ07Hm3PxJWJxBMOTIrlmHwHlF7HjQL0wHHZMR+UE=;
+	s=arc-20240116; t=1788807782; c=relaxed/simple;
+	bh=4Nf1MMPR6MSZZo2YwzdwZmo+Jr+KGlGU/OWoSsWgdvk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=A8d2ACsa1T4JXvwt6HUGdal4AkkVgYxT5LEK1k9vuolfdgNs6jKoAq9WtKs/qUw0XEt4XHOs6EH1kYu2y4jirj2UX6R5xyAbNsVTEUbjlBRoCzDe2NXNMb70Cz8xqI/QFF28kCCstyu1SPI7JhsiOXSBqoCPA8azGQZZS4YI6Yg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HyQgmKJk; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=n6KH4JrZGjif3gAWzV+rB0uAnCy75/blxODcKTZ5NM1oRE0vC8A6tnNXuIulkMY+J3MGh8xmcESgoqrN8ETrAXMDpsf7gjvSwetEeVPPb5WEi5AsPjtV7xnAAiq7OG56KwBhKs1ZpNjlOWODb5U1gQiRP/j1TcSvQ0GH0d+e6T0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RCdGUCvM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HyQgmKJk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2D191F00A3D;
-	Mon,  7 Sep 2026 19:00:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RCdGUCvM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B40E1F00A3A;
+	Mon,  7 Sep 2026 19:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788807614;
-	bh=/JHElxgwSKVjrwhIrQhfoCKFm98ypSXpJNtNjemcMYI=;
+	s=k20260515; t=1788807780;
+	bh=bxF5fTWMz+IYl0sNS5wnsUiUJkIjuHgupYCjP91LMk4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HyQgmKJk7+qCxx1wJ4LNL5bSZEn5PnWYCFv3KWUop3ZhxIE7mWI0tCHMjOF10aHsk
-	 Hpl6iYxqXbXsChtwNZhgoeYLBccHLwp0nFYc1N4o/S0T5wquFwAzq3+XsrUw8Sm0MT
-	 Crr50PwUxbqIdIT+7ySzg4e52jdaZbOiSqjuscGFeBnh7rN4VFxhlIUII38Rnko+GA
-	 YBS1Kl6Yiir7t5bNEwq5m6455ohbYpXUtf0YC2zTzfXtI/2emmZhKq8XFT1PhgQJfv
-	 wieaRVTYG1qkI2Nx5aEZoti7u600SPYOqJG+ZQmB0f8V8XMD1b7jhdaGzHZmifsHTw
-	 nqEVhimC8t6Bw==
+	b=RCdGUCvMnEAuCG30QTp45CZ4ncT3WRl5Au598vqHyA3+CdJR/bwUMH4mgUeK/nkPu
+	 2hsZ4qA/sZmMcUYYL+3Fo/HGflCsuyGyzhRCe3dVqittXXQTbwDUdEcQgAu6qQeASq
+	 H1Vq3JG8XkeTnbSaPPeTtbSF36XylpSQJnMw4dqX41ugvF9jMr45Qf7mwoMV3PTQTa
+	 IVB/rwZyYRC33avHpKZ7VS5OvZIfq2KUwQAER+yB3w6qAo2shL3hH0LlPevPH5QR/P
+	 4D/lqqDOrohy2Yo69vCi0D2KQODnd+g26u6eboxcfNxvafsVAdr6LNgfjvrd+WsS25
+	 /V161DYf2x9bw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5.15.y] Input: aiptek - validate raw macro indices
- before updating state
+Subject: Re: [PATCH 6.6.y] Input: aiptek - validate raw macro indices before
+ updating state
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Miguel Garcia" <miguelgarciaroman8@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260907184956.1567815-1-miguelgarciaroman8@gmail.com>
-References: <20260907184956.1567815-1-miguelgarciaroman8@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260907185001.1567957-1-miguelgarciaroman8@gmail.com>
+References: <20260907185001.1567957-1-miguelgarciaroman8@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 07 Sep 2026 19:00:13 +0000
-Message-Id: <20260907190013.D2D191F00A3D@smtp.kernel.org>
+Date: Mon, 07 Sep 2026 19:02:59 +0000
+Message-Id: <20260907190300.6B40E1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,83 +48,62 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] A race condition between sysfs attribute accesses and `aiptek_disc=
-onnect()` can lead to a NULL pointer dereference, causing an unprivileged l=
-ocal Denial of Service.
+- [High] Unbounded user input in sysfs 'delay' attribute allows arbitrary u=
+ninterruptible sleep, hanging USB unbind and device hotplug.
 --
 
-commit a32cea658c5c9deb2bbaf0f172438e8f70443904
+commit ba9154b0332977963ad5bed995346ca93b2e47dc
 Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
 Input: aiptek - validate raw macro indices before updating state
-   =20
-aiptek_irq() derives macro key indices directly from tablet reports and
-then uses them to index macroKeyEvents[]. Report types 4 and 5 also save
-the derived value in aiptek->lastMacro and later use that state to
-release the previous key.
 
-Validate the raw macro index once before it enters that state machine, so
-lastMacro only ever stores an in-range macro key. Keep direct bounds
-checks for report type 6, which reads the macro number from the packet
-body and uses it immediately.
+This commit adds bounds checking for raw macro key indices derived from
+tablet reports before updating the state in the driver. It ensures the
+index does not exceed the macroKeyEvents array bounds to prevent out of
+bounds access.
 
 Link: https://patch.msgid.link/20260329001711.88076-1-pengpeng@iscas.ac.cn
 
 > diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-> index 1581f6ef09279..64113810e16dc 100644
+> index baabc51547b83..6210cd99d6291 100644
 > --- a/drivers/input/tablet/aiptek.c
 > +++ b/drivers/input/tablet/aiptek.c
 
 [ ... ]
 
 [Severity: High]
-This isn't a bug introduced by this patch, but while reviewing the driver I
-noticed a pre-existing issue in the sysfs removal path during disconnect:
+This is a pre-existing issue, and was not introduced by the patch under
+review, but while reviewing this file I noticed unbounded user input in the
+sysfs delay attribute allows an arbitrary uninterruptible sleep.
 
-drivers/input/tablet/aiptek.c:aiptek_disconnect() {
-	...
-	usb_set_intfdata(intf, NULL);
-	if (aiptek !=3D NULL) {
-		/* Free & unhook everything from the system.
-		 */
-		usb_kill_urb(aiptek->urb);
-		input_unregister_device(aiptek->inputdev);
-		sysfs_remove_group(&intf->dev.kobj, &aiptek_attribute_group);
-	...
-}
+In drivers/input/tablet/aiptek.c:store_tabletProgrammableDelay():
 
-Does clearing the driver data with usb_set_intfdata() before removing the
-sysfs group create a race window?
+    err =3D kstrtoint(buf, 10, &d);
+    if (err)
+        return err;
 
-If a concurrent read accesses the sysfs file during this window:
+    aiptek->newSetting.programmableDelay =3D d;
 
-drivers/input/tablet/aiptek.c:show_tabletSize() {
-	struct aiptek *aiptek =3D dev_get_drvdata(dev);
+User input is parsed into an integer and stored without bounds checking.
+When the execute attribute is subsequently written, this value is used
+in aiptek_query():
 
-	return sysfs_emit(buf, "%dx%d\n",
-			  input_abs_get_max(aiptek->inputdev, ABS_X) + 1,
-			  input_abs_get_max(aiptek->inputdev, ABS_Y) + 1);
-}
+    msleep(aiptek->curSetting.programmableDelay);
 
-Could dev_get_drvdata() return NULL here and cause a kernel panic when
-aiptek is dereferenced?
+Can this cause a task to block indefinitely in TASK_UNINTERRUPTIBLE?
 
-Similarly, if a sysfs write occurs in the same window:
+If a user writes a huge positive or negative integer to the delay sysfs
+attribute, the unbounded value is passed to msleep(). While holding a sysfs
+active reference, this prevents the sysfs node from being removed.
 
-drivers/input/tablet/aiptek.c:store_tabletExecute() {
-	struct aiptek *aiptek =3D dev_get_drvdata(dev);
+If this is triggered and the USB device is subsequently disconnected, does
+this force the kernel's USB hub event thread to hang indefinitely in
+kernfs_drain()? This would deadlock the USB hub and prevent further device
+enumeration or disconnection.
 
-	/* We do not care what you write to this file. Merely the action
-	 * of writing to this file triggers a tablet reprogramming.
-	 */
-	memcpy(&aiptek->curSetting, &aiptek->newSetting,
-	       sizeof(struct aiptek_settings));
-	...
-}
-
-Can a concurrent sysfs write also fetch a NULL pointer and use it as the
-destination for the memcpy()?
+Should this sysfs input be clamped to a safe maximum value before being
+stored in programmableDelay?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907184956.1567=
-815-1-miguelgarciaroman8@gmail.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907185001.1567=
+957-1-miguelgarciaroman8@gmail.com?part=3D1

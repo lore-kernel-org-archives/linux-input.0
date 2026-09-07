@@ -1,49 +1,49 @@
-Received: from e234-54.smtp-out.ap-northeast-1.amazonses.com (e234-54.smtp-out.ap-northeast-1.amazonses.com [23.251.234.54])
+Received: from e234-57.smtp-out.ap-northeast-1.amazonses.com (e234-57.smtp-out.ap-northeast-1.amazonses.com [23.251.234.57])
 	(using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47307346E58;
-	Mon,  7 Sep 2026 05:43:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F4FB3876CD;
+	Mon,  7 Sep 2026 05:44:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788759837; cv=none; b=gStoNgRWzGTRh33k5Ys9eqR6ZHgW0ewvfmLYthhtAPyzvAU+Iw49CkrJkrWbbuBWI55cEI39YAW+kJxLPSgTCsY+hRS/fjNlDtgUwBz/ul+vw+EtoJRzq4FCf6t25CisL4CKY03RMdpwj1f+nyTJQpT+4P8w17+eHBfQwj8uJ/4=
+	t=1788759841; cv=none; b=XN+NfNCOa+Oo75s2E34fEQIw6IPbhGCnlLIU41xCM39KIDM1NmCyfArjN35+M1NMyKBoNPCdiJ2wRajEbyXZ9s6OjVelQJQi8i0yYjE7VITO7d4CXXbG58utM4K9LD62/TzhQHUAGjigd/fB73qAGs4v3mUdEYJBaRc+1UyyWIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788759837; c=relaxed/simple;
-	bh=5o462wHK2nnnyPpuvQzACH92a4ZCUEwQALmCiONu6MI=;
-	h=From:To:Cc:Subject:Message-ID:Date:MIME-Version:Content-Type; b=hOGBL1uRmlfiWX3T/Ws4qWvqVeEtkCdacaHWbL5Zxj7W8QpMjH+1ItYNd2oJwza/7HqsyWGTxGLA/dJy9LRNjzzKzFdXePtPSoxiG1OyvXn5uqf6IH24L5RMJ6f0/xmc1svWIN+Rs48fMwaCSPIRO2AjwFpPio9DVib9MpEE8ic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=6VLaJNvc; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=Yz3GJK0X; arc=none smtp.client-ip=23.251.234.54
+	s=arc-20240116; t=1788759841; c=relaxed/simple;
+	bh=XlzQ+wI6abraHAFKz6h14He5rDm5lEAEryUIOcSDo5k=;
+	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Date:
+	 MIME-Version:Content-Type; b=HqDKbQVIpX0deQpZPDnWe6z8eBwstGgGHqk+vjvnZSbxDfJGe3AExi37eSgY4HStPk7+fK2XM7mO4bDD6n8BlCIqvne7HbsS+1CNjKG5ofWz4Mt0nnUl8jDPhu5W2BItJGJEW1dEsqkN8kSbM2s3uKigjerNw4FFHcPJG0BqNyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=NQJb5k4r; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=DdRlxEPK; arc=none smtp.client-ip=23.251.234.57
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="6VLaJNvc";
-	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="Yz3GJK0X"
+	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="NQJb5k4r";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="DdRlxEPK"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
-	d=fqwqf.xyz; t=1788759835;
-	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
-	bh=5o462wHK2nnnyPpuvQzACH92a4ZCUEwQALmCiONu6MI=;
-	b=6VLaJNvcpC4SV6/fBbdBhYbzasA1MM8kSq5hP7y37j1BnjShkoXnLohYle74FcS/
-	n0wr5v5gD33yf2UdiCb8dWfXcvwCTLfzwFyUOwZyOSMV1C90epLmH9orjQycZyXMjZo
-	zgRKloJP8q0oXJfcvocXXuyAlKOgKIQraQplBfZY=
+	d=fqwqf.xyz; t=1788759839;
+	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
+	bh=XlzQ+wI6abraHAFKz6h14He5rDm5lEAEryUIOcSDo5k=;
+	b=NQJb5k4r5nOXW/c5qxMGNpb5hQAQDoRPoCKD0Y8Kt80rYWE554Pb/ulTIpAOTM/u
+	hAaUAAkamyUxHeGbh6xbd+FNFFo7JXXKxfp7gZfNrpyGlb87DwZ8+7zP3zMXQJ0DshY
+	qYAM1qAEvkVCF6FuV8W5mF/RpNz+eh346Y/JxKjs=
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1788759835;
-	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
-	bh=5o462wHK2nnnyPpuvQzACH92a4ZCUEwQALmCiONu6MI=;
-	b=Yz3GJK0XSzFjW3FIPTgeyvziKIrlQ+KB7yF1wpFqL+mTcbsydnbPS8WCM6UAMowJ
-	YikvJCPYJE1OTh+Koi/yedhhrKjTnrSLESe6fsn39QunYevrNoQ5KncO2w20e7Da+bC
-	LMnx5VbDBYVteS896pv7YxeNmZxPyQS2pWvs0aic=
+	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1788759839;
+	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
+	bh=XlzQ+wI6abraHAFKz6h14He5rDm5lEAEryUIOcSDo5k=;
+	b=DdRlxEPKiD5uvcW5I4bjyp8ss1z6eaOhA/WSI+ut24uPgvc0tuoS+ClRAtCx7gc9
+	k+t7i42xkoAi9QB5V3Jfq6r55pyzS64KOPxmu0HNK/8VYI+kwpldh+jtmG2YZqTDE5u
+	u5JSOVrwEqMo02aTRHAPKWoDFMlt6UNuY8NMTqNw=
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260907054339.12409-1-fqwqf@fqwqf.xyz>
+References: <20260907054339.12409-1-fqwqf@fqwqf.xyz>
 From: fQwQf <fqwqf@fqwqf.xyz>
 To: devicetree@vger.kernel.org
 Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, dmitry.torvalds@gmail.com, 
-	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
-	andersson@kernel.org, konradybcio@kernel.org, bentiss@kernel.org, 
-	jikos@kernel.org
-Subject: =?UTF-8?Q?=5BPATCH_0/2=5D_arm64=3A_dts=3A_qcom=3A_?=
- =?UTF-8?Q?enable_touchscreen_on_Surface_Laptop_7_?=
- =?UTF-8?Q?=2813=2E8=22=29?=
-Message-ID: <010601a07a6500d7-57284739-a505-4dc0-b12e-f92177607374-000000@ap-northeast-1.amazonses.com>
-Content-Transfer-Encoding: 7bit
-Date: Mon, 7 Sep 2026 05:43:54 +0000
+	linux-kernel@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org, 
+	conor+dt@kernel.org, andersson@kernel.org, konradybcio@kernel.org, 
+	bentiss@kernel.org, jikos@kernel.org
+Subject: [PATCH 1/2] dt-bindings: input: hid-over-i2c: allow reset GPIO
+Message-ID: <010601a07a651064-bff1bd5c-5d9a-40b8-b504-a0ce7b41669d-000000@ap-northeast-1.amazonses.com>
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 7 Sep 2026 05:43:58 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -52,29 +52,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Feedback-ID: :1.ap-northeast-1.6BGMgStFQE7EJYq5syaCRzdneEHVt/+DAaGDrqUmDs9QLO4/SllUBZ3fHvnZ8rcAX/3IjUyTRgi5JFZsWrikFHwlPJqCkqEMlxDFM4JXh+ycxH/J5Tudg5bGdz6h4331g1L1EFsGR8kuYNfGLsrxz4Nym4YXoPcZxeVkrHry4Zx21n8vEVLEjc7s+OCM8PU9:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
-X-SES-Outgoing: 2026.09.07-23.251.234.54
+X-SES-Outgoing: 2026.09.07-23.251.234.57
 
-Enable the touchscreen on the 13.8-inch Surface Laptop 7 (Microsoft
-Romulus 13, SNPS/ELLX).
+The OF implementation of the HID-over-I2C driver already obtains an
+optional reset GPIO and asserts it around power sequencing. Document the
+property so device trees can describe that existing capability.
 
-Patch 1 allows the HID-over-I2C binding to describe an optional reset
-GPIO, which the OF driver already handles during power sequencing.
+Signed-off-by: fQwQf <fqwqf@fqwqf.xyz>
+---
+ Documentation/devicetree/bindin=
+gs/input/hid-over-i2c.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Patch 2 adds the touchscreen node (ITCH MSHW0468, I2C 0x34, HID
-descriptor at register 0x0000) to the romulus13 device tree.
-
-The touchscreen has been verified working on this machine (keyboard and
-touchscreen functional; other devices still in progress).
-
-fQwQf (2):
-  dt-bindings: input: hid-over-i2c: allow reset GPIO
-  arm64: dts: qcom: microsoft-romulus13: enable touchscreen
-
- .../devicetree/bindings/input/hid-over-i2c.yaml   |  4 ++++
- .../dts/qcom/x1e80100-microsoft-romulus13.dts     | 15 +++++++++++++++
- 2 files changed, 19 insertions(+)
-
-
-base-commit: cf2543bcb1902e969d0d632a586c07acd9dc85d7
--- 
+diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.yaml =
+b/Documentation/devicetree/bindings/input/hid-over-i2c.yaml
+index 138caad96..bff43f6b7 100644
+--- a/Documentation/devicetree/bindings/i=
+nput/hid-over-i2c.yaml
++++ b/Documentation/devicetree/bindings/input/hid-ov=
+er-i2c.yaml
+@@ -44,6 +44,10 @@ properties:
+     description: HID descriptor=
+ address
+     $ref: /schemas/types.yaml#/definitions/uint32
+=20
++  reset-gpios:
++    description: GPIO used to reset the HID device
++    maxItems: 1
++
+   panel: true
+=20
+   post-power-on-delay-ms:
+--=20
 2.53.0
+

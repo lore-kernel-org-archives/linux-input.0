@@ -1,104 +1,169 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD0A2472F84;
-	Mon,  7 Sep 2026 11:00:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FF36470444;
+	Mon,  7 Sep 2026 11:04:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788778824; cv=none; b=C0YDaWbJom/Bf4zm+CQ65u5q4xxj/EI6m6xqBHA54o1hgK1t8MGMjmjewAs55PG15K+ZPhJchLrT5Fvh12L/KywM37rI3wLZ9ooq8SfBTpVb1+rc9c+Sz45XjNnvfldTekYfo8FaBMRQHCjxs0uK0Nql+KumGBJ6i2IGUQ+tSao=
+	t=1788779084; cv=none; b=Cb0fgIisJ4R6BuU/pk9gQN7mT9ZdIH4QyUG426YzwZwr7jQXgpSqefRtUAmbFLfLhbH37knetC2wzMGm3DfTjvjj9O10cfUmE+sAqQZxSJYPdthEbzeqU6fpJLq5Lnh2jK5tMM3sNBQ6Fn0jFvfnZjKHlZMJ9DBU2kEOxsflGd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788778824; c=relaxed/simple;
-	bh=44uqOGoPp18Zxz/PSOh8dGSa2bWQrq0Caz6jn18paSE=;
+	s=arc-20240116; t=1788779084; c=relaxed/simple;
+	bh=0hCVn0f4EBDaDcQ/BTyw91QenIAjFpnFb9Glpz2YRtc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dsOCDcsV9Ozc7+2Ip7ohTawbTL1QUNl3etGiW4ArAHXNMgVYHJ11VAdzMCXYPQ0Wv2FMNRho1wzJTgC6oUowXFCynSbUfa23QXsbLs8/xVQakitKOWDiAz366RE+3T7C7LeiQ6cJj+mccR/twuVXUFAXkBns/6MkmcuNLQSxBlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NCczSf4p; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=cxFhJXzfYolEXihIhIE0vvpQ10PIW05HJSNhjIPTrVRU2gfueZJwBxTI5K6HxAPqtU4bozfP3+Igh5U0SXge7OpRnvZ+aX/BmVLplPxJpMMZrPioNGfPquOz9hpy4Evg+VtkECGFnqCgwVb2cxDvCAIY/ad/zmptm5D2SSkX4fY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m02rmuK5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NCczSf4p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03CCF1F00A3A;
-	Mon,  7 Sep 2026 11:00:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m02rmuK5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BEBE1F00A3E;
+	Mon,  7 Sep 2026 11:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788778823;
-	bh=y7O4hYXmpu+NFuaRFLgi0plLjb11oJlDC8LH3F5UP8I=;
+	s=k20260515; t=1788779082;
+	bh=hBLMR0Lv02o8iJdW3skpsP3HsYSEPCwE4aMrRL6027Y=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NCczSf4pUBzhEY9cs5ZeSTR8725uNb7eHRLGecbxt00nCkEr9P+OfdzmDQ5v4ukz+
-	 kLfknO3q5XF85wsl4wx4OOFYtxv3lkFQ10lKkniZv8QwUPzJ8vh0InOFElapLdQeDj
-	 xqr/U2HKJqZQghuVLtXZ7+1kfywngZDv0G25pWwyQXA1TWEhleTdY0pcQSkxcxsXBQ
-	 O98HROvSz37xPsrlIi3W2RvOIhro9tyXtQeA0ddwzsWznkEGDR+ic3VzNM4mEDbZZB
-	 UDmrrwx6PYXdfvDZV/5UCAaCsKGV7Wuzt/cTleXcpitAFzLL6fMESkYYp3pizlV53h
-	 Sa93Pt+TzM5NA==
+	b=m02rmuK55DJpHdmYLxyuSqXC5Bu781FAjD4XH52Mjfz45vzTAsdDtARYlsHEDGrgm
+	 yheh2JXC8SAbwN2thqdJNrc4KGd3szd7cLimfp+iVCkYo2QONQ2EUaLqyku1aTuSlQ
+	 zG9m7zaBw9sPbztOkI0XRsBS1TSvd6a/iUUxcfpHT2YA5wEWUBgxcnARow4HByJJzL
+	 sp2jAaU3pEKjbn6aduqQvgEhXUtz0PE4qv5XsAPRzVM9uIi8O3tG/quWa8nxLfgKXt
+	 rXidH6H3xYBPlv2OWte2QrcFm2MkCj669dD27UQetm/ng8yunsB7TxVcF+opY3N3hT
+	 x6uAk6pIIwkPQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 2/4] dt-bindings: input: touchscreen: st,stmfts:
- Introduce STM FTS5
+Subject: Re: [PATCH v7 3/4] Input: stmfts - support FTS5
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "David Heidelberg" <david@ixit.cz>
-Cc: robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260907-stmfts5-v7-2-4a53381cd038@ixit.cz>
+Cc: conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260907-stmfts5-v7-3-4a53381cd038@ixit.cz>
 References: <20260907-stmfts5-v7-0-4a53381cd038@ixit.cz>
- <20260907-stmfts5-v7-2-4a53381cd038@ixit.cz>
+ <20260907-stmfts5-v7-3-4a53381cd038@ixit.cz>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 07 Sep 2026 11:00:22 +0000
-Message-Id: <20260907110023.03CCF1F00A3A@smtp.kernel.org>
+Date: Mon, 07 Sep 2026 11:04:41 +0000
+Message-Id: <20260907110442.6BEBE1F00A3E@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [Medium] The conditional block restricting 'mode-switch-gpios' is missing=
- the 'contains' keyword under 'compatible', which will cause it to erroneou=
-sly evaluate to false for all devices and block the use of 'mode-switch-gpi=
-os' entirely.
+
+New issues:
+- [Medium] The FTS5 driver silently drops all stylus and palm tool-type eve=
+nts because the ABS_MT_TOOL_TYPE capability is never configured on the inpu=
+t device.
+- [Medium] Prematurely exiting the event parsing loop on non-terminal event=
+s can cause dropped touch events and partial frames.
+
+Pre-existing issues:
+- [High] sysfs attribute returns uninitialized kernel memory due to incorre=
+ct error check.
 --
 
-commit 30e556decedf2eedf468c2bb05ec4af06f53437e
+commit aa502b398bf6eeb31cabf6ce200968e3d20a68a7
 Author: David Heidelberg <david@ixit.cz>
+Subject: Input: stmfts - support FTS5
 
-dt-bindings: input: touchscreen: st,stmfts: Introduce STM FTS5
+This commit introduces support for the FTS5 protocol in the stmfts
+touchscreen driver. It adds FTS5-specific functions for device configuratio=
+n,
+input setup (including initial stylus handling), and event parsing.
 
-This commit introduces support for the STM FTS5 touchscreen variant to the
-existing st,stmfts device tree binding. It adds the new compatible string
-and introduces an optional mode-switch-gpios property specific to the FTS5
-variant.
+This is a pre-existing issue, but while reviewing I noticed a potential
+memory leak in the sysfs read handler stmfts_sysfs_read_status() that
+was not introduced by this patch:
 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmft=
-s.yaml b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> index 64c4f24ea3dd0..3de4bc5cd3f78 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml
+drivers/input/touchscreen/stmfts.c:stmfts_sysfs_read_status() {
+    ...
+    err =3D i2c_smbus_read_i2c_block_data(sdata->client, STMFTS_READ_STATUS,
+                                        sizeof(status), status);
+    if (err)
+        return err;
+
+    return sysfs_emit(buf, "%#02x\n", status[0]);
+}
+
+[Severity: High]
+Does this error check leak uninitialized memory? The function
+i2c_smbus_read_i2c_block_data() returns the positive number of bytes read
+on success. By treating any non-zero return value as an error, a successful
+read will immediately return this positive byte count to the sysfs core,
+bypassing sysfs_emit() and potentially leaking up to 4 bytes of uninitializ=
+ed
+kernel memory to userspace.
+
+> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscre=
+en/stmfts.c
+> --- a/drivers/input/touchscreen/stmfts.c
+> +++ b/drivers/input/touchscreen/stmfts.c
 [ ... ]
-> @@ -51,6 +54,17 @@ required:
->    - interrupts
->    - vdd-supply
-> =20
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +  - if:
-> +      not:
-> +        properties:
-> +          compatible:
-> +            const: st,stmfts5
+> +static void stmfts5_report_contact_event(struct stmfts_data *sdata,
+> +					 const u8 event[])
+> +{
+[ ... ]
+> +	switch (touch_type) {
+> +	case STMFTS_TOUCH_TYPE_STYLUS:
+> +		if (sdata->stylus_enabled) {
+> +			tool =3D MT_TOOL_PEN;
+> +			break;
+> +		}
+> +		fallthrough; /* Report as finger if stylus not enabled */
+[ ... ]
+> +	input_mt_slot(sdata->input, touch_id);
+> +	input_mt_report_slot_state(sdata->input, tool, true);
+[ ... ]
+> +static void stmfts5_parse_events(struct stmfts_data *sdata)
+> +{
+> +	for (int i =3D 0; i < STMFTS_STACK_DEPTH; i++) {
+> +		u8 *event =3D &sdata->data[i * STMFTS_EVENT_SIZE];
+[ ... ]
+> +		switch (event[0] & STMFTS5_MASK_EVENT_ID) {
+> +		case STMFTS5_EV_STATUS_UPDATE:
+> +		case STMFTS5_EV_USER_REPORT:
+> +		case STMFTS5_EV_DEBUG:
+> +			goto sync;
 
 [Severity: Medium]
-Does this compatible string check need a contains directive? Because the
-compatible property is globally evaluated as an array of strings in DT
-schemas, using a strict const match here will always fail.
+Could this premature loop exit cause subsequent touch events in the same
+buffer to be dropped?
 
-As a result, the not wrapper will always evaluate to true, unconditionally
-applying the mode-switch-gpios: false restriction to all nodes, including
-st,stmfts5. Valid device trees using st,stmfts5 with mode-switch-gpios
-will likely fail dt_binding_check.
+If STMFTS5_EV_STATUS_UPDATE, STMFTS5_EV_USER_REPORT, or STMFTS5_EV_DEBUG=20
+occurs alongside standard touch events in a single read buffer, the=20
+goto sync; statement will break out of the event parsing loop entirely.=20
+Would using continue be more appropriate here to skip the non-touch event=20
+and continue processing the rest of the buffer?
 
-Should this be written as contains: const: st,stmfts5 instead?
-
-> +    then:
-> +      properties:
-> +        mode-switch-gpios: false
 > +
->  unevaluatedProperties: false
+> +		case STMFTS5_EV_MULTI_TOUCH_ENTER:
+> +		case STMFTS5_EV_MULTI_TOUCH_MOTION:
+> +			stmfts5_report_contact_event(sdata, event);
+> +			break;
+[ ... ]
+> +static int stmfts5_setup_input(struct stmfts_data *sdata)
+> +{
+[ ... ]
+> +	input_set_abs_params(sdata->input, ABS_MT_DISTANCE, 0, 255, 0, 0);
+> +
+> +	/* Enable stylus support if requested */
+> +	sdata->stylus_enabled =3D device_property_read_bool(dev, "stylus-enable=
+d");
+> +
+> +	return input_mt_init_slots(sdata->input, STMFTS_MAX_FINGERS,
+> +				   INPUT_MT_DIRECT);
+> +}
+
+[Severity: Medium]
+Does this driver need to configure the ABS_MT_TOOL_TYPE capability for
+stylus and palm events to be processed?
+
+In stmfts5_report_contact_event() above, the tool type is reported to the
+input core. However, because input_set_abs_params() or input_set_capability=
+()
+is not called for ABS_MT_TOOL_TYPE here in stmfts5_setup_input(), the input=
+=20
+subsystem will silently drop these tool type events, degrading the hardware=
+=20
+functionality to basic finger touches.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907-stmfts5-v7=
--0-4a53381cd038@ixit.cz?part=3D2
+-0-4a53381cd038@ixit.cz?part=3D3

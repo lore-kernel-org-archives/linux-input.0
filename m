@@ -1,39 +1,67 @@
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6158747D440;
-	Mon,  7 Sep 2026 16:30:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3FF065192
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 17:46:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788798636; cv=none; b=L5USyqZ4uciCbO7Xg/QLHweyxaC1hiPNQr/4KzYz3MCAkNbQPQrfUXtlraIFtQvTxT/PQSxlYhIsflDfiCXjqP9GxpzX7UNi26Zq0fKvhtYMj/M5CW7aKwQfIwg6LnWhnmnnvhC8oRsynldkIRzECfhFxOZR6sUAnR7HBlrG1AY=
+	t=1788803196; cv=none; b=t+TWoigmfHaHdQRRZSlBRTH3l48Uys9ozxq8QAGeoMdCOJqWjWguKqgrru6UVeUNebObUGM/WSEx5wQICo2B26UPqewd5QpHgpzZvp9M7oKt/C9EVt44KIZ7fI0mKh3IQzysva8dMPYZJnp2/ivGN7mJtC4ImKj2J9/sZ+GNV8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788798636; c=relaxed/simple;
-	bh=4X4SIdVVAuOxNnHzWOlA4cEwHj8Nt+dyfR2oBYBjSAw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jOfTZXxEFqvJ734WzsRcTZ4GKAB/uw1oQCLKKTmjUDiWjnwpJJJ19MTkk/uYQruukjo3aBBSpvUMmHJoxnoakosRjAktvxVp6AKkERprY2weYDNAuIhafi12rKiXftthAsyTMgWtvYr1Ri2O2aChou2hA+rCZVqmaMLFFPcDM9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=Ig9hUdbL; arc=none smtp.client-ip=157.90.84.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
+	s=arc-20240116; t=1788803196; c=relaxed/simple;
+	bh=WsojPxnxKW6t5kjIh+eqQlvaB66sXJuF7NgRSyBuLPw=;
+	h=Message-ID:Date:MIME-Version:From:To:Subject:References:
+	 In-Reply-To:Content-Type; b=V2M1XN/hUDm7yEiJW3VXFL7HXql8BN8r2iWqKGP9vKn91pmzoncTRVKcg4cIadwqIOY5m5T21PtWJB9gLe8/+FkovsI3FnfwkY4kczWqfgMqTB7dwIvqpzrkMZg8f7UkrU+KohC5GHb+bNykyx4q6vp3y45ijnSqKFOX9EuxRqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qN74wijZ; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="Ig9hUdbL"
-Received: from [192.168.178.102] (p4fc02130.dip0.t-ipconnect.de [79.192.33.48])
-	(Authenticated sender: a.erhardt@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id 83F302FC0076;
-	Mon,  7 Sep 2026 18:30:26 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1788798626;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JmzR8zxR3+L2Kdy2MjR6S9xbOlFXwTSnTQaZ/pIGBhs=;
-	b=Ig9hUdbLT6Cpzz8t3SOWmv0FGMYqmF9yirSzYjbjc8XGwmN167aE6qLjqkeSBd1iigcMnH
-	6CVhS6/Wd9D4I17WXj5vSNk7V+fC3S0iuHb6P/rQ9rVZlugssDlv31irDm6kKvMdtmDHm0
-	8OAe4L2/+LvtkXIuyyOR7wos9mT37Gw=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=a.erhardt@tuxedocomputers.com smtp.mailfrom=aer@tuxedocomputers.com
-Message-ID: <a62d1907-73cb-4cfd-98b1-7cdce3b37541@tuxedocomputers.com>
-Date: Mon, 7 Sep 2026 18:30:26 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qN74wijZ"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-6a600a1caf8so5874331a12.2
+        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 10:46:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788803193; x=1789407993; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:references
+         :subject:to:from:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=WsojPxnxKW6t5kjIh+eqQlvaB66sXJuF7NgRSyBuLPw=;
+        b=qN74wijZPMqtb0Y+fFDSW2KygZcixgAT4Gs95e/0yGief30p3AfiJ+0OsUKg3McvmH
+         b4AggIjbUqpu8MuzfnSnjQ5Ra/yn025T0c/tltPk/+rVd1va3QR6OaKX8uwlLFfjgtqH
+         LBYCyS+UlUX/JAc/qaC96+m2uEIABKmh6PPgEPDqSK1lliR6O6eDU94KL+44q91kzt4U
+         cZEEHgE6N8dXdlSDMW6EnWG/V5CxapyhcuKLYON33xgaT/v1gk0EYGast7UfxjQHqgwh
+         /hfnR+o4Syf2ceC1yyP0tjtZjml2IfpmO8yvqIX6H1lfNiZrlFrqOTw4OEGZ53nvdjKC
+         pJZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788803193; x=1789407993;
+        h=content-transfer-encoding:content-type:in-reply-to:references
+         :subject:to:from:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=WsojPxnxKW6t5kjIh+eqQlvaB66sXJuF7NgRSyBuLPw=;
+        b=RPlbOFxp26XJheWBWTxxISPpzdMmpOIfKIQybWaQc3W9Z9rLaJbS4vYmOPQotT5/DK
+         dDu7Ue+Dpi9IM/GoHdYeaZ00/8EfsaoAbqG9f493pQ3hfGRt/UsgVWsk8GDSNtdeAmw7
+         PqMqYCK15udFnfi3znikNNZTDpZyFKg4X6nBOI8T6y+FVN6bQQwCEtB4tsSSkvls8NhP
+         pe55Rl2jOzar9Xrki3p2Ue35UbJndotm5tcH1zlFXDjcR0mjagJS2YTqIxz1/lqPySjL
+         RGeRVML2fVwNKFBm6lU4ZNsOS0Mj3nohXZu/loa6IemK3BWz3/fRgqB/+5rTXPj6gRjB
+         zO9A==
+X-Forwarded-Encrypted: i=1; AKwUvByVk/SEXTPQg5UqdReefOnmSYieDFRm3006v9ymvwt7voVKNQrjQS/DQ6U/pO1aL78Itkx4EcPxFWaJ2w==@vger.kernel.org
+X-Gm-Message-State: AFuF++mUmK2NThjt9h3NcTPUo5Lc8PxNunB8g1VxrC8T7KjRYIuFF4Ai
+	WuKU8Ejr2s4WVooT2JsB6IrIpLzc57YY494F35IFRRINA5YNN8rmNtoZ
+X-Gm-Gg: AYBFou2SWK29IDSNlfMDNyXu4rhZORs0pczSoQegZrXJTYVQANyMBGvfgon+kORoU8J
+	Zowwfw6G8eJ4Vw2ibSOTGAzrK7YV69x7UdNf40yYR8EDowN652UvHvsl93lVGzGToJynvaxR53v
+	67MXzOwMKAMSXNXmSVhCKH2+MjgL1QU0I2Jg2/X+pfR8DfkfTxy7NnPBWf5onnszQ/b2ziZoXQu
+	PnnNz7daa3wYGp99qVkAWPBMBuHOXDf7+iguwHcAW98SY1rd8Ie27dJwqU5J4XsgOAdfBWl6Ye8
+	TcD3xBx5BF5bQ5pUKHUl7SI3sRxpcICYKzFqSOTPMFiaUw06awwk6f8oFDMFWwxhtk7r+/7jQhh
+	NvZMPLskj2gp5DTI+j98VFTM5W0WNenmkgDZ3zbN0xYIzTDMLCLUBtByrRVS4qR0elwEDd2pmoD
+	1Ki1lkyaCE1D2wQVJRwZ++77xX4DfYlA5nRxJdLRPIzAN+n8diY5cocfCydYpmRJGW7Ky8owUsD
+	fndFZJGAak/9G++jv9w5pdmkPdvnqJr
+X-Received: by 2002:a05:6402:234c:b0:6a7:f361:5fad with SMTP id 4fb4d7f45d1cf-6a7f3616404mr7167407a12.34.1788803192526;
+        Mon, 07 Sep 2026 10:46:32 -0700 (PDT)
+Received: from [192.168.86.89] (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6a7e68a6e0esm4698132a12.9.2026.09.07.10.46.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Sep 2026 10:46:30 -0700 (PDT)
+Message-ID: <6d7c758f-168f-42b3-b195-b6c2f52f0cf6@gmail.com>
+Date: Mon, 7 Sep 2026 19:46:28 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,128 +69,35 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/2] HID: generic: add LampArray support via
- hid-lamparray helper
-To: Armin Wolf <W_Armin@gmx.de>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: wse@tuxedocomputers.com, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260903073602.3815258-1-aer@tuxedocomputers.com>
- <456191a9-f914-4bb3-8cb8-90ed25a13b94@gmx.de>
-Content-Language: en-US
-From: Aaron Erhardt <aer@tuxedocomputers.com>
-In-Reply-To: <456191a9-f914-4bb3-8cb8-90ed25a13b94@gmx.de>
-Content-Type: text/plain; charset=UTF-8
+From: erikhakan@gmail.com
+To: Rafael Passos <rafael@rcpassos.me>,
+ Alexey Zagorodnikov <xglooom@gmail.com>, Rafael Passos <rafael@rcpassos.me>,
+ lains@riseup.net, hadess@hadess.net, jikos@kernel.org, bentiss@kernel.org,
+ Shuah Khan <skhan@linuxfoundation.org>,
+ Brigham Campbell <me@brighamcampbell.com>,
+ Jori Koolstra <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org,
+ devnull+greyxor.protonmail.com@kernel.org, k8ie@mcld.eu
+Subject: Re: [PATCH] HID: logitech-hidpp: fix hi-res scroll for Bolt-connected
+ MX Master
+References: <20260904034843.1340846-1-rafael@rcpassos.me>
+ <96cd3161-3a6c-455e-a63c-f3226b27f74f@gmail.com>
+ <119cd005-ece9-4e2a-aded-0d6d66c5bcfc@gmail.com>
+ <3fca5207-198d-4dc8-956e-7b196f71b934@gmail.com>
+ <DL6T82VA1NU5.1R1U7FE0CF6H@rcpassos.me>
+In-Reply-To: <DL6T82VA1NU5.1R1U7FE0CF6H@rcpassos.me>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Am 04.09.26 um 22:49 schrieb Armin Wolf:
-> Am 03.09.26 um 09:35 schrieb Aaron Erhardt:
-> 
->> Add a new hid-lamparray helper module and integrate it with the
->> hid-generic driver.
->>
->> While more complex lamparray handling should be done in userspace via
->> hidraw, providing a small module to add basic lamparray support makes it
->> possible for userspace software to interact with lamparrays by simply
->> using well-known APIs of the LED subsystem. One use-case would be to
->> enable desktop environments to support keyboard backlight control out of
->> the box for HID lamparray devices without having to implement the whole
->> HID protocol themselves.
->>
->> This patch is based on previous discussions:
->> https://lore.kernel.org/all/1fb08a74-62c7-4d0c-ba5d-648e23082dcb@tuxedocomputers.com/
->>
->> The helper provides basic support for devices exposing a
->> Lighting/LampArray application collection (usage page 0x59) and
->> registers a single-zone RGB LED representation via the LED
->> subsystem.
->>
->> hid-generic now checks for LampArray support after hid_parse() and
->> optionally registers a lamparray instance. Failures in the helper
->> do not abort device probe to keep the driver logic otherwise unchanged.
->>
->> LampArray resources are released on driver remove.
->>
->> This commit was successfully tested on the Microsoft MacroPad reference
->> implementation (https://github.com/microsoft/RP2040MacropadHidSample
->> 1d6c3ad) and in combination with the tuxedo_nb04_wmi driver, albeit
->> only fully functional with a recent fix posted to the LKML
->> (https://lore.kernel.org/all/20260826081149.235487-2-aer@tuxedocomputers.com).
-> 
-> Nice work, it works on my ASUS Prime B650-Plus. However the behavior of the brightness
-> attribute is a bit strange:
-> 
-> - manually setting "brightness" does not change anything (max. is 1)
-> - setting RGB to "0 0 0" causes "brightness" to become 0
-> - setting RGB to a non-zero value causes "brightness" to become 1
-> 
-> Any idea why this happens? I can check if the same problems also exists under Windows,
-> if requested.
-> 
-> Thanks,
-> Armin Wolf
-> 
+Hi again!
+This patch works fine on my MX Keys Business. No regressions noted.
 
-It is completely normal for LampArray devices to only offer two brightness
-values (1 and 0) for turning the whole LED on and off. Since a lot of
-userspace software seems to never use brightness (it is more convenient to
-adjust the RGB channels directly), this was not even properly implemented in
-the MacropadHidSample until recently:
-https://github.com/microsoft/RP2040MacropadHidSample/commit/cfc29120a3910c5772976da29ecd57392dfd44d6
+It seems then that the earlier patch by Grégoire cause similar regressions to what
+Kateřina Medvědová reported when all three interfaces were treated as DJ interfaces
+in https://lore.kernel.org/linux-input/345f7347-30a8-4568-a7a6-c70f54a52a8d@mcld.eu/
+where she reported e.g. that the mouse became very sensitive as well as some
+other issues.
 
-Thus, I think it is likely, that the implementation is broken and simply
-ignores brightness. The driver just forwards this to the device.
+I.e. it seems like this patch is the better approach.
 
-However, the RGB values (aka. multi_intensity) should not interfere with the
-brightness. Yet, I wasn't able to reproduce this on the Macropad. Capping the
-brightness to 1 is normal on the other hand, at least if that's the
-maxIntensity reported by your device.
-
-So the only really odd thing for me would be the RGB values influencing the
-brightness. Please provide more detailed feedback if you can since I can't
-reproduce this on the hardware available to me.
-
-If you want to investigate the LampArray capabilities of your device, you're
-probably better off with userspace tooling like my lampctl fork:
-https://github.com/tuxedo-aer/lampctl
-
-You can adjust the hardcoded brightness here to see whether your device honors
-the brightness value or not:
-https://github.com/tuxedo-aer/lampctl/blob/main/crates/lamparray/src/hid.rs#L36
-
->> v5:
->> - Proper hardware detection (no quirks necessary anymore)
->> - Add documentation for new sysfs knob
->> - Pass limits of the device to sysfs (intesities & brightness)
->> - More flexible Kconfig (use tristate)
->> - Improved locking
->> - Several memory leak and (de-)initialization fixes
->> - Don't read current color values from hardware (the HID spec does not
->>    offer this option)
->> - Remove redundant report dump functionality
->> v4:
->> - Restrict CONFIG_HID_LAMPARRAY to built-in configurations only to fix
->>    additional randconfig build errors
->> v3:
->> - Squash V1 and V2 into one patch
->> v2:
->> - Fix Kconfig to avoid build errors when LEDS_CLASS_MULTICOLOR is
->>    disabled
->>
->> Aaron Erhardt (2):
->>    HID: lamparray: add new LampArray helper module
->>    HID: generic: add LampArray support via hid-lamparray helper
->>
->>   .../ABI/testing/sysfs-driver-hid-lamparray    |  16 +
->>   drivers/hid/Kconfig                           |  18 +
->>   drivers/hid/Makefile                          |   2 +
->>   drivers/hid/hid-generic.c                     |  38 +
->>   drivers/hid/hid-lamparray.c                   | 812 ++++++++++++++++++
->>   include/linux/hid-lamparray.h                 |  88 ++
->>   6 files changed, 974 insertions(+)
->>   create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lamparray
->>   create mode 100644 drivers/hid/hid-lamparray.c
->>   create mode 100644 include/linux/hid-lamparray.h
->>
-> 
-
+Thanks
+Erik

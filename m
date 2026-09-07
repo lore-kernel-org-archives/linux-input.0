@@ -1,252 +1,303 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com [209.85.210.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 104D940EB8D;
-	Mon,  7 Sep 2026 06:59:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788764389; cv=none; b=ZuwtiEc6MKt2rPmi6BzMKi/O+g7OLWCGgzQxIiGj/SHQFJuw4PgJx0w7FgpOWY6BIF5aahCwSSKS9T20pnccOyPW1el0zq7jL9P6VSOAjd7gD/JWMqOdQczawCE9W06kmagvl3wsRhSJZYcuKxDogpbQCHV78Gzu9oukTXOX+Xs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788764389; c=relaxed/simple;
-	bh=68zq9K51Ay0P16Ip57VHSJhSwyjNPhK8KfIuClbnaR0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bY9GqpoLfVkxt0WT3FyziVMBIG4fu9NvVKyPvAT1F3b5ZLi37U8Yl50H/pOFcm12yn4i1S8lVDGDixTzWFZQr0NwLVurrAovUkgxoxEkXaPZtbWVblPgG6QvurwOmKQXLd5f+Z4A3A60M395yOQSjpHmC5ie0XxFFlIS1vJ/NzQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=wlIPwCRp; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Cx9KJBXU; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=e0rZrifk; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=5f9VZldn; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 371F3442B08
+	for <linux-input@vger.kernel.org>; Mon,  7 Sep 2026 09:25:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788773156; cv=pass; b=A+LPLyottbOO0VIFUmergQVkluPpeJR5odpW0vUmKjnJ5nRy50Ep1ErjhHja5rfZCGAgxUz7QjEHQzgAeMn1n17TRA5/jqJoHtgv0Qy1WgFIewx9+u82gF3e2JPwzz1iegZq6+kDDfLDmbNHGoRSzpIKwrq/6bJqX3oj3UskwQU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788773156; c=relaxed/simple;
+	bh=/SeIFBGkz1Q+ZG/ZHUhvKV54Zk/HkDSjL/ijrg90hwE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bA5eGUDoJqbyVBpo0+dfU6tMooCpMg/H6Z7gfIWFOeaSj6IcjQUZyXdLZTCIHEj+s7qgNJBa0BI94d+3yfgyTk2EzjDw//o103m0uifirnmvJWN4xdijuoI+nbmgOpq7sK+FgvuPT12mYf0UEYMF1L2BwRsIg8GJThJmikOt5iY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=WvlGCivx; arc=pass smtp.client-ip=209.85.210.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="wlIPwCRp";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Cx9KJBXU";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="e0rZrifk";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="5f9VZldn"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 5FA391F750;
-	Mon,  7 Sep 2026 06:59:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788764373; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
-	b=wlIPwCRpbSjG1YwZQLRGeVaoTAbjDlZ5mQUVIr4JXo/iBT3a4Q0iH6q3KuiIBzJUKfxnX9
-	/Oxidgg3nxHJKpUzDbw6cBurL8wqFfjnExlFpplf04hO2aRAAa7RStxV7HsL02DYMbRZNr
-	3UDtjGBoTvoHszkZaN/z9Q3bUK9ze6g=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788764373;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
-	b=Cx9KJBXUtp5fhYyVV4hzQS2p48f2jp5NsH1gki5wAXk89bfUrjPfS2krewBdl6mcSHoSJy
-	NapMeisj3ThAF8Dg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788764369; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
-	b=e0rZrifkg5vEXUNAp301FUAS6arueahh02Qtfk9f0nOM+BgnLLgvHz6Sgvz7rpoid5c1qs
-	BFjB+Zfp+bwj+/p7iA4LqSH5FFkiqvlLvqZjogfaaPbwca795R1Clm3gRhoh2ncfN5mBo9
-	e+bwzWMbc0kej1wlII9bg9vhYMRLVqQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788764369;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=do8tCb/WEQVB5WcbQ+nX9pTcXqhCTxoFf3t+kQA7Cd8=;
-	b=5f9VZldnsThtR5Ool3IzbjkvtPK6c0RIReUaSQm+sGldhPOHl7PvojatmPqO4560OylauL
-	+3SEaaWT2ZkZcbCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E7AE513432;
-	Mon,  7 Sep 2026 06:59:28 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id vHVEN9BgnmpDaQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 07 Sep 2026 06:59:28 +0000
-Message-ID: <22707a1f-970b-4309-905d-13ac794c51fa@suse.de>
-Date: Mon, 7 Sep 2026 08:59:28 +0200
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WvlGCivx"
+Received: by mail-ot1-f51.google.com with SMTP id 46e09a7af769-7f0167e59a3so2243950a34.0
+        for <linux-input@vger.kernel.org>; Mon, 07 Sep 2026 02:25:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788773153; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ATPsuM+0mwns0EFxDBtEEkNYfEsUBUC27iVLq+gQheZOdT768Nf7yc0L9LHOuvbh8C
+         4PhCQ5WbpIo8GNzJmFPJSmRovfJOBSIK3gKjGg6xCwsHD3yD0oe94zWjiH2mfxmLdMRG
+         vTZeSIafpuFxaQjOndfk0bUu+Ue7s69cg0oBE2GKGJ7A6UPRdUo6ZD6APBHxFbRekzGL
+         HG9nFPXQuunCEeazIZQMWG66mu9399aX8+1e52ebIJ6OqcwpNrQYltd13Hy0Q6o3Yv5N
+         om7kaJ0L/kCwpGFBmoIq4Qg1zVK2V4rtmM6dLeIimn9IKzgYXq0WBzBG+FM73mRLIwoa
+         l9wA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=rLM4vAUefvxFAU5RAfDUlR24EEWz9AmPJFTVppxjRbA=;
+        fh=rk5dsT96wkOmDPD4wcleWvnmhwe839lPv2tNdwUH3v4=;
+        b=lvHuDGtJyFrmIRLr9w8xJdmHOrLu/KfFPcS7jvt2KgIpOTEOAhbun/OnxCt6xGrgmA
+         Ta6E6PlpI6mr+JpaXfXQIQ92NWiOKmBdsYutcOrBK2dfzYs0LCMcwojsQwbv5eUWR/XT
+         hdHsnJbw9eYwLqcKfiOm5SnNmd/pOaUpgJGI5J3KRkMUVIQHjpMkm/py3a5ahETPOWms
+         TRNtNhMIWb6PivssEyX6T4XYvVp12umO95ooTcG/1ZDhU3hO33sjyv1379qSudV9R6Y+
+         oqrsBfTjMUDjp65kRKem+KxLEFnGlcy3q6bpxhslUq9oP2JjeGzId1EtBNSyBed1r3NL
+         UZfg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1788773153; x=1789377953; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=rLM4vAUefvxFAU5RAfDUlR24EEWz9AmPJFTVppxjRbA=;
+        b=WvlGCivxOlxJ0ayYRIR/CejvTQjOyWvlXUYIe6AIvYR6OBfpegYi+tU345ZHo0wc7w
+         lta6SrD+Mxa7tjBOLapakZ6fTuNNbDKquNOb27yL60iD0VrUzFAsD6MBRpxZIv7ZZ3Qe
+         NT4YqEp0TcIk/czebzRsQESe2QpPqZj1oMx6YDgVCwQQ91+XzlqwUW6hOYyQDITah/O8
+         lcjmWEDgkH/vqN5CTxrpE7BvVDAMChICwo9tG1Llq9QlqSeVmt0SPkc/KrXRw8rTtpWc
+         4chRkjbOuDcSflzyHuVpsPCE2PoDDudHR3neXq9ARaPZYl1M0sskntSGiW30OJYoymMj
+         IjRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788773153; x=1789377953;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=rLM4vAUefvxFAU5RAfDUlR24EEWz9AmPJFTVppxjRbA=;
+        b=ojquqMjXNVEh3af0BTPBC1he/sXrWyEe4gghySJ+MRjaKvpx19ZxqEHeFVVfMMXdjt
+         vyQng6f7Nyde2gxGDngLdHx/+FwpW+bIQr7DVccyV0n8/pE6J+ni8TMflIZVXETK2cON
+         cdgepFtREJCQBK/uxNcoxbamQwefhBjFkZirgTE2mhpQU9Y0UquEwLqg31pmGKPgfGtr
+         Kb6yosnEcvnc65bF5wnK4Pt/bRqQOn9CtGZ/qnwV8cUm3GC86M2pD+sRRmSFxyOJfQ4p
+         eHR89sfPFJNXox5RQxDsbE4bX3MpweC2Tj66zWAzAsytPubCN0DygyGXzn+K+XzGdVzz
+         kDpw==
+X-Gm-Message-State: AFuF++m35Wysc2DbVxsyrBh8Zktv4H9QVZK/OuC1XNiGylWGvCiANhTn
+	GOsppM/MiLtbAYfoXvCtO+IGvanT5rqnCE/VtZv5xB+tYZU5yYHVpy46b7ouZIKakZlZmnPg2FD
+	wNvKAPAqsKEHNbFYcS/i1Qday+REeyi2ZmX1lwVAi3xsoecuBwAv4jWaK6Ds=
+X-Gm-Gg: AYBFou3oXWvFsgouhmzQFSp11UpP3CCk2uW/qt9fgehYvyGCCh3YTPjG+9s3e2RqPHh
+	VmqvaCpMPIyTvP15STXzDab730nHffY2f2E43wJb+mu167UtLBmFfiLXCYdLLqFaxAM1cXXPFql
+	4x7j1FuZcMUQoHak5pAhHpywU2S7W3Q0eFmPFg1OOSdbqrgj6FLDwwnMGwtWl0aUe8VY5JoGNpb
+	xRblqW1xwcjuOC1uqc2Jza1ugRg8dP1Th4eU8oueMH0MhutvSCCUDePiqpi+77Zfaw8L5Qo4RcZ
+	MxSnyJgfJED6bunR7QZwYy3CdN1hyfClZL3XSXZWb1shHeaMV/lFRK+xfIMTAwOpkvSPlsK7DVf
+	PkI3yxbEbwKKZBr8A2OEyx1tk/+fiH9jQsPGWiXt+B70guPHzZ5dLrb1CuuTzKVKZBB3eT/LltV
+	qjOG17/w16z2Lvlg==
+X-Received: by 2002:a05:6820:4dcb:b0:6b7:8396:f3da with SMTP id
+ 006d021491bc7-6b78396fa3bmr10320241eaf.60.1788773152456; Mon, 07 Sep 2026
+ 02:25:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] Kconfig: fix typos in core makefiles and purge
- defective DVB debug (v5)
-To: Breno Rodrigues Alves <breno3011alves@gmail.com>,
- torvalds@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de,
- linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
- linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-sound@vger.kernel.org,
- linux-staging@lists.linux.dev, linux-fbdev@vger.kernel.org,
- linux-security-module@vger.kernel.org
-References: <20260905003005.118245-1-breno3011alves@gmail.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260905003005.118245-1-breno3011alves@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spam-Score: -2.80
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_TO(0.00)[gmail.com,linux-foundation.org];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[14];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.com:url,suse.de:mid]
+References: <6a9087a3.4d659fcc.734b4.0012.GAE@google.com>
+In-Reply-To: <6a9087a3.4d659fcc.734b4.0012.GAE@google.com>
+From: Aleksandr Nogikh <nogikh@google.com>
+Date: Mon, 7 Sep 2026 11:25:40 +0200
+X-Gm-Features: AcwNN1VXdsEcPIWp1jyXHGRh1btqFyG_jMQv1JAHCtZhxjZUIqd9LZzwh32CvrQ
+Message-ID: <CANp29Y4vUb75Ovz0oD-p3+J8QOg8Ph4gD4OapN_OYn=e2-gQzg@mail.gmail.com>
+Subject: Re: [syzbot] [usb?] [input?] INFO: task hung in trigger_card_free
+To: syzbot <syzbot+a149ad38eaf1930d3e31@syzkaller.appspotmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Please stop spamming this list with revisions.
+#syz invalid
 
-Am 05.09.26 um 02:30 schrieb Breno Rodrigues Alves:
-> Automated review from Sashiko AI revealed that re-enabling the legacy
-> DVB_ULE_DEBUG code via CONFIG_DVB_ULE_DEBUG exposes severe race conditions
-> on global state variables, leading to out-of-bounds memory corruption.
-> Additionally, the debug block suffers from undeclared identifiers (TS_SZ).
+See the discussion at
+https://lore.kernel.org/all/6a88012e.dbb3a75c.13dd47.0007.GAE@google.com/T/
+
+On Thu, Aug 27, 2026 at 8:53=E2=80=AFPM syzbot
+<syzbot+a149ad38eaf1930d3e31@syzkaller.appspotmail.com> wrote:
 >
-> Following the core kernel principle of eliminating dangerous, unmaintained
-> code, this patch completely extirpates the defective DVB_ULE_DEBUG block
-> from dvb_net.c and purges its corresponding configuration symbol from
-> the Kconfig tree.
+> Hello,
 >
-> This version retains the verified MediaTek bugfixes and ghost purges:
->    - Fixes MediaTek interconnect typo mapping mt8196.o to MT8196.
->    - Fixes MediaTek regulator typo mapping mt6316-regulator to MT6316.
->    - Cleans up the dangling comment in drivers/leds/Kconfig.
->    - Purges verified legacy ghost weight.
+> syzbot found the following issue on:
 >
-> Signed-off-by: Breno Rodrigues Alves <breno3011alves@gmail.com>
+> HEAD commit:    2709dd5ae32f Merge tag 'sched-urgent-2026-08-22' of git:/=
+/..
+> git tree:       upstream
+> console+strace: https://syzkaller.appspot.com/x/log.txt?x=3D17f7a41558000=
+0
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=3Db0978f5ed2905=
+b98
+> dashboard link: https://syzkaller.appspot.com/bug?extid=3Da149ad38eaf1930=
+d3e31
+> compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for D=
+ebian) 2.44
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=3D15418979580=
+000
+>
+> Downloadable assets:
+> disk image: https://storage.googleapis.com/syzbot-assets/1b8578cfc5d0/dis=
+k-2709dd5a.raw.xz
+> vmlinux: https://storage.googleapis.com/syzbot-assets/08516f9ee501/vmlinu=
+x-2709dd5a.xz
+> kernel image: https://storage.googleapis.com/syzbot-assets/94796f512f2e/b=
+zImage-2709dd5a.xz
+>
+> IMPORTANT: if you fix the issue, please add the following tag to the comm=
+it:
+> Reported-by: syzbot+a149ad38eaf1930d3e31@syzkaller.appspotmail.com
+>
+> INFO: task syz.0.17:5991 blocked for more than 143 seconds.
+>       Not tainted syzkaller #0
+> "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+> task:syz.0.17        state:D stack:25192 pid:5991  tgid:5991  ppid:5810  =
+ task_flags:0x400140 flags:0x00080002
+> Call Trace:
+>  <TASK>
+>  context_switch kernel/sched/core.c:5520 [inline]
+>  __schedule+0x1259/0x6920 kernel/sched/core.c:7270
+>  __schedule_loop kernel/sched/core.c:7347 [inline]
+>  schedule+0xdd/0x2c0 kernel/sched/core.c:7362
+>  schedule_timeout+0x1b2/0x280 kernel/time/sleep_timeout.c:75
+>  do_wait_for_common kernel/sched/completion.c:100 [inline]
+>  __wait_for_common+0x2e7/0x4c0 kernel/sched/completion.c:121
+>  snd_card_free sound/core/init.c:665 [inline]
+>  trigger_card_free+0x127/0x190 sound/core/init.c:868
+>  release_nodes+0xa5/0x120 drivers/base/devres.c:546
+>  devres_release_all+0x112/0x180 drivers/base/devres.c:576
+>  device_unbind_cleanup+0x81/0x270 drivers/base/dd.c:597
+>  __device_release_driver drivers/base/dd.c:1354 [inline]
+>  device_release_driver_internal+0x4c4/0x620 drivers/base/dd.c:1372
+>  unbind_store+0xf8/0x110 drivers/base/bus.c:244
+>  drv_attr_store+0x74/0xb0 drivers/base/bus.c:125
+>  sysfs_kf_write+0xf2/0x150 fs/sysfs/file.c:145
+>  kernfs_fop_write_iter+0x3e0/0x5f0 fs/kernfs/file.c:345
+>  new_sync_write fs/read_write.c:595 [inline]
+>  vfs_write+0x6af/0x1050 fs/read_write.c:687
+>  ksys_write+0x12a/0x250 fs/read_write.c:739
+>  do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+>  do_syscall_64+0x123/0x790 arch/x86/entry/syscall_64.c:84
+>  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> RIP: 0033:0x7f948ef9e0d9
+> RSP: 002b:00007ffeb02836d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+> RAX: ffffffffffffffda RBX: 00007f948f225fa0 RCX: 00007f948ef9e0d9
+> RDX: 000000000000000b RSI: 00002000000002c0 RDI: 0000000000000003
+> RBP: 00007f948f035024 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+> R13: 00007f948f225fac R14: 00007f948f225fa0 R15: 00007f948f225fa0
+>  </TASK>
+>
+> Showing all locks held in the system:
+> locks held by kworker/u8:1/13: 4, last CPU#0:
+>  #0: ffff88801c08c140 ((wq_completion)events_unbound){+.+.}-{0:0}, at: pr=
+ocess_one_work+0x1466/0x1b10 kernel/workqueue.c:3362
+>  #1: ffffc90000127d08 ((work_completion)(&(&kfence_timer)->work)){+.+.}-{=
+0:0}, at: process_one_work+0xa2c/0x1b10 kernel/workqueue.c:3363
+>  #2: ffffffff8ec7a830 (cpu_hotplug_lock){++++}-{0:0}, at: static_key_disa=
+ble+0x12/0x20 kernel/jump_label.c:247
+>  #3: ffffffff8ef3d400 (jump_label_mutex){+.+.}-{4:4}, at: jump_label_lock=
+ kernel/jump_label.c:27 [inline]
+>  #3: ffffffff8ef3d400 (jump_label_mutex){+.+.}-{4:4}, at: static_key_disa=
+ble_cpuslocked+0x110/0x1c0 kernel/jump_label.c:238
+> locks held by khungtaskd/31: 1, last CPU#1:
+>  #0: ffffffff8ede9d40 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire i=
+nclude/linux/rcupdate.h:300 [inline]
+>  #0: ffffffff8ede9d40 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock incl=
+ude/linux/rcupdate.h:840 [inline]
+>  #0: ffffffff8ede9d40 (rcu_read_lock){....}-{1:3}, at: debug_show_all_loc=
+ks+0x3d/0x184 kernel/locking/lockdep.c:6793
+> locks held by getty/5355: 2, on CPU#1:
+>  #0: ffff88803848c0a0 (&tty->ldisc_sem){++++}-{0:0}, at: tty_ldisc_ref_wa=
+it+0x24/0x80 drivers/tty/tty_ldisc.c:243
+>  #1: ffffc900032332e8 (&ldata->atomic_read_lock){+.+.}-{4:4}, at: n_tty_r=
+ead+0x419/0x14e0 drivers/tty/n_tty.c:2211
+> locks held by syz.0.17/5991: 3, on CPU#1:
+>  #0: ffff8880302a4460 (sb_writers#8){.+.+}-{0:0}, at: ksys_write+0x12a/0x=
+250 fs/read_write.c:739
+>  #1: ffff8880273d4080 (&of->mutex){+.+.}-{4:4}, at: kernfs_fop_write_iter=
++0x2c2/0x5f0 fs/kernfs/file.c:336
+>  #2: ffff8880338ca138 (&dev->mutex){....}-{4:4}, at: device_lock include/=
+linux/device.h:1104 [inline]
+>  #2: ffff8880338ca138 (&dev->mutex){....}-{4:4}, at: __device_driver_lock=
+ drivers/base/dd.c:1171 [inline]
+>  #2: ffff8880338ca138 (&dev->mutex){....}-{4:4}, at: device_release_drive=
+r_internal+0xb2/0x620 drivers/base/dd.c:1369
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> NMI backtrace for cpu 1
+> CPU: 1 UID: 0 PID: 31 Comm: khungtaskd Not tainted syzkaller #0 PREEMPT(f=
+ull)
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS G=
+oogle 07/16/2026
+> Call Trace:
+>  <TASK>
+>  __dump_stack lib/dump_stack.c:94 [inline]
+>  dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
+>  nmi_cpu_backtrace.cold+0x12d/0x151 lib/nmi_backtrace.c:123
+>  nmi_trigger_cpumask_backtrace+0x21f/0x2a0 lib/nmi_backtrace.c:66
+>  trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+>  __sys_info lib/sys_info.c:157 [inline]
+>  sys_info+0x141/0x190 lib/sys_info.c:165
+>  check_hung_uninterruptible_tasks kernel/hung_task.c:353 [inline]
+>  watchdog+0xcb1/0x1030 kernel/hung_task.c:561
+>  kthread+0x373/0x450 kernel/kthread.c:436
+>  ret_from_fork+0x730/0xd60 arch/x86/kernel/process.c:158
+>  ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+>  </TASK>
+> Sending NMI from CPU 1 to CPUs 0:
+> NMI backtrace for cpu 0
+> CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted syzkaller #0 PREEMPT(ful=
+l)
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS G=
+oogle 07/16/2026
+> RIP: 0010:pv_native_safe_halt+0xf/0x20 arch/x86/kernel/paravirt.c:64
+> Code: 08 a1 02 e9 43 4f 03 00 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 9=
+0 90 90 90 90 f3 0f 1e fa 66 90 0f 00 2d 83 e0 21 00 fb f4 <c3> cc cc cc cc=
+ 66 2e 0f 1f 84 00 00 00 00 00 66 90 90 90 90 90 90
+> RSP: 0018:ffffffff8ea07cf0 EFLAGS: 00000246
+> RAX: 00000000002e8403 RBX: ffffffff8ea91500 RCX: ffffffff8bc9c115
+> RDX: 0000000000000001 RSI: ffffffff8e3dfa2f RDI: ffffffff8c619080
+> RBP: fffffbfff1d522a0 R08: 0000000000000001 R09: ffffed101708678d
+> R10: ffff8880b8433c6b R11: 0000000000000001 R12: 0000000000000000
+> R13: 0000000000000000 R14: 1ffffffff1d40fa2 R15: dffffc0000000000
+> FS:  0000000000000000(0000) GS:ffff888123b88000(0000) knlGS:0000000000000=
+000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 00007ffe96a6cff8 CR3: 000000007cb49000 CR4: 00000000003526f0
+> Call Trace:
+>  <TASK>
+>  arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+>  default_idle+0x9/0x10 arch/x86/kernel/process.c:768
+>  default_idle_call+0x6c/0xb0 kernel/sched/idle.c:122
+>  cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+>  do_idle+0x3ae/0x5b0 kernel/sched/idle.c:355
+>  cpu_startup_entry+0x4f/0x60 kernel/sched/idle.c:454
+>  rest_init+0x2d3/0x2e0 init/main.c:723
+>  start_kernel+0x48e/0x490 init/main.c:1181
+>  x86_64_start_reservations+0x24/0x30 arch/x86/kernel/head64.c:310
+>  x86_64_start_kernel+0x12b/0x130 arch/x86/kernel/head64.c:291
+>  common_startup_64+0x13e/0x158
+>  </TASK>
+>
+>
 > ---
->   drivers/interconnect/mediatek/Makefile | 2 +-
->   drivers/leds/Kconfig                   | 1 -
->   drivers/media/dvb-core/dvb_net.c       | 6 +++---
->   drivers/regulator/Makefile             | 2 +-
->   4 files changed, 5 insertions(+), 6 deletions(-)
+> This report is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
 >
-> diff --git a/drivers/interconnect/mediatek/Makefile b/drivers/interconnect/mediatek/Makefile
-> index 6bd656668..64170ab16 100644
-> --- a/drivers/interconnect/mediatek/Makefile
-> +++ b/drivers/interconnect/mediatek/Makefile
-> @@ -3,4 +3,4 @@
->   obj-$(CONFIG_INTERCONNECT_MTK_DVFSRC_EMI) += icc-emi.o
->   obj-$(CONFIG_INTERCONNECT_MTK_MT8183) += mt8183.o
->   obj-$(CONFIG_INTERCONNECT_MTK_MT8195) += mt8195.o
-> -obj-$(CONFIG_INTERCONNECT_MTK_MT8195) += mt8196.o
-> +obj-$(CONFIG_INTERCONNECT_MTK_MT8196) += mt8196.o
-> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> index d0d318223..800fbd560 100644
-> --- a/drivers/leds/Kconfig
-> +++ b/drivers/leds/Kconfig
-> @@ -873,7 +873,6 @@ config LEDS_UPBOARD
->   	  This driver can also be built as a module. If so the module will be
->   	  called leds-upboard.
->   
-> -comment "LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)"
->   
->   config LEDS_BLINKM
->   	tristate "LED support for the BlinkM I2C RGB LED"
-> diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dvb_net.c
-> index a2159b2bc..3b503695e 100644
-> --- a/drivers/media/dvb-core/dvb_net.c
-> +++ b/drivers/media/dvb-core/dvb_net.c
-> @@ -68,7 +68,7 @@ static inline __u32 iov_crc32( __u32 c, struct kvec *iov, unsigned int cnt )
->   
->   #define DVB_NET_MULTICAST_MAX 10
->   
-> -#ifdef DVB_ULE_DEBUG
-> +#ifdef CONFIG_DVB_ULE_DEBUG
->   /*
->    * The code inside DVB_ULE_DEBUG keeps a history of the
->    * last 100 TS cells processed.
-> @@ -320,7 +320,7 @@ static int dvb_net_ule_new_ts_cell(struct dvb_net_ule_handle *h)
->   {
->   	/* We are about to process a new TS cell. */
->   
-> -#ifdef DVB_ULE_DEBUG
-> +#ifdef CONFIG_DVB_ULE_DEBUG
->   	if (ule_where >= &ule_hist[100*TS_SZ])
->   		ule_where = ule_hist;
->   	memcpy(ule_where, h->ts, TS_SZ);
-> @@ -659,7 +659,7 @@ static void dvb_net_ule_check_crc(struct dvb_net_ule_handle *h,
->   			h->ts_remain > 2 ?
->   				*(unsigned short *)h->from_where : 0);
->   
-> -	#ifdef DVB_ULE_DEBUG
-> +	#ifdef CONFIG_DVB_ULE_DEBUG
->   		hexdump(iov[0].iov_base, iov[0].iov_len);
->   		hexdump(iov[1].iov_base, iov[1].iov_len);
->   		hexdump(iov[2].iov_base, iov[2].iov_len);
-> diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-> index 5a764cec8..f81d1f31a 100644
-> --- a/drivers/regulator/Makefile
-> +++ b/drivers/regulator/Makefile
-> @@ -107,7 +107,7 @@ obj-$(CONFIG_REGULATOR_MP886X) += mp886x.o
->   obj-$(CONFIG_REGULATOR_MPQ7920) += mpq7920.o
->   obj-$(CONFIG_REGULATOR_MT6311) += mt6311-regulator.o
->   obj-$(CONFIG_REGULATOR_MT6315) += mt6315-regulator.o
-> -obj-$(CONFIG_REGULATOR_MT6315)  += mt6316-regulator.o
-> +obj-$(CONFIG_REGULATOR_MT6316)  += mt6316-regulator.o
->   obj-$(CONFIG_REGULATOR_MT6323)	+= mt6323-regulator.o
->   obj-$(CONFIG_REGULATOR_MT6331)	+= mt6331-regulator.o
->   obj-$(CONFIG_REGULATOR_MT6332)	+= mt6332-regulator.o
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
-
-
+> syzbot will keep track of this issue. See:
+> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+>
+> If the report is already addressed, let syzbot know by replying with:
+> #syz fix: exact-commit-title
+>
+> If you want syzbot to run the reproducer, reply with:
+> #syz test: git://repo/address.git branch-or-commit-hash
+> If you attach or paste a git patch, syzbot will apply it before testing.
+>
+> If you want to overwrite report's subsystems, reply with:
+> #syz set subsystems: new-subsystem
+> (See the list of subsystem names on the web dashboard)
+>
+> If the report is a duplicate of another one, reply with:
+> #syz dup: exact-subject-of-another-report
+>
+> If you want to undo deduplication, reply with:
+> #syz undup
+>
+> --
+> You received this message because you are subscribed to the Google Groups=
+ "syzkaller-bugs" group.
+> To unsubscribe from this group and stop receiving emails from it, send an=
+ email to syzkaller-bugs+unsubscribe@googlegroups.com.
+> To view this discussion visit https://groups.google.com/d/msgid/syzkaller=
+-bugs/6a9087a3.4d659fcc.734b4.0012.GAE%40google.com.

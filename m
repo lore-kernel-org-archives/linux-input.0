@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F29E33845AC;
-	Mon,  7 Sep 2026 06:04:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3D5825B082;
+	Mon,  7 Sep 2026 06:07:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788761096; cv=none; b=PvE6D1mhqaHH8A7nbyv/WTbdxnLhd0bZldoLAboY1AhEa9pPWDDT6RxyqrfyU3blCKp07q7zZX5o0SGy2FH8YvFSJxyAd6R0FtdK6AFXegOiZULc/QzAsucZGfnKclcYGcx2SzHcUHY1oHO1mTM/W943yUHJswqXQeHlXla8pUM=
+	t=1788761252; cv=none; b=N0FTpaxj/QjEhzjj1HefiN6SGg9/zXyCgfCi9LsNEKeyAR4JVVJdS2v+aZa4ntU4UBT06eoI7/FDOlbIDhWakKBpnlLhv0Sbes7CuO/LHqkXPmX1VZnAchC9d77ML746ZFUSZue1BvaePxs68g4Rf6WMjvfax5CqyaMXlcatzcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788761096; c=relaxed/simple;
-	bh=WdI/RXGUI++cbePcXT91BjzMzUzWC12GQt5G0Az4qws=;
+	s=arc-20240116; t=1788761252; c=relaxed/simple;
+	bh=VggLjcaH+IJ8mW2kJenmQn641aU6Q9MydbcLkKaQ5oI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WgQDvggE/X97WfAfRGR5EIc0IHcEjDWU6bNVTYcf08zjq9zItB6POZayRRvqvYsMpBVaQRJ02TNFWKTff+o9NO4wgL57gZecE+QgbB7tHweDj+wDUDMlckoOWZoyGTnSf6ZA71PPOfXUrVjSyZVK4nn60Gp2vR3LyYNaS1/NrlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OmYYWaRu; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=ME6bXP2iUfgBNZbc5oJns1wi6qMMd+Rz8GvF6hgor1wPJcSk/pxNzmtpvb/uHdk/ayeOo11Wa9xS20YxHA7ibWAKMshn9r6nWQ6wq1coyEtcIOmc2/Z6JG496Z45wViWtjqvb4d89t6EU+k6/YpKe34Vzb314r9MmvfUa9pnGEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cnh3kFjK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OmYYWaRu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 339571F00A3A;
-	Mon,  7 Sep 2026 06:04:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cnh3kFjK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1188D1F00A3A;
+	Mon,  7 Sep 2026 06:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788761094;
-	bh=/JthDeUP09hbFsgQEoxZI/CGVwcHhBO3IqKRGJEIc58=;
+	s=k20260515; t=1788761251;
+	bh=ryjhib6RuFmlHrMiGgymNVQOes/BcGtkk293O7vRIRI=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=OmYYWaRuco8c/bJcqounVq2b9LSV2IB6GMTMEfSwHfV5SWiwTQNp5VwwpVVeSVicL
-	 HPldi2Ro29hsBQNAjdH/OCe/7N0nNyYnJsd9TS49JQth87jdjd1sV+pW7ua+SQ5RP0
-	 3V9EECTgt5sF/Gkg0yT02BpgDqo1E4Ti4CwUZAbMEzKJQdOCGRJT7iBSc8cIKmg9SE
-	 iNaLWkEnuQr0yTuplFTdBdagN41GeE8DGk1v+izDGA3gwMaut8Mw01vUvCbPXVrZ3D
-	 0GK8Cj9E96QGxcd7LK1C1Z/CZapHQl+y2CNnVeWB4FEuruO+/7uUmwrha2Nx/LB4OL
-	 dIac9HcwgIvgQ==
-Message-ID: <8cf1aebb-9f9c-4bce-8c19-3514c1dae7e8@kernel.org>
-Date: Mon, 7 Sep 2026 08:04:48 +0200
+	b=Cnh3kFjKIbTyzvF9YKbxPHuK8mCjVtzp4wXPY/VzObWa+Jrm/GOGs95jeXR1GUDPi
+	 OnGcHwGp5fmAzHOD0XSgSACaz8fF6smnNrEJfwOwiBkMgHu0oKsd00Oj+cuypRyrSu
+	 L1N7CHGVYGh3sbCbxtLbvwkdX6Gl3X5vv0xshwpcZb0oVjYzeGqG6CJdvZf19C8g13
+	 1JJkZ56UuX1VclQ/kfXah1KpgSz4Ig6YrnDwnuHjFf76pPJIouemEUTxWC5BkLOdB8
+	 pHeA9roY4eTR/aJCQPAwc7xhBjdXh4XqqGz4/kTaMXR3zGv8Yt98jwEZWMZI9uOYGa
+	 fvhZICQZmqs0g==
+Message-ID: <4184a903-c19d-4821-bfee-a01dac16e9f5@kernel.org>
+Date: Mon, 7 Sep 2026 08:07:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -35,15 +35,14 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] arm64: dts: qcom: microsoft-romulus13: enable
- touchscreen
+Subject: Re: [PATCH 1/2] dt-bindings: input: hid-over-i2c: allow reset GPIO
 To: fQwQf <fqwqf@fqwqf.xyz>, devicetree@vger.kernel.org
 Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
  linux-kernel@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org,
  conor+dt@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
  bentiss@kernel.org, jikos@kernel.org
 References: <20260907054339.12409-1-fqwqf@fqwqf.xyz>
- <010601a07a6524b4-0bac871e-cea3-4cbe-9a33-111003dd4808-000000@ap-northeast-1.amazonses.com>
+ <010601a07a651064-bff1bd5c-5d9a-40b8-b504-a0ce7b41669d-000000@ap-northeast-1.amazonses.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -89,22 +88,22 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <010601a07a6524b4-0bac871e-cea3-4cbe-9a33-111003dd4808-000000@ap-northeast-1.amazonses.com>
+In-Reply-To: <010601a07a651064-bff1bd5c-5d9a-40b8-b504-a0ce7b41669d-000000@ap-northeast-1.amazonses.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 07/09/2026 07:44, fQwQf wrote:
-> The 13.8-inch Surface Laptop 7 has an ITCH MSHW0468 touchscreen
-> connected to QUP1 SE0 at I2C address 0x34. Describe the controller,
-> interrupt, reset GPIO, and HID descriptor register so i2c-hid can
-> enumerate the touchscreen.
-> 
-> The HID descriptor is located at register 0x0000 rather than the default
-> 0x0020.
-> 
-> Tested-by: fQwQf <fqwqf@fqwqf.xyz>
+On 07/09/2026 07:43, fQwQf wrote:
+> The OF implementation of the HID-over-I2C driver already obtains an
+> optional reset GPIO and asserts it around power sequencing. Document the
+> property so device trees can describe that existing capability.
 
-Drop. Why would you send untested code otherwise?
+Read original commit at least. It explained that property is NOT for DT
+and IS NOT accepted. You just ignored that outcome completely.
+
+> 
+> Signed-off-by: fQwQf <fqwqf@fqwqf.xyz>
+
+We do not take anonymous patches.
 
 
 Best regards,

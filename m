@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 774C049CF37
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 17:57:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B757059B676
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 18:00:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788890252; cv=none; b=Pl47yoQAphbi9g3+5RF8AiEc4cJ+gBNx2t/Cbwdqf2KMBieqCdWWjgVk0Gq23oL3shauC+2uysm7u27q5lN65hdE5zzbtCd2uGQasnAc+YwNqai6GAUdrZcR6A+seKvJUYeYSMz0sg4Qh51rel3jcq55NRStDl92psiVyhTZ/64=
+	t=1788890439; cv=none; b=Ne/nGFU0xxo5nJTmVLST5wbZUKZ/l5SpJKqiDBo0Oa9LysTAnxb5rDjZ7Igb2wWQoN7iNzx7yP9qJinNUtD0U0gc6xHEVon8yG/RdZBHl39js8qxp4HsJMHUGwSC4mXA5N383KeweOvb9A5KbMhLwpYiQvuaRt8gDXHl63RrpB4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788890252; c=relaxed/simple;
-	bh=uRu/yTE7Q28y0T/8Y2mw7r9ZfzDi74vY0/yq72fm/Ek=;
+	s=arc-20240116; t=1788890439; c=relaxed/simple;
+	bh=fG26GWpS/fgJrFqPeH2y991rhDqt4aBGaYKpJH1czXk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JoTHviCsi0aWQ9ckfyVJK6FVZcbbMYzLyQ90NdIUiv+Bt41ru/dyqoY+7Zv663wcYqIDbIBrR77rseu8w6/rRn1KekcMYtZZnPxb3BnwdqYyp32NOLY1V7j/6JARrqOdqQWL8jqZmSKH9zIDAosAg8/+9mM+/fmNXCk56yiCpTE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aOm0iTlu; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Q/05ABBNHlrudgG7zI1iSO4HxSBA/JMzoMwLnStYQf+VBNATORDdU1zGrCQiZjWOhnHeyIB4eMqaNtcDGv8gqcmAQimuZi0EqkZa1YZqtwxCxXJhgZPc3aqbNZPASnjweHAw6WxU9ONRftiW8fciusmm3WIc23UJfK9xQWIFCN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kpPyRHFI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aOm0iTlu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D66DA1F00A3E;
-	Tue,  8 Sep 2026 17:57:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kpPyRHFI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C2D1F00A3A;
+	Tue,  8 Sep 2026 18:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788890250;
-	bh=tRKPbXW0wbJFUgqyX9aa1I9qlFSmm4fCsIdpA8YZ1n0=;
+	s=k20260515; t=1788890432;
+	bh=7DA3SvhNL2k307RhUy9DFpQ2rLFCC90sSeRdBLuza6A=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aOm0iTluzz4DNDlXZR2rdeHzQMColDYHaUpeXfGxXnH9QyRMDwmPl3P8iFnlX9Ds0
-	 nNlU7w3EGbSD9EpvQEyC6B1P5+Zj3zYMWcVJemCU+oWOKqWvLDJ2mYBMUKMIilAjBD
-	 nt8U7WOrYobCI/wXhV9yIw47nWRdWe3Cg6wNYN2tOTVRgnl53dlOOFNWqbFR6hlp+L
-	 vpb5j0jCp3Ka647HA3BAAiuL4354C4sVn0rd+acrb3c89LkRbHqK3zOzDStCj6BEkr
-	 i690jVmyFsmLhmREEl+n5IliV1qS8inrnqCsHPeRaKPsFYxnNmsq71kjds440z42qj
-	 5NAs8IiP9+tkQ==
+	b=kpPyRHFIDna403Oa45Nxwkb04xO9oBb6uwh4yiZ+856aCAr+t9R1SMEjo7h32OrZU
+	 wEtubBtdMgIxamcF2y5OaqPe/Mu14p2X8OtpILLWVwvEojgUVAZ1089uBfZojkF9XG
+	 83ApUQ4zwjNsozdMDe8IEpmHzgmnTLe3B6Tppho2CBD5t/clLmt4MljBwHkMedrVEm
+	 MJv6EC3f+mA0hKY6RaGblxTC33hbYUU98dHlwVOWTlaNMCHZ0UYJWzhdYjjRjfEOLd
+	 Aq3XIbxFiMf6dh5WjzXJCBgB0Xh+//JUNfKSeVZGfNZea1DTV52Qp9gPasxu3/cBZY
+	 KaC7FiXtpNzoQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 03/13] HID: asus: add support for ROG Ally handhelds
+Subject: Re: [PATCH v6 02/13] HID: asus: reinitialize the device after
+ exiting a sleep state
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260908174433.74260-4-denis.benato@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260908174433.74260-3-denis.benato@linux.dev>
 References: <20260908174433.74260-1-denis.benato@linux.dev>
- <20260908174433.74260-4-denis.benato@linux.dev>
+ <20260908174433.74260-3-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 17:57:29 +0000
-Message-Id: <20260908175729.D66DA1F00A3E@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 18:00:31 +0000
+Message-Id: <20260908180032.34C2D1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,108 +47,74 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Race condition during concurrent interface probing allows duplic=
-ate or malicious USB interfaces to bypass the shared state guard, corruptin=
-g global static state.
+
+Pre-existing issues:
+- [High] Incorrect teardown order in remove and probe error paths.
 --
 
-commit 3d735f3f44f1f1940a53b7227c0f6a85b111f6f3
+commit d02eb8a767770eafa0296c08186b26c229986e03
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support for ROG Ally handhelds
-
-This commit introduces support for Asus ROG Ally handhelds by extending
-the hid-asus driver. It manages a shared global state across multiple USB
-interfaces (gamepad, keyboard, configuration) and handles specific input
-mapping and initialization sequences for these devices.
+HID: asus: reinitialize the device after exiting a sleep state
+   =20
+The ROG ally needs to have the EC string sent back after resuming from
+s2idle since the USB device can be turned completely off by the firmware
+when mcu_powersave firmware-attribute is set to 1.
+   =20
+This may also be true for other laptops and certain features might stop
+working after the device exit from sleep.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 2125680c7effc..11dea2aec80b1 100644
+> index bd46aba6622a1..2125680c7effc 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
+
 [ ... ]
-> +static struct ally_handheld *hid_asus_ally_probe(struct hid_device *hdev)
-> +{
-[ ... ]
-> +	spin_lock_irqsave(&ally_data_lock, flags);
-> +	if (ally_drvdata.udev && ally_drvdata.udev !=3D udev) {
-> +		spin_unlock_irqrestore(&ally_data_lock, flags);
-> +		hid_err(hdev, "A ROG Ally controller is already connected\n");
-> +		return ERR_PTR(-ENODEV);
-> +	}
-> +
-> +	/*
-> +	 * Interfaces of an already connected controller are equally
-> +	 * untrusted: a crafted descriptor could present the same
-> +	 * endpoint twice, and a second probe of one role would evict
-> +	 * the state recorded by the first one, whose input_dev would
-> +	 * then never be unregistered.
-> +	 */
-> +	if ((ep =3D=3D HID_ALLY_INTF_CFG_IN && ally_drvdata.cfg_hdev) ||
-> +	    (ep =3D=3D HID_ALLY_X_INTF_IN && ally_drvdata.ally_x_hdev) ||
-> +	    (ep =3D=3D HID_ALLY_INTF_KEYBOARD_IN && ally_drvdata.keyboard_hdev)=
-) {
-> +		spin_unlock_irqrestore(&ally_data_lock, flags);
-> +		hid_err(hdev,
-> +			"An interface of a ROG Ally controller is already connected\n");
-> +		return ERR_PTR(-ENODEV);
-> +	}
-> +
-> +	if (!ally_drvdata.udev) {
-> +		usb_get_dev(udev);
-> +		ally_drvdata.udev =3D udev;
-> +	}
-> +	spin_unlock_irqrestore(&ally_data_lock, flags);
-> +
-> +	/*
-> +	 * The interface initialization sleeps (it performs USB transfers),
-> +	 * so it must run before taking the spinlock guarding the shared
-> +	 * state; pointers are published only once it succeeded.
-> +	 */
-> +	switch (ep) {
-> +	case HID_ALLY_INTF_CFG_IN:
-> +		/*
-> +		 * This function assumes the asus-specific initialization
-> +		 * to have been performed already at this point.
-> +		 */
-> +		ret =3D ally_gamepad_check_ready(&ally_drvdata, hdev);
-> +		if (ret < 0) {
-> +			hid_err(hdev, "ROG Ally device is not ready: %d\n", ret);
-> +			ally_put_udev_if_orphaned();
-> +			return ERR_PTR(ret);
-> +		}
-> +
-> +		ret =3D hid_asus_ally_init(hdev, &ally_drvdata);
-> +		if (ret < 0) {
-> +			ally_put_udev_if_orphaned();
-> +			return ERR_PTR(ret);
-> +		}
-> +
-> +		spin_lock_irqsave(&ally_data_lock, flags);
-> +		ally_drvdata.cfg_hdev =3D hdev;
-> +		spin_unlock_irqrestore(&ally_data_lock, flags);
 
-[Severity: Medium]
-Is there a race condition during concurrent interface probing here?
+> @@ -1493,16 +1518,8 @@ static int asus_probe(struct hid_device *hdev, con=
+st struct hid_device_id *id)
+>  		return ret;
+>  	}
+> =20
+> -	if (!drvdata->tp) {
+> -		for (int r =3D 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
+> -			if (asus_has_report_id(hdev, asus_report_id_init[r])) {
+> -				ret =3D asus_kbd_init(hdev, asus_report_id_init[r]);
+> -				if (ret < 0)
+> -					hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
+> -						 asus_report_id_init[r], ret);
+> -			}
+> -		}
+> -	}
+> +	if (!drvdata->tp)
+> +		asus_initialize_reports(hdev);
+> =20
+>  	/* Laptops keyboard backlight is always at 0x5a */
+>  	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
 
-The ally_data_lock is dropped after validating that the interface hasn't
-been probed yet (e.g., ally_drvdata.cfg_hdev is NULL), allowing the thread
-to perform sleepable USB I/O.
+[Severity: High]
+This isn't a bug introduced by this patch, but I noticed an incorrect
+teardown order in the error path of asus_probe() and in asus_remove():
 
-During this window, a concurrent probe from a duplicate or malicious USB
-interface could also acquire ally_data_lock, see that ally_drvdata.cfg_hdev
-is still NULL, and proceed with its own sleepable setup.
+drivers/hid/hid-asus.c:asus_remove() {
+    ...
+	asus_worker_stop(drvdata->worker);
+	hid_hw_stop(hdev);
+}
 
-If multiple threads bypass this check and one fails during initialization,
-it might call ally_put_udev_if_orphaned() and drop the udev reference
-prematurely because the other thread has not yet set ally_drvdata.cfg_hdev.
+Does this violate the HID core lifecycle rules? It appears the custom worker
+is cancelled before the hardware device is stopped.
 
-If multiple succeed, they could sequentially overwrite the shared pointer,
-leaking resources and corrupting the shared global state.
+The subsystem guidelines mandate calling hid_hw_stop() before cancelling
+workers to prevent new work from being queued by userspace or the hardware
+after teardown has begun.
 
-Could we reserve the interface slot or track a probe-in-progress state
-under the lock before dropping it to wait on the sleepable setup?
+While there might be a custom worker flag to discard new work items during
+teardown, does relying on custom synchronization rather than the correct co=
+re
+teardown ordering risk a use-after-free during driver unbind or probe failu=
+re?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908174433.7426=
-0-1-denis.benato@linux.dev?part=3D3
+0-1-denis.benato@linux.dev?part=3D2

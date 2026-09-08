@@ -1,156 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AE30470111;
-	Tue,  8 Sep 2026 21:46:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DFC13E6DEB
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 21:54:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788903986; cv=none; b=i/AOArz4qcXf9dKklxx4M8UCBZmxN2RsSqV48nRSilmYQmvXwiKIKWcFJ3Xz58AElxy10KS3FLA6X6gJQfMMtjYH2A4ynNtsCbQdBfJ4iiDy/bXn6AOMiCV5Sqo9Dq05o30k0YzgUCdCqx+OkPpy0KRBRHzwuCgT4GY43BqtN1c=
+	t=1788904466; cv=none; b=e5U9WF8xR5s4uekuIiHgWgOlqyv1GcocNuDDAcswf1ccA2zjJhLqvOL9lkOMgt5kIMSwSy07fqxgoOZufMCCek1S888boU5w69xbejbjIzr1TQNgS2ZpPfc2Jddw8+irQyla04z76NaYrfJThb20FN6gU9mqD5iT0+ZoLewmb3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788903986; c=relaxed/simple;
-	bh=Wo0ZL3M+Wywg41LZ2lwCb4eKYlm6h4hOEsw4Jfr5HHw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YLtAyCKgKNNsKf6wq/S3YOa7k6yRD7y2nRbmr9W/B3IZAy62WShgUhXCaZRtqXvfA3PPi/CS3GvecjdmTQUrhuuazfdgAQg+UAfHYxsGfRPZX2LS8Ij16uYuujAwtcPreyT5CwRgtyT+1u+hT0N/Hf2yItSnXT9xAK2GkTehmvg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nn9HoA7/; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788904466; c=relaxed/simple;
+	bh=oYjXez9q4BgnM/OBlS8UUntdhK01CZAuW9gqpM6M5/w=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=JwlMVg8MR6RZcUW4pfv3Yf4RU/Rbg9KoTdkwM1LOQF8R10gBLuZ9RUKlWVhwGcyb2BwLQudiff0NluR4yewchZ6XA5tmZY5HKlnFZjkm7iP0RT1YauuiCRkt3FyL2HF4rorJ4FopOQBPspm9IudkEPUQF+Im99ht3ebp3whtHsc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XjRNLyNN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nn9HoA7/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5A671F00A3A;
-	Tue,  8 Sep 2026 21:46:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XjRNLyNN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFBB81F00A3D;
+	Tue,  8 Sep 2026 21:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788903985;
-	bh=xDFCn0lNPOgF6i1hXkAPNA/hzn9F1hmDV3HSMIXSq0c=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=nn9HoA7/zv9eZsVfjPpLIaUXQ1AcSJn3gqPzs9xYEePlkOn7S0lvlYywod2dHun3L
-	 foerzEURPNeUMkpPX/0fJgpvnW5hanvxrEMKuH+5BipFzkhtUjfL7RJHg8bxyCxVFz
-	 Qs4Fb1Kcy0XI7zKBZQQRzxgZNeBelnZNCaQ9inRYkvP3lamuwe+kFhHQR4RtoDs4nn
-	 q6ycyvD7WLV3dnYJSSDDKX1cRjwq/bDyb6BhqZEJ0UWt+ONgmdGgJ+SGY3ItqXpHXy
-	 mir2VMg1aCcwiW8Dc0Shrem2bALxQXlyj+Ju3HrtJHnpCuKIhPWYzFchgVT7e6dms4
-	 8I6eUApzOaZzA==
-Message-ID: <0fe7a8b6-f3df-4822-a03a-d072b86cdfa8@kernel.org>
-Date: Tue, 8 Sep 2026 23:46:21 +0200
+	s=k20260515; t=1788904465;
+	bh=HBi9GfOamkuiks9RDhGuMcET6LO8hwZPoFo6zTmT2Ow=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=XjRNLyNNuvNVSRUfOY4pvPjvqbfISVZmE4PwoOz0Mg7ZXwJpBkESXAU2sv4iroQBc
+	 TGzZ8jTtwGpI1iQesZ4OyjRWPOYQNfyR7nD3RVg1g1Rjhx6kgoMOvHHey/rqn+2/Bp
+	 nQNRkgFLrW7Ae0PLG4uNfqmU9H4sBxt/jr5FcAxpOVK9xwQfqfCXw/kIbdTk5io0O1
+	 2V98souNFT9KBoryeKt0FwtlD5ymWAzCyz11a9FuccCejZqYTZr7qW2J+F8YwTQAay
+	 i1VVbJpR7Whs5RPc3reQaiuC6JwNyEfX89y/nxyC7kxD843dYTVFnABC/AbKJCJH23
+	 cPotlAoE10YVw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: soc_button_array - fix MS Surface Pro 11 probe
+ failure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Hans de Goede" <johannes.goede@oss.qualcomm.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260908214410.70422-1-johannes.goede@oss.qualcomm.com>
+References: <20260908214410.70422-1-johannes.goede@oss.qualcomm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 21:54:24 +0000
+Message-Id: <20260908215424.CFBB81F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: soc_button_array: ignored -EPROBE_DEFER loses the buttons on 68%
- of boots (Surface Pro 11)
-To: Sergey Lebedev <lsa.uz@pm.me>, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Maximilian Luz <luzmaximilian@gmail.com>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260830141355.55898-1-lsa.uz@pm.me>
-From: Hans de Goede <hansg@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <20260830141355.55898-1-lsa.uz@pm.me>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-Hi,
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] Failure to propagate -EPROBE_DEFER when gpiod_to_irq() defers pr=
+obe.
+- [Low] Redundant #ifdef wrapping and misplaced #include directive in the m=
+iddle of a .c file.
+--
 
-On 30-Aug-26 16:14, Sergey Lebedev wrote:
-> Hello,
-> 
-> On a Microsoft Surface Pro 11 for Business (Intel, Lunar Lake) the power and
-> volume buttons fail to appear on most boots. The probe runs, gives up
-> silently, and the device is lost until something rebinds it by hand.
-> 
-> Measured across the 40 boots in this machine's journal, using the monotonic
-> offset of the first "input: gpio-keys" message:
-> 
->   driver attached on its own   13 boots   at 1.28 - 1.78 s
->   did not attach               27 boots   68 %
-> 
-> The timing is binary. Either the inputs appear at about 1.3 s, or they never
-> appear at all - no intermediate values in 40 boots.
-> 
-> Where it fails
-> --------------
-> 
-> Nothing at all is logged on a failing boot, so I built with
-> soc_button_array.dyndbg=+p on the kernel command line. On four consecutive
-> failing boots the probe printed exactly one line:
-> 
->   [    1.286567] soc_button_array MSHW0040:00: OEM Platform Revision 129
-> 
-> That eliminates most of the possibilities:
-> 
->   - the probe does run
->   - it passes soc_device_check_MSHW0040() - oem_platform_rev is 129, not 0
->   - it passes gpiod_count() - the dev_dbg("no GPIO attached, ignoring...")
->     would have printed with dyndbg on, and did not
-> 
-> By elimination the buttons are lost inside soc_button_device_create(), at
-> 
->         error = soc_button_lookup_gpio(&pdev->dev, info->acpi_index,
->                                        &gpio, &irq);
->         if (error || irq < 0) {
->                 /*
->                  * Skip GPIO if not present. Note we deliberately
->                  * ignore -EPROBE_DEFER errors here. ...
->                  */
->                 continue;
->         }
-> 
-> Every button is skipped, n_buttons stays 0, and the two returns that follow
-> are both silent:
-> 
->         if (n_buttons == 0) { error = -ENODEV; goto err_free_mem; }
->   and
->         if (!priv->children[0] && !priv->children[1]) return -ENODEV;
-> 
-> which is why nothing reaches the log.
-> 
-> The GPIO controller here is INTC105D, five gpiochips driven by
-> pinctrl-intel-platform. Both that and soc_button_array are modules in this
-> config:
-> 
->   CONFIG_INPUT_SOC_BUTTON_ARRAY=m
->   CONFIG_PINCTRL_INTEL_PLATFORM=m
-> 
-> A manual bind always works: 25 unbind/bind cycles at runtime gave 25
-> successes and 0 failures. The failure exists only in the early-boot window.
-> 
-> One hypothesis, tested and wrong
-> ---------------------------------
-> 
-> Since both are modules, load order looked like the cause, so I tried
-> 
->   softdep soc_button_array pre: pinctrl-intel-platform
-> 
-> verified applied (modprobe --show-depends inserts pinctrl first), with the
-> rescue that normally binds it by hand disabled so nothing masked the result.
-> Five boots: 2 successes, 3 failures - the same rate as before.
-> 
-> pinctrl_intel_platform is a dependency of fifteen other modules and is
-> loaded long before either way. softdep orders modules; the race is against
-> the asynchronous probe of the individual INTC105D:0N devices, which register
-> their gpiochips at their own pace. Reporting this so nobody else spends the
-> evening on it.
-> 
-> Why no patch
-> ------------
-> 
-> The comment says -EPROBE_DEFER is discarded because Intel uses "virtual
-> GPIOs" that never materialise, so deferring on them would hang the probe
-> forever. A fix has to tell that case apart from a controller that simply has
-> not probed yet, and I do not know which signal you would want to use for
-> that. Guessing would risk reintroducing the problem the workaround exists
-> for.
-> > Happy to test whatever shape you would prefer - the machine is here and I
-> can build and boot kernels on it.
+commit 96cf5f0eb3e99312a52ef035fbd723de02a88be5
+Author: Hans de Goede <johannes.goede@oss.qualcomm.com>
 
-Thank you for your detailed bug report. I've just submitted a patch which
-I believe should fix this:
+Input: soc_button_array - fix MS Surface Pro 11 probe failure
 
-https://lore.kernel.org/platform-driver-x86/20260908214410.70422-1-johannes.goede@oss.qualcomm.com/
+This patch modifies error handling in soc_button_array to propagate=20
+-EPROBE_DEFER on non-BYT/CHT platforms. This resolves a probe race with the=
+=20
+GPIO driver on the MS Surface Pro 11.
 
-Please give this a try and confirm if it fixes things.
+Closes: https://lore.kernel.org/lkml/20260830141355.55898-1-lsa.uz@pm.me/
 
-Regards,
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/s=
+oc_button_array.c
+> index b8cad415c62ca..6ed32c622d530 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -149,6 +149,16 @@ static int soc_button_lookup_gpio(struct device *dev=
+, int acpi_index,
+>  	return 0;
+>  }
+> =20
+> +#ifdef CONFIG_X86
+> +#include <linux/platform_data/x86/soc.h>
+> +static bool soc_intel_is_byt_or_cht(void)
+> +{
+> +	return soc_intel_is_byt() || soc_intel_is_cht();
+> +}
+> +#else
+> +static bool soc_intel_is_byt_or_cht(void) { return false; }
+> +#endif
 
-Hans
+[Severity: Low]
+This isn't a bug, but is this #ifdef CONFIG_X86 block and mid-file include
+necessary?
 
+The <linux/platform_data/x86/soc.h> header already contains
+#if IS_ENABLED(CONFIG_X86) internally and provides fallback stubs for other
+architectures, so the wrapping appears redundant. Placing #include directiv=
+es
+in the middle of a .c file is also generally discouraged.
 
+[ ... ]
+
+> @@ -201,6 +212,9 @@ soc_button_device_create(struct platform_device *pdev,
+>  			 * we do not have a driver for these so they will never
+>  			 * show up, therefore we ignore -EPROBE_DEFER.
+>  			 */
+> +			if (error =3D=3D -EPROBE_DEFER && !soc_intel_is_byt_or_cht())
+> +				goto err_free_mem;
+> +
+
+[Severity: Medium]
+Does this check properly handle a deferred probe from the irqchip?
+
+When soc_button_lookup_gpio() is called, gpiod_get_index() might succeed
+(leaving error =3D 0), but gpiod_to_irq() can return -EPROBE_DEFER if the
+irqchip is not yet initialized.
+
+In this scenario, irq will be -517 (-EPROBE_DEFER), but error remains 0.
+Since this condition only checks if error =3D=3D -EPROBE_DEFER, the check
+evaluates to false, the code falls through to continue, and the button
+is silently skipped instead of propagating the deferral as intended.
+
+>  			continue;
+>  		}
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908214410.7042=
+2-1-johannes.goede@oss.qualcomm.com?part=3D1

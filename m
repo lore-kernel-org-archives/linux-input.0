@@ -1,118 +1,72 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8E3B4E8E16
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 09:26:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69D47411F9E;
+	Tue,  8 Sep 2026 10:51:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788859620; cv=none; b=Bi7dL1WbRkTT6XP+BP+8kvxSNOmvrp22jfWOtNvZ/lNV4t745bcTT1VVjkGZB4bRiNMp+RIFzfdkkEdHBCSywnZVPjRfjxxc7z4eDVQL4mG2T3QX+yusx4Xx8q3elD2SaS/CNuN5B05V4WI3OWO/kp5WHzey1ILVe14+v/PmOLo=
+	t=1788864721; cv=none; b=mxFRIqoDuZkjnbchQGY5lDX53vWUGHnZ/PC5Zu8ZIvSH3are0JuvMX6jdp7faUd3LIPNpdzcqNM4aSZHk9tvkcLyTz4HtRE9Rse7/P/nhMwGiYIC5VTex5m9WvV+CGfIcviGZV9nFRF+e/AErKXgp0umHgoJDSTiILJz7Ht5Sb4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788859620; c=relaxed/simple;
-	bh=Kk7rgxnJE9jBisQFnIhAu9JCB47OG2OwNaMgOjpITmk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qexjQ7b96qCjiQqY72zU1yMQXXRKuR//+73JaPLiNgI9/RbI82aBL+HIew0KlNvGTZ8CsqDS+QPjmxT22wk44qECI/Z8XthKhCHIUozFrXKFiTSAAEBTzwZarbpd0hAtcloqZvVUSdA/Ogud3bxoYElMRfHvpsLVKxBHoGIw1ao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DoCRG5XI; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788864721; c=relaxed/simple;
+	bh=SAULTH2ZeF827fDTayUmOOBrRH1WDEVQ+2AQzhbbUm0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RCmcINJK6EzRHE0gxs9mjyfYHDTupk80zD/0KWNvzIHPfpnlyZSyOOFf0lWqJuh0gjm+mCaAxuWoRo4XyjI9jrqszdvDs6H3TAHsuxvELPlzzj7AVgh/r9UTVEDl12o9W3slIZOeUx/uovafa25dEp1JHh6eSwBAuZc6avMQCU4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=UZvHuM6Y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DoCRG5XI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 486A91F00A3F;
-	Tue,  8 Sep 2026 09:26:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788859618;
-	bh=jFStHhh6cYCWcRQlHvrkh69PtDXZ57SOmolL39RZx8I=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DoCRG5XIGIVkF8Sew2alhnC7Na4/hDPM2aSVM72YCaWToVZkxObtxzBGdxJHHgzh6
-	 XXjF1KcaZrIgS9I7hCU5OFjCscYuyoh5HlPLVQWtsS82vquV2AzpjU6bjlKeO2IGRv
-	 7Fvv9eba8ObLPdEGBCFLLOktbk92qxgyuFUqGCEA5CGDh0DTVrflKaomD81gowkn+3
-	 AfLMPpWECUY6zbV9joM40vl2F+c6r3rjRnSS16YPfxpkI2aQgm3jBcvRlpTjKzr4FS
-	 t6VG8evRRmihLcoo1Mxs0/t4TMxgVuYmyWif0LuNMnWB2ZZ3u1QLkIbbmF5o2znhHs
-	 3gDymRD+/44Qg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: i2c-hid: add reset quirk for Lenovo Yoga Slim 7x
- Gen 11 keyboard
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Oleg Keri" <okerixx@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260908091926.5773-1-okerixx@gmail.com>
-References: <20260908091926.5773-1-okerixx@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 09:26:57 +0000
-Message-Id: <20260908092658.486A91F00A3F@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="UZvHuM6Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 731901F00A3A;
+	Tue,  8 Sep 2026 10:51:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1788864716;
+	bh=ACWM/3ZqSIHqMix/gE2BwfaEjmdKW8xW4+BFxvCQUxk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=UZvHuM6YgEe2R0fI9BTor5fb2lg/Sddy9g26bLD86NM3vEo5T/4VXmhazzW3QD8fH
+	 keLDfV9F8BR5Yyvnma+92qoKbfebbBwwFIy93MCckHki5g+9nlcMW7kOPAp2u+EN3n
+	 rmmddEOMMu4Bn78JOyQRET0LQEEdD++pNcuqi5Xg=
+Date: Tue, 8 Sep 2026 12:51:44 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Miguel Garcia <miguelgarciaroman8@gmail.com>
+Cc: stable@vger.kernel.org, dmitry.torokhov@gmail.com, pengpeng@iscas.ac.cn,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6.6.y] Input: aiptek - validate raw macro indices before
+ updating state
+Message-ID: <2026090833-mutt-whiny-242e@gregkh>
+References: <20260907185001.1567957-1-miguelgarciaroman8@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260907185001.1567957-1-miguelgarciaroman8@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Mon, Sep 07, 2026 at 08:50:01PM +0200, Miguel Garcia wrote:
+> From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+> 
+> aiptek_irq() derives macro key indices directly from tablet reports and
+> then uses them to index macroKeyEvents[]. Report types 4 and 5 also save
+> the derived value in aiptek->lastMacro and later use that state to
+> release the previous key.
+> 
+> Validate the raw macro index once before it enters that state machine, so
+> lastMacro only ever stores an in-range macro key. Keep direct bounds
+> checks for report type 6, which reads the macro number from the packet
+> body and uses it immediately.
+> 
+> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+> Link: https://patch.msgid.link/20260329001711.88076-1-pengpeng@iscas.ac.cn
+> [dtor: fix macro fallback in report 5s to use -1]
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> (cherry picked from commit 95dffe32a66cbed07fbfa7afed39d56d5014e04f)
+> Signed-off-by: Miguel Garcia <miguelgarciaroman8@gmail.com>
+> ---
+>  drivers/input/tablet/aiptek.c | 13 +++++++++----
+>  1 file changed, 9 insertions(+), 4 deletions(-)
 
-Pre-existing issues:
-- [Critical] An embedded struct field (not cacheline-aligned) is passed to =
-a DMA-safe I2C transfer.
---
+What about 6.12.y and 6.18.y?
 
-commit 6f11ed5908d69555e4526207fed1941b2bc9d3c9
-Author: Oleg Keri <okerixx@gmail.com>
+thanks,
 
-HID: i2c-hid: add reset quirk for Lenovo Yoga Slim 7x Gen 11 keyboard
-   =20
-The ITE controller behind the keyboard of the Lenovo Yoga Slim 7x Gen 11
-(048d:83db) carries out a reset but never raises the interrupt that
-acknowledges it. This commit sets I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for it.
-
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c=
--hid-core.c
-> index 0ff07fdab442a..ad8d9f329404a 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> @@ -126,6 +126,8 @@ static const struct i2c_hid_quirks {
->  		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
->  	{ I2C_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15,
->  		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-> +	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD,
-> +		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
->  	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
->  		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-
-[Severity: Critical]
-This is a pre-existing issue, but does i2c_hid_fetch_hid_descriptor()
-pass an unaligned embedded struct field to a DMA-safe I2C transfer?
-
-Looking at i2c_hid_fetch_hid_descriptor(), it reads the HID descriptor into
-ihid->hdesc:
-
-drivers/hid/i2c-hid/i2c-hid-core.c:i2c_hid_fetch_hid_descriptor() {
-    ...
-	error =3D i2c_hid_read_register(ihid,
-				      ihid->wHIDDescRegister,
-				      &ihid->hdesc,
-				      sizeof(ihid->hdesc));
-    ...
-}
-
-This buffer is passed down to i2c_hid_xfer(), which forces the message to
-bypass I2C bounce buffering by explicitly setting I2C_M_DMA_SAFE:
-
-drivers/hid/i2c-hid/i2c-hid-core.c:i2c_hid_xfer() {
-    ...
-		msgs[n].flags =3D (client->flags & I2C_M_TEN) |
-				I2C_M_RD | I2C_M_DMA_SAFE;
-		msgs[n].len =3D recv_len;
-		msgs[n].buf =3D recv_buf;
-    ...
-}
-
-Because ihid->hdesc is an embedded field that shares a cacheline with other
-members of struct i2c_hid, processing this message via a DMA-capable I2C
-controller violates the I2C subsystem rule against passing
-non-cacheline-aligned buffers to I2C_M_DMA_SAFE.
-
-Could this result in DMA cacheline sharing corruption of adjacent fields wh=
-en
-the cacheline is invalidated upon transfer completion during local probe
-execution?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908091926.5773=
--1-okerixx@gmail.com?part=3D1
+greg k-h

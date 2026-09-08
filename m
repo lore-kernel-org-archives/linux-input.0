@@ -1,132 +1,137 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C85DB59C97A
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 18:15:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788891314; cv=pass; b=r4iZUxpofA9LeFVQLmW5yPtcBwgqSliBRm4IV5l95hv2pINfq77ws0k+Kav75pMwpYWT3FEcVWa1JKPAPW4acVTwP5ZsrntR7ahK4nmLNatnyO4I7pa6zQjCjle25ho5MEKAuS0SV3ELQiKVevvX94PB6mWiW1m7IzuIlDvC/uc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788891314; c=relaxed/simple;
-	bh=I1JWkwexAdECXk7Ri9fH4s02sP9GMsE/7YOTlpBK2Zg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N2b57KwdBM4K62ia7n9N6ILnkIb+a0iJTUdo/G8GB5FQGmOfVaXTL8LmuV/u5MtRaX3m4oVaCvCQ0wG4wKEnG+FgvlRRzj78bM3fLK1h2cjUCQ56QSS89XnxGoXzHb0etFHx4MtUzu/O3wRf3NvLe52UBTiqGQpb6qOBI59vEhw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PSvEsi04; arc=pass smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 750CB599A4F
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 20:07:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788898026; cv=none; b=MQDH9Nd8L486u7kpWLAzpwo/j61BjEzjuHTtqK2kclNz5K4l+amllLI2VLukfhrDNAGvIyfS7JOq+QXM3cAEcFJtAiPJ9JsmPs7Av4jQ1ett4eVpZeQtA9CZh7mWqYR4af60fHti5+Q4nA+ZIvlhuYZ/WG0lz7rFrGuDwQpPN1o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788898026; c=relaxed/simple;
+	bh=aWhvoKxzbfaU56wQB/QeQ6Ph5VkCnhZCfLmq+NV2GOI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=s6fW2etya8/d4TcrAF8sdjt/BR89VmGuEwTTS6sM/FxVUe/nSNrcOtWAcGry1zS03Ou+hMLtPQa9ueaAaoKJhQ9dy+A+OHcif1akakLFpvBEOYa0CoJwvAMyFeUfFmxpnpp1KCawq0y1zSTDlUZGWsjuNKf+hw0DR26/bHHvkcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gy8NCtPG; arc=none smtp.client-ip=209.85.221.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PSvEsi04"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-90cc39e06bdso59215436d6.0
-        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 11:15:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1788891311; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Iwb+of7vY9SxPsTvkp32E1sHtXR6ORGxrGi05PZXK3KgDY4NkDtHdTGUO+DHQxcXfk
-         tHzc0cbzhF3S08I5w0xvv+o4rTTlLXJ8FKDUBxlgZHMAwPSsEv4jO+Y7r41YezisDYsl
-         BnXT676TcP2kwaxaBrSFRxQsAMQ2lC8w9SV+Jzqa7RkLSVfBJHINUUi+rqc2Dt3cxcyW
-         dqBqkunydw/0jE38pRggurqsYS8GOk7R3gHkGaWe+nsOXu6mfTZtMK5rwLxvEmbf/s1B
-         PgXozrcx4aQFOsx/9rIpz2knbwAP1J4t8eO5joeKs2pSnoWywEWH2Jdo4FM/xWmUib26
-         YeJw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=MP3apYl6WaB7KiBrxFylQ3CL+F1Ox3GURYmefi8a5u4=;
-        fh=jvY6+s1lKvLV2g8UR5LrAdISM5wN6bplPqI/7LNaY/E=;
-        b=KbxYEN5xxyhQC0rxb52daowKRYcVf1K7AnxzTKW73NYBigZi2BykRS9jj/GCTYqjJz
-         KfKLVV/+Pith1t2nC7hoyGGugn4wunD417BrXIfIoRDlEmq9Fc7R6tnsftrvlwiod+dI
-         OYtrguwSdIGPCLAYXBjHu7mC6bOouyWdYf89eWkIqosyYxt2fjqo55JLxYk5Ck31xqbT
-         lxoSUhQtQ7sdrXVEUKEbk99lOy/6aQcv59orS30QrcxZE39CPyuuDk1oeadtvYWEygvV
-         zleSf4hPjjk6lpYGQQoYzht76FhKzjvYsjB13Vx46gI8/bT0ai95PpgmeljQXY0zwO23
-         9wmQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gy8NCtPG"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-485850cbac3so3288635f8f.3
+        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 13:07:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788891311; x=1789496111; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=MP3apYl6WaB7KiBrxFylQ3CL+F1Ox3GURYmefi8a5u4=;
-        b=PSvEsi044/VNrr+XO80eXovPHgKTD4gk4DP0jsH5y066JJbWAbjYw/ytoLwzIAgwzn
-         +WjzQjjQlimRn6hvbI/9BnueMc6LTpiC4I6ScDju9Ytji4d8N4TgXZJnXRXTAETG3Def
-         oLwLSC8lL29A4EqBtaNs2akAoS0H26mP8VU03BPDvP0Bmvd1bIO3AMjzrar/XfntgzBl
-         ynU4cPXcqer8s56en5zhmhc2Fusw1dXYiw7TcpHaF7IgocQTdMz3LUpvwsVlLefqofmC
-         6AEGk+kk54oSF3JiD4KN6ZoVWucF1NKrJGPRie/qGusYuisSdcXJ1ekqBKwAQqc0kfFn
-         pAxQ==
+        d=gmail.com; s=20251104; t=1788898022; x=1789502822; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GzN6rbmR1iUu2LnxWgQWrLFKGnzUpRCvYGe9UsoaA/A=;
+        b=gy8NCtPGL7lvdop/lotLGXYzhHH2rs3WyH8a4NubjS29KXnNRmazshr9AfkhBBSmAV
+         wNTDG6bx5ZlRvfuz9UAxTQwGzZnnqatKaLIHSNrxJSXtFtAOkJSbrWnrq5LN1EfH/39f
+         y977rGwrCVP21AHESkk8tMVN1daqU18jQNbASM9bIYgF1QGxsvFVIlGE54SNpdOaCX/R
+         q01bv5FO0rOBKJoL2uOUNNMGBcV2BgoC9wNawsCSjPxaKFeN+iH0rNwrVSG6zlbIgE90
+         isBQV5yYg8zKy7F8vfZhB+DgQaYBWLCV0XpjyOwCLg2jK3TCE5q/JNd9XKrTkPhsOVtc
+         Uu9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788891311; x=1789496111;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=MP3apYl6WaB7KiBrxFylQ3CL+F1Ox3GURYmefi8a5u4=;
-        b=nhpQ2YWfySWelsQK+SmfQdpaG6tIcFykBA057+I3hgQwPmYQ+FYwYfucP/nC00CfUp
-         kUbXsrY7EH3GgDTPD9olCVGudh+VozATMK91GZKmKzZC5b05D0wOFV0K95bq6bhPqHjc
-         8iOY8gf1DMb5XIeYzxbdsmeAg5qzvhwEMMzeOQOJHi4xmf8jH8nQgdxfrd5qva3vNGK9
-         vgYkE9D/HmplVwnsw/islBxocBPjOvZxIkR4ZTtnZkHoK1ok3QKwx14WG/ZYRhArONeb
-         RJv/yPUNq1jTfgp7Ck5UILLKTSkE1yx1CqrxOYFCAJqp0AV6Z6wR+qwtMLMdnE0kdNxY
-         FHlQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxFKmuFWtjENQrpkPseAiuEO1biniRhi2kbb4x50RovFaSyDGVXKyLT7PYPnAtlGSD7rJP0a22JV4StXw==@vger.kernel.org
-X-Gm-Message-State: AFuF++lq5fg/jMKzeQ7rh3Mk4+qAaEZV5qVwvHaQP+/t2lD8iC9V5+Zq
-	a5ZT0HR9WN5291NbT+qBnwwuwUgVxEq2QqbPGxgJNyXWPE9hWFoaLk5IodOh5YlMXsCxi2CVJMT
-	IJ4la+8JgaMTdmNwWinHNZmhBuASXESY=
-X-Gm-Gg: AYBFou2SrLKzQfJV4TpWlFNKBaO8seGyXOIOLM6P5Z9wD4w9SQd78yuwzSxbRy8s8Uj
-	EElBNgcxKYjO4wBf7thNUweOM2tnKnL9VAT78HhMc4CeR5El6Ew69iS6ZG5JeuJbfrNaC/8ZftO
-	48ZSnuzXgR98ZRbz2ngrw0GY/tOdtsuJcxZp1KhoaInVJtA1nrnR+SQ1UhxGD9N5U1dqdzbU3CP
-	8T2Hr3Zk7PviorKQ94pHeppJtq25Py7H7/f/aaAJjrNcAD1MKWiMPHBAvU18+4uvSrg+vXCIsoe
-	HnKON00Sg+kUXyurpUD0WHDsx8DO6VOoHFb13IYl0+MYmvH95lEtYKk=
-X-Received: by 2002:a05:6214:6354:b0:90e:8a84:f5b8 with SMTP id
- 6a1803df08f44-9103efac50fmr274978446d6.28.1788891311145; Tue, 08 Sep 2026
- 11:15:11 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1788898022; x=1789502822;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=GzN6rbmR1iUu2LnxWgQWrLFKGnzUpRCvYGe9UsoaA/A=;
+        b=AV582hGCR+YgnOAhu2pxPEPBVCsTakzeoVMYers2HVlG1OpgEMwd6m+TbQ3OPhg7AZ
+         4c+HTmv7MdCePvhMGXov1quCwgq4s2VhYQMhNLodcbAaIqmGKwrZCHujzpD17KIgZz75
+         14tGOW5PgEtZBJRdBriQ0TGDe6YZ8H0aV6KRSOSzMshEOMezH/b9sbjYX/q05JA1ZQin
+         y01ryRobncD70ljiIm/Xw9/4od5WzhrkWSGAxDJ1wQJiFz3AZXON7qhQLs5FBEFmPwKz
+         EdqVp4n0KZh/FI2fUZnCKQeNBSsJp9SWYzI2hR3cagW9e/xTkhq85dTtuI+or6bU08vh
+         IFbg==
+X-Forwarded-Encrypted: i=1; AKwUvBwIO+GwH32aL//dnUpezVuil+d7tC3+5l0STsnnuVawzWXhupyhB0AAk4Dl4bLqmsiDK63rHVIddtNBPw==@vger.kernel.org
+X-Gm-Message-State: AFuF++nltPxmjI1RPVl7BeodTMPJEnwlkP10Lj8wdZXeEIFdgaFyBXoR
+	+8Z3BusWLmlafcX0NOWTNDzskYbATAGQh3PoA6N+Zud8DGM8O43eEqnY
+X-Gm-Gg: AYBFou08+qUCcgtCetMANc7bkTn+aW6YPbCZeltnnPApXRCvKOZD+FuwgNw/Qev/QkZ
+	fxauugnNOShLSrfKsA0JMpMrZLiyUy8aJDn1sTt3ncm5h7rQ9DvNDcnLMGhTtnx8z2SCdywFeuU
+	EEULAY3X1sZqLolYfilqkz5pwT8Q/d+FGvcFU50ImDOwdtdYgGpxnqlkGEXYIKhG6KZ7GK1iYSa
+	ufRvWcq3QtZ8D4ZJURnnFwdyWr5I9JAwfyukw6PU8Xsz5KRCO6+rWzZ0um9O5xMNcXmXt5T+gtF
+	gfriFtbHxQXXFmah9hwkRAhHtYMtL/JiAn8/G0TRHr0376VwNaFWNxXV+iMeBv7ddmyIWUcP9ek
+	Dtl2xw0LtWF3szqh06sC9k4qYqJmaOk7+ef1+Fywm5rvtVCXb/Ux33rQsr2DmzbTZ77BDKTA6hR
+	Rhaci0w0qu8VU+h4RKmFFt+MYStp4j5xaRhem2j30n+7KnvrZclmKoU2b6jrpkNzy/FKVgl6g70
+	YrCNCawWZb9Aw3n8s3mL/c147hSqAsNkI1L8y2yxFkNiOGS4Krr41GqGdUdIkwkskAY2ION51Sy
+	/w/KycGfZHk+oy9SG/+UetbVsgszlPxDdQVcMkbmxlGucLXb1KzoeLTF5NKWgQ==
+X-Received: by 2002:a05:600c:1d08:b0:49b:96a0:5c00 with SMTP id 5b1f17b1804b1-49cf825168cmr334965715e9.13.1788898022462;
+        Tue, 08 Sep 2026 13:07:02 -0700 (PDT)
+Received: from xenia15 (30.21.143.157.bbcs.as8758.net. [157.143.21.30])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cfbe5b252sm365683295e9.3.2026.09.08.13.07.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2026 13:07:02 -0700 (PDT)
+From: Nazarii Tupitsa <nazarii.tupitsa@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Ping Cheng <ping.cheng@wacom.com>,
+	Peter Hutterer <peter.hutterer@who-t.net>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: core: Avoid leaking field ordering on repeated connect
+Date: Wed,  9 Sep 2026 00:06:55 +0400
+Message-ID: <20260908200655.139098-1-nazarii.tupitsa@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CANRwn3RFVDy+y-fpLkb1mfjiKyQgp1Jg0tyBTO+G0xem2s1jkQ@mail.gmail.com>
- <20260904020235.8227-1-98lawweijie@gmail.com>
-In-Reply-To: <20260904020235.8227-1-98lawweijie@gmail.com>
-From: Jason Gerecke <killertofu@gmail.com>
-Date: Tue, 8 Sep 2026 11:14:59 -0700
-X-Gm-Features: AcwNN1UywzU7cqy163imiuwCDI-OJo3UKdSrETVCLN-wYAoD9DpBSTsnKrDgB1Y
-Message-ID: <CANRwn3RqPvR7g3riuKSg11TCm+Yt9MTd6r0tF4tqSK3rcRp_gA@mail.gmail.com>
-Subject: Re: [PATCH v3] HID: wacom: fix OOB read in wacom_wac_pen_serial_enforce()
-To: Wei Jie LAW <98lawweijie@gmail.com>
-Cc: bentiss@kernel.org, jason.gerecke@wacom.com, jikos@kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	ping.cheng@wacom.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 3, 2026 at 7:02=E2=80=AFPM Wei Jie LAW <98lawweijie@gmail.com> =
-wrote:
->
->
-> On Thu, Sep 3, 2026 at 3:36 PM Jason Gerecke <killertofu@gmail.com> wrote=
-:
-> >
-> > I'm still finding the above paragraph kinda hard to understand. What
-> > do you think of something like the following instead?
->
-> Your version is definitely easier to understand. I'm good with it!
->
-> > Other than the above language issue:
-> > Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com
->
-> Thanks. Should I submit a v4 patch with your "Reviewed-by" and the
-> updated language, or is leaving it as-is (here) just fine?
->
-> Regards,
-> Wei Jie
+hid_connect() builds report->field_entries for every input report. Some
+drivers stop and restart the same parsed HID device. Wacom wireless does
+this when the connected tablet changes. Each subsequent hid_connect()
+overwrites field_entries and leaks the previous allocation.
 
-I suspect Benjamin would prefer a v4 with my Reviewed-by attached so
-that he doesn't have to make the edits himself.
+No physical Wacom device was available, so the reproducer was built with a
+Raspberry Pi Pico. It emulates the affected wireless receiver lifecycle and
+repeats the tablet connect/disconnect sequence.
 
-Thanks for your work on this!
+The ordering is owned by the parsed struct hid_report and remains valid
+until hid_free_report() destroys the report. Skip initialization when the
+ordering has already been built. If allocation fails, field_entries remains
+NULL so a later connect can retry.
 
-Jason (she/they)
+On Linux 7.2.3, the Pico emulated a Wacom 056a:0084 wireless receiver. An
+unpatched run with repeated tablet connect/disconnect cycles left multiple
+unreferenced 512-byte allocations in a kmemleak scan. With this change,
+repeated cycles successfully recreated the Pen, Pad and Finger devices, and
+scans after removing the receiver found no leaks.
+
+A representative kmemleak entry was:
+
+  unreferenced object (size 512):
+    backtrace:
+      __kmalloc_noprof
+      hid_connect
+      hid_hw_start
+      wacom_parse_and_register [wacom]
+      wacom_wireless_work [wacom]
+
+Fixes: 22f4b026c3dd ("HID: compute an ordered list of input fields to process")
+Cc: stable@vger.kernel.org
+Assisted-by: Codex:GPT-5
+Signed-off-by: Nazarii Tupitsa <nazarii.tupitsa@gmail.com>
 ---
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+ drivers/hid/hid-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a3ff0514f..9f4ba5f60 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1802,6 +1802,9 @@ static void hid_report_process_ordering(struct hid_device *hid,
+ 	unsigned int a, u, usages;
+ 	unsigned int count = 0;
+ 
++	if (report->field_entries)
++		return;
++
+ 	/* count the number of individual fields in the report */
+ 	for (a = 0; a < report->maxfield; a++) {
+ 		field = report->field[a];
+
+base-commit: 23da087d9a636d9b2046f3aa3b7470ae51b89c8a
+-- 
+2.50.1
+

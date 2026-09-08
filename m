@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A68C5013CA
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 09:24:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C442D521238
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 09:25:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788859467; cv=none; b=uqFgN2g/iw3IT5Dv9OImj8cwsqSaMN/BogwRMrtgi8CAyOF3cAmgfJn6NLe8mNnvd4qi6cXOMRwfj3Vghz/j94fItVFNywHaGRgBhqyeA89wqoUmOlmzGmnrZxQexbEG29HnVLRAWQDb2+aWgCB2OEm0Jp20qBkUhP4c5ddxbvY=
+	t=1788859543; cv=none; b=qr8j32KeZ9f4g8Laa1StDDJJUKiliwe5W9JqoqOIQvgYmkAXPBTIom0kcuHdUnRAGBbx/ZO2hVtE7M/uYhMbQCf0aeqpI8T/vuVrpIavjTL2OaSVUGrMHmPXgoOKfvFDNX6xzCA/XA/ppNMKYZ72hKMp6DS7SerXuT8Ve/f3Iwg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788859467; c=relaxed/simple;
-	bh=yS08YpPoRp4JOXCnDB4PAiAN3u9JS4MJWnOUdmJEZS8=;
+	s=arc-20240116; t=1788859543; c=relaxed/simple;
+	bh=nabQilCUC+uDCHiJVW6AMT/IWN6Rig03MKCUkayYPXY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=RjRHTYQADEMHdVHKyRyQYEyjYW9gGkawnL0IJWru1qcuq7Bmo9g2YxpENpgLkR0j7m5dqpZ1N5Vxh2gJ7ltL1FjVmALS+QrU1XMQCKV3gNpcmhxGu2HB8YzpL9Rfc/ZIK7GM1vr+WNwh4RLFS1bsifG7tfLpN/FLDtng14jVBJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YNSmdc0G; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=u34cxBphr7SGpPhXodaXCqOlDUbKCsLK80m4nkMvviV1zyjAxCt7oFeYT2UMlCQRcLpdclYpQA9+EMkYDe9IgcdlcOAnPIdihMNsYQErto0vWnxYfjW5Krmj8ZY6bqReKMozVOqKjZbyGh7MPse0FY+k5uNPEszMzbIL45bwmEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f+V4mRRD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YNSmdc0G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 155B11F00A3A;
-	Tue,  8 Sep 2026 09:24:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f+V4mRRD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75A361F00A3D;
+	Tue,  8 Sep 2026 09:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788859466;
-	bh=eVrunKHwp7N9TMC5IY7axn4RxzO8iXYO5+8xBBUrnXA=;
+	s=k20260515; t=1788859541;
+	bh=eNP4kvg3CTleU67YsIW2ZbqLHXlkfM5SZuZnZJLTOe0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YNSmdc0GR+qjDhkOcQdB03MDGYphpSSo7wMW+TgK+ZnjO9tDALBAzw8grD7J2VFS/
-	 nuMhIexYliUANOR8ZZ6gFwyH2wUeaZZ5KiITGc1RiVYsh/ULcHkKsrjVzmvO6OiOOk
-	 IX4doD0dEIoVY1qnuGse7v2OVEUA5mMzp931KkQJUVaHSPBM33bCWiATYHGXXLc9xO
-	 iGAeSYZkYk/ZJrd4apKRHqYm0vW4mtPEz9Aq2h0odmbgmZuAx60GjwDpflg1f0eqAO
-	 9GDVpAYTFlDFDTB8ICBvEw8xNKtNHQlEhKy1y564nMI8PM90QeTvBUfSo7mhrNr6g2
-	 SmLmyTa5eNmxQ==
+	b=f+V4mRRD3uGIRQUhv4EaQsNM6s5h7Zpt1KVww5KvaETO8AbznFXnfSHRtjcnMA3fS
+	 cB/ADtJXvVtCzaHbnVs9oJrpCX1pxKvJBimwI93mnYEcwOEd9EoCyRmQ28YuqAFF13
+	 A86H+SYhZHpzVLX9nt/NIJe/62fbOGJJsS/Z1gxvaETAJsMbPAZUIwY75loer9fQxj
+	 nI4zrr9Fg1icZVbYMkzMUFqy7xh3huPmOKfvN5bw6FCY7R6OF7t8hS2hfVg+eGiy2L
+	 U65VVvRQyTb1FJ5N7EJi2yG4KDsrc6C9MonU84PEokXs/kDVgWozuHPiPxmgZtbIyC
+	 EXFwtcs9UBKug==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/3] HID: hid-google-hammer: use named initializers for
- acpi_device_id
+Subject: Re: [PATCH] HID: lenovo: suppress phantom radio control input on
+ Yoga Slim 7x Gen 11
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Pawel Zalewski" <pzalewski@thegoodpenguin.co.uk>
+To: "Oleg Keri" <okerixx@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260908-acpi-hid-v1-1-08df24c4b139@thegoodpenguin.co.uk>
-References: <20260908-acpi-hid-v1-0-08df24c4b139@thegoodpenguin.co.uk>
- <20260908-acpi-hid-v1-1-08df24c4b139@thegoodpenguin.co.uk>
+In-Reply-To: <20260908091907.5653-1-okerixx@gmail.com>
+References: <20260908091907.5653-1-okerixx@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 09:24:25 +0000
-Message-Id: <20260908092426.155B11F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 09:25:37 +0000
+Message-Id: <20260908092541.75A361F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,61 +46,64 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-Pre-existing issues:
-- [High] Missing validation of `field->maxusage` before accessing `field->u=
-sage->hid`.
+- [Low] The macro `I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD` is u=
+sed but never defined, resulting in a compilation error.
 --
 
-commit f7c0a66497368221036f024200ddbda2e9fb80a9
-Author: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
+commit 4ee02285ee5c593b77b5e50d44817b425e9ba25b
+Author: Oleg Keri <okerixx@gmail.com>
 
-HID: hid-google-hammer: use named initializers for acpi_device_id
+HID: lenovo: suppress phantom radio control input on Yoga Slim 7x Gen 11
 
-Use a designated initializer for the acpi_device_id fields which makes the
-code more readable and consistent with how lists are initialized in the
-rest of the kernel code base. Also drop explicitly setting fields to 0
-where it is redundant.
+The ITE keyboard controller (048d:83db) declares a Wireless Radio Controls
+application collection, which hid-input registers as a second input device
+advertising KEY_RFKILL. That collection never reports anything: the
+airplane mode key is wired to the embedded controller and reaches the host
+as EC event 0x19, where the platform driver emits the key.
 
-> diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-ham=
-mer.c
-> index c99c3c0d442e1..847b1ddefeeca 100644
-> --- a/drivers/hid/hid-google-hammer.c
-> +++ b/drivers/hid/hid-google-hammer.c
-> @@ -268,7 +268,7 @@ static void cbas_ec_remove(struct platform_device *pd=
-ev)
-> =20
->  #ifdef CONFIG_ACPI
->  static const struct acpi_device_id cbas_ec_acpi_ids[] =3D {
-> -	{ "GOOG000B", 0 },
-> +	{ .id =3D "GOOG000B" },
+> diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+> index 3976d7b53b14b..617bba6626592 100644
+> --- a/drivers/hid/hid-lenovo.c
+> +++ b/drivers/hid/hid-lenovo.c
+[ ... ]
+> @@ -510,6 +520,8 @@ static int lenovo_input_mapping(struct hid_device *hd=
+ev,
+>  	case USB_DEVICE_ID_LENOVO_X1_TAB2:
+>  	case USB_DEVICE_ID_LENOVO_X1_TAB3:
+>  		return lenovo_input_mapping_x1_tab_kbd(hdev, hi, field, usage, bit, ma=
+x);
+> +	case I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD:
+
+[Severity: Low]
+Where is I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD defined?
+
+It appears this macro is undeclared, which will cause a build failure when
+compiling drivers/hid/hid-lenovo.c in lenovo_input_mapping().
+
+> +		return lenovo_input_mapping_yoga7x_g11_kbd(hdev, hi, field, usage, bit=
+, max);
+>  	default:
+>  		return 0;
+>  	}
+> @@ -1568,6 +1580,8 @@ static const struct hid_device_id lenovo_devices[] =
+=3D {
+>  		     USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X13_TAB) },
+>  	{ HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
+>  		     USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_KEYBOARD=
+) },
+> +	{ HID_DEVICE(BUS_I2C, HID_GROUP_GENERIC,
+> +		     USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYB=
+OARD) },
+
+[Severity: Low]
+Will this also fail to compile in lenovo_devices because
+I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD is missing its definitio=
+n?
+
 >  	{ }
 >  };
->  MODULE_DEVICE_TABLE(acpi, cbas_ec_acpi_ids);
-
-[Severity: High]
-This is a pre-existing issue, but does hammer_get_folded_state() lack valid=
-ation
-for the number of usages before accessing the usage array?
-
-Looking at drivers/hid/hid-google-hammer.c:hammer_get_folded_state():
-
-	for (a =3D 0; a < report->maxfield; a++) {
-		struct hid_field *field =3D report->field[a];
-
-		if (field->usage->hid =3D=3D HID_USAGE_KBD_FOLDED) {
-			u32 value =3D hid_field_extract(hdev, buf+1,
-					field->report_offset, field->report_size);
-
-			hammer_folded_event(hdev, value);
-			break;
-		}
-	}
-
-If a maliciously crafted HID descriptor declares a field with 0 usages
-(where field->maxusage =3D=3D 0), will accessing field->usage->hid
-(equivalent to field->usage[0].hid) cause an out-of-bounds memory read?
+>
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908-acpi-hid-v=
-1-0-08df24c4b139@thegoodpenguin.co.uk?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908091907.5653=
+-1-okerixx@gmail.com?part=3D1

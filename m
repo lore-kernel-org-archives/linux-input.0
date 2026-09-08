@@ -1,167 +1,286 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9AD132BF5D
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:39:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4533B33D6EA
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:39:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788838777; cv=none; b=fGPYEisBZYZGR1tMJWun0iWaJXjlGoYS5F/sewOan0Yj+F5/FBDBFkeFVnbwCu7Vz55nMYJBDTNSKcYRl1h58CvKMJeMVOdCDcrRRCYzGrBLV2TyNGy9tRhsmqp8vLd3rKn92/aDQKebI3i0xXzZeRfCdD9MAX8hEXGYVPViVJU=
+	t=1788838807; cv=none; b=QNwWZb444bYXNpP9UP9IgeiYDavJH7U6oDdo/bMuw50kPemcR0duouE6sk3txoYQspDR+ZVZMgXGr7xB1aCmzIDXADpGGDCLjB8iFZgpvEiULoPa6f93gt+w7t7D1TfSQFtnSU8BIQntnsBzywIJPW7tTTGDCJI85lkd/6sNexs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788838777; c=relaxed/simple;
-	bh=Sd6mkQeqzd/lmEpDE0ja02/N0ObcF5wMlEVHYmzwnO8=;
+	s=arc-20240116; t=1788838807; c=relaxed/simple;
+	bh=hD5Piomo7WrffgVlXJm73rt+pD6/bCBNFq6/fWKdWtE=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rtwPPWpDShEGrdOjj8a7loJrhqnIrLcKSAPWaQKEa+5zHhsfxHNTTjHvMxtsp8OKguufQVEzLpN3Kq/rwPqums9xP+UtK8yLPzGEl2MghwCbwoP9MT0i2g+7ncjKEJnRdm+Gz+sIpNu2cMV2A5//cQrFeCkvt6+sqrGjjEgGWMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y6yWFpFM; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=QGcJau6EBdSYQ19C813FHSFW/Y1O2DhXbK2/YTXST+VohBd7KSa1U9T1PI3zipj3SyIWoWBybyzRuGxws2fZVKt4jQxVrMW7kHflkb8SxyXuJNuCel+YhTRFaJ+SvYLTXXp8ln4VPu+zyaaw3F2OjA253h4Js4q06Zze0pPISss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YfpD+Rzp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y6yWFpFM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C57111F00A3A;
-	Tue,  8 Sep 2026 03:39:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YfpD+Rzp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF4B1F00A3D;
+	Tue,  8 Sep 2026 03:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788838751;
-	bh=XHiymsNd9baz+rK0X1DNIvrBZQA89PVt4HYAlPzOHko=;
+	s=k20260515; t=1788838772;
+	bh=laDL91VkwnT3eH1JnNXIxEpo1yLFaUDh4FWpr2YzjPs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Y6yWFpFM0mRvu5q+chYyoQCDgn0pqU55+nmY+/31IAUh1saFJTmy5oIdS7FmO25qT
-	 DJJvBTYuuO3MbcRgE/Qp3cI4Fh3par+iE1eiePMtl186YHdJyuLpgqLRa7DZrgzVky
-	 oK8sBljYSJ2qf4bgrideE7Yw+VAAa+zAMVTKFWfFkB7CD2Uklc8lRzk9GvlmADVhfV
-	 hqZwCKbiwUU9Iw5tfxc6gatFMKC0ExtryqWxU3DqKbCOiio2jT8/zhCHxL1KZW96eM
-	 DKolppM8GBLydh5C6QFD8wdXtlDxinQoaMdoiqi5VL3n9tuF9x8husSu8FsnnM1JSs
-	 WYpcRA8DSIj8w==
+	b=YfpD+RzpkNGMyPkLa4Pfdz+z8CGI9VgrZ8d56hcz2Jf+cDi8Pyx8j2mozwKBbWe4S
+	 sdyjUy/1S8fI709YTDpsTNgQv4LEgjfk98EqX5nP+SPNoDLZL8oKFrBST10S8lRA5m
+	 d/aFUbDt/P/LKeVTDfc0j7/SVzMc/t5nQbmWWWpL2rfAnrWVHn2dAMrdmtonI0lrnt
+	 oUBHiTPQ4sQuljjklm4GK1s9OwB+9+S2+2n4OXmU8bqgwM+DvfBdNP5cuLf+UoxVVZ
+	 cyHd2HYthLRKe8+xjiVBMByk6kqkNm3AznYa9ATLTaJzJU1gX1TR7cEkJNtbyYX3SQ
+	 Bcwo/fw7A2TfQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 03/12] Input: xbox_gip - Add controllable LED support
+Subject: Re: [PATCH v6 06/12] Input: xbox_gip - Allow sending fragmented and
+ ACME messages
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260908032145.2118234-4-vi@endrift.com>
+In-Reply-To: <20260908032145.2118234-7-vi@endrift.com>
 References: <20260908032145.2118234-1-vi@endrift.com>
- <20260908032145.2118234-4-vi@endrift.com>
+ <20260908032145.2118234-7-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 03:39:11 +0000
-Message-Id: <20260908033911.C57111F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 03:39:32 +0000
+Message-Id: <20260908033932.7DF4B1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
 s) to consider:
-
-New issues:
-- [High] Registering a managed LED classdev against an input device creates=
- a circular dependency, leading to memory leaks, list corruption, and kerne=
-l crashes on device reconnect.
-
-Pre-existing issues:
-- [High] Repeatedly calling `devm_input_allocate_device()` against the USB =
-interface without unbinding leaks `input_dev` structures on every device re=
-connect.
+- [High] Missing synchronous cancellation of `out_fragments[i].timeout` dur=
+ing device shutdown leads to use-after-free.
+- [High] Unprotected lockless access to `out_fragments` state causes data r=
+aces, corruption, and potential Use-After-Free.
+- [High] Infinite USB transmission loop if the first fragment of a message =
+times out.
+- [High] The `acked` field of `gip_out_fragment` is not cleared on slot reu=
+se, breaking reliable retries.
+- [Medium] Stale `has_pending_out` bit in error path causes concurrent chun=
+k transmissions.
+- [Low] Mixing `goto` error handling with `guard()` cleanup violates subsys=
+tem guidelines.
 --
 
-commit 170b2e9725cebf9b1d26ed7fb1bf1a2b52d452c6
+commit a080933dee9387ce07bf54626ee39a087371ba35
 Author: Vicki Pfau <vi@endrift.com>
-Input: xbox_gip - Add controllable LED support
+Subject: Input: xbox_gip - Allow sending fragmented and ACME messages
 
-This commit adds controllable LED support for Xbox One controllers. It expo=
-ses=20
-both monochrome white and RGBW addressable LEDs as led class devices depend=
-ing=20
-on the controller capabilities.
+This patch implements support for sending fragmented messages and handling =
+the
+reliable transmission flow (ACME messages). It adds dynamic message allocat=
+ion
+slots and uses background delayed work to manage ACKs and retry timeouts.
 
-> diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gi=
-p/gip.h
-> index 605149834269f..69eef001d91ff 100644
-> --- a/drivers/input/joystick/gip/gip.h
-> +++ b/drivers/input/joystick/gip/gip.h
-> @@ -234,6 +235,10 @@ struct gip_attachment {
->  	uint8_t seq_vendor;
-> =20
->  	uint8_t device_state;
-> +	union {
-> +		struct led_classdev standard;
-> +		struct led_classdev_mc color;
-> +	} guide_led;
-
-[Severity: High]
-Does embedding the led_classdev directly inside the long-lived
-gip_attachment structure risk list corruption?
-
-If the input device is reset and re-probed (for example, via a reset
-message), the driver recreates the device and could call
-devm_led_classdev_register() again on the exact same already-registered
-led_classdev struct. This would corrupt the global leds_list and cause a
-kernel crash.
+Link: https://lkml.kernel.org/r/target-patch-link
 
 > diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
 ck/gip/gip-core.c
-> index 0e23811a6ecc1..a5ed5f3bf3fed 100644
+> index 568877a4ce4b4..f61b5f18b819a 100644
 > --- a/drivers/input/joystick/gip/gip-core.c
 > +++ b/drivers/input/joystick/gip/gip-core.c
+
 [ ... ]
-> +static int gip_guide_led_probe(struct gip_attachment *attachment, struct=
- device *dev)
+
+> +static void gip_free_fragment(struct gip_out_fragment *fragment)
+> +{
+> +	cancel_delayed_work(&fragment->timeout);
+> +	kfree(fragment->data);
+> +	fragment->data =3D NULL;
+> +	fragment->active =3D false;
+> +	fragment->message =3D 0;
+> +	fragment->flags =3D 0;
+> +	fragment->seq =3D 0;
+> +	fragment->retries =3D 0;
+> +	fragment->total_length =3D 0;
+> +	fragment->fragment_offset =3D 0;
+> +}
+
+[Severity: High]
+Does this code leak the acked state to future messages?
+
+When fragment slots are released, fragment->acked is not cleared here. If a
+slot is later reused, it could inherit a stale true value, causing the
+timeout retry logic to immediately skip resending lost packets.
+
+[ ... ]
+
+> +		for (i =3D 0; i < MAX_OUT_FRAGMENTS; i++) {
+> +			if (attachment->out_fragments[i].active)
+> +				continue;
+> +
+> +			fragment =3D &attachment->out_fragments[i];
+> +			break;
+> +		}
+
+[Severity: High]
+Is it safe to access out_fragments locklessly here?
+
+gip_handle_command_protocol_control() also modifies these fields locklessly.
+Scanning and claiming slots concurrently without acquiring attachment->lock
+can lead to data races and duplicate slot allocations.
+
+> +
+> +		if (!fragment) {
+> +			gip_err(attachment, "Fragmented message queue is full; dropping messa=
+ge\n");
+> +			return -EALREADY;
+> +		}
+> +
+> +		fragment->data =3D kmalloc(num_bytes, GFP_KERNEL);
+> +		if (!fragment->data)
+> +			return -ENOMEM;
+> +		fragment->active =3D true;
+> +		fragment->message =3D message_type;
+> +		fragment->flags =3D flags & GIP_FLAG_SYSTEM;
+> +		fragment->seq =3D seq;
+> +		fragment->total_length =3D num_bytes;
+> +		fragment->fragment_offset =3D 0;
+
+[Severity: High]
+Should fragment->acked be explicitly set to false here?
+
+Since gip_free_fragment() does not clear the acked flag, explicitly setting
+it to false here would ensure the new message does not skip retry handling
+if the previous message finished successfully.
+
+[ ... ]
+
+>  	guard(spinlock_irqsave)(&attachment->device->message_lock);
+>  	for (i =3D 0; i < MAX_OUT_MESSAGES && !urb; i++) {
+>  		if (!intf->out_queue[i].urb)
+>  			continue;
+>  		if (!intf->out_queue[i].urb->anchor)
+>  			urb =3D &intf->out_queue[i];
+>  	}
+>  	if (!urb) {
+>  		gip_err(attachment, "Output queue is full; dropping message\n");
+> -		return -ENOSPC;
+> +		rc =3D -ENOSPC;
+> +		goto err_free_fragment;
+>  	}
+
+[Severity: Low]
+Is it permitted to mix goto error handling with guard() in this function?
+
+The cleanup subsystem guidelines strictly mandate that functions must not m=
+ix
+goto-based cleanup labels with guard() declarations, as it causes confusing
+ownership semantics and resource leaks.
+
+[ ... ]
+
+> +err_free_fragment:
+> +	if (fragment)
+> +		gip_free_fragment(fragment);
+>  	return rc;
+>  }
+
+[Severity: Medium]
+If usb_submit_urb() fails and we jump to err_free_fragment, does this leave=
+ a
+stale bit in intf->has_pending_out?
+
+If the has_pending_out bit was previously set from an intermediate chunk
+submission, failing to clear it here leaves it active. When a new message
+claims this slot, gip_send_fragment_work() could see the stale bit and
+prematurely send the new message's second chunk.
+
+[ ... ]
+
+> +static int gip_send_next_fragment(struct gip_attachment *attachment,
+> +	struct gip_out_fragment *fragment)
 > +{
 [ ... ]
-> +		if (!rc)
-> +			rc =3D devm_led_classdev_multicolor_register(dev,
-> +				mc_cdev);
-
-[Severity: High]
-Can this create a circular dependency?=20
-
-By using devm_led_classdev_multicolor_register() in gip_guide_led_probe()
-with the input_dev as the parent device, the LED child device takes a
-reference to the input_dev. Since input_dev devres actions only execute when
-its reference count drops to zero, the LED device is never automatically
-unregistered, creating a circular reference and leaking memory.
-
-[ ... ]
+> +	} else if (fragment->fragment_offset + mtu >=3D fragment->total_length)=
+ {
+> +		next_bytes =3D fragment->total_length - fragment->fragment_offset;
+> +		flags |=3D GIP_FLAG_ACME;
 > +	} else {
-> +		struct led_classdev *cdev =3D &attachment->guide_led.standard;
-[ ... ]
-> +		rc =3D devm_led_classdev_register(dev, cdev);
+> +		next_bytes =3D mtu;
+> +	}
 
 [Severity: High]
-Similarly, does registering the standard LED classdev against the input dev=
-ice
-here create the same circular dependency preventing automatic unregistratio=
-n?
+How does this sequence handle retries for the first chunk?
+
+If the first chunk of a fragmented message times out and this function
+retries it, GIP_FLAG_ACME is not appended because it is not the final
+fragment. This bypasses the reliable ACME timeout logic, which causes
+the worker thread to immediately and repeatedly resend offset 0 without
+waiting for ACKs, resulting in an infinite USB transmission loop.
 
 [ ... ]
-> @@ -1157,6 +1268,10 @@ static int gip_setup_input_device(struct gip_attac=
-hment *attachment)
->  	if (rc)
->  		goto err_free_device;
-> =20
-> +	rc =3D gip_guide_led_probe(attachment, &input->dev);
-> +	if (rc)
-> +		gip_err(attachment, "Failed to register LEDs: %d\n", rc);
+
+>  static void gip_reset_attachment(struct gip_attachment *attachment)
+>  {
+> +	int i;
+> +	int pending_out_bits =3D
+> +		BIT((attachment->attachment_index + 1) * MAX_OUT_FRAGMENTS) -
+> +		BIT(attachment->attachment_index * MAX_OUT_FRAGMENTS);
+> +	unsigned long flags;
 > +
->  	return 0;
+>  	cancel_delayed_work(&attachment->metadata_next);
+>  	cancel_delayed_work(&attachment->in_fragment_timeout);
+> =20
+>  	if (attachment->in_fragment_data)
+>  		gip_free_in_fragment(attachment);
+> =20
+> +	spin_lock_irqsave(&attachment->device->message_lock, flags);
+> +	attachment->device->data.has_pending_out &=3D ~pending_out_bits;
+> +	attachment->device->audio.has_pending_out &=3D ~pending_out_bits;
+> +	spin_unlock_irqrestore(&attachment->device->message_lock, flags);
+> +
+> +	for (i =3D 0; i < MAX_OUT_FRAGMENTS; i++) {
+> +		if (attachment->out_fragments[i].active)
+> +			gip_free_fragment(&attachment->out_fragments[i]);
+> +	}
+> +
+>  	gip_free_devices(attachment);
+> +
+>  }
 
 [Severity: High]
-This isn't a bug introduced by this patch, but does the allocation of the
-input device earlier in gip_setup_input_device() leak input_dev structures =
-on
-every reconnect?
+Could the loop in gip_reset_attachment() introduce a use-after-free during
+teardown?
 
-The code uses devm_input_allocate_device() with the long-lived USB interface
-as the parent. When the controller resets (by sending a reset packet),
-the driver correctly calls input_unregister_device(), but the devm free act=
-ion
-remains attached to the USB interface's devres list. A new input_dev is then
-allocated for the re-initialization, leaking an entire input_dev structure
-each time until the USB dongle is physically unplugged.
+During gip_shutdown(), the device teardown path correctly uses
+cancel_delayed_work_sync() for other background workers, but relies on this
+loop which uses the non-synchronous cancel_delayed_work() via
+gip_free_fragment().
+
+If gip_out_fragment_timeout() is executing and waiting on attachment->lock
+during shutdown, it could resume after devres frees the attachment
+structure, resulting in a use-after-free.
+
+[ ... ]
+
+>  static int gip_handle_command_protocol_control(struct gip_attachment *at=
+tachment,
+>  	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
+>  {
+[ ... ]
+> +	fragment->acked =3D true;
+> +	fragment->retries =3D 0;
+> +	cancel_delayed_work(&fragment->timeout);
+> +	if (fragment->flags & GIP_FLAG_FRAGMENT) {
+> +		fragment->fragment_offset =3D fragment_offset;
+> +		rc =3D gip_send_next_fragment(attachment, fragment);
+> +		if (rc < 0)
+> +			return rc;
+> +	} else {
+> +		gip_free_fragment(fragment);
+> +	}
+> +
+> +	return 0;
 
 [Severity: High]
-Also, if a controller reset causes gip_setup_input_device() to run again, d=
-oes
-calling gip_guide_led_probe() register the LEDs a second time without
-ensuring the previous LED instances were unregistered?
+Are modifications to the fragment state thread-safe here without
+attachment->lock?
 
-Combined with embedding the led_classdev inside the attachment, this seems
-like it would trigger list corruption.
+This path modifies fragment->acked and fragment->fragment_offset, and calls
+gip_free_fragment() entirely locklessly. Doing so can race concurrently
+with gip_out_fragment_timeout() and gip_send_raw_message(), leading to
+corrupted fragment offsets or duplicated USB submissions.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908032145.2118=
-234-1-vi@endrift.com?part=3D3
+234-1-vi@endrift.com?part=3D6

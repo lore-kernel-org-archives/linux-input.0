@@ -1,163 +1,156 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8225579826;
-	Tue,  8 Sep 2026 15:54:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C40A852D2C5
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 16:59:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788882869; cv=none; b=BdOBveFkz6QXPgMHrtG5JE3QnPfUHDUVlNH3RBZRQoo3Dl+PCCmC1t4ZV1Ym/zx3hq2Q75g7m+0UagvGGutRtKpV3pKzYW9krgCy+76Vrcjp1S5AAWIZN6FgS6BS7JW7GjsOOxwPE3mX9odoAVCvYyEcYW9ozIeFD6Eq7q8a/Cw=
+	t=1788886781; cv=none; b=Y4B/HzRkybT7csN/UPhABaKzyayrXEMFFBY9FkN77SfP4a5sZvWc7jsYytcf03uKf3OD3jDzKcVDKD8zUkdpMmvAFmYKLs7ytWOd+s1A+8QyDhhj7pLqlgFFRBqFkYfcg8RK1/l4CNIW4yjIv2A7lv/YuSwyjPrNDTPQjDsMiO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788882869; c=relaxed/simple;
-	bh=8ro/tg7Ivm1ZXMwMRiUNjqAROHDo6oPa4yYbhL3KoRI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IPD3iixCOJGUuQ2lP3ZpaS6o/9uUT+yMro4m24FN/q0BhP3zC2dSzmh+Zl2sgdooDUzQKvv7X/egqM3eJWjdPqmKR/2Ve0QHidHZJaN5fcGGW/uACYTCpZEHt/5vC/wb3jQVMCsv9F9JwbXSkFHTmdlHoEiAz30ouax0WZPQ1ag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AHkVV0+X; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788886781; c=relaxed/simple;
+	bh=+KOQ1Ds4ZkQOJQZRLn+J3z1zuh2gsIE6PlCJszLVBFg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gieEFzXk4nBwMZRvGXbxaGaTbusuv42mnDhBQ8rHspAxZ2ZWw5id9V1sBBriDNSe509R7gbh1fPHiraBz+EfVxIlf4CNLYb6rCnDZ8Xpz12h2cSro1jM4BxNQjqh+z4aMGthcGg2v4v7ufQrFkAdBXmc88bqhf1tNLU+lFcapZk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c1zrakv2; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AHkVV0+X"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B05FD1F00A3D;
-	Tue,  8 Sep 2026 15:54:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788882863;
-	bh=8ro/tg7Ivm1ZXMwMRiUNjqAROHDo6oPa4yYbhL3KoRI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=AHkVV0+X3421vTGHFXBNEqA0Gljx9uzcBKVmLY4wwrvteoumde+HHKAbUxiIikapi
-	 uT5ALxQoTo9ABMTWwyph1QLZP83ldMlp1JjFYgqTG9nrTRiB3IEfG4jWu7j9epURhe
-	 RL6GJjpWkQeAnQtGMbNimo+UUPqIlDYRP8cIynWc4ZWiJ1ogA5ZB0vdO8Rqo9XUkkR
-	 peMRNcOdYBOfWgMXdKJ9Xby2Y0KSwDZ8Jkbpfwneu+3qHXxVUygeA6nF45ygo/razr
-	 OeIYwyRRPPDbXzfK7QxLHcDTIjKvdhCMQUjJwracrMmXbWCGdQ9mcgeOECHVlDLGPB
-	 MQnKPgjXYXUYQ==
-Message-ID: <97ba50e7-9631-471b-a5cc-f2d92ade95be@kernel.org>
-Date: Tue, 8 Sep 2026 17:54:20 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c1zrakv2"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2db3305f94fso35937065ad.0
+        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 09:59:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788886779; x=1789491579; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=rgqygJFgVHpbr65+v3Un3U0dLoYuKnbnhqEwnLI1X3A=;
+        b=c1zrakv2Tqf2KocQK8haNdChgaRQpAKLnfhN01cDlgDlMslO0+ub6rFIfxrOjKUnDM
+         4wSZOqdfmHzZrmJcKFoqAsXYs4ewgrfAYEmlfFkDsRAxb3sZjb+FFrvHqZfZWyqNwYSS
+         Ml6xU/eWPGzG8pmAhP3CughSIcbPxvAPfpEWqMs2GenBlzleYH6g8h5QijU257hbIeBC
+         AjUYLzVc3/0V1Bn/6AZraOBbs8b9B+ujwWoQSTIRL5wzCkJSpJ5edcqW54EevmBmJviz
+         At61N1BmJrWOpxY4aUh2JjvYlyeK7BtGm6KWPjb+m8stpqst9vtXd6QMa/dvZb6PMJYY
+         fOnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788886779; x=1789491579;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=rgqygJFgVHpbr65+v3Un3U0dLoYuKnbnhqEwnLI1X3A=;
+        b=eMzi8f6JEja259vh/uK6RPl9ApKHeGSGpz6DNwySlkNstUZzJwQd0xGWjdBm2YNO5d
+         jWgQWCS5C+4J3pv6gDk4UVng7eLm5BfJTxfgl7VKRfVQy9uiQojMhvNgmCYi3AAcgXwa
+         fDdiqDQPFGQ6hlm8zXnYAObxKghOad3kWy2dKubk8BeRtJvEeQ3GE65Xw2zCoW5XLBlc
+         qkT2Xc2yKaEhV9ns5XcyqnHhMes2CVi4UDmE504+7sK2IL++rGtvErvDC/XtKXi3Asyl
+         xdhgwPX8ZAyVtluU9AC97OdCL18lnWzUEpZOLt/DTIeNTB+9MLYmMgBEk4awazBnJPbp
+         r+Hg==
+X-Gm-Message-State: AFuF++lctiuT/oyrkxgBO7WPf3LRY5w+T+3CbbdhLhni7whtbmBTgO0O
+	kMuS2iDYVARbRUJEPuzlBxvsmIzq61KU21TZplLlvrXjxXUDNKag8IGE
+X-Gm-Gg: AYBFou0omldgFvDDcQ6cMAvELRsvuoRv+wEvA6FYujTDx6xOmiV00xZQxUnfsk2jWeB
+	xof1B10fZSioBxvWCj9RwMPmehbkIFeWQSZ8kLPNxGoPNboDaPU9k451BQd/qcZPeqN+qh/Cb2V
+	+tL5BlPlPDymuXG7YVjXdzLYv2MvKSUPpk/JYXb33KiXF5vp+Sj5NPb90qeFIqu1cMisXoYBfiA
+	f0JrxJoFnxjICUxT8S1E/5hzF3Krjw85Gb9Sj97WJZTg9fyS2EfmE0b68OBF+Xvt5u9nzSsy1yo
+	/bwWKKB6GSfnlkGKDnuOtPfqdSC/naL/w3CdVs4GxJMU72h9VvHbSVU1UqoU9Xp5VRbqmUTS5ax
+	ucKFO1W7WqD1aLnXwmo8O/1NgrYL09wad4MLoR1X63xtbP8eLShDunfnD9cV7d+sc1L8sUcnKHB
+	QHj1du/Up48phIUCS6Lc51nVvkpOcRqRJ1XHAi7moqjSdLn56cgo29d/9FC1BxlHJKxC9o3MPZI
+	0CsRkxGbBqRoGjoGY8TBwTp
+X-Received: by 2002:a17:903:90b:b0:2db:5f00:ff52 with SMTP id d9443c01a7336-2db5f0103fbmr170823495ad.22.1788886778892;
+        Tue, 08 Sep 2026 09:59:38 -0700 (PDT)
+Received: from LAPTOP-450UDG4J ([223.185.135.143])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2db146b9691sm61436395ad.0.2026.09.08.09.59.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Sep 2026 09:59:38 -0700 (PDT)
+From: Yogesh Gaur <yogeshgaur.83@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Christopher Heiny <cheiny@synaptics.com>,
+	Andrew Duggan <aduggan@synaptics.com>,
+	Yogesh Gaur <yogeshgaur.83@gmail.com>,
+	syzbot+09103639e39c989e3ed3@syzkaller.appspotmail.com
+Subject: [PATCH] Input: synaptics-rmi4 - fix NULL dereference in the PM callbacks
+Date: Tue,  8 Sep 2026 22:29:25 +0530
+Message-ID: <20260908165925.2030-1-yogeshgaur.83@gmail.com>
+X-Mailer: git-send-email 2.55.0.windows.5
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Wrongly bound Elantech touchpad on Lenovo Yoga Slim 7
-To: Jiri Slaby <jirislaby@kernel.org>,
- Benjamin Tissoires <benjamin.tissoires@redhat.com>,
- Takashi Iwai <tiwai@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
- lkml <linux-kernel@vger.kernel.org>
-References: <s5hleyqwowl.wl-tiwai@suse.de>
- <CAO-hwJK-7migm7VWkwvTPHwxgTZEbNX0XYpk0A1pr6N2jkYrxw@mail.gmail.com>
- <0af0150d-c66e-3f46-f9a5-bb2886045e03@redhat.com>
- <b5ba00c3-4842-4f39-a33f-93e4fe0794f7@kernel.org>
- <979164e2-2c1d-4c6a-9af5-7c25f556ed93@kernel.org>
-From: Hans de Goede <hansg@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <979164e2-2c1d-4c6a-9af5-7c25f556ed93@kernel.org>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Hi,
+rmi_driver_suspend() and rmi_driver_resume() are exported for the
+transport drivers; hid-rmi calls them straight from its ->suspend and
+->resume. Both reach code that dereferences the driver data right away:
 
-On 8-Sep-26 10:44, Jiri Slaby wrote:
-> Use hansg@kernel.org, not @redhat.com
+	static int rmi_suspend_functions(struct rmi_device *rmi_dev)
+	{
+		struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+		...
+		list_for_each_entry(entry, &data->function_list, node) {
 
-Thx.
+That data is installed by rmi_driver_probe(), which binds only after the
+transport driver has already published rmi_dev via
+rmi_register_transport_device(). A runtime PM suspend of the underlying
+USB interface in that window dereferences NULL:
 
-> On 08. 09. 26, 10:27, Jiri Slaby wrote:
->> Hi,
->>
->> I am resuming an ooold thread...
->>
->> On 05. 02. 22, 12:12, Hans de Goede wrote:
->>> Hi,
->>>
->>> On 2/4/22 18:39, Benjamin Tissoires wrote:
->>>> Hi,
->>>>
->>>> [adding Dmitry, the maintainer of the input tree and Hans, a colleague of mine]
->>>>
->>>> On Fri, Feb 4, 2022 at 5:57 PM Takashi Iwai <tiwai@suse.de> wrote:
->>>>>
->>>>> Hi,
->>>>>
->>>>> we've got a bug report on openSUSE Bugzilla about the broken touchpad
->>>>> on Lenovo Yoga Slim 7:
->>>>>    https://bugzilla.opensuse.org/show_bug.cgi?id=1193064
->>>>>
->>>>> The touchpad is an Elantech one, connected over i2c, and there are two
->>>>> drivers supporting it.  Unfortunately, the default one the system
->>>>> binds, elan-i2c input driver, doesn't seem working properly, while
->>>>> i2c-hid driver works.
->>>>
->>>> Hans, we do have a similar bug on RHEL at
->>>> https://bugzilla.redhat.com/show_bug.cgi?id=2029078 (sorry, private
->>>> bug).
->>>>
->>>> IIRC you worked on the discrimination between i2c-hid and elan_i2c (I
->>>> might be completely wrong though).
->>>
->>> Yes I did work on that, but then the other way around making sure
->>> that the i2c-hid driver would not bind to some devices which need
->>> the elan_i2c touch*pad* driver.
->>>
->>> And indeed as Dmitry points out:
->>>
->>>> I believe we need to do what Hans did for Elan Touch*screen* driver and
->>>> avoid binding to the device if it has i2c-hid-specific _DMS in ACPI.
->>>> I.e. we need to replicate elants_acpi_is_hid_device().
->>>>
->>>> Even better would be to factor it out, maybe not into a shared module
->>>> but simply shared header with static inline function that we could share
->>>> between elan drivers and maybe others as well.
->>>
->>> I did fix a similar problem for the touchscreen driver last year or so.
->>>
->>> I agree with Dmitry that we should try to avoid DMI matching here;
->>> and I also agree that having some header with a static inline
->>> acpi_is_hid_device() device helper would be good.
->>>
->>> I'm a bit worried about the acpi_is_hid_device() approach though,
->>> there is a lot of copy and pasting going on when vendors create
->>> ACPI tables and sometimes a "PNP0C50" CID is present combined
->>> with a valid i2c-hid _DSM method even though the device is not
->>> an i2c-hid device, also see the i2c_hid_acpi_blacklist[] in
->>> drivers/hid/i2c-hid/i2c-hid-acpi.c .
->>>
->>> It seems to me that the problem is that the Lenovo Yoga Slim 7
->>> is using what seems to be a very generic "ELAN0000" ACPI hardware
->>> id instead of one of the many more specific ones.
->>>
->>> So we could limit the acpi_is_hid_device() check to just the
->>> "ELAN0000" ACPI hardware id I guess?
->>>
->>> So I see the following 2 options:
->>>
->>> 1. Add an unconditional acpi_is_hid_device() check to elan_probe()
->>>     and watch out for any bug-reports that this is causing breakage
->>>     elsehwere
->>> 2. Add an acpi_is_hid_device() check to elan_probe() for ACPI enumerated
->>>     touchpads with a hardware-id of ELAN0000 only; and still
->>>     watch out for any bug-reports that this is causing breakage
->>>     elsehwere just to be sure
->>
->> I assume noone ever tried to implement this, right? Or was some alternative approach merged in the meantime?
+	KASAN: null-ptr-deref in range [0x0000000000000078-0x000000000000007f]
+	RIP: 0010:dev_get_drvdata include/linux/device.h:989 [inline]
+	RIP: 0010:rmi_suspend_functions drivers/input/rmi4/rmi_driver.c:283 [inline]
+	RIP: 0010:rmi_driver_suspend+0x30/0x180 drivers/input/rmi4/rmi_driver.c:994
+	Call Trace:
+	 <TASK>
+	 rmi_suspend+0xa7/0xf0 drivers/hid/hid-rmi.c:448
+	 hid_suspend+0x4a3/0x530 drivers/hid/usbhid/hid-core.c:1618
+	 usb_suspend_interface drivers/usb/core/driver.c:1323 [inline]
+	 usb_suspend_both+0x285/0x1040 drivers/usb/core/driver.c:1446
+	 usb_runtime_suspend+0x58/0x110 drivers/usb/core/driver.c:2000
+	 rpm_callback drivers/base/power/runtime.c:460 [inline]
+	 rpm_suspend+0x8a0/0x17a0 drivers/base/power/runtime.c:698
+	 pm_runtime_work+0x132/0x1b0 drivers/base/power/runtime.c
+	 </TASK>
 
-I indeed believe that no-one ever tried to implement this (but I did
-not check).
+rmi_disable_irq() and rmi_enable_irq(), reached a few lines further on,
+look the driver data up the same way and then take
+&data->enabled_mutex, so they would fault too.
 
->> openSUSE still drags the Takashi's downstream patch with a DMI check. It would be nice to sort this out upstream and drop that private one ;).
+There is nothing to suspend or resume before the driver has bound, so
+return success early while the driver data is not there yet.
 
-Ack, that would be great also to fix the issue on other distros.
+Fixes: 2b6a321da9a2 ("Input: synaptics-rmi4 - add support for Synaptics RMI4 devices")
+Reported-by: syzbot+09103639e39c989e3ed3@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=09103639e39c989e3ed3
+Signed-off-by: Yogesh Gaur <yogeshgaur.83@gmail.com>
+---
+ drivers/input/rmi4/rmi_driver.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Note my suggested approach of using an acpi_is_hid_device() check
-in the elan touchpad driver does carry a risk of causing regressions.
-
-But I think it is worth a try, maybe combined with limiting
-it to a HID of "ELAN0000" or first try without and on
-regressions on devices with another HID add that ?
-
-And if this approach fails (causes regressions) then we should
-upstream Takashi's downstream patch with a DMI check.
-
-Regards,
-
-Hans
-
-
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 5d49a9021c7d..cff9209ec0b3 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -991,6 +991,14 @@ int rmi_driver_suspend(struct rmi_device *rmi_dev, bool enable_wake)
+ {
+ 	int retval;
+ 
++	/*
++	 * The transport driver registers rmi_dev before this driver has bound
++	 * to it, so a PM transition can reach here while the driver data does
++	 * not exist yet. There is nothing to suspend in that case.
++	 */
++	if (!dev_get_drvdata(&rmi_dev->dev))
++		return 0;
++
+ 	retval = rmi_suspend_functions(rmi_dev);
+ 	if (retval)
+ 		dev_warn(&rmi_dev->dev, "Failed to suspend functions: %d\n",
+@@ -1005,6 +1013,9 @@ int rmi_driver_resume(struct rmi_device *rmi_dev, bool clear_wake)
+ {
+ 	int retval;
+ 
++	if (!dev_get_drvdata(&rmi_dev->dev))
++		return 0;
++
+ 	rmi_enable_irq(rmi_dev, clear_wake);
+ 
+ 	retval = rmi_resume_functions(rmi_dev);
+-- 
+2.55.0.windows.5
 

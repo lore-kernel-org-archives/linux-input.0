@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9891F57C9F
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:23:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 805C73195FE
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:23:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788837828; cv=none; b=hQVq+dyd/t71/kAwwEJcxTMbWGwJlXsx2ouEKEqYu3t4o5/RYMlgroaNQAJ/lfJPFZky2Z05mqga/r3yexoNe/3QZyY/bsd45A9iUd+natyNFF3qy1UcI6UyeagzFldghjXpyjLO7U3gj5EKk1Sx0JjN4bPvyvimo39AyS+VMoM=
+	t=1788837828; cv=none; b=Qx7nVWiaYBFgLEk3JtcTMwwYrJDk6M6ZyKHv6OzWK/3VnlVsC7+E5EPyFbYPfVjJWLXk4FqukD6yUT6Qapfe/HOQQUtq1q8f9+k3xFXtyqkdJ2r5wN8hFWayfgOCO1RrzPPtEi3pshkSDgJ3VxzDEADVYJ1h6r78Ov1H/4QOHPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788837828; c=relaxed/simple;
-	bh=q1pLcb7IKZW+bGqVas3IuwrS3YV1qxv/AIyqJTIgMrI=;
+	bh=dIbr/4Puz1Aiiya1ht5fiKOoVynMrKPxRhz8BOC6CRk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rfSSdz8sJlczdLbV4Ol3Wl0AFCEqea/3j0l8CZvQUcxuC/QcmCLkOF0pOsc6nEki+QhrAeOUeX5/wM71b/vAbF5hUmw2PLX9IQBRQ5lhTo8/Oau7rmI6x+rTLepqWN7aa7W4CyqBJdydPSkELYS0hL1cnH0LNXrMjODkLp0Toe0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=DE5bZJcW; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=bBRuM6Eop+7fi67rM214LGweNqReU7sFoR7d6KoaAv35kq3uKWYBvoI0MApSyxTAucAFFC7II9zE8g9fGl9AB4byl9q7sj+ZPIY9/ha880Iw5dJPISDOJlqBIN3NSU/IEl7qH2kbWcZXDwZV03+qTWYGitLpm7c1jS2qa3/bfTc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=wdDwiOKR; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="DE5bZJcW"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="wdDwiOKR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1788837818; bh=q1pLcb7IKZW+bGqVas3IuwrS3YV1qxv/AIyqJTIgMrI=;
+	t=1788837818; bh=dIbr/4Puz1Aiiya1ht5fiKOoVynMrKPxRhz8BOC6CRk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=DE5bZJcWrJvCOBextqSRFC+uaNBoctzCqcScDXgq2m4+1yB6IrYkaioUkkhhBE/+/
-	 akCJl2ipbPuJBBwIcw8ZCLHE3PU7JjFSfdMrvtkm87JSc52ug2MEapXQCpwj+5O2Re
-	 4jAuN9h8dAORcoEwU5Xsj3948E9jj4j/LjSIHL5vPFMkb0XeBxO6/747IeKkuwBuln
-	 +eEqoHRg+Vhfsq2Dn8RQtFDDfUCyNRYS2rPBYRnlv+zyMWcebLfV9nRS5K4uF55voQ
-	 ssqccKAK+F2TsboNkQbfEF6PepHywkRGj7GROJn5jGy3jfjggWwQffmDrtHtJQKDUm
-	 JEP7smxKPy4wg==
+	b=wdDwiOKRNe/k49U0g5ozqJCG+RZlKrbQbtdnxSfJ+n3g8o3VszD3JB5+JDhaHcDDn
+	 L1LvsHR8Sc1JLC2QAD082HgJQc4R/1thCGqyPEy5Oxr1+jYXVLd3BWz7EHnzDjP/tL
+	 WtYuVhtHOgPi7WiDsfGNdmEfDxcp8d6k0dDLYBSBXSjCS9Zv+rFHkiMyRJCwkiGPKp
+	 yMtYBBZqE+H1hdggOLJH83W836p2FuoNiH01AW9c69jFSU5sLErjLrDc3gprXkTdqD
+	 pTBeFhHh3ZV7B/91IDP51lj7xol6qVzwFUhUPVW8yQuMVv7LgOF+tLiPQpIVVL34sj
+	 9PVBlWfiVREiQ==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 9AA9013208B;
-	Mon, 07 Sep 2026 20:23:38 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id F3458132038;
+	Mon, 07 Sep 2026 20:23:37 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v6 09/12] Input: xbox_gip - Add support for PDP guitar controllers
-Date: Mon,  7 Sep 2026 20:21:40 -0700
-Message-ID: <20260908032145.2118234-10-vi@endrift.com>
+Subject: [PATCH v6 07/12] Input: xbox_gip - Add security implementation from xone
+Date: Mon,  7 Sep 2026 20:21:38 -0700
+Message-ID: <20260908032145.2118234-8-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260908032145.2118234-1-vi@endrift.com>
 References: <20260908032145.2118234-1-vi@endrift.com>
@@ -46,193 +46,1115 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch adds support for the PDP guitar controllers, namely the Fender
-Jaguar and RiffMaster models. These use mostly the same protocol, but the
-RiffMaster appears t use a slightly newer variant.
+This patch imports and adapts the security message implementation from the
+out-of-tree xone driver, which is licensed under the GPL 2.0. This message
+is necessary for most controllers that use wireless dongles. The
+implementation is largely unchanged, with minor changes being made to adapt
+it to the xbox_gip driver and renaming components as appropriate for the
+official terminology from the released spec.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/input/joystick/gip/Makefile         |   1 +
- drivers/input/joystick/gip/gip-core.c       |   1 +
- drivers/input/joystick/gip/gip-pdp-jaguar.c | 129 ++++++++++++++++++++
- drivers/input/joystick/gip/gip.h            |   2 +
- 4 files changed, 133 insertions(+)
- create mode 100644 drivers/input/joystick/gip/gip-pdp-jaguar.c
+ drivers/input/joystick/gip/Kconfig        |   1 +
+ drivers/input/joystick/gip/Makefile       |   2 +-
+ drivers/input/joystick/gip/gip-core.c     |  48 +-
+ drivers/input/joystick/gip/gip-drivers.c  |   8 +
+ drivers/input/joystick/gip/gip-security.c | 807 ++++++++++++++++++++++
+ drivers/input/joystick/gip/gip.h          |  54 +-
+ 6 files changed, 895 insertions(+), 25 deletions(-)
+ create mode 100644 drivers/input/joystick/gip/gip-security.c
 
+diff --git a/drivers/input/joystick/gip/Kconfig b/drivers/input/joystick/gip/Kconfig
+index 3422bf84cb89..1b9b844779e6 100644
+--- a/drivers/input/joystick/gip/Kconfig
++++ b/drivers/input/joystick/gip/Kconfig
+@@ -5,6 +5,7 @@
+ config JOYSTICK_XBOX_GIP
+ 	tristate "Xbox One/Series controller support"
+ 	depends on USB && USB_ARCH_HAS_HCD && LEDS_CLASS_MULTICOLOR
++	depends on CRYPTO_ECDH && CRYPTO_LIB_SHA256 && CRYPTO_RSA
+ 	help
+ 	  Say Y here if you want to use Xbox One and Series controllers with your
+ 	  computer. Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYDEV)
 diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
-index 9ed59caec4d9..62c016d6c11e 100644
+index d39f946db1ae..a5ad301a9063 100644
 --- a/drivers/input/joystick/gip/Makefile
 +++ b/drivers/input/joystick/gip/Makefile
-@@ -4,3 +4,4 @@ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
- xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
- # Additional device support
- xbox-gip-y += gip-arcade-stick.o
-+xbox-gip-y += gip-pdp-jaguar.o
+@@ -1,4 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-or-later
+ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
+ # Base driver
+-xbox-gip-y := gip-core.o gip-drivers.o
++xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
 diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index 9e43d9cba453..5e581adb0788 100644
+index f61b5f18b819..157a22c80abd 100644
 --- a/drivers/input/joystick/gip/gip-core.c
 +++ b/drivers/input/joystick/gip/gip-core.c
-@@ -333,6 +333,7 @@ static const struct gip_driver *base_drivers[] = {
- 	&gip_driver_navigation,
- 	&gip_driver_gamepad,
- 	&gip_driver_arcade_stick,
-+	&gip_driver_pdp_jaguar,
- 	NULL /* Sentinel */
- };
+@@ -6,7 +6,6 @@
+  *
+  * TODO:
+  * - Audio device support
+- * - Security packet handshake
+  * - Event logging
+  * - Raw character device
+  * - Wheel support
+@@ -1778,17 +1777,6 @@ static int gip_send_init_sequence(struct gip_attachment *attachment)
+ 	if (rc)
+ 		return rc;
  
-diff --git a/drivers/input/joystick/gip/gip-pdp-jaguar.c b/drivers/input/joystick/gip/gip-pdp-jaguar.c
+-	if (gip_supports_system_message(attachment, GIP_CMD_SECURITY, false)
+-		&& !(attachment->features & GIP_FEATURE_SECURITY_OPT_OUT)) {
+-		/* TODO: Implement Security command property */
+-		uint8_t buffer[] = { 0x1, 0x0 };
+-
+-		rc = gip_send_system_message(attachment, GIP_CMD_SECURITY, 0,
+-			buffer, sizeof(buffer));
+-		if (rc)
+-			return rc;
+-	}
+-
+ 	usb_make_path(attachment->device->udev, attachment->phys,
+ 		sizeof(attachment->phys));
+ 	len = strlen(attachment->phys);
+@@ -1844,6 +1832,8 @@ static void gip_free_devices(struct gip_attachment *attachment)
+ 	struct input_dev *input;
+ 	struct hid_device *hdev;
+ 
++	gip_security_release(&attachment->security);
++
+ 	if (attachment->driver && attachment->driver->remove)
+ 		attachment->driver->remove(attachment);
+ 
+@@ -1932,7 +1922,6 @@ static void gip_reset_attachment(struct gip_attachment *attachment)
+ 	}
+ 
+ 	gip_free_devices(attachment);
+-
+ }
+ 
+ static int gip_handle_command_protocol_control(struct gip_attachment *attachment,
+@@ -2112,6 +2101,24 @@ static int gip_handle_command_status_device(struct gip_attachment *attachment,
+ 		}
+ 	}
+ 
++	if (attachment->security.status == GIP_SECURITY_PENDING) {
++		if (attachment->quirks & GIP_QUIRK_SKIP_SECURITY)
++			/*
++			 * Some BDA/PowerA Xbox One controllers have a security
++			 * handshake implementation that is very sensitive to
++			 * the precise message ordering. It's very hard to get
++			 * this just right, so for now we just skip it. Most
++			 * wired controllers don't need the security flow to
++			 * work anyway.
++			 */
++			rc = gip_security_skip_handshake(&attachment->security);
++		else
++			rc = gip_security_start_handshake(&attachment->security);
++
++		if (rc)
++			return rc;
++	}
++
+ 	rc = gip_init_input_device(attachment);
+ 	if (rc)
+ 		return rc;
+@@ -2229,20 +2236,16 @@ static int gip_handle_command_metadata_respose(struct gip_attachment *attachment
+ 			GIP_CMD_GUIDE_COLOR, false))
+ 		attachment->features &= ~GIP_FEATURE_GUIDE_COLOR;
+ 
++	if (!gip_supports_system_message(attachment, GIP_CMD_SECURITY, false) ||
++		(attachment->features & GIP_FEATURE_SECURITY_OPT_OUT))
++		attachment->security.status = GIP_SECURITY_SKIPPED;
++
+ 	gip_dbg(attachment, "Attachment %i has features: %02x\n",
+ 		attachment->attachment_index, attachment->features);
+ 
+ 	return gip_send_init_sequence(attachment);
+ }
+ 
+-static int gip_handle_command_security(struct gip_attachment *attachment,
+-	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
+-{
+-	/* TODO: Needed for controllers that connect via dongles */
+-	gip_warn(attachment, "Unimplemented Security message\n");
+-	return -EOPNOTSUPP;
+-}
+-
+ static int gip_handle_command_guide_button_status(struct gip_attachment *attachment,
+ 	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
+ {
+@@ -2519,8 +2522,7 @@ static int gip_handle_system_message(struct gip_attachment *attachment,
+ 		return gip_handle_command_metadata_respose(attachment, header,
+ 			bytes, num_bytes);
+ 	case GIP_CMD_SECURITY:
+-		return gip_handle_command_security(attachment, header, bytes,
+-			num_bytes);
++		return gip_security_handle_message(&attachment->security, bytes, num_bytes);
+ 	case GIP_CMD_GUIDE_BUTTON:
+ 		return gip_handle_command_guide_button_status(attachment,
+ 			header, bytes, num_bytes);
+diff --git a/drivers/input/joystick/gip/gip-drivers.c b/drivers/input/joystick/gip/gip-drivers.c
+index 2c2297b1fed8..74bc858e71cc 100644
+--- a/drivers/input/joystick/gip/gip-drivers.c
++++ b/drivers/input/joystick/gip/gip-drivers.c
+@@ -81,6 +81,14 @@ const struct gip_driver gip_driver_gamepad = {
+ 		0xa3, 0x12, 0x7a, 0xf1, 0x97, 0xb5),
+ 
+ 	.quirks = (const struct gip_quirks[]) {
++		/* PowerA Xbox One Classic Controller */
++		{ GIP_VID_BDA, GIP_PID_BDA_XB1_CLASSIC, 0,
++			.quirks = GIP_QUIRK_SKIP_SECURITY },
++
++		/* PowerA Xbox One Fusion Pro */
++		{ GIP_VID_BDA, GIP_PID_BDA_XB1_FUSION_PRO, 0,
++			.quirks = GIP_QUIRK_SKIP_SECURITY },
++
+ 		/* Xbox One Controller (model 1573) */
+ 		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ONE_1573, 0,
+ 			.override_name = "Xbox One Controller" },
+diff --git a/drivers/input/joystick/gip/gip-security.c b/drivers/input/joystick/gip/gip-security.c
 new file mode 100644
-index 000000000000..ec0e9d811d12
+index 000000000000..99b3ddab63e2
 --- /dev/null
-+++ b/drivers/input/joystick/gip/gip-pdp-jaguar.c
-@@ -0,0 +1,129 @@
++++ b/drivers/input/joystick/gip/gip-security.c
+@@ -0,0 +1,807 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
-+ * Drivers for GIP PDP Jaguar-style guitars
++ * Gaming Input Protocol security message driver for Xbox One/Series controllers
 + *
++ * This file is based on files from the xone project
++ * - https://github.com/dlundqvist/xone/blob/master/auth/auth.c
++ * - https://github.com/dlundqvist/xone/blob/master/auth/crypto.c
++ *
++ * Copyright (C) 2023 Severin von Wnuck-Lipinski <severinvonw@outlook.de>
 + * Copyright (c) 2026 Valve Software
 + */
 +
-+#include <linux/unaligned.h>
++#include <linux/scatterlist.h>
++#include <linux/version.h>
++#include <crypto/hash.h>
++#include <crypto/sha2.h>
++#include <crypto/akcipher.h>
++#include <crypto/kpp.h>
++#include <crypto/ecdh.h>
++
 +#include "gip.h"
 +
-+#define GIP_QUIRK_PDP_HAS_RIGHT_STICK	BIT(31)
++/* trailer is required for v1 clients */
++#define GIP_SECURITY_TRAILER_LEN 8
++#define GIP_SECURITY_CERTIFICATE_MAX_LEN 1024
++#define GIP_SECURITY_ENCRYPTED_PMS_LEN 256
++#define GIP_SECURITY_TRANSCRIPT_LEN 32
++#define GIP_SECURITY_SESSION_KEY_LEN 16
 +
-+static int gip_setup_pdp_jaguar_input(struct gip_attachment *attachment, struct input_dev *input)
-+{
-+	/*
-+	 * Despite having the navigation controller GUID, we don't want to use
-+	 * those mappings. Instead, we use the xone mappings for compatibility
-+	 * reasons.
-+	 */
++#define GIP_SECURITY_ECDH_SECRET_LEN 32
 +
-+	/* Lower fret */
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY2);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY3);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY4);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY5);
-+	/* Upper fret */
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY6);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY7);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY8);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY9);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY10);
-+
-+	input_set_capability(input, EV_KEY, BTN_START);
-+	input_set_capability(input, EV_KEY, BTN_SELECT);
-+
-+	/* Whammy bar */
-+	input_set_abs_params(input, ABS_Y, 0, 255, 0, 0);
-+	/* Tilt */
-+	input_set_abs_params(input, ABS_Z, 0, 255, 0, 0);
-+
-+	input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
-+
-+	if (attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) {
-+		input_set_capability(input, EV_KEY, BTN_THUMBR);
-+		input_set_abs_params(input, ABS_RX, -32768, 32767, 16, 128);
-+		input_set_abs_params(input, ABS_RY, -32768, 32767, 16, 128);
-+	}
-+
-+	return 0;
-+}
-+
-+static int gip_handle_pdp_jaguar_report(struct gip_attachment *attachment,
-+	struct input_dev *input, const uint8_t *bytes, int num_bytes)
-+{
-+	bool lower;
-+
-+	if (num_bytes < 4) {
-+		gip_dbg(attachment, "Discarding too-short input report\n");
-+		return -EINVAL;
-+	}
-+
-+	input_report_key(input, BTN_START, bytes[0] & BIT(2));
-+	input_report_key(input, BTN_SELECT, bytes[0] & BIT(3));
-+
-+	if (num_bytes >= 7 && (bytes[5] || bytes[6])) {
-+		/* Newer report version on the RiffMaster */
-+		input_report_key(input, BTN_TRIGGER_HAPPY1, bytes[5] & BIT(0));
-+		input_report_key(input, BTN_TRIGGER_HAPPY2, bytes[5] & BIT(1));
-+		input_report_key(input, BTN_TRIGGER_HAPPY3, bytes[5] & BIT(2));
-+		input_report_key(input, BTN_TRIGGER_HAPPY4, bytes[5] & BIT(3));
-+		input_report_key(input, BTN_TRIGGER_HAPPY5, bytes[5] & BIT(4));
-+
-+		input_report_key(input, BTN_TRIGGER_HAPPY6, bytes[6] & BIT(0));
-+		input_report_key(input, BTN_TRIGGER_HAPPY7, bytes[6] & BIT(1));
-+		input_report_key(input, BTN_TRIGGER_HAPPY8, bytes[6] & BIT(2));
-+		input_report_key(input, BTN_TRIGGER_HAPPY9, bytes[6] & BIT(3));
-+		input_report_key(input, BTN_TRIGGER_HAPPY10, bytes[6] & BIT(4));
-+	} else {
-+		lower = bytes[1] & BIT(6);
-+		input_report_key(input, BTN_TRIGGER_HAPPY1, !lower && (bytes[0] & BIT(4)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY2, !lower && (bytes[0] & BIT(5)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY3, !lower && (bytes[0] & BIT(7)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY4, !lower && (bytes[0] & BIT(6)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY5, !lower && (bytes[1] & BIT(4)));
-+
-+		input_report_key(input, BTN_TRIGGER_HAPPY6, lower && (bytes[0] & BIT(4)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY7, lower && (bytes[0] & BIT(5)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY8, lower && (bytes[0] & BIT(7)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY9, lower && (bytes[0] & BIT(6)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY10, lower && (bytes[1] & BIT(4)));
-+	}
-+
-+	input_report_abs(input, ABS_Y, bytes[2]);
-+	input_report_abs(input, ABS_Z, bytes[3]);
-+
-+	input_report_abs(input, ABS_HAT0X,
-+		!!(bytes[1] & BIT(3)) - !!(bytes[1] & BIT(2)));
-+	input_report_abs(input, ABS_HAT0Y,
-+		!!(bytes[1] & BIT(1)) - !!(bytes[1] & BIT(0)));
-+
-+	if ((attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) && num_bytes >= 14) {
-+		input_report_key(input, BTN_THUMBR, bytes[1] & BIT(6));
-+		input_report_abs(input, ABS_RX, (int16_t)get_unaligned_le16(&bytes[10]));
-+		input_report_abs(input, ABS_RY, ~(int16_t)get_unaligned_le16(&bytes[12]));
-+	}
-+
-+	return 0;
-+}
-+
-+const struct gip_driver gip_driver_pdp_jaguar = {
-+	.types = (const char *const[]) { "PDP.Xbox.Guitar.Jaguar", NULL },
-+	.guid = GUID_INIT(0x1a266af6, 0x3a46, 0x45e3, 0xb9, 0xb6,
-+		0x0f, 0x2c, 0x0b, 0x2c, 0x1e, 0xbe),
-+
-+	.quirks = (const struct gip_quirks[]) {
-+		/* PDP RiffMaster */
-+		{ GIP_VID_PDP, GIP_PID_PDP_RIFFMASTER, 0,
-+			.quirks = GIP_QUIRK_PDP_HAS_RIGHT_STICK, },
-+
-+		{0},
-+	},
-+	.probe = NULL,
-+	.remove = NULL,
-+	.init = NULL,
-+	.setup_input = gip_setup_pdp_jaguar_input,
-+	.handle_input_report = gip_handle_pdp_jaguar_report,
++enum gip_security_context {
++	GIP_SECURITY_CTX_HANDSHAKE = 0x00,
++	GIP_SECURITY_CTX_CONTROL = 0x01,
 +};
++
++enum gip_security_command_handshake {
++	GIP_SECURITY_CMD_HOST_HELLO = 0x01,
++	GIP_SECURITY_CMD_CLIENT_HELLO = 0x02,
++	GIP_SECURITY_CMD_CLIENT_CERTIFICATE = 0x03,
++	GIP_SECURITY_CMD_HOST_SECRET = 0x05,
++	GIP_SECURITY_CMD_HOST_FINISH = 0x07,
++	GIP_SECURITY_CMD_CLIENT_FINISH = 0x08,
++
++	GIP_SECURITY2_CMD_HOST_HELLO = 0x21,
++	GIP_SECURITY2_CMD_CLIENT_HELLO = 0x22,
++	GIP_SECURITY2_CMD_CLIENT_CERTIFICATE = 0x23,
++	GIP_SECURITY2_CMD_CLIENT_PUBKEY = 0x24,
++	GIP_SECURITY2_CMD_HOST_PUBKEY = 0x25,
++	GIP_SECURITY2_CMD_HOST_FINISH = 0x26,
++	GIP_SECURITY2_CMD_CLIENT_FINISH = 0x27,
++};
++
++enum gip_security_command_control {
++	GIP_SECURITY_CTRL_COMPLETE = 0x00,
++	GIP_SECURITY_CTRL_RESET = 0x01,
++};
++
++enum gip_security_option {
++	GIP_SECURITY_OPT_ACKNOWLEDGE = BIT(0),
++	GIP_SECURITY_OPT_REQUEST = BIT(1),
++	GIP_SECURITY_OPT_FROM_HOST = BIT(6),
++	GIP_SECURITY_OPT_FROM_CLIENT = BIT(6) | BIT(7),
++};
++
++struct gip_security_header_handshake {
++	u8 context;
++	u8 options;
++	u8 error;
++	u8 command;
++	__be16 length;
++} __packed;
++
++struct gip_security_header_data {
++	u8 command;
++	u8 version;
++	__be16 length;
++} __packed;
++
++struct gip_security_header_full {
++	struct gip_security_header_handshake handshake;
++	struct gip_security_header_data data;
++} __packed;
++
++struct gip_security_header_control {
++	u8 context;
++	u8 control;
++} __packed;
++
++struct gip_security_request {
++	struct gip_security_header_handshake header;
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_host_hello {
++	struct gip_security_header_full header;
++
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown1[4];
++	u8 unknown2[4];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_host_secret {
++	struct gip_security_header_full header;
++
++	u8 encrypted_pms[GIP_SECURITY_ENCRYPTED_PMS_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_host_finish {
++	struct gip_security_header_full header;
++
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security_client_hello {
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown[48];
++} __packed;
++
++struct gip_security_client_finish {
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++	u8 unknown[32];
++} __packed;
++
++struct gip_security2_host_hello {
++	struct gip_security_header_full header;
++
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown[4];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security2_host_pubkey {
++	struct gip_security_header_full header;
++
++	u8 pubkey[GIP_SECURITY2_PUBKEY_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security2_host_finish {
++	struct gip_security_header_full header;
++
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	u8 trailer[GIP_SECURITY_TRAILER_LEN];
++} __packed;
++
++struct gip_security2_client_hello {
++	u8 random[GIP_SECURITY_RANDOM_LEN];
++	u8 unknown1[108];
++	u8 unknown2[32];
++} __packed;
++
++struct gip_security2_client_cert {
++	char header[4];
++	u8 unknown1[136];
++	char chip[32];
++	char revision[20];
++	u8 unknown2[576];
++} __packed;
++
++struct gip_security2_client_pubkey {
++	u8 pubkey[GIP_SECURITY2_PUBKEY_LEN];
++	u8 unknown[64];
++} __packed;
++
++struct gip_security2_client_finish {
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++	u8 unknown[32];
++} __packed;
++
++static void gip_security_get_transcript(struct sha256_ctx *ctx, void *transcript)
++{
++	struct sha256_ctx state;
++
++	memcpy(&state, ctx, sizeof(state));
++	sha256_final(&state, transcript);
++}
++
++static void gip_security_compute_prf(const char *label,
++	u8 *raw_key, int key_len, u8 *seed, int seed_len, u8 *out, int out_len)
++{
++	u8 hash[SHA256_DIGEST_SIZE], hash_out[SHA256_DIGEST_SIZE];
++	struct hmac_sha256_ctx ctx;
++	struct hmac_sha256_key key;
++
++	hmac_sha256_preparekey(&key, raw_key, key_len);
++
++	hmac_sha256_init(&ctx, &key);
++	hmac_sha256_update(&ctx, label, strlen(label));
++	hmac_sha256_update(&ctx, seed, seed_len);
++	hmac_sha256_final(&ctx, hash);
++
++	while (out_len > 0) {
++		hmac_sha256_init(&ctx, &key);
++		hmac_sha256_update(&ctx, hash, sizeof(hash));
++		hmac_sha256_update(&ctx, label, strlen(label));
++		hmac_sha256_update(&ctx, seed, seed_len);
++		hmac_sha256_final(&ctx, hash_out);
++
++		memcpy(out, hash_out, min_t(int, out_len, sizeof(hash)));
++		out += sizeof(hash);
++		out_len -= sizeof(hash);
++
++		hmac_sha256(&key, hash, sizeof(hash), hash);
++	}
++
++	memzero_explicit(&ctx, sizeof(ctx));
++	memzero_explicit(&key, sizeof(key));
++}
++
++static int gip_security_encrypt_rsa(u8 *key, int key_len, u8 *in, int in_len, u8 *out, int out_len)
++{
++	struct crypto_akcipher *tfm;
++	int err;
++
++	tfm = crypto_alloc_akcipher("pkcs1pad(rsa)", 0, 0);
++	if (IS_ERR(tfm))
++		return PTR_ERR(tfm);
++
++	err = crypto_akcipher_set_pub_key(tfm, key, key_len);
++	if (err)
++		goto err_free_tfm;
++
++	err = crypto_akcipher_sync_encrypt(tfm, in, in_len, out, out_len);
++
++err_free_tfm:
++	crypto_free_akcipher(tfm);
++
++	return err;
++}
++
++static int gip_security_ecdh_get_pubkey(struct crypto_kpp *tfm, u8 *out, int len)
++{
++	struct kpp_request *req;
++	struct scatterlist dest;
++	struct ecdh key = {};
++	DECLARE_CRYPTO_WAIT(wait);
++	void *privkey, *pubkey;
++	unsigned int privkey_len;
++	int err = 0;
++
++	privkey_len = crypto_ecdh_key_len(&key);
++	privkey = kzalloc(privkey_len, GFP_KERNEL);
++	if (!privkey)
++		return -ENOMEM;
++
++	pubkey = kzalloc(len, GFP_KERNEL);
++	if (!pubkey) {
++		err = -ENOMEM;
++		goto err_free_privkey;
++	}
++
++	/* generate private key */
++	err = crypto_ecdh_encode_key(privkey, privkey_len, &key);
++	if (err)
++		goto err_free_pubkey;
++
++	err = crypto_kpp_set_secret(tfm, privkey, privkey_len);
++	if (err)
++		goto err_free_pubkey;
++
++	req = kpp_request_alloc(tfm, GFP_KERNEL);
++	if (!req) {
++		err = -ENOMEM;
++		goto err_free_pubkey;
++	}
++
++	sg_init_one(&dest, pubkey, len);
++
++	kpp_request_set_input(req, NULL, 0);
++	kpp_request_set_output(req, &dest, len);
++	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
++				 crypto_req_done, &wait);
++	err = crypto_wait_req(crypto_kpp_generate_public_key(req), &wait);
++	if (!err)
++		memcpy(out, pubkey, len);
++
++	kpp_request_free(req);
++
++err_free_pubkey:
++	kfree(pubkey);
++err_free_privkey:
++	memzero_explicit(privkey, privkey_len);
++	kfree(privkey);
++
++	return err;
++}
++
++static int gip_security_ecdh_get_secret(struct crypto_kpp *tfm, u8 *pubkey,
++	int pubkey_len, u8 *secret, int secret_len)
++{
++	struct kpp_request *req;
++	struct scatterlist src, dest;
++	DECLARE_CRYPTO_WAIT(wait);
++	int err;
++
++	req = kpp_request_alloc(tfm, GFP_KERNEL);
++	if (!req)
++		return -ENOMEM;
++
++	sg_init_one(&src, pubkey, pubkey_len);
++	sg_init_one(&dest, secret, secret_len);
++
++	kpp_request_set_input(req, &src, pubkey_len);
++	kpp_request_set_output(req, &dest, secret_len);
++	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
++				 crypto_req_done, &wait);
++	err = crypto_wait_req(crypto_kpp_compute_shared_secret(req), &wait);
++
++	kpp_request_free(req);
++
++	return err;
++}
++
++static int gip_security_compute_ecdh(u8 *pubkey_in, u8 *pubkey_out, int pubkey_len, u8 *secret_hash)
++{
++	struct crypto_kpp *tfm_ecdh;
++	u8 *secret;
++	int err;
++
++	secret = kzalloc(GIP_SECURITY_ECDH_SECRET_LEN, GFP_KERNEL);
++	if (!secret)
++		return -ENOMEM;
++
++	tfm_ecdh = crypto_alloc_kpp("ecdh-nist-p256", 0, 0);
++	if (IS_ERR(tfm_ecdh)) {
++		err = PTR_ERR(tfm_ecdh);
++		goto err_free_secret;
++	}
++
++	err = gip_security_ecdh_get_pubkey(tfm_ecdh, pubkey_out, pubkey_len);
++	if (err)
++		goto err_free_ecdh;
++
++	err = gip_security_ecdh_get_secret(tfm_ecdh, pubkey_in, pubkey_len,
++		secret, GIP_SECURITY_ECDH_SECRET_LEN);
++	if (err)
++		goto err_free_ecdh;
++
++	sha256(secret, GIP_SECURITY_ECDH_SECRET_LEN, secret_hash);
++
++err_free_ecdh:
++	crypto_free_kpp(tfm_ecdh);
++err_free_secret:
++	kfree_sensitive(secret);
++
++	return err;
++}
++
++static int gip_security_send_message(struct gip_security *security,
++	enum gip_security_command_handshake cmd, void *message, u16 len)
++{
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_header_full *hdr = message;
++	u16 data_len = len - sizeof(hdr->handshake) - GIP_SECURITY_TRAILER_LEN;
++
++	hdr->handshake.context = GIP_SECURITY_CTX_HANDSHAKE;
++	hdr->handshake.options = GIP_SECURITY_OPT_ACKNOWLEDGE | GIP_SECURITY_OPT_FROM_HOST;
++	hdr->handshake.command = cmd;
++	hdr->handshake.length = cpu_to_be16(data_len);
++
++	hdr->data.command = cmd;
++	hdr->data.version = cmd >= GIP_SECURITY2_CMD_HOST_HELLO ? 0x02 : 0x01;
++	hdr->data.length = cpu_to_be16(data_len - sizeof(hdr->data));
++
++	security->last_sent_command = cmd;
++	sha256_update(&security->transcript, message + sizeof(hdr->handshake), data_len);
++
++	return gip_send_system_message(attachment, GIP_CMD_SECURITY, GIP_FLAG_ACME, message, len);
++}
++
++static int gip_security_send_request(struct gip_security *security,
++	enum gip_security_command_handshake cmd, u16 len)
++{
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_request req = {};
++	u16 data_len = len + sizeof(struct gip_security_header_data);
++
++	req.header.context = GIP_SECURITY_CTX_HANDSHAKE;
++	req.header.options = GIP_SECURITY_OPT_REQUEST | GIP_SECURITY_OPT_FROM_HOST;
++	req.header.command = cmd;
++	req.header.length = cpu_to_be16(data_len);
++
++	return gip_send_system_message(attachment, GIP_CMD_SECURITY,
++		GIP_FLAG_ACME, &req, sizeof(req));
++}
++
++static int gip_security2_send_hello(struct gip_security *security)
++{
++	struct gip_security2_host_hello message = {};
++
++	get_random_bytes(security->random_host, sizeof(security->random_host));
++	memcpy(message.random, security->random_host, sizeof(message.random));
++
++	return gip_security_send_message(security, GIP_SECURITY2_CMD_HOST_HELLO,
++		&message, sizeof(message));
++}
++
++static int gip_security2_handle_hello(struct gip_security *security, const void *data, u32 len)
++{
++	const struct gip_security2_client_hello *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	memcpy(security->random_client, message->random, sizeof(security->random_client));
++
++	return gip_security_send_request(security,
++		GIP_SECURITY2_CMD_CLIENT_CERTIFICATE,
++		sizeof(struct gip_security2_client_cert));
++}
++
++static int gip_security2_handle_certificate(struct gip_security *security,
++	const void *data, u32 len)
++{
++	const struct gip_security2_client_cert *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	gip_dbg(security,
++		"%s: header=%.*s, chip=%.*s, revision=%.*s\n", __func__,
++		(int)sizeof(message->header), message->header,
++		(int)sizeof(message->chip), message->chip,
++		(int)sizeof(message->revision), message->revision);
++
++	return gip_security_send_request(security,
++		GIP_SECURITY2_CMD_CLIENT_PUBKEY,
++		sizeof(struct gip_security2_client_pubkey));
++}
++
++static int gip_security2_handle_pubkey(struct gip_security *security,
++	const void *data, u32 len)
++{
++	const struct gip_security2_client_pubkey *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	memcpy(security->pubkey_client2, message->pubkey, sizeof(message->pubkey));
++	schedule_work(&security->work_exchange_ecdh);
++
++	return 0;
++}
++
++static void gip_security2_exchange_ecdh(struct work_struct *work)
++{
++	struct gip_security *security = container_of(work, typeof(*security), work_exchange_ecdh);
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security2_host_pubkey message = {};
++	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
++	u8 secret[GIP_SECURITY2_SECRET_LEN];
++	int err;
++
++	guard(mutex)(&attachment->lock);
++	if (security->status != GIP_SECURITY_SENT)
++		return;
++
++	memcpy(random, security->random_host, sizeof(security->random_host));
++	memcpy(random + sizeof(security->random_host), security->random_client,
++		sizeof(security->random_client));
++
++	err = gip_security_compute_ecdh(security->pubkey_client2,
++		message.pubkey, sizeof(message.pubkey), secret);
++	if (err) {
++		gip_err(security, "%s: compute ECDH failed: %d\n", __func__, err);
++		return;
++	}
++
++	gip_security_compute_prf("Master Secret", secret, sizeof(secret),
++		random, sizeof(random), security->master_secret,
++		sizeof(security->master_secret));
++
++	err = gip_security_send_message(security, GIP_SECURITY2_CMD_HOST_PUBKEY,
++		&message, sizeof(message));
++	if (err)
++		gip_err(security, "%s: send message failed: %d\n", __func__, err);
++}
++
++static int gip_security_send_hello(struct gip_security *security)
++{
++	struct gip_security_host_hello message = {};
++
++	get_random_bytes(security->random_host, sizeof(security->random_host));
++	memcpy(message.random, security->random_host, sizeof(message.random));
++
++	return gip_security_send_message(security, GIP_SECURITY_CMD_HOST_HELLO,
++		&message, sizeof(message));
++}
++
++static int gip_security_send_finish(struct gip_security *security,
++	enum gip_security_command_handshake cmd)
++{
++	struct gip_security_host_finish message = {};
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	gip_security_get_transcript(&security->transcript, transcript);
++	gip_security_compute_prf("Host Finished", security->master_secret,
++		sizeof(security->master_secret), transcript, sizeof(transcript),
++		message.transcript, sizeof(message.transcript));
++
++	return gip_security_send_message(security, cmd, &message, sizeof(message));
++}
++
++static int gip_security_handle_acknowledge(struct gip_security *security)
++{
++	switch (security->last_sent_command) {
++	case GIP_SECURITY2_CMD_HOST_HELLO:
++		return gip_security_send_request(security,
++			GIP_SECURITY2_CMD_CLIENT_HELLO,
++			sizeof(struct gip_security2_client_hello));
++	case GIP_SECURITY2_CMD_HOST_PUBKEY:
++		return gip_security_send_finish(security, GIP_SECURITY2_CMD_HOST_FINISH);
++	case GIP_SECURITY2_CMD_HOST_FINISH:
++		return gip_security_send_request(security,
++			GIP_SECURITY2_CMD_CLIENT_FINISH,
++			sizeof(struct gip_security2_client_finish));
++	case GIP_SECURITY_CMD_HOST_HELLO:
++		return gip_security_send_request(security,
++			GIP_SECURITY_CMD_CLIENT_HELLO,
++			sizeof(struct gip_security_client_hello));
++	case GIP_SECURITY_CMD_HOST_SECRET:
++		return gip_security_send_finish(security, GIP_SECURITY_CMD_HOST_FINISH);
++	case GIP_SECURITY_CMD_HOST_FINISH:
++		return gip_security_send_request(security,
++			GIP_SECURITY_CMD_CLIENT_FINISH,
++			sizeof(struct gip_security_client_finish));
++	default:
++		return -EPROTO;
++	}
++}
++
++static int gip_security_handle_hello(struct gip_security *security, const void *data, u32 len)
++{
++	const struct gip_security_client_hello *message = data;
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	memcpy(security->random_client, message->random, sizeof(message->random));
++
++	return gip_security_send_request(security, GIP_SECURITY_CMD_CLIENT_CERTIFICATE,
++		GIP_SECURITY_CERTIFICATE_MAX_LEN);
++}
++
++static int gip_security_handle_certificate(struct gip_security *security, const void *data, u32 len)
++{
++	/* ASN.1 SEQUENCE (len = 0x04 + 0x010a) */
++	u8 asn1_seq[] = { 0x30, 0x82, 0x01, 0x0a };
++	int i;
++
++	if (len > GIP_SECURITY_CERTIFICATE_MAX_LEN)
++		return -EINVAL;
++
++	/*
++	 * Poor way of extracting a pubkey from an X.509 certificate.
++	 * The certificates issued by Microsoft do not comply with RFC 5280.
++	 * They have an empty subject and no subjectAltName.
++	 * This is explicitly forbidden by section 4.2.1.6 of the RFC.
++	 * The kernel's ASN.1 parser will fail when using x509_cert_parse.
++	 */
++	for (i = 0; i + sizeof(asn1_seq) <= len; i++) {
++		if (memcmp(data + i, asn1_seq, sizeof(asn1_seq)))
++			continue;
++
++		if (i + GIP_SECURITY_PUBKEY_LEN > len)
++			return -EINVAL;
++
++		memcpy(security->pubkey_client, data + i, GIP_SECURITY_PUBKEY_LEN);
++		schedule_work(&security->work_exchange_rsa);
++
++		return 0;
++	}
++
++	return -EPROTO;
++}
++
++static int gip_security_handle_finish(struct gip_security *security, const void *data, u32 len)
++{
++	const struct gip_security_client_finish *message = data;
++	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
++	u8 finished[GIP_SECURITY_TRANSCRIPT_LEN];
++
++	if (len < sizeof(*message))
++		return -EINVAL;
++
++	gip_security_get_transcript(&security->transcript, transcript);
++	gip_security_compute_prf("Device Finished",
++		security->master_secret, sizeof(security->master_secret),
++		transcript, sizeof(transcript), finished, sizeof(finished));
++
++	if (memcmp(message->transcript, finished, sizeof(finished))) {
++		gip_err(security, "%s: transcript mismatch\n", __func__);
++		return -EPROTO;
++	}
++
++	schedule_work(&security->work_complete);
++
++	return 0;
++}
++
++static void gip_security_exchange_rsa(struct work_struct *work)
++{
++	struct gip_security *security = container_of(work, typeof(*security), work_exchange_rsa);
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_host_secret message = {};
++	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
++	int err;
++
++	guard(mutex)(&attachment->lock);
++	if (security->status != GIP_SECURITY_SENT)
++		return;
++
++	memcpy(random, security->random_host, sizeof(security->random_host));
++	memcpy(random + sizeof(security->random_host), security->random_client,
++		sizeof(security->random_client));
++
++	/* get random premaster secret */
++	get_random_bytes(security->pms, sizeof(security->pms));
++
++	err = gip_security_encrypt_rsa(security->pubkey_client,
++		sizeof(security->pubkey_client), security->pms,
++		sizeof(security->pms), message.encrypted_pms,
++		sizeof(message.encrypted_pms));
++	if (err) {
++		gip_err(security, "%s: encrypt RSA failed: %d\n", __func__, err);
++		return;
++	}
++
++	gip_security_compute_prf("Master Secret", security->pms,
++		sizeof(security->pms), random, sizeof(random),
++		security->master_secret, sizeof(security->master_secret));
++
++	err = gip_security_send_message(security, GIP_SECURITY_CMD_HOST_SECRET,
++		&message, sizeof(message));
++	if (err)
++		gip_err(security, "%s: send message failed: %d\n", __func__, err);
++}
++
++static void gip_security_complete_handshake(struct work_struct *work)
++{
++	struct gip_security *security = container_of(work, typeof(*security), work_complete);
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_header_control hdr = {
++		.context = GIP_SECURITY_CTX_CONTROL,
++		.control = GIP_SECURITY_CTRL_COMPLETE,
++	};
++	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
++	u8 key[GIP_SECURITY_SESSION_KEY_LEN];
++	int err;
++
++	guard(mutex)(&attachment->lock);
++	if (security->status != GIP_SECURITY_SENT)
++		return;
++
++	memcpy(random, security->random_host, sizeof(security->random_host));
++	memcpy(random + sizeof(security->random_host), security->random_client,
++		sizeof(security->random_client));
++
++	gip_security_compute_prf(
++		"EXPORTER DAWN data channel session key for controller",
++		security->master_secret, sizeof(security->master_secret),
++		random, sizeof(random), key, sizeof(key));
++
++	gip_dbg(security, "%s: key=%*phD\n", __func__, (int)sizeof(key), key);
++
++	err = gip_send_system_message(attachment, GIP_CMD_SECURITY,
++		0, &hdr, sizeof(hdr));
++	if (err) {
++		gip_err(security, "%s: send complete failed: %d\n", __func__, err);
++		return;
++	}
++
++	security->status = GIP_SECURITY_DONE;
++}
++
++static int gip_security_dispatch_message(struct gip_security *security,
++	enum gip_security_command_handshake cmd, const void *data, u32 len)
++{
++	switch (cmd) {
++	case GIP_SECURITY2_CMD_CLIENT_HELLO:
++		return gip_security2_handle_hello(security, data, len);
++	case GIP_SECURITY2_CMD_CLIENT_CERTIFICATE:
++		return gip_security2_handle_certificate(security, data, len);
++	case GIP_SECURITY2_CMD_CLIENT_PUBKEY:
++		return gip_security2_handle_pubkey(security, data, len);
++	case GIP_SECURITY2_CMD_CLIENT_FINISH:
++		return gip_security_handle_finish(security, data, len);
++	case GIP_SECURITY_CMD_CLIENT_HELLO:
++		return gip_security_handle_hello(security, data, len);
++	case GIP_SECURITY_CMD_CLIENT_CERTIFICATE:
++		return gip_security_handle_certificate(security, data, len);
++	case GIP_SECURITY_CMD_CLIENT_FINISH:
++		return gip_security_handle_finish(security, data, len);
++	default:
++		return -EPROTO;
++	}
++}
++
++int gip_security_handle_message(struct gip_security *security, const void *bytes, int num_bytes)
++{
++	const struct gip_security_header_handshake *handshake = bytes;
++	const struct gip_security_header_full *hdr;
++	int err;
++
++	if (security->status != GIP_SECURITY_SENT) {
++		gip_err(security, "%s: security message received when none expected: 0x%02x\n",
++			__func__, handshake->command);
++		return -EPROTO;
++	}
++
++	if (num_bytes < sizeof(*handshake))
++		return -EINVAL;
++
++	if (handshake->error)
++		return -EPROTO;
++
++	if (handshake->options & GIP_SECURITY_OPT_ACKNOWLEDGE) {
++		if (handshake->command == 0x01)
++			return gip_security_handle_acknowledge(security);
++
++		gip_err(security, "%s: handshake failed: 0x%02x\n",
++			__func__, handshake->command);
++		return -EPROTO;
++	}
++
++	if (num_bytes < sizeof(*hdr))
++		return -EINVAL;
++
++	hdr = bytes;
++	/* client uses v2 */
++	if (handshake->command != hdr->data.command) {
++		/* reset transcript hash and restart handshake */
++		gip_dbg(security, "%s: protocol upgrade\n", __func__);
++		sha256_init(&security->transcript);
++		return gip_security2_send_hello(security);
++	}
++
++	err = gip_security_dispatch_message(security, hdr->data.command,
++		bytes + sizeof(*hdr), num_bytes - sizeof(*hdr));
++	if (err)
++		return err;
++
++	sha256_update(&security->transcript, bytes + sizeof(hdr->handshake),
++		num_bytes - sizeof(hdr->handshake));
++
++	return 0;
++}
++
++void gip_security_release(struct gip_security *security)
++{
++	if (security->status < GIP_SECURITY_SENT)
++		return;
++
++	cancel_work(&security->work_exchange_rsa);
++	cancel_work(&security->work_exchange_ecdh);
++	cancel_work(&security->work_complete);
++
++	memzero_explicit(&security->transcript, sizeof(security->transcript));
++
++	security->status = GIP_SECURITY_PENDING;
++}
++
++int gip_security_start_handshake(struct gip_security *security)
++{
++	int err;
++
++	sha256_init(&security->transcript);
++
++	INIT_WORK(&security->work_exchange_rsa, gip_security_exchange_rsa);
++	INIT_WORK(&security->work_exchange_ecdh, gip_security2_exchange_ecdh);
++	INIT_WORK(&security->work_complete, gip_security_complete_handshake);
++
++	err = gip_security_send_hello(security);
++	if (err < 0)
++		return err;
++
++	security->status = GIP_SECURITY_SENT;
++	return 0;
++}
++
++int gip_security_skip_handshake(struct gip_security *security)
++{
++	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
++	struct gip_security_header_control hdr = {
++		.context = GIP_SECURITY_CTX_CONTROL,
++		.control = GIP_SECURITY_CTRL_COMPLETE,
++	};
++	int err;
++
++	err = gip_send_system_message(attachment, GIP_CMD_SECURITY, 0, &hdr, sizeof(hdr));
++	if (err < 0)
++		return err;
++
++	security->status = GIP_SECURITY_SKIPPED;
++	return 0;
++}
 diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index 98add856ae21..3a35bcc43927 100644
+index 007edbb628b2..d2ad10f77bc2 100644
 --- a/drivers/input/joystick/gip/gip.h
 +++ b/drivers/input/joystick/gip/gip.h
-@@ -41,6 +41,7 @@
- #define GIP_PID_XBOX_WIRELESS			0x0b12
+@@ -12,6 +12,7 @@
+ #ifndef _GIP_H
+ #define _GIP_H
+ 
++#include <crypto/sha2.h>
+ #include <linux/hid.h>
+ #include <linux/led-class-multicolor.h>
+ #include <linux/power_supply.h>
+@@ -29,6 +30,7 @@
+ 
+ #define GIP_VID_MICROSOFT	0x045e
+ #define GIP_VID_PDP		0x0e6f
++#define GIP_VID_BDA		0x24c6
+ 
+ #define GIP_PID_XBOX_ONE_1573			0x02d1
+ #define GIP_PID_XBOX_ONE_1697			0x02dd
+@@ -40,9 +42,13 @@
  
  #define GIP_PID_PDP_ROCK_CANDY	0x0246
-+#define GIP_PID_PDP_RIFFMASTER	0x0248
  
- #define GIP_PID_BDA_XB1_CLASSIC		0x581a
- #define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
-@@ -423,4 +424,5 @@ void gip_security_release(struct gip_security *security);
++#define GIP_PID_BDA_XB1_CLASSIC		0x581a
++#define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
++
+ #define GIP_QUIRK_NO_HELLO		BIT(0)
+ #define GIP_QUIRK_NO_IMPULSE_VIBRATION	BIT(1)
+ #define GIP_QUIRK_SWAP_LB_RB		BIT(2)
++#define GIP_QUIRK_SKIP_SECURITY		BIT(3)
+ /*
+  * Driver-specific quirks should start from 31 and go downwards to avoid
+  * conflicts with newly-added core quirks
+@@ -90,13 +96,21 @@
+ #define GIP_LL_STATIC_CONFIGURATION	0x21
+ #define GIP_LL_BUTTON_INFO_REPORT	0x22
+ 
++#define GIP_SECURITY_RANDOM_LEN 32
++#define GIP_SECURITY_PUBKEY_LEN 270
++#define GIP_SECURITY_SECRET_LEN 48
++
++#define GIP_SECURITY2_PUBKEY_LEN 64
++#define GIP_SECURITY2_SECRET_LEN 32
++
+ #define MAX_GIP_CMD 0x80
+ 
+ #define to_gip_device(p) \
+ 	_Generic((p), \
+ 		struct gip_attachment * : gip_attachment_dev, \
+ 		struct gip_interface * : gip_interface_dev, \
+-		struct gip_device * : gip_device_dev)(p)
++		struct gip_device * : gip_device_dev, \
++		struct gip_security * : gip_security_dev)(p)
+ 
+ #define gip_dbg(dev, ...)	dev_dbg(to_gip_device(dev), __VA_ARGS__)
+ #define gip_info(dev, ...)	dev_info(to_gip_device(dev), __VA_ARGS__)
+@@ -120,6 +134,13 @@ enum gip_metadata_status {
+ 	GIP_METADATA_PENDING = 3,
+ };
+ 
++enum gip_security_status {
++	GIP_SECURITY_PENDING = 0,
++	GIP_SECURITY_SKIPPED,
++	GIP_SECURITY_SENT,
++	GIP_SECURITY_DONE,
++};
++
+ enum gip_elite_button_format {
+ 	GIP_BTN_FMT_UNKNOWN,
+ 	GIP_BTN_FMT_XBE1,
+@@ -209,6 +230,26 @@ struct gip_out_fragment {
+ 	struct delayed_work timeout;
+ };
+ 
++struct gip_security {
++	struct sha256_ctx transcript;
++
++	struct work_struct work_exchange_rsa;
++	struct work_struct work_exchange_ecdh;
++	struct work_struct work_complete;
++
++	enum gip_security_status status;
++	uint8_t last_sent_command;
++
++	uint8_t random_host[GIP_SECURITY_RANDOM_LEN];
++	uint8_t random_client[GIP_SECURITY_RANDOM_LEN];
++
++	uint8_t pubkey_client[GIP_SECURITY_PUBKEY_LEN];
++	uint8_t pubkey_client2[GIP_SECURITY2_PUBKEY_LEN];
++
++	uint8_t pms[GIP_SECURITY_SECRET_LEN];
++	uint8_t master_secret[GIP_SECURITY_SECRET_LEN];
++};
++
+ struct gip_attachment;
+ typedef int (*gip_command_handler)(struct gip_attachment *a, const struct gip_header *header,
+ 		const uint8_t *bytes, int num_bytes);
+@@ -246,6 +287,7 @@ struct gip_attachment {
+ 	struct delayed_work metadata_next;
+ 	int metadata_retries;
+ 	struct gip_metadata metadata;
++	struct gip_security security;
+ 
+ 	uint8_t seq_system;
+ 	uint8_t seq_security;
+@@ -359,6 +401,11 @@ static inline struct device *gip_device_dev(struct gip_device *device)
+ 	return &device->data.intf->dev;
+ }
+ 
++static inline struct device *gip_security_dev(struct gip_security *security)
++{
++	return gip_attachment_dev(container_of(security, struct gip_attachment, security));
++}
++
+ bool gip_supports_vendor_message(struct gip_attachment *attachment, uint8_t command, bool upstream);
+ 
+ int gip_send_system_message(struct gip_attachment *attachment,
+@@ -366,6 +413,11 @@ int gip_send_system_message(struct gip_attachment *attachment,
+ int gip_send_vendor_message(struct gip_attachment *attachment,
+ 	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes);
+ 
++int gip_security_handle_message(struct gip_security *security, const void *bytes, int num_bytes);
++int gip_security_start_handshake(struct gip_security *security);
++int gip_security_skip_handshake(struct gip_security *security);
++void gip_security_release(struct gip_security *security);
++
  extern const struct gip_driver gip_driver_navigation;
  extern const struct gip_driver gip_driver_gamepad;
  extern const struct gip_driver gip_driver_arcade_stick;
-+extern const struct gip_driver gip_driver_pdp_jaguar;
- #endif
 -- 
 2.54.0
 

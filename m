@@ -1,145 +1,183 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C399491587
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 22:45:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48DA5492E23
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 22:58:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788907557; cv=none; b=SHvxiT5TM0afYMCWci/ElhfdTCeTOVVEMkcNcYhpDx7pvbzKdfEP+v35TEbzh1eJOSu9UdwV8ZgI1D8kh3wFBwaUVnD9ouM30jACpPQY9pkDgAj+BLkIbdBWCf8tFKI6L4KSdQlJfGFfeqlcgiECuosPfoeXdVdF8zqJp5CIxoY=
+	t=1788908299; cv=none; b=mVZ56W2AJ23dfE0IH7ubGmsb5LSASG/NCEmA3BIb0gNJuLOOtcYx9F0jMd/c6zDF+TcaDQOjU3i3eZQ4sZnvgrAHvpH2DkkQER3Be11wd/PmIgyuIBF9FIVn/Q2GErqXZSji1PI8bzoQgRch5pSmQ1UKxpIj1X72NOT9ZAZRi5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788907557; c=relaxed/simple;
-	bh=Y+CSzOQ79R4zJsVhWVmxTsCY4eA6zFxvVUokey1j4BU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qBdfBV6ah37Kvo23mo0Kh080MYWubUWY+X8dP7Z6GJ8xgqTVs2hipyf6VOTetedqj8vdzOLsnmgScli1EF0yrr/hHU237GsicAIHU5J8wtGWQuxXLcIInzjzG/YYXdWoriuc1VkBF+fHtO/f71Qh26bg6BHFUJkmgu5BbOpMwvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fireburn.co.uk; spf=none smtp.mailfrom=fireburn.co.uk; dkim=pass (2048-bit key) header.d=fireburn-co-uk.20251104.gappssmtp.com header.i=@fireburn-co-uk.20251104.gappssmtp.com header.b=jk+uhubM; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fireburn.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=fireburn.co.uk
+	s=arc-20240116; t=1788908299; c=relaxed/simple;
+	bh=Fey99ecfNOMqijtao9trvI8iznBabLnmWcEc0XQbJ2I=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=mM79rPmmW9i2bCys9B1GWRe/MwgUxM980NpwBxfk5EikIRDP26Goyt67zPVfwz5VBSgNTn6fcN8kSEdGti9aN9D6fSEOc5axijIm5E2VNraV4HaMb18Bpm7lIMYCtm6mVhe4mbJFc9Z75sNzUPhjzXsRzwIrTY1bqVxWuBg0SR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LvVbp/Qb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fireburn-co-uk.20251104.gappssmtp.com header.i=@fireburn-co-uk.20251104.gappssmtp.com header.b="jk+uhubM"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912e2406so6706645e9.1
-        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 15:45:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fireburn-co-uk.20251104.gappssmtp.com; s=20251104; t=1788907550; x=1789512350; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=YTxI2l5PJUI4RUaoloNJUKqD4x2VtZHDxrJ5sZCcTQQ=;
-        b=jk+uhubMT5uFsfKUKLRGwHZg4PJxZ9XBJ35OcxJ8e+6RHNcqyNr+1IBc0bfW8K8zJT
-         L7kaQZu2J3eFVYBUHxVTjvuKwcJ06UQ7uEr5Vb3RnGn1q4xINpEF5qpuPL129gn/wibz
-         9fYuzkBTxQcLdL1FBEe7ZapHHOsTVj3a00u9m6LPB14WMywapUr18N/FfZ3WgoovPVaI
-         CLnj9rj/dTlqANL3SrjH036jWJWkCjeCxC7MbZyKLSX7hyM4B4aU/w/Cz0LYXBiPfdv/
-         bs1Oo9UqWOOXkzAlb4FGQAUC+a86LZZ8MVYGDOjuav5rGsyPpwBU77VzwEN7+ZG5agg/
-         LkOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788907550; x=1789512350;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=YTxI2l5PJUI4RUaoloNJUKqD4x2VtZHDxrJ5sZCcTQQ=;
-        b=DoQGmfcW5RFpFTpVqwXdwDBMOBgF1qNpW/YT7AzV8WgijaOBSTXZGl5wjxGadql4+0
-         cR3b9gD+53c8HM8e8+cKu1Gz+PLlOavvuatXutp+NQgLXlFavx9AYKCXV9vxJMEkmwaO
-         ohnR2Mt8i60X7HUzhc0XtQ1xHUKHA3mF849DYSV3psS/EZx77CPkCUUthqw1L0bFQVpd
-         3QjfnEuJODu/HzUUBIvarkytLcGuMXNCnp0AR/u1x/X4fpQo1b9ZOjjcR7TR9wHkDPhi
-         55wdDAbG3UTwnkKF6RfbRKjo8QY9PLxakX71Xq4uQrpot1ylZ9Gv1jnMg5lcVnYBHDib
-         tt6g==
-X-Forwarded-Encrypted: i=1; AKwUvBwTvPSWKFRP124QhVmPvkGNn8T98EwUyhh7eG6trUm8qNCRrcI/aeZV3Je1rfzr/VdcgiWvtx/hSnfK2w==@vger.kernel.org
-X-Gm-Message-State: AFuF++ms7+1gb7m6YXntOghLo7jiRTeE8odB94xU0pHMiLxUSdrzmiyF
-	+o5qS2nnSWgvTh3j5E5aPG3NfA6CgkCi8j2tdJgSETyHp/LwOFNwqNF5V/f+wM2ATw==
-X-Gm-Gg: AYBFou1Hk8Di6fY8G6BMAgT1rcbQpYlzg3nY6jwbMw57vZG2+MpADHr3x/rmKe5sNoj
-	/M87KV/JRyCa3DbuA9+6hzFqnqqUDyJqmr+C2cPvsAL92E3eAQWc+lmKFBvhheQ5PNuGQsUO4zz
-	moE11aIEVXSuiVbTBW6ogZRebk/mUBZTlvYzdXmTQNWiJXjsQ9tVtkCqPcpYmDU9D16wTGEA1iO
-	W3tOppimDAFsPM8ExSMfhGBt5Qs2pT2eVUAUOyiMzeveZfCBHNQYG97ZxrkQWccIG81xxwIQ1bT
-	cbl8YZu/jN0tHmRhZplzyiQkzCXtzarN0T6ot8r0PYKELNzdoOEaE3qX8Q5PnP9mYEN9N0dddVZ
-	wvGTRpMxhZJ8tMPVc9KILxov9ub+gtGRm64Ha8GYjbw0Q/C+ElQutqgFyUCToqiAo6UDNWB8nFC
-	Jjdm7zo7u0JmKRoD4c4v8ls/h9S4++NYMNfQScgMWdO8RQKexT/JPPfJIUemUHxkTt6gcEQAjvG
-	DhYEmqZVv4mE1tCc8RAp9MgZ/1/VayO1Od/
-X-Received: by 2002:a05:600c:4752:b0:499:59fd:dbfc with SMTP id 5b1f17b1804b1-49d175439dbmr104753715e9.1.1788907549693;
-        Tue, 08 Sep 2026 15:45:49 -0700 (PDT)
-Received: from axion.fireburn.co.uk ([2a01:4b00:d309:1c00:caf1:6b20:8531:818c])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee7febb4sm553361685e9.14.2026.09.08.15.45.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 15:45:48 -0700 (PDT)
-From: Mike Lothian <mike@fireburn.co.uk>
-To: "Daniel J . Ogorchock" <djogorchock@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Silvan Jegen <s.jegen@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Mike Lothian <mike@fireburn.co.uk>
-Subject: [PATCH] HID: nintendo: relax subcommand limiter until cadence is proven
-Date: Tue,  8 Sep 2026 23:45:32 +0100
-Message-ID: <20260908224532.114357-1-mike@fireburn.co.uk>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LvVbp/Qb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 952CE1F00A3A;
+	Tue,  8 Sep 2026 22:58:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788908295;
+	bh=koU8JR20w27IGji2J2H62pImRw4a3Om7xFLAx3M+a4Q=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=LvVbp/QbRoLP/EaQdNpdd7vtTVK5n7isnGIgao8lTHWv2yQC69LNMdV4Y7U1DMNny
+	 60Mc+krnFVkjEyi3u+wacGhavcJAo2ZTCRcP3dbetNoQoJvWsJ8YNiGjJXSEGWWFfF
+	 uVw7C3yaAMg2MSkis+Yv5w56ukKmUDcKwmHS24cmbAKUNrCLGStNpZY4LD6gT1RrLh
+	 fA/IMPr9EnuVvyBh5Vz81BrYlAn0t/nOQTT2yL2QrBSlaCXUIa4Yj+07o47wEUqGXP
+	 mCtxVT1uFEVYxZy3RHqMkqWqAq7pLOr2Qhfgxzgo8pO1+5nifqdCFHJ3rKgACyqwh/
+	 tsEf5aY2JmRCw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: nintendo: relax subcommand limiter until cadence
+ is proven
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mike Lothian" <mike@fireburn.co.uk>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260908224532.114357-1-mike@fireburn.co.uk>
+References: <20260908224532.114357-1-mike@fireburn.co.uk>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 22:58:15 +0000
+Message-Id: <20260908225815.952CE1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-joycon_config_rumble() queues a zero-rumble packet during probe. The
-rumble worker sends it as soon as ctlr_state becomes READ, and
-joycon_handle_rumble_report() retries it a few more times after
-that. This is the first subcommand sent on every connection, and it
-goes out before any input reports have been seen, so
-consecutive_valid_report_deltas is still 0.
-joycon_enforce_subcmd_rate_strict() requires 3 consecutive reports
-in the 8-17ms window before it releases a subcommand, so this send
-exhausts all 25 attempts and warns, on every connection.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-Start each connection on the legacy flat-delay throttle instead of
-the cadence-gated one, and switch to the strict limiter from
-joycon_parse_report() once JC_SUBCMD_VALID_DELTA_REQ consecutive
-reports have actually arrived at a valid cadence. Controllers that
-already hit the permanent fallback in
-joycon_enforce_subcmd_rate_strict() are left alone.
+New issues:
+- [High] Concurrent unsynchronized access to `subcmd_rate_exhaustions` and =
+`subcmd_rate_relaxed` permanently breaks the rate limiter fallback mechanis=
+m.
+- [Medium] USB controllers permanently bypass the transition to the strict =
+rate limiter due to an unconditional override of `consecutive_valid_report_=
+deltas`.
 
-Found and bisected with a btmon capture over Bluetooth (MediaTek
-mt7921e): the three JC_SUBCMD_RATE_MAX_ATTEMPTS warnings on connect
-line up exactly with three JC_OUTPUT_RUMBLE_ONLY (0x10) frames sent
-by the rumble worker's zero-countdown retries, all before the first
-JC_OUTPUT_FULL_REPORT (0x30) frame has had a chance to establish
-cadence. Tested on real hardware (official Pro Controller): reliable
-first-attempt connect across repeated pairing/reconnect cycles,
-versus dropping inside the first ~70 seconds of a fresh connection
-about half the time before this change.
+Pre-existing issues:
+- [High] Probe error paths fail to set `ctlr_state` to `REMOVED`, leading t=
+o unsafe I/O on stopped hardware during workqueue flush.
+--
 
-Fixes: d750d1480362 ("HID: nintendo: fix rumble rate limiter")
-Signed-off-by: Mike Lothian <mike@fireburn.co.uk>
-Assisted-by: Claude:Sonnet-5 [Claude Code]
----
- drivers/hid/hid-nintendo.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+commit 4cc815d1cbd63a9a8e0cd2d3dbc8b1bf1a713dfe
+Author: Mike Lothian <mike@fireburn.co.uk>
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 43e0f2aaea3b..0a169d0aa719 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -1797,8 +1797,12 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
- 	 */
- 	if (report_delta_ms >= JC_INPUT_REPORT_MIN_DELTA &&
- 	    report_delta_ms <= JC_INPUT_REPORT_MAX_DELTA) {
--		if (ctlr->consecutive_valid_report_deltas < JC_SUBCMD_VALID_DELTA_REQ)
-+		if (ctlr->consecutive_valid_report_deltas < JC_SUBCMD_VALID_DELTA_REQ) {
- 			ctlr->consecutive_valid_report_deltas++;
-+			if (ctlr->consecutive_valid_report_deltas == JC_SUBCMD_VALID_DELTA_REQ &&
-+			    ctlr->subcmd_rate_exhaustions < JC_SUBCMD_RATE_MAX_FAILURES)
-+				ctlr->subcmd_rate_relaxed = false;
-+		}
- 	} else {
- 		ctlr->consecutive_valid_report_deltas = 0;
- 	}
-@@ -2730,6 +2734,10 @@ static int nintendo_hid_probe(struct hid_device *hdev,
- 
- 	ctlr->hdev = hdev;
- 	ctlr->ctlr_state = JOYCON_CTLR_STATE_INIT;
-+	/* Promoted to the strict limiter once cadence is proven, see
-+	 * joycon_parse_report().
-+	 */
-+	ctlr->subcmd_rate_relaxed = true;
- 	ctlr->rumble_queue_head = 0;
- 	ctlr->rumble_queue_tail = 0;
- 	hid_set_drvdata(hdev, ctlr);
--- 
-2.55.0
+HID: nintendo: relax subcommand limiter until cadence is proven
 
+This commit modifies the initialization of the nintendo HID driver to
+start each connection on the legacy flat-delay throttle instead of the
+cadence-gated one. It transitions controllers to the strict limiter once
+they demonstrate a valid reporting cadence, preventing warnings caused by
+early rumble packets being sent before cadence is established.
+
+> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+> index 43e0f2aaea3b5..0a169d0aa7195 100644
+> --- a/drivers/hid/hid-nintendo.c
+> +++ b/drivers/hid/hid-nintendo.c
+> @@ -1797,8 +1797,12 @@ static void joycon_parse_report(struct joycon_ctlr=
+ *ctlr,
+>  	 */
+>  	if (report_delta_ms >=3D JC_INPUT_REPORT_MIN_DELTA &&
+>  	    report_delta_ms <=3D JC_INPUT_REPORT_MAX_DELTA) {
+> -		if (ctlr->consecutive_valid_report_deltas < JC_SUBCMD_VALID_DELTA_REQ)
+> +		if (ctlr->consecutive_valid_report_deltas < JC_SUBCMD_VALID_DELTA_REQ)=
+ {
+>  			ctlr->consecutive_valid_report_deltas++;
+
+[Severity: Medium]
+Will this permanently bypass the transition to the strict rate limiter for
+USB controllers?
+
+For USB devices, a preexisting block at the end of joycon_parse_report()
+unconditionally forces consecutive_valid_report_deltas to
+JC_SUBCMD_VALID_DELTA_REQ (which is 3).
+
+On all subsequent input reports, the delta count is already 3, causing the
+if check above to fail. The logic that sets subcmd_rate_relaxed to false
+would be entirely bypassed, leaving USB controllers stuck on the legacy
+flat-delay rate limiter.
+
+> +			if (ctlr->consecutive_valid_report_deltas =3D=3D JC_SUBCMD_VALID_DELT=
+A_REQ &&
+> +			    ctlr->subcmd_rate_exhaustions < JC_SUBCMD_RATE_MAX_FAILURES)
+> +				ctlr->subcmd_rate_relaxed =3D false;
+
+[Severity: High]
+Could this result in a data race that permanently breaks the rate limiter
+fallback mechanism?
+
+joycon_enforce_subcmd_rate_strict() modifies subcmd_rate_exhaustions and
+subcmd_rate_relaxed from a worker thread holding output_mutex but not
+ctlr->lock:
+
+joycon_enforce_subcmd_rate_strict() {
+    ...
+    if (++ctlr->subcmd_rate_exhaustions =3D=3D JC_SUBCMD_RATE_MAX_FAILURES)=
+ {
+        ctlr->subcmd_rate_relaxed =3D true;
+    ...
+}
+
+Meanwhile, the new code here in joycon_parse_report() executes in softirq
+context holding ctlr->lock but not output_mutex.
+
+If joycon_parse_report() reads a stale value of exhaustions (e.g., 3) just
+before the strict limiter increments it to the maximum (4), the softirq
+evaluates the condition as true. If the softirq then writes false to
+relaxed immediately after the strict limiter wrote true, the flag becomes
+false while exhaustions is 4. Subsequent failures will increment exhaustions
+past the maximum, meaning relaxed =3D true will never be executed again.
+
+> +		}
+>  	} else {
+>  		ctlr->consecutive_valid_report_deltas =3D 0;
+>  	}
+
+[ ... ]
+
+> @@ -2730,6 +2734,10 @@ static int nintendo_hid_probe(struct hid_device *h=
+dev,
+> =20
+>  	ctlr->hdev =3D hdev;
+>  	ctlr->ctlr_state =3D JOYCON_CTLR_STATE_INIT;
+> +	/* Promoted to the strict limiter once cadence is proven, see
+> +	 * joycon_parse_report().
+> +	 */
+> +	ctlr->subcmd_rate_relaxed =3D true;
+
+[Severity: High]
+This is a pre-existing issue, but does the probe error path fail to set
+ctlr_state to JOYCON_CTLR_STATE_REMOVED, leading to unsafe I/O on stopped
+hardware during the workqueue flush?
+
+If nintendo_hid_probe() fails after hid_device_io_start() (e.g. inside
+joycon_leds_create()), an incoming input report can queue the rumble worker.
+The error path then calls hid_hw_stop(), tearing down the transport.
+
+The error path subsequently calls destroy_workqueue(ctlr->rumble_queue),
+which synchronously flushes and executes the queued worker:
+
+nintendo_hid_probe() {
+    ...
+err_stop:
+    hid_hw_stop(hdev);
+err_wq:
+    destroy_workqueue(ctlr->rumble_queue);
+    ...
+}
+
+Because the error path never updated ctlr_state, the worker bypasses the
+safety guard in joycon_send_rumble_data() and unconditionally calls
+__joycon_hid_send(), invoking hid_hw_output_report() on the already
+stopped hardware. Executing hardware I/O on a stopped and partially
+dismantled HID low-level transport can cause Use-After-Free, NULL pointer
+dereferences, or kernel panics depending on the underlying transport.
+
+>  	ctlr->rumble_queue_head =3D 0;
+>  	ctlr->rumble_queue_tail =3D 0;
+>  	hid_set_drvdata(hdev, ctlr);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908224532.1143=
+57-1-mike@fireburn.co.uk?part=3D1

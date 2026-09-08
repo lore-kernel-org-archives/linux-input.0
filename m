@@ -1,46 +1,61 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE70A25B0A4;
-	Tue,  8 Sep 2026 00:54:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ADE91DDFE;
+	Tue,  8 Sep 2026 01:38:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=60.244.123.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788828871; cv=none; b=pG33Xh1rbBPurdMSKxoFMNBwFIfUqcdSbqGChPcVNz1QDVSFe7pYkTcAeSxtvKvFIcfQ81z1Do7A6Bd06lT3njwe/o/5KvBz90w6RGb2p+sLG4uBUY61eycyYRdQNGDVUTjbbAlepqUGCr0atJnSu+ZmU6FFpm7WT27hlzcJbTw=
+	t=1788831537; cv=none; b=B9inH2M6Fwg52/sLQh+E3PFRSNuiyzwPGCajYM7QQdciq4S2FsXWpM8R60HJN67owc6dsEPXsaEKM9UGm1Ay7DkNGwhH3e32nusSG8y5yUagyGc++7Pb5/YBg9uIZGrQ9Sk10hnXg5smhvZ0DG6LrrHEBSOcrmW1zXEQz7pHJuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788828871; c=relaxed/simple;
-	bh=urulPs8xBZRa9mR605svBohkXrC+2ywLOWlEwd7aLio=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aTGgfMSOd44j3pdknWjPSe/0cHtchp3QLezjin5/EGQk7TUUOR59/Kf7oce0xNf0UBUllv0XZc1uGfSBPlLvgoQzXRkvlH0ZkLSNLygsSXjCg8QQm1ce0r3xaIiLsoXpw+CnHQgEEr9QCTGvtiVqlw7JFVeBiddzFgfJBYS9v2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gU3DDjSZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788831537; c=relaxed/simple;
+	bh=ZwuL+NpKptaC3NHkf0cJJv6UAswEEY5MEGKQ3VLIozQ=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=qrnAzPKr+0CkxcIMjZFj016WbyZYwmHDoLTELgme+COPQdzd7tdBKHyp4fpQe7ZbpmNfln2eUJN9VgYNzYsy1DXlb1KhtfifNSFwSPiZwnwXoKXRu9957SKFtRGNXIrqftDJGVmFxgX329uFGW+EZaESEwM/mvCT7UJyI+NK4To=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=u5u5ZIb4; arc=none smtp.client-ip=60.244.123.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gU3DDjSZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B84F61F00A3E;
-	Tue,  8 Sep 2026 00:54:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788828867;
-	bh=Ierh7BhA2lugTrhu1M2fPcGnIA8C1lQpCJ7l8fML2Og=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=gU3DDjSZXGq1mOfr5DM/su/E4acdAwZWMLXCK/tshvmvQwcWy6vM4EEuY82HQSIcf
-	 O1GbAb+kxBuT+jzLKA7iDuG1PnzMyrnbjagKCYd7o/SJYJX/Q2HErBR+fhqVHDp8bz
-	 oAfoNkQfYgl0e+mbsRsnSMtEmK6oNbKWUn2hSfjiWvEMwj01FNo11ZMyL+YfKigCOP
-	 Hlclh9DNlXR3SzoP8bx+HgA3VpVebEQMmSWCUeowK3Ssk1her97V2p2BCJiw+Xlxkz
-	 kBP9M4Jz9H94gMdvZQqq+w4Q0ifLhSBX0GwipgMG+jxMK1XLzhz4We70a4evajAcUq
-	 C4hh/XhQz+llg==
-From: Sasha Levin <sashal@kernel.org>
-To: stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>,
-	Miguel Garcia <miguelgarciaroman8@gmail.com>,
-	dmitry.torokhov@gmail.com,
-	gregkh@linuxfoundation.org,
-	pengpeng@iscas.ac.cn,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6.1.y] Input: aiptek - validate raw macro indices before updating state
-Date: Mon,  7 Sep 2026 20:53:58 -0400
-Message-ID: <2026-09-07-daily-reply-0019-aiptek-6-1@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260907184959.1567893-1-miguelgarciaroman8@gmail.com>
-References: <20260907184959.1567893-1-miguelgarciaroman8@gmail.com>
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="u5u5ZIb4"
+X-UUID: 09a826c2ab2611f1b1788b6acf885367-20260908
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+	h=Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=Ttyj7YvlZDm9hKVv/iwpJrgcMVPyuqSO8ZB2OYik/Po=;
+	b=u5u5ZIb4EVT351s81iQ2ArWaepX5UqZXyItvhfD+mhQAkts7ajrXgf9quUfV6u0/5hFsslvB3fMkpCSlZMv7oXkyJuyRSVmDI2WruRQ8jOwSaB0JsPlzoTPbxiSaNi/+m0a/p0EAUiCdtjDxSJuwQqCcMG+i7iOBwy9JlzAr9F4=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:de8f7363-1cfb-40b3-ae62-29fe105472a0,IP:0,U
+	RL:0,TC:0,Content:44,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:44
+X-CID-META: VersionHash:7db8b62,CLOUDID:a0e0430f-7fc4-4c92-9e95-c95c5d3eebab,B
+	ulkID:nil,BulkQuantity:0,SF:102|836|865|888|898,TC:-5,Content:4|15|50|99,E
+	DM:-3,IP:nil,URL:99|1,File:130,RT:0,Bulk:nil,QS:nil,BEC:-1,COL:0,OSI:0,OSA
+	:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULS
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 09a826c2ab2611f1b1788b6acf885367-20260908
+Received: from mtkmbs09n1.mediatek.inc [(172.21.101.35)] by mailgw01.mediatek.com
+	(envelope-from <justin.yeh@mediatek.com>)
+	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+	with ESMTP id 1828760962; Tue, 08 Sep 2026 09:38:48 +0800
+Received: from mtkmbs11n1.mediatek.inc (172.21.101.185) by
+ MTKMBS14N1.mediatek.inc (172.21.101.75) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.29; Tue, 8 Sep 2026 09:38:47 +0800
+Received: from mtksitap99.mediatek.inc (10.233.130.16) by
+ mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.2562.29 via Frontend Transport; Tue, 8 Sep 2026 09:38:47 +0800
+From: Justin Yeh <justin.yeh@mediatek.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
+	<angelogioacchino.delregno@collabora.com>, Douglas Anderson
+	<dianders@chromium.org>, Maxime Ripard <mripard@kernel.org>
+CC: <Project_Global_Chrome_Upstream_Group@mediatek.com>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-input@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-mediatek@lists.infradead.org>, Justin
+ Yeh <justin.yeh@mediatek.com>
+Subject: [PATCH v2] HID: i2c-hid: Unfollow the panel on shutdown
+Date: Tue, 8 Sep 2026 09:38:40 +0800
+Message-ID: <20260908013843.368364-1-justin.yeh@mediatek.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,21 +63,54 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-MTK: N
 
-> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
-> Link: https://patch.msgid.link/20260329001711.88076-1-pengpeng@iscas.ac.cn
-> [dtor: fix macro fallback in report 5s to use -1]
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> (cherry picked from commit 95dffe32a66cbed07fbfa7afed39d56d5014e04f)
-> Signed-off-by: Miguel Garcia <miguelgarciaroman8@gmail.com>
+i2c_hid_core_shutdown() sends SET_POWER(SLEEP) even for panel followers,
+but nothing in device_shutdown() guarantees whether the panel, and hence
+our own power, is still on by the time we get there.
 
-This is upstream 95dffe32a66c ("Input: aiptek - validate raw macro indices
-before updating state"), authored by Pengpeng Hou and adapted by Dmitry
-Torokhov. Your diff matches it byte-for-byte. Before I queue it under your
-Signed-off-by, can you confirm your relationship to this submission (sending on
-Pengpeng's/Dmitry's behalf, or an independent resubmission)? Want to get the
-attribution right before it goes in.
+Do what i2c_hid_core_remove() does and just unfollow the panel.
+drm_panel_remove_follower() calls panel_unpreparing() only while the
+panel is still prepared, which powers us down properly; if it is already
+unprepared no transfer is attempted at all. On MT8196 the panel is
+unprepared long before us, so this also drops the ~2s i2c bus timeout
+from every reboot.
 
+Fixes: 96a37bfd232a ("HID: i2c-hid: Support being a panel follower")
+Suggested-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Justin Yeh <justin.yeh@mediatek.com>
+---
+Changes in v2:
+- Unfollow the panel instead of just skipping SET_POWER, so we no longer
+  depend on the panel having been unprepared before us (Doug).
+- Link to v1: https://lore.kernel.org/all/20260904035009.4114363-1-justin.yeh@mediatek.com/
+---
+ drivers/hid/i2c-hid/i2c-hid-core.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 0ff07fdab442..c7e46004f513 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -1355,7 +1355,16 @@ void i2c_hid_core_shutdown(struct i2c_client *client)
+ {
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+ 
+-	i2c_hid_set_power(ihid, I2C_HID_PWR_SLEEP);
++	/*
++	 * Like in i2c_hid_core_remove(): if we're a follower, the act of
++	 * unfollowing will cause us to be powered down. Otherwise we need to
++	 * manually do it.
++	 */
++	if (ihid->is_panel_follower)
++		drm_panel_remove_follower(&ihid->panel_follower);
++	else
++		i2c_hid_set_power(ihid, I2C_HID_PWR_SLEEP);
++
+ 	free_irq(client->irq, ihid);
+ 
+ 	i2c_hid_core_shutdown_tail(ihid);
 -- 
-Thanks,
-Sasha
+2.45.2
+

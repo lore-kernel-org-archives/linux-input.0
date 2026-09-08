@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 989B7315D5D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9891F57C9F
 	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:23:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788837828; cv=none; b=YikISaoRcy4pdUgzQ9owybzbd54mz9i/h9ir4w2iRuFGafg0qUFt5fgLSUpMpcBJmjoAaBVHBTk53y8qCB13I/xeUsOiwfJwFuYrBzWOC+O0bcIjQaA9S0suUpD9H2RtZp/w1TNLTa3wqri5WpJ4DPA+yYhSGHxc2weMeh6wgfg=
+	t=1788837828; cv=none; b=hQVq+dyd/t71/kAwwEJcxTMbWGwJlXsx2ouEKEqYu3t4o5/RYMlgroaNQAJ/lfJPFZky2Z05mqga/r3yexoNe/3QZyY/bsd45A9iUd+natyNFF3qy1UcI6UyeagzFldghjXpyjLO7U3gj5EKk1Sx0JjN4bPvyvimo39AyS+VMoM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788837828; c=relaxed/simple;
-	bh=WkZMpc4CWuTucwIkcTPv4ta1znN9gM1Kt2vmjLU4iiM=;
+	bh=q1pLcb7IKZW+bGqVas3IuwrS3YV1qxv/AIyqJTIgMrI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YS7uquQA4sYeSGbkR/6YMnAD0WYB+PQoYj8Hxw7f3xLQf8zSMOkXde6m6ZWRXaAsb2eoPbY4PNln1x9Si6UbnhdBW4Nx4+4oFJ7K77TGgvMlPnCuoqON6Uaob+Kerxc7L4iulBGCLZbKfxsyu/a/WHkXGd8e09jim/9aQ4FSP1g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=f1Mshsmh; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=rfSSdz8sJlczdLbV4Ol3Wl0AFCEqea/3j0l8CZvQUcxuC/QcmCLkOF0pOsc6nEki+QhrAeOUeX5/wM71b/vAbF5hUmw2PLX9IQBRQ5lhTo8/Oau7rmI6x+rTLepqWN7aa7W4CyqBJdydPSkELYS0hL1cnH0LNXrMjODkLp0Toe0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=DE5bZJcW; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="f1Mshsmh"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="DE5bZJcW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1788837819; bh=WkZMpc4CWuTucwIkcTPv4ta1znN9gM1Kt2vmjLU4iiM=;
+	t=1788837818; bh=q1pLcb7IKZW+bGqVas3IuwrS3YV1qxv/AIyqJTIgMrI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=f1MshsmhJd9jk4S8TbzMsnDlWhASN6sTxiCtbXOJT5a6PgxpTWzF7i4do153e2CHJ
-	 hFoM+w124i5Dmrur3dKurfwgQ3RzDn4hi1n0RLl1pG7aDC8gDqj2H95AJ2DNpbujui
-	 Ax2osks3BAp5ydJXna2zPc3tv19p1tVW/T14EuzfkQrj0ZqCH0WGuXVFofOGReNR3u
-	 No39ZnMbnSIMiovduJZITsCfEs44DGMH2KzVXI+lrdVH+YoYUjBRYfvrfvcnTBiINK
-	 q/4ks7MbEMbQyVrUIo9dazpuQqLQD3WtlaOUXorBxTAMqJz10uey2ii1z/dzdLxUy+
-	 VAu5EUBijLMdA==
+	b=DE5bZJcWrJvCOBextqSRFC+uaNBoctzCqcScDXgq2m4+1yB6IrYkaioUkkhhBE/+/
+	 akCJl2ipbPuJBBwIcw8ZCLHE3PU7JjFSfdMrvtkm87JSc52ug2MEapXQCpwj+5O2Re
+	 4jAuN9h8dAORcoEwU5Xsj3948E9jj4j/LjSIHL5vPFMkb0XeBxO6/747IeKkuwBuln
+	 +eEqoHRg+Vhfsq2Dn8RQtFDDfUCyNRYS2rPBYRnlv+zyMWcebLfV9nRS5K4uF55voQ
+	 ssqccKAK+F2TsboNkQbfEF6PepHywkRGj7GROJn5jGy3jfjggWwQffmDrtHtJQKDUm
+	 JEP7smxKPy4wg==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id E814F13208C;
+	by endrift.com (Postfix) with ESMTPSA id 9AA9013208B;
 	Mon, 07 Sep 2026 20:23:38 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v6 10/12] Input: Add ABS_CLUTCH, HANDBRAKE, and SHIFTER
-Date: Mon,  7 Sep 2026 20:21:41 -0700
-Message-ID: <20260908032145.2118234-11-vi@endrift.com>
+Subject: [PATCH v6 09/12] Input: xbox_gip - Add support for PDP guitar controllers
+Date: Mon,  7 Sep 2026 20:21:40 -0700
+Message-ID: <20260908032145.2118234-10-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260908032145.2118234-1-vi@endrift.com>
 References: <20260908032145.2118234-1-vi@endrift.com>
@@ -46,55 +46,193 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add new absolute axes for racing game controllers
+This patch adds support for the PDP guitar controllers, namely the Fender
+Jaguar and RiffMaster models. These use mostly the same protocol, but the
+RiffMaster appears t use a slightly newer variant.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-debug.c                | 16 +++++++++-------
- include/uapi/linux/input-event-codes.h |  3 +++
- 2 files changed, 12 insertions(+), 7 deletions(-)
+ drivers/input/joystick/gip/Makefile         |   1 +
+ drivers/input/joystick/gip/gip-core.c       |   1 +
+ drivers/input/joystick/gip/gip-pdp-jaguar.c | 129 ++++++++++++++++++++
+ drivers/input/joystick/gip/gip.h            |   2 +
+ 4 files changed, 133 insertions(+)
+ create mode 100644 drivers/input/joystick/gip/gip-pdp-jaguar.c
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index f44e6e708404..7a1b56311e9b 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -3511,13 +3511,15 @@ static const char *absolutes[ABS_CNT] = {
- 	[ABS_RY] = "Ry",		[ABS_RZ] = "Rz",
- 	[ABS_THROTTLE] = "Throttle",	[ABS_RUDDER] = "Rudder",
- 	[ABS_WHEEL] = "Wheel",		[ABS_GAS] = "Gas",
--	[ABS_BRAKE] = "Brake",		[ABS_HAT0X] = "Hat0X",
--	[ABS_HAT0Y] = "Hat0Y",		[ABS_HAT1X] = "Hat1X",
--	[ABS_HAT1Y] = "Hat1Y",		[ABS_HAT2X] = "Hat2X",
--	[ABS_HAT2Y] = "Hat2Y",		[ABS_HAT3X] = "Hat3X",
--	[ABS_HAT3Y] = "Hat 3Y",		[ABS_PRESSURE] = "Pressure",
--	[ABS_DISTANCE] = "Distance",	[ABS_TILT_X] = "XTilt",
--	[ABS_TILT_Y] = "YTilt",		[ABS_TOOL_WIDTH] = "ToolWidth",
-+	[ABS_BRAKE] = "Brake",		[ABS_CLUTCH] = "Clutch",
-+	[ABS_HANDBRAKE] = "Handbrake",	[ABS_SHIFTER] = "Shifter",
-+	[ABS_HAT0X] = "Hat0X",		[ABS_HAT0Y] = "Hat0Y",
-+	[ABS_HAT1X] = "Hat1X",		[ABS_HAT1Y] = "Hat1Y",
-+	[ABS_HAT2X] = "Hat2X",		[ABS_HAT2Y] = "Hat2Y",
-+	[ABS_HAT3X] = "Hat3X",		[ABS_HAT3Y] = "Hat3Y",
-+	[ABS_PRESSURE] = "Pressure",	[ABS_DISTANCE] = "Distance",
-+	[ABS_TILT_X] = "XTilt",		[ABS_TILT_Y] = "YTilt",
-+	[ABS_TOOL_WIDTH] = "ToolWidth",
- 	[ABS_VOLUME] = "Volume",	[ABS_PROFILE] = "Profile",
- 	[ABS_SND_PROFILE] = "SoundProfile",
- 	[ABS_MISC] = "Misc",
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 3528168f7c6d..5c881ed44177 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -879,6 +879,9 @@
- #define ABS_WHEEL		0x08
- #define ABS_GAS			0x09
- #define ABS_BRAKE		0x0a
-+#define ABS_CLUTCH		0x0b
-+#define ABS_HANDBRAKE		0x0c
-+#define ABS_SHIFTER		0x0d
- #define ABS_HAT0X		0x10
- #define ABS_HAT0Y		0x11
- #define ABS_HAT1X		0x12
+diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
+index 9ed59caec4d9..62c016d6c11e 100644
+--- a/drivers/input/joystick/gip/Makefile
++++ b/drivers/input/joystick/gip/Makefile
+@@ -4,3 +4,4 @@ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
+ xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
+ # Additional device support
+ xbox-gip-y += gip-arcade-stick.o
++xbox-gip-y += gip-pdp-jaguar.o
+diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
+index 9e43d9cba453..5e581adb0788 100644
+--- a/drivers/input/joystick/gip/gip-core.c
++++ b/drivers/input/joystick/gip/gip-core.c
+@@ -333,6 +333,7 @@ static const struct gip_driver *base_drivers[] = {
+ 	&gip_driver_navigation,
+ 	&gip_driver_gamepad,
+ 	&gip_driver_arcade_stick,
++	&gip_driver_pdp_jaguar,
+ 	NULL /* Sentinel */
+ };
+ 
+diff --git a/drivers/input/joystick/gip/gip-pdp-jaguar.c b/drivers/input/joystick/gip/gip-pdp-jaguar.c
+new file mode 100644
+index 000000000000..ec0e9d811d12
+--- /dev/null
++++ b/drivers/input/joystick/gip/gip-pdp-jaguar.c
+@@ -0,0 +1,129 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Drivers for GIP PDP Jaguar-style guitars
++ *
++ * Copyright (c) 2026 Valve Software
++ */
++
++#include <linux/unaligned.h>
++#include "gip.h"
++
++#define GIP_QUIRK_PDP_HAS_RIGHT_STICK	BIT(31)
++
++static int gip_setup_pdp_jaguar_input(struct gip_attachment *attachment, struct input_dev *input)
++{
++	/*
++	 * Despite having the navigation controller GUID, we don't want to use
++	 * those mappings. Instead, we use the xone mappings for compatibility
++	 * reasons.
++	 */
++
++	/* Lower fret */
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY2);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY3);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY4);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY5);
++	/* Upper fret */
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY6);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY7);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY8);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY9);
++	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY10);
++
++	input_set_capability(input, EV_KEY, BTN_START);
++	input_set_capability(input, EV_KEY, BTN_SELECT);
++
++	/* Whammy bar */
++	input_set_abs_params(input, ABS_Y, 0, 255, 0, 0);
++	/* Tilt */
++	input_set_abs_params(input, ABS_Z, 0, 255, 0, 0);
++
++	input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
++	input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
++
++	if (attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) {
++		input_set_capability(input, EV_KEY, BTN_THUMBR);
++		input_set_abs_params(input, ABS_RX, -32768, 32767, 16, 128);
++		input_set_abs_params(input, ABS_RY, -32768, 32767, 16, 128);
++	}
++
++	return 0;
++}
++
++static int gip_handle_pdp_jaguar_report(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
++{
++	bool lower;
++
++	if (num_bytes < 4) {
++		gip_dbg(attachment, "Discarding too-short input report\n");
++		return -EINVAL;
++	}
++
++	input_report_key(input, BTN_START, bytes[0] & BIT(2));
++	input_report_key(input, BTN_SELECT, bytes[0] & BIT(3));
++
++	if (num_bytes >= 7 && (bytes[5] || bytes[6])) {
++		/* Newer report version on the RiffMaster */
++		input_report_key(input, BTN_TRIGGER_HAPPY1, bytes[5] & BIT(0));
++		input_report_key(input, BTN_TRIGGER_HAPPY2, bytes[5] & BIT(1));
++		input_report_key(input, BTN_TRIGGER_HAPPY3, bytes[5] & BIT(2));
++		input_report_key(input, BTN_TRIGGER_HAPPY4, bytes[5] & BIT(3));
++		input_report_key(input, BTN_TRIGGER_HAPPY5, bytes[5] & BIT(4));
++
++		input_report_key(input, BTN_TRIGGER_HAPPY6, bytes[6] & BIT(0));
++		input_report_key(input, BTN_TRIGGER_HAPPY7, bytes[6] & BIT(1));
++		input_report_key(input, BTN_TRIGGER_HAPPY8, bytes[6] & BIT(2));
++		input_report_key(input, BTN_TRIGGER_HAPPY9, bytes[6] & BIT(3));
++		input_report_key(input, BTN_TRIGGER_HAPPY10, bytes[6] & BIT(4));
++	} else {
++		lower = bytes[1] & BIT(6);
++		input_report_key(input, BTN_TRIGGER_HAPPY1, !lower && (bytes[0] & BIT(4)));
++		input_report_key(input, BTN_TRIGGER_HAPPY2, !lower && (bytes[0] & BIT(5)));
++		input_report_key(input, BTN_TRIGGER_HAPPY3, !lower && (bytes[0] & BIT(7)));
++		input_report_key(input, BTN_TRIGGER_HAPPY4, !lower && (bytes[0] & BIT(6)));
++		input_report_key(input, BTN_TRIGGER_HAPPY5, !lower && (bytes[1] & BIT(4)));
++
++		input_report_key(input, BTN_TRIGGER_HAPPY6, lower && (bytes[0] & BIT(4)));
++		input_report_key(input, BTN_TRIGGER_HAPPY7, lower && (bytes[0] & BIT(5)));
++		input_report_key(input, BTN_TRIGGER_HAPPY8, lower && (bytes[0] & BIT(7)));
++		input_report_key(input, BTN_TRIGGER_HAPPY9, lower && (bytes[0] & BIT(6)));
++		input_report_key(input, BTN_TRIGGER_HAPPY10, lower && (bytes[1] & BIT(4)));
++	}
++
++	input_report_abs(input, ABS_Y, bytes[2]);
++	input_report_abs(input, ABS_Z, bytes[3]);
++
++	input_report_abs(input, ABS_HAT0X,
++		!!(bytes[1] & BIT(3)) - !!(bytes[1] & BIT(2)));
++	input_report_abs(input, ABS_HAT0Y,
++		!!(bytes[1] & BIT(1)) - !!(bytes[1] & BIT(0)));
++
++	if ((attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) && num_bytes >= 14) {
++		input_report_key(input, BTN_THUMBR, bytes[1] & BIT(6));
++		input_report_abs(input, ABS_RX, (int16_t)get_unaligned_le16(&bytes[10]));
++		input_report_abs(input, ABS_RY, ~(int16_t)get_unaligned_le16(&bytes[12]));
++	}
++
++	return 0;
++}
++
++const struct gip_driver gip_driver_pdp_jaguar = {
++	.types = (const char *const[]) { "PDP.Xbox.Guitar.Jaguar", NULL },
++	.guid = GUID_INIT(0x1a266af6, 0x3a46, 0x45e3, 0xb9, 0xb6,
++		0x0f, 0x2c, 0x0b, 0x2c, 0x1e, 0xbe),
++
++	.quirks = (const struct gip_quirks[]) {
++		/* PDP RiffMaster */
++		{ GIP_VID_PDP, GIP_PID_PDP_RIFFMASTER, 0,
++			.quirks = GIP_QUIRK_PDP_HAS_RIGHT_STICK, },
++
++		{0},
++	},
++	.probe = NULL,
++	.remove = NULL,
++	.init = NULL,
++	.setup_input = gip_setup_pdp_jaguar_input,
++	.handle_input_report = gip_handle_pdp_jaguar_report,
++};
+diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
+index 98add856ae21..3a35bcc43927 100644
+--- a/drivers/input/joystick/gip/gip.h
++++ b/drivers/input/joystick/gip/gip.h
+@@ -41,6 +41,7 @@
+ #define GIP_PID_XBOX_WIRELESS			0x0b12
+ 
+ #define GIP_PID_PDP_ROCK_CANDY	0x0246
++#define GIP_PID_PDP_RIFFMASTER	0x0248
+ 
+ #define GIP_PID_BDA_XB1_CLASSIC		0x581a
+ #define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
+@@ -423,4 +424,5 @@ void gip_security_release(struct gip_security *security);
+ extern const struct gip_driver gip_driver_navigation;
+ extern const struct gip_driver gip_driver_gamepad;
+ extern const struct gip_driver gip_driver_arcade_stick;
++extern const struct gip_driver gip_driver_pdp_jaguar;
+ #endif
 -- 
 2.54.0
 

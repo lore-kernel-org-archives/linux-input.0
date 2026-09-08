@@ -1,79 +1,95 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB6E0492E30
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 23:43:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 186E43F54D1
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 23:56:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788911018; cv=none; b=fY1cmyExK0PMjmShDruQbiNUZXpq6Plk7MZCCT8Ulz1lwVdHAR0i2XeNnIblc9LK6EoxeeHzgKICOf6u84cbBLcgJkOtLW1Bgun4gGvRlUvvfdR51lEGQ4gpZVUZyEty3otRLpnVLzOCGPVHo8RYDEpMyLd3J2qWEfzihgUYezo=
+	t=1788911778; cv=none; b=gDZpawWfphqdbpnJC9v83AJbCS/q4y4pSAG8Myv75n+AouxAhCFZ22UCqP3wQyubQLNK/m6y/Z4kr3/5qShiprxemt3+3aORipBHc/gvKLOqrvEO35eKFy9XqbyKBBuH2fOY15ma70/InrHqs267FG4W+MU8peofy7pZivrZ0dg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788911018; c=relaxed/simple;
-	bh=uwYgOWB6T85giMBSAkiXo5AXxkPNnz+4KKs0hupdbKk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TzIa+z1Nv4nOlqiV3YF2QqlmiYi53jtdgCv1aD3sczrzJ+LR/J+hsakIesbYnhs+AtN201lRy/XD4ElgUwl+L3wsNkk5XT9usuYDOK6CaGwcnKE6dqshIQGFtlh8jx0GKa5L4VwiTfRERdQk5ZB+vET1xlpK/wAUixO1gfEitfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fireburn.co.uk; spf=none smtp.mailfrom=fireburn.co.uk; dkim=pass (2048-bit key) header.d=fireburn-co-uk.20251104.gappssmtp.com header.i=@fireburn-co-uk.20251104.gappssmtp.com header.b=0ICz5k5K; arc=none smtp.client-ip=74.125.225.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=fireburn.co.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=fireburn.co.uk
+	s=arc-20240116; t=1788911778; c=relaxed/simple;
+	bh=5MxxvCdVgC3YLTJh7XEdP1bYFUpjHnVxjCwGvCeCFF0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kmh+E0z0dvljfAoCBFp1wirvhggTDhqW7i+ffYC4DjUGBMzAKh8W4rYmcQvbvD1JPF7oTHAZ8tGNIiKL26FUys+Hn6u5odgBVZP4OcX3x3eHGOzshdZ6u8Xl7DhR7F6aYXb/01ns25/TY239dCf0pNrqzNLruUM/J5dTRmiTWdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JDd3GtzJ; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fireburn-co-uk.20251104.gappssmtp.com header.i=@fireburn-co-uk.20251104.gappssmtp.com header.b="0ICz5k5K"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-482f6356257so731082f8f.0
-        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 16:43:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JDd3GtzJ"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38ea87caafeso4417264a91.3
+        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 16:56:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fireburn-co-uk.20251104.gappssmtp.com; s=20251104; t=1788911015; x=1789515815; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Z21b6fsoY2E6Vzr2RDS21MTgNdKIrr6ZxRGvarq9zjQ=;
-        b=0ICz5k5KkX7+Cgy32968AY4YtYGJQLMvrLXdkeXr+ZRALB8GqR66KuKGcHGdD7sFCd
-         03qaoZzRGCZV+qvZ6ADriIZdWrRDhaOVNp5ak98iNOvafAZvCcqqPOaNGVFoq8S10ZPp
-         ElbPIF2cMrIWLBxRSBpgZKAgWKW9uBUh8LcF2VWRRElckOCBv9isbKiOp+WoQOE9uAH2
-         Az8JxYaPxc40aCcssDqgtQx4Xcsl5IuxCdpvu4NnUpd/1ccCgBaj0OFQ5DksTSzt0v/7
-         bT9ziL7QYGfRghcVKp4EqLFR7mHggJaaWVDPX94Qef5wFo7bKC8z8rZ9BauGJvqPcDHq
-         t48w==
+        d=gmail.com; s=20251104; t=1788911775; x=1789516575; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=aeaQ8qHK/MyWCciP9ARnOOzHBOTcOWNQ9SeCb5dOpCc=;
+        b=JDd3GtzJo1ampPo13lGt2FWKwTeupUuyjiznSutxyH1B//grR6To87GBFZt86ZRVd8
+         WEP8ghZO4b1ax/yeiPCToBWaEXWFQMRrqjn5Q7UIC+0EZzZyVY4Ta2ZlaWfGXTnVCx6K
+         ghLPhkg1XMrl/HMWDzNDZKnGVgxYPQxOT5kNS+73HRlitL8TFnaHZAlQHK8pLw0fIH0j
+         UMgvHwaJuzHNDSxdAQSm31oYwsjEJM17EbR+wyzEMxzWSVQn/rOKW36XxNbyR/2TMo06
+         TQJ3spvzMRlYPpdmmlRisluRUz8WXENwNzJYyh84GfQZ47YiHBQZzEqY/FhZzqo3nR4b
+         MpHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788911015; x=1789515815;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Z21b6fsoY2E6Vzr2RDS21MTgNdKIrr6ZxRGvarq9zjQ=;
-        b=VuayMhKZuIiudjIB21xT90xZVogwoPSOMFQqJ24fBgAIHffdZMr1Db9oWGKaZVpTuT
-         o5okaAebsPAAJBFxidz6n0xmpyfVAjXb0WTiVbokmfPH1dc/CjeDeHjXuobkTtPIDlQX
-         XUqHBUU5yzBP/oztmKDHDE4ChniLft7BtaSwaeiAncJw3g9dis/GKtbGvzSLWIcNYaFo
-         ppEQugLOTWi1dn+rJr4dT/VxyFc7jl9wWV+BguG5wJvTDlucg3ScOoDxlJsP9bUTHv7L
-         10sE2KC6jjFVMe5y8EL3bf09lnz+eoFDfEOpUkHiqC2BPCRdyeDpT8txky4qMPIHSXXv
-         1ePA==
-X-Forwarded-Encrypted: i=1; AKwUvBwTBBcRCPXeS65zXq5vVQVNw/SuUE2CY3qJMK/FPpvfviHRIeNhoWRSUnhMeaFAcVYJe5xDGoBIEoKz1g==@vger.kernel.org
-X-Gm-Message-State: AFuF++m/zJZx4JPWgoP7sEsxB/yJv3+t0LrgZCbGcrKd+zwmpeLz/Riz
-	hkPGWEMkpzOpIxX/nIwtwbKD8rnYilsIHVjKr8TwUIeFRNPOgBzS0CLO0HKxTdIO2g==
-X-Gm-Gg: AYBFou2S68W28HUzXPFDXEmS2jPVXELZa/1G29ZrwKYtXcKQocciMbs7J8nIvGaL/RK
-	TMY1ux8nXKEW+inWa1zmyCCH6On3Al0+vpfPH1QqQFzMWx/JzhBKmvsrDE+dycLoX2lsJVY8RzG
-	qp9/PiIhE98KRl4kq4OrOKhq+e7UZnYIzwcMTDNebUIHIE3B+JzrQGiyJ0xNVqiLxaTFSs98vOE
-	bZOv4OdOCLmDOKHBsfPcBiwRG5KdlGE22hIAwUpXS5jNLSNbt1RiSsTVzUsru59npYGfNC16FXR
-	cF0X8q3NFeb91JjMkAFkntU/nPdqg3oFWi1rXjLkAN/ognJndFbzhddsb45buwdzdBJU1WBwFS1
-	r3dZdUVTjrE+Y+XlaSNCz4/OEolwT018lELgAG9dU3va9CKUtznOIMdlJhj4+soA+akCmCYGXeV
-	6zqVVi7XoeJAj1cwokPolXa7qh6FAGpdYmNtmzNxBoYXZz16OP449hHCvKddegF21+VLQZhaCU0
-	501/31xjHu3MdbkWbS5wk6V+imf3ajveqKI
-X-Received: by 2002:a05:600c:4455:b0:493:f783:c46a with SMTP id 5b1f17b1804b1-49d1754fdf6mr107220985e9.6.1788911014994;
-        Tue, 08 Sep 2026 16:43:34 -0700 (PDT)
-Received: from axion.fireburn.co.uk ([2a01:4b00:d309:1c00:caf1:6b20:8531:818c])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cfbe5b252sm376047695e9.3.2026.09.08.16.43.33
+        d=1e100.net; s=20251104; t=1788911775; x=1789516575;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=aeaQ8qHK/MyWCciP9ARnOOzHBOTcOWNQ9SeCb5dOpCc=;
+        b=V/F8h43iuhAHzTinHagJ7vcqQSsY9A0OdOyT8UKGucA8z7gYWuyOR/rgptafiHFE39
+         90KzAlLKhsMaCg3Jqltusr4oreJOIKrzdKvSfXHP6F5Z/QZ6aRtOsQorTzuWhDVs7rJa
+         z5lll2QnQzYynr20aejGdQ67obJwMel7YRQrE1hYwa9nKAzdO6/Y4+MAV+eG8FmR4fCy
+         gRMXUfDfzQECdJKG++jAFpaqgqjPLHwMJ4UlFgiETN1tcFq48/PYusE3HZMOITfHviMJ
+         1I+PcYhNnFqjqij51C50uMnAjZ8iV2WGFgZgmN/D5Lhyssoaw+62f/vmau/Fwvzy1m5w
+         6V4w==
+X-Forwarded-Encrypted: i=1; AKwUvBxK0ZQ3v/4gZ1qVMSh9jUWeDDJvJGj83OO6YBTZVhmApGHbKSeK6JeYqIK2mnjjXa7Aevnz71XbXD9ppQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++nCEIsviH0XN8NIisYg5JXUzQ0i6NSUEKKPe4Dv12uGw1k4ylxe
+	Bxeh7a+wvk4jFeWFNBbuv69K5ekq9MiZ9B/PNM/QJ6uiRZNzToyVYuxr
+X-Gm-Gg: AYBFou0IcnPaoe5UKY4K5BaUiOwRKREgEI2qlG9EuFjcarTD8kdoVDxfjoa8Rvkd3VT
+	C8zpiwEzSDB+DA20/M/2IVFxje60evHhHScRLpI2u3TTnOFfg5kCSHbVGwfrA5bXXS3wfmc5PV+
+	WhZDqZeZoV22gSDtTzfQZCZOag8b9+8dWe1rk2rzsauJ7pSVmuQT+KB7WwQ4TLMV7aL2ZJUDD1p
+	c/JjuuIQuf8nkLzAP9javAguFTyKq6zVy0B+iZGZGjzDCfm19GKFn+Vi7NjkDNDk07NRRl73y01
+	19k5iZRhT2en7rnBBj6hxzVoxhDnpVjUH7b0IHuzKbDOvOYxZmr6RRq62CjxOljzvaoI32/JtQN
+	//oQ8ZO18TyjHLtP7jOyl6XtywszEeSi7lxHTmUTLRax9LhmysJliEc38TbZVXWxpdXFod6G3Fx
+	Rs5PamKQgdMfpY4QJFV0sregQCLb0ABZLFd9BC+flXsCCf/RHn2fuXdPg=
+X-Received: by 2002:a17:90b:4cce:b0:38f:240d:b857 with SMTP id 98e67ed59e1d1-39b260dd4e9mr51323684a91.2.1788911775237;
+        Tue, 08 Sep 2026 16:56:15 -0700 (PDT)
+Received: from localhost ([2a03:2880:9ff:73::])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14324410092sm36459946c88.14.2026.09.08.16.56.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 16:43:34 -0700 (PDT)
-From: Mike Lothian <mike@fireburn.co.uk>
-To: "Daniel J . Ogorchock" <djogorchock@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
+        Tue, 08 Sep 2026 16:56:14 -0700 (PDT)
+From: Ziyang Men <ziyang.meme@gmail.com>
+To: Shuah Khan <shuah@kernel.org>,
+	Tejun Heo <tj@kernel.org>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	=?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+	Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	Silvan Jegen <s.jegen@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	David Vernet <void@manifault.com>,
+	Eduard Zingerman <eddyz87@gmail.com>
+Cc: Viktor Malik <vmalik@redhat.com>,
+	Andrea Righi <arighi@nvidia.com>,
+	Changwoo Min <changwoo@igalia.com>,
+	Michal Hocko <mhocko@kernel.org>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Shakeel Butt <shakeel.butt@linux.dev>,
+	Muchun Song <muchun.song@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	JP Kobryn <inwardvessel@gmail.com>,
+	Mykola Lysenko <mykolal@meta.com>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Ziyang Men <ziyang.meme@gmail.com>,
+	kernel-team@meta.com,
+	linux-kselftest@vger.kernel.org,
+	cgroups@vger.kernel.org,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Mike Lothian <mike@fireburn.co.uk>
-Subject: [PATCH v2] HID: nintendo: relax subcommand limiter until cadence is proven
-Date: Wed,  9 Sep 2026 00:43:15 +0100
-Message-ID: <20260908234315.117903-1-mike@fireburn.co.uk>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260908224532.114357-1-mike@fireburn.co.uk>
-References: <20260908224532.114357-1-mike@fireburn.co.uk>
+	sched-ext@lists.linux.dev,
+	linux-mm@kvack.org,
+	bpf@vger.kernel.org,
+	llvm@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v4 0/4] selftests: add shared Makefile for BPF selftests and new memcg test
+Date: Tue,  8 Sep 2026 16:55:48 -0700
+Message-ID: <20260908235552.2610256-1-ziyang.meme@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,116 +98,108 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-joycon_config_rumble() queues a zero-rumble packet during probe. The
-rumble worker sends it once ctlr_state becomes READ, and
-joycon_handle_rumble_report() retries it a few more times. This is the
-first subcommand sent on every connection and it goes out before any
-input report has been seen, so consecutive_valid_report_deltas is still
-0. joycon_enforce_subcmd_rate_strict() needs 3 consecutive reports in
-the 8-17ms window before it releases a subcommand, so the send exhausts
-all 25 attempts and warns on every connection.
+This series refactors the BPF-related build machinery that is currently
+duplicated across selftests/{bpf,sched_ext,hid}/. It adds the shared
+tools/testing/selftests/lib.bpf.mk fragment and wires up three consumers,
+simplifying both existing BPF selftests and future additions.
 
-Add a subcmd_rate_unproven flag, set until the cadence has been
-observed, and use the legacy flat-delay throttle while it is set.
-joycon_parse_report() clears it after JC_SUBCMD_VALID_DELTA_REQ
-consecutive reports at a valid cadence. USB is excluded, as its
-consecutive_valid_report_deltas is forced to the requirement anyway.
+The series also adds a cgroup memory-controller selftest that complements
+the existing coverage.
 
-The flag is separate from subcmd_rate_relaxed so that the exhaustion
-fallback added by commit 781f8e020a78 ("HID: nintendo: fix rumble
-starved by the input report cadence gate") keeps its semantics.
-subcmd_rate_relaxed is written from the subcommand worker under
-output_mutex, subcmd_rate_unproven only from joycon_parse_report().
+Patch 1 adds lib.bpf.mk.
 
-Found with btmon over Bluetooth on a MediaTek mt7921e: the three
-JC_SUBCMD_RATE_MAX_ATTEMPTS warnings on connect match three
-JC_OUTPUT_RUMBLE_ONLY (0x10) frames from the rumble worker's
-zero-countdown retries. Tested on a Pro Controller, which now connects
-reliably, where before it dropped within the first ~70 seconds of a
-fresh connection about half the time.
+Patch 2 adds selftests/cgroup/test_memcg_stat_cross_cpu, which verifies a
+cgroup flush by comparing values read through BPF memcg kfuncs with the
+corresponding cgroupfs values. The existing bpf/cgroup_iter_memcg test only
+checks whether selected values are non-zero.
 
-Fixes: d750d1480362 ("HID: nintendo: fix rumble rate limiter")
-Signed-off-by: Mike Lothian <mike@fireburn.co.uk>
-Assisted-by: Claude:Opus-5 [Claude Code]
----
-v2:
-- Use a separate subcmd_rate_unproven flag rather than reusing
-  subcmd_rate_relaxed. In v1 joycon_parse_report() cleared
-  subcmd_rate_relaxed from softirq under ctlr->lock, while
-  joycon_enforce_subcmd_rate_strict() sets it from the subcommand
-  worker under output_mutex. Clearing it after the exhaustion counter
-  had passed JC_SUBCMD_RATE_MAX_FAILURES would stop the
-  ++subcmd_rate_exhaustions == JC_SUBCMD_RATE_MAX_FAILURES test from
-  ever matching again, permanently disabling the fallback added by
-  781f8e020a78.
-- Start USB controllers proven. consecutive_valid_report_deltas is
-  forced to JC_SUBCMD_VALID_DELTA_REQ for USB at the end of
-  joycon_parse_report(), so the v1 promotion could never run and USB
-  would have been left on the legacy throttle.
-- v1 was assisted by Claude Sonnet 5, v2 by Claude Opus 5.
+Patches 3 and 4 replace the duplicated BPF build machinery in
+selftests/{hid,sched_ext} with lib.bpf.mk.
 
-Both issues in v1 were spotted by the Sashiko AI review:
-https://lore.kernel.org/linux-input/20260908225815.952CE1F00A3A@smtp.kernel.org/
+===
+Changes since v3:
+For shared Makefile:
+- Track in-tree libbpf headers directly so a single make invocation rebuilds
+  BPF objects and skeletons after a header change.
+- Restore the target definitions needed by LoongArch and MIPS cross builds.
+- Validate output directories and skeleton suffixes, and reject dotted or
+  hyphenated source stems before they reach build and cleanup rules.
+- Add stamp tracking for vmlinux.h generation while preserving content-based
+  header updates.
+- Make skeletons and subskeletons explicit outputs, so a missing subskeleton is
+  regenerated and both sets participate in the all target.
+- Namespace private variables, expand the caller-visible contract, track a
+  supplied VMLINUX_H, and remove unnecessary include search paths.
 
-That review also flagged a pre-existing issue: that the probe error
-path does not set ctlr_state to JOYCON_CTLR_STATE_REMOVED, so a queued
-rumble worker could run against stopped hardware during
-destroy_workqueue(). As far as I can tell that is not reachable. The
-worker can only be queued from joycon_handle_rumble_report(), which
-runs via joycon_ctlr_read_handler() and is gated on ctlr_state ==
-JOYCON_CTLR_STATE_READ, and from joycon_play_effect(), which needs the
-input device registered. input_register_device() is the last call in
-joycon_input_create() that can fail, and ctlr_state is set to READ
-immediately after it returns, so there is no window in which the worker
-is queued and probe can still fail.
+For cgroup selftest:
+- Add CONFIG_BPF_EVENTS and probe every required kfunc plus the sleepable
+  cgroup iterator before running.
+- Bound CPU fanout, cgroup/process count, and total memory use; skip a case
+  when the flush threshold would require more than 256 MiB.
+- Check CPU discovery, polling, iterator creation, and BPF errors, with clearer
+  diagnostics.
+- Compare each BPF statistic against two following memory.stat samples, keeping
+  exact equality on a quiet subtree while tolerating values that move between
+  the two samples.
 
-v1: https://lore.kernel.org/linux-input/20260908224532.114357-1-mike@fireburn.co.uk/
+For hid and sched_ext:
+- Remove unused HID locals instead of suppressing warnings, drop obsolete
+  variables and comments, tighten cleanup, and correct the generated-output
+  description.
 
- drivers/hid/hid-nintendo.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+===
+Changes since v2:
+For shared Makefile:
+- Use USERCFLAGS and USERLDFLAGS to extend CFLAGS and LDFLAGS.
+- Pass OPT_FLAGS/RELEASE and EXTRA_CFLAGS to the libbpf and bpftool sub-makes.
+- Use one rule per BPF source instead of a global vpath that also affected the
+  caller's normal %.c rules.
+- Take HOSTCC/HOSTLD from lib.mk instead of including Makefile.include, which
+  also rewrote the caller's AR, LD, and CFLAGS.
+- Report a missing vmlinux from the recipe rather than at parse time, so
+  "make clean" still works without BTF.
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 43e0f2aaea3b..5b3d97c0ad39 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -611,6 +611,7 @@ struct joycon_ctlr {
- 	unsigned int consecutive_valid_report_deltas;
- 	unsigned int subcmd_rate_exhaustions;
- 	bool subcmd_rate_relaxed;
-+	bool subcmd_rate_unproven;
- 
- 	/* factory calibration data */
- 	struct joycon_stick_cal left_stick_cal_x;
-@@ -917,7 +918,7 @@ static void joycon_enforce_subcmd_rate_legacy(struct joycon_ctlr *ctlr)
- 
- static void joycon_enforce_subcmd_rate(struct joycon_ctlr *ctlr)
- {
--	if (ctlr->subcmd_rate_relaxed)
-+	if (ctlr->subcmd_rate_relaxed || READ_ONCE(ctlr->subcmd_rate_unproven))
- 		joycon_enforce_subcmd_rate_legacy(ctlr);
- 	else
- 		joycon_enforce_subcmd_rate_strict(ctlr);
-@@ -1797,8 +1798,11 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
- 	 */
- 	if (report_delta_ms >= JC_INPUT_REPORT_MIN_DELTA &&
- 	    report_delta_ms <= JC_INPUT_REPORT_MAX_DELTA) {
--		if (ctlr->consecutive_valid_report_deltas < JC_SUBCMD_VALID_DELTA_REQ)
-+		if (ctlr->consecutive_valid_report_deltas < JC_SUBCMD_VALID_DELTA_REQ) {
- 			ctlr->consecutive_valid_report_deltas++;
-+			if (ctlr->consecutive_valid_report_deltas == JC_SUBCMD_VALID_DELTA_REQ)
-+				WRITE_ONCE(ctlr->subcmd_rate_unproven, false);
-+		}
- 	} else {
- 		ctlr->consecutive_valid_report_deltas = 0;
- 	}
-@@ -2730,6 +2734,7 @@ static int nintendo_hid_probe(struct hid_device *hdev,
- 
- 	ctlr->hdev = hdev;
- 	ctlr->ctlr_state = JOYCON_CTLR_STATE_INIT;
-+	ctlr->subcmd_rate_unproven = hdev->bus != BUS_USB;
- 	ctlr->rumble_queue_head = 0;
- 	ctlr->rumble_queue_tail = 0;
- 	hid_set_drvdata(hdev, ctlr);
+For cgroup selftest:
+- Create one cgroup tree, perform one flush, then read through BPF and
+  cgroupfs.
+- Use common cgroup helpers such as cg_read_key_long() and values_close().
+- Use cpu_set_t rather than manually allocated CPU lists.
+- Move test_memcontrol.c's anonymous-memory allocator into cgroup_util.
+- Address the remaining review feedback.
+
+===
+Changes since v1:
+- Generalize lib.bpf.mk for source layouts and suffixes, extra headers and
+  flags, skeleton suffixes, subskeletons, and configurable output directories.
+- Add patch 3 (hid) and patch 4 (sched_ext), converting those directories to
+  the shared fragment.
+
+Ziyang Men (4):
+  selftests: add shared lib.bpf.mk to build BPF progs and skeletons
+  selftests/cgroup: add memcg_stat_cross_cpu correctness test for flush
+  selftests/hid: build the BPF program via the shared lib.bpf.mk
+  selftests/sched_ext: build BPF schedulers via the shared lib.bpf.mk
+
+ tools/testing/selftests/cgroup/.gitignore     |   8 +
+ tools/testing/selftests/cgroup/Makefile       |  46 ++
+ tools/testing/selftests/cgroup/config         |   5 +
+ .../selftests/cgroup/lib/cgroup_util.c        |  82 ++
+ .../cgroup/lib/include/cgroup_util.h          |   3 +
+ .../cgroup/memcg_stat_cross_cpu.bpf.c         |  95 +++
+ .../selftests/cgroup/memcg_stat_cross_cpu.h   |  18 +
+ .../cgroup/test_memcg_stat_cross_cpu.c        | 755 ++++++++++++++++++
+ .../selftests/cgroup/test_memcontrol.c        |  29 +-
+ tools/testing/selftests/hid/.gitignore        |   1 +
+ tools/testing/selftests/hid/Makefile          | 179 +----
+ tools/testing/selftests/hid/progs/hid.c       |   7 +-
+ tools/testing/selftests/lib.bpf.mk            | 321 ++++++++
+ tools/testing/selftests/sched_ext/Makefile    | 149 +---
+ 14 files changed, 1382 insertions(+), 316 deletions(-)
+ create mode 100644 tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c
+ create mode 100644 tools/testing/selftests/cgroup/memcg_stat_cross_cpu.h
+ create mode 100644 tools/testing/selftests/cgroup/test_memcg_stat_cross_cpu.c
+ create mode 100644 tools/testing/selftests/lib.bpf.mk
+
 -- 
-2.55.0
+2.53.0-Meta
 

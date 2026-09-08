@@ -1,300 +1,193 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86029326D44
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:45:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D2C32B131
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:55:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788839134; cv=none; b=UdJJLs77I+c36VpUHERgqwvrkfsSTZ6gvMQaVo4+iawKbaZ9VbVc71OssVEg6ha9KDD8YioAKiuMRDeTq7P8h9/Xj9bPnpp01pEIOtRDBfTODmeEm5KvvawZ0kb722wdXBdL3yhnFj56Fd47CGyhXFZVY/E0I9/pQoX+VFEPi2s=
+	t=1788839763; cv=none; b=nwzK67L6i94spvGUc5v4DW7CV7N7w24bFUViMbSZfJyBCKz95fSqDpBxak1wrXkF6/O5LN7g3z2QZszzQdB6gNEUDC87VSdbNt3A93ADoV0RlfXvPQSVjRCg+qYTbBwOKQK0SeYtiQe9vkKtUL99il6qw7E3Q1a2n9tkL/M0WBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788839134; c=relaxed/simple;
-	bh=/cuxtsDWqnTDIA020oB8WBhti0eVxKO39MdbUrdMC2c=;
+	s=arc-20240116; t=1788839763; c=relaxed/simple;
+	bh=sdIJaLSbjQYtpKc+3aSXSq05fQxpTCsIyUTfvDkWpuc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=icfdPg7AwjuGeXLgMlNQdwf47hAkwCu8FN4eVTuwdfWjmDiquNSH/CU/ZQ9ni3H83CGPxJJCpNwUfLzZYmoBLMqHN06tOHoltRrYdACCCPPT526QbqBLODPhZwUFXRM8akS5iyRMaTpL9ZMJ6r1Bii7plms6iKwHeo9U43aWNlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B8mqyBf4; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=qd6EY8oOGypbJLz+WSJddjd3Uf11f7rxNWAme5aWyJbQ0hdlxbRR7GMmZuOWndtng5evRW56CSys/xTl2qJLb8OD86H/MwQgHOl42urdfyJ8qCUcrYlSMTQa4ytxAXGoqWtclYMjQObORmft7QmQFUAyj0F/62PBMF+CFPc5i+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bwB2Kdf6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B8mqyBf4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D3F1F00A3A;
-	Tue,  8 Sep 2026 03:45:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bwB2Kdf6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A9B11F00A3F;
+	Tue,  8 Sep 2026 03:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788839126;
-	bh=F0+Sew0fQ5NovcuppCds+ZlkTi/0GvocVvkl+zJnJJA=;
+	s=k20260515; t=1788839753;
+	bh=2YobF9GubG1xvVPSo9JLnPNePf4K3bDH5zDgHd2MCV0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=B8mqyBf4TPJEgtgsUTnDxdjzmXwWZxnoUOvjX0TY889WgB1btfiqJ3pDHpb1x7gjJ
-	 ueqke9nJKCDabtowPSXYKrtlVTQcenDVI1pujXle1+/lkYiR8o5OnXfNQZzLsuEvh+
-	 9JzWvZqX2PhIcUr17aOatYT1aj0r4oqnqh2umxdJcZu5nc7ZAYiLRmt0JU7gNuJghT
-	 +aS9oCW0m07T8dzaRFhyf6mgblt2zaTTxTjSBqlpY8qFqCwSEQ1zuermNOXm8U1ctn
-	 rn2nlwnyVSviwstzpbpzSMNmHMrSyO33DQ4XCiCJQpe2JfWHByiFfpQJJ5O757Bbi8
-	 mFY+HNYOQ+oMA==
+	b=bwB2Kdf6c5RoV7Ein3rLS9JSbDVkQ3Nk3MAwVFh0eLb9ycxvKixLcHeCZxq0G2foR
+	 vRcjZmiUj85lUpYmddb6hsy54dZOI3iPF3Z9pi4u7fGkwzDH1wGgG8KBtW4/C2NM5G
+	 jYnyth9GCPfmqhkfBxspv+e9HJGbkEDLX0mc9EOkcmRREzSYwMlGlnzIwpoTSzNG4c
+	 f7ts85zCD6A+yY9TyJVL8S7BqgH9OT9IZqM+Bxr6t3/Wlkci2bfB+2Psp0jwmpvvpR
+	 fQdDd5FtuY8uNzr8wHa/Imizd6Q0/jicAs++YtrZKMxeW+wwez/qKUAMmAZR6eASz3
+	 6kuFDh8DYCh/g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 04/12] Input: xbox_gip - Add HID relaying
+Subject: Re: [PATCH v6 12/12] Input: xbox_gip - Add wheel support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260908032145.2118234-5-vi@endrift.com>
+In-Reply-To: <20260908032145.2118234-13-vi@endrift.com>
 References: <20260908032145.2118234-1-vi@endrift.com>
- <20260908032145.2118234-5-vi@endrift.com>
+ <20260908032145.2118234-13-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 03:45:25 +0000
-Message-Id: <20260908034526.24D3F1F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 03:55:52 +0000
+Message-Id: <20260908035553.0A9B11F00A3F@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 7 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
 New issues:
-- [High] gip_handle_command_hid_report() uses hid_input_report() instead of=
- hid_safe_input_report(), bypassing buffer size checks.
-- [Medium] gip_create_hdev() contains a redundant synchronize_rcu() call af=
-ter publishing the newly allocated hdev pointer.
-- [Medium] The hid_device's uniq field is not initialized before hid_add_de=
-vice() is called.
-- [Low] gip_free_devices() leaks the RCU-protected hdev pointer outside the=
- read-side critical section, violating the RCU API contract.
+- [Medium] Late packet length validation causes input state desynchronizati=
+on.
+- [Medium] Incorrect wraparound delta calculation for the REL_DIAL axis whe=
+n multiple steps occur.
+- [Medium] Phantom REL_DIAL scroll event upon device initialization.
 
 Pre-existing issues:
-- [Critical] gip_disconnect() cancels the receive workqueue before killing =
-the active URB, introducing a race condition that causes Use-After-Free of =
-the gip_device.
-- [Critical] The LED classdev is embedded in the attachment but registered =
-using the devres of the ephemeral input_dev, leading to list corruption upo=
-n device reset.
-- [High] Resetting the attachment leaks input_dev structures because devm_i=
-nput_allocate_device() is used but the memory is never explicitly freed bef=
-ore reallocation.
+- [High] Out-of-order teardown in `gip_disconnect` allows URB completion ha=
+ndler to trigger use-after-free of gip_device.
 --
 
-commit 4a45548f46c49c18ea22bd85490b3cf588327135
+commit 4a4f1a60a6109caec93af3211950c865f6e16e58
 Author: Vicki Pfau <vi@endrift.com>
 
-Input: xbox_gip - Add HID relaying
-   =20
-GIP allows tunneling of HID packets, with the HID descriptor embedded in
-the GIP metadata exchanged during the initial handshake. This patch creates
-a hid_device for this HID descriptor if found, as well as relaying the HID
-packets.
+Input: xbox_gip - Add wheel support
 
-> diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
-ck/gip/gip-core.c
-> index a5ed5f3bf3fed..dc174560ee49f 100644
-> --- a/drivers/input/joystick/gip/gip-core.c
-> +++ b/drivers/input/joystick/gip/gip-core.c
+This adds preliminary support for racing wheel support in xbox_gip,
+exposing them mapped to the newly added axes.
 
+> diff --git a/drivers/input/joystick/gip/gip-wheel.c b/drivers/input/joyst=
+ick/gip/gip-wheel.c
+> new file mode 100644
+> index 0000000000000..5de455edff3c1
+> --- /dev/null
+> +++ b/drivers/input/joystick/gip/gip-wheel.c
 [ ... ]
-
-> @@ -1310,6 +1358,50 @@ static int gip_init_input_device(struct gip_attach=
-ment *attachment)
->  	return rc;
->  }
-> =20
-> +static int gip_create_hdev(struct gip_attachment *attachment)
+> +static int gip_handle_wheel_report(struct gip_attachment *attachment,
+> +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
 > +{
-> +	struct hid_device *hdev;
-> +	int rc;
+> +	uint8_t connections;
+> +	struct gip_wheel_info *info =3D attachment->driver_data;
+> +	int rc =3D gip_driver_navigation.handle_input_report(attachment, input,=
+ bytes, num_bytes);
 > +
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	if (!info)
+> +		return -ENODEV;
+> +
+> +	if (num_bytes < 17)
+> +		return -EINVAL;
+
+[Severity: Medium]
+Will returning -EINVAL here trap events that were already queued?
+
+If a device sends a fragmented or short report (e.g. 16 bytes),
+gip_driver_navigation.handle_input_report() will process the first bytes and
+queue events.
+
+By returning -EINVAL after this, the error propagates and bypasses the
+input_sync() call in the core loop, leaving the queued events
+unsynchronized in the input subsystem buffer and potentially causing
+stuck keys.
 
 [ ... ]
+> +static int gip_handle_trueforce_wheel_report(struct gip_attachment *atta=
+chment,
+> +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
+> +{
+> +	int rc =3D gip_driver_wheel.handle_input_report(attachment, input, byte=
+s, num_bytes);
+> +	struct gip_trueforce_wheel_state *state =3D attachment->driver_data;
+> +	int dial;
+> +
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	if (num_bytes < 18)
+> +		return -EINVAL;
 
-> +	hdev->dev.parent =3D to_gip_device(attachment);
-> +	hdev->driver_data =3D attachment;
-> +	if (attachment->name)
-> +		strscpy(hdev->name, attachment->name);
+[Severity: Medium]
+Can this similarly trap events reported by the base wheel handler?
+
+Events are reported by gip_driver_wheel.handle_input_report() before the
+TrueForce-specific size validation rejects the packet. This will also bypass
+input_sync().
+
+[ ... ]
+> +	input_report_key(input, KEY_KPENTER, bytes[17] & BIT(4));
+> +	/* Dial states only change one at a time, so we can easily check for wr=
+aparound */
+> +	if (dial =3D=3D 0 && state->dial =3D=3D 7)
+> +		input_report_rel(input, REL_DIAL, -1);
+> +	else if (dial =3D=3D 7 && state->dial =3D=3D 0)
+> +		input_report_rel(input, REL_DIAL, 1);
 > +	else
-> +		strscpy(hdev->name, "Xbox Chatpad");
-> +	strscpy(hdev->phys, attachment->phys);
+> +		input_report_rel(input, REL_DIAL,
+> +			state->dial - dial);
 
 [Severity: Medium]
-Does this code forget to initialize hdev->uniq?
+Is it possible for this calculation to compute an incorrect wraparound delta
+if multiple steps occur between reports?
 
-The HID subsystem documentation explicitly mandates that transport drivers
-fully initialize fields including uniq before calling hid_add_device().
-While the input_dev correctly populates this, it appears to be omitted here,
-which leaves the device missing standard sysfs attributes.
+If a user quickly scrolls the TrueForce dial, the step might jump by 2 or m=
+ore
+across the 0/7 boundary (e.g. from 7 to 1).
 
-> +	rc =3D hid_add_device(hdev);
-> +	if (rc) {
-> +		gip_err(attachment, "HID device add failed: %d\n", rc);
-> +		hid_destroy_device(hdev);
-> +	} else {
-> +		rcu_assign_pointer(attachment->hdev, hdev);
-> +		synchronize_rcu();
+The explicit edge case checks would fail, and the fallback logic would comp=
+ute
+state->dial - dial (7 - 1 =3D 6), incorrectly reporting a delta of +6 inste=
+ad of
+the correct logical step of -2.
 
 [Severity: Medium]
-Is it necessary to block the thread for an RCU grace period here?
+Could this logic emit a phantom REL_DIAL scroll event when the device is
+initialized?
 
-Since rcu_assign_pointer() publishes the newly allocated hdev pointer
-(replacing NULL or a synchronized teardown state), and no memory is being
-reclaimed at this point, this synchronize_rcu() call appears completely
-redundant and needlessly delays device initialization.
+When the driver first allocates gip_trueforce_wheel_state, kzalloc zeroes
+state->dial.
 
-> +	}
-> +
-> +	return rc;
-> +}
+If the physical wheel dial is at a non-zero position (e.g. 4) when normal
+reporting begins, the handler computes 0 - 4 =3D -4 and immediately emits a
+scroll event before the user even touches the wheel.
 
 [ ... ]
 
-> @@ -1393,19 +1489,25 @@ static void gip_fragment_timeout(struct work_stru=
-ct *work)
->  static void gip_free_devices(struct gip_attachment *attachment)
->  {
->  	struct input_dev *input;
-> +	struct hid_device *hdev;
-> =20
->  	if (attachment->driver && attachment->driver->remove)
->  		attachment->driver->remove(attachment);
-> =20
->  	rcu_read_lock();
->  	input =3D rcu_dereference(attachment->input);
-> +	hdev =3D rcu_dereference(attachment->hdev);
->  	rcu_read_unlock();
-> =20
->  	rcu_assign_pointer(attachment->input, NULL);
-> +	rcu_assign_pointer(attachment->hdev, NULL);
->  	synchronize_rcu();
-> =20
->  	if (input)
->  		input_unregister_device(input);
-> +
-> +	if (hdev)
-> +		hid_destroy_device(hdev);
-
-[Severity: Low]
-Can this leak the RCU-protected hdev pointer outside the read-side
-critical section?
-
-The hdev pointer is extracted using rcu_dereference() under rcu_read_lock(),
-but it is utilized outside the critical section to destroy it. While this
-might be functionally safe here because the thread is the exclusive updater
-and synchronizes before destruction, it violates RCU API rules. Should this
-use rcu_access_pointer() or rcu_dereference_protected() instead?
-
->  }
-> =20
->  static void gip_reset_metadata(struct gip_attachment *attachment)
-
-[ ... ]
-
-> @@ -1770,9 +1872,16 @@ static int gip_handle_command_firmware(struct gip_=
-attachment *attachment,
->  static int gip_handle_command_hid_report(struct gip_attachment *attachme=
-nt,
->  	const struct gip_header *header, uint8_t *bytes, int num_bytes)
->  {
-> -	gip_warn(attachment, "Unimplemented HID report message\n");
-> +	struct hid_device *hdev;
-> =20
-> -	return -EOPNOTSUPP;
-> +	guard(rcu)();
-> +	hdev =3D rcu_dereference(attachment->hdev);
-> +	if (hdev)
-> +		return hid_input_report(hdev, HID_INPUT_REPORT, bytes, num_bytes, true=
-);
+This is a pre-existing issue, but I noticed a potential problem in
+gip_disconnect() within drivers/input/joystick/gip/gip-core.c:
 
 [Severity: High]
-Could this cause an out-of-bounds read in the HID core?
+Does cancelling the work before killing the URB allow the URB completion
+handler to schedule new work that outlives the device?
 
-The raw byte array from untrusted hardware input is passed directly to
-hid_input_report() without providing the allocated buffer size. The HID
-subsystem explicitly directs transport drivers to use hid_safe_input_report=
-()
-with the allocated buffer size to ensure proper boundary checks are perform=
-ed
-against the report descriptor.
+drivers/input/joystick/gip/gip-core.c:gip_disconnect() {
+	...
+	gip_shutdown(gip);
 
-> +
-> +	gip_warn(attachment, "Got HID report with no HID descriptor\n");
-> +
-> +	return -EPROTO;
->  }
+	usb_kill_urb(gip->data.urb_in);
+	...
+}
 
-While reviewing this file, I also noticed a few pre-existing regressions
-elsewhere in the codebase:
+If the URB is still active and a packet arrives just after gip_shutdown()
+cancels the device->receive_message work struct, the URB completion handler
+can call schedule_work() again.
 
-> static void gip_disconnect(struct usb_interface *intf)
-> {
-> 	struct gip_device *gip =3D usb_get_intfdata(intf);
-> 	int i;
->=20
-> 	if (!gip)
-> 		return;
->=20
-> 	gip_shutdown(gip);
->=20
-> 	usb_kill_urb(gip->data.urb_in);
-
-[Severity: Critical]
-This is a pre-existing issue, but does this destruction order cause a
-use-after-free of the gip_device?
-
-The cleanup function gip_shutdown() cancels the receive_message workqueue
-before usb_kill_urb() is called. If the urb_in completes concurrently after
-the workqueue is canceled but before the URB is killed, it will reschedule
-the receive_message work. This work then executes concurrently with the rest
-of gip_disconnect(), which frees the gip_device.
-
-> static int gip_setup_input_device(struct gip_attachment *attachment)
-> {
-> 	struct input_dev *input;
-> 	int rc;
->=20
-> 	if (!attachment->driver || !attachment->driver->setup_input)
-> 		return -ENODEV;
->=20
-> 	rcu_read_lock();
-> 	input =3D rcu_dereference(attachment->input);
-> 	rcu_read_unlock();
-> 	if (input)
-> 		return 0;
->=20
-> 	input =3D devm_input_allocate_device(to_gip_device(attachment));
-
-[Severity: High]
-This isn't a bug introduced by this patch, but are input_dev structures
-leaked when the attachment is reset?
-
-The input_dev is allocated using devm_input_allocate_device(). During a
-protocol reset, input_unregister_device() is explicitly called, but this
-does not free the devres-managed memory until the parent USB interface
-unbinds. Re-allocating the device on subsequent resets appears to accumulate
-leaked structures in memory.
-
-> static int gip_guide_led_probe(struct gip_attachment *attachment, struct =
-device *dev)
-> {
-> 	int rc =3D 0;
->=20
-> 	if (!gip_supports_system_message(attachment, GIP_CMD_LED, false))
-> 		return 0;
->=20
-> 	if (attachment->features & GIP_FEATURE_GUIDE_COLOR) {
-> 		struct mc_subled *mc_led_info;
-> 		struct led_classdev_mc *mc_cdev =3D &attachment->guide_led.color;
-> 		struct led_classdev *cdev =3D &mc_cdev->led_cdev;
->=20
-> 		mc_led_info =3D devm_kcalloc(dev, 4,
-[ ... ]
-> 		if (!rc)
-> 			rc =3D devm_led_classdev_multicolor_register(dev,
-> 				mc_cdev);
-
-[Severity: Critical]
-This is a pre-existing issue, but does tying the embedded LED classdev
-registration to the ephemeral input_dev lead to list corruption?
-
-The led_classdev is embedded in the attachment structure, but it is
-registered using devm_led_classdev_register() tied to the input_dev's
-lifecycle. On reset, the input_dev is unregistered, but its devres cleanup
-is deferred until the last userspace reference is closed. If the driver
-reallocates the input_dev and re-registers the exact same embedded
-led_classdev structure before cleanup completes, it corrupts the LED
-subsystem's linked lists.
+When gip_disconnect() completes and frees the gip structure, the system
+workqueue could execute the corrupted workqueue item and trigger a
+use-after-free kernel panic.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908032145.2118=
-234-1-vi@endrift.com?part=3D4
+234-1-vi@endrift.com?part=3D12

@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F283164B4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8393B31985C
 	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 03:23:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788837827; cv=none; b=NFc11qMtHEO3N5Gc1FdIQ63bGXa1lvzjzWCOtfzR3KAZlMFZ782OeI4cYVX48H9HK8mDT7UMVChhf8mJ5MaQ9PHWniFXXYqKxSHDxShMO5m+VARfWg455aTvAHz/73e1+BFTWxMAEKNe+V/E6K6JDn9qVLOmjm0ESreoTuStmE0=
+	t=1788837827; cv=none; b=diHa27TwWNVXCQ6IT9NE2G7q75Sn5Es43LfLtlfUjTzU6l5pJnIZjmgIrqnHhY3tBt0T2qveFk8rMJYg/VmBC7zPmaeHB+x+Bf3TO2A0NNDZCLrW5ZtU2ln0UruqMhP8zUWdQDyu9lhgB1G09qBIiYP23U5TPeM1FcCCtMfe+7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788837827; c=relaxed/simple;
-	bh=sONf86a9cao69KZCV4/4j39xvjqKLyhbZZMrjdt5Ynw=;
+	bh=qv7TfMnKzIap3dcxVf+ZsI5YRKwN/hJpbbuXrJ9iSl8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IHUsA48YZiAzHMiB2GuOGsxt5BXBDah5VgQvkFSAbgDRRN/r4jhu457J9Bl/lSZgR9lRzYItHa0OcMGw65saOXlA9+B9E5jHWU03esfDJp0ysx3z+jh/9osSW8SpKTFgB0OKjQ/eUJKrKZm/P6BcheZ2aWkJZMWZU85S0pWqRJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=U8wTf8Qn; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=IFElrd4bppbuYDYlEhwhwAGDFgg7WAib/heAGO+MaXIkVxVSsX49mfk5+4xbO5U3pZjUM9hmGvTB+FGd4bFnTgiRYgDQN1IYG93qi5j/LW1kOzx96qGC4m/0pM4UpO7CEzM77MlybBMCxFo1ckyXe9RpbqyQqyzAq7q552lxtaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=bEKBPQcW; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="U8wTf8Qn"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="bEKBPQcW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1788837817; bh=sONf86a9cao69KZCV4/4j39xvjqKLyhbZZMrjdt5Ynw=;
+	t=1788837818; bh=qv7TfMnKzIap3dcxVf+ZsI5YRKwN/hJpbbuXrJ9iSl8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=U8wTf8Qn3HS5G6YLLZGK7URF53h1GOsXipeIM7ff0IsWC3HrBFKd3tTQJxn8x7NA6
-	 7640HhxRSZ6to63lfIW8M8sp1fpYzoNpNAAOM4r5bv1O5rzfabQ+D6GWmyvY/JibtI
-	 jXfJiKmZ4UI9W1d9/quCShSg0+9wjjG/QhXvHsa9HEGk4yZuZCRCujT3+02U7LYxBS
-	 pVBGOlS/x7fc5Sj7mZJJ1GRKoQFNfJWD+qN6H8gtWtyzsXKtI4NCUTgiRvCH8WXjon
-	 K7P0A7IQ8bw+xVmnxzcxfbSDj6WDd0oiX4wUB0PmQAzg/wMvxL4F6eb9hXxikgK3N9
-	 w9NdjCEps59BQ==
+	b=bEKBPQcWlEZ9uENsw6UvrK2AI3q4E8cv+c92v3EzyWNoIwPgDZOJlv1nBC/w2LQs3
+	 xIwEbZXdhnVm3T3Gklxq2X3LdSJWRXdbyQMc4FzGykwgCBANHW56GhF9dZJQ1wd+K+
+	 wpGd88PHjcLil1PSkHBG69WI5ZexrP2I+TcWil/elUBAna7MGt2N15CEZHtn8qFLIa
+	 uVG/CStn2nIXlHP+ZxtoOzeCERxeVX5g7b3Y53LDEuyiQzWmdp5AgBlYvhYwjRDGkM
+	 xRsiNsNsZZUQbzD2CQjgWwwC1h00M65h9p0jcPuwht6YaUPHz1Q/8BQQ/R1smJzfHM
+	 M2WAFQN6gDygg==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 583DA132035;
-	Mon, 07 Sep 2026 20:23:37 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 4CFB113208A;
+	Mon, 07 Sep 2026 20:23:38 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v6 05/12] Input: xbox_gip - Add battery support
-Date: Mon,  7 Sep 2026 20:21:36 -0700
-Message-ID: <20260908032145.2118234-6-vi@endrift.com>
+Subject: [PATCH v6 08/12] Input: xbox_gip - Add arcade stick support
+Date: Mon,  7 Sep 2026 20:21:39 -0700
+Message-ID: <20260908032145.2118234-9-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260908032145.2118234-1-vi@endrift.com>
 References: <20260908032145.2118234-1-vi@endrift.com>
@@ -46,200 +46,259 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Controllers are required to give information about the battery in the
-controller, if present. This patch exposes that information as a
-power_supply device.
+This adds support for the arcade stick device type. Currently I'm only
+aware of one Xbox controller that uses this device type, the Razer Atrox,
+so testing coverage is limited.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/input/joystick/gip/gip-core.c | 116 +++++++++++++++++++++++++-
- drivers/input/joystick/gip/gip.h      |   4 +
- 2 files changed, 116 insertions(+), 4 deletions(-)
+ drivers/input/joystick/gip/Makefile           |   2 +
+ drivers/input/joystick/gip/gip-arcade-stick.c | 173 ++++++++++++++++++
+ drivers/input/joystick/gip/gip-core.c         |   6 +-
+ drivers/input/joystick/gip/gip.h              |   4 +-
+ 4 files changed, 181 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/input/joystick/gip/gip-arcade-stick.c
 
-diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index dc174560ee49..568877a4ce4b 100644
---- a/drivers/input/joystick/gip/gip-core.c
-+++ b/drivers/input/joystick/gip/gip-core.c
-@@ -255,6 +255,13 @@ static const struct gip_audio_format gip_audio_format_table[MAX_GIP_AUDIO_FORMAT
- };
- 
- 
-+static enum power_supply_property gip_battery_props[] = {
-+	POWER_SUPPLY_PROP_PRESENT,
-+	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
-+	POWER_SUPPLY_PROP_SCOPE,
-+	POWER_SUPPLY_PROP_STATUS,
+diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
+index a5ad301a9063..9ed59caec4d9 100644
+--- a/drivers/input/joystick/gip/Makefile
++++ b/drivers/input/joystick/gip/Makefile
+@@ -2,3 +2,5 @@
+ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
+ # Base driver
+ xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
++# Additional device support
++xbox-gip-y += gip-arcade-stick.o
+diff --git a/drivers/input/joystick/gip/gip-arcade-stick.c b/drivers/input/joystick/gip/gip-arcade-stick.c
+new file mode 100644
+index 000000000000..11ededfab855
+--- /dev/null
++++ b/drivers/input/joystick/gip/gip-arcade-stick.c
+@@ -0,0 +1,173 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Drivers for GIP arcade sticks
++ *
++ * Copyright (c) 2025 Valve Software
++ *
++ * This driver is based on the Microsoft GIP spec at:
++ * https://aka.ms/gipdocs
++ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-gipusb/e7c90904-5e21-426e-b9ad-d82adeee0dbc
++ */
++
++#include <linux/unaligned.h>
++#include "gip.h"
++
++enum gip_arcade_stick_vibration_motor_support {
++	GIP_VIBRATION_NO_MOTOR = 0,
++	GIP_VIBRATION_SINGLE_MOTOR = 1,
++	GIP_VIBRATION_DUAL_MOTOR = 2,
 +};
 +
- static const struct gip_quirks base_quirks[] = {
- 	{ GIP_VID_PDP, GIP_PID_PDP_ROCK_CANDY, 0, .quirks = GIP_QUIRK_NO_HELLO },
- 
-@@ -1206,6 +1213,97 @@ static int gip_guide_led_probe(struct gip_attachment *attachment, struct device
- 	return rc;
- }
- 
-+static int gip_battery_get_property(struct power_supply *psy,
-+	enum power_supply_property psp, union power_supply_propval *val)
++struct gip_arcade_stick_info {
++	uint8_t vibration_motor;
++	uint16_t actuator_bias;
++};
++
++struct gip_arcade_stick_static_coniguration {
++	uint8_t button_count;
++	uint8_t report_version;
++	uint8_t vibration_motor_support;
++	uint8_t actuator_bits;
++};
++
++static int gip_arcade_stick_probe(struct gip_attachment *attachment)
 +{
-+	struct gip_attachment *attachment = power_supply_get_drvdata(psy);
++	struct gip_arcade_stick_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
 +
-+	guard(spinlock_irqsave)(&attachment->battery_lock);
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_PRESENT:
-+		val->intval = attachment->status.base.battery_type != GIP_BATTERY_ABSENT;
-+		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
-+	case POWER_SUPPLY_PROP_STATUS:
-+		if (attachment->status.base.battery_type == GIP_BATTERY_ABSENT) {
-+			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
-+		} else {
-+			switch (attachment->status.base.charge) {
-+			case GIP_CHARGING:
-+				if (attachment->status.base.battery_level == GIP_BATTERY_FULL)
-+					val->intval = POWER_SUPPLY_STATUS_FULL;
-+				else
-+					val->intval = POWER_SUPPLY_STATUS_CHARGING;
-+				break;
-+			case GIP_NOT_CHARGING:
-+				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
-+				break;
-+			case GIP_CHARGE_ERROR:
-+			default:
-+				val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
-+				break;
-+			}
-+		}
-+		break;
-+	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
-+		if (attachment->status.base.battery_type == GIP_BATTERY_ABSENT) {
-+			val->intval = POWER_SUPPLY_CAPACITY_LEVEL_FULL;
-+		} else {
-+			switch (attachment->status.base.battery_level) {
-+			case GIP_BATTERY_CRITICAL:
-+				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
-+				break;
-+			case GIP_BATTERY_LOW:
-+				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_LOW;
-+				break;
-+			case GIP_BATTERY_MEDIUM:
-+				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
-+				break;
-+			case GIP_BATTERY_FULL:
-+				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_FULL;
-+				break;
-+			default:
-+				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
-+				break;
-+			}
-+			break;
-+		}
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+static int gip_battery_create(struct gip_attachment *attachment, struct device *dev)
-+{
-+	struct power_supply_config supply_config = { .drv_data = attachment, };
-+	int rc;
-+
-+	attachment->battery_desc.properties = gip_battery_props;
-+	attachment->battery_desc.num_properties = ARRAY_SIZE(gip_battery_props);
-+	attachment->battery_desc.get_property = gip_battery_get_property;
-+	attachment->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
-+	attachment->battery_desc.name = devm_kasprintf(dev, GFP_KERNEL, "gip-%s", dev_name(dev));
-+
-+	if (!attachment->battery_desc.name)
++	if (!info)
 +		return -ENOMEM;
 +
-+	attachment->battery = devm_power_supply_register(dev,
-+		&attachment->battery_desc, &supply_config);
-+	if (IS_ERR(attachment->battery)) {
-+		rc = PTR_ERR(attachment->battery);
-+		attachment->battery = NULL;
-+		devm_kfree(dev, attachment->battery_desc.name);
-+		return rc;
-+	}
++	attachment->quirks |= GIP_QUIRK_SWAP_LB_RB;
++	attachment->driver_data = info;
 +
-+	power_supply_powers(attachment->battery, dev);
 +	return 0;
 +}
 +
- static bool gip_send_set_device_state(struct gip_attachment *attachment, uint8_t state)
- {
- 	uint8_t buffer[] = { state };
-@@ -1319,6 +1417,9 @@ static int gip_setup_input_device(struct gip_attachment *attachment)
- 	rc = gip_guide_led_probe(attachment, &input->dev);
- 	if (rc)
- 		gip_err(attachment, "Failed to register LEDs: %d\n", rc);
-+	rc = gip_battery_create(attachment, &input->dev);
-+	if (rc)
-+		gip_err(attachment, "Failed to register battery: %d\n", rc);
- 
- 	return 0;
- 
-@@ -1501,6 +1602,8 @@ static void gip_free_devices(struct gip_attachment *attachment)
- 
- 	rcu_assign_pointer(attachment->input, NULL);
- 	rcu_assign_pointer(attachment->hdev, NULL);
-+	/* The following are freed by devres */
-+	attachment->battery = NULL;
- 	synchronize_rcu();
- 
- 	if (input)
-@@ -1633,10 +1736,14 @@ static int gip_handle_command_status_device(struct gip_attachment *attachment,
- 	if (num_bytes < 1)
- 		return -EINVAL;
- 
--	attachment->status.base.battery_level = bytes[0] & 3;
--	attachment->status.base.battery_type = (bytes[0] >> 2) & 3;
--	attachment->status.base.charge = (bytes[0] >> 4) & 3;
--	attachment->status.base.power_level = (bytes[0] >> 6) & 3;
-+	scoped_guard(spinlock_irqsave, &attachment->battery_lock) {
-+		attachment->status.base.battery_level = bytes[0] & 3;
-+		attachment->status.base.battery_type = (bytes[0] >> 2) & 3;
-+		attachment->status.base.charge = (bytes[0] >> 4) & 3;
-+		attachment->status.base.power_level = (bytes[0] >> 6) & 3;
++static void gip_arcade_stick_remove(struct gip_attachment *attachment)
++{
++	kfree(attachment->driver_data);
++	attachment->driver_data = NULL;
++}
++
++static int gip_init_arcade_stick(struct gip_attachment *attachment)
++{
++	if (gip_supports_vendor_message(attachment, GIP_CMD_INITIAL_REPORTS_REQUEST, false)) {
++		uint8_t request = GIP_LL_STATIC_CONFIGURATION;
++		int rc = gip_send_vendor_message(attachment, GIP_CMD_INITIAL_REPORTS_REQUEST, 0,
++			&request, sizeof(request));
++
++		if (rc < 0)
++			return rc;
++
++		return GIP_INIT_NO_INPUT;
 +	}
-+	if (attachment->battery)
-+		power_supply_changed(attachment->battery);
++
++	return 0;
++}
++
++static int gip_setup_arcade_stick_input(struct gip_attachment *attachment, struct input_dev *input)
++{
++	struct gip_arcade_stick_info *info = attachment->driver_data;
++	int rc;
++
++	if (!info)
++		return -ENODEV;
++
++	rc = gip_driver_navigation.setup_input(attachment, input);
++	if (rc < 0)
++		return rc;
++
++	if (info->actuator_bias > 0) {
++		input_set_abs_params(input, ABS_X,
++			-info->actuator_bias, info->actuator_bias - 1, 0, 0);
++		input_set_abs_params(input, ABS_Y,
++			-info->actuator_bias, info->actuator_bias - 1, 0, 0);
++	}
++
++	if (attachment->extra_buttons >= 1)
++		input_set_capability(input, EV_KEY, BTN_TR2);
++
++	if (attachment->extra_buttons >= 2)
++		input_set_capability(input, EV_KEY, BTN_TL2);
++	return 0;
++}
++
++static int gip_handle_arcade_stick_report(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
++{
++	struct gip_arcade_stick_info *info = attachment->driver_data;
++	int rc;
++
++	if (!info)
++		return -ENODEV;
++
++	rc = gip_driver_navigation.handle_input_report(attachment, input, bytes, num_bytes);
++	if (rc < 0)
++		return rc;
++
++	if (num_bytes < 6) {
++		gip_dbg(attachment, "Discarding too-short input report\n");
++		return -EINVAL;
++	}
++
++	if (info->actuator_bias > 0) {
++		input_report_abs(input, ABS_X, get_unaligned_le16(&bytes[2]) - info->actuator_bias);
++		input_report_abs(input, ABS_Y, get_unaligned_le16(&bytes[4]) - info->actuator_bias);
++	}
++
++	if (num_bytes >= 19) {
++		/* Extra button 6 */
++		input_report_key(input, BTN_TR2, bytes[18] & BIT(6));
++		/* Extra button 7 */
++		input_report_key(input, BTN_TL2, bytes[18] & BIT(7));
++	}
++
++	return 0;
++}
++
++static int gip_handle_arcade_stick_ll_static_configuration(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	const struct gip_arcade_stick_static_coniguration *config =
++		(const struct gip_arcade_stick_static_coniguration *)bytes;
++	struct gip_arcade_stick_info *info = attachment->driver_data;
++
++	if (!info)
++		return -ENODEV;
++
++	if (num_bytes < 4)
++		return -EINVAL;
++
++	attachment->extra_buttons = clamp(config->button_count, 6, 38) - 6;
++	if (config->actuator_bits)
++		info->actuator_bias = BIT(min(config->actuator_bits, 16) - 1);
++	else
++		info->actuator_bias = 0;
++
++	if (config->vibration_motor_support == GIP_VIBRATION_NO_MOTOR)
++		attachment->features &= ~GIP_FEATURE_MOTOR_CONTROL;
++
++	gip_dbg(attachment, "Arcade stick with report version %u, %u buttons, %u actuator bits\n",
++		config->report_version, config->button_count, config->actuator_bits);
++
++	return gip_setup_input_device(attachment);
++}
++
++const struct gip_driver gip_driver_arcade_stick = {
++	.types = (const char* const[]) {
++		"Windows.Xbox.Input.ArcadeStick",
++		"Microsoft.Xbox.Input.ArcadeStick",
++		NULL
++	},
++	.guid = GUID_INIT(0x332054cc, 0xa34b, 0x41d5, 0xa3, 0x4a,
++		0xa6, 0xa6, 0x71, 0x1e, 0xc4, 0xb3),
++
++	.probe = gip_arcade_stick_probe,
++	.remove = gip_arcade_stick_remove,
++	.init = gip_init_arcade_stick,
++	.setup_input = gip_setup_arcade_stick_input,
++	.handle_input_report = gip_handle_arcade_stick_report,
++	.vendor_handlers = {
++		[GIP_LL_STATIC_CONFIGURATION] = gip_handle_arcade_stick_ll_static_configuration,
++	},
++};
+diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
+index 157a22c80abd..9e43d9cba453 100644
+--- a/drivers/input/joystick/gip/gip-core.c
++++ b/drivers/input/joystick/gip/gip-core.c
+@@ -10,7 +10,8 @@
+  * - Raw character device
+  * - Wheel support
+  * - Flight stick support
+- * - Arcade stick support
++ * - More arcade stick testing
++ * - Arcade stick extra buttons
+  * - Split into driver-per-attachment GIP-as-a-bus approach drivers
+  *
+  * This driver is based on the Microsoft GIP spec at:
+@@ -331,6 +332,7 @@ struct gip_direct_motor {
+ static const struct gip_driver *base_drivers[] = {
+ 	&gip_driver_navigation,
+ 	&gip_driver_gamepad,
++	&gip_driver_arcade_stick,
+ 	NULL /* Sentinel */
+ };
  
- 	if (num_bytes >= 4) {
- 		attachment->status.device_active = bytes[1] & 1;
-@@ -2129,6 +2236,7 @@ static struct gip_attachment *gip_ensure_attachment(struct gip_device *device,
- 		device->attachments[attachment_index] = attachment;
+@@ -1582,7 +1584,7 @@ static int gip_handle_command_raw_report(struct gip_attachment *attachment,
+ 	return 0;
+ }
  
- 		mutex_init(&attachment->lock);
-+		spin_lock_init(&attachment->battery_lock);
- 		INIT_DELAYED_WORK(&attachment->in_fragment_timeout, gip_fragment_timeout);
- 		INIT_DELAYED_WORK(&attachment->metadata_next, gip_retry_metadata);
- 
+-static int gip_setup_input_device(struct gip_attachment *attachment)
++int gip_setup_input_device(struct gip_attachment *attachment)
+ {
+ 	struct input_dev *input;
+ 	int rc;
 diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index e2571fb43aea..1c6854540f08 100644
+index d2ad10f77bc2..98add856ae21 100644
 --- a/drivers/input/joystick/gip/gip.h
 +++ b/drivers/input/joystick/gip/gip.h
-@@ -14,6 +14,7 @@
+@@ -406,6 +406,8 @@ static inline struct device *gip_security_dev(struct gip_security *security)
+ 	return gip_attachment_dev(container_of(security, struct gip_attachment, security));
+ }
  
- #include <linux/hid.h>
- #include <linux/led-class-multicolor.h>
-+#include <linux/power_supply.h>
- #include <linux/rcupdate.h>
- #include <linux/usb/input.h>
++int gip_setup_input_device(struct gip_attachment *attachment);
++
+ bool gip_supports_vendor_message(struct gip_attachment *attachment, uint8_t command, bool upstream);
  
-@@ -241,6 +242,9 @@ struct gip_attachment {
- 		struct led_classdev_mc color;
- 	} guide_led;
- 
-+	spinlock_t battery_lock;
-+	struct power_supply *battery;
-+	struct power_supply_desc battery_desc;
- 	struct gip_extended_status status;
- 
- 	enum gip_elite_button_format xbe_format;
+ int gip_send_system_message(struct gip_attachment *attachment,
+@@ -421,6 +423,4 @@ void gip_security_release(struct gip_security *security);
+ extern const struct gip_driver gip_driver_navigation;
+ extern const struct gip_driver gip_driver_gamepad;
+ extern const struct gip_driver gip_driver_arcade_stick;
+-extern const struct gip_driver gip_driver_wheel;
+-extern const struct gip_driver gip_driver_flight_stick;
+ #endif
 -- 
 2.54.0
 

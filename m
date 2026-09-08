@@ -1,68 +1,67 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEE6A525A62
-	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 09:19:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CDF2525A8E
+	for <linux-input@vger.kernel.org>; Tue,  8 Sep 2026 09:19:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788859158; cv=none; b=GXh8HqcH7ZHuX03iTV2iqaSEXW0PJhXxAYi4pz0g4QF01lrCCXa+7ZxqOJI9IfeNQPJ+j7/Yu6ZcaqapDCj6ADFWm2ygffGhP2uMwvQzpow4NMlNiokn/7V/JMb7ax2bjKhgNsPYzSI98MTm6IUxOV3RIuCN9wh4oSBuVQqk8cI=
+	t=1788859160; cv=none; b=llqQCUs5ARoyDfkbXYp76Pz/dnCANdR3WO+0zhTJ3SgvijBAq+afgcfap8U7cgGzlSl5uVFcOmzZ/D2JdEjTaQ6ywbcfPIwG9hNXevRrVpf9yRjSFsaifXrcCRMxgmIv4Va1pyhMvdS10kAVYtt2NIDe/JvnygYgRto9/6tUQ+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788859158; c=relaxed/simple;
-	bh=wzHJ5AZLh1S4sbm7NQXwPNEFKn8BKSSciphvCkw+aLw=;
+	s=arc-20240116; t=1788859160; c=relaxed/simple;
+	bh=xtgeItdy0OzALjOO+/MceqMtezUFrplKml5SLbPUvec=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=aMZ5mjYEmeGCNrUtGyPMrQN+h4hDUIhVqPFyVmxcmwEvEYMLw1ScHxuqNexnX0nt7FRhEmIptodw71+i4IFsyPeHGw3Ua3c5dQGzHUF38NE+0+OlrjgXO07N2xjO2O85d+dwc8UTbfefQREXtihYhNpJ2P4jIE0CqRDEeO5/6o8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=qmOcj4U0; arc=none smtp.client-ip=209.85.215.179
+	 In-Reply-To:To:Cc; b=WBIakucAF2L5blkHln6nF7pYrPCLpVZJrEaC0q0wRfkD4XLjFEY3zBIeAQOLgcv1LPKuU/iOJh9rjgPNMQrIPNk9mhiAvPz2G2GT5QBbpaQROR0iRJ2UOm5buCF3PZ2teaFQ/kUhqoTDnpuuOVh6adlmprtd22U1DBUkuOzU3V4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=LakehRZF; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="qmOcj4U0"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-cc1cc97b84bso3327854a12.1
-        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 02:19:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="LakehRZF"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-38a0c7e841fso5625930a91.2
+        for <linux-input@vger.kernel.org>; Tue, 08 Sep 2026 02:19:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1788859156; x=1789463956; darn=vger.kernel.org;
+        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1788859158; x=1789463958; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=xSKG1D/i01HPr9XPX9unVriFqaH3a/5SqIW/cS7CsCY=;
-        b=qmOcj4U0E6t5KqQ54AVBQUIKw1Xol4uBK0s/EXumSP5B9ETmZgbj4x6bLZhSvTqjcF
-         2xLbplzVLO+HD0jG2Qpgc2wnaKlZEbRiKIZS8b42sddQVfAVIAxuX944S9kDbNBvfE3w
-         yAm9X92+g6bexLWuglytjxE6Sk1Loal7RlpJYAbRIYbsP9f1IxGQZHz6pqPlIhtPZ28t
-         KUlzQ7gjwZF6zqokfSL+Yd5aDOK2dLurK3eFWA81FFd8T3eGrtcsi8TyemCeDsQqTAb4
-         UChozgxP0jvVypUYzmUMSgFfKT85gXk+dhiC+j1TxzxLFUi0JY4zzvjD0eRbaRHFm1tR
-         ywJA==
+        bh=TtIpB1hhLYGZusTjT6rnPHQOVwY+sSeAbi/bl2xwBEA=;
+        b=LakehRZFsFY5Zn0t5WjpOX3Dx2j17EAlrGMVJsjOsnTVMibF6/sRvBfvEPrN64wWtM
+         HqTvoSlW9fxGqyg9Ssv0Ia8zB8X2xCQAYBnVxnHD3R4OK1C6HniLBQRZh3vId/QiWVBK
+         U1BEr05m2i1sqLZPFHID50C6vC0O620gCBdF0KVknTfSCQmWg/Mbgm7EZZrpNTWQW9Ah
+         njybgh3eabDmUg/dSvmOakj/4aF38H1dLXyKUZwYEo2YmjPKBvHAoSVeWYwZoFhyKwSi
+         KGB8+8hAhOhH6FwYiKzR29T5iJEA6rqYOfW1EZLlna1fiwLMjXdz3D4JYBCoePOSI9rM
+         b8PQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788859156; x=1789463956;
+        d=1e100.net; s=20251104; t=1788859158; x=1789463958;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=xSKG1D/i01HPr9XPX9unVriFqaH3a/5SqIW/cS7CsCY=;
-        b=ahiYjC7sVeeujchI/qYXiehLsFU5bSr+df14cdTxFixY/kAWjmxpa6hryBVOU2sAQF
-         YStDnVt5Iyzox9L9Q4Hug8xBaClZsrDVW6ZwQPRvti9y3U/pdGwOWxM7dA+9icFUWO0x
-         2u+us+SDG8X26jHxfLLuucAodbaOHmXhh1a6cLiLVMNC+r9CQXOGeI+258q/uDRY8JcV
-         6xaAbUxPZdD/MMfWquYKQgH6p9Vs5M8wkF9nMBBhFkCRSZg2CBXIJwoPTxWhCIHLAzn2
-         R/G/UQ5JMVatAGd72eJkOrHPx2cP+drxmeHTbe09xYhgd96pscKjJp3H72V7o0oNt26/
-         b5nw==
-X-Gm-Message-State: AFuF++loDX/vnpQJz0Ek+M0HEhCt3TrjKEg2oBKRCtL64FdSgJc7FptQ
-	4pnO3ygKezVlKeXu3am52T7uEjISb0KTYSDH4OLzAdpiZHkH0PuDDEji4z0isPowLrita7wUoeL
-	tdJyy
-X-Gm-Gg: AYBFou1TvadoYCncOOLtYbi9aRYHdpeJb93/5LjdIBmCxpHyS3dr6CaNVuMclZkMPLY
-	SAqWGL1NfAVyA+zRS2moir3xlbuEOfZga07BTXKXwzHGP9wyXdFL8P81SqtWz4o9LN11Hg5exbf
-	dqYHX5fbF80UHUp1b2OV+M/+2VFY1Gzhnm8HiCr95bFBx+jeriL7k04irPfCnTXtyjBeIfTh8I8
-	isDHysufystDe6tpMgxS1u4OfZIPf+lis9sl4W6I28o69ELVCKxrhG5qKUiZxY+T3PZ2edllx7n
-	0YEYsBWQdQaISA7ttGb/JbKYBlCg2ls3ebEDnfw9uWxpXiQqZKrg5keDNLWhsJ2dYbgbm/GbyB0
-	UxwyNS3+JDCANqB9nhhYGkFMQOhNZwDvRUrLrtaotkBjhO3dvtCnvrCxteAToGwPnK8E/iRcuQJ
-	aAH2MI/20hsA6WUyJRBhLBoBrnm7aR+f9bIAefpDVPU6sZC+Qv2PgAfkZ6+SALntJRUmdaGeUju
-	E3/rQ==
-X-Received: by 2002:a17:90b:3804:b0:366:3517:1aa2 with SMTP id 98e67ed59e1d1-39b25f4397emr42321906a91.0.1788859155665;
-        Tue, 08 Sep 2026 02:19:15 -0700 (PDT)
+        bh=TtIpB1hhLYGZusTjT6rnPHQOVwY+sSeAbi/bl2xwBEA=;
+        b=Sq+LYWD+SX419pA6bxHTTVT0YA7NUFd9JRXmSHb79kxA1TuajM7y474kU/BtweMyx3
+         3sgnwiilleq55APR44bAD8cZhtyhmzvyajIzBF2sHwVyrwlUYSdmWSM/PZDArr1Rf/1I
+         gnK1d8XUiWzdNZxz8C4EEwT7YPE7ZcR9v/y3AE6pQ2vWRrHpVLcxmtalGrfa5ZYjnk2P
+         spowvnwkxuF098PXRIYbaK9Ihort3eXNaWxIhcOw+Nt89A5wmI3+IwupF263rnRcLuX0
+         ItsZrRDx0iz3KzfU3L6Dv2INxe/+46IDQKqHRcAEHcE1Jllk0PrxCO8Z0kx9jTcsFZ/u
+         j+Ig==
+X-Gm-Message-State: AFuF++kvL684MsL7VXjWFojcYcGdj9b11B8sUzKSlin7o1wBZhDPcasI
+	2GLZy6lfim/S1Uf4hViA5LzzVLs/3TXXcpNzvRvUTeXOfWDzwb181pg1X8SAUrVLjLE=
+X-Gm-Gg: AYBFou1rXyUryAopf+xc6qiDaKlw1luAGl7zRA+4P4V4azRtWMlrM2ia1r9AY9T0c3l
+	98xyu/co6XvhrU2WPhpi4rM6uHU4/mx1o1Y07LSgDGpXaJ9whBLLXNF9/7lr8yBvRcU6m3X1mLM
+	jJhw+OmSF/PItNCGIy9PfY4WLdQkwK/RqPJV0u7TI6e3BaaHq+0BUzdgImeNCea6KdRTB7aTbuV
+	WpS9vnubqMzjTyZYAGRjrvG1VdsE5/WWTfqhmzb6+5u9spYxkoCfUrvINgh+S5W0zuiwynPD276
+	h+534M9nSmraAb6xPt7hH4+N++aJdyBhseA3vtOUCi6BVYuisGuoWt9qeRmPsYjbc+0fIkNZJAT
+	YVS4cs+l/UpnP4Ew0MkNiuPWT94NyjlOdXtWm6WUhhJGNy/llDQGaqclAa6O5nH1MFIbhGCoqdb
+	pJfDevX94XWArX1sHnM0Zwb+8cD836/1vj0p8vpl7wxN1R/nxYtQXO3rj/1/7R7Oeowt+j2unx7
+	n/3lw==
+X-Received: by 2002:a17:90b:2e0e:b0:398:9be5:b419 with SMTP id 98e67ed59e1d1-39b2622bfecmr41833249a91.20.1788859158105;
+        Tue, 08 Sep 2026 02:19:18 -0700 (PDT)
 Received: from [10.42.0.1] ([2a00:23c7:1d1a:9c01:75be:f01c:dde1:cb38])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14324410092sm32015722c88.14.2026.09.08.02.19.13
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14324410092sm32015722c88.14.2026.09.08.02.19.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 02:19:15 -0700 (PDT)
+        Tue, 08 Sep 2026 02:19:17 -0700 (PDT)
 From: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
-Date: Tue, 08 Sep 2026 10:19:04 +0100
-Subject: [PATCH 2/3] HID: i2c-hid: use named initializers for
+Date: Tue, 08 Sep 2026 10:19:05 +0100
+Subject: [PATCH 3/3] HID: surface-hid: use named initializers for
  acpi_device_id
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -72,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260908-acpi-hid-v1-2-08df24c4b139@thegoodpenguin.co.uk>
+Message-Id: <20260908-acpi-hid-v1-3-08df24c4b139@thegoodpenguin.co.uk>
 References: <20260908-acpi-hid-v1-0-08df24c4b139@thegoodpenguin.co.uk>
 In-Reply-To: <20260908-acpi-hid-v1-0-08df24c4b139@thegoodpenguin.co.uk>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -81,11 +80,11 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
  platform-driver-x86@vger.kernel.org, 
  Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788859148; l=1319;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788859148; l=949;
  i=pzalewski@thegoodpenguin.co.uk; s=20260430; h=from:subject:message-id;
- bh=wzHJ5AZLh1S4sbm7NQXwPNEFKn8BKSSciphvCkw+aLw=;
- b=uf+1mk4iLkcE9iwyWW0QFbX+TS2t6INT8BNRYRowZ2wjB0Qy+vICZc3tGfqptCelVoc1op7Qu
- +JpstvANQhjBdDUDg4O8bmwkOnBbsfZyd1GPeWVbke2xBQanHvE7EBK
+ bh=xtgeItdy0OzALjOO+/MceqMtezUFrplKml5SLbPUvec=;
+ b=Bv7PIIbID1GVnQlHmUM/w6I/Dk/7/ZxTyv7MMza9p2ztJgGoB+kz78mu4kY+t8C8rVCMasMtZ
+ uHNKMpfVlH4ACgJZ8jyEvtF5bC+fh9VtG+PEI5AhmcQ4SoYes01zUkm
 X-Developer-Key: i=pzalewski@thegoodpenguin.co.uk; a=ed25519;
  pk=vHq4n9IonORH2GTzLv8r6CWAFHzgfBuNkQPXA8NSly0=
 
@@ -93,41 +92,29 @@ Use a named initializer for the acpi_device_id fields which makes the code
 more readable and consistent with how lists are initialized in the rest of
 the kernel code base.
 
+Unify the list terminator to have a single space between the brackets and
+no trailing comma.
+
 Signed-off-by: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
 ---
- drivers/hid/i2c-hid/i2c-hid-acpi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/hid/surface-hid/surface_kbd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi.c b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-index 13f977d6aab6..9371db200fc4 100644
---- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-@@ -39,12 +39,12 @@ static const struct acpi_device_id i2c_hid_acpi_blacklist[] = {
- 	 * The CHPN0001 ACPI device, which is used to describe the Chipone
- 	 * ICN8505 controller, has a _CID of PNP0C50 but is not HID compatible.
- 	 */
--	{ "CHPN0001" },
-+	{ .id = "CHPN0001" },
- 	/*
- 	 * The IDEA5002 ACPI device causes high interrupt usage and spurious
- 	 * wakeups from suspend.
- 	 */
--	{ "IDEA5002" },
-+	{ .id = "IDEA5002" },
- 	{ }
- };
- 
-@@ -93,8 +93,8 @@ static int i2c_hid_acpi_probe(struct i2c_client *client)
+diff --git a/drivers/hid/surface-hid/surface_kbd.c b/drivers/hid/surface-hid/surface_kbd.c
+index 0be01b5e74258..036829ba47d42 100644
+--- a/drivers/hid/surface-hid/surface_kbd.c
++++ b/drivers/hid/surface-hid/surface_kbd.c
+@@ -277,8 +277,8 @@ static void surface_kbd_remove(struct platform_device *pdev)
  }
  
- static const struct acpi_device_id i2c_hid_acpi_match[] = {
--	{ "ACPI0C50" },
--	{ "PNP0C50" },
-+	{ .id = "ACPI0C50" },
-+	{ .id = "PNP0C50" },
- 	{ }
+ static const struct acpi_device_id surface_kbd_match[] = {
+-	{ "MSHW0096" },
+-	{ },
++	{ .id = "MSHW0096" },
++	{ }
  };
- MODULE_DEVICE_TABLE(acpi, i2c_hid_acpi_match);
+ MODULE_DEVICE_TABLE(acpi, surface_kbd_match);
+ 
 
 -- 
 2.43.0

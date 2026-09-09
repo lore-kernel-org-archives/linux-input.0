@@ -1,115 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A82B2585973;
-	Wed,  9 Sep 2026 20:58:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10EB6DF59
+	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 21:35:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788987528; cv=none; b=MVEzzThu8XtLRBoAF54XW1wP3MRVCXFvT5E/y0K+5jYrVWpOpfezo2RcCAR5nAC8mtnEqra34HEki47yhdENcwztvy2FyCEunB0DEfGTkfaN2Fe0RXwavLUkCWIoYHR7lWPlS4LTKOchPdXh2g+zrcM8nGwJCYZHg2SFaXasas8=
+	t=1788989710; cv=none; b=cRZYU/U1GxBueA6psalpn/hLVh6cXy9VkAwEW9PM2FdfSCsomYbYMZ6mA6avh4lobZ8HV0d+3cRjfW4NrS/Im8nEUtzjy5ZevxhL3J0EZ76Dwa2oXWYW8nmZzLec6XoK894SyfngMG/QGDKD0iNsTmNAPg6MyG6Mx0OVBv/wgpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788987528; c=relaxed/simple;
-	bh=T4YX0/YeQKFu1n2aj/247Lr1iHLs459EJU1boZffqjM=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=doOdHudwq7g5l+Ar+T194f37cl52/lWwkE6qOl5+F1TXTDuIlo4akGhJSbblCZ47QLr8/32PSBY4kDW3xzAo3UHleJG+fW1krvlPzN/IpXfjXQgtliYFmWKRueL0ORjk4Bx5xkVKQdZVzTZqlBeDx/e0OQxu/uQd6uGcUJ35MJ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bUySngUE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788989710; c=relaxed/simple;
+	bh=JM0o61Y6ltMUDCEIGTB8aYG4/lxWHsy/P9VIG/tnMQE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=MiuZC61Ro0bEkji44MiRZw520AWJLBA0TLL8eoX/WzFjK1IYt1YgrpNoC7w+rr7epURy00fkuu+LYxI2kK2HiLuCHDGJ3VkZb57sIXm9TwpU11ck4ra3dJ4JM4OIiwWfnFLg5/ig5Uk5mcbk+TN8sb+53MVNsf0e9XXUUSCCUpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=CyLfGmTf; arc=none smtp.client-ip=209.85.218.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bUySngUE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30BAE1F000FF;
-	Wed,  9 Sep 2026 20:58:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788987521;
-	bh=WLf3bD3M9fRfofQ2lgVpxSYxYNW4K7cyzG/C6m0f6Os=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=bUySngUElKIVPPaeTsPeuasSjPmvMwFvrL4fRY+oiz2Wl3PQfKeDyzDhLyLLvT7Rj
-	 94WzEjIKOMh4BEymKPe+/31nvX0Bl9tj6E2KamIN4PIYlQszRuTnLMsCEbmWMr4j2d
-	 jiUhuY/rzes8whqR+VYRU5WmVU0gqgWXOWMQAp3JUIajiUsOqWXlqlnIOnNGk7+VA4
-	 McJtZLrzfHS75zp7QAaLUXQrdI32oU+mJ69AtOA3mFjWSZKUoQ1B0sDpmUeASUZmup
-	 8XrEH+Yk7rUsGxCTnYXlcmAgaCeg9MTPnLDxo1AdF3EUYDp+mO7mtCRPMpd/aBDvyJ
-	 5PWnoNuJWMxLg==
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfauth.ams.internal (Postfix) with ESMTP id A408E198003A;
-	Wed,  9 Sep 2026 16:58:38 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:58:38 -0400
-X-ME-Sender: <xms:fMihalj6z86RbPxvjDox6iD5bH0aV2RlX6LrnphgQyijY6BsngWvQQ>
-    <xme:fMihak17J95UeADfFCejG71IZoWTCZMfnHSsb2KBT3IQgNKZWQbpMudbb2HQ2TOD7
-    -6ZBP_JE5z4aDZ5C7zzA3gSFqAm3dWBKwqpE4wJH1o4y5HzVgD2RoUx>
-X-ME-Proxy-Cause: dmFkZTEI0PP4Scmd59mEKuYPT6WYIAftppxw0Cj0RtyYPVhFKLGQ6ZQ4za+D8viqR+5YWb
-    o0cbMra2wRzr1pAXHSzJkGhZFez5/oSm+iAvmk+3h85Tw4naH3TaedqTiKJSMx9+Hjw14j
-    FS7Aadri1gFiGJffqeMrNoC5Z88Befo+G/vxIh3QrnPD7Ekyywl7SaBXt1wt//+VaoKfZc
-    0MRq1SmAgFPC8r+2+i4AHH2Hk2GuTLsR1GMnsBjUlzji1oH7HxSg/MBYyp88HjmjvI7VOY
-    c64EhYKOPh2PycyCMH4Jn4WScLwzrup1UJKoow8FZMfFzEpMQgZxHRp+Q2rHWFjUiD/sTI
-    3EsQS/WKKn0b9/4zUQsJSPQyiWBz8Xi38OPH++J8VZMhP7thapItUFUuW1a9IeOxABSAWr
-    4fJW7HMh+FwD3Y2y72ImuE5tcw4vKqg1wCzBG0JSYUZETyL4ucSIMDNy4TgUweGW7xBRHl
-    HwM5kcnNn2d6ykTsQSNKs1lLm0Iz4TKR9GURzgarxhRh5Nvze8lNuU269Q3wHTqAmD7qSc
-    0/0YbHbk4IqvvUqYY4HwH7+RK9I8c+B1eUcqsD+ALGBH2bPEzVicZWdIJy7JLSgnhJ91+D
-    2D5vWn0QL9blWAKKe+FvV+hESeNM4pKPva7KPl1TvAgvIShdvLORULj/nWsw
-X-ME-Proxy: <xmx:fsihaggEPEQCHOd8lC1odW-IPQOygNL7XpZ5RrHQRyKknY8vw_x50Q>
-    <xmx:fsihalWxDk5Z4HrO9WtnzaVwFsb89o8jn9M_v7Cuxxmx6Dbn-fSsTw>
-    <xmx:fsihapuB5Vn8cDP_balfG5dTsVmCHpkXiCmM_BioR2DmFrR1dVBHVg>
-    <xmx:fsihauYvUqcyWCYejcMu4PKDy0-q_tGJ25JfIB_wzvFXHv5n9siWsQ>
-    <xmx:fsihai6l8HNDuvTZEN9Uc9PpKXSn9m0KY62mtSjJU7iTiDyeLvYXg3Lj>
-Feedback-ID: i36794607:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 5362D32A007B; Wed,  9 Sep 2026 16:58:36 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="CyLfGmTf"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c2949ed8cc3so20538666b.2
+        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2026 14:35:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1788989696; x=1789594496; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=sMS1hbLMg1gsIduehGePlq8QcJPEKyefk4+J94QrxTY=;
+        b=CyLfGmTfY6NlaBxvKiuOvMJbdO/2j8jasUbtw+vR8AzBYZcX2IGHbndts0fVVYgIpt
+         XpAsJtnWXSvpnJfBULJ5uVVR8foRT3J004Q8u/2zzJAk7wSKzVC3Ibe4XJH7sbtF75D8
+         3SuZpuvdLMJ1moyfmHa1F5LTJ8XvFrdG7nGNs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788989696; x=1789594496;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=sMS1hbLMg1gsIduehGePlq8QcJPEKyefk4+J94QrxTY=;
+        b=tQk1WCeIi00BCX4JQ4n8UyNboWzvrLfpxJcGRGwHDcKZSaEl5+tdqLqFbOihWGc/yL
+         QAGdHkdI77y76WFMQqxGBhPeum75Cexov6bQ1KBycN1hh003XRvJGDcPaBXyom/6B43d
+         PLdnv0E3aYU+KHWs4bZfOa1dlX/icMIlbfWquKXxib3coaAMrZRm13rshW+QMi/wsAmX
+         1PtuVOq3TCL4pwNRx2JmKl5vWocq+eDi37q9qZSr3YuoYXrEpiXt09j4htS2cuavmjJV
+         WKUnUD+VkFaaUvB2p9Pe/ryJKk0gEiIjyvSPJjjO2ACO3OkafmlyCssH9DpgCk9fVFN4
+         1fzQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz5z8WN9hvmUtMUnR1SZ+afZfeUIdKEDzZKFzpqfKzGTXu6OmyKbgVzVQq7guYx0h8dCmHkm4ayhkELdA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nVWUWcb9LkPVlvOLXsbBGpAqjVkJo6Ts4Ejgqv/Rvje7pR3Bom
+	1dfSkq+chaZQgYmizPyR2CEI1Qo7JzGWN/rDiCd1kc7mRZAElWaW4JGLeN5HFTPGadWhGbbHFo0
+	F4TAyGg==
+X-Gm-Gg: AYBFou2MRsBNv1zNzeyU3sjwmyG1zKnXZztZ/rVEKw37mD4z2uVT8llFGLpIKZdM40V
+	wA2wSPhhovdV77VoI9PDZGK5oWxRQX35nBWq7QLBOGH+jq4Z6r/OEP16xbYi/i+q5WrQDRYlCYu
+	lk1hQiz5zhmn1RPXhQtV+te5u63ExWAKYWPx3ATUQtNxvOQ47fE8c6Rdp69qJM+BTRTHnQY8qQf
+	1jA1LudPgviyeZMycPNcz/bUnq1sIvJRTvrt5eMU34PunIr2FPNRaWY7+j1MSMoZZIzAPyhVkJ/
+	JPF6vaspAaZXddcBReJyxokqy6VJ7vbk3u99EPjv7NqLcvcxsIDbjf3poRw5UUKpIi+3y4j4Eco
+	J2Tnuiy0PzxcAAfTiL9B2Hvcu+Q5XCs3tF4eKQm2rVDyTQXGwUQxzNCqI4rXDWJ8Q1m9VkOlEHW
+	0UCQy98cGB+DrfxXb5l/hIgZfaggf2oXHHPj1i8W/bjMa5QOIRBj15mzAOVLBGYMiOtl/4KNCQR
+	+mw4wjBGo+3Gf5w7kix4mf02waKvQCg27D9Ug==
+X-Received: by 2002:a17:906:4fc7:b0:c25:8bf0:36ef with SMTP id a640c23a62f3a-c260c987f6bmr1508890266b.14.1788989696053;
+        Wed, 09 Sep 2026 14:34:56 -0700 (PDT)
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com. [209.85.128.43])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c293ac38ddcsm116405766b.41.2026.09.09.14.34.54
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Sep 2026 14:34:54 -0700 (PDT)
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-49d05d51553so39678875e9.2
+        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2026 14:34:54 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBzMYFCfWDwiNxdx0oYORWWzz0Vb/mv6aTBKoCn3AqQ5znVij8Eal2/hL/14MYibUqmel4hQfRwOA8M1Nw==@vger.kernel.org
+X-Received: by 2002:a05:600d:640e:20b0:49c:fc6e:a3e1 with SMTP id
+ 5b1f17b1804b1-49cfc6ea77dmr253931435e9.32.1788989693915; Wed, 09 Sep 2026
+ 14:34:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: A9f0ba5DxpVF
-Date: Wed, 09 Sep 2026 22:58:16 +0200
-From: "Arnd Bergmann" <arnd@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: media-ci@linuxtv.org, "Lee Jones" <lee@kernel.org>,
- "Rob Herring" <robh@kernel.org>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, linux-rtc@vger.kernel.org,
- linux-leds@vger.kernel.org, linux-input@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-watchdog@vger.kernel.org,
- mfd@lists.linux.dev, "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Conor Dooley" <conor+dt@kernel.org>, linux-hwmon@vger.kernel.org,
- devicetree@vger.kernel.org
-Message-Id: <786e24af-cf9b-452b-9ef4-4cc8952d4c8c@app.fastmail.com>
-In-Reply-To: <20260909134355.5ED151F00A3A@smtp.kernel.org>
-References: <20260909132153.1596191-1-arnd@kernel.org>
- <20260909132153.1596191-15-arnd@kernel.org>
- <20260909134355.5ED151F00A3A@smtp.kernel.org>
-Subject: Re: [PATCH 14/14] mfd: remove unused iPaq micro driver
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <20260908013843.368364-1-justin.yeh@mediatek.com>
+In-Reply-To: <20260908013843.368364-1-justin.yeh@mediatek.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Wed, 9 Sep 2026 14:34:41 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=Ui1XYRXb6ZqmAgWqF3TZaAcGqfsV6KodqPbk-sGqHdaQ@mail.gmail.com>
+X-Gm-Features: AcwNN1UfpgY7Rw4Gy4MtVJB0f5LgowF3gCGJtAAU-5vzKs2VDiX_yyNNYapd3c4
+Message-ID: <CAD=FV=Ui1XYRXb6ZqmAgWqF3TZaAcGqfsV6KodqPbk-sGqHdaQ@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: Unfollow the panel on shutdown
+To: Justin Yeh <justin.yeh@mediatek.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Maxime Ripard <mripard@kernel.org>, Project_Global_Chrome_Upstream_Group@mediatek.com, 
+	linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 9, 2026, at 15:43, sashiko-bot@kernel.org wrote:
+Hi,
 
-> For example, arch/arm/mach-sa1100/Kconfig still selects this symbol for
-> SA1100_H3600:
+On Mon, Sep 7, 2026 at 6:38=E2=80=AFPM Justin Yeh <justin.yeh@mediatek.com>=
+ wrote:
 >
->     select MFD_IPAQ_MICRO
+> i2c_hid_core_shutdown() sends SET_POWER(SLEEP) even for panel followers,
+> but nothing in device_shutdown() guarantees whether the panel, and hence
+> our own power, is still on by the time we get there.
 >
-> This causes unmet dependency warnings during the build.
+> Do what i2c_hid_core_remove() does and just unfollow the panel.
+> drm_panel_remove_follower() calls panel_unpreparing() only while the
+> panel is still prepared, which powers us down properly; if it is already
+> unprepared no transfer is attempted at all. On MT8196 the panel is
+> unprepared long before us, so this also drops the ~2s i2c bus timeout
+> from every reboot.
 >
-> Additionally, child drivers like KEYBOARD_IPAQ_MICRO in
-> drivers/input/keyboard/Kconfig still depend on it:
+> Fixes: 96a37bfd232a ("HID: i2c-hid: Support being a panel follower")
+> Suggested-by: Douglas Anderson <dianders@chromium.org>
+> Signed-off-by: Justin Yeh <justin.yeh@mediatek.com>
+> ---
+> Changes in v2:
+> - Unfollow the panel instead of just skipping SET_POWER, so we no longer
+>   depend on the panel having been unprepared before us (Doug).
+> - Link to v1: https://lore.kernel.org/all/20260904035009.4114363-1-justin=
+.yeh@mediatek.com/
+> ---
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
 >
->     depends on MFD_IPAQ_MICRO
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c=
+-hid-core.c
+> index 0ff07fdab442..c7e46004f513 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -1355,7 +1355,16 @@ void i2c_hid_core_shutdown(struct i2c_client *clie=
+nt)
+>  {
+>         struct i2c_hid *ihid =3D i2c_get_clientdata(client);
 >
-> which turns them into unselectable dead code.
+> -       i2c_hid_set_power(ihid, I2C_HID_PWR_SLEEP);
+> +       /*
+> +        * Like in i2c_hid_core_remove(): if we're a follower, the act of
+> +        * unfollowing will cause us to be powered down. Otherwise we nee=
+d to
+> +        * manually do it.
+> +        */
+> +       if (ihid->is_panel_follower)
+> +               drm_panel_remove_follower(&ihid->panel_follower);
+> +       else
+> +               i2c_hid_set_power(ihid, I2C_HID_PWR_SLEEP);
 
-The platform patch has to come first, yes.
+This seems right to me. One note is for panel followers if the panel
+_hasn't_ been powered off by now, the drm_panel_remove_follower() call
+will cause "i2c_hid_core_suspend(ihid, true)" to be called. That does
+quite a bit more than just "i2c_hid_set_power(ihid,
+I2C_HID_PWR_SLEEP)". ...but I think that's fine. I would expect most
+systems would be powering off the panel at shutdown time anyway.
 
-> Should the child driver source files and headers be removed as well?
-> In drivers/leds/leds-ipaq-micro.c, micro_leds_brightness_set() attempts to
-> call a function from the MFD core that has just been removed:
-
-I have separate patches for the other ones in this case but could fold
-them in here if necessary.
-
->     return ipaq_micro_tx_msg_sync(micro, &msg);
->
-> The header include/linux/mfd/ipaq-micro.h also remains, declaring APIs like
-> ipaq_micro_tx_msg() that no longer have an implementation.
-
-Removing that file as well now.
-
-    Arnd
+Reviewed-by: Douglas Anderson <dianders@chromium.org>

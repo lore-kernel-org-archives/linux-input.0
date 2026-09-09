@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10328DF72;
-	Wed,  9 Sep 2026 00:02:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E75E54086A;
+	Wed,  9 Sep 2026 00:05:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788912169; cv=none; b=HTLLSuYjianeJeMpNLIqZivc7qhnedx02CjgJn3Rfx35YgBeeeldzbtNurAJSxz9YU+PlS1pke3Wh28aHunu61+Y18ZAreRLn3AjtP4az4vhz3bwUtRIJ7TaE5mHCc144JdSinraN5gNB2/noWdnziJ7mGDHJVGXG5RsNnT1+0A=
+	t=1788912332; cv=none; b=GFrhiOyba7WKmedaLiabf3O+K9nFqRg4hxT6UQJYBRBD2fUSpf5kxL18Zi2KVEZqnKn9kbApL926CZjDgEeLvdcvvPWlmDrtANRft5KMUoqIX6pTS94ArYP6Q8IN6xhIeNulr2+Wy+nxUtSJAJ0FDhRcd7Av79FewKJX+OvYuEs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788912169; c=relaxed/simple;
-	bh=ChcQNcdPLfslLwMVlx1G7L+B8V7ILeLhEwbMeIvcaAs=;
+	s=arc-20240116; t=1788912332; c=relaxed/simple;
+	bh=kBzw3pxc32aLqolGSwPmG9YAfQE01zYj+P0QRH0Z8NI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Dn8p3CvE63FmunBD6fYKIwj8Y+BJlpz4YBLAt7QHw5u6/84PzScFPNSeVhrwzMCksjlMfe/w/UgRQSwc5xCcrICTRhXoJdBnlomIJqRAVvKLTbRJg/gQA1HpNtWTRY9xZcj58BsAzPP8aRXlVDA45v7AVqKhaUDWAvyMaOe55QU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L76Xm1Ou; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=icUFqZCgV326tsn/vjVJy4AsteX9Up7mkgm4R54cwZiLdnwFK73rd/WMHpuyMMzD8TKFEHA4zntR0q8u7tGWCGw7HJqs4M/N42P3rEXdMTlvATXl5AxitfOnrcChtnkYSlQBpe0a+ukr+gvM4rgNWY2PS6CCdA0NsZDnX8o67T0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DG7nfEx5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L76Xm1Ou"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 495EF1F00A3A;
-	Wed,  9 Sep 2026 00:02:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DG7nfEx5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 531611F00A3A;
+	Wed,  9 Sep 2026 00:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788912167;
-	bh=VzKdCnyW6uGC76UHbbXQUQENeNBgJQUw40Jw8koap8U=;
+	s=k20260515; t=1788912328;
+	bh=o+4+eepLawqjQxcXllnGq9c1bbxANN86JSsUpg13s8k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L76Xm1Ou3CMhvp81jX1f/xf7fa3EyOEcdcgA6vb9QCZuOadIli7vrxX+l6yKpijLF
-	 bU5d+3kYegtfKynkGwKHGobMVlZGylXaZN31jw1vLZ5SKIN2OUywIs11sAtkved0sY
-	 ZT9ueodxiIcqPND8rRO54Y1pQ8g1GLliMkFm+u6isdGUWNIqYvHSclQlRjuYpAwqYl
-	 kdYnGCM0GY1+dfmNhnCKJURsMpRvGeCFzMN6JvlZb+obNDRQ8IJbBk7REJSWAtnKrL
-	 d/u0wZl5KIGe8eQzW7WKp4+bWIVsOnVvht1exsIynKs/2WFRmAseqB7W4pYllXO8hX
-	 3LWaVb4Q6/PRQ==
+	b=DG7nfEx5QxSHdwTawVOlXiLJrsxs//RBRQ7lJjQ0zKI69/MnOs9OdyWOZ008kDj+E
+	 Lxt7TAynls1Mq5EwgcAfSvZvv6b9iVYpWn2Dj4VGq9brEkay1m9QzOdgHbfyUCiW4c
+	 sU7HGFOrhGlbVD99mnvjRd2ui6wbP55yeYJtMCgANA84gGb6kHjiTgJABoYFZssGH8
+	 28xj96XgYClKyLGO/446Rt/Q7LdmDpVozu+/gr+d0TQHVMWZklHXJGq72mDCRvH4WI
+	 TMO4qvej4Jx87CWjGHgDE0fMRiMPj5Qmh0g1tdFWRDgHAbbTd0AJS6zLnJPMxAoIGT
+	 ft1lNpQOi7w9g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/4] selftests: add shared lib.bpf.mk to build BPF
- progs and skeletons
+Subject: Re: [PATCH v4 2/4] selftests/cgroup: add memcg_stat_cross_cpu
+ correctness test for flush
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ziyang Men" <ziyang.meme@gmail.com>
-Cc: sched-ext@lists.linux.dev, linux-input@vger.kernel.org, tj@kernel.org, hannes@cmpxchg.org, mkoutny@suse.com, dmitry.torokhov@gmail.com, bpf@vger.kernel.org
-In-Reply-To: <20260908235552.2610256-2-ziyang.meme@gmail.com>
+Cc: tj@kernel.org, bpf@vger.kernel.org, mkoutny@suse.com, sched-ext@lists.linux.dev, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, hannes@cmpxchg.org
+In-Reply-To: <20260908235552.2610256-3-ziyang.meme@gmail.com>
 References: <20260908235552.2610256-1-ziyang.meme@gmail.com>
- <20260908235552.2610256-2-ziyang.meme@gmail.com>
+ <20260908235552.2610256-3-ziyang.meme@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 00:02:46 +0000
-Message-Id: <20260909000247.495EF1F00A3A@smtp.kernel.org>
+Date: Wed, 09 Sep 2026 00:05:27 +0000
+Message-Id: <20260909000528.531611F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,55 +47,88 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] Order-only prerequisite on stamp file prevents rebuilding dependent=
- objects when vmlinux.h changes.
+
+Pre-existing issues:
+- [High] Missing bounds check for negative enum values in memcg BPF kfuncs =
+(`bpf_mem_cgroup_memory_events` and `bpf_mem_cgroup_vm_events`), leading to=
+ potential out-of-bounds array reads.
 --
 
-commit f7b71013493f3d0a8611d16b18e727d7b737042f
+commit 75dfb2e14e4c5552066e9fdeb8f96969135f991d
 Author: Ziyang Men <ziyang.meme@gmail.com>
 
-selftests: add shared lib.bpf.mk to build BPF progs and skeletons
+selftests/cgroup: add memcg_stat_cross_cpu correctness test for flush
 
-This patch adds a shared Makefile fragment (lib.bpf.mk) to standardize the
-build tool-chain for BPF programs and skeletons across selftests. It
-centralizes the build logic to reduce duplication as more subsystems adopt
-BPF-based tests.
+Add test_memcg_stat_cross_cpu, which verifies that flushing a memcg
+subtree produces the same statistics through the BPF memcg kfuncs and
+cgroupfs.
 
-> diff --git a/tools/testing/selftests/lib.bpf.mk b/tools/testing/selftests=
-/lib.bpf.mk
+> diff --git a/tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c b/=
+tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c
 > new file mode 100644
-> index 0000000000000..f27cd1889e7ff
+> index 0000000000000..c3c69ecd888f0
 > --- /dev/null
-> +++ b/tools/testing/selftests/lib.bpf.mk
-
+> +++ b/tools/testing/selftests/cgroup/memcg_stat_cross_cpu.bpf.c
+> @@ -0,0 +1,95 @@
 [ ... ]
-
-> +# ---- build vmlinux.h -------------------------------------------------=
------
-> +lib_bpf_vmlinux_h     :=3D $(INCLUDE_DIR)/vmlinux.h
-> +lib_bpf_vmlinux_stamp :=3D $(INCLUDE_DIR)/vmlinux.h.stamp
+> +int memcg_kfuncs_probe(struct bpf_iter__cgroup *ctx)
+> +{
+> +	struct cgroup *cgrp =3D ctx->cgroup;
+> +	struct mem_cgroup *memcg;
 > +
-> +# Preserve vmlinux.h's timestamp when its contents do not change.
-> +ifeq ($(wildcard $(lib_bpf_vmlinux_h)),)
-> +# Regenerate if the header is missing but its stamp remains.
-> +.PHONY: $(lib_bpf_vmlinux_stamp)
-> +endif
+> +	if (!cgrp)
+> +		return 0;
 > +
-> +# Use an order-only edge so the stamp's mtime does not propagate.
-> +$(lib_bpf_vmlinux_h): | $(lib_bpf_vmlinux_stamp) ;
-
-[Severity: Low]
-Does using an order-only prerequisite here prevent rebuilding dependent
-objects when vmlinux.h changes?
-
-Using an order-only prerequisite means GNU Make might not re-stat
-vmlinux.h after the stamp recipe updates it. To allow single-pass rebuilds
-while avoiding redundant rebuilds when the contents haven't changed, would
-it be better to use a normal dependency with the empty recipe `;`?
-
+> +	memcg =3D bpf_get_mem_cgroup(&cgrp->self);
+> +	if (!memcg)
+> +		return 0;
 > +
-> +$(lib_bpf_vmlinux_stamp): $(lib_bpf_vmlinux_deps) | $(INCLUDE_DIR)
+> +	bpf_mem_cgroup_flush_stats(memcg);
+> +	bpf_mem_cgroup_page_state(memcg, 0);
+> +	bpf_mem_cgroup_vm_events(memcg, 0);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can this kfunc and related
+memcg kfuncs be exploited by passing negative enum values to read
+out-of-bounds memory?
+
+In mm/bpf_memcontrol.c, the bpf_mem_cgroup_vm_events() kfunc takes an enum
+event parameter:
+
+mm/bpf_memcontrol.c:bpf_mem_cgroup_vm_events() {
+	if (unlikely(!memcg_vm_event_item_valid(event)))
+		return (unsigned long)-1;
+	...
+}
+
+The helper memcg_vm_event_item_valid() in mm/memcontrol.c uses a signed
+comparison that doesn't catch negative values:
+
+mm/memcontrol.c:memcg_vm_event_item_valid() {
+	if (idx >=3D NR_VM_EVENT_ITEMS)
+		return false;
+
+	return !BAD_STAT_IDX(memcg_events_index(idx));
+}
+
+Similarly, bpf_mem_cgroup_memory_events() lacks a negative check:
+
+mm/bpf_memcontrol.c:bpf_mem_cgroup_memory_events() {
+	if (unlikely(event >=3D MEMCG_NR_MEMORY_EVENTS))
+		return (unsigned long)-1;
+
+	return atomic_long_read(&memcg->memory_events[event]);
+}
+
+Since the BPF verifier treats enums as plain integers and doesn't enforce
+their valid ranges, a negative index can bypass these validations and lead =
+to
+a backward out-of-bounds read from the target array.
+
+> +	bpf_put_mem_cgroup(memcg);
+> +	return 0;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908235552.2610=
-256-1-ziyang.meme@gmail.com?part=3D1
+256-1-ziyang.meme@gmail.com?part=3D2

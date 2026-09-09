@@ -1,121 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-106121.protonmail.ch (mail-106121.protonmail.ch [79.135.106.121])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B480D3DD849
-	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 10:19:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32FF3478E5A;
+	Wed,  9 Sep 2026 10:25:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.121
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788949176; cv=none; b=qBJH14EikzzqlxBtd1XNHPwNwmvfs8sSXtKXyu/UdYAUqD7jDNjKyPM9gyGN8sCfQsxRm6TK22Oe9v8x2rjley2bXU+5DehW115SgTzpqU+bDv9T23XlQab94qqQl/KT0I3KXXs0PJPVpXSUsSF6Bi1QEpqYj4hDErP0J/VQjSw=
+	t=1788949544; cv=none; b=UxFOENWOTvhMEZDQGvCWVGxTGGdNYEj9itET8tWCBSA3IbaIJe/0u4uIkAw8XcD0pMF2XMmKGGSpSsfOHTtSPjsTbnxLwKZc7J3P5ZJI4PTwcfMAw3cqUuIL04BUtW1xyqN6JhJfi1+utk8S7up7cSfD5VrRNtf9zVrNmLhatiU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788949176; c=relaxed/simple;
-	bh=zuCP2xE7LESS8cUy9X3zAc79NiJ1zH0/tpR5llVgrTg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DKCSjxw2I/totQ6oMaDaXpaQygnaIYTZbDs1a/zavrHs8rSgzfiU6VqHlGX0n6NquqemUVpF/rIE/L09w5tAHW+sLflm47GJy7LEXmE48ht+kFH0s+Flp0ZQjM/RiAECxwor1Nq2tEGyEAnNvyj+LDVv+DRXrv8BdCws7xzMmBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MFAzHQqK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788949544; c=relaxed/simple;
+	bh=X6CS8natN/FeN/v/5ZXPoQdCMzGosg/lTx3jrqNsSAg=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=M2llAIbGFRyrTkOs/zKsVr5xzS687RpnXT4wgb3pIfjGX6kkFZVC+L/tRKUGTtimBUIvC/3LKgsPV+Wo2DJ763zWaynyz2gWjBUMToV0rr/8b47gVmgrttv1k0vy7sdU1I1eIRUEVp7xNPZ8Z7sGKRZhun+LXrrd55mlForelVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me; spf=pass smtp.mailfrom=pm.me; dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b=DRHdZGDq; arc=none smtp.client-ip=79.135.106.121
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=pm.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pm.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MFAzHQqK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 578E31F00A3A;
-	Wed,  9 Sep 2026 10:19:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788949175;
-	bh=GTvke0l5FFkmqmbitYtppQGgX28YKLwVvfV64xaFne4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MFAzHQqK5FQBoxSjt7A64enGsn+LhHTVawgua3BvMaiQh0i9vkXSabdDmEI66Tz+F
-	 q/2uPbVwTA0DsAuMvUbNPV34CV3Dv8Zq0MUtZpb3scg+rE+uiGxzyrBajHcj3W1/8M
-	 8oLcZ8buaSJRjLbYqxd2F3XUfpdpzZXlKKuDQoNTNG+74kvEHTZ3XntJiULkGBYr4u
-	 RMTdMlrmm+YWAsjg7HkdcXpYqdPwRRlIVAipATMtYo54G7FLkQmcY+m23tRuhPmiXm
-	 x4s7Ac3Hv2BzvNt+PeCPgf1GLkahnISUmbpShWrjAayPjs2ZsOJntir1U38Im0ByXu
-	 dp3LHNUpvauxw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: matrix-keymap - reject keycodes above KEY_MAX
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Linmao Li" <lilinmao@kylinos.cn>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260909100739.3107556-1-lilinmao@kylinos.cn>
-References: <20260909100739.3107556-1-lilinmao@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 10:19:34 +0000
-Message-Id: <20260909101935.578E31F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=pm.me header.i=@pm.me header.b="DRHdZGDq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pm.me;
+	s=protonmail3; t=1788949532; x=1789208732;
+	bh=dceBWMYXZxkpNT6zH1rL/lZdha3FG9MrbZct7tilnUo=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=DRHdZGDqhCLAkGAGUj8U+fvFj4X5M/DHA+Z8+sbfE0x6PS/dJGFv2n/X/EyjfX4BH
+	 A+omUHWmb7zGGICxo0hbGuX2+QVh0Yp9vqSa9LpTsdt7zfGlcCiStk0gmMDNql5PvA
+	 jFEITMrSqSzZRQAO77xy4wEPw4/134x+8V51oZZldOrMASbjoic1wdUBuoCw+6p9iY
+	 we8VzR1OUEbLCtt0MZx5EQHYhVKt4bd4naQ12sQyACsC//fAGw1P5P1lLKBhoiTmJp
+	 PyrTDJNynqkzDWrKvtrQCeh7LS17WuRjF0TKSxNNQTTUZyNdh+YNNKpo/G0d8MYMuZ
+	 xJ2cbsn4Usbxw==
+Date: Wed, 09 Sep 2026 10:25:28 +0000
+To: Hans de Goede <johannes.goede@oss.qualcomm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Sergey Lebedev <lsa.uz@pm.me>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] Input: soc_button_array - fix MS Surface Pro 11 probe failure
+Message-ID: <20260909102521.67488-1-lsa.uz@pm.me>
+In-Reply-To: <20260909093934.29411-1-johannes.goede@oss.qualcomm.com>
+References: <20260909093934.29411-1-johannes.goede@oss.qualcomm.com>
+Feedback-ID: 113843758:user:proton
+X-Pm-Message-ID: c74eb37c6e77e0b9bb4eea2612100284fe62ca97
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Hans,
 
-Pre-existing issues:
-- [High] Missing bounds checks on matrix dimensions causes an integer overf=
-low when calculating max_keys, leading to an undersized heap allocation and=
- a subsequent out-of-bounds write.
---
+It fixes it. Sixteen consecutive boots on the Surface Pro 11, every one wit=
+h
+both gpio-keys devices present and MSHW0040:00 bound. The baseline in my
+report was 13 boots in 40.
 
-commit 821b9503dcfef31a275bc1fec44950b4eda55e94
-Author: Linmao Li <lilinmao@kylinos.cn>
+  boots                     16
+  buttons appeared          16
+  first input at            1.242 - 1.377 s
 
-Input: matrix-keymap - reject keycodes above KEY_MAX
+For comparison the 13 stock successes ran 1.28 - 1.78 s, so no boot here wa=
+s
+slower than stock managed when it worked, and the spread is tighter. The un=
+it
+that binds this device by hand was disabled for the whole run, so nothing
+masked the result.
 
-This commit adds bounds checking for keycodes in matrix_keypad_map_key() to
-ensure they do not exceed KEY_MAX. This prevents a malformed firmware or
-platform keymap from writing past the bounds of the capability bitmap.
+Built on 7.0.0-30, Ubuntu 26.04; both patches apply to that kernel's copy o=
+f
+the file as-is, 2/2 at an offset. Ubuntu ships the file unmodified - an
+out-of-tree build of mainline v7.0's source carries the same srcversion as
+Ubuntu's own module - so the tested source differs from stock by your patch=
+es
+and nothing else.
 
-> diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-> index 3bea3575a0a94..e4227e96aa4e7 100644
-> --- a/drivers/input/matrix-keymap.c
-> +++ b/drivers/input/matrix-keymap.c
-> @@ -35,6 +35,13 @@ static bool matrix_keypad_map_key(struct input_dev *in=
-put_dev,
->  		return false;
->  	}
-> =20
-> +	if (code > KEY_MAX) {
-> +		dev_err(input_dev->dev.parent,
-> +			"%s: invalid keycode %u in keymap entry 0x%x\n",
-> +			__func__, code, key);
-> +		return false;
-> +	}
-> +
->  	keymap[MATRIX_SCAN_CODE(row, col, row_shift)] =3D code;
+One note for whoever tests this driver next rather than about the patch: on
+this install soc_button_array is in the initramfs under MODULES=3Dmost, so
+replacing the module under /lib/modules does nothing until update-initramfs
+runs, and modinfo will report the new one while the old one is loaded. Thre=
+e
+boots of mine were recorded before I noticed. I checked
+/sys/module/soc_button_array/srcversion on every boot above.
 
-[Severity: High]
-This is a pre-existing issue, but since this patch aims to mitigate malform=
-ed
-firmware and keymaps causing out-of-bounds writes, does the bounds check
-earlier in this function fully protect against integer overflow?
+Patch 2/2 was in the same build and caused no regression, but I am not
+claiming a test for it: the buttons appear here, so this machine's ACPI
+descriptor package is not empty and the new check is never reached. So for
+1/2 only:
 
-If a maliciously crafted Device Tree provides a large value for
-keypad,num-rows (e.g., 0x80000001), it is read without bounds checking. When
-matrix_keypad_build_keymap() computes max_keys:
+Tested-by: Sergey Lebedev <lsa.uz@pm.me>
 
-drivers/input/matrix-keymap.c:matrix_keypad_build_keymap() {
-    ...
-    size_t max_keys =3D rows << row_shift;
-    ...
-    keymap =3D devm_kcalloc(&input_dev->dev, max_keys, sizeof(*keymap),
-                          GFP_KERNEL);
-}
+Sergey
 
-The 32-bit shift overflows, resulting in a tiny allocation for keymap.
-
-Then in matrix_keypad_map_key(), the earlier bounds check:
-
-    if (row >=3D rows || col >=3D cols) {
-        return false;
-    }
-
-compares the extracted 8-bit row against the large unshifted rows value
-(0x80000001), completely bypassing the safety check.
-
-This allows MATRIX_SCAN_CODE to calculate an index far outside the tiny
-buffer, causing an out-of-bounds heap write when assigning the keycode here.
-Should rows and cols be validated against a maximum sane value before the
-shift to prevent this overflow?
-
->  	__set_bit(code, input_dev->keybit);
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909100739.3107=
-556-1-lilinmao@kylinos.cn?part=3D1

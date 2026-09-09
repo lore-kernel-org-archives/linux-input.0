@@ -1,85 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 086CB3F8ECA;
-	Wed,  9 Sep 2026 09:41:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 031E94AF15D;
+	Wed,  9 Sep 2026 10:07:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788946901; cv=none; b=ABg9vczGybapWP1xZ9mUFdTk7Lwyj+cgfxdjW+Yzk07TZyRE7VZ52YehhFjA6rkxn/RDt8BTJS23D7lbJ8BQIWN96FIXcmpKz6dahAYSpUn6lThLZv+KfgqPvkdhK7cCoA24/r89hit4/hIdt0/cVQt7X2ie+RVTv18pJhcGbuE=
+	t=1788948471; cv=none; b=tbp44XS5H5FlHj4TPDAbvvVtf5nizQvWSjN1X3ttnh6voxmmjAt5zKrAJyC4J958qPXLeQvzqQrsbegNtCU2Bi4a0I2USHtGw7jKJSPkkkk+hASwW9BfAyFEHkE69bDv8MuEvTQtKVgAwDHZh4/fGa76k61jW8YsBudZa3rwGfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788946901; c=relaxed/simple;
-	bh=efxjKCYATAi0YX4UYw7OKoX7V8KVsknnQ9ugNbh/9sc=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Xz0agwWRxT4kfwroEdWzNmPgMx3AIPfOCjlP7sI9IB15YRAafsZzefrcAKDtnLs3l15TUMdJu1+elM0u5KCaebtG7g81aFw0N2LKwkqaOSLF++Sr0f5gtIHNuqyjuhzT2uY1dTUE9BXYSy8RhKVvv9Y8g3n4ej3GAn7Emx2XVSk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nwY2ebOs; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nwY2ebOs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 950031F00A3A;
-	Wed,  9 Sep 2026 09:41:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788946896;
-	bh=Wm03WCPdVPyQWKmDSkyuLdbSZ5OQjr0lv3BS6M9u5cM=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=nwY2ebOsj7mS3ttN3G3EWRjKiyWFZ0gtEMjIJN3K1wqUJsttsrTdbyfQBFm1jQCyB
-	 7vmTYYS839yuv1cX6tja905yvhkh9EcofdP9WnaPtUWoWvyrtAumDS2a4HHmBWIMve
-	 5dpueVdHkSghCcKpgrr7/QXpDnzIAKt4PvNyXS7RZRdlqRC/zafVeO6tpHPWHFrjmj
-	 xb9UQ0yzEoE/0FbkpwHs3moa+bsONVVPdXlHY/n8J2qWwRNYmuAN5ig7GnJ1qPq8sI
-	 tWGX4IgwHa6vbMA/pq4rqS0EcPsDMLoqAQMRGokrQveTjDWaqCF8WCv2Bc3cAHaJfx
-	 j0i+ERqvxbX6Q==
-Message-ID: <8a8a0fcb-1c93-4f0d-bfcd-ae92af0376e0@kernel.org>
-Date: Wed, 9 Sep 2026 11:41:33 +0200
+	s=arc-20240116; t=1788948471; c=relaxed/simple;
+	bh=fAwwlBkanBN9ZgOkTuhWirWjiQo/2ofcRrGcgQiq48I=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bntMQyJrCkYZ0YchX0WaOqPau1Z3GF8Dy7p/xrXRMzOqanGy/2keCBdwcrEFztlLU4Fyf40ZKTAkg8ngBWbJo6XqB7kSUJuMV8RC9CS5gnd+NY0zy12HhBo8TaT0ytRRSk5LzxFx0EWqpOcMCCbcumXkQ7t6DS9qa+TGAPkdMms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 4cadc29aac3611f19a56ed5b684f684d-20260909
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.19,REQID:4fbc1c53-60a0-4df2-94eb-3480026c2f2d,IP:0,U
+	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:25
+X-CID-META: VersionHash:7db8b62,CLOUDID:f0f7894325d2a424121c0ce0deb642ef,BulkI
+	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50|99,EDM:5,IP
+	:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,
+	LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 4cadc29aac3611f19a56ed5b684f684d-20260909
+X-User: lilinmao@kylinos.cn
+Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <lilinmao@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 638644255; Wed, 09 Sep 2026 18:07:43 +0800
+From: Linmao Li <lilinmao@kylinos.cn>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Linmao Li <lilinmao@kylinos.cn>
+Subject: [PATCH] Input: matrix-keymap - reject keycodes above KEY_MAX
+Date: Wed,  9 Sep 2026 18:07:39 +0800
+Message-Id: <20260909100739.3107556-1-lilinmao@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: soc_button_array: ignored -EPROBE_DEFER loses the buttons on 68%
- of boots (Surface Pro 11)
-From: Hans de Goede <hansg@kernel.org>
-To: Sergey Lebedev <lsa.uz@pm.me>, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Maximilian Luz <luzmaximilian@gmail.com>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260830141355.55898-1-lsa.uz@pm.me>
- <0fe7a8b6-f3df-4822-a03a-d072b86cdfa8@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <0fe7a8b6-f3df-4822-a03a-d072b86cdfa8@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi,
+matrix_keypad_map_key() validates the row and column of each entry before
+using them to update the keymap. It does not validate the keycode before
+using it as a bit number in input_dev->keybit, which only has KEY_CNT bits.
+A malformed firmware or platform keymap can therefore write past the
+bitmap.
 
-On 8-Sep-26 23:46, Hans de Goede wrote:
+Reject keycodes above KEY_MAX before updating the keymap or capability
+bitmap.
 
-<snip>
+Fixes: 77a53fd21870 ("Input: matrix-keypad - add function to build device keymap")
+Signed-off-by: Linmao Li <lilinmao@kylinos.cn>
+---
+ drivers/input/matrix-keymap.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
->> Why no patch
->> ------------
->>
->> The comment says -EPROBE_DEFER is discarded because Intel uses "virtual
->> GPIOs" that never materialise, so deferring on them would hang the probe
->> forever. A fix has to tell that case apart from a controller that simply has
->> not probed yet, and I do not know which signal you would want to use for
->> that. Guessing would risk reintroducing the problem the workaround exists
->> for.
->>> Happy to test whatever shape you would prefer - the machine is here and I
->> can build and boot kernels on it.
-> 
-> Thank you for your detailed bug report. I've just submitted a patch which
-> I believe should fix this:
-> 
-> https://lore.kernel.org/platform-driver-x86/20260908214410.70422-1-johannes.goede@oss.qualcomm.com/
-> 
-> Please give this a try and confirm if it fixes things.
-
-Shashiko review has lead to a v2 and then a v3 of the fix, please
-give v3 a try:
-
-https://lore.kernel.org/linux-input/20260909093934.29411-1-johannes.goede@oss.qualcomm.com/
-
-Regards,
+diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
+index 3bea3575a0a9..e4227e96aa4e 100644
+--- a/drivers/input/matrix-keymap.c
++++ b/drivers/input/matrix-keymap.c
+@@ -35,6 +35,13 @@ static bool matrix_keypad_map_key(struct input_dev *input_dev,
+ 		return false;
+ 	}
  
-Hans
++	if (code > KEY_MAX) {
++		dev_err(input_dev->dev.parent,
++			"%s: invalid keycode %u in keymap entry 0x%x\n",
++			__func__, code, key);
++		return false;
++	}
++
+ 	keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
+ 	__set_bit(code, input_dev->keybit);
+ 
+
+base-commit: 944a035ecca915ae947905dcfb03f2b9dc6d032c
+-- 
+2.25.1
 

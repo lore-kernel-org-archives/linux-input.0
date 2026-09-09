@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B52568556;
-	Wed,  9 Sep 2026 13:23:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AE83560AC3;
+	Wed,  9 Sep 2026 13:24:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788960244; cv=none; b=g+CQ5NFXsFBMenBnaUKGznwUBNGOOS2dcibYq6CN1JyLPLAYyS2cyr4eyGDHgGiXF6tRv8bYMvWxsgWsBMENQyI4qY1cgJ5wdNif0CMJaxGyUOCNDm/2Duo9GsbCg9fJe0sRYYiR3LaHqEIt58woeFcedJ7ICpMug0ShzsdJPC4=
+	t=1788960263; cv=none; b=pTFQgxdpuoQfDxtGLXqW1vYndmS/LQRVabJxG94i8tTuVyw211GUqkTA9C1ESmCPYgLw61wecAE4bIaqralkGkRXLTMeYp0c72P5NoO/F0XR7gfoKNjAqcDt8yADdXNyY/xvU7EcEPkuutsT672jrP/oBo2po7r2z6WqSlQDk0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788960244; c=relaxed/simple;
-	bh=MIW42xRVQ6oQRE7B3O3U+XIYT8NK3f3w74W7SJ+qF14=;
+	s=arc-20240116; t=1788960263; c=relaxed/simple;
+	bh=NO4G5eYBdbhMd5sw67d/eqUiBQ8PQcOJvjXe7aSIJgU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gZMfiEZN7l1xjYGq/r78FBPIgD3EOZ0u1vDLYftct0htdbKekiE6s/86Wq+uiiJGdniEO7r8P9h5CHb3OO9Qfm2fQVHVGizBCpDEpLk5OfOnyxBWMNw9F0mT9XMF+u2/wm9p+5RFkhepj2wAPyan4S8RErU6Sivge18gW3MFPj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OmmFcvSg; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=VjYyqVtirm3NvkTSyzKfEHhbAPj+5iS05Q75d0pN51XKf0jyWtw0ixzmCLq5Y8WCta2Bcdm7uSOKGotFP9gLseb41rSH8cVSw05T9DD/Ou8tmbZXNzec4kULhFAcXmuZkrnQF6Ay0gCRNkZGUhqXew/bixwNghcLorD0MXh3/QE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d+JiQCIK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OmmFcvSg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A46DE1F00A3A;
-	Wed,  9 Sep 2026 13:23:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d+JiQCIK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C747C1F00A3F;
+	Wed,  9 Sep 2026 13:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788960226;
-	bh=Rzqj9n9ksmFbc/J8Q4xJvrVQ5z2IsqWrXw7zLxE+N3A=;
+	s=k20260515; t=1788960243;
+	bh=GsvUef4hneB+xdHcxkeILGXl9Km9+VtxY+PwGgE+eto=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=OmmFcvSgOFU1+pKyl8+XWfB/vmc70tmASxMPKANKt5lqbG3zO6xSTC/Yx5fppIkXd
-	 2aRvzVX5uFoGccjw/RMJ5USJsvUaBasCAReZ3nY15y35A5qZz//VyG3zDi7JONsknq
-	 F/W5FBSuv5t1grV/l2pL0R9AMbX6IOb7e7yNHYcEWFSBbMstgNbmbw9qJ71Jp6Jzz2
-	 7Z8RYFE4Zj9GXVQJFT2lH7xo+xdSOTfZwc0Yskps7h7fMOnCBFEBaN+a5V5xnbXkg3
-	 phzKE9UiaX9y+tmHE6nye3CXCo4eyx9H4XzQyz1kYyqOt6R4M7iSqxIbTBttKBxbTk
-	 Xp0xEg8PVwQbQ==
+	b=d+JiQCIKd3jlqqdaDOteHFuE3oG36JyWUU+QWxk/n59ROKREnLLnr5WsLTb/dbd8L
+	 TPYEzmQIQ8Ym5n29AU5nqJ5FW67xXpBkMFFbpJ0AmjUYdaxaiVP8kFXbY1KTiTVA1n
+	 oXATGrn9c3jdn9KFcxvC5wrDXA+UN0S3zZvJRgYaJpcbunvy3t6vaEuyxsi9ym+1DC
+	 R3WpH0TtC77Zu3s2j9csObvAri9x3Q1R6JRZ20sM2vdysNr2fZu7hvZJMz7xXlzh5v
+	 KMhh5pIn8Lqh+TzFPcmbq+ZTpfzm2Hykvic25JUD39YmziT4GSfSsqmNbyKTODNYjg
+	 ucMA2X1FARVvQ==
 From: Arnd Bergmann <arnd@kernel.org>
 To: Lee Jones <lee@kernel.org>,
 	mfd@lists.linux.dev
@@ -68,9 +68,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-sound@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	llvm@lists.linux.dev
-Subject: [PATCH 10/14] mfd: remove unused rc5t583 driver
-Date: Wed,  9 Sep 2026 15:21:47 +0200
-Message-ID: <20260909132153.1596191-11-arnd@kernel.org>
+Subject: [PATCH 12/14] mfd: remove unused mcp-sa11x0/ucb1x00 driver
+Date: Wed,  9 Sep 2026 15:21:49 +0200
+Message-ID: <20260909132153.1596191-13-arnd@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260909132153.1596191-1-arnd@kernel.org>
 References: <20260909132153.1596191-1-arnd@kernel.org>
@@ -84,1695 +84,2439 @@ Content-Transfer-Encoding: 8bit
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-Ricoh RC5T583 support was added in 2012, but no upstream code ever
-defined the corresponding platform_data, and there is no devicetree
-support, so this is all dead code.
+The sa1100 platform has been removed, so these drivers are no longer
+used anywhere.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/mfd/Kconfig                   |  14 -
- drivers/mfd/Makefile                  |   1 -
- drivers/mfd/rc5t583-irq.c             | 383 --------------------------
- drivers/mfd/rc5t583.c                 | 299 --------------------
- drivers/regulator/Kconfig             |  10 -
- drivers/regulator/Makefile            |   1 -
- drivers/regulator/rc5t583-regulator.c | 171 ------------
- drivers/rtc/Kconfig                   |  10 -
- drivers/rtc/Makefile                  |   1 -
- drivers/rtc/rtc-rc5t583.c             | 312 ---------------------
- include/linux/mfd/rc5t583.h           | 369 -------------------------
- 11 files changed, 1571 deletions(-)
- delete mode 100644 drivers/mfd/rc5t583-irq.c
- delete mode 100644 drivers/mfd/rc5t583.c
- delete mode 100644 drivers/regulator/rc5t583-regulator.c
- delete mode 100644 drivers/rtc/rtc-rc5t583.c
- delete mode 100644 include/linux/mfd/rc5t583.h
+ Documentation/admin-guide/devices.txt        |   1 -
+ drivers/mfd/Kconfig                          |  24 -
+ drivers/mfd/Makefile                         |   8 -
+ drivers/mfd/mcp-core.c                       | 235 ------
+ drivers/mfd/mcp-sa11x0.c                     | 304 -------
+ drivers/mfd/ucb1x00-assabet.c                | 175 ----
+ drivers/mfd/ucb1x00-core.c                   | 795 -------------------
+ drivers/mfd/ucb1x00-ts.c                     | 445 -----------
+ include/linux/mfd/mcp.h                      |  63 --
+ include/linux/mfd/ucb1x00.h                  | 261 ------
+ include/linux/platform_data/mfd-mcp-sa11x0.h |  17 -
+ 11 files changed, 2328 deletions(-)
+ delete mode 100644 drivers/mfd/mcp-core.c
+ delete mode 100644 drivers/mfd/mcp-sa11x0.c
+ delete mode 100644 drivers/mfd/ucb1x00-assabet.c
+ delete mode 100644 drivers/mfd/ucb1x00-core.c
+ delete mode 100644 drivers/mfd/ucb1x00-ts.c
+ delete mode 100644 include/linux/mfd/mcp.h
+ delete mode 100644 include/linux/mfd/ucb1x00.h
+ delete mode 100644 include/linux/platform_data/mfd-mcp-sa11x0.h
 
+diff --git a/Documentation/admin-guide/devices.txt b/Documentation/admin-guide/devices.txt
+index f544399675fa..eaaa03118fc1 100644
+--- a/Documentation/admin-guide/devices.txt
++++ b/Documentation/admin-guide/devices.txt
+@@ -262,7 +262,6 @@
+ 		 10 = /dev/adbmouse	Apple Desktop Bus mouse
+ 		 11 = /dev/vrtpanel	Vr41xx embedded touch panel
+ 		 13 = /dev/vpcmouse	Connectix Virtual PC Mouse
+-		 14 = /dev/touchscreen/ucb1x00  UCB 1x00 touchscreen
+ 		 15 = /dev/touchscreen/mk712	MK712 touchscreen
+ 		128 = /dev/beep		Fancy beep device
+ 		129 =
 diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 2cb2efafa8a4..fbcc45d2b0c4 100644
+index 8a3bbb628693..0395af7270f9 100644
 --- a/drivers/mfd/Kconfig
 +++ b/drivers/mfd/Kconfig
-@@ -1291,20 +1291,6 @@ config MFD_RT5120
- 	  is targeted at providing the CPU voltage, memory, I/O and peripheral
- 	  power rails in home entertainment devices.
+@@ -2258,30 +2258,6 @@ config MFD_QCOM_PM8008
+ 	  under it in the device tree. Additional drivers must be enabled in
+ 	  order to use the functionality of the device.
  
--config MFD_RC5T583
--	bool "Ricoh RC5T583 Power Management system device"
--	depends on I2C=y
--	select MFD_CORE
--	select REGMAP_I2C
--	help
--	  Select this option to get support for the RICOH583 Power
--	  Management system device.
--	  This driver provides common support for accessing the device
--	  through i2c interface. The device supports multiple sub-devices
--	  like GPIO, interrupts, RTC, LDO and DCDC regulators, onkey.
--	  Additional drivers must be enabled in order to use the
--	  different functionality of the device.
+-menu "Multimedia Capabilities Port drivers"
+-	depends on ARCH_SA1100
 -
- config MFD_RK8XX
- 	tristate
- 	select MFD_CORE
+-config MCP
+-	tristate
+-
+-# Interface drivers
+-config MCP_SA11X0
+-	tristate "Support SA11x0 MCP interface"
+-	depends on ARCH_SA1100
+-	select MCP
+-
+-# Chip drivers
+-config MCP_UCB1200
+-	tristate "Support for UCB1200 / UCB1300"
+-	depends on MCP_SA11X0
+-	select MCP
+-
+-config MCP_UCB1200_TS
+-	tristate "Touchscreen interface support"
+-	depends on MCP_UCB1200 && INPUT
+-
+-endmenu
+-
+ config MFD_VEXPRESS_SYSREG
+ 	tristate "Versatile Express System Registers"
+ 	depends on VEXPRESS_CONFIG && GPIOLIB
 diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 8bd4c3e218bb..7aaad5855681 100644
+index 2cdbc693ee33..ff62e922209e 100644
 --- a/drivers/mfd/Makefile
 +++ b/drivers/mfd/Makefile
-@@ -217,7 +217,6 @@ obj-$(CONFIG_MFD_INTEL_PMC_BXT)	+= intel_pmc_bxt.o
- obj-$(CONFIG_MFD_PALMAS)	+= palmas.o
- obj-$(CONFIG_MFD_VIPERBOARD)    += viperboard.o
- obj-$(CONFIG_MFD_NTXEC)		+= ntxec.o
--obj-$(CONFIG_MFD_RC5T583)	+= rc5t583.o rc5t583-irq.o
- obj-$(CONFIG_MFD_RK8XX)		+= rk8xx-core.o
- obj-$(CONFIG_MFD_RK8XX_I2C)	+= rk8xx-i2c.o
- obj-$(CONFIG_MFD_RK8XX_SPI)	+= rk8xx-spi.o
-diff --git a/drivers/mfd/rc5t583-irq.c b/drivers/mfd/rc5t583-irq.c
+@@ -126,14 +126,6 @@ obj-$(CONFIG_MFD_OCELOT)	+= ocelot-soc.o
+ 
+ obj-$(CONFIG_MFD_CPCAP)		+= motorola-cpcap.o
+ 
+-obj-$(CONFIG_MCP)		+= mcp-core.o
+-obj-$(CONFIG_MCP_SA11X0)	+= mcp-sa11x0.o
+-obj-$(CONFIG_MCP_UCB1200)	+= ucb1x00-core.o
+-obj-$(CONFIG_MCP_UCB1200_TS)	+= ucb1x00-ts.o
+-
+-ifeq ($(CONFIG_SA1100_ASSABET),y)
+-obj-$(CONFIG_MCP_UCB1200)	+= ucb1x00-assabet.o
+-endif
+ 
+ obj-$(CONFIG_PMIC_DA9052)	+= da9052-irq.o
+ obj-$(CONFIG_PMIC_DA9052)	+= da9052-core.o
+diff --git a/drivers/mfd/mcp-core.c b/drivers/mfd/mcp-core.c
 deleted file mode 100644
-index 97f52b671520..000000000000
---- a/drivers/mfd/rc5t583-irq.c
+index be08eaee0a90..000000000000
+--- a/drivers/mfd/mcp-core.c
 +++ /dev/null
-@@ -1,383 +0,0 @@
+@@ -1,235 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0-only
 -/*
-- * Interrupt driver for RICOH583 power management chip.
+- *  linux/drivers/mfd/mcp-core.c
 - *
-- * Copyright (c) 2011-2012, NVIDIA CORPORATION.  All rights reserved.
-- * Author: Laxman dewangan <ldewangan@nvidia.com>
+- *  Copyright (C) 2001 Russell King
 - *
-- * based on code
-- *      Copyright (C) 2011 RICOH COMPANY,LTD
+- *  Generic MCP (Multimedia Communications Port) layer.  All MCP locking
+- *  is solely held within this file.
+- */
+-#include <linux/module.h>
+-#include <linux/init.h>
+-#include <linux/errno.h>
+-#include <linux/smp.h>
+-#include <linux/device.h>
+-#include <linux/slab.h>
+-#include <linux/string.h>
+-#include <linux/mfd/mcp.h>
+-
+-
+-#define to_mcp(d)		container_of(d, struct mcp, attached_device)
+-#define to_mcp_driver(d)	container_of(d, struct mcp_driver, drv)
+-
+-static int mcp_bus_match(struct device *dev, const struct device_driver *drv)
+-{
+-	return 1;
+-}
+-
+-static int mcp_bus_probe(struct device *dev)
+-{
+-	struct mcp *mcp = to_mcp(dev);
+-	struct mcp_driver *drv = to_mcp_driver(dev->driver);
+-
+-	return drv->probe(mcp);
+-}
+-
+-static void mcp_bus_remove(struct device *dev)
+-{
+-	struct mcp *mcp = to_mcp(dev);
+-	struct mcp_driver *drv = to_mcp_driver(dev->driver);
+-
+-	drv->remove(mcp);
+-}
+-
+-static const struct bus_type mcp_bus_type = {
+-	.name		= "mcp",
+-	.match		= mcp_bus_match,
+-	.probe		= mcp_bus_probe,
+-	.remove		= mcp_bus_remove,
+-};
+-
+-/**
+- *	mcp_set_telecom_divisor - set the telecom divisor
+- *	@mcp: MCP interface structure
+- *	@div: SIB clock divisor
+- *
+- *	Set the telecom divisor on the MCP interface.  The resulting
+- *	sample rate is SIBCLOCK/div.
+- */
+-void mcp_set_telecom_divisor(struct mcp *mcp, unsigned int div)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&mcp->lock, flags);
+-	mcp->ops->set_telecom_divisor(mcp, div);
+-	spin_unlock_irqrestore(&mcp->lock, flags);
+-}
+-EXPORT_SYMBOL(mcp_set_telecom_divisor);
+-
+-/**
+- *	mcp_set_audio_divisor - set the audio divisor
+- *	@mcp: MCP interface structure
+- *	@div: SIB clock divisor
+- *
+- *	Set the audio divisor on the MCP interface.
+- */
+-void mcp_set_audio_divisor(struct mcp *mcp, unsigned int div)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&mcp->lock, flags);
+-	mcp->ops->set_audio_divisor(mcp, div);
+-	spin_unlock_irqrestore(&mcp->lock, flags);
+-}
+-EXPORT_SYMBOL(mcp_set_audio_divisor);
+-
+-/**
+- *	mcp_reg_write - write a device register
+- *	@mcp: MCP interface structure
+- *	@reg: 4-bit register index
+- *	@val: 16-bit data value
+- *
+- *	Write a device register.  The MCP interface must be enabled
+- *	to prevent this function hanging.
+- */
+-void mcp_reg_write(struct mcp *mcp, unsigned int reg, unsigned int val)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&mcp->lock, flags);
+-	mcp->ops->reg_write(mcp, reg, val);
+-	spin_unlock_irqrestore(&mcp->lock, flags);
+-}
+-EXPORT_SYMBOL(mcp_reg_write);
+-
+-/**
+- *	mcp_reg_read - read a device register
+- *	@mcp: MCP interface structure
+- *	@reg: 4-bit register index
+- *
+- *	Read a device register and return its value.  The MCP interface
+- *	must be enabled to prevent this function hanging.
+- */
+-unsigned int mcp_reg_read(struct mcp *mcp, unsigned int reg)
+-{
+-	unsigned long flags;
+-	unsigned int val;
+-
+-	spin_lock_irqsave(&mcp->lock, flags);
+-	val = mcp->ops->reg_read(mcp, reg);
+-	spin_unlock_irqrestore(&mcp->lock, flags);
+-
+-	return val;
+-}
+-EXPORT_SYMBOL(mcp_reg_read);
+-
+-/**
+- *	mcp_enable - enable the MCP interface
+- *	@mcp: MCP interface to enable
+- *
+- *	Enable the MCP interface.  Each call to mcp_enable will need
+- *	a corresponding call to mcp_disable to disable the interface.
+- */
+-void mcp_enable(struct mcp *mcp)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&mcp->lock, flags);
+-	if (mcp->use_count++ == 0)
+-		mcp->ops->enable(mcp);
+-	spin_unlock_irqrestore(&mcp->lock, flags);
+-}
+-EXPORT_SYMBOL(mcp_enable);
+-
+-/**
+- *	mcp_disable - disable the MCP interface
+- *	@mcp: MCP interface to disable
+- *
+- *	Disable the MCP interface.  The MCP interface will only be
+- *	disabled once the number of calls to mcp_enable matches the
+- *	number of calls to mcp_disable.
+- */
+-void mcp_disable(struct mcp *mcp)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&mcp->lock, flags);
+-	if (--mcp->use_count == 0)
+-		mcp->ops->disable(mcp);
+-	spin_unlock_irqrestore(&mcp->lock, flags);
+-}
+-EXPORT_SYMBOL(mcp_disable);
+-
+-static void mcp_release(struct device *dev)
+-{
+-	struct mcp *mcp = container_of(dev, struct mcp, attached_device);
+-
+-	kfree(mcp);
+-}
+-
+-struct mcp *mcp_host_alloc(struct device *parent, size_t size)
+-{
+-	struct mcp *mcp;
+-
+-	mcp = kzalloc(sizeof(struct mcp) + size, GFP_KERNEL);
+-	if (mcp) {
+-		spin_lock_init(&mcp->lock);
+-		device_initialize(&mcp->attached_device);
+-		mcp->attached_device.parent = parent;
+-		mcp->attached_device.bus = &mcp_bus_type;
+-		mcp->attached_device.dma_mask = parent->dma_mask;
+-		mcp->attached_device.release = mcp_release;
+-	}
+-	return mcp;
+-}
+-EXPORT_SYMBOL(mcp_host_alloc);
+-
+-int mcp_host_add(struct mcp *mcp, void *pdata)
+-{
+-	mcp->attached_device.platform_data = pdata;
+-	dev_set_name(&mcp->attached_device, "mcp0");
+-	return device_add(&mcp->attached_device);
+-}
+-EXPORT_SYMBOL(mcp_host_add);
+-
+-void mcp_host_del(struct mcp *mcp)
+-{
+-	device_del(&mcp->attached_device);
+-}
+-EXPORT_SYMBOL(mcp_host_del);
+-
+-void mcp_host_free(struct mcp *mcp)
+-{
+-	put_device(&mcp->attached_device);
+-}
+-EXPORT_SYMBOL(mcp_host_free);
+-
+-int mcp_driver_register(struct mcp_driver *mcpdrv)
+-{
+-	mcpdrv->drv.bus = &mcp_bus_type;
+-	return driver_register(&mcpdrv->drv);
+-}
+-EXPORT_SYMBOL(mcp_driver_register);
+-
+-void mcp_driver_unregister(struct mcp_driver *mcpdrv)
+-{
+-	driver_unregister(&mcpdrv->drv);
+-}
+-EXPORT_SYMBOL(mcp_driver_unregister);
+-
+-static int __init mcp_init(void)
+-{
+-	return bus_register(&mcp_bus_type);
+-}
+-
+-static void __exit mcp_exit(void)
+-{
+-	bus_unregister(&mcp_bus_type);
+-}
+-
+-module_init(mcp_init);
+-module_exit(mcp_exit);
+-
+-MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+-MODULE_DESCRIPTION("Core multimedia communications port driver");
+-MODULE_LICENSE("GPL");
+diff --git a/drivers/mfd/mcp-sa11x0.c b/drivers/mfd/mcp-sa11x0.c
+deleted file mode 100644
+index 228c4a2f4c1f..000000000000
+--- a/drivers/mfd/mcp-sa11x0.c
++++ /dev/null
+@@ -1,304 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- *  linux/drivers/mfd/mcp-sa11x0.c
+- *
+- *  Copyright (C) 2001-2005 Russell King
+- *
+- *  SA11x0 MCP (Multimedia Communications Port) driver.
+- *
+- *  MCP read/write timeouts from Jordi Colomer, rehacked by rmk.
+- */
+-#include <linux/module.h>
+-#include <linux/io.h>
+-#include <linux/errno.h>
+-#include <linux/kernel.h>
+-#include <linux/delay.h>
+-#include <linux/spinlock.h>
+-#include <linux/platform_device.h>
+-#include <linux/pm.h>
+-#include <linux/mfd/mcp.h>
+-
+-#include <mach/hardware.h>
+-#include <asm/mach-types.h>
+-#include <linux/platform_data/mfd-mcp-sa11x0.h>
+-
+-#define DRIVER_NAME "sa11x0-mcp"
+-
+-struct mcp_sa11x0 {
+-	void __iomem	*base0;
+-	void __iomem	*base1;
+-	u32		mccr0;
+-	u32		mccr1;
+-};
+-
+-/* Register offsets */
+-#define MCCR0(m)	((m)->base0 + 0x00)
+-#define MCDR0(m)	((m)->base0 + 0x08)
+-#define MCDR1(m)	((m)->base0 + 0x0c)
+-#define MCDR2(m)	((m)->base0 + 0x10)
+-#define MCSR(m)		((m)->base0 + 0x18)
+-#define MCCR1(m)	((m)->base1 + 0x00)
+-
+-#define priv(mcp)	((struct mcp_sa11x0 *)mcp_priv(mcp))
+-
+-static void
+-mcp_sa11x0_set_telecom_divisor(struct mcp *mcp, unsigned int divisor)
+-{
+-	struct mcp_sa11x0 *m = priv(mcp);
+-
+-	divisor /= 32;
+-
+-	m->mccr0 &= ~0x00007f00;
+-	m->mccr0 |= divisor << 8;
+-	writel_relaxed(m->mccr0, MCCR0(m));
+-}
+-
+-static void
+-mcp_sa11x0_set_audio_divisor(struct mcp *mcp, unsigned int divisor)
+-{
+-	struct mcp_sa11x0 *m = priv(mcp);
+-
+-	divisor /= 32;
+-
+-	m->mccr0 &= ~0x0000007f;
+-	m->mccr0 |= divisor;
+-	writel_relaxed(m->mccr0, MCCR0(m));
+-}
+-
+-/*
+- * Write data to the device.  The bit should be set after 3 subframe
+- * times (each frame is 64 clocks).  We wait a maximum of 6 subframes.
+- * We really should try doing something more productive while we
+- * wait.
+- */
+-static void
+-mcp_sa11x0_write(struct mcp *mcp, unsigned int reg, unsigned int val)
+-{
+-	struct mcp_sa11x0 *m = priv(mcp);
+-	int ret = -ETIME;
+-	int i;
+-
+-	writel_relaxed(reg << 17 | MCDR2_Wr | (val & 0xffff), MCDR2(m));
+-
+-	for (i = 0; i < 2; i++) {
+-		udelay(mcp->rw_timeout);
+-		if (readl_relaxed(MCSR(m)) & MCSR_CWC) {
+-			ret = 0;
+-			break;
+-		}
+-	}
+-
+-	if (ret < 0)
+-		printk(KERN_WARNING "mcp: write timed out\n");
+-}
+-
+-/*
+- * Read data from the device.  The bit should be set after 3 subframe
+- * times (each frame is 64 clocks).  We wait a maximum of 6 subframes.
+- * We really should try doing something more productive while we
+- * wait.
+- */
+-static unsigned int
+-mcp_sa11x0_read(struct mcp *mcp, unsigned int reg)
+-{
+-	struct mcp_sa11x0 *m = priv(mcp);
+-	int ret = -ETIME;
+-	int i;
+-
+-	writel_relaxed(reg << 17 | MCDR2_Rd, MCDR2(m));
+-
+-	for (i = 0; i < 2; i++) {
+-		udelay(mcp->rw_timeout);
+-		if (readl_relaxed(MCSR(m)) & MCSR_CRC) {
+-			ret = readl_relaxed(MCDR2(m)) & 0xffff;
+-			break;
+-		}
+-	}
+-
+-	if (ret < 0)
+-		printk(KERN_WARNING "mcp: read timed out\n");
+-
+-	return ret;
+-}
+-
+-static void mcp_sa11x0_enable(struct mcp *mcp)
+-{
+-	struct mcp_sa11x0 *m = priv(mcp);
+-
+-	writel(-1, MCSR(m));
+-	m->mccr0 |= MCCR0_MCE;
+-	writel_relaxed(m->mccr0, MCCR0(m));
+-}
+-
+-static void mcp_sa11x0_disable(struct mcp *mcp)
+-{
+-	struct mcp_sa11x0 *m = priv(mcp);
+-
+-	m->mccr0 &= ~MCCR0_MCE;
+-	writel_relaxed(m->mccr0, MCCR0(m));
+-}
+-
+-/*
+- * Our methods.
+- */
+-static struct mcp_ops mcp_sa11x0 = {
+-	.set_telecom_divisor	= mcp_sa11x0_set_telecom_divisor,
+-	.set_audio_divisor	= mcp_sa11x0_set_audio_divisor,
+-	.reg_write		= mcp_sa11x0_write,
+-	.reg_read		= mcp_sa11x0_read,
+-	.enable			= mcp_sa11x0_enable,
+-	.disable		= mcp_sa11x0_disable,
+-};
+-
+-static int mcp_sa11x0_probe(struct platform_device *dev)
+-{
+-	struct mcp_plat_data *data = dev_get_platdata(&dev->dev);
+-	struct resource *mem0, *mem1;
+-	struct mcp_sa11x0 *m;
+-	struct mcp *mcp;
+-	int ret;
+-
+-	if (!data)
+-		return -ENODEV;
+-
+-	mem0 = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	mem1 = platform_get_resource(dev, IORESOURCE_MEM, 1);
+-	if (!mem0 || !mem1)
+-		return -ENXIO;
+-
+-	if (!request_mem_region(mem0->start, resource_size(mem0),
+-				DRIVER_NAME)) {
+-		ret = -EBUSY;
+-		goto err_mem0;
+-	}
+-
+-	if (!request_mem_region(mem1->start, resource_size(mem1),
+-				DRIVER_NAME)) {
+-		ret = -EBUSY;
+-		goto err_mem1;
+-	}
+-
+-	mcp = mcp_host_alloc(&dev->dev, sizeof(struct mcp_sa11x0));
+-	if (!mcp) {
+-		ret = -ENOMEM;
+-		goto err_alloc;
+-	}
+-
+-	mcp->owner		= THIS_MODULE;
+-	mcp->ops		= &mcp_sa11x0;
+-	mcp->sclk_rate		= data->sclk_rate;
+-
+-	m = priv(mcp);
+-	m->mccr0 = data->mccr0 | 0x7f7f;
+-	m->mccr1 = data->mccr1;
+-
+-	m->base0 = ioremap(mem0->start, resource_size(mem0));
+-	m->base1 = ioremap(mem1->start, resource_size(mem1));
+-	if (!m->base0 || !m->base1) {
+-		ret = -ENOMEM;
+-		goto err_ioremap;
+-	}
+-
+-	platform_set_drvdata(dev, mcp);
+-
+-	/*
+-	 * Initialise device.  Note that we initially
+-	 * set the sampling rate to minimum.
+-	 */
+-	writel_relaxed(-1, MCSR(m));
+-	writel_relaxed(m->mccr1, MCCR1(m));
+-	writel_relaxed(m->mccr0, MCCR0(m));
+-
+-	/*
+-	 * Calculate the read/write timeout (us) from the bit clock
+-	 * rate.  This is the period for 3 64-bit frames.  Always
+-	 * round this time up.
+-	 */
+-	mcp->rw_timeout = DIV_ROUND_UP(64 * 3 * 1000000, mcp->sclk_rate);
+-
+-	ret = mcp_host_add(mcp, data->codec_pdata);
+-	if (ret == 0)
+-		return 0;
+-
+- err_ioremap:
+-	iounmap(m->base1);
+-	iounmap(m->base0);
+-	mcp_host_free(mcp);
+- err_alloc:
+-	release_mem_region(mem1->start, resource_size(mem1));
+- err_mem1:
+-	release_mem_region(mem0->start, resource_size(mem0));
+- err_mem0:
+-	return ret;
+-}
+-
+-static void mcp_sa11x0_remove(struct platform_device *dev)
+-{
+-	struct mcp *mcp = platform_get_drvdata(dev);
+-	struct mcp_sa11x0 *m = priv(mcp);
+-	struct resource *mem0, *mem1;
+-
+-	if (m->mccr0 & MCCR0_MCE)
+-		dev_warn(&dev->dev,
+-			 "device left active (missing disable call?)\n");
+-
+-	mem0 = platform_get_resource(dev, IORESOURCE_MEM, 0);
+-	mem1 = platform_get_resource(dev, IORESOURCE_MEM, 1);
+-
+-	mcp_host_del(mcp);
+-	iounmap(m->base1);
+-	iounmap(m->base0);
+-	mcp_host_free(mcp);
+-	release_mem_region(mem1->start, resource_size(mem1));
+-	release_mem_region(mem0->start, resource_size(mem0));
+-}
+-
+-static int mcp_sa11x0_suspend(struct device *dev)
+-{
+-	struct mcp_sa11x0 *m = priv(dev_get_drvdata(dev));
+-
+-	if (m->mccr0 & MCCR0_MCE)
+-		dev_warn(dev, "device left active (missing disable call?)\n");
+-
+-	writel(m->mccr0 & ~MCCR0_MCE, MCCR0(m));
+-
+-	return 0;
+-}
+-
+-static int mcp_sa11x0_resume(struct device *dev)
+-{
+-	struct mcp_sa11x0 *m = priv(dev_get_drvdata(dev));
+-
+-	writel_relaxed(m->mccr1, MCCR1(m));
+-	writel_relaxed(m->mccr0, MCCR0(m));
+-
+-	return 0;
+-}
+-
+-static const struct dev_pm_ops mcp_sa11x0_pm_ops = {
+-	.suspend = mcp_sa11x0_suspend,
+-	.freeze = mcp_sa11x0_suspend,
+-	.poweroff = mcp_sa11x0_suspend,
+-	.resume_noirq = mcp_sa11x0_resume,
+-	.thaw_noirq = mcp_sa11x0_resume,
+-	.restore_noirq = mcp_sa11x0_resume,
+-};
+-
+-static struct platform_driver mcp_sa11x0_driver = {
+-	.probe		= mcp_sa11x0_probe,
+-	.remove		= mcp_sa11x0_remove,
+-	.driver		= {
+-		.name	= DRIVER_NAME,
+-		.pm	= pm_sleep_ptr(&mcp_sa11x0_pm_ops),
+-	},
+-};
+-
+-/*
+- * This needs re-working
+- */
+-module_platform_driver(mcp_sa11x0_driver);
+-
+-MODULE_ALIAS("platform:" DRIVER_NAME);
+-MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+-MODULE_DESCRIPTION("SA11x0 multimedia communications port driver");
+-MODULE_LICENSE("GPL");
+diff --git a/drivers/mfd/ucb1x00-assabet.c b/drivers/mfd/ucb1x00-assabet.c
+deleted file mode 100644
+index 698f60aa9756..000000000000
+--- a/drivers/mfd/ucb1x00-assabet.c
++++ /dev/null
+@@ -1,175 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- *  linux/drivers/mfd/ucb1x00-assabet.c
+- *
+- *  Copyright (C) 2001-2003 Russell King, All Rights Reserved.
+- *
+- *  We handle the machine-specific bits of the UCB1x00 driver here.
 - */
 -#include <linux/device.h>
--#include <linux/interrupt.h>
--#include <linux/irq.h>
--#include <linux/mfd/rc5t583.h>
--
--enum int_type {
--	SYS_INT  = 0x1,
--	DCDC_INT = 0x2,
--	RTC_INT  = 0x4,
--	ADC_INT  = 0x8,
--	GPIO_INT = 0x10,
--};
--
--static int gpedge_add[] = {
--	RC5T583_GPIO_GPEDGE2,
--	RC5T583_GPIO_GPEDGE2
--};
--
--static int irq_en_add[] = {
--	RC5T583_INT_EN_SYS1,
--	RC5T583_INT_EN_SYS2,
--	RC5T583_INT_EN_DCDC,
--	RC5T583_INT_EN_RTC,
--	RC5T583_INT_EN_ADC1,
--	RC5T583_INT_EN_ADC2,
--	RC5T583_INT_EN_ADC3,
--	RC5T583_GPIO_EN_INT
--};
--
--static int irq_mon_add[] = {
--	RC5T583_INT_MON_SYS1,
--	RC5T583_INT_MON_SYS2,
--	RC5T583_INT_MON_DCDC,
--	RC5T583_INT_MON_RTC,
--	RC5T583_INT_IR_ADCL,
--	RC5T583_INT_IR_ADCH,
--	RC5T583_INT_IR_ADCEND,
--	RC5T583_INT_IR_GPIOF,
--	RC5T583_INT_IR_GPIOR
--};
--
--static int irq_clr_add[] = {
--	RC5T583_INT_IR_SYS1,
--	RC5T583_INT_IR_SYS2,
--	RC5T583_INT_IR_DCDC,
--	RC5T583_INT_IR_RTC,
--	RC5T583_INT_IR_ADCL,
--	RC5T583_INT_IR_ADCH,
--	RC5T583_INT_IR_ADCEND,
--	RC5T583_INT_IR_GPIOF,
--	RC5T583_INT_IR_GPIOR
--};
--
--static int main_int_type[] = {
--	SYS_INT,
--	SYS_INT,
--	DCDC_INT,
--	RTC_INT,
--	ADC_INT,
--	ADC_INT,
--	ADC_INT,
--	GPIO_INT,
--	GPIO_INT,
--};
--
--struct rc5t583_irq_data {
--	u8	int_type;
--	u8	master_bit;
--	u8	int_en_bit;
--	u8	mask_reg_index;
--	int	grp_index;
--};
--
--#define RC5T583_IRQ(_int_type, _master_bit, _grp_index, \
--			_int_bit, _mask_ind)		\
--	{						\
--		.int_type	= _int_type,		\
--		.master_bit	= _master_bit,		\
--		.grp_index	= _grp_index,		\
--		.int_en_bit	= _int_bit,		\
--		.mask_reg_index	= _mask_ind,		\
--	}
--
--static const struct rc5t583_irq_data rc5t583_irqs[RC5T583_MAX_IRQS] = {
--	[RC5T583_IRQ_ONKEY]		= RC5T583_IRQ(SYS_INT,  0, 0, 0, 0),
--	[RC5T583_IRQ_ACOK]		= RC5T583_IRQ(SYS_INT,  0, 1, 1, 0),
--	[RC5T583_IRQ_LIDOPEN]		= RC5T583_IRQ(SYS_INT,  0, 2, 2, 0),
--	[RC5T583_IRQ_PREOT]		= RC5T583_IRQ(SYS_INT,  0, 3, 3, 0),
--	[RC5T583_IRQ_CLKSTP]		= RC5T583_IRQ(SYS_INT,  0, 4, 4, 0),
--	[RC5T583_IRQ_ONKEY_OFF]		= RC5T583_IRQ(SYS_INT,  0, 5, 5, 0),
--	[RC5T583_IRQ_WD]		= RC5T583_IRQ(SYS_INT,  0, 7, 7, 0),
--	[RC5T583_IRQ_EN_PWRREQ1]	= RC5T583_IRQ(SYS_INT,  0, 8, 0, 1),
--	[RC5T583_IRQ_EN_PWRREQ2]	= RC5T583_IRQ(SYS_INT,  0, 9, 1, 1),
--	[RC5T583_IRQ_PRE_VINDET]	= RC5T583_IRQ(SYS_INT,  0, 10, 2, 1),
--
--	[RC5T583_IRQ_DC0LIM]		= RC5T583_IRQ(DCDC_INT, 1, 0, 0, 2),
--	[RC5T583_IRQ_DC1LIM]		= RC5T583_IRQ(DCDC_INT, 1, 1, 1, 2),
--	[RC5T583_IRQ_DC2LIM]		= RC5T583_IRQ(DCDC_INT, 1, 2, 2, 2),
--	[RC5T583_IRQ_DC3LIM]		= RC5T583_IRQ(DCDC_INT, 1, 3, 3, 2),
--
--	[RC5T583_IRQ_CTC]		= RC5T583_IRQ(RTC_INT,  2, 0, 0, 3),
--	[RC5T583_IRQ_YALE]		= RC5T583_IRQ(RTC_INT,  2, 5, 5, 3),
--	[RC5T583_IRQ_DALE]		= RC5T583_IRQ(RTC_INT,  2, 6, 6, 3),
--	[RC5T583_IRQ_WALE]		= RC5T583_IRQ(RTC_INT,  2, 7, 7, 3),
--
--	[RC5T583_IRQ_AIN1L]		= RC5T583_IRQ(ADC_INT,  3, 0, 0, 4),
--	[RC5T583_IRQ_AIN2L]		= RC5T583_IRQ(ADC_INT,  3, 1, 1, 4),
--	[RC5T583_IRQ_AIN3L]		= RC5T583_IRQ(ADC_INT,  3, 2, 2, 4),
--	[RC5T583_IRQ_VBATL]		= RC5T583_IRQ(ADC_INT,  3, 3, 3, 4),
--	[RC5T583_IRQ_VIN3L]		= RC5T583_IRQ(ADC_INT,  3, 4, 4, 4),
--	[RC5T583_IRQ_VIN8L]		= RC5T583_IRQ(ADC_INT,  3, 5, 5, 4),
--	[RC5T583_IRQ_AIN1H]		= RC5T583_IRQ(ADC_INT,  3, 6, 0, 5),
--	[RC5T583_IRQ_AIN2H]		= RC5T583_IRQ(ADC_INT,  3, 7, 1, 5),
--	[RC5T583_IRQ_AIN3H]		= RC5T583_IRQ(ADC_INT,  3, 8, 2, 5),
--	[RC5T583_IRQ_VBATH]		= RC5T583_IRQ(ADC_INT,  3, 9, 3, 5),
--	[RC5T583_IRQ_VIN3H]		= RC5T583_IRQ(ADC_INT,  3, 10, 4, 5),
--	[RC5T583_IRQ_VIN8H]		= RC5T583_IRQ(ADC_INT,  3, 11, 5, 5),
--	[RC5T583_IRQ_ADCEND]		= RC5T583_IRQ(ADC_INT,  3, 12, 0, 6),
--
--	[RC5T583_IRQ_GPIO0]		= RC5T583_IRQ(GPIO_INT, 4, 0, 0, 7),
--	[RC5T583_IRQ_GPIO1]		= RC5T583_IRQ(GPIO_INT, 4, 1, 1, 7),
--	[RC5T583_IRQ_GPIO2]		= RC5T583_IRQ(GPIO_INT, 4, 2, 2, 7),
--	[RC5T583_IRQ_GPIO3]		= RC5T583_IRQ(GPIO_INT, 4, 3, 3, 7),
--	[RC5T583_IRQ_GPIO4]		= RC5T583_IRQ(GPIO_INT, 4, 4, 4, 7),
--	[RC5T583_IRQ_GPIO5]		= RC5T583_IRQ(GPIO_INT, 4, 5, 5, 7),
--	[RC5T583_IRQ_GPIO6]		= RC5T583_IRQ(GPIO_INT, 4, 6, 6, 7),
--	[RC5T583_IRQ_GPIO7]		= RC5T583_IRQ(GPIO_INT, 4, 7, 7, 7),
--};
--
--static void rc5t583_irq_lock(struct irq_data *irq_data)
--{
--	struct rc5t583 *rc5t583 = irq_data_get_irq_chip_data(irq_data);
--	mutex_lock(&rc5t583->irq_lock);
--}
--
--static void rc5t583_irq_unmask(struct irq_data *irq_data)
--{
--	struct rc5t583 *rc5t583 = irq_data_get_irq_chip_data(irq_data);
--	unsigned int __irq = irq_data->irq - rc5t583->irq_base;
--	const struct rc5t583_irq_data *data = &rc5t583_irqs[__irq];
--
--	rc5t583->group_irq_en[data->grp_index] |= 1 << data->grp_index;
--	rc5t583->intc_inten_reg |= 1 << data->master_bit;
--	rc5t583->irq_en_reg[data->mask_reg_index] |= 1 << data->int_en_bit;
--}
--
--static void rc5t583_irq_mask(struct irq_data *irq_data)
--{
--	struct rc5t583 *rc5t583 = irq_data_get_irq_chip_data(irq_data);
--	unsigned int __irq = irq_data->irq - rc5t583->irq_base;
--	const struct rc5t583_irq_data *data = &rc5t583_irqs[__irq];
--
--	rc5t583->group_irq_en[data->grp_index] &= ~(1 << data->grp_index);
--	if (!rc5t583->group_irq_en[data->grp_index])
--		rc5t583->intc_inten_reg &= ~(1 << data->master_bit);
--
--	rc5t583->irq_en_reg[data->mask_reg_index] &= ~(1 << data->int_en_bit);
--}
--
--static int rc5t583_irq_set_type(struct irq_data *irq_data, unsigned int type)
--{
--	struct rc5t583 *rc5t583 = irq_data_get_irq_chip_data(irq_data);
--	unsigned int __irq = irq_data->irq - rc5t583->irq_base;
--	const struct rc5t583_irq_data *data = &rc5t583_irqs[__irq];
--	int val = 0;
--	int gpedge_index;
--	int gpedge_bit_pos;
--
--	/* Supporting only trigger level inetrrupt */
--	if ((data->int_type & GPIO_INT) && (type & IRQ_TYPE_EDGE_BOTH)) {
--		gpedge_index = data->int_en_bit / 4;
--		gpedge_bit_pos = data->int_en_bit % 4;
--
--		if (type & IRQ_TYPE_EDGE_FALLING)
--			val |= 0x2;
--
--		if (type & IRQ_TYPE_EDGE_RISING)
--			val |= 0x1;
--
--		rc5t583->gpedge_reg[gpedge_index] &= ~(3 << gpedge_bit_pos);
--		rc5t583->gpedge_reg[gpedge_index] |= (val << gpedge_bit_pos);
--		rc5t583_irq_unmask(irq_data);
--		return 0;
--	}
--	return -EINVAL;
--}
--
--static void rc5t583_irq_sync_unlock(struct irq_data *irq_data)
--{
--	struct rc5t583 *rc5t583 = irq_data_get_irq_chip_data(irq_data);
--	int i;
--	int ret;
--
--	for (i = 0; i < ARRAY_SIZE(rc5t583->gpedge_reg); i++) {
--		ret = rc5t583_write(rc5t583->dev, gpedge_add[i],
--				rc5t583->gpedge_reg[i]);
--		if (ret < 0)
--			dev_warn(rc5t583->dev,
--				"Error in writing reg 0x%02x error: %d\n",
--				gpedge_add[i], ret);
--	}
--
--	for (i = 0; i < ARRAY_SIZE(rc5t583->irq_en_reg); i++) {
--		ret = rc5t583_write(rc5t583->dev, irq_en_add[i],
--					rc5t583->irq_en_reg[i]);
--		if (ret < 0)
--			dev_warn(rc5t583->dev,
--				"Error in writing reg 0x%02x error: %d\n",
--				irq_en_add[i], ret);
--	}
--
--	ret = rc5t583_write(rc5t583->dev, RC5T583_INTC_INTEN,
--				rc5t583->intc_inten_reg);
--	if (ret < 0)
--		dev_warn(rc5t583->dev,
--			"Error in writing reg 0x%02x error: %d\n",
--			RC5T583_INTC_INTEN, ret);
--
--	mutex_unlock(&rc5t583->irq_lock);
--}
--
--static int rc5t583_irq_set_wake(struct irq_data *irq_data, unsigned int on)
--{
--	struct rc5t583 *rc5t583 = irq_data_get_irq_chip_data(irq_data);
--	return irq_set_irq_wake(rc5t583->chip_irq, on);
--}
--
--static irqreturn_t rc5t583_irq(int irq, void *data)
--{
--	struct rc5t583 *rc5t583 = data;
--	uint8_t int_sts[RC5T583_MAX_INTERRUPT_MASK_REGS];
--	uint8_t master_int = 0;
--	int i;
--	int ret;
--	unsigned int rtc_int_sts = 0;
--
--	/* Clear the status */
--	for (i = 0; i < RC5T583_MAX_INTERRUPT_MASK_REGS; i++)
--		int_sts[i] = 0;
--
--	ret  = rc5t583_read(rc5t583->dev, RC5T583_INTC_INTMON, &master_int);
--	if (ret < 0) {
--		dev_err(rc5t583->dev,
--			"Error in reading reg 0x%02x error: %d\n",
--			RC5T583_INTC_INTMON, ret);
--		return IRQ_HANDLED;
--	}
--
--	for (i = 0; i < RC5T583_MAX_INTERRUPT_MASK_REGS; ++i) {
--		if (!(master_int & main_int_type[i]))
--			continue;
--
--		ret = rc5t583_read(rc5t583->dev, irq_mon_add[i], &int_sts[i]);
--		if (ret < 0) {
--			dev_warn(rc5t583->dev,
--				"Error in reading reg 0x%02x error: %d\n",
--				irq_mon_add[i], ret);
--			int_sts[i] = 0;
--			continue;
--		}
--
--		if (main_int_type[i] & RTC_INT) {
--			rtc_int_sts = 0;
--			if (int_sts[i] & 0x1)
--				rtc_int_sts |= BIT(6);
--			if (int_sts[i] & 0x2)
--				rtc_int_sts |= BIT(7);
--			if (int_sts[i] & 0x4)
--				rtc_int_sts |= BIT(0);
--			if (int_sts[i] & 0x8)
--				rtc_int_sts |= BIT(5);
--		}
--
--		ret = rc5t583_write(rc5t583->dev, irq_clr_add[i],
--				~int_sts[i]);
--		if (ret < 0)
--			dev_warn(rc5t583->dev,
--				"Error in reading reg 0x%02x error: %d\n",
--				irq_clr_add[i], ret);
--
--		if (main_int_type[i] & RTC_INT)
--			int_sts[i] = rtc_int_sts;
--	}
--
--	/* Merge gpio interrupts for rising and falling case*/
--	int_sts[7] |= int_sts[8];
--
--	/* Call interrupt handler if enabled */
--	for (i = 0; i < RC5T583_MAX_IRQS; ++i) {
--		const struct rc5t583_irq_data *data = &rc5t583_irqs[i];
--		if ((int_sts[data->mask_reg_index] & (1 << data->int_en_bit)) &&
--			(rc5t583->group_irq_en[data->master_bit] &
--					(1 << data->grp_index)))
--			handle_nested_irq(rc5t583->irq_base + i);
--	}
--
--	return IRQ_HANDLED;
--}
--
--static struct irq_chip rc5t583_irq_chip = {
--	.name = "rc5t583-irq",
--	.irq_mask = rc5t583_irq_mask,
--	.irq_unmask = rc5t583_irq_unmask,
--	.irq_bus_lock = rc5t583_irq_lock,
--	.irq_bus_sync_unlock = rc5t583_irq_sync_unlock,
--	.irq_set_type = rc5t583_irq_set_type,
--	.irq_set_wake = pm_sleep_ptr(rc5t583_irq_set_wake),
--};
--
--int rc5t583_irq_init(struct rc5t583 *rc5t583, int irq, int irq_base)
--{
--	int i, ret;
--
--	if (!irq_base) {
--		dev_warn(rc5t583->dev, "No interrupt support on IRQ base\n");
--		return -EINVAL;
--	}
--
--	mutex_init(&rc5t583->irq_lock);
--
--	/* Initailize all int register to 0 */
--	for (i = 0; i < RC5T583_MAX_INTERRUPT_EN_REGS; i++)  {
--		ret = rc5t583_write(rc5t583->dev, irq_en_add[i],
--				rc5t583->irq_en_reg[i]);
--		if (ret < 0)
--			dev_warn(rc5t583->dev,
--				"Error in writing reg 0x%02x error: %d\n",
--				irq_en_add[i], ret);
--	}
--
--	for (i = 0; i < RC5T583_MAX_GPEDGE_REG; i++)  {
--		ret = rc5t583_write(rc5t583->dev, gpedge_add[i],
--				rc5t583->gpedge_reg[i]);
--		if (ret < 0)
--			dev_warn(rc5t583->dev,
--				"Error in writing reg 0x%02x error: %d\n",
--				gpedge_add[i], ret);
--	}
--
--	ret = rc5t583_write(rc5t583->dev, RC5T583_INTC_INTEN, 0x0);
--	if (ret < 0)
--		dev_warn(rc5t583->dev,
--			"Error in writing reg 0x%02x error: %d\n",
--			RC5T583_INTC_INTEN, ret);
--
--	/* Clear all interrupts in case they woke up active. */
--	for (i = 0; i < RC5T583_MAX_INTERRUPT_MASK_REGS; i++)  {
--		ret = rc5t583_write(rc5t583->dev, irq_clr_add[i], 0);
--		if (ret < 0)
--			dev_warn(rc5t583->dev,
--				"Error in writing reg 0x%02x error: %d\n",
--				irq_clr_add[i], ret);
--	}
--
--	rc5t583->irq_base = irq_base;
--	rc5t583->chip_irq = irq;
--
--	for (i = 0; i < RC5T583_MAX_IRQS; i++) {
--		int __irq = i + rc5t583->irq_base;
--		irq_set_chip_data(__irq, rc5t583);
--		irq_set_chip_and_handler(__irq, &rc5t583_irq_chip,
--					 handle_simple_irq);
--		irq_set_nested_thread(__irq, 1);
--		irq_clear_status_flags(__irq, IRQ_NOREQUEST);
--	}
--
--	ret = devm_request_threaded_irq(rc5t583->dev, irq, NULL, rc5t583_irq,
--					IRQF_ONESHOT, "rc5t583", rc5t583);
--	if (ret < 0)
--		dev_err(rc5t583->dev,
--			"Error in registering interrupt error: %d\n", ret);
--	return ret;
--}
-diff --git a/drivers/mfd/rc5t583.c b/drivers/mfd/rc5t583.c
-deleted file mode 100644
-index 2c0e8e9630f7..000000000000
---- a/drivers/mfd/rc5t583.c
-+++ /dev/null
-@@ -1,299 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * Core driver access RC5T583 power management chip.
-- *
-- * Copyright (c) 2011-2012, NVIDIA CORPORATION.  All rights reserved.
-- * Author: Laxman dewangan <ldewangan@nvidia.com>
-- *
-- * Based on code
-- *	Copyright (C) 2011 RICOH COMPANY,LTD
-- */
--#include <linux/interrupt.h>
--#include <linux/irq.h>
--#include <linux/kernel.h>
--#include <linux/init.h>
 -#include <linux/err.h>
--#include <linux/slab.h>
--#include <linux/i2c.h>
--#include <linux/mfd/core.h>
--#include <linux/mfd/rc5t583.h>
--#include <linux/regmap.h>
--
--#define RICOH_ONOFFSEL_REG	0x10
--#define RICOH_SWCTL_REG		0x5E
--
--struct deepsleep_control_data {
--	u8 reg_add;
--	u8 ds_pos_bit;
--};
--
--#define DEEPSLEEP_INIT(_id, _reg, _pos)		\
--	{					\
--		.reg_add = RC5T583_##_reg,	\
--		.ds_pos_bit = _pos,		\
--	}
--
--static struct deepsleep_control_data deepsleep_data[] = {
--	DEEPSLEEP_INIT(DC0, SLPSEQ1, 0),
--	DEEPSLEEP_INIT(DC1, SLPSEQ1, 4),
--	DEEPSLEEP_INIT(DC2, SLPSEQ2, 0),
--	DEEPSLEEP_INIT(DC3, SLPSEQ2, 4),
--	DEEPSLEEP_INIT(LDO0, SLPSEQ3, 0),
--	DEEPSLEEP_INIT(LDO1, SLPSEQ3, 4),
--	DEEPSLEEP_INIT(LDO2, SLPSEQ4, 0),
--	DEEPSLEEP_INIT(LDO3, SLPSEQ4, 4),
--	DEEPSLEEP_INIT(LDO4, SLPSEQ5, 0),
--	DEEPSLEEP_INIT(LDO5, SLPSEQ5, 4),
--	DEEPSLEEP_INIT(LDO6, SLPSEQ6, 0),
--	DEEPSLEEP_INIT(LDO7, SLPSEQ6, 4),
--	DEEPSLEEP_INIT(LDO8, SLPSEQ7, 0),
--	DEEPSLEEP_INIT(LDO9, SLPSEQ7, 4),
--	DEEPSLEEP_INIT(PSO0, SLPSEQ8, 0),
--	DEEPSLEEP_INIT(PSO1, SLPSEQ8, 4),
--	DEEPSLEEP_INIT(PSO2, SLPSEQ9, 0),
--	DEEPSLEEP_INIT(PSO3, SLPSEQ9, 4),
--	DEEPSLEEP_INIT(PSO4, SLPSEQ10, 0),
--	DEEPSLEEP_INIT(PSO5, SLPSEQ10, 4),
--	DEEPSLEEP_INIT(PSO6, SLPSEQ11, 0),
--	DEEPSLEEP_INIT(PSO7, SLPSEQ11, 4),
--};
--
--#define EXT_PWR_REQ		\
--	(RC5T583_EXT_PWRREQ1_CONTROL | RC5T583_EXT_PWRREQ2_CONTROL)
--
--static const struct mfd_cell rc5t583_subdevs[] = {
--	{.name = "rc5t583-gpio",},
--	{.name = "rc5t583-regulator",},
--	{.name = "rc5t583-rtc",      },
--	{.name = "rc5t583-key",      }
--};
--
--static int __rc5t583_set_ext_pwrreq1_control(struct device *dev,
--	int id, int ext_pwr, int slots)
--{
--	int ret;
--	uint8_t sleepseq_val = 0;
--	unsigned int en_bit;
--	unsigned int slot_bit;
--
--	if (id == RC5T583_DS_DC0) {
--		dev_err(dev, "PWRREQ1 is invalid control for rail %d\n", id);
--		return -EINVAL;
--	}
--
--	en_bit = deepsleep_data[id].ds_pos_bit;
--	slot_bit = en_bit + 1;
--	ret = rc5t583_read(dev, deepsleep_data[id].reg_add, &sleepseq_val);
--	if (ret < 0) {
--		dev_err(dev, "Error in reading reg 0x%x\n",
--				deepsleep_data[id].reg_add);
--		return ret;
--	}
--
--	sleepseq_val &= ~(0xF << en_bit);
--	sleepseq_val |= BIT(en_bit);
--	sleepseq_val |= ((slots & 0x7) << slot_bit);
--	ret = rc5t583_set_bits(dev, RICOH_ONOFFSEL_REG, BIT(1));
--	if (ret < 0) {
--		dev_err(dev, "Error in updating the 0x%02x register\n",
--				RICOH_ONOFFSEL_REG);
--		return ret;
--	}
--
--	ret = rc5t583_write(dev, deepsleep_data[id].reg_add, sleepseq_val);
--	if (ret < 0) {
--		dev_err(dev, "Error in writing reg 0x%x\n",
--				deepsleep_data[id].reg_add);
--		return ret;
--	}
--
--	if (id == RC5T583_DS_LDO4) {
--		ret = rc5t583_write(dev, RICOH_SWCTL_REG, 0x1);
--		if (ret < 0)
--			dev_err(dev, "Error in writing reg 0x%x\n",
--				RICOH_SWCTL_REG);
--	}
--	return ret;
--}
--
--static int __rc5t583_set_ext_pwrreq2_control(struct device *dev,
--	int id, int ext_pwr)
--{
--	int ret;
--
--	if (id != RC5T583_DS_DC0) {
--		dev_err(dev, "PWRREQ2 is invalid control for rail %d\n", id);
--		return -EINVAL;
--	}
--
--	ret = rc5t583_set_bits(dev, RICOH_ONOFFSEL_REG, BIT(2));
--	if (ret < 0)
--		dev_err(dev, "Error in updating the ONOFFSEL 0x10 register\n");
--	return ret;
--}
--
--int rc5t583_ext_power_req_config(struct device *dev, int ds_id,
--	int ext_pwr_req, int deepsleep_slot_nr)
--{
--	if ((ext_pwr_req & EXT_PWR_REQ) == EXT_PWR_REQ)
--		return -EINVAL;
--
--	if (ext_pwr_req & RC5T583_EXT_PWRREQ1_CONTROL)
--		return __rc5t583_set_ext_pwrreq1_control(dev, ds_id,
--				ext_pwr_req, deepsleep_slot_nr);
--
--	if (ext_pwr_req & RC5T583_EXT_PWRREQ2_CONTROL)
--		return __rc5t583_set_ext_pwrreq2_control(dev,
--			ds_id, ext_pwr_req);
--	return 0;
--}
--EXPORT_SYMBOL(rc5t583_ext_power_req_config);
--
--static int rc5t583_clear_ext_power_req(struct rc5t583 *rc5t583,
--	struct rc5t583_platform_data *pdata)
--{
--	int ret;
--	int i;
--	uint8_t on_off_val = 0;
--
--	/*  Clear ONOFFSEL register */
--	if (pdata->enable_shutdown)
--		on_off_val = 0x1;
--
--	ret = rc5t583_write(rc5t583->dev, RICOH_ONOFFSEL_REG, on_off_val);
--	if (ret < 0)
--		dev_warn(rc5t583->dev, "Error in writing reg %d error: %d\n",
--					RICOH_ONOFFSEL_REG, ret);
--
--	ret = rc5t583_write(rc5t583->dev, RICOH_SWCTL_REG, 0x0);
--	if (ret < 0)
--		dev_warn(rc5t583->dev, "Error in writing reg %d error: %d\n",
--					RICOH_SWCTL_REG, ret);
--
--	/* Clear sleep sequence register */
--	for (i = RC5T583_SLPSEQ1; i <= RC5T583_SLPSEQ11; ++i) {
--		ret = rc5t583_write(rc5t583->dev, i, 0x0);
--		if (ret < 0)
--			dev_warn(rc5t583->dev,
--				"Error in writing reg 0x%02x error: %d\n",
--				i, ret);
--	}
--	return 0;
--}
--
--static bool volatile_reg(struct device *dev, unsigned int reg)
--{
--	/* Enable caching in interrupt registers */
--	switch (reg) {
--	case RC5T583_INT_EN_SYS1:
--	case RC5T583_INT_EN_SYS2:
--	case RC5T583_INT_EN_DCDC:
--	case RC5T583_INT_EN_RTC:
--	case RC5T583_INT_EN_ADC1:
--	case RC5T583_INT_EN_ADC2:
--	case RC5T583_INT_EN_ADC3:
--	case RC5T583_GPIO_GPEDGE1:
--	case RC5T583_GPIO_GPEDGE2:
--	case RC5T583_GPIO_EN_INT:
--		return false;
--
--	case RC5T583_GPIO_MON_IOIN:
--		/* This is gpio input register */
--		return true;
--
--	default:
--		/* Enable caching in gpio registers */
--		if ((reg >= RC5T583_GPIO_IOSEL) &&
--				(reg <= RC5T583_GPIO_GPOFUNC))
--			return false;
--
--		/* Enable caching in sleep seq registers */
--		if ((reg >= RC5T583_SLPSEQ1) && (reg <= RC5T583_SLPSEQ11))
--			return false;
--
--		/* Enable caching of regulator registers */
--		if ((reg >= RC5T583_REG_DC0CTL) && (reg <= RC5T583_REG_SR3CTL))
--			return false;
--		if ((reg >= RC5T583_REG_LDOEN1) &&
--					(reg <= RC5T583_REG_LDO9DAC_DS))
--			return false;
--
--		break;
--	}
--
--	return true;
--}
--
--static const struct regmap_config rc5t583_regmap_config = {
--	.reg_bits = 8,
--	.val_bits = 8,
--	.volatile_reg = volatile_reg,
--	.max_register = RC5T583_MAX_REG,
--	.num_reg_defaults_raw = RC5T583_NUM_REGS,
--	.cache_type = REGCACHE_MAPLE,
--};
--
--static int rc5t583_i2c_probe(struct i2c_client *i2c)
--{
--	struct rc5t583 *rc5t583;
--	struct rc5t583_platform_data *pdata = dev_get_platdata(&i2c->dev);
--	int ret;
--
--	if (!pdata) {
--		dev_err(&i2c->dev, "Err: Platform data not found\n");
--		return -EINVAL;
--	}
--
--	rc5t583 = devm_kzalloc(&i2c->dev, sizeof(*rc5t583), GFP_KERNEL);
--	if (!rc5t583)
--		return -ENOMEM;
--
--	rc5t583->dev = &i2c->dev;
--	i2c_set_clientdata(i2c, rc5t583);
--
--	rc5t583->regmap = devm_regmap_init_i2c(i2c, &rc5t583_regmap_config);
--	if (IS_ERR(rc5t583->regmap)) {
--		ret = PTR_ERR(rc5t583->regmap);
--		dev_err(&i2c->dev, "regmap initialization failed: %d\n", ret);
--		return ret;
--	}
--
--	ret = rc5t583_clear_ext_power_req(rc5t583, pdata);
--	if (ret < 0)
--		return ret;
--
--	if (i2c->irq) {
--		ret = rc5t583_irq_init(rc5t583, i2c->irq, pdata->irq_base);
--		/* Still continue with warning, if irq init fails */
--		if (ret)
--			dev_warn(&i2c->dev, "IRQ init failed: %d\n", ret);
--	}
--
--	ret = devm_mfd_add_devices(rc5t583->dev, -1, rc5t583_subdevs,
--				   ARRAY_SIZE(rc5t583_subdevs), NULL, 0, NULL);
--	if (ret) {
--		dev_err(&i2c->dev, "add mfd devices failed: %d\n", ret);
--		return ret;
--	}
--
--	return 0;
--}
--
--static const struct i2c_device_id rc5t583_i2c_id[] = {
--	{.name = "rc5t583", .driver_data = 0},
--	{}
--};
--
--static struct i2c_driver rc5t583_i2c_driver = {
--	.driver = {
--		   .name = "rc5t583",
--		   },
--	.probe = rc5t583_i2c_probe,
--	.id_table = rc5t583_i2c_id,
--};
--
--static int __init rc5t583_i2c_init(void)
--{
--	return i2c_add_driver(&rc5t583_i2c_driver);
--}
--subsys_initcall(rc5t583_i2c_init);
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 12d883e729bc..2d5eb954d122 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -1214,16 +1214,6 @@ config REGULATOR_RASPBERRYPI_TOUCHSCREEN_V2
- 	  unit. The regulator is used to enable power to the display and to
- 	  control backlight PWM.
- 
--config REGULATOR_RC5T583
--	tristate "RICOH RC5T583 Power regulators"
--	depends on MFD_RC5T583
--	help
--	  Select this option to enable the power regulator of RICOH
--	  PMIC RC5T583.
--	  This driver supports the control of different power rails of device
--	  through regulator interface. The device supports multiple DCDC/LDO
--	  outputs which can be controlled by i2c communication.
--
- config REGULATOR_RK808
- 	tristate "Rockchip RK805/RK808/RK809/RK817/RK818 Power regulators"
- 	depends on MFD_RK8XX
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 321c6ea73ee0..861f86c30c73 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -140,7 +140,6 @@ obj-$(CONFIG_REGULATOR_PBIAS) += pbias-regulator.o
- obj-$(CONFIG_REGULATOR_RAA215300) += raa215300.o
- obj-$(CONFIG_REGULATOR_RASPBERRYPI_TOUCHSCREEN_ATTINY)  += rpi-panel-attiny-regulator.o
- obj-$(CONFIG_REGULATOR_RASPBERRYPI_TOUCHSCREEN_V2)  += rpi-panel-v2-regulator.o
--obj-$(CONFIG_REGULATOR_RC5T583)  += rc5t583-regulator.o
- obj-$(CONFIG_REGULATOR_RK808)   += rk808-regulator.o
- obj-$(CONFIG_REGULATOR_RN5T618) += rn5t618-regulator.o
- obj-$(CONFIG_REGULATOR_ROHM)	+= rohm-regulator.o
-diff --git a/drivers/regulator/rc5t583-regulator.c b/drivers/regulator/rc5t583-regulator.c
-deleted file mode 100644
-index a25a141e86c4..000000000000
---- a/drivers/regulator/rc5t583-regulator.c
-+++ /dev/null
-@@ -1,171 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
--/*
-- * Regulator driver for RICOH RC5T583 power management chip.
-- *
-- * Copyright (c) 2011-2012, NVIDIA CORPORATION.  All rights reserved.
-- * Author: Laxman dewangan <ldewangan@nvidia.com>
-- *
-- * based on code
-- *      Copyright (C) 2011 RICOH COMPANY,LTD
-- */
--
+-#include <linux/fs.h>
+-#include <linux/gpio/machine.h>
+-#include <linux/gpio/property.h>
+-#include <linux/init.h>
+-#include <linux/input.h>
 -#include <linux/module.h>
--#include <linux/init.h>
--#include <linux/slab.h>
--#include <linux/err.h>
 -#include <linux/platform_device.h>
--#include <linux/regulator/driver.h>
--#include <linux/regulator/machine.h>
--#include <linux/mfd/rc5t583.h>
+-#include <linux/proc_fs.h>
+-#include <linux/property.h>
+-#include <linux/slab.h>
+-#include <linux/mfd/ucb1x00.h>
 -
--struct rc5t583_regulator_info {
--	int			deepsleep_id;
--
--	/* Regulator register address.*/
--	uint8_t			reg_disc_reg;
--	uint8_t			disc_bit;
--	uint8_t			deepsleep_reg;
--
--	/* Regulator specific turn-on delay  and voltage settling time*/
--	int			enable_uv_per_us;
--
--	/* Used by regulator core */
--	struct regulator_desc	desc;
--};
--
--static int rc5t583_regulator_enable_time(struct regulator_dev *rdev)
--{
--	struct rc5t583_regulator_info *reg_info = rdev_get_drvdata(rdev);
--	int vsel = regulator_get_voltage_sel_regmap(rdev);
--	int curr_uV = regulator_list_voltage_linear(rdev, vsel);
--
--	return DIV_ROUND_UP(curr_uV, reg_info->enable_uv_per_us);
--}
--
--static const struct regulator_ops rc5t583_ops = {
--	.is_enabled		= regulator_is_enabled_regmap,
--	.enable			= regulator_enable_regmap,
--	.disable		= regulator_disable_regmap,
--	.enable_time		= rc5t583_regulator_enable_time,
--	.get_voltage_sel	= regulator_get_voltage_sel_regmap,
--	.set_voltage_sel	= regulator_set_voltage_sel_regmap,
--	.list_voltage		= regulator_list_voltage_linear,
--	.map_voltage		= regulator_map_voltage_linear,
--	.set_voltage_time_sel	= regulator_set_voltage_time_sel,
--};
--
--#define RC5T583_REG(_id, _en_reg, _en_bit, _disc_reg, _disc_bit, \
--		_vout_mask, _min_mv, _max_mv, _step_uV, _enable_mv) \
+-#define UCB1X00_ATTR(name,input)\
+-static ssize_t name##_show(struct device *dev, struct device_attribute *attr, \
+-			   char *buf)	\
 -{								\
--	.reg_disc_reg	= RC5T583_REG_##_disc_reg,		\
--	.disc_bit	= _disc_bit,				\
--	.deepsleep_reg	= RC5T583_REG_##_id##DAC_DS,		\
--	.enable_uv_per_us = _enable_mv * 1000,			\
--	.deepsleep_id	= RC5T583_DS_##_id,			\
--	.desc = {						\
--		.name = "rc5t583-regulator-"#_id,		\
--		.id = RC5T583_REGULATOR_##_id,			\
--		.n_voltages = (_max_mv - _min_mv) * 1000 / _step_uV + 1, \
--		.ops = &rc5t583_ops,				\
--		.type = REGULATOR_VOLTAGE,			\
--		.owner = THIS_MODULE,				\
--		.vsel_reg = RC5T583_REG_##_id##DAC,		\
--		.vsel_mask = _vout_mask,			\
--		.enable_reg = RC5T583_REG_##_en_reg,		\
--		.enable_mask = BIT(_en_bit),			\
--		.min_uV	= _min_mv * 1000,			\
--		.uV_step = _step_uV,				\
--		.ramp_delay = 40 * 1000,			\
--	},							\
--}
+-	struct ucb1x00 *ucb = classdev_to_ucb1x00(dev);		\
+-	int val;						\
+-	ucb1x00_adc_enable(ucb);				\
+-	val = ucb1x00_adc_read(ucb, input, UCB_NOSYNC);		\
+-	ucb1x00_adc_disable(ucb);				\
+-	return sprintf(buf, "%d\n", val);			\
+-}								\
+-static DEVICE_ATTR_RO(name)
 -
--static struct rc5t583_regulator_info rc5t583_reg_info[RC5T583_REGULATOR_MAX] = {
--	RC5T583_REG(DC0, DC0CTL, 0, DC0CTL, 1, 0x7F, 700, 1500, 12500, 4),
--	RC5T583_REG(DC1, DC1CTL, 0, DC1CTL, 1, 0x7F, 700, 1500, 12500, 14),
--	RC5T583_REG(DC2, DC2CTL, 0, DC2CTL, 1, 0x7F, 900, 2400, 12500, 14),
--	RC5T583_REG(DC3, DC3CTL, 0, DC3CTL, 1, 0x7F, 900, 2400, 12500, 14),
--	RC5T583_REG(LDO0, LDOEN2, 0, LDODIS2, 0, 0x7F, 900, 3400, 25000, 160),
--	RC5T583_REG(LDO1, LDOEN2, 1, LDODIS2, 1, 0x7F, 900, 3400, 25000, 160),
--	RC5T583_REG(LDO2, LDOEN2, 2, LDODIS2, 2, 0x7F, 900, 3400, 25000, 160),
--	RC5T583_REG(LDO3, LDOEN2, 3, LDODIS2, 3, 0x7F, 900, 3400, 25000, 160),
--	RC5T583_REG(LDO4, LDOEN2, 4, LDODIS2, 4, 0x3F, 750, 1500, 12500, 133),
--	RC5T583_REG(LDO5, LDOEN2, 5, LDODIS2, 5, 0x7F, 900, 3400, 25000, 267),
--	RC5T583_REG(LDO6, LDOEN2, 6, LDODIS2, 6, 0x7F, 900, 3400, 25000, 133),
--	RC5T583_REG(LDO7, LDOEN2, 7, LDODIS2, 7, 0x7F, 900, 3400, 25000, 233),
--	RC5T583_REG(LDO8, LDOEN1, 0, LDODIS1, 0, 0x7F, 900, 3400, 25000, 233),
--	RC5T583_REG(LDO9, LDOEN1, 1, LDODIS1, 1, 0x7F, 900, 3400, 25000, 133),
+-UCB1X00_ATTR(vbatt, UCB_ADC_INP_AD1);
+-UCB1X00_ATTR(vcharger, UCB_ADC_INP_AD0);
+-UCB1X00_ATTR(batt_temp, UCB_ADC_INP_AD2);
+-
+-static const struct property_entry ucb1x00_gpio_keys_props[] = {
+-	PROPERTY_ENTRY_STRING("label", "ucb1x00"),
+-	PROPERTY_ENTRY_U32("poll-interval", 50),
+-	{ }
 -};
 -
--static int rc5t583_regulator_probe(struct platform_device *pdev)
--{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(pdev->dev.parent);
--	struct rc5t583_platform_data *pdata = dev_get_platdata(rc5t583->dev);
--	struct regulator_config config = { };
--	struct regulator_dev *rdev;
--	struct rc5t583_regulator_info *ri;
--	int ret;
--	int id;
+-#define UCB1X00_BTN_PROPS(_idx)						\
+-struct property_entry ucb1x00_btn##_idx##_props[] = {			\
+-	PROPERTY_ENTRY_U32("linux,code", BTN_0 + (_idx)),		\
+-	PROPERTY_ENTRY_GPIO("gpios", &ucb1x00_gpiochip_node,		\
+-			    _idx, GPIO_ACTIVE_HIGH),			\
+-	PROPERTY_ENTRY_STRING("label", "btn" #_idx),			\
+-	PROPERTY_ENTRY_BOOL("linux,can-disable"),			\
+-	{ }								\
+-}
 -
--	if (!pdata) {
--		dev_err(&pdev->dev, "No platform data, exiting...\n");
--		return -ENODEV;
+-static const UCB1X00_BTN_PROPS(0);
+-static const UCB1X00_BTN_PROPS(1);
+-static const UCB1X00_BTN_PROPS(2);
+-static const UCB1X00_BTN_PROPS(3);
+-static const UCB1X00_BTN_PROPS(4);
+-static const UCB1X00_BTN_PROPS(5);
+-
+-static const struct property_entry * const ucb1x00_btn_props[] = {
+-	ucb1x00_btn0_props,
+-	ucb1x00_btn1_props,
+-	ucb1x00_btn2_props,
+-	ucb1x00_btn3_props,
+-	ucb1x00_btn4_props,
+-	ucb1x00_btn5_props,
+-};
+-
+-struct ucb1x00_assabet_priv {
+-	struct platform_device *pdev;
+-	struct fwnode_handle *keys_node;
+-	struct fwnode_handle *button_nodes[ARRAY_SIZE(ucb1x00_btn_props)];
+-};
+-
+-static void ucb1x00_assabet_remove_nodes(struct ucb1x00_assabet_priv *priv, int n)
+-{
+-	while (--n >= 0)
+-		fwnode_remove_software_node(priv->button_nodes[n]);
+-
+-	fwnode_remove_software_node(priv->keys_node);
+-}
+-
+-static int ucb1x00_assabet_add(struct ucb1x00_dev *dev)
+-{
+-	struct ucb1x00 *ucb = dev->ucb;
+-	struct platform_device_info pdevinfo = {
+-		.name = "gpio-keys",
+-		.id = PLATFORM_DEVID_NONE,
+-		.parent = &ucb->dev,
+-	};
+-	int ret;
+-	int i;
+-
+-	struct ucb1x00_assabet_priv *priv;
+-
+-	priv = kzalloc_obj(*priv);
+-	if (!priv)
+-		return -ENOMEM;
+-
+-	priv->keys_node = fwnode_create_software_node(ucb1x00_gpio_keys_props, NULL);
+-	if (IS_ERR(priv->keys_node)) {
+-		ret = PTR_ERR(priv->keys_node);
+-		goto err_free_priv;
 -	}
 -
--	for (id = 0; id < RC5T583_REGULATOR_MAX; ++id) {
--		ri = &rc5t583_reg_info[id];
--
--		if (ri->deepsleep_id == RC5T583_DS_NONE)
--			goto skip_ext_pwr_config;
--
--		ret = rc5t583_ext_power_req_config(rc5t583->dev,
--				ri->deepsleep_id,
--				pdata->regulator_ext_pwr_control[id],
--				pdata->regulator_deepsleep_slot[id]);
--		/*
--		 * Configuring external control is not a major issue,
--		 * just give warning.
--		 */
--		if (ret < 0)
--			dev_warn(&pdev->dev,
--				"Failed to configure ext control %d\n", id);
--
--skip_ext_pwr_config:
--		config.dev = &pdev->dev;
--		config.init_data = pdata->reg_init_data[id];
--		config.driver_data = ri;
--		config.regmap = rc5t583->regmap;
--
--		rdev = devm_regulator_register(&pdev->dev, &ri->desc, &config);
--		if (IS_ERR(rdev)) {
--			dev_err(&pdev->dev, "Failed to register regulator %s\n",
--						ri->desc.name);
--			return PTR_ERR(rdev);
+-	for (i = 0; i < ARRAY_SIZE(ucb1x00_btn_props); i++) {
+-		priv->button_nodes[i] = fwnode_create_software_node(ucb1x00_btn_props[i],
+-								    priv->keys_node);
+-		if (IS_ERR(priv->button_nodes[i])) {
+-			ret = PTR_ERR(priv->button_nodes[i]);
+-			goto err_free_buttons;
 -		}
 -	}
+-
+-	pdevinfo.fwnode = priv->keys_node;
+-
+-	priv->pdev = platform_device_register_full(&pdevinfo);
+-	ret = PTR_ERR_OR_ZERO(priv->pdev);
+-	if (ret)
+-		goto err_free_buttons;
+-
+-	device_create_file(&ucb->dev, &dev_attr_vbatt);
+-	device_create_file(&ucb->dev, &dev_attr_vcharger);
+-	device_create_file(&ucb->dev, &dev_attr_batt_temp);
+-
+-	dev->priv = priv;
+-	return 0;
+-
+-err_free_buttons:
+-	ucb1x00_assabet_remove_nodes(priv, i);
+-err_free_priv:
+-	kfree(priv);
+-	return ret;
+-}
+-
+-static void ucb1x00_assabet_remove(struct ucb1x00_dev *dev)
+-{
+-	struct ucb1x00_assabet_priv *priv = dev->priv;
+-
+-	if (!IS_ERR(priv->pdev))
+-		platform_device_unregister(priv->pdev);
+-
+-	ucb1x00_assabet_remove_nodes(priv, ARRAY_SIZE(priv->button_nodes));
+-
+-	device_remove_file(&dev->ucb->dev, &dev_attr_batt_temp);
+-	device_remove_file(&dev->ucb->dev, &dev_attr_vcharger);
+-	device_remove_file(&dev->ucb->dev, &dev_attr_vbatt);
+-
+-	kfree(priv);
+-}
+-
+-static struct ucb1x00_driver ucb1x00_assabet_driver = {
+-	.add	= ucb1x00_assabet_add,
+-	.remove	= ucb1x00_assabet_remove,
+-};
+-
+-static int __init ucb1x00_assabet_init(void)
+-{
+-	return ucb1x00_register_driver(&ucb1x00_assabet_driver);
+-}
+-
+-static void __exit ucb1x00_assabet_exit(void)
+-{
+-	ucb1x00_unregister_driver(&ucb1x00_assabet_driver);
+-}
+-
+-module_init(ucb1x00_assabet_init);
+-module_exit(ucb1x00_assabet_exit);
+-
+-MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+-MODULE_DESCRIPTION("Assabet noddy testing only example ADC driver");
+-MODULE_LICENSE("GPL");
+diff --git a/drivers/mfd/ucb1x00-core.c b/drivers/mfd/ucb1x00-core.c
+deleted file mode 100644
+index 90edf0352d05..000000000000
+--- a/drivers/mfd/ucb1x00-core.c
++++ /dev/null
+@@ -1,795 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- *  linux/drivers/mfd/ucb1x00-core.c
+- *
+- *  Copyright (C) 2001 Russell King, All Rights Reserved.
+- *
+- *  The UCB1x00 core driver provides basic services for handling IO,
+- *  the ADC, interrupts, and accessing registers.  It is designed
+- *  such that everything goes through this layer, thereby providing
+- *  a consistent locking methodology, as well as allowing the drivers
+- *  to be used on other non-MCP-enabled hardware platforms.
+- *
+- *  Note that all locks are private to this file.  Nothing else may
+- *  touch them.
+- */
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/sched.h>
+-#include <linux/slab.h>
+-#include <linux/init.h>
+-#include <linux/errno.h>
+-#include <linux/interrupt.h>
+-#include <linux/irq.h>
+-#include <linux/device.h>
+-#include <linux/mutex.h>
+-#include <linux/mfd/ucb1x00.h>
+-#include <linux/pm.h>
+-#include <linux/property.h>
+-#include <linux/gpio/driver.h>
+-
+-static DEFINE_MUTEX(ucb1x00_mutex);
+-static LIST_HEAD(ucb1x00_drivers);
+-static LIST_HEAD(ucb1x00_devices);
+-
+-/**
+- *	ucb1x00_io_set_dir - set IO direction
+- *	@ucb: UCB1x00 structure describing chip
+- *	@in:  bitfield of IO pins to be set as inputs
+- *	@out: bitfield of IO pins to be set as outputs
+- *
+- *	Set the IO direction of the ten general purpose IO pins on
+- *	the UCB1x00 chip.  The @in bitfield has priority over the
+- *	@out bitfield, in that if you specify a pin as both input
+- *	and output, it will end up as an input.
+- *
+- *	ucb1x00_enable must have been called to enable the comms
+- *	before using this function.
+- *
+- *	This function takes a spinlock, disabling interrupts.
+- */
+-void ucb1x00_io_set_dir(struct ucb1x00 *ucb, unsigned int in, unsigned int out)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&ucb->io_lock, flags);
+-	ucb->io_dir |= out;
+-	ucb->io_dir &= ~in;
+-
+-	ucb1x00_reg_write(ucb, UCB_IO_DIR, ucb->io_dir);
+-	spin_unlock_irqrestore(&ucb->io_lock, flags);
+-}
+-
+-/**
+- *	ucb1x00_io_write - set or clear IO outputs
+- *	@ucb:   UCB1x00 structure describing chip
+- *	@set:   bitfield of IO pins to set to logic '1'
+- *	@clear: bitfield of IO pins to set to logic '0'
+- *
+- *	Set the IO output state of the specified IO pins.  The value
+- *	is retained if the pins are subsequently configured as inputs.
+- *	The @clear bitfield has priority over the @set bitfield -
+- *	outputs will be cleared.
+- *
+- *	ucb1x00_enable must have been called to enable the comms
+- *	before using this function.
+- *
+- *	This function takes a spinlock, disabling interrupts.
+- */
+-void ucb1x00_io_write(struct ucb1x00 *ucb, unsigned int set, unsigned int clear)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&ucb->io_lock, flags);
+-	ucb->io_out |= set;
+-	ucb->io_out &= ~clear;
+-
+-	ucb1x00_reg_write(ucb, UCB_IO_DATA, ucb->io_out);
+-	spin_unlock_irqrestore(&ucb->io_lock, flags);
+-}
+-
+-/**
+- *	ucb1x00_io_read - read the current state of the IO pins
+- *	@ucb: UCB1x00 structure describing chip
+- *
+- *	Return a bitfield describing the logic state of the ten
+- *	general purpose IO pins.
+- *
+- *	ucb1x00_enable must have been called to enable the comms
+- *	before using this function.
+- *
+- *	This function does not take any mutexes or spinlocks.
+- */
+-unsigned int ucb1x00_io_read(struct ucb1x00 *ucb)
+-{
+-	return ucb1x00_reg_read(ucb, UCB_IO_DATA);
+-}
+-
+-static int ucb1x00_gpio_set(struct gpio_chip *chip, unsigned int offset,
+-			    int value)
+-{
+-	struct ucb1x00 *ucb = gpiochip_get_data(chip);
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&ucb->io_lock, flags);
+-	if (value)
+-		ucb->io_out |= 1 << offset;
+-	else
+-		ucb->io_out &= ~(1 << offset);
+-
+-	ucb1x00_enable(ucb);
+-	ucb1x00_reg_write(ucb, UCB_IO_DATA, ucb->io_out);
+-	ucb1x00_disable(ucb);
+-	spin_unlock_irqrestore(&ucb->io_lock, flags);
+-
 -	return 0;
 -}
 -
--static struct platform_driver rc5t583_regulator_driver = {
--	.driver	= {
--		.name	= "rc5t583-regulator",
--		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
--	},
--	.probe		= rc5t583_regulator_probe,
+-static int ucb1x00_gpio_get(struct gpio_chip *chip, unsigned offset)
+-{
+-	struct ucb1x00 *ucb = gpiochip_get_data(chip);
+-	unsigned val;
+-
+-	ucb1x00_enable(ucb);
+-	val = ucb1x00_reg_read(ucb, UCB_IO_DATA);
+-	ucb1x00_disable(ucb);
+-
+-	return !!(val & (1 << offset));
+-}
+-
+-static int ucb1x00_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+-{
+-	struct ucb1x00 *ucb = gpiochip_get_data(chip);
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&ucb->io_lock, flags);
+-	ucb->io_dir &= ~(1 << offset);
+-	ucb1x00_enable(ucb);
+-	ucb1x00_reg_write(ucb, UCB_IO_DIR, ucb->io_dir);
+-	ucb1x00_disable(ucb);
+-	spin_unlock_irqrestore(&ucb->io_lock, flags);
+-
+-	return 0;
+-}
+-
+-static int ucb1x00_gpio_direction_output(struct gpio_chip *chip, unsigned offset
+-		, int value)
+-{
+-	struct ucb1x00 *ucb = gpiochip_get_data(chip);
+-	unsigned long flags;
+-	unsigned old, mask = 1 << offset;
+-
+-	spin_lock_irqsave(&ucb->io_lock, flags);
+-	old = ucb->io_out;
+-	if (value)
+-		ucb->io_out |= mask;
+-	else
+-		ucb->io_out &= ~mask;
+-
+-	ucb1x00_enable(ucb);
+-	if (old != ucb->io_out)
+-		ucb1x00_reg_write(ucb, UCB_IO_DATA, ucb->io_out);
+-
+-	if (!(ucb->io_dir & mask)) {
+-		ucb->io_dir |= mask;
+-		ucb1x00_reg_write(ucb, UCB_IO_DIR, ucb->io_dir);
+-	}
+-	ucb1x00_disable(ucb);
+-	spin_unlock_irqrestore(&ucb->io_lock, flags);
+-
+-	return 0;
+-}
+-
+-static int ucb1x00_to_irq(struct gpio_chip *chip, unsigned offset)
+-{
+-	struct ucb1x00 *ucb = gpiochip_get_data(chip);
+-
+-	return ucb->irq_base > 0 ? ucb->irq_base + offset : -ENXIO;
+-}
+-
+-/*
+- * UCB1300 data sheet says we must:
+- *  1. enable ADC	=> 5us (including reference startup time)
+- *  2. select input	=> 51*tsibclk  => 4.3us
+- *  3. start conversion	=> 102*tsibclk => 8.5us
+- * (tsibclk = 1/11981000)
+- * Period between SIB 128-bit frames = 10.7us
+- */
+-
+-/**
+- *	ucb1x00_adc_enable - enable the ADC converter
+- *	@ucb: UCB1x00 structure describing chip
+- *
+- *	Enable the ucb1x00 and ADC converter on the UCB1x00 for use.
+- *	Any code wishing to use the ADC converter must call this
+- *	function prior to using it.
+- *
+- *	This function takes the ADC mutex to prevent two or more
+- *	concurrent uses, and therefore may sleep.  As a result, it
+- *	can only be called from process context, not interrupt
+- *	context.
+- *
+- *	You should release the ADC as soon as possible using
+- *	ucb1x00_adc_disable.
+- */
+-void ucb1x00_adc_enable(struct ucb1x00 *ucb)
+-{
+-	mutex_lock(&ucb->adc_mutex);
+-
+-	ucb->adc_cr |= UCB_ADC_ENA;
+-
+-	ucb1x00_enable(ucb);
+-	ucb1x00_reg_write(ucb, UCB_ADC_CR, ucb->adc_cr);
+-}
+-
+-/**
+- *	ucb1x00_adc_read - read the specified ADC channel
+- *	@ucb: UCB1x00 structure describing chip
+- *	@adc_channel: ADC channel mask
+- *	@sync: wait for syncronisation pulse.
+- *
+- *	Start an ADC conversion and wait for the result.  Note that
+- *	synchronised ADC conversions (via the ADCSYNC pin) must wait
+- *	until the trigger is asserted and the conversion is finished.
+- *
+- *	This function currently spins waiting for the conversion to
+- *	complete (2 frames max without sync).
+- *
+- *	If called for a synchronised ADC conversion, it may sleep
+- *	with the ADC mutex held.
+- */
+-unsigned int ucb1x00_adc_read(struct ucb1x00 *ucb, int adc_channel, int sync)
+-{
+-	unsigned int val;
+-
+-	if (sync)
+-		adc_channel |= UCB_ADC_SYNC_ENA;
+-
+-	ucb1x00_reg_write(ucb, UCB_ADC_CR, ucb->adc_cr | adc_channel);
+-	ucb1x00_reg_write(ucb, UCB_ADC_CR, ucb->adc_cr | adc_channel | UCB_ADC_START);
+-
+-	for (;;) {
+-		val = ucb1x00_reg_read(ucb, UCB_ADC_DATA);
+-		if (val & UCB_ADC_DAT_VAL)
+-			break;
+-		/* yield to other processes */
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		schedule_timeout(1);
+-	}
+-
+-	return UCB_ADC_DAT(val);
+-}
+-
+-/**
+- *	ucb1x00_adc_disable - disable the ADC converter
+- *	@ucb: UCB1x00 structure describing chip
+- *
+- *	Disable the ADC converter and release the ADC mutex.
+- */
+-void ucb1x00_adc_disable(struct ucb1x00 *ucb)
+-{
+-	ucb->adc_cr &= ~UCB_ADC_ENA;
+-	ucb1x00_reg_write(ucb, UCB_ADC_CR, ucb->adc_cr);
+-	ucb1x00_disable(ucb);
+-
+-	mutex_unlock(&ucb->adc_mutex);
+-}
+-
+-/*
+- * UCB1x00 Interrupt handling.
+- *
+- * The UCB1x00 can generate interrupts when the SIBCLK is stopped.
+- * Since we need to read an internal register, we must re-enable
+- * SIBCLK to talk to the chip.  We leave the clock running until
+- * we have finished processing all interrupts from the chip.
+- */
+-static void ucb1x00_irq(struct irq_desc *desc)
+-{
+-	struct ucb1x00 *ucb = irq_desc_get_handler_data(desc);
+-	unsigned int isr, i;
+-
+-	ucb1x00_enable(ucb);
+-	isr = ucb1x00_reg_read(ucb, UCB_IE_STATUS);
+-	ucb1x00_reg_write(ucb, UCB_IE_CLEAR, isr);
+-	ucb1x00_reg_write(ucb, UCB_IE_CLEAR, 0);
+-
+-	for (i = 0; i < 16 && isr; i++, isr >>= 1)
+-		if (isr & 1)
+-			generic_handle_irq(ucb->irq_base + i);
+-	ucb1x00_disable(ucb);
+-}
+-
+-static void ucb1x00_irq_update(struct ucb1x00 *ucb, unsigned mask)
+-{
+-	ucb1x00_enable(ucb);
+-	if (ucb->irq_ris_enbl & mask)
+-		ucb1x00_reg_write(ucb, UCB_IE_RIS, ucb->irq_ris_enbl &
+-				  ucb->irq_mask);
+-	if (ucb->irq_fal_enbl & mask)
+-		ucb1x00_reg_write(ucb, UCB_IE_FAL, ucb->irq_fal_enbl &
+-				  ucb->irq_mask);
+-	ucb1x00_disable(ucb);
+-}
+-
+-static void ucb1x00_irq_noop(struct irq_data *data)
+-{
+-}
+-
+-static void ucb1x00_irq_mask(struct irq_data *data)
+-{
+-	struct ucb1x00 *ucb = irq_data_get_irq_chip_data(data);
+-	unsigned mask = 1 << (data->irq - ucb->irq_base);
+-
+-	raw_spin_lock(&ucb->irq_lock);
+-	ucb->irq_mask &= ~mask;
+-	ucb1x00_irq_update(ucb, mask);
+-	raw_spin_unlock(&ucb->irq_lock);
+-}
+-
+-static void ucb1x00_irq_unmask(struct irq_data *data)
+-{
+-	struct ucb1x00 *ucb = irq_data_get_irq_chip_data(data);
+-	unsigned mask = 1 << (data->irq - ucb->irq_base);
+-
+-	raw_spin_lock(&ucb->irq_lock);
+-	ucb->irq_mask |= mask;
+-	ucb1x00_irq_update(ucb, mask);
+-	raw_spin_unlock(&ucb->irq_lock);
+-}
+-
+-static int ucb1x00_irq_set_type(struct irq_data *data, unsigned int type)
+-{
+-	struct ucb1x00 *ucb = irq_data_get_irq_chip_data(data);
+-	unsigned mask = 1 << (data->irq - ucb->irq_base);
+-
+-	raw_spin_lock(&ucb->irq_lock);
+-	if (type & IRQ_TYPE_EDGE_RISING)
+-		ucb->irq_ris_enbl |= mask;
+-	else
+-		ucb->irq_ris_enbl &= ~mask;
+-
+-	if (type & IRQ_TYPE_EDGE_FALLING)
+-		ucb->irq_fal_enbl |= mask;
+-	else
+-		ucb->irq_fal_enbl &= ~mask;
+-	if (ucb->irq_mask & mask) {
+-		ucb1x00_reg_write(ucb, UCB_IE_RIS, ucb->irq_ris_enbl &
+-				  ucb->irq_mask);
+-		ucb1x00_reg_write(ucb, UCB_IE_FAL, ucb->irq_fal_enbl &
+-				  ucb->irq_mask);
+-	}
+-	raw_spin_unlock(&ucb->irq_lock);
+-
+-	return 0;
+-}
+-
+-static int ucb1x00_irq_set_wake(struct irq_data *data, unsigned int on)
+-{
+-	struct ucb1x00 *ucb = irq_data_get_irq_chip_data(data);
+-	struct ucb1x00_plat_data *pdata = ucb->mcp->attached_device.platform_data;
+-	unsigned mask = 1 << (data->irq - ucb->irq_base);
+-
+-	if (!pdata || !pdata->can_wakeup)
+-		return -EINVAL;
+-
+-	raw_spin_lock(&ucb->irq_lock);
+-	if (on)
+-		ucb->irq_wake |= mask;
+-	else
+-		ucb->irq_wake &= ~mask;
+-	raw_spin_unlock(&ucb->irq_lock);
+-
+-	return 0;
+-}
+-
+-static struct irq_chip ucb1x00_irqchip = {
+-	.name = "ucb1x00",
+-	.irq_ack = ucb1x00_irq_noop,
+-	.irq_mask = ucb1x00_irq_mask,
+-	.irq_unmask = ucb1x00_irq_unmask,
+-	.irq_set_type = ucb1x00_irq_set_type,
+-	.irq_set_wake = ucb1x00_irq_set_wake,
 -};
 -
--static int __init rc5t583_regulator_init(void)
+-static int ucb1x00_add_dev(struct ucb1x00 *ucb, struct ucb1x00_driver *drv)
 -{
--	return platform_driver_register(&rc5t583_regulator_driver);
--}
--subsys_initcall(rc5t583_regulator_init);
+-	struct ucb1x00_dev *dev;
+-	int ret;
 -
--static void __exit rc5t583_regulator_exit(void)
+-	dev = kmalloc_obj(struct ucb1x00_dev);
+-	if (!dev)
+-		return -ENOMEM;
+-
+-	dev->ucb = ucb;
+-	dev->drv = drv;
+-
+-	ret = drv->add(dev);
+-	if (ret) {
+-		kfree(dev);
+-		return ret;
+-	}
+-
+-	list_add_tail(&dev->dev_node, &ucb->devs);
+-	list_add_tail(&dev->drv_node, &drv->devs);
+-
+-	return ret;
+-}
+-
+-static void ucb1x00_remove_dev(struct ucb1x00_dev *dev)
 -{
--	platform_driver_unregister(&rc5t583_regulator_driver);
+-	dev->drv->remove(dev);
+-	list_del(&dev->dev_node);
+-	list_del(&dev->drv_node);
+-	kfree(dev);
 -}
--module_exit(rc5t583_regulator_exit);
 -
--MODULE_AUTHOR("Laxman Dewangan <ldewangan@nvidia.com>");
--MODULE_DESCRIPTION("RC5T583 regulator driver");
--MODULE_ALIAS("platform:rc5t583-regulator");
--MODULE_LICENSE("GPL v2");
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index c201948b4d5b..c71398368f6d 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -630,16 +630,6 @@ config RTC_DRV_TPS65910
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-tps65910.
- 
--config RTC_DRV_RC5T583
--	tristate "RICOH 5T583 RTC driver"
--	depends on MFD_RC5T583
--	help
--	  If you say yes here you get support for the RTC on the
--	  RICOH 5T583 chips.
+-/*
+- * Try to probe our interrupt, rather than relying on lots of
+- * hard-coded machine dependencies.  For reference, the expected
+- * IRQ mappings are:
+- *
+- *  	Machine		Default IRQ
+- *	adsbitsy	IRQ_GPCIN4
+- *	cerf		IRQ_GPIO_UCB1200_IRQ
+- *	flexanet	IRQ_GPIO_GUI
+- *	freebird	IRQ_GPIO_FREEBIRD_UCB1300_IRQ
+- *	graphicsclient	ADS_EXT_IRQ(8)
+- *	graphicsmaster	ADS_EXT_IRQ(8)
+- *	lart		LART_IRQ_UCB1200
+- *	omnimeter	IRQ_GPIO23
+- *	pfs168		IRQ_GPIO_UCB1300_IRQ
+- *	simpad		IRQ_GPIO_UCB1300_IRQ
+- *	shannon		SHANNON_IRQ_GPIO_IRQ_CODEC
+- *	yopy		IRQ_GPIO_UCB1200_IRQ
+- */
+-static int ucb1x00_detect_irq(struct ucb1x00 *ucb)
+-{
+-	unsigned long mask;
 -
--	  This driver can also be built as a module. If so, the module
--	  will be called rtc-rc5t583.
+-	mask = probe_irq_on();
 -
- config RTC_DRV_RC5T619
- 	tristate "RICOH RC5T619 RTC driver"
- 	depends on MFD_RN5T618
-diff --git a/drivers/rtc/Makefile b/drivers/rtc/Makefile
-index 84bb2af5849e..b8fc1a17d27f 100644
---- a/drivers/rtc/Makefile
-+++ b/drivers/rtc/Makefile
-@@ -143,7 +143,6 @@ obj-$(CONFIG_RTC_DRV_PS3)	+= rtc-ps3.o
- obj-$(CONFIG_RTC_DRV_PXA)	+= rtc-pxa.o
- obj-$(CONFIG_RTC_DRV_R7301)	+= rtc-r7301.o
- obj-$(CONFIG_RTC_DRV_R9701)	+= rtc-r9701.o
--obj-$(CONFIG_RTC_DRV_RC5T583)	+= rtc-rc5t583.o
- obj-$(CONFIG_RTC_DRV_RC5T619)	+= rtc-rc5t619.o
- obj-$(CONFIG_RTC_DRV_RK808)	+= rtc-rk808.o
- obj-$(CONFIG_RTC_DRV_RP5C01)	+= rtc-rp5c01.o
-diff --git a/drivers/rtc/rtc-rc5t583.c b/drivers/rtc/rtc-rc5t583.c
+-	/*
+-	 * Enable the ADC interrupt.
+-	 */
+-	ucb1x00_reg_write(ucb, UCB_IE_RIS, UCB_IE_ADC);
+-	ucb1x00_reg_write(ucb, UCB_IE_FAL, UCB_IE_ADC);
+-	ucb1x00_reg_write(ucb, UCB_IE_CLEAR, 0xffff);
+-	ucb1x00_reg_write(ucb, UCB_IE_CLEAR, 0);
+-
+-	/*
+-	 * Cause an ADC interrupt.
+-	 */
+-	ucb1x00_reg_write(ucb, UCB_ADC_CR, UCB_ADC_ENA);
+-	ucb1x00_reg_write(ucb, UCB_ADC_CR, UCB_ADC_ENA | UCB_ADC_START);
+-
+-	/*
+-	 * Wait for the conversion to complete.
+-	 */
+-	while ((ucb1x00_reg_read(ucb, UCB_ADC_DATA) & UCB_ADC_DAT_VAL) == 0);
+-	ucb1x00_reg_write(ucb, UCB_ADC_CR, 0);
+-
+-	/*
+-	 * Disable and clear interrupt.
+-	 */
+-	ucb1x00_reg_write(ucb, UCB_IE_RIS, 0);
+-	ucb1x00_reg_write(ucb, UCB_IE_FAL, 0);
+-	ucb1x00_reg_write(ucb, UCB_IE_CLEAR, 0xffff);
+-	ucb1x00_reg_write(ucb, UCB_IE_CLEAR, 0);
+-
+-	/*
+-	 * Read triggered interrupt.
+-	 */
+-	return probe_irq_off(mask);
+-}
+-
+-static void ucb1x00_release(struct device *dev)
+-{
+-	struct ucb1x00 *ucb = classdev_to_ucb1x00(dev);
+-	kfree(ucb);
+-}
+-
+-static struct class ucb1x00_class = {
+-	.name		= "ucb1x00",
+-	.dev_release	= ucb1x00_release,
+-};
+-
+-const struct software_node ucb1x00_gpiochip_node = {
+-	.name = "ucb1x00-gpio",
+-};
+-EXPORT_SYMBOL_GPL(ucb1x00_gpiochip_node);
+-
+-static int ucb1x00_probe(struct mcp *mcp)
+-{
+-	struct ucb1x00_plat_data *pdata = mcp->attached_device.platform_data;
+-	struct ucb1x00_driver *drv;
+-	struct ucb1x00 *ucb;
+-	unsigned id, i, irq_base;
+-	int ret = -ENODEV;
+-
+-	/* Tell the platform to deassert the UCB1x00 reset */
+-	if (pdata && pdata->reset)
+-		pdata->reset(UCB_RST_PROBE);
+-
+-	mcp_enable(mcp);
+-	id = mcp_reg_read(mcp, UCB_ID);
+-	mcp_disable(mcp);
+-
+-	if (id != UCB_ID_1200 && id != UCB_ID_1300 && id != UCB_ID_TC35143) {
+-		printk(KERN_WARNING "UCB1x00 ID not found: %04x\n", id);
+-		goto out;
+-	}
+-
+-	ucb = kzalloc_obj(struct ucb1x00);
+-	ret = -ENOMEM;
+-	if (!ucb)
+-		goto out;
+-
+-	device_initialize(&ucb->dev);
+-	ucb->dev.class = &ucb1x00_class;
+-	ucb->dev.parent = &mcp->attached_device;
+-	dev_set_name(&ucb->dev, "ucb1x00");
+-
+-	raw_spin_lock_init(&ucb->irq_lock);
+-	spin_lock_init(&ucb->io_lock);
+-	mutex_init(&ucb->adc_mutex);
+-
+-	ucb->id  = id;
+-	ucb->mcp = mcp;
+-
+-	ret = device_add_software_node(&ucb->dev, &ucb1x00_gpiochip_node);
+-	if (ret)
+-		goto err_swnode_add;
+-
+-	ret = device_add(&ucb->dev);
+-	if (ret)
+-		goto err_dev_add;
+-
+-	ucb1x00_enable(ucb);
+-	ucb->irq = ucb1x00_detect_irq(ucb);
+-	ucb1x00_disable(ucb);
+-	if (!ucb->irq) {
+-		dev_err(&ucb->dev, "IRQ probe failed\n");
+-		ret = -ENODEV;
+-		goto err_no_irq;
+-	}
+-
+-	ucb->gpio.base = -1;
+-	irq_base = pdata ? pdata->irq_base : 0;
+-	ucb->irq_base = irq_alloc_descs(-1, irq_base, 16, -1);
+-	if (ucb->irq_base < 0) {
+-		dev_err(&ucb->dev, "unable to allocate 16 irqs: %d\n",
+-			ucb->irq_base);
+-		ret = ucb->irq_base;
+-		goto err_irq_alloc;
+-	}
+-
+-	for (i = 0; i < 16; i++) {
+-		unsigned irq = ucb->irq_base + i;
+-
+-		irq_set_chip_and_handler(irq, &ucb1x00_irqchip, handle_edge_irq);
+-		irq_set_chip_data(irq, ucb);
+-		irq_clear_status_flags(irq, IRQ_NOREQUEST);
+-	}
+-
+-	irq_set_irq_type(ucb->irq, IRQ_TYPE_EDGE_RISING);
+-	irq_set_chained_handler_and_data(ucb->irq, ucb1x00_irq, ucb);
+-
+-	if (pdata && pdata->gpio_base) {
+-		ucb->gpio.label = dev_name(&ucb->dev);
+-		ucb->gpio.parent = &ucb->dev;
+-		ucb->gpio.owner = THIS_MODULE;
+-		ucb->gpio.base = pdata->gpio_base;
+-		ucb->gpio.ngpio = 10;
+-		ucb->gpio.set = ucb1x00_gpio_set;
+-		ucb->gpio.get = ucb1x00_gpio_get;
+-		ucb->gpio.direction_input = ucb1x00_gpio_direction_input;
+-		ucb->gpio.direction_output = ucb1x00_gpio_direction_output;
+-		ucb->gpio.to_irq = ucb1x00_to_irq;
+-		ret = gpiochip_add_data(&ucb->gpio, ucb);
+-		if (ret)
+-			goto err_gpio_add;
+-	} else
+-		dev_info(&ucb->dev, "gpio_base not set so no gpiolib support");
+-
+-	mcp_set_drvdata(mcp, ucb);
+-
+-	if (pdata)
+-		device_set_wakeup_capable(&ucb->dev, pdata->can_wakeup);
+-
+-	INIT_LIST_HEAD(&ucb->devs);
+-	mutex_lock(&ucb1x00_mutex);
+-	list_add_tail(&ucb->node, &ucb1x00_devices);
+-	list_for_each_entry(drv, &ucb1x00_drivers, node) {
+-		ucb1x00_add_dev(ucb, drv);
+-	}
+-	mutex_unlock(&ucb1x00_mutex);
+-
+-	return ret;
+-
+- err_gpio_add:
+-	irq_set_chained_handler(ucb->irq, NULL);
+- err_irq_alloc:
+-	if (ucb->irq_base > 0)
+-		irq_free_descs(ucb->irq_base, 16);
+- err_no_irq:
+-	device_del(&ucb->dev);
+- err_dev_add:
+-	device_remove_software_node(&ucb->dev);
+- err_swnode_add:
+-	put_device(&ucb->dev);
+- out:
+-	if (pdata && pdata->reset)
+-		pdata->reset(UCB_RST_PROBE_FAIL);
+-	return ret;
+-}
+-
+-static void ucb1x00_remove(struct mcp *mcp)
+-{
+-	struct ucb1x00_plat_data *pdata = mcp->attached_device.platform_data;
+-	struct ucb1x00 *ucb = mcp_get_drvdata(mcp);
+-	struct list_head *l, *n;
+-
+-	mutex_lock(&ucb1x00_mutex);
+-	list_del(&ucb->node);
+-	list_for_each_safe(l, n, &ucb->devs) {
+-		struct ucb1x00_dev *dev = list_entry(l, struct ucb1x00_dev, dev_node);
+-		ucb1x00_remove_dev(dev);
+-	}
+-	mutex_unlock(&ucb1x00_mutex);
+-
+-	if (ucb->gpio.base != -1)
+-		gpiochip_remove(&ucb->gpio);
+-
+-	irq_set_chained_handler(ucb->irq, NULL);
+-	irq_free_descs(ucb->irq_base, 16);
+-	device_del(&ucb->dev);
+-	device_remove_software_node(&ucb->dev);
+-	put_device(&ucb->dev);
+-
+-	if (pdata && pdata->reset)
+-		pdata->reset(UCB_RST_REMOVE);
+-}
+-
+-int ucb1x00_register_driver(struct ucb1x00_driver *drv)
+-{
+-	struct ucb1x00 *ucb;
+-
+-	INIT_LIST_HEAD(&drv->devs);
+-	mutex_lock(&ucb1x00_mutex);
+-	list_add_tail(&drv->node, &ucb1x00_drivers);
+-	list_for_each_entry(ucb, &ucb1x00_devices, node) {
+-		ucb1x00_add_dev(ucb, drv);
+-	}
+-	mutex_unlock(&ucb1x00_mutex);
+-	return 0;
+-}
+-
+-void ucb1x00_unregister_driver(struct ucb1x00_driver *drv)
+-{
+-	struct list_head *n, *l;
+-
+-	mutex_lock(&ucb1x00_mutex);
+-	list_del(&drv->node);
+-	list_for_each_safe(l, n, &drv->devs) {
+-		struct ucb1x00_dev *dev = list_entry(l, struct ucb1x00_dev, drv_node);
+-		ucb1x00_remove_dev(dev);
+-	}
+-	mutex_unlock(&ucb1x00_mutex);
+-}
+-
+-static int ucb1x00_suspend(struct device *dev)
+-{
+-	struct ucb1x00_plat_data *pdata = dev_get_platdata(dev);
+-	struct ucb1x00 *ucb = dev_get_drvdata(dev);
+-	struct ucb1x00_dev *udev;
+-
+-	mutex_lock(&ucb1x00_mutex);
+-	list_for_each_entry(udev, &ucb->devs, dev_node) {
+-		if (udev->drv->suspend)
+-			udev->drv->suspend(udev);
+-	}
+-	mutex_unlock(&ucb1x00_mutex);
+-
+-	if (ucb->irq_wake) {
+-		unsigned long flags;
+-
+-		raw_spin_lock_irqsave(&ucb->irq_lock, flags);
+-		ucb1x00_enable(ucb);
+-		ucb1x00_reg_write(ucb, UCB_IE_RIS, ucb->irq_ris_enbl &
+-				  ucb->irq_wake);
+-		ucb1x00_reg_write(ucb, UCB_IE_FAL, ucb->irq_fal_enbl &
+-				  ucb->irq_wake);
+-		ucb1x00_disable(ucb);
+-		raw_spin_unlock_irqrestore(&ucb->irq_lock, flags);
+-
+-		enable_irq_wake(ucb->irq);
+-	} else if (pdata && pdata->reset)
+-		pdata->reset(UCB_RST_SUSPEND);
+-
+-	return 0;
+-}
+-
+-static int ucb1x00_resume(struct device *dev)
+-{
+-	struct ucb1x00_plat_data *pdata = dev_get_platdata(dev);
+-	struct ucb1x00 *ucb = dev_get_drvdata(dev);
+-	struct ucb1x00_dev *udev;
+-
+-	if (!ucb->irq_wake && pdata && pdata->reset)
+-		pdata->reset(UCB_RST_RESUME);
+-
+-	ucb1x00_enable(ucb);
+-	ucb1x00_reg_write(ucb, UCB_IO_DATA, ucb->io_out);
+-	ucb1x00_reg_write(ucb, UCB_IO_DIR, ucb->io_dir);
+-
+-	if (ucb->irq_wake) {
+-		unsigned long flags;
+-
+-		raw_spin_lock_irqsave(&ucb->irq_lock, flags);
+-		ucb1x00_reg_write(ucb, UCB_IE_RIS, ucb->irq_ris_enbl &
+-				  ucb->irq_mask);
+-		ucb1x00_reg_write(ucb, UCB_IE_FAL, ucb->irq_fal_enbl &
+-				  ucb->irq_mask);
+-		raw_spin_unlock_irqrestore(&ucb->irq_lock, flags);
+-
+-		disable_irq_wake(ucb->irq);
+-	}
+-	ucb1x00_disable(ucb);
+-
+-	mutex_lock(&ucb1x00_mutex);
+-	list_for_each_entry(udev, &ucb->devs, dev_node) {
+-		if (udev->drv->resume)
+-			udev->drv->resume(udev);
+-	}
+-	mutex_unlock(&ucb1x00_mutex);
+-	return 0;
+-}
+-
+-static DEFINE_SIMPLE_DEV_PM_OPS(ucb1x00_pm_ops,
+-				ucb1x00_suspend, ucb1x00_resume);
+-
+-static struct mcp_driver ucb1x00_driver = {
+-	.drv		= {
+-		.name	= "ucb1x00",
+-		.owner	= THIS_MODULE,
+-		.pm	= pm_sleep_ptr(&ucb1x00_pm_ops),
+-	},
+-	.probe		= ucb1x00_probe,
+-	.remove		= ucb1x00_remove,
+-};
+-
+-static int __init ucb1x00_init(void)
+-{
+-	int ret = class_register(&ucb1x00_class);
+-	if (ret == 0) {
+-		ret = mcp_driver_register(&ucb1x00_driver);
+-		if (ret)
+-			class_unregister(&ucb1x00_class);
+-	}
+-	return ret;
+-}
+-
+-static void __exit ucb1x00_exit(void)
+-{
+-	mcp_driver_unregister(&ucb1x00_driver);
+-	class_unregister(&ucb1x00_class);
+-}
+-
+-module_init(ucb1x00_init);
+-module_exit(ucb1x00_exit);
+-
+-EXPORT_SYMBOL(ucb1x00_io_set_dir);
+-EXPORT_SYMBOL(ucb1x00_io_write);
+-EXPORT_SYMBOL(ucb1x00_io_read);
+-
+-EXPORT_SYMBOL(ucb1x00_adc_enable);
+-EXPORT_SYMBOL(ucb1x00_adc_read);
+-EXPORT_SYMBOL(ucb1x00_adc_disable);
+-
+-EXPORT_SYMBOL(ucb1x00_register_driver);
+-EXPORT_SYMBOL(ucb1x00_unregister_driver);
+-
+-MODULE_ALIAS("mcp:ucb1x00");
+-MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+-MODULE_DESCRIPTION("UCB1x00 core driver");
+-MODULE_LICENSE("GPL");
+diff --git a/drivers/mfd/ucb1x00-ts.c b/drivers/mfd/ucb1x00-ts.c
 deleted file mode 100644
-index 8ba9cda74acf..000000000000
---- a/drivers/rtc/rtc-rc5t583.c
+index 39fe187eea1f..000000000000
+--- a/drivers/mfd/ucb1x00-ts.c
 +++ /dev/null
-@@ -1,312 +0,0 @@
+@@ -1,445 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0-only
 -/*
-- * rtc-rc5t583.c -- RICOH RC5T583 Real Time Clock
+- *  Touchscreen driver for UCB1x00-based touchscreens
 - *
-- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
-- * Author: Venu Byravarasu <vbyravarasu@nvidia.com>
+- *  Copyright (C) 2001 Russell King, All Rights Reserved.
+- *  Copyright (C) 2005 Pavel Machek
+- *
+- * 21-Jan-2002 <jco@ict.es> :
+- *
+- * Added support for synchronous A/D mode. This mode is useful to
+- * avoid noise induced in the touchpanel by the LCD, provided that
+- * the UCB1x00 has a valid LCD sync signal routed to its ADCSYNC pin.
+- * It is important to note that the signal connected to the ADCSYNC
+- * pin should provide pulses even when the LCD is blanked, otherwise
+- * a pen touch needed to unblank the LCD will never be read.
 - */
--
--#include <linux/kernel.h>
--#include <linux/errno.h>
--#include <linux/init.h>
 -#include <linux/module.h>
--#include <linux/types.h>
--#include <linux/rtc.h>
--#include <linux/bcd.h>
--#include <linux/platform_device.h>
+-#include <linux/moduleparam.h>
+-#include <linux/init.h>
 -#include <linux/interrupt.h>
--#include <linux/mfd/rc5t583.h>
+-#include <linux/sched.h>
+-#include <linux/spinlock.h>
+-#include <linux/completion.h>
+-#include <linux/delay.h>
+-#include <linux/string.h>
+-#include <linux/input.h>
+-#include <linux/device.h>
+-#include <linux/freezer.h>
+-#include <linux/slab.h>
+-#include <linux/kthread.h>
+-#include <linux/mfd/ucb1x00.h>
 -
--struct rc5t583_rtc {
--	struct rtc_device	*rtc;
--	/* To store the list of enabled interrupts, during system suspend */
--	u32 irqen;
+-#include <mach/collie.h>
+-#include <asm/mach-types.h>
+-
+-
+-
+-struct ucb1x00_ts {
+-	struct input_dev	*idev;
+-	struct ucb1x00		*ucb;
+-
+-	spinlock_t		irq_lock;
+-	unsigned		irq_disabled;
+-	wait_queue_head_t	irq_wait;
+-	struct task_struct	*rtask;
+-	u16			x_res;
+-	u16			y_res;
+-
+-	unsigned int		adcsync:1;
 -};
 -
--/* Total number of RTC registers needed to set time*/
--#define NUM_TIME_REGS	(RC5T583_RTC_YEAR - RC5T583_RTC_SEC + 1)
+-static int adcsync;
 -
--/* Total number of RTC registers needed to set Y-Alarm*/
--#define NUM_YAL_REGS	(RC5T583_RTC_AY_YEAR - RC5T583_RTC_AY_MIN + 1)
--
--/* Set Y-Alarm interrupt */
--#define SET_YAL BIT(5)
--
--/* Get Y-Alarm interrupt status*/
--#define GET_YAL_STATUS BIT(3)
--
--static int rc5t583_rtc_alarm_irq_enable(struct device *dev, unsigned enabled)
+-static inline void ucb1x00_ts_evt_add(struct ucb1x00_ts *ts, u16 pressure, u16 x, u16 y)
 -{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	u8 val;
+-	struct input_dev *idev = ts->idev;
 -
--	/* Set Y-Alarm, based on 'enabled' */
--	val = enabled ? SET_YAL : 0;
+-	input_report_abs(idev, ABS_X, x);
+-	input_report_abs(idev, ABS_Y, y);
+-	input_report_abs(idev, ABS_PRESSURE, pressure);
+-	input_report_key(idev, BTN_TOUCH, 1);
+-	input_sync(idev);
+-}
 -
--	return regmap_update_bits(rc5t583->regmap, RC5T583_RTC_CTL1, SET_YAL,
--		val);
+-static inline void ucb1x00_ts_event_release(struct ucb1x00_ts *ts)
+-{
+-	struct input_dev *idev = ts->idev;
+-
+-	input_report_abs(idev, ABS_PRESSURE, 0);
+-	input_report_key(idev, BTN_TOUCH, 0);
+-	input_sync(idev);
 -}
 -
 -/*
-- * Gets current rc5t583 RTC time and date parameters.
-- *
-- * The RTC's time/alarm representation is not what gmtime(3) requires
-- * Linux to use:
-- *
-- *  - Months are 1..12 vs Linux 0-11
-- *  - Years are 0..99 vs Linux 1900..N (we assume 21st century)
+- * Switch to interrupt mode.
 - */
--static int rc5t583_rtc_read_time(struct device *dev, struct rtc_time *tm)
+-static inline void ucb1x00_ts_mode_int(struct ucb1x00_ts *ts)
 -{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	u8 rtc_data[NUM_TIME_REGS];
--	int ret;
--
--	ret = regmap_bulk_read(rc5t583->regmap, RC5T583_RTC_SEC, rtc_data,
--		NUM_TIME_REGS);
--	if (ret < 0) {
--		dev_err(dev, "RTC read time failed with err:%d\n", ret);
--		return ret;
--	}
--
--	tm->tm_sec = bcd2bin(rtc_data[0]);
--	tm->tm_min = bcd2bin(rtc_data[1]);
--	tm->tm_hour = bcd2bin(rtc_data[2]);
--	tm->tm_wday = bcd2bin(rtc_data[3]);
--	tm->tm_mday = bcd2bin(rtc_data[4]);
--	tm->tm_mon = bcd2bin(rtc_data[5]) - 1;
--	tm->tm_year = bcd2bin(rtc_data[6]) + 100;
--
--	return ret;
+-	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-			UCB_TS_CR_TSMX_POW | UCB_TS_CR_TSPX_POW |
+-			UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_GND |
+-			UCB_TS_CR_MODE_INT);
 -}
 -
--static int rc5t583_rtc_set_time(struct device *dev, struct rtc_time *tm)
+-/*
+- * Switch to pressure mode, and read pressure.  We don't need to wait
+- * here, since both plates are being driven.
+- */
+-static inline unsigned int ucb1x00_ts_read_pressure(struct ucb1x00_ts *ts)
 -{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	unsigned char rtc_data[NUM_TIME_REGS];
--	int ret;
+-	if (machine_is_collie()) {
+-		ucb1x00_io_write(ts->ucb, COLLIE_TC35143_GPIO_TBL_CHK, 0);
+-		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-				  UCB_TS_CR_TSPX_POW | UCB_TS_CR_TSMX_POW |
+-				  UCB_TS_CR_MODE_POS | UCB_TS_CR_BIAS_ENA);
 -
--	rtc_data[0] = bin2bcd(tm->tm_sec);
--	rtc_data[1] = bin2bcd(tm->tm_min);
--	rtc_data[2] = bin2bcd(tm->tm_hour);
--	rtc_data[3] = bin2bcd(tm->tm_wday);
--	rtc_data[4] = bin2bcd(tm->tm_mday);
--	rtc_data[5] = bin2bcd(tm->tm_mon + 1);
--	rtc_data[6] = bin2bcd(tm->tm_year - 100);
+-		udelay(55);
 -
--	ret = regmap_bulk_write(rc5t583->regmap, RC5T583_RTC_SEC, rtc_data,
--		NUM_TIME_REGS);
--	if (ret < 0) {
--		dev_err(dev, "RTC set time failed with error %d\n", ret);
--		return ret;
+-		return ucb1x00_adc_read(ts->ucb, UCB_ADC_INP_AD2, ts->adcsync);
+-	} else {
+-		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-				  UCB_TS_CR_TSMX_POW | UCB_TS_CR_TSPX_POW |
+-				  UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_GND |
+-				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
+-
+-		return ucb1x00_adc_read(ts->ucb, UCB_ADC_INP_TSPY, ts->adcsync);
 -	}
--
--	return ret;
 -}
 -
--static int rc5t583_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alm)
+-/*
+- * Switch to X position mode and measure Y plate.  We switch the plate
+- * configuration in pressure mode, then switch to position mode.  This
+- * gives a faster response time.  Even so, we need to wait about 55us
+- * for things to stabilise.
+- */
+-static inline unsigned int ucb1x00_ts_read_xpos(struct ucb1x00_ts *ts)
 -{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	unsigned char alarm_data[NUM_YAL_REGS];
--	u32 interrupt_enable;
--	int ret;
--
--	ret = regmap_bulk_read(rc5t583->regmap, RC5T583_RTC_AY_MIN, alarm_data,
--		NUM_YAL_REGS);
--	if (ret < 0) {
--		dev_err(dev, "rtc_read_alarm error %d\n", ret);
--		return ret;
+-	if (machine_is_collie())
+-		ucb1x00_io_write(ts->ucb, 0, COLLIE_TC35143_GPIO_TBL_CHK);
+-	else {
+-		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-				  UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
+-				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
+-		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-				  UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
+-				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
 -	}
+-	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-			UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
+-			UCB_TS_CR_MODE_POS | UCB_TS_CR_BIAS_ENA);
 -
--	alm->time.tm_sec = 0;
--	alm->time.tm_min = bcd2bin(alarm_data[0]);
--	alm->time.tm_hour = bcd2bin(alarm_data[1]);
--	alm->time.tm_mday = bcd2bin(alarm_data[2]);
--	alm->time.tm_mon = bcd2bin(alarm_data[3]) - 1;
--	alm->time.tm_year = bcd2bin(alarm_data[4]) + 100;
+-	udelay(55);
 -
--	ret = regmap_read(rc5t583->regmap, RC5T583_RTC_CTL1, &interrupt_enable);
--	if (ret < 0)
--		return ret;
--
--	/* check if YALE is set */
--	if (interrupt_enable & SET_YAL)
--		alm->enabled = 1;
--
--	return ret;
+-	return ucb1x00_adc_read(ts->ucb, UCB_ADC_INP_TSPY, ts->adcsync);
 -}
 -
--static int rc5t583_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alm)
+-/*
+- * Switch to Y position mode and measure X plate.  We switch the plate
+- * configuration in pressure mode, then switch to position mode.  This
+- * gives a faster response time.  Even so, we need to wait about 55us
+- * for things to stabilise.
+- */
+-static inline unsigned int ucb1x00_ts_read_ypos(struct ucb1x00_ts *ts)
 -{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	unsigned char alarm_data[NUM_YAL_REGS];
--	int ret;
--
--	ret = rc5t583_rtc_alarm_irq_enable(dev, 0);
--	if (ret)
--		return ret;
--
--	alarm_data[0] = bin2bcd(alm->time.tm_min);
--	alarm_data[1] = bin2bcd(alm->time.tm_hour);
--	alarm_data[2] = bin2bcd(alm->time.tm_mday);
--	alarm_data[3] = bin2bcd(alm->time.tm_mon + 1);
--	alarm_data[4] = bin2bcd(alm->time.tm_year - 100);
--
--	ret = regmap_bulk_write(rc5t583->regmap, RC5T583_RTC_AY_MIN, alarm_data,
--		NUM_YAL_REGS);
--	if (ret) {
--		dev_err(dev, "rtc_set_alarm error %d\n", ret);
--		return ret;
+-	if (machine_is_collie())
+-		ucb1x00_io_write(ts->ucb, 0, COLLIE_TC35143_GPIO_TBL_CHK);
+-	else {
+-		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-				  UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
+-				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
+-		ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-				  UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
+-				  UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
 -	}
 -
--	if (alm->enabled)
--		ret = rc5t583_rtc_alarm_irq_enable(dev, 1);
+-	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-			UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
+-			UCB_TS_CR_MODE_POS | UCB_TS_CR_BIAS_ENA);
 -
--	return ret;
+-	udelay(55);
+-
+-	return ucb1x00_adc_read(ts->ucb, UCB_ADC_INP_TSPX, ts->adcsync);
 -}
 -
--static irqreturn_t rc5t583_rtc_interrupt(int irq, void *rtc)
+-/*
+- * Switch to X plate resistance mode.  Set MX to ground, PX to
+- * supply.  Measure current.
+- */
+-static inline unsigned int ucb1x00_ts_read_xres(struct ucb1x00_ts *ts)
 -{
--	struct device *dev = rtc;
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	struct rc5t583_rtc *rc5t583_rtc = dev_get_drvdata(dev);
--	unsigned long events = 0;
--	int ret;
--	u32 rtc_reg;
+-	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-			UCB_TS_CR_TSMX_GND | UCB_TS_CR_TSPX_POW |
+-			UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
+-	return ucb1x00_adc_read(ts->ucb, 0, ts->adcsync);
+-}
 -
--	ret = regmap_read(rc5t583->regmap, RC5T583_RTC_CTL2, &rtc_reg);
--	if (ret < 0)
--		return IRQ_NONE;
+-/*
+- * Switch to Y plate resistance mode.  Set MY to ground, PY to
+- * supply.  Measure current.
+- */
+-static inline unsigned int ucb1x00_ts_read_yres(struct ucb1x00_ts *ts)
+-{
+-	ucb1x00_reg_write(ts->ucb, UCB_TS_CR,
+-			UCB_TS_CR_TSMY_GND | UCB_TS_CR_TSPY_POW |
+-			UCB_TS_CR_MODE_PRES | UCB_TS_CR_BIAS_ENA);
+-	return ucb1x00_adc_read(ts->ucb, 0, ts->adcsync);
+-}
 -
--	if (rtc_reg & GET_YAL_STATUS) {
--		events = RTC_IRQF | RTC_AF;
--		/* clear pending Y-alarm interrupt bit */
--		rtc_reg &= ~GET_YAL_STATUS;
+-static inline int ucb1x00_ts_pen_down(struct ucb1x00_ts *ts)
+-{
+-	unsigned int val = ucb1x00_reg_read(ts->ucb, UCB_TS_CR);
+-
+-	if (machine_is_collie())
+-		return (!(val & (UCB_TS_CR_TSPX_LOW)));
+-	else
+-		return (val & (UCB_TS_CR_TSPX_LOW | UCB_TS_CR_TSMX_LOW));
+-}
+-
+-/*
+- * This is a RT kernel thread that handles the ADC accesses
+- * (mainly so we can use semaphores in the UCB1200 core code
+- * to serialise accesses to the ADC).
+- */
+-static int ucb1x00_thread(void *_ts)
+-{
+-	struct ucb1x00_ts *ts = _ts;
+-	DECLARE_WAITQUEUE(wait, current);
+-	bool frozen, ignore = false;
+-	int valid = 0;
+-
+-	set_freezable();
+-	add_wait_queue(&ts->irq_wait, &wait);
+-	while (!kthread_freezable_should_stop(&frozen)) {
+-		unsigned int x, y, p;
+-		signed long timeout;
+-
+-		if (frozen)
+-			ignore = true;
+-
+-		ucb1x00_adc_enable(ts->ucb);
+-
+-		x = ucb1x00_ts_read_xpos(ts);
+-		y = ucb1x00_ts_read_ypos(ts);
+-		p = ucb1x00_ts_read_pressure(ts);
+-
+-		/*
+-		 * Switch back to interrupt mode.
+-		 */
+-		ucb1x00_ts_mode_int(ts);
+-		ucb1x00_adc_disable(ts->ucb);
+-
+-		msleep(10);
+-
+-		ucb1x00_enable(ts->ucb);
+-
+-
+-		if (ucb1x00_ts_pen_down(ts)) {
+-			set_current_state(TASK_INTERRUPTIBLE);
+-
+-			spin_lock_irq(&ts->irq_lock);
+-			if (ts->irq_disabled) {
+-				ts->irq_disabled = 0;
+-				enable_irq(ts->ucb->irq_base + UCB_IRQ_TSPX);
+-			}
+-			spin_unlock_irq(&ts->irq_lock);
+-			ucb1x00_disable(ts->ucb);
+-
+-			/*
+-			 * If we spat out a valid sample set last time,
+-			 * spit out a "pen off" sample here.
+-			 */
+-			if (valid) {
+-				ucb1x00_ts_event_release(ts);
+-				valid = 0;
+-			}
+-
+-			timeout = MAX_SCHEDULE_TIMEOUT;
+-		} else {
+-			ucb1x00_disable(ts->ucb);
+-
+-			/*
+-			 * Filtering is policy.  Policy belongs in user
+-			 * space.  We therefore leave it to user space
+-			 * to do any filtering they please.
+-			 */
+-			if (!ignore) {
+-				ucb1x00_ts_evt_add(ts, p, x, y);
+-				valid = 1;
+-			}
+-
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			timeout = HZ / 100;
+-		}
+-
+-		schedule_timeout(timeout);
 -	}
 -
--	ret = regmap_write(rc5t583->regmap, RC5T583_RTC_CTL2, rtc_reg);
--	if (ret)
--		return IRQ_NONE;
+-	remove_wait_queue(&ts->irq_wait, &wait);
 -
--	/* Notify RTC core on event */
--	rtc_update_irq(rc5t583_rtc->rtc, 1, events);
+-	ts->rtask = NULL;
+-	return 0;
+-}
+-
+-/*
+- * We only detect touch screen _touches_ with this interrupt
+- * handler, and even then we just schedule our task.
+- */
+-static irqreturn_t ucb1x00_ts_irq(int irq, void *id)
+-{
+-	struct ucb1x00_ts *ts = id;
+-
+-	spin_lock(&ts->irq_lock);
+-	ts->irq_disabled = 1;
+-	disable_irq_nosync(ts->ucb->irq_base + UCB_IRQ_TSPX);
+-	spin_unlock(&ts->irq_lock);
+-	wake_up(&ts->irq_wait);
 -
 -	return IRQ_HANDLED;
 -}
 -
--static const struct rtc_class_ops rc5t583_rtc_ops = {
--	.read_time	= rc5t583_rtc_read_time,
--	.set_time	= rc5t583_rtc_set_time,
--	.read_alarm	= rc5t583_rtc_read_alarm,
--	.set_alarm	= rc5t583_rtc_set_alarm,
--	.alarm_irq_enable = rc5t583_rtc_alarm_irq_enable,
--};
--
--static int rc5t583_rtc_probe(struct platform_device *pdev)
+-static int ucb1x00_ts_open(struct input_dev *idev)
 -{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(pdev->dev.parent);
--	struct rc5t583_rtc *ricoh_rtc;
--	struct rc5t583_platform_data *pmic_plat_data;
--	int ret;
--	int irq;
+-	struct ucb1x00_ts *ts = input_get_drvdata(idev);
+-	unsigned long flags = 0;
+-	int ret = 0;
 -
--	ricoh_rtc = devm_kzalloc(&pdev->dev, sizeof(struct rc5t583_rtc),
--			GFP_KERNEL);
--	if (!ricoh_rtc)
--		return -ENOMEM;
+-	BUG_ON(ts->rtask);
 -
--	platform_set_drvdata(pdev, ricoh_rtc);
+-	if (machine_is_collie())
+-		flags = IRQF_TRIGGER_RISING;
+-	else
+-		flags = IRQF_TRIGGER_FALLING;
 -
--	/* Clear pending interrupts */
--	ret = regmap_write(rc5t583->regmap, RC5T583_RTC_CTL2, 0);
+-	ts->irq_disabled = 0;
+-
+-	init_waitqueue_head(&ts->irq_wait);
+-	ret = request_irq(ts->ucb->irq_base + UCB_IRQ_TSPX, ucb1x00_ts_irq,
+-			  flags, "ucb1x00-ts", ts);
 -	if (ret < 0)
--		return ret;
+-		goto out;
 -
--	/* clear RTC Adjust register */
--	ret = regmap_write(rc5t583->regmap, RC5T583_RTC_ADJ, 0);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "unable to program rtc_adjust reg\n");
--		return -EBUSY;
+-	/*
+-	 * If we do this at all, we should allow the user to
+-	 * measure and read the X and Y resistance at any time.
+-	 */
+-	ucb1x00_adc_enable(ts->ucb);
+-	ts->x_res = ucb1x00_ts_read_xres(ts);
+-	ts->y_res = ucb1x00_ts_read_yres(ts);
+-	ucb1x00_adc_disable(ts->ucb);
+-
+-	ts->rtask = kthread_run(ucb1x00_thread, ts, "ktsd");
+-	if (!IS_ERR(ts->rtask)) {
+-		ret = 0;
+-	} else {
+-		free_irq(ts->ucb->irq_base + UCB_IRQ_TSPX, ts);
+-		ts->rtask = NULL;
+-		ret = -EFAULT;
 -	}
 -
--	pmic_plat_data = dev_get_platdata(rc5t583->dev);
--	irq = pmic_plat_data->irq_base;
--	if (irq <= 0) {
--		dev_warn(&pdev->dev, "Wake up is not possible as irq = %d\n",
--			irq);
--		return ret;
--	}
--
--	irq += RC5T583_IRQ_YALE;
--	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
--		rc5t583_rtc_interrupt, IRQF_TRIGGER_LOW,
--		"rtc-rc5t583", &pdev->dev);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "IRQ is not free.\n");
--		return ret;
--	}
--	device_init_wakeup(&pdev->dev, true);
--
--	ricoh_rtc->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--		&rc5t583_rtc_ops, THIS_MODULE);
--	if (IS_ERR(ricoh_rtc->rtc)) {
--		ret = PTR_ERR(ricoh_rtc->rtc);
--		dev_err(&pdev->dev, "RTC device register: err %d\n", ret);
--		return ret;
--	}
--
--	return 0;
--}
--
--/*
-- * Disable rc5t583 RTC interrupts.
-- * Sets status flag to free.
-- */
--static void rc5t583_rtc_remove(struct platform_device *pdev)
--{
--	struct rc5t583_rtc *rc5t583_rtc = platform_get_drvdata(pdev);
--
--	rc5t583_rtc_alarm_irq_enable(&rc5t583_rtc->rtc->dev, 0);
--}
--
--#ifdef CONFIG_PM_SLEEP
--static int rc5t583_rtc_suspend(struct device *dev)
--{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	struct rc5t583_rtc *rc5t583_rtc = dev_get_drvdata(dev);
--	int ret;
--
--	/* Store current list of enabled interrupts*/
--	ret = regmap_read(rc5t583->regmap, RC5T583_RTC_CTL1,
--		&rc5t583_rtc->irqen);
+- out:
 -	return ret;
 -}
 -
--static int rc5t583_rtc_resume(struct device *dev)
+-/*
+- * Release touchscreen resources.  Disable IRQs.
+- */
+-static void ucb1x00_ts_close(struct input_dev *idev)
 -{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev->parent);
--	struct rc5t583_rtc *rc5t583_rtc = dev_get_drvdata(dev);
+-	struct ucb1x00_ts *ts = input_get_drvdata(idev);
 -
--	/* Restore list of enabled interrupts before suspend */
--	return regmap_write(rc5t583->regmap, RC5T583_RTC_CTL1,
--		rc5t583_rtc->irqen);
+-	if (ts->rtask)
+-		kthread_stop(ts->rtask);
+-
+-	ucb1x00_enable(ts->ucb);
+-	free_irq(ts->ucb->irq_base + UCB_IRQ_TSPX, ts);
+-	ucb1x00_reg_write(ts->ucb, UCB_TS_CR, 0);
+-	ucb1x00_disable(ts->ucb);
 -}
--#endif
 -
--static SIMPLE_DEV_PM_OPS(rc5t583_rtc_pm_ops, rc5t583_rtc_suspend,
--			rc5t583_rtc_resume);
 -
--static struct platform_driver rc5t583_rtc_driver = {
--	.probe		= rc5t583_rtc_probe,
--	.remove		= rc5t583_rtc_remove,
--	.driver		= {
--		.name	= "rtc-rc5t583",
--		.pm	= &rc5t583_rtc_pm_ops,
--	},
+-/*
+- * Initialisation.
+- */
+-static int ucb1x00_ts_add(struct ucb1x00_dev *dev)
+-{
+-	struct ucb1x00_ts *ts;
+-	struct input_dev *idev;
+-	int err;
+-
+-	ts = kzalloc_obj(struct ucb1x00_ts);
+-	idev = input_allocate_device();
+-	if (!ts || !idev) {
+-		err = -ENOMEM;
+-		goto fail;
+-	}
+-
+-	ts->ucb = dev->ucb;
+-	ts->idev = idev;
+-	ts->adcsync = adcsync ? UCB_SYNC : UCB_NOSYNC;
+-	spin_lock_init(&ts->irq_lock);
+-
+-	idev->name       = "Touchscreen panel";
+-	idev->id.product = ts->ucb->id;
+-	idev->open       = ucb1x00_ts_open;
+-	idev->close      = ucb1x00_ts_close;
+-	idev->dev.parent = &ts->ucb->dev;
+-
+-	idev->evbit[0]   = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
+-	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+-
+-	input_set_drvdata(idev, ts);
+-
+-	ucb1x00_adc_enable(ts->ucb);
+-	ts->x_res = ucb1x00_ts_read_xres(ts);
+-	ts->y_res = ucb1x00_ts_read_yres(ts);
+-	ucb1x00_adc_disable(ts->ucb);
+-
+-	input_set_abs_params(idev, ABS_X, 0, ts->x_res, 0, 0);
+-	input_set_abs_params(idev, ABS_Y, 0, ts->y_res, 0, 0);
+-	input_set_abs_params(idev, ABS_PRESSURE, 0, 0, 0, 0);
+-
+-	err = input_register_device(idev);
+-	if (err)
+-		goto fail;
+-
+-	dev->priv = ts;
+-
+-	return 0;
+-
+- fail:
+-	input_free_device(idev);
+-	kfree(ts);
+-	return err;
+-}
+-
+-static void ucb1x00_ts_remove(struct ucb1x00_dev *dev)
+-{
+-	struct ucb1x00_ts *ts = dev->priv;
+-
+-	input_unregister_device(ts->idev);
+-	kfree(ts);
+-}
+-
+-static struct ucb1x00_driver ucb1x00_ts_driver = {
+-	.add		= ucb1x00_ts_add,
+-	.remove		= ucb1x00_ts_remove,
 -};
 -
--module_platform_driver(rc5t583_rtc_driver);
--MODULE_ALIAS("platform:rtc-rc5t583");
--MODULE_AUTHOR("Venu Byravarasu <vbyravarasu@nvidia.com>");
--MODULE_DESCRIPTION("RICOH 5T583 RTC driver");
--MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/mfd/rc5t583.h b/include/linux/mfd/rc5t583.h
+-static int __init ucb1x00_ts_init(void)
+-{
+-	return ucb1x00_register_driver(&ucb1x00_ts_driver);
+-}
+-
+-static void __exit ucb1x00_ts_exit(void)
+-{
+-	ucb1x00_unregister_driver(&ucb1x00_ts_driver);
+-}
+-
+-module_param(adcsync, int, 0444);
+-module_init(ucb1x00_ts_init);
+-module_exit(ucb1x00_ts_exit);
+-
+-MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+-MODULE_DESCRIPTION("UCB1x00 touchscreen driver");
+-MODULE_LICENSE("GPL");
+diff --git a/include/linux/mfd/mcp.h b/include/linux/mfd/mcp.h
 deleted file mode 100644
-index 4f220146cc02..000000000000
---- a/include/linux/mfd/rc5t583.h
+index fd5cafc77e8a..000000000000
+--- a/include/linux/mfd/mcp.h
 +++ /dev/null
-@@ -1,369 +0,0 @@
+@@ -1,63 +0,0 @@
 -/* SPDX-License-Identifier: GPL-2.0-only */
 -/*
-- * Core driver interface to access RICOH_RC5T583 power management chip.
+- *  linux/drivers/mfd/mcp.h
 - *
-- * Copyright (c) 2011-2012, NVIDIA CORPORATION.  All rights reserved.
-- * Author: Laxman dewangan <ldewangan@nvidia.com>
-- *
-- * Based on code
-- *      Copyright (C) 2011 RICOH COMPANY,LTD
+- *  Copyright (C) 2001 Russell King, All Rights Reserved.
 - */
+-#ifndef MCP_H
+-#define MCP_H
 -
--#ifndef __LINUX_MFD_RC5T583_H
--#define __LINUX_MFD_RC5T583_H
+-#include <linux/device.h>
 -
+-struct mcp_ops;
+-
+-struct mcp {
+-	struct module	*owner;
+-	struct mcp_ops	*ops;
+-	spinlock_t	lock;
+-	int		use_count;
+-	unsigned int	sclk_rate;
+-	unsigned int	rw_timeout;
+-	struct device	attached_device;
+-};
+-
+-struct mcp_ops {
+-	void		(*set_telecom_divisor)(struct mcp *, unsigned int);
+-	void		(*set_audio_divisor)(struct mcp *, unsigned int);
+-	void		(*reg_write)(struct mcp *, unsigned int, unsigned int);
+-	unsigned int	(*reg_read)(struct mcp *, unsigned int);
+-	void		(*enable)(struct mcp *);
+-	void		(*disable)(struct mcp *);
+-};
+-
+-void mcp_set_telecom_divisor(struct mcp *, unsigned int);
+-void mcp_set_audio_divisor(struct mcp *, unsigned int);
+-void mcp_reg_write(struct mcp *, unsigned int, unsigned int);
+-unsigned int mcp_reg_read(struct mcp *, unsigned int);
+-void mcp_enable(struct mcp *);
+-void mcp_disable(struct mcp *);
+-#define mcp_get_sclk_rate(mcp)	((mcp)->sclk_rate)
+-
+-struct mcp *mcp_host_alloc(struct device *, size_t);
+-int mcp_host_add(struct mcp *, void *);
+-void mcp_host_del(struct mcp *);
+-void mcp_host_free(struct mcp *);
+-
+-struct mcp_driver {
+-	struct device_driver drv;
+-	int (*probe)(struct mcp *);
+-	void (*remove)(struct mcp *);
+-};
+-
+-int mcp_driver_register(struct mcp_driver *);
+-void mcp_driver_unregister(struct mcp_driver *);
+-
+-#define mcp_get_drvdata(mcp)	dev_get_drvdata(&(mcp)->attached_device)
+-#define mcp_set_drvdata(mcp,d)	dev_set_drvdata(&(mcp)->attached_device, d)
+-
+-static inline void *mcp_priv(struct mcp *mcp)
+-{
+-	return mcp + 1;
+-}
+-
+-#endif
+diff --git a/include/linux/mfd/ucb1x00.h b/include/linux/mfd/ucb1x00.h
+deleted file mode 100644
+index 66ecad4667c9..000000000000
+--- a/include/linux/mfd/ucb1x00.h
++++ /dev/null
+@@ -1,261 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- *  linux/include/mfd/ucb1x00.h
+- *
+- *  Copyright (C) 2001 Russell King, All Rights Reserved.
+- */
+-#ifndef UCB1200_H
+-#define UCB1200_H
+-
+-#include <linux/device.h>
+-#include <linux/mfd/mcp.h>
+-#include <linux/gpio/consumer.h>
+-#include <linux/gpio/driver.h>
 -#include <linux/mutex.h>
+-
+-#define UCB_IO_DATA	0x00
+-#define UCB_IO_DIR	0x01
+-
+-#define UCB_IO_0		(1 << 0)
+-#define UCB_IO_1		(1 << 1)
+-#define UCB_IO_2		(1 << 2)
+-#define UCB_IO_3		(1 << 3)
+-#define UCB_IO_4		(1 << 4)
+-#define UCB_IO_5		(1 << 5)
+-#define UCB_IO_6		(1 << 6)
+-#define UCB_IO_7		(1 << 7)
+-#define UCB_IO_8		(1 << 8)
+-#define UCB_IO_9		(1 << 9)
+-
+-#define UCB_IE_RIS	0x02
+-#define UCB_IE_FAL	0x03
+-#define UCB_IE_STATUS	0x04
+-#define UCB_IE_CLEAR	0x04
+-#define UCB_IE_ADC		(1 << 11)
+-#define UCB_IE_TSPX		(1 << 12)
+-#define UCB_IE_TSMX		(1 << 13)
+-#define UCB_IE_TCLIP		(1 << 14)
+-#define UCB_IE_ACLIP		(1 << 15)
+-
+-#define UCB_IRQ_TSPX		12
+-
+-#define UCB_TC_A	0x05
+-#define UCB_TC_A_LOOP		(1 << 7)	/* UCB1200 */
+-#define UCB_TC_A_AMPL		(1 << 7)	/* UCB1300 */
+-
+-#define UCB_TC_B	0x06
+-#define UCB_TC_B_VOICE_ENA	(1 << 3)
+-#define UCB_TC_B_CLIP		(1 << 4)
+-#define UCB_TC_B_ATT		(1 << 6)
+-#define UCB_TC_B_SIDE_ENA	(1 << 11)
+-#define UCB_TC_B_MUTE		(1 << 13)
+-#define UCB_TC_B_IN_ENA		(1 << 14)
+-#define UCB_TC_B_OUT_ENA	(1 << 15)
+-
+-#define UCB_AC_A	0x07
+-#define UCB_AC_B	0x08
+-#define UCB_AC_B_LOOP		(1 << 8)
+-#define UCB_AC_B_MUTE		(1 << 13)
+-#define UCB_AC_B_IN_ENA		(1 << 14)
+-#define UCB_AC_B_OUT_ENA	(1 << 15)
+-
+-#define UCB_TS_CR	0x09
+-#define UCB_TS_CR_TSMX_POW	(1 << 0)
+-#define UCB_TS_CR_TSPX_POW	(1 << 1)
+-#define UCB_TS_CR_TSMY_POW	(1 << 2)
+-#define UCB_TS_CR_TSPY_POW	(1 << 3)
+-#define UCB_TS_CR_TSMX_GND	(1 << 4)
+-#define UCB_TS_CR_TSPX_GND	(1 << 5)
+-#define UCB_TS_CR_TSMY_GND	(1 << 6)
+-#define UCB_TS_CR_TSPY_GND	(1 << 7)
+-#define UCB_TS_CR_MODE_INT	(0 << 8)
+-#define UCB_TS_CR_MODE_PRES	(1 << 8)
+-#define UCB_TS_CR_MODE_POS	(2 << 8)
+-#define UCB_TS_CR_BIAS_ENA	(1 << 11)
+-#define UCB_TS_CR_TSPX_LOW	(1 << 12)
+-#define UCB_TS_CR_TSMX_LOW	(1 << 13)
+-
+-#define UCB_ADC_CR	0x0a
+-#define UCB_ADC_SYNC_ENA	(1 << 0)
+-#define UCB_ADC_VREFBYP_CON	(1 << 1)
+-#define UCB_ADC_INP_TSPX	(0 << 2)
+-#define UCB_ADC_INP_TSMX	(1 << 2)
+-#define UCB_ADC_INP_TSPY	(2 << 2)
+-#define UCB_ADC_INP_TSMY	(3 << 2)
+-#define UCB_ADC_INP_AD0		(4 << 2)
+-#define UCB_ADC_INP_AD1		(5 << 2)
+-#define UCB_ADC_INP_AD2		(6 << 2)
+-#define UCB_ADC_INP_AD3		(7 << 2)
+-#define UCB_ADC_EXT_REF		(1 << 5)
+-#define UCB_ADC_START		(1 << 7)
+-#define UCB_ADC_ENA		(1 << 15)
+-
+-#define UCB_ADC_DATA	0x0b
+-#define UCB_ADC_DAT_VAL		(1 << 15)
+-#define UCB_ADC_DAT(x)		(((x) & 0x7fe0) >> 5)
+-
+-#define UCB_ID		0x0c
+-#define UCB_ID_1200		0x1004
+-#define UCB_ID_1300		0x1005
+-#define UCB_ID_TC35143          0x9712
+-
+-#define UCB_MODE	0x0d
+-#define UCB_MODE_DYN_VFLAG_ENA	(1 << 12)
+-#define UCB_MODE_AUD_OFF_CAN	(1 << 13)
+-
+-struct software_node;
+-extern const struct software_node ucb1x00_gpiochip_node;
+-
+-enum ucb1x00_reset {
+-	UCB_RST_PROBE,
+-	UCB_RST_RESUME,
+-	UCB_RST_SUSPEND,
+-	UCB_RST_REMOVE,
+-	UCB_RST_PROBE_FAIL,
+-};
+-
+-struct ucb1x00_plat_data {
+-	void			(*reset)(enum ucb1x00_reset);
+-	unsigned		irq_base;
+-	int			gpio_base;
+-	unsigned		can_wakeup;
+-};
+-
+-struct ucb1x00 {
+-	raw_spinlock_t		irq_lock;
+-	struct mcp		*mcp;
+-	unsigned int		irq;
+-	int			irq_base;
+-	struct mutex		adc_mutex;
+-	spinlock_t		io_lock;
+-	u16			id;
+-	u16			io_dir;
+-	u16			io_out;
+-	u16			adc_cr;
+-	u16			irq_fal_enbl;
+-	u16			irq_ris_enbl;
+-	u16			irq_mask;
+-	u16			irq_wake;
+-	struct device		dev;
+-	struct list_head	node;
+-	struct list_head	devs;
+-	struct gpio_chip 	gpio;
+-};
+-
+-struct ucb1x00_driver;
+-
+-struct ucb1x00_dev {
+-	struct list_head	dev_node;
+-	struct list_head	drv_node;
+-	struct ucb1x00		*ucb;
+-	struct ucb1x00_driver	*drv;
+-	void			*priv;
+-};
+-
+-struct ucb1x00_driver {
+-	struct list_head	node;
+-	struct list_head	devs;
+-	int	(*add)(struct ucb1x00_dev *dev);
+-	void	(*remove)(struct ucb1x00_dev *dev);
+-	int	(*suspend)(struct ucb1x00_dev *dev);
+-	int	(*resume)(struct ucb1x00_dev *dev);
+-};
+-
+-#define classdev_to_ucb1x00(cd)	container_of(cd, struct ucb1x00, dev)
+-
+-int ucb1x00_register_driver(struct ucb1x00_driver *);
+-void ucb1x00_unregister_driver(struct ucb1x00_driver *);
+-
+-/**
+- *	ucb1x00_clkrate - return the UCB1x00 SIB clock rate
+- *	@ucb: UCB1x00 structure describing chip
+- *
+- *	Return the SIB clock rate in Hz.
+- */
+-static inline unsigned int ucb1x00_clkrate(struct ucb1x00 *ucb)
+-{
+-	return mcp_get_sclk_rate(ucb->mcp);
+-}
+-
+-/**
+- *	ucb1x00_enable - enable the UCB1x00 SIB clock
+- *	@ucb: UCB1x00 structure describing chip
+- *
+- *	Enable the SIB clock.  This can be called multiple times.
+- */
+-static inline void ucb1x00_enable(struct ucb1x00 *ucb)
+-{
+-	mcp_enable(ucb->mcp);
+-}
+-
+-/**
+- *	ucb1x00_disable - disable the UCB1x00 SIB clock
+- *	@ucb: UCB1x00 structure describing chip
+- *
+- *	Disable the SIB clock.  The SIB clock will only be disabled
+- *	when the number of ucb1x00_enable calls match the number of
+- *	ucb1x00_disable calls.
+- */
+-static inline void ucb1x00_disable(struct ucb1x00 *ucb)
+-{
+-	mcp_disable(ucb->mcp);
+-}
+-
+-/**
+- *	ucb1x00_reg_write - write a UCB1x00 register
+- *	@ucb: UCB1x00 structure describing chip
+- *	@reg: UCB1x00 4-bit register index to write
+- *	@val: UCB1x00 16-bit value to write
+- *
+- *	Write the UCB1x00 register @reg with value @val.  The SIB
+- *	clock must be running for this function to return.
+- */
+-static inline void ucb1x00_reg_write(struct ucb1x00 *ucb, unsigned int reg, unsigned int val)
+-{
+-	mcp_reg_write(ucb->mcp, reg, val);
+-}
+-
+-/**
+- *	ucb1x00_reg_read - read a UCB1x00 register
+- *	@ucb: UCB1x00 structure describing chip
+- *	@reg: UCB1x00 4-bit register index to write
+- *
+- *	Read the UCB1x00 register @reg and return its value.  The SIB
+- *	clock must be running for this function to return.
+- */
+-static inline unsigned int ucb1x00_reg_read(struct ucb1x00 *ucb, unsigned int reg)
+-{
+-	return mcp_reg_read(ucb->mcp, reg);
+-}
+-/**
+- *	ucb1x00_set_audio_divisor - 
+- *	@ucb: UCB1x00 structure describing chip
+- *	@div: SIB clock divisor
+- */
+-static inline void ucb1x00_set_audio_divisor(struct ucb1x00 *ucb, unsigned int div)
+-{
+-	mcp_set_audio_divisor(ucb->mcp, div);
+-}
+-
+-/**
+- *	ucb1x00_set_telecom_divisor -
+- *	@ucb: UCB1x00 structure describing chip
+- *	@div: SIB clock divisor
+- */
+-static inline void ucb1x00_set_telecom_divisor(struct ucb1x00 *ucb, unsigned int div)
+-{
+-	mcp_set_telecom_divisor(ucb->mcp, div);
+-}
+-
+-void ucb1x00_io_set_dir(struct ucb1x00 *ucb, unsigned int, unsigned int);
+-void ucb1x00_io_write(struct ucb1x00 *ucb, unsigned int, unsigned int);
+-unsigned int ucb1x00_io_read(struct ucb1x00 *ucb);
+-
+-#define UCB_NOSYNC	(0)
+-#define UCB_SYNC	(1)
+-
+-unsigned int ucb1x00_adc_read(struct ucb1x00 *ucb, int adc_channel, int sync);
+-void ucb1x00_adc_enable(struct ucb1x00 *ucb);
+-void ucb1x00_adc_disable(struct ucb1x00 *ucb);
+-
+-#endif
+diff --git a/include/linux/platform_data/mfd-mcp-sa11x0.h b/include/linux/platform_data/mfd-mcp-sa11x0.h
+deleted file mode 100644
+index b589e61bbc2e..000000000000
+--- a/include/linux/platform_data/mfd-mcp-sa11x0.h
++++ /dev/null
+@@ -1,17 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- *  Copyright (C) 2005 Russell King.
+- */
+-#ifndef __MFD_MCP_SA11X0_H
+-#define __MFD_MCP_SA11X0_H
+-
 -#include <linux/types.h>
--#include <linux/regmap.h>
 -
--/* Maximum number of main interrupts */
--#define MAX_MAIN_INTERRUPT		5
--#define RC5T583_MAX_GPEDGE_REG		2
--#define RC5T583_MAX_INTERRUPT_EN_REGS	8
--#define RC5T583_MAX_INTERRUPT_MASK_REGS	9
--
--/* Interrupt enable register */
--#define RC5T583_INT_EN_SYS1	0x19
--#define RC5T583_INT_EN_SYS2	0x1D
--#define RC5T583_INT_EN_DCDC	0x41
--#define RC5T583_INT_EN_RTC	0xED
--#define RC5T583_INT_EN_ADC1	0x90
--#define RC5T583_INT_EN_ADC2	0x91
--#define RC5T583_INT_EN_ADC3	0x92
--
--/* Interrupt status registers (monitor regs in Ricoh)*/
--#define RC5T583_INTC_INTPOL	0xAD
--#define RC5T583_INTC_INTEN	0xAE
--#define RC5T583_INTC_INTMON	0xAF
--
--#define RC5T583_INT_MON_GRP	0xAF
--#define RC5T583_INT_MON_SYS1	0x1B
--#define RC5T583_INT_MON_SYS2	0x1F
--#define RC5T583_INT_MON_DCDC	0x43
--#define RC5T583_INT_MON_RTC	0xEE
--
--/* Interrupt clearing registers */
--#define RC5T583_INT_IR_SYS1	0x1A
--#define RC5T583_INT_IR_SYS2	0x1E
--#define RC5T583_INT_IR_DCDC	0x42
--#define RC5T583_INT_IR_RTC	0xEE
--#define RC5T583_INT_IR_ADCL	0x94
--#define RC5T583_INT_IR_ADCH	0x95
--#define RC5T583_INT_IR_ADCEND	0x96
--#define RC5T583_INT_IR_GPIOR	0xA9
--#define RC5T583_INT_IR_GPIOF	0xAA
--
--/* Sleep sequence registers */
--#define RC5T583_SLPSEQ1		0x21
--#define RC5T583_SLPSEQ2		0x22
--#define RC5T583_SLPSEQ3		0x23
--#define RC5T583_SLPSEQ4		0x24
--#define RC5T583_SLPSEQ5		0x25
--#define RC5T583_SLPSEQ6		0x26
--#define RC5T583_SLPSEQ7		0x27
--#define RC5T583_SLPSEQ8		0x28
--#define RC5T583_SLPSEQ9		0x29
--#define RC5T583_SLPSEQ10	0x2A
--#define RC5T583_SLPSEQ11	0x2B
--
--/* Regulator registers */
--#define RC5T583_REG_DC0CTL	0x30
--#define RC5T583_REG_DC0DAC	0x31
--#define RC5T583_REG_DC0LATCTL	0x32
--#define RC5T583_REG_SR0CTL	0x33
--
--#define RC5T583_REG_DC1CTL	0x34
--#define RC5T583_REG_DC1DAC	0x35
--#define RC5T583_REG_DC1LATCTL	0x36
--#define RC5T583_REG_SR1CTL	0x37
--
--#define RC5T583_REG_DC2CTL	0x38
--#define RC5T583_REG_DC2DAC	0x39
--#define RC5T583_REG_DC2LATCTL	0x3A
--#define RC5T583_REG_SR2CTL	0x3B
--
--#define RC5T583_REG_DC3CTL	0x3C
--#define RC5T583_REG_DC3DAC	0x3D
--#define RC5T583_REG_DC3LATCTL	0x3E
--#define RC5T583_REG_SR3CTL	0x3F
--
--
--#define RC5T583_REG_LDOEN1	0x50
--#define RC5T583_REG_LDOEN2	0x51
--#define RC5T583_REG_LDODIS1	0x52
--#define RC5T583_REG_LDODIS2	0x53
--
--#define RC5T583_REG_LDO0DAC	0x54
--#define RC5T583_REG_LDO1DAC	0x55
--#define RC5T583_REG_LDO2DAC	0x56
--#define RC5T583_REG_LDO3DAC	0x57
--#define RC5T583_REG_LDO4DAC	0x58
--#define RC5T583_REG_LDO5DAC	0x59
--#define RC5T583_REG_LDO6DAC	0x5A
--#define RC5T583_REG_LDO7DAC	0x5B
--#define RC5T583_REG_LDO8DAC	0x5C
--#define RC5T583_REG_LDO9DAC	0x5D
--
--#define RC5T583_REG_DC0DAC_DS	0x60
--#define RC5T583_REG_DC1DAC_DS	0x61
--#define RC5T583_REG_DC2DAC_DS	0x62
--#define RC5T583_REG_DC3DAC_DS	0x63
--
--#define RC5T583_REG_LDO0DAC_DS	0x64
--#define RC5T583_REG_LDO1DAC_DS	0x65
--#define RC5T583_REG_LDO2DAC_DS	0x66
--#define RC5T583_REG_LDO3DAC_DS	0x67
--#define RC5T583_REG_LDO4DAC_DS	0x68
--#define RC5T583_REG_LDO5DAC_DS	0x69
--#define RC5T583_REG_LDO6DAC_DS	0x6A
--#define RC5T583_REG_LDO7DAC_DS	0x6B
--#define RC5T583_REG_LDO8DAC_DS	0x6C
--#define RC5T583_REG_LDO9DAC_DS	0x6D
--
--/* GPIO register base address */
--#define RC5T583_GPIO_IOSEL	0xA0
--#define RC5T583_GPIO_PDEN	0xA1
--#define RC5T583_GPIO_IOOUT	0xA2
--#define RC5T583_GPIO_PGSEL	0xA3
--#define RC5T583_GPIO_GPINV	0xA4
--#define RC5T583_GPIO_GPDEB	0xA5
--#define RC5T583_GPIO_GPEDGE1	0xA6
--#define RC5T583_GPIO_GPEDGE2	0xA7
--#define RC5T583_GPIO_EN_INT	0xA8
--#define RC5T583_GPIO_MON_IOIN	0xAB
--#define RC5T583_GPIO_GPOFUNC	0xAC
--
--/* RTC registers */
--#define RC5T583_RTC_SEC		0xE0
--#define RC5T583_RTC_MIN		0xE1
--#define RC5T583_RTC_HOUR	0xE2
--#define RC5T583_RTC_WDAY	0xE3
--#define RC5T583_RTC_DAY		0xE4
--#define RC5T583_RTC_MONTH	0xE5
--#define RC5T583_RTC_YEAR	0xE6
--#define RC5T583_RTC_ADJ		0xE7
--#define RC5T583_RTC_AW_MIN	0xE8
--#define RC5T583_RTC_AW_HOUR	0xE9
--#define RC5T583_RTC_AW_WEEK	0xEA
--#define RC5T583_RTC_AD_MIN	0xEB
--#define RC5T583_RTC_AD_HOUR	0xEC
--#define RC5T583_RTC_CTL1	0xED
--#define RC5T583_RTC_CTL2	0xEE
--#define RC5T583_RTC_AY_MIN	0xF0
--#define RC5T583_RTC_AY_HOUR	0xF1
--#define RC5T583_RTC_AY_DAY	0xF2
--#define RC5T583_RTC_AY_MONTH 0xF3
--#define RC5T583_RTC_AY_YEAR	0xF4
--
--#define RC5T583_MAX_REG		0xF7
--#define RC5T583_NUM_REGS	(RC5T583_MAX_REG + 1)
--
--/* RICOH_RC5T583 IRQ definitions */
--enum {
--	RC5T583_IRQ_ONKEY,
--	RC5T583_IRQ_ACOK,
--	RC5T583_IRQ_LIDOPEN,
--	RC5T583_IRQ_PREOT,
--	RC5T583_IRQ_CLKSTP,
--	RC5T583_IRQ_ONKEY_OFF,
--	RC5T583_IRQ_WD,
--	RC5T583_IRQ_EN_PWRREQ1,
--	RC5T583_IRQ_EN_PWRREQ2,
--	RC5T583_IRQ_PRE_VINDET,
--
--	RC5T583_IRQ_DC0LIM,
--	RC5T583_IRQ_DC1LIM,
--	RC5T583_IRQ_DC2LIM,
--	RC5T583_IRQ_DC3LIM,
--
--	RC5T583_IRQ_CTC,
--	RC5T583_IRQ_YALE,
--	RC5T583_IRQ_DALE,
--	RC5T583_IRQ_WALE,
--
--	RC5T583_IRQ_AIN1L,
--	RC5T583_IRQ_AIN2L,
--	RC5T583_IRQ_AIN3L,
--	RC5T583_IRQ_VBATL,
--	RC5T583_IRQ_VIN3L,
--	RC5T583_IRQ_VIN8L,
--	RC5T583_IRQ_AIN1H,
--	RC5T583_IRQ_AIN2H,
--	RC5T583_IRQ_AIN3H,
--	RC5T583_IRQ_VBATH,
--	RC5T583_IRQ_VIN3H,
--	RC5T583_IRQ_VIN8H,
--	RC5T583_IRQ_ADCEND,
--
--	RC5T583_IRQ_GPIO0,
--	RC5T583_IRQ_GPIO1,
--	RC5T583_IRQ_GPIO2,
--	RC5T583_IRQ_GPIO3,
--	RC5T583_IRQ_GPIO4,
--	RC5T583_IRQ_GPIO5,
--	RC5T583_IRQ_GPIO6,
--	RC5T583_IRQ_GPIO7,
--
--	/* Should be last entry */
--	RC5T583_MAX_IRQS,
+-struct mcp_plat_data {
+-	u32 mccr0;
+-	u32 mccr1;
+-	unsigned int sclk_rate;
+-	void *codec_pdata;
 -};
--
--/* Ricoh583 gpio definitions */
--enum {
--	RC5T583_GPIO0,
--	RC5T583_GPIO1,
--	RC5T583_GPIO2,
--	RC5T583_GPIO3,
--	RC5T583_GPIO4,
--	RC5T583_GPIO5,
--	RC5T583_GPIO6,
--	RC5T583_GPIO7,
--
--	/* Should be last entry */
--	RC5T583_MAX_GPIO,
--};
--
--enum {
--	RC5T583_DS_NONE,
--	RC5T583_DS_DC0,
--	RC5T583_DS_DC1,
--	RC5T583_DS_DC2,
--	RC5T583_DS_DC3,
--	RC5T583_DS_LDO0,
--	RC5T583_DS_LDO1,
--	RC5T583_DS_LDO2,
--	RC5T583_DS_LDO3,
--	RC5T583_DS_LDO4,
--	RC5T583_DS_LDO5,
--	RC5T583_DS_LDO6,
--	RC5T583_DS_LDO7,
--	RC5T583_DS_LDO8,
--	RC5T583_DS_LDO9,
--	RC5T583_DS_PSO0,
--	RC5T583_DS_PSO1,
--	RC5T583_DS_PSO2,
--	RC5T583_DS_PSO3,
--	RC5T583_DS_PSO4,
--	RC5T583_DS_PSO5,
--	RC5T583_DS_PSO6,
--	RC5T583_DS_PSO7,
--
--	/* Should be last entry */
--	RC5T583_DS_MAX,
--};
--
--/*
-- * Ricoh pmic RC5T583 supports sleep through two external controls.
-- * The output of gpios and regulator can be enable/disable through
-- * this external signals.
-- */
--enum {
--	RC5T583_EXT_PWRREQ1_CONTROL = 0x1,
--	RC5T583_EXT_PWRREQ2_CONTROL = 0x2,
--};
--
--enum {
--	RC5T583_REGULATOR_DC0,
--	RC5T583_REGULATOR_DC1,
--	RC5T583_REGULATOR_DC2,
--	RC5T583_REGULATOR_DC3,
--	RC5T583_REGULATOR_LDO0,
--	RC5T583_REGULATOR_LDO1,
--	RC5T583_REGULATOR_LDO2,
--	RC5T583_REGULATOR_LDO3,
--	RC5T583_REGULATOR_LDO4,
--	RC5T583_REGULATOR_LDO5,
--	RC5T583_REGULATOR_LDO6,
--	RC5T583_REGULATOR_LDO7,
--	RC5T583_REGULATOR_LDO8,
--	RC5T583_REGULATOR_LDO9,
--
--	/* Should be last entry */
--	RC5T583_REGULATOR_MAX,
--};
--
--struct rc5t583 {
--	struct device	*dev;
--	struct regmap	*regmap;
--	int		chip_irq;
--	int		irq_base;
--	struct mutex	irq_lock;
--	unsigned long	group_irq_en[MAX_MAIN_INTERRUPT];
--
--	/* For main interrupt bits in INTC */
--	uint8_t		intc_inten_reg;
--
--	/* For group interrupt bits and address */
--	uint8_t		irq_en_reg[RC5T583_MAX_INTERRUPT_EN_REGS];
--
--	/* For gpio edge */
--	uint8_t		gpedge_reg[RC5T583_MAX_GPEDGE_REG];
--};
--
--/*
-- * rc5t583_platform_data: Platform data for ricoh rc5t583 pmu.
-- * The board specific data is provided through this structure.
-- * @irq_base: Irq base number on which this device registers their interrupts.
-- * @gpio_base: GPIO base from which gpio of this device will start.
-- * @enable_shutdown: Enable shutdown through the input pin "shutdown".
-- * @regulator_deepsleep_slot: The slot number on which device goes to sleep
-- *		in device sleep mode.
-- * @regulator_ext_pwr_control: External power request regulator control. The
-- *		regulator output enable/disable is controlled by the external
-- *		power request input state.
-- * @reg_init_data: Regulator init data.
-- */
--
--struct rc5t583_platform_data {
--	int		irq_base;
--	int		gpio_base;
--	bool		enable_shutdown;
--	int		regulator_deepsleep_slot[RC5T583_REGULATOR_MAX];
--	unsigned long	regulator_ext_pwr_control[RC5T583_REGULATOR_MAX];
--	struct regulator_init_data *reg_init_data[RC5T583_REGULATOR_MAX];
--};
--
--static inline int rc5t583_write(struct device *dev, uint8_t reg, uint8_t val)
--{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev);
--	return regmap_write(rc5t583->regmap, reg, val);
--}
--
--static inline int rc5t583_read(struct device *dev, uint8_t reg, uint8_t *val)
--{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev);
--	unsigned int ival;
--	int ret;
--	ret = regmap_read(rc5t583->regmap, reg, &ival);
--	if (!ret)
--		*val = (uint8_t)ival;
--	return ret;
--}
--
--static inline int rc5t583_set_bits(struct device *dev, unsigned int reg,
--			unsigned int bit_mask)
--{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev);
--	return regmap_update_bits(rc5t583->regmap, reg, bit_mask, bit_mask);
--}
--
--static inline int rc5t583_clear_bits(struct device *dev, unsigned int reg,
--			unsigned int bit_mask)
--{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev);
--	return regmap_update_bits(rc5t583->regmap, reg, bit_mask, 0);
--}
--
--static inline int rc5t583_update(struct device *dev, unsigned int reg,
--		unsigned int val, unsigned int mask)
--{
--	struct rc5t583 *rc5t583 = dev_get_drvdata(dev);
--	return regmap_update_bits(rc5t583->regmap, reg, mask, val);
--}
--
--int rc5t583_ext_power_req_config(struct device *dev, int deepsleep_id,
--	int ext_pwr_req, int deepsleep_slot_nr);
--int rc5t583_irq_init(struct rc5t583 *rc5t583, int irq, int irq_base);
--int rc5t583_irq_exit(struct rc5t583 *rc5t583);
 -
 -#endif
 -- 

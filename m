@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53BD35625FD;
-	Wed,  9 Sep 2026 13:22:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CFDE559CB4;
+	Wed,  9 Sep 2026 13:23:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788960186; cv=none; b=vCUsGiEXMd0dGJT9coP6AaxSijAgZwL79sF+wD34to5rm/V3E+rtnIL9xrU8nsy4Hb4RHMPP4w8DSX1xFshZ8v46eBpwy5FVubmTESUdjCcivZpuyFdLohai04wwott5AZx8UqfPHRNwI22uQzb5hTHq854t/PWtpk9DhMBMYqQ=
+	t=1788960193; cv=none; b=eemFL6PfJEyaadIFPah5evzQ+fYNhw8Uw99vCT50ca1xWO7OJork6iSRURcFTW6C7K5bYz4TdA6yJ5+CY5kX83IFDb9cHkDtZ65g+P2ma3gUJpgrFDk5rhfsmNFKHj9AhaicalLVJONPsUDQ5OGSam1zCmAAFz9ZqHsl7V1fLhs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788960186; c=relaxed/simple;
-	bh=yr6HdmHM6uWB/sPbAToQOifAr5KhAIUdAJKs7UT1sdE=;
+	s=arc-20240116; t=1788960193; c=relaxed/simple;
+	bh=COvKD8/Aob95FFom1rEWrbcrJBZo96eNkwpTtywoc3g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Rj6OQzP3AbQAd701ACVIOh9dYOG4ucWYevXiH6jmHacXuQ98Jnh7bJuD1LU2/dUYUqeGdsQCU6RRiJmuCDyH1NYCP2FOFe3Knn1dQ6CZ1a6liZnV+tvv7vh7yUoREmMGv755JeSxnVZl68ilI1Z6piKPQfUcRnrtPp5hncdv0D4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nfRj7YZO; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=Ddijd+UJ2dZtHL7ZWwEXQBZ5l0ZppRiFf766DF0wCI1FUTu2aBEcRjlXFxubkcErp7Q05DpNLJf1O6N1fVJNfA6WuGggD1PAsou4kmMCIFqEyOIlXRg4BxtJQ9EcAfwpBHtrQCuuvxKnKQxFT52Z4UHaE1x+Ps4GkJtid7KQbg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yhg3hdAI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nfRj7YZO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F40E11F00A3F;
-	Wed,  9 Sep 2026 13:22:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yhg3hdAI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 656001F00ACA;
+	Wed,  9 Sep 2026 13:22:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788960175;
-	bh=aqKiCslHbiIUUHWRWjajHsUIptSaeo1iBALYM4jli9I=;
+	s=k20260515; t=1788960184;
+	bh=5M/ZyONg7YqyTq0oJuJrrswfof23+2KRGmIuMGVHTGA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=nfRj7YZO1MqrEy8e7ckqtWRMa0ElwMWjWLOKYmiWY+uPMtM2ZvdMkEt9CzljXB8c/
-	 6HImNDfZ/POcpwsP/9GeT4PEWihv9COJptjYW7tnFhZyoSecWpwsxu4c95HDoc0DuZ
-	 x4BmTu7d46aK2hwK1fxCJJ33r2ttba+9hDOdMJXIPvZ4Uu38UxbJNUbK6/I9gvOtX/
-	 YdXTeuQRoZkkGe1bp4KMYfEC9AmAFXtMtZaZxknsX8Flnh30GIdiUU79GJXuV9Gjz3
-	 pBVXS03SdWR3I21GK5eNtmcpW36N3tdAMbsYbnHF2cHJQ7yws6K1BnOcZj/b2DF6NQ
-	 5UXxukJRyGAvQ==
+	b=Yhg3hdAI0jDDmk0EhyaXGTaNVBYLyGGjHv745DBGpFB4z8R+QN3qfHrZ0/4SQELHt
+	 gdn2oxziemo7yjqUpFFsTy2KVnTiBb47NrOn3AqLRaLWbvj1dFB5HMIXaOBKVFn+iM
+	 pPkUE29vb+EM57M9lEHGHjwvcW4xfc+st/IM/aiwFGwS3RqX64hshXW+xUPnvfvR/d
+	 RvHBBwb4MFs8BsJytWNBy/qp2ODnKBLYLw4qAFej0cCxjsHbF82yilZ0CMj1+ya/ba
+	 cTQ//nLaB76d4M+MnFM1s+R6EvLWiwjG5e7N77T2dTDzNudrpFzH7u4Op0vv8Ue5jv
+	 CeoPI1164Dolg==
 From: Arnd Bergmann <arnd@kernel.org>
 To: Lee Jones <lee@kernel.org>,
 	mfd@lists.linux.dev
@@ -68,9 +68,9 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-sound@vger.kernel.org,
 	linuxppc-dev@lists.ozlabs.org,
 	llvm@lists.linux.dev
-Subject: [PATCH 04/14] mfd: remove unused wm8400 driver
-Date: Wed,  9 Sep 2026 15:21:41 +0200
-Message-ID: <20260909132153.1596191-5-arnd@kernel.org>
+Subject: [PATCH 05/14] mfd: remove unused adp5520 driver
+Date: Wed,  9 Sep 2026 15:21:42 +0200
+Message-ID: <20260909132153.1596191-6-arnd@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260909132153.1596191-1-arnd@kernel.org>
 References: <20260909132153.1596191-1-arnd@kernel.org>
@@ -84,4156 +84,1865 @@ Content-Transfer-Encoding: 8bit
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-This driver requires a platform_data definition, which does not exist
-in the kernel.
-
-According to Mark Brown, the hardware supported by this driver was never
-shipped in production.
-
-Since this is clearly unused, remove it.
+This driver requires the use of platform_data definitions rather than
+devicetree, but that was last used on the blackfin architecture in
+2018 and nothing could have used it upstream since.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- MAINTAINERS                          |    1 -
- drivers/mfd/Kconfig                  |   11 -
- drivers/mfd/Makefile                 |    1 -
- drivers/mfd/wm8400-core.c            |  163 ----
- drivers/regulator/Kconfig            |    7 -
- drivers/regulator/Makefile           |    1 -
- drivers/regulator/wm8400-regulator.c |  276 ------
- include/linux/mfd/wm8400-audio.h     | 1174 ----------------------
- include/linux/mfd/wm8400-private.h   |  913 -----------------
- include/linux/mfd/wm8400.h           |   27 -
- sound/soc/codecs/Kconfig             |    6 -
- sound/soc/codecs/Makefile            |    2 -
- sound/soc/codecs/wm8400.c            | 1348 --------------------------
- sound/soc/codecs/wm8400.h            |   54 --
- 14 files changed, 3984 deletions(-)
- delete mode 100644 drivers/mfd/wm8400-core.c
- delete mode 100644 drivers/regulator/wm8400-regulator.c
- delete mode 100644 include/linux/mfd/wm8400-audio.h
- delete mode 100644 include/linux/mfd/wm8400-private.h
- delete mode 100644 include/linux/mfd/wm8400.h
- delete mode 100644 sound/soc/codecs/wm8400.c
- delete mode 100644 sound/soc/codecs/wm8400.h
+ .../ABI/testing/sysfs-class-backlight         |  11 -
+ MAINTAINERS                                   |  11 -
+ drivers/gpio/Kconfig                          |   7 -
+ drivers/gpio/Makefile                         |   1 -
+ drivers/gpio/gpio-adp5520.c                   | 169 --------
+ drivers/input/keyboard/Kconfig                |  10 -
+ drivers/input/keyboard/Makefile               |   1 -
+ drivers/input/keyboard/adp5520-keys.c         | 191 ---------
+ drivers/leds/Kconfig                          |  11 -
+ drivers/leds/Makefile                         |   1 -
+ drivers/leds/leds-adp5520.c                   | 195 ---------
+ drivers/mfd/Kconfig                           |  10 -
+ drivers/mfd/Makefile                          |   1 -
+ drivers/mfd/adp5520.c                         | 346 ----------------
+ drivers/video/backlight/Kconfig               |  10 -
+ drivers/video/backlight/Makefile              |   1 -
+ drivers/video/backlight/adp5520_bl.c          | 385 ------------------
+ include/linux/mfd/adp5520.h                   | 298 --------------
+ 18 files changed, 1659 deletions(-)
+ delete mode 100644 drivers/gpio/gpio-adp5520.c
+ delete mode 100644 drivers/input/keyboard/adp5520-keys.c
+ delete mode 100644 drivers/leds/leds-adp5520.c
+ delete mode 100644 drivers/mfd/adp5520.c
+ delete mode 100644 drivers/video/backlight/adp5520_bl.c
+ delete mode 100644 include/linux/mfd/adp5520.h
 
+diff --git a/Documentation/ABI/testing/sysfs-class-backlight b/Documentation/ABI/testing/sysfs-class-backlight
+index c453646b06e2..b73d66942fbb 100644
+--- a/Documentation/ABI/testing/sysfs-class-backlight
++++ b/Documentation/ABI/testing/sysfs-class-backlight
+@@ -97,17 +97,6 @@ Description:
+ 
+ 		The <ambient light zone> is device-driver specific:
+ 
+-		For ADP5520 and ADP5501, <ambient light zone> can be:
+-
+-		===========  ================================================
+-		Ambient      sysfs entry
+-		light zone
+-		===========  ================================================
+-		daylight     /sys/class/backlight/<backlight>/daylight_max
+-		office       /sys/class/backlight/<backlight>/office_max
+-		dark         /sys/class/backlight/<backlight>/dark_max
+-		===========  ================================================
+-
+ 		For ADP8860, <ambient light zone> can be:
+ 
+ 		===========  ================================================
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 2f5a5c053439..c5e2140cdac0 100644
+index c5e2140cdac0..86df3fadba87 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -29398,7 +29398,6 @@ F:	drivers/watchdog/wm83*_wdt.c
- F:	include/linux/mfd/arizona/
- F:	include/linux/mfd/wm831x/
- F:	include/linux/mfd/wm8350/
--F:	include/linux/mfd/wm8400*
- F:	include/linux/regulator/arizona*
- F:	include/linux/wm97xx.h
- F:	include/sound/wm????.h
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index b271c9f0c5fc..2b621a77619c 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -2068,17 +2068,6 @@ config MFD_WM8998
- 	help
- 	  Support for Wolfson Microelectronics WM8998 low power audio SoC
+@@ -550,17 +550,6 @@ F:	Documentation/devicetree/bindings/media/i2c/adi,adp1653.txt
+ F:	drivers/media/i2c/adp1653.c
+ F:	include/media/i2c/adp1653.h
  
--config MFD_WM8400
--	bool "Wolfson Microelectronics WM8400"
--	select MFD_CORE
--	depends on I2C=y
--	select REGMAP_I2C
--	help
--	  Support for the Wolfson Microelecronics WM8400 PMIC and audio
--	  CODEC.  This driver provides common support for accessing
--	  the device, additional drivers must be enabled in order to use
--	  the functionality of the device.
+-ADP5520 BACKLIGHT DRIVER WITH IO EXPANDER (ADP5520/ADP5501)
+-M:	Michael Hennerich <michael.hennerich@analog.com>
+-S:	Supported
+-W:	http://wiki.analog.com/ADP5520
+-W:	https://ez.analog.com/linux-software-drivers
+-F:	drivers/gpio/gpio-adp5520.c
+-F:	drivers/input/keyboard/adp5520-keys.c
+-F:	drivers/leds/leds-adp5520.c
+-F:	drivers/mfd/adp5520.c
+-F:	drivers/video/backlight/adp5520_bl.c
 -
- config MFD_WM831X
- 	bool
+ ADP5585 GPIO EXPANDER, PWM AND KEYPAD CONTROLLER DRIVER
+ M:	Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+ L:	linux-gpio@vger.kernel.org
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index aef0db9fe101..98b9931c59ff 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -1325,13 +1325,6 @@ endmenu
  
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 649262eb0f5c..36f0ab039b77 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -55,7 +55,6 @@ ifeq ($(CONFIG_MFD_CS47L24),y)
- arizona-objs			+= cs47l24-tables.o
- endif
- obj-$(CONFIG_MFD_WCD934X)	+= wcd934x.o
--obj-$(CONFIG_MFD_WM8400)	+= wm8400-core.o
- wm831x-objs			:= wm831x-core.o wm831x-irq.o wm831x-otp.o
- wm831x-objs			+= wm831x-auxadc.o
- obj-$(CONFIG_MFD_WM831X)	+= wm831x.o
-diff --git a/drivers/mfd/wm8400-core.c b/drivers/mfd/wm8400-core.c
+ menu "MFD GPIO expanders"
+ 
+-config GPIO_ADP5520
+-	tristate "GPIO Support for ADP5520 PMIC"
+-	depends on PMIC_ADP5520
+-	help
+-	  This option enables support for on-chip GPIO found
+-	  on Analog Devices ADP5520 PMICs.
+-
+ config GPIO_ADP5585
+ 	tristate "GPIO Support for ADP5585"
+ 	depends on MFD_ADP5585
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 2e3a14688b59..1fafd15d3fa6 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -28,7 +28,6 @@ obj-$(CONFIG_GPIO_104_IDIO_16)		+= gpio-104-idio-16.o
+ obj-$(CONFIG_GPIO_74X164)		+= gpio-74x164.o
+ obj-$(CONFIG_GPIO_74XX_MMIO)		+= gpio-74xx-mmio.o
+ obj-$(CONFIG_GPIO_ADNP)			+= gpio-adnp.o
+-obj-$(CONFIG_GPIO_ADP5520)		+= gpio-adp5520.o
+ obj-$(CONFIG_GPIO_ADP5585)		+= gpio-adp5585.o
+ obj-$(CONFIG_GPIO_AGGREGATOR)		+= gpio-aggregator.o
+ obj-$(CONFIG_GPIO_ALTERA_A10SR)		+= gpio-altera-a10sr.o
+diff --git a/drivers/gpio/gpio-adp5520.c b/drivers/gpio/gpio-adp5520.c
 deleted file mode 100644
-index 8ecfe878a5ba..000000000000
---- a/drivers/mfd/wm8400-core.c
+index 6305c8b7dc05..000000000000
+--- a/drivers/gpio/gpio-adp5520.c
 +++ /dev/null
-@@ -1,163 +0,0 @@
+@@ -1,169 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0-or-later
 -/*
-- * Core driver for WM8400.
+- * GPIO driver for Analog Devices ADP5520 MFD PMICs
 - *
-- * Copyright 2008 Wolfson Microelectronics PLC.
-- *
-- * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+- * Copyright 2009 Analog Devices Inc.
 - */
 -
--#include <linux/init.h>
--#include <linux/bug.h>
--#include <linux/err.h>
--#include <linux/i2c.h>
--#include <linux/kernel.h>
--#include <linux/mfd/core.h>
--#include <linux/mfd/wm8400-private.h>
--#include <linux/mfd/wm8400-audio.h>
--#include <linux/regmap.h>
+-#include <linux/module.h>
 -#include <linux/slab.h>
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+-#include <linux/mfd/adp5520.h>
+-#include <linux/gpio/driver.h>
 -
--static bool wm8400_volatile(struct device *dev, unsigned int reg)
+-struct adp5520_gpio {
+-	struct device *master;
+-	struct gpio_chip gpio_chip;
+-	unsigned char lut[ADP5520_MAXGPIOS];
+-	unsigned long output;
+-};
+-
+-static int adp5520_gpio_get_value(struct gpio_chip *chip, unsigned off)
 -{
--	switch (reg) {
--	case WM8400_INTERRUPT_STATUS_1:
--	case WM8400_INTERRUPT_LEVELS:
--	case WM8400_SHUTDOWN_REASON:
--		return true;
--	default:
--		return false;
--	}
+-	struct adp5520_gpio *dev;
+-	uint8_t reg_val;
+-
+-	dev = gpiochip_get_data(chip);
+-
+-	/*
+-	 * There are dedicated registers for GPIO IN/OUT.
+-	 * Make sure we return the right value, even when configured as output
+-	 */
+-
+-	if (test_bit(off, &dev->output))
+-		adp5520_read(dev->master, ADP5520_GPIO_OUT, &reg_val);
+-	else
+-		adp5520_read(dev->master, ADP5520_GPIO_IN, &reg_val);
+-
+-	return !!(reg_val & dev->lut[off]);
 -}
 -
--static int wm8400_register_codec(struct wm8400 *wm8400)
+-static int adp5520_gpio_set_value(struct gpio_chip *chip,
+-				  unsigned int off, int val)
 -{
--	const struct mfd_cell cell = {
--		.name = "wm8400-codec",
--		.platform_data = wm8400,
--		.pdata_size = sizeof(*wm8400),
--	};
+-	struct adp5520_gpio *dev;
+-	dev = gpiochip_get_data(chip);
 -
--	return devm_mfd_add_devices(wm8400->dev, -1, &cell, 1, NULL, 0, NULL);
+-	if (val)
+-		return adp5520_set_bits(dev->master, ADP5520_GPIO_OUT,
+-					dev->lut[off]);
+-	else
+-		return adp5520_clr_bits(dev->master, ADP5520_GPIO_OUT,
+-					dev->lut[off]);
 -}
 -
--/*
-- * wm8400_init - Generic initialisation
-- *
-- * The WM8400 can be configured as either an I2C or SPI device.  Probe
-- * functions for each bus set up the accessors then call into this to
-- * set up the device itself.
-- */
--static int wm8400_init(struct wm8400 *wm8400,
--		       struct wm8400_platform_data *pdata)
+-static int adp5520_gpio_direction_input(struct gpio_chip *chip, unsigned off)
 -{
--	unsigned int reg;
--	int ret;
+-	struct adp5520_gpio *dev;
+-	dev = gpiochip_get_data(chip);
 -
--	/* Check that this is actually a WM8400 */
--	ret = regmap_read(wm8400->regmap, WM8400_RESET_ID, &reg);
--	if (ret != 0) {
--		dev_err(wm8400->dev, "Chip ID register read failed\n");
--		return -EIO;
--	}
--	if (reg != 0x6172) {
--		dev_err(wm8400->dev, "Device is not a WM8400, ID is %x\n",
--			reg);
+-	clear_bit(off, &dev->output);
+-
+-	return adp5520_clr_bits(dev->master, ADP5520_GPIO_CFG_2,
+-				dev->lut[off]);
+-}
+-
+-static int adp5520_gpio_direction_output(struct gpio_chip *chip,
+-		unsigned off, int val)
+-{
+-	struct adp5520_gpio *dev;
+-	int ret = 0;
+-	dev = gpiochip_get_data(chip);
+-
+-	set_bit(off, &dev->output);
+-
+-	if (val)
+-		ret |= adp5520_set_bits(dev->master, ADP5520_GPIO_OUT,
+-					dev->lut[off]);
+-	else
+-		ret |= adp5520_clr_bits(dev->master, ADP5520_GPIO_OUT,
+-					dev->lut[off]);
+-
+-	ret |= adp5520_set_bits(dev->master, ADP5520_GPIO_CFG_2,
+-					dev->lut[off]);
+-
+-	return ret;
+-}
+-
+-static int adp5520_gpio_probe(struct platform_device *pdev)
+-{
+-	struct adp5520_gpio_platform_data *pdata = dev_get_platdata(&pdev->dev);
+-	struct adp5520_gpio *dev;
+-	struct gpio_chip *gc;
+-	int ret, i, gpios;
+-	unsigned char ctl_mask = 0;
+-
+-	if (pdata == NULL) {
+-		dev_err(&pdev->dev, "missing platform data\n");
 -		return -ENODEV;
 -	}
 -
--	ret = regmap_read(wm8400->regmap, WM8400_ID, &reg);
--	if (ret != 0) {
--		dev_err(wm8400->dev, "ID register read failed: %d\n", ret);
--		return ret;
--	}
--	reg = (reg & WM8400_CHIP_REV_MASK) >> WM8400_CHIP_REV_SHIFT;
--	dev_info(wm8400->dev, "WM8400 revision %x\n", reg);
--
--	ret = wm8400_register_codec(wm8400);
--	if (ret != 0) {
--		dev_err(wm8400->dev, "Failed to register codec\n");
--		return ret;
+-	if (pdev->id != ID_ADP5520) {
+-		dev_err(&pdev->dev, "only ADP5520 supports GPIO\n");
+-		return -ENODEV;
 -	}
 -
--	if (pdata && pdata->platform_init) {
--		ret = pdata->platform_init(wm8400->dev);
--		if (ret != 0) {
--			dev_err(wm8400->dev, "Platform init failed: %d\n",
--				ret);
--			return ret;
--		}
--	} else
--		dev_warn(wm8400->dev, "No platform initialisation supplied\n");
--
--	return 0;
--}
--
--static const struct regmap_config wm8400_regmap_config = {
--	.reg_bits = 8,
--	.val_bits = 16,
--	.max_register = WM8400_REGISTER_COUNT - 1,
--
--	.volatile_reg = wm8400_volatile,
--
--	.cache_type = REGCACHE_MAPLE,
--};
--
--/**
-- * wm8400_reset_codec_reg_cache - Reset cached codec registers to
-- * their default values.
-- *
-- * @wm8400: pointer to local driver data structure
-- */
--void wm8400_reset_codec_reg_cache(struct wm8400 *wm8400)
--{
--	regmap_reinit_cache(wm8400->regmap, &wm8400_regmap_config);
--}
--EXPORT_SYMBOL_GPL(wm8400_reset_codec_reg_cache);
--
--#if IS_ENABLED(CONFIG_I2C)
--static int wm8400_i2c_probe(struct i2c_client *i2c)
--{
--	struct wm8400 *wm8400;
--
--	wm8400 = devm_kzalloc(&i2c->dev, sizeof(struct wm8400), GFP_KERNEL);
--	if (!wm8400)
+-	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+-	if (dev == NULL)
 -		return -ENOMEM;
 -
--	wm8400->regmap = devm_regmap_init_i2c(i2c, &wm8400_regmap_config);
--	if (IS_ERR(wm8400->regmap))
--		return PTR_ERR(wm8400->regmap);
+-	dev->master = pdev->dev.parent;
 -
--	wm8400->dev = &i2c->dev;
--	i2c_set_clientdata(i2c, wm8400);
+-	for (gpios = 0, i = 0; i < ADP5520_MAXGPIOS; i++)
+-		if (pdata->gpio_en_mask & (1 << i))
+-			dev->lut[gpios++] = 1 << i;
 -
--	return wm8400_init(wm8400, dev_get_platdata(&i2c->dev));
--}
--
--static const struct i2c_device_id wm8400_i2c_id[] = {
--       { "wm8400" },
--       { }
--};
--
--static struct i2c_driver wm8400_i2c_driver = {
--	.driver = {
--		.name = "WM8400",
--	},
--	.probe = wm8400_i2c_probe,
--	.id_table = wm8400_i2c_id,
--};
--#endif
--
--static int __init wm8400_driver_init(void)
--{
--	int ret = -ENODEV;
--
--#if IS_ENABLED(CONFIG_I2C)
--	ret = i2c_add_driver(&wm8400_i2c_driver);
--	if (ret != 0)
--		pr_err("Failed to register I2C driver: %d\n", ret);
--#endif
--
--	return ret;
--}
--subsys_initcall(wm8400_driver_init);
-diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
-index 73b43dc1b3be..4869a1d5041b 100644
---- a/drivers/regulator/Kconfig
-+++ b/drivers/regulator/Kconfig
-@@ -1862,13 +1862,6 @@ config REGULATOR_WM8350
- 	  This driver provides support for the voltage and current regulators
- 	  of the WM8350 AudioPlus PMIC.
- 
--config REGULATOR_WM8400
--	tristate "Wolfson Microelectronics WM8400 AudioPlus PMIC"
--	depends on MFD_WM8400
--	help
--	  This driver provides support for the voltage regulators of the
--	  WM8400 AudioPlus PMIC.
--
- config REGULATOR_WM8994
- 	tristate "Wolfson Microelectronics WM8994 CODEC"
- 	depends on MFD_WM8994
-diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
-index 972f105567b5..86b5afcc974e 100644
---- a/drivers/regulator/Makefile
-+++ b/drivers/regulator/Makefile
-@@ -215,7 +215,6 @@ obj-$(CONFIG_REGULATOR_WM831X) += wm831x-dcdc.o
- obj-$(CONFIG_REGULATOR_WM831X) += wm831x-isink.o
- obj-$(CONFIG_REGULATOR_WM831X) += wm831x-ldo.o
- obj-$(CONFIG_REGULATOR_WM8350) += wm8350-regulator.o
--obj-$(CONFIG_REGULATOR_WM8400) += wm8400-regulator.o
- obj-$(CONFIG_REGULATOR_WM8994) += wm8994-regulator.o
- 
- ccflags-$(CONFIG_REGULATOR_DEBUG) += -DDEBUG
-diff --git a/drivers/regulator/wm8400-regulator.c b/drivers/regulator/wm8400-regulator.c
-deleted file mode 100644
-index fb3ca7956d00..000000000000
---- a/drivers/regulator/wm8400-regulator.c
-+++ /dev/null
-@@ -1,276 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0+
--//
--// Regulator support for WM8400
--//
--// Copyright 2008 Wolfson Microelectronics PLC.
--//
--// Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
--
--#include <linux/bug.h>
--#include <linux/err.h>
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/regulator/driver.h>
--#include <linux/mfd/wm8400-private.h>
--
--static const struct linear_range wm8400_ldo_ranges[] = {
--	REGULATOR_LINEAR_RANGE(900000, 0, 14, 50000),
--	REGULATOR_LINEAR_RANGE(1700000, 15, 31, 100000),
--};
--
--static const struct regulator_ops wm8400_ldo_ops = {
--	.is_enabled = regulator_is_enabled_regmap,
--	.enable = regulator_enable_regmap,
--	.disable = regulator_disable_regmap,
--	.list_voltage = regulator_list_voltage_linear_range,
--	.get_voltage_sel = regulator_get_voltage_sel_regmap,
--	.set_voltage_sel = regulator_set_voltage_sel_regmap,
--	.map_voltage = regulator_map_voltage_linear_range,
--};
--
--static unsigned int wm8400_dcdc_get_mode(struct regulator_dev *dev)
--{
--	struct regmap *rmap = rdev_get_regmap(dev);
--	int offset = (rdev_get_id(dev) - WM8400_DCDC1) * 2;
--	u16 data[2];
--	int ret;
--
--	ret = regmap_bulk_read(rmap, WM8400_DCDC1_CONTROL_1 + offset, data, 2);
--	if (ret != 0)
--		return 0;
--
--	/* Datasheet: hibernate */
--	if (data[0] & WM8400_DC1_SLEEP)
--		return REGULATOR_MODE_STANDBY;
--
--	/* Datasheet: standby */
--	if (!(data[0] & WM8400_DC1_ACTIVE))
--		return REGULATOR_MODE_IDLE;
--
--	/* Datasheet: active with or without force PWM */
--	if (data[1] & WM8400_DC1_FRC_PWM)
--		return REGULATOR_MODE_FAST;
--	else
--		return REGULATOR_MODE_NORMAL;
--}
--
--static int wm8400_dcdc_set_mode(struct regulator_dev *dev, unsigned int mode)
--{
--	struct regmap *rmap = rdev_get_regmap(dev);
--	int offset = (rdev_get_id(dev) - WM8400_DCDC1) * 2;
--	int ret;
--
--	switch (mode) {
--	case REGULATOR_MODE_FAST:
--		/* Datasheet: active with force PWM */
--		ret = regmap_update_bits(rmap, WM8400_DCDC1_CONTROL_2 + offset,
--				      WM8400_DC1_FRC_PWM, WM8400_DC1_FRC_PWM);
--		if (ret != 0)
--			return ret;
--
--		return regmap_update_bits(rmap, WM8400_DCDC1_CONTROL_1 + offset,
--				       WM8400_DC1_ACTIVE | WM8400_DC1_SLEEP,
--				       WM8400_DC1_ACTIVE);
--
--	case REGULATOR_MODE_NORMAL:
--		/* Datasheet: active */
--		ret = regmap_update_bits(rmap, WM8400_DCDC1_CONTROL_2 + offset,
--				      WM8400_DC1_FRC_PWM, 0);
--		if (ret != 0)
--			return ret;
--
--		return regmap_update_bits(rmap, WM8400_DCDC1_CONTROL_1 + offset,
--				       WM8400_DC1_ACTIVE | WM8400_DC1_SLEEP,
--				       WM8400_DC1_ACTIVE);
--
--	case REGULATOR_MODE_IDLE:
--		/* Datasheet: standby */
--		return regmap_update_bits(rmap, WM8400_DCDC1_CONTROL_1 + offset,
--				       WM8400_DC1_ACTIVE | WM8400_DC1_SLEEP, 0);
--	default:
+-	if (gpios < 1)
 -		return -EINVAL;
+-
+-	gc = &dev->gpio_chip;
+-	gc->direction_input  = adp5520_gpio_direction_input;
+-	gc->direction_output = adp5520_gpio_direction_output;
+-	gc->get = adp5520_gpio_get_value;
+-	gc->set = adp5520_gpio_set_value;
+-	gc->can_sleep = true;
+-
+-	gc->base = pdata->gpio_start;
+-	gc->ngpio = gpios;
+-	gc->label = pdev->name;
+-	gc->owner = THIS_MODULE;
+-
+-	ret = adp5520_clr_bits(dev->master, ADP5520_GPIO_CFG_1,
+-		pdata->gpio_en_mask);
+-
+-	if (pdata->gpio_en_mask & ADP5520_GPIO_C3)
+-		ctl_mask |= ADP5520_C3_MODE;
+-
+-	if (pdata->gpio_en_mask & ADP5520_GPIO_R3)
+-		ctl_mask |= ADP5520_R3_MODE;
+-
+-	if (ctl_mask)
+-		ret = adp5520_set_bits(dev->master, ADP5520_LED_CONTROL,
+-			ctl_mask);
+-
+-	ret |= adp5520_set_bits(dev->master, ADP5520_GPIO_PULLUP,
+-		pdata->gpio_pullup_mask);
+-
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to write\n");
+-		return ret;
 -	}
+-
+-	return devm_gpiochip_add_data(&pdev->dev, &dev->gpio_chip, dev);
 -}
 -
--static unsigned int wm8400_dcdc_get_optimum_mode(struct regulator_dev *dev,
--						 int input_uV, int output_uV,
--						 int load_uA)
--{
--	return REGULATOR_MODE_NORMAL;
--}
--
--static const struct regulator_ops wm8400_dcdc_ops = {
--	.is_enabled = regulator_is_enabled_regmap,
--	.enable = regulator_enable_regmap,
--	.disable = regulator_disable_regmap,
--	.list_voltage = regulator_list_voltage_linear,
--	.map_voltage = regulator_map_voltage_linear,
--	.get_voltage_sel = regulator_get_voltage_sel_regmap,
--	.set_voltage_sel = regulator_set_voltage_sel_regmap,
--	.get_mode = wm8400_dcdc_get_mode,
--	.set_mode = wm8400_dcdc_set_mode,
--	.get_optimum_mode = wm8400_dcdc_get_optimum_mode,
+-static struct platform_driver adp5520_gpio_driver = {
+-	.driver	= {
+-		.name	= "adp5520-gpio",
+-	},
+-	.probe		= adp5520_gpio_probe,
 -};
 -
--static const struct regulator_desc regulators[] = {
--	{
--		.name = "LDO1",
--		.id = WM8400_LDO1,
--		.ops = &wm8400_ldo_ops,
--		.enable_reg = WM8400_LDO1_CONTROL,
--		.enable_mask = WM8400_LDO1_ENA,
--		.n_voltages = WM8400_LDO1_VSEL_MASK + 1,
--		.linear_ranges = wm8400_ldo_ranges,
--		.n_linear_ranges = ARRAY_SIZE(wm8400_ldo_ranges),
--		.vsel_reg = WM8400_LDO1_CONTROL,
--		.vsel_mask = WM8400_LDO1_VSEL_MASK,
--		.type = REGULATOR_VOLTAGE,
--		.owner = THIS_MODULE,
--	},
--	{
--		.name = "LDO2",
--		.id = WM8400_LDO2,
--		.ops = &wm8400_ldo_ops,
--		.enable_reg = WM8400_LDO2_CONTROL,
--		.enable_mask = WM8400_LDO2_ENA,
--		.n_voltages = WM8400_LDO2_VSEL_MASK + 1,
--		.linear_ranges = wm8400_ldo_ranges,
--		.n_linear_ranges = ARRAY_SIZE(wm8400_ldo_ranges),
--		.type = REGULATOR_VOLTAGE,
--		.vsel_reg = WM8400_LDO2_CONTROL,
--		.vsel_mask = WM8400_LDO2_VSEL_MASK,
--		.owner = THIS_MODULE,
--	},
--	{
--		.name = "LDO3",
--		.id = WM8400_LDO3,
--		.ops = &wm8400_ldo_ops,
--		.enable_reg = WM8400_LDO3_CONTROL,
--		.enable_mask = WM8400_LDO3_ENA,
--		.n_voltages = WM8400_LDO3_VSEL_MASK + 1,
--		.linear_ranges = wm8400_ldo_ranges,
--		.n_linear_ranges = ARRAY_SIZE(wm8400_ldo_ranges),
--		.vsel_reg = WM8400_LDO3_CONTROL,
--		.vsel_mask = WM8400_LDO3_VSEL_MASK,
--		.type = REGULATOR_VOLTAGE,
--		.owner = THIS_MODULE,
--	},
--	{
--		.name = "LDO4",
--		.id = WM8400_LDO4,
--		.ops = &wm8400_ldo_ops,
--		.enable_reg = WM8400_LDO4_CONTROL,
--		.enable_mask = WM8400_LDO4_ENA,
--		.n_voltages = WM8400_LDO4_VSEL_MASK + 1,
--		.linear_ranges = wm8400_ldo_ranges,
--		.n_linear_ranges = ARRAY_SIZE(wm8400_ldo_ranges),
--		.vsel_reg = WM8400_LDO4_CONTROL,
--		.vsel_mask = WM8400_LDO4_VSEL_MASK,
--		.type = REGULATOR_VOLTAGE,
--		.owner = THIS_MODULE,
--	},
--	{
--		.name = "DCDC1",
--		.id = WM8400_DCDC1,
--		.ops = &wm8400_dcdc_ops,
--		.enable_reg = WM8400_DCDC1_CONTROL_1,
--		.enable_mask = WM8400_DC1_ENA_MASK,
--		.n_voltages = WM8400_DC1_VSEL_MASK + 1,
--		.vsel_reg = WM8400_DCDC1_CONTROL_1,
--		.vsel_mask = WM8400_DC1_VSEL_MASK,
--		.min_uV = 850000,
--		.uV_step = 25000,
--		.type = REGULATOR_VOLTAGE,
--		.owner = THIS_MODULE,
--	},
--	{
--		.name = "DCDC2",
--		.id = WM8400_DCDC2,
--		.ops = &wm8400_dcdc_ops,
--		.enable_reg = WM8400_DCDC2_CONTROL_1,
--		.enable_mask = WM8400_DC2_ENA_MASK,
--		.n_voltages = WM8400_DC2_VSEL_MASK + 1,
--		.vsel_reg = WM8400_DCDC2_CONTROL_1,
--		.vsel_mask = WM8400_DC2_VSEL_MASK,
--		.min_uV = 850000,
--		.uV_step = 25000,
--		.type = REGULATOR_VOLTAGE,
--		.owner = THIS_MODULE,
--	},
--};
+-module_platform_driver(adp5520_gpio_driver);
 -
--static int wm8400_regulator_probe(struct platform_device *pdev)
--{
--	struct wm8400 *wm8400 = container_of(pdev, struct wm8400, regulators[pdev->id]);
--	struct regulator_config config = { };
--	struct regulator_dev *rdev;
--
--	config.dev = &pdev->dev;
--	config.init_data = dev_get_platdata(&pdev->dev);
--	config.driver_data = wm8400;
--	config.regmap = wm8400->regmap;
--
--	rdev = devm_regulator_register(&pdev->dev, &regulators[pdev->id],
--				       &config);
--	if (IS_ERR(rdev))
--		return PTR_ERR(rdev);
--
--	platform_set_drvdata(pdev, rdev);
--
--	return 0;
--}
--
--static struct platform_driver wm8400_regulator_driver = {
--	.driver = {
--		.name = "wm8400-regulator",
--		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
--	},
--	.probe = wm8400_regulator_probe,
--};
--
--/**
-- * wm8400_register_regulator - enable software control of a WM8400 regulator
-- *
-- * This function enables software control of a WM8400 regulator via
-- * the regulator API.  It is intended to be called from the
-- * platform_init() callback of the WM8400 MFD driver.
-- *
-- * @dev:      The WM8400 device to operate on.
-- * @reg:      The regulator to control.
-- * @initdata: Regulator initdata for the regulator.
-- */
--int wm8400_register_regulator(struct device *dev, int reg,
--			      struct regulator_init_data *initdata)
--{
--	struct wm8400 *wm8400 = dev_get_drvdata(dev);
--
--	if (wm8400->regulators[reg].name)
--		return -EBUSY;
--
--	initdata->driver_data = wm8400;
--
--	wm8400->regulators[reg].name = "wm8400-regulator";
--	wm8400->regulators[reg].id = reg;
--	wm8400->regulators[reg].dev.parent = dev;
--	wm8400->regulators[reg].dev.platform_data = initdata;
--
--	return platform_device_register(&wm8400->regulators[reg]);
--}
--EXPORT_SYMBOL_GPL(wm8400_register_regulator);
--
--static int __init wm8400_regulator_init(void)
--{
--	return platform_driver_register(&wm8400_regulator_driver);
--}
--subsys_initcall(wm8400_regulator_init);
--
--static void __exit wm8400_regulator_exit(void)
--{
--	platform_driver_unregister(&wm8400_regulator_driver);
--}
--module_exit(wm8400_regulator_exit);
--
--MODULE_AUTHOR("Mark Brown <broonie@opensource.wolfsonmicro.com>");
--MODULE_DESCRIPTION("WM8400 regulator driver");
+-MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+-MODULE_DESCRIPTION("GPIO ADP5520 Driver");
 -MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:wm8400-regulator");
-diff --git a/include/linux/mfd/wm8400-audio.h b/include/linux/mfd/wm8400-audio.h
-deleted file mode 100644
-index d47bdcc7a765..000000000000
---- a/include/linux/mfd/wm8400-audio.h
-+++ /dev/null
-@@ -1,1174 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-or-later */
--/*
-- * wm8400 private definitions for audio
-- *
-- * Copyright 2008 Wolfson Microelectronics plc
-- */
--
--#ifndef __LINUX_MFD_WM8400_AUDIO_H
--#define __LINUX_MFD_WM8400_AUDIO_H
--
--#include <linux/mfd/wm8400-audio.h>
--
--/*
-- * R2 (0x02) - Power Management (1)
-- */
--#define WM8400_CODEC_ENA                        0x8000  /* CODEC_ENA */
--#define WM8400_CODEC_ENA_MASK                   0x8000  /* CODEC_ENA */
--#define WM8400_CODEC_ENA_SHIFT                      15  /* CODEC_ENA */
--#define WM8400_CODEC_ENA_WIDTH                       1  /* CODEC_ENA */
--#define WM8400_SYSCLK_ENA                       0x4000  /* SYSCLK_ENA */
--#define WM8400_SYSCLK_ENA_MASK                  0x4000  /* SYSCLK_ENA */
--#define WM8400_SYSCLK_ENA_SHIFT                     14  /* SYSCLK_ENA */
--#define WM8400_SYSCLK_ENA_WIDTH                      1  /* SYSCLK_ENA */
--#define WM8400_SPK_MIX_ENA                      0x2000  /* SPK_MIX_ENA */
--#define WM8400_SPK_MIX_ENA_MASK                 0x2000  /* SPK_MIX_ENA */
--#define WM8400_SPK_MIX_ENA_SHIFT                    13  /* SPK_MIX_ENA */
--#define WM8400_SPK_MIX_ENA_WIDTH                     1  /* SPK_MIX_ENA */
--#define WM8400_SPK_ENA                          0x1000  /* SPK_ENA */
--#define WM8400_SPK_ENA_MASK                     0x1000  /* SPK_ENA */
--#define WM8400_SPK_ENA_SHIFT                        12  /* SPK_ENA */
--#define WM8400_SPK_ENA_WIDTH                         1  /* SPK_ENA */
--#define WM8400_OUT3_ENA                         0x0800  /* OUT3_ENA */
--#define WM8400_OUT3_ENA_MASK                    0x0800  /* OUT3_ENA */
--#define WM8400_OUT3_ENA_SHIFT                       11  /* OUT3_ENA */
--#define WM8400_OUT3_ENA_WIDTH                        1  /* OUT3_ENA */
--#define WM8400_OUT4_ENA                         0x0400  /* OUT4_ENA */
--#define WM8400_OUT4_ENA_MASK                    0x0400  /* OUT4_ENA */
--#define WM8400_OUT4_ENA_SHIFT                       10  /* OUT4_ENA */
--#define WM8400_OUT4_ENA_WIDTH                        1  /* OUT4_ENA */
--#define WM8400_LOUT_ENA                         0x0200  /* LOUT_ENA */
--#define WM8400_LOUT_ENA_MASK                    0x0200  /* LOUT_ENA */
--#define WM8400_LOUT_ENA_SHIFT                        9  /* LOUT_ENA */
--#define WM8400_LOUT_ENA_WIDTH                        1  /* LOUT_ENA */
--#define WM8400_ROUT_ENA                         0x0100  /* ROUT_ENA */
--#define WM8400_ROUT_ENA_MASK                    0x0100  /* ROUT_ENA */
--#define WM8400_ROUT_ENA_SHIFT                        8  /* ROUT_ENA */
--#define WM8400_ROUT_ENA_WIDTH                        1  /* ROUT_ENA */
--#define WM8400_MIC1BIAS_ENA                     0x0010  /* MIC1BIAS_ENA */
--#define WM8400_MIC1BIAS_ENA_MASK                0x0010  /* MIC1BIAS_ENA */
--#define WM8400_MIC1BIAS_ENA_SHIFT                    4  /* MIC1BIAS_ENA */
--#define WM8400_MIC1BIAS_ENA_WIDTH                    1  /* MIC1BIAS_ENA */
--#define WM8400_VMID_MODE_MASK                   0x0006  /* VMID_MODE - [2:1] */
--#define WM8400_VMID_MODE_SHIFT                       1  /* VMID_MODE - [2:1] */
--#define WM8400_VMID_MODE_WIDTH                       2  /* VMID_MODE - [2:1] */
--#define WM8400_VREF_ENA                         0x0001  /* VREF_ENA */
--#define WM8400_VREF_ENA_MASK                    0x0001  /* VREF_ENA */
--#define WM8400_VREF_ENA_SHIFT                        0  /* VREF_ENA */
--#define WM8400_VREF_ENA_WIDTH                        1  /* VREF_ENA */
--
--/*
-- * R3 (0x03) - Power Management (2)
-- */
--#define WM8400_FLL_ENA                          0x8000  /* FLL_ENA */
--#define WM8400_FLL_ENA_MASK                     0x8000  /* FLL_ENA */
--#define WM8400_FLL_ENA_SHIFT                        15  /* FLL_ENA */
--#define WM8400_FLL_ENA_WIDTH                         1  /* FLL_ENA */
--#define WM8400_TSHUT_ENA                        0x4000  /* TSHUT_ENA */
--#define WM8400_TSHUT_ENA_MASK                   0x4000  /* TSHUT_ENA */
--#define WM8400_TSHUT_ENA_SHIFT                      14  /* TSHUT_ENA */
--#define WM8400_TSHUT_ENA_WIDTH                       1  /* TSHUT_ENA */
--#define WM8400_TSHUT_OPDIS                      0x2000  /* TSHUT_OPDIS */
--#define WM8400_TSHUT_OPDIS_MASK                 0x2000  /* TSHUT_OPDIS */
--#define WM8400_TSHUT_OPDIS_SHIFT                    13  /* TSHUT_OPDIS */
--#define WM8400_TSHUT_OPDIS_WIDTH                     1  /* TSHUT_OPDIS */
--#define WM8400_OPCLK_ENA                        0x0800  /* OPCLK_ENA */
--#define WM8400_OPCLK_ENA_MASK                   0x0800  /* OPCLK_ENA */
--#define WM8400_OPCLK_ENA_SHIFT                      11  /* OPCLK_ENA */
--#define WM8400_OPCLK_ENA_WIDTH                       1  /* OPCLK_ENA */
--#define WM8400_AINL_ENA                         0x0200  /* AINL_ENA */
--#define WM8400_AINL_ENA_MASK                    0x0200  /* AINL_ENA */
--#define WM8400_AINL_ENA_SHIFT                        9  /* AINL_ENA */
--#define WM8400_AINL_ENA_WIDTH                        1  /* AINL_ENA */
--#define WM8400_AINR_ENA                         0x0100  /* AINR_ENA */
--#define WM8400_AINR_ENA_MASK                    0x0100  /* AINR_ENA */
--#define WM8400_AINR_ENA_SHIFT                        8  /* AINR_ENA */
--#define WM8400_AINR_ENA_WIDTH                        1  /* AINR_ENA */
--#define WM8400_LIN34_ENA                        0x0080  /* LIN34_ENA */
--#define WM8400_LIN34_ENA_MASK                   0x0080  /* LIN34_ENA */
--#define WM8400_LIN34_ENA_SHIFT                       7  /* LIN34_ENA */
--#define WM8400_LIN34_ENA_WIDTH                       1  /* LIN34_ENA */
--#define WM8400_LIN12_ENA                        0x0040  /* LIN12_ENA */
--#define WM8400_LIN12_ENA_MASK                   0x0040  /* LIN12_ENA */
--#define WM8400_LIN12_ENA_SHIFT                       6  /* LIN12_ENA */
--#define WM8400_LIN12_ENA_WIDTH                       1  /* LIN12_ENA */
--#define WM8400_RIN34_ENA                        0x0020  /* RIN34_ENA */
--#define WM8400_RIN34_ENA_MASK                   0x0020  /* RIN34_ENA */
--#define WM8400_RIN34_ENA_SHIFT                       5  /* RIN34_ENA */
--#define WM8400_RIN34_ENA_WIDTH                       1  /* RIN34_ENA */
--#define WM8400_RIN12_ENA                        0x0010  /* RIN12_ENA */
--#define WM8400_RIN12_ENA_MASK                   0x0010  /* RIN12_ENA */
--#define WM8400_RIN12_ENA_SHIFT                       4  /* RIN12_ENA */
--#define WM8400_RIN12_ENA_WIDTH                       1  /* RIN12_ENA */
--#define WM8400_ADCL_ENA                         0x0002  /* ADCL_ENA */
--#define WM8400_ADCL_ENA_MASK                    0x0002  /* ADCL_ENA */
--#define WM8400_ADCL_ENA_SHIFT                        1  /* ADCL_ENA */
--#define WM8400_ADCL_ENA_WIDTH                        1  /* ADCL_ENA */
--#define WM8400_ADCR_ENA                         0x0001  /* ADCR_ENA */
--#define WM8400_ADCR_ENA_MASK                    0x0001  /* ADCR_ENA */
--#define WM8400_ADCR_ENA_SHIFT                        0  /* ADCR_ENA */
--#define WM8400_ADCR_ENA_WIDTH                        1  /* ADCR_ENA */
--
--/*
-- * R4 (0x04) - Power Management (3)
-- */
--#define WM8400_LON_ENA                          0x2000  /* LON_ENA */
--#define WM8400_LON_ENA_MASK                     0x2000  /* LON_ENA */
--#define WM8400_LON_ENA_SHIFT                        13  /* LON_ENA */
--#define WM8400_LON_ENA_WIDTH                         1  /* LON_ENA */
--#define WM8400_LOP_ENA                          0x1000  /* LOP_ENA */
--#define WM8400_LOP_ENA_MASK                     0x1000  /* LOP_ENA */
--#define WM8400_LOP_ENA_SHIFT                        12  /* LOP_ENA */
--#define WM8400_LOP_ENA_WIDTH                         1  /* LOP_ENA */
--#define WM8400_RON_ENA                          0x0800  /* RON_ENA */
--#define WM8400_RON_ENA_MASK                     0x0800  /* RON_ENA */
--#define WM8400_RON_ENA_SHIFT                        11  /* RON_ENA */
--#define WM8400_RON_ENA_WIDTH                         1  /* RON_ENA */
--#define WM8400_ROP_ENA                          0x0400  /* ROP_ENA */
--#define WM8400_ROP_ENA_MASK                     0x0400  /* ROP_ENA */
--#define WM8400_ROP_ENA_SHIFT                        10  /* ROP_ENA */
--#define WM8400_ROP_ENA_WIDTH                         1  /* ROP_ENA */
--#define WM8400_LOPGA_ENA                        0x0080  /* LOPGA_ENA */
--#define WM8400_LOPGA_ENA_MASK                   0x0080  /* LOPGA_ENA */
--#define WM8400_LOPGA_ENA_SHIFT                       7  /* LOPGA_ENA */
--#define WM8400_LOPGA_ENA_WIDTH                       1  /* LOPGA_ENA */
--#define WM8400_ROPGA_ENA                        0x0040  /* ROPGA_ENA */
--#define WM8400_ROPGA_ENA_MASK                   0x0040  /* ROPGA_ENA */
--#define WM8400_ROPGA_ENA_SHIFT                       6  /* ROPGA_ENA */
--#define WM8400_ROPGA_ENA_WIDTH                       1  /* ROPGA_ENA */
--#define WM8400_LOMIX_ENA                        0x0020  /* LOMIX_ENA */
--#define WM8400_LOMIX_ENA_MASK                   0x0020  /* LOMIX_ENA */
--#define WM8400_LOMIX_ENA_SHIFT                       5  /* LOMIX_ENA */
--#define WM8400_LOMIX_ENA_WIDTH                       1  /* LOMIX_ENA */
--#define WM8400_ROMIX_ENA                        0x0010  /* ROMIX_ENA */
--#define WM8400_ROMIX_ENA_MASK                   0x0010  /* ROMIX_ENA */
--#define WM8400_ROMIX_ENA_SHIFT                       4  /* ROMIX_ENA */
--#define WM8400_ROMIX_ENA_WIDTH                       1  /* ROMIX_ENA */
--#define WM8400_DACL_ENA                         0x0002  /* DACL_ENA */
--#define WM8400_DACL_ENA_MASK                    0x0002  /* DACL_ENA */
--#define WM8400_DACL_ENA_SHIFT                        1  /* DACL_ENA */
--#define WM8400_DACL_ENA_WIDTH                        1  /* DACL_ENA */
--#define WM8400_DACR_ENA                         0x0001  /* DACR_ENA */
--#define WM8400_DACR_ENA_MASK                    0x0001  /* DACR_ENA */
--#define WM8400_DACR_ENA_SHIFT                        0  /* DACR_ENA */
--#define WM8400_DACR_ENA_WIDTH                        1  /* DACR_ENA */
--
--/*
-- * R5 (0x05) - Audio Interface (1)
-- */
--#define WM8400_AIFADCL_SRC                      0x8000  /* AIFADCL_SRC */
--#define WM8400_AIFADCL_SRC_MASK                 0x8000  /* AIFADCL_SRC */
--#define WM8400_AIFADCL_SRC_SHIFT                    15  /* AIFADCL_SRC */
--#define WM8400_AIFADCL_SRC_WIDTH                     1  /* AIFADCL_SRC */
--#define WM8400_AIFADCR_SRC                      0x4000  /* AIFADCR_SRC */
--#define WM8400_AIFADCR_SRC_MASK                 0x4000  /* AIFADCR_SRC */
--#define WM8400_AIFADCR_SRC_SHIFT                    14  /* AIFADCR_SRC */
--#define WM8400_AIFADCR_SRC_WIDTH                     1  /* AIFADCR_SRC */
--#define WM8400_AIFADC_TDM                       0x2000  /* AIFADC_TDM */
--#define WM8400_AIFADC_TDM_MASK                  0x2000  /* AIFADC_TDM */
--#define WM8400_AIFADC_TDM_SHIFT                     13  /* AIFADC_TDM */
--#define WM8400_AIFADC_TDM_WIDTH                      1  /* AIFADC_TDM */
--#define WM8400_AIFADC_TDM_CHAN                  0x1000  /* AIFADC_TDM_CHAN */
--#define WM8400_AIFADC_TDM_CHAN_MASK             0x1000  /* AIFADC_TDM_CHAN */
--#define WM8400_AIFADC_TDM_CHAN_SHIFT                12  /* AIFADC_TDM_CHAN */
--#define WM8400_AIFADC_TDM_CHAN_WIDTH                 1  /* AIFADC_TDM_CHAN */
--#define WM8400_AIF_BCLK_INV                     0x0100  /* AIF_BCLK_INV */
--#define WM8400_AIF_BCLK_INV_MASK                0x0100  /* AIF_BCLK_INV */
--#define WM8400_AIF_BCLK_INV_SHIFT                    8  /* AIF_BCLK_INV */
--#define WM8400_AIF_BCLK_INV_WIDTH                    1  /* AIF_BCLK_INV */
--#define WM8400_AIF_LRCLK_INV                    0x0080  /* AIF_LRCLK_INV */
--#define WM8400_AIF_LRCLK_INV_MASK               0x0080  /* AIF_LRCLK_INV */
--#define WM8400_AIF_LRCLK_INV_SHIFT                   7  /* AIF_LRCLK_INV */
--#define WM8400_AIF_LRCLK_INV_WIDTH                   1  /* AIF_LRCLK_INV */
--#define WM8400_AIF_WL_MASK                      0x0060  /* AIF_WL - [6:5] */
--#define WM8400_AIF_WL_SHIFT                          5  /* AIF_WL - [6:5] */
--#define WM8400_AIF_WL_WIDTH                          2  /* AIF_WL - [6:5] */
--#define WM8400_AIF_WL_16BITS			(0 << 5)
--#define WM8400_AIF_WL_20BITS			(1 << 5)
--#define WM8400_AIF_WL_24BITS			(2 << 5)
--#define WM8400_AIF_WL_32BITS			(3 << 5)
--#define WM8400_AIF_FMT_MASK                     0x0018  /* AIF_FMT - [4:3] */
--#define WM8400_AIF_FMT_SHIFT                         3  /* AIF_FMT - [4:3] */
--#define WM8400_AIF_FMT_WIDTH                         2  /* AIF_FMT - [4:3] */
--#define WM8400_AIF_FMT_RIGHTJ			(0 << 3)
--#define WM8400_AIF_FMT_LEFTJ			(1 << 3)
--#define WM8400_AIF_FMT_I2S			(2 << 3)
--#define WM8400_AIF_FMT_DSP			(3 << 3)
--
--/*
-- * R6 (0x06) - Audio Interface (2)
-- */
--#define WM8400_DACL_SRC                         0x8000  /* DACL_SRC */
--#define WM8400_DACL_SRC_MASK                    0x8000  /* DACL_SRC */
--#define WM8400_DACL_SRC_SHIFT                       15  /* DACL_SRC */
--#define WM8400_DACL_SRC_WIDTH                        1  /* DACL_SRC */
--#define WM8400_DACR_SRC                         0x4000  /* DACR_SRC */
--#define WM8400_DACR_SRC_MASK                    0x4000  /* DACR_SRC */
--#define WM8400_DACR_SRC_SHIFT                       14  /* DACR_SRC */
--#define WM8400_DACR_SRC_WIDTH                        1  /* DACR_SRC */
--#define WM8400_AIFDAC_TDM                       0x2000  /* AIFDAC_TDM */
--#define WM8400_AIFDAC_TDM_MASK                  0x2000  /* AIFDAC_TDM */
--#define WM8400_AIFDAC_TDM_SHIFT                     13  /* AIFDAC_TDM */
--#define WM8400_AIFDAC_TDM_WIDTH                      1  /* AIFDAC_TDM */
--#define WM8400_AIFDAC_TDM_CHAN                  0x1000  /* AIFDAC_TDM_CHAN */
--#define WM8400_AIFDAC_TDM_CHAN_MASK             0x1000  /* AIFDAC_TDM_CHAN */
--#define WM8400_AIFDAC_TDM_CHAN_SHIFT                12  /* AIFDAC_TDM_CHAN */
--#define WM8400_AIFDAC_TDM_CHAN_WIDTH                 1  /* AIFDAC_TDM_CHAN */
--#define WM8400_DAC_BOOST_MASK                   0x0C00  /* DAC_BOOST - [11:10] */
--#define WM8400_DAC_BOOST_SHIFT                      10  /* DAC_BOOST - [11:10] */
--#define WM8400_DAC_BOOST_WIDTH                       2  /* DAC_BOOST - [11:10] */
--#define WM8400_DAC_COMP                         0x0010  /* DAC_COMP */
--#define WM8400_DAC_COMP_MASK                    0x0010  /* DAC_COMP */
--#define WM8400_DAC_COMP_SHIFT                        4  /* DAC_COMP */
--#define WM8400_DAC_COMP_WIDTH                        1  /* DAC_COMP */
--#define WM8400_DAC_COMPMODE                     0x0008  /* DAC_COMPMODE */
--#define WM8400_DAC_COMPMODE_MASK                0x0008  /* DAC_COMPMODE */
--#define WM8400_DAC_COMPMODE_SHIFT                    3  /* DAC_COMPMODE */
--#define WM8400_DAC_COMPMODE_WIDTH                    1  /* DAC_COMPMODE */
--#define WM8400_ADC_COMP                         0x0004  /* ADC_COMP */
--#define WM8400_ADC_COMP_MASK                    0x0004  /* ADC_COMP */
--#define WM8400_ADC_COMP_SHIFT                        2  /* ADC_COMP */
--#define WM8400_ADC_COMP_WIDTH                        1  /* ADC_COMP */
--#define WM8400_ADC_COMPMODE                     0x0002  /* ADC_COMPMODE */
--#define WM8400_ADC_COMPMODE_MASK                0x0002  /* ADC_COMPMODE */
--#define WM8400_ADC_COMPMODE_SHIFT                    1  /* ADC_COMPMODE */
--#define WM8400_ADC_COMPMODE_WIDTH                    1  /* ADC_COMPMODE */
--#define WM8400_LOOPBACK                         0x0001  /* LOOPBACK */
--#define WM8400_LOOPBACK_MASK                    0x0001  /* LOOPBACK */
--#define WM8400_LOOPBACK_SHIFT                        0  /* LOOPBACK */
--#define WM8400_LOOPBACK_WIDTH                        1  /* LOOPBACK */
--
--/*
-- * R7 (0x07) - Clocking (1)
-- */
--#define WM8400_TOCLK_RATE                       0x8000  /* TOCLK_RATE */
--#define WM8400_TOCLK_RATE_MASK                  0x8000  /* TOCLK_RATE */
--#define WM8400_TOCLK_RATE_SHIFT                     15  /* TOCLK_RATE */
--#define WM8400_TOCLK_RATE_WIDTH                      1  /* TOCLK_RATE */
--#define WM8400_TOCLK_ENA                        0x4000  /* TOCLK_ENA */
--#define WM8400_TOCLK_ENA_MASK                   0x4000  /* TOCLK_ENA */
--#define WM8400_TOCLK_ENA_SHIFT                      14  /* TOCLK_ENA */
--#define WM8400_TOCLK_ENA_WIDTH                       1  /* TOCLK_ENA */
--#define WM8400_OPCLKDIV_MASK                    0x1E00  /* OPCLKDIV - [12:9] */
--#define WM8400_OPCLKDIV_SHIFT                        9  /* OPCLKDIV - [12:9] */
--#define WM8400_OPCLKDIV_WIDTH                        4  /* OPCLKDIV - [12:9] */
--#define WM8400_DCLKDIV_MASK                     0x01C0  /* DCLKDIV - [8:6] */
--#define WM8400_DCLKDIV_SHIFT                         6  /* DCLKDIV - [8:6] */
--#define WM8400_DCLKDIV_WIDTH                         3  /* DCLKDIV - [8:6] */
--#define WM8400_BCLK_DIV_MASK                    0x001E  /* BCLK_DIV - [4:1] */
--#define WM8400_BCLK_DIV_SHIFT                        1  /* BCLK_DIV - [4:1] */
--#define WM8400_BCLK_DIV_WIDTH                        4  /* BCLK_DIV - [4:1] */
--
--/*
-- * R8 (0x08) - Clocking (2)
-- */
--#define WM8400_MCLK_SRC                         0x8000  /* MCLK_SRC */
--#define WM8400_MCLK_SRC_MASK                    0x8000  /* MCLK_SRC */
--#define WM8400_MCLK_SRC_SHIFT                       15  /* MCLK_SRC */
--#define WM8400_MCLK_SRC_WIDTH                        1  /* MCLK_SRC */
--#define WM8400_SYSCLK_SRC                       0x4000  /* SYSCLK_SRC */
--#define WM8400_SYSCLK_SRC_MASK                  0x4000  /* SYSCLK_SRC */
--#define WM8400_SYSCLK_SRC_SHIFT                     14  /* SYSCLK_SRC */
--#define WM8400_SYSCLK_SRC_WIDTH                      1  /* SYSCLK_SRC */
--#define WM8400_CLK_FORCE                        0x2000  /* CLK_FORCE */
--#define WM8400_CLK_FORCE_MASK                   0x2000  /* CLK_FORCE */
--#define WM8400_CLK_FORCE_SHIFT                      13  /* CLK_FORCE */
--#define WM8400_CLK_FORCE_WIDTH                       1  /* CLK_FORCE */
--#define WM8400_MCLK_DIV_MASK                    0x1800  /* MCLK_DIV - [12:11] */
--#define WM8400_MCLK_DIV_SHIFT                       11  /* MCLK_DIV - [12:11] */
--#define WM8400_MCLK_DIV_WIDTH                        2  /* MCLK_DIV - [12:11] */
--#define WM8400_MCLK_INV                         0x0400  /* MCLK_INV */
--#define WM8400_MCLK_INV_MASK                    0x0400  /* MCLK_INV */
--#define WM8400_MCLK_INV_SHIFT                       10  /* MCLK_INV */
--#define WM8400_MCLK_INV_WIDTH                        1  /* MCLK_INV */
--#define WM8400_ADC_CLKDIV_MASK                  0x00E0  /* ADC_CLKDIV - [7:5] */
--#define WM8400_ADC_CLKDIV_SHIFT                      5  /* ADC_CLKDIV - [7:5] */
--#define WM8400_ADC_CLKDIV_WIDTH                      3  /* ADC_CLKDIV - [7:5] */
--#define WM8400_DAC_CLKDIV_MASK                  0x001C  /* DAC_CLKDIV - [4:2] */
--#define WM8400_DAC_CLKDIV_SHIFT                      2  /* DAC_CLKDIV - [4:2] */
--#define WM8400_DAC_CLKDIV_WIDTH                      3  /* DAC_CLKDIV - [4:2] */
--
--/*
-- * R9 (0x09) - Audio Interface (3)
-- */
--#define WM8400_AIF_MSTR1                        0x8000  /* AIF_MSTR1 */
--#define WM8400_AIF_MSTR1_MASK                   0x8000  /* AIF_MSTR1 */
--#define WM8400_AIF_MSTR1_SHIFT                      15  /* AIF_MSTR1 */
--#define WM8400_AIF_MSTR1_WIDTH                       1  /* AIF_MSTR1 */
--#define WM8400_AIF_MSTR2                        0x4000  /* AIF_MSTR2 */
--#define WM8400_AIF_MSTR2_MASK                   0x4000  /* AIF_MSTR2 */
--#define WM8400_AIF_MSTR2_SHIFT                      14  /* AIF_MSTR2 */
--#define WM8400_AIF_MSTR2_WIDTH                       1  /* AIF_MSTR2 */
--#define WM8400_AIF_SEL                          0x2000  /* AIF_SEL */
--#define WM8400_AIF_SEL_MASK                     0x2000  /* AIF_SEL */
--#define WM8400_AIF_SEL_SHIFT                        13  /* AIF_SEL */
--#define WM8400_AIF_SEL_WIDTH                         1  /* AIF_SEL */
--#define WM8400_ADCLRC_DIR                       0x0800  /* ADCLRC_DIR */
--#define WM8400_ADCLRC_DIR_MASK                  0x0800  /* ADCLRC_DIR */
--#define WM8400_ADCLRC_DIR_SHIFT                     11  /* ADCLRC_DIR */
--#define WM8400_ADCLRC_DIR_WIDTH                      1  /* ADCLRC_DIR */
--#define WM8400_ADCLRC_RATE_MASK                 0x07FF  /* ADCLRC_RATE - [10:0] */
--#define WM8400_ADCLRC_RATE_SHIFT                     0  /* ADCLRC_RATE - [10:0] */
--#define WM8400_ADCLRC_RATE_WIDTH                    11  /* ADCLRC_RATE - [10:0] */
--
--/*
-- * R10 (0x0A) - Audio Interface (4)
-- */
--#define WM8400_ALRCGPIO1                        0x8000  /* ALRCGPIO1 */
--#define WM8400_ALRCGPIO1_MASK                   0x8000  /* ALRCGPIO1 */
--#define WM8400_ALRCGPIO1_SHIFT                      15  /* ALRCGPIO1 */
--#define WM8400_ALRCGPIO1_WIDTH                       1  /* ALRCGPIO1 */
--#define WM8400_ALRCBGPIO6                       0x4000  /* ALRCBGPIO6 */
--#define WM8400_ALRCBGPIO6_MASK                  0x4000  /* ALRCBGPIO6 */
--#define WM8400_ALRCBGPIO6_SHIFT                     14  /* ALRCBGPIO6 */
--#define WM8400_ALRCBGPIO6_WIDTH                      1  /* ALRCBGPIO6 */
--#define WM8400_AIF_TRIS                         0x2000  /* AIF_TRIS */
--#define WM8400_AIF_TRIS_MASK                    0x2000  /* AIF_TRIS */
--#define WM8400_AIF_TRIS_SHIFT                       13  /* AIF_TRIS */
--#define WM8400_AIF_TRIS_WIDTH                        1  /* AIF_TRIS */
--#define WM8400_DACLRC_DIR                       0x0800  /* DACLRC_DIR */
--#define WM8400_DACLRC_DIR_MASK                  0x0800  /* DACLRC_DIR */
--#define WM8400_DACLRC_DIR_SHIFT                     11  /* DACLRC_DIR */
--#define WM8400_DACLRC_DIR_WIDTH                      1  /* DACLRC_DIR */
--#define WM8400_DACLRC_RATE_MASK                 0x07FF  /* DACLRC_RATE - [10:0] */
--#define WM8400_DACLRC_RATE_SHIFT                     0  /* DACLRC_RATE - [10:0] */
--#define WM8400_DACLRC_RATE_WIDTH                    11  /* DACLRC_RATE - [10:0] */
--
--/*
-- * R11 (0x0B) - DAC CTRL
-- */
--#define WM8400_DAC_SDMCLK_RATE                  0x2000  /* DAC_SDMCLK_RATE */
--#define WM8400_DAC_SDMCLK_RATE_MASK             0x2000  /* DAC_SDMCLK_RATE */
--#define WM8400_DAC_SDMCLK_RATE_SHIFT                13  /* DAC_SDMCLK_RATE */
--#define WM8400_DAC_SDMCLK_RATE_WIDTH                 1  /* DAC_SDMCLK_RATE */
--#define WM8400_AIF_LRCLKRATE                    0x0400  /* AIF_LRCLKRATE */
--#define WM8400_AIF_LRCLKRATE_MASK               0x0400  /* AIF_LRCLKRATE */
--#define WM8400_AIF_LRCLKRATE_SHIFT                  10  /* AIF_LRCLKRATE */
--#define WM8400_AIF_LRCLKRATE_WIDTH                   1  /* AIF_LRCLKRATE */
--#define WM8400_DAC_MONO                         0x0200  /* DAC_MONO */
--#define WM8400_DAC_MONO_MASK                    0x0200  /* DAC_MONO */
--#define WM8400_DAC_MONO_SHIFT                        9  /* DAC_MONO */
--#define WM8400_DAC_MONO_WIDTH                        1  /* DAC_MONO */
--#define WM8400_DAC_SB_FILT                      0x0100  /* DAC_SB_FILT */
--#define WM8400_DAC_SB_FILT_MASK                 0x0100  /* DAC_SB_FILT */
--#define WM8400_DAC_SB_FILT_SHIFT                     8  /* DAC_SB_FILT */
--#define WM8400_DAC_SB_FILT_WIDTH                     1  /* DAC_SB_FILT */
--#define WM8400_DAC_MUTERATE                     0x0080  /* DAC_MUTERATE */
--#define WM8400_DAC_MUTERATE_MASK                0x0080  /* DAC_MUTERATE */
--#define WM8400_DAC_MUTERATE_SHIFT                    7  /* DAC_MUTERATE */
--#define WM8400_DAC_MUTERATE_WIDTH                    1  /* DAC_MUTERATE */
--#define WM8400_DAC_MUTEMODE                     0x0040  /* DAC_MUTEMODE */
--#define WM8400_DAC_MUTEMODE_MASK                0x0040  /* DAC_MUTEMODE */
--#define WM8400_DAC_MUTEMODE_SHIFT                    6  /* DAC_MUTEMODE */
--#define WM8400_DAC_MUTEMODE_WIDTH                    1  /* DAC_MUTEMODE */
--#define WM8400_DEEMP_MASK                       0x0030  /* DEEMP - [5:4] */
--#define WM8400_DEEMP_SHIFT                           4  /* DEEMP - [5:4] */
--#define WM8400_DEEMP_WIDTH                           2  /* DEEMP - [5:4] */
--#define WM8400_DAC_MUTE                         0x0004  /* DAC_MUTE */
--#define WM8400_DAC_MUTE_MASK                    0x0004  /* DAC_MUTE */
--#define WM8400_DAC_MUTE_SHIFT                        2  /* DAC_MUTE */
--#define WM8400_DAC_MUTE_WIDTH                        1  /* DAC_MUTE */
--#define WM8400_DACL_DATINV                      0x0002  /* DACL_DATINV */
--#define WM8400_DACL_DATINV_MASK                 0x0002  /* DACL_DATINV */
--#define WM8400_DACL_DATINV_SHIFT                     1  /* DACL_DATINV */
--#define WM8400_DACL_DATINV_WIDTH                     1  /* DACL_DATINV */
--#define WM8400_DACR_DATINV                      0x0001  /* DACR_DATINV */
--#define WM8400_DACR_DATINV_MASK                 0x0001  /* DACR_DATINV */
--#define WM8400_DACR_DATINV_SHIFT                     0  /* DACR_DATINV */
--#define WM8400_DACR_DATINV_WIDTH                     1  /* DACR_DATINV */
--
--/*
-- * R12 (0x0C) - Left DAC Digital Volume
-- */
--#define WM8400_DAC_VU                           0x0100  /* DAC_VU */
--#define WM8400_DAC_VU_MASK                      0x0100  /* DAC_VU */
--#define WM8400_DAC_VU_SHIFT                          8  /* DAC_VU */
--#define WM8400_DAC_VU_WIDTH                          1  /* DAC_VU */
--#define WM8400_DACL_VOL_MASK                    0x00FF  /* DACL_VOL - [7:0] */
--#define WM8400_DACL_VOL_SHIFT                        0  /* DACL_VOL - [7:0] */
--#define WM8400_DACL_VOL_WIDTH                        8  /* DACL_VOL - [7:0] */
--
--/*
-- * R13 (0x0D) - Right DAC Digital Volume
-- */
--#define WM8400_DAC_VU                           0x0100  /* DAC_VU */
--#define WM8400_DAC_VU_MASK                      0x0100  /* DAC_VU */
--#define WM8400_DAC_VU_SHIFT                          8  /* DAC_VU */
--#define WM8400_DAC_VU_WIDTH                          1  /* DAC_VU */
--#define WM8400_DACR_VOL_MASK                    0x00FF  /* DACR_VOL - [7:0] */
--#define WM8400_DACR_VOL_SHIFT                        0  /* DACR_VOL - [7:0] */
--#define WM8400_DACR_VOL_WIDTH                        8  /* DACR_VOL - [7:0] */
--
--/*
-- * R14 (0x0E) - Digital Side Tone
-- */
--#define WM8400_ADCL_DAC_SVOL_MASK               0x1E00  /*   ADCL_DAC_SVOL - [12:9] */
--#define WM8400_ADCL_DAC_SVOL_SHIFT                   9  /*   ADCL_DAC_SVOL - [12:9] */
--#define WM8400_ADCL_DAC_SVOL_WIDTH                   4  /*   ADCL_DAC_SVOL - [12:9] */
--#define WM8400_ADCR_DAC_SVOL_MASK               0x01E0  /* ADCR_DAC_SVOL - [8:5] */
--#define WM8400_ADCR_DAC_SVOL_SHIFT                   5  /* ADCR_DAC_SVOL - [8:5] */
--#define WM8400_ADCR_DAC_SVOL_WIDTH                   4  /* ADCR_DAC_SVOL - [8:5] */
--#define WM8400_ADC_TO_DACL_MASK                 0x000C  /* ADC_TO_DACL - [3:2] */
--#define WM8400_ADC_TO_DACL_SHIFT                     2  /* ADC_TO_DACL - [3:2] */
--#define WM8400_ADC_TO_DACL_WIDTH                     2  /* ADC_TO_DACL - [3:2] */
--#define WM8400_ADC_TO_DACR_MASK                 0x0003  /* ADC_TO_DACR - [1:0] */
--#define WM8400_ADC_TO_DACR_SHIFT                     0  /* ADC_TO_DACR - [1:0] */
--#define WM8400_ADC_TO_DACR_WIDTH                     2  /* ADC_TO_DACR - [1:0] */
--
--/*
-- * R15 (0x0F) - ADC CTRL
-- */
--#define WM8400_ADC_HPF_ENA                      0x0100  /* ADC_HPF_ENA */
--#define WM8400_ADC_HPF_ENA_MASK                 0x0100  /* ADC_HPF_ENA */
--#define WM8400_ADC_HPF_ENA_SHIFT                     8  /* ADC_HPF_ENA */
--#define WM8400_ADC_HPF_ENA_WIDTH                     1  /* ADC_HPF_ENA */
--#define WM8400_ADC_HPF_CUT_MASK                 0x0060  /* ADC_HPF_CUT - [6:5] */
--#define WM8400_ADC_HPF_CUT_SHIFT                     5  /* ADC_HPF_CUT - [6:5] */
--#define WM8400_ADC_HPF_CUT_WIDTH                     2  /* ADC_HPF_CUT - [6:5] */
--#define WM8400_ADCL_DATINV                      0x0002  /* ADCL_DATINV */
--#define WM8400_ADCL_DATINV_MASK                 0x0002  /* ADCL_DATINV */
--#define WM8400_ADCL_DATINV_SHIFT                     1  /* ADCL_DATINV */
--#define WM8400_ADCL_DATINV_WIDTH                     1  /* ADCL_DATINV */
--#define WM8400_ADCR_DATINV                      0x0001  /* ADCR_DATINV */
--#define WM8400_ADCR_DATINV_MASK                 0x0001  /* ADCR_DATINV */
--#define WM8400_ADCR_DATINV_SHIFT                     0  /* ADCR_DATINV */
--#define WM8400_ADCR_DATINV_WIDTH                     1  /* ADCR_DATINV */
--
--/*
-- * R16 (0x10) - Left ADC Digital Volume
-- */
--#define WM8400_ADC_VU                           0x0100  /* ADC_VU */
--#define WM8400_ADC_VU_MASK                      0x0100  /* ADC_VU */
--#define WM8400_ADC_VU_SHIFT                          8  /* ADC_VU */
--#define WM8400_ADC_VU_WIDTH                          1  /* ADC_VU */
--#define WM8400_ADCL_VOL_MASK                    0x00FF  /* ADCL_VOL - [7:0] */
--#define WM8400_ADCL_VOL_SHIFT                        0  /* ADCL_VOL - [7:0] */
--#define WM8400_ADCL_VOL_WIDTH                        8  /* ADCL_VOL - [7:0] */
--
--/*
-- * R17 (0x11) - Right ADC Digital Volume
-- */
--#define WM8400_ADC_VU                           0x0100  /* ADC_VU */
--#define WM8400_ADC_VU_MASK                      0x0100  /* ADC_VU */
--#define WM8400_ADC_VU_SHIFT                          8  /* ADC_VU */
--#define WM8400_ADC_VU_WIDTH                          1  /* ADC_VU */
--#define WM8400_ADCR_VOL_MASK                    0x00FF  /* ADCR_VOL - [7:0] */
--#define WM8400_ADCR_VOL_SHIFT                        0  /* ADCR_VOL - [7:0] */
--#define WM8400_ADCR_VOL_WIDTH                        8  /* ADCR_VOL - [7:0] */
--
--/*
-- * R24 (0x18) - Left Line Input 1&2 Volume
-- */
--#define WM8400_IPVU                             0x0100  /* IPVU */
--#define WM8400_IPVU_MASK                        0x0100  /* IPVU */
--#define WM8400_IPVU_SHIFT                            8  /* IPVU */
--#define WM8400_IPVU_WIDTH                            1  /* IPVU */
--#define WM8400_LI12MUTE                         0x0080  /* LI12MUTE */
--#define WM8400_LI12MUTE_MASK                    0x0080  /* LI12MUTE */
--#define WM8400_LI12MUTE_SHIFT                        7  /* LI12MUTE */
--#define WM8400_LI12MUTE_WIDTH                        1  /* LI12MUTE */
--#define WM8400_LI12ZC                           0x0040  /* LI12ZC */
--#define WM8400_LI12ZC_MASK                      0x0040  /* LI12ZC */
--#define WM8400_LI12ZC_SHIFT                          6  /* LI12ZC */
--#define WM8400_LI12ZC_WIDTH                          1  /* LI12ZC */
--#define WM8400_LIN12VOL_MASK                    0x001F  /* LIN12VOL - [4:0] */
--#define WM8400_LIN12VOL_SHIFT                        0  /* LIN12VOL - [4:0] */
--#define WM8400_LIN12VOL_WIDTH                        5  /* LIN12VOL - [4:0] */
--
--/*
-- * R25 (0x19) - Left Line Input 3&4 Volume
-- */
--#define WM8400_IPVU                             0x0100  /* IPVU */
--#define WM8400_IPVU_MASK                        0x0100  /* IPVU */
--#define WM8400_IPVU_SHIFT                            8  /* IPVU */
--#define WM8400_IPVU_WIDTH                            1  /* IPVU */
--#define WM8400_LI34MUTE                         0x0080  /* LI34MUTE */
--#define WM8400_LI34MUTE_MASK                    0x0080  /* LI34MUTE */
--#define WM8400_LI34MUTE_SHIFT                        7  /* LI34MUTE */
--#define WM8400_LI34MUTE_WIDTH                        1  /* LI34MUTE */
--#define WM8400_LI34ZC                           0x0040  /* LI34ZC */
--#define WM8400_LI34ZC_MASK                      0x0040  /* LI34ZC */
--#define WM8400_LI34ZC_SHIFT                          6  /* LI34ZC */
--#define WM8400_LI34ZC_WIDTH                          1  /* LI34ZC */
--#define WM8400_LIN34VOL_MASK                    0x001F  /* LIN34VOL - [4:0] */
--#define WM8400_LIN34VOL_SHIFT                        0  /* LIN34VOL - [4:0] */
--#define WM8400_LIN34VOL_WIDTH                        5  /* LIN34VOL - [4:0] */
--
--/*
-- * R26 (0x1A) - Right Line Input 1&2 Volume
-- */
--#define WM8400_IPVU                             0x0100  /* IPVU */
--#define WM8400_IPVU_MASK                        0x0100  /* IPVU */
--#define WM8400_IPVU_SHIFT                            8  /* IPVU */
--#define WM8400_IPVU_WIDTH                            1  /* IPVU */
--#define WM8400_RI12MUTE                         0x0080  /* RI12MUTE */
--#define WM8400_RI12MUTE_MASK                    0x0080  /* RI12MUTE */
--#define WM8400_RI12MUTE_SHIFT                        7  /* RI12MUTE */
--#define WM8400_RI12MUTE_WIDTH                        1  /* RI12MUTE */
--#define WM8400_RI12ZC                           0x0040  /* RI12ZC */
--#define WM8400_RI12ZC_MASK                      0x0040  /* RI12ZC */
--#define WM8400_RI12ZC_SHIFT                          6  /* RI12ZC */
--#define WM8400_RI12ZC_WIDTH                          1  /* RI12ZC */
--#define WM8400_RIN12VOL_MASK                    0x001F  /* RIN12VOL - [4:0] */
--#define WM8400_RIN12VOL_SHIFT                        0  /* RIN12VOL - [4:0] */
--#define WM8400_RIN12VOL_WIDTH                        5  /* RIN12VOL - [4:0] */
--
--/*
-- * R27 (0x1B) - Right Line Input 3&4 Volume
-- */
--#define WM8400_IPVU                             0x0100  /* IPVU */
--#define WM8400_IPVU_MASK                        0x0100  /* IPVU */
--#define WM8400_IPVU_SHIFT                            8  /* IPVU */
--#define WM8400_IPVU_WIDTH                            1  /* IPVU */
--#define WM8400_RI34MUTE                         0x0080  /* RI34MUTE */
--#define WM8400_RI34MUTE_MASK                    0x0080  /* RI34MUTE */
--#define WM8400_RI34MUTE_SHIFT                        7  /* RI34MUTE */
--#define WM8400_RI34MUTE_WIDTH                        1  /* RI34MUTE */
--#define WM8400_RI34ZC                           0x0040  /* RI34ZC */
--#define WM8400_RI34ZC_MASK                      0x0040  /* RI34ZC */
--#define WM8400_RI34ZC_SHIFT                          6  /* RI34ZC */
--#define WM8400_RI34ZC_WIDTH                          1  /* RI34ZC */
--#define WM8400_RIN34VOL_MASK                    0x001F  /* RIN34VOL - [4:0] */
--#define WM8400_RIN34VOL_SHIFT                        0  /* RIN34VOL - [4:0] */
--#define WM8400_RIN34VOL_WIDTH                        5  /* RIN34VOL - [4:0] */
--
--/*
-- * R28 (0x1C) - Left Output Volume
-- */
--#define WM8400_OPVU                             0x0100  /* OPVU */
--#define WM8400_OPVU_MASK                        0x0100  /* OPVU */
--#define WM8400_OPVU_SHIFT                            8  /* OPVU */
--#define WM8400_OPVU_WIDTH                            1  /* OPVU */
--#define WM8400_LOZC                             0x0080  /* LOZC */
--#define WM8400_LOZC_MASK                        0x0080  /* LOZC */
--#define WM8400_LOZC_SHIFT                            7  /* LOZC */
--#define WM8400_LOZC_WIDTH                            1  /* LOZC */
--#define WM8400_LOUTVOL_MASK                     0x007F  /* LOUTVOL - [6:0] */
--#define WM8400_LOUTVOL_SHIFT                         0  /* LOUTVOL - [6:0] */
--#define WM8400_LOUTVOL_WIDTH                         7  /* LOUTVOL - [6:0] */
--
--/*
-- * R29 (0x1D) - Right Output Volume
-- */
--#define WM8400_OPVU                             0x0100  /* OPVU */
--#define WM8400_OPVU_MASK                        0x0100  /* OPVU */
--#define WM8400_OPVU_SHIFT                            8  /* OPVU */
--#define WM8400_OPVU_WIDTH                            1  /* OPVU */
--#define WM8400_ROZC                             0x0080  /* ROZC */
--#define WM8400_ROZC_MASK                        0x0080  /* ROZC */
--#define WM8400_ROZC_SHIFT                            7  /* ROZC */
--#define WM8400_ROZC_WIDTH                            1  /* ROZC */
--#define WM8400_ROUTVOL_MASK                     0x007F  /* ROUTVOL - [6:0] */
--#define WM8400_ROUTVOL_SHIFT                         0  /* ROUTVOL - [6:0] */
--#define WM8400_ROUTVOL_WIDTH                         7  /* ROUTVOL - [6:0] */
--
--/*
-- * R30 (0x1E) - Line Outputs Volume
-- */
--#define WM8400_LONMUTE                          0x0040  /* LONMUTE */
--#define WM8400_LONMUTE_MASK                     0x0040  /* LONMUTE */
--#define WM8400_LONMUTE_SHIFT                         6  /* LONMUTE */
--#define WM8400_LONMUTE_WIDTH                         1  /* LONMUTE */
--#define WM8400_LOPMUTE                          0x0020  /* LOPMUTE */
--#define WM8400_LOPMUTE_MASK                     0x0020  /* LOPMUTE */
--#define WM8400_LOPMUTE_SHIFT                         5  /* LOPMUTE */
--#define WM8400_LOPMUTE_WIDTH                         1  /* LOPMUTE */
--#define WM8400_LOATTN                           0x0010  /* LOATTN */
--#define WM8400_LOATTN_MASK                      0x0010  /* LOATTN */
--#define WM8400_LOATTN_SHIFT                          4  /* LOATTN */
--#define WM8400_LOATTN_WIDTH                          1  /* LOATTN */
--#define WM8400_RONMUTE                          0x0004  /* RONMUTE */
--#define WM8400_RONMUTE_MASK                     0x0004  /* RONMUTE */
--#define WM8400_RONMUTE_SHIFT                         2  /* RONMUTE */
--#define WM8400_RONMUTE_WIDTH                         1  /* RONMUTE */
--#define WM8400_ROPMUTE                          0x0002  /* ROPMUTE */
--#define WM8400_ROPMUTE_MASK                     0x0002  /* ROPMUTE */
--#define WM8400_ROPMUTE_SHIFT                         1  /* ROPMUTE */
--#define WM8400_ROPMUTE_WIDTH                         1  /* ROPMUTE */
--#define WM8400_ROATTN                           0x0001  /* ROATTN */
--#define WM8400_ROATTN_MASK                      0x0001  /* ROATTN */
--#define WM8400_ROATTN_SHIFT                          0  /* ROATTN */
--#define WM8400_ROATTN_WIDTH                          1  /* ROATTN */
--
--/*
-- * R31 (0x1F) - Out3/4 Volume
-- */
--#define WM8400_OUT3MUTE                         0x0020  /* OUT3MUTE */
--#define WM8400_OUT3MUTE_MASK                    0x0020  /* OUT3MUTE */
--#define WM8400_OUT3MUTE_SHIFT                        5  /* OUT3MUTE */
--#define WM8400_OUT3MUTE_WIDTH                        1  /* OUT3MUTE */
--#define WM8400_OUT3ATTN                         0x0010  /* OUT3ATTN */
--#define WM8400_OUT3ATTN_MASK                    0x0010  /* OUT3ATTN */
--#define WM8400_OUT3ATTN_SHIFT                        4  /* OUT3ATTN */
--#define WM8400_OUT3ATTN_WIDTH                        1  /* OUT3ATTN */
--#define WM8400_OUT4MUTE                         0x0002  /* OUT4MUTE */
--#define WM8400_OUT4MUTE_MASK                    0x0002  /* OUT4MUTE */
--#define WM8400_OUT4MUTE_SHIFT                        1  /* OUT4MUTE */
--#define WM8400_OUT4MUTE_WIDTH                        1  /* OUT4MUTE */
--#define WM8400_OUT4ATTN                         0x0001  /* OUT4ATTN */
--#define WM8400_OUT4ATTN_MASK                    0x0001  /* OUT4ATTN */
--#define WM8400_OUT4ATTN_SHIFT                        0  /* OUT4ATTN */
--#define WM8400_OUT4ATTN_WIDTH                        1  /* OUT4ATTN */
--
--/*
-- * R32 (0x20) - Left OPGA Volume
-- */
--#define WM8400_OPVU                             0x0100  /* OPVU */
--#define WM8400_OPVU_MASK                        0x0100  /* OPVU */
--#define WM8400_OPVU_SHIFT                            8  /* OPVU */
--#define WM8400_OPVU_WIDTH                            1  /* OPVU */
--#define WM8400_LOPGAZC                          0x0080  /* LOPGAZC */
--#define WM8400_LOPGAZC_MASK                     0x0080  /* LOPGAZC */
--#define WM8400_LOPGAZC_SHIFT                         7  /* LOPGAZC */
--#define WM8400_LOPGAZC_WIDTH                         1  /* LOPGAZC */
--#define WM8400_LOPGAVOL_MASK                    0x007F  /* LOPGAVOL - [6:0] */
--#define WM8400_LOPGAVOL_SHIFT                        0  /* LOPGAVOL - [6:0] */
--#define WM8400_LOPGAVOL_WIDTH                        7  /* LOPGAVOL - [6:0] */
--
--/*
-- * R33 (0x21) - Right OPGA Volume
-- */
--#define WM8400_OPVU                             0x0100  /* OPVU */
--#define WM8400_OPVU_MASK                        0x0100  /* OPVU */
--#define WM8400_OPVU_SHIFT                            8  /* OPVU */
--#define WM8400_OPVU_WIDTH                            1  /* OPVU */
--#define WM8400_ROPGAZC                          0x0080  /* ROPGAZC */
--#define WM8400_ROPGAZC_MASK                     0x0080  /* ROPGAZC */
--#define WM8400_ROPGAZC_SHIFT                         7  /* ROPGAZC */
--#define WM8400_ROPGAZC_WIDTH                         1  /* ROPGAZC */
--#define WM8400_ROPGAVOL_MASK                    0x007F  /* ROPGAVOL - [6:0] */
--#define WM8400_ROPGAVOL_SHIFT                        0  /* ROPGAVOL - [6:0] */
--#define WM8400_ROPGAVOL_WIDTH                        7  /* ROPGAVOL - [6:0] */
--
--/*
-- * R34 (0x22) - Speaker Volume
-- */
--#define WM8400_SPKATTN_MASK                     0x0003  /* SPKATTN - [1:0] */
--#define WM8400_SPKATTN_SHIFT                         0  /* SPKATTN - [1:0] */
--#define WM8400_SPKATTN_WIDTH                         2  /* SPKATTN - [1:0] */
--
--/*
-- * R35 (0x23) - ClassD1
-- */
--#define WM8400_CDMODE                           0x0100  /* CDMODE */
--#define WM8400_CDMODE_MASK                      0x0100  /* CDMODE */
--#define WM8400_CDMODE_SHIFT                          8  /* CDMODE */
--#define WM8400_CDMODE_WIDTH                          1  /* CDMODE */
--#define WM8400_CLASSD_CLK_SEL                   0x0080  /* CLASSD_CLK_SEL */
--#define WM8400_CLASSD_CLK_SEL_MASK              0x0080  /* CLASSD_CLK_SEL */
--#define WM8400_CLASSD_CLK_SEL_SHIFT                  7  /* CLASSD_CLK_SEL */
--#define WM8400_CLASSD_CLK_SEL_WIDTH                  1  /* CLASSD_CLK_SEL */
--#define WM8400_CD_SRCTRL                        0x0040  /* CD_SRCTRL */
--#define WM8400_CD_SRCTRL_MASK                   0x0040  /* CD_SRCTRL */
--#define WM8400_CD_SRCTRL_SHIFT                       6  /* CD_SRCTRL */
--#define WM8400_CD_SRCTRL_WIDTH                       1  /* CD_SRCTRL */
--#define WM8400_SPKNOPOP                         0x0020  /* SPKNOPOP */
--#define WM8400_SPKNOPOP_MASK                    0x0020  /* SPKNOPOP */
--#define WM8400_SPKNOPOP_SHIFT                        5  /* SPKNOPOP */
--#define WM8400_SPKNOPOP_WIDTH                        1  /* SPKNOPOP */
--#define WM8400_DBLERATE                         0x0010  /* DBLERATE */
--#define WM8400_DBLERATE_MASK                    0x0010  /* DBLERATE */
--#define WM8400_DBLERATE_SHIFT                        4  /* DBLERATE */
--#define WM8400_DBLERATE_WIDTH                        1  /* DBLERATE */
--#define WM8400_LOOPTEST                         0x0008  /* LOOPTEST */
--#define WM8400_LOOPTEST_MASK                    0x0008  /* LOOPTEST */
--#define WM8400_LOOPTEST_SHIFT                        3  /* LOOPTEST */
--#define WM8400_LOOPTEST_WIDTH                        1  /* LOOPTEST */
--#define WM8400_HALFABBIAS                       0x0004  /* HALFABBIAS */
--#define WM8400_HALFABBIAS_MASK                  0x0004  /* HALFABBIAS */
--#define WM8400_HALFABBIAS_SHIFT                      2  /* HALFABBIAS */
--#define WM8400_HALFABBIAS_WIDTH                      1  /* HALFABBIAS */
--#define WM8400_TRIDEL_MASK                      0x0003  /* TRIDEL - [1:0] */
--#define WM8400_TRIDEL_SHIFT                          0  /* TRIDEL - [1:0] */
--#define WM8400_TRIDEL_WIDTH                          2  /* TRIDEL - [1:0] */
--
--/*
-- * R37 (0x25) - ClassD3
-- */
--#define WM8400_DCGAIN_MASK                      0x0038  /* DCGAIN - [5:3] */
--#define WM8400_DCGAIN_SHIFT                          3  /* DCGAIN - [5:3] */
--#define WM8400_DCGAIN_WIDTH                          3  /* DCGAIN - [5:3] */
--#define WM8400_ACGAIN_MASK                      0x0007  /* ACGAIN - [2:0] */
--#define WM8400_ACGAIN_SHIFT                          0  /* ACGAIN - [2:0] */
--#define WM8400_ACGAIN_WIDTH                          3  /* ACGAIN - [2:0] */
--
--/*
-- * R39 (0x27) - Input Mixer1
-- */
--#define WM8400_AINLMODE_MASK                    0x000C  /* AINLMODE - [3:2] */
--#define WM8400_AINLMODE_SHIFT                        2  /* AINLMODE - [3:2] */
--#define WM8400_AINLMODE_WIDTH                        2  /* AINLMODE - [3:2] */
--#define WM8400_AINRMODE_MASK                    0x0003  /* AINRMODE - [1:0] */
--#define WM8400_AINRMODE_SHIFT                        0  /* AINRMODE - [1:0] */
--#define WM8400_AINRMODE_WIDTH                        2  /* AINRMODE - [1:0] */
--
--/*
-- * R40 (0x28) - Input Mixer2
-- */
--#define WM8400_LMP4                             0x0080  /* LMP4 */
--#define WM8400_LMP4_MASK                        0x0080  /* LMP4 */
--#define WM8400_LMP4_SHIFT                            7  /* LMP4 */
--#define WM8400_LMP4_WIDTH                            1  /* LMP4 */
--#define WM8400_LMN3                             0x0040  /* LMN3 */
--#define WM8400_LMN3_MASK                        0x0040  /* LMN3 */
--#define WM8400_LMN3_SHIFT                            6  /* LMN3 */
--#define WM8400_LMN3_WIDTH                            1  /* LMN3 */
--#define WM8400_LMP2                             0x0020  /* LMP2 */
--#define WM8400_LMP2_MASK                        0x0020  /* LMP2 */
--#define WM8400_LMP2_SHIFT                            5  /* LMP2 */
--#define WM8400_LMP2_WIDTH                            1  /* LMP2 */
--#define WM8400_LMN1                             0x0010  /* LMN1 */
--#define WM8400_LMN1_MASK                        0x0010  /* LMN1 */
--#define WM8400_LMN1_SHIFT                            4  /* LMN1 */
--#define WM8400_LMN1_WIDTH                            1  /* LMN1 */
--#define WM8400_RMP4                             0x0008  /* RMP4 */
--#define WM8400_RMP4_MASK                        0x0008  /* RMP4 */
--#define WM8400_RMP4_SHIFT                            3  /* RMP4 */
--#define WM8400_RMP4_WIDTH                            1  /* RMP4 */
--#define WM8400_RMN3                             0x0004  /* RMN3 */
--#define WM8400_RMN3_MASK                        0x0004  /* RMN3 */
--#define WM8400_RMN3_SHIFT                            2  /* RMN3 */
--#define WM8400_RMN3_WIDTH                            1  /* RMN3 */
--#define WM8400_RMP2                             0x0002  /* RMP2 */
--#define WM8400_RMP2_MASK                        0x0002  /* RMP2 */
--#define WM8400_RMP2_SHIFT                            1  /* RMP2 */
--#define WM8400_RMP2_WIDTH                            1  /* RMP2 */
--#define WM8400_RMN1                             0x0001  /* RMN1 */
--#define WM8400_RMN1_MASK                        0x0001  /* RMN1 */
--#define WM8400_RMN1_SHIFT                            0  /* RMN1 */
--#define WM8400_RMN1_WIDTH                            1  /* RMN1 */
--
--/*
-- * R41 (0x29) - Input Mixer3
-- */
--#define WM8400_L34MNB                           0x0100  /* L34MNB */
--#define WM8400_L34MNB_MASK                      0x0100  /* L34MNB */
--#define WM8400_L34MNB_SHIFT                          8  /* L34MNB */
--#define WM8400_L34MNB_WIDTH                          1  /* L34MNB */
--#define WM8400_L34MNBST                         0x0080  /* L34MNBST */
--#define WM8400_L34MNBST_MASK                    0x0080  /* L34MNBST */
--#define WM8400_L34MNBST_SHIFT                        7  /* L34MNBST */
--#define WM8400_L34MNBST_WIDTH                        1  /* L34MNBST */
--#define WM8400_L12MNB                           0x0020  /* L12MNB */
--#define WM8400_L12MNB_MASK                      0x0020  /* L12MNB */
--#define WM8400_L12MNB_SHIFT                          5  /* L12MNB */
--#define WM8400_L12MNB_WIDTH                          1  /* L12MNB */
--#define WM8400_L12MNBST                         0x0010  /* L12MNBST */
--#define WM8400_L12MNBST_MASK                    0x0010  /* L12MNBST */
--#define WM8400_L12MNBST_SHIFT                        4  /* L12MNBST */
--#define WM8400_L12MNBST_WIDTH                        1  /* L12MNBST */
--#define WM8400_LDBVOL_MASK                      0x0007  /* LDBVOL - [2:0] */
--#define WM8400_LDBVOL_SHIFT                          0  /* LDBVOL - [2:0] */
--#define WM8400_LDBVOL_WIDTH                          3  /* LDBVOL - [2:0] */
--
--/*
-- * R42 (0x2A) - Input Mixer4
-- */
--#define WM8400_R34MNB                           0x0100  /* R34MNB */
--#define WM8400_R34MNB_MASK                      0x0100  /* R34MNB */
--#define WM8400_R34MNB_SHIFT                          8  /* R34MNB */
--#define WM8400_R34MNB_WIDTH                          1  /* R34MNB */
--#define WM8400_R34MNBST                         0x0080  /* R34MNBST */
--#define WM8400_R34MNBST_MASK                    0x0080  /* R34MNBST */
--#define WM8400_R34MNBST_SHIFT                        7  /* R34MNBST */
--#define WM8400_R34MNBST_WIDTH                        1  /* R34MNBST */
--#define WM8400_R12MNB                           0x0020  /* R12MNB */
--#define WM8400_R12MNB_MASK                      0x0020  /* R12MNB */
--#define WM8400_R12MNB_SHIFT                          5  /* R12MNB */
--#define WM8400_R12MNB_WIDTH                          1  /* R12MNB */
--#define WM8400_R12MNBST                         0x0010  /* R12MNBST */
--#define WM8400_R12MNBST_MASK                    0x0010  /* R12MNBST */
--#define WM8400_R12MNBST_SHIFT                        4  /* R12MNBST */
--#define WM8400_R12MNBST_WIDTH                        1  /* R12MNBST */
--#define WM8400_RDBVOL_MASK                      0x0007  /* RDBVOL - [2:0] */
--#define WM8400_RDBVOL_SHIFT                          0  /* RDBVOL - [2:0] */
--#define WM8400_RDBVOL_WIDTH                          3  /* RDBVOL - [2:0] */
--
--/*
-- * R43 (0x2B) - Input Mixer5
-- */
--#define WM8400_LI2BVOL_MASK                     0x01C0  /* LI2BVOL - [8:6] */
--#define WM8400_LI2BVOL_SHIFT                         6  /* LI2BVOL - [8:6] */
--#define WM8400_LI2BVOL_WIDTH                         3  /* LI2BVOL - [8:6] */
--#define WM8400_LR4BVOL_MASK                     0x0038  /* LR4BVOL - [5:3] */
--#define WM8400_LR4BVOL_SHIFT                         3  /* LR4BVOL - [5:3] */
--#define WM8400_LR4BVOL_WIDTH                         3  /* LR4BVOL - [5:3] */
--#define WM8400_LL4BVOL_MASK                     0x0007  /* LL4BVOL - [2:0] */
--#define WM8400_LL4BVOL_SHIFT                         0  /* LL4BVOL - [2:0] */
--#define WM8400_LL4BVOL_WIDTH                         3  /* LL4BVOL - [2:0] */
--
--/*
-- * R44 (0x2C) - Input Mixer6
-- */
--#define WM8400_RI2BVOL_MASK                     0x01C0  /* RI2BVOL - [8:6] */
--#define WM8400_RI2BVOL_SHIFT                         6  /* RI2BVOL - [8:6] */
--#define WM8400_RI2BVOL_WIDTH                         3  /* RI2BVOL - [8:6] */
--#define WM8400_RL4BVOL_MASK                     0x0038  /* RL4BVOL - [5:3] */
--#define WM8400_RL4BVOL_SHIFT                         3  /* RL4BVOL - [5:3] */
--#define WM8400_RL4BVOL_WIDTH                         3  /* RL4BVOL - [5:3] */
--#define WM8400_RR4BVOL_MASK                     0x0007  /* RR4BVOL - [2:0] */
--#define WM8400_RR4BVOL_SHIFT                         0  /* RR4BVOL - [2:0] */
--#define WM8400_RR4BVOL_WIDTH                         3  /* RR4BVOL - [2:0] */
--
--/*
-- * R45 (0x2D) - Output Mixer1
-- */
--#define WM8400_LRBLO                            0x0080  /* LRBLO */
--#define WM8400_LRBLO_MASK                       0x0080  /* LRBLO */
--#define WM8400_LRBLO_SHIFT                           7  /* LRBLO */
--#define WM8400_LRBLO_WIDTH                           1  /* LRBLO */
--#define WM8400_LLBLO                            0x0040  /* LLBLO */
--#define WM8400_LLBLO_MASK                       0x0040  /* LLBLO */
--#define WM8400_LLBLO_SHIFT                           6  /* LLBLO */
--#define WM8400_LLBLO_WIDTH                           1  /* LLBLO */
--#define WM8400_LRI3LO                           0x0020  /* LRI3LO */
--#define WM8400_LRI3LO_MASK                      0x0020  /* LRI3LO */
--#define WM8400_LRI3LO_SHIFT                          5  /* LRI3LO */
--#define WM8400_LRI3LO_WIDTH                          1  /* LRI3LO */
--#define WM8400_LLI3LO                           0x0010  /* LLI3LO */
--#define WM8400_LLI3LO_MASK                      0x0010  /* LLI3LO */
--#define WM8400_LLI3LO_SHIFT                          4  /* LLI3LO */
--#define WM8400_LLI3LO_WIDTH                          1  /* LLI3LO */
--#define WM8400_LR12LO                           0x0008  /* LR12LO */
--#define WM8400_LR12LO_MASK                      0x0008  /* LR12LO */
--#define WM8400_LR12LO_SHIFT                          3  /* LR12LO */
--#define WM8400_LR12LO_WIDTH                          1  /* LR12LO */
--#define WM8400_LL12LO                           0x0004  /* LL12LO */
--#define WM8400_LL12LO_MASK                      0x0004  /* LL12LO */
--#define WM8400_LL12LO_SHIFT                          2  /* LL12LO */
--#define WM8400_LL12LO_WIDTH                          1  /* LL12LO */
--#define WM8400_LDLO                             0x0001  /* LDLO */
--#define WM8400_LDLO_MASK                        0x0001  /* LDLO */
--#define WM8400_LDLO_SHIFT                            0  /* LDLO */
--#define WM8400_LDLO_WIDTH                            1  /* LDLO */
--
--/*
-- * R46 (0x2E) - Output Mixer2
-- */
--#define WM8400_RLBRO                            0x0080  /* RLBRO */
--#define WM8400_RLBRO_MASK                       0x0080  /* RLBRO */
--#define WM8400_RLBRO_SHIFT                           7  /* RLBRO */
--#define WM8400_RLBRO_WIDTH                           1  /* RLBRO */
--#define WM8400_RRBRO                            0x0040  /* RRBRO */
--#define WM8400_RRBRO_MASK                       0x0040  /* RRBRO */
--#define WM8400_RRBRO_SHIFT                           6  /* RRBRO */
--#define WM8400_RRBRO_WIDTH                           1  /* RRBRO */
--#define WM8400_RLI3RO                           0x0020  /* RLI3RO */
--#define WM8400_RLI3RO_MASK                      0x0020  /* RLI3RO */
--#define WM8400_RLI3RO_SHIFT                          5  /* RLI3RO */
--#define WM8400_RLI3RO_WIDTH                          1  /* RLI3RO */
--#define WM8400_RRI3RO                           0x0010  /* RRI3RO */
--#define WM8400_RRI3RO_MASK                      0x0010  /* RRI3RO */
--#define WM8400_RRI3RO_SHIFT                          4  /* RRI3RO */
--#define WM8400_RRI3RO_WIDTH                          1  /* RRI3RO */
--#define WM8400_RL12RO                           0x0008  /* RL12RO */
--#define WM8400_RL12RO_MASK                      0x0008  /* RL12RO */
--#define WM8400_RL12RO_SHIFT                          3  /* RL12RO */
--#define WM8400_RL12RO_WIDTH                          1  /* RL12RO */
--#define WM8400_RR12RO                           0x0004  /* RR12RO */
--#define WM8400_RR12RO_MASK                      0x0004  /* RR12RO */
--#define WM8400_RR12RO_SHIFT                          2  /* RR12RO */
--#define WM8400_RR12RO_WIDTH                          1  /* RR12RO */
--#define WM8400_RDRO                             0x0001  /* RDRO */
--#define WM8400_RDRO_MASK                        0x0001  /* RDRO */
--#define WM8400_RDRO_SHIFT                            0  /* RDRO */
--#define WM8400_RDRO_WIDTH                            1  /* RDRO */
--
--/*
-- * R47 (0x2F) - Output Mixer3
-- */
--#define WM8400_LLI3LOVOL_MASK                   0x01C0  /* LLI3LOVOL - [8:6] */
--#define WM8400_LLI3LOVOL_SHIFT                       6  /* LLI3LOVOL - [8:6] */
--#define WM8400_LLI3LOVOL_WIDTH                       3  /* LLI3LOVOL - [8:6] */
--#define WM8400_LR12LOVOL_MASK                   0x0038  /* LR12LOVOL - [5:3] */
--#define WM8400_LR12LOVOL_SHIFT                       3  /* LR12LOVOL - [5:3] */
--#define WM8400_LR12LOVOL_WIDTH                       3  /* LR12LOVOL - [5:3] */
--#define WM8400_LL12LOVOL_MASK                   0x0007  /* LL12LOVOL - [2:0] */
--#define WM8400_LL12LOVOL_SHIFT                       0  /* LL12LOVOL - [2:0] */
--#define WM8400_LL12LOVOL_WIDTH                       3  /* LL12LOVOL - [2:0] */
--
--/*
-- * R48 (0x30) - Output Mixer4
-- */
--#define WM8400_RRI3ROVOL_MASK                   0x01C0  /* RRI3ROVOL - [8:6] */
--#define WM8400_RRI3ROVOL_SHIFT                       6  /* RRI3ROVOL - [8:6] */
--#define WM8400_RRI3ROVOL_WIDTH                       3  /* RRI3ROVOL - [8:6] */
--#define WM8400_RL12ROVOL_MASK                   0x0038  /* RL12ROVOL - [5:3] */
--#define WM8400_RL12ROVOL_SHIFT                       3  /* RL12ROVOL - [5:3] */
--#define WM8400_RL12ROVOL_WIDTH                       3  /* RL12ROVOL - [5:3] */
--#define WM8400_RR12ROVOL_MASK                   0x0007  /* RR12ROVOL - [2:0] */
--#define WM8400_RR12ROVOL_SHIFT                       0  /* RR12ROVOL - [2:0] */
--#define WM8400_RR12ROVOL_WIDTH                       3  /* RR12ROVOL - [2:0] */
--
--/*
-- * R49 (0x31) - Output Mixer5
-- */
--#define WM8400_LRI3LOVOL_MASK                   0x01C0  /* LRI3LOVOL - [8:6] */
--#define WM8400_LRI3LOVOL_SHIFT                       6  /* LRI3LOVOL - [8:6] */
--#define WM8400_LRI3LOVOL_WIDTH                       3  /* LRI3LOVOL - [8:6] */
--#define WM8400_LRBLOVOL_MASK                    0x0038  /* LRBLOVOL - [5:3] */
--#define WM8400_LRBLOVOL_SHIFT                        3  /* LRBLOVOL - [5:3] */
--#define WM8400_LRBLOVOL_WIDTH                        3  /* LRBLOVOL - [5:3] */
--#define WM8400_LLBLOVOL_MASK                    0x0007  /* LLBLOVOL - [2:0] */
--#define WM8400_LLBLOVOL_SHIFT                        0  /* LLBLOVOL - [2:0] */
--#define WM8400_LLBLOVOL_WIDTH                        3  /* LLBLOVOL - [2:0] */
--
--/*
-- * R50 (0x32) - Output Mixer6
-- */
--#define WM8400_RLI3ROVOL_MASK                   0x01C0  /* RLI3ROVOL - [8:6] */
--#define WM8400_RLI3ROVOL_SHIFT                       6  /* RLI3ROVOL - [8:6] */
--#define WM8400_RLI3ROVOL_WIDTH                       3  /* RLI3ROVOL - [8:6] */
--#define WM8400_RLBROVOL_MASK                    0x0038  /* RLBROVOL - [5:3] */
--#define WM8400_RLBROVOL_SHIFT                        3  /* RLBROVOL - [5:3] */
--#define WM8400_RLBROVOL_WIDTH                        3  /* RLBROVOL - [5:3] */
--#define WM8400_RRBROVOL_MASK                    0x0007  /* RRBROVOL - [2:0] */
--#define WM8400_RRBROVOL_SHIFT                        0  /* RRBROVOL - [2:0] */
--#define WM8400_RRBROVOL_WIDTH                        3  /* RRBROVOL - [2:0] */
--
--/*
-- * R51 (0x33) - Out3/4 Mixer
-- */
--#define WM8400_VSEL_MASK                        0x0180  /* VSEL - [8:7] */
--#define WM8400_VSEL_SHIFT                            7  /* VSEL - [8:7] */
--#define WM8400_VSEL_WIDTH                            2  /* VSEL - [8:7] */
--#define WM8400_LI4O3                            0x0020  /* LI4O3 */
--#define WM8400_LI4O3_MASK                       0x0020  /* LI4O3 */
--#define WM8400_LI4O3_SHIFT                           5  /* LI4O3 */
--#define WM8400_LI4O3_WIDTH                           1  /* LI4O3 */
--#define WM8400_LPGAO3                           0x0010  /* LPGAO3 */
--#define WM8400_LPGAO3_MASK                      0x0010  /* LPGAO3 */
--#define WM8400_LPGAO3_SHIFT                          4  /* LPGAO3 */
--#define WM8400_LPGAO3_WIDTH                          1  /* LPGAO3 */
--#define WM8400_RI4O4                            0x0002  /* RI4O4 */
--#define WM8400_RI4O4_MASK                       0x0002  /* RI4O4 */
--#define WM8400_RI4O4_SHIFT                           1  /* RI4O4 */
--#define WM8400_RI4O4_WIDTH                           1  /* RI4O4 */
--#define WM8400_RPGAO4                           0x0001  /* RPGAO4 */
--#define WM8400_RPGAO4_MASK                      0x0001  /* RPGAO4 */
--#define WM8400_RPGAO4_SHIFT                          0  /* RPGAO4 */
--#define WM8400_RPGAO4_WIDTH                          1  /* RPGAO4 */
--
--/*
-- * R52 (0x34) - Line Mixer1
-- */
--#define WM8400_LLOPGALON                        0x0040  /* LLOPGALON */
--#define WM8400_LLOPGALON_MASK                   0x0040  /* LLOPGALON */
--#define WM8400_LLOPGALON_SHIFT                       6  /* LLOPGALON */
--#define WM8400_LLOPGALON_WIDTH                       1  /* LLOPGALON */
--#define WM8400_LROPGALON                        0x0020  /* LROPGALON */
--#define WM8400_LROPGALON_MASK                   0x0020  /* LROPGALON */
--#define WM8400_LROPGALON_SHIFT                       5  /* LROPGALON */
--#define WM8400_LROPGALON_WIDTH                       1  /* LROPGALON */
--#define WM8400_LOPLON                           0x0010  /* LOPLON */
--#define WM8400_LOPLON_MASK                      0x0010  /* LOPLON */
--#define WM8400_LOPLON_SHIFT                          4  /* LOPLON */
--#define WM8400_LOPLON_WIDTH                          1  /* LOPLON */
--#define WM8400_LR12LOP                          0x0004  /* LR12LOP */
--#define WM8400_LR12LOP_MASK                     0x0004  /* LR12LOP */
--#define WM8400_LR12LOP_SHIFT                         2  /* LR12LOP */
--#define WM8400_LR12LOP_WIDTH                         1  /* LR12LOP */
--#define WM8400_LL12LOP                          0x0002  /* LL12LOP */
--#define WM8400_LL12LOP_MASK                     0x0002  /* LL12LOP */
--#define WM8400_LL12LOP_SHIFT                         1  /* LL12LOP */
--#define WM8400_LL12LOP_WIDTH                         1  /* LL12LOP */
--#define WM8400_LLOPGALOP                        0x0001  /* LLOPGALOP */
--#define WM8400_LLOPGALOP_MASK                   0x0001  /* LLOPGALOP */
--#define WM8400_LLOPGALOP_SHIFT                       0  /* LLOPGALOP */
--#define WM8400_LLOPGALOP_WIDTH                       1  /* LLOPGALOP */
--
--/*
-- * R53 (0x35) - Line Mixer2
-- */
--#define WM8400_RROPGARON                        0x0040  /* RROPGARON */
--#define WM8400_RROPGARON_MASK                   0x0040  /* RROPGARON */
--#define WM8400_RROPGARON_SHIFT                       6  /* RROPGARON */
--#define WM8400_RROPGARON_WIDTH                       1  /* RROPGARON */
--#define WM8400_RLOPGARON                        0x0020  /* RLOPGARON */
--#define WM8400_RLOPGARON_MASK                   0x0020  /* RLOPGARON */
--#define WM8400_RLOPGARON_SHIFT                       5  /* RLOPGARON */
--#define WM8400_RLOPGARON_WIDTH                       1  /* RLOPGARON */
--#define WM8400_ROPRON                           0x0010  /* ROPRON */
--#define WM8400_ROPRON_MASK                      0x0010  /* ROPRON */
--#define WM8400_ROPRON_SHIFT                          4  /* ROPRON */
--#define WM8400_ROPRON_WIDTH                          1  /* ROPRON */
--#define WM8400_RL12ROP                          0x0004  /* RL12ROP */
--#define WM8400_RL12ROP_MASK                     0x0004  /* RL12ROP */
--#define WM8400_RL12ROP_SHIFT                         2  /* RL12ROP */
--#define WM8400_RL12ROP_WIDTH                         1  /* RL12ROP */
--#define WM8400_RR12ROP                          0x0002  /* RR12ROP */
--#define WM8400_RR12ROP_MASK                     0x0002  /* RR12ROP */
--#define WM8400_RR12ROP_SHIFT                         1  /* RR12ROP */
--#define WM8400_RR12ROP_WIDTH                         1  /* RR12ROP */
--#define WM8400_RROPGAROP                        0x0001  /* RROPGAROP */
--#define WM8400_RROPGAROP_MASK                   0x0001  /* RROPGAROP */
--#define WM8400_RROPGAROP_SHIFT                       0  /* RROPGAROP */
--#define WM8400_RROPGAROP_WIDTH                       1  /* RROPGAROP */
--
--/*
-- * R54 (0x36) - Speaker Mixer
-- */
--#define WM8400_LB2SPK                           0x0080  /* LB2SPK */
--#define WM8400_LB2SPK_MASK                      0x0080  /* LB2SPK */
--#define WM8400_LB2SPK_SHIFT                          7  /* LB2SPK */
--#define WM8400_LB2SPK_WIDTH                          1  /* LB2SPK */
--#define WM8400_RB2SPK                           0x0040  /* RB2SPK */
--#define WM8400_RB2SPK_MASK                      0x0040  /* RB2SPK */
--#define WM8400_RB2SPK_SHIFT                          6  /* RB2SPK */
--#define WM8400_RB2SPK_WIDTH                          1  /* RB2SPK */
--#define WM8400_LI2SPK                           0x0020  /* LI2SPK */
--#define WM8400_LI2SPK_MASK                      0x0020  /* LI2SPK */
--#define WM8400_LI2SPK_SHIFT                          5  /* LI2SPK */
--#define WM8400_LI2SPK_WIDTH                          1  /* LI2SPK */
--#define WM8400_RI2SPK                           0x0010  /* RI2SPK */
--#define WM8400_RI2SPK_MASK                      0x0010  /* RI2SPK */
--#define WM8400_RI2SPK_SHIFT                          4  /* RI2SPK */
--#define WM8400_RI2SPK_WIDTH                          1  /* RI2SPK */
--#define WM8400_LOPGASPK                         0x0008  /* LOPGASPK */
--#define WM8400_LOPGASPK_MASK                    0x0008  /* LOPGASPK */
--#define WM8400_LOPGASPK_SHIFT                        3  /* LOPGASPK */
--#define WM8400_LOPGASPK_WIDTH                        1  /* LOPGASPK */
--#define WM8400_ROPGASPK                         0x0004  /* ROPGASPK */
--#define WM8400_ROPGASPK_MASK                    0x0004  /* ROPGASPK */
--#define WM8400_ROPGASPK_SHIFT                        2  /* ROPGASPK */
--#define WM8400_ROPGASPK_WIDTH                        1  /* ROPGASPK */
--#define WM8400_LDSPK                            0x0002  /* LDSPK */
--#define WM8400_LDSPK_MASK                       0x0002  /* LDSPK */
--#define WM8400_LDSPK_SHIFT                           1  /* LDSPK */
--#define WM8400_LDSPK_WIDTH                           1  /* LDSPK */
--#define WM8400_RDSPK                            0x0001  /* RDSPK */
--#define WM8400_RDSPK_MASK                       0x0001  /* RDSPK */
--#define WM8400_RDSPK_SHIFT                           0  /* RDSPK */
--#define WM8400_RDSPK_WIDTH                           1  /* RDSPK */
--
--/*
-- * R55 (0x37) - Additional Control
-- */
--#define WM8400_VROI                             0x0001  /* VROI */
--#define WM8400_VROI_MASK                        0x0001  /* VROI */
--#define WM8400_VROI_SHIFT                            0  /* VROI */
--#define WM8400_VROI_WIDTH                            1  /* VROI */
--
--/*
-- * R56 (0x38) - AntiPOP1
-- */
--#define WM8400_DIS_LLINE                        0x0020  /* DIS_LLINE */
--#define WM8400_DIS_LLINE_MASK                   0x0020  /* DIS_LLINE */
--#define WM8400_DIS_LLINE_SHIFT                       5  /* DIS_LLINE */
--#define WM8400_DIS_LLINE_WIDTH                       1  /* DIS_LLINE */
--#define WM8400_DIS_RLINE                        0x0010  /* DIS_RLINE */
--#define WM8400_DIS_RLINE_MASK                   0x0010  /* DIS_RLINE */
--#define WM8400_DIS_RLINE_SHIFT                       4  /* DIS_RLINE */
--#define WM8400_DIS_RLINE_WIDTH                       1  /* DIS_RLINE */
--#define WM8400_DIS_OUT3                         0x0008  /* DIS_OUT3 */
--#define WM8400_DIS_OUT3_MASK                    0x0008  /* DIS_OUT3 */
--#define WM8400_DIS_OUT3_SHIFT                        3  /* DIS_OUT3 */
--#define WM8400_DIS_OUT3_WIDTH                        1  /* DIS_OUT3 */
--#define WM8400_DIS_OUT4                         0x0004  /* DIS_OUT4 */
--#define WM8400_DIS_OUT4_MASK                    0x0004  /* DIS_OUT4 */
--#define WM8400_DIS_OUT4_SHIFT                        2  /* DIS_OUT4 */
--#define WM8400_DIS_OUT4_WIDTH                        1  /* DIS_OUT4 */
--#define WM8400_DIS_LOUT                         0x0002  /* DIS_LOUT */
--#define WM8400_DIS_LOUT_MASK                    0x0002  /* DIS_LOUT */
--#define WM8400_DIS_LOUT_SHIFT                        1  /* DIS_LOUT */
--#define WM8400_DIS_LOUT_WIDTH                        1  /* DIS_LOUT */
--#define WM8400_DIS_ROUT                         0x0001  /* DIS_ROUT */
--#define WM8400_DIS_ROUT_MASK                    0x0001  /* DIS_ROUT */
--#define WM8400_DIS_ROUT_SHIFT                        0  /* DIS_ROUT */
--#define WM8400_DIS_ROUT_WIDTH                        1  /* DIS_ROUT */
--
--/*
-- * R57 (0x39) - AntiPOP2
-- */
--#define WM8400_SOFTST                           0x0040  /* SOFTST */
--#define WM8400_SOFTST_MASK                      0x0040  /* SOFTST */
--#define WM8400_SOFTST_SHIFT                          6  /* SOFTST */
--#define WM8400_SOFTST_WIDTH                          1  /* SOFTST */
--#define WM8400_BUFIOEN                          0x0008  /* BUFIOEN */
--#define WM8400_BUFIOEN_MASK                     0x0008  /* BUFIOEN */
--#define WM8400_BUFIOEN_SHIFT                         3  /* BUFIOEN */
--#define WM8400_BUFIOEN_WIDTH                         1  /* BUFIOEN */
--#define WM8400_BUFDCOPEN                        0x0004  /* BUFDCOPEN */
--#define WM8400_BUFDCOPEN_MASK                   0x0004  /* BUFDCOPEN */
--#define WM8400_BUFDCOPEN_SHIFT                       2  /* BUFDCOPEN */
--#define WM8400_BUFDCOPEN_WIDTH                       1  /* BUFDCOPEN */
--#define WM8400_POBCTRL                          0x0002  /* POBCTRL */
--#define WM8400_POBCTRL_MASK                     0x0002  /* POBCTRL */
--#define WM8400_POBCTRL_SHIFT                         1  /* POBCTRL */
--#define WM8400_POBCTRL_WIDTH                         1  /* POBCTRL */
--#define WM8400_VMIDTOG                          0x0001  /* VMIDTOG */
--#define WM8400_VMIDTOG_MASK                     0x0001  /* VMIDTOG */
--#define WM8400_VMIDTOG_SHIFT                         0  /* VMIDTOG */
--#define WM8400_VMIDTOG_WIDTH                         1  /* VMIDTOG */
--
--/*
-- * R58 (0x3A) - MICBIAS
-- */
--#define WM8400_MCDSCTH_MASK                     0x00C0  /* MCDSCTH - [7:6] */
--#define WM8400_MCDSCTH_SHIFT                         6  /* MCDSCTH - [7:6] */
--#define WM8400_MCDSCTH_WIDTH                         2  /* MCDSCTH - [7:6] */
--#define WM8400_MCDTHR_MASK                      0x0038  /* MCDTHR - [5:3] */
--#define WM8400_MCDTHR_SHIFT                          3  /* MCDTHR - [5:3] */
--#define WM8400_MCDTHR_WIDTH                          3  /* MCDTHR - [5:3] */
--#define WM8400_MCD                              0x0004  /* MCD */
--#define WM8400_MCD_MASK                         0x0004  /* MCD */
--#define WM8400_MCD_SHIFT                             2  /* MCD */
--#define WM8400_MCD_WIDTH                             1  /* MCD */
--#define WM8400_MBSEL                            0x0001  /* MBSEL */
--#define WM8400_MBSEL_MASK                       0x0001  /* MBSEL */
--#define WM8400_MBSEL_SHIFT                           0  /* MBSEL */
--#define WM8400_MBSEL_WIDTH                           1  /* MBSEL */
--
--/*
-- * R60 (0x3C) - FLL Control 1
-- */
--#define WM8400_FLL_REF_FREQ                     0x1000  /* FLL_REF_FREQ */
--#define WM8400_FLL_REF_FREQ_MASK                0x1000  /* FLL_REF_FREQ */
--#define WM8400_FLL_REF_FREQ_SHIFT                   12  /* FLL_REF_FREQ */
--#define WM8400_FLL_REF_FREQ_WIDTH                    1  /* FLL_REF_FREQ */
--#define WM8400_FLL_CLK_SRC_MASK                 0x0C00  /* FLL_CLK_SRC - [11:10] */
--#define WM8400_FLL_CLK_SRC_SHIFT                    10  /* FLL_CLK_SRC - [11:10] */
--#define WM8400_FLL_CLK_SRC_WIDTH                     2  /* FLL_CLK_SRC - [11:10] */
--#define WM8400_FLL_FRAC                         0x0200  /* FLL_FRAC */
--#define WM8400_FLL_FRAC_MASK                    0x0200  /* FLL_FRAC */
--#define WM8400_FLL_FRAC_SHIFT                        9  /* FLL_FRAC */
--#define WM8400_FLL_FRAC_WIDTH                        1  /* FLL_FRAC */
--#define WM8400_FLL_OSC_ENA                      0x0100  /* FLL_OSC_ENA */
--#define WM8400_FLL_OSC_ENA_MASK                 0x0100  /* FLL_OSC_ENA */
--#define WM8400_FLL_OSC_ENA_SHIFT                     8  /* FLL_OSC_ENA */
--#define WM8400_FLL_OSC_ENA_WIDTH                     1  /* FLL_OSC_ENA */
--#define WM8400_FLL_CTRL_RATE_MASK               0x00E0  /* FLL_CTRL_RATE - [7:5] */
--#define WM8400_FLL_CTRL_RATE_SHIFT                   5  /* FLL_CTRL_RATE - [7:5] */
--#define WM8400_FLL_CTRL_RATE_WIDTH                   3  /* FLL_CTRL_RATE - [7:5] */
--#define WM8400_FLL_FRATIO_MASK                  0x001F  /* FLL_FRATIO - [4:0] */
--#define WM8400_FLL_FRATIO_SHIFT                      0  /* FLL_FRATIO - [4:0] */
--#define WM8400_FLL_FRATIO_WIDTH                      5  /* FLL_FRATIO - [4:0] */
--
--/*
-- * R61 (0x3D) - FLL Control 2
-- */
--#define WM8400_FLL_K_MASK                       0xFFFF  /* FLL_K - [15:0] */
--#define WM8400_FLL_K_SHIFT                           0  /* FLL_K - [15:0] */
--#define WM8400_FLL_K_WIDTH                          16  /* FLL_K - [15:0] */
--
--/*
-- * R62 (0x3E) - FLL Control 3
-- */
--#define WM8400_FLL_N_MASK                       0x03FF  /* FLL_N - [9:0] */
--#define WM8400_FLL_N_SHIFT                           0  /* FLL_N - [9:0] */
--#define WM8400_FLL_N_WIDTH                          10  /* FLL_N - [9:0] */
--
--/*
-- * R63 (0x3F) - FLL Control 4
-- */
--#define WM8400_FLL_TRK_GAIN_MASK                0x0078  /* FLL_TRK_GAIN - [6:3] */
--#define WM8400_FLL_TRK_GAIN_SHIFT                    3  /* FLL_TRK_GAIN - [6:3] */
--#define WM8400_FLL_TRK_GAIN_WIDTH                    4  /* FLL_TRK_GAIN - [6:3] */
--#define WM8400_FLL_OUTDIV_MASK                  0x0007  /* FLL_OUTDIV - [2:0] */
--#define WM8400_FLL_OUTDIV_SHIFT                      0  /* FLL_OUTDIV - [2:0] */
--#define WM8400_FLL_OUTDIV_WIDTH                      3  /* FLL_OUTDIV - [2:0] */
--
--struct wm8400;
--void wm8400_reset_codec_reg_cache(struct wm8400 *wm8400);
--
--#endif
-diff --git a/include/linux/mfd/wm8400-private.h b/include/linux/mfd/wm8400-private.h
-deleted file mode 100644
-index bc8c2ca6dc70..000000000000
---- a/include/linux/mfd/wm8400-private.h
-+++ /dev/null
-@@ -1,913 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-or-later */
--/*
-- * wm8400 private definitions.
-- *
-- * Copyright 2008 Wolfson Microelectronics plc
-- */
--
--#ifndef __LINUX_MFD_WM8400_PRIV_H
--#define __LINUX_MFD_WM8400_PRIV_H
--
--#include <linux/mfd/wm8400.h>
--#include <linux/mutex.h>
--#include <linux/platform_device.h>
--#include <linux/regmap.h>
--
--#define WM8400_REGISTER_COUNT 0x55
--
--struct wm8400 {
--	struct device *dev;
--	struct regmap *regmap;
--
--	struct platform_device regulators[6];
--};
--
--/*
-- * Register values.
-- */
--#define WM8400_RESET_ID                         0x00
--#define WM8400_ID                               0x01
--#define WM8400_POWER_MANAGEMENT_1               0x02
--#define WM8400_POWER_MANAGEMENT_2               0x03
--#define WM8400_POWER_MANAGEMENT_3               0x04
--#define WM8400_AUDIO_INTERFACE_1                0x05
--#define WM8400_AUDIO_INTERFACE_2                0x06
--#define WM8400_CLOCKING_1                       0x07
--#define WM8400_CLOCKING_2                       0x08
--#define WM8400_AUDIO_INTERFACE_3                0x09
--#define WM8400_AUDIO_INTERFACE_4                0x0A
--#define WM8400_DAC_CTRL                         0x0B
--#define WM8400_LEFT_DAC_DIGITAL_VOLUME          0x0C
--#define WM8400_RIGHT_DAC_DIGITAL_VOLUME         0x0D
--#define WM8400_DIGITAL_SIDE_TONE                0x0E
--#define WM8400_ADC_CTRL                         0x0F
--#define WM8400_LEFT_ADC_DIGITAL_VOLUME          0x10
--#define WM8400_RIGHT_ADC_DIGITAL_VOLUME         0x11
--#define WM8400_GPIO_CTRL_1                      0x12
--#define WM8400_GPIO1_GPIO2                      0x13
--#define WM8400_GPIO3_GPIO4                      0x14
--#define WM8400_GPIO5_GPIO6                      0x15
--#define WM8400_GPIOCTRL_2                       0x16
--#define WM8400_GPIO_POL                         0x17
--#define WM8400_LEFT_LINE_INPUT_1_2_VOLUME       0x18
--#define WM8400_LEFT_LINE_INPUT_3_4_VOLUME       0x19
--#define WM8400_RIGHT_LINE_INPUT_1_2_VOLUME      0x1A
--#define WM8400_RIGHT_LINE_INPUT_3_4_VOLUME      0x1B
--#define WM8400_LEFT_OUTPUT_VOLUME               0x1C
--#define WM8400_RIGHT_OUTPUT_VOLUME              0x1D
--#define WM8400_LINE_OUTPUTS_VOLUME              0x1E
--#define WM8400_OUT3_4_VOLUME                    0x1F
--#define WM8400_LEFT_OPGA_VOLUME                 0x20
--#define WM8400_RIGHT_OPGA_VOLUME                0x21
--#define WM8400_SPEAKER_VOLUME                   0x22
--#define WM8400_CLASSD1                          0x23
--#define WM8400_CLASSD3                          0x25
--#define WM8400_INPUT_MIXER1                     0x27
--#define WM8400_INPUT_MIXER2                     0x28
--#define WM8400_INPUT_MIXER3                     0x29
--#define WM8400_INPUT_MIXER4                     0x2A
--#define WM8400_INPUT_MIXER5                     0x2B
--#define WM8400_INPUT_MIXER6                     0x2C
--#define WM8400_OUTPUT_MIXER1                    0x2D
--#define WM8400_OUTPUT_MIXER2                    0x2E
--#define WM8400_OUTPUT_MIXER3                    0x2F
--#define WM8400_OUTPUT_MIXER4                    0x30
--#define WM8400_OUTPUT_MIXER5                    0x31
--#define WM8400_OUTPUT_MIXER6                    0x32
--#define WM8400_OUT3_4_MIXER                     0x33
--#define WM8400_LINE_MIXER1                      0x34
--#define WM8400_LINE_MIXER2                      0x35
--#define WM8400_SPEAKER_MIXER                    0x36
--#define WM8400_ADDITIONAL_CONTROL               0x37
--#define WM8400_ANTIPOP1                         0x38
--#define WM8400_ANTIPOP2                         0x39
--#define WM8400_MICBIAS                          0x3A
--#define WM8400_FLL_CONTROL_1                    0x3C
--#define WM8400_FLL_CONTROL_2                    0x3D
--#define WM8400_FLL_CONTROL_3                    0x3E
--#define WM8400_FLL_CONTROL_4                    0x3F
--#define WM8400_LDO1_CONTROL                     0x41
--#define WM8400_LDO2_CONTROL                     0x42
--#define WM8400_LDO3_CONTROL                     0x43
--#define WM8400_LDO4_CONTROL                     0x44
--#define WM8400_DCDC1_CONTROL_1                  0x46
--#define WM8400_DCDC1_CONTROL_2                  0x47
--#define WM8400_DCDC2_CONTROL_1                  0x48
--#define WM8400_DCDC2_CONTROL_2                  0x49
--#define WM8400_INTERFACE                        0x4B
--#define WM8400_PM_GENERAL                       0x4C
--#define WM8400_PM_SHUTDOWN_CONTROL              0x4E
--#define WM8400_INTERRUPT_STATUS_1               0x4F
--#define WM8400_INTERRUPT_STATUS_1_MASK          0x50
--#define WM8400_INTERRUPT_LEVELS                 0x51
--#define WM8400_SHUTDOWN_REASON                  0x52
--#define WM8400_LINE_CIRCUITS                    0x54
--
--/*
-- * Field Definitions.
-- */
--
--/*
-- * R0 (0x00) - Reset/ID
-- */
--#define WM8400_SW_RESET_CHIP_ID_MASK            0xFFFF  /* SW_RESET/CHIP_ID - [15:0] */
--#define WM8400_SW_RESET_CHIP_ID_SHIFT                0  /* SW_RESET/CHIP_ID - [15:0] */
--#define WM8400_SW_RESET_CHIP_ID_WIDTH               16  /* SW_RESET/CHIP_ID - [15:0] */
--
--/*
-- * R1 (0x01) - ID
-- */
--#define WM8400_CHIP_REV_MASK                    0x7000  /* CHIP_REV - [14:12] */
--#define WM8400_CHIP_REV_SHIFT                       12  /* CHIP_REV - [14:12] */
--#define WM8400_CHIP_REV_WIDTH                        3  /* CHIP_REV - [14:12] */
--
--/*
-- * R18 (0x12) - GPIO CTRL 1
-- */
--#define WM8400_IRQ                              0x1000  /* IRQ */
--#define WM8400_IRQ_MASK                         0x1000  /* IRQ */
--#define WM8400_IRQ_SHIFT                            12  /* IRQ */
--#define WM8400_IRQ_WIDTH                             1  /* IRQ */
--#define WM8400_TEMPOK                           0x0800  /* TEMPOK */
--#define WM8400_TEMPOK_MASK                      0x0800  /* TEMPOK */
--#define WM8400_TEMPOK_SHIFT                         11  /* TEMPOK */
--#define WM8400_TEMPOK_WIDTH                          1  /* TEMPOK */
--#define WM8400_MIC1SHRT                         0x0400  /* MIC1SHRT */
--#define WM8400_MIC1SHRT_MASK                    0x0400  /* MIC1SHRT */
--#define WM8400_MIC1SHRT_SHIFT                       10  /* MIC1SHRT */
--#define WM8400_MIC1SHRT_WIDTH                        1  /* MIC1SHRT */
--#define WM8400_MIC1DET                          0x0200  /* MIC1DET */
--#define WM8400_MIC1DET_MASK                     0x0200  /* MIC1DET */
--#define WM8400_MIC1DET_SHIFT                         9  /* MIC1DET */
--#define WM8400_MIC1DET_WIDTH                         1  /* MIC1DET */
--#define WM8400_FLL_LCK                          0x0100  /* FLL_LCK */
--#define WM8400_FLL_LCK_MASK                     0x0100  /* FLL_LCK */
--#define WM8400_FLL_LCK_SHIFT                         8  /* FLL_LCK */
--#define WM8400_FLL_LCK_WIDTH                         1  /* FLL_LCK */
--#define WM8400_GPIO_STATUS_MASK                 0x00FF  /* GPIO_STATUS - [7:0] */
--#define WM8400_GPIO_STATUS_SHIFT                     0  /* GPIO_STATUS - [7:0] */
--#define WM8400_GPIO_STATUS_WIDTH                     8  /* GPIO_STATUS - [7:0] */
--
--/*
-- * R19 (0x13) - GPIO1 & GPIO2
-- */
--#define WM8400_GPIO2_DEB_ENA                    0x8000  /* GPIO2_DEB_ENA */
--#define WM8400_GPIO2_DEB_ENA_MASK               0x8000  /* GPIO2_DEB_ENA */
--#define WM8400_GPIO2_DEB_ENA_SHIFT                  15  /* GPIO2_DEB_ENA */
--#define WM8400_GPIO2_DEB_ENA_WIDTH                   1  /* GPIO2_DEB_ENA */
--#define WM8400_GPIO2_IRQ_ENA                    0x4000  /* GPIO2_IRQ_ENA */
--#define WM8400_GPIO2_IRQ_ENA_MASK               0x4000  /* GPIO2_IRQ_ENA */
--#define WM8400_GPIO2_IRQ_ENA_SHIFT                  14  /* GPIO2_IRQ_ENA */
--#define WM8400_GPIO2_IRQ_ENA_WIDTH                   1  /* GPIO2_IRQ_ENA */
--#define WM8400_GPIO2_PU                         0x2000  /* GPIO2_PU */
--#define WM8400_GPIO2_PU_MASK                    0x2000  /* GPIO2_PU */
--#define WM8400_GPIO2_PU_SHIFT                       13  /* GPIO2_PU */
--#define WM8400_GPIO2_PU_WIDTH                        1  /* GPIO2_PU */
--#define WM8400_GPIO2_PD                         0x1000  /* GPIO2_PD */
--#define WM8400_GPIO2_PD_MASK                    0x1000  /* GPIO2_PD */
--#define WM8400_GPIO2_PD_SHIFT                       12  /* GPIO2_PD */
--#define WM8400_GPIO2_PD_WIDTH                        1  /* GPIO2_PD */
--#define WM8400_GPIO2_SEL_MASK                   0x0F00  /* GPIO2_SEL - [11:8] */
--#define WM8400_GPIO2_SEL_SHIFT                       8  /* GPIO2_SEL - [11:8] */
--#define WM8400_GPIO2_SEL_WIDTH                       4  /* GPIO2_SEL - [11:8] */
--#define WM8400_GPIO1_DEB_ENA                    0x0080  /* GPIO1_DEB_ENA */
--#define WM8400_GPIO1_DEB_ENA_MASK               0x0080  /* GPIO1_DEB_ENA */
--#define WM8400_GPIO1_DEB_ENA_SHIFT                   7  /* GPIO1_DEB_ENA */
--#define WM8400_GPIO1_DEB_ENA_WIDTH                   1  /* GPIO1_DEB_ENA */
--#define WM8400_GPIO1_IRQ_ENA                    0x0040  /* GPIO1_IRQ_ENA */
--#define WM8400_GPIO1_IRQ_ENA_MASK               0x0040  /* GPIO1_IRQ_ENA */
--#define WM8400_GPIO1_IRQ_ENA_SHIFT                   6  /* GPIO1_IRQ_ENA */
--#define WM8400_GPIO1_IRQ_ENA_WIDTH                   1  /* GPIO1_IRQ_ENA */
--#define WM8400_GPIO1_PU                         0x0020  /* GPIO1_PU */
--#define WM8400_GPIO1_PU_MASK                    0x0020  /* GPIO1_PU */
--#define WM8400_GPIO1_PU_SHIFT                        5  /* GPIO1_PU */
--#define WM8400_GPIO1_PU_WIDTH                        1  /* GPIO1_PU */
--#define WM8400_GPIO1_PD                         0x0010  /* GPIO1_PD */
--#define WM8400_GPIO1_PD_MASK                    0x0010  /* GPIO1_PD */
--#define WM8400_GPIO1_PD_SHIFT                        4  /* GPIO1_PD */
--#define WM8400_GPIO1_PD_WIDTH                        1  /* GPIO1_PD */
--#define WM8400_GPIO1_SEL_MASK                   0x000F  /* GPIO1_SEL - [3:0] */
--#define WM8400_GPIO1_SEL_SHIFT                       0  /* GPIO1_SEL - [3:0] */
--#define WM8400_GPIO1_SEL_WIDTH                       4  /* GPIO1_SEL - [3:0] */
--
--/*
-- * R20 (0x14) - GPIO3 & GPIO4
-- */
--#define WM8400_GPIO4_DEB_ENA                    0x8000  /* GPIO4_DEB_ENA */
--#define WM8400_GPIO4_DEB_ENA_MASK               0x8000  /* GPIO4_DEB_ENA */
--#define WM8400_GPIO4_DEB_ENA_SHIFT                  15  /* GPIO4_DEB_ENA */
--#define WM8400_GPIO4_DEB_ENA_WIDTH                   1  /* GPIO4_DEB_ENA */
--#define WM8400_GPIO4_IRQ_ENA                    0x4000  /* GPIO4_IRQ_ENA */
--#define WM8400_GPIO4_IRQ_ENA_MASK               0x4000  /* GPIO4_IRQ_ENA */
--#define WM8400_GPIO4_IRQ_ENA_SHIFT                  14  /* GPIO4_IRQ_ENA */
--#define WM8400_GPIO4_IRQ_ENA_WIDTH                   1  /* GPIO4_IRQ_ENA */
--#define WM8400_GPIO4_PU                         0x2000  /* GPIO4_PU */
--#define WM8400_GPIO4_PU_MASK                    0x2000  /* GPIO4_PU */
--#define WM8400_GPIO4_PU_SHIFT                       13  /* GPIO4_PU */
--#define WM8400_GPIO4_PU_WIDTH                        1  /* GPIO4_PU */
--#define WM8400_GPIO4_PD                         0x1000  /* GPIO4_PD */
--#define WM8400_GPIO4_PD_MASK                    0x1000  /* GPIO4_PD */
--#define WM8400_GPIO4_PD_SHIFT                       12  /* GPIO4_PD */
--#define WM8400_GPIO4_PD_WIDTH                        1  /* GPIO4_PD */
--#define WM8400_GPIO4_SEL_MASK                   0x0F00  /* GPIO4_SEL - [11:8] */
--#define WM8400_GPIO4_SEL_SHIFT                       8  /* GPIO4_SEL - [11:8] */
--#define WM8400_GPIO4_SEL_WIDTH                       4  /* GPIO4_SEL - [11:8] */
--#define WM8400_GPIO3_DEB_ENA                    0x0080  /* GPIO3_DEB_ENA */
--#define WM8400_GPIO3_DEB_ENA_MASK               0x0080  /* GPIO3_DEB_ENA */
--#define WM8400_GPIO3_DEB_ENA_SHIFT                   7  /* GPIO3_DEB_ENA */
--#define WM8400_GPIO3_DEB_ENA_WIDTH                   1  /* GPIO3_DEB_ENA */
--#define WM8400_GPIO3_IRQ_ENA                    0x0040  /* GPIO3_IRQ_ENA */
--#define WM8400_GPIO3_IRQ_ENA_MASK               0x0040  /* GPIO3_IRQ_ENA */
--#define WM8400_GPIO3_IRQ_ENA_SHIFT                   6  /* GPIO3_IRQ_ENA */
--#define WM8400_GPIO3_IRQ_ENA_WIDTH                   1  /* GPIO3_IRQ_ENA */
--#define WM8400_GPIO3_PU                         0x0020  /* GPIO3_PU */
--#define WM8400_GPIO3_PU_MASK                    0x0020  /* GPIO3_PU */
--#define WM8400_GPIO3_PU_SHIFT                        5  /* GPIO3_PU */
--#define WM8400_GPIO3_PU_WIDTH                        1  /* GPIO3_PU */
--#define WM8400_GPIO3_PD                         0x0010  /* GPIO3_PD */
--#define WM8400_GPIO3_PD_MASK                    0x0010  /* GPIO3_PD */
--#define WM8400_GPIO3_PD_SHIFT                        4  /* GPIO3_PD */
--#define WM8400_GPIO3_PD_WIDTH                        1  /* GPIO3_PD */
--#define WM8400_GPIO3_SEL_MASK                   0x000F  /* GPIO3_SEL - [3:0] */
--#define WM8400_GPIO3_SEL_SHIFT                       0  /* GPIO3_SEL - [3:0] */
--#define WM8400_GPIO3_SEL_WIDTH                       4  /* GPIO3_SEL - [3:0] */
--
--/*
-- * R21 (0x15) - GPIO5 & GPIO6
-- */
--#define WM8400_GPIO6_DEB_ENA                    0x8000  /* GPIO6_DEB_ENA */
--#define WM8400_GPIO6_DEB_ENA_MASK               0x8000  /* GPIO6_DEB_ENA */
--#define WM8400_GPIO6_DEB_ENA_SHIFT                  15  /* GPIO6_DEB_ENA */
--#define WM8400_GPIO6_DEB_ENA_WIDTH                   1  /* GPIO6_DEB_ENA */
--#define WM8400_GPIO6_IRQ_ENA                    0x4000  /* GPIO6_IRQ_ENA */
--#define WM8400_GPIO6_IRQ_ENA_MASK               0x4000  /* GPIO6_IRQ_ENA */
--#define WM8400_GPIO6_IRQ_ENA_SHIFT                  14  /* GPIO6_IRQ_ENA */
--#define WM8400_GPIO6_IRQ_ENA_WIDTH                   1  /* GPIO6_IRQ_ENA */
--#define WM8400_GPIO6_PU                         0x2000  /* GPIO6_PU */
--#define WM8400_GPIO6_PU_MASK                    0x2000  /* GPIO6_PU */
--#define WM8400_GPIO6_PU_SHIFT                       13  /* GPIO6_PU */
--#define WM8400_GPIO6_PU_WIDTH                        1  /* GPIO6_PU */
--#define WM8400_GPIO6_PD                         0x1000  /* GPIO6_PD */
--#define WM8400_GPIO6_PD_MASK                    0x1000  /* GPIO6_PD */
--#define WM8400_GPIO6_PD_SHIFT                       12  /* GPIO6_PD */
--#define WM8400_GPIO6_PD_WIDTH                        1  /* GPIO6_PD */
--#define WM8400_GPIO6_SEL_MASK                   0x0F00  /* GPIO6_SEL - [11:8] */
--#define WM8400_GPIO6_SEL_SHIFT                       8  /* GPIO6_SEL - [11:8] */
--#define WM8400_GPIO6_SEL_WIDTH                       4  /* GPIO6_SEL - [11:8] */
--#define WM8400_GPIO5_DEB_ENA                    0x0080  /* GPIO5_DEB_ENA */
--#define WM8400_GPIO5_DEB_ENA_MASK               0x0080  /* GPIO5_DEB_ENA */
--#define WM8400_GPIO5_DEB_ENA_SHIFT                   7  /* GPIO5_DEB_ENA */
--#define WM8400_GPIO5_DEB_ENA_WIDTH                   1  /* GPIO5_DEB_ENA */
--#define WM8400_GPIO5_IRQ_ENA                    0x0040  /* GPIO5_IRQ_ENA */
--#define WM8400_GPIO5_IRQ_ENA_MASK               0x0040  /* GPIO5_IRQ_ENA */
--#define WM8400_GPIO5_IRQ_ENA_SHIFT                   6  /* GPIO5_IRQ_ENA */
--#define WM8400_GPIO5_IRQ_ENA_WIDTH                   1  /* GPIO5_IRQ_ENA */
--#define WM8400_GPIO5_PU                         0x0020  /* GPIO5_PU */
--#define WM8400_GPIO5_PU_MASK                    0x0020  /* GPIO5_PU */
--#define WM8400_GPIO5_PU_SHIFT                        5  /* GPIO5_PU */
--#define WM8400_GPIO5_PU_WIDTH                        1  /* GPIO5_PU */
--#define WM8400_GPIO5_PD                         0x0010  /* GPIO5_PD */
--#define WM8400_GPIO5_PD_MASK                    0x0010  /* GPIO5_PD */
--#define WM8400_GPIO5_PD_SHIFT                        4  /* GPIO5_PD */
--#define WM8400_GPIO5_PD_WIDTH                        1  /* GPIO5_PD */
--#define WM8400_GPIO5_SEL_MASK                   0x000F  /* GPIO5_SEL - [3:0] */
--#define WM8400_GPIO5_SEL_SHIFT                       0  /* GPIO5_SEL - [3:0] */
--#define WM8400_GPIO5_SEL_WIDTH                       4  /* GPIO5_SEL - [3:0] */
--
--/*
-- * R22 (0x16) - GPIOCTRL 2
-- */
--#define WM8400_TEMPOK_IRQ_ENA                   0x0800  /* TEMPOK_IRQ_ENA */
--#define WM8400_TEMPOK_IRQ_ENA_MASK              0x0800  /* TEMPOK_IRQ_ENA */
--#define WM8400_TEMPOK_IRQ_ENA_SHIFT                 11  /* TEMPOK_IRQ_ENA */
--#define WM8400_TEMPOK_IRQ_ENA_WIDTH                  1  /* TEMPOK_IRQ_ENA */
--#define WM8400_MIC1SHRT_IRQ_ENA                 0x0400  /* MIC1SHRT_IRQ_ENA */
--#define WM8400_MIC1SHRT_IRQ_ENA_MASK            0x0400  /* MIC1SHRT_IRQ_ENA */
--#define WM8400_MIC1SHRT_IRQ_ENA_SHIFT               10  /* MIC1SHRT_IRQ_ENA */
--#define WM8400_MIC1SHRT_IRQ_ENA_WIDTH                1  /* MIC1SHRT_IRQ_ENA */
--#define WM8400_MIC1DET_IRQ_ENA                  0x0200  /* MIC1DET_IRQ_ENA */
--#define WM8400_MIC1DET_IRQ_ENA_MASK             0x0200  /* MIC1DET_IRQ_ENA */
--#define WM8400_MIC1DET_IRQ_ENA_SHIFT                 9  /* MIC1DET_IRQ_ENA */
--#define WM8400_MIC1DET_IRQ_ENA_WIDTH                 1  /* MIC1DET_IRQ_ENA */
--#define WM8400_FLL_LCK_IRQ_ENA                  0x0100  /* FLL_LCK_IRQ_ENA */
--#define WM8400_FLL_LCK_IRQ_ENA_MASK             0x0100  /* FLL_LCK_IRQ_ENA */
--#define WM8400_FLL_LCK_IRQ_ENA_SHIFT                 8  /* FLL_LCK_IRQ_ENA */
--#define WM8400_FLL_LCK_IRQ_ENA_WIDTH                 1  /* FLL_LCK_IRQ_ENA */
--#define WM8400_GPI8_DEB_ENA                     0x0080  /* GPI8_DEB_ENA */
--#define WM8400_GPI8_DEB_ENA_MASK                0x0080  /* GPI8_DEB_ENA */
--#define WM8400_GPI8_DEB_ENA_SHIFT                    7  /* GPI8_DEB_ENA */
--#define WM8400_GPI8_DEB_ENA_WIDTH                    1  /* GPI8_DEB_ENA */
--#define WM8400_GPI8_IRQ_ENA                     0x0040  /* GPI8_IRQ_ENA */
--#define WM8400_GPI8_IRQ_ENA_MASK                0x0040  /* GPI8_IRQ_ENA */
--#define WM8400_GPI8_IRQ_ENA_SHIFT                    6  /* GPI8_IRQ_ENA */
--#define WM8400_GPI8_IRQ_ENA_WIDTH                    1  /* GPI8_IRQ_ENA */
--#define WM8400_GPI8_ENA                         0x0010  /* GPI8_ENA */
--#define WM8400_GPI8_ENA_MASK                    0x0010  /* GPI8_ENA */
--#define WM8400_GPI8_ENA_SHIFT                        4  /* GPI8_ENA */
--#define WM8400_GPI8_ENA_WIDTH                        1  /* GPI8_ENA */
--#define WM8400_GPI7_DEB_ENA                     0x0008  /* GPI7_DEB_ENA */
--#define WM8400_GPI7_DEB_ENA_MASK                0x0008  /* GPI7_DEB_ENA */
--#define WM8400_GPI7_DEB_ENA_SHIFT                    3  /* GPI7_DEB_ENA */
--#define WM8400_GPI7_DEB_ENA_WIDTH                    1  /* GPI7_DEB_ENA */
--#define WM8400_GPI7_IRQ_ENA                     0x0004  /* GPI7_IRQ_ENA */
--#define WM8400_GPI7_IRQ_ENA_MASK                0x0004  /* GPI7_IRQ_ENA */
--#define WM8400_GPI7_IRQ_ENA_SHIFT                    2  /* GPI7_IRQ_ENA */
--#define WM8400_GPI7_IRQ_ENA_WIDTH                    1  /* GPI7_IRQ_ENA */
--#define WM8400_GPI7_ENA                         0x0001  /* GPI7_ENA */
--#define WM8400_GPI7_ENA_MASK                    0x0001  /* GPI7_ENA */
--#define WM8400_GPI7_ENA_SHIFT                        0  /* GPI7_ENA */
--#define WM8400_GPI7_ENA_WIDTH                        1  /* GPI7_ENA */
--
--/*
-- * R23 (0x17) - GPIO_POL
-- */
--#define WM8400_IRQ_INV                          0x1000  /* IRQ_INV */
--#define WM8400_IRQ_INV_MASK                     0x1000  /* IRQ_INV */
--#define WM8400_IRQ_INV_SHIFT                        12  /* IRQ_INV */
--#define WM8400_IRQ_INV_WIDTH                         1  /* IRQ_INV */
--#define WM8400_TEMPOK_POL                       0x0800  /* TEMPOK_POL */
--#define WM8400_TEMPOK_POL_MASK                  0x0800  /* TEMPOK_POL */
--#define WM8400_TEMPOK_POL_SHIFT                     11  /* TEMPOK_POL */
--#define WM8400_TEMPOK_POL_WIDTH                      1  /* TEMPOK_POL */
--#define WM8400_MIC1SHRT_POL                     0x0400  /* MIC1SHRT_POL */
--#define WM8400_MIC1SHRT_POL_MASK                0x0400  /* MIC1SHRT_POL */
--#define WM8400_MIC1SHRT_POL_SHIFT                   10  /* MIC1SHRT_POL */
--#define WM8400_MIC1SHRT_POL_WIDTH                    1  /* MIC1SHRT_POL */
--#define WM8400_MIC1DET_POL                      0x0200  /* MIC1DET_POL */
--#define WM8400_MIC1DET_POL_MASK                 0x0200  /* MIC1DET_POL */
--#define WM8400_MIC1DET_POL_SHIFT                     9  /* MIC1DET_POL */
--#define WM8400_MIC1DET_POL_WIDTH                     1  /* MIC1DET_POL */
--#define WM8400_FLL_LCK_POL                      0x0100  /* FLL_LCK_POL */
--#define WM8400_FLL_LCK_POL_MASK                 0x0100  /* FLL_LCK_POL */
--#define WM8400_FLL_LCK_POL_SHIFT                     8  /* FLL_LCK_POL */
--#define WM8400_FLL_LCK_POL_WIDTH                     1  /* FLL_LCK_POL */
--#define WM8400_GPIO_POL_MASK                    0x00FF  /* GPIO_POL - [7:0] */
--#define WM8400_GPIO_POL_SHIFT                        0  /* GPIO_POL - [7:0] */
--#define WM8400_GPIO_POL_WIDTH                        8  /* GPIO_POL - [7:0] */
--
--/*
-- * R65 (0x41) - LDO 1 Control
-- */
--#define WM8400_LDO1_ENA                         0x8000  /* LDO1_ENA */
--#define WM8400_LDO1_ENA_MASK                    0x8000  /* LDO1_ENA */
--#define WM8400_LDO1_ENA_SHIFT                       15  /* LDO1_ENA */
--#define WM8400_LDO1_ENA_WIDTH                        1  /* LDO1_ENA */
--#define WM8400_LDO1_SWI                         0x4000  /* LDO1_SWI */
--#define WM8400_LDO1_SWI_MASK                    0x4000  /* LDO1_SWI */
--#define WM8400_LDO1_SWI_SHIFT                       14  /* LDO1_SWI */
--#define WM8400_LDO1_SWI_WIDTH                        1  /* LDO1_SWI */
--#define WM8400_LDO1_OPFLT                       0x1000  /* LDO1_OPFLT */
--#define WM8400_LDO1_OPFLT_MASK                  0x1000  /* LDO1_OPFLT */
--#define WM8400_LDO1_OPFLT_SHIFT                     12  /* LDO1_OPFLT */
--#define WM8400_LDO1_OPFLT_WIDTH                      1  /* LDO1_OPFLT */
--#define WM8400_LDO1_ERRACT                      0x0800  /* LDO1_ERRACT */
--#define WM8400_LDO1_ERRACT_MASK                 0x0800  /* LDO1_ERRACT */
--#define WM8400_LDO1_ERRACT_SHIFT                    11  /* LDO1_ERRACT */
--#define WM8400_LDO1_ERRACT_WIDTH                     1  /* LDO1_ERRACT */
--#define WM8400_LDO1_HIB_MODE                    0x0400  /* LDO1_HIB_MODE */
--#define WM8400_LDO1_HIB_MODE_MASK               0x0400  /* LDO1_HIB_MODE */
--#define WM8400_LDO1_HIB_MODE_SHIFT                  10  /* LDO1_HIB_MODE */
--#define WM8400_LDO1_HIB_MODE_WIDTH                   1  /* LDO1_HIB_MODE */
--#define WM8400_LDO1_VIMG_MASK                   0x03E0  /* LDO1_VIMG - [9:5] */
--#define WM8400_LDO1_VIMG_SHIFT                       5  /* LDO1_VIMG - [9:5] */
--#define WM8400_LDO1_VIMG_WIDTH                       5  /* LDO1_VIMG - [9:5] */
--#define WM8400_LDO1_VSEL_MASK                   0x001F  /* LDO1_VSEL - [4:0] */
--#define WM8400_LDO1_VSEL_SHIFT                       0  /* LDO1_VSEL - [4:0] */
--#define WM8400_LDO1_VSEL_WIDTH                       5  /* LDO1_VSEL - [4:0] */
--
--/*
-- * R66 (0x42) - LDO 2 Control
-- */
--#define WM8400_LDO2_ENA                         0x8000  /* LDO2_ENA */
--#define WM8400_LDO2_ENA_MASK                    0x8000  /* LDO2_ENA */
--#define WM8400_LDO2_ENA_SHIFT                       15  /* LDO2_ENA */
--#define WM8400_LDO2_ENA_WIDTH                        1  /* LDO2_ENA */
--#define WM8400_LDO2_SWI                         0x4000  /* LDO2_SWI */
--#define WM8400_LDO2_SWI_MASK                    0x4000  /* LDO2_SWI */
--#define WM8400_LDO2_SWI_SHIFT                       14  /* LDO2_SWI */
--#define WM8400_LDO2_SWI_WIDTH                        1  /* LDO2_SWI */
--#define WM8400_LDO2_OPFLT                       0x1000  /* LDO2_OPFLT */
--#define WM8400_LDO2_OPFLT_MASK                  0x1000  /* LDO2_OPFLT */
--#define WM8400_LDO2_OPFLT_SHIFT                     12  /* LDO2_OPFLT */
--#define WM8400_LDO2_OPFLT_WIDTH                      1  /* LDO2_OPFLT */
--#define WM8400_LDO2_ERRACT                      0x0800  /* LDO2_ERRACT */
--#define WM8400_LDO2_ERRACT_MASK                 0x0800  /* LDO2_ERRACT */
--#define WM8400_LDO2_ERRACT_SHIFT                    11  /* LDO2_ERRACT */
--#define WM8400_LDO2_ERRACT_WIDTH                     1  /* LDO2_ERRACT */
--#define WM8400_LDO2_HIB_MODE                    0x0400  /* LDO2_HIB_MODE */
--#define WM8400_LDO2_HIB_MODE_MASK               0x0400  /* LDO2_HIB_MODE */
--#define WM8400_LDO2_HIB_MODE_SHIFT                  10  /* LDO2_HIB_MODE */
--#define WM8400_LDO2_HIB_MODE_WIDTH                   1  /* LDO2_HIB_MODE */
--#define WM8400_LDO2_VIMG_MASK                   0x03E0  /* LDO2_VIMG - [9:5] */
--#define WM8400_LDO2_VIMG_SHIFT                       5  /* LDO2_VIMG - [9:5] */
--#define WM8400_LDO2_VIMG_WIDTH                       5  /* LDO2_VIMG - [9:5] */
--#define WM8400_LDO2_VSEL_MASK                   0x001F  /* LDO2_VSEL - [4:0] */
--#define WM8400_LDO2_VSEL_SHIFT                       0  /* LDO2_VSEL - [4:0] */
--#define WM8400_LDO2_VSEL_WIDTH                       5  /* LDO2_VSEL - [4:0] */
--
--/*
-- * R67 (0x43) - LDO 3 Control
-- */
--#define WM8400_LDO3_ENA                         0x8000  /* LDO3_ENA */
--#define WM8400_LDO3_ENA_MASK                    0x8000  /* LDO3_ENA */
--#define WM8400_LDO3_ENA_SHIFT                       15  /* LDO3_ENA */
--#define WM8400_LDO3_ENA_WIDTH                        1  /* LDO3_ENA */
--#define WM8400_LDO3_SWI                         0x4000  /* LDO3_SWI */
--#define WM8400_LDO3_SWI_MASK                    0x4000  /* LDO3_SWI */
--#define WM8400_LDO3_SWI_SHIFT                       14  /* LDO3_SWI */
--#define WM8400_LDO3_SWI_WIDTH                        1  /* LDO3_SWI */
--#define WM8400_LDO3_OPFLT                       0x1000  /* LDO3_OPFLT */
--#define WM8400_LDO3_OPFLT_MASK                  0x1000  /* LDO3_OPFLT */
--#define WM8400_LDO3_OPFLT_SHIFT                     12  /* LDO3_OPFLT */
--#define WM8400_LDO3_OPFLT_WIDTH                      1  /* LDO3_OPFLT */
--#define WM8400_LDO3_ERRACT                      0x0800  /* LDO3_ERRACT */
--#define WM8400_LDO3_ERRACT_MASK                 0x0800  /* LDO3_ERRACT */
--#define WM8400_LDO3_ERRACT_SHIFT                    11  /* LDO3_ERRACT */
--#define WM8400_LDO3_ERRACT_WIDTH                     1  /* LDO3_ERRACT */
--#define WM8400_LDO3_HIB_MODE                    0x0400  /* LDO3_HIB_MODE */
--#define WM8400_LDO3_HIB_MODE_MASK               0x0400  /* LDO3_HIB_MODE */
--#define WM8400_LDO3_HIB_MODE_SHIFT                  10  /* LDO3_HIB_MODE */
--#define WM8400_LDO3_HIB_MODE_WIDTH                   1  /* LDO3_HIB_MODE */
--#define WM8400_LDO3_VIMG_MASK                   0x03E0  /* LDO3_VIMG - [9:5] */
--#define WM8400_LDO3_VIMG_SHIFT                       5  /* LDO3_VIMG - [9:5] */
--#define WM8400_LDO3_VIMG_WIDTH                       5  /* LDO3_VIMG - [9:5] */
--#define WM8400_LDO3_VSEL_MASK                   0x001F  /* LDO3_VSEL - [4:0] */
--#define WM8400_LDO3_VSEL_SHIFT                       0  /* LDO3_VSEL - [4:0] */
--#define WM8400_LDO3_VSEL_WIDTH                       5  /* LDO3_VSEL - [4:0] */
--
--/*
-- * R68 (0x44) - LDO 4 Control
-- */
--#define WM8400_LDO4_ENA                         0x8000  /* LDO4_ENA */
--#define WM8400_LDO4_ENA_MASK                    0x8000  /* LDO4_ENA */
--#define WM8400_LDO4_ENA_SHIFT                       15  /* LDO4_ENA */
--#define WM8400_LDO4_ENA_WIDTH                        1  /* LDO4_ENA */
--#define WM8400_LDO4_SWI                         0x4000  /* LDO4_SWI */
--#define WM8400_LDO4_SWI_MASK                    0x4000  /* LDO4_SWI */
--#define WM8400_LDO4_SWI_SHIFT                       14  /* LDO4_SWI */
--#define WM8400_LDO4_SWI_WIDTH                        1  /* LDO4_SWI */
--#define WM8400_LDO4_OPFLT                       0x1000  /* LDO4_OPFLT */
--#define WM8400_LDO4_OPFLT_MASK                  0x1000  /* LDO4_OPFLT */
--#define WM8400_LDO4_OPFLT_SHIFT                     12  /* LDO4_OPFLT */
--#define WM8400_LDO4_OPFLT_WIDTH                      1  /* LDO4_OPFLT */
--#define WM8400_LDO4_ERRACT                      0x0800  /* LDO4_ERRACT */
--#define WM8400_LDO4_ERRACT_MASK                 0x0800  /* LDO4_ERRACT */
--#define WM8400_LDO4_ERRACT_SHIFT                    11  /* LDO4_ERRACT */
--#define WM8400_LDO4_ERRACT_WIDTH                     1  /* LDO4_ERRACT */
--#define WM8400_LDO4_HIB_MODE                    0x0400  /* LDO4_HIB_MODE */
--#define WM8400_LDO4_HIB_MODE_MASK               0x0400  /* LDO4_HIB_MODE */
--#define WM8400_LDO4_HIB_MODE_SHIFT                  10  /* LDO4_HIB_MODE */
--#define WM8400_LDO4_HIB_MODE_WIDTH                   1  /* LDO4_HIB_MODE */
--#define WM8400_LDO4_VIMG_MASK                   0x03E0  /* LDO4_VIMG - [9:5] */
--#define WM8400_LDO4_VIMG_SHIFT                       5  /* LDO4_VIMG - [9:5] */
--#define WM8400_LDO4_VIMG_WIDTH                       5  /* LDO4_VIMG - [9:5] */
--#define WM8400_LDO4_VSEL_MASK                   0x001F  /* LDO4_VSEL - [4:0] */
--#define WM8400_LDO4_VSEL_SHIFT                       0  /* LDO4_VSEL - [4:0] */
--#define WM8400_LDO4_VSEL_WIDTH                       5  /* LDO4_VSEL - [4:0] */
--
--/*
-- * R70 (0x46) - DCDC1 Control 1
-- */
--#define WM8400_DC1_ENA                          0x8000  /* DC1_ENA */
--#define WM8400_DC1_ENA_MASK                     0x8000  /* DC1_ENA */
--#define WM8400_DC1_ENA_SHIFT                        15  /* DC1_ENA */
--#define WM8400_DC1_ENA_WIDTH                         1  /* DC1_ENA */
--#define WM8400_DC1_ACTIVE                       0x4000  /* DC1_ACTIVE */
--#define WM8400_DC1_ACTIVE_MASK                  0x4000  /* DC1_ACTIVE */
--#define WM8400_DC1_ACTIVE_SHIFT                     14  /* DC1_ACTIVE */
--#define WM8400_DC1_ACTIVE_WIDTH                      1  /* DC1_ACTIVE */
--#define WM8400_DC1_SLEEP                        0x2000  /* DC1_SLEEP */
--#define WM8400_DC1_SLEEP_MASK                   0x2000  /* DC1_SLEEP */
--#define WM8400_DC1_SLEEP_SHIFT                      13  /* DC1_SLEEP */
--#define WM8400_DC1_SLEEP_WIDTH                       1  /* DC1_SLEEP */
--#define WM8400_DC1_OPFLT                        0x1000  /* DC1_OPFLT */
--#define WM8400_DC1_OPFLT_MASK                   0x1000  /* DC1_OPFLT */
--#define WM8400_DC1_OPFLT_SHIFT                      12  /* DC1_OPFLT */
--#define WM8400_DC1_OPFLT_WIDTH                       1  /* DC1_OPFLT */
--#define WM8400_DC1_ERRACT                       0x0800  /* DC1_ERRACT */
--#define WM8400_DC1_ERRACT_MASK                  0x0800  /* DC1_ERRACT */
--#define WM8400_DC1_ERRACT_SHIFT                     11  /* DC1_ERRACT */
--#define WM8400_DC1_ERRACT_WIDTH                      1  /* DC1_ERRACT */
--#define WM8400_DC1_HIB_MODE                     0x0400  /* DC1_HIB_MODE */
--#define WM8400_DC1_HIB_MODE_MASK                0x0400  /* DC1_HIB_MODE */
--#define WM8400_DC1_HIB_MODE_SHIFT                   10  /* DC1_HIB_MODE */
--#define WM8400_DC1_HIB_MODE_WIDTH                    1  /* DC1_HIB_MODE */
--#define WM8400_DC1_SOFTST_MASK                  0x0300  /* DC1_SOFTST - [9:8] */
--#define WM8400_DC1_SOFTST_SHIFT                      8  /* DC1_SOFTST - [9:8] */
--#define WM8400_DC1_SOFTST_WIDTH                      2  /* DC1_SOFTST - [9:8] */
--#define WM8400_DC1_OV_PROT                      0x0080  /* DC1_OV_PROT */
--#define WM8400_DC1_OV_PROT_MASK                 0x0080  /* DC1_OV_PROT */
--#define WM8400_DC1_OV_PROT_SHIFT                     7  /* DC1_OV_PROT */
--#define WM8400_DC1_OV_PROT_WIDTH                     1  /* DC1_OV_PROT */
--#define WM8400_DC1_VSEL_MASK                    0x007F  /* DC1_VSEL - [6:0] */
--#define WM8400_DC1_VSEL_SHIFT                        0  /* DC1_VSEL - [6:0] */
--#define WM8400_DC1_VSEL_WIDTH                        7  /* DC1_VSEL - [6:0] */
--
--/*
-- * R71 (0x47) - DCDC1 Control 2
-- */
--#define WM8400_DC1_FRC_PWM                      0x2000  /* DC1_FRC_PWM */
--#define WM8400_DC1_FRC_PWM_MASK                 0x2000  /* DC1_FRC_PWM */
--#define WM8400_DC1_FRC_PWM_SHIFT                    13  /* DC1_FRC_PWM */
--#define WM8400_DC1_FRC_PWM_WIDTH                     1  /* DC1_FRC_PWM */
--#define WM8400_DC1_STBY_LIM_MASK                0x0300  /* DC1_STBY_LIM - [9:8] */
--#define WM8400_DC1_STBY_LIM_SHIFT                    8  /* DC1_STBY_LIM - [9:8] */
--#define WM8400_DC1_STBY_LIM_WIDTH                    2  /* DC1_STBY_LIM - [9:8] */
--#define WM8400_DC1_ACT_LIM                      0x0080  /* DC1_ACT_LIM */
--#define WM8400_DC1_ACT_LIM_MASK                 0x0080  /* DC1_ACT_LIM */
--#define WM8400_DC1_ACT_LIM_SHIFT                     7  /* DC1_ACT_LIM */
--#define WM8400_DC1_ACT_LIM_WIDTH                     1  /* DC1_ACT_LIM */
--#define WM8400_DC1_VIMG_MASK                    0x007F  /* DC1_VIMG - [6:0] */
--#define WM8400_DC1_VIMG_SHIFT                        0  /* DC1_VIMG - [6:0] */
--#define WM8400_DC1_VIMG_WIDTH                        7  /* DC1_VIMG - [6:0] */
--
--/*
-- * R72 (0x48) - DCDC2 Control 1
-- */
--#define WM8400_DC2_ENA                          0x8000  /* DC2_ENA */
--#define WM8400_DC2_ENA_MASK                     0x8000  /* DC2_ENA */
--#define WM8400_DC2_ENA_SHIFT                        15  /* DC2_ENA */
--#define WM8400_DC2_ENA_WIDTH                         1  /* DC2_ENA */
--#define WM8400_DC2_ACTIVE                       0x4000  /* DC2_ACTIVE */
--#define WM8400_DC2_ACTIVE_MASK                  0x4000  /* DC2_ACTIVE */
--#define WM8400_DC2_ACTIVE_SHIFT                     14  /* DC2_ACTIVE */
--#define WM8400_DC2_ACTIVE_WIDTH                      1  /* DC2_ACTIVE */
--#define WM8400_DC2_SLEEP                        0x2000  /* DC2_SLEEP */
--#define WM8400_DC2_SLEEP_MASK                   0x2000  /* DC2_SLEEP */
--#define WM8400_DC2_SLEEP_SHIFT                      13  /* DC2_SLEEP */
--#define WM8400_DC2_SLEEP_WIDTH                       1  /* DC2_SLEEP */
--#define WM8400_DC2_OPFLT                        0x1000  /* DC2_OPFLT */
--#define WM8400_DC2_OPFLT_MASK                   0x1000  /* DC2_OPFLT */
--#define WM8400_DC2_OPFLT_SHIFT                      12  /* DC2_OPFLT */
--#define WM8400_DC2_OPFLT_WIDTH                       1  /* DC2_OPFLT */
--#define WM8400_DC2_ERRACT                       0x0800  /* DC2_ERRACT */
--#define WM8400_DC2_ERRACT_MASK                  0x0800  /* DC2_ERRACT */
--#define WM8400_DC2_ERRACT_SHIFT                     11  /* DC2_ERRACT */
--#define WM8400_DC2_ERRACT_WIDTH                      1  /* DC2_ERRACT */
--#define WM8400_DC2_HIB_MODE                     0x0400  /* DC2_HIB_MODE */
--#define WM8400_DC2_HIB_MODE_MASK                0x0400  /* DC2_HIB_MODE */
--#define WM8400_DC2_HIB_MODE_SHIFT                   10  /* DC2_HIB_MODE */
--#define WM8400_DC2_HIB_MODE_WIDTH                    1  /* DC2_HIB_MODE */
--#define WM8400_DC2_SOFTST_MASK                  0x0300  /* DC2_SOFTST - [9:8] */
--#define WM8400_DC2_SOFTST_SHIFT                      8  /* DC2_SOFTST - [9:8] */
--#define WM8400_DC2_SOFTST_WIDTH                      2  /* DC2_SOFTST - [9:8] */
--#define WM8400_DC2_OV_PROT                      0x0080  /* DC2_OV_PROT */
--#define WM8400_DC2_OV_PROT_MASK                 0x0080  /* DC2_OV_PROT */
--#define WM8400_DC2_OV_PROT_SHIFT                     7  /* DC2_OV_PROT */
--#define WM8400_DC2_OV_PROT_WIDTH                     1  /* DC2_OV_PROT */
--#define WM8400_DC2_VSEL_MASK                    0x007F  /* DC2_VSEL - [6:0] */
--#define WM8400_DC2_VSEL_SHIFT                        0  /* DC2_VSEL - [6:0] */
--#define WM8400_DC2_VSEL_WIDTH                        7  /* DC2_VSEL - [6:0] */
--
--/*
-- * R73 (0x49) - DCDC2 Control 2
-- */
--#define WM8400_DC2_FRC_PWM                      0x2000  /* DC2_FRC_PWM */
--#define WM8400_DC2_FRC_PWM_MASK                 0x2000  /* DC2_FRC_PWM */
--#define WM8400_DC2_FRC_PWM_SHIFT                    13  /* DC2_FRC_PWM */
--#define WM8400_DC2_FRC_PWM_WIDTH                     1  /* DC2_FRC_PWM */
--#define WM8400_DC2_STBY_LIM_MASK                0x0300  /* DC2_STBY_LIM - [9:8] */
--#define WM8400_DC2_STBY_LIM_SHIFT                    8  /* DC2_STBY_LIM - [9:8] */
--#define WM8400_DC2_STBY_LIM_WIDTH                    2  /* DC2_STBY_LIM - [9:8] */
--#define WM8400_DC2_ACT_LIM                      0x0080  /* DC2_ACT_LIM */
--#define WM8400_DC2_ACT_LIM_MASK                 0x0080  /* DC2_ACT_LIM */
--#define WM8400_DC2_ACT_LIM_SHIFT                     7  /* DC2_ACT_LIM */
--#define WM8400_DC2_ACT_LIM_WIDTH                     1  /* DC2_ACT_LIM */
--#define WM8400_DC2_VIMG_MASK                    0x007F  /* DC2_VIMG - [6:0] */
--#define WM8400_DC2_VIMG_SHIFT                        0  /* DC2_VIMG - [6:0] */
--#define WM8400_DC2_VIMG_WIDTH                        7  /* DC2_VIMG - [6:0] */
--
--/*
-- * R75 (0x4B) - Interface
-- */
--#define WM8400_AUTOINC                          0x0008  /* AUTOINC */
--#define WM8400_AUTOINC_MASK                     0x0008  /* AUTOINC */
--#define WM8400_AUTOINC_SHIFT                         3  /* AUTOINC */
--#define WM8400_AUTOINC_WIDTH                         1  /* AUTOINC */
--#define WM8400_ARA_ENA                          0x0004  /* ARA_ENA */
--#define WM8400_ARA_ENA_MASK                     0x0004  /* ARA_ENA */
--#define WM8400_ARA_ENA_SHIFT                         2  /* ARA_ENA */
--#define WM8400_ARA_ENA_WIDTH                         1  /* ARA_ENA */
--#define WM8400_SPI_CFG                          0x0002  /* SPI_CFG */
--#define WM8400_SPI_CFG_MASK                     0x0002  /* SPI_CFG */
--#define WM8400_SPI_CFG_SHIFT                         1  /* SPI_CFG */
--#define WM8400_SPI_CFG_WIDTH                         1  /* SPI_CFG */
--
--/*
-- * R76 (0x4C) - PM GENERAL
-- */
--#define WM8400_CODEC_SOFTST                     0x8000  /* CODEC_SOFTST */
--#define WM8400_CODEC_SOFTST_MASK                0x8000  /* CODEC_SOFTST */
--#define WM8400_CODEC_SOFTST_SHIFT                   15  /* CODEC_SOFTST */
--#define WM8400_CODEC_SOFTST_WIDTH                    1  /* CODEC_SOFTST */
--#define WM8400_CODEC_SOFTSD                     0x4000  /* CODEC_SOFTSD */
--#define WM8400_CODEC_SOFTSD_MASK                0x4000  /* CODEC_SOFTSD */
--#define WM8400_CODEC_SOFTSD_SHIFT                   14  /* CODEC_SOFTSD */
--#define WM8400_CODEC_SOFTSD_WIDTH                    1  /* CODEC_SOFTSD */
--#define WM8400_CHIP_SOFTSD                      0x2000  /* CHIP_SOFTSD */
--#define WM8400_CHIP_SOFTSD_MASK                 0x2000  /* CHIP_SOFTSD */
--#define WM8400_CHIP_SOFTSD_SHIFT                    13  /* CHIP_SOFTSD */
--#define WM8400_CHIP_SOFTSD_WIDTH                     1  /* CHIP_SOFTSD */
--#define WM8400_DSLEEP1_POL                      0x0008  /* DSLEEP1_POL */
--#define WM8400_DSLEEP1_POL_MASK                 0x0008  /* DSLEEP1_POL */
--#define WM8400_DSLEEP1_POL_SHIFT                     3  /* DSLEEP1_POL */
--#define WM8400_DSLEEP1_POL_WIDTH                     1  /* DSLEEP1_POL */
--#define WM8400_DSLEEP2_POL                      0x0004  /* DSLEEP2_POL */
--#define WM8400_DSLEEP2_POL_MASK                 0x0004  /* DSLEEP2_POL */
--#define WM8400_DSLEEP2_POL_SHIFT                     2  /* DSLEEP2_POL */
--#define WM8400_DSLEEP2_POL_WIDTH                     1  /* DSLEEP2_POL */
--#define WM8400_PWR_STATE_MASK                   0x0003  /* PWR_STATE - [1:0] */
--#define WM8400_PWR_STATE_SHIFT                       0  /* PWR_STATE - [1:0] */
--#define WM8400_PWR_STATE_WIDTH                       2  /* PWR_STATE - [1:0] */
--
--/*
-- * R78 (0x4E) - PM Shutdown Control
-- */
--#define WM8400_CHIP_GT150_ERRACT                0x0200  /* CHIP_GT150_ERRACT */
--#define WM8400_CHIP_GT150_ERRACT_MASK           0x0200  /* CHIP_GT150_ERRACT */
--#define WM8400_CHIP_GT150_ERRACT_SHIFT               9  /* CHIP_GT150_ERRACT */
--#define WM8400_CHIP_GT150_ERRACT_WIDTH               1  /* CHIP_GT150_ERRACT */
--#define WM8400_CHIP_GT115_ERRACT                0x0100  /* CHIP_GT115_ERRACT */
--#define WM8400_CHIP_GT115_ERRACT_MASK           0x0100  /* CHIP_GT115_ERRACT */
--#define WM8400_CHIP_GT115_ERRACT_SHIFT               8  /* CHIP_GT115_ERRACT */
--#define WM8400_CHIP_GT115_ERRACT_WIDTH               1  /* CHIP_GT115_ERRACT */
--#define WM8400_LINE_CMP_ERRACT                  0x0080  /* LINE_CMP_ERRACT */
--#define WM8400_LINE_CMP_ERRACT_MASK             0x0080  /* LINE_CMP_ERRACT */
--#define WM8400_LINE_CMP_ERRACT_SHIFT                 7  /* LINE_CMP_ERRACT */
--#define WM8400_LINE_CMP_ERRACT_WIDTH                 1  /* LINE_CMP_ERRACT */
--#define WM8400_UVLO_ERRACT                      0x0040  /* UVLO_ERRACT */
--#define WM8400_UVLO_ERRACT_MASK                 0x0040  /* UVLO_ERRACT */
--#define WM8400_UVLO_ERRACT_SHIFT                     6  /* UVLO_ERRACT */
--#define WM8400_UVLO_ERRACT_WIDTH                     1  /* UVLO_ERRACT */
--
--/*
-- * R79 (0x4F) - Interrupt Status 1
-- */
--#define WM8400_MICD_CINT                        0x8000  /* MICD_CINT */
--#define WM8400_MICD_CINT_MASK                   0x8000  /* MICD_CINT */
--#define WM8400_MICD_CINT_SHIFT                      15  /* MICD_CINT */
--#define WM8400_MICD_CINT_WIDTH                       1  /* MICD_CINT */
--#define WM8400_MICSCD_CINT                      0x4000  /* MICSCD_CINT */
--#define WM8400_MICSCD_CINT_MASK                 0x4000  /* MICSCD_CINT */
--#define WM8400_MICSCD_CINT_SHIFT                    14  /* MICSCD_CINT */
--#define WM8400_MICSCD_CINT_WIDTH                     1  /* MICSCD_CINT */
--#define WM8400_JDL_CINT                         0x2000  /* JDL_CINT */
--#define WM8400_JDL_CINT_MASK                    0x2000  /* JDL_CINT */
--#define WM8400_JDL_CINT_SHIFT                       13  /* JDL_CINT */
--#define WM8400_JDL_CINT_WIDTH                        1  /* JDL_CINT */
--#define WM8400_JDR_CINT                         0x1000  /* JDR_CINT */
--#define WM8400_JDR_CINT_MASK                    0x1000  /* JDR_CINT */
--#define WM8400_JDR_CINT_SHIFT                       12  /* JDR_CINT */
--#define WM8400_JDR_CINT_WIDTH                        1  /* JDR_CINT */
--#define WM8400_CODEC_SEQ_END_EINT               0x0800  /* CODEC_SEQ_END_EINT */
--#define WM8400_CODEC_SEQ_END_EINT_MASK          0x0800  /* CODEC_SEQ_END_EINT */
--#define WM8400_CODEC_SEQ_END_EINT_SHIFT             11  /* CODEC_SEQ_END_EINT */
--#define WM8400_CODEC_SEQ_END_EINT_WIDTH              1  /* CODEC_SEQ_END_EINT */
--#define WM8400_CDEL_TO_EINT                     0x0400  /* CDEL_TO_EINT */
--#define WM8400_CDEL_TO_EINT_MASK                0x0400  /* CDEL_TO_EINT */
--#define WM8400_CDEL_TO_EINT_SHIFT                   10  /* CDEL_TO_EINT */
--#define WM8400_CDEL_TO_EINT_WIDTH                    1  /* CDEL_TO_EINT */
--#define WM8400_CHIP_GT150_EINT                  0x0200  /* CHIP_GT150_EINT */
--#define WM8400_CHIP_GT150_EINT_MASK             0x0200  /* CHIP_GT150_EINT */
--#define WM8400_CHIP_GT150_EINT_SHIFT                 9  /* CHIP_GT150_EINT */
--#define WM8400_CHIP_GT150_EINT_WIDTH                 1  /* CHIP_GT150_EINT */
--#define WM8400_CHIP_GT115_EINT                  0x0100  /* CHIP_GT115_EINT */
--#define WM8400_CHIP_GT115_EINT_MASK             0x0100  /* CHIP_GT115_EINT */
--#define WM8400_CHIP_GT115_EINT_SHIFT                 8  /* CHIP_GT115_EINT */
--#define WM8400_CHIP_GT115_EINT_WIDTH                 1  /* CHIP_GT115_EINT */
--#define WM8400_LINE_CMP_EINT                    0x0080  /* LINE_CMP_EINT */
--#define WM8400_LINE_CMP_EINT_MASK               0x0080  /* LINE_CMP_EINT */
--#define WM8400_LINE_CMP_EINT_SHIFT                   7  /* LINE_CMP_EINT */
--#define WM8400_LINE_CMP_EINT_WIDTH                   1  /* LINE_CMP_EINT */
--#define WM8400_UVLO_EINT                        0x0040  /* UVLO_EINT */
--#define WM8400_UVLO_EINT_MASK                   0x0040  /* UVLO_EINT */
--#define WM8400_UVLO_EINT_SHIFT                       6  /* UVLO_EINT */
--#define WM8400_UVLO_EINT_WIDTH                       1  /* UVLO_EINT */
--#define WM8400_DC2_UV_EINT                      0x0020  /* DC2_UV_EINT */
--#define WM8400_DC2_UV_EINT_MASK                 0x0020  /* DC2_UV_EINT */
--#define WM8400_DC2_UV_EINT_SHIFT                     5  /* DC2_UV_EINT */
--#define WM8400_DC2_UV_EINT_WIDTH                     1  /* DC2_UV_EINT */
--#define WM8400_DC1_UV_EINT                      0x0010  /* DC1_UV_EINT */
--#define WM8400_DC1_UV_EINT_MASK                 0x0010  /* DC1_UV_EINT */
--#define WM8400_DC1_UV_EINT_SHIFT                     4  /* DC1_UV_EINT */
--#define WM8400_DC1_UV_EINT_WIDTH                     1  /* DC1_UV_EINT */
--#define WM8400_LDO4_UV_EINT                     0x0008  /* LDO4_UV_EINT */
--#define WM8400_LDO4_UV_EINT_MASK                0x0008  /* LDO4_UV_EINT */
--#define WM8400_LDO4_UV_EINT_SHIFT                    3  /* LDO4_UV_EINT */
--#define WM8400_LDO4_UV_EINT_WIDTH                    1  /* LDO4_UV_EINT */
--#define WM8400_LDO3_UV_EINT                     0x0004  /* LDO3_UV_EINT */
--#define WM8400_LDO3_UV_EINT_MASK                0x0004  /* LDO3_UV_EINT */
--#define WM8400_LDO3_UV_EINT_SHIFT                    2  /* LDO3_UV_EINT */
--#define WM8400_LDO3_UV_EINT_WIDTH                    1  /* LDO3_UV_EINT */
--#define WM8400_LDO2_UV_EINT                     0x0002  /* LDO2_UV_EINT */
--#define WM8400_LDO2_UV_EINT_MASK                0x0002  /* LDO2_UV_EINT */
--#define WM8400_LDO2_UV_EINT_SHIFT                    1  /* LDO2_UV_EINT */
--#define WM8400_LDO2_UV_EINT_WIDTH                    1  /* LDO2_UV_EINT */
--#define WM8400_LDO1_UV_EINT                     0x0001  /* LDO1_UV_EINT */
--#define WM8400_LDO1_UV_EINT_MASK                0x0001  /* LDO1_UV_EINT */
--#define WM8400_LDO1_UV_EINT_SHIFT                    0  /* LDO1_UV_EINT */
--#define WM8400_LDO1_UV_EINT_WIDTH                    1  /* LDO1_UV_EINT */
--
--/*
-- * R80 (0x50) - Interrupt Status 1 Mask
-- */
--#define WM8400_IM_MICD_CINT                     0x8000  /* IM_MICD_CINT */
--#define WM8400_IM_MICD_CINT_MASK                0x8000  /* IM_MICD_CINT */
--#define WM8400_IM_MICD_CINT_SHIFT                   15  /* IM_MICD_CINT */
--#define WM8400_IM_MICD_CINT_WIDTH                    1  /* IM_MICD_CINT */
--#define WM8400_IM_MICSCD_CINT                   0x4000  /* IM_MICSCD_CINT */
--#define WM8400_IM_MICSCD_CINT_MASK              0x4000  /* IM_MICSCD_CINT */
--#define WM8400_IM_MICSCD_CINT_SHIFT                 14  /* IM_MICSCD_CINT */
--#define WM8400_IM_MICSCD_CINT_WIDTH                  1  /* IM_MICSCD_CINT */
--#define WM8400_IM_JDL_CINT                      0x2000  /* IM_JDL_CINT */
--#define WM8400_IM_JDL_CINT_MASK                 0x2000  /* IM_JDL_CINT */
--#define WM8400_IM_JDL_CINT_SHIFT                    13  /* IM_JDL_CINT */
--#define WM8400_IM_JDL_CINT_WIDTH                     1  /* IM_JDL_CINT */
--#define WM8400_IM_JDR_CINT                      0x1000  /* IM_JDR_CINT */
--#define WM8400_IM_JDR_CINT_MASK                 0x1000  /* IM_JDR_CINT */
--#define WM8400_IM_JDR_CINT_SHIFT                    12  /* IM_JDR_CINT */
--#define WM8400_IM_JDR_CINT_WIDTH                     1  /* IM_JDR_CINT */
--#define WM8400_IM_CODEC_SEQ_END_EINT            0x0800  /* IM_CODEC_SEQ_END_EINT */
--#define WM8400_IM_CODEC_SEQ_END_EINT_MASK       0x0800  /* IM_CODEC_SEQ_END_EINT */
--#define WM8400_IM_CODEC_SEQ_END_EINT_SHIFT          11  /* IM_CODEC_SEQ_END_EINT */
--#define WM8400_IM_CODEC_SEQ_END_EINT_WIDTH           1  /* IM_CODEC_SEQ_END_EINT */
--#define WM8400_IM_CDEL_TO_EINT                  0x0400  /* IM_CDEL_TO_EINT */
--#define WM8400_IM_CDEL_TO_EINT_MASK             0x0400  /* IM_CDEL_TO_EINT */
--#define WM8400_IM_CDEL_TO_EINT_SHIFT                10  /* IM_CDEL_TO_EINT */
--#define WM8400_IM_CDEL_TO_EINT_WIDTH                 1  /* IM_CDEL_TO_EINT */
--#define WM8400_IM_CHIP_GT150_EINT               0x0200  /* IM_CHIP_GT150_EINT */
--#define WM8400_IM_CHIP_GT150_EINT_MASK          0x0200  /* IM_CHIP_GT150_EINT */
--#define WM8400_IM_CHIP_GT150_EINT_SHIFT              9  /* IM_CHIP_GT150_EINT */
--#define WM8400_IM_CHIP_GT150_EINT_WIDTH              1  /* IM_CHIP_GT150_EINT */
--#define WM8400_IM_CHIP_GT115_EINT               0x0100  /* IM_CHIP_GT115_EINT */
--#define WM8400_IM_CHIP_GT115_EINT_MASK          0x0100  /* IM_CHIP_GT115_EINT */
--#define WM8400_IM_CHIP_GT115_EINT_SHIFT              8  /* IM_CHIP_GT115_EINT */
--#define WM8400_IM_CHIP_GT115_EINT_WIDTH              1  /* IM_CHIP_GT115_EINT */
--#define WM8400_IM_LINE_CMP_EINT                 0x0080  /* IM_LINE_CMP_EINT */
--#define WM8400_IM_LINE_CMP_EINT_MASK            0x0080  /* IM_LINE_CMP_EINT */
--#define WM8400_IM_LINE_CMP_EINT_SHIFT                7  /* IM_LINE_CMP_EINT */
--#define WM8400_IM_LINE_CMP_EINT_WIDTH                1  /* IM_LINE_CMP_EINT */
--#define WM8400_IM_UVLO_EINT                     0x0040  /* IM_UVLO_EINT */
--#define WM8400_IM_UVLO_EINT_MASK                0x0040  /* IM_UVLO_EINT */
--#define WM8400_IM_UVLO_EINT_SHIFT                    6  /* IM_UVLO_EINT */
--#define WM8400_IM_UVLO_EINT_WIDTH                    1  /* IM_UVLO_EINT */
--#define WM8400_IM_DC2_UV_EINT                   0x0020  /* IM_DC2_UV_EINT */
--#define WM8400_IM_DC2_UV_EINT_MASK              0x0020  /* IM_DC2_UV_EINT */
--#define WM8400_IM_DC2_UV_EINT_SHIFT                  5  /* IM_DC2_UV_EINT */
--#define WM8400_IM_DC2_UV_EINT_WIDTH                  1  /* IM_DC2_UV_EINT */
--#define WM8400_IM_DC1_UV_EINT                   0x0010  /* IM_DC1_UV_EINT */
--#define WM8400_IM_DC1_UV_EINT_MASK              0x0010  /* IM_DC1_UV_EINT */
--#define WM8400_IM_DC1_UV_EINT_SHIFT                  4  /* IM_DC1_UV_EINT */
--#define WM8400_IM_DC1_UV_EINT_WIDTH                  1  /* IM_DC1_UV_EINT */
--#define WM8400_IM_LDO4_UV_EINT                  0x0008  /* IM_LDO4_UV_EINT */
--#define WM8400_IM_LDO4_UV_EINT_MASK             0x0008  /* IM_LDO4_UV_EINT */
--#define WM8400_IM_LDO4_UV_EINT_SHIFT                 3  /* IM_LDO4_UV_EINT */
--#define WM8400_IM_LDO4_UV_EINT_WIDTH                 1  /* IM_LDO4_UV_EINT */
--#define WM8400_IM_LDO3_UV_EINT                  0x0004  /* IM_LDO3_UV_EINT */
--#define WM8400_IM_LDO3_UV_EINT_MASK             0x0004  /* IM_LDO3_UV_EINT */
--#define WM8400_IM_LDO3_UV_EINT_SHIFT                 2  /* IM_LDO3_UV_EINT */
--#define WM8400_IM_LDO3_UV_EINT_WIDTH                 1  /* IM_LDO3_UV_EINT */
--#define WM8400_IM_LDO2_UV_EINT                  0x0002  /* IM_LDO2_UV_EINT */
--#define WM8400_IM_LDO2_UV_EINT_MASK             0x0002  /* IM_LDO2_UV_EINT */
--#define WM8400_IM_LDO2_UV_EINT_SHIFT                 1  /* IM_LDO2_UV_EINT */
--#define WM8400_IM_LDO2_UV_EINT_WIDTH                 1  /* IM_LDO2_UV_EINT */
--#define WM8400_IM_LDO1_UV_EINT                  0x0001  /* IM_LDO1_UV_EINT */
--#define WM8400_IM_LDO1_UV_EINT_MASK             0x0001  /* IM_LDO1_UV_EINT */
--#define WM8400_IM_LDO1_UV_EINT_SHIFT                 0  /* IM_LDO1_UV_EINT */
--#define WM8400_IM_LDO1_UV_EINT_WIDTH                 1  /* IM_LDO1_UV_EINT */
--
--/*
-- * R81 (0x51) - Interrupt Levels
-- */
--#define WM8400_MICD_LVL                         0x8000  /* MICD_LVL */
--#define WM8400_MICD_LVL_MASK                    0x8000  /* MICD_LVL */
--#define WM8400_MICD_LVL_SHIFT                       15  /* MICD_LVL */
--#define WM8400_MICD_LVL_WIDTH                        1  /* MICD_LVL */
--#define WM8400_MICSCD_LVL                       0x4000  /* MICSCD_LVL */
--#define WM8400_MICSCD_LVL_MASK                  0x4000  /* MICSCD_LVL */
--#define WM8400_MICSCD_LVL_SHIFT                     14  /* MICSCD_LVL */
--#define WM8400_MICSCD_LVL_WIDTH                      1  /* MICSCD_LVL */
--#define WM8400_JDL_LVL                          0x2000  /* JDL_LVL */
--#define WM8400_JDL_LVL_MASK                     0x2000  /* JDL_LVL */
--#define WM8400_JDL_LVL_SHIFT                        13  /* JDL_LVL */
--#define WM8400_JDL_LVL_WIDTH                         1  /* JDL_LVL */
--#define WM8400_JDR_LVL                          0x1000  /* JDR_LVL */
--#define WM8400_JDR_LVL_MASK                     0x1000  /* JDR_LVL */
--#define WM8400_JDR_LVL_SHIFT                        12  /* JDR_LVL */
--#define WM8400_JDR_LVL_WIDTH                         1  /* JDR_LVL */
--#define WM8400_CODEC_SEQ_END_LVL                0x0800  /* CODEC_SEQ_END_LVL */
--#define WM8400_CODEC_SEQ_END_LVL_MASK           0x0800  /* CODEC_SEQ_END_LVL */
--#define WM8400_CODEC_SEQ_END_LVL_SHIFT              11  /* CODEC_SEQ_END_LVL */
--#define WM8400_CODEC_SEQ_END_LVL_WIDTH               1  /* CODEC_SEQ_END_LVL */
--#define WM8400_CDEL_TO_LVL                      0x0400  /* CDEL_TO_LVL */
--#define WM8400_CDEL_TO_LVL_MASK                 0x0400  /* CDEL_TO_LVL */
--#define WM8400_CDEL_TO_LVL_SHIFT                    10  /* CDEL_TO_LVL */
--#define WM8400_CDEL_TO_LVL_WIDTH                     1  /* CDEL_TO_LVL */
--#define WM8400_CHIP_GT150_LVL                   0x0200  /* CHIP_GT150_LVL */
--#define WM8400_CHIP_GT150_LVL_MASK              0x0200  /* CHIP_GT150_LVL */
--#define WM8400_CHIP_GT150_LVL_SHIFT                  9  /* CHIP_GT150_LVL */
--#define WM8400_CHIP_GT150_LVL_WIDTH                  1  /* CHIP_GT150_LVL */
--#define WM8400_CHIP_GT115_LVL                   0x0100  /* CHIP_GT115_LVL */
--#define WM8400_CHIP_GT115_LVL_MASK              0x0100  /* CHIP_GT115_LVL */
--#define WM8400_CHIP_GT115_LVL_SHIFT                  8  /* CHIP_GT115_LVL */
--#define WM8400_CHIP_GT115_LVL_WIDTH                  1  /* CHIP_GT115_LVL */
--#define WM8400_LINE_CMP_LVL                     0x0080  /* LINE_CMP_LVL */
--#define WM8400_LINE_CMP_LVL_MASK                0x0080  /* LINE_CMP_LVL */
--#define WM8400_LINE_CMP_LVL_SHIFT                    7  /* LINE_CMP_LVL */
--#define WM8400_LINE_CMP_LVL_WIDTH                    1  /* LINE_CMP_LVL */
--#define WM8400_UVLO_LVL                         0x0040  /* UVLO_LVL */
--#define WM8400_UVLO_LVL_MASK                    0x0040  /* UVLO_LVL */
--#define WM8400_UVLO_LVL_SHIFT                        6  /* UVLO_LVL */
--#define WM8400_UVLO_LVL_WIDTH                        1  /* UVLO_LVL */
--#define WM8400_DC2_UV_LVL                       0x0020  /* DC2_UV_LVL */
--#define WM8400_DC2_UV_LVL_MASK                  0x0020  /* DC2_UV_LVL */
--#define WM8400_DC2_UV_LVL_SHIFT                      5  /* DC2_UV_LVL */
--#define WM8400_DC2_UV_LVL_WIDTH                      1  /* DC2_UV_LVL */
--#define WM8400_DC1_UV_LVL                       0x0010  /* DC1_UV_LVL */
--#define WM8400_DC1_UV_LVL_MASK                  0x0010  /* DC1_UV_LVL */
--#define WM8400_DC1_UV_LVL_SHIFT                      4  /* DC1_UV_LVL */
--#define WM8400_DC1_UV_LVL_WIDTH                      1  /* DC1_UV_LVL */
--#define WM8400_LDO4_UV_LVL                      0x0008  /* LDO4_UV_LVL */
--#define WM8400_LDO4_UV_LVL_MASK                 0x0008  /* LDO4_UV_LVL */
--#define WM8400_LDO4_UV_LVL_SHIFT                     3  /* LDO4_UV_LVL */
--#define WM8400_LDO4_UV_LVL_WIDTH                     1  /* LDO4_UV_LVL */
--#define WM8400_LDO3_UV_LVL                      0x0004  /* LDO3_UV_LVL */
--#define WM8400_LDO3_UV_LVL_MASK                 0x0004  /* LDO3_UV_LVL */
--#define WM8400_LDO3_UV_LVL_SHIFT                     2  /* LDO3_UV_LVL */
--#define WM8400_LDO3_UV_LVL_WIDTH                     1  /* LDO3_UV_LVL */
--#define WM8400_LDO2_UV_LVL                      0x0002  /* LDO2_UV_LVL */
--#define WM8400_LDO2_UV_LVL_MASK                 0x0002  /* LDO2_UV_LVL */
--#define WM8400_LDO2_UV_LVL_SHIFT                     1  /* LDO2_UV_LVL */
--#define WM8400_LDO2_UV_LVL_WIDTH                     1  /* LDO2_UV_LVL */
--#define WM8400_LDO1_UV_LVL                      0x0001  /* LDO1_UV_LVL */
--#define WM8400_LDO1_UV_LVL_MASK                 0x0001  /* LDO1_UV_LVL */
--#define WM8400_LDO1_UV_LVL_SHIFT                     0  /* LDO1_UV_LVL */
--#define WM8400_LDO1_UV_LVL_WIDTH                     1  /* LDO1_UV_LVL */
--
--/*
-- * R82 (0x52) - Shutdown Reason
-- */
--#define WM8400_SDR_CHIP_SOFTSD                  0x2000  /* SDR_CHIP_SOFTSD */
--#define WM8400_SDR_CHIP_SOFTSD_MASK             0x2000  /* SDR_CHIP_SOFTSD */
--#define WM8400_SDR_CHIP_SOFTSD_SHIFT                13  /* SDR_CHIP_SOFTSD */
--#define WM8400_SDR_CHIP_SOFTSD_WIDTH                 1  /* SDR_CHIP_SOFTSD */
--#define WM8400_SDR_NPDN                         0x0800  /* SDR_NPDN */
--#define WM8400_SDR_NPDN_MASK                    0x0800  /* SDR_NPDN */
--#define WM8400_SDR_NPDN_SHIFT                       11  /* SDR_NPDN */
--#define WM8400_SDR_NPDN_WIDTH                        1  /* SDR_NPDN */
--#define WM8400_SDR_CHIP_GT150                   0x0200  /* SDR_CHIP_GT150 */
--#define WM8400_SDR_CHIP_GT150_MASK              0x0200  /* SDR_CHIP_GT150 */
--#define WM8400_SDR_CHIP_GT150_SHIFT                  9  /* SDR_CHIP_GT150 */
--#define WM8400_SDR_CHIP_GT150_WIDTH                  1  /* SDR_CHIP_GT150 */
--#define WM8400_SDR_CHIP_GT115                   0x0100  /* SDR_CHIP_GT115 */
--#define WM8400_SDR_CHIP_GT115_MASK              0x0100  /* SDR_CHIP_GT115 */
--#define WM8400_SDR_CHIP_GT115_SHIFT                  8  /* SDR_CHIP_GT115 */
--#define WM8400_SDR_CHIP_GT115_WIDTH                  1  /* SDR_CHIP_GT115 */
--#define WM8400_SDR_LINE_CMP                     0x0080  /* SDR_LINE_CMP */
--#define WM8400_SDR_LINE_CMP_MASK                0x0080  /* SDR_LINE_CMP */
--#define WM8400_SDR_LINE_CMP_SHIFT                    7  /* SDR_LINE_CMP */
--#define WM8400_SDR_LINE_CMP_WIDTH                    1  /* SDR_LINE_CMP */
--#define WM8400_SDR_UVLO                         0x0040  /* SDR_UVLO */
--#define WM8400_SDR_UVLO_MASK                    0x0040  /* SDR_UVLO */
--#define WM8400_SDR_UVLO_SHIFT                        6  /* SDR_UVLO */
--#define WM8400_SDR_UVLO_WIDTH                        1  /* SDR_UVLO */
--#define WM8400_SDR_DC2_UV                       0x0020  /* SDR_DC2_UV */
--#define WM8400_SDR_DC2_UV_MASK                  0x0020  /* SDR_DC2_UV */
--#define WM8400_SDR_DC2_UV_SHIFT                      5  /* SDR_DC2_UV */
--#define WM8400_SDR_DC2_UV_WIDTH                      1  /* SDR_DC2_UV */
--#define WM8400_SDR_DC1_UV                       0x0010  /* SDR_DC1_UV */
--#define WM8400_SDR_DC1_UV_MASK                  0x0010  /* SDR_DC1_UV */
--#define WM8400_SDR_DC1_UV_SHIFT                      4  /* SDR_DC1_UV */
--#define WM8400_SDR_DC1_UV_WIDTH                      1  /* SDR_DC1_UV */
--#define WM8400_SDR_LDO4_UV                      0x0008  /* SDR_LDO4_UV */
--#define WM8400_SDR_LDO4_UV_MASK                 0x0008  /* SDR_LDO4_UV */
--#define WM8400_SDR_LDO4_UV_SHIFT                     3  /* SDR_LDO4_UV */
--#define WM8400_SDR_LDO4_UV_WIDTH                     1  /* SDR_LDO4_UV */
--#define WM8400_SDR_LDO3_UV                      0x0004  /* SDR_LDO3_UV */
--#define WM8400_SDR_LDO3_UV_MASK                 0x0004  /* SDR_LDO3_UV */
--#define WM8400_SDR_LDO3_UV_SHIFT                     2  /* SDR_LDO3_UV */
--#define WM8400_SDR_LDO3_UV_WIDTH                     1  /* SDR_LDO3_UV */
--#define WM8400_SDR_LDO2_UV                      0x0002  /* SDR_LDO2_UV */
--#define WM8400_SDR_LDO2_UV_MASK                 0x0002  /* SDR_LDO2_UV */
--#define WM8400_SDR_LDO2_UV_SHIFT                     1  /* SDR_LDO2_UV */
--#define WM8400_SDR_LDO2_UV_WIDTH                     1  /* SDR_LDO2_UV */
--#define WM8400_SDR_LDO1_UV                      0x0001  /* SDR_LDO1_UV */
--#define WM8400_SDR_LDO1_UV_MASK                 0x0001  /* SDR_LDO1_UV */
--#define WM8400_SDR_LDO1_UV_SHIFT                     0  /* SDR_LDO1_UV */
--#define WM8400_SDR_LDO1_UV_WIDTH                     1  /* SDR_LDO1_UV */
--
--/*
-- * R84 (0x54) - Line Circuits
-- */
--#define WM8400_BG_LINE_COMP                     0x8000  /* BG_LINE_COMP */
--#define WM8400_BG_LINE_COMP_MASK                0x8000  /* BG_LINE_COMP */
--#define WM8400_BG_LINE_COMP_SHIFT                   15  /* BG_LINE_COMP */
--#define WM8400_BG_LINE_COMP_WIDTH                    1  /* BG_LINE_COMP */
--#define WM8400_LINE_CMP_VTHI_MASK               0x00F0  /* LINE_CMP_VTHI - [7:4] */
--#define WM8400_LINE_CMP_VTHI_SHIFT                   4  /* LINE_CMP_VTHI - [7:4] */
--#define WM8400_LINE_CMP_VTHI_WIDTH                   4  /* LINE_CMP_VTHI - [7:4] */
--#define WM8400_LINE_CMP_VTHD_MASK               0x000F  /* LINE_CMP_VTHD - [3:0] */
--#define WM8400_LINE_CMP_VTHD_SHIFT                   0  /* LINE_CMP_VTHD - [3:0] */
--#define WM8400_LINE_CMP_VTHD_WIDTH                   4  /* LINE_CMP_VTHD - [3:0] */
--
--#endif
-diff --git a/include/linux/mfd/wm8400.h b/include/linux/mfd/wm8400.h
-deleted file mode 100644
-index a812d89e7cb3..000000000000
---- a/include/linux/mfd/wm8400.h
-+++ /dev/null
-@@ -1,27 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-or-later */
--/*
-- * wm8400 client interface
-- *
-- * Copyright 2008 Wolfson Microelectronics plc
-- */
--
--#ifndef __LINUX_MFD_WM8400_H
--#define __LINUX_MFD_WM8400_H
--
--#include <linux/regulator/machine.h>
--
--#define WM8400_LDO1  0
--#define WM8400_LDO2  1
--#define WM8400_LDO3  2
--#define WM8400_LDO4  3
--#define WM8400_DCDC1 4
--#define WM8400_DCDC2 5
--
--struct wm8400_platform_data {
--	int (*platform_init)(struct device *dev);
--};
--
--int wm8400_register_regulator(struct device *dev, int reg,
--			      struct regulator_init_data *initdata);
--
--#endif
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 1f7dc2c7e338..422e50ee0560 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -318,7 +318,6 @@ config SND_SOC_ALL_CODECS
- 	imply SND_SOC_WM5102
- 	imply SND_SOC_WM5110
- 	imply SND_SOC_WM8350
--	imply SND_SOC_WM8400
- 	imply SND_SOC_WM8510
- 	imply SND_SOC_WM8523
- 	imply SND_SOC_WM8524
-@@ -2556,11 +2555,6 @@ config SND_SOC_WM8350
- 	tristate
- 	depends on MFD_WM8350
+-MODULE_ALIAS("platform:adp5520-gpio");
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index d8c64f333462..ec3fe4632d8d 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -27,16 +27,6 @@ config KEYBOARD_ADC
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called adc_keys.
  
--config SND_SOC_WM8400
--	tristate
--	# FIXME nothing selects SND_SOC_WM8400??
--	depends on MFD_WM8400
+-config KEYBOARD_ADP5520
+-	tristate "Keypad Support for ADP5520 PMIC"
+-	depends on PMIC_ADP5520
+-	help
+-	  This option enables support for the keypad scan matrix
+-	  on Analog Devices ADP5520 PMICs.
 -
- config SND_SOC_WM8510
- 	tristate "Wolfson Microelectronics WM8510 CODEC"
- 	depends on SND_SOC_I2C_AND_SPI
-diff --git a/sound/soc/codecs/Makefile b/sound/soc/codecs/Makefile
-index f4f20a8e112e..3fc78f3b44ba 100644
---- a/sound/soc/codecs/Makefile
-+++ b/sound/soc/codecs/Makefile
-@@ -375,7 +375,6 @@ snd-soc-wm5100-y := wm5100.o wm5100-tables.o
- snd-soc-wm5102-y := wm5102.o
- snd-soc-wm5110-y := wm5110.o
- snd-soc-wm8350-y := wm8350.o
--snd-soc-wm8400-y := wm8400.o
- snd-soc-wm8510-y := wm8510.o
- snd-soc-wm8523-y := wm8523.o
- snd-soc-wm8524-y := wm8524.o
-@@ -825,7 +824,6 @@ obj-$(CONFIG_SND_SOC_WM5100)	+= snd-soc-wm5100.o
- obj-$(CONFIG_SND_SOC_WM5102)	+= snd-soc-wm5102.o
- obj-$(CONFIG_SND_SOC_WM5110)	+= snd-soc-wm5110.o
- obj-$(CONFIG_SND_SOC_WM8350)	+= snd-soc-wm8350.o
--obj-$(CONFIG_SND_SOC_WM8400)	+= snd-soc-wm8400.o
- obj-$(CONFIG_SND_SOC_WM8510)	+= snd-soc-wm8510.o
- obj-$(CONFIG_SND_SOC_WM8523)	+= snd-soc-wm8523.o
- obj-$(CONFIG_SND_SOC_WM8524)	+= snd-soc-wm8524.o
-diff --git a/sound/soc/codecs/wm8400.c b/sound/soc/codecs/wm8400.c
+-	  To compile this driver as a module, choose M here: the module will
+-	  be called adp5520-keys.
+-
+ config KEYBOARD_ADP5585
+ 	tristate "ADP558x keypad support"
+ 	depends on MFD_ADP5585
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 60bb7baf802f..c1a443c64962 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -6,7 +6,6 @@
+ # Each configuration option enables a list of files.
+ 
+ obj-$(CONFIG_KEYBOARD_ADC)		+= adc-keys.o
+-obj-$(CONFIG_KEYBOARD_ADP5520)		+= adp5520-keys.o
+ obj-$(CONFIG_KEYBOARD_ADP5585)		+= adp5585-keys.o
+ obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o
+ obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
+diff --git a/drivers/input/keyboard/adp5520-keys.c b/drivers/input/keyboard/adp5520-keys.c
 deleted file mode 100644
-index 0eecc8657a38..000000000000
---- a/sound/soc/codecs/wm8400.c
+index 980d739e45b8..000000000000
+--- a/drivers/input/keyboard/adp5520-keys.c
 +++ /dev/null
-@@ -1,1348 +0,0 @@
+@@ -1,191 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0-or-later
 -/*
-- * wm8400.c  --  WM8400 ALSA Soc Audio driver
+- * Keypad driver for Analog Devices ADP5520 MFD PMICs
 - *
-- * Copyright 2008-11 Wolfson Microelectronics PLC.
-- * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+- * Copyright 2009 Analog Devices Inc.
 - */
 -
 -#include <linux/module.h>
--#include <linux/moduleparam.h>
 -#include <linux/kernel.h>
--#include <linux/slab.h>
--#include <linux/init.h>
--#include <linux/delay.h>
--#include <linux/pm.h>
 -#include <linux/platform_device.h>
--#include <linux/regulator/consumer.h>
--#include <linux/mfd/wm8400-audio.h>
--#include <linux/mfd/wm8400-private.h>
--#include <linux/mfd/core.h>
--#include <sound/core.h>
--#include <sound/pcm.h>
--#include <sound/pcm_params.h>
--#include <sound/soc.h>
--#include <sound/initval.h>
--#include <sound/tlv.h>
+-#include <linux/input.h>
+-#include <linux/mfd/adp5520.h>
+-#include <linux/slab.h>
+-#include <linux/device.h>
 -
--#include "wm8400.h"
--
--static struct regulator_bulk_data power[] = {
--	{
--		.supply = "I2S1VDD",
--	},
--	{
--		.supply = "I2S2VDD",
--	},
--	{
--		.supply = "DCVDD",
--	},
--	{
--		.supply = "AVDD",
--	},
--	{
--		.supply = "FLLVDD",
--	},
--	{
--		.supply = "HPVDD",
--	},
--	{
--		.supply = "SPKVDD",
--	},
+-struct adp5520_keys {
+-	struct input_dev *input;
+-	struct notifier_block notifier;
+-	struct device *master;
+-	unsigned short keycode[ADP5520_KEYMAPSIZE];
 -};
 -
--/* codec private data */
--struct wm8400_priv {
--	struct wm8400 *wm8400;
--	u16 fake_register;
--	unsigned int sysclk;
--	unsigned int pcmclk;
--	int fll_in, fll_out;
--};
--
--static void wm8400_component_reset(struct snd_soc_component *component)
+-static void adp5520_keys_report_event(struct adp5520_keys *dev,
+-					unsigned short keymask, int value)
 -{
--	struct wm8400_priv *wm8400 = snd_soc_component_get_drvdata(component);
+-	int i;
 -
--	wm8400_reset_codec_reg_cache(wm8400->wm8400);
+-	for (i = 0; i < ADP5520_MAXKEYS; i++)
+-		if (keymask & (1 << i))
+-			input_report_key(dev->input, dev->keycode[i], value);
+-
+-	input_sync(dev->input);
 -}
 -
--static const DECLARE_TLV_DB_SCALE(in_pga_tlv, -1650, 3000, 0);
--
--static const DECLARE_TLV_DB_SCALE(out_mix_tlv, -2100, 0, 0);
--
--static const DECLARE_TLV_DB_SCALE(out_pga_tlv, -7300, 600, 0);
--
--static const DECLARE_TLV_DB_SCALE(out_dac_tlv, -7163, 0, 0);
--
--static const DECLARE_TLV_DB_SCALE(in_adc_tlv, -7163, 1763, 0);
--
--static const DECLARE_TLV_DB_SCALE(out_sidetone_tlv, -3600, 0, 0);
--
--static int wm8400_outpga_put_volsw_vu(struct snd_kcontrol *kcontrol,
--        struct snd_ctl_elem_value *ucontrol)
+-static int adp5520_keys_notifier(struct notifier_block *nb,
+-				 unsigned long event, void *data)
 -{
--	struct snd_soc_component *component = snd_kcontrol_chip(kcontrol);
--	struct soc_mixer_control *mc =
--		(struct soc_mixer_control *)kcontrol->private_value;
--	int reg = mc->reg;
--        int ret;
--        u16 val;
+-	struct adp5520_keys *dev;
+-	uint8_t reg_val_lo, reg_val_hi;
+-	unsigned short keymask;
 -
--        ret = snd_soc_put_volsw(kcontrol, ucontrol);
--        if (ret < 0)
--                return ret;
+-	dev = container_of(nb, struct adp5520_keys, notifier);
 -
--        /* now hit the volume update bits (always bit 8) */
--	val = snd_soc_component_read(component, reg);
--        return snd_soc_component_write(component, reg, val | 0x0100);
+-	if (event & ADP5520_KP_INT) {
+-		adp5520_read(dev->master, ADP5520_KP_INT_STAT_1, &reg_val_lo);
+-		adp5520_read(dev->master, ADP5520_KP_INT_STAT_2, &reg_val_hi);
+-
+-		keymask = (reg_val_hi << 8) | reg_val_lo;
+-		/* Read twice to clear */
+-		adp5520_read(dev->master, ADP5520_KP_INT_STAT_1, &reg_val_lo);
+-		adp5520_read(dev->master, ADP5520_KP_INT_STAT_2, &reg_val_hi);
+-		keymask |= (reg_val_hi << 8) | reg_val_lo;
+-		adp5520_keys_report_event(dev, keymask, 1);
+-	}
+-
+-	if (event & ADP5520_KR_INT) {
+-		adp5520_read(dev->master, ADP5520_KR_INT_STAT_1, &reg_val_lo);
+-		adp5520_read(dev->master, ADP5520_KR_INT_STAT_2, &reg_val_hi);
+-
+-		keymask = (reg_val_hi << 8) | reg_val_lo;
+-		/* Read twice to clear */
+-		adp5520_read(dev->master, ADP5520_KR_INT_STAT_1, &reg_val_lo);
+-		adp5520_read(dev->master, ADP5520_KR_INT_STAT_2, &reg_val_hi);
+-		keymask |= (reg_val_hi << 8) | reg_val_lo;
+-		adp5520_keys_report_event(dev, keymask, 0);
+-	}
+-
+-	return 0;
 -}
 -
--#define WM8400_OUTPGA_SINGLE_R_TLV(xname, reg, shift, max, invert, tlv_array) \
--	SOC_SINGLE_EXT_TLV(xname, reg, shift, max, invert, \
--		snd_soc_get_volsw, wm8400_outpga_put_volsw_vu, tlv_array)
+-static int adp5520_keys_probe(struct platform_device *pdev)
+-{
+-	struct adp5520_keys_platform_data *pdata = dev_get_platdata(&pdev->dev);
+-	struct input_dev *input;
+-	struct adp5520_keys *dev;
+-	int ret, i;
+-	unsigned char en_mask, ctl_mask = 0;
 -
+-	if (pdev->id != ID_ADP5520) {
+-		dev_err(&pdev->dev, "only ADP5520 supports Keypad\n");
+-		return -EINVAL;
+-	}
 -
--static const char *wm8400_digital_sidetone[] =
--	{"None", "Left ADC", "Right ADC", "Reserved"};
+-	if (!pdata) {
+-		dev_err(&pdev->dev, "missing platform data\n");
+-		return -EINVAL;
+-	}
 -
--static SOC_ENUM_SINGLE_DECL(wm8400_left_digital_sidetone_enum,
--			    WM8400_DIGITAL_SIDE_TONE,
--			    WM8400_ADC_TO_DACL_SHIFT,
--			    wm8400_digital_sidetone);
+-	if (!(pdata->rows_en_mask && pdata->cols_en_mask))
+-		return -EINVAL;
 -
--static SOC_ENUM_SINGLE_DECL(wm8400_right_digital_sidetone_enum,
--			    WM8400_DIGITAL_SIDE_TONE,
--			    WM8400_ADC_TO_DACR_SHIFT,
--			    wm8400_digital_sidetone);
+-	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+-	if (!dev) {
+-		dev_err(&pdev->dev, "failed to alloc memory\n");
+-		return -ENOMEM;
+-	}
 -
--static const char *wm8400_adcmode[] =
--	{"Hi-fi mode", "Voice mode 1", "Voice mode 2", "Voice mode 3"};
+-	input = devm_input_allocate_device(&pdev->dev);
+-	if (!input)
+-		return -ENOMEM;
 -
--static SOC_ENUM_SINGLE_DECL(wm8400_right_adcmode_enum,
--			    WM8400_ADC_CTRL,
--			    WM8400_ADC_HPF_CUT_SHIFT,
--			    wm8400_adcmode);
+-	dev->master = pdev->dev.parent;
+-	dev->input = input;
 -
--static const struct snd_kcontrol_new wm8400_snd_controls[] = {
--/* INMIXL */
--SOC_SINGLE("LIN12 PGA Boost", WM8400_INPUT_MIXER3, WM8400_L12MNBST_SHIFT,
--	   1, 0),
--SOC_SINGLE("LIN34 PGA Boost", WM8400_INPUT_MIXER3, WM8400_L34MNBST_SHIFT,
--	   1, 0),
--/* INMIXR */
--SOC_SINGLE("RIN12 PGA Boost", WM8400_INPUT_MIXER3, WM8400_R12MNBST_SHIFT,
--	   1, 0),
--SOC_SINGLE("RIN34 PGA Boost", WM8400_INPUT_MIXER3, WM8400_R34MNBST_SHIFT,
--	   1, 0),
+-	input->name = pdev->name;
+-	input->phys = "adp5520-keys/input0";
+-	input->dev.parent = &pdev->dev;
 -
--/* LOMIX */
--SOC_SINGLE_TLV("LOMIX LIN3 Bypass Volume", WM8400_OUTPUT_MIXER3,
--	WM8400_LLI3LOVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("LOMIX RIN12 PGA Bypass Volume", WM8400_OUTPUT_MIXER3,
--	WM8400_LR12LOVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("LOMIX LIN12 PGA Bypass Volume", WM8400_OUTPUT_MIXER3,
--	WM8400_LL12LOVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("LOMIX RIN3 Bypass Volume", WM8400_OUTPUT_MIXER5,
--	WM8400_LRI3LOVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("LOMIX AINRMUX Bypass Volume", WM8400_OUTPUT_MIXER5,
--	WM8400_LRBLOVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("LOMIX AINLMUX Bypass Volume", WM8400_OUTPUT_MIXER5,
--	WM8400_LRBLOVOL_SHIFT, 7, 0, out_mix_tlv),
+-	input->id.bustype = BUS_I2C;
+-	input->id.vendor = 0x0001;
+-	input->id.product = 0x5520;
+-	input->id.version = 0x0001;
 -
--/* ROMIX */
--SOC_SINGLE_TLV("ROMIX RIN3 Bypass Volume", WM8400_OUTPUT_MIXER4,
--	WM8400_RRI3ROVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("ROMIX LIN12 PGA Bypass Volume", WM8400_OUTPUT_MIXER4,
--	WM8400_RL12ROVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("ROMIX RIN12 PGA Bypass Volume", WM8400_OUTPUT_MIXER4,
--	WM8400_RR12ROVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("ROMIX LIN3 Bypass Volume", WM8400_OUTPUT_MIXER6,
--	WM8400_RLI3ROVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("ROMIX AINLMUX Bypass Volume", WM8400_OUTPUT_MIXER6,
--	WM8400_RLBROVOL_SHIFT, 7, 0, out_mix_tlv),
--SOC_SINGLE_TLV("ROMIX AINRMUX Bypass Volume", WM8400_OUTPUT_MIXER6,
--	WM8400_RRBROVOL_SHIFT, 7, 0, out_mix_tlv),
+-	input->keycodesize = sizeof(dev->keycode[0]);
+-	input->keycodemax = pdata->keymapsize;
+-	input->keycode = dev->keycode;
 -
--/* LOUT */
--WM8400_OUTPGA_SINGLE_R_TLV("LOUT Volume", WM8400_LEFT_OUTPUT_VOLUME,
--	WM8400_LOUTVOL_SHIFT, WM8400_LOUTVOL_MASK, 0, out_pga_tlv),
--SOC_SINGLE("LOUT ZC", WM8400_LEFT_OUTPUT_VOLUME, WM8400_LOZC_SHIFT, 1, 0),
+-	memcpy(dev->keycode, pdata->keymap,
+-		pdata->keymapsize * input->keycodesize);
 -
--/* ROUT */
--WM8400_OUTPGA_SINGLE_R_TLV("ROUT Volume", WM8400_RIGHT_OUTPUT_VOLUME,
--	WM8400_ROUTVOL_SHIFT, WM8400_ROUTVOL_MASK, 0, out_pga_tlv),
--SOC_SINGLE("ROUT ZC", WM8400_RIGHT_OUTPUT_VOLUME, WM8400_ROZC_SHIFT, 1, 0),
+-	/* setup input device */
+-	__set_bit(EV_KEY, input->evbit);
 -
--/* LOPGA */
--WM8400_OUTPGA_SINGLE_R_TLV("LOPGA Volume", WM8400_LEFT_OPGA_VOLUME,
--	WM8400_LOPGAVOL_SHIFT, WM8400_LOPGAVOL_MASK, 0, out_pga_tlv),
--SOC_SINGLE("LOPGA ZC Switch", WM8400_LEFT_OPGA_VOLUME,
--	WM8400_LOPGAZC_SHIFT, 1, 0),
+-	if (pdata->repeat)
+-		__set_bit(EV_REP, input->evbit);
 -
--/* ROPGA */
--WM8400_OUTPGA_SINGLE_R_TLV("ROPGA Volume", WM8400_RIGHT_OPGA_VOLUME,
--	WM8400_ROPGAVOL_SHIFT, WM8400_ROPGAVOL_MASK, 0, out_pga_tlv),
--SOC_SINGLE("ROPGA ZC Switch", WM8400_RIGHT_OPGA_VOLUME,
--	WM8400_ROPGAZC_SHIFT, 1, 0),
+-	for (i = 0; i < input->keycodemax; i++)
+-		__set_bit(dev->keycode[i], input->keybit);
+-	__clear_bit(KEY_RESERVED, input->keybit);
 -
--SOC_SINGLE("LON Mute Switch", WM8400_LINE_OUTPUTS_VOLUME,
--	WM8400_LONMUTE_SHIFT, 1, 0),
--SOC_SINGLE("LOP Mute Switch", WM8400_LINE_OUTPUTS_VOLUME,
--	WM8400_LOPMUTE_SHIFT, 1, 0),
--SOC_SINGLE("LOP Attenuation Switch", WM8400_LINE_OUTPUTS_VOLUME,
--	WM8400_LOATTN_SHIFT, 1, 0),
--SOC_SINGLE("RON Mute Switch", WM8400_LINE_OUTPUTS_VOLUME,
--	WM8400_RONMUTE_SHIFT, 1, 0),
--SOC_SINGLE("ROP Mute Switch", WM8400_LINE_OUTPUTS_VOLUME,
--	WM8400_ROPMUTE_SHIFT, 1, 0),
--SOC_SINGLE("ROP Attenuation Switch", WM8400_LINE_OUTPUTS_VOLUME,
--	WM8400_ROATTN_SHIFT, 1, 0),
+-	ret = input_register_device(input);
+-	if (ret) {
+-		dev_err(&pdev->dev, "unable to register input device\n");
+-		return ret;
+-	}
 -
--SOC_SINGLE("OUT3 Mute Switch", WM8400_OUT3_4_VOLUME,
--	WM8400_OUT3MUTE_SHIFT, 1, 0),
--SOC_SINGLE("OUT3 Attenuation Switch", WM8400_OUT3_4_VOLUME,
--	WM8400_OUT3ATTN_SHIFT, 1, 0),
+-	en_mask = pdata->rows_en_mask | pdata->cols_en_mask;
 -
--SOC_SINGLE("OUT4 Mute Switch", WM8400_OUT3_4_VOLUME,
--	WM8400_OUT4MUTE_SHIFT, 1, 0),
--SOC_SINGLE("OUT4 Attenuation Switch", WM8400_OUT3_4_VOLUME,
--	WM8400_OUT4ATTN_SHIFT, 1, 0),
+-	ret = adp5520_set_bits(dev->master, ADP5520_GPIO_CFG_1, en_mask);
 -
--SOC_SINGLE("Speaker Mode Switch", WM8400_CLASSD1,
--	WM8400_CDMODE_SHIFT, 1, 0),
+-	if (en_mask & ADP5520_COL_C3)
+-		ctl_mask |= ADP5520_C3_MODE;
 -
--SOC_SINGLE("Speaker Output Attenuation Volume", WM8400_SPEAKER_VOLUME,
--	WM8400_SPKATTN_SHIFT, WM8400_SPKATTN_MASK, 0),
--SOC_SINGLE("Speaker DC Boost Volume", WM8400_CLASSD3,
--	WM8400_DCGAIN_SHIFT, 6, 0),
--SOC_SINGLE("Speaker AC Boost Volume", WM8400_CLASSD3,
--	WM8400_ACGAIN_SHIFT, 6, 0),
+-	if (en_mask & ADP5520_ROW_R3)
+-		ctl_mask |= ADP5520_R3_MODE;
 -
--WM8400_OUTPGA_SINGLE_R_TLV("Left DAC Digital Volume",
--	WM8400_LEFT_DAC_DIGITAL_VOLUME, WM8400_DACL_VOL_SHIFT,
--	127, 0, out_dac_tlv),
+-	if (ctl_mask)
+-		ret |= adp5520_set_bits(dev->master, ADP5520_LED_CONTROL,
+-			ctl_mask);
 -
--WM8400_OUTPGA_SINGLE_R_TLV("Right DAC Digital Volume",
--	WM8400_RIGHT_DAC_DIGITAL_VOLUME, WM8400_DACR_VOL_SHIFT,
--	127, 0, out_dac_tlv),
+-	ret |= adp5520_set_bits(dev->master, ADP5520_GPIO_PULLUP,
+-		pdata->rows_en_mask);
 -
--SOC_ENUM("Left Digital Sidetone", wm8400_left_digital_sidetone_enum),
--SOC_ENUM("Right Digital Sidetone", wm8400_right_digital_sidetone_enum),
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to write\n");
+-		return -EIO;
+-	}
 -
--SOC_SINGLE_TLV("Left Digital Sidetone Volume", WM8400_DIGITAL_SIDE_TONE,
--	WM8400_ADCL_DAC_SVOL_SHIFT, 15, 0, out_sidetone_tlv),
--SOC_SINGLE_TLV("Right Digital Sidetone Volume", WM8400_DIGITAL_SIDE_TONE,
--	WM8400_ADCR_DAC_SVOL_SHIFT, 15, 0, out_sidetone_tlv),
+-	dev->notifier.notifier_call = adp5520_keys_notifier;
+-	ret = adp5520_register_notifier(dev->master, &dev->notifier,
+-			ADP5520_KP_IEN | ADP5520_KR_IEN);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to register notifier\n");
+-		return ret;
+-	}
 -
--SOC_SINGLE("ADC Digital High Pass Filter Switch", WM8400_ADC_CTRL,
--	WM8400_ADC_HPF_ENA_SHIFT, 1, 0),
+-	platform_set_drvdata(pdev, dev);
+-	return 0;
+-}
 -
--SOC_ENUM("ADC HPF Mode", wm8400_right_adcmode_enum),
+-static void adp5520_keys_remove(struct platform_device *pdev)
+-{
+-	struct adp5520_keys *dev = platform_get_drvdata(pdev);
 -
--WM8400_OUTPGA_SINGLE_R_TLV("Left ADC Digital Volume",
--	WM8400_LEFT_ADC_DIGITAL_VOLUME,
--	WM8400_ADCL_VOL_SHIFT,
--	WM8400_ADCL_VOL_MASK,
--	0,
--	in_adc_tlv),
+-	adp5520_unregister_notifier(dev->master, &dev->notifier,
+-				ADP5520_KP_IEN | ADP5520_KR_IEN);
+-}
 -
--WM8400_OUTPGA_SINGLE_R_TLV("Right ADC Digital Volume",
--	WM8400_RIGHT_ADC_DIGITAL_VOLUME,
--	WM8400_ADCR_VOL_SHIFT,
--	WM8400_ADCR_VOL_MASK,
--	0,
--	in_adc_tlv),
--
--WM8400_OUTPGA_SINGLE_R_TLV("LIN12 Volume",
--	WM8400_LEFT_LINE_INPUT_1_2_VOLUME,
--	WM8400_LIN12VOL_SHIFT,
--	WM8400_LIN12VOL_MASK,
--	0,
--	in_pga_tlv),
--
--SOC_SINGLE("LIN12 ZC Switch", WM8400_LEFT_LINE_INPUT_1_2_VOLUME,
--	WM8400_LI12ZC_SHIFT, 1, 0),
--
--SOC_SINGLE("LIN12 Mute Switch", WM8400_LEFT_LINE_INPUT_1_2_VOLUME,
--	WM8400_LI12MUTE_SHIFT, 1, 0),
--
--WM8400_OUTPGA_SINGLE_R_TLV("LIN34 Volume",
--	WM8400_LEFT_LINE_INPUT_3_4_VOLUME,
--	WM8400_LIN34VOL_SHIFT,
--	WM8400_LIN34VOL_MASK,
--	0,
--	in_pga_tlv),
--
--SOC_SINGLE("LIN34 ZC Switch", WM8400_LEFT_LINE_INPUT_3_4_VOLUME,
--	WM8400_LI34ZC_SHIFT, 1, 0),
--
--SOC_SINGLE("LIN34 Mute Switch", WM8400_LEFT_LINE_INPUT_3_4_VOLUME,
--	WM8400_LI34MUTE_SHIFT, 1, 0),
--
--WM8400_OUTPGA_SINGLE_R_TLV("RIN12 Volume",
--	WM8400_RIGHT_LINE_INPUT_1_2_VOLUME,
--	WM8400_RIN12VOL_SHIFT,
--	WM8400_RIN12VOL_MASK,
--	0,
--	in_pga_tlv),
--
--SOC_SINGLE("RIN12 ZC Switch", WM8400_RIGHT_LINE_INPUT_1_2_VOLUME,
--	WM8400_RI12ZC_SHIFT, 1, 0),
--
--SOC_SINGLE("RIN12 Mute Switch", WM8400_RIGHT_LINE_INPUT_1_2_VOLUME,
--	WM8400_RI12MUTE_SHIFT, 1, 0),
--
--WM8400_OUTPGA_SINGLE_R_TLV("RIN34 Volume",
--	WM8400_RIGHT_LINE_INPUT_3_4_VOLUME,
--	WM8400_RIN34VOL_SHIFT,
--	WM8400_RIN34VOL_MASK,
--	0,
--	in_pga_tlv),
--
--SOC_SINGLE("RIN34 ZC Switch", WM8400_RIGHT_LINE_INPUT_3_4_VOLUME,
--	WM8400_RI34ZC_SHIFT, 1, 0),
--
--SOC_SINGLE("RIN34 Mute Switch", WM8400_RIGHT_LINE_INPUT_3_4_VOLUME,
--	WM8400_RI34MUTE_SHIFT, 1, 0),
--
+-static struct platform_driver adp5520_keys_driver = {
+-	.driver	= {
+-		.name	= "adp5520-keys",
+-	},
+-	.probe		= adp5520_keys_probe,
+-	.remove		= adp5520_keys_remove,
 -};
+-module_platform_driver(adp5520_keys_driver);
 -
+-MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+-MODULE_DESCRIPTION("Keys ADP5520 Driver");
+-MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:adp5520-keys");
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index d0d3182236be..5d6fc2a06016 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -718,17 +718,6 @@ config LEDS_LT3593
+ 	  LT3593 controller. This controller uses a special one-wire pulse
+ 	  coding protocol to set the brightness.
+ 
+-config LEDS_ADP5520
+-	tristate "LED Support for ADP5520/ADP5501 PMIC"
+-	depends on LEDS_CLASS
+-	depends on PMIC_ADP5520
+-	help
+-	  This option enables support for on-chip LED drivers found
+-	  on Analog Devices ADP5520/ADP5501 PMICs.
+-
+-	  To compile this driver as a module, choose M here: the module will
+-	  be called leds-adp5520.
+-
+ config LEDS_MAX5970
+ 	tristate "LED Support for Maxim 5970"
+ 	depends on LEDS_CLASS
+diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+index a68244bd50fb..96deebbca9d5 100644
+--- a/drivers/leds/Makefile
++++ b/drivers/leds/Makefile
+@@ -11,7 +11,6 @@ obj-$(CONFIG_LEDS_KUNIT_TEST)		+= led-test.o
+ # LED Platform Drivers (keep this sorted, M-| sort)
+ obj-$(CONFIG_LEDS_88PM860X)		+= leds-88pm860x.o
+ obj-$(CONFIG_LEDS_ACER_A500)		+= leds-acer-a500.o
+-obj-$(CONFIG_LEDS_ADP5520)		+= leds-adp5520.o
+ obj-$(CONFIG_LEDS_AN30259A)		+= leds-an30259a.o
+ obj-$(CONFIG_LEDS_APU)			+= leds-apu.o
+ obj-$(CONFIG_LEDS_ARIEL)		+= leds-ariel.o
+diff --git a/drivers/leds/leds-adp5520.c b/drivers/leds/leds-adp5520.c
+deleted file mode 100644
+index 13e5bc80e56e..000000000000
+--- a/drivers/leds/leds-adp5520.c
++++ /dev/null
+@@ -1,195 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-or-later
 -/*
-- * _DAPM_ Controls
+- * LEDs driver for Analog Devices ADP5520/ADP5501 MFD PMICs
+- *
+- * Copyright 2009 Analog Devices Inc.
+- *
+- * Loosely derived from leds-da903x:
+- * Copyright (C) 2008 Compulab, Ltd.
+- *	Mike Rapoport <mike@compulab.co.il>
+- *
+- * Copyright (C) 2006-2008 Marvell International Ltd.
+- *	Eric Miao <eric.miao@marvell.com>
 - */
 -
--static int outmixer_event (struct snd_soc_dapm_widget *w,
--	struct snd_kcontrol * kcontrol, int event)
--{
--	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
--	struct soc_mixer_control *mc =
--		(struct soc_mixer_control *)kcontrol->private_value;
--	struct wm8400_priv *wm8400 = snd_soc_component_get_drvdata(component);
--	u32 reg_shift = mc->shift;
--	int ret = 0;
--	u16 reg;
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/platform_device.h>
+-#include <linux/leds.h>
+-#include <linux/mfd/adp5520.h>
+-#include <linux/slab.h>
 -
--	switch (reg_shift) {
--	case WM8400_SPEAKER_MIXER | (WM8400_LDSPK << 8) :
--		reg = snd_soc_component_read(component, WM8400_OUTPUT_MIXER1);
--		if (reg & WM8400_LDLO) {
--			dev_warn(wm8400->wm8400->dev,
--			"Cannot set as Output Mixer 1 LDLO Set\n");
--			ret = -1;
--		}
+-struct adp5520_led {
+-	struct led_classdev	cdev;
+-	struct device		*master;
+-	int			id;
+-	int			flags;
+-};
+-
+-static int adp5520_led_set(struct led_classdev *led_cdev,
+-			   enum led_brightness value)
+-{
+-	struct adp5520_led *led;
+-
+-	led = container_of(led_cdev, struct adp5520_led, cdev);
+-	return adp5520_write(led->master, ADP5520_LED1_CURRENT + led->id - 1,
+-			 value >> 2);
+-}
+-
+-static int adp5520_led_setup(struct adp5520_led *led)
+-{
+-	struct device *dev = led->master;
+-	int flags = led->flags;
+-	int ret = 0;
+-
+-	switch (led->id) {
+-	case FLAG_ID_ADP5520_LED1_ADP5501_LED0:
+-		ret |= adp5520_set_bits(dev, ADP5520_LED_TIME,
+-					(flags >> ADP5520_FLAG_OFFT_SHIFT) &
+-					ADP5520_FLAG_OFFT_MASK);
+-		ret |= adp5520_set_bits(dev, ADP5520_LED_CONTROL,
+-					ADP5520_LED1_EN);
 -		break;
--	case WM8400_SPEAKER_MIXER | (WM8400_RDSPK << 8):
--		reg = snd_soc_component_read(component, WM8400_OUTPUT_MIXER2);
--		if (reg & WM8400_RDRO) {
--			dev_warn(wm8400->wm8400->dev,
--			"Cannot set as Output Mixer 2 RDRO Set\n");
--			ret = -1;
--		}
+-	case FLAG_ID_ADP5520_LED2_ADP5501_LED1:
+-		ret |= adp5520_set_bits(dev,  ADP5520_LED_TIME,
+-					((flags >> ADP5520_FLAG_OFFT_SHIFT) &
+-					ADP5520_FLAG_OFFT_MASK) << 2);
+-		ret |= adp5520_clr_bits(dev, ADP5520_LED_CONTROL,
+-					 ADP5520_R3_MODE);
+-		ret |= adp5520_set_bits(dev, ADP5520_LED_CONTROL,
+-					ADP5520_LED2_EN);
 -		break;
--	case WM8400_OUTPUT_MIXER1 | (WM8400_LDLO << 8):
--		reg = snd_soc_component_read(component, WM8400_SPEAKER_MIXER);
--		if (reg & WM8400_LDSPK) {
--			dev_warn(wm8400->wm8400->dev,
--			"Cannot set as Speaker Mixer LDSPK Set\n");
--			ret = -1;
--		}
--		break;
--	case WM8400_OUTPUT_MIXER2 | (WM8400_RDRO << 8):
--		reg = snd_soc_component_read(component, WM8400_SPEAKER_MIXER);
--		if (reg & WM8400_RDSPK) {
--			dev_warn(wm8400->wm8400->dev,
--			"Cannot set as Speaker Mixer RDSPK Set\n");
--			ret = -1;
--		}
+-	case FLAG_ID_ADP5520_LED3_ADP5501_LED2:
+-		ret |= adp5520_set_bits(dev,  ADP5520_LED_TIME,
+-					((flags >> ADP5520_FLAG_OFFT_SHIFT) &
+-					ADP5520_FLAG_OFFT_MASK) << 4);
+-		ret |= adp5520_clr_bits(dev, ADP5520_LED_CONTROL,
+-					ADP5520_C3_MODE);
+-		ret |= adp5520_set_bits(dev, ADP5520_LED_CONTROL,
+-					ADP5520_LED3_EN);
 -		break;
 -	}
 -
 -	return ret;
 -}
 -
--/* INMIX dB values */
--static const DECLARE_TLV_DB_SCALE(in_mix_tlv, -1200, 600, 0);
--
--/* Left In PGA Connections */
--static const struct snd_kcontrol_new wm8400_dapm_lin12_pga_controls[] = {
--SOC_DAPM_SINGLE("LIN1 Switch", WM8400_INPUT_MIXER2, WM8400_LMN1_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LIN2 Switch", WM8400_INPUT_MIXER2, WM8400_LMP2_SHIFT, 1, 0),
--};
--
--static const struct snd_kcontrol_new wm8400_dapm_lin34_pga_controls[] = {
--SOC_DAPM_SINGLE("LIN3 Switch", WM8400_INPUT_MIXER2, WM8400_LMN3_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LIN4 Switch", WM8400_INPUT_MIXER2, WM8400_LMP4_SHIFT, 1, 0),
--};
--
--/* Right In PGA Connections */
--static const struct snd_kcontrol_new wm8400_dapm_rin12_pga_controls[] = {
--SOC_DAPM_SINGLE("RIN1 Switch", WM8400_INPUT_MIXER2, WM8400_RMN1_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("RIN2 Switch", WM8400_INPUT_MIXER2, WM8400_RMP2_SHIFT, 1, 0),
--};
--
--static const struct snd_kcontrol_new wm8400_dapm_rin34_pga_controls[] = {
--SOC_DAPM_SINGLE("RIN3 Switch", WM8400_INPUT_MIXER2, WM8400_RMN3_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("RIN4 Switch", WM8400_INPUT_MIXER2, WM8400_RMP4_SHIFT, 1, 0),
--};
--
--/* INMIXL */
--static const struct snd_kcontrol_new wm8400_dapm_inmixl_controls[] = {
--SOC_DAPM_SINGLE_TLV("Record Left Volume", WM8400_INPUT_MIXER3,
--	WM8400_LDBVOL_SHIFT, WM8400_LDBVOL_MASK, 0, in_mix_tlv),
--SOC_DAPM_SINGLE_TLV("LIN2 Volume", WM8400_INPUT_MIXER5, WM8400_LI2BVOL_SHIFT,
--	7, 0, in_mix_tlv),
--SOC_DAPM_SINGLE("LINPGA12 Switch", WM8400_INPUT_MIXER3, WM8400_L12MNB_SHIFT,
--		1, 0),
--SOC_DAPM_SINGLE("LINPGA34 Switch", WM8400_INPUT_MIXER3, WM8400_L34MNB_SHIFT,
--		1, 0),
--};
--
--/* INMIXR */
--static const struct snd_kcontrol_new wm8400_dapm_inmixr_controls[] = {
--SOC_DAPM_SINGLE_TLV("Record Right Volume", WM8400_INPUT_MIXER4,
--	WM8400_RDBVOL_SHIFT, WM8400_RDBVOL_MASK, 0, in_mix_tlv),
--SOC_DAPM_SINGLE_TLV("RIN2 Volume", WM8400_INPUT_MIXER6, WM8400_RI2BVOL_SHIFT,
--	7, 0, in_mix_tlv),
--SOC_DAPM_SINGLE("RINPGA12 Switch", WM8400_INPUT_MIXER3, WM8400_L12MNB_SHIFT,
--	1, 0),
--SOC_DAPM_SINGLE("RINPGA34 Switch", WM8400_INPUT_MIXER3, WM8400_L34MNB_SHIFT,
--	1, 0),
--};
--
--/* AINLMUX */
--static const char *wm8400_ainlmux[] =
--	{"INMIXL Mix", "RXVOICE Mix", "DIFFINL Mix"};
--
--static SOC_ENUM_SINGLE_DECL(wm8400_ainlmux_enum,
--			    WM8400_INPUT_MIXER1,
--			    WM8400_AINLMODE_SHIFT,
--			    wm8400_ainlmux);
--
--static const struct snd_kcontrol_new wm8400_dapm_ainlmux_controls =
--SOC_DAPM_ENUM("Route", wm8400_ainlmux_enum);
--
--/* DIFFINL */
--
--/* AINRMUX */
--static const char *wm8400_ainrmux[] =
--	{"INMIXR Mix", "RXVOICE Mix", "DIFFINR Mix"};
--
--static SOC_ENUM_SINGLE_DECL(wm8400_ainrmux_enum,
--			    WM8400_INPUT_MIXER1,
--			    WM8400_AINRMODE_SHIFT,
--			    wm8400_ainrmux);
--
--static const struct snd_kcontrol_new wm8400_dapm_ainrmux_controls =
--SOC_DAPM_ENUM("Route", wm8400_ainrmux_enum);
--
--/* LOMIX */
--static const struct snd_kcontrol_new wm8400_dapm_lomix_controls[] = {
--SOC_DAPM_SINGLE("LOMIX Right ADC Bypass Switch", WM8400_OUTPUT_MIXER1,
--	WM8400_LRBLO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOMIX Left ADC Bypass Switch", WM8400_OUTPUT_MIXER1,
--	WM8400_LLBLO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOMIX RIN3 Bypass Switch", WM8400_OUTPUT_MIXER1,
--	WM8400_LRI3LO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOMIX LIN3 Bypass Switch", WM8400_OUTPUT_MIXER1,
--	WM8400_LLI3LO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOMIX RIN12 PGA Bypass Switch", WM8400_OUTPUT_MIXER1,
--	WM8400_LR12LO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOMIX LIN12 PGA Bypass Switch", WM8400_OUTPUT_MIXER1,
--	WM8400_LL12LO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOMIX Left DAC Switch", WM8400_OUTPUT_MIXER1,
--	WM8400_LDLO_SHIFT, 1, 0),
--};
--
--/* ROMIX */
--static const struct snd_kcontrol_new wm8400_dapm_romix_controls[] = {
--SOC_DAPM_SINGLE("ROMIX Left ADC Bypass Switch", WM8400_OUTPUT_MIXER2,
--	WM8400_RLBRO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROMIX Right ADC Bypass Switch", WM8400_OUTPUT_MIXER2,
--	WM8400_RRBRO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROMIX LIN3 Bypass Switch", WM8400_OUTPUT_MIXER2,
--	WM8400_RLI3RO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROMIX RIN3 Bypass Switch", WM8400_OUTPUT_MIXER2,
--	WM8400_RRI3RO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROMIX LIN12 PGA Bypass Switch", WM8400_OUTPUT_MIXER2,
--	WM8400_RL12RO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROMIX RIN12 PGA Bypass Switch", WM8400_OUTPUT_MIXER2,
--	WM8400_RR12RO_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROMIX Right DAC Switch", WM8400_OUTPUT_MIXER2,
--	WM8400_RDRO_SHIFT, 1, 0),
--};
--
--/* LONMIX */
--static const struct snd_kcontrol_new wm8400_dapm_lonmix_controls[] = {
--SOC_DAPM_SINGLE("LONMIX Left Mixer PGA Switch", WM8400_LINE_MIXER1,
--	WM8400_LLOPGALON_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LONMIX Right Mixer PGA Switch", WM8400_LINE_MIXER1,
--	WM8400_LROPGALON_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LONMIX Inverted LOP Switch", WM8400_LINE_MIXER1,
--	WM8400_LOPLON_SHIFT, 1, 0),
--};
--
--/* LOPMIX */
--static const struct snd_kcontrol_new wm8400_dapm_lopmix_controls[] = {
--SOC_DAPM_SINGLE("LOPMIX Right Mic Bypass Switch", WM8400_LINE_MIXER1,
--	WM8400_LR12LOP_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOPMIX Left Mic Bypass Switch", WM8400_LINE_MIXER1,
--	WM8400_LL12LOP_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("LOPMIX Left Mixer PGA Switch", WM8400_LINE_MIXER1,
--	WM8400_LLOPGALOP_SHIFT, 1, 0),
--};
--
--/* RONMIX */
--static const struct snd_kcontrol_new wm8400_dapm_ronmix_controls[] = {
--SOC_DAPM_SINGLE("RONMIX Right Mixer PGA Switch", WM8400_LINE_MIXER2,
--	WM8400_RROPGARON_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("RONMIX Left Mixer PGA Switch", WM8400_LINE_MIXER2,
--	WM8400_RLOPGARON_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("RONMIX Inverted ROP Switch", WM8400_LINE_MIXER2,
--	WM8400_ROPRON_SHIFT, 1, 0),
--};
--
--/* ROPMIX */
--static const struct snd_kcontrol_new wm8400_dapm_ropmix_controls[] = {
--SOC_DAPM_SINGLE("ROPMIX Left Mic Bypass Switch", WM8400_LINE_MIXER2,
--	WM8400_RL12ROP_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROPMIX Right Mic Bypass Switch", WM8400_LINE_MIXER2,
--	WM8400_RR12ROP_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("ROPMIX Right Mixer PGA Switch", WM8400_LINE_MIXER2,
--	WM8400_RROPGAROP_SHIFT, 1, 0),
--};
--
--/* OUT3MIX */
--static const struct snd_kcontrol_new wm8400_dapm_out3mix_controls[] = {
--SOC_DAPM_SINGLE("OUT3MIX LIN4/RXP Bypass Switch", WM8400_OUT3_4_MIXER,
--	WM8400_LI4O3_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("OUT3MIX Left Out PGA Switch", WM8400_OUT3_4_MIXER,
--	WM8400_LPGAO3_SHIFT, 1, 0),
--};
--
--/* OUT4MIX */
--static const struct snd_kcontrol_new wm8400_dapm_out4mix_controls[] = {
--SOC_DAPM_SINGLE("OUT4MIX Right Out PGA Switch", WM8400_OUT3_4_MIXER,
--	WM8400_RPGAO4_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("OUT4MIX RIN4/RXP Bypass Switch", WM8400_OUT3_4_MIXER,
--	WM8400_RI4O4_SHIFT, 1, 0),
--};
--
--/* SPKMIX */
--static const struct snd_kcontrol_new wm8400_dapm_spkmix_controls[] = {
--SOC_DAPM_SINGLE("SPKMIX LIN2 Bypass Switch", WM8400_SPEAKER_MIXER,
--	WM8400_LI2SPK_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("SPKMIX LADC Bypass Switch", WM8400_SPEAKER_MIXER,
--	WM8400_LB2SPK_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("SPKMIX Left Mixer PGA Switch", WM8400_SPEAKER_MIXER,
--	WM8400_LOPGASPK_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("SPKMIX Left DAC Switch", WM8400_SPEAKER_MIXER,
--	WM8400_LDSPK_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("SPKMIX Right DAC Switch", WM8400_SPEAKER_MIXER,
--	WM8400_RDSPK_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("SPKMIX Right Mixer PGA Switch", WM8400_SPEAKER_MIXER,
--	WM8400_ROPGASPK_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("SPKMIX RADC Bypass Switch", WM8400_SPEAKER_MIXER,
--	WM8400_RL12ROP_SHIFT, 1, 0),
--SOC_DAPM_SINGLE("SPKMIX RIN2 Bypass Switch", WM8400_SPEAKER_MIXER,
--	WM8400_RI2SPK_SHIFT, 1, 0),
--};
--
--static const struct snd_soc_dapm_widget wm8400_dapm_widgets[] = {
--/* Input Side */
--/* Input Lines */
--SND_SOC_DAPM_INPUT("LIN1"),
--SND_SOC_DAPM_INPUT("LIN2"),
--SND_SOC_DAPM_INPUT("LIN3"),
--SND_SOC_DAPM_INPUT("LIN4/RXN"),
--SND_SOC_DAPM_INPUT("RIN3"),
--SND_SOC_DAPM_INPUT("RIN4/RXP"),
--SND_SOC_DAPM_INPUT("RIN1"),
--SND_SOC_DAPM_INPUT("RIN2"),
--SND_SOC_DAPM_INPUT("Internal ADC Source"),
--
--/* DACs */
--SND_SOC_DAPM_ADC("Left ADC", "Left Capture", WM8400_POWER_MANAGEMENT_2,
--	WM8400_ADCL_ENA_SHIFT, 0),
--SND_SOC_DAPM_ADC("Right ADC", "Right Capture", WM8400_POWER_MANAGEMENT_2,
--	WM8400_ADCR_ENA_SHIFT, 0),
--
--/* Input PGAs */
--SND_SOC_DAPM_MIXER("LIN12 PGA", WM8400_POWER_MANAGEMENT_2,
--		   WM8400_LIN12_ENA_SHIFT,
--		   0, &wm8400_dapm_lin12_pga_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_lin12_pga_controls)),
--SND_SOC_DAPM_MIXER("LIN34 PGA", WM8400_POWER_MANAGEMENT_2,
--		   WM8400_LIN34_ENA_SHIFT,
--		   0, &wm8400_dapm_lin34_pga_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_lin34_pga_controls)),
--SND_SOC_DAPM_MIXER("RIN12 PGA", WM8400_POWER_MANAGEMENT_2,
--		   WM8400_RIN12_ENA_SHIFT,
--		   0, &wm8400_dapm_rin12_pga_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_rin12_pga_controls)),
--SND_SOC_DAPM_MIXER("RIN34 PGA", WM8400_POWER_MANAGEMENT_2,
--		   WM8400_RIN34_ENA_SHIFT,
--		   0, &wm8400_dapm_rin34_pga_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_rin34_pga_controls)),
--
--SND_SOC_DAPM_SUPPLY("INL", WM8400_POWER_MANAGEMENT_2, WM8400_AINL_ENA_SHIFT,
--		    0, NULL, 0),
--SND_SOC_DAPM_SUPPLY("INR", WM8400_POWER_MANAGEMENT_2, WM8400_AINR_ENA_SHIFT,
--		    0, NULL, 0),
--
--/* INMIXL */
--SND_SOC_DAPM_MIXER("INMIXL", SND_SOC_NOPM, 0, 0,
--	&wm8400_dapm_inmixl_controls[0],
--	ARRAY_SIZE(wm8400_dapm_inmixl_controls)),
--
--/* AINLMUX */
--SND_SOC_DAPM_MUX("AILNMUX", SND_SOC_NOPM, 0, 0, &wm8400_dapm_ainlmux_controls),
--
--/* INMIXR */
--SND_SOC_DAPM_MIXER("INMIXR", SND_SOC_NOPM, 0, 0,
--	&wm8400_dapm_inmixr_controls[0],
--	ARRAY_SIZE(wm8400_dapm_inmixr_controls)),
--
--/* AINRMUX */
--SND_SOC_DAPM_MUX("AIRNMUX", SND_SOC_NOPM, 0, 0, &wm8400_dapm_ainrmux_controls),
--
--/* Output Side */
--/* DACs */
--SND_SOC_DAPM_DAC("Left DAC", "Left Playback", WM8400_POWER_MANAGEMENT_3,
--	WM8400_DACL_ENA_SHIFT, 0),
--SND_SOC_DAPM_DAC("Right DAC", "Right Playback", WM8400_POWER_MANAGEMENT_3,
--	WM8400_DACR_ENA_SHIFT, 0),
--
--/* LOMIX */
--SND_SOC_DAPM_MIXER_E("LOMIX", WM8400_POWER_MANAGEMENT_3,
--		     WM8400_LOMIX_ENA_SHIFT,
--		     0, &wm8400_dapm_lomix_controls[0],
--		     ARRAY_SIZE(wm8400_dapm_lomix_controls),
--		     outmixer_event, SND_SOC_DAPM_PRE_REG),
--
--/* LONMIX */
--SND_SOC_DAPM_MIXER("LONMIX", WM8400_POWER_MANAGEMENT_3, WM8400_LON_ENA_SHIFT,
--		   0, &wm8400_dapm_lonmix_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_lonmix_controls)),
--
--/* LOPMIX */
--SND_SOC_DAPM_MIXER("LOPMIX", WM8400_POWER_MANAGEMENT_3, WM8400_LOP_ENA_SHIFT,
--		   0, &wm8400_dapm_lopmix_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_lopmix_controls)),
--
--/* OUT3MIX */
--SND_SOC_DAPM_MIXER("OUT3MIX", WM8400_POWER_MANAGEMENT_1, WM8400_OUT3_ENA_SHIFT,
--		   0, &wm8400_dapm_out3mix_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_out3mix_controls)),
--
--/* SPKMIX */
--SND_SOC_DAPM_MIXER_E("SPKMIX", WM8400_POWER_MANAGEMENT_1, WM8400_SPK_ENA_SHIFT,
--		     0, &wm8400_dapm_spkmix_controls[0],
--		     ARRAY_SIZE(wm8400_dapm_spkmix_controls), outmixer_event,
--		     SND_SOC_DAPM_PRE_REG),
--
--/* OUT4MIX */
--SND_SOC_DAPM_MIXER("OUT4MIX", WM8400_POWER_MANAGEMENT_1, WM8400_OUT4_ENA_SHIFT,
--	0, &wm8400_dapm_out4mix_controls[0],
--	ARRAY_SIZE(wm8400_dapm_out4mix_controls)),
--
--/* ROPMIX */
--SND_SOC_DAPM_MIXER("ROPMIX", WM8400_POWER_MANAGEMENT_3, WM8400_ROP_ENA_SHIFT,
--		   0, &wm8400_dapm_ropmix_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_ropmix_controls)),
--
--/* RONMIX */
--SND_SOC_DAPM_MIXER("RONMIX", WM8400_POWER_MANAGEMENT_3, WM8400_RON_ENA_SHIFT,
--		   0, &wm8400_dapm_ronmix_controls[0],
--		   ARRAY_SIZE(wm8400_dapm_ronmix_controls)),
--
--/* ROMIX */
--SND_SOC_DAPM_MIXER_E("ROMIX", WM8400_POWER_MANAGEMENT_3,
--		     WM8400_ROMIX_ENA_SHIFT,
--		     0, &wm8400_dapm_romix_controls[0],
--		     ARRAY_SIZE(wm8400_dapm_romix_controls),
--		     outmixer_event, SND_SOC_DAPM_PRE_REG),
--
--/* LOUT PGA */
--SND_SOC_DAPM_PGA("LOUT PGA", WM8400_POWER_MANAGEMENT_1, WM8400_LOUT_ENA_SHIFT,
--		 0, NULL, 0),
--
--/* ROUT PGA */
--SND_SOC_DAPM_PGA("ROUT PGA", WM8400_POWER_MANAGEMENT_1, WM8400_ROUT_ENA_SHIFT,
--		 0, NULL, 0),
--
--/* LOPGA */
--SND_SOC_DAPM_PGA("LOPGA", WM8400_POWER_MANAGEMENT_3, WM8400_LOPGA_ENA_SHIFT, 0,
--	NULL, 0),
--
--/* ROPGA */
--SND_SOC_DAPM_PGA("ROPGA", WM8400_POWER_MANAGEMENT_3, WM8400_ROPGA_ENA_SHIFT, 0,
--	NULL, 0),
--
--/* MICBIAS */
--SND_SOC_DAPM_SUPPLY("MICBIAS", WM8400_POWER_MANAGEMENT_1,
--		    WM8400_MIC1BIAS_ENA_SHIFT, 0, NULL, 0),
--
--SND_SOC_DAPM_OUTPUT("LON"),
--SND_SOC_DAPM_OUTPUT("LOP"),
--SND_SOC_DAPM_OUTPUT("OUT3"),
--SND_SOC_DAPM_OUTPUT("LOUT"),
--SND_SOC_DAPM_OUTPUT("SPKN"),
--SND_SOC_DAPM_OUTPUT("SPKP"),
--SND_SOC_DAPM_OUTPUT("ROUT"),
--SND_SOC_DAPM_OUTPUT("OUT4"),
--SND_SOC_DAPM_OUTPUT("ROP"),
--SND_SOC_DAPM_OUTPUT("RON"),
--
--SND_SOC_DAPM_OUTPUT("Internal DAC Sink"),
--};
--
--static const struct snd_soc_dapm_route wm8400_dapm_routes[] = {
--	/* Make DACs turn on when playing even if not mixed into any outputs */
--	{"Internal DAC Sink", NULL, "Left DAC"},
--	{"Internal DAC Sink", NULL, "Right DAC"},
--
--	/* Make ADCs turn on when recording
--	 * even if not mixed from any inputs */
--	{"Left ADC", NULL, "Internal ADC Source"},
--	{"Right ADC", NULL, "Internal ADC Source"},
--
--	/* Input Side */
--	/* LIN12 PGA */
--	{"LIN12 PGA", "LIN1 Switch", "LIN1"},
--	{"LIN12 PGA", "LIN2 Switch", "LIN2"},
--	/* LIN34 PGA */
--	{"LIN34 PGA", "LIN3 Switch", "LIN3"},
--	{"LIN34 PGA", "LIN4 Switch", "LIN4/RXN"},
--	/* INMIXL */
--	{"INMIXL", NULL, "INL"},
--	{"INMIXL", "Record Left Volume", "LOMIX"},
--	{"INMIXL", "LIN2 Volume", "LIN2"},
--	{"INMIXL", "LINPGA12 Switch", "LIN12 PGA"},
--	{"INMIXL", "LINPGA34 Switch", "LIN34 PGA"},
--	/* AILNMUX */
--	{"AILNMUX", NULL, "INL"},
--	{"AILNMUX", "INMIXL Mix", "INMIXL"},
--	{"AILNMUX", "DIFFINL Mix", "LIN12 PGA"},
--	{"AILNMUX", "DIFFINL Mix", "LIN34 PGA"},
--	{"AILNMUX", "RXVOICE Mix", "LIN4/RXN"},
--	{"AILNMUX", "RXVOICE Mix", "RIN4/RXP"},
--	/* ADC */
--	{"Left ADC", NULL, "AILNMUX"},
--
--	/* RIN12 PGA */
--	{"RIN12 PGA", "RIN1 Switch", "RIN1"},
--	{"RIN12 PGA", "RIN2 Switch", "RIN2"},
--	/* RIN34 PGA */
--	{"RIN34 PGA", "RIN3 Switch", "RIN3"},
--	{"RIN34 PGA", "RIN4 Switch", "RIN4/RXP"},
--	/* INMIXR */
--	{"INMIXR", NULL, "INR"},
--	{"INMIXR", "Record Right Volume", "ROMIX"},
--	{"INMIXR", "RIN2 Volume", "RIN2"},
--	{"INMIXR", "RINPGA12 Switch", "RIN12 PGA"},
--	{"INMIXR", "RINPGA34 Switch", "RIN34 PGA"},
--	/* AIRNMUX */
--	{"AIRNMUX", NULL, "INR"},
--	{"AIRNMUX", "INMIXR Mix", "INMIXR"},
--	{"AIRNMUX", "DIFFINR Mix", "RIN12 PGA"},
--	{"AIRNMUX", "DIFFINR Mix", "RIN34 PGA"},
--	{"AIRNMUX", "RXVOICE Mix", "LIN4/RXN"},
--	{"AIRNMUX", "RXVOICE Mix", "RIN4/RXP"},
--	/* ADC */
--	{"Right ADC", NULL, "AIRNMUX"},
--
--	/* LOMIX */
--	{"LOMIX", "LOMIX RIN3 Bypass Switch", "RIN3"},
--	{"LOMIX", "LOMIX LIN3 Bypass Switch", "LIN3"},
--	{"LOMIX", "LOMIX LIN12 PGA Bypass Switch", "LIN12 PGA"},
--	{"LOMIX", "LOMIX RIN12 PGA Bypass Switch", "RIN12 PGA"},
--	{"LOMIX", "LOMIX Right ADC Bypass Switch", "AIRNMUX"},
--	{"LOMIX", "LOMIX Left ADC Bypass Switch", "AILNMUX"},
--	{"LOMIX", "LOMIX Left DAC Switch", "Left DAC"},
--
--	/* ROMIX */
--	{"ROMIX", "ROMIX RIN3 Bypass Switch", "RIN3"},
--	{"ROMIX", "ROMIX LIN3 Bypass Switch", "LIN3"},
--	{"ROMIX", "ROMIX LIN12 PGA Bypass Switch", "LIN12 PGA"},
--	{"ROMIX", "ROMIX RIN12 PGA Bypass Switch", "RIN12 PGA"},
--	{"ROMIX", "ROMIX Right ADC Bypass Switch", "AIRNMUX"},
--	{"ROMIX", "ROMIX Left ADC Bypass Switch", "AILNMUX"},
--	{"ROMIX", "ROMIX Right DAC Switch", "Right DAC"},
--
--	/* SPKMIX */
--	{"SPKMIX", "SPKMIX LIN2 Bypass Switch", "LIN2"},
--	{"SPKMIX", "SPKMIX RIN2 Bypass Switch", "RIN2"},
--	{"SPKMIX", "SPKMIX LADC Bypass Switch", "AILNMUX"},
--	{"SPKMIX", "SPKMIX RADC Bypass Switch", "AIRNMUX"},
--	{"SPKMIX", "SPKMIX Left Mixer PGA Switch", "LOPGA"},
--	{"SPKMIX", "SPKMIX Right Mixer PGA Switch", "ROPGA"},
--	{"SPKMIX", "SPKMIX Right DAC Switch", "Right DAC"},
--	{"SPKMIX", "SPKMIX Left DAC Switch", "Right DAC"},
--
--	/* LONMIX */
--	{"LONMIX", "LONMIX Left Mixer PGA Switch", "LOPGA"},
--	{"LONMIX", "LONMIX Right Mixer PGA Switch", "ROPGA"},
--	{"LONMIX", "LONMIX Inverted LOP Switch", "LOPMIX"},
--
--	/* LOPMIX */
--	{"LOPMIX", "LOPMIX Right Mic Bypass Switch", "RIN12 PGA"},
--	{"LOPMIX", "LOPMIX Left Mic Bypass Switch", "LIN12 PGA"},
--	{"LOPMIX", "LOPMIX Left Mixer PGA Switch", "LOPGA"},
--
--	/* OUT3MIX */
--	{"OUT3MIX", "OUT3MIX LIN4/RXP Bypass Switch", "LIN4/RXN"},
--	{"OUT3MIX", "OUT3MIX Left Out PGA Switch", "LOPGA"},
--
--	/* OUT4MIX */
--	{"OUT4MIX", "OUT4MIX Right Out PGA Switch", "ROPGA"},
--	{"OUT4MIX", "OUT4MIX RIN4/RXP Bypass Switch", "RIN4/RXP"},
--
--	/* RONMIX */
--	{"RONMIX", "RONMIX Right Mixer PGA Switch", "ROPGA"},
--	{"RONMIX", "RONMIX Left Mixer PGA Switch", "LOPGA"},
--	{"RONMIX", "RONMIX Inverted ROP Switch", "ROPMIX"},
--
--	/* ROPMIX */
--	{"ROPMIX", "ROPMIX Left Mic Bypass Switch", "LIN12 PGA"},
--	{"ROPMIX", "ROPMIX Right Mic Bypass Switch", "RIN12 PGA"},
--	{"ROPMIX", "ROPMIX Right Mixer PGA Switch", "ROPGA"},
--
--	/* Out Mixer PGAs */
--	{"LOPGA", NULL, "LOMIX"},
--	{"ROPGA", NULL, "ROMIX"},
--
--	{"LOUT PGA", NULL, "LOMIX"},
--	{"ROUT PGA", NULL, "ROMIX"},
--
--	/* Output Pins */
--	{"LON", NULL, "LONMIX"},
--	{"LOP", NULL, "LOPMIX"},
--	{"OUT3", NULL, "OUT3MIX"},
--	{"LOUT", NULL, "LOUT PGA"},
--	{"SPKN", NULL, "SPKMIX"},
--	{"ROUT", NULL, "ROUT PGA"},
--	{"OUT4", NULL, "OUT4MIX"},
--	{"ROP", NULL, "ROPMIX"},
--	{"RON", NULL, "RONMIX"},
--};
--
--/*
-- * Clock after FLL and dividers
-- */
--static int wm8400_set_dai_sysclk(struct snd_soc_dai *codec_dai,
--		int clk_id, unsigned int freq, int dir)
+-static int adp5520_led_prepare(struct platform_device *pdev)
 -{
--	struct snd_soc_component *component = codec_dai->component;
--	struct wm8400_priv *wm8400 = snd_soc_component_get_drvdata(component);
+-	struct adp5520_leds_platform_data *pdata = dev_get_platdata(&pdev->dev);
+-	struct device *dev = pdev->dev.parent;
+-	int ret = 0;
 -
--	wm8400->sysclk = freq;
--	return 0;
+-	ret |= adp5520_write(dev, ADP5520_LED1_CURRENT, 0);
+-	ret |= adp5520_write(dev, ADP5520_LED2_CURRENT, 0);
+-	ret |= adp5520_write(dev, ADP5520_LED3_CURRENT, 0);
+-	ret |= adp5520_write(dev, ADP5520_LED_TIME, pdata->led_on_time << 6);
+-	ret |= adp5520_write(dev, ADP5520_LED_FADE, FADE_VAL(pdata->fade_in,
+-		 pdata->fade_out));
+-
+-	return ret;
 -}
 -
--struct fll_factors {
--	u16 n;
--	u16 k;
--	u16 outdiv;
--	u16 fratio;
--	u16 freq_ref;
--};
--
--#define FIXED_FLL_SIZE ((1 << 16) * 10)
--
--static int fll_factors(struct wm8400_priv *wm8400, struct fll_factors *factors,
--		       unsigned int Fref, unsigned int Fout)
+-static int adp5520_led_probe(struct platform_device *pdev)
 -{
--	u64 Kpart;
--	unsigned int K, Nmod, target;
+-	struct adp5520_leds_platform_data *pdata = dev_get_platdata(&pdev->dev);
+-	struct adp5520_led *led, *led_dat;
+-	struct led_info *cur_led;
+-	int ret, i;
 -
--	factors->outdiv = 2;
--	while (Fout * factors->outdiv <  90000000 ||
--	       Fout * factors->outdiv > 100000000) {
--		factors->outdiv *= 2;
--		if (factors->outdiv > 32) {
--			dev_err(wm8400->wm8400->dev,
--				"Unsupported FLL output frequency %uHz\n",
--				Fout);
--			return -EINVAL;
--		}
--	}
--	target = Fout * factors->outdiv;
--	factors->outdiv = factors->outdiv >> 2;
--
--	if (Fref < 48000)
--		factors->freq_ref = 1;
--	else
--		factors->freq_ref = 0;
--
--	if (Fref < 1000000)
--		factors->fratio = 9;
--	else
--		factors->fratio = 0;
--
--	/* Ensure we have a fractional part */
--	do {
--		if (Fref < 1000000)
--			factors->fratio--;
--		else
--			factors->fratio++;
--
--		if (factors->fratio < 1 || factors->fratio > 8) {
--			dev_err(wm8400->wm8400->dev,
--				"Unable to calculate FRATIO\n");
--			return -EINVAL;
--		}
--
--		factors->n = target / (Fref * factors->fratio);
--		Nmod = target % (Fref * factors->fratio);
--	} while (Nmod == 0);
--
--	/* Calculate fractional part - scale up so we can round. */
--	Kpart = FIXED_FLL_SIZE * (long long)Nmod;
--
--	do_div(Kpart, (Fref * factors->fratio));
--
--	K = Kpart & 0xFFFFFFFF;
--
--	if ((K % 10) >= 5)
--		K += 5;
--
--	/* Move down to proper range now rounding is done */
--	factors->k = K / 10;
--
--	dev_dbg(wm8400->wm8400->dev,
--		"FLL: Fref=%u Fout=%u N=%x K=%x, FRATIO=%x OUTDIV=%x\n",
--		Fref, Fout,
--		factors->n, factors->k, factors->fratio, factors->outdiv);
--
--	return 0;
--}
--
--static int wm8400_set_dai_pll(struct snd_soc_dai *codec_dai, int pll_id,
--			      int source, unsigned int freq_in,
--			      unsigned int freq_out)
--{
--	struct snd_soc_component *component = codec_dai->component;
--	struct wm8400_priv *wm8400 = snd_soc_component_get_drvdata(component);
--	struct fll_factors factors;
--	int ret;
--	u16 reg;
--
--	if (freq_in == wm8400->fll_in && freq_out == wm8400->fll_out)
--		return 0;
--
--	if (freq_out) {
--		ret = fll_factors(wm8400, &factors, freq_in, freq_out);
--		if (ret != 0)
--			return ret;
--	} else {
--		/* Bodge GCC 4.4.0 uninitialised variable warning - it
--		 * doesn't seem capable of working out that we exit if
--		 * freq_out is 0 before any of the uses. */
--		memset(&factors, 0, sizeof(factors));
+-	if (pdata == NULL) {
+-		dev_err(&pdev->dev, "missing platform data\n");
+-		return -ENODEV;
 -	}
 -
--	wm8400->fll_out = freq_out;
--	wm8400->fll_in = freq_in;
--
--	/* We *must* disable the FLL before any changes */
--	reg = snd_soc_component_read(component, WM8400_POWER_MANAGEMENT_2);
--	reg &= ~WM8400_FLL_ENA;
--	snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_2, reg);
--
--	reg = snd_soc_component_read(component, WM8400_FLL_CONTROL_1);
--	reg &= ~WM8400_FLL_OSC_ENA;
--	snd_soc_component_write(component, WM8400_FLL_CONTROL_1, reg);
--
--	if (!freq_out)
--		return 0;
--
--	reg &= ~(WM8400_FLL_REF_FREQ | WM8400_FLL_FRATIO_MASK);
--	reg |= WM8400_FLL_FRAC | factors.fratio;
--	reg |= factors.freq_ref << WM8400_FLL_REF_FREQ_SHIFT;
--	snd_soc_component_write(component, WM8400_FLL_CONTROL_1, reg);
--
--	snd_soc_component_write(component, WM8400_FLL_CONTROL_2, factors.k);
--	snd_soc_component_write(component, WM8400_FLL_CONTROL_3, factors.n);
--
--	reg = snd_soc_component_read(component, WM8400_FLL_CONTROL_4);
--	reg &= ~WM8400_FLL_OUTDIV_MASK;
--	reg |= factors.outdiv;
--	snd_soc_component_write(component, WM8400_FLL_CONTROL_4, reg);
--
--	return 0;
--}
--
--/*
-- * Sets ADC and Voice DAC format.
-- */
--static int wm8400_set_dai_fmt(struct snd_soc_dai *codec_dai,
--		unsigned int fmt)
--{
--	struct snd_soc_component *component = codec_dai->component;
--	u16 audio1, audio3;
--
--	audio1 = snd_soc_component_read(component, WM8400_AUDIO_INTERFACE_1);
--	audio3 = snd_soc_component_read(component, WM8400_AUDIO_INTERFACE_3);
--
--	/* set master/slave audio interface */
--	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
--	case SND_SOC_DAIFMT_CBC_CFC:
--		audio3 &= ~WM8400_AIF_MSTR1;
--		break;
--	case SND_SOC_DAIFMT_CBP_CFP:
--		audio3 |= WM8400_AIF_MSTR1;
--		break;
--	default:
--		return -EINVAL;
+-	if (pdata->num_leds > ADP5520_01_MAXLEDS) {
+-		dev_err(&pdev->dev, "can't handle more than %d LEDS\n",
+-				 ADP5520_01_MAXLEDS);
+-		return -EFAULT;
 -	}
 -
--	audio1 &= ~WM8400_AIF_FMT_MASK;
--
--	/* interface format */
--	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
--	case SND_SOC_DAIFMT_I2S:
--		audio1 |= WM8400_AIF_FMT_I2S;
--		audio1 &= ~WM8400_AIF_LRCLK_INV;
--		break;
--	case SND_SOC_DAIFMT_RIGHT_J:
--		audio1 |= WM8400_AIF_FMT_RIGHTJ;
--		audio1 &= ~WM8400_AIF_LRCLK_INV;
--		break;
--	case SND_SOC_DAIFMT_LEFT_J:
--		audio1 |= WM8400_AIF_FMT_LEFTJ;
--		audio1 &= ~WM8400_AIF_LRCLK_INV;
--		break;
--	case SND_SOC_DAIFMT_DSP_A:
--		audio1 |= WM8400_AIF_FMT_DSP;
--		audio1 &= ~WM8400_AIF_LRCLK_INV;
--		break;
--	case SND_SOC_DAIFMT_DSP_B:
--		audio1 |= WM8400_AIF_FMT_DSP | WM8400_AIF_LRCLK_INV;
--		break;
--	default:
--		return -EINVAL;
--	}
--
--	snd_soc_component_write(component, WM8400_AUDIO_INTERFACE_1, audio1);
--	snd_soc_component_write(component, WM8400_AUDIO_INTERFACE_3, audio3);
--	return 0;
--}
--
--static int wm8400_set_dai_clkdiv(struct snd_soc_dai *codec_dai,
--		int div_id, int div)
--{
--	struct snd_soc_component *component = codec_dai->component;
--	u16 reg;
--
--	switch (div_id) {
--	case WM8400_MCLK_DIV:
--		reg = snd_soc_component_read(component, WM8400_CLOCKING_2) &
--			~WM8400_MCLK_DIV_MASK;
--		snd_soc_component_write(component, WM8400_CLOCKING_2, reg | div);
--		break;
--	case WM8400_DACCLK_DIV:
--		reg = snd_soc_component_read(component, WM8400_CLOCKING_2) &
--			~WM8400_DAC_CLKDIV_MASK;
--		snd_soc_component_write(component, WM8400_CLOCKING_2, reg | div);
--		break;
--	case WM8400_ADCCLK_DIV:
--		reg = snd_soc_component_read(component, WM8400_CLOCKING_2) &
--			~WM8400_ADC_CLKDIV_MASK;
--		snd_soc_component_write(component, WM8400_CLOCKING_2, reg | div);
--		break;
--	case WM8400_BCLK_DIV:
--		reg = snd_soc_component_read(component, WM8400_CLOCKING_1) &
--			~WM8400_BCLK_DIV_MASK;
--		snd_soc_component_write(component, WM8400_CLOCKING_1, reg | div);
--		break;
--	default:
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
--/*
-- * Set PCM DAI bit size and sample rate.
-- */
--static int wm8400_hw_params(struct snd_pcm_substream *substream,
--	struct snd_pcm_hw_params *params,
--	struct snd_soc_dai *dai)
--{
--	struct snd_soc_component *component = dai->component;
--	u16 audio1 = snd_soc_component_read(component, WM8400_AUDIO_INTERFACE_1);
--
--	audio1 &= ~WM8400_AIF_WL_MASK;
--	/* bit size */
--	switch (params_width(params)) {
--	case 16:
--		break;
--	case 20:
--		audio1 |= WM8400_AIF_WL_20BITS;
--		break;
--	case 24:
--		audio1 |= WM8400_AIF_WL_24BITS;
--		break;
--	case 32:
--		audio1 |= WM8400_AIF_WL_32BITS;
--		break;
--	}
--
--	snd_soc_component_write(component, WM8400_AUDIO_INTERFACE_1, audio1);
--	return 0;
--}
--
--static int wm8400_mute(struct snd_soc_dai *dai, int mute, int direction)
--{
--	struct snd_soc_component *component = dai->component;
--	u16 val = snd_soc_component_read(component, WM8400_DAC_CTRL) & ~WM8400_DAC_MUTE;
--
--	if (mute)
--		snd_soc_component_write(component, WM8400_DAC_CTRL, val | WM8400_DAC_MUTE);
--	else
--		snd_soc_component_write(component, WM8400_DAC_CTRL, val);
--
--	return 0;
--}
--
--/* TODO: set bias for best performance at standby */
--static int wm8400_set_bias_level(struct snd_soc_component *component,
--				 enum snd_soc_bias_level level)
--{
--	struct wm8400_priv *wm8400 = snd_soc_component_get_drvdata(component);
--	struct snd_soc_dapm_context *dapm = snd_soc_component_to_dapm(component);
--	u16 val;
--	int ret;
--
--	switch (level) {
--	case SND_SOC_BIAS_ON:
--		break;
--
--	case SND_SOC_BIAS_PREPARE:
--		/* VMID=2*50k */
--		val = snd_soc_component_read(component, WM8400_POWER_MANAGEMENT_1) &
--			~WM8400_VMID_MODE_MASK;
--		snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1, val | 0x2);
--		break;
--
--	case SND_SOC_BIAS_STANDBY:
--		if (snd_soc_dapm_get_bias_level(dapm) == SND_SOC_BIAS_OFF) {
--			ret = regulator_bulk_enable(ARRAY_SIZE(power),
--						    &power[0]);
--			if (ret != 0) {
--				dev_err(wm8400->wm8400->dev,
--					"Failed to enable regulators: %d\n",
--					ret);
--				return ret;
--			}
--
--			snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1,
--				     WM8400_CODEC_ENA | WM8400_SYSCLK_ENA);
--
--			/* Enable POBCTRL, SOFT_ST, VMIDTOG and BUFDCOPEN */
--			snd_soc_component_write(component, WM8400_ANTIPOP2, WM8400_SOFTST |
--				     WM8400_BUFDCOPEN | WM8400_POBCTRL);
--
--			msleep(50);
--
--			/* Enable VREF & VMID at 2x50k */
--			val = snd_soc_component_read(component, WM8400_POWER_MANAGEMENT_1);
--			val |= 0x2 | WM8400_VREF_ENA;
--			snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1, val);
--
--			/* Enable BUFIOEN */
--			snd_soc_component_write(component, WM8400_ANTIPOP2, WM8400_SOFTST |
--				     WM8400_BUFDCOPEN | WM8400_POBCTRL |
--				     WM8400_BUFIOEN);
--
--			/* disable POBCTRL, SOFT_ST and BUFDCOPEN */
--			snd_soc_component_write(component, WM8400_ANTIPOP2, WM8400_BUFIOEN);
--		}
--
--		/* VMID=2*300k */
--		val = snd_soc_component_read(component, WM8400_POWER_MANAGEMENT_1) &
--			~WM8400_VMID_MODE_MASK;
--		snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1, val | 0x4);
--		break;
--
--	case SND_SOC_BIAS_OFF:
--		/* Enable POBCTRL and SOFT_ST */
--		snd_soc_component_write(component, WM8400_ANTIPOP2, WM8400_SOFTST |
--			WM8400_POBCTRL | WM8400_BUFIOEN);
--
--		/* Enable POBCTRL, SOFT_ST and BUFDCOPEN */
--		snd_soc_component_write(component, WM8400_ANTIPOP2, WM8400_SOFTST |
--			WM8400_BUFDCOPEN | WM8400_POBCTRL |
--			WM8400_BUFIOEN);
--
--		/* mute DAC */
--		val = snd_soc_component_read(component, WM8400_DAC_CTRL);
--		snd_soc_component_write(component, WM8400_DAC_CTRL, val | WM8400_DAC_MUTE);
--
--		/* Enable any disabled outputs */
--		val = snd_soc_component_read(component, WM8400_POWER_MANAGEMENT_1);
--		val |= WM8400_SPK_ENA | WM8400_OUT3_ENA |
--			WM8400_OUT4_ENA | WM8400_LOUT_ENA |
--			WM8400_ROUT_ENA;
--		snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1, val);
--
--		/* Disable VMID */
--		val &= ~WM8400_VMID_MODE_MASK;
--		snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1, val);
--
--		msleep(300);
--
--		/* Enable all output discharge bits */
--		snd_soc_component_write(component, WM8400_ANTIPOP1, WM8400_DIS_LLINE |
--			WM8400_DIS_RLINE | WM8400_DIS_OUT3 |
--			WM8400_DIS_OUT4 | WM8400_DIS_LOUT |
--			WM8400_DIS_ROUT);
--
--		/* Disable VREF */
--		val &= ~WM8400_VREF_ENA;
--		snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1, val);
--
--		/* disable POBCTRL, SOFT_ST and BUFDCOPEN */
--		snd_soc_component_write(component, WM8400_ANTIPOP2, 0x0);
--
--		ret = regulator_bulk_disable(ARRAY_SIZE(power),
--					     &power[0]);
--		if (ret != 0)
--			return ret;
--
--		break;
--	}
--
--	return 0;
--}
--
--#define WM8400_RATES SNDRV_PCM_RATE_8000_96000
--
--#define WM8400_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S20_3LE |\
--	SNDRV_PCM_FMTBIT_S24_LE)
--
--static const struct snd_soc_dai_ops wm8400_dai_ops = {
--	.hw_params = wm8400_hw_params,
--	.mute_stream = wm8400_mute,
--	.set_fmt = wm8400_set_dai_fmt,
--	.set_clkdiv = wm8400_set_dai_clkdiv,
--	.set_sysclk = wm8400_set_dai_sysclk,
--	.set_pll = wm8400_set_dai_pll,
--	.no_capture_mute = 1,
--};
--
--/*
-- * The WM8400 supports 2 different and mutually exclusive DAI
-- * configurations.
-- *
-- * 1. ADC/DAC on Primary Interface
-- * 2. ADC on Primary Interface/DAC on secondary
-- */
--static struct snd_soc_dai_driver wm8400_dai = {
--/* ADC/DAC on primary */
--	.name = "wm8400-hifi",
--	.playback = {
--		.stream_name = "Playback",
--		.channels_min = 1,
--		.channels_max = 2,
--		.rates = WM8400_RATES,
--		.formats = WM8400_FORMATS,
--	},
--	.capture = {
--		.stream_name = "Capture",
--		.channels_min = 1,
--		.channels_max = 2,
--		.rates = WM8400_RATES,
--		.formats = WM8400_FORMATS,
--	},
--	.ops = &wm8400_dai_ops,
--};
--
--static int wm8400_component_probe(struct snd_soc_component *component)
--{
--	struct wm8400 *wm8400 = dev_get_platdata(component->dev);
--	struct wm8400_priv *priv;
--	int ret;
--	u16 reg;
--
--	priv = devm_kzalloc(component->dev, sizeof(struct wm8400_priv),
--			    GFP_KERNEL);
--	if (priv == NULL)
+-	led = devm_kcalloc(&pdev->dev, pdata->num_leds, sizeof(*led),
+-				GFP_KERNEL);
+-	if (!led)
 -		return -ENOMEM;
 -
--	snd_soc_component_init_regmap(component, wm8400->regmap);
--	snd_soc_component_set_drvdata(component, priv);
--	priv->wm8400 = wm8400;
--
--	ret = devm_regulator_bulk_get(wm8400->dev,
--				 ARRAY_SIZE(power), &power[0]);
--	if (ret != 0) {
--		dev_err(component->dev, "Failed to get regulators: %d\n", ret);
+-	ret = adp5520_led_prepare(pdev);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to write\n");
 -		return ret;
 -	}
 -
--	wm8400_component_reset(component);
+-	for (i = 0; i < pdata->num_leds; ++i) {
+-		cur_led = &pdata->leds[i];
+-		led_dat = &led[i];
 -
--	reg = snd_soc_component_read(component, WM8400_POWER_MANAGEMENT_1);
--	snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1, reg | WM8400_CODEC_ENA);
+-		led_dat->cdev.name = cur_led->name;
+-		led_dat->cdev.default_trigger = cur_led->default_trigger;
+-		led_dat->cdev.brightness_set_blocking = adp5520_led_set;
+-		led_dat->cdev.brightness = LED_OFF;
 -
--	/* Latch volume update bits */
--	reg = snd_soc_component_read(component, WM8400_LEFT_LINE_INPUT_1_2_VOLUME);
--	snd_soc_component_write(component, WM8400_LEFT_LINE_INPUT_1_2_VOLUME,
--		     reg & WM8400_IPVU);
--	reg = snd_soc_component_read(component, WM8400_RIGHT_LINE_INPUT_1_2_VOLUME);
--	snd_soc_component_write(component, WM8400_RIGHT_LINE_INPUT_1_2_VOLUME,
--		     reg & WM8400_IPVU);
+-		if (cur_led->flags & ADP5520_FLAG_LED_MASK)
+-			led_dat->flags = cur_led->flags;
+-		else
+-			led_dat->flags = i + 1;
 -
--	snd_soc_component_write(component, WM8400_LEFT_OUTPUT_VOLUME, 0x50 | (1<<8));
--	snd_soc_component_write(component, WM8400_RIGHT_OUTPUT_VOLUME, 0x50 | (1<<8));
+-		led_dat->id = led_dat->flags & ADP5520_FLAG_LED_MASK;
+-
+-		led_dat->master = pdev->dev.parent;
+-
+-		ret = led_classdev_register(led_dat->master, &led_dat->cdev);
+-		if (ret) {
+-			dev_err(&pdev->dev, "failed to register LED %d\n",
+-				led_dat->id);
+-			goto err;
+-		}
+-
+-		ret = adp5520_led_setup(led_dat);
+-		if (ret) {
+-			dev_err(&pdev->dev, "failed to write\n");
+-			i++;
+-			goto err;
+-		}
+-	}
+-
+-	platform_set_drvdata(pdev, led);
+-	return 0;
+-
+-err:
+-	if (i > 0) {
+-		for (i = i - 1; i >= 0; i--)
+-			led_classdev_unregister(&led[i].cdev);
+-	}
+-
+-	return ret;
+-}
+-
+-static void adp5520_led_remove(struct platform_device *pdev)
+-{
+-	struct adp5520_leds_platform_data *pdata = dev_get_platdata(&pdev->dev);
+-	struct adp5520_led *led;
+-	int i;
+-
+-	led = platform_get_drvdata(pdev);
+-
+-	adp5520_clr_bits(led->master, ADP5520_LED_CONTROL,
+-		 ADP5520_LED1_EN | ADP5520_LED2_EN | ADP5520_LED3_EN);
+-
+-	for (i = 0; i < pdata->num_leds; i++) {
+-		led_classdev_unregister(&led[i].cdev);
+-	}
+-}
+-
+-static struct platform_driver adp5520_led_driver = {
+-	.driver	= {
+-		.name	= "adp5520-led",
+-	},
+-	.probe		= adp5520_led_probe,
+-	.remove		= adp5520_led_remove,
+-};
+-
+-module_platform_driver(adp5520_led_driver);
+-
+-MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+-MODULE_DESCRIPTION("LEDS ADP5520(01) Driver");
+-MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:adp5520-led");
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 2b621a77619c..5126bae8e61f 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -115,16 +115,6 @@ config MFD_AS3722
+ 	  controllers, 11 LDOs, RTC, automatic battery, temperature and
+ 	  over current monitoring, GPIOs, ADC and a watchdog.
+ 
+-config PMIC_ADP5520
+-	bool "Analog Devices ADP5520/01 MFD PMIC Core Support"
+-	depends on I2C=y
+-	help
+-	  Say yes here to add support for Analog Devices ADP5520 and ADP5501,
+-	  Multifunction Power Management IC. This includes
+-	  the I2C driver and the core APIs _only_, you have to select
+-	  individual components like LCD backlight, LEDs, GPIOs and Kepad
+-	  under the corresponding menus.
+-
+ config MFD_AAT2870_CORE
+ 	bool "AnalogicTech AAT2870"
+ 	select MFD_CORE
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 36f0ab039b77..a6cc4fcc3e1d 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -193,7 +193,6 @@ obj-$(CONFIG_MFD_DB8500_PRCMU)	+= db8500-prcmu.o
+ # ab8500-core need to come after db8500-prcmu (which provides the channel)
+ obj-$(CONFIG_AB8500_CORE)	+= ab8500-core.o ab8500-sysctrl.o
+ obj-$(CONFIG_MFD_TIMBERDALE)    += timberdale.o
+-obj-$(CONFIG_PMIC_ADP5520)	+= adp5520.o
+ obj-$(CONFIG_MFD_ADP5585)	+= adp5585.o
+ obj-$(CONFIG_MFD_KEMPLD)	+= kempld-core.o
+ obj-$(CONFIG_MFD_INTEL_QUARK_I2C_GPIO)	+= intel_quark_i2c_gpio.o
+diff --git a/drivers/mfd/adp5520.c b/drivers/mfd/adp5520.c
+deleted file mode 100644
+index bd6f4965ebc8..000000000000
+--- a/drivers/mfd/adp5520.c
++++ /dev/null
+@@ -1,346 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-or-later
+-/*
+- * Base driver for Analog Devices ADP5520/ADP5501 MFD PMICs
+- * LCD Backlight: drivers/video/backlight/adp5520_bl
+- * LEDs		: drivers/led/leds-adp5520
+- * GPIO		: drivers/gpio/adp5520-gpio (ADP5520 only)
+- * Keys		: drivers/input/keyboard/adp5520-keys (ADP5520 only)
+- *
+- * Copyright 2009 Analog Devices Inc.
+- *
+- * Author: Michael Hennerich <michael.hennerich@analog.com>
+- *
+- * Derived from da903x:
+- * Copyright (C) 2008 Compulab, Ltd.
+- *	Mike Rapoport <mike@compulab.co.il>
+- *
+- * Copyright (C) 2006-2008 Marvell International Ltd.
+- *	Eric Miao <eric.miao@marvell.com>
+- */
+-
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+-#include <linux/slab.h>
+-#include <linux/interrupt.h>
+-#include <linux/irq.h>
+-#include <linux/err.h>
+-#include <linux/i2c.h>
+-
+-#include <linux/mfd/adp5520.h>
+-
+-struct adp5520_chip {
+-	struct i2c_client *client;
+-	struct device *dev;
+-	struct mutex lock;
+-	struct blocking_notifier_head notifier_list;
+-	int irq;
+-	unsigned long id;
+-	uint8_t mode;
+-};
+-
+-static int __adp5520_read(struct i2c_client *client,
+-				int reg, uint8_t *val)
+-{
+-	int ret;
+-
+-	ret = i2c_smbus_read_byte_data(client, reg);
+-	if (ret < 0) {
+-		dev_err(&client->dev, "failed reading at 0x%02x\n", reg);
+-		return ret;
+-	}
+-
+-	*val = (uint8_t)ret;
+-	return 0;
+-}
+-
+-static int __adp5520_write(struct i2c_client *client,
+-				 int reg, uint8_t val)
+-{
+-	int ret;
+-
+-	ret = i2c_smbus_write_byte_data(client, reg, val);
+-	if (ret < 0) {
+-		dev_err(&client->dev, "failed writing 0x%02x to 0x%02x\n",
+-				val, reg);
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+-static int __adp5520_ack_bits(struct i2c_client *client, int reg,
+-			      uint8_t bit_mask)
+-{
+-	struct adp5520_chip *chip = i2c_get_clientdata(client);
+-	uint8_t reg_val;
+-	int ret;
+-
+-	mutex_lock(&chip->lock);
+-
+-	ret = __adp5520_read(client, reg, &reg_val);
+-
+-	if (!ret) {
+-		reg_val |= bit_mask;
+-		ret = __adp5520_write(client, reg, reg_val);
+-	}
+-
+-	mutex_unlock(&chip->lock);
+-	return ret;
+-}
+-
+-int adp5520_write(struct device *dev, int reg, uint8_t val)
+-{
+-	return __adp5520_write(to_i2c_client(dev), reg, val);
+-}
+-EXPORT_SYMBOL_GPL(adp5520_write);
+-
+-int adp5520_read(struct device *dev, int reg, uint8_t *val)
+-{
+-	return __adp5520_read(to_i2c_client(dev), reg, val);
+-}
+-EXPORT_SYMBOL_GPL(adp5520_read);
+-
+-int adp5520_set_bits(struct device *dev, int reg, uint8_t bit_mask)
+-{
+-	struct adp5520_chip *chip = dev_get_drvdata(dev);
+-	uint8_t reg_val;
+-	int ret;
+-
+-	mutex_lock(&chip->lock);
+-
+-	ret = __adp5520_read(chip->client, reg, &reg_val);
+-
+-	if (!ret && ((reg_val & bit_mask) != bit_mask)) {
+-		reg_val |= bit_mask;
+-		ret = __adp5520_write(chip->client, reg, reg_val);
+-	}
+-
+-	mutex_unlock(&chip->lock);
+-	return ret;
+-}
+-EXPORT_SYMBOL_GPL(adp5520_set_bits);
+-
+-int adp5520_clr_bits(struct device *dev, int reg, uint8_t bit_mask)
+-{
+-	struct adp5520_chip *chip = dev_get_drvdata(dev);
+-	uint8_t reg_val;
+-	int ret;
+-
+-	mutex_lock(&chip->lock);
+-
+-	ret = __adp5520_read(chip->client, reg, &reg_val);
+-
+-	if (!ret && (reg_val & bit_mask)) {
+-		reg_val &= ~bit_mask;
+-		ret = __adp5520_write(chip->client, reg, reg_val);
+-	}
+-
+-	mutex_unlock(&chip->lock);
+-	return ret;
+-}
+-EXPORT_SYMBOL_GPL(adp5520_clr_bits);
+-
+-int adp5520_register_notifier(struct device *dev, struct notifier_block *nb,
+-				unsigned int events)
+-{
+-	struct adp5520_chip *chip = dev_get_drvdata(dev);
+-
+-	if (chip->irq) {
+-		adp5520_set_bits(chip->dev, ADP5520_INTERRUPT_ENABLE,
+-			events & (ADP5520_KP_IEN | ADP5520_KR_IEN |
+-			ADP5520_OVP_IEN | ADP5520_CMPR_IEN));
+-
+-		return blocking_notifier_chain_register(&chip->notifier_list,
+-			 nb);
+-	}
+-
+-	return -ENODEV;
+-}
+-EXPORT_SYMBOL_GPL(adp5520_register_notifier);
+-
+-int adp5520_unregister_notifier(struct device *dev, struct notifier_block *nb,
+-				unsigned int events)
+-{
+-	struct adp5520_chip *chip = dev_get_drvdata(dev);
+-
+-	adp5520_clr_bits(chip->dev, ADP5520_INTERRUPT_ENABLE,
+-		events & (ADP5520_KP_IEN | ADP5520_KR_IEN |
+-		ADP5520_OVP_IEN | ADP5520_CMPR_IEN));
+-
+-	return blocking_notifier_chain_unregister(&chip->notifier_list, nb);
+-}
+-EXPORT_SYMBOL_GPL(adp5520_unregister_notifier);
+-
+-static irqreturn_t adp5520_irq_thread(int irq, void *data)
+-{
+-	struct adp5520_chip *chip = data;
+-	unsigned int events;
+-	uint8_t reg_val;
+-	int ret;
+-
+-	ret = __adp5520_read(chip->client, ADP5520_MODE_STATUS, &reg_val);
+-	if (ret)
+-		goto out;
+-
+-	events =  reg_val & (ADP5520_OVP_INT | ADP5520_CMPR_INT |
+-		ADP5520_GPI_INT | ADP5520_KR_INT | ADP5520_KP_INT);
+-
+-	blocking_notifier_call_chain(&chip->notifier_list, events, NULL);
+-	/* ACK, Sticky bits are W1C */
+-	__adp5520_ack_bits(chip->client, ADP5520_MODE_STATUS, events);
+-
+-out:
+-	return IRQ_HANDLED;
+-}
+-
+-static int __remove_subdev(struct device *dev, void *unused)
+-{
+-	platform_device_unregister(to_platform_device(dev));
+-	return 0;
+-}
+-
+-static int adp5520_remove_subdevs(struct adp5520_chip *chip)
+-{
+-	return device_for_each_child(chip->dev, NULL, __remove_subdev);
+-}
+-
+-static int adp5520_probe(struct i2c_client *client)
+-{
+-	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+-	struct adp5520_platform_data *pdata = dev_get_platdata(&client->dev);
+-	struct platform_device *pdev;
+-	struct adp5520_chip *chip;
+-	int ret;
+-
+-	if (!i2c_check_functionality(client->adapter,
+-					I2C_FUNC_SMBUS_BYTE_DATA)) {
+-		dev_err(&client->dev, "SMBUS Word Data not Supported\n");
+-		return -EIO;
+-	}
+-
+-	if (pdata == NULL) {
+-		dev_err(&client->dev, "missing platform data\n");
+-		return -ENODEV;
+-	}
+-
+-	chip = devm_kzalloc(&client->dev, sizeof(*chip), GFP_KERNEL);
+-	if (!chip)
+-		return -ENOMEM;
+-
+-	i2c_set_clientdata(client, chip);
+-	chip->client = client;
+-
+-	chip->dev = &client->dev;
+-	chip->irq = client->irq;
+-	chip->id = id->driver_data;
+-	mutex_init(&chip->lock);
+-
+-	if (chip->irq) {
+-		BLOCKING_INIT_NOTIFIER_HEAD(&chip->notifier_list);
+-
+-		ret = request_threaded_irq(chip->irq, NULL, adp5520_irq_thread,
+-				IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-				"adp5520", chip);
+-		if (ret) {
+-			dev_err(&client->dev, "failed to request irq %d\n",
+-					chip->irq);
+-			return ret;
+-		}
+-	}
+-
+-	ret = adp5520_write(chip->dev, ADP5520_MODE_STATUS, ADP5520_nSTNBY);
+-	if (ret) {
+-		dev_err(&client->dev, "failed to write\n");
+-		goto out_free_irq;
+-	}
+-
+-	if (pdata->keys) {
+-		pdev = platform_device_register_data(chip->dev, "adp5520-keys",
+-				chip->id, pdata->keys, sizeof(*pdata->keys));
+-		if (IS_ERR(pdev)) {
+-			ret = PTR_ERR(pdev);
+-			goto out_remove_subdevs;
+-		}
+-	}
+-
+-	if (pdata->gpio) {
+-		pdev = platform_device_register_data(chip->dev, "adp5520-gpio",
+-				chip->id, pdata->gpio, sizeof(*pdata->gpio));
+-		if (IS_ERR(pdev)) {
+-			ret = PTR_ERR(pdev);
+-			goto out_remove_subdevs;
+-		}
+-	}
+-
+-	if (pdata->leds) {
+-		pdev = platform_device_register_data(chip->dev, "adp5520-led",
+-				chip->id, pdata->leds, sizeof(*pdata->leds));
+-		if (IS_ERR(pdev)) {
+-			ret = PTR_ERR(pdev);
+-			goto out_remove_subdevs;
+-		}
+-	}
+-
+-	if (pdata->backlight) {
+-		pdev = platform_device_register_data(chip->dev,
+-						"adp5520-backlight",
+-						chip->id,
+-						pdata->backlight,
+-						sizeof(*pdata->backlight));
+-		if (IS_ERR(pdev)) {
+-			ret = PTR_ERR(pdev);
+-			goto out_remove_subdevs;
+-		}
+-	}
+-
+-	return 0;
+-
+-out_remove_subdevs:
+-	adp5520_remove_subdevs(chip);
+-
+-out_free_irq:
+-	if (chip->irq)
+-		free_irq(chip->irq, chip);
+-
+-	return ret;
+-}
+-
+-static int adp5520_suspend(struct device *dev)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct adp5520_chip *chip = dev_get_drvdata(&client->dev);
+-
+-	adp5520_read(chip->dev, ADP5520_MODE_STATUS, &chip->mode);
+-	/* All other bits are W1C */
+-	chip->mode &= ADP5520_BL_EN | ADP5520_DIM_EN | ADP5520_nSTNBY;
+-	adp5520_write(chip->dev, ADP5520_MODE_STATUS, 0);
+-	return 0;
+-}
+-
+-static int adp5520_resume(struct device *dev)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct adp5520_chip *chip = dev_get_drvdata(&client->dev);
+-
+-	adp5520_write(chip->dev, ADP5520_MODE_STATUS, chip->mode);
+-	return 0;
+-}
+-
+-static DEFINE_SIMPLE_DEV_PM_OPS(adp5520_pm, adp5520_suspend, adp5520_resume);
+-
+-static const struct i2c_device_id adp5520_id[] = {
+-	{ "pmic-adp5520", ID_ADP5520 },
+-	{ "pmic-adp5501", ID_ADP5501 },
+-	{ }
+-};
+-
+-static struct i2c_driver adp5520_driver = {
+-	.driver = {
+-		.name			= "adp5520",
+-		.pm			= pm_sleep_ptr(&adp5520_pm),
+-		.suppress_bind_attrs	= true,
+-	},
+-	.probe		= adp5520_probe,
+-	.id_table	= adp5520_id,
+-};
+-builtin_i2c_driver(adp5520_driver);
+diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
+index dbf4ca23a9b6..63e5059563b4 100644
+--- a/drivers/video/backlight/Kconfig
++++ b/drivers/video/backlight/Kconfig
+@@ -365,16 +365,6 @@ config BACKLIGHT_WM831X
+ 	  If you have a backlight driven by the ISINK and DCDC of a
+ 	  WM831x PMIC say y to enable the backlight driver for it.
+ 
+-config BACKLIGHT_ADP5520
+-	tristate "Backlight Driver for ADP5520/ADP5501 using WLED"
+-	depends on PMIC_ADP5520
+-	help
+-	  If you have a LCD backlight connected to the BST/BL_SNK output of
+-	  ADP5520 or ADP5501, say Y here to enable this driver.
+-
+-	  To compile this driver as a module, choose M here: the module will
+-	  be called adp5520_bl.
+-
+ config BACKLIGHT_ADP8860
+ 	tristate "Backlight Driver for ADP8860/ADP8861/ADP8863 using WLED"
+ 	depends on I2C
+diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
+index 34469711c6cd..1a6bef13430b 100644
+--- a/drivers/video/backlight/Makefile
++++ b/drivers/video/backlight/Makefile
+@@ -19,7 +19,6 @@ obj-$(CONFIG_LCD_VGG2432A4)		+= vgg2432a4.o
+ 
+ obj-$(CONFIG_BACKLIGHT_88PM860X)	+= 88pm860x_bl.o
+ obj-$(CONFIG_BACKLIGHT_AAT2870)		+= aat2870_bl.o
+-obj-$(CONFIG_BACKLIGHT_ADP5520)		+= adp5520_bl.o
+ obj-$(CONFIG_BACKLIGHT_ADP8860)		+= adp8860_bl.o
+ obj-$(CONFIG_BACKLIGHT_ADP8870)		+= adp8870_bl.o
+ obj-$(CONFIG_BACKLIGHT_APPLE)		+= apple_bl.o
+diff --git a/drivers/video/backlight/adp5520_bl.c b/drivers/video/backlight/adp5520_bl.c
+deleted file mode 100644
+index 81c40d355aae..000000000000
+--- a/drivers/video/backlight/adp5520_bl.c
++++ /dev/null
+@@ -1,385 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-or-later
+-/*
+- * Backlight driver for Analog Devices ADP5520/ADP5501 MFD PMICs
+- *
+- * Copyright 2009 Analog Devices Inc.
+- */
+-
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+-#include <linux/backlight.h>
+-#include <linux/mfd/adp5520.h>
+-#include <linux/slab.h>
+-#include <linux/module.h>
+-
+-struct adp5520_bl {
+-	struct device *master;
+-	struct adp5520_backlight_platform_data *pdata;
+-	struct mutex lock;
+-	unsigned long cached_daylight_max;
+-	int id;
+-	int current_brightness;
+-};
+-
+-static int adp5520_bl_set(struct backlight_device *bl, int brightness)
+-{
+-	struct adp5520_bl *data = bl_get_data(bl);
+-	struct device *master = data->master;
+-	int ret = 0;
+-
+-	if (data->pdata->en_ambl_sens) {
+-		if ((brightness > 0) && (brightness < ADP5020_MAX_BRIGHTNESS)) {
+-			/* Disable Ambient Light auto adjust */
+-			ret |= adp5520_clr_bits(master, ADP5520_BL_CONTROL,
+-					ADP5520_BL_AUTO_ADJ);
+-			ret |= adp5520_write(master, ADP5520_DAYLIGHT_MAX,
+-					brightness);
+-		} else {
+-			/*
+-			 * MAX_BRIGHTNESS -> Enable Ambient Light auto adjust
+-			 * restore daylight l3 sysfs brightness
+-			 */
+-			ret |= adp5520_write(master, ADP5520_DAYLIGHT_MAX,
+-					 data->cached_daylight_max);
+-			ret |= adp5520_set_bits(master, ADP5520_BL_CONTROL,
+-					 ADP5520_BL_AUTO_ADJ);
+-		}
+-	} else {
+-		ret |= adp5520_write(master, ADP5520_DAYLIGHT_MAX, brightness);
+-	}
+-
+-	if (data->current_brightness && brightness == 0)
+-		ret |= adp5520_set_bits(master,
+-				ADP5520_MODE_STATUS, ADP5520_DIM_EN);
+-	else if (data->current_brightness == 0 && brightness)
+-		ret |= adp5520_clr_bits(master,
+-				ADP5520_MODE_STATUS, ADP5520_DIM_EN);
+-
+-	if (!ret)
+-		data->current_brightness = brightness;
+-
+-	return ret;
+-}
+-
+-static int adp5520_bl_update_status(struct backlight_device *bl)
+-{
+-	return adp5520_bl_set(bl, backlight_get_brightness(bl));
+-}
+-
+-static int adp5520_bl_get_brightness(struct backlight_device *bl)
+-{
+-	struct adp5520_bl *data = bl_get_data(bl);
+-	int error;
+-	uint8_t reg_val;
+-
+-	error = adp5520_read(data->master, ADP5520_BL_VALUE, &reg_val);
+-
+-	return error ? data->current_brightness : reg_val;
+-}
+-
+-static const struct backlight_ops adp5520_bl_ops = {
+-	.update_status	= adp5520_bl_update_status,
+-	.get_brightness	= adp5520_bl_get_brightness,
+-};
+-
+-static int adp5520_bl_setup(struct backlight_device *bl)
+-{
+-	struct adp5520_bl *data = bl_get_data(bl);
+-	struct device *master = data->master;
+-	struct adp5520_backlight_platform_data *pdata = data->pdata;
+-	int ret = 0;
+-
+-	ret |= adp5520_write(master, ADP5520_DAYLIGHT_MAX,
+-				pdata->l1_daylight_max);
+-	ret |= adp5520_write(master, ADP5520_DAYLIGHT_DIM,
+-				pdata->l1_daylight_dim);
+-
+-	if (pdata->en_ambl_sens) {
+-		data->cached_daylight_max = pdata->l1_daylight_max;
+-		ret |= adp5520_write(master, ADP5520_OFFICE_MAX,
+-				pdata->l2_office_max);
+-		ret |= adp5520_write(master, ADP5520_OFFICE_DIM,
+-				pdata->l2_office_dim);
+-		ret |= adp5520_write(master, ADP5520_DARK_MAX,
+-				pdata->l3_dark_max);
+-		ret |= adp5520_write(master, ADP5520_DARK_DIM,
+-				pdata->l3_dark_dim);
+-		ret |= adp5520_write(master, ADP5520_L2_TRIP,
+-				pdata->l2_trip);
+-		ret |= adp5520_write(master, ADP5520_L2_HYS,
+-				pdata->l2_hyst);
+-		ret |= adp5520_write(master, ADP5520_L3_TRIP,
+-				 pdata->l3_trip);
+-		ret |= adp5520_write(master, ADP5520_L3_HYS,
+-				pdata->l3_hyst);
+-		ret |= adp5520_write(master, ADP5520_ALS_CMPR_CFG,
+-				ALS_CMPR_CFG_VAL(pdata->abml_filt,
+-				ADP5520_L3_EN));
+-	}
+-
+-	ret |= adp5520_write(master, ADP5520_BL_CONTROL,
+-			BL_CTRL_VAL(pdata->fade_led_law,
+-					pdata->en_ambl_sens));
+-
+-	ret |= adp5520_write(master, ADP5520_BL_FADE, FADE_VAL(pdata->fade_in,
+-			pdata->fade_out));
+-
+-	ret |= adp5520_set_bits(master, ADP5520_MODE_STATUS,
+-			ADP5520_BL_EN | ADP5520_DIM_EN);
+-
+-	return ret;
+-}
+-
+-static ssize_t adp5520_show(struct device *dev, char *buf, int reg)
+-{
+-	struct adp5520_bl *data = dev_get_drvdata(dev);
+-	int ret;
+-	uint8_t reg_val;
+-
+-	mutex_lock(&data->lock);
+-	ret = adp5520_read(data->master, reg, &reg_val);
+-	mutex_unlock(&data->lock);
+-
+-	if (ret < 0)
+-		return ret;
+-
+-	return sprintf(buf, "%u\n", reg_val);
+-}
+-
+-static ssize_t adp5520_store(struct device *dev, const char *buf,
+-			 size_t count, int reg)
+-{
+-	struct adp5520_bl *data = dev_get_drvdata(dev);
+-	unsigned long val;
+-	int ret;
+-
+-	ret = kstrtoul(buf, 10, &val);
+-	if (ret)
+-		return ret;
+-
+-	mutex_lock(&data->lock);
+-	adp5520_write(data->master, reg, val);
+-	mutex_unlock(&data->lock);
+-
+-	return count;
+-}
+-
+-static ssize_t adp5520_bl_dark_max_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
+-{
+-	return adp5520_show(dev, buf, ADP5520_DARK_MAX);
+-}
+-
+-static ssize_t adp5520_bl_dark_max_store(struct device *dev,
+-			struct device_attribute *attr,
+-			const char *buf, size_t count)
+-{
+-	return adp5520_store(dev, buf, count, ADP5520_DARK_MAX);
+-}
+-static DEVICE_ATTR(dark_max, 0664, adp5520_bl_dark_max_show,
+-			adp5520_bl_dark_max_store);
+-
+-static ssize_t adp5520_bl_office_max_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
+-{
+-	return adp5520_show(dev, buf, ADP5520_OFFICE_MAX);
+-}
+-
+-static ssize_t adp5520_bl_office_max_store(struct device *dev,
+-			struct device_attribute *attr,
+-			const char *buf, size_t count)
+-{
+-	return adp5520_store(dev, buf, count, ADP5520_OFFICE_MAX);
+-}
+-static DEVICE_ATTR(office_max, 0664, adp5520_bl_office_max_show,
+-			adp5520_bl_office_max_store);
+-
+-static ssize_t adp5520_bl_daylight_max_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
+-{
+-	return adp5520_show(dev, buf, ADP5520_DAYLIGHT_MAX);
+-}
+-
+-static ssize_t adp5520_bl_daylight_max_store(struct device *dev,
+-			struct device_attribute *attr,
+-			const char *buf, size_t count)
+-{
+-	struct adp5520_bl *data = dev_get_drvdata(dev);
+-	int ret;
+-
+-	ret = kstrtoul(buf, 10, &data->cached_daylight_max);
+-	if (ret < 0)
+-		return ret;
+-
+-	return adp5520_store(dev, buf, count, ADP5520_DAYLIGHT_MAX);
+-}
+-static DEVICE_ATTR(daylight_max, 0664, adp5520_bl_daylight_max_show,
+-			adp5520_bl_daylight_max_store);
+-
+-static ssize_t adp5520_bl_dark_dim_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
+-{
+-	return adp5520_show(dev, buf, ADP5520_DARK_DIM);
+-}
+-
+-static ssize_t adp5520_bl_dark_dim_store(struct device *dev,
+-			struct device_attribute *attr,
+-			const char *buf, size_t count)
+-{
+-	return adp5520_store(dev, buf, count, ADP5520_DARK_DIM);
+-}
+-static DEVICE_ATTR(dark_dim, 0664, adp5520_bl_dark_dim_show,
+-			adp5520_bl_dark_dim_store);
+-
+-static ssize_t adp5520_bl_office_dim_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
+-{
+-	return adp5520_show(dev, buf, ADP5520_OFFICE_DIM);
+-}
+-
+-static ssize_t adp5520_bl_office_dim_store(struct device *dev,
+-			struct device_attribute *attr,
+-			const char *buf, size_t count)
+-{
+-	return adp5520_store(dev, buf, count, ADP5520_OFFICE_DIM);
+-}
+-static DEVICE_ATTR(office_dim, 0664, adp5520_bl_office_dim_show,
+-			adp5520_bl_office_dim_store);
+-
+-static ssize_t adp5520_bl_daylight_dim_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
+-{
+-	return adp5520_show(dev, buf, ADP5520_DAYLIGHT_DIM);
+-}
+-
+-static ssize_t adp5520_bl_daylight_dim_store(struct device *dev,
+-			struct device_attribute *attr,
+-			const char *buf, size_t count)
+-{
+-	return adp5520_store(dev, buf, count, ADP5520_DAYLIGHT_DIM);
+-}
+-static DEVICE_ATTR(daylight_dim, 0664, adp5520_bl_daylight_dim_show,
+-			adp5520_bl_daylight_dim_store);
+-
+-static struct attribute *adp5520_bl_attributes[] = {
+-	&dev_attr_dark_max.attr,
+-	&dev_attr_dark_dim.attr,
+-	&dev_attr_office_max.attr,
+-	&dev_attr_office_dim.attr,
+-	&dev_attr_daylight_max.attr,
+-	&dev_attr_daylight_dim.attr,
+-	NULL
+-};
+-
+-static const struct attribute_group adp5520_bl_attr_group = {
+-	.attrs = adp5520_bl_attributes,
+-};
+-
+-static int adp5520_bl_probe(struct platform_device *pdev)
+-{
+-	struct backlight_properties props;
+-	struct backlight_device *bl;
+-	struct adp5520_bl *data;
+-	int ret = 0;
+-
+-	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+-	if (data == NULL)
+-		return -ENOMEM;
+-
+-	data->master = pdev->dev.parent;
+-	data->pdata = dev_get_platdata(&pdev->dev);
+-
+-	if (data->pdata  == NULL) {
+-		dev_err(&pdev->dev, "missing platform data\n");
+-		return -ENODEV;
+-	}
+-
+-	data->id = pdev->id;
+-	data->current_brightness = 0;
+-
+-	mutex_init(&data->lock);
+-
+-	memset(&props, 0, sizeof(struct backlight_properties));
+-	props.type = BACKLIGHT_RAW;
+-	props.max_brightness = ADP5020_MAX_BRIGHTNESS;
+-	bl = devm_backlight_device_register(&pdev->dev, pdev->name,
+-					data->master, data, &adp5520_bl_ops,
+-					&props);
+-	if (IS_ERR(bl)) {
+-		dev_err(&pdev->dev, "failed to register backlight\n");
+-		return PTR_ERR(bl);
+-	}
+-
+-	bl->props.brightness = ADP5020_MAX_BRIGHTNESS;
+-	if (data->pdata->en_ambl_sens)
+-		ret = sysfs_create_group(&bl->dev.kobj,
+-			&adp5520_bl_attr_group);
+-
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to register sysfs\n");
+-		return ret;
+-	}
+-
+-	platform_set_drvdata(pdev, bl);
+-	ret = adp5520_bl_setup(bl);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to setup\n");
+-		if (data->pdata->en_ambl_sens)
+-			sysfs_remove_group(&bl->dev.kobj,
+-					&adp5520_bl_attr_group);
+-		return ret;
+-	}
+-
+-	backlight_update_status(bl);
 -
 -	return 0;
 -}
 -
--static void  wm8400_component_remove(struct snd_soc_component *component)
+-static void adp5520_bl_remove(struct platform_device *pdev)
 -{
--	u16 reg;
+-	struct backlight_device *bl = platform_get_drvdata(pdev);
+-	struct adp5520_bl *data = bl_get_data(bl);
 -
--	reg = snd_soc_component_read(component, WM8400_POWER_MANAGEMENT_1);
--	snd_soc_component_write(component, WM8400_POWER_MANAGEMENT_1,
--		     reg & (~WM8400_CODEC_ENA));
+-	adp5520_clr_bits(data->master, ADP5520_MODE_STATUS, ADP5520_BL_EN);
+-
+-	if (data->pdata->en_ambl_sens)
+-		sysfs_remove_group(&bl->dev.kobj,
+-				&adp5520_bl_attr_group);
 -}
 -
--static const struct snd_soc_component_driver soc_component_dev_wm8400 = {
--	.probe			= wm8400_component_probe,
--	.remove			= wm8400_component_remove,
--	.set_bias_level		= wm8400_set_bias_level,
--	.controls		= wm8400_snd_controls,
--	.num_controls		= ARRAY_SIZE(wm8400_snd_controls),
--	.dapm_widgets		= wm8400_dapm_widgets,
--	.num_dapm_widgets	= ARRAY_SIZE(wm8400_dapm_widgets),
--	.dapm_routes		= wm8400_dapm_routes,
--	.num_dapm_routes	= ARRAY_SIZE(wm8400_dapm_routes),
--	.suspend_bias_off	= 1,
--	.idle_bias_on		= 1,
--	.use_pmdown_time	= 1,
--	.endianness		= 1,
--};
--
--static int wm8400_probe(struct platform_device *pdev)
+-#ifdef CONFIG_PM_SLEEP
+-static int adp5520_bl_suspend(struct device *dev)
 -{
--	return devm_snd_soc_register_component(&pdev->dev,
--			&soc_component_dev_wm8400,
--			&wm8400_dai, 1);
+-	struct backlight_device *bl = dev_get_drvdata(dev);
+-
+-	return adp5520_bl_set(bl, 0);
 -}
 -
--static struct platform_driver wm8400_codec_driver = {
--	.driver = {
--		   .name = "wm8400-codec",
--		   },
--	.probe = wm8400_probe,
+-static int adp5520_bl_resume(struct device *dev)
+-{
+-	struct backlight_device *bl = dev_get_drvdata(dev);
+-
+-	backlight_update_status(bl);
+-	return 0;
+-}
+-#endif
+-
+-static SIMPLE_DEV_PM_OPS(adp5520_bl_pm_ops, adp5520_bl_suspend,
+-			adp5520_bl_resume);
+-
+-static struct platform_driver adp5520_bl_driver = {
+-	.driver		= {
+-		.name	= "adp5520-backlight",
+-		.pm	= &adp5520_bl_pm_ops,
+-	},
+-	.probe		= adp5520_bl_probe,
+-	.remove		= adp5520_bl_remove,
 -};
 -
--module_platform_driver(wm8400_codec_driver);
+-module_platform_driver(adp5520_bl_driver);
 -
--MODULE_DESCRIPTION("ASoC WM8400 driver");
--MODULE_AUTHOR("Mark Brown");
+-MODULE_AUTHOR("Michael Hennerich <michael.hennerich@analog.com>");
+-MODULE_DESCRIPTION("ADP5520(01) Backlight Driver");
 -MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:wm8400-codec");
-diff --git a/sound/soc/codecs/wm8400.h b/sound/soc/codecs/wm8400.h
+-MODULE_ALIAS("platform:adp5520-backlight");
+diff --git a/include/linux/mfd/adp5520.h b/include/linux/mfd/adp5520.h
 deleted file mode 100644
-index 9e7bd4f767e7..000000000000
---- a/sound/soc/codecs/wm8400.h
+index 9a14f80ec4ad..000000000000
+--- a/include/linux/mfd/adp5520.h
 +++ /dev/null
-@@ -1,54 +0,0 @@
+@@ -1,298 +0,0 @@
 -/* SPDX-License-Identifier: GPL-2.0-or-later */
 -/*
-- * wm8400.h  --  audio driver for WM8400
+- * Definitions and platform data for Analog Devices
+- * ADP5520/ADP5501 MFD PMICs (Backlight, LED, GPIO and Keys)
 - *
-- * Copyright 2008 Wolfson Microelectronics PLC.
-- * Author: Mark Brown <broonie@opensource.wolfsonmicro.com>
+- * Copyright 2009 Analog Devices Inc.
 - */
 -
--#ifndef _WM8400_CODEC_H
--#define _WM8400_CODEC_H
 -
--#define WM8400_MCLK_DIV 0
--#define WM8400_DACCLK_DIV 1
--#define WM8400_ADCCLK_DIV 2
--#define WM8400_BCLK_DIV 3
+-#ifndef __LINUX_MFD_ADP5520_H
+-#define __LINUX_MFD_ADP5520_H
 -
--#define WM8400_MCLK_DIV_1 0x400
--#define WM8400_MCLK_DIV_2 0x800
+-#define ID_ADP5520		5520
+-#define ID_ADP5501		5501
 -
--#define WM8400_DAC_CLKDIV_1    0x00
--#define WM8400_DAC_CLKDIV_1_5  0x04
--#define WM8400_DAC_CLKDIV_2    0x08
--#define WM8400_DAC_CLKDIV_3    0x0c
--#define WM8400_DAC_CLKDIV_4    0x10
--#define WM8400_DAC_CLKDIV_5_5  0x14
--#define WM8400_DAC_CLKDIV_6    0x18
+-/*
+- * ADP5520/ADP5501 Register Map
+- */
 -
--#define WM8400_ADC_CLKDIV_1    0x00
--#define WM8400_ADC_CLKDIV_1_5  0x20
--#define WM8400_ADC_CLKDIV_2    0x40
--#define WM8400_ADC_CLKDIV_3    0x60
--#define WM8400_ADC_CLKDIV_4    0x80
--#define WM8400_ADC_CLKDIV_5_5  0xa0
--#define WM8400_ADC_CLKDIV_6    0xc0
+-#define ADP5520_MODE_STATUS 		0x00
+-#define ADP5520_INTERRUPT_ENABLE 	0x01
+-#define ADP5520_BL_CONTROL 		0x02
+-#define ADP5520_BL_TIME 		0x03
+-#define ADP5520_BL_FADE 		0x04
+-#define ADP5520_DAYLIGHT_MAX 		0x05
+-#define ADP5520_DAYLIGHT_DIM 		0x06
+-#define ADP5520_OFFICE_MAX 		0x07
+-#define ADP5520_OFFICE_DIM 		0x08
+-#define ADP5520_DARK_MAX 		0x09
+-#define ADP5520_DARK_DIM 		0x0A
+-#define ADP5520_BL_VALUE 		0x0B
+-#define ADP5520_ALS_CMPR_CFG 		0x0C
+-#define ADP5520_L2_TRIP 		0x0D
+-#define ADP5520_L2_HYS 			0x0E
+-#define ADP5520_L3_TRIP 		0x0F
+-#define ADP5520_L3_HYS 			0x10
+-#define ADP5520_LED_CONTROL 		0x11
+-#define ADP5520_LED_TIME 		0x12
+-#define ADP5520_LED_FADE 		0x13
+-#define ADP5520_LED1_CURRENT 		0x14
+-#define ADP5520_LED2_CURRENT 		0x15
+-#define ADP5520_LED3_CURRENT 		0x16
+-
+-/*
+- * ADP5520 Register Map
+- */
+-
+-#define ADP5520_GPIO_CFG_1 		0x17
+-#define ADP5520_GPIO_CFG_2 		0x18
+-#define ADP5520_GPIO_IN 		0x19
+-#define ADP5520_GPIO_OUT 		0x1A
+-#define ADP5520_GPIO_INT_EN 		0x1B
+-#define ADP5520_GPIO_INT_STAT 		0x1C
+-#define ADP5520_GPIO_INT_LVL 		0x1D
+-#define ADP5520_GPIO_DEBOUNCE 		0x1E
+-#define ADP5520_GPIO_PULLUP 		0x1F
+-#define ADP5520_KP_INT_STAT_1 		0x20
+-#define ADP5520_KP_INT_STAT_2 		0x21
+-#define ADP5520_KR_INT_STAT_1 		0x22
+-#define ADP5520_KR_INT_STAT_2 		0x23
+-#define ADP5520_KEY_STAT_1 		0x24
+-#define ADP5520_KEY_STAT_2 		0x25
+-
+-/*
+- * MODE_STATUS bits
+- */
+-
+-#define ADP5520_nSTNBY		(1 << 7)
+-#define ADP5520_BL_EN           (1 << 6)
+-#define ADP5520_DIM_EN          (1 << 5)
+-#define ADP5520_OVP_INT         (1 << 4)
+-#define ADP5520_CMPR_INT        (1 << 3)
+-#define ADP5520_GPI_INT         (1 << 2)
+-#define ADP5520_KR_INT          (1 << 1)
+-#define ADP5520_KP_INT          (1 << 0)
+-
+-/*
+- * INTERRUPT_ENABLE bits
+- */
+-
+-#define ADP5520_AUTO_LD_EN      (1 << 4)
+-#define ADP5520_CMPR_IEN        (1 << 3)
+-#define ADP5520_OVP_IEN         (1 << 2)
+-#define ADP5520_KR_IEN          (1 << 1)
+-#define ADP5520_KP_IEN          (1 << 0)
+-
+-/*
+- * BL_CONTROL bits
+- */
+-
+-#define ADP5520_BL_LVL          ((x) << 5)
+-#define ADP5520_BL_LAW          ((x) << 4)
+-#define ADP5520_BL_AUTO_ADJ     (1 << 3)
+-#define ADP5520_OVP_EN          (1 << 2)
+-#define ADP5520_FOVR            (1 << 1)
+-#define ADP5520_KP_BL_EN        (1 << 0)
+-
+-/*
+- * ALS_CMPR_CFG bits
+- */
+-
+-#define ADP5520_L3_OUT		(1 << 3)
+-#define ADP5520_L2_OUT		(1 << 2)
+-#define ADP5520_L3_EN		(1 << 1)
+-
+-#define ADP5020_MAX_BRIGHTNESS	0x7F
+-
+-#define FADE_VAL(in, out)	((0xF & (in)) | ((0xF & (out)) << 4))
+-#define BL_CTRL_VAL(law, auto)	(((1 & (auto)) << 3) | ((0x3 & (law)) << 4))
+-#define ALS_CMPR_CFG_VAL(filt, l3_en)	(((0x7 & filt) << 5) | l3_en)
+-
+-/*
+- * LEDs subdevice bits and masks
+- */
+-
+-#define ADP5520_01_MAXLEDS 3
+-
+-#define ADP5520_FLAG_LED_MASK 		0x3
+-#define ADP5520_FLAG_OFFT_SHIFT 	8
+-#define ADP5520_FLAG_OFFT_MASK 		0x3
+-
+-#define ADP5520_R3_MODE		(1 << 5)
+-#define ADP5520_C3_MODE		(1 << 4)
+-#define ADP5520_LED_LAW		(1 << 3)
+-#define ADP5520_LED3_EN		(1 << 2)
+-#define ADP5520_LED2_EN		(1 << 1)
+-#define ADP5520_LED1_EN		(1 << 0)
+-
+-/*
+- * GPIO subdevice bits and masks
+- */
+-
+-#define ADP5520_MAXGPIOS	8
+-
+-#define ADP5520_GPIO_C3		(1 << 7)	/* LED2 or GPIO7 aka C3 */
+-#define ADP5520_GPIO_C2		(1 << 6)
+-#define ADP5520_GPIO_C1		(1 << 5)
+-#define ADP5520_GPIO_C0		(1 << 4)
+-#define ADP5520_GPIO_R3		(1 << 3)	/* LED3 or GPIO3 aka R3 */
+-#define ADP5520_GPIO_R2		(1 << 2)
+-#define ADP5520_GPIO_R1		(1 << 1)
+-#define ADP5520_GPIO_R0		(1 << 0)
+-
+-struct adp5520_gpio_platform_data {
+-	unsigned gpio_start;
+-	u8 gpio_en_mask;
+-	u8 gpio_pullup_mask;
+-};
+-
+-/*
+- * Keypad subdevice bits and masks
+- */
+-
+-#define ADP5520_MAXKEYS	16
+-
+-#define ADP5520_COL_C3 		(1 << 7)	/* LED2 or GPIO7 aka C3 */
+-#define ADP5520_COL_C2		(1 << 6)
+-#define ADP5520_COL_C1		(1 << 5)
+-#define ADP5520_COL_C0		(1 << 4)
+-#define ADP5520_ROW_R3		(1 << 3)	/* LED3 or GPIO3 aka R3 */
+-#define ADP5520_ROW_R2		(1 << 2)
+-#define ADP5520_ROW_R1		(1 << 1)
+-#define ADP5520_ROW_R0		(1 << 0)
+-
+-#define ADP5520_KEY(row, col) (col + row * 4)
+-#define ADP5520_KEYMAPSIZE	ADP5520_MAXKEYS
+-
+-struct adp5520_keys_platform_data {
+-	int rows_en_mask;		/* Number of rows */
+-	int cols_en_mask;		/* Number of columns */
+-	const unsigned short *keymap;	/* Pointer to keymap */
+-	unsigned short keymapsize;	/* Keymap size */
+-	unsigned repeat:1;		/* Enable key repeat */
+-};
 -
 -
--#define WM8400_BCLK_DIV_1                       (0x0 << 1)
--#define WM8400_BCLK_DIV_1_5                     (0x1 << 1)
--#define WM8400_BCLK_DIV_2                       (0x2 << 1)
--#define WM8400_BCLK_DIV_3                       (0x3 << 1)
--#define WM8400_BCLK_DIV_4                       (0x4 << 1)
--#define WM8400_BCLK_DIV_5_5                     (0x5 << 1)
--#define WM8400_BCLK_DIV_6                       (0x6 << 1)
--#define WM8400_BCLK_DIV_8                       (0x7 << 1)
--#define WM8400_BCLK_DIV_11                      (0x8 << 1)
--#define WM8400_BCLK_DIV_12                      (0x9 << 1)
--#define WM8400_BCLK_DIV_16                      (0xA << 1)
--#define WM8400_BCLK_DIV_22                      (0xB << 1)
--#define WM8400_BCLK_DIV_24                      (0xC << 1)
--#define WM8400_BCLK_DIV_32                      (0xD << 1)
--#define WM8400_BCLK_DIV_44                      (0xE << 1)
--#define WM8400_BCLK_DIV_48                      (0xF << 1)
+-/*
+- * LEDs subdevice platform data
+- */
 -
--#endif
+-#define FLAG_ID_ADP5520_LED1_ADP5501_LED0 	1	/* ADP5520 PIN ILED */
+-#define FLAG_ID_ADP5520_LED2_ADP5501_LED1 	2	/* ADP5520 PIN C3 */
+-#define FLAG_ID_ADP5520_LED3_ADP5501_LED2 	3	/* ADP5520 PIN R3 */
+-
+-#define ADP5520_LED_DIS_BLINK	(0 << ADP5520_FLAG_OFFT_SHIFT)
+-#define ADP5520_LED_OFFT_600ms	(1 << ADP5520_FLAG_OFFT_SHIFT)
+-#define ADP5520_LED_OFFT_800ms	(2 << ADP5520_FLAG_OFFT_SHIFT)
+-#define ADP5520_LED_OFFT_1200ms	(3 << ADP5520_FLAG_OFFT_SHIFT)
+-
+-#define ADP5520_LED_ONT_200ms	0
+-#define ADP5520_LED_ONT_600ms	1
+-#define ADP5520_LED_ONT_800ms	2
+-#define ADP5520_LED_ONT_1200ms	3
+-
+-struct adp5520_leds_platform_data {
+-	int num_leds;
+-	struct led_info	*leds;
+-	u8 fade_in;		/* Backlight Fade-In Timer */
+-	u8 fade_out;		/* Backlight Fade-Out Timer */
+-	u8 led_on_time;
+-};
+-
+-/*
+- * Backlight subdevice platform data
+- */
+-
+-#define ADP5520_FADE_T_DIS	0	/* Fade Timer Disabled */
+-#define ADP5520_FADE_T_300ms	1	/* 0.3 Sec */
+-#define ADP5520_FADE_T_600ms	2
+-#define ADP5520_FADE_T_900ms	3
+-#define ADP5520_FADE_T_1200ms	4
+-#define ADP5520_FADE_T_1500ms	5
+-#define ADP5520_FADE_T_1800ms	6
+-#define ADP5520_FADE_T_2100ms	7
+-#define ADP5520_FADE_T_2400ms	8
+-#define ADP5520_FADE_T_2700ms	9
+-#define ADP5520_FADE_T_3000ms	10
+-#define ADP5520_FADE_T_3500ms	11
+-#define ADP5520_FADE_T_4000ms	12
+-#define ADP5520_FADE_T_4500ms	13
+-#define ADP5520_FADE_T_5000ms	14
+-#define ADP5520_FADE_T_5500ms	15	/* 5.5 Sec */
+-
+-#define ADP5520_BL_LAW_LINEAR 	0
+-#define ADP5520_BL_LAW_SQUARE 	1
+-#define ADP5520_BL_LAW_CUBIC1 	2
+-#define ADP5520_BL_LAW_CUBIC2 	3
+-
+-#define ADP5520_BL_AMBL_FILT_80ms 	0	/* Light sensor filter time */
+-#define ADP5520_BL_AMBL_FILT_160ms 	1
+-#define ADP5520_BL_AMBL_FILT_320ms 	2
+-#define ADP5520_BL_AMBL_FILT_640ms 	3
+-#define ADP5520_BL_AMBL_FILT_1280ms 	4
+-#define ADP5520_BL_AMBL_FILT_2560ms 	5
+-#define ADP5520_BL_AMBL_FILT_5120ms 	6
+-#define ADP5520_BL_AMBL_FILT_10240ms 	7	/* 10.24 sec */
+-
+-	/*
+-	 * Blacklight current 0..30mA
+-	 */
+-#define ADP5520_BL_CUR_mA(I)		((I * 127) / 30)
+-
+-	/*
+-	 * L2 comparator current 0..1000uA
+-	 */
+-#define ADP5520_L2_COMP_CURR_uA(I)	((I * 255) / 1000)
+-
+-	/*
+-	 * L3 comparator current 0..127uA
+-	 */
+-#define ADP5520_L3_COMP_CURR_uA(I)	((I * 255) / 127)
+-
+-struct adp5520_backlight_platform_data {
+-	u8 fade_in;		/* Backlight Fade-In Timer */
+-	u8 fade_out;		/* Backlight Fade-Out Timer */
+-	u8 fade_led_law;	/* fade-on/fade-off transfer characteristic */
+-
+-	u8 en_ambl_sens;	/* 1 = enable ambient light sensor */
+-	u8 abml_filt;		/* Light sensor filter time */
+-	u8 l1_daylight_max;	/* use BL_CUR_mA(I) 0 <= I <= 30 mA */
+-	u8 l1_daylight_dim;	/* typ = 0, use BL_CUR_mA(I) 0 <= I <= 30 mA */
+-	u8 l2_office_max;	/* use BL_CUR_mA(I) 0 <= I <= 30 mA */
+-	u8 l2_office_dim;	/* typ = 0, use BL_CUR_mA(I) 0 <= I <= 30 mA */
+-	u8 l3_dark_max;		/* use BL_CUR_mA(I) 0 <= I <= 30 mA */
+-	u8 l3_dark_dim;		/* typ = 0, use BL_CUR_mA(I) 0 <= I <= 30 mA */
+-	u8 l2_trip;		/* use L2_COMP_CURR_uA(I) 0 <= I <= 1000 uA */
+-	u8 l2_hyst;		/* use L2_COMP_CURR_uA(I) 0 <= I <= 1000 uA */
+-	u8 l3_trip;		/* use L3_COMP_CURR_uA(I) 0 <= I <= 127 uA */
+-	u8 l3_hyst;		/* use L3_COMP_CURR_uA(I) 0 <= I <= 127 uA */
+-};
+-
+-/*
+- * MFD chip platform data
+- */
+-
+-struct adp5520_platform_data {
+-	struct adp5520_keys_platform_data *keys;
+-	struct adp5520_gpio_platform_data *gpio;
+-	struct adp5520_leds_platform_data *leds;
+-	struct adp5520_backlight_platform_data *backlight;
+-};
+-
+-/*
+- * MFD chip functions
+- */
+-
+-extern int adp5520_read(struct device *dev, int reg, uint8_t *val);
+-extern int adp5520_write(struct device *dev, int reg, u8 val);
+-extern int adp5520_clr_bits(struct device *dev, int reg, uint8_t bit_mask);
+-extern int adp5520_set_bits(struct device *dev, int reg, uint8_t bit_mask);
+-
+-extern int adp5520_register_notifier(struct device *dev,
+-		 struct notifier_block *nb, unsigned int events);
+-
+-extern int adp5520_unregister_notifier(struct device *dev,
+-		struct notifier_block *nb, unsigned int events);
+-
+-#endif /* __LINUX_MFD_ADP5520_H */
 -- 
 2.53.0
 

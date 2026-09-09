@@ -1,138 +1,130 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 490A445DF47
-	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 10:51:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27E1F53D0C4;
+	Wed,  9 Sep 2026 11:13:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788951067; cv=none; b=NMuYKWq47hwANkoPwKmq7i9GH0eKTFxszuqfFH9y76iA7P0hHije5NqMChW7JvkpDjyqc82TTNPSb6TYLtY5MBpqNIHneAkCo0bjwX8RhAGapAX25806kBw9CusLbc/vM3VQgbQZmqqIOhRBRRIw2OkJyshoLGulFEbhSqbU8hw=
+	t=1788952395; cv=none; b=NqmqfW1mKE2ImqRoaaMFtzADVuPOE6M/1daD2HSzwTlTL2KxDazpmhLdBVhODQ8xPDVRyczmapqN83FhY+/zsZ3ghqAPKoL6r0hPJkYKil2IwMz8L2ECCwa+3s4+xVgE5IZWxqmF7V3C0ZQQ4eOM9URovoEQroZmhHmT/Zoft1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788951067; c=relaxed/simple;
-	bh=t/0KGcphiYLUBvUHyq5A/5cegZ+QMwpfYt79RuHvmAM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=kI3IrTqerUIXa/xFhnm0yyAfXOgJ2o8PdHDJorvUqqWQuYoeS35EbotTc3O9GKeKkYatGrDHxSb1pHVtfiWmzF0vdv/CWRT1i0eLeggWnh0VJ7YacwaxYDRBilhemw1BS9tCjVMjFZJikd0Vr1bzxy5LDAVLqCzncdwacQWfkyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i8kd94+l; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788952395; c=relaxed/simple;
+	bh=Lp1BzneSVJSqGUrRRhL5yj3mUFPLY1tgBLQ0lwaScS4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=C7T9nuwbosDgOISH+et9OyPLbEqdY7QeWJoi/ztSVqZDqz2GtTpA/zScjsTYVgridIR3sNxGQUfvohEODu7E0MExWw1BVF6FVUNs7AgHzNSfpjve8whilxkssomxaP5HKmcCHFE7nBqGPaJdfA7QV26f/ycj6vz2igUsPIfd1Lc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ai/AvUcX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i8kd94+l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A1551F00A3A;
-	Wed,  9 Sep 2026 10:51:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ai/AvUcX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C08141F00A3F;
+	Wed,  9 Sep 2026 11:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788951066;
-	bh=cAX7xipKAcTWbff9Q4mRdRFMMfSAADmOfT+Tmj4UbNQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=i8kd94+lPNIoEyeqHR73dnNrbAkvRspGZs2JvbfwUvMpmVvyOFd1BoS/7+ob9My0E
-	 3qjt3Gyqy9x4xpYAaYkw2+tXMnO713NfipYExW8Sc6ZbkT4ZkMDAD0ROFLbD7y21B/
-	 xUUojnTOIr/zJC/iMxSjeUjzdvq/PXvKp9wSV5zdcFJTHnnlcSube20+5w8vcvegnW
-	 Q6DvfDcpmEzoLEp06NTtMziAb9anzzqPn72fBBs8pwpBe6kv2xF/Ic/Kcy8pm7xyth
-	 ULCDX3PU/08AKKrtCkQSV19TKpsQKovo8v9It1V1Evq7SWnXaEJBSmAXdhiJcnssPi
-	 hAuvRvuD3NGTA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6.12.y] Input: aiptek - validate raw macro indices
- before updating state
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TWlndWVsIEdhcmPDrWEgUm9tw6Fu?= <miguelgarciaroman8@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <CABKbRo+qUMG8=+-MnY34KkscgZdPASieN7CgWce9BTCggNSvcg@mail.gmail.com>
-References: <20260907185001.1567957-1-miguelgarciaroman8@gmail.com>
- <2026090833-mutt-whiny-242e@gregkh>
- <CABKbRoKwKz+01bBMU_tq55aUQd5ao613v5n=M4zRjcc+j6=HkA@mail.gmail.com>
- <CABKbRo+qUMG8=+-MnY34KkscgZdPASieN7CgWce9BTCggNSvcg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 10:51:05 +0000
-Message-Id: <20260909105106.0A1551F00A3A@smtp.kernel.org>
+	s=k20260515; t=1788952388;
+	bh=G8G2dhlJPLx8pBD+kOQpUMViNYkYx46qc9qc2gMu0lo=;
+	h=From:To:Cc:Subject:Date;
+	b=ai/AvUcXbEHvDGS6G3Gh51u3ur+Wv8EHaQSlUEcBAuVnU+vXR8my8rriFOXkw2eSs
+	 /EnMu/6Fr99K82BsTaOPPci9q0Bkxodr1brfUy7r+H9gRUUz29qwpND5CDcBS9Y6jG
+	 vT3xDggJ2+psbF9AfyVz+oqGeSPQmgj21XMOdb09cHi9HRqyEM0yHP0KBQtN6MEbvY
+	 0uPPTvU7nG1rgbE195VhPMn7gw7C5ykr4apHhuBxeRiRn9gK0QoYx/zDehOVPPVpGg
+	 qxGUghoY4hqYalA0XdpnM6tL4xkvA40iG+iY9rx6D441tDAHns98+/i30pTV8Cmfyt
+	 +KPwzECKq9Cyg==
+From: Lee Jones <lee@kernel.org>
+To: lee@kernel.org,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Aaron Skomra <aaron.skomra@wacom.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Peter Hutterer <peter.hutterer@who-t.net>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Subject: [PATCH v10 1/5] HID: wacom: Use hdev->product in wacom_setup_touch_input_capabilities
+Date: Wed,  9 Sep 2026 11:12:23 +0000
+Message-ID: <fa3cb42f7b58c1b3022d8208969a81882783a5ec.1788868602.git.lee@kernel.org>
+X-Mailer: git-send-email 2.55.0.1007.g17ff1f9808-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Replace the lookup-dependent 'wacom_wac->shared->touch->product' references
+with 'hdev->product' inside wacom_setup_touch_input_capabilities() since
+'hdev' is already available (via container_of) and represents the touch
+device itself.
 
-Pre-existing issues:
-- [High] Sysfs attribute handlers dereference NULL driver data during devic=
-e probe.
---
+Cc: stable@vger.kernel.org
+Signed-off-by: Lee Jones <lee@kernel.org>
+---
+v7 -> v8:  New patch
+v8 -> v9:  No change
+v9 -> v10: No change
 
-commit 645c2a36ee70a10a323ece648cef25c5a29065c9
-Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
+ drivers/hid/wacom_wac.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-Input: aiptek - validate raw macro indices before updating state
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 8feb8027be95..7cf2b4de52be 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -3966,8 +3966,8 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 					 struct wacom_wac *wacom_wac)
+ {
++	struct hid_device *hdev = container_of(wacom_wac, struct wacom, wacom_wac)->hdev;
+ 	struct wacom_features *features = &wacom_wac->features;
+-
+ 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+ 		return -ENODEV;
+ 
+@@ -3976,9 +3976,11 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 	else
+ 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+ 
+-	if (features->type == HID_GENERIC)
++	if (features->type == HID_GENERIC) {
++		hid_dbg(hdev, "generic touch setup\n");
+ 		/* setup has already been done */
+ 		return 0;
++	}
+ 
+ 	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+@@ -4010,19 +4012,17 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 		input_dev->evbit[0] |= BIT_MASK(EV_SW);
+ 		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+ 
+-		if (wacom_wac->shared->touch->product == 0x361) {
++		if (hdev->product == 0x361) {
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, 12440, 4, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 					     0, 8640, 4, 0);
+-		}
+-		else if (wacom_wac->shared->touch->product == 0x360) {
++		} else if (hdev->product == 0x360) {
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, 8960, 4, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+ 					     0, 5920, 4, 0);
+-		}
+-		else if (wacom_wac->shared->touch->product == 0x393) {
++		} else if (hdev->product == 0x393) {
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_X,
+ 					     0, 6400, 4, 0);
+ 			input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
+@@ -4052,8 +4052,8 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 		fallthrough;
+ 
+ 	case WACOM_27QHDT:
+-		if (wacom_wac->shared->touch->product == 0x32C ||
+-		    wacom_wac->shared->touch->product == 0xF6) {
++		if (hdev->product == 0x32C ||
++		    hdev->product == 0xF6) {
+ 			input_dev->evbit[0] |= BIT_MASK(EV_SW);
+ 			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+ 			wacom_wac->has_mute_touch_switch = true;
+-- 
+2.55.0.979.g7e5102b832-goog
 
-aiptek_irq() derives macro key indices directly from tablet reports and
-then uses them to index macroKeyEvents[]. Validate the raw macro index once
-before it enters that state machine, so lastMacro only ever stores an
-in-range macro key. Keep direct bounds checks for report type 6, which reads
-the macro number from the packet body and uses it immediately.
-
-Link: https://patch.msgid.link/20260329001711.88076-1-pengpeng@iscas.ac.cn
-
-> diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-> index 2b3fbb0455d5c..9e78105bace77 100644
-> --- a/drivers/input/tablet/aiptek.c
-> +++ b/drivers/input/tablet/aiptek.c
-> @@ -658,6 +658,8 @@ static void aiptek_irq(struct urb *urb)
->  		pck =3D (data[1] & aiptek->curSetting.stylusButtonUpper) !=3D 0 ? 1 : =
-0;
-> =20
->  		macro =3D dv && p && tip && !(data[3] & 1) ? (data[3] >> 1) : -1;
-> +		if (macro >=3D ARRAY_SIZE(macroKeyEvents))
-> +			macro =3D -1;
->  		z =3D get_unaligned_le16(data + 4);
-
-[ ... ]
-
-[Severity: High]
-This isn't a bug introduced by this patch, but it is a pre-existing issue.
-Can this cause a NULL pointer dereference during device probe?
-
-In aiptek_probe(), there is a window where the driver core adds dev_groups
-(making sysfs attributes visible to user-space) before usb_set_intfdata()
-is called.
-
-If a user-space process concurrently reads or writes the sysfs attributes
-during this window, dev_get_drvdata() will return NULL.
-
-This blindly dereferences the NULL aiptek pointer in show_tabletSize():
-
-drivers/input/tablet/aiptek.c:show_tabletSize() {
-	struct aiptek *aiptek =3D dev_get_drvdata(dev);
-
-	return sysfs_emit(buf, "%dx%d\n",
-			  input_abs_get_max(aiptek->inputdev, ABS_X) + 1,
-			  input_abs_get_max(aiptek->inputdev, ABS_Y) + 1);
-}
-
-The same blind dereference occurs in the write path of store_tabletExecute(=
-):
-
-drivers/input/tablet/aiptek.c:store_tabletExecute() {
-	struct aiptek *aiptek =3D dev_get_drvdata(dev);
-
-	/* We do not care what you write to this file. Merely the action
-	 * of writing to this file triggers a tablet reprogramming.
-	 */
-	memcpy(&aiptek->curSetting, &aiptek->newSetting,
-	       sizeof(struct aiptek_settings));
-    ...
-}
-
-And also when reading the firmware code in show_firmwareCode():
-
-drivers/input/tablet/aiptek.c:show_firmwareCode() {
-	struct aiptek *aiptek =3D dev_get_drvdata(dev);
-
-	return sysfs_emit(buf, "%04x\n", aiptek->features.firmwareCode);
-}
-
-Since these sysfs files are created with S_IRUGO (0444), any unprivileged
-local user could trigger this panic by repeatedly reading the files during
-device plug.
-
-Could the sysfs group creation be deferred until after usb_set_intfdata()
-has completed its initialization?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/CABKbRo+qUMG8=3D+-M=
-nY34KkscgZdPASieN7CgWce9BTCggNSvcg@mail.gmail.com?part=3D1

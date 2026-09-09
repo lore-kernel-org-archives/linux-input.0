@@ -1,79 +1,65 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E74CB583ACB
-	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 14:58:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56E0B184540;
+	Wed,  9 Sep 2026 15:16:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788965921; cv=none; b=S/p0uy+DLqdtWgnP0tD8Pf8HqM21wdtGR1VPI6jXPmJwczLUmtqdEpbLuWDa8FKz80KAjKrbSBIVqil+B/Jk6mBxlhETLDX3lydI/nZ266/QRb6vIAMxWRxVRwBfm7wYGIKlEpXCf93FE/ZH39vyV2pSLr2oY/+awde4Rmg8DFA=
+	t=1788966972; cv=none; b=Nlj9qqEIUTwc48iXzgWzwd1u6B06PiqPII9PfCrpxhgYwXZVd0xigBeVbP6nio4LJ+dzpUWRYzuvg3eoNMx47mti6423X8Gm/KJYX/ssJlxmiaPUpnudyfk4iLhsePUxVL+zYxp0vUd6lNddfSJHcloUXo/tblEWc/pR/PiDN14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788965921; c=relaxed/simple;
-	bh=OG8rM47+wQa5telCcXnv0ivoaCzuHrNel/g8JAXQwo0=;
+	s=arc-20240116; t=1788966972; c=relaxed/simple;
+	bh=tg5yxBv7c7C7xb37aoXpzahE7awVAo/i6IJkGaqCacQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Upu1MT1gVI2Bu2lTbCZwnqAIQ8FtX+Rm51uNqjLUBi1WnQdScasiLr9XT7BvwQuASgbJ9aOqSxWxXOYKHNd6+wDXSRA7RPYo4Mtfh3CP67gA4AovpnPdmxVSYTqHjCKIMms8Iu1NSYoD/L/P3Y+g3Xka18rDSgf7u2tXAyZHuwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gcrX/Osr; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=UhRiL8GpWCquiMzYKPPuUMU1TWLawZoxQdtncv7Rk4GJiqSRfkpbBXt7NkfI9x2rOpNwZC97PdTygcf3g7CcXobyDQjuNBFGJa9lQoldZO7j2RDdm4OUt/8E97ZmyyPmremBvywoKCuY3HM2/+ATyf9Mi9i5rYusN7qAn0hoSRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e6WdlCrZ; arc=none smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gcrX/Osr"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49d1fb0cf5eso2905445e9.3
-        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2026 07:58:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788965917; x=1789570717; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=OG8rM47+wQa5telCcXnv0ivoaCzuHrNel/g8JAXQwo0=;
-        b=gcrX/Osr7jULvPpbVsiR/YE9EUyFW21uf4qekP/mL8NCiWrT1G2PD6OTMxmnXIrSka
-         zqfBu5VH68FGtu7lDQVTDlvArzM+4iBhQ5nocWDOLp7d4KKrDA67U+PjVqCsFPgU+7DZ
-         ZKE0IKelzKPx5DmCzVdVlSMBGfvaT2ywShlnxBvYgzaZiNssuHexjXI5QPVZDugjDpac
-         hYRskKl/Htp256c7oZMUlEvnNlloEPSRqZbz0N7Ja+UgV7SxwsaK9XS9g/kRKaacRT5h
-         nJmuTTSDM15tsAc2Yk+K1Vy8KAtovzExAWL1uYxt4Vms3KMrckO0QgYfPM4ni+OzpLVc
-         8VNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788965917; x=1789570717;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=OG8rM47+wQa5telCcXnv0ivoaCzuHrNel/g8JAXQwo0=;
-        b=Ft30CtPWbjIOTmz120e673ESFRd2mRgNiwSVLCyac/EjLXk4+avLOGyqsLWtRrbTOC
-         rG0zADI8iQW/La/dEbM8vpKRLxa/RQW+IKbbmQor1eoZ22Lu0Fql8BfYrQCF1430eSue
-         /lHlJslUCnSZ7zVQE3mixntfJb00JclpSFH+jSSLjsKUuX3mCKcsiG/OOxFdZFsl7o8Z
-         0EajEmWJDs4LoBtW0KcQv6U191aC1j/u0oyT27VYIZjPd70AAqQ4YROCKwkZE1RbkwuL
-         I2vY6q+IAO6oxzJhou2zC2V4LA0v8DaUfiXIA6QuNVkoBAzSB7HtLf6ENTG8SpC0fMAi
-         uDOg==
-X-Forwarded-Encrypted: i=1; AKwUvBxPP1Kxe6EF9JF9dv/jEvKI58JU/U5lT+RejqFErbPeL7vzeHrFzvUaK/Hpy6k1XbWPQvB2/ga8V00UUA==@vger.kernel.org
-X-Gm-Message-State: AFuF++m1jN5YdI902JLsVMUJuzAoiQUyrY48rSWJLa9NTL+j+xdMPmMM
-	2PRvgweX1jEHUC5I9X+K8SvX+PUDdnNMvPQ2L5GN4a8+HNU8wEOMWE8t
-X-Gm-Gg: AYBFou0jUWWaD8zMBzS52OxZX6lN9w1ZPQBOHL2wMrmp43fPLUeTiNpw1Njulq6+asd
-	mGtkGSkqIkbm1A91WeXl8LpLUpxsg786847aZ0iq1GA8rqRgk88RuCzWvexnFhgkOeZdJPm5Q/4
-	U1sNQM+OyGPv+RhyClvO4fmxGOCKFh7OVSVKBxWIlL80/oi2eVZCDNC3Qtv+zZuM9lviv6xilvR
-	7MMozCynakPKCbX4UfIKPJ2olWsp6CarlfAzgEqtZW4uko/49Galv7Fl3jQv6oTD8mgqHof3Ohw
-	C7EJB7RHZ1ZTDBkVrkJM/ALrvq+WMMqQoRaBUldeqSwEcjaQUiMxTxQLsuJ7gE8VHeWYDooW78z
-	7/ZpvlT7TleiSkiL8Q8bwu/0y+FKoKT7lL2bsZpalgHxezHUHA+oeSoeTI0M0oSJQyrgDA10CHN
-	qc8WL7COkEEX/IhqBbgIAamZ/wNbwqA4dPcy/5dwQDS7gfpWdolD/yvwCd1VAVOtKcvUqjI75/W
-	WO5ew==
-X-Received: by 2002:a05:600c:8b88:b0:49c:f512:2361 with SMTP id 5b1f17b1804b1-49d2593842emr34218375e9.14.1788965916931;
-        Wed, 09 Sep 2026 07:58:36 -0700 (PDT)
-Received: from localhost ([2c0f:3d00:6be:8900:ce5e:9212:ea4b:f30])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d00a5b19dsm423987255e9.2.2026.09.09.07.58.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Sep 2026 07:58:36 -0700 (PDT)
-Date: Wed, 9 Sep 2026 17:58:32 +0300
-From: Dan Carpenter <error27@gmail.com>
-To: Breno Rodrigues Alves <breno3011alves@gmail.com>
-Cc: gregkh@linuxfoundation.org, torvalds@linux-foundation.org,
-	linux-kernel@vger.kernel.org, arnd@arndb.de,
-	linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
-	linux-usb@vger.kernel.org, linux-sound@vger.kernel.org,
-	linux-staging@lists.linux.dev, linux-fbdev@vger.kernel.org,
-	linux-security-module@vger.kernel.org
-Subject: Re: [PATCH v9 1/3] interconnect: mediatek: fix Makefile typo for
- mt8196
-Message-ID: <aqF0GLDB5a-P-uvq@stanley.mountain>
-References: <20260905130925.7115-1-breno3011alves@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e6WdlCrZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1788966970; x=1820502970;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=tg5yxBv7c7C7xb37aoXpzahE7awVAo/i6IJkGaqCacQ=;
+  b=e6WdlCrZw0SkH82SDBDlXK9BwveCJlD8CO/S6eB1Ccs3AfIkJ9VzSaxH
+   /k3TjaipqTXYCLC7ARBsRyilkpK7hNR9564MOGfA/rIFJzAYqDRcPaA0+
+   9t39t9KCyWSEja0Poq79fIAZqgDohNKx97OKV/8g9worh1RiUm3vW0nvz
+   EoOj0Z8r2+aXHn1uEMN13/FZ/Vqqps6CH7f0antbtYKmVxxpGpwQ8/ENs
+   j5ClGbL0I+ydNQmbawnXiMyc1L+r2mJsF/zk2kcSj6VQbpUpUxPY7gbx0
+   sHQzbdH9SJm8zVJmZhlmKs5EoOwSmoz3VsqJD13KjreTWEP5+HsOfJmUa
+   g==;
+X-CSE-ConnectionGUID: k7i58fCVQLqv7YlcjvtI2A==
+X-CSE-MsgGUID: p/bo45SZR72lJsgSQB/7gA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11900"; a="100558744"
+X-IronPort-AV: E=Sophos;i="6.25,270,1779174000"; 
+   d="scan'208";a="100558744"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Sep 2026 08:16:10 -0700
+X-CSE-ConnectionGUID: ABVBP+68SaOnxxdqhKA+YA==
+X-CSE-MsgGUID: Y9ZM0ItwRkmvLPolUJJ3tg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,270,1779174000"; 
+   d="scan'208";a="274863366"
+Received: from lkp-server01.sh.intel.com (HELO a3e91e2cf319) ([10.239.97.150])
+  by orviesa003.jf.intel.com with ESMTP; 09 Sep 2026 08:16:09 -0700
+Received: from kbuild by a3e91e2cf319 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1x4K1t-000000000W0-2VBk;
+	Wed, 09 Sep 2026 15:16:05 +0000
+Date: Wed, 9 Sep 2026 23:15:15 +0800
+From: kernel test robot <lkp@intel.com>
+To: Oleg Keri <okerixx@gmail.com>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: lenovo: suppress phantom radio control input on
+ Yoga Slim 7x Gen 11
+Message-ID: <202609092332.pk1AmDaL-lkp@intel.com>
+References: <20260908091907.5653-1-okerixx@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,12 +68,90 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260905130925.7115-1-breno3011alves@gmail.com>
+In-Reply-To: <20260908091907.5653-1-okerixx@gmail.com>
 
-What changed between versions?
+Hi Oleg,
 
-staticthinking.wordpress.com/2022/07/27/how-to-send-a-v2-patch/
+kernel test robot noticed the following build errors:
 
-regards,
-dan carpenter
+[auto build test ERROR on 5e036ce12de91c6fd674dad33b169c6150be2a7a]
 
+url:    https://github.com/intel-lab-lkp/linux/commits/Oleg-Keri/HID-lenovo-suppress-phantom-radio-control-input-on-Yoga-Slim-7x-Gen-11/20260908-111907
+base:   5e036ce12de91c6fd674dad33b169c6150be2a7a
+patch link:    https://lore.kernel.org/r/20260908091907.5653-1-okerixx%40gmail.com
+patch subject: [PATCH] HID: lenovo: suppress phantom radio control input on Yoga Slim 7x Gen 11
+config: sh-allyesconfig (https://download.01.org/0day-ci/archive/20260909/202609092332.pk1AmDaL-lkp@intel.com/config)
+compiler: sh4-linux-gcc (GCC) 16.1.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260909/202609092332.pk1AmDaL-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202609092332.pk1AmDaL-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   drivers/hid/hid-lenovo.c: In function 'lenovo_input_mapping':
+>> drivers/hid/hid-lenovo.c:523:14: error: 'I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD' undeclared (first use in this function); did you mean 'I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_KEYBOARD'?
+     523 |         case I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD:
+         |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         |              I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_KEYBOARD
+   drivers/hid/hid-lenovo.c:523:14: note: each undeclared identifier is reported only once for each function it appears in
+   In file included from drivers/hid/hid-lenovo.c:30:
+   drivers/hid/hid-lenovo.c: At top level:
+>> drivers/hid/hid-lenovo.c:1584:41: error: 'I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD' undeclared here (not in a function); did you mean 'I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_KEYBOARD'?
+    1584 |                      USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD) },
+         |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/hid.h:817:64: note: in definition of macro 'HID_DEVICE'
+     817 |         .bus = (b), .group = (g), .vendor = (ven), .product = (prod)
+         |                                                                ^~~~
+
+
+vim +523 drivers/hid/hid-lenovo.c
+
+   488	
+   489	static int lenovo_input_mapping(struct hid_device *hdev,
+   490			struct hid_input *hi, struct hid_field *field,
+   491			struct hid_usage *usage, unsigned long **bit, int *max)
+   492	{
+   493		switch (hdev->product) {
+   494		case USB_DEVICE_ID_LENOVO_TPKBD:
+   495			return lenovo_input_mapping_tpkbd(hdev, hi, field,
+   496								usage, bit, max);
+   497		case USB_DEVICE_ID_LENOVO_CUSBKBD:
+   498		case USB_DEVICE_ID_LENOVO_CBTKBD:
+   499			return lenovo_input_mapping_cptkbd(hdev, hi, field,
+   500								usage, bit, max);
+   501		case USB_DEVICE_ID_LENOVO_TPIIUSBKBD:
+   502		case USB_DEVICE_ID_LENOVO_TPIIBTKBD:
+   503			return lenovo_input_mapping_tpIIkbd(hdev, hi, field,
+   504								usage, bit, max);
+   505		case USB_DEVICE_ID_IBM_SCROLLPOINT_III:
+   506		case USB_DEVICE_ID_IBM_SCROLLPOINT_PRO:
+   507		case USB_DEVICE_ID_IBM_SCROLLPOINT_OPTICAL:
+   508		case USB_DEVICE_ID_IBM_SCROLLPOINT_800DPI_OPTICAL:
+   509		case USB_DEVICE_ID_IBM_SCROLLPOINT_800DPI_OPTICAL_PRO:
+   510		case USB_DEVICE_ID_LENOVO_SCROLLPOINT_OPTICAL:
+   511			return lenovo_input_mapping_scrollpoint(hdev, hi, field,
+   512								usage, bit, max);
+   513		case USB_DEVICE_ID_LENOVO_TP10UBKBD:
+   514			return lenovo_input_mapping_tp10_ultrabook_kbd(hdev, hi, field,
+   515								       usage, bit, max);
+   516		case USB_DEVICE_ID_LENOVO_X12_TAB:
+   517		case USB_DEVICE_ID_LENOVO_X12_TAB2:
+   518		case USB_DEVICE_ID_LENOVO_X13_TAB:
+   519		case USB_DEVICE_ID_LENOVO_X1_TAB:
+   520		case USB_DEVICE_ID_LENOVO_X1_TAB2:
+   521		case USB_DEVICE_ID_LENOVO_X1_TAB3:
+   522			return lenovo_input_mapping_x1_tab_kbd(hdev, hi, field, usage, bit, max);
+ > 523		case I2C_DEVICE_ID_ITE_LENOVO_YOGA_SLIM_7X_G11_KEYBOARD:
+   524			return lenovo_input_mapping_yoga7x_g11_kbd(hdev, hi, field, usage, bit, max);
+   525		default:
+   526			return 0;
+   527		}
+   528	}
+   529	
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

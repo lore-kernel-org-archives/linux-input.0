@@ -1,128 +1,109 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 891E5430302
-	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 20:27:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B8F3B7742;
+	Wed,  9 Sep 2026 20:28:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788985656; cv=none; b=oLAVDQstUaoMvXAnZQ92moH2XW6Jd69kzUJzitJRpDj3pqQjzTTHM9ouWtEvxuSsxxG4W0kl9+3oNYhwrpfx7GIpL1+kh5XVyZXqkXk1Szf3ET97if6efwkP7qtal6q5HvRd6kyOE/XTtylkXBJv8jMbdDZtui7G8i/slb735AY=
+	t=1788985728; cv=none; b=Bpv0xUCwiI+eCFj8l3/rjPqL6W588906nVJO5x1QbRhR2yEJhZs1mZSA8RRBgwgBY5MW3OpSUlgChhLSVEDrm4CApwkmRg5hfqE9IbDSP8FpfJOEvPD/1vvMHHmf4ztJrQQrFMEEVSSvJjvlMjlEihYnUreUSDzoC1QIFsLKVSs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788985656; c=relaxed/simple;
-	bh=QwhogU0EtLUZ6ngOGdOZVnFb3o8VkGZfi9CXG4Khs/c=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YpuXWWlsDB8oYg4+CY/9lldAeEDgnOQo8VnDW5wQtsemd3kaj3lA15FrAD27b/Pho9w1xl+3Zsvlbk/QtguaLwiOZ+Ci3mJHwSOks2k+2CpyNezwH34f663pelo1hxCGZtCrglchg34uIqiZw162pLqMJtC91MU3Rj9EGLN8yr4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q/j00O8M; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1788985728; c=relaxed/simple;
+	bh=QISU5wQMrvMhMtMCIZ/TuxNbQ2q9R16Gc79aX5NAMQM=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=NSUHhL1W2ykJBwOKt1tCk178OhJtH4tHjelFNiFo2cX5s1mdNepgRA5J3D6FZULflzWlif3YK4+9FdW43YVl4UulCA7empWLNGRG0eoFoVF42SOPorCDmGwvrXe/OCBbBAI1hPhzpmzpmsD1vwdzWhXHKiz5aUud2Q76Q7clLsM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fols19Bh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q/j00O8M"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4956869750eso56158265e9.2
-        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2026 13:27:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788985648; x=1789590448; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=2NRvs41+5uPFlOeoWPYyoihSNfHIDwMg8K54gWzgpRo=;
-        b=Q/j00O8MYPiim6h9ESKjmpBRcrr9UWgDUIlo/sb4mo8bv/zek0bBWQAf7VmVZh19iN
-         sSpxx/MDJBb/y0Tuh28DRdTtTqgvJLkLPlqwFLIBouCT79sDMsdJb75Y1xbhNvbA3s5O
-         XRXdhKJs/iUNWtw1h3aT8G+XoxCWiZphaYxDiK2KwIY5LQn22fwnZoSseDE15JFpIlEq
-         dp8igHbohlHSUhiuHhkBFI4fCkE9vb5OymFaDATCW1XrkPE8x/6M7cxqb3+MfvXdVZ9d
-         H2vgNTgAeFnsAaZLjorjixrKLqpfAg6HYpudb0jEtdcrGpXKWELVY2WwdoXoxxHiezy/
-         hLxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788985648; x=1789590448;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2NRvs41+5uPFlOeoWPYyoihSNfHIDwMg8K54gWzgpRo=;
-        b=WfHf7HEeGn/fcaW9s1w/AJQKV7DeQQLWAZJ8MKsrSntHioOAfgZy4/JMFVsIVqH0Am
-         UN4DdgjuU1Y3T1IgI2bOUN3hKwBDx9Aw6lwV3suGBwfkdxIyBsTXSb+mnMEaydgV9w5l
-         mbJVJXZw07baGRC01/HdCasJcm28oul5iW3ZkKwM/GPDtKNrpT4qz/kyr0czPAuvmYGq
-         2Px6pp8Ip3mnmFSy5Z5UCw9UfHMLvPF7x/sVUirt+RzcrX9KNmeZlFde9iN6OD10v3QQ
-         eXP1xAyCQkU/jiaxOHWpOI8cwzqFwAGMIOqEd8Q1f8hg3EVzDmJVrd77IQUfQRZTFmlo
-         KW0w==
-X-Gm-Message-State: AFuF++mFNKyyvaQGbBiPArcPl6Zt4W3mM62CrZvxYTxas0k+E9arlQCq
-	494824h6iOKnyWCYjVitHxHQue/BgWQ5baEc6Vnbe0YZDMAsRymDiUlH
-X-Gm-Gg: AYBFou3BC+Iu1owW1DwNEbxmuUKVLYAeEQPmLtigZTFsHr2JGI3v4KouGgDe8saEq/6
-	pU1xYjqUcHgwxt4BjLNBK4stfefvPqOMUxuea9B4GuoqJzpGeD3P68r52PU911rU1Mty/SPXk5C
-	/utu5hNahKVyYWzMydz8pGJIbKxAubwNxnwvXsnV9PJIWrMnYdF0IGq9yUvh/5G2EyJQ52E5jMn
-	6oE2kNDu7eauLOvImPCmkWmDkjpi45nL1nhTKKT04A0CBqfmtO4XQteWiYFQMJ4LgQoDp5+sjj3
-	bln5pFHSAo7gSExMNhjQ5rmaitSMo173jdczzUwy4Tl4LVCwdd2ZTS8gY6UyERmFv5SkkER4JFG
-	SF77u7b2n216GRlEpeR2dKvFiwPjPVYpDit4BUNclQ3sq+fGhZ0RbyKTxP558Xq/kOYsoVBOCmx
-	h/0vuo6o6uoWfkRUdx1xqRKARenUlTQ313vmBCCCZntKRWKHkb/eH4pKekCbMyl4N/X56XDxJ97
-	LI91dHD
-X-Received: by 2002:a05:600c:4e45:b0:49c:f504:2af5 with SMTP id 5b1f17b1804b1-49cf81dc3ecmr412646735e9.1.1788985647953;
-        Wed, 09 Sep 2026 13:27:27 -0700 (PDT)
-Received: from foxbook (bfg95.neoplus.adsl.tpnet.pl. [83.28.44.95])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d20fce7a7sm172698495e9.4.2026.09.09.13.27.27
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Wed, 09 Sep 2026 13:27:27 -0700 (PDT)
-Date: Wed, 9 Sep 2026 22:27:24 +0200
-From: Michal Pecio <michal.pecio@gmail.com>
-To: Quinn Schive <quinnschive@hotmail.com>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [BUG] HID: logitech-hidpp: G502 LIGHTSPEED loses hi-res scroll
- state after S3 resume
-Message-ID: <20260909222724.30fc8f52.michal.pecio@gmail.com>
-In-Reply-To: <CY8PR14MB59809F95431FC6FFB0D0A56DA0B02@CY8PR14MB5980.namprd14.prod.outlook.com>
-References: <CY8PR14MB59809F95431FC6FFB0D0A56DA0B02@CY8PR14MB5980.namprd14.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fols19Bh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED5A61F00893;
+	Wed,  9 Sep 2026 20:28:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788985722;
+	bh=I+kxnJhecEnYspOixEfBiX1GOqSVXXYgliBU2I5h0UY=;
+	h=Date:From:To:Cc:In-Reply-To:References:Subject;
+	b=fols19BhcnoVFViG7MRlm/xSNYoyZW1iUzGGvPPwTBEPkTAoSSDv4SWvZA/wSMuOs
+	 Rn8a48x7FXHOzBkJUYC46B3E1dvcqiJK/P9wBxeIhQCIW9t0X7K1PXod5IYEUfWzSw
+	 gho00p+xVU1Jm7hG3YI2JldJRvJRKAkPkRN1KAW0GYHY/NIxCK/05NP144A3mZo40G
+	 o3hC2yk39TenVB/UXIk/z9zlM7TDYIfLYecA1pUabso6O/1ELgcN8uFp/k7+jR/E57
+	 IQAZ/nu5Zm9g5G7fwYP+aPOXeQSEe+LsE7GQUAcT9oDvXt1Af7Aa+RKcY7AS2z89Z6
+	 sXWah7Cm11ssg==
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailfauth.ams.internal (Postfix) with ESMTP id 59E75198003A;
+	Wed,  9 Sep 2026 16:28:39 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Wed, 09 Sep 2026 16:28:39 -0400
+X-ME-Sender: <xms:dMGhakZrAgTBnlBqFftocUXviR0J2l7Sre8N_hkU3bm99NdIDpI_vQ>
+    <xme:dMGhaqNkf1UVpBqqwwAIKZGe6ZLR5887KxkWzxjdQYI3lCGrl43WgdmPSAAxnQHsP
+    Uox-U9EzoXttS4S5-47rSz-rZ2uAoCXuXOQors4CntR1dH4NInHP8jwKQ>
+X-ME-Proxy-Cause: dmFkZTE8Kd/+IGN7zwsPgDLBZ7Pw2HSIlU3e1eyy66uQrsX01THEP44sRyzEQVpoW8v+S7
+    UUKed+8n4cu4eeFtESaBbopZLJ6LrBTdCRAync7iQXnwkzKgdYbtZFutVSF81TSkj5oLHm
+    r580h0FhuAildnT6ONm+KzGew4F0SEbuCQV4nqvUhYlCrVwT9UfknvcS497JIK7cA13NaY
+    9Ud5IRKSG/vIwSogDRhoQkRzAa3SDHKuqOM0bM1KH7FXh9QDZUTCQwPNYTXC9RwyKnmJDH
+    V7+T/rFge4J+gL6ogMK86+6wii7xZ1h6OLfZj9KgnGZLdocmKJaNmoyXFpo/+mxxaiEdkT
+    jlWHsCaLqv1TGspZZq12xA8euHVb7zvVRyb2MXaU3xRe5DtA//BGIKLrgLh+dmhrsOl0Zr
+    LhWH2PfvgXrEg28p9yDwL50pLFysJbkseor7mYCo6kqWkSeWAqQTWUlbSkBwY2s5Tn9yji
+    zYbo1j/RT1XLUpGjwAmSZuYwovSpvRBA32oYRPXhVGksgdotjvcV8f5mqReuuUuAW9l67w
+    /etZ6hRhJ7BppXSfmCE1NW0Z51mYf/ZYPGj3MzO3OLBodhCqoMiydyYfetnuz+QZbRmWXG
+    6DUPUYvLLxpKQYFcX8kN926mmi5lo/AquurTUISnXbXY9XE75EuEaMhb2KlQ
+X-ME-Proxy: <xmx:d8Ghas_AlNDs4o4m4hmLeopgBHxFnbofTtd53FIHx00SNOdAX09wmA>
+    <xmx:d8GhatetjFIRC8dRHihv3Rdu5cMWoC3ft1F1tCAIAUNioBHRZa6oIw>
+    <xmx:d8GhagtO6IjNdv5Jht6BhK6wRORMmcDzfx-4GiJr1UkH7c_qnHCeLw>
+    <xmx:d8Ghau2zRd_Qf-XFQel1Ar1hzUadP-wn0PBMyD9aurfsjithUavzxA>
+    <xmx:d8GhalBJh7CQ2Q4n7PDcU-vbkiGbQPaVyavFhkAYmhgNTQLesx-lqTph>
+Feedback-ID: i36794607:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id CB1DB32A007B; Wed,  9 Sep 2026 16:28:36 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-ThreadId: A6VsXwS0CIh3
+Date: Wed, 09 Sep 2026 22:28:16 +0200
+From: "Arnd Bergmann" <arnd@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org,
+ media-ci@linuxtv.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, "Rob Herring" <robh@kernel.org>,
+ linux-input@vger.kernel.org,
+ "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ linux-watchdog@vger.kernel.org, linux-rtc@vger.kernel.org,
+ "Conor Dooley" <conor+dt@kernel.org>,
+ "Florian Fainelli" <florian@openwrt.org>, "Lee Jones" <lee@kernel.org>
+Message-Id: <098645b4-afea-47db-9c43-ecd5ef61c68a@app.fastmail.com>
+In-Reply-To: <20260909133956.E4DD51F00A3D@smtp.kernel.org>
+References: <20260909132153.1596191-1-arnd@kernel.org>
+ <20260909132153.1596191-3-arnd@kernel.org>
+ <20260909133956.E4DD51F00A3D@smtp.kernel.org>
+Subject: Re: [PATCH 02/14] mfd: remove unused rdc321x southbridge support
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Wed, 9 Sep 2026 09:58:28 -0600, Quinn Schive wrote: 
-> After some S3 resumes, mouse wheel scrolling becomes approximately 8 
-> times slower.
-> 
-> Turning the G502 off and back on immediately restores normal
-> scrolling.
-> 
-> I captured the failure before power-cycling the mouse.
-> 
-> During the resume that triggered the problem, both PROM21 xHCI 
-> controllers reported:
-> 
-> xhci-pci-prom21 0000:11:00.0: xHC error in resume, USBSTS 0x401, Reinit
-> usb usb10: root hub lost power or was reset
-> usb usb11: root hub lost power or was reset
+On Wed, Sep 9, 2026, at 15:39, sashiko-bot@kernel.org wrote:
+>> Remove this driver, as there is no way to run Linux any more on the
+>> older chips after i486 support has been removed.
+>> 
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>
+> [Severity: Low]
+> Since the entire platform and driver support is being removed, should we
+> also clean up the remaining dead references to the RDC321x platform?
+>
+> Specifically, the reboot fixup code in arch/x86/kernel/reboot_fixups_32.c
+> has a rdc321x_reset() function and an associated entry in fixups_table that
+> appear to be left behind now that the hardware is no longer supported.
+>
+> Additionally, the PCI_DEVICE_ID_RDC_R6030 definition in include/linux/pci_ids.h
+> is no longer used by any active driver.
 
-Hi,
+This sounds like something that should go through the x86 tree, but probably
+not this patch.
 
-You could try if this problem is fixed by the following patch:
-https://lore.kernel.org/linux-usb/178832755831.50581.1058201741431375556@gmail.com/
+> Finally, there is a stale "RDC R-321X SoC" entry in MAINTAINERS that might
+> need to be removed to complete the cleanup.
 
-That being said,
+Removed this now, and added Florian to Cc here and in the changelog.
 
-> My interpretation, with the caveat that I am not familiar with the
-> HID++ driver internals, is:
-> 
-> 1. Before suspend, the G502 is configured for high-resolution
-> scrolling and hid-logitech-hidpp stores wheel_multiplier=8.
-> 
-> 2. During S3 resume, the PROM21 xHCI controller fails normal resume
-> and is reinitialized.
-> 
-> 3. The LIGHTSPEED receiver gets a USB reset while USB persistence
-> keeps the logical receiver/HID device present.
-> 
-> 4. The G502 appears to lose its high-resolution wheel reporting 
-> configuration. In the affected state, one physical detent generates
-> only one raw increment.
-> 
-> 5. hid-logitech-hidpp retains wheel_multiplier=8 and apparently does
-> not re-run the necessary high-resolution configuration on this
-> recovery path.
-
-this still looks like missing functionality in the driver.
-Needs to handle reset_resume() perhaps?
-
-Regards,
-Michal
+     Arnd

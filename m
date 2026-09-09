@@ -1,89 +1,121 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 031E94AF15D;
-	Wed,  9 Sep 2026 10:07:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B480D3DD849
+	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 10:19:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788948471; cv=none; b=tbp44XS5H5FlHj4TPDAbvvVtf5nizQvWSjN1X3ttnh6voxmmjAt5zKrAJyC4J958qPXLeQvzqQrsbegNtCU2Bi4a0I2USHtGw7jKJSPkkkk+hASwW9BfAyFEHkE69bDv8MuEvTQtKVgAwDHZh4/fGa76k61jW8YsBudZa3rwGfw=
+	t=1788949176; cv=none; b=qBJH14EikzzqlxBtd1XNHPwNwmvfs8sSXtKXyu/UdYAUqD7jDNjKyPM9gyGN8sCfQsxRm6TK22Oe9v8x2rjley2bXU+5DehW115SgTzpqU+bDv9T23XlQab94qqQl/KT0I3KXXs0PJPVpXSUsSF6Bi1QEpqYj4hDErP0J/VQjSw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788948471; c=relaxed/simple;
-	bh=fAwwlBkanBN9ZgOkTuhWirWjiQo/2ofcRrGcgQiq48I=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bntMQyJrCkYZ0YchX0WaOqPau1Z3GF8Dy7p/xrXRMzOqanGy/2keCBdwcrEFztlLU4Fyf40ZKTAkg8ngBWbJo6XqB7kSUJuMV8RC9CS5gnd+NY0zy12HhBo8TaT0ytRRSk5LzxFx0EWqpOcMCCbcumXkQ7t6DS9qa+TGAPkdMms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 4cadc29aac3611f19a56ed5b684f684d-20260909
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:4fbc1c53-60a0-4df2-94eb-3480026c2f2d,IP:0,U
-	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:25
-X-CID-META: VersionHash:7db8b62,CLOUDID:f0f7894325d2a424121c0ce0deb642ef,BulkI
-	D:nil,BulkQuantity:0,SF:102|850|865|898,TC:nil,Content:0|15|50|99,EDM:5,IP
-	:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,
-	LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 4cadc29aac3611f19a56ed5b684f684d-20260909
-X-User: lilinmao@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <lilinmao@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 638644255; Wed, 09 Sep 2026 18:07:43 +0800
-From: Linmao Li <lilinmao@kylinos.cn>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Linmao Li <lilinmao@kylinos.cn>
-Subject: [PATCH] Input: matrix-keymap - reject keycodes above KEY_MAX
-Date: Wed,  9 Sep 2026 18:07:39 +0800
-Message-Id: <20260909100739.3107556-1-lilinmao@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1788949176; c=relaxed/simple;
+	bh=zuCP2xE7LESS8cUy9X3zAc79NiJ1zH0/tpR5llVgrTg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=DKCSjxw2I/totQ6oMaDaXpaQygnaIYTZbDs1a/zavrHs8rSgzfiU6VqHlGX0n6NquqemUVpF/rIE/L09w5tAHW+sLflm47GJy7LEXmE48ht+kFH0s+Flp0ZQjM/RiAECxwor1Nq2tEGyEAnNvyj+LDVv+DRXrv8BdCws7xzMmBY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MFAzHQqK; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MFAzHQqK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 578E31F00A3A;
+	Wed,  9 Sep 2026 10:19:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788949175;
+	bh=GTvke0l5FFkmqmbitYtppQGgX28YKLwVvfV64xaFne4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=MFAzHQqK5FQBoxSjt7A64enGsn+LhHTVawgua3BvMaiQh0i9vkXSabdDmEI66Tz+F
+	 q/2uPbVwTA0DsAuMvUbNPV34CV3Dv8Zq0MUtZpb3scg+rE+uiGxzyrBajHcj3W1/8M
+	 8oLcZ8buaSJRjLbYqxd2F3XUfpdpzZXlKKuDQoNTNG+74kvEHTZ3XntJiULkGBYr4u
+	 RMTdMlrmm+YWAsjg7HkdcXpYqdPwRRlIVAipATMtYo54G7FLkQmcY+m23tRuhPmiXm
+	 x4s7Ac3Hv2BzvNt+PeCPgf1GLkahnISUmbpShWrjAayPjs2ZsOJntir1U38Im0ByXu
+	 dp3LHNUpvauxw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: matrix-keymap - reject keycodes above KEY_MAX
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Linmao Li" <lilinmao@kylinos.cn>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260909100739.3107556-1-lilinmao@kylinos.cn>
+References: <20260909100739.3107556-1-lilinmao@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 09 Sep 2026 10:19:34 +0000
+Message-Id: <20260909101935.578E31F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-matrix_keypad_map_key() validates the row and column of each entry before
-using them to update the keymap. It does not validate the keycode before
-using it as a bit number in input_dev->keybit, which only has KEY_CNT bits.
-A malformed firmware or platform keymap can therefore write past the
-bitmap.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Reject keycodes above KEY_MAX before updating the keymap or capability
-bitmap.
+Pre-existing issues:
+- [High] Missing bounds checks on matrix dimensions causes an integer overf=
+low when calculating max_keys, leading to an undersized heap allocation and=
+ a subsequent out-of-bounds write.
+--
 
-Fixes: 77a53fd21870 ("Input: matrix-keypad - add function to build device keymap")
-Signed-off-by: Linmao Li <lilinmao@kylinos.cn>
----
- drivers/input/matrix-keymap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+commit 821b9503dcfef31a275bc1fec44950b4eda55e94
+Author: Linmao Li <lilinmao@kylinos.cn>
 
-diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
-index 3bea3575a0a9..e4227e96aa4e 100644
---- a/drivers/input/matrix-keymap.c
-+++ b/drivers/input/matrix-keymap.c
-@@ -35,6 +35,13 @@ static bool matrix_keypad_map_key(struct input_dev *input_dev,
- 		return false;
- 	}
- 
-+	if (code > KEY_MAX) {
-+		dev_err(input_dev->dev.parent,
-+			"%s: invalid keycode %u in keymap entry 0x%x\n",
-+			__func__, code, key);
-+		return false;
-+	}
-+
- 	keymap[MATRIX_SCAN_CODE(row, col, row_shift)] = code;
- 	__set_bit(code, input_dev->keybit);
- 
+Input: matrix-keymap - reject keycodes above KEY_MAX
 
-base-commit: 944a035ecca915ae947905dcfb03f2b9dc6d032c
--- 
-2.25.1
+This commit adds bounds checking for keycodes in matrix_keypad_map_key() to
+ensure they do not exceed KEY_MAX. This prevents a malformed firmware or
+platform keymap from writing past the bounds of the capability bitmap.
 
+> diff --git a/drivers/input/matrix-keymap.c b/drivers/input/matrix-keymap.c
+> index 3bea3575a0a94..e4227e96aa4e7 100644
+> --- a/drivers/input/matrix-keymap.c
+> +++ b/drivers/input/matrix-keymap.c
+> @@ -35,6 +35,13 @@ static bool matrix_keypad_map_key(struct input_dev *in=
+put_dev,
+>  		return false;
+>  	}
+> =20
+> +	if (code > KEY_MAX) {
+> +		dev_err(input_dev->dev.parent,
+> +			"%s: invalid keycode %u in keymap entry 0x%x\n",
+> +			__func__, code, key);
+> +		return false;
+> +	}
+> +
+>  	keymap[MATRIX_SCAN_CODE(row, col, row_shift)] =3D code;
+
+[Severity: High]
+This is a pre-existing issue, but since this patch aims to mitigate malform=
+ed
+firmware and keymaps causing out-of-bounds writes, does the bounds check
+earlier in this function fully protect against integer overflow?
+
+If a maliciously crafted Device Tree provides a large value for
+keypad,num-rows (e.g., 0x80000001), it is read without bounds checking. When
+matrix_keypad_build_keymap() computes max_keys:
+
+drivers/input/matrix-keymap.c:matrix_keypad_build_keymap() {
+    ...
+    size_t max_keys =3D rows << row_shift;
+    ...
+    keymap =3D devm_kcalloc(&input_dev->dev, max_keys, sizeof(*keymap),
+                          GFP_KERNEL);
+}
+
+The 32-bit shift overflows, resulting in a tiny allocation for keymap.
+
+Then in matrix_keypad_map_key(), the earlier bounds check:
+
+    if (row >=3D rows || col >=3D cols) {
+        return false;
+    }
+
+compares the extracted 8-bit row against the large unshifted rows value
+(0x80000001), completely bypassing the safety check.
+
+This allows MATRIX_SCAN_CODE to calculate an index far outside the tiny
+buffer, causing an out-of-bounds heap write when assigning the keycode here.
+Should rows and cols be validated against a maximum sane value before the
+shift to prevent this overflow?
+
+>  	__set_bit(code, input_dev->keybit);
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260909100739.3107=
+556-1-lilinmao@kylinos.cn?part=3D1

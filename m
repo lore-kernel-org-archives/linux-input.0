@@ -1,113 +1,163 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54D60548543
-	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 11:31:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3359474271
+	for <linux-input@vger.kernel.org>; Wed,  9 Sep 2026 11:32:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788953506; cv=none; b=Tuu2eIm0LXZBqn0OBWXZVGbFoRuwd50m2ayBw3ip/WOyY9PIlkaBlwaGRPxYtYdg/MeJ2GVfcfRNnOrtRWFGFCzzep9d1+AIRH4m22aw9BpuJ/u/XW8KWGhfrcxZmqC9XlAPqd85BfFZBjbEyEGO/bz6fgDnuMa3xhP4cR+Z2eo=
+	t=1788953563; cv=none; b=UIsVk9to+BGiM1lLUFlop/7F2hicEFv/IUn9w1h6747lP/cz4TWWErfT06MwzyCKiAqpXZtAVu71cPC2ZmBLSxaan4YaigDIjn9MRJRePA770QLPNVLCTuL0s5cb4+vIJw4KliHE/w7aiTRFvgkz1lHyPYykj+6Go8EQZX6luIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788953506; c=relaxed/simple;
-	bh=gwj11CwQ4BByctKNjXE5RutBIBFKQJx3pQCEqmcLA+Q=;
+	s=arc-20240116; t=1788953563; c=relaxed/simple;
+	bh=iMTkRE1dgNq2bUnXjqu8h6ghTsWteze0CxO7Ubiam6Y=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=lMAGqWrzVEgiwfmvWpraxwyB1KPe0Rclhju3MKaLDglf3F3yyypaWM0JvhTHBxhH3BwiTvUtEjYQVzcGaLTDRzXylI2lVry4hCQ/9DcOgELvBbsqSa6q+B3guntHPoLLNzEfW6cQAn/vV3EtscIpMXX6PxUkNJFbB9wPGEFv2Lk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E4h+01aB; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mjJ+vDTv967mmqGaImOJPR/fZ94spXIig9cj6GkudCUtKi7UHwrOLF7VRDE/7wR5Puld4hwcCHcHs+4I5nNtGJ5x2MIpsgQIGOQW7MsRhHMEiKrFoGH5n3nXvJgvT0aWjZDvfG+/kxUZYYJxYTQgsnDLZLWc5h1E4WCRFa4hK90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V3yfn9w8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E4h+01aB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028DA1F00A3E;
-	Wed,  9 Sep 2026 11:31:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V3yfn9w8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB321F00A3D;
+	Wed,  9 Sep 2026 11:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788953505;
-	bh=HLTJ8/irDR/RTE3H5poGbE84uhafXoC/Bxx2CoQ0OEY=;
+	s=k20260515; t=1788953561;
+	bh=rMb5Yr5l7c5VlcUSRD0eAD2EifljF7j7XhenC58M+mM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=E4h+01aBTri0dZxlyORRSBJRwe4cSbiRt2ND2ZWNlBrB1P+8HYsIK/i2JKMwCMhWv
-	 i1bbbSmV16/sQvKUKePwiCp5n4VXg5Hy3rQXKLSxQiVxAqbBAArG4w01pFhy9eBrbd
-	 f1/zz9p2DTrp+i+GtTp4IkOMee56cLEy+g7M1cioPllSktBOTN5wT94YRqUAUDiQAb
-	 i5uPshbN3yprV5tEqtNPtYk0KLKp1wZfSXbt4f6zjbvMfrcMR1WyKJ8CVqccjy11w3
-	 5hHQFjXMgWVL8vWkXplAi9gqYNdfpAwe6j/zZMC4cmAZvo+wL6Rwa5wGGmwLzspJLw
-	 GozKaZkvw+rWg==
+	b=V3yfn9w8vJthD1ltgftD3XwWHusJ+G4JJuxd5sM7+y6X//s9EmpvpZxREyCMc6TZH
+	 owoFAiCz1BoFKFUHgaiDEzLDJ76o5qAbOSW44eFseB3wxRbnJ2ifIgPu09VEJe5Ubw
+	 6oqhO6GZwkkEz33j+Wo2OPd4wmIS1ce/gl9CidjQVNRRGfTlV45QZ0a7oiIRAWvl9S
+	 XjYkKOzIa8gecVDN6Gk+I8Xp6UDhaz6rW7rwpuwn3vy02UsbiXyDm+z6nZ6+afBYE7
+	 /bSfGyQzA0McE1jOux5ey1I2JvixS6DwIzpUhoq9xVMe1l5WWUCUeDQMms46u5X9IU
+	 XtA/UXzhMRINQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 1/5] HID: wacom: Use hdev->product in
- wacom_setup_touch_input_capabilities
+Subject: Re: [PATCH v10 3/5] HID: wacom: Fix Use-After-Free in
+ wacom_intuos_pad
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lee Jones" <lee@kernel.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <fa3cb42f7b58c1b3022d8208969a81882783a5ec.1788868602.git.lee@kernel.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <c861d21f863c023ac89878c170a00fe8c80405d9.1788868602.git.lee@kernel.org>
 References: <fa3cb42f7b58c1b3022d8208969a81882783a5ec.1788868602.git.lee@kernel.org>
+ <c861d21f863c023ac89878c170a00fe8c80405d9.1788868602.git.lee@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 09 Sep 2026 11:31:44 +0000
-Message-Id: <20260909113145.028DA1F00A3E@smtp.kernel.org>
+Date: Wed, 09 Sep 2026 11:32:41 +0000
+Message-Id: <20260909113241.7EB321F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] Missing cancellation of asynchronous works and timers in the p=
-robe error path leads to use-after-free.
+- [High] Lockless access to `shared->pen` and `shared->touch` leaves siblin=
+g `hid_device` pointers vulnerable to Use-After-Free during concurrent hot-=
+unplug.
+- [High] Sysfs callbacks access `wacom->led.groups` without NULL checks, ra=
+cing with `wacom_remove()` cleanup.
 --
 
-commit ca8b53c76679ad840d06b68ac883d22ba58fe317
+commit f9df2fb1ac73b67929633c2e25c6e475a7abd240
 Author: Lee Jones <lee@kernel.org>
-Subject: HID: wacom: Use hdev->product in wacom_setup_touch_input_capabilit=
-ies
 
-This commit replaces lookup-dependent touch product references with
-hdev->product inside wacom_setup_touch_input_capabilities(). This
-simplifies the code since hdev is already available via container_of
-and represents the touch device itself.
+HID: wacom: Fix Use-After-Free in wacom_intuos_pad
 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 8feb8027be95e..7cf2b4de52be7 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-[ ... ]
+wacom_intuos_pad() accesses wacom->shared->touch_input locklessly
+inside the interrupt handler context. If the Touch sibling device
+is disconnected, wacom_remove_shared_data() clears 'touch_input'
+outside any lock, creating a Time-of-Check to Time-of-Use (TOCTOU)
+race condition where a preempted reader in interrupt context
+dereferences the freed pointer, leading to a Use-After-Free.
 
-While reviewing the wacom driver lifecycle, I noticed a potential issue in
-a related file during the probe error path:
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 4eed2c189017d..10f7de515ea28 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -875,10 +875,16 @@ static void wacom_remove_shared_data(void *res)
+>  		data =3D container_of(wacom_wac->shared, struct wacom_hdev_data,
+>  				    shared);
+> =20
+> -		if (wacom_wac->shared->touch =3D=3D wacom->hdev)
+> -			wacom_wac->shared->touch =3D NULL;
+> -		else if (wacom_wac->shared->pen =3D=3D wacom->hdev)
+> -			wacom_wac->shared->pen =3D NULL;
+> +		scoped_guard(mutex, &wacom_udev_list_lock) {
+> +			if (wacom_wac->shared->touch =3D=3D wacom->hdev) {
+> +				wacom_wac->shared->touch =3D NULL;
+> +				rcu_assign_pointer(wacom_wac->shared->touch_input, NULL);
+> +			} else if (wacom_wac->shared->pen =3D=3D wacom->hdev) {
+> +				wacom_wac->shared->pen =3D NULL;
+> +			}
+> +		}
+> +
+> +		synchronize_rcu();
+> =20
+>  		kref_put(&data->kref, wacom_release_shared_data);
+>  		wacom_wac->shared =3D NULL;
 
-drivers/hid/wacom_sys.c:wacom_parse_and_register() {
-        ...
-        if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR) {
-                error =3D hid_hw_open(hdev);
-                if (error) {
-                        hid_err(hdev, "hw open failed\n");
-                        goto fail_hw_stop;
-                }
-        }
-        ...
-fail_hw_stop:
-        hid_hw_stop(hdev);
-fail:
-        wacom_release_resources(wacom);
-        return error;
+[Severity: High]
+This is a pre-existing issue, but since this patch introduces RCU protection
+for touch_input, is it possible that lockless access to shared->pen and
+shared->touch in wacom_mode_change_work() is still vulnerable to a
+Use-After-Free during concurrent hot-unplug?
+
+When a sibling interface is unbound, devres automatically frees its driver
+data. If a WACOM_HID_WD_MODE_CHANGE event concurrently schedules
+wacom_mode_change_work(), it accesses these pointers locklessly:
+
+drivers/hid/wacom_sys.c:wacom_mode_change_work() {
+    ...
+	if (shared->pen) {
+		wacom1 =3D hid_get_drvdata(shared->pen);
+		wacom_release_resources(wacom1);
+		hid_hw_stop(wacom1->hdev);
+    ...
+	if (shared->touch) {
+		wacom2 =3D hid_get_drvdata(shared->touch);
+		wacom_release_resources(wacom2);
+		hid_hw_stop(wacom2->hdev);
+    ...
 }
 
-[Severity: Critical]
-This is a pre-existing issue, but does this error path leave asynchronous
-works and timers running after freeing the wacom structure?
+While Patch 5/5 in this series attempts to fix this by replacing the raw
+accesses with rcu_access_pointer(), it appears to omit wrapping the worker
+in an RCU read-side critical section and doesn't use rcu_dereference().
 
-The driver allocates the wacom structure using devm_kzalloc(). If an
-initialization step fails after hid_hw_start() is called, such as
-hid_hw_open() failing, the code jumps to the fail_hw_stop label.
+Because of this, would the synchronize_rcu() call in the unbind path fail to
+wait for this worker, leaving the Use-After-Free vulnerability unresolved
+at the end of the series?
 
-While hid_hw_stop() is called, it appears to omit cancelling other
-asynchronous resources like wireless_work, battery_work, remote_work,
-mode_change_work, aes_battery_work, and idleprox_timer.
+[ ... ]
 
-Since hid_hw_start() enables hardware interrupts, an incoming interrupt can
-trigger wacom_raw_event() -> wacom_wac_irq() -> wacom_schedule_work(),
-which queues these works.
+[Severity: High]
+This is a pre-existing issue, but could wacom_show_remote_mode() race with
+wacom_remove() and cause a NULL pointer dereference?
 
-If the probe function returns an error, devres will automatically free the
-wacom structure. Could an untrusted device triggering rapid reports cause
-these pending works to execute later and dereference the freed memory?
+During unbind, wacom_remove() explicitly nullifies the groups pointer before
+devres removes the sysfs attributes:
+
+drivers/hid/wacom_sys.c:wacom_remove() {
+    ...
+	/* make sure we don't trigger the LEDs */
+	wacom_led_groups_release(wacom);
+
+	if (wacom->wacom_wac.features.type !=3D REMOTE)
+		wacom_release_resources(wacom);
+}
+
+If an unprivileged local user continuously reads the world-readable sysfs
+files during a hot-unplug, the sysfs callback dereferences wacom->led.groups
+without a NULL check:
+
+drivers/hid/wacom_sys.c:wacom_show_remote_mode() {
+    ...
+	mode =3D wacom->led.groups[index].select;
+	return sprintf(buf, "%d\n", mode < 3 ? mode : -1);
+}
+
+Could this crash the kernel if the sysfs read callback executes after
+wacom_led_groups_release() clears the pointer, but before devres cleanup
+finishes?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/fa3cb42f7b58c1b3022=
-d8208969a81882783a5ec.1788868602.git.lee@kernel.org?part=3D1
+d8208969a81882783a5ec.1788868602.git.lee@kernel.org?part=3D3

@@ -1,163 +1,186 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA1455678C9;
-	Thu, 10 Sep 2026 18:28:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72DEC4AB1B6
+	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 18:38:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789064925; cv=none; b=pI6jGWozEJCxeihY2jDEhsDe4HUNQmbYtUq/ErVuUe9F3KJzhBrv8URtkWUfE1DEp4FkMV4s4/In6t3XiG6OoA719s4Qdd6ZmTjXV3Px8osBYnSy8aSrEBd5EDgldwjJ1kiDPsvdL5pnkXdWAH5jaT1d62XE+H6U7NYNHReByTo=
+	t=1789065491; cv=none; b=S5LNNTFvbbxMQ16wUxGSvdxvg5xzrqLP7H/7hgXzUjZMDCFOvQiN3oLX4/5RCbix0BvWfyK8BRc7ac8UpoFUElun1UgRyNhjJeVftL3D2v6XS4KNHAyrLU+EVDpDlEUijCqnazxv1riKVPTld10ivZbel/9Rl/KQ4EWhbaaxmkM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789064925; c=relaxed/simple;
-	bh=P6r8qL8JM02zCM7xElGZ6ujGdsdo355IYFvW1YpAx5c=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=KKZpzBoRmiLCHs+h9efxiQdZ/r1/Mvj+oAqRFF83p02AMZqNsWcpoX9QkF7IPZgaxoDi0gsiVLiG5sTX+4tjenUHgJKSz92dzYDIDfzhWryIq1ClOprCHGRRav1NEOL7vA8WHhgpb4haZ9vClMryu8ZpMJg/DAehgdN1Dq/aAbU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fEJjTob+; arc=none smtp.client-ip=198.175.65.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1789065491; c=relaxed/simple;
+	bh=XqQ/TBdyys53bJSV2TlOxB+9gn0LoZosuGJ+Op+jijg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=knwsOTRQRqreG7zZ200GK6zXufpgajm3CFnvCQ/heQtEVP+fB25q8f8cwv1cMjCSXZAFCOHk+0zmvcUTcWhBGT+z2LTHmkZ4o4zx11druGpad7/whr0pn1TqyOcd2mNpPqZzY6Kt8Ia9hRhwBNzWcatQPalSDoI9C/obavoVj3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ByiblXtc; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fEJjTob+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1789064918; x=1820600918;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=P6r8qL8JM02zCM7xElGZ6ujGdsdo355IYFvW1YpAx5c=;
-  b=fEJjTob+c+CfaneMReWCzcgbdzFK+QLMFOOCW20PzE99oattk72TECnI
-   Qkafp8ClpWU9LODS4jvKMCq/DPeoVEO1zZGHcLq6/5xp0WEhbrLmPT/0G
-   7+Msm80+GtmceT8NO0c8ku+KCBOPLoltH1WDb6ZNUSbfMJ12rpF+vU0Lz
-   f89rJwZqccLMDcp+qpVfcE6bb89uGBlLirflirYiJSY53fSDZYe6MNuFB
-   Ui/au8/sKOVJ2zWtey327Qwzu7X5OZ0JCEevZfHpg+gRmF/DdMLBOkkOV
-   8ne68pDVGRfTczAIp/YwPxcLUSAyQrXuFkJxYkADaDQuE70voW3DtvDqX
-   Q==;
-X-CSE-ConnectionGUID: Vu41G5FyQQ+t6UXcrQ34aA==
-X-CSE-MsgGUID: +AMxJoH6Q5y1RyvwLre1aQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11901"; a="89290569"
-X-IronPort-AV: E=Sophos;i="6.27,95,1787036400"; 
-   d="scan'208";a="89290569"
-Received: from fmviesa013.fm.intel.com ([10.60.135.153])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Sep 2026 11:28:33 -0700
-X-CSE-ConnectionGUID: cXjgPvKtQaCdAn2j+rRl9w==
-X-CSE-MsgGUID: hx2gbnyTRlWT3b+wa77yAA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,95,1787036400"; 
-   d="scan'208";a="72484"
-Received: from spandruv-desk1.amr.corp.intel.com ([10.124.222.115])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Sep 2026 11:28:33 -0700
-Message-ID: <9ae8e6b44ffaf5affb7324f802a3626c581ac461.camel@linux.intel.com>
-Subject: Re: [PATCH v1] HID: sensor-hub: synchronize multi-value read
- cancellation
-From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Yibo Tan <lhfff@tju.edu.cn>, Jiri Kosina <jikos@kernel.org>, Jonathan
- Cameron <jic23@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Zhang Lixu <lixu.zhang@intel.com>, Andy Shevchenko
-	 <andriy.shevchenko@intel.com>, linux-input@vger.kernel.org, 
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Thu, 10 Sep 2026 11:28:32 -0700
-In-Reply-To: <20260910112338.4171983-1-lhfff@tju.edu.cn>
-References: <20260910112338.4171983-1-lhfff@tju.edu.cn>
-Autocrypt: addr=srinivas.pandruvada@linux.intel.com; prefer-encrypt=mutual;
- keydata=mQGNBGYHNAsBDAC7tv5u9cIsSDvdgBBEDG0/a/nTaC1GXOx5MFNEDL0LWia2p8Asl7igx
- YrB68fyfPNLSIgtCmps0EbRUkPtoN5/HTbAEZeJUTL8Xdoe6sTywf8/6/DMheEUzprE4Qyjt0HheW
- y1JGvdOA0f1lkxCnPXeiiDY4FUqQHr3U6X4FPqfrfGlrMmGvntpKzOTutlQl8eSAprtgZ+zm0Jiwq
- NSiSBOt2SlbkGu9bBYx7mTsrGv+x7x4Ca6/BO9o5dIvwJOcfK/cXC/yxEkr1ajbIUYZFEzQyZQXrT
- GUGn8j3/cXQgVvMYxrh3pGCq9Q0Q6PAwQYhm97ipXa86GcTpP5B2ip9xclPtDW99sihiL8euTWRfS
- TUsEI+1YzCyz5DU32w3WiXr3ITicaMV090tMg9phIZsjfFbnR8hY03n0kRNWWFXi/ch2MsZCCqXIB
- oY/SruNH9Y6mnFKW8HSH762C7On8GXBYJzH6giLGeSsbvis2ZmV/r+LmswwZ6ACcOKLlvvIukAEQE
- AAbQ5U3Jpbml2YXMgUGFuZHJ1dmFkYSA8c3Jpbml2YXMucGFuZHJ1dmFkYUBsaW51eC5pbnRlbC5j
- b20+iQHRBBMBCAA7FiEEdki2SeUi0wlk2xcjOqtdDMJyisMFAmYHNAsCGwMFCwkIBwICIgIGFQoJC
- AsCBBYCAwECHgcCF4AACgkQOqtdDMJyisMobAv+LLYUSKNuWhRN3wS7WocRPCi3tWeBml+qivCwyv
- oZbmE2LcxYFnkcj6YNoS4N1CHJCr7vwefWTzoKTTDYqz3Ma0D0SbR1p/dH0nDgN34y41HpIHf0tx0
- UxGMgOWJAInq3A7/mNkoLQQ3D5siG39X3bh9Ecg0LhMpYwP/AYsd8X1ypCWgo8SE0J/6XX/HXop2a
- ivimve15VklMhyuu2dNWDIyF2cWz6urHV4jmxT/wUGBdq5j87vrJhLXeosueRjGJb8/xzl34iYv08
- wOB0fP+Ox5m0t9N5yZCbcaQug3hSlgp9hittYRgIK4GwZtNO11bOzeCEMk+xFYUoa5V8JWK9/vxrx
- NZEn58vMJ/nxoJzkb++iV7KBtsqErbs5iDwFln/TRJAQDYrtHJKLLFB9BGUDuaBOmFummR70Rbo55
- J9fvUHc2O70qteKOt5A0zv7G8uUdIaaUHrT+VOS7o+MrbPQcSk+bl81L2R7TfWViCmKQ60sD3M90Y
- oOfCQxricddC
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2 (3.56.2-2.fc42) 
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ByiblXtc"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso37666a91.3
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 11:38:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789065487; x=1789670287; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9u7TJ9tgwm2KnuZFSYIca8LwnX5gbxqDtxG2LPSH6i0=;
+        b=ByiblXtc3+xG0Oh2cV0vBgSMKuqQtcRusXb89NrFQsnx41PBnsEtuNsoJ95Wrw2fMF
+         8RdITLXQ2BAgyIbQRdFDCTbBCNvrWhrhglJ4fSPw2G/Khp+aha2xy60L8EX92MDwC2q5
+         1n2d0lhk9L90B8Z/IHmcEnGRpAQnUFQFzweH2z+xskdkPUzwkiB042sQ7k7UdKKxP3yX
+         PjE0jP1l9ISxDvP7PJWkgkGSdf8PCnNj8gqSJkOXxuU3GgyB8xVrLSpJm9qkg2INdzs9
+         jC6zyRl7S5N2xWI4TPbPYsnMtmFELgKVjgZBfteAxH2aL7ec56dgJvSvbqM3k5hg961W
+         BVsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789065487; x=1789670287;
+        h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=9u7TJ9tgwm2KnuZFSYIca8LwnX5gbxqDtxG2LPSH6i0=;
+        b=Q+1Ig3yS/D2bphZQM0GwuoU5CCETLW2tsegWc/H7quvt11cRMhaiL2WNNgfiaAWYBg
+         7bYhlBYJHAIglEqicNqtQlBv9RpQJnm1/r5ogFgJJuh86b2pHHXSAI3GnHpj1UnmP3uX
+         6hUKakyxowV9ytfKeyGPtibteOiyOtvcAURwWmdUp1qbQS7+Ifr8MzdUlraq/hk76Bto
+         j6FgLxrY+gekFbiNNjEo6UCcCMKYqubY2iMhz1CJt3kMRoPH0ZU0OOqrut5nq8M7QgG/
+         qSaT1Sg5qojQA8PVawYDP0eIG7+T2CX4sAAkgZuKECV3xK/RfbjWzLrqFfKYLEmktZPZ
+         dEPA==
+X-Forwarded-Encrypted: i=1; AKwUvBxXzJ/nBJlC24Af/LJkEZPW2UlwzX4RG1+Ex5gxOpQQBLD13AHyzdM893IfCFybGVYEC/jGJYQpLmxsWg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mR5j70Q4p4Dpw/y42mO47CFUmtiCt9zZe2aVGcTPlJkSFxfHmB
+	u6x5Bg2FF+ZR/CzpVBICTVfW0fBjBeN0379gKoDfE8/ztLOMzomKgOU0
+X-Gm-Gg: AYBFou2sfCHPAN0mA5Rf0/OYckmJ2TIWjCPPRO2LINmLrlu9yZkYFTNmsJZlXBDSyO9
+	9ocuN2hNIgtrzzqDc3CgrJGX4fUqCiMomxT/KwyycmQf9NEPGEX5ERZxAyjtEF/491rwSXQ5oAF
+	rSmjgVoMpTBaVnLenPa/fV011Njkpw19CPsclggLIjaN4I0CyKKEwYE+8ALszAarTGuFrBZvWTq
+	jdryJM5DreMiQ+tqe54BO571zH4+9Ys2BWc+NrmUJkLdZK20Ln0Iv59rQqtANzK5NDjjA7kJexw
+	s+bUvttfJ1BBL7XUryVMng8VFrholRskX1ayKBoHcXHvwm4P+/BdOB55MbqMVciTd2SZz3N8Tbz
+	njMcTm98sVnlCY/Mm6q8KzGP7B6oSmMuVlPdBIWm42XgNQWORrgVPu8NwUIJEDxEpsvhF3UbLcc
+	/7Iqg11M+/kTCtyoYH9RO/9xt4v3EEIUmPBwSj4wKYWJHxq62eKDgzSW9BLvn2Kzlh30u4hj2dq
+	1NFzxoOt5ShEis+aPL98fcHwtN7XDuEFss+mAYfov3rm3OI
+X-Received: by 2002:a17:90b:35d2:b0:39d:8d38:8b04 with SMTP id 98e67ed59e1d1-39d9bbea1d3mr52593a91.1.1789065486698;
+        Thu, 10 Sep 2026 11:38:06 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d95752809sm851731a91.13.2026.09.10.11.38.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Sep 2026 11:38:06 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <7a92a79e-e22a-4e34-9f11-4086b88f62cc@roeck-us.net>
+Date: Thu, 10 Sep 2026 11:38:03 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
+To: Arnd Bergmann <arnd@arndb.de>, Svyatoslav Ryhel <clamor95@gmail.com>,
+ Arnd Bergmann <arnd@kernel.org>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Bartosz Golaszewski <brgl@kernel.org>, Mark Brown <broonie@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Daniel Thompson <danielt@kernel.org>,
+ Helge Deller <deller@gmx.de>, devicetree@vger.kernel.org,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ dri-devel@lists.freedesktop.org, Jonathan Cameron <jic23@kernel.org>,
+ Jingoo Han <jingoohan1@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Lee Jones <lee@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Linus Walleij <linusw@kernel.org>, linux-arm-kernel@lists.infradead.org,
+ linux-doc@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, llvm@lists.linux.dev,
+ Mauro Carvalho Chehab <mchehab@kernel.org>, mfd@lists.linux.dev,
+ Michael Hennerich <michael.hennerich@analog.com>,
+ patches@opensource.cirrus.com, Pavel Machek <pavel@kernel.org>,
+ Rob Herring <robh@kernel.org>, Sebastian Reichel <sre@kernel.org>,
+ Support Opensource <support.opensource@diasemi.com>
+References: <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
+ <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
+ RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
+ nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
+ 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
+ gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
+ IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
+ kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
+ VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
+ jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
+ BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
+ ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
+ CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAmgrMyQFCSbODQkACgkQyx8mb86fmYGcWRAA
+ oRwrk7V8fULqnGGpBIjp7pvR187Yzx+lhMGUHuM5H56TFEqeVwCMLWB2x1YRolYbY4MEFlQg
+ VUFcfeW0OknSr1s6wtrtQm0gdkolM8OcCL9ptTHOg1mmXa4YpW8QJiL0AVtbpE9BroeWGl9v
+ 2TGILPm9mVp+GmMQgkNeCS7Jonq5f5pDUGumAMguWzMFEg+Imt9wr2YA7aGen7KPSqJeQPpj
+ onPKhu7O/KJKkuC50ylxizHzmGx+IUSmOZxN950pZUFvVZH9CwhAAl+NYUtcF5ry/uSYG2U7
+ DCvpzqOryJRemKN63qt1bjF6cltsXwxjKOw6CvdjJYA3n6xCWLuJ6yk6CAy1Ukh545NhgBAs
+ rGGVkl6TUBi0ixL3EF3RWLa9IMDcHN32r7OBhw6vbul8HqyTFZWY2ksTvlTl+qG3zV6AJuzT
+ WdXmbcKN+TdhO5XlxVlbZoCm7ViBj1+PvIFQZCnLAhqSd/DJlhaq8fFXx1dCUPgQDcD+wo65
+ qulV/NijfU8bzFfEPgYP/3LP+BSAyFs33y/mdP8kbMxSCjnLEhimQMrSSo/To1Gxp5C97fw5
+ 3m1CaMILGKCmfI1B8iA8zd8ib7t1Rg0qCwcAnvsM36SkrID32GfFbv873bNskJCHAISK3Xkz
+ qo7IYZmjk/IJGbsiGzxUhvicwkgKE9r7a1rOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
+ 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
+ pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
+ J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
+ pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
+ 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
+ ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
+ I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
+ nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
+ HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
+ JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAmgrMyQFCSbODQkACgkQyx8mb86fmYHlgg/9
+ H5JeDmB4jsreE9Bn621wZk7NMzxy9STxiVKSh8Mq4pb+IDu1RU2iLyetCY1TiJlcxnE362kj
+ njrfAdqyPteHM+LU59NtEbGwrfcXdQoh4XdMuPA5ADetPLma3YiRa3VsVkLwpnR7ilgwQw6u
+ dycEaOxQ7LUXCs0JaGVVP25Z2hMkHBwx6BlW6EZLNgzGI2rswSZ7SKcsBd1IRHVf0miwIFYy
+ j/UEfAFNW+tbtKPNn3xZTLs3quQN7GdYLh+J0XxITpBZaFOpwEKV+VS36pSLnNl0T5wm0E/y
+ scPJ0OVY7ly5Vm1nnoH4licaU5Y1nSkFR/j2douI5P7Cj687WuNMC6CcFd6j72kRfxklOqXw
+ zvy+2NEcXyziiLXp84130yxAKXfluax9sZhhrhKT6VrD45S6N3HxJpXQ/RY/EX35neH2/F7B
+ RgSloce2+zWfpELyS1qRkCUTt1tlGV2p+y2BPfXzrHn2vxvbhEn1QpQ6t+85FKN8YEhJEygJ
+ F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
+ FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, 2026-09-10 at 19:23 +0800, Yibo Tan wrote:
-> sensor_hub_input_attr_read_values() publishes a caller-owned buffer
-> to the
-> raw-event path. If its interruptible wait times out or is
-> interrupted, it
-> clears pending.status without taking data->lock and returns.
->=20
+On 9/10/26 11:14, Arnd Bergmann wrote:
+> On Thu, Sep 10, 2026, at 18:40, Svyatoslav Ryhel wrote:
+>> __
+>> Hello Arnd! May you please spare AAT2870 from being removed? I have a
+>> device which uses aat2870 (LG Optimus 2X P990 Tegra 2, not upstreamed
+>> yet, but in process as well) and atm I am working on converting this
+>> driver to use OF. Thank you!
+> 
+> Sure, I have removed this patch from my series now.
+> 
+>> P. S. If you are planning to remove more old drivers, please CC me in
+>> since I may be interested in some additional driver upgrades for
+>> devices I own.
+> 
+> Please have a look at
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/log/?h=board-remove-7.3
+> 
+> I tried to be careful about figuring out exactly which drivers are
+> unused, but I'm sure there are still a few false positive and false
+> negative ones in there. I've added the current list of driver files below,
+> let me know if you see something that shouldn't be there.
+> 
+>       Arnd
+> 
+...
+> drivers/hwmon/ds620.c
+> drivers/hwmon/f75375s.c
+> drivers/hwmon/max1111.c
+> drivers/hwmon/max197.c
 
-Hi Lixu,
+I missed the rationale for removing those, but then I don't really
+mind either. I guess we'll hear if someone still uses any of those
+drivers/chips.
 
-Please give me quick test. Change itself looks good, not sure if we
-need something more.
+Guenter
 
-Thanks,
-Srinivas
-
-
-> sensor_hub_raw_event() may already have observed pending.status while
-> holding that lock. The caller can then release its buffer before raw-
-> event
-> finishes copying into it.
->=20
-> Take data->lock when cancelling the request. The raw-event path now
-> either
-> sees the request retired or finishes the copy before cancellation can
-> return.
->=20
-> On an uninstrumented PREEMPT_RT kernel, a valid 16-byte quaternion
-> report
-> overwrote a live futex waiter's plist node with the report's 0x41
-> payload.
-> Two vulnerable runs produced the same general protection fault in
-> plist_del(), after 471 and 91 completed trials. The locking fix
-> completed
-> two 10,000-trial runs without an Oops, panic, warning or payload
-> signature.
->=20
-> The virtual provider setup and FIFO assignment require privilege. The
-> IIO
-> read, signal handling and futex operations run as uid 65534 without
-> effective capabilities. No physical-device or normal-priority hit was
-> tested.
->=20
-> A source reproducer, kernel configuration, complete serial logs and
-> the
-> vulnerable/fixed result table are available at:
->=20
-> https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tree/ma=
-in/cases/hid-sensor-quaternion-root-a
->=20
-> Fixes: f784fcea4506 ("HID: sensor-hub: Add
-> sensor_hub_input_attr_read_values() for multi-byte reads")
-> Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Link:
-> https://lore.kernel.org/r/20260610083849.067A11F00893@smtp.kernel.org/
-> Cc: stable@vger.kernel.org
-> Assisted-by: Codex:GPT-5
-> Signed-off-by: Yibo Tan <lhfff@tju.edu.cn>
-> ---
-> =C2=A0drivers/hid/hid-sensor-hub.c | 2 ++
-> =C2=A01 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
-> hub.c
-> index 6470a290ebfc..80f18aff6f1f 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -335,7 +335,9 @@ int sensor_hub_input_attr_read_values(struct
-> hid_sensor_hub_device *hsdev,
-> =C2=A0		else if (cycles < 0)
-> =C2=A0			ret =3D cycles;
-> =C2=A0
-> +		spin_lock_irqsave(&data->lock, flags);
-> =C2=A0		hsdev->pending.status =3D false;
-> +		spin_unlock_irqrestore(&data->lock, flags);
-> =C2=A0	}
-> =C2=A0	mutex_unlock(hsdev->mutex_ptr);
-> =C2=A0

@@ -1,53 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6BDB396B96;
-	Thu, 10 Sep 2026 03:32:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9ABC373BE0;
+	Thu, 10 Sep 2026 03:32:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789011134; cv=none; b=Q8xeDUu8K4Jfwe4JklYJkqd1hVP76lcTnczPZ0+cqEGZcAZNNxNshUpxjSPGE3Ud4c2p2oW/+h/1GoWwFTICaRo+ryv9hiZ3drnU1syg0f9pHx8Irbh7Otx3WnvfbOkR8Uhi9uRMcSBTvnSurt4q/kxwyh8L6hDTctHzh7PTFXE=
+	t=1789011148; cv=none; b=I9aLLBLk5YAhLKk/KIjvF8OHb19fl+5r88HbMQ9Nk7bM7hCsof0OaCYNJ/Ph/fBPfGXx50I5sAlcyeFcskt6j2spRM1lyqxMTOy+Xy8goD7A37YjUkxtWr3uMb6gfzeVV5gF4ghiPD/OzzVHdT91MKoCNDW1HqMlS7+0cPMC5K8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789011134; c=relaxed/simple;
-	bh=8N42WN5a/jghyuD+PYG6cenusKKosc+y3vNRH3MD/7c=;
+	s=arc-20240116; t=1789011148; c=relaxed/simple;
+	bh=qQH2MMqkYIIN8l3R9CeZE5FUEi96mGt1BsL6xFnEd74=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nuEBXC/Uyw7LZlaMbI1M+rMYf+wHUeSODZchE0dIE5vnXtAWzscPS2lTmCBUWLtj7Kz/IAFxKVe+6ZMXu5Ld2PGqjuP66ecEgqAkxQD749ojuNRV0T5PDXOpnmXycXEor5VpcaDKmm+EvYQsctrtknK9rQ/DMZfCBqlA377km0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QXifELma; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=B8br5V+Y1/Vb5kgeTX6Np54hoTH55dGTFfdw7FmaGnR+cKwYLwVPG1jNXWhfs/tfIrVoZCxaVoQYYQn1+q3TFw3Zjukai3rE5qU9aF0S6Pz6K2j0trFuUBo033V+VfnV+HqzEQ6rlB4rb76hqrK6QfxGmg314rwiRhp9NsfDlxM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZVY5XdG+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QXifELma"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3270F1F00893;
-	Thu, 10 Sep 2026 03:32:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZVY5XdG+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 163781F000FF;
+	Thu, 10 Sep 2026 03:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789011130;
-	bh=8N42WN5a/jghyuD+PYG6cenusKKosc+y3vNRH3MD/7c=;
+	s=k20260515; t=1789011146;
+	bh=qQH2MMqkYIIN8l3R9CeZE5FUEi96mGt1BsL6xFnEd74=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QXifELmaH0DDQ8hKmanYJAwjwkQvZYgJELzDNCPx9DYtI7UvTQYJwSotmIA44Eym9
-	 Pmer1eAf6prO8OFXWTxzLLSOBJXXLgqv0QHcJK45d1E7Ea8SqYNCr1B2ur4uwEuDsj
-	 RiAqA8UpOhFHM7YQFPRhlIHC+JT2Rzeu6gur0gWX+vDZXt9qAPTl3HsaCfrZYVuBSy
-	 ygJwZGkgDjCaiaoLKPKkH1IHjidYx+UVRq7Saue0vAEb5g+6G/tPLPvel+wYilQYik
-	 vYjqwwjWbovYisKAYgbNv19S9wKm1eSrdQWjk8+TUVrbGEKdj7KPZbK6GAdtDbI+WI
-	 raBAmYKaPbwPg==
+	b=ZVY5XdG+UWr7Q+YOzukUJLz6a0PhbN7sn6SAxydW/6cMviMoYBWdzOiYeNN8Cwu9W
+	 6mFjuDVYKR477AqIcQvOoo0O1d++cb1L0uGjLJch0+eFqjICyYJ452BmSktuNAyBD3
+	 dUDu3M9dHpNIKW05YukEoKVv8aIs6TAiyQPRRQLjb/oTfaIvJ81O6ZqlS83gSQq2dW
+	 8ohUREqoLspco10xgoPTkIO3mQLS14Xu+A5o18yEHg9bvilX+cOE95GJB5o4WEYrvQ
+	 sSi18As6B78ZxJaaa0aNPJycXv6UjBT1d5/xbsIfoj/R08iquefJYHfpceEAredJYY
+	 0ppixQAg/tDkA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 06/15] HID: hid-oxp: serialize complete RGB updates
+Subject: Re: [PATCH 08/15] HID: hid-oxp: stop configuration work during
+ teardown
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Andrei Aldea" <andrei1998@gmail.com>
-Cc: linux-leds@vger.kernel.org, lee@kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260910032115.28669-7-andrei1998@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-leds@vger.kernel.org, lee@kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260910032115.28669-9-andrei1998@gmail.com>
 References: <20260910032115.28669-1-andrei1998@gmail.com>
- <20260910032115.28669-7-andrei1998@gmail.com>
+ <20260910032115.28669-9-andrei1998@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 03:32:09 +0000
-Message-Id: <20260910033210.3270F1F00893@smtp.kernel.org>
+Date: Thu, 10 Sep 2026 03:32:25 +0000
+Message-Id: <20260910033226.163781F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-> The transport mutex protects one report at a time, but changing an RGB
-> effect requires a status command followed by a color or effect command.
-> Serialize whole RGB transactions so sysfs and delayed brightness work do
-> not interleave these command sequences.
+> Configuration callbacks can queue delayed RGB, button-mapping, and MCU
+> initialization work. Normal removal previously closed the HID transport
+> without synchronously stopping that work, while a later configuration
+> probe failure could leave work queued as devres released its objects.
+>=20
+> Track which work items have been initialized, reject new output once
+> teardown begins, disable initialized work synchronously, and drain an
+> in-flight transport write before closing the device. Use the same
+> shutdown path for normal removal and every probe-error unwind after work
+> can have been exposed.
+>=20
+> This also avoids operating on uninitialized work for HID interfaces that
+> do not own configuration state.
 >=20
 > Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
 > Assisted-by: LLM
@@ -58,5 +68,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910032115.2866=
-9-1-andrei1998@gmail.com?part=3D6
+9-1-andrei1998@gmail.com?part=3D8
 

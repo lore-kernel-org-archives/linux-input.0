@@ -1,136 +1,134 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83A8D38D400;
-	Thu, 10 Sep 2026 15:32:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD9FF4A9D60
+	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 15:37:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789054348; cv=none; b=e16IBPRAsLREwF0Kl5LinSinMY2ME/w84JwQYLKI4WqEibB63haOU5Yg4qLu8q6PZ/NYGxXaYFwSCOVlJpg7KUQ4vHE9Nv9MIOzPhDpqMGel+uz1rnhivXwDqiJ2kosAr8rjbbjhXUG/okDc3f5znCKL3gytsgQl8uEGbWuOEjQ=
+	t=1789054674; cv=none; b=OxKrU6yLoggGnQBcW77vDI8lA+Re69spvciDndPpjbv9uKIRln+iCXUubT2XFvR0DDaiIv7QoGpvTp1GTBCen2vyl5P1NuABo1fdnKER8QXDz9yT5kg6pyQOoxlyM7jCzKbzW9YRXXmgEVOMA0ktQsENkNofrYm2PNlhYJLHyak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789054348; c=relaxed/simple;
-	bh=liGLw2jy2S+Tg2RAR32Z7q/17QAS4fuYBykh8PXbOlU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SYsvVJ1MxhETM8rOMLPXx/9ej9fzTWS7s6FfhXSTYaOEPAbhkG0hxbyYkjhsa+mFB2ovGoGEGfygA1hg31iMHKLfkzuN4sKPB8f+pBNG0dL40KPbLlZSDuqcL76AkT4akFIrmAGep1mIvw/Aj8BgGEcgSwxcNkViQJ+i7ehU2b4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ns1d0iTk; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1789054674; c=relaxed/simple;
+	bh=HQijiPlwvDLFO+zIPNo2HBbu3dtpiVeMOBm/adtycNg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I9cahnvcw+L2ahDWmrpDX4mt/nCScdr77YGJJ3zFfNVF8AA8NnljihBJdTK2M9QIvxSjodIGVXvsI0dz1CbgNwQSk03kYvmjAdwmzTGAzAFyP6TWLogltC0d5lYVwrtvlnoNuS/+J6q+USIJBfFOrjOMWOLE8AjLaJbBt+FrKD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ec/3s7um; arc=none smtp.client-ip=74.125.227.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ns1d0iTk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1789054347; x=1820590347;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=liGLw2jy2S+Tg2RAR32Z7q/17QAS4fuYBykh8PXbOlU=;
-  b=ns1d0iTkcGPJ4Sfbm9Q3A20GB37YL/HBfF0o5PJB7hOELtAyL0faf8Bd
-   2x1Rdwyc5fqxbcWnuS4/a8j9jzy9J92Kt4PL4YtE8151Iv7/mUmX0PDD6
-   rd70tNoCTXlg6Wqj1GiUOMRFn8KzQg/ym+dYE05s1W6696Y98X3GPksFD
-   8qBnLSjEtOQ3EeUpNLXTCUwj1BjrMD+COZLw4mLpk8nyAr7HzgPI+NNsm
-   8KjTQ+NT3XQk6T9OnZjiKwO8PltdmvcqgM0XPY5RmWaieNT12v8n9tJ8K
-   h+hf3v8ysXIQW2FHnetmVCfAVqwCLEb3OYZBISbVTk3Z8408pF0tOetK3
-   g==;
-X-CSE-ConnectionGUID: 3EC+2+5lRpOl8QD5t/7EFQ==
-X-CSE-MsgGUID: xTdQwshBSu+dLuggGkhMMw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11901"; a="88449055"
-X-IronPort-AV: E=Sophos;i="6.27,95,1787036400"; 
-   d="scan'208";a="88449055"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Sep 2026 08:32:26 -0700
-X-CSE-ConnectionGUID: cE2Mk/7CQT2Zn3kO493YTA==
-X-CSE-MsgGUID: p6tWx1bPQimIqbQmD7hRjQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,95,1787036400"; 
-   d="scan'208";a="276907925"
-Received: from ncintean-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.177])
-  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Sep 2026 08:32:24 -0700
-Date: Thu, 10 Sep 2026 18:32:21 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Yibo Tan <lhfff@tju.edu.cn>
-Cc: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Zhang Lixu <lixu.zhang@intel.com>, linux-input@vger.kernel.org,
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] HID: sensor-hub: synchronize multi-value read
- cancellation
-Message-ID: <aqLNhbbpWEQZmbzl@ashevche-desk.local>
-References: <20260910112338.4171983-1-lhfff@tju.edu.cn>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ec/3s7um"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccafb750so2387948a91.1
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 08:37:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789054672; x=1789659472; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Xf27/e13zSRzdWtLn2ZnVwbWOxwXcFNzloo83ia2tDo=;
+        b=Ec/3s7um9niKH4ZQGpW77I0l8Wi0ooJnlbA9vQrVM2jtjZ0TNh5ZK2Cv1Z+ErO4IP3
+         x8wPBynl1Te1Lul1+svaOTFxXokMbRiTwz7LCEmdNXKjSE1d4KBWKAIzc+9Fte6yU+Zg
+         KLR3PcgnPR7NVqsHoG7GJtU/829CPN0q3ThDxFProQIKU8jDf0RSEI/zvboSdrWz8/9K
+         77R914K5mvYiwewaT2GXaABu3wA7DTAu1UXLnLTEiqwvq+TixaQz2MrwFEhU5cjb29AO
+         kh1GBNotoImdhEHDXiHKxe9R+TqQliIPLQg69VJvSJsOenwuacRc/UzNMtWpejDJx9TG
+         YLZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789054672; x=1789659472;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Xf27/e13zSRzdWtLn2ZnVwbWOxwXcFNzloo83ia2tDo=;
+        b=GmRiPOZUXBMO330ot6/MgV1grogWeBMCLQQucJiUAE9KkJmZq4sJLB2Lj+MX6tm48r
+         UOT3ukRiZGs++NnUiGUr3ZoxtTxcXHbfPuTGWNNg3XXeEFkwq1B3kNM0h+PP6jVV4j7E
+         UKZQMy53eDOZE+HP8J3o4fotKpwmOEC1YZdL9KUq7vxKP1pIiEhROflxLIdXKqn+XACs
+         SQfDN0hjESOjLx6ZJWozzu66UV3qM6vLQs4LLi8tAuZ1rBQmoHpIO6BqODP4G/BHAmRt
+         C9G7pHm24SD7jllIcxWYf2GUSyi5yCNINWX+y0cKJRY2M46iY0yeV4H0i9U9yVZT6IOW
+         YcZg==
+X-Gm-Message-State: AFuF++l3Je4UBTENO8nvJ3quwwSyoZ3d1JmDrHuHTXwY3PwwlPF0sLyY
+	+YJnv//ceSnTHhUKEzairqT9pdlMd7G6ATgN0qyKM0Z84yW0pePWBtdIr2YqcA==
+X-Gm-Gg: AYBFou1t0K26E9CA8T9v/bDFF/ufbe/3aBRJY+NXkbXpEn22k5ldv76kitSYXrX6z+6
+	SfK7qaxf6GGTyXI+bq+ILNiX0w0IR+tvln962pFNuuob0agMdMJf9yUAhG+c100j4T1/Cs7XNEK
+	rLai9HbpdctRmxKZuST+VriHCbUyK6m9B1nLf4tPzSKbGlmIKhDO8ZxV2uRl0ZXMdb7HbFrlpyK
+	d4PHdCZ6TItN9VDy3Q8cVG2RcMT3hn4wcbw7rxGniCGykP+/E/0uUwwYNGjXAJKHnzPmJznZ8zw
+	NgW6B+sXzNxlbnY9yKH1sKwEa03QGncQYTDOHD+R71FDAdQHNM4eu9qYODivygGDotMlSDbyGtX
+	HIy7LK3YBpJM9yO/NRmyWjlgybs5WNXlhcENoHVR7n/GB4eBjsPs5L6dxQY12ARAvy4ijfhFNnQ
+	ZEWcOkKb5pB/86nkXN1EqCJtFdnDtuJzOX3XqNnBMhxQyhUnak/bUPc6YHfWF/0AQ67nomT7KD6
+	w5+jDTEu6wFbxaJW9I=
+X-Received: by 2002:a17:90b:3d89:b0:398:dcfe:968e with SMTP id 98e67ed59e1d1-39bac3f9063mr21283299a91.20.1789054672086;
+        Thu, 10 Sep 2026 08:37:52 -0700 (PDT)
+Received: from thangnn-ASUS.. ([2405:4802:1d38:5c70:ced9:ef96:e152:2608])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d94b9334dsm170730a91.3.2026.09.10.08.37.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Sep 2026 08:37:51 -0700 (PDT)
+From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	syzbot+093e05755c2d99caab91@syzkaller.appspotmail.com,
+	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+Subject: [PATCH] HID: multitouch: use GFP_ATOMIC for report/application/usage allocations
+Date: Thu, 10 Sep 2026 22:37:46 +0700
+Message-ID: <20260910153746.16222-1-ngocthang2710.1999@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260910112338.4171983-1-lhfff@tju.edu.cn>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 10, 2026 at 07:23:38PM +0800, Yibo Tan wrote:
-> sensor_hub_input_attr_read_values() publishes a caller-owned buffer to the
-> raw-event path. If its interruptible wait times out or is interrupted, it
-> clears pending.status without taking data->lock and returns.
-> 
-> sensor_hub_raw_event() may already have observed pending.status while
-> holding that lock. The caller can then release its buffer before raw-event
-> finishes copying into it.
-> 
-> Take data->lock when cancelling the request. The raw-event path now either
-> sees the request retired or finishes the copy before cancellation can
-> return.
-> 
-> On an uninstrumented PREEMPT_RT kernel, a valid 16-byte quaternion report
-> overwrote a live futex waiter's plist node with the report's 0x41 payload.
-> Two vulnerable runs produced the same general protection fault in
-> plist_del(), after 471 and 91 completed trials. The locking fix completed
-> two 10,000-trial runs without an Oops, panic, warning or payload signature.
-> 
-> The virtual provider setup and FIFO assignment require privilege. The IIO
-> read, signal handling and futex operations run as uid 65534 without
-> effective capabilities. No physical-device or normal-priority hit was
-> tested.
-> 
-> A source reproducer, kernel configuration, complete serial logs and the
-> vulnerable/fixed result table are available at:
+mt_allocate_report_data(), mt_allocate_application() and
+mt_allocate_usage() devm_kzalloc() with GFP_KERNEL, but they are
+reachable from mt_event()/mt_report() via hid_report_raw_event(),
+which can run in (soft)irq context off a USB URB completion (e.g.
+dummy_hcd's hrtimer softirq). GFP_KERNEL there may call into
+fs_reclaim, which lockdep flags as an inconsistent {SOFTIRQ-ON-W} ->
+{IN-SOFTIRQ-W} use of fs_reclaim, alongside a "sleeping function
+called from invalid context" splat.
 
-> https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tree/main/cases/hid-sensor-quaternion-root-a
+Switch all three to GFP_ATOMIC since none of them are on a path that
+needs to sleep.
 
-Make it a Link tag and refer in the text like [1].
+Reported-by: syzbot+093e05755c2d99caab91@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=093e05755c2d99caab91
+Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+---
+ drivers/hid/hid-multitouch.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Link: ...$URL... [1]
-
-> Fixes: f784fcea4506 ("HID: sensor-hub: Add sensor_hub_input_attr_read_values() for multi-byte reads")
-> Reported-by: Sashiko <sashiko-bot@kernel.org>
-
-> Link: https://lore.kernel.org/r/20260610083849.067A11F00893@smtp.kernel.org/
-
-What's this for? Make sure you have a reference in the text (see above the example).
-
-> Cc: stable@vger.kernel.org
-> Assisted-by: Codex:GPT-5
-> Signed-off-by: Yibo Tan <lhfff@tju.edu.cn>
-> ---
-
-...
-
-> +++ b/drivers/hid/hid-sensor-hub.c
-
-> +		spin_lock_irqsave(&data->lock, flags);
->  		hsdev->pending.status = false;
-> +		spin_unlock_irqrestore(&data->lock, flags);
-
-Seems legit. Can you also amend the kernel-doc of this lock at the top of this
-file? Currently it says
-
-* @lock:		Spin lock to protect pending request structure.
-
-I would replace the tail and make it
-
-* @lock:		Spin lock to protect struct sensor_hub_pending request data.
-
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 2c41bacab1ca..6b68e43fd885 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -604,7 +604,8 @@ static struct mt_usages *mt_allocate_usage(struct hid_device *hdev,
+ {
+ 	struct mt_usages *usage;
+ 
+-	usage = devm_kzalloc(&hdev->dev, sizeof(*usage), GFP_KERNEL);
++	/* may run from hid_report_raw_event() in (soft)irq context */
++	usage = devm_kzalloc(&hdev->dev, sizeof(*usage), GFP_ATOMIC);
+ 	if (!usage)
+ 		return NULL;
+ 
+@@ -633,8 +634,9 @@ static struct mt_application *mt_allocate_application(struct mt_device *td,
+ 	unsigned int application = report->application;
+ 	struct mt_application *mt_application;
+ 
++	/* may run from hid_report_raw_event() in (soft)irq context */
+ 	mt_application = devm_kzalloc(&td->hdev->dev, sizeof(*mt_application),
+-				      GFP_KERNEL);
++				      GFP_ATOMIC);
+ 	if (!mt_application)
+ 		return NULL;
+ 
+@@ -692,7 +694,8 @@ static struct mt_report_data *mt_allocate_report_data(struct mt_device *td,
+ 	struct hid_field *field;
+ 	int r, n;
+ 
+-	rdata = devm_kzalloc(&td->hdev->dev, sizeof(*rdata), GFP_KERNEL);
++	/* may run from hid_report_raw_event() in (soft)irq context */
++	rdata = devm_kzalloc(&td->hdev->dev, sizeof(*rdata), GFP_ATOMIC);
+ 	if (!rdata)
+ 		return NULL;
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.43.0
 

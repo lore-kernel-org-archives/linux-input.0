@@ -1,205 +1,145 @@
-Received: from mail-ej2-f12.google.com (mail-ej2-f12.google.com [74.125.228.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-b7-smtp.messagingengine.com (flow-b7-smtp.messagingengine.com [202.12.124.142])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4547658E2A4
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 18:53:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.140
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789066405; cv=pass; b=LsClt5O4p3fqXBTcpWDxgK/jGQaFF7Fr91ZxG12uSeavp6VtmavqoAeA7xMZrUeMQV4WAwRuLnIj0sFwCcUR+p+IgYwpXUqIcMc43MHh0v4WCWVgtbqB8Ssvs+mXXPVkI28o+fhVpuP5qtemhmYur8ba9ufo5kYQHlGjI8/XUiY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789066405; c=relaxed/simple;
-	bh=VvXoNF3sMeo2fpv2qDY0aBbxOZBUbISC5Fqd+S82nYA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fhub+ADRCw2XUjeZBQ15PvgvHnvncFTzkBEn3AdXZCbO8y2Be6HssfT96EMpBrJJve0BmQzqujyqokW/JWqoDXwFLjP/Sj6g0fYkBT7PgnfdCqsqGDX/UQAgHXmw79vv52ZbXaZZm3WCftgQBJRspq0ri6vu6JLVoePr2QxARDo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AMdhZ8K3; arc=pass smtp.client-ip=74.125.228.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E88C3AFB06;
+	Thu, 10 Sep 2026 19:16:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.142
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789067795; cv=none; b=oEgK6j4H3u95P4X6Qi5Q2p6ypy4eRQu9d1vtM9Ej8Sn28VB4o5oG9w1eDLSg1tF4P1XvL8JU12BcC3u0yK78StljOXDz9Lb/xX08GxVHQBIIaLq308Vy/HAnsygSwqoyWPW71xk1UkBQ2HpNtJMJg6AQAQXh8ilYRnBzAAwkW3A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789067795; c=relaxed/simple;
+	bh=kt7E3CEq9Qxo9u0xNZHxn2ztTKUj1sKCjMnDPPYFsZw=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=SY/pw8nN2nylr/xcDcdKDvDYGwb2+tjFsh3r0lg/KK4Xz1kkLE9NEeVo5whOQBijci6rjqzu9MQv7moNhdBz7KJ6DW80Skpcdv7EnG02S++tL8089Xuc6TqCFjUKmHwZPKJ3qIguKssP00sCDlCPG1AClhftGxg59pTBcL4bZqw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=T6NE9aE2; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=QYxMmbGp; arc=none smtp.client-ip=202.12.124.142
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AMdhZ8K3"
-Received: by mail-ej2-f12.google.com with SMTP id a640c23a62f3a-c2940ef15d3so17258566b.2
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 11:53:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789066397; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Ya8/ODHTigzrgcwA/vmhP23x/wbqh+sVoqfRKjcFR3iENILzxD0PWQzmk7C7M8Qn8F
-         PcZiQRlKK3KAphVPQaJ3soLwwkXZZbx+uGorBnDKpKwldWgyPCM77EuUzz6UlZyImiw/
-         SZOrEhL4MDLBWLKFnlpVarjtmDYyoFCCFocT3peI89JTzLFpa2cxJ4f0tRfabBEma8jY
-         1OGK6EkgExN2TEqb+CjM3muOz4lNeuPNRXIoft29e//RjK2BPmJjjcQTJZ8rBS9VIQ0n
-         T4iWRGa4Py0oHDbEpX/DEMq1dCedzeXWw/6r0CyCI/CijrrqzHi8ZZZ66a90MmfdiMGd
-         3yPg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=sJedgFbA0a5dZ7UM3Qt2A8RF0LRRqtbYOuDEXTxhdkg=;
-        fh=BeXGrPhnszmDKxGzlxTV9cWQ2vm6iM2EZCiFrZnMB1w=;
-        b=VaSnIJmoMc+hFbn1yotvBozs90uiNwEWD6x6p4qCfUsIhSt/FTG2n6jVyWVNE19154
-         u/nv9iDQfVJUhx0VaVMXGAQ+cxNd2C4ZbY6Q1i7aD64Cu9EfGMbG8VCvm40GfGFc3sPi
-         7jFXDCamDSUEg2BcaPZi0YxCQrJ5cNnsyHsvQBCSYnwFQRC83g2Qb7vV1PpAcGzbgWJI
-         EZrPyERiFw5+hDUsZzGWzOAQLB8rwMB/0AvjfAlasXp+6blSD0mSgoFEutjBmabuLTRK
-         5hciqPELeixl+9y2XDN2v7NdL+PIvo691GT7y+b90o55paagcl5W31kaQbEPdJYhEROL
-         9F3w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789066397; x=1789671197; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=sJedgFbA0a5dZ7UM3Qt2A8RF0LRRqtbYOuDEXTxhdkg=;
-        b=AMdhZ8K3Z/qcyQ0KXyhN9VufTLn54TfCpOZV4MHMe2MQRHj0s/b9KJqeT7sPyQOIXo
-         JkfnshlGeOLSvYdZwn8fz/lJebqKRGPNrew5AgwQ5umh6X5l967lgkyFw2sL/YdifmNB
-         0TvZM9pgkKlcSmH3UKZdfIN5n4qt7eU9xMgOC4xdsUxaVvqUFlxvItUShsN3bRi0zhFS
-         3igpwt5MFVmLZ8D0Ub4qa56ngpjr/XI9iBaj09BFtWvflQTl0SuKE/IrW3sfJZnKmPQb
-         Ftds0Vt6lKiyz5bSYtefWcfLqtbHBI6Ch/7OrwVbzAQcJCpR7ZfFjUelGEtgjTAb+W7k
-         PxkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789066397; x=1789671197;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=sJedgFbA0a5dZ7UM3Qt2A8RF0LRRqtbYOuDEXTxhdkg=;
-        b=H1M/oZIhoP0vCnXJ2deC6wiVxGAJVAiwhFaZybxKbTA8eERTO8lR7REn09r+y5jJUG
-         S8246GtX4aDzrY+Tz+7RbHovEQKHSGhN4Fj4mwz6uYr9k5dfmvDPF7Uy5B/T0wthgQtm
-         U7WFqIszBCMNjodn0oX7tYUPkiF+4b96okFi7jWoBxyo/JpYu3T7yuYH369788zIBIoP
-         CLx42vxmvhBaeanMIiTBD2Ih4yRwKh6Avh0VU5M05K3Jd8eVdsQURGIm+hGSfSQzLIwQ
-         LzUDmG6TOIG/0PRSqoXJc1iEnkOilK+AMeCFPPJSVRLaUWNe9ZHr0QCSq+pFY4OLjoG+
-         keFQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwMvgWKuyMS22tTVnK/I0qeXQuiCtORXV6A1/8kdz8lvLjgAjFIICj8lx+9JCZZSFnzCkaVXnFpx0UkDw==@vger.kernel.org
-X-Gm-Message-State: AFuF++l1X2dNXHOAs3GyHoQNyVMvICJ7N5iN1BZpbvt1fjwY6OqsHSAF
-	GA8/dHkg0xqV+1fUPuPBCFg51s97EfUI4elNW7k/ui82NfyzNIgj0+abI/e3+DJ/FcElER/50fh
-	D2H1LRZY0+Qe4NjMdrPT60gbI3N/bx4s=
-X-Gm-Gg: AYBFou20Thi0oRE7TWJ0zz9vWQCbEM7D3t1C58xCxDwObDjuEh/zyAdBUjjhaT1L9IS
-	F1qGuWAWhPXoXtsIv8JjCJI8GbGaEa4OBsCrpjy4FTjJtpSn67aeHv2GQN0upV7WqRymfobSajP
-	oLOf4XS3dSkIcP7kxsJVY0+HfxldM/LU/SLam3F7JOUjD2fNPmifkV0+rVPABcDIpfcuYN8r5YS
-	dBbb1ctwjpPNLteod/Cha9ze90bJqmiK6Kq6uUtTbwiwfnsp2BAGO8Oz2pLBeTU0yCdlseE70xE
-	YShUiSSRZiB05CFQV+zZi2SSOI1U5SsJK9L2Y8WSGCv6yuTSlNFl7eGotOpKij7rdMTrQnU/Sys
-	xkhsefX3AvbRk
-X-Received: by 2002:a17:907:97cd:b0:c25:b706:e59 with SMTP id
- a640c23a62f3a-c29666f49e8mr191366b.17.1789066397017; Thu, 10 Sep 2026
- 11:53:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="T6NE9aE2";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="QYxMmbGp"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailflow.stl.internal (Postfix) with ESMTP id B56C11300123;
+	Thu, 10 Sep 2026 15:16:27 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Thu, 10 Sep 2026 15:16:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1789067786;
+	 x=1789074986; bh=LL5BvvZb4Il/L3smCK764roi3UOjYRXO6PPqF7iA60o=; b=
+	T6NE9aE2vD0JgubP1YTXJkCmky0gcVC6ihsBHZm0RBXVJxnFvHKfpn/jgGp268bN
+	Ocg7RiFvSCyv3dN0vfJMl4FlzZpgO4zM90q5HHZOCpsPTZkmzluvzrr1KvRaqgj3
+	ghFpPAXXhsj+/FIdWBFlcGd47PnXaH44ztoCwJPu7Hg3QUrTpwuAJfdQpSLRG6ok
+	RIcMos4hom4IpDKnTxOGAMJvUM1/Xrm3A2vjwRfr/20H7gjk9LaiALMDUDnq1EcZ
+	kRxAGd0BLSQUoZ5+Db6ZW7jDP7fVF6NvOTVSgvHLp6p1x3Ta5gIVWBi1SBbBNcVc
+	4jz2EzypFMJlbI/B3mORLQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789067786; x=
+	1789074986; bh=LL5BvvZb4Il/L3smCK764roi3UOjYRXO6PPqF7iA60o=; b=Q
+	YxMmbGpUXUe6JWSt6wFgaWgV6kKFrifNL4zpMR8IZ6k9l09yGNmBC/tmkJ7jOHzc
+	zgOhoTRRLmpNbujQkziwK4c6gb22BvDU0Ezlg80E7EUvAlLWaNZ9kh0CkTSmW0IV
+	wlXQOi66Y4gisAqp/Jo89stwVrt44ixZH6W7RlPst3nm/SObEWktzzkILVr4+1+A
+	JE1uf0+5KDx1W/HUbTProIiovUiesG6cjCSnok4CUfzYwk4/OcgXFVGlzwgYW5G3
+	3PWz+DLGnB1EasndokoY6K9TbysUIa/qseWOHKmQORQWYzJ2VSVMZ7TypVR5NNJW
+	u3NpvgNq1yYX6zbJMfO+w==
+X-ME-Sender: <xms:AgKjapCXAUsGR9NzhQT6Weld296MjYYYYWG6pyncwTxdq3DdSnFYRQ>
+    <xme:AgKjaiW8J9J6KMFNr1b_IJMuS-WWoZgFoDLpHRzD5u8XTq9EHOqwM1fQ-1zxZfuPJ
+    In6bkVMOp1J3kJT1pw8149ZOGl03L3WdAPrCq5CqXNRr0V5Z7vvKUYT>
+X-ME-Proxy-Cause: dmFkZTFPUI2hhqqgtUZ+uRBKQ2lOV87vEROkCNR5CaZ6fIgInu/qZ6Et872VXivU4qi3Yb
+    S7K9y0Kh6x/9ahHXeHe+3Rw24dgRP6bfmbpqm1xjXzxznz/CitUohgCt3oeLEdNtCBDFWV
+    wAwlx1y89/OGcLz7Hvg+1884PmXT1R/UZ4htyLe4evizdmRp0asTHgMS4ZwBPFc/D9Y+lL
+    pjbKNCUOIiDW/kC+I7mCHtxy2/HBnsjdGqvOki3WVysUtRiD8CYdPw9xvpyYEClSdNLQWB
+    gQ8Pl57Lb15IwzJNXNzaZUMYe+EMgk0WEb6jBD1eg4FQ4UgkdzcTpXiZHzLwatuZyMzQPR
+    AbajmqzYJ9/lDdDepvVHPNjLIhqYfbx1gMTQq9/fz8LJQzh6PG/f4ScG9y5N/KfjK9+HQY
+    DGntSRz8ZYM8imBuJaefnFLhlOX8sAaBt6BKM1LqdyrSIVsNJYoKWCY4KVxwAcF/mnAt4n
+    oVJPPpYM7s8UyCTE+DjXlJDUBxdqJNXlz0qh7fZswAd6UVlEkQsnkgn0xpHT10dG8DBkoV
+    TRwjPmyzBaUEWsnC/QuC7FM+G10r94P0DlNrsDk/6nOSOSFLMILS/ohAK2o9wIayJCiVAI
+    qwuaG984U3MuKxrFrmRw4NSis4b6zo13+Wx2/aeQ0+fTJLlvOUkIf98DG+RQ
+X-ME-Proxy: <xmx:BwKjajfvbFGu2OjAxcHE_tmdpPRGIP2DBf59mH27GAi-_s4MwoZukA>
+    <xmx:BwKjaudX3nkcDf8KN60flmiSbgkg5YhfeXwsQEWoHH8zn5PLuCzkFw>
+    <xmx:BwKjavJG5SWvaJdpynS7e-HjY8WA-99WOLGxUokNhNz5dK_9LWHD9g>
+    <xmx:BwKjakq9OyXMmSADtkpqIobWGpuhowDn3l_sB6IoiO_PuGO9ClRUlw>
+    <xmx:CgKjag7MJuyBvo36joTkPcVfhRPBUUVFBpIxBKCTUGfQOGfmb5qzZdd3>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id E068A32A007B; Thu, 10 Sep 2026 15:16:17 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <fa3cb42f7b58c1b3022d8208969a81882783a5ec.1788868602.git.lee@kernel.org>
-In-Reply-To: <fa3cb42f7b58c1b3022d8208969a81882783a5ec.1788868602.git.lee@kernel.org>
-From: Ping Cheng <pinglinux@gmail.com>
-Date: Thu, 10 Sep 2026 11:53:05 -0700
-X-Gm-Features: AcwNN1WtBzIj10yYVWNSv1D2MgnrM6PZMOlbKADR-R4JWexEKJoN-9DMVJ_y5ok
-Message-ID: <CAF8JNhKJES5xkXd4VQxwp_sV_jUsgLsqFz+OJADL0-neY-W1Cg@mail.gmail.com>
-Subject: Re: [PATCH v10 1/5] HID: wacom: Use hdev->product in wacom_setup_touch_input_capabilities
-To: Lee Jones <lee@kernel.org>
-Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Aaron Skomra <aaron.skomra@wacom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-ThreadId: AK-jVwBtQCQR
+Date: Thu, 10 Sep 2026 21:15:57 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Guenter Roeck" <linux@roeck-us.net>,
+ "Svyatoslav Ryhel" <clamor95@gmail.com>, "Arnd Bergmann" <arnd@kernel.org>
+Cc: "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ "Bartosz Golaszewski" <brgl@kernel.org>,
+ "Mark Brown" <broonie@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>,
+ "Daniel Thompson" <danielt@kernel.org>, "Helge Deller" <deller@gmx.de>,
+ devicetree@vger.kernel.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ dri-devel@lists.freedesktop.org, "Jonathan Cameron" <jic23@kernel.org>,
+ "Jingoo Han" <jingoohan1@gmail.com>,
+ "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
+ "Liam Girdwood" <lgirdwood@gmail.com>,
+ "Linus Walleij" <linusw@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-fbdev@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, llvm@lists.linux.dev,
+ "Mauro Carvalho Chehab" <mchehab@kernel.org>, mfd@lists.linux.dev,
+ "Michael Hennerich" <michael.hennerich@analog.com>,
+ patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
+ "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
+ "Support Opensource" <support.opensource@diasemi.com>
+Message-Id: <e33b42dc-1561-4819-b028-b13af9e7115b@app.fastmail.com>
+In-Reply-To: <7a92a79e-e22a-4e34-9f11-4086b88f62cc@roeck-us.net>
+References: 
+ <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
+ <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
+ <7a92a79e-e22a-4e34-9f11-4086b88f62cc@roeck-us.net>
+Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Tested the whole set of v10. Status stays the same:
+On Thu, Sep 10, 2026, at 20:38, Guenter Roeck wrote:
+>> 
+> ...
+>> drivers/hwmon/ds620.c
+>> drivers/hwmon/f75375s.c
+>> drivers/hwmon/max1111.c
+>> drivers/hwmon/max197.c
+>
+> I missed the rationale for removing those, but then I don't really
+> mind either. I guess we'll hear if someone still uses any of those
+> drivers/chips.
 
-Acked-by: Ping Cheng <ping.cheng@wacom.com>
-Tested-by: Ping Cheng <ping.cheng@wacom.com>
+None of these have devicetree support, and they are not usable
+with any of the remaining board files.
 
-Cheers,
-Ping
+From what I found:
 
-On Wed, Sep 9, 2026 at 4:27=E2=80=AFAM Lee Jones <lee@kernel.org> wrote:
->
-> Replace the lookup-dependent 'wacom_wac->shared->touch->product' referenc=
-es
-> with 'hdev->product' inside wacom_setup_touch_input_capabilities() since
-> 'hdev' is already available (via container_of) and represents the touch
-> device itself.
->
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Lee Jones <lee@kernel.org>
-> ---
-> v7 -> v8:  New patch
-> v8 -> v9:  No change
-> v9 -> v10: No change
->
->  drivers/hid/wacom_wac.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 8feb8027be95..7cf2b4de52be 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -3966,8 +3966,8 @@ int wacom_setup_pen_input_capabilities(struct input=
-_dev *input_dev,
->  int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->                                          struct wacom_wac *wacom_wac)
->  {
-> +       struct hid_device *hdev =3D container_of(wacom_wac, struct wacom,=
- wacom_wac)->hdev;
->         struct wacom_features *features =3D &wacom_wac->features;
-> -
->         if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
->                 return -ENODEV;
->
-> @@ -3976,9 +3976,11 @@ int wacom_setup_touch_input_capabilities(struct in=
-put_dev *input_dev,
->         else
->                 __set_bit(INPUT_PROP_POINTER, input_dev->propbit);
->
-> -       if (features->type =3D=3D HID_GENERIC)
-> +       if (features->type =3D=3D HID_GENERIC) {
-> +               hid_dbg(hdev, "generic touch setup\n");
->                 /* setup has already been done */
->                 return 0;
-> +       }
->
->         input_dev->evbit[0] |=3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
->         __set_bit(BTN_TOUCH, input_dev->keybit);
-> @@ -4010,19 +4012,17 @@ int wacom_setup_touch_input_capabilities(struct i=
-nput_dev *input_dev,
->                 input_dev->evbit[0] |=3D BIT_MASK(EV_SW);
->                 __set_bit(SW_MUTE_DEVICE, input_dev->swbit);
->
-> -               if (wacom_wac->shared->touch->product =3D=3D 0x361) {
-> +               if (hdev->product =3D=3D 0x361) {
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_X=
-,
->                                              0, 12440, 4, 0);
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_Y=
-,
->                                              0, 8640, 4, 0);
-> -               }
-> -               else if (wacom_wac->shared->touch->product =3D=3D 0x360) =
-{
-> +               } else if (hdev->product =3D=3D 0x360) {
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_X=
-,
->                                              0, 8960, 4, 0);
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_Y=
-,
->                                              0, 5920, 4, 0);
-> -               }
-> -               else if (wacom_wac->shared->touch->product =3D=3D 0x393) =
-{
-> +               } else if (hdev->product =3D=3D 0x393) {
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_X=
-,
->                                              0, 6400, 4, 0);
->                         input_set_abs_params(input_dev, ABS_MT_POSITION_Y=
-,
-> @@ -4052,8 +4052,8 @@ int wacom_setup_touch_input_capabilities(struct inp=
-ut_dev *input_dev,
->                 fallthrough;
->
->         case WACOM_27QHDT:
-> -               if (wacom_wac->shared->touch->product =3D=3D 0x32C ||
-> -                   wacom_wac->shared->touch->product =3D=3D 0xF6) {
-> +               if (hdev->product =3D=3D 0x32C ||
-> +                   hdev->product =3D=3D 0xF6) {
->                         input_dev->evbit[0] |=3D BIT_MASK(EV_SW);
->                         __set_bit(SW_MUTE_DEVICE, input_dev->swbit);
->                         wacom_wac->has_mute_touch_switch =3D true;
-> --
-> 2.55.0.979.g7e5102b832-goog
->
->
+- da620 apparently never had any users upstream, though it does
+  not require platform data and is theoretically usable with
+  an external dtb
+- f75375s was only used on iop32x (long gone)
+- max197 was used on x86/elan/ts5500, which is still in the
+  tree but cannot be enabled anymore because it is a 486 class SoC.
+  I have sent a separate patch to remove that platform
+- max1111 was used on spitz, which is on its way out for 7.4.
+
+I'm not sure when I'll get around to send the patches.
+
+      Arnd

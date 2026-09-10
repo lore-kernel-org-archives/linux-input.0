@@ -1,45 +1,46 @@
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010043.outbound.protection.outlook.com [52.101.193.43])
+Received: from DM5PR21CU001.outbound.protection.outlook.com (mail-centralusazon11011012.outbound.protection.outlook.com [52.101.62.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9077D30E0D5;
-	Thu, 10 Sep 2026 17:03:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176014119E0;
+	Thu, 10 Sep 2026 17:03:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.62.12
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789059814; cv=fail; b=SylI9q5B1cfjnT27bhjQmAo/Zv/CPKHSqB/qXtnwhPOkHEtcSLEsGqqnV+a6ORb+q8C7GochY8bXKfvnKfRMDJsz6NJ7yWEiBgIOP/70sdUc1h5x9rFQiqJ9t6cX9/eSHuIeBOHtCZxEbkH28A97LZQb7Cc2ZqfkM4oAMPDqmSk=
+	t=1789059817; cv=fail; b=n+pvT3JxAdFhv3krXBBRUg9zIAXZ9E4P/1Bl35VhhwhPhRi3o4I35ea4j5IStj0NI5mhc0GY32oBnT7oKfg8udBCgf5bFRXuHT1FfZk2IPi7GRy2xtOGcRukNtKBseepp7p89z8+nBRQvfIgrZbYn4pjIOPwfNwkM/dS81VeY30=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789059814; c=relaxed/simple;
-	bh=PvU3swJcmuXHKbQi1dzPwW4sfeYFJskaBq9yzF/QWiw=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Xgl6yQ1mP5l8Fri5KucY1xYsii3rd6qiHERj6PKfzEqzUPau8pHrMpHabwp8Um4HfTayEr1HQOcvOXBKCFj5J+ZYJ3fTwcVDZfP0vfDSnDG5dR7SBfsEdN+uSAYvr8mm68Ab1Vkd/yLLsYKmr/sedgERBF62w9gHjCvlyYR0X3E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=SOCMH0EF; arc=fail smtp.client-ip=52.101.193.43
+	s=arc-20240116; t=1789059817; c=relaxed/simple;
+	bh=fuvlNg0k567Y2eVkXvsyYPXBZFLXb84lwFdi6y8VqHU=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=FlsSwnseSvnzha09yya/BNH2eZTg9wlbEYT3/+nTRVbV1+Usc6xOPx3E62f91zvhXNu5WlcSDqUBl+ICGI+9SYAQ36d44BjUVZa+duEKGa0FK0xjdelIJvQMnsp2wJDYIfsWSJkUuXQ0BxLCengMX6bW8ci6s6Xe+1XGLrYfcB0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=DY4+g8C6; arc=fail smtp.client-ip=52.101.62.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="SOCMH0EF"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="DY4+g8C6"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=xdczc96jJ7YxBjT8XNCnHzZ62xTpyudhfL7XCmfDOV6xsePdzNXjf49HSemdFQyCSmrxCHtkoZrCNWnJI7mxg4G6wQcOtN7pItnDbbtloMFjlBAM2VxUDJJdGKMjHyRc4JEEThgqlmj8dzDb5jEdarKqhZW0cZQpQv0rpual9Nc0L3/eziFJ4yYudEnPYapUSgHXkLedteKs7e+1J6Ijlc6NJbmhGPW5V4tKFoqm0JEMfQjDWKnegcsFbwSVVFl/kW2htvIPyh7vamYjHBDZxd/cKyxDfeCESJUficeSqlDwXkS/lZF4kkUdl+8usrr5dGVQBviaZ+CixM9ePV7iSQ==
+ b=ZBsc9j16l6n86Kpvou5gn68coIAP/SPnNN+Vnf8Rk2hAfqRJtm3AhipI5L4cEyL4KUY9dbHropqlcwkCMiIBCN3EnMrUcadjCf7wOy9yrknTE48nIjAGQNQ6XtGYUsYAPwMgFiIOrWa7FvAFL3ynOy0P3ESJrdtnjTxe6jHupvmOzu1UYUzgqPPrAuHSHOvWwftqNO+ivsUAp220qK30//itpAirXDXhgwpju0qVPhmp6XLOb8+EYThrT+MeZDCBTZlpM2jQC6HvUMXXbM2NlFX1p3oKkJ8PgbdfscGZi2EIL263PYzUvq3beaQm8drDDV7h1GlxDjDJePpr7h0Q9Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=QoFl+yEPjOtiOZj0jJPNVHMhBjxOfEhSkc6eZlC6kyc=;
- b=dwOknPw2GT+pWAo1RfYBb9iXgUCdhwTF2sGyeqbzcxq/kMTxuXJiC0wmjfhp8P+4bwN3BBlnWfaVAhboaGwzPGKm9RHQ159ymg2GsmbMgdFZ/xvhy/fhRQStKUnOMQcRKzQQtHK2NIka7/fxsarvVjCvS/rNkNxoS+4ax18cNCtLv83NhT4Jqta7aBD6UF8tE0t4uw30D3eRH+HwI7r0E9c3Z8LuSji3FTaS+N50Bya9qJneN1M1j36lpGtmLYyMXn4YtE/Zn78R67i+kBDfvpFnOtWhmzWskWgst9F3zMWiKyzvELLIvsjY/tDMtKu8QGujvmBK5xnQA5iXZVEtug==
+ bh=hFERsSrC7mfEgThZ9HdVhZ37+kaRD4Kn2dCqBkD/FwM=;
+ b=OZaPoMhXzWMWt7+Ae9tBzGIUBz0ezYEOj0BqwJKCF9gsCOdgRPhp+lverY5OiOc02+xIqmadPpZC+WzdoUiq+wvg5P4yrC24n0VTvCPVOvx7lKk+59VenL+lahmAIY5RztkkL1mSnA00BVa09gAMcw44OTFKk1GHMwSh+YyN0PUdtLkV8542iyHABbt2zc/S0wTQNhjl+Z16LLoCmvQf2hMzrSKY7Un6WBQu/9crdizNbRa3JxhJ9KolCVSAkVzvvTmN0pgpXKq4qaYpjZooT5r+ZkrDAqplx54oFbgP1tM3/yl4xMnRmN04rxLoTgfBph/z1nFz1CNVzS/unXcAWA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QoFl+yEPjOtiOZj0jJPNVHMhBjxOfEhSkc6eZlC6kyc=;
- b=SOCMH0EFTZgTZi4kp5wiFhg34B55DT/WMICqWZPcnZJnyAAWhGD6749E6NAdKESLIz+6UieSrpxGQq+yHwzTrCNy8afUGFqKhWYOsWCxy1GSTgpzzdVgOP8CFmQf/l0Faf+S9orVVZMxLlUBPXS3eZt40Ll8u68gLZrgkHyAfg8=
-Received: from CH0PR03CA0350.namprd03.prod.outlook.com (2603:10b6:610:11a::24)
- by PH7PR12MB5733.namprd12.prod.outlook.com (2603:10b6:510:1e0::22) with
+ bh=hFERsSrC7mfEgThZ9HdVhZ37+kaRD4Kn2dCqBkD/FwM=;
+ b=DY4+g8C6ZJ5qZcjwsIcQOsrCFsAS+intQH8xwPY8zppS1jn0sQyYySv0jIpaqnZ6qRWrXA7b7s9ZWWh0OvoT5TWvMVZV3Mb8Nr8sz02+y5OFhty8uQxHR3gwDH7nisW8dN8UDToCfIojagX/GuNdJqkLRXtb8QcraeDvedGzDLk=
+Received: from SJ0PR13CA0188.namprd13.prod.outlook.com (2603:10b6:a03:2c3::13)
+ by PH7PR12MB6417.namprd12.prod.outlook.com (2603:10b6:510:1ff::14) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.9; Thu, 10 Sep
- 2026 17:03:13 +0000
-Received: from CH1PEPF0000AD76.namprd04.prod.outlook.com
- (2603:10b6:610:11a:cafe::17) by CH0PR03CA0350.outlook.office365.com
- (2603:10b6:610:11a::24) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.406.9 via Frontend Transport; Thu, 10
- Sep 2026 17:03:13 +0000
+ 2026 17:03:18 +0000
+Received: from CY4PEPF0000EE3F.namprd03.prod.outlook.com
+ (2603:10b6:a03:2c3:cafe::1a) by SJ0PR13CA0188.outlook.office365.com
+ (2603:10b6:a03:2c3::13) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.428.6 via Frontend Transport; Thu, 10
+ Sep 2026 17:03:18 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -47,13 +48,13 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
 Received: from satlexmb07.amd.com (165.204.84.17) by
- CH1PEPF0000AD76.mail.protection.outlook.com (10.167.244.53) with Microsoft
+ CY4PEPF0000EE3F.mail.protection.outlook.com (10.167.242.17) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.406.5 via Frontend Transport; Thu, 10 Sep 2026 17:03:13 +0000
+ 15.21.406.5 via Frontend Transport; Thu, 10 Sep 2026 17:03:17 +0000
 Received: from aus0006770c4n-lx01.amd.com (10.180.168.240) by
  satlexmb07.amd.com (10.181.42.216) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.46; Thu, 10 Sep 2026 12:03:10 -0500
+ 15.2.2562.46; Thu, 10 Sep 2026 12:03:11 -0500
 From: Mario Limonciello <mario.limonciello@amd.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -62,10 +63,12 @@ CC: Pierre-Loup Griffais <pgriffais@valvesoftware.com>, open list
 	<linux-input@vger.kernel.org>, "open list:USB SUBSYSTEM"
 	<linux-usb@vger.kernel.org>, Curtis Vogt <curtis.vogt@gmail.com>, "Mario
  Limonciello" <mario.limonciello@amd.com>
-Subject: [PATCH 0/3] Add 'hid-valve-index' reset driver
-Date: Thu, 10 Sep 2026 12:02:51 -0500
-Message-ID: <20260910170254.833871-1-mario.limonciello@amd.com>
+Subject: [PATCH 1/3] HID: Add shutdown callback for device drivers
+Date: Thu, 10 Sep 2026 12:02:52 -0500
+Message-ID: <20260910170254.833871-2-mario.limonciello@amd.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260910170254.833871-1-mario.limonciello@amd.com>
+References: <20260910170254.833871-1-mario.limonciello@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,60 +81,97 @@ X-ClientProxiedBy: satlexmb08.amd.com (10.181.42.217) To satlexmb07.amd.com
  (10.181.42.216)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH1PEPF0000AD76:EE_|PH7PR12MB5733:EE_
-X-MS-Office365-Filtering-Correlation-Id: 48e8255e-3ae0-451f-9ed0-08df0f5d6698
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000EE3F:EE_|PH7PR12MB6417:EE_
+X-MS-Office365-Filtering-Correlation-Id: 463bd5b4-253b-4959-e2f9-08df0f5d68c4
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|376014|1800799024|82310400026|23010399003|10067099003|56012099006|11063799006|6133799003|18002099003;
+	BCL:0;ARA:13230040|82310400026|23010399003|1800799024|36860700016|376014|10067099003|6133799003|22082099003|18002099003|5023799004|56012099006|11063799006;
 X-Microsoft-Antispam-Message-Info:
-	toqErvMT495gTotCbcP6jMFtPYNkpJ4AcO2IGs8gFczrjCoY0MbYs2pBIgWZoW6f4T5+vwDh53jPHd8hZVk/wGlvHdBkKElBfm2oZQ2BIJuCovj+6NEdKbUgx8FgIjPuIDxyWFxOxxRZ6awz1mu5cYhWHuw08j2Df6+yB0LEEI8xqyVtKTz7Meh/HCKJqXzbZUPwwdFrSw62gWiTgYsEsi4gpWCiCsDr2AOLnIYC8IfLtoDWd4aWuHmOEjEXOJaD40KdbRxxbzJ3HK1SA2s9Qn2wQpgBvlZtQzkLcPS6GLmbb9+5x7QurYmStbod4Zo5xmkJWPvgnSJjRQ+/a/eerGAvpTWF73/aCYLca9W9u0E4/IF0WwL4VFN10X5HiaBSRwa+tNg7p5CqRPYRfv0OwKZ3jyJ7IjsrtkOWJu4pOHaCIjqZpHZK0EJVku8XY70Vin/dlmj4lZvgiwJvKS6NWGgelfKR+F4goIb0PLFP19asF3fjyL8WEkmc9T6vZHbYIvsQADglXPW5tu1DuIeVz0L2lepS7n/1pYOEiImCrfSf1Z4376AVqT8fwxTFexjL2baSllZmEmQgdSy3btnu95UtFeuo/nobPsPRvong+h1S/VgvV3JWsiRMg4yDVeXlZd7XqVdX9/KYVWO0Gtk06IZ3eK7lCT1poT4T0DzEPqqjow19+yMcQwXTqxscAkiwqGSIpaQbam19GomB5xVZxQ==
+	wWPmoKsF05gdklSIozdrg4drO+CLfgHkR1BNvl22IJ9mmn6U+tlF/fWYoACmo8ud6UUI7GF3eyWLNMn4wbCjBN2rAd117G9ae3YfD+ZhMHJw9dMjDWX0MAYdtel9P6JZNgjIWj+pSC+0IMC6x9N8+GJ3s5l4IhcXZzBcKjCGZN8p59Z6Jjr7Do6uQ+gx1QIojnt66/wWxFW78RoRsRz8Mhs2fVVlo9N3xYK+PNr68lA+JK735zRYsml9o4TULWj+yi3idf+qWmefBZ3Io8VoZ3lvXnUa9iJzkRNByh0G+aEKzSVtX3JHmBKKi0wkzf/ryclZwuKyZezTUJOnJ9v24mEyBV9q0uNklT9L2LwSB4GSSlNJ2tHCXkbtgjp4JBI40GvmbsizJqwsxsAOUoKmOtZGD3aYuaInuxWVoRyv4pb88hgiWXWagznyXcUzWHnnMXT4NZBrnTq+TTiXBUTZTPD8B4q/3nVZjwxxR2lfA2A7REKYxefnqIct0YYZl9rJBehQUfXVnIiSN5h9zWv/rGNxtUZRFkH6DuaZ73t5OVbB5sL3Nipw1SD/xn+QnxzZKBDdh0QwCHn63f5Kp41g8p7qhG7WduGeVFMxMWMpidVwmZvEaNcCVI6jeiN8vu/CAhwD3v8Wt57zBiW+jx47L+2GDUGg9kuUsxJ/qMPIBwed6py5c8mv5VfdUfLbXZ8r/ly8UmDpSLnIShvmc3TznQ==
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(376014)(1800799024)(82310400026)(23010399003)(10067099003)(56012099006)(11063799006)(6133799003)(18002099003);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(23010399003)(1800799024)(36860700016)(376014)(10067099003)(6133799003)(22082099003)(18002099003)(5023799004)(56012099006)(11063799006);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	KKKWboDqz2Fbcu0t+8m0aAIeIRlSZXvkRPMaKlq7uMRe2D6oJo7QN9gu3m9lKUiPsxAmKf2XVPp2NT1NY3GDT2g+LyfT24v7jdw7rSk0LzYeB8EZcs0xQ9eLW7BzNw09twJYKMUougvxuBSFKbx9Fk/N9+R/FkngzlTs8ir2XNBS5w/lm17jjJznDdip0POt0if0/xZ6ni7bWyKTUl9n7d5hwejKu41jArB097TTZHNfDG5tvXcz8pnXI4f2cy4EJuozOrumx3obJbq9P0X671PGofjmKowxMNbJ21m2znTlDPSnRSil+yehi1t3oeHrz2gIZaj0FSXNkqFoc278hlxvLoDpjhLrK623so9J0gGuawX+sE3H/DEiU5/XhsK8g5z9hqpH1cajaTwQGeAKQAP6NFiFlgtPrAHGrMbwmkiqq2X0UC9WOPj4QuFCEpkw
+	h/qJnCRkgRglxdBOsz4ZQ+dd6rlxW6yZ9ldHlhYfNzAjaGr5yjAFyC3ZDWomvR0N8tPYg0341aohwybShDDF8pTwbTbBS8ES2EzU/sS0bCjSOGG1hRQm377SFE6OrqFDHrauWwAFOD0QQwrCb6KeVzym2PpdADDIlZcRUOICvZ/J7FSn7yU8Tz73gZooMrFxmIEQP8WX/l6vuUacSdkt8yNH+l/hHDgu2QwyqdsOc3ww6e/h13NT60oGCbt8V38wIKAsq/jVJDYyATb4rcuXiVyzBDYeCmeNXUjk9iltsKFoMw3m9CGi1mgdZOn8eMjHdtnkmsZ3TEBKJpKjsbn3XQPlG7CijLjSs11uBO7quh1B5+/bW8kktd9cV8Ivb2a1mRxzqM/g3ky9i6yoLBnxJsQeBeUaNiZkqz+1vsSil2AYI98SRVQFk6a1nshCoarC
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2026 17:03:13.7004
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2026 17:03:17.3123
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 48e8255e-3ae0-451f-9ed0-08df0f5d6698
+X-MS-Exchange-CrossTenant-Network-Message-Id: 463bd5b4-253b-4959-e2f9-08df0f5d68c4
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	CH1PEPF0000AD76.namprd04.prod.outlook.com
+	CY4PEPF0000EE3F.namprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5733
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6417
 
-The Valve Index has a problem that when the DP link is torn down
-(such as a power state transition) the device stops responding to EDID
-requests the next time it goes up.  Either manually resetting the device
-or hotplugging it brings it back to normal behavior.
+HID device drivers can receive suspend and resume notifications through
+callbacks forwarded by their transport driver.  There is no corresponding
+way to perform device-specific work during an orderly system shutdown.
 
-Introduce a driver that during a power state transition will reset the
-device.  This helps most cases, but if the system crashes the device
-can still be in a bad state.  So also export a sysfs file that userspace
-could potentially use to trigger a reset on demand while in this circumstance.
-Curtis Vogt (1):
-  USB: quirks: Ignore remote wakeup from the Valve Index breakout box
-    hub
+Add a shutdown callback to struct hid_driver and dispatch it from the HID
+bus shutdown operation.  This allows a HID device driver to communicate
+with hardware before its transport is shut down.
 
-Mario Limonciello (2):
-  HID: Add shutdown callback for device drivers
-  HID: valve-index: Reboot headset on system power transitions
+Assisted-by: LLM
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+---
+ drivers/hid/hid-core.c | 13 +++++++++++++
+ include/linux/hid.h    |  2 ++
+ 2 files changed, 15 insertions(+)
 
- .../ABI/testing/sysfs-driver-hid-valve-index  |  12 ++
- drivers/hid/Kconfig                           |  11 ++
- drivers/hid/Makefile                          |   1 +
- drivers/hid/hid-core.c                        |  13 ++
- drivers/hid/hid-ids.h                         |   1 +
- drivers/hid/hid-valve-index.c                 | 142 ++++++++++++++++++
- drivers/usb/core/quirks.c                     |   4 +
- include/linux/hid.h                           |   2 +
- 8 files changed, 186 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-valve-index
- create mode 100644 drivers/hid/hid-valve-index.c
-
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a3ff0514f9cdf..7c8c1aa1f09c3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2738,6 +2738,18 @@ static int hid_bus_match(struct device *dev, const struct device_driver *drv)
+ 	return hid_match_device(hdev, hdrv) != NULL;
+ }
+ 
++static void hid_bus_shutdown(struct device *dev)
++{
++	struct hid_driver *hdrv;
++
++	if (!dev->driver)
++		return;
++
++	hdrv = to_hid_driver(dev->driver);
++	if (hdrv->shutdown)
++		hdrv->shutdown(to_hid_device(dev));
++}
++
+ /**
+  * hid_compare_device_paths - check if both devices share the same path
+  * @hdev_a: hid device
+@@ -3012,6 +3024,7 @@ const struct bus_type hid_bus_type = {
+ 	.match		= hid_bus_match,
+ 	.probe		= hid_device_probe,
+ 	.remove		= hid_device_remove,
++	.shutdown	= hid_bus_shutdown,
+ 	.uevent		= hid_uevent,
+ };
+ EXPORT_SYMBOL(hid_bus_type);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 8d17b741638c9..ddf57779bb3ef 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -861,6 +861,7 @@ struct hid_usage_id {
+  * @suspend: invoked on suspend (NULL means nop)
+  * @resume: invoked on resume if device was not reset (NULL means nop)
+  * @reset_resume: invoked on resume if device was reset (NULL means nop)
++ * @shutdown: invoked on system shutdown (NULL means nop)
+  * @on_hid_hw_open: invoked when hid core opens first instance (NULL means nop)
+  * @on_hid_hw_close: invoked when hid core closes last instance (NULL means nop)
+  *
+@@ -924,6 +925,7 @@ struct hid_driver {
+ 	int (*suspend)(struct hid_device *hdev, pm_message_t message);
+ 	int (*resume)(struct hid_device *hdev);
+ 	int (*reset_resume)(struct hid_device *hdev);
++	void (*shutdown)(struct hid_device *hdev);
+ 	void (*on_hid_hw_open)(struct hid_device *hdev);
+ 	void (*on_hid_hw_close)(struct hid_device *hdev);
+ 
 -- 
 2.43.0
 

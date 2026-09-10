@@ -1,111 +1,211 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A535D3C3C14
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 07:16:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13E3B3C9EE6;
+	Thu, 10 Sep 2026 07:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789024609; cv=none; b=IoQJSZNGASGMTHHq+EtNw6Zx7Nk/wa0/zH/DBoogJr2ZaEv8G3OTPnE5TLWdnjFPB+O5EjluTtSi935Ul+ysLfoZBOsc02ZxTkr/shrnXCVtkCJKcAzXvI2yojhzJqKIjSou29DlUCzvG+VftIUsjV8oZv0l+IKxuNimIs9qY5Q=
+	t=1789024916; cv=none; b=hfqAZlV1IqxMNqw3HPAc7deXppVDyAbVuxtK1IqRWYeAmyqb8SojZt7NB8TZKbHnFyJ/KyXpKIfcbeAMNXGh1/sKZpOhAtTq2tAGQwL69mWna14oVib6pcsCeGA5oxCpsqE18VKbkaK3qY1EHGxhhoRsQMwuMgtH0GrWbUPszuE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789024609; c=relaxed/simple;
-	bh=Nr8soLk7HjSX69yt6n4Yu7jzL2a6NtPIuZF2j1MLzYw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eyoXcxHcBj6NewQXSMTP1j/6ZIxWebMlaI0SX2OjoOY2+d/9EB3GNOefBHyY5sLouIw3vhhACrNgBS4Ca789ymDE7vD618op+bCUPBwdo6A2YWYzrc510Uk+0KgCsMLDK3DvieqDgTELXt3aKyeK4nIOYqUeCbXyD/5t+vwp1Es=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EXr549fy; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789024916; c=relaxed/simple;
+	bh=KZ0hEC+zv967NQsfkjk/YZfF3/ZOVmYL7yTUX3XklRc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=W4NQrt8PrWOJSb7mjp89G9vEMkJ/y20X0giacWwB7fdPeniW08rGMTRkzEhTT3TUnx6KQ9RkboDx/x1+dzBOTh260LWzesgvvI3F0YvcgSVnbJ0PAa71Ek35n/rjta8A6UHLbNkdCMt1OlITbxKcf60dNig7rEzNlGjuoBm7hic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NbsWI8Fd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EXr549fy"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-cc4aa0248cfso1113147a12.1
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 00:16:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789024607; x=1789629407; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=SySIigzjl9v6ifCPrWGqAFgrXQJf6WaDMYUEkKC20gM=;
-        b=EXr549fyAxAcW28D81QSomtZ8i+W5YeQ/NWMu9uDoNXAqgSmtEn+8AE3GvHxyf7Po5
-         pb7nWl0uVXEQzAlw41VwVm5w1eBbD8BXnWpI18PgjIJBDuc/4lBEI3eTkX/xQ/lku/II
-         tc06YZxxHbIkucCiuAAYp30mQIqIWhterc98t5+VK9RvtMqMyxwYQkhGQtFKmasckdaJ
-         a1Q6ZmF3hn6FcpHOfxF79mwHoBglf6pfJr7vGVmR2geXOXyIR8XxxIFtZG1ioba6tSFh
-         TP1bSWdgUHMMnNs35yr+6+SiY92XijeAxQpurnQuaAi6FX23k7ffI8h3j5TnU4/8mHLF
-         rBFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789024607; x=1789629407;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=SySIigzjl9v6ifCPrWGqAFgrXQJf6WaDMYUEkKC20gM=;
-        b=cmOB5u43E8sUxe0iV6D7tGm/Pf5RqRPjkKuRH1KNDeW1e9H0uvHe7WMjsIgls01gnd
-         yWldNMVWewoVQLN8AflHfEWTGE6m+YdopPCj9HQ/YuLJ3Z0fatQMgtaxF+JwMy8ryg14
-         V71FpqOJjUI1RkRhQ9ctGu1G8tTAY0ga5PhyHI7kZpccuRj6ojcKI11eamerJ697WaME
-         wFE/Got7B18tZj2vZlITzXfH/eDi51TBjEPrv8ZvWsbKHOjKOZqJSQXZGy9GzcybuTt6
-         SKYi6sRmyoc/uji1CZDHHhlznPLI7kfcWNF4Lwk/yxyWM6JnlOk+uoyn0WgpD3ba+w6m
-         KeVg==
-X-Gm-Message-State: AFuF++mbPaDsuFvf3ijTHTJL4UTX1I63UjhAVX/KDKpnhobH/ZQ9yI06
-	zImyXECF0kin2lSU+m0WobLwe+0BmVrsnvGW9wrA94Dr+0PNG3hplirXilFMIW3C
-X-Gm-Gg: AYBFou3IUW2tSMBaApES4c9HUl1z76HC3OY3oeHrB6dNM4yG86yokN63LAt+8E/7l9m
-	X4Qc3tbKaJ617UfTSwJR9fGCcQXAPT5iQfc4M+XXxkAgN8+cvDbrbAKSLHwCLR2ukfEuu6PkOt+
-	Gg9wocuRNXZa5HMfrI+2STGEjX7WLxZc7YrTdQA585KL0IZrOtM9MtU9/gOfACHvgs9ilSHTnZE
-	MM2KwVTD9ukUQ9ELgEKCO2swoSuvR2Ll8gfy28HY1P3BBDybSep+Lnp1tHJMWeyodZZJYaqL76K
-	bQTI1xq8LWM3YfSYjDvTbnAeg0glvKqcM2/tOu8mxY6paJBUfa5nfFBbgCQlmsEhdrsVXF8FvlB
-	qUduZveDTAXnRSzxw+EfTkrUneyxt6LdjUcfr3XNWSx6BRtrztsOWXJ/0W+fPesPfNzVbaYus6c
-	8MoxbyiMBa/YhBQSRqZpU9oBq1HWsFfIQQFYgr0xTJdcYBE57fPkC2kN9aVGIth0x0OHYgnRy5N
-	4YU0+ESAUSCnCcKTn+O1vGi1Jfvo16tQpqKsCVgLc64DxhOiAtFXs6dqPUF/Gi0cTE9KD16BUj8
-	MCjOwLMjaKpAPtnJf7tkoM+P4jwHOT00gDe7UMZfJb8=
-X-Received: by 2002:a17:90b:52c4:b0:36a:5d1f:7b6 with SMTP id 98e67ed59e1d1-39b260d3375mr58693114a91.2.1789024606785;
-        Thu, 10 Sep 2026 00:16:46 -0700 (PDT)
-Received: from Charlie ([67.169.216.112])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39bae865d2csm3118230a91.1.2026.09.10.00.16.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Sep 2026 00:16:45 -0700 (PDT)
-From: Jeremy Nyberg <slickstretch3.0@gmail.com>
-X-Google-Original-From: Jeremy Nyberg <SlickStretch3.0@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	linux-kernel@vger.kernel.org,
-	Jeremy Nyberg <SlickStretch3.0@gmail.com>
-Subject: [PATCH] Input: xpad - fix PDP Marvel Xbox 360 controller
-Date: Thu, 10 Sep 2026 00:16:27 -0700
-Message-ID: <20260910071627.236014-1-SlickStretch3.0@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NbsWI8Fd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D7A01F000FF;
+	Thu, 10 Sep 2026 07:21:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789024913;
+	bh=lLSKD68l5K3AErOP8cqmW/q4vfjWa9jjrb6AT9oMAZ4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=NbsWI8FdiGdQ+UjM5uqM/y88ivIub37ThZoCRiD4U69fYY1ke6wNRSCK3E3JuFotb
+	 /RCJUATr2i9AhxlXDl7X8yuDxE//UYEo2Jc1g13Sl/ifZIgj64l6h/XXIMfyZkcJNg
+	 BdSrMX3pY2L35oPi9Hr+y174RzrP7sHAJPIhHSv20KXngz0VdpMecC1gewW2yDz/m8
+	 HwrnLXwOtYH7uS1+L7EpjHYsBpH5uCmMQjbKowCovFb6cEWa8SMEeje+7g8bm8VUTt
+	 gX6egDZk9a/p6AuhgLlrEH2X6SWZWhbiZCZoJPsE4b1PoM/VBQh4YmQ45klOwp6Ily
+	 zHi3tUKKpv8jA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] Input: synaptics_tcm_i2c - add Synaptics TouchComm
+ I2C touchscreen driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Vsevolod Nevorotov" <sevanevorotov29@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260910070723.347768-3-sevanevorotov29@gmail.com>
+References: <20260910070723.347768-1-sevanevorotov29@gmail.com>
+ <20260910070723.347768-3-sevanevorotov29@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 10 Sep 2026 07:21:52 +0000
+Message-Id: <20260910072153.0D7A01F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The PDP Marvel Xbox 360 controller with USB ID 0e6f:0147 is
-incorrectly classified as an Xbox One controller.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] Flawed chunking logic in `syna_recv_message()` fails to consume th=
+e entire I2C message for perfectly aligned payloads and uses incorrect read=
+ lengths for non-last chunks.
+- [High] Missing upper bound on active object count enables a CPU-spinning =
+infinite loop DoS and an out-of-bounds heap read via integer overflow.
+- [Medium] Unbalanced regulator disable during device teardown if hardware =
+recovery fails in resume.
+--
 
-With the current XTYPE_XBOXONE classification, the controller is
-detected but produces no input, while its four player LEDs continue
-blinking indefinitely.
+commit 2e193cb965d6a8f43ae428d7f72355547d149239
+Author: Vsevolod Nevorotov <sevanevorotov29@gmail.com>
 
-Classify USB ID 0e6f:0147 as an Xbox 360 controller instead.
+Input: synaptics_tcm_i2c - add Synaptics TouchComm I2C touchscreen driver
+   =20
+This commit adds an input touchscreen driver for Synaptics TouchComm=20
+generation-1 controllers connected over I2C. It supports multi-touch,=20
+configurable touch report layouts, low-power wakeup gestures, and deep slee=
+p=20
+mode during system suspend.
 
-Tested on a PDP Marvel Xbox 360 controller with USB ID 0e6f:0147.
-All inputs register correctly and the player LED indicates the
-current player.
+> diff --git a/drivers/input/touchscreen/synaptics_tcm_i2c.c b/drivers/inpu=
+t/touchscreen/synaptics_tcm_i2c.c
+> new file mode 100644
+> index 0000000000000..2553dabd39258
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/synaptics_tcm_i2c.c
+[ ... ]
+> @@ -0,0 +1,1033 @@
+[ ... ]
+> +static int syna_recv_message(struct syna_tcm *ts)
+> +{
+[ ... ]
+> +	/*
+> +	 * Continued read: the rest arrives in chunks that repeat the marker and
+> +	 * carry code 0x03, so only SYNA_RD_CHUNK_SIZE - 2 bytes of each one are
+> +	 * payload. The trailing padding byte (0x5a) is read and verified in the
+> +	 * final chunk.
+> +	 */
+> +	remaining =3D ts->payload_len - copied;
+> +	while (remaining) {
 
-Signed-off-by: Jeremy Nyberg <SlickStretch3.0@gmail.com>
----
- drivers/input/joystick/xpad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+[Severity: High]
+If ts->payload_len is exactly 60 bytes, copied is 60 and remaining evaluates
+to 0. Does this cause the loop to terminate prematurely and fail to read the
+final chunk containing the required 0x5a padding byte?=20
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 2da0b7f17..b7a9a940d 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -215,7 +215,7 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x013a, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0146, "Rock Candy Wired Controller for Xbox One", 0, XTYPE_XBOXONE },
--	{ 0x0e6f, 0x0147, "PDP Marvel Xbox One Controller", 0, XTYPE_XBOXONE },
-+	{ 0x0e6f, 0x0147, "PDP Marvel Xbox 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x015c, "PDP Xbox One Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x015d, "PDP Mirror's Edge Official Wired Controller for Xbox One", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0161, "PDP Xbox One Controller", 0, XTYPE_XBOXONE },
--- 
-2.55.0
+This could leave unread bytes in the device's TX buffer, desynchronizing the
+I2C protocol and causing subsequent reads to retrieve stale bytes.
 
+> +		bool last =3D (remaining <=3D SYNA_RD_CHUNK_SIZE - 3);
+> +		unsigned int chunk =3D last ? remaining :
+> +					    min(remaining - 1,
+> +						(unsigned int)(SYNA_RD_CHUNK_SIZE - 3));
+> +		unsigned int read_len =3D chunk + 2 + (last ? 1 : 0);
+
+[Severity: High]
+Does this logic compute incorrect read lengths for non-last chunks? It appe=
+ars
+to cap chunk at 61 bytes (SYNA_RD_CHUNK_SIZE - 3). This results in a read_l=
+en
+of 63 bytes (61 + 2 + 0) rather than the expected 64-byte chunk limit.
+
+[ ... ]
+> +/* Extract a big field of @bits from the report's bit stream at @offset.=
+ */
+> +static u32 syna_get_bits(const u8 *buf, unsigned int buf_len,
+> +			 unsigned int offset, unsigned int bits)
+> +{
+> +	unsigned int byte =3D offset / 8;
+> +	unsigned int bit =3D offset % 8;
+> +	unsigned int done =3D 0;
+> +	u32 out =3D 0;
+> +
+> +	if (!bits || bits > 32 || offset + bits > buf_len * 8)
+> +		return 0;
+
+[Severity: High]
+Is it possible for offset + bits to overflow a 32-bit integer here? If offs=
+et
+grows large enough, the overflow could bypass this bounds check and cause an
+out-of-bounds heap read using the calculated byte index.
+
+[ ... ]
+> +static int syna_parse_touch_report(struct syna_tcm *ts)
+> +{
+[ ... ]
+> +		case SYNA_TOUCH_FOREACH_END:
+> +			if (!active_only) {
+> +				if (++obj < ts->max_objects)
+> +					idx =3D loop_start;
+> +			} else if (have_active_count) {
+> +				if (++seen < active)
+> +					idx =3D loop_start;
+> +			} else if (++seen < ts->max_objects &&
+
+[Severity: High]
+Since active acts as the loop bound here, a massive unvalidated value could
+lock up the CPU in an IRQ handler, continuously incrementing offset until t=
+he
+integer overflow in syna_get_bits() triggers the out-of-bounds memory read.
+
+[ ... ]
+> +		case SYNA_TOUCH_NUM_OF_ACTIVE_OBJECTS:
+> +			active =3D data;
+> +			have_active_count =3D true;
+> +			if (!active)
+> +				done =3D true;
+> +			break;
+
+[Severity: High]
+The active variable receives a value directly from the hardware payload wit=
+hout
+validation. If a faulty or malicious device provides a huge value, could th=
+is
+lead to an unbounded loop in syna_parse_touch_report()?
+
+[ ... ]
+> +static int syna_reinit_hw(struct syna_tcm *ts)
+> +{
+> +	struct device *dev =3D &ts->client->dev;
+> +	u8 report =3D SYNA_REPORT_TOUCH;
+> +	int ret;
+> +
+> +	syna_power_down(ts);
+> +	ret =3D syna_power_up(ts);
+> +	if (ret)
+> +		return ret;
+
+[Severity: Medium]
+If syna_power_up() fails, the regulators are left disabled.
+
+[ ... ]
+> +static int syna_resume(struct device *dev)
+> +{
+[ ... ]
+> +		/* Wake up controller from deep sleep */
+> +		ret =3D syna_exec_command(ts, SYNA_CMD_EXIT_DEEP_SLEEP, NULL, 0);
+> +		if (ret) {
+> +			dev_warn(dev, "failed to exit deep sleep (%d), recovering...\n", ret);
+> +			ret =3D syna_reinit_hw(ts);
+> +			if (ret)
+> +				dev_err(dev, "failed to recover controller: %d\n", ret);
+> +		}
+> +
+> +		ts->suspended =3D false;
+> +		enable_irq(client->irq);
+
+[Severity: Medium]
+Does this swallow the error if syna_reinit_hw() fails? The error is logged,
+but the function returns 0 and leaves the device bound.=20
+
+Since syna_power_up() failed earlier in the recovery path, the regulators a=
+re
+left disabled. When the device is eventually unbound and devres triggers
+syna_power_down(), will this result in an unbalanced regulator disable and a
+kernel warning?
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910070723.3477=
+68-1-sevanevorotov29@gmail.com?part=3D2

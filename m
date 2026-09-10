@@ -1,63 +1,63 @@
-Received: from mail-oo2-f42.google.com (mail-oo2-f42.google.com [74.125.231.170])
+Received: from mail-oo2-f43.google.com (mail-oo2-f43.google.com [74.125.231.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5F8E39A04D
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 03:21:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BDB439C00B
+	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 03:21:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789010496; cv=none; b=K3IpIxpAgzXxrXuH62ow6NB9xMM+VI3ZTHhsEUF6wzCo/SkdnD6MBYTSoOvrJWBMUP9AiZR2Avk3aG8fkj1hjVGtEjMIMqnR0MDlxx7vfaQpoBliLGosgZEL+seRJRKfQ0U5bimQl7xXH82JdbIf7L20kWqpULh8LX08A1Po5TA=
+	t=1789010497; cv=none; b=JQWsDOMtU5mn1XP7jdNyI/wYwG1J3FL6SR1lEWJcEMzuNOhuEI+IiU9tu5UG/mn8/Q0sZilicTBuL0fin7a702QTP1J8i4r+GgR8quh8Cyc5DV3OWQtcGsFtwQT7YhBhH7gz7LwVqtQF+xXGhlMx0HJ8tzduoSvyJMiPkaLVrbM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789010496; c=relaxed/simple;
-	bh=Um74UX+MRF/9P0ke3riKZo7+21YZ3eMyq0VMLteOHVg=;
+	s=arc-20240116; t=1789010497; c=relaxed/simple;
+	bh=yo2MDFhvnhT1VSXQJAy8INcs1Je44ObhgyQM6+ip/u4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Mbr0gB7FHatNHMwBmD5a9VwAE45mKsC4wf7JOBpWHZFk+IZ8ZT0LMSO99BW2rJoTwezRtby1+nEJet8eIE/yiIURhXMMG1Pc9ngxOJIsYTlL/O52i0LcPfwJpkcaVr9qXCl/DdQX3KO4HQvID/CIDnP9ZuA4SlBGVg27LZWn0rA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j6RAp1Z4; arc=none smtp.client-ip=74.125.231.170
+	 MIME-Version; b=E4WgQ+fUDz58+g0KlMnYsKlel25N3SlFaQJtW+9/aSjf/oFbsWpQ6UwutlGTmKTKCCN8y4Ija5uiW0TpMI86XJbH2Oockc6OEcZ6IHjTifE7EQGm3qU0n7cVCUsssp8QYgQwZ6iVAoRjYBA1nr4sD1FtftVhPv8BQyF+W7yB/Lc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hE0GXt4B; arc=none smtp.client-ip=74.125.231.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j6RAp1Z4"
-Received: by mail-oo2-f42.google.com with SMTP id 46e09a7af769-801cb343a92so174937a34.1
-        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2026 20:21:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hE0GXt4B"
+Received: by mail-oo2-f43.google.com with SMTP id 46e09a7af769-7f4bdf2e95fso327847a34.0
+        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2026 20:21:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789010493; x=1789615293; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789010494; x=1789615294; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=xO5C08EX71sX1hq1xlgBn85VpHzDdFalT8bt09irpJA=;
-        b=j6RAp1Z413y0sYYZnJYJImC5XAQayzqOCxKJmSimUC43MB114oNgbG+w82A55PB5K5
-         GIwQ+2oyC+fWrGmVrVc7v0OcNZ1N9ZjObmwdLmdHpK6gFv1kIkl9No2O089wsA6ISert
-         tSNOCGD0f5Ey6Z67MPY74/n9WveNoQmY6460smH8oSKBeD8JzAEsomQIGglMSjbo5Sdm
-         KRV/k4WbVEUjz9sQjqBJuWOFpfa9SB+2xsKf8U+lxg+DEadiRdl/SL03NnbzI6C6Yw8O
-         rOtkM7OoOfDuAbqv5wAWK34kPFUw2tIlD2WILyUyC5u9E9BwhmBhoS3cI04UmXbs8sf1
-         KSLg==
+        bh=0m2EXA4RWU3Xwtz9ppvYXUdEt6FGFiWjjYdvOoJpw/g=;
+        b=hE0GXt4BN3EG/vuf7o+8sQCrIeCL0Mv9Hk34glK9mB80bcBH3ngSbc04bfra+HHEkG
+         ZNvOpTTxscUOQjMzKHmSPncx2hMikZ2BIzAGnHKOKYJWpj6yvdu6xSodu13Tx9vzxdYa
+         905q6UTHmlzFEudrsx+UBKmnUrJPdBDg4DkUcGBPcyrGdNaEuq0VoBwTh/YpYBOtr/u1
+         xa47DPqXo0LI5np21UIZQV9kBpoCeX3hsZJSMtRepbBTGd40iqew2+oWyv6G4xcrZ38E
+         YhCIug2/tdJLRWn6LxWZR67+l8UuBGm1oLGj29h0bNxhDAN8IfcxTT80PpGSqmwcwj27
+         cdnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789010493; x=1789615293;
+        d=1e100.net; s=20251104; t=1789010494; x=1789615294;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=xO5C08EX71sX1hq1xlgBn85VpHzDdFalT8bt09irpJA=;
-        b=J/JeWm7arLQTD9xjO7NMRXYYC065mChy606gU81KqetgnNgN3PpJSD3WCxLskbnasX
-         aYCVDeLIawIC/PisoYs/wK5YKcB0Fu3h2m7GWuncVv8xwv6tvGd7ulH62rAhdUWgGURL
-         dR4EXB24vmGU7zBUVIDotYJBSI45XUjhT/XWXJWHFSPzjnTYNDdCMBzaRYbxRTT5p7r8
-         +W2F2vmGz2TD1TcRXlqpjBPyQ4fl9949uU4igslrs4ZV8850UZWlkoM/OYmcrke2cSDv
-         aDNzpsW+OvJA+U6/ZmSBmX5YsIyV1Th8ODj86bQ+Dbv3eE4ZmJ1LPuE/aWhJ42T1aNEY
-         oCxQ==
-X-Gm-Message-State: AFuF++lB+XjqOUF0hvycCmwFuj7YjEhM2aqDV7TvND7bBLK/TbdLsjKE
-	2zYTC5UCdffgUEBZkb/b86sJW6lQ7Z4TWzDAzz34mIJAQJAsuX9U61Io
-X-Gm-Gg: AYBFou1Uh4Kt4QBhPOYF0H+mejgl6u/BHMunXHGjYOkaR1Cej+PDfTqf5OyzVr1WOJr
-	K8selTkywaziRnHggQO0hkbdkQwv2nNFEWD/4GnFQk8+8w3lerK4NMz2RE64Dmdn5FXzhJBrx5n
-	NgbUgQWw+MPni148t9emcqNSI9bfbqwf96GTe6cjSTOXn551sQNfiF6jfofZRnCliYijg4s86A7
-	fGktEgcE3bii+dpqAX0Y0zRc/L1DVhjvIQ+Ku87b56oS1ehYU2DVFlR6mDdvm0uGO3WNZyJ4sl4
-	hwrFfoqWhSYD3i4btnUEBlVUCXnWryDwmi/Rtgp/+l+35ZuMImicQBaYmHkNHi5kECOLjnCJP9c
-	g9kZyIT8h7OVDJaDSX2/im4xma6XHGX6QtQY2huRUobc+EMwVmeYNdAwwLFKPJ2arcfKgnTG/Pr
-	GU+TEKKW58HvbqcyXTj80eMFl0QQ24IU6mrATvU99tDpHzmM+JEx5OuxYXFzcH2sOlG9eLhyU6m
-	kjwgWdE3vNIOI2+aFStIuoDdTS7Zt4Evh7igteMwRi/Ru2dXTS5XW+9/owpKByn2A==
-X-Received: by 2002:a05:6830:7316:b0:7e9:bbf5:1079 with SMTP id 46e09a7af769-7fb7d276778mr17530457a34.2.1789010493406;
-        Wed, 09 Sep 2026 20:21:33 -0700 (PDT)
+        bh=0m2EXA4RWU3Xwtz9ppvYXUdEt6FGFiWjjYdvOoJpw/g=;
+        b=OAnf7vmE4kVv5gmjA4QX0iS6ZxlUozbqFAKYcvcB1hpHzjcV5EiFJMvO4mccLs+AZz
+         qQ2JEoFuCkrDWjiI+OSbgNWXJf1m/HhAJcO3e8jdugdPIx/UJeJTaGRC0Y07UzoyZaR+
+         uGkKifOFWzOnFvk0CMZwEnG0NuyrYr96JIxBMB/7JrjoBP7A2FFhnSFyy2gBMy+4CVlx
+         cbbGLw6D089WcteaqBrD1mtfHK71IiO2RaS4i0+6FDzUd7M9zsslCBkejRSnTCNoL6HR
+         M4f5xZsCFnac6QByhlKzgisu8ESPxi9r8u5zamNywTDCn7RbHUeFfQVNADLwzS4SdWQ/
+         YHuw==
+X-Gm-Message-State: AFuF++n0uD6qZmfRwDxqDHbYaBERdy8TjXWt0IOENhqK3RFtp6LFjyTk
+	qGeZ9qAliUkHT6NF3JbfvbI+GmCVdyJ6AdrFBkxdmHIzLFYyngodO03i
+X-Gm-Gg: AYBFou0RHSwL33PkeGGyNG4jF+fK62t+Fs485vT6f2SYLuaThzGfkaIppM4WpTK8SzM
+	LKoLZLR0vNJbourciAkIu4PKB91tY42Q/9cpoo+l7qo2pgaS6d3xugKF93B23hyYV5HqJwxlGwO
+	TuoyyHM2Aq5qZLgW0204FhlxlP0Hi1EZT01lYezbBlS0zehJZBF4NAlV5EZ91IDsZkG2jq/riQS
+	VA4Xuh16GCZNBAZKNc+7ZnhLtOEpeFmwD6a5ggnILv19NZMXqaflUJDqIhG8+O2g8HUol9Hz253
+	qx7rBHQdY3d3w+Tq02OIsQZ+CYBpEQy1b2n9ePdOd7DV5G/A0X/FlVIugE0wj1BP+sK5N6eRZKg
+	TK+pxUgMEZwYil/EWlM5InDKYgHGGG7YKkrWxIx7/6yEDQEc1y3QZ3Y3GAboOGHM1v47g9+jDIk
+	eU8Mh9+o0GG93OGVTUcJIRgl93p+kO8d551mU6cGevzISC25cxzqZFSepTYmht37ZLVJ80Vde8/
+	M+8PhEgvYVNMLvBfRNYrVEfXPTVwSX2+XiUwP1N+WHx5yv1RZdh8C8cPwzw3/CcDw==
+X-Received: by 2002:a05:6830:67d2:b0:7dc:d6b1:48b7 with SMTP id 46e09a7af769-7fb7aec2172mr16246619a34.1.1789010494421;
+        Wed, 09 Sep 2026 20:21:34 -0700 (PDT)
 Received: from localhost ([76.187.192.44])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f9f6da9a49sm19758315a34.13.2026.09.09.20.21.32
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f9f6da9a49sm19758315a34.13.2026.09.09.20.21.33
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 09 Sep 2026 20:21:33 -0700 (PDT)
+        Wed, 09 Sep 2026 20:21:34 -0700 (PDT)
 From: Andrei Aldea <andrei1998@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
@@ -67,9 +67,9 @@ Cc: linux-input@vger.kernel.org,
 	Lee Jones <lee@kernel.org>,
 	Pavel Machek <pavel@kernel.org>,
 	linux-leds@vger.kernel.org
-Subject: [PATCH 06/15] HID: hid-oxp: serialize complete RGB updates
-Date: Wed,  9 Sep 2026 22:21:06 -0500
-Message-ID: <20260910032115.28669-7-andrei1998@gmail.com>
+Subject: [PATCH 07/15] HID: hid-oxp: select brightness policy for the new RGB effect
+Date: Wed,  9 Sep 2026 22:21:07 -0500
+Message-ID: <20260910032115.28669-8-andrei1998@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260910032115.28669-1-andrei1998@gmail.com>
 References: <20260910032115.28669-1-andrei1998@gmail.com>
@@ -81,81 +81,52 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The transport mutex protects one report at a time, but changing an RGB
-effect requires a status command followed by a color or effect command.
-Serialize whole RGB transactions so sysfs and delayed brightness work do
-not interleave these command sequences.
+Set the requested effect before constructing its status command, since
+monocolor uses maximum hardware brightness and software intensity scaling.
+Previously entering or leaving monocolor used the old effect's brightness
+policy. Restore the cached effect if either output command fails.
 
 Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
 Assisted-by: LLM
 Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
 Signed-off-by: Andrei Aldea <andrei1998@gmail.com>
 ---
- drivers/hid/hid-oxp.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/hid/hid-oxp.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-index bee1317..8d07816 100644
+index 8d07816..9c22c8e 100644
 --- a/drivers/hid/hid-oxp.c
 +++ b/drivers/hid/hid-oxp.c
-@@ -181,6 +181,7 @@ static struct oxp_hid_cfg {
- 	struct led_classdev_mc *led_mc;
- 	struct hid_device *hdev;
- 	struct mutex cfg_mutex; /*ensure single synchronous output report*/
-+	struct mutex rgb_mutex; /*serialize complete RGB transactions*/
- 	u8 rgb_brightness;
- 	u8 gamepad_mode;
- 	u8 rumble_intensity;
-@@ -1074,6 +1075,8 @@ static ssize_t oxp_rgb_status_show(void)
- 	u16 up = get_usage_page(drvdata.hdev);
- 	u8 *data;
+@@ -1240,6 +1240,7 @@ static DEVICE_ATTR_RO(enabled_index);
+ static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
+ 			    const char *buf, size_t count)
+ {
++	u8 old_effect;
+ 	int ret;
+ 	u8 val;
  
-+	guard(mutex)(&drvdata.rgb_mutex);
-+
- 	switch (up) {
- 	case GEN1_USAGE_PAGE:
- 		data = (u8[1]) { OXP_GET_PROPERTY };
-@@ -1191,6 +1194,8 @@ static ssize_t enabled_store(struct device *dev, struct device_attribute *attr,
- 		return ret;
+@@ -1250,15 +1251,21 @@ static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
  	val = ret;
  
-+	guard(mutex)(&drvdata.rgb_mutex);
-+
- 	ret = oxp_rgb_status_store(val, drvdata.rgb_speed,
- 				   drvdata.rgb_brightness);
- 	if (ret)
-@@ -1244,6 +1249,8 @@ static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
+ 	guard(mutex)(&drvdata.rgb_mutex);
++	old_effect = drvdata.rgb_effect;
++	drvdata.rgb_effect = val;
  
- 	val = ret;
- 
-+	guard(mutex)(&drvdata.rgb_mutex);
-+
  	ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed,
  				   drvdata.rgb_brightness);
- 	if (ret)
-@@ -1302,6 +1309,8 @@ static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
- 	if (val > 9)
- 		return -EINVAL;
- 
-+	guard(mutex)(&drvdata.rgb_mutex);
-+
- 	ret = oxp_rgb_status_store(drvdata.rgb_en, val, drvdata.rgb_brightness);
- 	if (ret)
+-	if (ret)
++	if (ret) {
++		drvdata.rgb_effect = old_effect;
  		return ret;
-@@ -1340,6 +1349,8 @@ static void oxp_rgb_queue_fn(struct work_struct *work)
- 	u8 val = 4 * brightness / max_brightness;
- 	int ret;
++	}
  
-+	guard(mutex)(&drvdata.rgb_mutex);
-+
- 	if (drvdata.rgb_brightness != val) {
- 		ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed, val);
- 		if (ret)
-@@ -1470,6 +1481,7 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+ 	ret = oxp_rgb_effect_set(val);
+-	if (ret)
++	if (ret) {
++		drvdata.rgb_effect = old_effect;
+ 		return ret;
++	}
  
- 	hid_set_drvdata(hdev, &drvdata);
- 	mutex_init(&drvdata.cfg_mutex);
-+	mutex_init(&drvdata.rgb_mutex);
- 	drvdata.hdev = hdev;
- 
- 	if (up == GEN2_USAGE_PAGE && oxp_hybrid_mcu_device())
+ 	return count;
+ }

@@ -1,67 +1,67 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2160056C63E
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 20:07:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 687E8496D42
+	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 20:11:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789070873; cv=none; b=kncrmlEVUmluq0CMNGuwLqg3HamdgpYv13BxeFaIghPYOspwXj00i14JJCrwCOaOFdooHZUhhrxmHqg666t7pWoh4ci8y1z7hKRASn8EIZgx1Mv42g5Txljnh4kv/TrSJlIlIt40KV4mulurnzafEfwNcKc1kBvz6uGvJj5KuQU=
+	t=1789071088; cv=none; b=VIYj+xlifbzjnf/g4mRcuZAKsICWEP7ECnks24Cp7tfjc4qff4JCTe5BjfWgOQj5R0HkSjHuaNFjUngBaZB5ZGoeiTrFggsSBiBhysFbBjiv9e9gG5VxJVtPRpUrdqRyd5JE+z1ZDIPep90npgT61SyrTFsoOBsRdwhA25vXiwA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789070873; c=relaxed/simple;
-	bh=AsBTu9mpyhzRchZiMp555VxdVBD2V0/4+SAhW/xU12I=;
+	s=arc-20240116; t=1789071088; c=relaxed/simple;
+	bh=70JpcLWpChN9TggxfsupsPzSJyZcERoa5xrjGNGx7hM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=T+NiMhcZMGgVtzT0xH8WJNodxwCHNSXzdGsc3wD9yXPAxKMwRKP2i0Ph4a32ARZiHDlp3Js4qJg/vEaAsTBOJqwoxyB8wFLy4HFBxANcfCTMy9fHlubQYUsH9iS0VDkkHXn5PABBGRdP9N2pa4xmJDjaJXlXzwNCc4tlNWIXxPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EgdWidPU; arc=none smtp.client-ip=74.125.227.140
+	 In-Reply-To:Content-Type; b=nvCUHbri5pnCpL7geAollrMlOQJc3s9bMcsgGVX47KlMh5sKIthumeFvpwdKcqndI5MUM/WaXC+MIhpWDy7Zey2BiB51lgva5CyDPto2hDJ6ubhsIWwHGRT1SldhlxUn3Lj91P1K73WAfWb27z4fBLPVrC6WTZ766ZXQukNbHqo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e0gO5fN/; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EgdWidPU"
-Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2d90ba1d807so874095ad.3
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 13:07:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e0gO5fN/"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-3856d6fbcb3so135407a91.2
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 13:11:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789070861; x=1789675661; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789071085; x=1789675885; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=RbfqiWzAX0EbCmILdSHnkqcNgbIbLdok++0YD66gtk4=;
-        b=EgdWidPURIFa8LSt5LAjKRixathjLQDpQ9s9tMS3F6HesjSKfMX+p3VKwOefesj1qO
-         J4S/tvbl071upJ8yjIBXmYOrahIPSIGdsF+no94dEB1/+Q5xvuGfVhq3fQJJlhat1Zfa
-         GEjvYdXCHXcGjavVnKI1hlaJhwRHp38wLH6AhPil7kfDz8O8pGX3Ja4YLPfqhY6wr4Mv
-         TjlTzFEJnbqTWkBdnGHyoNh6J1HR/UGEQYqe5DEux11seSmTxDrZjZr1GdBMo/6gCXDO
-         n8qMaKYI35HpHa5EabA2LfpZF43k+AlEHEUWTtclglaubnZrQnzo78T9kipkfNMKVqmB
-         y8XA==
+        bh=lgdj2pqHYPEmivAmLwAJxzuvMuZle0+ZMxeCxj5yEEA=;
+        b=e0gO5fN/yp5frL4o1ZPYeAgeCE7m4NrUYN5UXNR22c3+QQYGAAM66xJHloWAHHmpRM
+         sd7KE59DMNLjofwor+qTL8S1pAdFXMRP5jrnD06x+8EDJTA7CcUHgyzGTISxUkW/184m
+         mJhzDqnwnUCE+jT0fDnJb6wTnRIFi+4Q99GlLZw3PrlpHszOTGD25wIgMn/u8bjcTvpf
+         fxIg05doB3U5llS66FcUO2mteX7xgXYnQCpD45ip5CekhWdjxj9cjKopPuf+wXGcaGOy
+         Hwc1M5C9p94PyWWfPqKoEMt+Ee3EhosPo/ZzJfbOV8iS+W/D+SPMwsJVKhjrHZWa9DCJ
+         aU/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789070861; x=1789675661;
+        d=1e100.net; s=20251104; t=1789071085; x=1789675885;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=RbfqiWzAX0EbCmILdSHnkqcNgbIbLdok++0YD66gtk4=;
-        b=b9H2HanyA35F7M+dqh4ZUqOQrdH0HC2Kd/7UXoyzf0a/ISx0Zdkhn0vW1hSgahnKWV
-         igi1MRRcbqZTyDFlevSWxfgMB9JzWG4X1q7K4IhbcK0PjAgCYxoz90ej01VVUfTgY2yh
-         xU6xgWMdu7ruOKsIOEiIig6hrcpy8vgRy3iG0zeoEdM/AuSsJQ9yDWXXV66KcJBjVwcU
-         p8xWlOvh64QFQO2y+gnUlXkwzfzDNTDcHI5JeRvwONHq/38Aw6/ZAbJU7g3NeoQUg8Xp
-         kVOkmXGNwhm5snTg1JXPI79/Zv+V1ueExzeEXycws9QcmY1RrUblkZDsPe4rBOM1gvSH
-         y2yw==
-X-Gm-Message-State: AFuF++ket/m6LPPhi7hgVXb8B0Y02uxHGatFwpQstJU2iqqbASxAYnRu
-	gpxthbW5CC28BxdkH8cadXJRakMHSL8OhxluTI3LPx+byv73hyM6mFdd
-X-Gm-Gg: AYBFou1okfdC362/D+RHBlXuOBogi3NJJjKNgf79kGKy3QhapiYcjV7o/KzUGgnrNy4
-	KUv3Us1rG82bSJqY9uGrRdxejASC8tlqIfFM8qtE50bTW9WT7edO5P/p00shVlYkzSot7lf1Zc3
-	akHy/o7RXdVH9M3CNkT1necHjqZqt5qr0B83miNLAvvfwiWSMxpPXJUqWZ9zNd/RTmDZlkYRDr9
-	kgRZM92yN3TZbNyjVzRRRIp21NDUwJdXRBxQOWohOUb/kv6NYZD/o7hWroPQw7Bzxx8/Jx3eXoc
-	02pVHPM9xba8KCZOO7yiR6dHnKfW6/vh4mZbNUPu3ffUUtANxvtoPf+JaLBEzfgLicR9lamplTF
-	ohVzM8IM2HyQIyUzVt/tmBjMQtg8uY391yJhzDODIhEq99WZLJwumAexcIsU17LBR4jGZmOYDTS
-	W8/ql/DdCMrDgzG2OU1BC6LDEoHqEjIUr//YOvgAprMsR0E957v8HhkjSRAS8LNsAz06xn9CY6Q
-	7MvrSChLqDoCptNWx2lMqzOjwacUEo5DLnSnNF/IspZruRiGux5Zk5oAnGYlVl3Ng==
-X-Received: by 2002:a17:903:8c4:b0:2db:2ae9:fab3 with SMTP id d9443c01a7336-2dd2a33680fmr18443635ad.11.1789070861121;
-        Thu, 10 Sep 2026 13:07:41 -0700 (PDT)
+        bh=lgdj2pqHYPEmivAmLwAJxzuvMuZle0+ZMxeCxj5yEEA=;
+        b=ZhI5+vJZ4yatcH042Mr6m9pimm3j22wLrAyHDOtiIlbFj99UrlVbw5Yh7qPbEuADdA
+         M+8X2s6Jo3FhKyidmWy+N9ZHkyPFAuDWMfyOQYRPlMRrNl9V1B+fxHGSHuKYwzzyz+9u
+         mZZX2nAHDL2T4mLZnyFOcabiisjnSfKstOYuzQZig7DogmAyMrbinOy8aMVvDW2F0der
+         8QCpV3ZtrFzZNrurIY4rbO/wxVuORRGce2AkB7BUj3eNkcWxz3o7A/Smjl4Iq/JEA2nw
+         4UhQv1rH96RHJX3mN3X5XPV8CfMI5REd9Bv+KjXfPlQiD5cHnVe8a8hsTYBPpS2WlTMW
+         +EHA==
+X-Gm-Message-State: AFuF++ll0RBCP+glOClrwnnCHhGzPoYTspITfr8NTy1AYZp0LhIIq8aL
+	qNLgzHDyYOzyXzbUdrrTGRLfY3C7a5HrrR4y0+7wNTvpISnXMsno9SRT
+X-Gm-Gg: AYBFou2bLRD1635KH6P7Ed386yL3ukrVhmm9aPhCTaCVMYcTQJz4j3c3REpsSEecyaH
+	o1RAVtPNcc/Ttt3/kemh2O84wGs39cbIT6yQj5AFxVEs4p2JJhx6o/nvNSktVEhCCZjHw07Cw2k
+	xdKQbAU0OIV1Ev29/JMJhrHLTV8bouyjQqc7HH8fuqXpzAyl8WYgxPvcPXOnDl6JFndTgt0f+/Z
+	GktNfPRd0fNggUo1Jme/weykRWwwtTkiu8HBFBjKa+jpqb7Xya6wwSBoaFs12CJ824FYwsdblSQ
+	6PNpYoewyFrpZGeYIDwTepaxKRsEp8XhdT004aEZ84F5LWL2q8A3bbKjiY4P3gRD4HBZquLCBWW
+	ffuSZCvFE0Nj8ZmVzrbXY6PT3Qna84srdldHLqFIiphc++cZPzeJEsob0YbwqXes7HtmPqet+Gm
+	LoIWNTiiI+We6mtwjuhj8Tp9Kg4oFZyFgYKOuWDbTVBCft6sZxPptc9WgNgjOmizJDO+JJ/o/3C
+	qo/b1H8ao0JG6JFXhTGfV9VWY4BRhAUSI98AA1QCbTvxZMN45DaLopcBCHIjaIFPQ==
+X-Received: by 2002:a17:90b:582b:b0:398:c0ad:711c with SMTP id 98e67ed59e1d1-39d9c1d1f85mr626260a91.15.1789071085459;
+        Thu, 10 Sep 2026 13:11:25 -0700 (PDT)
 Received: from [192.168.0.158] (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4f06423sm389262eec.20.2026.09.10.13.07.40
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4cf015csm562594eec.4.2026.09.10.13.11.24
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Sep 2026 13:07:40 -0700 (PDT)
-Message-ID: <d5960580-a130-4d67-8b24-1544f1e7c135@gmail.com>
-Date: Thu, 10 Sep 2026 13:07:39 -0700
+        Thu, 10 Sep 2026 13:11:25 -0700 (PDT)
+Message-ID: <d5714550-61d6-45a6-a0f7-2ca8b472ca49@gmail.com>
+Date: Thu, 10 Sep 2026 13:11:24 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,100 +69,72 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 06/15] HID: hid-oxp: serialize complete RGB updates
+Subject: Re: [PATCH 07/15] HID: hid-oxp: select brightness policy for the new
+ RGB effect
 To: Andrei Aldea <andrei1998@gmail.com>, Jiri Kosina <jikos@kernel.org>,
  Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
  Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
  linux-leds@vger.kernel.org
 References: <20260910032115.28669-1-andrei1998@gmail.com>
- <20260910032115.28669-7-andrei1998@gmail.com>
+ <20260910032115.28669-8-andrei1998@gmail.com>
 Content-Language: en-US
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-In-Reply-To: <20260910032115.28669-7-andrei1998@gmail.com>
+In-Reply-To: <20260910032115.28669-8-andrei1998@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 On 9/9/26 20:21, Andrei Aldea wrote:
-> The transport mutex protects one report at a time, but changing an RGB
-> effect requires a status command followed by a color or effect command.
-> Serialize whole RGB transactions so sysfs and delayed brightness work do
-> not interleave these command sequences.
+> Set the requested effect before constructing its status command, since
+> monocolor uses maximum hardware brightness and software intensity scaling.
+> Previously entering or leaving monocolor used the old effect's brightness
+> policy. Restore the cached effect if either output command fails.
 >
 > Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
 > Assisted-by: LLM
 > Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
 > Signed-off-by: Andrei Aldea <andrei1998@gmail.com>
 > ---
->   drivers/hid/hid-oxp.c | 12 ++++++++++++
->   1 file changed, 12 insertions(+)
+>   drivers/hid/hid-oxp.c | 11 +++++++++--
+>   1 file changed, 9 insertions(+), 2 deletions(-)
 >
 > diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-> index bee1317..8d07816 100644
+> index 8d07816..9c22c8e 100644
 > --- a/drivers/hid/hid-oxp.c
 > +++ b/drivers/hid/hid-oxp.c
-> @@ -181,6 +181,7 @@ static struct oxp_hid_cfg {
->   	struct led_classdev_mc *led_mc;
->   	struct hid_device *hdev;
->   	struct mutex cfg_mutex; /*ensure single synchronous output report*/
-> +	struct mutex rgb_mutex; /*serialize complete RGB transactions*/
->   	u8 rgb_brightness;
->   	u8 gamepad_mode;
->   	u8 rumble_intensity;
-> @@ -1074,6 +1075,8 @@ static ssize_t oxp_rgb_status_show(void)
->   	u16 up = get_usage_page(drvdata.hdev);
->   	u8 *data;
+> @@ -1240,6 +1240,7 @@ static DEVICE_ATTR_RO(enabled_index);
+>   static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
+>   			    const char *buf, size_t count)
+>   {
+> +	u8 old_effect;
+>   	int ret;
+>   	u8 val;
 >   
-> +	guard(mutex)(&drvdata.rgb_mutex);
-> +
->   	switch (up) {
->   	case GEN1_USAGE_PAGE:
->   		data = (u8[1]) { OXP_GET_PROPERTY };
-> @@ -1191,6 +1194,8 @@ static ssize_t enabled_store(struct device *dev, struct device_attribute *attr,
->   		return ret;
+> @@ -1250,15 +1251,21 @@ static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
 >   	val = ret;
 >   
-> +	guard(mutex)(&drvdata.rgb_mutex);
-> +
->   	ret = oxp_rgb_status_store(val, drvdata.rgb_speed,
->   				   drvdata.rgb_brightness);
->   	if (ret)
-> @@ -1244,6 +1249,8 @@ static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
+>   	guard(mutex)(&drvdata.rgb_mutex);
+> +	old_effect = drvdata.rgb_effect;
+> +	drvdata.rgb_effect = val;
 >   
->   	val = ret;
->   
-> +	guard(mutex)(&drvdata.rgb_mutex);
-> +
 >   	ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed,
 >   				   drvdata.rgb_brightness);
->   	if (ret)
-> @@ -1302,6 +1309,8 @@ static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
->   	if (val > 9)
->   		return -EINVAL;
->   
-> +	guard(mutex)(&drvdata.rgb_mutex);
-> +
->   	ret = oxp_rgb_status_store(drvdata.rgb_en, val, drvdata.rgb_brightness);
->   	if (ret)
+> -	if (ret)
+> +	if (ret) {
+> +		drvdata.rgb_effect = old_effect;
 >   		return ret;
-> @@ -1340,6 +1349,8 @@ static void oxp_rgb_queue_fn(struct work_struct *work)
->   	u8 val = 4 * brightness / max_brightness;
->   	int ret;
+> +	}
 >   
-> +	guard(mutex)(&drvdata.rgb_mutex);
-> +
->   	if (drvdata.rgb_brightness != val) {
->   		ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed, val);
->   		if (ret)
-> @@ -1470,6 +1481,7 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+>   	ret = oxp_rgb_effect_set(val);
+> -	if (ret)
+> +	if (ret) {
+> +		drvdata.rgb_effect = old_effect;
+>   		return ret;
+> +	}
 >   
->   	hid_set_drvdata(hdev, &drvdata);
->   	mutex_init(&drvdata.cfg_mutex);
-> +	mutex_init(&drvdata.rgb_mutex);
->   	drvdata.hdev = hdev;
->   
->   	if (up == GEN2_USAGE_PAGE && oxp_hybrid_mcu_device())
+>   	return count;
+>   }
 
 Tested-by: Derek J. Clark <derekjohn.clark@gmail.com>
 Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>

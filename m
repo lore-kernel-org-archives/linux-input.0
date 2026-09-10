@@ -1,161 +1,149 @@
-Received: from sonic.asd.mail.yahoo.com (sonic-usea4-0032.asd.mail.yahoo.com [34.2.68.31])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3E453168EB
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 00:50:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.2.68.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B882930D3E8
+	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 01:32:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789001452; cv=none; b=ndTYI6BcvCcPMtWSL0yTgvcp3LfhsC8lBxW+pKAyqtJ18Z3R/tFonharNu4K5f7oDW5MEGtnnUlAdOnjCJmZ9yxgXiWu3ssVPYJVWyaqJvWdvVquJ2dRM/3eioAKtNkjylRbb5WcPIKw3AruU4fQ88wVPe6wwZ4/+8RCmmEJg/M=
+	t=1789003974; cv=none; b=bG9J3YifFlFfmzGqYJkVXG7BSjcXwXu4f4SwaYX8gCzhr1tVBb5+dcfaHVgliWVvCzBv/QdzGDYdjCIzP0nI488Ka4nY3AHUoPciqgUSlHLUBdwmmk20m0AAKCQieLEjkFTwl51trghu1Ia1Gnk8F3qrvBJAB1YuSEYMXyOYxWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789001452; c=relaxed/simple;
-	bh=Iqbkn+W4HxecBLJ/vWovecV9UCvG8fogFD6eVDLp4BA=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=JqvxQEA1WDmiRb1gwzyPas2trOXquPdAPb3eKIY1G5Mpu3Yb0CL3zXsPd8xKNyicVaDhJmWZ0IfJdoThJydp1RSoCvJFO+SW1PhX98g3ZLWmN2Erln3uxcWPDgVNF3UzGoylwwRI2QHGH5YL1ms8qAXeakZvBPGMj1b/kkfAaQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com; spf=pass smtp.mailfrom=yahoo.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=Y/41aGce; arc=none smtp.client-ip=34.2.68.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=yahoo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yahoo.com
+	s=arc-20240116; t=1789003974; c=relaxed/simple;
+	bh=XsI6Y/1sSLQp0adjnMZsyD3THyVMp5IicuC5nSeg3go=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=eCIShLs+qfp7hqt5fTy3jYUkOwetV+DqTmsxAYzG3d3uExg+DMln4ZR4egwpNAK7HfEhuT7T+6lpacpzAFQAU5hwM2rbEe1Y3tsGFTPioWUc5oX3TUozGGlMGUZgUaJAaeJb8zVCYlDG4JNHwcbOdKx36ufIoFf4L09ga0krAU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I3/zSNQH; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Y/41aGce"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789001448; bh=y6focDPHJMDa8YDAonRSLBAyPNKkbdwfY6RbpsVJVbc=; h=Date:From:To:Cc:In-Reply-To:References:Subject:From:Subject:Reply-To; b=Y/41aGce4JgcV2tCaJnP2vqvKmXyfh8HdEc6jdezyndQtJvi01QmgxHZQrlzJ2I+Hn6zV8Y4p12Unv5/mnNlKB8MYM94MWzCvBaEI751xBxk0IQPze9qoYzbRjAtVT937xawgsqQc0TBQaYusq7Gp2h4DhB40KpqNgLdK6zrD8W9dcSLFAJ/eynlot7h4MUjvU5wHQS8uyY5APvD4LXvDkKLc1UmaseoQLDC9qyq3C456qkC+ZDvsMXGerW+pzzlFfznufxTMPHEHO52H55DMISurlWhBtzXsxiGGaZpV1aIumRLGCqR2tcyUUb9zKLpsrVfj/Q4Z4jDaX/ymUbozQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789001448; bh=YyJSTaZcmopysaJnF0ClUFttEetYpFrVYSEvntNiGIs=; h=X-Sonic-MF:Date:From:To:Subject:From:Subject; b=aN1R8k3D7fNyljVy2R8X0eEgn5xCwV2mUqe9K/O6FS4Z7PGAHDiBDHlrrYWPqRPYgtNViBBlVoFD+5rbNmX4beP0fIbm/lCR6h9FRrGLnOClKs1vj4xBI4MA1QhpiImjV97yZmDOrXICnc+5ZC/yeQEPc8S3GwaF/uj+1xq4ew5ChITyaConE2+iOGyKXUDGkaEsqIdWKevUPVwJ13cBovp5vC0LJ4c522NYkBOSbU8nZISetVGmZSmGDza1wTVb5KvXKGXGwtMu7PUz6N+WVUd1oSElRsHEj/7qn12j+zy2xldSjNvE//ebt4GD0IwNiY0ZQaYtWsJad+9k6PfEkQ==
-X-YMail-OSG: VSD6vY0VM1kINEiY1x5kAGHWN_mcA4xVSFLtgCwvTB7.q_QT2WF.hQH9.x3iPtD
- XEVJmpagMzQ7fhVGe5GjJKn2PXVGCs7pFu8Gh_cO06XuevjTfq4ZQomgnfahzMMibOLhftq8i4ut
- tRxNuI1ubQwsdmTYNMuSVCoeaoU.g2QgQF1EjaSuw6Z0zM1iDZtjVj_LK5P5pI24RZ1KSHMp3_X4
- JXLUnuhUxatmNihGVQaK9MH8oXMfluUPu68SK7Xe.6TLQzZBS2pcbnq7a.vmGSVvCOgOfnu1R20S
- x20eUKC6VUDjj6YySy0nCmNdb8VgRZwdzrI.LVDuI8.w.iwmjSIU1vIxJHG7B5Vfp_HQufXiV3E.
- LjyCpB5OTwD.MrydDqB7hoWocEFnQCr1xUDHwbtvCLlOSpJe_YcHYpMeBYPbaqg7A2oTgOymMlyb
- jeWAIqdrzsetOccqOi3ciXZsUYzqj47b9rti22LXs4JaZ0W5lIEibZF.RMkYM6Sqr3eC8hGLi7u6
- BNRpqIcnG2LmPgBV.0h4V35q.mXhuKHi3ZjnysTVKGXfkByV55yj5OU2aj7OoFp5uRPTGTyq_gfQ
- 6ZfYj13HjlcD9rMocGbI_4yggHrngDyxUCRtt1.8hUe58qSIX3.thNp2ZscGBvSRd6t7kNWywG0R
- qU3yJfVON2EY1t_h3Wvu37Kp1TCfM6T55nX3eHrG3r9sq7hFxfNgB60NkWLtgpYfPkhfllcINfF2
- SeI9KBbrVnxpejOs8ksJEUArfVAY1WLydgz1xCC9Mda4R1H5uWmM8xqvxgM3ho.VY8TgSPhKvb8g
- wZHJxLSksXVZhFN5blowvrAQll3yuq91M1xUgyeT0ksTfacQ4bQxnSmzcgDAo7L1jSZrPnnOPyJN
- 24NLcFQ.stcdonUWcDn0Xerc0.tAc5RRVR7iUMDTUt0m6jTpDR6e5aMcQNBHZn_WbdtE3.bMVnLM
- QZUUxHTa64F8Fd97.Dcp5C9FL0sMfhL2MjYFQu5teUGK1.MnXvLhIYYaY7.w_JKT4K8Tr3vLmCvf
- 79cK4mmHNz.MxHXyO91FHax8W89SYGUNmZWrC9_g52mpYlprAE4PJRJw_Uxyu6XZg_B7Rg07Ymsz
- B3Gx9KdiSpOaVDtrujo1_5Hf3Z8U0GrgWcBLO3aJCNA2fKD.dAAM_Qcmd9QM_Pk.kPOtnhBR66iW
- dTHK2FqD3kH4dBF64P1bm1jkXAllCOHlAMy74P7W4pZfkb73fJvn.ABClK2kOEgfahIqB2h5XJSn
- nUp2yP2lbxf2xbfoRbRjQq8GPvTNvYtdbva9tvwhiTnHdVVx_PvZ86wR.YWDrpdAgpOcTLrXqPTd
- XD9ofzNypffiJqfQXVdPs0ubBtIppfRf9hCw81j9MpHeOAFPUY4V6PI1rBIKCHqiY2ZoXIeUGTgf
- PIkJq9HMr.gN38DsYcggnDpP3La4CPZzWXcfUwk0xxGYqKzHrIAGr6k4OJX6cE4KpvAPzJWTpx._
- x3yx2LZaJ5JOSHWRRazItS8HQ_gE_TDEMBAolmQcUPrwo6q92bVa82KUHvcwbo9Ywd8DJ0rOtlvN
- WUbMdAnvXiX..vhciApYpkrkx1zDXyyCCTBgOy6mLPjOD0Rhjw84etLQL4RZ9goXNfuzFR7IIMbY
- 55nPL8GZ6sOhNKge2axFBgLo9t_Ik5wkGpU_QcAEQEp2VqBQXBQ8fLA1JoDMEqKSnfl5qjKW6vRl
- wEI9tPU_r8V.a.5TAHK38UchHfHZjHNkDSW5sKWX6TNqLcNyw9PMIPDDaDkUNP2.C6WALQZGA55K
- d5raJShrq7f44J1F7CMcScCHr2_PzpP84Ewkl84wYRf3mcY5dsEA4m0vYSGXIcoFqRBOma1.OI0d
- tg3VdO7vxXTNUzklRQG.vRmp553JUMqMROqjg2IuMMysCAS8_A9iwJqR3kjFPhP6jbw6NfF4.fpm
- awGub9gx7bXcinT.07iioW_WZhFlbdJHTb_0e1ThMG8OK6d2.21L3A.RAeRtPSJO2PbQFygBauvg
- NXtylPaCXUd55OBwyu7nYqiqU8w4uExGyB545smu1nJopibyn7dcQy3BQ3V12ZxYeYNHwaxG47kq
- JSQmPsn3E2oAP2C8XWWy6gRIJOKNiFjCj_Yzs.iCSgTCvbjYlt4s6w0DPNNtWqOlg8rYTN4OLCAT
- 165eO.33insJ1nzNP3xx.9Y.7dwS7S0hwcGy3z4nZBPN2Q6k-
-X-Sonic-MF: <sainiharpreet29@yahoo.com>
-X-Sonic-ID: 2d55c225-e714-4319-ae0c-cf72f0bcc512
-Received: from sonic.gate.mail.ne1.yahoo.com by mail-asdoutdeli-p-cin-usea4-prod-sonicconsumer-svc-101 with HTTP; Thu, 10 Sep 2026 00:50:48 +0000
-Date: Thu, 10 Sep 2026 00:50:13 +0000 (UTC)
-From: Harpreet Saini <sainiharpreet29@yahoo.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Message-ID: <1293811398.222172.1789001413808@mail.yahoo.com>
-In-Reply-To: <20260427-paj7620-v5-v5-0-6f9bbe7b4ce3@yahoo.com>
-References: <20260427-paj7620-v5-v5-0-6f9bbe7b4ce3@yahoo.com>
-Subject: Re: [PATCH v5 0/2] input: misc: Add PixArt PAJ7620 gesture sensor
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I3/zSNQH"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4957eefd361so51355025e9.1
+        for <linux-input@vger.kernel.org>; Wed, 09 Sep 2026 18:32:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789003971; x=1789608771; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VrhRS/M7q7pkTrLXrhmPne9tuf4NOHwrkARE6eFwxWk=;
+        b=I3/zSNQHQXeB8cN8Wwdu7tgpm0DIv77z8BL8iakzEHX/aunQ9Aw1ymGqcisbz7I44r
+         AmrhDnkhRnxwOe2nRq82G9aTLqH5PKybIWDSrtt2l/oOTuUckZz/HVgwFVqwFnJhonk/
+         KbcrASX8VriPzIaNWBxPPyIwLQa6J1aSLOI6+UfnTRQvhgIYFJS8Lk4uIzt9XuKdk86t
+         IDuYkMM8gAIceb4+l/GtrGeE8CNgE4cfPc4CKtExerkOlBut/kwHE4lo2aoRGcYiHCFg
+         Kmg2iypyC1oQ02prBHKYBJmPDU65cPy+qakEPhe1I5zyqJS6K1WUzJY3LdjU8EwjXHLG
+         ghVQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789003971; x=1789608771;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=VrhRS/M7q7pkTrLXrhmPne9tuf4NOHwrkARE6eFwxWk=;
+        b=ik3Jl2CkrWt+bCBwyq+CCcsw4gUHhPe8aN4OEZmjCusTmaFRlZZlnkG+vEHgTBbNwL
+         riOhNuM7cAooMcG1M0M0vnLKZZo9ygJrkVd1s+1MOX6oPpyWp2OipvuqldvPDHhiFdPb
+         48OlhE/WM7UMRRMIvmB805im9NFdQGUj/KNX5IUlgSX/KXeS6QDn8jz2y0jSrWU5SGsg
+         ZUmudWaMCoNzQF9Ow7ev0/2kuLt8ttQD/88TET/wF0ivScDcfCCYjzPy0Mhr+6jTHv/c
+         ELUWGdZx0VWSIOLEI+o7U/13pM6CBSHWqyjyORDw38aXHQvdB2rrrtVYQlxAb5IbUpV5
+         32pg==
+X-Forwarded-Encrypted: i=1; AKwUvBxsWlflQgUnH88OjqSi4hR5If0UgJi3dBbzc1ohRhBN06Oc2VW+GRoLj4nIObcFqbcxqN5dLJIwebsBaA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nYqLVPlgqwDhDQF3ce7lw10YaI3j6KYIU4W143MG9RvIT0nead
+	pA+YASmFBVkQbPsHPew67lFMHzqYRHCA49vZifmY4OqFcbv5v+1pXmrt
+X-Gm-Gg: AYBFou0auZVy2HokyHMVmKmYNgU2ODI9JIlIYOHdSMmtAIxHd3cFQ/W/QmmOBt8CRfF
+	nSLjtzz/5lx4oJlYJpCJcyrEqR07FnqmcT5ZabUsGaYeESVXLiO7snZxCVtxrZ/lmedbD4raF8X
+	GZEAPtc6hAi8q8K84DyGQNWk8G7WcLjpww3OCyQ7EnadmdIY4oWn5WoDyPiW5dCTbIMHr3WI6+m
+	kn0JxiJJ84QShCoPksnByLE3F3uhPBEj3ieZS/HqgeLnYB4sZ4nmsbT8QcHjSFpHTOQy1IEBbtw
+	EdaVg+v//WIGBXbW6d6Z3KvhuwipxcREkaDPFU6gXhruSqdyaeKsJA6hkPdpggg2BXycKAv7to2
+	9lf+PxrWJxGl13vN4mCDi9VOl5g34bT81fsBhnqimWYKdKDbgU0WuU03ThbZMOqTjp2EOETYOts
+	5RxPGQR4aWeAa8SSqbXsZFXotnBHjD91+DTqeHIIlzawwoPTOFYtnPFRFgTeN+TsReDCR8BWNfS
+	vcleCSfoobqCAl4xTIXylVPva8TTTEXHWh3nbkKw4YV+bn/Tk56XsbgMUBoFQej/16ScP+3XEQT
+	hTtdO898txtObeYinzeTvViGHYfhCv/Bytlu4J39zOrC10m624QxsutNEJdRLC4z6DY8p6JC92y
+	4Gg==
+X-Received: by 2002:a05:600c:4e0e:b0:499:bf8c:cfd1 with SMTP id 5b1f17b1804b1-49cf81e6063mr368280035e9.2.1789003970778;
+        Wed, 09 Sep 2026 18:32:50 -0700 (PDT)
+Received: from localhost.localdomain (dynamic-2a02-3100-b090-6201-5565-e933-e630-1831.310.pool.telefonica.de. [2a02:3100:b090:6201:5565:e933:e630:1831])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d26d4e3f3sm35852735e9.15.2026.09.09.18.32.49
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 09 Sep 2026 18:32:50 -0700 (PDT)
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	linux-m68k@lists.linux-m68k.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	Steve Wahl <steve.wahl@hpe.com>,
+	Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+	Mike Travis <mike.travis@hpe.com>,
+	Tony Luck <tony.luck@intel.com>,
+	linux-edac@vger.kernel.org,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	linux-samsung-soc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Tony Lindgren <tony@atomide.com>,
+	Kevin Hilman <khilman@baylibre.com>,
+	linux-omap@vger.kernel.org,
+	Dominik Brodowski <linux@dominikbrodowski.net>,
+	Michael Schmitz <schmitzmic@gmail.com>,
+	Andreas Kemnade <andreas@kemnade.info>
+Subject: [PATCH v3 0/8] docs: kernel-parameters: Remove eight entries for parameters that no longer exist
+Date: Thu, 10 Sep 2026 03:32:37 +0200
+Message-Id: <20260910013245.8619-1-kmehltretter@gmail.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.26460 YMailCLDNovation
+Content-Transfer-Encoding: 8bit
 
-
-
-Hi Dmitry,
-
-Just following up on this patch since it has been a few months. Please let me know if you have any feedback or if I should rebase and resend.
-
-Thanks
-
-
-
-
-On Monday, 27 April 2026 at 12:47:05 am GMT-4, Harpreet Saini via B4 Relay <devnull+sainiharpreet29.yahoo.com@kernel.org> wrote: 
-
-
-
-
-
-Add support for PixArt PAJ7620 gesture sensor
-
-This series adds support for the PixArt PAJ7620 hand gesture sensor.
-The sensor is connected via I2C and supports 9 different gestures. 
-The first patch adds the DT bindings, and the second patch adds the 
-driver itself.
-
-Changes in v5:
-- Added this missing cover letter.
-- Included Reviewed-by tag for the bindings patch.
-- Linked to previous v4 discussion.
-- No functional changes since v4.
-
-Changes in v4:
-- In pixart,paj7620.yaml dt-binding file added allOf: with $ref and 
-unevaluatedProperties
-- No changes in other files
-- Link to v4: https://lore.kernel.org/all/20260421041505.4548-2-sainiharpreet29@yahoo.com
+kernel-parameters.txt still documents eight boot parameters whose parsing
+code was removed with the drivers or platforms that used them, one of
+them (atarimouse=) since before the git history. There is one patch per
+parameter, with a Fixes: tag where the removal is in git history.
+Each entry was checked with git grep for its __setup(), early_param()
+and module_param() handler and with git log -S for the removing commit,
+and the name is absent from the whole tree at that commit.
 
 Changes in v3:
-- Moved sensor power-up and paj7620_init() to input open/close callbacks
-- Implemented dynamic keymap support via 'linux,keycodes' DT property
-and enabled userspace adjustment via EVIOCSKEYCODE.
-- Updated YAML bindings to include mandatory vdd, vbus, and vled
-supplies.
-- Added gpio-controller properties to YAML for hardware completeness.
-- Link to v3: https://lore.kernel.org/all/20260418062241.104697-1-sainiharpreet29@yahoo.com
+- patch 3: name the commit that turned edac_report= into a module
+  parameter (fee27d7d9788) and the one that removed it (7fc0b9b995f2),
+  Fixes: tag moved to the latter (Boris)
+- the pata_legacy patch is dropped, Ethan's patch from June covers all
+  six parameters that commit 3c4d783f6922 removed:
+  https://lore.kernel.org/r/20260607064053.195166-1-enelsonmoore@gmail.com/
+- collect Reviewed-by and Acked-by tags
+- the "Found by cross-checking ..." paragraph dropped from the messages
+
+The remaining eight patch diffs are unchanged since v2.
 
 Changes in v2:
-- Moved driver from drivers/iio/light to drivers/input/misc
-- Updated DT bindings to include mandatory vdd, vbus, and vled supplies
-- Added Runtime PM support with autosuspend logic
-- Combined bindings and driver into a single series
-- Link to v2: https://lore.kernel.org/all/20260417052527.62535-1-sainiharpreet29@yahoo.com
+- patch 9: drop the Fixes: tag for 0dcd0a76370a, which removed the
+  separate pata_qdi driver and not the pata_legacy parameter; both
+  parameters went away in 3c4d783f6922 alone
+- collect the Reviewed-by and Acked-by tags from v1
 
-Changes in v1:
-- Initial patch for dt-binding and driver was added to iio/light
-subsystem.
-- Link to v1: https://lore.kernel.org/all/20260413000308.7618-1-sainiharpreet29@yahoo.com 
+v2: https://lore.kernel.org/r/20260905094649.41996-1-kmehltretter@gmail.com/
+v1: https://lore.kernel.org/r/20260905070347.25902-1-kmehltretter@gmail.com/
 
-Testing:
-- Hardware: Raspberry Pi 3
-- Method: Verified all hand gestures using 'evtest' to confirm correct
-input event reporting.
+Karl Mehltretter (8):
+  docs: kernel-parameters: Drop the atarimouse= entry
+  docs: kernel-parameters: Drop the bau= entry
+  docs: kernel-parameters: Drop the edac_report= entry
+  docs: kernel-parameters: Drop the enable_timer_pin_1 entry
+  docs: kernel-parameters: Drop the mini2440= entry
+  docs: kernel-parameters: Drop the nomfgpt entry
+  docs: kernel-parameters: Drop the omap_mux= entry
+  docs: kernel-parameters: Drop the pcmv= entry
 
-Signed-off-by: Harpreet Saini <sainiharpreet29@yahoo.com>
+ .../admin-guide/kernel-parameters.txt         | 54 -------------------
+ 1 file changed, 54 deletions(-)
 
----
-Harpreet Saini (2):
-dt-bindings: input: Add PixArt PAJ7620 gesture sensor
-input: misc: Add PixArt PAJ7620 gesture sensor driver
 
-.../devicetree/bindings/input/pixart,paj7620.yaml | 84 +++++
-.../devicetree/bindings/vendor-prefixes.yaml | 2 +
-drivers/input/misc/Kconfig | 12 +
-drivers/input/misc/Makefile | 1 +
-drivers/input/misc/paj7620.c | 338 +++++++++++++++++++++
-5 files changed, 437 insertions(+)
----
-base-commit: bf9c95f3eeefb7fc4b4a6380cc23f1dca744e379
-change-id: 20260426-paj7620-v5-79ab28a3b2e4
-
-Best regards,
+base-commit: 986c24e0fe44f844b44d365b71ce831947f50298
 -- 
-Harpreet Saini <sainiharpreet29@yahoo.com>
-
-
+2.53.0

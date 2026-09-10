@@ -1,68 +1,110 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B653336728D;
-	Thu, 10 Sep 2026 03:33:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E09B3769F4;
+	Thu, 10 Sep 2026 03:33:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789011199; cv=none; b=F/S9dj11KWNfyPfsPm08EE1Jobz/AHq+r6iczCQpYdUwWW/6RBWq9PCqRAw7+nkfEHZaJduy6aQT9+QlB/fWqJdJFEPUAAeP+wXepEaW3hpybxxX3H6oILyh8jG348cJ6DeWCK2TgjoRsGqLZOOlZ9xqqCQodF9Pd00ZkIS12jM=
+	t=1789011200; cv=none; b=iZZyK4Zf5eQr2qW3EjYWKeLdIOjn/ink2j2h8vYP+csc+egXUQ8KJQm0ZXXD2WXnSeayCgf3hk5PoM+jGO3m/RVojoKVoP25EmbHUGUDqE2Zkjv4GIBqlyQrrpOtkQG9lDxsUAYm2R12ZLSM6y55lqT2dDndIEOKwiX0kW1ejqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789011199; c=relaxed/simple;
-	bh=rnu0gcNjLru6Wfyxxgx6akGpcPi9KX9oP3OK4rwX6v0=;
+	s=arc-20240116; t=1789011200; c=relaxed/simple;
+	bh=QC/xW1G15ZO4EG4F2HJM3cU89gjYGLINI4frvqCcLgo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DMbbhtdLA8qbHQjtsrngO80jk+gZpSA3OkxW9DnlOtZ6UUVHe1qcfL3VVIcuSO9YWSWNqGe/Cm9NzLk5af3wYChBancNhA4F0RK2z6Csxk7gKH1Xjz7K2knxi7946s7NFbvscLVh+Mcxi4i5rhotJDNJ7TYzjuhgxaMTKyjC2/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QNl/iHUE; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=kBbWApdH7X3mBclsNMF9q8r4kazBwXmGt8PzdWaTUcNqQCAN8ovF2MvC9OnrJ1myirYImpXQYFZURVZx2cFAYPxuaYRuNJZq6CrgYZlhVPsEldItaoqXE/TQCztTN85qpgB4L+jbzlYdXaWHQksHw7wj/Ftb1zGsKMV5QV7+jCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A+yq8mDW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QNl/iHUE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AAEB1F000FF;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A+yq8mDW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20021F00893;
 	Thu, 10 Sep 2026 03:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789011198;
-	bh=rnu0gcNjLru6Wfyxxgx6akGpcPi9KX9oP3OK4rwX6v0=;
+	s=k20260515; t=1789011199;
+	bh=gSRjfxGXHH+HVxCNsMcZWodkkZakE0N1lhQN7BaNK+U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QNl/iHUENgSGIO+s5h97bazAIzvAvt+9eTjgnK/6HFt8LLuaz41jhLt6j2vLW8+By
-	 f98scAv7wnPe+2kkd4Dr70DvI5Q+EBHcn1W5+Z7GKxbHUGG0TRx7EUjG/hhW3yCuAF
-	 Kyi/hg4nY2VLY9LudTbl4X9Ki8fcs8SxWolu0vSz0ICO9Pyvf/GMF/1mJgilcDgzEl
-	 kItrmRHMijSt7Ew5COX7Pya7x6dN8tR0eJilo3IaxEnhIrz6pANuaK+ZM1xAg5iMSb
-	 tyllpSzkpCddhY+eS8DsOR7wgbHawcsyfPcIVXlKsJHrgnn4GjBq9Dnp4QeWyHcXwv
-	 O9DCufIADVtQw==
+	b=A+yq8mDWGTcLVohne4Bg49yj1jmE0SQ0AOEH4LkFnCS7xDeWG/PuIhByi2Wd+wkVv
+	 ldHQRjUQFNjltf7X7TnqfRlf2PCSiM5aiIJiAfs6AIxE7z9A69lu4q5UzuMSgxsqz5
+	 2/OjVXDe0O1+6SefZLheOVhOHMtsV0T6T00w9SrinjQeRaNF5MeR6piXpBMJq/uvMU
+	 M3he88qTL5/eWiy8LlLvTa3hjVRQjnIej/J9bKfxvMPdTX4XOKNyNVoTCu41vLwEwS
+	 9ewqFE+R4HfbZh6NeBg3oI1fm5xR7F1Fy/lThETbYAy3wTvyjqoTray8O1lMyFAPUZ
+	 Op1WK424f2yKQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 05/15] HID: hid-oxp: fix multicolor LED intensity
- scaling
+Subject: Re: [PATCH 07/15] HID: hid-oxp: select brightness policy for the
+ new RGB effect
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Andrei Aldea" <andrei1998@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-leds@vger.kernel.org, lee@kernel.org
-In-Reply-To: <20260910032115.28669-6-andrei1998@gmail.com>
+Cc: linux-leds@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260910032115.28669-8-andrei1998@gmail.com>
 References: <20260910032115.28669-1-andrei1998@gmail.com>
- <20260910032115.28669-6-andrei1998@gmail.com>
+ <20260910032115.28669-8-andrei1998@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 03:33:17 +0000
-Message-Id: <20260910033318.1AAEB1F000FF@smtp.kernel.org>
+Date: Thu, 10 Sep 2026 03:33:18 +0000
+Message-Id: <20260910033318.E20021F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-> The controller accepts eight-bit RGB components, but the sub-LED channel
-> maximum currently inherits the 0-100 overall brightness range. This
-> prevents userspace from selecting channel intensities above 100.
->=20
-> Set each channel maximum to 255 and use the multicolor LED core helper to
-> scale components with the requested brightness. This also replaces the
-> private truncating calculation with the LED core's rounded calculation.
->=20
-> Keep the existing Gen1 and Gen2 color packet layouts unchanged.
->=20
-> Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
-> Assisted-by: LLM
-> Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
-> Signed-off-by: Andrei Aldea <andrei1998@gmail.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Incomplete hardware state rollback in effect_store() leaves the =
+hardware brightness out of sync with software.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit 75feb6ea7d7e2f2f49294cf7e04996cd656c16bc
+Author: Andrei Aldea <andrei1998@gmail.com>
+
+HID: hid-oxp: select brightness policy for the new RGB effect
+
+This commit updates the effect_store() function to set the requested effect
+before constructing its status command to handle monocolor software intensi=
+ty
+scaling. It also adds logic to restore the cached software effect if either
+output command fails.
+
+> diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
+> index 8d07816132166..9c22c8e0703a7 100644
+> --- a/drivers/hid/hid-oxp.c
+> +++ b/drivers/hid/hid-oxp.c
+> @@ -1250,15 +1251,21 @@ static ssize_t effect_store(struct device *dev, s=
+truct device_attribute *attr,
+>  	val =3D ret;
+> =20
+>  	guard(mutex)(&drvdata.rgb_mutex);
+> +	old_effect =3D drvdata.rgb_effect;
+> +	drvdata.rgb_effect =3D val;
+> =20
+>  	ret =3D oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed,
+>  				   drvdata.rgb_brightness);
+> -	if (ret)
+> +	if (ret) {
+> +		drvdata.rgb_effect =3D old_effect;
+>  		return ret;
+> +	}
+> =20
+>  	ret =3D oxp_rgb_effect_set(val);
+> -	if (ret)
+> +	if (ret) {
+> +		drvdata.rgb_effect =3D old_effect;
+
+[Severity: Medium]
+Does this error path leave the hardware desynchronized from the software st=
+ate?
+
+If oxp_rgb_effect_set() fails, the software state (drvdata.rgb_effect) is=20
+rolled back to old_effect, but the hardware has already successfully proces=
+sed=20
+the oxp_rgb_status_store() command using the new effect's policy.=20
+
+Should this error path also send a corrective command via=20
+oxp_rgb_status_store() to restore the original hardware status?
+
+>  		return ret;
+> +	}
+> =20
+>  	return count;
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910032115.2866=
-9-1-andrei1998@gmail.com?part=3D5
-
+9-1-andrei1998@gmail.com?part=3D7

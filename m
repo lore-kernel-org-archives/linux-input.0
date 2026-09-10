@@ -1,67 +1,67 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2B5496D37
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 20:13:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0B65496D4D
+	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 20:14:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789071234; cv=none; b=d5luN7bBOPFg6WVfsCMBYKFwu+ylmQCs8Knplk/D/Ed8zuuediSUM62Yx0qlg84fE8tYpc1QenGD2JOfX6gC16VYxq7nrLnlF/C9J4pFDDO0w/KpLB6N2KbvCJBaXs9P+j3FI8mLLbIwJ6yNmH43+Wjm8c7g43UOJVDZ0HP0fQc=
+	t=1789071301; cv=none; b=FV9JKrJqV+MU7isSfkzQbJUg4OSIkwnTLf5olueOn56japOKBsmQlmBP6UslVaMVRtaxEmk7OEYRNRHFxqpvdmx8JId9m7erttaGDNw2KKP3c9Bk/RF2TQg4RNIa91AjHsVF023gr/lUHDb7Fen1H18ls+5MiE5KBchuIKxeyt4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789071234; c=relaxed/simple;
-	bh=BjE2KpBRXDXH6sXtt9jY86yyC3q9TNuuMbElpCtON0k=;
+	s=arc-20240116; t=1789071301; c=relaxed/simple;
+	bh=3JfMjcL3TjwifMoTOhz947nuR1JuljzjS3B7u8xLlM4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KSVbYKfGyR/taL9Ao8wSEAyg2z0F+c7b4ntRzjXIxqZIcx4jZqE3mVGvigTFvxtpAX/CfDKKzw6T30vLbhKguPV/7MR9JfajJqe7MwP1frvxiNfzKvN/LKn4LF7WUzQwx4fm3faefph1Ot3k6AwOvAZNC+0FcSylqDBVjT9+6Wk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PkBP3duZ; arc=none smtp.client-ip=74.125.227.140
+	 In-Reply-To:Content-Type; b=GkHsvPuXHRzaPf/zpVQVAJLxtlJj4Z+othpVa30cQtAWmK9rJDaTu1+aNNJhbXk+muYq8e4Ya41P9l5Rd/0qxRzQOZlsKljCFE0aVflYasG14vaPZXQXk7CVrO0lAqsBDnhSeIbz792NQHaXsXm8Fw7rpCPsl+NyzOLQk1aH3U0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O9eLUuSn; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PkBP3duZ"
-Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2db22383fe8so518145ad.2
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 13:13:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O9eLUuSn"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2d6efd73032so13841735ad.0
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 13:14:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789071228; x=1789676028; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789071296; x=1789676096; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=bC9KmmvPamANjEesLDDtLqbpJRPP/aq8gLeOIKhupc8=;
-        b=PkBP3duZkVTt9X/klDfCUtwUvRLB4APSwCQ7/ml5XZJFMhV166rRFTudjBOOPuCw9f
-         3fF0RRxgltab3y7yiK0Gsgd4DJGpmvU8vk4A7O02E9bMATuNZj2dgHiJRkJJdiVPfeX7
-         MDQC4x8Gt9wRu6B8+CJb8GJNKETUQ371B3dyL25RshbXl82x/M1tw6Q04OPRu51nTt9O
-         eWE9A3MCEYC7s/3Y+4MVRzDz1DMbFmrDRf3tdyMfkM7v+pfH0WBdwoSP+A8eCP6DRq00
-         W2rccFGkjYno1vVsITT/xR8QI68nvaNwqJ1/bm9OEbh9uHGcqBmo4DmwPFZJSXDIJLdk
-         PCZA==
+        bh=7uKprB+h3ngZbp+GZpW+cGpHu1N3q8AXMZNCBK5sCMs=;
+        b=O9eLUuSn13f7ykDaDWoIsXJMCAmPg0ER0aRI3aoNbjbT9nXMOJuVTHulRmfeL50Ibx
+         u9gxbLdQWCDGWwUZ1/14vmsETJia+kD9qgr4zFQT6FZhs3oJH5A30tdrWQFj6m+4IPA3
+         gvQcrHTECPiItHTcYFqS+/dnaTp8Onh+JieV3EZam79n5gO1m8hK4CZ4QCo6WE8D0YoK
+         ApPXo6+p29AUtm00oal+x0V9JO7cnwLEQp2V0K+/UqeKCAgqKexSYkZ8p80Z7SwaARnQ
+         Lw9ZIbiwlzJk3hdC9drMW6CE4urwNzu4k247/1bxl5byuKei2AThX6qPRvk0yEWypLay
+         nDqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789071228; x=1789676028;
+        d=1e100.net; s=20251104; t=1789071296; x=1789676096;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=bC9KmmvPamANjEesLDDtLqbpJRPP/aq8gLeOIKhupc8=;
-        b=X3Pr3+R0orFMlF/1avdQtBRg7swyzsWnaPh1E5IhEqTUMkEz1vskBeqJMJhmk5lpK9
-         9ZpezuhlOQzy9gKiCqr1N6KiBlCEZ53W7g/cSin3L5pKBsPAsoGs7RjqR49BryGagH/D
-         aOaWMZ1yjEsL14sgj9c0wUjXBjx8rhBPQ6jXWRIM2esoB8Up3D0cF3MTpfkq/+tedemg
-         pmy/61xbFaprNgiD+o+RlGWpCgV5EBxbWJEzX2yUVlfzU6oFp5beFgjlkMWLNHSqju/u
-         5rQFNMlTgJF85+64EqumIEP0cKdRbxFoQrPG5vYaVhcG+7XFya5QnmPEOjEscBVnzh6D
-         Kppw==
-X-Gm-Message-State: AFuF++lKiM1Vz+mw6Dw2uYeM7xMxefLTks2+m6sdxaqJt/vwQe1jBdVf
-	+559CgrfNp3pMtsACPFVdbov5JolDgggDro8UYv1LKCZxbRq22Si6QeI
-X-Gm-Gg: AYBFou0dGQwPrGOwo77RPTGaxwbtoJNY+X3CWZB7nphRl4gzXqveQtSCfdbcYshfYNc
-	XIsYuCRVhmv+PWoZ57HXMRZfMH5/CY7u/FfSuffr2cj+aeNg8XoDOJJhc4OzZkTty9WQTVdl7dp
-	Up8ZdqsgwqWpmzNyXFb20xa0D6E65Zdrba1zkoZkCeH6GpJW2yCwjGNWXesP1Bppr5vHs1I9TFO
-	/+jsN4SXLU2zsUITCiBSZq/ap5CKBkPrA7glfGBJUgERCY3IKmFwPWzKcBVPnd3vGjq6rh5rT9c
-	81MNDaITiofWNU+Uw03JoYglRq5pdW9O/w8KN7128thjjSD3Hq51Q4qmNDf8Bv4bm1TUCuI1o51
-	/45RAzeJB2Y/aRazfBVK6jgz0zPTLKHXFdB7TMDrGOSEQvCCzZapdBjf5fBO4cUMcjJvTmYhb0p
-	YmgF1MC0fpZwJzdwJZve3y1orx9O7Gfg9s7mnlG8oLrBIRTSx18hw17Em+3Vswl2FCJah839ugy
-	ZdwypHMSNRsaDdsYBS+PPB+o75EvasIe/nZRwpZmZ91A50fxuw1sdyT4ybgAtdJrw==
-X-Received: by 2002:a17:90b:3a44:b0:398:c16e:69d3 with SMTP id 98e67ed59e1d1-39d9bbfc203mr731155a91.1.1789071227197;
-        Thu, 10 Sep 2026 13:13:47 -0700 (PDT)
+        bh=7uKprB+h3ngZbp+GZpW+cGpHu1N3q8AXMZNCBK5sCMs=;
+        b=UQ1Iwb6oq7kUmjWSNO4n0K4eLk6QMNUftssr3ba+GJAJjP5a7mtnCdifIk3Q7JPjkF
+         vLFasWJIOaYawALQwUa/sSXMM/YWjusCLh8oQRLj7khWODAiJH1EI5GZU78beSX7JLHi
+         gynEpx78xWAQnHe703/dXAbx2WemRHbblYy1ruOmbstAu1txfRE50O1A3oWV7ULjXrsP
+         0ga31N/aXAyUcN2kKcUf9r6kA0G8Rs0TcIXenvq2RwCvntsZRQzSwRDsYkfevB/FRzhD
+         d4L7XZ6rqJ6bOEn+zqYjsPfowI7aWUsCUNLXusMxNnNPPfSRFbFI6Wls61OvsHh0h7Q/
+         AqXA==
+X-Gm-Message-State: AFuF++nlcgXi0lkLO3wqFI2q9aZqLk8Sk4j0wAD+o7Xq1yhwqKWtpgVa
+	ua5IERLJoDcrDtYhRakUyOwhn7CUI7thcizmmD7CaojCWn8xhryhJ3/Z
+X-Gm-Gg: AYBFou2a8Rh8/n5HgaWQ1BprfycoH+pzx3ItbituZ0pFFqRfZO0JfwNGiVkNKHLyqo7
+	zP+r/OIgc9BSbMpGja7jw5fAbY7/yOegttfxyc6ZpiIO4CRNjd7AVgKkinSFR136VlSUQEFriQW
+	On8PBR1EIUF69/3b3uMGWeX1Q67D3AXwLjltabEbbCSIfhx+8JPpy+TWGuyDM+8cpmyqRrdu4ix
+	UJuzSSHR3hVipFKFQqaWpur9C8r8MHhXzsszzHwW1VFd0RjTMHNbNWDavcaiEgrgROQo5Z23VVf
+	Ogj9lkOvBLwp9ysAQjSrimCPpnf21jmy/+nCU61/rRa5pDXagvAIxCbIMaZKSBn7SeF2nbIFx43
+	pWxFLLnm8BozUXvA0LtizKVMXqgKMi3dTbwsAXsgVHt+Aa3G8k2ej89oj2nclLzjbcNeXlzlvLK
+	56QqI5cVtMzBC2dyvmnTryVwml9EL7DZnhNxJ+ZxhSObjmqDX96P6MZbH/BV+AIQHjJZCGPNZHe
+	o15N1AuxiRAvnozSFSLkU+whrhkWohXXK1t4rdJeMleHz9Yg0AXt73Fo6kc0aJOdxd6bJnRfH1h
+X-Received: by 2002:a17:903:2d2:b0:2d8:d4d2:d136 with SMTP id d9443c01a7336-2dd0ee981d3mr74221065ad.18.1789071296498;
+        Thu, 10 Sep 2026 13:14:56 -0700 (PDT)
 Received: from [192.168.0.158] (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14365b345a4sm846507c88.5.2026.09.10.13.13.46
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4fbd424sm440196eec.31.2026.09.10.13.14.55
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Sep 2026 13:13:46 -0700 (PDT)
-Message-ID: <9f888301-628e-462d-9919-3027a2035da1@gmail.com>
-Date: Thu, 10 Sep 2026 13:13:45 -0700
+        Thu, 10 Sep 2026 13:14:56 -0700 (PDT)
+Message-ID: <5063b29c-e686-472c-8b80-c6c68def0d0e@gmail.com>
+Date: Thu, 10 Sep 2026 13:14:54 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,1195 +69,300 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 09/15] HID: hid-oxp: keep configuration state per HID
- interface
+Subject: Re: [PATCH 10/15] HID: hid-oxp: handle controller reinitialization
+ across suspend
 To: Andrei Aldea <andrei1998@gmail.com>, Jiri Kosina <jikos@kernel.org>,
  Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
  Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
  linux-leds@vger.kernel.org
 References: <20260910032115.28669-1-andrei1998@gmail.com>
- <20260910032115.28669-10-andrei1998@gmail.com>
+ <20260910032115.28669-11-andrei1998@gmail.com>
 Content-Language: en-US
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-In-Reply-To: <20260910032115.28669-10-andrei1998@gmail.com>
+In-Reply-To: <20260910032115.28669-11-andrei1998@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 On 9/9/26 20:21, Andrei Aldea wrote:
-> Replace the shared driver state and mutable LED object with devm-managed
-> state owned by each configuration HID. Resolve callbacks through their
-> HID, LED or embedded work object instead of the last interface probed.
+> A Gen2 monocolor reply uses the same command value as the asynchronous MCU
+> reset notification. Treating every such report as a reset can schedule a
+> spurious controller reinitialization.
 >
-> Hybrid devices have distinct Gen1 RGB and Gen2 controller interfaces.
-> Sharing the transport pointer and work state lets one overwrite the other.
-> Keep the HID drvdata pointer valid until LED and sysfs objects have been
-> released, then clear it before freeing the configuration allocation.
+> Track an outstanding monocolor write by command and zone under a per-HID
+> spinlock, and consume its matching acknowledgment before considering the
+> report a reset notification. Clear pending reply state during suspend and
+> teardown. A missing reply does not change legacy transport success
+> semantics.
 >
-> Fixes: 252c4bf1d931 ("HID: hid-oxp: Add Second Generation RGB Control")
+> For system suspend, disable and drain initialized configuration work and
+> reject new output while the device is suspended. Re-enable work on resume
+> and queue a fallback reinitialization after the documented MCU reset
+> interval. A qualifying reset notification can still bring that work
+> forward. Leave runtime autosuspend unchanged.
+>
+> Fixes: 2f424f28fb39 ("HID: hid-oxp: Add Second Generation Gamepad Mode Switch")
 > Assisted-by: LLM
 > Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
 > Signed-off-by: Andrei Aldea <andrei1998@gmail.com>
 > ---
->   drivers/hid/hid-oxp.c | 498 +++++++++++++++++++++++-------------------
->   1 file changed, 279 insertions(+), 219 deletions(-)
+>   drivers/hid/hid-oxp.c | 116 ++++++++++++++++++++++++++++++++++++++----
+>   1 file changed, 107 insertions(+), 9 deletions(-)
 >
 > diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-> index eef57c3..7b36687 100644
+> index 7b36687..e26e6a9 100644
 > --- a/drivers/hid/hid-oxp.c
 > +++ b/drivers/hid/hid-oxp.c
-> @@ -172,7 +172,10 @@ struct oxp_bmap_page_2 {
->   	struct oxp_button_idx btn_m2;
->   } __packed;
+> @@ -16,6 +16,7 @@
+>   #include <linux/kstrtox.h>
+>   #include <linux/led-class-multicolor.h>
+>   #include <linux/mutex.h>
+> +#include <linux/spinlock.h>
+>   #include <linux/sysfs.h>
+>   #include <linux/types.h>
+>   #include <linux/workqueue.h>
+> @@ -24,6 +25,7 @@
 >   
-> -static struct oxp_hid_cfg {
-> +/* Hybrid devices expose RGB and controller configuration on separate HIDs. */
-> +struct oxp_hid_cfg {
-> +	struct led_classdev_mc cdev;
-> +	struct mc_subled subled_info[3];
->   	struct delayed_work oxp_rgb_queue;
->   	struct delayed_work oxp_btn_queue;
->   	struct oxp_bmap_page_1 *bmap_1;
-> @@ -191,7 +194,7 @@ static struct oxp_hid_cfg {
+>   #define OXP_PACKET_SIZE 64
+>   #define OXP_STATUS_HEADER_SIZE 6
+> +#define OXP_STATUS_ACK 0x20
+>   
+>   #define GEN1_MESSAGE_ID	0xff
+>   #define GEN2_MESSAGE_ID	0x3f
+> @@ -185,6 +187,10 @@ struct oxp_hid_cfg {
+>   	struct hid_device *hdev;
+>   	struct mutex cfg_mutex; /*ensure single synchronous output report*/
+>   	struct mutex rgb_mutex; /*serialize complete RGB transactions*/
+> +	spinlock_t rgb_reply_lock;
+> +	u8 rgb_reply_command;
+> +	u8 rgb_reply_zone;
+> +	bool rgb_reply_pending;
+>   	u8 rgb_brightness;
+>   	u8 gamepad_mode;
+>   	u8 rumble_intensity;
+> @@ -193,6 +199,7 @@ struct oxp_hid_cfg {
+>   	u8 rgb_en;
 >   	bool rgb_work_initialized;
 >   	bool gen2_work_initialized;
+> +	bool suspended;
 >   	bool removing;
-> -} drvdata;
-> +};
+>   };
 >   
->   #define OXP_FILL_PAGE_SLOT(page, btn)            \
->   	{ .button_idx = (page)->btn.button_idx,  \
-> @@ -320,7 +323,8 @@ static int oxp_hid_raw_event_gen_1(struct hid_device *hdev,
->   				   struct hid_report *report, u8 *data,
->   				   int size)
->   {
-> -	struct led_classdev_mc *led_mc = drvdata.led_mc;
-> +	struct oxp_hid_cfg *cfg = hid_get_drvdata(hdev);
-> +	struct led_classdev_mc *led_mc = cfg->led_mc;
->   	struct oxp_gen_1_rgb_report *rgb_rep;
->   
->   	if (size < sizeof(*rgb_rep) || !led_mc)
-> @@ -331,13 +335,13 @@ static int oxp_hid_raw_event_gen_1(struct hid_device *hdev,
->   
->   	rgb_rep = (struct oxp_gen_1_rgb_report *)data;
->   	/* Ensure we save monocolor as the list value */
-> -	drvdata.rgb_effect = rgb_rep->effect == OXP_EFFECT_MONO_TRUE ?
-> +	cfg->rgb_effect = rgb_rep->effect == OXP_EFFECT_MONO_TRUE ?
->   			     OXP_EFFECT_MONO_LIST :
->   			     rgb_rep->effect;
-> -	drvdata.rgb_speed = rgb_rep->speed;
-> -	drvdata.rgb_en = rgb_rep->enabled == 0 ? OXP_FEAT_DISABLED :
-> +	cfg->rgb_speed = rgb_rep->speed;
-> +	cfg->rgb_en = rgb_rep->enabled == 0 ? OXP_FEAT_DISABLED :
->   						 OXP_FEAT_ENABLED;
-> -	drvdata.rgb_brightness = rgb_rep->brightness;
-> +	cfg->rgb_brightness = rgb_rep->brightness;
->   	led_mc->led_cdev.brightness = rgb_rep->brightness *
->   				      led_mc->led_cdev.max_brightness / 4;
->   	/* If monocolor had less than 100% brightness on the previous boot,
-> @@ -354,44 +358,48 @@ static int oxp_hid_raw_event_gen_1(struct hid_device *hdev,
->   	return 0;
->   }
->   
-> -static int oxp_gen_2_property_out(enum oxp_function_index fid, u8 *data, u8 data_size);
-> -static int oxp_set_buttons(void);
-> -static int oxp_rumble_intensity_set(u8 intensity);
-> +static int oxp_gen_2_property_out(struct oxp_hid_cfg *cfg,
-> +				  enum oxp_function_index fid, u8 *data,
-> +				  u8 data_size);
-> +static int oxp_set_buttons(struct oxp_hid_cfg *cfg);
-> +static int oxp_rumble_intensity_set(struct oxp_hid_cfg *cfg, u8 intensity);
->   
->   static void oxp_mcu_init_fn(struct work_struct *work)
->   {
-> +	struct oxp_hid_cfg *cfg = container_of(to_delayed_work(work),
-> +					      struct oxp_hid_cfg, oxp_mcu_init);
+> @@ -371,7 +378,7 @@ static void oxp_mcu_init_fn(struct work_struct *work)
 >   	u8 gp_mode_data[3] = { OXP_GP_MODE_DEBUG, 0x01, 0x02 };
 >   	int ret;
 >   
-> -	if (READ_ONCE(drvdata.removing))
-> +	if (READ_ONCE(cfg->removing))
+> -	if (READ_ONCE(cfg->removing))
+> +	if (READ_ONCE(cfg->suspended) || READ_ONCE(cfg->removing))
 >   		return;
 >   
 >   	/* Re-apply the button mapping */
-> -	ret = oxp_set_buttons();
-> +	ret = oxp_set_buttons(cfg);
->   	if (ret)
-> -		dev_err(&drvdata.hdev->dev,
-> +		dev_err(&cfg->hdev->dev,
->   			"Error: Failed to set button mapping: %i\n", ret);
->   
->   	/* Cycle the gamepad mode */
-> -	ret = oxp_gen_2_property_out(OXP_FID_GEN2_TOGGLE_MODE, gp_mode_data, 3);
-> +	ret = oxp_gen_2_property_out(cfg, OXP_FID_GEN2_TOGGLE_MODE, gp_mode_data, 3);
->   	if (ret)
-> -		dev_err(&drvdata.hdev->dev,
-> +		dev_err(&cfg->hdev->dev,
->   			"Error: Failed to set gamepad mode: %i\n", ret);
->   
->   	/* Remainder only applies for xinput mode */
-> -	if (drvdata.gamepad_mode == OXP_GP_MODE_DEBUG)
-> +	if (cfg->gamepad_mode == OXP_GP_MODE_DEBUG)
->   		return;
->   
->   	gp_mode_data[0] = OXP_GP_MODE_XINPUT;
-> -	ret = oxp_gen_2_property_out(OXP_FID_GEN2_TOGGLE_MODE, gp_mode_data, 3);
-> +	ret = oxp_gen_2_property_out(cfg, OXP_FID_GEN2_TOGGLE_MODE, gp_mode_data, 3);
->   	if (ret)
-> -		dev_err(&drvdata.hdev->dev,
-> +		dev_err(&cfg->hdev->dev,
->   			"Error: Failed to set gamepad mode: %i\n", ret);
->   
->   	/* Set vibration level */
-> -	ret = oxp_rumble_intensity_set(drvdata.rumble_intensity);
-> +	ret = oxp_rumble_intensity_set(cfg, cfg->rumble_intensity);
->   	if (ret)
-> -		dev_err(&drvdata.hdev->dev,
-> +		dev_err(&cfg->hdev->dev,
->   			"Error: Failed to set rumble intensity: %i\n", ret);
->   }
->   
-> @@ -399,7 +407,8 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
->   				   struct hid_report *report, u8 *data,
->   				   int size)
->   {
-> -	struct led_classdev_mc *led_mc = drvdata.led_mc;
-> +	struct oxp_hid_cfg *cfg = hid_get_drvdata(hdev);
-> +	struct led_classdev_mc *led_mc = cfg->led_mc;
+> @@ -410,6 +417,7 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
+>   	struct oxp_hid_cfg *cfg = hid_get_drvdata(hdev);
+>   	struct led_classdev_mc *led_mc = cfg->led_mc;
 >   	struct oxp_gen_2_rgb_report *rgb_rep;
+> +	bool solicited = false;
 >   
 >   	if (size < OXP_STATUS_HEADER_SIZE)
-> @@ -412,9 +421,9 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
+>   		return 0;
+> @@ -417,11 +425,26 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
+>   	if (data[0] != OXP_FID_GEN2_STATUS_EVENT)
+>   		return 0;
+>   
+> +	/* A monocolor acknowledgment is not an MCU reset notification. */
+> +	if (data[5] == OXP_STATUS_ACK) {
+> +		scoped_guard(spinlock_irqsave, &cfg->rgb_reply_lock) {
+> +			if (cfg->rgb_reply_pending &&
+> +			    data[3] == cfg->rgb_reply_command &&
+> +			    data[4] == cfg->rgb_reply_zone) {
+> +				cfg->rgb_reply_pending = false;
+> +				solicited = true;
+> +			}
+> +		}
+> +		if (solicited)
+> +			return 0;
+> +	}
+> +
+>   	/* Sent ~6s after resume event, indicating the MCU has fully reset.
 >   	 * Re-apply our settings after this has been received.
 >   	 */
 >   	if (data[3] == OXP_EFFECT_MONO_TRUE) {
-> -		if (READ_ONCE(drvdata.gen2_work_initialized) &&
-> -		    !READ_ONCE(drvdata.removing))
-> -			mod_delayed_work(system_dfl_wq, &drvdata.oxp_mcu_init,
-> +		if (READ_ONCE(cfg->gen2_work_initialized) &&
-> +		    !READ_ONCE(cfg->removing))
-> +			mod_delayed_work(system_dfl_wq, &cfg->oxp_mcu_init,
+>   		if (READ_ONCE(cfg->gen2_work_initialized) &&
+> +		    !READ_ONCE(cfg->suspended) &&
+>   		    !READ_ONCE(cfg->removing))
+>   			mod_delayed_work(system_dfl_wq, &cfg->oxp_mcu_init,
 >   					 msecs_to_jiffies(50));
->   		return 0;
->   	}
-> @@ -430,13 +439,13 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
->   		return 0;
->   
->   	/* Ensure we save monocolor as the list value */
-> -	drvdata.rgb_effect = rgb_rep->effect == OXP_EFFECT_MONO_TRUE ?
-> +	cfg->rgb_effect = rgb_rep->effect == OXP_EFFECT_MONO_TRUE ?
->   			     OXP_EFFECT_MONO_LIST :
->   			     rgb_rep->effect;
-> -	drvdata.rgb_speed = rgb_rep->speed;
-> -	drvdata.rgb_en = rgb_rep->enabled == 0 ? OXP_FEAT_DISABLED :
-> +	cfg->rgb_speed = rgb_rep->speed;
-> +	cfg->rgb_en = rgb_rep->enabled == 0 ? OXP_FEAT_DISABLED :
->   						 OXP_FEAT_ENABLED;
-> -	drvdata.rgb_brightness = rgb_rep->brightness;
-> +	cfg->rgb_brightness = rgb_rep->brightness;
->   	led_mc->led_cdev.brightness = rgb_rep->brightness *
->   				      led_mc->led_cdev.max_brightness / 4;
->   	/* If monocolor had less than 100% brightness on the previous boot,
-> @@ -456,9 +465,10 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
->   static int oxp_hid_raw_event(struct hid_device *hdev, struct hid_report *report,
->   			     u8 *data, int size)
->   {
-> +	struct oxp_hid_cfg *cfg = hid_get_drvdata(hdev);
->   	u16 up = get_usage_page(hdev);
->   
-> -	if (!hid_get_drvdata(hdev) || READ_ONCE(drvdata.removing))
-> +	if (!cfg || READ_ONCE(cfg->removing))
->   		return 0;
->   
->   	dev_dbg(&hdev->dev, "raw event data: [%*ph]\n", size, data);
-> @@ -475,7 +485,7 @@ static int oxp_hid_raw_event(struct hid_device *hdev, struct hid_report *report,
->   	return 0;
->   }
->   
-> -static int mcu_property_out(u8 *header, size_t header_size, u8 *data,
-> +static int mcu_property_out(struct oxp_hid_cfg *cfg, u8 *header, size_t header_size, u8 *data,
+> @@ -489,6 +512,7 @@ static int mcu_property_out(struct oxp_hid_cfg *cfg, u8 *header, size_t header_s
 >   			    size_t data_size, u8 *footer, size_t footer_size)
 >   {
 >   	unsigned char *dmabuf __free(kfree) = kzalloc(OXP_PACKET_SIZE, GFP_KERNEL);
-> @@ -487,8 +497,8 @@ static int mcu_property_out(u8 *header, size_t header_size, u8 *data,
->   	if (header_size + data_size + footer_size > OXP_PACKET_SIZE)
->   		return -EINVAL;
+> +	bool rgb_write;
+>   	int ret;
 >   
-> -	guard(mutex)(&drvdata.cfg_mutex);
-> -	if (READ_ONCE(drvdata.removing))
-> +	guard(mutex)(&cfg->cfg_mutex);
-> +	if (READ_ONCE(cfg->removing))
+>   	if (!dmabuf)
+> @@ -500,6 +524,19 @@ static int mcu_property_out(struct oxp_hid_cfg *cfg, u8 *header, size_t header_s
+>   	guard(mutex)(&cfg->cfg_mutex);
+>   	if (READ_ONCE(cfg->removing))
 >   		return -ENODEV;
+> +	if (READ_ONCE(cfg->suspended))
+> +		return -EHOSTDOWN;
+> +
+> +	rgb_write = header_size && data_size > 1 &&
+> +		    header[0] == OXP_FID_GEN2_STATUS_EVENT &&
+> +		    data[0] == OXP_EFFECT_MONO_TRUE;
+> +	if (rgb_write) {
+> +		scoped_guard(spinlock_irqsave, &cfg->rgb_reply_lock) {
+> +			cfg->rgb_reply_command = data[0];
+> +			cfg->rgb_reply_zone = data[1];
+> +			cfg->rgb_reply_pending = true;
+> +		}
+> +	}
 >   
 >   	memcpy(dmabuf, header, header_size);
-> @@ -496,9 +506,9 @@ static int mcu_property_out(u8 *header, size_t header_size, u8 *data,
->   	if (footer_size)
->   		memcpy(dmabuf + OXP_PACKET_SIZE - footer_size, footer, footer_size);
+>   	memcpy(dmabuf + header_size, data, data_size);
+> @@ -509,12 +546,18 @@ static int mcu_property_out(struct oxp_hid_cfg *cfg, u8 *header, size_t header_s
+>   	dev_dbg(&cfg->hdev->dev, "raw data: [%*ph]\n", OXP_PACKET_SIZE, dmabuf);
 >   
-> -	dev_dbg(&drvdata.hdev->dev, "raw data: [%*ph]\n", OXP_PACKET_SIZE, dmabuf);
-> +	dev_dbg(&cfg->hdev->dev, "raw data: [%*ph]\n", OXP_PACKET_SIZE, dmabuf);
->   
-> -	ret = hid_hw_output_report(drvdata.hdev, dmabuf, OXP_PACKET_SIZE);
-> +	ret = hid_hw_output_report(cfg->hdev, dmabuf, OXP_PACKET_SIZE);
->   	if (ret < 0)
->   		return ret;
->   
-> @@ -507,16 +517,16 @@ static int mcu_property_out(u8 *header, size_t header_size, u8 *data,
->   	return ret == OXP_PACKET_SIZE ? 0 : -EIO;
->   }
->   
-> -static int oxp_gen_1_property_out(enum oxp_function_index fid, u8 *data,
-> +static int oxp_gen_1_property_out(struct oxp_hid_cfg *cfg, enum oxp_function_index fid, u8 *data,
->   				  u8 data_size)
->   {
->   	u8 header[] = { fid, GEN1_MESSAGE_ID };
->   	size_t header_size = ARRAY_SIZE(header);
->   
-> -	return mcu_property_out(header, header_size, data, data_size, NULL, 0);
-> +	return mcu_property_out(cfg, header, header_size, data, data_size, NULL, 0);
->   }
->   
-> -static int oxp_gen_2_property_out(enum oxp_function_index fid, u8 *data,
-> +static int oxp_gen_2_property_out(struct oxp_hid_cfg *cfg, enum oxp_function_index fid, u8 *data,
->   				  u8 data_size)
->   {
->   	u8 header[] = { fid, GEN2_MESSAGE_ID, 0x01 };
-> @@ -524,7 +534,7 @@ static int oxp_gen_2_property_out(enum oxp_function_index fid, u8 *data,
->   	size_t header_size = ARRAY_SIZE(header);
->   	size_t footer_size = ARRAY_SIZE(footer);
->   
-> -	return mcu_property_out(header, header_size, data, data_size, footer,
-> +	return mcu_property_out(cfg, header, header_size, data, data_size, footer,
->   				footer_size);
->   }
->   
-> @@ -532,7 +542,8 @@ static ssize_t gamepad_mode_store(struct device *dev,
->   				  struct device_attribute *attr, const char *buf,
->   				  size_t count)
->   {
-> -	u16 up = get_usage_page(drvdata.hdev);
-> +	struct oxp_hid_cfg *cfg = dev_get_drvdata(dev);
-> +	u16 up = get_usage_page(cfg->hdev);
->   	u8 data[3] = { 0x00, 0x01, 0x02 };
->   	int ret = -EINVAL;
->   	int i;
-> @@ -551,17 +562,17 @@ static ssize_t gamepad_mode_store(struct device *dev,
->   
->   	data[0] = ret;
->   
-> -	ret = oxp_gen_2_property_out(OXP_FID_GEN2_TOGGLE_MODE, data, 3);
-> +	ret = oxp_gen_2_property_out(cfg, OXP_FID_GEN2_TOGGLE_MODE, data, 3);
->   	if (ret)
->   		return ret;
->   
-> -	drvdata.gamepad_mode = data[0];
-> +	cfg->gamepad_mode = data[0];
->   
-> -	if (drvdata.gamepad_mode == OXP_GP_MODE_DEBUG)
-> +	if (cfg->gamepad_mode == OXP_GP_MODE_DEBUG)
->   		return count;
->   
->   	/* Re-apply rumble settings as switching gamepad mode will override */
-> -	ret = oxp_rumble_intensity_set(drvdata.rumble_intensity);
-> +	ret = oxp_rumble_intensity_set(cfg, cfg->rumble_intensity);
->   	if (ret)
->   		return ret;
->   
-> @@ -571,7 +582,9 @@ static ssize_t gamepad_mode_store(struct device *dev,
->   static ssize_t gamepad_mode_show(struct device *dev,
->   				 struct device_attribute *attr, char *buf)
->   {
-> -	return sysfs_emit(buf, "%s\n", oxp_gamepad_mode_text[drvdata.gamepad_mode]);
-> +	struct oxp_hid_cfg *cfg = dev_get_drvdata(dev);
+>   	ret = hid_hw_output_report(cfg->hdev, dmabuf, OXP_PACKET_SIZE);
+> -	if (ret < 0)
+> -		return ret;
+> -
+>   	/* MCU takes 200ms to be ready for another command. */
+>   	msleep(200);
+> -	return ret == OXP_PACKET_SIZE ? 0 : -EIO;
+> +	if (ret >= 0)
+> +		ret = ret == OXP_PACKET_SIZE ? 0 : -EIO;
 > +
-> +	return sysfs_emit(buf, "%s\n", oxp_gamepad_mode_text[cfg->gamepad_mode]);
+> +	if (rgb_write) {
+> +		scoped_guard(spinlock_irqsave, &cfg->rgb_reply_lock) {
+> +			cfg->rgb_reply_pending = false;
+> +		}
+> +	}
+> +
+> +	return ret;
 >   }
->   static DEVICE_ATTR_RW(gamepad_mode);
 >   
-> @@ -656,60 +669,61 @@ static void oxp_page_fill_data(char *buf, const struct oxp_button_idx *buttons,
->   	}
->   }
->   
-> -static int oxp_set_buttons(void)
-> +static int oxp_set_buttons(struct oxp_hid_cfg *cfg)
->   {
->   	u8 page_1[59] = { 0x02, 0x38, 0x20, 0x01, 0x01 };
->   	u8 page_2[59] = { 0x02, 0x38, 0x20, 0x02, 0x01 };
-> -	u16 up = get_usage_page(drvdata.hdev);
-> +	u16 up = get_usage_page(cfg->hdev);
+>   static int oxp_gen_1_property_out(struct oxp_hid_cfg *cfg, enum oxp_function_index fid, u8 *data,
+> @@ -748,7 +791,7 @@ static void oxp_btn_queue_fn(struct work_struct *work)
+>   					      struct oxp_hid_cfg, oxp_btn_queue);
 >   	int ret;
 >   
->   	if (up != GEN2_USAGE_PAGE)
->   		return -EINVAL;
->   
->   	const struct oxp_button_idx p1[] = {
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_a),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_b),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_x),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_y),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_lb),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_rb),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_lt),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_rt),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_1, btn_start),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_a),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_b),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_x),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_y),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_lb),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_rb),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_lt),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_rt),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_1, btn_start),
->   	};
->   
->   	const struct oxp_button_idx p2[] = {
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_select),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_l3),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_r3),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_dup),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_ddown),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_dleft),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_dright),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_m1),
-> -		OXP_FILL_PAGE_SLOT(drvdata.bmap_2, btn_m2),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_select),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_l3),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_r3),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_dup),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_ddown),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_dleft),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_dright),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_m1),
-> +		OXP_FILL_PAGE_SLOT(cfg->bmap_2, btn_m2),
->   	};
->   
->   	oxp_page_fill_data(page_1, p1, ARRAY_SIZE(p1));
->   	oxp_page_fill_data(page_2, p2, ARRAY_SIZE(p2));
->   
-> -	ret = oxp_gen_2_property_out(OXP_FID_GEN2_KEY_STATE, page_1, ARRAY_SIZE(page_1));
-> +	ret = oxp_gen_2_property_out(cfg, OXP_FID_GEN2_KEY_STATE, page_1, ARRAY_SIZE(page_1));
->   	if (ret)
->   		return ret;
->   
-> -	return oxp_gen_2_property_out(OXP_FID_GEN2_KEY_STATE, page_2, ARRAY_SIZE(page_2));
-> +	return oxp_gen_2_property_out(cfg, OXP_FID_GEN2_KEY_STATE, page_2, ARRAY_SIZE(page_2));
->   }
->   
-> -static void oxp_reset_buttons(void)
-> +static void oxp_reset_buttons(struct oxp_hid_cfg *cfg)
->   {
-> -	oxp_set_defaults_bmap_1(drvdata.bmap_1);
-> -	oxp_set_defaults_bmap_2(drvdata.bmap_2);
-> +	oxp_set_defaults_bmap_1(cfg->bmap_1);
-> +	oxp_set_defaults_bmap_2(cfg->bmap_2);
->   }
->   
->   static ssize_t reset_buttons_store(struct device *dev,
->   				   struct device_attribute *attr, const char *buf,
->   				   size_t count)
->   {
-> +	struct oxp_hid_cfg *cfg = dev_get_drvdata(dev);
->   	int val, ret;
->   
->   	ret = kstrtoint(buf, 10, &val);
-> @@ -719,8 +733,8 @@ static ssize_t reset_buttons_store(struct device *dev,
->   	if (val != 1)
->   		return -EINVAL;
->   
-> -	oxp_reset_buttons();
-> -	ret = oxp_set_buttons();
-> +	oxp_reset_buttons(cfg);
-> +	ret = oxp_set_buttons(cfg);
->   	if (ret)
->   		return ret;
->   
-> @@ -730,14 +744,16 @@ static DEVICE_ATTR_WO(reset_buttons);
->   
->   static void oxp_btn_queue_fn(struct work_struct *work)
->   {
-> +	struct oxp_hid_cfg *cfg = container_of(to_delayed_work(work),
-> +					      struct oxp_hid_cfg, oxp_btn_queue);
->   	int ret;
->   
-> -	if (READ_ONCE(drvdata.removing))
-> +	if (READ_ONCE(cfg->removing))
+> -	if (READ_ONCE(cfg->removing))
+> +	if (READ_ONCE(cfg->suspended) || READ_ONCE(cfg->removing))
 >   		return;
 >   
-> -	ret = oxp_set_buttons();
-> +	ret = oxp_set_buttons(cfg);
->   	if (ret)
-> -		dev_err(&drvdata.hdev->dev,
-> +		dev_err(&cfg->hdev->dev,
->   			"Error: Failed to write button mapping: %i\n", ret);
->   }
->   
-> @@ -756,6 +772,7 @@ static ssize_t map_button_store(struct device *dev,
->   				struct device_attribute *attr, const char *buf,
->   				size_t count, u8 index)
->   {
-> +	struct oxp_hid_cfg *cfg = dev_get_drvdata(dev);
->   	int idx;
->   
->   	idx = oxp_button_idx_from_str(buf);
-> @@ -764,64 +781,64 @@ static ssize_t map_button_store(struct device *dev,
->   
->   	switch (index) {
->   	case BUTTON_A:
-> -		drvdata.bmap_1->btn_a.mapping_idx = idx;
-> +		cfg->bmap_1->btn_a.mapping_idx = idx;
->   		break;
->   	case BUTTON_B:
-> -		drvdata.bmap_1->btn_b.mapping_idx = idx;
-> +		cfg->bmap_1->btn_b.mapping_idx = idx;
->   		break;
->   	case BUTTON_X:
-> -		drvdata.bmap_1->btn_x.mapping_idx = idx;
-> +		cfg->bmap_1->btn_x.mapping_idx = idx;
->   		break;
->   	case BUTTON_Y:
-> -		drvdata.bmap_1->btn_y.mapping_idx = idx;
-> +		cfg->bmap_1->btn_y.mapping_idx = idx;
->   		break;
->   	case BUTTON_LB:
-> -		drvdata.bmap_1->btn_lb.mapping_idx = idx;
-> +		cfg->bmap_1->btn_lb.mapping_idx = idx;
->   		break;
->   	case BUTTON_RB:
-> -		drvdata.bmap_1->btn_rb.mapping_idx = idx;
-> +		cfg->bmap_1->btn_rb.mapping_idx = idx;
->   		break;
->   	case BUTTON_LT:
-> -		drvdata.bmap_1->btn_lt.mapping_idx = idx;
-> +		cfg->bmap_1->btn_lt.mapping_idx = idx;
->   		break;
->   	case BUTTON_RT:
-> -		drvdata.bmap_1->btn_rt.mapping_idx = idx;
-> +		cfg->bmap_1->btn_rt.mapping_idx = idx;
->   		break;
->   	case BUTTON_START:
-> -		drvdata.bmap_1->btn_start.mapping_idx = idx;
-> +		cfg->bmap_1->btn_start.mapping_idx = idx;
->   		break;
->   	case BUTTON_SELECT:
-> -		drvdata.bmap_2->btn_select.mapping_idx = idx;
-> +		cfg->bmap_2->btn_select.mapping_idx = idx;
->   		break;
->   	case BUTTON_L3:
-> -		drvdata.bmap_2->btn_l3.mapping_idx = idx;
-> +		cfg->bmap_2->btn_l3.mapping_idx = idx;
->   		break;
->   	case BUTTON_R3:
-> -		drvdata.bmap_2->btn_r3.mapping_idx = idx;
-> +		cfg->bmap_2->btn_r3.mapping_idx = idx;
->   		break;
->   	case BUTTON_DUP:
-> -		drvdata.bmap_2->btn_dup.mapping_idx = idx;
-> +		cfg->bmap_2->btn_dup.mapping_idx = idx;
->   		break;
->   	case BUTTON_DDOWN:
-> -		drvdata.bmap_2->btn_ddown.mapping_idx = idx;
-> +		cfg->bmap_2->btn_ddown.mapping_idx = idx;
->   		break;
->   	case BUTTON_DLEFT:
-> -		drvdata.bmap_2->btn_dleft.mapping_idx = idx;
-> +		cfg->bmap_2->btn_dleft.mapping_idx = idx;
->   		break;
->   	case BUTTON_DRIGHT:
-> -		drvdata.bmap_2->btn_dright.mapping_idx = idx;
-> +		cfg->bmap_2->btn_dright.mapping_idx = idx;
->   		break;
->   	case BUTTON_M1:
-> -		drvdata.bmap_2->btn_m1.mapping_idx = idx;
-> +		cfg->bmap_2->btn_m1.mapping_idx = idx;
->   		break;
->   	case BUTTON_M2:
-> -		drvdata.bmap_2->btn_m2.mapping_idx = idx;
-> +		cfg->bmap_2->btn_m2.mapping_idx = idx;
->   		break;
+>   	ret = oxp_set_buttons(cfg);
+> @@ -837,7 +880,7 @@ static ssize_t map_button_store(struct device *dev,
 >   	default:
 >   		return -EINVAL;
 >   	}
-> -	if (!READ_ONCE(drvdata.removing))
-> -		mod_delayed_work(system_dfl_wq, &drvdata.oxp_btn_queue,
-> +	if (!READ_ONCE(cfg->removing))
-> +		mod_delayed_work(system_dfl_wq, &cfg->oxp_btn_queue,
+> -	if (!READ_ONCE(cfg->removing))
+> +	if (!READ_ONCE(cfg->suspended) && !READ_ONCE(cfg->removing))
+>   		mod_delayed_work(system_dfl_wq, &cfg->oxp_btn_queue,
 >   				 msecs_to_jiffies(50));
 >   	return count;
->   }
-> @@ -830,62 +847,63 @@ static ssize_t map_button_show(struct device *dev,
->   			       struct device_attribute *attr, char *buf,
->   			       u8 index)
->   {
-> +	struct oxp_hid_cfg *cfg = dev_get_drvdata(dev);
->   	u8 i;
->   
->   	switch (index) {
->   	case BUTTON_A:
-> -		i = drvdata.bmap_1->btn_a.mapping_idx;
-> +		i = cfg->bmap_1->btn_a.mapping_idx;
->   		break;
->   	case BUTTON_B:
-> -		i = drvdata.bmap_1->btn_b.mapping_idx;
-> +		i = cfg->bmap_1->btn_b.mapping_idx;
->   		break;
->   	case BUTTON_X:
-> -		i = drvdata.bmap_1->btn_x.mapping_idx;
-> +		i = cfg->bmap_1->btn_x.mapping_idx;
->   		break;
->   	case BUTTON_Y:
-> -		i = drvdata.bmap_1->btn_y.mapping_idx;
-> +		i = cfg->bmap_1->btn_y.mapping_idx;
->   		break;
->   	case BUTTON_LB:
-> -		i = drvdata.bmap_1->btn_lb.mapping_idx;
-> +		i = cfg->bmap_1->btn_lb.mapping_idx;
->   		break;
->   	case BUTTON_RB:
-> -		i = drvdata.bmap_1->btn_rb.mapping_idx;
-> +		i = cfg->bmap_1->btn_rb.mapping_idx;
->   		break;
->   	case BUTTON_LT:
-> -		i = drvdata.bmap_1->btn_lt.mapping_idx;
-> +		i = cfg->bmap_1->btn_lt.mapping_idx;
->   		break;
->   	case BUTTON_RT:
-> -		i = drvdata.bmap_1->btn_rt.mapping_idx;
-> +		i = cfg->bmap_1->btn_rt.mapping_idx;
->   		break;
->   	case BUTTON_START:
-> -		i = drvdata.bmap_1->btn_start.mapping_idx;
-> +		i = cfg->bmap_1->btn_start.mapping_idx;
->   		break;
->   	case BUTTON_SELECT:
-> -		i = drvdata.bmap_2->btn_select.mapping_idx;
-> +		i = cfg->bmap_2->btn_select.mapping_idx;
->   		break;
->   	case BUTTON_L3:
-> -		i = drvdata.bmap_2->btn_l3.mapping_idx;
-> +		i = cfg->bmap_2->btn_l3.mapping_idx;
->   		break;
->   	case BUTTON_R3:
-> -		i = drvdata.bmap_2->btn_r3.mapping_idx;
-> +		i = cfg->bmap_2->btn_r3.mapping_idx;
->   		break;
->   	case BUTTON_DUP:
-> -		i = drvdata.bmap_2->btn_dup.mapping_idx;
-> +		i = cfg->bmap_2->btn_dup.mapping_idx;
->   		break;
->   	case BUTTON_DDOWN:
-> -		i = drvdata.bmap_2->btn_ddown.mapping_idx;
-> +		i = cfg->bmap_2->btn_ddown.mapping_idx;
->   		break;
->   	case BUTTON_DLEFT:
-> -		i = drvdata.bmap_2->btn_dleft.mapping_idx;
-> +		i = cfg->bmap_2->btn_dleft.mapping_idx;
->   		break;
->   	case BUTTON_DRIGHT:
-> -		i = drvdata.bmap_2->btn_dright.mapping_idx;
-> +		i = cfg->bmap_2->btn_dright.mapping_idx;
->   		break;
->   	case BUTTON_M1:
-> -		i = drvdata.bmap_2->btn_m1.mapping_idx;
-> +		i = cfg->bmap_2->btn_m1.mapping_idx;
->   		break;
->   	case BUTTON_M2:
-> -		i = drvdata.bmap_2->btn_m2.mapping_idx;
-> +		i = cfg->bmap_2->btn_m2.mapping_idx;
->   		break;
->   	default:
->   		return -EINVAL;
-> @@ -913,7 +931,7 @@ static ssize_t button_mapping_options_show(struct device *dev,
->   }
->   static DEVICE_ATTR_RO(button_mapping_options);
->   
-> -static int oxp_rumble_intensity_set(u8 intensity)
-> +static int oxp_rumble_intensity_set(struct oxp_hid_cfg *cfg, u8 intensity)
->   {
->   	u8 header[15] = { 0x02, 0x38, 0x02, 0xe3, 0x39, 0xe3, 0x39, 0xe3,
->   			  0x39, 0x01, intensity, 0x05, 0xe3, 0x39, 0xe3 };
-> @@ -926,13 +944,14 @@ static int oxp_rumble_intensity_set(u8 intensity)
->   	memcpy(data, header, header_size);
->   	memcpy(data + data_size - footer_size, footer, footer_size);
->   
-> -	return oxp_gen_2_property_out(OXP_FID_GEN2_RUMBLE_SET, data, data_size);
-> +	return oxp_gen_2_property_out(cfg, OXP_FID_GEN2_RUMBLE_SET, data, data_size);
->   }
->   
->   static ssize_t rumble_intensity_store(struct device *dev,
->   				      struct device_attribute *attr, const char *buf,
->   				      size_t count)
->   {
-> +	struct oxp_hid_cfg *cfg = dev_get_drvdata(dev);
->   	int ret;
->   	u8 val;
->   
-> @@ -943,11 +962,11 @@ static ssize_t rumble_intensity_store(struct device *dev,
->   	if (val < 0 || val > 5)
->   		return -EINVAL;
->   
-> -	ret = oxp_rumble_intensity_set(val);
-> +	ret = oxp_rumble_intensity_set(cfg, val);
->   	if (ret)
->   		return ret;
->   
-> -	drvdata.rumble_intensity = val;
-> +	cfg->rumble_intensity = val;
->   
->   	return count;
->   }
-> @@ -955,7 +974,9 @@ static ssize_t rumble_intensity_store(struct device *dev,
->   static ssize_t rumble_intensity_show(struct device *dev,
->   				     struct device_attribute *attr, char *buf)
->   {
-> -	return sysfs_emit(buf, "%i\n", drvdata.rumble_intensity);
-> +	struct oxp_hid_cfg *cfg = dev_get_drvdata(dev);
-> +
-> +	return sysfs_emit(buf, "%i\n", cfg->rumble_intensity);
->   }
->   static DEVICE_ATTR_RW(rumble_intensity);
->   
-> @@ -1066,9 +1087,9 @@ static const struct attribute_group oxp_cfg_attrs_group = {
->   	.attrs = oxp_cfg_attrs,
->   };
->   
-> -static int oxp_rgb_status_store(u8 enabled, u8 speed, u8 brightness)
-> +static int oxp_rgb_status_store(struct oxp_hid_cfg *cfg, u8 enabled, u8 speed, u8 brightness)
->   {
-> -	u16 up = get_usage_page(drvdata.hdev);
-> +	u16 up = get_usage_page(cfg->hdev);
->   	u8 *data;
->   
->   	/* Always default to max brightness and use intensity scaling when in
-> @@ -1077,51 +1098,51 @@ static int oxp_rgb_status_store(u8 enabled, u8 speed, u8 brightness)
->   	switch (up) {
->   	case GEN1_USAGE_PAGE:
->   		data = (u8[4]) { OXP_SET_PROPERTY, enabled, speed, brightness };
-> -		if (drvdata.rgb_effect == OXP_EFFECT_MONO_LIST)
-> +		if (cfg->rgb_effect == OXP_EFFECT_MONO_LIST)
->   			data[3] = 0x04;
-> -		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 4);
-> +		return oxp_gen_1_property_out(cfg, OXP_FID_GEN1_RGB_SET, data, 4);
->   	case GEN2_USAGE_PAGE:
->   		data = (u8[6]) { OXP_SET_PROPERTY, 0x00, 0x02, enabled, speed, brightness };
-> -		if (drvdata.rgb_effect == OXP_EFFECT_MONO_LIST)
-> +		if (cfg->rgb_effect == OXP_EFFECT_MONO_LIST)
->   			data[5] = 0x04;
-> -		return oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, 6);
-> +		return oxp_gen_2_property_out(cfg, OXP_FID_GEN2_STATUS_EVENT, data, 6);
->   	default:
->   		return -ENODEV;
->   	}
->   }
->   
-> -static ssize_t oxp_rgb_status_show(void)
-> +static ssize_t oxp_rgb_status_show(struct oxp_hid_cfg *cfg)
->   {
-> -	u16 up = get_usage_page(drvdata.hdev);
-> +	u16 up = get_usage_page(cfg->hdev);
->   	u8 *data;
->   
-> -	guard(mutex)(&drvdata.rgb_mutex);
-> +	guard(mutex)(&cfg->rgb_mutex);
->   
->   	switch (up) {
->   	case GEN1_USAGE_PAGE:
->   		data = (u8[1]) { OXP_GET_PROPERTY };
-> -		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 1);
-> +		return oxp_gen_1_property_out(cfg, OXP_FID_GEN1_RGB_SET, data, 1);
->   	case GEN2_USAGE_PAGE:
->   		data = (u8[3]) { OXP_GET_PROPERTY, 0x00, 0x02 };
-> -		return oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, 3);
-> +		return oxp_gen_2_property_out(cfg, OXP_FID_GEN2_STATUS_EVENT, data, 3);
->   	default:
->   		return -ENODEV;
->   	}
->   }
->   
-> -static int oxp_rgb_color_set(void)
-> +static int oxp_rgb_color_set(struct oxp_hid_cfg *cfg)
->   {
-> -	u8 br = drvdata.led_mc->led_cdev.brightness;
-> -	u16 up = get_usage_page(drvdata.hdev);
-> +	u8 br = cfg->led_mc->led_cdev.brightness;
-> +	u16 up = get_usage_page(cfg->hdev);
->   	u8 green, red, blue;
->   	size_t size;
->   	u8 *data;
->   	int i;
->   
-> -	led_mc_calc_color_components(drvdata.led_mc, br);
-> -	red = drvdata.led_mc->subled_info[0].brightness;
-> -	green = drvdata.led_mc->subled_info[1].brightness;
-> -	blue = drvdata.led_mc->subled_info[2].brightness;
-> +	led_mc_calc_color_components(cfg->led_mc, br);
-> +	red = cfg->led_mc->subled_info[0].brightness;
-> +	green = cfg->led_mc->subled_info[1].brightness;
-> +	blue = cfg->led_mc->subled_info[2].brightness;
->   
->   	switch (up) {
->   	case GEN1_USAGE_PAGE:
-> @@ -1133,7 +1154,7 @@ static int oxp_rgb_color_set(void)
->   			data[3 * i + 2] = green;
->   			data[3 * i + 3] = blue;
->   		}
-> -		return oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, size);
-> +		return oxp_gen_1_property_out(cfg, OXP_FID_GEN1_RGB_SET, data, size);
->   	case GEN2_USAGE_PAGE:
->   		size = 57;
->   		data = (u8[57]) { OXP_EFFECT_MONO_TRUE, 0x00, 0x02 };
-> @@ -1143,15 +1164,15 @@ static int oxp_rgb_color_set(void)
->   			data[3 * i + 1] = green;
->   			data[3 * i + 2] = blue;
->   		}
-> -		return oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, size);
-> +		return oxp_gen_2_property_out(cfg, OXP_FID_GEN2_STATUS_EVENT, data, size);
->   	default:
->   		return -ENODEV;
->   	}
->   }
->   
-> -static int oxp_rgb_effect_set(u8 effect)
-> +static int oxp_rgb_effect_set(struct oxp_hid_cfg *cfg, u8 effect)
->   {
-> -	u16 up = get_usage_page(drvdata.hdev);
-> +	u16 up = get_usage_page(cfg->hdev);
->   	u8 *data;
->   	int ret;
->   
-> @@ -1178,18 +1199,18 @@ static int oxp_rgb_effect_set(u8 effect)
->   		switch (up) {
->   		case GEN1_USAGE_PAGE:
->   			data = (u8[1]) { effect };
-> -			ret = oxp_gen_1_property_out(OXP_FID_GEN1_RGB_SET, data, 1);
-> +			ret = oxp_gen_1_property_out(cfg, OXP_FID_GEN1_RGB_SET, data, 1);
->   			break;
->   		case GEN2_USAGE_PAGE:
->   			data = (u8[3]) { effect, 0x00, 0x02 };
-> -			ret = oxp_gen_2_property_out(OXP_FID_GEN2_STATUS_EVENT, data, 3);
-> +			ret = oxp_gen_2_property_out(cfg, OXP_FID_GEN2_STATUS_EVENT, data, 3);
->   			break;
->   		default:
->   			ret = -ENODEV;
->   		}
->   		break;
->   	case OXP_EFFECT_MONO_LIST:
-> -		ret = oxp_rgb_color_set();
-> +		ret = oxp_rgb_color_set(cfg);
->   		break;
->   	default:
->   		return -EINVAL;
-> @@ -1198,14 +1219,23 @@ static int oxp_rgb_effect_set(u8 effect)
->   	if (ret)
->   		return ret;
->   
-> -	drvdata.rgb_effect = effect;
-> +	cfg->rgb_effect = effect;
->   
->   	return 0;
->   }
->   
-> +static struct oxp_hid_cfg *oxp_rgb_cfg_from_dev(struct device *dev)
-> +{
-> +	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-> +	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(led_cdev);
-> +
-> +	return container_of(mc_cdev, struct oxp_hid_cfg, cdev);
-> +}
-> +
->   static ssize_t enabled_store(struct device *dev, struct device_attribute *attr,
->   			     const char *buf, size_t count)
->   {
-> +	struct oxp_hid_cfg *cfg = oxp_rgb_cfg_from_dev(dev);
->   	int ret;
->   	u8 val;
->   
-> @@ -1214,30 +1244,31 @@ static ssize_t enabled_store(struct device *dev, struct device_attribute *attr,
->   		return ret;
->   	val = ret;
->   
-> -	guard(mutex)(&drvdata.rgb_mutex);
-> +	guard(mutex)(&cfg->rgb_mutex);
->   
-> -	ret = oxp_rgb_status_store(val, drvdata.rgb_speed,
-> -				   drvdata.rgb_brightness);
-> +	ret = oxp_rgb_status_store(cfg, val, cfg->rgb_speed,
-> +				   cfg->rgb_brightness);
->   	if (ret)
->   		return ret;
->   
-> -	drvdata.rgb_en = val;
-> +	cfg->rgb_en = val;
->   	return count;
->   }
->   
->   static ssize_t enabled_show(struct device *dev, struct device_attribute *attr,
->   			    char *buf)
->   {
-> +	struct oxp_hid_cfg *cfg = oxp_rgb_cfg_from_dev(dev);
->   	int ret;
->   
-> -	ret = oxp_rgb_status_show();
-> +	ret = oxp_rgb_status_show(cfg);
->   	if (ret)
->   		return ret;
->   
-> -	if (drvdata.rgb_en >= ARRAY_SIZE(oxp_feature_en_text))
-> +	if (cfg->rgb_en >= ARRAY_SIZE(oxp_feature_en_text))
->   		return -EINVAL;
->   
-> -	return sysfs_emit(buf, "%s\n", oxp_feature_en_text[drvdata.rgb_en]);
-> +	return sysfs_emit(buf, "%s\n", oxp_feature_en_text[cfg->rgb_en]);
->   }
->   static DEVICE_ATTR_RW(enabled);
->   
-> @@ -1260,6 +1291,7 @@ static DEVICE_ATTR_RO(enabled_index);
->   static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
->   			    const char *buf, size_t count)
->   {
-> +	struct oxp_hid_cfg *cfg = oxp_rgb_cfg_from_dev(dev);
->   	u8 old_effect;
->   	int ret;
->   	u8 val;
-> @@ -1270,20 +1302,20 @@ static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
->   
->   	val = ret;
->   
-> -	guard(mutex)(&drvdata.rgb_mutex);
-> -	old_effect = drvdata.rgb_effect;
-> -	drvdata.rgb_effect = val;
-> +	guard(mutex)(&cfg->rgb_mutex);
-> +	old_effect = cfg->rgb_effect;
-> +	cfg->rgb_effect = val;
->   
-> -	ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed,
-> -				   drvdata.rgb_brightness);
-> +	ret = oxp_rgb_status_store(cfg, cfg->rgb_en, cfg->rgb_speed,
-> +				   cfg->rgb_brightness);
->   	if (ret) {
-> -		drvdata.rgb_effect = old_effect;
-> +		cfg->rgb_effect = old_effect;
->   		return ret;
->   	}
->   
-> -	ret = oxp_rgb_effect_set(val);
-> +	ret = oxp_rgb_effect_set(cfg, val);
->   	if (ret) {
-> -		drvdata.rgb_effect = old_effect;
-> +		cfg->rgb_effect = old_effect;
->   		return ret;
->   	}
->   
-> @@ -1293,16 +1325,17 @@ static ssize_t effect_store(struct device *dev, struct device_attribute *attr,
->   static ssize_t effect_show(struct device *dev, struct device_attribute *attr,
->   			   char *buf)
->   {
-> +	struct oxp_hid_cfg *cfg = oxp_rgb_cfg_from_dev(dev);
->   	int ret;
->   
-> -	ret = oxp_rgb_status_show();
-> +	ret = oxp_rgb_status_show(cfg);
->   	if (ret)
->   		return ret;
->   
-> -	if (drvdata.rgb_effect >= ARRAY_SIZE(oxp_rgb_effect_text))
-> +	if (cfg->rgb_effect >= ARRAY_SIZE(oxp_rgb_effect_text))
->   		return -EINVAL;
->   
-> -	return sysfs_emit(buf, "%s\n", oxp_rgb_effect_text[drvdata.rgb_effect]);
-> +	return sysfs_emit(buf, "%s\n", oxp_rgb_effect_text[cfg->rgb_effect]);
->   }
->   
->   static DEVICE_ATTR_RW(effect);
-> @@ -1326,6 +1359,7 @@ static DEVICE_ATTR_RO(effect_index);
->   static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
->   			   const char *buf, size_t count)
->   {
-> +	struct oxp_hid_cfg *cfg = oxp_rgb_cfg_from_dev(dev);
->   	int ret;
->   	u8 val;
->   
-> @@ -1336,29 +1370,30 @@ static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
->   	if (val > 9)
->   		return -EINVAL;
->   
-> -	guard(mutex)(&drvdata.rgb_mutex);
-> +	guard(mutex)(&cfg->rgb_mutex);
->   
-> -	ret = oxp_rgb_status_store(drvdata.rgb_en, val, drvdata.rgb_brightness);
-> +	ret = oxp_rgb_status_store(cfg, cfg->rgb_en, val, cfg->rgb_brightness);
->   	if (ret)
->   		return ret;
->   
-> -	drvdata.rgb_speed = val;
-> +	cfg->rgb_speed = val;
->   	return count;
->   }
->   
->   static ssize_t speed_show(struct device *dev, struct device_attribute *attr,
->   			  char *buf)
->   {
-> +	struct oxp_hid_cfg *cfg = oxp_rgb_cfg_from_dev(dev);
->   	int ret;
->   
-> -	ret = oxp_rgb_status_show();
-> +	ret = oxp_rgb_status_show(cfg);
->   	if (ret)
->   		return ret;
->   
-> -	if (drvdata.rgb_speed > 9)
-> +	if (cfg->rgb_speed > 9)
->   		return -EINVAL;
->   
-> -	return sysfs_emit(buf, "%hhu\n", drvdata.rgb_speed);
-> +	return sysfs_emit(buf, "%hhu\n", cfg->rgb_speed);
->   }
->   static DEVICE_ATTR_RW(speed);
->   
-> @@ -1371,42 +1406,47 @@ static DEVICE_ATTR_RO(speed_range);
->   
->   static void oxp_rgb_queue_fn(struct work_struct *work)
->   {
-> -	unsigned int max_brightness = drvdata.led_mc->led_cdev.max_brightness;
-> -	unsigned int brightness = drvdata.led_mc->led_cdev.brightness;
-> +	struct oxp_hid_cfg *cfg = container_of(to_delayed_work(work),
-> +					      struct oxp_hid_cfg, oxp_rgb_queue);
-> +	unsigned int max_brightness = cfg->led_mc->led_cdev.max_brightness;
-> +	unsigned int brightness = cfg->led_mc->led_cdev.brightness;
+> @@ -1413,7 +1456,7 @@ static void oxp_rgb_queue_fn(struct work_struct *work)
 >   	u8 val = 4 * brightness / max_brightness;
 >   	int ret;
 >   
-> -	if (READ_ONCE(drvdata.removing))
-> +	if (READ_ONCE(cfg->removing))
+> -	if (READ_ONCE(cfg->removing))
+> +	if (READ_ONCE(cfg->suspended) || READ_ONCE(cfg->removing))
 >   		return;
 >   
-> -	guard(mutex)(&drvdata.rgb_mutex);
-> +	guard(mutex)(&cfg->rgb_mutex);
+>   	guard(mutex)(&cfg->rgb_mutex);
+> @@ -1442,7 +1485,7 @@ static void oxp_rgb_brightness_set(struct led_classdev *led_cdev,
+>   	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(led_cdev);
+>   	struct oxp_hid_cfg *cfg = container_of(mc_cdev, struct oxp_hid_cfg, cdev);
 >   
-> -	if (drvdata.rgb_brightness != val) {
-> -		ret = oxp_rgb_status_store(drvdata.rgb_en, drvdata.rgb_speed, val);
-> +	if (cfg->rgb_brightness != val) {
-> +		ret = oxp_rgb_status_store(cfg, cfg->rgb_en, cfg->rgb_speed, val);
->   		if (ret)
-> -			dev_err(drvdata.led_mc->led_cdev.dev,
-> +			dev_err(cfg->led_mc->led_cdev.dev,
->   				"Error: Failed to write RGB Status: %i\n", ret);
->   
-> -		drvdata.rgb_brightness = val;
-> +		cfg->rgb_brightness = val;
->   	}
->   
-> -	if (drvdata.rgb_effect != OXP_EFFECT_MONO_LIST)
-> +	if (cfg->rgb_effect != OXP_EFFECT_MONO_LIST)
->   		return;
->   
-> -	ret = oxp_rgb_effect_set(drvdata.rgb_effect);
-> +	ret = oxp_rgb_effect_set(cfg, cfg->rgb_effect);
->   	if (ret)
-> -		dev_err(drvdata.led_mc->led_cdev.dev, "Error: Failed to write RGB color: %i\n",
-> +		dev_err(cfg->led_mc->led_cdev.dev, "Error: Failed to write RGB color: %i\n",
->   			ret);
->   }
->   
->   static void oxp_rgb_brightness_set(struct led_classdev *led_cdev,
->   				   enum led_brightness brightness)
->   {
-> -	if (READ_ONCE(drvdata.removing))
-> +	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(led_cdev);
-> +	struct oxp_hid_cfg *cfg = container_of(mc_cdev, struct oxp_hid_cfg, cdev);
-> +
-> +	if (READ_ONCE(cfg->removing))
+> -	if (READ_ONCE(cfg->removing))
+> +	if (READ_ONCE(cfg->suspended) || READ_ONCE(cfg->removing))
 >   		return;
 >   
 >   	led_cdev->brightness = brightness;
-> -	mod_delayed_work(system_dfl_wq, &drvdata.oxp_rgb_queue, msecs_to_jiffies(50));
-> +	mod_delayed_work(system_dfl_wq, &cfg->oxp_rgb_queue, msecs_to_jiffies(50));
->   }
->   
->   static struct attribute *oxp_rgb_attrs[] = {
-> @@ -1423,7 +1463,7 @@ static const struct attribute_group oxp_rgb_attr_group = {
->   	.attrs = oxp_rgb_attrs,
->   };
->   
-> -static struct mc_subled oxp_rgb_subled_info[] = {
-> +static const struct mc_subled oxp_rgb_subled_info[] = {
->   	{
->   		.color_index = LED_COLOR_ID_RED,
->   		.intensity = 0x24,
-> @@ -1444,7 +1484,7 @@ static struct mc_subled oxp_rgb_subled_info[] = {
->   	},
->   };
->   
-> -static struct led_classdev_mc oxp_cdev_rgb = {
-> +static const struct led_classdev_mc oxp_cdev_rgb = {
->   	.led_cdev = {
->   		.name = "oxp:rgb:joystick_rings",
->   		.color = LED_COLOR_ID_RGB,
-> @@ -1453,7 +1493,6 @@ static struct led_classdev_mc oxp_cdev_rgb = {
->   		.brightness_set = oxp_rgb_brightness_set,
->   	},
->   	.num_colors = ARRAY_SIZE(oxp_rgb_subled_info),
-> -	.subled_info = oxp_rgb_subled_info,
->   };
->   
->   struct quirk_entry {
-> @@ -1506,61 +1545,80 @@ static bool oxp_hybrid_mcu_device(void)
->   	return quirks->hybrid_mcu;
->   }
->   
-> -static void oxp_drain_output(void)
-> +static void oxp_drain_output(struct oxp_hid_cfg *cfg)
+> @@ -1554,6 +1597,9 @@ static void oxp_drain_output(struct oxp_hid_cfg *cfg)
+>   static void oxp_quiesce_work(struct oxp_hid_cfg *cfg)
 >   {
->   	/* Wait for any in-flight sysfs output before closing the transport. */
-> -	guard(mutex)(&drvdata.cfg_mutex);
-> +	guard(mutex)(&cfg->cfg_mutex);
+>   	WRITE_ONCE(cfg->removing, true);
+> +	scoped_guard(spinlock_irqsave, &cfg->rgb_reply_lock) {
+> +		cfg->rgb_reply_pending = false;
+> +	}
+>   	if (cfg->rgb_work_initialized)
+>   		disable_delayed_work_sync(&cfg->oxp_rgb_queue);
+>   	if (cfg->gen2_work_initialized) {
+> @@ -1584,6 +1630,7 @@ static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
+>   	cfg->hdev = hdev;
+>   	mutex_init(&cfg->cfg_mutex);
+>   	mutex_init(&cfg->rgb_mutex);
+> +	spin_lock_init(&cfg->rgb_reply_lock);
+>   
+>   	/* Clear drvdata after registered callback objects have been released. */
+>   	hid_set_drvdata(hdev, cfg);
+> @@ -1714,6 +1761,54 @@ static void oxp_hid_remove(struct hid_device *hdev)
+>   	hid_hw_stop(hdev);
 >   }
 >   
-> -static void oxp_quiesce_work(void)
-> +static void oxp_quiesce_work(struct oxp_hid_cfg *cfg)
->   {
-> -	WRITE_ONCE(drvdata.removing, true);
-> -	if (drvdata.rgb_work_initialized)
-> -		disable_delayed_work_sync(&drvdata.oxp_rgb_queue);
-> -	if (drvdata.gen2_work_initialized) {
-> -		disable_delayed_work_sync(&drvdata.oxp_btn_queue);
-> -		disable_delayed_work_sync(&drvdata.oxp_mcu_init);
-> +	WRITE_ONCE(cfg->removing, true);
+> +static int __maybe_unused oxp_hid_suspend(struct hid_device *hdev,
+> +					  pm_message_t message)
+> +{
+> +	struct oxp_hid_cfg *cfg = hid_get_drvdata(hdev);
+> +
+> +	if (!cfg || PMSG_IS_AUTO(message))
+> +		return 0;
+> +
+> +	WRITE_ONCE(cfg->suspended, true);
+> +	scoped_guard(spinlock_irqsave, &cfg->rgb_reply_lock) {
+> +		cfg->rgb_reply_pending = false;
+> +	}
 > +	if (cfg->rgb_work_initialized)
 > +		disable_delayed_work_sync(&cfg->oxp_rgb_queue);
 > +	if (cfg->gen2_work_initialized) {
 > +		disable_delayed_work_sync(&cfg->oxp_btn_queue);
 > +		disable_delayed_work_sync(&cfg->oxp_mcu_init);
->   	}
-> -	oxp_drain_output();
+> +	}
 > +	oxp_drain_output(cfg);
+> +
+> +	return 0;
 > +}
 > +
-> +static void oxp_cfg_release(void *data)
+> +static int __maybe_unused oxp_hid_resume(struct hid_device *hdev)
 > +{
-> +	struct oxp_hid_cfg *cfg = data;
-> +
-> +	hid_set_drvdata(cfg->hdev, NULL);
->   }
->   
->   static int oxp_cfg_probe(struct hid_device *hdev, u16 up)
->   {
->   	struct oxp_bmap_page_1 *bmap_1;
->   	struct oxp_bmap_page_2 *bmap_2;
-> +	struct oxp_hid_cfg *cfg;
->   	int ret;
->   
-> -	hid_set_drvdata(hdev, &drvdata);
-> -	mutex_init(&drvdata.cfg_mutex);
-> -	mutex_init(&drvdata.rgb_mutex);
-> -	drvdata.hdev = hdev;
-> -	drvdata.removing = false;
-> +	cfg = devm_kzalloc(&hdev->dev, sizeof(*cfg), GFP_KERNEL);
-> +	if (!cfg)
-> +		return -ENOMEM;
-> +
-> +	cfg->hdev = hdev;
-> +	mutex_init(&cfg->cfg_mutex);
-> +	mutex_init(&cfg->rgb_mutex);
-> +
-> +	/* Clear drvdata after registered callback objects have been released. */
-> +	hid_set_drvdata(hdev, cfg);
-> +	ret = devm_add_action_or_reset(&hdev->dev, oxp_cfg_release, cfg);
-> +	if (ret)
-> +		return ret;
->   
->   	if (up == GEN2_USAGE_PAGE && oxp_hybrid_mcu_device())
->   		goto skip_rgb;
->   
-> -	drvdata.led_mc = &oxp_cdev_rgb;
-> +	cfg->cdev = oxp_cdev_rgb;
-> +	memcpy(cfg->subled_info, oxp_rgb_subled_info, sizeof(cfg->subled_info));
-> +	cfg->cdev.subled_info = cfg->subled_info;
-> +	cfg->led_mc = &cfg->cdev;
->   
-> -	INIT_DELAYED_WORK(&drvdata.oxp_rgb_queue, oxp_rgb_queue_fn);
-> -	drvdata.rgb_work_initialized = true;
-> -	ret = devm_led_classdev_multicolor_register(&hdev->dev, &oxp_cdev_rgb);
-> +	INIT_DELAYED_WORK(&cfg->oxp_rgb_queue, oxp_rgb_queue_fn);
-> +	cfg->rgb_work_initialized = true;
-> +	ret = devm_led_classdev_multicolor_register(&hdev->dev, cfg->led_mc);
->   	if (ret) {
->   		dev_err_probe(&hdev->dev, ret,
->   				     "Failed to create RGB device\n");
->   		goto err_quiesce;
->   	}
->   
-> -	ret = devm_device_add_group(drvdata.led_mc->led_cdev.dev,
-> +	ret = devm_device_add_group(cfg->led_mc->led_cdev.dev,
->   				    &oxp_rgb_attr_group);
->   	if (ret) {
-> -		dev_err_probe(drvdata.led_mc->led_cdev.dev, ret,
-> -				     "Failed to create RGB configuration attributes\n");
-> +		dev_err_probe(cfg->led_mc->led_cdev.dev, ret,
-> +			      "Failed to create RGB configuration attributes\n");
->   		goto err_quiesce;
->   	}
->   
-> -	ret = oxp_rgb_status_show();
-> +	ret = oxp_rgb_status_show(cfg);
->   	if (ret)
-> -		dev_warn(drvdata.led_mc->led_cdev.dev,
-> +		dev_warn(cfg->led_mc->led_cdev.dev,
->   			 "Failed to query RGB initial state: %i\n", ret);
->   
->   	/* Below features are only implemented in gen 2 */
-> @@ -1582,17 +1640,17 @@ skip_rgb:
->   		goto err_quiesce;
->   	}
->   
-> -	drvdata.bmap_1 = bmap_1;
-> -	drvdata.bmap_2 = bmap_2;
-> -	oxp_reset_buttons();
-> -	INIT_DELAYED_WORK(&drvdata.oxp_btn_queue, oxp_btn_queue_fn);
-> +	cfg->bmap_1 = bmap_1;
-> +	cfg->bmap_2 = bmap_2;
-> +	oxp_reset_buttons(cfg);
-> +	INIT_DELAYED_WORK(&cfg->oxp_btn_queue, oxp_btn_queue_fn);
->   
-> -	drvdata.gamepad_mode = OXP_GP_MODE_XINPUT;
-> -	drvdata.rumble_intensity = 5;
-> +	cfg->gamepad_mode = OXP_GP_MODE_XINPUT;
-> +	cfg->rumble_intensity = 5;
->   
-> -	INIT_DELAYED_WORK(&drvdata.oxp_mcu_init, oxp_mcu_init_fn);
-> -	WRITE_ONCE(drvdata.gen2_work_initialized, true);
-> -	mod_delayed_work(system_dfl_wq, &drvdata.oxp_mcu_init, msecs_to_jiffies(50));
-> +	INIT_DELAYED_WORK(&cfg->oxp_mcu_init, oxp_mcu_init_fn);
-> +	WRITE_ONCE(cfg->gen2_work_initialized, true);
-> +	mod_delayed_work(system_dfl_wq, &cfg->oxp_mcu_init, msecs_to_jiffies(50));
->   
->   	ret = devm_device_add_group(&hdev->dev, &oxp_cfg_attrs_group);
->   	if (ret) {
-> @@ -1604,7 +1662,7 @@ skip_rgb:
->   	return 0;
->   
->   err_quiesce:
-> -	oxp_quiesce_work();
-> +	oxp_quiesce_work(cfg);
->   	return ret;
->   }
->   
-> @@ -1648,8 +1706,10 @@ static int oxp_hid_probe(struct hid_device *hdev,
->   
->   static void oxp_hid_remove(struct hid_device *hdev)
->   {
-> -	if (hid_get_drvdata(hdev))
-> -		oxp_quiesce_work();
 > +	struct oxp_hid_cfg *cfg = hid_get_drvdata(hdev);
 > +
-> +	if (cfg)
-> +		oxp_quiesce_work(cfg);
->   	hid_hw_close(hdev);
->   	hid_hw_stop(hdev);
->   }
-
+> +	if (!cfg || !READ_ONCE(cfg->suspended) ||
+> +	    READ_ONCE(cfg->removing))
+> +		return 0;
+> +
+> +	if (cfg->rgb_work_initialized)
+> +		enable_delayed_work(&cfg->oxp_rgb_queue);
+> +	if (cfg->gen2_work_initialized) {
+> +		enable_delayed_work(&cfg->oxp_btn_queue);
+> +		enable_delayed_work(&cfg->oxp_mcu_init);
+> +	}
+> +	WRITE_ONCE(cfg->suspended, false);
+> +	if (!cfg->gen2_work_initialized)
+> +		return 0;
+> +
+> +	/* Allow the controller MCU to finish rebooting before restoring state. */
+> +	queue_delayed_work(system_dfl_wq, &cfg->oxp_mcu_init,
+> +			   msecs_to_jiffies(6500));
+> +
+> +	return 0;
+> +}
+> +
+>   static const struct hid_device_id oxp_devices[] = {
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CRSC, USB_DEVICE_ID_ONEXPLAYER_GEN1) },
+>   	{ HID_USB_DEVICE(USB_VENDOR_ID_WCH, USB_DEVICE_ID_ONEXPLAYER_GEN2) },
+> @@ -1727,6 +1822,9 @@ static struct hid_driver hid_oxp = {
+>   	.probe = oxp_hid_probe,
+>   	.remove = oxp_hid_remove,
+>   	.raw_event = oxp_hid_raw_event,
+> +	.suspend = pm_ptr(oxp_hid_suspend),
+> +	.resume = pm_ptr(oxp_hid_resume),
+> +	.reset_resume = pm_ptr(oxp_hid_resume),
+>   };
+>   module_hid_driver(hid_oxp);
+>   
 
 Tested-by: Derek J. Clark <derekjohn.clark@gmail.com>
 Reviewed-by: Derek J. Clark <derekjohn.clark@gmail.com>
-

@@ -1,50 +1,37 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+Received: from mail-m49197.qiye.163.com (mail-m49197.qiye.163.com [45.254.49.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67D0546C835
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 11:10:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789038610; cv=pass; b=cP3NPacnczWm3tMtW6Nee4uJX3A0WFLOLFVFjj106PDeKvLDalvXq5b8fn7opzshpO0UYJsaXhfHiQmCogRl6X3VgXlfmf812eWR8Pvpl9rdp85CjcY6LJeUyZoldiF3pOxNDDWh6vQ2Dt5JApCiatKrgmiCKC27oXqmx73b3Ow=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789038610; c=relaxed/simple;
-	bh=W8rW8MfMaPsqyLtpA5UOYP32hBessOSZWe5oCOi4xCQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZYaR6HMDwPiYCKJlM03sGcnBfZfSUCyuhzsHCUIg2TD85i84IJLB93jVQe2lcneEz4tZfJDg9Kftg//CjSNLRkitCD2/xE0p1Nf0faVYbO67KtvUTJq7PT7cBVD24ahaoVIcr+VUc9FcHUrc5ByO66/JurNUTFtDIOW8i6hZ8ZQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ririn.moe; spf=pass smtp.mailfrom=ririn.moe; dkim=pass (1024-bit key) header.d=ririn.moe header.i=ume@ririn.moe header.b=fkA6272z; arc=pass smtp.client-ip=136.143.188.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ririn.moe
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ririn.moe
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E800471401;
+	Thu, 10 Sep 2026 11:23:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.197
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789039437; cv=none; b=F7nRI6HSn8mR0uAx+A6QenkYpOgkp9NAqpgDW54KzVtrxYgCuEx7F9Sj6D/s2U8MdRk8uSm+ELFXuV+PKiNVxBBv3SOQ3yip6ZsFHaI01dmBkOl+eMbxCZIPwr89BAoCc+2cs1WsLcIbpwA6sIyXihEVOv3oEELEyeu8FmO9+6E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789039437; c=relaxed/simple;
+	bh=TbPcGhmhvAT+HJa1L0LlMMi+b1WBwQBL9mQBG7evoUI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=L7DKuhYA93xWfT2BCk+WGI1fplcjTzB/NVHKREut2kzDDMKClgbO/5fYFVOH/mNdzVhGwXhSs70GUibGLaL7uejCHIym92kmeFFgxNV1GPCIHZyXmjc8uetgg4ya6tWNWTYaxZC1FvFcHl0okJta5U3hVCpjfJZrMnx1L/DLISQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tju.edu.cn; spf=pass smtp.mailfrom=tju.edu.cn; dkim=pass (1024-bit key) header.d=tju.edu.cn header.i=@tju.edu.cn header.b=OTwclKvz; arc=none smtp.client-ip=45.254.49.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tju.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tju.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ririn.moe header.i=ume@ririn.moe header.b="fkA6272z"
-ARC-Seal: i=1; a=rsa-sha256; t=1789038601; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=BlI7yj2cTzqitcg1RyLjoFez3q6yI5n1FBgHprVEbpeVHuEtODo23S8fMuHVz/rDLwuVpLqUVHwJzUlGkSYUzre3KiTCIHVh9qZtRaTvciL/l+k8Lc18pqgGgg2dImZpTfya6QLOn44Qw/0dGKkYRd0Myj4/cSRSpDXc9X756oY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1789038601; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=qKKZgbOlQCsryI75PR/9wT+XobNyTyR48dUp/vjmzbk=; 
-	b=M+bt9TmJsdCn/XEOmMYL0FscVqGhRSmMA2P9HBoye/YmAns5wSWm716pfJTWWy/nnZSaTQKcph4N8npik/NcMw7Uoh4GN6ZG9lsWVW8LKgUUqIVTn0i/orMrmZlO+NjdcpkmI2fF/sH/yGLBjtUBwPd51rpTN9IlzY6V867rRaQ=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=ririn.moe;
-	spf=pass  smtp.mailfrom=ume@ririn.moe;
-	dmarc=pass header.from=<ume@ririn.moe>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1789038601;
-	s=zmail; d=ririn.moe; i=ume@ririn.moe;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=qKKZgbOlQCsryI75PR/9wT+XobNyTyR48dUp/vjmzbk=;
-	b=fkA6272zZ7b1Q7OcCMyABUQewzB9rBS4zdQi7JhMd3Gt5MlcYLeogPkHkcucC6Y1
-	51TmoU3KQP9c0DyX+MKnQhLBELcObQ5+qAYQapItUwHdGq8UON51grjp0uECEOswOAe
-	6xDvrZp6XXe7TNRdhzMv1pPVaUTLqHQ5Cdzjo+Mk=
-Received: by mx.zohomail.com with SMTPS id 1789038600669300.837404118411;
-	Thu, 10 Sep 2026 04:10:00 -0700 (PDT)
-From: Ririn Ume <ume@ririn.moe>
+	dkim=pass (1024-bit key) header.d=tju.edu.cn header.i=@tju.edu.cn header.b="OTwclKvz"
+Received: from tju.edu.cn (gy-adaptive-ssl-proxy-3-entmail-virt135.gy.ntes [183.242.150.9])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 4d48b904a;
+	Thu, 10 Sep 2026 19:23:43 +0800 (GMT+08:00)
+From: Yibo Tan <lhfff@tju.edu.cn>
 To: Jiri Kosina <jikos@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Nikhil Chatterjee <nikhilc1527@gmail.com>,
+Cc: Zhang Lixu <lixu.zhang@intel.com>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
 	linux-input@vger.kernel.org,
-	Ririn Ume <ume@ririn.moe>
-Subject: [PATCH] HID: bpf: Accept 123-byte pen descriptor in Huion Frego M quirk
-Date: Thu, 10 Sep 2026 11:09:00 +0000
-Message-ID: <20260910110900.142615-1-ume@ririn.moe>
-X-Mailer: git-send-email 2.55.0
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1] HID: sensor-hub: synchronize multi-value read cancellation
+Date: Thu, 10 Sep 2026 19:23:38 +0800
+Message-Id: <20260910112338.4171983-1-lhfff@tju.edu.cn>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -52,59 +39,69 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+X-HM-Tid: 0aa08b0f2ec903a1kunmc4544b99195297
+X-HM-MType: 10
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaT0xPVhlKSUsYHR1ITk4ZGFYeHw
+	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlKQ0hVSU9JVUpOS1VCWVdZFhoPEhUdFFlBWU9LSFVKS0lPT0
+	9LVUpLS1VLWQY+
+DKIM-Signature: a=rsa-sha256;
+	b=OTwclKvz66OqBCpX7SVMA1AQCiVSYfzZ79HddhpZthgAdsb+qmErSJERTb+NFRk/qHSrZ1kb2ja1DgjyuD++E9V2BlecA30uL+uv2MXCmMfSJ/djgx1tYBFbQjmKvUQYQfarBPNCL4qlo1b8j3FXVKhQ0hTd99uZUhCS6J5iG0g=; c=relaxed/relaxed; s=default; d=tju.edu.cn; v=1;
+	bh=pKIciFMSv+IZt3QVmdUJPW2BaKBKIvGXVnkqwCkWS64=;
+	h=date:mime-version:subject:message-id:from;
 
-The L610 pen descriptor is also seen 2 bytes shorter (123 bytes) than
-the 125 bytes the quirk expects, so probe() rejects the device and the
-fixup is never applied; the second side button stays reported as
-Secondary Tip Switch.
+sensor_hub_input_attr_read_values() publishes a caller-owned buffer to the
+raw-event path. If its interruptible wait times out or is interrupted, it
+clears pending.status without taking data->lock and returns.
 
-The anchor bytes checked (offsets 0-3, 16-17) are the same in both
-variants, so accept either length. The fixup still rewrites the usage
-only after every anchor matches, leaving other layouts untouched.
+sensor_hub_raw_event() may already have observed pending.status while
+holding that lock. The caller can then release its buffer before raw-event
+finishes copying into it.
 
-Fixes: 857e71cb0a53 ("HID: bpf: Add Huion Inspiroy Frego M button quirk")
-Signed-off-by: Ririn Ume <ume@ririn.moe>
+Take data->lock when cancelling the request. The raw-event path now either
+sees the request retired or finishes the copy before cancellation can
+return.
+
+On an uninstrumented PREEMPT_RT kernel, a valid 16-byte quaternion report
+overwrote a live futex waiter's plist node with the report's 0x41 payload.
+Two vulnerable runs produced the same general protection fault in
+plist_del(), after 471 and 91 completed trials. The locking fix completed
+two 10,000-trial runs without an Oops, panic, warning or payload signature.
+
+The virtual provider setup and FIFO assignment require privilege. The IIO
+read, signal handling and futex operations run as uid 65534 without
+effective capabilities. No physical-device or normal-priority hit was
+tested.
+
+A source reproducer, kernel configuration, complete serial logs and the
+vulnerable/fixed result table are available at:
+
+https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tree/main/cases/hid-sensor-quaternion-root-a
+
+Fixes: f784fcea4506 ("HID: sensor-hub: Add sensor_hub_input_attr_read_values() for multi-byte reads")
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Link: https://lore.kernel.org/r/20260610083849.067A11F00893@smtp.kernel.org/
+Cc: stable@vger.kernel.org
+Assisted-by: Codex:GPT-5
+Signed-off-by: Yibo Tan <lhfff@tju.edu.cn>
 ---
- drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/hid/hid-sensor-hub.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c b/drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c
-index e6ba2295dc77..d081b7c0b771 100644
---- a/drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c
-+++ b/drivers/hid/bpf/progs/Huion__Inspiroy-Frego-M.bpf.c
-@@ -15,6 +15,12 @@
- #define PID_L610			0x2012
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 6470a290ebfc..80f18aff6f1f 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -335,7 +335,9 @@ int sensor_hub_input_attr_read_values(struct hid_sensor_hub_device *hsdev,
+ 		else if (cycles < 0)
+ 			ret = cycles;
  
- #define PEN_RDESC_SIZE			125
-+/*
-+ * The L610 pen descriptor is also seen 2 bytes shorter (123 bytes); the
-+ * anchor bytes checked below (offsets 0-3, 16-17) are the same in both
-+ * variants, so accept either length.
-+ */
-+#define PEN_RDESC_SIZE_SHORT		123
- #define SECONDARY_SWITCH_OFFSET		17
++		spin_lock_irqsave(&data->lock, flags);
+ 		hsdev->pending.status = false;
++		spin_unlock_irqrestore(&data->lock, flags);
+ 	}
+ 	mutex_unlock(hsdev->mutex_ptr);
  
- HID_BPF_CONFIG(
-@@ -44,7 +50,7 @@ int BPF_PROG(fix_secondary_barrel_rdesc, struct hid_bpf_ctx *hctx)
- 	if (!data)
- 		return 0; /* EPERM check */
- 
--	if (hctx->size != PEN_RDESC_SIZE)
-+	if (hctx->size != PEN_RDESC_SIZE && hctx->size != PEN_RDESC_SIZE_SHORT)
- 		return 0;
- 
- 	if (data[0] != 0x05 || data[1] != 0x0d || /* Usage Page (Digitizers) */
-@@ -65,7 +71,8 @@ HID_BPF_OPS(fix_secondary_barrel) = {
- SEC("syscall")
- int probe(struct hid_bpf_probe_args *ctx)
- {
--	ctx->retval = ctx->rdesc_size != PEN_RDESC_SIZE;
-+	ctx->retval = ctx->rdesc_size != PEN_RDESC_SIZE &&
-+		      ctx->rdesc_size != PEN_RDESC_SIZE_SHORT;
- 	if (ctx->retval) {
- 		ctx->retval = -EINVAL;
- 		return 0;
 -- 
-2.55.0
+2.39.5
 

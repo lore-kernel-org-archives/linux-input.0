@@ -1,173 +1,137 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FDCC3AFD0E
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 08:43:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38FB93DAAA0
+	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 09:14:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789029832; cv=none; b=sIFJub+TOHIj2X15yQmId4QxF5j6yjEJkY+jpGxMQwZNu/uPeit3caHX9wBy1z/ZlOuWBeO3xSGRbzEGR8dI0Hrl8Oahd55M6KFN4cwkVCbkxdYvtrbwF8dru99PIHQ7wMefuClmYjxJEx2hWwmzjvBscDfkgAseOM2a3ZRIuAc=
+	t=1789031697; cv=none; b=poaMS6BLNwhaBcMsTgY3wn9fLJixS2ThabbnmRZRY6oaC+aptXl58Xu+j3nG94nCzNU8PE2P8IgeGLtmpEeZSQuVfEcCOd/LzBnbROKR9YqqWAmtqrvbEWftPsk+l9GVeplRFtEa6jL6UJo1+RkrvITrTtR7ZbNUHeAAjugzRsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789029832; c=relaxed/simple;
-	bh=eEr66d69pRMLa7uye6L6l7GSlIwsxhWoejkxpcsCj7w=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=PurIbKca7LAeBbp7qrtfTLOPHaHFeDPlj8AI7Bn0q6AHiaZWOiqteP23CMJI4Ab6fNHYcx4X2QWBsUNcBV8BQOAGLhVd3TFVTEXBGdQGTJFyFGdtyCaiUuWiBrsPo/0PF519WTNG+Mgf08IakkbUXW94vrP3v536HvcecGbRT9c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=dYpbk0P4; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=MINZsS26; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1789031697; c=relaxed/simple;
+	bh=NRKScEnPh0zPdlf0AwpfifvXkF3txZwkPfUFOR044BU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AbqReyXJrkWEyQmRT5W56cW1UdDnbgrYndF+oFRmHr6K6EI6TpuXRzM8An3UFbT0dOv635MODD2qUNsv8J9cd2a9eZMqdYI0aC4ewoZjEJqfwK+aUb9G6viYDRtGznPmVsqVFa/oSv1L6+Vzy/UlIqjmpl0zE+wtWfRAD+pJBTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pbGJ+MYZ; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="dYpbk0P4";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="MINZsS26"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68A5Ga2F1108036
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 08:43:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	MtiGDKihwWXaJj+ph8EISAiatJoUykhVq4J6XnBzE/Q=; b=dYpbk0P4OrOxhO21
-	WzPEyM7wBniiHqjL7jQPgwTSSMCEJVEMXIBKdmV7Qmw0fYaXekS6bedaq/pbnSWZ
-	KJJJLBNYjOSQzahOoBgj6/D31UflfXGo3oXYrrjWFPE19IWZffCtQWtmW5VvjV8y
-	84EE7slIhcdO9N0p3hygd090d84SoXzzRT6npNNXYOqq9cOWxhZdNHnzbXuG/Kkt
-	GG1L3gsvYQSKcQ0vPhTha7S2Y6oGXLse6tpcTv39zqMb4UjhmHmFW+/OkM+RcWox
-	HbFcIvArlpYMIkhzvMHnaWoFjqgDOyVXbsyE0KBRLtMpDEl2Y/DJJdI6iqWreBsC
-	hGaYiA==
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com [209.85.222.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gkcyhaw2s-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 08:43:50 +0000 (GMT)
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-933023a5980so729907985a.3
-        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 01:43:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pbGJ+MYZ"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48589798dbbso5608434f8f.3
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 02:14:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1789029830; x=1789634630; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:from:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=MtiGDKihwWXaJj+ph8EISAiatJoUykhVq4J6XnBzE/Q=;
-        b=MINZsS26CJKuWtuoK1AO1waLV4vCcikgfiw6UQa1eAy4bklP6P2IvKAyBwgBv9SmH8
-         HOwKTNHDBpcf/NzteWCqcvnV5QEXn+GVJKen/hsibSPSVvXQb0PdTsTK7lHx20WtEBui
-         wxRn8mrd2/OOyCy+13cvScoUecMy+W5anNnKVsCvduoRDFRH4FmAoGLjBU5RFL9dH9ky
-         AssAmiUzgZWhOd19y+rZ4reA4lnEcCENv0O0H0dbJOrjL6zltUefFJqji4Hd01QBf8Ls
-         fMrViv9iUzopUe3WS1AOi3wNAvvSQS36jbbN+7+mrwpqziRLwOl/XIT+YfRVMh2OWT7J
-         82SQ==
+        d=gmail.com; s=20251104; t=1789031693; x=1789636493; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=M4Bwx1DhVI6FUsnbRcI8yiZi82mxSdYhwi0jzDrPMfE=;
+        b=pbGJ+MYZqSXeCbCxdZoTfArzHkOBPnHCD/Cogl5BL1zpbOKh1zAAz9C1IoXQFy3f5Z
+         g4970VGjUkYlUEu7ItdnWUp5SmoZNzkBCd4IY24aygYPgJ/jzNsmWQXEj7aCyFajNg5G
+         +wdLTeTgQshpQcoytCRt+LooPhAmoK90Ir5pHegLYYvANY/2pzbFFJOvG3eqQgwg3LXm
+         /g+PMWgYlP5nFvkAQ97Qgllg5by+weJjGWNsUEP0GtuFf0aHVLYhK9XvqJrxAOEibBoC
+         1JwMPl8HExV2OO1y83oE5WtfreuFaCrqlPz6C589wqnKlaqUqVfaLFkqfr7XKpbUiElM
+         qnbA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789029830; x=1789634630;
-        h=content-transfer-encoding:content-type:in-reply-to:content-language
-         :references:cc:to:subject:from:user-agent:mime-version:date
-         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1789031693; x=1789636493;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=MtiGDKihwWXaJj+ph8EISAiatJoUykhVq4J6XnBzE/Q=;
-        b=EK2RGgjjbwzkZbGoV54BbUBLwDWDlKxTQX4WXUCrXx/1Zy0O3SbT0A68zsgAdP1RL+
-         38eRLtM7mV1zrspfLirlwOfu6i1iVd7yO9As1TB8KyiM4SFTHUnvrCiUNJzVA7Q6Aqzi
-         esKYMgqkswb9zGHeYilBqRht5a+hhuyiRUsbMc6fsfHCLCfIgOZbxdgzUL5YLA8+K7f+
-         kfhZPV4TO99LOEt3YH7hMQvohgQ6hmCqogyuwRHAco0A073ZHV5BHxXxIqSwf5QomKtv
-         DmR+lKfUe+JX1gYqaef9ICpD4AtM1Ah7oY7K3LOQZKNdTePAWskwMFXK0l6YwHQ15Zm7
-         SrTA==
-X-Gm-Message-State: AFuF++kI3mD21U+1dzxaiG+yDGGwF4VxoaWUH6l0NdELuQXlhKi5naD7
-	Oz6Fns664giLYHXpsUFadffB/QBTvEmh8MrJzhkznSIGMB3aZdQkzkGAFLEz4PBjwt49IW3Lwq1
-	BZdzzVzgKGvtC49eop2DTt1NkrNsIqjy+3lSZS3WKSUIOch3zTutuj3LYmT+a1w7PJw==
-X-Gm-Gg: AYBFou1JPAjV43orr+UZcjIL0fz9oQu0QHZ4WprrKUyHeKVUcHBuD8ZRcCa4+YVbC3F
-	dje/zwa/7pnaEk12apAyIDn9BxcBuFgozETaUjFq4DSf0O94MNsR0okPfHzj6UHY4qYWyUDB4Tr
-	8lR04ygPiBHDHsxwoJrbUqiUttghBnRzRzTz55Do+dGt/8/McL4qfnb+JsAWq/UDBrMrGsVdmuE
-	X798fpgs/MNLODrtNjbV69XXvjx+9jchXIBHBQ3jaxjJa9tTHHPfELOZnWuMjwfkvpV3rwX8FVP
-	EusWuxv9H1g1Nf2oayr5CDxDc+6zMzI71KzjZCmq5eELpPiCuCscIEWTWj6XzdbNfWMV4QhWWf3
-	zVAcX8F8hr9GWTL8NaONtf9dutysgsL8bE2ssD8Ax0eGzRE39SiM+1JNOYE0Ze6MhLMKBCHvxnB
-	ICtaEmkUeyRHjSCWUrAL2ORvSMIMvUPP2Hoeec9uPOsDUe19ATSTnDyGdjp1d3Q+Qu6NA=
-X-Received: by 2002:a05:620a:8423:b0:938:fc91:91ce with SMTP id af79cd13be357-9398036365cmr3566661485a.20.1789029829641;
-        Thu, 10 Sep 2026 01:43:49 -0700 (PDT)
-X-Received: by 2002:a05:620a:8423:b0:938:fc91:91ce with SMTP id af79cd13be357-9398036365cmr3566658685a.20.1789029829086;
-        Thu, 10 Sep 2026 01:43:49 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c26204ecdbcsm801689166b.25.2026.09.10.01.43.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 10 Sep 2026 01:43:48 -0700 (PDT)
-Message-ID: <bb913cfc-288b-4ce6-befd-76c774de4d02@oss.qualcomm.com>
-Date: Thu, 10 Sep 2026 10:43:47 +0200
+        bh=M4Bwx1DhVI6FUsnbRcI8yiZi82mxSdYhwi0jzDrPMfE=;
+        b=NF0D3AaTb3HWiYDSoBx508Jdg6qR86vZ59mAd+ClXJP+1ZtRFwYtyvfUqwWVtof0wP
+         dI1V6QIS2pyXk8mGKZ0m/gFcdm88ppk4Iwo4/NnnIJTZY34A55ePQep+qh47//ke0HRm
+         hxqP5F3622kKfkntA2F2M2cub/zLVZdcf/yl7hFDszk3dA7Xp/bmaEK8knXw7OCAf8ha
+         4t1icef/6VdsncBtXZdMADuObv0KQDh8IjgRenfjnBX1L1pYpAiMc6cUMUGWcokp2VDp
+         sCjMcsJ+BAdBIZf9/ObM9tNRL4JV6pR74J46IDa3GGdrLCKQJFAisaREI5fdceq4c/g6
+         Krgg==
+X-Forwarded-Encrypted: i=1; AKwUvBxzzwzz509P7/NOL9DfBmP/CcU1JKLi5PsCNbzid78oxlLjIPB5WuNBqc55wlvwJeDEcSnl42geiKzvnQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++mz05Aw1EcNZqAA9MEfVO5aID0y2PVuLOOyumraJ2FgMliLVtse
+	bIWUYNMcmTU/CYmDpj3wFmLmiqnqUCRIlbuLCR3hCmYv6x5j87NEDmZdNPVtF0+8
+X-Gm-Gg: AYBFou29aTXlgDXguKLIH3OvQSOS1oeEvi8CSvn+nt04fJtffdJsVxq0Q6JrqMb1Aid
+	5Q/AC77stlgXKkXRNx/ROwRhWTkxJH127E1Ck009k5acFtiyvnui1b4Jvlpe/SHaoEt178IMjxw
+	djWbNdlA9JY695XCEmCCEEMY8YOHUUEda0uyIo1a+CtevZsJuH3x6u+uFMX6I7kb3jFo15hFwY3
+	1ggP+MQHs/IUgGkkepBbSbfrkE3YMbM5pYhjn0pcZHTjMUndw8FHhu9WHqURNOORH/xRWbo8Zcq
+	3xI7ZShskXD7DeqIGFDNXHImnj1CHyfgNEPxLKz+4d5WzOKn7ABRFjxe9jZ5Lnwntfek5pmn98x
+	/zViwr+qPv0G1MdExLVRt1jo5nI+R9smfoBtnPydUJgE/aCP105V5aMiQRHvmuli6jpTZd1F+68
+	kiKYeCQzZXVVLmqiTZYUD+Wbq1+MD3wTS0vdUUSIYL6vd3e0cQwDrfxQL1Ne37JKfJ+dyprucvk
+	aJWCXJ2xJhwbg==
+X-Received: by 2002:a5d:5848:0:b0:486:e37d:c58d with SMTP id ffacd0b85a97d-486e37dc646mr2555494f8f.22.1789031692803;
+        Thu, 10 Sep 2026 02:14:52 -0700 (PDT)
+Received: from Empers0n ([193.23.219.104])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-485885bbb51sm52065435f8f.30.2026.09.10.02.14.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Sep 2026 02:14:52 -0700 (PDT)
+From: Vsevolod Nevorotov <sevanevorotov29@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>
+Cc: Henrik Rydberg <rydberg@bitmath.org>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Vsevolod Nevorotov <sevanevorotov29@gmail.com>
+Subject: [PATCH v2 0/2] Input: add Synaptics TouchComm I2C touchscreen driver and bindings
+Date: Thu, 10 Sep 2026 16:14:03 +0700
+Message-ID: <20260910091405.354058-1-sevanevorotov29@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Hans de Goede <johannes.goede@oss.qualcomm.com>
-Subject: Re: [PATCH v3 1/2] Input: soc_button_array - fix MS Surface Pro 11
- probe failure
-To: Sergey Lebedev <lsa.uz@pm.me>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20260909093934.29411-1-johannes.goede@oss.qualcomm.com>
- <20260909102521.67488-1-lsa.uz@pm.me>
-Content-Language: en-US, nl
-In-Reply-To: <20260909102521.67488-1-lsa.uz@pm.me>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEwMDA5NyBTYWx0ZWRfXzDelDPif0hM9
- gFDnxAXlYGW8csMk7ZgTXWD0tshghI7WJIy7kDhMppxiFdY7dyRksRtpxC1+CwvJkogvDE68xzb
- A5Bfk43gakeSjMhUgyrOZilKjif1tEPIFyD1iTInDZQDbwk0aF5kAifzr0npwkaZ1jI0zuetfZV
- c71/PGbcRawlsUDhVDSEocF+elb4eO0nWTH6ba0Gh5kU+Dp0NxXjljgDByzsW64D9qOWpBsG1af
- EaJF5e45wlf2yUTneKPZjiqGIWNXSxi7J7t4CqG7zvXqL5lRFZuC+LtIxvBchLyzWX2JgvSHMcc
- /26MW5tKZ/brpSc71uVV+2V+LZL3VyskYBOV7JMrckpX+cRT2F6RiDzNSdLM/fVD9FFGwfFhMLN
- Ds2AlQalufWttlMtCuRf6nWAepJxOovvgRHp+n54S5jq0o0A4EJAfNgLj8wkXmQ8SPUQbDqT+jr
- 570PgBmoO7Y+oir8VnQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEwMDA5NyBTYWx0ZWRfX/IV2iBSJqk1u
- O1dO/mHEnmk4OolejoEF9t+RizgdrONQFQoxexBFeDRezZKolCj4WEd+pXfzFEVDvi1Ol0EnGt6
- Vt4f1nHepOHua4+FVqjL+llftO9/hP4=
-X-Authority-Analysis: v=2.4 cv=YKgKWhGx c=1 sm=1 tr=0 ts=6aa26dc6 cx=c_pps
- a=hnmNkyzTK/kJ09Xio7VxxA==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
- a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22 a=ruf0KxjLdvrAcJlDzccA:9
- a=QEXdDO2ut3YA:10 a=PEH46H7Ffwr30OY-TuGO:22
-X-Proofpoint-ORIG-GUID: HCfRkq3VK4H5xltlBHxB__eGiJ9b89y1
-X-Proofpoint-GUID: HCfRkq3VK4H5xltlBHxB__eGiJ9b89y1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-10_02,2026-09-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 adultscore=0 malwarescore=0
- phishscore=0 impostorscore=0 spamscore=0 priorityscore=1501 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609100097
+Content-Transfer-Encoding: 8bit
 
-Hi,
+This series adds devicetree schema bindings and an input touchscreen
+driver for Synaptics TouchComm (TCM) generation-1 touchscreen controllers
+connected over I2C, such as the Synaptics S3908 found in the OnePlus 9RT.
 
-On 9-Sep-26 12:25, Sergey Lebedev wrote:
-> Hans,
-> 
-> It fixes it. Sixteen consecutive boots on the Surface Pro 11, every one with
-> both gpio-keys devices present and MSHW0040:00 bound. The baseline in my
-> report was 13 boots in 40.
-> 
->   boots                     16
->   buttons appeared          16
->   first input at            1.242 - 1.377 s
-> 
-> For comparison the 13 stock successes ran 1.28 - 1.78 s, so no boot here was
-> slower than stock managed when it worked, and the spread is tighter. The unit
-> that binds this device by hand was disabled for the whole run, so nothing
-> masked the result.
-> 
-> Built on 7.0.0-30, Ubuntu 26.04; both patches apply to that kernel's copy of
-> the file as-is, 2/2 at an offset. Ubuntu ships the file unmodified - an
-> out-of-tree build of mainline v7.0's source carries the same srcversion as
-> Ubuntu's own module - so the tested source differs from stock by your patches
-> and nothing else.
-> 
-> One note for whoever tests this driver next rather than about the patch: on
-> this install soc_button_array is in the initramfs under MODULES=most, so
-> replacing the module under /lib/modules does nothing until update-initramfs
-> runs, and modinfo will report the new one while the old one is loaded. Three
-> boots of mine were recorded before I noticed. I checked
-> /sys/module/soc_button_array/srcversion on every boot above.
-> 
-> Patch 2/2 was in the same build and caused no regression, but I am not
-> claiming a test for it: the buttons appear here, so this machine's ACPI
-> descriptor package is not empty and the new check is never reached. So for
-> 1/2 only:
-> 
-> Tested-by: Sergey Lebedev <lsa.uz@pm.me>
+The S3908 and compatible generation-1 controllers boot autonomously into
+application mode directly out of their embedded flash memory. The driver
+implements communication using the Synaptics TouchComm packet protocol,
+retrieving device identify information and handling reports through a
+threaded interrupt handler.
 
-Great, thank you for testing!
+Features supported:
+ - Multi-touch reporting using the input_mt framework (Protocol B)
+ - Dynamic touch report layouts and coordinate/pressure decoding
+ - Standard touchscreen properties (axis swapping/inversion)
+ - Low-power wakeup gestures (double-tap to wake)
+ - System suspend / resume with deep sleep transition
+ - Regulator and reset GPIO lifecycle management
 
-Regards,
+Changes in v2:
+ - Fixed continued-read chunking in syna_recv_message(): accurately track
+   stream bytes including the trailing 0x5a padding byte, request full
+   64-byte I2C chunks (up to 62 stream bytes), and ensure trailing padding
+   is consumed and verified even for 60-byte aligned payloads.
+ - Clamped active touch object count in syna_parse_touch_report() to
+   ts->max_objects and guarded offset calculations against integer overflow
+   and OOB access in syna_get_bits().
+ - Made regulator power management idempotent with ts->powered flag to
+   prevent unbalanced regulator disable warnings during teardown if
+   hardware recovery fails; power down controller and propagate error code
+   on recovery failure in syna_resume().
+ - Removed touchscreen-size-x / touchscreen-size-y overrides from driver
+   and DT binding example, relying on native resolution reported by
+   controller firmware.
+ - Documented mutex locking contract on syna_exec_command().
+ - Added explanatory comments for ABS_MT_PRESSURE and TOUCH_MAJOR/MINOR
+   default limits.
+ - Sorted TOUCHSCREEN_SYNAPTICS_TCM_I2C alphabetically in Kconfig.
+ - Fixed commit title casing and checkpatch warnings.
 
-Hans
+Vsevolod Nevorotov (2):
+  dt-bindings: input: touchscreen: add Synaptics S3908 controller
+  Input: synaptics_tcm_i2c - add Synaptics TouchComm I2C touchscreen
+    driver
+
+ .../input/touchscreen/syna,s3908.yaml         |   69 ++
+ MAINTAINERS                                   |    7 +
+ drivers/input/touchscreen/Kconfig             |   15 +
+ drivers/input/touchscreen/Makefile            |    1 +
+ drivers/input/touchscreen/synaptics_tcm_i2c.c | 1066 +++++++++++++++++
+ 5 files changed, 1158 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/syna,s3908.yaml
+ create mode 100644 drivers/input/touchscreen/synaptics_tcm_i2c.c
+
+-- 
+2.55.0
 

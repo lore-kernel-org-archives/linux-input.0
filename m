@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50DF4457E7F;
-	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E504434984;
+	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789116675; cv=none; b=gFF0Xtj9R6URGEopZoW+E6bDQzjnAxVGL+jsHfZUPVLBx2fjVT4fA5cENva1LKIRQS9JtZp0BUz5hFBno74bcucLSNBsi/ppzjCkAGlVb+Go6BCO+qOLU6DUA8UCJA1htlBQyNdQjuyKu82dNlLnJECjrlYg6/mPvHIO5oGUlgY=
+	t=1789116675; cv=none; b=FujaL1EeHqPtO6LrVeADNV+LWcAFaT+Zxahf32vb4Gkh86mmiK3v2ik+sgQnpNgQAk7PCDbCSVxv5/pJk9U5p88IM38FudoTqsxdkLoSvuxt+7g+XDH0JuDWZaApNxR075Ong5/jYxH6bHFny1uFZ0kcvywzRN8KqO20zWyIrSQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789116675; c=relaxed/simple;
-	bh=Hm5UgdxOKs4EzgGRfysTmdMaB7U/SfJ1G/Cdqf0HRuU=;
+	bh=07d8wKscWXVq7RDJjHkW9XddOX815xGvrx1VHtKkGvs=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=RejD5mAdXTVSnUJRhOFENIBD57u6zZkBbi7/TlBmVhWO78UdDICX6xPW2FwU+UnRigdfXBTaKLpFAQZszRexLiUiY4F8gB77+T0kD+nHUpWlS4g9lHivaYpYmES0bBj1pUWYi5wvc04H3jWJu1PioIPEl7cxsjlHcmS/PoYPLsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uPYANlzL; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=AMxKuesPyy1a3/zHEAdAfs44OWPrXQaVtwDMlo58D/TzOUyU/ETSRXJuW7xmHluYjGalrv6JJ3d4GiqHyr8RST1efz0H1/IOoyWZJhrcx+iZtLCY5cL1Rwmqpu8KqvA2QIl4UxOqGoGh1hZkoRiLEDSIjB1kVWn41Ffft9DKWnA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VF5ylQ+2; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uPYANlzL"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id BDD07C2BD05;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VF5ylQ+2"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 92810C2BCF5;
 	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789116674;
-	bh=Hm5UgdxOKs4EzgGRfysTmdMaB7U/SfJ1G/Cdqf0HRuU=;
+	bh=07d8wKscWXVq7RDJjHkW9XddOX815xGvrx1VHtKkGvs=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=uPYANlzLwXDTYkWNJ76OqedN/OFG63d9oGEZsrsiNK7RHEZDEwSwktnrrlbfVRxCG
-	 QlunbUZ92xJW2cUtmP+eolcm1otlVdNpLZIthVL3txTg6qklHqniT7RH5sCe45CMhj
-	 tYjF/aZDi6KdkZK0MdJ/A8/XotikF4i7aNoyqLhf5q9mUxpwIUacH/5uXRkXjJ2Qz4
-	 UqFxgpcwMxPFDEM7P+JYQhKtVpe3oBpjLnyyGm3jwQfTXqNU9C03qvYoV1uz8sbGzr
-	 2CqBIoMvlLkqIx1Rsf4DFG7hxWgkEMrQDBO8KxU3V7kSuwXBaqYkaS491cd/Rt+r55
-	 YSXrJ+SY7APwA==
+	b=VF5ylQ+2c/h0Bl+82CoyVZ2QgmKthihLuNpr9gwMdtAbDCuGWaVgpWEuLrmAYyh5f
+	 y9PaJRwNV9by3p9x8fFUfOcl4+y5PmZYaBD8129bZ68ekJ3G3Ev2aWTXxhi+kLNu41
+	 8i9bS0sbHnJB9DuBetPM1iwV7w3SlA94CBS4H89x+B/GLWYSrWWx8pjAkK/Dx6o41B
+	 A3Qw925Xux6my/4yptEPZrfgkoKs4AVR4ePz47rVhLbSpIJG/G08Uy0HlAkbWpPfH3
+	 M+y3tTG1wwhtwR0TI61JLI85jAyFhqI0HGlzdStWHPrGrHxmFcw05lmWhF1FKIIDPj
+	 tld0n7NfQE68Q==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3050C88E57;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BAC6C88E50;
 	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
 From: =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI_via_B4_Relay?= <devnull+kavakliyigitcan.gmail.com@kernel.org>
-Date: Fri, 11 Sep 2026 11:51:01 +0300
-Subject: [PATCH RFC 04/10] drm/panel: novatek-nt36672a: add Tianma FHD+
- video mode panel
+Date: Fri, 11 Sep 2026 11:50:58 +0300
+Subject: [PATCH RFC 01/10] dt-bindings: backlight: add Kinetic KTD3136
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260911-ginkgo-submission-final-v1-4-0e68e63a18d4@gmail.com>
+Message-Id: <20260911-ginkgo-submission-final-v1-1-0e68e63a18d4@gmail.com>
 References: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
 In-Reply-To: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
 To: Lee Jones <lee@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
@@ -69,11 +68,11 @@ Cc: dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
  =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI?= <kavakliyigitcan@gmail.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=8274;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=2380;
  i=kavakliyigitcan@gmail.com; s=20260911; h=from:subject:message-id;
- bh=hZNePY1tgLgGDhJlBHE8AhCXwjmbp4/rJdgWSLDow9Q=;
- b=C+ciPbyMZVAEuncYYE2u1di4xZ9AFgGKCptzeBvt0TRacT655SrBowEZXKQ98r9WOyP65qB4j
- AqhdovXIjwFAHQXfvn9XxDAykUtKO+IkdmNhFKTvW82eb5kIvOUbkow
+ bh=1qOWka2RqpGg1tbdhR9VbVnp2Dr9kAnrMfXquGM3d6U=;
+ b=tPsC38NGiMj10cf2MHZTTpvh8GU5kjYbScAMNbDcYn3V2e+KSk4lCvwoX6GGsgBKF0/jvxY1j
+ 92U/sQgU3zNC9FOygauFmLnU35Ax7LZfLjiF0lcSDwfW4mxZjFKgCHj
 X-Developer-Key: i=kavakliyigitcan@gmail.com; a=ed25519;
  pk=W2GaxVotULs2vAjRMMLheaDtMMYs4037zO1LVVfFtPI=
 X-Endpoint-Received: by B4 Relay for kavakliyigitcan@gmail.com/20260911
@@ -83,235 +82,90 @@ Reply-To: kavakliyigitcan@gmail.com
 
 From: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 
-Add support for the 1080x2340 Tianma video mode panel with Novatek
-NT36672A driver IC found in the Xiaomi Redmi Note 8 (ginkgo / SM6125).
+Add devicetree binding documentation for the Kinetic Technologies
+KTD3136 3-channel LED backlight driver using the official "kinetic"
+vendor prefix.
 
-Changes:
-- Add 1080x2340 display mode timings (183.025 MHz pixel clock)
-- Add verified DCS initialization sequences for pages 0x25, 0x20, 0x24,
-  0x26, and user command page 0x10
-- Add standard DRM panel .enable and .disable callbacks to coordinate
-  display on/off commands with active DSI video stream
-- Set prepare_prev_first = true for host controller synchronization
-- Optimize power-on reset sequence to nominal 10ms timings
+The device is controlled over I2C and supports an optional hardware
+enable GPIO line (enable-gpios), supply regulators, and standard
+backlight brightness range properties.
 
 Signed-off-by: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 ---
- drivers/gpu/drm/panel/panel-novatek-nt36672a.c | 141 ++++++++++++++++++++-----
- 1 file changed, 117 insertions(+), 24 deletions(-)
+ .../bindings/leds/backlight/kinetic,ktd3136.yaml   | 65 ++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
-diff --git a/drivers/gpu/drm/panel/panel-novatek-nt36672a.c b/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
-index 464d9ce47d87dc857c3a565a63156ac79ddeb30c..b69213790441f204016895a391b58f676762b1aa 100644
---- a/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
-+++ b/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
-@@ -34,7 +34,7 @@ static const char * const nt36672a_regulator_names[] = {
- 	"vddneg",
- };
- 
--static unsigned long const nt36672a_regulator_enable_loads[] = {
-+static const unsigned long nt36672a_regulator_enable_loads[] = {
- 	62000,
- 	100000,
- 	100000
-@@ -92,18 +92,12 @@ static int nt36672a_panel_unprepare(struct drm_panel *panel)
- 	if (pinfo->desc->send_deinit_cmds)
- 		pinfo->desc->send_deinit_cmds(&dsi_ctx);
- 
--	/* Reset error to continue with display off even if send_cmds failed */
-+	/* Reset error to continue power-down even if send_cmds failed */
- 	dsi_ctx.accum_err = 0;
--	mipi_dsi_dcs_set_display_off_multi(&dsi_ctx);
--	/* Reset error to continue power-down even if display off failed */
--	dsi_ctx.accum_err = 0;
--
--	/* 120ms delay required here as per DCS spec */
--	msleep(120);
- 
- 	mipi_dsi_dcs_enter_sleep_mode_multi(&dsi_ctx);
- 
--	/* 0x3C = 60ms delay */
-+	/* 60ms delay as per DCS spec */
- 	msleep(60);
- 
- 	nt36672a_panel_power_off(panel);
-@@ -120,15 +114,14 @@ static int nt36672a_panel_power_on(struct nt36672a_panel *pinfo)
- 		return ret;
- 
- 	/*
--	 * As per downstream kernel, Reset sequence of Tianma FHD panel requires the panel to
--	 * be out of reset for 10ms, followed by being held in reset for 10ms. But for Android
--	 * AOSP, we needed to bump it upto 200ms otherwise we get white screen sometimes.
--	 * FIXME: Try to reduce this 200ms to a lesser value.
-+	 * Reset sequence: 10ms out of reset, 10ms held in reset, 10ms out of reset.
- 	 */
--	gpiod_set_value(pinfo->reset_gpio, 1);
--	msleep(200);
--	gpiod_set_value(pinfo->reset_gpio, 0);
--	msleep(200);
-+	gpiod_set_value_cansleep(pinfo->reset_gpio, 0);
-+	usleep_range(10000, 11000);
-+	gpiod_set_value_cansleep(pinfo->reset_gpio, 1);
-+	usleep_range(10000, 11000);
-+	gpiod_set_value_cansleep(pinfo->reset_gpio, 0);
-+	usleep_range(10000, 11000);
- 
- 	return 0;
- }
-@@ -146,19 +139,41 @@ static int nt36672a_panel_prepare(struct drm_panel *panel)
- 
- 	mipi_dsi_dcs_exit_sleep_mode_multi(&dsi_ctx);
- 
--	/* 0x46 = 70 ms delay */
--	mipi_dsi_msleep(&dsi_ctx, 70);
--
--	mipi_dsi_dcs_set_display_on_multi(&dsi_ctx);
-+	/* 80 ms delay as per DCS spec / downstream timing */
-+	msleep(80);
- 
- 	/* Send rest of the init cmds */
- 	if (pinfo->desc->send_init_cmds_2)
- 		pinfo->desc->send_init_cmds_2(&dsi_ctx);
- 
--	mipi_dsi_msleep(&dsi_ctx, 120);
--
- 	if (dsi_ctx.accum_err < 0)
--		gpiod_set_value(pinfo->reset_gpio, 0);
-+		gpiod_set_value_cansleep(pinfo->reset_gpio, 0);
+diff --git a/Documentation/devicetree/bindings/leds/backlight/kinetic,ktd3136.yaml b/Documentation/devicetree/bindings/leds/backlight/kinetic,ktd3136.yaml
+new file mode 100644
+index 0000000000000000000000000000000000000000..f85381c29964529a09989a1ff60d9c9fe4897bb7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/leds/backlight/kinetic,ktd3136.yaml
+@@ -0,0 +1,65 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/leds/backlight/kinetic,ktd3136.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+	return dsi_ctx.accum_err;
-+}
++title: Kinetic Technologies KTD3136 3-Channel LED Backlight Driver
 +
-+static int nt36672a_panel_enable(struct drm_panel *panel)
-+{
-+	struct nt36672a_panel *pinfo = to_nt36672a_panel(panel);
-+	struct mipi_dsi_multi_context dsi_ctx = { .dsi = pinfo->link };
++maintainers:
++  - Lee Jones <lee@kernel.org>
 +
-+	mipi_dsi_dcs_set_display_on_multi(&dsi_ctx);
++description: |
++  The Kinetic Technologies KTD3136 is a high efficiency, 3-channel LED
++  backlight driver with 11-bit exponential or linear dimming control
++  via I2C interface.
 +
-+	/* Frame settling delay */
-+	msleep(20);
++allOf:
++  - $ref: common.yaml#
 +
-+	return dsi_ctx.accum_err;
-+}
++properties:
++  compatible:
++    const: kinetic,ktd3136
 +
-+static int nt36672a_panel_disable(struct drm_panel *panel)
-+{
-+	struct nt36672a_panel *pinfo = to_nt36672a_panel(panel);
-+	struct mipi_dsi_multi_context dsi_ctx = { .dsi = pinfo->link };
++  reg:
++    maxItems: 1
 +
-+	mipi_dsi_dcs_set_display_off_multi(&dsi_ctx);
++  enable-gpios:
++    description: GPIO connected to the HWEN (Chip Enable) pin.
++    maxItems: 1
 +
-+	/* 120ms delay as per DCS spec */
-+	msleep(120);
- 
- 	return dsi_ctx.accum_err;
- }
-@@ -189,6 +204,8 @@ static int nt36672a_panel_get_modes(struct drm_panel *panel,
- static const struct drm_panel_funcs panel_funcs = {
- 	.unprepare = nt36672a_panel_unprepare,
- 	.prepare = nt36672a_panel_prepare,
-+	.enable = nt36672a_panel_enable,
-+	.disable = nt36672a_panel_disable,
- 	.get_modes = nt36672a_panel_get_modes,
- };
- 
-@@ -404,6 +421,79 @@ static const struct nt36672a_panel_desc tianma_fhd_video_panel_desc = {
- 	.send_deinit_cmds = tianma_fhd_video_send_deinit_cmds,
- };
- 
-+static void tianma_ginkgo_send_init_cmds(struct mipi_dsi_multi_context *dsi_ctx)
-+{
-+	/* Page 0x25 init */
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x25);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x18, 0x96);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x05, 0x04);
++  vin-supply:
++    description: Regulator providing power to the VIN pin.
 +
-+	/* Page 0x20 init */
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x20);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x78, 0x01);
++  default-brightness:
++    minimum: 0
++    maximum: 2047
++    default: 2047
 +
-+	/* Page 0x24 init */
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x24);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x82, 0x13);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x84, 0x31);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x88, 0x13);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x8a, 0x31);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x8e, 0xe4);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x8f, 0x01);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x90, 0x80);
++  max-brightness:
++    minimum: 0
++    maximum: 2047
++    default: 2047
 +
-+	/* Page 0x26 init */
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x26);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xa9, 0x12);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xaa, 0x10);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xae, 0x8a);
++required:
++  - compatible
++  - reg
 +
-+	/* Page 0x10 (User command page) */
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x10);
-+}
++additionalProperties: false
 +
-+static void tianma_ginkgo_send_post_on_cmds(struct mipi_dsi_multi_context *dsi_ctx)
-+{
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xb0, 0x01);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x35, 0x00);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x68, 0x04, 0x03);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x51, 0xb8);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x53, 0x2c);
-+	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x55, 0x00);
-+}
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
 +
-+static const struct drm_display_mode tianma_ginkgo_fhd_video_mode = {
-+	.clock		= 183025,
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
 +
-+	.hdisplay	= 1080,
-+	.hsync_start	= 1080 + 90,
-+	.hsync_end	= 1080 + 90 + 2,
-+	.htotal		= 1080 + 90 + 2 + 120,
-+
-+	.vdisplay	= 2340,
-+	.vsync_start	= 2340 + 10,
-+	.vsync_end	= 2340 + 10 + 3,
-+	.vtotal		= 2340 + 10 + 3 + 8,
-+
-+	.type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
-+};
-+
-+static const struct nt36672a_panel_desc tianma_ginkgo_fhd_video_panel_desc = {
-+	.display_mode = &tianma_ginkgo_fhd_video_mode,
-+	.panel_name = "tianma-ginkgo-fhd-video",
-+	.width_mm = 67,
-+	.height_mm = 145,
-+	.mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_LPM,
-+	.format = MIPI_DSI_FMT_RGB888,
-+	.lanes = 4,
-+	.send_init_cmds_1 = tianma_ginkgo_send_init_cmds,
-+	.send_init_cmds_2 = tianma_ginkgo_send_post_on_cmds,
-+};
-+
- static int nt36672a_panel_add(struct nt36672a_panel *pinfo)
- {
- 	struct device *dev = &pinfo->link->dev;
-@@ -428,6 +518,8 @@ static int nt36672a_panel_add(struct nt36672a_panel *pinfo)
- 	if (ret)
- 		return dev_err_probe(dev, ret, "Failed to get backlight\n");
- 
-+	pinfo->base.prepare_prev_first = true;
-+
- 	drm_panel_add(&pinfo->base);
- 
- 	return 0;
-@@ -481,6 +573,7 @@ static void nt36672a_panel_remove(struct mipi_dsi_device *dsi)
- 
- static const struct of_device_id tianma_fhd_video_of_match[] = {
- 	{ .compatible = "tianma,fhd-video", .data = &tianma_fhd_video_panel_desc },
-+	{ .compatible = "tianma,fhd-video-ginkgo", .data = &tianma_ginkgo_fhd_video_panel_desc },
- 	{ },
- };
- MODULE_DEVICE_TABLE(of, tianma_fhd_video_of_match);
++        backlight@36 {
++            compatible = "kinetic,ktd3136";
++            reg = <0x36>;
++            enable-gpios = <&gpio 6 GPIO_ACTIVE_HIGH>;
++            default-brightness = <2047>;
++            max-brightness = <2047>;
++        };
++    };
 
 -- 
 2.47.3

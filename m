@@ -1,42 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C771133938B;
-	Fri, 11 Sep 2026 14:12:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A79A7275AEB;
+	Fri, 11 Sep 2026 14:14:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789135923; cv=none; b=tbTs4+68PfYxJMfc/Zeic0FWe/AK/cyz7W7X9zzSvluqU4iU0cHypFLozwzotMjkMxx/EqH0tAwpIUNc44mA0Nytu3XDL8xIr7NqzciYksFsSpvxj8/u8S6Dav8JOItKsf1VPJ+l41lC5W2+GSEU3WKJYTN0qs4Qic3ECG+KNXE=
+	t=1789136075; cv=none; b=KChIxhAKPHBSgFkBYAM3r7AQjSOXCENr5pm5gjJ+qS6zIRGbXzXRohTZDvo/fxPcM/riaN89g6DNRV5oFAcIi2xY1BO9Sz33Lu7/k0FbFNY9BmPJ/DlwHmlNUyWt1BA8mqOEgu6yL5R97EiPeasol3pvaj6u2CWdIs4fE8+9wl8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789135923; c=relaxed/simple;
-	bh=Jw61qx3UrFw0zQGSgXhZPi46dyNcvRyhKKLIzhhZ0s8=;
+	s=arc-20240116; t=1789136075; c=relaxed/simple;
+	bh=YcR96b0CPruCHzNuRntmU04kiz+ZDDKX3K4wZq/krw8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=jcNwQmP/603X5W217ZDhohF4iE1KojkpHNUjRyc3dwv2cSji4AJ1EVQXYsTC5UCgyjnZnyy3T78efJ7//35/h0Ut/83mdWmRQGFoW1WUMQaFKTL/VsYoZse5wpohi5zHmQzoxEr39PIy5Ov8g1yqQi/23ezDIpcpFvgEdVH2gqo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LyowtSCv; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=ABgl3qmRRCpJ/YMDHzrmB5qdrBuEiYc3TbNdztfh97abe++bAHpzaVg5zMknf2YqSsEpUtQmsGnZXG9wXlM3TPTEy0s17avyFrISTIDuMq2/jIxLJJONR2mX5P0IxTdCv0oTCQn8M9kYTvlPJGr54LnFBmLxi9JkZIl9688hFr4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nqzrvn2S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LyowtSCv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F131F008A2;
-	Fri, 11 Sep 2026 14:12:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nqzrvn2S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC37B1F008A2;
+	Fri, 11 Sep 2026 14:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789135922;
-	bh=DHRFcYeNh4mZEXakuGMeCXHf6DhvQFtr4S94p/IFarw=;
+	s=k20260515; t=1789136074;
+	bh=GM+2ljeyjKcDAZ8vz206TrC3EaMevn4lT70TYqXO1MQ=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=LyowtSCvZCRn58mjbGDt/Mbj1MeqyO/PWhpH5utqRbVcbw4fdTQNCkKoqXmF6GtFS
-	 iOso1f0z2tYv2u5nzHNz3Ym1Al7iaDwZTAjcFhpviFUcGzUH4/k/2e9sneofkszmm4
-	 LIbA/Mtrr9hcMbUdDpYfIQf2SoDLO2XSx4K1ZQupde962aMhMOYVfsh6zQwm+DJzlk
-	 KWp+2CN7XiyUAnBsxS9xjKHrI/P5nvp9WyZxCGjF1pse22gnP+Yd8dB7hRrxLGmfcy
-	 69lCfpZYXddzGLSMtvG5TeXtfCLPFrr2HkLCBoQiTctC9SWaqZ04qK1Zu19x1g4VmJ
-	 F7PfW9mfpTupw==
-Date: Fri, 11 Sep 2026 16:11:59 +0200 (CEST)
+	b=Nqzrvn2SmfFdpH00cGbajnv8cQ6w5lCNJE5+wEbMcYxTX0qSobs0Og6uqCIDM5rdu
+	 X/ddlOUchESOOFQVDAF+KkUyxgR6hL6XgfFSK0w1+xEVgC4Kmovo8tTKxF9EraZuMl
+	 X30LfmgHQeFIdXZNCmkxSV5u9n0n2kKTCSsbrEOkIt7YOTZkfR8R+ZTr39ewB62hwO
+	 sXHPzV1Ja34jDWlgUS/xZKFDnEap+v1keDd8pZbbvnHDSckqmDuF9PNgf8+pxnL/3o
+	 6iWZeAFR3DXrqXIaJDPXY/ExvIZsX7fzE4x6rTg7vYmf2YREj/FTGkvWabylEgS1fJ
+	 ExTPCVjp4JcJw==
+Date: Fri, 11 Sep 2026 16:14:31 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Denis Benato <denis.benato@linux.dev>
-cc: 'Benjamin Tissoires' <bentiss@kernel.org>, 
-    'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, "Derek J. Clark" <derekjohn.clark@gmail.com>
-Subject: Re: [PATCH v3 2/2] Input: xpad - introduce a static table to ignore
- devices
-In-Reply-To: <20260811125856.1692045-3-denis.benato@linux.dev>
-Message-ID: <6598sn1p-p330-1r7o-q43p-r1rnr7nn0022@xreary.bet>
-References: <20260811125856.1692045-1-denis.benato@linux.dev> <20260811125856.1692045-3-denis.benato@linux.dev>
+To: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+cc: bentiss@kernel.org, rydberg@bitmath.org, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, mayhemandcoffee <mayhemandcoffee@gmail.com>
+Subject: Re: [PATCH] HID: multitouch: Add report ID mismatch quirk for ASUS
+ ROG Z13 Folio
+In-Reply-To: <20260804202031.75738-1-lovekeshsolanki00@gmail.com>
+Message-ID: <264920or-433p-8173-5osq-4897qr327r88@xreary.bet>
+References: <20260804202031.75738-1-lovekeshsolanki00@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,77 +44,42 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 11 Aug 2026, Denis Benato wrote:
+On Wed, 5 Aug 2026, Lovekesh Solanki wrote:
 
-> Certain devices can work both as HID and as an xpad device: binding both
-> would duplicate inputs causing userspace to receive double inputs; at the
-> same time if a HID device is available it is to be preferred as it can
-> support additional features such as integrated IMU and additional buttons
-> and more, depending on the specific driver, therefore allow only the
-> best driver available to bind the device.
+> Commit e716edafedad ("HID: multitouch: Check to ensure report
+> responses match the request") introduced validating GET_FEATURE
+> responses return the requested report ID.
 > 
-> Suggested-by: Derek J. Clark <derekjohn.clark@gmail.com>
-> Signed-off-by: Denis Benato <denis.benato@linux.dev>
-
-I'd like to have Dmitry's Ack on this one before taking the Flydigi 
-support through the HID tree.
-
-Thanks.
-
-> ---
->  drivers/input/joystick/xpad.c | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
+> ASUS ROG Z13 Flow (2025) GZ302EA touchpad (USB 0b05:1a30) returns
+> a different report ID for Win8 feature request. Before this check,
+> the response was still processed and allowed device to switch into
+> its full Touchpad Precision mode.
 > 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index feb8f368f834..545119a4fb36 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -406,6 +406,18 @@ static const struct xpad_device {
->  	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
->  };
->  
-> +#define XPAD_SUBSTITUTE(_vid, _pid, _enabled) \
-> +	{ .vid = (_vid), .pid = (_pid), .enabled = (_enabled) }
-> +
-> +static const struct xpad_excluded_device {
-> +	u16 vid;
-> +	u16 pid;
-> +	bool enabled;
-> +} xpad_excluded_devices[] = {
-> +	XPAD_SUBSTITUTE(0x37d7, 0x2401, IS_ENABLED(CONFIG_HID_FLYDIGI)),
-> +	{ }
-> +};
-> +
->  /* buttons shared with xbox and xbox360 */
->  static const signed short xpad_common_btn[] = {
->  	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
-> @@ -2044,11 +2056,23 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
->  	struct usb_device *udev = interface_to_usbdev(intf);
->  	struct usb_xpad *xpad;
->  	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
-> +	const struct xpad_excluded_device *excluded;
->  	int i, error;
->  
->  	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
->  		return -ENODEV;
->  
-> +	for (excluded = xpad_excluded_devices;
-> +	     excluded->vid || excluded->pid;
-> +	     excluded++) {
-> +		if (!excluded->enabled)
-> +			continue;
-> +
-> +		if (le16_to_cpu(udev->descriptor.idVendor) == excluded->vid &&
-> +		    le16_to_cpu(udev->descriptor.idProduct) == excluded->pid)
-> +			return -ENODEV;
-> +	}
-> +
->  	for (i = 0; xpad_device[i].idVendor; i++) {
->  		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
->  		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
-> -- 
-> 2.47.3
+> After the validation, the response is discarded before
+> hid_report_raw_event() processes it and device remains in fallback
+> mode and no longer exposes ABS_MT_SLOT, ABS_MT_TOOL_TYPE or the
+> multi-finger BTN_TOOL_* capabilities for palm rejection.
 > 
+> Add a device quirk to allow the known firmware behavior for
+> this device while preserving report ID validation for all other
+> devices.
+> 
+> The device previously matched the generic MT_CLS_WIN_8 entry, so
+> base the new class on MT_CLS_WIN_8 to keep it on the same quirk set
+> as before the regression.  MT_QUIRK_CONFIDENCE must be set
+> explicitly: it is normally enabled by the class name check in
+> mt_touch_input_mapping(), which only matches the MT_CLS_WIN_8*
+> names, and it is what makes ABS_MT_TOOL_TYPE available for
+> touchpads.
+> 
+> Fixes: e716edafedad ("HID: multitouch: Check to ensure report responses match the request")
+> 
+> Signed-off-by: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+> Reported-by: mayhemandcoffee <mayhemandcoffee@gmail.com>
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=221774
+> Tested-by: mayhemandcoffee <mayhemandcoffee@gmail.com>
+
+Applied, thank you.
 
 -- 
 Jiri Kosina

@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71BC2485CF5;
-	Fri, 11 Sep 2026 13:19:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48730485CCB;
+	Fri, 11 Sep 2026 13:19:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789132750; cv=none; b=oor9Gcl9C4SGI3wwBkSeyDK3Vf9EkRj1mJqSXa2SM/08POlMWCPqGe/5dOD1UauLlitx68Qlrvrt+efBJv8m+pEZsjMMGh8/xKewlwy2aSBfwFjBBgv1DvgNM2SAM94+bc4R6oywdqc0oxIlhKsrI4wq07s5ZMWeVQwXUBjL41k=
+	t=1789132756; cv=none; b=lR+vrEiX11duQNOBtDrjHiYhY67nUhUvw7411QGnodoneA5tgAn65lqrlm2IETFHziWgfJnVgFaRXpk5+FsFImkvrT7qBwT7/IMX2UNjmGPApAas/nFk9FOd1HY5+yb4WJOqJkRIxiizQwgUEDre0dtc/vXWonWZzo0RbQxBPKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789132750; c=relaxed/simple;
-	bh=GcXzytzKN9oT5ZVnaueWYxC6sVn/VfV17oLTQK+fWD0=;
+	s=arc-20240116; t=1789132756; c=relaxed/simple;
+	bh=CLNjwsXZVxITkz+SiucWcnfbFwvKd7RH2N2OvQYnRhw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=C6AtvnVq+d1L3J0eShmJaitOCaDv7nCEDlODjJgXQ7wxC0fa6qJ0iyaJK2iNKbjZeWoWLbsw5PABAAq5x8gFvvYgoApgcZVlY9w3nKXSd8zS8LHwJY8rpS19YnD3BzqGGXyctnAmEimucoDjjblwi0SfuCtqhZ4kFR71FyOKW4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R5Vpsxzx; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=VrHd9jzmOYF+CsWPdl0SkPkhqKp8UoVsFSjfphXhjVeoaP5C+lToTKgohRAKe5JMLncBjYTzqPY2KA22uCR4gsNsg4VD2FLG5KnmMecZ7MFVM9XFIamfcIhU34oQMmJ5tjKSeMysXBSB5hzN/40sWsnfzordGR9d1iYozjzqccI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n0pNEfR+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R5Vpsxzx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53DD01F000FF;
-	Fri, 11 Sep 2026 13:19:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n0pNEfR+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20E01F00893;
+	Fri, 11 Sep 2026 13:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789132746;
-	bh=tZJSW9SnQf6T/6GcphXIvYrkgxNHzEz3N+RuxYwKqig=;
+	s=k20260515; t=1789132750;
+	bh=tcu9ZHPkGXuh/+Ox7bKSy5Ld8LEcCHXrUb8X71cpZco=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=R5VpsxzxH96lMgkfIxMAhSwtTm1hpOxPfs5LEb1rLZn6N6nqWCizC9jpw82k5PnUJ
-	 g9xqaVD7u9Dc5Y+xmd5zahQB9CoDOh/Djuz3EAB97M4ykfSi5ogoSuuCFpSS1l0ZrW
-	 ZyDdN1Ysw5wZi36I8DbIDJEbdwqi6YC9WE5kln19Vvw9q9xtaOsmJGNk2VXMgBnNQw
-	 S4tk2Ol5rAQwDJcWydWcWuC0jrx/PIab4uHs57OngoTo7LkeV1Vikj/jyGzglGHtLA
-	 nqzmKehv5VWygbbJZNKgi0S/3BMwbeWd8NJIhaUTRInTfsnqf+VKrNaWUa9H6XjK8p
-	 GY8DdQgDguKjg==
+	b=n0pNEfR+K+y0r40r4H5jX4Ltrz+vE2O9mnMFuYVXGdFXoSMfKcghpvVHs3L7+2cVj
+	 QKYX1SSkb0Mz5yl76oftgAcYpYrqr58FWDursKeyGaHbGAZhVUj3/MyjZT6DQRpVHH
+	 B1mnBZQllItMrpEjm3R9Qs5b2zsjk5JxTL5lJ+x3EyitmRnUo0FBXw0iYa7hbvldiB
+	 Sq8veHcNdbBb+VqX5Q2RjJaV+9cXNRzzHi/Y+8oBHDLp/t2c9EvnWT3afMS5PNt9nY
+	 8huIXe9n577R0LuIizbH7a5pwBUO9vgKCyNnC1yYv8TwyYIfQDL8j3p4X5BXzu6Qe2
+	 xalAJne/9y02w==
 From: Konrad Dybcio <konradybcio@kernel.org>
-Date: Fri, 11 Sep 2026 15:18:28 +0200
-Subject: [PATCH 2/3] Input: synaptics-rmi4: Support drm_panel_follower
+Date: Fri, 11 Sep 2026 15:18:29 +0200
+Subject: [PATCH 3/3] arm64: dts: qcom: sdm845-tama: Declare touchscreen as
+ a panel follower
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260911-topic-rmi4_panel_follower-v1-2-c1b2cf1cdb62@oss.qualcomm.com>
+Message-Id: <20260911-topic-rmi4_panel_follower-v1-3-c1b2cf1cdb62@oss.qualcomm.com>
 References: <20260911-topic-rmi4_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com>
 In-Reply-To: <20260911-topic-rmi4_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -51,328 +52,49 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
  Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789132733; l=8878;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789132733; l=1382;
  i=konrad.dybcio@oss.qualcomm.com; s=20230215; h=from:subject:message-id;
- bh=YVBgC4uCz7Vu57EVqEm4wjQijdVoYBc5xBMY9i+sAXg=;
- b=VkahASbKCJyCCT1D1J36e5+aYela7LwxLgzQFkFDUSQqvnXppSM3SIb4MI8+WmBbxceoPfimm
- MYx9RksWnDQCAXNUeesV8WHLY7BhgDBWF5af2xx/l5s37gbrg2dkW5s
+ bh=Hh9ZkdX9yN5IRtxnY/CEiEcxcLPV9GWCd3MW3KHCpfY=;
+ b=P0eY+ypE03Ann8gS45al/N1HhVqc2lP7qNzeO5aWceBpN7tZxVG8p+KYTohmAdHfvgz4q26hm
+ eWDxumvy9+FAPe8eHeXAOGdvmpNsv/rYEk260GYi4pL2joFJA6/OC46
 X-Developer-Key: i=konrad.dybcio@oss.qualcomm.com; a=ed25519;
  pk=iclgkYvtl2w05SSXO5EjjSYlhFKsJ+5OSZBjOkQuEms=
 
 From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 
-Many RMI4 implementations are present on in-cell panels with very
-tight power sequencing requirements, normally handled by the DRM panel
-driver in Linux.
+Currently, the touchscreen relies on the idiosyncracies of Linux and
+fw_devlink, wired up via a totally fake supply reference to keep the
+driver probe order in check.
 
-If that doesn't take place first, the integrated touchscreen IC refuses
-to work properly.
-
-Add support for drm_panel_follower to take care of that dependency.
+Resolve that properly by declaring the touchscreen as a panel follower
+of the in-cell display panel.
 
 Assisted-by: LLM
+Fixes: 3ab8216de2fa ("arm64: dts: qcom: sdm845-tama: Add Synaptics Touchscreen")
 Signed-off-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 ---
- drivers/input/rmi4/Kconfig   |   1 +
- drivers/input/rmi4/rmi_i2c.c | 170 +++++++++++++++++++++++++++++++++++++------
- 2 files changed, 147 insertions(+), 24 deletions(-)
+ arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index 5db58fc9e11b..15f7534d6626 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -16,6 +16,7 @@ if RMI4_CORE
- config RMI4_I2C
- 	tristate "RMI4 I2C Support"
- 	depends on I2C
-+	depends on DRM || !DRM
- 	help
- 	  Say Y here if you want to support RMI4 devices connected to an I2C
- 	  bus.
-diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-index e11d0acb9b96..84877030aefe 100644
---- a/drivers/input/rmi4/rmi_i2c.c
-+++ b/drivers/input/rmi4/rmi_i2c.c
-@@ -9,6 +9,7 @@
- #include <linux/of.h>
- #include <linux/delay.h>
- #include <linux/regulator/consumer.h>
-+#include <drm/drm_panel.h>
- #include "rmi_driver.h"
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi
+index 05e5a3674e5f..dd79b93befb4 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi
+@@ -442,12 +442,8 @@ touchscreen: touchscreen@2c {
  
- #define BUFFER_SIZE_INCREMENT 32
-@@ -40,6 +41,9 @@ struct rmi_i2c_xport {
+ 		interrupts-extended = <&tlmm 125 IRQ_TYPE_EDGE_FALLING>;
+ 		vdd-supply = <&vreg_l14a_1p8>;
+-		/*
+-		 * This is a blatant abuse of OF, but the panel driver *needs*
+-		 * to probe first, as the power/gpio switching needs to be precisely
+-		 * timed in order for both the display and touch panel to function properly.
+-		 */
+-		incell-supply = <&panel>;
++
++		panel = <&panel>;
  
- 	struct regulator_bulk_data supplies[2];
- 	u32 startup_delay;
-+	struct drm_panel_follower panel_follower;
-+	bool powered;
-+	bool transport_registered;
- };
- 
- #define RMI_PAGE_SELECT_REGISTER 0xff
-@@ -187,17 +191,99 @@ static void rmi_i2c_regulator_bulk_disable(void *data)
- {
- 	struct rmi_i2c_xport *rmi_i2c = data;
- 
-+	guard(mutex)(&rmi_i2c->page_mutex);
-+
-+	if (!rmi_i2c->powered)
-+		return;
-+
- 	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
- 			       rmi_i2c->supplies);
-+	rmi_i2c->page = -1;
-+	rmi_i2c->powered = false;
- }
- 
- static void rmi_i2c_unregister_transport(void *data)
- {
- 	struct rmi_i2c_xport *rmi_i2c = data;
- 
-+	if (!rmi_i2c->transport_registered)
-+		return;
-+
- 	rmi_unregister_transport_device(&rmi_i2c->xport);
-+	rmi_i2c->transport_registered = false;
- }
- 
-+static int rmi_i2c_panel_prepared(struct drm_panel_follower *follower)
-+{
-+	struct rmi_i2c_xport *rmi_i2c = container_of(follower,
-+						    struct rmi_i2c_xport,
-+						    panel_follower);
-+	int error;
-+
-+	error = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-+				      rmi_i2c->supplies);
-+	if (error)
-+		return error;
-+	rmi_i2c->powered = true;
-+
-+	msleep(rmi_i2c->startup_delay);
-+
-+	/* The page-select register is reset when the sensor loses power. */
-+	mutex_lock(&rmi_i2c->page_mutex);
-+	error = rmi_set_page(rmi_i2c, 0);
-+	mutex_unlock(&rmi_i2c->page_mutex);
-+	if (error)
-+		goto err_power_off;
-+
-+	if (rmi_i2c->transport_registered) {
-+		error = rmi_driver_resume(rmi_i2c->xport.rmi_dev, false);
-+		if (error) {
-+			dev_warn(&rmi_i2c->client->dev,
-+				 "Failed to resume device: %d\n", error);
-+			rmi_driver_suspend(rmi_i2c->xport.rmi_dev, false);
-+			rmi_i2c_regulator_bulk_disable(rmi_i2c);
-+		}
-+		return error;
-+	}
-+
-+	dev_info(&rmi_i2c->client->dev,
-+		 "registering I2C-connected sensor\n");
-+
-+	error = rmi_register_transport_device(&rmi_i2c->xport);
-+	if (error)
-+		goto err_power_off;
-+
-+	rmi_i2c->transport_registered = true;
-+	return 0;
-+
-+err_power_off:
-+	rmi_i2c_regulator_bulk_disable(rmi_i2c);
-+	return error;
-+}
-+
-+static int rmi_i2c_panel_unpreparing(struct drm_panel_follower *follower)
-+{
-+	struct rmi_i2c_xport *rmi_i2c = container_of(follower,
-+						    struct rmi_i2c_xport,
-+						    panel_follower);
-+	int error = 0;
-+
-+	if (rmi_i2c->transport_registered) {
-+		error = rmi_driver_suspend(rmi_i2c->xport.rmi_dev, false);
-+		if (error)
-+			dev_warn(&rmi_i2c->client->dev,
-+				 "Failed to suspend device: %d\n", error);
-+	}
-+	rmi_i2c_regulator_bulk_disable(rmi_i2c);
-+
-+	return error;
-+}
-+
-+static const struct drm_panel_follower_funcs rmi_i2c_panel_follower_funcs = {
-+	.panel_prepared = rmi_i2c_panel_prepared,
-+	.panel_unpreparing = rmi_i2c_panel_unpreparing,
-+};
-+
- static int rmi_i2c_probe(struct i2c_client *client)
- {
- 	struct rmi_device_platform_data *pdata;
-@@ -235,10 +321,12 @@ static int rmi_i2c_probe(struct i2c_client *client)
- 	if (error < 0)
- 		return error;
- 
--	error = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
--				       rmi_i2c->supplies);
--	if (error < 0)
--		return error;
-+	of_property_read_u32(client->dev.of_node, "syna,startup-delay-ms",
-+			     &rmi_i2c->startup_delay);
-+
-+	rmi_i2c->client = client;
-+	mutex_init(&rmi_i2c->page_mutex);
-+	rmi_i2c->page = -1;
- 
- 	error = devm_add_action_or_reset(&client->dev,
- 					  rmi_i2c_regulator_bulk_disable,
-@@ -246,27 +334,53 @@ static int rmi_i2c_probe(struct i2c_client *client)
- 	if (error)
- 		return error;
- 
--	of_property_read_u32(client->dev.of_node, "syna,startup-delay-ms",
--			     &rmi_i2c->startup_delay);
--
--	msleep(rmi_i2c->startup_delay);
--
--	rmi_i2c->client = client;
--	mutex_init(&rmi_i2c->page_mutex);
--
- 	rmi_i2c->xport.dev = &client->dev;
- 	rmi_i2c->xport.proto_name = "i2c";
- 	rmi_i2c->xport.ops = &rmi_i2c_ops;
- 
- 	i2c_set_clientdata(client, rmi_i2c);
- 
-+	error = devm_add_action_or_reset(&client->dev,
-+					  rmi_i2c_unregister_transport,
-+					  rmi_i2c);
-+	if (error)
-+		return error;
-+
-+	if (drm_is_panel_follower(&client->dev)) {
-+		rmi_i2c->panel_follower.funcs = &rmi_i2c_panel_follower_funcs;
-+
-+		if (device_can_wakeup(&client->dev)) {
-+			dev_warn(&client->dev,
-+				 "Can't wakeup if following panel\n");
-+			device_set_wakeup_capable(&client->dev, false);
-+		}
-+
-+		error = devm_drm_panel_add_follower(&client->dev,
-+						     &rmi_i2c->panel_follower);
-+		if (error)
-+			return error;
-+
-+		return 0;
-+	}
-+
-+	error = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-+				      rmi_i2c->supplies);
-+	if (error)
-+		return error;
-+	rmi_i2c->powered = true;
-+
-+	msleep(rmi_i2c->startup_delay);
-+
- 	/*
- 	 * Setting the page to zero will (a) make sure the PSR is in a
- 	 * known state, and (b) make sure we can talk to the device.
- 	 */
-+	mutex_lock(&rmi_i2c->page_mutex);
- 	error = rmi_set_page(rmi_i2c, 0);
-+	mutex_unlock(&rmi_i2c->page_mutex);
- 	if (error) {
- 		dev_err(&client->dev, "Failed to set page select to 0\n");
-+		rmi_i2c_regulator_bulk_disable(rmi_i2c);
- 		return error;
- 	}
- 
-@@ -275,14 +389,10 @@ static int rmi_i2c_probe(struct i2c_client *client)
- 	error = rmi_register_transport_device(&rmi_i2c->xport);
- 	if (error) {
- 		dev_err(&client->dev, "failed to register sensor: %d\n", error);
-+		rmi_i2c_regulator_bulk_disable(rmi_i2c);
- 		return error;
- 	}
--
--	error = devm_add_action_or_reset(&client->dev,
--					  rmi_i2c_unregister_transport,
--					  rmi_i2c);
--	if (error)
--		return error;
-+	rmi_i2c->transport_registered = true;
- 
- 	return 0;
- }
-@@ -293,12 +403,14 @@ static int rmi_i2c_suspend(struct device *dev)
- 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
- 	int ret;
- 
-+	if (rmi_i2c->panel_follower.panel)
-+		return 0;
-+
- 	ret = rmi_driver_suspend(rmi_i2c->xport.rmi_dev, true);
- 	if (ret)
- 		dev_warn(dev, "Failed to resume device: %d\n", ret);
- 
--	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
--			       rmi_i2c->supplies);
-+	rmi_i2c_regulator_bulk_disable(rmi_i2c);
- 
- 	return ret;
- }
-@@ -309,10 +421,14 @@ static int rmi_i2c_resume(struct device *dev)
- 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
- 	int ret;
- 
-+	if (rmi_i2c->panel_follower.panel)
-+		return 0;
-+
- 	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
--				    rmi_i2c->supplies);
-+				   rmi_i2c->supplies);
- 	if (ret)
- 		return ret;
-+	rmi_i2c->powered = true;
- 
- 	msleep(rmi_i2c->startup_delay);
- 
-@@ -329,12 +445,14 @@ static int rmi_i2c_runtime_suspend(struct device *dev)
- 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
- 	int ret;
- 
-+	if (rmi_i2c->panel_follower.panel)
-+		return 0;
-+
- 	ret = rmi_driver_suspend(rmi_i2c->xport.rmi_dev, false);
- 	if (ret)
- 		dev_warn(dev, "Failed to resume device: %d\n", ret);
- 
--	regulator_bulk_disable(ARRAY_SIZE(rmi_i2c->supplies),
--			       rmi_i2c->supplies);
-+	rmi_i2c_regulator_bulk_disable(rmi_i2c);
- 
- 	return 0;
- }
-@@ -345,10 +463,14 @@ static int rmi_i2c_runtime_resume(struct device *dev)
- 	struct rmi_i2c_xport *rmi_i2c = i2c_get_clientdata(client);
- 	int ret;
- 
-+	if (rmi_i2c->panel_follower.panel)
-+		return 0;
-+
- 	ret = regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
--				    rmi_i2c->supplies);
-+				   rmi_i2c->supplies);
- 	if (ret)
- 		return ret;
-+	rmi_i2c->powered = true;
- 
- 	msleep(rmi_i2c->startup_delay);
- 
+ 		syna,reset-delay-ms = <220>;
+ 		syna,startup-delay-ms = <1000>;
 
 -- 
 2.55.0

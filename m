@@ -1,40 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D554363C43
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 14:57:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390C036212C;
+	Fri, 11 Sep 2026 15:03:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789138676; cv=none; b=RiSc6N6KyYCSmiHGdXm1/gTE7w3vHOd58PqmpZgA72oYWsBsBB5Cu+nOv0XBh0r7lbrwDJ6ctCZtrlioizb+CSwM2tQA0gp4COE7U50dhcrlZE6WvfITzYh6hTXybMTqEhAsQr4cxHyDdyeYvOPzDabPwBz1fm0m1JJLAZ90DKQ=
+	t=1789138988; cv=none; b=obsrCfmJedrBvcreIwNAoa2nhib5N1YaoUvmvz/Fdbu8nhbq1oeP+Y8g+K/OfUAouAxcaLz+XwhLtwfiZS7pzJ5xYCxUcOla3QzAE41GoUkJ2CUQNSYukOGJX4HflbOQ7wrInBqkIJa8JCHPg5hEM3IUPFAf5jFg9KcbvIvPb+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789138676; c=relaxed/simple;
-	bh=F4r76OBS8+e8Y3mu6kU1rknr580/wKxEFSTkvEGLgis=;
+	s=arc-20240116; t=1789138988; c=relaxed/simple;
+	bh=T9fvsRnommmEv40Ny88ZihFmD7htCm6BZ1gR8iyNfWc=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=FWCIvzF+RfupHETP4hTp7E5tIlQWzTwjlwyLtStrI23JKU0nUyYb+zQDQdQpEUA5q29Z3y9sKa1zt47nKLrbaKesoZvpqeMUJezQAdARcxPfNmMBnawx4vrxRqKUnl2rUe6OvlaeTZPodAyZsz6zBif7NYfrdl/y1dJUyn6JfYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VjyAkiwP; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Wrr8hYuEd3DRMgAh3Umo0YVKYcPWdyJQEHqnbY+Mi6uAP9QQdg9fGh1duVUVUUosywb25fO6qQF/AT4gYNCp+SMfdeAd322Q69zv5F/5N3rBbctkjVeQvgD9NoLVMj4QBgarzGYh6KPeZHRFv7xi43fZixDTCl8WwcXW/jw7eig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SFT7s6dE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VjyAkiwP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 673DC1F000FF;
-	Fri, 11 Sep 2026 14:57:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SFT7s6dE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 484D31F000FF;
+	Fri, 11 Sep 2026 15:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789138675;
-	bh=8W3COm6uVZjAwnjTBQvACZlpOwmC/SpK8fiTy06SGQc=;
+	s=k20260515; t=1789138986;
+	bh=6Z5sI2tMP2r1wyjFSRn9tBULjseiSpfAaPBZIS6hV14=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=VjyAkiwP/QL8b9J/8A28Q10j74fUX6JTYUkKToF0+4OL2mdZRECzHRc7D25FyvF6g
-	 BS6jSSiRi+rAVzvrplSCgfeiqYcXl8Y5LZcLrV0pXpTHLG5VvGeq5FPl5ZCq0+2XQx
-	 VBymjtufPbXB2EuebFKGL4ZiCBPykSjvFWEvfmoj8J0nY59DrpWZleNd7r3x5L05Gb
-	 f/ESbNvPXKWwxZdn+4MmiBxfrB/Ps0Y9YpSvYAjRvt0t1KssqRPDO6sZNFBJnoFrAI
-	 7f2aym5eDhc466/DOkl2AT84Er1v8bS5ZHxEgLZExsSbrJQiZqKAokDo8WrAP90yS0
-	 wp0xYaA0hmfCw==
-Date: Fri, 11 Sep 2026 16:57:52 +0200 (CEST)
+	b=SFT7s6dEZwTwiahH1LMJSuQiwDi5useSKHDG+W/uZCSp7dZKaOE6Y5cOt5oDQ+8T1
+	 HNNqn2Mcm5khwsCvT4FC2hoc24WfFSacigHH9ZL1FdFZdgUH4rbLXZ6VPnHV7hSlww
+	 29zDP278cC82czgU+ygKXFCM+BW4Z/BAeRVi4sM6cqgmSFovc4x+HSGF/ty0wliVLA
+	 qQJnfeTQX4+2Iy4Iy3MXJJmzaJCGIPo/iJZRhG6a441c3Rfoy3TBMkpCwug7xOFz4Z
+	 FFLqczJrZHs1nNrUFuOZlm1945KWuVV91IxSfi+fVGE9u/Sywe78VebBlkOM94kdga
+	 eFFXDfyswsEkw==
+Date: Fri, 11 Sep 2026 17:03:04 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Matt Ervin <matt@sockeyesoftware.com>
-cc: linux-input@vger.kernel.org, bentiss@kernel.org
-Subject: Re: i2c-hid: IRQ storm from Synaptics SYNA32A4 (06CB:CE17) after
- resume
-In-Reply-To: <CAAHC7=5QpROQFfmTsrWbt3jxyAGO44jLq9h1Wnsk7JtmuZGLMQ@mail.gmail.com>
-Message-ID: <8p372135-55q0-2q5r-po59-5nos4s9qn672@xreary.bet>
-References: <CAAHC7=5QpROQFfmTsrWbt3jxyAGO44jLq9h1Wnsk7JtmuZGLMQ@mail.gmail.com>
+To: Yousef Alhouseen <alhouseenyousef@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, 
+    stable@vger.kernel.org, 
+    syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
+Subject: Re: [PATCH v2] HID: hiddev: keep state alive through disconnect
+ unlock
+In-Reply-To: <20260629152947.13821-1-alhouseenyousef@gmail.com>
+Message-ID: <r5s40r6n-o5o2-p8n0-8n36-0n66r1521121@xreary.bet>
+References: <20260629152947.13821-1-alhouseenyousef@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,46 +46,32 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 1 Sep 2026, Matt Ervin wrote:
+On Mon, 29 Jun 2026, Yousef Alhouseen wrote:
 
-> What I have NOT established
-> ---------------------------
-> I have not built and tested a patched kernel, so I cannot confirm that
-> I2C_HID_QUIRK_RESET_ON_RESUME itself is sufficient. What I know is that
-> a manual unbind/bind -- which performs a reset -- clears the storm
-> reliably, and that it returns on the next resume without it.
+> mutex_unlock() clears the mutex owner before taking its wait lock. A
+> thread spinning in the final hiddev file release can acquire
+> existancelock after hiddev_disconnect() clears the owner, then free
+> hiddev before the disconnecting thread reaches the mutex wait lock. This
+> causes a use-after-free in the mutex slow unlock path.
 > 
-> I am happy to test a patch.
+> Give the connection and each open file an explicit reference. Drop each
+> reference only after its existancelock critical section has completed,
+> so neither unlock path can free the mutex while the other is still using
+> it.
 > 
-> Proposed change, if it is the right call
-> ----------------------------------------
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> #define I2C_VENDOR_ID_SYNAPTICS 0x06cb
-> #define I2C_PRODUCT_ID_SYNAPTICS_SYNA2393 0x7a13
-> +#define I2C_PRODUCT_ID_SYNAPTICS_SYNA32A4 0xce17
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c
-> b/drivers/hid/i2c-hid/i2c-hid-core.c
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> { I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA2393,
-> I2C_HID_QUIRK_RESET_ON_RESUME },
-> + { I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA32A4,
-> + I2C_HID_QUIRK_RESET_ON_RESUME },
+> Fixes: 079034073faf ("HID: hiddev cleanup -- handle all error conditions properly")
+> Reported-by: syzbot+563191a4939ddbfe73d4@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=563191a4939ddbfe73d4
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+> ---
+> Changes in v2:
+> - Explain the mutex owner-clear/spinning-contender race in the commit log.
+> - No code changes.
 
-That seems like a proper fix indeed.
+Sorry for the long delay on this.
 
-Why haven't you tested it, given that you have the hardware and write 
-"happy to test a patch"? :)
-
-Once you test it, can you please submit it properly [1] so that we can 
-merge it?
-
-Thanks.
-
-[1] Documentation/process/submitting-patches.rst
+Thanks for fixing it, now applied.
 
 -- 
 Jiri Kosina

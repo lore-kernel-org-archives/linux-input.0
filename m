@@ -1,101 +1,110 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48730485CCB;
-	Fri, 11 Sep 2026 13:19:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31DF8381E85;
+	Fri, 11 Sep 2026 13:32:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789132756; cv=none; b=lR+vrEiX11duQNOBtDrjHiYhY67nUhUvw7411QGnodoneA5tgAn65lqrlm2IETFHziWgfJnVgFaRXpk5+FsFImkvrT7qBwT7/IMX2UNjmGPApAas/nFk9FOd1HY5+yb4WJOqJkRIxiizQwgUEDre0dtc/vXWonWZzo0RbQxBPKE=
+	t=1789133557; cv=none; b=lGqFbXz+SgsFYvVfArPkIJ5w0X9l+a365fl9QRaw7KGizLdndBSJ8V3Vcr1TwMlsFIoybVJOSTTIGcr94lyT8WJJAQH99azgc8Ywon5MsdJ09+eRbf6LPo4BzmEbz34xyn+GUnUCzl1w1eZZGRx8ygaGqcxEZ8Ou1LwfYo9nAr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789132756; c=relaxed/simple;
-	bh=CLNjwsXZVxITkz+SiucWcnfbFwvKd7RH2N2OvQYnRhw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VrHd9jzmOYF+CsWPdl0SkPkhqKp8UoVsFSjfphXhjVeoaP5C+lToTKgohRAKe5JMLncBjYTzqPY2KA22uCR4gsNsg4VD2FLG5KnmMecZ7MFVM9XFIamfcIhU34oQMmJ5tjKSeMysXBSB5hzN/40sWsnfzordGR9d1iYozjzqccI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n0pNEfR+; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789133557; c=relaxed/simple;
+	bh=LFzh7LWOzSlpj7r2dxLA2mkmiyjKSJygs60oZ2yUeGw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=pi32qE9rnPO/nKRPmP+GsWceW+auHBvfrf7NYRIo8kzBlnsfdkiSVXsfmJ/FSN/Ulpk04fRR0fVd8i1KvSIuvrWfuzQWKvPxrYkkNb32hxbjbUEnPxGs2KXd0vDcecOulrGKwmkwmfj0EGqgaqpe+qPYZLhDAyTUsvlVIPymyCc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XP9aC55C; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n0pNEfR+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C20E01F00893;
-	Fri, 11 Sep 2026 13:19:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XP9aC55C"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 736A21F000FF;
+	Fri, 11 Sep 2026 13:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789132750;
-	bh=tcu9ZHPkGXuh/+Ox7bKSy5Ld8LEcCHXrUb8X71cpZco=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=n0pNEfR+K+y0r40r4H5jX4Ltrz+vE2O9mnMFuYVXGdFXoSMfKcghpvVHs3L7+2cVj
-	 QKYX1SSkb0Mz5yl76oftgAcYpYrqr58FWDursKeyGaHbGAZhVUj3/MyjZT6DQRpVHH
-	 B1mnBZQllItMrpEjm3R9Qs5b2zsjk5JxTL5lJ+x3EyitmRnUo0FBXw0iYa7hbvldiB
-	 Sq8veHcNdbBb+VqX5Q2RjJaV+9cXNRzzHi/Y+8oBHDLp/t2c9EvnWT3afMS5PNt9nY
-	 8huIXe9n577R0LuIizbH7a5pwBUO9vgKCyNnC1yYv8TwyYIfQDL8j3p4X5BXzu6Qe2
-	 xalAJne/9y02w==
-From: Konrad Dybcio <konradybcio@kernel.org>
-Date: Fri, 11 Sep 2026 15:18:29 +0200
-Subject: [PATCH 3/3] arm64: dts: qcom: sdm845-tama: Declare touchscreen as
- a panel follower
+	s=k20260515; t=1789133554;
+	bh=uirpkPnM2HG9bZd+R/1x89vey7kgMMJP9N/VMKiq/Q0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=XP9aC55ClmeuvOvoJ0Br5qPo30fBjCxSWtMadP0wWFz8VHBMMxF2xZahMcqdoAjLN
+	 pPgdsq6e4Nqm7nmv8kra7FcfQB1LBp5cFfgshPx7ZvUqp3rJDg1M2i+S6LLS6PuBv+
+	 P4w9Ps6F5AWkfPnNCyVr8DxlZGBNkg9S5Pv226DhIrn1nIzI+MQLxkh7rMyELF5gwF
+	 Q60Y48eW8AGEywyN2M0EnaSSpj5K2MKKaIf0yYKzXG4KakNVNEILVecYd0UH0RY4aU
+	 QmOuHwqJGdgOyVjo/tYWUNG7aDOT73NrboOznUwkYlwP8i04/C7yKHEOyzCK14YCyS
+	 oH8JTCflNCzwA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/3] Input: synaptics-rmi4: Support drm_panel_follower
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Konrad Dybcio" <konradybcio@kernel.org>
+Cc: robh@kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260911-topic-rmi4_panel_follower-v1-2-c1b2cf1cdb62@oss.qualcomm.com>
+References: <20260911-topic-rmi4_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com>
+ <20260911-topic-rmi4_panel_follower-v1-2-c1b2cf1cdb62@oss.qualcomm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 13:32:33 +0000
+Message-Id: <20260911133234.736A21F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260911-topic-rmi4_panel_follower-v1-3-c1b2cf1cdb62@oss.qualcomm.com>
-References: <20260911-topic-rmi4_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com>
-In-Reply-To: <20260911-topic-rmi4_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, 
- Vincent Huang <vincent.huang@tw.synaptics.com>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789132733; l=1382;
- i=konrad.dybcio@oss.qualcomm.com; s=20230215; h=from:subject:message-id;
- bh=Hh9ZkdX9yN5IRtxnY/CEiEcxcLPV9GWCd3MW3KHCpfY=;
- b=P0eY+ypE03Ann8gS45al/N1HhVqc2lP7qNzeO5aWceBpN7tZxVG8p+KYTohmAdHfvgz4q26hm
- eWDxumvy9+FAPe8eHeXAOGdvmpNsv/rYEk260GYi4pL2joFJA6/OC46
-X-Developer-Key: i=konrad.dybcio@oss.qualcomm.com; a=ed25519;
- pk=iclgkYvtl2w05SSXO5EjjSYlhFKsJ+5OSZBjOkQuEms=
 
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Concurrent I2C accesses can wedge the hardware during panel power-=
+on because `page_mutex` is not held during the startup delay.
+--
 
-Currently, the touchscreen relies on the idiosyncracies of Linux and
-fw_devlink, wired up via a totally fake supply reference to keep the
-driver probe order in check.
+commit 31e9aa4b11936c658845014c2ef2567c8d7947f3
+Author: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 
-Resolve that properly by declaring the touchscreen as a panel follower
-of the in-cell display panel.
+Input: synaptics-rmi4: Support drm_panel_follower
 
-Assisted-by: LLM
-Fixes: 3ab8216de2fa ("arm64: dts: qcom: sdm845-tama: Add Synaptics Touchscreen")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
----
- arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+Many RMI4 implementations are present on in-cell panels with very tight pow=
+er
+sequencing requirements, normally handled by the DRM panel driver in Linux.
+This commit adds support for drm_panel_follower to handle that dependency.
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi
-index 05e5a3674e5f..dd79b93befb4 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi
-@@ -442,12 +442,8 @@ touchscreen: touchscreen@2c {
- 
- 		interrupts-extended = <&tlmm 125 IRQ_TYPE_EDGE_FALLING>;
- 		vdd-supply = <&vreg_l14a_1p8>;
--		/*
--		 * This is a blatant abuse of OF, but the panel driver *needs*
--		 * to probe first, as the power/gpio switching needs to be precisely
--		 * timed in order for both the display and touch panel to function properly.
--		 */
--		incell-supply = <&panel>;
-+
-+		panel = <&panel>;
- 
- 		syna,reset-delay-ms = <220>;
- 		syna,startup-delay-ms = <1000>;
+> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
+> index e11d0acb9b96d..84877030aefe9 100644
+> --- a/drivers/input/rmi4/rmi_i2c.c
+> +++ b/drivers/input/rmi4/rmi_i2c.c
+[ ... ]
+> @@ -187,17 +191,99 @@ static void rmi_i2c_regulator_bulk_disable(void *da=
+ta)
+[ ... ]
+> +static int rmi_i2c_panel_prepared(struct drm_panel_follower *follower)
+> +{
+> +	struct rmi_i2c_xport *rmi_i2c =3D container_of(follower,
+> +						    struct rmi_i2c_xport,
+> +						    panel_follower);
+> +	int error;
+> +
+> +	error =3D regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
+> +				      rmi_i2c->supplies);
+> +	if (error)
+> +		return error;
+> +	rmi_i2c->powered =3D true;
+> +
+> +	msleep(rmi_i2c->startup_delay);
+> +
+> +	/* The page-select register is reset when the sensor loses power. */
+> +	mutex_lock(&rmi_i2c->page_mutex);
 
--- 
-2.55.0
+[Severity: High]
+Can concurrent I2C accesses wedge the hardware during panel power-on because
+page_mutex is not held during this startup delay?
 
+The drm_panel_follower subsystem calls rmi_i2c_panel_prepared()
+asynchronously when the display panel turns on. Since userspace is not
+frozen during this event, a process reading a world-readable RMI sysfs
+attribute (such as update_status, which calls
+rmi_f34v7_check_command_status() then rmi_read_block()) or interacting
+with /dev/rmi0 can invoke rmi_i2c_read_block().
+
+Because rmi_i2c->powered is set to true before the msleep(), and page_mutex
+is not held during the delay, a concurrent rmi_i2c_read_block() can acquire
+page_mutex and issue an i2c_transfer() to the sensor while it is still in
+the middle of its hardware boot sequence.
+
+Does this early I2C access violate the strict timing requirements and leave
+the touchscreen completely unresponsive until a reboot or driver reload?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911-topic-rmi4=
+_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com?part=3D2

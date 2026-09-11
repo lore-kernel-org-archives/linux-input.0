@@ -1,133 +1,110 @@
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
+Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B5293769F6;
-	Fri, 11 Sep 2026 10:38:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C11293CEB8A
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 10:55:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789123113; cv=none; b=KHPA4xLtFPfYahaBvACo6LAKlnCohzrHDlWfj2/30vadRfE/CgAJMx9D4K4SE2k9YwXnXjWFH/eaR515tGWqlcPbcwUecaz2md7xC4p/+TlWGn4AF9qIrC4CrvgQGKL02wd+/2OKPbZV7NYlxbNiSU4ZEc1NjzzHnU+Ci6NGEL4=
+	t=1789124118; cv=none; b=KzZM2JA3AXd3/uehoQRg8KiYci5pozS7R8nkiuU1Ybaxxqo2QdnT72gVWv5u7Oiv2PmCMJkoTUetDEjPuqlv9dcWiTEplJjgPbG5WxPnhxsCK9cZGr3S1Q5f3Czd1/jEZCy9wqAj/Z/yKDmXw09K2CDUGn7DdUcmQesvHN0JZ6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789123113; c=relaxed/simple;
-	bh=ekZ3TED81f0IQUZ9r1uuNvq1t7YE45E6ueN257eRy/Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=M8NprnNiM8uh0ace1dGNTM6sPeMloVa3O1SvgFnditrwc/MFor5VXxCU8OeIdGZ/5PyJdc3LRyIuvYUcb5cdTRnVm1x1FsfYb9kp15CBQ4CjjGX4FjkogdDP2bgrGpKdx1Vy1hpRBYN7vUAVNrgYabrm2BKo1N4Tf7InA6wHiXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=jtg2IPaT; arc=none smtp.client-ip=157.90.84.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
+	s=arc-20240116; t=1789124118; c=relaxed/simple;
+	bh=jRRPpcydWK1Nh6x7ID45tWL+SSWHXsE1Zkq+srsRrI0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DvC8sRUyMlgtD8SUYIgSy9W5bZSpXRsCXqtpTMCa46ZLzHRGOKbOMlS7GIEzSzCV5Sdr9k6atRtFYagamNBI+eP+7Ct/CCn5zGzEr1xR/xrlTQGey2Y49gHatkUsN13tLEL7vD0wD382Ujqo+uyp24U7TYtQTpMMf72SqVj71KU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oJAOH1XZ; arc=none smtp.client-ip=209.85.161.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="jtg2IPaT"
-Received: from [10.10.11.33] (business-24-134-105-141.pool2.vodafone-ip.de [24.134.105.141])
-	(Authenticated sender: a.erhardt@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id A72072FC009D;
-	Fri, 11 Sep 2026 12:38:26 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1789123106;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rg/5NBUTSnmAWDhBQ3yAkNGPLyQu2qRqAx6JbI0KSlc=;
-	b=jtg2IPaTxRKvYMmb6PEbxIsx8931uVJKwRZnJRiGizehgerZ8yiIWb630JQqyL/VlgTkVk
-	0IEdmp4GmPI0PhAN7C1H1HyfJdQmRXugJjcnKNI9OUX+LdW/tMvlX7+JMGZCzHcqhbq8IG
-	SZtuAkM1qF2oZkrQ10CqNFqlh2txCIc=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=a.erhardt@tuxedocomputers.com smtp.mailfrom=aer@tuxedocomputers.com
-Message-ID: <23f39dac-a13a-4211-83a7-17b90d5d8e11@tuxedocomputers.com>
-Date: Fri, 11 Sep 2026 12:38:26 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oJAOH1XZ"
+Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-6b1b3d7f10eso678303eaf.3
+        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 03:55:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789124112; x=1789728912; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=A1No2H2enpWYRkMqmMl17Jmk4Fevgd1ISE1R76jzAfM=;
+        b=oJAOH1XZuglrQK8JVmyFvCovC/KOOMCAzob64ygy0eJ7v7exSBaz386WlwnzlGoZHv
+         JbzMFsqNvjRuQIBaGGBcEQoo8Q/mHJiH8iZftSI5jfMsjYoAWEuMb/Ib6Gq/eFqVl2kO
+         S+kLMeirYlVfnhSmd4JwKI2zUdPvtIt4pYNEFy08zYHKEADRMAAF5MaS1rBaIpRaJT7p
+         hu7XFJUsN+1+xRtowsnKzOrof+qjYy85rtjmgZEOr24loIb+++UDfXY2oehwmGQP0PEX
+         ZBacHav5fCNIccvYo9taSngwD8i2OZLPIzX+TcQitaES+oKe4TH2da8aANaXd+T6pJXT
+         OCgQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789124112; x=1789728912;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=A1No2H2enpWYRkMqmMl17Jmk4Fevgd1ISE1R76jzAfM=;
+        b=BfT94G3YBFjNRdUf0YZhPMAud7oj49CXj0EMeC2zyGsXKAiy7vIgve4+hrIdYJtJU+
+         t8XjuRN/oa6vRGKIra6icGlSIp5KNkzOW5BmeUG7PTA8hrjwaYhbp/y4z69OyH6NU4ix
+         4iiZIFdaYgPGmnLPAHSDt6AcrS9Zl/p0NHX5SkdKH8PRgbTI38mrCTh23SwMYLrF2K7S
+         ET55cIDyfXqTnEJGcJVJvNvBtYmAjLq1YhfUIKYHwzBXuVl4ulIB8a8RlOkaPXd9y8bc
+         pOXiVWXZq/gqJ6f0LMTDWcARb6P8KP2YoHvY0P1X8Qs0t8EgWfzZP6F+cviiGAH0cwTP
+         8VJg==
+X-Gm-Message-State: AFuF++mFR/BYriu0cun33mVgERq8JfMw0uugH/EHvfHyma4GFRsB4pCm
+	IpRnPOFX8uE4hECEay7l1ryJ4VvTvifMVr68IcA194IPseZVFgbqNDnb
+X-Gm-Gg: AYBFou3n7l1gXAR83Kkd3lHvCgf7+cY9baWMqgBRp8bjhW7UTpZ1FA6hBCKdf8qNpEt
+	KL9tEHYC0kbXYM2DRo8ujl9DAIcXzXhz6fFAp3z+OKX74D+G4smP/JXhFiWGEaZG+LFHvlZUNew
+	x4sTVw+SmTSP9Cpoyk1BaOlPSYRPy35XgFuPgnpcvtVFgH7U9ZK43hH5F/xHvAjQUNHdZ2VjLKF
+	VZI5Ml4yd5JYAZOXr9DndAwa5m8uKPzueozscT4sFOWw0O9++qUNs3Tu5A+5dxXmFfLNgz03OKA
+	q9o8H2zYbiv5z7DmYJJbofBu3/gMXvMCPUSPDG0KA/rOBN/8JLr1g5h6uFuTLC89VACejGpOwb1
+	izutJt3aiSq1E7isdqPo6Gk1wKX5gkdWE93s2EMha3fq0jK4enImZHEgN49F04Wh3KdUczfNAAo
+	Ot5df2POMldMLQjxtRK++dPiB5DMuJesIVlRjvTeV3RvTFdbM6ENoORAhxW60KVI5EddY7Utwlk
+	NCoCeBZMdfAlKSTXckVSPh113/oNoNQFLE=
+X-Received: by 2002:a05:6820:615:b0:6b1:4fa4:76c5 with SMTP id 006d021491bc7-6c0b985e1e0mr2414649eaf.4.1789124111904;
+        Fri, 11 Sep 2026 03:55:11 -0700 (PDT)
+Received: from pop-os.. ([2806:2f0:5681:fad6:450b:4440:1d9e:e823])
+        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6c0990cc05fsm2305646eaf.3.2026.09.11.03.55.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Sep 2026 03:55:11 -0700 (PDT)
+From: Oscar Priego Verdugo <oscar.priegov@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Oscar Priego Verdugo <oscar.priegov@gmail.com>
+Subject: [PATCH] HID: kye: fix inverted Manticore open/close condition
+Date: Fri, 11 Sep 2026 04:54:38 -0600
+Message-Id: <20260911105438.1862810-1-oscar.priegov@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] HID: lamparray: fixes from testing on Acer Predator
- PT14-52T
-To: Cristian Mazzotta <cmmazzo@icloud.com>
-Cc: W_Armin@gmx.de, bentiss@kernel.org, jikos@kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- wse@tuxedocomputers.com
-References: <a62d1907-73cb-4cfd-98b1-7cdce3b37541@tuxedocomputers.com>
- <20260909165257.352597-1-cmmazzo@icloud.com>
-Content-Language: en-US
-From: Aaron Erhardt <aer@tuxedocomputers.com>
-In-Reply-To: <20260909165257.352597-1-cmmazzo@icloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Am 09.09.26 um 18:52 schrieb Cristian Mazzotta:
-> These are four fixes on top of the v5 series, posted 2026-09-03:
-> https://lore.kernel.org/linux-input/20260903073602.3815258-1-aer@tuxedocomputers.com/
-> 
-> Tested on an Acer Predator PT14-52T, which has two LampArray devices: a
-> USB keyboard (05AF:767A) and an I2C ENE controller (0CF2:5130).
-> 
-> With v5 as posted, the keyboard does not probe. LampCount reads back 0,
-> and once that is fixed the level counts read back 0 as well, which
-> divides by zero in led_mc_calc_color_components() during probe and takes
-> the USB hub worker down with it. Patches 1 and 2 cover the reads and the
-> validation; this is the same problem Aaron and Werner discussed in this
-> thread, with a backtrace from hardware that hits it.
-> 
-> Patch 3 makes use_leds_uapi transfer control in both directions.
-> Autonomous mode is currently only set at probe, so writing 1 re-registers
-> the LED class device without taking the hardware back, and updates sent
-> afterwards are ignored.
-> 
-> Patch 4 blanks the lamps across suspend. On this machine, the lighting
-> accounts for 9.21W of the 12.35W s2idle power draw against 3.14W with
-> the lamps blanked from this driver, so this is most of the suspend power
-> on a laptop with RGB. This was also tested with one of the 2 lights on
-> the ENE controller still on; this patch does not control both zones.
-> 
-> Please treat these as input for v6 rather than a separate series;
-> squashing them in is fine by me, and I will rebase and retest against v6
-> when it arrives.
+The Manticore workaround is intended to open each HID interface once and
+immediately close it, which is required for the keyboard to become fully
+functional.
 
-Thanks for your patches! I have reviewed and tested them and the only
-thing I noticed is that wrapping the resume/suspend methods with pm_ptr
-is missing in the final patch. Otherwise everything LGTM.
+hid_hw_open() returns zero on success, so the current condition is
+inverted: successful opens are left outstanding, while hid_hw_close() is
+called after a failed open.
 
-I will follow up with v6 soon, adding you with "Co-developed-by" on
-the relevant commits.
+Negate the condition so the interface is closed only after a successful
+open. This restores the sequence intended by the original workaround while
+preserving its best-effort behavior when opening fails.
 
-Best regards
-Aaron
+Fixes: 8a396321e210 ("HID: kye: fix unresponsive keyboard")
+Signed-off-by: Oscar Priego Verdugo <oscar.priegov@gmail.com>
+---
+ drivers/hid/hid-kye.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> Two things I have not fixed:
-> 
-> - The ENE controller exposes two LampArrayAttributesReport collections.
->   lamparray_parse_update_report() has no first-match guard, so the second
->   overwrites the first and only one zone is claimed; the other stays in
->   firmware control. This is the multi-zone question from Werner's reply.
->   I really believe that multi-zone support should exist, but I have not
->   included it because I haven't started it; uni is taking away a lot of
->   my time currently.
-
-Ack. I think this is better suited for a separate patch series, unless it
-is trivial to add.
-
-> 
-> - hid_device_io_start() in lamparray_register() may no longer be needed:
->   hid_hw_raw_request() is synchronous and does not go through
->   hid_input_report(), so it does not need driver_input_lock released.
->   That would also address the second [High] item from the Sashiko review.
-
-Ack. I will look into this for v6.
-
-> 
-> Cristian Mazzotta (4):
->   HID: lamparray: read attribute reports synchronously
->   HID: lamparray: raise log level of fatal probe errors
->   HID: lamparray: transfer control when use_leds_uapi changes
->   HID: lamparray: blank lamps across suspend and restore on resume
-> 
->  drivers/hid/hid-generic.c     |  27 ++++++
->  drivers/hid/hid-lamparray.c   | 162 +++++++++++++++++++++++++++++-----
->  include/linux/hid-lamparray.h |  35 ++++++++
->  3 files changed, 200 insertions(+), 24 deletions(-)
-> 
-> 
-> base-commit: 9b298109e37e5caf4b6800198c4907a5a6bf00ae
+diff --git a/drivers/hid/hid-kye.c b/drivers/hid/hid-kye.c
+index bd96bfa7af70..ed1588e2bfb3 100644
+--- a/drivers/hid/hid-kye.c
++++ b/drivers/hid/hid-kye.c
+@@ -594,7 +594,7 @@ static int kye_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 * The manticore keyboard needs to have all the interfaces
+ 		 * opened at least once to be fully functional.
+ 		 */
+-		if (hid_hw_open(hdev))
++		if (!hid_hw_open(hdev))
+ 			hid_hw_close(hdev);
+ 		break;
+ 	case USB_DEVICE_ID_KYE_EASYPEN_M406:
+-- 
+2.34.1
 

@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78EE746983E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 771CD469837;
 	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789116675; cv=none; b=EuK/NnEXb0LYRw+v/CD/6asovc6dXoK6Zv7VKR0Ta1kdYzOWZUj4TQP8Lb+r9btZjsUkcgpYDNrjSlYVHeIFMR4Lf5jjOnUJKXDlrEAqg4xR+plno/7GFnKd6qRBxJW7RWJMvSOo7wZi73m4R4Up7AWSlApe6bXrStlXquOnA3Q=
+	t=1789116675; cv=none; b=Rf5lHUKMJr6Fi8YKNlIkOaQIdKz7Po0SeOF7LI6uXOM66vJXXG92viSuwYElZcFRWp2W9V0kz3NCZgSMO+n3NCBNUFDmlwRdVoorZTNbsdul8fOFJG47/xCOTUu8yxRtGs45DmMOMJlKwKfELK6k2wnwhiR6zxZSFT4b4gDUdkQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789116675; c=relaxed/simple;
-	bh=Ir2kLA2MThBgdITjF1uXNT5vEPUPjCB6BDKYUWJlkVw=;
+	bh=X98FQSGCxrDpR2Xx1wxbQobgEl8GwdUVn/NBjCDa5T0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mmELsGvLSUbuZXJK0uy8ZSycTNuq8X4SoufD6IdpM67VnB69R5I2iZR8Zm1C+G6ftgw92rv/JHfEHG0nzIHIsJBFhARtEjMwDsYjBSZcHiixOpFL0dZNUWxR4l7/Jw54Gwltd8nFeONpsXJ+H5XGbA6kcKiHC5+pozli4NxokKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RYSSY0U3; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=TEqCBrGH4rRuyS9hrEYS0dmao6E+F0Q0UnHS81jtmFkpyR41lVqBEvsstVBOrzcdF8MVPE7YZRAFUYzmcV+/yrPPiMVfH9Ryfd9WbySJ3F9T5aKCWYUxQyK9krTwllHLrCVqgA9FED5wTLXEgleDEsyQMR0/ehbtebMlsndVqTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J0tv6vcq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RYSSY0U3"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 05C54C32786;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J0tv6vcq"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2EC8BC4DDE2;
 	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789116675;
-	bh=Ir2kLA2MThBgdITjF1uXNT5vEPUPjCB6BDKYUWJlkVw=;
+	bh=X98FQSGCxrDpR2Xx1wxbQobgEl8GwdUVn/NBjCDa5T0=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=RYSSY0U3ZTgE0EmFs+R/EejwrlYRI+/TrMNhbNEX4oXfFnrGdk9pbOm4Je+CbXGef
-	 kWfdnuvbUiyLH/ntBecjS+nC4mRYGaVu+cZ15jcX+x99Mzs4IrvSeHYFdZyExXvSBw
-	 C4SP5mvaXwH+WI87t9FWeCD/0EDboQxyTJfW0rr5UADaTpeWVPu+AQ4qgvkOK8kAuh
-	 KAgqHzRl+ZgRJJIxc0RkR9upmWVjHtLIu8hpdMC9lH14aX5kb3begGcV2LVxb+Wia1
-	 jseVCk+3S3+K9rdH+7XVG6xwDjCdnYhQ+agpg/JKcxCz8ejk1gYa7QgGmlxOheWrP9
-	 vUu9WzQpEinwA==
+	b=J0tv6vcqJA1X3HnEcnD3OjCpAjmGTGN/dqFA4o8NuRZhg8yHmJgx9Fd5moZHV1UOa
+	 yMjiVuIqEpKONfMByf0+wZzwtRSKJt2PiBTZDws4UoutNsjIzhzC+31mCSAU2Zo28D
+	 73hD4vHoMaxC0ivZKyZ8hfsBIgYsOzz8q3kQxvjURU7lKe/IL/qq+5LZR2m3JZTDhF
+	 PYdUprtSfcybTY3/8NxqGEsWsxBRPWV0Q8J52Fy3jD5CBwHuuOrCg+mtG6Z8EmIED2
+	 fnEhNKkL6MOWRW0gMS5E1cD7Bnl2RkYqK8cwCZHYg7rSXhZlyOrrmE6Y2OGjYByyuC
+	 vpxTAlON2Rq2Q==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E16AAC88E50;
-	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19E25C88E54;
+	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
 From: =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI_via_B4_Relay?= <devnull+kavakliyigitcan.gmail.com@kernel.org>
-Date: Fri, 11 Sep 2026 11:51:04 +0300
-Subject: [PATCH RFC 07/10] drm/msm/dpu: describe SM6125 programmable-fetch
- delayed-start quirk
+Date: Fri, 11 Sep 2026 11:51:06 +0300
+Subject: [PATCH RFC 09/10] drm/msm/dsi: separate host link enable from
+ video stream enable
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260911-ginkgo-submission-final-v1-7-0e68e63a18d4@gmail.com>
+Message-Id: <20260911-ginkgo-submission-final-v1-9-0e68e63a18d4@gmail.com>
 References: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
 In-Reply-To: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
 To: Lee Jones <lee@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
@@ -69,11 +69,11 @@ Cc: dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
  =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI?= <kavakliyigitcan@gmail.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=4060;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=4404;
  i=kavakliyigitcan@gmail.com; s=20260911; h=from:subject:message-id;
- bh=dCreEw0ry0ghroTxWJf7tgoAXBd+986oDcr+3tTl2VM=;
- b=KYl/lRrMDLhvHmU1okl6IBNSYl8H3UZgdc2FxvgWCppoBUwtEFIZVK5FOVUPt7/MCw61kGQkv
- KJLS3g1uVXIC9D2IU3cjGrSuCaC0umPhHpUeGM0zuoT1TWfIB4deo3w
+ bh=V8nqA1aw4sLc5FPA3CMsuU6cEpTrAqNLa+vYEEKpC58=;
+ b=Xgf0bzykBXhHaxOrLtuXKDxVfuAVHziW83ocSKAKZpSsd2068AHVSXqKBe+Olh/lzxrqVGPzv
+ eJMuE07GXCkCuR070oxMTfkNJaNJCaUrsGpJoK9vi85cEDPhpsUfB0k
 X-Developer-Key: i=kavakliyigitcan@gmail.com; a=ed25519;
  pk=W2GaxVotULs2vAjRMMLheaDtMMYs4037zO1LVVfFtPI=
 X-Endpoint-Received: by B4 Relay for kavakliyigitcan@gmail.com/20260911
@@ -83,90 +83,110 @@ Reply-To: kavakliyigitcan@gmail.com
 
 From: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 
-On Qualcomm SM6125 (Snapdragon 665 / Trinket DPU 5.4.0), calculating the
-programmable prefetch start counter strictly as:
+In video mode DSI displays, enabling the host previously engaged the
+hardware video engine immediately during atomic_pre_enable. When panel
+prepare routines transmit initial DCS sleep-out and setup commands,
+concurrent active video transmission causes DMA timeouts (-110).
 
-    (vert_total - vfp_fetch_lines) * horiz_total + 1
-
-causes the fetch trigger to evaluate on the active-video to vertical
-front porch line boundary. In hardware, this triggers an internal line
-buffer FIFO conflict within the INTF timing generator, resulting in
-immediate DSI FIFO overflow and timeout errors (status=5) and complete
-loss of pixel output.
-
-Qualcomm downstream display drivers mitigate this erratum via
-delay_prg_fetch_start = true, delaying the fetch start by one scanline
-(+ horiz_total) into vertical front porch line 1.
-
-Introduce 'has_prg_fetch_delay' in struct dpu_caps, enable it for SM6125
-in its catalog entry, and throttle fetch start in programmable_fetch_config()
-when the capability is set.
+Keep the DSI host in command mode during atomic_pre_enable to permit
+clean panel preparation, and start video streaming in atomic_enable
+after the panel has completed initialization.
 
 Signed-off-by: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 ---
- drivers/gpu/drm/msm/disp/dpu1/catalog/dpu_5_4_sm6125.h |  1 +
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_vid.c   | 11 +++++++++++
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h         |  2 ++
- 3 files changed, 14 insertions(+)
+ drivers/gpu/drm/msm/dsi/dsi.h         |  1 +
+ drivers/gpu/drm/msm/dsi/dsi_host.c    | 23 ++++++++++++-----------
+ drivers/gpu/drm/msm/dsi/dsi_manager.c | 20 ++++++++++++++++++++
+ 3 files changed, 33 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/catalog/dpu_5_4_sm6125.h b/drivers/gpu/drm/msm/disp/dpu1/catalog/dpu_5_4_sm6125.h
-index 64be51e301591b7f17918475a957623c6fea23d4..ec0315284e0663f57a41a1fdf515d948c3d40d68 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/catalog/dpu_5_4_sm6125.h
-+++ b/drivers/gpu/drm/msm/disp/dpu1/catalog/dpu_5_4_sm6125.h
-@@ -13,6 +13,7 @@ static const struct dpu_caps sm6125_dpu_caps = {
- 	.max_mixer_blendstages = 0x6,
- 	.has_dim_layer = true,
- 	.has_idle_pc = true,
-+	.has_prg_fetch_delay = true,
- 	.max_linewidth = 2160,
- 	.pixel_ram_size = DEFAULT_PIXEL_RAM_SIZE,
- 	.max_hdeci_exp = MAX_HORZ_DECIMATION,
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_vid.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_vid.c
-index ba810f26ea3099106aac1783f7f6bf5e014e41a0..15445eaf9f3baf4661e22bee133cc2059a3cd2b1 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_vid.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_encoder_phys_vid.c
-@@ -237,10 +237,21 @@ static void programmable_fetch_config(struct dpu_encoder_phys *phys_enc,
+diff --git a/drivers/gpu/drm/msm/dsi/dsi.h b/drivers/gpu/drm/msm/dsi/dsi.h
+index 93c028a122f3a59b1632da76472e0a3e781c6ae8..cfb2b51cae0a9227fbe88ecc5291ac1a9f82a5ce 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi.h
++++ b/drivers/gpu/drm/msm/dsi/dsi.h
+@@ -69,6 +69,7 @@ int msm_dsi_host_cmd_rx(struct mipi_dsi_host *host,
+ void msm_dsi_host_cmd_xfer_commit(struct mipi_dsi_host *host,
+ 					u32 dma_base, u32 len);
+ int msm_dsi_host_enable(struct mipi_dsi_host *host);
++void msm_dsi_host_enable_video(struct mipi_dsi_host *host);
+ int msm_dsi_host_disable(struct mipi_dsi_host *host);
+ void msm_dsi_host_enable_irq(struct mipi_dsi_host *host);
+ void msm_dsi_host_disable_irq(struct mipi_dsi_host *host);
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index b9e2867d435a3ad8b6db6b57c440bbd827180b6e..b2702f772ee195b2758433d98d0f071e3f55955e 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -2438,22 +2438,23 @@ int msm_dsi_host_enable(struct mipi_dsi_host *host)
+ {
+ 	struct msm_dsi_host *msm_host = to_msm_dsi_host(host);
  
- 	vfp_fetch_lines = programmable_fetch_get_num_lines(phys_enc, timing);
- 	if (vfp_fetch_lines) {
-+		const struct dpu_mdss_cfg *catalog = phys_enc->dpu_kms->catalog;
+-	dsi_op_mode_config(msm_host,
+-		!!(msm_host->mode_flags & MIPI_DSI_MODE_VIDEO), true);
+-
+-	/* TODO: clock should be turned off for command mode,
+-	 * and only turned on before MDP START.
+-	 * This part of code should be enabled once mdp driver support it.
+-	 */
+-	/* if (msm_panel->mode == MSM_DSI_CMD_MODE) {
+-	 *	dsi_link_clk_disable(msm_host);
+-	 *	pm_runtime_put(&msm_host->pdev->dev);
+-	 * }
++	/* Keep DSI host in command mode (VID_MODE_EN = 0) during panel init
++	 * to allow clean DCS communication without premature video engine startup.
+ 	 */
++	dsi_op_mode_config(msm_host, false, true);
 +
- 		vert_total = get_vertical_total(timing);
- 		horiz_total = get_horizontal_total(timing);
- 		vfp_fetch_start_vsync_counter =
- 		    (vert_total - vfp_fetch_lines) * horiz_total + 1;
+ 	msm_host->enabled = true;
+ 	return 0;
+ }
+ 
++void msm_dsi_host_enable_video(struct mipi_dsi_host *host)
++{
++	struct msm_dsi_host *msm_host = to_msm_dsi_host(host);
 +
-+		/*
-+		 * SM6125 (DPU 5.4 / Trinket) quirk matching downstream
-+		 * delay_prg_fetch_start = true. Throttle fetch start
-+		 * to the second line after active video (VFP line 1).
-+		 */
-+		if (catalog && catalog->caps && catalog->caps->has_prg_fetch_delay)
-+			vfp_fetch_start_vsync_counter += horiz_total;
++	if (msm_host->mode_flags & MIPI_DSI_MODE_VIDEO)
++		dsi_op_mode_config(msm_host, true, true);
++}
 +
- 		f.enable = 1;
- 		f.fetch_start = vfp_fetch_start_vsync_counter;
- 	}
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h
-index f45faf87333e89bbd463504ae3219609ef6209bd..db3cbf9fa04a13baf3ac40390757ed24120ccccd 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h
-@@ -273,6 +273,7 @@ struct dpu_rotation_cfg {
-  * @has_dim_layer      dim layer feature status
-  * @has_idle_pc        indicate if idle power collapse feature is supported
-  * @has_3d_merge       indicate if 3D merge is supported
-+ * @has_prg_fetch_delay indicate if programmable fetch start requires a 1-line delay
-  * @max_linewidth      max linewidth for sspp
-  * @pixel_ram_size     size of latency hiding and de-tiling buffer in bytes
-  * @max_hdeci_exp      max horizontal decimation supported (max is 2^value)
-@@ -285,6 +286,7 @@ struct dpu_caps {
- 	bool has_dim_layer;
- 	bool has_idle_pc;
- 	bool has_3d_merge;
-+	bool has_prg_fetch_delay;
- 	/* SSPP limits */
- 	u32 max_linewidth;
- 	u32 pixel_ram_size;
+ int msm_dsi_host_disable(struct mipi_dsi_host *host)
+ {
+ 	struct msm_dsi_host *msm_host = to_msm_dsi_host(host);
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+index 959daa88b1d022da5f552bb21ca7c04006524fa4..9e3f125ec4ea8e3fae50c8226e67b4106c01dc76 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+@@ -446,12 +446,32 @@ static int dsi_mgr_bridge_attach(struct drm_bridge *bridge,
+ 				 bridge, flags);
+ }
+ 
++static void dsi_mgr_bridge_enable(struct drm_bridge *bridge,
++				  struct drm_atomic_commit *commit)
++{
++	int id = dsi_mgr_bridge_get_id(bridge);
++	struct msm_dsi *msm_dsi = dsi_mgr_get_dsi(id);
++	struct msm_dsi *msm_dsi1 = dsi_mgr_get_dsi(DSI_1);
++	struct mipi_dsi_host *host = msm_dsi->host;
++	bool is_bonded_dsi = IS_BONDED_DSI();
++
++	DBG("id=%d", id);
++
++	if (is_bonded_dsi && !IS_MASTER_DSI_LINK(id))
++		return;
++
++	msm_dsi_host_enable_video(host);
++	if (is_bonded_dsi && msm_dsi1)
++		msm_dsi_host_enable_video(msm_dsi1->host);
++}
++
+ static const struct drm_bridge_funcs dsi_mgr_bridge_funcs = {
+ 	.atomic_create_state = drm_atomic_helper_bridge_create_state,
+ 	.atomic_destroy_state = drm_atomic_helper_bridge_destroy_state,
+ 	.atomic_duplicate_state = drm_atomic_helper_bridge_duplicate_state,
+ 	.attach = dsi_mgr_bridge_attach,
+ 	.atomic_pre_enable = dsi_mgr_bridge_pre_enable,
++	.atomic_enable = dsi_mgr_bridge_enable,
+ 	.atomic_post_disable = dsi_mgr_bridge_post_disable,
+ 	.mode_set = dsi_mgr_bridge_mode_set,
+ 	.mode_valid = dsi_mgr_bridge_mode_valid,
 
 -- 
 2.47.3

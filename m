@@ -1,127 +1,147 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from a9-39.smtp-out.amazonses.com (a9-39.smtp-out.amazonses.com [54.240.9.39])
+	(using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0DA8386576
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 19:00:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB943438015
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 19:14:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.240.9.39
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789153218; cv=none; b=NLoWekVDoBhVLq2D2dyn9BmD219LbB9gcsT0FhTLGiZahmYSNDOR2nP4aA0vg7LoST9PUF8JD76acRW8kvnV26vav+/mWjMaBo8qtXPzX2KRTBFl/sFtFKcXbCWNzPYKYpKCsuvvYqt80RjBerqoQbRphU5udQFLHVPtlZaCjD4=
+	t=1789154082; cv=none; b=glHuuEEYKO0rqXzDsji18+V6HotJtbZD7nRP51eizSzt2S+UbwM/k0+MJGyLRqkER4E/uqWQi4gVgt5YhvUBbSFDXUigsZm5mXzaRiiaBLLymdO/QAxvCpoDPbqaRmWoOHoHjWV6eL4IPINHUJPEzFu9hnLX9BNgK8bwQGCj9PA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789153218; c=relaxed/simple;
-	bh=4ZtekrvSZt7MHjr4SZHmeMiexH0wFmTPt1K8GIiGr/8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tXCKxxD/FxfLPj/5EkzU9DnlwMWR6WkNYLdupgYO4K769hsFCVwDBq0+RSA9sHP84TxUQzPH6rC2J8AnGuEB23MErp6k6kG7JSFh48MVl+hBlz3zygtM58YLk8/Y68tywJ/uJXL21ero7BpDBf06+NhtBuOHvszSebXiPKSolgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=LmNQGXlL; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1789154082; c=relaxed/simple;
+	bh=HUlPAADvidL6hyzJ3tzld68JTISaEtOuMaiBF5qX9jo=;
+	h=In-Reply-To:From:To:Subject:Message-ID:Date:MIME-Version:
+	 Content-Type; b=NlFVF5YU19FJmJFJbJ9rB8jfreU3TTJTnV6B9tYU9JbQguxjktm+XYG87MlW+kLN8uQ7jt3TAMn/NmpWKjLIC4tNHP5oyLY2iX+7O++49ZjF+QqdjicVDRdMsPf0D4fbWx5bEVTPgkKCQ16ecOCFJr9VIgsctOqu8XWXws8Toxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bugs.sh; spf=pass smtp.mailfrom=send.bugs.sh; dkim=pass (1024-bit key) header.d=bugs.sh header.i=@bugs.sh header.b=VVC7JtXl; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=BRJYYqox; arc=none smtp.client-ip=54.240.9.39
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bugs.sh
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.bugs.sh
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="LmNQGXlL"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49cd38e0e5dso2725145e9.2
-        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 12:00:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1789153215; x=1789758015; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=4ZtekrvSZt7MHjr4SZHmeMiexH0wFmTPt1K8GIiGr/8=;
-        b=LmNQGXlL5Y4S9REa2m9zYM2zbxoICOj106QyTBt2o03oEIUCXfftZJkfd3dCQHBkkm
-         ft5dMwkeJLbRLdb81oCnBx5Ku8l0CcZQgFsNfYUGyPoJqq+F8erO1vHxAin0q2zDUSv+
-         4QAW6TYZ+dMo7dvD4rawn0pUtBicgfFxaiuKLtlfxslhuedsk0tn396FgW2kFBr903et
-         DyrTK+UIXnMSlR1TL9KCxmtHJ+c+HQl84JnARxodseJ8qjGBd3yfnBRkk9Gg5r6wKBuW
-         ylSNDogQGAXJUhJkqsHlF6pnCrYLr3lCgddOd8HCJ0TpV+ol9vsqSpV1qfE7RmDlz0cM
-         U0TQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789153215; x=1789758015;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4ZtekrvSZt7MHjr4SZHmeMiexH0wFmTPt1K8GIiGr/8=;
-        b=m2m1e9RRM7Y5i38GfLlyb6zZo5ajKYw6d4rJjXza18umzF231WtDFfLtc9DnKsJNPe
-         IoN2VA3ZHaelI5KmnHZQIpCrbueCKtEc5sOgJGDYXlYA3dLXSlHKvTRGp6zUcfSqp0+C
-         4wxX+LvgP5GvORKSt+6b8WwQKsiBWbslzznZPGp/n9O0T0wsGxZm09l36JilKBjWo12L
-         +83jN8xZCIWEJbjZxDcq5eO87IYGqvxyueGB3C5QJUuT/wrN0cMgyjpHGLOkkdqAAVDr
-         yRq+T1gYIA+nfTjB3kHzuvGPyEHlw3tR4hD42/DIYYfIGj5AIM5QR1NuCDb2BUxqYJPV
-         G6SA==
-X-Forwarded-Encrypted: i=1; AKwUvBzNpBv9ft38QakcjD9cdm2nVe8Ncczi9D6iebelwdEXqQrDh/pk5VJtzkCICrM4EAZbtxYLoJO5X3cakA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mRgOXnA4L+fXpr3miISYH2Ujyn+WOpr6oHu45ae2MEv9zLEKeY
-	P2MtFdzEoz23lt009Iv7LXLHNRsTW5rfIC1QELd3UcAbOeVY89b4YSq07M4nnBWL37k=
-X-Gm-Gg: AYBFou1/kQTtVHGvNBp7jJee3DfKYnB95EaQ+xe0EB3/q9JWqNE5tExHuaXxq8OADxJ
-	svM8Jj7sp+tx/KB6U1Y541KKIE9ZPndXpaeA651iPIk5xZwnKCCANbUamNWUwBqaZ0rHwhoIaqd
-	ppo3hmh9q63dVWqgaveorUPZzj6Fdue1YG3pqhw46FFzzM+cZJAeEsIZjmFf6qmaeHftsHN6qlT
-	IVCNjHoGbuxc72SYBAhZTh0q8ij0EVTjJG/GL+haEiRb6M+LzWriE4Grc2ssVPfTxkxQfIy+8aL
-	G0fvU12Dht6aDxa3uaIPEParhV63xmhKD53L1sfqWpbwxMYft7h3AilqIGgc2bvNZiuKviev5x8
-	YgJLohL/xIC5JRxFUX4rbTw5Ei1K7WfpVUZAJqm7N0NuewZFU40+aAe/Hiw80dtUHUihsqJ3CO/
-	ttrKs6M021h5pczVA+Kkqrv5tIxXvsI5q2v4qtCBnmSUbKuaTi2O5xoZ8qkzyPTvvz9rUX5moDQ
-	+E6
-X-Received: by 2002:a05:600c:c178:b0:49c:f512:2361 with SMTP id 5b1f17b1804b1-49e61a15c31mr134264775e9.14.1789153215223;
-        Fri, 11 Sep 2026 12:00:15 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-49d26be3e0asm191106785e9.1.2026.09.11.12.00.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 12:00:14 -0700 (PDT)
-Date: Fri, 11 Sep 2026 21:00:13 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Vsevolod Nevorotov <sevanevorotov29@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] Input: synaptics_tcm_i2c - add Synaptics
- TouchComm I2C touchscreen driver
-Message-ID: <aqRPGt4WJ6aYG3CB@monoceros>
-References: <20260910091405.354058-1-sevanevorotov29@gmail.com>
- <20260910091405.354058-3-sevanevorotov29@gmail.com>
+	dkim=pass (1024-bit key) header.d=bugs.sh header.i=@bugs.sh header.b="VVC7JtXl";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="BRJYYqox"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
+	d=bugs.sh; t=1789154071;
+	h=In-Reply-To:From:To:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
+	bh=HUlPAADvidL6hyzJ3tzld68JTISaEtOuMaiBF5qX9jo=;
+	b=VVC7JtXl64j7s0WPReGFInn7iH0holjtt2S8CJAAMIwBP2I9rUiR0UdPziASwtxQ
+	oifAPhwrEh6Sm3KZIzW2SX1fR6CW84TxWNwyXoIEQl5Q171Uyi96tzWoE+7suTO7Nh1
+	QWpC+3TvS7X94i7gRLr3sDmzTNWkeFpsbnw20QWI=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=224i4yxa5dv7c2xz3womw6peuasteono; d=amazonses.com; t=1789154071;
+	h=In-Reply-To:From:To:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
+	bh=HUlPAADvidL6hyzJ3tzld68JTISaEtOuMaiBF5qX9jo=;
+	b=BRJYYqoxLhVamIONdagQ3anumE9rDgG2BYmahwolSWnjKM+acz39RSnmKEL2kiiA
+	kU/JSxqB9Ig1zxMjx+zkf3MFeU/SKqdGQJMhqtQAXwqz8jph78IouoF8EmMKjGQrFRX
+	cLHl+XdxEyaauyKBqi/B6MH3GoNw1BInQZnSVMjY=
+X-Forwarded-Encrypted: i=1;
+ AKwUvBzA4vzeWQn0iC76LgweKdhAAi+14KLJ3pxGrWf6UKv5J2tV+K4kPrRzWuse7GJbBGqWikusyFGh19hZMw==@vger.kernel.org
+X-Gm-Message-State:
+ AFuF++ljib69R8k3XZE9V8DyqyMTiyOru+0VRHULO6JPei+kwivfG4lo
+ LbkTRsvAESRTCwbTyuFTHasr/aJoWjDzVJHh+gHjN15R/iOclUc9+Mv5PUvig1/krHzE48L7rH7
+ P/lOB+wJud9phEbwwFBywN2DYe5InJEVlkU9BVYvz
+X-Received: by 2002:a17:903:8c4:b0:2db:2ae9:fab3 with SMTP id
+ d9443c01a7336-2dd2a33680fmr105724465ad.11.1789154068854; Fri, 11 Sep 2026
+ 12:14:28 -0700 (PDT)
+In-Reply-To: <2r7082oo-1qoo-4r04-6nnn-r193s5n91rns@xreary.bet>
+X-Gmail-Original-Message-ID:
+ <CAPpSM+ReEBaJgCAOf=3H6wbKpjbC9SPiYgdMaCnpsWQKiuBQUA@mail.gmail.com>
+X-Gm-Features:
+ AcwNN1WdIsIOiR1pO_tErYl77QLKrD7_KPBoD3tNcbkSMT3h5J-XGU5GFiLqkU0
+From: CO <co@bugs.sh>
+To: linux-input@vger.kernel.org
+Subject: Re: [BUG] drivers/hid: use-after-free in u2fzero_recv()
+Message-ID: <010001a091e48f6b-ae465cb9-05fe-450f-a553-e16211dc3129-000000@email.amazonses.com>
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 19:14:30 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="qn6sntu7ctfew2tm"
-Content-Disposition: inline
-In-Reply-To: <20260910091405.354058-3-sevanevorotov29@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Feedback-ID: :1.us-east-1.yL0noGNZdXCKlJHw27bHz8/I7/GZTaYDRe4l4bGvzjPa1Q4S+kzxKgpyYIxfCxOFAjHX6QJhZdsZN1SP8V3NfEiLJ34m58z2/mmJDZ5RtdRTZ06dzneIWyoUkJ1DSaTbU2HlPz+Zb2/NZ41D3j4FLWNy2FyGjUOa4qpft7gzKcs=:1.us-east-1.QSNtDRXSTq9sAuvRl56h5mypgasnQ5yDLNpVzTnziu0=:AmazonSES
+X-SES-Outgoing: 2026.09.11-54.240.9.39
 
+On Fri, Sep 11, 2026 at 7:54=E2=80=AFAM Jiri Kosina <jikos@kernel.org> =
+wrote:
+>
+> On Thu, 27 Aug 2026, co wrote:
+>
+> > We found a bug reachable =
+in:
+> >
+> >     path    drivers/hid
+> >     crash   use-after-free in =
+u2fzero_recv()
+> >     commit  6f232446a629 ("Linux 6.12.77")
+> >
+> > Config, environment, the sanitizer report and a C reproducer follow.
+> >
+> > =3D=3D Notes =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> >     If you patch the bug based on our artifacts, a tag would be
+> >     appreciated:
+> >
+> > Reported-by: co+b240dc164119a46c@bugs.sh
+> >
+> >     Everything in this mail is validated by the reproducer below.
+> >
+> >     We also hold an LLM-generated root-cause analysis and a candidate
+> >     patch. The patch passes an A/B test: the same reproducer panics the
+> >     unpatched kernel and runs clean on the patched one. Neither has had
+> >     human review, so both still require validation before you send or
+> >     apply them. Available on:
+> >
+> >         patch.diff  https://bugs.=
+sh/b/b240dc164119a46c/patch.diff
+> >         report.md   https://bugs.=
+sh/b/b240dc164119a46c/report.md
+> >
+> >     This is an open science project=
+. The code and the full set of PoCs
+> >     are not public at this moment, =
+as we intend to disclose our findings
+> >     in an ethical way.
+> >
+> >     Happy to test patches. Complaints and suggestions about our work
+> >     are welcome at:
+> >
+>
+> Could you please submit this as a proper =
+patch [1] so that you can
+> properly creditted for the fix?
+>
+Hi Jiri,
 
---qn6sntu7ctfew2tm
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH v2 2/2] Input: synaptics_tcm_i2c - add Synaptics
- TouchComm I2C touchscreen driver
-MIME-Version: 1.0
+Thanks for your suggestions. We are sorry for the misleading report. We
+have updated the report format so that it is correctly stated as a bug
+report, not a patch. We will also state that the provided patch is
+LLM-agent-generated. We do not want to overwhelm the maintainers with
+low-quality patches, so we choose to send the bug report, and we will
+spend our time working with other contributors to close these bug
+reports. This is mainly because our bug discovery is automated, but
+patch verification is hard and cannot be done reliably by an LLM. So we
+decided to report the low-severity bugs like syzbot and ask the
+community for help.
 
-On Thu, Sep 10, 2026 at 04:14:05PM +0700, Vsevolod Nevorotov wrote:
-> +#include <linux/bits.h>
-> +#include <linux/delay.h>
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/input/mt.h>
-> +#include <linux/input/touchscreen.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/mod_devicetable.h>
+We could provide the patch in ready-to-send format, =
+but we worry about
+people sending it on without review, so we trimmed it =
+and kept only the
+code change.
 
-Please rely on <linux/i2c.h> to provide i2c_device_id and of_device_id
-and drop <linux/mod_devicetable.h>. (And in case you want to do full
-iwyu use <linux/device-id/i2c.h> and <linux/device-id/of.h> instead.)
+Feel free to tell us if you have any =
+suggestions for our workflow.
 
-Best regards
-Uwe
+Xiang
 
---qn6sntu7ctfew2tm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqkT7oACgkQj4D7WH0S
-/k5AlQgAoq/MkGLldNzQZHH9O2QgklRLKn3AgJJy9K4GAIyb5IILN/eM8VDBAFMF
-6zykFb9BPjPjOpTxbgL8Xj/QfNTQlUfiLr6O2ftLxnXaJ4XQpGnTjwhuz1B/kL2p
-lMUpxSlrXAy5itIgCk6qb7yx/JTGL0LPctqidq5/0FAfo5LDGdQ52nMDYE1u/z9B
-w+P3XMncaorfSlMH2r/bN6emTJcrUuLl0ZNqwGNRYr74+EC1qM0pm6yRMb3muqEK
-4XSfIOT1Vg2zeA9H80SK6di+VMgy2HpTHhqAzT4/oGgUr2zRYz9bjUgToYGPGFHC
-h2X+heeQ1/nTr7EQ2BMY0Rrw6RybRA==
-=OVXg
------END PGP SIGNATURE-----
-
---qn6sntu7ctfew2tm--
+> Thanks.
+>
+> [1] =
+Documentation/process/submitting-patches.rst
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
+>

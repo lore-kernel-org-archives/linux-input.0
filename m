@@ -1,40 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467E647ECFC
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 13:36:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF66D489FB3;
+	Fri, 11 Sep 2026 13:44:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789133782; cv=none; b=a9AnMQW81hdqAKy/1uUsi/aCQHxigwYzzWO70LxtBdrzw7q0txUwpzSDsv/YQbPzEcAKceDQhNka6ijTZ2wi2E/sRSnLx9wET+IdTzXHnb8pNfR1xjqmotfc36HxEK/Jl0/bidaqcTVTUqXlIoe72cLiSc9WAeabctce2URIMfc=
+	t=1789134282; cv=none; b=P3+ZRuWMwqfspqyE9GULunAZneNtxj0EQa8M/Oz3y8PT134j2zmOo6wHgvc9kp2NzOTXfZsuWdMSWpBRt7OkxA9zARrwc1fNGkHA2zceDOp1e0l9JA3F8FqLFk/1LvtPMmjEpQ7Ma/evL3Si44SzlnXEJzpMc4zkXNAQAGkWK/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789133782; c=relaxed/simple;
-	bh=oK1d68c5KY3jOjGUdzUraqScOJ/nmyeDNuMA+tRPSkA=;
+	s=arc-20240116; t=1789134282; c=relaxed/simple;
+	bh=2HCQ0onCOv8t4cSd08pv7aUL7n0DeKsvmk1ezOK3lbk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=MlGNpEs+sHeBHfO/uY3OAtFdKbj09P0P2BlPlbEFkXOKiA9L6040LXmFl+LZuQnbN+RC/pk6xBXW0Zg/ITTEeCzwr/XaSNwF8irKb+zocqEhGiSaXNdbGe2ylxoigvPzRxSL3Cq4vi/06NK3IeOFr9SnY61uFJ6KTmjJLTr5qOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJHRS8lc; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Fxxn6duW/lm52xorvLO6bNMD+g7HQasHNbTp9nQBIrCPtch9ftoSyHv0QsG5g71zuNPBB1Qp80shgVzx+MtHZ4WdQkh0SC/Vs11FMbZezGO2fgT+rtUWjMl0oZqhuZxE98PmtOmgn9NXvHNLauOktTZxH4OdM6SUzK7M9yc+jBs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WF9Gnvt3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJHRS8lc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56E491F000FF;
-	Fri, 11 Sep 2026 13:36:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WF9Gnvt3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C351F000FF;
+	Fri, 11 Sep 2026 13:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789133780;
-	bh=bBSFpTvF4xuS68QtHMdJSmrYsul6zXVui2cYkk8Vms8=;
+	s=k20260515; t=1789134278;
+	bh=SlEKdTbVEoutjYOksHy3BUmRBcFogtPtsUCMkHNfLow=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=DJHRS8lcGsXFV49ruVI1Axgn0YfaQF5PEzHFsw7HCDEofl7qJFbnlE/raPGJ7UxiQ
-	 CETqrS8nvOlC9bD9Zog/i4KnXGnQDU8tUCI8fcsLvdNBzBL8xmtpES0RR67tGFI+Jb
-	 8615hMtcHpir37et8EYMQAKrSaQP+2dV6lfpb74K2uJQ/JOqMIjNTutwE9wdK8u/DK
-	 BZLZiGi56bedqVxOrLsLII0vrnE9m7ZdT/r6CZAcbTkx7J/Fa1bJoG52rOFoSHi3NT
-	 JoXEsUS3KZ4aVE9hNgixBGKhc8PkrnHL3Mh7yBRCAcYeh6q1Dw7VfXSl4ccsWzliIC
-	 B/XAKlceUy9eA==
-Date: Fri, 11 Sep 2026 15:36:18 +0200 (CEST)
+	b=WF9Gnvt3RyqjxWIACb+JywubqoQswMfbwZH1ZlSuad6HozbtCij/3fxIUZO7g25XD
+	 wVi24rfBk+XyDcQt5Jz8hYpy4nHWIYhx2TAgetWcdP38j4KjlU3fy2IHwZa45/ATHk
+	 kyaY5DMLQWTqkis9XZh+dKhvWI7xf8+cAkNlgm0Km3iK0porqvVBoMn4mz8JHLRfKW
+	 zk/eFqTAiK+4pPfXXKyBpzkr4OKUWkMRaaUOC6tqTMyiVvwZTulkYQ3syAoxRx/6Oi
+	 6ROqRPE3W8pKmWD0C7uHyErVoj761761Mnw9l6BQd8FQ/PSOryeFKDng9ZvhepJET5
+	 UY5kwW52Qz7pQ==
+Date: Fri, 11 Sep 2026 15:44:35 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH 0/4] HID: amd_sfh: Add DMI quirk and support for new AMD
- SoCs
-In-Reply-To: <20260902134431.3146117-1-Basavaraj.Natikar@amd.com>
-Message-ID: <49q9507o-07q2-rr5r-rop4-482p5soorn11@xreary.bet>
-References: <20260902134431.3146117-1-Basavaraj.Natikar@amd.com>
+To: Wei Jie LAW <98lawweijie@gmail.com>
+cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+    Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH v4] HID: wacom: fix OOB read in
+ wacom_wac_pen_serial_enforce()
+In-Reply-To: <20260909011515.2314-1-98lawweijie@gmail.com>
+Message-ID: <362p32oq-pp7r-44sr-s0ss-8snn6q9r04q9@xreary.bet>
+References: <20260828033323.82958-1-98lawweijie@gmail.com> <CANRwn3RFVDy+y-fpLkb1mfjiKyQgp1Jg0tyBTO+G0xem2s1jkQ@mail.gmail.com> <20260909011515.2314-1-98lawweijie@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,29 +46,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 2 Sep 2026, Basavaraj Natikar wrote:
+On Wed, 9 Sep 2026, Wei Jie LAW wrote:
 
-> This series makes two independent improvements to the amd-sfh HID
-> driver: a DMI quirk for an existing platform, and Sensor Fusion Hub
-> (SFH) support for newer AMD SoCs (MP2 1.2).
+> The 'wacom_wac_pen_serial_enforce()' function may calculate and pass an
+> invalid offset to hid_field_extract(), resulting in memory reads at
+> incorrect addresses -- possibly beyond the end of the report.  If a
+> field in the HID descriptor lists more usages than its Report Count
+> actually reserves space for, the function's inner 'j' will walk past
+> the end of the field:
 > 
-> Patch 1 exposes intr_disable as a module parameter and adds a DMI quirk
-> for the ASUS VivoBook TP420UA/TM420UA, which needs interrupts disabled
-> for correct sensor operation.
+> 	for (i = 0; i < report->maxfield; i++) {
+> 		for (j = 0; j < report->field[i]->maxusage; j++) {
+> 			...
+> 			value = hid_field_extract(hdev, raw_data + 1,
+> 						  offset + j * size, size);
 > 
-> Patch 2 enables the SFH on newer SoCs by adding PCI device ID 0x1152;
-> MP2 1.2 reuses the MP2 1.1 initialization and operation paths.
+> A descriptor listing 12288 usages against Report Count 1 has the loop
+> extract the usage at index 12287 from bit offset 98296 -- about 12 KB
+> past a 2-byte received report.  The value is stored in
+> wacom_wac->serial[0] and can reach userspace as an MSC_SERIAL event,
+> making this an information disclosure.
 > 
-> Patches 3 and 4 switch human presence detection (HPD) and device-mode
-> reads to DRAM instead of the C2P registers on these newer SoCs.
+> Clamp the loop to field->report_count, the number of value slots the
+> report holds.  Value slots past the last declared usage are still
+> scanned; they reuse that usage (HID 1.11, 6.2.2.8).
 > 
-> Basavaraj Natikar (3):
->   HID: amd_sfh: Add support for newer AMD SoCs
->   HID: amd_sfh: Add HPD support for new AMD SOC
->   HID: amd_sfh: Add device mode support for latest AMD SOC.
+> Verified on v6.12.105 with a UHID reproducer: a 2-byte report from
+> such a descriptor trips KASAN before the patch and not after it.
 > 
-> Helge Bahmann (1):
->   HID: amd_sfh: Add DMI quirk and module param to disable interrupts
+> Fixes: 83417206427b ("HID: wacom: Queue events with missing type/serial data for later processing")
+> Suggested-by: Jason Gerecke <killertofu@gmail.com>
+> Cc: stable@vger.kernel.org
+> Assisted-by: Claude:claude-opus-5
+> Assisted-by: GLM:glm-5.3
+> Signed-off-by: Wei Jie Law <98lawweijie@gmail.com>
+> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
 Applied, thanks.
 

@@ -1,41 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3995494A0F;
-	Fri, 11 Sep 2026 15:44:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4470149F123;
+	Fri, 11 Sep 2026 15:51:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789141496; cv=none; b=D9Oua7Wzgp+Ni/m7iF/a4Lg9CLrAVRntxtPeBW3VEjj2bE7NhUc8KvfmzkuhvPTXSpoXMnKFxnG1knFJdS6cKR8gdFeAUwZxZdsFZgErVC2c8ZQsuyrDL6yKwNZkLGvL6qidIsQMQXJv5PDSsVjbopqzNR0Mvf2hLdqMlBmBvDQ=
+	t=1789141916; cv=none; b=Tuqzx2xksQM5ChoDhCdfEY4dFC+CBs4pAU/aaHnzxl8SrRDQefhlUIT20cp0XOOn1OkRm2uJ1b0/YICDj1OHYb5tzlTbi/iB7utq1riOTZ6Rfc/Ac9nE7hVT7/07Cn/2a553b8FUsa6gfjgB+gPTyppf7Oe4iiOadO09zRlEIzg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789141496; c=relaxed/simple;
-	bh=xUngvpUEXhT/hnio35QpmbvvJrS6A/gzHsG99yrLHIM=;
+	s=arc-20240116; t=1789141916; c=relaxed/simple;
+	bh=AlEU66htQ9m20FtnUfEm+oOJRbf4BvUjW97ipsqjWIE=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=FztsAqKm6KiP/93rc0iSZmqlf57ELpYzGzEU5oqHDiS6oeMuRYK+FZ2A0TWnQbfDCQFTaxJjBSn2eMKA/6snngcQmuNERIKuVXufcqpr5ArzYrkf83673pS07WsAk2wySkrTccvdjxAytwS6we5afYLml3matvfLhQ+MMUnhTMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E3gFmcsg; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Jt0Y1KiTSpjSd3NRHYYwN6V1Z71ljo67QQ8WAVNO/n2KkawZFkzNx7nOEU1P7jOa7jwUMagpA3KS33lvgHXjwjn7y0c96y9gtJNXSg/chC0jgR6VSAFvA29Rb53UeoCgmWFXTRYzVoxgYqVK+heRkJ5C0ceoXD4G+853EPZGNFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lH+rCc89; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E3gFmcsg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66A671F0089A;
-	Fri, 11 Sep 2026 15:44:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lH+rCc89"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 989D01F0089C;
+	Fri, 11 Sep 2026 15:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789141494;
-	bh=BrF5fXtmowJDlr7hBfnPAFpRzsQanbmoIxICxOnI+qY=;
+	s=k20260515; t=1789141913;
+	bh=gi84yIc+2ctG0ooWqfeILX8NkbuR2E9JM1mV5F0R51k=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=E3gFmcsgJ0yznsSn9NNgP38GNWYxgBHQfcigzhvOIt71zKDdIFFISyElhBt8CB2D1
-	 PLkUYAb7gzLxjvFMK6zLuQLv46MAanhHoaj+HdBduQfEaIdIH5m1mqDU0a/zL7/Ji3
-	 5Lj7g/i3eGmP0smChCEiKc/aY+nIZOVlb0vuqKCZ36TWvlhkAmQRpELFJODOiJeBOO
-	 skyzmpDwZxVHfZ7H1NLL0IvxPAErHuCgEAI9X4o4+kOX+leEmsIWFIfh0O2bQ7X5xc
-	 vwji2Y/tp3LaZ4v7fzdPb6FdgkMJnOYRfnF8/THbb9rndL5GsYlcvm5prHgDhWD0ek
-	 rckqOQkAm7IGQ==
-Date: Fri, 11 Sep 2026 17:44:51 +0200 (CEST)
+	b=lH+rCc89veFbaKjm/pCeFTZ9waOVsWLQ80p2CnZAuIZ4JesCyIRWULmnHeugJ5MvO
+	 oqtEULEtftxCzWp+pyIylxAsrC6HouxjYrGeyzg6Bn08BjW67SlcPoO3+vhwXBfDBh
+	 +1TawV5L1qDCZE1379v3cZU2v7SZArTlfl0L0RSWjAAXNXo2+oNL6SdqpJ2W/ypfkO
+	 Zt4CKT+zwGxnn/dtUGY8OPmMK1zAh8cPX/RZG6xWwHyjAc31QOvnalByel02evo3Ww
+	 48BZrDRDecPqaaJnMswTRXA64LjXOQ52BE12clzmD309KNGFWz+G8d+OpA8MRcyAtd
+	 mOtaUs3zsxTAw==
+Date: Fri, 11 Sep 2026 17:51:50 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Oleg Keri <okerixx@gmail.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: i2c-hid: add reset quirk for Lenovo Yoga Slim 7x
- Gen 11 keyboard
-In-Reply-To: <20260908091926.5773-1-okerixx@gmail.com>
-Message-ID: <qroqrp82-pqpr-no09-9199-qpqq38rp7228@xreary.bet>
-References: <20260908091926.5773-1-okerixx@gmail.com>
+To: Tristan Madani <tristmd@gmail.com>
+cc: "Derek J . Clark" <derekjohn.clark@gmail.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, Tristan Madani <tristan@talencesecurity.com>, 
+    stable@vger.kernel.org
+Subject: Re: [PATCH] HID: hid-oxp: use cancel_delayed_work_sync() in remove
+In-Reply-To: <20260904105800.3923987-1-tristmd@gmail.com>
+Message-ID: <0qs68srn-2s7o-5q57-66nr-9s2033r08877@xreary.bet>
+References: <20260904105800.3923987-1-tristmd@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,21 +45,26 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Tue, 8 Sep 2026, Oleg Keri wrote:
+On Fri, 4 Sep 2026, Tristan Madani wrote:
 
-> The ITE controller behind the keyboard of the Lenovo Yoga Slim 7x Gen 11
-> (048d:83db) carries out a reset but never raises the interrupt that
-> acknowledges it. i2c_hid_finish_hwreset() therefore waits out its full
-> one second timeout and logs "device did not ack reset within 1000 ms" on
-> every probe and every resume, before the keyboard comes up regardless.
+> From: Tristan Madani <tristan@talencesecurity.com>
 > 
-> Set I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for it, as is already done for
-> several other ITE parts, so the reset is followed by a fixed 100 ms sleep
-> instead.
+> oxp_hid_remove() uses cancel_delayed_work() for all three delayed work
+> items.  cancel_delayed_work() only dequeues a pending work item without
+> waiting for a currently executing callback to finish.  If any of the
+> work callbacks (oxp_rgb_queue_fn, oxp_btn_queue_fn, oxp_mcu_init_fn) is
+> running at the time of removal, the callback continues executing
+> concurrently with hid_hw_close() and hid_hw_stop(), accessing the HID
+> device after it has been closed and stopped.
 > 
-> Signed-off-by: Oleg Keri <okerixx@gmail.com>
+> Use cancel_delayed_work_sync() instead to ensure that any in-progress
+> work callback completes before device teardown proceeds.
+> 
+> Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 
-Applied, thank you.
+Applied, thanks.
 
 -- 
 Jiri Kosina

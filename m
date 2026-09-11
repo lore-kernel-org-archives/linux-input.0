@@ -1,41 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97C3631E85E;
-	Fri, 11 Sep 2026 14:06:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D67232C92A;
+	Fri, 11 Sep 2026 14:09:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789135616; cv=none; b=CyGGUxEDWUspNCkOj96uyZiNUm+5IxVeybvWDfE6k0LcMFmzuRIGhguoUY235M/DePDIt4JYBFrs6zgo9PIk3xvBgWH/9vGIWlQiYUdTkOIkkBhnhxyUjxcF6Gu5G7LBJz7ENwLLKUoKT+q/Ged53ycHe6hwA0Bjj/HCC3ouDWE=
+	t=1789135747; cv=none; b=AQ37sFAgPwt8ztWWWNu9DvbADIsrA2VcFdvD5uhXsbwvOEQY/a5/+8/vHWwSBE6VSkvokF3i9CBldmokDIWFNp4cZzK/67iNYCHHAqZfV6Oy+IHK7yKcZMmnJBWYn9oWOsHlIn/ZzzHH1i8TpWMD9leA8S5tufHbaDdhhaiq1vc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789135616; c=relaxed/simple;
-	bh=uFqW20vU82y6vJWn4DmV4ieV8qoFT45RFy4hufnBE/A=;
+	s=arc-20240116; t=1789135747; c=relaxed/simple;
+	bh=smf7gLQ0IUtqRpUYNkEksCaPFG3mU+m+oVAPN80Law0=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=Nfxd+/syBzbw/lLzEXTjqwda0INXe/5MZdM3X+QGZybmmfzIXkCPZ05VB2H+G0UYewhkw80bprP0xmDRxqfkO18+nuNU1dUU3lVhmSoiptWUJEkNKCJAm4sR7aW1AJNB7/cgGpFICKkaRVRrLx2GfBIKlrTURInypVFiuG+Qm/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kYmYiXCW; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=AlPIN5jDZqwRCk9egQdED07XjoaXJViv0awzg6/Oza31srbk9l9dibpZnyNsroD+nMo34vWNmF4wh1e9Bo7XqUAFFven+uSWr89FGiZ4WrziUMDTm7eZ5gOPFoAi9bLL8CvlxU5Nwq89UThuPyO20mTOO/rIH3AyujdnRw7drAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MfUR+zkP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kYmYiXCW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4891F000FF;
-	Fri, 11 Sep 2026 14:06:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MfUR+zkP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8931F000FF;
+	Fri, 11 Sep 2026 14:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789135615;
-	bh=QXvIZ2CHp3yZqp7gA/u1N2bGVLDVS3P7UsydxPQOR7s=;
+	s=k20260515; t=1789135745;
+	bh=sI8+dEMb+UGJ0vpgiZvtZPKfwEtPD6hpL/FLA54/Kfs=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=kYmYiXCWuQQYrdgv/xTDgqXVl8fQTNDp8j2JWeg8xcyoaVhL4tvQ5Xormm2lg60o9
-	 OP2cDZm/iK5HGBaOFRdaQyZ6jrVmq13muP1aAgpnFWzb0cMtodcdQowRMfJHqrNHZm
-	 mMOz0pUIHx1N2C+O5OkzLh1qpqj/aTo2G4jj7sLbS4TDnTsusA1eJZaP0eABn4DOS0
-	 xQfa6BlrtoSKbvN7g+/fcZx9FRSyeN+vFY7dnSV2WHIlBaSSXQuZ5EdsM1VWtuJxsY
-	 U0Y4uYExk7NQg/UVC6C/aUeCqfdPHwkSE1EVv3dwNA377QjeylJWnavnOM+axvayRf
-	 JAwmRuWC95iAQ==
-Date: Fri, 11 Sep 2026 16:06:52 +0200 (CEST)
+	b=MfUR+zkPl2VggUnpjhVG85lIw0moQgDH+xYaPHsOTqfapI2aVe8pTzUBXTvP271Zt
+	 lQQhL2G6bpmnKeziOU3r1QTYQDdvEuyPQ7MZ2pmZ+a1cYmuIxSNV5T7r4svLVxhNYF
+	 faqnR7igQNfj/VeNfRD3pRgFFw/w/3E0FgAX1pZtIU8JPSdOh+Yen1a4Vtv8mArAwV
+	 bnIz01EOm5A6DEOCk4XBYaXD/2F6IXbMMsPdKcNhV3bLfBa2rKxN+2Guv//FYUSjs4
+	 7+iy9vfOwgX5zLIvcs7n1NKkuWsDtITu8oWzHg52I7hFvEAMQSfPZ6r/pKG139mNsC
+	 GOyOfDtC+rqrA==
+Date: Fri, 11 Sep 2026 16:09:02 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Deepanshu Kartikey <kartikey406@gmail.com>
-cc: bentiss@kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, 
-    syzbot+a942efa43c928a1e3daa@syzkaller.appspotmail.com
-Subject: Re: [PATCH] HID: core: check field offset before dumping input
-In-Reply-To: <CADhLXY4_M62zOXOCyk8BcBU924+7_TxZ_GkbE=V5ME3ZbDsVag@mail.gmail.com>
-Message-ID: <28q6s6q6-4o3n-3r07-ps06-rp9o73359r72@xreary.bet>
-References: <20260809040629.12666-1-kartikey406@gmail.com> <CADhLXY4_M62zOXOCyk8BcBU924+7_TxZ_GkbE=V5ME3ZbDsVag@mail.gmail.com>
+To: Andre Eikmeyer <dev@deq.rocks>
+cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: apple-touchbar: avoid nested runtime PM in PM
+ callbacks
+In-Reply-To: <20260810140352.35866-1-dev@deq.rocks>
+Message-ID: <qs64s8o5-ns32-s4o7-01sn-n39q6rq83or0@xreary.bet>
+References: <20260810140352.35866-1-dev@deq.rocks>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,55 +44,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 21 Aug 2026, Deepanshu Kartikey wrote:
+On Mon, 10 Aug 2026, Andre Eikmeyer wrote:
 
-> > hid_set_field() passes field->usage + offset to hid_dump_input() before
-> > validating offset against field->report_count. field->usage is allocated
-> > with exactly report_count entries, so a larger offset is read out of
-> > bounds before the existing check rejects it:
-> >
-> >   BUG: KASAN: slab-out-of-bounds in hid_dump_input+0xcb/0xd0
-> >   Read of size 4 at addr ffff88802ab28fc0 by task kworker/1:2/48
-> >
-> > Move the bounds check above the hid_dump_input() call so the function
-> > returns before the dereference.
-> >
-> > Reported-by: syzbot+a942efa43c928a1e3daa@syzkaller.appspotmail.com
-> > Closes: https://syzkaller.appspot.com/bug?extid=a942efa43c928a1e3daa
-> > Tested-by: syzbot+a942efa43c928a1e3daa@syzkaller.appspotmail.com
-> > Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
-> > ---
-> >  drivers/hid/hid-core.c | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index cf123347a2af..7ea1fb62b9d4 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -1933,13 +1933,14 @@ int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
-> >
-> >         size = field->report_size;
-> >
-> > -       hid_dump_input(field->report->device, field->usage + offset, value);
-> > -
-> >         if (offset >= field->report_count) {
-> >                 hid_err(field->report->device, "offset (%d) exceeds report_count (%d)\n",
-> >                                 offset, field->report_count);
-> >                 return -1;
-> >         }
-> > +
-> > +       hid_dump_input(field->report->device, field->usage + offset, value);
-> > +
-> >         if (field->logical_minimum < 0) {
-> >                 if (value != snto32(s32ton(value, size), size)) {
-> >                         hid_err(field->report->device, "value %d is out of range\n", value);
-> > --
-> > 2.43.0
-> >
+> Hello everyone,
 > 
-> Gentle Reminder. Please let me know the status of this patch
+> Runtime suspend of the Touch Bar display stalls because its HID suspend
+> callback requests a runtime PM resume while already running as part of the
+> same USB PM transition. The nested request waits for the transition that
+> invoked the callback to finish.
+> 
+> The matching resume callback has the same problem. It can stall after the
+> virtual host controller has successfully resumed the port.
+> 
+> The mode update is therefore split into an active-device helper and a
+> runtime-PM-managed wrapper. Both PM callbacks call the active-device
+> helper and no longer acquire a nested runtime PM reference.
+> 
+> We maintain the apple-bce/t2bce virtual host controller used on these
+> systems. Although that module is not yet upstream, its runtime PM path has
+> already been adjusted so the complete suspend and resume cycle works with
+> this change.
+> 
+> Thanks for your time and work.
+> 
+> Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
 
-I believe this was already fixed in 7.3 via a13cdb19fcb2.
+I have removed the "Hello" and "thanks" from the changelog :) and applied.
+
+Thanks, and sorry for the delay.
 
 -- 
 Jiri Kosina

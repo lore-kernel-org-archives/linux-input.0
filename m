@@ -1,41 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D67232C92A;
-	Fri, 11 Sep 2026 14:09:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C771133938B;
+	Fri, 11 Sep 2026 14:12:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789135747; cv=none; b=AQ37sFAgPwt8ztWWWNu9DvbADIsrA2VcFdvD5uhXsbwvOEQY/a5/+8/vHWwSBE6VSkvokF3i9CBldmokDIWFNp4cZzK/67iNYCHHAqZfV6Oy+IHK7yKcZMmnJBWYn9oWOsHlIn/ZzzHH1i8TpWMD9leA8S5tufHbaDdhhaiq1vc=
+	t=1789135923; cv=none; b=tbTs4+68PfYxJMfc/Zeic0FWe/AK/cyz7W7X9zzSvluqU4iU0cHypFLozwzotMjkMxx/EqH0tAwpIUNc44mA0Nytu3XDL8xIr7NqzciYksFsSpvxj8/u8S6Dav8JOItKsf1VPJ+l41lC5W2+GSEU3WKJYTN0qs4Qic3ECG+KNXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789135747; c=relaxed/simple;
-	bh=smf7gLQ0IUtqRpUYNkEksCaPFG3mU+m+oVAPN80Law0=;
+	s=arc-20240116; t=1789135923; c=relaxed/simple;
+	bh=Jw61qx3UrFw0zQGSgXhZPi46dyNcvRyhKKLIzhhZ0s8=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=AlPIN5jDZqwRCk9egQdED07XjoaXJViv0awzg6/Oza31srbk9l9dibpZnyNsroD+nMo34vWNmF4wh1e9Bo7XqUAFFven+uSWr89FGiZ4WrziUMDTm7eZ5gOPFoAi9bLL8CvlxU5Nwq89UThuPyO20mTOO/rIH3AyujdnRw7drAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MfUR+zkP; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=jcNwQmP/603X5W217ZDhohF4iE1KojkpHNUjRyc3dwv2cSji4AJ1EVQXYsTC5UCgyjnZnyy3T78efJ7//35/h0Ut/83mdWmRQGFoW1WUMQaFKTL/VsYoZse5wpohi5zHmQzoxEr39PIy5Ov8g1yqQi/23ezDIpcpFvgEdVH2gqo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LyowtSCv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MfUR+zkP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8931F000FF;
-	Fri, 11 Sep 2026 14:09:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LyowtSCv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F131F008A2;
+	Fri, 11 Sep 2026 14:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789135745;
-	bh=sI8+dEMb+UGJ0vpgiZvtZPKfwEtPD6hpL/FLA54/Kfs=;
+	s=k20260515; t=1789135922;
+	bh=DHRFcYeNh4mZEXakuGMeCXHf6DhvQFtr4S94p/IFarw=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=MfUR+zkPl2VggUnpjhVG85lIw0moQgDH+xYaPHsOTqfapI2aVe8pTzUBXTvP271Zt
-	 lQQhL2G6bpmnKeziOU3r1QTYQDdvEuyPQ7MZ2pmZ+a1cYmuIxSNV5T7r4svLVxhNYF
-	 faqnR7igQNfj/VeNfRD3pRgFFw/w/3E0FgAX1pZtIU8JPSdOh+Yen1a4Vtv8mArAwV
-	 bnIz01EOm5A6DEOCk4XBYaXD/2F6IXbMMsPdKcNhV3bLfBa2rKxN+2Guv//FYUSjs4
-	 7+iy9vfOwgX5zLIvcs7n1NKkuWsDtITu8oWzHg52I7hFvEAMQSfPZ6r/pKG139mNsC
-	 GOyOfDtC+rqrA==
-Date: Fri, 11 Sep 2026 16:09:02 +0200 (CEST)
+	b=LyowtSCvZCRn58mjbGDt/Mbj1MeqyO/PWhpH5utqRbVcbw4fdTQNCkKoqXmF6GtFS
+	 iOso1f0z2tYv2u5nzHNz3Ym1Al7iaDwZTAjcFhpviFUcGzUH4/k/2e9sneofkszmm4
+	 LIbA/Mtrr9hcMbUdDpYfIQf2SoDLO2XSx4K1ZQupde962aMhMOYVfsh6zQwm+DJzlk
+	 KWp+2CN7XiyUAnBsxS9xjKHrI/P5nvp9WyZxCGjF1pse22gnP+Yd8dB7hRrxLGmfcy
+	 69lCfpZYXddzGLSMtvG5TeXtfCLPFrr2HkLCBoQiTctC9SWaqZ04qK1Zu19x1g4VmJ
+	 F7PfW9mfpTupw==
+Date: Fri, 11 Sep 2026 16:11:59 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Andre Eikmeyer <dev@deq.rocks>
-cc: Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: apple-touchbar: avoid nested runtime PM in PM
- callbacks
-In-Reply-To: <20260810140352.35866-1-dev@deq.rocks>
-Message-ID: <qs64s8o5-ns32-s4o7-01sn-n39q6rq83or0@xreary.bet>
-References: <20260810140352.35866-1-dev@deq.rocks>
+To: Denis Benato <denis.benato@linux.dev>
+cc: 'Benjamin Tissoires' <bentiss@kernel.org>, 
+    'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, "Derek J. Clark" <derekjohn.clark@gmail.com>
+Subject: Re: [PATCH v3 2/2] Input: xpad - introduce a static table to ignore
+ devices
+In-Reply-To: <20260811125856.1692045-3-denis.benato@linux.dev>
+Message-ID: <6598sn1p-p330-1r7o-q43p-r1rnr7nn0022@xreary.bet>
+References: <20260811125856.1692045-1-denis.benato@linux.dev> <20260811125856.1692045-3-denis.benato@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,34 +45,77 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 10 Aug 2026, Andre Eikmeyer wrote:
+On Tue, 11 Aug 2026, Denis Benato wrote:
 
-> Hello everyone,
+> Certain devices can work both as HID and as an xpad device: binding both
+> would duplicate inputs causing userspace to receive double inputs; at the
+> same time if a HID device is available it is to be preferred as it can
+> support additional features such as integrated IMU and additional buttons
+> and more, depending on the specific driver, therefore allow only the
+> best driver available to bind the device.
 > 
-> Runtime suspend of the Touch Bar display stalls because its HID suspend
-> callback requests a runtime PM resume while already running as part of the
-> same USB PM transition. The nested request waits for the transition that
-> invoked the callback to finish.
-> 
-> The matching resume callback has the same problem. It can stall after the
-> virtual host controller has successfully resumed the port.
-> 
-> The mode update is therefore split into an active-device helper and a
-> runtime-PM-managed wrapper. Both PM callbacks call the active-device
-> helper and no longer acquire a nested runtime PM reference.
-> 
-> We maintain the apple-bce/t2bce virtual host controller used on these
-> systems. Although that module is not yet upstream, its runtime PM path has
-> already been adjusted so the complete suspend and resume cycle works with
-> this change.
-> 
-> Thanks for your time and work.
-> 
-> Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
+> Suggested-by: Derek J. Clark <derekjohn.clark@gmail.com>
+> Signed-off-by: Denis Benato <denis.benato@linux.dev>
 
-I have removed the "Hello" and "thanks" from the changelog :) and applied.
+I'd like to have Dmitry's Ack on this one before taking the Flydigi 
+support through the HID tree.
 
-Thanks, and sorry for the delay.
+Thanks.
+
+> ---
+>  drivers/input/joystick/xpad.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index feb8f368f834..545119a4fb36 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -406,6 +406,18 @@ static const struct xpad_device {
+>  	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
+>  };
+>  
+> +#define XPAD_SUBSTITUTE(_vid, _pid, _enabled) \
+> +	{ .vid = (_vid), .pid = (_pid), .enabled = (_enabled) }
+> +
+> +static const struct xpad_excluded_device {
+> +	u16 vid;
+> +	u16 pid;
+> +	bool enabled;
+> +} xpad_excluded_devices[] = {
+> +	XPAD_SUBSTITUTE(0x37d7, 0x2401, IS_ENABLED(CONFIG_HID_FLYDIGI)),
+> +	{ }
+> +};
+> +
+>  /* buttons shared with xbox and xbox360 */
+>  static const signed short xpad_common_btn[] = {
+>  	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
+> @@ -2044,11 +2056,23 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+>  	struct usb_device *udev = interface_to_usbdev(intf);
+>  	struct usb_xpad *xpad;
+>  	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
+> +	const struct xpad_excluded_device *excluded;
+>  	int i, error;
+>  
+>  	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
+>  		return -ENODEV;
+>  
+> +	for (excluded = xpad_excluded_devices;
+> +	     excluded->vid || excluded->pid;
+> +	     excluded++) {
+> +		if (!excluded->enabled)
+> +			continue;
+> +
+> +		if (le16_to_cpu(udev->descriptor.idVendor) == excluded->vid &&
+> +		    le16_to_cpu(udev->descriptor.idProduct) == excluded->pid)
+> +			return -ENODEV;
+> +	}
+> +
+>  	for (i = 0; xpad_device[i].idVendor; i++) {
+>  		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
+>  		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
+> -- 
+> 2.47.3
+> 
 
 -- 
 Jiri Kosina

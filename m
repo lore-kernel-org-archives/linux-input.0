@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E75343C05E;
-	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E5CA439F62;
+	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789116675; cv=none; b=gpgB16mqnsZEW4aPigW/u//bLjsP/glOxK50AFft1BbmtIPAj+MVgLTvjIiJbM5noN9Ug1dJRHi7pgyHuGMqXN49Ta9CfUwh9OU722ECiEKlQqQ9V/4MegFirTbKTd2MXsbkZGx7+2l5TVJSKd0/xdRWegoAwhc4YgXKaOSxYOk=
+	t=1789116675; cv=none; b=VTgTuH3WubOwGq/NLEG6gXV+CdjbcaJbmIPWIMTcuN09BTf4c5qzMQ/LLUWCtoNKF20LiL0Q+kHPzyDDGL6wjoRCckqvpKUM84jgi1m6penVEUN/xLrG8t/2QdE6SKsNWWstKQfuUFxxOxZIeFBKh5Rf2F+4w+xoritWR7dEpcY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789116675; c=relaxed/simple;
-	bh=5mzDIF0zHRx3G+aaOCh63fDy9Svw2dCyW27G93bo4r4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=r5THfTbDOeV31vdFrxad8nVzfV+WmzNA3Ue4Km3I7K1U62LmFn5LuFnhT4HnjDdjhbYmFBVKN9odlNoV8hn2bEugIXg4LOGImY+oaJOwII2mEPcoF+RyrfHKRi2n79ou8hMDkV2vFZ0Q/NpXZR2u8r0hrGOefvtKM4XddCGQS90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pi34arf8; arc=none smtp.client-ip=10.30.226.201
+	bh=tXGlROxpJEoJs8ys8hL2wCVQSvGrnJqMHuLMf6SWryw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=R5k1/J3AD5YJYyCTxtaY2Hi5EFACff6NSkmACaDQjf4xISGUx3t0jdi2dTvELwLi40mHlDJVOLNJr5Hsx4DIRqf1/TyLWNF+7zYBB8uYmPOcgKW29psS9n8k6TgBSMhkH4EIGDV4wxCluEodTSv9hRpZPGGl+rMd77iNZabq3RY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kZPeUGUW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pi34arf8"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9D383C4AF0B;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kZPeUGUW"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 6C746C2BCF4;
 	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789116674;
-	bh=5mzDIF0zHRx3G+aaOCh63fDy9Svw2dCyW27G93bo4r4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=pi34arf8jODBxh0UbzUWI28ehvkLuAkmv7dC8Bs0QxnxKFYjgPUex8yVgJjDMuOMb
-	 HT/9BeiHn9RB8LbnacTNZSTxjAYtRIsyqj+3QZyutU0bmYrpiXYhBdQ70v+JS9FvfK
-	 m7eaiHYTzPzHjsPS8gsLYrhywPTLLo3OQh6yOoYyHBNdUrkrQrEJtoDobfANDGB2rL
-	 mWT4si0p8apeeb7kAKY11NbgkTNzEbErs1j9mIhtljelxNdnk4HTISbJpv19oVbv7/
-	 wTGHUzTopdKySWGnY54AbjsRZ2Ycd0kyozoVGtW2zNHzm1Ij6lsMihlJk15U7ojOco
-	 jhmOk0tXhYnmQ==
+	bh=tXGlROxpJEoJs8ys8hL2wCVQSvGrnJqMHuLMf6SWryw=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=kZPeUGUWNCs2NTVf6bK2OVKn22P1BmXXQioAPE1Pf18Szj2QVUn7E1Cy7pL4PbZIL
+	 DOiYtC2NeVk6tWVGxZzDKcxDu4hDLgqHlsbd6UUvRoBdPkTj/H3Z7H/H7VYyW7NlRU
+	 NwPBZh0ZWrfBiaYjJbtINt8aS9i5THdzW1fFu0rKygGSfC3fQxe8dynR5UwryDEIUj
+	 JCMkdOEsNT5Ptifwri60qM121zx3KKMO+tsJbYwy8V8nxhP/lU1y1tUpbOAdZEHRbD
+	 qUjsIniSL3P67C+RkmAAdAJpY422irSuV9PM22NRz6abwyQVf+relFfY566ecsGlf6
+	 SIr8Yskxhj4/w==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D96FC88E54;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55398C88E4D;
 	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
 From: =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI_via_B4_Relay?= <devnull+kavakliyigitcan.gmail.com@kernel.org>
-Date: Fri, 11 Sep 2026 11:50:59 +0300
-Subject: [PATCH RFC 02/10] backlight: add Kinetic KTD3136 driver
+Subject: [PATCH RFC 00/10] arm64: qcom: sm6125-ginkgo: display, backlight,
+ and touch support
+Date: Fri, 11 Sep 2026 11:50:57 +0300
+Message-Id: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,9 +41,10 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260911-ginkgo-submission-final-v1-2-0e68e63a18d4@gmail.com>
-References: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
-In-Reply-To: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAPHAo2oC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDS0ND3fTMvOz0fN3i0qTczGKQat20zLzEHF0zcwPjJAtjUwNjU3MloO6
+ CotS0zAqwydFKQW7OSrG1tQANxwocbgAAAA==
+X-Change-ID: 20260911-ginkgo-submission-final-6703b8350357
 To: Lee Jones <lee@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
  Jingoo Han <jingoohan1@gmail.com>, Pavel Machek <pavel@kernel.org>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -68,11 +70,11 @@ Cc: dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
  =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI?= <kavakliyigitcan@gmail.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=9823;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=6606;
  i=kavakliyigitcan@gmail.com; s=20260911; h=from:subject:message-id;
- bh=8Ih2UoC1pWddpS9nkG45rJdtms13+QwT/ouhD5LyozY=;
- b=Dx8bPGEZ2uGrLkJT2P7tEyqMXH4gUyoY3n3rwJuwml4sJGe16fC18INNJnQmQXjXTq0Cl5K6D
- b791WhHQrfiAWAOnnHoNjN7b35Iorgi4cMcXxqJGU8ZEyqQySohuWlj
+ bh=tXGlROxpJEoJs8ys8hL2wCVQSvGrnJqMHuLMf6SWryw=;
+ b=F9sCtUdsZnrbTxUweRexehtvWmh7jODfw2hugXQy5LvdLtntAotU0HIT7olWxdAPKyTfFnW8p
+ +S2m6ZLHc5eBimxf9ju4MCs5vuc/fqeRi0c2q5huyTRgrX2W6cS/ehk
 X-Developer-Key: i=kavakliyigitcan@gmail.com; a=ed25519;
  pk=W2GaxVotULs2vAjRMMLheaDtMMYs4037zO1LVVfFtPI=
 X-Endpoint-Received: by B4 Relay for kavakliyigitcan@gmail.com/20260911
@@ -80,335 +82,121 @@ X-Endpoint-Received: by B4 Relay for kavakliyigitcan@gmail.com/20260911
 X-Original-From: =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI?= <kavakliyigitcan@gmail.com>
 Reply-To: kavakliyigitcan@gmail.com
 
-From: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
+This RFC series introduces full display, backlight, and touchscreen support
+for the Xiaomi Redmi Note 8 ("ginkgo"), based on the Qualcomm SM6125 platform.
 
-Implement a generic Linux backlight driver for the Kinetic Technologies
-KTD3136 36V, 6-channel LED driver.
+Hardware architecture summary:
+1. Kinetic KTD3136 3-channel 11-bit I2C LED backlight driver.
+2. Novatek NT36672A TDDI controller driving a 1080x2340 FHD+ video-mode DSI panel.
+3. Novatek NT36672A SPI touchscreen interface (co-packaged within the TDDI
+   controller, sharing physical reset and power lines with the display panel).
+4. Qualcomm DPU 5.4 / DSI display subsystem on SM6125.
 
-The driver provides:
-- Standard Linux backlight class interface (struct backlight_ops)
-- 11-bit linear dimming resolution (0..2047 steps)
-- Optional hardware enable (HWEN) GPIO sequencing
-- Chip shutdown and register re-initialization upon resume/power-up
-- Clean devm-managed resource allocation
+-------------------------------------------------------------------------------
+RFC / Open Review Questions
+-------------------------------------------------------------------------------
 
-Hardware evidence:
-Tested on Qualcomm SM6125 platforms (Xiaomi Redmi Note 8) with smooth
-dimming across the full 11-bit range and robust recovery across display
-power cycles.
+1. Panel Compatible Naming:
+   - The compatible used in this series is `tianma,fhd-video-ginkgo`.
+   - THIS IS AN OPEN REVIEW QUESTION. An authoritative Tianma module part
+     number (e.g. TMxxxx) is not currently known or visible on accessible
+     hardware markings for this OEM display module.
+   - This compatible is NOT claimed as established upstream naming. We welcome
+     maintainer guidance on whether to retain `tianma,fhd-video-ginkgo`, standardize
+     on a board-specific or controller-specific fallback, or use an alternate convention.
+
+2. External Touchscreen Firmware:
+   - The Novatek NT36672A touchscreen controller requires SRAM firmware download.
+   - Firmware is dynamically requested via request_firmware() using the name
+     "novatek/nt36672a_tianma.bin" (118,784 bytes).
+   - This firmware is externally loaded from userspace filesystem and NOT
+     included in the kernel patches.
+
+3. SM6125 DPU Programmable Fetch Delay:
+   - On the tested SM6125 hardware, video mode output empirically requires the
+     programmable fetch start counter to be offset by one horizontal total line
+     (fetch_start += horiz_total).
+   - Without this offset, the hardware suffers immediate DSI FIFO/TIMEOUT status=5
+     errors and fails to display pixels.
+   - Patch 7 models this via a catalog quirk `has_prg_fetch_delay` for SM6125.
+     Reviewer feedback on whether this should be catalog-driven or handled in the
+     encoder layer is appreciated.
+
+4. MSM DSI Host Link vs Video Streaming Separation:
+   - Patch 9 separates host link enable (atomic_pre_enable) from video stream
+     enable (atomic_enable) to allow video-mode panels to accept DCS initialization
+     packets before active pixel transmission begins.
+   - Patch 8 enforces mutual exclusion between command and video modes.
+
+-------------------------------------------------------------------------------
+Physical Hardware Validation Summary
+-------------------------------------------------------------------------------
+
+Validation on physical Xiaomi Redmi Note 8 (SM6125) hardware:
+- Display / DRM: Console text and graphical output verified crisp and stable.
+- Backlight: Kinetic KTD3136 11-bit brightness scaling (0..2047) verified.
+- Touchscreen: Continuous 10-second user interaction confirmed smooth 60 Hz event
+  flow (985 hardware interrupts, 5034 EV_ABS events, 536 SYN_REPORT frames,
+  median interval 8.36 ms).
+- Lifecycle / Stress:
+  * 10 / 10 consecutive isolated display OFF -> ON cycles PASSED with active
+    touch verified responsive after wake on every cycle.
+  * Rapid power-button spam stress PASSED without wedging display or power daemon.
+  * Zero DSI FIFO errors, zero firmware load timeouts (-110, -5).
+
+-------------------------------------------------------------------------------
+Series Structure
+-------------------------------------------------------------------------------
+
+Patch 01: dt-bindings: backlight: add Kinetic KTD3136
+Patch 02: backlight: add Kinetic KTD3136 driver
+Patch 03: dt-bindings: display: panel: novatek,nt36672a: add Tianma FHD+ video mode variant
+Patch 04: drm/panel: novatek-nt36672a: add Tianma FHD+ video mode panel
+Patch 05: dt-bindings: input: touchscreen: add Novatek NT36672A SPI touchscreen
+Patch 06: Input: novatek-nt36672a-spi: add driver for Novatek NT36672A SPI touchscreen
+Patch 07: drm/msm/dpu: describe SM6125 programmable-fetch delayed-start quirk
+Patch 08: drm/msm/dsi: make command and video mode configuration mutually exclusive
+Patch 09: drm/msm/dsi: separate host link enable from video stream enable
+Patch 10: arm64: dts: qcom: sm6125-xiaomi-ginkgo: enable display, backlight and touchscreen
 
 Signed-off-by: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 ---
- drivers/video/backlight/Kconfig             |  12 ++
- drivers/video/backlight/Makefile            |   1 +
- drivers/video/backlight/ktd3136-backlight.c | 262 ++++++++++++++++++++++++++++
- 3 files changed, 275 insertions(+)
+YİĞİTCAN KAVAKLI (10):
+      dt-bindings: backlight: add Kinetic KTD3136
+      backlight: add Kinetic KTD3136 driver
+      dt-bindings: display: panel: novatek,nt36672a: add Tianma FHD+ video mode variant
+      drm/panel: novatek-nt36672a: add Tianma FHD+ video mode panel
+      dt-bindings: input: touchscreen: add Novatek NT36672A SPI touchscreen
+      Input: novatek-nt36672a-spi: add driver for Novatek NT36672A SPI touchscreen
+      drm/msm/dpu: describe SM6125 programmable-fetch delayed-start quirk
+      drm/msm/dsi: make command and video mode configuration mutually exclusive
+      drm/msm/dsi: separate host link enable from video stream enable
+      arm64: dts: qcom: sm6125-xiaomi-ginkgo: enable display, backlight and touchscreen
 
-diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
-index dbf4ca23a9b6d8575a86e39618b312b4df43ea19..010e2ae3fa8cbd8e2f38e7941b373fbfeb5ede3f 100644
---- a/drivers/video/backlight/Kconfig
-+++ b/drivers/video/backlight/Kconfig
-@@ -207,6 +207,18 @@ config BACKLIGHT_KTZ8866
- 		Say Y to enable the backlight driver for the Kinetic KTZ8866
- 		found in Xiaomi Mi Pad 5 series.
- 
-+config BACKLIGHT_KTD3136
-+	tristate "Backlight Driver for Kinetic KTD3136"
-+	depends on I2C
-+	select REGMAP_I2C
-+	help
-+	  Say Y to enable the backlight driver for the Kinetic Technologies
-+	  KTD3136 3-channel I2C-controlled LED backlight driver found in mobile
-+	  phones such as the Xiaomi Redmi Note 8.
-+
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called ktd3136-backlight.
-+
- config BACKLIGHT_SY7758
- 	tristate "Backlight Driver for Silergy SY7758"
- 	depends on I2C
-diff --git a/drivers/video/backlight/Makefile b/drivers/video/backlight/Makefile
-index 34469711c6cd957dae63c7072ade4830879aba1a..c6d324f60e021afaab1a3da1b4de74f6f2acc8f8 100644
---- a/drivers/video/backlight/Makefile
-+++ b/drivers/video/backlight/Makefile
-@@ -39,6 +39,7 @@ obj-$(CONFIG_BACKLIGHT_IPAQ_MICRO)	+= ipaq_micro_bl.o
- obj-$(CONFIG_BACKLIGHT_KTD253)		+= ktd253-backlight.o
- obj-$(CONFIG_BACKLIGHT_KTD2801)		+= ktd2801-backlight.o
- obj-$(CONFIG_BACKLIGHT_KTZ8866)		+= ktz8866.o
-+obj-$(CONFIG_BACKLIGHT_KTD3136)		+= ktd3136-backlight.o
- obj-$(CONFIG_BACKLIGHT_LM3509)		+= lm3509_bl.o
- obj-$(CONFIG_BACKLIGHT_LM3533)		+= lm3533_bl.o
- obj-$(CONFIG_BACKLIGHT_LM3630A)		+= lm3630a_bl.o
-diff --git a/drivers/video/backlight/ktd3136-backlight.c b/drivers/video/backlight/ktd3136-backlight.c
-new file mode 100644
-index 0000000000000000000000000000000000000000..a8ebe3b23c99f3ada9f45c60688f8b8c78d72def
---- /dev/null
-+++ b/drivers/video/backlight/ktd3136-backlight.c
-@@ -0,0 +1,262 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Kinetic Technologies KTD3136 3-Channel LED Backlight Driver
-+ *
-+ * Copyright (C) 2026
-+ */
-+
-+#include <linux/backlight.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/of.h>
-+#include <linux/property.h>
-+#include <linux/regulator/consumer.h>
-+
-+#define KTD3136_REG_DEV_ID		0x00
-+#define KTD3136_REG_SW_RESET		0x01
-+#define KTD3136_REG_MODE		0x02
-+#define KTD3136_REG_CONTROL		0x03
-+#define KTD3136_REG_RATIO_LSB		0x04
-+#define KTD3136_REG_RATIO_MSB		0x05
-+#define KTD3136_REG_PWM			0x06
-+#define KTD3136_REG_STATUS		0x0A
-+
-+#define KTD3136_DEV_ID_VAL		0x18
-+#define KTD3136_DEV_ID_VAL2		0x19
-+
-+#define KTD3136_MODE_ON			0xC9	/* Boost ON, 3 channels enabled */
-+#define KTD3136_MODE_STANDBY		0x98	/* Standby mode */
-+#define KTD3136_CONTROL_LINEAR		0x02	/* Linear dimming mapping */
-+#define KTD3136_PWM_DEFAULT		0x1B	/* Default PWM/boost frequency */
-+
-+#define KTD3136_DEFAULT_MAX_BRIGHTNESS	2047	/* 11-bit resolution */
-+#define KTD3136_DEFAULT_BRIGHTNESS	2047
-+
-+struct ktd3136_data {
-+	struct i2c_client *client;
-+	struct backlight_device *bd;
-+	struct gpio_desc *enable_gpio;
-+	struct regulator *vin;
-+	/* Protects chip registers and state */
-+	struct mutex lock;
-+	bool is_enabled;
-+};
-+
-+static int ktd3136_write(struct ktd3136_data *chip, u8 reg, u8 val)
-+{
-+	int ret;
-+
-+	ret = i2c_smbus_write_byte_data(chip->client, reg, val);
-+	if (ret < 0)
-+		dev_err(&chip->client->dev, "failed to write reg 0x%02x: %d\n", reg, ret);
-+
-+	return ret;
-+}
-+
-+static int ktd3136_read(struct ktd3136_data *chip, u8 reg)
-+{
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(chip->client, reg);
-+	if (ret < 0)
-+		dev_err(&chip->client->dev, "failed to read reg 0x%02x: %d\n", reg, ret);
-+
-+	return ret;
-+}
-+
-+static int ktd3136_power_on(struct ktd3136_data *chip)
-+{
-+	int ret;
-+
-+	if (chip->is_enabled)
-+		return 0;
-+
-+	if (chip->enable_gpio) {
-+		gpiod_set_value_cansleep(chip->enable_gpio, 1);
-+		/* Allow oscillator and internal logic to stabilize */
-+		usleep_range(2000, 3000);
-+	}
-+
-+	ret = ktd3136_write(chip, KTD3136_REG_CONTROL, KTD3136_CONTROL_LINEAR);
-+	if (ret < 0)
-+		goto err_off;
-+
-+	ret = ktd3136_write(chip, KTD3136_REG_PWM, KTD3136_PWM_DEFAULT);
-+	if (ret < 0)
-+		goto err_off;
-+
-+	chip->is_enabled = true;
-+	return 0;
-+
-+err_off:
-+	if (chip->enable_gpio)
-+		gpiod_set_value_cansleep(chip->enable_gpio, 0);
-+	return ret;
-+}
-+
-+static void ktd3136_power_off(struct ktd3136_data *chip)
-+{
-+	if (!chip->is_enabled)
-+		return;
-+
-+	ktd3136_write(chip, KTD3136_REG_MODE, KTD3136_MODE_STANDBY);
-+
-+	if (chip->enable_gpio)
-+		gpiod_set_value_cansleep(chip->enable_gpio, 0);
-+
-+	chip->is_enabled = false;
-+}
-+
-+static int ktd3136_update_status(struct backlight_device *bd)
-+{
-+	struct ktd3136_data *chip = bl_get_data(bd);
-+	int brightness = backlight_get_brightness(bd);
-+	int ret = 0;
-+	u8 lsb, msb;
-+
-+	mutex_lock(&chip->lock);
-+
-+	if (backlight_is_blank(bd) || brightness == 0) {
-+		ktd3136_power_off(chip);
-+		goto out;
-+	}
-+
-+	ret = ktd3136_power_on(chip);
-+	if (ret < 0)
-+		goto out;
-+
-+	lsb = brightness & 0x07;
-+	msb = (brightness >> 3) & 0xFF;
-+
-+	ret = ktd3136_write(chip, KTD3136_REG_RATIO_LSB, lsb);
-+	if (ret < 0)
-+		goto out;
-+
-+	ret = ktd3136_write(chip, KTD3136_REG_RATIO_MSB, msb);
-+	if (ret < 0)
-+		goto out;
-+
-+	ret = ktd3136_write(chip, KTD3136_REG_MODE, KTD3136_MODE_ON);
-+
-+out:
-+	mutex_unlock(&chip->lock);
-+	return ret;
-+}
-+
-+static const struct backlight_ops ktd3136_backlight_ops = {
-+	.options = BL_CORE_SUSPENDRESUME,
-+	.update_status = ktd3136_update_status,
-+};
-+
-+static int ktd3136_probe(struct i2c_client *client)
-+{
-+	struct device *dev = &client->dev;
-+	struct backlight_properties props;
-+	struct ktd3136_data *chip;
-+	int ret, val;
-+	u32 def_brightness = KTD3136_DEFAULT_BRIGHTNESS;
-+	u32 max_brightness = KTD3136_DEFAULT_MAX_BRIGHTNESS;
-+
-+	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
-+	if (!chip)
-+		return -ENOMEM;
-+
-+	chip->client = client;
-+	mutex_init(&chip->lock);
-+
-+	chip->vin = devm_regulator_get_optional(dev, "vin");
-+	if (IS_ERR(chip->vin)) {
-+		ret = PTR_ERR(chip->vin);
-+		if (ret != -ENODEV)
-+			return dev_err_probe(dev, ret, "Failed to get vin regulator\n");
-+		chip->vin = NULL;
-+	}
-+
-+	if (chip->vin) {
-+		ret = regulator_enable(chip->vin);
-+		if (ret)
-+			return dev_err_probe(dev, ret, "Failed to enable vin regulator\n");
-+	}
-+
-+	chip->enable_gpio = devm_gpiod_get_optional(dev, "enable", GPIOD_OUT_HIGH);
-+	if (IS_ERR(chip->enable_gpio))
-+		return dev_err_probe(dev, PTR_ERR(chip->enable_gpio),
-+				     "Failed to get enable GPIO\n");
-+
-+	if (chip->enable_gpio)
-+		usleep_range(2000, 3000);
-+
-+	val = ktd3136_read(chip, KTD3136_REG_DEV_ID);
-+	if (val < 0)
-+		return dev_err_probe(dev, val, "Failed to read device ID\n");
-+
-+	if (val != KTD3136_DEV_ID_VAL && val != KTD3136_DEV_ID_VAL2) {
-+		dev_err(dev, "Unknown device ID: 0x%02x\n", val);
-+		return -ENODEV;
-+	}
-+
-+	dev_info(dev, "Kinetic KTD3136 detected (ID: 0x%02x)\n", val);
-+
-+	device_property_read_u32(dev, "max-brightness", &max_brightness);
-+	if (max_brightness > KTD3136_DEFAULT_MAX_BRIGHTNESS)
-+		max_brightness = KTD3136_DEFAULT_MAX_BRIGHTNESS;
-+
-+	device_property_read_u32(dev, "default-brightness", &def_brightness);
-+	if (def_brightness > max_brightness)
-+		def_brightness = max_brightness;
-+
-+	memset(&props, 0, sizeof(props));
-+	props.type = BACKLIGHT_RAW;
-+	props.max_brightness = max_brightness;
-+	props.brightness = def_brightness;
-+
-+	chip->bd = devm_backlight_device_register(dev, dev_name(dev), dev, chip,
-+						  &ktd3136_backlight_ops, &props);
-+	if (IS_ERR(chip->bd))
-+		return dev_err_probe(dev, PTR_ERR(chip->bd),
-+				     "Failed to register backlight device\n");
-+
-+	backlight_update_status(chip->bd);
-+
-+	return 0;
-+}
-+
-+static void ktd3136_remove(struct i2c_client *client)
-+{
-+	struct ktd3136_data *chip = i2c_get_clientdata(client);
-+
-+	if (chip)
-+		ktd3136_power_off(chip);
-+}
-+
-+static const struct of_device_id ktd3136_of_match[] = {
-+	{ .compatible = "kinetic,ktd3136" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, ktd3136_of_match);
-+
-+static const struct i2c_device_id ktd3136_i2c_id[] = {
-+	{ "ktd3136", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ktd3136_i2c_id);
-+
-+static struct i2c_driver ktd3136_driver = {
-+	.driver = {
-+		.name = "ktd3136-backlight",
-+		.of_match_table = ktd3136_of_match,
-+	},
-+	.probe = ktd3136_probe,
-+	.remove = ktd3136_remove,
-+	.id_table = ktd3136_i2c_id,
-+};
-+module_i2c_driver(ktd3136_driver);
-+
-+MODULE_AUTHOR("Antigravity Team");
-+MODULE_DESCRIPTION("Kinetic Technologies KTD3136 Backlight Driver");
-+MODULE_LICENSE("GPL");
+ .../bindings/display/panel/novatek,nt36672a.yaml   |   1 +
+ .../input/touchscreen/novatek,nt36672a-spi.yaml    |  66 ++
+ .../bindings/leds/backlight/kinetic,ktd3136.yaml   |  65 ++
+ .../boot/dts/qcom/sm6125-xiaomi-ginkgo-common.dtsi | 100 +++
+ .../gpu/drm/msm/disp/dpu1/catalog/dpu_5_4_sm6125.h |   1 +
+ .../gpu/drm/msm/disp/dpu1/dpu_encoder_phys_vid.c   |  11 +
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_catalog.h     |   2 +
+ drivers/gpu/drm/msm/dsi/dsi.h                      |   1 +
+ drivers/gpu/drm/msm/dsi/dsi_host.c                 |  29 +-
+ drivers/gpu/drm/msm/dsi/dsi_manager.c              |  20 +
+ drivers/gpu/drm/panel/panel-novatek-nt36672a.c     | 141 ++++-
+ drivers/input/touchscreen/Kconfig                  |  11 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/novatek-nt36672a-spi.c   | 674 +++++++++++++++++++++
+ drivers/video/backlight/Kconfig                    |  12 +
+ drivers/video/backlight/Makefile                   |   1 +
+ drivers/video/backlight/ktd3136-backlight.c        | 262 ++++++++
+ 17 files changed, 1362 insertions(+), 36 deletions(-)
+---
+base-commit: 893e11787f78e43b534e252249ac3fff4d1333f8
+change-id: 20260911-ginkgo-submission-final-6703b8350357
 
+Best regards,
 -- 
-2.47.3
+YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 
 

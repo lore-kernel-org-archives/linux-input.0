@@ -1,63 +1,65 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A81DA43CEF5
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 11:54:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 093044477F6
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 12:02:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789127647; cv=none; b=kalOuXTEdi2niuACg8ZdhU5djwv+qy6WMZJChnbqWb5SrOKOmdpCxyHYVLNUV1l3tW7DvhH2/2F6RtcFviUTa2h+sZUegmLotuaHxqWlA6vnqXcRhd91fqAPMgTLdwRHQeV2EeGKvcBhP+q7sjusDfJP7XS+wleOfIqteaPYATw=
+	t=1789128149; cv=none; b=irHqSjWrHp10/Tkv26AG/wj9MgOyoypthQf17xnalszNgj81dgTgX7jAN7SfryqLjIvsqoHOnxFY24ZL0wHDh2gj+p7swWVc3pNZAmg+1QU0bA7si0z61RVtRm+HR9v5ydPiH5/CT3SbKX0U4MrCYaSW765g6oYs+KowskHmsLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789127647; c=relaxed/simple;
-	bh=vDJR9sNOqfRhEKahCegiI+lvWKun0kne/wwmAMdfyh0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=rkPZwyxILY2E21BhH/wKyXXf/SxrjdDc12e+O31JekuyRvriKCxpf3HHDvcEcZj7cAoUGQGSNhcZG1J+9zLwiokWcFz90brI70MYPfR9jHEfBa17QpuKvbESGjY/jbAzFM0rHX4HldZcZV0YSOVAdPWVb49RuryAbSaNPROEvVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HyZPReMq; arc=none smtp.client-ip=74.125.225.76
+	s=arc-20240116; t=1789128149; c=relaxed/simple;
+	bh=7oG0qIqfjib0ZFOD/usDGYpM+CgsdyFvb0BJsfbMw6g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=OzgBcG1GXaMTgQ3kObk06lqXjwB9zoXABMzpC8bFefOCCdLxx0y8tSiisb9jrUtjsMyEbrYHmNGBbm7QMkywZBBVWqlaoxeSHWJIwBSH23vFyfdqjNWc8WcP1dSnOvjzDnkQ1pz0I/7b2KMWX0nFr8l1z89W8rP0jgZXOPqmpp4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JARNk4JU; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HyZPReMq"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843cedd129so490937f8f.0
-        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 04:54:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JARNk4JU"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-49b392ccaacso12695755e9.2
+        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 05:02:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789127642; x=1789732442; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2o5qthLe+8HmsEAOcxjOB9COGNKyrsAHc1dT/HCfm7w=;
-        b=HyZPReMqBloZqI0J9b6cDHTOEyvVqFsK3oEqT7NSM3G+LtuOtw3VSVZdwumRxwHC7h
-         i7t0CEpyWrPEBlRhZnrtUR1Zn4wDjYFlQ+u4OHCkAfN5VrMPa5SYHb8DvY/dGjmO8WHW
-         xS4Rbd2/fF4i7qjYuW3+zwlZWCj6WFGNLCuLEnD47tl47DxfcAL2D7lX3VAAiNVoEQyr
-         RcxtDY2J85u9KwKh95CYbI68qDlE0mHNNBLXzTFu3XLEFqJ7kh846ZDIRGrVEUG8WFHP
-         bMHZiq6C3mKDDeFi+B8J4MCztwTa9SemNwIKaokCtW4lxz6uli+lv8CBSXPAB1+k/dEB
-         cKfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789127642; x=1789732442;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1789128143; x=1789732943; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=2o5qthLe+8HmsEAOcxjOB9COGNKyrsAHc1dT/HCfm7w=;
-        b=eGnc6wJldUTmOzEWuWCZAnzUZ/4GBBVvzm3X2RUiHssThhBqc+tBn78ogVQWuG0dri
-         QKGlMvdu5VK/IMw2UXeQPAbhwutB948JQnjWSZnV6rnhFjcw3zcB66eZ63TvFaU8Zp5P
-         W0AX8XP1t0O6ejFP+oFSdMK4X5UWFDBGcsJ3S44/ckFNeGh1sFuNb9bq1K3Z1lOCO3m2
-         tEwsVQWpgQtA9VUFJYkHYxjHv+VfwPdn7+tgwVp4O4FNxe9BLT5Qc5NWJtUURDl8JyRI
-         KCibVu3MTGL1XBfEHeJTXcbofUhMsoZL3qAnmM2wW79uKQrsdgtMMo1atOxwni88E6Fw
-         2xCw==
-X-Forwarded-Encrypted: i=1; AKwUvByOEVs/Z/DKYvy8lLIpYbNCasgL2anmj7zpYq5Eut5cyolgiAu5+GHHzM5QD0GFjGa0xFGu0xbhxTapgA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kNq5IWY0pT4eaMSzlDLDXaWF9NK54sJjRzGy2cAzR+PojVnR4k
-	0NU/D0JdfuO/YVbo6qbHb9R6u2+8VWXFPX++l9L9pda/KbxZRYyp175cWCeymQ==
-X-Gm-Gg: AYBFou0cOh2cXsKkvlMFbby3aEYkshUSfY8OCMW/WnIp8xywfHLY8PD3Ar8G1IBTC60
-	jfjXBRg0ZFt4+4E9ifAOMGtFGJwZMqzXyfQB1XTMmEEDfDto3iYaxNWufEVOD4h7WjIl+837GH4
-	QNH9SBUdi7JQcxyogq3h9Bsjw6qskyZq7EMnGFwSAIFBIOaJgCzU9H9wWH0EWk/BzzQ9DHa2iUx
-	OkQeQrFF9moeejRWd4OMl81oNBArG9N6QPpU9EXaSZOOnnEd2HR+katVILUD6YWpXzjDXRpzh+w
-	4UzCdXMi5ZCojI1tJv4scmUN63t4IJH36WgPiJJZHB2q6mMydy8Ejyh1/fYWX27LQZ4pfNptURo
-	ElZDg28qA6U50YAXWY3fkdU3pM65980EyLCmkWDMvXSxVVmJjUTK1crWo1SUGEDr8BkgTaozd+s
-	vEG+iBa0LXffPJKGDxp/B6EV2cY+V74Rkdp+T0+dwT1eKLAqjaR8Pl8QxdqNxBwN+J4qYuQMx7e
-	mZPvdBe/DK2fNiuz5gMG+kZtplXSubjCrxnJImbGhXtpTu3+QeNja6PaIWABa2InA==
-X-Received: by 2002:adf:fc82:0:b0:485:ac52:e07f with SMTP id ffacd0b85a97d-486eb31f8d8mr6678157f8f.18.1789127642389;
-        Fri, 11 Sep 2026 04:54:02 -0700 (PDT)
+        bh=8c604zC3xfPmb8PWs25Lz5gWSP83B2bpj/RLzXfD17w=;
+        b=JARNk4JUberWlvKB26PGHSxKhp5Ww3mzDopMgH5BPq7k37SKS3PHZ6H9WGj3FBMPqL
+         gh+qATQNHAY/7KjF4U/OP4jkQtp0A+ogm+lCmN1KaafyfreIKq33pNUEV8CxmizeDnXW
+         vnU+lRRUhUrwp2mEvPuyQ0LAcduly2kbqVqoiHcxJieS9q8YCVKQIC3hseoxjA7q3eAs
+         Vh63brvwlwqi55YOmeYBQCH5OUuahs3Od73G6Je+D1Z718HW7FP4z2TjsUybsPhuCGzL
+         5s84WBZILVR5H1vS3mDQduOESkC7mA8QAQHKAq9dKk4AXadyH3H3Rt8HILYVsFLU4u5L
+         FYpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789128143; x=1789732943;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8c604zC3xfPmb8PWs25Lz5gWSP83B2bpj/RLzXfD17w=;
+        b=c3UYjp4oTeGSxyvgqDlqCRQIwhsEwStXEIXqtyOBnsR1S3xZ57TF77oTVtvJUwYAaa
+         nx7Ng7U3XXFSiDI6LHwcm1job01GqcwH6QjpnieEJgkkNCiPIP5iKbttyMrdieE01BtH
+         SDeu1FmN8wTIsieo8uBM0rrCVkb7Pue/bnRHgi0AOkADsfks8xU0tZEK21eiONA7AU0m
+         u7q2+OJcAfSkZgcmkV/8gPxDOJOjvSoqMOab0vNbfeFcZcQDLGYiScoHRGqAdNf4hbyN
+         FeMiU0/RxCch5OHxxgEmti5UdSLMtquUKGXM1ihnAmZpIlZOlQEg/T+I2DoXWph7YKil
+         +sew==
+X-Forwarded-Encrypted: i=1; AKwUvByaMvCR2Y0SKsbNixOfjH1xtKNKJ5PbX6bE5bxBC50PdgQf9gjKmqEzwn/px771eSlWAl8FMPhkTAx0hA==@vger.kernel.org
+X-Gm-Message-State: AFuF++msPOhaVbQ2w2i5joZODXK4nQB/FykULCHonYxkxsd4vKLlANxZ
+	dbqqalOQ0ohkDow9S5+HC9lLc2b5AeeMVB2AWMNEgCrSzzzQ5q8K08WR
+X-Gm-Gg: AYBFou1OEmhLQ4jaV+pkf0mAGOdzXvKtQwxQ7lBKGB+N7jZILo5Nn+7YNzaTFFWQ7L6
+	YSU3IXg2zKbUUYEf9RWOpUpJxY3SzZorxhn/KjVbjbrxmhP6KWq8GB+iZPQyCoyXEF9SrXLU+Ta
+	iYtVLQDO4W674+JT1id+n6D52ZConVlJ6zx66KkE7dwAeFS2X1rZwlO2C1sDW+09a1vrCyz1lvY
+	Lr+bpMq2SBT8QptJy12SjnMW0IYVFGZqyBRlZLnP9hnlpxh0TORVp/cIVhwrOyNyWrDXwiBfOBw
+	ejSNp5itP5w0/tzy5tlyJKnsnQXky61aCv9e+y4ThHVMZXoLsPKEyAfPzZxHos1mIE0xaRwb5E4
+	8XijRTus0BopUaMllndTowVqYEljnjK9Pj+wTlDmnznuevXcMxc1TXvEi7yrgUYXKrObhvbwgoB
+	Bemcx7+Gdeen5olQyt2IH9CJpucw2q3ZljQSAa4XrKjCSlVjCBG8CL4vNohsB8Uc0a0+KM6Zw4U
+	xzuZF6XuBB8QObA0mLUaZYMMF59XGs70yrzx+vna5Dkovo8jy8p+WfL6G3K9awPIg==
+X-Received: by 2002:a05:600c:860b:b0:49c:fa21:1c87 with SMTP id 5b1f17b1804b1-49e619d1bddmr38992645e9.28.1789128143018;
+        Fri, 11 Sep 2026 05:02:23 -0700 (PDT)
 Received: from meven-thinkpad.home (2a01cb088745e00090de407b41070a01.ipv6.abo.wanadoo.fr. [2a01:cb08:8745:e000:90de:407b:4107:a01])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-486eb32e81asm5633463f8f.7.2026.09.11.04.54.01
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d26c300e2sm165081935e9.8.2026.09.11.05.02.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 04:54:01 -0700 (PDT)
+        Fri, 11 Sep 2026 05:02:17 -0700 (PDT)
 From: "=?UTF-8?q?M=C3=A9ven=20Car?=" <meven29@gmail.com>
 X-Google-Original-From: =?UTF-8?q?M=C3=A9ven=20Car?= <meven@kde.org>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -65,10 +67,12 @@ To: Jiri Kosina <jikos@kernel.org>,
 Cc: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: logitech-headset: add a battery driver for the PRO X 2
-Date: Fri, 11 Sep 2026 13:53:45 +0200
-Message-ID: <20260911115346.17133-1-meven@kde.org>
+Subject: [PATCH v2] HID: logitech-headset: add a battery driver for the PRO X 2
+Date: Fri, 11 Sep 2026 14:02:08 +0200
+Message-ID: <20260911120208.21698-1-meven@kde.org>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260911115346.17133-1-meven@kde.org>
+References: <20260911115346.17133-1-meven@kde.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -100,7 +104,11 @@ The G522 LIGHTSPEED uses the same vendor protocol with a different frame
 layout. That device is left out until someone can test it.
 
 Assisted-by: Claude:claude-opus-5
+Signed-off-by: Méven Car <meven@kde.org>
 ---
+Changes since v1: the Signed-off-by line, which v1 was sent without by
+mistake. The patch itself is unchanged.
+
 Tested on a PRO X 2 LIGHTSPEED (046d:0af7) with 7.2.4, built as a module out
 of tree. The driver binds on replug without unbinding hid-generic by hand,
 and one power supply appears for the single HID interface of the receiver.

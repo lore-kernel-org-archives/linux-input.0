@@ -1,129 +1,115 @@
 Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDCF2470453
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 18:20:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5430C470453
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 18:24:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789150853; cv=none; b=mhQ66hU8So0jkV3VBnCPsQtEW/MKIewD/tW6CHbUhOY5ObJXywIjIBh3jHCCtAzff5M1K3tHx6QTpCOAXpbiesC91v+6y6+1epy5o86Yqfu4DK4ZwkWWW5Nx2PMHY2UaIVN4EIEBa8Jdyr7Z6iR1IbireAnpiAq93oPhWEVONY4=
+	t=1789151095; cv=none; b=ANxdpO3CKKZzfB6mV020epQFRHLPC71/jZj5A377+fEyZwS+Ccpt44eqW0kX6tCiIENnpjdMCVANGny90vmnbum/Ex9SUzipl9a0M1N+ncUokW1Jo+TgCs1lFj6bLdV6Q1vc/OmdyeqOi560JNC1QZS9Lh5Dbm1WseqbsTVJB0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789150853; c=relaxed/simple;
-	bh=gi7sL3KY2sz6QA9RwzBfaKxGTtG3BGziQJpEdWzH7tw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=c3n2RZilYcYvY2jfgJLTNPZKjhUmzIH4pRoFmWjGViJXFGp1ZsaQVv4ovup2tNi5SqWir6wBjyKKaGHgMkfkDZpoWEZ+2HzCVrGy6P7OxM6uC2q0zOSUhYSRUYCWcBkIgVDsyNgRF7LTNS/ji/CkTJQHwP0KfELDFE+zdq2oCos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KrM+A7Tj; arc=none smtp.client-ip=209.85.221.41
+	s=arc-20240116; t=1789151095; c=relaxed/simple;
+	bh=1LM1njdi12j0PGJlFDlq2HtxK5cpMY8FwY19TyBMIj8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nPWQLQ0VAbEhJGc9yQjPh4Y3lWwNLHtKs7FHi+7lratpjeLkkivsR7jTMUm6j+xR5RhTHZUw3BpVjGtEhsWUD/3DcLCsq15ZF3jnKs5LfvXkeLsy7oaEF6ozslrH04fFcq0Nid1W8y26CPRQ7+sp0VJAftxzOtCyWXUFPSPvQUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GRNuRvEI; arc=none smtp.client-ip=209.85.221.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KrM+A7Tj"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-47ddf7b09e5so1285413f8f.1
-        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 11:20:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GRNuRvEI"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-485850cf499so995351f8f.3
+        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 11:24:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789150850; x=1789755650; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=m0qADRog6x++il57lr7EA6g1h38VeLT7OTwOYzw7rU8=;
-        b=KrM+A7TjH6qHm28bKUE8qd/lK5SB7icssaeOmGFNcPhtN+P6XKyGO1GdYmt8pAOaAa
-         KGfcJE7uMzLITXVttQKOkUgNKmjNeQepULR3h0AGfQFa7eHxhRwzrUQKI9kD9Mec5V4H
-         RZZFMofVzvkgATkRfbhgBQg0JvBWvF4rSfyU3eSeTPNbgSyNRGgf+aLi0v+JRM17IjWh
-         d7yUOj/CrZMZ0vK+g0nFivmYKHn1jkPLU3BASECqVAwryJ9SA1FeWrz64F8V6RVuIGo1
-         ta4mH7xPh15vrc9qHzqiQHFg+jlNaaEYNkf0pAZLHE9C9d1TNRwJfAmsd6YTxQJNC+oU
-         2NhA==
+        d=gmail.com; s=20251104; t=1789151091; x=1789755891; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=54zB5CgKeOfrsrOhVVVkcG2Pd6Kk/5fQ65j8geodZKE=;
+        b=GRNuRvEIQBVhGQvZGXroLC9MiHjbDInW2prMHl1jbc8BakQUl0ypf2JW85vdPOmfHS
+         FbhPJTkeDST+emR0wZYREGpEFV4of5g2D3lYSyB0AwuWBOAVxb0LqMHsMr8iiGHC3dGC
+         40tD2/Mbf/fQ+7ZMWJ/SCKpFkDB5laEVOFLjcXyqU5Vl3NPiYvBrwVN0DrNr0IUv+9vL
+         kp+MBVNpqhdj1py3FpEr7BbgyKyaWleqlvHaJ3fpCGCnZQxQpftxna4bdA3x0rKriNl2
+         5qvvk7YxtLiM6Z3IR+tWFx2u5iETzhbzjufTrR2CmMu36JCrwSXt6HO1M48hG7lkqiyb
+         8Y3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789150850; x=1789755650;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=m0qADRog6x++il57lr7EA6g1h38VeLT7OTwOYzw7rU8=;
-        b=mF5JoZQV3HuPhOCu6jvm245ZSG6/e/CH2VPT4XvuSAI/SeoAPV5M+YVwYGlMZAAqcF
-         KlgIls8vwc8RZRixGfSlpTHUt96q+PvCGx7viLidwLZVBZyTFvkCmKeog5ufBrhhI7B7
-         6ooK8IACzO52alRoMIDz09ngnlJKm4xss5c0zoc3eahJbI94l2Rdc1yeU6ty83cT9CMj
-         OE9IytnM9VCzhihttcwjgHmH6fVm7Cvhf3kRoiO8YmIR9o36ardBZiHEbjtRlSFn+KhU
-         lvrtP3wj6cMrpqYC2WjEAeqVpNhQGxo4o3ULz8Ad3/UgRWLXhYx5S4JSybmaZFB8Q6Az
-         NsuA==
-X-Forwarded-Encrypted: i=1; AKwUvBx9dVX75vXHJu2jTNNEWIkyV3+7jItxlwzz3N/MYyU1SH2uD5TqY3VuDRNHzi2Sp7VZNYMAdgOiF6NmmA==@vger.kernel.org
-X-Gm-Message-State: AFuF++m6gokGbSCMar9GrlgsnjnBx+h1nv/9VWN3QuiwspzBMnQM6ZfI
-	B3p4Yko6D+/4m1C0mJ3/b40ZJ4L9653CjcYlAnaTFLPUqFQK5sIgMyg2
-X-Gm-Gg: AYBFou1VVPd6rtbI1i3nGxLI6mqJ/u13gkTT6d/6I/q9DQbIrQqu+50JoYC35LW18+T
-	6leleesp9Pc4ynt8Q/06h4fmSuUggGL6phdTlRAymarT5eNb40q5GtCgdM6g0StBK2aPOSFURo+
-	DmErno8DEvAVyfbNVV154/jQ/1UGEDds/C7GG19Sy4jMg29pW+77Y+OvIKRfkbObeOVT+kQWtE3
-	LSITDONfUIqh3PYw0PhKJaGFxswnxVOOtwU7WTUrVJqCnruQL/1M4xOXzfCFtpsfQiH30/1zE5Y
-	2O2TUeRjqe03VtX4CsvgQOu/29LdHYkSnDrJY0i4OjfIK76cHjgJQcNuEnRl8QJCANDUjDkeHFS
-	Vjlm8us4H7ucoRK8r5BJpeKmmctTY77PMS0mRy1ojl+FBzMhlL02dR5H47zoc3NM8IWhMipG0WF
-	5RWMSvrFrhZSHdKuMe+wn7AEKgg24547icCKPeUtoLZUOIY2MOJETmF8hAYYGyTL2Kf72J9dYKq
-	cv+pxrn
-X-Received: by 2002:a05:6000:2f86:b0:486:e73e:abe5 with SMTP id ffacd0b85a97d-486eb2e269amr7641832f8f.10.1789150849834;
-        Fri, 11 Sep 2026 11:20:49 -0700 (PDT)
-Received: from foxbook (bfg95.neoplus.adsl.tpnet.pl. [83.28.44.95])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-486eb330bdcsm8116975f8f.13.2026.09.11.11.20.48
-        (version=TLS1_2 cipher=AES128-SHA bits=128/128);
-        Fri, 11 Sep 2026 11:20:49 -0700 (PDT)
-Date: Fri, 11 Sep 2026 20:20:46 +0200
-From: Michal Pecio <michal.pecio@gmail.com>
-To: Mario Limonciello <mario.limonciello@amd.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina
- <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, Pierre-Loup
- Griffais <pgriffais@valvesoftware.com>, open list
- <linux-kernel@vger.kernel.org>, "open list:HID CORE LAYER"
- <linux-input@vger.kernel.org>, "open list:USB SUBSYSTEM"
- <linux-usb@vger.kernel.org>, Curtis Vogt <curtis.vogt@gmail.com>
-Subject: Re: [PATCH 2/3] HID: valve-index: Reboot headset on system power
- transitions
-Message-ID: <20260911202046.5c28864b.michal.pecio@gmail.com>
-In-Reply-To: <2d4b2c51-ac5f-4fbc-82aa-8d573d095687@amd.com>
-References: <20260910170254.833871-1-mario.limonciello@amd.com>
-	<20260910170254.833871-3-mario.limonciello@amd.com>
-	<2026091133-silliness-recollect-e190@gregkh>
-	<20260911111652.703b865f.michal.pecio@gmail.com>
-	<2026091106-footing-antelope-7ceb@gregkh>
-	<2d4b2c51-ac5f-4fbc-82aa-8d573d095687@amd.com>
+        d=1e100.net; s=20251104; t=1789151091; x=1789755891;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=54zB5CgKeOfrsrOhVVVkcG2Pd6Kk/5fQ65j8geodZKE=;
+        b=NhWrCEFK/6cwOTLFImUVpvNhsg8/FJGInRv6TE7O5nChQ9599TkZpiXHOnF8UI7qWx
+         AoXBJ1YpPM2dO6j9C9G9laqqVtYqdcb/Dw6mn4xlHmd+PXTGIcIOufMayHyC94p4xZ6N
+         w4a/lKSRsXzP7Mdo4Pz+XJ9PpCNxFtUltPvtvUBYaawMon/S4dSzFMMUrrtPLRmhEpBu
+         ymllEQUvLvUdM2D0gLLY0X9YG8rojb6m8zg0YuuY4ZU5M7NnELK7/Xu5iMQEeaffyQZw
+         YEpl8hYtTJz8zuQ+28CYdd1AdpkhoxzmsbnhOalb+aV6CX19LgaktD0MVQylziFaS8aX
+         zmUQ==
+X-Gm-Message-State: AFuF++mHnGXu6BJQmmWOyIGQqaekaS76gd8uJSnMf+edXhgYY6wQYfwT
+	MBVF2AZ92kWjlW4y9MkodO7yhQOv7W1Z0+qE7gJDLFsv5xicRoEh8VABD7ckytmzGtM=
+X-Gm-Gg: AYBFou0VPA6SxcK4dXr7bMtnOBqj5Jjh8Y/G3pOCEpSWwoXbOyBMAzCNGN9B3qlnEjF
+	nuoRDVU+XPyQYeQ1pDwLoLMetcgCHPpRi891UYAkuWC7dMMSqgmrAMpFECw3jSeRVN0ZKAFudn2
+	nKesd+qLWxbbe7jJtRfPs8eMkrrwV2u2UeXuZwLHOlMoEfkFK5q1Fz7qkaKiudQrUqVVsc0cHYG
+	/x0qO/fY3T1sgbLHVmPx7V2+FnkjWfBoe9Q0e8kGwa6ihVZKJNbNlzAae9O+Ytt7aon1FteJ+v4
+	4kzGkUIgVVpA+PlQeSbK3oVWq0NNDa4BZ0owHP+4Li7ahbK/cC3DT5eTgMYR5Fi9bsJ4IXs3YUZ
+	jijSdmQDxHwVEF8UtL7hrHMgRSGPt3XKzlXy7cxMHA05FBLGEQXyy3PIVcAWbcpdBM/YcwJLT3M
+	qrZvIQvVgDSVK7I0JJHlAfGgcttjFyw0B4IbwaDrAVhcaR1sOZVZ+0oXs8XuI4dnHUiLpg3imuC
+	Cs8Y0zg5bJW0rtJbSI8oXTqetY=
+X-Received: by 2002:a5d:59a5:0:b0:486:f4cc:408e with SMTP id ffacd0b85a97d-486f4cc40bemr1428270f8f.22.1789151091444;
+        Fri, 11 Sep 2026 11:24:51 -0700 (PDT)
+Received: from fedora.lab.notiustin.com ([2a02:2f07:7211:b100:4ff4:568d:f2c6:5ab5])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-486eb33ee5csm7810131f8f.20.2026.09.11.11.24.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Sep 2026 11:24:51 -0700 (PDT)
+From: Iustin Ivan <iustinivan2002@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Hans de Goede <hansg@kernel.org>,
+	Iustin Ivan <iustinivan2002@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3 14IWC11
+Date: Fri, 11 Sep 2026 21:23:28 +0300
+Message-ID: <20260911182328.9267-1-iustinivan2002@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Fri, 11 Sep 2026 10:12:34 -0500, Mario Limonciello wrote:
-> On 9/11/26 04:23, Greg Kroah-Hartman wrote:
-> > On Fri, Sep 11, 2026 at 11:16:52AM +0200, Michal Pecio wrote:  
-> >> On Fri, 11 Sep 2026 07:54:12 +0200, Greg Kroah-Hartman wrote:
-> > You are creating an "odd" user/kernel api that is used for
-> > debugging, that's not what sysfs is for.  sysfs is to show
-> > attributes that a device has NOT to cause the device to go off and
-> > do some random thing (yes, there are exceptions, but generally
-> > that's the rule.)
-> > 
-> > debugfs is "do whatever you want", so that's a better place for
-> > this.
-> > 
-> > thanks,
-> > 
-> > greg k-h  
-> 
-> I suppose an alternative path we can build to all of this reset
-> handling at power state transitions and sysfs/debugfs is a callback
-> system for a failed EDID read.
-> 
-> Something like DRM drivers can send a notify to a global queue when
-> an EDID read failed.  Other drivers could subscribe to that notify
-> and react.  I guess this would only work if the USB reset sequence to
-> the HMD looks like an HPD event to DRM though.
-> 
-> Also it wouldn't be perfect.  If the HMD was connected and the read 
-> failed on an unrelated monitor on the system the HMD would reset
-> needlessly.
-> 
-> Eh, I think I'm talking myself back into this approach the patch does 
-> now.  I have no qualms moving the on demand knob to debugfs.
+The internal keyboard on the Lenovo IdeaPad Slim 3 14IWC11 (83RQ) does
+not work after boot. The keyboard ACKs every command during probe,
+including ATKBD_CMD_ENABLE, but never sends any scancodes afterwards.
+Booting with 'i8042.dumbkbd=1' makes it work at the cost of the
+CapsLock LED. Adding the atkbd_deactivate_fixup quirk fixes the
+keyboard and the LED natively.
 
-Perhaps one more option is to put this in userspace, with some libusb
-or HIDRAW hacking. And if it could be scripted to run on shutdown, no
-kernel driver even required at all.
+DMI: LENOVO 83RQ/LNVNB161216, BIOS U2CN19WW 03/30/2026
 
-Regards,
-Michal
+Fixes: 9cf6e24c9fbf ("Input: atkbd - do not skip atkbd_deactivate() when skipping ATKBD_CMD_GETID")
+Cc: stable@vger.kernel.org
+Signed-off-by: Iustin Ivan <iustinivan2002@gmail.com>
+---
+ drivers/input/keyboard/atkbd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index b9ad2381f885..923f77808381 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1938,6 +1938,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
+ 	},
++	{
++		/* Lenovo IdeaPad Slim 3 14IWC11 (83RQ) */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "83RQ"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
+ 	{
+ 		/* Xiaomi Book Pro 14 (TM2424) */
+ 		.matches = {
+-- 
+2.55.0
+

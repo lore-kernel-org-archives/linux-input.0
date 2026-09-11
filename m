@@ -1,91 +1,168 @@
-Received: from mta0.migadu.com (out-26.mta0.migadu.com [91.218.175.26])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 834A85921E3
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 20:04:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.26
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73FC24519AF
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 20:11:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789157059; cv=none; b=MD3XoBidKsQMl3sEFGV9FQUKJx8SXZDl24kL/ra8CVEpcZTfpfuYap9guKCQULRgyEiHRnvb3Lj5fyTR3oq29NIGjz3XfH9Uq4dFMIpT+npOfCqd4t4E7BMOTFp5ztt+s6SMwdLeo5uo03kK8LUAvTQx6zJAFIO+gennL2fVJF4=
+	t=1789157500; cv=none; b=Ng8LPZ24YVoo1FbJ3ZqMebCjBSzaUyI9VJ2M97y30AaOxRBDSmUNY9ZwlfL+nxVpVJtNQqroNjbIMB92KtySMqkAAFpOcRoxC44scbLfQNw0BDxi/lEQOGB1pkUBpJunLzjYxls46m1n0Vlj0G7kU72csSQb7ZITXfy3UmRg3Ww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789157059; c=relaxed/simple;
-	bh=TdW9s9fKwVmxaIx9w5xKoMfVPfWoaFoSa21A0l1xzdY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZJ1kJXgM2G2TvX9DY+Q8qpKcs00TLaQZx3uRtZOpgWJQ9Ll9twXk5r64xT/9GpyQTo9kKiGuHwSwqLUpG5sut5Z8puKeasLEs/X4c1BeluQgqMX4PzsE3EZ2wGkLt4Mx6wa+JYBIzbSOvkCE+2iAkHWVXtVfkMxEkjsNOCHiO5w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=XDhDyphF; arc=none smtp.client-ip=91.218.175.26
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1789157500; c=relaxed/simple;
+	bh=zTMCMdmWbQWVHz13zIZWqqrgx5+jJNwqqh8noRntdKc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=SRsI+o1PdkBZDIKhwbnrSiHn1JQap1CFi7RubSFEk/0V6T0kukSzbSfvod5dKpuA7wftPdqdesTTNbIeyG1eMoXtq4GEQeTBVLDJSaQJ2oBDhE9lHastJONTJvlXRDoAzalDN91m5Vp9yogORckMQMJ4NINLs4oNmCoyHJWrYxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WS/IDAdF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="XDhDyphF"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=TdW9s9fKwVmxaIx9w5xKoMfVPfWoaFoSa21A0l1xzdY=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1789157049; v=1; x=1789761849;
- b=XDhDyphFfu+ouIncqUDrrF2K8tpjtk4B/I9tgQoMG5PInsVdYuw1QDNuf2BtX+wh4C++C6uQ
- WjYxgPJqlmI44MbjMXt/QdUyEJOVTEk6rkdx7CI+wfD/tusHvCvDfWQ4LPTqlHFU+tVg2z2rIay
- +vetlTTxzA1Z2NRKAz85uzkk=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 38ea16c8dd52eec6;
-	Fri, 11 Sep 2026 20:04:09 +0000
-X-Mizu-Trace-ID: 38ea16c8dd52eec6
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <78a34a46-85c1-4428-8e85-2186ae434512@linux.dev>
-Date: Sat, 12 Sep 2026 01:34:03 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WS/IDAdF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E9DB1F000FF;
+	Fri, 11 Sep 2026 20:11:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789157499;
+	bh=vQ/BI7qNvbmdGeETyk18s6L8jjBnKyoVCKIqGMGDJ5I=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=WS/IDAdFzGUf8c7Irh3MnVIWTlxibQlTVYOI3pf4RbznY1bNZTNr9wb+1YFMy8mYY
+	 slMclTgOPe7hzrnempJJnPn9g8zB9GgjE2yHHWWS33atz2oc6REm8wks4HipzfSiNp
+	 xxbyVee9eMJsyw0xIAKf11vVBjiKFTiesx+wqB/kRr47UOHkcpjODgd6UCO6/7j8H3
+	 CYil4PX08RPulhnytjtxp2fRkySg5Gj91CDGuEvCeaaZb7rA2/kHtop9+r3ug5DttD
+	 GaD+FMpHppovjEZJ1+PRqdCH4cYMXQHbijnSUxs2CYNIgq7tq24qHjA6FG1FsijN9y
+	 PcW8/EeVbZMkg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5] HID: appletb-kbd: support layer switching on Fn
+ double press
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aditya Garg" <aditya.garg@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260911200019.17028-1-aditya.garg@linux.dev>
+References: <20260911200019.17028-1-aditya.garg@linux.dev>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 20:11:38 +0000
+Message-Id: <20260911201139.2E9DB1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] HID: appletb-kbd: support layer switching on Fn double
- press
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
- Linux Input Mailing List <linux-input@vger.kernel.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Andre Eikmeyer <dev@deq.rocks>
-References: <20260905143733.17819-1-aditya.garg@linux.dev>
- <cf9ff462-1a77-44c7-92fd-2b11518aeb69@linux.dev>
- <4s5p7s1n-87n6-2833-s73r-s82s45862srs@xreary.bet>
-Content-Language: en-US
-From: Aditya Garg <aditya.garg@linux.dev>
-In-Reply-To: <4s5p7s1n-87n6-2833-s73r-s82s45862srs@xreary.bet>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
+New issues:
+- [High] Double-press detection falsely triggers on every single press duri=
+ng the first ~5 minutes of system uptime due to jiffies wrap and zero initi=
+alization.
+- [Medium] Runtime mutation of a global, read-only module parameter from wi=
+thin a device-specific event handler without synchronization.
 
-On 11/09/26 10:15 pm, Jiri Kosina wrote:
-> On Sat, 5 Sep 2026, Aditya Garg wrote:
-> 
->>> Holding Fn temporarily switches the Touch Bar between media controls and
->>> function keys. Users who want to keep the alternate layer currently need
->>> to change the mode through sysfs.
->>>
->>> An optional double_press_switch_time module parameter makes a double press
->>> persistently switch the default layer. Its value specifies the double-press
->>> interval in milliseconds, while zero leaves the behavior disabled.
->>>
->>> Signed-off-by: Aditya Garg <aditya.garg@linux.dev>
->>> Signed-off-by: Andre Eikmeyer <dev@deq.rocks>
->>> ---
->>> Changes in v2:
->>> - Added a check to ensure negative fn switch times are ignored.
->>>
->>> Changes in v3:
->>> - Renamed the backing variable to match the module parameter.
->>> - Fixed the reported code style issues.
->>>
->>> Changes in v4:
->>> - Added missing "break;" in case statements.
->>> - Change author's email to aditya.garg@linux.dev
->>
->> Now that I see it, the case statements were ending in return. break was 
->> not needed. Sorry for the brainfart.
-> 
-> Please send v5 and I will apply it.
+Pre-existing issues:
+- [High] The input event handler calls a function that can sleep (`hid_hw_p=
+ower`), violating the atomic context requirements of the input subsystem.
+--
 
-Sent here:
+commit 8744bab7e31d541dd6e18fb45fd65fb8da3adc97
+Author: Aditya Garg <aditya.garg@linux.dev>
 
-https://lore.kernel.org/linux-input/20260911200019.17028-1-aditya.garg@linux.dev/T/#u
+HID: appletb-kbd: support layer switching on Fn double press
+
+This commit adds an optional module parameter double_press_switch_time
+to switch the default touch bar layer persistently upon a double-press
+of the Fn key. It introduces new logic in the input event handler to
+detect double presses.
+
+> diff --git a/drivers/hid/hid-appletb-kbd.c b/drivers/hid/hid-appletb-kbd.c
+> index 5cc27066f6026..02b938daeb2b3 100644
+> --- a/drivers/hid/hid-appletb-kbd.c
+> +++ b/drivers/hid/hid-appletb-kbd.c
+[ ... ]
+> @@ -250,15 +269,36 @@ static void appletb_kbd_inp_event(struct input_hand=
+le *handle, unsigned int type
+> =20
+>  	reset_inactivity_timer(kbd);
+> =20
+> -	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN && appletb_tb_fn_toggle &&
+> -		(kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
+> -		 kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
+> +	if (type =3D=3D EV_KEY && code =3D=3D KEY_FN &&
+> +	    (kbd->current_mode =3D=3D APPLETB_KBD_MODE_SPCL ||
+> +	     kbd->current_mode =3D=3D APPLETB_KBD_MODE_FN)) {
+>  		if (value =3D=3D 1) {
+> -			kbd->saved_mode =3D kbd->current_mode;
+> -			appletb_kbd_set_mode(kbd, kbd->current_mode =3D=3D APPLETB_KBD_MODE_S=
+PCL
+> -						? APPLETB_KBD_MODE_FN : APPLETB_KBD_MODE_SPCL);
+> +			if (appletb_tb_double_press_switch_time > 0) {
+> +				unsigned long now =3D jiffies;
+> +
+> +				if (time_before(now, kbd->last_fn_press +
+> +					msecs_to_jiffies(appletb_tb_double_press_switch_time))) {
+
+[Severity: High]
+Does this time_before check falsely trigger on every single press during the
+first ~5 minutes of system uptime?
+
+On Linux, jiffies is initialized to a large negative number (e.g., -300 * H=
+Z)
+to catch wrapping bugs early. Because kbd->last_fn_press is 0 initially,
+the check mathematically evaluates as:
+
+(long)now - (long)timeout < 0
+
+Since now is negative and timeout is positive, this evaluates to true on the
+very first press, causing the double-press feature logic to completely fail
+and convert single presses into double-press actions.
+
+> +					appletb_tb_def_mode =3D
+> +						appletb_switch_mode(appletb_tb_def_mode);
+
+[Severity: Medium]
+Does mutating the global read-only module parameter appletb_tb_def_mode
+inside a device-specific event handler break per-device isolation?
+
+Since this parameter is defined with 0444 permissions and intended to
+configure default initialization, changing it dynamically bleeds the runtime
+state of one device instance into the global configuration, applying it to
+any future device probes or suspend/resume cycles.
+
+> +
+> +					appletb_kbd_set_mode(kbd, appletb_tb_def_mode);
+
+[Severity: High]
+This is a pre-existing issue, but does calling appletb_kbd_set_mode() from
+the atomic input event callback cause a kernel panic?
+
+The input core invokes event callbacks with the device's event_lock spinlock
+held and interrupts disabled. Inside appletb_kbd_set_mode():
+
+appletb_kbd_set_mode()
+    hid_hw_power(..., PM_HINT_FULLON)
+        usb_autopm_get_interface()
+            pm_runtime_get_sync()
+
+This translates into synchronous PM runtime resume calls which will sleep,
+leading to a scheduling-while-atomic oops. Although this existed prior to
+this patch for the fn_toggle feature, this patch adds new execution paths
+that trigger the identical crash.
+
+> +
+> +					kbd->saved_mode =3D appletb_tb_def_mode;
+> +					kbd->last_fn_press =3D 0;
+
+[Severity: High]
+Does resetting the tracker to 0 instead of a valid timestamp re-arm
+the jiffies wrapping bug indefinitely?
+
+Setting this back to 0 guarantees that subsequent single presses will
+also falsely trigger as double-presses until jiffies eventually wraps
+to a positive value.
+
+> +
+> +					return;
+> +				}
+> +
+> +				kbd->last_fn_press =3D now;
+> +			}
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911200019.1702=
+8-1-aditya.garg@linux.dev?part=3D1

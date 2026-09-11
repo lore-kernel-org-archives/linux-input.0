@@ -1,362 +1,383 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi2-f13.google.com (mail-oi2-f13.google.com [74.125.231.205])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAC853A784F;
-	Thu, 10 Sep 2026 23:49:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFCB931282F
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 04:54:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.205
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789084173; cv=none; b=lzl8OmoBgEQkaxJqcm8rLWVxtREtlxNpYHB/TRlpwEAhwhqaeuEhPPUTH99zSrsnUw/RbSYiC4ZUcY+Qgvbewlp4pbqOCK06eKzC0s+0arxKhj5Qdjt2I/5WIDqRPArAGvJaaEzDIzl0PEfQXT57i1KPX6Gi1uip6nhqy8OmtTM=
+	t=1789102468; cv=none; b=ut9EX559Qjq8xxcPUTwuz6Tn/1PouyT6T7PYRR+YSaThgT5S2EyrJ/0+OClxKZipaOwFKQiriKVISjefXglTnLlThOImOFaQ9ISOslwXPjbIoHQx9vUOuBAgE20dWrHh0tPQQknSt2m21SmOAufodrD8691PMeuOzrXSkXRneTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789084173; c=relaxed/simple;
-	bh=GniLviUPIjDaEa1gqtaII0N0z5XcLo4ZXvSD4msaZmY=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=re7J7Zv9sKpdCHmG59aWhniIjO/qW4sAnE5/e2HBczNVMUxNxmPnyJWnM9JA7IKEacIigkNiSpDtBHBplFmlwIJfwPMs1ZHkMC6KSwc/XUSPVT49NgLhxbITOZfBcnEXjcnrqrRv7mbCY80jRkxqVs/dw/R+LP7rL2NM5p36aMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=eli6qMGS; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789102468; c=relaxed/simple;
+	bh=WY5bY4BH3alMkwZgCvPT8IWgmqIbk4E3qEmfdJU6RqQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HnGBTbGL0apgnZF0oG4gPpJAhofUDKrtdco9iAhv7p0GN42AhDmVOFqolMay1RoUXLnFr0pL8+vR/bv7tzDO7IbuJJaz1Y3P15ttbYuubTC3K4a6vQUUIYlsPNlmIa+z7GFPOe5oLFWv5r2OEYeiey1l6/oPTFin0Kf29Vt0oec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YD+Bn0vD; arc=none smtp.client-ip=74.125.231.205
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="eli6qMGS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A45831F000FF;
-	Thu, 10 Sep 2026 23:49:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YD+Bn0vD"
+Received: by mail-oi2-f13.google.com with SMTP id 5614622812f47-4c112aaaf04so422420b6e.1
+        for <linux-input@vger.kernel.org>; Thu, 10 Sep 2026 21:54:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux-foundation.org; s=korg; t=1789084171;
-	bh=VF1IzpkvEZpz8vf0zB2nL50NHFRi+ukaTt7C4SFlbI4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=eli6qMGSmz4lm+Ip/4jVK6MLz8m76VA2SZpkZJMK63aPYDQl/jurHC0HPodPWxyfk
-	 IVLRqvcTgRZA75S/PEmbchQw+wlSOJM0+r6Uz7rodzsywLcV1tw4cpzLPz2LV1wk9+
-	 g2DsZN4aOSrRDHGa3XPs8/H7rY8FhdTjUIrevcRE=
-Date: Thu, 10 Sep 2026 16:49:30 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: syzbot <syzbot+093e05755c2d99caab91@syzkaller.appspotmail.com>
-Cc: cgroups@vger.kernel.org, hannes@cmpxchg.org,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org,
- linux-usb@vger.kernel.org, mhocko@kernel.org, muchun.song@linux.dev,
- roman.gushchin@linux.dev, shakeel.butt@linux.dev,
- syzkaller-bugs@googlegroups.com, Jiri Kosina <jikos@kernel.org>, Benjamin
- Tissoires <bentiss@kernel.org>, bentiss@kernel.org>,
- linux-input@vger.kernel.org
-Subject: Re: [syzbot] [mm?] [cgroups?] inconsistent lock state in
- fs_reclaim_acquire (4)
-Message-Id: <20260910164930.4be969ed38cb0d5b4b45cd27@linux-foundation.org>
-In-Reply-To: <6aa1e191.f81106d8.2ab401.0004.GAE@google.com>
-References: <6aa1e191.f81106d8.2ab401.0004.GAE@google.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        d=gmail.com; s=20251104; t=1789102466; x=1789707266; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=EvsmNcwc934PZgzPHOzcBHOJAVFXVErbLecWRacl4K0=;
+        b=YD+Bn0vDQrVV4QMaZcKLaLIRBZ9rpT9Wfy7guVQu+tt4sVQDc+h4xNFdiTZOlAgi9t
+         PWg3SXMKOJRJGPWJ6H2xoMaChtcnnVBJiv5UQ1D3y2Q38fx96z9S3oNLrRooPP23+1/V
+         7y665BfEfK6n1MyZG5wDVy2roz1H/p3kTomCQvg5PCQVR93dbAGvSUyGq8lXKeHDc67I
+         qWGKns1+yFZjQlots+uFjWR4+jlN/PkjTsj7pQEdbmBlhR6xwidxa0aewjZW2kEh8UoO
+         0+eiJtClTucRRWfjI6aX/dnbO7138cskaZ4pU3SKDHmTIgQg9riDdeyHo3HtDTJStDuQ
+         MMFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789102466; x=1789707266;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=EvsmNcwc934PZgzPHOzcBHOJAVFXVErbLecWRacl4K0=;
+        b=M6RURSjh8/+DypEZgm9q5rZTDUWP3fHQUjdcyRTgnvqfjUkabW60Irhr/92SMzMVvo
+         +jARK+AvZbKgY6VVt10RBssDBliQGgQyU32cF5P4yV8vA758YmUGSGP4G67HToqiJkJe
+         oHQNrqCWU+ahgsVxTHsTbkdVIly1MQ4OT4MyN3actRPGVbJnqXwE4sROm80NsBrOxfsd
+         tE0wltYURFaCXia6gg8MOtew/17ICQD1d2mZpY1Gbo29YOBgOxJGrkqwQTeNbRRa75+m
+         XyhTS3JjzLkx0KvQJNwDkD/dzNC+zJQq+hLF1H1GgkM0MrMe8afwOr7KN4j9TWhS3Ell
+         Ox3A==
+X-Forwarded-Encrypted: i=1; AKwUvBzJ4au98Xo3Uacq+YOXZ6k0T+P3xEox/CRq48uT8X+1XV3KfQdKfRun+ufQiQ4p2aSy9xzenQjCg9DbWQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++njLb4u1vOHQpf5hafVBOOxbokjVx2XkGWV3MgfdCRj+Ve2DJbE
+	n7Zh1mvvTJfxN89pX3OcG6C2gMsiXR73xBQvxAS4gV6VDsWHVcvHskuW
+X-Gm-Gg: AYBFou06ZGd56JL2f5/5gRcy/OCFxt/Sdbh1uTD1mFboY8bfF4+mfyIaM+N/VuYvN0f
+	8NSvh6eYdp79umHhASTAZmS+MsRH+EuWwq9qlbPSJAqblg7gNbxZAuxspJTm85Ppu0GBzNkSFpj
+	9y/eZ0HnuB2zTWsz1FuxrqEP0Nw4WsoRW3IJyycp1quOBv7qQPPoGdNx6ZhDc1lW/qBdHJOTY0N
+	AFWTbBJdhrRv02SHaNxwt7ZbytA/gjpeHsXGdzey/+bpcmBMnaYTcCmKNeSbBEyzEgUgDJz98UA
+	oUPsocGcbbTE/EcodPlAtW7/eR8u5+swQTLEKFZfCiaxmsnNfu7Pe3oavDD5onx7rOBRGZ8wjAs
+	S0Nt7/a06TRM3QSbvV/n5AI7slQ6e8xX31fVoNV+0QhBjdlmOtp25STHdWKJI4F3etyXDQmcwiD
+	Fc+XHoIO3GXOpXmFo903jOCJR1HGmCAfT/O9hYGOkBklue3xegzXf/2OGc88aneAAV7vE5/Dg7r
+	UpHTJ+uO2DWzd76aqo50jcWFqn9mA==
+X-Received: by 2002:a05:6808:6905:b0:4a3:fb6c:9adf with SMTP id 5614622812f47-4c31b6d0361mr3599265b6e.12.1789102465674;
+        Thu, 10 Sep 2026 21:54:25 -0700 (PDT)
+Received: from dhoja (S01067483c248479d.wp.shawcable.net. [50.72.244.202])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-4c3314b5179sm1226015b6e.9.2026.09.10.21.54.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Sep 2026 21:54:25 -0700 (PDT)
+Date: Thu, 10 Sep 2026 23:54:22 -0500
+From: Curtis Vogt <curtis.vogt@gmail.com>
+To: Mario Limonciello <mario.limonciello@amd.com>
+Cc: Michal Pecio <michal.pecio@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Pierre-Loup Griffais <pgriffais@valvesoftware.com>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+	"open list:USB SUBSYSTEM" <linux-usb@vger.kernel.org>
+Subject: Re: [PATCH 2/3] HID: valve-index: Reboot headset on system power
+ transitions
+Message-ID: <aqOJfj79_NVkU6Db@dhoja>
+References: <20260910170254.833871-1-mario.limonciello@amd.com>
+ <20260910170254.833871-3-mario.limonciello@amd.com>
+ <20260910220421.40356e51.michal.pecio@gmail.com>
+ <55918a70-72c9-4f55-934b-81a692d4619b@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <55918a70-72c9-4f55-934b-81a692d4619b@amd.com>
 
-On Wed, 09 Sep 2026 15:45:37 -0700 syzbot <syzbot+093e05755c2d99caab91@syzkaller.appspotmail.com> wrote:
+On Thu, Sep 10, 2026 at 03:43:18PM -0500, Mario Limonciello wrote:
+> 
+> 
+> On 9/10/26 15:04, Michal Pecio wrote:
+> > On Thu, 10 Sep 2026 12:02:53 -0500, Mario Limonciello wrote:
+> > > The Valve Index HMD stops serving its EDID after the host disables the
+> > > DisplayPort PHY.  The headset remains powered by its breakout box across
+> > > suspend and shutdown, so the bad state survives and the next connector
+> > > detection reports "No EDID read".  The HMD then appears as a synthesized
+> > > 640x480 display until it is power-cycled.
+> > > 
+> > > The 64-byte HID output report 0x16 with command 0x01 reboots the headset
+> > > and restores its EDID service.  Add a device-specific driver which sends
+> > > this report for system sleep transitions and orderly shutdown while leaving
+> > > runtime autosuspend alone.
+> > > 
+> > > Resume a runtime-suspended interface for a shutdown request and restrict
+> > > the command to the composite interface which declares report 0x16.
+> > > 
+> > > Closes: https://gitlab.freedesktop.org/drm/amd/-/work_items/4333
+> > 
+> > Hmm, people say it's a regression, so it looks like at least one
+> > alternative solution should, in theory, exist...
+> 
+> Right.  This bug sat for a very long time hoping someone with the hardware
+> would bisect and we could explain what changed.
+> 
+> My initial suspicion is timing.  But scouring the web you can see it happens
+> on NVIDIA hardware too.
+> 
+> https://forums.developer.nvidia.com/t/valve-index-initialized-in-unusable-state-on-boot/324710
+> 
+> So 'unlikely' that a DRM change caused it.  Maybe tied to the F/W version on
+> the Index and it got updated from initial report to failure?
+> 
+> I have no idea.  I don't have this hardware so I'm just trying to help these
+> people how I can :)
+> 
+> > 
+> > Obligatory question: does it work any better with Windows? :)
+> 
+> Curtis?
+>
 
-> Hello,
-> 
-> syzbot found the following issue on:
-> 
-> HEAD commit:    34c9c5517033 Merge 7.3-rc2 into usb-next
-> git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
-> console output: https://syzkaller.appspot.com/x/log.txt?x=1408d749580000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=c451f9f64434b622
-> dashboard link: https://syzkaller.appspot.com/bug?extid=093e05755c2d99caab91
-> compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=102c2ef9580000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=156d7af9580000
-> 
-> Downloadable assets:
-> disk image: https://storage.googleapis.com/syzbot-assets/8a384e63cde6/disk-34c9c551.raw.xz
-> vmlinux: https://storage.googleapis.com/syzbot-assets/e5a73decdc30/vmlinux-34c9c551.xz
-> kernel image: https://storage.googleapis.com/syzbot-assets/13abc163bbdc/bzImage-34c9c551.xz
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+093e05755c2d99caab91@syzkaller.appspotmail.com
-> 
-> ================================
-> WARNING: inconsistent lock state
+When I was using Windows I believe I observed a similiar behavior of the
+system booting into a black screen and hanging. I remember this
+occurring as far back as 2020 when I was using a 5700XT (RDNA1).
 
-Thanks.  tl;dr: drivers/hid/hid-multitouch.c
+I'm willing to test on Windows again but I'll need to setup a Windows
+system since I don't currently have one available.
 
+> > 
+> > > Link: https://github.com/ValveSoftware/SteamVR-for-Linux/issues/939
+> > > Assisted-by: LLM
+> > > Co-developed-by: Curtis Vogt <curtis.vogt@gmail.com>
+> > > Signed-off-by: Curtis Vogt <curtis.vogt@gmail.com>
+> > > Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> > > ---
+> > >   .../ABI/testing/sysfs-driver-hid-valve-index  |  12 ++
+> > >   drivers/hid/Kconfig                           |  11 ++
+> > >   drivers/hid/Makefile                          |   1 +
+> > >   drivers/hid/hid-ids.h                         |   1 +
+> > >   drivers/hid/hid-valve-index.c                 | 142 ++++++++++++++++++
+> > >   5 files changed, 167 insertions(+)
+> > >   create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-valve-index
+> > >   create mode 100644 drivers/hid/hid-valve-index.c
+> > > 
+> > > diff --git a/Documentation/ABI/testing/sysfs-driver-hid-valve-index b/Documentation/ABI/testing/sysfs-driver-hid-valve-index
+> > > new file mode 100644
+> > > index 0000000000000..47d8c26b1eace
+> > > --- /dev/null
+> > > +++ b/Documentation/ABI/testing/sysfs-driver-hid-valve-index
+> > > @@ -0,0 +1,12 @@
+> > > +What:		/sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/reboot
+> > > +Date:		October 2026
+> > > +Contact:	linux-input@vger.kernel.org
+> > > +Description:
+> > > +		Writing a boolean true value reboots the Valve Index headset to
+> > > +		recover its EDID service. Writing a boolean false value has no
+> > > +		effect. This file is write-only.
+> > > +
+> > > +		The Valve Index is a composite HID device. The reboot command is
+> > > +		only supported by the interface that provides the headset's 64-byte
+> > > +		output report. Writing true to this file on another interface fails
+> > > +		with -ENODEV.
+> > > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> > > index a81bf51cbcf10..8ea2dd570058f 100644
+> > > --- a/drivers/hid/Kconfig
+> > > +++ b/drivers/hid/Kconfig
+> > > @@ -547,6 +547,17 @@ config HID_WALTOP
+> > >   	help
+> > >   	Support for Waltop tablets.
+> > > +config HID_VALVE_INDEX
+> > > +	tristate "Valve Index headset"
+> > > +	depends on USB_HID
+> > > +	help
+> > > +	  Support for the Valve Index headset. This driver works around the
+> > > +	  headset failing to provide its EDID after a DisplayPort link shutdown
+> > > +	  by rebooting the headset on resume from system suspend and at shutdown.
+> > > +
+> > > +	  To compile this driver as a module, choose M here: the module will be
+> > > +	  called hid-valve-index.
+> > > +
+> > >   config HID_VIEWSONIC
+> > >   	tristate "ViewSonic/Signotec"
+> > >   	help
+> > > diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> > > index 48a863b245eed..21f512cab6250 100644
+> > > --- a/drivers/hid/Makefile
+> > > +++ b/drivers/hid/Makefile
+> > > @@ -156,6 +156,7 @@ obj-$(CONFIG_HID_XIAOMI)	+= hid-xiaomi.o
+> > >   obj-$(CONFIG_HID_XINMO)		+= hid-xinmo.o
+> > >   obj-$(CONFIG_HID_ZEROPLUS)	+= hid-zpff.o
+> > >   obj-$(CONFIG_HID_ZYDACRON)	+= hid-zydacron.o
+> > > +obj-$(CONFIG_HID_VALVE_INDEX)	+= hid-valve-index.o
+> > >   obj-$(CONFIG_HID_VIEWSONIC)	+= hid-viewsonic.o
+> > >   obj-$(CONFIG_HID_VRC2)		+= hid-vrc2.o
+> > >   obj-$(CONFIG_HID_HUAWEI)	+= hid-huawei.o
+> > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > > index b3aca5aa91767..15cd29a338a8d 100644
+> > > --- a/drivers/hid/hid-ids.h
+> > > +++ b/drivers/hid/hid-ids.h
+> > > @@ -1391,6 +1391,7 @@
+> > >   #define USB_DEVICE_ID_STEAM_CONTROLLER_IBEX_BLE	0x1303
+> > >   #define USB_DEVICE_ID_STEAM_CONTROLLER_PROTEUS	0x1304
+> > >   #define USB_DEVICE_ID_STEAM_CONTROLLER_NEREID	0x1305
+> > > +#define USB_DEVICE_ID_VALVE_INDEX_HEADSET	0x2300
+> > >   #define USB_VENDOR_ID_STEELSERIES	0x1038
+> > >   #define USB_DEVICE_ID_STEELSERIES_SRWS1	0x1410
+> > > diff --git a/drivers/hid/hid-valve-index.c b/drivers/hid/hid-valve-index.c
+> > > new file mode 100644
+> > > index 0000000000000..43c1142b7215b
+> > > --- /dev/null
+> > > +++ b/drivers/hid/hid-valve-index.c
+> > > @@ -0,0 +1,142 @@
+> > > +// SPDX-License-Identifier: GPL-2.0-or-later
+> > > +/*
+> > > + * HID driver for the Valve Index headset
+> > > + */
+> > > +
+> > > +#include <linux/hid.h>
+> > > +#include <linux/module.h>
+> > > +
+> > > +#include "hid-ids.h"
+> > > +
+> > > +#define VALVE_INDEX_REBOOT_REPORT_ID	0x16
+> > > +#define VALVE_INDEX_REBOOT_CMD		0x01
+> > > +#define VALVE_INDEX_REPORT_SIZE		64
+> > > +
+> > > +static bool valve_index_has_reboot_report(struct hid_device *hdev)
+> > > +{
+> > > +	struct hid_report *report;
+> > > +
+> > > +	/*
+> > > +	 * The reboot command is a vendor protocol carried in the unnumbered
+> > > +	 * 64-byte output report of the headset's third interface; the first
+> > > +	 * data byte is the command id.  Report 0x16 is only declared as a
+> > > +	 * feature report and is not what the command is sent as.
+> > > +	 */
+> > > +	report = hdev->report_enum[HID_OUTPUT_REPORT].report_id_hash[0];
+> > > +
+> > > +	return report && hid_report_len(report) == VALVE_INDEX_REPORT_SIZE;
+> > > +}
+> > > +
+> > > +static void valve_index_reboot(struct hid_device *hdev, bool wake)
+> > > +{
+> > > +	u8 *report;
+> > > +	int ret;
+> > > +
+> > > +	if (!valve_index_has_reboot_report(hdev))
+> > > +		return;
+> > > +
+> > > +	/* USB transfer buffers must be DMA-able, so not on the stack. */
+> > > +	report = kzalloc(VALVE_INDEX_REPORT_SIZE, GFP_KERNEL);
+> > > +	if (!report)
+> > > +		return;
+> > > +	report[0] = VALVE_INDEX_REBOOT_REPORT_ID;
+> > > +	report[1] = VALVE_INDEX_REBOOT_CMD;
+> > > +
+> > > +	if (wake) {
+> > > +		ret = hid_hw_power(hdev, PM_HINT_FULLON);
+> > > +		if (ret < 0) {
+> > > +			hid_warn(hdev, "failed to resume headset for reboot: %d\n",
+> > > +				 ret);
+> > > +			goto out;
+> > > +		}
+> > > +	}
+> > > +
+> > > +	/* Use the same interrupt-out then SET_REPORT fallback as hidraw. */
+> > > +	ret = hid_hw_output_report(hdev, report, VALVE_INDEX_REPORT_SIZE);
+> > > +	if (ret == -ENOSYS)
+> > > +		ret = hid_hw_raw_request(hdev, report[0], report,
+> > > +					 VALVE_INDEX_REPORT_SIZE,
+> > > +					 HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+> > > +	if (ret < 0)
+> > > +		hid_warn(hdev, "failed to reboot headset: %d\n", ret);
+> > > +	else if (ret != VALVE_INDEX_REPORT_SIZE)
+> > > +		hid_warn(hdev, "short headset reboot report: %d\n", ret);
+> > > +
+> > > +	if (wake)
+> > > +		hid_hw_power(hdev, PM_HINT_NORMAL);
+> > > +out:
+> > > +	kfree(report);
+> > > +}
+> > > +
+> > > +/*
+> > > + * The suspend and shutdown hooks only cover orderly power transitions.  After
+> > > + * a crash, a hard reset or a power cut the headset is left in the state where
+> > > + * its EDID no longer reads, and nothing recovers it until the next orderly
+> > > + * transition.  Expose the reboot command as a write-only "reboot" attribute
+> > > + * on the HID device so userspace can recover it, for instance from a udev
+> > > + * rule that fires only when the connector reports no EDID.  Writing to an
+> > > + * interface that does not carry the reboot report returns -ENODEV.
+> > > + */
+> > > +static ssize_t reboot_store(struct device *dev, struct device_attribute *attr,
+> > > +			    const char *buf, size_t count)
+> > > +{
+> > > +	struct hid_device *hdev = to_hid_device(dev);
+> > > +	bool val;
+> > > +
+> > > +	if (kstrtobool(buf, &val))
+> > > +		return -EINVAL;
+> > > +	if (!val)
+> > > +		return count;
+> > > +	if (!valve_index_has_reboot_report(hdev))
+> > > +		return -ENODEV;
+> > > +
+> > > +	valve_index_reboot(hdev, true);
+> > > +
+> > > +	return count;
+> > > +}
+> > > +static DEVICE_ATTR_WO(reboot);
+> > > +
+> > > +static struct attribute *valve_index_attrs[] = {
+> > > +	&dev_attr_reboot.attr,
+> > > +	NULL
+> > > +};
+> > > +ATTRIBUTE_GROUPS(valve_index);
+> > > +
+> > > +/*
+> > > + * The headset's EDID service is lost when the host disables the DisplayPort
+> > > + * PHY during system suspend, so it needs the reboot on the way out of
+> > > + * suspend.  Doing it on the way in does not work: the headset dropping off
+> > > + * USB is a remote-wakeup event from its hub and aborts the suspend.
+> > > + */
+> > 
+> > The internal hub which will be quirked by the next patch, or its parent?
+> 
+> It has to be the internal hub if quirking it works, no?
+> 
+> I guess it's easy to check this by looking up wakeup count from all the
+> applicable devices in sysfs while toggling the sysfs file introduced by this
+> patch?
+> 
 
-My friendly local LLM tells me
+I can try to look into this.
 
-  So I would not initially blame mm/cgroups despite syzbot's [mm?]
-  [cgroups?] classification.  fs_reclaim is just where lockdep detects
-  the violation.  The suspicious code is
-  drivers/hid/hid-multitouch.c:mt_allocate_report_data(): it
-  dynamically allocates report bookkeeping from mt_event(), and
-  mt_event() can evidently execute in atomic/softirq context.
-
-  The interesting question for the actual fix is why this structure
-  wasn't allocated earlier.  mt_find_report_data() presumably normally
-  finds preexisting report data, but this reproducer gets an HID report
-  for which none exists and falls into mt_allocate_report_data() at
-  runtime.  The likely proper fix is therefore to arrange for this data
-  to be allocated during device/report initialization in sleepable
-  context, rather than merely changing this allocation to GFP_ATOMIC. 
-  The latter could suppress the reclaim problem but devm_* itself and
-  the lifetime/list manipulation deserve checking before assuming
-  that's sufficient.
-
-which is sufficient for me to cc relevant folks and run away.
-
-> syzkaller #0 Not tainted
-> --------------------------------
-> inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
-> syz.3.17/3981 [HC0[0]:SC1[1]:HE0:SE0] takes:
-> ffffffff89ab7bc0 (fs_reclaim){+.?.}-{0:0}, at: might_alloc include/linux/sched/mm.h:316 [inline]
-> ffffffff89ab7bc0 (fs_reclaim){+.?.}-{0:0}, at: slab_pre_alloc_hook mm/slub.c:4636 [inline]
-> ffffffff89ab7bc0 (fs_reclaim){+.?.}-{0:0}, at: slab_alloc_node mm/slub.c:4974 [inline]
-> ffffffff89ab7bc0 (fs_reclaim){+.?.}-{0:0}, at: __do_kmalloc_node mm/slub.c:5413 [inline]
-> ffffffff89ab7bc0 (fs_reclaim){+.?.}-{0:0}, at: __kmalloc_node_track_caller_noprof+0xcc/0x820 mm/slub.c:5545
-> {SOFTIRQ-ON-W} state was registered at:
->   lock_acquire kernel/locking/lockdep.c:5942 [inline]
->   lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
->   __fs_reclaim_acquire mm/page_alloc.c:4375 [inline]
->   fs_reclaim_acquire+0xc4/0x100 mm/page_alloc.c:4389
->   might_alloc include/linux/sched/mm.h:316 [inline]
->   xa_alloc include/linux/xarray.h:876 [inline]
->   mem_cgroup_alloc mm/memcontrol.c:4160 [inline]
->   mem_cgroup_css_alloc+0x7e/0x1ce0 mm/memcontrol.c:4225
->   cgroup_init_subsys+0x223/0x700 kernel/cgroup/cgroup.c:6431
->   cgroup_init+0x569/0xe50 kernel/cgroup/cgroup.c:6558
->   start_kernel+0x470/0x490 init/main.c:1176
->   x86_64_start_reservations+0x24/0x30 arch/x86/kernel/head64.c:310
->   x86_64_start_kernel+0x12b/0x130 arch/x86/kernel/head64.c:291
->   common_startup_64+0x13e/0x158
-> irq event stamp: 317
-> hardirqs last  enabled at (316): [<ffffffff878ad162>] __raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:210 [inline]
-> hardirqs last  enabled at (316): [<ffffffff878ad162>] _raw_spin_unlock_irqrestore+0x52/0x80 kernel/locking/spinlock.c:221
-> hardirqs last disabled at (317): [<ffffffff878acd32>] __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:153 [inline]
-> hardirqs last disabled at (317): [<ffffffff878acd32>] _raw_spin_lock_irqsave+0x52/0x60 kernel/locking/spinlock.c:181
-> softirqs last  enabled at (302): [<ffffffff8177a2a8>] __do_softirq kernel/softirq.c:679 [inline]
-> softirqs last  enabled at (302): [<ffffffff8177a2a8>] invoke_softirq kernel/softirq.c:519 [inline]
-> softirqs last  enabled at (302): [<ffffffff8177a2a8>] __irq_exit_rcu+0x168/0x210 kernel/softirq.c:758
-> softirqs last disabled at (313): [<ffffffff8177a2a8>] __do_softirq kernel/softirq.c:679 [inline]
-> softirqs last disabled at (313): [<ffffffff8177a2a8>] invoke_softirq kernel/softirq.c:519 [inline]
-> softirqs last disabled at (313): [<ffffffff8177a2a8>] __irq_exit_rcu+0x168/0x210 kernel/softirq.c:758
+> > 
+> > > +static int valve_index_resume(struct hid_device *hdev)
+> > > +{
+> > > +	valve_index_reboot(hdev, false);
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +
+> > > +static void valve_index_shutdown(struct hid_device *hdev)
+> > > +{
+> > > +	valve_index_reboot(hdev, true);
+> > > +}
+> > > +
+> > > +static const struct hid_device_id valve_index_devices[] = {
+> > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_VALVE,
+> > > +			 USB_DEVICE_ID_VALVE_INDEX_HEADSET) },
+> > > +	{ }
+> > > +};
+> > > +MODULE_DEVICE_TABLE(hid, valve_index_devices);
+> > > +
+> > > +static struct hid_driver valve_index_driver = {
+> > > +	.name = "valve-index",
+> > > +	.id_table = valve_index_devices,
+> > > +	.resume = valve_index_resume,
+> > > +	.reset_resume = valve_index_resume,
+> > > +	.shutdown = valve_index_shutdown,
+> > > +	.driver.dev_groups = valve_index_groups,
+> > > +};
+> > > +module_hid_driver(valve_index_driver);
+> > > +
+> > > +MODULE_AUTHOR("Mario Limonciello <mario.limonciello@amd.com>");
+> > > +MODULE_DESCRIPTION("HID driver for Valve Index headset");
+> > > +MODULE_LICENSE("GPL");
+> > > -- 
+> > > 2.43.0
+> > > 
 > 
-> other info that might help us debug this:
->  Possible unsafe locking scenario:
-> 
->        CPU0
->        ----
->   lock(fs_reclaim);
->   <Interrupt>
->     lock(fs_reclaim);
-> 
->  *** DEADLOCK ***
-> 
-> locks held by syz.3.17/3981: 1, on CPU#0:
->  #0: ffff888122130870 (&hiddev->existancelock){+.+.}-{4:4}, at: hiddev_ioctl+0x165/0x15b0 drivers/hid/usbhid/hiddev.c:610
-> 
-> stack backtrace:
-> CPU: 0 UID: 0 PID: 3981 Comm: syz.3.17 Not tainted syzkaller #0 PREEMPT(lazy) 
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
-> Call Trace:
->  <IRQ>
->  __dump_stack lib/dump_stack.c:94 [inline]
->  dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
->  print_usage_bug.part.0+0x258/0x340 kernel/locking/lockdep.c:4086
->  print_usage_bug kernel/locking/lockdep.c:4054 [inline]
->  valid_state kernel/locking/lockdep.c:4100 [inline]
->  mark_lock_irq kernel/locking/lockdep.c:4311 [inline]
->  mark_lock+0x956/0x1020 kernel/locking/lockdep.c:4797
->  mark_usage kernel/locking/lockdep.c:4686 [inline]
->  __lock_acquire+0x7f1/0x1f40 kernel/locking/lockdep.c:5242
->  lock_acquire kernel/locking/lockdep.c:5942 [inline]
->  lock_acquire+0x1d1/0x380 kernel/locking/lockdep.c:5899
->  __fs_reclaim_acquire mm/page_alloc.c:4375 [inline]
->  fs_reclaim_acquire+0xc4/0x100 mm/page_alloc.c:4389
->  might_alloc include/linux/sched/mm.h:316 [inline]
->  slab_pre_alloc_hook mm/slub.c:4636 [inline]
->  slab_alloc_node mm/slub.c:4974 [inline]
->  __do_kmalloc_node mm/slub.c:5413 [inline]
->  __kmalloc_node_track_caller_noprof+0xcc/0x820 mm/slub.c:5545
->  alloc_dr drivers/base/devres.c:141 [inline]
->  devm_kmalloc+0xa5/0x2b0 drivers/base/devres.c:951
->  devm_kzalloc include/linux/device/devres.h:50 [inline]
->  mt_allocate_report_data+0x59/0xcc0 drivers/hid/hid-multitouch.c:695
->  mt_find_report_data drivers/hid/hid-multitouch.c:745 [inline]
->  mt_event+0x1bf/0x270 drivers/hid/hid-multitouch.c:1570
->  hid_process_event+0x37d/0x5a0 drivers/hid/hid-core.c:1572
->  hid_process_report drivers/hid/hid-core.c:1730 [inline]
->  hid_report_raw_event+0xb14/0x14c0 drivers/hid/hid-core.c:2109
->  __hid_input_report.constprop.0+0x349/0x470 drivers/hid/hid-core.c:2180
->  hid_ctrl+0x4a4/0x560 drivers/hid/usbhid/hid-core.c:486
->  __usb_hcd_giveback_urb+0x38e/0x610 drivers/usb/core/hcd.c:1657
->  usb_hcd_giveback_urb+0x3ca/0x4a0 drivers/usb/core/hcd.c:1741
->  dummy_timer+0xdb2/0x3700 drivers/usb/gadget/udc/dummy_hcd.c:2019
->  __run_hrtimer kernel/time/hrtimer.c:2067 [inline]
->  __hrtimer_run_queues+0x462/0x9c0 kernel/time/hrtimer.c:2124
->  hrtimer_run_softirq+0x1ca/0x360 kernel/time/hrtimer.c:2141
->  handle_softirqs+0x1d9/0x9b0 kernel/softirq.c:645
->  __do_softirq kernel/softirq.c:679 [inline]
->  invoke_softirq kernel/softirq.c:519 [inline]
->  __irq_exit_rcu+0x168/0x210 kernel/softirq.c:758
->  irq_exit_rcu+0x9/0x30 kernel/softirq.c:775
->  instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
->  sysvec_apic_timer_interrupt+0x8f/0xb0 arch/x86/kernel/apic/apic.c:1062
->  </IRQ>
->  <TASK>
->  asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
-> RIP: 0010:__raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:211 [inline]
-> RIP: 0010:_raw_spin_unlock_irqrestore+0x31/0x80 kernel/locking/spinlock.c:221
-> Code: f5 53 48 8b 74 24 10 48 89 fb 48 83 c7 18 e8 56 f7 05 fa 48 89 df e8 de 4d 06 fa f7 c5 00 02 00 00 75 23 9c 58 f6 c4 02 75 37 <bf> 01 00 00 00 e8 65 a3 f8 f9 65 48 83 3d d4 ee 98 05 00 74 16 5b
-> RSP: 0018:ffffc90001bff9f0 EFLAGS: 00000246
-> RAX: 0000000000000002 RBX: ffff8881f5625fc0 RCX: 0000000000000040
-> RDX: 0000000000000001 RSI: ffffffff89329b79 RDI: ffffffff87d2b780
-> RBP: 0000000000000287 R08: 0000000000000001 R09: 0000000000000000
-> R10: 0000000000000001 R11: 0000000000000000 R12: ffff8881f5625fc0
-> R13: 0000000000000000 R14: 00000000ffffffff R15: ffff8881f5626008
->  __mod_timer+0x409/0xca0 kernel/time/timer.c:1139
->  add_timer+0x62/0x90 kernel/time/timer.c:1249
->  schedule_timeout+0x122/0x280 kernel/time/sleep_timeout.c:98
->  usbhid_wait_io+0x24e/0x420 drivers/hid/usbhid/hid-core.c:648
->  usbhid_init_reports+0x1a7/0x390 drivers/hid/usbhid/hid-core.c:787
->  hiddev_ioctl+0xddb/0x15b0 drivers/hid/usbhid/hiddev.c:794
->  vfs_ioctl fs/ioctl.c:51 [inline]
->  __do_sys_ioctl fs/ioctl.c:597 [inline]
->  __se_sys_ioctl fs/ioctl.c:583 [inline]
->  __x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
->  do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
->  do_syscall_64+0x119/0x710 arch/x86/entry/syscall_64.c:84
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> RIP: 0033:0x7f01bd5ee159
-> Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-> RSP: 002b:00007f01bd42e028 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-> RAX: ffffffffffffffda RBX: 00007f01bd876090 RCX: 00007f01bd5ee159
-> RDX: 0000000000000000 RSI: 00000000c018480b RDI: 0000000000000004
-> RBP: 00007f01bd68503b R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-> R13: 00007f01bd876128 R14: 00007f01bd876090 R15: 00007ffe3b7b3048
->  </TASK>
-> ------------[ cut here ]------------
-> do not call blocking ops when !TASK_RUNNING; state=2 set at [<ffffffff818d66ad>] prepare_to_wait_event+0x8d/0x720 kernel/sched/wait.c:318
-> WARNING: kernel/sched/core.c:9179 at __might_sleep+0x94/0xc0 kernel/sched/core.c:9179, CPU#0: syz.3.17/3981
-> Modules linked in:
-> CPU: 0 UID: 0 PID: 3981 Comm: syz.3.17 Not tainted syzkaller #0 PREEMPT(lazy) 
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/24/2026
-> RIP: 0010:__might_sleep+0x97/0xc0 kernel/sched/core.c:9179
-> Code: 8b 94 24 c0 17 00 00 48 85 d2 75 14 48 83 c4 08 89 ee 48 89 df 31 d2 5b 5d 41 5c e9 33 fc ff ff 48 8d 3d 5c d9 92 09 48 89 d1 <67> 48 0f b9 3a eb db e8 fd 20 9c 00 eb 9f 89 74 24 04 e8 22 21 9c
-> RSP: 0018:ffffc90000007828 EFLAGS: 00010082
-> RAX: dffffc0000000000 RBX: ffffffff8931ad45 RCX: ffffffff818d66ad
-> RDX: ffffffff818d66ad RSI: 0000000000000002 RDI: ffffffff8b16a1e0
-> RBP: 0000000000000142 R08: 0000000000000001 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000001 R12: ffff888107ed3c80
-> R13: 0000000000000dc0 R14: 00000000ffffffff R15: 00000000ffffffff
-> FS:  00007f01bd42e6c0(0000) GS:ffff8882683e4000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 00007f01bd42dff8 CR3: 00000001214ba000 CR4: 00000000003506f0
-> Call Trace:
->  <IRQ>
->  might_alloc include/linux/sched/mm.h:322 [inline]
->  slab_pre_alloc_hook mm/slub.c:4636 [inline]
->  slab_alloc_node mm/slub.c:4974 [inline]
->  __do_kmalloc_node mm/slub.c:5413 [inline]
->  __kmalloc_node_track_caller_noprof+0x473/0x820 mm/slub.c:5545
->  alloc_dr drivers/base/devres.c:141 [inline]
->  devm_kmalloc+0xa5/0x2b0 drivers/base/devres.c:951
->  devm_kzalloc include/linux/device/devres.h:50 [inline]
->  mt_allocate_report_data+0x59/0xcc0 drivers/hid/hid-multitouch.c:695
->  mt_find_report_data drivers/hid/hid-multitouch.c:745 [inline]
->  mt_event+0x1bf/0x270 drivers/hid/hid-multitouch.c:1570
->  hid_process_event+0x37d/0x5a0 drivers/hid/hid-core.c:1572
->  hid_process_report drivers/hid/hid-core.c:1730 [inline]
->  hid_report_raw_event+0xb14/0x14c0 drivers/hid/hid-core.c:2109
->  __hid_input_report.constprop.0+0x349/0x470 drivers/hid/hid-core.c:2180
->  hid_ctrl+0x4a4/0x560 drivers/hid/usbhid/hid-core.c:486
->  __usb_hcd_giveback_urb+0x38e/0x610 drivers/usb/core/hcd.c:1657
->  usb_hcd_giveback_urb+0x3ca/0x4a0 drivers/usb/core/hcd.c:1741
->  dummy_timer+0xdb2/0x3700 drivers/usb/gadget/udc/dummy_hcd.c:2019
->  __run_hrtimer kernel/time/hrtimer.c:2067 [inline]
->  __hrtimer_run_queues+0x462/0x9c0 kernel/time/hrtimer.c:2124
->  hrtimer_run_softirq+0x1ca/0x360 kernel/time/hrtimer.c:2141
->  handle_softirqs+0x1d9/0x9b0 kernel/softirq.c:645
->  __do_softirq kernel/softirq.c:679 [inline]
->  invoke_softirq kernel/softirq.c:519 [inline]
->  __irq_exit_rcu+0x168/0x210 kernel/softirq.c:758
->  irq_exit_rcu+0x9/0x30 kernel/softirq.c:775
->  instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
->  sysvec_apic_timer_interrupt+0x8f/0xb0 arch/x86/kernel/apic/apic.c:1062
->  </IRQ>
->  <TASK>
->  asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
-> RIP: 0010:__raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:211 [inline]
-> RIP: 0010:_raw_spin_unlock_irqrestore+0x31/0x80 kernel/locking/spinlock.c:221
-> Code: f5 53 48 8b 74 24 10 48 89 fb 48 83 c7 18 e8 56 f7 05 fa 48 89 df e8 de 4d 06 fa f7 c5 00 02 00 00 75 23 9c 58 f6 c4 02 75 37 <bf> 01 00 00 00 e8 65 a3 f8 f9 65 48 83 3d d4 ee 98 05 00 74 16 5b
-> RSP: 0018:ffffc90001bff9f0 EFLAGS: 00000246
-> RAX: 0000000000000002 RBX: ffff8881f5625fc0 RCX: 0000000000000040
-> RDX: 0000000000000001 RSI: ffffffff89329b79 RDI: ffffffff87d2b780
-> RBP: 0000000000000287 R08: 0000000000000001 R09: 0000000000000000
-> R10: 0000000000000001 R11: 0000000000000000 R12: ffff8881f5625fc0
-> R13: 0000000000000000 R14: 00000000ffffffff R15: ffff8881f5626008
->  __mod_timer+0x409/0xca0 kernel/time/timer.c:1139
->  add_timer+0x62/0x90 kernel/time/timer.c:1249
->  schedule_timeout+0x122/0x280 kernel/time/sleep_timeout.c:98
->  usbhid_wait_io+0x24e/0x420 drivers/hid/usbhid/hid-core.c:648
->  usbhid_init_reports+0x1a7/0x390 drivers/hid/usbhid/hid-core.c:787
->  hiddev_ioctl+0xddb/0x15b0 drivers/hid/usbhid/hiddev.c:794
->  vfs_ioctl fs/ioctl.c:51 [inline]
->  __do_sys_ioctl fs/ioctl.c:597 [inline]
->  __se_sys_ioctl fs/ioctl.c:583 [inline]
->  __x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
->  do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
->  do_syscall_64+0x119/0x710 arch/x86/entry/syscall_64.c:84
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> RIP: 0033:0x7f01bd5ee159
-> Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-> RSP: 002b:00007f01bd42e028 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-> RAX: ffffffffffffffda RBX: 00007f01bd876090 RCX: 00007f01bd5ee159
-> RDX: 0000000000000000 RSI: 00000000c018480b RDI: 0000000000000004
-> RBP: 00007f01bd68503b R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-> R13: 00007f01bd876128 R14: 00007f01bd876090 R15: 00007ffe3b7b3048
->  </TASK>
-> ----------------
-> Code disassembly (best guess):
->    0:	f5                   	cmc
->    1:	53                   	push   %rbx
->    2:	48 8b 74 24 10       	mov    0x10(%rsp),%rsi
->    7:	48 89 fb             	mov    %rdi,%rbx
->    a:	48 83 c7 18          	add    $0x18,%rdi
->    e:	e8 56 f7 05 fa       	call   0xfa05f769
->   13:	48 89 df             	mov    %rbx,%rdi
->   16:	e8 de 4d 06 fa       	call   0xfa064df9
->   1b:	f7 c5 00 02 00 00    	test   $0x200,%ebp
->   21:	75 23                	jne    0x46
->   23:	9c                   	pushf
->   24:	58                   	pop    %rax
->   25:	f6 c4 02             	test   $0x2,%ah
->   28:	75 37                	jne    0x61
-> * 2a:	bf 01 00 00 00       	mov    $0x1,%edi <-- trapping instruction
->   2f:	e8 65 a3 f8 f9       	call   0xf9f8a399
->   34:	65 48 83 3d d4 ee 98 	cmpq   $0x0,%gs:0x598eed4(%rip)        # 0x598ef11
->   3b:	05 00
->   3d:	74 16                	je     0x55
->   3f:	5b                   	pop    %rbx
-> 
-> 
-> ---
-> This report is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this issue. See:
-> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> 
-> If the report is already addressed, let syzbot know by replying with:
-> #syz fix: exact-commit-title
-> 
-> If you want syzbot to run the reproducer, reply with:
-> #syz test: git://repo/address.git branch-or-commit-hash
-> If you attach or paste a git patch, syzbot will apply it before testing.
-> 
-> If you want to overwrite report's subsystems, reply with:
-> #syz set subsystems: new-subsystem
-> (See the list of subsystem names on the web dashboard)
-> 
-> If the report is a duplicate of another one, reply with:
-> #syz dup: exact-subject-of-another-report
-> 
-> If you want to undo deduplication, reply with:
-> #syz undup

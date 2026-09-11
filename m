@@ -1,110 +1,75 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31DF8381E85;
-	Fri, 11 Sep 2026 13:32:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467E647ECFC
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 13:36:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789133557; cv=none; b=lGqFbXz+SgsFYvVfArPkIJ5w0X9l+a365fl9QRaw7KGizLdndBSJ8V3Vcr1TwMlsFIoybVJOSTTIGcr94lyT8WJJAQH99azgc8Ywon5MsdJ09+eRbf6LPo4BzmEbz34xyn+GUnUCzl1w1eZZGRx8ygaGqcxEZ8Ou1LwfYo9nAr4=
+	t=1789133782; cv=none; b=a9AnMQW81hdqAKy/1uUsi/aCQHxigwYzzWO70LxtBdrzw7q0txUwpzSDsv/YQbPzEcAKceDQhNka6ijTZ2wi2E/sRSnLx9wET+IdTzXHnb8pNfR1xjqmotfc36HxEK/Jl0/bidaqcTVTUqXlIoe72cLiSc9WAeabctce2URIMfc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789133557; c=relaxed/simple;
-	bh=LFzh7LWOzSlpj7r2dxLA2mkmiyjKSJygs60oZ2yUeGw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=pi32qE9rnPO/nKRPmP+GsWceW+auHBvfrf7NYRIo8kzBlnsfdkiSVXsfmJ/FSN/Ulpk04fRR0fVd8i1KvSIuvrWfuzQWKvPxrYkkNb32hxbjbUEnPxGs2KXd0vDcecOulrGKwmkwmfj0EGqgaqpe+qPYZLhDAyTUsvlVIPymyCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XP9aC55C; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789133782; c=relaxed/simple;
+	bh=oK1d68c5KY3jOjGUdzUraqScOJ/nmyeDNuMA+tRPSkA=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=MlGNpEs+sHeBHfO/uY3OAtFdKbj09P0P2BlPlbEFkXOKiA9L6040LXmFl+LZuQnbN+RC/pk6xBXW0Zg/ITTEeCzwr/XaSNwF8irKb+zocqEhGiSaXNdbGe2ylxoigvPzRxSL3Cq4vi/06NK3IeOFr9SnY61uFJ6KTmjJLTr5qOE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DJHRS8lc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XP9aC55C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 736A21F000FF;
-	Fri, 11 Sep 2026 13:32:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DJHRS8lc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56E491F000FF;
+	Fri, 11 Sep 2026 13:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789133554;
-	bh=uirpkPnM2HG9bZd+R/1x89vey7kgMMJP9N/VMKiq/Q0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XP9aC55ClmeuvOvoJ0Br5qPo30fBjCxSWtMadP0wWFz8VHBMMxF2xZahMcqdoAjLN
-	 pPgdsq6e4Nqm7nmv8kra7FcfQB1LBp5cFfgshPx7ZvUqp3rJDg1M2i+S6LLS6PuBv+
-	 P4w9Ps6F5AWkfPnNCyVr8DxlZGBNkg9S5Pv226DhIrn1nIzI+MQLxkh7rMyELF5gwF
-	 Q60Y48eW8AGEywyN2M0EnaSSpj5K2MKKaIf0yYKzXG4KakNVNEILVecYd0UH0RY4aU
-	 QmOuHwqJGdgOyVjo/tYWUNG7aDOT73NrboOznUwkYlwP8i04/C7yKHEOyzCK14YCyS
-	 oH8JTCflNCzwA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/3] Input: synaptics-rmi4: Support drm_panel_follower
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Konrad Dybcio" <konradybcio@kernel.org>
-Cc: robh@kernel.org, conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260911-topic-rmi4_panel_follower-v1-2-c1b2cf1cdb62@oss.qualcomm.com>
-References: <20260911-topic-rmi4_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com>
- <20260911-topic-rmi4_panel_follower-v1-2-c1b2cf1cdb62@oss.qualcomm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 13:32:33 +0000
-Message-Id: <20260911133234.736A21F000FF@smtp.kernel.org>
+	s=k20260515; t=1789133780;
+	bh=bBSFpTvF4xuS68QtHMdJSmrYsul6zXVui2cYkk8Vms8=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=DJHRS8lcGsXFV49ruVI1Axgn0YfaQF5PEzHFsw7HCDEofl7qJFbnlE/raPGJ7UxiQ
+	 CETqrS8nvOlC9bD9Zog/i4KnXGnQDU8tUCI8fcsLvdNBzBL8xmtpES0RR67tGFI+Jb
+	 8615hMtcHpir37et8EYMQAKrSaQP+2dV6lfpb74K2uJQ/JOqMIjNTutwE9wdK8u/DK
+	 BZLZiGi56bedqVxOrLsLII0vrnE9m7ZdT/r6CZAcbTkx7J/Fa1bJoG52rOFoSHi3NT
+	 JoXEsUS3KZ4aVE9hNgixBGKhc8PkrnHL3Mh7yBRCAcYeh6q1Dw7VfXSl4ccsWzliIC
+	 B/XAKlceUy9eA==
+Date: Fri, 11 Sep 2026 15:36:18 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+cc: bentiss@kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH 0/4] HID: amd_sfh: Add DMI quirk and support for new AMD
+ SoCs
+In-Reply-To: <20260902134431.3146117-1-Basavaraj.Natikar@amd.com>
+Message-ID: <49q9507o-07q2-rr5r-rop4-482p5soorn11@xreary.bet>
+References: <20260902134431.3146117-1-Basavaraj.Natikar@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Concurrent I2C accesses can wedge the hardware during panel power-=
-on because `page_mutex` is not held during the startup delay.
---
+On Wed, 2 Sep 2026, Basavaraj Natikar wrote:
 
-commit 31e9aa4b11936c658845014c2ef2567c8d7947f3
-Author: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+> This series makes two independent improvements to the amd-sfh HID
+> driver: a DMI quirk for an existing platform, and Sensor Fusion Hub
+> (SFH) support for newer AMD SoCs (MP2 1.2).
+> 
+> Patch 1 exposes intr_disable as a module parameter and adds a DMI quirk
+> for the ASUS VivoBook TP420UA/TM420UA, which needs interrupts disabled
+> for correct sensor operation.
+> 
+> Patch 2 enables the SFH on newer SoCs by adding PCI device ID 0x1152;
+> MP2 1.2 reuses the MP2 1.1 initialization and operation paths.
+> 
+> Patches 3 and 4 switch human presence detection (HPD) and device-mode
+> reads to DRAM instead of the C2P registers on these newer SoCs.
+> 
+> Basavaraj Natikar (3):
+>   HID: amd_sfh: Add support for newer AMD SoCs
+>   HID: amd_sfh: Add HPD support for new AMD SOC
+>   HID: amd_sfh: Add device mode support for latest AMD SOC.
+> 
+> Helge Bahmann (1):
+>   HID: amd_sfh: Add DMI quirk and module param to disable interrupts
 
-Input: synaptics-rmi4: Support drm_panel_follower
+Applied, thanks.
 
-Many RMI4 implementations are present on in-cell panels with very tight pow=
-er
-sequencing requirements, normally handled by the DRM panel driver in Linux.
-This commit adds support for drm_panel_follower to handle that dependency.
+-- 
+Jiri Kosina
+SUSE Labs
 
-> diff --git a/drivers/input/rmi4/rmi_i2c.c b/drivers/input/rmi4/rmi_i2c.c
-> index e11d0acb9b96d..84877030aefe9 100644
-> --- a/drivers/input/rmi4/rmi_i2c.c
-> +++ b/drivers/input/rmi4/rmi_i2c.c
-[ ... ]
-> @@ -187,17 +191,99 @@ static void rmi_i2c_regulator_bulk_disable(void *da=
-ta)
-[ ... ]
-> +static int rmi_i2c_panel_prepared(struct drm_panel_follower *follower)
-> +{
-> +	struct rmi_i2c_xport *rmi_i2c =3D container_of(follower,
-> +						    struct rmi_i2c_xport,
-> +						    panel_follower);
-> +	int error;
-> +
-> +	error =3D regulator_bulk_enable(ARRAY_SIZE(rmi_i2c->supplies),
-> +				      rmi_i2c->supplies);
-> +	if (error)
-> +		return error;
-> +	rmi_i2c->powered =3D true;
-> +
-> +	msleep(rmi_i2c->startup_delay);
-> +
-> +	/* The page-select register is reset when the sensor loses power. */
-> +	mutex_lock(&rmi_i2c->page_mutex);
-
-[Severity: High]
-Can concurrent I2C accesses wedge the hardware during panel power-on because
-page_mutex is not held during this startup delay?
-
-The drm_panel_follower subsystem calls rmi_i2c_panel_prepared()
-asynchronously when the display panel turns on. Since userspace is not
-frozen during this event, a process reading a world-readable RMI sysfs
-attribute (such as update_status, which calls
-rmi_f34v7_check_command_status() then rmi_read_block()) or interacting
-with /dev/rmi0 can invoke rmi_i2c_read_block().
-
-Because rmi_i2c->powered is set to true before the msleep(), and page_mutex
-is not held during the delay, a concurrent rmi_i2c_read_block() can acquire
-page_mutex and issue an i2c_transfer() to the sensor while it is still in
-the middle of its hardware boot sequence.
-
-Does this early I2C access violate the strict timing requirements and leave
-the touchscreen completely unresponsive until a reboot or driver reload?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911-topic-rmi4=
-_panel_follower-v1-0-c1b2cf1cdb62@oss.qualcomm.com?part=3D2

@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E504434984;
-	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7880F46983B;
+	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789116675; cv=none; b=FujaL1EeHqPtO6LrVeADNV+LWcAFaT+Zxahf32vb4Gkh86mmiK3v2ik+sgQnpNgQAk7PCDbCSVxv5/pJk9U5p88IM38FudoTqsxdkLoSvuxt+7g+XDH0JuDWZaApNxR075Ong5/jYxH6bHFny1uFZ0kcvywzRN8KqO20zWyIrSQ=
+	t=1789116675; cv=none; b=T9CJCaJuMeAtFdMOeqtP1EPTL/essd/TLu2Nh4I5JkZutZeQX7FwdR148Dus6OWpJx4l3drr9l6Gw2DL6uQMLzosqZd6Y7p20aEiWUSD+gXePEi+BTRdKJpVPTOfVmFDlCxNoVjpfn6VMYV3CoicK6OzmwILg4Z4ZNRXL87NMVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789116675; c=relaxed/simple;
-	bh=07d8wKscWXVq7RDJjHkW9XddOX815xGvrx1VHtKkGvs=;
+	bh=FiLswTYIe/LqmY30AgSoR9eS3pvfA9pwqRy+7MrBhKs=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=AMxKuesPyy1a3/zHEAdAfs44OWPrXQaVtwDMlo58D/TzOUyU/ETSRXJuW7xmHluYjGalrv6JJ3d4GiqHyr8RST1efz0H1/IOoyWZJhrcx+iZtLCY5cL1Rwmqpu8KqvA2QIl4UxOqGoGh1hZkoRiLEDSIjB1kVWn41Ffft9DKWnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VF5ylQ+2; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=ct7Sh6HYG+2K5hqrPtT5Yc8Zp7w+gZO2+K3dh47mi4VGKUeLmITrgbDkUXoLF50/4EPFzckTaeoeszwqD3al+7BCPqql1G7TDTaWjSIbYLqCZ1njsL9KkPjgfRTYnCG4eEb+73yr8PlQhCRlVmGnY8oagrFFErdIgfFntljKIJc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U8Xc+N/H; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VF5ylQ+2"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 92810C2BCF5;
-	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U8Xc+N/H"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 268A2C4AF0D;
+	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1789116674;
-	bh=07d8wKscWXVq7RDJjHkW9XddOX815xGvrx1VHtKkGvs=;
+	s=k20201202; t=1789116675;
+	bh=FiLswTYIe/LqmY30AgSoR9eS3pvfA9pwqRy+7MrBhKs=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=VF5ylQ+2c/h0Bl+82CoyVZ2QgmKthihLuNpr9gwMdtAbDCuGWaVgpWEuLrmAYyh5f
-	 y9PaJRwNV9by3p9x8fFUfOcl4+y5PmZYaBD8129bZ68ekJ3G3Ev2aWTXxhi+kLNu41
-	 8i9bS0sbHnJB9DuBetPM1iwV7w3SlA94CBS4H89x+B/GLWYSrWWx8pjAkK/Dx6o41B
-	 A3Qw925Xux6my/4yptEPZrfgkoKs4AVR4ePz47rVhLbSpIJG/G08Uy0HlAkbWpPfH3
-	 M+y3tTG1wwhtwR0TI61JLI85jAyFhqI0HGlzdStWHPrGrHxmFcw05lmWhF1FKIIDPj
-	 tld0n7NfQE68Q==
+	b=U8Xc+N/HDBK9F8k6fWrFk8gB7GQY1knZVpL3PvOdaqEmVcIVNa+lShDZFGrK9p9yH
+	 EM/zbhWUN/tWZbK/7cKohX+2N1E25LyGSBzniboKR2FdbT1/C5mDOEAidvGMjA3rNG
+	 7w9gvpvl4bvFexGkiKCq/RtqhUlDg+21CEgike7v1nqbngSvvMOE2dC5n6zif2jd+G
+	 2+xwAgwejrmYDrpBHBjbibxIksJqapndROQ58jVx5RiPxFOLmlcv4Bs4Pi7Pj37ZTM
+	 7P6CnUNW9+W3pIvHWKISx8+sz6xwC8zmmce5K+kqz/uPzuqZ0DLAAfLyibGBtpEu2q
+	 KV88LhKO9rUmA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BAC6C88E50;
-	Fri, 11 Sep 2026 08:51:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04238C88E56;
+	Fri, 11 Sep 2026 08:51:15 +0000 (UTC)
 From: =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI_via_B4_Relay?= <devnull+kavakliyigitcan.gmail.com@kernel.org>
-Date: Fri, 11 Sep 2026 11:50:58 +0300
-Subject: [PATCH RFC 01/10] dt-bindings: backlight: add Kinetic KTD3136
+Date: Fri, 11 Sep 2026 11:51:05 +0300
+Subject: [PATCH RFC 08/10] drm/msm/dsi: make command and video mode
+ configuration mutually exclusive
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260911-ginkgo-submission-final-v1-1-0e68e63a18d4@gmail.com>
+Message-Id: <20260911-ginkgo-submission-final-v1-8-0e68e63a18d4@gmail.com>
 References: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
 In-Reply-To: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
 To: Lee Jones <lee@kernel.org>, Daniel Thompson <danielt@kernel.org>, 
@@ -68,11 +69,11 @@ Cc: dri-devel@lists.freedesktop.org, linux-leds@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
  =?utf-8?q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI?= <kavakliyigitcan@gmail.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=2380;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789116671; l=1765;
  i=kavakliyigitcan@gmail.com; s=20260911; h=from:subject:message-id;
- bh=1qOWka2RqpGg1tbdhR9VbVnp2Dr9kAnrMfXquGM3d6U=;
- b=tPsC38NGiMj10cf2MHZTTpvh8GU5kjYbScAMNbDcYn3V2e+KSk4lCvwoX6GGsgBKF0/jvxY1j
- 92U/sQgU3zNC9FOygauFmLnU35Ax7LZfLjiF0lcSDwfW4mxZjFKgCHj
+ bh=Us+uRTzRjQ6VYzVCqSZeacYfhPldhSoALLrWybl6TfU=;
+ b=PJ3ocNCyABkNjnqrQLKKE8IN0UZxDZIuONeU9q+5JR84OpiNeg9UQcKEQhp7AhlsGlsLCFhGj
+ M9VD6VXm4RMCG/mkfHl+ViesebYjNHZ+5t10GnPFPnMJ7wxPj4YC+yf
 X-Developer-Key: i=kavakliyigitcan@gmail.com; a=ed25519;
  pk=W2GaxVotULs2vAjRMMLheaDtMMYs4037zO1LVVfFtPI=
 X-Endpoint-Received: by B4 Relay for kavakliyigitcan@gmail.com/20260911
@@ -82,90 +83,44 @@ Reply-To: kavakliyigitcan@gmail.com
 
 From: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 
-Add devicetree binding documentation for the Kinetic Technologies
-KTD3136 3-channel LED backlight driver using the official "kinetic"
-vendor prefix.
+In dsi_op_mode_config(), entering video mode sets DSI_CTRL_VID_MODE_EN
+without clearing DSI_CTRL_CMD_MODE_EN, and entering command mode sets
+DSI_CTRL_CMD_MODE_EN without clearing DSI_CTRL_VID_MODE_EN.
 
-The device is controlled over I2C and supports an optional hardware
-enable GPIO line (enable-gpios), supply regulators, and standard
-backlight brightness range properties.
+Ensure explicit mutual exclusion by clearing the opposing enable bit
+when switching operational modes to prevent hardware bus collisions.
 
 Signed-off-by: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 ---
- .../bindings/leds/backlight/kinetic,ktd3136.yaml   | 65 ++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/leds/backlight/kinetic,ktd3136.yaml b/Documentation/devicetree/bindings/leds/backlight/kinetic,ktd3136.yaml
-new file mode 100644
-index 0000000000000000000000000000000000000000..f85381c29964529a09989a1ff60d9c9fe4897bb7
---- /dev/null
-+++ b/Documentation/devicetree/bindings/leds/backlight/kinetic,ktd3136.yaml
-@@ -0,0 +1,65 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/leds/backlight/kinetic,ktd3136.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Kinetic Technologies KTD3136 3-Channel LED Backlight Driver
-+
-+maintainers:
-+  - Lee Jones <lee@kernel.org>
-+
-+description: |
-+  The Kinetic Technologies KTD3136 is a high efficiency, 3-channel LED
-+  backlight driver with 11-bit exponential or linear dimming control
-+  via I2C interface.
-+
-+allOf:
-+  - $ref: common.yaml#
-+
-+properties:
-+  compatible:
-+    const: kinetic,ktd3136
-+
-+  reg:
-+    maxItems: 1
-+
-+  enable-gpios:
-+    description: GPIO connected to the HWEN (Chip Enable) pin.
-+    maxItems: 1
-+
-+  vin-supply:
-+    description: Regulator providing power to the VIN pin.
-+
-+  default-brightness:
-+    minimum: 0
-+    maximum: 2047
-+    default: 2047
-+
-+  max-brightness:
-+    minimum: 0
-+    maximum: 2047
-+    default: 2047
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        backlight@36 {
-+            compatible = "kinetic,ktd3136";
-+            reg = <0x36>;
-+            enable-gpios = <&gpio 6 GPIO_ACTIVE_HIGH>;
-+            default-brightness = <2047>;
-+            max-brightness = <2047>;
-+        };
-+    };
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index 7e4e3718b536c92dc555de213042857379499447..b9e2867d435a3ad8b6db6b57c440bbd827180b6e 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -1094,7 +1094,9 @@ static void dsi_timing_setup(struct msm_dsi_host *msm_host, bool is_bonded_dsi)
+ 		dsi_write(msm_host, REG_DSI_ACTIVE_HSYNC,
+ 			DSI_ACTIVE_HSYNC_START(hs_start) |
+ 			DSI_ACTIVE_HSYNC_END(hs_end));
+-		dsi_write(msm_host, REG_DSI_ACTIVE_VSYNC_HPOS, 0);
++		dsi_write(msm_host, REG_DSI_ACTIVE_VSYNC_HPOS,
++			DSI_ACTIVE_VSYNC_HPOS_START(hs_start) |
++			DSI_ACTIVE_VSYNC_HPOS_END(vs_end));
+ 		dsi_write(msm_host, REG_DSI_ACTIVE_VSYNC_VPOS,
+ 			DSI_ACTIVE_VSYNC_VPOS_START(vs_start) |
+ 			DSI_ACTIVE_VSYNC_VPOS_END(vs_end));
+@@ -1168,8 +1170,10 @@ static void dsi_op_mode_config(struct msm_dsi_host *msm_host,
+ 					DSI_IRQ_MASK_VIDEO_DONE, 0);
+ 	} else {
+ 		if (video_mode) {
++			dsi_ctrl &= ~DSI_CTRL_CMD_MODE_EN;
+ 			dsi_ctrl |= DSI_CTRL_VID_MODE_EN;
+ 		} else {		/* command mode */
++			dsi_ctrl &= ~DSI_CTRL_VID_MODE_EN;
+ 			dsi_ctrl |= DSI_CTRL_CMD_MODE_EN;
+ 			dsi_intr_ctrl(msm_host, DSI_IRQ_MASK_CMD_MDP_DONE, 1);
+ 		}
 
 -- 
 2.47.3

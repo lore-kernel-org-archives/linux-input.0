@@ -1,130 +1,156 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 392154A3F21
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 16:37:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1D684A3F1D
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 16:44:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789144631; cv=none; b=SlauQG/hbczO0dvM1QzDmA99LDMZYaRGRep8w2TiSaU9iYS6S35cXHHq6p1KEiC8a5XmgvEsc0Ygn6OFfncCwABhHd8y3o344w6oVZQKX09JLXw4XiqiKRxeVvb/eYKcfv7zdgM6PbsgAojyYmHG9l78y+eZCO2aKsJL2eCKO7Y=
+	t=1789145062; cv=none; b=iY+6WIiB0vlMpKzxFokm+XamHooQJrwYtL4BF6JQpI/oOnCgWxQiOZBC/9GkLcihR/NG0UrZml/USk/EumAq+PqFf6TUyUR5sLzTOiXXd/sFDSNNhquSzR4bwPD7SE2DLXSueP7m1yyvmntSXnxpTcXO+F00nunXIEhgqFtv/xk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789144631; c=relaxed/simple;
-	bh=4mfLk97WGWUYO0LzVc/bd26XHKUDdtW1nlfPHmu3EKI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=op0qQKxeIAK9rrZ0/L9BCeFm0ocwgnjAB2DE2M89VjsMp0VUL1RVB9g4VTfUNh37yGPNivanZaB+uFUnoNFcjqpBgDQK5gal6lFB+0dbXUgjRG/t282NCL0G7wU9mWqYcy5mWZMhHXv5aJYiB+YrFEObvrD3L3pUPSCGSCTKNSM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FsnlUFUB; arc=none smtp.client-ip=74.125.227.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789145062; c=relaxed/simple;
+	bh=d9jm6TFdz4XCVVY3r1UywdUpRNiEvVFoY82KtUXZUL4=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=tC4qTpdmFIPZjCHSk1fMyw59cN/JnyUc4PnOTulfQ4cNiMGAO5PWz4xyQJtyKoceRQBs7X0g43q2gclf6DF50qv1enJGlau1IFf90+NYWVvwTCWs14l/DshgZZtl6gP3fy1uxNUvk8CbQyLxqjL7hBiMWT6NDK66dEG6SNjiCoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LNPKRZu/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FsnlUFUB"
-Received: by mail-pj2-f12.google.com with SMTP id d9443c01a7336-2d8fb334e72so432235ad.1
-        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 09:37:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789144624; x=1789749424; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5Z3nbbb1FAl9xLQpw8Rh7y5TS4mkzVFghEZ+69cMYSA=;
-        b=FsnlUFUBuMlYjlrSnyqWYviUKVY0u+jcU6HD9lAFaKkbJzEKgC4qAYpwnNvjh8dMFY
-         N5Kj8C0GVXBjmtYp02jgc/t96ZZGErkMGI6C5quG9FMp16gGBTOThaT9UspyR17AWjR/
-         0ibAkMgRrsHv4FxrDIIdIV6yhA7Xs8MDtNqvpNTL9ZywG/4E5HLhXg8t0EkTalmLXGBU
-         SwvZuu49OoqWlievrMOFp7rqkYSxDanTgep0AUEV+0XIHXTqg7cePeksolbY6JH6rFJp
-         Zg9b/Z32yt5Wzq69gNgV6PsldK3PMIsQFDBCQFLHqoqBouqkE/y7NKQrf8XAzQYtBKzD
-         v1tg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789144624; x=1789749424;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5Z3nbbb1FAl9xLQpw8Rh7y5TS4mkzVFghEZ+69cMYSA=;
-        b=tXqBOCvTAt2s3tJ3lK+kOQL7N+nDVoFywQiAYu9dm5Ojeltp1yh+N9624rUPiIG/ZM
-         i6YxfNtuy3jFNEkchVNz+A9jrSFcZwQovxfwP73UulNCBsotpCxIF+BfG4fIfkvY4Cey
-         OAE3dejnHyWOiiwRiu4WicfYiWWeN94m6tMMabys/gZiqqkfdMLQ2vbxw/jHR/AymKrV
-         vco0f/yibBZJfuT+ULKnGBI7ZkNniHqDEM3VM0PzCRD9tgtQ1LO8jdr/9B9iWHlNuVBw
-         Nb0XnpivbrIOq/H8cht44RoL0KeBzKig2eTFOT+1F7Ri+AtEmHaU3nKUeU29jPKyszZ6
-         StPQ==
-X-Forwarded-Encrypted: i=1; AKwUvByul/ww/DlwvC5/fOsVTUA5AAHoSEUEukNEbD/KTtFaFM4l9yfKPx5HVLpKbEU2deND7TtawRnixwDqWA==@vger.kernel.org
-X-Gm-Message-State: AFuF++nm7S5k8S15NwyhvEaUfhX7ldbvFAvTb+FkMDVUDfOAoCEfxHt+
-	TVerruO0KMlt8fHId1ekAITAQfSMyIfC3P9lArW4HF65sVKJSyQk9KlS
-X-Gm-Gg: AYBFou0Iz0ZpoaUnk+JMma9C/363IPpH0I59CDpDTCC0KusN1YMocUXHrlgsf1Z8azT
-	i1RgdmkvfBgMtECa+lDM0ftVGRz8YIGJbxRfcTl1Z56lX5MNovIbm6Eob9Z8SSpQPeMb1N4lneV
-	3z5lbpo8Nuo3PWZkbB9llR15U4u2q3GnQllEm3N83JrJW9fmy47Owoy41DF4BklU1YFTUiAJXI3
-	61kR9gzQvDXfqoQI8/KiwIjO+VLUfma+aRUFR1kEDJ7IOii39SF7FKz4ZDbeRfxj2QMzGXSHfFw
-	Icj21YZnibs7/m+AMaHGrP2xhEiSq2NWejVbmE4jbBEuh3bUktbuLP9UCnGZIlYb4heqLsq8q8G
-	J3WtogzaWOzc1qrJVBfNP4k2muCFni+nyhIa+CTIzhegBDUISoYQFs1Yw3Tf2PqNCD69GNH3GOq
-	HHjRPo/AwoQe75d6J7K6OVVcjnYLhmTl/rd/Gvkr6vbNLohyiFc97Bt0zd23LdZ6re1lx0wTUg7
-	yi3r0N+KetwqpBmomZ1SDu3bUklDG9yDjQNh7CB
-X-Received: by 2002:a17:903:1ac5:b0:2db:539c:b7c7 with SMTP id d9443c01a7336-2dd2a46d478mr99060775ad.20.1789144623880;
-        Fri, 11 Sep 2026 09:37:03 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:7e36:d696:74c7:8be3])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4f55735sm8349902eec.24.2026.09.11.09.37.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 09:37:02 -0700 (PDT)
-Date: Fri, 11 Sep 2026 09:36:59 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Jonathan Jansen <jonathanjansen@ait.place>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bentiss@kernel.org, 
-	linux-api@vger.kernel.org
-Subject: Re: [PATCH v2] HID: input: map System Microphone Mute LED
-Message-ID: <aqQs_lxGOREamXiO@google.com>
-References: <20260904022903.607880-1-ait@ait.place>
- <20260904044705.1060507-1-jonathanjansen@ait.place>
- <soq55ro6-n7o4-26n6-6o52-24n4sq513nq3@xreary.bet>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LNPKRZu/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A22341F000FF;
+	Fri, 11 Sep 2026 16:44:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789145060;
+	bh=cJa2fJ9s+YFGZgYjsFsWbBkOHc3UP4w0/h0aDzBgea0=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=LNPKRZu/Oey4EK+nj6n4O4XRIocs/UogCfAzhzWbE+QJhE1zTBusITHXQ8rtGT/fc
+	 6CNiQ7su/mda7794e0CwzY5iLvPJwvtPhbRdVRFdEovYYcb7bidCT+niSDg3v5MUT1
+	 /zyywDkKVy2VCO4NjOsClFApxFsYQDwv+a4wPPEY9Vpifx0JGYgsEcC+UC3TbtdHB1
+	 UWnCwDXmulphFR+EOb4uZjqpJI2MTczds3Dp4NYb5I4wceKqAMK4qJObic5QaCKuQD
+	 BlWeysPCZb0uhmrTFif4544rqTjXn118zWtpzBMtkXAELOC8W8TmaH6jVuUW9nV7Wi
+	 fHN81BtsaFeTQ==
+Date: Fri, 11 Sep 2026 18:44:17 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Rafael Passos <rafael@rcpassos.me>, David Rheinsberg <david@readahead.eu>
+cc: Benjamin Tissoires <bentiss@kernel.org>, 
+    Shuah Khan <skhan@linuxfoundation.org>, 
+    Brigham Campbell <me@brighamcampbell.com>, 
+    Jori Koolstra <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
+Subject: Re: [PATCH v4 0/4] HID: wiimote: new LED behavior on connect +
+ scoped_guards
+In-Reply-To: <20260817213840.1053216-1-rafael@rcpassos.me>
+Message-ID: <68qr53po-2n27-0qnp-5016-p438078rssnn@xreary.bet>
+References: <20260817213840.1053216-1-rafael@rcpassos.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <soq55ro6-n7o4-26n6-6o52-24n4sq513nq3@xreary.bet>
+Content-Type: text/plain; charset=US-ASCII
 
-On Fri, Sep 11, 2026 at 05:58:24PM +0200, Jiri Kosina wrote:
-> On Fri, 4 Sep 2026, Jonathan Jansen wrote:
+On Mon, 17 Aug 2026, Rafael Passos wrote:
+
+> Hi,
+> This patchset contains one feature change, and 3 patches appying 
+> scoped cleanup to locking and to the initialization functions for
+> the led probing and the main wiimote probe call.
 > 
-> > HUTRR110 defines LED page usage 0x57 as System Microphone Mute.
-> > 
-> > The usage is currently ignored, so the indicator stays dark and
-> > userspace falls back to per-vendor code in hid-lenovo,
-> > hid-playstation, hid-plantronics.
-> > 
-> > Map it to a new LED_MICMUTE. It appears as
-> > /sys/class/leds/inputN::micmute and uses the "audio-micmute"
-> > trigger from snd-ctl-led, so the LED follows the system-wide
-> > mic mute state the same way LED_MUTE (page 0x09) already does
-> > for speaker mute.
-> > 
-> > LED_MICMUTE takes the next free code (0x0b).
-> > 
-> > Link: https://www.usb.org/sites/default/files/hutrr110-systemmicrophonemute.pdf
-> > 
-> > Signed-off-by: Jonathan Jansen <jonathanjansen@ait.place>
-> > ---
-> > 
-> > Notes:
-> >     Changes since v1: rewrote the commit message; no functional changes.
-> > 
-> >  drivers/hid/hid-debug.c                | 2 +-
-> >  drivers/hid/hid-input.c                | 1 +
+> The feature is turning different LEDs for each of the first 4 wiimotes connected.
+> >From id 5 forward, the LED will cycle back to 1, and so on.
+> This uses the ida struct, so its quite simple and lightweight.
+> The hid_info log message prints out the controller id.
 > 
-> Acked-by: Jiri Kosina <jkosina@suse.com>
+> While implementing this feature, I decided to cleanup the code using
+> scoped_guard for the many spinlocks in the driver. There are two places
+> where the original lock/unlock version fits best, and I left them
+> untouched.
+> I also used the __free scope cleanup in the wiimote_probe and LED probe.
+> This was trivial for the LED probe.
+> The wiimote_probe required a new state tracker bitmask, now the wiimote_destroy
+> is used both on disconnect (hid_remove) and in the probe cleanup.
 > 
-> for the drivers/hid changes.
+> It was really fun working with this driver.
+> I tested it with 4 Wii Motion Plus remotes (gen2).
+> Video recording of my tests (48s video).
+> https://rcpassos.me/video/wiimote-led-linux-driver
 > 
-> Dmitry, will you take this through your tree, please?
+> Thanks,
+> Rafael Passos
 
-Hi Jiri, Jonathan,
+David, it'd be nice to have your Ack on these. Thanks.
 
-Sorry but we should not add any new LED definitions to input since we
-have proper LED subsystem now. The existing LED definitions are strictly
-legacy now and input core has a bridge to LEDs (in input-leds.c).
-
-I see we had similar submissions in '23 and '24 at the very least. I
-should add a comment to that effect to input-event-codes.h.
-
-Thanks.
+> 
+> ---
+> V1: https://lore.kernel.org/linux-input/20260710153456.2093889-1-rafael@rcpassos.me/
+> Changes from v1:
+>     (1/3):
+>     - fix ida_alloc_min error handling to consider negative values
+>     - remove fallback to 1 on ida_alloc_min failure
+>     - move player_leds static array to hid-wiimote-core.c
+>     - s/instance_id/player_id/g
+>     - store player_id on an u8
+>     (2/3):
+>     - add header include for cleanup.h
+>     - add identation to one-liner scoped_guards
+>     (3/3):
+>     - add scoped cleanup function to wiimote_probe, with a bitmask to track state
+>       Patch used for testing this:
+>       https://lore.kernel.org/linux-input/20260715213513.3929001-1-rafael@rcpassos.me/
+>     (4/4) *new patch* :
+>     - sashiko found a pre-existing uaf. Unlikely, but correct.
+>       implemented using the playstation driver as an inspiration
+> 
+> V2: https://lore.kernel.org/linux-input/20260710153456.2093889-1-rafael@rcpassos.me/
+> Changes from v2:
+>     (2/4):
+>     - join the last two locks into a single scoped_guard lock in wiimote_modules_load
+> 
+> V3: https://lore.rcpassos.me/wiimote/20260729164928.1138468-1-rafael@rcpassos.me/
+> Changes from v3:
+>     - dropped false uaf patch (previous 4/4). It was a false alarm.
+>       Discussion in:
+>       https://lore.kernel.org/linux-input/20260729164928.1138468-1-rafael@rcpassos.me/T/#t
+> 
+>     (1/4):
+>     - I tested how the changes looked if using ida from 0 instead of 1,
+>       and I believe it ended up less clean. I decided to keep them as is,
+>       with a few additional comments.
+>     - explicit initialization of player_id to 0 before allocating an id
+>     - avoid using a new int during ida_alloc (use ret instead)
+>     - use u8 instead of __u8
+>     - move ida_remove from wiimote_hid_remove to wiimote_destroy
+>     - add debugfs entry for the player_id entry
+>     (3/4):
+>     - move changes to wiimote_probe from this patch to the next
+>     - update patch title
+>     (4/4): *new patch*
+>     - scoped cleanup in the wiimote_probe call, using a bitmask to keep
+>       track of state during initialization
+>     - update wiimote_destroy so it can be the cleanup function
+>     - add a debugfs entry for this new entry
+> 
+> As we discussed in the v3, tell me if you like the changes in patch 4/4.
+> If you prefer not to apply it, I can send a new patchset revision, or
+> just drop it from the set if nothing else needs changes.
+> 
+> Thanks!
+> 
+> 
+> Rafael Passos (4):
+>   HID: wiimote: turn on the LEDs indicating the controller id
+>   HID: wiimote: replace spinlock pairs with scoped_guard
+>   HID: wiimote: led_probe with scoped cleanup
+>   HID: wiimote: wiimote_probe with scoped cleanup
+> 
+>  drivers/hid/hid-wiimote-core.c    | 346 ++++++++++++++++--------------
+>  drivers/hid/hid-wiimote-debug.c   |  71 +++---
+>  drivers/hid/hid-wiimote-modules.c |  24 +--
+>  drivers/hid/hid-wiimote.h         |  10 +
+>  4 files changed, 240 insertions(+), 211 deletions(-)
+> 
+> -- 
+> 2.55.0
+> 
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs
+

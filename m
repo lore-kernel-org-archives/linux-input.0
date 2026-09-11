@@ -1,40 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A037231839;
-	Fri, 11 Sep 2026 15:58:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 327EE49CF23;
+	Fri, 11 Sep 2026 16:04:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789142309; cv=none; b=TgbPlvsl5LmpuBCUgrFlMFybi5kKzsGhlMTVB8PMdWI61qOyFJdaq++fkWCRl/IqyKx6cKSevWiC9qpJShlGcr6Lu40+zqswSJJXVHrVVUA/J03C/XyoqJ8Lm4ZjaxnoFDkQKQzpHPnZlNv2YwE7xxIKwX2VP1P3u9VNK5AxK2k=
+	t=1789142695; cv=none; b=D6Rdst/qWlLir8Eeg+vdn4+NKZ+kLCiDBY/vZD78d0TkDeoTvlKtqJNulYbIkZS4NbJTC/wNUpoIBSMIASVDKy6AUUhXD/m3ECerzh2Yxj6UA7Q75eRNYh9Se+Y8SXbGqH7KpVnhnnW3Nd8c81Ce42cJDROi6dQsXjoZcoB970M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789142309; c=relaxed/simple;
-	bh=c76gjyfUWnfOXlc+IvY3nQy4ba8y/OYdpnsrOGISM34=;
+	s=arc-20240116; t=1789142695; c=relaxed/simple;
+	bh=3Zc3nWyce5sMNuEKHI9DCuGmGl34YUEXrW0IwHMWgAI=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=hTbkelvhgoQfoBIhZ0hxfDj0yTos1tYEzXu4SVcsyGuXx4z/BAFlHn1Ip4rK7kTmT3cXiLGNOxfs9/WIDRx3oul0OT6H07j3jkzySD/bNzv+U8o+7RV82GJSZ/zNfGkdx55YJfEAH5oqvwWTJVlUehrdYKAeXeWv6FCYD+kORD4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DphkzoAx; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=aBr+ZeDuNEABsdW9THp9Q/uqCbGt5H6ri+DH1jW/DBC9SEXwXbVD0Mr/8QMV1P8TKU3wrRxo/dV3dG6LnajndWoN/TpKD80rMkHVEodG6o6WktOtAKlHsX/76CYmdY6HWXgyBc9BtrXSn8FqdXpJp0C/0qJdR+fyJnPbS8/9Csc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WDSAUtmN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DphkzoAx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 595D21F000FF;
-	Fri, 11 Sep 2026 15:58:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WDSAUtmN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623A21F00893;
+	Fri, 11 Sep 2026 16:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789142307;
-	bh=pF1mD7koAktSQci5aFCC8LPDfzJk1zpfq+mWVKmKrEg=;
+	s=k20260515; t=1789142693;
+	bh=wtu38VMa0QReS4NmCuoeJ5ZXIzWAXunLBD6kLqxWGfg=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=DphkzoAxcEx/VHnvhK/jZNOJlguvI2BEAvo4zno4uOXbGr9dakK7iX7z9oOA2ub2/
-	 ZV3P5iPp+NgzTHCmkT1SJq9zB3aP75kS3636LQqxKxsg1exWjGTdcbGTHsYdR3ycne
-	 YqSmC7ID1jACOEZWYS/mMy0DV3RTtlmFnWpuVH8V3A2xRE9LERbKGdGqc9jmZxDskJ
-	 9Bef+Nyz1RCFMFu3qtVyu9b2w8oeIbbMXCVKPeCluIk7g+kv8Ii71GvXnQrkcNbp/U
-	 qYgWOAGtQaFXV4s1jxJwjxon7/CW0TTCzMyuuD4hw82vh0ZWuQutek7ByJAXaq5I9U
-	 iLVr5UHPERv+g==
-Date: Fri, 11 Sep 2026 17:58:24 +0200 (CEST)
+	b=WDSAUtmN1B2x8Fz9i+CePYHuTPFejqvRN31lDnteazx7eZ8nNHhrC3nG3z6qsXUo5
+	 wmG4tBdOYpZPjmZMJ03V7q8jjN9MmDy7fbyoLc+Xrn0k9all93MUJvhDxlcITVLX3c
+	 U69p6YPTGdMSNlfc2lFlKXq3UXRTVpnbJYPlWK5WsHoiRaNICkjNu/gNOcSPXnCi1w
+	 RymIgihdguF80aNdb+S5P79nojRdZ42FdONeALgE3+CrutaSBzOJHtA/WLAceWwqjO
+	 DrT7Y9k9CG9o105UfF4VBaVaZ/s+mU/LV9AIbDdhyDwduSz2OibxywmFaWFKkJY/wG
+	 29Xoy2eqlhxaQ==
+Date: Fri, 11 Sep 2026 18:04:51 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Jonathan Jansen <jonathanjansen@ait.place>
-cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    bentiss@kernel.org, dmitry.torokhov@gmail.com, linux-api@vger.kernel.org
-Subject: Re: [PATCH v2] HID: input: map System Microphone Mute LED
-In-Reply-To: <20260904044705.1060507-1-jonathanjansen@ait.place>
-Message-ID: <soq55ro6-n7o4-26n6-6o52-24n4sq513nq3@xreary.bet>
-References: <20260904022903.607880-1-ait@ait.place> <20260904044705.1060507-1-jonathanjansen@ait.place>
+To: Youth Cao <cocoh2os08@gmail.com>
+cc: Benjamin Tissoires <bentiss@kernel.org>, Xu Rao <raoxu@uniontech.com>, 
+    Ai Chao <aichao@kylinos.cn>, Kwok Kin Ming <kenkinming2002@gmail.com>, 
+    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: i2c-hid: Add i2c-hid-quirk-bad-input-size quirk
+ for 0911:5288 device
+In-Reply-To: <20260903161444.786-1-cocoh2os08@gmail.com>
+Message-ID: <r437p10n-qq2p-5p01-q059-520n2q31r17s@xreary.bet>
+References: <20260903161444.786-1-cocoh2os08@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -43,40 +45,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Fri, 4 Sep 2026, Jonathan Jansen wrote:
+On Fri, 4 Sep 2026, Youth Cao wrote:
 
-> HUTRR110 defines LED page usage 0x57 as System Microphone Mute.
+> I have recently acquired a cheap Apollo Lake-based laptop that uses a
+> Hynitron CST128-A touchpad controller. While booting from a Debian LiveCD,
+> the kernel log is flooded with the following error (though the touchpad
+> works well):
 > 
-> The usage is currently ignored, so the indicator stays dark and
-> userspace falls back to per-vendor code in hid-lenovo,
-> hid-playstation, hid-plantronics.
+>   i2c_hid_acpi i2c-ALPS0001:00: i2c_hid_get_input: incomplete report (27/42405)
 > 
-> Map it to a new LED_MICMUTE. It appears as
-> /sys/class/leds/inputN::micmute and uses the "audio-micmute"
-> trigger from snd-ctl-led, so the LED follows the system-wide
-> mic mute state the same way LED_MUTE (page 0x09) already does
-> for speaker mute.
+> The CST128-A was identified via ACPI as ALPS0001:00, and the I2C HID
+> device ID (0911:5288) was shared with the Hantick 5288.
 > 
-> LED_MICMUTE takes the next free code (0x0b).
+> Add the I2C_HID_QUIRK_BAD_INPUT_SIZE quirk option to the existing Hantick
+> 5288 quirk entry to suppress the kernel log flood.
 > 
-> Link: https://www.usb.org/sites/default/files/hutrr110-systemmicrophonemute.pdf
-> 
-> Signed-off-by: Jonathan Jansen <jonathanjansen@ait.place>
+> Signed-off-by: Youth Cao <cocoh2os08@gmail.com>
 > ---
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Notes:
->     Changes since v1: rewrote the commit message; no functional changes.
-> 
->  drivers/hid/hid-debug.c                | 2 +-
->  drivers/hid/hid-input.c                | 1 +
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 0e725a0f0abe..776dd14feba7 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -123,7 +123,7 @@ static const struct i2c_hid_quirks {
+>  	__u32 quirks;
+>  } i2c_hid_quirks[] = {
+>  	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+> -		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+> +		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET | I2C_HID_QUIRK_BAD_INPUT_SIZE },
+>  	{ I2C_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15,
+>  		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+>  	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
 
-Acked-by: Jiri Kosina <jkosina@suse.com>
-
-for the drivers/hid changes.
-
-Dmitry, will you take this through your tree, please?
-
-Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

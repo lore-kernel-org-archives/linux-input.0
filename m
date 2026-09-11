@@ -1,43 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA5635B634;
-	Fri, 11 Sep 2026 14:52:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B349B34D4E9;
+	Fri, 11 Sep 2026 14:54:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789138352; cv=none; b=RjRQbjNSkf6QNyJn0+EF1rrVgBs73uq1kjayAqmrN3yAgM539K71+58kgJYgboCA4YwH/XIcFedoLL47jG+M0rK7UgeqUQge7LlFO7FhwucIz7dueRobRQaApS3gQ850eR+itnBhBuvw6XA6URK6ZrgnKCnsGTTbrL4c5G0HZEc=
+	t=1789138485; cv=none; b=tTzLL8ZdzEKY479UoEnTup8FOL7CB3CNuIqcrw0gWM577qeWf8jJK8pBOcfvDGq27bS8PAk0Kei0tmtnpMpMbZklOcL4bMEk2SkNmq0JBI0EP2EJr/4rzYPJ4OjPz/2VoBDbxqesyLPViGyrhEso/MDtyNumIRhl1c/7u2l4Yp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789138352; c=relaxed/simple;
-	bh=ripYcv+UMEL/q5S5kw1q+5ak/g3j+MV6b4LubcEYeII=;
+	s=arc-20240116; t=1789138485; c=relaxed/simple;
+	bh=Ct5xPWit20lfRZZPpHb2H9nQ+btY5AuzqCysPk9gcDQ=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=WfQQlQG141OvpC+ZUosVwWp6mFND/Q9wdbF5z+hDTjoqfgxnlH9rAkjaz7ftqvHxyEwUSRMBDbl+Jh1NpYmJ0X0gkKE/YZYNSfkqC5YvhpUgxoZOPNkY7uEg3DuaXAGNndoxJ0VG9KsoRawX8YEdlApHl7YedAwAcGHMi/skCEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R+72yLii; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=QHX7jh3GWdguO2gDJvklW5GYMIbATHBCUH27yl1pga5lN+DnSOPJW1qsPRpi6v9ReP2NKURoBRMu7KINtQjbDWYjeEjhXe/t1ITNhxHVODsOsezyMK6WQaWUX6/fZZkWNWQTBa50MjzPB5xKBeJRm+SYhb4QGADBOkLvjiuGORc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ea8wSyiP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R+72yLii"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FF91F00893;
-	Fri, 11 Sep 2026 14:52:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ea8wSyiP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B60E11F000FF;
+	Fri, 11 Sep 2026 14:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789138351;
-	bh=R3qt+0B/1mnQ36SX7AQjSDbiXzKhmW8PzxAyTaaPd2I=;
+	s=k20260515; t=1789138483;
+	bh=qcFUC+ZurgT0gvwGInLnLwG6QKnEPHYzFiSizJq/bNw=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=R+72yLiiP8z7QHBgify47f/1MiS8D6dCFbr7QcC3oBSf8TiefmhygyDxstH0SgKrk
-	 2plQOI39+gOYzjF+cBQLEPGfU6eRX8fTDWvSh7bb19kjhFvYZqhm3yGpeuKyitgyja
-	 /kA8LRZ9pvl/PV5m5RcVJSjOQRIB6zfjgOPRNr0bwfCnMzqEezuMv+XPdHXK2h2T3O
-	 AWT1WO5clwmiqXPkDVCzjkOWaxJiKfbRGMGSEbRA5H7jqSUYK35sfVkYkjtxC7lT46
-	 OZT3nk6UnBzy2uTegXnEYsrHS35zIrWQP5OIB9ytwLIwOoCJBv3o6tlqmSfdng8oWR
-	 fIV+Al1WL54iQ==
-Date: Fri, 11 Sep 2026 16:52:28 +0200 (CEST)
+	b=ea8wSyiPTUC0ThzJq9QuRyqSVel2CyNHNYz4V27ZIk/vYqlluy1q34GvYDLhtb/TS
+	 8bfWPM6/5L0SrW3u+bt2kQD0arGVL9sMwDERyQ+0+m98PwhVjw3Sd29W4CMpDG4HLE
+	 Ruvf/vDgO59Y300zTLN81v4d7hs3zlBu4YCLW9M4Bdmt5IO9ighH/Oy0neTYeSsB9I
+	 mE1WAhF603NYQbRbEwdzBhLjYJhiXkcIS4mR+05OsxGzW/vJSZIB7g4HU4RGPeK9zP
+	 95BAKcvbd8Oa60U5ufuhTuSIhYirq99ZjFL0xSUotT7VFCIM61mVy5HFnuX6Brekzm
+	 mrDVNlr+6+uNw==
+Date: Fri, 11 Sep 2026 16:54:40 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Julia Lawall <Julia.Lawall@inria.fr>
-cc: Ricardo Ribalda <ribalda@chromium.org>, dmitry.torokhov@gmail.com, 
-    bentiss@kernel.org, cocci@inria.fr, corbet@lwn.net, hadess@hadess.net, 
-    lains@riseup.net, linux-doc@vger.kernel.org, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, nicolas.palix@imag.fr, 
-    skhan@linuxfoundation.org
-Subject: Re: [PATCH] HID: fix semantic patch and improve its performance
-In-Reply-To: <20260827112949.2431233-1-Julia.Lawall@inria.fr>
-Message-ID: <nn19nq4n-50q0-q920-94p1-qo101s85849s@xreary.bet>
-References: <20260827112949.2431233-1-Julia.Lawall@inria.fr>
+To: co <co+b240dc164119a46c@bugs.sh>
+cc: linux-input@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>, 
+    Andrej Shadura <andrew.shadura@collabora.co.uk>, 
+    linux-kernel@vger.kernel.org
+Subject: Re: [BUG] drivers/hid: use-after-free in u2fzero_recv()
+In-Reply-To: <UFZgYBPFzraRy8BQcngd1LpE4nCofXZsBVbb@bugs.sh>
+Message-ID: <2r7082oo-1qoo-4r04-6nnn-r193s5n91rns@xreary.bet>
+References: <UFZgYBPFzraRy8BQcngd1LpE4nCofXZsBVbb@bugs.sh>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,23 +44,47 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 27 Aug 2026, Julia Lawall wrote:
+On Thu, 27 Aug 2026, co wrote:
 
-> Replace "expression" with "identifier" in the declaration of hdev.
-> This is necessary because hdev is used as the name of a function
-> parameter.
+> We found a bug reachable in:
 > 
-> Move the two uses of @p2 to the relevant function names.
+>     path    drivers/hid
+>     crash   use-after-free in u2fzero_recv()
+>     commit  6f232446a629 ("Linux 6.12.77")
 > 
-> Convert <... ...>, meaning that the contained pattern is optional,
-> to use ..., when any, and exists.  This requires that the function
-> contain calls to hid_hw_start, etc, which reduces the set of files
-> that are considered for matching against this pattern.
+> Config, environment, the sanitizer report and a C reproducer follow.
 > 
-> Reported-by: Ricardo Ribalda <ribalda@chromium.org>
-> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+> == Notes ===============================================================
+>     If you patch the bug based on our artifacts, a tag would be
+>     appreciated:
+> 
+> Reported-by: co+b240dc164119a46c@bugs.sh
+> 
+>     Everything in this mail is validated by the reproducer below.
+> 
+>     We also hold an LLM-generated root-cause analysis and a candidate
+>     patch. The patch passes an A/B test: the same reproducer panics the
+>     unpatched kernel and runs clean on the patched one. Neither has had
+>     human review, so both still require validation before you send or
+>     apply them. Available on:
+> 
+>         patch.diff  https://bugs.sh/b/b240dc164119a46c/patch.diff
+>         report.md   https://bugs.sh/b/b240dc164119a46c/report.md
+> 
+>     This is an open science project. The code and the full set of PoCs
+>     are not public at this moment, as we intend to disclose our findings
+>     in an ethical way.
+> 
+>     Happy to test patches. Complaints and suggestions about our work
+>     are welcome at:
+> 
 
-Applied, thank you.
+Could you please submit this as a proper patch [1] so that you can 
+properly creditted for the fix?
+
+Thanks.
+
+[1] Documentation/process/submitting-patches.rst
 
 -- 
 Jiri Kosina

@@ -1,83 +1,210 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76C25471244;
-	Fri, 11 Sep 2026 09:23:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75FC238CFE1
+	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 09:37:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789118606; cv=none; b=dRqtEbmer8Kp34H1RRgQqKMXSZR9TZOxIBed1qvTBPmlzzmC6y3UPt6DojFkspdH/7jSkjlkqhHIX+ETftDa7FwU5x95b61dxlvqN9nQHFXtAHnR1UIQs6tSydFx/TrVuJzwdBwEYxapSHmZrQIFw/RjmanhT/v43J6wwqMMrDI=
+	t=1789119435; cv=none; b=G7Maxvl8ZC0qDryocr1IYsq8+UlPLpBlL4OBIPYQTpFxyXZ9HSpvPCOftypvgTu50m6GzyQn0RjEhVEGYCRgVN9ndvXpvJ6iKFXFlFeyVjcXmHTvk9I/EScpBHMnm07VANYKo7yNuG2Lb3DDLdacD9ZmYVA2OueOKL0a3NO9UlE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789118606; c=relaxed/simple;
-	bh=A5R1j4b2WdozHjGLESWY7+Fg1W3oIbcwdKwoZcmJVns=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=muzv0Jn7/FgaMgwKQoAxGibvpsxcGhjAkpSps6pjWHnphIL9LnC17YVjGiRvsV8FKoTsb4SFkOBXFbcusuiKarIE5vhVN08bToem/UBdQIlamW7/5F6J1yHMKZycXA0Ed94j3KtyQLVDphEQkh6tR5bKmnPJQ5D4+j0boq4nhHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=XCqS9Qiv; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789119435; c=relaxed/simple;
+	bh=mNerJKLU1TtlcXUHuzVOr3Iyj8YFfzSmvnqSbG9hVO8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=dpraaayyNooW5cWtAfSOezUY2Ftq+2UJB/YbxX6N26Yrl9LRYYwONniZfwuVMXooTbW3b2EMXDZ7vhNjlqfoynQtapbsLlqTmKMXwXbh8F5vJtIaRrcgU33F5bhSah0RqROBPeHjx3TQW9bgdoLi1IVxxo/W7xEBoH1NkpGq7l8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jD0I014C; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="XCqS9Qiv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FB971F000FF;
-	Fri, 11 Sep 2026 09:23:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1789118605;
-	bh=eDVfDMZekjMYTulsUhydxfWHgUuUUaEr6z9vF9HmPOQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=XCqS9QivL6Ga3uP5PvTxoflSwntErYIQ5zM/NnJ1tu6AF4tgw5hJ9n61AgNRIX3e+
-	 dhv1oW3YekdNQH+j57Z7gvTiQsQm3vA3M4ceK1lSpd/Dyi0DGu39gzhvj3xSV6zp12
-	 iK16v52Tugl4oUs52Ddfu684KMR9Ltpn3tEuZxyo=
-Date: Fri, 11 Sep 2026 11:23:13 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Michal Pecio <michal.pecio@gmail.com>
-Cc: Mario Limonciello <mario.limonciello@amd.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Pierre-Loup Griffais <pgriffais@valvesoftware.com>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-	"open list:USB SUBSYSTEM" <linux-usb@vger.kernel.org>,
-	Curtis Vogt <curtis.vogt@gmail.com>
-Subject: Re: [PATCH 2/3] HID: valve-index: Reboot headset on system power
- transitions
-Message-ID: <2026091106-footing-antelope-7ceb@gregkh>
-References: <20260910170254.833871-1-mario.limonciello@amd.com>
- <20260910170254.833871-3-mario.limonciello@amd.com>
- <2026091133-silliness-recollect-e190@gregkh>
- <20260911111652.703b865f.michal.pecio@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jD0I014C"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E43F61F000FF;
+	Fri, 11 Sep 2026 09:37:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789119434;
+	bh=UxBSf5AAHcHaoyW7hnkHdlkyi9YAW4p1f0PgF50Pdxk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=jD0I014Cb89f12qDjap3I5lv6G8vp1cATPqFx8MFEaOFg+dK8UBfN2dYck6KIkitH
+	 RygDvLOGPWyquISqtpg+NmqD+gqH8KAFtZPnQvQyyrCd3E7YIPR7CrCzKQ6iJnRlPh
+	 GlxvxEbh2IwLtNNV1eKuhy85tF8m5FDH9gIe9AXt1/sYzezyp3iRj7/0gZ3wCvNsw+
+	 KhDssxpW0lo9to0wWkhQypac3rlZbl1YPahEg1Ek8e4EXwMmTYsJti1jK437oIQ5aa
+	 7goxFmMEDCrV6KyV3nBFpjkzXO4EI4kirPv6N0QpK3a7dgICuz7sloPabSqkKgLdFL
+	 33cW6qGSgxclw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1] HID: sensor-hub: Fail unfinished multi-value reads
+ on removal
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yibo Tan" <lhfff@tju.edu.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260911092039.234253-1-lhfff@tju.edu.cn>
+References: <20260911092039.234253-1-lhfff@tju.edu.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 09:37:13 +0000
+Message-Id: <20260911093713.E43F61F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260911111652.703b865f.michal.pecio@gmail.com>
 
-On Fri, Sep 11, 2026 at 11:16:52AM +0200, Michal Pecio wrote:
-> On Fri, 11 Sep 2026 07:54:12 +0200, Greg Kroah-Hartman wrote:
-> > > +What:		/sys/bus/hid/devices/<bus>:<vid>:<pid>.<n>/reboot
-> > > +Date:		October 2026
-> > > +Contact:	linux-input@vger.kernel.org
-> > > +Description:
-> > > +		Writing a boolean true value reboots the Valve Index headset to
-> > > +		recover its EDID service. Writing a boolean false value has no
-> > > +		effect. This file is write-only.  
-> > 
-> > Shouldn't this just be a debugfs file?  Making it a sysfs file seems
-> > "risky" as it's not a normal operation.
-> 
-> Not sure what's "risky" about it, it's hopefully a root-only thing?
-> 
-> And it's the only supported way for userspace to recover buggy devices
-> from certain failure condition, it's been suggested that this could be
-> run by udev scripts. Isn't it more "risky" to ask userspace to mount
-> and tinker with debugfs as a matter of routine?
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-You are creating an "odd" user/kernel api that is used for debugging,
-that's not what sysfs is for.  sysfs is to show attributes that a device
-has NOT to cause the device to go off and do some random thing (yes,
-there are exceptions, but generally that's the rule.)
+Pre-existing issues:
+- [Critical] Unsynchronized cancellation of pending requests leads to stack=
+ corruption or memory leaks when wait_for_completion_interruptible_timeout(=
+) exits early.
+- [Critical] Missing validation of `field->maxusage` in `sensor_hub_raw_eve=
+nt()` allows an Out-Of-Bounds read on maliciously crafted HID descriptors.
+- [Critical] Unconditional 16-byte read from HID report payload regardless =
+of field size causes an Out-Of-Bounds read in dev_rot_capture_sample().
+- [High] Overwriting hsdev->pending.raw_data without freeing previous alloc=
+ations causes a memory leak when a report contains duplicate usages.
+--
 
-debugfs is "do whatever you want", so that's a better place for this.
+commit df43a8787a3e2f8bf5173b9ad940b826c008809a
+Author: Yibo Tan <lhfff@tju.edu.cn>
+Subject: HID: sensor-hub: Fail unfinished multi-value reads on removal
 
-thanks,
+sensor_hub_remove() completes pending reads after stopping the HID device,
+but does not record why they completed. A successful completion wait
+therefore returns zero even if no complete input report was received.
+Multi-value IIO callers then format their untouched automatic buffer as a
+successful result.
 
-greg k-h
+Link: https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tre=
+e/main/cases/hid-sensor-quaternion-root-b-kaslr
+
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 6470a290ebfc5..687f8defa2f0d 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -334,6 +334,8 @@ int sensor_hub_input_attr_read_values(struct hid_sens=
+or_hub_device *hsdev,
+>  			ret =3D -ETIMEDOUT;
+>  		else if (cycles < 0)
+>  			ret =3D cycles;
+> +		else if (hsdev->pending.raw_size < 0)
+> +			ret =3D hsdev->pending.raw_size;
+> =20
+>  		hsdev->pending.status =3D false;
+>  	}
+
+[Severity: Critical]
+This is a pre-existing issue, but can clearing hsdev->pending.status lockle=
+ssly
+here and in sensor_hub_input_attr_get_raw_value() race with hardware event
+processing?
+
+If wait_for_completion_interruptible_timeout() returns early (due to a sign=
+al
+or timeout), the waiter thread cleans up locklessly and returns, popping the
+stack frame if the buffer was stack-allocated.
+
+Concurrently, an incoming HID report could trigger sensor_hub_raw_event() w=
+hich
+reads status locklessly or races before it is cleared. The interrupt handler
+then writes to the now-popped stack frame using memcpy(), causing stack
+corruption, or allocates new memory using kmemdup() that will never be freed
+after the waiter thread calls kfree().
+
+[ ... ]
+
+Also looking at sensor_hub_raw_event() in drivers/hid/hid-sensor-hub.c:
+
+drivers/hid/hid-sensor-hub.c:sensor_hub_raw_event() {
+	...
+	for (i =3D 0; i < report->maxfield; ++i) {
+		hid_dbg(hdev, "%d collection_index:%x hid:%x sz:%x\n",
+				i, report->field[i]->usage->collection_index,
+				report->field[i]->usage->hid,
+
+[Severity: Critical]
+This is a pre-existing issue, but is it safe to dereference usage[0] here
+without verifying that the array contains any elements (i.e. maxusage > 0)?
+
+If a maliciously crafted HID device descriptor specifies an input field wit=
+h 0
+usages, the HID core allocates exactly sizeof(struct hid_field) without any
+trailing usages array, but field->usage is set to point directly after the
+struct. Accessing report->field[i]->usage->collection_index (which is
+usage[0].collection_index) would read out of bounds of the allocated slab
+object.
+
+
+				(report->field[i]->report_size *
+					report->field[i]->report_count)/8);
+		...
+		if (hsdev->pending.status && ...) {
+			...
+			} else {
+				hsdev->pending.raw_data =3D kmemdup(ptr, sz, GFP_ATOMIC);
+
+[Severity: High]
+This is a pre-existing issue, but could overwriting hsdev->pending.raw_data
+without freeing previous allocations cause a memory leak if a report contai=
+ns
+duplicate usages?
+
+If a single report is received containing multiple fields sharing the same =
+usage
+ID, sensor_hub_raw_event() iterates over all of them. For each match, if
+max_raw_size is 0, it executes kmemdup() and assigns the pointer to
+hsdev->pending.raw_data without calling kfree() on the previous pointer.
+
+Since the entire loop executes synchronously under a spinlock, the waiter t=
+hread
+cannot free the intermediate allocations, leading to permanent leakage of a=
+ll
+but the last allocation.
+
+
+				if (hsdev->pending.raw_data)
+					hsdev->pending.raw_size =3D sz;
+				else
+					hsdev->pending.raw_size =3D 0;
+				complete(&hsdev->pending.ready);
+			}
+		}
+	}
+}
+
+Also looking at dev_rot_capture_sample() in drivers/iio/orientation/hid-sen=
+sor-rotation.c:
+
+drivers/iio/orientation/hid-sensor-rotation.c:dev_rot_capture_sample() {
+	...
+	if (usage_id =3D=3D HID_USAGE_SENSOR_ORIENT_QUATERNION) {
+		if (raw_len / 4 =3D=3D sizeof(s16)) {
+			...
+		} else {
+			memcpy(&rot_state->scan.sampled_vals, raw_data,
+			       sizeof(rot_state->scan.sampled_vals));
+
+[Severity: Critical]
+This is a pre-existing issue, but are we performing an unconditional 16-byte
+read here without validating that the incoming raw_data buffer is at least =
+16
+bytes?
+
+If a maliciously crafted HID device descriptor specifies a quaternion field=
+ with
+a small size (e.g. 4 bytes total), the HID core allocates a small report bu=
+ffer.
+When a report is received, sensor_hub_raw_event() passes this small buffer =
+to
+the capture_sample callback, passing raw_len =3D 4.
+
+Because raw_len / 4 !=3D sizeof(s16) (1 !=3D 2), the callback takes the els=
+e branch
+and calls memcpy(&rot_state->scan.sampled_vals, raw_data, 16), reading 12 b=
+ytes
+past the end of the small HID report buffer. This can leak kernel heap cont=
+ents
+to the userspace IIO buffer.
+
+
+		}
+	...
+}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911092039.2342=
+53-1-lhfff@tju.edu.cn?part=3D1

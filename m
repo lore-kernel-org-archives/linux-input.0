@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EADA345EAD
-	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:06:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 974AC2773E5
+	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:06:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789182384; cv=none; b=Os1TS7PD81P1OpVuJTSroGnEZG4zI5nJJlpKPgtqBvInrndi2lo4xxt4J8zhCXOlAjMUrNBBEjb+RHLZmJVrgsfWhhfzone/3zFOoKwCC2A07S893s3XOoBi8qKitSJcxbeBptaJswzHL/Q35CZg2KCqDdsdArqgpkTBkKyRb5I=
+	t=1789182384; cv=none; b=OOKmai0FFrOfp/9xufxMGcJdlGJ5uiLP8LjBFVjltpNw+jUBl2UD0BbZ04vkrKtsRSNab5jwzZ1ArdnJ35tWp95rOpOF1fhonIMC59ysYNGqi/94NzAjPnc4/slks0n1MbD/VGHBpeQh/0IEde9frrpqMqWhrsHV7opoi5ftAuQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789182384; c=relaxed/simple;
-	bh=ujcIi5VXiJwmt6KVovPhO+uvVq02l7I01VfVrQIsiyk=;
+	bh=7oj5BBywl+AwscKQwUHHyAgy6gZkdVgDg+xh0s+WSVk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=N/QZoXvCHaZZtTb2GVB2WkzclXJlcpELMNGKY/E8K4rjruzNa7p11sL935gOFDV/Oa0XLFBdDUhN+M2PyJNApDjaXELijdUxiJnmmZ/m0qm820G9HHXspmbi6UFfU4MyfPDIPeC5qy2fgpmay1W0a4e9jrOf8J7OAL4MZQ5a6HI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=S2JSpLLG; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=ZDB4H7As7RM28iL2k1XFUEMoItMOyGnIdvE/bNZybpmeBQiyC4EQwooMo9J9AhfiIutR0kVoiyq8cFrUlli5o5cwPSPDBuijZgOr2K/8Ovja3yB6jDWcRD+4QAPr+0FAwxykVT9R81jGAMJqc267Mn7Cu1zJV6WuPNWQ5+ZDpBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=zw6xsN45; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="S2JSpLLG"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="zw6xsN45"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1789182375; bh=ujcIi5VXiJwmt6KVovPhO+uvVq02l7I01VfVrQIsiyk=;
+	t=1789182373; bh=7oj5BBywl+AwscKQwUHHyAgy6gZkdVgDg+xh0s+WSVk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=S2JSpLLGhXjLAY2n65pZ8AlDiVh8NPZWbwVcLAAgTzBTrqL/Iubip2AzNY41WeMZk
-	 llFsrWYpNarFVQ+SQCYm/iXf888BhzKw2xY5kcmtVM1TM36yV8o4gQQTsl/E+WeEKP
-	 G4+jldpe8+jXLF/rIrqvYXrEkJs+rc/IiZvG5WP2l3VHJfG1s5I70ffLfqMqG33Xwi
-	 EyHy2i41u2MZ3Uh9oPfoiM4cMFKardUfaCRt97BAfZ4Rq6Q9r6KeRgb8SjpkZLty/j
-	 A1gDm9DytIoSIGLfEOdL8Zo2au2tnvZzmRurCOwIbL8GhZTzaROWHTEZLeJeA5Afxq
-	 8RmsVpjQJxz4A==
+	b=zw6xsN45cYv8OtghK9j0TDa/dbuiIgMjrvs4z8aEcd+o2QxMYPCjk5htRyVyHEm+v
+	 fmDNwLEfvjkJjzo3icOPX6qvL5aQ4iqzk3n+d1ARSPCdeMlDy1c9EPUUFMVRARXxp0
+	 8pN+OJY/u/VM3qiHyuAiLHPPUWvMHZ/WlPxYb+PnLs7p9Sgb6X1owHJSZ3rJ34b7yp
+	 THlkoEM4/e1c7DSVc8KclOVkk69RJV86s9EengfvL46vBZDvGbTc3jJ3ss1SxKEICq
+	 sq4R0G/2K2J7vlXWsoh301p1e/MPLQSA4yhVmbs6fTczYJ4qiHNXpKvVmQ/CBxAwRt
+	 kZ+UsxMrg/BnA==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id D123813208A;
-	Fri, 11 Sep 2026 20:06:14 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 96479132031;
+	Fri, 11 Sep 2026 20:06:12 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v7 07/12] Input: xbox_gip - Add security implementation from xone
-Date: Fri, 11 Sep 2026 20:04:18 -0700
-Message-ID: <20260912030426.2997003-8-vi@endrift.com>
+Subject: [PATCH v7 01/12] Input: xbox_gip - Add new driver for Xbox GIP
+Date: Fri, 11 Sep 2026 20:04:12 -0700
+Message-ID: <20260912030426.2997003-2-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260912030426.2997003-1-vi@endrift.com>
 References: <20260912030426.2997003-1-vi@endrift.com>
@@ -46,1120 +46,3326 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch imports and adapts the security message implementation from the
-out-of-tree xone driver, which is licensed under the GPL 2.0. This message
-is necessary for most controllers that use wireless dongles. The
-implementation is largely unchanged, with minor changes being made to adapt
-it to the xbox_gip driver and renaming components as appropriate for the
-official terminology from the released spec.
+This introduces a new driver for the Xbox One/Series controller protocol,
+officially known as the Gaming Input Protocol, or GIP for short.
+
+Microsoft released documentation on (some of) GIP in late 2024, upon which
+this driver is based. Though the documentation was incomplete, it still
+provided enough information to warrant a clean start over the previous,
+incomplete implementation.
+
+This driver is already at feature parity with the GIP support in xpad,
+along with several more enhancements:
+
+- Proper support for parsing message length and fragmented messages
+- Metadata parsing, allowing for auto-detection on various parameters,
+  including the presence and location in the message of the share button,
+  as well as detection of specific device types
+
+The framework set out in this driver also allows future expansion for
+specialized device types and additional features more cleanly than xpad.
+
+Future plans include:
+
+- Adding support for more device types, such as arcade sticks, racing
+  wheels and flight sticks.
+- Support for the security handshake, which is required for devices that
+  use wireless dongles.
+- Exposing a raw character device to enable sending vendor-specific
+  commands from userspace.
+- Event logging to either sysfs or dmesg.
+- Support for the headphone jack.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/input/joystick/gip/Kconfig        |   3 +
- drivers/input/joystick/gip/Makefile       |   2 +-
- drivers/input/joystick/gip/gip-core.c     |  48 +-
- drivers/input/joystick/gip/gip-drivers.c  |   8 +
- drivers/input/joystick/gip/gip-security.c | 810 ++++++++++++++++++++++
- drivers/input/joystick/gip/gip.h          |  54 +-
- 6 files changed, 900 insertions(+), 25 deletions(-)
- create mode 100644 drivers/input/joystick/gip/gip-security.c
+ MAINTAINERS                              |    6 +
+ drivers/input/joystick/Kconfig           |    2 +
+ drivers/input/joystick/Makefile          |    1 +
+ drivers/input/joystick/gip/Kconfig       |   21 +
+ drivers/input/joystick/gip/Makefile      |    4 +
+ drivers/input/joystick/gip/gip-core.c    | 2622 ++++++++++++++++++++++
+ drivers/input/joystick/gip/gip-drivers.c |  204 ++
+ drivers/input/joystick/gip/gip.h         |  351 +++
+ 8 files changed, 3211 insertions(+)
+ create mode 100644 drivers/input/joystick/gip/Kconfig
+ create mode 100644 drivers/input/joystick/gip/Makefile
+ create mode 100644 drivers/input/joystick/gip/gip-core.c
+ create mode 100644 drivers/input/joystick/gip/gip-drivers.c
+ create mode 100644 drivers/input/joystick/gip/gip.h
 
-diff --git a/drivers/input/joystick/gip/Kconfig b/drivers/input/joystick/gip/Kconfig
-index 3422bf84cb89..ad799a2df345 100644
---- a/drivers/input/joystick/gip/Kconfig
-+++ b/drivers/input/joystick/gip/Kconfig
-@@ -5,6 +5,9 @@
- config JOYSTICK_XBOX_GIP
- 	tristate "Xbox One/Series controller support"
- 	depends on USB && USB_ARCH_HAS_HCD && LEDS_CLASS_MULTICOLOR
-+	select CRYPTO_ECDH
-+	select CRYPTO_LIB_SHA256
-+	select CRYPTO_RSA
- 	help
- 	  Say Y here if you want to use Xbox One and Series controllers with your
- 	  computer. Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYDEV)
-diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
-index d39f946db1ae..a5ad301a9063 100644
---- a/drivers/input/joystick/gip/Makefile
-+++ b/drivers/input/joystick/gip/Makefile
-@@ -1,4 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-or-later
- obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
- # Base driver
--xbox-gip-y := gip-core.o gip-drivers.o
-+xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
-diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index 1bfb559f5f7a..ec21740bba50 100644
---- a/drivers/input/joystick/gip/gip-core.c
-+++ b/drivers/input/joystick/gip/gip-core.c
-@@ -6,7 +6,6 @@
-  *
-  * TODO:
-  * - Audio device support
-- * - Security packet handshake
-  * - Event logging
-  * - Raw character device
-  * - Wheel support
-@@ -1795,17 +1794,6 @@ static int gip_send_init_sequence(struct gip_attachment *attachment)
- 	if (rc)
- 		return rc;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 806bd2d80d15..7fdf1b989667 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -29347,6 +29347,12 @@ S:	Maintained
+ F:	drivers/media/rc/keymaps/rc-xbox-dvd.c
+ F:	drivers/media/rc/xbox_remote.c
  
--	if (gip_supports_system_message(attachment, GIP_CMD_SECURITY, false)
--		&& !(attachment->features & GIP_FEATURE_SECURITY_OPT_OUT)) {
--		/* TODO: Implement Security command property */
--		uint8_t buffer[] = { 0x1, 0x0 };
--
--		rc = gip_send_system_message(attachment, GIP_CMD_SECURITY, 0,
--			buffer, sizeof(buffer));
--		if (rc)
--			return rc;
--	}
--
- 	usb_make_path(attachment->device->udev, attachment->phys,
- 		sizeof(attachment->phys));
- 	len = strlen(attachment->phys);
-@@ -1861,6 +1849,8 @@ static void gip_free_devices(struct gip_attachment *attachment)
- 	struct input_dev *input;
- 	struct hid_device *hdev;
- 
-+	gip_security_release(&attachment->security);
++XBOX GIP
++M:	Vicki Pfau <vi@endrift.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/input/joystick/gip/
 +
- 	if (attachment->driver && attachment->driver->remove)
- 		attachment->driver->remove(attachment);
+ XC2028/3028 TUNER DRIVER
+ M:	Mauro Carvalho Chehab <mchehab@kernel.org>
+ L:	linux-media@vger.kernel.org
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index 7755e5b454d2..d4665c80a371 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -291,6 +291,8 @@ config JOYSTICK_JOYDUMP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called joydump.
  
-@@ -1950,7 +1940,6 @@ static void gip_reset_attachment(struct gip_attachment *attachment)
- 	}
- 
- 	gip_free_devices(attachment);
--
- }
- 
- static int gip_handle_command_protocol_control(struct gip_attachment *attachment,
-@@ -2131,6 +2120,24 @@ static int gip_handle_command_status_device(struct gip_attachment *attachment,
- 		}
- 	}
- 
-+	if (attachment->security.status == GIP_SECURITY_PENDING) {
-+		if (attachment->quirks & GIP_QUIRK_SKIP_SECURITY)
-+			/*
-+			 * Some BDA/PowerA Xbox One controllers have a security
-+			 * handshake implementation that is very sensitive to
-+			 * the precise message ordering. It's very hard to get
-+			 * this just right, so for now we just skip it. Most
-+			 * wired controllers don't need the security flow to
-+			 * work anyway.
-+			 */
-+			rc = gip_security_skip_handshake(&attachment->security);
++source "drivers/input/joystick/gip/Kconfig"
++
+ config JOYSTICK_XPAD
+ 	tristate "Xbox gamepad support"
+ 	depends on USB_ARCH_HAS_HCD
+diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+index 9976f596a920..323392921b7d 100644
+--- a/drivers/input/joystick/Makefile
++++ b/drivers/input/joystick/Makefile
+@@ -39,5 +39,6 @@ obj-$(CONFIG_JOYSTICK_TURBOGRAFX)	+= turbografx.o
+ obj-$(CONFIG_JOYSTICK_TWIDJOY)		+= twidjoy.o
+ obj-$(CONFIG_JOYSTICK_WARRIOR)		+= warrior.o
+ obj-$(CONFIG_JOYSTICK_WALKERA0701)	+= walkera0701.o
++obj-$(CONFIG_JOYSTICK_XBOX_GIP)		+= gip/
+ obj-$(CONFIG_JOYSTICK_XPAD)		+= xpad.o
+ obj-$(CONFIG_JOYSTICK_ZHENHUA)		+= zhenhua.o
+diff --git a/drivers/input/joystick/gip/Kconfig b/drivers/input/joystick/gip/Kconfig
+new file mode 100644
+index 000000000000..2ce789d23178
+--- /dev/null
++++ b/drivers/input/joystick/gip/Kconfig
+@@ -0,0 +1,21 @@
++# SPDX-License-Identifier: GPL-2.0-or-later
++#
++# Gaming Input Protocol  driver configuration
++#
++config JOYSTICK_XBOX_GIP
++	tristate "Xbox One/Series controller support"
++	depends on USB && USB_ARCH_HAS_HCD
++	help
++	  Say Y here if you want to use Xbox One and Series controllers with your
++	  computer. Make sure to say Y to "Joystick support" (CONFIG_INPUT_JOYDEV)
++	  and/or "Event interface support" (CONFIG_INPUT_EVDEV) as well.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called xbox_gip.
++
++config JOYSTICK_XBOX_GIP_FF
++	bool "Xbox One/Series controller rumble support"
++	depends on JOYSTICK_XBOX_GIP && INPUT
++	select INPUT_FF_MEMLESS
++	help
++	  Say Y here if you want to take advantage of Xbox One/Series rumble.
+diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
+new file mode 100644
+index 000000000000..d39f946db1ae
+--- /dev/null
++++ b/drivers/input/joystick/gip/Makefile
+@@ -0,0 +1,4 @@
++# SPDX-License-Identifier: GPL-2.0-or-later
++obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
++# Base driver
++xbox-gip-y := gip-core.o gip-drivers.o
+diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
+new file mode 100644
+index 000000000000..b662cd7bddfa
+--- /dev/null
++++ b/drivers/input/joystick/gip/gip-core.c
+@@ -0,0 +1,2622 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Gaming Input Protocol driver for Xbox One/Series controllers
++ *
++ * Copyright (c) 2025 Valve Software
++ *
++ * TODO:
++ * - Audio device support
++ * - Security packet handshake
++ * - Event logging
++ * - Sending fragmented messages
++ * - Raw character device
++ * - Wheel support
++ * - Flight stick support
++ * - Arcade stick support
++ * - Split into driver-per-attachment GIP-as-a-bus approach drivers
++ *
++ * This driver is based on the Microsoft GIP spec at:
++ * https://aka.ms/gipdocs
++ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-gipusb/e7c90904-5e21-426e-b9ad-d82adeee0dbc
++ */
++
++#include <linux/module.h>
++#include <linux/unaligned.h>
++#include <linux/uuid.h>
++#include "gip.h"
++
++#define GIP_WIRED_INTF_DATA 0
++#define GIP_WIRED_INTF_AUDIO 1
++
++#define MAX_MESSAGE_LENGTH 0x4000
++
++#define MAX_AUDIO_MESSAGES 9
++
++#define GIP_DATA_CLASS_COMMAND		(0u << 5)
++#define GIP_DATA_CLASS_LOW_LATENCY	(1u << 5)
++#define GIP_DATA_CLASS_STANDARD_LATENCY	(2u << 5)
++#define GIP_DATA_CLASS_AUDIO		(3u << 5)
++
++#define GIP_DATA_CLASS_SHIFT 5
++#define GIP_DATA_CLASS_MASK (7u << 5)
++
++/* Undocumented Elite 2 vendor messages */
++#define GIP_CMD_RAW_REPORT		0x0c
++#define GIP_CMD_GUIDE_COLOR		0x0e
++#define GIP_SL_ELITE_CONFIG		0x4d
++
++#define GIP_BTN_OFFSET_XBE1 28
++#define GIP_BTN_OFFSET_XBE2 14
++
++#define GIP_AUDIO_FORMAT_NULL		0
++#define GIP_AUDIO_FORMAT_8000HZ_1CH	1
++#define GIP_AUDIO_FORMAT_8000HZ_2CH	2
++#define GIP_AUDIO_FORMAT_12000HZ_1CH	3
++#define GIP_AUDIO_FORMAT_12000HZ_2CH	4
++#define GIP_AUDIO_FORMAT_16000HZ_1CH	5
++#define GIP_AUDIO_FORMAT_16000HZ_2CH	6
++#define GIP_AUDIO_FORMAT_20000HZ_1CH	7
++#define GIP_AUDIO_FORMAT_20000HZ_2CH	8
++#define GIP_AUDIO_FORMAT_24000HZ_1CH	9
++#define GIP_AUDIO_FORMAT_24000HZ_2CH	10
++#define GIP_AUDIO_FORMAT_32000HZ_1CH	11
++#define GIP_AUDIO_FORMAT_32000HZ_2CH	12
++#define GIP_AUDIO_FORMAT_40000HZ_1CH	13
++#define GIP_AUDIO_FORMAT_40000HZ_2CH	14
++#define GIP_AUDIO_FORMAT_48000HZ_1CH	15
++#define GIP_AUDIO_FORMAT_48000HZ_2CH	16
++#define GIP_AUDIO_FORMAT_48000HZ_6CH	32
++#define GIP_AUDIO_FORMAT_48000HZ_8CH	33
++#define MAX_GIP_AUDIO_FORMAT GIP_AUDIO_FORMAT_48000HZ_8CH
++
++/* Protocol Control constants */
++#define GIP_CONTROL_CODE_ACK	0
++#define GIP_CONTROL_CODE_NACK	1 /* obsolete */
++#define GIP_CONTROL_CODE_UNK	2 /* obsolete */
++#define GIP_CONTROL_CODE_AB	3 /* obsolete */
++#define GIP_CONTROL_CODE_MPER	4 /* obsolete */
++#define GIP_CONTROL_CODE_STOP	5 /* obsolete */
++#define GIP_CONTROL_CODE_START	6 /* obsolete */
++#define GIP_CONTROL_CODE_ERR	7 /* obsolete */
++
++/* Status Device constants */
++#define GIP_POWER_LEVEL_OFF	0
++#define GIP_POWER_LEVEL_STANDBY	1 /* obsolete */
++#define GIP_POWER_LEVEL_FULL	2
++
++#define GIP_NOT_CHARGING	0
++#define GIP_CHARGING		1
++#define GIP_CHARGE_ERROR	2
++
++#define GIP_BATTERY_ABSENT		0
++#define GIP_BATTERY_STANDARD		1
++#define GIP_BATTERY_RECHARGEABLE	2
++
++#define GIP_BATTERY_CRITICAL	0
++#define GIP_BATTERY_LOW		1
++#define GIP_BATTERY_MEDIUM	2
++#define GIP_BATTERY_FULL	3
++
++#define GIP_EVENT_FAULT 0x0002
++
++#define GIP_FAULT_UNKNOWN	0
++#define GIP_FAULT_HARD		1
++#define GIP_FAULT_NMI		2
++#define GIP_FAULT_SVC		3
++#define GIP_FAULT_PEND_SV	4
++#define GIP_FAULT_SMART_PTR	5
++#define GIP_FAULT_MCU		6
++#define GIP_FAULT_BUS		7
++#define GIP_FAULT_USAGE		8
++#define GIP_FAULT_RADIO_HANG	9
++#define GIP_FAULT_WATCHDOG	10
++#define GIP_FAULT_LINK_STALL	11
++#define GIP_FAULT_ASSERTION	12
++
++/* Metadata constants */
++#define GIP_MESSAGE_FLAG_BIG_ENDIAN		BIT(0)
++#define GIP_MESSAGE_FLAG_RELIABLE		BIT(1)
++#define GIP_MESSAGE_FLAG_SEQUENCED		BIT(2)
++#define GIP_MESSAGE_FLAG_DOWNSTREAM		BIT(3)
++#define GIP_MESSAGE_FLAG_UPSTREAM		BIT(4)
++#define GIP_MESSAGE_FLAG_DS_REQUEST_RESPONSE	BIT(5)
++
++#define GIP_DATA_TYPE_CUSTOM	1
++#define GIP_DATA_TYPE_AUDIO	2
++#define GIP_DATA_TYPE_SECURITY	3
++#define GIP_DATA_TYPE_GIP	4
++
++/* Set Device State constants */
++#define GIP_STATE_START		0
++#define GIP_STATE_STOP		1
++#define GIP_STATE_STANDBY	2 /* obsolete */
++#define GIP_STATE_FULL_POWER	3
++#define GIP_STATE_OFF		4
++#define GIP_STATE_QUIESCE	5
++#define GIP_STATE_UNK6		6
++#define GIP_STATE_RESET		7
++
++/* Guide Button Status constants */
++#define GIP_LED_GUIDE	0
++#define GIP_LED_IR	1 /* deprecated, for Kinect */
++
++#define GIP_LED_GUIDE_OFF		0
++#define GIP_LED_GUIDE_ON		1
++#define GIP_LED_GUIDE_FAST_BLINK	2
++#define GIP_LED_GUIDE_SLOW_BLINK	3
++#define GIP_LED_GUIDE_CHARGING_BLINK	4
++#define GIP_LED_GUIDE_RAMP_TO_LEVEL	0xd
++
++#define GIP_LED_IR_OFF		0
++#define GIP_LED_IR_ON_100MS	1
++#define GIP_LED_IR_PATTERN	4
++
++/* Direct Motor Command constants */
++#define GIP_MOTOR_RIGHT_VIBRATION	BIT(0)
++#define GIP_MOTOR_LEFT_VIBRATION	BIT(1)
++#define GIP_MOTOR_RIGHT_IMPULSE		BIT(2)
++#define GIP_MOTOR_LEFT_IMPULSE		BIT(3)
++#define GIP_MOTOR_ALL 0xf
++
++/* Extended Command constants */
++#define GIP_EXTCMD_GET_CAPABILITIES	0x00
++#define GIP_EXTCMD_GET_TELEMETRY_DATA	0x01
++#define GIP_EXTCMD_GET_SERIAL_NUMBER	0x04
++
++#define GIP_EXTENDED_STATUS_OK			0
++#define GIP_EXTENDED_STATUS_NOT_SUPPORTED	1
++#define GIP_EXTENDED_STATUS_NOT_READY		2
++#define GIP_EXTENDED_STATUS_ACCESS_DENIED	3
++#define GIP_EXTENDED_STATUS_FAILED		4
++
++/* Internal constants, not part of protocol */
++#define GIP_DEFAULT_IN_SYSTEM_MESSAGES 0x5e
++#define GIP_DEFAULT_OUT_SYSTEM_MESSAGES 0x472
++
++#define GIP_LED_GUIDE_MAX_BRIGHTNESS	100 /* Spec says 47, but larger values work */
++#define GIP_LED_GUIDE_INIT_BRIGHTNESS	20
++
++#ifndef VK_LWIN
++#define VK_LWIN 0x5b
++#endif
++
++static const guid_t guid_console_function_map =
++	GUID_INIT(0xecddd2fe, 0xd387, 0x4294, 0xbd, 0x96, 0x1a, 0x71, 0x2e, 0x3d, 0xc7, 0x7d);
++static const guid_t guid_console_function_map_overflow =
++	GUID_INIT(0x137d4bd0, 0x9347, 0x4472, 0xaa, 0x26, 0x8c, 0x34, 0xa0, 0x8f, 0xf9, 0xbd);
++static const guid_t guid_controller =
++	GUID_INIT(0x9776ff56, 0x9bfd, 0x4581, 0xad, 0x45, 0xb6, 0x45, 0xbb, 0xa5, 0x26, 0xd6);
++static const guid_t guid_dev_auth_pc_opt_out =
++	GUID_INIT(0x7a34ce77, 0x7de2, 0x45c6, 0x8c, 0xa4, 0x00, 0x42, 0xc0, 0x8b, 0xd9, 0x4a);
++static const guid_t guid_dynamic_latency_input =
++	GUID_INIT(0x87f2e56b, 0xc3bb, 0x49b1, 0x82, 0x65, 0xff, 0xff, 0xf3, 0x77, 0x99, 0xee);
++static const guid_t guid_elite_buttons =
++	GUID_INIT(0x37d19ff7, 0xb5c6, 0x49d1, 0xa7, 0x5e, 0x03, 0xb2, 0x4b, 0xef, 0x8c, 0x89);
++static const guid_t guid_headset =
++	GUID_INIT(0xbc25d1a3, 0xc24e, 0x4992, 0x9d, 0xda, 0xef, 0x4f, 0x12, 0x3e, 0xf5, 0xdc);
++
++/*
++ * The following GUIDs are observed, but the exact meanings aren't known, so
++ * for now we document them but don't use them anywhere.
++ *
++ * GamepadEmu:
++ *	GUID_INIT(0xe2e5f1bc, 0xa6e6, 0x41a2, 0x8f, 0x43, 0x33, 0xcf, 0xa2, 0x51, 0x09, 0x81)
++ * IAudioOnly:
++ *	GUID_INIT(0x92844cd1, 0xf7c8, 0x49ef, 0x97, 0x77, 0x46, 0x7d, 0xa7, 0x08, 0xad, 0x10)
++ * IControllerProfileModeState:
++ *	GUID_INIT(0xf758dc66, 0x022c, 0x48b8, 0xa4, 0xf6, 0x45, 0x7b, 0xa8, 0x0e, 0x2a, 0x5b)
++ * ICustomAudio:
++ *	GUID_INIT(0x63fd9cc9, 0x94ee, 0x4b5d, 0x9c, 0x4d, 0x8b, 0x86, 0x4c, 0x14, 0x9c, 0xac)
++ * IExtendedDeviceFlags:
++ *	GUID_INIT(0x34ad9b1e, 0x36ad, 0x4fb5, 0x8a, 0xc7, 0x17, 0x23, 0x4c, 0x9f, 0x54, 0x6f)
++ * IProgrammableGamepad:
++ *	GUID_INIT(0x31c1034d, 0xb5b7, 0x4551, 0x98, 0x13, 0x87, 0x69, 0xd4, 0xa0, 0xe4, 0xf9)
++ * IVirtualDevice:
++ *	GUID_INIT(0xdfd26825, 0x110a, 0x4e94, 0xb9, 0x37, 0xb2, 0x7c, 0xe4, 0x7b, 0x25, 0x40)
++ * OnlineDevAuth:
++ *	GUID_INIT(0x632b1fd1, 0xa3e9, 0x44f9, 0x84, 0x20, 0x5c, 0xe3, 0x44, 0xa0, 0x64, 0x04)
++ *
++ * Seen on Elite Controller, Adaptive Controller: 9ebd00a3-b5e6-4c08-a33b-673126459ec4
++ * Seen on Adaptive Controller: ce1e58c5-221c-4bdb-9c24-bf3941601320
++ * Seen on Adaptive Joystick: db02f681-5038-4219-8668-c3459c5c3293
++ * Seen on Elite 2 Controller: f758dc66-022c-48b8-a4f6-457ba80e2a5b (IControllerProfileModeState)
++ * Seen on Elite 2 Controller: 31c1034d-b5b7-4551-9813-8769d4a0e4f9 (IProgrammableGamepad)
++ * Seen on Elite 2 Controller: 34ad9b1e-36ad-4fb5-8ac7-17234c9f546f (IExtendedDeviceFlags)
++ * Seen on Elite 2 Controller: 88e0b694-6bd9-4416-a560-e7fafdfa528f
++ * Seen on Elite 2 Controller: ea96c8c0-b216-448b-be80-7e5deb0698e2
++ */
++
++static const int gip_data_class_mtu[8] = { 64, 64, 64, 2048, 0, 0, 0, 0 };
++
++struct gip_audio_format {
++	uint16_t rate;
++	uint8_t channels;
++};
++
++static const struct gip_audio_format gip_audio_format_table[MAX_GIP_AUDIO_FORMAT + 1] = {
++	[GIP_AUDIO_FORMAT_8000HZ_1CH] = { .rate = 8000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_8000HZ_2CH] = { .rate = 8000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_12000HZ_1CH] = { .rate = 12000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_12000HZ_2CH] = { .rate = 12000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_16000HZ_1CH] = { .rate = 16000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_16000HZ_2CH] = { .rate = 16000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_20000HZ_1CH] = { .rate = 20000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_20000HZ_2CH] = { .rate = 20000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_24000HZ_1CH] = { .rate = 24000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_24000HZ_2CH] = { .rate = 24000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_32000HZ_1CH] = { .rate = 32000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_32000HZ_2CH] = { .rate = 32000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_40000HZ_1CH] = { .rate = 40000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_40000HZ_2CH] = { .rate = 40000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_48000HZ_1CH] = { .rate = 48000, .channels = 1 },
++	[GIP_AUDIO_FORMAT_48000HZ_2CH] = { .rate = 48000, .channels = 2 },
++	[GIP_AUDIO_FORMAT_48000HZ_6CH] = { .rate = 48000, .channels = 6 },
++	[GIP_AUDIO_FORMAT_48000HZ_8CH] = { .rate = 48000, .channels = 8 },
++};
++
++
++static const struct gip_quirks base_quirks[] = {
++	{ GIP_VID_PDP, GIP_PID_PDP_ROCK_CANDY, 0, .quirks = GIP_QUIRK_NO_HELLO },
++
++	{0},
++};
++
++struct gip_audio_format_pair {
++	uint8_t inbound;
++	uint8_t outbound;
++};
++static_assert(sizeof(struct gip_audio_format_pair) == 2);
++
++struct gip_protocol_control_ack {
++	uint8_t control_code;
++	uint8_t message_type;
++	uint8_t flags;
++	__le32 fragment_offset;
++	__le16 remaining_buffer;
++} __packed;
++static_assert(sizeof(struct gip_protocol_control_ack) == 9);
++
++struct gip_hello_device {
++	__le64 device_id;
++	__le16 vendor_id;
++	__le16 product_id;
++	__le16 firmware_major_version;
++	__le16 firmware_minor_version;
++	__le16 firmware_build_version;
++	__le16 firmware_revision;
++	uint8_t hardware_major_version;
++	uint8_t hardware_minor_version;
++	uint8_t rf_proto_major_version;
++	uint8_t rf_proto_minor_version;
++	uint8_t security_major_version;
++	uint8_t security_minor_version;
++	uint8_t gip_major_version;
++	uint8_t gip_minor_version;
++} __packed;
++static_assert(sizeof(struct gip_hello_device) == 28);
++
++struct gip_device_metadata_header {
++	__le16 length;
++	uint8_t supports_device_firmware_versions_major;
++	uint8_t supports_device_firmware_versions_minor;
++	__le16 audio_offset;
++	__le16 supported_upstream_system_message_offset;
++	__le16 supported_downstream_system_message_offset;
++	__le16 preferred_types_offset;
++	__le16 supported_interfaces_offset;
++	__le16 hid_descriptor_offset;
++} __packed;
++
++struct gip_direct_motor {
++	uint8_t command;
++	uint8_t motor_bitmap;
++	uint8_t left_impulse_level;
++	uint8_t right_impulse_level;
++	uint8_t left_vibration_level;
++	uint8_t right_vibration_level;
++	uint8_t duration;
++	uint8_t delay;
++	uint8_t repeat;
++};
++
++static const struct gip_driver *base_drivers[] = {
++	&gip_driver_navigation,
++	&gip_driver_gamepad,
++	NULL /* Sentinel */
++};
++
++static int gip_decode_length(uint64_t *length, const uint8_t *bytes, int num_bytes)
++{
++	*length = 0;
++	int offset;
++
++	for (offset = 0; offset < num_bytes && offset < 9; offset++) {
++		uint8_t byte = bytes[offset];
++
++		*length |= (byte & 0x7full) << (offset * 7);
++		if (!(byte & 0x80)) {
++			offset++;
++			break;
++		}
++	}
++	return offset;
++}
++
++static int gip_encode_length(uint64_t length, uint8_t *bytes, int num_bytes)
++{
++	int offset;
++
++	for (offset = 0; offset < num_bytes; offset++) {
++		uint8_t byte = length & 0x7f;
++
++		length >>= 7;
++		if (length)
++			byte |= 0x80;
++		bytes[offset] = byte;
++		if (!length) {
++			offset++;
++			break;
++		}
++	}
++	return offset;
++}
++
++static bool gip_supports_system_message(struct gip_attachment *attachment,
++	uint8_t command, bool upstream)
++{
++	if (upstream)
++		return attachment->metadata.device
++			.in_system_messages[command >> 5] & BIT(command);
++	else
++		return attachment->metadata.device
++			.out_system_messages[command >> 5] & BIT(command);
++}
++
++bool gip_supports_vendor_message(struct gip_attachment *attachment,
++	uint8_t command, bool upstream)
++{
++	size_t i;
++
++	for (i = 0; i < attachment->metadata.num_messages; i++) {
++		struct gip_message_metadata *metadata =
++			&attachment->metadata.message_metadata[i];
++
++		if (metadata->type != command)
++			continue;
++		if (metadata->flags & GIP_MESSAGE_FLAG_DS_REQUEST_RESPONSE)
++			return true;
++
++		if (upstream)
++			return metadata->flags & GIP_MESSAGE_FLAG_UPSTREAM;
 +		else
-+			rc = gip_security_start_handshake(&attachment->security);
++			return metadata->flags & GIP_MESSAGE_FLAG_DOWNSTREAM;
++	}
++	return false;
++}
++
++static uint8_t gip_sequence_next(struct gip_attachment *attachment,
++	uint8_t command, bool system)
++{
++	uint8_t seq;
++
++	if (system) {
++		switch (command) {
++		case GIP_CMD_SECURITY:
++			seq = attachment->seq_security++;
++			if (!seq)
++				seq = attachment->seq_security++;
++			break;
++		case GIP_CMD_EXTENDED:
++			seq = attachment->seq_extended++;
++			if (!seq)
++				seq = attachment->seq_extended++;
++			break;
++		case GIP_AUDIO_DATA:
++			seq = attachment->seq_audio++;
++			if (!seq)
++				seq = attachment->seq_audio++;
++			break;
++		default:
++			seq = attachment->seq_system++;
++			if (!seq)
++				seq = attachment->seq_system++;
++			break;
++		}
++	} else {
++		seq = attachment->seq_vendor++;
++		if (!seq)
++			seq = attachment->seq_vendor++;
++	}
++	return seq;
++}
++
++static void gip_handle_quirks_array(struct gip_attachment *attachment,
++	const struct gip_quirks *quirks)
++{
++	size_t i, j;
++
++	for (i = 0; quirks[i].vendor_id; i++) {
++		if (quirks[i].vendor_id != attachment->vendor_id)
++			continue;
++		if (quirks[i].product_id != attachment->product_id)
++			continue;
++		if (quirks[i].attachment_index != attachment->attachment_index)
++			continue;
++
++		attachment->features |= quirks[i].added_features;
++		attachment->features &= ~quirks[i].filtered_features;
++		attachment->quirks |= quirks[i].quirks;
++
++		if (quirks[i].override_name)
++			attachment->name = quirks[i].override_name;
++
++		for (j = 0; j < 8; ++j) {
++			struct gip_device_metadata *metadata = &attachment->metadata.device;
++
++			metadata->in_system_messages[j] |= quirks[i].extra_in_system[j];
++			metadata->out_system_messages[j] |= quirks[i].extra_out_system[j];
++		}
++
++		attachment->extra_buttons = quirks[i].extra_buttons;
++		attachment->extra_axes = quirks[i].extra_axes;
++		break;
++	}
++
++}
++
++static void gip_handle_quirks(struct gip_attachment *attachment)
++{
++	gip_handle_quirks_array(attachment, base_quirks);
++
++	if (attachment->driver && attachment->driver->quirks)
++		gip_handle_quirks_array(attachment, attachment->driver->quirks);
++}
++
++static int gip_send_raw_message(struct gip_attachment *attachment,
++	uint8_t message_type, uint8_t flags, uint8_t seq, const uint8_t *bytes,
++	int num_bytes)
++{
++	struct gip_interface *intf;
++	int offset = 3;
++	struct gip_urb *urb = NULL;
++	int i;
++	int rc = 0;
++
++	if (num_bytes < 0) {
++		gip_warn(attachment, "Invalid message length %d\n", num_bytes);
++		return -EINVAL;
++	}
++
++	if (num_bytes + 6 > gip_data_class_mtu[message_type >> GIP_DATA_CLASS_SHIFT]) {
++		gip_err(attachment,
++			"Attempted to send a message that requires fragmenting, which is not yet supported.\n");
++		return -EOPNOTSUPP;
++	}
++
++	if ((message_type & GIP_DATA_CLASS_MASK) == GIP_DATA_CLASS_AUDIO)
++		intf = &attachment->device->audio;
++	else
++		intf = &attachment->device->data;
++
++	if (intf->isoc_messages) {
++		/* TODO: Needed for audio support */
++		gip_warn(intf, "Unimplemented isochronous message output\n");
++		return -EOPNOTSUPP;
++	}
++
++	guard(spinlock_irqsave)(&attachment->device->message_lock);
++	for (i = 0; i < MAX_OUT_MESSAGES && !urb; i++) {
++		if (!intf->out_queue[i].urb)
++			continue;
++		if (!intf->out_queue[i].urb->anchor)
++			urb = &intf->out_queue[i];
++	}
++	if (!urb) {
++		gip_err(attachment, "Output queue is full; dropping message\n");
++		return -ENOSPC;
++	}
++	urb->data[0] = message_type;
++	urb->data[1] = flags;
++	urb->data[2] = seq;
++	offset += gip_encode_length(num_bytes, &urb->data[offset],
++		sizeof(urb->data) - offset);
++
++	if (num_bytes > 0)
++		memcpy(&urb->data[offset], bytes, num_bytes);
++
++	num_bytes += offset;
++	urb->urb->transfer_buffer_length = num_bytes;
++
++	print_hex_dump_debug(KBUILD_MODNAME ": Sending message: ",
++		DUMP_PREFIX_OFFSET, 16, 1, urb->data, num_bytes, false);
++
++	usb_anchor_urb(urb->urb, &intf->out_anchor);
++	rc = usb_submit_urb(urb->urb, GFP_ATOMIC);
++	if (rc) {
++		dev_err(&intf->intf->dev,
++			"%s - usb_submit_urb failed with result %d\n",
++			__func__, rc);
++		usb_unanchor_urb(urb->urb);
++		rc = -EIO;
++	}
++
++	return rc;
++}
++
++int gip_send_system_message(struct gip_attachment *attachment,
++	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes)
++{
++	return gip_send_raw_message(attachment, message_type,
++		GIP_FLAG_SYSTEM | attachment->attachment_index | flags,
++		gip_sequence_next(attachment, message_type, true),
++		bytes, num_bytes);
++}
++
++int gip_send_vendor_message(struct gip_attachment *attachment,
++	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes)
++{
++	return gip_send_raw_message(attachment, message_type, flags,
++		gip_sequence_next(attachment, message_type, false),
++		bytes, num_bytes);
++}
++
++static void gip_metadata_free(struct device *dev, struct gip_metadata *metadata)
++{
++	devm_kfree(dev, metadata->device.audio_formats);
++
++	if (metadata->device.preferred_types) {
++		int i;
++
++		for (i = 0; i < metadata->device.num_preferred_types; i++)
++			devm_kfree(dev, metadata->device.preferred_types[i]);
++		devm_kfree(dev, metadata->device.preferred_types);
++	}
++	devm_kfree(dev, metadata->device.supported_interfaces);
++	devm_kfree(dev, metadata->device.hid_descriptor);
++	devm_kfree(dev, metadata->message_metadata);
++
++	memset(metadata, 0, sizeof(*metadata));
++}
++
++static int gip_parse_audio_format_metadata(struct device *dev,
++	struct gip_device_metadata *dev_metadata, const uint8_t *bytes,
++	int length, int buffer_offset)
++{
++	unsigned int i;
++
++	dev_metadata->num_audio_formats = bytes[buffer_offset];
++	if (buffer_offset + dev_metadata->num_audio_formats * 2 + 1 > length)
++		return -EINVAL;
++	dev_metadata->audio_formats = devm_kmalloc_array(dev,
++		dev_metadata->num_audio_formats, 2, GFP_KERNEL);
++	if (!dev_metadata->audio_formats)
++		return -ENOMEM;
++	memcpy(dev_metadata->audio_formats, &bytes[buffer_offset + 1],
++		dev_metadata->num_audio_formats * 2);
++
++	for (i = 0; i < dev_metadata->num_audio_formats; i++) {
++		const struct gip_audio_format_pair *pair = &dev_metadata->audio_formats[i];
++		const struct gip_audio_format *inbound = NULL;
++		const struct gip_audio_format *outbound = NULL;
++
++		if (pair->inbound <= MAX_GIP_AUDIO_FORMAT) {
++			inbound = &gip_audio_format_table[pair->inbound];
++			if (pair->inbound != GIP_AUDIO_FORMAT_NULL && inbound->rate == 0)
++				inbound = NULL;
++		}
++		if (!inbound)
++			dev_warn(dev, "Unknown audio format %u\n", pair->inbound);
++
++		if (pair->outbound <= MAX_GIP_AUDIO_FORMAT) {
++			outbound = &gip_audio_format_table[pair->outbound];
++			if (pair->outbound != GIP_AUDIO_FORMAT_NULL && outbound->rate == 0)
++				outbound = NULL;
++		}
++		if (!outbound)
++			dev_warn(dev, "Unknown audio format %u\n", pair->outbound);
++
++		if (inbound && outbound)
++			dev_dbg(dev,
++				"Supported audio format: %uHz %uch inbound, %uHz %uch outbound\n",
++				inbound->rate,
++				inbound->channels,
++				outbound->rate,
++				outbound->channels);
++	}
++	return 0;
++}
++
++static int gip_parse_preferred_types_metadata(struct device *dev,
++	struct gip_device_metadata *dev_metadata, const uint8_t *bytes,
++	int length, int buffer_offset)
++{
++	int i;
++	int count;
++
++	dev_metadata->num_preferred_types = bytes[buffer_offset];
++	dev_metadata->preferred_types = devm_kcalloc(dev,
++		dev_metadata->num_preferred_types, sizeof(char *), GFP_KERNEL);
++	if (!dev_metadata->preferred_types)
++		return -ENOMEM;
++
++	buffer_offset++;
++	for (i = 0; i < dev_metadata->num_preferred_types; i++) {
++		if (buffer_offset + 2 >= length)
++			return -EINVAL;
++
++		count = get_unaligned_le16(&bytes[buffer_offset]);
++		buffer_offset += 2;
++		if (buffer_offset + count > length)
++			return -EINVAL;
++
++		dev_metadata->preferred_types[i] = devm_kcalloc(dev, count + 1,
++			sizeof(char), GFP_KERNEL);
++		if (!dev_metadata->preferred_types[i])
++			return -ENOMEM;
++		memcpy(dev_metadata->preferred_types[i], &bytes[buffer_offset], count);
++		buffer_offset += count;
++	}
++
++	return 0;
++}
++
++static int gip_parse_supported_interfaces_metadata(struct device *dev,
++	struct gip_device_metadata *dev_metadata, const uint8_t *bytes,
++	int length, int buffer_offset)
++{
++	dev_metadata->num_supported_interfaces = bytes[buffer_offset];
++	if (buffer_offset + 1 +
++		(int32_t) (dev_metadata->num_supported_interfaces * sizeof(guid_t)) > length)
++		return -EINVAL;
++
++	dev_metadata->supported_interfaces = devm_kmalloc_array(dev,
++		dev_metadata->num_supported_interfaces, sizeof(guid_t), GFP_KERNEL);
++	if (!dev_metadata->supported_interfaces)
++		return -ENOMEM;
++
++	memcpy(dev_metadata->supported_interfaces, &bytes[buffer_offset + 1],
++		sizeof(guid_t) * dev_metadata->num_supported_interfaces);
++
++	return 0;
++}
++
++static int gip_parse_hid_descriptor_metadata(struct device *dev,
++	struct gip_device_metadata *dev_metadata, const uint8_t *bytes,
++	int length, int buffer_offset)
++{
++	dev_metadata->hid_descriptor_size = bytes[buffer_offset];
++	if (buffer_offset + 1 + dev_metadata->hid_descriptor_size > length)
++		return -EINVAL;
++
++	dev_metadata->hid_descriptor = devm_kmalloc(dev,
++		dev_metadata->hid_descriptor_size, GFP_KERNEL);
++	if (!dev_metadata->hid_descriptor)
++		return -ENOMEM;
++
++	memcpy(dev_metadata->hid_descriptor, &bytes[buffer_offset + 1],
++		dev_metadata->hid_descriptor_size);
++	print_hex_dump_debug(KBUILD_MODNAME ": Received HID descriptor: ",
++		DUMP_PREFIX_OFFSET, 16, 1, dev_metadata->hid_descriptor,
++		dev_metadata->hid_descriptor_size, false);
++
++	return 0;
++}
++
++static int gip_parse_device_metadata(struct device *dev,
++	struct gip_metadata *metadata, const uint8_t *bytes, int num_bytes,
++	int *offset)
++{
++	struct gip_device_metadata *dev_metadata = &metadata->device;
++	int buffer_offset;
++	int count;
++	int length;
++	int i;
++	int rc;
++	const struct gip_device_metadata_header *header;
++
++	bytes = &bytes[*offset];
++	num_bytes -= *offset;
++	if (num_bytes < sizeof(*header))
++		return -EINVAL;
++
++	header = (const struct gip_device_metadata_header *)bytes;
++	length = le16_to_cpu(header->length);
++	if (num_bytes < length)
++		return -EINVAL;
++
++	/* Skip supported firmware versions for now */
++
++	buffer_offset = le16_to_cpu(header->audio_offset);
++	if (buffer_offset >= length)
++		return -EINVAL;
++
++	if (buffer_offset > 0) {
++		rc = gip_parse_audio_format_metadata(dev, dev_metadata,
++			bytes, length, buffer_offset);
++		if (rc)
++			return rc;
++	}
++
++	buffer_offset = le16_to_cpu(header->supported_upstream_system_message_offset);
++	if (buffer_offset >= length)
++		return -EINVAL;
++
++	if (buffer_offset > 0) {
++		count = bytes[buffer_offset];
++		if (buffer_offset + count + 1 > length)
++			return -EINVAL;
++
++		for (i = 0; i < count; i++) {
++			uint8_t message = bytes[buffer_offset + 1 + i];
++
++			dev_dbg(dev,
++				"Supported upstream system message %02x\n",
++				message);
++			dev_metadata->in_system_messages[message >> 5] |=
++				BIT(message & 0x1F);
++		}
++	}
++
++	buffer_offset = le16_to_cpu(header->supported_downstream_system_message_offset);
++	if (buffer_offset >= length)
++		return -EINVAL;
++
++	if (buffer_offset > 0) {
++		count = bytes[buffer_offset];
++		if (buffer_offset + count + 1 > length)
++			return -EINVAL;
++
++		for (i = 0; i < count; i++) {
++			uint8_t message = bytes[buffer_offset + 1 + i];
++
++			dev_dbg(dev,
++				"Supported downstream system message %02x\n",
++				message);
++			dev_metadata->out_system_messages[message >> 5] |=
++				BIT(message & 0x1F);
++		}
++	}
++
++	buffer_offset = le16_to_cpu(header->preferred_types_offset);
++	if (buffer_offset >= length)
++		return -EINVAL;
++
++	if (buffer_offset > 0) {
++		rc = gip_parse_preferred_types_metadata(dev, dev_metadata,
++			bytes, length, buffer_offset);
++		if (rc)
++			return rc;
++	}
++
++	buffer_offset = le16_to_cpu(header->supported_interfaces_offset);
++	if (buffer_offset >= length)
++		return -EINVAL;
++
++	if (buffer_offset > 0) {
++		rc = gip_parse_supported_interfaces_metadata(dev,
++			dev_metadata, bytes, length, buffer_offset);
++		if (rc)
++			return rc;
++	}
++
++	if (metadata->version_major > 1 || metadata->version_minor >= 1) {
++		/* HID descriptor support added in metadata version 1.1 */
++		buffer_offset = le16_to_cpu(header->hid_descriptor_offset);
++		if (buffer_offset >= length)
++			return -EINVAL;
++
++		if (buffer_offset > 0) {
++			rc = gip_parse_hid_descriptor_metadata(dev,
++				dev_metadata, bytes, length, buffer_offset);
++			if (rc)
++				return rc;
++		}
++	}
++
++	*offset += length;
++	return 0;
++}
++
++static int gip_parse_message_metadata(struct device *dev,
++	struct gip_message_metadata *metadata, const uint8_t *bytes,
++	int num_bytes, int *offset)
++{
++	uint16_t length;
++
++	bytes = &bytes[*offset];
++	num_bytes -= *offset;
++
++	if (num_bytes < 2)
++		return -EINVAL;
++
++	length = get_unaligned_le16(&bytes[0]);
++	if (num_bytes < length)
++		return -EINVAL;
++
++	if (length < 15)
++		return -EINVAL;
++
++	metadata->type = bytes[2];
++	metadata->length = get_unaligned_le16(&bytes[3]);
++	metadata->data_type = get_unaligned_le16(&bytes[5]);
++	metadata->flags = get_unaligned_le32(&bytes[7]);
++	metadata->period = get_unaligned_le16(&bytes[11]);
++	metadata->persistence_timeout = get_unaligned_le16(&bytes[13]);
++
++	dev_dbg(dev,
++		"Supported vendor message type %02x of length %d, %s, %s, %s\n",
++		metadata->type, metadata->length,
++		metadata->flags & GIP_MESSAGE_FLAG_UPSTREAM ?
++			(metadata->flags & GIP_MESSAGE_FLAG_DOWNSTREAM ? "bidirectional" : "upstream") :
++			metadata->flags & GIP_MESSAGE_FLAG_DOWNSTREAM ? "downstream" :
++			metadata->flags & GIP_MESSAGE_FLAG_DS_REQUEST_RESPONSE ? "downstream request response" :
++			"unknown direction",
++		metadata->flags & GIP_MESSAGE_FLAG_SEQUENCED ? "sequenced" : "not sequenced",
++		metadata->flags & GIP_MESSAGE_FLAG_RELIABLE ? "reliable" : "unreliable");
++
++	*offset += length;
++	return 0;
++}
++
++static bool gip_parse_metadata(struct device *dev,
++	struct gip_metadata *metadata, const uint8_t *bytes, int num_bytes)
++{
++	int header_size;
++	int metadata_size;
++	int offset = 0;
++	int i;
++	int rc;
++
++	if (num_bytes < 16)
++		return -EINVAL;
++
++	print_hex_dump_debug(KBUILD_MODNAME ": Received metadata: ",
++		DUMP_PREFIX_OFFSET, 16, 1, bytes, num_bytes, false);
++
++	header_size = get_unaligned_le16(&bytes[0]);
++	if (num_bytes < header_size || header_size < 16)
++		return -EINVAL;
++
++	metadata->version_major = get_unaligned_le16(&bytes[2]);
++	metadata->version_minor = get_unaligned_le16(&bytes[4]);
++	/* Middle bytes are reserved */
++	metadata_size = get_unaligned_le16(&bytes[14]);
++
++	if (num_bytes < metadata_size || metadata_size < header_size)
++		return -EINVAL;
++
++	offset = header_size;
++
++	rc = gip_parse_device_metadata(dev, metadata, bytes, num_bytes, &offset);
++	if (rc)
++		goto parse_err;
++
++	if (offset >= num_bytes)
++		goto parse_err;
++
++	metadata->num_messages = bytes[offset];
++	offset++;
++	if (metadata->num_messages > 0) {
++		metadata->message_metadata = devm_kcalloc(dev,
++			metadata->num_messages,
++			sizeof(*metadata->message_metadata), GFP_KERNEL);
++		if (!metadata->message_metadata) {
++			rc = -ENOMEM;
++			goto parse_err;
++		}
++
++		for (i = 0; i < metadata->num_messages; i++) {
++			rc = gip_parse_message_metadata(dev,
++				&metadata->message_metadata[i], bytes,
++				num_bytes, &offset);
++			if (rc)
++				goto parse_err;
++		}
++	}
++
++	return 0;
++
++parse_err:
++	gip_metadata_free(dev, metadata);
++	return rc;
++}
++
++static int gip_acknowledge(struct gip_attachment *attachment,
++	const struct gip_header *header, uint32_t fragment_offset,
++	uint16_t bytes_remaining)
++{
++	struct gip_protocol_control_ack message;
++
++	message.control_code = GIP_CONTROL_CODE_ACK;
++	message.message_type = header->message_type;
++	message.flags = header->flags & GIP_FLAG_SYSTEM;
++	message.fragment_offset = cpu_to_le32(fragment_offset);
++	message.remaining_buffer = cpu_to_le16(bytes_remaining);
++
++	return gip_send_raw_message(attachment, GIP_CMD_PROTO_CONTROL,
++		GIP_FLAG_SYSTEM | attachment->attachment_index,
++		header->sequence_id, (uint8_t *)&message, sizeof(message));
++}
++
++static void gip_free_in_fragment(struct gip_attachment *attachment)
++{
++	kfree(attachment->in_fragment_data);
++	attachment->in_fragment_data = NULL;
++	attachment->in_fragment_message = -1;
++}
++
++static int gip_fragment_failed(struct gip_attachment *attachment,
++	const struct gip_header *header)
++{
++	attachment->in_fragment_retries++;
++	if (attachment->in_fragment_retries > 8) {
++		gip_free_in_fragment(attachment);
++		return 0;
++	}
++	return gip_acknowledge(attachment, header,
++		attachment->in_fragment_offset,
++		attachment->in_total_length - attachment->in_fragment_offset);
++}
++
++static int gip_bind_driver(struct gip_attachment *attachment, const struct gip_driver *driver)
++{
++	if (driver->probe) {
++		int rc = driver->probe(attachment);
 +
 +		if (rc)
 +			return rc;
 +	}
 +
- 	rc = gip_init_input_device(attachment);
- 	if (rc)
- 		return rc;
-@@ -2248,20 +2255,16 @@ static int gip_handle_command_metadata_respose(struct gip_attachment *attachment
- 			GIP_CMD_GUIDE_COLOR, false))
- 		attachment->features &= ~GIP_FEATURE_GUIDE_COLOR;
- 
-+	if (!gip_supports_system_message(attachment, GIP_CMD_SECURITY, false) ||
-+		(attachment->features & GIP_FEATURE_SECURITY_OPT_OUT))
-+		attachment->security.status = GIP_SECURITY_SKIPPED;
-+
- 	gip_dbg(attachment, "Attachment %i has features: %02x\n",
- 		attachment->attachment_index, attachment->features);
- 
- 	return gip_send_init_sequence(attachment);
- }
- 
--static int gip_handle_command_security(struct gip_attachment *attachment,
--	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
--{
--	/* TODO: Needed for controllers that connect via dongles */
--	gip_warn_ratelimited(attachment, "Unimplemented Security message\n");
--	return -EOPNOTSUPP;
--}
--
- static int gip_handle_command_guide_button_status(struct gip_attachment *attachment,
- 	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
- {
-@@ -2538,8 +2541,7 @@ static int gip_handle_system_message(struct gip_attachment *attachment,
- 		return gip_handle_command_metadata_respose(attachment, header,
- 			bytes, num_bytes);
- 	case GIP_CMD_SECURITY:
--		return gip_handle_command_security(attachment, header, bytes,
--			num_bytes);
-+		return gip_security_handle_message(&attachment->security, bytes, num_bytes);
- 	case GIP_CMD_GUIDE_BUTTON:
- 		return gip_handle_command_guide_button_status(attachment,
- 			header, bytes, num_bytes);
-diff --git a/drivers/input/joystick/gip/gip-drivers.c b/drivers/input/joystick/gip/gip-drivers.c
-index 2c2297b1fed8..74bc858e71cc 100644
---- a/drivers/input/joystick/gip/gip-drivers.c
-+++ b/drivers/input/joystick/gip/gip-drivers.c
-@@ -81,6 +81,14 @@ const struct gip_driver gip_driver_gamepad = {
- 		0xa3, 0x12, 0x7a, 0xf1, 0x97, 0xb5),
- 
- 	.quirks = (const struct gip_quirks[]) {
-+		/* PowerA Xbox One Classic Controller */
-+		{ GIP_VID_BDA, GIP_PID_BDA_XB1_CLASSIC, 0,
-+			.quirks = GIP_QUIRK_SKIP_SECURITY },
-+
-+		/* PowerA Xbox One Fusion Pro */
-+		{ GIP_VID_BDA, GIP_PID_BDA_XB1_FUSION_PRO, 0,
-+			.quirks = GIP_QUIRK_SKIP_SECURITY },
-+
- 		/* Xbox One Controller (model 1573) */
- 		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ONE_1573, 0,
- 			.override_name = "Xbox One Controller" },
-diff --git a/drivers/input/joystick/gip/gip-security.c b/drivers/input/joystick/gip/gip-security.c
-new file mode 100644
-index 000000000000..1850850b60e6
---- /dev/null
-+++ b/drivers/input/joystick/gip/gip-security.c
-@@ -0,0 +1,810 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Gaming Input Protocol security message driver for Xbox One/Series controllers
-+ *
-+ * This file is based on files from the xone project
-+ * - https://github.com/dlundqvist/xone/blob/master/auth/auth.c
-+ * - https://github.com/dlundqvist/xone/blob/master/auth/crypto.c
-+ *
-+ * Copyright (C) 2023 Severin von Wnuck-Lipinski <severinvonw@outlook.de>
-+ * Copyright (c) 2026 Valve Software
-+ */
-+
-+#include <linux/scatterlist.h>
-+#include <linux/version.h>
-+#include <crypto/hash.h>
-+#include <crypto/sha2.h>
-+#include <crypto/akcipher.h>
-+#include <crypto/kpp.h>
-+#include <crypto/ecdh.h>
-+
-+#include "gip.h"
-+
-+/* trailer is required for v1 clients */
-+#define GIP_SECURITY_TRAILER_LEN 8
-+#define GIP_SECURITY_CERTIFICATE_MAX_LEN 1024
-+#define GIP_SECURITY_ENCRYPTED_PMS_LEN 256
-+#define GIP_SECURITY_TRANSCRIPT_LEN 32
-+#define GIP_SECURITY_SESSION_KEY_LEN 16
-+
-+#define GIP_SECURITY_ECDH_SECRET_LEN 32
-+
-+enum gip_security_context {
-+	GIP_SECURITY_CTX_HANDSHAKE = 0x00,
-+	GIP_SECURITY_CTX_CONTROL = 0x01,
-+};
-+
-+enum gip_security_command_handshake {
-+	GIP_SECURITY_CMD_HOST_HELLO = 0x01,
-+	GIP_SECURITY_CMD_CLIENT_HELLO = 0x02,
-+	GIP_SECURITY_CMD_CLIENT_CERTIFICATE = 0x03,
-+	GIP_SECURITY_CMD_HOST_SECRET = 0x05,
-+	GIP_SECURITY_CMD_HOST_FINISH = 0x07,
-+	GIP_SECURITY_CMD_CLIENT_FINISH = 0x08,
-+
-+	GIP_SECURITY2_CMD_HOST_HELLO = 0x21,
-+	GIP_SECURITY2_CMD_CLIENT_HELLO = 0x22,
-+	GIP_SECURITY2_CMD_CLIENT_CERTIFICATE = 0x23,
-+	GIP_SECURITY2_CMD_CLIENT_PUBKEY = 0x24,
-+	GIP_SECURITY2_CMD_HOST_PUBKEY = 0x25,
-+	GIP_SECURITY2_CMD_HOST_FINISH = 0x26,
-+	GIP_SECURITY2_CMD_CLIENT_FINISH = 0x27,
-+};
-+
-+enum gip_security_command_control {
-+	GIP_SECURITY_CTRL_COMPLETE = 0x00,
-+	GIP_SECURITY_CTRL_RESET = 0x01,
-+};
-+
-+enum gip_security_option {
-+	GIP_SECURITY_OPT_ACKNOWLEDGE = BIT(0),
-+	GIP_SECURITY_OPT_REQUEST = BIT(1),
-+	GIP_SECURITY_OPT_FROM_HOST = BIT(6),
-+	GIP_SECURITY_OPT_FROM_CLIENT = BIT(6) | BIT(7),
-+};
-+
-+struct gip_security_header_handshake {
-+	u8 context;
-+	u8 options;
-+	u8 error;
-+	u8 command;
-+	__be16 length;
-+} __packed;
-+
-+struct gip_security_header_data {
-+	u8 command;
-+	u8 version;
-+	__be16 length;
-+} __packed;
-+
-+struct gip_security_header_full {
-+	struct gip_security_header_handshake handshake;
-+	struct gip_security_header_data data;
-+} __packed;
-+
-+struct gip_security_header_control {
-+	u8 context;
-+	u8 control;
-+} __packed;
-+
-+struct gip_security_request {
-+	struct gip_security_header_handshake header;
-+
-+	u8 trailer[GIP_SECURITY_TRAILER_LEN];
-+} __packed;
-+
-+struct gip_security_host_hello {
-+	struct gip_security_header_full header;
-+
-+	u8 random[GIP_SECURITY_RANDOM_LEN];
-+	u8 unknown1[4];
-+	u8 unknown2[4];
-+
-+	u8 trailer[GIP_SECURITY_TRAILER_LEN];
-+} __packed;
-+
-+struct gip_security_host_secret {
-+	struct gip_security_header_full header;
-+
-+	u8 encrypted_pms[GIP_SECURITY_ENCRYPTED_PMS_LEN];
-+
-+	u8 trailer[GIP_SECURITY_TRAILER_LEN];
-+} __packed;
-+
-+struct gip_security_host_finish {
-+	struct gip_security_header_full header;
-+
-+	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
-+
-+	u8 trailer[GIP_SECURITY_TRAILER_LEN];
-+} __packed;
-+
-+struct gip_security_client_hello {
-+	u8 random[GIP_SECURITY_RANDOM_LEN];
-+	u8 unknown[48];
-+} __packed;
-+
-+struct gip_security_client_finish {
-+	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
-+	u8 unknown[32];
-+} __packed;
-+
-+struct gip_security2_host_hello {
-+	struct gip_security_header_full header;
-+
-+	u8 random[GIP_SECURITY_RANDOM_LEN];
-+	u8 unknown[4];
-+
-+	u8 trailer[GIP_SECURITY_TRAILER_LEN];
-+} __packed;
-+
-+struct gip_security2_host_pubkey {
-+	struct gip_security_header_full header;
-+
-+	u8 pubkey[GIP_SECURITY2_PUBKEY_LEN];
-+
-+	u8 trailer[GIP_SECURITY_TRAILER_LEN];
-+} __packed;
-+
-+struct gip_security2_host_finish {
-+	struct gip_security_header_full header;
-+
-+	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
-+
-+	u8 trailer[GIP_SECURITY_TRAILER_LEN];
-+} __packed;
-+
-+struct gip_security2_client_hello {
-+	u8 random[GIP_SECURITY_RANDOM_LEN];
-+	u8 unknown1[108];
-+	u8 unknown2[32];
-+} __packed;
-+
-+struct gip_security2_client_cert {
-+	char header[4];
-+	u8 unknown1[136];
-+	char chip[32];
-+	char revision[20];
-+	u8 unknown2[576];
-+} __packed;
-+
-+struct gip_security2_client_pubkey {
-+	u8 pubkey[GIP_SECURITY2_PUBKEY_LEN];
-+	u8 unknown[64];
-+} __packed;
-+
-+struct gip_security2_client_finish {
-+	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
-+	u8 unknown[32];
-+} __packed;
-+
-+static void gip_security_get_transcript(struct sha256_ctx *ctx, void *transcript)
-+{
-+	struct sha256_ctx state;
-+
-+	memcpy(&state, ctx, sizeof(state));
-+	sha256_final(&state, transcript);
++	attachment->driver = driver;
++	memcpy(attachment->vendor_handlers, driver->vendor_handlers,
++		sizeof(attachment->vendor_handlers));
++	return 0;
 +}
 +
-+static void gip_security_compute_prf(const char *label,
-+	u8 *raw_key, int key_len, u8 *seed, int seed_len, u8 *out, int out_len)
++static int gip_enable_elite_buttons(struct gip_attachment *attachment)
 +{
-+	u8 hash[SHA256_DIGEST_SIZE], hash_out[SHA256_DIGEST_SIZE];
-+	struct hmac_sha256_ctx ctx;
-+	struct hmac_sha256_key key;
-+
-+	hmac_sha256_preparekey(&key, raw_key, key_len);
-+
-+	hmac_sha256_init(&ctx, &key);
-+	hmac_sha256_update(&ctx, label, strlen(label));
-+	hmac_sha256_update(&ctx, seed, seed_len);
-+	hmac_sha256_final(&ctx, hash);
-+
-+	while (out_len > 0) {
-+		hmac_sha256_init(&ctx, &key);
-+		hmac_sha256_update(&ctx, hash, sizeof(hash));
-+		hmac_sha256_update(&ctx, label, strlen(label));
-+		hmac_sha256_update(&ctx, seed, seed_len);
-+		hmac_sha256_final(&ctx, hash_out);
-+
-+		memcpy(out, hash_out, min_t(int, out_len, sizeof(hash)));
-+		out += sizeof(hash);
-+		out_len -= sizeof(hash);
-+
-+		hmac_sha256(&key, hash, sizeof(hash), hash);
++	if (attachment->vendor_id == GIP_VID_MICROSOFT) {
++		if (attachment->product_id == GIP_PID_XBOX_ELITE) {
++			attachment->xbe_format = GIP_BTN_FMT_XBE1;
++		} else if (attachment->product_id == GIP_PID_XBOX_ELITE_2) {
++			if (attachment->firmware_major_version == 4) {
++				attachment->xbe_format = GIP_BTN_FMT_XBE2_4;
++			} else if (attachment->firmware_major_version == 5) {
++				/*
++				 * The exact range for this being necessary is
++				 * unknown, but it starts at 5.11 and at either
++				 * 5.16 or 5.17. This approach still works on
++				 * 5.21, even if it's not necessary, so having
++				 * a loose upper limit is fine.
++				 */
++				if (attachment->firmware_minor_version >= 11 &&
++					attachment->firmware_minor_version < 17)
++					attachment->xbe_format = GIP_BTN_FMT_XBE2_RAW;
++				else
++					attachment->xbe_format = GIP_BTN_FMT_XBE2_5;
++			}
++		}
 +	}
 +
-+	memzero_explicit(&ctx, sizeof(ctx));
-+	memzero_explicit(&key, sizeof(key));
-+}
++	if (attachment->xbe_format == GIP_BTN_FMT_XBE2_RAW) {
++		/*
++		 * The meaning of this packet is unknown and not documented, but
++		 * it's needed for the Elite 2 controller to send raw reports
++		 */
++		static const uint8_t enable_raw_report[] = { 7, 0 };
 +
-+static int gip_security_encrypt_rsa(u8 *key, int key_len, u8 *in, int in_len, u8 *out, int out_len)
-+{
-+	struct crypto_akcipher *tfm;
-+	int err;
-+
-+	tfm = crypto_alloc_akcipher("pkcs1pad(rsa)", 0, 0);
-+	if (IS_ERR(tfm))
-+		return PTR_ERR(tfm);
-+
-+	err = crypto_akcipher_set_pub_key(tfm, key, key_len);
-+	if (err)
-+		goto err_free_tfm;
-+
-+	err = crypto_akcipher_sync_encrypt(tfm, in, in_len, out, out_len);
-+
-+err_free_tfm:
-+	crypto_free_akcipher(tfm);
-+
-+	return err;
-+}
-+
-+static int gip_security_ecdh_get_pubkey(struct crypto_kpp *tfm, u8 *out, int len)
-+{
-+	struct kpp_request *req;
-+	struct scatterlist dest;
-+	struct ecdh key = {};
-+	DECLARE_CRYPTO_WAIT(wait);
-+	void *privkey, *pubkey;
-+	unsigned int privkey_len;
-+	int err = 0;
-+
-+	privkey_len = crypto_ecdh_key_len(&key);
-+	privkey = kzalloc(privkey_len, GFP_KERNEL);
-+	if (!privkey)
-+		return -ENOMEM;
-+
-+	pubkey = kzalloc(len, GFP_KERNEL);
-+	if (!pubkey) {
-+		err = -ENOMEM;
-+		goto err_free_privkey;
++		return gip_send_vendor_message(attachment, GIP_SL_ELITE_CONFIG,
++			0, enable_raw_report, sizeof(enable_raw_report));
 +	}
-+
-+	/* generate private key */
-+	err = crypto_ecdh_encode_key(privkey, privkey_len, &key);
-+	if (err)
-+		goto err_free_pubkey;
-+
-+	err = crypto_kpp_set_secret(tfm, privkey, privkey_len);
-+	if (err)
-+		goto err_free_pubkey;
-+
-+	req = kpp_request_alloc(tfm, GFP_KERNEL);
-+	if (!req) {
-+		err = -ENOMEM;
-+		goto err_free_pubkey;
-+	}
-+
-+	sg_init_one(&dest, pubkey, len);
-+
-+	kpp_request_set_input(req, NULL, 0);
-+	kpp_request_set_output(req, &dest, len);
-+	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
-+				 crypto_req_done, &wait);
-+	err = crypto_wait_req(crypto_kpp_generate_public_key(req), &wait);
-+	if (!err)
-+		memcpy(out, pubkey, len);
-+
-+	kpp_request_free(req);
-+
-+err_free_pubkey:
-+	kfree(pubkey);
-+err_free_privkey:
-+	memzero_explicit(privkey, privkey_len);
-+	kfree(privkey);
-+
-+	return err;
-+}
-+
-+static int gip_security_ecdh_get_secret(struct crypto_kpp *tfm, u8 *pubkey,
-+	int pubkey_len, u8 *secret, int secret_len)
-+{
-+	struct kpp_request *req;
-+	struct scatterlist src, dest;
-+	DECLARE_CRYPTO_WAIT(wait);
-+	int err;
-+
-+	req = kpp_request_alloc(tfm, GFP_KERNEL);
-+	if (!req)
-+		return -ENOMEM;
-+
-+	sg_init_one(&src, pubkey, pubkey_len);
-+	sg_init_one(&dest, secret, secret_len);
-+
-+	kpp_request_set_input(req, &src, pubkey_len);
-+	kpp_request_set_output(req, &dest, secret_len);
-+	kpp_request_set_callback(req, CRYPTO_TFM_REQ_MAY_BACKLOG,
-+				 crypto_req_done, &wait);
-+	err = crypto_wait_req(crypto_kpp_compute_shared_secret(req), &wait);
-+
-+	kpp_request_free(req);
-+
-+	return err;
-+}
-+
-+static int gip_security_compute_ecdh(u8 *pubkey_in, u8 *pubkey_out, int pubkey_len, u8 *secret_hash)
-+{
-+	struct crypto_kpp *tfm_ecdh;
-+	u8 *secret;
-+	int err;
-+
-+	secret = kzalloc(GIP_SECURITY_ECDH_SECRET_LEN, GFP_KERNEL);
-+	if (!secret)
-+		return -ENOMEM;
-+
-+	tfm_ecdh = crypto_alloc_kpp("ecdh-nist-p256", 0, 0);
-+	if (IS_ERR(tfm_ecdh)) {
-+		err = PTR_ERR(tfm_ecdh);
-+		goto err_free_secret;
-+	}
-+
-+	err = gip_security_ecdh_get_pubkey(tfm_ecdh, pubkey_out, pubkey_len);
-+	if (err)
-+		goto err_free_ecdh;
-+
-+	err = gip_security_ecdh_get_secret(tfm_ecdh, pubkey_in, pubkey_len,
-+		secret, GIP_SECURITY_ECDH_SECRET_LEN);
-+	if (err)
-+		goto err_free_ecdh;
-+
-+	sha256(secret, GIP_SECURITY_ECDH_SECRET_LEN, secret_hash);
-+
-+err_free_ecdh:
-+	crypto_free_kpp(tfm_ecdh);
-+err_free_secret:
-+	kfree_sensitive(secret);
-+
-+	return err;
-+}
-+
-+static int gip_security_send_message(struct gip_security *security,
-+	enum gip_security_command_handshake cmd, void *message, u16 len)
-+{
-+	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
-+	struct gip_security_header_full *hdr = message;
-+	u16 data_len = len - sizeof(hdr->handshake) - GIP_SECURITY_TRAILER_LEN;
-+
-+	hdr->handshake.context = GIP_SECURITY_CTX_HANDSHAKE;
-+	hdr->handshake.options = GIP_SECURITY_OPT_ACKNOWLEDGE | GIP_SECURITY_OPT_FROM_HOST;
-+	hdr->handshake.command = cmd;
-+	hdr->handshake.length = cpu_to_be16(data_len);
-+
-+	hdr->data.command = cmd;
-+	hdr->data.version = cmd >= GIP_SECURITY2_CMD_HOST_HELLO ? 0x02 : 0x01;
-+	hdr->data.length = cpu_to_be16(data_len - sizeof(hdr->data));
-+
-+	security->last_sent_command = cmd;
-+	sha256_update(&security->transcript, message + sizeof(hdr->handshake), data_len);
-+
-+	return gip_send_system_message(attachment, GIP_CMD_SECURITY, GIP_FLAG_ACME, message, len);
-+}
-+
-+static int gip_security_send_request(struct gip_security *security,
-+	enum gip_security_command_handshake cmd, u16 len)
-+{
-+	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
-+	struct gip_security_request req = {};
-+	u16 data_len = len + sizeof(struct gip_security_header_data);
-+
-+	req.header.context = GIP_SECURITY_CTX_HANDSHAKE;
-+	req.header.options = GIP_SECURITY_OPT_REQUEST | GIP_SECURITY_OPT_FROM_HOST;
-+	req.header.command = cmd;
-+	req.header.length = cpu_to_be16(data_len);
-+
-+	return gip_send_system_message(attachment, GIP_CMD_SECURITY,
-+		GIP_FLAG_ACME, &req, sizeof(req));
-+}
-+
-+static int gip_security2_send_hello(struct gip_security *security)
-+{
-+	struct gip_security2_host_hello message = {};
-+
-+	get_random_bytes(security->random_host, sizeof(security->random_host));
-+	memcpy(message.random, security->random_host, sizeof(message.random));
-+
-+	return gip_security_send_message(security, GIP_SECURITY2_CMD_HOST_HELLO,
-+		&message, sizeof(message));
-+}
-+
-+static int gip_security2_handle_hello(struct gip_security *security, const void *data, u32 len)
-+{
-+	const struct gip_security2_client_hello *message = data;
-+
-+	if (len < sizeof(*message))
-+		return -EINVAL;
-+
-+	memcpy(security->random_client, message->random, sizeof(security->random_client));
-+
-+	return gip_security_send_request(security,
-+		GIP_SECURITY2_CMD_CLIENT_CERTIFICATE,
-+		sizeof(struct gip_security2_client_cert));
-+}
-+
-+static int gip_security2_handle_certificate(struct gip_security *security,
-+	const void *data, u32 len)
-+{
-+	const struct gip_security2_client_cert *message = data;
-+
-+	if (len < sizeof(*message))
-+		return -EINVAL;
-+
-+	gip_dbg(security,
-+		"%s: header=%.*s, chip=%.*s, revision=%.*s\n", __func__,
-+		(int)sizeof(message->header), message->header,
-+		(int)sizeof(message->chip), message->chip,
-+		(int)sizeof(message->revision), message->revision);
-+
-+	return gip_security_send_request(security,
-+		GIP_SECURITY2_CMD_CLIENT_PUBKEY,
-+		sizeof(struct gip_security2_client_pubkey));
-+}
-+
-+static int gip_security2_handle_pubkey(struct gip_security *security,
-+	const void *data, u32 len)
-+{
-+	const struct gip_security2_client_pubkey *message = data;
-+
-+	if (len < sizeof(*message))
-+		return -EINVAL;
-+
-+	memcpy(security->pubkey_client2, message->pubkey, sizeof(message->pubkey));
-+	schedule_work(&security->work_exchange_ecdh);
 +
 +	return 0;
 +}
 +
-+static void gip_security2_exchange_ecdh(struct work_struct *work)
++#ifdef CONFIG_JOYSTICK_XBOX_GIP_FF
++static void gip_rumble_work(struct work_struct *work)
 +{
-+	struct gip_security *security = container_of(work, typeof(*security), work_exchange_ecdh);
-+	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
-+	struct gip_security2_host_pubkey message = {};
-+	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
-+	u8 secret[GIP_SECURITY2_SECRET_LEN];
-+	int err;
++	struct gip_attachment *attachment = container_of(work, struct gip_attachment,
++		rumble_work);
++	struct gip_direct_motor control = {
++		.motor_bitmap = GIP_MOTOR_LEFT_VIBRATION | GIP_MOTOR_RIGHT_VIBRATION
++	};
++
++	control.left_vibration_level = attachment->left_vibration_level;
++	control.right_vibration_level = attachment->right_vibration_level;
++	control.duration = 255;
++	guard(mutex)(&attachment->lock);
++	gip_send_vendor_message(attachment, GIP_CMD_DIRECT_MOTOR,
++		0, &control, sizeof(control));
++}
++
++static int gip_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
++{
++	struct gip_attachment *attachment = input_get_drvdata(dev);
++
++	if (effect->type != FF_RUMBLE)
++		return 0;
++
++	attachment->left_vibration_level = effect->u.rumble.strong_magnitude * 100 / 0xFFFF;
++	attachment->right_vibration_level = effect->u.rumble.weak_magnitude * 100 / 0xFFFF;
++
++	schedule_work(&attachment->rumble_work);
++	return 0;
++}
++#endif
++
++static int gip_send_guide_button_led(struct gip_attachment *attachment,
++	uint8_t pattern, uint8_t intensity)
++{
++	uint8_t buffer[] = {
++		GIP_LED_GUIDE,
++		pattern,
++		intensity,
++	};
++
++	if (!gip_supports_system_message(attachment, GIP_CMD_LED, false))
++		return 0;
++
++	return gip_send_system_message(attachment, GIP_CMD_LED, 0, buffer, sizeof(buffer));
++}
++
++static bool gip_send_set_device_state(struct gip_attachment *attachment, uint8_t state)
++{
++	uint8_t buffer[] = { state };
++
++	return gip_send_system_message(attachment, GIP_CMD_SET_DEVICE_STATE,
++		attachment->attachment_index, buffer, sizeof(buffer));
++}
++
++static int gip_handle_command_raw_report(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	struct input_dev *input;
++
++	if (num_bytes < 17) {
++		gip_dbg(attachment, "Discarding too-short raw report\n");
++		return -EINVAL;
++	}
++	guard(rcu)();
++	input = rcu_dereference(attachment->input);
++	if (!input)
++		return -ENODEV;
++
++	if ((attachment->features & GIP_FEATURE_ELITE_BUTTONS)
++		&& attachment->xbe_format == GIP_BTN_FMT_XBE2_RAW) {
++		input_report_abs(input, ABS_PROFILE, bytes[15] & 3);
++		if (bytes[15] & 3) {
++			input_report_key(input, BTN_GRIPL, 0);
++			input_report_key(input, BTN_GRIPR, 0);
++			input_report_key(input, BTN_GRIPL2, 0);
++			input_report_key(input, BTN_GRIPR2, 0);
++		} else {
++			input_report_key(input, BTN_GRIPL,
++				bytes[GIP_BTN_OFFSET_XBE2] & BIT(2));
++			input_report_key(input, BTN_GRIPR,
++				bytes[GIP_BTN_OFFSET_XBE2] & BIT(0));
++			input_report_key(input, BTN_GRIPL2,
++				bytes[GIP_BTN_OFFSET_XBE2] & BIT(3));
++			input_report_key(input, BTN_GRIPR2,
++				bytes[GIP_BTN_OFFSET_XBE2] & BIT(1));
++		}
++
++		input_sync(input);
++	}
++	return 0;
++}
++
++static int gip_setup_input_device(struct gip_attachment *attachment)
++{
++	struct input_dev *input;
++	int rc;
++
++	if (!attachment->driver || !attachment->driver->setup_input)
++		return -ENODEV;
++
++	rcu_read_lock();
++	input = rcu_dereference(attachment->input);
++	rcu_read_unlock();
++	if (input)
++		return 0;
++
++	input = devm_input_allocate_device(to_gip_device(attachment));
++	if (!input)
++		return -ENOMEM;
++	input->id.bustype = BUS_USB;
++	input->id.vendor = attachment->vendor_id;
++	input->id.product = attachment->product_id;
++	input->uniq = attachment->uniq;
++	if (attachment->name)
++		input->name = attachment->name;
++	else if (attachment->attachment_index == 0)
++		input->name = attachment->device->udev->product;
++	input->phys = attachment->phys;
++
++	input_set_capability(input, EV_KEY, BTN_MODE);
++
++	rc = attachment->driver->setup_input(attachment, input);
++	if (rc < 0)
++		goto err_free_device;
++
++	if (attachment->features &
++		(GIP_FEATURE_CONSOLE_FUNCTION_MAP | GIP_FEATURE_CONSOLE_FUNCTION_MAP_OVERFLOW))
++		input_set_capability(input, EV_KEY, KEY_RECORD);
++
++	if (attachment->features & GIP_FEATURE_ELITE_BUTTONS) {
++		input_set_capability(input, EV_KEY, BTN_GRIPL);
++		input_set_capability(input, EV_KEY, BTN_GRIPR);
++		input_set_capability(input, EV_KEY, BTN_GRIPL2);
++		input_set_capability(input, EV_KEY, BTN_GRIPR2);
++		if (attachment->xbe_format == GIP_BTN_FMT_XBE1)
++			input_set_abs_params(input, ABS_PROFILE, 0, 1, 0, 0);
++		else
++			input_set_abs_params(input, ABS_PROFILE, 0, 3, 0, 0);
++
++		attachment->vendor_handlers[GIP_CMD_RAW_REPORT] = gip_handle_command_raw_report;
++	}
++
++#ifdef CONFIG_JOYSTICK_XBOX_GIP_FF
++	if (attachment->features & GIP_FEATURE_MOTOR_CONTROL) {
++		input_set_capability(input, EV_FF, FF_RUMBLE);
++		input_ff_create_memless(input, NULL, gip_play_effect);
++	}
++#endif
++
++	input_set_drvdata(input, attachment);
++	rcu_assign_pointer(attachment->input, input);
++	synchronize_rcu();
++	rc = input_register_device(input);
++	if (rc)
++		goto err_free_device;
++
++	return 0;
++
++err_free_device:
++	rcu_assign_pointer(attachment->input, NULL);
++	synchronize_rcu();
++
++	input_free_device(input);
++	return rc;
++}
++
++static int gip_init_input_device(struct gip_attachment *attachment)
++{
++	struct input_dev *input;
++	int rc = 0;
++
++	rcu_read_lock();
++	input = rcu_dereference(attachment->input);
++	rcu_read_unlock();
++	if (input)
++		return 0;
++
++	if (attachment->driver && attachment->driver->init) {
++		rc = attachment->driver->init(attachment);
++		if (rc < 0)
++			return rc;
++	}
++
++	if (rc != GIP_INIT_NO_INPUT && (attachment->features & GIP_FEATURE_CONTROLLER)) {
++		rc = gip_setup_input_device(attachment);
++		if (rc == -ENODEV)
++			return 0;
++		if (rc)
++			return rc;
++	}
++
++	return rc;
++}
++
++static int gip_send_init_sequence(struct gip_attachment *attachment)
++{
++	int rc = 0;
++	size_t len;
++
++	if (attachment->features & GIP_FEATURE_EXTENDED_SET_DEVICE_STATE) {
++		/*
++		 * The meaning of this packet is unknown and not documented, but it's
++		 * needed for the Elite 2 controller to start up on older firmwares
++		 */
++		static const uint8_t set_device_state[] = {
++			GIP_STATE_UNK6, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
++			0x55, 0x53, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
++		};
++
++		rc = gip_send_system_message(attachment,
++			GIP_CMD_SET_DEVICE_STATE, 0, set_device_state,
++			sizeof(set_device_state));
++		if (rc)
++			return rc;
++	}
++	rc = gip_enable_elite_buttons(attachment);
++	if (rc)
++		return rc;
++	if (!gip_supports_system_message(attachment, GIP_CMD_AUDIO_CONTROL, false)) {
++		rc = gip_send_set_device_state(attachment, GIP_STATE_START);
++		if (rc)
++			return rc;
++		attachment->device_state = GIP_STATE_START;
++	} else {
++		rc = gip_send_set_device_state(attachment, GIP_STATE_STOP);
++		if (rc)
++			return rc;
++		attachment->device_state = GIP_STATE_STOP;
++	}
++
++	rc = gip_send_guide_button_led(attachment,
++		GIP_LED_GUIDE_ON,
++		GIP_LED_GUIDE_INIT_BRIGHTNESS);
++	if (rc)
++		return rc;
++
++	if (gip_supports_system_message(attachment, GIP_CMD_SECURITY, false)
++		&& !(attachment->features & GIP_FEATURE_SECURITY_OPT_OUT)) {
++		/* TODO: Implement Security command property */
++		uint8_t buffer[] = { 0x1, 0x0 };
++
++		rc = gip_send_system_message(attachment, GIP_CMD_SECURITY, 0,
++			buffer, sizeof(buffer));
++		if (rc)
++			return rc;
++	}
++
++	usb_make_path(attachment->device->udev, attachment->phys,
++		sizeof(attachment->phys));
++	len = strlen(attachment->phys);
++	if (len < sizeof(attachment->phys) - 1)
++		snprintf(attachment->phys + len,
++			sizeof(attachment->phys) - len, "/input%d",
++			attachment->attachment_index);
++
++	rc = gip_init_input_device(attachment);
++	if (rc)
++		return rc;
++
++	return 0;
++}
++
++static void gip_fragment_timeout(struct work_struct *work)
++{
++	struct gip_attachment *attachment = container_of(to_delayed_work(work),
++		struct gip_attachment, in_fragment_timeout);
 +
 +	guard(mutex)(&attachment->lock);
-+	if (security->status != GIP_SECURITY_SENT)
++	if (!attachment->in_fragment_data)
 +		return;
 +
-+	memcpy(random, security->random_host, sizeof(security->random_host));
-+	memcpy(random + sizeof(security->random_host), security->random_client,
-+		sizeof(security->random_client));
++	gip_free_in_fragment(attachment);
++}
 +
-+	err = gip_security_compute_ecdh(security->pubkey_client2,
-+		message.pubkey, sizeof(message.pubkey), secret);
-+	if (err) {
-+		gip_err(security, "%s: compute ECDH failed: %d\n", __func__, err);
++static void gip_free_devices(struct gip_attachment *attachment)
++{
++	struct input_dev *input;
++
++	if (attachment->driver && attachment->driver->remove)
++		attachment->driver->remove(attachment);
++
++	rcu_read_lock();
++	input = rcu_dereference(attachment->input);
++	rcu_read_unlock();
++
++	rcu_assign_pointer(attachment->input, NULL);
++	synchronize_rcu();
++
++	if (input)
++		input_unregister_device(input);
++}
++
++static void gip_reset_metadata(struct gip_attachment *attachment)
++{
++	if (attachment->got_metadata != GIP_METADATA_GOT)
 +		return;
-+	}
 +
-+	gip_security_compute_prf("Master Secret", secret, sizeof(secret),
-+		random, sizeof(random), security->master_secret,
-+		sizeof(security->master_secret));
-+	memzero_explicit(secret, sizeof(secret));
-+
-+	err = gip_security_send_message(security, GIP_SECURITY2_CMD_HOST_PUBKEY,
-+		&message, sizeof(message));
-+	if (err)
-+		gip_err(security, "%s: send message failed: %d\n", __func__, err);
++	gip_free_devices(attachment);
++	gip_metadata_free(to_gip_device(attachment), &attachment->metadata);
++	attachment->got_metadata = GIP_METADATA_NONE;
 +}
 +
-+static int gip_security_send_hello(struct gip_security *security)
++static void gip_retry_metadata(struct work_struct *work)
 +{
-+	struct gip_security_host_hello message = {};
++	struct gip_attachment *attachment = container_of(to_delayed_work(work),
++		struct gip_attachment, metadata_next);
 +
-+	get_random_bytes(security->random_host, sizeof(security->random_host));
-+	memcpy(message.random, security->random_host, sizeof(message.random));
++	guard(mutex)(&attachment->lock);
++	if (attachment->got_metadata == GIP_METADATA_GOT)
++		return;
 +
-+	return gip_security_send_message(security, GIP_SECURITY_CMD_HOST_HELLO,
-+		&message, sizeof(message));
-+}
-+
-+static int gip_security_send_finish(struct gip_security *security,
-+	enum gip_security_command_handshake cmd)
-+{
-+	struct gip_security_host_finish message = {};
-+	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
-+
-+	gip_security_get_transcript(&security->transcript, transcript);
-+	gip_security_compute_prf("Host Finished", security->master_secret,
-+		sizeof(security->master_secret), transcript, sizeof(transcript),
-+		message.transcript, sizeof(message.transcript));
-+
-+	return gip_security_send_message(security, cmd, &message, sizeof(message));
-+}
-+
-+static int gip_security_handle_acknowledge(struct gip_security *security)
-+{
-+	switch (security->last_sent_command) {
-+	case GIP_SECURITY2_CMD_HOST_HELLO:
-+		return gip_security_send_request(security,
-+			GIP_SECURITY2_CMD_CLIENT_HELLO,
-+			sizeof(struct gip_security2_client_hello));
-+	case GIP_SECURITY2_CMD_HOST_PUBKEY:
-+		return gip_security_send_finish(security, GIP_SECURITY2_CMD_HOST_FINISH);
-+	case GIP_SECURITY2_CMD_HOST_FINISH:
-+		return gip_security_send_request(security,
-+			GIP_SECURITY2_CMD_CLIENT_FINISH,
-+			sizeof(struct gip_security2_client_finish));
-+	case GIP_SECURITY_CMD_HOST_HELLO:
-+		return gip_security_send_request(security,
-+			GIP_SECURITY_CMD_CLIENT_HELLO,
-+			sizeof(struct gip_security_client_hello));
-+	case GIP_SECURITY_CMD_HOST_SECRET:
-+		return gip_security_send_finish(security, GIP_SECURITY_CMD_HOST_FINISH);
-+	case GIP_SECURITY_CMD_HOST_FINISH:
-+		return gip_security_send_request(security,
-+			GIP_SECURITY_CMD_CLIENT_FINISH,
-+			sizeof(struct gip_security_client_finish));
-+	default:
-+		return -EPROTO;
++	if (attachment->metadata_retries < 4) {
++		attachment->metadata_retries++;
++		schedule_delayed_work(&attachment->metadata_next, HZ / 2);
++		gip_send_system_message(attachment, GIP_CMD_METADATA, 0, NULL, 0);
++	} else {
++		gip_info(attachment,
++			"Unable to obtain metadata, attempting to reset device\n");
++		gip_send_set_device_state(attachment, GIP_STATE_RESET);
 +	}
 +}
 +
-+static int gip_security_handle_hello(struct gip_security *security, const void *data, u32 len)
++static int gip_ensure_metadata(struct gip_attachment *attachment)
 +{
-+	const struct gip_security_client_hello *message = data;
++	if (attachment->got_metadata != GIP_METADATA_NONE)
++		return 0;
 +
-+	if (len < sizeof(*message))
-+		return -EINVAL;
-+
-+	memcpy(security->random_client, message->random, sizeof(message->random));
-+
-+	return gip_security_send_request(security, GIP_SECURITY_CMD_CLIENT_CERTIFICATE,
-+		GIP_SECURITY_CERTIFICATE_MAX_LEN);
++	attachment->got_metadata = GIP_METADATA_PENDING;
++	cancel_delayed_work(&attachment->metadata_next);
++	schedule_delayed_work(&attachment->metadata_next, HZ / 2);
++	attachment->metadata_retries = 0;
++	return gip_send_system_message(attachment, GIP_CMD_METADATA, 0, NULL, 0);
 +}
 +
-+static int gip_security_handle_certificate(struct gip_security *security, const void *data, u32 len)
++static void gip_reset_attachment(struct gip_attachment *attachment)
 +{
-+	/* ASN.1 SEQUENCE (len = 0x04 + 0x010a) */
-+	u8 asn1_seq[] = { 0x30, 0x82, 0x01, 0x0a };
-+	int i;
++	cancel_delayed_work(&attachment->metadata_next);
++	cancel_delayed_work(&attachment->in_fragment_timeout);
++	cancel_work(&attachment->rumble_work);
 +
-+	if (len > GIP_SECURITY_CERTIFICATE_MAX_LEN)
++	if (attachment->in_fragment_data)
++		gip_free_in_fragment(attachment);
++
++	gip_free_devices(attachment);
++}
++
++static int gip_handle_command_protocol_control(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	/* TODO */
++	gip_warn_ratelimited(attachment, "Unimplemented Protocol Control message\n");
++	return -EOPNOTSUPP;
++}
++
++static bool gip_handle_command_hello_device(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	const struct gip_hello_device *message;
++
++	if (num_bytes != sizeof(*message))
 +		return -EINVAL;
++
++	message = (const struct gip_hello_device *)bytes;
++
++	gip_dbg(attachment, "Device hello from %llx (%04x:%04x)\n",
++		le64_to_cpu(message->device_id),
++		le16_to_cpu(message->vendor_id),
++		le16_to_cpu(message->product_id));
++	gip_dbg(attachment, "Firmware version %d.%d.%d rev %d\n",
++		le16_to_cpu(message->firmware_major_version),
++		le16_to_cpu(message->firmware_minor_version),
++		le16_to_cpu(message->firmware_build_version),
++		le16_to_cpu(message->firmware_revision));
 +
 +	/*
-+	 * Poor way of extracting a pubkey from an X.509 certificate.
-+	 * The certificates issued by Microsoft do not comply with RFC 5280.
-+	 * They have an empty subject and no subjectAltName.
-+	 * This is explicitly forbidden by section 4.2.1.6 of the RFC.
-+	 * The kernel's ASN.1 parser will fail when using x509_cert_parse.
++	 * The GIP spec specifies that the host should reject the device if any of these are wrong.
++	 * I don't know if Windows or an Xbox do, however, so let's just log warnings instead.
 +	 */
-+	for (i = 0; i + sizeof(asn1_seq) <= len; i++) {
-+		if (memcmp(data + i, asn1_seq, sizeof(asn1_seq)))
++	if (message->rf_proto_major_version != 1 && message->rf_proto_minor_version != 0)
++		gip_warn(attachment, "Invalid RF protocol version %d.%d, expected 1.0\n",
++			message->rf_proto_major_version, message->rf_proto_minor_version);
++
++	if (message->security_major_version != 1 && message->security_minor_version != 0)
++		gip_warn(attachment, "Invalid security protocol version %d.%d, expected 1.0\n",
++			message->security_major_version, message->security_minor_version);
++
++	if (message->gip_major_version != 1 && message->gip_minor_version != 0)
++		gip_warn(attachment, "Invalid GIP version %d.%d, expected 1.0\n",
++			message->gip_major_version, message->gip_minor_version);
++
++	attachment->firmware_major_version = le16_to_cpu(message->firmware_major_version);
++	attachment->firmware_minor_version = le16_to_cpu(message->firmware_minor_version);
++	attachment->vendor_id = le16_to_cpu(message->vendor_id);
++	attachment->product_id = le16_to_cpu(message->product_id);
++	if (!attachment->uniq)
++		attachment->uniq = devm_kasprintf(to_gip_device(attachment),
++			GFP_KERNEL, "%llx", le64_to_cpu(message->device_id));
++
++	if (header->flags & GIP_FLAG_ATTACHMENT_MASK)
++		return gip_send_system_message(attachment, GIP_CMD_METADATA, 0, NULL, 0);
++	if (attachment->got_metadata == GIP_METADATA_FAKED)
++		attachment->got_metadata = GIP_METADATA_NONE;
++
++	gip_reset_attachment(attachment);
++	return gip_ensure_metadata(attachment);
++}
++
++static int gip_handle_command_status_device(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	int rc;
++	int i;
++
++	if (num_bytes < 1)
++		return -EINVAL;
++
++	attachment->status.base.battery_level = bytes[0] & 3;
++	attachment->status.base.battery_type = (bytes[0] >> 2) & 3;
++	attachment->status.base.charge = (bytes[0] >> 4) & 3;
++	attachment->status.base.power_level = (bytes[0] >> 6) & 3;
++
++	if (num_bytes >= 4) {
++		attachment->status.device_active = bytes[1] & 1;
++		if (bytes[1] & 2) {
++			/* Events present */
++			if (num_bytes < 5)
++				return -EINVAL;
++
++			attachment->status.num_events = bytes[4];
++			if (attachment->status.num_events > 5) {
++				gip_info(attachment,
++					"Device reported too many events, %d > 5\n",
++					attachment->status.num_events);
++				return -EINVAL;
++			}
++			if (5 + attachment->status.num_events * 10 > num_bytes)
++				return -EINVAL;
++
++			for (i = 0; i < attachment->status.num_events; i++) {
++				struct gip_status_event *event = &attachment->status.events[i];
++
++				event->event_type = get_unaligned_le16(&bytes[i * 10 + 5]);
++				event->fault_tag = get_unaligned_le32(&bytes[i * 10 + 7]);
++				event->fault_address = get_unaligned_le32(&bytes[i * 10 + 11]);
++
++				gip_info(attachment,
++					"Attachment %i event type %i, tag %i address %x\n",
++					attachment->attachment_index,
++					event->event_type,
++					event->fault_tag,
++					event->fault_address);
++			}
++		}
++	}
++
++	rc = gip_init_input_device(attachment);
++	if (rc)
++		return rc;
++
++	return gip_ensure_metadata(attachment);
++}
++
++static int gip_handle_command_metadata_respose(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	struct gip_metadata metadata = {0};
++	const guid_t *expected_guid = NULL;
++	bool found_expected_guid;
++	bool found_controller_guid = false;
++	int i, j, k;
++	int rc;
++
++	rc = gip_parse_metadata(to_gip_device(attachment), &metadata, bytes, num_bytes);
++	if (rc)
++		return rc;
++
++	gip_reset_metadata(attachment);
++
++	attachment->metadata = metadata;
++	attachment->got_metadata = GIP_METADATA_GOT;
++	attachment->features = 0;
++	cancel_delayed_work(&attachment->metadata_next);
++
++	for (i = 0; i < metadata.device.num_preferred_types; i++) {
++		const char *type = metadata.device.preferred_types[i];
++
++		gip_dbg(attachment, "Device preferred type: %s\n", type);
++	}
++	for (i = 0; i < metadata.device.num_preferred_types; i++) {
++		const char *type = metadata.device.preferred_types[i];
++
++		for (j = 0; base_drivers[j] && !expected_guid; j++) {
++			for (k = 0; base_drivers[j]->types[k] && !expected_guid; k++) {
++				if (strcmp(type, base_drivers[j]->types[k]) == 0) {
++					gip_dbg(attachment, "Matched type %s\n", type);
++					rc = gip_bind_driver(attachment, base_drivers[j]);
++					if (rc == 0)
++						expected_guid = &base_drivers[j]->guid;
++					else if (rc != -ENODEV)
++						return rc;
++				}
++			}
++		}
++		if (expected_guid)
++			break;
++
++		if (strcmp(type, "Windows.Xbox.Input.Chatpad") == 0)
++			break;
++
++		if (strcmp(type, "Windows.Xbox.Input.Headset") == 0) {
++			expected_guid = &guid_headset;
++			break;
++		}
++	}
++
++	found_expected_guid = !expected_guid;
++	for (i = 0; i < metadata.device.num_supported_interfaces; i++) {
++		const guid_t *guid = &metadata.device.supported_interfaces[i];
++
++		gip_dbg(attachment, "Supported interface: %pUl\n", guid);
++		if (expected_guid && guid_equal(expected_guid, guid))
++			found_expected_guid = true;
++
++		if (guid_equal(&guid_controller, guid)) {
++			found_controller_guid = true;
 +			continue;
++		}
++		if (guid_equal(&gip_driver_navigation.guid, guid)) {
++			attachment->features |= GIP_FEATURE_CONTROLLER;
++			continue;
++		}
++		if (guid_equal(&guid_dev_auth_pc_opt_out, guid)) {
++			attachment->features |= GIP_FEATURE_SECURITY_OPT_OUT;
++			continue;
++		}
++		if (guid_equal(&guid_console_function_map, guid)) {
++			attachment->features |= GIP_FEATURE_CONSOLE_FUNCTION_MAP;
++			continue;
++		}
++		if (guid_equal(&guid_console_function_map_overflow, guid)) {
++			attachment->features |= GIP_FEATURE_CONSOLE_FUNCTION_MAP_OVERFLOW;
++			continue;
++		}
++		if (guid_equal(&guid_elite_buttons, guid)) {
++			attachment->features |= GIP_FEATURE_ELITE_BUTTONS;
++			continue;
++		}
++		if (guid_equal(&guid_dynamic_latency_input, guid)) {
++			attachment->features |= GIP_FEATURE_DYNAMIC_LATENCY_INPUT;
++			continue;
++		}
++	}
 +
-+		if (i + GIP_SECURITY_PUBKEY_LEN > len)
++	for (i = 0; i < metadata.num_messages; i++) {
++		struct gip_message_metadata *message = &metadata.message_metadata[i];
++
++		if (message->type == GIP_CMD_DIRECT_MOTOR && message->length >= 9
++			&& (message->flags & GIP_MESSAGE_FLAG_DOWNSTREAM))
++			attachment->features |= GIP_FEATURE_MOTOR_CONTROL;
++	}
++
++	if (!found_expected_guid || !found_controller_guid)
++		gip_dbg(attachment, "Controller was missing expected GUID. "
++			"This controller probably won't work on an actual Xbox.\n");
++
++	gip_handle_quirks(attachment);
++
++	if ((attachment->features & GIP_FEATURE_GUIDE_COLOR)
++		&& !gip_supports_vendor_message(attachment,
++			GIP_CMD_GUIDE_COLOR, false))
++		attachment->features &= ~GIP_FEATURE_GUIDE_COLOR;
++
++	gip_dbg(attachment, "Attachment %i has features: %02x\n",
++		attachment->attachment_index, attachment->features);
++
++	return gip_send_init_sequence(attachment);
++}
++
++static int gip_handle_command_security(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	/* TODO: Needed for controllers that connect via dongles */
++	gip_warn_ratelimited(attachment, "Unimplemented Security message\n");
++	return -EOPNOTSUPP;
++}
++
++static int gip_handle_command_guide_button_status(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	struct input_dev *input;
++
++	if (num_bytes < 2)
++		return -EINVAL;
++
++	guard(rcu)();
++	input = rcu_dereference(attachment->input);
++	if (!input)
++		return -ENODEV;
++
++	if (bytes[1] == VK_LWIN) {
++		input_report_key(input, BTN_MODE, bytes[0] & 3);
++		input_sync(input);
++	}
++
++	return 0;
++}
++
++static int gip_handle_command_audio_control(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	/* TODO: Needed for audio */
++	gip_warn_ratelimited(attachment, "Unimplemented Audio Control message\n");
++	return -EOPNOTSUPP;
++}
++
++static int gip_handle_command_firmware(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	if (num_bytes < 1)
++		return -EINVAL;
++
++	if (bytes[0] == 1) {
++		uint16_t major, minor, build, rev;
++
++		if (num_bytes < 14) {
++			gip_dbg(attachment, "Discarding too-short firmware message\n");
++
 +			return -EINVAL;
++		}
++		major = get_unaligned_le16(&bytes[6]);
++		minor = get_unaligned_le16(&bytes[8]);
++		build = get_unaligned_le16(&bytes[10]);
++		rev = get_unaligned_le16(&bytes[12]);
 +
-+		memcpy(security->pubkey_client, data + i, GIP_SECURITY_PUBKEY_LEN);
-+		schedule_work(&security->work_exchange_rsa);
++		gip_dbg(attachment,
++			"Firmware version: %d.%d.%d rev %d\n", major, minor, build, rev);
++
++		attachment->firmware_major_version = major;
++		attachment->firmware_minor_version = minor;
++
++		if (attachment->vendor_id == GIP_VID_MICROSOFT
++			&& attachment->product_id == GIP_PID_XBOX_ELITE_2)
++			return gip_enable_elite_buttons(attachment);
 +
 +		return 0;
 +	}
 +
-+	return -EPROTO;
++	gip_warn_ratelimited(attachment, "Unimplemented Firmware message\n");
++
++	return -EOPNOTSUPP;
 +}
 +
-+static int gip_security_handle_finish(struct gip_security *security, const void *data, u32 len)
++static int gip_handle_command_hid_report(struct gip_attachment *attachment,
++	const struct gip_header *header, uint8_t *bytes, int num_bytes)
 +{
-+	const struct gip_security_client_finish *message = data;
-+	u8 transcript[GIP_SECURITY_TRANSCRIPT_LEN];
-+	u8 finished[GIP_SECURITY_TRANSCRIPT_LEN];
++	gip_warn_ratelimited(attachment, "Unimplemented HID report message\n");
 +
-+	if (len < sizeof(*message))
++	return -EOPNOTSUPP;
++}
++
++static int gip_handle_command_extended(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	if (num_bytes < 2)
 +		return -EINVAL;
 +
-+	gip_security_get_transcript(&security->transcript, transcript);
-+	gip_security_compute_prf("Device Finished",
-+		security->master_secret, sizeof(security->master_secret),
-+		transcript, sizeof(transcript), finished, sizeof(finished));
-+
-+	if (memcmp(message->transcript, finished, sizeof(finished))) {
-+		gip_err(security, "%s: transcript mismatch\n", __func__);
++	if (bytes[1] != GIP_EXTENDED_STATUS_OK) {
++		gip_dbg(attachment,
++			"Extended message type %02x failed with status %i\n",
++			bytes[0], bytes[1]);
 +		return -EPROTO;
 +	}
 +
-+	schedule_work(&security->work_complete);
-+
-+	return 0;
-+}
-+
-+static void gip_security_exchange_rsa(struct work_struct *work)
-+{
-+	struct gip_security *security = container_of(work, typeof(*security), work_exchange_rsa);
-+	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
-+	struct gip_security_host_secret message = {};
-+	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
-+	int err;
-+
-+	guard(mutex)(&attachment->lock);
-+	if (security->status != GIP_SECURITY_SENT)
-+		return;
-+
-+	memcpy(random, security->random_host, sizeof(security->random_host));
-+	memcpy(random + sizeof(security->random_host), security->random_client,
-+		sizeof(security->random_client));
-+
-+	/* get random premaster secret */
-+	get_random_bytes(security->pms, sizeof(security->pms));
-+
-+	err = gip_security_encrypt_rsa(security->pubkey_client,
-+		sizeof(security->pubkey_client), security->pms,
-+		sizeof(security->pms), message.encrypted_pms,
-+		sizeof(message.encrypted_pms));
-+	if (err) {
-+		gip_err(security, "%s: encrypt RSA failed: %d\n", __func__, err);
-+		return;
-+	}
-+
-+	gip_security_compute_prf("Master Secret", security->pms,
-+		sizeof(security->pms), random, sizeof(random),
-+		security->master_secret, sizeof(security->master_secret));
-+
-+	err = gip_security_send_message(security, GIP_SECURITY_CMD_HOST_SECRET,
-+		&message, sizeof(message));
-+	if (err)
-+		gip_err(security, "%s: send message failed: %d\n", __func__, err);
-+}
-+
-+static void gip_security_complete_handshake(struct work_struct *work)
-+{
-+	struct gip_security *security = container_of(work, typeof(*security), work_complete);
-+	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
-+	struct gip_security_header_control hdr = {
-+		.context = GIP_SECURITY_CTX_CONTROL,
-+		.control = GIP_SECURITY_CTRL_COMPLETE,
-+	};
-+	u8 random[GIP_SECURITY_RANDOM_LEN * 2];
-+	u8 key[GIP_SECURITY_SESSION_KEY_LEN];
-+	int err;
-+
-+	guard(mutex)(&attachment->lock);
-+	if (security->status != GIP_SECURITY_SENT)
-+		return;
-+
-+	memcpy(random, security->random_host, sizeof(security->random_host));
-+	memcpy(random + sizeof(security->random_host), security->random_client,
-+		sizeof(security->random_client));
-+
-+	gip_security_compute_prf(
-+		"EXPORTER DAWN data channel session key for controller",
-+		security->master_secret, sizeof(security->master_secret),
-+		random, sizeof(random), key, sizeof(key));
-+
-+	gip_dbg(security, "%s: key=%*phD\n", __func__, (int)sizeof(key), key);
-+
-+	err = gip_send_system_message(attachment, GIP_CMD_SECURITY,
-+		0, &hdr, sizeof(hdr));
-+	if (err) {
-+		gip_err(security, "%s: send complete failed: %d\n", __func__, err);
-+		return;
-+	}
-+
-+	security->status = GIP_SECURITY_DONE;
-+}
-+
-+static int gip_security_dispatch_message(struct gip_security *security,
-+	enum gip_security_command_handshake cmd, const void *data, u32 len)
-+{
-+	switch (cmd) {
-+	case GIP_SECURITY2_CMD_CLIENT_HELLO:
-+		return gip_security2_handle_hello(security, data, len);
-+	case GIP_SECURITY2_CMD_CLIENT_CERTIFICATE:
-+		return gip_security2_handle_certificate(security, data, len);
-+	case GIP_SECURITY2_CMD_CLIENT_PUBKEY:
-+		return gip_security2_handle_pubkey(security, data, len);
-+	case GIP_SECURITY2_CMD_CLIENT_FINISH:
-+		return gip_security_handle_finish(security, data, len);
-+	case GIP_SECURITY_CMD_CLIENT_HELLO:
-+		return gip_security_handle_hello(security, data, len);
-+	case GIP_SECURITY_CMD_CLIENT_CERTIFICATE:
-+		return gip_security_handle_certificate(security, data, len);
-+	case GIP_SECURITY_CMD_CLIENT_FINISH:
-+		return gip_security_handle_finish(security, data, len);
++	switch (bytes[0]) {
++	case GIP_EXTCMD_GET_SERIAL_NUMBER:
++		memcpy(attachment->serial, &bytes[2],
++			min(sizeof(attachment->serial), (size_t)(num_bytes - 2)));
++		break;
 +	default:
-+		return -EPROTO;
++		/* TODO */
++		gip_dbg_ratelimited(attachment, "Unimplemented extended message type %02x\n",
++			bytes[0]);
++		return -EOPNOTSUPP;
 +	}
-+}
-+
-+int gip_security_handle_message(struct gip_security *security, const void *bytes, int num_bytes)
-+{
-+	const struct gip_security_header_handshake *handshake = bytes;
-+	const struct gip_security_header_full *hdr;
-+	int err;
-+
-+	if (num_bytes < sizeof(*handshake))
-+		return -EINVAL;
-+
-+	if (security->status != GIP_SECURITY_SENT) {
-+		gip_err(security, "%s: security message received when none expected: 0x%02x\n",
-+			__func__, handshake->command);
-+		return -EPROTO;
-+	}
-+
-+	if (handshake->error)
-+		return -EPROTO;
-+
-+	if (handshake->options & GIP_SECURITY_OPT_ACKNOWLEDGE) {
-+		if (handshake->command == 0x01)
-+			return gip_security_handle_acknowledge(security);
-+
-+		gip_err(security, "%s: handshake failed: 0x%02x\n",
-+			__func__, handshake->command);
-+		return -EPROTO;
-+	}
-+
-+	if (num_bytes < sizeof(*hdr))
-+		return -EINVAL;
-+
-+	hdr = bytes;
-+	/* client uses v2 */
-+	if (num_bytes < sizeof(*hdr) || handshake->command != hdr->data.command) {
-+		/* reset transcript hash and restart handshake */
-+		gip_dbg(security, "%s: protocol upgrade\n", __func__);
-+		sha256_init(&security->transcript);
-+		return gip_security2_send_hello(security);
-+	}
-+
-+	err = gip_security_dispatch_message(security, hdr->data.command,
-+		bytes + sizeof(*hdr), num_bytes - sizeof(*hdr));
-+	if (err)
-+		return err;
-+
-+	sha256_update(&security->transcript, bytes + sizeof(hdr->handshake),
-+		num_bytes - sizeof(hdr->handshake));
 +
 +	return 0;
 +}
 +
-+void gip_security_release(struct gip_security *security)
++static int gip_handle_elite_buttons(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
 +{
-+	if (security->status < GIP_SECURITY_SENT)
++	bool grip[4] = { 0, 0, 0, 0 };
++	int profile = -1;
++
++	if (attachment->xbe_format == GIP_BTN_FMT_XBE1
++		&& num_bytes > GIP_BTN_OFFSET_XBE1) {
++		profile = bytes[GIP_BTN_OFFSET_XBE1] >> 4;
++		if (profile) {
++			grip[0] = bytes[GIP_BTN_OFFSET_XBE1] & BIT(0);
++			grip[1] = bytes[GIP_BTN_OFFSET_XBE1] & BIT(1);
++			grip[2] = bytes[GIP_BTN_OFFSET_XBE1] & BIT(2);
++			grip[3] = bytes[GIP_BTN_OFFSET_XBE1] & BIT(3);
++		}
++	} else if ((attachment->xbe_format == GIP_BTN_FMT_XBE2_4
++		|| attachment->xbe_format == GIP_BTN_FMT_XBE2_5)
++		&& num_bytes > GIP_BTN_OFFSET_XBE2) {
++		int profile_offset;
++
++		if (attachment->xbe_format == GIP_BTN_FMT_XBE2_4)
++			profile_offset = 15;
++		else
++			profile_offset = 20;
++
++		if (num_bytes > profile_offset)
++			profile = bytes[profile_offset] & 3;
++		else
++			profile = 0;
++
++		if (!profile) {
++			grip[0] = bytes[GIP_BTN_OFFSET_XBE2] & BIT(2);
++			grip[1] = bytes[GIP_BTN_OFFSET_XBE2] & BIT(0);
++			grip[2] = bytes[GIP_BTN_OFFSET_XBE2] & BIT(3);
++			grip[3] = bytes[GIP_BTN_OFFSET_XBE2] & BIT(1);
++		}
++	}
++	if (profile >= 0) {
++		input_report_key(input, BTN_GRIPL, grip[0]);
++		input_report_key(input, BTN_GRIPR, grip[1]);
++		input_report_key(input, BTN_GRIPL2, grip[2]);
++		input_report_key(input, BTN_GRIPR2, grip[3]);
++		input_report_abs(input, ABS_PROFILE, profile);
++	}
++	return 0;
++}
++
++static int gip_handle_console_map(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
++{
++	int function_map_offset = -1;
++
++	if (attachment->features & GIP_FEATURE_DYNAMIC_LATENCY_INPUT) {
++		/* The dynamic latency input bytes are after the console function map */
++		if (num_bytes >= 26)
++			function_map_offset = num_bytes - 26;
++	} else {
++		function_map_offset = num_bytes - 18;
++	}
++	if (function_map_offset >= 0) {
++		input_report_key(input, KEY_RECORD,
++			bytes[function_map_offset] & BIT(0));
++	}
++	return 0;
++}
++
++static int gip_handle_ll_input_report(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	struct input_dev *input;
++	int rc = 0;
++
++	guard(rcu)();
++	input = rcu_dereference(attachment->input);
++	if (!input)
++		return -ENODEV;
++
++	if (attachment->device_state != GIP_STATE_START) {
++		gip_dbg(attachment, "Discarding early input report\n");
++		attachment->device_state = GIP_STATE_START;
++		return 0;
++	}
++
++	if (attachment->driver && attachment->driver->handle_input_report) {
++		rc = attachment->driver->handle_input_report(attachment, input, bytes, num_bytes);
++		if (rc < 0)
++			return rc;
++	}
++
++	if (attachment->features & GIP_FEATURE_ELITE_BUTTONS) {
++		rc = gip_handle_elite_buttons(attachment, input, bytes, num_bytes);
++		if (rc < 0)
++			goto exit;
++	}
++
++	if (num_bytes >= 32 && (attachment->features & GIP_FEATURE_CONSOLE_FUNCTION_MAP))
++		rc = gip_handle_console_map(attachment, input, bytes, num_bytes);
++
++exit:
++	input_sync(input);
++
++	return rc;
++}
++
++static int gip_handle_ll_overflow_input_report(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	struct input_dev *input;
++	int rc = 0;
++
++	guard(rcu)();
++	input = rcu_dereference(attachment->input);
++	if (!input)
++		return -ENODEV;
++
++	if (attachment->device_state != GIP_STATE_START) {
++		gip_dbg(attachment, "Discarding early input report\n");
++		attachment->device_state = GIP_STATE_START;
++		return 0;
++	}
++
++	if (attachment->driver && attachment->driver->handle_overflow_input_report) {
++		rc = attachment->driver->handle_overflow_input_report(attachment,
++			input, bytes, num_bytes);
++		if (rc < 0)
++			return rc;
++	}
++
++	if (attachment->features & GIP_FEATURE_CONSOLE_FUNCTION_MAP_OVERFLOW)
++		rc = gip_handle_console_map(attachment, input, bytes, num_bytes);
++
++	input_sync(input);
++
++	return rc;
++}
++
++static int gip_handle_audio_data(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	/* TODO: Needed for audio support */
++	gip_dbg_ratelimited(attachment, "Unimplemented Audio Data message\n");
++	return -EOPNOTSUPP;
++}
++
++static int gip_handle_system_message(struct gip_attachment *attachment,
++	const struct gip_header *header, uint8_t *bytes, int num_bytes)
++{
++	if (!gip_supports_system_message(attachment, header->message_type, true)) {
++		gip_warn(attachment,
++			"Received claimed-unsupported system message type %02x\n",
++			header->message_type);
++		return -EPROTO;
++	}
++	switch (header->message_type) {
++	case GIP_CMD_PROTO_CONTROL:
++		return gip_handle_command_protocol_control(attachment, header,
++			bytes, num_bytes);
++	case GIP_CMD_HELLO_DEVICE:
++		return gip_handle_command_hello_device(attachment, header,
++			bytes, num_bytes);
++	case GIP_CMD_STATUS_DEVICE:
++		return gip_handle_command_status_device(attachment, header,
++			bytes, num_bytes);
++	case GIP_CMD_METADATA:
++		return gip_handle_command_metadata_respose(attachment, header,
++			bytes, num_bytes);
++	case GIP_CMD_SECURITY:
++		return gip_handle_command_security(attachment, header, bytes,
++			num_bytes);
++	case GIP_CMD_GUIDE_BUTTON:
++		return gip_handle_command_guide_button_status(attachment,
++			header, bytes, num_bytes);
++	case GIP_CMD_AUDIO_CONTROL:
++		return gip_handle_command_audio_control(attachment, header,
++			bytes, num_bytes);
++	case GIP_CMD_FIRMWARE:
++		return gip_handle_command_firmware(attachment, header, bytes,
++			num_bytes);
++	case GIP_CMD_HID_REPORT:
++		return gip_handle_command_hid_report(attachment, header,
++			bytes, num_bytes);
++	case GIP_CMD_EXTENDED:
++		return gip_handle_command_extended(attachment, header, bytes,
++			num_bytes);
++	case GIP_AUDIO_DATA:
++		return gip_handle_audio_data(attachment, header, bytes,
++			num_bytes);
++	default:
++		gip_warn(attachment,
++			"Received unknown system message type %02x\n",
++			header->message_type);
++		return -EPROTO;
++	}
++}
++
++static struct gip_attachment *gip_ensure_attachment(struct gip_device *device,
++	uint8_t attachment_index)
++{
++	struct gip_attachment *attachment;
++
++	guard(mutex)(&device->attachment_lock);
++	attachment = device->attachments[attachment_index];
++	if (!attachment) {
++		attachment = devm_kzalloc(to_gip_device(device), sizeof(*attachment), GFP_KERNEL);
++		if (!attachment)
++			return ERR_PTR(-ENOMEM);
++
++		attachment->attachment_index = attachment_index;
++		attachment->device = device;
++		attachment->in_fragment_message = -1;
++
++		if (attachment_index == 0) {
++			attachment->vendor_id = device->udev->descriptor.idVendor;
++			attachment->product_id = device->udev->descriptor.idProduct;
++		}
++
++		mutex_init(&attachment->lock);
++		guard(mutex)(&attachment->lock);
++		device->attachments[attachment_index] = attachment;
++		INIT_DELAYED_WORK(&attachment->in_fragment_timeout, gip_fragment_timeout);
++		INIT_DELAYED_WORK(&attachment->metadata_next, gip_retry_metadata);
++#ifdef CONFIG_JOYSTICK_XBOX_GIP_FF
++		INIT_WORK(&attachment->rumble_work, gip_rumble_work);
++#endif
++
++		attachment->metadata.device.in_system_messages[0] =
++			GIP_DEFAULT_IN_SYSTEM_MESSAGES;
++		attachment->metadata.device.out_system_messages[0] =
++			GIP_DEFAULT_OUT_SYSTEM_MESSAGES;
++		if (attachment->attachment_index == 0) {
++			/* Some decent default settings */
++			attachment->features |= GIP_FEATURE_CONTROLLER;
++			attachment->metadata.device.in_system_messages[0] |=
++				BIT(GIP_CMD_GUIDE_BUTTON);
++		}
++
++		gip_handle_quirks(attachment);
++		if (attachment->quirks & GIP_QUIRK_NO_HELLO)
++			gip_ensure_metadata(attachment);
++
++		attachment->got_metadata = GIP_METADATA_FAKED;
++	}
++	return attachment;
++}
++
++static int gip_handle_message(struct gip_attachment *attachment,
++	const struct gip_header *header, uint8_t *bytes, int num_bytes)
++{
++	if (header->flags & GIP_FLAG_SYSTEM)
++		return gip_handle_system_message(attachment, header, bytes,
++			num_bytes);
++
++	if (header->message_type < MAX_GIP_CMD && attachment->vendor_handlers[header->message_type])
++		return attachment->vendor_handlers[header->message_type](attachment,
++			header, bytes, num_bytes);
++
++	switch (header->message_type) {
++	case GIP_LL_INPUT_REPORT:
++		return gip_handle_ll_input_report(attachment, header, bytes,
++			num_bytes);
++	case GIP_LL_OVERFLOW_INPUT_REPORT:
++		return gip_handle_ll_overflow_input_report(attachment, header,
++			bytes, num_bytes);
++	}
++	gip_info(attachment,
++		"Received unknown vendor message type %02x\n",
++		header->message_type);
++	return -EOPNOTSUPP;
++}
++
++static int gip_receive_fragment(struct gip_attachment *attachment,
++	const struct gip_header *header, int offset,
++	uint64_t *fragment_offset, uint16_t *bytes_remaining, uint8_t *bytes,
++	int num_bytes)
++{
++	int rc = 0;
++
++	cancel_delayed_work_sync(&attachment->in_fragment_timeout);
++	if (header->flags & GIP_FLAG_INIT_FRAG) {
++		uint64_t total_length;
++
++		guard(mutex)(&attachment->lock);
++		if (attachment->in_fragment_message >= 0)
++			/*
++			 * Reset fragment buffer if we get a new initial
++			 * fragment before finishing the last message.
++			 * TODO: Is this the correct behavior?
++			 */
++			gip_free_in_fragment(attachment);
++		offset += gip_decode_length(&total_length, &bytes[offset],
++			num_bytes - offset);
++		if (total_length > MAX_MESSAGE_LENGTH)
++			return -EINVAL;
++
++		if (header->length > num_bytes - offset) {
++			gip_warn(attachment,
++				"Received fragment that claims to be %llu bytes, expected %i\n",
++				header->length, num_bytes - offset);
++			return -EPROTO;
++		}
++		if (header->length > total_length) {
++			gip_warn(attachment,
++				"Received too long fragment, %llu bytes, exceeds %lld\n",
++				header->length, total_length);
++			return -EINVAL;
++		}
++		attachment->in_fragment_data = kzalloc(total_length, GFP_KERNEL);
++		if (!attachment->in_fragment_data)
++			return -ENOMEM;
++		attachment->in_total_length = total_length;
++		attachment->in_fragment_message = header->message_type;
++		memcpy(attachment->in_fragment_data, &bytes[offset],
++			header->length);
++		*fragment_offset = header->length;
++		attachment->in_fragment_offset = header->length;
++		*bytes_remaining = attachment->in_total_length - header->length;
++		if (header->flags & GIP_FLAG_ACME)
++			gip_acknowledge(attachment, header, *fragment_offset, *bytes_remaining);
++	} else {
++		guard(mutex)(&attachment->lock);
++		if (attachment->in_fragment_message < 0) {
++			gip_warn_ratelimited(attachment,
++				"Received unexpected fragment of message type %02x\n",
++				header->message_type);
++			return -EPROTO;
++		}
++		if (header->message_type != attachment->in_fragment_message) {
++			gip_warn_ratelimited(attachment,
++				"Received out of sequence message type %02x, expected %02x\n",
++				header->message_type, attachment->in_fragment_message);
++			gip_fragment_failed(attachment, header);
++			return -EPROTO;
++		}
++
++		offset += gip_decode_length(fragment_offset, &bytes[offset],
++			num_bytes - offset);
++
++		if (header->length > num_bytes - offset) {
++			gip_warn(attachment,
++				"Received fragment that claims to be %llu bytes, expected %i\n",
++				header->length, num_bytes - offset);
++			return -EPROTO;
++		}
++		if (*fragment_offset != attachment->in_fragment_offset) {
++			/*
++			 * While this is theoretically always an issue, for
++			 * whatever reason a bunch of controllers will send the
++			 * wrong final fragment offset. Presumably, that means
++			 * the official driver won't reject it, so I guess we
++			 * shouldn't either. Feels bad.
++			 */
++			if (header->length && *fragment_offset != attachment->in_total_length) {
++				gip_warn_ratelimited(attachment,
++					"Received out of sequence fragment: claimed %llu, expected %d\n",
++					*fragment_offset, attachment->in_fragment_offset);
++				gip_acknowledge(attachment, header,
++					attachment->in_fragment_offset,
++					attachment->in_total_length - attachment->in_fragment_offset);
++				return -EPROTO;
++			}
++			gip_dbg_ratelimited(attachment,
++				"Received erroneous final fragment offset, proceeding anyway\n");
++			*bytes_remaining = 0;
++		}
++		if (*fragment_offset + header->length > attachment->in_total_length) {
++			gip_warn(attachment,
++				"Received too long fragment, %llu exceeds %d\n",
++				*fragment_offset + header->length, attachment->in_total_length);
++			gip_fragment_failed(attachment, header);
++			return -EINVAL;
++		} else {
++			*bytes_remaining = attachment->in_total_length -
++				(*fragment_offset + header->length);
++		}
++		if (header->length != 0)
++			memcpy(&attachment->in_fragment_data[*fragment_offset],
++				&bytes[offset], header->length);
++		*fragment_offset += header->length;
++		attachment->in_fragment_offset = *fragment_offset;
++
++		if (header->flags & GIP_FLAG_ACME)
++			gip_acknowledge(attachment, header, *fragment_offset, *bytes_remaining);
++		if (header->length == 0 && !*bytes_remaining) {
++			rc = gip_handle_message(attachment, header,
++				attachment->in_fragment_data,
++				attachment->in_total_length);
++			gip_free_in_fragment(attachment);
++		}
++	}
++	schedule_delayed_work(&attachment->in_fragment_timeout, HZ);
++
++	return rc;
++}
++
++static int gip_receive_message(struct gip_device *device, uint8_t *bytes,
++	int num_bytes)
++{
++	struct gip_header header;
++	int offset = 3;
++	int rc = 0;
++	uint64_t fragment_offset = 0;
++	uint16_t bytes_remaining = 0;
++	bool is_fragment;
++	uint8_t attachment_index;
++	struct gip_attachment *attachment;
++
++	if (num_bytes < 5)
++		return -EINVAL;
++
++	header.message_type = bytes[0];
++	header.flags = bytes[1];
++	header.sequence_id = bytes[2];
++	offset += gip_decode_length(&header.length, &bytes[offset], num_bytes - offset);
++
++	is_fragment = header.flags & GIP_FLAG_FRAGMENT;
++	attachment_index = header.flags & GIP_FLAG_ATTACHMENT_MASK;
++	attachment = gip_ensure_attachment(device, attachment_index);
++	if (IS_ERR(attachment))
++		return PTR_ERR(attachment);
++
++	print_hex_dump_debug(KBUILD_MODNAME ": Received message: ",
++		DUMP_PREFIX_OFFSET, 16, 1, bytes, num_bytes, false);
++
++	/* Handle coalescing fragmented messages */
++	if (is_fragment) {
++		rc = gip_receive_fragment(attachment, &header, offset,
++			&fragment_offset, &bytes_remaining, bytes, num_bytes);
++	} else if (header.length + offset > num_bytes) {
++		gip_warn(device,
++			"Received message with erroneous length (claimed %llu, actual %d), discarding\n",
++			header.length + offset, num_bytes);
++		rc = -EPROTO;
++	} else {
++		guard(mutex)(&attachment->lock);
++		num_bytes -= offset;
++		bytes += offset;
++		fragment_offset = header.length;
++		if (header.flags & GIP_FLAG_ACME)
++			gip_acknowledge(attachment, &header, fragment_offset, bytes_remaining);
++		rc = gip_handle_message(attachment, &header, bytes, num_bytes);
++	}
++
++	return rc;
++}
++
++static void gip_receive_work(struct work_struct *work)
++{
++	struct gip_device *device = container_of(work, struct gip_device,
++		receive_message);
++	unsigned long flags;
++
++	spin_lock_irqsave(&device->message_lock, flags);
++	while (device->pending_in_messages) {
++		struct gip_raw_message *message = &device->in_queue[device->next_in_message];
++
++		spin_unlock_irqrestore(&device->message_lock, flags);
++
++		gip_receive_message(device, message->bytes, message->num_bytes);
++
++		spin_lock_irqsave(&device->message_lock, flags);
++		device->next_in_message = (device->next_in_message + 1) % MAX_IN_MESSAGES;
++		device->pending_in_messages--;
++	}
++	spin_unlock_irqrestore(&device->message_lock, flags);
++}
++
++static void gip_urb_in(struct urb *urb)
++{
++	struct gip_interface *intf = urb->context;
++	struct gip_device *gip = intf->device;
++	struct device *dev = &intf->intf->dev;
++	int status = urb->status;
++	int message_id;
++	struct gip_raw_message *message;
++	unsigned long flags;
++
++	switch (status) {
++	case 0:
++		/* success */
++		break;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		/* this urb is terminated, clean up */
++		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
++			__func__, status);
++		return;
++	default:
++		dev_dbg(dev, "%s - urb has status of: %d\n",
++			__func__, status);
++		goto exit;
++	}
++	if (intf->isoc_messages) {
++		/* TODO: Needed for audio support */
++		gip_warn(gip, "Unimplemented isochronous message input\n");
++		goto exit;
++	}
++
++	spin_lock_irqsave(&gip->message_lock, flags);
++	if (gip->pending_in_messages >= MAX_IN_MESSAGES) {
++		gip_err(gip, "Input queue is full; dropping message\n");
++	} else {
++		message_id = (gip->next_in_message + gip->pending_in_messages) % MAX_IN_MESSAGES;
++		message = &gip->in_queue[message_id];
++		gip->pending_in_messages++;
++		message->num_bytes = umin(urb->actual_length, sizeof(message->bytes));
++		memcpy(message->bytes, intf->in_data, message->num_bytes);
++	}
++	spin_unlock_irqrestore(&gip->message_lock, flags);
++	schedule_work(&gip->receive_message);
++
++exit:
++	status = usb_submit_urb(urb, GFP_ATOMIC);
++	if (status)
++		dev_err(dev, "%s - usb_submit_urb failed with result %d\n",
++			__func__, status);
++}
++
++static void gip_urb_out(struct urb *urb)
++{
++	struct gip_interface *intf = urb->context;
++	struct device *dev = &intf->intf->dev;
++	int status = urb->status;
++
++	switch (status) {
++	case 0:
++		/* success */
++		break;
++
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++		/* this urb is terminated, clean up */
++		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
++			__func__, status);
++		break;
++
++	default:
++		dev_dbg(dev, "%s - nonzero urb status received: %d\n",
++			__func__, status);
++		break;
++	}
++}
++
++static int gip_init_input(struct gip_interface *intf,
++	struct usb_endpoint_descriptor *ep_in)
++{
++	int error;
++	struct usb_device *udev = interface_to_usbdev(intf->intf);
++
++	intf->urb_in = usb_alloc_urb(intf->isoc_messages, GFP_KERNEL);
++	if (!intf->urb_in)
++		return -ENOMEM;
++
++	intf->in_data = usb_alloc_coherent(udev, intf->mtu, GFP_KERNEL,
++		&intf->urb_in->transfer_dma);
++
++	if (!intf->in_data) {
++		error = -ENOMEM;
++		goto err_free_urb;
++	}
++
++	usb_fill_int_urb(intf->urb_in, udev,
++		usb_rcvintpipe(udev, ep_in->bEndpointAddress),
++		intf->in_data, intf->mtu, gip_urb_in, intf,
++		ep_in->bInterval);
++	intf->urb_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++	if (intf->isoc_messages)
++		intf->urb_in->transfer_flags |= URB_ISO_ASAP;
++
++	return 0;
++
++err_free_urb:
++	usb_free_urb(intf->urb_in);
++	intf->urb_in = NULL;
++
++	return error;
++}
++
++static int gip_init_output(struct gip_interface *intf,
++	struct usb_endpoint_descriptor *ep_out)
++{
++	int error;
++	struct usb_device *udev = interface_to_usbdev(intf->intf);
++	int i;
++
++	if (usb_ifnum_to_if(udev, GIP_WIRED_INTF_AUDIO)) {
++		/*
++		 * Explicitly disable the audio interface. This is needed
++		 * for some controllers, such as the PowerA Enhanced Wired
++		 * Controller for Series X|S (0x20d6:0x200e) to report the
++		 * guide button.
++		 */
++		error = usb_set_interface(udev, GIP_WIRED_INTF_AUDIO, 0);
++		if (error)
++			gip_warn(intf,
++				"unable to disable audio interface: %d\n",
++				error);
++	}
++
++	init_usb_anchor(&intf->out_anchor);
++
++	for (i = 0; i < MAX_OUT_MESSAGES; i++) {
++		intf->out_queue[i].urb = usb_alloc_urb(intf->isoc_messages, GFP_KERNEL);
++		if (!intf->out_queue[i].urb) {
++			error = -ENOMEM;
++			goto err_free_urbs;
++		}
++
++		intf->out_queue[i].data = usb_alloc_coherent(udev, intf->mtu, GFP_KERNEL,
++			&intf->out_queue[i].urb->transfer_dma);
++
++		if (!intf->out_queue[i].data) {
++			error = -ENOMEM;
++			goto err_free_urbs;
++		}
++
++		usb_fill_int_urb(intf->out_queue[i].urb, udev,
++			usb_sndintpipe(udev, ep_out->bEndpointAddress),
++			intf->out_queue[i].data, intf->mtu, gip_urb_out, intf,
++			ep_out->bInterval);
++		intf->out_queue[i].urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++		if (intf->isoc_messages)
++			intf->out_queue[i].urb->transfer_flags |= URB_ISO_ASAP;
++	}
++
++	return 0;
++
++err_free_urbs:
++	for (i = 0; i < MAX_OUT_MESSAGES; i++) {
++		if (intf->out_queue[i].data)
++			usb_free_coherent(udev, intf->mtu, intf->out_queue[i].data,
++				intf->out_queue[i].urb->transfer_dma);
++		usb_free_urb(intf->out_queue[i].urb);
++		intf->out_queue[i].urb = NULL;
++	}
++	return error;
++}
++
++static void gip_deinit_output(struct gip_interface *intf)
++{
++	int i;
++
++	for (i = 0; i < MAX_OUT_MESSAGES; i++) {
++		if (!intf->out_queue[i].urb)
++			continue;
++		usb_free_coherent(interface_to_usbdev(intf->intf), intf->mtu,
++			intf->out_queue[i].data, intf->out_queue[i].urb->transfer_dma);
++		usb_free_urb(intf->out_queue[i].urb);
++		intf->out_queue[i].data = NULL;
++		intf->out_queue[i].urb = NULL;
++	}
++}
++
++static void gip_deinit_input(struct gip_interface *intf)
++{
++	usb_kill_urb(intf->urb_in);
++	usb_free_coherent(interface_to_usbdev(intf->intf), intf->mtu,
++		intf->in_data, intf->urb_in->transfer_dma);
++	usb_free_urb(intf->urb_in);
++	intf->urb_in = NULL;
++}
++
++static int gip_interface_init(struct gip_interface *intf)
++{
++	struct usb_endpoint_descriptor *ep_in = NULL;
++	struct usb_endpoint_descriptor *ep_out = NULL;
++	int error = usb_find_common_endpoints(intf->intf->cur_altsetting,
++		NULL, NULL, &ep_in, &ep_out);
++
++	if (error)
++		return error;
++
++	if (!ep_in || !ep_out)
++		return -ENODEV;
++
++	error = gip_init_input(intf, ep_in);
++	if (error)
++		return error;
++
++	error = gip_init_output(intf, ep_out);
++	if (error)
++		goto err_free_input;
++
++	if (usb_submit_urb(intf->urb_in, GFP_KERNEL)) {
++		error = -EIO;
++		goto err_free_output;
++	}
++
++	return 0;
++
++err_free_output:
++	gip_deinit_output(intf);
++err_free_input:
++	gip_deinit_input(intf);
++	return error;
++}
++
++static int gip_probe(struct usb_interface *intf, const struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct gip_device *gip = NULL;
++	struct gip_attachment *attachment;
++	int rc;
++
++	if (intf->cur_altsetting->desc.bInterfaceNumber != GIP_WIRED_INTF_DATA) {
++		/*
++		 * The Xbox One controller lists three interfaces all with the
++		 * same interface class, subclass and protocol. Differentiate by
++		 * interface number.
++		 */
++		return 0;
++	}
++
++	gip = devm_kzalloc(&intf->dev, sizeof(*gip), GFP_KERNEL);
++	if (!gip)
++		return -ENOMEM;
++
++	gip->udev = udev;
++	gip->data.device = gip;
++	gip->data.intf = intf;
++	gip->data.mtu = BASE_GIP_MTU;
++	gip->audio.device = gip;
++	gip->audio.mtu = MAX_GIP_MTU;
++	gip->audio.isoc_messages = MAX_AUDIO_MESSAGES;
++
++	INIT_WORK(&gip->receive_message, gip_receive_work);
++	spin_lock_init(&gip->message_lock);
++	mutex_init(&gip->attachment_lock);
++
++	rc = gip_interface_init(&gip->data);
++	if (rc)
++		goto err_cleanup;
++
++	/* Pre-create the first attachment, as it should always exist */
++	attachment = gip_ensure_attachment(gip, 0);
++	if (IS_ERR(attachment)) {
++		gip_deinit_input(&gip->data);
++		gip_deinit_output(&gip->data);
++		if (gip->audio.intf) {
++			gip_deinit_input(&gip->audio);
++			gip_deinit_output(&gip->audio);
++		}
++		rc = PTR_ERR(attachment);
++		goto err_cleanup;
++	}
++
++	/* Don't init audio interface -- we aren't using it yet */
++
++	usb_set_intfdata(intf, gip);
++	return 0;
++
++err_cleanup:
++	devm_kfree(to_gip_device(gip), gip);
++
++	return rc;
++}
++
++static void gip_shutdown(struct gip_device *gip)
++{
++	int i;
++
++	cancel_work_sync(&gip->receive_message);
++
++	for (i = 0; i < MAX_ATTACHMENTS; i++) {
++		struct gip_attachment *attachment;
++
++		mutex_lock(&gip->attachment_lock);
++		attachment = gip->attachments[i];
++		mutex_unlock(&gip->attachment_lock);
++
++		if (!attachment)
++			continue;
++
++		cancel_delayed_work_sync(&attachment->metadata_next);
++		cancel_delayed_work_sync(&attachment->in_fragment_timeout);
++		cancel_work_sync(&attachment->rumble_work);
++
++		guard(mutex)(&attachment->lock);
++		gip_reset_attachment(attachment);
++		gip_reset_metadata(attachment);
++	}
++}
++
++static void gip_disconnect(struct usb_interface *intf)
++{
++	struct gip_device *gip = usb_get_intfdata(intf);
++	int i;
++
++	if (!gip)
 +		return;
 +
-+	cancel_work(&security->work_exchange_rsa);
-+	cancel_work(&security->work_exchange_ecdh);
-+	cancel_work(&security->work_complete);
++	gip_shutdown(gip);
 +
-+	memzero_explicit(&security->transcript, sizeof(security->transcript));
-+	memzero_explicit(&security->pms, sizeof(security->pms));
-+	memzero_explicit(&security->master_secret, sizeof(security->master_secret));
++	usb_kill_anchored_urbs(&gip->data.out_anchor);
++	if (gip->audio.intf)
++		usb_kill_anchored_urbs(&gip->audio.out_anchor);
 +
-+	security->status = GIP_SECURITY_PENDING;
++	gip_deinit_input(&gip->data);
++	gip_deinit_output(&gip->data);
++	if (gip->audio.intf) {
++		gip_deinit_input(&gip->audio);
++		gip_deinit_output(&gip->audio);
++	}
++
++	usb_set_intfdata(intf, NULL);
++
++	mutex_lock(&gip->attachment_lock);
++	for (i = 0; i < MAX_ATTACHMENTS; i++) {
++		struct gip_attachment *attachment = gip->attachments[i];
++
++		if (!attachment)
++			continue;
++
++		devm_kfree(to_gip_device(attachment), attachment->uniq);
++		devm_kfree(to_gip_device(attachment), attachment);
++		gip->attachments[i] = NULL;
++	}
++	mutex_unlock(&gip->attachment_lock);
++
++	devm_kfree(to_gip_device(gip), gip);
 +}
 +
-+int gip_security_start_handshake(struct gip_security *security)
++static int gip_suspend(struct usb_interface *intf, pm_message_t message)
 +{
-+	int err;
++	struct gip_device *gip = usb_get_intfdata(intf);
 +
-+	sha256_init(&security->transcript);
++	if (!gip)
++		return 0;
 +
-+	INIT_WORK(&security->work_exchange_rsa, gip_security_exchange_rsa);
-+	INIT_WORK(&security->work_exchange_ecdh, gip_security2_exchange_ecdh);
-+	INIT_WORK(&security->work_complete, gip_security_complete_handshake);
++	usb_kill_urb(gip->data.urb_in);
++	usb_kill_anchored_urbs(&gip->data.out_anchor);
++	if (gip->audio.intf) {
++		usb_kill_urb(gip->audio.urb_in);
++		usb_kill_anchored_urbs(&gip->audio.out_anchor);
++	}
 +
-+	err = gip_security_send_hello(security);
-+	if (err < 0)
-+		return err;
++	mutex_lock(&gip->attachment_lock);
++	if (gip->attachments[0]) {
++		struct gip_attachment *attachment = gip->attachments[0];
 +
-+	security->status = GIP_SECURITY_SENT;
++		guard(mutex)(&attachment->lock);
++		gip_send_set_device_state(attachment, GIP_STATE_OFF);
++		attachment->device_state = GIP_STATE_OFF;
++	}
++	mutex_unlock(&gip->attachment_lock);
++
++	gip_shutdown(gip);
++
 +	return 0;
 +}
 +
-+int gip_security_skip_handshake(struct gip_security *security)
++static int gip_resume(struct usb_interface *intf)
 +{
-+	struct gip_attachment *attachment = container_of(security, struct gip_attachment, security);
-+	struct gip_security_header_control hdr = {
-+		.context = GIP_SECURITY_CTX_CONTROL,
-+		.control = GIP_SECURITY_CTRL_COMPLETE,
-+	};
-+	int err;
++	struct gip_device *gip = usb_get_intfdata(intf);
 +
-+	err = gip_send_system_message(attachment, GIP_CMD_SECURITY, 0, &hdr, sizeof(hdr));
-+	if (err < 0)
-+		return err;
++	if (!gip)
++		return 0;
 +
-+	security->status = GIP_SECURITY_SKIPPED;
++	if (usb_submit_urb(gip->data.urb_in, GFP_KERNEL))
++		return -EIO;
++
 +	return 0;
 +}
++
++/* The Xbox One controller uses subclass 71 and protocol 208. */
++#define GIP_VENDOR(vend) \
++	{ \
++		.match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_INFO, \
++		.idVendor = (vend), \
++		.bInterfaceClass = USB_CLASS_VENDOR_SPEC, \
++		.bInterfaceSubClass = 71, \
++		.bInterfaceProtocol = 208 \
++	}
++
++static const struct usb_device_id gip_table[] = {
++	/*
++	 * Please keep this list sorted by vendor ID.
++	 */
++	GIP_VENDOR(0x03f0), /* HP/HyperX */
++	GIP_VENDOR(0x044f), /* ThrustMaster */
++	GIP_VENDOR(0x045e), /* Microsoft */
++	GIP_VENDOR(0x046d), /* Logitech */
++	GIP_VENDOR(0x0738), /* Mad Catz */
++	GIP_VENDOR(0x0b05), /* ASUS */
++	GIP_VENDOR(0x0e6f), /* PDP */
++	GIP_VENDOR(0x0f0d), /* Hori */
++	GIP_VENDOR(0x10f5), /* Turtle Beach */
++	GIP_VENDOR(0x1532), /* Razer */
++	GIP_VENDOR(0x20d6), /* PowerA/BDA */
++	GIP_VENDOR(0x24c6), /* PowerA/BDA/ThrustMaster */
++	GIP_VENDOR(0x294b), /* Snakebyte */
++	GIP_VENDOR(0x2dc8), /* 8BitDo */
++	GIP_VENDOR(0x2e24), /* Hyperkin */
++	GIP_VENDOR(0x2e95), /* SCUF Gaming */
++	GIP_VENDOR(0x3285), /* Nacon */
++	GIP_VENDOR(0x3537), /* GameSir */
++	GIP_VENDOR(0x366c), /* ByoWave */
++	{ }
++};
++
++MODULE_DEVICE_TABLE(usb, gip_table);
++
++static struct usb_driver gip_driver = {
++	.name		= "xbox-gip",
++	.probe		= gip_probe,
++	.disconnect	= gip_disconnect,
++	.suspend	= gip_suspend,
++	.resume		= gip_resume,
++	.id_table	= gip_table,
++};
++
++module_usb_driver(gip_driver);
++
++MODULE_AUTHOR("Vicki Pfau <vi@endrift.com>");
++MODULE_DESCRIPTION("Xbox Gaming Input Protocol driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/input/joystick/gip/gip-drivers.c b/drivers/input/joystick/gip/gip-drivers.c
+new file mode 100644
+index 000000000000..2c2297b1fed8
+--- /dev/null
++++ b/drivers/input/joystick/gip/gip-drivers.c
+@@ -0,0 +1,204 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Base drivers for common GIP devices
++ *
++ * Copyright (c) 2025 Valve Software
++ *
++ * This driver is based on the Microsoft GIP spec at:
++ * https://aka.ms/gipdocs
++ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-gipusb/e7c90904-5e21-426e-b9ad-d82adeee0dbc
++ */
++
++#include <linux/unaligned.h>
++#include "gip.h"
++
++struct gip_device_capabilities_response {
++	uint8_t extra_button_count;
++	uint8_t extra_axis_count;
++	uint8_t led_count;
++	uint8_t max_global_led_gain;
++};
++
++static bool dpad_as_buttons;
++
++static int gip_setup_gamepad_input(struct gip_attachment *attachment, struct input_dev *input)
++{
++	int ret = gip_driver_navigation.setup_input(attachment, input);
++
++	if (ret < 0)
++		return ret;
++	input_set_capability(input, EV_KEY, BTN_THUMBR);
++	input_set_capability(input, EV_KEY, BTN_THUMBL);
++	input_set_abs_params(input, ABS_X, -32768, 32767, 16, 128);
++	input_set_abs_params(input, ABS_Y, -32768, 32767, 16, 128);
++	input_set_abs_params(input, ABS_RX, -32768, 32767, 16, 128);
++	input_set_abs_params(input, ABS_RY, -32768, 32767, 16, 128);
++	input_set_abs_params(input, ABS_Z, 0, 1023, 0, 0);
++	input_set_abs_params(input, ABS_RZ, 0, 1023, 0, 0);
++
++	/* Xbox Adaptive Controller */
++	if (attachment->vendor_id == 0x045e && attachment->product_id == 0x0b0a)
++		input_set_abs_params(input, ABS_PROFILE, 0, 3, 0, 0);
++	return 0;
++}
++
++static int gip_handle_gamepad_report(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
++{
++	int ret = gip_driver_navigation.handle_input_report(attachment, input, bytes, num_bytes);
++
++	if (ret < 0)
++		return ret;
++
++	if (num_bytes < 14) {
++		gip_dbg(attachment, "Discarding too-short input report\n");
++		return -EINVAL;
++	}
++
++	input_report_key(input, BTN_THUMBL, bytes[1] & BIT(6));
++	input_report_key(input, BTN_THUMBR, bytes[1] & BIT(7));
++
++	input_report_abs(input, ABS_Z, (int16_t)get_unaligned_le16(&bytes[2]));
++	input_report_abs(input, ABS_RZ, (int16_t)get_unaligned_le16(&bytes[4]));
++
++	input_report_abs(input, ABS_X, (int16_t)get_unaligned_le16(&bytes[6]));
++	input_report_abs(input, ABS_Y, ~(int16_t)get_unaligned_le16(&bytes[8]));
++
++	input_report_abs(input, ABS_RX, (int16_t)get_unaligned_le16(&bytes[10]));
++	input_report_abs(input, ABS_RY, ~(int16_t)get_unaligned_le16(&bytes[12]));
++
++	if (attachment->vendor_id == GIP_VID_MICROSOFT &&
++		attachment->product_id == GIP_PID_XBOX_ADAPTIVE_CONTROLLER &&
++		num_bytes >= 31)
++		input_report_abs(input, ABS_PROFILE, bytes[30] & 3);
++
++	return 0;
++}
++
++const struct gip_driver gip_driver_gamepad = {
++	.types = (const char* const[]) { "Windows.Xbox.Input.Gamepad", NULL },
++	.guid = GUID_INIT(0x082e402c, 0x07df, 0x45e1, 0xa5, 0xab,
++		0xa3, 0x12, 0x7a, 0xf1, 0x97, 0xb5),
++
++	.quirks = (const struct gip_quirks[]) {
++		/* Xbox One Controller (model 1573) */
++		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ONE_1573, 0,
++			.override_name = "Xbox One Controller" },
++
++		/* Xbox One Controller (model 1697) */
++		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ONE_1697, 0,
++			.override_name = "Xbox One Controller" },
++
++		/* Xbox Elite */
++		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ELITE, 0,
++			.override_name = "Xbox Elite Controller",
++			.added_features = GIP_FEATURE_ELITE_BUTTONS,
++			.filtered_features = GIP_FEATURE_CONSOLE_FUNCTION_MAP },
++
++		/* Xbox One Controller (model 1708) */
++		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ONE_1708, 0,
++			.override_name = "Xbox One Controller" },
++
++		/* Xbox Elite 2 */
++		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ELITE_2, 0,
++			.override_name = "Xbox Elite Series 2 Controller",
++			.added_features = GIP_FEATURE_GUIDE_COLOR |
++				GIP_FEATURE_EXTENDED_SET_DEVICE_STATE },
++
++		/* Xbox Adaptive Controller */
++		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_ADAPTIVE_CONTROLLER, 0,
++			.override_name = "Xbox Adaptive Controller" },
++
++		/* Xbox Wireless Controller */
++		{ GIP_VID_MICROSOFT, GIP_PID_XBOX_WIRELESS, 0,
++			.override_name = "Xbox Wireless Controller" },
++
++		{0},
++	},
++
++	.probe = NULL,
++	.remove = NULL,
++	.init = NULL,
++	.setup_input = gip_setup_gamepad_input,
++	.handle_input_report = gip_handle_gamepad_report,
++};
++
++static int gip_setup_navigation_input(struct gip_attachment *attachment, struct input_dev *input)
++{
++	input_set_capability(input, EV_KEY, BTN_Y);
++	input_set_capability(input, EV_KEY, BTN_B);
++	input_set_capability(input, EV_KEY, BTN_X);
++	input_set_capability(input, EV_KEY, BTN_A);
++	input_set_capability(input, EV_KEY, BTN_SELECT);
++	input_set_capability(input, EV_KEY, BTN_START);
++	input_set_capability(input, EV_KEY, BTN_TR);
++	input_set_capability(input, EV_KEY, BTN_TL);
++
++	attachment->dpad_as_buttons = dpad_as_buttons;
++	if (attachment->dpad_as_buttons) {
++		input_set_capability(input, EV_KEY, BTN_DPAD_UP);
++		input_set_capability(input, EV_KEY, BTN_DPAD_RIGHT);
++		input_set_capability(input, EV_KEY, BTN_DPAD_LEFT);
++		input_set_capability(input, EV_KEY, BTN_DPAD_DOWN);
++	} else {
++		input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
++		input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
++	}
++
++	return 0;
++}
++
++static int gip_handle_navigation_report(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
++{
++	if (num_bytes < 2) {
++		gip_dbg(attachment, "Discarding too-short input report\n");
++		return -EINVAL;
++	}
++
++	input_report_key(input, BTN_START, bytes[0] & BIT(2));
++	input_report_key(input, BTN_SELECT, bytes[0] & BIT(3));
++	input_report_key(input, BTN_A, bytes[0] & BIT(4));
++	input_report_key(input, BTN_B, bytes[0] & BIT(5));
++	input_report_key(input, BTN_X, bytes[0] & BIT(6));
++	input_report_key(input, BTN_Y, bytes[0] & BIT(7));
++
++	if (attachment->dpad_as_buttons) {
++		input_report_key(input, BTN_DPAD_UP, bytes[1] & BIT(0));
++		input_report_key(input, BTN_DPAD_DOWN, bytes[1] & BIT(1));
++		input_report_key(input, BTN_DPAD_LEFT, bytes[1] & BIT(2));
++		input_report_key(input, BTN_DPAD_RIGHT, bytes[1] & BIT(3));
++	} else {
++		input_report_abs(input, ABS_HAT0X,
++			!!(bytes[1] & BIT(3)) - !!(bytes[1] & BIT(2)));
++		input_report_abs(input, ABS_HAT0Y,
++			!!(bytes[1] & BIT(1)) - !!(bytes[1] & BIT(0)));
++	}
++
++	if (attachment->quirks & GIP_QUIRK_SWAP_LB_RB) {
++		/* Previous */
++		input_report_key(input, BTN_TR, bytes[1] & BIT(4));
++		/* Next */
++		input_report_key(input, BTN_TL, bytes[1] & BIT(5));
++	} else {
++		input_report_key(input, BTN_TL, bytes[1] & BIT(4));
++		input_report_key(input, BTN_TR, bytes[1] & BIT(5));
++	}
++
++	return 0;
++}
++
++const struct gip_driver gip_driver_navigation = {
++	.types = (const char* const[]) { "Windows.Xbox.Input.NavigationController", NULL },
++	.guid = GUID_INIT(0xb8f31fe7, 0x7386, 0x40e9, 0xa9, 0xf8,
++		0x2f, 0x21, 0x26, 0x3a, 0xcf, 0xb7),
++
++	.probe = NULL,
++	.remove = NULL,
++	.init = NULL,
++	.setup_input = gip_setup_navigation_input,
++	.handle_input_report = gip_handle_navigation_report,
++};
++
++module_param(dpad_as_buttons, bool, 0444);
++MODULE_PARM_DESC(dpad_as_buttons, "Map the D-Pad as buttons instead of axes");
 diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index fa97f5bfb50a..5e8daf651317 100644
---- a/drivers/input/joystick/gip/gip.h
+new file mode 100644
+index 000000000000..669ce6548d42
+--- /dev/null
 +++ b/drivers/input/joystick/gip/gip.h
-@@ -12,6 +12,7 @@
- #ifndef _GIP_H
- #define _GIP_H
- 
-+#include <crypto/sha2.h>
- #include <linux/hid.h>
- #include <linux/led-class-multicolor.h>
- #include <linux/power_supply.h>
-@@ -29,6 +30,7 @@
- 
- #define GIP_VID_MICROSOFT	0x045e
- #define GIP_VID_PDP		0x0e6f
-+#define GIP_VID_BDA		0x24c6
- 
- #define GIP_PID_XBOX_ONE_1573			0x02d1
- #define GIP_PID_XBOX_ONE_1697			0x02dd
-@@ -40,9 +42,13 @@
- 
- #define GIP_PID_PDP_ROCK_CANDY	0x0246
- 
-+#define GIP_PID_BDA_XB1_CLASSIC		0x581a
-+#define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
+@@ -0,0 +1,351 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * Gaming Input Protocol driver for Xbox One/Series controllers
++ *
++ * Copyright (c) 2025 Valve Software
++ *
++ * This driver is based on the Microsoft GIP spec at:
++ * https://aka.ms/gipdocs
++ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-gipusb/e7c90904-5e21-426e-b9ad-d82adeee0dbc
++ */
 +
- #define GIP_QUIRK_NO_HELLO		BIT(0)
- #define GIP_QUIRK_NO_IMPULSE_VIBRATION	BIT(1)
- #define GIP_QUIRK_SWAP_LB_RB		BIT(2)
-+#define GIP_QUIRK_SKIP_SECURITY		BIT(3)
- /*
-  * Driver-specific quirks should start from 31 and go downwards to avoid
-  * conflicts with newly-added core quirks
-@@ -90,13 +96,21 @@
- #define GIP_LL_STATIC_CONFIGURATION	0x21
- #define GIP_LL_BUTTON_INFO_REPORT	0x22
- 
-+#define GIP_SECURITY_RANDOM_LEN 32
-+#define GIP_SECURITY_PUBKEY_LEN 270
-+#define GIP_SECURITY_SECRET_LEN 48
++#ifndef _GIP_H
++#define _GIP_H
 +
-+#define GIP_SECURITY2_PUBKEY_LEN 64
-+#define GIP_SECURITY2_SECRET_LEN 32
++#include <linux/rcupdate.h>
++#include <linux/usb/input.h>
 +
- #define MAX_GIP_CMD 0x80
- 
- #define to_gip_device(p) \
- 	_Generic((p), \
- 		struct gip_attachment * : gip_attachment_dev, \
- 		struct gip_interface * : gip_interface_dev, \
--		struct gip_device * : gip_device_dev)(p)
-+		struct gip_device * : gip_device_dev, \
-+		struct gip_security * : gip_security_dev)(p)
- 
- #define gip_dbg(dev, ...)	dev_dbg(to_gip_device(dev), __VA_ARGS__)
- #define gip_info(dev, ...)	dev_info(to_gip_device(dev), __VA_ARGS__)
-@@ -120,6 +134,13 @@ enum gip_metadata_status {
- 	GIP_METADATA_PENDING = 3,
- };
- 
-+enum gip_security_status {
-+	GIP_SECURITY_PENDING = 0,
-+	GIP_SECURITY_SKIPPED,
-+	GIP_SECURITY_SENT,
-+	GIP_SECURITY_DONE,
++#define BASE_GIP_MTU 64
++#define MAX_GIP_MTU 2048
++
++#define MAX_ATTACHMENTS 8
++
++#define MAX_IN_MESSAGES 8
++#define MAX_OUT_MESSAGES 8
++
++#define GIP_VID_MICROSOFT	0x045e
++#define GIP_VID_PDP		0x0e6f
++
++#define GIP_PID_XBOX_ONE_1573			0x02d1
++#define GIP_PID_XBOX_ONE_1697			0x02dd
++#define GIP_PID_XBOX_ELITE			0x02e3
++#define GIP_PID_XBOX_ONE_1708			0x02ea
++#define GIP_PID_XBOX_ELITE_2			0x0b00
++#define GIP_PID_XBOX_ADAPTIVE_CONTROLLER	0x0b0a
++#define GIP_PID_XBOX_WIRELESS			0x0b12
++
++#define GIP_PID_PDP_ROCK_CANDY	0x0246
++
++#define GIP_QUIRK_NO_HELLO		BIT(0)
++#define GIP_QUIRK_NO_IMPULSE_VIBRATION	BIT(1)
++#define GIP_QUIRK_SWAP_LB_RB		BIT(2)
++/*
++ * Driver-specific quirks should start from 31 and go downwards to avoid
++ * conflicts with newly-added core quirks
++ */
++
++#define GIP_FEATURE_CONTROLLER				BIT(0)
++#define GIP_FEATURE_CONSOLE_FUNCTION_MAP		BIT(1)
++#define GIP_FEATURE_CONSOLE_FUNCTION_MAP_OVERFLOW	BIT(2)
++#define GIP_FEATURE_ELITE_BUTTONS			BIT(3)
++#define GIP_FEATURE_DYNAMIC_LATENCY_INPUT		BIT(4)
++#define GIP_FEATURE_SECURITY_OPT_OUT			BIT(5)
++#define GIP_FEATURE_MOTOR_CONTROL			BIT(6)
++#define GIP_FEATURE_GUIDE_COLOR				BIT(7)
++#define GIP_FEATURE_EXTENDED_SET_DEVICE_STATE		BIT(8)
++
++#define GIP_FLAG_FRAGMENT	BIT(7)
++#define GIP_FLAG_INIT_FRAG	BIT(6)
++#define GIP_FLAG_SYSTEM		BIT(5)
++#define GIP_FLAG_ACME		BIT(4)
++#define GIP_FLAG_ATTACHMENT_MASK 0x7
++
++/* System messages */
++#define GIP_CMD_PROTO_CONTROL		0x01
++#define GIP_CMD_HELLO_DEVICE		0x02
++#define GIP_CMD_STATUS_DEVICE		0x03
++#define GIP_CMD_METADATA		0x04
++#define GIP_CMD_SET_DEVICE_STATE	0x05
++#define GIP_CMD_SECURITY		0x06
++#define GIP_CMD_GUIDE_BUTTON		0x07
++#define GIP_CMD_AUDIO_CONTROL		0x08
++#define GIP_CMD_LED			0x0a
++#define GIP_CMD_HID_REPORT		0x0b
++#define GIP_CMD_FIRMWARE		0x0c
++#define GIP_CMD_EXTENDED		0x1e
++#define GIP_CMD_DEBUG			0x1f
++#define GIP_AUDIO_DATA			0x60
++
++/* Navigation vendor messages */
++#define GIP_CMD_DIRECT_MOTOR		0x09
++#define GIP_LL_INPUT_REPORT		0x20
++#define GIP_LL_OVERFLOW_INPUT_REPORT	0x26
++
++/* Wheel and ArcadeStick vendor messages */
++#define GIP_CMD_INITIAL_REPORTS_REQUEST	0x0a
++#define GIP_LL_STATIC_CONFIGURATION	0x21
++#define GIP_LL_BUTTON_INFO_REPORT	0x22
++
++#define MAX_GIP_CMD 0x80
++
++#define to_gip_device(p) \
++	_Generic((p), \
++		struct gip_attachment * : gip_attachment_dev, \
++		struct gip_interface * : gip_interface_dev, \
++		struct gip_device * : gip_device_dev)(p)
++
++#define gip_dbg(dev, ...)	dev_dbg(to_gip_device(dev), __VA_ARGS__)
++#define gip_info(dev, ...)	dev_info(to_gip_device(dev), __VA_ARGS__)
++#define gip_warn(dev, ...)	dev_warn(to_gip_device(dev), __VA_ARGS__)
++#define gip_err(dev, ...)	dev_err(to_gip_device(dev), __VA_ARGS__)
++
++#define gip_dbg_ratelimited(dev, ...)	dev_dbg_ratelimited(to_gip_device(dev), __VA_ARGS__)
++#define gip_info_ratelimited(dev, ...)	dev_info_ratelimited(to_gip_device(dev), __VA_ARGS__)
++#define gip_warn_ratelimited(dev, ...)	dev_warn_ratelimited(to_gip_device(dev), __VA_ARGS__)
++#define gip_err_ratelimited(dev, ...)	dev_err_ratelimited(to_gip_device(dev), __VA_ARGS__)
++
++enum gip_init_status {
++	GIP_INIT_OK = 0,
++	GIP_INIT_NO_INPUT = 1,
 +};
 +
- enum gip_elite_button_format {
- 	GIP_BTN_FMT_UNKNOWN,
- 	GIP_BTN_FMT_XBE1,
-@@ -209,6 +230,26 @@ struct gip_out_fragment {
- 	struct delayed_work timeout;
- };
- 
-+struct gip_security {
-+	struct sha256_ctx transcript;
-+
-+	struct work_struct work_exchange_rsa;
-+	struct work_struct work_exchange_ecdh;
-+	struct work_struct work_complete;
-+
-+	enum gip_security_status status;
-+	uint8_t last_sent_command;
-+
-+	uint8_t random_host[GIP_SECURITY_RANDOM_LEN];
-+	uint8_t random_client[GIP_SECURITY_RANDOM_LEN];
-+
-+	uint8_t pubkey_client[GIP_SECURITY_PUBKEY_LEN];
-+	uint8_t pubkey_client2[GIP_SECURITY2_PUBKEY_LEN];
-+
-+	uint8_t pms[GIP_SECURITY_SECRET_LEN];
-+	uint8_t master_secret[GIP_SECURITY_SECRET_LEN];
++enum gip_metadata_status {
++	GIP_METADATA_NONE = 0,
++	GIP_METADATA_GOT = 1,
++	GIP_METADATA_FAKED = 2,
++	GIP_METADATA_PENDING = 3,
 +};
 +
- struct gip_attachment;
- typedef int (*gip_command_handler)(struct gip_attachment *a, const struct gip_header *header,
- 		const uint8_t *bytes, int num_bytes);
-@@ -246,6 +287,7 @@ struct gip_attachment {
- 	struct delayed_work metadata_next;
- 	int metadata_retries;
- 	struct gip_metadata metadata;
-+	struct gip_security security;
- 
- #ifdef CONFIG_JOYSTICK_XBOX_GIP_FF
- 	uint8_t left_vibration_level;
-@@ -366,6 +408,11 @@ static inline struct device *gip_device_dev(struct gip_device *device)
- 	return &device->data.intf->dev;
- }
- 
-+static inline struct device *gip_security_dev(struct gip_security *security)
++enum gip_elite_button_format {
++	GIP_BTN_FMT_UNKNOWN,
++	GIP_BTN_FMT_XBE1,
++	GIP_BTN_FMT_XBE2_RAW,
++	GIP_BTN_FMT_XBE2_4,
++	GIP_BTN_FMT_XBE2_5,
++};
++
++struct gip_header {
++	uint8_t message_type;
++	uint8_t flags;
++	uint8_t sequence_id;
++	uint64_t length;
++};
++
++struct gip_raw_message {
++	uint16_t num_bytes;
++	uint8_t bytes[BASE_GIP_MTU];
++};
++
++struct gip_device_metadata {
++	uint8_t num_audio_formats;
++	uint8_t num_preferred_types;
++	uint8_t num_supported_interfaces;
++	uint8_t hid_descriptor_size;
++
++	uint32_t in_system_messages[8];
++	uint32_t out_system_messages[8];
++
++	struct gip_audio_format_pair *audio_formats;
++	char **preferred_types;
++	guid_t *supported_interfaces;
++	uint8_t *hid_descriptor;
++};
++
++struct gip_message_metadata {
++	uint16_t length;
++	uint8_t type;
++	uint16_t data_type;
++	uint32_t flags;
++	uint16_t period;
++	uint16_t persistence_timeout;
++};
++
++struct gip_metadata {
++	uint16_t version_major;
++	uint16_t version_minor;
++
++	struct gip_device_metadata device;
++
++	uint8_t num_messages;
++	struct gip_message_metadata *message_metadata;
++};
++
++struct gip_status {
++	int power_level;
++	int charge;
++	int battery_type;
++	int battery_level;
++};
++
++struct gip_status_event {
++	uint16_t event_type;
++	uint32_t fault_tag;
++	uint32_t fault_address;
++};
++
++struct gip_extended_status {
++	struct gip_status base;
++	bool device_active;
++
++	int num_events;
++	struct gip_status_event events[5];
++};
++
++struct gip_attachment;
++typedef int (*gip_command_handler)(struct gip_attachment *a, const struct gip_header *header,
++		const uint8_t *bytes, int num_bytes);
++
++struct gip_device;
++struct gip_attachment {
++	const struct gip_driver *driver;
++	struct gip_device *device;
++	void *driver_data;
++	gip_command_handler vendor_handlers[MAX_GIP_CMD];
++
++	uint8_t attachment_index;
++	struct input_dev __rcu *input;
++	uint16_t vendor_id;
++	uint16_t product_id;
++	char *uniq;
++	const char *name;
++	char phys[32];
++	char serial[32];
++	struct mutex lock;
++
++	int16_t in_fragment_message;
++	uint16_t in_total_length;
++	uint8_t *in_fragment_data;
++	uint32_t in_fragment_offset;
++	struct delayed_work in_fragment_timeout;
++	int in_fragment_retries;
++
++	uint16_t firmware_major_version;
++	uint16_t firmware_minor_version;
++
++	enum gip_metadata_status got_metadata;
++	struct delayed_work metadata_next;
++	int metadata_retries;
++	struct gip_metadata metadata;
++
++#ifdef CONFIG_JOYSTICK_XBOX_GIP_FF
++	uint8_t left_vibration_level;
++	uint8_t right_vibration_level;
++	struct work_struct rumble_work;
++#endif
++
++	uint8_t seq_system;
++	uint8_t seq_security;
++	uint8_t seq_extended;
++	uint8_t seq_audio;
++	uint8_t seq_vendor;
++
++	uint8_t device_state;
++
++	struct gip_extended_status status;
++
++	enum gip_elite_button_format xbe_format;
++	uint32_t features;
++	uint32_t quirks;
++
++	int extra_buttons;
++	int extra_axes;
++
++	bool dpad_as_buttons;
++	struct hid_device __rcu *hdev;
++};
++
++struct gip_urb {
++	struct urb *urb;
++	uint8_t *data;
++	unsigned int offset;
++};
++
++struct gip_interface {
++	struct gip_device *device;
++	struct usb_interface *intf;
++	uint32_t mtu;
++	int isoc_messages;
++
++	struct urb *urb_in;
++	uint8_t *in_data;
++
++	struct usb_anchor out_anchor;
++	struct gip_urb out_queue[MAX_OUT_MESSAGES];
++};
++
++struct gip_device {
++	struct usb_device *udev;
++
++	struct gip_interface data;
++	struct gip_interface audio;
++
++	struct gip_raw_message in_queue[MAX_IN_MESSAGES];
++	int pending_in_messages;
++	int next_in_message;
++
++	struct work_struct receive_message;
++	spinlock_t message_lock;
++
++	struct gip_attachment *attachments[MAX_ATTACHMENTS];
++	struct mutex attachment_lock;
++};
++
++struct gip_quirks {
++	uint16_t vendor_id;
++	uint16_t product_id;
++	uint8_t attachment_index;
++	const char *override_name;
++	uint32_t added_features;
++	uint32_t filtered_features;
++	uint32_t quirks;
++	uint32_t extra_in_system[8];
++	uint32_t extra_out_system[8];
++	uint8_t extra_buttons;
++	uint8_t extra_axes;
++};
++
++struct gip_driver {
++	const char *const *types;
++	guid_t guid;
++
++	const struct gip_quirks *quirks;
++
++	int (*probe)(struct gip_attachment *a);
++	void (*remove)(struct gip_attachment *a);
++	int (*init)(struct gip_attachment *a);
++	int (*setup_input)(struct gip_attachment *a, struct input_dev *input);
++	int (*handle_input_report)(struct gip_attachment *a,
++		struct input_dev *input, const uint8_t *bytes, int num_bytes);
++	int (*handle_overflow_input_report)(struct gip_attachment *a,
++		struct input_dev *input, const uint8_t *bytes, int num_bytes);
++	gip_command_handler vendor_handlers[MAX_GIP_CMD];
++};
++
++static inline struct device *gip_attachment_dev(struct gip_attachment *attachment)
 +{
-+	return gip_attachment_dev(container_of(security, struct gip_attachment, security));
++	return &attachment->device->data.intf->dev;
 +}
 +
- bool gip_supports_vendor_message(struct gip_attachment *attachment, uint8_t command, bool upstream);
- 
- int gip_send_system_message(struct gip_attachment *attachment,
-@@ -373,6 +420,11 @@ int gip_send_system_message(struct gip_attachment *attachment,
- int gip_send_vendor_message(struct gip_attachment *attachment,
- 	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes);
- 
-+int gip_security_handle_message(struct gip_security *security, const void *bytes, int num_bytes);
-+int gip_security_start_handshake(struct gip_security *security);
-+int gip_security_skip_handshake(struct gip_security *security);
-+void gip_security_release(struct gip_security *security);
++static inline struct device *gip_interface_dev(struct gip_interface *intf)
++{
++	return &intf->intf->dev;
++}
 +
- extern const struct gip_driver gip_driver_navigation;
- extern const struct gip_driver gip_driver_gamepad;
- extern const struct gip_driver gip_driver_arcade_stick;
++static inline struct device *gip_device_dev(struct gip_device *device)
++{
++	return &device->data.intf->dev;
++}
++
++bool gip_supports_vendor_message(struct gip_attachment *attachment, uint8_t command, bool upstream);
++
++int gip_send_system_message(struct gip_attachment *attachment,
++	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes);
++int gip_send_vendor_message(struct gip_attachment *attachment,
++	uint8_t message_type, uint8_t flags, const void *bytes, int num_bytes);
++
++extern const struct gip_driver gip_driver_navigation;
++extern const struct gip_driver gip_driver_gamepad;
++extern const struct gip_driver gip_driver_arcade_stick;
++extern const struct gip_driver gip_driver_wheel;
++extern const struct gip_driver gip_driver_flight_stick;
++#endif
 -- 
 2.54.0
 

@@ -1,199 +1,193 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F252D2BCF4C
-	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:22:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8C1739182A
+	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:23:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789183374; cv=none; b=DVYfh+QFgnegSvUEtnJ0rhZGqBlZ2EMqB9QPEie88gGkzf9lTMKZ1m1lsVXt8dz9SdrgbGmHuZ3ltaLbtSZBiUudbeYHFmhLnKOjjWQTH/nEULQstUFI0FRgthBcmHuSEQRZe32a/N+Xa1txxCcaIxyT6khhUCqsjxq3DQ/7h2E=
+	t=1789183386; cv=none; b=XJtPTVhf0eFI1OmbbKl9Tq6CpbMIGHoFEbzvzQiglepBDU0Rb7GaPBf4Sq0lNSq1+HfMaqj3bATYlQVGeQF0GLTmXm41g0IBe0ONsTCNeEaelb2pic0O3fJJSC4pCV328sO8rZ9xQ2cBk0lL6haR5T0nWOKRBjt3tQK3LkG04Oo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789183374; c=relaxed/simple;
-	bh=T269Rs0aaTUWFI+MmHAvPOIcMacB+m8A7wsiwu+/LAU=;
+	s=arc-20240116; t=1789183386; c=relaxed/simple;
+	bh=ATwV+mbkDFASTWkFNzUkcAziyP4H6MbHtjsc+RqDNzg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BNxpSmBGxxYdZhDRzNkRSMX9dO8oAELE2UrYTKtoIcK1mohTS02+tAQ5rwXz6YuaN11F5THheWYHKeyhMZnENTYxfV2DMUCSKM9s7iSGqB7/Me9ht+UtjeDp+tCNKVLmQgBDU5CzbtRcYhCKqx+MhFTkij/oc1Htm9wkFZ9z6P4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EeRXBgRI; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=qnSNfeMXsuxn8TXCNVoMqmWh0DIlB5sk33gq7VuFI9Zf+Vf6bKJaM0i7Cifuih1sI1ztdNZJYm4N5ZTOhMBtTYVpvXtvP5KiWSpSvMenFqjqBeH62Wa8zcVFjrhM1uCF3fNiLAs4Bq4/NbF2YbwErFjBPa0YxmgXIEkjF6vlzN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Df2urVKG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EeRXBgRI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A335C1F00893;
-	Sat, 12 Sep 2026 03:22:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Df2urVKG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63D051F000FF;
+	Sat, 12 Sep 2026 03:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789183372;
-	bh=iFqphlTi25xZMGcQV2M0TyOx6s/70qsSZfBQIQAaYYM=;
+	s=k20260515; t=1789183383;
+	bh=KdO6l84Ga8EWFevlo+Hvv3c//ZKrsUuc8i9d9q1dA1Y=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EeRXBgRIiAQTsEcSZHoOBGb9xxL+dOygojod3CKNECStmfyFDmURWhkK64u6PB7QM
-	 N37Ca7UkdCYV4dkeown2dJwSM8Nci8K4OTvKOVIL45Xe8HQBV8B5xgDuN3dbq4YwKW
-	 N4vmXsu7n/a+MN/FJptn3fC6qXKCZtm4zrbU2lUZ1BhzO5TV46187ckBS2wSjZmZbp
-	 YAir7OgWqRo3Xlk0uaPWLGHM5LguAzb+qtrUF+/DeGlgSkm0bMvHv5UspixpgRiJAt
-	 HlW9+L62HzGzxyW9DJICBTzZGSlCGlqLtO445pr5KPbDNpTsfjb1XkhwO9UisMFaKm
-	 lV0AzHC5zh/Yg==
+	b=Df2urVKGQYgwc+7YobpoPmaOYrswDRuwgjw+XsLtei4WvexFdainjwd4BgeupHt7G
+	 bQQeBBl43+udEwhT4H4Z7VnxPgJnuPjlVcMv/Q3LvfBuyDiSCKS3eW8avLdQXN50zA
+	 2ra6/lYtyT99yZbLBXryjeU0TBnbp6QQVu295eHHw0UcRmr8pOKYdbXHOeEd+mLjWt
+	 1JHYybpp1/cJt5o/Hb5e4ByNSYl29zf+/Z2yt1sjw/d0C0kgVPKtuI1bkV4haXswa2
+	 vwnbTLOV/F7h8RPKNw414Z+kmOxxtQNPBLHGx8Hk+UxhwfnbZYgJlem4P8khMI+NWn
+	 IOR3c8+jXvMRA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 05/12] Input: xbox_gip - Add battery support
+Subject: Re: [PATCH v7 06/12] Input: xbox_gip - Allow sending fragmented and
+ ACME messages
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260912030426.2997003-6-vi@endrift.com>
+In-Reply-To: <20260912030426.2997003-7-vi@endrift.com>
 References: <20260912030426.2997003-1-vi@endrift.com>
- <20260912030426.2997003-6-vi@endrift.com>
+ <20260912030426.2997003-7-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 03:22:52 +0000
-Message-Id: <20260912032252.A335C1F00893@smtp.kernel.org>
+Date: Sat, 12 Sep 2026 03:23:03 +0000
+Message-Id: <20260912032303.63D051F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 New issues:
-- [Critical] The devm-managed power supply is tied to the `input_dev`'s lif=
-ecycle instead of the physical device, leading to a Use-After-Free of `atta=
-chment` when sysfs properties are read after unplug.
-- [High] Memory and device leak of the power supply across metadata resets =
-due to a devres mismatch when unregistering the input device.
-- [High] Data race and potential Use-After-Free on `attachment->battery` du=
-ring concurrent device status URB processing and device teardown.
+- [Critical] Loop index typo in `gip_disconnect` causes OOB array access an=
+d failure to cancel delayed work.
+- [High] Retrying reliable (ACME) messages corrupts their headers due to in=
+correct flag and length field encoding.
+- [High] Teardown sequence race condition causing Use-After-Free of device =
+structures due to URBs re-scheduling cancelled works.
 
 Pre-existing issues:
-- [Critical] Use-after-free of `gip_device` and `gip_attachment` due to inc=
-orrect teardown order of the URB and workqueue in `gip_disconnect`.
+- [High] AB-BA deadlock during device reset due to unregistering input devi=
+ce under lock.
+- [High] Teardown ordering race condition causing UAF of rumble_work and at=
+tachment memory.
 --
 
-commit e93493b8a8fc4d66dfb37174e70166cba8bd408c
+commit d64a449cbd12693ac78473a4f8297a24eb7916f4
 Author: Vicki Pfau <vi@endrift.com>
+Subject: Input: xbox_gip - Allow sending fragmented and ACME messages
 
-Input: xbox_gip - Add battery support
-
-Controllers are required to give information about the battery in the
-controller, if present. This patch exposes that information as a
-power_supply device.
+This patch adds support for sending fragmented and ACME (reliable) messages
+in the xbox_gip driver. It sits on top of a reliable message transmission
+flow for messages that exceed the MTU and handles the required sequence and
+acknowledgment tracking.
 
 > diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
 ck/gip/gip-core.c
-> index 411b67399e018..92bfdd6d76826 100644
 > --- a/drivers/input/joystick/gip/gip-core.c
 > +++ b/drivers/input/joystick/gip/gip-core.c
 [ ... ]
-> @@ -1218,6 +1225,97 @@ static int gip_guide_led_probe(struct gip_attachme=
-nt *attachment, struct device
-[ ... ]
-> +static int gip_battery_create(struct gip_attachment *attachment, struct =
-device *dev)
+> +static int gip_send_next_fragment(struct gip_attachment *attachment,
+> +	struct gip_out_fragment *fragment)
 > +{
-> +	struct power_supply_config supply_config =3D { .drv_data =3D attachment=
-, };
+> +	struct gip_interface *intf;
+> +	int next_bytes;
+> +	int flags =3D GIP_FLAG_FRAGMENT | fragment->flags | attachment->attachm=
+ent_index;
+
+[Severity: High]
+Does this unconditionally force GIP_FLAG_FRAGMENT onto all retries? If an=20
+unfragmented reliable message times out, retrying it with this flag will
+cause gip_send_raw_message() to process it as a fragment. When processed as=
+ a
+fragment, it encodes the fragment_offset (which is 0) instead of the
+total_length, resulting in a corrupted header that the hardware may reject.
+
+> +	int mtu;
 > +	int rc;
-> +
-> +	attachment->battery_desc.properties =3D gip_battery_props;
-> +	attachment->battery_desc.num_properties =3D ARRAY_SIZE(gip_battery_prop=
-s);
-> +	attachment->battery_desc.get_property =3D gip_battery_get_property;
-> +	attachment->battery_desc.type =3D POWER_SUPPLY_TYPE_BATTERY;
-> +	attachment->battery_desc.name =3D devm_kasprintf(dev, GFP_KERNEL, "gip-=
-%s", dev_name(dev));
-> +
-> +	if (!attachment->battery_desc.name)
-> +		return -ENOMEM;
-> +
-> +	attachment->battery =3D devm_power_supply_register(dev,
-> +		&attachment->battery_desc, &supply_config);
-
-[Severity: Critical]
-Does this tie the power supply's devres lifecycle to the child input_dev=20
-rather than the parent attachment?
-
-If dev is &input->dev, the power supply will outlive the attachment=20
-structure if a user unplugs the device while keeping the input device open.=
-=20
-
-Since attachment is explicitly freed on disconnect, couldn't this lead to=20
-a use-after-free when the user subsequently reads sysfs properties (via=20
-gip_battery_get_property) which dereferences the freed attachment?
-
-> +	if (IS_ERR(attachment->battery)) {
-> +		rc =3D PTR_ERR(attachment->battery);
-> +		attachment->battery =3D NULL;
-> +		devm_kfree(dev, attachment->battery_desc.name);
-> +		return rc;
-> +	}
-> +
-> +	power_supply_powers(attachment->battery, dev);
-> +	return 0;
-> +}
 [ ... ]
-> @@ -1514,6 +1615,8 @@ static void gip_free_devices(struct gip_attachment =
-*attachment)
+> @@ -3144,17 +3179,17 @@ static void gip_shutdown(struct gip_device *gip)
+>  {
+[ ... ]
+>  	for (i =3D 0; i < MAX_ATTACHMENTS; i++) {
+>  		struct gip_attachment *attachment;
 > =20
->  	rcu_assign_pointer(attachment->input, NULL);
->  	rcu_assign_pointer(attachment->hdev, NULL);
-> +	/* The following are freed by devres */
-> +	attachment->battery =3D NULL;
->  	synchronize_rcu();
+>  		mutex_lock(&gip->attachment_lock);
+>  		attachment =3D gip->attachments[i];
+>  		mutex_unlock(&gip->attachment_lock);
 > =20
->  	if (input)
+>  		if (!attachment)
+>  			continue;
+> =20
+>  		cancel_delayed_work_sync(&attachment->metadata_next);
+>  		cancel_delayed_work_sync(&attachment->in_fragment_timeout);
+>  		cancel_work_sync(&attachment->rumble_work);
+> =20
+>  		guard(mutex)(&attachment->lock);
+>  		gip_reset_attachment(attachment);
 
 [Severity: High]
-Does this code assume devres will immediately free the battery upon
-calling input_unregister_device()?
-
-Because the devres lifecycle of input_dev depends on its parent (the USB
-interface), its refcount doesn't drop to zero until the USB interface=20
-unbinds.=20
-
-If a device sends repeated reset requests that invoke gip_free_devices(),
-could this leak power_supply devices and their sysfs entries indefinitely
-across metadata resets?
-
-> @@ -1647,10 +1750,14 @@ static int gip_handle_command_status_device(struc=
-t gip_attachment *attachment,
->  	if (num_bytes < 1)
->  		return -EINVAL;
-> =20
-> -	attachment->status.base.battery_level =3D bytes[0] & 3;
-> -	attachment->status.base.battery_type =3D (bytes[0] >> 2) & 3;
-> -	attachment->status.base.charge =3D (bytes[0] >> 4) & 3;
-> -	attachment->status.base.power_level =3D (bytes[0] >> 6) & 3;
-> +	scoped_guard(spinlock_irqsave, &attachment->battery_lock) {
-> +		attachment->status.base.battery_level =3D bytes[0] & 3;
-> +		attachment->status.base.battery_type =3D (bytes[0] >> 2) & 3;
-> +		attachment->status.base.charge =3D (bytes[0] >> 4) & 3;
-> +		attachment->status.base.power_level =3D (bytes[0] >> 6) & 3;
-> +	}
-> +	if (attachment->battery)
-> +		power_supply_changed(attachment->battery);
+This is a pre-existing issue, but does this teardown sequence leave a race=
+=20
+window open for rumble_work to be rescheduled? The rumble_work is cancelled
+before gip_reset_attachment() unregisters the input device. A concurrent=20
+ioctl or ff-memless timer can call gip_play_effect() and reschedule the wor=
+k=20
+while the device is still registered, leading to a Use-After-Free when the=
+=20
+attachment memory is freed.
 
 [Severity: High]
-Is it safe to access attachment->battery here without RCU read-side=20
-protection or READ_ONCE()?
+This isn't a bug introduced by this patch, but is there a risk of an AB-BA
+deadlock here during device reset?
 
-Since gip_handle_command_status_device() executes concurrently with=20
-device teardown, gip_free_devices() might concurrently clear the pointer=20
-(attachment->battery =3D NULL) and call synchronize_rcu().=20
+When a hardware reconnect triggers gip_receive_message() and eventually
+gip_reset_attachment(), it acquires attachment->lock and calls
+input_unregister_device() via gip_free_devices(). The unregistration process
+synchronously removes sysfs groups, which blocks waiting for all active
+kernfs references to drain.
 
-Without rcu_read_lock() held here, synchronize_rcu() will not wait,
-potentially allowing the battery pointer to be freed underneath this reader,
-leading to a use-after-free.
+If a local user concurrently writes to the LED sysfs brightness attribute,
+gip_guide_led_set() acquires an active kernfs reference and then blocks
+attempting to acquire attachment->lock, completing the deadlock.
+
+>  		gip_reset_metadata(attachment);
+>  	}
+>  }
+> =20
+>  static void gip_disconnect(struct usb_interface *intf)
+>  {
+>  	struct gip_device *gip =3D usb_get_intfdata(intf);
+> -	int i;
+> +	int i, j;
+> =20
+>  	if (!gip)
+>  		return;
+> =20
+>  	gip_shutdown(gip);
+> =20
+>  	usb_kill_anchored_urbs(&gip->data.out_anchor);
+
+[Severity: High]
+Is this the correct teardown sequence? If gip_shutdown() cancels the
+send_fragment work before usb_kill_anchored_urbs() is called, active URBs
+might complete in the window between them. If an URB completes and triggers
+gip_urb_out(), it will reschedule the send_fragment work. After
+gip_disconnect() frees the device structures, the rescheduled work could
+execute and access freed memory. Should usb_kill_anchored_urbs() be called=
+=20
+before gip_shutdown()?
+
+[ ... ]
+> @@ -3206,8 +3217,8 @@ static void gip_disconnect(struct usb_interface *in=
+tf)
+>  		if (!attachment)
+>  			continue;
+> =20
+> +		for (j =3D 0; j < MAX_OUT_FRAGMENTS; j++)
+> +			cancel_delayed_work_sync(&attachment->out_fragments[i].timeout);
 
 [Severity: Critical]
-This is a pre-existing issue, but can a use-after-free of gip_device and
-gip_attachment happen due to an incorrect teardown order in gip_disconnect(=
-)?
+Does this inner loop mistakenly use the outer index i instead of j?
+Iterating up to MAX_OUT_FRAGMENTS using the outer attachment index i could
+lead to an out-of-bounds access when i is larger than the fragment array=20
+bounds. Additionally, it fails to cancel the actual delayed work items at=20
+indexes j, which could lead to a Use-After-Free if they execute after the=20
+attachment is freed.
 
-Looking at gip_disconnect(), it calls gip_shutdown() which cancels the
-receive_message workqueue. However, the URB that re-queues this work is=20
-not killed until gip_deinit_input() runs later.
-
-Could this open a race window where an interrupt packet arrives just after=
-=20
-cancel_work_sync(&gip->receive_message), allowing gip_urb_in() to=20
-reschedule the work?=20
-
-The device structures would then be freed by devm_kfree() at the end of
-disconnect, and the newly scheduled work would dereference freed memory
-when it executes.
+>  		devm_kfree(to_gip_device(attachment), attachment->uniq);
+>  		devm_kfree(to_gip_device(attachment), attachment);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912030426.2997=
-003-1-vi@endrift.com?part=3D5
+003-1-vi@endrift.com?part=3D6

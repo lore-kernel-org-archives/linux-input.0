@@ -1,187 +1,146 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3EE3BFACE;
-	Sat, 12 Sep 2026 08:54:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF8339768F;
+	Sat, 12 Sep 2026 08:56:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789203290; cv=none; b=nw3mxsquKYlfeMPNEcU+Kc8UhEd1XNt6WZkUcivXAPCBAQGKQVhs5YQDlkyECEPcrgyvKssayvrnu5rOnlm7Ckh/urZnyCKbJhso8tM2xv0EttH/RCMY8rNLIQxDQP2M6ohGaF2B4N3slXmAnX3iZFxIJsfNXtNtC4XOeTviCBA=
+	t=1789203371; cv=none; b=HgaA0p8sBFFzJJmEtB5bBhhXBNFwieM5xu0XECnAOvIEW0qg2uGFQP6LJRGw3KjlmL7bs9kbmxEJ5db7WHQ2arXl1sEhv0NHODgu0weP/QwHW4RF49qtdhRM3hut6ccE8S+2vzRUKBawGZdWNFzYLGoMccbHGsdAvbZc3DAcXho=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789203290; c=relaxed/simple;
-	bh=k+Kx3MwioE6o3kVC9oIqxaeNeMpSvq+sSSkRId/BXAw=;
+	s=arc-20240116; t=1789203371; c=relaxed/simple;
+	bh=x4O05BFmk0e0BDjcZ7QjPbCaCoqpFCmzPruNoV8JIiY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=t3p+k6QqE250zSxDJBSVuIDo7P6oY7QC07iFtpsSqE/zZRVnHcwDsKfhW2qtKrN8DIDVJEb4LdIazZ7MwgBd6HHOSMPJceH1wMzs7IGw7QqbVCp/bXpnVR19oF66+XnyMAd9yEMy79wSjmO5JA5ZXECzMnbqlINakHJtd5TtO8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C/IIgzXK; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=LNGMyFzKXWT4iMBFPFJKZ9JN6OfxGGS/BPCUsWdfiUbaiNO8jJa9hDCH9/aPeZZTm2kcgPxZbt+91Q0ZcmZdJz7Jnb7RIL2Ieblk1Z++EzrqpBe5VQoCiEfxqiYLRwBG64qilxH8wO9WU0Bn2F6qkgPDTrzQQADG3+8pZxfbFzs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R+5J5pXe; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C/IIgzXK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2EA91F00893;
-	Sat, 12 Sep 2026 08:54:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R+5J5pXe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BE591F00893;
+	Sat, 12 Sep 2026 08:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789203288;
-	bh=Kds5i5eW8NniQqjztdR2pS/cbSIHifd1HmIJdy2YJBM=;
+	s=k20260515; t=1789203369;
+	bh=9q2aZ1+K9YHhNIWLNw810aF7IDJ53PRTJ7r+2hMbXUQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=C/IIgzXKnM9SDvwwUgK8JPV6W3L9hgohqnUgqu/Ae0OOahjUktx9go0LhCbSMfGic
-	 flGNLtA5d1/M44m3gKVs8anxTNIyFHR423OI2HRp/QRXCnolUk8XcKUf+SZGOfjflq
-	 viGpL2Vw0KtwSgkVjIzchzhEcxditR5ZkktjxhLa7A6d9A2MWmA9Zykz2vV2j6rN7I
-	 SKmhqiCSipX7kSNliW0Pn7vX5xq7IHtjqdZe1x7G7nT9RFAZb78ISOkQqE3zkcPltM
-	 KLzASnNwysYi1i28U1BvkrFu1mkNYc6Zvrcj+tnERLaAtYLo1XE5uURPD4x5lbwUV0
-	 +9Q2/rYPoixsQ==
+	b=R+5J5pXeNF6eeXUYniLykE2k7KCrfCqlxTz+ftkHK5SVkGCHNbtRltva4RmbMlqyI
+	 8oPyDrKozCQrkmoPAd6xBcb/vizR1AA8s94CXlI4HOzqUa7cX1QxkRTvN0Xf1PLauw
+	 bwpa3NE/gf0KMgK13E50pzdBGGbbEvZNg3/ZxNyL/XxgOQ30y8munxXGF7cob5iPjt
+	 WV4YxGIzsGdLYui2q3h3j2A3B9hgxI0L8eaXnAXQdp/qXwnmdgT+d/yI/cH65R0Dj1
+	 nJnDihorE+lIYLHEW0oM3EY0Lr9GlBMVkYUII9Ch9ZPC5oXKpGOY0QJI3ZNNhW1Uv1
+	 3hfs08N8qim3g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 02/20] clk: qcom: Add global clock controller driver
- for MSM8952
+Subject: Re: [PATCH RFC 18/20] arm64: dts: qcom: Add initial support for
+ MSM8952
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: robh@kernel.org, conor+dt@kernel.org, lee@kernel.org, dri-devel@lists.freedesktop.org, dmitry.torokhov@gmail.com, linux-clk@vger.kernel.org, linux-input@vger.kernel.org, mfd@lists.linux.dev, devicetree@vger.kernel.org
-In-Reply-To: <20260912-msm8952-initial-support-v1-2-0e742578b524@mainlining.org>
+Cc: devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org, linux-clk@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org, mfd@lists.linux.dev
+In-Reply-To: <20260912-msm8952-initial-support-v1-18-0e742578b524@mainlining.org>
 References: <20260912-msm8952-initial-support-v1-0-0e742578b524@mainlining.org>
- <20260912-msm8952-initial-support-v1-2-0e742578b524@mainlining.org>
+ <20260912-msm8952-initial-support-v1-18-0e742578b524@mainlining.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 08:54:47 +0000
-Message-Id: <20260912085447.C2EA91F00893@smtp.kernel.org>
+Date: Sat, 12 Sep 2026 08:56:08 +0000
+Message-Id: <20260912085609.0BE591F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Duplicate CCF clock branches are registered for the same physical =
-hardware registers (`0x58044` and `0x58048`), leading to state desynchroniz=
-ation.
-- [High] Incorrect parent map for `gp1_clk_src`, `gp2_clk_src`, and `gp3_cl=
-k_src` causes rate setting to unconditionally fail.
-- [High] Hardware resets are improperly mapped to Clock Branch Control Regi=
-sters (CBCR) instead of Block Control Registers (BCR), causing them to togg=
-le clock enablement instead of performing a hardware reset.
+- [High] MPM pin map contains GIC INTIDs instead of GIC SPI numbers, breaki=
+ng wakeup interrupt routing.
+- [High] Passive CPU cooling devices are bound to 'hot' trip points, comple=
+tely disabling thermal throttling.
 --
 
-commit b4dadd423234c197ee41263628a67b773be1b25f
+commit 316713382c786eea1b0593b2d6ec702dcfda18de
 Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
+arm64: dts: qcom: Add initial support for MSM8952
 
-clk: qcom: Add global clock controller driver for MSM8952
+This commit adds device tree support for the Qualcomm MSM8952 SoC, enabling
+peripherals like the MDSS, USB, RPM, and other basic features.
 
-This commit adds the global clock controller driver for MSM8952, providing
-clocks, resets, and power domains for various SoC components. It ports the
-GCC driver for the 8952 based on a downstream reference.
-
-Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
-ear-7.0.0_r0.3/drivers/clk/qcom/clock-gcc-8952.c
-
-> diff --git a/drivers/clk/qcom/gcc-msm8952.c b/drivers/clk/qcom/gcc-msm895=
-2.c
+> diff --git a/arch/arm64/boot/dts/qcom/msm8952.dtsi b/arch/arm64/boot/dts/=
+qcom/msm8952.dtsi
 > new file mode 100644
-> index 0000000000000..e75bf51ad4087
+> index 0000000000000..8b7fa84e7986a
 > --- /dev/null
-> +++ b/drivers/clk/qcom/gcc-msm8952.c
+> +++ b/arch/arm64/boot/dts/qcom/msm8952.dtsi
 [ ... ]
-> +static const struct freq_tbl ftbl_gcc_gp1_3_clk[] =3D {
-> +	F(19200000, P_XO, 1, 0, 0),
-> +	{ }
-> +};
+> +		mpm: interrupt-controller {
+> +			compatible =3D "qcom,mpm";
+> +			qcom,rpm-msg-ram =3D <&apss_mpm>;
+> +			interrupts =3D <GIC_SPI 171 IRQ_TYPE_EDGE_RISING>;
+> +			mboxes =3D <&apcs1 1>;
+> +			interrupt-controller;
+> +			#interrupt-cells =3D <2>;
+> +			#power-domain-cells =3D <0>;
+> +			interrupt-parent =3D <&intc>;
+> +			qcom,mpm-pin-count =3D <64>;
+> +			qcom,mpm-pin-map =3D <2 216>, /* TSENS UPLOW */
+> +				<49 172>, /* USB ASYNC */
+> +				<53 104>, /* MDSS */
+> +				<58 166>, /* USB */
+> +				<62 222>; /* SPMI */
+> +		};
+
+[Severity: High]
+Does this mpm-pin-map define GIC INTIDs (SPI + 32) instead of the expected
+raw GIC SPI numbers?
+
+When providing INTIDs instead of raw SPI numbers, system wakeup interrupts =
+for
+peripherals like TSENS, USB, and MDSS will be misrouted. When the SoC wakes=
+ up,
+the MPM driver will re-trigger the wrong parent SPI (for example, requesting
+SPI 216 instead of 184 for TSENS).
+
+This can cause the peripheral driver to miss the interrupt and potentially =
+leave
+the system in a stuck state.
+
+[ ... ]
+> +		cpu4-thermal {
+> +			polling-delay-passive =3D <250>;
+> +			polling-delay =3D <1000>;
+> +			thermal-sensors =3D <&tsens 5>;
 > +
-> +static struct clk_rcg2 gp1_clk_src =3D {
-> +	.cmd_rcgr =3D 0x08004,
-> +	.mnd_width =3D 8,
-> +	.hid_width =3D 5,
-> +	.parent_map =3D gcc_gpll0_map,
+> +			cooling-maps {
+> +				map0 {
+> +					trip =3D <&cpu4_alert1>;
+> +					cooling-device =3D <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+> +				};
+> +			};
+> +
+> +			trips {
+> +				cpu4_alert0: trip-point0 {
+> +					temperature =3D <75000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "passive";
+> +				};
+> +
+> +				cpu4_alert1: trip-point1 {
+> +					temperature =3D <85000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "hot";
+> +				};
 
 [Severity: High]
-Will this cause rate setting to fail for the general-purpose clocks?
-The frequency table ftbl_gcc_gp1_3_clk requests P_XO as the parent source,
-but the parent map gcc_gpll0_map does not contain an entry for P_XO. When t=
-he
-clock framework attempts to configure the parent, it will search for P_XO a=
-nd
-return -ENOENT. Does this parent map need to be updated to one that includes
-P_XO?
+Will the cpu4 cooling device ever be engaged?
 
-> +	.freq_tbl =3D ftbl_gcc_gp1_3_clk,
-[ ... ]
-> +static struct clk_rcg2 gp2_clk_src =3D {
-> +	.cmd_rcgr =3D 0x09004,
-> +	.mnd_width =3D 8,
-> +	.hid_width =3D 5,
-> +	.parent_map =3D gcc_gpll0_map,
+The cooling map in cpu4-thermal binds the passive CPU cooling device to the
+cpu4_alert1 trip point, but this trip point is defined as type "hot".
 
-[Severity: High]
-Does this have the same parent map issue as gp1_clk_src?
+The thermal core and default passive cooling governors (such as step_wise or
+power_allocator) explicitly ignore "hot" trip points. Because of this, the
+bound cooling device will not be triggered to reduce the CPU frequency when=
+ the
+85C threshold is reached, leading to thermal runaway and an uncontrolled
+shutdown when the critical trip is hit.
 
-> +	.freq_tbl =3D ftbl_gcc_gp1_3_clk,
-[ ... ]
-> +static struct clk_rcg2 gp3_clk_src =3D {
-> +	.cmd_rcgr =3D 0x0a004,
-> +	.mnd_width =3D 8,
-> +	.hid_width =3D 5,
-> +	.parent_map =3D gcc_gpll0_map,
-
-[Severity: High]
-Does this also need to be updated to a parent map containing P_XO?
-
-> +	.freq_tbl =3D ftbl_gcc_gp1_3_clk,
-[ ... ]
-> +static struct clk_branch gcc_camss_vfe0_ahb_clk =3D {
-> +	.halt_reg =3D 0x58044,
-[ ... ]
-> +static struct clk_branch gcc_camss_vfe0_axi_clk =3D {
-> +	.halt_reg =3D 0x58048,
-[ ... ]
-> +static struct clk_branch gcc_camss_vfe_ahb_clk =3D {
-> +	.halt_reg =3D 0x58044,
-
-[Severity: High]
-Are these duplicate clock branches intentional? Both gcc_camss_vfe0_ahb_clk
-and gcc_camss_vfe_ahb_clk map to the exact same physical hardware register
-(0x58044). If different consumer drivers request these two different clock
-abstractions for the same hardware bit, couldn't one driver disable the
-clock while the other expects it to be on, causing unexpected hardware
-failures?
-
-> +	.clkr =3D {
-> +		.enable_reg =3D 0x58044,
-[ ... ]
-> +static struct clk_branch gcc_camss_vfe_axi_clk =3D {
-> +	.halt_reg =3D 0x58048,
-
-[Severity: High]
-Similarly, does this duplicate the gcc_camss_vfe0_axi_clk definition for
-register 0x58048? This might lead to the same state desynchronization and
-reference counting issues in the clock framework.
-
-> +	.clkr =3D {
-> +		.enable_reg =3D 0x58048,
-[ ... ]
-> +static const struct qcom_reset_map gcc_msm8952_resets[] =3D {
-> +	[RST_CAMSS_MICRO_BCR]		=3D { 0x56008 },
-> +	[RST_USB_HS_BCR]		=3D { 0x41000 },
-> +	[RST_QUSB2_PHY_BCR]		=3D { 0x4103c },
-> +	[RST_USB_HS_PHY_CFG_AHB_CBCR]	=3D { 0x41030 },
-
-[Severity: High]
-Could this reset mapping cause unintended behavior? It maps to a Clock
-Branch Control Register (CBCR) instead of a Block Control Register (BCR).
-Without specifying a bit, it defaults to bit 0, which is the CLK_ENABLE bit
-for the CBCR. When a peripheral driver triggers this reset, will it
-accidentally toggle the clock enable state rather than performing a true
-hardware reset?
-
-> +	[RST_USB2_HS_PHY_ONLY_BCR]	=3D { 0x41034 },
-> +	[RST_USB_FS_BCR]		=3D { 0x3f000 },
-> +	[RST_CAMSS_CSI1PIX_CBCR]	=3D { 0x4f058 },
-> +	[RST_CAMSS_CSI_VFE1_CBCR]	=3D { 0x58074 },
-> +	[RST_CAMSS_VFE1_CBCR]		=3D { 0x5805c },
-> +	[RST_CAMSS_CPP_CBCR]		=3D { 0x5803c },
-
-[Severity: High]
-Do these entries also incorrectly map to CBCR registers rather than BCR
-registers, potentially toggling clock enablement instead of performing a
-hardware reset?
-
-> +	[RST_MSS_BCR]			=3D { 0x71000 },
-> +	[RST_MDSS_BCR]			=3D { 0x4d074 },
-> +};
+This pattern appears to also be present in the cpu5-thermal, cpu6-thermal,
+cpu7-thermal, and cpu0-3-thermal blocks.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912-msm8952-in=
-itial-support-v1-0-0e742578b524@mainlining.org?part=3D2
+itial-support-v1-0-0e742578b524@mainlining.org?part=3D18

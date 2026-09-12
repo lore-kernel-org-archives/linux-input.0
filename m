@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B45362931EE
-	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:06:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7604E39150B
+	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:06:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789182385; cv=none; b=BV9qtUXZE4wqPZn6v4H25EJ+tY/m3uFpU+tJejJ17eJFlai1H9XYVMnTwOfvwv1xJJvucuuHI1Hvqyr1X9gk3VnfxbH6WyvO+1Js9QU3uvcXLBCRXYKnR5FykZulZ7kJ9ZaHfFNUclJgNsGAcAZ5K7qgrIiXixe9+0mMYvSg0FA=
+	t=1789182385; cv=none; b=jOZvoh9ZBkVusuQ5RlqQwAgR1pddR1BcKHYUk75X6VdvDHuZOT20IhDrQ7UhfaMrjB7iOMVJD645Sv4Xl1e5rfHZRnzPByeXYmgdUSCcWZOCF4F5i41nUNGJDB8Ahnf6xgK8F3JUbwQjNxXf2oxA5JQNCsPCeencCegYJSZkXSc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789182385; c=relaxed/simple;
-	bh=JtaV9lqfb52F0JL+dBWDewz/zSKc/RPdGJSYCbR+oqM=;
+	bh=sxaOio4nUCxeZS66DEBXkwo0ISZ9dKDPeUPg5ZwZy7Y=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oHyfOBd4IfPOMTQyW8JnjbKs4oNtokJ/Q52u7Y4eTCw2fSCVmiXp0YTQovAD7wiDRaBnPT6mR8S69wfLuBRVGDucl8S36NLI+jdEIstO6H2tmTq9Gu5hZUmdDOorGxmjkPbnoLD7jx5AbxVelqTJpYHd7D8mfTOkVc784TOLkuQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=g3oQPc4W; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=YkArwPo5q2yTcb2VRe1BZQ1+mlFjt9wLhhruDFbrEuEGBaa7yUPle8Kl2BdLjrnYE+s7HNYH5qn/cWhtWz+PaAivzk3MqeALxa+6oc7y5Y4eh74+fQpgAk1eYSs+Ncar0YHK9VDkOUEJolPncuIwlpNT9fpOLUY8+8ksZOG+Xe0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=ZAcyG28Z; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="g3oQPc4W"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="ZAcyG28Z"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1789182375; bh=JtaV9lqfb52F0JL+dBWDewz/zSKc/RPdGJSYCbR+oqM=;
+	t=1789182376; bh=sxaOio4nUCxeZS66DEBXkwo0ISZ9dKDPeUPg5ZwZy7Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=g3oQPc4WcRyUy2hsNbWRUpQh6Ysx43EJ6wP67BPFyoO+dPPeX83eX/FqFDWeyXvLN
-	 z6g6sS6Tlen6Xe3SCWgHssQM3fP4c2c9biBWYyFtqVKss472QUYMBFGwfjHmEm/71t
-	 aKu7Gty0B7cmgzBgb/SLyP3xuurLOfBnKAjq6E607onduTyLZbipcFwvb2R6PbhjHO
-	 6PoXxlHTWMwqalVpaMBoXawISGQ4Kdx4jEx6NRAcnjodFr5fwQNy+I9e8aRA1AScOP
-	 TkiDvMl+uJrgNI7diI9DzKD8rwtkrxY9rxSmjDAPj8MmUjm1Qowf/1IPPZ2lOFqiqY
-	 IvE1gviP5iH1A==
+	b=ZAcyG28ZW0ZIRIgCglArsUMNqWjiVow4TM4s3gkoxE9jRjrY3xeng7fCbU6VHs7kv
+	 /bM8RqYWUAcpEMoHfWikzfZ48u0MNoGMXXQjbyDRhVdwrtYXdW57EqttZCd+BnfIHR
+	 O3XFAoqPEGuFQPZkS8Kn5GlPBIKRXGKY1z2dTpUkD4rfoIVsUIKnGmiFlueLgysEa3
+	 NotyHwakeGVvUDdCO3wAD+deYP71lSoJQNX3LyYGIQy7CirBF5Wnm6dKPyp+MiGv+L
+	 4i8LuUTeHP8bFUbCQ/oAOI3eQavVGX/Pf5xT/QVuQYpy3wRtOao0fgyaSRZFHR30U0
+	 +zN4geVmNcd9A==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id 8682A13208C;
-	Fri, 11 Sep 2026 20:06:15 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 9CD17132094;
+	Fri, 11 Sep 2026 20:06:16 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v7 09/12] Input: xbox_gip - Add support for PDP guitar controllers
-Date: Fri, 11 Sep 2026 20:04:20 -0700
-Message-ID: <20260912030426.2997003-10-vi@endrift.com>
+Subject: [PATCH v7 12/12] Input: xbox_gip - Add wheel support
+Date: Fri, 11 Sep 2026 20:04:23 -0700
+Message-ID: <20260912030426.2997003-13-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260912030426.2997003-1-vi@endrift.com>
 References: <20260912030426.2997003-1-vi@endrift.com>
@@ -46,192 +46,467 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch adds support for the PDP guitar controllers, namely the Fender
-Jaguar and RiffMaster models. These use mostly the same protocol, but the
-RiffMaster appears t use a slightly newer variant.
+This adds preliminary support for racing wheel support in xbox_gip,
+exposing them mapped to the newly added axes.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/input/joystick/gip/Makefile         |   1 +
- drivers/input/joystick/gip/gip-core.c       |   1 +
- drivers/input/joystick/gip/gip-pdp-jaguar.c | 129 ++++++++++++++++++++
- drivers/input/joystick/gip/gip.h            |   2 +
- 4 files changed, 133 insertions(+)
- create mode 100644 drivers/input/joystick/gip/gip-pdp-jaguar.c
+ drivers/input/joystick/gip/Makefile      |   1 +
+ drivers/input/joystick/gip/gip-core.c    |   4 +-
+ drivers/input/joystick/gip/gip-drivers.c |  10 +
+ drivers/input/joystick/gip/gip-wheel.c   | 351 +++++++++++++++++++++++
+ drivers/input/joystick/gip/gip.h         |   6 +
+ 5 files changed, 371 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/input/joystick/gip/gip-wheel.c
 
 diff --git a/drivers/input/joystick/gip/Makefile b/drivers/input/joystick/gip/Makefile
-index 9ed59caec4d9..62c016d6c11e 100644
+index 62c016d6c11e..7d4209eb32c3 100644
 --- a/drivers/input/joystick/gip/Makefile
 +++ b/drivers/input/joystick/gip/Makefile
-@@ -4,3 +4,4 @@ obj-$(CONFIG_JOYSTICK_XBOX_GIP)	+= xbox-gip.o
- xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
+@@ -5,3 +5,4 @@ xbox-gip-y := gip-core.o gip-drivers.o gip-security.o
  # Additional device support
  xbox-gip-y += gip-arcade-stick.o
-+xbox-gip-y += gip-pdp-jaguar.o
+ xbox-gip-y += gip-pdp-jaguar.o
++xbox-gip-y += gip-wheel.o
 diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index ff8844b4e293..720b9a075ed3 100644
+index 720b9a075ed3..42e191f0aef2 100644
 --- a/drivers/input/joystick/gip/gip-core.c
 +++ b/drivers/input/joystick/gip/gip-core.c
-@@ -333,6 +333,7 @@ static const struct gip_driver *base_drivers[] = {
- 	&gip_driver_navigation,
+@@ -8,7 +8,7 @@
+  * - Audio device support
+  * - Event logging
+  * - Raw character device
+- * - Wheel support
++ * - Wheel force feedback
+  * - Flight stick support
+  * - More arcade stick testing
+  * - Arcade stick extra buttons
+@@ -334,6 +334,8 @@ static const struct gip_driver *base_drivers[] = {
  	&gip_driver_gamepad,
  	&gip_driver_arcade_stick,
-+	&gip_driver_pdp_jaguar,
+ 	&gip_driver_pdp_jaguar,
++	&gip_driver_trueforce_wheel,
++	&gip_driver_wheel,
  	NULL /* Sentinel */
  };
  
-diff --git a/drivers/input/joystick/gip/gip-pdp-jaguar.c b/drivers/input/joystick/gip/gip-pdp-jaguar.c
+diff --git a/drivers/input/joystick/gip/gip-drivers.c b/drivers/input/joystick/gip/gip-drivers.c
+index 74bc858e71cc..7ba11b19c8ee 100644
+--- a/drivers/input/joystick/gip/gip-drivers.c
++++ b/drivers/input/joystick/gip/gip-drivers.c
+@@ -142,6 +142,11 @@ static int gip_setup_navigation_input(struct gip_attachment *attachment, struct
+ 	input_set_capability(input, EV_KEY, BTN_TR);
+ 	input_set_capability(input, EV_KEY, BTN_TL);
+ 
++	if (attachment->quirks & GIP_QUIRK_FORCE_GAMEPAD_SB) {
++		input_set_capability(input, EV_KEY, BTN_THUMBR);
++		input_set_capability(input, EV_KEY, BTN_THUMBL);
++	}
++
+ 	attachment->dpad_as_buttons = dpad_as_buttons;
+ 	if (attachment->dpad_as_buttons) {
+ 		input_set_capability(input, EV_KEY, BTN_DPAD_UP);
+@@ -193,6 +198,11 @@ static int gip_handle_navigation_report(struct gip_attachment *attachment,
+ 		input_report_key(input, BTN_TR, bytes[1] & BIT(5));
+ 	}
+ 
++	if (attachment->quirks & GIP_QUIRK_FORCE_GAMEPAD_SB) {
++		input_report_key(input, BTN_THUMBL, bytes[1] & BIT(6));
++		input_report_key(input, BTN_THUMBR, bytes[1] & BIT(7));
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/input/joystick/gip/gip-wheel.c b/drivers/input/joystick/gip/gip-wheel.c
 new file mode 100644
-index 000000000000..ec0e9d811d12
+index 000000000000..bd281b295eac
 --- /dev/null
-+++ b/drivers/input/joystick/gip/gip-pdp-jaguar.c
-@@ -0,0 +1,129 @@
++++ b/drivers/input/joystick/gip/gip-wheel.c
+@@ -0,0 +1,351 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
-+ * Drivers for GIP PDP Jaguar-style guitars
++ * Drivers for GIP racing wheel devices
 + *
-+ * Copyright (c) 2026 Valve Software
++ * Copyright (c) 2025 Valve Software
++ *
++ * This driver is based on the Microsoft GIP spec at:
++ * https://aka.ms/gipdocs
++ * https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-gipusb/e7c90904-5e21-426e-b9ad-d82adeee0dbc
 + */
 +
 +#include <linux/unaligned.h>
 +#include "gip.h"
 +
-+#define GIP_QUIRK_PDP_HAS_RIGHT_STICK	BIT(31)
++#define GIP_QUIRK_WHEEL_FORCE_HANDBRAKE	BIT(31)
 +
-+static int gip_setup_pdp_jaguar_input(struct gip_attachment *attachment, struct input_dev *input)
++/* Wheel vendor messages */
++#define GIP_CMD_SET_APPLICATION_MEMORY	0x0b
++#define GIP_CMD_SET_EQUATIONS_STATES	0x0c
++#define GIP_CMD_SET_EQUATION 0x0d
++
++/* Wheel-specific flags */
++#define GIP_WHEEL_HAS_POWER		BIT(3)
++#define GIP_WHEEL_HANDBRAKE_CONN	BIT(4)
++#define GIP_WHEEL_CLUTCH_CONN		BIT(5)
++#define GIP_WHEEL_BRAKE_CONN		BIT(6)
++#define GIP_WHEEL_THROTTLE_CONN		BIT(7)
++
++#define GIP_HSHIFTER_NONE	0
++#define GIP_HSHIFTER_2POS	1 /* 2 position, no neutral */
++#define GIP_HSHIFTER_2POS_N	2 /* 2 position, neutral */
++#define GIP_HSHIFTER_RTL_1TL	3 /* Reverse top left, first top left */
++#define GIP_HSHIFTER_RTL_1BL	4 /* Reverse top left, first bottom left */
++#define GIP_HSHIFTER_RBL	5 /* Reverse bottom left */
++#define GIP_HSHIFTER_RTR	6 /* Reverse top right */
++#define GIP_HSHIFTER_RBR	7 /* Reverse bottom right */
++
++struct gip_wheel_info {
++	uint8_t shifter_type: 3;
++	uint8_t max_gear: 5;
++	uint16_t angle_setting;
++	uint16_t max_angle;
++	uint16_t max_throttle;
++	uint16_t max_brake;
++	uint16_t max_clutch;
++	uint8_t max_handbrake;
++	int8_t value_retries;
++};
++
++struct gip_initial_reports_request {
++	uint8_t type;
++	uint8_t data[2];
++};
++
++static int gip_wheel_probe(struct gip_attachment *attachment)
 +{
-+	/*
-+	 * Despite having the navigation controller GUID, we don't want to use
-+	 * those mappings. Instead, we use the xone mappings for compatibility
-+	 * reasons.
-+	 */
++	struct gip_wheel_info *info = kzalloc(sizeof(*info), GFP_KERNEL);
 +
-+	/* Lower fret */
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY2);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY3);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY4);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY5);
-+	/* Upper fret */
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY6);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY7);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY8);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY9);
-+	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY10);
-+
-+	input_set_capability(input, EV_KEY, BTN_START);
-+	input_set_capability(input, EV_KEY, BTN_SELECT);
-+
-+	/* Whammy bar */
-+	input_set_abs_params(input, ABS_Y, 0, 255, 0, 0);
-+	/* Tilt */
-+	input_set_abs_params(input, ABS_Z, 0, 255, 0, 0);
-+
-+	input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
-+
-+	if (attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) {
-+		input_set_capability(input, EV_KEY, BTN_THUMBR);
-+		input_set_abs_params(input, ABS_RX, -32768, 32767, 16, 128);
-+		input_set_abs_params(input, ABS_RY, -32768, 32767, 16, 128);
-+	}
++	if (!info)
++		return -ENOMEM;
++	attachment->driver_data = info;
 +
 +	return 0;
 +}
 +
-+static int gip_handle_pdp_jaguar_report(struct gip_attachment *attachment,
++static void gip_wheel_remove(struct gip_attachment *attachment)
++{
++	kfree(attachment->driver_data);
++	attachment->driver_data = NULL;
++}
++
++static int gip_wheel_init(struct gip_attachment *attachment)
++{
++	struct gip_initial_reports_request request = { 0 };
++	int rc = gip_send_vendor_message(attachment,
++		GIP_CMD_INITIAL_REPORTS_REQUEST, 0, &request,
++		sizeof(request));
++
++	if (rc < 0)
++		return rc;
++
++	return GIP_INIT_NO_INPUT;
++}
++
++static int gip_setup_wheel_input(struct gip_attachment *attachment, struct input_dev *input)
++{
++	int rc = gip_driver_navigation.setup_input(attachment, input);
++	struct gip_wheel_info *info = attachment->driver_data;
++
++	if (rc < 0)
++		return rc;
++
++	if (!info)
++		return -ENODEV;
++
++	input_set_abs_params(input, ABS_WHEEL, -info->max_angle - 1, info->max_angle, 0, 0);
++	input_abs_set_res(input, ABS_WHEEL, info->angle_setting);
++	if (info->max_throttle)
++		input_set_abs_params(input, ABS_GAS, 0, info->max_throttle, 0, 0);
++
++	if (info->max_brake)
++		input_set_abs_params(input, ABS_BRAKE, 0, info->max_brake, 0, 0);
++
++	if (info->max_clutch)
++		input_set_abs_params(input, ABS_CLUTCH, 0, info->max_clutch, 0, 0);
++
++	if (info->max_handbrake)
++		input_set_abs_params(input, ABS_HANDBRAKE, 0, info->max_handbrake, 0, 0);
++
++	if (info->shifter_type)
++		input_set_abs_params(input, ABS_SHIFTER, -1, info->max_gear, 0, 0);
++
++	return 0;
++}
++
++static int gip_handle_wheel_ll_input_report(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	int rc = 0;
++	struct gip_wheel_info *info = attachment->driver_data;
++
++	if (num_bytes < 17)
++		return -EINVAL;
++
++	if (!info)
++		return -ENODEV;
++
++	info->max_gear = bytes[11] & 0x1F;
++	info->shifter_type = bytes[11] >> 5;
++	info->angle_setting = get_unaligned_le16(&bytes[13]);
++
++	gip_dbg(attachment,
++		"Racing wheel with %u max gear, %u degree rotation\n",
++		info->max_gear, info->angle_setting);
++
++	if (info->angle_setting && info->max_angle) {
++		if (info->value_retries-- > 0)
++			return 0;
++
++		rc = gip_setup_input_device(attachment);
++	} else {
++		return 0;
++	}
++
++	if (rc < 0)
++		return rc;
++
++	/* Now that we're done configuring, fall back to default handler */
++	attachment->vendor_handlers[GIP_LL_INPUT_REPORT] = NULL;
++
++	return 0;
++}
++
++static int gip_handle_wheel_report(struct gip_attachment *attachment,
 +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
 +{
-+	bool lower;
++	uint8_t connections;
++	struct gip_wheel_info *info = attachment->driver_data;
++	int rc = gip_driver_navigation.handle_input_report(attachment, input, bytes, num_bytes);
 +
-+	if (num_bytes < 4) {
-+		gip_dbg(attachment, "Discarding too-short input report\n");
++	if (rc < 0)
++		return rc;
++
++	if (!info)
++		return -ENODEV;
++
++	if (num_bytes < 17)
 +		return -EINVAL;
-+	}
 +
-+	input_report_key(input, BTN_START, bytes[0] & BIT(2));
-+	input_report_key(input, BTN_SELECT, bytes[0] & BIT(3));
++	input_report_abs(input, ABS_WHEEL, get_unaligned_le16(&bytes[2]) - info->max_angle - 1);
 +
-+	if (num_bytes >= 7 && (bytes[5] || bytes[6])) {
-+		/* Newer report version on the RiffMaster */
-+		input_report_key(input, BTN_TRIGGER_HAPPY1, bytes[5] & BIT(0));
-+		input_report_key(input, BTN_TRIGGER_HAPPY2, bytes[5] & BIT(1));
-+		input_report_key(input, BTN_TRIGGER_HAPPY3, bytes[5] & BIT(2));
-+		input_report_key(input, BTN_TRIGGER_HAPPY4, bytes[5] & BIT(3));
-+		input_report_key(input, BTN_TRIGGER_HAPPY5, bytes[5] & BIT(4));
++	connections = bytes[16];
 +
-+		input_report_key(input, BTN_TRIGGER_HAPPY6, bytes[6] & BIT(0));
-+		input_report_key(input, BTN_TRIGGER_HAPPY7, bytes[6] & BIT(1));
-+		input_report_key(input, BTN_TRIGGER_HAPPY8, bytes[6] & BIT(2));
-+		input_report_key(input, BTN_TRIGGER_HAPPY9, bytes[6] & BIT(3));
-+		input_report_key(input, BTN_TRIGGER_HAPPY10, bytes[6] & BIT(4));
-+	} else {
-+		lower = bytes[1] & BIT(6);
-+		input_report_key(input, BTN_TRIGGER_HAPPY1, !lower && (bytes[0] & BIT(4)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY2, !lower && (bytes[0] & BIT(5)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY3, !lower && (bytes[0] & BIT(7)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY4, !lower && (bytes[0] & BIT(6)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY5, !lower && (bytes[1] & BIT(4)));
++	if (attachment->quirks & GIP_QUIRK_WHEEL_FORCE_HANDBRAKE)
++		connections |= GIP_WHEEL_HANDBRAKE_CONN;
 +
-+		input_report_key(input, BTN_TRIGGER_HAPPY6, lower && (bytes[0] & BIT(4)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY7, lower && (bytes[0] & BIT(5)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY8, lower && (bytes[0] & BIT(7)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY9, lower && (bytes[0] & BIT(6)));
-+		input_report_key(input, BTN_TRIGGER_HAPPY10, lower && (bytes[1] & BIT(4)));
-+	}
++	if (connections & GIP_WHEEL_THROTTLE_CONN)
++		input_report_abs(input, ABS_GAS, get_unaligned_le16(&bytes[4]));
++	else
++		input_report_abs(input, ABS_GAS, 0);
 +
-+	input_report_abs(input, ABS_Y, bytes[2]);
-+	input_report_abs(input, ABS_Z, bytes[3]);
++	if (connections & GIP_WHEEL_BRAKE_CONN)
++		input_report_abs(input, ABS_BRAKE, get_unaligned_le16(&bytes[6]));
++	else
++		input_report_abs(input, ABS_BRAKE, 0);
 +
-+	input_report_abs(input, ABS_HAT0X,
-+		!!(bytes[1] & BIT(3)) - !!(bytes[1] & BIT(2)));
-+	input_report_abs(input, ABS_HAT0Y,
-+		!!(bytes[1] & BIT(1)) - !!(bytes[1] & BIT(0)));
++	if (connections & GIP_WHEEL_CLUTCH_CONN)
++		input_report_abs(input, ABS_CLUTCH, get_unaligned_le16(&bytes[8]));
++	else
++		input_report_abs(input, ABS_CLUTCH, 0);
 +
-+	if ((attachment->quirks & GIP_QUIRK_PDP_HAS_RIGHT_STICK) && num_bytes >= 14) {
-+		input_report_key(input, BTN_THUMBR, bytes[1] & BIT(6));
-+		input_report_abs(input, ABS_RX, (int16_t)get_unaligned_le16(&bytes[10]));
-+		input_report_abs(input, ABS_RY, ~(int16_t)get_unaligned_le16(&bytes[12]));
-+	}
++	if (connections & GIP_WHEEL_HANDBRAKE_CONN)
++		input_report_abs(input, ABS_HANDBRAKE, bytes[10]);
++	else
++		input_report_abs(input, ABS_HANDBRAKE, 0);
++
++	if (info->shifter_type)
++		input_report_abs(input, ABS_SHIFTER, (int8_t)bytes[12]);
 +
 +	return 0;
 +}
 +
-+const struct gip_driver gip_driver_pdp_jaguar = {
-+	.types = (const char *const[]) { "PDP.Xbox.Guitar.Jaguar", NULL },
-+	.guid = GUID_INIT(0x1a266af6, 0x3a46, 0x45e3, 0xb9, 0xb6,
-+		0x0f, 0x2c, 0x0b, 0x2c, 0x1e, 0xbe),
++static int gip_handle_wheel_ll_static_configuration(struct gip_attachment *attachment,
++	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
++{
++	struct gip_wheel_info *info = attachment->driver_data;
++
++	if (!info)
++		return -ENODEV;
++
++	if (num_bytes < 11)
++		return -EINVAL;
++
++	info->max_angle = BIT(min(bytes[0], 16)) / 2 - 1;
++	info->max_throttle = BIT(min(bytes[1], 16)) - 1;
++	info->max_brake = BIT(min(bytes[2], 16)) - 1;
++	info->max_clutch = BIT(min(bytes[3], 16)) - 1;
++	info->max_handbrake = BIT(min(bytes[4], 8)) - 1;
++
++	gip_dbg(attachment,
++		"Racing wheel with precision: %u bits angle, %u bits throttle, %u bits brake,\n",
++		bytes[0], bytes[1], bytes[2]);
++	gip_dbg(attachment,
++		"%u bits clutch, %u bits handbrake\n", bytes[3], bytes[4]);
++
++	if (info->angle_setting && info->max_angle && info->value_retries <= 0)
++		return gip_setup_input_device(attachment);
++
++	return 0;
++}
++
++const struct gip_driver gip_driver_wheel = {
++	.types = (const char* const[]) {
++		"Windows.Xbox.Input.Wheel",
++		"Microsoft.Xbox.Input.Wheel",
++		NULL
++	},
++	.guid = GUID_INIT(0x646979cf, 0x6b71, 0x4e96, 0x8d, 0xf9,
++		0x59, 0xe3, 0x98, 0xd7, 0x42, 0x0c),
 +
 +	.quirks = (const struct gip_quirks[]) {
-+		/* PDP RiffMaster */
-+		{ GIP_VID_PDP, GIP_PID_PDP_RIFFMASTER, 0,
-+			.quirks = GIP_QUIRK_PDP_HAS_RIGHT_STICK, },
++		/* Thrustmaster T128X GIP Racing Wheel */
++		{ GIP_VID_THRUSTMASTER, GIP_PID_THRUSTMASTER_T128X, 0,
++			.quirks = GIP_QUIRK_FORCE_GAMEPAD_SB | GIP_QUIRK_WHEEL_FORCE_HANDBRAKE, },
 +
 +		{0},
 +	},
-+	.probe = NULL,
-+	.remove = NULL,
-+	.init = NULL,
-+	.setup_input = gip_setup_pdp_jaguar_input,
-+	.handle_input_report = gip_handle_pdp_jaguar_report,
++
++	.probe = gip_wheel_probe,
++	.remove = gip_wheel_remove,
++	.init = gip_wheel_init,
++	.setup_input = gip_setup_wheel_input,
++	.handle_input_report = gip_handle_wheel_report,
++	.vendor_handlers = {
++		[GIP_LL_INPUT_REPORT] = gip_handle_wheel_ll_input_report,
++		[GIP_LL_STATIC_CONFIGURATION] = gip_handle_wheel_ll_static_configuration,
++	},
 +};
++
++struct gip_trueforce_wheel_state {
++	struct gip_wheel_info wheel_info; /* This field must be first for type punning */
++	int8_t dial;
++};
++
++static int gip_trueforce_wheel_probe(struct gip_attachment *attachment)
++{
++	struct gip_trueforce_wheel_state *state = kzalloc(sizeof(*state), GFP_KERNEL);
++
++	if (!state)
++		return -ENOMEM;
++	attachment->driver_data = state;
++	/* The shifter won't show in the first few input reports */
++	state->wheel_info.value_retries = 3;
++	state->dial = -1;
++
++	return 0;
++}
++
++static void gip_trueforce_wheel_remove(struct gip_attachment *attachment)
++{
++	kfree(attachment->driver_data);
++	attachment->driver_data = NULL;
++}
++
++static int gip_setup_trueforce_wheel_input(struct gip_attachment *attachment,
++	struct input_dev *input)
++{
++	int rc = gip_driver_wheel.setup_input(attachment, input);
++
++	if (rc < 0)
++		return rc;
++
++	input_set_capability(input, EV_KEY, BTN_THUMBL);
++	input_set_capability(input, EV_KEY, BTN_THUMBR);
++	input_set_capability(input, EV_KEY, KEY_KPPLUS);
++	input_set_capability(input, EV_KEY, KEY_KPMINUS);
++	input_set_capability(input, EV_KEY, KEY_KPENTER);
++	input_set_capability(input, EV_REL, REL_DIAL);
++
++	return 0;
++}
++
++static int gip_handle_trueforce_wheel_report(struct gip_attachment *attachment,
++	struct input_dev *input, const uint8_t *bytes, int num_bytes)
++{
++	int rc = gip_driver_wheel.handle_input_report(attachment, input, bytes, num_bytes);
++	struct gip_trueforce_wheel_state *state = attachment->driver_data;
++	int dial;
++
++	if (rc < 0)
++		return rc;
++
++	if (num_bytes < 18)
++		return -EINVAL;
++
++	dial = bytes[17] >> 5;
++
++	input_report_key(input, BTN_THUMBL, bytes[17] & BIT(0));
++	input_report_key(input, BTN_THUMBR, bytes[17] & BIT(1));
++	input_report_key(input, KEY_KPPLUS, bytes[17] & BIT(2));
++	input_report_key(input, KEY_KPMINUS, bytes[17] & BIT(3));
++	input_report_key(input, KEY_KPENTER, bytes[17] & BIT(4));
++	/* Dial states only change one at a time, so we can easily check for wraparound */
++	if (dial == 0 && state->dial == 7)
++		input_report_rel(input, REL_DIAL, -1);
++	else if (dial == 7 && state->dial == 0)
++		input_report_rel(input, REL_DIAL, 1);
++	else if (state->dial >= 0)
++		input_report_rel(input, REL_DIAL,
++			state->dial - dial);
++	state->dial = dial;
++
++	return 0;
++}
++
++const struct gip_driver gip_driver_trueforce_wheel = {
++	.types = (const char *const[]) { "Logi.Xbox.Input.TrueForceWheel", NULL },
++	.guid = GUID_INIT(0x6ca319e5, 0x0bc0, 0x41be, 0x83, 0x19,
++		0x6b, 0xb7, 0x10, 0x81, 0xec, 0x55),
++
++	.probe = gip_trueforce_wheel_probe,
++	.remove = gip_trueforce_wheel_remove,
++	.init = gip_wheel_init,
++	.setup_input = gip_setup_trueforce_wheel_input,
++	.handle_input_report = gip_handle_trueforce_wheel_report,
++	.vendor_handlers = {
++		[GIP_LL_INPUT_REPORT] = gip_handle_wheel_ll_input_report,
++		[GIP_LL_STATIC_CONFIGURATION] = gip_handle_wheel_ll_static_configuration,
++	},
++};
++
 diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index 77e3fa8b2a2c..f9b2e08ea60f 100644
+index f9b2e08ea60f..eaf11059efd9 100644
 --- a/drivers/input/joystick/gip/gip.h
 +++ b/drivers/input/joystick/gip/gip.h
-@@ -41,6 +41,7 @@
- #define GIP_PID_XBOX_WIRELESS			0x0b12
+@@ -28,10 +28,13 @@
+ #define MAX_OUT_MESSAGES 8
+ #define MAX_OUT_FRAGMENTS 2
  
- #define GIP_PID_PDP_ROCK_CANDY	0x0246
-+#define GIP_PID_PDP_RIFFMASTER	0x0248
++#define GIP_VID_THRUSTMASTER	0x044f
+ #define GIP_VID_MICROSOFT	0x045e
+ #define GIP_VID_PDP		0x0e6f
+ #define GIP_VID_BDA		0x24c6
  
- #define GIP_PID_BDA_XB1_CLASSIC		0x581a
- #define GIP_PID_BDA_XB1_FUSION_PRO	0x591a
-@@ -430,4 +431,5 @@ void gip_security_release(struct gip_security *security);
- extern const struct gip_driver gip_driver_navigation;
++#define GIP_PID_THRUSTMASTER_T128X	0xb69c
++
+ #define GIP_PID_XBOX_ONE_1573			0x02d1
+ #define GIP_PID_XBOX_ONE_1697			0x02dd
+ #define GIP_PID_XBOX_ELITE			0x02e3
+@@ -50,6 +53,7 @@
+ #define GIP_QUIRK_NO_IMPULSE_VIBRATION	BIT(1)
+ #define GIP_QUIRK_SWAP_LB_RB		BIT(2)
+ #define GIP_QUIRK_SKIP_SECURITY		BIT(3)
++#define GIP_QUIRK_FORCE_GAMEPAD_SB	BIT(4)
+ /*
+  * Driver-specific quirks should start from 31 and go downwards to avoid
+  * conflicts with newly-added core quirks
+@@ -432,4 +436,6 @@ extern const struct gip_driver gip_driver_navigation;
  extern const struct gip_driver gip_driver_gamepad;
  extern const struct gip_driver gip_driver_arcade_stick;
-+extern const struct gip_driver gip_driver_pdp_jaguar;
+ extern const struct gip_driver gip_driver_pdp_jaguar;
++extern const struct gip_driver gip_driver_wheel;
++extern const struct gip_driver gip_driver_trueforce_wheel;
  #endif
 -- 
 2.54.0

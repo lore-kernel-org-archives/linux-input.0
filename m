@@ -1,109 +1,148 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-a7-smtp.messagingengine.com (flow-a7-smtp.messagingengine.com [103.168.172.142])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CACFC1BD9C9
-	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 07:36:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7537A30567B;
+	Sat, 12 Sep 2026 08:07:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.142
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789198588; cv=none; b=tDRGtcpQMSGe8jeC4YPUzQvFPGNULub0fVh6fQdCn2QyJJd01rocqrDnwvXyTUaO9tZNa+kQL+LJZ1nVbs1WkIvyPwfMe1uzIoMtizQoMhvza3mu5QdJUDqZxgOEgPlpzB4CgPWYJgoR78ztg5Ho4+Op1r5pjAPsXGUd/wHwoIk=
+	t=1789200429; cv=none; b=lfF2SRH+PEVJMN8DLp6e/0ZPUVjVGQxYKbRZHLpZhS+8d49YDwuhPu3p6yqE/ABCOR8jNwm24HgrrAPwUxs/h22tFH/eHPwpcGZcsEAgdjQjOP+rLFOhrL489tYxRX1i80m2DTYWbx3oF9vsk1dAU/w4qr0RrzuQRzzIIOKX4BI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789198588; c=relaxed/simple;
-	bh=BuQCrCf+mQSigNEIwwyGIr/Jb15zz9/6CrrJ2HCzriw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=MCuirZ+tSk2YJO44joWwIWhR5kusL8UT8geuyjFylXTYnefYGw3i0WgYDwuLAIgprCfC2zc9JBo4Xl3EriyXzzjKzxBol68+sYQ4wV5N/+gC0L8iYrOyTs+ijIS6OHJ5TCjJ92bpa6A3gzGCtx7dOZvtIjNdOJ/OrBU3yYBV0XM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MqdyXe0T; arc=none smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789200429; c=relaxed/simple;
+	bh=AN84vRXniBYk4yPYM0B8PUW9uuzmgLtIuPt928IPrcM=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=XXwxybsjiqCvuAFFf/ytYxg8zErKgtV7U4POV+irYctFeLWFDFqhhCNOe1VuKxdXs71hv/t+ezlbiEh2l9Q7KqD+B6u8ER3BVCaR9R/6MLhIw81LSVr5D49qBM5O+P7mZcT7RiIVpMw+DSl+NACavLhmGEa99lm3GArU63TVVV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=Lrt/fM48; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=lxb01r0k; arc=none smtp.client-ip=103.168.172.142
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MqdyXe0T"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-49e717c9841so522585e9.0
-        for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 00:36:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789198585; x=1789803385; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=pmwdaFlGrRaB21X48sX6rYaTDcYS33SWDbPNO4WTsx4=;
-        b=MqdyXe0TEJMHEehkfn4E2ajLVoaoCTsp5enZENkkj5MdhLOiNRObeT+RZMsebzQomS
-         Hf6+LNeAQHaDxsvPDdOz71VG+BQ/AUMJMqg9vG4vozZCbigziWJ4/KkZ1eNKWO+R9ayK
-         wx/6lfWbNpgOQ2kV0/CN/wnq0vV2epTGxf4//UImQtcV+XmDoZTCHVYGK5l6cK/pFj2x
-         9DuxFR15Q2UcPVvKwlX6qxjoOEnPEdamQL6XfBiYML2z7SKr4ozUP/GZpdVd6X+txRbO
-         4Sh5/hDx3uHYmzsfG3X3RaUyIVPlL/Eh6jhjBCJJu0VLi/+E8ShGhF62S0mAGeL/X9dn
-         Tu+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789198585; x=1789803385;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=pmwdaFlGrRaB21X48sX6rYaTDcYS33SWDbPNO4WTsx4=;
-        b=SdK8H7Xn5dv0asRXNjHACB5LfLdqsTzDNZFR3/aB38T7rpU/u2WA0f3JzE3C4rZedK
-         9dPdTJNMSoVMbzXBGu8qA+xCLWvRT1rLyW6KbBv6tOP1ipynNeCBCsFHxJMv/hDBUMYz
-         2ZC+myDfJiP+kC0eMVhsjgCZl4yvFiK+bMsvXqIqmvb6Zk1aB/yPCiv3I2pOKlMbvwam
-         S+NMhkzeVZtkhg5RQTc+DCMYQLq4cUcUGvJ3FN50i8fKjToyLzDR2lCdhetgWydh9Siw
-         5KqHGbc2Xo+/2zDIluEhM0GLVa2sjJHcar8v8FkozR1UeEgz4rpeYCRW/ece5rYpo/vO
-         2FJg==
-X-Forwarded-Encrypted: i=1; AKwUvBy2uiDYK80ab4x6VWucWNyhC3e/g8TPaWv4HDcxb4wLtuRIhB3YeCON5+jPXPxpXCEqPOrF31eSaCiFmA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lN2zfxw58Ng3p+Lig4JudGLi5mvYRl1NkX/RvGChdk48/KRUZw
-	sOgaMtaD4nGVm5K7j3MhfSg8WVrbnrHSubywIB/LQ1aE5BSbBBkeeeFP
-X-Gm-Gg: AYBFou2zglhTsM6hWwVmwSbXiYYG16q5GRJDiaiOLTDDJE73/8VubiKigfJswJNQHXE
-	4fBsCZYN5Cm/8gIduDyJcC2l4z8RGIZzGzc157LQUmP0Q4eMR2eqah3ECqL962j7MKGmMN7B5df
-	pGFucD3PUjinlJHIF++X1aXeJPPXzoE/qGw97ygk+zLsAxCdjoOT8B8Wte1AeFZ5RExj+UuGlpq
-	rXpa9+zWmVsbrXpKdYzlFiNmJCXQ96q8nOSH7hd+JW3QjqRby1F8ckaXw5R27J2fg3ifmIWVlGs
-	kJej9gc4Vs1CZ5SdzbIp2yqwE/m3cIEAyBHGA8MssURYS6XwdJbT26NdWCfYBzXjX5M5SR18FW1
-	hNuPKCOVi8XrZZ9B19Ni3LKXSvVE1gQp11JqNODcdBk/lX1y9YPzYI5B5WwBB9QtYVDQXydDRne
-	7ghC1BT2O9heK8b3Sx0paCpcdIcRlpP2bcVxTHVQxs/Y9tG7RoQZdZFdWwUbq0tSLboSY27GtlS
-	lynPe99Lzt8rvuOOXzgbps7wpX2+AdTCcGktuKrvMaqqmfN5bf+k0wMMT8raiC5MOQFULSONLhw
-	uWSp2at+EEcAmElUAYCU7HiWNdFbkvLnP+VIOkCKoVrrDgQp0RP+/BCkU1urCLxU/R7LNyTa7LU
-	/zMga/Y0=
-X-Received: by 2002:a05:600c:3513:b0:49c:fc6e:a3d2 with SMTP id 5b1f17b1804b1-49e619bfdc8mr81901125e9.17.1789198584578;
-        Sat, 12 Sep 2026 00:36:24 -0700 (PDT)
-Received: from localhost.localdomain (dynamic-2a02-3100-b260-f201-9983-e8c4-aff5-7a36.310.pool.telefonica.de. [2a02:3100:b260:f201:9983:e8c4:aff5:7a36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e60acff8bsm139876525e9.9.2026.09.12.00.36.23
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Sat, 12 Sep 2026 00:36:24 -0700 (PDT)
-From: Karl Mehltretter <kmehltretter@gmail.com>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Karl Mehltretter <kmehltretter@gmail.com>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: intel-thc-hid: intel-thc: Fix the return value in thc_dev_init() kernel-doc
-Date: Sat, 12 Sep 2026 09:36:20 +0200
-Message-Id: <20260912073620.51223-1-kmehltretter@gmail.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="Lrt/fM48";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="lxb01r0k"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailflow.phl.internal (Postfix) with ESMTP id 0C6721380082;
+	Sat, 12 Sep 2026 04:07:02 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Sat, 12 Sep 2026 04:07:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1789200422;
+	 x=1789207622; bh=f3qwWyqi3bNUqorYQGcKxNjQwJcXGV0fC7D1AqFX08M=; b=
+	Lrt/fM48uvxyR5iY147Dg1TLUxzhC6V9WeE9G4Nf2xS4+pkFwVgvQlPsZgX1ObsY
+	hxNwAbimSrgLpG19RfvyiSqHjWyUKu/DrU6GHqrd1Ny3X/qxb2V7PLMrwMTGxJ5J
+	hxhHSDw6DzkOfUQoTLd/xCPLr0ZkyiUbbdsArhbOLbeDBOETI9bYaulAFEdBhhYB
+	8yV92Rxc4ba4CNFpTlX1DQ8hmsjEd2RUFxoF2+d6ai2JCK/3mEz0yCBKDLCy0kT7
+	MblYeZafK+CpuQ2/h4Xvl/E08vAxOSUkiRJzXlUswU1dssfWm8A/JrDq84M4L8cU
+	2hzmROIQ1QhHapZ/aclkGQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789200422; x=
+	1789207622; bh=f3qwWyqi3bNUqorYQGcKxNjQwJcXGV0fC7D1AqFX08M=; b=l
+	xb01r0kwHfIHCGkG23JDkVT0OR6WYaawzrtFN7BXJBAVCJeq1Uh+/e7Gg8JYmtXF
+	1LCmYWrVh+aXxK5P/aKoegaKad7yStYYhFa5ivwWliqhk6EY7BLZYTcIbQ4z6YAP
+	OgbD33qflDx3/fBJ5dTlkLlHBZs9X0dE/P17DVw8jlpi5mFAJYYwLaUHyVeXRB3f
+	CdBLMEWG4iHPdsLf2rroVuXg2vYAKidKUSvaUd82yVymPftKPUW6ojD1IN5haV6W
+	RHa8fD3MVF0wRBMz5082rQG2m7E0jTrMHkEZvxZ3XxwrNqgA6EB6PgmjTdxzlq1x
+	xsRPvrz6z+1EwtsZYC6DQ==
+X-ME-Sender: <xms:GwilaiM9DoEGXPS-5POglj3Fs3UX9dKSgEcrGATNpDMJPGNSuR9zRA>
+    <xme:GwilarxN0E-D3ujq0LTikzEohK71z4qj5L4kuPdseBnDwMgcrWtIyG72C2_JeVM5A
+    FBrlFgdq3_j6q1S6Y1dTCO0Qo2bNHyHI3LXOfX-aFV8Bj-yyr6y6g>
+X-ME-Proxy-Cause: dmFkZTEnMfHZeL1bdmK0cMv43Ykw4Ux5EmKrIdL01M3dqOuqJ2lE5s/Zf8fR7tEIJo0kPv
+    zWtV+y0PrEAHOjaSKsxSLCyqEt7BsSvRONex+NaaPtPqORZ63NRy+Js06kSKO6B4kHMOw6
+    X66YzjTgLq7T2dVQ/Wy+z0mQ4yQi6eeqwM+Ha0y0Pecb27IXKwT7AyfrUjOgPW/ax0pbxm
+    431ZmN3/a8b+CFj03gZG/0GqmMDdPzw9zIGPXhsnXYuTl1E61xnGM14GRGmIYVt0/4ruFj
+    bJzQHDqH1XLMGaU36Dad0/cx0LiIfSRIILMzpeOL+9wHlFYdYe8pNXSPkjqQSck9kl74XP
+    aCzd84oPX17C7TH8ROIK4AlY8as07h/xF1/mi69Tj3lPRbQOBi9KqgToWBN9+IbxAFo0Bl
+    O91jo3tZhjZHGmsdRT5I8CZPH49W4wppnyIMbWnJORO8mrIahMZ6pRtbPa974ykxYGKMc0
+    xa2sGvHlvvuBThI5t8oyZDRmkUDZCxhbR0R3u3jVuF2XW3z+rnrLNhMoF4j2qzzk8B1zZz
+    lJPY/WsxQGZwEdKj8dXZcU/q8nWTM5JBnCaWjr2cJoG1Wha/0dH3WyaH3eGu7Az0Ec7QPm
+    5/9iLK7Gy3Htywzk5qwWNhjRQMpdbPa/lgeqDfBz1ZWNbrYIda+j3gvZ7Xqg
+X-ME-Proxy: <xmx:IAilakYs_TJapqNKc7Bl7_t1LCTdqWksnA1ncYoY1SxGbgOkM5mR3g>
+    <xmx:IAilamUNZ9SPghoBE-fNuCRW3yvOkVXSEolaLNroFm67Oxs_i5V_HA>
+    <xmx:IAilakGOzLYoRVy5sbiYSRPFTKbqOoOKrzwo-FEclMQe4BRLcwxJkQ>
+    <xmx:IAilajCG69PBf_6_2kGV2BfXz2ckOvpTnN8WdA2x9XjMv6PH7RVuBQ>
+    <xmx:JgilasFp5Sb1z50QC1Sew28jzpy_7_aNbHZVZSIJDSN67XqZa69ERdel>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 549A532A007E; Sat, 12 Sep 2026 04:06:51 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-ThreadId: AK-jVwBtQCQR
+Date: Sat, 12 Sep 2026 10:05:45 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Svyatoslav Ryhel" <clamor95@gmail.com>
+Cc: "Arnd Bergmann" <arnd@kernel.org>,
+ "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
+ "Bartosz Golaszewski" <brgl@kernel.org>,
+ "Mark Brown" <broonie@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>,
+ "Daniel Thompson" <danielt@kernel.org>, "Helge Deller" <deller@gmx.de>,
+ devicetree@vger.kernel.org,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ dri-devel@lists.freedesktop.org, "Jonathan Cameron" <jic23@kernel.org>,
+ "Jingoo Han" <jingoohan1@gmail.com>,
+ "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
+ "Liam Girdwood" <lgirdwood@gmail.com>,
+ "Linus Walleij" <linusw@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-fbdev@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ "Guenter Roeck" <linux@roeck-us.net>, linuxppc-dev@lists.ozlabs.org,
+ llvm@lists.linux.dev, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
+ mfd@lists.linux.dev, "Michael Hennerich" <michael.hennerich@analog.com>,
+ patches@opensource.cirrus.com, "Pavel Machek" <pavel@kernel.org>,
+ "Rob Herring" <robh@kernel.org>, "Sebastian Reichel" <sre@kernel.org>,
+ "Support Opensource" <support.opensource@diasemi.com>
+Message-Id: <937fb2c0-e910-4ab6-8599-ff5ea67fd9c3@app.fastmail.com>
+In-Reply-To: 
+ <CAPVz0n0pBxP2J=5DN+k+ut0HRnTmsU64orXwxa19G0+WAxN-zg@mail.gmail.com>
+References: 
+ <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
+ <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
+ <CAPVz0n0pBxP2J=5DN+k+ut0HRnTmsU64orXwxa19G0+WAxN-zg@mail.gmail.com>
+Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-thc_dev_init() returns an ERR_PTR() on failure, never NULL, but its
-kernel-doc says "NULL on failed". Say ERR_PTR().
+On Sat, Sep 12, 2026, at 08:42, Svyatoslav Ryhel wrote:
+> =D1=87=D1=82, 10 =D0=B2=D0=B5=D1=80. 2026=E2=80=AF=D1=80. =D0=BE 21:15=
+ Arnd Bergmann <arnd@arndb.de> =D0=BF=D0=B8=D1=88=D0=B5:
 
-Fixes: 1b2d05384c29 ("HID: intel-thc-hid: Add basic THC driver skeleton")
-Assisted-by: LLM
-Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
----
- drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+>> drivers/leds/leds-lm3530.c
+>> drivers/leds/leds-lm3532.c
+>
+> LM3532 has full OF support and is functional, it just does not have
+> device tree users yet. I have a device using it - Motorola Atrix 4G
+> (Tegra 2 based).
+>
+> Here is commit removing LM3532
+> https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/commit/?id=
+=3D46a6457870825d8b782d350fdc7e27c540734d41
+> Here are my patches bringing up Motorola Atrix 4G support
+> https://lore.kernel.org/lkml/20260721100245.444623-3-clamor95@gmail.co=
+m/
 
-diff --git a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-index 7b4a58e1416d685186ef4bb222b882fab130a4e2..02ec5db9ad26977e72a7c8026b1796bc5d83bd6c 100644
---- a/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-+++ b/drivers/hid/intel-thc-hid/intel-thc/intel-thc-dev.c
-@@ -190,7 +190,7 @@ static void thc_clear_state(const struct thc_device *dev)
-  * @device: The pointer of device structure
-  * @mem_addr: The pointer of MMIO memory address
-  *
-- * Return: The thc_device pointer on success, NULL on failed.
-+ * Return: The thc_device pointer on success, an ERR_PTR() on failure.
-  */
- struct thc_device *thc_dev_init(struct device *device, void __iomem *mem_addr)
- {
--- 
-2.39.5 (Apple Git-154)
+Ah, perfect: this is actually one of two drivers that I independently
+noticed as a false positive while writing the commit logs, and I
+dropped the changes in the update I pushed the branch yesterday.
 
+In fact, I saw that there are three other upstream dts files using
+this driver. In general, I assumed that anything with a DT binding
+has users, with the exception of the devices inside of a removed
+SoC and a few PMIC chips that were tightly linked to a removed SoC
+from the same manufacturer.
+
+Thanks a lot for checking the list!
+
+      Arnd

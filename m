@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A05072931EE
-	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:06:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FEE30ACF1
+	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:06:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789182382; cv=none; b=aIwV+ST/YF13YYVaov35j51rKr/lZsTan/1Dvig9cDxCqsUqsxdtfeEpVCLbqI8Yjeegf450ti9dW4BN+aJnC9sTYaI+x53LFVOes/vHNaXLFW9DeV7NRA8pygrM8IGlaz1WAPLAqsbQ/0W5uyIImgc/VoYj2797fYCUN4KI0y8=
+	t=1789182382; cv=none; b=AuvXbETPunjqk8Gz0EHp+xKq2B1qfwOJOo+Dkdg364f84F5CO/kjnL8qAU68UDw9NaEXPUaVTc3eK71j4sLA4j0AR+E6p1UVQ6Vxm2ylMv+Y81kjZ4NwQ6WFXjl4UsGNiy5f3JFMAlK7aRBGSIl3mR5Z1mnlTub9/CvZELyHhPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789182382; c=relaxed/simple;
-	bh=TP133d9T1eT2wSeWudL2B9vA/tlXkUDuuPMRMdZp1fQ=;
+	bh=c0kDa8Lm0Z4CY4h9SwdyDaoHDkofwEvg1xcrVG+lV3s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=n0+6hsE/Qw7fYOZRWJu/9P8bxFYCs0/S278qqJM2KYzDjzOD7XgKNXSN8se5UEFhYDZpRn7pi+773c7+smvqsdhPkyylibWIBdUov7ri8y1xQbKMjXSib+90AIHMwczo+2pT87NCbRN7dB35kfCfTTNsax4lg63pboTuki27l/M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=o+rotV0b; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=oQHJrmHhylRVlN1tKgda+PrQFr0sXg8bD1M9qW5L8sxp2GH3t52Oi5dvko0C/cOvmWIeME/uFIAxSzyQVBIjphy3QQ/u4He8Mn0027zIvjwjRYS+Gwb64j4nVL+aIF0EXD+MGbMaIdwSHhuemfUOk6Hps+FTFMbDqCVWGX3C8o4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=CmPry+3F; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="o+rotV0b"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="CmPry+3F"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1789182374; bh=TP133d9T1eT2wSeWudL2B9vA/tlXkUDuuPMRMdZp1fQ=;
+	t=1789182374; bh=c0kDa8Lm0Z4CY4h9SwdyDaoHDkofwEvg1xcrVG+lV3s=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=o+rotV0b+8+2mRDkSqdW5FWK+8TyEd134MSg2i2seoIqBBuxZCshIiqkNb9vOF2Tw
-	 i33yeoqWcSkF28xfs5XmETTOrXSK78oLaGs6iR8vwjCm2MOSXNdwjbyrHidi1wo1Ms
-	 owoqWqvUNs23mmtwAKdIxX2SxDu0ybgV5WsWyX1qvi75jhhqSBgZGsQR3mtvlvKxHB
-	 8dHxCFUqG9hl0NTh5Scw4ERkw4WktCpGUkGcLsS2bf5j+Z6V/V9ROP7RMfCUfxiu5X
-	 OGytdK208F9cI6HAe09mqVMUc7MB6KS268248tNW/GGUZxpQlswCWL0TXm0pjjgkIJ
-	 dqbZJgyL3ZO3A==
+	b=CmPry+3F/ZI4wPzAqd038WP2uT85ZcLmSs+ez3NfFynZ0UD1uXH0FngEUZFi1GQwK
+	 3lbC0GQoQzJVegbpRKetb9I+mt1oYKRdApz//aqd/r2Odt1lwg5FiqMYtk7LgDMOCv
+	 NYhWbtYVXhoGeXVGyc43cbNBOYCDDySTk+KV5LlVSSHCFVzqHbJq2NcAeRtzmIM7rH
+	 pmv9IsjA7mCyMS145WB0ufbpBRC+wb3xX3+HLRyl3cCmic1+ZibTtujoHIbmb8ioSX
+	 droUActzXuwdJM0borucZjO1ij/Bk51ZJvNJ845EnJQaqeGIw4ChVaUgOkQeISboNX
+	 Oy3wtUZI1Gqeg==
 Received: from microtis.vulpes.eutheria.net (71-212-73-87.tukw.qwest.net [71.212.73.87])
-	by endrift.com (Postfix) with ESMTPSA id C5627132035;
-	Fri, 11 Sep 2026 20:06:13 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 26099132037;
+	Fri, 11 Sep 2026 20:06:14 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH v7 04/12] Input: xbox_gip - Add HID relaying
-Date: Fri, 11 Sep 2026 20:04:15 -0700
-Message-ID: <20260912030426.2997003-5-vi@endrift.com>
+Subject: [PATCH v7 05/12] Input: xbox_gip - Add battery support
+Date: Fri, 11 Sep 2026 20:04:16 -0700
+Message-ID: <20260912030426.2997003-6-vi@endrift.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260912030426.2997003-1-vi@endrift.com>
 References: <20260912030426.2997003-1-vi@endrift.com>
@@ -46,219 +46,200 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-GIP allows tunneling of HID packets, with the HID descriptor embedded in
-the GIP metadata exchanged during the initial handshake. This patch creates
-a hid_device for this HID descriptor if found, as well as relaying the HID
-packets.
+Controllers are required to give information about the battery in the
+controller, if present. This patch exposes that information as a
+power_supply device.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
  drivers/input/joystick/gip/gip-core.c | 116 +++++++++++++++++++++++++-
- drivers/input/joystick/gip/gip.h      |   2 +
- include/uapi/linux/input.h            |   1 +
- 3 files changed, 116 insertions(+), 3 deletions(-)
+ drivers/input/joystick/gip/gip.h      |   4 +
+ 2 files changed, 116 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joystick/gip/gip-core.c
-index 9371d860a59b..411b67399e01 100644
+index 411b67399e01..92bfdd6d7682 100644
 --- a/drivers/input/joystick/gip/gip-core.c
 +++ b/drivers/input/joystick/gip/gip-core.c
-@@ -560,6 +560,54 @@ int gip_send_vendor_message(struct gip_attachment *attachment,
- 		bytes, num_bytes);
- }
+@@ -255,6 +255,13 @@ static const struct gip_audio_format gip_audio_format_table[MAX_GIP_AUDIO_FORMAT
+ };
  
-+static int gip_hid_ll_parse(struct hid_device *hdev)
-+{
-+	struct gip_attachment *attachment = hdev->driver_data;
-+
-+	return hid_parse_report(hdev,
-+		attachment->metadata.device.hid_descriptor,
-+		attachment->metadata.device.hid_descriptor_size);
-+}
-+
-+static int gip_hid_ll_start(struct hid_device *hdev)
-+{
-+	return 0;
-+}
-+
-+static void gip_hid_ll_stop(struct hid_device *hdev)
-+{
-+}
-+
-+static int gip_hid_ll_open(struct hid_device *hdev)
-+{
-+	return 0;
-+}
-+
-+static void gip_hid_ll_close(struct hid_device *hdev)
-+{
-+}
-+
-+static int gip_hid_ll_raw_request(struct hid_device *hdev,
-+	unsigned char reportnum, uint8_t *buf, size_t count,
-+	unsigned char report_type, int reqtype)
-+{
-+	/*
-+	 * TODO: Based on the metadata, output reports appear to be possible,
-+	 * but the chatpad doesn't have the LEDs it claims to support, so
-+	 * it's not clear how to test we're sending them properly.
-+	 */
-+	return 0;
-+}
-+
-+static const struct hid_ll_driver gip_hid_ll_driver = {
-+	.parse = gip_hid_ll_parse,
-+	.start = gip_hid_ll_start,
-+	.stop = gip_hid_ll_stop,
-+	.open = gip_hid_ll_open,
-+	.close = gip_hid_ll_close,
-+	.raw_request = gip_hid_ll_raw_request,
+ 
++static enum power_supply_property gip_battery_props[] = {
++	POWER_SUPPLY_PROP_PRESENT,
++	POWER_SUPPLY_PROP_CAPACITY_LEVEL,
++	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_STATUS,
 +};
 +
- static void gip_metadata_free(struct device *dev, struct gip_metadata *metadata)
- {
- 	devm_kfree(dev, metadata->device.audio_formats);
-@@ -1322,6 +1370,51 @@ static int gip_init_input_device(struct gip_attachment *attachment)
+ static const struct gip_quirks base_quirks[] = {
+ 	{ GIP_VID_PDP, GIP_PID_PDP_ROCK_CANDY, 0, .quirks = GIP_QUIRK_NO_HELLO },
+ 
+@@ -1218,6 +1225,97 @@ static int gip_guide_led_probe(struct gip_attachment *attachment, struct device
  	return rc;
  }
  
-+static int gip_create_hdev(struct gip_attachment *attachment)
++static int gip_battery_get_property(struct power_supply *psy,
++	enum power_supply_property psp, union power_supply_propval *val)
 +{
-+	struct hid_device *hdev;
-+	int rc;
++	struct gip_attachment *attachment = power_supply_get_drvdata(psy);
 +
-+	if (!attachment->metadata.device.hid_descriptor)
-+		return 0;
-+
-+	rcu_read_lock();
-+	hdev = rcu_dereference(attachment->hdev);
-+	rcu_read_unlock();
-+	if (hdev)
-+		return 0;
-+
-+	hdev = hid_allocate_device();
-+
-+	if (IS_ERR(hdev))
-+		return PTR_ERR(hdev);
-+
-+	hdev->ll_driver = &gip_hid_ll_driver;
-+	hdev->bus = BUS_GIP;
-+	hdev->vendor = attachment->vendor_id;
-+	hdev->product = attachment->product_id;
-+	hdev->version = 0x0100;
-+	hdev->country = 0;
-+	hdev->dev.parent = to_gip_device(attachment);
-+	hdev->driver_data = attachment;
-+	if (attachment->name)
-+		strscpy(hdev->name, attachment->name);
-+	else
-+		strscpy(hdev->name, "Xbox Chatpad");
-+	strscpy(hdev->phys, attachment->phys);
-+	strscpy(hdev->uniq, attachment->uniq);
-+	rc = hid_add_device(hdev);
-+	if (rc) {
-+		gip_err(attachment, "HID device add failed: %d\n", rc);
-+		hid_destroy_device(hdev);
-+	} else {
-+		rcu_assign_pointer(attachment->hdev, hdev);
-+		synchronize_rcu();
++	guard(spinlock_irqsave)(&attachment->battery_lock);
++	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = attachment->status.base.battery_type != GIP_BATTERY_ABSENT;
++		break;
++	case POWER_SUPPLY_PROP_SCOPE:
++		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++		break;
++	case POWER_SUPPLY_PROP_STATUS:
++		if (attachment->status.base.battery_type == GIP_BATTERY_ABSENT) {
++			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
++		} else {
++			switch (attachment->status.base.charge) {
++			case GIP_CHARGING:
++				if (attachment->status.base.battery_level == GIP_BATTERY_FULL)
++					val->intval = POWER_SUPPLY_STATUS_FULL;
++				else
++					val->intval = POWER_SUPPLY_STATUS_CHARGING;
++				break;
++			case GIP_NOT_CHARGING:
++				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++				break;
++			case GIP_CHARGE_ERROR:
++			default:
++				val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
++				break;
++			}
++		}
++		break;
++	case POWER_SUPPLY_PROP_CAPACITY_LEVEL:
++		if (attachment->status.base.battery_type == GIP_BATTERY_ABSENT) {
++			val->intval = POWER_SUPPLY_CAPACITY_LEVEL_FULL;
++		} else {
++			switch (attachment->status.base.battery_level) {
++			case GIP_BATTERY_CRITICAL:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
++				break;
++			case GIP_BATTERY_LOW:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_LOW;
++				break;
++			case GIP_BATTERY_MEDIUM:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
++				break;
++			case GIP_BATTERY_FULL:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_FULL;
++				break;
++			default:
++				val->intval = POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
++				break;
++			}
++			break;
++		}
++		break;
++	default:
++		return -EINVAL;
 +	}
-+
-+	return rc;
++	return 0;
 +}
 +
- static int gip_send_init_sequence(struct gip_attachment *attachment)
- {
- 	int rc = 0;
-@@ -1387,7 +1480,11 @@ static int gip_send_init_sequence(struct gip_attachment *attachment)
- 	if (rc)
- 		return rc;
- 
--	return 0;
-+	rc = gip_create_hdev(attachment);
-+	if (rc)
-+		return rc;
++static int gip_battery_create(struct gip_attachment *attachment, struct device *dev)
++{
++	struct power_supply_config supply_config = { .drv_data = attachment, };
++	int rc;
 +
-+	return rc;
- }
- 
- static void gip_fragment_timeout(struct work_struct *work)
-@@ -1405,19 +1502,25 @@ static void gip_fragment_timeout(struct work_struct *work)
- static void gip_free_devices(struct gip_attachment *attachment)
++	attachment->battery_desc.properties = gip_battery_props;
++	attachment->battery_desc.num_properties = ARRAY_SIZE(gip_battery_props);
++	attachment->battery_desc.get_property = gip_battery_get_property;
++	attachment->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
++	attachment->battery_desc.name = devm_kasprintf(dev, GFP_KERNEL, "gip-%s", dev_name(dev));
++
++	if (!attachment->battery_desc.name)
++		return -ENOMEM;
++
++	attachment->battery = devm_power_supply_register(dev,
++		&attachment->battery_desc, &supply_config);
++	if (IS_ERR(attachment->battery)) {
++		rc = PTR_ERR(attachment->battery);
++		attachment->battery = NULL;
++		devm_kfree(dev, attachment->battery_desc.name);
++		return rc;
++	}
++
++	power_supply_powers(attachment->battery, dev);
++	return 0;
++}
++
+ static bool gip_send_set_device_state(struct gip_attachment *attachment, uint8_t state)
  {
- 	struct input_dev *input;
-+	struct hid_device *hdev;
+ 	uint8_t buffer[] = { state };
+@@ -1331,6 +1429,9 @@ static int gip_setup_input_device(struct gip_attachment *attachment)
+ 	rc = gip_guide_led_probe(attachment, &input->dev);
+ 	if (rc)
+ 		gip_err(attachment, "Failed to register LEDs: %d\n", rc);
++	rc = gip_battery_create(attachment, &input->dev);
++	if (rc)
++		gip_err(attachment, "Failed to register battery: %d\n", rc);
  
- 	if (attachment->driver && attachment->driver->remove)
- 		attachment->driver->remove(attachment);
+ 	return 0;
  
- 	rcu_read_lock();
- 	input = rcu_dereference(attachment->input);
-+	hdev = rcu_dereference(attachment->hdev);
- 	rcu_read_unlock();
+@@ -1514,6 +1615,8 @@ static void gip_free_devices(struct gip_attachment *attachment)
  
  	rcu_assign_pointer(attachment->input, NULL);
-+	rcu_assign_pointer(attachment->hdev, NULL);
+ 	rcu_assign_pointer(attachment->hdev, NULL);
++	/* The following are freed by devres */
++	attachment->battery = NULL;
  	synchronize_rcu();
  
  	if (input)
- 		input_unregister_device(input);
-+
-+	if (hdev)
-+		hid_destroy_device(hdev);
- }
+@@ -1647,10 +1750,14 @@ static int gip_handle_command_status_device(struct gip_attachment *attachment,
+ 	if (num_bytes < 1)
+ 		return -EINVAL;
  
- static void gip_reset_metadata(struct gip_attachment *attachment)
-@@ -1783,9 +1886,16 @@ static int gip_handle_command_firmware(struct gip_attachment *attachment,
- static int gip_handle_command_hid_report(struct gip_attachment *attachment,
- 	const struct gip_header *header, uint8_t *bytes, int num_bytes)
- {
--	gip_warn_ratelimited(attachment, "Unimplemented HID report message\n");
-+	struct hid_device *hdev;
+-	attachment->status.base.battery_level = bytes[0] & 3;
+-	attachment->status.base.battery_type = (bytes[0] >> 2) & 3;
+-	attachment->status.base.charge = (bytes[0] >> 4) & 3;
+-	attachment->status.base.power_level = (bytes[0] >> 6) & 3;
++	scoped_guard(spinlock_irqsave, &attachment->battery_lock) {
++		attachment->status.base.battery_level = bytes[0] & 3;
++		attachment->status.base.battery_type = (bytes[0] >> 2) & 3;
++		attachment->status.base.charge = (bytes[0] >> 4) & 3;
++		attachment->status.base.power_level = (bytes[0] >> 6) & 3;
++	}
++	if (attachment->battery)
++		power_supply_changed(attachment->battery);
  
--	return -EOPNOTSUPP;
-+	guard(rcu)();
-+	hdev = rcu_dereference(attachment->hdev);
-+	if (hdev)
-+		return hid_input_report(hdev, HID_INPUT_REPORT, bytes, num_bytes, true);
-+
-+	gip_warn(attachment, "Got HID report with no HID descriptor\n");
-+
-+	return -EPROTO;
- }
- 
- static int gip_handle_command_extended(struct gip_attachment *attachment,
+ 	if (num_bytes >= 4) {
+ 		attachment->status.device_active = bytes[1] & 1;
+@@ -2145,6 +2252,7 @@ static struct gip_attachment *gip_ensure_attachment(struct gip_device *device,
+ 		mutex_init(&attachment->lock);
+ 		guard(mutex)(&attachment->lock);
+ 		device->attachments[attachment_index] = attachment;
++		spin_lock_init(&attachment->battery_lock);
+ 		INIT_DELAYED_WORK(&attachment->in_fragment_timeout, gip_fragment_timeout);
+ 		INIT_DELAYED_WORK(&attachment->metadata_next, gip_retry_metadata);
+ #ifdef CONFIG_JOYSTICK_XBOX_GIP_FF
 diff --git a/drivers/input/joystick/gip/gip.h b/drivers/input/joystick/gip/gip.h
-index dc972ff168d7..525d04b83837 100644
+index 525d04b83837..42b46b473b7e 100644
 --- a/drivers/input/joystick/gip/gip.h
 +++ b/drivers/input/joystick/gip/gip.h
-@@ -12,6 +12,7 @@
- #ifndef _GIP_H
- #define _GIP_H
+@@ -14,6 +14,7 @@
  
-+#include <linux/hid.h>
+ #include <linux/hid.h>
  #include <linux/led-class-multicolor.h>
++#include <linux/power_supply.h>
  #include <linux/rcupdate.h>
  #include <linux/usb/input.h>
-@@ -256,6 +257,7 @@ struct gip_attachment {
- 	int extra_axes;
  
- 	bool dpad_as_buttons;
-+	struct hid_device __rcu *hdev;
- };
+@@ -247,6 +248,9 @@ struct gip_attachment {
+ 		struct led_classdev_mc color;
+ 	} guide_led;
  
- struct gip_urb {
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 6aa703fcfcfb..d9c630ff8292 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -276,6 +276,7 @@ struct input_mask {
- #define BUS_INTEL_ISHTP		0x1F
- #define BUS_AMD_SFH		0x20
- #define BUS_SDW			0x21
-+#define BUS_GIP			0x22
++	spinlock_t battery_lock;
++	struct power_supply *battery;
++	struct power_supply_desc battery_desc;
+ 	struct gip_extended_status status;
  
- /*
-  * MT_TOOL types
+ 	enum gip_elite_button_format xbe_format;
 -- 
 2.54.0
 

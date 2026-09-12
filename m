@@ -1,184 +1,199 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94D8433A9FF
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F252D2BCF4C
 	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:22:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789183373; cv=none; b=lP8yR4S0lcyG0AXenExFc+6mWluf3cN2zJLTivk/bTUq/fOWu5pta5qptvOsJffyG6l++HP1J8jiPkxDYYZttEcMtJOoHWShOv31RYHPyKkMC/G21h1eLXGKj2sGSQXSnjT4yLvAWfqRVsqY8KM8ZKvd6u4+GhWFr+4tXQOI7BI=
+	t=1789183374; cv=none; b=DVYfh+QFgnegSvUEtnJ0rhZGqBlZ2EMqB9QPEie88gGkzf9lTMKZ1m1lsVXt8dz9SdrgbGmHuZ3ltaLbtSZBiUudbeYHFmhLnKOjjWQTH/nEULQstUFI0FRgthBcmHuSEQRZe32a/N+Xa1txxCcaIxyT6khhUCqsjxq3DQ/7h2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789183373; c=relaxed/simple;
-	bh=rrT/vS5bsOU7QFx+g3bNrosyXvELshxKznm4NfmQHSE=;
+	s=arc-20240116; t=1789183374; c=relaxed/simple;
+	bh=T269Rs0aaTUWFI+MmHAvPOIcMacB+m8A7wsiwu+/LAU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=aRFqFpmyvxGHrcCGB/V4Cih0ql0rmdJuX4N82ALmuDB90HYLmZxwQRe10QM3sB4qgtDqMZIX3Wgr3icj6uI43nMGpP0Oo9arrpBoK5/HWl5au26UDc6sciTDUsIuQf+1TgnaZd3E+yhKifNwV6b2g23XSrwry3jhkeVvW9DQsdM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W/noPdRy; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BNxpSmBGxxYdZhDRzNkRSMX9dO8oAELE2UrYTKtoIcK1mohTS02+tAQ5rwXz6YuaN11F5THheWYHKeyhMZnENTYxfV2DMUCSKM9s7iSGqB7/Me9ht+UtjeDp+tCNKVLmQgBDU5CzbtRcYhCKqx+MhFTkij/oc1Htm9wkFZ9z6P4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EeRXBgRI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W/noPdRy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEACE1F000FF;
-	Sat, 12 Sep 2026 03:22:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EeRXBgRI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A335C1F00893;
+	Sat, 12 Sep 2026 03:22:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1789183372;
-	bh=4X8m4aCWH9MlQBJVEYZZ1ys3qqu6N3ZyYBnFG3t08hc=;
+	bh=iFqphlTi25xZMGcQV2M0TyOx6s/70qsSZfBQIQAaYYM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=W/noPdRyeZ1bC6emPYDmCFsTCvhMsHPTXgtXoReNFTsbAaPn5cHj/h1UMyMkEkpNi
-	 QXuHbYVECpXQ1KmYf/j4pm8doarhwsWHYbSdex+/g7TB8QkpHUqOhniyDn8vejYb4D
-	 fnNcN1kx4pXEo8wMELYbKqh0kTVgFHOth6MYSHlLUpJ3aAgSnyur++nbQ6CUIjnN3C
-	 eMZqW9KOxUrB0RpNlW7ZbLw4yTAFmUOX6q0esDPxpR7pTOuzqoTsgwEepW+2GXEQwh
-	 Yip+1/mOjUN5rcjB7oByvHn5ECWfzrRKKmcHfj9AWQMEkrR/7ZTYSkhWNmTqCs12h7
-	 jU8zD8i7kczmQ==
+	b=EeRXBgRIiAQTsEcSZHoOBGb9xxL+dOygojod3CKNECStmfyFDmURWhkK64u6PB7QM
+	 N37Ca7UkdCYV4dkeown2dJwSM8Nci8K4OTvKOVIL45Xe8HQBV8B5xgDuN3dbq4YwKW
+	 N4vmXsu7n/a+MN/FJptn3fC6qXKCZtm4zrbU2lUZ1BhzO5TV46187ckBS2wSjZmZbp
+	 YAir7OgWqRo3Xlk0uaPWLGHM5LguAzb+qtrUF+/DeGlgSkm0bMvHv5UspixpgRiJAt
+	 HlW9+L62HzGzxyW9DJICBTzZGSlCGlqLtO445pr5KPbDNpTsfjb1XkhwO9UisMFaKm
+	 lV0AzHC5zh/Yg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 02/12] Input: xpad - Remove Xbox One support
+Subject: Re: [PATCH v7 05/12] Input: xbox_gip - Add battery support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260912030426.2997003-3-vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260912030426.2997003-6-vi@endrift.com>
 References: <20260912030426.2997003-1-vi@endrift.com>
- <20260912030426.2997003-3-vi@endrift.com>
+ <20260912030426.2997003-6-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 03:22:51 +0000
-Message-Id: <20260912032251.EEACE1F000FF@smtp.kernel.org>
+Date: Sat, 12 Sep 2026 03:22:52 +0000
+Message-Id: <20260912032252.A335C1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
 
+New issues:
+- [Critical] The devm-managed power supply is tied to the `input_dev`'s lif=
+ecycle instead of the physical device, leading to a Use-After-Free of `atta=
+chment` when sysfs properties are read after unplug.
+- [High] Memory and device leak of the power supply across metadata resets =
+due to a devres mismatch when unregistering the input device.
+- [High] Data race and potential Use-After-Free on `attachment->battery` du=
+ring concurrent device status URB processing and device teardown.
+
 Pre-existing issues:
-- [High] Accumulation of leaked input_dev structures in the devres list acr=
-oss logical device resets.
-- [High] Race condition in gip_shutdown() where asynchronous force-feedback=
- work is cancelled before the input device is unregistered, leading to a Us=
-e-After-Free.
-- [Medium] gip_parse_metadata() returns success (0) instead of an error cod=
-e when the metadata message is unexpectedly truncated, causing the caller t=
-o accept an uninitialized metadata structure.
+- [Critical] Use-after-free of `gip_device` and `gip_attachment` due to inc=
+orrect teardown order of the URB and workqueue in `gip_disconnect`.
 --
 
-commit 3f01a3076f0a08c3208bada0c0eb3d4a4be23e2c
+commit e93493b8a8fc4d66dfb37174e70166cba8bd408c
 Author: Vicki Pfau <vi@endrift.com>
 
-    Input: xpad - Remove Xbox One support
-   =20
-    It has been superseded by xbox_gip. As the new driver is already at fea=
-ture
-    parity, removing the fairly rough Xbox One support from xpad is safe and
-    will prevent any potential conflicts.
+Input: xbox_gip - Add battery support
+
+Controllers are required to give information about the battery in the
+controller, if present. This patch exposes that information as a
+power_supply device.
 
 > diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
 ck/gip/gip-core.c
+> index 411b67399e018..92bfdd6d76826 100644
 > --- a/drivers/input/joystick/gip/gip-core.c
 > +++ b/drivers/input/joystick/gip/gip-core.c
 [ ... ]
-> -static bool gip_parse_metadata(struct device *dev,
-> +static int gip_parse_metadata(struct device *dev,
->  	struct gip_metadata *metadata, const uint8_t *bytes, int num_bytes)
->  {
->  	int header_size;
+> @@ -1218,6 +1225,97 @@ static int gip_guide_led_probe(struct gip_attachme=
+nt *attachment, struct device
 [ ... ]
->  	rc =3D gip_parse_device_metadata(dev, metadata, bytes, num_bytes, &offs=
-et);
->  	if (rc)
->  		goto parse_err;
-> =20
->  	if (offset >=3D num_bytes)
->  		goto parse_err;
+> +static int gip_battery_create(struct gip_attachment *attachment, struct =
+device *dev)
+> +{
+> +	struct power_supply_config supply_config =3D { .drv_data =3D attachment=
+, };
+> +	int rc;
+> +
+> +	attachment->battery_desc.properties =3D gip_battery_props;
+> +	attachment->battery_desc.num_properties =3D ARRAY_SIZE(gip_battery_prop=
+s);
+> +	attachment->battery_desc.get_property =3D gip_battery_get_property;
+> +	attachment->battery_desc.type =3D POWER_SUPPLY_TYPE_BATTERY;
+> +	attachment->battery_desc.name =3D devm_kasprintf(dev, GFP_KERNEL, "gip-=
+%s", dev_name(dev));
+> +
+> +	if (!attachment->battery_desc.name)
+> +		return -ENOMEM;
+> +
+> +	attachment->battery =3D devm_power_supply_register(dev,
+> +		&attachment->battery_desc, &supply_config);
 
-[Severity: Medium]
-This isn't a bug introduced by this patch, but does this error path return=
+[Severity: Critical]
+Does this tie the power supply's devres lifecycle to the child input_dev=20
+rather than the parent attachment?
+
+If dev is &input->dev, the power supply will outlive the attachment=20
+structure if a user unplugs the device while keeping the input device open.=
 =20
-success instead of an error code?
 
-If the offset exceeds num_bytes, rc is still 0 from the preceding successful
-call to gip_parse_device_metadata(). Jumping to parse_err will return 0.
+Since attachment is explicitly freed on disconnect, couldn't this lead to=20
+a use-after-free when the user subsequently reads sysfs properties (via=20
+gip_battery_get_property) which dereferences the freed attachment?
 
-Could this cause the driver to accept a zeroed-out metadata structure
-if a misbehaving device sends a truncated message?
-
+> +	if (IS_ERR(attachment->battery)) {
+> +		rc =3D PTR_ERR(attachment->battery);
+> +		attachment->battery =3D NULL;
+> +		devm_kfree(dev, attachment->battery_desc.name);
+> +		return rc;
+> +	}
+> +
+> +	power_supply_powers(attachment->battery, dev);
+> +	return 0;
+> +}
 [ ... ]
->  static int gip_setup_input_device(struct gip_attachment *attachment)
->  {
->  	struct input_dev *input;
->  	int rc;
+> @@ -1514,6 +1615,8 @@ static void gip_free_devices(struct gip_attachment =
+*attachment)
 > =20
->  	if (!attachment->driver || !attachment->driver->setup_input)
->  		return -ENODEV;
+>  	rcu_assign_pointer(attachment->input, NULL);
+>  	rcu_assign_pointer(attachment->hdev, NULL);
+> +	/* The following are freed by devres */
+> +	attachment->battery =3D NULL;
+>  	synchronize_rcu();
 > =20
->  	rcu_read_lock();
->  	input =3D rcu_dereference(attachment->input);
->  	rcu_read_unlock();
 >  	if (input)
->  		return 0;
-> =20
->  	input =3D devm_input_allocate_device(to_gip_device(attachment));
 
 [Severity: High]
-This is a pre-existing issue, but does this lead to a memory leak of
-input_dev structures?
+Does this code assume devres will immediately free the battery upon
+calling input_unregister_device()?
 
-When the controller resets (e.g. repeatedly sending GIP_CMD_HELLO_DEVICE),
-this calls input_unregister_device(), but because the device was allocated
-with devm_input_allocate_device() on the parent USB interface, the memory is
-intentionally deferred to devres teardown.
+Because the devres lifecycle of input_dev depends on its parent (the USB
+interface), its refcount doesn't drop to zero until the USB interface=20
+unbinds.=20
 
-Since the devm reference isn't dropped, if the driver allocates a new
-input_dev during re-initialization, it seems the old structures will accumu=
-late
-indefinitely. Could this be triggered by an untrusted USB device to
-out-of-memory the host kernel?
+If a device sends repeated reset requests that invoke gip_free_devices(),
+could this leak power_supply devices and their sysfs entries indefinitely
+across metadata resets?
 
-[ ... ]
->  static void gip_shutdown(struct gip_device *gip)
->  {
->  	int i;
+> @@ -1647,10 +1750,14 @@ static int gip_handle_command_status_device(struc=
+t gip_attachment *attachment,
+>  	if (num_bytes < 1)
+>  		return -EINVAL;
 > =20
->  	cancel_work_sync(&gip->receive_message);
-> =20
->  	for (i =3D 0; i < MAX_ATTACHMENTS; i++) {
->  		struct gip_attachment *attachment;
-> =20
->  		mutex_lock(&gip->attachment_lock);
->  		attachment =3D gip->attachments[i];
->  		mutex_unlock(&gip->attachment_lock);
-> =20
->  		if (!attachment)
->  			continue;
-> =20
->  		cancel_delayed_work_sync(&attachment->metadata_next);
->  		cancel_delayed_work_sync(&attachment->in_fragment_timeout);
->  		cancel_work_sync(&attachment->rumble_work);
-> =20
->  		guard(mutex)(&attachment->lock);
->  		gip_reset_attachment(attachment);
+> -	attachment->status.base.battery_level =3D bytes[0] & 3;
+> -	attachment->status.base.battery_type =3D (bytes[0] >> 2) & 3;
+> -	attachment->status.base.charge =3D (bytes[0] >> 4) & 3;
+> -	attachment->status.base.power_level =3D (bytes[0] >> 6) & 3;
+> +	scoped_guard(spinlock_irqsave, &attachment->battery_lock) {
+> +		attachment->status.base.battery_level =3D bytes[0] & 3;
+> +		attachment->status.base.battery_type =3D (bytes[0] >> 2) & 3;
+> +		attachment->status.base.charge =3D (bytes[0] >> 4) & 3;
+> +		attachment->status.base.power_level =3D (bytes[0] >> 6) & 3;
+> +	}
+> +	if (attachment->battery)
+> +		power_supply_changed(attachment->battery);
 
 [Severity: High]
-This is a pre-existing issue, but is there a use-after-free race condition
-during driver unbind?
+Is it safe to access attachment->battery here without RCU read-side=20
+protection or READ_ONCE()?
 
-In gip_shutdown(), cancel_work_sync(&attachment->rumble_work) is called
-before the input device is unregistered. If an active ff-memless background
-timer fires right after this, it can invoke gip_play_effect() and re-schedu=
-le
-the work.
+Since gip_handle_command_status_device() executes concurrently with=20
+device teardown, gip_free_devices() might concurrently clear the pointer=20
+(attachment->battery =3D NULL) and call synchronize_rcu().=20
 
-gip_shutdown() then acquires the lock and calls gip_reset_attachment(), whi=
-ch
-uses the non-synchronous cancel_work():
+Without rcu_read_lock() held here, synchronize_rcu() will not wait,
+potentially allowing the battery pointer to be freed underneath this reader,
+leading to a use-after-free.
 
-drivers/input/joystick/gip/gip-core.c:gip_reset_attachment() {
-    ...
-	cancel_work(&attachment->rumble_work);
-    ...
-}
+[Severity: Critical]
+This is a pre-existing issue, but can a use-after-free of gip_device and
+gip_attachment happen due to an incorrect teardown order in gip_disconnect(=
+)?
 
-If the re-scheduled work has already started executing, it will block on
-attachment->lock (held by gip_shutdown). Once gip_shutdown() unregisters the
-device and the attachment is freed by devres, the blocked work would resume
-and access freed memory.
+Looking at gip_disconnect(), it calls gip_shutdown() which cancels the
+receive_message workqueue. However, the URB that re-queues this work is=20
+not killed until gip_deinit_input() runs later.
+
+Could this open a race window where an interrupt packet arrives just after=
+=20
+cancel_work_sync(&gip->receive_message), allowing gip_urb_in() to=20
+reschedule the work?=20
+
+The device structures would then be freed by devm_kfree() at the end of
+disconnect, and the newly scheduled work would dereference freed memory
+when it executes.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912030426.2997=
-003-1-vi@endrift.com?part=3D2
+003-1-vi@endrift.com?part=3D5

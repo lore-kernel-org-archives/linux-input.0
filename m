@@ -1,140 +1,110 @@
 Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1163AC0ED
-	for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 22:57:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E450E13B58C
+	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 00:23:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789167432; cv=none; b=XWZq38rRvZFi2mjKUMFBXaqNvXyxe0rR9ABJDhu1a1uwPeONBeH50xgSbq3AE1uqai8VsXRW/Zdr/Pvf+nNl+01YiwR6OlwipTwZT4UYlxBqeZq6QD6o7Qj/+/Al/ZJqc7bUghcJ4ChOE6E/s1+UYy6j6VIB5UQeo73HwDdl1UY=
+	t=1789172584; cv=none; b=p+IjRaa9cf7DciPogmk3R1XJUpszeHix1WKMMLAKq3z77EiYl7a90tefihSF0HamUiXpjBSf9y+T2GbKV3PryCG2Vv7gXp9NnlWOCHHo6UdzMtvN2XYLVQJObPI8RcOrPVwNGYWy0Gaxlu2OnyptISaQuS0ID1dGwe9kG4t2mKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789167432; c=relaxed/simple;
-	bh=nPSFGPK4qUyT27Vl4UYL/XqaMQuwHQmHFbfvctmtSxY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cVG0SGb2YAq7LlTJCBkojbbl4LUYUolJjr41mw1Ae7rOBK8HUZw/aKpPxLMbqVfeAgoRl7OFQXWgCWG13qaUdT7vI3t+IYUOIuLWt1CHF+oeN6g44wZVKIGOPs2QNfbElGaHDPcnCzc89FRFRd0e7oopLE8UTBhq7XjBRHkwkZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=SptDik7a; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1789172584; c=relaxed/simple;
+	bh=C/ntNuH7/T4V0mo/sAmWBhHUovXH2mX+woiBShNBDfI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HTVTkrsWKQHSPXr3RXLRYMAqnx7Y/aoMrqnaXFuWcjvFgq8kFD/RsV5kg75eyWUmxirWRBBGVW762tWHZkrNvyeZnsuT6PzR1ys4iNGZcI11MNOJl6ohJc7DCR3wgdocFsRA+sqi6Kv1w8UPKPfzOJd84lUYMZqMwzH1q8H3FJM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FWP47adl; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="SptDik7a"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49e65b1cc29so4772955e9.1
-        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 15:57:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FWP47adl"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49cd6185db7so1974005e9.1
+        for <linux-input@vger.kernel.org>; Fri, 11 Sep 2026 17:23:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1789167427; x=1789772227; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=nPSFGPK4qUyT27Vl4UYL/XqaMQuwHQmHFbfvctmtSxY=;
-        b=SptDik7aG1uaaAndSaXEdBhIZqFFiZ10UpxSSCCfTRWZ3peBfyJgUSfcCnfLXbvGuQ
-         A2hJbir6QuLIq7tsHXr6Oh8BCqph6MIYu+WPtdjSHq9WEVIt0etq6NXbUYyUT+C2KkOE
-         mGjM35WIT6n3ERhERPB7tGbRSBB37GgnrBAnvIAYpk682cmjAjSzwaTdQh6Y91WF0KmL
-         2s9GWGgEtTfFUNb2h/XD3NBoEIgBlOPDqIhy3wWJiUtmolXsOyQvUDr2/GrO8OcnE1Rr
-         p6IaH9br8fzt1++UIqRThzVx4jmRixaDfRxLmNmS4Sr6RCVo3Me0NGJsShbNUXOFVLsD
-         jJDw==
+        d=gmail.com; s=20251104; t=1789172581; x=1789777381; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=a76hBPXYrcoSmtn4Q7RocQBlCM+IbZbkHYVvSI8P1K4=;
+        b=FWP47adlnxicZz+lZg2e0nRmBhvXFIldq7jGMPwERkXLLfcrWZR7WK0LkTY+GjF2jd
+         LTQgYV+RZ282s2sh+c+zv3BNGXnXtxiSH3/KPmDyndBeYB/qXJd/pPYcj98H94mq6tDe
+         UZUySs9tz3Zwko5zqmndwQpmW2SsoxISk5rzx5bXvpk4y1z93uFN9k6xjtUfefiuyQHf
+         7vfTwcMuClUbJ7PoA80CbyZz6o2VF1Bb67xWlXnRij/TdJbAmAStYt6dwWVVHHc3f08z
+         yDl2fdLR/N8jk9DXLryYDTYjAcQ1JZvQLiEqJAOaNVAdvY8Uhq8fUPECeQ2T3r+Mpopc
+         0+yQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789167427; x=1789772227;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=nPSFGPK4qUyT27Vl4UYL/XqaMQuwHQmHFbfvctmtSxY=;
-        b=U93rPHeFnMz1OdlkxMh5lLwoCeSeauEF1DJD1Vo7lyGx+piMPe5+qQsIGHfm2Pf0dT
-         q+MglgqaZGNca6UCHHna0/xahYa/kRhH/WPWNs3dVqz/aii4kcW1eLZgrcTxUMW4D5n1
-         C3/Z6QApQOuE9RCzgRRjmDLhVnymZlTmzoI8+fumfXM2YJsH9nOTAA4xnfa9njZMxCzR
-         kh2x4dQjMBN3hf2aL9TPxLoCZ4B6zDpozcm1bKGhUMiGs1sc2SEXVTz/xiYIzcax4jZB
-         LtURUe3o8MBvNM+Go8qq68qIQnYHAxAgaV75IUjnwH8fHj7R3sm2qMDdmBS3gGCartK7
-         w4Ww==
-X-Forwarded-Encrypted: i=1; AKwUvBzUJkPixfdqg/gZzosIFAcC/4sn8pFtCsYQiLcuQ8GPqnlUyOIlbfdvWNnPJ619bwhr09fVdz+UTwKYsA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kcZ5n7Al/JNRqosQiL/C5SfnkiRFa6Jv1MtK0N3a2V885ZtXmg
-	9IofJB46SkHeRKWy7GXGAQ+4AqQl7QcM1SzFchlai4yx8oVXU2iYdfDEC0Tu21FjadM=
-X-Gm-Gg: AYBFou2ATQmXIWRyj0SE/BPP2bIX9oSKxOezq5LKN/yS0ns7GgZklJFiY+WYmjnyWMi
-	s35EvMQTKil4ga2+ipswbB2CfFbzrhk/EYTMEvrJr3CUyGsikhyCnWUPlumdYpdCmMqb6MRaX5N
-	KHQxzQGPfE9a/Q+czE9/OVIvSH0BHf1nUWgMEOLYtw/s0xo6ArPliy8Erhi3lPnwThoEJzOtFRq
-	pgFqRCMW1o8tJRJXljdCdyLZ83d3b4R7npp96n4BMn+jH1ASl4UYPILdWVzDjSBIzMNsZq1ZgJK
-	0Ibs0dU9MZgXZDzpHY9C+X+oN6VBYZfDlXHDNIaU1mao+Vq26GzrqGjTD0f00yLR3nwQvE4Fly1
-	jqAaDnQA42nlkEtWfoclj8eXs1cBcA8uDIHC83huRGFzYVlYnedEkbTuw2U0D++Nq4i0dZ3EDxq
-	ouHm2m+E1/8q5E5NHmXp90O/+S+ERpYRVahVycTCdpsaF/9VB18oZK2eYl1IxzzShUZ4C6AxcJM
-	ZUf
-X-Received: by 2002:a05:600c:19c8:b0:499:b65e:49c9 with SMTP id 5b1f17b1804b1-49e619f3ae1mr135996395e9.10.1789167426450;
-        Fri, 11 Sep 2026 15:57:06 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-486eb2ecf23sm9215894f8f.5.2026.09.11.15.57.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 15:57:05 -0700 (PDT)
-Date: Sat, 12 Sep 2026 00:57:02 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Ping Cheng <ping.cheng@wacom.com>, 
-	Jason Gerecke <jason.gerecke@wacom.com>, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] HID: wacom: #include <linux/device-id/hid.h> instead
- of <linux/mod_devicetable.h>
-Message-ID: <aqSGjE1NCAQuRhi8@monoceros>
-References: <c8efa35aeff7b6ee4f66f1d48d4392976dbde128.1783329551.git.u.kleine-koenig@baylibre.com>
- <CAF8JNhJa3hOqt06XYNvhRa-QYz1LyzczPCdWbzs0Oin5DN+euw@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1789172581; x=1789777381;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=a76hBPXYrcoSmtn4Q7RocQBlCM+IbZbkHYVvSI8P1K4=;
+        b=nCIT5mod4TK6glr1s9D+y5Q9qYTv5T5D1akf3EgjUZEe6dhxE1UkM7BKc2UKJ5aLw4
+         ZwtMF89K1l6MFvKh9onTOkRfoxhoxnBMkGP0JcIXJnWPJTUvSkzx2+gZS9bhzRlQWmWj
+         ZHm/mV5Yyn0O++rrwR8g7SP4AZ3xbKslZabjs1n+QDrkNdaS8k/8hocXsE69kBsP3vj3
+         pMpEFynydwNIJbLqlsDROOOUQ97W4AnCLiBDheGvIvGULU1btYbX70N2MTX3qivPLxCL
+         ySQ98C5sYx8nHZQJMnLQ7172JAu7L7nnzAwM4EkKAblLdIQPWfoKRw5BI74UmYLM0a/G
+         A/8Q==
+X-Forwarded-Encrypted: i=1; AKwUvBza/RPTBnFYCcsBEqHFRm1RWhd/3oCMXBzhoAzmiG3UWyBROq7wbEOpEhi64qnR/BJfkBfIbTBYV7u6EQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++mYtGVTd7WQ1JPPnRWAdTR7KvZWu3HquiwJWqfY4oo3iJXv3hUe
+	ag/olpgVD7/GkMbiKwEbbJEEUpzzUlngR3/nHTy+67FhzUgd56tSLO2/xkwIblag
+X-Gm-Gg: AYBFou3Yw+5LPdDcyd6a3smYRcm6qLzMJYMa+ycC9JUcnjDT3LuPTWkNN9X0tym4DCC
+	ZxMn2GLZh8IUbSxOz0ETDKCeRWhGF02Z6eyzTi5aB6JxhuOr9YLbDMIAQ5disb5eqy+aa9eIVF3
+	xZkPZkUSPU4sVEG261xnOVE33v1b+p0tO25IpdelOiI9L5aJ3SfiWfz6wJ2/cTj/8NlGl54jl8i
+	ZHl9krL8qlwBsjpV27E/j+4oHpcQExfq7j87raf7ON90RhfW+0gtsXHdqY+mpqBbhlMTA5mDtQH
+	O8Fw0S9ABNNdIwifCId4nwZxw02YWYMoL0+Z+7Ikpm3GViob9BXgwfqEiOHXBfpk8umygWS/GqZ
+	igcx8E7pMwSZE6yI+5n94jn1bj2UdTiJELvYSwbXprUeHIpVlDUq6zdZXqNUJbJgll4daElgcV8
+	unhTl98mZVB47ug3pLXLbJST5m2Pvoc72x02fdT/WegytYhlyufJYxJ41euglfaL+nw05xhxkO8
+	MtLgNcJYrvBCXgjY/x0wy8P5/0xCTGvOG/4FSeRXiJhQ3of4ygloUrEmhPNxxpMX8cZUQ5qKvF8
+	im+JAeiOOmvo+0Di47wM+svfyxq4+6Z8MyXo
+X-Received: by 2002:a05:600c:698d:b0:49e:6865:904e with SMTP id 5b1f17b1804b1-49e6865921amr43495635e9.12.1789172581015;
+        Fri, 11 Sep 2026 17:23:01 -0700 (PDT)
+Received: from localhost.localdomain (dynamic-095-114-033-154.95.114.pool.telefonica.de. [95.114.33.154])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e69f02e0bsm26924275e9.2.2026.09.11.17.22.59
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 11 Sep 2026 17:23:00 -0700 (PDT)
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: intel-thc-hid: intel-quicki2c: Fix the return value in quicki2c_dev_init() kernel-doc
+Date: Sat, 12 Sep 2026 02:21:43 +0200
+Message-Id: <20260912002143.35091-1-kmehltretter@gmail.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ildf3yo3bibyzv52"
-Content-Disposition: inline
-In-Reply-To: <CAF8JNhJa3hOqt06XYNvhRa-QYz1LyzczPCdWbzs0Oin5DN+euw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 
+quicki2c_dev_init() returns an ERR_PTR() on failure, but its kernel-doc
+says that failure returns NULL. This mismatch was present in the
+original driver skeleton.
 
---ildf3yo3bibyzv52
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v1] HID: wacom: #include <linux/device-id/hid.h> instead
- of <linux/mod_devicetable.h>
-MIME-Version: 1.0
+Document the error pointer returned by the initialization paths.
 
-Hello Ping,
+Fixes: 61bb2714dc3a ("HID: intel-thc-hid: intel-quicki2c: Add THC QuickI2C driver skeleton")
+Assisted-by: LLM
+Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
+---
+ drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Fri, Sep 11, 2026 at 12:53:29PM -0700, Ping Cheng wrote:
-> On Mon, Jul 6, 2026 at 4:39=E2=80=AFAM Uwe Kleine-K=C3=B6nig (The Capable=
- Hub)
-> <u.kleine-koenig@baylibre.com> wrote:
-> >
-> > The single device-id structure that is used by drivers/hid/wacom.h and
-> > its users (drivers/hid/wacom_sys.c + drivers/hid/wacom_wac.c) is struct
-> > hid_device_id. So #include the much more lightweight
-> > <linux/device-id/hid.h> instead the full <linux/mod_devicetable.h>.
-> >
-> > Signed-off-by: Uwe Kleine-K=C3=B6nig (The Capable Hub) <u.kleine-koenig=
-@baylibre.com>
-> > ---
-> > Hello,
-> >
-> > there is no coordination needed, just make sure to apply it to v7.2-rc2=
- or
-> > later. So please take it via the hid tree for the next merge window.
->=20
-> What's the status of this patch? I don't see it merged into 7.2 or 7.3-rc.
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+index 0d2ad7bc3648a2f227db2ed27ad9cbe18955bc0f..aa601ef613c91729f4fc90bdc1674cb838921421 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+@@ -380,7 +380,7 @@ exit:
+  * If success, enable THC hardware interrupt.
+  *
+  * Return: Pointer to the quicki2c_device structure if success
+- * or NULL on failure.
++ * or an ERR_PTR() on failure.
+  */
+ static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __iomem *mem_addr,
+ 						 const struct quicki2c_ddata *ddata)
+-- 
+2.39.5 (Apple Git-154)
 
-It wasn't merged yet. The procedure I'd expect is that the designated
-maintainers of the HID Wacom driver (i.e. you and Jason Gerecke) send an
-ack and then it get's picked up by Jiri or Benjamin (as HID
-maintainers).
-
-Best regards
-Uwe
-
---ildf3yo3bibyzv52
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqkhzwACgkQj4D7WH0S
-/k4/SAf/f0RDXDR/wO9s+zJM8mesKTNn34sySP4Cdv9FevyTmGddrokZSQTBeNzL
-kezYoP+cqValVHCEmcdgrQanlTldMxQsMWNGrEEpB8HPX3JKhWP48517VJJoY32m
-n117pPxbseeDwuocQ5PzPln15jLrRU8DVnNsUHCDJ+DlNALYscurwTGfjPhryi8x
-9WCMRhdDfStrsZb71+DBsMXISMVWIArJmcYLUc53ZVEygfjxHsQYeOpsZngUTzM2
-FQ3sdBwulBi5eVDHmOf7wU22zTEB7a0v3R5Ihgxnf2ixBQk8T2zJlwW59XecE18L
-njrRilgzWhN/gnjt4wkvbZYLBIgcDg==
-=qlg2
------END PGP SIGNATURE-----
-
---ildf3yo3bibyzv52--

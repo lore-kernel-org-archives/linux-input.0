@@ -1,100 +1,210 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D342F361B
-	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:28:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D7A94BEE3C
+	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:33:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789183724; cv=none; b=VzLjwUjWfOo3BAF9aMaxFPT6cD/lm7Rmma+5q9GLQTFqTx6F0Q0Hdbg7EMGuhbMHWp3xU1d4dP+YCHqpjHrpTHJ3WYQA8B7arqLaRg3ScpuuSN6Wizu3pJQCBCeITs7+eNkMVS0wlBxUVANQfLOw/w/9tYaXJBjtyfriKK/w974=
+	t=1789184037; cv=none; b=U/8n3DJ1uuAcNB8AtDwt907opzE+frdDv2lxT/wLSHV7ZFV4tl42saJ6l3gsRa4eNDo9MyerSY6kJ64U3GtPoSkzMs8yA4kc8Uh+KJEm4XUY6ZjKIjQU4crkg+5HMVGse33m9ooW+qyutf5ajQnz81vuB8Xx6IPnAuoFBht6Aug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789183724; c=relaxed/simple;
-	bh=t50jBOJWOhkUfmC81c3SlfJsbPZAY3XbkrqkgKq8uO0=;
+	s=arc-20240116; t=1789184037; c=relaxed/simple;
+	bh=5p8l/GCKd/QcsRv2stBMuj7C9nmfEx/EHpHaDhPsQx8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DzZqxWhCD5iqVT0w+6nppJiFaqzpy0Qaby6XtN9QlILLhKde6NT4af+KCC2VtYMnAHedHOcT+R9ZwekyMWSn2gHHf+FvlUPoCxEjZzG/oD1CNV7XqJOyPVMK0rrGt+ZOlN/iZKjX+JU6N/WSmRowopzUv8RM/A51K3wdx+GQZRg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oBZUUVoJ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=RfILTEXCRZ2EZu0oSR5hzgHg4C22HMZABp0gFKUHFoPZWmY2X9PQBvtG1Ji0Paw2+A1P+em2AX3bJei48Dsjw4nBahUSuZS+NZ12rrgsqaxALirO1K//Bd7ialx1MdsbgSQbXpcgRdtVYJ2lx9AI+Are81jkQvcKSXcMndnjb5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZxA1cbVB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oBZUUVoJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF3E1F000FF;
-	Sat, 12 Sep 2026 03:28:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZxA1cbVB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B0D71F000FF;
+	Sat, 12 Sep 2026 03:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789183723;
-	bh=PCRXkamCgWV9P0kIYhyOxJl6zf/8fnZkOTcuggomtc4=;
+	s=k20260515; t=1789184035;
+	bh=A1AR7M1qYzJawhYZPKhfL12/7V+gEjBhRVeDPt8n/L0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oBZUUVoJoc/dgbDJiwpw0EwMlGvwVcF9X45yqw3stO8Ly+2as/E8lWFNn3VXTno+Y
-	 KE/7sZkqnhH7tVNWnZjqRAMUWuY6XNcKptrstkfYtLna8511oV98riUGc7BOyYEPvl
-	 Ihs+DoXGiPfOKT0g13vDapQzFIjLeLSxOOHD8xyJqLokNESVUqE7r3527PALQq0Cle
-	 JNTaPvgarHsT2fX5rErog1LvdXJWpIAPy/HYMfOMzR7D6jz9H7txF4B9fLkCcAUNoA
-	 pYuqmFt3TH77xLP36ERHcz//lNsF7ZKHBFk+Db9EKL+utPBZlry8+m1jng/p8U6Dg3
-	 sw/LfZgqhPoNA==
+	b=ZxA1cbVBzODcrNuBBfG9v/a9Ew9RSaUvQMx41yoegL2lIxoSvWEVR75xZ2qjfGp6d
+	 1z3rczVpCk6YNDkcfZ5Et6F2TfYPcuMTXPFdTe7MihEBS5cZ+C49v33aR6tdP4SUt3
+	 g2Sn6kvO4sVkucD7i4XsVt/aCzLTu95W4hiuhtbPFOTJ88O6Pgkf9pcAKNTMHuFOiq
+	 H8n7KOVdskVAOhybnhxAPnQ32IVXQa1kVhZyr1cRiHa46ObBujoTPBmGA3zVREdwuQ
+	 THMWbR9PTOKDmp2iiTJafltEI0XyeyjV3Z/uwo34Zwqaq+6a2hgpztiGUVoJVcoAiL
+	 tgxMUPX3D+x8g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 11/12] HID: Map more automobile simulation inputs
+Subject: Re: [PATCH v7 12/12] Input: xbox_gip - Add wheel support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260912030426.2997003-12-vi@endrift.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260912030426.2997003-13-vi@endrift.com>
 References: <20260912030426.2997003-1-vi@endrift.com>
- <20260912030426.2997003-12-vi@endrift.com>
+ <20260912030426.2997003-13-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 03:28:42 +0000
-Message-Id: <20260912032843.4AF3E1F000FF@smtp.kernel.org>
+Date: Sat, 12 Sep 2026 03:33:54 +0000
+Message-Id: <20260912033355.7B0D71F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [Medium] hid-universal-pidff: Loop boundary hardcodes ABS_BRAKE, missing =
-the newly added ABS_CLUTCH and ABS_SHIFTER axes.
+
+New issues:
+- [Medium] Late length checks in input report handlers leave events unsynch=
+ronized on truncated packets.
+- [Medium] Incorrect modulo arithmetic for relative dial causes erratic rev=
+erse jumps.
+- [Medium] Static configuration of `max_angle` with 0 precision causes inte=
+ger underflow, bypassing validation.
+
+Pre-existing issues:
+- [High] AB-BA deadlock between LED sysfs operations and device unregistrat=
+ion.
 --
 
-commit 5a43f61b9ef2583fea1214cddf577437072e1c07
+commit 533e8fbcd84078cc304b29f07232970fb0a6e7d7
 Author: Vicki Pfau <vi@endrift.com>
 
-HID: Map more automobile simulation inputs
+    Input: xbox_gip - Add wheel support
+   =20
+This adds preliminary support for racing wheel support in xbox_gip,
+exposing them mapped to the newly added axes.
 
-This commit maps the previously ignored HID usages for clutch and shifter=20
-to ABS_CLUTCH and ABS_SHIFTER in hidinput_configure_usage.
+> diff --git a/drivers/input/joystick/gip/gip-core.c b/drivers/input/joysti=
+ck/gip/gip-core.c
+> index 720b9a075ed3a..42e191f0aef24 100644
+> --- a/drivers/input/joystick/gip/gip-core.c
+> +++ b/drivers/input/joystick/gip/gip-core.c
+[ ... ]
+> @@ -334,6 +334,8 @@ static const struct gip_driver *base_drivers[] =3D {
+>  	&gip_driver_gamepad,
+>  	&gip_driver_arcade_stick,
+>  	&gip_driver_pdp_jaguar,
+> +	&gip_driver_trueforce_wheel,
+> +	&gip_driver_wheel,
 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 3487600cadb42..6ade969412c67 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -828,6 +828,8 @@ static void hidinput_configure_usage(struct hid_input=
- *hidinput, struct hid_fiel
->  		case 0xbb: map_abs(ABS_THROTTLE); break;
->  		case 0xc4: map_abs(ABS_GAS);      break;
->  		case 0xc5: map_abs(ABS_BRAKE);    break;
-> +		case 0xc6: map_abs(ABS_CLUTCH);   break;
-> +		case 0xc7: map_abs(ABS_SHIFTER);  break;
+[Severity: High]
+This is a pre-existing issue, but does adding these devices expose them to
+the AB-BA deadlock between LED sysfs operations and device unregistration?
+
+During device disconnect, gip_reset_attachment() acquires attachment->lock =
+and
+calls gip_free_devices(), which manually calls input_unregister_device(). If
+there are no open evdev handles, this synchronously tears down the device a=
+nd
+its devres resources, invoking led_classdev_unregister(). This function blo=
+cks
+in kernfs_drain waiting for active sysfs operations to complete. Concurrent=
+ly,
+a sysfs write to the LED brightness holds the kernfs active reference and c=
+alls
+gip_guide_led_set(), which blocks trying to acquire attachment->lock.
+
+> diff --git a/drivers/input/joystick/gip/gip-wheel.c b/drivers/input/joyst=
+ick/gip/gip-wheel.c
+> new file mode 100644
+> index 0000000000000..bd281b295eac1
+> --- /dev/null
+> +++ b/drivers/input/joystick/gip/gip-wheel.c
+[ ... ]
+> +static int gip_handle_wheel_report(struct gip_attachment *attachment,
+> +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
+> +{
+> +	uint8_t connections;
+> +	struct gip_wheel_info *info =3D attachment->driver_data;
+> +	int rc =3D gip_driver_navigation.handle_input_report(attachment, input,=
+ bytes, num_bytes);
+> +
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	if (!info)
+> +		return -ENODEV;
+> +
+> +	if (num_bytes < 17)
+> +		return -EINVAL;
 
 [Severity: Medium]
-Does this change unintentionally leave the new simulation axes with large
-default deadzones on devices handled by the hid-universal-pidff driver?
+Will this length check leave partial events unsynchronized if the packet is
+truncated?
 
-In drivers/hid/hid-universal-pidff.c, the universal_pidff_input_configured
-function explicitly attempts to clear default deadzones for simulation axes
-to ensure high precision. However, it relies on a hardcoded loop boundary:
+If num_bytes is less than 17, this returns -EINVAL after
+gip_driver_navigation.handle_input_report() has already reported events via
+input_report_key(). The outer function will then skip input_sync(), leaving=
+ the
+reported events stuck in the input core's buffers until the next sync.
 
-for (axis =3D ABS_X; axis <=3D ABS_BRAKE; axis++) {
-        ...
-}
+[ ... ]
+> +static int gip_handle_wheel_ll_static_configuration(struct gip_attachmen=
+t *attachment,
+> +	const struct gip_header *header, const uint8_t *bytes, int num_bytes)
+> +{
+> +	struct gip_wheel_info *info =3D attachment->driver_data;
+> +
+> +	if (!info)
+> +		return -ENODEV;
+> +
+> +	if (num_bytes < 11)
+> +		return -EINVAL;
+> +
+> +	info->max_angle =3D BIT(min(bytes[0], 16)) / 2 - 1;
 
-Since ABS_CLUTCH and ABS_SHIFTER are numerically greater than ABS_BRAKE,
-the loop will miss these newly mapped axes. This introduces an unwanted
-default deadzone of 1/16th of their range on the clutch and shifter axes,
-which might degrade the simulation experience for users of high-end sim
-racing wheels.
+[Severity: Medium]
+Could this formula cause an integer underflow if bytes[0] is 0?
 
-Should the loop boundary in universal_pidff_input_configured be updated to
-include these new axes?
+If a 0-bit precision configuration is received, BIT(0) is 1, and 1 / 2 - 1
+evaluates to -1, which underflows the uint16_t info->max_angle to 65535. Th=
+is
+could bypass validation checks and assign corrupted bounds to ABS_WHEEL.
 
->  		case 0xc8: map_abs(ABS_WHEEL);    break;
->  		default:   goto ignore;
->  		}
+[ ... ]
+> +static int gip_handle_trueforce_wheel_report(struct gip_attachment *atta=
+chment,
+> +	struct input_dev *input, const uint8_t *bytes, int num_bytes)
+> +{
+> +	int rc =3D gip_driver_wheel.handle_input_report(attachment, input, byte=
+s, num_bytes);
+> +	struct gip_trueforce_wheel_state *state =3D attachment->driver_data;
+> +	int dial;
+> +
+> +	if (rc < 0)
+> +		return rc;
+> +
+> +	if (num_bytes < 18)
+> +		return -EINVAL;
+
+[Severity: Medium]
+Will this length check leave partial events unsynchronized if the packet is
+truncated?
+
+Similar to the check in gip_handle_wheel_report(), this returns -EINVAL aft=
+er
+the base wheel handler has already injected state changes, causing the core=
+ loop
+to abort before calling input_sync().
+
+[ ... ]
+> +	/* Dial states only change one at a time, so we can easily check for wr=
+aparound */
+> +	if (dial =3D=3D 0 && state->dial =3D=3D 7)
+> +		input_report_rel(input, REL_DIAL, -1);
+> +	else if (dial =3D=3D 7 && state->dial =3D=3D 0)
+> +		input_report_rel(input, REL_DIAL, 1);
+> +	else if (state->dial >=3D 0)
+> +		input_report_rel(input, REL_DIAL,
+> +			state->dial - dial);
+
+[Severity: Medium]
+Could this cause erratic relative dial jumps if the dial skips a step?
+
+If the dial moves rapidly across the 0-7 boundary and skips a step (e.g., f=
+rom
+previous state 6 to current dial 0), the hardcoded wraparound checks fail. =
+It
+then falls back to state->dial - dial (6 - 0 =3D 6), reporting +6 instead o=
+f the
+actual shortest distance of -2.
+
+Should standard modulo arithmetic be used here instead?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912030426.2997=
-003-1-vi@endrift.com?part=3D11
+003-1-vi@endrift.com?part=3D12

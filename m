@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E2303546E1;
-	Sat, 12 Sep 2026 08:58:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F374C2F7F19;
+	Sat, 12 Sep 2026 09:19:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789203492; cv=none; b=L4lBY1+hUWK0w9TZSAWTIenuHsAisYtdQoGC/zBjg+cFs+SSbeKju6b5j5pA8pQUGn8ymIyp+1kgZu8KAvN0QDE/cQFFF1Frsncg8hT+ouC7zdo49dGoLA4MLVxYctmkKVsBEwpXOyzdOlJ6ChBvrtKWk+S+NJVxErvbv5+7ul8=
+	t=1789204743; cv=none; b=f/tbCrWBHpxal82oxgnvkiTs4awCrpun2D00mDll+AXqkMeSlOdvOoNYaEN/MS8i3nGSvjwx9NPAIPNq9QRlcYLBZztxRG7PD0l6ppaqO15gZ+ml1vY30ad5u9ws+pU4CDjRlo6xVsb3XZIIJVPRmUguSIn7PebXrVS6atk64z4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789203492; c=relaxed/simple;
-	bh=K8qHF5qNICeiV6jSXPOCn+t7fdtbTn6DYDkNhvxEZ8E=;
+	s=arc-20240116; t=1789204743; c=relaxed/simple;
+	bh=5QkPjsmyDhVoyR4w2ZV6txQxEc5lKnvTib5OvDc00c8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Vssl0GQizzKzUfoBTALPffonwlShBOoXPsft9M3x8Es/lWH3QW6RajJchuR7IJ/onWhpZkFDIdjjDlABjjo3dubRVjucV5ycxYqTgVYc7melyVXMFgoa+EBSbKKoaP1PHcyNmjxk+JpY4vwnXrU8SuAMyMCpE76ugNwAmeCb6Rw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=awiRR9Ri; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=okaNHFWhakWac6wG1zm8arWqf1AkagWE/BHiusq+2wmERO1arpJ6unbdyzcgjUCr88foPnMXSmhCaD4nJtbXIYrArj8+h0VsYaY15HAA+/T1FSeTSEzrjQ1n1Iu4NdRTfu2KPBoIo01x4vrAQqLz9z/CmUIRnS/i0hDE2/vjHr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FgvxPJoM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="awiRR9Ri"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D4EB1F000FF;
-	Sat, 12 Sep 2026 08:58:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FgvxPJoM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A01C1F00893;
+	Sat, 12 Sep 2026 09:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789203490;
-	bh=ElyScURSqKHzWipX5rz4e/wUiRCnwlf8fg+wqO/8Ue4=;
+	s=k20260515; t=1789204741;
+	bh=lAsIpe806HlPTUSZ5kaRH5I/tDePjdmxr4OhX7PnnO8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=awiRR9RiKX0hTuLblNZe1l9JU+owt7BN/s0fFm0dNxszDmBsyzSnkHII8swk2gSAV
-	 XcM8leM9Eao22zUOk8CIuGX99uAwuUNXXnQdKXqCbY8yJaSURCIpWe/U/k6IP3Kg5x
-	 n0c0IMmWRzoYev+VPk+dbyJQS/2/FF0gr5qLqnTnnIVgtUDCpm8zx1ik9Zi2ueQ7H3
-	 V2W8ABfJrhUqkc7lxq+EBpsag4JW7FYLjpsn7ZDC7bAyOzhk4mrWnkkzbxhxfYDTuw
-	 lijMTuz18TY/v+B5fwv0wtVE06t/Sf6EVnxf3Az4ahtynUuIFRP3RhcMnT/KL1/Hxu
-	 yYszHXmHl8R2w==
+	b=FgvxPJoMZ2rV4b5CcrBvyYOtxy9O6Pm2TC7vFv5d+i3fL7sgTZCrkP3LPdt7wIDRX
+	 v+rHQvRBYBgYMEiOajkDbGCWBadIGhD3QbbPg2PA0VuNApThauf1JJ8ljESxJ8C2Yb
+	 F140PAXLMm1VoJJV2It8n92E8UNC1jRLTCqreUfUFk3FSijJgsnE9Yyps3+FfqxMCz
+	 XedMjP+Nph2LV52SYhane6WpDgTIxWwtaN1z53CXkNyyi/HXGetFv3XL+XQztK5sw6
+	 VWl382hMQaroIyITY8Hs6QQGXnEl6IXsNhJYLu7Cm0NSu4hmoU4Os+dhfWZeofBSPJ
+	 Vn4w3Il1oNDFQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 20/20] arm64: dts: qcom: generalmobile-shamrock: new
- device
+Subject: Re: [PATCH RFC 14/20] drm: msm: mdp5: Add MDP5 configuration for
+ MSM8952
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: lee@kernel.org, dri-devel@lists.freedesktop.org, conor+dt@kernel.org, linux-clk@vger.kernel.org, mfd@lists.linux.dev, robh@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260912-msm8952-initial-support-v1-20-0e742578b524@mainlining.org>
+Cc: devicetree@vger.kernel.org, linux-clk@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, lee@kernel.org, dri-devel@lists.freedesktop.org, mfd@lists.linux.dev, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260912-msm8952-initial-support-v1-14-0e742578b524@mainlining.org>
 References: <20260912-msm8952-initial-support-v1-0-0e742578b524@mainlining.org>
- <20260912-msm8952-initial-support-v1-20-0e742578b524@mainlining.org>
+ <20260912-msm8952-initial-support-v1-14-0e742578b524@mainlining.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 08:58:09 +0000
-Message-Id: <20260912085810.4D4EB1F000FF@smtp.kernel.org>
+Date: Sat, 12 Sep 2026 09:19:00 +0000
+Message-Id: <20260912091901.4A01C1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,88 +47,108 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [Medium] Hardware Interrupt Polarity: TUSB320 interrupt is configured as =
-IRQ_TYPE_EDGE_RISING, but the INT_N pin is active low / open drain.
-- [Medium] Hardware GPIO Polarity: SD card detect (cd-gpios) is configured =
-as GPIO_ACTIVE_HIGH.
-- [Low] DT Binding Violation: tpa6130a2 node uses 'power-gpios' instead of =
-'power-gpio'.
+- [Critical] Missing designated initializers in the lm.base array maps the =
+LM3 base address to the wrong index, causing register corruption.
+- [Critical] Defining `.pipe_cursor` with a Layer Mixer offset (`0x440DC`) =
+causes the driver to incorrectly program LM cursor registers as if they wer=
+e a standard SSPP pipe, trashing the configuration.
+- [High] Inconsistent MDP_PIPE_CAP_SW_PIX_EXT capability between pipe_curso=
+r and main pipes.
 --
 
-commit 3d5d5ba8ff3606c0a6ed8dba09661107776c63ef
+commit fb5220e24e57b56379d9ec75eb6d29f391529a7b
 Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-arm64: dts: qcom: generalmobile-shamrock: new device
+drm: msm: mdp5: Add MDP5 configuration for MSM8952
 
-This commit introduces support for the General Mobile Shamrock (GM 5 Plus)
-device, which is based on the MSM8952 SoC. The design is similar to the
-L9300 reference board.
+Add the mdp5_cfg_hw entry for MDP5 version v1.12 found on MSM8952.
 
-[1] https://github.com/Asderdd/android_kernel_generalmobile_shamrock/blob/c=
-m-14.1/arch/arm/boot/dts/qcom/msm8952-l9300.dtsi
-
-> diff --git a/arch/arm64/boot/dts/qcom/msm8952-generalmobile-shamrock.dts =
-b/arch/arm64/boot/dts/qcom/msm8952-generalmobile-shamrock.dts
-> new file mode 100644
-> index 0000000000000..22723b62d3d6c
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/msm8952-generalmobile-shamrock.dts
+> diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c b/drivers/gpu/drm/m=
+sm/disp/mdp5/mdp5_cfg.c
+> index 7c91fc1915f39..d34c94d6f7e2e 100644
+> --- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
+> +++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
+> @@ -744,6 +744,86 @@ static const struct mdp5_cfg_hw msm8x76_config =3D {
 
 [ ... ]
 
-> +&blsp2_i2c1 {
-> +	status =3D "okay";
-> +
-> +	/* FUSB301 @25 USB-C Controller */
-> +
-> +	tpa6130a2: tpa6130a2@60 {
-> +		compatible =3D "ti,tpa6130a2";
-> +		pinctrl-0 =3D <&tpa6130a2_default>;
-> +		pinctrl-names =3D "default";
-> +		reg =3D <0x60>;
-> +		power-gpios =3D <&tlmm 61 GPIO_ACTIVE_HIGH>;
-
-[Severity: Low]
-Does this violate the ti,tpa6130a2 device tree binding schema?
-
-The schema explicitly expects the singular power-gpio property. Using
-power-gpios will cause a schema validation error during dtbs_check.
-
-> +		Vdd-supply =3D <&pm8950_l22>;
-> +	};
-> +
-> +	tusb320: tusb320@67 {
-> +		compatible =3D "ti,tusb320";
-> +		reg =3D <0x67>;
-> +		interrupts-extended =3D <&tlmm 45 IRQ_TYPE_EDGE_RISING>;
-
-[Severity: Medium]
-Is the interrupt polarity configured correctly for the tusb320 node?
-
-The hardware specification indicates the INT_N pin is an open-drain,
-active-low output. Using IRQ_TYPE_EDGE_RISING might cause the interrupt to
-deadlock and be missed upon USB plug or unplug events, as the SoC expects a
-rising edge rather than a falling edge.
+> +static const struct mdp5_cfg_hw msm8952_config =3D {
+> +	.name =3D "msm8952",
 
 [ ... ]
 
-> +&sdhc_2 {
-> +	cd-gpios =3D <&tlmm 67 GPIO_ACTIVE_HIGH>;
+> +	.pipe_cursor =3D {
+> +		.count =3D 1,
+> +		.base =3D { 0x440DC },
 
-[Severity: Medium]
-Should the SD card detect cd-gpios be configured as active low?
+[Severity: Critical]
+This isn't a bug introduced by this patch, but copying this configuration
+defines a Layer Mixer offset (0x440DC) for an SSPP pipe.
 
-Standard SD slots typically use a normally-open active-low switch that
-shorts to ground upon insertion. Configuring this as GPIO_ACTIVE_HIGH might
-result in inverted card detection logic where the OS reports the card as
-inserted when it is actually empty.
+Does this cause the driver to incorrectly program LM cursor registers as if
+they were a standard SSPP pipe?
 
-> +	vmmc-supply =3D <&pm8950_l11>;
-> +	vqmmc-supply =3D <&pm8950_l12>;
-> +
-> +	status =3D "okay";
-> +};
+During cursor plane updates via mdp5_hwpipe_mode_set(), standard SSPP macros
+like REG_MDP5_PIPE_* will treat 0x440DC as the SSPP base.
+REG_MDP5_PIPE_OUT_XY (offset 0x10) will write to 0x440DC + 0x10 =3D 0x440EC
+(LM_CURSOR_FORMAT), and REG_MDP5_PIPE_SRC_SIZE (offset 0x0) overwrites
+LM_CURSOR_STRIDE. This misalignment destroys the LM cursor configurations
+and causes hardware faults.
+
+> +		.caps =3D MDP_PIPE_CAP_HFLIP	|
+> +			MDP_PIPE_CAP_VFLIP	|
+> +			MDP_PIPE_CAP_SW_PIX_EXT	|
+> +			MDP_PIPE_CAP_CURSOR	|
+> +			0,
+> +	},
+
+[Severity: High]
+This isn't a bug introduced by this patch, but copying this configuration
+leaves an inconsistent MDP_PIPE_CAP_SW_PIX_EXT capability between
+pipe_cursor and the main pipes.
+
+Are we exposing Software Pixel Extension capabilities on the cursor pipe
+while main pipes lack it?
+
+If the SoC does not support Software Pixel Extension,
+mdp5_plane_atomic_update() will call mdp5_write_pixel_ext() and write to
+non-existent SW_PIX_EXT registers when programming the cursor pipe,
+triggering a Synchronous External Abort. If it does support it, the main
+planes are underutilizing the hardware.
+
+> +	.lm =3D {
+> +		.count =3D 2,
+> +		.base =3D { 0x44000, 0x47000 },
+> +		.instances =3D {
+> +				{ .id =3D 0, .pp =3D 0, .dspp =3D 0,
+> +				  .caps =3D MDP_LM_CAP_DISPLAY, },
+> +				{ .id =3D 3, .pp =3D -1, .dspp =3D -1,
+> +				  .caps =3D MDP_LM_CAP_WB },
+> +			     },
+
+[Severity: Critical]
+This isn't a bug introduced by this patch, but copying this configuration
+leaves the lm.base array initialized sequentially without designated
+initializers.
+
+Will this map the LM3 base address to the wrong index and cause register
+corruption?
+
+Because lm.base is initialized sequentially as { 0x44000, 0x47000 },
+base[0] becomes 0x44000 and base[1] becomes 0x47000. The remaining indices,
+including base[3], are implicitly initialized to 0.
+
+When the driver creates a mixer for LM3 (since its .id is 3), atomic commits
+will cause REG_MDP5_LM_OUT_SIZE(3) to resolve to __offset_LM(3). This
+returns mdp5_cfg->lm.base[3], which evaluates to 0x0. Writes to LM3
+registers will thus write to SOC offset 0x0, corrupting the global MDP
+configuration registers.
+
+Should this use designated initializers for the base array to ensure base[3]
+is mapped correctly?
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912-msm8952-in=
-itial-support-v1-0-0e742578b524@mainlining.org?part=3D20
+itial-support-v1-0-0e742578b524@mainlining.org?part=3D14

@@ -1,43 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5F9938E8CE
-	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:28:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D342F361B
+	for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 03:28:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789183688; cv=none; b=MJeQ2HsLfX3FwpsNjEokWdgxu4S3jyf4feZwWScjod6pxnIGhzXpAVj1OUqUSHkKjwJ50WuAA8tkccoLdrYWQrOnM99v279ZsbZrMS8URESsnM9gZ0eYHVvXIhTYt8drLLrej8AOgg8Iv9kks4kzXs+ihI5WhSR6/bUadf7/NM4=
+	t=1789183724; cv=none; b=VzLjwUjWfOo3BAF9aMaxFPT6cD/lm7Rmma+5q9GLQTFqTx6F0Q0Hdbg7EMGuhbMHWp3xU1d4dP+YCHqpjHrpTHJ3WYQA8B7arqLaRg3ScpuuSN6Wizu3pJQCBCeITs7+eNkMVS0wlBxUVANQfLOw/w/9tYaXJBjtyfriKK/w974=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789183688; c=relaxed/simple;
-	bh=7E3bIEc9xHaYgIVYnrbHh6UeJ3oGXbOFEU3udjCUNYY=;
+	s=arc-20240116; t=1789183724; c=relaxed/simple;
+	bh=t50jBOJWOhkUfmC81c3SlfJsbPZAY3XbkrqkgKq8uO0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cnyzlrnMuvcaUlhGseGO27OP2xtnM4FXayGbGj+DABKazbqV9xngvVRpnjAAuz6pgdUzoUc7M+f3g7rxI/6FLLTUC5I3FK/nJ18JQgHw5IvTMoUye7HJZBxYkenMo1wTdrZice8W7fsFlcdPF/Nk06d5oFqJ3Ktqp5EqpKsFx8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m9BaDgd0; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=DzZqxWhCD5iqVT0w+6nppJiFaqzpy0Qaby6XtN9QlILLhKde6NT4af+KCC2VtYMnAHedHOcT+R9ZwekyMWSn2gHHf+FvlUPoCxEjZzG/oD1CNV7XqJOyPVMK0rrGt+ZOlN/iZKjX+JU6N/WSmRowopzUv8RM/A51K3wdx+GQZRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oBZUUVoJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m9BaDgd0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 107F11F000FF;
-	Sat, 12 Sep 2026 03:28:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oBZUUVoJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AF3E1F000FF;
+	Sat, 12 Sep 2026 03:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789183687;
-	bh=WdSyH3yvi6rv6LJrFdJDLZO8uSSuVOqR5xR+U7+NMmA=;
+	s=k20260515; t=1789183723;
+	bh=PCRXkamCgWV9P0kIYhyOxJl6zf/8fnZkOTcuggomtc4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=m9BaDgd0b2Kg68KllWe7aSLk0319KY0L/uIrEG3es6f+Cg5RFgBoZGG/GXWb/UXLY
-	 XQkqz7B5ytY4ci9sNzjl6HaEm/Qw4NwkkY7enDGQfKSJ0Xc7ByyZBfnqubOIh7LLj7
-	 YPj4ZOQya9oe7qNx0mNTchDMsh9fobtlbGF3EFJW4ek1pvSWG2Z3m0EwTV2NJo2sai
-	 E3W55j2V0/c/9rn5PbAnzD02z2gH1Uzv46ufYNu8qGntAr6/NpUNC7gd4nBkoDC8TZ
-	 /8emvKBZUOqjUMRu3tUHCgcmEOJ5vuIH5a2/Bl1DkXQNKZlJ8yOEQNjWwam2vTrQvg
-	 f7Tmcwc8BDpcg==
+	b=oBZUUVoJoc/dgbDJiwpw0EwMlGvwVcF9X45yqw3stO8Ly+2as/E8lWFNn3VXTno+Y
+	 KE/7sZkqnhH7tVNWnZjqRAMUWuY6XNcKptrstkfYtLna8511oV98riUGc7BOyYEPvl
+	 Ihs+DoXGiPfOKT0g13vDapQzFIjLeLSxOOHD8xyJqLokNESVUqE7r3527PALQq0Cle
+	 JNTaPvgarHsT2fX5rErog1LvdXJWpIAPy/HYMfOMzR7D6jz9H7txF4B9fLkCcAUNoA
+	 pYuqmFt3TH77xLP36ERHcz//lNsF7ZKHBFk+Db9EKL+utPBZlry8+m1jng/p8U6Dg3
+	 sw/LfZgqhPoNA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 10/12] Input: Add ABS_CLUTCH, HANDBRAKE, and SHIFTER
+Subject: Re: [PATCH v7 11/12] HID: Map more automobile simulation inputs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Vicki Pfau" <vi@endrift.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260912030426.2997003-11-vi@endrift.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260912030426.2997003-12-vi@endrift.com>
 References: <20260912030426.2997003-1-vi@endrift.com>
- <20260912030426.2997003-11-vi@endrift.com>
+ <20260912030426.2997003-12-vi@endrift.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 12 Sep 2026 03:28:06 +0000
-Message-Id: <20260912032807.107F11F000FF@smtp.kernel.org>
+Date: Sat, 12 Sep 2026 03:28:42 +0000
+Message-Id: <20260912032843.4AF3E1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,57 +46,55 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] The loop adjusting fuzz and deadzone for racing wheel axes in hi=
-d-universal-pidff.c skips the newly added ABS_CLUTCH, ABS_HANDBRAKE, and AB=
-S_SHIFTER.
+- [Medium] hid-universal-pidff: Loop boundary hardcodes ABS_BRAKE, missing =
+the newly added ABS_CLUTCH and ABS_SHIFTER axes.
 --
 
-commit 95df0be5d5d52e727b1a90b0fb81bb2a045e5743
+commit 5a43f61b9ef2583fea1214cddf577437072e1c07
 Author: Vicki Pfau <vi@endrift.com>
 
-Input: Add ABS_CLUTCH, HANDBRAKE, and SHIFTER
+HID: Map more automobile simulation inputs
 
-This commit adds new absolute axes (ABS_CLUTCH, ABS_HANDBRAKE, and
-ABS_SHIFTER) for racing game controllers.
+This commit maps the previously ignored HID usages for clutch and shifter=20
+to ABS_CLUTCH and ABS_SHIFTER in hidinput_configure_usage.
 
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/=
-input-event-codes.h
-> index 3528168f7c6d7..5c881ed441771 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -879,6 +879,9 @@
->  #define ABS_WHEEL		0x08
->  #define ABS_GAS			0x09
->  #define ABS_BRAKE		0x0a
-> +#define ABS_CLUTCH		0x0b
-> +#define ABS_HANDBRAKE		0x0c
-> +#define ABS_SHIFTER		0x0d
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index 3487600cadb42..6ade969412c67 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -828,6 +828,8 @@ static void hidinput_configure_usage(struct hid_input=
+ *hidinput, struct hid_fiel
+>  		case 0xbb: map_abs(ABS_THROTTLE); break;
+>  		case 0xc4: map_abs(ABS_GAS);      break;
+>  		case 0xc5: map_abs(ABS_BRAKE);    break;
+> +		case 0xc6: map_abs(ABS_CLUTCH);   break;
+> +		case 0xc7: map_abs(ABS_SHIFTER);  break;
 
 [Severity: Medium]
-Does this leave out the newly added simulation axes from deadzone and
-fuzz adjustment in hid-universal-pidff.c?
+Does this change unintentionally leave the new simulation axes with large
+default deadzones on devices handled by the hid-universal-pidff driver?
 
-Looking at universal_pidff_input_configured() in
-drivers/hid/hid-universal-pidff.c, the code loops up to ABS_BRAKE to
-adjust racing wheel axes:
+In drivers/hid/hid-universal-pidff.c, the universal_pidff_input_configured
+function explicitly attempts to clear default deadzones for simulation axes
+to ensure high precision. However, it relies on a hardcoded loop boundary:
 
-drivers/hid/hid-universal-pidff.c:universal_pidff_input_configured() {
-    ...
-	for (axis =3D ABS_X; axis <=3D ABS_BRAKE; axis++) {
-		if (!test_bit(axis, input->absbit))
-			continue;
-    ...
+for (axis =3D ABS_X; axis <=3D ABS_BRAKE; axis++) {
+        ...
 }
 
-Because this loop bounded by ABS_BRAKE implicitly assumes it covers the
-contiguous block of all analogous simulation axes, adding ABS_CLUTCH,
-ABS_HANDBRAKE, and ABS_SHIFTER after it means they will be skipped.
+Since ABS_CLUTCH and ABS_SHIFTER are numerically greater than ABS_BRAKE,
+the loop will miss these newly mapped axes. This introduces an unwanted
+default deadzone of 1/16th of their range on the clutch and shifter axes,
+which might degrade the simulation experience for users of high-end sim
+racing wheels.
 
-Could this result in inconsistent default axis behaviors for the new
-clutch and handbrake axes, as they will not have their fuzz and deadzone
-parameters adjusted to match other racing wheel axes like ABS_GAS and
-ABS_BRAKE?
+Should the loop boundary in universal_pidff_input_configured be updated to
+include these new axes?
+
+>  		case 0xc8: map_abs(ABS_WHEEL);    break;
+>  		default:   goto ignore;
+>  		}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260912030426.2997=
-003-1-vi@endrift.com?part=3D10
+003-1-vi@endrift.com?part=3D11

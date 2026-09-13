@@ -1,159 +1,190 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D9E921ABC9
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 14:50:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31589341ABB;
+	Sun, 13 Sep 2026 15:50:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789311007; cv=none; b=Nsm+rO5yXiMzFH2wcrUXPbZYYGQXmjQZ0Gal50wbm5TL4TZW2TPAUTdJtJA6g7bP7lzxiQauDGW07J0Mr+V4nxJ6dMMW+tQUH059kj4Y0U6B+Lvk2XQ8fPwf38xMgAib2a2OpRPdIN8qaBcc97Hw/ka0veE/1m0b7CZYazdx4/Y=
+	t=1789314639; cv=none; b=obFGOBftVfqZqyEjV0LDSugA2naXd6v7dwVURNbe5bh6FRlT9Qsrp14LSeUoJBsLJ0ErGZBcrNHvzEixfmazv23ddcaLpzEijNFCBO1FK7pTB4mA2JfHjZmC9f6E/KARo5wJMUat7UpMxBKFK/S/g+iw71CAuD1/kpbUnkjSPc4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789311007; c=relaxed/simple;
-	bh=L5BMBgSAUHSLyRpHF7qlWPvh5NbVSyy2j6kfFv0hZzQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=otG5FBTYfDc3yjG4rU8tKSRUHymVLJto8i0Pdxq1oIr3V4icV971gf4aPjsgnvQHg3/wrH4Hog9woxJ1iK9Y8ACaPSokF+XKxoLr/e5VU5LrwBfeZ7R/pi1SYiTAmNem6exUunIf4Y2fMtFRMr8VLm30qPDCeRiPEkTU6K9DRfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PICfDp37; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789314639; c=relaxed/simple;
+	bh=dRteHYasmjthFzv5sHQomdySo23tvUJL1a7vD9geNzU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ILfl76AbCFxeedjG2oFAEInQsOLtuDVXQrHehtfcUWzS7n7bYP3DukPDB0Nvt7uCRJ9Bn1qVoKPcwjqOPVvEVlaSyTytaT5ZTPAz19+J+tTfvz1X7du+hQRvHfdn0NlCmJ3Jr4elrpEkKvvGBS87ln2Xw0azQfZxTiPsCqbcev4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ONZ02eX8; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PICfDp37"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5C831F00893;
-	Sun, 13 Sep 2026 14:50:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789311003;
-	bh=H5IYVlQaMF8DFpnz9wroawfxKcX+AAfEWi9rusEv6r4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PICfDp37skEzw6r9RgbzVyb+VPC5/UDSPGpRlXL0uNdau0XsczwEAM2WLWsKbh9b6
-	 Npou2t8faV9sgWJqDiXA3aUa/uUmLnnTxE8IMP0g6cL8Hqh5RkrPYF5WLVtk7pifxb
-	 9go0uN239WaSSWqiEQO6+yZDycrGwflnGBgONbQ5pqn4EchjkcgKHtu2iO6bbZNF+U
-	 PsA/6enhB3YnyVgqdnFbORt4Wqsg5TnXmKmc3l15E5996TEkaxvfn9PAWl7APW7iup
-	 2itQA7lzGWWQXHejNAozA2IECtcnV2Vl1i+qR4j7ImwhtyH8Q8+62aaE8qUco2KDv6
-	 Q484Gk39BmGtw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: winwing: remove unpaired hid_hw_close()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Guangshuo Li" <lgs201920130244@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260913143909.1589019-1-lgs201920130244@gmail.com>
-References: <20260913143909.1589019-1-lgs201920130244@gmail.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ONZ02eX8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1789314637; x=1820850637;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=dRteHYasmjthFzv5sHQomdySo23tvUJL1a7vD9geNzU=;
+  b=ONZ02eX8UU1R+suoFE5wiCvCEGi4Yzg4mOVPp0Xv6Osif/Wx8Psw/Lrp
+   7Lh89DUudL9jBezYHVZSIYvqGJGphCTX1iNUGYh4T1euvCXZo1EXKl7bV
+   DbFYMdvJCRwwLFpHEf3BOGUOafoXDURsIP47pj022FqtAWD3XtS+hxj/X
+   NPuHhYwepTSqyXmIuK42VuKRbIdj7rOuFQwce3DJ/DS28B8tQ0bP9lACy
+   uWrVAGqcNE89Wz2+iMvzjpSPVZZUDtchqBUYXG6spwhw+08rbDpZkesmF
+   gOdCH9bdO0yCJPfHmO1yH1CaSSh+YZfH5lFf6rzEZquVIzU4x6BwdM68w
+   A==;
+X-CSE-ConnectionGUID: TIo51lXoQ5auxBDdm/0pvg==
+X-CSE-MsgGUID: dea/sK+XRDSW9p1wngsk6g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11904"; a="101212720"
+X-IronPort-AV: E=Sophos;i="6.27,100,1787036400"; 
+   d="scan'208";a="101212720"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Sep 2026 08:50:37 -0700
+X-CSE-ConnectionGUID: wgGW3RYCTRqv+6VtHKXX0Q==
+X-CSE-MsgGUID: oCNbfysJThCNIWUZA71gGQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,100,1787036400"; 
+   d="scan'208";a="269122611"
+Received: from dnelso2-mobl.amr.corp.intel.com (HELO [10.125.108.113]) ([10.125.108.113])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Sep 2026 08:50:36 -0700
+Message-ID: <5b28a9e82b8f3d4458b678505ef7063525ce1141.camel@linux.intel.com>
+Subject: Re: [PATCH v3] HID: sensor-hub: Fail unfinished multi-value reads
+ on removal
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: Yibo Tan <lhfff@tju.edu.cn>, Jiri Kosina <jikos@kernel.org>, Jonathan
+ Cameron <jic23@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, Zhang Lixu	
+ <lixu.zhang@intel.com>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, 	linux-kernel@vger.kernel.org
+Date: Sun, 13 Sep 2026 08:50:35 -0700
+In-Reply-To: <20260913072910.1944300-1-lhfff@tju.edu.cn>
+References: <20260913045411.5e2f5b25@jic23-hlaptop>
+	 <20260913072910.1944300-1-lhfff@tju.edu.cn>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 13 Sep 2026 14:50:03 +0000
-Message-Id: <20260913145003.A5C831F00893@smtp.kernel.org>
+User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On Sun, 2026-09-13 at 15:29 +0800, Yibo Tan wrote:
+> sensor_hub_remove() completes pending reads after stopping the HID
+> device,
+> but does not record why they completed.=C2=A0 A successful completion wai=
+t
+> therefore returns zero even if no complete input report was received.
+> Multi-value IIO callers then format their untouched automatic buffer
+> as a
+> successful result.
+>=20
+> With a valid four-element signed 32-bit quaternion report descriptor,
+> an
+> unprivileged reader received all 16 bytes of the untouched buffer.=C2=A0
+> Across
+> 11 independent KASLR-enabled boots, four reads exposed exact pointers
+> to
+> dev_rot_channels or dev_sysfs_ops.=C2=A0 Subtracting the matching link-
+> time
+> symbol address recovered the kernel KASLR slide in all four cases.
+>=20
+> The reader ran as UID/GID 65534 with no effective capabilities
+> through the
+> mode-0644 IIO attribute.=C2=A0 The test used a privileged UHID broker to
+> create
+> and remove the provider; it does not demonstrate unprivileged
+> provider
+> removal.
+>=20
+> Mark a pending request as shut down before completing it from the
+> removal
+> path, and return -ENODEV from a multi-value read that observes the
+> marker
+> after a successful wait.=C2=A0 Let removal win even if a response raced
+> with
+> teardown, since the device is no longer available.
+>=20
+> The Root B-only repair returned -ENODEV with no payload or kernel
+> diagnostic in 3/3 matching signed-32-bit runs.=C2=A0 The source
+> reproducer,
+> complete vulnerable and fixed serial logs, result tables, and
+> checksums are
+> available in [1].
+>=20
+> Link:
+> https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tree/ma=
+in/cases/hid-sensor-quaternion-root-b-kaslr
+> =C2=A0[1]
+> Fixes: f784fcea4506 ("HID: sensor-hub: Add
+> sensor_hub_input_attr_read_values() for multi-byte reads")
+> Cc: stable@vger.kernel.org
+> Suggested-by: Jonathan Cameron <jic23@kernel.org>
+> Assisted-by: LLM
+> Signed-off-by: Yibo Tan <lhfff@tju.edu.cn>
 
-Pre-existing issues:
-- [High] Use-after-free of driver data via the rumble workqueue due to inco=
-rrect cleanup order in `winwing_remove()`.
-- [High] The `lights_lock` mutex in `struct winwing_drv_data` is never expl=
-icitly initialized.
-- [High] Memory leak and `led_classdev` list corruption if `winwing_input_c=
-onfigured` is called for multiple input devices.
---
 
-commit 375f4f6d6b1105352d34b843ee4acf96e3723a66
-Author: Guangshuo Li <lgs201920130244@gmail.com>
-HID: winwing: remove unpaired hid_hw_close()
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-This commit removes an unpaired hid_hw_close() call in winwing_remove() tha=
-t=20
-was present without a matching hid_hw_open(). This prevents the underflow of
-the hdev->ll_open_count variable.
 
-> diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
-> index 9cd25a77999e6..e18728f215aea 100644
-> --- a/drivers/hid/hid-winwing.c
-> +++ b/drivers/hid/hid-winwing.c
-> @@ -388,7 +388,6 @@ static void winwing_remove(struct hid_device *hdev)
->  	if (data)
->  		cancel_work_sync(&data->rumble_work);
-> =20
-> -	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does this cleanup order leave a window for
-a use-after-free of the driver's private data?
-
-Because hid_hw_stop() unregisters the input device, the device remains acti=
-ve
-while the rumble work is being cancelled. Could a local user issue an EVIOC=
-SFF
-ioctl in this narrow window, which schedules the work again?
-
-If so, the remove callback would finish, devres would free the data structu=
-re,
-and the scheduled work could subsequently execute and access the freed memo=
-ry.
-
-Should hid_hw_stop() be called before cancel_work_sync()?
-
-Additionally, looking at the driver initialization path:
-
-drivers/hid/hid-winwing.c:winwing_probe() {
-	...
-	data =3D devm_kzalloc(&hdev->dev, data_size, GFP_KERNEL);
-
-	if (!data)
-		return -ENOMEM;
-	...
-}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but is the lights_lock mutex in
-struct winwing_drv_data ever explicitly initialized?
-
-Since data is allocated using devm_kzalloc(), the memory is zero-initialize=
-d,
-but mutex_init(&data->lights_lock) is never called. When userspace writes to
-the LED brightness sysfs file, winwing_led_write() is invoked and acquires
-the lock:
-
-drivers/hid/hid-winwing.c:winwing_led_write() {
-	...
-	mutex_lock(&data->lights_lock);
-	...
-}
-
-Will locking this uninitialized mutex lead to undefined behavior or a kernel
-panic when accessed?
-
-Lastly, examining the input configuration:
-
-drivers/hid/hid-winwing.c:winwing_input_configured() {
-	...
-	ret =3D winwing_init_led(hdev, hidinput->input);
-
-	if (ret)
-		hid_err(hdev, "led init failed\n");
-
-	if (data->has_grip15)
-		winwing_init_ff(hdev, hidinput);
-	...
-}
-
-[Severity: High]
-This is a pre-existing issue, but does this unconditionally initialize LEDs
-and force feedback capabilities for every input node?
-
-winwing_input_configured() is called by the HID core for each input applica=
-tion
-exposed by the device. Unconditionally calling winwing_init_led() for each
-allocates new buffers and re-registers the same three struct winwing_led
-elements.=20
-
-Could re-registering an already-linked led_classdev overwrite its list nodes
-and corrupt the LED subsystem's linked lists? Are the devres allocations fr=
-om
-the earlier calls leaked in this scenario?=20
-
-Should this setup be restricted to only happen for the first input node?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260913143909.1589=
-019-1-lgs201920130244@gmail.com?part=3D1
+> ---
+> Changes in v3:
+> - Replace the raw_size error sentinel with a dedicated teardown flag,
+> as
+> =C2=A0 suggested by Jonathan Cameron.
+> - Let teardown win if it races with a completed response.
+>=20
+> v2:
+> https://lore.kernel.org/r/20260912050257.837340-1-lhfff@tju.edu.cn/
+>=20
+> =C2=A0drivers/hid/hid-sensor-hub.c=C2=A0=C2=A0 | 6 +++++-
+> =C2=A0include/linux/hid-sensor-hub.h | 2 ++
+> =C2=A02 files changed, 7 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
+> hub.c
+> index 6470a290ebfc..a9bd72218c07 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -334,6 +334,8 @@ int sensor_hub_input_attr_read_values(struct
+> hid_sensor_hub_device *hsdev,
+> =C2=A0			ret =3D -ETIMEDOUT;
+> =C2=A0		else if (cycles < 0)
+> =C2=A0			ret =3D cycles;
+> +		else if (hsdev->pending.shutdown)
+> +			ret =3D -ENODEV;
+> =C2=A0
+> =C2=A0		hsdev->pending.status =3D false;
+> =C2=A0	}
+> @@ -805,8 +807,10 @@ static int sensor_hub_finalize_pending_fn(struct
+> device *dev, void *data)
+> =C2=A0{
+> =C2=A0	struct hid_sensor_hub_device *hsdev =3D dev->platform_data;
+> =C2=A0
+> -	if (hsdev->pending.status)
+> +	if (hsdev->pending.status) {
+> +		hsdev->pending.shutdown =3D true;
+> =C2=A0		complete(&hsdev->pending.ready);
+> +	}
+> =C2=A0
+> =C2=A0	return 0;
+> =C2=A0}
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-
+> sensor-hub.h
+> index ab5cc8db3fbb..5aecf4474183 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -38,6 +38,7 @@ struct hid_sensor_hub_attribute_info {
+> =C2=A0/**
+> =C2=A0 * struct sensor_hub_pending - Synchronous read pending information
+> =C2=A0 * @status:		Pending status true/false.
+> + * @shutdown:		The device is being removed.
+> =C2=A0 * @ready:		Completion synchronization data.
+> =C2=A0 * @usage_id:		Usage id for physical device, e.g. gyro
+> usage id.
+> =C2=A0 * @attr_usage_id:	Usage Id of a field, e.g. X-axis for a gyro.
+> @@ -48,6 +49,7 @@ struct hid_sensor_hub_attribute_info {
+> =C2=A0 */
+> =C2=A0struct sensor_hub_pending {
+> =C2=A0	bool status;
+> +	bool shutdown;
+> =C2=A0	struct completion ready;
+> =C2=A0	u32 usage_id;
+> =C2=A0	u32 attr_usage_id;

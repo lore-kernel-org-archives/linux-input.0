@@ -1,178 +1,127 @@
-Received: from mail.k7h.de (mail.k7h.de [49.12.72.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B5583AD50D
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 18:59:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=49.12.72.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 030312D9EE4
+	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 20:22:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789325979; cv=none; b=meUg5IVqIQDKhlmhzdj46chdBG0tS1pLueJgAjOxOz8Me9nlO6oT/NC/vZlfESlbfqQnHBPD1DdFmq+5AnVsCbKP6jlfc7bnE5e5SSPX1w41WBJZwCmrv5xFduCrymLGwYWs7c08r9mn2buXI5nGvXNXa/JSe7WB8qIWzTw9NEw=
+	t=1789330938; cv=none; b=THXvgeGSTt10xkHwH4+eJ664FdjblUxy5tvl9C649zhoYdHUWmQeVB96+7Eb/R9NGdsSz4NTtO5G7BnB5B/v/fhAJjU//MqMm9lFQVGy8ECWdYtaYBdnnLLjK+5zZeEFSwi7KaQ0HfHnr+CyNL8+LNT8UgkP9JJO7d5xr0QQaR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789325979; c=relaxed/simple;
-	bh=8mHz0Xe2/H/ZYUXkVzqB9niefRhM6qoXJpIoypyaBqk=;
-	h=Message-ID:Date:MIME-Version:From:To:Cc:Subject:Content-Type; b=FgHNxrNmsWo9G/U2dA/qNj7p98L38nhiJxaRZzgGpZce+JI40HxiKWIuLkKgCWYu7CPAtk4M7srkMEl6Rsx+49I+ggjPg8NAa5CRtDsADrrcd5QuZYNmWlWPaukuQaGrG2+obg+97aVOtvzsgsJJuSWT8COHtihMCm1uDq4X5LE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=k7h.de; spf=pass smtp.mailfrom=k7h.de; dkim=pass (2048-bit key) header.d=k7h.de header.i=@k7h.de header.b=UK4qsh7t; arc=none smtp.client-ip=49.12.72.137
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=k7h.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=k7h.de
+	s=arc-20240116; t=1789330938; c=relaxed/simple;
+	bh=5Jnyq2m/fxnLdLAi7cgMxTDXw8BXgJ1dEaTgBH8SqDw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PI2bJ6q8lyuWEu15QXSIw1nc3w6K11pfR4VsgUGjSELMo+7bUK/TIzFipIHT7+74iQdXky56PFc2OPo4g7jhyMrffbp5ZRii8sai4lKYqyHy4xog6YZNjNaEvl3qVd7ABSaKUsYSfczs9BdA8h1+AmbOI0U11dUu/GZq7Q6D5tg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Th8RMXgs; arc=none smtp.client-ip=74.125.227.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=k7h.de header.i=@k7h.de header.b="UK4qsh7t"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id F0C4C61317;
-	Sun, 13 Sep 2026 20:51:07 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=k7h.de; s=dkim;
-	t=1789325469; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language;
-	bh=8mHz0Xe2/H/ZYUXkVzqB9niefRhM6qoXJpIoypyaBqk=;
-	b=UK4qsh7tNLPw5VsiyaIXjM2wU6TBEtx8Pj8IIuq0w5dWJAg2C/EW1mgzNFsVcLJNKJq3Pj
-	Bj6Iq/csj56fZ8rxMBHgevucfuKttLhQMkbgYZS3jDR61IKmC7yXM4/un0vXaKK1n9lcgb
-	nw6O0HFB/+7X/0P7O2/V0Ar7xwMAxvswrSSES7P7SHvf1Kk6NQ8AjdYy3yX8TeOf2m55E/
-	f0ZAh4RFV3SVKF0sL9GSeL4FVBgdDrjVqIVc61zb1Dq8Xus3L8BA3772jFWaLP1dOSqTOu
-	mOr1AIafz0pHJkUyTF/gL0z8VWbrd4sqSYwVFWJfaAJJ1x8VIh8vHGi34wv7Ow==
-Message-ID: <22c06460-9760-4879-8c24-2106cd0efd5e@k7h.de>
-Date: Sun, 13 Sep 2026 20:51:06 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Th8RMXgs"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccb1a990so1114830a91.3
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 13:22:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789330936; x=1789935736; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=YW22hpn6NA/1ctJFf8XwFZnt6mlHWHAmp1i+9J3jcig=;
+        b=Th8RMXgsIq0rtMw0GKGfHEZAbOgxmYK0km1S3MddxEuAeKVk65O9JLuJS/7l7K7Nhi
+         1hFvC9jVKli++lB9NZAEN1G4Ca26UTfguEsSyJkRziNKlfbZcionE37ZziGhKVNuFy5v
+         ffygg0uAY65AFUeho1AWBhs/J95RwDf7elnY1ello2+MYy6d/+ls5utggeyVTmzHtIb/
+         LZ4dxZsCgEXYhDZKUcUMNraipQbchIj12Y9T5SphPtqW+Sa/JYutn/VyciRqZxf2OhdF
+         kIlX1Yz1imfYHnlASfmEYKoeAQV6hKcJVAC66eCjhClkJeKZr6bt/zucrs8EaWgnWZkL
+         OFLA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789330936; x=1789935736;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=YW22hpn6NA/1ctJFf8XwFZnt6mlHWHAmp1i+9J3jcig=;
+        b=Qan7FpjB49W/HZxPdi0narWKTLStkxRfiDaJi+jPWB3pqVvoB1yxW9nWYNd35xZjKL
+         G1ZvU4scH3vHhRQ4Pw0cQFBMpy7U1mkGXynp2CO9l8yNTQmotHftRkTaCFED09C2unWc
+         1kshajYM1VoYYaw/vVvhQbhFlgEopefUpraJVTUooN6PB6ReTOZf9zVZP/WKsxivZ68J
+         RSQ1mP8w4yX8H41+Zhin1YI12+O8SzW5Wne1HW54J5kGSd7tYNGyiCqj8x5Y1TjU2j1T
+         rivdSOMhibd9N53wN4Wp6Zgra/OeJCNTVGbhChfWHfv3r0HxcbkSBQDApluFfPRhperg
+         Qo7A==
+X-Gm-Message-State: AFuF++mR+mkke4M2CPlLu8z948UCpsM5hWRotkgpDd3/acoAi7oTVslZ
+	7oovITNc0UaIwVUM285NG/+MtzPUaqDi5utMCNypaTaUDcf9Gp8DrW+Eq7QJ8g==
+X-Gm-Gg: AYBFou2lMwVDEbCSXqf1kXeQp8G+W9aY6TQonRGB52BaMSzygI/043Tm/UoDGfdStkg
+	ZEzcSpotlNx/N+c7LXjhgcKAw2SHIffy0Xhohsl6ZMK+ufHOPIQKpcd9ixFEUo3Zx3Dx1RxzZI8
+	iM1MFyU9k8w6l58U9+H7YdZqs3gXyDMZy4RaHZEhawzaBKUj/1nPNSjnvjAkVR1AVKvEvhRJJTH
+	nPdHaqzFQsuBIhMgkY6e1Rfj2G3aL+3MmwBazUmLJ2tO/tjUDmxp8YwHUDuRHk92H+ZJTWrez9Q
+	wo1S17HhqtTLbBp86WKmIHcsCd48M/g3oAvR/v1g8oOZjl9hyWbM1QCFUF2Pse/E4jW4XyNhPgl
+	u1WVXAVQTaNl5QzKwTpLNLaSOLAddoyYuHkdlCmjA4DGqK5bJspSyU6oHtfiLdbYnXAibhhgl2W
+	RaPtUDra32cmCSIdAkbHtx35xnsXWz1VFWR2oQa8vjMJrHRVsQ4q7OxDBeMrONsN2Ob/6UaB4nh
+	WU3YSQ4HFvgDDvnhukJcWzjwj7qkfP0sxpJY11e9pncrUMQxsM3
+X-Received: by 2002:a17:90b:5807:b0:39b:2b5a:8dc5 with SMTP id 98e67ed59e1d1-39dbc0c2cf6mr14903060a91.6.1789330936018;
+        Sun, 13 Sep 2026 13:22:16 -0700 (PDT)
+Received: from localhost ([2409:40c4:315e:9ae4:a35a:4d93:b2da:5738])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39dada5c76asm14847432a91.12.2026.09.13.13.22.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 13 Sep 2026 13:22:15 -0700 (PDT)
+Date: Mon, 14 Sep 2026 01:52:10 +0530
+From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+To: Cameron Spencer <cameron@oscillator.com.au>
+Cc: linux-input@vger.kernel.org
+Subject: Re: [6.12.107] MSI G63 9SEK - Synaptics touchpad falls back to PS/2,
+ multitouch lost at boot, fixed by delayed protocol write
+Message-ID: <aqcCuI183ErUorYO@eggarch>
+References: <4bd8e20e-e4cc-4528-9862-740a437c2687@oscillator.com.au>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: =?UTF-8?Q?Holger_K=C3=B6nig?= <holger@k7h.de>
-Content-Language: en-US
-To: linux-input@vger.kernel.org
-Cc: lains@riseup.net, hadess@hadess.net
-Subject: [BUG] HID: logitech-hidpp: capacity_level stays UNKNOWN after
- charging ends on 0x1000-only devices (MX Master 3)
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <4bd8e20e-e4cc-4528-9862-740a437c2687@oscillator.com.au>
 
+On Sun, Sep 13, 2026 at 05:23:43AM +0000, Cameron Spencer wrote:
+> I experienced an issue where my Synaptics touchpad is registered as a 
+> basic PS/2 device at boot, losing all multitouch functionality 
+> (two-finger scroll, gestures). Writing "synaptics" to the sysfs protocol 
+> file a few seconds after boot restores the SynPS/2 extended protocol and 
+> full functionality.
+> 
+> System:
+> 
+> - Kernel: 6.12.107+deb13-amd64
 Hi,
 
-I am seeing a persistently stale POWER_SUPPLY_PROP_CAPACITY_LEVEL on an
-MX Master 3 after a charge cycle ends. The device keeps reporting
-capacity_level=Unknown while status is already Discharging, which makes
-upower publish battery-level=unknown; desktops render that as an empty
-battery and raise a low-battery warning. The state persists indefinitely
-until the device reconnects.
+Thanks for the report, could you see if the issue is reproducible in mainline
+first?
 
-Environment
------------
-Kernel:   7.2.5 (CachyOS build), x86_64
-upower:   1.91.4
-Desktop:  KDE Plasma 6.7.5 / powerdevil 6.7.5 (Wayland)
+>  � � $ dmesg | grep -iE 'psmouse|synaptics|serio|i8042'
+>  � � [� � 1.006462] i8042: PNP: PS/2 Controller 
+> [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+>  � � [� � 1.010384] serio: i8042 KBD port at 0x60,0x64 irq 1
+>  � � [� � 1.010392] serio: i8042 AUX port at 0x60,0x64 irq 12
+>  � � [� � 1.018706] input: AT Translated Set 2 keyboard as 
+> /devices/platform/i8042/serio0/input/input0
+>  � � # psmouse probes at boot, fails the Synaptics handshake, registers 
+> as plain "PS/2 Synaptics TouchPad" (no multitouch)
+>  � � [� � 2.384949] input: PS/2 Synaptics TouchPad as 
+> /devices/platform/i8042/serio1/input/input6
+>  � � # psmouse-reload service runs after systemd-udev-settle and writes 
+> synaptics to /sys/bus/serio/devices/serio1/protocol, then re-probes with 
+> the Synaptics extended protocol, queries coordinates, and registers as 
+> "SynPS/2 Synaptics TouchPad" (multitouch restored)
+>  � � [� � 8.654815] psmouse serio1: synaptics: queried max coordinates: 
+> x [..5656], y [..4728]
+>  � � [� � 8.683422] psmouse serio1: synaptics: queried min coordinates: 
+> x [1284..], y [1128..]
+>  � � [� � 8.739382] psmouse serio1: synaptics: Touchpad model: 1, fw: 
+> 8.2, id: 0x1e2b1, caps: 0xf00323/0x840300/0x26800/0x0, board id: 3163, 
+> fw id: 2286728
+>  � � [� � 8.775128] input: SynPS/2 Synaptics TouchPad as 
+> /devices/platform/i8042/serio1/input/input21
+Seems like firmware is unable to answer extended queries for some time
+after initialization and just falls back to PS/2,
 
-Device
-------
-Logitech MX Master 3 via Unifying receiver (046d:c52b), WPID 4082,
-HID++ 4.5, FW MPM 19.01.B0015 / BOT 95.01.B0015.
-
-Battery features present (from `solaar show`): only 0x1000 BATTERY STATUS
-(V1). No 0x1001 (voltage), no 0x1004 (unified), no 0x1f20 (ADC). The
-capability query selects HIDPP_CAPABILITY_BATTERY_LEVEL_STATUS, so sysfs
-exposes capacity_level but no capacity attribute.
-
-Symptom
--------
-While charging (expected, see analysis):
-
-   /sys/class/power_supply/hidpp_battery_0/status         = Charging
-   /sys/class/power_supply/hidpp_battery_0/capacity_level = Unknown
-   /sys/class/power_supply/hidpp_battery_0/online         = 0
-
-   HID++ 0x1000 raw (via Solaar): 50%, RECHARGING, next level 0%
-
-After the charger was removed and the mouse was in use again -- this is
-the actual bug:
-
-   status         = Discharging
-   capacity_level = Unknown          <-- stale
-   online         = 1
-
-   HID++ 0x1000 raw (via Solaar): 100%, DISCHARGING, next level 50%
-
-   upower: state: discharging / battery-level: unknown /
-           percentage: 50% (should be ignored)
-
-So the device itself reports a perfectly usable (100, 50, discharging)
-triple, the driver's status field tracked the transition, but
-battery.level was never refreshed and stayed at the UNKNOWN value left
-over from the charging phase.
-
-Power-cycling the mouse (switch on the base off/on) triggers
-hidpp_connect_event() -> hidpp20_query_battery_info_1000(), which writes
-all fields together, and the state becomes correct immediately:
-
-   status = Discharging / capacity_level = Full
-   upower: state: fully-charged / battery-level: full / percentage: 100%
-
-Analysis
---------
-hidpp20_batterylevel_map_status_capacity() deliberately reports no level
-for every state except discharging, which is documented in the comment
-and is fine in itself:
-
-     *level = POWER_SUPPLY_CAPACITY_LEVEL_UNKNOWN;
-
-     /* When discharging, we can rely on the device reported capacity.
-      * For all other states the device reports 0 (unknown).
-      */
-     switch (data[2]) {
-         case 0: /* discharging (in use) */
-             status = POWER_SUPPLY_STATUS_DISCHARGING;
-             *level = hidpp_map_battery_level(*capacity);
-             break;
-         case 1: /* recharging */
-             status = POWER_SUPPLY_STATUS_CHARGING;
-             break;
-     ...
-
-For a device with only 0x1000, the only writers of battery.level are
-hidpp20_query_battery_info_1000() and hidpp20_battery_event_1000(), and
-both assign status, capacity and level together. I therefore cannot
-explain the observed Discharging + UNKNOWN pair from reading the code
-alone -- it looks like either an update that is only partially applied,
-or another writer touching battery.status without battery.level. I did
-not manage to pin down the exact path and would rather report the
-observation than guess.
-
-One thing that did turn up while grepping for writers, and that looks
-like the same class of problem: two event handlers update
-battery.status/.capacity (and .voltage) but never battery.level, so
-capacity_level can go stale there as well:
-
-   - hidpp20_adc_measurement_event_1f20()
-   - hidpp_solar_battery_event()
-
-Neither applies to this device, but both would leave whatever level was
-last written in place across a status change.
-
-Impact
-------
-For userspace this is not cosmetic: upower maps battery-level=unknown to
-an unusable value (it publishes 50% flagged "should be ignored"), and
-powerdevil turns that into a permanent "battery empty" state plus a
-low-battery notification, on a mouse that is at 100%. In the upower
-history file the bogus state shows up as repeated
-
-   <timestamp>    0,000    unknown
-
-entries, each correlating with a boot or reconnect.
-
-Reproducer
-----------
-1. MX Master 3 connected via Unifying receiver, discharging,
-    capacity_level sane (e.g. Full).
-2. Charge the mouse (USB-C, charger is enough -- it does not have to be
-    the same machine). status goes to Charging, capacity_level to Unknown.
-3. Unplug and use the mouse.
-4. Read status and capacity_level: status returns to Discharging,
-    capacity_level stays Unknown indefinitely.
-5. Power-cycle the mouse -> capacity_level correct again.
-
-I can reproduce this on demand and am happy to test patches or to
-collect hid_dbg/dynamic-debug output from logitech-hidpp-device across
-the charge/discharge transition if that would help narrow down which
-write path is involved.
+perhaps we could just add a retry loop around
+synaptics_query_hardware() to give firmware a little extra time.
 
 Thanks,
-Holger
-
+Lovekesh

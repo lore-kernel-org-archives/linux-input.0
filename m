@@ -1,96 +1,124 @@
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C169368D4D
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 23:28:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 413D4390CA2
+	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 23:33:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789342090; cv=none; b=PI5ckzY97hs1k8VFb6q7Um7MgipJgglyrTD/x2lXWXSRlsJI1/KInc1643Mwvj7W4+/qMT/fksCu14APW0GXENVMxYoWHYszplS0A9Ws0xr+l+V5CnpEffDg8OhEFiADbvxXv5d36IGPcWlT/T2aZmHwKPnuykgYvQy90d01Jwg=
+	t=1789342409; cv=none; b=hTYtHqPYnESMueUaDPWUU08+z0HUIu9gndVhuQwB76fXfgWqMmdTrBU3m5ApN5jwt0bUX/F6hvENEIl439OTOq8QsN6pS725VikZOKOD7hlcKL7xJzZn66t9r3AKGraOK8iDUSCtpC+FBgmfcpGAVJPM6LSKH4Hk/5SL+y3yqjE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789342090; c=relaxed/simple;
-	bh=B5wmYvgAumOgkvL+j3miHf8Yd6fnFpMGVGSUtvMSkrQ=;
+	s=arc-20240116; t=1789342409; c=relaxed/simple;
+	bh=TqEH68mcLeZvC1yHQh2gWxzLaPd5zKzY01+sSyFj8q8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bN6VPzjO97BqXCqQr7O3F8aSetl0l3+bM0aFojxUmoTn80bvDyGcNPVcBE6h7xaLt3jwJR+Nr/vAei9s9KITFQIilE8tpE+3DF6cOqHwZ9hqU16m6mAZYRWyCjSd2CFmTHnwdFmTyv2tociMxrDSysNVLkLDwchdu2d4o1IAy8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Saf5WQM8; arc=none smtp.client-ip=209.85.214.181
+	 Content-Type:Content-Disposition:In-Reply-To; b=S+RWrZY0B+g24TVs+DtxfBeNkWo4Px6UDDztZUDysQ6zi6ERL9LTxmCgmF26aL69zNGGknfJKGNWzwZE2fUUvfurDpHj//tenxTBQGKHMIJNhkZlGvugfwjc/6tgJqxBJZfp/Raf/p9BIkfkYW+o8jLAM77CCnadaPsUU3p50+o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hUWv0QUf; arc=none smtp.client-ip=209.85.215.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Saf5WQM8"
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2d942c7cc2fso25381745ad.3
-        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 16:28:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hUWv0QUf"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-cc4c02ddd62so1921399a12.0
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 16:33:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789342088; x=1789946888; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=R7s+G6iKjm40YpfgASlG1A6+cEJNeaXA4iyKbV5zAO4=;
-        b=Saf5WQM8vef8YCeLDc9hPtZT4h9JT+xN7+fcCvGfS1WXryNCvWXtor+FnteyX9eQq7
-         cH9ZRFYv2r9N4gDFQDdUIJGBpGHByOzCGOCsiCrGXXmig7dqgcuFJc+pqpgsnQbavwnB
-         WZ4hiJT6YjQDOuNoaJmpm9TbzMnFzdMz05YGWpJK6ij48XUtEYMLvczmb5KdSqSRC6O2
-         nOJzssr5aNh52ziIGXIH+euxQli4VfEfVjmyojCWImuWBstaiQCmdxc53/mKQmIQuq3n
-         rPmvuzW3XZMD2lKF5tadr+8WxGIq5SyTWRQIFjeJO4bCidMFrXH0Y6xj/olI3g/JMHn9
-         Pidg==
+        d=gmail.com; s=20251104; t=1789342407; x=1789947207; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=T3VTaKaDUNFAWBbBzewXZoJZx7Zs4xkNkmRbw4yrUYA=;
+        b=hUWv0QUfCjU12tUNOxUFWghmTfbg+fjdhDrSg2I+0mLPjTtQje7TtDRiaJQXGh67HJ
+         Y5htzNxvk+zL6EAgO47S3JkX5tAGNq840ggAgLK/C6eDV7PUZmVoqCAChy3SIArKz9wq
+         MTD6P1OVXBNhubepPkMzL4aCdDzYQ2fta/M/zkT/SjTzq4qbtjL0XwO4XitAkSZppK5y
+         O6uQzD9OpvvqEH8irIqTHob5POJPQGytvFBX4eLt2jRZwcL0hxMwvu08GpXYlEHB2Vus
+         yPM+kNEiTpN+EKbcx+qrtSyl9PK6akS8dqWcTx4cu9/UkBji2JNRKXIX9aPxgXFQTysj
+         8geA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789342088; x=1789946888;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=R7s+G6iKjm40YpfgASlG1A6+cEJNeaXA4iyKbV5zAO4=;
-        b=kw+fYhoU4wJTClJNLrU43gRahLIHtb94uGoCiiANdqd4u139NPqz+h6eF6Q/EzC7xJ
-         LMWhnQ8NezsDZ76jJcOnaXMiFvPERQz12eFVitJ7Vj8r/7xpFfMXC25wd8e+d4HfJTxh
-         oWSSru1xWKUGDw/LymM7j+DwAhBSHdsDjYHjjPoKwuz9pY3W4emBSMIRtK6I4NIK5Klo
-         /CtoF3cD/wSPa8J/4rElnJogj6UzVS9Byo1ED7xuBqHWTAt+4W/tnj8NkYVmkQnI3dzP
-         eonMmeao7gP/cmLa0ZXRTwgWJKcoASmDKSWPxgfxi6lfVlPv6rLnBqQvFx2eiIaY2hZY
-         +3LQ==
-X-Gm-Message-State: AFuF++lyMI9QcImcul9OEXygQhd83KpukQnTWfV2jSB3e18b/jsK/kqp
-	0zSPJei+QYYiQvNPr3w57j5ZzRWxDBsi9d+tWLOOnxFOyyZ9GDcd1yk/
-X-Gm-Gg: AYBFou3j/XqERX/ncbvIRnmaNZcer0Zx0tlZ2UypE8JksKY5YzK8lYFjZiu9ym5nhJI
-	xTcj72UaWRtTrxxHeHDvPPRWKpFgxPH87u/k4QASUe4FTz44x6zKyHLi0jxLuWd0v46NwbCxfAQ
-	/pX8OiGyhapVN0zoUkJxCrBYbjnyXUuc/hTaeU9i2hX3m5Ye28XORVF0k8xfovd37lT1SsAF5k2
-	pRTURKWBWwewiak+mQXvuZjUhZJ3e+eFCMcCmzevwm3AkKQ8QasWP0Nf9F3B8yhi0P94ZXJQfGw
-	mdJQrdjHW2QTC356Plg9DagcmO3MVzeUHWto0+7fJ1qiIQEisbdV36k3csBpDl/Wj27XNIHxO7q
-	EdJ+xa//43/1M2lse2ASpUk56pkZ87waqdNP5DsX4+LxXIZHEqQ129Z8OtD05RvbajBVHauy5XU
-	RfivRkhTPnJlMNYmUeehQIqO/FG1IJrb3L+c3ARNDeAiPtxUq77NOHmPZJl4DwunqRkX+O2RRSf
-	eBifKZhs8AR6YVO5/7vtjA2wSyPxvM7NI/WetPi
-X-Received: by 2002:a17:903:2310:b0:2cf:9347:f445 with SMTP id d9443c01a7336-2dd6c6d75demr2017215ad.10.1789342088253;
-        Sun, 13 Sep 2026 16:28:08 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1789342407; x=1789947207;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=T3VTaKaDUNFAWBbBzewXZoJZx7Zs4xkNkmRbw4yrUYA=;
+        b=fDVMZJV3xRXXqRtkI2vlVYZXyzatU99hFZrjJRDbLLMTziNcPsVnD0LJQ5tw0+UDKd
+         mOvHm8ahh5LuixCD7QEvvCP0IFxgPITuHnulJqGVL2f283cpRNOtVZ4ljJd9hQAbHPMn
+         yoaZCjuPXOYdOQdCyH3Rac1o/00G5Vk8TOh51mFxYUsa+7abJbIdUzw+2sPe88YEso5/
+         OCGR/7KKXyreRGuaQM7/ADhWgrUmTDi8hf0QLQRyZGgUZYr47hHoRG/Wtykgh53vEubL
+         yIV6bkCLATu/YvdujH5kdPOE1GM7NKXZ8EngRyg03H62BSaQf7BQbFCUE1948T7VZOB1
+         aUQw==
+X-Gm-Message-State: AFuF++lU+8oVYjEHLGyIPj+0WGy3L6Tesf7RnVHG5n19QHdXkwwCUuNp
+	B28lmPVgFtEo2SfVPgHX3UduI667zg/976IAJZWnNXrM0Z0iL9hV+abk
+X-Gm-Gg: AYBFou3zookgGX5wmACIttnvi8RSD3AhbhWkgH/GI0QH/z6Gl0KNYedY3UEUwyEEQvc
+	lEmFAnrCwdLZXLk9flfwz/BrExr6AIO1DAh24eZ4RH5pHE5Y+v4kPgPSXBXvrJ4rZ7fkYx2sd5N
+	JsWN01tOz5GjVSWXTpNCwNGhls1UfsXUVEEjhFyBok6AJb9GLW9zYU0T5AVVAm7WwvEsCTEn2Mh
+	A75G0FnX95kH3B9rBr7FFNUxOnK0iAdwFl8uISAj+FuIuoYWd6OSslmunKsgkI0qhj3QCS9WTOd
+	85q3ugz+apiOShB1ItkMb6K6lq8z72eyT7bvEuCpPMhbcaE5TD3EfIcgGiiFAcarkHhPd1QeVLH
+	cyjHMkvq/HTt5paL5Jzzz4YORxIUjr1Yz5NXi5UJvk9IXpj5D4OzAWQY43PO7C/rl0m5yxXl59Z
+	z/XEbFEX60h30IbiJUVcxVkDYTp7dZvL9r5rH6HWZebwyCPXi+wikZjzjm0jkPHS/nakkUqkC0O
+	KvgXvdhQF0rEzQvkJrpZnwIiq75g2T59FRyYKom
+X-Received: by 2002:a17:90b:1805:b0:39b:4877:ae90 with SMTP id 98e67ed59e1d1-39dec143751mr319058a91.22.1789342407511;
+        Sun, 13 Sep 2026 16:33:27 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:a739:376c:7eb4:ea2d])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba7a9bb56sm23728160eec.31.2026.09.13.16.28.06
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14365b347e6sm19771080c88.4.2026.09.13.16.33.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Sep 2026 16:28:07 -0700 (PDT)
-Date: Sun, 13 Sep 2026 16:28:04 -0700
+        Sun, 13 Sep 2026 16:33:26 -0700 (PDT)
+Date: Sun, 13 Sep 2026 16:33:23 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Chris Sommers <chris.sommers@icloud.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: i8042 - add quirk for Acer Aspire Go 15 AG15-42P
-Message-ID: <aqcxe2U81KD2uPYi@google.com>
-References: <20260907182723.2709981-1-chris.sommers@icloud.com>
+To: David Heidelberg <david@ixit.cz>
+Cc: linux-input@vger.kernel.org
+Subject: Re: Double tap to wake optionality
+Message-ID: <aqcxlFLHh3V5vQvt@google.com>
+References: <4f9e942c-823e-4ab1-81ed-184b5f8388d6@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260907182723.2709981-1-chris.sommers@icloud.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4f9e942c-823e-4ab1-81ed-184b5f8388d6@ixit.cz>
 
-On Mon, Sep 07, 2026 at 11:27:23AM -0700, Chris Sommers wrote:
-> On the Acer Aspire Go 15 (AG15-42P), the internal keyboard drops out
-> ~5 seconds after boot on both Linux and Linux-LTS kernels. Keystrokes on
-> the built-in keyboard stop registering while the trackpad and external
-> keyboards remain functional.
-> 
-> Testing confirms that booting with the i8042.reset kernel parameter
-> resolves the issue and keeps the internal keyboard responsive.
-> 
-> Add SERIO_QUIRK_RESET_ALWAYS to i8042_dmi_quirk_table for the Acer
-> Aspire AG15-42P to automatically apply this quirk on boot.
-> 
-> Signed-off-by: Chris Sommers <chris.sommers@icloud.com>
+Hi David,
 
-Applied, thank you.
+On Mon, Sep 07, 2026 at 12:02:12AM +0200, David Heidelberg wrote:
+> Hello!
+> 
+> Most of touchscreens has ability to jump into low power mode and get woken
+> up by gesture (such as double tap).
+> 
+> I wonder about suggestion what property should drivers use to implement this
+> policy where driver doesn't have to jump into low-power mode but completely
+> power-off (and save battery). My thinking was something such as
+> 
+> /sys/class/input/inputX/gesture_to_wake
+> (while gesture sounds a bit weird, it seems that TS are capable to recognize
+> different patterns, not only double-tap).
+> 
+> 
+>                     userspace
+>                        │
+>                        │ gesture_to_wake = 1
+>                        ▼
+>               touchscreen driver
+>                        │
+>           ┌────────────┴────────────┐
+>           │                         │
+>        gesture ON               gesture OFF
+>           │                         │
+>           ▼                         ▼
+>    low-power TS mode          complete power-off
+>           │
+>           ▼
+>      IRQ configured
+>      as wake source
+
+How is it different from the power/wakeup device attribute? Device's
+suspend  routines check device_may_wakeup() and then either completely
+power off controllers or configure them for wake up.
+
+How exactly wakeup is handled - any touch, or double-tap, or something
+else - is up to the controller and its firmware.
+
+Thanks.
 
 -- 
 Dmitry

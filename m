@@ -1,129 +1,155 @@
-Received: from mail-vs2-f9.google.com (mail-vs2-f9.google.com [74.125.227.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08EA525782D
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 02:28:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.227.9
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789266538; cv=pass; b=Tl5E1XvTbC0mQ7LIAGn1l6s7Mn/ifuZUEeq3za9QMyEfscWPYirUjc+t/SVoe8qimmpGSiM5OgZfdTJRkC1FT6K8eswm6X9IUhYxRqknO6Ry0mXd+8RlRwsM47y7kYBjncjuxWF6GhQD4V5qPwcCfbTNmS2BsYCf4SxZNzsuGsA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789266538; c=relaxed/simple;
-	bh=Je3un76FN0GkyAppP8SDWyHHjnKMnJzgH3Apj/eDhN8=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=bu8zTLTIbQ3AY0JahLwQLJS3KEKBXIHyihu9bykWUkejQDhF3dHz4O0JOYlP3+XUsm8eSJAkXBVfKtuga19FpG8yV1JUIBuvexGe7zxGC2pBRKbdWD5Y4bJB3OjgoHhQbxM9mdiWIXR00HWT3mkmMm0a5CkC2mkPA3+A2pRtWlY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H/7CH0uf; arc=pass smtp.client-ip=74.125.227.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 208CA30EF7E;
+	Sun, 13 Sep 2026 03:54:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789271658; cv=none; b=sT/K5tAJbGTzchuVDQ6AXcYygDq3HaaNpF9R6SSLBHcRHvGTRd2R/1wLQonK9E47Znt25mieo2E/85Rqt2ZdBNgWyGPjAwotps28NNEh2P/duv9QEFoqwzFVDzlSfzoxlr03QTtbsiJ3Vhto7rO65JlJi1pK4t5YO91vgLhHO7w=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789271658; c=relaxed/simple;
+	bh=hnW9h2k6WrTvGVi83jxnUcjlHWPRQE+yzC2Wt+wEBaY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dYjx+U1kYOCngk0hX7zHYWf4xZfxbyif41LImktAPCHI3SRcy0NaQ6kG2IOYs1+OWIBBl5ywyHCNdV0WwWJUxdvJ17K7TY+8lVzHdwQUn9u8Dbn5pIvg9opytNk4mjCBnKqrWXdkzpQNrOLrIyoQTjh9yv/ArfWChNPPraPqre0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hJnEJPon; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H/7CH0uf"
-Received: by mail-vs2-f9.google.com with SMTP id ada2fe7eead31-78ff83b1be7so486225137.1
-        for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 19:28:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789266536; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Yz/tk7CXvCd1pLqijFPP1VCdbO1vGArH4vXlfvdcGJBGWhtTvfSqDYPMiNXiM46//c
-         qIs47zrhaKtYnmE0r4EDcwkfYzCDHwXcw+sFpWjXBewqqqMqScYLkPMUd2t57e4gbobV
-         jo36C/kwaVzMAg1gLmZjqskyR2PJ55HOEboNedOuoZyq24Y6L9pPYuXIerUaxYOIJlzg
-         12OTH9uWFrAeqhnz+oTitvfrqKXpXDxPzeEnbpD+9hM18GVBFXxSspHRqlzh5MglvwIt
-         1eljNIYpWkNav7qzdWPMHwdjRSLVJYZmb116n+TowkycE7zvaZe9SbAk1r/55LDHuBsR
-         NRcA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=qv2MLB0Xyieedx1sv+nnNDg8XZ1pBWqskhszMj0GAHE=;
-        fh=c+Vru0HWvJkxLTILpOQlHDSUgzB1bF+hHn8BGy7zo8E=;
-        b=RIo0oVNMq9HcAFtyidOFfN439rEJ8pkNYJVyEJLNN0CXLQDK9TMsGsvhsluxP5/WgY
-         brH782eJnJJT9AxAqS3WIUrGLRFNpdCR6PimuJXgAVNXzDZBHINvjNDeJqBkQo2ugxhG
-         20W2/fZz3Qo4A0Yq6+PRbQxoGpYmMXdYuD1IoYfO0aFIyLe4D8wsm8kgucwypis9dS4N
-         ele/e/7h7PwE2vgClrkgj9Nhxf3zn8wE2hyVqon1Yc9Z7rFl1qKiF7hkLGlv9AdPhkD4
-         +WfwLzQTrVKpeVDeADqOTW6isdbtQHS+uMq4+BskrzE1z3V+nrsOK8FqD5ikhfNoXolj
-         4Afg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789266536; x=1789871336; darn=vger.kernel.org;
-        h=content-type:to:subject:message-id:date:from:mime-version:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=qv2MLB0Xyieedx1sv+nnNDg8XZ1pBWqskhszMj0GAHE=;
-        b=H/7CH0ufghSrxcPvnR3N+Zzl8vD5naZWHw0Aq5yyXKkeUrOrmtVyvTOzRAK9i9r21K
-         HDu2BqCyzlAvh7Le1JiWdBGbwmjrScQ9WA31P94JbAKAbX0r2/ixLMJM71+AbAjwhDJA
-         zprSiZPQM7RXCtVRb92DZOOCyPk65DnNu/0dR5UpU/6jWu+87G65iMHxjsvVNVTcfP6S
-         7p4sT29mpu4r/yBtaOxoGduyCAg9OUMHm1v1nVTdZEW9RB4qJIXijLk3CkATI25ZRNIP
-         UXpKHzOvL/TSabw/oo1TxW2ngeLENRCIkZZlHbBPGw7JOHTfn3rNjDRAcO11OoclgxPm
-         RVLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789266536; x=1789871336;
-        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qv2MLB0Xyieedx1sv+nnNDg8XZ1pBWqskhszMj0GAHE=;
-        b=CWPAVJJc5pcwfrTUBYp+q/w/ve/wWZv2SiGihZkFU46KAB7PZbcBHwiqkaGqVMUeSt
-         WE2pguSQLuKp5DPxkaG892XyLtu0oeIUhmmNxH2wEkiXhnaEimDClMxxmU+z2we8ZzMb
-         E6+z4KskAaNyKD28iQT3VFLeOfmOg9WUufwMZHv0qR2OloJrSqAvqn9DvqOpmFBo54tk
-         KayuWaVl0gSrnmPHK6Xm9Ydxl1+87Cb3x1zl3a0sch0D9qUfZm88l6N9Zy/5Ghp8cXd2
-         y2VRD7AtPB27V54akEzG8LCTW85HX5cLQErWh+mHvvISbwx7hMEgVqpPM4TBL2i1rNHR
-         ozpQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxinIjVLBZd5MPU3RtrwZ6AGSFv+2+rDzhTTeGcS+S6T9RIn8d8bwVY7rsfK4rGO80yGXvqJiGQ0ayxEw==@vger.kernel.org
-X-Gm-Message-State: AFuF++m1PZ7B3MzaQx3XCucyoHkDuebAxkJCZuJ+gQx+W9sZsFE2fCHk
-	cE0KvgnuwItYZtzB0kjtD5U7UOyxaZqRhM5uoM8CmQx5yNTVe7bcu28UscPUxM2qUDtt1TrlKIM
-	sZhy658Y+mWpklE1eLp0y60YYoOe4xrDZDnU69DYpBw==
-X-Gm-Gg: AYBFou2scXj2g/jZljxosnPN5GR1l6TV6T6nlcjA4VSd080nBYKIPKg5JF4+f8QkmZA
-	q9o5SrlDkMMeD2KzYN6CRKeCRXf3KXI46tUm7NqBPmc+Y/He+mGwYvPULGlEsv79NEX0nePpdQx
-	ZnYCEFJfQD+ymirmeUm07R+VbSzffSH/lj8uLcs+ognq0bbjFPpgTYwZiq86qlFI8vl1u6nHdbA
-	fy0MowHmEWzST5bEDLHl2EOScJFzNA+pjL0lgVQFa/q58kHfnxCWO/BRzdbYpq10c0U09SirHw8
-	dBA6KOIP71IYafAseyy2UEDe7qB9Tpv6NY+9NgIqV3rHBUSUaixKNCxswqC1f9qZVkEppNWqeLf
-	oZtYAKrVggZA=
-X-Received: by 2002:a05:6102:5493:b0:77a:d089:3dd8 with SMTP id
- ada2fe7eead31-792aa86054emr10597379137.12.1789266535836; Sat, 12 Sep 2026
- 19:28:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hJnEJPon"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C8B71F000FF;
+	Sun, 13 Sep 2026 03:54:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789271656;
+	bh=b+6rjl68l0vy/kGHJbA4EyT/VxNsxrCEZLVgXdt94t0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=hJnEJPonGvD7dJSzi6ear6QZJD4itSS15lPOnajtQpNML5g6sTFozK03xNiogDUkF
+	 kg6VxPMxhqDHjz1zjbXYbMZaRuteGh1ObX+fZzMPP5ypj5E+IgT3Dxe36jvTaHE/H0
+	 esWWWN4cDW843rQRDNofwcmaWUBAkAf1UFOtd+T4CLxy3H+SpMUV2fCq5rmvX0NyZK
+	 hOqDVXr6DxrN+/3vS4rSUiiH6zgpybHtsVdXGUp2bvgBOCizd6f3B744RtjLAMXHEl
+	 guJQZ0YQPTOBxAlUr9NWhs6ew0HyOGmIZohelvckuvJg9eJHB9TOVbzEuyqaWbFJFJ
+	 gmoL6gaKeY5AQ==
+Date: Sun, 13 Sep 2026 04:54:11 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Yibo Tan <lhfff@tju.edu.cn>
+Cc: Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada
+ <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires
+ <bentiss@kernel.org>, Andy Shevchenko <andriy.shevchenko@intel.com>, Zhang
+ Lixu <lixu.zhang@intel.com>, linux-input@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] HID: sensor-hub: Fail unfinished multi-value reads
+ on remo
+Message-ID: <20260913045411.5e2f5b25@jic23-hlaptop>
+In-Reply-To: <20260912050257.837340-1-lhfff@tju.edu.cn>
+References: <aqPNDZgMS9K6NT7d@ashevche-desk.local>
+	<20260912050257.837340-1-lhfff@tju.edu.cn>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: jj jj <fdr41303@gmail.com>
-Date: Sat, 12 Sep 2026 22:28:45 -0400
-X-Gm-Features: AcwNN1VJo3v34RPdg0dJbHKEtl6KSBNIr6ZzcldhD4H-bjG9L23AmKFLHZdOjpA
-Message-ID: <CAMwVT_QRGnTRVbCVaUSS+3+9R=os59DGU5AzSZVqd9_jpLBV4Q@mail.gmail.com>
-Subject: [PATCH] Input: sur40: prevent polling loop from stalling
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-When the SUR40 driver receives a packet with no blobs while blobs are
-still expected, packet_blobs remains zero and need_blobs is never
-decremented.
+On Sat, 12 Sep 2026 13:02:57 +0800
+Yibo Tan <lhfff@tju.edu.cn> wrote:
 
-This causes the polling loop to make no progress.
+> sensor_hub_remove() completes pending reads after stopping the HID device,
+> but does not record why they completed.  A successful completion wait
+> therefore returns zero even if no complete input report was received.
+> Multi-value IIO callers then format their untouched automatic buffer as a
+> successful result.
+> 
+> With a valid four-element signed 32-bit quaternion report descriptor, an
+> unprivileged reader received all 16 bytes of the untouched buffer.  Across
+> 11 independent KASLR-enabled boots, four reads exposed exact pointers to
+> dev_rot_channels or dev_sysfs_ops.  Subtracting the matching link-time
+> symbol address recovered the kernel KASLR slide in all four cases.
+> 
+> The reader ran as UID/GID 65534 with no effective capabilities through the
+> mode-0644 IIO attribute.  The test used a privileged UHID broker to create
+> and remove the provider; it does not demonstrate unprivileged provider
+> removal.
+> 
+> Publish -ENODEV through pending.raw_size before completing an unfinished
+> multi-value request, and propagate the error after a successful wait.  A
+> fully received response already has a positive raw_size and remains
+> successful; max_raw_size is zero for the separate single-value path.
+> 
+> The Root B-only repair returned -ENODEV with no payload or kernel
+> diagnostic in 3/3 matching signed-32-bit runs.  The source reproducer,
+> complete vulnerable and fixed serial logs, result tables, and checksums are
+> available in [1].
+> 
+> Link: https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tree/main/cases/hid-sensor-quaternion-root-b-kaslr [1]
+> Fixes: f784fcea4506 ("HID: sensor-hub: Add sensor_hub_input_attr_read_values() for multi-byte reads")
+> Cc: stable@vger.kernel.org
+> Assisted-by: LLM
+> Signed-off-by: Yibo Tan <lhfff@tju.edu.cn>
 
-Return from the polling operation when no blobs are received while
-blobs are still expected.
+Thanks for the report and fix. Looks good to me, but I'm a little
+concerned about fragility of relying on ordering of data being set
+and the update of raw_size (in sensorhub_raw_event()). It is messy 
+for a compiler to reorder it but I think is allowed to in theory
+at least.
 
-Tested in a VM by reproducing the condition and verifying that the
-driver no longer remains in the polling loop.
+Perhaps it is safer for these tear down paths to just set a flag before
+the shutdown extra completion and ensure an error is returned in
+anything that is waiting on that completion if that flag is set?
+That flag would be before the new competion so I think ordering
+would be fine.  Might result in extra errors to userspace but we don't
+really care when ripping things down.
 
-Fixes: bdb5c57f209c ("Input: add sur40 driver for Samsung SUR40 (aka
-MS Surface 2.0/Pixelsense)")
+Jonathan
 
-Signed-off-by: Fartman42121cool <fdr41303@gmail.com>
 
----
- drivers/input/touchscreen/sur40.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+> ---
+> Changes in v2:
+> - Turn the reproducer URL into a Link trailer and cite it from the text.
+> - Use the reviewer-requested generic LLM assistance trailer.
+> 
+> v1: https://lore.kernel.org/r/20260911092039.234253-1-lhfff@tju.edu.cn/
+> 
+>  drivers/hid/hid-sensor-hub.c   | 7 ++++++-
+>  include/linux/hid-sensor-hub.h | 2 +-
+>  2 files changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+> index 6470a290ebfc..687f8defa2f0 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -334,6 +334,8 @@ int sensor_hub_input_attr_read_values(struct hid_sensor_hub_device *hsdev,
+>  			ret = -ETIMEDOUT;
+>  		else if (cycles < 0)
+>  			ret = cycles;
+> +		else if (hsdev->pending.raw_size < 0)
+> +			ret = hsdev->pending.raw_size;
+>  
+>  		hsdev->pending.status = false;
+>  	}
+> @@ -805,8 +807,11 @@ static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+>  {
+>  	struct hid_sensor_hub_device *hsdev = dev->platform_data;
+>  
+> -	if (hsdev->pending.status)
+> +	if (hsdev->pending.status) {
+> +		if (hsdev->pending.max_raw_size && !hsdev->pending.raw_size)
+> +			hsdev->pending.raw_size = -ENODEV;
+>  		complete(&hsdev->pending.ready);
+> +	}
+>  
+>  	return 0;
+>  }
+> diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+> index ab5cc8db3fbb..4ad53304bb0b 100644
+> --- a/include/linux/hid-sensor-hub.h
+> +++ b/include/linux/hid-sensor-hub.h
+> @@ -41,7 +41,7 @@ struct hid_sensor_hub_attribute_info {
+>   * @ready:		Completion synchronization data.
+>   * @usage_id:		Usage id for physical device, e.g. gyro usage id.
+>   * @attr_usage_id:	Usage Id of a field, e.g. X-axis for a gyro.
+> - * @raw_size:		Response size for a read request.
+> + * @raw_size:		Response size or negative error for a read request.
+>   * @raw_data:		Place holder for received response.
+>   * @index:		Current write index into raw_data for multi-byte reads.
+>   * @max_raw_size:	Total buffer size for multi-byte reads; 0 for single-value reads.
 
-diff --git a/drivers/input/touchscreen/sur40.c
-b/drivers/input/touchscreen/sur40.c
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -510,6 +510,13 @@ static void sur40_poll(struct input_dev *input)
-  if (packet_blobs > need_blobs)
-  packet_blobs = need_blobs;
-
-+ if (!packet_blobs && need_blobs) {
-+ dev_err(sur40->dev, "received no blobs while %d are still expected\n",
-+ need_blobs);
-+ return;
-+ }
-+
-+
-  for (i = 0; i < packet_blobs; i++) {
-  need_blobs--;
-  dev_dbg(sur40->dev, "processing blob\n");
-  sur40_report_blob(&(inblob[i]), input);

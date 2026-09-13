@@ -1,74 +1,72 @@
-Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787DF3EC82A
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 13:40:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECBCC3EC80C
+	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 14:39:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789306857; cv=none; b=WebEU0xGQKBPXOhUCJxBfSMnYsn4GPi6A/+fz4l2SC+N2LvqIKkgXHAuIa67b7GWApuyS60xwXPuS4Y2P8tzIX7Q6hcO35oNPVG9e8RLhkRuK2ZTzQEM6GXI+hxu5ANh64XI+5y0DnkfQQktn8RvSOaP5IQN5NMGOk3t8DjipD4=
+	t=1789310360; cv=none; b=Sepek4i02eDyE1PV7Ueom73qIHZ2EHDL8EXXDhqSbMJXLbRUFCFyZfaBD5IM/ZfX0+JGraAjQDjgmkDVoNUA6/qU2qI+hcXn/z9kfDgo4qxkB6Bld3dbcSVAfXt3uLBh/tnuW1EQfCjuNZ6QgDm9rpJBqJU1is7BYvdrEjziy6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789306857; c=relaxed/simple;
-	bh=vUq7OE8glOhov/9NBs9mV+ziOL9KOUWXVhl29wF32kc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mZz3iSYhlLhckm6p5FUKOfOD2Mk72sYxi+8/ttjoSSzyMBZ7JE/2N4S8Cuyua8/7KvBqfGuHvxFr+NI4graF6boZHWG+9aXZeYAG6rTI0FSK390iX5mAc1MUwx1oWWAThmn+aDt/b09OZI5/+t55skVLIJgJ015CO7yZfAHzzqs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sYYdMye6; arc=none smtp.client-ip=74.125.228.12
+	s=arc-20240116; t=1789310360; c=relaxed/simple;
+	bh=jiMrzmDOfg1nWOBVZ7m2UVnsQM7VW5f1VNF2Ud+H8Lc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WTGEh6/Yr0Ylj8iHAZ/gUJf+N/0Cb1VJHiNPbhGMZLye2r0eGUPN5+v4uGYzLiW2UpnmWi5PhR+eU0ORlG7jpFHJup9ws8QHPDhLPuFJE7Wdi6C6XNrxGuKYknyGFc5MmMhr3JVGnf/Qg7elzzvzQ7D88SwjARbdGzW0Q/L7QhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cUxtCzFk; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sYYdMye6"
-Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc1cea4bfd1so898045a12.0
-        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 06:40:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cUxtCzFk"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2dd6665a10fso421265ad.1
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 07:39:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789306855; x=1789911655; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789310358; x=1789915158; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=9U8XN+wqeWZ2BOPDqAL3IN95g06CNkRCt1kYaktqWGg=;
-        b=sYYdMye6yetjLqtrxHBwrfTskPMmuHpQVzGHUu1uBEWKvrSt/BlQXSB7QFdaMMK4W6
-         2GQG8FvgH2FwfOpBfwLhfzJLQ9SSyipGFayJVcmLnLJV+VcetlO/F9MFLH2ZUzwgEtpn
-         h2Fem1sOoDjDCVrqFt/s/vmWLtIpbCLo32ZB+ftjIA+/9IuC5Gx2mje5pH5Xpni0DGnH
-         aAlNjTG3pu7WCPQEFvrsKds5qgD6+q2QfggpswHaCbX+ADaX8UCh9glptXL9jNw7I1zv
-         y0CqEsyoKf4u/h0rIQa4ASPwxg5oOP/a88PjMc/rK0Hh5JzRN91+dhtBZRjK8pypKhXe
-         9Y1w==
+        bh=QV8gjzCfofnh3QCpS/nK9Zmu81UQ7ALKKOBtGf8NykU=;
+        b=cUxtCzFkLmq6MFlqJtPpUjAgHRMRTt+4EBAGEr3y4fg4ShlXgcRbqe5QIDX1jGi6Lq
+         20CY8MnscPil2KI5hf1g8fE/ifrlr1rGdoapzJzKYAp+y5ZGOUYQLzX0CbyGtU0cjgCS
+         l0ovV4LuFLwe/O8rGSwTbozIodOafMBrTj1sswZKYoVyvDbaEuRCFbkxvswcCS3SExUa
+         UgEWhUOm4X5xcMg0nfZcGvOx/wFkc5PW2JJ9GgtLlQenmn8T8GV3GEKcfXHSTfxlNVvL
+         XnyMt84vNnLxdm+fkdDFgFpxWU22xTWRP1EJRarYEaG1YFVUkSpLA8ZGr9NSozD7JdK1
+         2FQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789306855; x=1789911655;
+        d=1e100.net; s=20251104; t=1789310358; x=1789915158;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=9U8XN+wqeWZ2BOPDqAL3IN95g06CNkRCt1kYaktqWGg=;
-        b=gTQxpMPGQpMRYcmKJ4q8HWebV8v1nnHqm8SU4U9VGoHnkP42AWi9xSo2p5qzBL9Z9n
-         ZULCdKJvR9t2ccObIVS2SlwSGRxgrH602e9Uei3olWW6kB/ObuxKOSajY1ZzI9Kk/Fvn
-         ejzL+1LQlwqOxUreX8elBGW+DCK0tFaY4wowI6odAwir1yhVPg2qmTWPDepZIvaoLG6F
-         MAIQmEBZIscQEsmMHFgp7BZfb5BPNYCgxjdelnufs/P1SfDhqGU4DZ5mmoGpgcMu+u3B
-         38bNt4HOU134+LW9HIXjwcL7otPMwcpACGoG+71lVOkIx0OrpRt3K4GvIwu3ekqPL4jL
-         G4Xw==
-X-Forwarded-Encrypted: i=1; AKwUvBxF6xRxTL7Mxa6dmLHbUzll5ozqv4L0ks/GkgINpJpze7YMCBsgp6KQsKSdezEam+cPbMMpGrVaTWgpow==@vger.kernel.org
-X-Gm-Message-State: AFuF++mzcCxM8K9iaCOpTkpC5F1meJ/sY6mN/jsO59Iz52u6S3FlmY6K
-	avI6zY1BkN9nsN5RfCcliKcINgiHNc51byf3b+r5hVpItSDe2eqETdzc
-X-Gm-Gg: AYBFou0Tvcrlc37Hc/dn6OG24G3dhgWTacCBsGi4vO5XDuIudAThWgoGClAUlMTnm0a
-	uD216ooxPX+zo3RFdCURpm2VmM3OznLnLdDYU5A1pKiomeK3KtGtwanPp9YKJgprN70BrY07L5e
-	S7rF4FMUHOuIC+5Dq4GtwipXD+UZnd3L0sXk2Q6qTAVtDftpBFPC+w7mIHIkD9AE/ln0yeZ841j
-	YR7MjEbeKKoknntleCyFNMXu7WMxmL1gS6vQvU3Qt9XVQ+iF6fQavG3mw418dkWEhVsbmwKGFgC
-	LIAoGeu2awkmS5tysAijxSmGBrZQkOpTHeMA/0420Ql1voy5pxUTf03J8lEFVdrhRtZiZ7XRb3C
-	2Iy1Sv1LQ3re+FEWuXzy2cV87nWJ2nAoveWNBDeUHP8V6mhhQ5PBsoYV06w+cxYFNl2QsnQT6K/
-	0HQbKF5EUzQa8YW0EFrZwBP2ee0sqAwleYCyQF1CTET2/CQvLitPEQpw==
-X-Received: by 2002:a17:90b:1651:b0:37f:fdc8:71b4 with SMTP id 98e67ed59e1d1-39d9bbf93c5mr20289197a91.2.1789306854833;
-        Sun, 13 Sep 2026 06:40:54 -0700 (PDT)
+        bh=QV8gjzCfofnh3QCpS/nK9Zmu81UQ7ALKKOBtGf8NykU=;
+        b=MrnUJZPKx6j/kS1OLtuaO2TA1HB19MLVCotkWJerI5vwjbH1JMtUq/egzGCUzqS42H
+         8mMn108H1ymb7Y6an5J3xxMdEWqd70DEO7eA65NfjFFUfq4aUjUIUPmrCfHPG7Sm2FfT
+         jzIjT9HEsxbY0j8Aa5M5BShpikg4tw9nfGcwGHa6AfG/ereMaSKK1MQN5z7FZnRY43W8
+         eL4ixpHix+ak09t+2OJAI+1GOgE7P6Nq95dYdImiN8GqSSU3z0eP2ifoHoIL/XklgyYX
+         OY3cbbEBvawoyWnKqftTzndpOPWSCdDKuLFm9xNf8K0QJV1BkkKSnTrYQZptZO8g3qMN
+         1ahQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzGYoSstiYRzDSBTPRUeelfKNuM3mHbKtHCOi/iG8g3CktyhaCtcF47F+fnVnU9dxcBmoqH0p4GT91q2w==@vger.kernel.org
+X-Gm-Message-State: AFuF++krSpbQ7IxJf8dO6yGT2oUjSUHesYQPGFFr+gbFRwroKDlsf480
+	4/x7GSM7DRFx/v73oPIwYbsrtyHE/kIEdYYCmfc4rtdrVVQF/nI/xYZueHE+ng==
+X-Gm-Gg: AYBFou1QCAbwwCeF3dV1HZhifq3hIdK9kKL9RzxGydUtPA9gM6xtVzcxyKUBSFeK6gQ
+	n8zMvQbm9I2d3jKQefUyd9dzEr2vO0KVw2NnMUeeiYv9IgR0Q4+etBDeCNUw8fUWXliPXW44ReE
+	eClIf2XnJyVc66WZQb5QEU/VJPRAkhGJrwPRoPStdBpEEXgBrIsAmYjrj5b4J2X7IEzjRKCL+qj
+	8gZ5vtWKwAYjiFiN4KA5Qrh78vxQcBCiLZDcJr+MvVrMhmtRBN9/PVN/C7XrLjY/vKWXc68N5JR
+	oRq44qG0EsNeTWsig6w32uiC0MYPNa4STJwO5kE7crZQgtvUJi7PYiSt8YsF3nxAwI+iwD9DUhr
+	KC0fZJuHe5s2vAyRrJUzeRfHSR2xuEfhfsDgD8raF0dlve+KSKvuU4+mP8z/+KcCMPOmRRFYWqS
+	aWjajI2fHziS/DWQRLYG/ZtY7D9AYTRm0Kqa406UWRgf83hTwr9Rwu8w==
+X-Received: by 2002:a17:90b:4a8d:b0:39d:8222:6436 with SMTP id 98e67ed59e1d1-39d9bd8f51cmr22611245a91.7.1789310358118;
+        Sun, 13 Sep 2026 07:39:18 -0700 (PDT)
 Received: from lgs.. ([2001:250:5800:1002::de93])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d95752809sm15365323a91.13.2026.09.13.06.40.49
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d94bb0119sm16289560a91.2.2026.09.13.07.39.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Sep 2026 06:40:54 -0700 (PDT)
+        Sun, 13 Sep 2026 07:39:17 -0700 (PDT)
 From: Guangshuo Li <lgs201920130244@gmail.com>
-To: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-	Bastien Nocera <hadess@hadess.net>,
-	Jiri Kosina <jikos@kernel.org>,
+To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
-	Stuart Hayhurst <stuart.a.hayhurst@gmail.com>,
+	Ivan Gorinov <linux-kernel@altimeter.info>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Guangshuo Li <lgs201920130244@gmail.com>,
 	stable@vger.kernel.org
-Subject: [PATCH] HID: logitech-hidpp: cancel reset_hi_res_work on probe failure
-Date: Sun, 13 Sep 2026 21:40:44 +0800
-Message-ID: <20260913134044.1562697-1-lgs201920130244@gmail.com>
+Subject: [PATCH] HID: winwing: remove unpaired hid_hw_close()
+Date: Sun, 13 Sep 2026 22:39:09 +0800
+Message-ID: <20260913143909.1589019-1-lgs201920130244@gmail.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -78,39 +76,41 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-hidpp_probe() initializes reset_hi_res_work before starting the device.
-Once device I/O is started, incoming HID++ events may schedule this work.
+winwing_probe() starts the HID hardware with hid_hw_start(), but never
+calls hid_hw_open(). Despite this, winwing_remove() calls
+hid_hw_close() before hid_hw_stop().
 
-If a later probe step fails, the error path stops the hardware and
-cancels hidpp->work, but leaves reset_hi_res_work pending. Since hidpp
-is devm allocated, it may be freed after probe returns while the work
-is still queued, potentially resulting in a use-after-free when the
-work handler runs.
+hid_hw_close() decrements hdev->ll_open_count. Calling it without a
+matching hid_hw_open() can therefore underflow the count when there are
+no open users, or incorrectly consume an open reference owned by
+another HID user. A subsequent legitimate close may then underflow the
+count instead.
 
-Cancel reset_hi_res_work in the probe error path, matching the cleanup
-performed by hidpp_remove().
+hid_hw_stop() disconnects the HID users, allowing them to release their
+own open references, and is the proper counterpart to hid_hw_start().
+Remove the unpaired hid_hw_close() call.
 
 This issue was found by manual code inspection.
 
-Fixes: ed80cc4667ac ("HID: logitech-hidpp: Add HIDPP_QUIRK_RESET_HI_RES_SCROLL")
+Fixes: 42d020b54edc ("HID: winwing: Enable rumble effects")
 Cc: stable@vger.kernel.org
 Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-winwing.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 1504de32b1c8..6a21b281a1df 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4834,6 +4834,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- hid_hw_start_fail:
- 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 	cancel_work_sync(&hidpp->work);
-+	cancel_work_sync(&hidpp->reset_hi_res_work);
- 	mutex_destroy(&hidpp->send_mutex);
- 	return ret;
+diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+index 9cd25a77999e..e18728f215ae 100644
+--- a/drivers/hid/hid-winwing.c
++++ b/drivers/hid/hid-winwing.c
+@@ -388,7 +388,6 @@ static void winwing_remove(struct hid_device *hdev)
+ 	if (data)
+ 		cancel_work_sync(&data->rumble_work);
+ 
+-	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
  }
+ 
 -- 
 2.43.0
 

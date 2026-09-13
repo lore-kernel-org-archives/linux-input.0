@@ -1,116 +1,159 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECBCC3EC80C
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 14:39:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D9E921ABC9
+	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 14:50:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789310360; cv=none; b=Sepek4i02eDyE1PV7Ueom73qIHZ2EHDL8EXXDhqSbMJXLbRUFCFyZfaBD5IM/ZfX0+JGraAjQDjgmkDVoNUA6/qU2qI+hcXn/z9kfDgo4qxkB6Bld3dbcSVAfXt3uLBh/tnuW1EQfCjuNZ6QgDm9rpJBqJU1is7BYvdrEjziy6g=
+	t=1789311007; cv=none; b=Nsm+rO5yXiMzFH2wcrUXPbZYYGQXmjQZ0Gal50wbm5TL4TZW2TPAUTdJtJA6g7bP7lzxiQauDGW07J0Mr+V4nxJ6dMMW+tQUH059kj4Y0U6B+Lvk2XQ8fPwf38xMgAib2a2OpRPdIN8qaBcc97Hw/ka0veE/1m0b7CZYazdx4/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789310360; c=relaxed/simple;
-	bh=jiMrzmDOfg1nWOBVZ7m2UVnsQM7VW5f1VNF2Ud+H8Lc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WTGEh6/Yr0Ylj8iHAZ/gUJf+N/0Cb1VJHiNPbhGMZLye2r0eGUPN5+v4uGYzLiW2UpnmWi5PhR+eU0ORlG7jpFHJup9ws8QHPDhLPuFJE7Wdi6C6XNrxGuKYknyGFc5MmMhr3JVGnf/Qg7elzzvzQ7D88SwjARbdGzW0Q/L7QhY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cUxtCzFk; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789311007; c=relaxed/simple;
+	bh=L5BMBgSAUHSLyRpHF7qlWPvh5NbVSyy2j6kfFv0hZzQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=otG5FBTYfDc3yjG4rU8tKSRUHymVLJto8i0Pdxq1oIr3V4icV971gf4aPjsgnvQHg3/wrH4Hog9woxJ1iK9Y8ACaPSokF+XKxoLr/e5VU5LrwBfeZ7R/pi1SYiTAmNem6exUunIf4Y2fMtFRMr8VLm30qPDCeRiPEkTU6K9DRfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PICfDp37; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cUxtCzFk"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2dd6665a10fso421265ad.1
-        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 07:39:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789310358; x=1789915158; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QV8gjzCfofnh3QCpS/nK9Zmu81UQ7ALKKOBtGf8NykU=;
-        b=cUxtCzFkLmq6MFlqJtPpUjAgHRMRTt+4EBAGEr3y4fg4ShlXgcRbqe5QIDX1jGi6Lq
-         20CY8MnscPil2KI5hf1g8fE/ifrlr1rGdoapzJzKYAp+y5ZGOUYQLzX0CbyGtU0cjgCS
-         l0ovV4LuFLwe/O8rGSwTbozIodOafMBrTj1sswZKYoVyvDbaEuRCFbkxvswcCS3SExUa
-         UgEWhUOm4X5xcMg0nfZcGvOx/wFkc5PW2JJ9GgtLlQenmn8T8GV3GEKcfXHSTfxlNVvL
-         XnyMt84vNnLxdm+fkdDFgFpxWU22xTWRP1EJRarYEaG1YFVUkSpLA8ZGr9NSozD7JdK1
-         2FQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789310358; x=1789915158;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=QV8gjzCfofnh3QCpS/nK9Zmu81UQ7ALKKOBtGf8NykU=;
-        b=MrnUJZPKx6j/kS1OLtuaO2TA1HB19MLVCotkWJerI5vwjbH1JMtUq/egzGCUzqS42H
-         8mMn108H1ymb7Y6an5J3xxMdEWqd70DEO7eA65NfjFFUfq4aUjUIUPmrCfHPG7Sm2FfT
-         jzIjT9HEsxbY0j8Aa5M5BShpikg4tw9nfGcwGHa6AfG/ereMaSKK1MQN5z7FZnRY43W8
-         eL4ixpHix+ak09t+2OJAI+1GOgE7P6Nq95dYdImiN8GqSSU3z0eP2ifoHoIL/XklgyYX
-         OY3cbbEBvawoyWnKqftTzndpOPWSCdDKuLFm9xNf8K0QJV1BkkKSnTrYQZptZO8g3qMN
-         1ahQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzGYoSstiYRzDSBTPRUeelfKNuM3mHbKtHCOi/iG8g3CktyhaCtcF47F+fnVnU9dxcBmoqH0p4GT91q2w==@vger.kernel.org
-X-Gm-Message-State: AFuF++krSpbQ7IxJf8dO6yGT2oUjSUHesYQPGFFr+gbFRwroKDlsf480
-	4/x7GSM7DRFx/v73oPIwYbsrtyHE/kIEdYYCmfc4rtdrVVQF/nI/xYZueHE+ng==
-X-Gm-Gg: AYBFou1QCAbwwCeF3dV1HZhifq3hIdK9kKL9RzxGydUtPA9gM6xtVzcxyKUBSFeK6gQ
-	n8zMvQbm9I2d3jKQefUyd9dzEr2vO0KVw2NnMUeeiYv9IgR0Q4+etBDeCNUw8fUWXliPXW44ReE
-	eClIf2XnJyVc66WZQb5QEU/VJPRAkhGJrwPRoPStdBpEEXgBrIsAmYjrj5b4J2X7IEzjRKCL+qj
-	8gZ5vtWKwAYjiFiN4KA5Qrh78vxQcBCiLZDcJr+MvVrMhmtRBN9/PVN/C7XrLjY/vKWXc68N5JR
-	oRq44qG0EsNeTWsig6w32uiC0MYPNa4STJwO5kE7crZQgtvUJi7PYiSt8YsF3nxAwI+iwD9DUhr
-	KC0fZJuHe5s2vAyRrJUzeRfHSR2xuEfhfsDgD8raF0dlve+KSKvuU4+mP8z/+KcCMPOmRRFYWqS
-	aWjajI2fHziS/DWQRLYG/ZtY7D9AYTRm0Kqa406UWRgf83hTwr9Rwu8w==
-X-Received: by 2002:a17:90b:4a8d:b0:39d:8222:6436 with SMTP id 98e67ed59e1d1-39d9bd8f51cmr22611245a91.7.1789310358118;
-        Sun, 13 Sep 2026 07:39:18 -0700 (PDT)
-Received: from lgs.. ([2001:250:5800:1002::de93])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39d94bb0119sm16289560a91.2.2026.09.13.07.39.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Sep 2026 07:39:17 -0700 (PDT)
-From: Guangshuo Li <lgs201920130244@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Ivan Gorinov <linux-kernel@altimeter.info>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Guangshuo Li <lgs201920130244@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: winwing: remove unpaired hid_hw_close()
-Date: Sun, 13 Sep 2026 22:39:09 +0800
-Message-ID: <20260913143909.1589019-1-lgs201920130244@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PICfDp37"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5C831F00893;
+	Sun, 13 Sep 2026 14:50:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789311003;
+	bh=H5IYVlQaMF8DFpnz9wroawfxKcX+AAfEWi9rusEv6r4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PICfDp37skEzw6r9RgbzVyb+VPC5/UDSPGpRlXL0uNdau0XsczwEAM2WLWsKbh9b6
+	 Npou2t8faV9sgWJqDiXA3aUa/uUmLnnTxE8IMP0g6cL8Hqh5RkrPYF5WLVtk7pifxb
+	 9go0uN239WaSSWqiEQO6+yZDycrGwflnGBgONbQ5pqn4EchjkcgKHtu2iO6bbZNF+U
+	 PsA/6enhB3YnyVgqdnFbORt4Wqsg5TnXmKmc3l15E5996TEkaxvfn9PAWl7APW7iup
+	 2itQA7lzGWWQXHejNAozA2IECtcnV2Vl1i+qR4j7ImwhtyH8Q8+62aaE8qUco2KDv6
+	 Q484Gk39BmGtw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: winwing: remove unpaired hid_hw_close()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Guangshuo Li" <lgs201920130244@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260913143909.1589019-1-lgs201920130244@gmail.com>
+References: <20260913143909.1589019-1-lgs201920130244@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 13 Sep 2026 14:50:03 +0000
+Message-Id: <20260913145003.A5C831F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-winwing_probe() starts the HID hardware with hid_hw_start(), but never
-calls hid_hw_open(). Despite this, winwing_remove() calls
-hid_hw_close() before hid_hw_stop().
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-hid_hw_close() decrements hdev->ll_open_count. Calling it without a
-matching hid_hw_open() can therefore underflow the count when there are
-no open users, or incorrectly consume an open reference owned by
-another HID user. A subsequent legitimate close may then underflow the
-count instead.
+Pre-existing issues:
+- [High] Use-after-free of driver data via the rumble workqueue due to inco=
+rrect cleanup order in `winwing_remove()`.
+- [High] The `lights_lock` mutex in `struct winwing_drv_data` is never expl=
+icitly initialized.
+- [High] Memory leak and `led_classdev` list corruption if `winwing_input_c=
+onfigured` is called for multiple input devices.
+--
 
-hid_hw_stop() disconnects the HID users, allowing them to release their
-own open references, and is the proper counterpart to hid_hw_start().
-Remove the unpaired hid_hw_close() call.
+commit 375f4f6d6b1105352d34b843ee4acf96e3723a66
+Author: Guangshuo Li <lgs201920130244@gmail.com>
+HID: winwing: remove unpaired hid_hw_close()
 
-This issue was found by manual code inspection.
+This commit removes an unpaired hid_hw_close() call in winwing_remove() tha=
+t=20
+was present without a matching hid_hw_open(). This prevents the underflow of
+the hdev->ll_open_count variable.
 
-Fixes: 42d020b54edc ("HID: winwing: Enable rumble effects")
-Cc: stable@vger.kernel.org
-Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
----
- drivers/hid/hid-winwing.c | 1 -
- 1 file changed, 1 deletion(-)
+> diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+> index 9cd25a77999e6..e18728f215aea 100644
+> --- a/drivers/hid/hid-winwing.c
+> +++ b/drivers/hid/hid-winwing.c
+> @@ -388,7 +388,6 @@ static void winwing_remove(struct hid_device *hdev)
+>  	if (data)
+>  		cancel_work_sync(&data->rumble_work);
+> =20
+> -	hid_hw_close(hdev);
+>  	hid_hw_stop(hdev);
+>  }
 
-diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
-index 9cd25a77999e..e18728f215ae 100644
---- a/drivers/hid/hid-winwing.c
-+++ b/drivers/hid/hid-winwing.c
-@@ -388,7 +388,6 @@ static void winwing_remove(struct hid_device *hdev)
- 	if (data)
- 		cancel_work_sync(&data->rumble_work);
- 
--	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
- }
- 
--- 
-2.43.0
+[Severity: High]
+This is a pre-existing issue, but does this cleanup order leave a window for
+a use-after-free of the driver's private data?
 
+Because hid_hw_stop() unregisters the input device, the device remains acti=
+ve
+while the rumble work is being cancelled. Could a local user issue an EVIOC=
+SFF
+ioctl in this narrow window, which schedules the work again?
+
+If so, the remove callback would finish, devres would free the data structu=
+re,
+and the scheduled work could subsequently execute and access the freed memo=
+ry.
+
+Should hid_hw_stop() be called before cancel_work_sync()?
+
+Additionally, looking at the driver initialization path:
+
+drivers/hid/hid-winwing.c:winwing_probe() {
+	...
+	data =3D devm_kzalloc(&hdev->dev, data_size, GFP_KERNEL);
+
+	if (!data)
+		return -ENOMEM;
+	...
+}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is the lights_lock mutex in
+struct winwing_drv_data ever explicitly initialized?
+
+Since data is allocated using devm_kzalloc(), the memory is zero-initialize=
+d,
+but mutex_init(&data->lights_lock) is never called. When userspace writes to
+the LED brightness sysfs file, winwing_led_write() is invoked and acquires
+the lock:
+
+drivers/hid/hid-winwing.c:winwing_led_write() {
+	...
+	mutex_lock(&data->lights_lock);
+	...
+}
+
+Will locking this uninitialized mutex lead to undefined behavior or a kernel
+panic when accessed?
+
+Lastly, examining the input configuration:
+
+drivers/hid/hid-winwing.c:winwing_input_configured() {
+	...
+	ret =3D winwing_init_led(hdev, hidinput->input);
+
+	if (ret)
+		hid_err(hdev, "led init failed\n");
+
+	if (data->has_grip15)
+		winwing_init_ff(hdev, hidinput);
+	...
+}
+
+[Severity: High]
+This is a pre-existing issue, but does this unconditionally initialize LEDs
+and force feedback capabilities for every input node?
+
+winwing_input_configured() is called by the HID core for each input applica=
+tion
+exposed by the device. Unconditionally calling winwing_init_led() for each
+allocates new buffers and re-registers the same three struct winwing_led
+elements.=20
+
+Could re-registering an already-linked led_classdev overwrite its list nodes
+and corrupt the LED subsystem's linked lists? Are the devres allocations fr=
+om
+the earlier calls leaked in this scenario?=20
+
+Should this setup be restricted to only happen for the first input node?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260913143909.1589=
+019-1-lgs201920130244@gmail.com?part=3D1

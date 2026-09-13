@@ -1,38 +1,76 @@
-Received: from mail-4397.protonmail.ch (mail-4397.protonmail.ch [185.70.43.97])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C224126BE1
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 05:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E32430C60D
+	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 05:46:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789277038; cv=none; b=esFKcxaMlDME0HntDOB+6sSIuvW3Y/GgmHMXp9sOrUwrwpF3fOD44BMfVs2mgh3soYERcdCmOREVU8CyU6rV4Djzpd7BhIPwkJXmtkhdwPIBAsvIaItb8uLr25NxYTeDn7Sow3tCGC795w0g04y6Hi3S6khLImai4gmTWo+/ydM=
+	t=1789278405; cv=none; b=f6F3UQpgTAhrYBYV3vQ4tKAHuh+CUyx6JnFOMu4VRBlMmaWMp0tkKsTNAkGGUCvdlroa6EjWzqHCXR9wJq1TOLFSOvNcG0SsEN2joIzmsDrmbP0D7YXJbzKDu8w4xnAGQjyA3AVKlXI2QkshqJ3N7s6VmMuhPXIdiFmSjB1lHMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789277038; c=relaxed/simple;
-	bh=tFT4BOAsTaQkZK/pUHop3cvaclHrmZ6KzbnaIYG7AdY=;
-	h=Date:To:From:Subject:Message-ID:MIME-Version:Content-Type; b=f8sFJg35DvezEe/Z/ooly6pZSTpdy0sbuGqDfUPm+UojTVBHIC/Ek8xTuR/Yw4sjBONvst96KeFpkr7njXewX/PD26DuKwKOQJyP0TEdtbYWCTnY4jEfJWRIQzbCoeMAOLdRJgCNc1ktphrc0lHJdLe9XmkK4tPYI4tvC64cDo0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=oscillator.com.au; spf=pass smtp.mailfrom=oscillator.com.au; dkim=pass (2048-bit key) header.d=oscillator.com.au header.i=@oscillator.com.au header.b=LbeH9Me1; arc=none smtp.client-ip=185.70.43.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=oscillator.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oscillator.com.au
+	s=arc-20240116; t=1789278405; c=relaxed/simple;
+	bh=go6oz8+xCXd4w3muWW/18hv9nuLa13rdSkVXoFj2oUo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cW13g+Z4siG30Twh/90pZtYUX0mjB7tIjTRdjlxei+iLDdU3l7aWmQoB62f5heOGr4gZY7hKhXvoXVIw4LJGUj4Kj12NaR77oMJxp4h6GZpfcD2kcT09QgJXiEhEHckEWLY4ht+IzUHw0LcmhgOgQmiDWB4E7JvrnZL6rL+vYGc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=asTRFj6d; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oscillator.com.au header.i=@oscillator.com.au header.b="LbeH9Me1"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oscillator.com.au;
-	s=protonmail3; t=1789277027; x=1789536227;
-	bh=tFT4BOAsTaQkZK/pUHop3cvaclHrmZ6KzbnaIYG7AdY=;
-	h=Date:To:From:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=LbeH9Me1D3WtCpkPlND7PQB2aXpn57ne0lqTsuUZh7dHJXVXbzNo1WB1mIP5t8opT
-	 jIHAXXx2kbYm9hr03+bYB9h3L87Nolyr9rlwZBet+NwcyYL8YU/QmkS5+sT78mwysY
-	 W22sk8tHl+l176IfM9ytbgue7DnyQjCJR6EjSVYjej88XrjQxhvlDz/MhTWxh13+xX
-	 hq4HNxJMKjNOmYYgdhNrk9er/fvhCaC0hFeZgalUUYCz1rEbXJAbnuTTyAgH+imdKS
-	 CeLZ8vHP93qkxcsshfw6KbaaKgeZHklfsmw/P26YwxjJzSfyUG9/g1W7JQ1uwphFm0
-	 b1mk8coY0tcbg==
-Date: Sun, 13 Sep 2026 05:23:43 +0000
-To: linux-input@vger.kernel.org
-From: Cameron Spencer <cameron@oscillator.com.au>
-Subject: [6.12.107] MSI G63 9SEK - Synaptics touchpad falls back to PS/2, multitouch lost at boot, fixed by delayed protocol write
-Message-ID: <4bd8e20e-e4cc-4528-9862-740a437c2687@oscillator.com.au>
-Feedback-ID: 30604393:user:proton
-X-Pm-Message-ID: 11001bb54f30f9e22c313064f1f2819797271585
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="asTRFj6d"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-8692be1cda4so1794124b3a.1
+        for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 22:46:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789278401; x=1789883201; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=VaHndl2K0pFULmTR4xlAbGHwp91x25cpvpgq3imyoWI=;
+        b=asTRFj6dUc6F8B8mUOx7OACjuszcaPYx7VvKy8TaY0H7sWrV7aoWOyMJyExukvwVDr
+         NiATn3aEew5BrbbyASHdG3YjKY1SHDcKq13/gwAm90+5hMV2FrKblSwglQWm+yAsFIBv
+         dbLqTdCUStpmCLiBAKO71TG6DlM+A9DoGPXpw+D+ljxDvfGVlcapV12ZmVQKyWL5lZ1Y
+         izdi8/PNeT/j9799HlfwVFi3nFAegly78JnJyanLAI4VRqQROtN9IwNnWnCMKaSt16Te
+         j+3KC/ef0aSCt0nBXblZv/7kMmA+jtOON+wQJqm2rriZPFD5Jx8qbBeBJgpjxt7zw+kZ
+         H97A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789278401; x=1789883201;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=VaHndl2K0pFULmTR4xlAbGHwp91x25cpvpgq3imyoWI=;
+        b=Tq0LMEVjOpZ/slGlUh7GIphw5KobVBvkVXwHU+5R1kJM8a0b+8DcnCJ1AOpoFQIyVK
+         USn1DXHd8xIgeRTSuY+a4CjahVuBqNNRSc7byRXQIwi2rv3MPUW/VAuhZ9QHZxFiyR4+
+         Om3/bP13PFMBEu/z0sDR7vu4l+Divw2iZAIfGrmsl+J3bwgqRsp5bJsKN25LJ7gMdVqL
+         RvDn/1xt6GfpbrY/HV3prRGTLNN34ij2hpGaXlwAGO8eYU4ZFCScWVideQC30JkP4xY6
+         XtvI619Jf8YdA+YiNkNve57xNAM6W2l6CsUA1Isf8BqpUJciGTEn1Y0xIIFVvP150lxG
+         RLVg==
+X-Forwarded-Encrypted: i=1; AKwUvBy7xn1BgQYgsVKORBbBUUUl0/V0uNqmdm6b0J3dMDOufEvZh5eg7+mOafEBOKucrYfWbBkEe/FJ5TKYRA==@vger.kernel.org
+X-Gm-Message-State: AFuF++myC0DiL+9X91PSqWJI76w6UCRkdJGeiNEwU/rsoEojtbMntJhr
+	1ibTpbfufO6tjm7MC+FpPSQfoyc6HGM5dashBoEmXTRqFeACYKr0GtO9
+X-Gm-Gg: AYBFou2FsPpHC1AGVObuR1zSv4ZNvcsit06w2Ej5JM7DxS/HVr+zM9z8VWwZHhwnlA4
+	6jQLFcZ8mq/j+6uxJ7z8gGdkNFoIGJeoOxL6PhZgACLlxIZhg0l4qDbOw8ujd4CuPwRY5gstBFA
+	qce1+IcdO3lGg5G3/MK+nR2A9Ypi2KyCH1Yqp0GqBnnACOXboVTuIKmB4oB/ywTUeDgPeVbS6k9
+	Q3AvVDygycYJhVqyyUvUaN/cjVv2/0E5re9XpC4yplezIcGCCsU7vBiVTEFNE0qgjPXZ5PeXJs3
+	fHyy0vOkbnylGGXHgo7AeeNk9XRZTE1EUoL9wa+QkwYsyMfox0hZ6ik7eC9v4dK+QTgHYFXPjg+
+	qSlCp8dy5/ZS/IpdNjFzWdPpgIbTbdAzTByQHzogXIQkz6R5YalrlHD53tdTyI1wH5M7h+m8Cs1
+	RKaiZPrWyXVrjzK71Tx6m9BxxjFIKtPg8Em3sNORDWs57fZzYLCkFWiKNMbwTR6ppne1WeueFAo
+	ArWzI/JMoaaQQu4K8ED2zuznrM90zDVnfzQYl8x
+X-Received: by 2002:a05:6a21:3a83:b0:3cd:7ba2:e669 with SMTP id adf61e73a8af0-3daed4bba12mr23004520637.10.1789278401414;
+        Sat, 12 Sep 2026 22:46:41 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:318c:d45a:8797:2b03])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33ba4e4fb3esm17772221eec.7.2026.09.12.22.46.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Sep 2026 22:46:40 -0700 (PDT)
+Date: Sat, 12 Sep 2026 22:46:37 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: =?utf-8?B?yJh0ZWZhbiBHaGXIm3U=?= <stefanghetu9@gmail.com>
+Cc: Mika =?utf-8?B?UGVudHRpbMOk?= <mpenttil@redhat.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: input: touchscreen: convert sis_i2c to DT
+ schema
+Message-ID: <aqY4tgXZzfiHczw6@google.com>
+References: <20260821131039.37525-1-stefanghetu9@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,91 +78,21 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260821131039.37525-1-stefanghetu9@gmail.com>
 
-Good morning/afternoon/evening,
+On Fri, Aug 21, 2026 at 04:10:39PM +0300, Ștefan Ghețu wrote:
+> Convert the SiS 9200 family I2C touchscreen binding from free-form
+> text to DT schema format.
+> 
+> While at it, fix the example which referenced a non-existent
+> "irq-gpios" property; the driver looks up "attn" via
+> devm_gpiod_get_optional(), so the correct property is "attn-gpios".
+> 
+> Signed-off-by: Ștefan Ghețu <stefanghetu9@gmail.com>
 
-I experienced an issue where my Synaptics touchpad is registered as a=20
-basic PS/2 device at boot, losing all multitouch functionality=20
-(two-finger scroll, gestures). Writing "synaptics" to the sysfs protocol=20
-file a few seconds after boot restores the SynPS/2 extended protocol and=20
-full functionality.
+Applied, thank you.
 
-System:
-
-- Kernel: 6.12.107+deb13-amd64
-- Distro: LMDE 7 (Debian 13 based)
-- Laptop: MSI G63 9SEK
-- i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64=20
-irq 1,12
-- Fix:
- =C2=A0 =C2=A0 $ cat /etc/systemd/system/psmouse-reload.service
- =C2=A0 =C2=A0 [Unit]
- =C2=A0 =C2=A0 Description=3DSet psmouse protocol to synaptics
- =C2=A0 =C2=A0 After=3Dsystemd-udev-settle.service
-
- =C2=A0 =C2=A0 [Service]
- =C2=A0 =C2=A0 Type=3Doneshot
- =C2=A0 =C2=A0 ExecStart=3D/bin/sh -c 'for i in 1 2 3 4 5; do echo -n synap=
-tics >=20
-/sys/bus/serio/devices/serio1/protocol 2>/dev/null && exit 0; sleep 2; done=
-'
- =C2=A0 =C2=A0 RemainAfterExit=3Dyes
-
- =C2=A0 =C2=A0 [Install]
- =C2=A0 =C2=A0 WantedBy=3Dmulti-user.target
-
-- Result:
- =C2=A0 =C2=A0 $ dmesg | grep -iE 'psmouse|synaptics|serio|i8042'
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.006462] i8042: PNP: PS/2 Controller=20
-[PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.010384] serio: i8042 KBD port at 0x60,0x64 =
-irq 1
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.010392] serio: i8042 AUX port at 0x60,0x64 =
-irq 12
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.018706] input: AT Translated Set 2 keyboard=
- as=20
-/devices/platform/i8042/serio0/input/input0
- =C2=A0 =C2=A0 # psmouse probes at boot, fails the Synaptics handshake, reg=
-isters=20
-as plain "PS/2 Synaptics TouchPad" (no multitouch)
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 2.384949] input: PS/2 Synaptics TouchPad as=
-=20
-/devices/platform/i8042/serio1/input/input6
- =C2=A0 =C2=A0 # psmouse-reload service runs after systemd-udev-settle and =
-writes=20
-synaptics to /sys/bus/serio/devices/serio1/protocol, then re-probes with=20
-the Synaptics extended protocol, queries coordinates, and registers as=20
-"SynPS/2 Synaptics TouchPad" (multitouch restored)
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.654815] psmouse serio1: synaptics: queried =
-max coordinates:=20
-x [..5656], y [..4728]
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.683422] psmouse serio1: synaptics: queried =
-min coordinates:=20
-x [1284..], y [1128..]
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.739382] psmouse serio1: synaptics: Touchpad=
- model: 1, fw:=20
-8.2, id: 0x1e2b1, caps: 0xf00323/0x840300/0x26800/0x0, board id: 3163,=20
-fw id: 2286728
- =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.775128] input: SynPS/2 Synaptics TouchPad a=
-s=20
-/devices/platform/i8042/serio1/input/input21
-
-The issue is 100% reproducible across reboots. "options psmouse=20
-proto=3Dsynaptics" in modprobe config causes "EINVAL" on module insert.=20
-The handshake fails at that early stage. A systemd service that retries=20
-the sysfs write after systemd-udev-settle is a reliable workaround.
-
-This appears to be a timing issue where the touchpad firmware or i8042=20
-controller is not ready for the Synaptics handshake at the time psmouse=20
-first probes. A retry with a short delay in the probe path, or a=20
-something more fancy with initial handshake, would likely resolve this.
-
-Happy to provide additional info if required.
-
-
-Kind regards,
-
-Cameron Spencer
-
-
+-- 
+Dmitry

@@ -1,150 +1,147 @@
-Received: from mail-ej2-f12.google.com (mail-ej2-f12.google.com [74.125.228.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-m49198.qiye.163.com (mail-m49198.qiye.163.com [45.254.49.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 515633B102F
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 05:58:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.140
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789279119; cv=pass; b=YRITkosG0BADH3YWlY2ncB1GtZBbZT1L0eg3oAhxoF7q4euAJe6hK4mJnIImQQs2XRX8+Y7UQIQIHLxnZSdpbArSMB4MJdhOyES5HA0s7IArTfLL2Hm8358H5vxPsf4O4sCj5AspIeAMiO7wv07GgABAgb243vg17oo1NyS1adE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789279119; c=relaxed/simple;
-	bh=XL2BqdaDbBQGl2le1+e15CvxQeIuTY32niH1hZcA9BI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lt9rw6N0R9FeuZPnAIbLizt8D3RTGSg32M/GCWOVQqZefQ6nLhvfAEEDpJV9RCTk930SiyefoCxTuW3NUacTOGoM44jdwk5kT6/Fy9rHPYNHRkwil3jwkNKN4JiWsOqLUs8uu8W0EkGkD8Eyzd8DX0t2AYtiy61U0qT/Omor1vI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RBuD8yye; arc=pass smtp.client-ip=74.125.228.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B96203C76A0;
+	Sun, 13 Sep 2026 07:30:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.254.49.198
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789284619; cv=none; b=Vn2X2872YjVYAcYH8lZnOEDiPbdB3OzBeNcvpvYWIP5cD8WFbgG0dq4JLtGHrcvCDed48kQnKghcd3FKQ8qDin02RAh4r7gsyV7rqWEP5BgrDnbGoduf2Q9t3xKHCiYyv74feVioDFTbVDv26DDZa6gBulW3Xb54PYk+/ri0sgw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789284619; c=relaxed/simple;
+	bh=TpqVzo2DTkrFsu7AVjSuMNrBMWmGf9jtyfmpKyJsU4s=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=DcNfcMj2ninOemTyQBbQulkTuYnsJ+qgDt4lv95+zUrn6d+GRMs5gjc/d/RLd6cHGxpr6KIIoEXLk8S+QxDC/LB31YluG3TEW2nzO75b6G5tsJcE+ImwxLLbzyFkBmsKLnl6BVz9HoMD6HnRlu9RRhcK5peSL+CNyDsGGMJDnu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tju.edu.cn; spf=pass smtp.mailfrom=tju.edu.cn; dkim=pass (1024-bit key) header.d=tju.edu.cn header.i=@tju.edu.cn header.b=GEllg5+1; arc=none smtp.client-ip=45.254.49.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tju.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tju.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RBuD8yye"
-Received: by mail-ej2-f12.google.com with SMTP id a640c23a62f3a-c25ef7a3ce9so105251466b.3
-        for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 22:58:38 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789279116; cv=none;
-        d=google.com; s=arc-20260327;
-        b=diy/bl3qJ7PIbjU+qfmH2RXMnYrmxnq7obeCRStK1psKTM7XJuDWGeQepb5jryQ3PM
-         7GFX+TJTzT8jcjXWpyskbXayQtr81kISAGYO/FeX1qZze/RKzdI61TN77oDvzVhz90gG
-         r1AopclP08sfWzWgvoewxL1lwVEyhyUs8i0LLKA8Z8zomlX4JT6OwvcceFZvk5yYRvZe
-         oOLHoegABExLvOqS0zJpHQRjOuVhYElXPBo8Y8MM80IMoEU33KZAODzS/vLUUIygPvtw
-         V64KAdj3G1B/9+6WjvHfifsOk/aIzApVgWB0J73v9WPPHJKOeZ4R0k4a0nrIh3qbZZGj
-         hvfA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=IUEiueZZV2yqlkScy30M7jIekL7G0zJhj9udl2hgLjA=;
-        fh=cPync94sb0FQGYyQo6TpG/2c/zoPpgzhLfYqQoiv140=;
-        b=kPNcx7E5aDo/xhsEqkN6BwS5hAb4UJ5YsrruhFDQggHY8AJE6l6SR8hkRnWkBk1kvh
-         h1GYnW6o/ssEzZlDpd7MdvabhtqMWn75leaXykXdttPXxLD63qvVmP373aU2ySxZ+0CB
-         qShhv4SaJ8zGhK1D2y4b1yAW8thycT7J0kj3Dk4AS8Tvz2ABW+QEY8dGQMogpCLqKuOO
-         nX6gqd3sjcg5bZBnem3PFkQ5Ao+TUs0sATByskf8vxMM5kXFCucfQGD0GgAJwZcJwg74
-         vAUTYKBhgcG7w0/330YQCaonQk3e23mD/3vDBeplAMvOJeNWVzyBdmOQgmWthsD82t76
-         muCw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789279116; x=1789883916; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=IUEiueZZV2yqlkScy30M7jIekL7G0zJhj9udl2hgLjA=;
-        b=RBuD8yyeGqJZW6JT2zXOEdjG709cS90bvQPawkony/4PHo31VpQBXplb/XzfihFiMT
-         sf3joOUpOWsqZk68cgVD0pfoDowMHFVHZK2DyrB7lyZn8oOWZgOycO8FYpZRQvQDfbsf
-         UvGY0eQ3iMSasHWbPtczfK89PQpMqa5MQWkJPf8GvG559F5KDEREe2GQ5/hyFNmHOEas
-         JOl4OOp7CLIF8ktKpsKXAi9nL48Lk1zy7tQT+f8m8Rs2dE+AGme59El+XEHNBbsyZ9YX
-         zKMJJfLk3dK7zat+niAAZh6Lx5nCsI9jo/557tOVqA0RSPcKq771BoIuYBwmQ58WoyAB
-         M7eQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789279116; x=1789883916;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=IUEiueZZV2yqlkScy30M7jIekL7G0zJhj9udl2hgLjA=;
-        b=b6SKa4Re8yDGiOmneWmR8hBpH9kgIx3JrKuzHo5SzS0UPdH2u1drinKolLRRTbnHsU
-         10NnNa80Y1le0G3yYK0MyRyTxhksUmSRlRLhlmid4w/iludk4yE6bn2vUt+Gy5mEnt1s
-         wuyfNc773sGpnH5HQLONI4EKO3ehDsHjz6x5Z2HL7a8PcZeUPVz5LgCXp+mtKk4MtDtn
-         usBj5RF/Osnx032J9tm8S5HzgH5hxqX9UbbGz6MAjFLeRx/YOh8hrwdkTfNc8GwrJfDk
-         CdtleUQ/AzA9ODV8/4e6flgJIOqW1Ibbgfxpgap54DCzDQitB7hFsBwdRHWX1enwR5GV
-         NoXA==
-X-Forwarded-Encrypted: i=1; AKwUvBy2C3BSwfPPuPRRsq13VdPbHCdu10GxyewBXIhL4+ne7unK6YrWAeIizhliMaRNYkZm65V2qIBBChgk7Q==@vger.kernel.org
-X-Gm-Message-State: AFuF++meyT5+3puYZ6VN9IaTFSx2HmjYth2qjKxKEF7s9fsJ7ywwjfHL
-	p96inamQ776gbFU6adnAmyrigDD0Kv7jFf8m8aF7xTLKUeJAxCb810MH0OTMUxpELwGTiJ2+Fd9
-	ZyhCGbP0GBe/M2RplA8TMPXXmwHQOuLE=
-X-Gm-Gg: AYBFou3O8nRq0fLu/JnXBb7hMD64mIuDMt6cTJwpFDzezOz5W00JGsYfP8CKgsIqaDr
-	ZTr2Puo2RyJX/wG/rUTiCFNxDUJAF7BIti7gm/AG/2s9InmV2bPNLgsdf0rXrjgSaJIWtc1j8q+
-	7s0RLIi7hRKohTm4/0Kp6HGNVDkYhjP11QTmTf4hXAnhFEY4P5vr/3+N/bs1+l40A9TlM3N10OB
-	AuHb/+WB83X97IapNiTi4CS6xhbJraAO8m6qwJio9+6Wb77llhBS9wmOP4PoD1pjkvOb9G5RJ2C
-	oMvUUK5LhpCjoXM0GV59NYkzOdAZRpiD9VeIBuA5x/nbWvFJvcVFXLYnOanRVXXd/QPZzXs/hk2
-	4DksnzeYvCNGbIw==
-X-Received: by 2002:a17:907:1c8c:b0:c29:5340:182e with SMTP id
- a640c23a62f3a-c2985725e75mr277141166b.2.1789279116193; Sat, 12 Sep 2026
- 22:58:36 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=tju.edu.cn header.i=@tju.edu.cn header.b="GEllg5+1"
+Received: from tju.edu.cn (gy-adaptive-ssl-proxy-1-entmail-virt204.gy.ntes [183.242.150.9])
+	by smtp.qiye.163.com (Hmail) with ESMTP id 4d8de8fc7;
+	Sun, 13 Sep 2026 15:30:05 +0800 (GMT+08:00)
+From: Yibo Tan <lhfff@tju.edu.cn>
+To: Jiri Kosina <jikos@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Zhang Lixu <lixu.zhang@intel.com>,
+	linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3] HID: sensor-hub: Fail unfinished multi-value reads on removal
+Date: Sun, 13 Sep 2026 15:29:10 +0800
+Message-Id: <20260913072910.1944300-1-lhfff@tju.edu.cn>
+In-Reply-To: <20260913045411.5e2f5b25@jic23-hlaptop>
+References: <20260913045411.5e2f5b25@jic23-hlaptop>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <c8efa35aeff7b6ee4f66f1d48d4392976dbde128.1783329551.git.u.kleine-koenig@baylibre.com>
-In-Reply-To: <c8efa35aeff7b6ee4f66f1d48d4392976dbde128.1783329551.git.u.kleine-koenig@baylibre.com>
-From: Ping Cheng <pinglinux@gmail.com>
-Date: Sat, 12 Sep 2026 22:57:15 -0700
-X-Gm-Features: AcwNN1VGFA-W-o06oLsLxlJUvDoT8ZSEjCsjMCAPFTIzYsU6qr0WR_WS1UZO_W4
-Message-ID: <CAF8JNhKhL3pC2yvMxg87R9TKJ4-b1vQ8Y7J8hWmKOLHCp0on8g@mail.gmail.com>
-Subject: Re: [PATCH v1] HID: wacom: #include <linux/device-id/hid.h> instead
- of <linux/mod_devicetable.h>
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
-	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-HM-Tid: 0aa099ac5e8703a1kunm85375de823f704
+X-HM-MType: 10
+X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVlCQ0IYVk1OSxlNT0saGBhJQlYeHw
+	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlKQ0hVSU9JVUpOS1VCWVdZFhoPEhUdFFlBWU9LSFVCQklOS1
+	VKS0tVSkJLQlkG
+DKIM-Signature: a=rsa-sha256;
+	b=GEllg5+1FVY6o/h9Pi21e85mx+UIqhnBzE367+q31NEzrMe59B3Kfu/fQTgt0x53EiMHJ5mcOO/VCKM5ZC8Yv0CtQSPrWnJb5pcM6erm3fpAWnIlEfbBxyGm5XORJ3kp1EC1kHp7dyHFFAQmWtW5TnizYMKhKIwOnane/g7pBnI=; c=relaxed/relaxed; s=default; d=tju.edu.cn; v=1;
+	bh=QSZsVbNoTcCvQfcn9iwLW7lOgjG/mRI2Ni84Xy5CgFI=;
+	h=date:mime-version:subject:message-id:from;
 
-On Mon, Jul 6, 2026 at 4:39=E2=80=AFAM Uwe Kleine-K=C3=B6nig (The Capable H=
-ub)
-<u.kleine-koenig@baylibre.com> wrote:
->
-> The single device-id structure that is used by drivers/hid/wacom.h and
-> its users (drivers/hid/wacom_sys.c + drivers/hid/wacom_wac.c) is struct
-> hid_device_id. So #include the much more lightweight
-> <linux/device-id/hid.h> instead the full <linux/mod_devicetable.h>.
->
-> Signed-off-by: Uwe Kleine-K=C3=B6nig (The Capable Hub) <u.kleine-koenig@b=
-aylibre.com>
+sensor_hub_remove() completes pending reads after stopping the HID device,
+but does not record why they completed.  A successful completion wait
+therefore returns zero even if no complete input report was received.
+Multi-value IIO callers then format their untouched automatic buffer as a
+successful result.
 
-Acked-by: Ping Cheng <ping.cheng@wacom.com>
-Tested-by: Ping Cheng <ping.cheng@wacom.com>
+With a valid four-element signed 32-bit quaternion report descriptor, an
+unprivileged reader received all 16 bytes of the untouched buffer.  Across
+11 independent KASLR-enabled boots, four reads exposed exact pointers to
+dev_rot_channels or dev_sysfs_ops.  Subtracting the matching link-time
+symbol address recovered the kernel KASLR slide in all four cases.
 
-Cheers,
-Ping
+The reader ran as UID/GID 65534 with no effective capabilities through the
+mode-0644 IIO attribute.  The test used a privileged UHID broker to create
+and remove the provider; it does not demonstrate unprivileged provider
+removal.
 
-> ---
-> Hello,
->
-> there is no coordination needed, just make sure to apply it to v7.2-rc2 o=
-r
-> later. So please take it via the hid tree for the next merge window.
->
-> Best regards
-> Uwe
->
->  drivers/hid/wacom.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-> index 1deacb4568cb..d2398b1cdbb2 100644
-> --- a/drivers/hid/wacom.h
-> +++ b/drivers/hid/wacom.h
-> @@ -82,7 +82,7 @@
->  #include <linux/kernel.h>
->  #include <linux/slab.h>
->  #include <linux/module.h>
-> -#include <linux/mod_devicetable.h>
-> +#include <linux/device-id/hid.h>
->  #include <linux/hid.h>
->  #include <linux/kfifo.h>
->  #include <linux/leds.h>
->
-> base-commit: 8cdeaa50eae8dad34885515f62559ee83e7e8dda
-> --
-> 2.55.0.11.g153666a7d9bb
->
->
+Mark a pending request as shut down before completing it from the removal
+path, and return -ENODEV from a multi-value read that observes the marker
+after a successful wait.  Let removal win even if a response raced with
+teardown, since the device is no longer available.
+
+The Root B-only repair returned -ENODEV with no payload or kernel
+diagnostic in 3/3 matching signed-32-bit runs.  The source reproducer,
+complete vulnerable and fixed serial logs, result tables, and checksums are
+available in [1].
+
+Link: https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tree/main/cases/hid-sensor-quaternion-root-b-kaslr [1]
+Fixes: f784fcea4506 ("HID: sensor-hub: Add sensor_hub_input_attr_read_values() for multi-byte reads")
+Cc: stable@vger.kernel.org
+Suggested-by: Jonathan Cameron <jic23@kernel.org>
+Assisted-by: LLM
+Signed-off-by: Yibo Tan <lhfff@tju.edu.cn>
+---
+Changes in v3:
+- Replace the raw_size error sentinel with a dedicated teardown flag, as
+  suggested by Jonathan Cameron.
+- Let teardown win if it races with a completed response.
+
+v2: https://lore.kernel.org/r/20260912050257.837340-1-lhfff@tju.edu.cn/
+
+ drivers/hid/hid-sensor-hub.c   | 6 +++++-
+ include/linux/hid-sensor-hub.h | 2 ++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 6470a290ebfc..a9bd72218c07 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -334,6 +334,8 @@ int sensor_hub_input_attr_read_values(struct hid_sensor_hub_device *hsdev,
+ 			ret = -ETIMEDOUT;
+ 		else if (cycles < 0)
+ 			ret = cycles;
++		else if (hsdev->pending.shutdown)
++			ret = -ENODEV;
+ 
+ 		hsdev->pending.status = false;
+ 	}
+@@ -805,8 +807,10 @@ static int sensor_hub_finalize_pending_fn(struct device *dev, void *data)
+ {
+ 	struct hid_sensor_hub_device *hsdev = dev->platform_data;
+ 
+-	if (hsdev->pending.status)
++	if (hsdev->pending.status) {
++		hsdev->pending.shutdown = true;
+ 		complete(&hsdev->pending.ready);
++	}
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index ab5cc8db3fbb..5aecf4474183 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -38,6 +38,7 @@ struct hid_sensor_hub_attribute_info {
+ /**
+  * struct sensor_hub_pending - Synchronous read pending information
+  * @status:		Pending status true/false.
++ * @shutdown:		The device is being removed.
+  * @ready:		Completion synchronization data.
+  * @usage_id:		Usage id for physical device, e.g. gyro usage id.
+  * @attr_usage_id:	Usage Id of a field, e.g. X-axis for a gyro.
+@@ -48,6 +49,7 @@ struct hid_sensor_hub_attribute_info {
+  */
+ struct sensor_hub_pending {
+ 	bool status;
++	bool shutdown;
+ 	struct completion ready;
+ 	u32 usage_id;
+ 	u32 attr_usage_id;
+-- 
+2.39.5
+

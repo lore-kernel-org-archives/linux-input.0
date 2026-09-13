@@ -1,160 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs2-f9.google.com (mail-vs2-f9.google.com [74.125.227.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C630F39061C;
-	Sat, 12 Sep 2026 22:21:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789251664; cv=none; b=HRLRBqlPqXYQKn/0NcNlQkpYv84aS2xuk409J784xaqmGKsfTVoAxex7+hamY3Z1mezMhEopbiTCz+kmLaBvWMBQ0RMRNyHkjQEg6uh7idme378XZ855juxaC3xPyFKWc/wIHFB3L2W9QGlub2SzXSbdCAPNJHVmg2Hx6wxZuX0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789251664; c=relaxed/simple;
-	bh=jJN5bbmJG6+W8ZaAl9RR52OiGtP0jEKBmRMAckxoXiM=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=aJe6HCLeEcaYPMYTJDo6bj52O4C4tN9/S/pJQ+nuxskJRaZYMGv/KJlET++t6zOUyeerAhGe7S1q8c9iuQ3BMZPp4tgAzfaoYtqM/d2uJ+98i0Myg33FwevRkgp9GRgF1P/rzFIYzEFpyw8oWzz9UatbWIXSpAj7k4XKeWMNeXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BHhPvzDn; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08EA525782D
+	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 02:28:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.227.9
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789266538; cv=pass; b=Tl5E1XvTbC0mQ7LIAGn1l6s7Mn/ifuZUEeq3za9QMyEfscWPYirUjc+t/SVoe8qimmpGSiM5OgZfdTJRkC1FT6K8eswm6X9IUhYxRqknO6Ry0mXd+8RlRwsM47y7kYBjncjuxWF6GhQD4V5qPwcCfbTNmS2BsYCf4SxZNzsuGsA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789266538; c=relaxed/simple;
+	bh=Je3un76FN0GkyAppP8SDWyHHjnKMnJzgH3Apj/eDhN8=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=bu8zTLTIbQ3AY0JahLwQLJS3KEKBXIHyihu9bykWUkejQDhF3dHz4O0JOYlP3+XUsm8eSJAkXBVfKtuga19FpG8yV1JUIBuvexGe7zxGC2pBRKbdWD5Y4bJB3OjgoHhQbxM9mdiWIXR00HWT3mkmMm0a5CkC2mkPA3+A2pRtWlY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H/7CH0uf; arc=pass smtp.client-ip=74.125.227.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BHhPvzDn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 434821F000FF;
-	Sat, 12 Sep 2026 22:20:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789251662;
-	bh=A9T5TqugoZpwriYm80tITfJ7eL5e79XFR+RGRlWT3Yo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=BHhPvzDnmzwpQttZFmPMZf/UutFNeY/Degy6vahXXbV7Z6hNGc9MkvFE+rdhQJ6MU
-	 VAw3b4RYQvofx2lNTbeX4zkZRnpelNzwDei0UTSd3ZGNIs/4odMQ67B9LiiARuySxb
-	 U6BER7d7wfXohAn2tXbzGwa2wiTRgp4c4+hrPC/Fg2mvopBtYwKpfuJcqo2gQktz/i
-	 UBA340zyHxS9IBLWpHZ7ZP/iBROp/81WLbTAUh34hL3mGOOjez8TZZyGHIC4Q8vD6X
-	 SvDJPAFOvk+SgEr6vR+aGc41krBbPQbYbAOql8ew7alD2jpnrmyuGLi/805cAMk+g3
-	 S6DFuxrkx8D2Q==
-Date: Sat, 12 Sep 2026 23:20:47 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Cc: "Svyatoslav Ryhel" <clamor95@gmail.com>, "Arnd Bergmann"
- <arnd@kernel.org>, "Alexandre Belloni" <alexandre.belloni@bootlin.com>,
- "Bartosz Golaszewski" <brgl@kernel.org>, "Mark Brown" <broonie@kernel.org>,
- "Conor Dooley" <conor+dt@kernel.org>, "Daniel Thompson"
- <danielt@kernel.org>, "Helge Deller" <deller@gmx.de>,
- devicetree@vger.kernel.org, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- dri-devel@lists.freedesktop.org, "Jingoo Han" <jingoohan1@gmail.com>,
- "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Lee Jones" <lee@kernel.org>,
- "Liam Girdwood" <lgirdwood@gmail.com>, "Linus Walleij" <linusw@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-fbdev@vger.kernel.org, "open list:GPIO SUBSYSTEM"
- <linux-gpio@vger.kernel.org>, linux-hwmon@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org,
- linux-media@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-rtc@vger.kernel.org, linux-sound@vger.kernel.org,
- linux-watchdog@vger.kernel.org, "Guenter Roeck" <linux@roeck-us.net>,
- linuxppc-dev@lists.ozlabs.org, llvm@lists.linux.dev, "Mauro Carvalho
- Chehab" <mchehab@kernel.org>, mfd@lists.linux.dev, "Michael Hennerich"
- <michael.hennerich@analog.com>, patches@opensource.cirrus.com, "Pavel
- Machek" <pavel@kernel.org>, "Rob Herring" <robh@kernel.org>, "Sebastian
- Reichel" <sre@kernel.org>, "Support Opensource"
- <support.opensource@diasemi.com>
-Subject: Re: [PATCH 08/14] mfd: remove unused aat2870 driver
-Message-ID: <20260912232047.19c4cb10@jic23-hlaptop>
-In-Reply-To: <11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
-References: <CAPVz0n0ryOns2sCJE_jFana9MVzwEj1QZuPEa8FNhGbHXnMB+A@mail.gmail.com>
-	<11652e5e-053e-45b0-98a0-0c1cb2aeedc4@app.fastmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H/7CH0uf"
+Received: by mail-vs2-f9.google.com with SMTP id ada2fe7eead31-78ff83b1be7so486225137.1
+        for <linux-input@vger.kernel.org>; Sat, 12 Sep 2026 19:28:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789266536; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Yz/tk7CXvCd1pLqijFPP1VCdbO1vGArH4vXlfvdcGJBGWhtTvfSqDYPMiNXiM46//c
+         qIs47zrhaKtYnmE0r4EDcwkfYzCDHwXcw+sFpWjXBewqqqMqScYLkPMUd2t57e4gbobV
+         jo36C/kwaVzMAg1gLmZjqskyR2PJ55HOEboNedOuoZyq24Y6L9pPYuXIerUaxYOIJlzg
+         12OTH9uWFrAeqhnz+oTitvfrqKXpXDxPzeEnbpD+9hM18GVBFXxSspHRqlzh5MglvwIt
+         1eljNIYpWkNav7qzdWPMHwdjRSLVJYZmb116n+TowkycE7zvaZe9SbAk1r/55LDHuBsR
+         NRcA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=qv2MLB0Xyieedx1sv+nnNDg8XZ1pBWqskhszMj0GAHE=;
+        fh=c+Vru0HWvJkxLTILpOQlHDSUgzB1bF+hHn8BGy7zo8E=;
+        b=RIo0oVNMq9HcAFtyidOFfN439rEJ8pkNYJVyEJLNN0CXLQDK9TMsGsvhsluxP5/WgY
+         brH782eJnJJT9AxAqS3WIUrGLRFNpdCR6PimuJXgAVNXzDZBHINvjNDeJqBkQo2ugxhG
+         20W2/fZz3Qo4A0Yq6+PRbQxoGpYmMXdYuD1IoYfO0aFIyLe4D8wsm8kgucwypis9dS4N
+         ele/e/7h7PwE2vgClrkgj9Nhxf3zn8wE2hyVqon1Yc9Z7rFl1qKiF7hkLGlv9AdPhkD4
+         +WfwLzQTrVKpeVDeADqOTW6isdbtQHS+uMq4+BskrzE1z3V+nrsOK8FqD5ikhfNoXolj
+         4Afg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789266536; x=1789871336; darn=vger.kernel.org;
+        h=content-type:to:subject:message-id:date:from:mime-version:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=qv2MLB0Xyieedx1sv+nnNDg8XZ1pBWqskhszMj0GAHE=;
+        b=H/7CH0ufghSrxcPvnR3N+Zzl8vD5naZWHw0Aq5yyXKkeUrOrmtVyvTOzRAK9i9r21K
+         HDu2BqCyzlAvh7Le1JiWdBGbwmjrScQ9WA31P94JbAKAbX0r2/ixLMJM71+AbAjwhDJA
+         zprSiZPQM7RXCtVRb92DZOOCyPk65DnNu/0dR5UpU/6jWu+87G65iMHxjsvVNVTcfP6S
+         7p4sT29mpu4r/yBtaOxoGduyCAg9OUMHm1v1nVTdZEW9RB4qJIXijLk3CkATI25ZRNIP
+         UXpKHzOvL/TSabw/oo1TxW2ngeLENRCIkZZlHbBPGw7JOHTfn3rNjDRAcO11OoclgxPm
+         RVLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789266536; x=1789871336;
+        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qv2MLB0Xyieedx1sv+nnNDg8XZ1pBWqskhszMj0GAHE=;
+        b=CWPAVJJc5pcwfrTUBYp+q/w/ve/wWZv2SiGihZkFU46KAB7PZbcBHwiqkaGqVMUeSt
+         WE2pguSQLuKp5DPxkaG892XyLtu0oeIUhmmNxH2wEkiXhnaEimDClMxxmU+z2we8ZzMb
+         E6+z4KskAaNyKD28iQT3VFLeOfmOg9WUufwMZHv0qR2OloJrSqAvqn9DvqOpmFBo54tk
+         KayuWaVl0gSrnmPHK6Xm9Ydxl1+87Cb3x1zl3a0sch0D9qUfZm88l6N9Zy/5Ghp8cXd2
+         y2VRD7AtPB27V54akEzG8LCTW85HX5cLQErWh+mHvvISbwx7hMEgVqpPM4TBL2i1rNHR
+         ozpQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxinIjVLBZd5MPU3RtrwZ6AGSFv+2+rDzhTTeGcS+S6T9RIn8d8bwVY7rsfK4rGO80yGXvqJiGQ0ayxEw==@vger.kernel.org
+X-Gm-Message-State: AFuF++m1PZ7B3MzaQx3XCucyoHkDuebAxkJCZuJ+gQx+W9sZsFE2fCHk
+	cE0KvgnuwItYZtzB0kjtD5U7UOyxaZqRhM5uoM8CmQx5yNTVe7bcu28UscPUxM2qUDtt1TrlKIM
+	sZhy658Y+mWpklE1eLp0y60YYoOe4xrDZDnU69DYpBw==
+X-Gm-Gg: AYBFou2scXj2g/jZljxosnPN5GR1l6TV6T6nlcjA4VSd080nBYKIPKg5JF4+f8QkmZA
+	q9o5SrlDkMMeD2KzYN6CRKeCRXf3KXI46tUm7NqBPmc+Y/He+mGwYvPULGlEsv79NEX0nePpdQx
+	ZnYCEFJfQD+ymirmeUm07R+VbSzffSH/lj8uLcs+ognq0bbjFPpgTYwZiq86qlFI8vl1u6nHdbA
+	fy0MowHmEWzST5bEDLHl2EOScJFzNA+pjL0lgVQFa/q58kHfnxCWO/BRzdbYpq10c0U09SirHw8
+	dBA6KOIP71IYafAseyy2UEDe7qB9Tpv6NY+9NgIqV3rHBUSUaixKNCxswqC1f9qZVkEppNWqeLf
+	oZtYAKrVggZA=
+X-Received: by 2002:a05:6102:5493:b0:77a:d089:3dd8 with SMTP id
+ ada2fe7eead31-792aa86054emr10597379137.12.1789266535836; Sat, 12 Sep 2026
+ 19:28:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: jj jj <fdr41303@gmail.com>
+Date: Sat, 12 Sep 2026 22:28:45 -0400
+X-Gm-Features: AcwNN1VJo3v34RPdg0dJbHKEtl6KSBNIr6ZzcldhD4H-bjG9L23AmKFLHZdOjpA
+Message-ID: <CAMwVT_QRGnTRVbCVaUSS+3+9R=os59DGU5AzSZVqd9_jpLBV4Q@mail.gmail.com>
+Subject: [PATCH] Input: sur40: prevent polling loop from stalling
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, 10 Sep 2026 20:14:15 +0200
-"Arnd Bergmann" <arnd@arndb.de> wrote:
+When the SUR40 driver receives a packet with no blobs while blobs are
+still expected, packet_blobs remains zero and need_blobs is never
+decremented.
 
-> On Thu, Sep 10, 2026, at 18:40, Svyatoslav Ryhel wrote:
-> > __ 
-> > Hello Arnd! May you please spare AAT2870 from being removed? I have a 
-> > device which uses aat2870 (LG Optimus 2X P990 Tegra 2, not upstreamed 
-> > yet, but in process as well) and atm I am working on converting this 
-> > driver to use OF. Thank you!  
-> 
-> Sure, I have removed this patch from my series now.
-> 
-> > P. S. If you are planning to remove more old drivers, please CC me in 
-> > since I may be interested in some additional driver upgrades for 
-> > devices I own.  
-> 
-> Please have a look at
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git/log/?h=board-remove-7.3
-> 
-> I tried to be careful about figuring out exactly which drivers are
-> unused, but I'm sure there are still a few false positive and false
-> negative ones in there. I've added the current list of driver files below,
-> let me know if you see something that shouldn't be there.
-Hi Arnd
+This causes the polling loop to make no progress.
 
-For I2C and SPI at least, there doesn't need to be explicit
-device tree support as long as they have defaults when platform
-data isn't there. Those two buses will happily bind based on
-a dt-compatible and their i2c_device_id or spi_device_id tables
-for example.
+Return from the polling operation when no blobs are received while
+blobs are still expected.
 
-So unless they fail to probe (some might?) we don't have
-a clear signal on whether they are in use via DT or not.
+Tested in a VM by reproducing the condition and verifying that the
+driver no longer remains in the polling loop.
 
-For vast majority of IIO drivers we don't have an upstream
-DTS as there is no clear motivation for anyone to upstream
-the dts for a random industrial control board or similar.
+Fixes: bdb5c57f209c ("Input: add sur40 driver for Samsung SUR40 (aka
+MS Surface 2.0/Pixelsense)")
 
-> drivers/iio/adc/ad7266.c
-No to dropping this.
+Signed-off-by: Fartman42121cool <fdr41303@gmail.com>
 
-Has fallbacks and should bind just fine  No one ever
-bothered adding an of_device_id table because it isn't
-needed. Fine to rip out the platform data support as nothing is
-using that.
+---
+ drivers/input/touchscreen/sur40.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-This is a production part that is likely being used in new designs.
+diff --git a/drivers/input/touchscreen/sur40.c
+b/drivers/input/touchscreen/sur40.c
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -510,6 +510,13 @@ static void sur40_poll(struct input_dev *input)
+  if (packet_blobs > need_blobs)
+  packet_blobs = need_blobs;
 
-> drivers/iio/adc/ad7791.c
-No to dropping this one.
-
-I'm fine with ripping out the platform data but this again
-has defaults and may well be in use via DT. Antoniu from
-Analog was doing some cleanup on this recently so I'd guess
-they probably still at least somewhat care and some of the
-supported parts are still in production (e.g. the AD7788)
-
-> drivers/iio/adc/ad7793.c
-Maybe. Analog devices ack needed.
-
-Production part but this one indeed fails to probe.  Analog
-folk, do you want to fix this one up?
-
-> drivers/iio/adc/ad7887.c
-No to dropping this.
-
-Production part - should work fine with defaults in driver.
-Could like the others drop the platform data handling.
-
-> drivers/iio/adc/lp8788_adc.c
-Probably
-
-Sub driver of an MFD.  I'm fine with that going if we know
-the mfd is no longer in use.
-
-> drivers/iio/adc/lpc18xx_adc.c
-> drivers/iio/dac/lpc18xx_dac.c
-Probably
-
-Likewise these two.
-
-> drivers/iio/frequency/ad9523.c
-Maybe. Analog Devices ack needed.
-
-Fails to probe without platform data and marked not recomended
-for new designs. If we get an Ack from Analog devices folk
-I'm fine with this one going away.
-
-Jonathan
-
++ if (!packet_blobs && need_blobs) {
++ dev_err(sur40->dev, "received no blobs while %d are still expected\n",
++ need_blobs);
++ return;
++ }
++
++
+  for (i = 0; i < packet_blobs; i++) {
+  need_blobs--;
+  dev_dbg(sur40->dev, "processing blob\n");
+  sur40_report_blob(&(inblob[i]), input);

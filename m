@@ -1,64 +1,64 @@
-Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C06426EB2
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 22:53:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BC2F416CFA
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 22:53:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789426395; cv=none; b=Dwcy9NPhaFwHxj9OLGLkR7DpLdV2gTmolsqXxkkAHWmt49ybh2vYWFYwsIZAfMuPzRFzQVTZF2P3tc98ScxD/Yrf+rDpIMj0n/eyZwLoLmkoMSNQwz0Fal5pHfEipsncRyAZYAgakNwOR39AKx7W8L7UC8RxhZAOieCAPId+oSM=
+	t=1789426400; cv=none; b=o+looGF32KqekmabadsV6s9Hf+t6FjEkNEzbdXRXJOGIPgTuS7Vy7x9BDsICCd4JOmthZnhrUpEAQy59T5Y1aRF5g/O2X2691PhdysBEcs0I0jIiEqHsIbphMKmJpcIDPKpnR7Kw7Jou9/OfYxCuKkdHEVcDpXmPz8Q2NVyOehk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789426395; c=relaxed/simple;
-	bh=v9W246k4i5nC9ZdyWZi1OCDWQVULW5oh4JWWhuxaeuo=;
+	s=arc-20240116; t=1789426400; c=relaxed/simple;
+	bh=dVhByGe/R2Ltv+gLa/s9pmWMXmW9Mf4W3MMuoMAtBuc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=P9D7wYiled6QWJ6+w/2I/b8BtuAZEJ6BCn08vgvH5HGuiU1b0C/R1P0N6mviFDWuRyzsAAkQ1TixH8YPwvZNELvISuXRyDutQhaQGo+iAxBEE2NEaWhTS9OPyDWFqW1boOoLeVWouiTXDSmpFeMQMPsjxYX9DpcfvAwB6R3mKTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dohM/q/L; arc=none smtp.client-ip=74.125.227.141
+	 MIME-Version; b=gbQjtdFQYlJR7eek+wDwFSl4DUIUs3/V6edoY1sxT+IXDJL6AmwYQfPACVcAG8TqtP1hUyW4wmOHYlnOXhI+4pyhUeJbPSUDEaOVMLnbmRYmDdCPfZlILRoMOeyA/ObLaswkrKtP8jgGDBwYxHOlXHwbHlotnEAIocT3CF2ikfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=flKwQxKw; arc=none smtp.client-ip=74.125.227.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dohM/q/L"
-Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-39dacf053eeso1665293a91.2
-        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 15:53:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="flKwQxKw"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccafb74fso2623133a91.3
+        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 15:53:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789426393; x=1790031193; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789426394; x=1790031194; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=BN8kNGGOstdu3D+3MzZhZpT0mSPpKY6fG+DlEioFUuE=;
-        b=dohM/q/LJrug23wvrlKE9g6q5ylcIts8vsVeDy+4lQjcALywDDRVvFZxop2mzLr6vK
-         o6nCS15ea0aMk+8b1ONVpHUFGtT9ef2Pzwr/0te32027H27PXL8j3PERSyY3LJvGgGvJ
-         evAzZWdrGBk/Bp2y5zCeS5RO7T0shNFkoH8/0Rwo+W3rMsfXdSknhKIOulHxp7M4p8sG
-         xh8hdt58+HON/OTWKwtvsRCwEZ+6M34bDA/XWqUlAyteHMTDTQ0XZ9i1T0Eu+s4cP7t4
-         d0/8/a3K8q83fr0qhRpscYfT7XNaQQYY1GwI7Dzxd7Vo54c3mCvD62E4FGitCAU24jfd
-         aVwg==
+        bh=x4I3Z8i7r4FjC6E4wBF2wiO14cWOcQrrX+u+7iuw0Ek=;
+        b=flKwQxKwyR9j6vwU7hdegZGYqmXgdHvAnVQIzioAbiq2doeQJuhOmq9nW4lvUXqpAX
+         hxgGBO/WnTvTPmrbF/+wUubEf+0PfO2b2gSe3XwtMfCBS66V07krkJiG/OvJf2KX3PcH
+         /yMHqYd/mtphxDmeZxEfXLfCNYBpnqI3OMHpaNlIUEhAltqzC6QsviMcOVhxY4wf67ev
+         Uqv02UNP8MC9pLHbV41qY9NeGgZbXGnooEBsdtySWJYrQhxgbhOzEnoF7ptOEwwSliYG
+         +5FuColNousJhPVj6Q5j4vLf6C99urO3QxkrBfvAFXjonL2AB6tU8gFeQAJVpqv2jM4x
+         sJCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789426393; x=1790031193;
+        d=1e100.net; s=20260707; t=1789426394; x=1790031194;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=BN8kNGGOstdu3D+3MzZhZpT0mSPpKY6fG+DlEioFUuE=;
-        b=aS2ZQ69qIBBTzeNgllcrwXssH/wM3sngyBB/WWpz05i8xvk15APk2jNnhjRCd/lU+W
-         e7XeycXZRpXXOjUlC4k3HNGi/Y/ZqdYioo3tYaUWi7LwuAQOIcoFOhtCUjBEJpca3vuq
-         1DW4Q7PZyXNk12N5Lyl7v6lFl85ef6S7l2OQ8AedUJsETskLu5g8bvCEoYv7Mb68qYyE
-         /MzFxrSofPyLww2iIvCCZQfj+JYd0+//sCcjWQsn2K1wiChucGZfrQJDlXKu/7SKnppB
-         ltYwnVQiOUF3O0aexvkQYrK6zyo4fbFvVmxm/sA9faStO/ijLmlWg3kntTvKOW3olp8b
-         6cfw==
-X-Forwarded-Encrypted: i=1; AKwUvBzhMgWi09yFfJIbZJ/iGpt/h825NK4rU5zb6Y3ddq7nnqCyxwIxGQtIt5CnJLFmdydYGwKODCTlog/5oQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++nrOCXQ1Wpge77aangcsCrPnCkbaw/+7p9qJTVquk1M1C8doAVE
-	yUpJr6KqRtNGkARhMzeJ2/9dOl8gQka1UnqTMPXMxVbVKE19HRIVc9rC
-X-Gm-Gg: AYBFou07tm7XXNC3/Xq/Mh1u1IjJLLDL+OoR5Kq0INA8kx/eZ93JXIWkAOGEv0OBnsM
-	UCZ7zYWKpHkRXcDXGVWaid/j601GyLybj4SkR5iKbBflL6pRgpGfmN1PW1f62BCqKqrWglYtvbE
-	OqP+YVBvHdmbx+dtkM8esXlz5YcB9GuAQ6VvVj2VJAXF+vVzQdcR4J6ijKFc3qSloUXcqPehrBt
-	577elkTJDXnbghFR+KRqYPkHdzq8IHxYjtN85gsPRPTTdpMkUeMQxtiOR0wHIc3v+HE7yePC2FC
-	H1yNCbP8+aUdagxLFZpfFdTWcNWgBklnhvv3ev2AYINskPes7nyvSb7l/FJVPXu1AFx1aITWaQQ
-	96kznNqVDAWTsrGwmvZcKL95hBmAUcsChoFcPMMJJDo58TwbkqU2vENNhxrDSVLVUc+WbD77+m4
-	7XySqTicnNQ8Foj1jyob1rYB1FwiC87Ftm1Xt8uhEy6GtyWM6bZlMfD/w0kKeC1ZwifIPHkC/h1
-	p+nXYsJ3sjKTGz+5Sn6vFi+uf3KbnRtObVWCXVsIm9dco6q+OOr
-X-Received: by 2002:a17:90a:1056:b0:39d:ec9a:8f8e with SMTP id 98e67ed59e1d1-39dec9a90b5mr6114824a91.8.1789426393321;
-        Mon, 14 Sep 2026 15:53:13 -0700 (PDT)
+        bh=x4I3Z8i7r4FjC6E4wBF2wiO14cWOcQrrX+u+7iuw0Ek=;
+        b=ZAA82zZR2OlugNwzx0t/TZ0FzLN6StdTJ65WYmV9bco3BcroyDSzABGn5ItTIr2+gE
+         GPnVtR28wStoEbDDGJvO4cUtyvT/leTeAA4PwyS/YFpc4iOd07jkXIrHyQydktgR3OiL
+         fFdF1nv9wWV7BEbtmYeJS4ppEQwaZEax5LpG74sobJ+eG/807k9gZGfVKcD/cl1AEqux
+         erzCXGssZ4uCF9O/jASJfQFcvja4UwPIELb/IDt/1RDdujFOzTXMluqF9klpCmFRWy8S
+         hrXPrS/x8vqKJ00Q+BXz9kc0rKeoDTi8oMTgcDKK8qZr5h7WBpXcrGU6IMf2eemml0z/
+         PKdA==
+X-Forwarded-Encrypted: i=1; AKwUvBzMuQakVUfPQan7npNyuMnLdDrWzzGMfNZnDEVb4SuhwTBP5OWZlS/hLj0ocgtwkGi5fhXu9quCPK3sdQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++msTrl3RC2OyJc+PVy9Zwdj75qA3Hsa22ARsGyHH16CV2tnp4w7
+	TGIt0y7ffiHTe4wV1M2IwbPy/q/qivd4/yEsrlFivPdgvDRUwKqfOzd8
+X-Gm-Gg: AYBFou2jgO3O+yjiC8DY4Vm84X3SQbSb6NsFJY6wabj3hnW1RQPPl+gKsqMscI9OMAI
+	GW1w68mO/ceF9JDyaQqeeTc+cM+vXOiNus6giFpozNknYcsUodOiZSJ7So42P2VXJghMyhRuua+
+	6asEuyPc6phj1exea1Nf+41wbcxpEBOnHmvT9WEMsLcS4m9sKlsYm1kf8IxSeNDCH1D04NasPQW
+	qm3q4iKGwc1sc8FYaS9deW7wmBOnCMUD3M1aB6kRdxgfHD7M9dxp6+3PqZ8nPY4iy/+wrI3G+QI
+	EgrXGnQqIwvZphPZlC2h01ODywPAomiTEt/z6AklA7oR8dQ8XvSLniCUL5wi7i/rCFtG06AfcgZ
+	+dna7Kr4GSZAsxF9Wf0jlzFo4XTYKts+7c1C6NvmmVngt/EHbTC5EjoyuhqxUU2TKZ3IUh7+se9
+	bvZJlmjzAJ9zRnPGQDzeVRLdvVHIF9W0rRIru2Qcbhyfok/s9v2uKkE0ZzbwS5tTqEc7cAzy6lN
+	5kExY98oFAsaFHfQqdegbVtVUYV/SYGDLzgTCBgqzoja3DEux+z
+X-Received: by 2002:a17:90b:57cb:b0:39d:f130:f8fd with SMTP id 98e67ed59e1d1-39df13108cdmr8639486a91.11.1789426394397;
+        Mon, 14 Sep 2026 15:53:14 -0700 (PDT)
 Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bbeb053a5sm14924296eec.27.2026.09.14.15.53.12
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bbeb053a5sm14924296eec.27.2026.09.14.15.53.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 15:53:12 -0700 (PDT)
+        Mon, 14 Sep 2026 15:53:13 -0700 (PDT)
 From: "Derek J. Clark" <derekjohn.clark@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -68,9 +68,9 @@ Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
 	linux-kernel@vger.kernel.org,
 	kernel@lists.opengamingcollective.org,
 	stable@vger.kernel.org
-Subject: [PATCH 05/10] HID: hid-lenovo-go-s: Add kobject_uevent notify during reset-resume
-Date: Mon, 14 Sep 2026 15:52:58 -0700
-Message-ID: <20260914225303.868569-6-derekjohn.clark@gmail.com>
+Subject: [PATCH 06/10] HID: hid-lenovo-go-s: Add suspend function and gate access under bool.
+Date: Mon, 14 Sep 2026 15:52:59 -0700
+Message-ID: <20260914225303.868569-7-derekjohn.clark@gmail.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260914225303.868569-1-derekjohn.clark@gmail.com>
 References: <20260914225303.868569-1-derekjohn.clark@gmail.com>
@@ -82,26 +82,356 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adds kobject_uevent notification after setting os_mode attribute on resume.
+Currently a device can suspend while delayed work is pending or
+executing. Cancel delayed work if it was pending and restart it if it
+hasn't run yet. Gate access to show/store functions behind a bool to
+prevent access prior to cfg_setup() being completed.
 
-Fixes: 3524900cc571bd922a ("HID: hid-lenovo-go-s: restore OS_TYPE after resume from s2idle")
+Fixes: a23f3497bf208c59ad ("HID: hid-lenovo-go-s: Add Lenovo Legion Go S Series HID Driver")
 Cc: stable@vger.kernel.org
 Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
 ---
- drivers/hid/hid-lenovo-go-s.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-lenovo-go-s.c | 149 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 149 insertions(+)
 
 diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-index b6850cf2c029..712823e22bea 100644
+index 712823e22bea..6d98fff6d987 100644
 --- a/drivers/hid/hid-lenovo-go-s.c
 +++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -1467,6 +1467,7 @@ static int hid_gos_cfg_reset_resume(struct hid_device *hdev)
- 	if (drvdata.os_mode != os_mode)
- 		return -ENODEV;
+@@ -39,6 +39,8 @@ static struct hid_gos_cfg {
+ 	struct hid_device *hdev;
+ 	bool orphan_ack_pending;
+ 	struct mutex cfg_mutex; /*ensure single synchronous output report*/
++	bool gp_registered;
++	bool rgb_registered;
+ 	int cmd_status;
+ 	u8 gp_auto_sleep_time;
+ 	u8 gp_dpad_mode;
+@@ -504,10 +506,22 @@ static ssize_t gamepad_property_store(struct device *dev,
+ 				      const char *buf, size_t count,
+ 				      enum feature_status_index index)
+ {
++	bool dev_registered;
+ 	size_t size = 1;
+ 	u8 val = 0;
+ 	int ret;
  
-+	kobject_uevent(&drvdata.hdev->dev.kobj, KOBJ_CHANGE);
++	/* rgb_enabled is attached to led_classdev, not hid_device */
++	if (index == FEATURE_RGB_ENABLE)
++		/* Pairs with smp_store_release from gos_cfg_setup */
++		dev_registered = smp_load_acquire(&drvdata.rgb_registered);
++	else
++		/* Pairs with smp_store_release from gos_cfg_setup */
++		dev_registered = smp_load_acquire(&drvdata.gp_registered);
++
++	if (!dev_registered)
++		return -ENODEV;
++
+ 	switch (index) {
+ 	case FEATURE_GAMEPAD_MODE:
+ 		ret = sysfs_match_string(gamepad_mode_text, buf);
+@@ -588,9 +602,21 @@ static ssize_t gamepad_property_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf,
+ 				     enum feature_status_index index)
+ {
++	bool dev_registered;
+ 	ssize_t count = 0;
+ 	u8 i;
+ 
++	/* rgb_enabled is attached to led_classdev, not hid_device */
++	if (index == FEATURE_RGB_ENABLE)
++		/* Pairs with smp_store_release from gos_cfg_setup */
++		dev_registered = smp_load_acquire(&drvdata.rgb_registered);
++	else
++		/* Pairs with smp_store_release from gos_cfg_setup */
++		dev_registered = smp_load_acquire(&drvdata.gp_registered);
++
++	if (!dev_registered)
++		return -ENODEV;
++
+ 	count = mcu_property_out(drvdata.hdev, GET_GAMEPAD_CFG, index, NULL, 0);
+ 	if (count < 0)
+ 		return count;
+@@ -726,10 +752,16 @@ static ssize_t touchpad_property_store(struct device *dev,
+ 				       const char *buf, size_t count,
+ 				       enum touchpad_config_index index)
+ {
++	bool gp_registered;
+ 	size_t size = 1;
+ 	u8 val = 0;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	gp_registered = smp_load_acquire(&drvdata.gp_registered);
++	if (!gp_registered)
++		return -ENODEV;
++
+ 	switch (index) {
+ 	case CFG_WINDOWS_MODE:
+ 		ret = sysfs_match_string(touchpad_mode_text, buf);
+@@ -760,9 +792,15 @@ static ssize_t touchpad_property_show(struct device *dev,
+ 				      struct device_attribute *attr, char *buf,
+ 				      enum touchpad_config_index index)
+ {
++	bool gp_registered;
+ 	int ret = 0;
+ 	u8 i;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	gp_registered = smp_load_acquire(&drvdata.gp_registered);
++	if (!gp_registered)
++		return -ENODEV;
++
+ 	ret = mcu_property_out(drvdata.hdev, GET_TP_PARAM, index, NULL, 0);
+ 	if (ret < 0)
+ 		return ret;
+@@ -789,9 +827,15 @@ static ssize_t touchpad_property_options(struct device *dev,
+ 					 char *buf,
+ 					 enum touchpad_config_index index)
+ {
++	bool gp_registered;
+ 	size_t count = 0;
+ 	unsigned int i;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	gp_registered = smp_load_acquire(&drvdata.gp_registered);
++	if (!gp_registered)
++		return -ENODEV;
++
+ 	switch (index) {
+ 	case CFG_WINDOWS_MODE:
+ 	case CFG_LINUX_MODE:
+@@ -814,9 +858,15 @@ static ssize_t test_property_show(struct device *dev,
+ 				  struct device_attribute *attr, char *buf,
+ 				  enum test_command_index index)
+ {
++	bool gp_registered;
+ 	size_t count = 0;
+ 	u8 i;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	gp_registered = smp_load_acquire(&drvdata.gp_registered);
++	if (!gp_registered)
++		return -ENODEV;
++
+ 	switch (index) {
+ 	case TEST_TP_MFR:
+ 		i = drvdata.tp_manufacturer;
+@@ -874,9 +924,15 @@ static ssize_t rgb_effect_store(struct device *dev,
+ {
+ 	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
+ 	enum rgb_config_index index;
++	bool rgb_registered;
+ 	u8 effect;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = sysfs_match_string(rgb_effect_text, buf);
+ 	if (ret < 0)
+ 		return ret;
+@@ -901,8 +957,14 @@ static ssize_t rgb_effect_store(struct device *dev,
+ static ssize_t rgb_effect_show(struct device *dev,
+ 			       struct device_attribute *attr, char *buf)
+ {
++	bool rgb_registered;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = rgb_attr_show();
+ 	if (ret)
+ 		return ret;
+@@ -934,9 +996,15 @@ static ssize_t rgb_speed_store(struct device *dev,
+ {
+ 	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
+ 	enum rgb_config_index index;
++	bool rgb_registered;
+ 	int val = 0;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = kstrtoint(buf, 10, &val);
+ 	if (ret)
+ 		return ret;
+@@ -964,8 +1032,14 @@ static ssize_t rgb_speed_store(struct device *dev,
+ static ssize_t rgb_speed_show(struct device *dev, struct device_attribute *attr,
+ 			      char *buf)
+ {
++	bool rgb_registered;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = rgb_attr_show();
+ 	if (ret)
+ 		return ret;
+@@ -985,9 +1059,15 @@ static ssize_t rgb_speed_range_show(struct device *dev,
+ static ssize_t rgb_mode_store(struct device *dev, struct device_attribute *attr,
+ 			      const char *buf, size_t count)
+ {
++	bool rgb_registered;
+ 	int ret;
+ 	u8 val;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = sysfs_match_string(rgb_mode_text, buf);
+ 	if (ret <= 0)
+ 		return ret;
+@@ -1007,8 +1087,14 @@ static ssize_t rgb_mode_store(struct device *dev, struct device_attribute *attr,
+ static ssize_t rgb_mode_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+ {
++	bool rgb_registered;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = rgb_cfg_call(drvdata.hdev, GET_RGB_CFG, LIGHT_MODE_SEL, NULL, 0);
+ 	if (ret)
+ 		return ret;
+@@ -1038,10 +1124,16 @@ static ssize_t rgb_profile_store(struct device *dev,
+ 				 struct device_attribute *attr, const char *buf,
+ 				 size_t count)
+ {
++	bool rgb_registered;
+ 	size_t size = 1;
+ 	int ret;
+ 	u8 val;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = kstrtou8(buf, 10, &val);
+ 	if (ret < 0)
+ 		return ret;
+@@ -1061,8 +1153,14 @@ static ssize_t rgb_profile_store(struct device *dev,
+ static ssize_t rgb_profile_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
++	bool rgb_registered;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return -ENODEV;
++
+ 	ret = rgb_cfg_call(drvdata.hdev, GET_RGB_CFG, LIGHT_PROFILE_SEL, NULL, 0);
+ 	if (ret)
+ 		return ret;
+@@ -1084,8 +1182,14 @@ static void hid_gos_brightness_set(struct led_classdev *led_cdev,
+ {
+ 	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
+ 	enum rgb_config_index index;
++	bool rgb_registered;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!rgb_registered)
++		return;
++
+ 	if (brightness > led_cdev->max_brightness) {
+ 		dev_err(led_cdev->dev, "Invalid argument\n");
+ 		return;
+@@ -1392,6 +1496,11 @@ static void cfg_setup(struct work_struct *work)
+ 			"Failed to retrieve OS Mode: %i\n", ret);
+ 		return;
+ 	}
++
++	/* Pairs with smp_load_acquire in attribute show/store functions */
++	smp_store_release(&drvdata.gp_registered, true);
++	/* Pairs with smp_load_acquire in attribute show/store functions */
++	smp_store_release(&drvdata.rgb_registered, true);
+ }
+ 
+ static int hid_gos_cfg_probe(struct hid_device *hdev,
+@@ -1451,9 +1560,24 @@ static void hid_gos_cfg_remove(struct hid_device *hdev)
+ 
+ static int hid_gos_cfg_reset_resume(struct hid_device *hdev)
+ {
++	bool gp_registered, rgb_registered;
+ 	u8 os_mode = drvdata.os_mode;
+ 	int ret;
+ 
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	gp_registered = smp_load_acquire(&drvdata.gp_registered);
++	/* Pairs with smp_store_release from gos_cfg_setup */
++	rgb_registered = smp_load_acquire(&drvdata.rgb_registered);
++	if (!gp_registered || !rgb_registered) {
++		ret = schedule_delayed_work(&drvdata.gos_cfg_setup, msecs_to_jiffies(2));
++		if (!ret) {
++			dev_err(&hdev->dev, "Failed to schedule startup delayed work\n");
++			return -ENODEV;
++		}
++
++		return 0;
++	}
++
+ 	ret = mcu_property_out(drvdata.hdev, SET_GAMEPAD_CFG,
+ 			       FEATURE_OS_MODE, &os_mode, 1);
+ 	if (ret < 0)
+@@ -1542,6 +1666,30 @@ static int hid_gos_reset_resume(struct hid_device *hdev)
  	return 0;
  }
+ 
++static int hid_gos_cfg_suspend(void)
++{
++	disable_delayed_work_sync(&drvdata.gos_cfg_setup);
++
++	return 0;
++}
++
++static int hid_gos_suspend(struct hid_device *hdev, pm_message_t msg)
++{
++	int ret;
++	u8 ep;
++
++	/* Safe assumption. SET_INTERFACE ioctl can't be used while driver is bound */
++	ret = get_endpoint_address(hdev);
++	if (ret <= 0)
++		return 0;
++
++	ep = ret;
++	if (ep == GO_S_CFG_INTF_IN)
++		return hid_gos_cfg_suspend();
++
++	return 0;
++}
++
+ static const struct hid_device_id hid_gos_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_QHE,
+ 			 USB_DEVICE_ID_LENOVO_LEGION_GO_S_XINPUT) },
+@@ -1558,6 +1706,7 @@ static struct hid_driver hid_lenovo_go_s = {
+ 	.remove = hid_gos_remove,
+ 	.raw_event = hid_gos_raw_event,
+ 	.reset_resume = pm_ptr(hid_gos_reset_resume),
++	.suspend = pm_ptr(hid_gos_suspend),
+ };
+ module_hid_driver(hid_lenovo_go_s);
  
 -- 
 2.55.0

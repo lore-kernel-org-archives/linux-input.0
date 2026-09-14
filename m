@@ -1,67 +1,118 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtpo75.interia.pl (smtpo75.interia.pl [217.74.67.75])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2D6A22A7F6;
-	Mon, 14 Sep 2026 06:34:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6F0D32B989
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 06:40:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.74.67.75
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789367656; cv=none; b=gsyYTlmw/vc4wO6ZFuhGaHbvA77F3yLDINrd2fJN9SwailXR8hzrkkYZHmnEeKQz6HS4VeCfG7KXJICGt/MUnKhSnxDxuYics6UIWfu6cle7wXRqMfZ327LZscfr3JCJBDgj96fNT20TXHu4i0ATxLopAFec2t4Lwzy5ly9eL14=
+	t=1789368061; cv=none; b=AOGAqZ3kY/UWc6sezFpbn2bH7L1OcFL1dvefQz7dZWMPDMPxBew1ARdlHNUKMaOvXYTZ/xDHnmxzrKR0JeJHyPA0pkiMclBgic39yccKRK2qkyn6phKS8BDHxuMUIeP7KmlRhYxksxSYgoM9KE8rIT28pQyvKKWqXx9eaMEwJbk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789367656; c=relaxed/simple;
-	bh=HFzPgGZxe13VFMJ0+Ee4wJ7NqQlN3fJ36QAeqsCQFpc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=MDgF22WKT+UhjJb6CBJW7AvRuX7ujiZpCu77HbMOIVzyyYGozFKmpHaiY7vjUVoJMHpk/gNrvzrx2UXV50gsJ9u5Kk+ZMSxqf2X0WBfhTU82kQDRYcADvmgQmeymSPhDy0Kw8EdIqdHZsb+gjfWbBG2LZnKFYVjmo5veXKmxQUI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 47af634cb00611f19a56ed5b684f684d-20260914
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:b0295b6e-f0ac-4bc5-a1cc-a7d8e61abcb3,IP:0,U
-	RL:0,TC:0,Content:-5,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:20
-X-CID-META: VersionHash:7db8b62,CLOUDID:b3a36cd2ad367b1c8ef8eb07ad8f17d8,BulkI
-	D:nil,BulkQuantity:0,SF:81|82|83|102|136|850|865|898,TC:nil,Content:0|15|5
-	0|99,EDM:5|-100,IP:nil,URL:99|1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,CO
-	L:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_ULS,TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 47af634cb00611f19a56ed5b684f684d-20260914
-X-User: chenchangcheng@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <chenchangcheng@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1394324754; Mon, 14 Sep 2026 14:34:04 +0800
-From: Chen Changcheng <chenchangcheng@kylinos.cn>
-To: jikos@kernel.org
-Cc: bentiss@kernel.org,
-	chenchangcheng@kylinos.cn,
-	jeffinphilip14@gmail.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: corsair: do not re-schedule LED worker after it has been cancelled
-Date: Mon, 14 Sep 2026 14:34:01 +0800
-Message-Id: <20260914063401.92686-1-chenchangcheng@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <8s5r192r-rqp0-nq7n-n317-r7r503239474@xreary.bet>
-References: <8s5r192r-rqp0-nq7n-n317-r7r503239474@xreary.bet>
+	s=arc-20240116; t=1789368061; c=relaxed/simple;
+	bh=QO7dVWJRLZKDWl34KsraszC5WM8oAwV+eN5oExcOgIg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=s+Wh4J4gMjyKf05XjZqCc4Fwht9oDFLYbg6pTsmVkh9FBzXiXdPhq+2arpkfozO2X41E5PCaEewxQDjekq9UawXQ0bfZPf/bPipZ2kqSThmKRUWeMyG6PDS9UY/hqBKbN/ctUoBBrtud2+jRZnt9XzFy5+KW+N+u9nIzmukhs84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=poczta.fm; spf=pass smtp.mailfrom=poczta.fm; dkim=pass (1024-bit key) header.d=poczta.fm header.i=@poczta.fm header.b=rDOyyIj6; arc=none smtp.client-ip=217.74.67.75
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=poczta.fm
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=poczta.fm
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=poczta.fm header.i=@poczta.fm header.b="rDOyyIj6"
+Received: from nr200 (unknown [80.68.231.31])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by poczta.interia.pl (INTERIA.PL) with ESMTPSA;
+	Mon, 14 Sep 2026 08:40:45 +0200 (CEST)
+Date: Mon, 14 Sep 2026 08:40:42 +0200
+From: Slawomir Stepien <sst@poczta.fm>
+To: Basavaraj Natikar <bnatikar@amd.com>
+Cc: syzbot <syzbot@kernel.org>, syzkaller-bugs@googlegroups.com,
+	Basavaraj Natikar <basavaraj.natikar@amd.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
+	Sandeep Singh <sandeep.singh@amd.com>, linux-kernel@vger.kernel.org,
+	syzbot@lists.linux.dev
+Subject: Re: [PATCH] HID: amd_sfh: Validate PCI BAR size before mapping
+Message-ID: <aqeW6o0kFhxTaloK@nr200>
+References: <94704655-d654-4500-8122-b80bea9bd908@mail.kernel.org>
+ <7f8690bc-17c7-45e7-bacd-a341b2ef0a4b@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7f8690bc-17c7-45e7-bacd-a341b2ef0a4b@amd.com>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=poczta.fm; s=dk;
+	t=1789368047; bh=35Na2uDYoTkrNh01Rjn3p8QVuDGTu1Bb9xs9LnADGw8=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	b=rDOyyIj6aTEe/GmaUS69QFeQXd+EWa2i7Izyyemz+sGAYy7KNqoyYiR5PC6iI1DKJ
+	 /rHPq6Liim32PymGFsviz84lD8MGPRBBqZHTMltuAVFJ+FiaYrvdItet0TPEy+Nvqm
+	 FB73zZPNYyNHbjc1hSVOpBuqrswDqDK+tM2OWFD8=
 
-Hi Jeffin,
-Thanks again for the pointer.  Danish Khateeb has submitted a patch
-that is code-identical to the fix I had prepared, using
-disable_work_sync() to replace cancel_work_sync() in all teardown
-paths. I have reviewed this patch:
+On wrz 11, 2026 21:33, Basavaraj Natikar wrote:
+> 
+> On 8/27/2026 12:06 PM, syzbot wrote:
+> > [You don't often get email from syzbot@kernel.org. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
+> > 
+> > From: Slawomir Stepien <sst@poczta.fm>
+> > 
+> > The amd_sfh driver maps PCI BAR 2 using pcim_iomap_regions() and
+> > subsequently accesses MMIO registers at offsets up to 0x10958 (e.g.,
+> > AMD_P2C_MSG3 at 0x1068C). However, the driver never validates that the BAR
+> > size is large enough to cover these accesses. If the driver is bound to a
+> > device with a smaller BAR 2, this leads to an out-of-bounds memory access
+> > and a page fault during the probe function.
+> > 
+> > For example, a page fault can occur when reading from privdata->mmio +
+> > AMD_P2C_MSG3 in mp2_select_ops():
+> > 
+> >    BUG: unable to handle page fault for address: ffffc9000390368c
+> >    PGD 100000067 P4D 100000067 PUD 1012c1067 PMD 105b64067 PTE 0
+> >    Oops: Oops: 0000 [#1] SMP KASAN NOPTI
+> >    RIP: 0010:readl arch/x86/include/asm/io.h:59 [inline]
+> >    RIP: 0010:mp2_select_ops drivers/hid/amd-sfh-hid/amd_sfh_pcie.c:282
+> >    [inline]
+> >    RIP: 0010:amd_mp2_pci_probe+0x337/0x5f0
+> >    drivers/hid/amd-sfh-hid/amd_sfh_pcie.c:487
+> >    Call Trace:
+> >     <TASK>
+> >     local_pci_probe drivers/pci/pci-driver.c:332 [inline]
+> >     pci_call_probe drivers/pci/pci-driver.c:394 [inline]
+> >     __pci_device_probe drivers/pci/pci-driver.c:455 [inline]
+> >     pci_device_probe+0x431/0xc90 drivers/pci/pci-driver.c:489
+> > 
+> > Fix this by verifying that the length of BAR 2 is at least 128KB before
+> > attempting to map it. Since the maximum accessed offset is 0x10958, and PCI
+> > BAR sizes are powers of 2, any legitimate hardware will have a BAR size of
+> > at least 128KB.
+> > 
+> > Fixes: 4f567b9f8141 ("SFH: PCIe driver to add support of AMD sensor fusion hub")
+> > Assisted-by: Gemini:gemini-3.7-flash Gemini:gemini-3.1-pro-preview syzbot
+> > Reported-by: syzbot+4eadd4dfe9e66522bae8@syzkaller.appspotmail.com
+> > Closes: https://syzkaller.appspot.com/bug?extid=4eadd4dfe9e66522bae8
+> > Link: https://syzkaller.appspot.com/ai_job?id=3bc1c45c-548f-4ab5-8243-d2c8ec321d6c
+> > Signed-off-by: Slawomir Stepien <sst@poczta.fm>
+> > 
+> > ---
+> > diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_common.h b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+> > index 78f830c13..c0c324565 100644
+> > --- a/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+> > +++ b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+> > @@ -17,6 +17,8 @@
+> >   #define PCI_DEVICE_ID_AMD_MP2          0x15E4
+> >   #define PCI_DEVICE_ID_AMD_MP2_1_1      0x164A
+> > 
+> > +#define AMD_SFH_MIN_BAR_SIZE           (128 * 1024)
+> 
+> Please use SZ_128K instead of the open-coded (128 * 1024), A short comment noting the value
+> must cover the highest register offset (0x10958) would also help future readers.
+> 
+> With that:
+> Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-	https://lore.kernel.org/all/20260904161531.160118-1-danishkhateeb03@gmail.com/
+Sure, will send v2, thanks!
 
-
---
-Chen Changcheng
+-- 
+Slawomir Stepien

@@ -1,143 +1,95 @@
-Received: from forward202a.mail.yandex.net (forward202a.mail.yandex.net [178.154.239.91])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADF9B44AB81
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 12:10:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.91
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 332244611E5
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 12:26:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789387837; cv=none; b=UCJQNDWy2WvHEn6WR+eY4DS9fEILwWcJ0TAZUdidcfXtQNY4NooQUDpQ2iCEKcwGiUNbOUNE+/zyWUkCJBGrwxbTI5up8Oq2znNs41ny5/Hnz/TdxAzuho5YxEiZoMrIAxrrN8Q/Ts42gy+D+ZE9KlCiTdmfGa4Sb01qlNcp2NE=
+	t=1789388816; cv=none; b=LE3vDG/bv6rF3FvwxqkL+6xCl67VJN1+BnvMh2xzqIKRllS3W10Uls+z73HYUbeLXok1u/AwHOC+IOKuKIzubyNXH8mwVckEmwQW/sNAqyP7F2BS3TRxrroO68FJu1Y5gXFzUcwH4VLUXuyb5wRyIYi1Xco2SJKmrX12SKJW5Tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789387837; c=relaxed/simple;
-	bh=3d1Df1VJi9uf8C00LywMQn1W2JqNOVaqLDTpAseebwc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EyTr+FnIfA9/zM6nZVBE1m1KNV12PrjwvfgHkXBCjEq2XYhxnq+UUZnObNr329aikDfem0jk2Zj+0LhL8ds/gwycOwDZWd3rbobSg55N1qzflaEBRzLScqsbcMsBWlDaLpZaf8/i7OMF9eW5DqbUPhqKDceBZPtMpSsuXQGUZO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=Zk83AGOw; arc=none smtp.client-ip=178.154.239.91
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
+	s=arc-20240116; t=1789388816; c=relaxed/simple;
+	bh=KRUAHf2YbSmZ8D5y0i+plZWvi+Jqcwt8c9aTF4TFCAA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=nHhUl0gJM47/P3T70ZAxCckle2urdHN12qOLtzbGnhznEPuOlsHl/5sEMwd1FTP3qB1f5OY1UmXPH79PcKbrVwFhz9uq9R32GNEDtfHwAl6d+Q4AqSNhmclNC3mBWIGkcuSiXHNhMqTVRZn1uRuOLIBlqkKp+GszFYz99XiYJ8E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mul80EL7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="Zk83AGOw"
-Received: from forward101a.mail.yandex.net (forward101a.mail.yandex.net [IPv6:2a02:6b8:c0e:500:1:45:d181:d101])
-	by forward202a.mail.yandex.net (postfix) with ESMTPS id E844889164
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 15:02:55 +0300 (MSK)
-Received: from mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net [IPv6:2a02:6b8:c0f:39a:0:640:15c4:0])
-	by forward101a.mail.yandex.net (postfix) with ESMTPS id 5E3B480D16;
-	Mon, 14 Sep 2026 15:02:48 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net (smtp) with ESMTPSA id h2SwtcSdJ8c0-CXhCQ0wv;
-	Mon, 14 Sep 2026 15:02:48 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1789387368; bh=wvaqNeAaGs/4pFD/EekdELouEpXns7WVj3dVQj/51ME=;
-	h=Message-ID:Date:In-Reply-To:Cc:Subject:References:To:From;
-	b=Zk83AGOwyTXxqlgpuuZqMs+YSk5jgRJ8s2kChWoA1Ow3qq2zb4HJZl+OzkLu7Jr9G
-	 buVwiLqvN6Oar6NiJH67fkagK3pLNCR4JKd4v6yulrSohzSafFME4adQCAI40RY6FP
-	 YKal2Xns2OmtjoeTjyi7n+VMekGlEUjJbfFKSnys=
-Authentication-Results: mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
-From: Dmitry Antipov <dmantipov@yandex.ru>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	lvc-project@linuxtesting.org,
-	Dmitry Antipov <dmantipov@yandex.ru>
-Subject: [PATCH v2 3/4] HID: roccat: examine readers to check whether the device is opened
-Date: Mon, 14 Sep 2026 15:02:39 +0300
-Message-ID: <20260914120240.1625442-3-dmantipov@yandex.ru>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mul80EL7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED8481F0089E;
+	Mon, 14 Sep 2026 12:26:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789388813;
+	bh=ubE4DJzi6FELUNXOyl3Nmdzu6Uwy5UbcQcTmBiojXNw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Mul80EL7A7U34N5A+xudpEbyXeuy1+rNN6zmca03cozQWGOwjtiaZzlVm2pwXJpbj
+	 3Ay/2jeCeppJZRTT1eCiPWINwhzsy4ZM8o4CW4L7KZFGTSDJ44nA98e2JY7KfcqWRx
+	 VrCRhYVF8rhuKnTYAZ//UTLTFll+77vbw/XLEfS3W8ueiPI52N27kKI2KsHP8iRDk7
+	 doM0Tvh52snOh5BQffQ+n0lzFIuLA8bFxQSgMCijkCFp1qgT+EqfYxJ97d6Zt2zaW9
+	 RlyNBM3PBSFtquIq5Mii+5eI5Dw3kk+7mr5SyNl2QHDvd45jDkGqJy6DGA93loho3O
+	 AzP9Cfc2SzBTQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 1/4] HID: roccat: fix locking in roccat_connect() and
+ roccat_disconnect()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Antipov" <dmantipov@yandex.ru>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 In-Reply-To: <20260914120240.1625442-1-dmantipov@yandex.ru>
 References: <20260914120240.1625442-1-dmantipov@yandex.ru>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 14 Sep 2026 12:26:52 +0000
+Message-Id: <20260914122652.ED8481F0089E@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Use list_empty() to check whether the device has active readers,
-thus dropping explicit 'open' flag from 'struct roccat_device'.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
----
-v2: initial version to join the series
----
- drivers/hid/hid-roccat.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+Pre-existing issues:
+- [High] `roccat_report_event()` calls `mutex_lock()` while executing in at=
+omic context.
+--
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index 007778922c21..d1df4ec34a1e 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -39,7 +39,6 @@ struct roccat_report {
- struct roccat_device {
- 	unsigned int minor;
- 	int report_size;
--	int open;
- 	int exist;
- 	wait_queue_head_t wait;
- 	struct device *dev;
-@@ -177,18 +176,15 @@ static int roccat_open(struct inode *inode, struct file *file)
- 
- 	mutex_lock(&device->readers_lock);
- 
--	if (!device->open++) {
-+	if (list_empty(&device->readers)) {
- 		/* power on device on adding first reader */
- 		error = hid_hw_power(device->hid, PM_HINT_FULLON);
--		if (error < 0) {
--			--device->open;
-+		if (error < 0)
- 			goto exit_err_readers;
--		}
- 
- 		error = hid_hw_open(device->hid);
- 		if (error < 0) {
- 			hid_hw_power(device->hid, PM_HINT_NORMAL);
--			--device->open;
- 			goto exit_err_readers;
- 		}
- 	}
-@@ -213,18 +209,20 @@ static int roccat_release(struct inode *inode, struct file *file)
- {
- 	struct roccat_reader *reader = file->private_data;
- 	struct roccat_device *device = reader->device;
-+	bool open;
- 
- 	if (WARN_ON_ONCE(!device))
- 		return -ENODEV;
- 
- 	mutex_lock(&device->readers_lock);
- 	list_del(&reader->node);
-+	open = !list_empty(&device->readers);
- 	mutex_unlock(&device->readers_lock);
- 	kfree(reader);
- 
- 	mutex_lock(&devices_lock);
- 
--	if (!--device->open) {
-+	if (!open) {
- 		/* removing last reader */
- 		if (device->exist) {
- 			hid_hw_power(device->hid, PM_HINT_NORMAL);
-@@ -360,6 +358,7 @@ EXPORT_SYMBOL_GPL(roccat_connect);
- void roccat_disconnect(int minor)
- {
- 	struct roccat_device *device;
-+	bool open;
- 
- 	mutex_lock(&devices_lock);
- 	device = devices[minor];
-@@ -370,7 +369,11 @@ void roccat_disconnect(int minor)
- 
- 	devices[minor] = NULL;
- 
--	if (device->open) {
-+	mutex_lock(&device->readers_lock);
-+	open = !list_empty(&device->readers);
-+	mutex_unlock(&device->readers_lock);
-+
-+	if (open) {
- 		hid_hw_close(device->hid);
- 		wake_up_interruptible(&device->wait);
- 	} else {
--- 
-2.55.0
+commit 8cefeedf72bd07a9332b484733a5ce24fa525195
+Author: Dmitry Antipov <dmantipov@yandex.ru>
 
+HID: roccat: fix locking in roccat_connect() and roccat_disconnect()
+
+This commit extends the critical section in roccat_connect() to avoid
+exposing a partially initialized device in the devices list. It also
+updates roccat_disconnect() to prevent racy access against
+roccat_release().
+
+> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+> index 4f15eb9510396..5deb6da8d4f74 100644
+> --- a/drivers/hid/hid-roccat.c
+> +++ b/drivers/hid/hid-roccat.c
+
+[ ... ]
+
+[Severity: High]
+This is a pre-existing issue, but does roccat_report_event() call
+mutex_lock() while executing in an atomic context?
+
+The roccat_report_event() function is invoked by the driver's raw_event
+handler, which is called synchronously by the HID core from the USB URB
+completion handler. Since URB completion handlers execute in atomic context,
+acquiring sleeping locks here triggers a 'scheduling while atomic' bug.
+
+drivers/hid/hid-roccat.c:roccat_report_event() {
+    ...
+	mutex_lock(&device->readers_lock);
+	mutex_lock(&device->cbuf_lock);
+    ...
+}
+
+This appears to be reachable whenever a supported Roccat device sends
+specific hardware events, such as when a user presses a profile switch
+button on the mouse. Should this code use a spinlock or defer the work
+instead?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914120240.1625=
+442-1-dmantipov@yandex.ru?part=3D1

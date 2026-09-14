@@ -1,102 +1,118 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2494F34027B
-	for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 23:43:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACC2E258EF9
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 00:00:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789343021; cv=none; b=LsBjMYOXQDTCHDqMb7R4BJPcKec23EHRxKwJO+gfWha8Kf5eXe6XGJzRlZBnuOCU5oDcSQlbhZaZxD2iC+B3D/lVligHU7rKo5kNpAPXE4x6lY8HPZkqANmjK5jh8uwm1npF7aV0BLHFtGhsKqHcBAjD5Mn3v+sANm348lwpXzw=
+	t=1789344049; cv=none; b=pW+xQnrh1GS8XUnFeoAa3XLX/yVVD5L0OmYntcnR1kim1lPIaNE74d8Wg9nVucrS/ROaCqx7zP8z/BDtuiu7Wr/SKF7pg/Mc2XU9nQ+3Wi50tEfIs5pfJ2zLHBW+eAgd+qAe+8yOP0YRFCu/WAixibrft1Ou4PcB1MOD9xaq82k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789343021; c=relaxed/simple;
-	bh=TGGP5vDECq/Xl/WfGYZwIHMNEj0w4xAP7L0OAvtyAlU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mkx8MLrZt/qUSY0JJglS4m9U39OeqpWqlLqP8987QvKngZM4+XWcBGNh+uabwAij/thCi1v1u7OKISYq3jO5UhkoIAEqLnvF0FGCvaRgVNj21J2jh4MaDY0GNt6NMQw5rQGsdtkmpHzBG2tNJ8UwVZ5FiUN7P0D+BApmI03IJGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sdeyyKq4; arc=none smtp.client-ip=209.85.215.172
+	s=arc-20240116; t=1789344049; c=relaxed/simple;
+	bh=LOlm/F199Oz1jthnigxJQ/qoRWpSZhgpu4PEMQn4zG0=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=DaZv45ctr3Uh2DP6MR3/zR+gLkAgJz8Zzt5QQjNPfZygYUX8dyJ8YCp9hR9KIjvBsyusCJXqoEOWESKuRLDVRr7JybkDxng36gVYQnRH7PzU9Loakk4dflm+oSzoS0H6K45G/3QQonkB9hHJxncBFK/0kDzLH5X9ubdqgkOuFNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h7su7GFk; arc=none smtp.client-ip=74.125.228.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sdeyyKq4"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cc147d86bebso3006896a12.0
-        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 16:43:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h7su7GFk"
+Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc4bdf8abaaso1530565a12.2
+        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 17:00:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789343019; x=1789947819; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=7YpDiMYBWbrGICLnZR7JkaBnJhbaNiNwzWG6cuCu/dw=;
-        b=sdeyyKq4kOEP6CEFfX8urJ5Nkt3LJzefneVZ/qHWXVjbM7Esm0BI0aoUbOo3U8FqU2
-         ND55thupTvfbvtnBChcoBfWvF+OtenvSWrfJehJEjH4/v6ns8Po504ikkKA7Lu6J7zyf
-         opKP4ps1EFZ6ZC3t0PtXWriz4c9yUCHO8tqC/QY5dySw3OU4sgWHXDHson54SvTIPfwf
-         yG88m3Z8bKHRvFzKEPxNJ/N3t9AakEx5f76ikwk9kmSWOiw3xCa0+yyQ6c6NwT+DbrH7
-         t0WqZFWTxNZDEgEqzEsAtWLlvJZb1sgLmDpjpmW0XC7oGCoVW/Drks6GFyBuIgaEbb+R
-         /c8g==
+        d=gmail.com; s=20251104; t=1789344048; x=1789948848; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id
+         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=FGToR7Z/2uqTTL1DA1oZsKRTfaaI3ZcUANMjrmqmGEY=;
+        b=h7su7GFkKUkP4+5cVW/SbVYUpwtm/mOlFzVDrhn+NMlYqvUstPrynn7M2Eqwpi2Wdf
+         izwXrscpvv+LLCz7cp+i86zeV+O7UTMg+qsu6+Yhvwd4w+bsOFg3qp7TLiI9l8F+wfIo
+         4U7+WorsAJqQ48J8rgIWdXypK82nGbbousavyzVt7hOHhAnMQca/tkEDPOhju8in9rBJ
+         +fJaTL7cVLxRebt+Gl5gInNBYsCWi0rv421WufM5ho5LjAz1vjq0lo8Slw/nhV/cafoe
+         EfpSW88WVi/xsTohEyxtt4JnLBiS2st3DBEv6FfRwTfQ894d8MXF8S7Zmme2HmR8eI6o
+         vDyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789343019; x=1789947819;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1789344048; x=1789948848;
+        h=content-transfer-encoding:content-type:mime-version:message-id
+         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=7YpDiMYBWbrGICLnZR7JkaBnJhbaNiNwzWG6cuCu/dw=;
-        b=mS1IGKZvmlhIF2+BUemb7KTVcfuISJb7vDWraBYlRFZGtcFl/Qlasebu0J5B0+CAgd
-         9waVKB5VZcRkytUcp0MsNt33ogixZcESnYtiymy5nKEP4Gqv/swDm5zXWiEMd7w0ysG1
-         a37b7+or164VEjb+h+LWgOn/ZInBkBOnavQfUAfouZdtILq0WPRMZPfUlzKeQYvNsVQ2
-         1WOvsOomuE1m0rxHanVC5m1LgIMgxjH3/6tzZvmEZXY2pxbVVNrpieNF+TadD1u36OZU
-         UTHbl7x1PLIawFMWtgwL33XQIaybnA5W89AY+UQiA2fEb5/1p0rhpK8n0XgmkJzV5KxS
-         7Mhg==
-X-Gm-Message-State: AFuF++ntI+F/vswfwWG0ypDajOCCuBYIMhWe38fMfIHhwdMrs8vIAzD+
-	B8INfdMIsnJ+brI8q76tiix0efQPty9q5H+3UrgfylIPK0b8Wu+RWiv0
-X-Gm-Gg: AYBFou256wnhIEp76WJT3lhy+GvRRNIaS+tIkcZjr0vWPJURcnsfctQgm4KuwT0Ykvr
-	QpsTkeTg9eP1JkWwwtyk9AYKE07MACrnlf54S+5wsemxRN7bTifi6HIM6YGjCfg2QsXvn+yazc9
-	RjiquCYeW3PJQq3iC31xz2vj7szsbvjOw0yrFUvF+VmS5GUO07c1tNGAO5XxHtxKsUuQw7BPy+b
-	aJVTBrWJktP9rK1h2Pva/9OHtvEANcZKu0AOwq29YmJV+s3j0T7GQyAbpvxDPeLwG07e/mJce2h
-	d08ENMBg8Br+0ZX5TWxjpqfotr1R6GMPfzASPUsm7SKtfqxLuTnApiOV3qp981AXEiq7LI8F1jV
-	t+ERmiLeyrw7MHr0n/iPyOnk1C+sX6QU/Bnico8fwySWh2zY5iWaP6clwHsKqY8khWPGA8wUM6J
-	b8O3LzF16BzpUtANRMGK76vBBo7jOxZY5T5Rw2ROe4LVCbTE1B1zUoDvesz2Ry+Ol5VcUPNxixw
-	Jp8SzCBIgLGK5RiubvnP/Redu5CFPV2OdsqmJKJBF5d5f/KQy4=
-X-Received: by 2002:a05:6a21:710c:b0:3d3:aed2:6f20 with SMTP id adf61e73a8af0-3db26f09602mr5089042637.20.1789343019541;
-        Sun, 13 Sep 2026 16:43:39 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:a739:376c:7eb4:ea2d])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bbeb053a5sm9666678eec.27.2026.09.13.16.43.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Sep 2026 16:43:38 -0700 (PDT)
-Date: Sun, 13 Sep 2026 16:43:35 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Hans de Goede <johannes.goede@oss.qualcomm.com>
-Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-	stable@vger.kernel.org, Sergey Lebedev <lsa.uz@pm.me>
-Subject: Re: [PATCH v3 1/2] Input: soc_button_array - fix MS Surface Pro 11
- probe failure
-Message-ID: <aqc1GgNdo-CccQpD@google.com>
-References: <20260909093934.29411-1-johannes.goede@oss.qualcomm.com>
+        bh=FGToR7Z/2uqTTL1DA1oZsKRTfaaI3ZcUANMjrmqmGEY=;
+        b=XsnorLBdxrAt0CTzutYdVEh8Kl67eY3nwMuvWIT6wgikxzGqAeTpV+Nzyc9wlq/UT/
+         8rEvSYD3hXZZBUnEdxtCk8u1WFF/icULAiJ65DORrGSDwGTUE75TdRvk2aQK73iVVV22
+         0GqsoCuhBlWud7tAhr+KSH+Y79Cfr3zn0cq2lhJJG2LNUppak7PBTpmJWYbKvb7f4ot8
+         Y5Ia1gRde1IW4siBFJJmAEG7IweHRcG8cPehfU/WJcFJD9T7/jRxmlftqWWnGWvukcUg
+         GFQxgr+7n3KYJvn/5NLP63+ul5LYORr0Ljg6WlSLLMWRcWlcDra8ixfWS2S4v8LoLvIA
+         KKIA==
+X-Forwarded-Encrypted: i=1; AKwUvBxFty6t2U4kjgI5G15tCCq8R94/45aJngyViXubLNjniJWeYKLsDIevD/yxIxwos3QiIInxjPJMp76Rug==@vger.kernel.org
+X-Gm-Message-State: AFuF++nv+VpNhS3/J3GRCVVF1RSPJBytgO8D6X2ipnyrfmzM9haOr0wn
+	FECiB7WvCuKKYRMZ2UNikmAvMayz+m1Ek10VrYND2hW3YxrHLWApLXvC
+X-Gm-Gg: AYBFou3iBJPnT1iF3iEBMT3rOMjTDw2bqwtmYWyiM5Xa/B8rn8oZG9rswPWCDMqQtfI
+	ZkyLF7NOVMCj5dw3h3xj5V/B847vNKtMjOVviIVRJLlxSHqCvFeROEFuBDvk8Y0dfisGTpr1nS1
+	bFopoc+OmNaVPc0j57msa5Z8YCktN7962W+zpVyhsHAIdourKy7KMRY1urgCL6/nmTrnAR2uRP4
+	SvOmZtbIj4MojYsFXWex6zFPg1SBBw67VhkmuX9bsv6zlUfZVvL8KhGXO8nNu2G3u9hUp+DkqnV
+	hX1t0xXWsUh3y54aACIFVbH+AF5Dn8t4AFl6u26GZNxU1915EDlyP/AErBSXi3HXxf1iJgt28rc
+	dlqu6Ns1xkSUXHQGyiXnaMQDc6jhD8aV0qUJirclUPBhzp0slPb23/AxoP6QyylGQpm5rQuehN8
+	DP02Wvb1EzECaY+dBTkKq7ldgQRPid8BLcgP7EWFSvFbfNktQZRaFIxBYZYYE0LSxIc4APHlZIy
+	s9hhYz86hBpoj6fZoe3gIbqn1NcAB6wnxVh9314oRiTeZNuECzaghtFiCuWAnZ2L7E3Pw==
+X-Received: by 2002:a05:6a20:3ca7:b0:3c3:791e:5e18 with SMTP id adf61e73a8af0-3daed16281bmr30856238637.7.1789344047641;
+        Sun, 13 Sep 2026 17:00:47 -0700 (PDT)
+Received: from ehlo.thunderbird.net (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14365ba729dsm34029696c88.14.2026.09.13.17.00.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 13 Sep 2026 17:00:46 -0700 (PDT)
+Date: Sun, 13 Sep 2026 17:00:45 -0700
+From: "Derek J. Clark" <derekjohn.clark@gmail.com>
+To: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+CC: Jiri Kosina <jkosina@suse.com>, Benjamin Tissoires <bentiss@kernel.org>,
+ linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: correct typos in hid-lenovo-go-s ABI doc.
+User-Agent: Thunderbird for Android
+In-Reply-To: <20260913231004.1007869-1-rdunlap@infradead.org>
+References: <20260913231004.1007869-1-rdunlap@infradead.org>
+Message-ID: <1E3E61A6-F084-43BA-B9B0-D5F21063133C@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260909093934.29411-1-johannes.goede@oss.qualcomm.com>
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 09, 2026 at 11:39:33AM +0200, Hans de Goede wrote:
-> On the MS Surface Pro 11 soc_button_array probing races with the GPIO
-> driver probing. If soc_button_array wins the race then gpiod_get() returns
-> EPROBE_DEFER, which should normally take care of retrying later, but
-> the soc_button_array code deliberately ignores EPROBE_DEFER causing it
-> to fail its probe() which causes the volume and power buttons to now work.
-> 
-> The ignoring of EPROBE_DEFER is there to deal with a problem specific to
-> older Bay Trail (BYT) and Cherry Trail (CHT) tablets which often use this
-> driver. Modify the error handling to only ignore EPROBE_DEFER on BYT and
-> CHT platforms and propagate EPROBE_DEFER normally on other platforms.
-> 
-> Fixes: bcf059578980 ("Input: soc_button_array - partial revert of support for newer surface devices")
-> Cc: stable@vger.kernel.org
-> Reported-by: Sergey Lebedev <lsa.uz@pm.me>
-> Closes: https://lore.kernel.org/lkml/20260830141355.55898-1-lsa.uz@pm.me/
-> Signed-off-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
-
-Applied the lot, thank you.
-
--- 
-Dmitry
+On September 13, 2026 4:10:04 PM PDT, Randy Dunlap <rdunlap@infradead=2Eorg=
+> wrote:
+>Fix spellos/typos as reported by codespell:
+>
+>sysfs-driver-hid-lenovo-go-s:185: intertial =3D=3D> inertial
+>sysfs-driver-hid-lenovo-go-s:185: measurment =3D=3D> measurement
+>
+>Fixes: 168c91839139 ("HID: Add documentation for Lenovo Legion Go drivers=
+")
+>Signed-off-by: Randy Dunlap <rdunlap@infradead=2Eorg>
+>---
+>Cc: Derek J=2E Clark <derekjohn=2Eclark@gmail=2Ecom>
+>Cc: Jiri Kosina <jkosina@suse=2Ecom>
+>Cc: Benjamin Tissoires <bentiss@kernel=2Eorg>
+>Cc: linux-input@vger=2Ekernel=2Eorg
+>
+> Documentation/ABI/testing/sysfs-driver-hid-lenovo-go-s |    2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>--- linux-next-20260911=2Eorig/Documentation/ABI/testing/sysfs-driver-hid=
+-lenovo-go-s
+>+++ linux-next-20260911/Documentation/ABI/testing/sysfs-driver-hid-lenovo=
+-go-s
+>@@ -182,7 +182,7 @@ Description:	This displays the available
+> What:		/sys/bus/usb/devices/<busnum>-<devnum>:<config num>=2E<interface =
+num>/<hid-bus>:<vendor-id>:<product-id>=2E<num>/imu/manufacturer
+> Date:		April 2026
+> Contact:	linux-input@vger=2Ekernel=2Eorg
+>-Description:	This displays the manufacturer of the intertial measurment =
+unit=2E
+>+Description:	This displays the manufacturer of the inertial measurement =
+unit=2E
+>=20
+> 		Values are Bosch or ST=2E
+>=20
+Reviewed-by: Derek J=2E Clark <derekjohn=2Eclark@gmail=2Ecom>

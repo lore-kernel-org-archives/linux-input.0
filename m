@@ -1,135 +1,245 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 493BE4A21
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 00:51:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789347099; cv=none; b=L9YYfTa/GdjmPGI4dIaK5kuQUThOhrJLldYlwJrDkwwglzT+76ZAppgwEa850JMkR5V6/r6qEpwcXL0Gq95i4QVfS9M6iwLFOVXc8oNr81TAYEb0rYJrEP/7EqOpiVXGu5iYlT0m9yIDqWjTQx4kendfRiow3qP/zwYdqHixEEk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789347099; c=relaxed/simple;
-	bh=m6nUZw1xxBl7JKkg6qshdJPFvlUEzfRiCrxUD3kuwrA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HQIxdWubuGLDFY1jHouMGfEvU4rUqKAFB/4XkrnHp5VVzUlmgj0aO38fyJWIZq7GOjY8chfPSkiosH6iAEkryQisfHPnnb4Rainv4o68UnrB+yuEt+HWQuxzjq2y6RYn3mPfhhTXuarQvlLkGy6p0fQbmi+6AEbPY6gNWy/rSgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V/uhjk4N; arc=none smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 400BC2BDC13;
+	Mon, 14 Sep 2026 00:58:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.14
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789347524; cv=fail; b=dKkJ5aTiZYeIbF2wdt6HBXZ3nsvNTl/C13dcJrVJOmu7R1n6GimFwWw5ePF3OT6nfrwBi/qXW4CnArF7pgBr/Gb7MeiQLf8E4gMF04afzNSN9SWRbMDh+Pn1mQjVeOZuSO9FVoBs1/7ckJQ8tFW0yY2KgS3Xi7kHlo3XccKKZvU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789347524; c=relaxed/simple;
+	bh=p9YFEsQjOR9H4+HlmkdHt75kaBiEUtmXH8B7SIllOYg=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=ZSdzq8vcKnTveAJhDv7yEThyEvPtUsCBzMC4eVWq9D4vVOwZ8tSo277Pomwln9imaKncfqkgoikgfwDneuGxD7rQ/UAu05yNpE3V8/QBCIxkwqseITqHZyhZJAcmGGWMjeQQln2Qn00EtYo8imwinDMRhR1GO/HFFhExfVPD9uQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FkxV+tzp; arc=fail smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V/uhjk4N"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-cc4aa18f9afso1831130a12.3
-        for <linux-input@vger.kernel.org>; Sun, 13 Sep 2026 17:51:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789347098; x=1789951898; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=sThmSBuZMUkb8DDGUqicKukOQFBAznEQKWcs9Ox5tcc=;
-        b=V/uhjk4NwVQVIx1l96czB4eNzQaGPj6RKu+bOeTr1FpD12bpHIAze0NSzo1AoZa1Wt
-         08Xz7UzQ/rXyOItt7SMDB9gQCAv4bKdq90Nf5vAveWK56IDionKm4eahJwxKSQaR3Rcp
-         0UdH7DvLTLdYJn/XluSZEF+Ii8T3uu57XLKpqBLXhwBmljP3+nFsdDwPayMNUhTbNB4U
-         KyE2e36VKcltyC4HtJnl7hGUKVIlRLEAz3UclpANVzz0e54AGrUTF6etCqH2/3Vk6PPJ
-         2R+6+A1aZ51Z6Ro23toxsw2C4cOt9yGOCgtLIQzCqtCS19M/s25sYT9p6Edl0Nr/K8Lb
-         rwXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789347098; x=1789951898;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=sThmSBuZMUkb8DDGUqicKukOQFBAznEQKWcs9Ox5tcc=;
-        b=S2CyIkHffOxWeBZXAhV2neaKmHzTR5Hwebu3UugKD+CuchvQUuTuJ5ag8AIlE4ml7+
-         Z4ouzU81MDw9NKYCTDt20ks9MDf1MVh97LTlw5kjRVIuHIdEIBT75sKLXR5+Z8c+IUNi
-         3pNbkTG5QR+l+Qp2A54loratgel6v5z2yPwF9Hdr8ko2wm7RXWrZy0SLTFZFiaeugr4x
-         ah7ksJdL+Hs2IyJeHKGrY6rSRLUEWnt67YjIRpdxEJa0wSjQbOqqXBFDoJ5WXjooQquS
-         Z1+UiDd3npgBRQNsZTxrQIyQtkiijOlBsOckM8Q6gjchkrrNSfgJ8HslJfnm+OXAbhtB
-         tthA==
-X-Gm-Message-State: AFuF++miy9YNGPBgVtKUblYFoceTBkqYtIw3vVwgKJU83CTMqjVSpaYs
-	tLfsi4Ozc77XgWoZ5EBt1raHm1bZDUCPA9a/JkWUpHBKYO65FTvTAYCm
-X-Gm-Gg: AYBFou2PNsYNRmKDLwNUCCJLSQnM6Wfj/GXnwFIsg6QiIaNw5deNiZhutALg76O0TxP
-	a9RPIwlOAWGburdT1FgMw1scC2dVXOZ4xx5onnBr/rDqL5gk2d8sYLTp0tcHuPJFhdlgBxn80IO
-	aechBR5G7SEw34aOl9DUjQG2TshjrcKNZtjOFG7sL8aHIA1S7FbXfV5Sl3AjWTkBvW+/LWTyKNI
-	AjopdCe46tQZcqmT3ngU1m1HTrQwQ4kIOOmTo0n73cXDl/nGXTga1Zg8Xhm9kAV+EMfpssqxXNQ
-	274zKJSreyjbEBSwOZlmTHMug3qAyfZ9WCS8hDsmd9aprfrxrIEIkeuT/BfZmU+dMEa+ZFVxIei
-	fxLe2t8bPWYcvVeRzXPtjLIkuKCF2cx3Juv2e1w2x06mzQOgsb2KcoeztkCBw7SfrL8iADOjPKR
-	COFTAsyBYCF1XnuDdd2GK67fDriL54Dv1DvsHQHODq5iPXdYumVaIcmyElSumoNYfuDHy4N2ALA
-	EwEg/5QCZDQ8FeYuor9EFR86qIAibI97pErnAjIGAMY7QJbqY4=
-X-Received: by 2002:a05:6a20:e292:b0:3cd:9dea:2be1 with SMTP id adf61e73a8af0-3db3ff581abmr339027637.0.1789347097663;
-        Sun, 13 Sep 2026 17:51:37 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:a739:376c:7eb4:ea2d])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14365a598aasm20689137c88.1.2026.09.13.17.51.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 13 Sep 2026 17:51:37 -0700 (PDT)
-Date: Sun, 13 Sep 2026 17:51:34 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Yogesh Gaur <yogeshgaur.83@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Christopher Heiny <cheiny@synaptics.com>, Andrew Duggan <aduggan@synaptics.com>, 
-	syzbot+09103639e39c989e3ed3@syzkaller.appspotmail.com
-Subject: Re: [PATCH] Input: synaptics-rmi4 - fix NULL dereference in the PM
- callbacks
-Message-ID: <aqdE6RLeWCo7Fngr@google.com>
-References: <20260908165925.2030-1-yogeshgaur.83@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FkxV+tzp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1789347522; x=1820883522;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=p9YFEsQjOR9H4+HlmkdHt75kaBiEUtmXH8B7SIllOYg=;
+  b=FkxV+tzpfFhhoVZXhUm0sOjyk1+lfewvHQLdYJk5Ly5uAIR+QAO+I9I7
+   DRiNzRfXLluUNt51ZsbzuLPpSVB2q3LidVC89vp2N+WtjiathI3H2UAmk
+   lTzTlSrhm0gLg5p8YbaMi4JMrEL0R+1QgXmf2jk8qJMyjM+yolYZLJJ6b
+   QTzXjShbqoIsi+U+vI4n2f491YZaSWgKK7sGHELhN2Y1Zn89dgSGZfv8a
+   v5rYOQ8a5cBlSndw2CoX0FnMy9R2AV57BjmRom6vpWQBQ2w1N4KliOSGD
+   SLPjBaIb/rTc/D6+/g7sheh4IX526yt/Jquiua6FZ7kM31BKxv5+rhETQ
+   g==;
+X-CSE-ConnectionGUID: pSL+30X2QQepxBhW2hZi9Q==
+X-CSE-MsgGUID: 0mSCWDEHRSe9d79Sm+u57A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11904"; a="93574021"
+X-IronPort-AV: E=Sophos;i="6.27,100,1787036400"; 
+   d="scan'208";a="93574021"
+Received: from fmviesa012.fm.intel.com ([10.60.135.152])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Sep 2026 17:58:40 -0700
+X-CSE-ConnectionGUID: n4EaOZV5QDSzCGITPzdGlg==
+X-CSE-MsgGUID: XIay59VQRhqYok7dxhLgSA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,100,1787036400"; 
+   d="scan'208";a="730936"
+Received: from fmsmsx901.amr.corp.intel.com ([10.18.126.90])
+  by fmviesa012.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Sep 2026 17:58:40 -0700
+Received: from FMSMSX903.amr.corp.intel.com (10.18.126.92) by
+ fmsmsx901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46; Sun, 13 Sep 2026 17:58:39 -0700
+Received: from fmsedg903.ED.cps.intel.com (10.1.192.145) by
+ FMSMSX903.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46 via Frontend Transport; Sun, 13 Sep 2026 17:58:39 -0700
+Received: from CY7PR03CU001.outbound.protection.outlook.com (40.93.198.1) by
+ edgegateway.intel.com (192.55.55.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.46; Sun, 13 Sep 2026 17:58:38 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=jnNAw1ecICfqqOaLNcz5Cf9Kg7WmBWbNbkycLGGSw+VsEDApynYWpMlxYbHSTeyeEKoKcTo3fAiBUjyE57uIxuKm/og7TwSZRdADbkBdP3Cmhkbq7T++S3MCBwfJVaFZoK7dC+hCF7zkbc7G2s+6VblR0NZIpjvM+3p2qiBu+43HPQrpjlhGof7/jkwFPQGAW8p2YBwTwk5Xph+Re5Ka+9aKKQnufVZrQKBXmkVIyYo1+G7z6NLgMf07xdfrzLYksq287fGfr6AncehU8foecUUsdpS9tfk71uHh7SLYPp5baOzl06lHyEwU/lg1sLDvteWQ9JiDEMTL2hqUT+yuXg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dQ6l82xphLTTUkG+hJDfCAqqKw/8b80BMnn9T7ml5VA=;
+ b=hT7C5kMRdwwOYLUm3SbBYai2Jra/alFaZtl9/usGAt1LTJDQy94CG0CTboeo+9cIpRkphNTualalTnr+F3Qy7jOjFhHOe+Yu6t3NZmGKY4njh7wSZsjxttLdzDOfoSKOkvHkUnXZxZKXdPDIGEOWXxbEXboeWk8JA3y0lKm6Kbu2ReHJOPgzd5PqkcjRemCmouO7qDTn2ur3Xa+0cIKZ9OcgTbnx5qA/omzIYsVinwpzkEJZbxEtH1akamdCz3d0NnuLiSqzsOQxPycnnKdVW+je/ehyo+1lbm1Rmwe2Jl8oGRMIqvU2otgaotthNQUuGtuMXgkuE0GcAZAsYqqYPA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from SJ0PR11MB7704.namprd11.prod.outlook.com (2603:10b6:a03:4e7::5)
+ by IA4PR11MB9323.namprd11.prod.outlook.com (2603:10b6:208:565::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.406.12; Mon, 14 Sep
+ 2026 00:58:35 +0000
+Received: from SJ0PR11MB7704.namprd11.prod.outlook.com
+ ([fe80::a8b5:7722:c11b:63c5]) by SJ0PR11MB7704.namprd11.prod.outlook.com
+ ([fe80::a8b5:7722:c11b:63c5%4]) with mapi id 15.21.0406.007; Mon, 14 Sep 2026
+ 00:58:35 +0000
+From: "Xu, Even" <even.xu@intel.com>
+To: HyeongJun An <sammiee5311@gmail.com>, "Sun, Xinpeng"
+	<xinpeng.sun@intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
+	<bentiss@kernel.org>
+CC: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 1/2] HID: intel-thc-hid: intel-quickspi: size the input
+ buffer for the DMA
+Thread-Topic: [PATCH 1/2] HID: intel-thc-hid: intel-quickspi: size the input
+ buffer for the DMA
+Thread-Index: AQHdMJVW2V3SeqVWnkqfbOv3Qp+OTbbNZuLA
+Date: Mon, 14 Sep 2026 00:58:35 +0000
+Message-ID: <SJ0PR11MB7704FF688BCB38E40B8F4C91F4BB2@SJ0PR11MB7704.namprd11.prod.outlook.com>
+References: <20260820111558.475304-1-sammiee5311@gmail.com>
+ <20260820111558.475304-2-sammiee5311@gmail.com>
+In-Reply-To: <20260820111558.475304-2-sammiee5311@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SJ0PR11MB7704:EE_|IA4PR11MB9323:EE_
+x-ms-office365-filtering-correlation-id: 470113b2-fb19-4891-e258-08df11fb4e52
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|376014|23010399003|1800799024|38070700021|5023799004|11063799006|56012099006|4143699003|10067099003|22082099003|18002099003;
+x-microsoft-antispam-message-info: FMbi6QmOLifeP09TO0OOPiv1RBmkd4JvDN0LgUycl4gtG80E2ifbBakx8N3oNislABcLJw4ghuq1kUHZJpdH55OpsbgzVsmExh+q7Y0SuJp1To7L/tIDrQyvq/Cg+xRYJRzYZ0njEVQXGFUwIDtq176NGi11UoijWMyikR1TCWari4Gw/HIs5k+Y7w2DSlZIj2tf4pMGIgtB9g3AqJcLfMQllBoVwSpI7XMtxxxOGH9+aFNoitvss2A6Cto2qf0RCuV54zWv31ms2IMZne5Edn/X+fBGzcmaUeqEFq64qFck1c4hPC62vCW9yI/WMQVUJjK8MOkuM2mc4LBZSTyHbZ0VubjxIj8tlDLQCBTPKU2DkR3bpyxRW5xQlrY2x4BnjqKuGvmsMsHqMrcuOk3rXNl2O+ht9/Zj9kMGdXkx50glsJT2Lw7VlN6rDLLyxsjRGoSvkerjNrRBKWVIprH6YYIOQjRdy4kcmgO3NlPy7tFaxS3/mBe+4h0TK3J0fU69IowmIpPQ9vfq22zJlcdrJlRMzYQ1agANfdlzfNp+V9Ym7gd5ONFkZhE7VTV4ACdXaVmlUEDOgNifigQqarWXHTlRre8ihuvg1Pwuwf9xFZzCquOSghhnEJBfbuxJO1vPfyGBlTC+6Os8bYhfIlZv8oY160atO0Kgu8BjrPSvQjEYYOPAl+Dqel3rZkV699DLhLzDYkwBHb76HwFjPKKGO6w6WM4yIj3M09+TgyH8Ajs=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB7704.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(23010399003)(1800799024)(38070700021)(5023799004)(11063799006)(56012099006)(4143699003)(10067099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?fmME5Ns/ZYBFDa7/3q9HVBzt1j8gnTh6HzdTVqBiTqvij/DnSgrqfmIAhNIX?=
+ =?us-ascii?Q?A/jInnFrfZ8zhoSK1ar7dq4QkaEAdr+oiLZkREzB9jPR7/Bma4JBcr1m85az?=
+ =?us-ascii?Q?IK4UBRhmEMRtcvBtiBjInGtJlICoYwWLny+P4cIfqYVSgtzIMbfwOEZW5uVP?=
+ =?us-ascii?Q?YAv9adyZvnquZXitNMq1p+znSWBbEbr8+E1wXhCi+rC1HUuLXXq/GRZatdQ5?=
+ =?us-ascii?Q?emsqi5DzFXFpk7NHCsbmB6rPA8WrV+4PVW1VSQsXNFXDhID3mpWhdkwqTQIT?=
+ =?us-ascii?Q?/eiW3JILrTTEO0EhKnQ12BLyJhVaKb1voxfXBEGY40wPVgz8iADo+/wreAdd?=
+ =?us-ascii?Q?Yt+6Rz1qKYD9x8ZIP7LXwIXZV3ibFYCQD9n1EMhLF52RYgR6+jNcsphLXPRK?=
+ =?us-ascii?Q?vi4AOmHR7vWflZM2xRkZmXpTwozooiR6AuCoVcpBxZbxJmw8inREE3ps8Mkl?=
+ =?us-ascii?Q?uX9P/f4Z/tO5h6hipJygBuPm1iX/WbeNChk4uqrikiYiibZ97aC6YTUURaxK?=
+ =?us-ascii?Q?DcJrmTg8B/+synCVSeeo6Fc+nvctSoCIBmup2gscNu/49quQwY4gycs53cjL?=
+ =?us-ascii?Q?YJ/RGJUkExGRdGdtWzCiLRMutT9PLrLRCSQb62c5n7arZGg/BaPiaZvvynnx?=
+ =?us-ascii?Q?BRQ/+rsUMomkw/ufW48IwHvc+oI63u55NLCsno9UUFIVpuQJdb3kQUATJV69?=
+ =?us-ascii?Q?gvaoj1nIcPxRVaFGZmngbtySpehk0karKKjXFas8CQ5Ire/GyEA9dwPBKsZ0?=
+ =?us-ascii?Q?+5ymlP7ByjHtz8P7kt3XbQXZJQwSPIUXnMyo9pc2Oyjocuj8Qf+BTDPo9Zvy?=
+ =?us-ascii?Q?uxlEei8xWELCEKHL5H4X3h6plKLGguRTrwvtzCFMCSiYvTKeQWYBsvMFSPSo?=
+ =?us-ascii?Q?7wIZNWxpprc7qEgvjVwi3BFW2TgY4Egyf0pqir0mN8W+82CnS4A96rwvr9JW?=
+ =?us-ascii?Q?wsBo5OioqSeWPBaEsgUYFH6B2dgvIQ3dWlQ1DUUyXBoJBeeR5/Mqkr0XM6WS?=
+ =?us-ascii?Q?YtC1fzGfYWDJn5SUipBArXfwZ0uTC6zKBxVUMSNCOIRkj/RU0gAgU7jBEh1+?=
+ =?us-ascii?Q?vmo9Z2XHJk20vcqBmJe9fDEkDCJqni5/nd3hK/acw8G6EQNILkPdVqMup7aV?=
+ =?us-ascii?Q?hOB0jKqI7JZvS2OB1wFUyjFo37cbZ84g44gHdRRJP+yBaZojtESFEYVDmrzA?=
+ =?us-ascii?Q?c1WJtDkTix5VQZInPj39SeLANiho9vCwxr0KJyVXN3b+NTgULgeO0PRhyOob?=
+ =?us-ascii?Q?vl/sxJGTlYke31YaP/pLvQmQPS2Y2/PGRN0an3NmX+8auYqUn6kMczeSxvc+?=
+ =?us-ascii?Q?cxbUNuLQ5EnFJ2fzqxn6z6EfHNDZW7+P6qKzv+IcMZvmHn0OdZ5r1r7MQCuy?=
+ =?us-ascii?Q?gxr8l87Z0BQgA09rgRCCgA9T5CfoEi8kdnwVWKFtJVQCHmc8STyvrfOOChAS?=
+ =?us-ascii?Q?xfhR6us0GmJwj8i+BUd6ort/T6ZP7w8yzNtOBqIfKwPg2L9a16A1JMHaiiX8?=
+ =?us-ascii?Q?rzDLcnznpXng5MKkowMsXlVgbrlKsMb0XG4e23zKD18F6jdKcw2SoMxJqKld?=
+ =?us-ascii?Q?BFnvwIR3NM+dUwQ4EgVRJtac9cjdHX6J7qTeHl9OyiHKoRMUDnu5nB8tCaqQ?=
+ =?us-ascii?Q?DHtB7MIDZQGks+lgxd4u7ZF2nj2I1vdhoUi4L4IENCgfeIKKFmzAPPmDtu6l?=
+ =?us-ascii?Q?9jV87GyBr/jvdV/ICLvothr+dGJL1AGxf3Lfwfbkuxg3gsdg?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260908165925.2030-1-yogeshgaur.83@gmail.com>
+X-Exchange-RoutingPolicyChecked: ma/LLTGdp8SQeQ49muLLB7yOiLPq+3c6YV3gWCAetMBjccc+hixS1mImtVd/XjBd5ATOtoAC8pjqziWz/mdFleYijbtFUCQ5+g0WFJdsb9F9pJ6Mzw2jHibm+PuGGUyU9NPRaEZZffCyMUdFLlfmauq0h1AzYUJ/9IAn5sHMbJaBNEfOSd6K+wB5dORpoPsB3MJFH6GOt9UWqtX3lne8N6PYwbJbU5Q7zRX55JD298Es3jzmEYLdz6Lv37Dd4zskr92BV9uiWUtLXyep+OqhEA1eWneqVlwYL+w5OqQgeMesTrpFBaCedEju8BzDvgDdHXWhwhZseGzVdeB1xAOQtg==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB7704.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 470113b2-fb19-4891-e258-08df11fb4e52
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Sep 2026 00:58:35.8193
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: CqTLeR9yTy/uSqv81ajb8Qp0VCnDngmV85UGiTRGM7+En/1UsfkHBvb6e1VF1sVup24SGaJCZO4cmqL4rDL0WA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA4PR11MB9323
+X-OriginatorOrg: intel.com
 
-Hi Yogesh,
 
-On Tue, Sep 08, 2026 at 10:29:25PM +0530, Yogesh Gaur wrote:
-> rmi_driver_suspend() and rmi_driver_resume() are exported for the
-> transport drivers; hid-rmi calls them straight from its ->suspend and
-> ->resume. Both reach code that dereferences the driver data right away:
-> 
-> 	static int rmi_suspend_functions(struct rmi_device *rmi_dev)
-> 	{
-> 		struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> 		...
-> 		list_for_each_entry(entry, &data->function_list, node) {
-> 
-> That data is installed by rmi_driver_probe(), which binds only after the
-> transport driver has already published rmi_dev via
-> rmi_register_transport_device(). A runtime PM suspend of the underlying
-> USB interface in that window dereferences NULL:
-> 
-> 	KASAN: null-ptr-deref in range [0x0000000000000078-0x000000000000007f]
-> 	RIP: 0010:dev_get_drvdata include/linux/device.h:989 [inline]
-> 	RIP: 0010:rmi_suspend_functions drivers/input/rmi4/rmi_driver.c:283 [inline]
-> 	RIP: 0010:rmi_driver_suspend+0x30/0x180 drivers/input/rmi4/rmi_driver.c:994
-> 	Call Trace:
-> 	 <TASK>
-> 	 rmi_suspend+0xa7/0xf0 drivers/hid/hid-rmi.c:448
-> 	 hid_suspend+0x4a3/0x530 drivers/hid/usbhid/hid-core.c:1618
-> 	 usb_suspend_interface drivers/usb/core/driver.c:1323 [inline]
-> 	 usb_suspend_both+0x285/0x1040 drivers/usb/core/driver.c:1446
-> 	 usb_runtime_suspend+0x58/0x110 drivers/usb/core/driver.c:2000
-> 	 rpm_callback drivers/base/power/runtime.c:460 [inline]
-> 	 rpm_suspend+0x8a0/0x17a0 drivers/base/power/runtime.c:698
-> 	 pm_runtime_work+0x132/0x1b0 drivers/base/power/runtime.c
-> 	 </TASK>
-> 
-> rmi_disable_irq() and rmi_enable_irq(), reached a few lines further on,
-> look the driver data up the same way and then take
-> &data->enabled_mutex, so they would fault too.
-> 
-> There is nothing to suspend or resume before the driver has bound, so
-> return success early while the driver data is not there yet.
-> 
-> Fixes: 2b6a321da9a2 ("Input: synaptics-rmi4 - add support for Synaptics RMI4 devices")
-> Reported-by: syzbot+09103639e39c989e3ed3@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=09103639e39c989e3ed3
-> Signed-off-by: Yogesh Gaur <yogeshgaur.83@gmail.com>
 
-Thank you for the patch, but I already have a fix for this:
+> -----Original Message-----
+> From: HyeongJun An <sammiee5311@gmail.com>
+> Sent: Thursday, August 20, 2026 7:16 PM
+> To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>; J=
+iri
+> Kosina <jikos@kernel.org>; Benjamin Tissoires <bentiss@kernel.org>
+> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org;
+> stable@vger.kernel.org; HyeongJun An <sammiee5311@gmail.com>
+> Subject: [PATCH 1/2] HID: intel-thc-hid: intel-quickspi: size the input b=
+uffer for the
+> DMA
+>=20
+> quickspi_alloc_report_buf() sizes input_buf from max_input_len, but the
+> RXDMA2 channel it feeds is programmed with ALIGN(max_input_len, SZ_4K):
+> quickspi_dma_init() passes the raw value and dma_set_max_packet_size()
+> rounds it up.  setup_dma_buffers() maps that rounded size and
+> read_dma_buffer() bounds the message against it, so a controller reportin=
+g
+> max_input_len 64 and rep_desc_len 600 gets a 600 byte buffer behind a 409=
+6
+> byte DMA.  thc_rxdma_read() has no capacity argument, so nothing downstre=
+am
+> can catch it.
+>=20
+> The intel-quicki2c sibling floors its input buffer at SZ_4K for this reas=
+on, with the
+> comment "give default 4K buffer to avoid DMA buffer overrun".  Round up t=
+he
+> same way the DMA does.
+>=20
+> Fixes: 4138f21115ae ("HID: intel-thc-hid: intel-quickspi: Complete THC Qu=
+ickSPI
+> driver")
+> Cc: stable@vger.kernel.org
+> Assisted-by: Claude:claude-opus-5
+> Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
+> ---
+>  drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index 89226f5ce45e..9ef33574c202 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> @@ -9,6 +9,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/irqreturn.h>
+>  #include <linux/pci.h>
+> +#include <linux/sizes.h>
+>  #include <linux/pm_runtime.h>
+>=20
+>  #include <linux/gpio/consumer.h>
+> @@ -549,8 +550,12 @@ static int quickspi_alloc_report_buf(struct
+> quickspi_device *qsdev)
+>  	if (!qsdev->report_descriptor)
+>  		return -ENOMEM;
+>=20
+> -	max_input_len =3D max(le16_to_cpu(qsdev->dev_desc.rep_desc_len),
+> -			    le16_to_cpu(qsdev->dev_desc.max_input_len));
+> +	/*
+> +	 * thc_dma_set_max_packet_sizes() rounds the RXDMA2 packet size up
+> to
+> +	 * 4K, so the DMA can hand back more than max_input_len bytes.
+> +	 */
+> +	max_input_len =3D max_t(size_t, le16_to_cpu(qsdev-
+> >dev_desc.rep_desc_len),
+> +			      ALIGN(le16_to_cpu(qsdev-
+> >dev_desc.max_input_len), SZ_4K));
 
-https://patch.msgid.link/anQe8UiyUR4x0flD@google.com
+This is the same case I explained in quicki2c patch https://lore.kernel.org=
+/linux-input/IA1PR11MB609867952C6FAA206ECDAE32F4AD2@IA1PR11MB6098.namprd11.=
+prod.outlook.com/
+It's not a real issue.
 
-Thanks.
+Best Regards,
+Even Xu
 
--- 
-Dmitry
+>=20
+>  	qsdev->input_buf =3D devm_kzalloc(qsdev->dev, max_input_len,
+> GFP_KERNEL);
+>  	if (!qsdev->input_buf)
+> --
+> 2.43.0
+

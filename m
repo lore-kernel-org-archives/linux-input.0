@@ -1,219 +1,112 @@
-Received: from ixit.cz (ixit.cz [84.42.129.46])
+Received: from forward205a.mail.yandex.net (forward205a.mail.yandex.net [178.154.239.88])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4BD345198A;
-	Mon, 14 Sep 2026 12:05:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B44644606D
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 12:08:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.88
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789387522; cv=none; b=WNPI2YJ5+JqHrHqMc5skOgtj1b0RfPHhWcjr+XdOISVhzOXZPAWdfxEsVXVP5qRAxnKrN9yTDoP2thGpy11Zr6+YZ1ZbI4dvVTqEOZrZwMNPcWULqQ+gb28YkVfvk/HhncxYTEPa86ZhQ7v2YqMNdGTyDHO6TSSar+1FQDFM4sM=
+	t=1789387723; cv=none; b=q2EENBis+Nx08sE07cyCFk29Pk4ThD4fIY/oXFs0Qxf/B+F7YUyV3Bk3ZTSoQ7zNwTqxaBZHsNtwVZ7+p/NdNbPQmIkGoA0bahF7RcBCYq0s51JO9YSECVqBVXZiOMtEZu9evDxkE550bZICB3oEDpPJjaF06Qk1wKKhdYD6Oso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789387522; c=relaxed/simple;
-	bh=TXBFlo/yKQa3ajGkoWWKR8wNXMf580F82Ef81AWSp+s=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=B9BczsILCYwyoUFdpQO+5o9MvGsRHUPgf7JA2TT+XbnxSXYVaFzTaSd2w8rPdy38TDZbPpOLei5Ct9EC4FZqABd0Ojj1CNOks9XsH77SehaE2wZl3bq2bWrMevM6ifczLHQPJj1QaxI3l7ynzF5MmcshjVWCid25/vUecZ1UhSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=xUNsbCkl; arc=none smtp.client-ip=84.42.129.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	s=arc-20240116; t=1789387723; c=relaxed/simple;
+	bh=K6oH9FCWi/N8SzET5im52N6QlgcY4Ii4Za9Jsv/16Oo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=stHSeeyyMnhnJ5LaL2Xzx8mgB6VfpRm83J5hroHzqdcp31PFKyBTsHrK/7MMC0ndtO8mR050CB+MwCLa5dZccK5R2+Gm6VQkNrP+TIZ5k+Ix9HWa7+WI+x1qKIq1XNNCkSHdujLt37xiSGdBJoCqsUSOAFvG1K5Wmug7E/rs3c8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=LACsFxWo; arc=none smtp.client-ip=178.154.239.88
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="xUNsbCkl"
-Received: from [IPV6:2a02:830a:f787:8f00:d622:eaa3:3dd6:8f5e] (unknown [IPv6:2a02:830a:f787:8f00:d622:eaa3:3dd6:8f5e])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id EA1945341063;
-	Mon, 14 Sep 2026 14:05:17 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1789387518;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=2fr3EoOIiIhQYIp0RlRy+4O9t1XNQ0pEoMB84iuMT0E=;
-	b=xUNsbCklwwjyvKtMuuXEvuSTWz4FGWiOVUSmy+8jvoksW8A53Ff75P3hBS8x9ej4+0qtCs
-	BGvDnFf+9LgXSRcZh/3F4t1/Ji8EzifTuSn/c8OcMsNTm+XXpUTfgJid+bqskis1XG8ycH
-	9CFD/ezURu2k4XCN1+t4j8MAp7ARRPo=
-Message-ID: <158555ee-315b-45c5-a2a7-c98ea104d540@ixit.cz>
-Date: Mon, 14 Sep 2026 14:05:17 +0200
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="LACsFxWo"
+Received: from forward101a.mail.yandex.net (forward101a.mail.yandex.net [IPv6:2a02:6b8:c0e:500:1:45:d181:d101])
+	by forward205a.mail.yandex.net (postfix) with ESMTPS id 15DE9C757D
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 15:02:52 +0300 (MSK)
+Received: from mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net [IPv6:2a02:6b8:c0f:39a:0:640:15c4:0])
+	by forward101a.mail.yandex.net (postfix) with ESMTPS id 8B1D6806A5;
+	Mon, 14 Sep 2026 15:02:44 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net (smtp) with ESMTPSA id h2SwtcSdJ8c0-36ZKtQY6;
+	Mon, 14 Sep 2026 15:02:44 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1789387364; bh=HXPSOe5NfqExJjTjyKc1gLTsNo4yivzyrbTc8RKVRm8=;
+	h=Message-ID:Date:Cc:Subject:To:From;
+	b=LACsFxWofeRXkQYf41aFVaJnLCKssTUr2FPutVPYVDQD8UMkgH5FwcVzry2rIgKJ+
+	 lDG0JwOvUVFiERTky73YEC+3hXbMfxDTReph0MJEyaLKH7H0wej2fO9WW4qi85uhaW
+	 uZXBD3UImIXYoogfbyT2ZX2tnMfJZu8eMA9M1Tm0=
+Authentication-Results: mail-nwsmtp-smtp-production-main-84.vla.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
+From: Dmitry Antipov <dmantipov@yandex.ru>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	lvc-project@linuxtesting.org,
+	Dmitry Antipov <dmantipov@yandex.ru>
+Subject: [PATCH v2 1/4] HID: roccat: fix locking in roccat_connect() and roccat_disconnect()
+Date: Mon, 14 Sep 2026 15:02:37 +0300
+Message-ID: <20260914120240.1625442-1-dmantipov@yandex.ru>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 20/20] arm64: dts: qcom: generalmobile-shamrock: new
- device
-From: David Heidelberg <david@ixit.cz>
-To: Muzaffer Kadir <muzafferkadir@mainlining.org>,
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Cc: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>,
- Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>,
- Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>,
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
- Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov
- <lumag@kernel.org>, Abhinav Kumar <abhinav.kumar@linux.dev>,
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
- Marijn Suijten <marijn.suijten@somainline.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>,
- Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>,
- Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli"
- <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Dang Huynh <danct12@riseup.net>, phone-devel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-mmc@vger.kernel.org, iommu@lists.linux.dev, mfd@lists.linux.dev,
- dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
- Krzysztof Kozlowski <krzk@kernel.org>, linux-pm@vger.kernel.org,
- linux-input@vger.kernel.org
-References: <20260912-msm8952-initial-support-v1-0-0e742578b524@mainlining.org>
- <20260912-msm8952-initial-support-v1-20-0e742578b524@mainlining.org>
- <d0d7e3d0-15bf-4850-99ec-44d429c6bae1@oss.qualcomm.com>
- <42ef03e8-112a-4689-aedd-eeb7ec9b4f58@mainlining.org>
- <be018c1c-88f3-41fc-9293-d5090a79b3a7@ixit.cz>
-Content-Language: en-US, cs-CZ
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-In-Reply-To: <be018c1c-88f3-41fc-9293-d5090a79b3a7@ixit.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 14/09/2026 14:03, David Heidelberg wrote:
-> On 14/09/2026 13:58, Muzaffer Kadir wrote:
->> Hi Konrad,
->>
->> On Mon, 14 Sep 2026 13:22:52 +0200, Konrad Dybcio wrote:
->>> On 9/12/26 10:39 AM, Muzaffer Kadir via B4 Relay wrote:
->>>> From: Muzaffer Kadir <muzafferkadir@mainlining.org>
->>>>
->>>> Add General Mobile Shamrock (GM 5 Plus).
->>>> Shamrock is designed similar to L9300.
->>>> Downstream reference is [1].
->>>
->>> Please feel free to
->>> wrap your messages at 72
->>> characters, otherwise they are
->>> a bit hard to read! :D
->>
->> I am sorry to hear that. vim shows
->> it less than 72 and I can't see which
->> line is bigger than 72.
-> 
-> Hehe, yeah, had the same issue.
-> 
-> require('lualine').setup {
->    options = {
->      icons_enabled = true,
->      theme = 'auto',
->      component_separators = { left = '', right = '|'},
->      section_separators = { left = '', right = ''},
->      disabled_filetypes = {
->        statusline = {},
->        winbar = {},
->      },
->      ignore_focus = {},
->      always_divide_middle = true,
->      globalstatus = false,
->      refresh = {
->        statusline = 1000,
->        tabline = 1000,
->        winbar = 1000,
->      }
->    },
->    sections = {
->      lualine_a = {'mode'},
->      lualine_b = {'branch', 'diff', 'diagnostics'},
->      lualine_c = {'filename'},
->      lualine_x = {'filetype'},
->      lualine_y = {'progress'},
->      lualine_z = {
->        { '%3l:%-2.(%c%V%)', type = 'stl' },
->      },
->    },
->    inactive_sections = {
->      lualine_a = {},
->      lualine_b = {},
->      lualine_c = {'filename'},
->      lualine_x = {'location'},
->      lualine_y = {},
->      lualine_z = {}
->    },
->    tabline = {},
->    winbar = {},
-> 
->    inactive_winbar = {},
-> 
->    extensions = {}
-> 
-> }
-> 
-> see a lualine_z for the way how to let neovim show length INCLUDING tabs :)
+Extend critical section in roccat_connect() to ensure that partially
+initialized 'struct roccat_device' is never exposed in 'devices' list,
+and do the same in roccat_disconnect() to avoid racy 'devices' access
+against roccat_release().
 
-...aaaand the comment was about opposite problem then the one I tried to address.
+Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
+---
+v2: unchanged since v1
+---
+ drivers/hid/hid-roccat.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-Sorry for the noise.
-
-> 
-> David
-> 
->> Only one I can see is url itself.
->> Should I move url to Link trailer?
->>
->> For other parts of review,
->> I will fix them in v2.
->> Thanks a lot for review.
->>
->> Best regards,
->> Muzaffer Kadir
-> 
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 4f15eb951039..5deb6da8d4f7 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -344,8 +344,6 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
+ 		return temp;
+ 	}
+ 
+-	mutex_unlock(&devices_lock);
+-
+ 	init_waitqueue_head(&device->wait);
+ 	INIT_LIST_HEAD(&device->readers);
+ 	mutex_init(&device->readers_lock);
+@@ -356,6 +354,7 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
+ 	device->cbuf_end = 0;
+ 	device->report_size = report_size;
+ 
++	mutex_unlock(&devices_lock);
+ 	return minor;
+ }
+ EXPORT_SYMBOL_GPL(roccat_connect);
+@@ -369,15 +368,12 @@ void roccat_disconnect(int minor)
+ 
+ 	mutex_lock(&devices_lock);
+ 	device = devices[minor];
+-	mutex_unlock(&devices_lock);
+ 
+ 	device->exist = 0; /* TODO exist maybe not needed */
+ 
+ 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
+ 
+-	mutex_lock(&devices_lock);
+ 	devices[minor] = NULL;
+-	mutex_unlock(&devices_lock);
+ 
+ 	if (device->open) {
+ 		hid_hw_close(device->hid);
+@@ -385,6 +381,8 @@ void roccat_disconnect(int minor)
+ 	} else {
+ 		roccat_free_device(device);
+ 	}
++
++	mutex_unlock(&devices_lock);
+ }
+ EXPORT_SYMBOL_GPL(roccat_disconnect);
+ 
+-- 
+2.55.0
 

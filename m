@@ -1,91 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtpo49.interia.pl (smtpo49.interia.pl [217.74.67.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94823427FA2
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 09:27:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F85A42377F
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 09:50:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.74.67.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789378060; cv=none; b=h9Nvs3v7OpUwlrAJWDsJFJe/7JRSYm4DilN1jCSZg9qGHPK5M4hzm1chA3e9suAnNOpurDbF61cUBgPA9MaYZocrTCkZ9a5JehRhXaGsMHIylXbh2Oo4kyljeKPg6xqIzBSsCHwt5Zc/9kdyV4Tz7eTwP2VTjkoPLWM6sxbo6x0=
+	t=1789379441; cv=none; b=gEUGHZxADtUUcAjUkt8BwVCbWCWi3XP9SPvaqyYC6PbDtJz9FF8ulC2ssjCLoIQlsMjSWrMl/gwRTVYiRh5RjrAePUmDbh9AHjiA/f9N+cGhpODXvBx0FGc9KIOMCct6GQfJM6VmjzP6tdsLprGEAABbik1NVE3wdIoNXZ8ulBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789378060; c=relaxed/simple;
-	bh=mP/l5Do4YJ7IRKmOSzDfTfkwiYAM0VDD1IfC3wKE9Js=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fecopnPIQnGBe6+JpjvT+dyHb379g4brDYuONF3/pZbO2CYj+rN/K2ajMeckKnH5RdO1A7+lQf3oAbiickcAgjWl+2qkUcGeWLhwyHa0OWsp9qo67c386o8T+BbGeWCyqTcswibYChLQm+/y4yGOBY0tMIDHxe6aCzzm3jLNfKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ur1HjN52; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789379441; c=relaxed/simple;
+	bh=lOn8gRXqvS7hF+moEVAKdLL/rL+TDs0AzKWVEtTpFUQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OH/zvqySMT2Iq3Q1hPnBsWfiJdTGMHWyy3HQs4D3/FTbmIIsn7K7lABCiTsbxPSoet3sbzTgF109EWlJ8EcC6++K28iL7+VfN4QBEOElY1GQdAWBCeFCsXe645EIMNbPqgzAE9MTlt/U4oTJMBO8kl+sjMv152cDQvOymsTVJDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=poczta.fm; spf=pass smtp.mailfrom=poczta.fm; dkim=pass (1024-bit key) header.d=poczta.fm header.i=@poczta.fm header.b=fHSPUpYi; arc=none smtp.client-ip=217.74.67.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=poczta.fm
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=poczta.fm
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ur1HjN52"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972791F0089A
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 09:27:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789378055;
-	bh=+EKK5mZN/Z88F3qSalRQdpIe1kQRO9isxPVk2e1xkaU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=Ur1HjN52JEtDmwrp6C07kQ1Cdpj2A7qLwlCyaGMqCRBwBTb0j0t9NXb6d4Dfj0HCt
-	 qnpk1JIh7nfUVx05gtYhalu0y7MzZI2YnpC00qbhPCU+0+9RoZckVt/Sj/ZLnx0ufL
-	 6ii9jXER2PZDBgECWm1KvYn9ws0YM650hyvoHJPPNZ2boS1Ae4xnbFSorHjm6jEUJW
-	 KIrrELf1a8Itan7p2MupPgw1b0LLHXDY7BfVQfOHcAtbCxj4jZDzoFz/6qE03UBd8M
-	 4krfBaEPt4RPBi4qtw05JSIBwnPbKMTdrC0J6fUI55GWFTZtsW3CDJb/TeVyium0GX
-	 lLocGxPvSI9uQ==
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5b76515c0d7so2867920e87.0
-        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 02:27:35 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBx/2hR/pBbcP62XE7BrTu2y1zabEuZBftB/V0uH+UNnOxjldQw7AQr8bBO0ppHev9jhcosy49ATEQSVRA==@vger.kernel.org
-X-Gm-Message-State: AFuF++ln3qdIu+UXEFWT74DVJHVY6QwdSRFH8w075AgoAKYc/mLXUl4i
-	iBNvVY49RQSk1v58tZl+GiOHUJDFDd/G81b6JclfjngV5SEnOCIszRiuze870dRiUpWuCuY8NcI
-	DFPQr0hec/2UZ1Rxv5j+a+XwXhP2WckY=
-X-Received: by 2002:a05:6512:3ba2:b0:5b8:9a95:e251 with SMTP id
- 2adb3069b0e04-5b8abb02f33mr1155329e87.25.1789378054325; Mon, 14 Sep 2026
- 02:27:34 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=poczta.fm header.i=@poczta.fm header.b="fHSPUpYi"
+Received: from localhost (unknown [80.68.231.31])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by poczta.interia.pl (INTERIA.PL) with ESMTPSA;
+	Mon, 14 Sep 2026 11:50:33 +0200 (CEST)
+From: Slawomir Stepien <sst@poczta.fm>
+To: syzkaller-bugs@googlegroups.com,
+	Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+	bentiss@kernel.org,
+	jikos@kernel.org,
+	linux-input@vger.kernel.org,
+	sandeep.singh@amd.com
+Cc: linux-kernel@vger.kernel.org,
+	syzbot@lists.linux.dev,
+	Slawomir Stepien <sst@poczta.fm>,
+	syzbot+4eadd4dfe9e66522bae8@syzkaller.appspotmail.com
+Subject: [PATCH v2] HID: amd_sfh: Validate PCI BAR size before mapping
+Date: Mon, 14 Sep 2026 11:50:07 +0200
+Message-ID: <20260914095007.205287-1-sst@poczta.fm>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260827205116.GJ2943942@google.com> <20260827222550.24634-1-michael.zaidman@gmail.com>
- <apaLLD4ZXhNV-Dph@beelink>
-In-Reply-To: <apaLLD4ZXhNV-Dph@beelink>
-From: Linus Walleij <linusw@kernel.org>
-Date: Mon, 14 Sep 2026 11:27:21 +0200
-X-Gmail-Original-Message-ID: <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com>
-X-Gm-Features: AcwNN1XIGrJI8kEt6FJvsnfO1yo_Nk4ZdgQyT1yCMtF0ThsxbTGwmmYyu4htGIU
-Message-ID: <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com>
-Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C fixes
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Michael Zaidman <michael.zaidman@gmail.com>, lee@kernel.org, jikos@kernel.org, 
-	brgl@kernel.org, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=poczta.fm; s=dk;
+	t=1789379434; bh=FVa+YjjcW9hmFc3cvqqLFK8kvWsctFf1lA9TzHiUzRc=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=fHSPUpYimmQJwRXJJMwauDMh4YC2dOr0lbSESJrhIuk8069d6i45hKt1PZOI12pY+
+	 q1qx7CorWSJ+JFttOIXvJmOhobNi+64e6mlbODH/yJIsppO6DSOrYyen9Y2+hcTk+A
+	 6kiugcgEwqnJcqWLRrfPnoWuJhJp/kjdFucx28HY=
 
-Hi Benjamin, Lee,
+The amd_sfh driver maps PCI BAR 2 using pcim_iomap_regions() and
+subsequently accesses MMIO registers at offsets up to 0x10958 (e.g.,
+AMD_P2C_MSG3 at 0x1068C). However, the driver never validates that the BAR
+size is large enough to cover these accesses. If the driver is bound to a
+device with a smaller BAR 2, this leads to an out-of-bounds memory access
+and a page fault during the probe function.
 
-On Tue, Sep 1, 2026 at 4:03=E2=80=AFPM Benjamin Tissoires <bentiss@kernel.o=
-rg> wrote:
+For example, a page fault can occur when reading from privdata->mmio +
+AMD_P2C_MSG3 in mp2_select_ops():
 
-> TBH, I'm not a big fan of having multiple subsystems children into HID.
-> Mostly because I can't review the best practive in each of them. However,
-> for quite a long time, HID was mostly for input devices, and input is a
-> different subsystem.
->
-> That being said, there are 2 types of HID devices:
-> - ones with defined standard usages (keyboards, mice, touchscreen,
->         battery, etc) and using MFD for those would certainly be overthin=
-king
-> - others use raw HID device with a custom protocol (cp2112, mcp2221,
->         ft260), these could be MFD candidates
+  BUG: unable to handle page fault for address: ffffc9000390368c
+  PGD 100000067 P4D 100000067 PUD 1012c1067 PMD 105b64067 PTE 0
+  Oops: Oops: 0000 [#1] SMP KASAN NOPTI
+  RIP: 0010:readl arch/x86/include/asm/io.h:59 [inline]
+  RIP: 0010:mp2_select_ops drivers/hid/amd-sfh-hid/amd_sfh_pcie.c:282
+  [inline]
+  RIP: 0010:amd_mp2_pci_probe+0x337/0x5f0
+  drivers/hid/amd-sfh-hid/amd_sfh_pcie.c:487
+  Call Trace:
+   <TASK>
+   local_pci_probe drivers/pci/pci-driver.c:332 [inline]
+   pci_call_probe drivers/pci/pci-driver.c:394 [inline]
+   __pci_device_probe drivers/pci/pci-driver.c:455 [inline]
+   pci_device_probe+0x431/0xc90 drivers/pci/pci-driver.c:489
 
-Surely, as HID start to attract chips which clearly fall into the MFD
-category of things, with a plethora of subsystems hooking into the
-same HID device, we must find a way for HID devices to spawn
-MFD cells?
+Fix this by verifying that the length of BAR 2 is at least 128KB before
+attempting to map it. Since the maximum accessed offset is 0x10958, and PCI
+BAR sizes are powers of 2, any legitimate hardware will have a BAR size of
+at least 128KB.
 
-MFD solved and evolved a system for handling exactly this type
-of situation.
+Fixes: 4f567b9f8141 ("SFH: PCIe driver to add support of AMD sensor fusion hub")
+Assisted-by: Gemini:gemini-3.7-flash Gemini:gemini-3.1-pro-preview syzbot
+Reported-by: syzbot+4eadd4dfe9e66522bae8@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=4eadd4dfe9e66522bae8
+Link: https://syzkaller.appspot.com/ai_job?id=3bc1c45c-548f-4ab5-8243-d2c8ec321d6c
+Signed-off-by: Slawomir Stepien <sst@poczta.fm>
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+---
+v2:
+* Use SZ_128K for AMD_SFH_MIN_BAR_SIZE define
+* Add comment why we need 128K
+* Add 'Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>' since no logical changes
 
-Whether there should be an MFD device in the middle spawning
-each a HID, GPIO, I2C, UART cell or whether HID device itself should
-sit in the nexus and gain the ability to simply spawn out MFD cells
-from itself is what we need to figure out.
+v1:
+* https://lore.kernel.org/all/94704655-d654-4500-8122-b80bea9bd908@mail.kernel.org/
+---
+ drivers/hid/amd-sfh-hid/amd_sfh_common.h |  4 ++++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   | 10 ++++++++++
+ 2 files changed, 14 insertions(+)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_common.h b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+index f8c6b7fc34fb..3d29119a3765 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_common.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+@@ -13,11 +13,15 @@
+ #include <linux/auxiliary_bus.h>
+ #include <linux/mutex.h>
+ #include <linux/pci.h>
++#include <linux/sizes.h>
+ #include "amd_sfh_hid.h"
+ 
+ #define PCI_DEVICE_ID_AMD_MP2		0x15E4
+ #define PCI_DEVICE_ID_AMD_MP2_1_1	0x164A
+ 
++/* The BAR 2 size must cover the highest register offset (0x10958) */
++#define AMD_SFH_MIN_BAR_SIZE		SZ_128K
++
+ #define AMD_C2P_MSG(regno) (0x10500 + ((regno) * 4))
+ #define AMD_P2C_MSG(regno) (0x10680 + ((regno) * 4))
+ 
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index eda26a094d3f..061a63519d44 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -497,6 +497,16 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 	if (rc)
+ 		return rc;
+ 
++	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_MEM)) {
++		dev_err(&pdev->dev, "BAR 2 is not IORESOURCE_MEM\n");
++		return -ENODEV;
++	}
++
++	if (pci_resource_len(pdev, 2) < AMD_SFH_MIN_BAR_SIZE) {
++		dev_err(&pdev->dev, "BAR 2 is too small\n");
++		return -EINVAL;
++	}
++
+ 	rc = pcim_iomap_regions(pdev, BIT(2), DRIVER_NAME);
+ 	if (rc)
+ 		return rc;
+-- 
+2.55.0
+

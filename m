@@ -1,86 +1,86 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AC0E40912B
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 13:24:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A4D4657D6
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 13:29:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789392291; cv=none; b=SzJnoNdOheVNRf+W2b9sNOlDH9srAhqctJtXQcKElrOYl9Bx0WsCVkfIRraXn+gxnFsXSjy+vETJ6pALhCMJxghBD3KDlP0Nry1oWj6lHdBwoW4+PzdGlaZzHYLvSPFvBWR5yjxm3dpYgivLuF6oyNxWxUihoiwTwhmeJc3Ya1M=
+	t=1789392561; cv=none; b=ESmDYsaMmnIX6Xh3l0R/FOLIfOByeidbcSuKq9ZWsDav00Cr3+kFIFvnmGjPf/BkBYtYsryLCv77Hg8LDVu4QAb4R+iCJraNSwXIjBGa6K9auNbh0iCpzmlrSID3O3DiHHYpdg+YAH0qCd70nvidThAIi1fPMGA9Zr2WyIyUEg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789392291; c=relaxed/simple;
-	bh=5KLPdncsLccVWG4vS1VbkO+4SihTxYoWlWEpXBujLM0=;
+	s=arc-20240116; t=1789392561; c=relaxed/simple;
+	bh=qg/RBhESd51ajr8WDi37wRKO0z5KsP/UjDdEMv+gNuo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iScRYkEUkBiUmfjwKLy7lH9tw4W3RkrsmWfDUjy3pFYfVn0x716XWzThehvko6FPac3duKwhjjkU0ND4F8QH62XqjUB3lPMFDtVb0XcS7vKUGTxbR5lcSj2oIjW4NFdPV8LorHbaC80Nr6ofvXaeeZ51YueEYTHfADJte+GR5GA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=QWbNb02Q; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=cNtCCiDe; arc=none smtp.client-ip=205.220.180.131
+	 Content-Type:Content-Disposition:In-Reply-To; b=O0A9HwEu2mQLa7c443DsUZacrw1UaQlz7V+yxkbK4U9m/L5kd1M7ToYzsryjQhhPHLvL9G/ymkLrKfbXVisJ3bQ7iMIxbL79saz0S5t9mVQGdd+t06Ex5sXlHsASl/pTI+v6+ZY+pc9SyINHxj3WQSW43arZwjwd+aaygTKKSWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=CdYADE78; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=d1aLWJWt; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="QWbNb02Q";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="cNtCCiDe"
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="CdYADE78";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="d1aLWJWt"
 Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68ED0XO7607594
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 13:24:48 GMT
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68ED0OqN607373
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 13:29:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	TJEsqlbhkeYlvOTZeQMhupa6Ph/sDiB31OAPFik2LLM=; b=QWbNb02QNVXvEYSI
-	LSHs0mIIGJEbh/T60hOsLDfGeW2+GMdGZgtgPBLfnuRpRvHzI9whPWMqZB86tGU4
-	F9Go+RUrpDjru1FiBA3stdJJu47PqKS9Z5kGo27IFKcinkoCSQTC198YnBCTizSS
-	ttcOlgH7DjXqVvTOOKEM8duu2LlXmt6ByPebsT4qK8MFH2VOQceaHToc8TlTntSS
-	Jn7hcGDiwvYgr3Fb+R6PtOmtQl1oAp8Lo9ckpm5fsVNJS0O+rlcpLsjr6E/Xe+FD
-	OtEhHqF5jl8gITZcdzYhNROZS9Stzi7zQy10Mx/ibD95d4dH+3yam4vpdPeXUsiA
-	44yPZw==
+	A2oe9WYaH4TAkTlCFmhnHizk5lGknQxaw0iqFnj0J8k=; b=CdYADE78z/zH8CyG
+	FRA32jzDGmlkiHgOcX90VEsNibqKg/uouUN9JLiWmCTe8cYgWKsizhKfQukbbUsq
+	LLZx+/1Qi+Dh//KFH6kJwoOOFdS1heOaaKFHktKpOLdNugLgGTIksinRlhfJ6fM+
+	m6KAKvmQsb8NadTRgzZ7Okrwi1LvB/bSttjNBdMc/jJM/oscOCjSc7ndzJBhz76K
+	uBB0+EGKpZ8GUJ6lg/OnGguFMWCpNfHLMSWOq4UgNBS8kIAPWhCTRgAzDargEb0/
+	Ly51XRROf1cLP+1/UDZQukfmlDs3dW5Q1JUlkAYYLyiQnsst1o1h/FFfKQKudN1Z
+	4+66BQ==
 Received: from mail-vs1-f70.google.com (mail-vs1-f70.google.com [209.85.217.70])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gpg2krcnc-1
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4gpg2krd70-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 13:24:47 +0000 (GMT)
-Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-7930cb5cd3aso2967316137.3
-        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 06:24:47 -0700 (PDT)
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 13:29:18 +0000 (GMT)
+Received: by mail-vs1-f70.google.com with SMTP id ada2fe7eead31-79129463b7cso2966821137.1
+        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 06:29:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1789392287; x=1789997087; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1789392558; x=1789997358; darn=vger.kernel.org;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :content-type:mime-version:references:message-id:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TJEsqlbhkeYlvOTZeQMhupa6Ph/sDiB31OAPFik2LLM=;
-        b=cNtCCiDeibDi5/bc8ZxF38OlsZA4M+jjBdAOsIm7ByWVO913r3NfhHOM0HKxr4imAq
-         Yh83r7fTbEK5yuhPYNCcuYqeFAwJGj4PwwUQHxMdz56pE/GpDNbqKkniUqSKVjSfz7cd
-         DI3xuze9kL5keqJ96+G7xBDdE7HLXpjTCt333PjM5uBlaljaDmeM+PNO118HxLNDIFN0
-         IAJ+E1mpwF3Cs80L0VcfO45czc+V6/yBHq9Be66YFyPLdHAAqhbX0RI1hSjC7CVWIsAO
-         x8EKVlbu9d2S3U/dOMt8ddlRtKANlzYe1bMKOk6SjBR2s0+1bP1/TeWhRt9Sl//zRdf/
-         5VuA==
+        bh=A2oe9WYaH4TAkTlCFmhnHizk5lGknQxaw0iqFnj0J8k=;
+        b=d1aLWJWt55cLMxt8PvstfPgip3MC57q8Eme6zEjGGPNjYwwxpk0DGAKlF/95HBx5zi
+         lTTP542hXhv8VjWH0a7OWA2732wcArVRB4C+VDeUJffDUDlCIfROFTL7RYVR3sjPGNNZ
+         B5CoHWfTO89igDxoU6UwhuIuORf9kQUTdiNCfLqtkykInCVD0l5ZegJF89WF5/WysY/t
+         6bwTQRujgfnuyZKMEyg44PFWlRiKBavG1nq5Xn5O66vVyl3b/8jeZirSu+cHzp14Jdfm
+         x1cBnrQkgn6E8p+LOkmUe+sXVJd8R+oCqGWeY7Gl4z5t83wR5YblbwwPSE0UBMqzuYn5
+         EY2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789392287; x=1789997087;
+        d=1e100.net; s=20251104; t=1789392558; x=1789997358;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :content-type:mime-version:references:message-id:subject:cc:to:from
          :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=TJEsqlbhkeYlvOTZeQMhupa6Ph/sDiB31OAPFik2LLM=;
-        b=NlsH4BX2HQxLN6hZ/xm+uBBwSKtj/fta4+friHcHsSS1XDTC+A7HC1lfZcZGDzJjxq
-         lwmdE225nltRV6MeMZKikP7Y8QtphdRfF1fxoSfM5wLwKYmCZZPL1H7R7xIXjZ5QUb4i
-         WqVok3rOupu3FGruWyuK13O6WEnYKlp57ruivd6vyepx83MduoQNjap7/JHvlZeR5Qv7
-         1aesmwLWRzOe+kQ8uAxUAxhf46QKDEoOCzM8U+sLn9kQY2Poyp1Za+FJ1vjRH/afLqwq
-         bwWNeQ94zvCP8aBGCGuqUvlz4jjISurzDxNS2uoYntpFa7I2/Znw6IX8vN3/pMDF+BuX
-         tFPA==
-X-Forwarded-Encrypted: i=1; AKwUvBzQVbKYDKrlmRTGNwPnd8XKriCiN0FriF4vImCohiZ8mHgdbSxaTG3MP7uBDM8mEDYW3EpIq7/zVAv4WA==@vger.kernel.org
-X-Gm-Message-State: AFuF++nTeb1MkGI29DZHTXxNTOSfZTIPsG71Ldu5RxXy4ChW414zoQGb
-	DFpBSQWgn4y+C1ggLLR/T59N0ndkFaZxjCLrBViJq0BBeCFAisbII0CVOxoxs/KpvoIsl0a+2x/
-	i9tXRaGVTTxqHNjgRaL93UaVnn2wRcFNwjkXczlekawXfHoqcdeiqFQ3xpHCtQafTtw==
-X-Gm-Gg: AYBFou3w7TjVWK+a4mmM/8udNFEuvJtK1iUkQ9UHrt0dUYSRWn9oQbOVO1Y3ePXGnAc
-	HNuieymhrFNcTfV+2TeRTWcHg4eSCzunEkgdTJzmMHZ5Dby+ExzVEvrDZkU5IkVhdttJlKHaoxb
-	1jEuE1P0wKwxjQ1StzxRTCfRndBVwt8hwWB+KHTH07axTJoM9NJF7S5xhSTRCjZCO9DtVFzQDC9
-	HpJExRRIEEI5iPojVT1C4UZBEaDHQ8GFIX8NxVAvQfxcselYI7PuKDzHjtucmhkxKvjmKydqaZL
-	l3VN8c+FE+WRMeHecnUHpk5pbf5W6Or18Bda1avEMOzBTs9qBCyI6lBmVMxC8pAas3L1U45E9Xc
-	a9I6uHCdAgstLn7gF01m7JnuySXadVfwZvf+aT0GoW7ulvlgmLiRF9R1jQkqfcqMad2oIeCdUiA
-	H09VlcLyyU/kVM
-X-Received: by 2002:a05:6102:6a90:b0:795:1be9:661e with SMTP id ada2fe7eead31-79b570f4ba8mr1228010137.1.1789392286926;
-        Mon, 14 Sep 2026 06:24:46 -0700 (PDT)
-X-Received: by 2002:a05:6102:6a90:b0:795:1be9:661e with SMTP id ada2fe7eead31-79b570f4ba8mr1227965137.1.1789392286464;
-        Mon, 14 Sep 2026 06:24:46 -0700 (PDT)
+        bh=A2oe9WYaH4TAkTlCFmhnHizk5lGknQxaw0iqFnj0J8k=;
+        b=rrD5E6KV5VIEsEqpA8uPv0Xh3LujBbgJ/N1E0J6A/UUJof/S5kf9TLL0C8tzHUDydH
+         XrJtXVHxPXrH5h5g/C6jNl4GkWOmKdlSrr6p3bLJG27nV2HpKvF9oSvqSzQ3XFweKwgX
+         twzwip88cSTXgNp2vd5r+mOATfdXIARm9gk2BrBH2CHjH42w6cTA5nEvsiHDWtnDqDvl
+         rRhiM6myLWzkcDWcqro3L+ey8z6S9cPyvofQPXkOPKAD8bTJKhKSFXPKA15aGCJSE+mH
+         fdQRsyEGjhJn9c+fwAuWof2GXn8eg1P7LS0XBV2oZgxfoswT0wcpK7d6FmmQE4Wh9huX
+         c3iw==
+X-Forwarded-Encrypted: i=1; AKwUvBy72fjtVnagXcm1cs08Jk7koojD77qpMriNSbb2DjvgFkZfBl6sQ6HUk4UmYjECzi+rhNvTU46ChFCudQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lXi8+nA4jG5PVbAhrur67kPn5MHK7AKGVmZ7AirtfGJvqdlb/F
+	CXWhUvwBqxZXcD8NBp8ChlD4lqJCp/Pu0aeebIn0PMnCNvUzWHC9kMMtEciHlcSuqg6aovoPfE1
+	knRwr2TJW6NBh2OY1v7MBMKhukMj0bFJ2B6GaX1c3810i8o0+PJQOxaMTlhr/uOpkAg==
+X-Gm-Gg: AYBFou3iJ93fQAcFbdBR9fes5QuizcoImrnzgSnfhjTDsposkKQORtd2NV+k9vKjgZA
+	ApTrqDnmF8Duj4nKKKbEmhKaquPtmGrfB7Ppzw7vYxQqUVYg/4En7PNYjSWEWXghXxscVyTyjVx
+	x4ewcOxXjrQRoCPcU1f1vrqc2SdzzOOrrzxk/LCjZHlPMjCf3ujxXcYxctqPY/CAZPIZfc1vogW
+	dWWDzLlEbwPg/JmE4J+B2s4N/Zd4ntoI0SY+aOES0NzaNWvGXacvkdMcBblljnRw05NkQ5OPiGX
+	mFWmi0uicbajb31MO4x9bAEKD/5LHx8nCQqRzXGjnsartT0+tVWOBzHrBGz75Qwutv9bq0L3k5b
+	4Oc5L1jY7qEp8FgE2ZYDrq74xt1rq0oTmqIF1P//zpPZoI1RcGxXB+X7nXZDwjCIQno0OUmsS3P
+	2rqyhoL5kTSrPz
+X-Received: by 2002:a05:6102:512c:b0:778:f972:32eb with SMTP id ada2fe7eead31-79b5c515679mr1850354137.12.1789392558278;
+        Mon, 14 Sep 2026 06:29:18 -0700 (PDT)
+X-Received: by 2002:a05:6102:512c:b0:778:f972:32eb with SMTP id ada2fe7eead31-79b5c515679mr1850285137.12.1789392557779;
+        Mon, 14 Sep 2026 06:29:17 -0700 (PDT)
 Received: from umbar.lan (2001-14ba-a073-af00-264b-feff-fe8b-be8a.rev.dnainternet.fi. [2001:14ba:a073:af00:264b:feff:fe8b:be8a])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b8a0472bdasm2443458e87.63.2026.09.14.06.24.44
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a5a3144a4esm26968051fa.0.2026.09.14.06.29.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 06:24:45 -0700 (PDT)
-Date: Mon, 14 Sep 2026 16:24:43 +0300
+        Mon, 14 Sep 2026 06:29:16 -0700 (PDT)
+Date: Mon, 14 Sep 2026 16:29:14 +0300
 From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
 To: kavakliyigitcan@gmail.com
 Cc: Lee Jones <lee@kernel.org>, Daniel Thompson <danielt@kernel.org>,
@@ -108,11 +108,11 @@ Cc: Lee Jones <lee@kernel.org>, Daniel Thompson <danielt@kernel.org>,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-fbdev@vger.kernel.org, linux-input@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org
-Subject: Re: [PATCH RFC 08/10] drm/msm/dsi: make command and video mode
- configuration mutually exclusive
-Message-ID: <pnlrq23steuyvrqm4e6krzdlaa7pqozxqcaaakzsmqajuo7n54@hhhu6chgeei5>
+Subject: Re: [PATCH RFC 09/10] drm/msm/dsi: separate host link enable from
+ video stream enable
+Message-ID: <2wj3y5o5edya4uifambdpzh2jkpo7xpxtjgrmtvdxk3z76uty6@tuoe2vkh7p6u>
 References: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
- <20260911-ginkgo-submission-final-v1-8-0e68e63a18d4@gmail.com>
+ <20260911-ginkgo-submission-final-v1-9-0e68e63a18d4@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -122,26 +122,26 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260911-ginkgo-submission-final-v1-8-0e68e63a18d4@gmail.com>
-X-Proofpoint-ORIG-GUID: dB6CzPKqae1ZO6wjAj__JUlgRbUx6HI_
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDE5MiBTYWx0ZWRfX43Ep/5HOvDY0
- j7aSM8wvAARE5liLMuACUt0Kyr9LOtqvOUFCAAHgJoUZJXiP0UuWJG3DC6/Ji2hjaR9mTsd9Bbg
- xESLuqetmXqF/2Htli9bowLzcwRFBwWDmHfs6a+Wdcbb9Bf+1lz3QXS20dlnMUwI+ltMvJTM4YP
- C1xC9l7rmqleeW+ry5ETUtaVVUGn/AJbyLXOU/+iDPXoNyIVexuf/cQp6piCU9Ir9CVHzgAiAeE
- h0Io1Vl4/yetycJG3AYO6iSL8M9dL0zzqz5E0l8guLp9ds9D+mK25IRtNtQ6VGBB3Y21bIcyhJJ
- /Fzl87YAaPsX0+Zrm5KfJM/1Bxc/iwrtSxcc1KV8iD8hqeDPZXVjJL1Lyt6wajkvoPs4PVoHrMm
- 0vSsyuoQ22+qGuIrEwiefDOZj8oiHWpE1XznfPoIDHmHWCHLDDKk92N5vmEoVNe6WVpnp1h4dIE
- L4wwBn7d3MU2YimYQtA==
-X-Proofpoint-GUID: dB6CzPKqae1ZO6wjAj__JUlgRbUx6HI_
-X-Authority-Analysis: v=2.4 cv=M7TYuCws c=1 sm=1 tr=0 ts=6aa7f59f cx=c_pps
+In-Reply-To: <20260911-ginkgo-submission-final-v1-9-0e68e63a18d4@gmail.com>
+X-Proofpoint-ORIG-GUID: 9SOCDAx4MMTjeLCzUUgfIGW-qpv8uSxa
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDE5MyBTYWx0ZWRfX+L20Ps37/ywc
+ /Ws+sJraXttYhVyPz+7q703kRsFFm9PbmKRgypuTr2N8cgFuoGSG0Zh3JaYHnglSqkvsLz4nDT7
+ yf34w7jxBfGJqXy644KhabLDydU/snQvsRt+M/KpEYIl8aZpD4AF5TetnYRdYf34XxDhJnSkiB+
+ eMFD+4bHHK5YRFOgfmGJCKKTHw4uWZ02bOGm4VoFllEUlv/Yxvh7n02hlB2i+oAVRMaBYRyZYEG
+ 6iolE/6EAEa6aFRtCkXeNTBEgXuvTg9oQp/wn/LBg5PY93k5dkPfFcmM2TKwFW/dxVbdag+x1Yd
+ w5bWg/xwasy+6dShBLb4U2HENx8J/12L9hUpeHb92YOHFytqkKDOb9Oto8Uwekig5dZl54zNtQN
+ 6j/dJ4rkf5D+kf9oM9WpJsnIZ0qqSwzerd/JyfB1PXeAUdXyArWctJGAT/n6n5z4RLtXWdpOL/K
+ 6FKFS1HSePlVH5bBJAQ==
+X-Proofpoint-GUID: 9SOCDAx4MMTjeLCzUUgfIGW-qpv8uSxa
+X-Authority-Analysis: v=2.4 cv=M7TYuCws c=1 sm=1 tr=0 ts=6aa7f6ae cx=c_pps
  a=N1BjEkVkxJi3uNfLdpvX3g==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
  a=VdqzKS8jKosA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
  a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22 a=pGLkceISAAAA:8
- a=irAkg3Ti1NS2jvoIXoMA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=4I8C5fWqZRg8XWo767wA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
  a=crWF4MFLhNY0qMRaF8an:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDE5MiBTYWx0ZWRfXy6d8fdDRRjIc
- LxK3u/QkCInuj5Lq4duheW1KDteF84c7A+FQiWxbO8nrxSN0dRZ2EIwU0iCHLX0PgaKowAWxxPn
- +NmWPnOOXenHj9ZZuQFYY5KHjlbMug0=
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDE5MyBTYWx0ZWRfXydiHdchqjN2n
+ mIQIXlskfHKIJdTMWZwWmgeqElZyy85oBcsocNlK+6jGETnAbAH1XTb0fNn4B89ipIq06Vny4xs
+ F0Egd4V0X35M2nOapJHAabQz1pPUR6I=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-14_03,2026-09-14_01,2025-10-01_01
@@ -149,66 +149,46 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  phishscore=0 clxscore=1015 bulkscore=0 impostorscore=0 suspectscore=0
  malwarescore=0 adultscore=0 lowpriorityscore=0 spamscore=0 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609140192
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609140193
 
-On Fri, Sep 11, 2026 at 11:51:05AM +0300, YİĞİTCAN KAVAKLI via B4 Relay wrote:
+On Fri, Sep 11, 2026 at 11:51:06AM +0300, YİĞİTCAN KAVAKLI via B4 Relay wrote:
 > From: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 > 
-> In dsi_op_mode_config(), entering video mode sets DSI_CTRL_VID_MODE_EN
-> without clearing DSI_CTRL_CMD_MODE_EN, and entering command mode sets
-> DSI_CTRL_CMD_MODE_EN without clearing DSI_CTRL_VID_MODE_EN.
+> In video mode DSI displays, enabling the host previously engaged the
+> hardware video engine immediately during atomic_pre_enable. When panel
+> prepare routines transmit initial DCS sleep-out and setup commands,
+> concurrent active video transmission causes DMA timeouts (-110).
 > 
-> Ensure explicit mutual exclusion by clearing the opposing enable bit
-> when switching operational modes to prevent hardware bus collisions.
+> Keep the DSI host in command mode during atomic_pre_enable to permit
+> clean panel preparation, and start video streaming in atomic_enable
+> after the panel has completed initialization.
+
+I've not seen this kind of issue with the DSI mode panels. Do you have a
+more exact issue description or a downstream reference? Is it the case
+that the bootloader has configured the DSI host for the command mode
+transfers and you are reconfiguring it for the video mode?
+
 > 
 > Signed-off-by: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 > ---
->  drivers/gpu/drm/msm/dsi/dsi_host.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+>  drivers/gpu/drm/msm/dsi/dsi.h         |  1 +
+>  drivers/gpu/drm/msm/dsi/dsi_host.c    | 23 ++++++++++++-----------
+>  drivers/gpu/drm/msm/dsi/dsi_manager.c | 20 ++++++++++++++++++++
+>  3 files changed, 33 insertions(+), 11 deletions(-)
+
 > 
-> diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-> index 7e4e3718b536c92dc555de213042857379499447..b9e2867d435a3ad8b6db6b57c440bbd827180b6e 100644
-> --- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-> +++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-> @@ -1094,7 +1094,9 @@ static void dsi_timing_setup(struct msm_dsi_host *msm_host, bool is_bonded_dsi)
->  		dsi_write(msm_host, REG_DSI_ACTIVE_HSYNC,
->  			DSI_ACTIVE_HSYNC_START(hs_start) |
->  			DSI_ACTIVE_HSYNC_END(hs_end));
-> -		dsi_write(msm_host, REG_DSI_ACTIVE_VSYNC_HPOS, 0);
-> +		dsi_write(msm_host, REG_DSI_ACTIVE_VSYNC_HPOS,
-> +			DSI_ACTIVE_VSYNC_HPOS_START(hs_start) |
-> +			DSI_ACTIVE_VSYNC_HPOS_END(vs_end));
+> +	/* Keep DSI host in command mode (VID_MODE_EN = 0) during panel init
+> +	 * to allow clean DCS communication without premature video engine startup.
+>  	 */
+> +	dsi_op_mode_config(msm_host, false, true);
 
-This fixup is unrelated, please split it to a separate commit. Also, I
-don't see corresponding code in the downstream driver. Do you have a
-reference?
+This sounds plausible, but I'd like to check it out.
 
->  		dsi_write(msm_host, REG_DSI_ACTIVE_VSYNC_VPOS,
->  			DSI_ACTIVE_VSYNC_VPOS_START(vs_start) |
->  			DSI_ACTIVE_VSYNC_VPOS_END(vs_end));
-> @@ -1168,8 +1170,10 @@ static void dsi_op_mode_config(struct msm_dsi_host *msm_host,
->  					DSI_IRQ_MASK_VIDEO_DONE, 0);
->  	} else {
->  		if (video_mode) {
-> +			dsi_ctrl &= ~DSI_CTRL_CMD_MODE_EN;
->  			dsi_ctrl |= DSI_CTRL_VID_MODE_EN;
->  		} else {		/* command mode */
-> +			dsi_ctrl &= ~DSI_CTRL_VID_MODE_EN;
->  			dsi_ctrl |= DSI_CTRL_CMD_MODE_EN;
->  			dsi_intr_ctrl(msm_host, DSI_IRQ_MASK_CMD_MDP_DONE, 1);
-
-For this one:
-
-
-Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
-
-
->  		}
-> 
-> -- 
-> 2.47.3
-> 
-> 
+> +
+>  	msm_host->enabled = true;
+>  	return 0;
+>  }
+>  
 
 -- 
 With best wishes

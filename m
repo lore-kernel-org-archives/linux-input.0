@@ -1,95 +1,102 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 332244611E5
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 12:26:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEE68449B2C;
+	Mon, 14 Sep 2026 12:42:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789388816; cv=none; b=LE3vDG/bv6rF3FvwxqkL+6xCl67VJN1+BnvMh2xzqIKRllS3W10Uls+z73HYUbeLXok1u/AwHOC+IOKuKIzubyNXH8mwVckEmwQW/sNAqyP7F2BS3TRxrroO68FJu1Y5gXFzUcwH4VLUXuyb5wRyIYi1Xco2SJKmrX12SKJW5Tk=
+	t=1789389745; cv=none; b=kqXEtFbj22LRAiKo0Gd54BUgD6a02iDBKRqxha4fWwofy3Vn3kjhTgVFqa5nukOhi4es7l8JPiM1BCEcVbA1afn4nIpTAWTlhmmYpLGZkV49IzPKSKnqBAlsO8KkR4aD/a5x5pckr+pKiJUD2V1b4rZ40iLfzz7/q7zxvMEaG90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789388816; c=relaxed/simple;
-	bh=KRUAHf2YbSmZ8D5y0i+plZWvi+Jqcwt8c9aTF4TFCAA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nHhUl0gJM47/P3T70ZAxCckle2urdHN12qOLtzbGnhznEPuOlsHl/5sEMwd1FTP3qB1f5OY1UmXPH79PcKbrVwFhz9uq9R32GNEDtfHwAl6d+Q4AqSNhmclNC3mBWIGkcuSiXHNhMqTVRZn1uRuOLIBlqkKp+GszFYz99XiYJ8E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Mul80EL7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789389745; c=relaxed/simple;
+	bh=Kl4J1LlHokHPmWNl2gD976+s1iNSJ2iDVAA1R1NbBbE=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=sAXJ+qC9cgUj/CLWatA0UdPccW4WQbR2xnhmNw3nA9jLsBBWkZUCdRx/h/G7qhL0psTf9pq6f3S4H02kEjtDlbKZ+i9dQVZOqCcVgP+eDfZrOK+yrc8JFXa8M7MC4a/PN2AT9+Thjlgud54jJMOuEKsDJIgEURnRj9/Kk0ddCig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MsdR69Ps; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Mul80EL7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED8481F0089E;
-	Mon, 14 Sep 2026 12:26:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MsdR69Ps"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0BC71F000FF;
+	Mon, 14 Sep 2026 12:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789388813;
-	bh=ubE4DJzi6FELUNXOyl3Nmdzu6Uwy5UbcQcTmBiojXNw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Mul80EL7A7U34N5A+xudpEbyXeuy1+rNN6zmca03cozQWGOwjtiaZzlVm2pwXJpbj
-	 3Ay/2jeCeppJZRTT1eCiPWINwhzsy4ZM8o4CW4L7KZFGTSDJ44nA98e2JY7KfcqWRx
-	 VrCRhYVF8rhuKnTYAZ//UTLTFll+77vbw/XLEfS3W8ueiPI52N27kKI2KsHP8iRDk7
-	 doM0Tvh52snOh5BQffQ+n0lzFIuLA8bFxQSgMCijkCFp1qgT+EqfYxJ97d6Zt2zaW9
-	 RlyNBM3PBSFtquIq5Mii+5eI5Dw3kk+7mr5SyNl2QHDvd45jDkGqJy6DGA93loho3O
-	 AzP9Cfc2SzBTQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/4] HID: roccat: fix locking in roccat_connect() and
- roccat_disconnect()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Antipov" <dmantipov@yandex.ru>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260914120240.1625442-1-dmantipov@yandex.ru>
-References: <20260914120240.1625442-1-dmantipov@yandex.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 12:26:52 +0000
-Message-Id: <20260914122652.ED8481F0089E@smtp.kernel.org>
+	s=k20260515; t=1789389743;
+	bh=ypyUzSZkWrNtmg8Vt9l1GzbP1/+6reR552f3AabCOgE=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=MsdR69PsHQJ12ZSFmO9f6NMgIK5i3afRKHHStNWVfnCTLlTCIjiI1N1ilQ4RAo9oJ
+	 liVopCXKeAp8zyv2obW5gNvi03C5sp+2O0PnVUdqjQItnMu5tfDZjvAam5XaUyN1c3
+	 /UNXur9RqLcd7k94ysWaSri+uBbUE8Eg836hLG1o9iJJYmy2jojYHRDGf+c/DAuOH5
+	 SKltBeKtp+fn8maaqnGiideyn3Vu54DtkQN/CYiJj4BX2F1nKj6pPkd7Igz95imRm+
+	 U+zYvLW+UoFcKpk0gKKlvAXqtnD+55/8jyPqkwcMVb6ZguZk7W/GkeTLyAPl568nWl
+	 fnIJTxboPCo2A==
+Date: Mon, 14 Sep 2026 14:42:20 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Slawomir Stepien <sst@poczta.fm>
+cc: syzkaller-bugs@googlegroups.com, 
+    Basavaraj Natikar <Basavaraj.Natikar@amd.com>, bentiss@kernel.org, 
+    linux-input@vger.kernel.org, sandeep.singh@amd.com, 
+    linux-kernel@vger.kernel.org, syzbot@lists.linux.dev, 
+    syzbot+4eadd4dfe9e66522bae8@syzkaller.appspotmail.com
+Subject: Re: [PATCH v2] HID: amd_sfh: Validate PCI BAR size before mapping
+In-Reply-To: <20260914095007.205287-1-sst@poczta.fm>
+Message-ID: <rss2sn37-38o7-9o77-36n5-o06srs094p7q@xreary.bet>
+References: <20260914095007.205287-1-sst@poczta.fm>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+On Mon, 14 Sep 2026, Slawomir Stepien wrote:
 
-Pre-existing issues:
-- [High] `roccat_report_event()` calls `mutex_lock()` while executing in at=
-omic context.
---
+> The amd_sfh driver maps PCI BAR 2 using pcim_iomap_regions() and
+> subsequently accesses MMIO registers at offsets up to 0x10958 (e.g.,
+> AMD_P2C_MSG3 at 0x1068C). However, the driver never validates that the BAR
+> size is large enough to cover these accesses. If the driver is bound to a
+> device with a smaller BAR 2, this leads to an out-of-bounds memory access
+> and a page fault during the probe function.
+> 
+> For example, a page fault can occur when reading from privdata->mmio +
+> AMD_P2C_MSG3 in mp2_select_ops():
+> 
+>   BUG: unable to handle page fault for address: ffffc9000390368c
+>   PGD 100000067 P4D 100000067 PUD 1012c1067 PMD 105b64067 PTE 0
+>   Oops: Oops: 0000 [#1] SMP KASAN NOPTI
+>   RIP: 0010:readl arch/x86/include/asm/io.h:59 [inline]
+>   RIP: 0010:mp2_select_ops drivers/hid/amd-sfh-hid/amd_sfh_pcie.c:282
+>   [inline]
+>   RIP: 0010:amd_mp2_pci_probe+0x337/0x5f0
+>   drivers/hid/amd-sfh-hid/amd_sfh_pcie.c:487
+>   Call Trace:
+>    <TASK>
+>    local_pci_probe drivers/pci/pci-driver.c:332 [inline]
+>    pci_call_probe drivers/pci/pci-driver.c:394 [inline]
+>    __pci_device_probe drivers/pci/pci-driver.c:455 [inline]
+>    pci_device_probe+0x431/0xc90 drivers/pci/pci-driver.c:489
+> 
+> Fix this by verifying that the length of BAR 2 is at least 128KB before
+> attempting to map it. Since the maximum accessed offset is 0x10958, and PCI
+> BAR sizes are powers of 2, any legitimate hardware will have a BAR size of
+> at least 128KB.
+> 
+> Fixes: 4f567b9f8141 ("SFH: PCIe driver to add support of AMD sensor fusion hub")
+> Assisted-by: Gemini:gemini-3.7-flash Gemini:gemini-3.1-pro-preview syzbot
+> Reported-by: syzbot+4eadd4dfe9e66522bae8@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=4eadd4dfe9e66522bae8
+> Link: https://syzkaller.appspot.com/ai_job?id=3bc1c45c-548f-4ab5-8243-d2c8ec321d6c
+> Signed-off-by: Slawomir Stepien <sst@poczta.fm>
+> Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+> ---
+> v2:
+> * Use SZ_128K for AMD_SFH_MIN_BAR_SIZE define
+> * Add comment why we need 128K
+> * Add 'Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>' since no logical changes
+> 
+> v1:
+> * https://lore.kernel.org/all/94704655-d654-4500-8122-b80bea9bd908@mail.kernel.org/
 
-commit 8cefeedf72bd07a9332b484733a5ce24fa525195
-Author: Dmitry Antipov <dmantipov@yandex.ru>
+Applied, thanks.
 
-HID: roccat: fix locking in roccat_connect() and roccat_disconnect()
+-- 
+Jiri Kosina
+SUSE Labs
 
-This commit extends the critical section in roccat_connect() to avoid
-exposing a partially initialized device in the devices list. It also
-updates roccat_disconnect() to prevent racy access against
-roccat_release().
-
-> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index 4f15eb9510396..5deb6da8d4f74 100644
-> --- a/drivers/hid/hid-roccat.c
-> +++ b/drivers/hid/hid-roccat.c
-
-[ ... ]
-
-[Severity: High]
-This is a pre-existing issue, but does roccat_report_event() call
-mutex_lock() while executing in an atomic context?
-
-The roccat_report_event() function is invoked by the driver's raw_event
-handler, which is called synchronously by the HID core from the USB URB
-completion handler. Since URB completion handlers execute in atomic context,
-acquiring sleeping locks here triggers a 'scheduling while atomic' bug.
-
-drivers/hid/hid-roccat.c:roccat_report_event() {
-    ...
-	mutex_lock(&device->readers_lock);
-	mutex_lock(&device->cbuf_lock);
-    ...
-}
-
-This appears to be reachable whenever a supported Roccat device sends
-specific hardware events, such as when a user presses a profile switch
-button on the mouse. Should this code use a spinlock or defer the work
-instead?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914120240.1625=
-442-1-dmantipov@yandex.ru?part=3D1

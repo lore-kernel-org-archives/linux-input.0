@@ -1,281 +1,102 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB7E429CCF
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 22:53:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 027E034EF07
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 23:26:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789426408; cv=none; b=MvPLxexMNoOfQiGfuy9hVNFGjGFX+bJSJEPjRBkuuNLhrqShBCYzoP77VrqeA85iJIAbjFecaWZjG2rW0x4o1I1YcUyBIjpTX+m3B4zfRlcK5LkUO6lUJDZy/U0eQPLlOj0Y6fcBedT1G0/5NnjfueAAAWOUMJxkK9gLFfOiHvw=
+	t=1789428419; cv=none; b=eh+Icu9QC2Xk0treF7eGDwoOTJm8w+Oo5TWJdOT4JzBSrNI5NQSWEoJqX0sYfKNbgc4JdA8SUF0q2McvutLw9VVnVHCrWp3U3Du3zxxrGsqPf9mW6A+hhPvz8/0ElnGouHBxy5n5Ye0lGx1GehoL0I/fqcEbV+WdTXRm+q820DE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789426408; c=relaxed/simple;
-	bh=eyt+ppwhkUqrSgeJN9x9DLCKQamEARKPRcmwmhUJpd4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i4bKHf1cPltxKYRqg9fhJ9BtmBQaOI2aWwUJA/dJaEiggzWuXll3wYPllblXT6h494Ifib8j32dPyGo/l1YqGud9uQaKu4WT7dNJVhMA3QH8N+sA62PRF6K8wskrbl7PQb5dXeGIkKeOUfYbyhIDxFEYYEilbPRp0f3YwYr666M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DLdj//LK; arc=none smtp.client-ip=74.125.227.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789428419; c=relaxed/simple;
+	bh=IxefVSPJ3BMIPf9kBAnN/te7rO8tb4FkgooETdLIH4Y=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=rZ1+/Nhaite1hw9Owkj8rQmO81wYxEBTEcaRDd2fSzuG4ulbqyLU86BxV5Lx8fwFieHRLp3Zov8Y43aDXQ+aenZPPgHnfDv1afo2TRx6PTZIJY+n9nc/ANYEplGcv5J3r4IVwfhQrfXuJd0ExjUBgOtORWwrap2gHHHiC5HfBas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ib0BtUmz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DLdj//LK"
-Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccb652d7so1944054a91.0
-        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 15:53:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789426397; x=1790031197; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=35j8vQkkYqsz76V+DGGdzZvbead1bZhTtdILBUHQZCY=;
-        b=DLdj//LKcTKnXKIHAaV4WkjHyDyhd7rdVbWgjYcY7nf5sqxdJJhSLWkwz/o9a2NiOx
-         /9wr8C6Q0OO/mxhhpn8Lic3RC0rZ5h9m0bIGyu/H8yf34lLxtI1J0gbimmNV4RbOXFBA
-         eF2XHs1tod/mBQ/ZvjFk24XAiqCX+Kvp0e2vSoHPnPr9GtW8uMjsOWDPjs0uz4qH1u4e
-         0AV5OWfVR3tAWqjL0g3Y+wXwGgXSUUqQBPs7W/DWWw0xu7iCS96y+XjZ/PO/qhHa1ml+
-         xKulXVeIhWowTfU66GIkVeoQajvE/ThbeUYGPtK353n3ZlsnU7yky5I4J+37EfCx7fWd
-         uIUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789426397; x=1790031197;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=35j8vQkkYqsz76V+DGGdzZvbead1bZhTtdILBUHQZCY=;
-        b=a4dRGdL2LJTtstqE8OzJ25u+gLAGTSDhwcj8xANWW1Krt3pkTUFNPqscuceQPFlji9
-         s0rda8LDZqk1Lw5d3c2c7NyLbxhaiFZkVeKskZylAAjTUP8jXQoTG/rH/OLZiQ7Jr8BY
-         T4/5J6qrJ5MnDDaRxLoJsOXe3c01R38upEXhNEPsM1XxwaKe0sanIpz9PNB52Ww7NuQO
-         cc9hZGXeZLXsGXG5njgn1iuhaReJRRCU7K1N7mdpBnjm73PhggBE0cwuozY/UP8KTD9v
-         SOATKSJTmIMrvjEmAoGMujLksJlOPcHIixu9hGYVy70dsic7eNL4y3kVAUCm1lMY3z1E
-         M2hw==
-X-Forwarded-Encrypted: i=1; AKwUvBzbODtOC6ubIynriA9psjeXpZ880rF7WxZKqTj1PeiVmgNNpHLUzX+8M/4c/rEsITOYgDGd/JLTSYKMXA==@vger.kernel.org
-X-Gm-Message-State: AFuF++n+u4qEiCeFnVckshk3OlXsNhovScl5zbUzh73xwcDxqaPE6qFG
-	Bj3smZkqWLIhe0CB0seImT3TLSs9dxdVIUJiEnoU4+Tba8CvC+q/bnmv
-X-Gm-Gg: AYBFou3U4mnKOJX9W8+fefYR6TRFwP0s1BeVsumJOSXHaaK+zWE1iZTCUwDRO+xnXhz
-	KyaJ+tNjz0KQCK5cHSi6XrrifvcP43UwJhCaS1tRjnQ5YBLA7CoLSUM6pmx7ii/R8WsjRhcAbq6
-	Y/ushD/jL6kppWr+dRBzoE8Yn2IhMAh9A0Jt7owJKyQSeMgeajs3Vt0zoxCcZManY9kJgyR31V4
-	bvfi5t+3L9S5NYQkgMmU9AHm+nw/k+f0YTBhzeRYBNw0zLcFDmG0EK7ovxUkMyvWhnTu/eIfQ1w
-	9fcrd9N01lScovfDyUZxWRIhhoS3DeAzqIfFgVU6mr0/SfEzjtus2vpHenhEORwGfusbJe6815w
-	ejKUB/CqkpLErml8zXczz4OnY0JA/oFPpj1WRSXajFH3DartuDeDCWR5bCTf/kuaZTNz8wYCkPg
-	D8SU17aueHasHyIwWlPTAsNLvmUo2gXHyc/YaxVbi1TcFdl7PNXL+mTl99LJV+8jFlNdyF/a1Qn
-	B1d8gnYZn0+G/Jz/TCaMOt0OMvRSkBPUAn7uzqmHYCL/nlmvB7z4WQAv/FmSNw=
-X-Received: by 2002:a17:90b:17c3:b0:39d:eda9:fac2 with SMTP id 98e67ed59e1d1-39dedaa0e10mr8126543a91.18.1789426397299;
-        Mon, 14 Sep 2026 15:53:17 -0700 (PDT)
-Received: from lappy (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bbeb053a5sm14924296eec.27.2026.09.14.15.53.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Sep 2026 15:53:16 -0700 (PDT)
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-	"Derek J . Clark" <derekjohn.clark@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	kernel@lists.opengamingcollective.org,
-	stable@vger.kernel.org
-Subject: [PATCH 09/10] HID: hid-lenovo-go-s: Move static led_classdev_mc to drvdata struct
-Date: Mon, 14 Sep 2026 15:53:02 -0700
-Message-ID: <20260914225303.868569-10-derekjohn.clark@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260914225303.868569-1-derekjohn.clark@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ib0BtUmz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A751F000FF;
+	Mon, 14 Sep 2026 23:26:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789428416;
+	bh=MyhYDt95vfMLz24eWyfdGj59de5P9EkHmEUgWGSTFzc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ib0BtUmzdGymq6KsUzgsYkClleqfUfKiFX+z9UySsdY/2AprmqWgQdYJKDLR8R5sv
+	 OjC7tbHfAp020EFy75xOEo9B1vRR3dWPnNJifNFpiQtEY3e+S/SZItRHHTyiqxmFJq
+	 d4wV553aPqOGA0NhoJBXLWoDvDVCEQSbMlVkTmj7vubEenPmac1b36MYUuROg6HWQ3
+	 FueabtyDoowrJqEujLdjBoqbd4MSY2xQIWNWZUunRX6cf7fmwpEFB95u+4Ue4ehvMC
+	 M68SLIBI+XMhBaFZfvmmb9PSjnzglGyjMu1L/yYI3gTNjv2cRfiksZ8UDA1qj/xV6M
+	 I+j99u44CImVA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 02/10] HID: hid-lenovo-go-s: Bound stale reply window
+ before reusing send_cmd_complete
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Derek J. Clark" <derekjohn.clark@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260914225303.868569-3-derekjohn.clark@gmail.com>
 References: <20260914225303.868569-1-derekjohn.clark@gmail.com>
+ <20260914225303.868569-3-derekjohn.clark@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 14 Sep 2026 23:26:55 +0000
+Message-Id: <20260914232656.45A751F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-In the next patch I will switch drvdata from static global to a
-devm_kzalloc struct. In preparation for that, move the led_classdev_mc
-to be a member of the gos_cfg_drvdata struct. As part of that effort,
-provide a constant name when accessing it and access the led_classdev
-through the led_classdev_mc.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] hid: conflating MCU error with timeout in mcu_property_out()
+--
 
-Fixes: be6d7dbb368ba840d7 ("HID: hid-lenovo-go-s: Add RGB LED control interface")
-Cc: stable@vger.kernel.org
-Signed-off-by: Derek J. Clark <derekjohn.clark@gmail.com>
----
- drivers/hid/hid-lenovo-go-s.c | 73 +++++++++++++++++------------------
- 1 file changed, 36 insertions(+), 37 deletions(-)
+commit b76b36bd4347a4e16200e7b5eadeaf196d8595bd
+Author: Derek J. Clark <derekjohn.clark@gmail.com>
+Subject: HID: hid-lenovo-go-s: Bound stale reply window before reusing send=
+_cmd_complete
 
-diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-index e5c4104a3adb..c77c297a04cb 100644
---- a/drivers/hid/hid-lenovo-go-s.c
-+++ b/drivers/hid/hid-lenovo-go-s.c
-@@ -60,7 +60,7 @@ static struct gos_cfg_drvdata {
- 	u8 tp_en;
- 
- 	/* RGB Variables */
--	struct led_classdev *led_cdev;
-+	struct led_classdev_mc led_mc;
- 	bool rgb_registered;
- 	u8 rgb_profile;
- 	u8 rgb_effect;
-@@ -347,7 +347,7 @@ static int hid_gos_pl_test_event(struct command_report *cmd_rep)
- 
- static int hid_gos_light_event(struct command_report *cmd_rep)
- {
--	struct led_classdev_mc *mc_cdev;
-+	struct led_classdev_mc *led_mc;
- 	int ret = 0;
- 
- 	switch (cmd_rep->sub_cmd) {
-@@ -362,12 +362,12 @@ static int hid_gos_light_event(struct command_report *cmd_rep)
- 	case USR_LIGHT_PROFILE_1:
- 	case USR_LIGHT_PROFILE_2:
- 	case USR_LIGHT_PROFILE_3:
--		mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+		led_mc = &drvdata.led_mc;
- 		drvdata.rgb_effect = cmd_rep->data[0];
--		mc_cdev->subled_info[0].intensity = cmd_rep->data[1];
--		mc_cdev->subled_info[1].intensity = cmd_rep->data[2];
--		mc_cdev->subled_info[2].intensity = cmd_rep->data[3];
--		drvdata.led_cdev->brightness = cmd_rep->data[4];
-+		led_mc->subled_info[0].intensity = cmd_rep->data[1];
-+		led_mc->subled_info[1].intensity = cmd_rep->data[2];
-+		led_mc->subled_info[2].intensity = cmd_rep->data[3];
-+		led_mc->led_cdev.brightness = cmd_rep->data[4];
- 		drvdata.rgb_speed = cmd_rep->data[5];
- 		ret = 0;
- 		break;
-@@ -927,7 +927,7 @@ static ssize_t rgb_effect_store(struct device *dev,
- 				struct device_attribute *attr, const char *buf,
- 				size_t count)
- {
--	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+	struct led_classdev_mc *led_mc = &drvdata.led_mc;
- 	enum rgb_config_index index;
- 	bool rgb_registered;
- 	u8 effect;
-@@ -945,10 +945,10 @@ static ssize_t rgb_effect_store(struct device *dev,
- 	effect = ret;
- 	index = drvdata.rgb_profile + 2;
- 	u8 rgb_profile[6] = { effect,
--			      mc_cdev->subled_info[0].intensity,
--			      mc_cdev->subled_info[1].intensity,
--			      mc_cdev->subled_info[2].intensity,
--			      drvdata.led_cdev->brightness,
-+			      led_mc->subled_info[0].intensity,
-+			      led_mc->subled_info[1].intensity,
-+			      led_mc->subled_info[2].intensity,
-+			      led_mc->led_cdev.brightness,
- 			      drvdata.rgb_speed };
- 
- 	ret = rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, index, rgb_profile, 6);
-@@ -999,7 +999,7 @@ static ssize_t rgb_speed_store(struct device *dev,
- 			       struct device_attribute *attr, const char *buf,
- 			       size_t count)
- {
--	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+	struct led_classdev_mc *led_mc = &drvdata.led_mc;
- 	enum rgb_config_index index;
- 	bool rgb_registered;
- 	int val = 0;
-@@ -1019,10 +1019,10 @@ static ssize_t rgb_speed_store(struct device *dev,
- 
- 	index = drvdata.rgb_profile + 2;
- 	u8 rgb_profile[6] = { drvdata.rgb_effect,
--			      mc_cdev->subled_info[0].intensity,
--			      mc_cdev->subled_info[1].intensity,
--			      mc_cdev->subled_info[2].intensity,
--			      drvdata.led_cdev->brightness,
-+			      led_mc->subled_info[0].intensity,
-+			      led_mc->subled_info[1].intensity,
-+			      led_mc->subled_info[2].intensity,
-+			      led_mc->led_cdev.brightness,
- 			      val };
- 
- 	ret = rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, index, rgb_profile, 6);
-@@ -1185,7 +1185,7 @@ static ssize_t rgb_profile_range_show(struct device *dev,
- static void hid_gos_brightness_set(struct led_classdev *led_cdev,
- 				   enum led_brightness brightness)
- {
--	struct led_classdev_mc *mc_cdev = lcdev_to_mccdev(drvdata.led_cdev);
-+	struct led_classdev_mc *led_mc = &drvdata.led_mc;
- 	enum rgb_config_index index;
- 	bool rgb_registered;
- 	int ret;
-@@ -1202,9 +1202,9 @@ static void hid_gos_brightness_set(struct led_classdev *led_cdev,
- 
- 	index = drvdata.rgb_profile + 2;
- 	u8 rgb_profile[6] = { drvdata.rgb_effect,
--			      mc_cdev->subled_info[0].intensity,
--			      mc_cdev->subled_info[1].intensity,
--			      mc_cdev->subled_info[2].intensity,
-+			      led_mc->subled_info[0].intensity,
-+			      led_mc->subled_info[1].intensity,
-+			      led_mc->subled_info[2].intensity,
- 			      brightness,
- 			      drvdata.rgb_speed };
- 
-@@ -1444,17 +1444,6 @@ static struct mc_subled gos_rgb_subled_info[] = {
- 	},
- };
- 
--static struct led_classdev_mc gos_cdev_rgb = {
--	.led_cdev = {
--		.name = "go_s:rgb:joystick_rings",
--		.brightness = 0x50,
--		.max_brightness = 0x64,
--		.brightness_set = hid_gos_brightness_set,
--	},
--	.num_colors = ARRAY_SIZE(gos_rgb_subled_info),
--	.subled_info = gos_rgb_subled_info,
--};
--
- static void cfg_setup(struct work_struct *work)
- {
- 	bool gp_registered, rgb_registered;
-@@ -1525,22 +1514,20 @@ static void cfg_setup(struct work_struct *work)
- 	if (rgb_registered)
- 		goto update_kobjects;
- 
--	ret = devm_led_classdev_multicolor_register(&drvdata.hdev->dev, &gos_cdev_rgb);
-+	ret = devm_led_classdev_multicolor_register(&drvdata.hdev->dev, &drvdata.led_mc);
- 	if (ret) {
- 		dev_err(&drvdata.hdev->dev,
- 			"Failed to create RGB device: %i\n", ret);
- 		goto update_kobjects;
- 	}
- 
--	ret = devm_device_add_group(gos_cdev_rgb.led_cdev.dev, &rgb_attr_group);
-+	ret = devm_device_add_group(drvdata.led_mc.led_cdev.dev, &rgb_attr_group);
- 	if (ret) {
- 		dev_err(&drvdata.hdev->dev,
- 			"Failed to create RGB configuration attributes: %i\n", ret);
- 		goto update_kobjects;
- 	}
- 
--	drvdata.led_cdev = &gos_cdev_rgb.led_cdev;
--
- 	/* Pairs with smp_load_acquire in attribute show/store functions */
- 	smp_store_release(&drvdata.rgb_registered, true);
- 	rgb_registered = true;
-@@ -1549,7 +1536,7 @@ static void cfg_setup(struct work_struct *work)
- 	if (gp_registered)
- 		kobject_uevent(&drvdata.hdev->dev.kobj, KOBJ_CHANGE);
- 	if (rgb_registered)
--		kobject_uevent(&drvdata.led_cdev->dev->kobj, KOBJ_CHANGE);
-+		kobject_uevent(&drvdata.led_mc.led_cdev.dev->kobj, KOBJ_CHANGE);
- }
- 
- static int hid_gos_cfg_probe(struct hid_device *hdev,
-@@ -1563,6 +1550,18 @@ static int hid_gos_cfg_probe(struct hid_device *hdev,
- 	mutex_init(&drvdata.cfg_mutex);
- 	init_completion(&drvdata.send_cmd_complete);
- 
-+	/* Device is hardwired and name is guaranteed to be unique */
-+	drvdata.led_mc.led_cdev.name = "go_s:rgb:joystick_rings";
-+	drvdata.led_mc.led_cdev.brightness = 0x50;
-+	drvdata.led_mc.led_cdev.max_brightness = 0x64;
-+	drvdata.led_mc.led_cdev.color = LED_COLOR_ID_RGB;
-+	drvdata.led_mc.led_cdev.brightness_set = hid_gos_brightness_set;
-+	drvdata.led_mc.num_colors = 3;
-+	drvdata.led_mc.subled_info = devm_kmemdup(&hdev->dev, gos_rgb_subled_info,
-+						  sizeof(gos_rgb_subled_info), GFP_KERNEL);
-+	if (!drvdata.led_mc.subled_info)
-+		return -ENOMEM;
-+
- 	/* Executing calls prior to returning from probe will lock the MCU. Schedule
- 	 * initial data call after probe has completed and MCU can accept calls.
- 	 */
--- 
-2.55.0
+This patch mitigates an issue where stale replies to timed-out commands can
+silently satisfy the wait for the next command. It introduces a short bound=
+ed
+wait before reusing the completion structure and tracks when a command has
+timed out using a new pending flag.
 
+> diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
+> index 68301d4c762a1..36505d8402ff1 100644
+> --- a/drivers/hid/hid-lenovo-go-s.c
+> +++ b/drivers/hid/hid-lenovo-go-s.c
+> @@ -479,7 +493,9 @@ static int mcu_property_out(struct hid_device *hdev, =
+u8 command, u8 index,
+>  							msecs_to_jiffies(timeout));
+>  	ret =3D ret > 0 ? drvdata.cmd_status : ret ?: -EBUSY;
+> =20
+> -	reinit_completion(&drvdata.send_cmd_complete);
+> +	if (ret)
+> +		drvdata.orphan_ack_pending =3D true;
+
+[Severity: Low]
+Could this logic inadvertently flag a successfully received error reply as =
+an
+orphaned timeout?
+
+When the MCU successfully replies with an error code (meaning drvdata.cmd_s=
+tatus
+is negative), wait_for_completion_interruptible_timeout() returns a positive
+value indicating the wait succeeded. The code then assigns ret =3D
+drvdata.cmd_status, causing the if (ret) check to evaluate to true.=20
+
+Since the reply was successfully received and consumed, there doesn't seem =
+to be
+an orphaned ACK, but this will set orphan_ack_pending =3D true and penalize=
+ the
+next unrelated command with an unnecessary 25ms delay. Is this the intended
+behavior, or should it specifically check for the timeout condition instead?
+
+> +
+>  	return ret;
+>  }
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914225303.8685=
+69-1-derekjohn.clark@gmail.com?part=3D2

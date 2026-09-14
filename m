@@ -1,144 +1,248 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47EB9471416
-	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 12:53:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 573B235292A
+	for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 13:07:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789390424; cv=none; b=VQSKFfV3uNeF+FXMuEXk3O4qO/jzobmtDq2mHSTa7Mb2LSk/j/qfVRIs7+jm7mhA7UU94sCiE1u7hfs0LCBak87QONPwKOY+Gp8yQqtx070JUgft7xcUqNuDsUpi1sYD6bjt0lLsq7mDFdQJQ5KLr7ukOAbUVWgEkgbtsYx+ZnM=
+	t=1789391239; cv=none; b=BMneLs4J9hwPZWmLusIgkBYVL07HSSe9KdnUg3H6voqaDbUgaL4/R4XpjB+jp8DPJAcKsuR5fT+Ug4/DaR1PawH/5XsLhoSFWdtpd/bRz+7kzUp4dSkTe0XscZR5uuyr3gw0X24TJsARSS5K2XVDXZy4J/fAdfN11cdXumEh+LM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789390424; c=relaxed/simple;
-	bh=6Q+jQeBws2llHHpFt/Mq6JlKlRGPIZM1qs/gYsesFjU=;
+	s=arc-20240116; t=1789391239; c=relaxed/simple;
+	bh=s+3PMVS4sD7ZZ7Yjn6/i4hjahQlw98NDmwzfiYlJGFk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=U7DZ03+YT290nTwfuCsaigKq63OrG9QS7HP4jiMiyI1xYk+cZizsGtyGWkidCnSA3lSNPc7LPMmzroNTZvJAoCN0EQ2l1wHfi9uH4TnZN2bWkXIExNs9GeRRJ66lCI4TYwnUsdxJdSp7PFDNxMDYhr2IPxjDdOIr4ICqWWNIw/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WB2xdSj2; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=JmBS04DTDx/RvEiqZ7h0dHl2Gsak6FNr7phr1JUng/KWqbiXR+purW4cLlhzsvOKr+j4wqi4K5Jbje1642W4i5r9pZukf26egMfK741T4zxFngZwdVQaMp0d9NvACv36Ote3yUavoU1Qal1tielTGOaQJpqeggAxlMlvUMGRr30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ObwCb2R/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WB2xdSj2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE741F00893;
-	Mon, 14 Sep 2026 12:53:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ObwCb2R/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD8281F000FF;
+	Mon, 14 Sep 2026 13:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789390422;
-	bh=KbUlJQ5d+s63fqDv5t2mIMyu3ENkZ1A+nCGyrHFXT5s=;
+	s=k20260515; t=1789391238;
+	bh=0hUG/P5ohyCTQ8HtvES/4aGMYdRrc3OQvSLN7JQM6X0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WB2xdSj2jTOlHpIu7nVYjMEAuF5A0HndrpI4WQZ51utJ8PcLzhuEZobc4LkvOxe0S
-	 8EhM5mafGLQwrspHBLJEUsxgoud2SiiEX+sBpGMwWeHYIWXgBGdWio7NzBHPZpMEbO
-	 6dE3JgKBV/zRFgmCvJVf84nLNFAxxBHAH72KN/2qnWxcRPV6s8c4zaGoAyVn6WoE3v
-	 oUBSFpLepo+DuemdCCE8rXzOvPJkWFPIWx70SRtN69nw7yrGEG/bu6WXx1B/9nCzTq
-	 0tKyi1QFWsT++zFhpoKG2ObN7qnTnjhAHqSe6ujEY0Z+7wQut+yWu/M/lDRLgG+liz
-	 5vqphAMtu8gyg==
+	b=ObwCb2R/Oz2mjmyH/169cXOW5T2VBCTCWJ1rnOb/8AMORTe4TYSRvOeImBGipQPLz
+	 iGBg0CEOxAe/R9eg6OOuODtLkLZrXjegaOgsomzj4Qflt2dB/0cVCJHVlCVZ3XU8B7
+	 aFfUBHOoXhAywmfy44nVm2ikdDr9oshG0NlnVgHG3ENrFXOggckBfAOiqf+8IYoOH1
+	 RvRFcpa4UJwJtPdi5D/+KtlzAEK7DBokMC8A+eQmOEUgjQCxLOQLkT5+w+6DvdaO/X
+	 fWLOuEHQkAA/KCqweOv0Jp5Jydus17aZLepzDsoL9Cmjbqen1J+VvsOblkKP8/q6r5
+	 duV2enyvcyn6Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/4] HID: roccat: examine readers to check whether
- the device is opened
+Subject: Re: [PATCH v2 4/4] HID: roccat: use kref to manage device instances
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Antipov" <dmantipov@yandex.ru>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260914120240.1625442-3-dmantipov@yandex.ru>
+In-Reply-To: <20260914120240.1625442-4-dmantipov@yandex.ru>
 References: <20260914120240.1625442-1-dmantipov@yandex.ru>
- <20260914120240.1625442-3-dmantipov@yandex.ru>
+ <20260914120240.1625442-4-dmantipov@yandex.ru>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 12:53:42 +0000
-Message-Id: <20260914125342.9AE741F00893@smtp.kernel.org>
+Date: Mon, 14 Sep 2026 13:07:17 +0000
+Message-Id: <20260914130717.CD8281F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] Caching `list_empty()` state outside `devices_lock` in `roccat_rel=
-ease()` creates a TOCTOU race with `roccat_open()` and `roccat_disconnect()=
-`, leading to device state corruption and leaked hardware open counts.
+
+New issues:
+- [High] A TOCTOU race condition between `roccat_release` and `roccat_open`=
+ causes a new reader's device to be incorrectly powered down and closed.
+
+Pre-existing issues:
+- [High] Data path UAF and NULL pointer dereference in `roccat_report_event=
+` due to lockless device access.
+- [High] Custom Roccat drivers violate HID subsystem lifecycle rules by fre=
+eing their private `drvdata` before stopping the hardware, causing a UAF in=
+ their `raw_event` handlers.
+- [High] A race condition between `roccat_release` and `roccat_disconnect` =
+causes `hid_hw_close()` and `hid_hw_power()` to be skipped entirely, perman=
+ently leaking `ll_open_count` and power references.
 --
 
-commit 8f711f83c5a599f7dd523be3cd4112f138217007
+commit 0e2654cfadc18d56d9b77ac333344436bcca55c7
 Author: Dmitry Antipov <dmantipov@yandex.ru>
 
-HID: roccat: examine readers to check whether the device is opened
+HID: roccat: use kref to manage device instances
 
-This patch replaces the explicit open counter in struct roccat_device with
-a check against list_empty(&device->readers). The goal is to determine if
-active readers exist without maintaining a separate integer count.
+Use kref to manage 'struct roccat_device' instances and fix
+UaF-triggering race between roccat_open()/roccat_release()
+and roccat_connect()/roccat_disconnect() pairs.
+
+Reported-by: syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=3Dd632e93ffcd1452bc61e
+Link: https://sashiko.dev/#/patchset/20260902094551.200587-1-dmantipov@yand=
+ex.ru?part=3D2
 
 > diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index 007778922c21a..d1df4ec34a1e6 100644
+> index d1df4ec34a1e6..32927b20bcfe0 100644
 > --- a/drivers/hid/hid-roccat.c
 > +++ b/drivers/hid/hid-roccat.c
 [ ... ]
-> @@ -213,18 +209,20 @@ static int roccat_release(struct inode *inode, stru=
-ct file *file)
->  {
->  	struct roccat_reader *reader =3D file->private_data;
->  	struct roccat_device *device =3D reader->device;
-> +	bool open;
-> =20
->  	if (WARN_ON_ONCE(!device))
->  		return -ENODEV;
-> =20
->  	mutex_lock(&device->readers_lock);
->  	list_del(&reader->node);
-> +	open =3D !list_empty(&device->readers);
->  	mutex_unlock(&device->readers_lock);
-
-[Severity: High]
-Does evaluating the list state here and dropping the lock introduce a race
-condition?
-
-If another thread calls roccat_open() before devices_lock is acquired below,
-it will observe an empty list, power on the device, and add a new reader.
-
->  	kfree(reader);
-> =20
->  	mutex_lock(&devices_lock);
-> =20
-> -	if (!--device->open) {
-> +	if (!open) {
->  		/* removing last reader */
+> @@ -227,9 +231,8 @@ static int roccat_release(struct inode *inode, struct=
+ file *file)
 >  		if (device->exist) {
 >  			hid_hw_power(device->hid, PM_HINT_NORMAL);
 >  			hid_hw_close(device->hid);
+> -		} else {
+> -			roccat_free_device(device);
 >  		}
+> +		kref_put(&device->ref, roccat_free_device);
+>  	}
+> =20
+>  	mutex_unlock(&devices_lock);
 
 [Severity: High]
-Since this uses the cached open flag, could it unconditionally power down a=
-nd
-close the hardware here, cutting off the newly added reader from the
-concurrent roccat_open() call?
+Can a newly opened reader's device be incorrectly closed and powered down d=
+ue
+to a TOCTOU race?
 
-[ ... ]
-> @@ -370,7 +369,11 @@ void roccat_disconnect(int minor)
+Looking at roccat_release(), the open status is determined early while hold=
+ing
+device->readers_lock. A concurrent roccat_open() can then observe the empty
+list, power on the device, and add its reader node.
+
+When roccat_release() later acquires devices_lock, it acts on the stale open
+variable (which is false):
+
+CPU1: roccat_release()
+    mutex_lock(&device->readers_lock);
+    open =3D !list_empty(&device->readers); // false
+    mutex_unlock(&device->readers_lock);
+
+CPU2: roccat_open()
+    mutex_lock(&devices_lock);
+    mutex_lock(&device->readers_lock);
+    // list is empty, power on and open hardware
+    hid_hw_power(device->hid, PM_HINT_FULLON);
+    ...
+    mutex_unlock(&device->readers_lock);
+    mutex_unlock(&devices_lock);
+
+CPU1: roccat_release() (resuming)
+    mutex_lock(&devices_lock);
+    if (!open) {
+        hid_hw_power(device->hid, PM_HINT_NORMAL);
+        hid_hw_close(device->hid);
+    }
+
+Does this clobber the concurrent open and leave the newly connected reader =
+with
+a powered down, closed hardware state?
+
+> @@ -362,6 +366,8 @@ void roccat_disconnect(int minor)
 > =20
->  	devices[minor] =3D NULL;
-> =20
-> -	if (device->open) {
-> +	mutex_lock(&device->readers_lock);
-> +	open =3D !list_empty(&device->readers);
-> +	mutex_unlock(&device->readers_lock);
-> +
-> +	if (open) {
+>  	mutex_lock(&devices_lock);
+>  	device =3D devices[minor];
+> +	if (!device)
+> +		goto out;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does roccat_report_event() r=
+isk
+a NULL pointer dereference or use-after-free because it accesses devices[mi=
+nor]
+locklessly?
+
+When the device is unplugged, roccat_disconnect() sets devices[minor] =3D N=
+ULL
+and drops the kref. Since the transport hardware hasn't been stopped yet (d=
+ue
+to the delayed hid_hw_close), incoming USB events can concurrently trigger
+kone_raw_event(), which calls into roccat_report_event():
+
+drivers/hid/hid-roccat.c:roccat_report_event() {
+    ...
+    device =3D devices[minor];
+
+    new_value =3D kmemdup(data, device->report_size, GFP_ATOMIC);
+    ...
+}
+
+If devices[minor] is read as NULL here, accessing device->report_size will
+trigger a panic. If it is read right before kref_put frees it, does this re=
+sult
+in a use-after-free, defeating the intent of the kref fix?
+
+> @@ -376,10 +382,10 @@ void roccat_disconnect(int minor)
+>  	if (open) {
 >  		hid_hw_close(device->hid);
 >  		wake_up_interruptible(&device->wait);
->  	} else {
+> -	} else {
+> -		roccat_free_device(device);
+>  	}
+> =20
+> +	kref_put(&device->ref, roccat_free_device);
+> +out:
+>  	mutex_unlock(&devices_lock);
+>  }
 
 [Severity: High]
-Can a concurrent roccat_disconnect() and roccat_release() race here,
-resulting in neither function closing the hardware?
+This is a pre-existing issue, but can a race between roccat_release() and
+roccat_disconnect() permanently leak the ll_open_count and power references=
+ by
+skipping hid_hw_close() entirely?
 
-If roccat_release() removes the last reader, it evaluates the local open
-variable to false. If roccat_disconnect() then acquires readers_lock, it wi=
-ll
-also evaluate open to false since the list is already empty, and it will sk=
-ip
-calling hid_hw_close().
+If roccat_disconnect() sets device->exist =3D 0 concurrently with the last =
+reader
+calling roccat_release(), both paths appear to bypass the mandatory cleanup:
 
-When roccat_release() subsequently acquires devices_lock, it observes that
-device->exist is 0 (set earlier by roccat_disconnect()) and also skips call=
-ing
-hid_hw_close().
+CPU1: roccat_disconnect()
+    device->exist =3D 0;
+    // open is false because reader is removing itself
+    if (open) { ... } // skipped
 
-Will this result in a permanent leak of the HID hardware open count?
+CPU2: roccat_release()
+    // open is false
+    if (!open) {
+        if (device->exist) {
+            // skipped because exist is 0
+            hid_hw_close(device->hid);
+        }
+    }
+
+Does this leave the hardware permanently active and prevent proper unbindin=
+g?
+
+
+While reviewing the UAF fixes in the roccat driver, I noticed another
+pre-existing UAF in the kone driver's lifecycle handling:
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does the kone driver violate
+HID lifecycle rules by freeing its private driver data before stopping the
+hardware?
+
+Because kfree(hid_get_drvdata(hdev)) is called before hid_hw_stop(hdev),
+incoming USB events can still be delivered during this window.
+
+drivers/hid/hid-roccat-kone.c:kone_remove_specials() {
+    ...
+        kfree(hid_get_drvdata(hdev));
+    ...
+}
+
+drivers/hid/hid-roccat-kone.c:kone_remove() {
+    kone_remove_specials(hdev);
+    hid_hw_stop(hdev);
+}
+
+If an interrupt arrives before hid_hw_stop(), kone_raw_event() accesses the
+freed kone structure:
+
+drivers/hid/hid-roccat-kone.c:kone_raw_event() {
+    struct kone_device *kone =3D hid_get_drvdata(hdev);
+    struct kone_mouse_event *event =3D (struct kone_mouse_event *)data;
+    ...
+    if (memcmp(&kone->last_mouse_event.tilt, &event->tilt, 5))
+    ...
+}
+
+Can this use-after-free be triggered locally by unplugging the device while
+USB events are active?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914120240.1625=
-442-1-dmantipov@yandex.ru?part=3D3
+442-1-dmantipov@yandex.ru?part=3D4

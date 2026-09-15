@@ -1,69 +1,69 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57182431E49
-	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 04:31:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ADF142901F
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 04:38:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789446696; cv=none; b=a2Gsd5oHRa5w5xX6lKzNMQ1+Y8gWJ5jaZmYPkhYDvz9LuPvkER3GZM8Uk1iH4PX6z7oXjiIvUhabXsjEZP90kWFRRpA8D59bf0GPhL15KcXc2L35vWS2Ag4MG3Zdc+CJ7hvhGAtxBJzuii+GFRUVhFf/TrF2LNKgBo2s7YtxXaI=
+	t=1789447103; cv=none; b=iALCbyHFJmY4QBuyv72vx1HWD1Y9A5/B2J1sPk1HQOlBqxWopPgZnoqYGhVTXTNOtsDIId7ctinXW3dOIA7KmLEfapxe5Xurnj0LN4u/quRwzCoP/M6HUGq3YmS89GSNn4WGix3GsEI0cdbEobNzDNDF1Iu6zMRU1slDlsXPqAE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789446696; c=relaxed/simple;
-	bh=aA5Y65sUh5ASzrECnC0J4mtzsACnCZsUUFd7ircv8ik=;
+	s=arc-20240116; t=1789447103; c=relaxed/simple;
+	bh=byONPyUZbkcaNu5MmKjxg+IDL9AWfX3kyeQ9JGh+YMg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mt/c7UlbuiBTwYopc2A55kREKVnc6J2hSNdjowOzr7wfl+ioDhDt70R4iEFnNTPp0P1IqJVoDufGJ+dKMoBnYGgN3ogycB3zX0hKA58e/Iu0A0tLYpXVTYMiLmP08r/P7sQtTykB8daLvpKG98NXehmaYbAzZFHsgBZKKGoqguA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RgRwYsBg; arc=none smtp.client-ip=209.85.216.48
+	 In-Reply-To:Content-Type; b=GO67PVnVoEUQjCNM05wr1hJGmCsMpF2+6BN0rmoFYBMTOX4iiROMRd0O7LQ/+gfpaP6N8d30YMfCgpMWB1kD7MCbt2J2xdY65lT0nkZlfwU95L97nYIhBX+NAEr3kphoEyLliaD9VzZOKD6NpmdONn2KlIhnXVQlKGA2YrWPTps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RZU3Fx3w; arc=none smtp.client-ip=74.125.227.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RgRwYsBg"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-395cf2535acso592142a91.1
-        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 21:31:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RZU3Fx3w"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccc09d65so2724058a91.3
+        for <linux-input@vger.kernel.org>; Mon, 14 Sep 2026 21:38:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789446683; x=1790051483; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789447100; x=1790051900; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ZvpGpkLwYIiw/rxF7PoZSHAZ78tlo5vcBFE4Ln3eUgo=;
-        b=RgRwYsBgMvRgioJRvqUcOlvUKu0abAko6/C3vwuCEHRQJMI+JlwTPt3DyGrFpdTFVo
-         QqpGbWlkuOVRhJZ1HR+13saLHTQgvb8NV2kJ9/VRSTJLEItYakRD5xUv+a3Drl+TVGyf
-         jHxnjuFab9FNWsWD6X6rmffcaNh+PRI0a6Qy0+Xl60S1TJj8JYX4LEH5E/3RNg8VTfzn
-         rQx7F9BwdkULmosMQfrYaxssHjQc1EmJ7ZU3KbeOtyzSRMMrT7PHm9ihY8mtYFIfj/8O
-         RnBtCdDFWdw7AHxNI18J+POqqnREX4tOlgyUfEVW2w1qLj9U/i77zmz1ninnAfe44tgB
-         x6gQ==
+        bh=uNE3bwaTCGDX6nDbrRzGF5uf2GpBaOmhy8mPPMtypEM=;
+        b=RZU3Fx3wmFiq7fRosmJ43OKj+j+MVx/0aKvlZtCyYo5VMC0XAARZqP5v0SHCmv4MvS
+         BXrlRgnTgRzVodnATslPzDcPK/FdB8NEFIZ1La/F2CfObFiUBCi3QrzivtQQQtQpK8IS
+         IweXH5ZPMhqzVYwSqSA1msO37/4t2bPKcmREHLmEBn7/o4yEqWsns4iX78czqWjYE20F
+         fOlRB0hJVdD306cV0hA27RNG/MmB+U9WFd4H6TuZ6PP0Eyo8aKj7GHyiK/9YeaGe6RUN
+         zu/jRml+vDhkSe8Waeu3XfXcxMNTEw6+ak+wuZHCmsEQc3v/elG4Y2AnYK/d66ZiDx4w
+         s1lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789446683; x=1790051483;
+        d=1e100.net; s=20260707; t=1789447100; x=1790051900;
         h=content-transfer-encoding:content-type:in-reply-to:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=ZvpGpkLwYIiw/rxF7PoZSHAZ78tlo5vcBFE4Ln3eUgo=;
-        b=r36pY7GrnTQt2VyY86sQBZHZZYq2JKqYb34hXAgQBiW2O4z6PwH7dTOCG/eOkXk/9d
-         BygImQ206FwCWVMEQPSi40p/RTj7CLFuzITe6vpg1Lv5CqPRBQCo1xnCVNwvOWRVXKtP
-         UzONiytUq3+8ACGRCsLtq1IENa8i/SKfK6g8+oupzfIw8xsuEb9bQdiceXT+C/3ip8RL
-         0HPmQUj45f9StyRFVOO9fLq/jcgiQufBN9EBdB6mKI61TYz3hg0GYLK0e116g3xpMhNs
-         /PYR4LAbok6bZfOISGltXEtGU2S/BPBDB7CUXxXkN8PaqyytSkzB1ZE3wQiMFlW+bK51
-         dIdQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzkUlvEakjrZhue2c5qEoH2ExUfv53DuGNyKbKi8KUw1Xzs52V99iC9w65GYlPXeTxEZzIQk/vQy1bIZg==@vger.kernel.org
-X-Gm-Message-State: AFuF++kaU0yR2okABq1sRE5gBgRKuwfGL5RJjpX/E8M4/Ni2YSCZO0H7
-	lCSTiNZWPF9mykauJ2LhfaShdoLpO+ZLS/KFCfG3eHjXv/hB2S3wYcwT
-X-Gm-Gg: AYBFou3Uu/9dx/coObxXP0qXeNXeY/jwp8mmo4yzt+bEkyPVZvz99STRYZo9V0RGqH6
-	h+7Oq2Pz8ofkuhiZSxt45UX6WIS5sxPvnVWw7JBJ9HPWqq2hbDTS+3AZR3+BzOCH66l26lt2o/N
-	EhVXh56GCVeT//LqCLc49jDYmUTYsTTBcv8dTi2BHDt72+YUD/XlHU4Nxq8wtRawyaHdqr4tcbG
-	gID8yIQm3Za+1aIqJigGrD+GfrMpkJxCBPRc/O2FHD5Sm4jmYzAa26+bGa2cQjzFftcMQCikgtn
-	1WOSVudVg9bFKBBXxwVRvhk/T17iFVdQ28A4T8onqIIuStREKwBEx43/0IvFIwaGN138A7WQSzP
-	05fwsGYR7GoWYRkL/KQrJKlh+T6eqAaDH7IFRKhBhpaaAaDyIfJur9sS7HUs0giPdMEJg3Bg93c
-	IRMJEwDaCz7qrD/XVP5Z1ypyY+ICD8wbEgVX+hrBQPK8QWw8OrZWv2typ5mO96RZSDoTcxbUOU3
-	zwrGOwm9DSwCJwhlsSEirZ/Vc2vGMVbd7p06hIMpffqeIkr
-X-Received: by 2002:a17:90b:4a11:b0:38f:a81:15b1 with SMTP id 98e67ed59e1d1-39dfe188cd9mr3239494a91.19.1789446683158;
-        Mon, 14 Sep 2026 21:31:23 -0700 (PDT)
+        bh=uNE3bwaTCGDX6nDbrRzGF5uf2GpBaOmhy8mPPMtypEM=;
+        b=kw7zEL69RMC/GzcNRtvXDybVopASlo4QUcDgI2ODeGC7NNYroEvpcLTDFHf7nsvo8R
+         UBtV7Op9zqtTqY3Gj/XbNj0oiQZggawjmKisGE9hMA3QASz0hqMEmPE6FpnYZawH5dJS
+         CprqrY5PIT26i2qbdGdapYVBagpzjWdXH6c2BIFu42My+9pNoOmf8zu3Wb4aJUv7l7+J
+         ZcppS4xCU66wl52LSmKpZw8qbimVCURmUSQLzZeY8MVNUPavfPHaFyESjg2mDl8H1QQu
+         LQY3MC2e7MagNyUtS6C1dhVIvWAIpY5G9bhjkVbrouMaIGyH/OQQOX+HHRE591+5ewIV
+         JSAA==
+X-Forwarded-Encrypted: i=1; AKwUvBzKd+sY7Mlra/6LLeAqu1qgkGEZU9mYf8ynTbCpmE/IZpt5y8onWgoFYilUeuENJ+yg+SScMp0WmS5S5A==@vger.kernel.org
+X-Gm-Message-State: AFuF++nB4pjYK8HUNkQLuUnX/Y2zV+K5LxdWFJWJ/J59hYDqeKvGKlor
+	7a+nrXj+bawaQJgaMJLFCcn7kpx+LoNbsAVmaexOO+5tgA6CBAITxodC
+X-Gm-Gg: AYBFou0dSTqAkt93f04vMkgHRxcbVkgkj0grgtF6iPGY+kyj2wvF8IGXMMn0/O5G+kp
+	kJ6WqEaxh80VeOZIaoAY7ECumaJEg5EUoxHRhGv2hBK7oxks4cMuLaazIkslxpz6eEN5KtFk7PD
+	KyJfttR+EcCofqSjv8qjyGOJ+CAf+Ix/yYgIvl4FJcgSfIu2QVe7RGB/v2IDRekS197w40OylLJ
+	UuXBkKtp2bezDg/Rd6bRWV0ZmBUApsry0EoQUDvpK0unLATZphfTsM0TGYHeu79GFXmtxHzDjWL
+	o0Jq8uAaRjhXEBW5VfVINknJYF0w1V5lMNw48BQBtgLi8WxDaSQf2sJxOA508IrAJuc+FvZtDex
+	av5PkTsoNql/FrCb64OpsKjI6ebNxilIZZF2sjmKx9zYqPFGGXLJyQ3Gfc+yKU8DNwDtzZVXYGj
+	1etFT73x2Xm3+h8bAbAscKAP1QiyvCW3KpngFphy6vTuKY6gF6BT1MlYErdpnw9YtoVRCzQyy5z
+	Bjtp2oV+DezJ1PmtX+/ns47B4mQ1aluyHPz7i8OmapjqitO
+X-Received: by 2002:a17:90b:4a85:b0:39d:f731:e5f3 with SMTP id 98e67ed59e1d1-39df731eb5dmr204600a91.24.1789447099934;
+        Mon, 14 Sep 2026 21:38:19 -0700 (PDT)
 Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33bc03778c7sm20657595eec.9.2026.09.14.21.31.21
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1438d89556asm3067248c88.13.2026.09.14.21.38.18
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Sep 2026 21:31:22 -0700 (PDT)
+        Mon, 14 Sep 2026 21:38:19 -0700 (PDT)
 Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <feb99d33-074e-444b-8fc3-ae53ec365965@roeck-us.net>
-Date: Mon, 14 Sep 2026 21:31:20 -0700
+Message-ID: <b7b45dac-d9ad-4af3-a1fd-8d9aced30dc4@roeck-us.net>
+Date: Mon, 14 Sep 2026 21:38:17 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,8 +71,8 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/4] HID: generic: Respect specialized drivers match
- callbacks
+Subject: Re: [PATCH v3 2/4] hwmon: (aquacomputer_d5next) Avoid truncating
+ scaled sensor readings
 To: Vas Zayarskiy <contact@vasily.cc>, Aleksa Savic
  <savicaleksa83@gmail.com>, Jack Doan <me@jackdoan.com>,
  Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
@@ -81,7 +81,7 @@ Cc: linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org,
  Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
  Randy Dunlap <rdunlap@infradead.org>
 References: <20260914233728.22725-1-contact@vasily.cc>
- <20260914233728.22725-2-contact@vasily.cc>
+ <20260914233728.22725-3-contact@vasily.cc>
 Content-Language: en-US
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
@@ -127,53 +127,85 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  F0WaMvQMNrk9UAUziVcUkLU52NS9SXqpVg8vgrO0JKx97IXFPcNh0DWsSj/0Y8HO/RDkGXYn
  FDMj7fZSPKyPQPmEHg+W/KzxSSfdgWIHF2QaQ0b2q1wOSec4Rti52ohmNSY+KNIW/zODhugJ
  np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <20260914233728.22725-2-contact@vasily.cc>
+In-Reply-To: <20260914233728.22725-3-contact@vasily.cc>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 9/14/26 16:37, Vas Zayarskiy wrote:
-> A driver can reject an interface in its match callback even when its ID
-> table matches. hid-generic currently yields based on the ID table alone,
-> leaving such an interface without a driver.
-> 
-> Consult the callback after matching the ID table so hid-generic can keep
-> interfaces declined by specialized drivers. This allows the AMPINEL
-> hwmon driver to leave the separate keyboard interface to hid-generic.
-> 
-> The same callback check was proposed previously for Logitech devices:
-> 
-> Link: https://lkml.iu.edu/hypermail/linux/kernel/2212.0/06724.html
+> High Flow Next power is reported in watts. Multiplying the 16-bit value
+> by one million can overflow both the signed intermediate and the u32
+> cache. Store power in long, perform the conversion in u64, and clamp to
+> LONG_MAX. The other existing power conversions fit in a signed 32-bit
+> value. Return ENODATA for unavailable power instead of exposing the
 
-That was from 2022 and seems to have been abandoned, making me wonder
-if it is still broken for Logitech devices or if another solution
-was found.
+-ENODATA
 
-Guenter
+> stored error as a reading.
+> 
+> Widen the shared current cache to u32. The Aquastream XT calibration can
+> exceed 65535 mA; clamp its negative calibration results to zero before
 
+That isn't a calibration. It is a conversion or scaling to hwmon ABI units.
+
+> assigning to the unsigned cache. This also permits devices with scaled
+> aggregate currents to store milliamperes directly.
 > 
 > Assisted-by: LLM sparse
 > Signed-off-by: Vas Zayarskiy <contact@vasily.cc>
 > ---
->   drivers/hid/hid-generic.c | 8 +++++++-
->   1 file changed, 7 insertions(+), 1 deletion(-)
+>   drivers/hwmon/aquacomputer_d5next.c | 12 ++++++++----
+>   1 file changed, 8 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-generic.c b/drivers/hid/hid-generic.c
-> index c2de91674..ebc38ae76 100644
-> --- a/drivers/hid/hid-generic.c
-> +++ b/drivers/hid/hid-generic.c
-> @@ -31,7 +31,13 @@ static int __check_hid_generic(struct device_driver *drv, void *data)
->   	if (hdrv == &hid_generic)
->   		return 0;
+> diff --git a/drivers/hwmon/aquacomputer_d5next.c b/drivers/hwmon/aquacomputer_d5next.c
+> index 1ca70e726..9178ac4cb 100644
+> --- a/drivers/hwmon/aquacomputer_d5next.c
+> +++ b/drivers/hwmon/aquacomputer_d5next.c
+> @@ -19,6 +19,7 @@
+>   #include <linux/hwmon.h>
+>   #include <linux/jiffies.h>
+>   #include <linux/ktime.h>
+> +#include <linux/limits.h>
+>   #include <linux/module.h>
+>   #include <linux/seq_file.h>
+>   #include <linux/unaligned.h>
+> @@ -599,9 +600,9 @@ struct aqc_data {
+>   	u32 speed_input_min[1];
+>   	u32 speed_input_target[1];
+>   	u32 speed_input_max[1];
+> -	u32 power_input[8];
+> +	long power_input[8];
+>   	u16 voltage_input[8];
+> -	u16 current_input[8];
+> +	u32 current_input[8];
 >   
-> -	return hid_match_device(hdev, hdrv) != NULL;
-> +	if (!hid_match_device(hdev, hdrv))
-> +		return 0;
-> +
-> +	if (hdrv->match)
-> +		return hdrv->match(hdev, false);
-> +
-> +	return 1;
->   }
+>   	/* Label values */
+>   	const char *const *temp_label;
+> @@ -976,7 +977,7 @@ static int aqc_legacy_read(struct aqc_data *priv)
 >   
->   static bool hid_generic_match(struct hid_device *hdev,
+>   		/* Calculation derived from linear regression */
+>   		sensor_value = get_unaligned_le16(priv->buffer + AQUASTREAMXT_PUMP_CURR_OFFSET);
+> -		priv->current_input[0] = DIV_ROUND_CLOSEST(sensor_value * 176, 100) - 52;
+> +		priv->current_input[0] = max(DIV_ROUND_CLOSEST(sensor_value * 176, 100) - 52, 0);
+>   
+>   		sensor_value = get_unaligned_le16(priv->buffer + AQUASTREAMXT_PUMP_VOLTAGE_OFFSET);
+>   		priv->voltage_input[0] = DIV_ROUND_CLOSEST(sensor_value * 1000, 61);
+> @@ -1070,6 +1071,8 @@ static int aqc_read(struct device *dev, enum hwmon_sensor_types type, u32 attr,
+>   		}
+>   		break;
+>   	case hwmon_power:
+> +		if (priv->power_input[channel] == -ENODATA)
+> +			return -ENODATA;
+>   		*val = priv->power_input[channel];
+>   		break;
+>   	case hwmon_pwm:
+> @@ -1426,7 +1429,8 @@ static int aqc_raw_event(struct hid_device *hdev, struct hid_report *report, u8
+>   			priv->power_input[0] = -ENODATA;
+>   		else
+>   			priv->power_input[0] =
+> -			    get_unaligned_be16(data + HIGHFLOWNEXT_POWER) * 1000000;
+> +			    min_t(u64, get_unaligned_be16(data + HIGHFLOWNEXT_POWER) * 1000000ULL,
+> +				  LONG_MAX);
+>   
+>   		priv->voltage_input[0] = get_unaligned_be16(data + HIGHFLOWNEXT_5V_VOLTAGE) * 10;
+>   		priv->voltage_input[1] =
 

@@ -1,57 +1,57 @@
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5CCF463B78
-	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CF823F4118
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:19:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789460436; cv=none; b=W7ml71tucgIajIQByX0WKq05jLlHiVDajGUxZjrbr/JdXVkNDOwUhihAYFuLRFVYWcg3L8SCjPTiyYwUZ2TGfIH4rR263w5EnGqc+U0K7qsX2UBZ7WWVRKHzPaQTYIWCe+bL1+rbUcHk2s1I+QmGgR8EQUieVQAbImdnNVyIMAY=
+	t=1789460423; cv=none; b=WYimyAbvaF82EK4t+c5G4bo1Zy150IHwyG5y7qtPi2hZrcBM9k+SxqtU3GvWZ/Zh9pIwVfrtz7KbgJaCsaf21+7NWAlwWBVqlqv1tYDMuAwJWsIitaaPmjmwvG7h2rprCgQOFpvhYFyjSIAnTdCsezdKIQ5gOcxlceAeeFA1YAc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789460436; c=relaxed/simple;
-	bh=EN6EGME+huegbOxDBjKH7V67mh976lOmZoZq43U+s0w=;
+	s=arc-20240116; t=1789460423; c=relaxed/simple;
+	bh=ssrtilV0ROe6MoyNp1rJsvlSxakRJHyBYRIufpPLFUQ=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=oPZS+SVZeb+bPLJKZ6UnWL2DX7+1hJs2U+HMfST7B48WF8BenWk5Z1bRYrOSefMNhPhF/p1lX9eMZD0IjnuaefWunBtpN38C1wY16owVO21LF/Kvfc52BTPpoAWxrK2Hi5H/x8co38ij9Bl8IHNDupQmr2Mum2oYeKA4sbGXcg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IN7mFECf; arc=none smtp.client-ip=209.85.214.199
+	 To:Cc:Content-Type; b=EGOf7r/tDoNtoLXRY9h8ESutYz6e0Njq4BuUhHb0h2h19CtntATLkUU4Wb5I3hfTGE49Gn+QXvtaIfLSmMaRuibVQ+RlTHrL86EdJEFkePNn9g9Nb59S02TPW6JDLe4nm2Shz2G8EZB2SHTxnMfhjsC5lyVAwbDQdfbFTY3I0Pw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Xihxa3OH; arc=none smtp.client-ip=209.85.214.200
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IN7mFECf"
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2d7443e0f0bso78281915ad.1
-        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 01:20:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Xihxa3OH"
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2d55d8cd938so73486575ad.1
+        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 01:19:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1789460399; x=1790065199; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1789460393; x=1790065193; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=EgFMWIs3mUJyaWhldMFLFql9frpSc6deV3MqyJ0yzUw=;
-        b=IN7mFECf+lQARLCCu20shBJaZb8YTnUewxaKE/yWKSD5Vbgf9UY3RdZ3rRDjLRVZaE
-         yK7wbGvW4DIK+Vg0pjnsTrq22hbGV2BRSba/TrVdqeWM1/jsTbhFlUQkcZVvberBxd1d
-         SaDNtYVCwLgiVRfYGfpGb254t+/EUVUSeEWbVrLCcxNClqxguZ20/H8WwMKCwQ+moQgN
-         YX7dmX/fn5/SKtLJ+iwgTCzv3y5aPqff1Ajewyb3RPZpBd9ZPzG21xtxZqD0s6WsVYTN
-         wMYLfnEDv0wRIJ75lLG2IgBPGu//T9hW+jeC8Cxg2o/3gR1///x0IMDj8zJgaRJkqvIT
-         FCYg==
+        bh=zWD4hm0/QtNssxCPHbfwVqSd2Rh5fwz1bRTM/8vetN0=;
+        b=Xihxa3OH/mCSCECGGr6/9fEt1Zqumko+zbQG5KqiHGv9OMJPrmtBtY53X70e5DXa5N
+         /Mvht2Bbrf6oWaRG/Zvd07FCQdV7WtzqYiSWNhCLMAtPFyNG4+/RPy7ukiB5Fk++dm+e
+         nNlrbTf1QbI8hEuN5W+70U5+b2wvnUsSGClR/TcfxJ1pIHXioYU110PN9I++hjsKuRHN
+         wRpCoEqOKptIA+fGlsRhSafmeLWbLfuTuLa5H3Fm/eWfwPx2PIXZz31GMPSFQAnKFC+r
+         fkenlqAnef01TCn9A34WFUA9CD4Y2fvptoQFdOXHHbQYHtWpR2IroCvW9/fUlZvI/Lv+
+         b/rg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789460399; x=1790065199;
+        d=1e100.net; s=20260707; t=1789460393; x=1790065193;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=EgFMWIs3mUJyaWhldMFLFql9frpSc6deV3MqyJ0yzUw=;
-        b=rXuApbaUwyumPAhSFprHA3+FQwtN6vwkFLpBbRnGWeD7+Yc8iMcw9l/Y3VfTBA3h1/
-         0Kgkapv4Vom42OKRaRJ76l//kLvs1risdhouP8SiJdchCMnNIWl6Op7DUX5pzU6F1qDa
-         dqWupacBPqrmK9NdJCnz6uomhaORQWZBEK27wSjiSqlx/4iB7UHKsCV+svm2mt1ZoEiH
-         d6peCTxkepelpkOs51+ArMDreE33zVSZJ3vlEH3J2aUXCWz4gdGvOrF8M/HC0kUJM2zD
-         q2njrx4njTomdNupE5W040NwcxN52Yw81b6KzQR5lyDqq0sQ8iyw8LleiPowDJs7B1jc
-         cB4A==
-X-Forwarded-Encrypted: i=1; AKwUvBzMsyxsJnhMpzXuGUPn/Moopalxr9AdaOLN3WqKP9WKNpzBGL4kUHrmdwwgdZRni9aCIhHAfjNlmfsrfA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mwRirn41l5fs5iIVMGnj5BiGQCFS5l60FK8Zt7Ot0IEy5dVc2+
-	xxSFVaDozxzRcTy+4fmX98Hnidc/T6GQoks6FDWHrCGyI1q0Ww4uY0p4Q66QsoSTE68VZ109L5Q
-	z
-X-Received: from plrf13.prod.google.com ([2002:a17:902:ab8d:b0:2d9:21a2:1910])
- (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:32cc:b0:2db:3d84:effc
- with SMTP id d9443c01a7336-2dd6c5d600fmr121011565ad.6.1789460398023; Tue, 15
- Sep 2026 01:19:58 -0700 (PDT)
-Date: Tue, 15 Sep 2026 08:18:28 +0000
+        bh=zWD4hm0/QtNssxCPHbfwVqSd2Rh5fwz1bRTM/8vetN0=;
+        b=D7vTYZTWHxypWVTSliLW4X+ETIQWplOi+fmg8MV11/QzDdDJbd3pE7VGU2s3nbEMTb
+         hUOzMfIpftA93qAd6HBAdWVz5nr5R6YrWv/Y3S13ieo+Lpt1qtt1uRd2OwszA/aDL25W
+         MAVjEY/MLh94AKqFp0kHHIxnZhUfCSYjepsErsDWD/v5Jvtt+GXb2tYZLXyQoCWFV4s2
+         39YJRkEaL6DWgYHaJeFOaCZ9zHJ4ozBOije1aOmtYZXshYSrgnD3mSHUG8jDEnJAwEWm
+         eqClNMdTtTDWNzyxuE15GSBUWSd/A29VITZtbs1P1D1saNRiDk8am5qtbMuXzamBLFXP
+         ClsQ==
+X-Forwarded-Encrypted: i=1; AKwUvByi89GAfOj8T3ElP3n2DBD+jHkmMe9xhkQthNSM405lhO13zfOuDDvn4ojbW/8OgpxUk69uBcSd89+VCQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++najrsqfKeD3LT1MgcUJ9zz8AhYjoVMWiNtFOnUJeK7RTzbvRdF
+	2lRmtSpkNGrgQnqFBcHBzGEnMyDQtqM/f0CUyZJMW5VKSyERiik1KWgNEiUUsEGuIVLJdC9hPgs
+	h
+X-Received: from plot14.prod.google.com ([2002:a17:902:8c8e:b0:2dd:4712:5539])
+ (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:f541:b0:2dd:1701:3b6e
+ with SMTP id d9443c01a7336-2dd6c73381dmr119309875ad.16.1789460392218; Tue, 15
+ Sep 2026 01:19:52 -0700 (PDT)
+Date: Tue, 15 Sep 2026 08:18:21 +0000
 In-Reply-To: <20260915081910.4142719-1-morbo@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -61,8 +61,8 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260915081910.4142719-1-morbo@google.com>
 X-Mailer: git-send-email 2.55.0.1032.g73a4cd73de-goog
-Message-ID: <20260915081910.4142719-12-morbo@google.com>
-Subject: [PATCH 11/28] wifi: brcmfmac: Replace strlcat() with snprintf() in brcmf_fw_alloc_request()
+Message-ID: <20260915081910.4142719-5-morbo@google.com>
+Subject: [PATCH 04/28] scsi: bfa: Use snprintf() in bfa_fcs_fabric_nsymb_init()
 From: Bill Wendling <morbo@google.com>
 To: linux-kernel@vger.kernel.org
 Cc: Bill Wendling <morbo@google.com>, codemender-patching+linux@google.com, 
@@ -123,17 +123,15 @@ Cc: Bill Wendling <morbo@google.com>, codemender-patching+linux@google.com,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-brcmf_fw_alloc_request() constructs firmware file paths by chaining
-strscpy() and multiple strlcat() calls for the module parameter path,
-separator, base name, and extension.
+bfa_fcs_fabric_nsymb_init() constructs the node symbolic name using
+strscpy() followed by five strlcat() calls and explicit NUL-termination.
 
-In preparation for removing the deprecated strlcat() API[1], format the
-complete firmware path in a single snprintf() call.
+In preparation for removing the deprecated strlcat() API[1], replace the
+chained string copies with a single snprintf() call.
 
 Link: https://github.com/KSPP/linux/issues/370 [1]
 Cc: codemender-patching+linux@google.com
-Assisted-by: SecurityEngineer:GPT-4o [editor_update_file, make_kernel_build=
-_single_file, shell_command_run]
+Assisted-by: Gemini-2.5-Pro:2.5 [shell_command_run, editor_update_file]
 Signed-off-by: Bill Wendling <morbo@google.com>
 ---
 Cc: Russell King <linux@armlinux.org.uk>
@@ -247,45 +245,52 @@ Cc: devel@lists.orangefs.org
 Cc: linux-hardening@vger.kernel.org
 Cc: linux-sound@vger.kernel.org
 ---
- .../broadcom/brcm80211/brcmfmac/firmware.c    | 21 +++++++------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ drivers/scsi/bfa/bfa_fcs.c | 31 +++++++------------------------
+ 1 file changed, 7 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c b/=
-drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-index 22ff326f1924..2f74a952599e 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
-@@ -845,22 +845,17 @@ brcmf_fw_alloc_request(u32 chip, u32 chiprev,
- 	fwreq->n_items =3D n_fwnames;
+diff --git a/drivers/scsi/bfa/bfa_fcs.c b/drivers/scsi/bfa/bfa_fcs.c
+index 9b57312f43f5..7a4e0e8c7182 100644
+--- a/drivers/scsi/bfa/bfa_fcs.c
++++ b/drivers/scsi/bfa/bfa_fcs.c
+@@ -821,30 +821,13 @@ bfa_fcs_fabric_nsymb_init(struct bfa_fcs_fabric_s *fa=
+bric)
 =20
- 	for (j =3D 0; j < n_fwnames; j++) {
--		fwreq->items[j].path =3D fwnames[j].path;
--		fwnames[j].path[0] =3D '\0';
- 		/* check if firmware path is provided by module parameter */
- 		if (brcmf_mp_global.firmware_path[0] !=3D '\0') {
--			strscpy(fwnames[j].path, mp_path,
--				BRCMF_FW_NAME_LEN);
+ 	bfa_ioc_get_adapter_model(&fabric->fcs->bfa->ioc, model);
+=20
+-	/* Model name/number */
+-	strscpy(port_cfg->node_sym_name.symname, model,
+-		BFA_SYMNAME_MAXLEN);
+-	strlcat(port_cfg->node_sym_name.symname,
+-			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
+-			BFA_SYMNAME_MAXLEN);
 -
--			if (end !=3D '/') {
--				strlcat(fwnames[j].path, "/",
--					BRCMF_FW_NAME_LEN);
--			}
-+			snprintf(fwnames[j].path, BRCMF_FW_NAME_LEN, "%s%s%s%s",
-+				 mp_path, (end =3D=3D '/') ? "" : "/",
-+				 mapping_table[i].fw_base,
-+				 fwnames[j].extension);
-+		} else {
-+			snprintf(fwnames[j].path, BRCMF_FW_NAME_LEN, "%s%s",
-+				 mapping_table[i].fw_base,
-+				 fwnames[j].extension);
- 		}
--		strlcat(fwnames[j].path, mapping_table[i].fw_base,
--			BRCMF_FW_NAME_LEN);
--		strlcat(fwnames[j].path, fwnames[j].extension,
--			BRCMF_FW_NAME_LEN);
- 		fwreq->items[j].path =3D fwnames[j].path;
- 	}
+-	/* Driver Version */
+-	strlcat(port_cfg->node_sym_name.symname, (char *)driver_info->version,
+-		BFA_SYMNAME_MAXLEN);
+-	strlcat(port_cfg->node_sym_name.symname,
+-			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
+-			BFA_SYMNAME_MAXLEN);
+-
+-	/* Host machine name */
+-	strlcat(port_cfg->node_sym_name.symname,
+-		driver_info->host_machine_name,
+-		BFA_SYMNAME_MAXLEN);
+-	strlcat(port_cfg->node_sym_name.symname,
+-			BFA_FCS_PORT_SYMBNAME_SEPARATOR,
+-			BFA_SYMNAME_MAXLEN);
+-
+-	/* null terminate */
+-	port_cfg->node_sym_name.symname[BFA_SYMNAME_MAXLEN - 1] =3D 0;
++	/* Model name/number, Driver Version, Host machine name */
++	snprintf(port_cfg->node_sym_name.symname, BFA_SYMNAME_MAXLEN,
++		 "%s" BFA_FCS_PORT_SYMBNAME_SEPARATOR
++		 "%s" BFA_FCS_PORT_SYMBNAME_SEPARATOR
++		 "%s" BFA_FCS_PORT_SYMBNAME_SEPARATOR,
++		 model, (char *)driver_info->version,
++		 driver_info->host_machine_name);
+ }
 =20
+ /*
 --=20
 2.55.0.1032.g73a4cd73de-goog
 

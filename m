@@ -1,57 +1,57 @@
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E90D4756D8
-	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:20:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9951A477282
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:20:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789460479; cv=none; b=nhsvkJRVS9fKyWigL0a7Mus9EDsHhEe65VL3t/g8AJ8SFtUiqFe6U9KCpIpeo24m8YgDkvJ8ywc7H3IS0PW7Up+KXKqzHCWEBB7yiN6ClP36wFqCHim1+Qsjij25njoBYoKViGhyx+eWijaQD4WNtdao85RW3Kp5X4grlP3zNyU=
+	t=1789460487; cv=none; b=VcGWf2z3eNmP4B1dQPGFpFxVAyTYdz//eKy3zNysYcw5Vc7XpCzl2sLWQapvwFy9y8iGU4t30hLN7zTTp9f+jHhBEuaffUZFqu/hFfnsXV9E+aY0igQj1D5D/BXIP8Wj+P9oDgC885LQKuC40LKAKfglr+La/JGKH+3wLrADT1E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789460479; c=relaxed/simple;
-	bh=JbSID6fXeQe1AsKDTvJAsGmW8NhLrp6cj1GLFUVFC9I=;
+	s=arc-20240116; t=1789460487; c=relaxed/simple;
+	bh=RwAdEk8GoMG+Ylv02Q78v2tXMpN+9oITjoSVCa+/lcI=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=UzVhIa2v+jJxgx/N8I4OrhnS82uzYG+SjJNKHj3BtPDcXOIYttMeT1NZmq7QkMx1rzKdbRhbSpHbRh0D9ZuKu7kZxruM1G+pk0Kk2+hdF0ZEItrWR9Yxrk/TIMch5tp6FQ0/mNJxz04G1iwOddFJyCC1tBglyVwA40gnSweKqrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=airiQg0O; arc=none smtp.client-ip=209.85.214.200
+	 To:Cc:Content-Type; b=TE8cgRmfcCEdZ3sacXIyTEoFLmhsp/ifTSPluntLaME6t9LevCjdZfVQDaQdqI3N+LdjQJlBYF6bx0A7yxEqweh/l9kh30x87X9kpZr8/kCqHLkmePlEUIJW7WHwaiQ4kpCvVwigkdMTnRMte5cMGdZsyLldqI11cDPWoaPLkR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KmARG9aJ; arc=none smtp.client-ip=209.85.215.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="airiQg0O"
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2db87f759c5so73167015ad.1
-        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 01:20:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KmARG9aJ"
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cc489e7a701so6024649a12.2
+        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 01:20:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1789460414; x=1790065214; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1789460419; x=1790065219; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=6A34g5ncwO0UUCNmS7GYn32h6CG74u/Wx3k3q5PSbh8=;
-        b=airiQg0OuoN75bUHSG+lF/E0fhDJ//7fkH/UYM6WA3mEyAXwaxQ0kZWkFt6loOeYRx
-         P3YfpFaNhK3LoyAzceVLUoHFaPiR5eTvD4EuiVl7pwtySvPVMlVrT5O6mq85+bFjmU5y
-         kTXlQnVwYp3uUwoBt8ciAkXV/7d3wC0a3MNB/aNXJfez1uqENhJspw6HRhUInuHX/KB6
-         klTxQowlEYn+A9dYQwySr1IQgetB9cmLNBIMzkJyqxTDsDpDEEbuydERydk3shXR361z
-         nWUJ8/J0Opd8wOhQMxkW+oAx4//asaWptmdv3StQySQpUV5EDjKviw70L4ulnBppwnKJ
-         3F5w==
+        bh=3R1bHblX/YSNAoDVuSots2jijK47BJf7ndWg1gXSC20=;
+        b=KmARG9aJw+EfrxjNpwdI07LN4CIXUR8sFQ6kkwPFhACadzvxbNPSIDqr//33Alc4UY
+         R52INMML5LN0aTuN8HjZxDuM76h1AAPcVXn64yUT5rjit5U+iGgl1MF/BPOb2cuiZPyE
+         Wv+fQiUqjwl3D7XanEH4V1189fAZLMrNUiH5L4sX194GyKiZUpMsh1fcaGDV5CYbubY9
+         zj839tWYTRKD3DVNfwMII7er+yQ1vrEDArJ2YZCq2Nc1++mCm4429OPTjsrTlmItPsPN
+         +wzv3LuzLp959vh3m2lMJbDvEUvDqQ7gTJ7C0wDgVReew1uK7PhFLz5ZO2mKQArH31TA
+         dF6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789460414; x=1790065214;
+        d=1e100.net; s=20260707; t=1789460419; x=1790065219;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=6A34g5ncwO0UUCNmS7GYn32h6CG74u/Wx3k3q5PSbh8=;
-        b=r3PJW3lI2WXAZ6kVAGJH2tJFcWRvPMzx8A/ywl7P7LkrVmkrhSRVQHrsEOf2wbrAYp
-         y70nyOso8h6J3IeUcKnzHqTdy9W4cMU4W64Au6GROZOovELZ6vu+xEXHmh6nMJeoyFzn
-         dFeo53753uxWjMXdzwTCVtniouI5lkr014aOFA56/ZpSmT5/OAUV+d7HfMR9go4lYRSV
-         us3qummkarxOojndv4IG13GcfgjF6FMhKZHy1zpo2izmwfECB52u7jmbO4RWfM2w1nxI
-         1fRcvsntZt8+pep5TiWqbZD4RRu2Xm6QGIk6WDBfldqgSlWq2vWt320rG2Gklcc3SXnl
-         a60g==
-X-Forwarded-Encrypted: i=1; AKwUvBxHAAIwuLin3R5TtMKaGFtufm4p9/vlguuNvCu6KeTg+Yws1tKoGopYVfbV5R06kSfXrQIiVb/8UOsJVA==@vger.kernel.org
-X-Gm-Message-State: AFuF++m4K1DcNR+Qhfd5pD1wmM6I/JudUjRNRdx4XtPv8RbqV9PWcLlz
-	fgR+Elu9BtVFzAu0pjYZCjYalMOL3vZIe4q6rvekjTTv9SKSzkKGLyIxWKKFKgCEAS1IAm0z/CT
-	P
-X-Received: from plyw21.prod.google.com ([2002:a17:902:d715:b0:2db:8c06:4fa6])
- (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:f712:b0:2db:20fa:9443
- with SMTP id d9443c01a7336-2dd6c6db8c2mr126055895ad.13.1789460413607; Tue, 15
- Sep 2026 01:20:13 -0700 (PDT)
-Date: Tue, 15 Sep 2026 08:18:39 +0000
+        bh=3R1bHblX/YSNAoDVuSots2jijK47BJf7ndWg1gXSC20=;
+        b=12lS9FPERkQ47zHBbGUsRCycVcIA7puFvvyVQvWF4XkXdzBvHcWanBS70QP2JsCjiX
+         qudwS036HQMLF9fPmt1eCZBLiA4Dc1uk15VUXQypJczAU1bb+pdAuOdEDhD418pobDp+
+         9xmpLZXJ20mtF+AO5rsFvMcuFssn1bdAlXodbtAmld6f9p2cmQ7HY02u7CKJmSQucVe9
+         B8DON4J06ihctDMKjO7YcLEavrA/Bfz3/ou/QAVxehgS3r2piGJb48XQO6h2bmYmKFpk
+         XuvAHDaEOM2w6EpVEImxgAMUj2nPeKRndbYyGwv0CnXCNsghwbyfNCUYjVNNidc+QRDs
+         1uhg==
+X-Forwarded-Encrypted: i=1; AKwUvBy0FQ4OXQl78uUMuH+kW6AY945OzjTzee8hGU3xbIdzmQM2qJgrMqhS8z4j2b+OipisL0A6jB0KZPI0Pg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mzpPN35sNufdxfr0pCLT1fePtxBNmglkZWkpFIr0eLt+iXX9bu
+	RVqNen3n8juTjNWsW4ojICDUriMK/rXJzaOy6JYDIkXhcuDa9aU/3v+pn7tPCS73/icKgpdVzBk
+	m
+X-Received: from pghu21.prod.google.com ([2002:a63:ef15:0:b0:cc4:da05:ef4c])
+ (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:3315:b0:3d3:aec2:4dcd
+ with SMTP id adf61e73a8af0-3db40623e61mr13262094637.25.1789460418341; Tue, 15
+ Sep 2026 01:20:18 -0700 (PDT)
+Date: Tue, 15 Sep 2026 08:18:44 +0000
 In-Reply-To: <20260915081910.4142719-1-morbo@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -61,8 +61,8 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260915081910.4142719-1-morbo@google.com>
 X-Mailer: git-send-email 2.55.0.1032.g73a4cd73de-goog
-Message-ID: <20260915081910.4142719-23-morbo@google.com>
-Subject: [PATCH 22/28] media: si2165: Use snprintf() to format frontend name
+Message-ID: <20260915081910.4142719-28-morbo@google.com>
+Subject: [PATCH 27/28] drm/xe/pf: Convert strlcat() to seq_buf in control_read()
 From: Bill Wendling <morbo@google.com>
 To: linux-kernel@vger.kernel.org
 Cc: Bill Wendling <morbo@google.com>, codemender-patching+linux@google.com, 
@@ -123,17 +123,17 @@ Cc: Bill Wendling <morbo@google.com>, codemender-patching+linux@google.com,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-si2165_probe() constructs the frontend name by appending the chip name and
-supported delivery system suffixes (" DVB-T", " DVB-C") to
-state->fe.ops.info.name using multiple strlcat() calls.
+control_read() builds a list of supported SR-IOV VF control commands in a
+stack buffer by calling strlcat() twice per command in a loop.
 
-In preparation for removing the deprecated strlcat() API[1], format the
-complete frontend name in a single snprintf() call.
+In preparation for removing the deprecated strlcat() API[1], use struct
+seq_buf and seq_buf_printf() to format each command line and pass
+seq_buf_used() directly to simple_read_from_buffer().
 
 Link: https://github.com/KSPP/linux/issues/370 [1]
 Cc: codemender-patching+linux@google.com
-Assisted-by: Developer:Gemini [editor_update_file, make_kernel_build_single=
-_file, shell_command_run]
+Assisted-by: CoT-Agent:Gemini-2.0-Flash [editor_update_file, shell_command_=
+run]
 Signed-off-by: Bill Wendling <morbo@google.com>
 ---
 Cc: Russell King <linux@armlinux.org.uk>
@@ -247,42 +247,44 @@ Cc: devel@lists.orangefs.org
 Cc: linux-hardening@vger.kernel.org
 Cc: linux-sound@vger.kernel.org
 ---
- drivers/media/dvb-frontends/si2165.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/si2165.c b/drivers/media/dvb-front=
-ends/si2165.c
-index f1241b63aa5c..bd15eb58fc84 100644
---- a/drivers/media/dvb-frontends/si2165.c
-+++ b/drivers/media/dvb-frontends/si2165.c
-@@ -1243,20 +1243,17 @@ static int si2165_probe(struct i2c_client *client)
- 		chip_name, rev_char, state->chip_type,
- 		state->chip_revcode);
+diff --git a/drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c b/drivers/gpu/drm/=
+xe/xe_gt_sriov_pf_debugfs.c
+index 0f242db775e1..5db7fc067c4d 100644
+--- a/drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c
++++ b/drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c
+@@ -4,6 +4,7 @@
+  */
 =20
--	strlcat(state->fe.ops.info.name, chip_name,
--		sizeof(state->fe.ops.info.name));
-+	snprintf(state->fe.ops.info.name, sizeof(state->fe.ops.info.name),
-+		 "Silicon Labs %s%s%s",
-+		 chip_name,
-+		 state->has_dvbt ? " DVB-T" : "",
-+		 state->has_dvbc ? " DVB-C" : "");
+ #include <linux/debugfs.h>
++#include <linux/seq_buf.h>
 =20
- 	n =3D 0;
--	if (state->has_dvbt) {
-+	if (state->has_dvbt)
- 		state->fe.ops.delsys[n++] =3D SYS_DVBT;
--		strlcat(state->fe.ops.info.name, " DVB-T",
--			sizeof(state->fe.ops.info.name));
--	}
--	if (state->has_dvbc) {
-+	if (state->has_dvbc)
- 		state->fe.ops.delsys[n++] =3D SYS_DVBC_ANNEX_A;
--		strlcat(state->fe.ops.info.name, " DVB-C",
--			sizeof(state->fe.ops.info.name));
--	}
+ #include <drm/drm_print.h>
+ #include <drm/drm_debugfs.h>
+@@ -663,15 +664,15 @@ static ssize_t control_write(struct file *file, const=
+ char __user *buf, size_t c
+ static ssize_t control_read(struct file *file, char __user *buf, size_t co=
+unt, loff_t *ppos)
+ {
+ 	char help[128];
++	struct seq_buf s;
+ 	size_t n;
 =20
- 	/* return fe pointer */
- 	*pdata->fe =3D &state->fe;
+-	help[0] =3D '\0';
++	seq_buf_init(&s, help, sizeof(help));
+ 	for (n =3D 0; n < ARRAY_SIZE(control_cmds); n++) {
+-		strlcat(help, control_cmds[n].cmd, sizeof(help));
+-		strlcat(help, "\n", sizeof(help));
++		seq_buf_printf(&s, "%s\n", control_cmds[n].cmd);
+ 	}
+=20
+-	return simple_read_from_buffer(buf, count, ppos, help, strlen(help));
++	return simple_read_from_buffer(buf, count, ppos, help, seq_buf_used(&s));
+ }
+=20
+ static const struct file_operations control_ops =3D {
 --=20
 2.55.0.1032.g73a4cd73de-goog
 

@@ -1,167 +1,163 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs2-f12.google.com (mail-vs2-f12.google.com [74.125.227.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60D6D35A93C;
-	Tue, 15 Sep 2026 14:07:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16ED7388881
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 14:16:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789481230; cv=none; b=IwsS1mCHPS86dbrhX2VSSORXUfVQrJfpSvWT+5lsuSY9xwdy5vAcN1TL69fr1ydJpQe8a/70AMKWcd1a1508QhXiWaDQyQUpsbmV+40VMMxlxkWDt87mKHEnx1MxwZ6ky/bsM/tM7xDHaWbJNzehePZ4OYNUBv0kfQeqUXs6T/o=
+	t=1789481803; cv=none; b=BgEoVhmuEF98S4WbEJfUfCWUV3nUz37uDNPX88gqFb2GmYBALmy1lj43gKb6rrj4yChJCYvLK1dATPJ2ADqJHwdBMpLZkNhpFhddlg/pUC0CBX5c3IsxvFJclsNpEZBQAkYCFrfD7b8MrjB+EiosIVnm5y7vSogiV0ZlY6rvjj8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789481230; c=relaxed/simple;
-	bh=I40wY3GFOz1DkySg9G045B+2Ds/eVZ5D5aNVa2uapnM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ThQidw8+RIkDq8/B5XHRgM9d0v+zu8gKSUmu12VGO0VOz5AcCggVELRS3Yj9ldkY/EiFzHtI0mRoWbMsGhB5FGeJtJ5HcUwf+/6/UYwgMzooP6XotS8CjMh0FgnqKoKR/A0wMYw3hTKguFGC6946VkFpCOOqoFu80kFY6VJom8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lFbPpyUd; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789481803; c=relaxed/simple;
+	bh=ZGcIqnBUb+2WGa9UWiN5MGaIiQ5CNl6v15OMyE1yvh8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CwfgNMkra69VT00qqbQm0DfrsXG1UHu5slVSrHFzQTGG49nAYc00MhGfhaSU99XVIXfXNAim1x10suWoFi7OdNWN1xdOrvFEYwoUJ5eD05+4LVq42Qw4cMHwIli9QHM9jXZY5wh5TcIb3aba9DCn6NScXJ0jeiu50E4bJiqOdAA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fyN+53+N; arc=none smtp.client-ip=74.125.227.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lFbPpyUd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A57941F000FF;
-	Tue, 15 Sep 2026 14:07:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789481229;
-	bh=kUIpQJBe/rvVMC0HTZygXoU+NTwMte1oixn3by3XUZU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=lFbPpyUdcQhmGTF0C6P0i5iY5PeU+ELUljyxDW14y0XQGql121J6r4k9Y5Jd20elU
-	 J1Eg7aUyMKeh/m1Qw0V1OFLmDmiOWTJBP954cVF7bYZzrRaROf9TaY+wfwOS6fLMjt
-	 o+VzobJfm4TYmQpOQuilz5SzjwpAnqtESvpBgAoLalDPjDAIKw5eFf9wGN+nymkRPw
-	 PfylP/pga28zsFOdyjUeqz05ErMc6DGRST1cmM7D6YQzq0Li9ZqxsgtrpgMN9UhOPw
-	 fX77MqAcagyGwmh+f8lTGJd6UU/7TczJtQ8sz1RDBBYyrHGtINZLMsXuKyCCVGmTgC
-	 ygNUh/fw1rKzg==
-Date: Tue, 15 Sep 2026 16:07:04 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: markdamirkan@gmail.com
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, bpf@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: bpf: reject oversized device events before copying
-Message-ID: <aqlGkhF3ntBnhEM5@beelink>
-References: <20260913-b4-send-hid-bpf-event-bounds-v1-1-614fb56a0635@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fyN+53+N"
+Received: by mail-vs2-f12.google.com with SMTP id 71dfb90a1353d-5c67e52ff5dso254640e0c.1
+        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 07:16:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789481799; x=1790086599; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=4vy7TxtxABNySXdH9M9RGQIeskiOhNozoxbsdlpLAGo=;
+        b=fyN+53+Ns8gVbQXCSiWXtU3xLEoKpYUpkgHEuasxSFQdXn7rf2kzpE6YzCF2XG5hvv
+         ar/hc/B/BPjE01V0SciseYaJ7FFqbtuvDsdkIULMtDTBFk2aymkM0eVpLBC8w+5emlp4
+         6juWNPduSJKv2JARdQsaoVkNEzPV/WSvZULv/Wu0ruxDXT/JGnoX/gV+HhqDolZgQhs1
+         K1EI//wTi6vIRtwxvD74qd6LNHFsdgq7l1f3hBK1cvUqSshR/2ZLz5v2JTcmOwhuptm6
+         7t6KfN9loGEp2DTeF8V3HERTvfZt49Pt/eSqGl1zX39e2W7Yhm/GqvuqTxC76pfKZIx3
+         fmYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789481799; x=1790086599;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=4vy7TxtxABNySXdH9M9RGQIeskiOhNozoxbsdlpLAGo=;
+        b=dmlAAfneExsxQhMpVv1YSHieT4/8XHFE+qrsZ6s7yYdyh9i/bp6yv+ZMjM6MV0+M7a
+         BjUWutp051+6eBnJheMC4qsg6KPQb+/KwzqOIWuHSd2qqCvC7seXCt4Jff7aBKP1xpcI
+         zildgvtW/GbNwMMAhRJzr15vGyLWj1L14hlqVa6HNLZlA8uLw8WnSz/8TafUWx8qLC++
+         fosKpLJjbu7uScjuzLtSnjOqu+SXGgaLVvojq6nV0Z8se8oeKAi1Y84jnc+QlmJXn3vn
+         BgjgysxcqbinvIgp773eF0BCIQnW11HanepVFvXFLDyzTkvwnfxiJlFFiWZ7F0aAKTDb
+         vz7Q==
+X-Forwarded-Encrypted: i=1; AKwUvBynV36GES2RUXkE+gvWx+xCYhzMw7809cX5s/pNeklnB0xK4Y+9JSu6wsb4EbgEAW34Pr3HFLnY0HbMag==@vger.kernel.org
+X-Gm-Message-State: AFuF++lVqHZF4GsrOg2JYAPOpiCMEdy+ML7cNAjQ9P+EFejzRAcDY6tB
+	EO/0VnId9GADH/SvWZ1chXxTO9r/eyQMcA4x4C6scCd77RW3HABjI+Zb
+X-Gm-Gg: AYBFou0Ta6JauiXj8/JnMzoO65ULFqkNnlLUOyLPbWWt5+pAuQtzCjvU/Sg2lK0bSMW
+	ghp66ThCeOT6I3D+iY+Dy/bjTgU4KGLNOiNNOKE86ii81ijFsVV6V0+7N9tsJcf2fswg5KsKLOh
+	TXzrWwIMM9N3bJcVh4waZLiLYTzSRAlnHMAJpo9XRAcBrRnNvnTMq9xlYzV6YUSSzm04tT8Nc8V
+	cRtEim1qW8sN29Bf1nWxOn1TcogVp3HSXow2ShqNTGv7nJJAHeCpTLtJCToc1v9k3v9HegIdEkW
+	dtxFaBekPQvHpXBYDUjF8c+cxQcIrxYZ8yItA1qltllEA45qTs7HuK5tzbOo5ja3MdaAYHNssoq
+	grVIlcq54t5rUhmtVHaGBLpra66X0c6x8Nh2yeDt/xDI6LN6il+1WzKlMzfmNTcUdRzhyIXULca
+	sGo8XG8IMGUba8KFRbO689dJU71MxbB5XbKiRq0DFSJyC9zO8CmkaFzFwqDEWkHdRm
+X-Received: by 2002:a05:6122:3402:b0:5c8:228:5ea6 with SMTP id 71dfb90a1353d-5c993acb5b3mr2115305e0c.5.1789481796316;
+        Tue, 15 Sep 2026 07:16:36 -0700 (PDT)
+Received: from beelink.. ([187.13.206.89])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c8470d661bsm15018810e0c.8.2026.09.15.07.16.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Sep 2026 07:16:35 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Subject: [PATCH v2] HID: wacom: avoid overflows in sequence number tracking
+Date: Tue, 15 Sep 2026 11:16:21 -0300
+Message-ID: <20260915141621.3011011-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260915111448.2726869-1-qwe.aldo@gmail.com>
+References: <20260915111448.2726869-1-qwe.aldo@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260913-b4-send-hid-bpf-event-bounds-v1-1-614fb56a0635@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Mark,
+The dropped-packet calculation derives the sequence range in signed int
+arithmetic. A sequence field whose logical range spans all 32-bit values
+makes the range calculation wrap to zero, so the following modulo triggers
+a divide exception.
 
-Couple of comments:
+Normalize the maximum and current value according to the HID parser's
+signedness rule, and keep the sequence state and arithmetic in s64. This
+also avoids overflowing value + 1 at the logical maximum.
 
-On Sep 13 2026, Mark Amirkan via B4 Relay wrote:
-> From: Mark Amirkan <markdamirkan@gmail.com>
-> 
-> HID-BPF allocates its device-event buffer from the largest report in the
-> device's parsed report descriptor.  dispatch_hid_bpf_device_event() then
-> copies the transport-provided report into that buffer before checking its
-> size.
-> 
-> An input report larger than the allocated event buffer therefore causes
-> a heap out-of-bounds write when a device-event program is attached.  The
-> later check of the BPF program's return value cannot prevent the initial
-> copy.
-> 
-> Reject reports that exceed either the transport buffer or the persistent
-> HID-BPF event buffer before clearing or copying the data.
-> 
-> With a 64-byte event allocation, a same-file KUnit test produced a
-> one-byte KASAN out-of-bounds write for a 65-byte report in three runs.
-> The 64-byte boundary remained clean.  After this change, both cases were
-> clean in three runs and the oversized report returned -EINVAL.  The test
-> exercised the production dispatch function but not the complete UHID and
-> BPF attachment path.
+Fixes: 359673ea3a20 ("HID: wacom: Support sequence numbers smaller than 16-bit")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+---
+ drivers/hid/wacom_wac.c | 32 ++++++++++++++++++++++++--------
+ drivers/hid/wacom_wac.h |  2 +-
+ 2 files changed, 25 insertions(+), 9 deletions(-)
 
-As mentioned by the bpf bot: if you already have tests, why not upstream
-them? And even better: there are already selftests at
-tools/testing/selftests/hid/hid_bpf.c -> why not add some more here as
-well?
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index da1f0ea856..428ac7077a 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2527,18 +2527,34 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 	case WACOM_HID_WD_BARRELSWITCH3:
+ 		wacom_wac->hid_data.barrelswitch3 = value;
+ 		return;
+-	case WACOM_HID_WD_SEQUENCENUMBER:
+-		if (wacom_wac->hid_data.sequence_number != value &&
++	case WACOM_HID_WD_SEQUENCENUMBER: {
++		s64 sequence_minimum = field->logical_minimum;
++		s64 sequence_maximum = sequence_minimum < 0 ?
++			(s64)field->logical_maximum :
++			(s64)(u32)field->logical_maximum;
++		s64 sequence_value = sequence_minimum < 0 ?
++			(s64)value : (s64)(u32)value;
++
++		if (wacom_wac->hid_data.sequence_number != sequence_value &&
+ 		    wacom_wac->hid_data.sequence_number >= 0) {
+-			int sequence_size = field->logical_maximum - field->logical_minimum + 1;
+-			int drop_count = (value - wacom_wac->hid_data.sequence_number) % sequence_size;
+-			hid_warn(hdev, "Dropped %d packets", drop_count);
++			s64 sequence_size = sequence_maximum -
++					    sequence_minimum + 1;
++			s64 drop_count = sequence_value -
++					 wacom_wac->hid_data.sequence_number;
++
++			drop_count %= sequence_size;
++			if (drop_count < 0)
++				drop_count += sequence_size;
++			hid_warn(hdev, "Dropped %lld packets",
++				 (long long)drop_count);
+ 		}
+-		wacom_wac->hid_data.sequence_number = value + 1;
+-		if (wacom_wac->hid_data.sequence_number > field->logical_maximum)
+-			wacom_wac->hid_data.sequence_number = field->logical_minimum;
++		if (sequence_value >= sequence_maximum)
++			wacom_wac->hid_data.sequence_number = sequence_minimum;
++		else
++			wacom_wac->hid_data.sequence_number = sequence_value + 1;
+ 		return;
+ 	}
++	}
+ 
+ 	/* send pen events only when touch is up or forced out
+ 	 * or touch arbitration is off
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 126bec6e5c..74e7c5a04a 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -324,7 +324,7 @@ struct hid_data {
+ 	int bat_connected;
+ 	int ps_connected;
+ 	bool pad_input_event_flag;
+-	int sequence_number;
++	s64 sequence_number;
+ 	ktime_t time_delayed;
+ };
+ 
+-- 
+2.43.0
 
-> 
-> Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
-> Cc: stable@vger.kernel.org
-> Assisted-by: LLM Symbolic
-> Signed-off-by: Mark Amirkan <markdamirkan@gmail.com>
-> ---
->  drivers/hid/bpf/hid_bpf_dispatch.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
-> index 536f6d01fd..06ba833eb9 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -50,6 +50,9 @@ dispatch_hid_bpf_device_event(struct hid_device *hdev, enum hid_report_type type
->  	if (!hdev->bpf.device_data)
->  		return data;
->  
-> +	if (*size > *buf_size || *size > ctx_kern.ctx.allocated_size)
-
-I had a hard time figuring out why `*size > *buf_size` wasn't there in
-the first place. You can call it overlooked, but:
-- when the call chain of dispatch_hid_bpf_device_event() contains
-	hid_input_report() -> *size == *buf_size
-- when the call chain contains hid_safe_input_report(), the bufsize and
-	size are forwarded from the lower transport drivers.
-
-We only have 3 callers of hid_safe_input_report():
-- uhid.c -> min_t(size_t, ev->u.input.size, UHID_DATA_MAX) is present
-- i2c-hid-core.c -> size can'be greater than bufsize because it either
-	truncate the input report when I2C_HID_QUIRK_BAD_INPUT_SIZE is set or
-	plainly reject too long size
-- usbhid/hid-core.c -> we rely on usb to set the size and the transfer
-	buffer, so it should be OK
-
-Regarding `*size > ctx_kern.ctx.allocated_size`:
-- usbhid/i2c-hid: both are allocating their transfert buffer through the
-	exact same call to hid_report_len() and finding the biggest of all reports
-	-> so they are not affected
-- uhid: here we don't control really what's going on, because size is a
-	user provided parameter.
-
-All in all: the first test is IMO probably redundant. Maybe we can just
-add a comment in hid_safe_input_report() that the caller must ensure
-`size <= bufsize`.
-
-The second one matters only for the uhid case, so technically yes, we
-can demonstrate a malicious OOB with uhid (but you should already be
-root to create/controll a uhid device).
-
-> +		return ERR_PTR(-EINVAL);
-
-The whole point of hid-bpf is to fix bogus devices. So plainly returning
--EINVAL means we don't even let the user the chance to fix the device.
-
-Later, hid_report_raw_event() has a similar check and when size is too
-big, it would also break the processing but at least give a warning in
-the dmesg.
-
-So, how about we conditionally memcpy the size to min(*size,
-allocated_size), and let the bpf change the size later on by itself ?
-This should allow a HID-BPF program to amend the provided size on a
-given device. This works because hid_bpf_get_data() doesn't know about
-.size, but only .allocated_size, so the kernel will prevent a BPF to
-access beyond the allocated_size.
-
-
-TL;DR: please,
-- make a decision regarding "*size > *buf_size"
-- change memcpy(size) into memcpy(min(size, allocated_size))
-- add tests in selftests
-
-Cheers,
-Benjamin
-
-> +
->  	memset(ctx_kern.data, 0, hdev->bpf.allocated_data);
->  	memcpy(ctx_kern.data, data, *size);
->  
-> 
-> ---
-> base-commit: 9cdc7e6dc7a99ad7311ad5e7c145f2b9ce4e24b0
-> change-id: 20260913-b4-send-hid-bpf-event-bounds-4d0e8170ceb4
-> 
-> Best regards,
-> --  
-> Mark Amirkan <markdamirkan@gmail.com>
-> 
-> 
-> 

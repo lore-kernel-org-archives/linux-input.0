@@ -1,57 +1,57 @@
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669EF43F8DE
-	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:19:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 993BC4749E9
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:20:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789460467; cv=none; b=O25s7AlXbT9eJsOIz9E4oXSlPCscPjsyasG1aWiMXcmlxav4mP4cD9dNGAi0ApVZ4rrOYEkF1y1Tz+n+eSTBFRv/I/xw+IDJ8UT2wpDqOHQoRP2rmI+D/lByzRMWJpYaF2zw68gOr6Gy2pE9R9dY7PDWJ61TyOH76LxI8UrKSEM=
+	t=1789460472; cv=none; b=jU0co1/NYdFLe944VIxHEImzz+obKLpMIMmYn7gt1sx6i9+TbvHSrXgSvAolK0ji5hn2eAG6ygPOZQEXMjFunOtgqYndpV4y1djdyieHrLLPUYHhI7I+oJ11Y8heCLWLJ+zX9oeg82KvKIvKBULoBoSQfKsWNpjwFbPOx6Vxh08=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789460467; c=relaxed/simple;
-	bh=r5g1LIk48i14U2vfSIgapr+8j4d1ay+VHM72YHjOSgk=;
+	s=arc-20240116; t=1789460472; c=relaxed/simple;
+	bh=EqxPY8uDyH4sIF56bisQGVYV4UgUVWe6Fa26kaXaoOs=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=bRAA/VM+Ja4cWUW/rXBrSpCa4+4/FaaejAUVoAVXwgRlivfxjWv0rMUtXlfz0H9CS8jTpvfAYCjuvItB1zd+dCDt6TBdieR3YBMg/WsYij0EwMy8mlVhn8YlLZ61gs2plQWvFR7GF+YgcPXoNUKA6hGWGerNWOWbc7DP4o3Sp5Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IlizX6tn; arc=none smtp.client-ip=209.85.215.197
+	 To:Cc:Content-Type; b=O7eWOMTa0DrFvL8B2zMug0y+Urya0zUt5gPllPEt6K13EaoDtXiALQ2mGe0KCKHq3Z8qBY9TI+gAsKkQ8ag/fLFVgGxPiir+CUu7SAFQgDksFwWoTWM9Dn/65dwHsid42ILWjaLp9VH7+46Zju0DDu4ZTwll73073WMICzfD6Ek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oAQ/C1UY; arc=none smtp.client-ip=209.85.214.200
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IlizX6tn"
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cc42a07d04aso3561878a12.1
-        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 01:19:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oAQ/C1UY"
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2d6df0a1e18so82546345ad.1
+        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 01:20:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1789460394; x=1790065194; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1789460412; x=1790065212; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=eIty82Ymjj64Fl6mn4Z3/QHhmY1e0QRFUR4BQSE5AwY=;
-        b=IlizX6tnKtgYFaGIKggOEAU2LQqycnAmmrVln7UMgoNkc+T3fXFyfxtrWR9Ftg7E6u
-         NlqIBdMVkiA44X97gEFiNhQASx0UkfsXPVQ+FsqT24P1pREp+Xm2LDPK/+zfzIMc7zqj
-         LoyncqWo6VVJYN/TV9c2xaxXd5yvg298+BfthtSxZjpkjJF/wWHG0JuB/4ijrS0f/Qn0
-         HyUa1kqS3stgXr3i0ePOnkDm5p5Vy8IMWICFQyyVHLGKUaOBx/awlv+b3wEcKtCTZYTS
-         E89xOGGbSQvl96lOxBnGGWkdXKUsBxmd/wSJzfDtH1vcxlblp5XwWwOG4RXKnIhq5HfM
-         S7ZA==
+        bh=XkXp/XZtfYpYjiXJEDXdoQGA1NlHq2kVyqBGidLpG58=;
+        b=oAQ/C1UYbC4EnqfFvZvyuVezkFqgc9cNQDgtAI8vUpM5JPaSP1bm9HT+VlIo/kbt5k
+         7+KLZYuZ6EC3y8a3TdjzhnCt1lrAFuwJU6P+KAXNWiDyiOIOAjLubjNzeq2LafCXwz/g
+         guRJjz9BCunMssVSQN1dwdnGD+V99XD1oauCcDV7lj5wf/EJhrPHlq3ah1zzRC2zC17a
+         fCopklhW5lmpYQwGrDhb1J9IB79ZeHW0m5yt2I00gDkL7DAtIiBJyVtCM739TdEh5xP5
+         PT6zWmhCEW7katUCjeLpcL9On0QFUolqMFMB9yowChecDcGj6hlWSW0BhBJQQijZrS2i
+         860A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789460394; x=1790065194;
+        d=1e100.net; s=20260707; t=1789460412; x=1790065212;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=eIty82Ymjj64Fl6mn4Z3/QHhmY1e0QRFUR4BQSE5AwY=;
-        b=m4WMZUIK+HlDab/T3HhDXJ9Zum3zBQhY5Gz/RVutKuMs2C09HFcQ/0ZnGLa4+xvB+6
-         8twwMS0sC1B+omKqvccYiQ9pVpcTkjJq3vBgnsodAepScZMkIGSZYPBAWPHO7vyczNGm
-         ImIupZirJtnyljzRBZlDf3pr0eOwRx+NjHmWyfyfZtL5rUxBGMAXvgqkz8dvvnsxS4Yn
-         01EY1+o3RQWVEmapHq5MgaemgdCe/6sFzIlBRvNEJA13z8U0BsfTH4p5u4/drUHAzYbp
-         xev8bSeU/pD//7a3M5SjvJN9lKIyNqB4uxpOX53IIYw42oPOFFo1hLqCaZJU35+OX5IA
-         rFOw==
-X-Forwarded-Encrypted: i=1; AKwUvBxdTB+4+Vo4HEM/HX1EdV6dFZmSOR2YU/TcWNr1eyPkFsw1n6GXqHFBiKsLCg2zD8P4pYvqTXBBy6HYfA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kTT7I8dY1cnRISrhAd6JPHCAnb/+0iuD05LtSWHa2/lGLmXBDG
-	6qsh3k4lfnNfNi3uyynDb9mCi+Ba/olII8bSzktzBQNDNWssEoYsHvCiK8HpHh+Yr+4VOnY8P3o
-	9
-X-Received: from pghd13.prod.google.com ([2002:a63:fd0d:0:b0:cc4:37f6:e897])
- (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:12c7:b0:3d3:ae1f:d7f4
- with SMTP id adf61e73a8af0-3dd528bd7dbmr272615637.20.1789460393063; Tue, 15
- Sep 2026 01:19:53 -0700 (PDT)
-Date: Tue, 15 Sep 2026 08:18:22 +0000
+        bh=XkXp/XZtfYpYjiXJEDXdoQGA1NlHq2kVyqBGidLpG58=;
+        b=XiNpXsQw0RLWogGECH0/BGTIMtkwyYtXnrkX0uHvHCUsFDa+9nBAsDePMRxj182sR3
+         FNQ/yUsZfcVACuFi0D1vUlCEdUxY52xV9LQ5rLG9fudPmVDV+w2nvTGnVngfE1thx5e/
+         CZ5ehhEchJ/7j7WnFkB+1NVft8wK9UU1IXGM6w2Tp+4o9xmvFpiCmYFhqiPrLjFCxZ60
+         9acM0FN4dlK5lmY5uKCrW1nRogYjU6FJSwCnS8R+vOz3erxsiASVkaaD4lLy42nZlbVB
+         Lsj6qp3XjgA7fj8NLTsZ3KVse9iMvIlMQKJnijzk2XpNZwbYwrQsEMZwSyeU4tIEY9v7
+         KosQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz4rStoGPk52x9dXloDWOHF64ti4qQ9QpdVxcwIbF1u/c97pVyU1TCAWFjXbiVxjkIL93ufToh6Da8GZA==@vger.kernel.org
+X-Gm-Message-State: AFuF++mYCB27iejxBQRcGICaVOhR+66hPkP9EttQQdi97igfh9U9QCoi
+	SGuao0oqwxUI/XpHPgBAscrREb0pW8orbYmVwBce0wde+Azyy4b3huTlIqUrJIvbRzOULVxarxU
+	5
+X-Received: from plbkc7.prod.google.com ([2002:a17:903:33c7:b0:2dd:630:cea4])
+ (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:1965:b0:2d3:716e:e2ae
+ with SMTP id d9443c01a7336-2dd6c5ef019mr154580855ad.6.1789460411846; Tue, 15
+ Sep 2026 01:20:11 -0700 (PDT)
+Date: Tue, 15 Sep 2026 08:18:37 +0000
 In-Reply-To: <20260915081910.4142719-1-morbo@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -61,9 +61,8 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260915081910.4142719-1-morbo@google.com>
 X-Mailer: git-send-email 2.55.0.1032.g73a4cd73de-goog
-Message-ID: <20260915081910.4142719-6-morbo@google.com>
-Subject: [PATCH 05/28] ALSA: usb-audio: Refactor usb_audio_make_longname() to
- use seq_buf
+Message-ID: <20260915081910.4142719-21-morbo@google.com>
+Subject: [PATCH 20/28] parisc: Refactor strlcat() to seq_buf in setup_cmdline()
 From: Bill Wendling <morbo@google.com>
 To: linux-kernel@vger.kernel.org
 Cc: Bill Wendling <morbo@google.com>, codemender-patching+linux@google.com, 
@@ -124,18 +123,16 @@ Cc: Bill Wendling <morbo@google.com>, codemender-patching+linux@google.com,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-usb_audio_make_longname() builds card->longname incrementally from the
-vendor/manufacturer name, shortname, USB device path, and USB speed using
-strscpy(), strlcat(), and manual buffer offset calculations for
-usb_make_path().
+setup_cmdline() uses multiple strlcat() calls to conditionally append
+default console and earlycon parameters to boot_command_line.
 
-In preparation for removing the deprecated strlcat() API[1], refactor
-usb_audio_make_longname() to use struct seq_buf to track the buffer
-position and remaining space across these operations.
+In preparation for removing the deprecated strlcat() API[1], initialize a
+struct seq_buf with the existing boot_command_line contents and use
+seq_buf_printf() to append the console parameters.
 
 Link: https://github.com/KSPP/linux/issues/370 [1]
 Cc: codemender-patching+linux@google.com
-Assisted-by: Gemini:3.5-pro [git, make, checkpatch]
+Assisted-by: CoPilot:Gemini-1.5-Pro [editor_update_file, shell_command_run]
 Signed-off-by: Bill Wendling <morbo@google.com>
 ---
 Cc: Russell King <linux@armlinux.org.uk>
@@ -249,114 +246,57 @@ Cc: devel@lists.orangefs.org
 Cc: linux-hardening@vger.kernel.org
 Cc: linux-sound@vger.kernel.org
 ---
- sound/usb/card.c | 58 ++++++++++++++++++++++++++++++++----------------
- 1 file changed, 39 insertions(+), 19 deletions(-)
+ arch/parisc/kernel/setup.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index 9307da95efbe..bdca8085fca6 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -25,6 +25,7 @@
- #include <linux/list.h>
- #include <linux/slab.h>
- #include <linux/string.h>
+diff --git a/arch/parisc/kernel/setup.c b/arch/parisc/kernel/setup.c
+index d3e17a7a8901..fa3efc82ad87 100644
+--- a/arch/parisc/kernel/setup.c
++++ b/arch/parisc/kernel/setup.c
+@@ -17,6 +17,7 @@
+ #include <linux/init.h>
+ #include <linux/console.h>
+ #include <linux/seq_file.h>
 +#include <linux/seq_buf.h>
- #include <linux/ctype.h>
- #include <linux/usb.h>
- #include <linux/moduleparam.h>
-@@ -651,7 +652,9 @@ static void usb_audio_make_longname(struct usb_device *=
-dev,
- 	struct snd_card *card =3D chip->card;
- 	const struct usb_audio_device_name *preset;
- 	const char *s =3D NULL;
--	int len;
-+	struct seq_buf sb;
-+	char *buf;
-+	size_t size;
+ #define PCI_DEBUG
+ #include <linux/pci.h>
+ #undef PCI_DEBUG
+@@ -42,6 +43,7 @@ static char __initdata command_line[COMMAND_LINE_SIZE];
+ static void __init setup_cmdline(char **cmdline_p)
+ {
+ 	extern unsigned int boot_args[];
++	struct seq_buf s;
+ 	char *p;
 =20
- 	preset =3D lookup_device_name(chip->usb_id);
+ 	*cmdline_p =3D command_line;
+@@ -54,19 +56,21 @@ static void __init setup_cmdline(char **cmdline_p)
+ 	strscpy(boot_command_line, (char *)__va(boot_args[1]),
+ 		COMMAND_LINE_SIZE);
 =20
-@@ -667,44 +670,61 @@ static void usb_audio_make_longname(struct usb_device=
- *dev,
- 		s =3D preset->vendor_name;
- 	else if (quirk && quirk->vendor_name)
- 		s =3D quirk->vendor_name;
--	*card->longname =3D 0;
--	if (s && *s)
--		strscpy(card->longname, s);
--	else if (dev->manufacturer && *dev->manufacturer)
--		strscpy(card->longname, dev->manufacturer);
-=20
--	if (*card->longname) {
--		strim(card->longname);
--		if (*card->longname)
--			strlcat(card->longname, " ", sizeof(card->longname));
-+	seq_buf_init(&sb, card->longname, sizeof(card->longname));
++	s.buffer =3D boot_command_line;
++	s.size =3D COMMAND_LINE_SIZE;
++	s.len =3D strlen(boot_command_line);
 +
-+	if (s && *s)
-+		seq_buf_puts(&sb, s);
-+	else if (dev->manufacturer && *dev->manufacturer)
-+		seq_buf_puts(&sb, dev->manufacturer);
-+
-+	if (seq_buf_used(&sb)) {
-+		char *trimmed;
-+
-+		seq_buf_str(&sb);
-+		trimmed =3D strim(card->longname);
-+		if (trimmed !=3D card->longname)
-+			memmove(card->longname, trimmed, strlen(trimmed) + 1);
-+		sb.len =3D strlen(card->longname);
-+		if (sb.len)
-+			seq_buf_putc(&sb, ' ');
+ 	/* autodetect console type (if not done by palo yet) */
+ 	p =3D boot_command_line;
+ 	if (!str_has_prefix(p, "console=3D") && !strstr(p, " console=3D")) {
+-		strlcat(p, " console=3D", COMMAND_LINE_SIZE);
+-		if (PAGE0->mem_cons.cl_class =3D=3D CL_DUPLEX)
+-			strlcat(p, "ttyS0", COMMAND_LINE_SIZE);
+-		else
+-			strlcat(p, "tty0", COMMAND_LINE_SIZE);
++		seq_buf_printf(&s, " console=3D%s",
++			       PAGE0->mem_cons.cl_class =3D=3D CL_DUPLEX ?
++			       "ttyS0" : "tty0");
  	}
 =20
--	strlcat(card->longname, card->shortname, sizeof(card->longname));
-+	seq_buf_puts(&sb, card->shortname);
+ 	/* default to use early console */
+ 	if (!strstr(p, "earlycon"))
+-		strlcat(p, " earlycon=3Dpdc", COMMAND_LINE_SIZE);
++		seq_buf_printf(&s, " earlycon=3Dpdc");
 =20
--	len =3D strlcat(card->longname, " at ", sizeof(card->longname));
-+	seq_buf_puts(&sb, " at ");
-=20
--	if (len < sizeof(card->longname))
--		usb_make_path(dev, card->longname + len, sizeof(card->longname) - len);
-+	size =3D seq_buf_get_buf(&sb, &buf);
-+	if (size > 0) {
-+		int path_len =3D usb_make_path(dev, buf, size);
-+
-+		if (path_len >=3D 0)
-+			seq_buf_commit(&sb, path_len);
-+		else
-+			seq_buf_set_overflow(&sb);
-+	}
-=20
- 	switch (snd_usb_get_speed(dev)) {
- 	case USB_SPEED_LOW:
--		strlcat(card->longname, ", low speed", sizeof(card->longname));
-+		seq_buf_puts(&sb, ", low speed");
- 		break;
- 	case USB_SPEED_FULL:
--		strlcat(card->longname, ", full speed", sizeof(card->longname));
-+		seq_buf_puts(&sb, ", full speed");
- 		break;
- 	case USB_SPEED_HIGH:
--		strlcat(card->longname, ", high speed", sizeof(card->longname));
-+		seq_buf_puts(&sb, ", high speed");
- 		break;
- 	case USB_SPEED_SUPER:
--		strlcat(card->longname, ", super speed", sizeof(card->longname));
-+		seq_buf_puts(&sb, ", super speed");
- 		break;
- 	case USB_SPEED_SUPER_PLUS:
--		strlcat(card->longname, ", super speed plus", sizeof(card->longname));
-+		seq_buf_puts(&sb, ", super speed plus");
- 		break;
- 	default:
- 		break;
- 	}
-+
-+	seq_buf_str(&sb);
- }
-=20
- static void snd_usb_init_quirk_flags(int idx, struct snd_usb_audio *chip)
+ #ifdef CONFIG_BLK_DEV_INITRD
+ 	/* did palo pass us a ramdisk? */
 --=20
 2.55.0.1032.g73a4cd73de-goog
 

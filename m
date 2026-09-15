@@ -1,163 +1,124 @@
-Received: from mail-vs2-f12.google.com (mail-vs2-f12.google.com [74.125.227.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16ED7388881
-	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 14:16:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD24933D4E2
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 14:27:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789481803; cv=none; b=BgEoVhmuEF98S4WbEJfUfCWUV3nUz37uDNPX88gqFb2GmYBALmy1lj43gKb6rrj4yChJCYvLK1dATPJ2ADqJHwdBMpLZkNhpFhddlg/pUC0CBX5c3IsxvFJclsNpEZBQAkYCFrfD7b8MrjB+EiosIVnm5y7vSogiV0ZlY6rvjj8=
+	t=1789482447; cv=none; b=LmWn348Ut0wd0thcDA+T42+8zXy/eRn/uoDeRdfhfUr46dpKwvmpBSqY1ug+gsfBpnUi9zIOYkEztfll0AWFu3ImXlMn8Bj156Y43DkWuS3sl3eRUx4cW71O5QZ8HaV6rBqyPGkBfiUm3+Mq4hQj7y10iodXARdWBp+0vNTDF60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789481803; c=relaxed/simple;
-	bh=ZGcIqnBUb+2WGa9UWiN5MGaIiQ5CNl6v15OMyE1yvh8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CwfgNMkra69VT00qqbQm0DfrsXG1UHu5slVSrHFzQTGG49nAYc00MhGfhaSU99XVIXfXNAim1x10suWoFi7OdNWN1xdOrvFEYwoUJ5eD05+4LVq42Qw4cMHwIli9QHM9jXZY5wh5TcIb3aba9DCn6NScXJ0jeiu50E4bJiqOdAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fyN+53+N; arc=none smtp.client-ip=74.125.227.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789482447; c=relaxed/simple;
+	bh=QYDJX6ad0eUTRD/NTWxjeFLYQwVSh9n5bW3GqYxJ64E=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FKCwUgLHa/59JW89WY0EmzSTFWpw34OWww5fNC3Qq9qxE8eQVHh1VQvZWpAfbRK0NuoHMvJ4B/UUcwzLhXg2qPy//nj+0VBZ9tyjHDmT3u0WDTFQLgkBwTtUYn2rYmtK1WspV58dKPLOXdeet0MAsbR+WFSi/ixwbhfzWpoKuas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gvpImu3F; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fyN+53+N"
-Received: by mail-vs2-f12.google.com with SMTP id 71dfb90a1353d-5c67e52ff5dso254640e0c.1
-        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 07:16:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789481799; x=1790086599; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=4vy7TxtxABNySXdH9M9RGQIeskiOhNozoxbsdlpLAGo=;
-        b=fyN+53+Ns8gVbQXCSiWXtU3xLEoKpYUpkgHEuasxSFQdXn7rf2kzpE6YzCF2XG5hvv
-         ar/hc/B/BPjE01V0SciseYaJ7FFqbtuvDsdkIULMtDTBFk2aymkM0eVpLBC8w+5emlp4
-         6juWNPduSJKv2JARdQsaoVkNEzPV/WSvZULv/Wu0ruxDXT/JGnoX/gV+HhqDolZgQhs1
-         K1EI//wTi6vIRtwxvD74qd6LNHFsdgq7l1f3hBK1cvUqSshR/2ZLz5v2JTcmOwhuptm6
-         7t6KfN9loGEp2DTeF8V3HERTvfZt49Pt/eSqGl1zX39e2W7Yhm/GqvuqTxC76pfKZIx3
-         fmYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789481799; x=1790086599;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=4vy7TxtxABNySXdH9M9RGQIeskiOhNozoxbsdlpLAGo=;
-        b=dmlAAfneExsxQhMpVv1YSHieT4/8XHFE+qrsZ6s7yYdyh9i/bp6yv+ZMjM6MV0+M7a
-         BjUWutp051+6eBnJheMC4qsg6KPQb+/KwzqOIWuHSd2qqCvC7seXCt4Jff7aBKP1xpcI
-         zildgvtW/GbNwMMAhRJzr15vGyLWj1L14hlqVa6HNLZlA8uLw8WnSz/8TafUWx8qLC++
-         fosKpLJjbu7uScjuzLtSnjOqu+SXGgaLVvojq6nV0Z8se8oeKAi1Y84jnc+QlmJXn3vn
-         BgjgysxcqbinvIgp773eF0BCIQnW11HanepVFvXFLDyzTkvwnfxiJlFFiWZ7F0aAKTDb
-         vz7Q==
-X-Forwarded-Encrypted: i=1; AKwUvBynV36GES2RUXkE+gvWx+xCYhzMw7809cX5s/pNeklnB0xK4Y+9JSu6wsb4EbgEAW34Pr3HFLnY0HbMag==@vger.kernel.org
-X-Gm-Message-State: AFuF++lVqHZF4GsrOg2JYAPOpiCMEdy+ML7cNAjQ9P+EFejzRAcDY6tB
-	EO/0VnId9GADH/SvWZ1chXxTO9r/eyQMcA4x4C6scCd77RW3HABjI+Zb
-X-Gm-Gg: AYBFou0Ta6JauiXj8/JnMzoO65ULFqkNnlLUOyLPbWWt5+pAuQtzCjvU/Sg2lK0bSMW
-	ghp66ThCeOT6I3D+iY+Dy/bjTgU4KGLNOiNNOKE86ii81ijFsVV6V0+7N9tsJcf2fswg5KsKLOh
-	TXzrWwIMM9N3bJcVh4waZLiLYTzSRAlnHMAJpo9XRAcBrRnNvnTMq9xlYzV6YUSSzm04tT8Nc8V
-	cRtEim1qW8sN29Bf1nWxOn1TcogVp3HSXow2ShqNTGv7nJJAHeCpTLtJCToc1v9k3v9HegIdEkW
-	dtxFaBekPQvHpXBYDUjF8c+cxQcIrxYZ8yItA1qltllEA45qTs7HuK5tzbOo5ja3MdaAYHNssoq
-	grVIlcq54t5rUhmtVHaGBLpra66X0c6x8Nh2yeDt/xDI6LN6il+1WzKlMzfmNTcUdRzhyIXULca
-	sGo8XG8IMGUba8KFRbO689dJU71MxbB5XbKiRq0DFSJyC9zO8CmkaFzFwqDEWkHdRm
-X-Received: by 2002:a05:6122:3402:b0:5c8:228:5ea6 with SMTP id 71dfb90a1353d-5c993acb5b3mr2115305e0c.5.1789481796316;
-        Tue, 15 Sep 2026 07:16:36 -0700 (PDT)
-Received: from beelink.. ([187.13.206.89])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5c8470d661bsm15018810e0c.8.2026.09.15.07.16.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Sep 2026 07:16:35 -0700 (PDT)
-From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-Subject: [PATCH v2] HID: wacom: avoid overflows in sequence number tracking
-Date: Tue, 15 Sep 2026 11:16:21 -0300
-Message-ID: <20260915141621.3011011-1-qwe.aldo@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260915111448.2726869-1-qwe.aldo@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gvpImu3F"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 236D21F000FF;
+	Tue, 15 Sep 2026 14:27:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789482446;
+	bh=dY94lW1MVtZplNLIIXunZT1cO5ilFu501G/wnhTG5Lc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=gvpImu3FlHjy7NGrK8kULnL3B/vm1uhxnesz811WGVrgr1z9osunsWabcf7/obiLh
+	 g139YZe8DkKXk6CIRbUQLtC6d+la7BqvyeoPIsui/JPR2MzxQ8mt/xDqSNSGVvOIPk
+	 xwTk96q9xzUfXdRBcaQClSj3YLjEWrhVHFg4J+SvuxlvDpbw7yxR39fn52yadz+IDC
+	 OTBSWIJpaK6zsU1CHqIMYfyZIf0zAcj+xEQtV25p4dLqwNkOHKbVdU+N75DHCgpdhA
+	 i3YKqU9ZdpXiPTW60ati5XslefObNUwj/8V1oh0/AU9GKW2gDh/vJrN18MWgTlPMcU
+	 Tubh+ri6yW5fw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] HID: wacom: avoid overflows in sequence number
+ tracking
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aldo Ariel Panzardo" <qwe.aldo@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260915141621.3011011-1-qwe.aldo@gmail.com>
 References: <20260915111448.2726869-1-qwe.aldo@gmail.com>
+ <20260915141621.3011011-1-qwe.aldo@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 15 Sep 2026 14:27:25 +0000
+Message-Id: <20260915142726.236D21F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The dropped-packet calculation derives the sequence range in signed int
-arithmetic. A sequence field whose logical range spans all 32-bit values
-makes the range calculation wrap to zero, so the following modulo triggers
-a divide exception.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] hid: wacom: 64-bit modulo operation breaks 32-bit builds
+--
 
-Normalize the maximum and current value according to the HID parser's
-signedness rule, and keep the sequence state and arithmetic in s64. This
-also avoids overflowing value + 1 at the logical maximum.
+commit 07dd42ab3d43fb513fdcf25e5070f8dd85e2b11c
+Author: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 
-Fixes: 359673ea3a20 ("HID: wacom: Support sequence numbers smaller than 16-bit")
+HID: wacom: avoid overflows in sequence number tracking
+
+This commit updates the dropped-packet calculation to use signed 64-bit=20
+arithmetic to prevent divide exceptions caused by 32-bit wrap-arounds. It a=
+lso=20
+normalizes the sequence values according to the HID parser's signedness rul=
+es.
+
+Fixes: 359673ea3a20 ("HID: wacom: Support sequence numbers smaller than 16-=
+bit")
 Cc: stable@vger.kernel.org
-Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
----
- drivers/hid/wacom_wac.c | 32 ++++++++++++++++++++++++--------
- drivers/hid/wacom_wac.h |  2 +-
- 2 files changed, 25 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index da1f0ea856..428ac7077a 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2527,18 +2527,34 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
- 	case WACOM_HID_WD_BARRELSWITCH3:
- 		wacom_wac->hid_data.barrelswitch3 = value;
- 		return;
--	case WACOM_HID_WD_SEQUENCENUMBER:
--		if (wacom_wac->hid_data.sequence_number != value &&
-+	case WACOM_HID_WD_SEQUENCENUMBER: {
-+		s64 sequence_minimum = field->logical_minimum;
-+		s64 sequence_maximum = sequence_minimum < 0 ?
-+			(s64)field->logical_maximum :
-+			(s64)(u32)field->logical_maximum;
-+		s64 sequence_value = sequence_minimum < 0 ?
-+			(s64)value : (s64)(u32)value;
-+
-+		if (wacom_wac->hid_data.sequence_number != sequence_value &&
- 		    wacom_wac->hid_data.sequence_number >= 0) {
--			int sequence_size = field->logical_maximum - field->logical_minimum + 1;
--			int drop_count = (value - wacom_wac->hid_data.sequence_number) % sequence_size;
--			hid_warn(hdev, "Dropped %d packets", drop_count);
-+			s64 sequence_size = sequence_maximum -
-+					    sequence_minimum + 1;
-+			s64 drop_count = sequence_value -
-+					 wacom_wac->hid_data.sequence_number;
-+
-+			drop_count %= sequence_size;
-+			if (drop_count < 0)
-+				drop_count += sequence_size;
-+			hid_warn(hdev, "Dropped %lld packets",
-+				 (long long)drop_count);
- 		}
--		wacom_wac->hid_data.sequence_number = value + 1;
--		if (wacom_wac->hid_data.sequence_number > field->logical_maximum)
--			wacom_wac->hid_data.sequence_number = field->logical_minimum;
-+		if (sequence_value >= sequence_maximum)
-+			wacom_wac->hid_data.sequence_number = sequence_minimum;
-+		else
-+			wacom_wac->hid_data.sequence_number = sequence_value + 1;
- 		return;
- 	}
-+	}
- 
- 	/* send pen events only when touch is up or forced out
- 	 * or touch arbitration is off
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 126bec6e5c..74e7c5a04a 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -324,7 +324,7 @@ struct hid_data {
- 	int bat_connected;
- 	int ps_connected;
- 	bool pad_input_event_flag;
--	int sequence_number;
-+	s64 sequence_number;
- 	ktime_t time_delayed;
- };
- 
--- 
-2.43.0
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 8feb8027be95e..ff99ba259b030 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2542,18 +2542,34 @@ static void wacom_wac_pen_event(struct hid_device=
+ *hdev, struct hid_field *field
+>  	case WACOM_HID_WD_BARRELSWITCH3:
+>  		wacom_wac->hid_data.barrelswitch3 =3D value;
+>  		return;
+> -	case WACOM_HID_WD_SEQUENCENUMBER:
+> -		if (wacom_wac->hid_data.sequence_number !=3D value &&
+> +	case WACOM_HID_WD_SEQUENCENUMBER: {
+> +		s64 sequence_minimum =3D field->logical_minimum;
+> +		s64 sequence_maximum =3D sequence_minimum < 0 ?
+> +			(s64)field->logical_maximum :
+> +			(s64)(u32)field->logical_maximum;
+> +		s64 sequence_value =3D sequence_minimum < 0 ?
+> +			(s64)value : (s64)(u32)value;
+> +
+> +		if (wacom_wac->hid_data.sequence_number !=3D sequence_value &&
+>  		    wacom_wac->hid_data.sequence_number >=3D 0) {
+> -			int sequence_size =3D field->logical_maximum - field->logical_minimum=
+ + 1;
+> -			int drop_count =3D (value - wacom_wac->hid_data.sequence_number) % se=
+quence_size;
+> -			hid_warn(hdev, "Dropped %d packets", drop_count);
+> +			s64 sequence_size =3D sequence_maximum -
+> +					    sequence_minimum + 1;
+> +			s64 drop_count =3D sequence_value -
+> +					 wacom_wac->hid_data.sequence_number;
+> +
+> +			drop_count %=3D sequence_size;
 
+[Severity: Low]
+Will this raw 64-bit modulo operation cause link-time build failures on 32-=
+bit
+architectures?
+
+The variables drop_count and sequence_size are both s64. On 32-bit systems
+(like i386 or arm32), the kernel does not link __moddi3, so using the raw
+modulo operator on 64-bit integers typically results in an unresolved symbol
+build failure.
+
+Should this use a helper from <linux/math64.h>, such as div64_s64_rem(), to
+safely perform the calculation while ensuring 32-bit compatibility?
+
+> +			if (drop_count < 0)
+> +				drop_count +=3D sequence_size;
+> +			hid_warn(hdev, "Dropped %lld packets",
+> +				 (long long)drop_count);
+>  		}
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260915141621.3011=
+011-1-qwe.aldo@gmail.com?part=3D1

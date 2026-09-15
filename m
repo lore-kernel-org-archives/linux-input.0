@@ -1,499 +1,2130 @@
-Received: from mail-4318.protonmail.ch (mail-4318.protonmail.ch [185.70.43.18])
+Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ECFD439F7C;
-	Tue, 15 Sep 2026 05:29:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E00FB374A19
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 06:44:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789450192; cv=none; b=IetXXqX+ytSHICrJxPBNLgoeTGNzPaBSv9kA7Fh/yg6H85nnq7iFavLWG7bGFswCIpvU1P+CGw9zgGvJJlAp8tYtD9DK6iXdtRTLrKNxhpZOKxGThxBU+UCq5lsH4QJUGiOQyDdSeJ4+UGRRcBv264cuflgKlC7GWaFMn7bZzwI=
+	t=1789454691; cv=none; b=oXl90bGZLLmkS78fUCqhVFwIlCuds7PEVilKwdv7Fu0OziBiOx52uhZmW9IVFGhczUd9LnWnPPYesCibsP+VTm6714cz4YWqN5vp32jjJHgC3auLjHO2tt01QY+l359HK6yh/f91DEBj3TjkOYzpBTT7VDGtpnaDHQ9uLD+LTWg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789450192; c=relaxed/simple;
-	bh=b3Q8CjEhZcyyt7NtAkvaibsxeMBPS20WkpEkPd5spVQ=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=royb7wIdfQHRUoB7N2o0+gZe2VmMCzXL8IkJYLwTcdQtJdRmDmWWbYyGu8xrtuY8LhoalGNEw1//pdN2I+ewmt7b3anh7si5w84bvAb7Ww+jl0UmZkWWUUhT0mMjR05xG1CswXwLT4LAPM+ror5SHCf2mTUKYFsyxP7bnKP7mso=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=vasily.cc; spf=pass smtp.mailfrom=vasily.cc; dkim=pass (2048-bit key) header.d=vasily.cc header.i=@vasily.cc header.b=hdNaNvKk; arc=none smtp.client-ip=185.70.43.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=vasily.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vasily.cc
+	s=arc-20240116; t=1789454691; c=relaxed/simple;
+	bh=fRqW7I0lTYgXri6kUuewTCa3ppqSuY2a8+cqCuTqUuM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZgOpb8Dppm6Pg6mhSyKDLA/Ho+f4ppnvo4LYkW10wukkxKwsTxJxaKoRcZIguJH3alPtx531dxxN8gJaBL61vDWD0yCAqMOKcHfhgOUw+UWzq+RAMZsBwOiowCu6w8OMGoTFjyLONSBKqGyrPmr32U3mgU8sAn01brl9EEl7b+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=Hr4zU/yk; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=vasily.cc header.i=@vasily.cc header.b="hdNaNvKk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vasily.cc;
-	s=protonmail2; t=1789450185; x=1789709385;
-	bh=DHHwrG5uEdEYmQtukohndASLvUP8lEG7DkJekDL1mRI=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=hdNaNvKkjczaMtLGrV4U6Kd2jrkEKzLiOefRDX/Paw0wxmqxmJxKxSEIg6wSutd2f
-	 /LRrrs+55x3kVufEqTZy0fGBTdNl/TTzi9Cm3T1kp8glKL0sMc4mYDhAGnq9vUj3Ku
-	 Qp9AEgcPbEYqTy+T/gVMbSYk6iSIsMR/KZZCB94vSEihJ9gmjJlIadvEYug9KrJp/+
-	 M3iiH9q3O/2nNE7mFoAjb7J/ZP6gmPV3G0ZavVDoElk2U+SRl/SNFvpK2FMasAAG1B
-	 nSUUyPWJhNczSu07RiHqVWQfwbLLDWuFDzdflTCx9KYo0TaInuUaJiQ/HUExHLLZN2
-	 drH+UQxwa2MHQ==
-Date: Tue, 15 Sep 2026 05:29:39 +0000
-To: Guenter Roeck <linux@roeck-us.net>
-From: Vas Zayarskiy <contact@vasily.cc>
-Cc: Aleksa Savic <savicaleksa83@gmail.com>, Jack Doan <me@jackdoan.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH v3 4/4] hwmon: (aquacomputer_d5next) Add AMPINEL support
-Message-ID: <ICzeTYsqVwKewqbj_Gv2WM93k1Kr6uygPhcTJ3M8PBtvmoV3AlfEnRWAspP-fQgdmRW4IR1OPPpDLhmQiIqEAh5OuCKvwRzxAHSO-7rnYAQ=@vasily.cc>
-In-Reply-To: <a968a02f-c513-42f0-993f-ede4f785025c@roeck-us.net>
-References: <20260914233728.22725-1-contact@vasily.cc> <20260914233728.22725-5-contact@vasily.cc> <a968a02f-c513-42f0-993f-ede4f785025c@roeck-us.net>
-Feedback-ID: 162318860:user:proton
-X-Pm-Message-ID: 3e959d633a95607746c4ec27dcbaa88b3defc585
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="Hr4zU/yk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1789454680; bh=fRqW7I0lTYgXri6kUuewTCa3ppqSuY2a8+cqCuTqUuM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Hr4zU/ykDDJQ2krOxYaNqDyn4Lbc/hPMASgVIE9vskf3SQ4Pw285vQ4cdpkCVWHld
+	 Na31x7q/x6l/07+PVc2Rot8dArKk0rCdmOYWIWZdP6/O2vtdzVS8O5vuAAXVEJ1S76
+	 TRj8rgKZVnFyluKZRJcFNfL0QgSMBVQCYhdQNUfjdc5t6usL5wK45KnKFfR0bxM0W1
+	 HQk/hGYPFTg8i21UXWmCKgPrOCv1/qu229KwlnLdvAVRu2n8RCAN7cULNqeSR+iiJS
+	 vFyrbHQCv5VoYI6JZ65QzHDquFj7wdrKQJLjNYoYXQh5jenIN+UYlpnBXil5J+pgLV
+	 jGoC3U0are5fw==
+Received: from [192.168.0.22] (71-212-73-87.tukw.qwest.net [71.212.73.87])
+	by endrift.com (Postfix) with ESMTPSA id 35375A00C;
+	Mon, 14 Sep 2026 23:44:39 -0700 (PDT)
+Message-ID: <f3a50814-687e-454c-a9c6-45eb42f9334d@endrift.com>
+Date: Mon, 14 Sep 2026 23:44:38 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v13 1/3] HID: nintendo: Add preliminary Switch 2
+ controller driver
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Silvan Jegen <s.jegen@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>
+References: <20260812012037.3251614-1-vi@endrift.com>
+ <20260812012037.3251614-2-vi@endrift.com>
+Content-Language: en-US
+From: Vicki Pfau <vi@endrift.com>
+Autocrypt: addr=vi@endrift.com; keydata=
+ xsBNBFtJAmYBCADmRIN9O/aBbYc93lUMvG2hPip++otLit+65EwNHB1y9BmbVr0Q8Tz7rbAM
+ K2mB0EiA4Z3DesoLIOzlJq0E4fgDsAi8ok/i7aTx35d0Qeab95GEdkCMcL98xNJE0agq+KYk
+ pnvFlhdyC23K32KdOijsUqqbd86GgxRZmuf/Yf932KxKAj+n0aFBw5y6i0ep7WQBF6ytpqah
+ Uzy04D//smiTr6rrXg+C09MX0XZ2Fvcv3gmimnoV6C/ZCO1Zecqyhrs0YFfdIhFEBp2ItYim
+ MoeU4g6y726gyRO/+wwzZkryJMU8hHootzW1gUylZeELSwx8uIJSHFiLE7AK+M5soPtDABEB
+ AAHNG1ZpY2tpIFBmYXUgPHZpQGVuZHJpZnQuY29tPsLAjgQTAQoAOBYhBNj+0QMp9OPSosB4
+ 6X72E7X7Nb0rBQJbSQJmAhsDBQsJCAcCBhUKCQgLAgQWAgMBAh4BAheAAAoJEH72E7X7Nb0r
+ WIcH/0GnIOkmAyy2UlgS/VKi193ZRWYJjBfUncIBf57gLt1KYY0PvUoR9MVvkLqcx8vaCxWh
+ bVSqzxT6WU1ECp/URdQV2W4IGB6W4B8rT3VGw0QzbVVQRmt6vReEMFVL+vBfgHKTRBItiy7x
+ Bd+JZDusiyrrGok9TqqkBYlZPWE29ajiOAe05N1UhuRq7y8w/bOkzFD36ohMtfqV4hByWV+q
+ d0LujqgZm1AkM1FqpJ4j8h1Gox5rpmWfaHJmBQ8HcKqQfwACQCvDNHS2vlTXJYfxlh+mVerL
+ YKZgWnyvqx4pLKqJOXQKssIaDjnDfTu6bQgXvhaKb1+piBUYuoe9/+3E15TOwE0EW0kCZgEI
+ AL/KzT+NR1/LbJ7Kuv3gAHFp+S7cfyyPSamN6i6/X135vNSawG7g81iWUweAW6YahFA2haqw
+ t+8/Bm9Dzc8rF6RHCElK1GoHiF4SIYQxjqPo2wwqvTad9FblWTfaYRKfVDvNz2Rz4i681JrR
+ 8gizvzJPX+gocH7FMzPwb1DAwL2kKA5wilgAGSv8nZqeG55hNt2t/XiT6Yd97DJv86D24UUP
+ BetLTq2jUWtX+omt+JhF3QzMjnyGQYKHNXUB/ipBxNSkwnDrWg/f1EjDtNzuOHManJDC9Bqi
+ qhi1abiTNlmmewI5iLEnnxzfSKS5HO9nCC1szl229DHwIMH7jA+G+z0AEQEAAcLAdgQYAQoA
+ IBYhBNj+0QMp9OPSosB46X72E7X7Nb0rBQJbSQJmAhsMAAoJEH72E7X7Nb0roioIAM0oDKEU
+ QH7Og4+AXm35uklIiCX6cFQPgDVlQn7M/QFLnEhhCfPTt8PkIIN4dLgs4lIJxExpgQWgOLUX
+ h+ZLLupzZXoysAXfdwNLf/RqRed/zTZbUjssy4D7yeNIJThzU32kDy0Hx3pMNM/Hd9yaXmHL
+ LDkfwcyQuqA9+eeOogkDC8inLNLfYQ8JtVQZuWppNcbOZkBxfMVAmPHg6C9fe2biQFojoLPe
+ 4nQheprKfBp5QsY2cIjP8kaWPpfJEJ5i2aNgtrfebEzjYoWWLkK78Lo8qABdxkVhH6rhAlw2
+ rVf41cHNCfHF7ddvOb9IItWacXxYn7ql+dI/Se3+ISWDboQ=
+In-Reply-To: <20260812012037.3251614-2-vi@endrift.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Guenter,
+Dmitry,
 
-Thanks for the review. I will add the trailing comma and separate the share=
-d report validation and handling of an unknown firmware-version offset from=
- the AMPINEL addition. I also noted the -ENODATA and conversion/scaling wor=
-ding corrections on patch 2.
+Can you please review the USB portion of this patch? I've been submitting drafts since December and you've yet to review it. This series has been ready for a month and I don't want to miss another merge window.
 
-> If the match function _is_ needed, the reason needs to be explained, even
-> more so since this may impact USB_PRODUCT_ID_AQUAERO.
-
-The requirement is to keep AMPINEL's keyboard interface bound to hid-generi=
-c while the hwmon driver handles telemetry. Both interfaces share the same =
-VID/PID and match aqc_table. With the existing __check_hid_generic(), that =
-ID match is enough for hid-generic to decline the keyboard. Returning -ENOD=
-EV from aqc_probe(), or rejecting it in aqc_match() alone, does not make it=
- eligible for hid-generic.
-
-The Aquaero collection check rejects its non-telemetry interfaces during pr=
-obe, but that check alone does not establish keyboard fallback to hid-gener=
-ic. V3 leaves Aquaero's collection filtering in probe: aqc_match() accepts =
-it subject to the same generic-driver override checks the core already appl=
-ies when there is no match callback. I do not have Aquaero hardware and hav=
-e not validated its keyboard behavior.
-
-The matcher test demonstrates the AMPINEL rejection with the original hid-g=
-eneric logic and passes with patch 1. This is a userspace harness, not a li=
-ve kernel fallback test. With both revised modules loaded on the physical A=
-MPINEL, the keyboard registration/capabilities survived hwmon reload and su=
-spend/resume, and its capabilities were preserved on reboot. I will make th=
-e matching rationale explicit in the next revision.
-
-> FWIW, the raw even can happen prior to this, which will result
-> in bad data. This also affetcs other devices supported by this
-> driver (and those with fans can crash when it happens).
-
-Could you clarify the path that permits raw_event during probe here? I chec=
-ked the series base, 46fde107b4e881f179bf02bca69d8a0020561b3c. include/linu=
-x/hid.h documents that callbacks are blocked during probe unless the driver=
- calls hid_device_io_start(). In hid-core.c, hid_device_probe() holds drive=
-r_input_lock around the driver's probe, and __hid_input_report() returns -E=
-BUSY when it cannot acquire that lock.
-
-aqc_probe() does not call hid_device_io_start(), and neither hid_hw_start()=
- nor hid_hw_open() releases that lock. My reading is that normal USB report=
-s cannot reach aqc_raw_event() until initialization has completed. Is there=
- another path that bypasses this protection? I have not reproduced the race=
-, and would like to understand it before adding a shared initialization fix=
-.
-
-Thanks,
-Vas
-
-
-
-On Tuesday, September 15th, 2026 at 7:30 AM, Guenter Roeck <linux@roeck-us.=
-net> wrote:
-
-> On 9/14/26 16:37, Vas Zayarskiy wrote:
-> > Add read-only total power, total current, input voltage, hotspot
-> > temperature and six channel currents for the Aquacomputer AMPINEL.
-> >
-> > Decode its 544-byte input report through the existing serial-number,
-> > temperature and update path, with power, current and voltage handled in
-> > the device-specific switch. Store all readings in hwmon units.
-> >
-> > Match only the USB telemetry interface, leaving the separate keyboard
-> > interface to hid-generic. Validate the telemetry collection and report
-> > size before opening the device. Channel labels follow report order;
-> > configuration and alarms are not supported.
-> >
-> > Assisted-by: LLM sparse
-> > Signed-off-by: Vas Zayarskiy <contact@vasily.cc>
-> > ---
-> >   Documentation/hwmon/aquacomputer_d5next.rst |  11 ++
-> >   drivers/hwmon/Kconfig                       |   4 +-
-> >   drivers/hwmon/aquacomputer_d5next.c         | 107 +++++++++++++++++++=
--
-> >   3 files changed, 116 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/Documentation/hwmon/aquacomputer_d5next.rst b/Documentatio=
-n/hwmon/aquacomputer_d5next.rst
-> > index 49163f387..faf1c51c1 100644
-> > --- a/Documentation/hwmon/aquacomputer_d5next.rst
-> > +++ b/Documentation/hwmon/aquacomputer_d5next.rst
-> > @@ -13,6 +13,7 @@ Supported devices:
-> >   * Aquacomputer Quadro fan controller
-> >   * Aquacomputer High Flow Next sensor
-> >   * Aquacomputer Leakshield leak prevention system
-> > +* Aquacomputer AMPINEL power monitor
-> >   * Aquacomputer Aquastream XT watercooling pump
-> >   * Aquacomputer Aquastream Ultimate watercooling pump
-> >   * Aquacomputer Poweradjust 3 fan controller
-> > @@ -69,6 +70,16 @@ The Aquastream XT pump exposes temperature readings =
-for the coolant, external se
-> >   and fan IC. It also exposes pump and fan speeds (in RPM), voltages, a=
-s well as pump
-> >   current.
-> >
-> > +The AMPINEL exposes total power, total current, input voltage, hotspot
-> > +temperature and six channel currents. Channel numbers follow report or=
-der;
-> > +their mapping to physical connector pins has not been verified. The re=
-adings
-> > +are received approximately twice per second. Only sensor reads are sup=
-ported;
-> > +the driver does not configure protection settings or report alarms.
-> > +
-> > +For AMPINEL, ``power1_input`` is total power, ``in0_input`` is input v=
-oltage,
-> > +``temp1_input`` is hotspot temperature, ``curr1_input`` is total curre=
-nt, and
-> > +``curr[2-7]_input`` are the six channel currents.
-> > +
-> >   The Aquastream Ultimate pump exposes coolant temp and an external tem=
-p sensor, along
-> >   with speed, power, voltage and current of both the pump and optionall=
-y connected fan.
-> >   It also exposes pressure and flow speed readings.
-> > diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-> > index 3d8b2c958..06cb246ff 100644
-> > --- a/drivers/hwmon/Kconfig
-> > +++ b/drivers/hwmon/Kconfig
-> > @@ -257,14 +257,14 @@ config SENSORS_AHT10
-> >   =09  will be called aht10.
-> >
-> >   config SENSORS_AQUACOMPUTER_D5NEXT
-> > -=09tristate "Aquacomputer D5 Next, Octo, Quadro, Farbwerk, Farbwerk 36=
-0, High Flow Next"
-> > +=09tristate "Aquacomputer D5 Next and other USB devices"
-> >   =09depends on USB_HID
-> >   =09select CRC16
-> >   =09help
-> >   =09  If you say yes here you get support for sensors and fans of
-> >   =09  the Aquacomputer D5 Next watercooling pump, Octo and Quadro fan
-> >   =09  controllers, Farbwerk and Farbwerk 360 RGB controllers, High Flo=
-w
-> > -=09  Next sensor, where available.
-> > +=09  Next sensor and AMPINEL power monitor, where available.
-> >
-> >   =09  This driver can also be built as a module. If so, the module
-> >   =09  will be called aquacomputer_d5next.
-> > diff --git a/drivers/hwmon/aquacomputer_d5next.c b/drivers/hwmon/aquaco=
-mputer_d5next.c
-> > index b58f5b5c9..e661c4dfa 100644
-> > --- a/drivers/hwmon/aquacomputer_d5next.c
-> > +++ b/drivers/hwmon/aquacomputer_d5next.c
-> > @@ -2,7 +2,7 @@
-> >   /*
-> >    * hwmon driver for Aquacomputer devices (D5 Next, Farbwerk, Farbwerk=
- 360, Octo,
-> >    * Quadro, High Flow Next, Aquaero, Aquastream Ultimate, Leakshield,
-> > - * High Flow USB/MPS Flow family)
-> > + * High Flow USB/MPS Flow family, AMPINEL)
-> >    *
-> >    * Aquacomputer devices send HID reports (with ID 0x01) every second =
-to report
-> >    * sensor values, except for devices that communicate through the
-> > @@ -23,6 +23,7 @@
-> >   #include <linux/module.h>
-> >   #include <linux/seq_file.h>
-> >   #include <linux/unaligned.h>
-> > +#include <linux/usb.h>
-> >
-> >   #define USB_VENDOR_ID_AQUACOMPUTER=090x0c70
-> >   #define USB_PRODUCT_ID_AQUAERO=09=090xf001
-> > @@ -33,6 +34,7 @@
-> >   #define USB_PRODUCT_ID_OCTO=09=090xf011
-> >   #define USB_PRODUCT_ID_HIGHFLOWNEXT=090xf012
-> >   #define USB_PRODUCT_ID_LEAKSHIELD=090xf014
-> > +#define USB_PRODUCT_ID_AMPINEL=09=090xf015
-> >   #define USB_PRODUCT_ID_AQUASTREAMXT=090xf0b6
-> >   #define USB_PRODUCT_ID_AQUASTREAMULT=090xf00b
-> >   #define USB_PRODUCT_ID_POWERADJUST3=090xf0bd
-> > @@ -41,7 +43,7 @@
-> >   enum kinds {
-> >   =09d5next, farbwerk, farbwerk360, octo, quadro,
-> >   =09highflownext, aquaero, poweradjust3, aquastreamult,
-> > -=09aquastreamxt, leakshield, highflow
-> > +=09aquastreamxt, leakshield, highflow, ampinel
-> >   };
-> >
-> >   static const char *const aqc_device_names[] =3D {
-> > @@ -56,7 +58,8 @@ static const char *const aqc_device_names[] =3D {
-> >   =09[aquaero] =3D "aquaero",
-> >   =09[aquastreamult] =3D "aquastreamultimate",
-> >   =09[poweradjust3] =3D "poweradjust3",
-> > -=09[highflow] =3D "highflow" /* Covers MPS Flow devices */
-> > +=09[highflow] =3D "highflow", /* Covers MPS Flow devices */
-> > +=09[ampinel] =3D "ampinel"
->=20
-> Add "," at the end to avoid having to change it whenever a new device is =
-added.
->=20
-> >   };
-> >
-> >   #define DRIVER_NAME=09=09=09"aquacomputer_d5next"
-> > @@ -111,6 +114,16 @@ static u8 aquaero_secondary_ctrl_report[] =3D {
-> >   #define AQC_FAN_POWER_OFFSET=09=090x06
-> >   #define AQC_FAN_SPEED_OFFSET=09=090x08
-> >
-> > +/* AMPINEL offsets include the report ID byte. */
-> > +#define AMPINEL_DATA_INTERFACE=09=091
-> > +#define AMPINEL_STATUS_REPORT_SIZE=09544
-> > +#define AMPINEL_NUM_CHANNELS=09=096
-> > +#define AMPINEL_CHANNEL_CURRENT_START=090x6f
-> > +#define AMPINEL_POWER=09=09=090xc7
-> > +#define AMPINEL_CURRENT=09=09=090xc9
-> > +#define AMPINEL_VOLTAGE=09=09=090xcf
-> > +#define AMPINEL_HOTSPOT=09=09=090xe1
-> > +
-> >   /* Specs of the Aquaero fan controllers */
-> >   #define AQUAERO_SERIAL_START=09=09=090x07
-> >   #define AQUAERO_FIRMWARE_VERSION=09=090x0B
-> > @@ -516,6 +529,24 @@ static const char *const label_highflow_speeds[] =
-=3D {
-> >   =09"Flow speed [dL/h]"
-> >   };
-> >
-> > +static const char *const label_ampinel_temp[] =3D {
-> > +=09"Hotspot"
-> > +};
-> > +
-> > +static const char *const label_ampinel_power[] =3D {
-> > +=09"Total power"
-> > +};
-> > +
-> > +static const char *const label_ampinel_voltage[] =3D {
-> > +=09"VCC In"
-> > +};
-> > +
-> > +static const char *const label_ampinel_current[] =3D {
-> > +=09"Total current",
-> > +=09"Channel 1", "Channel 2", "Channel 3",
-> > +=09"Channel 4", "Channel 5", "Channel 6"
-> > +};
-> > +
-> >   struct aqc_fan_structure_offsets {
-> >   =09u8 voltage;
-> >   =09u8 curr;
-> > @@ -869,6 +900,10 @@ static umode_t aqc_is_visible(const void *data, en=
-um hwmon_sensor_types type, u3
-> >   =09=09break;
-> >   =09case hwmon_power:
-> >   =09=09switch (priv->kind) {
-> > +=09=09case ampinel:
-> > +=09=09=09if (channel =3D=3D 0)
-> > +=09=09=09=09return 0444;
-> > +=09=09=09break;
-> >   =09=09case aquastreamult:
-> >   =09=09=09/* Special case to support pump and fan power */
-> >   =09=09=09if (channel < 2)
-> > @@ -889,6 +924,10 @@ static umode_t aqc_is_visible(const void *data, en=
-um hwmon_sensor_types type, u3
-> >   =09=09break;
-> >   =09case hwmon_curr:
-> >   =09=09switch (priv->kind) {
-> > +=09=09case ampinel:
-> > +=09=09=09if (channel < AMPINEL_NUM_CHANNELS + 1)
-> > +=09=09=09=09return 0444;
-> > +=09=09=09break;
-> >   =09=09case aquastreamult:
-> >   =09=09=09/* Special case to support pump and fan current */
-> >   =09=09=09if (channel < 2)
-> > @@ -907,6 +946,10 @@ static umode_t aqc_is_visible(const void *data, en=
-um hwmon_sensor_types type, u3
-> >   =09=09break;
-> >   =09case hwmon_in:
-> >   =09=09switch (priv->kind) {
-> > +=09=09case ampinel:
-> > +=09=09=09if (channel =3D=3D 0)
-> > +=09=09=09=09return 0444;
-> > +=09=09=09break;
-> >   =09=09case d5next:
-> >   =09=09=09/* Special case to support +5V and +12V voltage sensors */
-> >   =09=09=09if (channel < priv->num_fans + 2)
-> > @@ -1336,12 +1379,17 @@ static int aqc_raw_event(struct hid_device *hde=
-v, struct hid_report *report, u8
-> >   =09=09return 0;
-> >
-> >   =09priv =3D hid_get_drvdata(hdev);
-> > +=09if (priv->kind =3D=3D ampinel &&
-> > +=09    (report->type !=3D HID_INPUT_REPORT || size !=3D AMPINEL_STATUS=
-_REPORT_SIZE ||
-> > +=09     data[0] !=3D STATUS_REPORT_ID))
-> > +=09=09return 0;
-> >
->=20
-> This is again a bug fix affecting other controllers as well (report size =
-and
-> input type check).
->=20
-> >   =09/* Info provided with every report */
-> >   =09priv->serial_number[0] =3D get_unaligned_be16(data + priv->serial_=
-number_start_offset);
-> >   =09priv->serial_number[1] =3D get_unaligned_be16(data + priv->serial_=
-number_start_offset +
-> >   =09=09=09=09=09=09    SERIAL_PART_OFFSET);
-> > -=09priv->firmware_version =3D get_unaligned_be16(data + priv->firmware=
-_version_offset);
-> > +=09if (priv->firmware_version_offset)
-> > +=09=09priv->firmware_version =3D get_unaligned_be16(data + priv->firmw=
-are_version_offset);
->=20
-> Unrelated to adding support for ampinel.
->=20
-> >
-> >   =09/* Physical temperature sensor readings */
-> >   =09for (i =3D 0; i < priv->num_temp_sensors; i++) {
-> > @@ -1394,6 +1442,17 @@ static int aqc_raw_event(struct hid_device *hdev=
-, struct hid_report *report, u8
-> >
-> >   =09/* Special-case sensor readings */
-> >   =09switch (priv->kind) {
-> > +=09case ampinel:
-> > +=09=09priv->power_input[0] =3D
-> > +=09=09=09min_t(u64, get_unaligned_be16(data + AMPINEL_POWER) * 100000U=
-LL,
-> > +=09=09=09      LONG_MAX);
-> > +=09=09priv->current_input[0] =3D get_unaligned_be16(data + AMPINEL_CUR=
-RENT) * 10;
-> > +=09=09for (i =3D 0; i < AMPINEL_NUM_CHANNELS; i++)
-> > +=09=09=09priv->current_input[i + 1] =3D
-> > +=09=09=09=09get_unaligned_be16(data + AMPINEL_CHANNEL_CURRENT_START +
-> > +=09=09=09=09=09=09   i * AQC_SENSOR_SIZE);
-> > +=09=09priv->voltage_input[0] =3D get_unaligned_be16(data + AMPINEL_VOL=
-TAGE);
-> > +=09=09break;
-> >   =09case aquaero:
-> >   =09=09/* Read calculated virtual temp sensors */
-> >   =09=09i =3D priv->num_temp_sensors + priv->num_virtual_temp_sensors;
-> > @@ -1519,8 +1578,26 @@ static void aqc_debugfs_init(struct aqc_data *pr=
-iv)
-> >   =09=09debugfs_create_file("power_cycles", 0444, priv->debugfs, priv, =
-&power_cycles_fops);
-> >   }
-> >
-> > +static bool aqc_match(struct hid_device *hdev, bool ignore_special_dri=
-ver)
-> > +{
-> > +=09struct usb_interface *intf;
-> > +
-> > +=09if (ignore_special_driver || hdev->quirks & HID_QUIRK_IGNORE_SPECIA=
-L_DRIVER)
-> > +=09=09return false;
-> > +
-> > +=09if (hdev->product !=3D USB_PRODUCT_ID_AMPINEL)
-> > +=09=09return true;
-> > +
-> > +=09if (!hid_is_usb(hdev))
-> > +=09=09return false;
-> > +
-> > +=09intf =3D to_usb_interface(hdev->dev.parent);
-> > +=09return intf->cur_altsetting->desc.bInterfaceNumber =3D=3D AMPINEL_D=
-ATA_INTERFACE;
-> > +}
-> > +
-> >   static int aqc_probe(struct hid_device *hdev, const struct hid_device=
-_id *id)
-> >   {
-> > +=09struct hid_report *report;
-> >   =09struct aqc_data *priv;
-> >   =09int ret;
-> >
-> > @@ -1537,6 +1614,14 @@ static int aqc_probe(struct hid_device *hdev, co=
-nst struct hid_device_id *id)
-> >   =09if (ret)
-> >   =09=09return ret;
-> >
-> > +=09if (hdev->product =3D=3D USB_PRODUCT_ID_AMPINEL) {
-> > +=09=09report =3D hdev->report_enum[HID_INPUT_REPORT].report_id_hash[ST=
-ATUS_REPORT_ID];
-> > +=09=09if (hdev->maxcollection !=3D 1 ||
-> > +=09=09    hdev->collection[0].usage !=3D (HID_UP_MSVENDOR | 1) ||
-> > +=09=09    !report || report->size !=3D (AMPINEL_STATUS_REPORT_SIZE - 1=
-) * 8)
-> > +=09=09=09return -ENODEV;
-> > +=09}
->=20
-> USB_PRODUCT_ID_AQUAERO has the same or a similar problem and handles it
-> in the switch statement below. I do not see a reason to handle this one
-> differently (including the need for the match function which doesn't seem
-> to be needed for USB_PRODUCT_ID_AQUAERO).
->=20
-> If the match function _is_ needed, the reason needs to be explained, even
-> more so since this may impact USB_PRODUCT_ID_AQUAERO.
->=20
-> > +
-> >   =09ret =3D hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-> >   =09if (ret)
-> >   =09=09return ret;
-> > @@ -1546,6 +1631,15 @@ static int aqc_probe(struct hid_device *hdev, co=
-nst struct hid_device_id *id)
-> >   =09=09goto fail_and_stop;
-> >
-> >   =09switch (hdev->product) {
-> > +=09case USB_PRODUCT_ID_AMPINEL:
-> > +=09=09priv->kind =3D ampinel;
-> > +=09=09priv->num_temp_sensors =3D 1;
-> > +=09=09priv->temp_sensor_start_offset =3D AMPINEL_HOTSPOT;
->=20
-> FWIW, the raw even can happen prior to this, which will result
-> in bad data. This also affetcs other devices supported by this
-> driver (and those with fans can crash when it happens).
->=20
-> > +=09=09priv->temp_label =3D label_ampinel_temp;
-> > +=09=09priv->power_label =3D label_ampinel_power;
-> > +=09=09priv->voltage_label =3D label_ampinel_voltage;
-> > +=09=09priv->current_label =3D label_ampinel_current;
-> > +=09=09break;
-> >   =09case USB_PRODUCT_ID_AQUAERO:
-> >   =09=09/*
-> >   =09=09 * Aquaero presents itself as three HID devices under the same =
-product ID:
-> > @@ -1795,6 +1889,9 @@ static int aqc_probe(struct hid_device *hdev, con=
-st struct hid_device_id *id)
-> >   =09}
-> >
-> >   =09switch (priv->kind) {
-> > +=09case ampinel:
-> > +=09=09priv->serial_number_start_offset =3D AQC_SERIAL_START;
-> > +=09=09break;
-> >   =09case aquaero:
-> >   =09=09priv->serial_number_start_offset =3D AQUAERO_SERIAL_START;
-> >   =09=09priv->firmware_version_offset =3D AQUAERO_FIRMWARE_VERSION;
-> > @@ -1890,6 +1987,7 @@ static const struct hid_device_id aqc_table[] =3D=
- {
-> >   =09{ HID_USB_DEVICE(USB_VENDOR_ID_AQUACOMPUTER, USB_PRODUCT_ID_QUADRO=
-) },
-> >   =09{ HID_USB_DEVICE(USB_VENDOR_ID_AQUACOMPUTER, USB_PRODUCT_ID_HIGHFL=
-OWNEXT) },
-> >   =09{ HID_USB_DEVICE(USB_VENDOR_ID_AQUACOMPUTER, USB_PRODUCT_ID_LEAKSH=
-IELD) },
-> > +=09{ HID_USB_DEVICE(USB_VENDOR_ID_AQUACOMPUTER, USB_PRODUCT_ID_AMPINEL=
-) },
-> >   =09{ HID_USB_DEVICE(USB_VENDOR_ID_AQUACOMPUTER, USB_PRODUCT_ID_AQUAST=
-REAMXT) },
-> >   =09{ HID_USB_DEVICE(USB_VENDOR_ID_AQUACOMPUTER, USB_PRODUCT_ID_AQUAST=
-REAMULT) },
-> >   =09{ HID_USB_DEVICE(USB_VENDOR_ID_AQUACOMPUTER, USB_PRODUCT_ID_POWERA=
-DJUST3) },
-> > @@ -1902,6 +2000,7 @@ MODULE_DEVICE_TABLE(hid, aqc_table);
-> >   static struct hid_driver aqc_driver =3D {
-> >   =09.name =3D DRIVER_NAME,
-> >   =09.id_table =3D aqc_table,
-> > +=09.match =3D aqc_match,
-> >   =09.probe =3D aqc_probe,
-> >   =09.remove =3D aqc_remove,
-> >   =09.raw_event =3D aqc_raw_event,
->=20
+On 8/11/26 6:20 PM, Vicki Pfau wrote:
+> This adds a new driver for the Switch 2 controllers. The Switch 2 uses an
+> unusual split-interface design such that input and rumble occur on the main
+> HID interface, but all other communication occurs over a "configuration"
+> interface. This is the case on both USB and Bluetooth, so this new driver
+> uses a split-driver design with the HID interface being the "main" driver
+> and the configuration interface is a secondary driver that looks up to the
+> HID interface, sharing resources on a common struct.
 > 
+> Due to using a non-standard pairing interface as well as Bluetooth
+> communications being extremely limited in the kernel, a custom interface
+> between userspace and the kernel will need to be designed, along with
+> bringup in BlueZ. That is beyond the scope of this initial patch, which
+> only contains the generic HID and USB configuration interface drivers.
+> 
+> This initial work supports general input for the Joy-Con 2, Pro Controller
+> 2, and GameCube NSO controllers. IMU, rumble and battery support is not yet
+> present.
+> 
+> Reviewed-by: Silvan Jegen <s.jegen@gmail.com>
+> Tested-by: Silvan Jegen <s.jegen@gmail.com>
+> Signed-off-by: Vicki Pfau <vi@endrift.com>
+> ---
+>  MAINTAINERS                                   |    1 +
+>  drivers/hid/Kconfig                           |   11 +-
+>  drivers/hid/hid-ids.h                         |    4 +
+>  drivers/hid/hid-nintendo.c                    | 1277 ++++++++++++++++-
+>  drivers/hid/hid-nintendo.h                    |   72 +
+>  drivers/input/joystick/Kconfig                |   11 +
+>  drivers/input/joystick/Makefile               |    1 +
+>  drivers/input/joystick/nintendo-switch2-usb.c |  475 ++++++
+>  8 files changed, 1842 insertions(+), 10 deletions(-)
+>  create mode 100644 drivers/hid/hid-nintendo.h
+>  create mode 100644 drivers/input/joystick/nintendo-switch2-usb.c
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index f37a81950e25..c9e276fcae8f 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -19162,6 +19162,7 @@ F:	drivers/scsi/nsp32*
+>  
+>  NINTENDO HID DRIVER
+>  M:	Daniel J. Ogorchock <djogorchock@gmail.com>
+> +M:	Vicki Pfau <vi@endrift.com>
+>  L:	linux-input@vger.kernel.org
+>  S:	Maintained
+>  F:	drivers/hid/hid-nintendo*
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index f9bcaeb66385..19c77c323ec9 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -843,10 +843,13 @@ config HID_NINTENDO
+>  	depends on LEDS_CLASS
+>  	select POWER_SUPPLY
+>  	help
+> -	Adds support for the Nintendo Switch Joy-Cons, NSO, Pro Controller.
+> -	All controllers support bluetooth, and the Pro Controller also supports
+> -	its USB mode. This also includes support for the Nintendo Switch Online
+> -	Controllers which include the NES, Genesis, SNES, and N64 controllers.
+> +	Adds support for the Nintendo Switch Joy-Cons, NSO, Pro Controller, as
+> +	well as Nintendo Switch 2 Joy-Cons, Pro Controller, and NSO GameCube
+> +	controllers. All Switch controllers support bluetooth, and the Pro
+> +	Controller also supports its USB mode. This also includes support for
+> +	the Nintendo Switch Online Controllers which include the NES, Genesis,
+> +	SNES, and N64 controllers. Switch 2 controllers currently only support
+> +	USB mode.
+>  
+>  	To compile this driver as a module, choose M here: the
+>  	module will be called hid-nintendo.
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 1059922baaac..9ba62b8fb894 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -1103,6 +1103,10 @@
+>  #define USB_DEVICE_ID_NINTENDO_SNESCON	0x2017
+>  #define USB_DEVICE_ID_NINTENDO_GENCON	0x201e
+>  #define USB_DEVICE_ID_NINTENDO_N64CON	0x2019
+> +#define USB_DEVICE_ID_NINTENDO_NS2_JOYCONR	0x2066
+> +#define USB_DEVICE_ID_NINTENDO_NS2_JOYCONL	0x2067
+> +#define USB_DEVICE_ID_NINTENDO_NS2_PROCON	0x2069
+> +#define USB_DEVICE_ID_NINTENDO_NS2_GCCON	0x2073
+>  
+>  #define USB_VENDOR_ID_NOVATEK		0x0603
+>  #define USB_DEVICE_ID_NOVATEK_PCT	0x0600
+> diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+> index e7302ec01ff1..78c9ad3c1610 100644
+> --- a/drivers/hid/hid-nintendo.c
+> +++ b/drivers/hid/hid-nintendo.c
+> @@ -1,11 +1,13 @@
+>  // SPDX-License-Identifier: GPL-2.0+
+>  /*
+> - * HID driver for Nintendo Switch Joy-Cons and Pro Controllers
+> + * HID driver for Nintendo Switch Joy-Cons and Pro Controllers, as well as
+> + * Nintendo Switch 2 Joy-Cons, Pro Controller, and GameCube Controller
+>   *
+>   * Copyright (c) 2019-2021 Daniel J. Ogorchock <djogorchock@gmail.com>
+>   * Portions Copyright (c) 2020 Nadia Holmquist Pedersen <nadia@nhp.sh>
+>   * Copyright (c) 2022 Emily Strickland <linux@emily.st>
+>   * Copyright (c) 2023 Ryan McClelland <rymcclel@gmail.com>
+> + * Copyright (c) 2026 Valve Software
+>   *
+>   * The following resources/projects were referenced for this driver:
+>   *   https://github.com/dekuNukem/Nintendo_Switch_Reverse_Engineering
+> @@ -13,6 +15,8 @@
+>   *   https://github.com/FrotBot/SwitchProConLinuxUSB
+>   *   https://github.com/MTCKC/ProconXInput
+>   *   https://github.com/Davidobot/BetterJoyForCemu
+> + *   https://gist.github.com/shinyquagsire23/66f006b46c56216acbaac6c1e2279b64
+> + *   https://github.com/ndeadly/switch2_controller_research
+>   *   hid-wiimote kernel hid driver
+>   *   hid-logitech-hidpp driver
+>   *   hid-sony driver
+> @@ -29,6 +33,7 @@
+>   */
+>  
+>  #include "hid-ids.h"
+> +#include "hid-nintendo.h"
+>  #include <linux/unaligned.h>
+>  #include <linux/delay.h>
+>  #include <linux/device.h>
+> @@ -41,6 +46,8 @@
+>  #include <linux/module.h>
+>  #include <linux/power_supply.h>
+>  #include <linux/spinlock.h>
+> +#include <linux/usb.h>
+> +#include "usbhid/usbhid.h"
+>  
+>  /*
+>   * Reference the url below for the following HID report defines:
+> @@ -2662,7 +2669,7 @@ static int joycon_ctlr_handle_event(struct joycon_ctlr *ctlr, u8 *data,
+>  	return ret;
+>  }
+>  
+> -static int nintendo_hid_event(struct hid_device *hdev,
+> +static int joycon_event(struct hid_device *hdev,
+>  			      struct hid_report *report, u8 *raw_data, int size)
+>  {
+>  	struct joycon_ctlr *ctlr = hid_get_drvdata(hdev);
+> @@ -2673,7 +2680,7 @@ static int nintendo_hid_event(struct hid_device *hdev,
+>  	return joycon_ctlr_handle_event(ctlr, raw_data, size);
+>  }
+>  
+> -static int nintendo_hid_probe(struct hid_device *hdev,
+> +static int joycon_probe(struct hid_device *hdev,
+>  			    const struct hid_device_id *id)
+>  {
+>  	int ret;
+> @@ -2777,7 +2784,7 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+>  	return ret;
+>  }
+>  
+> -static void nintendo_hid_remove(struct hid_device *hdev)
+> +static void joycon_remove(struct hid_device *hdev)
+>  {
+>  	struct joycon_ctlr *ctlr = hid_get_drvdata(hdev);
+>  	unsigned long flags;
+> @@ -2796,7 +2803,7 @@ static void nintendo_hid_remove(struct hid_device *hdev)
+>  	hid_hw_stop(hdev);
+>  }
+>  
+> -static int nintendo_hid_resume(struct hid_device *hdev)
+> +static int joycon_resume(struct hid_device *hdev)
+>  {
+>  	struct joycon_ctlr *ctlr = hid_get_drvdata(hdev);
+>  	int ret;
+> @@ -2819,7 +2826,7 @@ static int nintendo_hid_resume(struct hid_device *hdev)
+>  	return ret;
+>  }
+>  
+> -static int nintendo_hid_suspend(struct hid_device *hdev, pm_message_t message)
+> +static int joycon_suspend(struct hid_device *hdev, pm_message_t message)
+>  {
+>  	struct joycon_ctlr *ctlr = hid_get_drvdata(hdev);
+>  
+> @@ -2838,7 +2845,1207 @@ static int nintendo_hid_suspend(struct hid_device *hdev, pm_message_t message)
+>  	return 0;
+>  }
+>  
+> +/*
+> + * =============================================================================
+> + * Switch 2 support
+> + * =============================================================================
+> + */
+> +#define NS2_BTNR_B	BIT(0)
+> +#define NS2_BTNR_A	BIT(1)
+> +#define NS2_BTNR_Y	BIT(2)
+> +#define NS2_BTNR_X	BIT(3)
+> +#define NS2_BTNR_R	BIT(4)
+> +#define NS2_BTNR_ZR	BIT(5)
+> +#define NS2_BTNR_PLUS	BIT(6)
+> +#define NS2_BTNR_RS	BIT(7)
+> +
+> +#define NS2_BTNL_DOWN	BIT(0)
+> +#define NS2_BTNL_RIGHT	BIT(1)
+> +#define NS2_BTNL_LEFT	BIT(2)
+> +#define NS2_BTNL_UP	BIT(3)
+> +#define NS2_BTNL_L	BIT(4)
+> +#define NS2_BTNL_ZL	BIT(5)
+> +#define NS2_BTNL_MINUS	BIT(6)
+> +#define NS2_BTNL_LS	BIT(7)
+> +
+> +#define NS2_BTN3_C	BIT(4)
+> +#define NS2_BTN3_SR	BIT(6)
+> +#define NS2_BTN3_SL	BIT(7)
+> +
+> +#define NS2_BTN_JCR_HOME	BIT(0)
+> +#define NS2_BTN_JCR_GR		BIT(2)
+> +#define NS2_BTN_JCR_C		NS2_BTN3_C
+> +#define NS2_BTN_JCR_SR		NS2_BTN3_SR
+> +#define NS2_BTN_JCR_SL		NS2_BTN3_SL
+> +
+> +#define NS2_BTN_JCL_CAPTURE	BIT(0)
+> +#define NS2_BTN_JCL_GL		BIT(2)
+> +#define NS2_BTN_JCL_SR		NS2_BTN3_SR
+> +#define NS2_BTN_JCL_SL		NS2_BTN3_SL
+> +
+> +#define NS2_BTN_PRO_HOME	BIT(0)
+> +#define NS2_BTN_PRO_CAPTURE	BIT(1)
+> +#define NS2_BTN_PRO_GR		BIT(2)
+> +#define NS2_BTN_PRO_GL		BIT(3)
+> +#define NS2_BTN_PRO_C		NS2_BTN3_C
+> +
+> +#define NS2_BTN_GC_HOME		BIT(0)
+> +#define NS2_BTN_GC_CAPTURE	BIT(1)
+> +#define NS2_BTN_GC_C		NS2_BTN3_C
+> +
+> +#define NS2_TRIGGER_RANGE	4095
+> +#define NS2_AXIS_MIN		-32768
+> +#define NS2_AXIS_MAX		32767
+> +
+> +#define NS2_MAX_PLAYER_ID	8
+> +
+> +#define NS2_MAX_INIT_RETRIES	4
+> +
+> +#define NS2_FLASH_ADDR_SERIAL			0x13002
+> +#define NS2_FLASH_ADDR_FACTORY_PRIMARY_CALIB	0x130a8
+> +#define NS2_FLASH_ADDR_FACTORY_SECONDARY_CALIB	0x130e8
+> +#define NS2_FLASH_ADDR_FACTORY_TRIGGER_CALIB	0x13140
+> +#define NS2_FLASH_ADDR_USER_PRIMARY_CALIB	0x1fc040
+> +#define NS2_FLASH_ADDR_USER_SECONDARY_CALIB	0x1fc080
+> +
+> +#define NS2_FLASH_SIZE_SERIAL 0x10
+> +#define NS2_FLASH_SIZE_FACTORY_AXIS_CALIB 9
+> +#define NS2_FLASH_SIZE_FACTORY_TRIGGER_CALIB 2
+> +#define NS2_FLASH_SIZE_USER_AXIS_CALIB 11
+> +
+> +#define NS2_USER_CALIB_MAGIC 0xa1b2
+> +
+> +#define NS2_FEATURE_BUTTONS	BIT(0)
+> +#define NS2_FEATURE_ANALOG	BIT(1)
+> +#define NS2_FEATURE_IMU		BIT(2)
+> +#define NS2_FEATURE_MOUSE	BIT(4)
+> +#define NS2_FEATURE_RUMBLE	BIT(5)
+> +#define NS2_FEATURE_MAGNETO	BIT(7)
+> +
+> +enum switch2_subcmd_flash {
+> +	NS2_SUBCMD_FLASH_READ_BLOCK = 0x01,
+> +	NS2_SUBCMD_FLASH_WRITE_BLOCK = 0x02,
+> +	NS2_SUBCMD_FLASH_ERASE_BLOCK = 0x03,
+> +	NS2_SUBCMD_FLASH_READ = 0x04,
+> +	NS2_SUBCMD_FLASH_WRITE = 0x05,
+> +};
+> +
+> +enum switch2_subcmd_init {
+> +	NS2_SUBCMD_INIT_SELECT_REPORT = 0xa,
+> +	NS2_SUBCMD_INIT_USB = 0xd,
+> +};
+> +
+> +enum switch2_subcmd_feature_select {
+> +	NS2_SUBCMD_FEATSEL_GET_INFO = 0x1,
+> +	NS2_SUBCMD_FEATSEL_SET_MASK = 0x2,
+> +	NS2_SUBCMD_FEATSEL_CLEAR_MASK = 0x3,
+> +	NS2_SUBCMD_FEATSEL_ENABLE = 0x4,
+> +	NS2_SUBCMD_FEATSEL_DISABLE = 0x5,
+> +};
+> +
+> +enum switch2_subcmd_grip {
+> +	NS2_SUBCMD_GRIP_GET_INFO = 0x1,
+> +	NS2_SUBCMD_GRIP_ENABLE_BUTTONS = 0x2,
+> +	NS2_SUBCMD_GRIP_GET_INFO_EXT = 0x3,
+> +};
+> +
+> +enum switch2_subcmd_led {
+> +	NS2_SUBCMD_LED_P1 = 0x1,
+> +	NS2_SUBCMD_LED_P2 = 0x2,
+> +	NS2_SUBCMD_LED_P3 = 0x3,
+> +	NS2_SUBCMD_LED_P4 = 0x4,
+> +	NS2_SUBCMD_LED_ALL_ON = 0x5,
+> +	NS2_SUBCMD_LED_ALL_OFF = 0x6,
+> +	NS2_SUBCMD_LED_PATTERN = 0x7,
+> +	NS2_SUBCMD_LED_BLINK = 0x8,
+> +};
+> +
+> +enum switch2_subcmd_fw_info {
+> +	NS2_SUBCMD_FW_INFO_GET = 0x1,
+> +};
+> +
+> +enum switch2_ctlr_type {
+> +	NS2_CTLR_TYPE_JCL = 0x00,
+> +	NS2_CTLR_TYPE_JCR = 0x01,
+> +	NS2_CTLR_TYPE_PRO = 0x02,
+> +	NS2_CTLR_TYPE_GC = 0x03,
+> +};
+> +
+> +enum switch2_report_id {
+> +	NS2_REPORT_UNIFIED = 0x05,
+> +	NS2_REPORT_JCL = 0x07,
+> +	NS2_REPORT_JCR = 0x08,
+> +	NS2_REPORT_PRO = 0x09,
+> +	NS2_REPORT_GC = 0x0a,
+> +};
+> +
+> +enum switch2_init_step {
+> +	NS2_INIT_READ_SERIAL,
+> +	NS2_INIT_GET_FIRMWARE_INFO,
+> +	NS2_INIT_READ_FACTORY_PRIMARY_CALIB,
+> +	NS2_INIT_READ_FACTORY_SECONDARY_CALIB,
+> +	NS2_INIT_READ_FACTORY_TRIGGER_CALIB,
+> +	NS2_INIT_READ_USER_PRIMARY_CALIB,
+> +	NS2_INIT_READ_USER_SECONDARY_CALIB,
+> +	NS2_INIT_SET_FEATURE_MASK,
+> +	NS2_INIT_ENABLE_FEATURES,
+> +	NS2_INIT_GRIP_BUTTONS,
+> +	NS2_INIT_REPORT_FORMAT,
+> +	NS2_INIT_INPUT,
+> +	NS2_INIT_SET_PLAYER_LEDS,
+> +	NS2_INIT_FINISH,
+> +	NS2_INIT_DONE,
+> +};
+> +
+> +struct switch2_version_info {
+> +	uint8_t major;
+> +	uint8_t minor;
+> +	uint8_t patch;
+> +	uint8_t ctlr_type;
+> +	__le32 unk;
+> +	int8_t dsp_major;
+> +	int8_t dsp_minor;
+> +	int8_t dsp_patch;
+> +	int8_t dsp_type;
+> +};
+> +
+> +struct switch2_axis_calibration {
+> +	uint16_t neutral;
+> +	uint16_t negative;
+> +	uint16_t positive;
+> +};
+> +
+> +struct switch2_stick_calibration {
+> +	struct switch2_axis_calibration x;
+> +	struct switch2_axis_calibration y;
+> +};
+> +
+> +struct switch2_controller {
+> +	struct hid_device *hdev;
+> +	struct switch2_cfg_intf *cfg;
+> +	struct kref refcount;
+> +
+> +	char name[64];
+> +	char phys[64];
+> +	struct list_head entry;
+> +	struct mutex lock;
+> +
+> +	enum switch2_ctlr_type ctlr_type;
+> +	enum switch2_init_step init_step;
+> +	int init_retries;
+> +	struct input_dev __rcu *input;
+> +	char serial[NS2_FLASH_SIZE_SERIAL + 1];
+> +	struct switch2_version_info version;
+> +
+> +	struct switch2_stick_calibration stick_calib[2];
+> +	uint8_t lt_zero;
+> +	uint8_t rt_zero;
+> +
+> +	uint32_t player_id;
+> +	struct led_classdev *leds;
+> +};
+> +
+> +static DEFINE_MUTEX(switch2_controllers_lock);
+> +static LIST_HEAD(switch2_controllers);
+> +
+> +struct switch2_ctlr_button_mapping {
+> +	uint32_t code;
+> +	int byte;
+> +	uint32_t bit;
+> +};
+> +
+> +static const struct switch2_ctlr_button_mapping ns2_left_joycon_button_mappings[] = {
+> +	{ BTN_DPAD_LEFT,	0, NS2_BTNL_LEFT,	},
+> +	{ BTN_DPAD_UP,		0, NS2_BTNL_UP,		},
+> +	{ BTN_DPAD_DOWN,	0, NS2_BTNL_DOWN,	},
+> +	{ BTN_DPAD_RIGHT,	0, NS2_BTNL_RIGHT,	},
+> +	{ BTN_TL,		0, NS2_BTNL_L,		},
+> +	{ BTN_TL2,		0, NS2_BTNL_ZL,		},
+> +	{ BTN_SELECT,		0, NS2_BTNL_MINUS,	},
+> +	{ BTN_THUMBL,		0, NS2_BTNL_LS,		},
+> +	{ KEY_RECORD,		1, NS2_BTN_JCL_CAPTURE,	},
+> +	{ BTN_GRIPR,		1, NS2_BTN_JCL_SL,	},
+> +	{ BTN_GRIPR2,		1, NS2_BTN_JCL_SR,	},
+> +	{ BTN_GRIPL,		1, NS2_BTN_JCL_GL,	},
+> +	{ /* sentinel */ },
+> +};
+> +
+> +static const struct switch2_ctlr_button_mapping ns2_right_joycon_button_mappings[] = {
+> +	{ BTN_SOUTH,	0, NS2_BTNR_A,		},
+> +	{ BTN_EAST,	0, NS2_BTNR_B,		},
+> +	{ BTN_NORTH,	0, NS2_BTNR_X,		},
+> +	{ BTN_WEST,	0, NS2_BTNR_Y,		},
+> +	{ BTN_TR,	0, NS2_BTNR_R,		},
+> +	{ BTN_TR2,	0, NS2_BTNR_ZR,		},
+> +	{ BTN_START,	0, NS2_BTNR_PLUS,	},
+> +	{ BTN_THUMBR,	0, NS2_BTNR_RS,		},
+> +	{ BTN_C,	1, NS2_BTN_JCR_C,	},
+> +	{ BTN_MODE,	1, NS2_BTN_JCR_HOME,	},
+> +	{ BTN_GRIPL2,	1, NS2_BTN_JCR_SL,	},
+> +	{ BTN_GRIPL,	1, NS2_BTN_JCR_SR,	},
+> +	{ BTN_GRIPR,	1, NS2_BTN_JCR_GR,	},
+> +	{ /* sentinel */ },
+> +};
+> +
+> +static const struct switch2_ctlr_button_mapping ns2_procon_mappings[] = {
+> +	{ BTN_SOUTH,	0, NS2_BTNR_A,		},
+> +	{ BTN_EAST,	0, NS2_BTNR_B,		},
+> +	{ BTN_NORTH,	0, NS2_BTNR_X,		},
+> +	{ BTN_WEST,	0, NS2_BTNR_Y,		},
+> +	{ BTN_TL,	1, NS2_BTNL_L,		},
+> +	{ BTN_TR,	0, NS2_BTNR_R,		},
+> +	{ BTN_TL2,	1, NS2_BTNL_ZL,		},
+> +	{ BTN_TR2,	0, NS2_BTNR_ZR,		},
+> +	{ BTN_SELECT,	1, NS2_BTNL_MINUS,	},
+> +	{ BTN_START,	0, NS2_BTNR_PLUS,	},
+> +	{ BTN_THUMBL,	1, NS2_BTNL_LS,		},
+> +	{ BTN_THUMBR,	0, NS2_BTNR_RS,		},
+> +	{ BTN_MODE,	2, NS2_BTN_PRO_HOME	},
+> +	{ KEY_RECORD,	2, NS2_BTN_PRO_CAPTURE	},
+> +	{ BTN_GRIPR,	2, NS2_BTN_PRO_GR	},
+> +	{ BTN_GRIPL,	2, NS2_BTN_PRO_GL	},
+> +	{ BTN_C,	2, NS2_BTN_PRO_C	},
+> +	{ /* sentinel */ },
+> +};
+> +
+> +static const struct switch2_ctlr_button_mapping ns2_gccon_mappings[] = {
+> +	{ BTN_SOUTH,	0, NS2_BTNR_A,		},
+> +	{ BTN_EAST,	0, NS2_BTNR_B,		},
+> +	{ BTN_NORTH,	0, NS2_BTNR_X,		},
+> +	{ BTN_WEST,	0, NS2_BTNR_Y,		},
+> +	{ BTN_TL2,	1, NS2_BTNL_L,		},
+> +	{ BTN_TR2,	0, NS2_BTNR_R,		},
+> +	{ BTN_TL,	1, NS2_BTNL_ZL,		},
+> +	{ BTN_TR,	0, NS2_BTNR_ZR,		},
+> +	{ BTN_SELECT,	1, NS2_BTNL_MINUS,	},
+> +	{ BTN_START,	0, NS2_BTNR_PLUS,	},
+> +	{ BTN_MODE,	2, NS2_BTN_GC_HOME	},
+> +	{ KEY_RECORD,	2, NS2_BTN_GC_CAPTURE	},
+> +	{ BTN_C,	2, NS2_BTN_GC_C		},
+> +	{ /* sentinel */ },
+> +};
+> +
+> +static const uint8_t switch2_init_cmd_data[] = {
+> +	/*
+> +	 * The last 6 bytes of this packet are the MAC address of
+> +	 * the console, but we don't need that for USB
+> +	 */
+> +	0x01, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+> +};
+> +
+> +static const uint8_t switch2_one_data[] = { 0x01, 0x00, 0x00, 0x00 };
+> +
+> +static const uint8_t switch2_feature_mask[] = {
+> +	NS2_FEATURE_BUTTONS | NS2_FEATURE_ANALOG | NS2_FEATURE_IMU,
+> +	0x00, 0x00, 0x00
+> +};
+> +
+> +static int switch2_init_controller(struct switch2_controller *ns2);
+> +
+> +static void switch2_init_step_done(struct switch2_controller *ns2, enum switch2_init_step step)
+> +{
+> +	if (ns2->init_step != step)
+> +		return;
+> +
+> +	ns2->init_retries = 0;
+> +	ns2->init_step++;
+> +}
+> +
+> +static inline bool switch2_ctlr_is_joycon(enum switch2_ctlr_type type)
+> +{
+> +	return type == NS2_CTLR_TYPE_JCL || type == NS2_CTLR_TYPE_JCR;
+> +}
+> +
+> +static struct switch2_controller *switch2_get_controller(const char *phys)
+> +{
+> +	struct switch2_controller *ns2;
+> +
+> +	guard(mutex)(&switch2_controllers_lock);
+> +	list_for_each_entry(ns2, &switch2_controllers, entry) {
+> +		if (strncmp(ns2->phys, phys, sizeof(ns2->phys)) == 0) {
+> +			if (kref_get_unless_zero(&ns2->refcount))
+> +				return ns2;
+> +		}
+> +	}
+> +	ns2 = kzalloc(sizeof(*ns2), GFP_KERNEL);
+> +	if (!ns2)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	kref_init(&ns2->refcount);
+> +	mutex_init(&ns2->lock);
+> +	INIT_LIST_HEAD(&ns2->entry);
+> +	list_add(&ns2->entry, &switch2_controllers);
+> +	strscpy(ns2->phys, phys, sizeof(ns2->phys));
+> +	return ns2;
+> +}
+> +
+> +static void switch2_controller_put(struct switch2_controller *ns2)
+> +{
+> +	struct input_dev *input;
+> +
+> +	mutex_lock(&ns2->lock);
+> +	rcu_read_lock();
+> +	input = rcu_dereference(ns2->input);
+> +	rcu_read_unlock();
+> +
+> +	rcu_assign_pointer(ns2->input, NULL);
+> +	synchronize_rcu();
+> +
+> +	ns2->init_step = 0;
+> +	mutex_unlock(&ns2->lock);
+> +
+> +	if (input)
+> +		input_unregister_device(input);
+> +}
+> +
+> +static void switch2_kref_put(struct kref *refcount)
+> +{
+> +	struct switch2_controller *ns2 = container_of(refcount,
+> +					struct switch2_controller, refcount);
+> +
+> +	guard(mutex)(&switch2_controllers_lock);
+> +	list_del_init(&ns2->entry);
+> +	mutex_destroy(&ns2->lock);
+> +	kfree(ns2);
+> +}
+> +
+> +static int switch2_set_leds(struct switch2_controller *ns2)
+> +{
+> +	int i;
+> +	uint8_t message[8] = { 0 };
+> +
+> +	for (i = 0; i < JC_NUM_LEDS; i++)
+> +		message[0] |= (!!ns2->leds[i].brightness) << i;
+> +
+> +	if (!ns2->cfg)
+> +		return -ENOTCONN;
+> +	return ns2->cfg->send_command(NS2_CMD_LED, NS2_SUBCMD_LED_PATTERN,
+> +		&message, sizeof(message),
+> +		ns2->cfg);
+> +}
+> +
+> +static int switch2_player_led_brightness_set(struct led_classdev *led,
+> +					    enum led_brightness brightness)
+> +{
+> +	struct device *dev = led->dev->parent;
+> +	struct input_dev *input = to_input_dev(dev);
+> +	struct switch2_controller *ns2 = input_get_drvdata(input);
+> +
+> +	if (!ns2)
+> +		return -ENODEV;
+> +
+> +	guard(mutex)(&ns2->lock);
+> +	return switch2_set_leds(ns2);
+> +}
+> +
+> +static void switch2_config_buttons(struct input_dev *idev,
+> +	const struct switch2_ctlr_button_mapping button_mappings[])
+> +{
+> +	const struct switch2_ctlr_button_mapping *button;
+> +
+> +	for (button = button_mappings; button->code; button++)
+> +		input_set_capability(idev, EV_KEY, button->code);
+> +}
+> +
+> +static int switch2_input_ref(struct input_dev *input)
+> +{
+> +	struct switch2_controller *ns2 = input_get_drvdata(input);
+> +
+> +	kref_get(&ns2->refcount);
+> +
+> +	return 0;
+> +}
+> +
+> +static void switch2_input_deref(struct input_dev *input)
+> +{
+> +	struct switch2_controller *ns2 = input_get_drvdata(input);
+> +
+> +	kref_put(&ns2->refcount, switch2_kref_put);
+> +}
+> +
+> +static int switch2_init_input(struct switch2_controller *ns2)
+> +{
+> +	struct input_dev *input;
+> +	struct hid_device *hdev = ns2->hdev;
+> +	int player_led_pattern;
+> +	int i;
+> +	int ret;
+> +
+> +	rcu_read_lock();
+> +	input = rcu_dereference(ns2->input);
+> +	rcu_read_unlock();
+> +
+> +	if (input) {
+> +		switch2_init_step_done(ns2, NS2_INIT_INPUT);
+> +		return 0;
+> +	}
+> +
+> +	input = input_allocate_device();
+> +	if (!input)
+> +		return -ENOMEM;
+> +
+> +	input_set_drvdata(input, ns2);
+> +	input->open = switch2_input_ref;
+> +	input->close = switch2_input_deref;
+> +	input->dev.parent = &hdev->dev;
+> +	input->id.bustype = hdev->bus;
+> +	input->id.vendor = hdev->vendor;
+> +	input->id.product = hdev->product;
+> +	input->id.version = hdev->version;
+> +	input->uniq = ns2->serial;
+> +	input->name = ns2->name;
+> +	input->phys = hdev->phys;
+> +
+> +	switch (ns2->ctlr_type) {
+> +	case NS2_CTLR_TYPE_JCL:
+> +		input_set_abs_params(input, ABS_X, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_Y, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		switch2_config_buttons(input, ns2_left_joycon_button_mappings);
+> +		break;
+> +	case NS2_CTLR_TYPE_JCR:
+> +		input_set_abs_params(input, ABS_X, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_Y, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		switch2_config_buttons(input, ns2_right_joycon_button_mappings);
+> +		break;
+> +	case NS2_CTLR_TYPE_GC:
+> +		input_set_abs_params(input, ABS_X, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_Y, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_RX, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_RY, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_Z, 0, NS2_TRIGGER_RANGE, 32, 128);
+> +		input_set_abs_params(input, ABS_RZ, 0, NS2_TRIGGER_RANGE, 32, 128);
+> +		input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
+> +		input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
+> +		switch2_config_buttons(input, ns2_gccon_mappings);
+> +		break;
+> +	case NS2_CTLR_TYPE_PRO:
+> +		input_set_abs_params(input, ABS_X, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_Y, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_RX, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_RY, NS2_AXIS_MIN, NS2_AXIS_MAX, 32, 128);
+> +		input_set_abs_params(input, ABS_HAT0X, -1, 1, 0, 0);
+> +		input_set_abs_params(input, ABS_HAT0Y, -1, 1, 0, 0);
+> +		switch2_config_buttons(input, ns2_procon_mappings);
+> +		break;
+> +	default:
+> +		input_free_device(input);
+> +		return -EINVAL;
+> +	}
+> +
+> +	hid_info(ns2->hdev, "Firmware version %u.%u.%u (type %i)\n", ns2->version.major,
+> +		ns2->version.minor, ns2->version.patch, ns2->version.ctlr_type);
+> +	if (ns2->version.dsp_type >= 0)
+> +		hid_info(ns2->hdev, "DSP version %u.%u.%u\n", ns2->version.dsp_major,
+> +			ns2->version.dsp_minor, ns2->version.dsp_patch);
+> +
+> +	ret = input_register_device(input);
+> +	if (ret < 0) {
+> +		hid_err(ns2->hdev, "Failed to register input; ret=%d\n", ret);
+> +		input_free_device(input);
+> +		return ret;
+> +	}
+> +
+> +	player_led_pattern = ns2->player_id % JC_NUM_LED_PATTERNS;
+> +	hid_dbg(hdev, "assigned player %d led pattern", player_led_pattern + 1);
+> +
+> +	ns2->leds = devm_kcalloc(&input->dev, JC_NUM_LEDS, sizeof(*ns2->leds), GFP_KERNEL);
+> +	if (!ns2->leds) {
+> +		hid_err(ns2->hdev, "Failed to allocate LEDs\n");
+> +		input_unregister_device(input);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	for (i = 0; i < JC_NUM_LEDS; i++) {
+> +		struct led_classdev *led = &ns2->leds[i];
+> +
+> +		led->brightness = joycon_player_led_patterns[player_led_pattern][i];
+> +		led->max_brightness = 1;
+> +		led->brightness_set_blocking = switch2_player_led_brightness_set;
+> +		led->flags = LED_CORE_SUSPENDRESUME | LED_HW_PLUGGABLE | LED_RETAIN_AT_SHUTDOWN;
+> +		char *name = devm_kasprintf(&input->dev, GFP_KERNEL, "%s:%s:%s",
+> +				      dev_name(&input->dev),
+> +				      "green",
+> +				      joycon_player_led_names[i]);
+> +
+> +		if (!name) {
+> +			dev_err(&input->dev, "Failed to allocate name for player %d LED; ret=%d\n",
+> +				i + 1, ret);
+> +			break;
+> +		}
+> +
+> +		led->name = name;
+> +		ret = devm_led_classdev_register(&input->dev, led);
+> +		if (ret < 0) {
+> +			dev_err(&input->dev, "Failed to register player %d LED; ret=%d\n",
+> +				i + 1, ret);
+> +			break;
+> +		}
+> +	}
+> +
+> +	rcu_assign_pointer(ns2->input, input);
+> +	synchronize_rcu();
+> +
+> +	switch2_init_step_done(ns2, NS2_INIT_INPUT);
+> +	return switch2_init_controller(ns2);
+> +}
+> +
+> +static bool switch2_parse_stick_calibration(struct switch2_stick_calibration *calib,
+> +	const uint8_t *data)
+> +{
+> +	static const uint8_t UNCALIBRATED[9] = {
+> +		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+> +	};
+> +	if (memcmp(UNCALIBRATED, data, sizeof(UNCALIBRATED)) == 0)
+> +		return false;
+> +
+> +	calib->x.neutral = data[0];
+> +	calib->x.neutral |= (data[1] & 0x0F) << 8;
+> +
+> +	calib->y.neutral = data[1] >> 4;
+> +	calib->y.neutral |= data[2] << 4;
+> +
+> +	calib->x.positive = data[3];
+> +	calib->x.positive |= (data[4] & 0x0F) << 8;
+> +
+> +	calib->y.positive = data[4] >> 4;
+> +	calib->y.positive |= data[5] << 4;
+> +
+> +	calib->x.negative = data[6];
+> +	calib->x.negative |= (data[7] & 0x0F) << 8;
+> +
+> +	calib->y.negative = data[7] >> 4;
+> +	calib->y.negative |= data[8] << 4;
+> +
+> +	return true;
+> +}
+> +
+> +static void switch2_handle_flash_read(struct switch2_controller *ns2, uint8_t size,
+> +	uint32_t address, const uint8_t *data)
+> +{
+> +	bool ok;
+> +
+> +	switch (address) {
+> +	case NS2_FLASH_ADDR_SERIAL:
+> +		if (size != NS2_FLASH_SIZE_SERIAL)
+> +			return;
+> +		memcpy(ns2->serial, data, size);
+> +		switch2_init_step_done(ns2, NS2_INIT_READ_SERIAL);
+> +		break;
+> +	case NS2_FLASH_ADDR_FACTORY_PRIMARY_CALIB:
+> +		if (size != NS2_FLASH_SIZE_FACTORY_AXIS_CALIB)
+> +			return;
+> +		switch2_init_step_done(ns2, NS2_INIT_READ_FACTORY_PRIMARY_CALIB);
+> +		ok = switch2_parse_stick_calibration(&ns2->stick_calib[0], data);
+> +		if (ns2->hdev) {
+> +			if (ok) {
+> +				hid_dbg(ns2->hdev, "Got factory primary stick calibration:\n");
+> +				hid_dbg(ns2->hdev, "Left max: %i, neutral: %i, right max: %i\n",
+> +					ns2->stick_calib[0].x.negative,
+> +					ns2->stick_calib[0].x.neutral,
+> +					ns2->stick_calib[0].x.positive);
+> +				hid_dbg(ns2->hdev, "Down max: %i, neutral: %i, up max: %i\n",
+> +					ns2->stick_calib[0].y.negative,
+> +					ns2->stick_calib[0].y.neutral,
+> +					ns2->stick_calib[0].y.positive);
+> +			} else {
+> +				hid_dbg(ns2->hdev, "Factory primary stick calibration not present\n");
+> +			}
+> +		}
+> +		break;
+> +	case NS2_FLASH_ADDR_FACTORY_SECONDARY_CALIB:
+> +		if (size != NS2_FLASH_SIZE_FACTORY_AXIS_CALIB)
+> +			return;
+> +		switch2_init_step_done(ns2, NS2_INIT_READ_FACTORY_SECONDARY_CALIB);
+> +		ok = switch2_parse_stick_calibration(&ns2->stick_calib[1], data);
+> +		if (ns2->hdev) {
+> +			if (ok) {
+> +				hid_dbg(ns2->hdev, "Got factory secondary stick calibration:\n");
+> +				hid_dbg(ns2->hdev, "Left max: %i, neutral: %i, right max: %i\n",
+> +					ns2->stick_calib[1].x.negative,
+> +					ns2->stick_calib[1].x.neutral,
+> +					ns2->stick_calib[1].x.positive);
+> +				hid_dbg(ns2->hdev, "Down max: %i, neutral: %i, up max: %i\n",
+> +					ns2->stick_calib[1].y.negative,
+> +					ns2->stick_calib[1].y.neutral,
+> +					ns2->stick_calib[1].y.positive);
+> +			} else {
+> +				hid_dbg(ns2->hdev, "Factory secondary stick calibration not present\n");
+> +			}
+> +		}
+> +		break;
+> +	case NS2_FLASH_ADDR_FACTORY_TRIGGER_CALIB:
+> +		if (size != NS2_FLASH_SIZE_FACTORY_TRIGGER_CALIB)
+> +			return;
+> +		switch2_init_step_done(ns2, NS2_INIT_READ_FACTORY_TRIGGER_CALIB);
+> +		if (data[0] != 0xFF && data[1] != 0xFF) {
+> +			ns2->lt_zero = data[0];
+> +			ns2->rt_zero = data[1];
+> +
+> +			if (ns2->hdev) {
+> +				hid_dbg(ns2->hdev, "Got factory trigger calibration:\n");
+> +				hid_dbg(ns2->hdev, "Left zero point: %i\n", ns2->lt_zero);
+> +				hid_dbg(ns2->hdev, "Right zero point: %i\n", ns2->rt_zero);
+> +			}
+> +		} else if (ns2->hdev) {
+> +			hid_dbg(ns2->hdev, "Factory trigger calibration not present\n");
+> +		}
+> +		break;
+> +	case NS2_FLASH_ADDR_USER_PRIMARY_CALIB:
+> +		if (size != NS2_FLASH_SIZE_USER_AXIS_CALIB)
+> +			return;
+> +		switch2_init_step_done(ns2, NS2_INIT_READ_USER_PRIMARY_CALIB);
+> +		if (get_unaligned_le16((__le16 *)data) != NS2_USER_CALIB_MAGIC) {
+> +			if (ns2->hdev)
+> +				hid_dbg(ns2->hdev, "No user primary stick calibration present\n");
+> +			break;
+> +		}
+> +
+> +		ok = switch2_parse_stick_calibration(&ns2->stick_calib[0], &data[2]);
+> +		if (ns2->hdev) {
+> +			if (ok) {
+> +				hid_dbg(ns2->hdev, "Got user primary stick calibration:\n");
+> +				hid_dbg(ns2->hdev, "Left max: %i, neutral: %i, right max: %i\n",
+> +					ns2->stick_calib[0].x.negative,
+> +					ns2->stick_calib[0].x.neutral,
+> +					ns2->stick_calib[0].x.positive);
+> +				hid_dbg(ns2->hdev, "Down max: %i, neutral: %i, up max: %i\n",
+> +					ns2->stick_calib[0].y.negative,
+> +					ns2->stick_calib[0].y.neutral,
+> +					ns2->stick_calib[0].y.positive);
+> +			} else {
+> +				hid_dbg(ns2->hdev, "No user primary stick calibration present\n");
+> +			}
+> +		}
+> +		break;
+> +	case NS2_FLASH_ADDR_USER_SECONDARY_CALIB:
+> +		if (size != NS2_FLASH_SIZE_USER_AXIS_CALIB)
+> +			return;
+> +		switch2_init_step_done(ns2, NS2_INIT_READ_USER_SECONDARY_CALIB);
+> +		if (get_unaligned_le16((__le16 *)data) != NS2_USER_CALIB_MAGIC) {
+> +			if (ns2->hdev)
+> +				hid_dbg(ns2->hdev, "No user secondary stick calibration present\n");
+> +			break;
+> +		}
+> +
+> +		ok = switch2_parse_stick_calibration(&ns2->stick_calib[1], &data[2]);
+> +		if (ns2->hdev) {
+> +			if (ok) {
+> +				hid_dbg(ns2->hdev, "Got user secondary stick calibration:\n");
+> +				hid_dbg(ns2->hdev, "Left max: %i, neutral: %i, right max: %i\n",
+> +					ns2->stick_calib[1].x.negative,
+> +					ns2->stick_calib[1].x.neutral,
+> +					ns2->stick_calib[1].x.positive);
+> +				hid_dbg(ns2->hdev, "Down max: %i, neutral: %i, up max: %i\n",
+> +					ns2->stick_calib[1].y.negative,
+> +					ns2->stick_calib[1].y.neutral,
+> +					ns2->stick_calib[1].y.positive);
+> +			} else {
+> +				hid_dbg(ns2->hdev, "No user secondary stick calibration present\n");
+> +			}
+> +		}
+> +		break;
+> +	}
+> +}
+> +
+> +static void switch2_report_buttons(struct input_dev *input, const uint8_t *bytes,
+> +	const struct switch2_ctlr_button_mapping button_mappings[])
+> +{
+> +	const struct switch2_ctlr_button_mapping *button;
+> +
+> +	for (button = button_mappings; button->code; button++)
+> +		input_report_key(input, button->code, bytes[button->byte] & button->bit);
+> +}
+> +
+> +static void switch2_report_axis(struct input_dev *input, struct switch2_axis_calibration *calib,
+> +	int axis, bool invert, int value)
+> +{
+> +	if (calib && calib->neutral && calib->negative && calib->positive) {
+> +		value -= calib->neutral;
+> +		value *= NS2_AXIS_MAX + 1;
+> +		if (value < 0)
+> +			value /= calib->negative;
+> +		else
+> +			value /= calib->positive;
+> +	} else {
+> +		value = (value - 2048) * 16;
+> +	}
+> +
+> +	if (invert)
+> +		value = -value;
+> +	input_report_abs(input, axis,
+> +		clamp(value, NS2_AXIS_MIN, NS2_AXIS_MAX));
+> +}
+> +
+> +static void switch2_report_stick(struct input_dev *input, struct switch2_stick_calibration *calib,
+> +	int x, bool invert_x, int y, bool invert_y, const uint8_t *data)
+> +{
+> +	switch2_report_axis(input, &calib->x, x, invert_x, data[0] | ((data[1] & 0x0F) << 8));
+> +	switch2_report_axis(input, &calib->y, y, invert_y, (data[1] >> 4) | (data[2] << 4));
+> +}
+> +
+> +static void switch2_report_trigger(struct input_dev *input, uint8_t zero, int abs, uint8_t data)
+> +{
+> +	int value = (NS2_TRIGGER_RANGE + 1) * (data - zero);
+> +
+> +	if (zero != 232)
+> +		value /= (232 - zero);
+> +	input_report_abs(input, abs, clamp(value, 0, NS2_TRIGGER_RANGE));
+> +}
+> +
+> +static int switch2_event(struct hid_device *hdev, struct hid_report *report, uint8_t *raw_data,
+> +	int size)
+> +{
+> +	struct switch2_controller *ns2 = hid_get_drvdata(hdev);
+> +	struct input_dev *input;
+> +
+> +	if (report->type != HID_INPUT_REPORT)
+> +		return 0;
+> +
+> +	if (size < 15)
+> +		return -EINVAL;
+> +
+> +	guard(rcu)();
+> +	input = rcu_dereference(ns2->input);
+> +
+> +	if (!input)
+> +		return 0;
+> +
+> +	switch (report->id) {
+> +	case NS2_REPORT_UNIFIED:
+> +		/*
+> +		 * TODO
+> +		 * This won't be sent unless the report type gets changed via command
+> +		 * 03-0A, but we should support it at some point regardless.
+> +		 */
+> +		break;
+> +	case NS2_REPORT_JCL:
+> +		switch2_report_stick(input, &ns2->stick_calib[0], ABS_X, false,
+> +			ABS_Y, true, &raw_data[6]);
+> +		switch2_report_buttons(input, &raw_data[3], ns2_left_joycon_button_mappings);
+> +		break;
+> +	case NS2_REPORT_JCR:
+> +		switch2_report_stick(input, &ns2->stick_calib[0], ABS_X, false,
+> +			ABS_Y, true, &raw_data[6]);
+> +		switch2_report_buttons(input, &raw_data[3], ns2_right_joycon_button_mappings);
+> +		break;
+> +	case NS2_REPORT_GC:
+> +		input_report_abs(input, ABS_HAT0X,
+> +			!!(raw_data[4] & NS2_BTNL_RIGHT) -
+> +			!!(raw_data[4] & NS2_BTNL_LEFT));
+> +		input_report_abs(input, ABS_HAT0Y,
+> +			!!(raw_data[4] & NS2_BTNL_DOWN) -
+> +			!!(raw_data[4] & NS2_BTNL_UP));
+> +		switch2_report_buttons(input, &raw_data[3], ns2_gccon_mappings);
+> +		switch2_report_stick(input, &ns2->stick_calib[0], ABS_X, false,
+> +			ABS_Y, true, &raw_data[6]);
+> +		switch2_report_stick(input, &ns2->stick_calib[1], ABS_RX, false,
+> +			ABS_RY, true, &raw_data[9]);
+> +		switch2_report_trigger(input, ns2->lt_zero, ABS_Z, raw_data[13]);
+> +		switch2_report_trigger(input, ns2->rt_zero, ABS_RZ, raw_data[14]);
+> +		break;
+> +	case NS2_REPORT_PRO:
+> +		input_report_abs(input, ABS_HAT0X,
+> +			!!(raw_data[4] & NS2_BTNL_RIGHT) -
+> +			!!(raw_data[4] & NS2_BTNL_LEFT));
+> +		input_report_abs(input, ABS_HAT0Y,
+> +			!!(raw_data[4] & NS2_BTNL_DOWN) -
+> +			!!(raw_data[4] & NS2_BTNL_UP));
+> +		switch2_report_buttons(input, &raw_data[3], ns2_procon_mappings);
+> +		switch2_report_stick(input, &ns2->stick_calib[0], ABS_X, false,
+> +			ABS_Y, true, &raw_data[6]);
+> +		switch2_report_stick(input, &ns2->stick_calib[1], ABS_RX, false,
+> +			ABS_RY, true, &raw_data[9]);
+> +		break;
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	input_sync(input);
+> +	return 0;
+> +}
+> +
+> +static int switch2_features_enable(struct switch2_controller *ns2, int features)
+> +{
+> +	__le32 feature_bits = __cpu_to_le32(features);
+> +
+> +	if (!ns2->cfg)
+> +		return -ENOTCONN;
+> +	return ns2->cfg->send_command(NS2_CMD_FEATSEL, NS2_SUBCMD_FEATSEL_ENABLE,
+> +		&feature_bits, sizeof(feature_bits),
+> +		ns2->cfg);
+> +}
+> +
+> +static int switch2_read_flash(struct switch2_controller *ns2, uint32_t address,
+> +	uint8_t size)
+> +{
+> +	uint8_t message[8] = { size, 0x7e };
+> +
+> +	if (!ns2->cfg)
+> +		return -ENOTCONN;
+> +	put_unaligned_le32(address, &message[4]);
+> +	return ns2->cfg->send_command(NS2_CMD_FLASH, NS2_SUBCMD_FLASH_READ, message,
+> +		sizeof(message), ns2->cfg);
+> +}
+> +
+> +static int switch2_set_player_id(struct switch2_controller *ns2, uint32_t player_id)
+> +{
+> +	int i;
+> +	int player_led_pattern = player_id % JC_NUM_LED_PATTERNS;
+> +
+> +	for (i = 0; i < JC_NUM_LEDS; i++)
+> +		ns2->leds[i].brightness = joycon_player_led_patterns[player_led_pattern][i];
+> +
+> +	return switch2_set_leds(ns2);
+> +}
+> +
+> +static int switch2_set_report_format(struct switch2_controller *ns2, enum switch2_report_id fmt)
+> +{
+> +	__le32 format_id = __cpu_to_le32(fmt);
+> +
+> +	if (!ns2->cfg)
+> +		return -ENOTCONN;
+> +	return ns2->cfg->send_command(NS2_CMD_INIT, NS2_SUBCMD_INIT_SELECT_REPORT,
+> +		&format_id, sizeof(format_id),
+> +		ns2->cfg);
+> +}
+> +
+> +int switch2_init_controller(struct switch2_controller *ns2)
+> +{
+> +	if (ns2->init_step == NS2_INIT_DONE)
+> +		return 0;
+> +
+> +	if (!ns2->cfg)
+> +		return -ENOTCONN;
+> +
+> +	if (ns2->init_retries > NS2_MAX_INIT_RETRIES) {
+> +		if (ns2->init_retries == NS2_MAX_INIT_RETRIES + 1) {
+> +			dev_err(ns2->cfg->dev, "Failed to configure controller\n");
+> +			ns2->init_retries++;
+> +		}
+> +		return -EIO;
+> +	}
+> +
+> +	ns2->init_retries++;
+> +	switch (ns2->init_step) {
+> +	case NS2_INIT_READ_SERIAL:
+> +		return switch2_read_flash(ns2, NS2_FLASH_ADDR_SERIAL,
+> +			NS2_FLASH_SIZE_SERIAL);
+> +	case NS2_INIT_GET_FIRMWARE_INFO:
+> +		return ns2->cfg->send_command(NS2_CMD_FW_INFO, NS2_SUBCMD_FW_INFO_GET,
+> +			NULL, 0, ns2->cfg);
+> +	case NS2_INIT_READ_FACTORY_PRIMARY_CALIB:
+> +		return switch2_read_flash(ns2, NS2_FLASH_ADDR_FACTORY_PRIMARY_CALIB,
+> +			NS2_FLASH_SIZE_FACTORY_AXIS_CALIB);
+> +	case NS2_INIT_READ_FACTORY_SECONDARY_CALIB:
+> +		if (switch2_ctlr_is_joycon(ns2->ctlr_type)) {
+> +			switch2_init_step_done(ns2, ns2->init_step);
+> +			return switch2_init_controller(ns2);
+> +		}
+> +		return switch2_read_flash(ns2, NS2_FLASH_ADDR_FACTORY_SECONDARY_CALIB,
+> +			NS2_FLASH_SIZE_FACTORY_AXIS_CALIB);
+> +	case NS2_INIT_READ_FACTORY_TRIGGER_CALIB:
+> +		if (ns2->ctlr_type != NS2_CTLR_TYPE_GC) {
+> +			switch2_init_step_done(ns2, ns2->init_step);
+> +			return switch2_init_controller(ns2);
+> +		}
+> +		return switch2_read_flash(ns2, NS2_FLASH_ADDR_FACTORY_TRIGGER_CALIB,
+> +			NS2_FLASH_SIZE_FACTORY_TRIGGER_CALIB);
+> +	case NS2_INIT_READ_USER_PRIMARY_CALIB:
+> +		return switch2_read_flash(ns2, NS2_FLASH_ADDR_USER_PRIMARY_CALIB,
+> +			NS2_FLASH_SIZE_USER_AXIS_CALIB);
+> +	case NS2_INIT_READ_USER_SECONDARY_CALIB:
+> +		if (switch2_ctlr_is_joycon(ns2->ctlr_type)) {
+> +			switch2_init_step_done(ns2, ns2->init_step);
+> +			return switch2_init_controller(ns2);
+> +		}
+> +		return switch2_read_flash(ns2, NS2_FLASH_ADDR_USER_SECONDARY_CALIB,
+> +			NS2_FLASH_SIZE_USER_AXIS_CALIB);
+> +	case NS2_INIT_SET_FEATURE_MASK:
+> +		return ns2->cfg->send_command(NS2_CMD_FEATSEL, NS2_SUBCMD_FEATSEL_SET_MASK,
+> +			switch2_feature_mask, sizeof(switch2_feature_mask), ns2->cfg);
+> +	case NS2_INIT_ENABLE_FEATURES:
+> +		return switch2_features_enable(ns2, NS2_FEATURE_BUTTONS | NS2_FEATURE_ANALOG);
+> +	case NS2_INIT_GRIP_BUTTONS:
+> +		if (!switch2_ctlr_is_joycon(ns2->ctlr_type)) {
+> +			switch2_init_step_done(ns2, ns2->init_step);
+> +			return switch2_init_controller(ns2);
+> +		}
+> +		return ns2->cfg->send_command(NS2_CMD_GRIP, NS2_SUBCMD_GRIP_ENABLE_BUTTONS,
+> +			switch2_one_data, sizeof(switch2_one_data),
+> +			ns2->cfg);
+> +	case NS2_INIT_REPORT_FORMAT:
+> +		switch (ns2->ctlr_type) {
+> +		case NS2_CTLR_TYPE_JCL:
+> +			return switch2_set_report_format(ns2, NS2_REPORT_JCL);
+> +		case NS2_CTLR_TYPE_JCR:
+> +			return switch2_set_report_format(ns2, NS2_REPORT_JCR);
+> +		case NS2_CTLR_TYPE_PRO:
+> +			return switch2_set_report_format(ns2, NS2_REPORT_PRO);
+> +		case NS2_CTLR_TYPE_GC:
+> +			return switch2_set_report_format(ns2, NS2_REPORT_GC);
+> +		default:
+> +			switch2_init_step_done(ns2, ns2->init_step);
+> +			return switch2_init_controller(ns2);
+> +		}
+> +	case NS2_INIT_INPUT:
+> +		if (ns2->hdev)
+> +			return switch2_init_input(ns2);
+> +		break;
+> +	case NS2_INIT_SET_PLAYER_LEDS:
+> +		return switch2_set_player_id(ns2, ns2->player_id);
+> +	case NS2_INIT_FINISH:
+> +		return ns2->cfg->send_command(NS2_CMD_INIT, NS2_SUBCMD_INIT_USB,
+> +			switch2_init_cmd_data, sizeof(switch2_init_cmd_data), ns2->cfg);
+> +	default:
+> +		WARN_ON_ONCE(1);
+> +		break;
+> +	}
+> +	return 0;
+> +}
+> +
+> +int switch2_receive_command(struct switch2_controller *ns2,
+> +	const uint8_t *message, size_t length)
+> +{
+> +	const struct switch2_cmd_header *header;
+> +	int ret = 0;
+> +
+> +	if (length < 8)
+> +		return -EINVAL;
+> +
+> +	print_hex_dump_debug("got cmd: ", DUMP_PREFIX_OFFSET, 16, 1, message, length, false);
+> +
+> +	mutex_lock(&ns2->lock);
+> +
+> +	header = (const struct switch2_cmd_header *)message;
+> +	if (!(header->flags & NS2_FLAG_OK)) {
+> +		if (ns2->cfg)
+> +			dev_warn(ns2->cfg->dev, "Packet error %02x replying to command %x:%x",
+> +				header->flags, header->command, header->subcommand);
+> +		ret = -EIO;
+> +		goto exit;
+> +	}
+> +	message = &message[8];
+> +	length -= 8;
+> +
+> +	switch (header->command) {
+> +	case NS2_CMD_FLASH:
+> +		if (header->subcommand == NS2_SUBCMD_FLASH_READ) {
+> +			uint8_t read_size;
+> +			uint32_t read_address;
+> +
+> +			if (length < 8) {
+> +				ret = -EINVAL;
+> +				goto exit;
+> +			}
+> +			read_size = message[0];
+> +			read_address = get_unaligned_le32(&message[4]);
+> +			if (length < read_size + 8) {
+> +				ret = -EINVAL;
+> +				goto exit;
+> +			}
+> +			switch2_handle_flash_read(ns2, read_size, read_address, &message[8]);
+> +		}
+> +		break;
+> +	case NS2_CMD_INIT:
+> +		if (header->subcommand == NS2_SUBCMD_INIT_USB)
+> +			switch2_init_step_done(ns2, NS2_INIT_FINISH);
+> +		else if (header->subcommand == NS2_SUBCMD_INIT_SELECT_REPORT)
+> +			switch2_init_step_done(ns2, NS2_INIT_REPORT_FORMAT);
+> +		break;
+> +	case NS2_CMD_GRIP:
+> +		if (header->subcommand == NS2_SUBCMD_GRIP_ENABLE_BUTTONS)
+> +			switch2_init_step_done(ns2, NS2_INIT_GRIP_BUTTONS);
+> +		break;
+> +	case NS2_CMD_LED:
+> +		if (header->subcommand == NS2_SUBCMD_LED_PATTERN)
+> +			switch2_init_step_done(ns2, NS2_INIT_SET_PLAYER_LEDS);
+> +		break;
+> +	case NS2_CMD_FEATSEL:
+> +		if (header->subcommand == NS2_SUBCMD_FEATSEL_SET_MASK)
+> +			switch2_init_step_done(ns2, NS2_INIT_SET_FEATURE_MASK);
+> +		else if (header->subcommand == NS2_SUBCMD_FEATSEL_ENABLE)
+> +			switch2_init_step_done(ns2, NS2_INIT_ENABLE_FEATURES);
+> +		break;
+> +	case NS2_CMD_FW_INFO:
+> +		if (header->subcommand == NS2_SUBCMD_FW_INFO_GET) {
+> +			if (length < sizeof(ns2->version)) {
+> +				ret = -EINVAL;
+> +				goto exit;
+> +			}
+> +			memcpy(&ns2->version, message, sizeof(ns2->version));
+> +			ns2->ctlr_type = ns2->version.ctlr_type;
+> +			switch2_init_step_done(ns2, NS2_INIT_GET_FIRMWARE_INFO);
+> +		}
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +exit:
+> +	if (ns2->init_step < NS2_INIT_DONE)
+> +		switch2_init_controller(ns2);
+> +
+> +	mutex_unlock(&ns2->lock);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(switch2_receive_command);
+> +
+> +int switch2_controller_attach_cfg(const char *phys, struct switch2_cfg_intf *cfg)
+> +{
+> +	struct switch2_controller *ns2 = switch2_get_controller(phys);
+> +	int ret = 0;
+> +
+> +	if (IS_ERR(ns2))
+> +		return PTR_ERR(ns2);
+> +
+> +	mutex_lock(&ns2->lock);
+> +	if (ns2->cfg) {
+> +		ret = -EBUSY;
+> +		goto out;
+> +	}
+> +	cfg->parent = ns2;
+> +	ns2->cfg = cfg;
+> +
+> +	if (ns2->hdev)
+> +		ret = switch2_init_controller(ns2);
+> +
+> +	if (ret < 0) {
+> +		cfg->parent = NULL;
+> +		ns2->cfg = NULL;
+> +	}
+> +
+> +out:
+> +	mutex_unlock(&ns2->lock);
+> +
+> +	if (ret < 0)
+> +		kref_put(&ns2->refcount, switch2_kref_put);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(switch2_controller_attach_cfg);
+> +
+> +void switch2_controller_detach_cfg(struct switch2_controller *ns2)
+> +{
+> +	mutex_lock(&ns2->lock);
+> +	if (!ns2->cfg || WARN_ON(ns2 != ns2->cfg->parent)) {
+> +		mutex_unlock(&ns2->lock);
+> +		return;
+> +	}
+> +	ns2->cfg->parent = NULL;
+> +	ns2->cfg = NULL;
+> +	mutex_unlock(&ns2->lock);
+> +	switch2_controller_put(ns2);
+> +	kref_put(&ns2->refcount, switch2_kref_put);
+> +}
+> +EXPORT_SYMBOL_GPL(switch2_controller_detach_cfg);
+> +
+> +static int switch2_probe(struct hid_device *hdev, const struct hid_device_id *id)
+> +{
+> +	struct switch2_controller *ns2;
+> +	struct usb_device *udev;
+> +	char phys[64];
+> +	int ret;
+> +
+> +	if (!hid_is_usb(hdev))
+> +		return -ENODEV;
+> +
+> +	udev = hid_to_usb_dev(hdev);
+> +	if (usb_make_path(udev, phys, sizeof(phys)) < 0)
+> +		return -EINVAL;
+> +
+> +	ret = hid_parse(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "parse failed %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	ns2 = switch2_get_controller(phys);
+> +	if (IS_ERR(ns2))
+> +		return PTR_ERR(ns2);
+> +
+> +	mutex_lock(&ns2->lock);
+> +	if (ns2->hdev) {
+> +		mutex_unlock(&ns2->lock);
+> +		hid_err(hdev,
+> +			"Second hdev tried to claim same controller, first=%p vs second=%p\n",
+> +			ns2->hdev, hdev);
+> +		kref_put(&ns2->refcount, switch2_kref_put);
+> +		return -EBUSY;
+> +	}
+> +	ns2->hdev = hdev;
+> +	hid_set_drvdata(hdev, ns2);
+> +
+> +	switch (hdev->product | (hdev->vendor << 16)) {
+> +	default:
+> +		strscpy(ns2->name, hdev->name, sizeof(ns2->name));
+> +		break;
+> +	/* Some controllers have slightly wrong names so we override them */
+> +	case USB_DEVICE_ID_NINTENDO_NS2_JOYCONR | (USB_VENDOR_ID_NINTENDO << 16):
+> +		/* Missing the "2" in the name */
+> +		strscpy(ns2->name, "Nintendo Joy-Con 2 (R)", sizeof(ns2->name));
+> +		break;
+> +	case USB_DEVICE_ID_NINTENDO_NS2_GCCON | (USB_VENDOR_ID_NINTENDO << 16):
+> +		/* Has "Nintendo" in the name twice */
+> +		strscpy(ns2->name, "Nintendo GameCube Controller", sizeof(ns2->name));
+> +		break;
+> +	}
+> +
+> +	ns2->player_id = U32_MAX;
+> +	ret = ida_alloc(&nintendo_player_id_allocator, GFP_KERNEL);
+> +	if (ret < 0)
+> +		hid_warn(hdev, "Failed to allocate player ID, skipping; ret=%d\n", ret);
+> +	else
+> +		ns2->player_id = ret;
+> +
+> +	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+> +	if (ret) {
+> +		hid_err(hdev, "hw_start failed %d\n", ret);
+> +		goto err_cleanup;
+> +	}
+> +
+> +	ret = hid_hw_open(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "hw_open failed %d\n", ret);
+> +		goto err_stop;
+> +	}
+> +
+> +	ret = 0;
+> +	if (ns2->cfg)
+> +		ret = switch2_init_controller(ns2);
+> +
+> +	if (!ret) {
+> +		mutex_unlock(&ns2->lock);
+> +		return 0;
+> +	}
+> +
+> +	hid_hw_close(hdev);
+> +err_stop:
+> +	hid_hw_stop(hdev);
+> +err_cleanup:
+> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
+> +	ns2->hdev = NULL;
+> +	mutex_unlock(&ns2->lock);
+> +	switch2_controller_put(ns2);
+> +	kref_put(&ns2->refcount, switch2_kref_put);
+> +
+> +	return ret;
+> +}
+> +
+> +static void switch2_remove(struct hid_device *hdev)
+> +{
+> +	struct switch2_controller *ns2 = hid_get_drvdata(hdev);
+> +
+> +	switch2_controller_put(ns2);
+> +	mutex_lock(&ns2->lock);
+> +	ns2->hdev = NULL;
+> +	ida_free(&nintendo_player_id_allocator, ns2->player_id);
+> +	mutex_unlock(&ns2->lock);
+> +	kref_put(&ns2->refcount, switch2_kref_put);
+> +	hid_hw_close(hdev);
+> +	hid_hw_stop(hdev);
+> +}
+> +
+>  static const struct hid_device_id nintendo_hid_devices[] = {
+> +	/* Switch devices */
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NINTENDO,
+>  			 USB_DEVICE_ID_NINTENDO_PROCON) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NINTENDO,
+> @@ -2863,10 +4070,67 @@ static const struct hid_device_id nintendo_hid_devices[] = {
+>  			 USB_DEVICE_ID_NINTENDO_N64CON) },
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_HORI,
+>  			 USB_DEVICE_ID_HORI_WIRELESS_SWITCH_PAD) },
+> +	/* Switch 2 devices */
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_NINTENDO,
+> +			 USB_DEVICE_ID_NINTENDO_NS2_JOYCONL) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_NINTENDO,
+> +			 USB_DEVICE_ID_NINTENDO_NS2_JOYCONR) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_NINTENDO,
+> +			 USB_DEVICE_ID_NINTENDO_NS2_PROCON) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_NINTENDO,
+> +			 USB_DEVICE_ID_NINTENDO_NS2_GCCON) },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, nintendo_hid_devices);
+>  
+> +static bool nintendo_is_switch2(struct hid_device *hdev)
+> +{
+> +	return hdev->vendor == USB_VENDOR_ID_NINTENDO &&
+> +		hdev->product >= USB_DEVICE_ID_NINTENDO_NS2_JOYCONR;
+> +}
+> +
+> +static void nintendo_hid_remove(struct hid_device *hdev)
+> +{
+> +	if (nintendo_is_switch2(hdev))
+> +		switch2_remove(hdev);
+> +	else
+> +		joycon_remove(hdev);
+> +}
+> +
+> +static int nintendo_hid_event(struct hid_device *hdev,
+> +			      struct hid_report *report, u8 *raw_data, int size)
+> +{
+> +	if (nintendo_is_switch2(hdev))
+> +		return switch2_event(hdev, report, raw_data, size);
+> +	else
+> +		return joycon_event(hdev, report, raw_data, size);
+> +}
+> +
+> +static int nintendo_hid_probe(struct hid_device *hdev,
+> +			    const struct hid_device_id *id)
+> +{
+> +	if (nintendo_is_switch2(hdev))
+> +		return switch2_probe(hdev, id);
+> +	else
+> +		return joycon_probe(hdev, id);
+> +}
+> +
+> +static int nintendo_hid_resume(struct hid_device *hdev)
+> +{
+> +	if (nintendo_is_switch2(hdev))
+> +		return 0;
+> +	else
+> +		return joycon_resume(hdev);
+> +}
+> +
+> +static int nintendo_hid_suspend(struct hid_device *hdev, pm_message_t message)
+> +{
+> +	if (nintendo_is_switch2(hdev))
+> +		return 0;
+> +	else
+> +		return joycon_suspend(hdev, message);
+> +}
+> +
+>  static struct hid_driver nintendo_hid_driver = {
+>  	.name		= "nintendo",
+>  	.id_table	= nintendo_hid_devices,
+> @@ -2894,4 +4158,5 @@ MODULE_LICENSE("GPL");
+>  MODULE_AUTHOR("Ryan McClelland <rymcclel@gmail.com>");
+>  MODULE_AUTHOR("Emily Strickland <linux@emily.st>");
+>  MODULE_AUTHOR("Daniel J. Ogorchock <djogorchock@gmail.com>");
+> +MODULE_AUTHOR("Vicki Pfau <vi@endrift.com>");
+>  MODULE_DESCRIPTION("Driver for Nintendo Switch Controllers");
+> diff --git a/drivers/hid/hid-nintendo.h b/drivers/hid/hid-nintendo.h
+> new file mode 100644
+> index 000000000000..7aff22f30266
+> --- /dev/null
+> +++ b/drivers/hid/hid-nintendo.h
+> @@ -0,0 +1,72 @@
+> +/* SPDX-License-Identifier: GPL-2.0+ */
+> +/*
+> + * HID driver for Nintendo Switch 2 controllers
+> + *
+> + * Copyright (c) 2025 Valve Software
+> + *
+> + * This driver is based on the following work:
+> + *   https://gist.github.com/shinyquagsire23/66f006b46c56216acbaac6c1e2279b64
+> + *   https://github.com/ndeadly/switch2_controller_research
+> + */
+> +
+> +#ifndef __HID_NINTENDO_H
+> +#define __HID_NINTENDO_H
+> +
+> +#include <linux/bits.h>
+> +
+> +#define NS2_FLAG_OK	BIT(0)
+> +#define NS2_FLAG_NACK	BIT(2)
+> +
+> +enum switch2_cmd {
+> +	NS2_CMD_NFC = 0x01,
+> +	NS2_CMD_FLASH = 0x02,
+> +	NS2_CMD_INIT = 0x03,
+> +	NS2_CMD_GRIP = 0x08,
+> +	NS2_CMD_LED = 0x09,
+> +	NS2_CMD_VIBRATE = 0x0a,
+> +	NS2_CMD_BATTERY = 0x0b,
+> +	NS2_CMD_FEATSEL = 0x0c,
+> +	NS2_CMD_FW_UPD = 0x0d,
+> +	NS2_CMD_FW_INFO = 0x10,
+> +	NS2_CMD_BT_PAIR = 0x15,
+> +};
+> +
+> +enum switch2_direction {
+> +	NS2_DIR_IN = 0x00,
+> +	NS2_DIR_OUT = 0x90,
+> +};
+> +
+> +enum switch2_transport {
+> +	NS2_TRANS_USB = 0x00,
+> +	NS2_TRANS_BT = 0x01,
+> +};
+> +
+> +struct switch2_cmd_header {
+> +	uint8_t command;
+> +	uint8_t flags;
+> +	uint8_t transport;
+> +	uint8_t subcommand;
+> +	uint8_t unk1;
+> +	uint8_t length;
+> +	uint16_t unk2;
+> +};
+> +static_assert(sizeof(struct switch2_cmd_header) == 8);
+> +
+> +struct device;
+> +struct switch2_controller;
+> +struct switch2_cfg_intf {
+> +	struct switch2_controller *parent;
+> +	struct device *dev;
+> +
+> +	int (*send_command)(enum switch2_cmd command, uint8_t subcommand,
+> +		const void *message, size_t length,
+> +		struct switch2_cfg_intf *intf);
+> +};
+> +
+> +int switch2_controller_attach_cfg(const char *phys, struct switch2_cfg_intf *cfg);
+> +void switch2_controller_detach_cfg(struct switch2_controller *controller);
+> +
+> +int switch2_receive_command(struct switch2_controller *controller,
+> +	const uint8_t *message, size_t length);
+> +
+> +#endif
+> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+> index 7755e5b454d2..868262c6ccd9 100644
+> --- a/drivers/input/joystick/Kconfig
+> +++ b/drivers/input/joystick/Kconfig
+> @@ -422,4 +422,15 @@ config JOYSTICK_SEESAW
+>  	  To compile this driver as a module, choose M here: the module will be
+>  	  called adafruit-seesaw.
+>  
+> +config JOYSTICK_NINTENDO_SWITCH2_USB
+> +	tristate "Wired Nintendo Switch 2 controller support"
+> +	depends on HID_NINTENDO
+> +	depends on USB
+> +	help
+> +	  Say Y here if you want to enable support for wired Nintendo Switch 2
+> +	  controllers.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called nintendo-switch2-usb.
+> +
+>  endif
+> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+> index 9976f596a920..8f92900ae885 100644
+> --- a/drivers/input/joystick/Makefile
+> +++ b/drivers/input/joystick/Makefile
+> @@ -34,6 +34,7 @@ obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
+>  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
+>  obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
+>  obj-$(CONFIG_JOYSTICK_STINGER)		+= stinger.o
+> +obj-$(CONFIG_JOYSTICK_NINTENDO_SWITCH2_USB)	+= nintendo-switch2-usb.o
+>  obj-$(CONFIG_JOYSTICK_TMDC)		+= tmdc.o
+>  obj-$(CONFIG_JOYSTICK_TURBOGRAFX)	+= turbografx.o
+>  obj-$(CONFIG_JOYSTICK_TWIDJOY)		+= twidjoy.o
+> diff --git a/drivers/input/joystick/nintendo-switch2-usb.c b/drivers/input/joystick/nintendo-switch2-usb.c
+> new file mode 100644
+> index 000000000000..36a5ffbd6a75
+> --- /dev/null
+> +++ b/drivers/input/joystick/nintendo-switch2-usb.c
+> @@ -0,0 +1,475 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +/*
+> + * USB driver for Nintendo Switch 2 controllers configuration interface
+> + *
+> + * Copyright (c) 2025 Valve Software
+> + *
+> + * This driver is based on the following work:
+> + *   https://gist.github.com/shinyquagsire23/66f006b46c56216acbaac6c1e2279b64
+> + *   https://github.com/ndeadly/switch2_controller_research
+> + */
+> +
+> +#include "../../hid/hid-ids.h"
+> +#include "../../hid/hid-nintendo.h"
+> +#include <linux/module.h>
+> +#include <linux/usb/input.h>
+> +
+> +#define NS2_BULK_SIZE 64
+> +#define NS2_IN_URBS 2
+> +#define NS2_OUT_URBS 4
+> +
+> +static struct usb_driver switch2_usb;
+> +
+> +enum switch2_urb_state {
+> +	NS2_URB_FREE,
+> +	NS2_URB_OUT,
+> +	NS2_URB_IN,
+> +};
+> +
+> +struct switch2_urb {
+> +	struct urb *urb;
+> +	uint8_t *data;
+> +	enum switch2_urb_state state;
+> +};
+> +
+> +struct switch2_usb {
+> +	struct switch2_cfg_intf cfg;
+> +	struct usb_device *udev;
+> +
+> +	struct switch2_urb bulk_in[NS2_IN_URBS];
+> +	struct usb_anchor bulk_in_anchor;
+> +	bool shutdown;
+> +	spinlock_t bulk_in_lock;
+> +
+> +	struct switch2_urb bulk_out[NS2_OUT_URBS];
+> +	struct usb_anchor bulk_out_anchor;
+> +	spinlock_t bulk_out_lock;
+> +
+> +	struct work_struct message_in_work;
+> +};
+> +
+> +static void switch2_bulk_in(struct urb *urb)
+> +{
+> +	struct switch2_usb *ns2_usb = urb->context;
+> +	int i;
+> +	bool schedule = false;
+> +	unsigned long flags;
+> +
+> +	switch (urb->status) {
+> +	case 0:
+> +		schedule = true;
+> +		break;
+> +	case -ECONNRESET:
+> +	case -ENOENT:
+> +	case -ESHUTDOWN:
+> +		dev_dbg(&ns2_usb->udev->dev, "shutting down input urb: %d\n", urb->status);
+> +		return;
+> +	case -EPIPE:
+> +		break;
+> +	default:
+> +		dev_dbg(&ns2_usb->udev->dev, "unknown input urb status: %d\n", urb->status);
+> +		break;
+> +	}
+> +
+> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +	if (ns2_usb->shutdown)
+> +		schedule = false;
+> +
+> +	for (i = 0; i < NS2_IN_URBS; i++) {
+> +		int err;
+> +		struct switch2_urb *ns2_urb;
+> +
+> +		if (ns2_usb->bulk_in[i].urb == urb) {
+> +			if (schedule) {
+> +				ns2_usb->bulk_in[i].state = NS2_URB_IN;
+> +				continue;
+> +			} else {
+> +				ns2_usb->bulk_in[i].state = NS2_URB_FREE;
+> +			}
+> +		}
+> +
+> +		if (ns2_usb->bulk_in[i].state != NS2_URB_FREE)
+> +			continue;
+> +
+> +		/*
+> +		 * We want exactly one bulk in URB scheduled at a time, so only
+> +		 * reschedule this immediately if nothing else is scheduled
+> +		 * currently.
+> +		 */
+> +		if (!usb_anchor_empty(&ns2_usb->bulk_in_anchor) || ns2_usb->shutdown)
+> +			continue;
+> +
+> +		ns2_urb = &ns2_usb->bulk_in[i];
+> +		if (!ns2_urb)
+> +			continue;
+> +
+> +		usb_anchor_urb(ns2_urb->urb, &ns2_usb->bulk_in_anchor);
+> +		err = usb_submit_urb(ns2_urb->urb, GFP_ATOMIC);
+> +		if (err) {
+> +			usb_unanchor_urb(ns2_urb->urb);
+> +			dev_dbg(&ns2_usb->udev->dev, "failed to queue input urb: %d\n", err);
+> +		} else {
+> +			ns2_urb->state = NS2_URB_OUT;
+> +		}
+> +	}
+> +	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +
+> +	if (schedule)
+> +		schedule_work(&ns2_usb->message_in_work);
+> +}
+> +
+> +static void switch2_bulk_out(struct urb *urb)
+> +{
+> +	struct switch2_usb *ns2_usb = urb->context;
+> +	int i;
+> +
+> +	guard(spinlock_irqsave)(&ns2_usb->bulk_out_lock);
+> +
+> +	switch (urb->status) {
+> +	case 0:
+> +		break;
+> +	case -ECONNRESET:
+> +	case -ENOENT:
+> +	case -ESHUTDOWN:
+> +		dev_dbg(&ns2_usb->udev->dev, "shutting down output urb: %d\n", urb->status);
+> +		return;
+> +	case -EPIPE:
+> +		break;
+> +	default:
+> +		dev_dbg(&ns2_usb->udev->dev, "unknown output urb status: %d\n", urb->status);
+> +		break;
+> +	}
+> +
+> +	for (i = 0; i < NS2_OUT_URBS; i++) {
+> +		if (ns2_usb->bulk_out[i].urb != urb)
+> +			continue;
+> +
+> +		ns2_usb->bulk_out[i].state = NS2_URB_FREE;
+> +		break;
+> +	}
+> +}
+> +
+> +static int switch2_usb_send_cmd(enum switch2_cmd command, uint8_t subcommand,
+> +	const void *message, size_t size, struct switch2_cfg_intf *cfg)
+> +{
+> +	struct switch2_usb *ns2_usb = (struct switch2_usb *)cfg;
+> +	struct switch2_urb *urb = NULL;
+> +	int i;
+> +	int ret;
+> +	unsigned long flags;
+> +
+> +	struct switch2_cmd_header header = {
+> +		command, NS2_DIR_OUT | NS2_FLAG_OK, NS2_TRANS_USB, subcommand, 0, size
+> +	};
+> +
+> +	if (WARN_ON(size > 56))
+> +		return -EINVAL;
+> +
+> +	spin_lock_irqsave(&ns2_usb->bulk_out_lock, flags);
+> +	for (i = 0; i < NS2_OUT_URBS; i++) {
+> +		if (ns2_usb->bulk_out[i].state != NS2_URB_FREE)
+> +			continue;
+> +
+> +		urb = &ns2_usb->bulk_out[i];
+> +		urb->state = NS2_URB_OUT;
+> +		break;
+> +	}
+> +	spin_unlock_irqrestore(&ns2_usb->bulk_out_lock, flags);
+> +
+> +	if (!urb) {
+> +		dev_warn(&ns2_usb->udev->dev, "output queue full, dropping message\n");
+> +		return -ENOBUFS;
+> +	}
+> +
+> +	memcpy(urb->data, &header, sizeof(header));
+> +	if (message && size)
+> +		memcpy(&urb->data[8], message, size);
+> +	urb->urb->transfer_buffer_length = size + sizeof(header);
+> +
+> +	print_hex_dump_debug("sending cmd: ", DUMP_PREFIX_OFFSET, 16, 1, urb->data,
+> +		size + sizeof(header), false);
+> +
+> +	usb_anchor_urb(urb->urb, &ns2_usb->bulk_out_anchor);
+> +	ret = usb_submit_urb(urb->urb, GFP_KERNEL);
+> +	if (ret) {
+> +		if (ret != -ENODEV)
+> +			dev_warn(&ns2_usb->udev->dev, "failed to submit output urb: %i", ret);
+> +		spin_lock_irqsave(&ns2_usb->bulk_out_lock, flags);
+> +		urb->state = NS2_URB_FREE;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_out_lock, flags);
+> +		usb_unanchor_urb(urb->urb);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void switch2_usb_message_in_work(struct work_struct *work)
+> +{
+> +	struct switch2_usb *ns2_usb = container_of(work, struct switch2_usb, message_in_work);
+> +	struct switch2_urb *urb;
+> +	int err;
+> +	int i;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +	for (i = 0; i < NS2_IN_URBS; i++) {
+> +		urb = &ns2_usb->bulk_in[i];
+> +		if (urb->state != NS2_URB_IN)
+> +			continue;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +
+> +		if (ns2_usb->cfg.parent) {
+> +			err = switch2_receive_command(ns2_usb->cfg.parent,
+> +				urb->urb->transfer_buffer, urb->urb->actual_length);
+> +			if (err)
+> +				dev_dbg(&ns2_usb->udev->dev, "receive command failed: %d\n", err);
+> +		} else {
+> +			dev_err(&ns2_usb->udev->dev,
+> +				"Got message before controller is fully set up; discarding\n");
+> +		}
+> +
+> +		spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +		urb->state = NS2_URB_FREE;
+> +		/*
+> +		 * We want exactly one bulk in URB scheduled at a time, so only
+> +		 * reschedule this immediately if nothing else is scheduled
+> +		 * currently.
+> +		 */
+> +		if (!usb_anchor_empty(&ns2_usb->bulk_in_anchor) || ns2_usb->shutdown)
+> +			continue;
+> +
+> +		usb_anchor_urb(urb->urb, &ns2_usb->bulk_in_anchor);
+> +		err = usb_submit_urb(urb->urb, GFP_ATOMIC);
+> +		if (err) {
+> +			usb_unanchor_urb(urb->urb);
+> +			dev_dbg(&ns2_usb->udev->dev,
+> +				"failed to queue input urb: %d\n", err);
+> +		} else {
+> +			urb->state = NS2_URB_OUT;
+> +		}
+> +	}
+> +	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +}
+> +
+> +static int switch2_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+> +{
+> +	struct switch2_usb *ns2_usb;
+> +	struct usb_device *udev;
+> +	struct usb_endpoint_descriptor *bulk_in, *bulk_out;
+> +	struct urb *urb;
+> +	uint8_t *data;
+> +	char phys[64];
+> +	int ret;
+> +	int i;
+> +	unsigned long flags;
+> +
+> +	udev = interface_to_usbdev(intf);
+> +	if (usb_make_path(udev, phys, sizeof(phys)) < 0)
+> +		return -EINVAL;
+> +
+> +	ret = usb_find_common_endpoints(intf->cur_altsetting, &bulk_in, &bulk_out, NULL, NULL);
+> +	if (ret) {
+> +		dev_err(&intf->dev, "failed to find bulk EPs\n");
+> +		return ret;
+> +	}
+> +
+> +	ns2_usb = devm_kzalloc(&intf->dev, sizeof(*ns2_usb), GFP_KERNEL);
+> +	if (!ns2_usb)
+> +		return -ENOMEM;
+> +
+> +	init_usb_anchor(&ns2_usb->bulk_out_anchor);
+> +	spin_lock_init(&ns2_usb->bulk_out_lock);
+> +	init_usb_anchor(&ns2_usb->bulk_in_anchor);
+> +	spin_lock_init(&ns2_usb->bulk_in_lock);
+> +	INIT_WORK(&ns2_usb->message_in_work, switch2_usb_message_in_work);
+> +
+> +	ns2_usb->udev = udev;
+> +	for (i = 0; i < NS2_IN_URBS; i++) {
+> +		urb = usb_alloc_urb(0, GFP_KERNEL);
+> +		if (!urb) {
+> +			ret = -ENOMEM;
+> +			goto err_free_in;
+> +		}
+> +
+> +		data = usb_alloc_coherent(udev, NS2_BULK_SIZE, GFP_KERNEL,
+> +			&urb->transfer_dma);
+> +		if (!data) {
+> +			usb_free_urb(urb);
+> +			ret = -ENOMEM;
+> +			goto err_free_in;
+> +		}
+> +
+> +		spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +		usb_fill_bulk_urb(urb, udev,
+> +			usb_rcvbulkpipe(udev, bulk_in->bEndpointAddress),
+> +			data, NS2_BULK_SIZE, switch2_bulk_in, ns2_usb);
+> +		urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+> +
+> +		ns2_usb->bulk_in[i].urb = urb;
+> +		ns2_usb->bulk_in[i].data = data;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +	}
+> +
+> +	for (i = 0; i < NS2_OUT_URBS; i++) {
+> +		urb = usb_alloc_urb(0, GFP_KERNEL);
+> +		if (!urb) {
+> +			ret = -ENOMEM;
+> +			goto err_free_out;
+> +		}
+> +
+> +		data = usb_alloc_coherent(udev, NS2_BULK_SIZE, GFP_KERNEL,
+> +			&urb->transfer_dma);
+> +		if (!data) {
+> +			usb_free_urb(urb);
+> +			ret = -ENOMEM;
+> +			goto err_free_out;
+> +		}
+> +
+> +		spin_lock_irqsave(&ns2_usb->bulk_out_lock, flags);
+> +		usb_fill_bulk_urb(urb, udev,
+> +			usb_sndbulkpipe(udev, bulk_out->bEndpointAddress),
+> +			data, NS2_BULK_SIZE, switch2_bulk_out, ns2_usb);
+> +		urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+> +
+> +		ns2_usb->bulk_out[i].urb = urb;
+> +		ns2_usb->bulk_out[i].data = data;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_out_lock, flags);
+> +	}
+> +
+> +	usb_set_intfdata(intf, ns2_usb);
+> +
+> +	ns2_usb->cfg.dev = &ns2_usb->udev->dev;
+> +	ns2_usb->cfg.send_command = switch2_usb_send_cmd;
+> +
+> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +	ns2_usb->bulk_in[0].state = NS2_URB_OUT;
+> +	usb_anchor_urb(ns2_usb->bulk_in[0].urb, &ns2_usb->bulk_in_anchor);
+> +	ret = usb_submit_urb(ns2_usb->bulk_in[0].urb, GFP_ATOMIC);
+> +	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +
+> +	if (ret < 0)
+> +		goto err_free_out;
+> +
+> +	ret = switch2_controller_attach_cfg(phys, &ns2_usb->cfg);
+> +	if (ret < 0)
+> +		goto err_free_out;
+> +
+> +	return 0;
+> +
+> +err_free_out:
+> +	usb_kill_anchored_urbs(&ns2_usb->bulk_out_anchor);
+> +	for (i = 0; i < NS2_OUT_URBS; i++) {
+> +		spin_lock_irqsave(&ns2_usb->bulk_out_lock, flags);
+> +		urb = ns2_usb->bulk_out[i].urb;
+> +		data = ns2_usb->bulk_out[i].data;
+> +		if (!urb) {
+> +			spin_unlock_irqrestore(&ns2_usb->bulk_out_lock, flags);
+> +			continue;
+> +		}
+> +
+> +		ns2_usb->bulk_out[i].urb = NULL;
+> +		ns2_usb->bulk_out[i].data = NULL;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_out_lock, flags);
+> +
+> +		usb_free_coherent(ns2_usb->udev, NS2_BULK_SIZE, data, urb->transfer_dma);
+> +		usb_free_urb(urb);
+> +	}
+> +err_free_in:
+> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +	ns2_usb->shutdown = true;
+> +	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +
+> +	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
+> +	cancel_work_sync(&ns2_usb->message_in_work);
+> +	for (i = 0; i < NS2_IN_URBS; i++) {
+> +		spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +		urb = ns2_usb->bulk_in[i].urb;
+> +		data = ns2_usb->bulk_in[i].data;
+> +		if (!urb) {
+> +			spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +			continue;
+> +		}
+> +
+> +		ns2_usb->bulk_in[i].urb = NULL;
+> +		ns2_usb->bulk_in[i].data = NULL;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +
+> +		usb_free_coherent(ns2_usb->udev, NS2_BULK_SIZE, data, urb->transfer_dma);
+> +		usb_free_urb(urb);
+> +	}
+> +	devm_kfree(&intf->dev, ns2_usb);
+> +
+> +	return ret;
+> +}
+> +
+> +static void switch2_usb_disconnect(struct usb_interface *intf)
+> +{
+> +	struct switch2_usb *ns2_usb = usb_get_intfdata(intf);
+> +	unsigned long flags;
+> +	struct urb *urb;
+> +	uint8_t *data;
+> +	int i;
+> +
+> +	/* Prevent any further IN URBs from being scheduled */
+> +	spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +	ns2_usb->shutdown = true;
+> +	spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +
+> +	usb_kill_anchored_urbs(&ns2_usb->bulk_in_anchor);
+> +	cancel_work_sync(&ns2_usb->message_in_work);
+> +	for (i = 0; i < NS2_IN_URBS; i++) {
+> +		spin_lock_irqsave(&ns2_usb->bulk_in_lock, flags);
+> +		urb = ns2_usb->bulk_in[i].urb;
+> +		data = ns2_usb->bulk_in[i].data;
+> +		ns2_usb->bulk_in[i].urb = NULL;
+> +		ns2_usb->bulk_in[i].data = NULL;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_in_lock, flags);
+> +
+> +		usb_free_coherent(ns2_usb->udev, NS2_BULK_SIZE, data, urb->transfer_dma);
+> +		usb_free_urb(urb);
+> +	}
+> +
+> +	/*
+> +	 * We need to detach *before* we kill the out URBs to make sure no
+> +	 * further URBs get scheduled by the HID endpoint in the meantime.
+> +	 */
+> +	switch2_controller_detach_cfg(ns2_usb->cfg.parent);
+> +
+> +	usb_kill_anchored_urbs(&ns2_usb->bulk_out_anchor);
+> +	for (i = 0; i < NS2_OUT_URBS; i++) {
+> +		spin_lock_irqsave(&ns2_usb->bulk_out_lock, flags);
+> +		urb = ns2_usb->bulk_out[i].urb;
+> +		data = ns2_usb->bulk_out[i].data;
+> +		ns2_usb->bulk_out[i].urb = NULL;
+> +		ns2_usb->bulk_out[i].data = NULL;
+> +		spin_unlock_irqrestore(&ns2_usb->bulk_out_lock, flags);
+> +
+> +		usb_free_coherent(ns2_usb->udev, NS2_BULK_SIZE, data, urb->transfer_dma);
+> +		usb_free_urb(urb);
+> +	}
+> +}
+> +
+> +#define SWITCH2_CONTROLLER(vend, prod) \
+> +	USB_DEVICE_AND_INTERFACE_INFO(vend, prod, USB_CLASS_VENDOR_SPEC, 0, 0)
+> +
+> +static const struct usb_device_id switch2_usb_devices[] = {
+> +	{ SWITCH2_CONTROLLER(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_NS2_JOYCONL) },
+> +	{ SWITCH2_CONTROLLER(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_NS2_JOYCONR) },
+> +	{ SWITCH2_CONTROLLER(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_NS2_PROCON) },
+> +	{ SWITCH2_CONTROLLER(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_NS2_GCCON) },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(usb, switch2_usb_devices);
+> +
+> +static struct usb_driver switch2_usb = {
+> +	.name		= "nintendo-switch2",
+> +	.id_table	= switch2_usb_devices,
+> +	.probe		= switch2_usb_probe,
+> +	.disconnect	= switch2_usb_disconnect,
+> +};
+> +module_usb_driver(switch2_usb);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Vicki Pfau <vi@endrift.com>");
+> +MODULE_DESCRIPTION("Driver for Nintendo Switch 2 Controllers");
+
+Vicki
+

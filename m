@@ -1,1286 +1,162 @@
-Received: from mta0.migadu.com (out-105.mta0.migadu.com [91.218.175.105])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F6F542E40D
-	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 17:14:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.105
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6410B4AB1BC
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 17:24:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789492480; cv=none; b=FIhQYO8Vk7oElO1slOrIaoE2mpY7DPuibXgd0rKyC0mU9pzKE/kjOiHMrbu7/37ZzJYR6PpWblRx53UC54bCT+uJ+42xJEOw4vDMyCJ0OjS02oKZlXwtI2ZoHRDcEI7ak33ulHaNWUqDXAotMmK0uGG+OC1Fdxjiv8RL1VqlviI=
+	t=1789493082; cv=none; b=PbRXvFTr87rTqW7YMkHuWOYyZ83aT7rH21BkDVyypW1XwUH7BYmeHQIHJKw4N2clDezD9sZJ1Krgi7TBcyV28C6H9kAP4Frz/lnC7mpDMD1/shCCArBeA236BACHApIfQqLvG5ecTZ4QaqzxWnGHhfLZK7VsyBe/A1p/Pp7PrB8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789492480; c=relaxed/simple;
-	bh=y8Kvt9/migguxohpb/ll+v7pnHI0EI1hqtamiCx8gmw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R+7wCTCivnX7m2PmsK1PY4tFqsY39tcLfWe2s/5FiOBMz4xW1m73W0cp4DS7KPr1jCSyQzVQEVRwxl74p0xcrFMBm41xH+/O0e9g17zqAzaMy/ihqMzjpI4pIb1qHHyh4VaKgb0RJaf8s4Pc4ChZZiTgjJrtRnoU04n0GPZshNc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=DqznppVR; arc=none smtp.client-ip=91.218.175.105
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1789493082; c=relaxed/simple;
+	bh=zQ5hkf9aYabbjEwCRXOMXb+3BskapnW6qrBBy315R+A=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=FKyiCoAGvWXYPt+6hF0eeuZIGBXQw/NA6Mz4lHr53cyWJHMYZhFpBYM3ObRcX8Yr7ZWUBEnlW5sXfE6PuJkAs83NFjApyT3LW9XIJ3G/kFZGfxLu93vbiTzGGSMiOEjBCKALTQ4aVrPX3492+XQ8rlgrBW4x0XN5iABIsiKAh+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mZJ6CsX6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="DqznppVR"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=y8Kvt9/migguxohpb/ll+v7pnHI0EI1hqtamiCx8gmw=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1789492472; v=1; x=1790097272;
- b=DqznppVR/ndH3o6xUc3bvcdOPr2EphLE7DL/GUTXhSbko+zDCtUf9aHSA8m3usn5pJtTQgUr
- 9VkoosedX2yrCygS1JrhSXt192h9vVfL0TDWqSIBzYVWK7Wdn2HlcOyNtl5mcUPmL9jAkhWg2hJ
- ychy3XVBcPodrGhho2E2vr44=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 40b7977e75bfcad9;
-	Tue, 15 Sep 2026 17:14:32 +0000
-X-Mizu-Trace-ID: 40b7977e75bfcad9
-X-Migadu-Flow: FLOW_OUT
-From: Denis Benato <denis.benato@linux.dev>
-To: 'Jiri Kosina' <jikos@kernel.org>
-Cc: 'Benjamin Tissoires' <bentiss@kernel.org>,
-	'Dmitry Torokhov' <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	"Derek J. Clark" <derekjohn.clark@gmail.com>,
-	Denis Benato <denis.benato@linux.dev>,
-	Adolfo Rodrigues <adolfotregosa@gmail.com>
-Subject: [PATCH v5 1/2] HID: flydigi: add support for vader 5 pro
-Date: Tue, 15 Sep 2026 17:14:24 +0000
-Message-ID: <20260915171425.11058-2-denis.benato@linux.dev>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260915171425.11058-1-denis.benato@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mZJ6CsX6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ACB31F000FF;
+	Tue, 15 Sep 2026 17:24:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789493080;
+	bh=N9v7KBbQ7VFwubj5iTibih22Mz+iiq/9rXa+gII2lTU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mZJ6CsX6YAS84ICUCJ06E5nIDjtPcYCbXDfd4HB6+jbk/bam1aFCeDXSor3k6JEBC
+	 18eeaCWYVezAuiLkb/rP4x9HOCPC4LkqHyZoupXHHsna2ezB3o+X3rR6H+VWu6uVbP
+	 fIxjEZET4gPm5y/S5z0NQiHWgIl1JPvOYLOBJFAT3g4fZtvNHPmX0tmXqR2MC4BC89
+	 SR6AZr/AVrn6oV6CcvQdcneLQ8ovYoDq3aVXck0tKNe2K5duUpvkkl4Baxt3ELlcyV
+	 H20WsnRpcLKVGlQWWOkluw1f8dKN3/6gUJ3Cv2o441mre9MnQWmybPwgEfhiTDmS4F
+	 B83Kn2JTErzZg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 1/2] HID: flydigi: add support for vader 5 pro
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Denis Benato" <denis.benato@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260915171425.11058-2-denis.benato@linux.dev>
 References: <20260915171425.11058-1-denis.benato@linux.dev>
+ <20260915171425.11058-2-denis.benato@linux.dev>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 15 Sep 2026 17:24:40 +0000
+Message-Id: <20260915172440.9ACB31F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The Flydigi Vader Pro 5 is a gamepad with additional buttons
-and a gyroscope that is connected wireless to a PC via its
-own dongle so it's always a USB device: add support for it
-by following the established pattern of spawning two evdevs
-that share the same uniqid so that SDL can match the two and
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] hid: flydigi: I/O on stopped hardware during probe error path
+- [Medium] hid: flydigi: devm_power_supply_register error code is masked
+- [Low] hid: flydigi: missing Kconfig dependency on POWER_SUPPLY
+--
+
+commit 31540c0ea898a7ef0b58eb15e340ebc735efebe9
+Author: Denis Benato <denis.benato@linux.dev>
+
+HID: flydigi: add support for vader 5 pro
+
+The Flydigi Vader Pro 5 is a gamepad with additional buttons and a gyroscope
+that connects to a PC via its own USB dongle. This commit adds support for =
+it
+by spawning two evdev nodes that share the same unique ID, allowing SDL to
 expose them as a single controller.
 
-Assisted-by: VSCode:gpt-5.3-codex
-Tested-by: Adolfo Rodrigues <adolfotregosa@gmail.com>
-Signed-off-by: Adolfo Rodrigues <adolfotregosa@gmail.com>
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
----
- drivers/hid/Kconfig       |    8 +
- drivers/hid/Makefile      |    1 +
- drivers/hid/hid-flydigi.c | 1159 +++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h     |    3 +
- 4 files changed, 1171 insertions(+)
- create mode 100644 drivers/hid/hid-flydigi.c
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index a81bf51cbcf10..3f080d59a897b 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -1205,6 +1205,14 @@ config STEAM_FF
+>  	Say Y here if you want to enable force feedback support for the Steam
+>  	Deck.
+> =20
+> +config HID_FLYDIGI
+> +	tristate "Flydigi game controller support"
+> +	depends on USB_HID
+> +	select INPUT_FF_MEMLESS
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 0e3a0ccd6901..d189c8fa297f 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1196,6 +1196,14 @@ config STEAM_FF
- 	Say Y here if you want to enable force feedback support for the Steam
- 	Deck.
- 
-+config HID_FLYDIGI
-+	tristate "Flydigi game controller support"
-+	depends on USB_HID
-+	select INPUT_FF_MEMLESS
-+	help
-+	Support for Flydigi game controllers that use the vendor-specific
-+	HID protocol, including Vader 5 Pro.
-+
- config HID_STEELSERIES
- 	tristate "Steelseries devices support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 79384d905e00..9d12ea55f7d3 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -56,6 +56,7 @@ obj-$(CONFIG_HID_FT260)		+= hid-ft260.o
- obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
- obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
- obj-$(CONFIG_HID_GLORIOUS)  += hid-glorious.o
-+obj-$(CONFIG_HID_FLYDIGI)	+= hid-flydigi.o
- obj-$(CONFIG_HID_VIVALDI_COMMON) += hid-vivaldi-common.o
- obj-$(CONFIG_HID_GOODIX_SPI)	+= hid-goodix-spi.o
- obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
-diff --git a/drivers/hid/hid-flydigi.c b/drivers/hid/hid-flydigi.c
-new file mode 100644
-index 000000000000..b6d57080fed8
---- /dev/null
-+++ b/drivers/hid/hid-flydigi.c
-@@ -0,0 +1,1159 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Flydigi Vader 5 Pro HID driver
-+ *
-+ * Exposes two evdev nodes with matching uniq values:
-+ * - Gamepad with force feedback
-+ * - Motion sensors (accelerometer + gyroscope)
-+ *
-+ * The protocol details and report layout are based on upstream SDL's
-+ * Flydigi HID backend.
-+ */
-+
-+#include <linux/cleanup.h>
-+#include <linux/err.h>
-+#include <linux/hid.h>
-+#include <linux/input.h>
-+#include <linux/jiffies.h>
-+#include <linux/math64.h>
-+#include <linux/minmax.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/power_supply.h>
-+#include <linux/spinlock.h>
-+#include <linux/unaligned.h>
-+#include <linux/usb.h>
-+#include <linux/workqueue.h>
-+
-+#include "hid-ids.h"
-+
-+#define FLYDIGI_REPORT_SIZE		32
-+
-+#define FLYDIGI_MAGIC1			0x5a
-+#define FLYDIGI_MAGIC2			0xa5
-+#define FLYDIGI_CMD_INFO		0x01
-+#define FLYDIGI_CMD_STATUS		0x10
-+#define FLYDIGI_CMD_STATUS_UPDATE	0x11
-+#define FLYDIGI_CMD_HAPTIC		0x12
-+#define FLYDIGI_CMD_ACQUIRE		0x1c
-+#define FLYDIGI_CMD_INPUT		0xef
-+
-+#define FLYDIGI_ACQUIRE_PERIOD_MS	30000
-+
-+/*
-+ * Minimum spacing between consecutive haptic commands written to the
-+ * device. FF core and userspace can request new rumble magnitudes
-+ * far faster than the dongle/firmware can drain them, thus
-+ * overwhelming the device.
-+ */
-+#define FLYDIGI_RUMBLE_MIN_INTERVAL_MS	30
-+
-+/* SDL identifies this class as 4096 counts per g and 2000 dps full-scale. */
-+#define FLYDIGI_ACCEL_RES_PER_G	4096
-+
-+/*
-+ * The gyro's raw s16 range (-32768..32767) maps to +/-2000 dps, i.e.
-+ * 32768/2000 = 16.384 counts per dps -- not an integer, so it can't be
-+ * expressed exactly through input_abs_set_res() while reporting raw
-+ * counts. Convert to milli-dps instead: at that scale the resolution
-+ * is exactly 1000 units per dps, with no rounding error.
-+ */
-+#define FLYDIGI_GYRO_RAW_FS		32768
-+#define FLYDIGI_GYRO_MDPS_FS		2000000
-+#define FLYDIGI_GYRO_RES_PER_DPS	1000
-+#define FLYDIGI_GYRO_FUZZ_MDPS		1000
-+
-+/* Protocol packet offsets (payload starts at magic byte 0x5a). */
-+#define FLYDIGI_OFF_LX			3
-+#define FLYDIGI_OFF_LY			5
-+#define FLYDIGI_OFF_RX			7
-+#define FLYDIGI_OFF_RY			9
-+#define FLYDIGI_OFF_DPAD_ABXY		11
-+#define FLYDIGI_OFF_MISC_BTNS		12
-+#define FLYDIGI_OFF_EXTRA_BTNS		13
-+#define FLYDIGI_OFF_SYSTEM_BTNS	14
-+#define FLYDIGI_OFF_LT			15
-+#define FLYDIGI_OFF_RT			16
-+#define FLYDIGI_OFF_GYRO_X		17
-+#define FLYDIGI_OFF_GYRO_Z		19
-+#define FLYDIGI_OFF_GYRO_Y		21
-+#define FLYDIGI_OFF_ACCEL_X		23
-+#define FLYDIGI_OFF_ACCEL_Z		25
-+#define FLYDIGI_OFF_ACCEL_Y		27
-+
-+/* Byte layout of a GET_INFO (FLYDIGI_CMD_INFO) reply. */
-+#define FLYDIGI_OFF_BATTERY		11
-+
-+struct flydigi_device {
-+	struct hid_device *hdev;
-+	struct input_dev *gamepad;
-+	struct input_dev *sensors;
-+
-+	struct mutex output_mutex;
-+	spinlock_t lock;
-+	u8 *output_buf;
-+	u8 output_report_id;
-+
-+	struct workqueue_struct *wq;
-+	struct delayed_work rumble_work;
-+	struct delayed_work acquire_work;
-+	unsigned long rumble_last_send;
-+
-+	struct power_supply *battery;
-+	struct power_supply_desc battery_desc;
-+	u8 battery_capacity;
-+	int battery_status;
-+
-+	u16 strong;
-+	u16 weak;
-+	bool gamepad_open;
-+	bool removed;
-+};
-+
-+static s16 flydigi_negate_axis(s16 axis)
-+{
-+	if (axis == -32768)
-+		return 32767;
-+
-+	return -axis;
-+}
-+
-+/**
-+ * flydigi_gyro_raw_to_mdps - convert a raw gyro sample to milli-dps
-+ * @raw: signed 16-bit gyro count read from the protocol packet
-+ *
-+ * Return: the sample in milli-degrees/second, matching the resolution
-+ * advertised via input_abs_set_res() on the sensors device.
-+ */
-+static s32 flydigi_gyro_raw_to_mdps(s16 raw)
-+{
-+	return div_s64((s64)raw * FLYDIGI_GYRO_MDPS_FS, FLYDIGI_GYRO_RAW_FS);
-+}
-+
-+/**
-+ * flydigi_send_output - send one vendor packet through the selected report
-+ * @fd: controller state
-+ * @payload: protocol bytes without the HID report ID prefix
-+ * @payload_len: number of bytes in @payload
-+ *
-+ * Vader firmware variants expose either numbered or unnumbered output reports.
-+ * Descriptor probing selects one report ID at probe time, and all later writes
-+ * use that framing so the same packet builders work for both variants.
-+ *
-+ * Return: number of bytes transferred, or a negative error code.
-+ */
-+static int flydigi_send_output(struct flydigi_device *fd, const u8 *payload,
-+			       size_t payload_len)
-+{
-+	u8 *buf = fd->output_buf;
-+	size_t copy_len;
-+	bool no_output_report;
-+	int ret;
-+
-+	copy_len = min(payload_len, (size_t)FLYDIGI_REPORT_SIZE - 1);
-+
-+	no_output_report = !fd->hdev->ll_driver ||
-+			   !fd->hdev->ll_driver->output_report;
-+
-+	scoped_guard(mutex, &fd->output_mutex) {
-+		memset(buf, 0, FLYDIGI_REPORT_SIZE);
-+		buf[0] = fd->output_report_id;
-+		memcpy(&buf[1], payload, copy_len);
-+		ret = hid_hw_output_report(fd->hdev, buf, FLYDIGI_REPORT_SIZE);
-+		if (ret == -EOPNOTSUPP || (ret < 0 && no_output_report)) {
-+			ret = hid_hw_raw_request(fd->hdev, fd->output_report_id, buf,
-+						 FLYDIGI_REPORT_SIZE, HID_OUTPUT_REPORT,
-+						 HID_REQ_SET_REPORT);
-+		}
-+	}
-+
-+	if (ret < 0 && ret != -ENODEV)
-+		hid_dbg(fd->hdev, "output command failed: %d\n", ret);
-+
-+	return ret;
-+}
-+
-+static bool flydigi_desc_has_seq(const u8 *rdesc, unsigned int rsize,
-+				 const u8 *seq, size_t seq_size)
-+{
-+	size_t i;
-+
-+	if (!rdesc || !rsize || !seq || !seq_size || rsize < seq_size)
-+		return false;
-+
-+	for (i = 0; i <= rsize - seq_size; i++) {
-+		if (!memcmp(&rdesc[i], seq, seq_size))
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+/**
-+ * flydigi_detect_protocol_descriptor - identify protocol interface layout
-+ * @hdev: HID device being probed
-+ * @output_report_id: resolved output report ID for protocol writes
-+ *
-+ * The controller exports multiple interfaces and not all of them transport the
-+ * extended Flydigi protocol. We key off descriptor signatures instead of fixed
-+ * interface numbers so the driver keeps working across firmware revisions.
-+ *
-+ * Return: true when the interface looks like the Flydigi protocol endpoint.
-+ */
-+static bool flydigi_detect_protocol_descriptor(struct hid_device *hdev,
-+					      u8 *output_report_id)
-+{
-+	const u8 *rdesc = hdev->dev_rdesc;
-+	unsigned int rsize = hdev->dev_rsize;
-+	static const u8 usage_ffa0[] = { 0x06, 0xa0, 0xff };
-+	static const u8 report_id_21[] = { 0x85, 0x21, 0x95, 0x1f };
-+	static const u8 report_32_in[] = { 0x95, 0x20, 0x81 };
-+	static const u8 report_32_out[] = { 0x95, 0x20, 0x91 };
-+
-+	if (!flydigi_desc_has_seq(rdesc, rsize, usage_ffa0, sizeof(usage_ffa0)))
-+		return false;
-+
-+	if (flydigi_desc_has_seq(rdesc, rsize, report_id_21,
-+				 sizeof(report_id_21))) {
-+		*output_report_id = 0x21;
-+		return true;
-+	}
-+
-+	if (flydigi_desc_has_seq(rdesc, rsize, report_32_in,
-+				 sizeof(report_32_in)) &&
-+	    flydigi_desc_has_seq(rdesc, rsize, report_32_out,
-+				 sizeof(report_32_out))) {
-+		*output_report_id = 0x00;
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
-+static int flydigi_get_interface_number(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf;
-+	struct usb_host_interface *alt;
-+
-+	if (!hid_is_usb(hdev))
-+		return -ENODEV;
-+
-+	intf = to_usb_interface(hdev->dev.parent);
-+	if (!intf)
-+		return -ENODEV;
-+
-+	alt = intf->cur_altsetting;
-+	if (!alt)
-+		return -ENODEV;
-+
-+	return alt->desc.bInterfaceNumber;
-+}
-+
-+/**
-+ * flydigi_send_acquire - request ownership of the controller protocol stream
-+ * @fd: controller state
-+ *
-+ * The firmware requires an explicit acquire token and periodic refreshes before
-+ * delivering full input and motion data.
-+ *
-+ * Return: number of bytes transferred, or a negative error code.
-+ */
-+static int flydigi_send_acquire(struct flydigi_device *fd)
-+{
-+	const u8 payload[31] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_ACQUIRE,
-+		23,
-+		1,
-+		'S', 'D', 'L'
-+	};
-+
-+	return flydigi_send_output(fd, payload, sizeof(payload));
-+}
-+
-+static int flydigi_send_info_request(struct flydigi_device *fd)
-+{
-+	const u8 payload[] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_INFO,
-+		2,
-+		0,
-+	};
-+
-+	return flydigi_send_output(fd, payload, sizeof(payload));
-+}
-+
-+static int flydigi_send_status_request(struct flydigi_device *fd)
-+{
-+	const u8 payload[] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_STATUS,
-+	};
-+
-+	return flydigi_send_output(fd, payload, sizeof(payload));
-+}
-+
-+static int flydigi_send_rumble(struct flydigi_device *fd, u8 low, u8 high)
-+{
-+	const u8 payload[] = {
-+		FLYDIGI_MAGIC1,
-+		FLYDIGI_MAGIC2,
-+		FLYDIGI_CMD_HAPTIC,
-+		6,
-+		low,
-+		high,
-+		0,
-+		0,
-+		0,
-+	};
-+
-+	return flydigi_send_output(fd, payload, sizeof(payload));
-+}
-+
-+/**
-+ * flydigi_queue_rumble - (re)arm the rumble worker respecting the minimum
-+ *			  spacing between hardware haptic writes
-+ * @fd: controller state
-+ *
-+ * Callers just update fd->strong/fd->weak and call this; the worker always
-+ * picks up the latest values, so back-to-back calls coalesce into a single
-+ * write instead of flooding the device. Must be called with fd->lock held.
-+ */
-+static void flydigi_queue_rumble(struct flydigi_device *fd)
-+{
-+	unsigned long min_delay = msecs_to_jiffies(FLYDIGI_RUMBLE_MIN_INTERVAL_MS);
-+	unsigned long next_send = fd->rumble_last_send + min_delay;
-+	unsigned long delay = 0;
-+
-+	if (time_before(jiffies, next_send))
-+		delay = next_send - jiffies;
-+
-+	mod_delayed_work(fd->wq, &fd->rumble_work, delay);
-+}
-+
-+static void flydigi_rumble_worker(struct work_struct *work)
-+{
-+	struct flydigi_device *fd = container_of(to_delayed_work(work),
-+						 struct flydigi_device,
-+						 rumble_work);
-+	u16 strong;
-+	u16 weak;
-+	bool removed;
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock) {
-+		strong = fd->strong;
-+		weak = fd->weak;
-+		removed = fd->removed;
-+	}
-+
-+	if (removed)
-+		return;
-+
-+	flydigi_send_rumble(fd, strong >> 8, weak >> 8);
-+
-+	/* Record completion time to prevent flooding the device. */
-+	scoped_guard(spinlock_irqsave, &fd->lock)
-+		fd->rumble_last_send = jiffies;
-+}
-+
-+/**
-+ * flydigi_acquire_worker - keep the protocol session alive while opened
-+ * @work: delayed work item
-+ *
-+ * The device times out its acquired state. Refreshing acquire/info/status keeps
-+ * the stream active and prevents stale state after userspace idles briefly.
-+ */
-+static void flydigi_acquire_worker(struct work_struct *work)
-+{
-+	struct flydigi_device *fd = container_of(to_delayed_work(work),
-+						 struct flydigi_device,
-+						 acquire_work);
-+	bool open;
-+	bool removed;
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock) {
-+		open = fd->gamepad_open;
-+		removed = fd->removed;
-+	}
-+
-+	if (removed || !open)
-+		return;
-+
-+	flydigi_send_acquire(fd);
-+	flydigi_send_info_request(fd);
-+	flydigi_send_status_request(fd);
-+	queue_delayed_work(fd->wq, &fd->acquire_work,
-+			   msecs_to_jiffies(FLYDIGI_ACQUIRE_PERIOD_MS));
-+}
-+
-+static int flydigi_play_effect(struct input_dev *dev, void *data,
-+			      struct ff_effect *effect)
-+{
-+	struct flydigi_device *fd = input_get_drvdata(dev);
-+
-+	if (effect->type != FF_RUMBLE)
-+		return 0;
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock) {
-+		if (!fd->removed) {
-+			fd->strong = effect->u.rumble.strong_magnitude;
-+			fd->weak = effect->u.rumble.weak_magnitude;
-+			flydigi_queue_rumble(fd);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int flydigi_gamepad_open(struct input_dev *dev)
-+{
-+	struct flydigi_device *fd = input_get_drvdata(dev);
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock) {
-+		if (fd->removed)
-+			return 0;
-+
-+		fd->gamepad_open = true;
-+	}
-+
-+	queue_delayed_work(fd->wq, &fd->acquire_work, 0);
-+
-+	return 0;
-+}
-+
-+static void flydigi_gamepad_close(struct input_dev *dev)
-+{
-+	struct flydigi_device *fd = input_get_drvdata(dev);
-+	bool removed;
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock) {
-+		fd->gamepad_open = false;
-+		fd->strong = 0;
-+		fd->weak = 0;
-+	}
-+
-+	cancel_delayed_work_sync(&fd->acquire_work);
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock)
-+		removed = fd->removed;
-+
-+	/* Stop the motors right away on close. */
-+	if (!removed)
-+		mod_delayed_work(fd->wq, &fd->rumble_work, 0);
-+}
-+
-+static void flydigi_map_hat(u8 value, int *x, int *y)
-+{
-+	switch (value & 0x0f) {
-+	case 0x01:
-+		*x = 0;
-+		*y = -1;
-+		break;
-+	case 0x03:
-+		*x = 1;
-+		*y = -1;
-+		break;
-+	case 0x02:
-+		*x = 1;
-+		*y = 0;
-+		break;
-+	case 0x06:
-+		*x = 1;
-+		*y = 1;
-+		break;
-+	case 0x04:
-+		*x = 0;
-+		*y = 1;
-+		break;
-+	case 0x0c:
-+		*x = -1;
-+		*y = 1;
-+		break;
-+	case 0x08:
-+		*x = -1;
-+		*y = 0;
-+		break;
-+	case 0x09:
-+		*x = -1;
-+		*y = -1;
-+		break;
-+	default:
-+		*x = 0;
-+		*y = 0;
-+		break;
-+	}
-+}
-+
-+/**
-+ * flydigi_report_gamepad - translate one protocol input packet to evdev keys
-+ * @fd: controller state
-+ * @data: protocol packet starting at magic byte 0x5a
-+ *
-+ * Keep this mapping aligned with SDL's Flydigi backend so userspace sees the
-+ * same logical layout across hidraw and evdev paths.
-+ */
-+static void flydigi_report_gamepad(struct flydigi_device *fd, const u8 *data)
-+{
-+	struct input_dev *gamepad = fd->gamepad;
-+	s16 axis;
-+	int hat_x;
-+	int hat_y;
-+
-+	if (!gamepad)
-+		return;
-+
-+	flydigi_map_hat(data[FLYDIGI_OFF_DPAD_ABXY], &hat_x, &hat_y);
-+	input_report_abs(gamepad, ABS_HAT0X, hat_x);
-+	input_report_abs(gamepad, ABS_HAT0Y, hat_y);
-+
-+	input_report_key(gamepad, BTN_SOUTH,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(4));
-+	input_report_key(gamepad, BTN_EAST,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(5));
-+	/*
-+	 * Keep BTN_WEST/BTN_NORTH aligned with printed X/Y legends used by
-+	 * applications. On-wire encoding for X/Y is swapped on this model.
-+	 */
-+	input_report_key(gamepad, BTN_WEST,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(0));
-+	input_report_key(gamepad, BTN_NORTH,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(7));
-+	input_report_key(gamepad, BTN_SELECT,
-+			 data[FLYDIGI_OFF_DPAD_ABXY] & BIT(6));
-+	input_report_key(gamepad, BTN_START,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(1));
-+	input_report_key(gamepad, BTN_TL,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(2));
-+	input_report_key(gamepad, BTN_TR,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(3));
-+	input_report_key(gamepad, BTN_THUMBL,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(6));
-+	input_report_key(gamepad, BTN_THUMBR,
-+			 data[FLYDIGI_OFF_MISC_BTNS] & BIT(7));
-+
-+	input_report_key(gamepad, BTN_MODE,
-+			 data[FLYDIGI_OFF_SYSTEM_BTNS] & BIT(3));
-+
-+	/*
-+	 * SDL's generic Linux evdev mapper recognizes paddles specifically on
-+	 * BTN_TRIGGER_HAPPY5..8, so keep M1..M4 on that range for Steam/SDL.
-+	 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY1,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(0)); /* C */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY2,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(1)); /* Z */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY5,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(2)); /* M1 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY6,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(3)); /* M2 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY7,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(4)); /* M3 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY8,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(5)); /* M4 */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY9,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(6)); /* LM */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY10,
-+			 data[FLYDIGI_OFF_EXTRA_BTNS] & BIT(7)); /* RM */
-+	input_report_key(gamepad, BTN_TRIGGER_HAPPY11,
-+			 data[FLYDIGI_OFF_SYSTEM_BTNS] & BIT(0)); /* Circle */
-+
-+	axis = (s16)get_unaligned_le16(&data[FLYDIGI_OFF_LX]);
-+	input_report_abs(gamepad, ABS_X, axis);
-+
-+	axis = flydigi_negate_axis((s16)get_unaligned_le16(&data[FLYDIGI_OFF_LY]));
-+	input_report_abs(gamepad, ABS_Y, axis);
-+
-+	axis = (s16)get_unaligned_le16(&data[FLYDIGI_OFF_RX]);
-+	input_report_abs(gamepad, ABS_RX, axis);
-+
-+	axis = flydigi_negate_axis((s16)get_unaligned_le16(&data[FLYDIGI_OFF_RY]));
-+	input_report_abs(gamepad, ABS_RY, axis);
-+
-+	input_report_abs(gamepad, ABS_Z,
-+			 ((int)data[FLYDIGI_OFF_LT] * 257) - 32768);
-+	input_report_abs(gamepad, ABS_RZ,
-+			 ((int)data[FLYDIGI_OFF_RT] * 257) - 32768);
-+
-+	input_sync(gamepad);
-+}
-+
-+/**
-+ * flydigi_report_sensors - publish IMU samples from one protocol packet
-+ * @fd: controller state
-+ * @data: protocol packet starting at magic byte 0x5a
-+ *
-+ * Motion data is exposed as a dedicated evdev node so userspace can consume
-+ * gyro/accelerometer data independently of gamepad button polling.
-+ */
-+static void flydigi_report_sensors(struct flydigi_device *fd, const u8 *data)
-+{
-+	struct input_dev *sensors = fd->sensors;
-+
-+	if (!sensors)
-+		return;
-+
-+	input_event(sensors, EV_MSC, MSC_TIMESTAMP,
-+		    ktime_to_us(ktime_get_boottime()));
-+
-+	/* Accelerometer */
-+	input_report_abs(sensors, ABS_X,
-+			 (s16)get_unaligned_le16(&data[FLYDIGI_OFF_ACCEL_X]));
-+	input_report_abs(sensors, ABS_Y,
-+			 (s16)get_unaligned_le16(&data[FLYDIGI_OFF_ACCEL_Y]));
-+	input_report_abs(sensors, ABS_Z,
-+			 flydigi_negate_axis((s16)get_unaligned_le16(&data[FLYDIGI_OFF_ACCEL_Z])));
-+
-+	/* Gyroscope, converted to exact milli-dps -- see FLYDIGI_GYRO_RES_PER_DPS. */
-+	input_report_abs(sensors, ABS_RX,
-+			 flydigi_gyro_raw_to_mdps((s16)get_unaligned_le16(&data[FLYDIGI_OFF_GYRO_X])));
-+	input_report_abs(sensors, ABS_RY,
-+			 flydigi_gyro_raw_to_mdps((s16)get_unaligned_le16(&data[FLYDIGI_OFF_GYRO_Y])));
-+	input_report_abs(sensors, ABS_RZ,
-+			 flydigi_gyro_raw_to_mdps(flydigi_negate_axis((s16)get_unaligned_le16(&data[FLYDIGI_OFF_GYRO_Z]))));
-+
-+	input_sync(sensors);
-+}
-+
-+/**
-+ * flydigi_report_battery - update battery state from a GET_INFO reply
-+ * @fd: controller state
-+ * @data: protocol packet starting at magic byte 0x5a
-+ *
-+ * Byte 11 packs charge state in the high nibble (0 = on battery,
-+ * 1 = charging, 2 = charged/full) and a coarse 0-5 level in the low
-+ * nibble, matching the layout used by SDL's Flydigi backend.
-+ */
-+static void flydigi_report_battery(struct flydigi_device *fd, const u8 *data)
-+{
-+	u8 status = (data[FLYDIGI_OFF_BATTERY] >> 4) & 0x0f;
-+	u8 level = data[FLYDIGI_OFF_BATTERY] & 0x0f;
-+	int capacity;
-+	int psy_status;
-+
-+	switch (status) {
-+	case 0:
-+		psy_status = POWER_SUPPLY_STATUS_DISCHARGING;
-+		capacity = level * 20;
-+		break;
-+	case 1:
-+		psy_status = POWER_SUPPLY_STATUS_CHARGING;
-+		capacity = level * 20;
-+		break;
-+	case 2:
-+		psy_status = POWER_SUPPLY_STATUS_FULL;
-+		capacity = 100;
-+		break;
-+	default:
-+		psy_status = POWER_SUPPLY_STATUS_UNKNOWN;
-+		capacity = 0;
-+		break;
-+	}
-+	capacity = clamp(capacity, 0, 100);
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock) {
-+		fd->battery_status = psy_status;
-+		fd->battery_capacity = capacity;
-+	}
-+
-+	if (fd->battery)
-+		power_supply_changed(fd->battery);
-+}
-+
-+/**
-+ * flydigi_raw_event - parse vendor packets delivered by HID core
-+ * @hdev: HID device
-+ * @report: HID report metadata
-+ * @data: raw bytes from device
-+ * @size: number of bytes in @data
-+ *
-+ * The transport may prepend a synthetic report ID byte. Strip it when present,
-+ * then dispatch by vendor command so gamepad and sensor state stay in sync.
-+ *
-+ * Return: always 0 so hidraw still sees the original traffic.
-+ */
-+static int flydigi_raw_event(struct hid_device *hdev, struct hid_report *report,
-+			     u8 *data, int size)
-+{
-+	struct flydigi_device *fd = hid_get_drvdata(hdev);
-+	const u8 *payload = data;
-+	bool removed;
-+	int len = size;
-+	(void)report;
-+
-+	if (!fd || size <= 0)
-+		return 0;
-+
-+	if (payload[0] != FLYDIGI_MAGIC1) {
-+		payload++;
-+		len--;
-+	}
-+
-+	if (len < 31)
-+		return 0;
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock)
-+		removed = fd->removed;
-+
-+	if (removed)
-+		return 0;
-+
-+	if (payload[0] != FLYDIGI_MAGIC1 || payload[1] != FLYDIGI_MAGIC2) {
-+		hid_dbg(hdev,
-+			"non-protocol packet ignored: sz=%d b0=%02x b1=%02x b2=%02x\n",
-+			len, payload[0], payload[1], payload[2]);
-+		return 0;
-+	}
-+
-+	switch (payload[2]) {
-+	case FLYDIGI_CMD_INPUT:
-+		flydigi_report_gamepad(fd, payload);
-+		flydigi_report_sensors(fd, payload);
-+		break;
-+	case FLYDIGI_CMD_INFO:
-+		flydigi_report_battery(fd, payload);
-+		break;
-+	case FLYDIGI_CMD_STATUS:
-+	case FLYDIGI_CMD_ACQUIRE:
-+	case FLYDIGI_CMD_HAPTIC:
-+		/* Expected replies/acks to commands sent by this driver. */
-+		break;
-+	case FLYDIGI_CMD_STATUS_UPDATE:
-+		{
-+			bool open;
-+
-+			scoped_guard(spinlock_irqsave, &fd->lock)
-+				open = fd->gamepad_open && !fd->removed;
-+
-+			if (open)
-+				queue_delayed_work(fd->wq, &fd->acquire_work, 0);
-+		}
-+		break;
-+	default:
-+		hid_dbg(hdev, "unhandled command: cmd=%02x sz=%d\n",
-+			payload[2], len);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int flydigi_register_gamepad(struct flydigi_device *fd)
-+{
-+	struct hid_device *hdev = fd->hdev;
-+	struct input_dev *gamepad;
-+	int ret;
-+
-+	gamepad = devm_input_allocate_device(&hdev->dev);
-+	if (!gamepad)
-+		return -ENOMEM;
-+
-+	gamepad->name = hdev->name;
-+	gamepad->phys = hdev->phys;
-+	gamepad->uniq = hdev->uniq;
-+	gamepad->id.bustype = hdev->bus;
-+	gamepad->id.vendor = hdev->vendor;
-+	gamepad->id.product = hdev->product;
-+	gamepad->id.version = hdev->version;
-+	gamepad->open = flydigi_gamepad_open;
-+	gamepad->close = flydigi_gamepad_close;
-+	input_set_drvdata(gamepad, fd);
-+
-+	input_set_capability(gamepad, EV_KEY, BTN_SOUTH);
-+	input_set_capability(gamepad, EV_KEY, BTN_EAST);
-+	input_set_capability(gamepad, EV_KEY, BTN_WEST);
-+	input_set_capability(gamepad, EV_KEY, BTN_NORTH);
-+	input_set_capability(gamepad, EV_KEY, BTN_SELECT);
-+	input_set_capability(gamepad, EV_KEY, BTN_START);
-+	input_set_capability(gamepad, EV_KEY, BTN_MODE);
-+	input_set_capability(gamepad, EV_KEY, BTN_TL);
-+	input_set_capability(gamepad, EV_KEY, BTN_TR);
-+	input_set_capability(gamepad, EV_KEY, BTN_THUMBL);
-+	input_set_capability(gamepad, EV_KEY, BTN_THUMBR);
-+
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY1);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY2);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY5);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY6);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY7);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY8);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY9);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY10);
-+	input_set_capability(gamepad, EV_KEY, BTN_TRIGGER_HAPPY11);
-+
-+	input_set_abs_params(gamepad, ABS_X, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_Y, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RX, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RY, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_Z, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_RZ, -32768, 32767, 0, 0);
-+	input_set_abs_params(gamepad, ABS_HAT0X, -1, 1, 0, 0);
-+	input_set_abs_params(gamepad, ABS_HAT0Y, -1, 1, 0, 0);
-+
-+	input_set_capability(gamepad, EV_FF, FF_RUMBLE);
-+	ret = input_ff_create_memless(gamepad, NULL, flydigi_play_effect);
-+	if (ret)
-+		return ret;
-+
-+	ret = input_register_device(gamepad);
-+	if (ret)
-+		return ret;
-+
-+	fd->gamepad = gamepad;
-+	return 0;
-+}
-+
-+static int flydigi_register_sensors(struct flydigi_device *fd)
-+{
-+	struct hid_device *hdev = fd->hdev;
-+	struct input_dev *sensors;
-+	char *name;
-+	int ret;
-+
-+	sensors = devm_input_allocate_device(&hdev->dev);
-+	if (!sensors)
-+		return -ENOMEM;
-+
-+	name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "%s Motion Sensors",
-+			      hdev->name);
-+	if (!name)
-+		return -ENOMEM;
-+
-+	sensors->name = name;
-+	/* Matching phys/uniq helps userspace pair gamepad and IMU endpoints. */
-+	sensors->phys = hdev->phys;
-+	sensors->uniq = hdev->uniq;
-+	sensors->id.bustype = hdev->bus;
-+	sensors->id.vendor = hdev->vendor;
-+	sensors->id.product = hdev->product;
-+	sensors->id.version = hdev->version;
-+	input_set_drvdata(sensors, fd);
-+
-+	__set_bit(INPUT_PROP_ACCELEROMETER, sensors->propbit);
-+	__set_bit(EV_MSC, sensors->evbit);
-+	__set_bit(MSC_TIMESTAMP, sensors->mscbit);
-+
-+	input_set_abs_params(sensors, ABS_X, -32768, 32767, 16, 0);
-+	input_set_abs_params(sensors, ABS_Y, -32768, 32767, 16, 0);
-+	input_set_abs_params(sensors, ABS_Z, -32768, 32767, 16, 0);
-+	input_abs_set_res(sensors, ABS_X, FLYDIGI_ACCEL_RES_PER_G);
-+	input_abs_set_res(sensors, ABS_Y, FLYDIGI_ACCEL_RES_PER_G);
-+	input_abs_set_res(sensors, ABS_Z, FLYDIGI_ACCEL_RES_PER_G);
-+
-+	input_set_abs_params(sensors, ABS_RX, -FLYDIGI_GYRO_MDPS_FS, FLYDIGI_GYRO_MDPS_FS,
-+			     FLYDIGI_GYRO_FUZZ_MDPS, 0);
-+	input_set_abs_params(sensors, ABS_RY, -FLYDIGI_GYRO_MDPS_FS, FLYDIGI_GYRO_MDPS_FS,
-+			     FLYDIGI_GYRO_FUZZ_MDPS, 0);
-+	input_set_abs_params(sensors, ABS_RZ, -FLYDIGI_GYRO_MDPS_FS, FLYDIGI_GYRO_MDPS_FS,
-+			     FLYDIGI_GYRO_FUZZ_MDPS, 0);
-+	input_abs_set_res(sensors, ABS_RX, FLYDIGI_GYRO_RES_PER_DPS);
-+	input_abs_set_res(sensors, ABS_RY, FLYDIGI_GYRO_RES_PER_DPS);
-+	input_abs_set_res(sensors, ABS_RZ, FLYDIGI_GYRO_RES_PER_DPS);
-+
-+	ret = input_register_device(sensors);
-+	if (ret)
-+		return ret;
-+
-+	fd->sensors = sensors;
-+	return 0;
-+}
-+
-+static int flydigi_battery_get_property(struct power_supply *psy,
-+					 enum power_supply_property psp,
-+					 union power_supply_propval *val)
-+{
-+	struct flydigi_device *fd = power_supply_get_drvdata(psy);
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	switch (psp) {
-+	case POWER_SUPPLY_PROP_CAPACITY:
-+		spin_lock_irqsave(&fd->lock, flags);
-+		val->intval = fd->battery_capacity;
-+		spin_unlock_irqrestore(&fd->lock, flags);
-+		break;
-+	case POWER_SUPPLY_PROP_STATUS:
-+		spin_lock_irqsave(&fd->lock, flags);
-+		val->intval = fd->battery_status;
-+		spin_unlock_irqrestore(&fd->lock, flags);
-+		break;
-+	case POWER_SUPPLY_PROP_SCOPE:
-+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
-+		break;
-+	case POWER_SUPPLY_PROP_MODEL_NAME:
-+		val->strval = fd->hdev->name;
-+		break;
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+static enum power_supply_property flydigi_battery_props[] = {
-+	POWER_SUPPLY_PROP_CAPACITY,
-+	POWER_SUPPLY_PROP_STATUS,
-+	POWER_SUPPLY_PROP_SCOPE,
-+	POWER_SUPPLY_PROP_MODEL_NAME,
-+};
-+
-+/**
-+ * flydigi_register_battery - expose charge state via the power_supply class
-+ * @fd: controller state
-+ *
-+ * Capacity/status start out unknown and are populated once the first
-+ * GET_INFO reply is parsed by flydigi_report_battery(); the periodic
-+ * acquire worker keeps requesting fresh info so this stays current.
-+ */
-+static int flydigi_register_battery(struct flydigi_device *fd)
-+{
-+	struct hid_device *hdev = fd->hdev;
-+	struct power_supply_config psy_cfg = { .drv_data = fd };
-+	char *name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "flydigi_%s",
-+				    dev_name(&hdev->dev));
-+	if (!name)
-+		return -ENOMEM;
-+
-+	fd->battery_desc.name = name;
-+	fd->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
-+	fd->battery_desc.properties = flydigi_battery_props;
-+	fd->battery_desc.num_properties = ARRAY_SIZE(flydigi_battery_props);
-+	fd->battery_desc.get_property = flydigi_battery_get_property;
-+
-+	fd->battery_status = POWER_SUPPLY_STATUS_UNKNOWN;
-+	fd->battery_capacity = 0;
-+
-+	fd->battery = devm_power_supply_register(&hdev->dev, &fd->battery_desc,
-+						 &psy_cfg);
-+	if (IS_ERR(fd->battery)) {
-+		/*
-+		 * flydigi_report_battery() only checks for NULL, so packets
-+		 * received while the probe failure unwinds must not find an
-+		 * error pointer here.
-+		 */
-+		fd->battery = NULL;
-+		return PTR_ERR(fd->battery);
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * flydigi_init_uniq - provide a stable unique string for endpoint pairing
-+ * @hdev: HID device
-+ *
-+ * Userspace often merges controller and sensor nodes only when uniq matches.
-+ * Populate uniq early when firmware does not provide one.
-+ */
-+static void flydigi_init_uniq(struct hid_device *hdev)
-+{
-+	struct usb_interface *intf;
-+	struct usb_device *udev;
-+	char path[64];
-+	int ret;
-+
-+	/*
-+	 * Keep any transport-provided unique ID (e.g. Bluetooth address) so
-+	 * all evdev nodes created from this HID device share the same uniq.
-+	 */
-+	if (hdev->uniq[0])
-+		return;
-+
-+	/*
-+	 * Fallback for USB when no stable device ID is available from transport or
-+	 * firmware: use the USB topology path so userspace can pair gamepad and
-+	 * sensor nodes per physical device.
-+	 */
-+	if (hid_is_usb(hdev)) {
-+		intf = to_usb_interface(hdev->dev.parent);
-+		if (intf) {
-+			udev = interface_to_usbdev(intf);
-+			if (udev) {
-+				ret = usb_make_path(udev, path, sizeof(path));
-+				if (ret > 0) {
-+					strscpy(hdev->uniq, path, sizeof(hdev->uniq));
-+					return;
-+				}
-+			}
-+		}
-+	}
-+
-+	if (hdev->phys[0]) {
-+		strscpy(hdev->uniq, hdev->phys, sizeof(hdev->uniq));
-+		return;
-+	}
-+
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%04x:%04x",
-+		 hdev->vendor, hdev->product);
-+}
-+
-+/**
-+ * flydigi_destroy_workqueue - devm teardown of the controller workqueue
-+ * @data: controller state
-+ *
-+ * Registered before any devm input device is allocated, so devres unwinds the
-+ * gamepad and sensors evdev nodes first: by the time this runs their
-+ * open/close/force-feedback callbacks can no longer queue work.
-+ */
-+static void flydigi_destroy_workqueue(void *data)
-+{
-+	struct flydigi_device *fd = data;
-+
-+	cancel_delayed_work_sync(&fd->acquire_work);
-+	cancel_delayed_work_sync(&fd->rumble_work);
-+	destroy_workqueue(fd->wq);
-+	mutex_destroy(&fd->output_mutex);
-+}
-+
-+static int flydigi_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	struct flydigi_device *fd;
-+	u8 output_report_id = 0;
-+	int ifnum = -1;
-+	int ret;
-+
-+	if (hid_is_usb(hdev)) {
-+		ifnum = flydigi_get_interface_number(hdev);
-+		if (ifnum < 0)
-+			return -ENODEV;
-+	}
-+
-+	if (!flydigi_detect_protocol_descriptor(hdev, &output_report_id))
-+		return -ENODEV;
-+
-+	if (ifnum >= 0)
-+		hid_dbg(hdev,
-+			"binding protocol interface %d (report id 0x%02x)\n",
-+			ifnum, output_report_id);
-+	else
-+		hid_dbg(hdev, "binding protocol transport (report id 0x%02x)\n",
-+			output_report_id);
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	fd = devm_kzalloc(&hdev->dev, sizeof(*fd), GFP_KERNEL);
-+	if (!fd)
-+		return -ENOMEM;
-+
-+	fd->hdev = hdev;
-+	fd->output_report_id = output_report_id;
-+	hid_set_drvdata(hdev, fd);
-+	fd->output_buf = devm_kzalloc(&hdev->dev, FLYDIGI_REPORT_SIZE,
-+				      GFP_KERNEL);
-+	if (!fd->output_buf)
-+		return -ENOMEM;
-+
-+	spin_lock_init(&fd->lock);
-+	mutex_init(&fd->output_mutex);
-+
-+	fd->wq = alloc_workqueue("hid-flydigi-%s", WQ_MEM_RECLAIM | WQ_PERCPU,
-+				 0, dev_name(&hdev->dev));
-+	if (!fd->wq) {
-+		mutex_destroy(&fd->output_mutex);
-+		return -ENOMEM;
-+	}
-+
-+	INIT_DELAYED_WORK(&fd->rumble_work, flydigi_rumble_worker);
-+	INIT_DELAYED_WORK(&fd->acquire_work, flydigi_acquire_worker);
-+
-+	/*
-+	 * The input devices are devm-allocated and stay live until after
-+	 * flydigi_remove() has returned, while their callbacks queue work on
-+	 * fd->wq. Tearing the workqueue down here in devres, before
-+	 * flydigi_register_gamepad()/flydigi_register_sensors() allocate their
-+	 * devices, makes devres unregister the input devices first so the
-+	 * workqueue is never destroyed under them.
-+	 */
-+	ret = devm_add_action_or_reset(&hdev->dev, flydigi_destroy_workqueue,
-+				       fd);
-+	if (ret)
-+		return ret;
-+
-+	flydigi_init_uniq(hdev);
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = flydigi_register_gamepad(fd);
-+	if (ret)
-+		goto err_stop;
-+
-+	ret = flydigi_register_sensors(fd);
-+	if (ret)
-+		goto err_stop;
-+
-+	ret = flydigi_register_battery(fd);
-+	if (ret)
-+		goto err_stop;
-+
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_err(hdev, "hw open failed: %d\n", ret);
-+		goto err_stop;
-+	}
-+
-+	/*
-+	 * Prime protocol state so input/IMU packets start flowing immediately.
-+	 * Best-effort: some devices transiently NAK these while initialization
-+	 * settles, and the periodic acquire worker will retry shortly.
-+	 */
-+	(void)flydigi_send_info_request(fd);
-+	(void)flydigi_send_status_request(fd);
-+	(void)flydigi_send_acquire(fd);
-+
-+	return 0;
-+
-+err_stop:
-+	hid_hw_stop(hdev);
-+	return ret;
-+}
-+
-+static void flydigi_remove(struct hid_device *hdev)
-+{
-+	struct flydigi_device *fd = hid_get_drvdata(hdev);
-+
-+	scoped_guard(spinlock_irqsave, &fd->lock) {
-+		fd->removed = true;
-+		fd->strong = 0;
-+		fd->weak = 0;
-+	}
-+
-+	cancel_delayed_work_sync(&fd->acquire_work);
-+	cancel_delayed_work_sync(&fd->rumble_work);
-+
-+	/* Stop motors on teardown to avoid controllers that keep last FF state. */
-+	flydigi_send_rumble(fd, 0, 0);
-+
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
-+static const struct hid_device_id flydigi_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_FLYDIGI,
-+			       USB_DEVICE_ID_FLYDIGI_VADER5) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, flydigi_devices);
-+
-+static struct hid_driver flydigi_driver = {
-+	.name = "flydigi",
-+	.id_table = flydigi_devices,
-+	.probe = flydigi_probe,
-+	.remove = flydigi_remove,
-+	.raw_event = flydigi_raw_event,
-+};
-+module_hid_driver(flydigi_driver);
-+
-+MODULE_AUTHOR("Denis Benato <denis.benato@linux.dev>");
-+MODULE_DESCRIPTION("Flydigi HID driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c53a78cd58bd..33e8d82b8694 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -523,6 +523,9 @@
- #define USB_VENDOR_ID_FLATFROG		0x25b5
- #define USB_DEVICE_ID_MULTITOUCH_3200	0x0002
- 
-+#define USB_VENDOR_ID_FLYDIGI		0x37d7
-+#define USB_DEVICE_ID_FLYDIGI_VADER5	0x2401
-+
- #define USB_VENDOR_ID_FUTABA            0x0547
- #define USB_DEVICE_ID_LED_DISPLAY       0x7000
- 
--- 
-2.47.3
+[Severity: Low]
+Since the driver unconditionally uses power supply APIs like
+devm_power_supply_register(), does this Kconfig entry need a
+'depends on POWER_SUPPLY' dependency?=20
 
+If a user builds with CONFIG_HID_FLYDIGI=3Dy and CONFIG_POWER_SUPPLY=3Dn, it
+appears the build will fail with unresolved symbols because the power supply
+APIs do not provide static dummy implementations for that configuration.
+
+> diff --git a/drivers/hid/hid-flydigi.c b/drivers/hid/hid-flydigi.c
+> new file mode 100644
+> index 0000000000000..b6d57080fed8f
+> --- /dev/null
+> +++ b/drivers/hid/hid-flydigi.c
+[ ... ]
+> +static int flydigi_register_battery(struct flydigi_device *fd)
+> +{
+[ ... ]
+> +	fd->battery =3D devm_power_supply_register(&hdev->dev, &fd->battery_des=
+c,
+> +						 &psy_cfg);
+> +	if (IS_ERR(fd->battery)) {
+> +		/*
+> +		 * flydigi_report_battery() only checks for NULL, so packets
+> +		 * received while the probe failure unwinds must not find an
+> +		 * error pointer here.
+> +		 */
+> +		fd->battery =3D NULL;
+> +		return PTR_ERR(fd->battery);
+
+[Severity: Medium]
+By setting fd->battery to NULL before returning PTR_ERR(fd->battery), doesn=
+'t
+this cause the function to always return 0 (success) on failure?=20
+
+It seems this will mask the actual error code (like -ENOMEM) and leave the
+device partially initialized when devm_power_supply_register() fails.
+Consider storing the error code in a temporary variable before nullifying t=
+he
+pointer.
+
+[ ... ]
+> +static int flydigi_probe(struct hid_device *hdev, const struct hid_devic=
+e_id *id)
+> +{
+[ ... ]
+> +err_stop:
+> +	hid_hw_stop(hdev);
+> +	return ret;
+> +}
+
+[Severity: High]
+If probe fails after hid_hw_start() succeeds (for example, in
+flydigi_register_sensors or hid_hw_open), could this error path lead to I/O
+on stopped hardware?
+
+Since fd->removed is not set to true here, when devres subsequently unregis=
+ters
+the gamepad, it will trigger flydigi_gamepad_close(). Looking at
+flydigi_gamepad_close():
+
+	/* Stop the motors right away on close. */
+	if (!removed)
+		mod_delayed_work(fd->wq, &fd->rumble_work, 0);
+
+This will enqueue the rumble worker because removed is false. The rumble wo=
+rker
+then executes:
+
+static void flydigi_rumble_worker(struct work_struct *work)
+{
+	...
+	if (removed)
+		return;
+
+	flydigi_send_rumble(fd, strong >> 8, weak >> 8);
+}
+
+This appears to call into the HID transport (hid_hw_output_report) after
+hid_hw_stop() has already shut down the hardware, which could lead to URB
+submission errors or use-after-free in the lower-level transport driver.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260915171425.1105=
+8-1-denis.benato@linux.dev?part=3D1

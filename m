@@ -1,296 +1,340 @@
-Received: from mail-ua1-f70.google.com (mail-ua1-f70.google.com [209.85.222.70])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from forward103b.mail.yandex.net (forward103b.mail.yandex.net [178.154.239.150])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E11F64A4854
-	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:28:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFFC4399354
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 08:53:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.150
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789460887; cv=none; b=sstB8sqS+4+r+OmoPRXLRPEDjUNxcrhuxV+9SMfRvuYaf/Ys0UgGDnb5QQgbR5OJPYLxJS+JLu5A5RNSWUHl+2dzXqptACHt2L16iJvXfkP0jP2XLzxH4Ee1teKZzIx3eLpR7oRY6K5iRsUsOjvpL7/JyHlhsRYJ/YQUuAZ2EJg=
+	t=1789462404; cv=none; b=PDg87urQ3xUJt/MkApAolTpFaOS+Wzc/q1yfuYcpo5et6ratPA4RCCddFn3dVYw+DnykG17RHqa9EJJ3wKFHe+hJqeNDUMTLJIjjI2tgH24Rii6S8h9hWoMdkNT5vncvRQIxmSkNxAcmvtN1AlebDATYS5cSyDlFrYzHHUd2XtY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789460887; c=relaxed/simple;
-	bh=WLXzasjY0mBK/NrbpJfTCOFtGklzxJ8+ta6QqRZkwNM=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=cHQm6bHZRGlrdJcJlnkJstzKYzhTaesk+bWJt2VCNakPSus3ULwqWzLAbDdzcACwPjzHq71Ooge/uHBVDXPkB73idXdOumr/r2slNI7nlxiHNVhARc7XmPh169h8ReLOrGBdyQRAtpuL6hNUWmjvvSPZ5DjcO7DmjQzzvGfn3UQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=LfdY09+G; arc=none smtp.client-ip=209.85.222.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com
+	s=arc-20240116; t=1789462404; c=relaxed/simple;
+	bh=n5OAOlKU5jHDfWtU+xfRBhbrbepKznAbUd4blgzBF2E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=T0s13FWpV5UngXhzojvs1y2lf1m89QcI+Z7cGLF+ovH2QTuOCGqS+ZOeywwPqxUNp/Aa7iL9bFs4BquCaHd44P1vLtooYHIvYs8aWGamqkEsTMbTVoPpF72lzxl0cbTmRbB/Rt67Rfivi1IeoG/w7xoKvOuAtmJqItwS3PzmAXs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru; spf=pass smtp.mailfrom=yandex.ru; dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b=RR54lvr5; arc=none smtp.client-ip=178.154.239.150
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="LfdY09+G"
-Received: by mail-ua1-f70.google.com with SMTP id a1e0cc1a2514c-982a948acf8so1982729241.2
-        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 01:28:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1789460884; x=1790065684; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=RYxDJLbbwpCoc34IeHntB/eNfLB4EmZZnrz8tORBuFs=;
-        b=LfdY09+GGIxaZdry15Gs3j7d+h7JtVCkWFa6NZ7a3DkGm3AzyQ6h2tB0PzV6F3UGfN
-         Bna4X/3Xky9jIhemirAkJghHcBNdTY5yPof7Y3RFEYjCXnBHALHFaUY/H7btynpt5VyK
-         lvJSEjxpyvyEBDtA3b/e1gvK8Tv3iNexz6iO4kzQFJ0HEl0Zbr96MtMZiFAKe6h++ydl
-         bXJJ7lA4mTSYvf8L7H49tM0rGaqsKaswIxVHds/EQ5vLt/VWqUobXoXduY+WH0fZk/ZP
-         WY+xkonNmSPOA0P8+i1+OzDophRPtnvSkQ19rnmayJOhCSfDgQj1+imI3XBVvCZrw5dv
-         RMIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789460884; x=1790065684;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RYxDJLbbwpCoc34IeHntB/eNfLB4EmZZnrz8tORBuFs=;
-        b=rTUYdVh0jKoEF8JNybeERJM1I4bi08xVgoDaM97fQ58nwb0JdXatcOOlrcPi/ToJbS
-         13lzoxR8u1wOnPOpBCeJAbz8lsABkPXXyScm/gKKcQ1nnpCAwKo81I31kYnGdTKb4S1O
-         yFTS33Wkxy1TkTmftH2OZHyFba2RUcqY4DNdFIkYdeCpc5YdWXwRw8oFKCm0VwYrwiI7
-         XBlVv+p7aoGJB6Tbw2ZYXcklrVxMLxg21SFymGZ/eze80f/zpBGU2P7XjdcZoefvHpeH
-         q/OmhKxeTjMtyfmxJQihtnrbax98SJGkIMmaE6ULlkJC4F3hw9jKEymvVQCucpq+SH2c
-         t0Ww==
-X-Forwarded-Encrypted: i=1; AKwUvBzC6lU56yU/ujiRX46Z8VfXITx6KchFX9Lzbie8QY2EJTtoUdA7r350rpU3M0elYFKTSI2VFB82OHo6vQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++l7hJo0pDnGt5OiJelLz8jhKcvuhombpLiKa0z4kjttKpIXXUFD
-	e3k8Ugdl9wdbtAn7BuZWE5lnxK7sQ9LgdvjBM8JEfUpPPb0vkCCI01krkMTX34AEyz9x6i4gAJp
-	w
-X-Received: from plas19.prod.google.com ([2002:a17:903:2013:b0:2dd:75f1:13f5])
- (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:40c6:b0:2d0:cc92:f7a9
- with SMTP id d9443c01a7336-2dd837a6aeemr1077095ad.4.1789460419151; Tue, 15
- Sep 2026 01:20:19 -0700 (PDT)
-Date: Tue, 15 Sep 2026 08:18:45 +0000
-In-Reply-To: <20260915081910.4142719-1-morbo@google.com>
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="RR54lvr5"
+Received: from forward102d.mail.yandex.net (forward102d.mail.yandex.net [IPv6:2a02:6b8:c41:1300:1:45:d181:d102])
+	by forward103b.mail.yandex.net (postfix) with ESMTPS id 36FC2C009A;
+	Tue, 15 Sep 2026 11:53:17 +0300 (MSK)
+Received: from mail-nwsmtp-smtp-production-main-52.klg.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-52.klg.yp-c.yandex.net [IPv6:2a02:6b8:c42:ea2:0:640:ef77:0])
+	by forward102d.mail.yandex.net (postfix) with ESMTPS id 1F293C007B;
+	Tue, 15 Sep 2026 11:53:17 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-52.klg.yp-c.yandex.net (smtp) with ESMTPSA id FrPGVikd2a60-54TzSXjw;
+	Tue, 15 Sep 2026 11:53:16 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1789462396; bh=SZNVyUBB5uxnUOuNGwgtiAZTVkROPinS1S4mzZt6eMU=;
+	h=Message-ID:Date:Cc:Subject:To:From;
+	b=RR54lvr5z4V6mMXPkwJtHPxHd1dE8P1watEiWBQPRRMgk9u4k0Qy5WQS46lk4/jTe
+	 QKoc0uY08ZyRGsneV0SgqIAT2Cw1TveT+truy5rJ2A9QhhrVLQmbMm3trY+NLnM0H7
+	 rUq56q3dd2WCMPTwdSF3gO5Reqyw4+w8ObU7LgmQ=
+Authentication-Results: mail-nwsmtp-smtp-production-main-52.klg.yp-c.yandex.net; dkim=pass header.i=@yandex.ru
+From: Dmitry Antipov <dmantipov@yandex.ru>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	lvc-project@linuxtesting.org,
+	Dmitry Antipov <dmantipov@yandex.ru>
+Subject: [PATCH] HID: roccat: pass data size to roccat_report_event()
+Date: Tue, 15 Sep 2026 11:53:11 +0300
+Message-ID: <20260915085311.1819317-1-dmantipov@yandex.ru>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260915081910.4142719-1-morbo@google.com>
-X-Mailer: git-send-email 2.55.0.1032.g73a4cd73de-goog
-Message-ID: <20260915081910.4142719-29-morbo@google.com>
-Subject: [PATCH 28/28] drm/xe/pf: Refactor strlcat() to seq_buf in sched_group_engines_read()
-From: Bill Wendling <morbo@google.com>
-To: linux-kernel@vger.kernel.org
-Cc: Bill Wendling <morbo@google.com>, codemender-patching+linux@google.com, 
-	Russell King <linux@armlinux.org.uk>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Ian Abbott <abbotti@mev.co.uk>, 
-	H Hartley Sweeten <hsweeten@visionengravers.com>, Tony Luck <tony.luck@intel.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Matthew Brost <matthew.brost@intel.com>, 
-	"=?UTF-8?q?Thomas=20Hellstr=C3=B6m?=" <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthias Schwarzott <zzam@gentoo.org>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
-	Przemek Kitszel <przemyslaw.kitszel@intel.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Arend van Spriel <arend.vanspriel@broadcom.com>, Rob Herring <robh@kernel.org>, 
-	Saravana Kannan <saravanak@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	Sylwester Nawrocki <s.nawrocki@samsung.com>, Peter Griffin <peter.griffin@linaro.org>, 
-	Alim Akhtar <alim.akhtar@samsung.com>, Linus Walleij <linusw@kernel.org>, 
-	Anil Gurumurthy <anil.gurumurthy@qlogic.com>, 
-	Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, 
-	Mike Marshall <hubcap@omnibond.com>, Martin Brandenburg <martin@omnibond.com>, Kees Cook <kees@kernel.org>, 
-	Jiri Pirko <jiri@resnulli.us>, Simon Horman <horms@kernel.org>, Chuck Lever <cel@kernel.org>, 
-	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, 
-	Olga Kornievskaia <okorniev@redhat.com>, Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, "Mike Rapoport (Microsoft)" <rppt@kernel.org>, 
-	Kanglong Wang <wangkanglong@loongson.cn>, Tiezhu Yang <yangtiezhu@loongson.cn>, 
-	Qiang Ma <maqianga@uniontech.com>, Randy Dunlap <rdunlap@infradead.org>, 
-	Pengpeng Hou <pengpeng@iscas.ac.cn>, Ard Biesheuvel <ardb@kernel.org>, Breno Leitao <leitao@debian.org>, 
-	Thorsten Blum <blum@kernel.org>, Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Lyude Paul <lyude@redhat.com>, 
-	Ashutosh Desai <ashutoshdesai993@gmail.com>, Imre Deak <imre.deak@intel.com>, 
-	Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>, Johan Hovold <johan@kernel.org>, 
-	Johannes Berg <johannes.berg@intel.com>, 
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>, 
-	Alexander Stein <alexander.stein@ew.tq-group.com>, 
-	Cryolitia PukNgae <cryolitia@uniontech.com>, Jiaming Zhang <r772577952@gmail.com>, 
-	Will Porter <mrwillporter@gmail.com>, Cen Zhang <zzzccc427@gmail.com>, 
-	"=?UTF-8?q?C=C3=A1ssio=20Gabriel?=" <cassiogabrielcontato@gmail.com>, Rong Zhang <i@rong.moe>, 
-	Arun Raghavan <arunr@valvesoftware.com>, linux-arm-kernel@lists.infradead.org, 
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linux-edac@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	linux-input@vger.kernel.org, linux-media@vger.kernel.org, 
-	intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org, 
-	linux-wireless@vger.kernel.org, brcm80211@lists.linux.dev, 
-	brcm80211-dev-list.pdl@broadcom.com, devicetree@vger.kernel.org, 
-	linux-samsung-soc@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-nfs@vger.kernel.org, 
-	devel@lists.orangefs.org, linux-hardening@vger.kernel.org, 
-	linux-sound@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Similar to control_read(), sched_group_engines_read() constructs a
-space-separated list of hardware engine names in a stack buffer using
-repeated strlcat() calls inside a loop.
+Adjust roccat_report_event() to take both report and report size.
 
-In preparation for removing the deprecated strlcat() API[1], refactor
-sched_group_engines_read() to use struct seq_buf and seq_buf_printf().
+The goal is to make roccat_report_event() lockfree. Since callers
+are likely to pass stack-allocated event, it should be copied,
+which requires to know event size. This size is recorded in
+'report_size' of 'struct roccat_device', but taking the device
+pointer is racy without taking global 'devices_lock', and taking
+the latter from atomic context (from where roccat_report_event()
+may be called) is definitely wrong.
 
-Link: https://github.com/KSPP/linux/issues/370 [1]
-Cc: codemender-patching+linux@google.com
-Assisted-by: Developer:Gemini [editor_update_file, make_kernel_build_single=
-_file, shell_command_run]
-Signed-off-by: Bill Wendling <morbo@google.com>
+Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
 ---
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Huacai Chen <chenhuacai@kernel.org>
-Cc: WANG Xuerui <kernel@xen0n.name>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Thomas Gleixner <tglx@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: x86@kernel.org
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ian Abbott <abbotti@mev.co.uk>
-Cc: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@gmail.com>
-Cc: Simona Vetter <simona@ffwll.ch>
-Cc: Matthew Brost <matthew.brost@intel.com>
-Cc: "Thomas Hellstr=C3=B6m" <thomas.hellstrom@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthias Schwarzott <zzam@gentoo.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Tony Nguyen <anthony.l.nguyen@intel.com>
-Cc: Przemek Kitszel <przemyslaw.kitszel@intel.com>
-Cc: Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Arend van Spriel <arend.vanspriel@broadcom.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Saravana Kannan <saravanak@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc: Peter Griffin <peter.griffin@linaro.org>
-Cc: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: Linus Walleij <linusw@kernel.org>
-Cc: Anil Gurumurthy <anil.gurumurthy@qlogic.com>
-Cc: Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>
-Cc: "Martin K. Petersen" <mkp@kernel.org>
-Cc: Trond Myklebust <trondmy@kernel.org>
-Cc: Anna Schumaker <anna@kernel.org>
-Cc: Mike Marshall <hubcap@omnibond.com>
-Cc: Martin Brandenburg <martin@omnibond.com>
-Cc: Kees Cook <kees@kernel.org>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: Simon Horman <horms@kernel.org>
-Cc: Chuck Lever <cel@kernel.org>
-Cc: Jeff Layton <jlayton@kernel.org>
-Cc: NeilBrown <neil@brown.name>
-Cc: Olga Kornievskaia <okorniev@redhat.com>
-Cc: Dai Ngo <Dai.Ngo@oracle.com>
-Cc: Tom Talpey <tom@talpey.com>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: Bill Wendling <morbo@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Cc: Kanglong Wang <wangkanglong@loongson.cn>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: Qiang Ma <maqianga@uniontech.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Breno Leitao <leitao@debian.org>
-Cc: Thorsten Blum <blum@kernel.org>
-Cc: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Ashutosh Desai <ashutoshdesai993@gmail.com>
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Johannes Berg <johannes.berg@intel.com>
-Cc: Miri Korenblit <miriam.rachel.korenblit@intel.com>
-Cc: Alexander Stein <alexander.stein@ew.tq-group.com>
-Cc: Cryolitia PukNgae <cryolitia@uniontech.com>
-Cc: Jiaming Zhang <r772577952@gmail.com>
-Cc: Will Porter <mrwillporter@gmail.com>
-Cc: Cen Zhang <zzzccc427@gmail.com>
-Cc: "C=C3=A1ssio Gabriel" <cassiogabrielcontato@gmail.com>
-Cc: Rong Zhang <i@rong.moe>
-Cc: Arun Raghavan <arunr@valvesoftware.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Cc: loongarch@lists.linux.dev
-Cc: linux-mips@vger.kernel.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linux-edac@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: intel-xe@lists.freedesktop.org
-Cc: linux-input@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: intel-wired-lan@lists.osuosl.org
-Cc: netdev@vger.kernel.org
-Cc: linux-wireless@vger.kernel.org
-Cc: brcm80211@lists.linux.dev
-Cc: brcm80211-dev-list.pdl@broadcom.com
-Cc: devicetree@vger.kernel.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-gpio@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Cc: linux-nfs@vger.kernel.org
-Cc: devel@lists.orangefs.org
-Cc: linux-hardening@vger.kernel.org
-Cc: linux-sound@vger.kernel.org
----
- drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+With this patch, roccat_report_event() may be implemented as follows:
 
-diff --git a/drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c b/drivers/gpu/drm/=
-xe/xe_gt_sriov_pf_debugfs.c
-index 5db7fc067c4d..548a50f74422 100644
---- a/drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c
-+++ b/drivers/gpu/drm/xe/xe_gt_sriov_pf_debugfs.c
-@@ -377,8 +377,10 @@ static ssize_t sched_group_engines_read(struct file *f=
-ile, char __user *buf,
- 	struct xe_hw_engine *hwe;
- 	enum xe_hw_engine_id id;
- 	char engines[128];
-+	struct seq_buf s;
-+	const char *s_str;
-=20
--	engines[0] =3D '\0';
-+	seq_buf_init(&s, engines, sizeof(engines));
-=20
- 	if (group < num_groups) {
- 		for_each_hw_engine(hwe, gt, id) {
-@@ -386,15 +388,14 @@ static ssize_t sched_group_engines_read(struct file *=
-file, char __user *buf,
- 			u16 guc_logical_instance =3D xe_hwe_guc_logical_instance(hwe);
- 			u32 mask =3D groups[group].engines[guc_class];
-=20
--			if (mask & BIT(guc_logical_instance)) {
--				strlcat(engines, hwe->name, sizeof(engines));
--				strlcat(engines, " ", sizeof(engines));
--			}
-+			if (mask & BIT(guc_logical_instance))
-+				seq_buf_printf(&s, "%s ", hwe->name);
- 		}
--		strlcat(engines, "\n", sizeof(engines));
-+		seq_buf_puts(&s, "\n");
- 	}
-=20
--	return simple_read_from_buffer(buf, count, ppos, engines, strlen(engines)=
-);
-+	s_str =3D seq_buf_str(&s);
-+	return simple_read_from_buffer(buf, count, ppos, s_str, strlen(s_str));
+struct roccat_event {
+       struct work_struct work;
+       int minor;
+       u8 data[];
+};
+
+static void roccat_event_handler(struct work_struct *work)
+{
+	struct roccat_event *event;
+
+	event = container_of(work, struct roccat_event, work);
+	/* In this context, locking is safe. Get the device
+	   pointer using event->minor and, if the device
+	   is still present, do the rest of event reporting. */
+}
+
+int roccat_report_event(int minor, u8 const *data, int size)
+{
+	struct roccat_event *event;
+
+	event = kzalloc_flex(*event, data, size, GFP_ATOMIC);
+	if (!event)
+		return -ENOMEM;
+	INIT_WORK(&event->work, roccat_event_handler);
+	memcpy(event->data, data, size);
+	event->minor = minor;
+
+	queue_work([likely dedicated single-threaded workqueue], &event->work);
+	return 0;
+}
+---
+ drivers/hid/hid-roccat-arvo.c     |  3 ++-
+ drivers/hid/hid-roccat-isku.c     |  7 +++++--
+ drivers/hid/hid-roccat-kone.c     | 10 +++++++---
+ drivers/hid/hid-roccat-koneplus.c |  6 ++++--
+ drivers/hid/hid-roccat-konepure.c |  2 +-
+ drivers/hid/hid-roccat-kovaplus.c |  6 ++++--
+ drivers/hid/hid-roccat-pyra.c     |  9 ++++++---
+ drivers/hid/hid-roccat-ryos.c     |  2 +-
+ drivers/hid/hid-roccat-savu.c     |  3 ++-
+ drivers/hid/hid-roccat.c          |  3 ++-
+ include/linux/hid-roccat.h        |  2 +-
+ 11 files changed, 35 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
+index 0cf2f0008c7f..2a4e42ad4aae 100644
+--- a/drivers/hid/hid-roccat-arvo.c
++++ b/drivers/hid/hid-roccat-arvo.c
+@@ -400,7 +400,8 @@ static void arvo_report_to_chrdev(struct arvo_device const *arvo,
+ 		roccat_report.action = ARVO_ROCCAT_REPORT_ACTION_RELEASE;
+ 
+ 	roccat_report_event(arvo->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
  }
-=20
- static const struct file_operations sched_group_engines_fops =3D {
---=20
-2.55.0.1032.g73a4cd73de-goog
+ 
+ static int arvo_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-roccat-isku.c b/drivers/hid/hid-roccat-isku.c
+index 93a49c93ae8c..abda7551dd1f 100644
+--- a/drivers/hid/hid-roccat-isku.c
++++ b/drivers/hid/hid-roccat-isku.c
+@@ -98,7 +98,9 @@ static ssize_t isku_sysfs_set_actual_profile(struct device *dev,
+ 	roccat_report.data1 = profile + 1;
+ 	roccat_report.data2 = 0;
+ 	roccat_report.profile = profile + 1;
+-	roccat_report_event(isku->chrdev_minor, (uint8_t const *)&roccat_report);
++	roccat_report_event(isku->chrdev_minor,
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ 
+ 	mutex_unlock(&isku->isku_lock);
+ 
+@@ -395,7 +397,8 @@ static void isku_report_to_chrdev(struct isku_device const *isku,
+ 	roccat_report.data2 = button_report->data2;
+ 	roccat_report.profile = isku->actual_profile + 1;
+ 	roccat_report_event(isku->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ }
+ 
+ static int isku_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index 3dae9eaa0b6f..38bed3cdd592 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -49,7 +49,9 @@ static void kone_profile_report(struct kone_device *kone, uint new_profile)
+ 	roccat_report.event = kone_mouse_event_switch_profile;
+ 	roccat_report.value = new_profile;
+ 	roccat_report.key = 0;
+-	roccat_report_event(kone->chrdev_minor, (uint8_t *)&roccat_report);
++	roccat_report_event(kone->chrdev_minor,
++			    (uint8_t *)&roccat_report,
++			    sizeof(roccat_report));
+ }
+ 
+ static int kone_receive(struct usb_device *usb_dev, uint usb_command,
+@@ -824,7 +826,8 @@ static void kone_report_to_chrdev(struct kone_device const *kone,
+ 		roccat_report.value = event->value;
+ 		roccat_report.key = 0;
+ 		roccat_report_event(kone->chrdev_minor,
+-				(uint8_t *)&roccat_report);
++				    (uint8_t *)&roccat_report,
++				    sizeof(roccat_report));
+ 		break;
+ 	case kone_mouse_event_call_overlong_macro:
+ 	case kone_mouse_event_multimedia:
+@@ -833,7 +836,8 @@ static void kone_report_to_chrdev(struct kone_device const *kone,
+ 			roccat_report.value = kone->actual_profile;
+ 			roccat_report.key = event->macro_key;
+ 			roccat_report_event(kone->chrdev_minor,
+-					(uint8_t *)&roccat_report);
++					    (uint8_t *)&roccat_report,
++					    sizeof(roccat_report));
+ 		}
+ 		break;
+ 	}
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index f80a60539a96..77cb88957f8b 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -280,7 +280,8 @@ static ssize_t koneplus_sysfs_set_actual_profile(struct device *dev,
+ 	roccat_report.data2 = 0;
+ 	roccat_report.profile = profile + 1;
+ 	roccat_report_event(koneplus->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ 
+ 	mutex_unlock(&koneplus->koneplus_lock);
+ 
+@@ -507,7 +508,8 @@ static void koneplus_report_to_chrdev(struct koneplus_device const *koneplus,
+ 	roccat_report.data2 = button_report->data2;
+ 	roccat_report.profile = koneplus->actual_profile + 1;
+ 	roccat_report_event(koneplus->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ }
+ 
+ static int koneplus_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
+index 7f753dfc2a10..bed5e1e8a49e 100644
+--- a/drivers/hid/hid-roccat-konepure.c
++++ b/drivers/hid/hid-roccat-konepure.c
+@@ -185,7 +185,7 @@ static int konepure_raw_event(struct hid_device *hdev,
+ 		return 0;
+ 
+ 	if (konepure != NULL && konepure->roccat_claimed)
+-		roccat_report_event(konepure->chrdev_minor, data);
++		roccat_report_event(konepure->chrdev_minor, data, size);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 9ec42c218ef9..277a32313f45 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -310,7 +310,8 @@ static ssize_t kovaplus_sysfs_set_actual_profile(struct device *dev,
+ 	roccat_report.data1 = profile + 1;
+ 	roccat_report.data2 = 0;
+ 	roccat_report_event(kovaplus->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ 
+ 	mutex_unlock(&kovaplus->kovaplus_lock);
+ 
+@@ -598,7 +599,8 @@ static void kovaplus_report_to_chrdev(struct kovaplus_device const *kovaplus,
+ 	roccat_report.data2 = button_report->data2;
+ 
+ 	roccat_report_event(kovaplus->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ }
+ 
+ static int kovaplus_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index 0d515995bb9d..eb1dcdc17c29 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -266,7 +266,8 @@ static ssize_t pyra_sysfs_write_settings(struct file *fp,
+ 	roccat_report.value = settings->startup_profile + 1;
+ 	roccat_report.key = 0;
+ 	roccat_report_event(pyra->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ 
+ 	mutex_unlock(&pyra->pyra_lock);
+ 	return PYRA_SIZE_SETTINGS;
+@@ -524,7 +525,8 @@ static void pyra_report_to_chrdev(struct pyra_device const *pyra,
+ 		roccat_report.value = button_event->data1;
+ 		roccat_report.key = 0;
+ 		roccat_report_event(pyra->chrdev_minor,
+-				(uint8_t const *)&roccat_report);
++				    (uint8_t const *)&roccat_report,
++				    sizeof(roccat_report));
+ 		break;
+ 	case PYRA_MOUSE_EVENT_BUTTON_TYPE_MACRO:
+ 	case PYRA_MOUSE_EVENT_BUTTON_TYPE_SHORTCUT:
+@@ -538,7 +540,8 @@ static void pyra_report_to_chrdev(struct pyra_device const *pyra,
+ 			 */
+ 			roccat_report.value = pyra->actual_profile + 1;
+ 			roccat_report_event(pyra->chrdev_minor,
+-					(uint8_t const *)&roccat_report);
++					    (uint8_t const *)&roccat_report,
++					    sizeof(roccat_report));
+ 		}
+ 		break;
+ 	}
+diff --git a/drivers/hid/hid-roccat-ryos.c b/drivers/hid/hid-roccat-ryos.c
+index db83f42457da..6267dd49acc8 100644
+--- a/drivers/hid/hid-roccat-ryos.c
++++ b/drivers/hid/hid-roccat-ryos.c
+@@ -193,7 +193,7 @@ static int ryos_raw_event(struct hid_device *hdev,
+ 		return 0;
+ 
+ 	if (ryos != NULL && ryos->roccat_claimed)
+-		roccat_report_event(ryos->chrdev_minor, data);
++		roccat_report_event(ryos->chrdev_minor, data, size);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/hid/hid-roccat-savu.c b/drivers/hid/hid-roccat-savu.c
+index 679136933560..b3b812a1a38b 100644
+--- a/drivers/hid/hid-roccat-savu.c
++++ b/drivers/hid/hid-roccat-savu.c
+@@ -166,7 +166,8 @@ static void savu_report_to_chrdev(struct roccat_common2_device const *savu,
+ 	roccat_report.data[0] = special_report->data[0];
+ 	roccat_report.data[1] = special_report->data[1];
+ 	roccat_report_event(savu->chrdev_minor,
+-			(uint8_t const *)&roccat_report);
++			    (uint8_t const *)&roccat_report,
++			    sizeof(roccat_report));
+ }
+ 
+ static int savu_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index 4f15eb951039..ca09820ee5d3 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -248,12 +248,13 @@ static int roccat_release(struct inode *inode, struct file *file)
+  * roccat_report_event() - output data to readers
+  * @minor: minor device number returned by roccat_connect()
+  * @data: pointer to data
++ * @size: data size (expected to be equal to device->report_size)
+  *
+  * Return value is zero on success, a negative error code on failure.
+  *
+  * This is called from interrupt handler.
+  */
+-int roccat_report_event(int minor, u8 const *data)
++int roccat_report_event(int minor, u8 const *data, int size)
+ {
+ 	struct roccat_device *device;
+ 	struct roccat_reader *reader;
+diff --git a/include/linux/hid-roccat.h b/include/linux/hid-roccat.h
+index 753654fff07f..2be48e3d92a9 100644
+--- a/include/linux/hid-roccat.h
++++ b/include/linux/hid-roccat.h
+@@ -19,7 +19,7 @@
+ int roccat_connect(const struct class *klass, struct hid_device *hid,
+ 		int report_size);
+ void roccat_disconnect(int minor);
+-int roccat_report_event(int minor, u8 const *data);
++int roccat_report_event(int minor, u8 const *data, int size);
+ 
+ #endif
+ 
+-- 
+2.55.0
 

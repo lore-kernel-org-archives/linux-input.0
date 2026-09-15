@@ -1,168 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 276623D6CB6;
-	Tue, 15 Sep 2026 17:07:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789492047; cv=none; b=mhh+6wRRgMnPMNviZmYGUowvfX28lFj+rARv/SP9Q2SpsQ3hPQLMTSV8ybcG+A86bQPfHTEIkRQVJAGC8fk454R9AHOELacaLRFds1t494q39EyOxXr4eJtw+PfYuJ3qt7bcpSH8YPAu5QWsHgw8KsUm2CNHPXNfIaZYQQtGbU8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789492047; c=relaxed/simple;
-	bh=z/8Aa8bTI5T67F7VSf6+BDcdxIZ8knhH+S4xDAjmn4I=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=TDmLZB0qoJ8f5d8kDRbIon7TnZhtgf3HB/cFML00oeSDPK+GB5fuQJWuFQj7UNk1Q87xPfnKJWmi7PKrlmgo9TG9CmJD6Qll/Iqob8XwPHkBKQJl9KHmejPLi77oFkg1oxCdO1kMBVa6T7VLbCEXNVInfflsv/rXrFVPG1IhtGU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cpAyGLEL; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 662583D6CB6
+	for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 17:08:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.225.76
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789492132; cv=pass; b=tNMgbYgJJOEHp0RP6Z4TVrvHVugCIoFhq9LObqpB/2LelHMruI/i09tV7JdmnDoMu+SmijRTapgr3kaqLskx5qq/yQ29SCN5ugrE1no5SRDadLtP6ex2cIWZSyvHK2e4jkstBXtVBb/7DSScCOpqleWvkf82wK19s5v+sgqSMIM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789492132; c=relaxed/simple;
+	bh=blp040WEZ/pWVvS5aj0TSRQkQsEVtwydCA6C7Dn8Ilw=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=qIiIbY5hzWSo8bnfrTbbSKkEeS0SF2vl/2+VOLw1VAuVdpnuek/K+gdtTrhI3tYeunpg3w/1enh4+nkat0PIxsajCscX715BiasFG1MUA3OpmEC3mesokZiplrtpcZhaFybNYqjMti9IZVF3XnGbd0bF85/FAkDOqFDBQTNKseA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kHgMx23+; arc=pass smtp.client-ip=74.125.225.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cpAyGLEL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9355B1F000FF;
-	Tue, 15 Sep 2026 17:07:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789492045;
-	bh=Ja7OExic+iW00cYL1OWcB5GajzhdemBcLKOTafgkFhs=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=cpAyGLELXiWqPqa9NcLjibtHCWEYmy1DMBt+LqtkU9UtG2MdpwKtkCIixoXCJF95i
-	 dMD4+Qw1jtobh0+pzjOb75tt5Kfwe0H3lV/ODd7LLXg+3VprtvBtfrb6spU/lDJC53
-	 9wCYYcRhCD5xR7GkjkrMQr2Rc2vHAFjDNlH267Jph/KpIoX06eT8noKQ5NlB7UhoEi
-	 dL6BUwy7eYfcrDoaFYVkp+RGPrtxJiuVKB6C7+oVTtqbCKkl0OLS2HHhl29jq2oZFp
-	 M5FV02+swk5i+wzqu32lj2J2q/RE8ty5cP938l7Ggeb/NY0qWwOdeDzbjLJh6aolrl
-	 s2qGHiSuaLuxA==
-Message-ID: <da881fb0-93da-4d75-88da-8898b2c734eb@kernel.org>
-Date: Tue, 15 Sep 2026 19:07:18 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kHgMx23+"
+Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843c2790ccso2102338f8f.1
+        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 10:08:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789492128; cv=none;
+        d=google.com; s=arc-20260327;
+        b=TtQ22fA0Yg5gHlssxYprMU2E+P0CpqxWV6rSS0sfZov9WaiNH5vQrqkmI/8IKg61Ec
+         +Tm1bxs7vWqRzVKb1ZZwzZMsZJe0xcNu2JJwKnLhRnkqcHURyVEGS6b6PWP1ze6C4r7g
+         B5Rk87WRipQSx0D03u0vDGeJzOwuUW/QLAlcLoJ6dWPlszzO3jmbtJVtQRCljTkHOFZP
+         C3OmVKaGks0+fRwxogxKV4kHXS3F9OWRc+MLlKWvh6edDQ/7NIuzp/+aVfpGO23VQn1S
+         NxspxFS1tUFD2PWn/TcpcpX055xzjMah6Y04ZW3BLWah+OxR9tIa/ltERui4E/LFiKlb
+         aWCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=qHH+3yvmffeS6h9m+Lk5rgUSw3v77W44xk7wtMZuSf0=;
+        fh=I5N2KTxEDKp55vczuccNG01QAsM1HI1uo2asqMFrn90=;
+        b=RpC5qz+L8Cv7RvThGOMd43ZqOEjwBNCZ+/KKDOPxW0QVBnH1UB74pDFkW0DWavYsnG
+         GSeu520Jet21y1QsjAlQ/AqI7/8q2BaNi+wHj0lmVMTGtvowHdgRmqxG5zR3gusiKXp1
+         0XkordcNU6mBrc8WQ8LE3KktS1OGThh3dMVOgXNDn4HtWdSqCNrcKKwq77ZdPOl7IHjx
+         VC4mucjr1KZ9Wn5QkAxDB7SplzR3N8uuvIcwLr0G87RnwktDfGqam3gboRGCo0y0qI2T
+         5Im4GXMLicwib4VLifUl5yRpL2rAY8iCYH4BCYj62+lCa176lnjJZYCCfyCSXg5cXyXc
+         4Qrg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789492128; x=1790096928; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qHH+3yvmffeS6h9m+Lk5rgUSw3v77W44xk7wtMZuSf0=;
+        b=kHgMx23+2+Fe/aLw0Jlb6qSQsBLM9c8T8W9DQW5fe4miedGTTqu3/ayyT9VjvXfyp3
+         OEmUdImeZoQvQAHs52l5qs15/4uPToI8Bh4j12sr2qpYivnPUB8O4in9ExdWjcOTI2CW
+         ZAerKwY7aIhzYNER+PJQqKS8PzhpXJXU7M5LEWQi005RdSjm+DFF+zmyHCA8fUJrIOqI
+         FuEKh3uoJ7phBkWXX9teHTGaVHSprToTt3Cwmgon7IFlhaH2kS4B6ncFojvtL9mBKnQM
+         k9TEJVDB5zIv5AueOyWbM7zFZ6fNPcX8KABQYK/1qSwY4ppYQjawABW63BC9lwo0nef4
+         oBzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789492128; x=1790096928;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=qHH+3yvmffeS6h9m+Lk5rgUSw3v77W44xk7wtMZuSf0=;
+        b=bkgNWb1J9dWEflLQOYc2mX5xhTGRzjzt4IDDQWDyuK4vhP5jE0FicwGjMzxBZRcHRy
+         zUJ2FZZMfSelBWJS9dd7FkDZKMzoUfe4jSlB1enMBvPXkDttda8CIRNHJ20kd1anrp7M
+         ZJmWNmAipr30Bcc/YgpQyNuIsNa+flDxFoQm62MuwWOH+NwfHd+le7x/s7qZl4y5rGzl
+         HMuHjyQmXcqKNgGdm+SQpv8Rz4CzbypNBmVr7bSMhaCJksNAE7K2G17d3oTqs2Sv3AME
+         HOMPFdgEnKLB8zA5sYB95m+2rMpOe++JvnnKMqEQ/anrL1DVxuS9CZJpXCrPPOpGwP86
+         SARw==
+X-Gm-Message-State: AFuF++ldxRh0cG9Z0vaBsSbiTGBWc1uoWeEKGzsst30Do0Ii6jGU7G1b
+	yYaUjDNIIq1sD+PpvRlMuW4bB+tb5i6W1KDJ+HfLiO22y62fpyYwuXxsvOMlo6oFZ349I6QO/sY
+	zdqYaikqAgw5rFhaXttL2VsnYXkWLMFRwxQ==
+X-Gm-Gg: AYBFou0fCx0zWsmEnCjEwawqjlI9jyptGUm8CaLTo0Qo+94pSVk9ptqKv95XVrCPsh1
+	Gh0JBBPHjISZK1zR6NiOjldvLWraoBUmqOBfGBK8hUDVt48V+7byDxIA9y1iBIfecy/hG7UgUK/
+	FD+YgSs4Tdpy0pJlai9qKtmzv2RPlIP/23wJwdh1gF5h5+x5gTrpBvPXDPBEun2/+Ch1/RMGDK5
+	MPWLFv4dHN8AuetJMtoNbqrlp7pwztV/glGw3AvtXqpztFrxtyoTgNUr3n4aJsSdyzKFZjxcbrQ
+	kuXLryX0gYkqwsj6PwlFdiPobSHF3SaW5HFpE51goQdT1BbyRXq5kC16tHFSlMgz2w==
+X-Received: by 2002:a05:6000:2403:b0:485:943c:886d with SMTP id
+ ffacd0b85a97d-48702ad29bemr18125376f8f.7.1789492128161; Tue, 15 Sep 2026
+ 10:08:48 -0700 (PDT)
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Tue, 15 Sep 2026 19:08:47 +0200
+Received: from 77377267392 named unknown by gmailapi.google.com with HTTPREST;
+ Tue, 15 Sep 2026 19:08:47 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] dt-bindings: input: gpio-keys: add pinctrl states
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Kendall Willis <k-willis@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
- <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, msp@baylibre.com, s-kochidanadu@ti.com,
- a-kaur@ti.com, s-tripathi1@ti.com, vishalm@ti.com,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- devicetree@vger.kernel.org
-References: <20260912-upstream-gpio-wakeup-v1-0-f0e12484b836@ti.com>
- <20260912-upstream-gpio-wakeup-v1-1-f0e12484b836@ti.com>
- <20260914-unbreakable-competent-beluga-efb5ad@quoll>
- <20260915164819.nlgpuvf37rhzgc66@uda0506412>
- <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Andreas Kotiagin <kotiagin.andreas@gmail.com>
+Date: Tue, 15 Sep 2026 19:08:47 +0200
+X-Gm-Features: AcwNN1XlEL0aKX4N7upLqLjN1uGgasnSpH_DEZF_fpHY7mZrUbHZFuWq_od0koY
+Message-ID: <CAAC3AxYXbXidvKQo-QudT9AMQK0+hLStE9djqr_5YwAki9K-Pw@mail.gmail.com>
+Subject: [RFC] HID: battery support design for Fractal Scape USB dongle (36bc:0001)
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On 15/09/2026 19:05, Krzysztof Kozlowski wrote:
-> On 15/09/2026 18:48, Kendall Willis wrote:
->> On 12:13-20260914, Krzysztof Kozlowski wrote:
->>> On Sat, Sep 12, 2026 at 04:33:53PM -0500, Kendall Willis wrote:
->>>> Document pinctrl properties on the gpio-keys device node. By using the
->>>> wakeup pinctrl state, the pins are able to wakeup the system from a
->>>> low-power state. The default pinctrl state describes the default pin
->>>> configuration.
->>>>
->>>> Signed-off-by: Kendall Willis <k-willis@ti.com>
->>>> ---
->>>>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 16 ++++++++++++++++
->>>>  1 file changed, 16 insertions(+)
->>>>
->>>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>>> index cc78c2152921308fe0cad3e29ca78a5fad08f066..b554933e93412d8b6c2ec401dc1e1eeff57d4190 100644
->>>> --- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>>> @@ -22,6 +22,22 @@ properties:
->>>>  
->>>>    poll-interval: true
->>>>  
->>>> +  pinctrl-0:
->>>> +    description: Default pinctrl state
->>>> +
->>>> +  pinctrl-1:
->>>> +    description: Wakeup pinctrl state
->>>> +
->>>> +  pinctrl-names:
->>>> +    description:
->>>> +      When present should contain at least "default" describing the default pin
->>>> +      states. The second state called "wakeup" describes the pins in their
->>>> +      wakeup configuration required to exit sleep states.
->>>> +    minItems: 1
->>>> +    items:
->>>> +      - const: default
->>>> +      - const: wakeup
->>>
->>> This will introduce new warnings, which should be being fixed in this
->>> patchset (e.g. at91-kizbox3-hs.dts).
->>>
->>
->> Will fix the binding to work with current device trees.
->>
->>> But nevertheless, isn't second state the sleep state? How can you
->>> configure pins for the wakeup state - like being in the wakeup? You
->>> configure the pins for given state, which will be a system suspend, so
->>> sleep?
->>>
->>
->> The sleep state usually refers to putting the pins in a state to save
->> power. The wakeup pinctrl state is for putting the pins in a state to
->> allow wakeup from suspend for that device. Both 'sleep' and 'wakeup'
->> are for system suspend, but they fill different functions. The CAN
->> subsystem also uses the 'wakeup' state in addition to the 'sleep' state
->> [1].
-> 
-> So you mean sleep would be a separate state? But then aren't both
-> exactly the same states? IOW, if device is wakeup-source, it will have
-> for "sleep" state pin configuration allowing to wakeup.
+Hello,
 
-And about CAN, I see no use of both sleep and wakeup:
-git grep pinctrl-names | grep wakeup
+I am investigating battery reporting for the Fractal Scape wireless headset
+through its USB dongle, with the intention of exposing a peripheral battery
+through power_supply. Before building a substantial driver, I would appreciate
+feedback on the integration and coexistence approach below.
 
-So if you use existing code as reason for this change, then existing
-code tells they are the same.
+Descriptor observations from an attached 36bc:0001 dongle (bcdDevice 3.21):
 
-Best regards,
-Krzysztof
+- Interfaces 0-2 are USB audio. Interface 3 is the only HID interface.
+- That HID interface contains consumer controls, telephony, and vendor
+  collections. The final collection is usage page 0xff00, usage 1, with
+  report ID 2 and 63 payload bytes for both input and output.
+- It has an interrupt IN endpoint 0x84, max packet 64, and no interrupt OUT
+  endpoint. The complete HID report descriptor is 177 bytes.
+- There is no advertised standard battery usage. The whole HID interface
+  currently binds to hid-generic.
+
+Source inspection of ScapeCtl at commit
+b5ec62ccbbb090dec24c614c5580fd1b2bf6fdbb indicates a status output request
+consisting of report ID 02 followed by f1 21 and 61 zero bytes. Its parser
+uses payload byte 14 for percentage and payload byte 18 == 1 for connection
+(raw report offsets 15 and 19, respectively). Replies echo f1 21. It uses a
+500 ms response deadline, a default 1.5 second polling interval, and also
+sends a separate keepalive. Its README reports unsolicited 11 21 messages
+but warns that their presence byte is unreliable.
+
+These response semantics are source-derived, not yet confirmed on the attached
+headset. Captures across power-off, range loss, docking and cable charging,
+comparison with Fractal Adjust, and the need for keepalive at slower polling
+rates are still pending. No charging field has been established. ScapeCtl's
+root license is GPLv3; the planned kernel implementation will be independently
+written from protocol facts and hardware measurements, without copying or
+translating its code.
+
+Proposed design:
+
+- A small dedicated hid-scape driver matching only USB 36bc:0001, interface 3,
+  with input/output report-size and vendor-usage checks. No hub or unverified
+  wired-headset IDs.
+- Normal hid_parse / hid_hw_start(HID_CONNECT_DEFAULT) / hid_hw_open, with
+  raw_event returning 0 so media controls and hidraw continue to receive
+  reports. Audio interfaces remain with snd-usb-audio.
+- Cached power_supply data parented to the HID device, SCOPE_DEVICE,
+  CAPACITY 0-100 after validated input, STATUS_UNKNOWN until charging is
+  established, and no invented voltage, current or energy properties.
+  Connection and stale-data semantics must be settled by measurements;
+  a timeout must not be exposed as zero percent.
+- Initial 60 second polling from scheduled work using an output SET_REPORT,
+  with a bounded response deadline, conservative backoff, and synchronous
+  work cancellation on removal/suspend. No USB I/O in property callbacks.
+- A way to pause polling and drain outstanding driver requests before
+  Adjust/ScapeCtl configuration sessions. There is no known transaction ID;
+  separate hidraw readers and ScapeCtl's process-local mutex do not establish
+  safe simultaneous device access. Passive reception can still cache valid
+  status while preserving all incoming reports.
+
+The v6.18 SteelSeries headset driver is a useful integration reference, but
+the opaque vendor protocol appears to need more than a generic HID battery
+quirk. Does a dedicated HID driver fit here? Is there an existing preferred
+mechanism for coordinating such polling with hidraw configuration clients,
+or a recommended precedent for a per-device polling pause control?
+
+I will provide raw captures, lifecycle/coexistence results and a tested patch
+once those outstanding hardware questions are resolved. This is a design
+inquiry, not a request to merge unverified protocol support.
+
+ScapeCtl source inspected:
+https://github.com/charlietran/scapectl/tree/b5ec62ccbbb090dec24c614c5580fd1b2bf6fdbb
+
+Thanks,
+Andreas Kotiagin

@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57B7E415F1D;
-	Tue, 15 Sep 2026 17:05:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 276623D6CB6;
+	Tue, 15 Sep 2026 17:07:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789491947; cv=none; b=qahReH+xR5xcdOXFbR7KzW7WqqEgD+hoTTgv4oxHYdFaQ3IVfIxTo8CQkamMY90Ta8GmZADVsrGTnKVgzXrTeW21CGocPqeK1Xp/JqWJPYCC5sqjkmQ5EIV0VE4j9yU6JU7YAnbKbf8CnzO5A3xuUJITLtkVcxcMNOdzhsHxuaI=
+	t=1789492047; cv=none; b=mhh+6wRRgMnPMNviZmYGUowvfX28lFj+rARv/SP9Q2SpsQ3hPQLMTSV8ybcG+A86bQPfHTEIkRQVJAGC8fk454R9AHOELacaLRFds1t494q39EyOxXr4eJtw+PfYuJ3qt7bcpSH8YPAu5QWsHgw8KsUm2CNHPXNfIaZYQQtGbU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789491947; c=relaxed/simple;
-	bh=Zx83wo6QJQIxKx90gBepVfzlPmvihSB9ExdjybAx41s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ofP1gf0FxLPWKw7cGjsRj9dPP7F15pzqx9CGBpGeumvpPmG2eHKF64Xd1eCez237+gkED8pgTWYDtYrAmnYFTxc8MgPOaOBvyumP7NQAzMXtppwJqc8U5pnANwMho437Iaphhitk1Ovae0WsUv005Wt0va510srlQaF1SIt4LwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jwS/EXu3; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789492047; c=relaxed/simple;
+	bh=z/8Aa8bTI5T67F7VSf6+BDcdxIZ8knhH+S4xDAjmn4I=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=TDmLZB0qoJ8f5d8kDRbIon7TnZhtgf3HB/cFML00oeSDPK+GB5fuQJWuFQj7UNk1Q87xPfnKJWmi7PKrlmgo9TG9CmJD6Qll/Iqob8XwPHkBKQJl9KHmejPLi77oFkg1oxCdO1kMBVa6T7VLbCEXNVInfflsv/rXrFVPG1IhtGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cpAyGLEL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jwS/EXu3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40A811F000FF;
-	Tue, 15 Sep 2026 17:05:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cpAyGLEL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9355B1F000FF;
+	Tue, 15 Sep 2026 17:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789491946;
-	bh=kWMuwM74nE69/ubaOSzHo4L7ka8vFyWxM+nUzRNSh+8=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=jwS/EXu3QS/S3gwrUjNQnllD5Il+icd1yu6yGSj1V8lxEO/hrCzbPyVzLas7IwXNx
-	 4QxA2ebitlZktu+eSQ+qtkua5eaCtT9l2/9qQeDGV7BiRR3bpXT0GX0iiZ/u9XHwEZ
-	 MugZVE+XWh5FV90RJuAPp9m0m2uJB+qUj2smnq4y2h8VNoyIDkHg5RRaopOBRM50EM
-	 VuXj5uBHDUIiC1QCgkdwdw3ok8HcKOr7NwzEB/jLxwV0k25Gjwo1eTgTQk/Jx87j3l
-	 bPb0oMuBh74nsCXdgQA5e9Vu7hPFiE/tYlRN0r0Q0JRy82qGsRB8H7cO1O1g8e/S/A
-	 m8Cz1EDZw8lZA==
-Message-ID: <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
-Date: Tue, 15 Sep 2026 19:05:38 +0200
+	s=k20260515; t=1789492045;
+	bh=Ja7OExic+iW00cYL1OWcB5GajzhdemBcLKOTafgkFhs=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To;
+	b=cpAyGLELXiWqPqa9NcLjibtHCWEYmy1DMBt+LqtkU9UtG2MdpwKtkCIixoXCJF95i
+	 dMD4+Qw1jtobh0+pzjOb75tt5Kfwe0H3lV/ODd7LLXg+3VprtvBtfrb6spU/lDJC53
+	 9wCYYcRhCD5xR7GkjkrMQr2Rc2vHAFjDNlH267Jph/KpIoX06eT8noKQ5NlB7UhoEi
+	 dL6BUwy7eYfcrDoaFYVkp+RGPrtxJiuVKB6C7+oVTtqbCKkl0OLS2HHhl29jq2oZFp
+	 M5FV02+swk5i+wzqu32lj2J2q/RE8ty5cP938l7Ggeb/NY0qWwOdeDzbjLJh6aolrl
+	 s2qGHiSuaLuxA==
+Message-ID: <da881fb0-93da-4d75-88da-8898b2c734eb@kernel.org>
+Date: Tue, 15 Sep 2026 19:07:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -36,6 +36,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 1/2] dt-bindings: input: gpio-keys: add pinctrl states
+From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Kendall Willis <k-willis@ti.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
  <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -47,7 +48,7 @@ References: <20260912-upstream-gpio-wakeup-v1-0-f0e12484b836@ti.com>
  <20260912-upstream-gpio-wakeup-v1-1-f0e12484b836@ti.com>
  <20260914-unbreakable-competent-beluga-efb5ad@quoll>
  <20260915164819.nlgpuvf37rhzgc66@uda0506412>
-From: Krzysztof Kozlowski <krzk@kernel.org>
+ <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
  xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
@@ -92,69 +93,76 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <20260915164819.nlgpuvf37rhzgc66@uda0506412>
+In-Reply-To: <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 15/09/2026 18:48, Kendall Willis wrote:
-> On 12:13-20260914, Krzysztof Kozlowski wrote:
->> On Sat, Sep 12, 2026 at 04:33:53PM -0500, Kendall Willis wrote:
->>> Document pinctrl properties on the gpio-keys device node. By using the
->>> wakeup pinctrl state, the pins are able to wakeup the system from a
->>> low-power state. The default pinctrl state describes the default pin
->>> configuration.
+On 15/09/2026 19:05, Krzysztof Kozlowski wrote:
+> On 15/09/2026 18:48, Kendall Willis wrote:
+>> On 12:13-20260914, Krzysztof Kozlowski wrote:
+>>> On Sat, Sep 12, 2026 at 04:33:53PM -0500, Kendall Willis wrote:
+>>>> Document pinctrl properties on the gpio-keys device node. By using the
+>>>> wakeup pinctrl state, the pins are able to wakeup the system from a
+>>>> low-power state. The default pinctrl state describes the default pin
+>>>> configuration.
+>>>>
+>>>> Signed-off-by: Kendall Willis <k-willis@ti.com>
+>>>> ---
+>>>>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 16 ++++++++++++++++
+>>>>  1 file changed, 16 insertions(+)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>>>> index cc78c2152921308fe0cad3e29ca78a5fad08f066..b554933e93412d8b6c2ec401dc1e1eeff57d4190 100644
+>>>> --- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>>>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>>>> @@ -22,6 +22,22 @@ properties:
+>>>>  
+>>>>    poll-interval: true
+>>>>  
+>>>> +  pinctrl-0:
+>>>> +    description: Default pinctrl state
+>>>> +
+>>>> +  pinctrl-1:
+>>>> +    description: Wakeup pinctrl state
+>>>> +
+>>>> +  pinctrl-names:
+>>>> +    description:
+>>>> +      When present should contain at least "default" describing the default pin
+>>>> +      states. The second state called "wakeup" describes the pins in their
+>>>> +      wakeup configuration required to exit sleep states.
+>>>> +    minItems: 1
+>>>> +    items:
+>>>> +      - const: default
+>>>> +      - const: wakeup
 >>>
->>> Signed-off-by: Kendall Willis <k-willis@ti.com>
->>> ---
->>>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 16 ++++++++++++++++
->>>  1 file changed, 16 insertions(+)
+>>> This will introduce new warnings, which should be being fixed in this
+>>> patchset (e.g. at91-kizbox3-hs.dts).
 >>>
->>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>> index cc78c2152921308fe0cad3e29ca78a5fad08f066..b554933e93412d8b6c2ec401dc1e1eeff57d4190 100644
->>> --- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>> @@ -22,6 +22,22 @@ properties:
->>>  
->>>    poll-interval: true
->>>  
->>> +  pinctrl-0:
->>> +    description: Default pinctrl state
->>> +
->>> +  pinctrl-1:
->>> +    description: Wakeup pinctrl state
->>> +
->>> +  pinctrl-names:
->>> +    description:
->>> +      When present should contain at least "default" describing the default pin
->>> +      states. The second state called "wakeup" describes the pins in their
->>> +      wakeup configuration required to exit sleep states.
->>> +    minItems: 1
->>> +    items:
->>> +      - const: default
->>> +      - const: wakeup
 >>
->> This will introduce new warnings, which should be being fixed in this
->> patchset (e.g. at91-kizbox3-hs.dts).
+>> Will fix the binding to work with current device trees.
 >>
-> 
-> Will fix the binding to work with current device trees.
-> 
->> But nevertheless, isn't second state the sleep state? How can you
->> configure pins for the wakeup state - like being in the wakeup? You
->> configure the pins for given state, which will be a system suspend, so
->> sleep?
+>>> But nevertheless, isn't second state the sleep state? How can you
+>>> configure pins for the wakeup state - like being in the wakeup? You
+>>> configure the pins for given state, which will be a system suspend, so
+>>> sleep?
+>>>
 >>
+>> The sleep state usually refers to putting the pins in a state to save
+>> power. The wakeup pinctrl state is for putting the pins in a state to
+>> allow wakeup from suspend for that device. Both 'sleep' and 'wakeup'
+>> are for system suspend, but they fill different functions. The CAN
+>> subsystem also uses the 'wakeup' state in addition to the 'sleep' state
+>> [1].
 > 
-> The sleep state usually refers to putting the pins in a state to save
-> power. The wakeup pinctrl state is for putting the pins in a state to
-> allow wakeup from suspend for that device. Both 'sleep' and 'wakeup'
-> are for system suspend, but they fill different functions. The CAN
-> subsystem also uses the 'wakeup' state in addition to the 'sleep' state
-> [1].
+> So you mean sleep would be a separate state? But then aren't both
+> exactly the same states? IOW, if device is wakeup-source, it will have
+> for "sleep" state pin configuration allowing to wakeup.
 
-So you mean sleep would be a separate state? But then aren't both
-exactly the same states? IOW, if device is wakeup-source, it will have
-for "sleep" state pin configuration allowing to wakeup.
+And about CAN, I see no use of both sleep and wakeup:
+git grep pinctrl-names | grep wakeup
+
+So if you use existing code as reason for this change, then existing
+code tells they are the same.
 
 Best regards,
 Krzysztof

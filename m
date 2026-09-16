@@ -1,181 +1,109 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F503546D6;
-	Wed, 16 Sep 2026 14:49:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7550B377EAC
+	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 15:00:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789570168; cv=none; b=cpoKGcGwZfZ6BEgTQkZYTpfaHXjlXn9i61whVdiPfG0UVZbbXzRDuNgaAdESWMK9OcL8kYanFJW2vo0D+9jFfbGOW7WfQo+JWpAu+xFOVUGsQzfoSuGS2u4UGCBIUVqaKNgYsFXZgILAmp4lE/DOHqe72lAGEmpWa08oUfTDKd0=
+	t=1789570814; cv=none; b=e+1+jla3QnI61I5i07sFzamDH9a6x8BDFgb1CGvje33ee0ZTgRsvPUv484NfWiF51C7qQ3K7t/DyvNDFtQUzj4nc4nxapoSvToCL9KXqUwwpkNoQh+Xda+EKotzmOQEA8wCdv6ZeeJmBNRKJq50f9mn8AzbqaksSA1ERt24YNAU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789570168; c=relaxed/simple;
-	bh=kKf8q40ivlUve7sk8VUJ8prieyyC82f9wIB0uY5g3v4=;
+	s=arc-20240116; t=1789570814; c=relaxed/simple;
+	bh=5KWDx9KYbC9/66DLpkUWKLxU9ZHHf0mx4mEd0OUhrgo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ahTlH5x0ly1Gr8go4lIR1KA0AtMpdbzwgysku4GhB7FjLQ5MOwMtf46Wngv8HIkF4hBdc+iglgwOL6TEjEb3hbJzeiqfyJrdX4PWwuQtjN/dL+3s6hj6tAnSgp2y8D8kFVGB7SNntn3V6s/6c0NQYA51A2RXB7l2Ra+zg9TJrtw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n3J6kFAc; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=XL4q66zy0Tl+Wkqss2xrvP54d45vZtPyJbAqHr3qv8zSpG50LQPUlEwXpP6SIhdRZzY1dvlPmAHYE54p3Gs1n+rGks/m2zCp/AmuSjftULxLx1NRlRofw6Pc69MZAmzkAypfnMVtjgMB1rXW7Nyj9pmS/TBxsj4E9PrnJmBFfx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F4LDG4Yl; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n3J6kFAc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E67BA1F00898;
-	Wed, 16 Sep 2026 14:49:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F4LDG4Yl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE1EA1F00893;
+	Wed, 16 Sep 2026 15:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789570166;
-	bh=uihw067Bjjkxp+tfN4OE3iIGmuUHKnGVX8YN0FWRMbo=;
+	s=k20260515; t=1789570813;
+	bh=nA/1kPQk850gD0boPxzvVBYWFATB9YwHZFqtS8hy0oQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=n3J6kFAcDjpT+D2Od4dyZNn95WhwUA7DSNsPtz6Zt64NhkXMUeEUSD4ZXdHpP/SFh
-	 Lr0NXeiTKM0BYpSVcvB7sUjdv/mc4gV8cJv2jgP1FjNnljpEKjiEwVReomTYyv9hAj
-	 xq3uFLSo4HuFWmc9pCwHBqHFLjjviBcIrJJdJq2hjrz0UtHc59whjOjdh2jx0h16bF
-	 +UtC+sdPFXMxYNp7FDotv9XLtovltrwxKNdnjeP7no0QPomTmJx4dyG0K8lfmbrZZg
-	 Hd9c5gxr9rIn0gJxHXLo4H/arO7jRCzkQxvjxGTME3lyuN3i40anjKbzdV++n7dDwE
-	 7Z9XdrRT2emSg==
+	b=F4LDG4YlPD+CeWFUCfQUGR0WzCpRBHXc1USQ627kwxYZlAS759hz+UrkDzh52pHvY
+	 nPfduLmS5ybqU8sRovxpQ3Hx1w1x1UlHrjDp7yfuuBgcOkkK29Q2+wRhFzWm8c7XZg
+	 YvSK23GrOq7MKViMjRPMYFKqRLIhBuvM2hUAmaEgR2Rd5tHi5+6dHwA5te5U5EA8wy
+	 VVVVaorDVnNg4WV/bchZV00omATXaRmYnO+r06PMe/XgjU0JYEt7dQ8kUBPvDnV3Z7
+	 LVnsEIS3rHV7j2XaevzRhp5XK0R9pLtbDB81ahcJtHRUr8gKGHT8ius/gc076l5MrF
+	 tU/zymxn4TLuQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 17/19] arm64: dts: qcom: Add initial support for
- MSM8952
+Subject: Re: [PATCH v6 3/3] HID: lamparray: blank lamps across suspend and
+ restore on resume
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: robh@kernel.org, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, conor+dt@kernel.org, mfd@lists.linux.dev, lee@kernel.org, dmitry.torokhov@gmail.com, linux-clk@vger.kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260916-msm8952-initial-support-v2-17-798c2602dde1@mainlining.org>
-References: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
- <20260916-msm8952-initial-support-v2-17-798c2602dde1@mainlining.org>
+To: "Aaron Erhardt" <aer@tuxedocomputers.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260916144838.456239-4-aer@tuxedocomputers.com>
+References: <20260916144838.456239-1-aer@tuxedocomputers.com>
+ <20260916144838.456239-4-aer@tuxedocomputers.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 14:49:25 +0000
-Message-Id: <20260916144925.E67BA1F00898@smtp.kernel.org>
+Date: Wed, 16 Sep 2026 15:00:12 +0000
+Message-Id: <20260916150012.EE1EA1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] dt-bindings: msm8952: truncated GIC memory map breaks virtualizati=
-on and GICC_DIR
-- [High] dt-bindings: msm8952: cpu cooling maps bound to hot trips bypass t=
-hrottling
+- [Medium] hid: lamparray: blink timer overwrites blanked state during susp=
+end
 --
 
-commit 73b8bd2eec3d6e15eddbef720325773b07756c99
-Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
+commit 0480546fa780aefd04da86e31cbb23c2cb7e6a3d
+Author: Cristian Mazzotta <cmmazzo@icloud.com>
 
-arm64: dts: qcom: Add initial support for MSM8952
+HID: lamparray: blank lamps across suspend and restore on resume
 
-This commit adds initial support for the MSM8952 SoC. It introduces the
-device tree source file covering core components like CPUs, RPM, MDSS,
-USB, pinctrl, and basic thermal zones.
+This commit adds power management callbacks to blank lamparray devices
+during system suspend by writing zeroes to the color channels. It also
+introduces a resume function to explicitly transition the device out of
+autonomous mode and restore its cached color state.
 
-Link: https://github.com/Asderdd/android_kernel_generalmobile_shamrock/blob=
-/cm-14.1/arch/arm/boot/dts/qcom/msm8952.dtsi
-Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
-ear-7.0.0_r0.3/arch/arm/boot/dts/qcom/msm8952.dtsi
-Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
-ear-7.0.0_r0.3/drivers/thermal/msm-tsens.c#1621
-
-> diff --git a/arch/arm64/boot/dts/qcom/msm8952.dtsi b/arch/arm64/boot/dts/=
-qcom/msm8952.dtsi
-> new file mode 100644
-> index 0000000000000..a73032f75a8b7
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/msm8952.dtsi
-[ ... ]
-> +		intc: interrupt-controller@b000000 {
-> +			compatible =3D "qcom,msm-qgic2";
-> +			interrupt-controller;
-> +			#interrupt-cells =3D <3>;
-> +			reg =3D <0x0b000000 0x1000>,
-> +			      <0x0b002000 0x1000>;
-> +		};
-
-[Severity: High]
-Does this node omit the GICH and GICV mappings along with the maintenance
-interrupt?=20
-
-Additionally, the CPU interface size at 0x0b002000 appears to be truncated =
-to
-0x1000 instead of 0x2000. Mapping only 0x1000 bytes for the CPU interface
-prevents access to the GICC_DIR register, which breaks interrupt deactivati=
-on
-if the kernel uses EOI mode 1.=20
-
-Without the 0x2000-sized CPU interface mapping and the missing GICH/GICV
-regions and maintenance interrupt, KVM initialization will fail and guest V=
-Ms
-cannot run.
+> diff --git a/drivers/hid/hid-lamparray.c b/drivers/hid/hid-lamparray.c
+> index acc00950495bf..c7d4d3d1b02d3 100644
+> --- a/drivers/hid/hid-lamparray.c
+> +++ b/drivers/hid/hid-lamparray.c
 
 [ ... ]
-> +		cpu4-thermal {
-> +			polling-delay-passive =3D <250>;
-> +
-> +			thermal-sensors =3D <&tsens 5>;
-> +
-> +			cooling-maps {
-> +				map0 {
-> +					trip =3D <&cpu4_alert1>;
-> +					cooling-device =3D <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-> +				};
-> +			};
-> +
-> +			trips {
-> +				cpu4_alert0: trip-point0 {
-> +					temperature =3D <75000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "passive";
-> +				};
-> +
-> +				cpu4_alert1: trip-point1 {
-> +					temperature =3D <85000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "hot";
-> +				};
 
-[Severity: High]
-Are these cooling maps binding to the correct trip points?=20
-
-The cooling device is bound to cpu4_alert1, which is a hot trip point. The
-kernel thermal governors (like step_wise or power_allocator) explicitly ign=
-ore
-THERMAL_TRIP_HOT trips for cooling device actuation. Cooling maps must be
-bound to passive or active trips to invoke throttling.=20
-
-By binding to a hot trip instead of the alert0 passive trip, the CPUs will
-never be thermally throttled, allowing the system to overheat until it hits
-the critical trip and forcefully shuts down.
-
-[ ... ]
-> +		cpu0-3-thermal {
-> +			polling-delay-passive =3D <250>;
+> +void lamparray_suspend(struct lamparray *la)
+> +{
+> +	struct lamparray_device *ldev;
 > +
-> +			thermal-sensors =3D <&tsens 9>;
+> +	if (!la)
+> +		return;
 > +
-> +			cooling-maps {
-> +				map0 {
-> +					trip =3D <&cpu0_alert1>;
-> +					cooling-device =3D <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
-> +							 <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
-> +							 <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
-> +							 <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-> +				};
-> +			};
+> +	ldev =3D &la->ldev;
 > +
-> +			trips {
-> +				cpu0_alert0: trip-point0 {
-> +					temperature =3D <75000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "passive";
-> +				};
+> +	if (!ldev->use_leds_uapi)
+> +		return;
 > +
-> +				cpu0_alert1: trip-point1 {
-> +					temperature =3D <85000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "hot";
-> +				};
+> +	mutex_lock(&ldev->dev_lock);
+> +	lamparray_hw_set_state(ldev, 0, 0, 0, 0);
+> +	mutex_unlock(&ldev->dev_lock);
 
-[Severity: High]
-Does this face the same throttling issue as cpu4-thermal?=20
+[Severity: Medium]
+Will active LED software blink timers continue to fire during system
+suspend and overwrite this blanked state?
 
-Binding the cpu0-3 cluster to the cpu0_alert1 hot trip point will also bypa=
-ss
-thermal throttling for these CPUs, resulting in unmanaged heating until a
-critical thermal shutdown is triggered.
+If a userspace application or trigger enables software blinking on the
+lamparray LED classdev before system suspend (e.g. s2idle), the timer
+can continue to queue work to leds_wq. This will call
+lamparray_hw_set_state() and overwrite the blanked (0,0,0,0) state set
+here, causing high power draw and undermining the intent of this function.
+
+Does the lamparray LED classdev initialization need to set the
+LED_CORE_SUSPENDRESUME flag so the LED subsystem correctly applies
+LED_SUSPENDED and prevents timers from queuing new brightness updates
+during suspend?
+
+> +
+> +	hid_hw_wait(ldev->hdev);
+> +}
+> +EXPORT_SYMBOL_GPL(lamparray_suspend);
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-msm8952-in=
-itial-support-v2-0-798c2602dde1@mainlining.org?part=3D17
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916144838.4562=
+39-1-aer@tuxedocomputers.com?part=3D3

@@ -1,140 +1,94 @@
-Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 736AA517BC3
-	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 16:17:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF98C51122B
+	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 16:49:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789575467; cv=none; b=BJvWZxRYzmILz8E/uFMxRxrHXPZRGkNqEP2qvPl4Tq30ae8cxXWhNHRF9Tw/nsLNDOBNgNex3xmLNprGSWEb+v07MxzD6/9pNXwos52C3LrKRJClvKnZ5RiBcCj1gbx7J1CJ6ceDwJaMQSELdfhMliAED6ZbW5xcX3dZkd11cfE=
+	t=1789577401; cv=none; b=QE286YBDY7bGo95hpGlr58ht/4D4KWWkyWo6LQ0m+iEmqvEHOsHEg6eQwuT8COpX6oKfqAA+bZk7lSK033VTQH5Z4yWexVf4GNzLvSvmvM/wr3NWulXyRumpWjD6h59otJrA78M9mCOrrn62IZTTv5FwyLpdeDM8ClhMK4s9Ux8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789575467; c=relaxed/simple;
-	bh=dNHP1gTsQIZoj7AUrk+3cvNZFuIo9EZylbWDUYMpxEk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qxWX3WjhtyhSHgyCgpJQxCpioCAdADDvHLQbTlXPEcDUF5q9JqtsmKeMnCZrgNxbxUVfdz+nEjFDdjW3X7C/ULRLrV3qm/eYSBs0Mq263/KmTcuyrn6G3pJquz3buakE2fLENhNFaAiphEk+//uWm3535LnzKr1pY8O15Jjr3F0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oPLwmdiR; arc=none smtp.client-ip=74.125.228.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789577401; c=relaxed/simple;
+	bh=Ggb+PcHRJDo/Cz5nvBOFJMC2dQF5gLYbmIeM6Iqn8Mw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CREmeJ9GjElIgC+Od+LMRrtRsRQsa+N5N5p2r/gfXVX3BcD6916O6lXBd0GoGZcTtvrof2yIZxF3NrdtnlMFyIyRh5pYF9gFr8sHAMMdNPT9FisZDzotkrfuA/alSOmD8f4schTMpgc5nImoif5xkYcKp06V/RFpGs8Ql5DxA28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cd4r1GHC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oPLwmdiR"
-Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc4cacd3409so1036479a12.2
-        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 09:17:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789575464; x=1790180264; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=fHyHl8JYGeK0KYa1UKcPeUzjQ3WV6y/WuzNvw68/Tik=;
-        b=oPLwmdiRoFINGnyPsdhOTtRjjGUgIlLZfCjuBZfIUKM8b5RtoRteggfcrSyhGE3OrA
-         +moWQ4m/jAIn+poelfpLshgvDl3qQ4v3J1ZRMMp86DfS//sguxfT9twfioNW+u7rDiOk
-         OGcc22X5TxIkLT8FjQDD79hu7TCQb8WAKoVG549CZICNoTcp2lqrzqa6zHvsXhnMfaWc
-         XZyYcSa9QH5y/99rNMM/q4ouYtEP+gXsOZi/2uOV4cqYBnDPGPoR1vsAmuYGn2yWiaTF
-         qtH0WGz48LD/Ikzm+LFE8pQA0Y7FjJZxfRX6gPNCiIFpfI08hL4d/Z2OnXNqqHCDMVLG
-         MBFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789575464; x=1790180264;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=fHyHl8JYGeK0KYa1UKcPeUzjQ3WV6y/WuzNvw68/Tik=;
-        b=wLGq9IQvuj+cRCa9kcDvm+ybQhLoR8I3Zh6es97Z7T7G9y6v3XmbD7LjWwaNSvFg1+
-         gbNukyh1ITtdfPt4GSd6kcmSTIbGp3NlQcvUaIwqSL4yCE8YIJ+7q8CKVWFMFom2poed
-         qVR5oT9SliwiJh4pczSAcbdJS/9X9HT6bA5WRG3oFCIcaeg0UMoA9F18VpJRUwG9RPaW
-         8XTsxi4rG7N4H42Bfo01BGZVMTTXBy5j6qwreVTImcQT6bYjzfbDHL4fgCs8N52wu/yX
-         ufA7t+stkBzgh6azi5O/SsbBVfE901Rc7co0k4eSoHicqCx+l+H3G8Tr/F3UVpU29PmQ
-         V7jA==
-X-Gm-Message-State: AFuF++mGDtDqU5q7ujS0iP0a0MTFursPtaG9HrpV69jOklAQQJ5wrnsT
-	ums4FMFBonnUNj4mzHR57/B8MW0NMq24b+mFjZF7yJZ0lckX3us/rM7R
-X-Gm-Gg: AYBFou33At0dG7VV130K5wPi1PQ1vpbW3RuRYJ7ytdoUsAsfEPToB84ewurNwc/bCuL
-	iRp+tfzFq2BwqDUv8Uz1TcLI4wK/AbtypNOuhdXkj6Wg6yyHXvPsMUx6bPYR48pwNXzXSgn8iBL
-	TncPka9XVP7BsTqN/Io/SMEdpddaW+9FEwNY1B9lqEtvQv1Lz1+92Mh5o35BEnb5mCGA6271nJs
-	d6FPBKMzLOa4m6HtrUXyAW9VPGzUxDgoifJ05oSI1xgiP8HETRk9+JJTem8p05jkLygUAR/0GcY
-	ueU5dMQKo1xXzXilBI+2qPTrF81d+QbLtdzn/PfyyHfaltjYvwADkm7ez1NgdIDdVEqgEttQ9uz
-	uC6bJOg9sTEPAtELzMxLAh4fymo+jGWvRSKUIZvnATPTLiLzDYsb6ynEl1KdFncTKMXoOavJtzg
-	X9/O4plNKEtJdNqa62JBtfUaVR6FAXOwP7EwDAYQ1xs0zv65eqo4j/scyln1bnLk8aXOfDFasPc
-	7HHpBdEOZChCebofwcckx/bIyegHTkksyB+rPR8qk0gAuPg
-X-Received: by 2002:a17:90b:1a88:b0:396:6344:3b63 with SMTP id 98e67ed59e1d1-39e1e27dfe7mr7308938a91.2.1789575464203;
-        Wed, 16 Sep 2026 09:17:44 -0700 (PDT)
-Received: from eggarch ([2409:40c4:18:7581:88e6:16cb:6cd3:1ba1])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e35d9b298sm251787a91.2.2026.09.16.09.17.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Sep 2026 09:17:43 -0700 (PDT)
-Date: Wed, 16 Sep 2026 21:47:37 +0530
-From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-To: Pujito Adnyana <zhee.tou@gmail.com>
-Cc: linux-input@vger.kernel.org, 
-	"dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Internal keyboard dead on ADVAN 1405 (APN21S-140P3-CS): i8042
- controller OK, keyboard device never ACKs
-Message-ID: <aqrA0eEt89mr_ijV@eggarch>
-References: <CAEkMyrhPTh1Ws0Co6zHBq1aMhrhgam4yPBgbXAMPrffyAKpT4Q@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cd4r1GHC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C9191F008A7
+	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 16:49:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789577392;
+	bh=Ggb+PcHRJDo/Cz5nvBOFJMC2dQF5gLYbmIeM6Iqn8Mw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=Cd4r1GHCl9wIrSqnqjtWDezktEP7YxzsTF995HOslNxGGx8emoYeghjU88ngoQ8la
+	 ODIi7iiXnwbLDy8NJzUKHUppA/yjwI8DTg4k6INkkeC/k5tkWXRtz8SF3iCERMkKnq
+	 NJRgf58SYKgDnJEvzG835+jYXRNfIaOA4gUAmk7WEAfG///8y94nPPLFEzOWOxFLJU
+	 P6VzaI7S9n7heLTKA5eMBQiy3AsnTOvEaiacnjt1UmASV9EM88p+9yquXHLKwLs4Po
+	 YqwY6p5IoBFOHSIzZDdhx+dmIDaP6H0oeP3LS1r0cUjRkq4oJLBsys+oQQPvYQSEMw
+	 tNNcU+93CV5UA==
+Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b5e4f16f15so1138912e87.3
+        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 09:49:52 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvByjBZpePewok7S5/of/ya7uS1wP3bjyYGjxiyXkxWDGfZbU+ZK7PXvkmeaq0Z+0XqxjIr0ZepQi27wqlg==@vger.kernel.org
+X-Gm-Message-State: AFuF++kafbx4NG8VN4ucs7BPlbBpu4qJTEnu+V9wM/Ofkj4ms6DQoT/S
+	hMLxOT72CWFh3R3goZDTjaLygWfK+keee+U3LQWO4alPllMiR2B7//cR2SjCnQaIDxoHhNLZhXe
+	ZyELFNhcNM5jzBKdWK/0MCcpmQHX43go=
+X-Received: by 2002:a05:6512:1595:b0:5b6:422:a61c with SMTP id
+ 2adb3069b0e04-5b8b666eb43mr1907989e87.28.1789577390371; Wed, 16 Sep 2026
+ 09:49:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEkMyrhPTh1Ws0Co6zHBq1aMhrhgam4yPBgbXAMPrffyAKpT4Q@mail.gmail.com>
+References: <20260909132153.1596191-1-arnd@kernel.org> <20260909132153.1596191-3-arnd@kernel.org>
+In-Reply-To: <20260909132153.1596191-3-arnd@kernel.org>
+From: Linus Walleij <linusw@kernel.org>
+Date: Wed, 16 Sep 2026 18:49:37 +0200
+X-Gmail-Original-Message-ID: <CAD++jLnHa+1e0N8V0znwzeTZSX1Y5YDAa=cVKSYjeFpZM0o_OQ@mail.gmail.com>
+X-Gm-Features: AcwNN1Whb6PQ06lQN_GxsWNtotsS8LqxjoSrqgaYpOWlLWlGsW2D5EFYiCtujyY
+Message-ID: <CAD++jLnHa+1e0N8V0znwzeTZSX1Y5YDAa=cVKSYjeFpZM0o_OQ@mail.gmail.com>
+Subject: Re: [PATCH 02/14] mfd: remove unused rdc321x southbridge support
+To: Arnd Bergmann <arnd@kernel.org>
+Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
+	Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+	Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Pavel Machek <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
+	Support Opensource <support.opensource@diasemi.com>, Sebastian Reichel <sre@kernel.org>, 
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Helge Deller <deller@gmx.de>, 
+	dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org, 
+	linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com, 
+	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	llvm@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi thanks for the report,
+On Wed, Sep 9, 2026 at 3:22=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wrot=
+e:
 
-On Mon, Sep 14, 2026 at 08:14:24AM +0800, Pujito Adnyana wrote:
-> i8042: [943273] f6 -> i8042 (kbd-data)
-> i8042: [943474] fa <- i8042 (flush, kbd)
-> i8042: [943474] Interrupt 1, without any data
-> 
-> The fa arrived roughly 200 ms after the command was sent — just past
-> the timeout, so the driver had already given up and the byte was
-> discarded during the flush. The accompanying "Interrupt 1, without any
-Yeah that seems like the cause.
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> The rdc321x was a 486-class SoC developed by RDC. While RDC's later
+> products closely resemble the DM&P Vortex86 product line and are still
+> sold under both names, I checked the datasheets for those and found that
+> the GPIO and WDT blocks on them are incompatible with the rtc321x.
+>
+> Remove this driver, as there is no way to run Linux any more on the
+> older chips after i486 support has been removed.
+>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-> Is there a way to make atkbd tolerate an acknowledgement that arrives
-> just past the command timeout, or to retry enabling scanning after the
-> initial probe? If a DMI quirk is the right mechanism here, I am happy
-> to test patches and provide any further data needed.
-We could keep the current 200 ms attempt and if it fails retry a few times.
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-Could you apply the patch below against a mainline tree and test it?
-
-Thanks,
-Lovekesh
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index b9ad2381f885..81df4b7a5685 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -714,12 +714,28 @@ static inline void atkbd_disable(struct atkbd *atkbd)
- static int atkbd_activate(struct atkbd *atkbd)
- {
- 	struct ps2dev *ps2dev = &atkbd->ps2dev;
-+	int error;
- 
- /*
-  * Enable the keyboard to receive keystrokes.
-  */
-+
-+	error = ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE);
-+	if (!error)
-+		return 0;
-+
-+	ps2_begin_command(ps2dev);
-+
-+	for(int i = 0; i < 3; i++) {
-+		error = ps2_sendbyte(ps2dev, ATKBD_CMD_ENABLE & 0xff, 1000);
-+		if (!error) {
-+			break;
-+		}
-+	}
-+	ps2_end_command(ps2dev);
-+
- 
--	if (ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE)) {
-+	if (error) {
- 		dev_err(&ps2dev->serio->dev,
- 			"Failed to enable keyboard on %s\n",
- 			ps2dev->serio->phys);
--- 
-2.55.0
+Yours,
+Linus Walleij

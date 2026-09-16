@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF804511181;
-	Wed, 16 Sep 2026 14:27:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FD805437C5;
+	Wed, 16 Sep 2026 14:27:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789568849; cv=none; b=TWZDq+nfGSillaxvHg2oDrFn7NPMshOVNdiQqtcf8UNzSjF5e0irq5ovgF+iBhILEKd+VrizP3WmT1Lk+8xOSNFtFKOZVB32ovQaFXKsg5SLJe70m1tnBqfyCRUdJbxeTsEE1loapG+Q+P9Le4A6oAng28P9vXykIXi/kRia83c=
+	t=1789568871; cv=none; b=VWtyE2XZcAPGU4X7uAFx54KdKBBnf5v8OqvhekvbFcGjA28El9CTLHMlmWCzYeDHWBawMGFsyJ3Cepxabo9FX3/xDTcgaXHA3CbYER/aMycybJm5ZNhkh8dc856NOnKmNfBcfVBJ6V5xF3S01XVdG/Hrzt0/XokEABlCUu0RQ2A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789568849; c=relaxed/simple;
-	bh=VgWgxD/Ryi0YERIij1GbIYj9gs+Qkza8E2sDyBNSAE0=;
+	s=arc-20240116; t=1789568871; c=relaxed/simple;
+	bh=o9aI7w25aC9N0w0QyhQFz+Ff5xtQGpHAAEAfCW3AYiU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XPFVVQlvv1tnA5NRk1g0o08WO3Lg0rlxv+sGQWPIZUqA3wdfvZkrw07i+60tVue+2KlXZWCKNc3PZIRoLNAEgdERKDzRMqQ4kFiBSzFRAAXRJGFYJjKmjGetVtPkapClneWF1m+llkmbGBOLmC9Se6HWXubKj54BlUGelwPi6R4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VbrRMEXd; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=PpACuqpHC61QR1XFR/dtvA/RuJsN04ov1iS2rB4kTnsJM4rGBXld4YtlNK3S8ZJealMCFxpcExOq/uWe75+vuPt/SflcAbFAvrzpJpUAkCRG1caKQcH3lVObpfP9zx6ftVCY7MOPni6Y6OKIYJfGp8kL45ERp8RKoiYFJxxk8tU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h5Uqvsg+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VbrRMEXd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB01D1F000FF;
-	Wed, 16 Sep 2026 14:27:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h5Uqvsg+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12E1C1F00893;
+	Wed, 16 Sep 2026 14:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789568848;
-	bh=VgWgxD/Ryi0YERIij1GbIYj9gs+Qkza8E2sDyBNSAE0=;
+	s=k20260515; t=1789568869;
+	bh=o9aI7w25aC9N0w0QyhQFz+Ff5xtQGpHAAEAfCW3AYiU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VbrRMEXdakRTbOGi8PfA1B2WA9cQnTl8l3aUuT7Y9FDAb6QJyBsl6/0/ER0/WEyFM
-	 soIe80934osQq8nWlzJpfJ7fr9PrhM3HvqXVgAP+BPAyMX7YhybnBDnZ/mWmux7DT0
-	 OEmad8AKNQYQJya86030nBvf5TiL+sLx/E2YpkncyKoXRMqYgQqB7lKNRzWdhTusng
-	 VOIb2l7iGrMD5t1n/H4aZQnImrW7UVGndzZAj9PDkM0+w0mq9Rve0eYgbjm/O44DYw
-	 y0A9XQXYig3lEQBQKBVPTHtKc3ZTzRL6wBEX2mMfItU5dpSgbWyyFIX4WgH2mDcmxf
-	 +XI1Rv1Jvu97Q==
+	b=h5Uqvsg+RQyEHPaxQJ72C2tUD0iLqQxtVVinY62GtOClT44Iq9USRXX8YtehqwVha
+	 NLWvzkbjNkvCDXnhFYeTA/1P1/BHsHJZVQbbIxAjIJkSftRURdM1sGVMxhIVxpOtrs
+	 utzU+h/OsMOY3LSspnY4BgWvO+AbuQCiym4JN3iQCUeN3yhqy+1vtmW4vPDnN0ZDnE
+	 myKNYNe2A8oY1E+K5zEmJYRzR/R0yfJDe8QQdp2NBOMC605T6Jb0TriQ1XShEDxaNI
+	 kWSB4am6PpQRTbaEzeQLU/S7zb6Y4ZRTFtbAS8C8cvgm7mIsx5wh6FLGhoyGE7pEIZ
+	 6rQP1+42TdIuw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 05/19] dt-bindings: mmc: sdhci-msm: Add MSM8952
- compatible
+Subject: Re: [PATCH v2 11/19] dt-bindings: firmware: qcom,scm: Document
+ MSM8952 SCM
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org, mfd@lists.linux.dev, conor+dt@kernel.org, linux-clk@vger.kernel.org, robh@kernel.org, devicetree@vger.kernel.org, lee@kernel.org
-In-Reply-To: <20260916-msm8952-initial-support-v2-5-798c2602dde1@mainlining.org>
+Cc: conor+dt@kernel.org, robh@kernel.org, mfd@lists.linux.dev, linux-clk@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, lee@kernel.org, dmitry.torokhov@gmail.com, dri-devel@lists.freedesktop.org
+In-Reply-To: <20260916-msm8952-initial-support-v2-11-798c2602dde1@mainlining.org>
 References: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
- <20260916-msm8952-initial-support-v2-5-798c2602dde1@mainlining.org>
+ <20260916-msm8952-initial-support-v2-11-798c2602dde1@mainlining.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 14:27:27 +0000
-Message-Id: <20260916142727.CB01D1F000FF@smtp.kernel.org>
+Date: Wed, 16 Sep 2026 14:27:48 +0000
+Message-Id: <20260916142749.12E1C1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,8 +47,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 > From: Muzaffer Kadir <muzafferkadir@mainlining.org>
 >=20
-> Document the compatible string for the SDHCI controller on the
-> msm8952 platform.
+> Document the scm compatible for msm8952 SoC.
 >=20
 > Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
@@ -56,5 +55,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-msm8952-in=
-itial-support-v2-0-798c2602dde1@mainlining.org?part=3D5
+itial-support-v2-0-798c2602dde1@mainlining.org?part=3D11
 

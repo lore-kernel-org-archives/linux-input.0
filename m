@@ -1,95 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 224F94D7D5E
-	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 16:56:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F04EF332601;
+	Wed, 16 Sep 2026 18:14:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789577806; cv=none; b=SSGf5iX5sObsyT0YcO2P0rsTLkp5NwealwafnlV0YSTptnWB8l1bh9oNIUWQF/1Ypyes4G/7Hy966rpyEhmMPmFbV8XZYPqpOzqG+/83WdptUD0NPAYvwFeM0NP+yAqngil5BFdceBckijJbIm0Ii/xymDtpVZKAbnCZpOvnFnE=
+	t=1789582459; cv=none; b=jU0Eb1PMBxsf+so9Yk6Cay7Sx8KDPXUeTn9eBKfBJuZXKkhA+YsrPkeSYw5QOcPOTFC4bRIDl+zX90a33PFUFZScTL47t3BWEMXaNO0Sm+EI11JIzwRbDBBScZows6heZHJCQtNkfln1x0JE3svbBshWk56pF+NVraIbQVT3oNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789577806; c=relaxed/simple;
-	bh=fuqbMSXmKaVksZQ0mp9Ucbs7t4/StAc7bwI5H6qAaCU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LhQhAPGFYPoEIqRMO8DtswDYZCoBTztCDnw/cde4CNSoWXt7gTzrOc49np9Mc87Vh3L2QuYCWnBFy+JQEA97DXbCuH5JN+evav1W/iwBgScVbA6g6ywQ8jtONtDBzCr8hrGhs9QPFEEfmoB1C2r7t66SfwNRXkivYZZrZWXNWdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cg/A8+VC; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789582459; c=relaxed/simple;
+	bh=KjEfwPecyT60Bm/IoDRCxjnztRpecWag3huifqW5vRs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MOuUU4nSj2W6I8FJO/QxbN/ODM61DMbe1MtMAjBKW2n7GqWautw/o/Y3KOJ7NqgEG3c80788Ny40AaACAfBNsCAC6UGFlE9ffCXNR/tk2tPmq+mPqWm9eFYINESA65hSDBoiDMgx1nJ5KQXYjjZa+JaUXAodZM9CSHXDY5TSKi0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Qch4oeKI; arc=none smtp.client-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cg/A8+VC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF371F0089F
-	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 16:56:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789577791;
-	bh=fuqbMSXmKaVksZQ0mp9Ucbs7t4/StAc7bwI5H6qAaCU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=Cg/A8+VC9E080TzyvTpxu0YnPUmsHYmEPc7xtw8lOlwVWQFVXT213KsByPqqSIU2I
-	 YKezTVvqkqyFj8RCV6X6z796z+cgGL3/V6KKfDg+c71b1lvwwgWiG1EI1uwu/m3Th0
-	 3PiWWmOGjEHneUgz6Si80Fbz7NLf7VJpVq/lxnf4hkRztmLGONXApvwq5Bj6ihxbnh
-	 2DEb0f9/ARGDI62c/9rCPp7kYe7gh6X3Np4O26+gdKgWFKq9/xbV2rRVt1oCMkC32O
-	 lt6rPATnGQ4rlLkFzK27Q7Nts5BzFzoK5WLviocUhwMjzceCEZEyQbrc9KdJxu4ARU
-	 QjSSuos16jzVg==
-Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b5e4f15d00so1184157e87.2
-        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 09:56:31 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBz61+qhcX1R7I5TU/yB9CTxrcZ602AbRyNLIK5/hI7nR1nGeLyNVmKaBXyy+t3jq0QilpmQeZ2knp1Qbw==@vger.kernel.org
-X-Gm-Message-State: AFuF++kvBY1feJKdd03qB9uzBQgFmuabcpo2Qwa6n/8u8j0wGkHm9kK1
-	tsVZw/OR6e+6PjDtJ98OGsBMuaeZPrznhHXB0SbnnrtF2qcw0e3jKq3xJlqjcp9bzS0iOHwXmWy
-	5pTWWz9Xad1jK2Y49CthfeZks7VASlNo=
-X-Received: by 2002:a05:6512:3a96:b0:5b6:1a7c:59dc with SMTP id
- 2adb3069b0e04-5b8b66504bdmr1056044e87.54.1789577790547; Wed, 16 Sep 2026
- 09:56:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Qch4oeKI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1789582446; x=1821118446;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=KjEfwPecyT60Bm/IoDRCxjnztRpecWag3huifqW5vRs=;
+  b=Qch4oeKIeMcAtWYAzIWWTAyN8ZLg/rFYhf17uCzJ+cHY5fCGXZITnc8y
+   kVIai6cdw96ayBwBeiosmSj0IwrLO62d8asbe/o48K3acDTym+QAVTjbl
+   iYxAhG4rqic/IBdGB3qDVaLOvVcMaeJeeM0keTQYvFpDHmcnuS9LaunUB
+   DjXfym1O7HaTfE3OEzrYevzVnhHfgBJESUx3LguY8Ja6M5e/aTsRu9QyH
+   RGfj2aMOvsoumVTgozprWAwKq5a11Eh6yLdjz9BmfieErwM+k6LElyITw
+   0T4KlKlsgVK2aW9WQ5DmvCPyqH91waPJ5vGapObTVzaDwSYDklGMd+L6H
+   A==;
+X-CSE-ConnectionGUID: WGbqBczpTHq6hT0RuchNcg==
+X-CSE-MsgGUID: 2/g7ZFzBRvSo16490byh6g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11905"; a="100632538"
+X-IronPort-AV: E=Sophos;i="6.27,103,1787036400"; 
+   d="scan'208";a="100632538"
+Received: from fmviesa011.fm.intel.com ([10.60.135.151])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2026 11:14:00 -0700
+X-CSE-ConnectionGUID: V/qfv/AxTbqZ+ljzrI0/TA==
+X-CSE-MsgGUID: aMDd1673QlKPBzYk4G7f4g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,103,1787036400"; 
+   d="scan'208";a="1636979"
+Received: from lkp-server01.sh.intel.com (HELO 462990a40a85) ([10.239.97.150])
+  by fmviesa011.fm.intel.com with ESMTP; 16 Sep 2026 11:13:59 -0700
+Received: from kbuild by 462990a40a85 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1x6u8p-000000006XT-2Zgs;
+	Wed, 16 Sep 2026 18:13:55 +0000
+Date: Thu, 17 Sep 2026 02:13:28 +0800
+From: kernel test robot <lkp@intel.com>
+To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org, Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Subject: Re: [PATCH v2] HID: wacom: avoid overflows in sequence number
+ tracking
+Message-ID: <202609170218.u9lMtoL0-lkp@intel.com>
+References: <20260915141621.3011011-1-qwe.aldo@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260909132153.1596191-1-arnd@kernel.org> <20260909132153.1596191-12-arnd@kernel.org>
-In-Reply-To: <20260909132153.1596191-12-arnd@kernel.org>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 16 Sep 2026 18:56:17 +0200
-X-Gmail-Original-Message-ID: <CAD++jL=LM2agPEcCxjtQuCNx4q7zqutFA6oDb61kKEDAADR4Vw@mail.gmail.com>
-X-Gm-Features: AcwNN1Uahpnh6JEjJOB4HtYt7IIRQWlpnYcwXmBiixUkMQ8clPYYJyQ4xy80br8
-Message-ID: <CAD++jL=LM2agPEcCxjtQuCNx4q7zqutFA6oDb61kKEDAADR4Vw@mail.gmail.com>
-Subject: Re: [PATCH 11/14] mfd: remove unused wm8350 driver
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Lee Jones <lee@kernel.org>, mfd@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, 
-	Daniel Thompson <danielt@kernel.org>, Jingoo Han <jingoohan1@gmail.com>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
-	Mark Brown <broonie@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Guenter Roeck <linux@roeck-us.net>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Pavel Machek <pavel@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
-	Support Opensource <support.opensource@diasemi.com>, Sebastian Reichel <sre@kernel.org>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Helge Deller <deller@gmx.de>, 
-	dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org, 
-	linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-hwmon@vger.kernel.org, patches@opensource.cirrus.com, 
-	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	linux-sound@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	llvm@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260915141621.3011011-1-qwe.aldo@gmail.com>
 
-On Wed, Sep 9, 2026 at 3:23=E2=80=AFPM Arnd Bergmann <arnd@kernel.org> wrot=
-e:
+Hi Aldo,
 
-> From: Arnd Bergmann <arnd@arndb.de>
->
-> This driver was used on the i.MX31 ADS reference board from Freescale
-> and the smdk6410 reference board from Samsung. Both used platform_data
-> based driver probing and are now gone from the kernel.
->
-> Since probing with devicetree has never been supported by wm8350,
-> it is clear that nothing can use the driver on an upstream kernel,
-> and it is unlikely that anyone is still interested in a devicetree
-> conversion, so remove it.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+kernel test robot noticed the following build errors:
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+[auto build test ERROR on hid/for-next]
+[also build test ERROR on linus/master v7.3-rc3 next-20260914]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Yours,
-Linus Walleij
+url:    https://github.com/intel-lab-lkp/linux/commits/Aldo-Ariel-Panzardo/HID-wacom-avoid-overflows-in-sequence-number-tracking/20260915-111621
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20260915141621.3011011-1-qwe.aldo%40gmail.com
+patch subject: [PATCH v2] HID: wacom: avoid overflows in sequence number tracking
+config: arm-randconfig-1001-20260916 (https://download.01.org/0day-ci/archive/20260917/202609170218.u9lMtoL0-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 8.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260917/202609170218.u9lMtoL0-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202609170218.u9lMtoL0-lkp@intel.com/
+
+All errors (new ones prefixed by >>, old ones prefixed by <<):
+
+>> ERROR: modpost: drivers/hid/wacom.ko: symbol '__aeabi_ldivmod' undefined!
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

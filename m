@@ -1,362 +1,217 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4666EFC0A
-	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 15:00:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06B0451E452
+	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 15:36:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789570830; cv=none; b=n3WCU6IxFc1lcTzS9ZLX5ojYTpTkhTb9zA8lZak82Ui8LdDKWPWrR2pm+Fm0CikSMyBivOL8rlFy+rtpV7QGS7ESIHQEV8emTxaBY0G2x2hNTT/UB/3jWTEKYcnkAlrM9mYw9UEe1kBdivpKwYj+//fnWil6vmQghw5MNfu4aO0=
+	t=1789573006; cv=none; b=IIFJjnxbgN4okXC3rOFLvQMGKoAkCua6BfARBbFPYX8NJwjvWDwf1TnnxaPEFqjlExse6iyJfEsIgWR4qtnSr1ceYGD2ZOKm4ZsnrD6t+dSwyk5DR+A7zsiiG1GUHCrgDxhpHoe02WJC0yr/1GL0EmpKkBPSN/Fsqu9Y74cuNS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789570830; c=relaxed/simple;
-	bh=BQUxHOT1sui2U1JRX9qUkC5V6X565hfD1yJRn3oCZ2U=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=mPBMSO1Q8w7mWdfAFtVQXYJ2AmqsJS+PngBzUiqaNuTn5B7z4qSk4gx4C9fVFoenUVbtaBzUeqk4lYVRrjBENMMBcqVVB1Pz8vSQt3WEaTzj7K/hVUchR2VmPHuRwabonkrVs37JZd1C0sdUDbElTy5as5NzgD0e481o3QX7TxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xi6si+uk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789573006; c=relaxed/simple;
+	bh=j9wPV+/EfbcGsOG8JnEPShKnQO6bUkC+qAb7x5D1t28=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=OX2gSfJC/1ZbFeQqQkbjoPx933pyRFOkg7oEQrGRJl9y4RfT4YkjEZLxiLex/fxpxmeG4Dj+IMG1VdIC2C0pWbI0h8q3VTh8DnXoD4iAPdG0oHrgvvSf/Qfr6SdGwhEEEKVKMhonB6nm++EExJvZLIEpZ7ts2elWDKdHL8H3wJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=cXHdKIqT; arc=none smtp.client-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xi6si+uk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A750F1F000FF;
-	Wed, 16 Sep 2026 15:00:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789570828;
-	bh=E8/o1eEyPlow27UsOmJyxN54cOJOiUDQYvkBNmZaTKE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Xi6si+uk0coPPpnlXBi6dvl8IlXQD/Q5ptIZtnwPlQo7iJYOn7WyXwGBub/mEWYzG
-	 PjIhDHoXQ5bmsiiWxethZKJTHqYqbPvOkIpdCT888S/602B9lho2KxPcI2MyfO0QBh
-	 EKMUFZDC5NZ0TdoUzRiFSg7XO5KbcWcpMegIreaEHGCOPWtihLJ/gZ4EZu2O9GxF9b
-	 ubDyXVVGfHA51ZYHqg0SZKXGfbYhlf35fVGc8oY/9Ox4+2eJXRcsRN0nQoRNQduYP3
-	 /0wlA7Ww53JNNhalQYSxtYq2Q3+eNLzDyO4SDxRNF16tEtAwzbOY1OD0sj1/67AOte
-	 5wtEsl7dkHRyg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 1/3] HID: lamparray: add new LampArray helper module
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aaron Erhardt" <aer@tuxedocomputers.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260916144838.456239-2-aer@tuxedocomputers.com>
-References: <20260916144838.456239-1-aer@tuxedocomputers.com>
- <20260916144838.456239-2-aer@tuxedocomputers.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 15:00:28 +0000
-Message-Id: <20260916150028.A750F1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="cXHdKIqT"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-4843e397f74so1224502f8f.1
+        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 08:36:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1789572996; x=1790177796; darn=vger.kernel.org;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-type:mime-version:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=mqmfs62Il41JZdrK4MnJ9AwZ6UV73Ai2ymy+jYr0F+M=;
+        b=cXHdKIqTKKDEZPyrNZkyvgiKFAbeOrOwxQ1h9eGsmbtiIRAE5DWeCXlqwOEFyKMxSk
+         o/dam5XeR7aby5PHcg+dTTa8vn6Eqfwyt2RiszXBQKWvhcrusjzQWCPRPWLH9mwcTKzg
+         9r8EtLLJuRQl7c/wJIJu6On5nZJ9Bx49Bo6bpQtUlqw6LdlAz0KaZrjkPJs8dpP3u4q0
+         DauvJmQq8tCCBuOffVDHaHUQYj+nheYr902n89G7VshcaKSk6tmMY5aKITenUB4ONAaP
+         0A6w8hAXZeKzIE3DJ45UXQrKnzwPilClxbHUqgadrhF3Q31ParWGnaQffuadxWzQ6h4t
+         NDcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789572996; x=1790177796;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-type:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=mqmfs62Il41JZdrK4MnJ9AwZ6UV73Ai2ymy+jYr0F+M=;
+        b=YAYqFOy1XTDshzE4X3GKe4P4KO2qcSb4UnZg3nxc+wHr1NHaINqQPC719/4xAuVXQr
+         If0Vc6Uxff3sukNwuZ/hydt8TtAJNkGsfXzYbP5Q3oOAtIUKVlPqFTdPdimBBFy6Opo6
+         MtgosR/45G+CpKRLG/tThdVXi6XrExIkbtjOkaV0xQ0wkigq1iHtqfK68FCGvsAXlChk
+         6zmZM8DKASeK2HwDVZemZLhQ1JRXr5/rsUeIZe15+p3dXSmEdvzZy6XuIn+EJ66/Kagk
+         DDweA7VT9pE3fAefR/xAN+ix98iZhYPDBCtapJd5m2V7BJaGQONfv8jOX5LMR/W+Lh7X
+         D14g==
+X-Forwarded-Encrypted: i=1; AKwUvBzvBE55GvwOBd77+ugfWeBQXOYMCqjiVcwsz+Y+S1iJrqZYmjWk3r3ekd5SUrCD1BF30/NlEi0JJwb88Q==@vger.kernel.org
+X-Gm-Message-State: AFuF++nOQ2y2TXP91NJLhKxR11JFx0X2ADn2IMuCzmcUsvF/BAfGXLOF
+	EaIrNCZgXtSASwpW19Y5MsqSmqPrsH7thixTo2v6yGUzI/QT7Vc5v4+PPwXqMTANEZ0=
+X-Gm-Gg: AYBFou2tbn9ZZEezNtGB01D7CSi0IlFpoItjEWNYjOwuio+jHMCL6aqFn+WcUfbhwES
+	q1nld0vWse2PaygfTcJHprDflzndVaTQpQnwxOgfBcS/bwlS4tpKEWUxzq5B7I5SPbcA5PvDJkT
+	ExVwRiaJNnApFBc0hyoy7uQuJBLK7MCg7U2X98C6CYo428h+LXJCYzi6LMzYwa+1aJIcL+DBLsl
+	BrZmCVZuW7uAHL3nt5TCqHiuB3aq6hSMITl20/MbHJ4gXxE3iXU3OJkmr44mVwehrV88Tku30QD
+	b9TAj2R8TFQ2o+IC0ABOOOGkUkdyLZi6JQrcFFuWkxufSmOCflBIFDYPMy2wk/+yKHuZqETZK+h
+	+8EqwXYztlb5T1WEh1ptE6OHduq2RadSWSDB9kAZu4qkeho6PyMz9wJKS2Nunk7tKxAVKdabBC9
+	i1wKyY0OriGxrm1/g27+U8AIBipJuLE+/k2ntytmFBWwecNc5p0+VejLIyUdQrIVjivQ==
+X-Received: by 2002:a05:6000:643:b0:487:955:e6c3 with SMTP id ffacd0b85a97d-48713a887ccmr129202f8f.0.1789572995924;
+        Wed, 16 Sep 2026 08:36:35 -0700 (PDT)
+Received: from localhost ([2001:4091:a245:8029:665d:b7b:5fa4:7ad0])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4870bf27c65sm7915045f8f.21.2026.09.16.08.36.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2026 08:36:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+ boundary=761cd574ee4d3e49f3377936d80d108455a0226c8fe418a7549df126e25d;
+ micalg=pgp-sha512; protocol="application/pgp-signature"
+Date: Wed, 16 Sep 2026 17:36:26 +0200
+Message-Id: <DLGUOGCLFAI9.2JSS4DCFRYTNI@baylibre.com>
+Subject: Re: [PATCH 1/2] dt-bindings: input: gpio-keys: add pinctrl states
+From: "Markus Schneider-Pargmann" <msp@baylibre.com>
+To: "Krzysztof Kozlowski" <krzk@kernel.org>, "Kendall Willis"
+ <k-willis@ti.com>
+Cc: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Rob Herring"
+ <robh@kernel.org>, "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Conor
+ Dooley" <conor+dt@kernel.org>, <msp@baylibre.com>, <s-kochidanadu@ti.com>,
+ <a-kaur@ti.com>, <s-tripathi1@ti.com>, <vishalm@ti.com>,
+ <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <devicetree@vger.kernel.org>
+X-Mailer: aerc 0.21.0-146-gb5c16ebe1835
+References: <20260912-upstream-gpio-wakeup-v1-0-f0e12484b836@ti.com>
+ <20260912-upstream-gpio-wakeup-v1-1-f0e12484b836@ti.com>
+ <20260914-unbreakable-competent-beluga-efb5ad@quoll>
+ <20260915164819.nlgpuvf37rhzgc66@uda0506412>
+ <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
+ <da881fb0-93da-4d75-88da-8898b2c734eb@kernel.org>
+ <20260915174103.ad6tjy6w6s24h2yc@uda0506412>
+ <20260916-dancing-loud-guan-fbb1eb@quoll>
+In-Reply-To: <20260916-dancing-loud-guan-fbb1eb@quoll>
 
-Thank you for your contribution! Sashiko AI review found 8 potential issue(=
-s) to consider:
-- [High] hid: lamparray: out-of-bounds access on field->value array
-- [Medium] hid: lamparray: mixing goto and scope-based cleanup
-- [Medium] hid: lamparray: silent state update failures due to unverified s=
-hared reports
-- [Medium] hid: lamparray: TOCTOU race in unregister leaves hardware in wro=
-ng state
-- [Medium] hid: lamparray: error path fails to revert autonomous mode
-- [Medium] hid: lamparray: data race on LED class device state
-- [Medium] hid: lamparray: initialization race due to early sysfs exposure
-- [Low] leds: lamparray: prints success log messages
---
+--761cd574ee4d3e49f3377936d80d108455a0226c8fe418a7549df126e25d
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
 
-commit dcca692c120b5bda2e0a125483a058dc7b60dad2
-Author: Aaron Erhardt <aer@tuxedocomputers.com>
+On Wed Sep 16, 2026 at 9:17 AM CEST, Krzysztof Kozlowski wrote:
+> On Tue, Sep 15, 2026 at 12:41:03PM -0500, Kendall Willis wrote:
+>> On 19:07-20260915, Krzysztof Kozlowski wrote:
+>> > On 15/09/2026 19:05, Krzysztof Kozlowski wrote:
+>> > > On 15/09/2026 18:48, Kendall Willis wrote:
+>> > >> On 12:13-20260914, Krzysztof Kozlowski wrote:
+>> > >>> On Sat, Sep 12, 2026 at 04:33:53PM -0500, Kendall Willis wrote:
+>> > >>>> Document pinctrl properties on the gpio-keys device node. By usin=
+g the
+>> > >>>> wakeup pinctrl state, the pins are able to wakeup the system from=
+ a
+>> > >>>> low-power state. The default pinctrl state describes the default =
+pin
+>> > >>>> configuration.
+>> > >>>>
+>> > >>>> Signed-off-by: Kendall Willis <k-willis@ti.com>
+>> > >>>> ---
+>> > >>>>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 16 ++++=
+++++++++++++
+>> > >>>>  1 file changed, 16 insertions(+)
+>> > >>>>
+>> > >>>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.ya=
+ml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>> > >>>> index cc78c2152921308fe0cad3e29ca78a5fad08f066..b554933e93412d8b6=
+c2ec401dc1e1eeff57d4190 100644
+>> > >>>> --- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>> > >>>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>> > >>>> @@ -22,6 +22,22 @@ properties:
+>> > >>>> =20
+>> > >>>>    poll-interval: true
+>> > >>>> =20
+>> > >>>> +  pinctrl-0:
+>> > >>>> +    description: Default pinctrl state
+>> > >>>> +
+>> > >>>> +  pinctrl-1:
+>> > >>>> +    description: Wakeup pinctrl state
+>> > >>>> +
+>> > >>>> +  pinctrl-names:
+>> > >>>> +    description:
+>> > >>>> +      When present should contain at least "default" describing =
+the default pin
+>> > >>>> +      states. The second state called "wakeup" describes the pin=
+s in their
+>> > >>>> +      wakeup configuration required to exit sleep states.
+>> > >>>> +    minItems: 1
+>> > >>>> +    items:
+>> > >>>> +      - const: default
+>> > >>>> +      - const: wakeup
+>> > >>>
+>> > >>> This will introduce new warnings, which should be being fixed in t=
+his
+>> > >>> patchset (e.g. at91-kizbox3-hs.dts).
+>> > >>>
+>> > >>
+>> > >> Will fix the binding to work with current device trees.
+>> > >>
+>> > >>> But nevertheless, isn't second state the sleep state? How can you
+>> > >>> configure pins for the wakeup state - like being in the wakeup? Yo=
+u
+>> > >>> configure the pins for given state, which will be a system suspend=
+, so
+>> > >>> sleep?
+>> > >>>
+>> > >>
+>> > >> The sleep state usually refers to putting the pins in a state to sa=
+ve
+>> > >> power. The wakeup pinctrl state is for putting the pins in a state =
+to
+>> > >> allow wakeup from suspend for that device. Both 'sleep' and 'wakeup=
+'
+>> > >> are for system suspend, but they fill different functions. The CAN
+>> > >> subsystem also uses the 'wakeup' state in addition to the 'sleep' s=
+tate
+>> > >> [1].
+>> > >=20
+>> > > So you mean sleep would be a separate state? But then aren't both
+>> > > exactly the same states? IOW, if device is wakeup-source, it will ha=
+ve
+>> > > for "sleep" state pin configuration allowing to wakeup.
+>>=20
+>> The 'sleep' and 'wakeup' pin states are both used for suspend. They
+>> would just be used separately since only one could be used at a time.
+>> The reason 'wakeup' is separated out is because it is more specific for
+>> allowing wakeup from the device.
+>
+> If they cannot be used together, then it is the same state.
 
-HID: lamparray: add new LampArray helper module
+If I understand this patch correctly, 'sleep' is not relevant here.
+But 'sleep' and 'wakeup' serve different purposes and can be
+used/defined together in a single device in the devicetree:
+ - 'sleep' describes the pin state during suspend if wakeup is not
+   enabled by the user or there is no 'wakeup' pin state defined.
+ - 'wakeup' describes the pin state during suspend if wakeup is enabled
+   by the user.
+If the user enables wakeup, 'wakeup' is the relevant state and otherwise
+'sleep'. Which one applieas is a runtime decision of the the user.
 
-Add a new hid-lamparray helper module that provides basic support for
-devices exposing a Lighting/LampArray application collection. It registers a
-single-zone RGB LED representation via the LED subsystem.
+I introduced these two states for m_can for that reason. This was
+discussed here:
+  https://lore.kernel.org/r/DCD1YPX4T779.ADK4JCGW1MU7@baylibre.com
 
-> diff --git a/drivers/hid/hid-lamparray.c b/drivers/hid/hid-lamparray.c
-> --- /dev/null
-> +++ b/drivers/hid/hid-lamparray.c
+And then reviewed/applied in v10:
+  https://lore.kernel.org/r/175993598226.3512549.5295923279078928995.robh@k=
+ernel.org
 
-[ ... ]
+Best
+Markus
 
-> +static int lamparray_read_attributes_report(struct lamparray_device *lde=
-v)
-> +{
-> +	struct hid_device *hdev =3D ldev->hdev;
-> +	struct hid_report *report;
-> +	int ret;
-> +	size_t len;
-> +
-> +	if (!ldev->lamp_count.field) {
-> +		hid_warn(hdev, "No LampCount field found\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (!ldev->lamparray_kind.field) {
-> +		hid_warn(hdev, "No LampArrayKind field found\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	report =3D ldev->lamp_count.field->report;
-> +
-> +	if (!report) {
+--761cd574ee4d3e49f3377936d80d108455a0226c8fe418a7549df126e25d
+Content-Type: application/pgp-signature; name="signature.asc"
 
-[Severity: Medium]
-Can lamparray_kind read stale or zeroed memory here? By only fetching the
-report associated with lamp_count, the lamparray_kind field may not be
-updated if it resides in a different HID report than lamp_count.
+-----BEGIN PGP SIGNATURE-----
 
-> +		hid_warn(hdev, "LampCount field has no report\n");
-> +		return -ENODEV;
-> +	}
+iKMEABYKAEsWIQSJYVVm/x+5xmOiprOFwVZpkBVKUwUCaqq3ehsUgAAAAAAEAA5t
+YW51MiwyLjUrMS4xMiwyLDIRHG1zcEBiYXlsaWJyZS5jb20ACgkQhcFWaZAVSlM+
+ygD/VE+hJFS+CFW3o1xNzwibjxdZyInzKYw9u2YQjwROYfUA/3CUdbcqbBPrKnV4
+8hCIpecynxuiT0xYshtL2xPQjcQF
+=LpE8
+-----END PGP SIGNATURE-----
 
-[ ... ]
-
-> +static int lamparray_parse_update_report(struct lamparray_device *ldev)
-> +{
-> +	struct hid_device *hdev =3D ldev->hdev;
-> +	struct hid_report_enum *re;
-> +	struct hid_report *report;
-> +	struct hid_field *field;
-> +	int i, j;
-> +	int ret =3D 0;
-> +
-> +	re =3D &hdev->report_enum[HID_FEATURE_REPORT];
-> +
-> +	list_for_each_entry(report, &re->report_list, list) {
-> +		for (i =3D 0; i < report->maxfield; i++) {
-> +			field =3D report->field[i];
-> +			if (!field)
-> +				continue;
-> +
-> +			if (!field->usage || !field->maxusage)
-> +				continue;
-> +
-> +			for (j =3D 0; j < field->maxusage; j++) {
-> +				u32 usage =3D field->usage[j].hid;
-
-[Severity: High]
-Could this loop overflow the field->value array? The loop iterates up to
-field->maxusage, storing the loop index in the field_value structs.
-However, the field->value array is allocated by the HID core based on
-field->report_count. If a crafted HID descriptor specifies a maxusage
-larger than report_count, the subsequent reads and writes in
-get_field_value() and set_field_value() can overflow the array.
-
-> +				u32 collection_idx =3D field->usage[j].collection_index;
-> +				u32 collection_usage =3D hdev->collection[collection_idx].usage;
-
-[ ... ]
-
-> +static int lamparray_hw_set_state(struct lamparray_device *ldev, u8 r, u=
-8 g,
-> +				  u8 b, u8 intensity)
-> +{
-> +	struct hid_device *hdev =3D ldev->hdev;
-> +	struct hid_report *report;
-> +
-> +	if (!lamparray_color_fields_is_complete(&ldev->color_update))
-> +		return -ENODEV;
-> +
-> +	if (ldev->range_start.field && ldev->range_end.field) {
-> +		set_field_value(&ldev->range_start, 0);
-> +		set_field_value(&ldev->range_end, ldev->lamp_count_value - 1);
-> +	}
-> +
-> +	set_field_value(&ldev->color_update.red, r);
-> +	set_field_value(&ldev->color_update.green, g);
-> +	set_field_value(&ldev->color_update.blue, b);
-> +	set_field_value(&ldev->color_update.intensity, intensity);
-> +
-> +	report =3D ldev->color_update.red.field->report;
-> +	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
-> +
-> +	return 0;
-
-[Severity: Medium]
-Does this drop updates for the other color channels and range fields? If
-green, blue, intensity, or the range fields reside in a different report
-than the red field, sending only color_update.red.field->report will skip
-their updates.
-
-> +}
-
-[ ... ]
-
-> +static int lamparray_restore_state(struct lamparray_device *ldev)
-> +{
-> +	u8 r, g, b;
-> +	int ret;
-> +	enum led_brightness brightness;
-> +
-> +	if (!ldev->use_leds_uapi)
-> +		return 0;
-> +
-> +	guard(mutex)(&ldev->dev_lock);
-> +
-> +	r =3D ldev->last_r;
-> +	g =3D ldev->last_g;
-> +	b =3D ldev->last_b;
-> +	brightness =3D ldev->last_brightness;
-> +
-> +	ldev->mc_cdev.subled_info[0].intensity =3D r;
-> +	ldev->mc_cdev.subled_info[1].intensity =3D g;
-> +	ldev->mc_cdev.subled_info[2].intensity =3D b;
-> +	ldev->mc_cdev.led_cdev.brightness =3D brightness;
-
-[Severity: Medium]
-Can these updates race with concurrent sysfs writes? Modifying these LED
-class device fields without holding the led_cdev->led_access mutex while
-the sysfs interface is active can cause inconsistent brightness or color
-states if userspace writes to them simultaneously.
-
-> +
-> +	/*
-> +	 * Quirk for devices ignoring intensity values, see
-> +	 * lamparray_led_brightness_set for more information.
-> +	 */
-
-[ ... ]
-
-> +static ssize_t use_leds_uapi_store(struct device *dev,
-> +				   struct device_attribute *attr,
-> +				   const char *buf, size_t count)
-> +{
-> +	struct lamparray_device *ldev =3D lamparray_ldev_from_sysfs_dev(dev);
-> +	bool val, old_val;
-> +	int ret;
-> +
-> +	if (!ldev)
-> +		return -ENODEV;
-> +
-> +	ret =3D kstrtobool(buf, &val);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Make sure only one concurrent write is possible */
-> +	guard(mutex)(&ldev->sysfs_lock);
-> +	old_val =3D ldev->use_leds_uapi;
-> +
-> +	if (val =3D=3D old_val)
-> +		return count;
-> +
-> +	ldev->use_leds_uapi =3D val;
-> +
-> +	/*
-> +	 * Take the device out of autonomous mode before exposing the LED
-> +	 * class device, and hand it back afterwards, so that control is
-> +	 * transferred in both directions rather than only at probe.
-> +	 */
-> +	if (val =3D=3D 1) {
-> +		ret =3D lamparray_hw_set_autonomous(ldev, false);
-> +		if (ret)
-> +			goto err_revert;
-
-[Severity: Medium]
-Does this function mix goto-based error handling with scope-based cleanup?
-The cleanup subsystem guidelines request converting all resources to
-scope-based cleanup if using __free() or guard(). Mixing the paradigms in
-functions like lamparray_register() and use_leds_uapi_store() can create
-ownership semantics confusion.
-
-> +		ret =3D lamparray_register_led(ldev);
-> +		if (ret) {
-> +			lamparray_hw_set_autonomous(ldev, true);
-> +			goto err_revert;
-
-[ ... ]
-
-> +struct lamparray *
-> +lamparray_register(struct hid_device *hdev,
-> +		   const struct lamparray_init_state *led_init_state)
-> +{
-> +	int ret;
-> +	struct lamparray_device *ldev;
-> +
-> +	if (!hdev)
-> +		return ERR_PTR(-ENODEV);
-> +
-> +	struct lamparray *la __free(kfree) =3D kzalloc_obj(*la, GFP_KERNEL);
-> +	if (!la)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	ldev =3D &la->ldev;
-
-[ ... ]
-
-> +	ret =3D xa_err(xa_store(&lamparray_by_hdev, (unsigned long)hdev, ldev,
-> +			      GFP_KERNEL));
-> +	if (ret)
-> +		goto err_unregister_led;
-> +
-> +	ret =3D lamparray_register_sysfs(ldev);
-> +	if (ret)
-> +		goto err_xa_erase;
-> +
-> +	ret =3D lamparray_hw_set_autonomous(ldev, false);
-
-[Severity: Medium]
-Could exposing the sysfs file before hardware initialization completes
-create a race condition? If userspace writes 0 to use_leds_uapi right
-after this call, the store handler will unregister the LED and set
-autonomous to true. This probe thread then resumes, unconditionally setting
-autonomous to false and skipping lamparray_restore_state(), leaving the
-device in a broken state.
-
-> +	if (ret) {
-> +		hid_err(hdev, "Could not disable autonomous mode: %d", ret);
-> +		goto err_remove_sysfs;
-> +	}
-> +
-> +	hid_info(hdev, "LampArray device registered\n");
-
-[Severity: Low]
-Should this log message be removed? The LED subsystem guidelines specify
-that drivers should only log errors or warnings, avoiding success messages
-on probe.
-
-> +
-> +	ret =3D lamparray_restore_state(ldev);
-> +	if (ret) {
-> +		hid_err(hdev, "Failed to set default state: %d", ret);
-> +		goto err_remove_sysfs;
-> +	}
-
-[Severity: Medium]
-Does this error path leave the hardware in a non-autonomous state? If
-lamparray_restore_state() fails, the code jumps to err_remove_sysfs and
-cleans up software state, but does not revert the device back to autonomous
-mode.
-
-> +
-> +	return_ptr(la);
-> +
-> +err_remove_sysfs:
-> +	lamparray_remove_sysfs(ldev);
-> +err_xa_erase:
-> +	xa_erase(&lamparray_by_hdev, (unsigned long)hdev);
-
-[ ... ]
-
-> +void lamparray_unregister(struct lamparray *la)
-> +{
-> +	struct lamparray_device *ldev;
-> +
-> +	if (!la)
-> +		return;
-> +
-> +	ldev =3D &la->ldev;
-> +
-> +	lamparray_hw_set_autonomous(ldev, true);
-> +
-> +	lamparray_remove_sysfs(ldev);
-
-[Severity: Medium]
-Can this sequence permanently leave the hardware in a non-autonomous state?
-Calling lamparray_hw_set_autonomous(..., true) before removing the sysfs
-interface creates a window where a concurrent sysfs write to use_leds_uapi
-can switch the device back to non-autonomous mode right before the device
-is completely unregistered.
-
-> +	xa_erase(&lamparray_by_hdev, (unsigned long)ldev->hdev);
-> +
-> +	mutex_lock(&ldev->sysfs_lock);
-> +	lamparray_unregister_led(ldev);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916144838.4562=
-39-1-aer@tuxedocomputers.com?part=3D1
+--761cd574ee4d3e49f3377936d80d108455a0226c8fe418a7549df126e25d--

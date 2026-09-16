@@ -1,175 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EC9D27FD5B;
-	Wed, 16 Sep 2026 14:44:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11520361666;
+	Wed, 16 Sep 2026 14:49:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789569879; cv=none; b=KPdhMrkGux5D5Gqa0SheVRoO6+Nej/xB/CnrXUq4Usk7dsvU1e3Be9KPr5DZvd3h3gw4duuCyZhLVNh1zO+SgY5R9bED7Fc5BpQRqB8CYp3MVN7BczP6KZk1w3Td0mlD/WYSTcG+7VEHBBDr9uyQt7OzzeWY2Q3/YU3LEKkgCg4=
+	t=1789570146; cv=none; b=HXH26c7RT+omA76gJo4G1avqYy3cJD1ERfR1Zvu9OoFsb9j9Abx8ApKmpgT9ar3+rnFeji5YhEaRtytSckCpOcMGblhMONAhppo4qHHHScgnQcGiNLEA36c+EHsLmTVmEUcig5rylNY7pbIzzsfzmAvKta2zL+wkSCsS383H3go=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789569879; c=relaxed/simple;
-	bh=9q+Zy/zMKVk0f28folHH1im08f4p0WrVst/6EgE9oBE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IGEft6Lkjby82UArtj6WULoMLXI/+7u5JkJznNjAChi3+WG8R86KfDCf8mVUQvD8UGSseDWKnjQumWShbk4eAdeuh8amKARerM40DMv8CzeIgZiMrPTaKoZEFyoggB7H6njFUkcBiVT96iF879f+NiZ9QSEOXuXKbC7AwAP9iRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=agBrgLbP; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789570146; c=relaxed/simple;
+	bh=v00yz0tIo1ahwuZSRS/kb6QbJTP+Ru1ioddeQuj9bPs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dipxIQku8o3tJY67AzU06lashx4LDt2uRzKrzmmvxS8RmkFojb1M95ViJt+CkQyTGggdBM2X32JINMfswQEZXrMu9gML9k/bGT7RJRKPJGirQCGKRsIB3TEY/SPyjBlwaOKcZ40hBrmAi+5uv5mO/CqnAIrONVw177/2GCB0MxE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=dWoOHh0s; arc=none smtp.client-ip=157.90.84.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="agBrgLbP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A18D1F000FF;
-	Wed, 16 Sep 2026 14:44:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789569878;
-	bh=FBvbPH8tbC/J+MeTv9LGjYGrwJAxOJHNVOVhnC4K2mY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=agBrgLbPtX7pcsBoIDTRLYtlo2wuhz82bfv1jtcmIdw1AaIEMbmCyUTTZnmNuqrdl
-	 2ae2Fk1OljbT2LELpAqw5UajmYiYeOFNaeYMW+A7FPQKrtmu8xrbbQKNIe5nEKqWiM
-	 EX99rt/b0aYWkzThlSQJgbkkr8aXEYQBNCrNG3miksc8bHE7b7DyNJLg81ETvducRH
-	 qC5MmNB+EejLzEiMFSHa/Ae0bTkLnlXmWU59S4merznCIBc8+I/AaCd3MYv1/VwATw
-	 lYxI3WG7FXVPju4s/C+TDTzDVzXUTCdOBVmklo6dW0fRrCFcTDxaDSUw13cCesf116
-	 e6T6fJevZDM+w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 02/19] clk: qcom: Add global clock controller driver
- for MSM8952
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: conor+dt@kernel.org, linux-clk@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, mfd@lists.linux.dev, lee@kernel.org, robh@kernel.org, dri-devel@lists.freedesktop.org
-In-Reply-To: <20260916-msm8952-initial-support-v2-2-798c2602dde1@mainlining.org>
-References: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
- <20260916-msm8952-initial-support-v2-2-798c2602dde1@mainlining.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 14:44:37 +0000
-Message-Id: <20260916144437.8A18D1F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="dWoOHh0s"
+Received: from aerhardt-tuxedo.fritz.box (p57b95085.dip0.t-ipconnect.de [87.185.80.133])
+	(Authenticated sender: a.erhardt@tuxedocomputers.com)
+	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id CCCC62FC0059;
+	Wed, 16 Sep 2026 16:48:54 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
+	s=default; t=1789570135;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=80xqlOIAKRUDfKYggN59FlsXMfpmvws1iwR8iLGZfjY=;
+	b=dWoOHh0s4Ox+gxNySGxuLB8/ltMo2ejScRMni9eMORgo5HLfMWTM4XwsQhuGZXqSQXcBmY
+	EJShZtKrtzJxlPpUml2xlW4LnTnAcMCyacUXt8Lkw3pT5xoErZkuB4Ez95le1LtPHmS29i
+	2OP0v15F1cOLCCDBM56zdp/gXIq5Cpo=
+Authentication-Results: mail.tuxedocomputers.com;
+	auth=pass smtp.auth=a.erhardt@tuxedocomputers.com smtp.mailfrom=aer@tuxedocomputers.com
+From: Aaron Erhardt <aer@tuxedocomputers.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Aaron Erhardt <aer@tuxedocomputers.com>,
+	wse@tuxedocomputers.com,
+	Cristian Mazzotta <cmmazzo@icloud.com>,
+	Armin Wolf <W_Armin@gmx.de>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v6 0/3] HID: generic: add LampArray support via hid-lamparray helper
+Date: Wed, 16 Sep 2026 16:48:30 +0200
+Message-ID: <20260916144838.456239-1-aer@tuxedocomputers.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] clk: qcom: gp1/2/3_clk_src CCF parent incorrectly mapped to gpll0_=
-vote instead of xo
-- [High] clk: qcom: reset map targets CBCR enable bits instead of BCR reset=
- registers
---
+Add a new hid-lamparray helper module and integrate it with the hid-generic
+driver.
 
-commit f6425874e2d9adc87ee0fd906bb71cd217405222
-Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
+While more complex lamparray handling should be done in userspace via hidraw,
+providing a small module to add basic lamparray support makes it possible for
+userspace software to interact with lamparrays by simply using well-known APIs
+of the LED subsystem. One use-case would be to enable desktop environments to
+support keyboard backlight control out of the box for HID lamparray devices
+without having to implement the whole HID protocol themselves.
 
-clk: qcom: Add global clock controller driver for MSM8952
+This patch is based on previous discussions:
+https://lore.kernel.org/all/1fb08a74-62c7-4d0c-ba5d-648e23082dcb@tuxedocomputers.com/
 
-This commit adds the global clock controller (GCC) driver for the Qualcomm
-MSM8952 SoC. It provides clocks, resets, and power domains needed for vario=
-us
-hardware components on the device.
+The helper provides basic support for devices exposing a Lighting/LampArray
+application collection (usage page 0x59) and registers a single-zone RGB LED
+representation via the LED subsystem.
 
-Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
-ear-7.0.0_r0.3/drivers/clk/qcom/clock-gcc-8952.c
+hid-generic now checks for LampArray support after hid_parse() and optionally
+registers a lamparray instance. Failures in the helper do not abort device probe
+to keep the driver logic otherwise unchanged.
 
-diff --git a/drivers/clk/qcom/gcc-msm8952.c b/drivers/clk/qcom/gcc-msm8952.c
---- a/drivers/clk/qcom/gcc-msm8952.c
-+++ b/drivers/clk/qcom/gcc-msm8952.c
-[ ... ]
-> static struct clk_rcg2 gp1_clk_src =3D {
-> 	.cmd_rcgr =3D 0x08004,
-> 	.mnd_width =3D 8,
-> 	.hid_width =3D 5,
-> 	.parent_map =3D gcc_xo_map,
-> 	.freq_tbl =3D ftbl_gcc_gp1_3_clk,
-> 	.clkr.hw.init =3D &(struct clk_init_data){
-> 		.name =3D "gp1_clk_src",
-> 		.parent_hws =3D (const struct clk_hw *[]) {
-> 			&gpll0_vote.hw,
-> 		},
+LampArray resources are released on driver remove.
 
-[Severity: High]
-Does this code map to the wrong parent hardware clock? The parent_map is set
-to gcc_xo_map (which implies hardware source 0, typically XO), but the CCF
-parent_hws array points to &gpll0_vote.hw (800MHz) instead of the XO
-reference.
+This commit was successfully tested on the Microsoft MacroPad reference
+implementation (https://github.com/microsoft/RP2040MacropadHidSample 1d6c3ad)
+and in combination with the tuxedo_nb04_wmi driver, albeit only fully functional
+with a recent fix posted to the LKML
+(https://lore.kernel.org/all/20260826081149.235487-2-aer@tuxedocomputers.com).
 
-This causes the Common Clock Framework to report the parent rate as 800MHz
-while the hardware operates at 19.2MHz. Consequently, downstream drivers
-configuring these clocks may compute incorrect hardware dividers, leading to
-severe underclocking, and it will keep gpll0_vote enabled unnecessarily.
+Others reported the driver to work on the Acer Predator PT14-52T and the ASUS
+Prime B650-Plus, with the former requiring some patches on top of v5, which
+should now be included in v6.
 
-> 		.num_parents =3D 1,
-> 		.ops =3D &clk_rcg2_ops,
-> 	},
-> };
->=20
-> static struct clk_rcg2 gp2_clk_src =3D {
-> 	.cmd_rcgr =3D 0x09004,
-> 	.mnd_width =3D 8,
-> 	.hid_width =3D 5,
-> 	.parent_map =3D gcc_xo_map,
-> 	.freq_tbl =3D ftbl_gcc_gp1_3_clk,
-> 	.clkr.hw.init =3D &(struct clk_init_data){
-> 		.name =3D "gp2_clk_src",
-> 		.parent_hws =3D (const struct clk_hw *[]) {
-> 			&gpll0_vote.hw,
-> 		},
+v6:
+- Read attribute reports synchronously (by Cristian Mazotta)
+- Raise log level of fatal probe errors (by Cristian Mazotta)
+- Transfer control when use_leds_uapi changes (by Cristian Mazotta)
+- Blank lamps across suspend and restore on resume (by Cristian Mazotta)
+- Add quirk for devices that ignore intensities (reported by Armin Wolf)
+- Better locking, fixing rare races in uapi registration
+- Use scope guards for locking and allocations where possible
+- Remove obsolete calls to led_mc_calc_color_components and
+  hid_device_io_start/stop
+- Updated and slightly improved documentation
+v5:
+- Proper hardware detection (no quirks necessary anymore)
+- Add documentation for new sysfs knob
+- Pass limits of the device to sysfs (intensities & brightness)
+- More flexible Kconfig (use tristate)
+- Improved locking
+- Several memory leak and (de-)initialization fixes
+- Don't read current color values from hardware (the HID spec does not
+  offer this option)
+- Remove redundant report dump functionality
+v4:
+- Restrict CONFIG_HID_LAMPARRAY to built-in configurations only to fix
+  additional randconfig build errors
+v3:
+- Squash V1 and V2 into one patch
+v2:
+- Fix Kconfig to avoid build errors when LEDS_CLASS_MULTICOLOR is
+  disabled
 
-[Severity: High]
-Does the same parent mismatch apply here to gp2_clk_src as well?
+Aaron Erhardt (2):
+  HID: lamparray: add new LampArray helper module
+  HID: generic: add LampArray support via hid-lamparray helper
 
-> 		.num_parents =3D 1,
-> 		.ops =3D &clk_rcg2_ops,
-> 	},
-> };
->=20
-> static struct clk_rcg2 gp3_clk_src =3D {
-> 	.cmd_rcgr =3D 0x0a004,
-> 	.mnd_width =3D 8,
-> 	.hid_width =3D 5,
-> 	.parent_map =3D gcc_xo_map,
-> 	.freq_tbl =3D ftbl_gcc_gp1_3_clk,
-> 	.clkr.hw.init =3D &(struct clk_init_data){
-> 		.name =3D "gp3_clk_src",
-> 		.parent_hws =3D (const struct clk_hw *[]) {
-> 			&gpll0_vote.hw,
-> 		},
+Cristian Mazzotta (1):
+  HID: lamparray: blank lamps across suspend and restore on resume
 
-[Severity: High]
-And similarly, does gp3_clk_src also point to gpll0_vote.hw instead of xo?
+ .../ABI/testing/sysfs-driver-hid-lamparray    |  15 +
+ drivers/hid/Kconfig                           |  18 +
+ drivers/hid/Makefile                          |   2 +
+ drivers/hid/hid-generic.c                     |  70 +-
+ drivers/hid/hid-lamparray.c                   | 907 ++++++++++++++++++
+ include/linux/hid-lamparray.h                 | 117 +++
+ 6 files changed, 1128 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-lamparray
+ create mode 100644 drivers/hid/hid-lamparray.c
+ create mode 100644 include/linux/hid-lamparray.h
 
-[ ... ]
-> static const struct qcom_reset_map gcc_msm8952_resets[] =3D {
-> 	[RST_CAMSS_MICRO_BCR]		=3D { 0x56008 },
-> 	[RST_USB_HS_BCR]		=3D { 0x41000 },
-> 	[RST_QUSB2_PHY_BCR]		=3D { 0x4103c },
-> 	[RST_USB_HS_PHY_CFG_AHB_CBCR]	=3D { 0x41030 },
+-- 
+2.43.0
 
-[Severity: High]
-Are we targeting the Clock Branch Control Register (CBCR) here instead of t=
-he
-Block Control Register (BCR)?
-
-By omitting .bit, the reset framework defaults to bit 0, which is the clock
-enable bit for CBCRs. When a subsystem requests a block reset, the driver
-will toggle the clock enable bit instead of actually resetting the hardware
-block. This corrupts the clock's enabled/disabled state behind the
-framework's back and fails to reset the hardware.
-
-> 	[RST_USB2_HS_PHY_ONLY_BCR]	=3D { 0x41034 },
-> 	[RST_USB_FS_BCR]		=3D { 0x3f000 },
-> 	[RST_CAMSS_CSI1PIX_CBCR]	=3D { 0x4f058 },
-> 	[RST_CAMSS_CSI_VFE1_CBCR]	=3D { 0x58074 },
-> 	[RST_CAMSS_VFE1_CBCR]		=3D { 0x5805c },
-> 	[RST_CAMSS_CPP_CBCR]		=3D { 0x5803c },
-
-[Severity: High]
-Do these CAMSS entries also incorrectly target CBCR registers instead of th=
-eir
-respective BCR hardware reset registers? Similar to the USB reset above, th=
-is
-could break hardware state recovery for fundamental blocks by toggling clock
-enablements instead.
-
-> 	[RST_MSS_BCR]			=3D { 0x71000 },
-> 	[RST_MDSS_BCR]			=3D { 0x4d074 },
-> };
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-msm8952-in=
-itial-support-v2-0-798c2602dde1@mainlining.org?part=3D2

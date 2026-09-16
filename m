@@ -1,94 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A64004CA294;
-	Wed, 16 Sep 2026 12:58:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DCEE37EFF1;
+	Wed, 16 Sep 2026 13:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789563493; cv=none; b=Ujq1DrUoNBcMgNa+3lh3GYM5tU0oPiVjSTOU6TDNJTMdVl2Fip7Xry/w0MoYN1SMwzHAxjXK0WYogBhwLsUUsCv2DMp6yXGT6mRB3AeQbmNsiju9/g62dZBUNMDfacfOJTVT350EiO3U2OcTb48+5wDz92tN6keiEWzvAM63c3Y=
+	t=1789563774; cv=none; b=YDDzfVDdgTH3/Vx/WISwjlzk+TlzWQWfiP659VPQlYLIgyooBX4BI5Tozea7uvvI1TwLJtni4F5bzeNpEsV+gC4jp+H1hlhfSSA6EApksAwMNPpUWFkZ2r4274voXbzqcseurd3J1Mlq/1vvoEj/Ubx4xFe+wiZInk/QyWkQA+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789563493; c=relaxed/simple;
-	bh=SYwvEnBtoRvkWlwTU6VnVVX8VuVIEly6xYIE1/OGa84=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=n5+OMlZG/Z4DoQN9mra6m01y5KUAEzD6UeAoFr843L/Io6ouYYo5/0kM7o1vSKElWW2fSmCib6hiug71aZN0WRBUUQqys2yol/uN1BB7qrHSwBeRGuhEmAQrRFThyZthgoEbpfS8KK52oSGAphQ8r09SrCmUOVXLnSDIl+k3pIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eWCiE1DN; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789563774; c=relaxed/simple;
+	bh=2kjukwKHhvxex4UWdS38ePUoswpvqsSXD+LWBFfMADE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZN9UVETmGfJwi0VzM2v5FJfjS9cj1VxV3NGaWpJlZZVIJ9e8ujcImt7Va8eSlB7D+6gvbMjvr/ynYOmJJzYKgOU/+zLYNpTCx45LhWnS2nW8PNbiDvPHS3ZCFdA4iGQiX988d1Ze/44PApqBKIWLzIGmRigxpR+daX+CguamdBE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=iVO/NUWz; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eWCiE1DN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34E0D1F000FF;
-	Wed, 16 Sep 2026 12:58:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789563491;
-	bh=QoXOg1u3NsNbwWPxDCs5h7mSE7ScahjImhGtlViVVlM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=eWCiE1DNDqHffIHbOSRjkoLRdNb1TTURzCxVCQpQowTO8ljc6W1GZNHT0v37RQdPV
-	 xv7F7T1MBO788o7cXWmzvpOEGt/EyEM/f1iVuluNeDiiZDLaPvClv9GhjJsIYtlD8J
-	 zUVvRnkwmHYlQ7y1FHxZYMJ8pCx4NOa929Hr41bbFos4FijuhHHZ+rdTwCtdSWFLFM
-	 roW+l6up+C0W5VCGGu8POu9XTkRi25w0jKDgFhAqXFWYY9iSbGUu5dy1LyGUStSwPZ
-	 Rcj0/kmreWpdmzrit6gMXF3RQVRJBU08RljJSUUKS6eBTSxOKiOtttuNtwZLWd0Izm
-	 74jHm1OqHwNlQ==
-Date: Wed, 16 Sep 2026 13:58:06 +0100
-From: Lee Jones <lee@kernel.org>
-To: Linus Walleij <linusw@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
-	Michael Zaidman <michael.zaidman@gmail.com>, jikos@kernel.org,
-	brgl@kernel.org, linux-input@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C
- fixes
-Message-ID: <20260916125806.GR11487@google.com>
-References: <20260827205116.GJ2943942@google.com>
- <20260827222550.24634-1-michael.zaidman@gmail.com>
- <apaLLD4ZXhNV-Dph@beelink>
- <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="iVO/NUWz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1789563771;
+	bh=2kjukwKHhvxex4UWdS38ePUoswpvqsSXD+LWBFfMADE=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=iVO/NUWz7XlEkldHQ8fJFgw516V1fuZCTBhCW4JfIuOvywCJ0tRW1Nm0ssUrJhb/j
+	 c0yx5Tgb6JMAxWh+oxhKXzx8xCWmxKuV33u9LJEgd+Az/BDYjdPTZ4kCOe+UoszWLs
+	 5wOz8P6cd4/reWtT0xj2yidbGolDL7+yMCO0Ov+KkVMBymhxalcZnU8OJEBYq/xdC8
+	 PAR7rQUa5gfh8hVpmFzw5zYIjP5M/z+6aTwAYk3MAYOcZ1kFq8ICPFxtIhE8OQ7y+E
+	 MKTV1gOlQ41eRm0jDEViBii0lnuXRIt3F64Njhg6Kau4svjJ3Uyw9xuTKcTNfKvjZd
+	 iz5wqiM4mPUFg==
+Received: from [100.64.1.21] (unknown [100.64.1.21])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519)
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id DF03817E03B6;
+	Wed, 16 Sep 2026 15:02:50 +0200 (CEST)
+Message-ID: <bd18c1fc-6ff5-4724-8b20-dbbb716e299e@collabora.com>
+Date: Wed, 16 Sep 2026 15:02:50 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: input: mediatek,mt6779-keypad: add the
+ MT8173 keypad
+To: Ryan Brue <ryanbrue.dev@gmail.com>,
+ Mattijs Korpershoek <mkorpershoek@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org
+References: <20260915-rbrue-suez-upstreaming-mt8173-keypad-v1-1-96c325efacbe@gmail.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20260915-rbrue-suez-upstreaming-mt8173-keypad-v1-1-96c325efacbe@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, 14 Sep 2026, Linus Walleij wrote:
-
-> Hi Benjamin, Lee,
+On 9/16/26 05:47, Ryan Brue wrote:
+> MT8173's keypad controller is the same block this driver already handles.
+> Its register map agrees offset for offset with the MT6779 one -- STA 0x00,
+> MEM1..MEM5 0x04..0x14, DEBOUNCE 0x18, SEL 0x20, EN 0x24 -- and
+> mt6779-keypad drives it with no code change, so the node only needs the
+> fallback compatible in second position. Add the mt8173 string to the
+> existing enum, which is what mt6873, mt8183, mt8365 and mt8516 already do.
 > 
-> On Tue, Sep 1, 2026 at 4:03 PM Benjamin Tissoires <bentiss@kernel.org> wrote:
+> Verified on an MT8173 board (Amazon Fire HD 10 2017): the volume rocker
+> reports through mt6779-keypad with no driver modification.
 > 
-> > TBH, I'm not a big fan of having multiple subsystems children into HID.
-> > Mostly because I can't review the best practive in each of them. However,
-> > for quite a long time, HID was mostly for input devices, and input is a
-> > different subsystem.
-> >
-> > That being said, there are 2 types of HID devices:
-> > - ones with defined standard usages (keyboards, mice, touchscreen,
-> >         battery, etc) and using MFD for those would certainly be overthinking
-> > - others use raw HID device with a custom protocol (cp2112, mcp2221,
-> >         ft260), these could be MFD candidates
+> Assisted-by: LLM
+> Signed-off-by: Ryan Brue <ryanbrue.dev@gmail.com>
+
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+
+> ---
+> This is the binding half only. The board device tree that uses it, an Amazon
+> Fire HD 10 (2017), is not upstream yet and comes with the rest of that
+> board's nodes later; adding the compatible first keeps that submission from
+> carrying a forward reference.
 > 
-> Surely, as HID start to attract chips which clearly fall into the MFD
-> category of things, with a plethora of subsystems hooking into the
-> same HID device, we must find a way for HID devices to spawn
-> MFD cells?
+> No driver change goes with it. mt6779-keypad matches on the fallback, which
+> is how mt8183, mt8365 and mt8516 bind today -- only mt6779 and mt6873 are in
+> the driver's own match table.
+> ---
+>   Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml | 1 +
+>   1 file changed, 1 insertion(+)
 > 
-> MFD solved and evolved a system for handling exactly this type
-> of situation.
+> diff --git a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+> index 914dd3283df3..b45dbf805ac8 100644
+> --- a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+> +++ b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+> @@ -27,6 +27,7 @@ properties:
+>         - items:
+>             - enum:
+>                 - mediatek,mt6873-keypad
+> +              - mediatek,mt8173-keypad
+>                 - mediatek,mt8183-keypad
+>                 - mediatek,mt8365-keypad
+>                 - mediatek,mt8516-keypad
 > 
-> Whether there should be an MFD device in the middle spawning
-> each a HID, GPIO, I2C, UART cell or whether HID device itself should
-> sit in the nexus and gain the ability to simply spawn out MFD cells
-> from itself is what we need to figure out.
+> ---
+> base-commit: fd73f4a6659897191fa0d40695fe370925dd3780
+> change-id: 20260914-rbrue-suez-upstreaming-mt8173-keypad-fddc316ae098
+> 
+> Best regards,
+> --
+> Ryan Brue <ryanbrue.dev@gmail.com>
 
-There's no figuring that part out.
-
-If you want to use the MFD API, the part that uses it must reside in
-drivers/mfd.  Else it becomes a nightmare to maintain and things get
-wild, quickly.
-
-You'd be surprised what "creative" engineers can do with it!
-
--- 
-Lee Jones

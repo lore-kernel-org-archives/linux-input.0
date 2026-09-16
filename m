@@ -1,132 +1,140 @@
-Received: from outbound.qs.icloud.com (qs-2004j-snip4-11.eps.apple.com [57.103.84.103])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D537651123B
-	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 16:16:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.84.103
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 736AA517BC3
+	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 16:17:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789575373; cv=none; b=QN+33FtsaeMKDcgNKmfV8DkX/5tddfz6L2cuEbia+zf4aJcPyBS3pyBQIa/wO+rXM/FdT7BdsadxlTKHxr2tKz8EmI40Tf8nlyEPHN6EGS0/mRByD+O9luMrc2ZoojPSYNV8E0gE4j2qFJEK+joO/5ZbKSnH7MMUZTU4N9iTzK8=
+	t=1789575467; cv=none; b=BJvWZxRYzmILz8E/uFMxRxrHXPZRGkNqEP2qvPl4Tq30ae8cxXWhNHRF9Tw/nsLNDOBNgNex3xmLNprGSWEb+v07MxzD6/9pNXwos52C3LrKRJClvKnZ5RiBcCj1gbx7J1CJ6ceDwJaMQSELdfhMliAED6ZbW5xcX3dZkd11cfE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789575373; c=relaxed/simple;
-	bh=MQb8tSbx0/HHOCcszCddBWvThTIgIDq5xTskbCmHgLk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YS33nhOe6DWjULB6K/Q6USpw25kQuKXvsuGDhiwlH/ylsQ69ErN9pggQQkvUzfeR8LQZSSEb0Ss1jzWVXrioT/qP8ti9KoN63lrTHebGwSKM2dbUXYa6N7TmJEC3decjes+Nt72Oe4WdG2awkrpxMXwzOajTV+dBQY4sCAuras4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=icloud.com; spf=pass smtp.mailfrom=icloud.com; dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b=hPWcfcFA; arc=none smtp.client-ip=57.103.84.103
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=icloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=icloud.com
+	s=arc-20240116; t=1789575467; c=relaxed/simple;
+	bh=dNHP1gTsQIZoj7AUrk+3cvNZFuIo9EZylbWDUYMpxEk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qxWX3WjhtyhSHgyCgpJQxCpioCAdADDvHLQbTlXPEcDUF5q9JqtsmKeMnCZrgNxbxUVfdz+nEjFDdjW3X7C/ULRLrV3qm/eYSBs0Mq263/KmTcuyrn6G3pJquz3buakE2fLENhNFaAiphEk+//uWm3535LnzKr1pY8O15Jjr3F0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oPLwmdiR; arc=none smtp.client-ip=74.125.228.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=icloud.com header.i=@icloud.com header.b="hPWcfcFA"
-Received: from outbound.qs.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-east-2d-20-percent-0 (Postfix) with ESMTPS id 0FD8B1800110;
-	Wed, 16 Sep 2026 16:16:10 +0000 (UTC)
-X-ICL-RepId: 01a0ab01-153a-7b59-a1d0-e9d6eaea5ef5
-X-ICL-Out-Info: HUtFAUMEWwJACUgBTUQeDx5WFlZNRAJCTQBOHVUZWQdDF0oDTVIPDxNUFVIXTQRyGVoUXBhTRVEfVFhVCQoCURxWDVdDVARfUEsbDlUXA1ccVkVcGEMJXQVXHB0cREVbE1UXRgkZCF0dGQhHHwowA0IOVgNDB0UALRkcV1BeCF4fTBwdDlgGEh1QHA5RBVsARglBAlsGXQNFDEkdXgFdC0UUSR4OWgZTCkMXcwRUB10FXVZQAlpVEgRACFZQXgheH0wc
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=icloud.com; s=1a1hai; t=1789575370; x=1792167370; bh=XfJd1U4QADoydamY5G5HVBx5mXqXQNhew3wDV+lTvWQ=; h=From:To:Subject:Date:Message-ID:MIME-Version:x-icloud-hme; b=hPWcfcFA5WMbtC3DBJzrSqv3ACF7kRzv0uOrnwLPVHsmb3dtp1xbG+XSRnpCGqtDozHviMq6a5d8EZ94qVad2TMZuLgO8NtjnNchP5rxUg46uWHq8JjMSZAOcC9QqzDcIW5ZtIksr57Z1Lz68NMwNzzLef0xKxZnhn1s+xI/nj09g0yM0CycRbw4kTrqLEZ+K6MTz2dQxAGKJgoeMCw9DgHWbvOQGDAdWtq0Jp+9/xjMzSQunomtyM+tYuPqj4QjgPTABoE7CjYALb+eckGS5sM/PCESEnh4EGRi7K1CA+YGsb0K2jUxwY8w0vHcEmF7cECztgVOEI6owhzygdNxkQ==
-Received: from komputa (unknown [17.57.155.37])
-	by p00-icloudmta-asmtp-us-east-2d-20-percent-0 (Postfix) with ESMTPSA id 4C10C18004F9;
-	Wed, 16 Sep 2026 16:16:09 +0000 (UTC)
-From: Cristian Mazzotta <cmmazzo@icloud.com>
-To: aer@tuxedocomputers.com
-Cc: W_Armin@gmx.de,
-	bentiss@kernel.org,
-	cmmazzo@icloud.com,
-	jikos@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	wse@tuxedocomputers.com
-Subject: Re: [PATCH v6 0/3] HID: generic: add LampArray support via hid-lamparray helper
-Date: Wed, 16 Sep 2026 11:15:51 -0500
-Message-ID: <20260916161551.36695-1-cmmazzo@icloud.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260916144838.456239-1-aer@tuxedocomputers.com>
-References: <20260916144838.456239-1-aer@tuxedocomputers.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oPLwmdiR"
+Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc4cacd3409so1036479a12.2
+        for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 09:17:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789575464; x=1790180264; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=fHyHl8JYGeK0KYa1UKcPeUzjQ3WV6y/WuzNvw68/Tik=;
+        b=oPLwmdiRoFINGnyPsdhOTtRjjGUgIlLZfCjuBZfIUKM8b5RtoRteggfcrSyhGE3OrA
+         +moWQ4m/jAIn+poelfpLshgvDl3qQ4v3J1ZRMMp86DfS//sguxfT9twfioNW+u7rDiOk
+         OGcc22X5TxIkLT8FjQDD79hu7TCQb8WAKoVG549CZICNoTcp2lqrzqa6zHvsXhnMfaWc
+         XZyYcSa9QH5y/99rNMM/q4ouYtEP+gXsOZi/2uOV4cqYBnDPGPoR1vsAmuYGn2yWiaTF
+         qtH0WGz48LD/Ikzm+LFE8pQA0Y7FjJZxfRX6gPNCiIFpfI08hL4d/Z2OnXNqqHCDMVLG
+         MBFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789575464; x=1790180264;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=fHyHl8JYGeK0KYa1UKcPeUzjQ3WV6y/WuzNvw68/Tik=;
+        b=wLGq9IQvuj+cRCa9kcDvm+ybQhLoR8I3Zh6es97Z7T7G9y6v3XmbD7LjWwaNSvFg1+
+         gbNukyh1ITtdfPt4GSd6kcmSTIbGp3NlQcvUaIwqSL4yCE8YIJ+7q8CKVWFMFom2poed
+         qVR5oT9SliwiJh4pczSAcbdJS/9X9HT6bA5WRG3oFCIcaeg0UMoA9F18VpJRUwG9RPaW
+         8XTsxi4rG7N4H42Bfo01BGZVMTTXBy5j6qwreVTImcQT6bYjzfbDHL4fgCs8N52wu/yX
+         ufA7t+stkBzgh6azi5O/SsbBVfE901Rc7co0k4eSoHicqCx+l+H3G8Tr/F3UVpU29PmQ
+         V7jA==
+X-Gm-Message-State: AFuF++mGDtDqU5q7ujS0iP0a0MTFursPtaG9HrpV69jOklAQQJ5wrnsT
+	ums4FMFBonnUNj4mzHR57/B8MW0NMq24b+mFjZF7yJZ0lckX3us/rM7R
+X-Gm-Gg: AYBFou33At0dG7VV130K5wPi1PQ1vpbW3RuRYJ7ytdoUsAsfEPToB84ewurNwc/bCuL
+	iRp+tfzFq2BwqDUv8Uz1TcLI4wK/AbtypNOuhdXkj6Wg6yyHXvPsMUx6bPYR48pwNXzXSgn8iBL
+	TncPka9XVP7BsTqN/Io/SMEdpddaW+9FEwNY1B9lqEtvQv1Lz1+92Mh5o35BEnb5mCGA6271nJs
+	d6FPBKMzLOa4m6HtrUXyAW9VPGzUxDgoifJ05oSI1xgiP8HETRk9+JJTem8p05jkLygUAR/0GcY
+	ueU5dMQKo1xXzXilBI+2qPTrF81d+QbLtdzn/PfyyHfaltjYvwADkm7ez1NgdIDdVEqgEttQ9uz
+	uC6bJOg9sTEPAtELzMxLAh4fymo+jGWvRSKUIZvnATPTLiLzDYsb6ynEl1KdFncTKMXoOavJtzg
+	X9/O4plNKEtJdNqa62JBtfUaVR6FAXOwP7EwDAYQ1xs0zv65eqo4j/scyln1bnLk8aXOfDFasPc
+	7HHpBdEOZChCebofwcckx/bIyegHTkksyB+rPR8qk0gAuPg
+X-Received: by 2002:a17:90b:1a88:b0:396:6344:3b63 with SMTP id 98e67ed59e1d1-39e1e27dfe7mr7308938a91.2.1789575464203;
+        Wed, 16 Sep 2026 09:17:44 -0700 (PDT)
+Received: from eggarch ([2409:40c4:18:7581:88e6:16cb:6cd3:1ba1])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e35d9b298sm251787a91.2.2026.09.16.09.17.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Sep 2026 09:17:43 -0700 (PDT)
+Date: Wed, 16 Sep 2026 21:47:37 +0530
+From: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+To: Pujito Adnyana <zhee.tou@gmail.com>
+Cc: linux-input@vger.kernel.org, 
+	"dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Internal keyboard dead on ADVAN 1405 (APN21S-140P3-CS): i8042
+ controller OK, keyboard device never ACKs
+Message-ID: <aqrA0eEt89mr_ijV@eggarch>
+References: <CAEkMyrhPTh1Ws0Co6zHBq1aMhrhgam4yPBgbXAMPrffyAKpT4Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: Du4IQlhNk8aJfkPUjAyLSW9WijmCnGME
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE2MDIyMiBTYWx0ZWRfX6L5vboLaKiC5
- WkDkCg5HEczz/PHO6bayRsiG5fuzEENuiJTVZhzi51GZger/35Iy3kn3fs+HDz/P3XMPVyruIsF
- wEaHK6ixEb8hV5SeC8+7mJEdr4me2iJjD5+lW1eITYYi+x0NoT4qkmlWu/BYl5mlpcNgjr/zK6H
- nubKQZgBcZW4lOAxetQ8vp3ZLE71yPcVrBlUfgxq9GHzxVEytGps18T2msS6oLQGFsFkWP0pHy0
- dxcmtZylp9HyNczfmzZo9U5ipPPF7VD+OTYK77n/IQPfiOy5mgeqT0ZDViJO7Fmq9Egc/zDv+6U
- gQ+raLWydlofme3wzuyFkHDW8hjc+u3qfvmD3ddSXCjrSjvURs0qZacjTagqRQ=
-X-Authority-Info-Out: v=2.4 cv=Zpvg6t7G c=1 sm=1 tr=0 ts=6aaac0ca
- cx=c_apl:c_pps:t_out a=bsP7O+dXZ5uKcj+dsLqiMw==:117
- a=bsP7O+dXZ5uKcj+dsLqiMw==:17 a=VdqzKS8jKosA:10 a=x7bEGLp0ZPQA:10
- a=zMoZyIPnO1cA:10 a=VkNPw1HP01LnGYTKEx00:22 a=YuKY67GBq93p-LlOLQUA:9
- a=Uh4tPsEYL5Xn7yYgV4Nn:22 a=mGzgV76dRlD25_95D0kX:22
-X-Proofpoint-GUID: Du4IQlhNk8aJfkPUjAyLSW9WijmCnGME
-X-JNJ: AAAAAAABBC72ES1mF4ciLMmKVOPj0wOq0mq+55wR2xOOEIMfMF6xZQXXZGrJjYCSIl++uC/6mM7ZnGjdoO6MvvGukq35Ag/EN3Hgnn3pukgAgK6PHa5mrCRshwLoewhjD3WQMs/KZzI3/SBQX3tO9D15AzEkYsqXx6d6gG+4+4ZkNBAv+fQMHhCptnDq2G8gsJF6bipN7kFeUqezKnvWy06hXESdp+ZDCLBtr03hZ4szdrxWWeTHoABaGNCD9+C5n48BBzyzwZ83a2uMp+b1Vn9CeIrbduf1i1mL/BNoqOF4TKHPXpQetvEBHictcp7fU6z7xmgxagggNDm2SrBQJH0uyqC7fh0Pmh40v3CL1VfAIkWKUzN+PivTeh2eR2Fs7yjEgxubx0eYNzvESrgAe3j2eZb4xxwQfcTt3RoXWcjUBGcx8obzRZHCUI+hLNZ40CHai31WK+enQMzKhb0lGJz4kzLfyOkPw7nC0dtMC/wmpP6jlQfwtajPLaCSxykdzSIKXCbYLPK+Lb0tqylIn6KxJpYvo4Qc2iiCAdslQZaCS9VKUGF2Sw+4bQnuOb1DaTjurUs3b23UpUZ+9MD3tFCqdtW9s22yq56ARloi05flDOK0z0ujxsYws3OinZDQ68hkgYHymN3MixMNySNOv0br9T4Jt6Okd0Fu8Y5c4mN7Xx6UFifHvsTOTCjuevEbB4RiZQ1zN/w7wZLYMHNU8WZUHKpx9wWXNE7F5DY99pSvLWdYD4Ro1fAtvNqJSZC7WnnONsn4KI3T532L2hFDqiDM3o2UzhayiXzOsCdsmwVKJyg2xBBVd1W3UtvFM/Jy/o6g5b2BdfaCKPCfVv3lIeK3Hz9BMIr+bkyiY/ouNbvvWZojkQzYSX+UsPeDVobtfINR5KKXoD8TR3CXQ3o2T+0C6vADnbQ7K5C6TLQYZtKN5sdgIkFLVPRJ3KUhZ+z4XIk2LQeGeo/CRTVwOKP3PTmNbKyXT/J
- gZnu96fVXyY42v7t0MdVWO3b9vehdIUq3qdJmQPHbVU8M0/sUBcKn1JlsZe1E46ONk8f/48mfsAZ7JgO3IfD5qNTr1gx6kmOBHMj30fQwnUmqQxULj7dBX1juRPCnUFQ2Uy5MJ5HsEYVBf4oOdT7q/T7pdbUO/YyoyqjfqCdyz4Rmm5u8RyujAaHEiPky1n9ZQ0FR1wysmcbd5mdF2lq4fZ8L6DICcCYMMtIq4dryc4jFqldlvhSiA6LZAW7s3CcDXgnRH66g6j9jzH0pxffuKA==
+In-Reply-To: <CAEkMyrhPTh1Ws0Co6zHBq1aMhrhgam4yPBgbXAMPrffyAKpT4Q@mail.gmail.com>
 
-On 16.09.26 16:48, Aaron Erhardt wrote:
-> Add a new hid-lamparray helper module and integrate it with the hid-generic
-> driver.
+Hi thanks for the report,
 
-Thanks for picking these up!
+On Mon, Sep 14, 2026 at 08:14:24AM +0800, Pujito Adnyana wrote:
+> i8042: [943273] f6 -> i8042 (kbd-data)
+> i8042: [943474] fa <- i8042 (flush, kbd)
+> i8042: [943474] Interrupt 1, without any data
+> 
+> The fa arrived roughly 200 ms after the command was sent — just past
+> the timeout, so the driver had already given up and the byte was
+> discarded during the flush. The accompanying "Interrupt 1, without any
+Yeah that seems like the cause.
 
-I do have two corrections on patch 3 however, and both were mine
-originally, so my bad:
+> Is there a way to make atkbd tolerate an acknowledgement that arrives
+> just past the command timeout, or to retry enabling scanning after the
+> initial probe? If a DMI quirk is the right mechanism here, I am happy
+> to test patches and provide any further data needed.
+We could keep the current 200 ms attempt and if it fails retry a few times.
 
- - The measurement in the commit message and in the comment above
-   lamparray_suspend() is wrong. It should be 12.35 W with lamps lit and
-   3.14 W blanked, which is 9.21 W or about 75% of s2idle draw, not
-   2.84 W / 77%. The 2.84 W was an earlier test on a local branch that
-   includes full multi-zone support. It's worth noting in the comment that
-   the 3.14 W still includes the lid zone, which single-zone control
-   cannot reach on this device.
+Could you apply the patch below against a mainline tree and test it?
 
- - The kerneldoc for lamparray_suspend() still says it "writes zeroes to
-   the rgb values only, keeping the brightness", but the call is now
-   lamparray_hw_set_state(ldev, 0, 0, 0, 0). The code is fine, but the doc
-   should follow it.
+Thanks,
+Lovekesh
 
-On your question about the default state: I think the lights "look like
-they don't work" can be a real conclusion, but the cause is the intensity
-default rather than the brightness default.
-
-With led_init_state NULL, last_r/g/b stay zero, register_led copies
-them into subleds[].intensity, and brightness_set reads r/g/b back out
-of subled_info[].intensity. So every brightness write sends
-(0, 0, 0, brightness), which is black at any brightness. The
-zero-brightness quirk does not change this since it only forces RGB to
-zero when brightness is already zero.
-
-The LED class device is therefore inert rather than just dark;
-systemd-backlight restoring a saved brightness, or a DE slider, or
-UPower, all write brightness and see nothing happen. This is because
-nothing in that stack writes multi_intensity first.
-
-Defaulting to autonomous mode would not fix that. It would replace an
-inert knob with an ignored one: the cached RGB and brightness would
-describe nothing the hardware is doing, and a DE would have to
-discover and write use_leds_uapi to make the node real. That is
-driver-specific knowledge that desktop environments are unlikely to
-carry.
-
-On a second look, I would suggest keeping brightness at LED_OFF, but
-defaulting the intensities to max_r/max_g/max_b. The device is still
-dark at probe, autonomous mode is still disabled so the cached state
-matches the hardware, and the first brightness write from existing
-userspace lights it up. Combined with the quirk you added for Armin's
-device, it stays dark even on firmware that ignores the intensity channel.
-
-One hardware data point, since discoverability came up: on the Acer
-Predator PT14-52T the keyboard brightness keys are handled entirely in
-the EC and never reach the LED class device, so they cannot be relied
-on to show the user that anything is controllable.
-
-On multi-collection, I don't see myself getting to it soon. I might work
-on it during fall or winter break of my university, however I cannot
-guarantee it, so please do not consider it blocked on me. The ENE
-controller exposes two LampArrayAttributesReport collections and
-lamparray_parse_update_report() only keeps the last.
-
-I have a local branch which includes working multi-collection support.
-It's based off of Tim's v4, and it's what I referred to in the original
-v4 thread; I'd be happy to send over my branch as a reference, though
-porting it to v6 is not trivial.
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index b9ad2381f885..81df4b7a5685 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -714,12 +714,28 @@ static inline void atkbd_disable(struct atkbd *atkbd)
+ static int atkbd_activate(struct atkbd *atkbd)
+ {
+ 	struct ps2dev *ps2dev = &atkbd->ps2dev;
++	int error;
+ 
+ /*
+  * Enable the keyboard to receive keystrokes.
+  */
++
++	error = ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE);
++	if (!error)
++		return 0;
++
++	ps2_begin_command(ps2dev);
++
++	for(int i = 0; i < 3; i++) {
++		error = ps2_sendbyte(ps2dev, ATKBD_CMD_ENABLE & 0xff, 1000);
++		if (!error) {
++			break;
++		}
++	}
++	ps2_end_command(ps2dev);
++
+ 
+-	if (ps2_command(ps2dev, NULL, ATKBD_CMD_ENABLE)) {
++	if (error) {
+ 		dev_err(&ps2dev->serio->dev,
+ 			"Failed to enable keyboard on %s\n",
+ 			ps2dev->serio->phys);
+-- 
+2.55.0

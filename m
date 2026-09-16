@@ -1,137 +1,139 @@
-Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+Received: from mail-oi2-f10.google.com (mail-oi2-f10.google.com [74.125.231.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A4AE137923
-	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 02:06:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD36F27466A
+	for <linux-input@vger.kernel.org>; Wed, 16 Sep 2026 03:47:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.231.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789524373; cv=none; b=ZOnODHQhhtznkBS7FvmM/iofzeUrtoUkdexuB+VDvyRL+OTFJFf45RA0lxseyMSSl1kqxG/pgSwwzZpHHh1h9aqGvKlIYaoYHTtT2QjsaNkw27vdTP8wwQvcLbBjv1MMhf5NQg8XSfzADaKRI6iFsitWJITNP5frCK3amodaAKw=
+	t=1789530476; cv=none; b=EJfvcC/pURFtcUVFH4gUdzkq5LQ+celQeIDGIxcLp4cvtI87sYEb3/LRIDvgNW1jy6BU/MsdAJwG77JoxpiGk9WLlDtHLbR2amlJiX1Me50lpM4gIxqOwtI35P9xlroqkuO9f5tZ/fTGSahxFD9dSrXlv9u5Eeit73ipqSOwSEg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789524373; c=relaxed/simple;
-	bh=VzBQstYI9n5foWER42pPugcCV7m9/kLwe0mcjHJaVsg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HvVTv1oCWgjyqOZcD31uYq7UUBkzoTD4uKmVxJsFTMDoSNa7huA5YMxAvunnGtBKALa2x+LASmwGU4YfeOuFlKRXIHRQ6JXpLQJDEFKd1n19jZva2Jl8AX5L9zNOENPuTR/c1zyLht4WbNP61/KIJtZZcAbcn5SwPxP0f5Q7vU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=reRlfq+g; arc=none smtp.client-ip=74.125.227.141
+	s=arc-20240116; t=1789530476; c=relaxed/simple;
+	bh=iB6N5HJd5gxJ6JfDRUspRgFcS0Yl2pln4xko2Z2q6Tg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=nF+Pod/58yuW+ZQ96VcR1ELIoPC/cAbajrF85a7J9xOWQbyn6zTddw6dKBuaH7uiJEbsdXa50CvEsKaSVL3tpbnF7u3/sG82P17lnmn65387V88C2zFU583xBlN7m/T7/TeTChj9TWWhO7jRB7hm4XhK4ec0pCzHJLNinfA0+u8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EsmVnMeS; arc=none smtp.client-ip=74.125.231.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="reRlfq+g"
-Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2d91a931f66so2903355ad.0
-        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 19:06:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EsmVnMeS"
+Received: by mail-oi2-f10.google.com with SMTP id 5614622812f47-4b94bb43008so826193b6e.0
+        for <linux-input@vger.kernel.org>; Tue, 15 Sep 2026 20:47:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789524363; x=1790129163; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=V1xqHMghnX/wz4hUAHEyQvIQaxwHg9qWI/SSHwusRwE=;
-        b=reRlfq+giMYhMSli8ydtNL6mCWi41jbsa1Ruyp63VSED7Pi4nUBSXVI2zQBd/vj66w
-         wKi73eo76YEPQGhVFw39XA3FbY1c8fbi0uuDUW4XmG2vjeJA4TPAh9bsNhoM93K6Riea
-         Gst3LNgmUR3JMXT3XzB5GVPpKUMucAUcbPCEWv2F2GfwCTfcOcbhZeA/RwSlQZ8V8r9H
-         r3c75uAeFMdFi5y3uJB302H4E5DP3ZM25uQ8/bsDtK2uoOh+7pRi3MwJSJyRdPyXh85i
-         dTVE/SzwN71PbJxOtcYbKkW3aApSHK9+7gPFTOSGWf1TLw5qnnnwfrqyR3z1OAllTa8p
-         GUBQ==
+        d=gmail.com; s=20251104; t=1789530474; x=1790135274; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=KZUnuuFf09iEV4TXLpHshSHcyHegz5o15LfPCufyx+E=;
+        b=EsmVnMeSkuIn2cQw8kSngK7Fxr5+/5ftbyY6uFmZLpzapnaO4Aj0oSEu9oo7MA7nDi
+         sV2mrexiVoZaUs021wWic8bD042D0F2i/QQOVubxTVuM4B5wSwue1GR7IxLNG+pv5Rah
+         U/InkbpCRu2sV4arIOksEvhv9a1mLt4LAP8rF7XLNDH88+WZIpH8FBOLq5i/IpZRhJxz
+         IhOmnLkI7NjnR0qtz/0JJ2mRxqEk7s+BVeW5wk9ovtUR8zHo342IjKnKGRZNLzspRslg
+         5BBQ96sf3xGEYEilPQWWt/NaDOU5IJ/Vdph/Of6i5eTIOBf3TTHNOge7eRn5GYRRP3sx
+         FHVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789524363; x=1790129163;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=V1xqHMghnX/wz4hUAHEyQvIQaxwHg9qWI/SSHwusRwE=;
-        b=n0GkQtl5CJEHtw5bJ7g7u8Jkp+Yow614On1Jmkny5e69mC0NT8w/V6du0qswuuc6il
-         P/GigObcO/O5DVeiyhe1qvETu1Sd9URC0+H63L4F7J4p7WuSNl2sRQRnoNB7iGyeHjgj
-         qgtaZztTJUYta05J+WM36Pr0TyVU1DTyq9hEiDYjnGzFJtCXPRcsJ/sx5sgJ/4e2xHnF
-         TgwysslWdhhYFE+YXHA8Qm7VXrx3vsG+A4YQlLRXnZ6njhIHfmmH+uXwCOumqWew7N1Y
-         so8zkvXe9epze4EDrZdaGAHfJQ//c5CD34WaQjMEnOjilvfLEG/ggRejYJKC3R/z0VS6
-         Dc5w==
-X-Forwarded-Encrypted: i=1; AKwUvBxw2Gr4q9XTJXFQSiuz1L0VM+GOdrOWa0yVh3WILreJq0jOAgMsFh1UPYKNBCu88BSxH49yhHmdnEEcAQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++lELRFOSE/xdAxA4OV8DdBo4ku7f1D3qgezpSEgptgkoMhx4iqG
-	tHvoaVLtEa3J2gcwYj8NGjlOxKw3sbY20NQNxOm/Q6Zhj2a2L5jxYp3j
-X-Gm-Gg: AYBFou0CrrgVkexoW7XG4u+zUhgQmRT2vVid+cHq8FpKOgDt7R4lddF1B1ly11hvJlm
-	wED7oyNTcE6+87RqK0RqDwOqWPSe8GAn2euqpdEpgy8POyt4kbI1XnXdS9P3w6XJUYnLpedelOt
-	gQJe+zsJkmJP0Rh0zanQmW6yMn6NAQQxYKwfEwplJe+S95XUnwaQCAhETPJZ7Jy8qqnwOzb1Mx5
-	SB+YgTVptgQb5XqxAOjbtHfDXQfkMG9Y0FqgIZ80jVwHwTBwKF3f9q/uHxsRP4JWi8Fw6KOwGcX
-	XgD1WpkuYYEKMbWfL7DwEoBgN6+0oduK/OSoW1+/VlnJw1+kUyBsuQuP6etU1TuiqG4DaSJVXfw
-	wnBfJa9Lh//LjWEwEWde2WAL2qvvtg7QeKNRT2eDwGJ7NRklxwWM595M1euRlmnbLZwKk8izIx0
-	aPfzMnFLUsq5ekqgP4sJVKJyL6Et+ZTObgDZvSqIEBu7oWrKG+Qjq4OiEgaOoU+kqsqXQT
-X-Received: by 2002:a17:902:db09:b0:2d6:3c2f:6a4 with SMTP id d9443c01a7336-2dd8e40c22fmr14836915ad.13.1789524362973;
-        Tue, 15 Sep 2026 19:06:02 -0700 (PDT)
-Received: from fedora ([2607:fb92:3080:83e3:3c6f:fd76:69b:10ff])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd89f244c9sm3246075ad.76.2026.09.15.19.06.00
+        d=1e100.net; s=20260707; t=1789530474; x=1790135274;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=KZUnuuFf09iEV4TXLpHshSHcyHegz5o15LfPCufyx+E=;
+        b=JOUj9KWpu9vlWM2C0fqUna1PEMG7aT7jL/BftUbwvLsoKLogmtBvC6f0vo5W8rJG/z
+         9btDHyhFN/03V0SLx5Ie38f5+uxCmNRUpAFBtmiijo0dFM1S2SqTR1x4cJJg2G/YVi/C
+         LcxW3U02d+y5YmcSP6wkKvjz0jyyyKGjsPCZkX1cOlvBgDNh4QZwZpYYqohG+oGVGxBo
+         UOOjU+DEcepA9R6RljPNwWOHqKH7wDwPcc5GSGdVEKuDyyNdPTaDGxR9ORi2LsrhFtf4
+         /whC7EtCK3EydWlnj9sH5lGf8LOYHngAUO1e/zi8mPhUxqnZF/8/PVjO6Hd5v1SGuzmf
+         3ljA==
+X-Gm-Message-State: AFuF++nF+Tsr4nAFJAg8ozxRh1kpkqywAgwJV0Sddl2OG0aUmldLpztq
+	BElwfTmE8tAQTgkQmP4P7WBFR8/1U+njEtbE/XE3+J7vUP9Smt5ygFhi
+X-Gm-Gg: AYBFou0zbTGh6lAOW6Y2+C2T/vrRRn6k8O7lCsXQn6MmhmgYX0vEHuD1hzSQHyN4kfv
+	h2PSx+iDnF0Q7BFxNln8P9GJwx3sxRfwB9YdYTTfxdF+Dnskd65eE/wEmIlDttkHWnvl91ArXly
+	rV6keWtyWPjwai3uTuQ1Or0lRtqgexAqBwkEkeOC7+Qz2CdMnF3xhHTXKdq3k1w2al8WUVuRSot
+	1vx8+QWmthjfVN8y8iyVhdRNn1CbsPu671f0iZ1o20XXAX+6yfGGQpAjhFadNVAzg6eIS+RQxcy
+	0p84LclGm9Dk9As1JHY5my05LT9JkBfgu3usSOf6JMKh34BDmT6UrXk4T/p/lKidKuDwE7wwHgZ
+	z6MGCA/Tn9phWFrRqoOgctZ1rKRRML5y6lcSOylRoG2FrO2JBOHsdmLdyuvout+JvAn5LxmdgCE
+	WcUjS83JTM7m2P9t552oiwnF1ttyszhEfdCWZvVOb7KHuRIUh0jngHDgYKMhseg6w3NyQ=
+X-Received: by 2002:a05:6808:4fcb:b0:4c2:e38d:4de3 with SMTP id 5614622812f47-4ca4a9047a1mr1733472b6e.17.1789530473675;
+        Tue, 15 Sep 2026 20:47:53 -0700 (PDT)
+Received: from [192.168.18.164] ([2600:8804:5716:d800::b712])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-4ca2377aae6sm1446666b6e.7.2026.09.15.20.47.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Sep 2026 19:06:01 -0700 (PDT)
-From: Ping Cheng <pinglinux@gmail.com>
-X-Google-Original-From: Ping Cheng <ping.cheng@wacom.com>
-To: lee@kernel.org,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org
-Cc: stable@vger.kernel.org,
-	Ping Cheng <ping.cheng@wacom.com>
-Subject: [PATCH 2/2] Setup SW_MUTE_DEVICE according to the order of input registration
-Date: Tue, 15 Sep 2026 19:05:58 -0700
-Message-ID: <20260916020558.24308-1-ping.cheng@wacom.com>
-X-Mailer: git-send-email 2.55.0
+        Tue, 15 Sep 2026 20:47:53 -0700 (PDT)
+From: Ryan Brue <ryanbrue.dev@gmail.com>
+Date: Tue, 15 Sep 2026 22:47:50 -0500
+Subject: [PATCH] dt-bindings: input: mediatek,mt6779-keypad: add the MT8173
+ keypad
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260915-rbrue-suez-upstreaming-mt8173-keypad-v1-1-96c325efacbe@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3Nyw6CMBBG4Vchs3aSFgwXX8W4qPQHJ4baTKlRC
+ e9uw/LbnLNRggoSXaqNFG9J8goF9lTR+HBhBosvptrUrRnsmfWuGZwyfpxjWhVukTDzsva2a/i
+ Jb3SeJ+/HxrYOZuippKJiks+xud72/Q+w0P5JdgAAAA==
+X-Change-ID: 20260914-rbrue-suez-upstreaming-mt8173-keypad-fddc316ae098
+To: Mattijs Korpershoek <mkorpershoek@kernel.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-mediatek@lists.infradead.org, Ryan Brue <ryanbrue.dev@gmail.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789530471; l=2015;
+ i=ryanbrue.dev@gmail.com; s=20260906; h=from:subject:message-id;
+ bh=iB6N5HJd5gxJ6JfDRUspRgFcS0Yl2pln4xko2Z2q6Tg=;
+ b=ALF9MhZ4iDbh4vFTTUxFBuixvjgq+QLsNGyPYSFi+QRZHCViQOngwQy98zKiBOP33E4wyYcbz
+ YQjSzhJfhYlCnTGnNHLmhDpo9Ie+KvCnRBPR12NrzDy5tFpdqQ85FYX
+X-Developer-Key: i=ryanbrue.dev@gmail.com; a=ed25519;
+ pk=KsUvVaP//v/2q+ZBuacc7cLbsyEYn+AD71Sn28oZWKo=
 
-From: Ping Cheng <ping.cheng@wacom.com>
+MT8173's keypad controller is the same block this driver already handles.
+Its register map agrees offset for offset with the MT6779 one -- STA 0x00,
+MEM1..MEM5 0x04..0x14, DEBOUNCE 0x18, SEL 0x20, EN 0x24 -- and
+mt6779-keypad drives it with no code change, so the node only needs the
+fallback compatible in second position. Add the mt8173 string to the
+existing enum, which is what mt6873, mt8183, mt8365 and mt8516 already do.
 
-The refactored SW_MUTE_DEVICE code assumed that stylus will be the
-first regiestered input. In reality, touch can be registered
-before stylus, such as the Wacom Cintiq Pro 13 and 16.
+Verified on an MT8173 board (Amazon Fire HD 10 2017): the volume rocker
+reports through mt6779-keypad with no driver modification.
 
-This patch covers both touch-first and stylus-first cases.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Assisted-by: LLM
+Signed-off-by: Ryan Brue <ryanbrue.dev@gmail.com>
 ---
- drivers/hid/wacom_wac.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+This is the binding half only. The board device tree that uses it, an Amazon
+Fire HD 10 (2017), is not upstream yet and comes with the rest of that
+board's nodes later; adding the compatible first keeps that submission from
+carrying a forward reference.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index c4cd87b781c4..9520296cb349 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3977,10 +3977,12 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
- 
- 	if (features->type == HID_GENERIC) {
- 		hid_dbg(hdev, "generic touch setup\n");
--		if (wacom_wac->has_mute_touch_switch ||
--		    (wacom_wac->shared && READ_ONCE(wacom_wac->shared->has_mute_touch_switch))) {
-+
-+		/* setup touch switch for those devices that report pen interface first
-+		 * can only be done here since we only call this routine once
-+		 */
-+		if (wacom_wac->shared && READ_ONCE(wacom_wac->shared->has_mute_touch_switch)) {
- 			input_set_capability(input_dev, EV_SW, SW_MUTE_DEVICE);
--			wacom_wac->has_mute_touch_switch = true;
- 		}
- 		/* setup has already been done */
- 		return 0;
-@@ -4403,7 +4405,21 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- 		break;
- 
- 	case INTUOSHT3_BT:
-+		break;
-+
- 	case HID_GENERIC:
-+		if (wacom_wac->shared) {
-+			/*
-+			 * setup touch switch capability can only be done here
-+			 * for those devices that have touch input registered
-+			 * before stylus and pad inputs.
-+			 */
-+			if (wacom_wac->has_mute_touch_switch &&
-+			    wacom_wac->shared->touch_input) {
-+				input_set_capability(wacom_wac->shared->touch_input,
-+				    EV_SW, SW_MUTE_DEVICE);
-+			}
-+		}
- 		break;
- 
- 	default:
--- 
-2.55.0
+No driver change goes with it. mt6779-keypad matches on the fallback, which
+is how mt8183, mt8365 and mt8516 bind today -- only mt6779 and mt6873 are in
+the driver's own match table.
+---
+ Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+index 914dd3283df3..b45dbf805ac8 100644
+--- a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
++++ b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+@@ -27,6 +27,7 @@ properties:
+       - items:
+           - enum:
+               - mediatek,mt6873-keypad
++              - mediatek,mt8173-keypad
+               - mediatek,mt8183-keypad
+               - mediatek,mt8365-keypad
+               - mediatek,mt8516-keypad
+
+---
+base-commit: fd73f4a6659897191fa0d40695fe370925dd3780
+change-id: 20260914-rbrue-suez-upstreaming-mt8173-keypad-fddc316ae098
+
+Best regards,
+--  
+Ryan Brue <ryanbrue.dev@gmail.com>
 

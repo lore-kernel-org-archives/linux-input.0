@@ -1,116 +1,60 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C625517BDF;
-	Wed, 16 Sep 2026 14:23:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 540A151A736;
+	Wed, 16 Sep 2026 14:25:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789568584; cv=none; b=SOuhDH8CCS1NLIigQOjcSzCSPNwS8OYwD7o7BMrlNUYM5N0atM9hLhSXpMoafnswV0sIbObnIxT4b0OQa/jznKi0lAOEZEPbk/tc3Iv2KZ0RjDML+SG7PAIeqsVLLb2yrP73QNzOMb9MWCOz+40HKCSc1IE9kiIxGZlJiGgBlkg=
+	t=1789568740; cv=none; b=euemhd2ftZ/rkmYUf403lhNfMHXGtOFAa7hIEIVIquVn4A982futaT3NGi9Q/2mp2kNNRfx7J2BOKpTfyRwGUcpwBTGytR65yke/M4QpVHovfWATTqnG2jophroLw0YwiECihWmiz6aQUEdL4SMrWWG6kIb8eln4mjnLGLwoqb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789568584; c=relaxed/simple;
-	bh=I4CTX75TF5hVx5UxMd8q7ZxWApioKhsfuYRkgccb7/o=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Ho7u2xJ31TC0B1/gfbSvjEaTWYgAvYv6I0qMdT8u1Z5BgEb56b6YWTc90gjU3Vo7dOgHrrxy3/8Mple/lelp3FTqG2QRubxTB/khrriOYVi7syldP68m9ghr0eb2u9zDiOCAlLbJ2SU83UyB2frJfGzeWICJ6Xi/50q6r9zkk1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SPBfGnlY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1789568740; c=relaxed/simple;
+	bh=IpdiSSGwSt1aQj4eb/hpjw2YAEYJmBmtbJNJ7SSVmMI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Pz6jkT5oYolMlnIoIs/rWApdi3HU7tNA3ABR/kbPZcbnH3G0+auYCXKkEymgCzsoLgn5qz3Kd9HEVudDH64RYMtdwOnrPbRuk1ewo99307KRD5POADIysSDKk+uPh5siD+pjTRcDtl510bvuJLJUOZdwX1daS1izwQJuOAn4+v4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aILRVYGC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SPBfGnlY"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D19DCC2BCB3;
-	Wed, 16 Sep 2026 14:23:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1789568583;
-	bh=I4CTX75TF5hVx5UxMd8q7ZxWApioKhsfuYRkgccb7/o=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=SPBfGnlYryT4By6nB8pUwUYaohWMigVzZz7uhPW9y5lcm1TIPhKKKL7nRg3yQMwWo
-	 jXHVb/bVfxefxileDbJ5gvGRR2UPD+tM+vtGAVe80k3Jv+MzODsNxwYh4oR7u/5c+R
-	 suBqA+m7cuv4wMYdlZA/h4WbK1zP4qqxMwaQa2KBuGzggjZMum1m0e2xKysPp/bOtN
-	 JIEX5ZQbz5XLmbDd3HIIMnMy/sagTWiUV3fTMhCY6XTt1ozxEIA7YPBeFWsBrD3Fpj
-	 lBfs9AyN1l1pndTSCrlRDelNJ/NpysdoiM21knYQ+7/sQWT8K5x6L+zFTVZOv6XILm
-	 7ddTa8quypoHA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8EC0C982C5;
-	Wed, 16 Sep 2026 14:23:03 +0000 (UTC)
-From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
-Date: Wed, 16 Sep 2026 17:22:20 +0300
-Subject: [PATCH v2 15/19] dt-bindings: thermal: tsens: Add MSM8952
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aILRVYGC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87CB41F0089A;
+	Wed, 16 Sep 2026 14:25:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789568738;
+	bh=IpdiSSGwSt1aQj4eb/hpjw2YAEYJmBmtbJNJ7SSVmMI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=aILRVYGCytaC4RBLhqxzhs5YzZd4p9KqvjFD1Yvd6CczrfBQqV7cGsKUfGHkI6eMk
+	 XZkobmT0GNIwxNEaQCN4xH9KQ5ius1nZccFuWZ3pVtGv1myOgGBNHKVBJwB00WNTzf
+	 vCeFAB1g9Z72to4piG4LGfU/CGt3DQ09iEfJtjPV3SUCahcDCFfPYupdLBsvd96MyP
+	 3W8T1XWBlpzNPioJIeM4Hrq93fQQDnfuz8jbESImKiC6q+OrruaumvX9d2tAQWK8rW
+	 qGi2nyH4LNXoRBF0ESLtEzp152865MecfHHIMrsrNS+FQlfOoDFY6/F6TkG/weRbCk
+	 RXRCHCH5NFiqQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 06/19] dt-bindings: vendor-prefixes: Add General
+ Mobile
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
+Cc: linux-input@vger.kernel.org, conor+dt@kernel.org, linux-clk@vger.kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org, lee@kernel.org, dri-devel@lists.freedesktop.org, mfd@lists.linux.dev, robh@kernel.org
+In-Reply-To: <20260916-msm8952-initial-support-v2-6-798c2602dde1@mainlining.org>
+References: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
+ <20260916-msm8952-initial-support-v2-6-798c2602dde1@mainlining.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 16 Sep 2026 14:25:37 +0000
+Message-Id: <20260916142538.87CB41F0089A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260916-msm8952-initial-support-v2-15-798c2602dde1@mainlining.org>
-References: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
-In-Reply-To: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
-To: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
- Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
- Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>, 
- Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
- Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>, 
- Rob Clark <robin.clark@oss.qualcomm.com>, 
- Dmitry Baryshkov <lumag@kernel.org>, 
- Abhinav Kumar <abhinav.kumar@linux.dev>, 
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
- Marijn Suijten <marijn.suijten@somainline.org>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>, 
- Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>, 
- Tony Luck <tony.luck@intel.com>, 
- "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: David Heidelberg <david@ixit.cz>, Dang Huynh <danct12@riseup.net>, 
- phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- linux-clk@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org, 
- iommu@lists.linux.dev, mfd@lists.linux.dev, dri-devel@lists.freedesktop.org, 
- freedreno@lists.freedesktop.org, Krzysztof Kozlowski <krzk@kernel.org>, 
- linux-pm@vger.kernel.org, linux-input@vger.kernel.org, 
- Muzaffer Kadir <muzafferkadir@mainlining.org>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789568579; l=797;
- i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
- bh=qpZ4iKLD/3vBtZO46iDlquc+pQ/AKxoxvg54YFCLw48=;
- b=2XsdEXnBXh1Az36JsopU3NLkX1Igbws9nWi07z6oO8aDEqtGI6mtUKxfnWg2d+BBR0GxtQ7e1
- qJLGLY6WuOpDgkI9y1IxqNf0lYodueH9m/FsNohPFgxWRIecX7ypuRI
-X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
- pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
-X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
- with auth_id=954
-X-Original-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Reply-To: muzafferkadir@mainlining.org
 
-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+> From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+>=20
+> Add vendor prefix for General Mobile.
+> Link: https://www.generalmobile.com
+>=20
+> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Add compatible string for tsens block found in MSM8952.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
----
- Documentation/devicetree/bindings/thermal/qcom-tsens.yaml | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml b/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml
-index 5a8f7673e730..c78074fbcecf 100644
---- a/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml
-+++ b/Documentation/devicetree/bindings/thermal/qcom-tsens.yaml
-@@ -46,6 +46,7 @@ properties:
-         items:
-           - enum:
-               - qcom,msm8937-tsens
-+              - qcom,msm8952-tsens
-               - qcom,msm8956-tsens
-               - qcom,msm8976-tsens
-               - qcom,qcs404-tsens
-
--- 
-2.55.0
-
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-msm8952-in=
+itial-support-v2-0-798c2602dde1@mainlining.org?part=3D6
 

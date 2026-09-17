@@ -1,157 +1,113 @@
-Received: from mail-ej2-f20.google.com (mail-ej2-f20.google.com [74.125.228.148])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DB0343305A
-	for <linux-input@vger.kernel.org>; Thu, 17 Sep 2026 08:25:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD1FA448CED;
+	Thu, 17 Sep 2026 08:35:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789633552; cv=none; b=u98LTDN3fgX0Oh7S4qBDaEIR3ceJif/fT5jmvbtJdB7nF6XWeWZ85W542Y+WkmSP7cSErt3d+LlNcgX3XdePXl1Jtjk+ZPTJ9UNjG49geJdDZLGOAp2fryUe7cV3dDdjWTBF1RaSvJRPjA0KCjJ+88ckZzdpicKQ07mDvAJAT2A=
+	t=1789634127; cv=none; b=mZrTDKADkEovpDUIaG8QtnuvubM7TvNQ83stW7smcFYpFc5oBGVEOsMYSGX3LGDWOsPE6cziwVv9rw04p4B2vDBpCVjQn8g+jlmRNJaZaf21XeaFA2Mgx0HCRaTQXf74GVKqMc4kFFYWKjhpyl5CD9yEnBBQZKrE6J9h2vQUe/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789633552; c=relaxed/simple;
-	bh=tKqz8WaA5fCf8zqxAuhb+KSHy9L2ioB7dBm28PChNnM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=iENSCC2e/8oY+LiGXgGWs8SbLdCNYh4k5ogMZEJVC7+VExaV7uqtI1A8ITOtGlHT2QXB2BVVZMZxguV66s44OuGhuw+ph8BzJvB6QRMgYlpNjgo/SHjK++rxWe6hkPj0JLX7jHXRQ1hikYRAfnPi6s0g8gT2wWuwlZz4CL87a8Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=IDVJg5Aq; arc=none smtp.client-ip=74.125.228.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
+	s=arc-20240116; t=1789634127; c=relaxed/simple;
+	bh=oXON2f9bkcv6xlMxmeaSORdAvyn+kqMh97XQBzM3x2Q=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=fNTcUgLXCi1XnIIKPtH4Yi9qM57Q6NPcK2VFnxcruEE/eSuu/vfVp+D2BvlkjR4x6jcJkZdDoPrImeSJtrGRrfqXeHcU13NaxPMF76NXccbl2CPZJxXG+LVgngs9LmQvbAPr/VNe6bps90dD4ImJ8sVXWAuJgOHS5vP35EvVrDo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mtm8o8Gg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="IDVJg5Aq"
-Received: by mail-ej2-f20.google.com with SMTP id a640c23a62f3a-c293c683202so87392566b.3
-        for <linux-input@vger.kernel.org>; Thu, 17 Sep 2026 01:25:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fairphone.com; s=fair; t=1789633529; x=1790238329; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=T0+EbfIJEQi9Km2o4RWY1Oe967wA79enaext7ctyUJE=;
-        b=IDVJg5AqZ5Y8c7H7zSYinlG5tIi5AwD653xe1nqKmyj7tZsrPP9eDHFCoxu5+v78XZ
-         z7r//+jXaK1ItG7a4lVzO7wNdC8OvvPBW9rwzaghfbZRGCpL9OTTXT+bcu6z5nLUYjdJ
-         yCOwUOpys8DQEkxk8s5PQcVfCbou9UeEz85BbUOsCx864wVz6ta7gT4ZNFL96mTKSDUi
-         eRchZgctIDCvFsKTcHyJZdQSHo4jymsw3XwHlA5L29oFrH6slArNj5p73/AN3O3I+QYI
-         1HhU7ixTJPSeHDAq8b2G57TiwRcAe+fmO95w8JTMSxTzivHi8kmnrlTAYQHLZU/jDnAy
-         dzqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789633529; x=1790238329;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=T0+EbfIJEQi9Km2o4RWY1Oe967wA79enaext7ctyUJE=;
-        b=b4ni69H12yhus+ve+i1Og3lykEPan4laLJD2dmP0oL58jJ0F5j3PZ4wm6Xy0YOc9+X
-         n6tHOtAwAfon0TPXARvfZJoigaX3gkLWDUTzjQsn+1vOHf/AywFqEYw9ahNh5Yg8u2Bi
-         0MQJ2PdB95oFEJc/NWhQQyXdqS7VOFP8OE9Z2rlSn2v7nnFmfAPYgZnGBxCW1Em1O/jE
-         DTFOoBvDlZDtvR7SRRZpycpSabaESzKHAVfTCNBMj1/8pecm1d3lg/YpZvQdjG9e/40H
-         iwZgeKUpHkQqC2nJ58k1b+piczYCQvaB3pU55gW6RneDvCkHyiEe8w+fUtH3LuSO51Zk
-         DVHw==
-X-Forwarded-Encrypted: i=1; AKwUvBw0Fw/5ON4Y83SEDwEvn6F7wAmx9n3S+ZLYHIWY8DIgQMrmp5EL2bA/WSs4Jhey3z1YjHvcq9idxi8LrQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++ngkrXFnfUbPRXVMeBFJbrrHvy19sTfJRokF22Kie7s4IjBQjxh
-	S1HMLP4gb9paFNoaE3M0h5m13YCLNII9uf++hdW+aZYo6FYY13tdzdIsHlHec4E1mXXfJVuczrK
-	KvhBw
-X-Gm-Gg: AYBFou2QUdcAnvTVW9sY9DTPMo2kmPGzlVWABV5nGN5BJaIMmTCsjY7AHzbgRgZDd8U
-	iDCWLJRyzKYt+zfP79NSTRbwlHCg7DE/Ex9fSaA6NSeyz1S79aFFyyqp7cQzOs5NVbo4Vmss+/w
-	6I3PeWMHSJkutewjYjM14qnTp+X9+ZtHmyPdgHCg9gLosC5jDIwex1O2kl87nO+7bkJj6mCVSJX
-	xu+RFsd9l50JD25vRGH81w73Hs7/o7YtijTAIOKo5JrMhCLtUDf0lGmyuWETHNxuZ+zRGRS3VBU
-	+KC/yW9VAjIY7SPrz0OOmKXtt2Oo/TEAhYa9eBOpyLFbi0wPOlgJFWgGojxOqfwdNH33yn774yS
-	AatDqIedS1EfpFIzY2koVXbW16DdzN6AGcsmTlHJuloDeIQLlt5paYCOopOJDePT7GKBADDF/nX
-	38E89827hy963X+4loxtJeuAGwFENAmUgjFw5Ftq8mY3B6ldHxZTlh3HOEzA6diQb+UBaWQLML8
-	OdmrpBQ2cm7RyOj2dfrpCOURT7ht3MqIobwhD9AEFEFE6Znp8cI2r6U3uQX0Yw=
-X-Received: by 2002:a17:907:7205:b0:c29:59ea:5bf9 with SMTP id a640c23a62f3a-c29e52085bamr405665266b.14.1789633529521;
-        Thu, 17 Sep 2026 01:25:29 -0700 (PDT)
-Received: from [172.16.220.101] (144-178-202-138.static.ef-service.nl. [144.178.202.138])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c29de0851ebsm242943966b.4.2026.09.17.01.25.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2026 01:25:29 -0700 (PDT)
-From: Luca Weiss <luca.weiss@fairphone.com>
-Date: Thu, 17 Sep 2026 10:25:25 +0200
-Subject: [PATCH v2 3/3] arm64: dts: qcom: milos-fairphone-fp6: Add
- touchscreen
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mtm8o8Gg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 092F21F000FF;
+	Thu, 17 Sep 2026 08:35:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789634110;
+	bh=btoqsva7HCSTivJzXmSqtuKbuJZ3tspB+VplxGWmavU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mtm8o8Ggcmjl4voiMNfPOMcavGrxruEL8ddtlai69gIcOvx65z0PAwNwKdlt0XlXq
+	 +jvoWLGD4tHjuO8MixcxPTe6/oLgqRVYh6Sj2fQ8ruBB1FkFZO3A3R8qdP/cNfc6jR
+	 9uQioi+xHFGFtWOuTHuWWgMfLjY3jVEnvt0L2BLprHcd8DMoAXOyAYoD6WCNMoCJTF
+	 Mj5J1n8BCWO9D6mF0rPwCoXYfjVgg6Zqk3OpMLVvdLWyPmexVGYUaCf0728lf8sZ7G
+	 PEKKd0xPYARpnWHroCrZFbyiaYeTCFYnSUTLRVl5iqF5M+6w2jE47ZSO/Ok/1ybIjy
+	 Cy2rBoIIyjXiA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/3] Input: Add driver for ESWIN EPH8621 touchscreen
+ IC
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Luca Weiss" <luca.weiss@fairphone.com>
+Cc: robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260917-eswin-eph8621-v2-2-f534080a6338@fairphone.com>
+References: <20260917-eswin-eph8621-v2-0-f534080a6338@fairphone.com>
+ <20260917-eswin-eph8621-v2-2-f534080a6338@fairphone.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 17 Sep 2026 08:35:09 +0000
+Message-Id: <20260917083510.092F21F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260917-eswin-eph8621-v2-3-f534080a6338@fairphone.com>
-References: <20260917-eswin-eph8621-v2-0-f534080a6338@fairphone.com>
-In-Reply-To: <20260917-eswin-eph8621-v2-0-f534080a6338@fairphone.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>
-Cc: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
- linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- Luca Weiss <luca.weiss@fairphone.com>, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789633524; l=1602;
- i=luca.weiss@fairphone.com; s=20250611; h=from:subject:message-id;
- bh=tKqz8WaA5fCf8zqxAuhb+KSHy9L2ioB7dBm28PChNnM=;
- b=UXnL3U0l+wxPa6dEX/B0T61AEQAmzOv/3SA2eDzB+9GPdURRWB1b9TGmZdmBpcE0PZyPxTwsc
- j0/hz+WM++LBcUzDuhnIkvW3795KB3LK3CwcFy3Zl97BxeSBbPLw6ph
-X-Developer-Key: i=luca.weiss@fairphone.com; a=ed25519;
- pk=O1aw+AAust5lEmgrNJ1Bs7PTY0fEsJm+mdkjExA69q8=
 
-Add a node for the ESWIN EPH8621 touchscreen connected via SPI and the
-pinctrl state for the two GPIOs connected to the touchscreen.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] input: unhandled SPI errors in IRQ handler cause IRQ storm
+- [Low] input: implicit return of input_register_device() in probe
+--
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
----
- arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts | 29 +++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+commit 72cf856c7b1ca07b03f9ce8e0bf75be42e60151c
+Author: Luca Weiss <luca.weiss@fairphone.com>
 
-diff --git a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts b/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-index 4b7ae87270ac..498fde3d3d18 100644
---- a/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-+++ b/arch/arm64/boot/dts/qcom/milos-fairphone-fp6.dts
-@@ -983,7 +983,27 @@ &sdhc_2 {
- };
- 
- &spi0 {
--	/* Eswin EPH8621 touchscreen @ 0 */
-+	status = "okay";
-+
-+	touchscreen@0 {
-+		compatible = "eswin,eph8621";
-+		reg = <0>;
-+
-+		avdd-supply = <&vreg_l22b>;
-+		vddio-supply = <&vreg_l9b>;
-+
-+		interrupts-extended = <&tlmm 19 IRQ_TYPE_LEVEL_LOW>;
-+		reset-gpios = <&tlmm 20 GPIO_ACTIVE_LOW>;
-+
-+		pinctrl-0 = <&touchscreen_default>;
-+		pinctrl-names = "default";
-+
-+		spi-max-frequency = <2000000>;
-+
-+		touchscreen-size-x = <1116>;
-+		touchscreen-size-y = <2484>;
-+		touchscreen-inverted-x;
-+	};
- };
- 
- &tlmm {
-@@ -991,6 +1011,13 @@ &tlmm {
- 			       <13 1>, /* NC */
- 			       <63 2>; /* WLAN UART */
- 
-+	touchscreen_default: touchscreen-default-state {
-+		pins = "gpio19", "gpio20";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-disable;
-+	};
-+
- 	sdc2_card_det_n: sdc2-card-det-state {
- 		pins = "gpio65";
- 		function = "gpio";
+Input: Add driver for ESWIN EPH8621 touchscreen IC
 
--- 
-2.55.0
+This commit adds a new SPI driver for the ESWIN EPH8621 series touchscreen
+controllers.
 
+> diff --git a/drivers/input/touchscreen/eswin_eph8621.c b/drivers/input/to=
+uchscreen/eswin_eph8621.c
+> index 0000000000000..866cdc7e9334d
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/eswin_eph8621.c
+[ ... ]
+> +static irqreturn_t eswin_interrupt(int irq, void *dev_id)
+> +{
+> +	struct eswin_touch *ts =3D dev_id;
+> +	int payload_len;
+> +
+> +	payload_len =3D eswin_comms_two_stage_read(ts, ts->rx_buf);
+> +	if (payload_len > 0)
+> +		eswin_process_report(ts, ts->rx_buf, payload_len);
+> +
+> +	return IRQ_HANDLED;
+> +}
+
+[Severity: High]
+Will this cause an interrupt storm if a communication error occurs?
+
+If eswin_comms_two_stage_read() fails and returns a negative error code
+(like -EINVAL), the device's interrupt condition isn't cleared. By
+unconditionally returning IRQ_HANDLED, the kernel's spurious IRQ detector
+is bypassed. Because the physical interrupt line is still asserted, won't
+the interrupt immediately fire again and lead to an infinite CPU loop?
+
+[ ... ]
+> +static int eswin_probe(struct spi_device *spi)
+> +{
+[ ... ]
+> +	error =3D devm_request_threaded_irq(dev, spi->irq, NULL, eswin_interrup=
+t,
+> +					  IRQF_ONESHOT, dev_name(dev), ts);
+> +	if (error)
+> +		return dev_err_probe(dev, error, "Failed to request IRQ\n");
+> +
+> +	return input_register_device(ts->input);
+> +}
+
+[Severity: Low]
+This isn't a bug, but does this violate the input subsystem's style
+preferences for explicit failure paths?
+
+The subsystem guidelines recommend against using `return action(...);` where
+the action returns an error code in functions with multiple failure points.
+Should this be expanded to capture the return value of=20
+input_register_device(), check it, and explicitly return 0 on success?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917-eswin-eph8=
+621-v2-0-f534080a6338@fairphone.com?part=3D2

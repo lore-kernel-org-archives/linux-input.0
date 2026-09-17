@@ -1,155 +1,142 @@
-Received: from mail-10625.protonmail.ch (mail-10625.protonmail.ch [79.135.106.25])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D22AF439F74
-	for <linux-input@vger.kernel.org>; Thu, 17 Sep 2026 06:41:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B26DE413230;
+	Thu, 17 Sep 2026 07:29:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789627266; cv=none; b=NFjO+jX21oDoZTmwZl5tkv5t84GVGUz89CDnAUp1OlxWDKKosA+3+oW5CEn6d/UXmBCP+oyF1ALaUS5NK7Q+uDRdfe9/lX+S5fnRF6pzjSHO5XtEwkTDazL7ElxNM+6R3TGiCLh42n2/J3KsbRQ4O3ENgH8eEgc3MnkZl/Lmbd4=
+	t=1789630199; cv=none; b=RdsHJsnLLim5VGAjdeMM7fpu073gGCgCC6OHcLtInPVyly9svldvN/QEHat2ZQJX+TjgZghLblp9lUKQcH9dKKslWSTrfjxzFPzD3AxgonEUw9MoqzOH2JLVR1YFix5OgLyI6aJ5rlv9UWKGxvnOuzLbp/6+KFcVB4i7WolIQG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789627266; c=relaxed/simple;
-	bh=CD59rCybS2V9qydWfgaxrXTy0zFaPKUartbQbnrKBWE=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KYW/+ynpy4RX7VM0ouLmwMJsweqXtBbai2poZLB5JsZChS0McXCyyLkGXjk6Au/d8YvW6cKBnIFxrxnycS84RSaVpamy3Sdiyy+FYtbrmmDoAjAub/ZN/yd8CBe8suF2sbiAsDalcr/i5xttRKA2A9Z+cXKX58jWtANrmvZTzH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=oscillator.com.au; spf=pass smtp.mailfrom=oscillator.com.au; dkim=pass (2048-bit key) header.d=oscillator.com.au header.i=@oscillator.com.au header.b=LIXhLaJk; arc=none smtp.client-ip=79.135.106.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=oscillator.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oscillator.com.au
+	s=arc-20240116; t=1789630199; c=relaxed/simple;
+	bh=hmtmu9OFm2jMkG2p/REuNGFR2N1az17XiJ7XocUZ4w8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JUM+rxoVqrLdCFfaq5sl6AfZpW7iHtCAPyMI1vbsLBvdFbC/0vpTpVnX1qYVpP+e2vgJhMHPqRvy3WC436T74mbbYHoUlvHAhEoK6t+ofReo73v4e1PRvm7p2nD/3P6KVxDntY/llj6QnfLqc9tMk6sbwJiMMqImgkFWbMjCIUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=YKVhb38Y; arc=none smtp.client-ip=157.90.84.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oscillator.com.au header.i=@oscillator.com.au header.b="LIXhLaJk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oscillator.com.au;
-	s=protonmail3; t=1789627261; x=1789886461;
-	bh=GaFiEGDmgijzj3h9hydippak/J54h62WkS0UcjoxdIs=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=LIXhLaJkasjST10o9/ldVvd3DSumlEcbTWNhB8XEAq20RktvaWjUF+0sr/u0cgrR7
-	 RgQfdwiJq++RWtXuzi+QtoJ3WV8X6aalKaR5RU7brHhyUSwMG2Yos9L9d/VrlshUic
-	 /WwYYM/4NH1hE/5OeuE9ZLulYtms3vdKrugMA1NdBu6spgdAzlSdA7Ar2OXxkefn5/
-	 4EjziBMzTMbO+wOtlB9iW3EYCa57uQSSdBp8ygsaL2AOzjbRHbJ8xRibicAF6UZ0AS
-	 dwi3JlMzZ5qE7RaOJENVb2AtF/P9hOBEU7myHilQ/BIKTl5GNDuWp26+HmKC8Qt9hA
-	 7fuHZRe86D9bQ==
-Date: Thu, 17 Sep 2026 06:40:55 +0000
-To: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-From: Cameron Spencer <cameron@oscillator.com.au>
-Cc: linux-input@vger.kernel.org
-Subject: Re: [6.12.107] MSI G63 9SEK - Synaptics touchpad falls back to PS/2, multitouch lost at boot, fixed by delayed protocol write
-Message-ID: <c931cbf5-23c8-41dd-a83f-55f972ec718d@oscillator.com.au>
-In-Reply-To: <aqcCuI183ErUorYO@eggarch>
-References: <4bd8e20e-e4cc-4528-9862-740a437c2687@oscillator.com.au> <aqcCuI183ErUorYO@eggarch>
-Feedback-ID: 30604393:user:proton
-X-Pm-Message-ID: d80e3a65047026b070e4821813886301ace8a301
+	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="YKVhb38Y"
+Received: from [10.235.78.2] (dynamic-176-002-023-135.176.2.pool.telefonica.de [176.2.23.135])
+	(Authenticated sender: a.erhardt@tuxedocomputers.com)
+	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id C48992FC008A;
+	Thu, 17 Sep 2026 09:29:52 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
+	s=default; t=1789630193;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D8wQE6SwLH5L7C2ebQaVH+SukVEVlP9i48FkxeJY66w=;
+	b=YKVhb38Ye5G1TvOgGJmW+Jfi2PMfitcuOOqs3D9OSH2ubPwTc3QXkT8AFi67zIh0cGNgNs
+	7Mz806CGH0/8noSV3TxJCD9ACIwxWUaR2pfXXqt7jnM5m6gjLBu5YQXndTYjeuJi/gDAQo
+	eSCoyKX1mOtixt8Jy3SHVM+pjpqz2rQ=
+Authentication-Results: mail.tuxedocomputers.com;
+	auth=pass smtp.auth=a.erhardt@tuxedocomputers.com smtp.mailfrom=aer@tuxedocomputers.com
+Message-ID: <5ef39e91-ad4c-4959-afe3-bad860486ca8@tuxedocomputers.com>
+Date: Thu, 17 Sep 2026 09:29:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 0/3] HID: generic: add LampArray support via
+ hid-lamparray helper
+To: Cristian Mazzotta <cmmazzo@icloud.com>
+Cc: W_Armin@gmx.de, bentiss@kernel.org, jikos@kernel.org,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ wse@tuxedocomputers.com
+References: <20260916144838.456239-1-aer@tuxedocomputers.com>
+ <20260916161551.36695-1-cmmazzo@icloud.com>
+Content-Language: en-US
+From: Aaron Erhardt <aer@tuxedocomputers.com>
+In-Reply-To: <20260916161551.36695-1-cmmazzo@icloud.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi,
+Am 16.09.26 um 18:15 schrieb Cristian Mazzotta:
+> On 16.09.26 16:48, Aaron Erhardt wrote:
+>> Add a new hid-lamparray helper module and integrate it with the hid-generic
+>> driver.
+> 
+> Thanks for picking these up!
+> 
+> I do have two corrections on patch 3 however, and both were mine
+> originally, so my bad:
+> 
+>  - The measurement in the commit message and in the comment above
+>    lamparray_suspend() is wrong. It should be 12.35 W with lamps lit and
+>    3.14 W blanked, which is 9.21 W or about 75% of s2idle draw, not
+>    2.84 W / 77%. The 2.84 W was an earlier test on a local branch that
+>    includes full multi-zone support. It's worth noting in the comment that
+>    the 3.14 W still includes the lid zone, which single-zone control
+>    cannot reach on this device.
+> 
+>  - The kerneldoc for lamparray_suspend() still says it "writes zeroes to
+>    the rgb values only, keeping the brightness", but the call is now
+>    lamparray_hw_set_state(ldev, 0, 0, 0, 0). The code is fine, but the doc
+>    should follow it.
 
-Thanks for your swift reply. It appears this is not reproducible in=20
-mainline:
+Ack. Will be fixed in v7.
 
-Tested on 7.3-rc2 and the device probes as SynPS/2 at ~1.9s without=20
-requiring workaround.
+> 
+> On your question about the default state: I think the lights "look like
+> they don't work" can be a real conclusion, but the cause is the intensity
+> default rather than the brightness default.
+> 
+> With led_init_state NULL, last_r/g/b stay zero, register_led copies
+> them into subleds[].intensity, and brightness_set reads r/g/b back out
+> of subled_info[].intensity. So every brightness write sends
+> (0, 0, 0, brightness), which is black at any brightness. The
+> zero-brightness quirk does not change this since it only forces RGB to
+> zero when brightness is already zero.
+> 
+> The LED class device is therefore inert rather than just dark;
+> systemd-backlight restoring a saved brightness, or a DE slider, or
+> UPower, all write brightness and see nothing happen. This is because
+> nothing in that stack writes multi_intensity first.
+> 
+> Defaulting to autonomous mode would not fix that. It would replace an
+> inert knob with an ignored one: the cached RGB and brightness would
+> describe nothing the hardware is doing, and a DE would have to
+> discover and write use_leds_uapi to make the node real. That is
+> driver-specific knowledge that desktop environments are unlikely to
+> carry.
+> 
+> On a second look, I would suggest keeping brightness at LED_OFF, but
+> defaulting the intensities to max_r/max_g/max_b. The device is still
+> dark at probe, autonomous mode is still disabled so the cached state
+> matches the hardware, and the first brightness write from existing
+> userspace lights it up. Combined with the quirk you added for Armin's
+> device, it stays dark even on firmware that ignores the intensity channel.
 
-$ dmesg | grep -iE 'psmouse|synaptics|serio|i8042'
-[=C2=A0 =C2=A0 0.514787] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:=
-PS2M]=20
-at 0x60,0x64 irq 1,12
-[=C2=A0 =C2=A0 0.518517] serio: i8042 KBD port at 0x60,0x64 irq 1
-[=C2=A0 =C2=A0 0.518524] serio: i8042 AUX port at 0x60,0x64 irq 12
-[=C2=A0 =C2=A0 0.527696] input: AT Translated Set 2 keyboard as=20
-/devices/platform/i8042/serio0/input/input0
-[=C2=A0 =C2=A0 1.910459] psmouse serio1: synaptics: queried max coordinates=
-: x=20
-[..5656], y [..4728]
-[=C2=A0 =C2=A0 1.939125] psmouse serio1: synaptics: queried min coordinates=
-: x=20
-[1284..], y [1128..]
-[=C2=A0 =C2=A0 1.939132] psmouse serio1: synaptics: Your touchpad (PNP: SYN=
-1509=20
-SYN1500 SYN0002 PNP0f13) says it can support a different bus. If i2c-hid=20
-and hid-rmi are not used, you might want to try setting=20
-psmouse.synaptics_intertouch to 1 and report this to=20
-linux-input@vger.kernel.org.
-[=C2=A0 =C2=A0 1.995171] psmouse serio1: synaptics: Touchpad model: 1, fw: =
-8.2,=20
-id: 0x1e2b1, caps: 0xf00323/0x840300/0x26800/0x0, board id: 3163, fw id:=20
-2286728
-[=C2=A0 =C2=A0 2.031111] input: SynPS/2 Synaptics TouchPad as=20
-/devices/platform/i8042/serio1/input/input6
+I think this is a good idea. In general, the default should probably
+either set intensities to max_(r|g|b) or brightness to max_brightness.
+This would reduce the amount of writes necessary to see a result and I
+agree that probably the brightness knob is most likely to be used by
+userspace. Still, I'd like to have some more feedback, especially from
+the maintainers before integrating this behavior in v7.
 
+> 
+> One hardware data point, since discoverability came up: on the Acer
+> Predator PT14-52T the keyboard brightness keys are handled entirely in
+> the EC and never reach the LED class device, so they cannot be relied
+> on to show the user that anything is controllable.
+> 
+> On multi-collection, I don't see myself getting to it soon. I might work
+> on it during fall or winter break of my university, however I cannot
+> guarantee it, so please do not consider it blocked on me. The ENE
+> controller exposes two LampArrayAttributesReport collections and
+> lamparray_parse_update_report() only keeps the last.
+> 
+> I have a local branch which includes working multi-collection support.
+> It's based off of Tim's v4, and it's what I referred to in the original
+> v4 thread; I'd be happy to send over my branch as a reference, though
+> porting it to v6 is not trivial.
 
-
-
-The previous kernel (6.12.101+deb13-amd64)=C2=A0doesn't have this issue eit=
-her.
-
-
-Kind regards,
-
-Cameron
-
-On 14/9/26 06:22, Lovekesh Solanki wrote:
-> On Sun, Sep 13, 2026 at 05:23:43AM +0000, Cameron Spencer wrote:
->> I experienced an issue where my Synaptics touchpad is registered as a
->> basic PS/2 device at boot, losing all multitouch functionality
->> (two-finger scroll, gestures). Writing "synaptics" to the sysfs protocol
->> file a few seconds after boot restores the SynPS/2 extended protocol and
->> full functionality.
->>
->> System:
->>
->> - Kernel: 6.12.107+deb13-amd64
-> Hi,
->
-> Thanks for the report, could you see if the issue is reproducible in main=
-line
-> first?
->
->>   =C2=A0 =C2=A0 $ dmesg | grep -iE 'psmouse|synaptics|serio|i8042'
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.006462] i8042: PNP: PS/2 Controller
->> [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.010384] serio: i8042 KBD port at 0x60,0=
-x64 irq 1
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.010392] serio: i8042 AUX port at 0x60,0=
-x64 irq 12
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 1.018706] input: AT Translated Set 2 keyb=
-oard as
->> /devices/platform/i8042/serio0/input/input0
->>   =C2=A0 =C2=A0 # psmouse probes at boot, fails the Synaptics handshake,=
- registers
->> as plain "PS/2 Synaptics TouchPad" (no multitouch)
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 2.384949] input: PS/2 Synaptics TouchPad =
-as
->> /devices/platform/i8042/serio1/input/input6
->>   =C2=A0 =C2=A0 # psmouse-reload service runs after systemd-udev-settle =
-and writes
->> synaptics to /sys/bus/serio/devices/serio1/protocol, then re-probes with
->> the Synaptics extended protocol, queries coordinates, and registers as
->> "SynPS/2 Synaptics TouchPad" (multitouch restored)
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.654815] psmouse serio1: synaptics: quer=
-ied max coordinates:
->> x [..5656], y [..4728]
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.683422] psmouse serio1: synaptics: quer=
-ied min coordinates:
->> x [1284..], y [1128..]
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.739382] psmouse serio1: synaptics: Touc=
-hpad model: 1, fw:
->> 8.2, id: 0x1e2b1, caps: 0xf00323/0x840300/0x26800/0x0, board id: 3163,
->> fw id: 2286728
->>   =C2=A0 =C2=A0 [=C2=A0 =C2=A0 8.775128] input: SynPS/2 Synaptics TouchP=
-ad as
->> /devices/platform/i8042/serio1/input/input21
-> Seems like firmware is unable to answer extended queries for some time
-> after initialization and just falls back to PS/2,
->
-> perhaps we could just add a retry loop around
-> synaptics_query_hardware() to give firmware a little extra time.
->
-> Thanks,
-> Lovekesh
-
+I could have a look at your branch, but I think it's better to wait for
+this series to be merged before exploring more advanced features. I
+can't guarantee that I will work on that actively, especially since I
+don't have access to such hardware, but I'm curious to see what changes
+you have applied to make it work with v4.

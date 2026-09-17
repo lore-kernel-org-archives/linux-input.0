@@ -1,113 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD1FA448CED;
-	Thu, 17 Sep 2026 08:35:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FA2F48FF77;
+	Thu, 17 Sep 2026 08:39:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789634127; cv=none; b=mZrTDKADkEovpDUIaG8QtnuvubM7TvNQ83stW7smcFYpFc5oBGVEOsMYSGX3LGDWOsPE6cziwVv9rw04p4B2vDBpCVjQn8g+jlmRNJaZaf21XeaFA2Mgx0HCRaTQXf74GVKqMc4kFFYWKjhpyl5CD9yEnBBQZKrE6J9h2vQUe/s=
+	t=1789634354; cv=none; b=aZGNRkf8WMcVgyiyTiiSJLz5/05xlZCz2Lk/AL9iOrcPeE96OGcEKibtiODcNCPfRqK1IwvM2iJ+sxmZ6/+vjgycbB+YwcmlZuFVuc5JHWplo6xAY5D1JmF8tHkFZqumVhp+85mQ/aKJRxueSAdbFQh/WcoebCy/c5Nf3T3Q3GE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789634127; c=relaxed/simple;
-	bh=oXON2f9bkcv6xlMxmeaSORdAvyn+kqMh97XQBzM3x2Q=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fNTcUgLXCi1XnIIKPtH4Yi9qM57Q6NPcK2VFnxcruEE/eSuu/vfVp+D2BvlkjR4x6jcJkZdDoPrImeSJtrGRrfqXeHcU13NaxPMF76NXccbl2CPZJxXG+LVgngs9LmQvbAPr/VNe6bps90dD4ImJ8sVXWAuJgOHS5vP35EvVrDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mtm8o8Gg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789634354; c=relaxed/simple;
+	bh=GynwFI5vip7Kr6umZm873EPrEE38lvHB75YMQiazVS8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qMTj01Axo2l1ZHb6vUwP0M4nYRrfE0Kr4EbDTaYehU3yLPKqeQLISS4tN36ueF7RIFb86sCpNSsnk1x3m6wqxpYzACjDg/ObFKmur2sD+b6yGACDeYzfxLMny55yhN6gjhO9kh3OeGo9FzvdSm9cF9wsZNdEuVixf4GyCyAEmKM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZGOGmkLC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mtm8o8Gg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 092F21F000FF;
-	Thu, 17 Sep 2026 08:35:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZGOGmkLC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE921F000FF;
+	Thu, 17 Sep 2026 08:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789634110;
-	bh=btoqsva7HCSTivJzXmSqtuKbuJZ3tspB+VplxGWmavU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mtm8o8Ggcmjl4voiMNfPOMcavGrxruEL8ddtlai69gIcOvx65z0PAwNwKdlt0XlXq
-	 +jvoWLGD4tHjuO8MixcxPTe6/oLgqRVYh6Sj2fQ8ruBB1FkFZO3A3R8qdP/cNfc6jR
-	 9uQioi+xHFGFtWOuTHuWWgMfLjY3jVEnvt0L2BLprHcd8DMoAXOyAYoD6WCNMoCJTF
-	 Mj5J1n8BCWO9D6mF0rPwCoXYfjVgg6Zqk3OpMLVvdLWyPmexVGYUaCf0728lf8sZ7G
-	 PEKKd0xPYARpnWHroCrZFbyiaYeTCFYnSUTLRVl5iqF5M+6w2jE47ZSO/Ok/1ybIjy
-	 Cy2rBoIIyjXiA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/3] Input: Add driver for ESWIN EPH8621 touchscreen
- IC
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Luca Weiss" <luca.weiss@fairphone.com>
-Cc: robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260917-eswin-eph8621-v2-2-f534080a6338@fairphone.com>
-References: <20260917-eswin-eph8621-v2-0-f534080a6338@fairphone.com>
- <20260917-eswin-eph8621-v2-2-f534080a6338@fairphone.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 08:35:09 +0000
-Message-Id: <20260917083510.092F21F000FF@smtp.kernel.org>
+	s=k20260515; t=1789634335;
+	bh=23XbxxprwWAPo80YX3fykLj/tp02PZCODbSLdyrtjZg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ZGOGmkLCTT7Bs5w8cPdOHQn1CdbXRD2L8uTmHCuTN2MDz8opdkBmptV09MIQeDuAK
+	 lIvvFuu8+EKC0IuI8HTBEapSViryR+G1F/9xkidm43ayb0oz70WllhQe/3inBJQVrp
+	 DSIZ+JnzOoQXHjNDjY+eFJd5JpJhYQ2343mhmEiMSS/RRdyPgLetKFkIvF6tXoH62B
+	 Srch9mvOtOZVvXZ2wL0qy/TVJzCm/TKQ3tBjdrQcAyRAjXSSzvPdMlwblznmujK2Tk
+	 m7z+oyCxrdDkx/ZcfhDgGa1EzKtEbsZNkE999EeG0V6wbxBcZX+QmcxTb7mq7IwGcJ
+	 GHE5aPTT/uSew==
+Date: Thu, 17 Sep 2026 10:38:51 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Luca Weiss <luca.weiss@fairphone.com>, 
+	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org
+Subject: Re: [PATCH 1/3] dt-bindings: input: Add compatibility for Awinic
+ AW8695
+Message-ID: <20260917-dancing-stork-from-shambhala-ff49ab@quoll>
+References: <20260914-aw8695_haptic_fp4_driver-v1-0-156f7549149a@fairphone.com>
+ <20260914-aw8695_haptic_fp4_driver-v1-1-156f7549149a@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260914-aw8695_haptic_fp4_driver-v1-1-156f7549149a@fairphone.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] input: unhandled SPI errors in IRQ handler cause IRQ storm
-- [Low] input: implicit return of input_register_device() in probe
---
+On Mon, Sep 14, 2026 at 04:37:47PM +0200, Griffin Kroah-Hartman wrote:
+> Add the AW8695 haptic driver to the binding documentation for the
+> AW86927 and AW86938, as this binding needs the same properties.
+> 
+> They are not compatible though, because the chip identification works
+> differently compared to the 86927/86938
+> 
+> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+> ---
+>  Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+> index bd74b81488f61d72b675b5701b321b30b3430be0..d9da85499cda4d62f14f36f1ce77627e37e348d7 100644
+> --- a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+> +++ b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+> @@ -17,6 +17,7 @@ properties:
+>            - enum:
+>                - awinic,aw86938
+>            - const: awinic,aw86927
+> +      - const: awinic,aw8695
 
-commit 72cf856c7b1ca07b03f9ce8e0bf75be42e60151c
-Author: Luca Weiss <luca.weiss@fairphone.com>
+This should be combined with the first item (const for aw86927) and turned into enum.
 
-Input: Add driver for ESWIN EPH8621 touchscreen IC
+Best regards,
+Krzysztof
 
-This commit adds a new SPI driver for the ESWIN EPH8621 series touchscreen
-controllers.
-
-> diff --git a/drivers/input/touchscreen/eswin_eph8621.c b/drivers/input/to=
-uchscreen/eswin_eph8621.c
-> index 0000000000000..866cdc7e9334d
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/eswin_eph8621.c
-[ ... ]
-> +static irqreturn_t eswin_interrupt(int irq, void *dev_id)
-> +{
-> +	struct eswin_touch *ts =3D dev_id;
-> +	int payload_len;
-> +
-> +	payload_len =3D eswin_comms_two_stage_read(ts, ts->rx_buf);
-> +	if (payload_len > 0)
-> +		eswin_process_report(ts, ts->rx_buf, payload_len);
-> +
-> +	return IRQ_HANDLED;
-> +}
-
-[Severity: High]
-Will this cause an interrupt storm if a communication error occurs?
-
-If eswin_comms_two_stage_read() fails and returns a negative error code
-(like -EINVAL), the device's interrupt condition isn't cleared. By
-unconditionally returning IRQ_HANDLED, the kernel's spurious IRQ detector
-is bypassed. Because the physical interrupt line is still asserted, won't
-the interrupt immediately fire again and lead to an infinite CPU loop?
-
-[ ... ]
-> +static int eswin_probe(struct spi_device *spi)
-> +{
-[ ... ]
-> +	error =3D devm_request_threaded_irq(dev, spi->irq, NULL, eswin_interrup=
-t,
-> +					  IRQF_ONESHOT, dev_name(dev), ts);
-> +	if (error)
-> +		return dev_err_probe(dev, error, "Failed to request IRQ\n");
-> +
-> +	return input_register_device(ts->input);
-> +}
-
-[Severity: Low]
-This isn't a bug, but does this violate the input subsystem's style
-preferences for explicit failure paths?
-
-The subsystem guidelines recommend against using `return action(...);` where
-the action returns an error code in functions with multiple failure points.
-Should this be expanded to capture the return value of=20
-input_register_device(), check it, and explicitly return 0 on success?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917-eswin-eph8=
-621-v2-0-f534080a6338@fairphone.com?part=3D2

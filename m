@@ -1,101 +1,262 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail-24425.protonmail.ch (mail-24425.protonmail.ch [109.224.244.25])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC50223DEA;
-	Thu, 17 Sep 2026 18:00:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6140F384CD5;
+	Thu, 17 Sep 2026 21:29:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789668043; cv=none; b=ulzfGa7vcq0GV8SIk5QlSzwj8zRCvCL9vOAqMUJlUhGDduGC6lUOGTA/5WAfDFBISgw490yYqJAjbDUPHnVcsX6FRUjmMXeynEQBsPTK2qu1TpUzIVdZ3n/VBvHDoZChnHVrW8QZoOrYlebGPMXsew00ogwNhaFKVxAjWOCIME0=
+	t=1789680569; cv=none; b=G4OemEryXbOvGsmVWRaVW0qGNaxx0TOy+OYJa3pOoNJVlvGO9PKgae1C8ZN0W4EKFWZLWcpUZFqG+Gimw7HWlHAAPLgOkvZzKCowvFnKQtvNFWGsyvpCWfWJ70/c1LL3zWFdkwVRLjjP44bj5aylatufFQhItBepTslhRA1rhio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789668043; c=relaxed/simple;
-	bh=SwmFplgdvfZk74xWXHbUdLsf9CUwvb66wjy26upL8Ls=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ui9PmQJxrjmdUnfdOKgH6re0VN6u1Dj8uHgLehxUSa/Lj/ujNNj0OeTobvYWYF7IiixkayQQcSeD3PeKXGxehoLnyoEaZSrZUxyTvMlb1GQCzXt/0atWPziPF/zxkSc148OG9KqYTQm6L2cHelyErFGqcixwibpRoSjuhaeHaNU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LVkG09Hq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789680569; c=relaxed/simple;
+	bh=2AaG/8sjy+eCEJHFf4JWFo01ht84hNyteLxaptHw7jo=;
+	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=iG9SdzwAyn40ZgoczL8GIa91dbB8bOUBO9GKNbtivOr5Gr2bGFJNtZpYFaTK57s9nN+aCPTyTLhrZccaRnbzxFsItYHNvIplcu5cyOMiojxgTGVwz6hqJEXoVvJjUbzXUS3dwSlgEi2DLhBTm32t4Dxv26YKhPtPS7T7mAxHK0I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=kwDJMDLi; arc=none smtp.client-ip=109.224.244.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LVkG09Hq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACBF31F00893;
-	Thu, 17 Sep 2026 18:00:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789668042;
-	bh=bDkA9Is1Jx1AOE6Tvx2VWAovPxbpbhANimFsfanmC0s=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LVkG09HqfsKZmJFS9qmt6OvQIdIMnn38+xzlPNcI19TxAJDAVqDvcv13mx5RhiTJF
-	 BLFpnR+BysQpygTq/jJME04w/nYC6JbWWyngMv/UqyKfFg/XRgx7vghrbUABrl1xVa
-	 gzPWxiGrTTasJL7YDq+byQVo+FUUD/WjlOUBbOLR/Xd71lWSaRrldlsJicJcKWYeHS
-	 hiIJQAirnKUCBG3M/4JbVZfqSp+8BFzJVS57Tp/RKVgvNfoJF+cer2fMfEtKfCDQB9
-	 69UFkPdaOAPFuQu79OdO6zaHZJVHecxL8QaqbdLDMo5FenvMFzH+F34vu3f36Eukda
-	 OZliUmPKbP87Q==
-Date: Thu, 17 Sep 2026 23:30:37 +0530
-From: Vinod Koul <vkoul@kernel.org>
-To: Daniel Matyas <matyasdaniel006@gmail.com>
-Cc: Lee Jones <lee@kernel.org>,
-	=?iso-8859-1?Q?Andr=E9?= Draszik <andre.draszik@linaro.org>,
-	Ulf Hansson <ulfh@kernel.org>, Liang Yang <liang.yang@amlogic.com>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Thierry Reding <thierry.reding@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, Jose Abreu <joabreu@synopsys.com>,
-	Ray Jui <ray.jui@broadcom.com>,
-	Scott Branden <scott.branden@broadcom.com>,
-	Atish Patra <atishp@rivosinc.com>, Shawn Guo <shawn.guo@linaro.org>,
-	Dmitry Osipenko <digetx@gmail.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Ibrahim Tilki <Ibrahim.Tilki@analog.com>,
-	Okan Sahin <Okan.Sahin@analog.com>, devicetree@vger.kernel.org,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@sifive.com>, Conor Dooley <conor@kernel.org>,
-	linux-rtc@vger.kernel.org, Ricard Wanderlof <ricardw@axis.com>,
-	patches@opensource.cirrus.com, Lukas Wunner <lukas@wunner.de>,
-	Chunfeng Yun <chunfeng.yun@mediatek.com>,
-	Eugen Hristev <ehristev@kernel.org>,
-	dri-devel@lists.freedesktop.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org,
-	linux@analog.com, linux-input@vger.kernel.org,
-	chrome-platform@lists.linux.dev, linux-riscv@lists.infradead.org
-Subject: Re: [PATCH] dt-bindings: Expand flow lists to block lists
-Message-ID: <aqwqxSxqg7aRjchE@parshuram>
-References: <20260917144028.459053-1-matyasdaniel006@gmail.com>
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="kwDJMDLi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail; t=1789680561; x=1789939761;
+	bh=2AaG/8sjy+eCEJHFf4JWFo01ht84hNyteLxaptHw7jo=;
+	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+	b=kwDJMDLiVXQTPshe+Vrt0ZuCwn25yJ0jcCxqMITr8b4V/RnoaxN0wTzcnHCGAV1Ar
+	 IPql07UnuiqPP14j82A95EBtqA9XrYU3v69V9Xeoyy7Sb+VYMSlJzln+Spp9cvIwCE
+	 gJwtpdCNmVBPiem5i5hZ5DmFSWE8o7o1Xf1UyY6Z84UBR1vPGRdvN5E2GufHoMYgf+
+	 tMmMDeRXJ/yN6phKH3j7lDJFFYGy6F6R1bAbDpC8JPsWjI+Fr/3doeArLpxrZxXPP/
+	 gm48GLPBQRnqQYcZnWjABZ81J0EhiXdq1ekHMaWId/ad0aNoLRvuHp+vwzwo3kBamg
+	 yUL/sK/elFFSQ==
+Date: Thu, 17 Sep 2026 21:29:18 +0000
+To: "basavaraj.natikar@amd.com" <basavaraj.natikar@amd.com>
+From: lendev4 <lendev4@proton.me>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [BUG] amd_sfh: ~10-second resume delay from accelerometer response timeout
+Message-ID: <r-KymkVy-4izifHW2zOJPRL2gc9ZLKwqkfwBrypFKNEaRtg_MH3O_39jVJ_4588fcPpb2sEqFxvQq2s8BURbZk6nKwIxErObyo4m6fm-6nM=@proton.me>
+Feedback-ID: 134010188:user:proton
+X-Pm-Message-ID: e3a2b118ede8be4e60c319f061ba5ec1d80cf8a1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260917144028.459053-1-matyasdaniel006@gmail.com>
+Content-Type: multipart/mixed;
+ boundary="b1=_9M0Vhq1ntf81ep0G7DF8KgweFjudy6pW4VkXqruQ"
 
-On 17-09-26, 17:40, Daniel Matyas wrote:
-> Running dt_bindings_check returned:
-> [error] string value is redundantly quoted with any quotes (quoted-strings)
-> 
-> The files used quotation marks in flow lists because the strings had
-> commas and these commas were interpreted as separators. Convert flow
-> style lists to block style lists, so that there is no problems with the
-> commas.
+--b1=_9M0Vhq1ntf81ep0G7DF8KgweFjudy6pW4VkXqruQ
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Vinod Koul <vkoul@kernel.org>
+Hello,
+I am reporting a reproducible ~10-second resume delay in amd_sfh associated=
+ with an accelerometer response timeout.
 
+Hardware: HP ENVY x360 2-in-1 Laptop 15-ey0xxx, board 8A31, BIOS F.14 (2023=
+-07-05); AMD sensor hub 1022:15e4 at 0000:04:00.7.
+Software: Linux 7.2.5, s2idle suspend.
 
--- 
-~Vinod
+To reproduce, load amd_sfh with sensor_mask=3D-1 and suspend with systemctl=
+ suspend. After wake, the display shows a stale frame for about 8-10 second=
+s, including without locking. PM timing measured the sensor-hub resume call=
+back at 10,011,884 us.
+
+Unloading amd_sfh removes the delay; reloading it with default discovery re=
+stores it. Using sensor_mask=3D0x88002, excluding accelerometer ID 0 while =
+retaining gyro 1, operating mode 15, and ALS 19, also removes the delay.
+
+With the normal 500 us polling sleep parameter, kprobes show the accelerome=
+ter enable command 0xc8001011. On the failing resume, polling first reads 0=
+x00130340 and then repeatedly reads 0x000a0340 (status 0, enabled, sensor I=
+D 10) until the 10-second timeout. The other sensors subsequently receive m=
+atching acknowledgments.
+
+Successful driver initialization and the failed resume use the same acceler=
+ometer command and DMA address.
+
+As an experiment, I changed only the polling sleep parameter in amd_sfh_wai=
+t_response_v2() from 500 us to 20 us, leaving the 10-second timeout and all=
+ response checks unchanged. This eliminated the delay in two uninstrumented=
+ tests and one traced test. Accelerometer initialization and resume were co=
+nfirmed enabled in both uninstrumented tests.
+
+The successful traced resume shows:
+
++69 us: matching accelerometer acknowledgment 0x340 read
++71 us: driver reports success
++90 us: subsequent gyro wait reads 0xa0340 (sensor ID 10)
+
+This suggests that the driver may be missing a short-lived matching acknowl=
+edgment before another sensor response replaces it. However, the failing tr=
+aces do not establish that firmware actually published the correct accelero=
+meter acknowledgment during those wakes, and I have tested only this laptop=
+.
+
+For the experiment, only amd_sfh was rebuilt against the installed headers =
+from Linux 7.2.5 source, with a header-compatibility patch renaming platfor=
+m-state enums. The rebuilt baseline .text matched the installed driver's .t=
+ext byte for byte; srcversion metadata differed.
+
+I have attached focused trace excerpts and the experimental polling change;=
+ I am not proposing the polling change as a final fix. Full traces and the =
+kprobe script are available if useful.
+
+The investigation and preparation of this report were AI-assisted; I verifi=
+ed the reported tests, measurements, and trace data. I currently use the ac=
+celerometer exclusion as a workaround.
+
+Is the additional sensor ID 10 response expected here, and could it explain=
+ the accelerometer response timeout with the current polling sleep paramete=
+r?
+
+Thank you.
+--b1=_9M0Vhq1ntf81ep0G7DF8KgweFjudy6pW4VkXqruQ
+Content-Type: text/x-patch; name=polling-change.diff
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=polling-change.diff
+
+LS0tIGEvZHJpdmVycy9oaWQvYW1kLXNmaC1oaWQvYW1kX3NmaF9wY2llLmMKKysrIGIvZHJpdmVy
+cy9oaWQvYW1kLXNmaC1oaWQvYW1kX3NmaF9wY2llLmMKQEAgLTQ4LDcgKzQ4LDcgQEAKIAlpZiAo
+IXJlYWRsX3BvbGxfdGltZW91dChtcDItPm1taW8gKyBBTURfUDJDX01TRygwKSwgY21kX3Jlc3Au
+cmVzcCwKIAkJCQkoY21kX3Jlc3AucmVzcG9uc2VfdjIucmVzcG9uc2UgPT0gc2Vuc29yX3N0cyAm
+JgogCQkJCWNtZF9yZXNwLnJlc3BvbnNlX3YyLnN0YXR1cyA9PSAwICYmIChzaWQgPT0gMHhmZiB8
+fAotCQkJCWNtZF9yZXNwLnJlc3BvbnNlX3YyLnNlbnNvcl9pZCA9PSBzaWQpKSwgNTAwLCAxMDAw
+MDAwMCkpCisJCQkJY21kX3Jlc3AucmVzcG9uc2VfdjIuc2Vuc29yX2lkID09IHNpZCkpLCAyMCwg
+MTAwMDAwMDApKQogCQlyZXR1cm4gY21kX3Jlc3AucmVzcG9uc2VfdjIucmVzcG9uc2U7CiAKIAly
+ZXR1cm4gU0VOU09SX0RJU0FCTEVEOwo=
+
+--b1=_9M0Vhq1ntf81ep0G7DF8KgweFjudy6pW4VkXqruQ
+Content-Type: text/plain; name=trace-excerpts.txt
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=trace-excerpts.txt
+
+Rm9jdXNlZCBrcHJvYmUgdHJhY2UgZXhjZXJwdHMuIFRpbWVzdGFtcHMgYXJlIHNlY29uZHMgZnJv
+bSB0aGUgdHJhY2UgY2xvY2suCk9yaWdpbmFsIHRyYWNlIGxpbmVzIGJlbG93IGFyZSB1bmNoYW5n
+ZWQ7IHVucmVsYXRlZC9yZXBlYXRlZCBsaW5lcyBhcmUgb21pdHRlZC4KClByb2JlIGxvY2F0aW9u
+cyB3ZXJlIHZlcmlmaWVkIGJ5IGRpc2Fzc2VtYmxpbmcgdGhlIGluc3RhbGxlZCBhbmQgcmVidWls
+dCBtb2R1bGVzOgogIHN0YXJ0X2NvbW1hbmQ6IGFtZF9zdGFydF9zZW5zb3JfdjIrMHg1ZSwgaW1t
+ZWRpYXRlbHkgYmVmb3JlIGNvbW1hbmQgd3JpdGU7CiAgICAgICAgICAgICAgICAgY29tbWFuZD0l
+cjk6eDMyLCBkbWE9JXI4Ong2NAogIHBvbGw6IGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDY3
+LCBpbW1lZGlhdGVseSBhZnRlciByZXNwb25zZSByZWFkOwogICAgICAgIHJhdz0lZHg6eDMyLCBz
+ZW5zb3I9JXIxNDp1OCwgZXhwZWN0ZWQ9JWJwOnUzMgogIHN1Y2Nlc3M6IGFtZF9zZmhfd2FpdF9y
+ZXNwb25zZV92MisweDg5CiAgdGltZW91dDogYW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4OWUK
+ClJlc3BvbnNlIGRlY29kaW5nOiBzdGF0dXM9cmF3ICYgMzsgc3RhdGU9KHJhdyA+PiA0KSAmIDE1
+OwogICAgICAgICAgICAgICAgICBzZW5zb3IgSUQ9KHJhdyA+PiAxNikgJiA2My4gRW5hYmxlZD00
+OyBkaXNhYmxlZD01LgpPZmZzZXRzIGFyZSBzcGVjaWZpYyB0byB0aGUgdmVyaWZpZWQgZHJpdmVy
+IGJpbmFyaWVzLgoKTk9STUFMIFBPTExJTkcgKDUwMCB1cyk6IFNVQ0NFU1NGVUwgUkVJTklUSUFM
+SVpBVElPTiBBTkQgRkFJTEVEIFJFU1VNRQojIGVudHJpZXMtaW4tYnVmZmVyL2VudHJpZXMtd3Jp
+dHRlbjogMjAxMTEvMjAxMTEgICAjUDoxMgogICAgICAgICAgICBiYXNoLTczMjcgICAgWzAwMl0g
+Li4uMS4gIDExODkuOTg3MjQ1OiB0cmFjaW5nX21hcmtfd3JpdGU6IEJFR0lOX0JJTkQKICAgICBr
+d29ya2VyLzI6Mi04MjggICAgIFswMDJdIC4uWmZmICAxMTg5Ljk4NzgzNzogc3RhcnRfY29tbWFu
+ZDogKGFtZF9zdGFydF9zZW5zb3JfdjIrMHg1ZS8weDgwIFthbWRfc2ZoXSkgY29tbWFuZD0weGM4
+MDAxMDExIGRtYT0weGZmZmViMDAwCiAgICAga3dvcmtlci8yOjItODI4ICAgICBbMDAyXSAuLlpm
+ZiAgMTE4OS45ODc4NDE6IHBvbGw6IChhbWRfc2ZoX3dhaXRfcmVzcG9uc2VfdjIrMHg2Ny8weGMw
+IFthbWRfc2ZoXSkgcmF3PTB4MzUwIHNlbnNvcj0wIGV4cGVjdGVkPTQKICAgICBrd29ya2VyLzI6
+Mi04MjggICAgIFswMDJdIC4uWmZmICAxMTg5Ljk4ODM1NDogcG9sbDogKGFtZF9zZmhfd2FpdF9y
+ZXNwb25zZV92MisweDY3LzB4YzAgW2FtZF9zZmhdKSByYXc9MHgzNDAgc2Vuc29yPTAgZXhwZWN0
+ZWQ9NAogICAgIGt3b3JrZXIvMjoyLTgyOCAgICAgWzAwMl0gLi5aZmYgIDExODkuOTg4MzU2OiBz
+dWNjZXNzOiAoYW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4ODkvMHhjMCBbYW1kX3NmaF0pIHNl
+bnNvcj0wIGV4cGVjdGVkPTQKICAgICBrd29ya2VyLzI6Mi04MjggICAgIFswMDJdIC4uWmZmICAx
+MTg5Ljk4ODM2Nzogc3RhcnRfY29tbWFuZDogKGFtZF9zdGFydF9zZW5zb3JfdjIrMHg1ZS8weDgw
+IFthbWRfc2ZoXSkgY29tbWFuZD0weGM4MDExMDExIGRtYT0weGZmZmVhMDAwCiAgICAga3dvcmtl
+ci8yOjItODI4ICAgICBbMDAyXSAuLlpmZiAgMTE4OS45ODgzNzA6IHBvbGw6IChhbWRfc2ZoX3dh
+aXRfcmVzcG9uc2VfdjIrMHg2Ny8weGMwIFthbWRfc2ZoXSkgcmF3PTB4MzQwIHNlbnNvcj0xIGV4
+cGVjdGVkPTQKICAgICBrd29ya2VyLzI6Mi04MjggICAgIFswMDJdIC4uWmZmICAxMTg5Ljk4ODc0
+ODogcG9sbDogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDY3LzB4YzAgW2FtZF9zZmhdKSBy
+YXc9MHhhMDM0MCBzZW5zb3I9MSBleHBlY3RlZD00CiAgICAga3dvcmtlci8yOjItODI4ICAgICBb
+MDAyXSAuLlpmZiAgMTE4OS45ODkyNjQ6IHBvbGw6IChhbWRfc2ZoX3dhaXRfcmVzcG9uc2VfdjIr
+MHg2Ny8weGMwIFthbWRfc2ZoXSkgcmF3PTB4MTAzNDAgc2Vuc29yPTEgZXhwZWN0ZWQ9NAogICAg
+IGt3b3JrZXIvMjoyLTgyOCAgICAgWzAwMl0gLi5aZmYgIDExODkuOTg5MjY2OiBzdWNjZXNzOiAo
+YW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4ODkvMHhjMCBbYW1kX3NmaF0pIHNlbnNvcj0xIGV4
+cGVjdGVkPTQKICAgICBrd29ya2VyLzI6Mi04MjggICAgIFswMDJdIC4uWmZmICAxMTg5Ljk4OTI3
+NDogc3RhcnRfY29tbWFuZDogKGFtZF9zdGFydF9zZW5zb3JfdjIrMHg1ZS8weDgwIFthbWRfc2Zo
+XSkgY29tbWFuZD0weGM4MGYxMDExIGRtYT0weGZmZmZhMDAwCiAgICAga3dvcmtlci8yOjItODI4
+ICAgICBbMDAyXSAuLlpmZiAgMTE4OS45OTEzMDQ6IHN1Y2Nlc3M6IChhbWRfc2ZoX3dhaXRfcmVz
+cG9uc2VfdjIrMHg4OS8weGMwIFthbWRfc2ZoXSkgc2Vuc29yPTE1IGV4cGVjdGVkPTQKICAgICBr
+d29ya2VyLzI6Mi04MjggICAgIFswMDJdIC4uWmZmICAxMTg5Ljk5MTMxODogc3RhcnRfY29tbWFu
+ZDogKGFtZF9zdGFydF9zZW5zb3JfdjIrMHg1ZS8weDgwIFthbWRfc2ZoXSkgY29tbWFuZD0weGM4
+MTM5MDExIGRtYT0weGZmZmY5MDAwCiAgICAga3dvcmtlci8yOjItODI4ICAgICBbMDAyXSAuLlpm
+ZiAgMTE4OS45OTg1NzI6IHN1Y2Nlc3M6IChhbWRfc2ZoX3dhaXRfcmVzcG9uc2VfdjIrMHg4OS8w
+eGMwIFthbWRfc2ZoXSkgc2Vuc29yPTE5IGV4cGVjdGVkPTQKICAgICAgICAgICAgYmFzaC03MzI3
+ICAgIFswMDZdIC4uLjEuICAxMjE5Ljk4NTE0MjogdHJhY2luZ19tYXJrX3dyaXRlOiBJTklUSUFM
+SVpBVElPTl9DQVBUVVJFRF9CRUZPUkVfU1VTUEVORAogIGt3b3JrZXIvdTQ4OjEyLTU4NCAgICAg
+WzAwNV0gLi4uLi4gIDEyMzMuMTA0MzAwOiBzdGFydF9jb21tYW5kOiAoYW1kX3N0YXJ0X3NlbnNv
+cl92MisweDVlLzB4ODAgW2FtZF9zZmhdKSBjb21tYW5kPTB4YzgwMDEwMTEgZG1hPTB4ZmZmZWIw
+MDAKICBrd29ya2VyL3U0ODoxMi01ODQgICAgIFswMDVdIC4uLi4uICAxMjMzLjEwNDMwNzogcG9s
+bDogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDY3LzB4YzAgW2FtZF9zZmhdKSByYXc9MHgx
+MzAzNDAgc2Vuc29yPTAgZXhwZWN0ZWQ9NAogIGt3b3JrZXIvdTQ4OjEyLTU4NCAgICAgWzAwNV0g
+Li4uLi4gIDEyMzMuMTA0ODIyOiBwb2xsOiAoYW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4Njcv
+MHhjMCBbYW1kX3NmaF0pIHJhdz0weGEwMzQwIHNlbnNvcj0wIGV4cGVjdGVkPTQKICBrd29ya2Vy
+L3U0ODoxMi01ODQgICAgIFswMDJdIC4uLi4uICAxMjQzLjEwMDU4MDogcG9sbDogKGFtZF9zZmhf
+d2FpdF9yZXNwb25zZV92MisweDY3LzB4YzAgW2FtZF9zZmhdKSByYXc9MHhhMDM0MCBzZW5zb3I9
+MCBleHBlY3RlZD00CiAga3dvcmtlci91NDg6MTItNTg0ICAgICBbMDAyXSAuLi4uLiAgMTI0My4x
+MDEwMjk6IHBvbGw6IChhbWRfc2ZoX3dhaXRfcmVzcG9uc2VfdjIrMHg2Ny8weGMwIFthbWRfc2Zo
+XSkgcmF3PTB4YTAzNDAgc2Vuc29yPTAgZXhwZWN0ZWQ9NAogIGt3b3JrZXIvdTQ4OjEyLTU4NCAg
+ICAgWzAwMl0gLi4uLi4gIDEyNDMuMTAxNTc0OiBwb2xsOiAoYW1kX3NmaF93YWl0X3Jlc3BvbnNl
+X3YyKzB4NjcvMHhjMCBbYW1kX3NmaF0pIHJhdz0weGEwMzQwIHNlbnNvcj0wIGV4cGVjdGVkPTQK
+ICBrd29ya2VyL3U0ODoxMi01ODQgICAgIFswMDJdIC4uLi4uICAxMjQzLjEwMTU3ODogdGltZW91
+dDogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDllLzB4YzAgW2FtZF9zZmhdKSBzZW5zb3I9
+MCBleHBlY3RlZD00CiAga3dvcmtlci91NDg6MTItNTg0ICAgICBbMDAyXSAuLi4uLiAgMTI0My4x
+MDE1OTI6IHN0YXJ0X2NvbW1hbmQ6IChhbWRfc3RhcnRfc2Vuc29yX3YyKzB4NWUvMHg4MCBbYW1k
+X3NmaF0pIGNvbW1hbmQ9MHhjODAxMTAxMSBkbWE9MHhmZmZlYTAwMAogIGt3b3JrZXIvdTQ4OjEy
+LTU4NCAgICAgWzAwMl0gLi4uLi4gIDEyNDMuMTAxNTk1OiBwb2xsOiAoYW1kX3NmaF93YWl0X3Jl
+c3BvbnNlX3YyKzB4NjcvMHhjMCBbYW1kX3NmaF0pIHJhdz0weGEwMzQwIHNlbnNvcj0xIGV4cGVj
+dGVkPTQKICBrd29ya2VyL3U0ODoxMi01ODQgICAgIFswMDJdIC4uLi4uICAxMjQzLjEwMjAyOTog
+cG9sbDogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDY3LzB4YzAgW2FtZF9zZmhdKSByYXc9
+MHhhMDM0MCBzZW5zb3I9MSBleHBlY3RlZD00CiAga3dvcmtlci91NDg6MTItNTg0ICAgICBbMDAy
+XSAuLi4uLiAgMTI0My4xMDI1NzQ6IHBvbGw6IChhbWRfc2ZoX3dhaXRfcmVzcG9uc2VfdjIrMHg2
+Ny8weGMwIFthbWRfc2ZoXSkgcmF3PTB4YTAzNDAgc2Vuc29yPTEgZXhwZWN0ZWQ9NAogIGt3b3Jr
+ZXIvdTQ4OjEyLTU4NCAgICAgWzAwMl0gLi4uLi4gIDEyNDMuMTAzMDI4OiBwb2xsOiAoYW1kX3Nm
+aF93YWl0X3Jlc3BvbnNlX3YyKzB4NjcvMHhjMCBbYW1kX3NmaF0pIHJhdz0weDEwMzQwIHNlbnNv
+cj0xIGV4cGVjdGVkPTQKICBrd29ya2VyL3U0ODoxMi01ODQgICAgIFswMDJdIC4uLi4uICAxMjQz
+LjEwMzAzMjogc3VjY2VzczogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDg5LzB4YzAgW2Ft
+ZF9zZmhdKSBzZW5zb3I9MSBleHBlY3RlZD00CiAga3dvcmtlci91NDg6MTItNTg0ICAgICBbMDAy
+XSAuLi4uLiAgMTI0My4xMDMwNDQ6IHN0YXJ0X2NvbW1hbmQ6IChhbWRfc3RhcnRfc2Vuc29yX3Yy
+KzB4NWUvMHg4MCBbYW1kX3NmaF0pIGNvbW1hbmQ9MHhjODBmMTAxMSBkbWE9MHhmZmZmYTAwMAog
+IGt3b3JrZXIvdTQ4OjEyLTU4NCAgICAgWzAwMl0gLi4uLi4gIDEyNDMuMTA3MDI5OiBzdWNjZXNz
+OiAoYW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4ODkvMHhjMCBbYW1kX3NmaF0pIHNlbnNvcj0x
+NSBleHBlY3RlZD00CiAga3dvcmtlci91NDg6MTItNTg0ICAgICBbMDAyXSAuLi4uLiAgMTI0My4x
+MDcwNDI6IHN0YXJ0X2NvbW1hbmQ6IChhbWRfc3RhcnRfc2Vuc29yX3YyKzB4NWUvMHg4MCBbYW1k
+X3NmaF0pIGNvbW1hbmQ9MHhjODEzOTAxMSBkbWE9MHhmZmZmOTAwMAogIGt3b3JrZXIvdTQ4OjEy
+LTU4NCAgICAgWzAwMl0gLi4uLi4gIDEyNDMuMTEyNTY1OiBzdWNjZXNzOiAoYW1kX3NmaF93YWl0
+X3Jlc3BvbnNlX3YyKzB4ODkvMHhjMCBbYW1kX3NmaF0pIHNlbnNvcj0xOSBleHBlY3RlZD00CgpG
+QVNUIFBPTExJTkcgKDIwIHVzKTogU1VDQ0VTU0ZVTCBSRVNVTUUKIyBlbnRyaWVzLWluLWJ1ZmZl
+ci9lbnRyaWVzLXdyaXR0ZW46IDM5MS8zOTEgICAjUDoxMgogICBrd29ya2VyL3U0ODo5LTk1MTUg
+ICAgWzAwNV0gLi4uLi4gIDE4MDAuNzAwMTk1OiBzdGFydF9jb21tYW5kOiAoYW1kX3N0YXJ0X3Nl
+bnNvcl92MisweDVlLzB4ODAgW2FtZF9zZmhdKSBjb21tYW5kPTB4YzgwMDEwMTEgZG1hPTB4ZmZm
+ZTIwMDAKICAga3dvcmtlci91NDg6OS05NTE1ICAgIFswMDVdIC4uLi4uICAxODAwLjcwMDIwMjog
+cG9sbDogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDY3LzB4YzAgW2FtZF9zZmhdKSByYXc9
+MHgxMzAzNDAgc2Vuc29yPTAgZXhwZWN0ZWQ9NAogICBrd29ya2VyL3U0ODo5LTk1MTUgICAgWzAw
+NV0gLi4uLi4gIDE4MDAuNzAwMjM2OiBwb2xsOiAoYW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4
+NjcvMHhjMCBbYW1kX3NmaF0pIHJhdz0weDEzMDM0MCBzZW5zb3I9MCBleHBlY3RlZD00CiAgIGt3
+b3JrZXIvdTQ4OjktOTUxNSAgICBbMDA1XSAuLi4uLiAgMTgwMC43MDAyNjQ6IHBvbGw6IChhbWRf
+c2ZoX3dhaXRfcmVzcG9uc2VfdjIrMHg2Ny8weGMwIFthbWRfc2ZoXSkgcmF3PTB4MzQwIHNlbnNv
+cj0wIGV4cGVjdGVkPTQKICAga3dvcmtlci91NDg6OS05NTE1ICAgIFswMDVdIC4uLi4uICAxODAw
+LjcwMDI2Njogc3VjY2VzczogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDg5LzB4YzAgW2Ft
+ZF9zZmhdKSBzZW5zb3I9MCBleHBlY3RlZD00CiAgIGt3b3JrZXIvdTQ4OjktOTUxNSAgICBbMDA1
+XSAuLi4uLiAgMTgwMC43MDAyODI6IHN0YXJ0X2NvbW1hbmQ6IChhbWRfc3RhcnRfc2Vuc29yX3Yy
+KzB4NWUvMHg4MCBbYW1kX3NmaF0pIGNvbW1hbmQ9MHhjODAxMTAxMSBkbWE9MHhmZmZlMTAwMAog
+ICBrd29ya2VyL3U0ODo5LTk1MTUgICAgWzAwNV0gLi4uLi4gIDE4MDAuNzAwMjg1OiBwb2xsOiAo
+YW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4NjcvMHhjMCBbYW1kX3NmaF0pIHJhdz0weGEwMzQw
+IHNlbnNvcj0xIGV4cGVjdGVkPTQKICAga3dvcmtlci91NDg6OS05NTE1ICAgIFswMDVdIC4uLi4u
+ICAxODAwLjcwMDMyMzogcG9sbDogKGFtZF9zZmhfd2FpdF9yZXNwb25zZV92MisweDY3LzB4YzAg
+W2FtZF9zZmhdKSByYXc9MHhhMDM0MCBzZW5zb3I9MSBleHBlY3RlZD00CiAgIGt3b3JrZXIvdTQ4
+OjktOTUxNSAgICBbMDA4XSAuLi4uLiAgMTgwMC43MDAzNTU6IHBvbGw6IChhbWRfc2ZoX3dhaXRf
+cmVzcG9uc2VfdjIrMHg2Ny8weGMwIFthbWRfc2ZoXSkgcmF3PTB4MTAzNDAgc2Vuc29yPTEgZXhw
+ZWN0ZWQ9NAogICBrd29ya2VyL3U0ODo5LTk1MTUgICAgWzAwOF0gLi4uLi4gIDE4MDAuNzAwMzU4
+OiBzdWNjZXNzOiAoYW1kX3NmaF93YWl0X3Jlc3BvbnNlX3YyKzB4ODkvMHhjMCBbYW1kX3NmaF0p
+IHNlbnNvcj0xIGV4cGVjdGVkPTQKICAga3dvcmtlci91NDg6OS05NTE1ICAgIFswMDhdIC4uLi4u
+ICAxODAwLjcwMDM3NTogc3RhcnRfY29tbWFuZDogKGFtZF9zdGFydF9zZW5zb3JfdjIrMHg1ZS8w
+eDgwIFthbWRfc2ZoXSkgY29tbWFuZD0weGM4MGYxMDExIGRtYT0weGZmZmUwMDAwCiAgIGt3b3Jr
+ZXIvdTQ4OjktOTUxNSAgICBbMDA4XSAuLi4uLiAgMTgwMC43MDE5MzY6IHN1Y2Nlc3M6IChhbWRf
+c2ZoX3dhaXRfcmVzcG9uc2VfdjIrMHg4OS8weGMwIFthbWRfc2ZoXSkgc2Vuc29yPTE1IGV4cGVj
+dGVkPTQKICAga3dvcmtlci91NDg6OS05NTE1ICAgIFswMDhdIC4uLi4uICAxODAwLjcwMTk0MTog
+c3RhcnRfY29tbWFuZDogKGFtZF9zdGFydF9zZW5zb3JfdjIrMHg1ZS8weDgwIFthbWRfc2ZoXSkg
+Y29tbWFuZD0weGM4MTM5MDExIGRtYT0weGZmZmRmMDAwCiAgIGt3b3JrZXIvdTQ4OjktOTUxNSAg
+ICBbMDAwXSAuLi4uLiAgMTgwMC43MDg0NTA6IHN1Y2Nlc3M6IChhbWRfc2ZoX3dhaXRfcmVzcG9u
+c2VfdjIrMHg4OS8weGMwIFthbWRfc2ZoXSkgc2Vuc29yPTE5IGV4cGVjdGVkPTQKCkJvdGggZnVs
+bCB0cmFjZSBidWZmZXJzIHJldGFpbmVkIGV2ZXJ5IHdyaXR0ZW4gZW50cnkuIFByb2JlLXByb2Zp
+bGUgY291bnRlcnMKcmVwb3J0ZWQgemVybyBtaXNzZWQgcHJvYmVzLiBGYXN0LXBvbGxpbmcgY2Fw
+dHVyZSByZXBvcnRlZCB6ZXJvIHRpbWVvdXRzLgo=
+
+--b1=_9M0Vhq1ntf81ep0G7DF8KgweFjudy6pW4VkXqruQ--
+

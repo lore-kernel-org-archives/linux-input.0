@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93B973A641F;
-	Fri, 18 Sep 2026 07:36:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C2CA4A2A4C;
+	Fri, 18 Sep 2026 07:39:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789717019; cv=none; b=a9vwbh4FnzM4SgXiHdsuuFItODk7MGtydurb6nr6phW9FyyQQzGYGpVDqOpLBfs3MRrwgpTElScmvgxuNYZVAZMnBo0xBHccz51QPQD923Qlg+bGoHoHSdwYiMXxFkQsdCyuI0J0wu0Ozfve1gTWLWhx44Mx8Fiv/mPGireaPJA=
+	t=1789717198; cv=none; b=q04J25JoSeuEmjmUhJHJltU1+iU7sMjbf2TY0nZ53tZLgtcvi9J9WuMZhli2JhNldqCH400EQUySbI8pOV6usRJjRoOMMkfzSDuj982lPhT1+mxmhmwIaBmukDSs00lJFzlRXT9s2L/6mXkOfmwu4sFCdCReZKQDkhvmlOs8j0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789717019; c=relaxed/simple;
-	bh=8ZQoph177gzc0XynIInF9rdWFQGY1RqAuoZwr7hb2P8=;
+	s=arc-20240116; t=1789717198; c=relaxed/simple;
+	bh=jd/4XUkR1ulqciOmIUzr2+yM/M3lbap8ZlA5AmRAUwY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tGc/xF7ZRgvtGHP0J7lwM0+iBAaktEzpjT4qnhHvVcWtj4235h5PfkrFv+tX9Nq+DDoPvGW5rcCPpSwrCr0vzaNFJzs2L+xOHjDusccxz72zxenXgIsuVJxWnHWs91LxRCua34DfFrERwHE/aWD5ilsjfcQCs0WRfe2FpqXiiuw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aM/hW2UO; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=NPrSG1xir0vTGpQ4w8jwamRlltwfqZORV5Lt5MwjIA4a+B/tU21aNv677RFE0AlgkGucMryYeoNFIK7lMb0BneGETb49w2l9DdOLibH6Q63LAPpVZMseP+eF/hRxq1iKETnbJyIi3eK0k9kgVaFMsqkLDRDEd0VqwaDdUXAFXXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QxdFFAhw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aM/hW2UO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E75B1F000FF;
-	Fri, 18 Sep 2026 07:36:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QxdFFAhw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 252CD1F00893;
+	Fri, 18 Sep 2026 07:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789717008;
-	bh=Y1uLT8fbmqMuUX3tqd/YBdA25g7iFOWHtLjbyLuYv+M=;
+	s=k20260515; t=1789717191;
+	bh=HRtdFQfigpgCNVcpObna9Um71uV/3yHs2xzVab1me3Q=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=aM/hW2UOem6qslcAD5FieGz9nAxbTvVmusDN+EiCCTWu6w++fB8nsoxeh5QmyO66k
-	 +/L6XpKNkq7mKH2ojH7tJbmfI1CGrB+oemkfSAG+pCPzTjYYE6C1bbB112UTSAEf2h
-	 fTYin5HxECf1VawRNZYlRnWfZKJ37DTqo6tRBAcPHLd0LKHImXgrYhCi/VO7YY3zCq
-	 s9c8+TAnnX6pPim/SYtv4vPGen0Q3TGLOrHw+nmzX07iz1aNy+SQqBYEwckIfLaOEn
-	 959eiGg2z/gqXLIE/IuUu2hXTijgM1/e97ILM3bYtRNyivnQiSkNFqmUZKyV6tZnJz
-	 1qfwYuwP3RHWg==
+	b=QxdFFAhwjVeKSiv1RcMW5S3HO5h2HCCqp17UP5GdV0gPygBrArbczLeX+eWMvabBU
+	 B3jYDr7Dy0tDfvv7PIJX3lCbp9MIilsUHkcPf+MkffL4hlXievvT7vs5dROTQaEgJH
+	 Gw3+1Bx/PeORB5+iMF6kLiS4yX0a7ew36iXbZjLSJ+FFr5hUGn4qFSHmHqAZX77uGA
+	 ctXCVePK4DLGqYCqG3N+bBXb4OPGepAdwEqX4scGAUfNVhHLBU/2s3qfEX+moRlAw3
+	 fLjq+xFKnKuqE0wcY2wsu/h5AlfcLyJGMG2KAppw+9f2+GH1FwcooE73V2OoeGE8mT
+	 oE6P3O6YrQ7fQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/3] dt-bindings: input: touchscreen: document ESWIN
- EPH8621
+Subject: Re: [PATCH v3 2/3] Input: Add driver for ESWIN EPH8621 touchscreen
+ IC
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Luca Weiss" <luca.weiss@fairphone.com>
-Cc: linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260918-eswin-eph8621-v3-1-514eb1f622c0@fairphone.com>
+Cc: dmitry.torokhov@gmail.com, conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260918-eswin-eph8621-v3-2-514eb1f622c0@fairphone.com>
 References: <20260918-eswin-eph8621-v3-0-514eb1f622c0@fairphone.com>
- <20260918-eswin-eph8621-v3-1-514eb1f622c0@fairphone.com>
+ <20260918-eswin-eph8621-v3-2-514eb1f622c0@fairphone.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 07:36:47 +0000
-Message-Id: <20260918073648.3E75B1F000FF@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 07:39:50 +0000
+Message-Id: <20260918073951.252CD1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,79 +47,63 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] dt-bindings: eswin,eph8621: redundant properties via additionalProp=
-erties
+- [Medium] power: regulator imbalance on resume failure
 --
 
-commit 46b2080091d009fd58f47b811d02fd1ffe2a1da8
+commit 84d6ec94a7b38cd8d1245f0f98657e92de7d8440
 Author: Luca Weiss <luca.weiss@fairphone.com>
 
-dt-bindings: input: touchscreen: document ESWIN EPH8621
+    Input: Add driver for ESWIN EPH8621 touchscreen IC
+   =20
+    Add a driver for the ESWIN EPH8621 touchscreens, connected via SPI.
 
-Document the ESWIN EPH8621 touchscreen controller, which can operate in
-SPI mode. Other touchscreen controllers from the EPH861X family (and
-potentially also EPH8621) can also operate in I2C mode, this was not
-added yet.
-
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/eswin,ep=
-h8621.yaml b/Documentation/devicetree/bindings/input/touchscreen/eswin,eph8=
-621.yaml
+> diff --git a/drivers/input/touchscreen/eswin_eph8621.c b/drivers/input/to=
+uchscreen/eswin_eph8621.c
 > new file mode 100644
-> index 0000000000000..ac7fa58644ba6
+> index 0000000000000..766b113b3288d
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/eswin,eph8621.y=
-aml
-> @@ -0,0 +1,79 @@
-
+> +++ b/drivers/input/touchscreen/eswin_eph8621.c
 [ ... ]
-
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
+> +static void eswin_power_off(struct eswin_touch *ts)
+> +{
+> +	gpiod_set_value_cansleep(ts->reset_gpio, 1);
+> +	regulator_bulk_disable(ARRAY_SIZE(ts->supplies), ts->supplies);
+> +}
 > +
-> +properties:
-
+> +static void eswin_power_off_act(void *data)
+> +{
+> +	struct eswin_touch *ts =3D data;
+> +
+> +	eswin_power_off(ts);
+> +}
 [ ... ]
-
-> +  vddio-supply:
-> +    description: Power supply regulator on VDDIO pin
+> +static int eswin_resume(struct device *dev)
+> +{
+> +	struct spi_device *spi =3D to_spi_device(dev);
+> +	struct eswin_touch *ts =3D spi_get_drvdata(spi);
+> +	int error;
 > +
-> +  spi-max-frequency: true
-> +  touchscreen-inverted-x: true
-> +  touchscreen-inverted-y: true
-> +  touchscreen-size-x: true
-> +  touchscreen-size-y: true
-> +  touchscreen-swapped-x-y: true
+> +	error =3D eswin_power_on(ts);
+> +	if (error)
+> +		return error;
+                ^^^^^^^^^^^^
 
-[Severity: Low]
-Are these redundant property declarations necessary? Since the schema refer=
-ences
-touchscreen.yaml and spi-peripheral-props.yaml in its allOf block, these can
-typically be omitted if unevaluatedProperties is used instead.
+[Severity: Medium]
+If eswin_power_on() fails during system resume, the regulators remain
+disabled.
+
+Since the devres cleanup action (eswin_power_off_act) runs unconditionally
+when the driver unbinds, devres will eventually call eswin_power_off().
+
+Could this attempt to disable the already-disabled regulators and trigger
+a regulator disable count underflow warning?
 
 > +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - avdd-supply
-> +  - vddio-supply
-> +  - touchscreen-size-x
-> +  - touchscreen-size-y
+> +	enable_irq(spi->irq);
 > +
-> +additionalProperties: false
-
-[Severity: Low]
-Would it be better to use unevaluatedProperties: false here?
-
-By using additionalProperties: false, the schema explicitly prevents proper=
-ties
-defined in the referenced schemas from being implicitly allowed. This force=
-s the
-redundant declaration of properties like touchscreen-size-x and
-spi-max-frequency above, and it inadvertently rejects other valid,
-framework-supported touchscreen properties like touchscreen-fuzz-x.
+> +	return 0;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-eswin-eph8=
-621-v3-0-514eb1f622c0@fairphone.com?part=3D1
+621-v3-0-514eb1f622c0@fairphone.com?part=3D2

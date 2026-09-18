@@ -1,152 +1,151 @@
-Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
+Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F9948FF67;
-	Fri, 18 Sep 2026 13:02:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 903BB4A263A;
+	Fri, 18 Sep 2026 13:07:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789736560; cv=none; b=W0dxzbHNrne/+ijhIq1qUx8xRXwewk2HtKa5k2OcZSiYaNF6yEy4UN0y3Lg4t1sx38U469Li+SW0Us1wJuTdAEs1KfbVtL651UyTWrE4qZFx0RLy26czI69GrC+2oEhqzMTqwL/Wt61EUiNWUUzgegQkRuv0wlD194BkCNIfdU4=
+	t=1789736860; cv=none; b=lloVa9Bhxl4ku4jKH6EjK7RxtFBqfMjg8ScNGxdldKvJ/InzmRhVLzxTylo3Dy65DsPJvbA/pC+Y5YqJcP4aDd/fmgf6CvjKcw2QZS7/Smy0J2K97669jjRV7mgupTBmmcZ132ZijYNwQTJVC/DyzXk5AgBcTUQLEcHK8+4z3ac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789736560; c=relaxed/simple;
-	bh=yVcEqSXbP/8mFfz7dHA2v+SFBTVxlkUsy2wH62WCuGg=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=bkz57M5Dqi0UzjeV364SclpinvmLP7ZYIV/tJe7tI4Y9OdIROTB96cXRNYq2vELWSFD49Bg7SSQIQokl3kErtxoaZKZ9RWK1SmWit8FmJN8x9ktjTs5D4ZFNdWdUtvXKXB6KrBfwnLckskxUP3drwQGRNz4TPYCVCBQGYFhsupc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.helo=mail.mainlining.org; arc=none smtp.client-ip=5.75.144.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.helo=mail.mainlining.org
-Message-ID: <29506e08-9337-487f-af2d-b75f5aa8341e@mainlining.org>
-Date: Fri, 18 Sep 2026 16:01:43 +0300
+	s=arc-20240116; t=1789736860; c=relaxed/simple;
+	bh=yLRKkVjHFH2CAOoqG8ghcoAuUHWfmqtMg8pbmAm89bY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TTFsnfCijM9VdCftWYbeDNuQ4VPP2O91S+2q+bPpzM6WcMgAXq9vfPehSYu9Es91RlxHz9eOLQUu9nxv5GA9lepELCRlWg6jvXQKzzGqv3VzGnA3+o23n4zg/+LuM5iq9JVyf/dq7V5YtRDM97AjbzUsy8+7JtsE416XMcFfwwo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=YhQgO8y9; arc=none smtp.client-ip=195.39.247.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="YhQgO8y9"
+Message-ID: <bca0facb-8840-4691-aebc-e3063c6c3d14@cyberchaos.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
+	s=mail; t=1789736850;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SUk0QaHaOHcefy3cF34cxRQ5NlHqBn6AdrcK4LTyzD0=;
+	b=YhQgO8y9BMFmml0KZlH0FT3AzNCrA9YHyuNWujznrpuMnz1ALgUCyFNCQ8kHqjn9e3LP1W
+	C5qUW5G85qOui0zY9hOqpaMHc7EvyGHSn3yeHxWUIbU8xYCU7D/G7VTfm7soeMTiaukDR6
+	qvQmbtZSe39IrGiLUQtLtTiEuaJwd+4=
+Date: Fri, 18 Sep 2026 15:07:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Subject: Re: [PATCH v2 01/19] dt-bindings: clock: qcom: Add MSM8952 global
- clock controller
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>,
- Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>,
+Subject: Re: [PATCH v2 05/10] mailbox: apple: Add DockChannel FIFO controller
+To: michael.reeves077@gmail.com, Sven Peter <sven@kernel.org>,
+ Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>,
+ Jassi Brar <jassisinghbrar@gmail.com>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>,
- Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>,
+ <conor+dt@kernel.org>, Hector Martin <marcan@marcan.st>,
  "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
- Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov
- <lumag@kernel.org>, Abhinav Kumar <abhinav.kumar@linux.dev>,
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
- Marijn Suijten <marijn.suijten@somainline.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>,
- Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>,
- Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli"
- <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- David Heidelberg <david@ixit.cz>, Dang Huynh <danct12@riseup.net>,
- phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org,
- iommu@lists.linux.dev, mfd@lists.linux.dev, dri-devel@lists.freedesktop.org,
- freedreno@lists.freedesktop.org, linux-pm@vger.kernel.org,
- linux-input@vger.kernel.org
-References: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
- <20260916-msm8952-initial-support-v2-1-798c2602dde1@mainlining.org>
- <20260918-liberal-significant-crow-f1e66f@quoll>
+ Robin Murphy <robin.murphy@arm.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>
+Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ iommu@lists.linux.dev, linux-input@vger.kernel.org,
+ Yureka Lilian <yureka@cyberchaos.dev>, Julian Braha <julianbraha@gmail.com>,
+ Sasha Finkelstein <k@chaosmail.tech>
+References: <20260918-apple-mtp-keyboard-final-v2-0-a5c685e50b60@gmail.com>
+ <20260918-apple-mtp-keyboard-final-v2-5-a5c685e50b60@gmail.com>
 Content-Language: en-US
-In-Reply-To: <20260918-liberal-significant-crow-f1e66f@quoll>
-Content-Type: text/plain; charset=UTF-8
+From: Yureka Lilian <yureka@cyberchaos.dev>
+In-Reply-To: <20260918-apple-mtp-keyboard-final-v2-5-a5c685e50b60@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi Krzysztof,
+On 9/18/26 13:06, Michael Reeves via B4 Relay wrote:
+> From: Michael Reeves <michael.reeves077@gmail.com>
+>
+> DockChannel is a hardware FIFO used by Apple coprocessors for
+> low-latency byte-stream communication with the AP.
+>
+> Add a mailbox controller that preallocates RX storage, tracks IRQ
+> enable state in software, and reports TX completion from the TX-empty
+> interrupt.
+>
+> Reject messages larger than the FIFO and return -EBUSY while the
+> previous message is still pending. This keeps the provider usable for
+> future small-message clients such as serial transports without a TX
+> worker.
+>
+> Handle RX and TX interrupts in a thread so mailbox callbacks and locking
+> run outside hard-IRQ context.
+>
+> Co-developed-by: Hector Martin <marcan@marcan.st>
+> Signed-off-by: Hector Martin <marcan@marcan.st>
+> Signed-off-by: Michael Reeves <michael.reeves077@gmail.com>
+> ---
+>   MAINTAINERS                               |   2 +
+>   drivers/mailbox/Kconfig                   |  12 +
+>   drivers/mailbox/Makefile                  |   2 +
+>   drivers/mailbox/apple-dockchannel.c       | 371 ++++++++++++++++++++++++++++++
+>   include/linux/mailbox/apple-dockchannel.h |  29 +++
+>   5 files changed, 416 insertions(+)
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 7fe2ebb5e..e5be5934c 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -2677,6 +2677,7 @@ F:	drivers/input/touchscreen/apple_z2.c
+>   F:	drivers/iommu/apple-dart.c
+>   F:	drivers/iommu/io-pgtable-dart.c
+>   F:	drivers/irqchip/irq-apple-aic.c
+> +F:	drivers/mailbox/apple-dockchannel.c
+>   F:	drivers/mfd/macsmc.c
+>   F:	drivers/nvme/host/apple.c
+>   F:	drivers/nvmem/apple-efuses.c
+> @@ -2695,6 +2696,7 @@ F:	drivers/video/backlight/apple_dwi_bl.c
+>   F:	drivers/watchdog/apple_wdt.c
+>   F:	include/dt-bindings/interrupt-controller/apple-aic.h
+>   F:	include/dt-bindings/pinctrl/apple.h
+> +F:	include/linux/mailbox/apple-dockchannel.h
+>   F:	include/linux/mfd/macsmc.h
+>   F:	include/linux/soc/apple/*
+>   F:	include/uapi/drm/asahi_drm.h
+> [...]
+> diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-dockchannel.c
+> new file mode 100644
+> index 000000000..d0a66e1b7
+> --- /dev/null
+> +++ b/drivers/mailbox/apple-dockchannel.c
+> @@ -0,0 +1,371 @@
+> +// SPDX-License-Identifier: GPL-2.0-only OR MIT
+> +/*
+> + * Apple DockChannel mailbox controller
+> + *
+> + * Copyright The Asahi Linux Contributors
+> + *
+> + * DockChannel is a byte FIFO used by Apple co-processors. This driver exposes a
+> + * single FIFO pair as a Linux mailbox channel and moves payload bytes with PIO.
+> + * There is no DMA involved, so relaxed MMIO accessors are sufficient for the
+> + * FIFO accesses themselves.
+> + */
+> +
+> +#include <linux/device.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/mailbox/apple-dockchannel.h>
+> +#include <linux/mailbox_controller.h>
+> +#include <linux/module.h>
+> +#include <linux/of.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/unaligned.h>
+> +
+> +#define APPLE_DOCKCHANNEL_FIFO_SIZE	0x800
+> +
+> +#define IRQ_MASK			0x0
+> +#define IRQ_FLAG			0x4
+> +
+> +#define IRQ_TX				BIT(2)
+> +#define IRQ_RX				BIT(3)
 
-On Fri, 18 Sep 2026 12:02:02 +0200, Krzysztof Kozlowski wrote:
-> On Wed, Sep 16, 2026 at 05:22:06PM +0300, Muzaffer Kadir wrote:
->> Add a device tree binding to describe clocks, resets and power domains
->> provided by the global clock controller on MSM8952 SoC.
->>
->> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
-> 
-> Please run scripts/checkpatch.pl on the patches and fix reported
-> warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
-> patches and (probably) fix more warnings. Some warnings can be ignored,
-> especially from --strict run, but the code here looks like it needs a
-> fix. Feel free to get in touch if the warning is not clear.
-> 
+The dockchannel interface used for dockchannel-uart / DebugUSB uses 
+different bits here, so these should probably be read from the device 
+tree if the mailbox driver is supposed to be somewhat generic.
 
-Then I will ask a few things,
-
-WARNING: DT binding headers should be licensed (GPL-2.0-only OR .*)
-#88: FILE: include/dt-bindings/clock/qcom,gcc-msm8952.h:1:
-+/* SPDX-License-Identifier: GPL-2.0-only */
-
-As I said on cover, I originally based on msm8939 gcc,
-would it cause license problems with file if I fix this
-warning?
-
-Some patches say "has style problems, please review."
-Is this related to formatting of code inside patch ?
-
-WARNING: Prefer a maximum 75 chars per line (possible unwrapped commit description?)
-#16: 
-[1] https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-wear-7.0.0_r0.3/drivers/clk/qcom/clock-gcc-8952.c
-
-Should I move these to "Link:" to fix this type of warnings?
-Wouldn't moving them cause a bit understanding loss?
-
-grep: warning: stray \ before -
-What does this mean ?
-
-Thanks
-
->> ---
->>  .../bindings/clock/qcom,gcc-msm8952.yaml           |  56 ++++++
->>  include/dt-bindings/clock/qcom,gcc-msm8952.h       | 217 +++++++++++++++++++++
->>  2 files changed, 273 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/clock/qcom,gcc-msm8952.yaml b/Documentation/devicetree/bindings/clock/qcom,gcc-msm8952.yaml
->> new file mode 100644
->> index 000000000000..274dde633e17
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/clock/qcom,gcc-msm8952.yaml
->> @@ -0,0 +1,56 @@
->> +# SPDX-License-Identifier: GPL-2.0-only
->> +%YAML 1.2
->> +---
->> +$id: http://devicetree.org/schemas/clock/qcom,gcc-msm8952.yaml#
->> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->> +
->> +title: Qualcomm Global Clock & Reset Controller on MSM8952
->> +
->> +maintainers:
->> +  - Muzaffer Kadir <muzafferkadir@mainlining.org>
->> +
->> +description: |
->> +  Qualcomm global clock control module provides the clocks, resets and power
->> +  domains on MSM8952.
->> +
->> +  See also::
-> 
-> git grep "also::" -- Documentation/devicetree/bindings/clock/
-> 
-> I asked you month ago here:
-> <e3fb3794-ca7a-4794-8036-b69e563aaa57@kernel.org>
-> to not work on old forks.
-> 
-> Old fork which you should not use is postmarketos, lineageos, whatever
-> Android fork kernel, and whatever other tree which is not upstream from
-> kernel.org.
-
-I created all of this before sending pinctrl. I tried to clean up by
-reading others in upstream before sending but I guess I didn't
-noticed that, sorry about that.
-I didn't reused fork and mainly used upstream after your reply.
-
-Best regards,
-Muzaffer Kadir
+> [...]

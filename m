@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E78D04AA574;
-	Fri, 18 Sep 2026 11:15:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FEB447ACCE;
+	Fri, 18 Sep 2026 11:18:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789730113; cv=none; b=B/T+PV4JojZkoPF6e9njbLDvcWkibd31HenNqj1cF3gC9gAcnD4eINJESQQEhFow/iKs29K9os+QsmQrDNSEVvtLRF5Kb820Dk+BwiQE57zeg9wMyi+SBMXKWXS0TYU/MiSO9yzlrDYLRAlxdwiuJlFvGDlfWJDVqUG/vPDfoyE=
+	t=1789730287; cv=none; b=o+rnBvi1KZkhZlJrqCKv79GrJmOhaXXZ9Rgrfq86x2nBZ29JMg3ruJpcrVKRAXpEVnK5Z9ue0HAmdB1dqzU5UzBPhrWLwuBhJHjzy9QQ/n0xv44G9CGc2beNjM/WvUXPgp6/ew3S/eJEvI9LrpUlKkBcF3t87gYD7or8obDEspI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789730113; c=relaxed/simple;
-	bh=GaFLWzbzzqHn2jpMrsnfsH69Z3hdXBFKaw821MHywkk=;
+	s=arc-20240116; t=1789730287; c=relaxed/simple;
+	bh=pvu7ii/S8rNl3eZdVXy4voI+wuDoxb96k/L0MU4I/3U=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=G73R2emd3xMau8OLbdlbBF6wEY99zi8/+EpcKSbIHIS+Y6neTnd0zmnaB9/SAydGSRa7MEGhW+ospAAZo9SPS1H4mx7IhocROvG2v4ESQOgNfiUG0xw4Gr3mrs07ujxnJEp36/CSRGFTxmEIbvoxC3lc8kAadsCVkzE1D3yzbGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ltYBR35J; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=M8KAUS7W7n9T6wxttXWBnGT3jp5pdi3JbCEeIgpQY7eEtJAiblmGWGwUyHI8Y4r9gO5HWawEBvfxHmclBH+cRq5wsRmOUtK8TpjHtDuVxhzgafjaXQyvHP7s8Tl6Ln/CeYSzI06HVuxowsgONXcgLF3jrEZKrmshHeA7ohIYEkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MW7mnkip; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ltYBR35J"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BAF41F00893;
-	Fri, 18 Sep 2026 11:15:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MW7mnkip"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D861F000FF;
+	Fri, 18 Sep 2026 11:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789730111;
-	bh=0Del7XIJZWKDZLTWU5zXsLsQ7pPAg9L1B0B5kXSNbAU=;
+	s=k20260515; t=1789730285;
+	bh=ytW7Sp2ZwaSswRg7hJxe2r8E2AMia+pK/6Z7ScuoaI0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ltYBR35JQT0COzl59jtBxXKrDAM6UPEcRC0B1HbFaFoStnrJytRkNA0QfzEf5S/Te
-	 COCHUSXaHFH5MICHaASaOklAgqiDh9qDCzE67CyiAXFcPOrFyndYN5Fw2kfOgniz0j
-	 c779tNRFg2ms8mG2Fihw/DyoMoCwZ/lwSYXiM90B9+iTy7+u5Iywe3X6oSICMH8U5G
-	 j0vdGcRCgXn1Ds9dT7YohJyZMNNBYdZ1BrN9SJx1tJfbdHav10MwOhDF53SV06nY+k
-	 LsuvPs3jYBidGYtsHq9bzBe3C6y3kxqREyBhS7pEFwTmNmJP8KPqCbesYU8YLiN28/
-	 tDKh2JWc9Xz4g==
+	b=MW7mnkipSOtEImfs7g7mH1tG1PF1xJdsKTotsKPCfsL7LFS+rCmn4z9GGcO/EufD7
+	 B0/m5noXjY161O2t7d1TjbC7UM8BaDiognNHaWNiUvEjgU46t0NkDMzxKlcfQz+J2w
+	 9r4UOyF3/KveDt0DNgnxnCaIMzjN442q6kmwV+1eY9pIVsKUyU4HWuX5fF9ZZR76FZ
+	 QIPUpbbmI2OBiEQhEa1QuPRHJi8WzTKnvYAZR2WBt1Qn9sAAcYjfpNQos4sLTnd+jz
+	 j3YX3rgi/Ku+dxS3A70vFg+mEs5UjmPLF2LSZEdfES9e52IkMowFeDUq/YJWNec0p5
+	 vlI/GRSEXWhyQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 04/10] dt-bindings: input: apple: Add DockChannel HID
- transport
+Subject: Re: [PATCH v2 07/10] HID: apple: Add support for DockChannel HID
+ keyboards
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael Reeves" <michael.reeves077@gmail.com>
-Cc: robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260918-apple-mtp-keyboard-final-v2-4-a5c685e50b60@gmail.com>
+Cc: robh@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260918-apple-mtp-keyboard-final-v2-7-a5c685e50b60@gmail.com>
 References: <20260918-apple-mtp-keyboard-final-v2-0-a5c685e50b60@gmail.com>
- <20260918-apple-mtp-keyboard-final-v2-4-a5c685e50b60@gmail.com>
+ <20260918-apple-mtp-keyboard-final-v2-7-a5c685e50b60@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 11:15:11 +0000
-Message-Id: <20260918111511.7BAF41F00893@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 11:18:05 +0000
+Message-Id: <20260918111805.76D861F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,49 +47,63 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] dt-bindings: custom property hid-country-code lacks vendor prefix
+- [Medium] hid-apple: custom match callback ignores HID_QUIRK_IGNORE_SPECIA=
+L_DRIVER
 --
 
-commit 2849d54fecdf9f3ef276d3d92e80cfd4525ca96e
+commit f42c7195001b107355d17e77d99321b92d3f7aad
 Author: Michael Reeves <michael.reeves077@gmail.com>
+Subject: HID: apple: Add support for DockChannel HID keyboards
 
-dt-bindings: input: apple: Add DockChannel HID transport
+This commit adds support for DockChannel HID keyboards to the hid-apple
+driver. It introduces a custom match callback to register devices based
+on their host bus and specific HID group. The keyboard is then mapped
+to the modern Magic Keyboard function-key table.
 
-This commit adds the device tree binding for the Apple DockChannel HID
-transport used by internal keyboards and trackpads on Apple Silicon. It
-describes the required RTKit ASC mailbox, DockChannel mailbox, and MTP DART,
-along with optional STM and keyboard child nodes.
-
-> diff --git a/Documentation/devicetree/bindings/input/apple,t8112-dockchan=
-nel-hid.yaml b/Documentation/devicetree/bindings/input/apple,t8112-dockchan=
-nel-hid.yaml
-> new file mode 100644
-> index 0000000000000..c25e072b68687
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/apple,t8112-dockchannel-hid=
-.yaml
-
+> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+> --- a/drivers/hid/hid-apple.c
+> +++ b/drivers/hid/hid-apple.c
 [ ... ]
-
-> +  keyboard:
-> +    type: object
-> +    properties:
-> +      hid-country-code:
-> +        $ref: /schemas/types.yaml#/definitions/uint32
-
-[Severity: Low]
-Since this is a custom hardware-specific property inside the keyboard node,
-shouldn't it include a vendor prefix to avoid namespace collisions?
-
-Device tree guidelines mandate that hardware-specific or driver-specific
-properties that are not part of a standard generic schema must be prefixed
-with the vendor name, such as apple,hid-country-code.
-
-> +        description:
-> +          HID country code for the keyboard layout variant.
+> @@ -1019,6 +1029,17 @@ static void apple_remove(struct hid_device *hdev)
+>  	hid_hw_stop(hdev);
+>  }
+> =20
+> +static bool apple_match(struct hid_device *hdev, bool ignore_special_dri=
+ver)
+> +{
+> +	if (ignore_special_driver)
+> +		return false;
 > +
-> +    additionalProperties: false
+> +	if (hdev->group =3D=3D HID_GROUP_APPLE_DOCKCHANNEL)
+> +		return apple_is_dockchannel_keyboard(hdev);
+> +
+> +	return true;
+
+[Severity: Medium]
+Does this code need to explicitly check for the device-specific quirk
+hdev->quirks & HID_QUIRK_IGNORE_SPECIAL_DRIVER before returning true?
+
+Returning true unconditionally for other Apple devices bypasses the HID
+core's default safety enforcement. The hid-apple driver will bind to matchi=
+ng
+Apple devices even if a user or a HID-BPF program has set the
+HID_QUIRK_IGNORE_SPECIAL_DRIVER quirk.
+
+This breaks driver fallback to hid-generic and prevents HID-BPF from taking
+over the device via the standard quirk override mechanism.
+
+> +}
+> +
+[ ... ]
+> @@ -1248,6 +1272,7 @@ MODULE_DEVICE_TABLE(hid, apple_devices);
+>  static struct hid_driver apple_driver =3D {
+>  	.name =3D "apple",
+>  	.id_table =3D apple_devices,
+> +	.match =3D apple_match,
+>  	.report_fixup =3D apple_report_fixup,
+>  	.probe =3D apple_probe,
+>  	.remove =3D apple_remove,
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-apple-mtp-=
-keyboard-final-v2-0-a5c685e50b60@gmail.com?part=3D4
+keyboard-final-v2-0-a5c685e50b60@gmail.com?part=3D7

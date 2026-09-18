@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39CA24E4330;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 575C44E4C29;
 	Fri, 18 Sep 2026 11:06:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789729612; cv=none; b=dCescgP+zoJvQzexMMFCo8wP/VjoUo0MDYGeqXksflCCKTCYQS0pZJnJ56Lkl4Qm2i6a748IUO6HOjfO0pQtWdLHirecnB+sS651lAmddAKhalBkkJzRQc7SgZjrod7onGZ4RWIL90nM+t4H4LMO3Pm0abIyM2U5g+DTDhhTs/Y=
+	t=1789729612; cv=none; b=G7Ye+lVzwNlI/uvp1EWziqCz/CRaHUWQKprqyqyx54ZzVxyKoaLqKVOgSXCktlnqdj5Acynsmmi4UfFy0a5K1fbVYpIk+U8LLnAxuOKVhUaGNDq7ucvIZrJwsWAOn+f+jcEzwSBXWPoN0k8PDlpSh3mca4jYq6rgRUNL2TMY0hg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789729612; c=relaxed/simple;
-	bh=SxIZzWCnD27F3bETzw8GzrIINZnH9G/TAzwOYgMlEyQ=;
+	bh=qHsL6nJsyo40SQoF4f2zG/1G7Q2hFBVFDBcl86L3XT0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gYJHwOlnyvUd9Nqdt15aZ4D/UniYPOLp2O1yBxWn04EHTzrdzUIpJcKfIqNwofSdOiPzc1sHQTZ+scdMPeOdVl1Vy0EchrbJt0BBMm5UmsUKdnjHdpO1xOtaopOOuIjL+xSLynVjQ3yuMXEmhEDOiV0QsFHWm6Jmq3RmDLbsx3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qmJYjHpF; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=CSbdqCcI4fZkIDG9zz+PR+9805KJwo+MVAqUAUvjyBQV0BZVd7Ih1479WmLd/ZovcjMcQDiDSWv7N20wOp/NtMKcXWKs2MAb+zTcxAJH8x8Y4VFWdR9zjBIfKGJB9JcX1dqWjE7JB7lQZd7SOG8vqUSDaHMsPBw45QJ+LaQnUjA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q5T2KtYJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qmJYjHpF"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3727CC2BCB8;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q5T2KtYJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C1216C2BD04;
 	Fri, 18 Sep 2026 11:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789729610;
-	bh=SxIZzWCnD27F3bETzw8GzrIINZnH9G/TAzwOYgMlEyQ=;
+	bh=qHsL6nJsyo40SQoF4f2zG/1G7Q2hFBVFDBcl86L3XT0=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=qmJYjHpFv75j9+oIfrEunA8PLhMig/+P9mUDlBNFS7sIsGBI38j1wB+ya33KmVUGG
-	 YAhLDr2QF5NcFWJDM/KNbO6nEWbyux+TGiwNElO8zam71Uuz+BfKP0gZ+hU9Q1o2KM
-	 S+i8HZTSYcYcqBzHuVN+lm/AYmTiWMcznX0kznBG8alfXfLgS0565Z6305zF5P4gYM
-	 QqhwYI+FBCCeoSGIx49RK+ckBDEShlYIE/0r8dls6VTLN0kekxT1O2cXpSnVBc/B3A
-	 3ugH3YI6x83jZmWVGR09RLreOkDSTytuqc9n+xzCYskGhslHeAKUYj0PjRDlXzvd5i
-	 hpk6FKfRxADJw==
+	b=q5T2KtYJKhJ0JzCYAxdNeZGSitzYhcILPav6v8QdKQlhjLlsQR3vmJJrOy2LOvlpq
+	 jmYdjRnKxlWQ/kweseZzrEyTcm287wUYHtYSBwNApNduxNIohRM/S9VlSO+NcRjkcM
+	 XS5PfPKWr9GOQgEP3LmwfxPhzwaBkVXopaDx8OStJNiZa7LokyphYFrju/jYPBMVae
+	 0WKlUTqxKHmwrsZ65Qo8soksUi+m9NTTPe3nX7xH9806i1WJjont5Dznf4AAKQn2Ee
+	 gtzQEKaqM5e2er+lCHZCcLpQ5eYBz+0QNNv70biNZwhMhnPkf+5rEFSq8bJCydD5od
+	 y2OkOYN9MhQDg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 156CCC982D6;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF539C982DC;
 	Fri, 18 Sep 2026 11:06:50 +0000 (UTC)
 From: Michael Reeves via B4 Relay <devnull+michael.reeves077.gmail.com@kernel.org>
-Date: Fri, 18 Sep 2026 21:06:44 +1000
-Subject: [PATCH v2 01/10] dt-bindings: mailbox: apple: Add M3 ASC mailbox
- compatibles
+Date: Fri, 18 Sep 2026 21:06:52 +1000
+Subject: [PATCH v2 09/10] arm64: dts: apple: Add MTP DockChannel HID nodes
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260918-apple-mtp-keyboard-final-v2-1-a5c685e50b60@gmail.com>
+Message-Id: <20260918-apple-mtp-keyboard-final-v2-9-a5c685e50b60@gmail.com>
 References: <20260918-apple-mtp-keyboard-final-v2-0-a5c685e50b60@gmail.com>
 In-Reply-To: <20260918-apple-mtp-keyboard-final-v2-0-a5c685e50b60@gmail.com>
 To: Sven Peter <sven@kernel.org>, Janne Grunau <j@jannau.net>, 
@@ -57,15 +56,14 @@ Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
  linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
  iommu@lists.linux.dev, linux-input@vger.kernel.org, 
  Yureka Lilian <yureka@cyberchaos.dev>, Julian Braha <julianbraha@gmail.com>, 
- Sasha Finkelstein <k@chaosmail.tech>, 
- Conor Dooley <conor.dooley@microchip.com>
+ Sasha Finkelstein <k@chaosmail.tech>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789729608; l=1133;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789729608; l=10900;
  i=michael.reeves077@gmail.com; s=fedora-20260918;
  h=from:subject:message-id;
- bh=jWZaHgDdQBahv3cP0BkPbF81okNWtgFAdgZ27z/Vurk=;
- b=NgcEIACFNZmoME8QwmiMnJLz74jcA0zAHgOuztZXA/3Iw5uxazVfZiqOhirJuEmNb9Gn9PjB4
- ODfjjfyrivwBzJmK3yAAI4FyYqCypCMEu8J12WYo38Lim4nG6EmaXx0
+ bh=zxJFH8v87kXfldcYDDUIbUkkqOIeTECoXrgC66NUKAo=;
+ b=FL36noEWeWzg5RfktCfwoWFBRW+/EOjlCwFzYYKkvnbxVC3JXZq4hRkHRNrgB/PsBY2fdo5fg
+ 0Hp+NJiS3slDUV+nYX+e+BOAg+J8eTuBQ5oZUGGdPWUai4cjLq9oaMp
 X-Developer-Key: i=michael.reeves077@gmail.com; a=ed25519;
  pk=VJ0TvyQ9TvfzYZa908YSE9kpkjFLLD5luv0bERu+boc=
 X-Endpoint-Received: by B4 Relay for
@@ -75,32 +73,306 @@ Reply-To: michael.reeves077@gmail.com
 
 From: Michael Reeves <michael.reeves077@gmail.com>
 
-Add the t8122, t6030 and t6031 ASC mailbox compatibles used by the
-MTP coprocessor on M3, M3 Pro and M3 Max SoCs. They share the existing
-ASC v4 mailbox interface.
+Add disabled MTP nodes for the Apple SoCs used by M2 and M3 systems.
 
+Each instance describes the RTKit ASC mailbox, MTP DART, DockChannel
+mailbox, and DockChannel HID client. Board files can enable them on
+machines that route internal input through MTP.
+
+Co-developed-by: Hector Martin <marcan@marcan.st>
+Signed-off-by: Hector Martin <marcan@marcan.st>
 Signed-off-by: Michael Reeves <michael.reeves077@gmail.com>
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/apple/t602x-die0.dtsi | 46 ++++++++++++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t6030.dtsi      | 46 ++++++++++++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t6031-die0.dtsi | 46 ++++++++++++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t8112.dtsi      | 46 ++++++++++++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t8122.dtsi      | 47 +++++++++++++++++++++++++++++++
+ 5 files changed, 231 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml b/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml
-index 28985cc62..9a6dfb0b2 100644
---- a/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml
-+++ b/Documentation/devicetree/bindings/mailbox/apple,mailbox.yaml
-@@ -30,8 +30,11 @@ properties:
-           - enum:
-               - apple,t8103-asc-mailbox
-               - apple,t8112-asc-mailbox
-+              - apple,t8122-asc-mailbox
-               - apple,t6000-asc-mailbox
-               - apple,t6020-asc-mailbox
-+              - apple,t6030-asc-mailbox
-+              - apple,t6031-asc-mailbox
-           - const: apple,asc-mailbox-v4
+diff --git a/arch/arm64/boot/dts/apple/t602x-die0.dtsi b/arch/arm64/boot/dts/apple/t602x-die0.dtsi
+index c33623f0e..5f62d0a9c 100644
+--- a/arch/arm64/boot/dts/apple/t602x-die0.dtsi
++++ b/arch/arm64/boot/dts/apple/t602x-die0.dtsi
+@@ -161,6 +161,52 @@ pinctrl_smc: pinctrl@2a2820000 {
+ 				<AIC_IRQ 0 857 IRQ_TYPE_LEVEL_HIGH>;
+ 	};
  
-       - description:
++	mtp_mbox: mbox@2a9408000 {
++		compatible = "apple,t6020-asc-mailbox", "apple,asc-mailbox-v4";
++		reg = <0x2 0xa9408000 0x0 0x4000>;
++		interrupt-parent = <&aic>;
++		interrupts = <AIC_IRQ 0 693 IRQ_TYPE_LEVEL_HIGH>,
++			     <AIC_IRQ 0 694 IRQ_TYPE_LEVEL_HIGH>,
++			     <AIC_IRQ 0 695 IRQ_TYPE_LEVEL_HIGH>,
++			     <AIC_IRQ 0 696 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-names = "send-empty", "send-not-empty",
++				  "recv-empty", "recv-not-empty";
++		#mbox-cells = <0>;
++		status = "disabled";
++	};
++
++	mtp_dart: iommu@2a9808000 {
++		compatible = "apple,t6020-dart", "apple,t8110-dart";
++		reg = <0x2 0xa9808000 0x0 0x4000>;
++		interrupt-parent = <&aic>;
++		interrupts = <AIC_IRQ 0 676 IRQ_TYPE_LEVEL_HIGH>;
++		#iommu-cells = <1>;
++		status = "disabled";
++	};
++
++	mtp_dockchannel: mailbox@2a9b14000 {
++		compatible = "apple,t6020-dockchannel", "apple,t8112-dockchannel";
++		reg = <0x2 0xa9b14000 0x0 0x4000>,
++		      <0x2 0xa9b30000 0x0 0x4000>,
++		      <0x2 0xa9b34000 0x0 0x4000>;
++		reg-names = "irq", "config", "data";
++		interrupt-parent = <&aic>;
++		interrupts = <AIC_IRQ 0 677 IRQ_TYPE_LEVEL_HIGH>;
++		#mbox-cells = <0>;
++		status = "disabled";
++	};
++
++	mtp_hid: hid@2a9400000 {
++		compatible = "apple,t6020-dockchannel-hid", "apple,t8112-dockchannel-hid";
++		reg = <0x2 0xa9400000 0x0 0x4000>,
++		      <0x2 0xa9c00000 0x0 0x100000>;
++		reg-names = "coproc-asc", "coproc-sram";
++		mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
++		mbox-names = "asc", "dockchannel";
++		iommus = <&mtp_dart 1>;
++		status = "disabled";
++	};
++
+ 	sio_dart: iommu@39b008000 {
+ 		compatible = "apple,t6020-dart", "apple,t8110-dart";
+ 		reg = <0x3 0x9b008000 0x0 0x8000>;
+diff --git a/arch/arm64/boot/dts/apple/t6030.dtsi b/arch/arm64/boot/dts/apple/t6030.dtsi
+index dda9568af..e460e547e 100644
+--- a/arch/arm64/boot/dts/apple/t6030.dtsi
++++ b/arch/arm64/boot/dts/apple/t6030.dtsi
+@@ -474,6 +474,52 @@ wdt: watchdog@3642b0000 {
+ 			interrupts = <AIC_IRQ 480 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
++		mtp_mbox: mbox@37a408000 {
++			compatible = "apple,t6030-asc-mailbox", "apple,asc-mailbox-v4";
++			reg = <0x3 0x7a408000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 953 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 954 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 955 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 956 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "send-empty", "send-not-empty",
++					  "recv-empty", "recv-not-empty";
++			#mbox-cells = <0>;
++			status = "disabled";
++		};
++
++		mtp_dart: iommu@37a808000 {
++			compatible = "apple,t6030-dart", "apple,t8110-dart";
++			reg = <0x3 0x7a808000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 937 IRQ_TYPE_LEVEL_HIGH>;
++			#iommu-cells = <1>;
++			status = "disabled";
++		};
++
++		mtp_dockchannel: mailbox@37ab14000 {
++			compatible = "apple,t6030-dockchannel", "apple,t8112-dockchannel";
++			reg = <0x3 0x7ab14000 0x0 0x4000>,
++			      <0x3 0x7ab30000 0x0 0x4000>,
++			      <0x3 0x7ab34000 0x0 0x4000>;
++			reg-names = "irq", "config", "data";
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 939 IRQ_TYPE_LEVEL_HIGH>;
++			#mbox-cells = <0>;
++			status = "disabled";
++		};
++
++		mtp_hid: hid@37a400000 {
++			compatible = "apple,t6030-dockchannel-hid", "apple,t8112-dockchannel-hid";
++			reg = <0x3 0x7a400000 0x0 0x4000>,
++			      <0x3 0x7ac00000 0x0 0x100000>;
++			reg-names = "coproc-asc", "coproc-sram";
++			mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
++			mbox-names = "asc", "dockchannel";
++			iommus = <&mtp_dart 1>;
++			status = "disabled";
++		};
++
+ 		pinctrl_smc: pinctrl@36c820000 {
+ 			compatible = "apple,t6030-pinctrl", "apple,t8103-pinctrl";
+ 			reg = <0x3 0x6c820000 0x0 0x4000>;
+diff --git a/arch/arm64/boot/dts/apple/t6031-die0.dtsi b/arch/arm64/boot/dts/apple/t6031-die0.dtsi
+index 47d08672a..d7a6d72b3 100644
+--- a/arch/arm64/boot/dts/apple/t6031-die0.dtsi
++++ b/arch/arm64/boot/dts/apple/t6031-die0.dtsi
+@@ -195,3 +195,49 @@ serial0: serial@391200000 {
+ 		power-domains = <&ps_uart0>;
+ 		status = "disabled";
+ 	};
++
++	mtp_mbox: mbox@2ac408000 {
++		compatible = "apple,t6031-asc-mailbox", "apple,asc-mailbox-v4";
++		reg = <0x2 0xac408000 0x0 0x4000>;
++		interrupt-parent = <&aic>;
++		interrupts = <AIC_IRQ 0 692 IRQ_TYPE_LEVEL_HIGH>,
++			     <AIC_IRQ 0 693 IRQ_TYPE_LEVEL_HIGH>,
++			     <AIC_IRQ 0 694 IRQ_TYPE_LEVEL_HIGH>,
++			     <AIC_IRQ 0 695 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-names = "send-empty", "send-not-empty",
++				  "recv-empty", "recv-not-empty";
++		#mbox-cells = <0>;
++		status = "disabled";
++	};
++
++	mtp_dart: iommu@2ac808000 {
++		compatible = "apple,t6031-dart", "apple,t8110-dart";
++		reg = <0x2 0xac808000 0x0 0x4000>;
++		interrupt-parent = <&aic>;
++		interrupts = <AIC_IRQ 0 675 IRQ_TYPE_LEVEL_HIGH>;
++		#iommu-cells = <1>;
++		status = "disabled";
++	};
++
++	mtp_dockchannel: mailbox@2acb14000 {
++		compatible = "apple,t6031-dockchannel", "apple,t8112-dockchannel";
++		reg = <0x2 0xacb14000 0x0 0x4000>,
++		      <0x2 0xacb30000 0x0 0x4000>,
++		      <0x2 0xacb34000 0x0 0x4000>;
++		reg-names = "irq", "config", "data";
++		interrupt-parent = <&aic>;
++		interrupts = <AIC_IRQ 0 676 IRQ_TYPE_LEVEL_HIGH>;
++		#mbox-cells = <0>;
++		status = "disabled";
++	};
++
++	mtp_hid: hid@2ac400000 {
++		compatible = "apple,t6031-dockchannel-hid", "apple,t8112-dockchannel-hid";
++		reg = <0x2 0xac400000 0x0 0x4000>,
++		      <0x2 0xacc00000 0x0 0x100000>;
++		reg-names = "coproc-asc", "coproc-sram";
++		mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
++		mbox-names = "asc", "dockchannel";
++		iommus = <&mtp_dart 1>;
++		status = "disabled";
++	};
+diff --git a/arch/arm64/boot/dts/apple/t8112.dtsi b/arch/arm64/boot/dts/apple/t8112.dtsi
+index ec248ca05..d5c2f35ef 100644
+--- a/arch/arm64/boot/dts/apple/t8112.dtsi
++++ b/arch/arm64/boot/dts/apple/t8112.dtsi
+@@ -987,6 +987,52 @@ pinctrl_aop: pinctrl@24a820000 {
+ 				     <AIC_IRQ 307 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
+ 
++		mtp_mbox: mbox@24e408000 {
++			compatible = "apple,t8112-asc-mailbox", "apple,asc-mailbox-v4";
++			reg = <0x2 0x4e408000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 864 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 865 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 866 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 867 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "send-empty", "send-not-empty",
++					  "recv-empty", "recv-not-empty";
++			#mbox-cells = <0>;
++			status = "disabled";
++		};
++
++		mtp_dart: iommu@24e808000 {
++			compatible = "apple,t8110-dart";
++			reg = <0x2 0x4e808000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 848 IRQ_TYPE_LEVEL_HIGH>;
++			#iommu-cells = <1>;
++			status = "disabled";
++		};
++
++		mtp_dockchannel: mailbox@24eb14000 {
++			compatible = "apple,t8112-dockchannel";
++			reg = <0x2 0x4eb14000 0x0 0x4000>,
++			      <0x2 0x4eb30000 0x0 0x4000>,
++			      <0x2 0x4eb34000 0x0 0x4000>;
++			reg-names = "irq", "config", "data";
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 850 IRQ_TYPE_LEVEL_HIGH>;
++			#mbox-cells = <0>;
++			status = "disabled";
++		};
++
++		mtp_hid: hid@24e400000 {
++			compatible = "apple,t8112-dockchannel-hid";
++			reg = <0x2 0x4e400000 0x0 0x4000>,
++			      <0x2 0x4ec00000 0x0 0x100000>;
++			reg-names = "coproc-asc", "coproc-sram";
++			mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
++			mbox-names = "asc", "dockchannel";
++			iommus = <&mtp_dart 1>;
++			status = "disabled";
++		};
++
+ 		ans_mbox: mbox@277408000 {
+ 			compatible = "apple,t8112-asc-mailbox", "apple,asc-mailbox-v4";
+ 			reg = <0x2 0x77408000 0x0 0x4000>;
+diff --git a/arch/arm64/boot/dts/apple/t8122.dtsi b/arch/arm64/boot/dts/apple/t8122.dtsi
+index 1ee61c5b3..47102f431 100644
+--- a/arch/arm64/boot/dts/apple/t8122.dtsi
++++ b/arch/arm64/boot/dts/apple/t8122.dtsi
+@@ -438,6 +438,53 @@ pinctrl_aop: pinctrl@2f4824000 {
+ 				     <AIC_IRQ 351 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <AIC_IRQ 352 IRQ_TYPE_LEVEL_HIGH>;
+ 		};
++
++		mtp_mbox: mbox@2fa408000 {
++			compatible = "apple,t8122-asc-mailbox", "apple,asc-mailbox-v4";
++			reg = <0x2 0xfa408000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 838 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 839 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 840 IRQ_TYPE_LEVEL_HIGH>,
++				     <AIC_IRQ 841 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "send-empty", "send-not-empty",
++					  "recv-empty", "recv-not-empty";
++			#mbox-cells = <0>;
++			status = "disabled";
++		};
++
++		mtp_dart: iommu@2fa808000 {
++			compatible = "apple,t8122-dart", "apple,t8110-dart";
++			reg = <0x2 0xfa808000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 822 IRQ_TYPE_LEVEL_HIGH>;
++			#iommu-cells = <1>;
++			status = "disabled";
++		};
++
++		mtp_dockchannel: mailbox@2fab14000 {
++			compatible = "apple,t8122-dockchannel", "apple,t8112-dockchannel";
++			reg = <0x2 0xfab14000 0x0 0x4000>,
++			      <0x2 0xfab30000 0x0 0x4000>,
++			      <0x2 0xfab34000 0x0 0x4000>;
++			reg-names = "irq", "config", "data";
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 824 IRQ_TYPE_LEVEL_HIGH>;
++			#mbox-cells = <0>;
++			status = "disabled";
++		};
++
++		mtp_hid: hid@2fa400000 {
++			compatible = "apple,t8122-dockchannel-hid",
++				     "apple,t8112-dockchannel-hid";
++			reg = <0x2 0xfa400000 0x0 0x4000>,
++			      <0x2 0xfac00000 0x0 0x100000>;
++			reg-names = "coproc-asc", "coproc-sram";
++			mboxes = <&mtp_mbox>, <&mtp_dockchannel>;
++			mbox-names = "asc", "dockchannel";
++			iommus = <&mtp_dart 1>;
++			status = "disabled";
++		};
+ 	};
+ };
+ 
 
 -- 
 2.55.0

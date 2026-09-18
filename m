@@ -1,168 +1,196 @@
-Received: from GVXPR05CU001.outbound.protection.outlook.com (mail-swedencentralazon11013007.outbound.protection.outlook.com [52.101.83.7])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3BA74F5DE5;
-	Fri, 18 Sep 2026 14:18:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.83.7
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789741097; cv=fail; b=GzhuCTe/argXMlGm0Db/IYREnPIIj+VkwpJFD917jouBiu4qdebEOSTlyYF3tZzQWlJfjAa/yLfyaZcWdvv8HUO/pfwcH+KNQlHMBfG6kvyq6xnLe9sv4pbH343Tbyerbr5tiXl3MwcgChsLeUdxwuYfuTyWtSiLpiKUdh5ttOY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789741097; c=relaxed/simple;
-	bh=cMcBeyjBYJ3FZfnNgjsea0FuSJ4nan0sBqxtUprHB+A=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=KkXMDKhxTVJGMvR4H+4Vdp+9ialVoEzwAul7rHT/KnNKPZGFFsmGGqpTlPepm9tkuu7THFvbfcsKEbs2g15KjvZ0hV36LDVmxmtDbWi/ZOcU3JTYBwZ94QwPUqxJumUNXSydj2nQpOzJqNpgNSahULJmlb6DWowrnMyUq5qMCR4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=FLTtR1wv; arc=fail smtp.client-ip=52.101.83.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93E8E4973B9;
+	Fri, 18 Sep 2026 16:18:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789748319; cv=none; b=OQdmvpM96XOh09DcBBSL3SodenFZbxme2IZMrrscOB6UIp50DFLCjCK2QiUlMEcNgTqFq8nXHi4EoKBybsuk15QnHrudu4odOCtRPmIt+lcdnkbP33hoYjwAExE8LwGljzXCu/vFMp4Z2LHi61Bzx63Vyn6eZkGbMkuV2NkeE/8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789748319; c=relaxed/simple;
+	bh=a5xY3F5hJTZZ2dhneKi/TS8TliENLtPR+poXokB0mFc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dIbxfIJaWioG+hF/Xav27TEcI8mBVSHcSzZAfPUqACxI29WrJaPnAm5ddXEzPHJ4vp6E9CBRHLjOGjDmgj0B9TWo6qPUfdrr7rOKkrpOwl5a8+TQEX0rkagpI+KO3+9xhvdde3k2aSBO3wnzMEbAGHnvSqwtXyXEY8f8LjAUxIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lCjvW0JL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="FLTtR1wv"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=kKStKncggWJaouaP3kuhCizYGlUjK3Y03VZzFciTStuSm0QhoPROn+DhKCM3FOe/6IV362J3lGu5Et9UThJzFb5M0Ot2oKvHlDJWxTn2QRCBLWBokHjfLbro2PA96GCfDYlv92WNibwyHjBXiPmQMfkcsjatBIeg4Y3E+3b0EcG72cOLCnwWr0cZTZbxIOiMz/yvr3v+jLtOPOcVLSqmMLT61RU0U6/XYokYFkCpLX5+/5DFRkRghQ4K+LEdj94dEVdl4QSMJbugGKoZQZle2tQwiFUHYJgGUY/AuDKda8gOOryyV1+BiMZSp+3+47dLGEzOrXV00du9BYTZXb63xw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rv/GbYYBab5QW3paaj31oUjK8kiHd0/dB/BXbXV2TJA=;
- b=qzNuVDq0VbQFpZzDfqDsoK0vjJLEY+7g2Rwlsrw2giVUFTan9wJ9PuCKPmQk6MUQPamkxoEZcg/UQKkttHEmCNibzBhGVTqeNw3Ax+3295O7JOe4/iDyTugybbHLJzgvl/39xReLqzPi5UQiYusol2TMKnB70oV2sZB1Yb0w6IO6LbciSWdWWBVfEFSUOx+qjfj6YVdZODaXBM2B/jcGY2OG5s/WEORwBrXxFunpzzuDfNFD5D6D81gZQzlMRsdYMqps2c8LtEIlQ+zcR/XcP68+6UYVJ984G+2oEK0FZb6wTh91BsPnHN/c7Xeqgia3vJCEcHR46DOXKAf7tf5e/g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rv/GbYYBab5QW3paaj31oUjK8kiHd0/dB/BXbXV2TJA=;
- b=FLTtR1wvwJxFuN10soxfNBhNo+CrB5RPo/gnwyKQhnYyksz7DwMubsfW8vCgk7pxzD2zKHvSFpKvj4JjTb6GWxghlO2h8HiUbrLbH5OAaDqaBj5ZkZO+tY5N37VTY/PPb2RQShjshUDpPguzBOBKyCI4qnWeQKM+348QZ156+wgcKiiLsK04wR1WymMDCJxCJXX44NF3IyOjMeVVC2QrDqaRfTT8mR7P6zopGfGSWIEIjYlbdquQszXln6AbwV8yPFEz61QHHqGc3QcekXZBXUz4fI7KixBgqxeLA76R9PkSawaZVOriWB8P3YGxZD/XEd+oScedd0ezBCxYP7W9hg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from AM8PR04MB7874.eurprd04.prod.outlook.com (2603:10a6:20b:24d::9)
- by MMZPR04MB960486.eurprd04.prod.outlook.com (2603:10a6:190:54::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.428.13; Fri, 18 Sep
- 2026 14:18:13 +0000
-Received: from AM8PR04MB7874.eurprd04.prod.outlook.com
- ([fe80::ac38:1699:6f18:c5d9]) by AM8PR04MB7874.eurprd04.prod.outlook.com
- ([fe80::ac38:1699:6f18:c5d9%6]) with mapi id 15.21.0428.011; Fri, 18 Sep 2026
- 14:18:13 +0000
-From: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-	Peng Fan <peng.fan@nxp.com>,
-	linux-input@vger.kernel.org,
-	linux-usb@vger.kernel.org
-Subject: [PATCH] HID: use assign_bit() where applicable
-Date: Fri, 18 Sep 2026 22:15:43 +0800
-Message-ID: <20260918141544.3022797-1-peng.fan@oss.nxp.com>
-X-Mailer: git-send-email 2.51.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: MA5PR01CA0291.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a01:21b::18) To AM8PR04MB7874.eurprd04.prod.outlook.com
- (2603:10a6:20b:24d::9)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lCjvW0JL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF0861F000FF;
+	Fri, 18 Sep 2026 16:18:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789748317;
+	bh=AtP45Vc9PjcrbxAfypTuhGfztdb/0M88gKRbEhBnpgM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=lCjvW0JLwlPE9FJ9dsR0IX1u95tD5JK6GbFzV0Qh1Ed6WL48Atvk2tVsXSv+ynpkJ
+	 jnfLtToWyHtwZea/NQfb0UzJl1diPp4/pa1Krtm5+TSmHFyf6c8rCJgPt5ZC2I2M3v
+	 wRzrkorxyaCDuspkkGp0tTwrY0H/ASSAb6lDXcjnq1MGQcqJD1+NwWrkXiAvbCt1pq
+	 Gs9vsvGXFpJwenRXGfth4C6HIFrMGnET7QUxwHhDQxGkfRlDyrjrvX2xJnMqDIyCK4
+	 HBPkBoOWV1mAcL1xn5iwNbnicF0Ob5NsC5SQQPm+4l/qq/BNgXSCZVAG4og1f7GqJT
+	 k6IOAQERUfd2w==
+Date: Fri, 18 Sep 2026 18:18:32 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Ruzal <daminovruzal7@gmail.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4] HID: multitouch: add support for Goodix GXTP7863
+ touchpad
+Message-ID: <aqwUYWPz_nORoFr6@beelink>
+References: <20260814171247.16707-1-daminovruzal7@gmail.com>
+ <20260819123326.3242-1-daminovruzal7@gmail.com>
+ <aquWNXpJuQr8HLBU@beelink>
+ <51055e02-5bf1-4b1e-b430-382d00d3d004@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM8PR04MB7874:EE_|MMZPR04MB960486:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4b6e2598-0ccb-47bc-55e8-08df158fac8d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|366016|376014|19092799006|1800799024|10067099003|56012099006|11063799006|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	gvpn0Ji/ESnMqW47I/1F89hygMXqeyJ4DK0GzBdSzmis3Ka5gbMaeDR8w3PH4berp80CUszwgoMiFZAPrhzX7+qUpLzqJr8rLWqQORnS5jUN9/IpBuaPfn/OvK1s48cp2eCSNChvssC4lRkRMXX5h5+C7l9uQPHpkjQoWQxM30Ukgjl3zrkr9asWgz9WrG3eHd0s2yTaz8o3nsDzlD3XIV3AddBvcd2Zyv9YpJb84gBmfA5UaIi30Aag2cGNPgOuaWrJhQ85TtQ0p1yuAs2ThyoPQgoOTnWDqbkVDDRi/1D0OKPadaH8Brr9q076WzwYaSA4r/p20wxkwyNjv67lH73wctDksdXuvF1nXc+3N3JQFV6DFaLXQlQ7O1DhJ/hDVBgCmoGDyFP2+i9UM/QeiHtzoTP3HM2x+Yw/CsVBoodQhctni1JA7feLWb0lQTplV/ZrwZyQzdWiEJ8X6GSny1Wl3E1riSvrcFOJMuCcMMM8mn06F1QQOaQMQDYrVLdVR54lTe0olQDUzYC1gYaWwX08XJHXetPLkvmTPWBExon8Re8qtL8t5rWjgNLGishJztH6GfIucNRJOWQhGj0asDwknaH6uQVvsBzlrd1aNeg09IdBFENmFoNtoq2gfNEnc37Z677+tEIPP2pRpFHpaKaMbwl/L4KgsCG+ZHX71Sg=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM8PR04MB7874.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(376014)(19092799006)(1800799024)(10067099003)(56012099006)(11063799006)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?7WfusxkDB9s4ZFTBOiOl69DVd5y6CGifVhmFaNO3X6NswcRUx4yZkLQicB75?=
- =?us-ascii?Q?LWxLCTBZeg+iK7EGAKp/ATaLbX5wtY82PEW5WFeIPf9nIlwpYlNjZv3FnVJH?=
- =?us-ascii?Q?f9yTaE599dm7Rs9I1KeJMnICHjkt8Glu1ial0pQBV4QcMfjFTbOkez1QEriv?=
- =?us-ascii?Q?J/xXlC/+c/SfyGSmxWwEh52By/OdsU5j4KB89yIEITmcyv/DkHNoLUPAs6y+?=
- =?us-ascii?Q?SHkoRy7rCWW5ELO8Po0v+Tw8kAnxCLUO0EbT4HkDSkhstyE3NFLOIlO15bsc?=
- =?us-ascii?Q?/nkcOHClnfztFyZzLe6Pjn6pyjQFglmKkiOJjlKg0EfSg7Gv0vCYWm496NzS?=
- =?us-ascii?Q?nDLGTNQanf6Iq34hPljLAlk9sVI9LfpexOzGs5wSGqKEMB98b6kXGs4nw92s?=
- =?us-ascii?Q?EYu6KhSMeCA/S1vs8N0mS52Eff7UgBh5fMBvUFtJdn/p3/dub2cqL7ij29Kz?=
- =?us-ascii?Q?kfhZjmakNqp51f2osbr/SO4RJb+iZtmt7xjx0j7PS0KWc2etG8GIEg24DGel?=
- =?us-ascii?Q?elT+gzUYdSBLFg13iufBhm8+NIf+aH3hcRO3iVBQxZCq2AEFuNZNjcegkPxG?=
- =?us-ascii?Q?WCZDyUdMNYlXGTyFX3NoU2nZC1JWfnNwSZElf79yLGKlzQ1DYQIETStR6mSs?=
- =?us-ascii?Q?aCRB1pMd4+1cnX6iAoOd8vl58dXbgAROGMq+OnofNwc2kDArVh+b5T7qp+6D?=
- =?us-ascii?Q?Ih4NZEmO15vAP/PyAjJsjkFfJFsxTCxPuhazvnNCtVHBuKC4B9cuz8OrbCpX?=
- =?us-ascii?Q?JQwl6m/ZVhD/C3Frwc2dlykrbLdFGW0oUIdK7Uq4jpm3lGza8ck1YwRC8wlb?=
- =?us-ascii?Q?eZ9XVONvOK+F0I0pmtWpUtluIhgxi8nm+3Mkyr2Cp1ULX3oLt40uc5AbNq0a?=
- =?us-ascii?Q?B4YZSbdHEiox2+9AcI93uyIXVJG0eDQpHwHE5TpzB/m/IABJErfBveT6D916?=
- =?us-ascii?Q?ZNyTEcRy7my3c2syOi39qxpYU+qykl2dupv6WIxrPbN/DrZDj73KKQ3XFK3R?=
- =?us-ascii?Q?/GN+MCyaklRZHSa86C+LYJVi9lGeicIASkfEP+srR5FPNFsByDqJWvRI/iFm?=
- =?us-ascii?Q?g4gsjvvxa/IiahqSdZErwRwnWoLsSBYaGDy3uhMRppE0IlJFgldNYwcYBOKb?=
- =?us-ascii?Q?iMUcYXeVJay/nQv7IVX5nyRWwJnLqtKpAYg44yPbACyblQ8zmmOwzjOpgVjq?=
- =?us-ascii?Q?DiIEboftSAAGsW5RPc+DdMFiHRLGOPO6aD0/rxJzHiPTsM56kvYUWI33xHQY?=
- =?us-ascii?Q?7S/mQS5dZr+n95+2JBIV4gwbjzKf8uo73TEBr+Kbmm64CrEsThoMahwtRzPI?=
- =?us-ascii?Q?uOrYiyMWPlYUkZaFllHVtwiNgS1IfGJpBU07Dk0IsMC4sTLavgAZoUU5slD7?=
- =?us-ascii?Q?SAGDgaIS92gRl2DwxhuxV9LT/wUsdBdHyxVkg2eJWTubMfScLapm4mI7/0PI?=
- =?us-ascii?Q?oqu1rGVGqut0F7ppY2cA9OM7bS36f8lK+cXW6aocwApVQHKSoBs5uTkk9LPZ?=
- =?us-ascii?Q?1OlgPrMZf2Ft84cB5Zm4n1wJx235ewwU+Ofxcvji34J0ULZT5oS45+fRhCdl?=
- =?us-ascii?Q?MH+Gs2I2o0VCn+9PQQogwQdLd6oWUuOVFD1CdWtnMEs9/sLdPSuB4Gg465Um?=
- =?us-ascii?Q?9so/4lxF7zq/Eaur4fUuow35MweutNbAA1kxmBnlrIjkcEyRmbNPZstgk63j?=
- =?us-ascii?Q?20pa+BKGd2bt72nVaRy5CF9SR2WbSant6uZ7sd0zowXy5EqdwEETMLJ8SfJX?=
- =?us-ascii?Q?CZKgyfezDnfdYyu/7Hoo3eHcTGG/mErOMHuXt1TSEEobL17VTJCF?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4b6e2598-0ccb-47bc-55e8-08df158fac8d
-X-MS-Exchange-CrossTenant-AuthSource: AM8PR04MB7874.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Sep 2026 14:18:13.0336
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: IP4HXhHqWcf9tkZvnwO9XysHebkOqTMSGlQgkbzrMvo1xbS0SYUsVpEsNUbDx/5Rrzwr78+rydg/R5LPyV1QJjaLwWVCDMN4jNhIjZLojjLn4C4KoNrkAJQjelRqbEJU
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MMZPR04MB960486
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <51055e02-5bf1-4b1e-b430-382d00d3d004@gmail.com>
 
-From: Peng Fan <peng.fan@nxp.com>
+On Sep 17 2026, Ruzal wrote:
+> On 9/17/26 10:30 AM, Benjamin Tissoires wrote:
+> > Hi,
+> > 
+> > sorry it looks like this one fell through the cracks.
+> > 
+> > On Aug 19 2026, Ruzal Daminov wrote:
+> >> The Goodix GXTP7863 touchpad controller (VID: 0x27c6, PID: 0x01e0)
+> >> found on Honor MagicBook laptops (e.g. FMI-76 / X14 Plus)
+> >> was missing from the mt_devices[] table.
+> >>
+[...]
+> >>  
+> >> +	/* Goodix GXTP7863 Touchpad */
+> >> +	{ .driver_data = MT_CLS_WIN_8,
+> >> +	  HID_DEVICE(BUS_I2C, HID_GROUP_ANY, I2C_VENDOR_ID_GOODIX,
+> > 
+> > I'm puzzled here: HID_GROUP_ANY? How can this even be working with hid-multitouch?
+> > 
+> > Are you sure the touchpad part is not already handled by hid-multitouch, but only
+> > the telemetry/phantom event gets assigned to hid-generic?
+> > 
+> > Can you share the report descriptors of all nodes with hid-recorder so I
+> > can understand why we suddenly have to map to non multitouch devices.
+> > 
+> > Cheers,
+> > Benjamin
+> 
+> Hi Benjamin,
+> 
+> Thanks for pointing that out. You were completely right, and I apologize
+> for the inaccurate explanation in my previous commit messages.
 
-Convert open-coded if/else with set_bit/clear_bit and their
-non-atomic __set_bit/__clear_bit variants to the assign_bit/__assign_bit
-API.
+no need to apologize, we can make mistakes, and that's our job as
+maintainers to catch them :)
 
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
----
- drivers/hid/hid-apple.c       | 5 +----
- drivers/hid/usbhid/hid-core.c | 6 ++----
- 2 files changed, 3 insertions(+), 8 deletions(-)
+> 
+> I re-checked the device binding: the touchpad is indeed claimed by
+> hid-multitouch out of the box under HID_GROUP_MULTITOUCH_WIN_8 (using
+> MT_CLS_WIN_8). It was never claimed by hid-generic.
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index f6134c5820ff..dc5915e69243 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -578,10 +578,7 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 			trans = apple_find_translation(powerbook_numlock_keys, code);
+Well, I guess it was the first time you started the laptop, until
+hid-multitouch gets loaded.
+
+> 
+> The actual root cause is that MT_CLS_WIN_8 sets `.export_all_inputs = true`.
+> Because of this, hid-multitouch exports the vendor application collection
+> (Usage Page 0xFF01, Usage 0x01, Report ID 8) to an input node.
+
+Actually, it's even worse than that.
+
+Because some vendors are not using standard HID usages, we do have a
+`HID_UP_HPVENDOR2` definition of (Usage Page 0xFF01). And hid-input.c
+considers that this is only used by HP laptops/keyboards, and then we
+have some fancy mapping of non standard usages.
+
+The real fix would be to actually ensure this mapping is only triggered
+for:
+- keyboards
+- HP platforms
+
+But, there is always a but, `HID_UP_HPVENDOR` was there since the origin
+of time (git conversion IIRC), and `HID_UP_HPVENDOR2` appeared in 2012.
+
+We do have some info on the affected devices (VID/PID) but nothing else
+like the report descriptor. So it's the typical case of "damn, we can't
+fix this without possibly regressing a lot of existing hardware".
+
+> 
+> As captured in the hid-recorder trace below, the firmware sends a 1-Hz
+> heartbeat packet on Report ID 8:
+>   E: 000000.000000 30 08 ab 00 00 2a ...
+>   E: 000001.006503 30 08 ab 00 00 2a ...
+>   E: 000002.012748 30 08 ab 00 00 2a ...
+> 
+> hid-input interprets these changing payload bytes as key events, resulting
+> in the endless KEY_BRIGHTNESSUP autorepeat loop.
+> 
+> So, adding the device entry with HID_GROUP_ANY to mt_devices[] is indeed
+> completely redundant. The only thing needed is to ignore the 0xFF01 vendor
+> collection so that no phantom input node is created for it.
+> 
+> Here is the report descriptor and event recording from hid-recorder:
+> 
+> # GXTP7863:00 27C6:01E0
+> # 0x05, 0x01,                    // Usage Page (Generic Desktop)        0
+> # 0x09, 0x02,                    // Usage (Mouse)                       2
+[...]
+> # 0xc0,                          // End Collection                      624
+> # 0x06, 0x01, 0xff,              // Usage Page (Vendor Usage Page 0xff01) 625
+> # 0x09, 0x01,                    // Usage (Vendor Usage 0x01)           628
+> # 0xa1, 0x01,                    // Collection (Application)            630
+> # 0x85, 0x08,                    //  Report ID (8)                      632
+> # 0x09, 0x01,                    //  Usage (Vendor Usage 0x01)          634
+> # 0x19, 0x00,                    //  Usage Minimum (0)                  636
+> # 0x29, 0xff,                    //  Usage Maximum (255)                638
+> # 0x15, 0x00,                    //  Logical Minimum (0)                640
+> # 0x25, 0xff,                    //  Logical Maximum (255)              642
+> # 0x95, 0x40,                    //  Report Count (64)                  644
+> # 0x75, 0x08,                    //  Report Size (8)                    646
+> # 0x91, 0x02,                    //  Output (Data,Var,Abs)              648
+> # 0x09, 0x01,                    //  Usage (Vendor Usage 0x01)          650
+> # 0x19, 0x00,                    //  Usage Minimum (0)                  652
+
+Technically, we could simply convert these 0x01 and 0x00 into 0x05 and
+this would make the mapping ignored by hid-input.c
+
+However, when changing those bytes in the hid-recorder output and
+replaying the device this creates a 10 seconds freeze on my desktop
+because some component is not happy about the empty input node it creates.
+
+I'm trying to investigate what is going on, without much success. I'll
+continue working on it on Monday.
+
+> # 0x29, 0xff,                    //  Usage Maximum (255)                654
+> # 0x15, 0x00,                    //  Logical Minimum (0)                656
+> # 0x25, 0xff,                    //  Logical Maximum (255)              658
+> # 0x95, 0x1d,                    //  Report Count (29)                  660
+> # 0x81, 0x02,                    //  Input (Data,Var,Abs)               662
+> # 0xc0,                          // End Collection                      664
+[...]
+> 
+> Would you prefer handling this by simply dropping the 0xff010001 collection
+> in mt_input_mapping() in hid-multitouch, or should this device quirk be
+> implemented via HID-BPF instead?
+
+So:
+- mt_input_mapping() in hid-multitouch -> probably not. Having such
+  quirk in the hid-multitouch code would be better handled with a proper
+  quirk, not a random check in mt_input_mapping().
+- HID-BPF: so far, if it weren't for that 10s freeze, I would have said
+  yes, go for it. But right now there is something fishy in the code
+  that creates empty input devices that are not properly cleaned up by
+  hid-input and that messes up userspace.
  
- 			if (trans) {
--				if (value)
--					set_bit(code, asc->pressed_numlock);
--				else
--					clear_bit(code, asc->pressed_numlock);
-+				assign_bit(code, asc->pressed_numlock, value);
- 
- 				code = trans->to;
- 			}
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 96b0181cf819..6eb48ef8d496 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -292,10 +292,8 @@ static void hid_irq_in(struct urb *urb)
- 			 * because most keyboards don't wake up when
- 			 * a key is released
- 			 */
--			if (hid_check_keys_pressed(hid))
--				set_bit(HID_KEYS_PRESSED, &usbhid->iofl);
--			else
--				clear_bit(HID_KEYS_PRESSED, &usbhid->iofl);
-+			assign_bit(HID_KEYS_PRESSED, &usbhid->iofl,
-+				   hid_check_keys_pressed(hid));
- 		}
- 		break;
- 	case -EPIPE:		/* stall */
--- 
-2.51.0
+Ideally we should fix the generic mapping, but that has a strong chance
+of regressing existing HW, which is a PITA.
 
+And to add to the bucket, when replaying your device, I see that fwupd
+is trying to communicate with the device, so we should be sure to not
+break this as well :(
+
+Hopefully I'll have a better understanding next week.
+
+Cheers,
+Benjamin

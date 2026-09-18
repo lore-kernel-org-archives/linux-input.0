@@ -1,430 +1,190 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C5924E322F;
-	Fri, 18 Sep 2026 11:19:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF7FA4AA574;
+	Fri, 18 Sep 2026 11:19:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789730343; cv=none; b=t9gHlfxtLWRNmDCntfumNDVlmEFm+h0IwsOguDmtMXhZ6jRs+nJkznqY2pe8ejxV1vNv/2PBw75LQCWawr+s1QxV4Hlx4mJxms5/HdEVIfm3NgFjxG8JRK1tYqAX6cH3c/VXjcUtpU/OJVdss+6Q5RtKBrGRsiwXgtePbWW3zrk=
+	t=1789730374; cv=none; b=sHnNwLqgKQCzypZSZsEEvIOdmIYTkAJgvZD5nmBRuHjV/7Q6GtKuGtRd52aAB7brM57DIvsHWk6bdl7tDyrG1mJM/ijZgrnO9Z0Gfvt9EYX/6nWayHpiM2MwUwPwyvupev8U7TT3/yX0F5ktwrGviE+kCaLu/FFrHTe6eGUjJAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789730343; c=relaxed/simple;
-	bh=7gbWzQXgCMJs5YwFlU1fSUDtVnl8+K7Iff3lYowshww=;
+	s=arc-20240116; t=1789730374; c=relaxed/simple;
+	bh=9ccsESYXHvoMwf4HBPfn96X/ssa+CtkaPha9NehXZkY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZgUIzArzshqzXtnPOJEbzr1E2Yn3wR++Qbs7W0zOc78yPUv3lCTKME9d8gHzJ8GxHxVp6Hlsxd9j4lsRV+8NTGomYLIEb5BzIoxCdEngGA633vaqIFAjxODnD0S/ZbqEP5fKs35Ds0QfzT09UYRzMGDzeKiZntur2BVZpegKvMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kr1sDXlA; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=KdQvQmuX/+eDz+lmZS4PyKoummk0DeeLlcdMxDoljGeKWRg5/hDWu/lV2c1uorUsyBJnF3GxSphzw8zqFQ8hNVMEe/BHO2JrqnaOeo5oKnHDK5YM0ZfVhbowd/mHWoRcgewLpmI5+yFkdCiHT2l/r0i42vJT4az7bDTCAEVTVy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J+ZsQOzG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kr1sDXlA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 578581F000FF;
-	Fri, 18 Sep 2026 11:19:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J+ZsQOzG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DDC21F000FF;
+	Fri, 18 Sep 2026 11:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789730341;
-	bh=kGay+fdFL7tSL3oJruEjgG6EB6hAd6LczuwH+icBrZA=;
+	s=k20260515; t=1789730372;
+	bh=1YlMacjxCYi795BMSTNZ3KiDURvOtdGQRiDhRbWaapU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kr1sDXlAdautLbwIN4YaeLOp64EMInJZpXv7nWwy0k9ZFYeNI7ZMbkExy+xcouiI3
-	 4sE//l4bynwvH/Spj0WZPLJwuPddtW8B/bkwI4MgnUX50LDqyL0zFoiz+BbiAeQfLk
-	 Zvg6CP5sgJjbiosi0TWd6k7tsbgcLnCwkpvQq31IeJaVY3jTskbkAJgw36nIUpz5EE
-	 b+kDHZE+WtQ1DqK8CThT0ZmM1p6ByrFOSzCgpt4cwb+QvZKxPJIY3+wgcF4FjvcTBh
-	 tOO4YHNJ/rftNBVaQONqoOoFP6C+QY53EDMHXywuUCUtRE1ZMU0XeqXINU90cOwDUW
-	 9aJL1wkW/q6cQ==
+	b=J+ZsQOzG6WIcULoJSOEWasxr/rBSjjRYQHKSUY7ucTQmVl16c0f4pdkZZD+bOO2eT
+	 ja7FKP23BiSmLbIG0VZJkt32CGZmu9ltbybN5Hzy1QKx9WxMvdRjZrC81ePzFAwVC+
+	 nsMPIEctLgdenLw3+MGeRCxciu2EHjk3r+n4BHSFYH+mxZ6Xni1aTHG7wL98LsByuu
+	 V+/qmpOkTFe/6K8g62euYhgMaw35c8uLejwdm1OQqoOPWdyjHirROg2wK2/R12oGPD
+	 hfRpFqRCTAPwlskJODiNq7xjZuRzXq9ZVxCsaZ8B3WxvRUx/a/nV4xvntHxB2a4Z+L
+	 rS65D5pIsloQA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 08/10] HID: apple: Add DockChannel HID transport
- driver
+Subject: Re: [PATCH v2 05/10] mailbox: apple: Add DockChannel FIFO
+ controller
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael Reeves" <michael.reeves077@gmail.com>
 Cc: linux-input@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org, devicetree@vger.kernel.org
-In-Reply-To: <20260918-apple-mtp-keyboard-final-v2-8-a5c685e50b60@gmail.com>
+In-Reply-To: <20260918-apple-mtp-keyboard-final-v2-5-a5c685e50b60@gmail.com>
 References: <20260918-apple-mtp-keyboard-final-v2-0-a5c685e50b60@gmail.com>
- <20260918-apple-mtp-keyboard-final-v2-8-a5c685e50b60@gmail.com>
+ <20260918-apple-mtp-keyboard-final-v2-5-a5c685e50b60@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 11:19:00 +0000
-Message-Id: <20260918111901.578581F000FF@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 11:19:31 +0000
+Message-Id: <20260918111932.3DDC21F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 9 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] hid: out-of-bounds read due to unsafe hid_input_report()
-- [High] soc: apple: leaked running ASC coprocessor on probe failure
-- [High] hid: out-of-bounds read in userspace via oversized raw_request ret=
-urn
-- [High] hid: UAF due to dynamic HID device registration on probe failure
-- [High] hid: data race and potential uninitialized memory access in interf=
-ace array
-- [Medium] hid: memory leak of report descriptor on multiple INIT events
-- [Medium] hid: incorrect return value in raw_request for SET_REPORT
-- [Low] hid: missing null termination for serial string updates
-- [Low] hid: checksum stored in host endianness breaking big-endian systems
+- [High] mailbox: apple: interrupt storm if TX FIFO not empty during IRQ_TX
+- [High] mailbox: apple: data corruption due to asymmetric byte lane mappin=
+g on TX
+- [High] mailbox: apple: TOCTOU race clearing IRQ_FLAG loses TX/RX events
 --
 
-commit d188bf6bf7d855a9c26413ca6bc664695872df14
+commit 93fab252e833f92aad9624f1eae3f18e4b2d3e72
 Author: Michael Reeves <michael.reeves077@gmail.com>
 
-    HID: apple: Add DockChannel HID transport driver
+mailbox: apple: Add DockChannel FIFO controller
 
-This commit adds a HID transport layer over the Apple DockChannel mailbox
-interface. It enables support for the internal keyboard and trackpad on
-Apple M2 and later MacBook models by exchanging HID packets with the
-RTKit coprocessor.
+DockChannel is a hardware FIFO used by Apple coprocessors for
+low-latency byte-stream communication with the AP. Add a mailbox
+controller that preallocates RX storage, tracks IRQ enable state
+in software, and reports TX completion from the TX-empty interrupt.
 
-> diff --git a/drivers/hid/dockchannel/apple-hid.c b/drivers/hid/dockchanne=
-l/apple-hid.c
+> diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-=
+dockchannel.c
+> index 0000000000000..d0a66e1b786cd
 > --- /dev/null
-> +++ b/drivers/hid/dockchannel/apple-hid.c
+> +++ b/drivers/mailbox/apple-dockchannel.c
 [ ... ]
-> +static struct dchid_iface *
-> +dchid_get_interface(struct dchid_dev *dchid, int index, const char *name)
+> +static void apple_dockchannel_irq_enable(struct apple_dockchannel *dc, u=
+32 bits)
 > +{
-[ ... ]
-> +	iface->fwnode =3D fwnode;
-> +	ret =3D devm_add_action_or_reset(dchid->dev, dchid_fwnode_release,
-> +				       iface->fwnode);
-> +	if (ret)
-> +		goto err_unlock;
-> +
-> +	dchid->ifaces[index] =3D iface;
-> +	mutex_unlock(&dchid->ifaces_lock);
-> +	return iface;
+> +	/*
+> +	 * IRQ_FLAG is write-to-clear. Clear stale latched flags before
+> +	 * unmasking so the next interrupt reflects current FIFO state.
+> +	 */
+> +	writel_relaxed(bits, dc->irq_base + IRQ_FLAG);
 
 [Severity: High]
-Does this code have a data race?
+Does clearing IRQ_FLAG unconditionally before unmasking create a TOCTOU race
+that loses events?
 
-In dchid_get_interface(), dchid->ifaces[index] is published locklessly with
-respect to the interrupt handler using a simple assignment. Since there is =
-no
-write memory barrier here, and no read memory barrier in dchid_process_pack=
-et()
-where the pointer is loaded, could weakly-ordered architectures observe a
-non-NULL pointer but read stale or uninitialized values for the struct's
-contents (such as work->iface->wq)?
+For example, in apple_dockchannel_send_data():
+1. apple_dockchannel_write_pending() runs and the coprocessor starts draini=
+ng
+   the FIFO.
+2. The coprocessor drains the TX FIFO and the hardware latches IRQ_TX.
+3. apple_dockchannel_irq_enable(dc, IRQ_TX) unconditionally clears the latc=
+hed
+   IRQ_TX completion flag.
 
-> +
-> +err_put_fwnode:
-> +	fwnode_handle_put(fwnode);
-> +err_unlock:
-> +	mutex_unlock(&dchid->ifaces_lock);
-> +	return NULL;
-> +}
-> +
-> +static int dchid_send(struct dchid_iface *iface, u32 flags, const void *=
-msg,
-> +		      size_t size)
-> +{
-[ ... ]
-> +	memcpy(buf + sizeof(*hdr) + sizeof(*sub), msg, size);
-> +
-> +	*checksum_ptr =3D 0xffffffff - dchid_checksum(buf, total_len - DCHID_CH=
-ECKSUM_LEN);
+Can this result in permanent loss of TX completion interrupts, or similarly
+swallow RX data interrupts during apple_dockchannel_startup(), leading to a
+channel deadlock?
 
-[Severity: Low]
-Does this write the checksum in host endianness?
-
-The assignment through a u32* pointer writes the computed checksum in host
-endianness. Could this break compatibility and cause the hardware to reject
-packets on big-endian systems?
-
-> +
-> +	dc_msg.data =3D buf;
-> +	dc_msg.len =3D total_len;
-> +	ret =3D mbox_send_message(dchid->dc_mbox, &dc_msg);
-> +	kfree(buf);
-> +
-> +	return ret < 0 ? ret : 0;
+> +	apple_dockchannel_irq_update(dc, bits, true);
 > +}
 [ ... ]
-> +static int dchid_set_report(struct dchid_iface *iface, void *buf, size_t=
- len)
+> +static void apple_dockchannel_write_pending(struct apple_dockchannel *dc)
 > +{
-> +	return dchid_cmd(iface, HID_OUTPUT_REPORT, REQ_SET_REPORT, buf, len,
-> +			 NULL, 0);
-> +}
-
-[Severity: Medium]
-Does this return an incorrect value for SET_REPORT?
-
-dchid_set_report() returns the value from dchid_cmd(), which is the size
-of the acknowledgment packet payload received from the device. However, the
-HID raw_request callback contract requires returning the number of bytes
-successfully written to the device (i.e., len). Returning the ACK size
-could break callers that verify the full payload was transferred.
-
+> +	size_t left =3D dc->tx_len - dc->tx_pos;
+> +	const u8 *p =3D dc->tx_buf + dc->tx_pos;
 > +
-> +static int dchid_raw_request(struct hid_device *hdev, unsigned char repo=
-rtnum,
-> +			     __u8 *buf, size_t len, unsigned char rtype,
-> +			     int reqtype)
-> +{
-> +	struct dchid_iface *iface =3D hdev->driver_data;
+> +	while (left) {
+> +		size_t avail;
+> +		size_t block;
 > +
-> +	switch (reqtype) {
-> +	case HID_REQ_GET_REPORT:
-> +		if (len < 1)
-> +			return -EINVAL;
+> +		avail =3D readl_relaxed(dc->data_base + DATA_TX_FREE);
+> +		if (!avail)
+> +			break;
 > +
-> +		buf[0] =3D reportnum;
-> +		return dchid_cmd(iface, rtype, REQ_GET_REPORT, &reportnum, 1,
-> +				 buf + 1, len - 1);
-
-[Severity: High]
-Does this return an oversized length to userspace, causing an out-of-bounds=
- read?
-
-dchid_cmd() returns the actual size of the device's response payload. If the
-device's response is larger than the requested buffer size, raw_request()
-will return a length greater than the buffer allocation. Could this cause
-callers to copy uninitialized adjacent kernel heap memory to userspace?
-
-> +	case HID_REQ_SET_REPORT:
-> +		return dchid_set_report(iface, buf, len);
-> +	default:
-> +		return -EIO;
-> +	}
-> +}
-[ ... ]
-> +static void dchid_create_interface_work(struct work_struct *ws)
-> +{
-[ ... ]
-> +	hid->dev.parent =3D iface->dchid->dev;
-> +	hid->driver_data =3D iface;
-> +	iface->hid =3D hid;
+> +		block =3D min(left, avail);
 > +
-> +	ret =3D hid_add_device(hid);
-
-[Severity: High]
-Can this result in a use-after-free on probe failure?
-
-If apple_rtkit_wake() fails in dchid_probe(), it initiates devres cleanup. =
-As
-part of this cleanup, the workqueue is flushed. If coprocessor events trigg=
-ered
-this work, dchid_create_interface_work() will run and successfully register
-the HID device here, because dchid->stopping is not set during probe failur=
-e.
-When devres subsequently frees the driver's memory, the active HID device
-will be left pointing to freed memory.
-
-> +	if (ret < 0) {
-> +		iface->hid =3D NULL;
-> +		hid_destroy_device(hid);
-> +		dev_warn(iface->dchid->dev, "failed to register HID device %s\n",
-> +			 iface->name);
-> +	}
-> +
-> +done:
-> +	iface->creating =3D false;
-> +}
-[ ... ]
-> +static void dchid_handle_descriptor(struct dchid_iface *iface, void *hid=
-_desc,
-> +				    size_t desc_len)
-> +{
-> +	u8 *rdesc;
-> +	int i;
-> +
-> +	if (iface->hid)
-> +		return;
-> +
-> +	rdesc =3D devm_kmemdup(iface->dchid->dev, hid_desc, desc_len,
-> +			     GFP_KERNEL);
-
-[Severity: Medium]
-Does this leak memory if multiple INIT events are received?
-
-There is no check to see if iface->hid_desc has already been allocated.
-If a malfunctioning or malicious firmware sends multiple INIT_HID_DESCRIPTOR
-events before HID device registration, previous allocations will be
-overwritten and leaked until the device is unbound.
-
-> +	if (!rdesc)
-> +		return;
-[ ... ]
-> +static void dchid_handle_ready(struct dchid_dev *dchid, void *data, size=
-_t length)
-> +{
-[ ... ]
-> +	/* When STM is ready, grab global device info */
-> +	if (!strcmp(iface->name, "stm")) {
-> +		ret =3D dchid_get_report_cmd(iface, STM_REPORT_ID, &dchid->device_id,
-> +					   sizeof(dchid->device_id));
-> +		if (ret < (int)sizeof(dchid->device_id)) {
-> +			dev_warn(iface->dchid->dev, "failed to get device ID from STM\n");
-> +			/* Fake it and keep going. Things might still work. */
-> +			memset(&dchid->device_id, 0, sizeof(dchid->device_id));
+> +		while (block >=3D sizeof(u32)) {
+> +			writel_relaxed(get_unaligned_le32(p),
+> +				       dc->data_base + DATA_TX32);
+> +			p +=3D sizeof(u32);
+> +			left -=3D sizeof(u32);
+> +			block -=3D sizeof(u32);
 > +		}
 > +
-> +		ret =3D dchid_get_report_cmd(iface, STM_REPORT_SERIAL, dchid->serial,
-> +					   sizeof(dchid->serial) - 1);
-> +		if (ret < 0) {
-> +			dev_warn(iface->dchid->dev, "failed to get serial from STM\n");
-> +			dchid->serial[0] =3D 0;
-> +		}
+> +		while (block) {
+> +			writel_relaxed(*p++, dc->data_base + DATA_TX8);
 
-[Severity: Low]
-Should this be null-terminated on the success path?
+[Severity: High]
+Does this place the remainder byte in the wrong byte lane?
 
-When reading the serial string into dchid->serial, the driver does not appe=
-nd
-a null terminator at the returned length. Since the buffer is initially all=
-ocated
-with zeroed memory, the first read is safe, but if the coprocessor restarts
-and resends an EVENT_READY with a shorter serial string, the buffer will
-retain trailing characters from the older string.
+The RX path in apple_dockchannel_read() documents that the hardware uses
+bits [15:8] for 8-bit FIFO accesses, shifting the read value by 8:
 
-> +
-> +		dchid->id_ready =3D true;
-> +		for (i =3D 0; i < MAX_INTERFACES; i++) {
-> +			if (!dchid->ifaces[i] || !dchid->ifaces[i]->deferred)
-> +				continue;
-> +			dchid_create_interface(dchid->ifaces[i]);
+    *p++ =3D readl_relaxed(dc->data_base + DATA_RX8) >> 8;
+
+Should the TX path also shift the byte << 8 to align with the hardware's
+expected byte lane, avoiding data corruption for unaligned payloads?
+
+> +			left--;
+> +			block--;
 > +		}
 > +	}
+> +
+> +	dc->tx_pos =3D dc->tx_len - left;
 > +}
 [ ... ]
-> +static void dchid_handle_report(struct dchid_iface *iface, void *data, s=
-ize_t length)
+> +static irqreturn_t apple_dockchannel_irq_thread(int irq, void *data)
 > +{
-> +	if (!iface->hid || !iface->open)
-> +		return;
+> +	struct apple_dockchannel *dc =3D data;
+> +	unsigned long irqflags;
+> +	u32 flags;
+> +	u32 pending;
+> +	bool tx_done =3D false;
 > +
-> +	hid_input_report(iface->hid, HID_INPUT_REPORT, data, length, 1);
-
-[Severity: High]
-Does this cause an out-of-bounds read if the report is smaller than expecte=
-d?
-
-According to the HID subsystem guidelines, transport drivers must use
-hid_safe_input_report() because hid_input_report() assumes the buffer size
-matches the descriptor's expected size. If the coprocessor provides a report
-that is smaller than expected, hid_input_report() will blindly read past the
-end of the dynamically allocated buffer.
-
-> +}
-[ ... ]
-> +static void dchid_handle_ack(struct dchid_iface *iface, struct dchid_hdr=
- *hdr,
-> +			     void *data)
-> +{
-> +	struct dchid_subhdr *shdr =3D data;
-> +	u8 *payload =3D data + sizeof(*shdr);
-> +	u16 hdr_len =3D le16_to_cpu(hdr->length);
-> +	u16 sub_len =3D le16_to_cpu(shdr->length);
-> +	unsigned long flags;
-> +	bool complete_cmd =3D false;
+> +	flags =3D readl_relaxed(dc->irq_base + IRQ_FLAG);
 > +
-> +	if (hdr_len < sizeof(*shdr) || sub_len > hdr_len - sizeof(*shdr) ||
-> +	    sub_len < 1)
-> +		return;
+> +	spin_lock_irqsave(&dc->lock, irqflags);
 > +
-> +	spin_lock_irqsave(&iface->out_lock, flags);
+> +	pending =3D flags & dc->irq_mask & (IRQ_TX | IRQ_RX);
+> +	if (!pending)
+> +		goto out_unlock_none;
 > +
-> +	if (shdr->flags =3D=3D iface->out_flags && iface->tx_seq =3D=3D hdr->se=
-q &&
-> +	    iface->out_report =3D=3D payload[0]) {
-> +		if (iface->resp_buf && iface->resp_size)
-> +			memcpy(iface->resp_buf, payload + 1,
-> +			       min_t(size_t, sub_len - 1, iface->resp_size));
-> +
-> +		iface->resp_size =3D sub_len;
-
-[Severity: High]
-Does this update contribute to the oversized length returned by raw_request?
-
-This updates the tracked response size to the received length (sub_len),
-which is then returned by dchid_cmd() to dchid_raw_request(). This can exce=
-ed
-the caller's originally requested buffer size, which dchid_raw_request()
-then returns to userspace.
-
-> +		iface->out_report =3D -1;
-> +		iface->retcode =3D le32_to_cpu(shdr->retcode);
-> +		complete_cmd =3D true;
+> +	if (pending & IRQ_TX) {
+> +		if (apple_dockchannel_tx_empty(dc)) {
+> +			apple_dockchannel_irq_disable(dc, IRQ_TX);
+> +			tx_done =3D dc->tx_active;
+> +			dc->tx_active =3D false;
+> +		} else {
+> +			pending &=3D ~IRQ_TX;
+> +		}
 > +	}
 > +
-> +	spin_unlock_irqrestore(&iface->out_lock, flags);
-> +
-> +	if (complete_cmd)
-> +		complete(&iface->out_complete);
-> +}
-[ ... ]
-> +static void dchid_process_packet(struct dchid_dev *dchid, struct dchid_h=
-dr *hdr,
-> +				 u8 *payload, size_t payload_len, u8 *packet,
-> +				 size_t packet_len)
-> +{
-> +	struct dchid_work *work;
-> +	unsigned long flags;
-> +
-> +	if (dchid_checksum(packet, packet_len) !=3D DCHID_CHECKSUM_SEED) {
-> +		dev_err_ratelimited(dchid->dev, "checksum error\n");
-> +		return;
-> +	}
-> +
-> +	if (payload_len < sizeof(struct dchid_subhdr))
-> +		return;
-> +
-> +	if (hdr->iface >=3D MAX_INTERFACES || !dchid->ifaces[hdr->iface])
-> +		return;
-> +
-> +	if (hdr->channel =3D=3D DCHID_CHANNEL_CMD) {
-> +		dchid_handle_ack(dchid->ifaces[hdr->iface], hdr, payload);
-> +		return;
-> +	}
-> +
-> +	if (hdr->channel !=3D DCHID_CHANNEL_REPORT)
-> +		return;
-> +
-> +	work =3D kzalloc(sizeof(*work) + payload_len, GFP_ATOMIC);
-> +	if (!work)
-> +		return;
-> +
-> +	work->hdr =3D *hdr;
-> +	work->iface =3D dchid->ifaces[hdr->iface];
+> +	writel_relaxed(pending, dc->irq_base + IRQ_FLAG);
 
 [Severity: High]
-Is this missing a read memory barrier?
+If IRQ_TX is removed from the pending mask when the FIFO is not empty, does
+it prevent the hardware latch from being cleared?
 
-This pointer is loaded and dereferenced locklessly. As mentioned earlier,
-without a read memory barrier, this could observe uninitialized memory if
-it races with interface creation in dchid_get_interface().
-
-> +	memcpy(work->data, payload, payload_len);
-> +	INIT_WORK(&work->work, dchid_packet_work);
-> +
-> +	spin_lock_irqsave(&dchid->rx_lock, flags);
-> +	if (dchid->stopping)
-> +		kfree(work);
-> +	else
-> +		queue_work(work->iface->wq, &work->work);
-> +	spin_unlock_irqrestore(&dchid->rx_lock, flags);
-> +}
-[ ... ]
-> +static int dchid_probe(struct platform_device *pdev)
-> +{
-[ ... ]
-> +	writel_relaxed(APPLE_ASC_CPU_CONTROL_RUN,
-> +		       dchid->asc_base + APPLE_ASC_CPU_CONTROL);
-> +
-> +	ret =3D apple_rtkit_wake(dchid->rtk);
-> +	if (ret)
-> +		return dev_err_probe(dev, ret, "failed to wake coprocessor\n");
-
-[Severity: High]
-Does this leak the running ASC coprocessor on failure?
-
-The driver starts the ASC CPU by writing APPLE_ASC_CPU_CONTROL_RUN to its
-control register. If apple_rtkit_wake() fails, the driver returns an error
-without clearing the control register. Devres will unmap the memory and
-free resources, but the CPU remains physically running and may continue to
-access unmapped or freed memory.
+Since IRQ_FLAG is a write-to-clear register, writing back the modified mask
+with IRQ_TX cleared will fail to clear the IRQ_TX hardware latch. Will this
+cause an infinite interrupt storm upon returning from the handler?
 
 > +
-> +	return 0;
-> +}
-[ ... ]
+> +	spin_unlock_irqrestore(&dc->lock, irqflags);
+> +
+> +	if (tx_done)
+> +		mbox_chan_txdone(&dc->chan, 0);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-apple-mtp-=
-keyboard-final-v2-0-a5c685e50b60@gmail.com?part=3D8
+keyboard-final-v2-0-a5c685e50b60@gmail.com?part=3D5

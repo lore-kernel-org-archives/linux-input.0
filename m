@@ -1,126 +1,170 @@
-Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EE324FC343;
-	Fri, 18 Sep 2026 13:39:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C109D513574;
+	Fri, 18 Sep 2026 13:40:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789738758; cv=none; b=Zob2kO+sJ24L8jNRdfcU3yRiJ0/aUc3xGVGRKELttzKSDDF24LfOfb6ecEVf43YPVA9+lbuj9eEQ9jyVcoRfa7h+P8e1J8tZoZC7osvCLR1YlEMFXuiyS/7XA3yuzfc/9MBfhPqWE71tJ7d3C77oNxXs0UtyuIUvVJlqdgMF61M=
+	t=1789738824; cv=none; b=uio+KVn71KxOGC879pAiMO4cf22jUsoTL/j99rNb4ohlZhy+mNAJuA+tkU2hiyGSLyyJyqNWqraM/um4pFIkIPEXo+tC2MGZnfLMwfQlyNbNiEwKpaVbRRpDrQc21d4DKhX4M3UHyZay+p5JedbJ963lAP1md2ptlmz5F9ObV2g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789738758; c=relaxed/simple;
-	bh=2yFgt0ROuksLy413n9Mkj4wxAWjjdsXYuq4ymzuvrHQ=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=t3X5/kUGY7NGKZ5oRGC96oWj3GBHL9rBc2ZlYa8QkTVAYMcGb8CZPSQjePSUDwRjLBfRiTXCYobk1fIdG43wR3LtAIgPRg+NkY8C94UIS4hhsZTwhWRmxb0JXsIliOpPMSfo4Ox5Xo/WybFtBPlMRwIOZheKi8AZIrWJuPqKAGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.helo=mail.mainlining.org; arc=none smtp.client-ip=5.75.144.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.helo=mail.mainlining.org
-Message-ID: <06462390-f3c2-4018-bd8c-fee513e600ce@mainlining.org>
-Date: Fri, 18 Sep 2026 16:38:55 +0300
+	s=arc-20240116; t=1789738824; c=relaxed/simple;
+	bh=Y5AI++T6hC9WIipMlduO+vQ0RNPFYkmnAwmLtnAIGns=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=KFAIjOG3AMYh7BKv8q8oBUOZEDov7uKmEPPNguOPDHo0/hI3Xx/n3WDCyNddwF9T9/iCipcWbAXas7R9hqYiVN2kbDz6iQww2NNclotLFGCvCqnTceW2Pw8HozLUuZ62/VuMvAxRsSHx+ZPR3oTkjws32st4CGtOmCUwU4V3Lkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FOXDv5LA; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FOXDv5LA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DE471F000FF;
+	Fri, 18 Sep 2026 13:40:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789738821;
+	bh=XTi9Oe9y8tnv+l0hdxOf2X/JoMlZn58xr7nYnH45wHI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=FOXDv5LAvBafQfrokPp74VIZNBrEgjOovtoV9W5+8M/DDrUYTA+kQ37HzxY6/lKx6
+	 OeooF2p5w2SaT1ajTzG2I3ojRhS+ACKLnSwgOBGD4a65lO0TSMX/rFWrHMxo5d6o6E
+	 o94XBaueM0JwSSmv3WO6adTEBfzuHE1iN55YHgkP8Sw+znAJ+kTDu5PmaQ7j15CmrX
+	 hJ+hkf7rcntWddsMcagNFiwdXwRAu8dGseAns1svqKuM7153ETgb5HhixE5EboMYBK
+	 XEBKihYc1HClTmCbNSZF2j9cFQZ5cqNl1HQsNshunFbbyRGv889L1LxoD04BDyx+vc
+	 vphiwesTzqtwg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 05/10] mailbox: apple: Add DockChannel FIFO
+ controller
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Michael Reeves" <michael.reeves077@gmail.com>
+Cc: dmitry.torokhov@gmail.com, robh@kernel.org, linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20260918-apple-mtp-keyboard-final-v3-5-e356464e454b@gmail.com>
+References: <20260918-apple-mtp-keyboard-final-v3-0-e356464e454b@gmail.com>
+ <20260918-apple-mtp-keyboard-final-v3-5-e356464e454b@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 18 Sep 2026 13:40:20 +0000
+Message-Id: <20260918134021.1DE471F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Subject: Re: [PATCH v2 01/19] dt-bindings: clock: qcom: Add MSM8952 global
- clock controller
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
- Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>,
- Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>,
- Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>,
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
- Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov
- <lumag@kernel.org>, Abhinav Kumar <abhinav.kumar@linux.dev>,
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
- Marijn Suijten <marijn.suijten@somainline.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>,
- Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>,
- Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli"
- <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- David Heidelberg <david@ixit.cz>, Dang Huynh <danct12@riseup.net>,
- phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org,
- iommu@lists.linux.dev, mfd@lists.linux.dev, dri-devel@lists.freedesktop.org,
- freedreno@lists.freedesktop.org, linux-pm@vger.kernel.org,
- linux-input@vger.kernel.org
-References: <20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org>
- <20260916-msm8952-initial-support-v2-1-798c2602dde1@mainlining.org>
- <20260918-liberal-significant-crow-f1e66f@quoll>
- <29506e08-9337-487f-af2d-b75f5aa8341e@mainlining.org>
- <232b8c59-0357-407b-9e34-78e290f76ba0@kernel.org>
-Content-Language: en-US
-In-Reply-To: <232b8c59-0357-407b-9e34-78e290f76ba0@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] mailbox: apple: lost TX interrupt due to clearing IRQ_FLAG after t=
+ransmission starts
+- [High] mailbox: apple: TOCTOU race in IRQ handler clears newly asserted i=
+nterrupts
+- [Medium] mailbox: apple: interrupt storm when IRQ_TX fires but FIFO is no=
+t empty
+--
 
+commit 2a04249ed27a338883aa783b0cfe092f13b2057a
+Author: Michael Reeves <michael.reeves077@gmail.com>
 
-On Fri, 18 Sep 2026 15:26:34 +0200, Krzysztof Kozlowski wrote:
-> On 18/09/2026 15:01, Muzaffer Kadir wrote:
->> Hi Krzysztof,
->>
->> On Fri, 18 Sep 2026 12:02:02 +0200, Krzysztof Kozlowski wrote:
->>> On Wed, Sep 16, 2026 at 05:22:06PM +0300, Muzaffer Kadir wrote:
->>>> Add a device tree binding to describe clocks, resets and power domains
->>>> provided by the global clock controller on MSM8952 SoC.
->>>>
->>>> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
->>>
->>> Please run scripts/checkpatch.pl on the patches and fix reported
->>> warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
->>> patches and (probably) fix more warnings. Some warnings can be ignored,
->>> especially from --strict run, but the code here looks like it needs a
->>> fix. Feel free to get in touch if the warning is not clear.
->>>
->>
->> Then I will ask a few things,
->>
->> WARNING: DT binding headers should be licensed (GPL-2.0-only OR .*)
->> #88: FILE: include/dt-bindings/clock/qcom,gcc-msm8952.h:1:
->> +/* SPDX-License-Identifier: GPL-2.0-only */
->>
->> As I said on cover, I originally based on msm8939 gcc,
-> 
-> I don't get this. There is no file like:
-> Documentation/devicetree/bindings/clock/qcom,*msm8939*
+mailbox: apple: Add DockChannel FIFO controller
 
-this file I was talking about:
-include/dt-bindings/clock/qcom,gcc-msm8939.h
+DockChannel is a hardware FIFO used by Apple coprocessors for
+low-latency byte-stream communication with the AP. This adds a
+mailbox controller that preallocates RX storage, tracks IRQ enable
+state in software, and reports TX completion from the TX-empty
+interrupt.
 
-> 
-> so I have no clue what did you take as a base. If this is derivative of
-> some work, it can be mentioned in the commit msg. We usually ignore
-> cover letters for anything relevant to actual code.
-> 
-Understood, I will fix the commit msg on v3.
+> diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-=
+dockchannel.c
+> index 0000000000000..a99b8dad03987
+> --- /dev/null
+> +++ b/drivers/mailbox/apple-dockchannel.c
+[ ... ]
+> +static int apple_dockchannel_send_data(struct mbox_chan *chan, void *dat=
+a)
+> +{
+[ ... ]
+> +	dc->tx_buf =3D msg->data;
+> +	dc->tx_len =3D msg->len;
+> +	dc->tx_pos =3D 0;
+> +	dc->tx_active =3D true;
+> +
+> +	apple_dockchannel_write_pending(dc);
+> +	writel_relaxed(APPLE_DOCKCHANNEL_FIFO_SIZE,
+> +		       dc->config_base + CONFIG_TX_THRESH);
+> +	apple_dockchannel_irq_enable(dc, IRQ_TX);
 
->> would it cause license problems with file if I fix this
->> warning?
->>
->> Some patches say "has style problems, please review."
->> Is this related to formatting of code inside patch ?
->>
->> WARNING: Prefer a maximum 75 chars per line (possible unwrapped commit description?)
->> #16: 
->> [1] https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-wear-7.0.0_r0.3/drivers/clk/qcom/clock-gcc-8952.c
-> 
-> I do not see such line in this patch.
+[Severity: High]
+Does this create a race condition where a valid completion interrupt
+is cleared?
 
-I misunderstood as all patches, Sorry.
-This was in 3. patch commit description.
+The transmission is initiated by writing to the FIFO in
+apple_dockchannel_write_pending(). The hardware can transmit the bytes
+and become empty extremely fast. If it does so before the call to
+apple_dockchannel_irq_enable() executes, the hardware latches the IRQ_TX
+completion flag, and apple_dockchannel_irq_enable() immediately clears
+it, potentially permanently hanging the channel.
 
-Best Regards,
-Muzaffer Kadir
+Could the stale flags be cleared prior to writing the FIFO?
+
+[ ... ]
+> +static irqreturn_t apple_dockchannel_irq_thread(int irq, void *data)
+> +{
+> +	struct apple_dockchannel *dc =3D data;
+> +	unsigned long irqflags;
+> +	u32 flags;
+> +	u32 pending;
+> +	bool tx_done =3D false;
+> +
+> +	flags =3D readl_relaxed(dc->irq_base + IRQ_FLAG);
+> +
+> +	spin_lock_irqsave(&dc->lock, irqflags);
+> +
+> +	pending =3D flags & dc->irq_mask & (IRQ_TX | IRQ_RX);
+> +	if (!pending)
+> +		goto out_unlock_none;
+> +
+> +	if (pending & IRQ_TX) {
+> +		if (apple_dockchannel_tx_empty(dc)) {
+> +			apple_dockchannel_irq_disable(dc, IRQ_TX);
+> +			tx_done =3D dc->tx_active;
+> +			dc->tx_active =3D false;
+> +		} else {
+> +			pending &=3D ~IRQ_TX;
+> +		}
+> +	}
+> +
+> +	writel_relaxed(pending, dc->irq_base + IRQ_FLAG);
+
+[Severity: Medium]
+Will this lead to an interrupt storm if the TX interrupt fires but the
+FIFO is not empty?
+
+Since IRQ_FLAG is a write-1-to-clear register, removing IRQ_TX from
+pending intentionally skips clearing the active hardware interrupt in
+this case. The handler returns while the unmasked interrupt is still
+asserted, causing the IRQ controller to immediately re-fire the interrupt.
+
+While this may require a spurious hardware interrupt or glitch to trigger,
+it would result in an infinite interrupt loop that permanently hangs a
+CPU core.
+
+[ ... ]
+> +out_unlock_none:
+> +	spin_lock_irqrestore(&dc->lock, irqflags);
+> +
+> +	if (flags & (IRQ_TX | IRQ_RX))
+> +		writel_relaxed(flags & (IRQ_TX | IRQ_RX),
+> +			       dc->irq_base + IRQ_FLAG);
+
+[Severity: High]
+Can this write back a stale flags value, clearing newly asserted interrupts?
+
+The flags value is read outside the lock at the beginning of the handler.
+If the handler takes the out_unlock_none path (e.g., due to a concurrent
+shutdown making pending =3D=3D 0), it will write this stale flags value to
+IRQ_FLAG locklessly.=20
+
+If another CPU executes apple_dockchannel_send_data() and completes a
+transmission in the intervening window, this lockless write-1-to-clear
+will wipe the newly generated IRQ_TX interrupt, hanging the mailbox channel.
+
+> +
+> +	return IRQ_NONE;
+> +}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-apple-mtp-=
+keyboard-final-v3-0-e356464e454b@gmail.com?part=3D5

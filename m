@@ -1,36 +1,36 @@
-Received: from mta0.migadu.com (out-199.mta0.migadu.com [91.218.175.199])
+Received: from mta0.migadu.com (out-110.mta0.migadu.com [91.218.175.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A20C3A7597
-	for <linux-input@vger.kernel.org>; Fri, 18 Sep 2026 01:38:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C939D3B9D93
+	for <linux-input@vger.kernel.org>; Fri, 18 Sep 2026 01:51:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789695506; cv=none; b=VbVkqwdDwWyrrLUdiHvpjxFElprKsg464jThsCxrXfnoZB/OOk2y1kJXdO/NhERY6b6ds9EZiEaASuHARGkCrZkRI+lXy5jQTzG+74sOUcxnkSYGfCUzt17vZoJmZEd7GeY5et0MyO9+OvRzvPcBtEwa5sB6Pn3Jkuu9cONEd+E=
+	t=1789696284; cv=none; b=VuVeS9WAYJ3LtqGznxX6Bx1uEM1zEGwAmoNcbHCltG8/fFzyoasRaY7nmy9eYsfcQnIooMbpgfbogFEX0uhchtbeF5NqjABOiQdPeTu+NIhmUXYFj+7OfTj1DRMzhhd4Rsc4ovCqZTh4P+uX4jES+V4fXFt6uzIHOx8S1uJ26Tw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789695506; c=relaxed/simple;
-	bh=nov9NZ6EhNAAdopYUIHTrZgJsPsCH+wjVGmniAJZdts=;
+	s=arc-20240116; t=1789696284; c=relaxed/simple;
+	bh=swG99huV+OJg5bet6niU+ZqBN5MK2Tt0UIutQV/ODP4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=M4rzPgI8GzAJUbvGd1SauxxDo1FxXiuH2TvrbBfHFG/vhnFvBiGrvEqNpLV0PNxRoRtnZNbP+d+Ad39pdwaBLJPlutxfzVlJfjWszxMAxTI9JDqODhxwZJ1hqdAvA9qAowl8+nZcxCAjf/Pbhum/R+H6Qz3WD29mAbW63t7ahWk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=dTY5SRWs; arc=none smtp.client-ip=91.218.175.199
+	 In-Reply-To:Content-Type; b=u2F+y1PBwOWC0rlTR3JURKvarP4e7/t0rhAS1MO5ste7S/7HjRnOAT5AvHoU8HYdnO6722v3KPMVk9+MnO/iiDMfcX0uNe0L75j8MmnEv6l7NlEoPtuQc73aBqOBhoT2dD3N+yeKVgKm1J57Bz5jA8qXxlPKuW4L8H7a+eZbDjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=j9b7m+MW; arc=none smtp.client-ip=91.218.175.110
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="dTY5SRWs"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="j9b7m+MW"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=nov9NZ6EhNAAdopYUIHTrZgJsPsCH+wjVGmniAJZdts=;
+DKIM-Signature: a=rsa-sha256; bh=swG99huV+OJg5bet6niU+ZqBN5MK2Tt0UIutQV/ODP4=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1789695499; v=1; x=1790300299;
- b=dTY5SRWsYNZjnVJ8mRja20BIyVSyas1eX9YNohpSHy0qUhWL1UZSfXBWm68bVYP5lXBLUIeB
- BeODhOvKrBA79t8sv0pkl3LPBSRWLIGE2a9zqaAa1+IJ9ijYTI+pmHaWjo3DZvvDk32S7rJrQwe
- 2KNO6rbdISaJla0ikDavYFpQ=
+ t=1789696269; v=1; x=1790301069;
+ b=j9b7m+MWk6LcQjncegnQGGJN7Qgk9WhINoyn8rU6ZlPbnX7sPMO3Lrjb/9l7i7jMJX56eSP3
+ 8ziW83LNwK+FFFJCd1WhwqRxj58Ge0oDIn4QYZO8Sg2GSG5DY/Jy4mKdHuCu0UPhoWTpEm6Gj2v
+ hprt2Nc1UGyx2uLtn60Djtt0=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 4ec5b4c4dec98d43;
-	Fri, 18 Sep 2026 01:38:08 +0000
-X-Mizu-Trace-ID: 4ec5b4c4dec98d43
+Received: by smtp.migadu.com with ESMTPS id 2e33ce95d0b6bb3a;
+	Fri, 18 Sep 2026 01:50:59 +0000
+X-Mizu-Trace-ID: 2e33ce95d0b6bb3a
 X-Migadu-Flow: FLOW_OUT
-Message-ID: <9cb4ccdb-89e0-4c5c-a302-6e4040d25ab6@linux.dev>
-Date: Fri, 18 Sep 2026 03:38:07 +0200
+Message-ID: <a65bcba0-72b9-4d22-9073-cf6f825adb70@linux.dev>
+Date: Fri, 18 Sep 2026 03:50:58 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -38,915 +38,524 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] HID: ayaneo: Add AYANEO 3 detachable controller driver
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>,
- Antheas Kapenekakis <lkml@antheas.dev>, =?UTF-8?B?TWF0w61hcyBNYXJ0w61uZXo=?=
- <hello@matias.me>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
- Armin Wolf <W_Armin@gmx.de>
-References: <20260824223103.93947-1-hello@matias.me>
- <20260917160722.89391-1-hello@matias.me>
- <CAGwozwEkgP9-VwhW81=WEvJOac5iD+PFO4tA4eVrFP_qDVaiWA@mail.gmail.com>
- <F96DE6B8-1866-42FA-BA13-1F97B8E64733@gmail.com>
+Subject: Re: [PATCH 3/3] HID: asus: add support for xgm led
+To: Antheas Kapenekakis <lkml@antheas.dev>,
+ Denis Benato <benato.denis96@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+ Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>
+References: <20260915181200.18086-1-denis.benato@linux.dev>
+ <20260915181200.18086-4-denis.benato@linux.dev>
+ <CAGwozwHe7dnSi1=NuqeQuXD0FtdPKLJvwyC53ff6LUmRU9Z7SQ@mail.gmail.com>
+ <9fd173d2-08c2-4455-b251-27af53db2028@gmail.com>
+ <CAGwozwHTZVrrC7zB4oGc3safznXKH3zkHv5EDVSyOYdNGZCpXw@mail.gmail.com>
+ <39eaa5c2-c22e-4007-bfce-e31f6bfd6b17@linux.dev>
+ <CAGwozwGiUr-1hZsoUa2xWjrhi+ijM-ps4K5g07aFWaBi4dHhjw@mail.gmail.com>
+ <e351995f-eeb8-498e-870d-c5c2e543f541@gmail.com>
+ <CAGwozwGWoR=httXax6USrrDLzCy+isivTgr2DLx+m7C6RFoxtw@mail.gmail.com>
 Content-Language: en-US
 From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <F96DE6B8-1866-42FA-BA13-1F97B8E64733@gmail.com>
+In-Reply-To: <CAGwozwGWoR=httXax6USrrDLzCy+isivTgr2DLx+m7C6RFoxtw@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
 
-On 9/18/26 02:42, Derek J. Clark wrote:
-> On September 17, 2026 2:48:11 PM PDT, Antheas Kapenekakis <lkml@antheas.dev> wrote:
->> On Thu, 17 Sept 2026 at 18:07, Matías Martínez <hello@matias.me> wrote:
->>> From: Matías Martínez <hello@matias.me>
->> Hi Matias,
+On 9/18/26 00:06, Antheas Kapenekakis wrote:
+> On Wed, 16 Sept 2026 at 15:05, Denis Benato <benato.denis96@gmail.com> wrote:
 >>
->>> The AYANEO 3 handheld has a detachable controller with swappable
->>> modules ("Magic Modules"). The controller exposes three USB HID
->>> interfaces behind 1c4f:0002 (a generic SigmaMicro VID/PID, hence the
->>> DMI gate): a gamepad, a keyboard for the extra buttons, and a vendor
->>> interface accepting 65-byte commands.
->>>
->>> Add a driver for the vendor interface providing module identification
->>> (module_left/module_right sysfs attributes), software eject of the
->>> modules (eject sysfs attribute, blocking until the firmware confirms
->>> the release handshake), and RGB control of the joystick rings as a
->>> multicolor LED class device ("<device name>:rgb:joystick_rings";
->>> userspace such as InputPlumber matches the function suffix). The
->>> firmware's fixed breathing pattern is exposed through the hw_pattern
->>> trigger ABI.
->>>
->>> This complements the ayaneo-ec platform driver, which exposes module
->>> attach state and controller power. A full physical eject is performed
->>> by writing to eject and then cutting power through ayaneo-ec's
->>> controller_power attribute; that orchestration is deliberately left
->>> to userspace.
->>>
->>> The protocol was reverse engineered in the Handheld Daemon project by
->>> Antheas Kapenekakis. Tested on an AYANEO 3: module identification,
->>> RGB solid and breathing, a full eject/reinsert/repower cycle, and
->>> repeated driver unbinds under a concurrent brightness-write load.
->>> Signed-off-by: Matías Martínez <hello@matias.me>
->>> Reviewed-by: Denis Benato <denis.benato@linux.dev>
->>> ---
->>> Changes in v3:
->>> - Use a generic ayaneo_ prefix for entry points and driver structure
->>>   so a future device or protocol revision slots in without churn;
->>>   wire-protocol constants stay AYA3_* since they are specific to
->>>   this firmware generation. [Derek J. Clark]
->>> - Describe the wire format with packed aya3_config/aya3_resp structs,
->>>   static_assert their sizes against the report sizes, and name every
->>>   firmware vibration level in an enum instead of a lone default
->>>   define. [Derek J. Clark]
->>> - Take the command lock with scoped_cond_guard(mutex_intr, ...) at
->>>   every interruptible lock site so the unlock cannot be dropped in a
->>>   future edit. [Derek J. Clark]
->>> - Mark the LED class device LED_COLOR_ID_RGB so userspace can detect
->>>   the RGB interface generically. [Derek J. Clark]
->>> - Name the firmware timing constants and record where the timings
->>>   come from and what was validated on hardware.
->>>
->>> No functional change relative to v2. The rework was prompted by
->>> Derek J. Clark's review of the driver in the OpenGamingCollective
->>> tree and retested on an AYANEO 3: module identification, RGB solid
->>> and breathing via hw_pattern, rejection of malformed hw_pattern
->>> writes, and repeated bind/unbind cycles, all with a clean dmesg.
->>>
->>> One question from that review was whether RGB sysfs writes need
->>> debouncing, since Steam emits one write per slider increment during
->>> a color drag. They do not: the driver registers only
->>> brightness_set_blocking, so the LED core defers stores to its
->>> set_brightness_work and coalesces bursts to the latest state.
->>> Measured on hardware, a command+ACK round trip averages 5.3 ms
->>> (3.8-8 ms over 100 samples) and 1000 back-to-back multi_intensity
->>> stores return in 12 ms total, reaching the device as two to three
->>> commands.
->> After you submitted your patch series to the lore, why didn't the
->> review take place here and take place downstream? I understand that
->> prior to submitting your first kernel patch, it is natural to get some
->> informal feedback, but it seems that all of the reviews of this driver
->> happened outside the submission and after the submission? The rby
->> Denis should not be added by you. It should be added by denis by
->> replying to the mailing list and then you carry it forward on future
->> revisions (for provenance).
+>> On 9/16/26 14:31, Antheas Kapenekakis wrote:
+>>> On Wed, 16 Sept 2026 at 14:18, Denis Benato <denis.benato@linux.dev> wrote:
+>>>> On 9/16/26 08:46, Antheas Kapenekakis wrote:
+>>>>> On Wed, 16 Sept 2026 at 02:54, Denis Benato <benato.denis96@gmail.com> wrote:
+>>>>>> On 9/15/26 23:52, Antheas Kapenekakis wrote:
+>>>>>>> On Tue, 15 Sept 2026 at 20:12, Denis Benato <denis.benato@linux.dev> wrote:
+>>>>>>>> XG mobile stations have very bright leds behind the fan that can be
+>>>>>>>> turned either ON or OFF: add a cled interface to allow controlling the
+>>>>>>>> brightness of those red leds.
+>>>>>>> Hi Denis,
+>>>>>>> as of last month, I am also the proud owner of a XG Mobile (2025 in my
+>>>>>>> case). Therefore, I can now comment on this series and give you
+>>>>>>> feedback.
+>>>>>> Perhaps. These two devices have nothing in common but the name.
+>>>>>>
+>>>>>>> First, I have some interim patches that are not ready yet to post. The
+>>>>>>> device still has some led behavior that I need to investigate, but I
+>>>>>>> attach them here for your reference. You may send them on my behalf if
+>>>>>>> you want to see them sooner though.
+>>>>>>>
+>>>>>>> https://github.com/anatase-org/patchwork/commit/af3e5e1755f720a2fffd1b67cb1253e11efbc5bb
+>>>>>>> https://github.com/anatase-org/patchwork/commit/7718c4b64b03ca9be043e8c56f1833e5c4880fff
+>>>>>>>
+>>>>>>> Note that these two patches are essentially a replacement for this
+>>>>>>> patch essentially, except for the binding, where your device is I2C
+>>>>>>> where mine is thunderbolt, so that still needs to be added. There are
+>>>>>>> still leftover issues with the LED I have to investigate before I
+>>>>>>> submit these patches.
+>>>>>>>
+>>>>>>> As you know, USB keyboards in Asus laptops are connected over WMI
+>>>>>>> through s2idle as well, which is what makes them turn off their
+>>>>>>> backlight during suspend. However, our devices are external and cannot
+>>>>>>> use the same path. I suspect that there is a different notifier for
+>>>>>>> these devices over armoury crate we need to investigate first.
+>>>>>> Your device is thunderbolt only, but 2022, 2023 and 2024
+>>>>>> xg mobiles that his patch targets are devices for which the
+>>>>>> ACPI of laptops supporting this weird connector is full of
+>>>>>> references to and handling and custom code all over the place.
+>>>>>>
+>>>>>> They are nothing alike. They share the name....
+>>>>>>
+>>>>>> If I connect mine to my rog ally armoury crate gains a
+>>>>>> slider that sends the exact same command my patch sends...
+>>>>>>
+>>>>>> I couldn't find anything else over USB with wireshark:
+>>>>>> everything else is ACPI-driven.
+>>>>>>
+>>>>>>>> Let the led core manage the power transitions: the classdev is flagged
+>>>>>>>> with LED_CORE_SUSPENDRESUME, so it is switched off at suspend and its
+>>>>>>>> last brightness is restored at resume. The EC drives its own blinking
+>>>>>>>> pattern during s2idle anyway, so the led state while the machine is
+>>>>>>>> asleep is not meaningful.
+>>>>>>>>
+>>>>>>>> Cc: Antheas Kapenekakis <lkml@antheas.dev>
+>>>>>>>> Signed-off-by: Denis Benato <denis.benato@linux.dev>
+>>>>>>>> ---
+>>>>>>>>  drivers/hid/hid-asus.c | 84 ++++++++++++++++++++++++++++++++++++++++++
+>>>>>>>>  1 file changed, 84 insertions(+)
+>>>>>>>>
+>>>>>>>> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+>>>>>>>> index 03150d29eec5..a427e272563d 100644
+>>>>>>>> --- a/drivers/hid/hid-asus.c
+>>>>>>>> +++ b/drivers/hid/hid-asus.c
+>>>>>>>> @@ -51,6 +51,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>>>>>>>>  #define FEATURE_KBD_LED_REPORT_ID1 0x5d
+>>>>>>>>  #define FEATURE_KBD_LED_REPORT_ID2 0x5e
+>>>>>>>>
+>>>>>>>> +#define ROG_XGM_REPORT_SIZE 300
+>>>>>>> Here, you define an additional report size var. This is not necessary,
+>>>>>>> as ROG_ALLY_REPORT_SIZE is only used for reads currently in the driver
+>>>>>>> and we defer to hid core to set the write length. Therefore, you might
+>>>>>>> increase ROG_ALLY_REPORT_SIZE to 300 universally instead, as a
+>>>>>>> correctness fix. This way, when Aura devices attempt to write 300
+>>>>>>> bytes, they still work regardless of the quirk. This is what
+>>>>>>> af3e5e1755f720a2fffd1b67cb1253e11efbc5bb.
+>>>>>> I answer to this below, but I want to point out something here:
+>>>>>> you are right in wanting to join these, but wrong on what to join:
+>>>>>> the right thing to do is not to join the ALLY_REPORT_SIZE and the
+>>>>>> XGM report size, but instead to join the  KBD report size and the
+>>>>>> ally one as one NKEY_REPORT_SIZE since this is exactly what they
+>>>>>> are: N-KEY devices.
+>>>>> You are right, NKEY_REPORT_SIZE. This is what my patch did. It was
+>>>>> late yesterday.
+>>>> Splendid, now it makes sense. Yeah I'll do it, don't worry about it:
+>>>> it's on my TODO list and has been for a few months.
+>>>>
+>>>>>>>> +
+>>>>>>>>  #define ROG_ALLY_REPORT_SIZE 64
+>>>>>>>>  #define ROG_ALLY_X_MIN_MCU 313
+>>>>>>>>  #define ROG_ALLY_MIN_MCU 319
+>>>>>>>> @@ -144,6 +146,11 @@ struct asus_worker {
+>>>>>>>>         bool removed;
+>>>>>>>>  };
+>>>>>>>>
+>>>>>>>> +struct asus_xgm_led {
+>>>>>>>> +       struct led_classdev cdev;
+>>>>>>>> +       struct hid_device *hdev;
+>>>>>>>> +};
+>>>>>>>> +
+>>>>>>>>  struct asus_touchpad_info {
+>>>>>>>>         int max_x;
+>>>>>>>>         int max_y;
+>>>>>>>> @@ -170,6 +177,7 @@ struct asus_drvdata {
+>>>>>>>>         unsigned long battery_next_query;
+>>>>>>>>         struct asus_hid_listener listener;
+>>>>>>>>         bool fn_lock;
+>>>>>>>> +       struct asus_xgm_led *xgm_led;
+>>>>>>>>  };
+>>>>>>>>
+>>>>>>>>  static int asus_report_battery(struct asus_drvdata *, u8 *, int);
+>>>>>>>> @@ -1161,6 +1169,26 @@ static int asus_battery_probe(struct hid_device *hdev)
+>>>>>>>>         return ret;
+>>>>>>>>  }
+>>>>>>>>
+>>>>>>>> +static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
+>>>>>>>> +{
+>>>>>>>> +       const u8 buf[ROG_XGM_REPORT_SIZE] = {
+>>>>>>>> +               FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00
+>>>>>>>> +       };
+>>>>>>>> +       struct asus_xgm_led *xgm = container_of(led_cdev, struct asus_xgm_led, cdev);
+>>>>>>>> +       int ret;
+>>>>>>>> +
+>>>>>>>> +       ret = asus_kbd_set_report(xgm->hdev, buf, ROG_XGM_REPORT_SIZE);
+>>>>>>>> +       if (ret < 0) {
+>>>>>>>> +               hid_err(xgm->hdev, "Unable to set XG mobile led state: %d\n", ret);
+>>>>>>>> +               return ret;
+>>>>>>>> +       } else if (ret != ROG_XGM_REPORT_SIZE) {
+>>>>>>>> +               hid_err(xgm->hdev, "Unexpected partial transfer to XG mobile: %d\n", ret);
+>>>>>>>> +               return -EIO;
+>>>>>>>> +       }
+>>>>>>>> +
+>>>>>>>> +       return 0;
+>>>>>>>> +}
+>>>>>>>> +
+>>>>>>> Moreover, as this is an Aura device, and by setting
+>>>>>>> ROG_XGM_REPORT_SIZE to 300, you can now reuse the initial inits and
+>>>>>>> brightness handler instead of adding new ones as you did here. This
+>>>>>>> way, for asus laptops with a wmi handler, the brightness keyboard
+>>>>>>> shortcut of the device will also control the eGPU, which is preferable
+>>>>>>> behavior. This is what 7718c4b64b03ca9be043e8c56f1833e5c4880fff does
+>>>>>>> in part.
+>>>>>> Absolutely bad idea, trust me: I have recently followed the fix
+>>>>>> of a regression I introduced sending a 64-bytes command to
+>>>>>> touchpads that accepts some other length as those stopped
+>>>>>> working. Doing that is asking for troubles. Listen to who
+>>>>>> caused the trouble already and make the most out of my
+>>>>>> mistakes.
+>>>>>>
+>>>>>> I also had to make asusctl send exactly 64-bytes commands
+>>>>>> because of random bugs to zephyrus and strix models.
+>>>>>> Sending 65 bytes to anime matrix is not a very good idea either.
+>>>>>>
+>>>>>> Also Armoury Crate never sends anything different to 64 bytes
+>>>>>> to N-key devices and I do not want to send anything different
+>>>>>> than windows does.
+>>>>>>
+>>>>>> Do you remember what happens to rainbow on ROG ally if you send
+>>>>>> commands the MCU doesn't like? I don't want having weird things
+>>>>>> difficult to debug and nearly impossible to recover from only because
+>>>>>> the code would look better/be shorter.
+>>>>>>
+>>>>>> These devices are fragile in handling, tied to the EC and low lever
+>>>>>> hardware and I absolutely don't want to diverge from what
+>>>>>> Armoury Crate does unless there is a very good reason to it.
+>>>>>>
+>>>>>> I agree that ASUS devices are somewhat forgiving in accepting
+>>>>>> different lengths, unlike MSI claws that will not answer to
+>>>>>> commands until you have sent a number of bytes multiple of
+>>>>>> the length they want, but this is no reason to toy around this.
+>>>>>>
+>>>>>>> I have not tested the common path yet. I have been travelling so I
+>>>>>>> have not flashed the new kernel on my z13. I have been using the eGPU
+>>>>>>> with a different device.
+>>>>>> If with "the new kernel" you mean 7.3 I can tell you it appears
+>>>>>> d3 is broken and some ASUS laptops stopped entering s2idle...
+>>>>>>
+>>>>>>> 7718c4b64b03ca9be043e8c56f1833e5c4880fff also fixes the "blinking
+>>>>>>> pattern" of the EC, as you note in your subject. With the init,
+>>>>>>> suspend and resume handlers sending the init of that patch, during
+>>>>>>> boot the light blinks, it becomes solid once hid-asus binds, then
+>>>>>>> during the transition to sleep, it starts to blink until it turns red,
+>>>>>>> and does the reverse during resume. It would be good for you to give
+>>>>>>> feedback for that. I have not verified the Windows behavior there, and
+>>>>>>> we should do that for correctness. The init is referenced from
+>>>>>>> g-helper in Windows, but maybe there is another command that signals
+>>>>>>> sleep better.
+>>>>>> 2022, 2023 and 2024 models don't blink outside of s2idle...
+>>>>>> Because ACPI is all over the place and the device gets informed
+>>>>>> constantly of what the host is doing.
+>>>>>>
+>>>>>> If 2025 models blink until you bind the driver it that means they
+>>>>>> rely on commands from the windows application... We will need
+>>>>>> to replicate those as closely as possible.
+>>>>>>
+>>>>>> I can ask ASUS if wireshark captures don't shed some lights to it.
+>>>>> If you can and forward me some info it should be great.
+>>>> I cannot because that would be covered by my NDA, and
+>>>> that would take quite a lot of time and depending on the
+>>>> questions surfacing here I might not even be allowed to
+>>>> answer so it's hugely better if wireshark is all that is needed.
+>>>>
+>>>>>>> I do not have an answer to the sleep leds unfortunately. My XG's RGB
+>>>>>>> stays on while there is a device plugged in, regardless of whether its
+>>>>>>> sleeping or shutdown. This makes me think that we are missing a
+>>>>>>> notifier command, and the brightness patch you propose here just
+>>>>>>> papers over the issue. So we should investigate that first.
+>>>>>> What I propose is correct for old models. Newer ones I know nothing
+>>>>>> about except that there is no custom ACPI handling them.
+>>>>>>
+>>>>>>
+>>>>>>> Let me know how you'd like to proceed.
+>>>>>> Honestly I think you should name those something like xgb_tb_.....
+>>>>>> and handle them separately since they have pretty much nothing
+>>>>>> in common... Except the price maybe. Lol.
+>>>>>>
+>>>>>> In general don't go crazy over refactors and trying to make the
+>>>>>> code looks better at the expense of proven things: the priority
+>>>>>> is for this driver to work reliably and to reuse as much things
+>>>>>> proven to work as possible.
+>>>>> Let me simplify. Please try to stay on topic.
+>>>>>
+>>>>> My XG Mobile is an Aura device using FEATURE_KBD_LED_REPORT_ID2 with a
+>>>>> feature report size of 300. Your XG Mobile is an Aura device that uses
+>>>>> the same. They both have the same sleep issue that you paper over by
+>>>>> setting the brightness to 0. The LED stays on during sleep. It also
+>>>>> stays on / off during boot and the power command works inconsistently
+>>>>> with it. Which points to the device not knowing boot state and missing
+>>>>> a command to inform it.
+>>>> I don't see any sleep issue: the resume sometime return to the
+>>>> old setting and sometimes it doesn't but it always blink s2idle.
+>>>>
+>>>> Setting the brightness to 0 is pretty much a no-op on these
+>>>> models and that's why I used the proper flag, but if new models
+>>>> requires something different you can restore the old code
+>>>> from me for those models.
+>>>>
+>>>> Resetting the setting by sending the command is exactly what
+>>>> Windows does so I'm okay with what I did here.
+>>>>
+>>>> Yours may very well need other things: just disable the device
+>>>> in windows driver manager, start wireshark, re-enable the
+>>>> device and the command will appear there.
+>>> It is a noop. But you are introducing a new ABI just for the XG
+>>> mobile. userspace does not know how to use it and we will need to
+>>> customize software around it. By keying it to the existing handler
+>>> userspace will work.
+>> I am doing it on purpose and I explained the reasoning already.
+>>
+>> If userspace doesn't have yet the code to handle it it will
+>> (asusctl already can btw).
+>>
+>>> Moreover, we already have a suspend handler that restores brightness.
+>>> You are adding a separate led device and using its suspend handling
+>>> instead. Why not use the existing plumbing and potentially extend it
+>>> to set to 0 prior to suspend instead via an xdg quirk? As I told you
+>>> my device needs that as well, so this is not specific to older models.
+>>> I suspect there is a missing command though and I would prefer that
+>>> instead.
+>> We have that for laptop keyboards. XGM is not a keyboard.
+>>
+>> It doesn't share a length with keyboard nor commands:
+>> totally different device gets totally different handling.
+>>
+>> If yours need the brightness setting to 0 upon
+>> sleep entering then the usage of the suspend flag on the
+>> cled device was the correct move because it's doing exactly
+>> what you are suggesting here.
+>>
+>> If an additional command is required then it's super easy
+>> since the cled brightness off runs before suspend and the
+>> on runst after resume any required command can be
+>> sent in those functions.
+>>
+>> But beware: setting the suspendresume flag on the
+>> kbd_backlight is not correct because the brightness
+>> needs to stay 1-3 for s2idle effects to play on many
+>> TUF laptops.
+>>
+>> The more I think about little differences that joining
+>> the path will make the more I am uncomfortable
+>> with doing so.
+> I think we are going in circles. I am not sure what to tell you. 2025
+> is an Aura device. Id rather you use the keyboard inits and if as you
+> say this device has a binary on off, quirk the existing cdev to use
+> 0->1 max brightness and this particular led command and still tie it
+> to the asus-wmi handler so that it links to asus laptops. This way,
+> you do not introduce a new abi for EOL eGPUs and a new cdev just for
+> them. It is fine to scale 1-3 in the wmi cdev to 1.
 
-Hello Antheas,
+I am simply doing what I think it's best for these devices and
+I have explained my reasoning.
 
-thanks for the interest but don't worry: he added my rvb because
-I asked him to do so.
+The fact that the device is not being built anymore by asus
+(I am not sure it's EoL) plays little role. No kernel rule
+prevents that nor I have seen any reference. We support
+what is in active usage by people and these devices are.
 
-The driver was developed and tested against the at-the-time version
-of linux-next, as all new drivers should be as stated in the linux-next
-landing page.
+> You have not shown this device needs to be written 300 bytes. No other
+> devices need that, and the 2025 does not either. You also have not
+> shown that this device does not support the standard brightness
+> command either.
+
+Well I find this phrasing needlessly aggressive and there is
+absolutely zero reason to behave like this.
+
+This is a capture from windows of the 2023 version, mine
+is identical:
+https://gitlab.com/asus-linux/reverse-engineering/-/tree/master/xg_mobile?ref_type=heads
+
+I obviously already tried setting the kbd backlight quirk
+and nothing happens, in fact I asked this capture right
+because aura was a no-go.
+
+The device I have here, the 2022 model and the 2023 are
+not aura devices. They ignore aura commands as well as
+everything else previously known.
+
+> If you are not going to incorporate feedback, you can remove me from
+> cc in future versions and do as you wish.
+
+Fine by me, thanks anyway.
+
+> I will cleanup downstream if undesirable behaviors occur
+
+Freedom is important and I encourage you to exercise yours.
+
+> Best,
+> Antheas
 
 Best regards,
 Denis
 
->> If you are developing a downstream kernel patch for
->> OGC/Bazzite/whoever, it is perfectly fine to do downstream work and
->> reviews and only submit the driver after it is ready. In fact, it
->> would be very preferable for all of us for you to test your driver
->> downstream, resolve all feedback and then submit it when it's ready.
->> But mixing this is peculiar. This is not a comment on you, you were
->> not the one reviewing your patch out of band.
-> Antheas,
->
-> There is no reason to throw shade about the process. This was submitted to OGC unstable prior to v1 where Denis reviewed and tagged it prior to it being submitted. I wasn't Cc'd or informed that it was already on a v2 less than 48h later, so I submitted my feedback directly on the PR a couple days later. Had I been aware I would have obviously submitted feedback here. Without your feedback necessary we've already implemented better control policies to avoid this in the future.
->
-> Thanks,
-> Derek
->
->>> Also suggested in that review, but held out of the patch while the
->>> driver's scope is under discussion: a rumble_intensity attribute
->>> (the firmware takes three vibration levels), an eject_index
->>> attribute, and a notification path from hid-ayaneo to ayaneo-ec so
->>> the EC driver could react to ejects. The last one concerns the
->>> ayaneo-ec/pdx86 side, hence the added Cc.
+>>>>> The asusctl driver handles aura devices. However, instead of using the
+>>>>> current aura cdev handler and init handling you introduce a SECOND ONE
+>>>>> THAT DOES THE SAME THING and is not connected to the central keyboard
+>>>>> brightness handler.
+>>>> The current one is rooted in asus-wmi, has 0-3 brightness and
+>>>> is for keyboards.
+>>>>
+>>>>> Why do you do that? Can you justify the new cdev? What's wrong with
+>>>>> the normal one? Why do we need a new ABI just for the 2022-2024 eGPU
+>>>>> models?
+>>>> Yes: new xgm only needs hid-asus, has 0-1 brightness and is for
+>>>> xg mobile. Code written for kbd_backlight that assumes 0-3
+>>>> won't work on it.
+>>>>
+>>>> Also users may very well to be able to control the light of
+>>>> the xgm separately from kbd_backlight because xgm led
+>>>> is very bright and it's uncomfortable to look at unlike the
+>>>> keyboard backlight.
+>>>>
+>>>> Another reason is that even in windows the lighting of
+>>>> xgm is a totally separated option with just ON/OFF and
+>>>> it's what users expect (this patch has been written on
+>>>> input and capture from a 2022 xgm user on Discord).
+>>>>
+>>>> As for 2022-2024 eGPU models I don't really mean "do
+>>>> things in a totally separated manner from 2025": code
+>>>> can be reused but the code that can be reused might
+>>>> be a small portion in comparison with what those
+>>>> may need so I am skeptical in attempting to merge
+>>>> the two paths entirely without knowing what
+>>>> new models actually want to receive.
+>>>>
+>>>> I was suggesting not to try too hard to share the same
+>>>> code path until you have figured out all required details.
+>>>>
+>>>> Beside these devices even have a different USB vid:pid
+>>>> so it's not like what this patch does affects them in any
+>>>> way unless we want to by using the same quirk.
+>>> I haven't checked armoury crate yet. But the 2025 model is indeed 0-3
+>>> so it can re-use the keyboard path with full compatibility, so for new
+>>> xdg mobile devices I will base on NKEY.
+>> Then I stand on the position of keeping these two separate.
+>>
+>>> If you are sure it is 0-1 only and 2-3 don't work correctly and
+>>> shouldn't be merged, I guess you can go ahead. I would still try to
+>>> avoid introducing a constant just for the XG mobile and instead
+>>> increase the existing packet value from 64 to 300 as it is only used
+>>> for reads.
+>> AC has a toggle button ON/OFF on these so yeah I am very sure
+>> it's not 0-3.
+>>
+>>> Only add a new constant if you are sure you need to have a 300 sized
+>>> buffer to do the brightness write, and that hid-core already does not
+>>> read the expected buffer size for that report and needs the actual
+>>> buffer to be 300, and that the device does not accept a smaller buffer
+>>> (since the driver does not do that already for all existing rog
+>>> devices, it is very unlikely).
 >>>
->>> Changes in v2:
->>> - Unregister the LED class device before tearing down the HID
->>>   transport, and flush a late-queued brightness work item that can
->>>   race the unregister; the work could otherwise run against freed
->>>   memory. Found by stress-testing rmmod under a brightness-write
->>>   loop; also reachable whenever the controller power-cycles (resume,
->>>   module eject) while userspace writes the LED. [sashiko, Denis]
->>> - Abort the eject wait as soon as the transport reports a fatal
->>>   error instead of polling for up to 8 seconds. [sashiko]
->>> - Reject report descriptors with no collections explicitly. [sashiko]
->>> - Document why a late reply to a timed-out command is harmless.
->>>   [sashiko]
->>> - Stop writing the joystick-sensitivity bytes in the config command
->>>   so RGB updates no longer clobber the firmware setting; verified on
->>>   hardware that RGB and eject work without them. [Antheas]
->>> - Expose the firmware's breathing mode through the hw_pattern
->>>   trigger ABI, with an ABI document. [Antheas]
+>>> If you decide to instead change the existing packet size, I would
+>>> appreciate you re-use my first patch, put yourself as the primary
+>>> author, and add me as a co-by. You can keep the rest of this patch as
+>>> is and only change the referenced constant, and I will add my R-by on
+>>> the next revision.
+>> As I said I don't want to do things to diverge from what windows
+>> does unless there is a good reason, so I will try not to do that
+>> unless it's strictly needed and cannot be solved with a nice
+>> drvdata->packet_length.
+>>
+>>> Best,
+>>> Antheas
 >>>
->>>  .../testing/sysfs-class-led-driver-hid-ayaneo |  15 +
->>>  .../ABI/testing/sysfs-driver-hid-ayaneo       |  36 ++
->>>  MAINTAINERS                                   |   8 +
->>>  drivers/hid/Kconfig                           |  14 +
->>>  drivers/hid/Makefile                          |   1 +
->>>  drivers/hid/hid-ayaneo.c                      | 594 ++++++++++++++++++
->>>  6 files changed, 668 insertions(+)
->>>  create mode 100644 Documentation/ABI/testing/sysfs-class-led-driver-hid-ayaneo
->>>  create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-ayaneo
->>>  create mode 100644 drivers/hid/hid-ayaneo.c
->>>
->>> diff --git a/Documentation/ABI/testing/sysfs-class-led-driver-hid-ayaneo b/Documentation/ABI/testing/sysfs-class-led-driver-hid-ayaneo
->>> new file mode 100644
->>> index 000000000..00f100dba
->>> --- /dev/null
->>> +++ b/Documentation/ABI/testing/sysfs-class-led-driver-hid-ayaneo
->>> @@ -0,0 +1,15 @@
->>> +What:          /sys/class/leds/<led>/hw_pattern
->> Consider exploring similar ABIs in e.g., Legion Go S hid and mirroring
->> their ABI. Then remove this file. This is not the only breathing
->> device. Moreover, delta_t values are ignored and you are introducing
->> an ABI for them? Prefer a mode setting that can be standard/breathing
->> mirroring a different driver.
->>
->>> +Date:          August 2026
->>> +KernelVersion: 7.3
->>> +Contact:       Matías Martínez <hello@matias.me>
->>> +Description:
->>> +               Specify a hardware pattern for the AYANEO 3 joystick
->>> +               rings LED. The firmware supports a single breathing
->>> +               pattern, pulsing the current colour at a fixed,
->>> +               firmware-controlled period:
->>> +
->>> +               "0 <t> <brightness> <t>"
->>> +
->>> +               Both delta_t values are accepted but ignored, as the
->>> +               period is not configurable. <brightness> must be
->>> +               non-zero. Any other pattern is rejected.
->>> diff --git a/Documentation/ABI/testing/sysfs-driver-hid-ayaneo b/Documentation/ABI/testing/sysfs-driver-hid-ayaneo
->>> new file mode 100644
->>> index 000000000..807c4fc9d
->>> --- /dev/null
->>> +++ b/Documentation/ABI/testing/sysfs-driver-hid-ayaneo
->>> @@ -0,0 +1,36 @@
->>> +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/module_left
->>> +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/module_right
->>> +Date:          August 2026
->>> +KernelVersion: 7.3
->>> +Contact:       Matías Martínez <hello@matias.me>
->>> +Description:
->>> +               Reports the type of the module currently inserted in the
->>> +               left/right slot of the AYANEO 3 detachable controller, as
->>> +               the raw identifier reported by the controller firmware in
->>> +               hexadecimal (e.g. "0x04"). Bits 0-5 encode the module
->>> +               type, bit 6 indicates the module is inserted rotated.
->>> +
->>> +               Reading these attributes queries the controller and can
->>> +               take up to a second.
->>> +
->>> +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/eject
->>> +Date:          August 2026
->>> +KernelVersion: 7.3
->>> +Contact:       Matías Martínez <hello@matias.me>
->>> +Description:
->>> +               Write-only. Writing "left", "right" or "both" asks the
->>> +               controller firmware to release the corresponding
->>> +               module(s). The write blocks until the firmware confirms
->>> +               the release handshake (typically a few seconds). The
->>> +               module is physically released once controller power is
->>> +               subsequently cut through the ayaneo-ec platform driver's
->>> +               controller_power attribute; that final step is left to
->>> +               userspace.
->>> +
->>> +What:          /sys/bus/hid/drivers/hid-ayaneo/<dev>/reset
->>> +Date:          August 2026
->>> +KernelVersion: 7.3
->>> +Contact:       Matías Martínez <hello@matias.me>
->>> +Description:
->>> +               Write-only. Writing "1" asks the controller firmware to
->>> +               perform a quick reset of the controller configuration.
->>> diff --git a/MAINTAINERS b/MAINTAINERS
->>> index 8b14f290c..3290d9957 100644
->>> --- a/MAINTAINERS
->>> +++ b/MAINTAINERS
->>> @@ -4508,6 +4508,14 @@ F:       Documentation/devicetree/bindings/spi/axiado,ax3000-spi.yaml
->>>  F:     drivers/spi/spi-axiado.c
->>>  F:     drivers/spi/spi-axiado.h
->>>
->>> +AYANEO 3 CONTROLLER HID DRIVER
->>> +M:     Matías Martínez <hello@matias.me>
->>> +L:     linux-input@vger.kernel.org
->>> +S:     Maintained
->>> +F:     Documentation/ABI/testing/sysfs-class-led-driver-hid-ayaneo
->>> +F:     Documentation/ABI/testing/sysfs-driver-hid-ayaneo
->>> +F:     drivers/hid/hid-ayaneo.c
->>> +
->>>  AYANEO PLATFORM EC DRIVER
->>>  M:     Antheas Kapenekakis <lkml@antheas.dev>
->>>  L:     platform-driver-x86@vger.kernel.org
->>> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->>> index 0e3a0ccd6..319eda887 100644
->>> --- a/drivers/hid/Kconfig
->>> +++ b/drivers/hid/Kconfig
->>> @@ -205,6 +205,20 @@ config HID_AUREAL
->>>         help
->>>         Support for Aureal Cy se W-01RN Remote Controller and other Aureal derived remotes.
->>>
->>> +config HID_AYANEO
->>> +       tristate "AYANEO 3 detachable controller support"
->>> +       depends on USB_HID
->>> +       depends on DMI
->>> +       depends on LEDS_CLASS_MULTICOLOR
->>> +       help
->>> +         Provides support for the detachable controller ("Magic Modules")
->>> +         of the AYANEO 3 handheld: module identification, software eject
->>> +         and RGB control of the joystick rings. Complements the ayaneo-ec
->>> +         platform driver, which handles module attach state and controller
->>> +         power.
->>> +
->>> +         Say Y or M here if you have an AYANEO 3.
->>> +
->>>  config HID_BELKIN
->>>         tristate "Belkin Flip KVM and Wireless keyboard"
->>>         help
->>> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
->>> index 79384d905..2f74f2867 100644
->>> --- a/drivers/hid/Makefile
->>> +++ b/drivers/hid/Makefile
->>> @@ -35,6 +35,7 @@ obj-$(CONFIG_HID_APPLETB_KBD) += hid-appletb-kbd.o
->>>  obj-$(CONFIG_HID_CREATIVE_SB0540)      += hid-creative-sb0540.o
->>>  obj-$(CONFIG_HID_ASUS)         += hid-asus.o
->>>  obj-$(CONFIG_HID_AUREAL)       += hid-aureal.o
->>> +obj-$(CONFIG_HID_AYANEO)       += hid-ayaneo.o
->>>  obj-$(CONFIG_HID_BELKIN)       += hid-belkin.o
->>>  obj-$(CONFIG_HID_BETOP_FF)     += hid-betopff.o
->>>  obj-$(CONFIG_HID_BIGBEN_FF)    += hid-bigbenff.o
->>> diff --git a/drivers/hid/hid-ayaneo.c b/drivers/hid/hid-ayaneo.c
->>> new file mode 100644
->>> index 000000000..3a7af5918
->>> --- /dev/null
->>> +++ b/drivers/hid/hid-ayaneo.c
->>> @@ -0,0 +1,594 @@
->>> +// SPDX-License-Identifier: GPL-2.0+
->>> +/*
->>> + * HID driver for the AYANEO 3 detachable controller ("Magic Modules").
->>> + *
->>> + * The AYANEO 3 controller exposes three USB HID interfaces behind
->>> + * VID 0x1c4f PID 0x0002 (a generic SigmaMicro ID, hence the DMI gate):
->>> + * a gamepad, a keyboard for the extra buttons, and a vendor interface
->>> + * (application usage 0xff000001) accepting 65-byte commands.
->>> + *
->>> + * This driver binds the vendor interface and provides:
->>> + *  - module identification (which module type is inserted on each side)
->>> + *  - software eject of the left/right modules
->>> + *  - RGB control of the joystick rings as a multicolor LED class device
->>> + *
->>> + * It complements the ayaneo-ec platform driver, which exposes module
->>> + * attach state and controller power. A full eject is: write to this
->>> + * driver's "eject" attribute, then power the controller off through
->>> + * ayaneo-ec's controller_power once the eject completes.
->>> + *
->>> + * The protocol was reverse engineered in the Handheld Daemon project by
->>> + * Antheas Kapenekakis.
->>> + *
->>> + * Command format (65 bytes, unnumbered report):
->>> + *   [0]   report id (0)
->>> + *   [1:3] little-endian sum of bytes 7..64
->>> + *   [3]   command
->>> + *   [4]   subcommand
->>> + *   [5:]  payload
->>> + * The device replies with a 64-byte report echoing the subcommand at
->>> + * byte 3.
->>> + *
->>> + * Copyright (C) 2026 Matías Martínez <hello@matias.me>
->>> + */
->>> +
->>> +#include <linux/build_bug.h>
->>> +#include <linux/cleanup.h>
->>> +#include <linux/delay.h>
->>> +#include <linux/dmi.h>
->>> +#include <linux/hid.h>
->>> +#include <linux/led-class-multicolor.h>
->>> +#include <linux/module.h>
->>> +#include <linux/mutex.h>
->>> +#include <linux/sysfs.h>
->>> +#include <linux/unaligned.h>
->>> +#include <linux/workqueue.h>
->>> +
->>> +#define AYA3_REPORT_SIZE       65
->>> +#define AYA3_RESP_SIZE         64
->>> +
->>> +/*
->>> + * Empirical timings, inherited from the Handheld Daemon
->>> + * implementation of this protocol and validated on hardware: the
->>> + * device answers well within 300ms or not at all, needs about half
->>> + * a second to settle after a reset before it accepts a new
->>> + * configuration, and completes an eject handshake within a few
->>> + * seconds (polled below at a rate that keeps the sysfs write
->>> + * responsive).
->>> + */
->>> +#define AYA3_CMD_TIMEOUT_MS    300
->>> +#define AYA3_CMD_ATTEMPTS      3
->>> +#define AYA3_RESET_SETTLE_MS   500
->>> +#define AYA3_EJECT_POLL_MS     400
->>> +#define AYA3_EJECT_POLLS       20
->>> +
->>> +/* Subcommands (byte 4); byte 3 is 0x00 except for the config command */
->>> +#define AYA3_SUBCMD_CHECK      0x08
->>> +#define AYA3_CMD_CONFIG                0x21
->>> +#define AYA3_SUBCMD_CONFIG     0x09
->>> +
->>> +/* Bits that stay set in the eject status byte after an eject completes */
->>> +#define AYA3_EJECT_DONE_MASK   0x11
->>> +
->>> +/* Config command eject/reset field */
->>> +#define AYA3_EJECT_LEFT                0x07
->>> +#define AYA3_EJECT_RIGHT       0x70
->>> +#define AYA3_RESET             0x88
->>> +
->>> +/* Config command RGB modes */
->>> +#define AYA3_RGB_SOLID         0x01
->>> +#define AYA3_RGB_PULSE         0x02
->>> +#define AYA3_RGB_OFF           0xff
->>> +
->>> +/* Config command vibration levels, stored in the high nibble */
->>> +enum aya3_vibration {
->>> +       AYA3_VIBRATION_LOW      = 0x1,
->>> +       AYA3_VIBRATION_MEDIUM   = 0x2,
->>> +       AYA3_VIBRATION_HIGH     = 0x3,
->>> +       AYA3_VIBRATION_OFF      = 0x4,
->>> +};
->>> +
->>> +struct aya3_rgb {
->>> +       u8 mode;
->>> +       u8 r;
->>> +       u8 g;
->>> +       u8 b;
->>> +} __packed;
->>> +
->>> +/*
->>> + * The 65-byte config command. The checksum is the little-endian sum of
->>> + * bytes 7..64; unk* fields are sent as zero.
->>> + */
->>> +struct aya3_config {
->>> +       u8 report_id;
->>> +       __le16 csum;
->>> +       u8 cmd;
->>> +       u8 subcmd;
->>> +       u8 unk5[3];
->>> +       struct aya3_rgb right;
->>> +       struct aya3_rgb left;
->>> +       u8 unk16[4];
->>> +       u8 eject;
->>> +       u8 unk21;
->>> +       u8 sensitivity[2];
->>> +       u8 vibration;
->>> +       u8 unk25[7];
->>> +       u8 magic;
->>> +       u8 unk33[32];
->> I am not sure of the struct naming or whether a struct is needed in
->> this case. if you do not use most of the report, consider documenting
->> it somewhere else and doing direct accesses to the appropriate bytes.
->>
->>> +} __packed;
->>> +static_assert(sizeof(struct aya3_config) == AYA3_REPORT_SIZE);
->>> +
->>> +/* Replies echo the subcommand they answer at byte 3 */
->>> +struct aya3_resp {
->>> +       u8 unk0[3];
->>> +       u8 subcmd;
->>> +       u8 unk4[15];
->>> +       u8 eject_status;
->>> +       u8 unk20[12];
->>> +       u8 module_left;
->>> +       u8 module_right;
->>> +       u8 unk34[30];
->>> +} __packed;
->>> +static_assert(sizeof(struct aya3_resp) == AYA3_RESP_SIZE);
->>> +
->>> +struct ayaneo {
->>> +       struct hid_device *hdev;
->>> +       /* DMA-safe command buffer; guarded by lock */
->>> +       u8 *xfer;
->>> +       /* Serializes commands and cached-config access */
->>> +       struct mutex lock;
->>> +       struct completion resp_done;
->>> +       struct aya3_resp resp;
->>> +       u8 resp_expect;
->>> +       bool resp_pending;
->>> +
->>> +       u8 rgb[3];
->>> +       bool pulse;
->>> +       u8 vibration;
->>> +
->>> +       struct led_classdev_mc mcled;
->>> +       struct mc_subled subleds[3];
->>> +};
->>> +
->>> +static int ayaneo_send(struct ayaneo *aya)
->>> +{
->>> +       int ret;
->>> +
->>> +       ret = hid_hw_output_report(aya->hdev, aya->xfer, AYA3_REPORT_SIZE);
->>> +       if (ret == -ENOSYS)
->>> +               ret = hid_hw_raw_request(aya->hdev, aya->xfer[0], aya->xfer,
->>> +                                        AYA3_REPORT_SIZE, HID_OUTPUT_REPORT,
->>> +                                        HID_REQ_SET_REPORT);
->>> +       if (ret < 0)
->>> +               return ret;
->>> +       return 0;
->>> +}
->>> +
->>> +/**
->>> + * ayaneo_cmd() - send the command in aya->xfer and wait for the reply
->>> + * @aya: driver data; @aya->xfer holds the fully built 65-byte command
->>> + * @resp: destination for the reply, or NULL to discard it
->>> + *
->>> + * The device echoes the subcommand byte of the command it is answering,
->>> + * which ayaneo_raw_event() uses to match replies. Unanswered commands are
->>> + * retried up to AYA3_CMD_ATTEMPTS times.
->>> + *
->>> + * Context: process context; the caller must hold @aya->lock, which
->>> + *          protects @aya->xfer and the reply state.
->>> + * Return: 0 on success, -ETIMEDOUT if every attempt went unanswered, or
->>> + *         a negative errno if sending failed.
->>> + */
->>> +static int ayaneo_cmd(struct ayaneo *aya, struct aya3_resp *resp)
->>> +{
->>> +       int attempt, ret;
->>> +
->>> +       lockdep_assert_held(&aya->lock);
->>> +
->>> +       for (attempt = 0; attempt < AYA3_CMD_ATTEMPTS; attempt++) {
->>> +               reinit_completion(&aya->resp_done);
->>> +               aya->resp_expect = aya->xfer[4];
->>> +               WRITE_ONCE(aya->resp_pending, true);
->>> +
->>> +               ret = ayaneo_send(aya);
->>> +               if (ret) {
->>> +                       WRITE_ONCE(aya->resp_pending, false);
->>> +                       return ret;
->>> +               }
->>> +
->>> +               if (wait_for_completion_timeout(&aya->resp_done,
->>> +                                               msecs_to_jiffies(AYA3_CMD_TIMEOUT_MS))) {
->>> +                       if (resp)
->>> +                               memcpy(resp, &aya->resp, sizeof(*resp));
->>> +                       return 0;
->>> +               }
->>> +       }
->>> +       WRITE_ONCE(aya->resp_pending, false);
->>> +       return -ETIMEDOUT;
->>> +}
->>> +
->>> +static void ayaneo_checksum(u8 *buf)
->>> +{
->>> +       u16 sum = 0;
->>> +       int i;
->>> +
->>> +       for (i = 7; i < AYA3_REPORT_SIZE; i++)
->>> +               sum += buf[i];
->>> +       put_unaligned_le16(sum, buf + 1);
->>> +}
->>> +
->>> +static int ayaneo_check(struct ayaneo *aya, struct aya3_resp *resp)
->>> +{
->>> +       memset(aya->xfer, 0, AYA3_REPORT_SIZE);
->>> +       aya->xfer[4] = AYA3_SUBCMD_CHECK;
->>> +       return ayaneo_cmd(aya, resp);
->>> +}
->>> +
->>> +/*
->>> + * The config command sets everything at once: RGB for both rings,
->>> + * vibration strength and the eject/reset field. The command can also
->>> + * carry joystick sensitivity; those bytes are left zero so the
->>> + * firmware setting is not clobbered on every RGB update.
->>> + */
->>> +static int ayaneo_send_config(struct ayaneo *aya, u8 eject)
->>> +{
->>> +       static const struct aya3_config template = {
->>> +               .cmd = AYA3_CMD_CONFIG,
->>> +               .subcmd = AYA3_SUBCMD_CONFIG,
->>> +               .magic = 0x01,
->>> +       };
->>> +       struct aya3_config *cfg = (struct aya3_config *)aya->xfer;
->>> +       u8 mode = AYA3_RGB_OFF;
->>> +
->>> +       if (aya->rgb[0] || aya->rgb[1] || aya->rgb[2])
->>> +               mode = aya->pulse ? AYA3_RGB_PULSE : AYA3_RGB_SOLID;
->>> +
->>> +       *cfg = template;
->>> +       cfg->right.mode = mode;
->>> +       cfg->right.r = aya->rgb[0];
->>> +       cfg->right.g = aya->rgb[1];
->>> +       cfg->right.b = aya->rgb[2];
->>> +       cfg->left = cfg->right;
->>> +       cfg->eject = eject;
->>> +       cfg->vibration = aya->vibration << 4;
->> If you set vibration, you need to expose it to userspace. Otherwise
->> this driver degrades functionality over userspace implementations.
->>
->>> +       ayaneo_checksum(aya->xfer);
->>> +
->>> +       return ayaneo_cmd(aya, NULL);
->>> +}
->>> +
->>> +static int ayaneo_raw_event(struct hid_device *hdev, struct hid_report *report,
->>> +                           u8 *data, int size)
->>> +{
->>> +       struct ayaneo *aya = hid_get_drvdata(hdev);
->>> +       const struct aya3_resp *resp = (const struct aya3_resp *)data;
->>> +
->>> +       if (!READ_ONCE(aya->resp_pending) || size < AYA3_RESP_SIZE)
->>> +               return 0;
->>> +       /*
->>> +        * Replies carry no sequence number, only the subcommand echo. A
->>> +        * late reply to a timed-out command can thus complete a newer
->>> +        * command with the same subcommand; such replies are snapshots
->>> +        * of the same query milliseconds apart, so this is harmless.
->>> +        * Replies to a different subcommand are dropped here.
->>> +        */
->>> +       if (resp->subcmd != aya->resp_expect)
->>> +               return 0;
->>> +
->>> +       memcpy(&aya->resp, data, sizeof(aya->resp));
->>> +       WRITE_ONCE(aya->resp_pending, false);
->>> +       complete(&aya->resp_done);
->>> +       return 0;
->>> +}
->>> +
->>> +static ssize_t ayaneo_module_show(struct device *dev, char *buf, bool right)
->>> +{
->>> +       struct ayaneo *aya = dev_get_drvdata(dev);
->>> +       struct aya3_resp resp;
->>> +       int ret = 0;
->>> +
->>> +       scoped_cond_guard(mutex_intr, return -EINTR, &aya->lock)
->>> +               ret = ayaneo_check(aya, &resp);
->>> +       if (ret)
->>> +               return ret;
->>> +
->>> +       return sysfs_emit(buf, "0x%02x\n",
->>> +                         right ? resp.module_right : resp.module_left);
->>> +}
->>> +
->>> +static ssize_t module_left_show(struct device *dev,
->>> +                               struct device_attribute *attr, char *buf)
->>> +{
->>> +       return ayaneo_module_show(dev, buf, false);
->>> +}
->>> +static DEVICE_ATTR_RO(module_left);
->>> +
->>> +static ssize_t module_right_show(struct device *dev,
->>> +                                struct device_attribute *attr, char *buf)
->>> +{
->>> +       return ayaneo_module_show(dev, buf, true);
->>> +}
->>> +static DEVICE_ATTR_RO(module_right);
->>> +
->>> +static ssize_t eject_store(struct device *dev, struct device_attribute *attr,
->>> +                          const char *buf, size_t count)
->>> +{
->>> +       struct ayaneo *aya = dev_get_drvdata(dev);
->>> +       struct aya3_resp resp;
->>> +       u8 eject;
->>> +       int ret = 0, err, i;
->>> +
->>> +       if (sysfs_streq(buf, "left"))
->>> +               eject = AYA3_EJECT_LEFT;
->>> +       else if (sysfs_streq(buf, "right"))
->>> +               eject = AYA3_EJECT_RIGHT;
->>> +       else if (sysfs_streq(buf, "both"))
->>> +               eject = AYA3_EJECT_LEFT | AYA3_EJECT_RIGHT;
->>> +       else
->>> +               return -EINVAL;
->>> +
->>> +       scoped_cond_guard(mutex_intr, return -EINTR, &aya->lock) {
->>> +               ret = ayaneo_send_config(aya, eject);
->>> +               if (ret)
->>> +                       break;
->>> +
->>> +               /*
->>> +                * Wait for the firmware to report the eject as done.
->>> +                * Userspace must then cut power through ayaneo-ec's
->>> +                * controller_power for the module to be physically
->>> +                * released.
->>> +                */
->>> +               ret = -ETIMEDOUT;
->>> +               for (i = 0; i < AYA3_EJECT_POLLS; i++) {
->>> +                       msleep(AYA3_EJECT_POLL_MS);
->>> +                       err = ayaneo_check(aya, &resp);
->>> +                       if (err == -ETIMEDOUT)
->>> +                               continue;       /* busy mid-eject, keep polling */
->>> +                       if (err) {
->>> +                               ret = err;
->>> +                               break;
->>> +                       }
->>> +                       if (!(resp.eject_status & ~AYA3_EJECT_DONE_MASK)) {
->>> +                               ret = 0;
->>> +                               break;
->>> +                       }
->>> +               }
->>> +       }
->>> +       return ret ? ret : count;
->>> +}
->>> +static DEVICE_ATTR_WO(eject);
->>> +
->>> +static ssize_t reset_store(struct device *dev, struct device_attribute *attr,
->>> +                          const char *buf, size_t count)
->>> +{
->>> +       struct ayaneo *aya = dev_get_drvdata(dev);
->>> +       bool value;
->>> +       int ret;
->>> +
->>> +       ret = kstrtobool(buf, &value);
->>> +       if (ret)
->>> +               return ret;
->>> +       if (!value)
->>> +               return count;
->>> +
->>> +       scoped_cond_guard(mutex_intr, return -EINTR, &aya->lock) {
->>> +               ret = ayaneo_send_config(aya, AYA3_RESET);
->>> +               if (!ret) {
->>> +                       msleep(AYA3_RESET_SETTLE_MS);
->>> +                       ret = ayaneo_send_config(aya, 0);
->>> +               }
->>> +       }
->>> +       return ret ? ret : count;
->>> +}
->>> +static DEVICE_ATTR_WO(reset);
->>> +
->>> +static struct attribute *ayaneo_attrs[] = {
->>> +       &dev_attr_module_left.attr,
->>> +       &dev_attr_module_right.attr,
->>> +       &dev_attr_eject.attr,
->>> +       &dev_attr_reset.attr,
->>> +       NULL
->>> +};
->>> +ATTRIBUTE_GROUPS(ayaneo);
->>> +
->>> +static int ayaneo_led_set(struct led_classdev *cdev, enum led_brightness value)
->>> +{
->>> +       struct led_classdev_mc *mc = lcdev_to_mccdev(cdev);
->>> +       struct ayaneo *aya = container_of(mc, struct ayaneo, mcled);
->>> +       int ret = 0, i;
->>> +
->>> +       scoped_cond_guard(mutex_intr, return -EINTR, &aya->lock) {
->>> +               led_mc_calc_color_components(mc, value);
->>> +               for (i = 0; i < 3; i++)
->>> +                       aya->rgb[i] = min_t(unsigned int,
->>> +                                           aya->subleds[i].brightness, 255);
->>> +
->>> +               ret = ayaneo_send_config(aya, 0);
->>> +               if (ret)
->>> +                       hid_err(aya->hdev,
->>> +                               "failed to update RGB config: %d\n", ret);
->>> +       }
->>> +       return ret;
->>> +}
->>> +
->>> +/*
->>> + * The firmware offers one fixed breathing pattern, pulsing the current
->>> + * colour at a period it controls. Expose it through the hw_pattern
->>> + * trigger ABI as the two-step pattern "0 <t> <brightness> <t>"; the
->>> + * delta_t values and the repeat count are accepted but not tunable
->>> + * (the firmware always repeats indefinitely).
->>> + */
->> Prefer removing semicolons; they have a particular smell ;)
->>
->>> +static int ayaneo_pattern_set(struct led_classdev *cdev,
->>> +                             struct led_pattern *pattern, u32 len, int repeat)
->>> +{
->>> +       struct led_classdev_mc *mc = lcdev_to_mccdev(cdev);
->>> +       struct ayaneo *aya = container_of(mc, struct ayaneo, mcled);
->>> +       int ret = 0;
->>> +
->>> +       if (len != 2 || pattern[0].brightness || !pattern[1].brightness)
->>> +               return -EINVAL;
->>> +
->>> +       scoped_cond_guard(mutex_intr, return -EINTR, &aya->lock) {
->>> +               aya->pulse = true;
->>> +               ret = ayaneo_send_config(aya, 0);
->>> +       }
->>> +       return ret;
->>> +}
->>> +
->>> +static int ayaneo_pattern_clear(struct led_classdev *cdev)
->>> +{
->>> +       struct led_classdev_mc *mc = lcdev_to_mccdev(cdev);
->>> +       struct ayaneo *aya = container_of(mc, struct ayaneo, mcled);
->>> +       int ret = 0;
->>> +
->>> +       scoped_cond_guard(mutex_intr, return -EINTR, &aya->lock) {
->>> +               aya->pulse = false;
->>> +               ret = ayaneo_send_config(aya, 0);
->>> +       }
->>> +       return ret;
->>> +}
->>> +
->>> +static int ayaneo_register_led(struct ayaneo *aya)
->>> +{
->>> +       struct led_classdev *cdev = &aya->mcled.led_cdev;
->>> +
->>> +       aya->subleds[0].color_index = LED_COLOR_ID_RED;
->>> +       aya->subleds[1].color_index = LED_COLOR_ID_GREEN;
->>> +       aya->subleds[2].color_index = LED_COLOR_ID_BLUE;
->>> +       aya->mcled.subled_info = aya->subleds;
->>> +       aya->mcled.num_colors = 3;
->>> +
->>> +       cdev->name = devm_kasprintf(&aya->hdev->dev, GFP_KERNEL,
->>> +                                   "%s:rgb:joystick_rings",
->>> +                                   dev_name(&aya->hdev->dev));
->>> +       if (!cdev->name)
->>> +               return -ENOMEM;
->>> +       cdev->color = LED_COLOR_ID_RGB;
->>> +       cdev->brightness = 0;
->>> +       cdev->max_brightness = 255;
->>> +       cdev->brightness_set_blocking = ayaneo_led_set;
->>> +       cdev->pattern_set = ayaneo_pattern_set;
->>> +       cdev->pattern_clear = ayaneo_pattern_clear;
->>> +
->>> +       /*
->>> +        * Not devm: the LED must be unregistered before hid_hw_stop() in
->>> +        * remove, or a concurrent brightness write could reach a torn
->>> +        * down transport.
->>> +        */
->>> +       return led_classdev_multicolor_register(&aya->hdev->dev,
->>> +                                               &aya->mcled);
->>> +}
->>> +
->>> +static const struct dmi_system_id ayaneo_dmi_table[] = {
->>> +       {
->>> +               .matches = {
->>> +                       DMI_MATCH(DMI_BOARD_VENDOR, "AYANEO"),
->>> +                       DMI_MATCH(DMI_BOARD_NAME, "AYANEO 3"),
->>> +               },
->>> +       },
->>> +       {}
->>> +};
->>> +
->>> +static int ayaneo_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>> +{
->>> +       struct ayaneo *aya;
->>> +       int ret;
->>> +
->>> +       /* The VID/PID is a generic SigmaMicro ID; bind on AYANEO 3 only */
->>> +       if (!dmi_check_system(ayaneo_dmi_table))
->>> +               return -ENODEV;
->>> +
->>> +       if (!hid_is_usb(hdev))
->>> +               return -ENODEV;
->>> +
->>> +       ret = hid_parse(hdev);
->>> +       if (ret)
->>> +               return ret;
->>> +
->>> +       /* Bind only the vendor interface, not the gamepad/keyboard ones */
->>> +       if (!hdev->maxcollection ||
->>> +           hdev->collection->usage != (HID_UP_MSVENDOR | 0x0001))
->>> +               return -ENODEV;
->>> +
->>> +       aya = devm_kzalloc(&hdev->dev, sizeof(*aya), GFP_KERNEL);
->>> +       if (!aya)
->>> +               return -ENOMEM;
->>> +
->>> +       aya->xfer = devm_kzalloc(&hdev->dev, AYA3_REPORT_SIZE, GFP_KERNEL);
->>> +       if (!aya->xfer)
->>> +               return -ENOMEM;
->>> +
->>> +       aya->hdev = hdev;
->>> +       aya->vibration = AYA3_VIBRATION_MEDIUM;
->>> +       init_completion(&aya->resp_done);
->>> +       ret = devm_mutex_init(&hdev->dev, &aya->lock);
->>> +       if (ret)
->>> +               return ret;
->>> +       hid_set_drvdata(hdev, aya);
->>> +
->>> +       ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
->>> +       if (ret)
->>> +               return ret;
->>> +
->>> +       ret = hid_hw_open(hdev);
->>> +       if (ret)
->>> +               goto err_stop;
->>> +
->>> +       /* Input reports are not delivered during probe by default */
->>> +       hid_device_io_start(hdev);
->>> +
->>> +       scoped_guard(mutex, &aya->lock)
->>> +               ret = ayaneo_check(aya, NULL);
->>> +       if (ret)
->>> +               hid_warn(hdev, "controller did not answer status check: %d\n",
->>> +                        ret);
->> Consider dropping the hid_device ... check block unless it is
->> necessary. it seems like a premature test that can go wrong and you
->> touch the device. Particularly, hid_device_io_start is a bit
->> unconventional.
->>
->> With this check removed, this driver does not touch the device without
->> userspace involvement, which is good for userspace implementations
->> such as mine.
->>
->> I think these are all the comments I have. I'd suggest waiting a week
->> before the next revision and up to two weeks for jiri/Benjamin to
->> reply with some comments as I think I was the only one that reviewed
->> the previous revision.
->>
->> Best,
->> Antheas
->>
->>> +
->>> +       ret = ayaneo_register_led(aya);
->>> +       if (ret)
->>> +               goto err_close;
->>> +
->>> +       return 0;
->>> +
->>> +err_close:
->>> +       hid_hw_close(hdev);
->>> +err_stop:
->>> +       hid_hw_stop(hdev);
->>> +       return ret;
->>> +}
->>> +
->>> +static void ayaneo_remove(struct hid_device *hdev)
->>> +{
->>> +       struct ayaneo *aya = hid_get_drvdata(hdev);
->>> +
->>> +       led_classdev_multicolor_unregister(&aya->mcled);
->>> +       /*
->>> +        * A brightness store racing with the unregister can requeue
->>> +        * set_brightness_work after the flush inside
->>> +        * led_classdev_unregister() runs but before the sysfs node is
->>> +        * removed. Flush again now that nothing can requeue it, while
->>> +        * the transport is still up.
->>> +        */
->>> +       flush_work(&aya->mcled.led_cdev.set_brightness_work);
->>> +       hid_hw_close(hdev);
->>> +       hid_hw_stop(hdev);
->>> +}
->>> +
->>> +static const struct hid_device_id ayaneo_devices[] = {
->>> +       { HID_USB_DEVICE(0x1c4f, 0x0002) },
->>> +       {}
->>> +};
->>> +MODULE_DEVICE_TABLE(hid, ayaneo_devices);
->>> +
->>> +static struct hid_driver ayaneo_driver = {
->>> +       .name = "hid-ayaneo",
->>> +       .id_table = ayaneo_devices,
->>> +       .probe = ayaneo_probe,
->>> +       .remove = ayaneo_remove,
->>> +       .raw_event = ayaneo_raw_event,
->>> +       .driver = {
->>> +               .dev_groups = ayaneo_groups,
->>> +       },
->>> +};
->>> +module_hid_driver(ayaneo_driver);
->>> +
->>> +MODULE_AUTHOR("Matías Martínez <hello@matias.me>");
->>> +MODULE_DESCRIPTION("AYANEO 3 detachable controller driver");
->>> +MODULE_LICENSE("GPL");
->>> --
->>> 2.54.0 (Apple Git-157)
->>>
->>>
+>>>>> I am not arguing on which command is correct to send. Keep the flow
+>>>>> the same if you want
+>>>>>
+>>>>> Antheas
+>>>>>
+>>>>>>> Best,
+>>>>>>> Antheas
+>>>>>>>
+>>>>>>>
+>>>>>>>>  static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>>>>>>>>  {
+>>>>>>>>         struct input_dev *input = hi->input;
+>>>>>>>> @@ -1406,6 +1434,49 @@ static void asus_initialize_reports(struct hid_device *hdev)
+>>>>>>>>         }
+>>>>>>>>  }
+>>>>>>>>
+>>>>>>>> +static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
+>>>>>>>> +{
+>>>>>>>> +       const char *name;
+>>>>>>>> +       int ret;
+>>>>>>>> +
+>>>>>>>> +       drvdata->xgm_led = devm_kzalloc(&hdev->dev, sizeof(*drvdata->xgm_led), GFP_KERNEL);
+>>>>>>>> +       if (drvdata->xgm_led == NULL)
+>>>>>>>> +               return -ENOMEM;
+>>>>>>>> +
+>>>>>>>> +       name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s:led",
+>>>>>>>> +                             strlen(hdev->uniq) ? hdev->uniq : dev_name(&hdev->dev));
+>>>>>>>> +
+>>>>>>>> +       if (name == NULL) {
+>>>>>>>> +               ret = -ENOMEM;
+>>>>>>>> +               goto asus_xgm_init_err;
+>>>>>>>> +       }
+>>>>>>>> +
+>>>>>>>> +       drvdata->xgm_led->hdev = hdev;
+>>>>>>>> +       drvdata->xgm_led->cdev.name = name;
+>>>>>>>> +       drvdata->xgm_led->cdev.brightness = 1;
+>>>>>>>> +       drvdata->xgm_led->cdev.max_brightness = 1;
+>>>>>>>> +       drvdata->xgm_led->cdev.brightness_set_blocking = asus_xgm_led_set;
+>>>>>>>> +       drvdata->xgm_led->cdev.flags = LED_CORE_SUSPENDRESUME;
+>>>>>>>> +
+>>>>>>>> +       /* LED state is arbitrary on boot, set a default */
+>>>>>>>> +       ret = asus_xgm_led_set(&drvdata->xgm_led->cdev, drvdata->xgm_led->cdev.brightness);
+>>>>>>>> +       if (ret) {
+>>>>>>>> +               hid_err(hdev, "Asus failed to set xgm led: %d\n", ret);
+>>>>>>>> +               goto asus_xgm_init_err;
+>>>>>>>> +       }
+>>>>>>>> +
+>>>>>>>> +       ret = devm_led_classdev_register(&hdev->dev, &drvdata->xgm_led->cdev);
+>>>>>>>> +       if (ret) {
+>>>>>>>> +               hid_err(hdev, "Asus failed to register xgm led: %d\n", ret);
+>>>>>>>> +               goto asus_xgm_init_err;
+>>>>>>>> +       }
+>>>>>>>> +
+>>>>>>>> +       return 0;
+>>>>>>>> +asus_xgm_init_err:
+>>>>>>>> +       drvdata->xgm_led = NULL;
+>>>>>>>> +       return ret;
+>>>>>>>> +}
+>>>>>>>> +
+>>>>>>>>  static int __maybe_unused asus_resume(struct hid_device *hdev)
+>>>>>>>>  {
+>>>>>>>>         struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+>>>>>>>> @@ -1545,6 +1616,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>>>>>>>>         if (!drvdata->tp)
+>>>>>>>>                 asus_initialize_reports(hdev);
+>>>>>>>>
+>>>>>>>> +       if (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID) &&
+>>>>>>>> +           ((hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2022) ||
+>>>>>>>> +            (hdev->product == USB_DEVICE_ID_ASUSTEK_XGM_2023))) {
+>>>>>>>> +               ret = asus_xgm_init(hdev, drvdata);
+>>>>>>>> +               if (ret) {
+>>>>>>>> +                       hid_err(hdev, "Failed to initialize xg mobile: %d\n", ret);
+>>>>>>>> +                       goto err_stop_hw;
+>>>>>>>> +               }
+>>>>>>>> +       }
+>>>>>>>> +
+>>>>>>>>         /* Laptops keyboard backlight is always at 0x5a */
+>>>>>>>>         if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
+>>>>>>>>             (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
+>>>>>>>> @@ -1594,6 +1675,9 @@ static void asus_remove(struct hid_device *hdev)
+>>>>>>>>         if (drvdata->listener.brightness_set)
+>>>>>>>>                 asus_hid_unregister_listener(&drvdata->listener);
+>>>>>>>>
+>>>>>>>> +       if (drvdata->xgm_led)
+>>>>>>>> +               devm_led_classdev_unregister(&hdev->dev, &drvdata->xgm_led->cdev);
+>>>>>>>> +
+>>>>>>>>         asus_worker_stop(drvdata->worker);
+>>>>>>>>         hid_hw_stop(hdev);
+>>>>>>>>  }
+>>>>>>>> --
+>>>>>>>> 2.47.3
+>>>>>>>>
+>>>>>>>>

@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B721A46E01D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFB2046F482;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789814201; cv=none; b=qemfYDjTotRUxQJpoC8E6nCvyIZrNPzgk2geqWwx0gWzrKbI29oyqAWAZ9m8TxPNTxWD01JJYtyGLlKyz9/d6dzrgqb90jdaRTHHWjnV+0OWNVyK1zx15YIsHogcVKkQIptLkvgIdZKdtdxXp2qItldr6J1gx/PiC07bv7rAgts=
+	t=1789814201; cv=none; b=Lh1BaMti9Nx66WrXGLqgiZzwwOPuMdmKpAKyi6+FZLW4AtnbryVkpRjfnriuZ9xzATSrLsISlwsSggciwTM3nnDESLOzOC5PVCY9QrCoa2Yy8g5g7JuasvbklalrHORGUf4f4stB1aYM0X1/uGYL67t9OdTcmMNJPv01uJiIYjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789814201; c=relaxed/simple;
-	bh=XodsOen8Wvzg78o0lwyC8zvGmdjAid2TnVU+SOWZRpc=;
+	bh=tq/IbJVpEbqrjPtNTxWQz6KzoyoryI8jJvw3bm2ttI4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ph8PL3tks+WX7Ta4ymjBqdNjc7lsXeM2CTic8yDnUQrcrWQsE7Xd1+RxSf2LDe0bWrpaep/6tmYyLqZeUWZiiswgiiLvpqPsh8o2YCzyIbjGoWH/pq+HtXN3f1stRhnfp/EhtDjFQgK7HL2tcLpjRoHI0g1ZRlsQrLk5q3fqJUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Kx3OuD5v; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=KE6k+MP6jDvAw+rAJv2IP1BHkSR63epUEwfcBI9D5KrxgtMjDjszaTKpTW/u+uC6E6VdF4STFUfnXzluf2avdmeJ5X/MgZA4iCmVFzOsIvgZ45akpe6NjJapckeXSwFYxY0Yx1cN9jnUhSxNgQF76VyisImALbX8ZKGY2aMrBdg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CekYx+Gs; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Kx3OuD5v"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 714E5C2BCFA;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CekYx+Gs"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7F6A4C2BD04;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789814201;
-	bh=XodsOen8Wvzg78o0lwyC8zvGmdjAid2TnVU+SOWZRpc=;
+	bh=tq/IbJVpEbqrjPtNTxWQz6KzoyoryI8jJvw3bm2ttI4=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=Kx3OuD5vRMrZwKoxv9tBU4hJ0rTG+SrzvM1Ee8R2J3Jb4xPunHfRBblDnbzLh7I32
-	 ZmVKLtCKHJz5jbt0FmPISr8yPG6FPhaRDujZ3Muw6L8clOGZlBgKbJx7VnTTZV7A1Q
-	 Dd+B2RbuI31E+2M6b4znOKarmG5ntn01Ag67Fr8qJ0CH5spFy9DM/A+AFL5keOsgBm
-	 oKs45jHs5r8wrpxsHU7+j8y3wZUY6HlJ/07U0HZCwK5IJM64sVYBnjkGCBt37ygMQU
-	 xZc7a6akUUvCEyLPp1bJRWVfIaF/ehggvEoU6on2/PnAqq943P4yjkZrs5eOBhQcNS
-	 T4dNw8JddD1Gg==
+	b=CekYx+GsLwXyGPOpgIuMC9CcVnfK5w1132AN4dP/ugOlIxFOmQacYd+YULpOCmNV4
+	 DNe95Gwm5AhMFuwb18mayVZVSRH1tYClC2VK8nCuWkunlraxFDBa/DNqAtsine/Jkw
+	 OifOgigKVaxZHIIYfKGL5/XZkk3e/KYCTHGs7jDSlrLQ3Pht2sTebGXaqhCAofl0WW
+	 010pkFjvhZX7dkeccYRJu52iicfIPknQ1mfWWhbb3gm7UVVJYUKAZg8SV3av9p9wYP
+	 rHsO5NCfNFuzrPNcDuQ4vydvBldCkdyti01VE3diI0pjuWKpC300Vx2yR2LX0ZaxBA
+	 XRdKX9cdX1Y4g==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C949C982E1;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B6B5C982DA;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Sat, 19 Sep 2026 16:06:27 +0530
-Subject: [PATCH v6 04/14] iio: gyro: hid-sensor-gyro-3d: convert probe and
- teardown to devm-managed resources
+Date: Sat, 19 Sep 2026 16:06:28 +0530
+Subject: [PATCH v6 05/14] iio: accel: hid-sensor-accel-3d: convert probe
+ and teardown to devm-managed resources
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-4-d577b2371b3c@gmail.com>
+Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-5-d577b2371b3c@gmail.com>
 References: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 In-Reply-To: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
@@ -53,11 +53,11 @@ To: Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=3576;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=3533;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=93lHICIbaqkhzBStetBiddfJA0a+d0oJo1BZpquDDZw=;
- b=iqUP65IV4DsV+LnMmt4WQkl8bdKamEaGRfTjwD+fxuLAWJMJePg4PGF4UAsz7aVh0ForRfDQY
- DaazhDlZUvsB2C5Zo+1rBSWYpDnqQdXeLklZOtxJpMw1DOYen2u0A5l
+ bh=8MWI/12hlI4M9yhRZDPc0n3MB0pcjTD/Emba1guoIhc=;
+ b=AcQA6LJNF1RR1bNdQBtwbBoOIo6fVqr4hueJwWRKUc/Ay2moHdNyF4GnG2Kh/Xiv2vVVCDAGV
+ +kStYV75q9hCMjAKCHPSNFJGApYMrCR6PRLSV6fITye24oZSMp4cnKq
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -79,43 +79,42 @@ eliminates the remove callback entirely.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/gyro/hid-sensor-gyro-3d.c | 41 ++++++++---------------------------
- 1 file changed, 9 insertions(+), 32 deletions(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c | 40 +++++++--------------------------
+ 1 file changed, 8 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-index cf049700d415..66778315e86d 100644
---- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
-+++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-@@ -264,7 +264,8 @@ static int gyro_3d_parse_report(struct platform_device *pdev,
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index a7cccbaa82f8..7ba0228f18b4 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -314,7 +314,8 @@ static int accel_3d_parse_report(struct platform_device *pdev,
  /* Function to initialize the processing for usage id */
- static int hid_gyro_3d_probe(struct platform_device *pdev)
+ static int hid_accel_3d_probe(struct platform_device *pdev)
  {
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 +	struct device *dev = &pdev->dev;
 +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
  	int ret = 0;
- 	static const char *name = "gyro_3d";
+ 	const char *name;
  	struct iio_dev *indio_dev;
-@@ -311,8 +312,8 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
+@@ -374,8 +375,8 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
  
- 	atomic_set(&gyro_state->common_attributes.data_ready, 0);
+ 	atomic_set(&accel_state->common_attributes.data_ready, 0);
  
 -	ret = hid_sensor_setup_trigger(indio_dev, name,
--				       &gyro_state->common_attributes);
+-				       &accel_state->common_attributes);
 +	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-+					    &gyro_state->common_attributes);
++					    &accel_state->common_attributes);
  	if (ret < 0) {
  		dev_err(&pdev->dev, "trigger setup failed\n");
  		return ret;
-@@ -321,38 +322,15 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
- 	gyro_state->callbacks.send_event = gyro_3d_proc_event;
- 	gyro_state->callbacks.capture_sample = gyro_3d_capture_sample;
- 	gyro_state->callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D,
--					   &gyro_state->callbacks);
-+	ret = devm_sensor_hub_register_callback(dev, hsdev,
-+						HID_USAGE_SENSOR_GYRO_3D,
-+						&gyro_state->callbacks);
+@@ -384,38 +385,14 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
+ 	accel_state->callbacks.send_event = accel_3d_proc_event;
+ 	accel_state->callbacks.capture_sample = accel_3d_capture_sample;
+ 	accel_state->callbacks.pdev = pdev;
+-	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
+-					   &accel_state->callbacks);
++	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
++						&accel_state->callbacks);
  	if (ret < 0) {
  		dev_err(&pdev->dev, "callback reg failed\n");
 -		goto error_remove_trigger;
@@ -131,33 +130,33 @@ index cf049700d415..66778315e86d 100644
 -	return ret;
 -
 -error_remove_callback:
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
+-	sensor_hub_remove_callback(hsdev, hsdev->usage);
 -error_remove_trigger:
--	hid_sensor_remove_trigger(&gyro_state->common_attributes);
+-	hid_sensor_remove_trigger(&accel_state->common_attributes);
 -	return ret;
 -}
 -
 -/* Function to deinitialize the processing for usage id */
--static void hid_gyro_3d_remove(struct platform_device *pdev)
+-static void hid_accel_3d_remove(struct platform_device *pdev)
 -{
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 -	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct gyro_3d_state *gyro_state = iio_priv(indio_dev);
+-	struct accel_3d_state *accel_state = iio_priv(indio_dev);
 -
 -	iio_device_unregister(indio_dev);
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
--	hid_sensor_remove_trigger(&gyro_state->common_attributes);
+-	sensor_hub_remove_callback(hsdev, hsdev->usage);
+-	hid_sensor_remove_trigger(&accel_state->common_attributes);
 +	return devm_iio_device_register(dev, indio_dev);
  }
  
- static const struct platform_device_id hid_gyro_3d_ids[] = {
-@@ -371,7 +349,6 @@ static struct platform_driver hid_gyro_3d_platform_driver = {
+ static const struct platform_device_id hid_accel_3d_ids[] = {
+@@ -437,7 +414,6 @@ static struct platform_driver hid_accel_3d_platform_driver = {
  		.pm	= &hid_sensor_pm_ops,
  	},
- 	.probe		= hid_gyro_3d_probe,
--	.remove		= hid_gyro_3d_remove,
+ 	.probe		= hid_accel_3d_probe,
+-	.remove		= hid_accel_3d_remove,
  };
- module_platform_driver(hid_gyro_3d_platform_driver);
+ module_platform_driver(hid_accel_3d_platform_driver);
  
 
 -- 

@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D923A4718E3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D97B74718E4;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789814201; cv=none; b=TxkcSItdwLmHBRRBzjl8UMjMSHhT+8sisvhMyvcYXW6DRAAQ6avZE3AZkHEcaDvCzmYecaaOm71NpCwXKec+OuVxiylr0vEi8qzOcj3jniSRy2P4vjbvgBCcI967Bz4fEp8AqI8kajlKSmSApmdPcpGZboN7fB9COBOt7z0Ua3Q=
+	t=1789814201; cv=none; b=aF0Fr8ovml90U1QuKEOsKhBbAbtwDaxUJAA2mQloVvHJEk+hS2PZTU3UktfriJ45EgIrjneKiU+Rc/Vx+avt6vi2KU+QmDIaMJTnJ3V3Ja2AGv0W0zrK5I/a+Ps5MPfiHt4u1eqnbjx03DHYZpPL4a3Mal5ekNcACVM7x6oHuNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789814201; c=relaxed/simple;
-	bh=/O/jwNr8U2kz2vrQ2d9Bz7kTcnnb1Lw0rPParIURebQ=;
+	bh=txus2AJE/kVu+dxppUJupcIuWbp4gFKzp2cIZUvkXBc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=F2qf73jY7u7Mp7pICME4R/qQH+mGw3lg5FwhHb7B9hIWdDwKUirPTx6Un4/oaSzAaL1tBckb/oBh6h/sORg2bDXsfENn41isLR99fJAQforW6Gt1JxatZQOwHStbqK0AXrllis1TnV6xtlVIjCmSMcD8/ZFSp7D9NFWyuSJb65k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JCk3TRqZ; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=Ogj+hqKUcjO1Q3NrzGtTiS3z3ddPc370XmlBCiePZ/9Il36fnXGY0fzhEbZhgPQtHVfMMsBQV8M0lvDm35+pKzmD1sBKQe7D1jKFy+paYrQ0++SnwPzmuMShmqb5rJMbdH7P5nOAJXwTKdyq886W2QX7KGgF+5q57VniURrzgd4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LgXsPL9Y; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JCk3TRqZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9CD01C4AF14;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LgXsPL9Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AC36CC32786;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789814201;
-	bh=/O/jwNr8U2kz2vrQ2d9Bz7kTcnnb1Lw0rPParIURebQ=;
+	bh=txus2AJE/kVu+dxppUJupcIuWbp4gFKzp2cIZUvkXBc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=JCk3TRqZZReRMs4IIs8dLvIRkUlbCQfIMjid81p3Dl1VyOewjKgQi3oeoLykn8dIb
-	 x2w47vYL90F3AmNiCmaabhmm/B+jm48SfVXnJq3llrsX6LNNjkgSPxi23acVYpwzXx
-	 m9c3M0IqICJYPC9mGsdklwr1XMjGwgZkBdKZSHYqWSuAWLT/CyEJ+W4CGmyJJsdWHM
-	 9tsvd5dAmcz32qVomEqlJrjTweCpu2/A0q7gHjjzA03fsF8pDt2qwG678jVAa8s5cG
-	 gLqNgbg0Y266CwEvU27OwGTxZwlgRX7YGqG/SkBbKYTRwtsLZ3yQ1EPzxJs4a54m6u
-	 YXllO0jzr9Ppw==
+	b=LgXsPL9YWSYIasEBpcunT3Qt9voEh7lOnQ722iJx9oCdHYbj5WvjpvivaAGq8YeFW
+	 cK9W5KPTPBm8mfrXF8Nf9KIAC61Z55VO5CYsY3g4yV0RA0YJrJp8/8A1GtyTlf6y0Z
+	 q5ss1lJoCXJpASzWJml/A7M0KXIBGXIRPxYk/pw0hmTCrmGCQresmMyhLOotujvqBV
+	 OzMCWPIh4s9CwcCc8WLbWdjyxuN5YsBV50M2IFb94Ga5bfVn1kCIu4IqWpg+M0i0dA
+	 M3Jc+0rjrqCz5XjEr4Ti2TEW7Ri7lYepnc9nm3w0VZxAXbXIFJSLltq9B4f+KxZXFm
+	 +UC63QHVeF4gw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A38DC982CC;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99BEFC982E1;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Sat, 19 Sep 2026 16:06:30 +0530
-Subject: [PATCH v6 07/14] iio: light: hid-sensor-prox: convert probe and
+Date: Sat, 19 Sep 2026 16:06:31 +0530
+Subject: [PATCH v6 08/14] iio: light: hid-sensor-als: convert probe and
  teardown to devm-managed resources
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-7-d577b2371b3c@gmail.com>
+Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-8-d577b2371b3c@gmail.com>
 References: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 In-Reply-To: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
@@ -53,11 +53,11 @@ To: Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=3466;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=3431;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=LYf4T3sDm8ysK9zTki2uYUQRgyfp4w+aSKgDHMnP8Yw=;
- b=PAVNfEEax/NnB66nWYareAN7ErVxXsa7HTuJ9eERC4XaQnqPAH++naSjmVyx9M3WncTK9PSzg
- 7g3TtlF8VNzD5Knnqh3dwxSBefwNj1j2MX4lbH+kzE34XEBADw4AdGe
+ bh=YJB29GHZCncYhwv+cTV1yg7AaHm7y9Zh7SdPyAgjnjg=;
+ b=rxTjzmt+VTokVEDbnlBNIeMJPtCUNrZfx8Bx8qIsUGqyGZmNLIt5QzhbzKeIkHZg3W1DpodaD
+ TJNeZ/QGM7oDuDdauJLuXIiOUg0QAwKlcpKj6YNRHdcJcd9oJcn7Py1
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -79,42 +79,41 @@ eliminates the remove callback entirely.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
- drivers/iio/light/hid-sensor-prox.c | 40 ++++++++-----------------------------
- 1 file changed, 8 insertions(+), 32 deletions(-)
+ drivers/iio/light/hid-sensor-als.c | 39 ++++++++------------------------------
+ 1 file changed, 8 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 5e28f9b7f40a..355b7b02868c 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -260,7 +260,8 @@ static int prox_parse_report(struct platform_device *pdev,
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index 10bf46ea4f47..633fd1569987 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -348,7 +348,8 @@ static int als_parse_report(struct platform_device *pdev,
  /* Function to initialize the processing for usage id */
- static int hid_prox_probe(struct platform_device *pdev)
+ static int hid_als_probe(struct platform_device *pdev)
  {
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 +	struct device *dev = &pdev->dev;
 +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
  	int ret = 0;
- 	static const char *name = "prox";
+ 	static const char *name = "als";
  	struct iio_dev *indio_dev;
-@@ -299,8 +300,8 @@ static int hid_prox_probe(struct platform_device *pdev)
+@@ -396,8 +397,8 @@ static int hid_als_probe(struct platform_device *pdev)
  
- 	atomic_set(&prox_state->common_attributes.data_ready, 0);
+ 	atomic_set(&als_state->common_attributes.data_ready, 0);
  
 -	ret = hid_sensor_setup_trigger(indio_dev, name,
--				       &prox_state->common_attributes);
+-				       &als_state->common_attributes);
 +	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-+					    &prox_state->common_attributes);
- 	if (ret) {
++					    &als_state->common_attributes);
+ 	if (ret < 0) {
  		dev_err(&pdev->dev, "trigger setup failed\n");
  		return ret;
-@@ -309,38 +310,14 @@ static int hid_prox_probe(struct platform_device *pdev)
- 	prox_state->callbacks.send_event = prox_proc_event;
- 	prox_state->callbacks.capture_sample = prox_capture_sample;
- 	prox_state->callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
--					   &prox_state->callbacks);
+@@ -406,37 +407,14 @@ static int hid_als_probe(struct platform_device *pdev)
+ 	als_state->callbacks.send_event = als_proc_event;
+ 	als_state->callbacks.capture_sample = als_capture_sample;
+ 	als_state->callbacks.pdev = pdev;
+-	ret = sensor_hub_register_callback(hsdev, hsdev->usage, &als_state->callbacks);
 +	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
-+						&prox_state->callbacks);
++						&als_state->callbacks);
  	if (ret < 0) {
  		dev_err(&pdev->dev, "callback reg failed\n");
 -		goto error_remove_trigger;
@@ -132,31 +131,31 @@ index 5e28f9b7f40a..355b7b02868c 100644
 -error_remove_callback:
 -	sensor_hub_remove_callback(hsdev, hsdev->usage);
 -error_remove_trigger:
--	hid_sensor_remove_trigger(&prox_state->common_attributes);
+-	hid_sensor_remove_trigger(&als_state->common_attributes);
 -	return ret;
 -}
 -
 -/* Function to deinitialize the processing for usage id */
--static void hid_prox_remove(struct platform_device *pdev)
+-static void hid_als_remove(struct platform_device *pdev)
 -{
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 -	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct prox_state *prox_state = iio_priv(indio_dev);
+-	struct als_state *als_state = iio_priv(indio_dev);
 -
 -	iio_device_unregister(indio_dev);
 -	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(&prox_state->common_attributes);
+-	hid_sensor_remove_trigger(&als_state->common_attributes);
 +	return devm_iio_device_register(dev, indio_dev);
  }
  
- static const struct platform_device_id hid_prox_ids[] = {
-@@ -363,7 +340,6 @@ static struct platform_driver hid_prox_platform_driver = {
+ static const struct platform_device_id hid_als_ids[] = {
+@@ -459,7 +437,6 @@ static struct platform_driver hid_als_platform_driver = {
  		.pm	= &hid_sensor_pm_ops,
  	},
- 	.probe		= hid_prox_probe,
--	.remove		= hid_prox_remove,
+ 	.probe		= hid_als_probe,
+-	.remove		= hid_als_remove,
  };
- module_platform_driver(hid_prox_platform_driver);
+ module_platform_driver(hid_als_platform_driver);
  
 
 -- 

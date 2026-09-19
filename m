@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1AE947045C;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D923A4718E3;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789814201; cv=none; b=BFYIHMONKd+JKJkMX2c5u/oyUCi+Ntp1aqBtqOjawBknwssol2uhmiSXWK0iV+92Kp89/f/DxgNUYwb3g80Kpe+dyMcShpjouCCFc8os1hTr0DqydnnalegMMJIjwS/+dEXj62T92JU9iO9zRscIj0CZMUl2D/FCaDwaMNSPzjQ=
+	t=1789814201; cv=none; b=TxkcSItdwLmHBRRBzjl8UMjMSHhT+8sisvhMyvcYXW6DRAAQ6avZE3AZkHEcaDvCzmYecaaOm71NpCwXKec+OuVxiylr0vEi8qzOcj3jniSRy2P4vjbvgBCcI967Bz4fEp8AqI8kajlKSmSApmdPcpGZboN7fB9COBOt7z0Ua3Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789814201; c=relaxed/simple;
-	bh=QpjVvJ9+DS2Q2uKPLWC5fqkfnG8PzhLU5vAJoczIpNU=;
+	bh=/O/jwNr8U2kz2vrQ2d9Bz7kTcnnb1Lw0rPParIURebQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=nRorDEhxSeG/YiQVaWh0YYQnB1GCuRgrximukZj9WXFa1y7KzUXmn7ULK+65RTNIujsTr5O8SBDuE0Rp1l/oJlguVn+/2l2ZFSTZtTVW4d5uziJiBECMGkKAYG9WuzbF9DKZ3Y5EyOuFueJRKYun2+1XD4FcF9b/LnV4FWma2/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NwZWi0ca; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=F2qf73jY7u7Mp7pICME4R/qQH+mGw3lg5FwhHb7B9hIWdDwKUirPTx6Un4/oaSzAaL1tBckb/oBh6h/sORg2bDXsfENn41isLR99fJAQforW6Gt1JxatZQOwHStbqK0AXrllis1TnV6xtlVIjCmSMcD8/ZFSp7D9NFWyuSJb65k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JCk3TRqZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NwZWi0ca"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 8EA65C4AF10;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JCk3TRqZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9CD01C4AF14;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789814201;
-	bh=QpjVvJ9+DS2Q2uKPLWC5fqkfnG8PzhLU5vAJoczIpNU=;
+	bh=/O/jwNr8U2kz2vrQ2d9Bz7kTcnnb1Lw0rPParIURebQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=NwZWi0cak1vUhTC/ITMt2je3qssuKKLj9BVeM6pUorjQTSyBE2Ca353IkOrc0Gtb/
-	 2VkmqLhljB15ulxbKZSRz+NGOTaBbSU742xrnGcfpYIu5+Vxy89NzMnv7ducVyBz1W
-	 grdUxar5XC+emXF5wm2e8HBQrBPVujg6Q8s7WW6VkGRdn/ZdTtVoWa8EODthvINoG2
-	 r5JVaMnWFgPmTlQozFZeSN+w+YYPOlk49E+N85cj1eBGO1T/eKpSucB89ebTMWixEA
-	 CK6QQIiTSth2bY5klAvH+YzEkJ0UFrBtnMqK1qc1kZCDxIZYjYC6czOLRa3bGrXuGb
-	 rFOK3H68X39fA==
+	b=JCk3TRqZZReRMs4IIs8dLvIRkUlbCQfIMjid81p3Dl1VyOewjKgQi3oeoLykn8dIb
+	 x2w47vYL90F3AmNiCmaabhmm/B+jm48SfVXnJq3llrsX6LNNjkgSPxi23acVYpwzXx
+	 m9c3M0IqICJYPC9mGsdklwr1XMjGwgZkBdKZSHYqWSuAWLT/CyEJ+W4CGmyJJsdWHM
+	 9tsvd5dAmcz32qVomEqlJrjTweCpu2/A0q7gHjjzA03fsF8pDt2qwG678jVAa8s5cG
+	 gLqNgbg0Y266CwEvU27OwGTxZwlgRX7YGqG/SkBbKYTRwtsLZ3yQ1EPzxJs4a54m6u
+	 YXllO0jzr9Ppw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A59AC982E7;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A38DC982CC;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Sat, 19 Sep 2026 16:06:29 +0530
-Subject: [PATCH v6 06/14] iio: humidity: hid-sensor-humidity: convert probe
- and teardown to devm-managed resources
+Date: Sat, 19 Sep 2026 16:06:30 +0530
+Subject: [PATCH v6 07/14] iio: light: hid-sensor-prox: convert probe and
+ teardown to devm-managed resources
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-6-d577b2371b3c@gmail.com>
+Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-7-d577b2371b3c@gmail.com>
 References: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 In-Reply-To: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
@@ -53,11 +53,11 @@ To: Jonathan Cameron <jic23@kernel.org>,
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=3821;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=3466;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=HqyYHVuWmDcuCY2uw/mZntv1xCDdrJhZceeQRiOBrc0=;
- b=kb31R6OvQWljNavbbvxbMCpy1KDyonoEqJehLOhz4EpOOnvRO9WqmrpVLiwpLYA1IvJbrjTQV
- GhDVokh2s5nBGvlirRdQUoe7ysCtFXRq1he6E0vOLEJ9BzZG6YijpWO
+ bh=LYf4T3sDm8ysK9zTki2uYUQRgyfp4w+aSKgDHMnP8Yw=;
+ b=PAVNfEEax/NnB66nWYareAN7ErVxXsa7HTuJ9eERC4XaQnqPAH++naSjmVyx9M3WncTK9PSzg
+ 7g3TtlF8VNzD5Knnqh3dwxSBefwNj1j2MX4lbH+kzE34XEBADw4AdGe
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -79,93 +79,84 @@ eliminates the remove callback entirely.
 
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 ---
-changes in v5:
-- Fully convert driver to devm usage, dropped Tested-by tag
-changes in v4:
-- No update in change, added Tested-by tag
-changes in v3:
-- Update commit message based on review comment from Andy
-- Based on discussion using parent device of HID platform driver used
-  with devres framework for this driver
-- v2 link -> https://lore.kernel.org/all/20260429175918.2541914-5-sanjayembedded@gmail.com/
----
- drivers/iio/humidity/hid-sensor-humidity.c | 38 +++++++-----------------------
- 1 file changed, 8 insertions(+), 30 deletions(-)
+ drivers/iio/light/hid-sensor-prox.c | 40 ++++++++-----------------------------
+ 1 file changed, 8 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index 89daf9d534d1..12c88efe66be 100644
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -192,11 +192,12 @@ static struct hid_sensor_hub_callbacks humidity_callbacks = {
+diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+index 5e28f9b7f40a..355b7b02868c 100644
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -260,7 +260,8 @@ static int prox_parse_report(struct platform_device *pdev,
  /* Function to initialize the processing for usage id */
- static int hid_humidity_probe(struct platform_device *pdev)
+ static int hid_prox_probe(struct platform_device *pdev)
  {
+-	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 +	struct device *dev = &pdev->dev;
 +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(dev);
- 	static const char *name = "humidity";
+ 	int ret = 0;
+ 	static const char *name = "prox";
  	struct iio_dev *indio_dev;
- 	struct hid_humidity_state *humid_st;
- 	struct iio_chan_spec *humid_chans;
--	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
- 	int ret;
+@@ -299,8 +300,8 @@ static int hid_prox_probe(struct platform_device *pdev)
  
- 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*humid_st));
-@@ -233,42 +234,20 @@ static int hid_humidity_probe(struct platform_device *pdev)
- 
- 	atomic_set(&humid_st->common_attributes.data_ready, 0);
+ 	atomic_set(&prox_state->common_attributes.data_ready, 0);
  
 -	ret = hid_sensor_setup_trigger(indio_dev, name,
--				       &humid_st->common_attributes);
+-				       &prox_state->common_attributes);
 +	ret = devm_hid_sensor_setup_trigger(dev, indio_dev, name,
-+					    &humid_st->common_attributes);
- 	if (ret)
++					    &prox_state->common_attributes);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "trigger setup failed\n");
  		return ret;
- 
- 	platform_set_drvdata(pdev, indio_dev);
- 
- 	humidity_callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
--					   &humidity_callbacks);
-+	ret = devm_sensor_hub_register_callback(dev, hsdev, HID_USAGE_SENSOR_HUMIDITY,
-+						&humidity_callbacks);
- 	if (ret)
+@@ -309,38 +310,14 @@ static int hid_prox_probe(struct platform_device *pdev)
+ 	prox_state->callbacks.send_event = prox_proc_event;
+ 	prox_state->callbacks.capture_sample = prox_capture_sample;
+ 	prox_state->callbacks.pdev = pdev;
+-	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
+-					   &prox_state->callbacks);
++	ret = devm_sensor_hub_register_callback(dev, hsdev, hsdev->usage,
++						&prox_state->callbacks);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "callback reg failed\n");
 -		goto error_remove_trigger;
+-	}
 -
 -	ret = iio_device_register(indio_dev);
--	if (ret)
+-	if (ret) {
+-		dev_err(&pdev->dev, "device register failed\n");
 -		goto error_remove_callback;
--
++		return ret;
+ 	}
+ 
 -	return ret;
 -
 -error_remove_callback:
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
+-	sensor_hub_remove_callback(hsdev, hsdev->usage);
 -error_remove_trigger:
--	hid_sensor_remove_trigger(&humid_st->common_attributes);
+-	hid_sensor_remove_trigger(&prox_state->common_attributes);
 -	return ret;
 -}
 -
 -/* Function to deinitialize the processing for usage id */
--static void hid_humidity_remove(struct platform_device *pdev)
+-static void hid_prox_remove(struct platform_device *pdev)
 -{
 -	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
 -	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
--	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
-+		return ret;
- 
+-	struct prox_state *prox_state = iio_priv(indio_dev);
+-
 -	iio_device_unregister(indio_dev);
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
--	hid_sensor_remove_trigger(&humid_st->common_attributes);
+-	sensor_hub_remove_callback(hsdev, hsdev->usage);
+-	hid_sensor_remove_trigger(&prox_state->common_attributes);
 +	return devm_iio_device_register(dev, indio_dev);
  }
  
- static const struct platform_device_id hid_humidity_ids[] = {
-@@ -287,7 +266,6 @@ static struct platform_driver hid_humidity_platform_driver = {
+ static const struct platform_device_id hid_prox_ids[] = {
+@@ -363,7 +340,6 @@ static struct platform_driver hid_prox_platform_driver = {
  		.pm	= &hid_sensor_pm_ops,
  	},
- 	.probe		= hid_humidity_probe,
--	.remove		= hid_humidity_remove,
+ 	.probe		= hid_prox_probe,
+-	.remove		= hid_prox_remove,
  };
- module_platform_driver(hid_humidity_platform_driver);
+ module_platform_driver(hid_prox_platform_driver);
  
 
 -- 

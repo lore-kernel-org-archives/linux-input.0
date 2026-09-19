@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7D1B41BA61;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACEC445FFC7;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789814201; cv=none; b=eZN89Ur28lCiLON10UDEimLhi66KztW8lj6/0HhhLQ3LEGC1uOmPtrHLfGVFNVr8aZFuHSqbM1FgHbLISqtuTqjdhoJKfGr+WtPc1do+/z8nY2yHsHGApMHPOxGYc0DWXnbsTTgRK5mp8V7QVhONT+JIFW2zid8MCaGKfYR3xEY=
+	t=1789814201; cv=none; b=LYG3/zOmcDC5+TNEKx6CM/1ml83gb4qa3FMP2RomupTu+C5qAkkzhxKCOSIt5QqR9wXvyhBqJFk5SCiUPhMfPJPA0ggXH/r/vnPunHeG7pTOcAcuXJhtXB+zjjs0Y5FSoBf2oMxDkhgQp5bqnIc34GHTQBnG/SBCBRLVevT43Tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789814201; c=relaxed/simple;
-	bh=O18yStyg+0jNECHbzI7lZrOLeUlr97Gg6Elbukf+wsg=;
+	bh=IjMjUWNEXRYY5wqfhnqbc8zWKm02QgkN8rTn6nVz9QQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=eofcQEEvapTnNzN8ojKtZ8nSQ5vb6O/fKb1VctGUECjA1dAAQ8vvxoh/CDOE3mOXDHMwRxRBqSkccAMCI9SokWdrYT6ZbUe3wOqnKjeMzNMoJQSBUETsyi/WNRjJDy0wQy4ET0y9vNU3goMKe5ZQCirDBs2epEFkVYJwGbB/gQc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vm1+AiEL; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=VObveLcv4T2G1Es1GQ6YYAiZsrhfpjFBnP+jACwscAGM8hOdmcs2+3Gbzx33w/HNw519scExbxlJ5W2FgR3f0idKIyTbSUBAvHyLAyEz/oYR5XSb9Qif+oVVNhbdafXUj/E0v8VhSJz7FgJDBGWDXNC8YtPTQlzZUDQyPsCt+4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Grn/WMT9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vm1+AiEL"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 4F2CDC2BCF7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Grn/WMT9"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 68F04C2BCFB;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1789814201;
-	bh=O18yStyg+0jNECHbzI7lZrOLeUlr97Gg6Elbukf+wsg=;
+	bh=IjMjUWNEXRYY5wqfhnqbc8zWKm02QgkN8rTn6nVz9QQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=Vm1+AiELKlURFtE1Vcnis2l8fRFu2AZhjt5keEsq0XGF68uhq26KIMGLWxL3nhbpg
-	 hNR11PCgnBr1EbMvecDfGvvOssHGDv+59GidX0fl9p7PXzRYszOPrBtiC2qZnq8j3i
-	 /Siy7X1l6arYdjcgYkhpTmQaxU/PwqfrcgKDx8rSxSU2xcY0O9XGuPS9DgRaYNyjk4
-	 zETgyDM0i5MApxjUMAuGq3fJ2hu1eVIiJ2h0pcPzqv/q24C78XE4O4ueWQL+Dde3H/
-	 lpyOtkCCL0r3v3GGZ9GtlEKCJk/El26yyAKX2/izned5a9ZC8g95S9kAsoutjacaKL
-	 XcNg2GfUcp1sQ==
+	b=Grn/WMT9aPzecaw+VM3dnAj1M2N6fSkUd5fw40YnkIy/lfEs3OdeXmX8h1sMWLEsk
+	 DQQweohySnyXzqxyelfcRp4MmBl0eLdWc/LgkK8MSitQsKfmPRXVfP3n7XGE8l5dut
+	 6MyDBTuw2DaOwsrAK/NFahbikv48KvoFM+Lpg4pJQF/IxGK9zTTILeojsOD5Ad9z2I
+	 Zox0nU075XHuyNA8erdI3ytZ+y7jvQDy384a6U9qm5tOo0xrXwx8PSXk6rjCBTEQNy
+	 PAedGm0eVaELLn11+2RN9Ac+0AmovzmcRlV0/nmvJ788qtIMercqEAvZs09LvLQjVZ
+	 E+Q3nLYasIKOw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F554C982D7;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E05FC982E6;
 	Sat, 19 Sep 2026 10:36:41 +0000 (UTC)
 From: Sanjay Chitroda via B4 Relay <devnull+sanjayembeddedse.gmail.com@kernel.org>
-Date: Sat, 19 Sep 2026 16:06:24 +0530
-Subject: [PATCH v6 01/14] iio: hid-sensors: remove unused iio_dev argument
+Date: Sat, 19 Sep 2026 16:06:26 +0530
+Subject: [PATCH v6 03/14] HID: hid-sensor-hub: introduce device managed API
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-1-d577b2371b3c@gmail.com>
+Message-Id: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-3-d577b2371b3c@gmail.com>
 References: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 In-Reply-To: <20260919-28-apr-iio-redundant-argument-v5-temp-v6-0-d577b2371b3c@gmail.com>
 To: Jonathan Cameron <jic23@kernel.org>, 
@@ -50,14 +50,13 @@ To: Jonathan Cameron <jic23@kernel.org>,
  Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
  Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>, 
- Zhang Lixu <lixu.zhang@intel.com>
+ linux-input@vger.kernel.org, Sanjay Chitroda <sanjayembeddedse@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=13391;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1789814199; l=4401;
  i=sanjayembeddedse@gmail.com; s=20260702; h=from:subject:message-id;
- bh=/4a5XvzrGD9qk7leUse+2qSMDRnCzVYVj5HBL01UAGE=;
- b=8K83Jpici1fTya4Cyg6/HFMKUhWb2HT1DNITu/LBI1jJDVHKFO89+gzco83Q4hjlfGscI7rE6
- HbKD3nxfb82DZ2xZJtVn30qpjEi2LwJFMWQVZSYJNulNIIpdofT4V/o
+ bh=X2I8hMTXE1/MLkTlWKifhsxsUQ6NP23KYfZXkjSBpog=;
+ b=ZRinwmoJCRG3gJ5kdyYLdZx5Ac9AWx2SXTQZlP+Zocimt/3x9g7z6i7rH/heYcWUzk+aKvSEv
+ d/WJO12XC4jDC/ztCQSZfhJBrSe/CAURBRv9K1LIyL0dGPp8e8sx+H8
 X-Developer-Key: i=sanjayembeddedse@gmail.com; a=ed25519;
  pk=PcneEFtkmY+Ldl+KmOTpB/Q/HDsqko6Fb0/Z/5cuycI=
 X-Endpoint-Received: by B4 Relay for sanjayembeddedse@gmail.com/20260702
@@ -67,303 +66,128 @@ Reply-To: sanjayembeddedse@gmail.com
 
 From: Sanjay Chitroda <sanjayembeddedse@gmail.com>
 
-hid_sensor_remove_trigger() no longer uses the iio_dev argument.
+sensor_hub_register_callback() is common API used for the HID IIO drivers,
+prepare devm API devm_sensor_hub_register_callback() to acquire resource
+during setup and release using device managed framework during drivers
+fail, unbind or remove path.
 
-Remove the unused argument from all HID IIO drivers to match
-updated function prototype.
+Store the required callback removal context (hsdev and usage_id) in a
+dedicated struct sensor_hub_cb_devres, and register resources with
+devres framework and helper API.
 
+Suggested-by: Jonathan Cameron <jic23@kernel.org>
 Signed-off-by: Sanjay Chitroda <sanjayembeddedse@gmail.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Tested-by: Zhang Lixu <lixu.zhang@intel.com>
 ---
-changes in v4:
-- Rectify commit message with input from David
+Changes in v6:
+- Add kernel-doc for return statement for the new devm_*() API, as
+  suggested by Andy.
+- Keep kernel-doc for new devm_*() API in public header file, along
+  side where existing API documentation is available.
+- With suggestion/input from Jonathan, use devres and cleanup frameworks
+  together to implement device managed API support with less complexity.
 ---
- drivers/iio/accel/hid-sensor-accel-3d.c              | 4 ++--
- drivers/iio/common/hid-sensors/hid-sensor-trigger.c  | 3 +--
- drivers/iio/common/hid-sensors/hid-sensor-trigger.h  | 3 +--
- drivers/iio/gyro/hid-sensor-gyro-3d.c                | 4 ++--
- drivers/iio/humidity/hid-sensor-humidity.c           | 4 ++--
- drivers/iio/light/hid-sensor-als.c                   | 4 ++--
- drivers/iio/light/hid-sensor-prox.c                  | 4 ++--
- drivers/iio/magnetometer/hid-sensor-magn-3d.c        | 4 ++--
- drivers/iio/orientation/hid-sensor-incl-3d.c         | 4 ++--
- drivers/iio/orientation/hid-sensor-rotation.c        | 4 ++--
- drivers/iio/position/hid-sensor-custom-intel-hinge.c | 4 ++--
- drivers/iio/pressure/hid-sensor-press.c              | 4 ++--
- drivers/iio/temperature/hid-sensor-temperature.c     | 4 ++--
- 13 files changed, 24 insertions(+), 26 deletions(-)
+ drivers/hid/hid-sensor-hub.c   | 35 +++++++++++++++++++++++++++++++++++
+ include/linux/hid-sensor-hub.h | 26 ++++++++++++++++++++++++++
+ 2 files changed, 61 insertions(+)
 
-diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index eb521125f4eb..a7cccbaa82f8 100644
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -402,7 +402,7 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &accel_state->common_attributes);
-+	hid_sensor_remove_trigger(&accel_state->common_attributes);
- 	return ret;
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 6470a290ebfc..de35e72b4d88 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -4,7 +4,9 @@
+  * Copyright (c) 2012, Intel Corporation.
+  */
+ 
++#include <linux/cleanup.h>
+ #include <linux/device.h>
++#include <linux/device/devres.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+@@ -187,6 +189,39 @@ int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
  }
+ EXPORT_SYMBOL_GPL(sensor_hub_remove_callback);
  
-@@ -415,7 +415,7 @@ static void hid_accel_3d_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(indio_dev, &accel_state->common_attributes);
-+	hid_sensor_remove_trigger(&accel_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_accel_3d_ids[] = {
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-index 60808e2430ca..6e6adc501602 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-@@ -218,8 +218,7 @@ static const struct iio_buffer_setup_ops hid_sensor_buffer_ops = {
- 	.predisable = buffer_predisable,
++DEFINE_FREE(devres_free, struct sensor_hub_cb_devres *, if (_T) devres_free(_T))
++
++static void devm_sensor_hub_remove_callback(struct device *dev, void *res)
++{
++	struct sensor_hub_cb_devres *dr = res;
++
++	sensor_hub_remove_callback(dr->hsdev, dr->usage_id);
++}
++
++int devm_sensor_hub_register_callback(struct device *dev,
++				      struct hid_sensor_hub_device *hsdev,
++				      u32 usage_id,
++				      struct hid_sensor_hub_callbacks *usage_callback)
++{
++	struct sensor_hub_cb_devres *dr __free(devres_free) = NULL;
++	int ret;
++
++	dr = devres_alloc(devm_sensor_hub_remove_callback, sizeof(*dr), GFP_KERNEL);
++	if (!dr)
++		return -ENOMEM;
++
++	ret = sensor_hub_register_callback(hsdev, usage_id, usage_callback);
++	if (ret)
++		return ret;
++
++	dr->hsdev = hsdev;
++	dr->usage_id = usage_id;
++	devres_add(dev, no_free_ptr(dr));
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(devm_sensor_hub_register_callback);
++
+ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 			   u32 field_index, int buffer_size, void *buffer)
+ {
+diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-sensor-hub.h
+index ab5cc8db3fbb..aa4ff9a95d86 100644
+--- a/include/linux/hid-sensor-hub.h
++++ b/include/linux/hid-sensor-hub.h
+@@ -79,6 +79,16 @@ struct hid_sensor_hub_device {
+ 	struct sensor_hub_pending pending;
  };
  
--void hid_sensor_remove_trigger(struct iio_dev *indio_dev,
--			       struct hid_sensor_common *attrb)
-+void hid_sensor_remove_trigger(struct hid_sensor_common *attrb)
- {
- 	if (atomic_read(&attrb->runtime_pm_enable))
- 		pm_runtime_disable(&attrb->pdev->dev);
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.h b/drivers/iio/common/hid-sensors/hid-sensor-trigger.h
-index 589de858e369..ee17d5cc2437 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.h
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.h
-@@ -16,8 +16,7 @@ extern const struct dev_pm_ops hid_sensor_pm_ops;
++/**
++ * struct sensor_hub_cb_devres - devres data for sensor hub callbacks
++ * @hsdev:	Hub device instance.
++ * @usage_id:	Usage ID associated with registered callback
++ */
++struct sensor_hub_cb_devres {
++	struct hid_sensor_hub_device *hsdev;
++	u32 usage_id;
++};
++
+ /**
+  * struct hid_sensor_hub_callbacks - Client callback functions
+  * @pdev:		Platform device instance of the client driver.
+@@ -143,6 +153,22 @@ int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
+ int sensor_hub_remove_callback(struct hid_sensor_hub_device *hsdev,
+ 			u32 usage_id);
  
- int hid_sensor_setup_trigger(struct iio_dev *indio_dev, const char *name,
- 			     struct hid_sensor_common *attrb);
--void hid_sensor_remove_trigger(struct iio_dev *indio_dev,
--			       struct hid_sensor_common *attrb);
-+void hid_sensor_remove_trigger(struct hid_sensor_common *attrb);
- int hid_sensor_power_state(struct hid_sensor_common *st, bool state);
++/**
++ * devm_sensor_hub_register_callback() - Managed register client callbacks
++ * @dev: Device for resource management
++ * @hsdev: Hub device instance
++ * @usage_id: Usage id of the client (e.g. 0x200076 for Gyro)
++ * @usage_callback: Callback function storage
++ *
++ * This is the devres (managed) version of sensor_hub_register_callback().
++ * The callback will be automatically unregistered when the device is detached.
++
++ * Return: 0 on success, negative error code on failure.
++ */
++int devm_sensor_hub_register_callback(struct device *dev,
++				      struct hid_sensor_hub_device *hsdev,
++				      u32 usage_id,
++				      struct hid_sensor_hub_callbacks *usage_callback);
  
- #endif
-diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-index 58250a972567..cf049700d415 100644
---- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
-+++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-@@ -339,7 +339,7 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attributes);
-+	hid_sensor_remove_trigger(&gyro_state->common_attributes);
- 	return ret;
- }
+ /* Hid sensor hub core interfaces */
  
-@@ -352,7 +352,7 @@ static void hid_gyro_3d_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_GYRO_3D);
--	hid_sensor_remove_trigger(indio_dev, &gyro_state->common_attributes);
-+	hid_sensor_remove_trigger(&gyro_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_gyro_3d_ids[] = {
-diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index 7cec81ff5685..89daf9d534d1 100644
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -255,7 +255,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &humid_st->common_attributes);
-+	hid_sensor_remove_trigger(&humid_st->common_attributes);
- 	return ret;
- }
- 
-@@ -268,7 +268,7 @@ static void hid_humidity_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
--	hid_sensor_remove_trigger(indio_dev, &humid_st->common_attributes);
-+	hid_sensor_remove_trigger(&humid_st->common_attributes);
- }
- 
- static const struct platform_device_id hid_humidity_ids[] = {
-diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
-index 929343e42d83..10bf46ea4f47 100644
---- a/drivers/iio/light/hid-sensor-als.c
-+++ b/drivers/iio/light/hid-sensor-als.c
-@@ -423,7 +423,7 @@ static int hid_als_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &als_state->common_attributes);
-+	hid_sensor_remove_trigger(&als_state->common_attributes);
- 	return ret;
- }
- 
-@@ -436,7 +436,7 @@ static void hid_als_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(indio_dev, &als_state->common_attributes);
-+	hid_sensor_remove_trigger(&als_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_als_ids[] = {
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 63fd3eff171c..5e28f9b7f40a 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -327,7 +327,7 @@ static int hid_prox_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
-+	hid_sensor_remove_trigger(&prox_state->common_attributes);
- 	return ret;
- }
- 
-@@ -340,7 +340,7 @@ static void hid_prox_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(indio_dev, &prox_state->common_attributes);
-+	hid_sensor_remove_trigger(&prox_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_prox_ids[] = {
-diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-index ad18f233ee16..5402cffa8326 100644
---- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-+++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
-@@ -526,7 +526,7 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
-+	hid_sensor_remove_trigger(&magn_state->magn_flux_attributes);
- 	return ret;
- }
- 
-@@ -539,7 +539,7 @@ static void hid_magn_3d_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_COMPASS_3D);
--	hid_sensor_remove_trigger(indio_dev, &magn_state->magn_flux_attributes);
-+	hid_sensor_remove_trigger(&magn_state->magn_flux_attributes);
- }
- 
- static const struct platform_device_id hid_magn_3d_ids[] = {
-diff --git a/drivers/iio/orientation/hid-sensor-incl-3d.c b/drivers/iio/orientation/hid-sensor-incl-3d.c
-index aea28321db95..435e70557721 100644
---- a/drivers/iio/orientation/hid-sensor-incl-3d.c
-+++ b/drivers/iio/orientation/hid-sensor-incl-3d.c
-@@ -372,7 +372,7 @@ static int hid_incl_3d_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_INCLINOMETER_3D);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &incl_state->common_attributes);
-+	hid_sensor_remove_trigger(&incl_state->common_attributes);
- 	return ret;
- }
- 
-@@ -385,7 +385,7 @@ static void hid_incl_3d_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_INCLINOMETER_3D);
--	hid_sensor_remove_trigger(indio_dev, &incl_state->common_attributes);
-+	hid_sensor_remove_trigger(&incl_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_incl_3d_ids[] = {
-diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index f8c98f866cb0..061d76310fed 100644
---- a/drivers/iio/orientation/hid-sensor-rotation.c
-+++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -384,7 +384,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &rot_state->common_attributes);
-+	hid_sensor_remove_trigger(&rot_state->common_attributes);
- 	return ret;
- }
- 
-@@ -397,7 +397,7 @@ static void hid_dev_rot_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(indio_dev, &rot_state->common_attributes);
-+	hid_sensor_remove_trigger(&rot_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_dev_rot_ids[] = {
-diff --git a/drivers/iio/position/hid-sensor-custom-intel-hinge.c b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-index d275bc1413fe..7f6186fea004 100644
---- a/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-+++ b/drivers/iio/position/hid-sensor-custom-intel-hinge.c
-@@ -337,7 +337,7 @@ static int hid_hinge_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &st->common_attributes);
-+	hid_sensor_remove_trigger(&st->common_attributes);
- 	return ret;
- }
- 
-@@ -350,7 +350,7 @@ static void hid_hinge_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, hsdev->usage);
--	hid_sensor_remove_trigger(indio_dev, &st->common_attributes);
-+	hid_sensor_remove_trigger(&st->common_attributes);
- }
- 
- static const struct platform_device_id hid_hinge_ids[] = {
-diff --git a/drivers/iio/pressure/hid-sensor-press.c b/drivers/iio/pressure/hid-sensor-press.c
-index e688b0776547..4e0f42fefd6b 100644
---- a/drivers/iio/pressure/hid-sensor-press.c
-+++ b/drivers/iio/pressure/hid-sensor-press.c
-@@ -306,7 +306,7 @@ static int hid_press_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_PRESSURE);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &press_state->common_attributes);
-+	hid_sensor_remove_trigger(&press_state->common_attributes);
- 	return ret;
- }
- 
-@@ -319,7 +319,7 @@ static void hid_press_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_PRESSURE);
--	hid_sensor_remove_trigger(indio_dev, &press_state->common_attributes);
-+	hid_sensor_remove_trigger(&press_state->common_attributes);
- }
- 
- static const struct platform_device_id hid_press_ids[] = {
-diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
-index 5e3262e461f4..aa5a2b872247 100644
---- a/drivers/iio/temperature/hid-sensor-temperature.c
-+++ b/drivers/iio/temperature/hid-sensor-temperature.c
-@@ -252,7 +252,7 @@ static int hid_temperature_probe(struct platform_device *pdev)
- error_remove_callback:
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TEMPERATURE);
- error_remove_trigger:
--	hid_sensor_remove_trigger(indio_dev, &temp_st->common_attributes);
-+	hid_sensor_remove_trigger(&temp_st->common_attributes);
- 	return ret;
- }
- 
-@@ -265,7 +265,7 @@ static void hid_temperature_remove(struct platform_device *pdev)
- 
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TEMPERATURE);
--	hid_sensor_remove_trigger(indio_dev, &temp_st->common_attributes);
-+	hid_sensor_remove_trigger(&temp_st->common_attributes);
- }
- 
- static const struct platform_device_id hid_temperature_ids[] = {
 
 -- 
 2.34.1

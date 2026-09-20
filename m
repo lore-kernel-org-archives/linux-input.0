@@ -1,72 +1,72 @@
-Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
+Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE3443E0C47
-	for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 08:21:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390613E51D4
+	for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 08:24:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789892496; cv=none; b=AnWaLS205rKFH70YUHElYKcwiN70UublTsgAM83LJB/bPu5vUvlmoQmW7oXONGtW3yxBtmdbw7FevouXsX4VTyIOvPvig6g4LlZw3GgeOfk3CHsrC9m/Drw7Uf/2/xcDT4WWFECr2Qufwp6QDpdycT028ZYZyFhdZPPs18AAvyA=
+	t=1789892685; cv=none; b=Ar4JJlBekXxZa/PcECR1YfIq5ery21q/7dUlL1twIUFlsYv3lM5agtUbLKnA2q+iHtdwIZZ900ek6/iPptFI4lRTQFRP7hNVQMVsnbFHsg6tTa2/Li6+plOO9odJL7i4mhsQs/L94V+bfmNfMBaGKoZZL0BWNIZpichYGjSoWJI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789892496; c=relaxed/simple;
-	bh=HLSbA0y0kzYwRpoPRYwiuICjEKnVoKMnAfarxmos7WY=;
+	s=arc-20240116; t=1789892685; c=relaxed/simple;
+	bh=PQNKrVSSv5XrsWqLZAftkyNTidb+4k1YKsSYR2Qmqs8=;
 	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=ZN3JKfCntY10TRF/nFO7wpD+0zNuKCM7+4p0uR5B2Y8ju6q4ixWrNFDPbx3R8wMKCvCVPJ7EmbUdjtXMSojhUaHC46fCGh/L9OE9kQNA6FChtgmCrFuxfq+rk5+GlUauyofG1+sgxijt5pJI8LZWv0llUtHrGegnsegwOw8hjiw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu; spf=pass smtp.mailfrom=readahead.eu; dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b=COh0O5BH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=WKzSxCbT; arc=none smtp.client-ip=202.12.124.149
+	 Subject:Content-Type; b=SK8n1SAF64ftM9CAma8Kfxq8/E9A7CmTHGfxQpl8moudCRfNt18wnP6s4KNspdi2rp5CkkjYyQAQHcbFs9tO09EgzsOUQ7/tIafKyz5kkFZpa7KVf4rkQ7r424HX0XtBy6xcUrZ+DenDYBh6aIdmkGykl9CBPrDH9YLuidmuNHE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu; spf=pass smtp.mailfrom=readahead.eu; dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b=lZrfkbzc; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=JaAoZY12; arc=none smtp.client-ip=202.12.124.158
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=readahead.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b="COh0O5BH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="WKzSxCbT"
+	dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b="lZrfkbzc";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="JaAoZY12"
 Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfout.stl.internal (Postfix) with ESMTP id 7FCAD1D0009D;
-	Sun, 20 Sep 2026 04:21:30 -0400 (EDT)
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 828837A00D7;
+	Sun, 20 Sep 2026 04:24:41 -0400 (EDT)
 Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Sun, 20 Sep 2026 04:21:31 -0400
+  by ams-compute-02.internal (MEProxy); Sun, 20 Sep 2026 04:24:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=readahead.eu; h=
 	cc:cc:content-transfer-encoding:content-type:content-type:date
 	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1789892489;
-	 x=1789978889; bh=AKFBjAOscnozIhJzIUf+6O/T9Uklj5ZGAFbmFyUKE+A=; b=
-	COh0O5BHNSo3oj10LB3baq6FKyl0vCrgZ215JWwbuJEIXPyMDk6eEpIS9RYEBKRQ
-	tmIB1py5ifQdm3moqRUw6W0RTATaYoUfgsoKIAtIn8njzo98fxiB3i8A3sb2ZUB7
-	I0i1O6FKZqdoXMai4gydv+fcZig08ZtxIqYkMu5CkzBKYt+Uv/2As/pbRTnazafZ
-	pMngk9MJU3YrXfLjlX4WcWr0WMGyw0W20ydEa8RdqlgxTRHuzAI1HLjR6Mfgpb6e
-	E5vAMQ9J9ddGwOMngQd9oSydlJtLAy8YwfSH3uPz4gjkyFrAjn2oU3bcRzKVx/Dv
-	t96B+/LXy4sB9ivs5ss8Eg==
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1789892680;
+	 x=1789979080; bh=R604L43YzzAOIGDh0DoqUfAFIQHq1nWj8E5WaWMTRH4=; b=
+	lZrfkbzcM9EI8k0NfUU/hUow+4Tt+JfniLwJvZnf67EZUk12CMkLDfwAgSElGcrN
+	jJ8YLGNYsLzYZjF2Mx3ydEFX/idI9g39WCTZk7NKBjKHbtRFF9stckN6POFlYlt9
+	SlXYQnhhuCJonmEImHmqGvyS/4H2UjBqQuXovK3ANLjgRgyBmz7RtjTnJoX/lgbN
+	PgpxHCNs9TRlZzUjQq1ISLzbh2ZRrKWgk7xNk6zdDgyBAP503S07fQzq6Ngj9+9P
+	2WBkjAIJ3SKKL7vE5wD1Z+oguZbARvSazBjt2wqQojHjNL8j50GJalFceNPgejhy
+	O2GQBKCRfMLLeLm4LPFXvA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-transfer-encoding
 	:content-type:content-type:date:date:feedback-id:feedback-id
 	:from:from:in-reply-to:in-reply-to:message-id:mime-version
 	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789892489; x=
-	1789978889; bh=AKFBjAOscnozIhJzIUf+6O/T9Uklj5ZGAFbmFyUKE+A=; b=W
-	KzSxCbTMrHAWTJECBW2v5FORg4QqPjWz5rfCeUHOYn4Wi0DiZmx1fKJ9gZMnJu4F
-	TmDtiNn84GP5NNa0Xm4f/EfaWD1lMBq+UF83XQ2kPaozzLjz4X1odNibJXt1XaEV
-	wIB67aBNrez4Q0xyXOiZ7aMylo07Wvb9fX8HSXqxrZ8+++bnBESEVmmBj3tcjKrD
-	KFHvFMRu+UGPBfS/p0xEGpnG5hrHmU8mXArs7JSK5Qmc+MSWvrw9VR7FxjEYNU5H
-	JOpghA5edDqbH5ZLGq1Gzj5bqbi9SjLfNycPz5Ag03ESXwRvKR17VWFtJaRCDsVz
-	g+/RzHQshoqySQYHIrD6w==
-X-ME-Sender: <xms:h5evarioq3rovqvRhLQJ_naldhdH79hedCNMVKsn_ClAo0kP4OwoAw>
-    <xme:h5evai362mkps9Hg9V8LUUajUHnPlTxIqFQ5BhPxXGbtrASf3JqwiG7L3Otm8z2f9
-    zL8FnUhva-12WVGQBfa5znQ-NVd3ZTIoUHjSHBxr7PSg9yHWwWRRkJBdg>
-X-ME-Proxy-Cause: dmFkZTF3+KI0QmB0NAhlLZCiIzzRmsFzFijUvRykDNWblNInQfhfUTZOAjBguf1FO++A6r
-    0GogVScokLdICa5sxMBiqMFUMi1tKNsTVV/bE/eE475vkCASIT1k2aESNONoRh2+zDixq+
-    6VR+OPoUEffEWIAYb4x/WgNfb//Pwj7FByRO1gd75z8IdZh7KaPgrB869sui75qkeJNy6N
-    QUG+2a5KAUrKcKr5XPSTRo9AbgMUUMOaMoCAxgftS5Y3+IjV9iOgav1I6HFEOayU7JyL8H
-    KJwYNpDdZgJ3izLJT7YIGaM91aF6SQ1HgnJRN9yCrqfch4lagUmRYcHTXo6pNHuADYR9jZ
-    eGtQnyJ/XXek4cSEycMBvVgBxvcFGLDbrNr84B8oFF8mjUPloKhdUJ5nertsM52LenCvOn
-    mP+X+PwRInVgBNZMDaQw/cM3+0zLEM0Vs+HbsMK9FAr8UXhbTZ86s3sjS804pd/L9UE2iO
-    De0D+Y/QILxg7aYGlJH1GjNKrK02UnMuEE9W8Cpdc/5ct3RHMUzSpB844A1JOcLTGzbIiv
-    /h9PFYwxUFvG8GXoQoiNqrh7Ftv+J6afKNRUpZsqdMO8clTOyhYqpxCA8fKvxwDfnqQbdQ
-    scz5Dew87MVthPl/CSLjD+G7mEFEdMC7kqcEAY/5DsrVx11dNP04jWizuSNA
-X-ME-Proxy: <xmx:iJevakHL_XlVzKNdPwfFgWmM5WGK_BBSD7e3b8s7iUXX_mC3pLZe5w>
-    <xmx:iJevahLFTPvzPGUV9U-Pc5QbWb6E4SFrLolEtZJptpqf4jaM7it5ig>
-    <xmx:iJevanN0o5M56KfyQMSdsbFHvjU_MTdC4m_BqaENr_fjeJ1pe3nHXA>
-    <xmx:iJevaplCFj9xcofpDaUk1loP9gLbFK5iw7N25GaPtnT0NefvbKTbuw>
-    <xmx:iZevaqdl5H_0meNWpYmeRUfcOwNnX7XdOK6Jde7eBzYSk7r85VPw604n>
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789892680; x=
+	1789979080; bh=R604L43YzzAOIGDh0DoqUfAFIQHq1nWj8E5WaWMTRH4=; b=J
+	aAoZY12v6443F9P8l3K0VnBAiT+Npwk/I2rtMtBUxiwub6eg7BrzPUCrtITqN7nj
+	LroBNU2ZSsP7n2Y69fA20bn3kWDRvzO2lutYZ4XwmlBgkwl/syY47vXeQ/X7YQl6
+	M0K+ea4faHlUJrcpYoSKyRC7SFJCzKj1BBIAuv41/pb265k5v1+vW+h1/pMEw2Lg
+	DrS6luDQrUa1fcwvi0G/huQNi3OA/DwEeeXo1sOSC5WtlkBXegQRdP9siEmsGupr
+	PJhwoMamwbcBO0+VnO26NSBjTlpYj8a7purp14Dw8EPdPoIauQYXqgHXGfGU+zWz
+	ITVWCQM2BC9wzw8JEghMA==
+X-ME-Sender: <xms:RZivaoTl7EWHTOuLRV1wZZmRRj4CXEiRZGPAvBz4AgSDPNWAK5t4VQ>
+    <xme:RZivagklUYXmiECbrN205APQ9qXb_HuR-ESd8zzYQAKkwnBD_XzeOsr3n4yqEFnPU
+    kDW-HYGtTek_ePUYGNvWGRy0aujIBSIxgBN8cOjlgONnDLaXZA-Eg4T>
+X-ME-Proxy-Cause: dmFkZTGCaH3m0xFSsaIpKqblQDB7Sc6CYd3ZkNYAXZwO6yLeGMBMxpsUWn0pnpmulJ++ah
+    RowrN3VOJvQEYOGc5eVDCToM1jkewEdPPVyJazMJnQRSYWfXflrYnRdqvHEG/8Yr5J7R/+
+    hQuaRVeJoqNx4aHc0l562/J9nGV+pO+2oc3XKcLMznuQqzWZ59HH1MRoOHaXowOCNuSm6O
+    0XM3yUYcqWi1FKGuseEaRUElvpL8TLJtTsXrXf+3YanoefQ2BuB0J2KgZ5jqlXx5tGH1GG
+    mWf5e7ifAqGx45DLt3jcEZt/xEwnvWRukkbxUd+WlhObojkMHUJIzRfYTbuVbTf/hzbOas
+    AbE3YHt7NnRv750vkt8PmsDDUVWzRcW6QiSwrbkoEHEgSogTwz2UEeynHLKa7vUuji7TuB
+    gYxO5Pb45eVkjQavwg/cyyzdjNX+uK2dQe+TFsHFyj0R0vpQlzsaHYVKeRMqrpUoMJPA6y
+    jCpYDFfcEHl6Si02w1RqnW37XJpOnSq+GeTxexmcuccCw5enO5G3OJuvm53n546LxkLVxN
+    6EkzFJQHPYSvFF7OLzQSLkojHyLTQ3dWCJLaLuoJ88ycYRMJecUqo8B/X3G8nyb1vRNH08
+    uNal2yJt7EmXpKlgj4gnzaq0CWu23XM+veLNpTw7xjKObE8tT4hmQ1aOI5vA
+X-ME-Proxy: <xmx:R5ivanI-rGltk7zWgDhknBKT16pQR_rQgRO4qc_EBtcT9ZqAmT7L1A>
+    <xmx:R5ivar1wOLpzFsuDSR-FNcEUgpOCwJkFmj1S763XwESqpfxQKuMVeg>
+    <xmx:R5ivat6iQhv8X5hPg7M4pT-pXaOr13Cgj_-9LRSxrrsuCnOpPMLGzQ>
+    <xmx:R5ivak8sqHR62qOsAXzfwjXy07yqiBjsbHP_SOd3_2jqZUZJ4FowGA>
+    <xmx:SJivat-fkLGRTnvvZESjLV32j9H6p9OfZTZUszfFXB5VASa4eqkBkywK>
 Feedback-ID: id2994666:Fastmail
 Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id E456032A008C; Sun, 20 Sep 2026 04:21:26 -0400 (EDT)
+	id BBF7532A0087; Sun, 20 Sep 2026 04:24:37 -0400 (EDT)
 X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -74,279 +74,203 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: A2u1MfG_RU7N
-Date: Sun, 20 Sep 2026 10:21:06 +0200
+X-ThreadId: AeEeCU3uhqow
+Date: Sun, 20 Sep 2026 10:24:17 +0200
 From: "David Rheinsberg" <david@readahead.eu>
 To: "Rafael Passos" <rafael@rcpassos.me>,
  "Benjamin Tissoires" <bentiss@kernel.org>, "Jiri Kosina" <jikos@kernel.org>
 Cc: "Shuah Khan" <skhan@linuxfoundation.org>,
  "Brigham Campbell" <me@brighamcampbell.com>,
  "Jori Koolstra" <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
-Message-Id: <efe87355-ad73-401b-b236-18eb9e398498@app.fastmail.com>
-In-Reply-To: <20260817213840.1053216-5-rafael@rcpassos.me>
+Message-Id: <403be15d-c852-4fd7-b3bb-af900cf62609@app.fastmail.com>
+In-Reply-To: <20260817213840.1053216-2-rafael@rcpassos.me>
 References: <20260817213840.1053216-1-rafael@rcpassos.me>
- <20260817213840.1053216-5-rafael@rcpassos.me>
-Subject: Re: [PATCH v4 4/4] HID: wiimote: wiimote_probe with scoped cleanup
+ <20260817213840.1053216-2-rafael@rcpassos.me>
+Subject: Re: [PATCH v4 1/4] HID: wiimote: turn on the LEDs indicating the controller id
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
 Hi
 
 On Mon, Aug 17, 2026, at 11:38 PM, Rafael Passos wrote:
-> Use the safer scoped cleanup with a single destroy function.
-> A new bitmask was introduced to track probing state.
-> This is needed because the hid_hw calls cannot be made with null.
->
-> A few other functions are safe to call without checking.
-> These cases are annotated with comments above them.
->
-> Also, a new debugfs entry was added tracking this new state (bitmask).
+> The behavior in a Wii/Wii U console is to have each controller turn on
+> a different LED indicating the controller id.
+> This commit implements the same behavior using the ida struct.
+> Unlike switch controllers, each ID only turns one LED (from 1 to 4).
 >
 > Signed-off-by: Rafael Passos <rafael@rcpassos.me>
+> ---
+>  drivers/hid/hid-wiimote-core.c  | 52 +++++++++++++++++++++++++++++----
+>  drivers/hid/hid-wiimote-debug.c |  5 +++-
+>  drivers/hid/hid-wiimote.h       |  1 +
+>  3 files changed, 51 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/hid/hid-wiimote-core.c 
+> b/drivers/hid/hid-wiimote-core.c
+> index 63c4fa8fbb9b..acf31d8b6991 100644
+> --- a/drivers/hid/hid-wiimote-core.c
+> +++ b/drivers/hid/hid-wiimote-core.c
+> @@ -621,6 +621,13 @@ static const __u8 * const 
+> wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
+>  	},
+>  };
+> 
+> +static const __u8 player_leds[] = {
+> +	WIIPROTO_FLAG_LED1,
+> +	WIIPROTO_FLAG_LED2,
+> +	WIIPROTO_FLAG_LED3,
+> +	WIIPROTO_FLAG_LED4
+> +};
+> +
+>  static void wiimote_modules_load(struct wiimote_data *wdata,
+>  				 unsigned int devtype)
+>  {
+> @@ -671,6 +678,12 @@ static void wiimote_modules_load(struct 
+> wiimote_data *wdata,
+>  	spin_lock_irq(&wdata->state.lock);
+>  	wdata->state.devtype = devtype;
+>  	spin_unlock_irq(&wdata->state.lock);
+> +
+> +	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
+> +		/* after loading modules, set the Player ID LED cycling from 1 to 4*/
+> +		wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1) % 4]);
+> +	}
+> +
 
-I am really not sold on this. This does not make the code any simpler, does it? IMO, the goto-paths are much easier to read than tracking the state at runtime.
+Sorry, I unintentionally sent the previous review in private. Anyway, I also noticed that if you set LEDs unconditionally, you can drop the same call from `wiimod_led_probe()` (the entire block guarded by `ops->arg == 0`).
 
-Do you think this makes the code easier to understand? Am I off here?
+Not all wiimote devices have LEDs, but I think it is safe to always send the LED request, given that those are embedded in all data requests, IIRC.
 
 Thanks
 David
 
-> ---
->  drivers/hid/hid-wiimote-core.c  | 78 +++++++++++++++++++--------------
->  drivers/hid/hid-wiimote-debug.c |  4 ++
->  drivers/hid/hid-wiimote.h       |  9 ++++
->  3 files changed, 58 insertions(+), 33 deletions(-)
->
-> diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
-> index 05f8ddb7909b..044da4daa010 100644
-> --- a/drivers/hid/hid-wiimote-core.c
-> +++ b/drivers/hid/hid-wiimote-core.c
-> @@ -679,6 +679,8 @@ static void wiimote_modules_load(struct wiimote_data *wdata,
->  		wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1) % 4]);
->  	}
-> 
-> +
-> +	wdata->init_state |= WIIMOTE_MODULES_LOADED;
 >  	return;
 > 
 >  error:
-> @@ -742,6 +744,8 @@ static void wiimote_ext_load(struct wiimote_data 
-> *wdata, unsigned int ext)
+> @@ -855,11 +868,11 @@ static void wiimote_init_set_type(struct 
+> wiimote_data *wdata,
 > 
->  	scoped_guard(spinlock_irqsave, &wdata->state.lock)
->  		wdata->state.exttype = ext;
-> +
-> +	wdata->init_state |= WIIMOTE_EXT_LOADED;
+>  done:
+>  	if (devtype == WIIMOTE_DEV_GENERIC)
+> -		hid_info(wdata->hdev, "cannot detect device; NAME: %s VID: %04x PID: 
+> %04x EXT: %04x\n",
+> -			name, vendor, product, exttype);
+> +		hid_info(wdata->hdev, "cannot detect device; NAME: %s VID: %04x PID: 
+> %04x EXT: %04x (%d)\n",
+> +			name, vendor, product, exttype, wdata->player_id);
+>  	else
+> -		hid_info(wdata->hdev, "detected device: %s\n",
+> -			 wiimote_devtype_names[devtype]);
+> +		hid_info(wdata->hdev, "detected device: %s (%d)\n",
+> +			 wiimote_devtype_names[devtype], wdata->player_id);
+> 
+>  	wiimote_modules_load(wdata, devtype);
+>  }
+> @@ -1752,6 +1765,7 @@ static struct wiimote_data *wiimote_create(struct 
+> hid_device *hdev)
+>  	mutex_init(&wdata->state.sync);
+>  	wdata->state.drm = WIIPROTO_REQ_DRM_K;
+>  	wdata->state.cmd_battery = 0xff;
+> +	wdata->player_id = 0; // min 1, u8 0 is unasigned id
+> 
+>  	INIT_WORK(&wdata->init_worker, wiimote_init_worker);
+>  	timer_setup(&wdata->timer, wiimote_init_timeout, 0);
+> @@ -1759,12 +1773,17 @@ static struct wiimote_data 
+> *wiimote_create(struct hid_device *hdev)
+>  	return wdata;
 >  }
 > 
->  static void wiimote_ext_unload(struct wiimote_data *wdata)
-> @@ -774,6 +778,8 @@ static void wiimote_mp_load(struct wiimote_data *wdata)
-> 
->  	scoped_guard(spinlock_irqsave, &wdata->state.lock)
->  		wdata->state.mp = mode;
+> +/* Global id allocator for wii remotes */
+> +static DEFINE_IDA(wiimote_ida);
 > +
-> +	wdata->init_state |= WIIMOTE_MP_LOADED;
->  }
-> 
->  static void wiimote_mp_unload(struct wiimote_data *wdata)
-> @@ -1751,39 +1757,56 @@ static DEFINE_IDA(wiimote_ida);
-> 
 >  static void wiimote_destroy(struct wiimote_data *wdata)
 >  {
-> +	if (!wdata)
-> +		return;
-> +
-> +	// safe, debugfs checks IS_ERR_OR_NULL
+>  	unsigned long flags;
+> 
 >  	wiidebug_deinit(wdata);
 > 
-> -	ida_free(&wiimote_ida, wdata->player_id);
-> +	if (wdata->player_id)
-> +		ida_free(&wiimote_ida, wdata->player_id);
-> 
+> +	ida_free(&wiimote_ida, wdata->player_id);
+> +
 >  	/* prevent init_worker from being scheduled again */
->  	scoped_guard(spinlock_irqsave, &wdata->state.lock)
->  		wdata->state.flags |= WIIPROTO_FLAG_EXITING;
-> 
-> -	cancel_work_sync(&wdata->init_worker);
-> -	timer_shutdown_sync(&wdata->timer);
-> +	if (wdata->init_state & WIIMOTE_PROBE_READY) {
-> +		cancel_work_sync(&wdata->init_worker);
-> +		timer_shutdown_sync(&wdata->timer);
-> +	}
-> 
-> +	// safe, checks dev for NULL
->  	device_remove_file(&wdata->hdev->dev, &dev_attr_devtype);
->  	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
-> 
-> -	wiimote_mp_unload(wdata);
-> -	wiimote_ext_unload(wdata);
-> -	wiimote_modules_unload(wdata);
-> +	if (wdata->init_state & WIIMOTE_MP_LOADED)
-> +		wiimote_mp_unload(wdata);
-> +	if (wdata->init_state & WIIMOTE_EXT_LOADED)
-> +		wiimote_ext_unload(wdata);
-> +	if (wdata->init_state & WIIMOTE_MODULES_LOADED)
-> +		wiimote_modules_unload(wdata);
-> +
->  	cancel_work_sync(&wdata->queue.worker);
-> -	hid_hw_close(wdata->hdev);
-> -	hid_hw_stop(wdata->hdev);
-> +
-> +	if (wdata->init_state & WIIMOTE_PROBE_HW_OPENED)
-> +		hid_hw_close(wdata->hdev);
-> +	if (wdata->init_state & WIIMOTE_PROBE_HW_STARTED)
-> +		hid_hw_stop(wdata->hdev);
-> 
->  	kfree(wdata);
->  }
-> 
-> +DEFINE_FREE(wiimote_probe_cleanup, struct wiimote_data *,
-> +	wiimote_destroy(_T))
-> +
->  static int wiimote_hid_probe(struct hid_device *hdev,
->  				const struct hid_device_id *id)
->  {
-> -	struct wiimote_data *wdata;
->  	int ret;
-> 
->  	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-> 
-> -	wdata = wiimote_create(hdev);
-> +	struct wiimote_data *wdata __free(wiimote_probe_cleanup) = 
-> wiimote_create(hdev);
->  	if (!wdata) {
->  		hid_err(hdev, "Can't alloc device\n");
->  		return -ENOMEM;
-> @@ -1792,41 +1815,43 @@ static int wiimote_hid_probe(struct hid_device 
-> *hdev,
->  	ret = hid_parse(hdev);
->  	if (ret) {
->  		hid_err(hdev, "HID parse failed\n");
-> -		goto err;
-> +		return ret;
->  	}
-> 
->  	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
->  	if (ret) {
->  		hid_err(hdev, "HW start failed\n");
-> -		goto err;
-> +		return ret;
->  	}
-> +	wdata->init_state |= WIIMOTE_PROBE_HW_STARTED;
-> 
->  	ret = hid_hw_open(hdev);
->  	if (ret) {
->  		hid_err(hdev, "cannot start hardware I/O\n");
-> -		goto err_stop;
-> +		return ret;
->  	}
-> +	wdata->init_state |= WIIMOTE_PROBE_HW_OPENED;
-> 
->  	ret = device_create_file(&hdev->dev, &dev_attr_extension);
->  	if (ret) {
->  		hid_err(hdev, "cannot create sysfs attribute\n");
-> -		goto err_close;
-> +		return ret;
->  	}
-> 
->  	ret = device_create_file(&hdev->dev, &dev_attr_devtype);
->  	if (ret) {
->  		hid_err(hdev, "cannot create sysfs attribute\n");
-> -		goto err_ext;
-> +		return ret;
->  	}
-> 
->  	ret = wiidebug_init(wdata);
+>  	spin_lock_irqsave(&wdata->state.lock, flags);
+>  	wdata->state.flags |= WIIPROTO_FLAG_EXITING;
+> @@ -1834,7 +1853,14 @@ static int wiimote_hid_probe(struct hid_device *hdev,
 >  	if (ret)
-> -		goto err_free;
-> +		return ret;
+>  		goto err_free;
 > 
->  	ret = ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
->  	if (ret < 1) {
->  		hid_err(hdev, "cannot allocate controller id\n");
-> -		goto err_free;
-> +		return ret;
->  	}
-> 
->  	wdata->player_id = ret;
-> @@ -1834,24 +1859,10 @@ static int wiimote_hid_probe(struct hid_device *hdev,
+> -	hid_info(hdev, "New device registered\n");
+> +	ret = ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
+> +	if (ret < 1) {
+> +		hid_err(hdev, "cannot allocate controller id\n");
+> +		goto err_free;
+> +	}
+> +
+> +	wdata->player_id = ret;
+> +	hid_info(hdev, "New device registered (Wiimote %d)\n", ret);
 > 
 >  	/* schedule device detection */
 >  	wiimote_schedule(wdata);
-> +	wdata->init_state |= WIIMOTE_PROBE_READY;
+> @@ -1887,7 +1913,21 @@ static struct hid_driver wiimote_hid_driver = {
+>  	.remove = wiimote_hid_remove,
+>  	.raw_event = wiimote_hid_event,
+>  };
+> -module_hid_driver(wiimote_hid_driver);
+> +
+> +
+> +static int __init wiimote_init(void)
+> +{
+> +	return hid_register_driver(&wiimote_hid_driver);
+> +}
+> +
+> +static void __exit wiimote_exit(void)
+> +{
+> +	hid_unregister_driver(&wiimote_hid_driver);
+> +	ida_destroy(&wiimote_ida);
+> +}
+> +
+> +module_init(wiimote_init);
+> +module_exit(wiimote_exit);
 > 
-> +	retain_and_null_ptr(wdata);
->  	return 0;
-> -
-> -err_free:
-> -	wiimote_destroy(wdata);
-> -	return ret;
-> -
-> -err_ext:
-> -	device_remove_file(&wdata->hdev->dev, &dev_attr_extension);
-> -err_close:
-> -	hid_hw_close(hdev);
-> -err_stop:
-> -	hid_hw_stop(hdev);
-> -err:
-> -	input_free_device(wdata->ir);
-> -	input_free_device(wdata->accel);
-> -	kfree(wdata);
-> -	return ret;
->  }
-> 
->  static void wiimote_hid_remove(struct hid_device *hdev)
-> @@ -1902,3 +1913,4 @@ module_exit(wiimote_exit);
 >  MODULE_LICENSE("GPL");
 >  MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
->  MODULE_DESCRIPTION("Driver for Nintendo Wii / Wii U peripherals");
-> +
 > diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-debug.c
-> index b8027bb23608..1353ab022acb 100644
+> index 5f74917781f2..fc847c2a1c1f 100644
 > --- a/drivers/hid/hid-wiimote-debug.c
 > +++ b/drivers/hid/hid-wiimote-debug.c
-> @@ -184,6 +184,9 @@ int wiidebug_init(struct wiimote_data *wdata)
->  	debugfs_create_u8("player_id", S_IRUSR,
->  		   dbg->wdata->hdev->debug_dir, &wdata->player_id);
+> @@ -186,12 +186,14 @@ int wiidebug_init(struct wiimote_data *wdata)
+>  	dbg->drm = debugfs_create_file("drm", S_IRUSR,
+>  			dbg->wdata->hdev->debug_dir, dbg, &wiidebug_drm_fops);
 > 
-> +	debugfs_create_u8("init_state", S_IRUSR,
-> +		   dbg->wdata->hdev->debug_dir, &wdata->init_state);
+> +	debugfs_create_u8("player_id", S_IRUSR,
+> +		   dbg->wdata->hdev->debug_dir, &wdata->player_id);
 > +
->  	scoped_guard(spinlock_irqsave, &wdata->state.lock)
->  		wdata->debug = dbg;
+>  	spin_lock_irqsave(&wdata->state.lock, flags);
+>  	wdata->debug = dbg;
+>  	spin_unlock_irqrestore(&wdata->state.lock, flags);
 > 
-> @@ -203,5 +206,6 @@ void wiidebug_deinit(struct wiimote_data *wdata)
+>  	return 0;
+> -
+>  }
+> 
+>  void wiidebug_deinit(struct wiimote_data *wdata)
+> @@ -208,5 +210,6 @@ void wiidebug_deinit(struct wiimote_data *wdata)
+> 
 >  	debugfs_remove(dbg->drm);
 >  	debugfs_remove(dbg->eeprom);
->  	debugfs_lookup_and_remove("player_id", dbg->wdata->hdev->debug_dir);
-> +	debugfs_lookup_and_remove("init_state", dbg->wdata->hdev->debug_dir);
+> +	debugfs_lookup_and_remove("player_id", dbg->wdata->hdev->debug_dir);
 >  	kfree(dbg);
 >  }
 > diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-> index 8e5002f515e2..147751973702 100644
+> index 9c12f63f6dd2..8e5002f515e2 100644
 > --- a/drivers/hid/hid-wiimote.h
 > +++ b/drivers/hid/hid-wiimote.h
-> @@ -154,6 +154,7 @@ struct wiimote_data {
+> @@ -153,6 +153,7 @@ struct wiimote_data {
+>  	struct input_dev *mp;
 >  	struct timer_list timer;
 >  	struct wiimote_debug *debug;
->  	u8 player_id;
-> +	u8 init_state;
+> +	u8 player_id;
 > 
 >  	union {
 >  		struct input_dev *input;
-> @@ -376,4 +377,12 @@ static inline int wiimote_cmd_wait_noint(struct 
-> wiimote_data *wdata)
->  		return 0;
->  }
-> 
-> +/* controller initialization tracker bits */
-> +#define WIIMOTE_PROBE_HW_STARTED  BIT(0)  // hid_hw_start succeeded
-> +#define WIIMOTE_PROBE_HW_OPENED   BIT(1)  // hid_hw_open succeeded
-> +#define WIIMOTE_PROBE_READY       BIT(2)  // wiimote_schedule succeeded
-> +#define WIIMOTE_MP_LOADED         BIT(3)  // wiimote_mp_load succeeded
-> +#define WIIMOTE_EXT_LOADED        BIT(4)  // wiimote_ext_load succeeded
-> +#define WIIMOTE_MODULES_LOADED    BIT(5)  // wiimote_modules_load succeeded
-> +
->  #endif
 > -- 
 > 2.55.0

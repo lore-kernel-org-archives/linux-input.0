@@ -1,276 +1,211 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 390613E51D4
-	for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 08:24:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 362CE3EC804
+	for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 09:49:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789892685; cv=none; b=Ar4JJlBekXxZa/PcECR1YfIq5ery21q/7dUlL1twIUFlsYv3lM5agtUbLKnA2q+iHtdwIZZ900ek6/iPptFI4lRTQFRP7hNVQMVsnbFHsg6tTa2/Li6+plOO9odJL7i4mhsQs/L94V+bfmNfMBaGKoZZL0BWNIZpichYGjSoWJI=
+	t=1789897755; cv=none; b=BLs/8Q2HtVlS9GPHNLvHXbzhSXSuyEFBuVlYwG/mPbmZZAQ+FGceYvlmELnANAF152oSweW2s+aXUIO7KvZ6wW+DBgm9y/xdqG05Of3n+VqrS6Ls+rqNoIIBjsNCHa23ry5sd32n4PBAXkn/gi+fTjKSS3pgkCloFsWxXShnkzI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789892685; c=relaxed/simple;
-	bh=PQNKrVSSv5XrsWqLZAftkyNTidb+4k1YKsSYR2Qmqs8=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=SK8n1SAF64ftM9CAma8Kfxq8/E9A7CmTHGfxQpl8moudCRfNt18wnP6s4KNspdi2rp5CkkjYyQAQHcbFs9tO09EgzsOUQ7/tIafKyz5kkFZpa7KVf4rkQ7r424HX0XtBy6xcUrZ+DenDYBh6aIdmkGykl9CBPrDH9YLuidmuNHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu; spf=pass smtp.mailfrom=readahead.eu; dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b=lZrfkbzc; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=JaAoZY12; arc=none smtp.client-ip=202.12.124.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=readahead.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=readahead.eu
+	s=arc-20240116; t=1789897755; c=relaxed/simple;
+	bh=XCvgXtVDOQexlet7FH5jCB/Ll+55kV+TEw7kNGuSQ9o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ozQSsNssvHopXDH3MRccMt6FCpIZ8g9yRWFxkNkHd3ksNTjgzM0A1H95SE3yp2Uo/OAKRVOQ9H+fQaQ7UqFoRDVm2AO4U93ZlQG3WmYKpfA01IkwLQimkiR7/PThzS2SeyTbX4kfhVIqLyazd/boUGQAlAR4UWu97JzLFf91UpY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sWBSrGFI; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=readahead.eu header.i=@readahead.eu header.b="lZrfkbzc";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="JaAoZY12"
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 828837A00D7;
-	Sun, 20 Sep 2026 04:24:41 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Sun, 20 Sep 2026 04:24:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=readahead.eu; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1789892680;
-	 x=1789979080; bh=R604L43YzzAOIGDh0DoqUfAFIQHq1nWj8E5WaWMTRH4=; b=
-	lZrfkbzcM9EI8k0NfUU/hUow+4Tt+JfniLwJvZnf67EZUk12CMkLDfwAgSElGcrN
-	jJ8YLGNYsLzYZjF2Mx3ydEFX/idI9g39WCTZk7NKBjKHbtRFF9stckN6POFlYlt9
-	SlXYQnhhuCJonmEImHmqGvyS/4H2UjBqQuXovK3ANLjgRgyBmz7RtjTnJoX/lgbN
-	PgpxHCNs9TRlZzUjQq1ISLzbh2ZRrKWgk7xNk6zdDgyBAP503S07fQzq6Ngj9+9P
-	2WBkjAIJ3SKKL7vE5wD1Z+oguZbARvSazBjt2wqQojHjNL8j50GJalFceNPgejhy
-	O2GQBKCRfMLLeLm4LPFXvA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789892680; x=
-	1789979080; bh=R604L43YzzAOIGDh0DoqUfAFIQHq1nWj8E5WaWMTRH4=; b=J
-	aAoZY12v6443F9P8l3K0VnBAiT+Npwk/I2rtMtBUxiwub6eg7BrzPUCrtITqN7nj
-	LroBNU2ZSsP7n2Y69fA20bn3kWDRvzO2lutYZ4XwmlBgkwl/syY47vXeQ/X7YQl6
-	M0K+ea4faHlUJrcpYoSKyRC7SFJCzKj1BBIAuv41/pb265k5v1+vW+h1/pMEw2Lg
-	DrS6luDQrUa1fcwvi0G/huQNi3OA/DwEeeXo1sOSC5WtlkBXegQRdP9siEmsGupr
-	PJhwoMamwbcBO0+VnO26NSBjTlpYj8a7purp14Dw8EPdPoIauQYXqgHXGfGU+zWz
-	ITVWCQM2BC9wzw8JEghMA==
-X-ME-Sender: <xms:RZivaoTl7EWHTOuLRV1wZZmRRj4CXEiRZGPAvBz4AgSDPNWAK5t4VQ>
-    <xme:RZivagklUYXmiECbrN205APQ9qXb_HuR-ESd8zzYQAKkwnBD_XzeOsr3n4yqEFnPU
-    kDW-HYGtTek_ePUYGNvWGRy0aujIBSIxgBN8cOjlgONnDLaXZA-Eg4T>
-X-ME-Proxy-Cause: dmFkZTGCaH3m0xFSsaIpKqblQDB7Sc6CYd3ZkNYAXZwO6yLeGMBMxpsUWn0pnpmulJ++ah
-    RowrN3VOJvQEYOGc5eVDCToM1jkewEdPPVyJazMJnQRSYWfXflrYnRdqvHEG/8Yr5J7R/+
-    hQuaRVeJoqNx4aHc0l562/J9nGV+pO+2oc3XKcLMznuQqzWZ59HH1MRoOHaXowOCNuSm6O
-    0XM3yUYcqWi1FKGuseEaRUElvpL8TLJtTsXrXf+3YanoefQ2BuB0J2KgZ5jqlXx5tGH1GG
-    mWf5e7ifAqGx45DLt3jcEZt/xEwnvWRukkbxUd+WlhObojkMHUJIzRfYTbuVbTf/hzbOas
-    AbE3YHt7NnRv750vkt8PmsDDUVWzRcW6QiSwrbkoEHEgSogTwz2UEeynHLKa7vUuji7TuB
-    gYxO5Pb45eVkjQavwg/cyyzdjNX+uK2dQe+TFsHFyj0R0vpQlzsaHYVKeRMqrpUoMJPA6y
-    jCpYDFfcEHl6Si02w1RqnW37XJpOnSq+GeTxexmcuccCw5enO5G3OJuvm53n546LxkLVxN
-    6EkzFJQHPYSvFF7OLzQSLkojHyLTQ3dWCJLaLuoJ88ycYRMJecUqo8B/X3G8nyb1vRNH08
-    uNal2yJt7EmXpKlgj4gnzaq0CWu23XM+veLNpTw7xjKObE8tT4hmQ1aOI5vA
-X-ME-Proxy: <xmx:R5ivanI-rGltk7zWgDhknBKT16pQR_rQgRO4qc_EBtcT9ZqAmT7L1A>
-    <xmx:R5ivar1wOLpzFsuDSR-FNcEUgpOCwJkFmj1S763XwESqpfxQKuMVeg>
-    <xmx:R5ivat6iQhv8X5hPg7M4pT-pXaOr13Cgj_-9LRSxrrsuCnOpPMLGzQ>
-    <xmx:R5ivak8sqHR62qOsAXzfwjXy07yqiBjsbHP_SOd3_2jqZUZJ4FowGA>
-    <xmx:SJivat-fkLGRTnvvZESjLV32j9H6p9OfZTZUszfFXB5VASa4eqkBkywK>
-Feedback-ID: id2994666:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id BBF7532A0087; Sun, 20 Sep 2026 04:24:37 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sWBSrGFI"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912e64ccso14882795e9.0
+        for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 02:49:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789897748; x=1790502548; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NjR0+aR4fqFhCdqun3B7g8hh4Gd9On2hwqPnG7OLZVk=;
+        b=sWBSrGFIP7mHD/5ty11wSZrh4LT8RYMLnfYfRhoAfacoCkkhzHGcrv/4an8lVU5nwd
+         pY3AGJL1SqVftCaMmzQF6X07f5wXJHsDPRLaHj+QodkH5pJSDYFk0brVAtVNxw2YhLPK
+         DWj1As/bcCuGkjkatgKEWi1io2jQtHa03WM2BVZmVJ97SN4qQPTxDeIJK3QDZ5s5XOZl
+         /dgiXWnsFgAopcng6ULOF1pYmVkTVc9v0bWC8BEac1oVFTXHOLbOmQ/4wmlYh6XR/HE3
+         S5Xhqvw1NiiNAYGjNe1RhP0Quv1IIi6Wciq7xNNnSCeNeQFKr1Sdc230SCuoSyMzwF4s
+         PcPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789897748; x=1790502548;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NjR0+aR4fqFhCdqun3B7g8hh4Gd9On2hwqPnG7OLZVk=;
+        b=ilfZDSl7CGyAyFRe/72oeNLcmXjqk7hz0/9Zw3VsfqyNQD1k8Y4K3a/Ze2hSMh09Pv
+         D5Ec9nRQ3+Gb+94NqpbXpB/pn4ZlwMwS3a9QXUQFVIy9Mv2H2pK0EelRAnGcb3Jyutfa
+         scAmLpmoz27lp/7hkbYNMG157BeH0Micb98fc9Y7QRAQrax8e3jiRNJcp9s+tsg3sn2F
+         E7k7z88ruocWcE3y3Wps5bpPQvrsO3UddtC7XTiLG2P4MRViuQxeK2FLy06bMQr96ehC
+         w/wWRld3LPd8F05lr2DfLjPiYKY/dFuvFKS+fv2+sqXKtUADjVBj2s+OdItwKXk038QV
+         gQUw==
+X-Forwarded-Encrypted: i=1; AKwUvBxNGFB1dym5hRGGz/yGHnMUnOE+8D8+VPurG9eyOy7CyvLG81EgEg/7eF66JUkyyPNihPmAXRON6Gy+OA==@vger.kernel.org
+X-Gm-Message-State: AFuF++lknArXcvRY95itj/nuCbbiJOaTBpOxHMP0ww+NiMRhUQkQ41wz
+	zoauHQPcpzBztuCVEb3P9Ryip4bCc4nGHL5zFXteT2/UEUbY6k9LS3LA
+X-Gm-Gg: AYBFou1ssDs19LWOHzdjCXYdOZLRoLyNLPPFmUW6hSR5kJd4sC9AwUbQrPDnWUEEon7
+	ho1Ij2rw4STGwpH15tOfKW/dB1L8oe8UsKp2sKgxAFRwXd/MfHkm9EhIdw7vh3mPf9GzrirmiGg
+	Z0kP8R/C4vXl+ciC3fI5jvI9yWSC6cmFbKZ7zlKHYgPUuIiNRK1aQJnixLm67krl1Oi72/VYtS/
+	kIZYRqe7IM6jDjW406/Q9yHx3FeoEwabOY0ZCO8U03/MceuJk3Kd9LDbVvfr3XPkfEAjQZSYBz2
+	/RIoGw5dCJYGcJmNXawVfYjnj0QhLZjFhxntb2YjHeyT9M6TamMtP5XK4twhW4Szme5HyE84WAM
+	9PcYgNDbYhBwhxamK+VGDi5T0zeyrWxilpYPj7dsfmCU3dAZkQVg5sSxfZxoSdDtzW2Y93tlyvi
+	H87NkMTRDelcKjbvl0Lmy3LeiJeNMKhHQUVyrawMFXmnfaVU7JqAIc9nnAFDtpiXdIQNDkZFM7J
+	k42LhqfLPhDM7bSaa/ersLPSaBpLdUTVZqyqJE=
+X-Received: by 2002:a05:600c:1391:b0:49d:272d:74b4 with SMTP id 5b1f17b1804b1-49fc566e5ebmr100511745e9.2.1789897748192;
+        Sun, 20 Sep 2026 02:49:08 -0700 (PDT)
+Received: from cachyos-x8664 (213-225-2-90.nat.highway.a1.net. [213.225.2.90])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48724564565sm13133797f8f.19.2026.09.20.02.49.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Sep 2026 02:49:07 -0700 (PDT)
+From: Roman Stingler <roman.stingler@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Roman Stingler <roman.stingler@gmail.com>,
+	Erik Hakansson <erikhakan@gmail.com>,
+	Filipe Lains <lains@riseup.net>,
+	Bastien Nocera <hadess@hadess.net>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	regressions@lists.linux.dev
+Subject: [REGRESSION 7.3-rc1] HID: logitech-hidpp: hi-res scroll mode forcibly re-enabled on every reconnect for Bolt devices, overriding userspace
+Date: Sun, 20 Sep 2026 11:44:39 +0200
+Message-ID: <20260920094508.39682-1-roman.stingler@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AeEeCU3uhqow
-Date: Sun, 20 Sep 2026 10:24:17 +0200
-From: "David Rheinsberg" <david@readahead.eu>
-To: "Rafael Passos" <rafael@rcpassos.me>,
- "Benjamin Tissoires" <bentiss@kernel.org>, "Jiri Kosina" <jikos@kernel.org>
-Cc: "Shuah Khan" <skhan@linuxfoundation.org>,
- "Brigham Campbell" <me@brighamcampbell.com>,
- "Jori Koolstra" <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
-Message-Id: <403be15d-c852-4fd7-b3bb-af900cf62609@app.fastmail.com>
-In-Reply-To: <20260817213840.1053216-2-rafael@rcpassos.me>
-References: <20260817213840.1053216-1-rafael@rcpassos.me>
- <20260817213840.1053216-2-rafael@rcpassos.me>
-Subject: Re: [PATCH v4 1/4] HID: wiimote: turn on the LEDs indicating the controller id
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi
+Hi,
 
-On Mon, Aug 17, 2026, at 11:38 PM, Rafael Passos wrote:
-> The behavior in a Wii/Wii U console is to have each controller turn on
-> a different LED indicating the controller id.
-> This commit implements the same behavior using the ida struct.
-> Unlike switch controllers, each ID only turns one LED (from 1 to 4).
->
-> Signed-off-by: Rafael Passos <rafael@rcpassos.me>
-> ---
->  drivers/hid/hid-wiimote-core.c  | 52 +++++++++++++++++++++++++++++----
->  drivers/hid/hid-wiimote-debug.c |  5 +++-
->  drivers/hid/hid-wiimote.h       |  1 +
->  3 files changed, 51 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/hid/hid-wiimote-core.c 
-> b/drivers/hid/hid-wiimote-core.c
-> index 63c4fa8fbb9b..acf31d8b6991 100644
-> --- a/drivers/hid/hid-wiimote-core.c
-> +++ b/drivers/hid/hid-wiimote-core.c
-> @@ -621,6 +621,13 @@ static const __u8 * const 
-> wiimote_devtype_mods[WIIMOTE_DEV_NUM] = {
->  	},
->  };
-> 
-> +static const __u8 player_leds[] = {
-> +	WIIPROTO_FLAG_LED1,
-> +	WIIPROTO_FLAG_LED2,
-> +	WIIPROTO_FLAG_LED3,
-> +	WIIPROTO_FLAG_LED4
-> +};
-> +
->  static void wiimote_modules_load(struct wiimote_data *wdata,
->  				 unsigned int devtype)
->  {
-> @@ -671,6 +678,12 @@ static void wiimote_modules_load(struct 
-> wiimote_data *wdata,
->  	spin_lock_irq(&wdata->state.lock);
->  	wdata->state.devtype = devtype;
->  	spin_unlock_irq(&wdata->state.lock);
-> +
-> +	scoped_guard(spinlock_irqsave, &wdata->state.lock) {
-> +		/* after loading modules, set the Player ID LED cycling from 1 to 4*/
-> +		wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1) % 4]);
-> +	}
-> +
+Since Bolt receiver support was added in 7.3-rc1, the user-selected
+"Scroll Wheel Resolution" (HID++ feature 0x2121 HiRes Wheel) setting on my
+MX Master 4 is reset by the kernel every time the device reconnects, most
+visibly across every suspend/resume cycle. I disable hi-res scrolling in
+Solaar, suspend the laptop, and on resume the mouse is back in hi-res mode
+and I have to toggle it manually again.
 
-Sorry, I unintentionally sent the previous review in private. Anyway, I also noticed that if you set LEDs unconditionally, you can drop the same call from `wiimod_led_probe()` (the entire block guarded by `ops->arg == 0`).
+This worked correctly on 7.2 and is broken on 7.3-rc1 through 7.3-rc3.
 
-Not all wiimote devices have LEDs, but I think it is safe to always send the LED request, given that those are embedded in all data requests, IIRC.
+#regzbot introduced: 022eb347ff3a48281e7e69c3addcb11bf24afa53
 
-Thanks
-David
 
->  	return;
-> 
->  error:
-> @@ -855,11 +868,11 @@ static void wiimote_init_set_type(struct 
-> wiimote_data *wdata,
-> 
->  done:
->  	if (devtype == WIIMOTE_DEV_GENERIC)
-> -		hid_info(wdata->hdev, "cannot detect device; NAME: %s VID: %04x PID: 
-> %04x EXT: %04x\n",
-> -			name, vendor, product, exttype);
-> +		hid_info(wdata->hdev, "cannot detect device; NAME: %s VID: %04x PID: 
-> %04x EXT: %04x (%d)\n",
-> +			name, vendor, product, exttype, wdata->player_id);
->  	else
-> -		hid_info(wdata->hdev, "detected device: %s\n",
-> -			 wiimote_devtype_names[devtype]);
-> +		hid_info(wdata->hdev, "detected device: %s (%d)\n",
-> +			 wiimote_devtype_names[devtype], wdata->player_id);
-> 
->  	wiimote_modules_load(wdata, devtype);
->  }
-> @@ -1752,6 +1765,7 @@ static struct wiimote_data *wiimote_create(struct 
-> hid_device *hdev)
->  	mutex_init(&wdata->state.sync);
->  	wdata->state.drm = WIIPROTO_REQ_DRM_K;
->  	wdata->state.cmd_battery = 0xff;
-> +	wdata->player_id = 0; // min 1, u8 0 is unasigned id
-> 
->  	INIT_WORK(&wdata->init_worker, wiimote_init_worker);
->  	timer_setup(&wdata->timer, wiimote_init_timeout, 0);
-> @@ -1759,12 +1773,17 @@ static struct wiimote_data 
-> *wiimote_create(struct hid_device *hdev)
->  	return wdata;
->  }
-> 
-> +/* Global id allocator for wii remotes */
-> +static DEFINE_IDA(wiimote_ida);
-> +
->  static void wiimote_destroy(struct wiimote_data *wdata)
->  {
->  	unsigned long flags;
-> 
->  	wiidebug_deinit(wdata);
-> 
-> +	ida_free(&wiimote_ida, wdata->player_id);
-> +
->  	/* prevent init_worker from being scheduled again */
->  	spin_lock_irqsave(&wdata->state.lock, flags);
->  	wdata->state.flags |= WIIPROTO_FLAG_EXITING;
-> @@ -1834,7 +1853,14 @@ static int wiimote_hid_probe(struct hid_device *hdev,
->  	if (ret)
->  		goto err_free;
-> 
-> -	hid_info(hdev, "New device registered\n");
-> +	ret = ida_alloc_min(&wiimote_ida, 1, GFP_KERNEL);
-> +	if (ret < 1) {
-> +		hid_err(hdev, "cannot allocate controller id\n");
-> +		goto err_free;
-> +	}
-> +
-> +	wdata->player_id = ret;
-> +	hid_info(hdev, "New device registered (Wiimote %d)\n", ret);
-> 
->  	/* schedule device detection */
->  	wiimote_schedule(wdata);
-> @@ -1887,7 +1913,21 @@ static struct hid_driver wiimote_hid_driver = {
->  	.remove = wiimote_hid_remove,
->  	.raw_event = wiimote_hid_event,
->  };
-> -module_hid_driver(wiimote_hid_driver);
-> +
-> +
-> +static int __init wiimote_init(void)
-> +{
-> +	return hid_register_driver(&wiimote_hid_driver);
-> +}
-> +
-> +static void __exit wiimote_exit(void)
-> +{
-> +	hid_unregister_driver(&wiimote_hid_driver);
-> +	ida_destroy(&wiimote_ida);
-> +}
-> +
-> +module_init(wiimote_init);
-> +module_exit(wiimote_exit);
-> 
->  MODULE_LICENSE("GPL");
->  MODULE_AUTHOR("David Herrmann <dh.herrmann@gmail.com>");
-> diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-debug.c
-> index 5f74917781f2..fc847c2a1c1f 100644
-> --- a/drivers/hid/hid-wiimote-debug.c
-> +++ b/drivers/hid/hid-wiimote-debug.c
-> @@ -186,12 +186,14 @@ int wiidebug_init(struct wiimote_data *wdata)
->  	dbg->drm = debugfs_create_file("drm", S_IRUSR,
->  			dbg->wdata->hdev->debug_dir, dbg, &wiidebug_drm_fops);
-> 
-> +	debugfs_create_u8("player_id", S_IRUSR,
-> +		   dbg->wdata->hdev->debug_dir, &wdata->player_id);
-> +
->  	spin_lock_irqsave(&wdata->state.lock, flags);
->  	wdata->debug = dbg;
->  	spin_unlock_irqrestore(&wdata->state.lock, flags);
-> 
->  	return 0;
-> -
->  }
-> 
->  void wiidebug_deinit(struct wiimote_data *wdata)
-> @@ -208,5 +210,6 @@ void wiidebug_deinit(struct wiimote_data *wdata)
-> 
->  	debugfs_remove(dbg->drm);
->  	debugfs_remove(dbg->eeprom);
-> +	debugfs_lookup_and_remove("player_id", dbg->wdata->hdev->debug_dir);
->  	kfree(dbg);
->  }
-> diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
-> index 9c12f63f6dd2..8e5002f515e2 100644
-> --- a/drivers/hid/hid-wiimote.h
-> +++ b/drivers/hid/hid-wiimote.h
-> @@ -153,6 +153,7 @@ struct wiimote_data {
->  	struct input_dev *mp;
->  	struct timer_list timer;
->  	struct wiimote_debug *debug;
-> +	u8 player_id;
-> 
->  	union {
->  		struct input_dev *input;
-> -- 
-> 2.55.0
+Hardware
+========
+
+  Logi Bolt Receiver              046d:c548
+  Logitech MX Master 4 (WPID B042), HID++ 4.5, paired to the Bolt receiver
+  HIRES WHEEL {2121} V1, multiplier 15
+
+  Host: HP OmniBook Ultra Laptop 14-fd0xxx,
+        AMD Ryzen AI 9 HX 375 (family 0x1a model 0x24)
+  Distro kernel: 7.3.0-rc3-1-cachyos-rc
+  Solaar 1.1.20
+
+
+Reproduction
+============
+
+  1. Pair an MX Master 4 (or other 0x2121-capable mouse) to a Bolt receiver.
+  2. In Solaar, set "Scroll Wheel Resolution" to off
+     (solaar config 2 hires-smooth-resolution false).
+  3. Suspend and resume (s2idle here, but any reconnect does it -- turning
+     the mouse off and on again is enough).
+  4. The setting is back on.
+
+Solaar shows the divergence between what the user asked for and what the
+device is actually in:
+
+     18: HIRES WHEEL            {2121} V1
+         Multiplier: 15
+         Has invert: Normal wheel motion
+         Has ratchet switch: Normal wheel mode
+         High resolution mode
+         HID notification
+         Scroll Wheel Direction (saved): False
+         Scroll Wheel Direction        : False
+         Scroll Wheel Resolution (saved): False
+         Scroll Wheel Resolution        : True
+         Scroll Wheel Diversion (saved): False
+         Scroll Wheel Diversion        : False
+
+"(saved)" is what I configured; the live value has been overwritten.
+
+
+Analysis
+========
+
+I have not bisected this, but I believe the cause is clear from inspection.
+
+Before 022eb347ff3a4 ("HID: logitech: add Bolt receiver support for Logitech
+HID++ devices"), USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER was not present in
+logi_dj_receivers[] -- it appeared only in hid-quirks.c and hid-multitouch.c.
+So a Bolt-connected mouse never became a HID_GROUP_LOGITECH_DJ_DEVICE child,
+hid-logitech-hidpp never bound to it, and the kernel never touched HID++
+feature 0x2121. The device was driven by hid-generic and userspace was the
+only writer of the wheel mode, so the setting stuck.
+
+With Bolt support in place the mouse is now a hid-logitech-hidpp device:
+
+  logitech-djreceiver 0003:046D:C548.0007: device of type Bolt (0x10) connected on slot 2
+  input: Logitech Wireless Mouse PID:b042 Mouse as /devices/.../0003:046D:C548.0007/0003:046D:B042.0009/input/input22
+  logitech-hidpp-device 0003:046D:B042.0009: input,hidraw7: USB HID v1.11 Mouse [Logitech Wireless Mouse PID:b042] on usb-0000:c5:00.4-1.3.2.4/input2:2
+  logitech-hidpp-device 0003:046D:B042.0009: HID++ 4.5 device connected.
+
+and every reconnect now runs hidpp_connect_event(), which unconditionally
+does:
+
+	if (hidpp->capabilities & HIDPP_CAPABILITY_HI_RES_SCROLL)
+		hi_res_scroll_enable(hidpp);
+
+and hi_res_scroll_enable() in turn does:
+
+	ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
+	                            /* invert ^     ^ high_resolution */
+
+with high_resolution hard-coded to true. There is no record of a user
+preference and nothing consults the device's current mode, so any userspace
+choice is discarded at connect time.
+
+Note this is not a suspend/resume bug as such -- hidpp_driver has no .resume
+or .reset_resume callback. The reconnect is driven purely by the receiver
+re-announcing the device after USB resume, which queues hidpp_connect_event
+via hidpp_report_is_connect_event().
+
+The same call hard-codes invert = false, so "Scroll Wheel Direction" is reset
+by the same path for anyone who inverts their wheel.
+
+I realise hid-logitech-hidpp has always enabled hi-res scrolling at connect
+for devices it drives, and that Unifying users have lived with this for
+years. What changed in 7.3 is the set of devices this applies to: Bolt
+devices were previously outside the driver's reach and are now inside it, so
+for those users this is a user-visible behavioural regression.
+
+Commit f0866517be934 ("HID: logitech-hidpp: sync wheel multiplier on wheel
+mode changes") in 7.2 already added hidpp20_hires_wheel_raw_event() to notice
+an external SetWheelMode and re-sync the cached multiplier. The driver
+therefore sees userspace changing the mode; it just does not remember the
+choice across a reconnect. Persisting the last observed mode and restoring
+that in hi_res_scroll_enable(), rather than unconditionally forcing hi-res,
+would fix this. I am happy to test any patch.
+
+
+Possibly related
+================
+
+On this same Bolt topology the wheel also scrolls far too far per detent,
+apparently because hid-logitech-dj does not forward the hi-res wheel reports
+to hid-logitech-hidpp, so the multiplier-15 steps reach userspace unscaled.
+There is an out-of-tree DKMS workaround for exactly this WPID:
+
+  https://github.com/Magnetar-OS/logitech-bolt-hidpp-dkms
+
+I am reporting only the mode-reset problem here, but the two look like
+neighbouring consequences of the same commit and may be worth considering
+together.
+
+Thanks,
+Roman

@@ -1,211 +1,199 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 362CE3EC804
-	for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 09:49:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CBB137CD4E;
+	Sun, 20 Sep 2026 10:24:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789897755; cv=none; b=BLs/8Q2HtVlS9GPHNLvHXbzhSXSuyEFBuVlYwG/mPbmZZAQ+FGceYvlmELnANAF152oSweW2s+aXUIO7KvZ6wW+DBgm9y/xdqG05Of3n+VqrS6Ls+rqNoIIBjsNCHa23ry5sd32n4PBAXkn/gi+fTjKSS3pgkCloFsWxXShnkzI=
+	t=1789899885; cv=none; b=fbyG7JJdIamX4g9d/bJJv5QorpeWxg+6ofJ0haxDo/DT6Z8xapmlXyrdGuMhEtYMVjvgXL4nFrmGDMNB7WW6ia8r/UAq5bBBqNpvoeOGdy9ngSorQORVDd4PIf8EXbIXDjBW+SLKxuHI7sXmeuxHwmtH3BSxbxPADejhWAL1X9Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789897755; c=relaxed/simple;
-	bh=XCvgXtVDOQexlet7FH5jCB/Ll+55kV+TEw7kNGuSQ9o=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ozQSsNssvHopXDH3MRccMt6FCpIZ8g9yRWFxkNkHd3ksNTjgzM0A1H95SE3yp2Uo/OAKRVOQ9H+fQaQ7UqFoRDVm2AO4U93ZlQG3WmYKpfA01IkwLQimkiR7/PThzS2SeyTbX4kfhVIqLyazd/boUGQAlAR4UWu97JzLFf91UpY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sWBSrGFI; arc=none smtp.client-ip=74.125.225.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789899885; c=relaxed/simple;
+	bh=KD8kCck2KVwmbX82ZgNtpUcXpp9j6jGE+89yXppaTkU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=L43yfzsuTD9PS2KB+4ARdJNfxOmhVqQAoGqqL3hijeZ/x6hMp5DBU5WxAg+koqSaVK8HCXlDtsgVQpogAjuSiUJ3ykp4v256edepDYqt++A3sRRno8TPfhqMunlde07XvrmycqZCEtu44zPK12BuHrDwodnbb0YSl90SvddBLYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eZBvcBBh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sWBSrGFI"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912e64ccso14882795e9.0
-        for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 02:49:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789897748; x=1790502548; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=NjR0+aR4fqFhCdqun3B7g8hh4Gd9On2hwqPnG7OLZVk=;
-        b=sWBSrGFIP7mHD/5ty11wSZrh4LT8RYMLnfYfRhoAfacoCkkhzHGcrv/4an8lVU5nwd
-         pY3AGJL1SqVftCaMmzQF6X07f5wXJHsDPRLaHj+QodkH5pJSDYFk0brVAtVNxw2YhLPK
-         DWj1As/bcCuGkjkatgKEWi1io2jQtHa03WM2BVZmVJ97SN4qQPTxDeIJK3QDZ5s5XOZl
-         /dgiXWnsFgAopcng6ULOF1pYmVkTVc9v0bWC8BEac1oVFTXHOLbOmQ/4wmlYh6XR/HE3
-         S5Xhqvw1NiiNAYGjNe1RhP0Quv1IIi6Wciq7xNNnSCeNeQFKr1Sdc230SCuoSyMzwF4s
-         PcPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789897748; x=1790502548;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=NjR0+aR4fqFhCdqun3B7g8hh4Gd9On2hwqPnG7OLZVk=;
-        b=ilfZDSl7CGyAyFRe/72oeNLcmXjqk7hz0/9Zw3VsfqyNQD1k8Y4K3a/Ze2hSMh09Pv
-         D5Ec9nRQ3+Gb+94NqpbXpB/pn4ZlwMwS3a9QXUQFVIy9Mv2H2pK0EelRAnGcb3Jyutfa
-         scAmLpmoz27lp/7hkbYNMG157BeH0Micb98fc9Y7QRAQrax8e3jiRNJcp9s+tsg3sn2F
-         E7k7z88ruocWcE3y3Wps5bpPQvrsO3UddtC7XTiLG2P4MRViuQxeK2FLy06bMQr96ehC
-         w/wWRld3LPd8F05lr2DfLjPiYKY/dFuvFKS+fv2+sqXKtUADjVBj2s+OdItwKXk038QV
-         gQUw==
-X-Forwarded-Encrypted: i=1; AKwUvBxNGFB1dym5hRGGz/yGHnMUnOE+8D8+VPurG9eyOy7CyvLG81EgEg/7eF66JUkyyPNihPmAXRON6Gy+OA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lknArXcvRY95itj/nuCbbiJOaTBpOxHMP0ww+NiMRhUQkQ41wz
-	zoauHQPcpzBztuCVEb3P9Ryip4bCc4nGHL5zFXteT2/UEUbY6k9LS3LA
-X-Gm-Gg: AYBFou1ssDs19LWOHzdjCXYdOZLRoLyNLPPFmUW6hSR5kJd4sC9AwUbQrPDnWUEEon7
-	ho1Ij2rw4STGwpH15tOfKW/dB1L8oe8UsKp2sKgxAFRwXd/MfHkm9EhIdw7vh3mPf9GzrirmiGg
-	Z0kP8R/C4vXl+ciC3fI5jvI9yWSC6cmFbKZ7zlKHYgPUuIiNRK1aQJnixLm67krl1Oi72/VYtS/
-	kIZYRqe7IM6jDjW406/Q9yHx3FeoEwabOY0ZCO8U03/MceuJk3Kd9LDbVvfr3XPkfEAjQZSYBz2
-	/RIoGw5dCJYGcJmNXawVfYjnj0QhLZjFhxntb2YjHeyT9M6TamMtP5XK4twhW4Szme5HyE84WAM
-	9PcYgNDbYhBwhxamK+VGDi5T0zeyrWxilpYPj7dsfmCU3dAZkQVg5sSxfZxoSdDtzW2Y93tlyvi
-	H87NkMTRDelcKjbvl0Lmy3LeiJeNMKhHQUVyrawMFXmnfaVU7JqAIc9nnAFDtpiXdIQNDkZFM7J
-	k42LhqfLPhDM7bSaa/ersLPSaBpLdUTVZqyqJE=
-X-Received: by 2002:a05:600c:1391:b0:49d:272d:74b4 with SMTP id 5b1f17b1804b1-49fc566e5ebmr100511745e9.2.1789897748192;
-        Sun, 20 Sep 2026 02:49:08 -0700 (PDT)
-Received: from cachyos-x8664 (213-225-2-90.nat.highway.a1.net. [213.225.2.90])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48724564565sm13133797f8f.19.2026.09.20.02.49.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Sep 2026 02:49:07 -0700 (PDT)
-From: Roman Stingler <roman.stingler@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Roman Stingler <roman.stingler@gmail.com>,
-	Erik Hakansson <erikhakan@gmail.com>,
-	Filipe Lains <lains@riseup.net>,
-	Bastien Nocera <hadess@hadess.net>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	regressions@lists.linux.dev
-Subject: [REGRESSION 7.3-rc1] HID: logitech-hidpp: hi-res scroll mode forcibly re-enabled on every reconnect for Bolt devices, overriding userspace
-Date: Sun, 20 Sep 2026 11:44:39 +0200
-Message-ID: <20260920094508.39682-1-roman.stingler@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eZBvcBBh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2E71F000FF;
+	Sun, 20 Sep 2026 10:24:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789899882;
+	bh=YQAfyPlHejQhQ/Sl0VwgTEeaqEWDAQBpHRJQwouPuYo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=eZBvcBBhnrfGbKbnq1LhWImF6s3EIL5KxpnI2rLYve7EEJTShYuI12mTIyAXSfp7u
+	 vOA8jmz2uXCIEOvEGZG++3NKGL/XzexJetyQTx18ks/OZx4dkAS/Uz5/kPXCYHlg9s
+	 2ncnUNe4adc1+fYJINjVEme/EsABAZdXplab076aYJktg9pNIeGsl3qGJ2ETiFN/hG
+	 Fmie3MKBsJDmlleiW0+tD/eHT/8yEVLIrmMcbrmsH0Oyy/6kCsPbmcccC3yjwtXt01
+	 UecZTYEM09zNKRwrnuwJiUMbShht91wIosyTR0BSu8sMuCpTk/U6tDRRggr7/IJ/Lx
+	 SdU1iBoRewcoA==
+Message-ID: <dfd82438-1c40-42b7-8a90-bd349a476489@kernel.org>
+Date: Sun, 20 Sep 2026 12:24:32 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] dt-bindings: input: gpio-keys: add pinctrl states
+To: Markus Schneider-Pargmann <msp@baylibre.com>,
+ Kendall Willis <k-willis@ti.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, s-kochidanadu@ti.com, a-kaur@ti.com,
+ s-tripathi1@ti.com, vishalm@ti.com, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+References: <20260912-upstream-gpio-wakeup-v1-0-f0e12484b836@ti.com>
+ <20260912-upstream-gpio-wakeup-v1-1-f0e12484b836@ti.com>
+ <20260914-unbreakable-competent-beluga-efb5ad@quoll>
+ <20260915164819.nlgpuvf37rhzgc66@uda0506412>
+ <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
+ <da881fb0-93da-4d75-88da-8898b2c734eb@kernel.org>
+ <20260915174103.ad6tjy6w6s24h2yc@uda0506412>
+ <20260916-dancing-loud-guan-fbb1eb@quoll>
+ <DLGUOGCLFAI9.2JSS4DCFRYTNI@baylibre.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <DLGUOGCLFAI9.2JSS4DCFRYTNI@baylibre.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On 16/09/2026 17:36, Markus Schneider-Pargmann wrote:
+> On Wed Sep 16, 2026 at 9:17 AM CEST, Krzysztof Kozlowski wrote:
+>> On Tue, Sep 15, 2026 at 12:41:03PM -0500, Kendall Willis wrote:
+>>> On 19:07-20260915, Krzysztof Kozlowski wrote:
+>>>> On 15/09/2026 19:05, Krzysztof Kozlowski wrote:
+>>>>> On 15/09/2026 18:48, Kendall Willis wrote:
+>>>>>> On 12:13-20260914, Krzysztof Kozlowski wrote:
+>>>>>>> On Sat, Sep 12, 2026 at 04:33:53PM -0500, Kendall Willis wrote:
+>>>>>>>> Document pinctrl properties on the gpio-keys device node. By using the
+>>>>>>>> wakeup pinctrl state, the pins are able to wakeup the system from a
+>>>>>>>> low-power state. The default pinctrl state describes the default pin
+>>>>>>>> configuration.
+>>>>>>>>
+>>>>>>>> Signed-off-by: Kendall Willis <k-willis@ti.com>
+>>>>>>>> ---
+>>>>>>>>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 16 ++++++++++++++++
+>>>>>>>>  1 file changed, 16 insertions(+)
+>>>>>>>>
+>>>>>>>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>>>>>>>> index cc78c2152921308fe0cad3e29ca78a5fad08f066..b554933e93412d8b6c2ec401dc1e1eeff57d4190 100644
+>>>>>>>> --- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>>>>>>>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+>>>>>>>> @@ -22,6 +22,22 @@ properties:
+>>>>>>>>  
+>>>>>>>>    poll-interval: true
+>>>>>>>>  
+>>>>>>>> +  pinctrl-0:
+>>>>>>>> +    description: Default pinctrl state
+>>>>>>>> +
+>>>>>>>> +  pinctrl-1:
+>>>>>>>> +    description: Wakeup pinctrl state
+>>>>>>>> +
+>>>>>>>> +  pinctrl-names:
+>>>>>>>> +    description:
+>>>>>>>> +      When present should contain at least "default" describing the default pin
+>>>>>>>> +      states. The second state called "wakeup" describes the pins in their
+>>>>>>>> +      wakeup configuration required to exit sleep states.
+>>>>>>>> +    minItems: 1
+>>>>>>>> +    items:
+>>>>>>>> +      - const: default
+>>>>>>>> +      - const: wakeup
+>>>>>>>
+>>>>>>> This will introduce new warnings, which should be being fixed in this
+>>>>>>> patchset (e.g. at91-kizbox3-hs.dts).
+>>>>>>>
+>>>>>>
+>>>>>> Will fix the binding to work with current device trees.
+>>>>>>
+>>>>>>> But nevertheless, isn't second state the sleep state? How can you
+>>>>>>> configure pins for the wakeup state - like being in the wakeup? You
+>>>>>>> configure the pins for given state, which will be a system suspend, so
+>>>>>>> sleep?
+>>>>>>>
+>>>>>>
+>>>>>> The sleep state usually refers to putting the pins in a state to save
+>>>>>> power. The wakeup pinctrl state is for putting the pins in a state to
+>>>>>> allow wakeup from suspend for that device. Both 'sleep' and 'wakeup'
+>>>>>> are for system suspend, but they fill different functions. The CAN
+>>>>>> subsystem also uses the 'wakeup' state in addition to the 'sleep' state
+>>>>>> [1].
+>>>>>
+>>>>> So you mean sleep would be a separate state? But then aren't both
+>>>>> exactly the same states? IOW, if device is wakeup-source, it will have
+>>>>> for "sleep" state pin configuration allowing to wakeup.
+>>>
+>>> The 'sleep' and 'wakeup' pin states are both used for suspend. They
+>>> would just be used separately since only one could be used at a time.
+>>> The reason 'wakeup' is separated out is because it is more specific for
+>>> allowing wakeup from the device.
+>>
+>> If they cannot be used together, then it is the same state.
+> 
+> If I understand this patch correctly, 'sleep' is not relevant here.
+> But 'sleep' and 'wakeup' serve different purposes and can be
+> used/defined together in a single device in the devicetree:
+>  - 'sleep' describes the pin state during suspend if wakeup is not
+>    enabled by the user or there is no 'wakeup' pin state defined.
+>  - 'wakeup' describes the pin state during suspend if wakeup is enabled
+>    by the user.
+> If the user enables wakeup, 'wakeup' is the relevant state and otherwise
+> 'sleep'. Which one applieas is a runtime decision of the the user.
+> 
+> I introduced these two states for m_can for that reason. This was
+> discussed here:
+>   https://lore.kernel.org/r/DCD1YPX4T779.ADK4JCGW1MU7@baylibre.com
+> 
+> And then reviewed/applied in v10:
+>   https://lore.kernel.org/r/175993598226.3512549.5295923279078928995.robh@kernel.org
 
-Since Bolt receiver support was added in 7.3-rc1, the user-selected
-"Scroll Wheel Resolution" (HID++ feature 0x2121 HiRes Wheel) setting on my
-MX Master 4 is reset by the kernel every time the device reconnects, most
-visibly across every suspend/resume cycle. I disable hi-res scrolling in
-Solaar, suspend the laptop, and on resume the mouse is back in hi-res mode
-and I have to toggle it manually again.
+So we seems to be discussing same issue again, because commit msg lacks
+proper explanations.
 
-This worked correctly on 7.2 and is broken on 7.3-rc1 through 7.3-rc3.
+The problem and difference here is that there is no sleep state.
 
-#regzbot introduced: 022eb347ff3a48281e7e69c3addcb11bf24afa53
-
-
-Hardware
-========
-
-  Logi Bolt Receiver              046d:c548
-  Logitech MX Master 4 (WPID B042), HID++ 4.5, paired to the Bolt receiver
-  HIRES WHEEL {2121} V1, multiplier 15
-
-  Host: HP OmniBook Ultra Laptop 14-fd0xxx,
-        AMD Ryzen AI 9 HX 375 (family 0x1a model 0x24)
-  Distro kernel: 7.3.0-rc3-1-cachyos-rc
-  Solaar 1.1.20
-
-
-Reproduction
-============
-
-  1. Pair an MX Master 4 (or other 0x2121-capable mouse) to a Bolt receiver.
-  2. In Solaar, set "Scroll Wheel Resolution" to off
-     (solaar config 2 hires-smooth-resolution false).
-  3. Suspend and resume (s2idle here, but any reconnect does it -- turning
-     the mouse off and on again is enough).
-  4. The setting is back on.
-
-Solaar shows the divergence between what the user asked for and what the
-device is actually in:
-
-     18: HIRES WHEEL            {2121} V1
-         Multiplier: 15
-         Has invert: Normal wheel motion
-         Has ratchet switch: Normal wheel mode
-         High resolution mode
-         HID notification
-         Scroll Wheel Direction (saved): False
-         Scroll Wheel Direction        : False
-         Scroll Wheel Resolution (saved): False
-         Scroll Wheel Resolution        : True
-         Scroll Wheel Diversion (saved): False
-         Scroll Wheel Diversion        : False
-
-"(saved)" is what I configured; the live value has been overwritten.
-
-
-Analysis
-========
-
-I have not bisected this, but I believe the cause is clear from inspection.
-
-Before 022eb347ff3a4 ("HID: logitech: add Bolt receiver support for Logitech
-HID++ devices"), USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER was not present in
-logi_dj_receivers[] -- it appeared only in hid-quirks.c and hid-multitouch.c.
-So a Bolt-connected mouse never became a HID_GROUP_LOGITECH_DJ_DEVICE child,
-hid-logitech-hidpp never bound to it, and the kernel never touched HID++
-feature 0x2121. The device was driven by hid-generic and userspace was the
-only writer of the wheel mode, so the setting stuck.
-
-With Bolt support in place the mouse is now a hid-logitech-hidpp device:
-
-  logitech-djreceiver 0003:046D:C548.0007: device of type Bolt (0x10) connected on slot 2
-  input: Logitech Wireless Mouse PID:b042 Mouse as /devices/.../0003:046D:C548.0007/0003:046D:B042.0009/input/input22
-  logitech-hidpp-device 0003:046D:B042.0009: input,hidraw7: USB HID v1.11 Mouse [Logitech Wireless Mouse PID:b042] on usb-0000:c5:00.4-1.3.2.4/input2:2
-  logitech-hidpp-device 0003:046D:B042.0009: HID++ 4.5 device connected.
-
-and every reconnect now runs hidpp_connect_event(), which unconditionally
-does:
-
-	if (hidpp->capabilities & HIDPP_CAPABILITY_HI_RES_SCROLL)
-		hi_res_scroll_enable(hidpp);
-
-and hi_res_scroll_enable() in turn does:
-
-	ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
-	                            /* invert ^     ^ high_resolution */
-
-with high_resolution hard-coded to true. There is no record of a user
-preference and nothing consults the device's current mode, so any userspace
-choice is discarded at connect time.
-
-Note this is not a suspend/resume bug as such -- hidpp_driver has no .resume
-or .reset_resume callback. The reconnect is driven purely by the receiver
-re-announcing the device after USB resume, which queues hidpp_connect_event
-via hidpp_report_is_connect_event().
-
-The same call hard-codes invert = false, so "Scroll Wheel Direction" is reset
-by the same path for anyone who inverts their wheel.
-
-I realise hid-logitech-hidpp has always enabled hi-res scrolling at connect
-for devices it drives, and that Unifying users have lived with this for
-years. What changed in 7.3 is the set of devices this applies to: Bolt
-devices were previously outside the driver's reach and are now inside it, so
-for those users this is a user-visible behavioural regression.
-
-Commit f0866517be934 ("HID: logitech-hidpp: sync wheel multiplier on wheel
-mode changes") in 7.2 already added hidpp20_hires_wheel_raw_event() to notice
-an external SetWheelMode and re-sync the cached multiplier. The driver
-therefore sees userspace changing the mode; it just does not remember the
-choice across a reconnect. Persisting the last observed mode and restoring
-that in hi_res_scroll_enable(), rather than unconditionally forcing hi-res,
-would fix this. I am happy to test any patch.
-
-
-Possibly related
-================
-
-On this same Bolt topology the wheel also scrolls far too far per detent,
-apparently because hid-logitech-dj does not forward the hi-res wheel reports
-to hid-logitech-hidpp, so the multiplier-15 steps reach userspace unscaled.
-There is an out-of-tree DKMS workaround for exactly this WPID:
-
-  https://github.com/Magnetar-OS/logitech-bolt-hidpp-dkms
-
-I am reporting only the mode-reset problem here, but the two look like
-neighbouring consequences of the same commit and may be worth considering
-together.
-
-Thanks,
-Roman
+Best regards,
+Krzysztof

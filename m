@@ -1,117 +1,221 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-pj2-f36.google.com (mail-pj2-f36.google.com [74.125.227.164])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF9F13CB8E6
-	for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 04:02:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09CE936215E
+	for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 04:43:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.164
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789876931; cv=none; b=IaHSanhtSuv00tQS273AjhQlwL8VOjcANfdAu7wk6HArJHF9DE7/CuRtWELqIdbhPiVf6UG2FfHOp9s3QCdIcxH5LbcrlmxhU07xbXBLP7XqapiMvbKcT5up09NcWb5W5doOP5M/tYGHJ82n9iTq3jWvTOX31VXEXJ6/aUjG7jg=
+	t=1789879394; cv=none; b=W+VNP8PFGo4HPZEYZxX+Q0N/vDAfqvybzkFtA1v4SZbkoK88Umjzvy8fJq6XduZKqGJb+99R1bXfknkGxgbv+TZmGRfZuo5/sCa2+qTRxHBM6gcrfo0L4qMLqrRcAa6CY2EbcH4Z0VmyG1a/6naa6J1wV6n5QpOm0OflnNg4cJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789876931; c=relaxed/simple;
-	bh=ja62orH3qdNuVp1tYwk+qTD0ossolEOh5lI5xEbsuoY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TInpxqND+IR0mpxSi64QaNZvzWc+EqCyECjFIrPvnVoEY3Ql7PErZGssO97iwmeBRaUjo7aWOhhkWmvvHGaSFJhCf/uPo36Ui0YYb1q+9Zt1bZuxXAKNzoA7jTqJ24PENUlO616Ao8igWM2L4BdDFPguQhtnLUbABMvieRnJkG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Zrk+SCGg; arc=none smtp.client-ip=74.125.227.140
+	s=arc-20240116; t=1789879394; c=relaxed/simple;
+	bh=OKybeNTHbCjX+lijFcusRULBKEtqJkRC/OitUXYDXP4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=W1Ygd+ePAYi2DHGP3c4O1MNQEhcN5wf6ZV3Z4S83ElfTnXqJmZqq+/Phv/gMcrcgAsXikqCorQtjhualQobqtriTOiM8SFYoRY3lDRUuyd6DPBAX20kiM82MERkEMia+X99l9RhUlddJ1N6pHbBa08Q1SwTzt6PDzv77/okHARA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UOwp1URq; arc=none smtp.client-ip=74.125.227.164
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zrk+SCGg"
-Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-398cb5615deso2310482a91.3
-        for <linux-input@vger.kernel.org>; Sat, 19 Sep 2026 21:02:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UOwp1URq"
+Received: by mail-pj2-f36.google.com with SMTP id d9443c01a7336-2d8fdc579daso22584895ad.1
+        for <linux-input@vger.kernel.org>; Sat, 19 Sep 2026 21:43:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789876929; x=1790481729; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1789879392; x=1790484192; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-disposition:content-type
+         :mime-version:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=+5QJaKEYYa0kSl1fGgyUvaM13oMrnXDQtarpxehh6V0=;
-        b=Zrk+SCGgCGFgcMzbjqY6qnVzwygZRCi10K/rH+xgqiRWb5lxmvdsL8ku5dZkkd8zsx
-         DQcMUoS2pXmhToQeWXrzlnBnnlS1i/d2bb53cZEZ4iQoaXTl75YdE/7sSq/XN2VMxh46
-         9S+Yz7g4SNeXbMbZ5MpEb0fSZH9v6Ebi+R4NHCCcawbFFKgxXr7FEy+Fu8RqfcZ5BuM/
-         X3bxRv5NsfpslIwrcGpOUXpolXSz38CyShy2lI7+hVVFCPfxbhybh6ALM0+0iM2pGYKG
-         Q7DYS42bFDWnUtcoQapJd/b5lbWigtWB2jpJXpy4FWaoOlRKZ7yS8aYUMNFQEW/qCKQh
-         PWzA==
+        bh=SiwL5PjakOjLHsEDEMqA9qmAfeJeklyHfxE5nzDgN9c=;
+        b=UOwp1URqw6UIOKySrfsVFpCdrZjyRj+FMay5bzL1qi6omDmz//ldpw7FfkFVBdDFD5
+         yioVg40liVoHR4NHZWsKJ96KXIyLMdNS74jIXydbHGu7ZnsfAGENDT5cK8c5lFgc62Tk
+         7rzV9xqy6zKVuA5jaiO6OaJT7oNDymBiL/To7FMfXakYwBudiwSK79QOszeSyvlGIp96
+         2F8Xo3HVj9FsXeuP3oQaOARxk8PhhvwHgeVSRFwN4+PptfJ+nMbj0JuCeP8f4ZsglxC8
+         /+O3NfGVCHd2zYaSoLMhcpP3cYjlReXuUi8XRR4DRxe1LQAu22KL5jkUuBFsYceYXL2b
+         tasA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789876929; x=1790481729;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1789879392; x=1790484192;
+        h=content-transfer-encoding:content-disposition:content-type
+         :mime-version:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+5QJaKEYYa0kSl1fGgyUvaM13oMrnXDQtarpxehh6V0=;
-        b=nRCVdYRPQ5AiwkewtJhJY3i86+SG5fwzZCqXGEpSQ8l6peSm5+L/9j+sDdc+AzKWIr
-         JORrBuPuW2/xGUcfv3T1h+4CrARTMc0A7T+eY3ti8GaQCkE19GChmcH0LTzCd+ey/rr2
-         8k58LaFZ91nvDJl/HowQLhUW11eSHTJpml7Ppw+70kbt3XV4beCj3+wRSlUSqUFW/JQi
-         qbWuivpBiN6LDloMQsouhDqHtJs9c3z/ryccOyqd2zBRqU3nbczTp+xP3oY4UAv2I0nw
-         6AzyWVmOWH7KyJvGXqwKyxYS+JUo8J8h4GGpVUwVuafkMiMnRC/i6qvrQFx3nCGWXvEr
-         x6vA==
-X-Forwarded-Encrypted: i=1; AKwUvBw1N8rmIsnAIrXsLVIomQSqPHl+DYNbYE3kg1APxfKfw1LFyto0DBuuidp3Mqi2vkqqDu3pB1pTbDwQpw==@vger.kernel.org
-X-Gm-Message-State: AFuF++lB0EnXxoU4zh0w74nmam9TslawI3XmBMDM7dEZUgApVYW3DOUq
-	hwifmUNluQ/WWl/qLViCJU8hwZlYTtiV3McDWBgyCMwLOFWglLqqTVdk
-X-Gm-Gg: AYBFou2W0VvIzyNRlFF5H6Qz8pQVMzOCF3g/Bre3Y9X8ii9fLvaWegNu7NoaBT6GUYZ
-	iMrqfKEVH6TYrq7td/WBuZHMy2W2B2nGieNfhW19KbGEYLigsCN3jAMzM4jdcjVyuykfzl6SehK
-	Ju/WG0VLi8ZKTy/Tm/miN47/cz+a5N6ofQ6qoC1a0eU/OtCeGy2SyfDMjMTnezYXswj1Bw3gBZ6
-	4EQWwmdGH95bRb/K8/JKvMr4K5hYqsg7E0DaeOS7MT+3h22sTtMg9yp6tEcIKnOucKrNk98dO5g
-	kREnMJwM5kvp0bO3955248hBgddRFsoVARF40rZtv/orkimjlyTPUcYVtaWXEweVQkIjVSmtLJA
-	/uUe1ho6+p6wHppcEwD1cXbRT8hQgaP/hEKPB0rNL00mh3Oyz243c8+FgqecAGjCGhoOiA3DJj9
-	/2JR+mPdy+3lz5UUT/v/Gb+0LMbXVGSsYop8Ngw0F0b2gMCA8f5oAjKpIDwApNK7DIsvOxTL6PN
-	FeYIZK6Ubj/ilzdTPPKBMCNZ8nZnYMBuRVj491/
-X-Received: by 2002:a17:90b:2882:b0:39e:4c81:6c95 with SMTP id 98e67ed59e1d1-39e54f3d98fmr11714645a91.27.1789876929055;
-        Sat, 19 Sep 2026 21:02:09 -0700 (PDT)
+        bh=SiwL5PjakOjLHsEDEMqA9qmAfeJeklyHfxE5nzDgN9c=;
+        b=G6dSo0JORozto4r/rWlg6+lWdSgDT3HXsKkcEkdj4oczzBjXirlT4y6ff9cr0K3v31
+         VZ2KfXA/IfdkfZFDI+CTXa/ocSHSjW393I82MAtPhZDuQl+AIdYuyu1RV3lxECsgWMsQ
+         IuXVVPAwAMw5v8sTgtUcfnBGCcSqMVp4rtZAFqrcJM4VlcygWWN41PIwRjPLVSdRRXjq
+         eFlOCM2Th63edVHNiGP7oO/SriCxMuXWJB19bzevDKmFZmNvgrGTVphMTZKqM7ae9a1p
+         oD2xgFqR7BTydA10ik1wAZePkX+QKW+vt1hLi26ivzKY23JBKxtnb1yvxTF2OpN9YaSH
+         ix/w==
+X-Forwarded-Encrypted: i=1; AKwUvBzDA/P5jqqab9YU5ngpp0i4X78pjrcOVT84cb30EJ/Epg0+qOLhaU8PmIKnXzvcuw1abPqi4S8oJ0LOIA==@vger.kernel.org
+X-Gm-Message-State: AFuF++ll6gafjTtWkar9sZ6hEZFB83HoSZdCC7PzY4V+eot3niSvtvRT
+	SZlKdMtRbpMFHMKS5AgU0Cyz8xleQlnZU3iPJQWIDxS0jnMt2L0VwJry
+X-Gm-Gg: AYBFou2oLntNUMLjMjEeL+WOla7ih9h8yXvlwC1g9vFpTSbBVNiiccjcSjQs4uBpk5J
+	PsLcYGgAA2TmZS4QV5V9ClWjzliHCg9aIVsIjLrLirBLvFbm4kTgYdHTIZ8Fpb5C5XevpFIWYZj
+	2tREs8F9Ff931Ap01k1mbDkzxNKlV6CRjzWInf8O7tQ/4dRAiHabpozf5YI+lgqMp6bRoF4Cjnl
+	NeD8YqKP/svmHVQ7BCVpWZ/rlIu1lP9cX7wQ2RI1/uP2Us1KWvtlUhbN6LO6xmK4W8Gahn856aV
+	OYgHIvC3m5VLLshE77t3RiX7taUNJliSlnIOTSr0bAjAvzvQ8MHUrSmQcgxYUpcfTJxx6QnqvfF
+	enn02eoSmmq5p5xOZiF3w5cdthosyxjAoVyyDU/8GyLXfu4TR1hnPSLGEiBvdIxb4Uu/Amc2G4g
+	FDSyYYYIfZhkqixK7ZA2i1fwkMyTkvurlws5gPU5Gb9yMCPW0IKqtPj5Bg9Gmi+ipDJLMZl7r1B
+	yRPNEc8cnC0gDOg7WFB+QTi2j/OAHxG84qwzPYD
+X-Received: by 2002:a17:902:ebcb:b0:2dd:c054:1981 with SMTP id d9443c01a7336-2ddc0541cd8mr60732265ad.38.1789879392213;
+        Sat, 19 Sep 2026 21:43:12 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:7836:19f2:c781:88b2])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33c3318c49dsm9418565eec.22.2026.09.19.21.02.07
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33c33142a37sm10350789eec.15.2026.09.19.21.43.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Sep 2026 21:02:08 -0700 (PDT)
-Date: Sat, 19 Sep 2026 21:02:04 -0700
+        Sat, 19 Sep 2026 21:43:11 -0700 (PDT)
+Date: Sat, 19 Sep 2026 21:43:08 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Muhammad Bilal <meatuni001@gmail.com>
-Cc: jayakumar.lkml@gmail.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: wacom_w8001 - validate index before storing data
- byte
-Message-ID: <aq9aQzLGtt0MNWjJ@google.com>
-References: <20260919192152.271808-2-meatuni001@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [git pull] Input updates for v7.3-rc3
+Message-ID: <aq9kRuJbKqBe6-_z@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260919192152.271808-2-meatuni001@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Muhammad,
+Hi Linus,
 
-On Sun, Sep 20, 2026 at 12:21:53AM +0500, Muhammad Bilal wrote:
-> w8001_interrupt() stores every incoming byte at w8001->data[w8001->idx]
-> before the following switch on w8001->idx++ has a chance to detect an
-> invalid packet and reset idx. The switch only resets idx for the
-> specific packet lengths it recognizes; once idx has advanced past all
-> of those (W8001_PKTLEN_TOUCH2FG - 1 at most), any further byte falls
-> into default, where idx is only reset for pen-only devices without a
-> touch_dev (the ThinkPad X60 workaround). A touch-capable device fed a
-> malformed or overlong packet therefore has nothing to stop idx from
-> growing without bound, and w8001->data[w8001->idx] = data runs past
-> the end of the W8001_MAX_LENGTH-sized array.
+Please pull from:
 
-This analysis does not match the code.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc3
 
-w8001->idx starts at 0 and is incremented by 1 on each invocation via
-switch (w8001->idx++). To advance past W8001_PKTLEN_TOUCH2FG - 1 (12),
-w8001->idx would first have to pass through 12, which matches:
+to receive updates for the input subsystem. You will get:
 
-	/* 2 finger touch packet */
-	case W8001_PKTLEN_TOUCH2FG - 1:
-		w8001->idx = 0;
-		parse_multi_touch(w8001);
-		break;
+- Fixes for evdev and input compat handling to zero-initialize on-stack
+  absinfo and force-feedback effect structures before partial or compat
+  copies from userspace, preventing kernel stack memory disclosure
 
-Unlike the shorter packet length cases, this case has no conditional
-break and unconditionally resets w8001->idx to 0. Since W8001_MAX_LENGTH
-is 13 (matching W8001_PKTLEN_TOUCH2FG), w8001->idx is always in the
-[0, 12] range when entering w8001_interrupt().
+- Fixes for the Synaptics RMI4 driver to prevent an out-of-bounds read
+  when writing multi-chunk blocks over SMBus and to avoid a NULL pointer
+  dereference during suspend/resume when the RMI device is unbound
 
-As a result, w8001->idx >= W8001_MAX_LENGTH is unreachable and the array
-store cannot go out of bounds.
+- Fixes for the soc_button_array driver to propagate -EPROBE_DEFER on
+  non-Bay Trail/Cherry Trail platforms (fixing broken power and volume
+  buttons on the Microsoft Surface Pro 11) and to validate the ACPI
+  package element count before dereferencing
+
+- A fix for the adp5588-keys driver to cache the initial GPIO hardware
+  state before registering the gpiochip so pre-configured pin states are
+  not clobbered by GPIO hogs during registration
+
+- A fix for the cyttsp5 touchscreen driver to clamp the device-supplied
+  HID report size before copying into the response buffer, preventing a
+  buffer overflow
+
+- A fix for the HP SDC serio driver to use timer_shutdown_sync() on
+  module exit so the periodic kicker timer cannot rearm itself during
+  teardown
+
+- A fix for the eeti_ts touchscreen driver to export its OF module alias
+  so the module autoloads on Device Tree platforms
+
+- Updates to the xpad joystick driver adding support for the Victrix Pro
+  BFG controller and Azeron devices, and fixing the device type
+  classification for the PDP Marvel Xbox 360 controller
+
+- Quirks for the i8042 and atkbd drivers to keep the built-in keyboards
+  functional on the Acer Aspire Go 15 AG15-42P and Xiaomi Redmi Book Pro
+  16 2026
+
+- A quirk for the Synaptics PS/2 touchpad driver disabling SMBus
+  InterTouch on the Lenovo ThinkPad T440p (board ID 2722) so the
+  touchpad and TrackPoint respond immediately at boot
+
+- Other minor updates and documentation fixes, including reading the
+  "ti,poll-period" property as u32 in tsc2007, adding the mt6572
+  compatible to the MediaTek keypad Device Tree binding, fixing an
+  attribute name typo in the trackpoint sysfs ABI documentation, and
+  documenting that no new LED codes should be added to the input
+  subsystem.
+
+Note that there will be a trivial merge conflict in
+drivers/input/misc/soc_button_array.c between mainline commit
+bde4905c102f ("Input: soc_button_array - select CONFIG_GPIOLIB_LEGACY"),
+which removed #include <linux/gpio.h>, and commit ed22ad5fdbdb ("Input:
+soc_button_array - fix MS Surface Pro 11 probe failure"), which added
+#include <linux/platform_data/x86/soc.h> on the following line. The
+proper resolution is to drop <linux/gpio.h> and keep
+<linux/platform_data/x86/soc.h>.
+
+Changelog:
+---------
+
+Alexei Turtanov (1):
+      Input: atkbd - skip deactivate for Xiaomi Redmi Book Pro 16 2026
+
+Alvin Šipraga (1):
+      Input: adp5588-keys - cache GPIO state before registering the gpiochip
+
+Chris Sommers (1):
+      Input: i8042 - add quirk for Acer Aspire Go 15 AG15-42P
+
+Dmitry Torokhov (3):
+      Input: rmi_smbus - fix out-of-bounds read in rmi_smb_write_block()
+      Input: synaptics-rmi4 - fix GPF in suspend and resume when unbound
+      Input: document that no new LED codes should be added
+
+Erich Sartison (1):
+      Input: xpad - add support for Victrix Pro BFG Controller
+
+Hans de Goede (2):
+      Input: soc_button_array - fix MS Surface Pro 11 probe failure
+      Input: soc_button_array - check btns_desc->package.count
+
+Iván Ezequiel Rodriguez (2):
+      Input: evdev - zero absinfo before partial copy in EVIOCSABS
+      Input: zero ff_effect before compat copy in input_ff_effect_from_user
+
+Jeremy Nyberg (1):
+      Input: xpad - fix PDP Marvel Xbox 360 controller
+
+Karl Mehltretter (1):
+      Input: trackpoint - fix the inertia attribute name in the ABI document
+
+Linkai Gong (1):
+      Input: cyttsp5 - clamp the HID report size before memcpy
+
+Raphaël Larocque (1):
+      Input: synaptics - disable InterTouch on ThinkPad T440p (board id 2722)
+
+Rob Herring (Arm) (1):
+      Input: tsc2007 - read "ti,poll-period" as u32
+
+Roberts Kursitis (1):
+      Input: xpad - add support for Azeron devices
+
+Roman Vivchar (1):
+      dt-bindings: input: mediatek,mt6779-keypad: add mt6572
+
+Runyu Xiao (1):
+      Input: hp_sdc - shut down kicker timer on module exit
+
+hpp.iscas (1):
+      Input: eeti_ts - publish the OF module alias
+
+Diffstat:
+--------
+
+ .../ABI/testing/sysfs-devices-platform-trackpoint        |  2 +-
+ .../bindings/input/mediatek,mt6779-keypad.yaml           |  1 +
+ drivers/input/evdev.c                                    |  2 ++
+ drivers/input/input-compat.c                             |  2 ++
+ drivers/input/joystick/xpad.c                            | 10 +++++++++-
+ drivers/input/keyboard/adp5588-keys.c                    | 12 ++++++------
+ drivers/input/keyboard/atkbd.c                           |  8 ++++++++
+ drivers/input/misc/soc_button_array.c                    | 16 ++++++++++++----
+ drivers/input/mouse/synaptics.c                          |  8 ++++++++
+ drivers/input/rmi4/rmi_driver.c                          | 13 +++++++++++++
+ drivers/input/rmi4/rmi_smbus.c                           | 10 +++++-----
+ drivers/input/serio/hp_sdc.c                             |  2 +-
+ drivers/input/serio/i8042-acpipnpio.h                    |  7 +++++++
+ drivers/input/touchscreen/cyttsp5.c                      |  1 +
+ drivers/input/touchscreen/eeti_ts.c                      |  1 +
+ drivers/input/touchscreen/tsc2007_core.c                 |  5 ++---
+ include/uapi/linux/input-event-codes.h                   |  6 ++++++
+ 17 files changed, 85 insertions(+), 21 deletions(-)
 
 Thanks.
 

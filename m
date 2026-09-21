@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 930394A4995;
-	Mon, 21 Sep 2026 18:26:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D80802BE053;
+	Mon, 21 Sep 2026 18:29:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790015195; cv=none; b=NGuT3rtFy0MWK7oq3D+YZjYbiX6FhjRwlzv0bJLrN2zy5G9SgLBxCpuOQDj8kqtVCP3leeAkhSIa/d9BL3+/6KZ5ttw91w7SyWepNjDDMb6oGL6RXTKo9rLnZlB8SWPVMhdNBHfEHxmXu1rO6ciO1yD4iVe1XNRt+gpIvhuXn5U=
+	t=1790015363; cv=none; b=U0slOhAoChH8e0D5ghwM+/TVYlJIdvJq+S2j2Kjx0MD2FcKfUaHFZL0lKubWe/+BRUhV+TjrUAOql/EdZgnqxx1i0uOS4MW74anG9w++MGE53/LU0NyhAXmAMouv4cazcKWjL0ZwSwYOM9jK6xoand9zzMPfne9l7MdnGIK+X0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790015195; c=relaxed/simple;
-	bh=usojy4x29VIsOghbWYENp1xqWc8lSwM4LSs/RoUUL7g=;
+	s=arc-20240116; t=1790015363; c=relaxed/simple;
+	bh=NRyQEYaWH941wL+8aByrcxqHER+ik4WBavW1SfWp7JM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=iQgaS78pxaaRKCWP4trBKXYG3Cxa2udwE01Fl3siIj9HmREBhxirpTPrngnDJ37HMlZibryRMis4a1gubo1gUcJDUErweS+b4FKpfk/x2J0XmZy0OVXGdmpKYP9quccvvw9sbjHePhE97a/myZvtHsD8PonFc/+pWjnRfJ0Poxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gOdnZbI2; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MsI6VWazUIR65PDei0GwACh57tkjptdZ7TtU4zpIcajSRoInaMyBQ9QG7KJYmtWYtB0O0/nzbqfPkpbZJxiVkznbaQ/GRj6sYdPreKJGhyuw38FMubHyG33WwZqr5jGwv+m1+nr4pRfGc6UptIu3RkvMhWKK2voR+/UIcmHgDms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XGB9J7l3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gOdnZbI2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 982FA1F000FF;
-	Mon, 21 Sep 2026 18:26:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XGB9J7l3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3A7C1F000FF;
+	Mon, 21 Sep 2026 18:29:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790015194;
-	bh=W0aH694xxaoojSNRYyLlLh44l7vy/hpaF+r9VEUSMgs=;
+	s=k20260515; t=1790015361;
+	bh=H62gcGWcKbrWTMkCd01zYMB7sv2iKehtP20WLbKlyIs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gOdnZbI2dOxrwDHL+p++DOOeat1WGShjE280jRHpCna79izreHHhkFfbd6Yu0ZUwA
-	 3DLFoG8Ls+PthHGygAO09tGQx11rHskmffxGXNeZECfj9KSheghbFiGVXeHwNkSxBU
-	 t/4uEtItd7ETB+h9H28iOVPy/QpHWOUzCKR3nmX3lvQvA9eerFdalY/luJJc4Ghvrc
-	 DTuL34TaoUhthWPYIgDtczKEJcrVHV1crNqaaW4qZJkKlaZ+65THYHSVBRnMU0PoRb
-	 /FfLZsmK8oSOLtATBhVWTZJEHeqTyvrVjyQN9mIfXoE1PTirI2qDxu429ToyvuS/PY
-	 9hI+W0JtfMziw==
+	b=XGB9J7l3gJREfd1Qyl8enfohbQD20I1vJdBiXfoF0uwrIJ3bWBPwrpVDcJyP4S8co
+	 ag5+ahJTnQOa2CMFQleiMxg9BTkj3RhML5jkYUKEpERbx4eQuW6IliiHSpRlhTpjcg
+	 /fPynkQMx4C01qvCjYL2IjLDwjLPEN47xeylnSdok1nBzBPn4+zObvivXOG4+NHMFQ
+	 IM9QCu2ftE/qgR33maeYHQFdEyDGLFx6BIViw4Aaa5/JTbO9CxeRNY6l1bRAEgCP6V
+	 IbQ8+d6YEEW4CbGMQ5tFiFwILsVnvKSaEwVs/fOwZPvC8MYJeW1ILdpV4Ph6/WJMAH
+	 wiifybudk+ehg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 12/19] dt-bindings: clock: qcom,rpmcc: Add MSM8952
- compatible
+Subject: Re: [PATCH v3 18/19] dt-bindings: input: touchscreen: goodix: Add
+ binding for GT970
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: lee@kernel.org, dmitry.torokhov@gmail.com, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, conor+dt@kernel.org, mfd@lists.linux.dev, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, robh@kernel.org
-In-Reply-To: <20260921-msm8952-initial-support-v3-12-b96fd3fe298b@mainlining.org>
+Cc: conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, robh@kernel.org, linux-clk@vger.kernel.org, lee@kernel.org, dmitry.torokhov@gmail.com, mfd@lists.linux.dev
+In-Reply-To: <20260921-msm8952-initial-support-v3-18-b96fd3fe298b@mainlining.org>
 References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
- <20260921-msm8952-initial-support-v3-12-b96fd3fe298b@mainlining.org>
+ <20260921-msm8952-initial-support-v3-18-b96fd3fe298b@mainlining.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 18:26:33 +0000
-Message-Id: <20260921182633.982FA1F000FF@smtp.kernel.org>
+Date: Mon, 21 Sep 2026 18:29:20 +0000
+Message-Id: <20260921182920.F3A7C1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,63 +47,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] dt-bindings: clock: missing msm8952 in constraints conditional b=
-lock
+- [Medium] input: touchscreen: goodix: incomplete GT970 support causes conf=
+ig length mismatch
 --
 
-commit 08e2cd81c0f804c9a9db2e8d8d60babe26ca3d55
+commit fb8dc3b0be08be515a9f9b03de04ea7da115bf6f
 Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-dt-bindings: clock: qcom,rpmcc: Add MSM8952 compatible
+dt-bindings: input: touchscreen: goodix: Add binding for GT970
 
-Document the rpmcc found on MSM8952.
+This commit adds the goodix,gt970 compatible string to the DT binding.
+It specifies that the GT970 should fall back to the goodix,gt911
+compatible string to use the GT911 driver configuration.
 
-> diff --git a/Documentation/devicetree/bindings/clock/qcom,rpmcc.yaml b/Do=
-cumentation/devicetree/bindings/clock/qcom,rpmcc.yaml
-> --- a/Documentation/devicetree/bindings/clock/qcom,rpmcc.yaml
-> +++ b/Documentation/devicetree/bindings/clock/qcom,rpmcc.yaml
-> @@ -56,6 +56,11 @@ properties:
->                - qcom,rpmcc-shikra
->            - const: qcom,rpmcc-qcm2290
->            - const: qcom,rpmcc
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.y=
+aml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+> index a26a54d63a1c0..4be2c137abd7c 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+> @@ -14,21 +14,26 @@ allOf:
+> =20
+>  properties:
+>    compatible:
+[ ... ]
 > +      - items:
 > +          - enum:
-> +              - qcom,rpmcc-msm8952
-> +          - const: qcom,rpmcc-msm8976
-> +          - const: qcom,rpmcc
+> +              - goodix,gt970
+> +          - const: goodix,gt911
 
 [Severity: Medium]
-Does qcom,rpmcc-msm8952 also need to be added to the allOf conditional
-block that enforces the xo clock constraints?
+Will this require a corresponding driver change to work correctly?
 
-Because qcom,rpmcc-msm8952 falls back to qcom,rpmcc-msm8976, it shares the
-same xo clock requirement. Currently, qcom,rpmcc-msm8976 is listed in the
-conditional block:
+When the driver probes the device, it uses goodix_get_chip_data() to choose
+configuration parameters based on the hardware ID read from the device, rat=
+her
+than the DT compatible string.
 
-Documentation/devicetree/bindings/clock/qcom,rpmcc.yaml:
-  - if:
-      properties:
-        compatible:
-          contains:
-            enum:
-              ...
-              - qcom,rpmcc-msm8974
-              - qcom,rpmcc-msm8976
-              ...
-    then:
-      properties:
-        clocks:
-          items:
-            - description: xo clock
+Because "970" is missing from the goodix_chip_ids[] array in
+drivers/input/touchscreen/goodix.c, it appears the driver will ignore this =
+DT
+fallback and apply the generic 240-byte configuration instead of GT911's
+186-byte configuration.
 
-Should qcom,rpmcc-msm8952 be added to this enum list? When running
-dt_binding_check on a device tree containing the qcom,rpmcc-msm8952
-compatible string, the clock constraints will not be enforced.
-
-> =20
->    '#clock-cells':
->      const: 1
+Could this incorrect configuration length cause the driver to read or write
+past the end of the configuration registers?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260921-msm8952-in=
-itial-support-v3-0-b96fd3fe298b@mainlining.org?part=3D12
+itial-support-v3-0-b96fd3fe298b@mainlining.org?part=3D18

@@ -1,75 +1,72 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pj2-f21.google.com (mail-pj2-f21.google.com [74.125.227.149])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6522324293C
-	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 02:53:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95C09194C96
+	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 02:54:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789959206; cv=none; b=N0H4CCR1LkLDnz3lopjWU97zLi2lvHUbXQrT6oe3uDDF55dEh6vWkqiuXs1/loEmsflvKdBoiZhnqbFkfL9Qas0io+g0vyKePeT4AUkeIX1MI8wog0xcltLdsyNgYDaSwP0imdP+hq7ksPTyLB6rOm3/aqWO13Fwa1kX/w4MzXk=
+	t=1789959290; cv=none; b=E9vNSiZh/am86MJhs5Z7GF40de8YwwZHJzI+i5cbw5ZKrpNFBjwL6/pQR6PVZlsHUKYrNzbZTyUbzuchjtQdmYf5msMdtnWHnU5Ai9XQ5SuIUGc+9O4rGrH/V57CN2XinDyJeHzaNUxCrlSfciROIsLP4etXoxjZDxaqaeS3Otc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789959206; c=relaxed/simple;
-	bh=VHyYEAblzmgSTYDzcQ/rTwb+iNZ/FxfSAGGwjEdaK7A=;
+	s=arc-20240116; t=1789959290; c=relaxed/simple;
+	bh=E3JkMnGARLVQZqyo6q6h14g5UvqxXiUDavQnpHXoXCQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pYD0p2+vq+xgs4cq9gbjGiaDFMjCMSAQNSTt8vcJL34UQ+TdA7I+QJ7peZOlIuANhJwdsYvfIpz4l0oV60S3kjDpVLf8sfgZJefg1y441bsferJhtW36wj54sAbTFINjNwJXeJbgx/ErvYD4wAv+2K/uh6ob8wcW0LfG4xMiQds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UYcJLfmA; arc=none smtp.client-ip=209.85.216.48
+	 Content-Type:Content-Disposition:In-Reply-To; b=GT3So0FTiFheWzTuQZV+9Be/k9XraFaXVE5ZFhK47vPiVUBblHkRbAKEa71sf5ablX8tXnICUEPR6sDNtBUPOFzV499ZUPUieVl/Y2A/QShS9L6CpJJ0sJztjryT6mmPhNop/ywDm2kY+2iDoECusfhCN5rMLgLkRkfN1cT3B7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wnaj2bBg; arc=none smtp.client-ip=74.125.227.149
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UYcJLfmA"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-39647184c73so2960248a91.1
-        for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 19:53:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wnaj2bBg"
+Received: by mail-pj2-f21.google.com with SMTP id d9443c01a7336-2d747f0b25dso27261035ad.2
+        for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 19:54:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789959205; x=1790564005; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789959289; x=1790564089; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=Se1G+XHmYZanJdo+24xpc9gmmy2jZ9LFjhb6Fx5cYxc=;
-        b=UYcJLfmATlfAb3FOZbA9bzP3BBXBSBL1VsaWvoHMydZ3svQtVebR/G7Havfn52kwDS
-         1u9AT6KSzqJC5mQjPWI3vo+J/Qs6GJNqGUny6IJtpdZvae9BcXeLhcrSg8Oq2n9SnezW
-         spA8K83dunsCbme03vb4KSSgOIjzg3B1Tj5xvDn/29qEEeLOpmsM7j5ygh5uyQTh1iMa
-         Sswhl5zxRm2jejEeK+XKJLCslLeW7M6DjSkPKJmAQGHxvrA/wfG6+j6jJYRRYgN5Aj2R
-         EExsOL7BzdrF+YE4UnZJXIG5tjKHonAqB1xgBU6nxiBdNgoxwZw6lNoTiqN0OiyQ4N1A
-         yw0g==
+        bh=RymOXsL7ZaFtcdX4qP1HD6ZlQqD0fg82alSWO9QFV0s=;
+        b=Wnaj2bBgecGO5NjTd0DhqQZkoa8euHAezP+GWXZh4xEhbaipHyqTY6fk06KigQD6WW
+         U9d9M6tDmnZriQSpDYZztozcYxJtYf4H0bU3qZPDV7aNsu/txRQivoR61CxdWUtK/BvX
+         wkfwpPJSqIs/t3zfc8Pcra8fSFVRKgn3VWqmAB00as+xhoMFvF9FhUFg/h/5/N7J3Hi5
+         ViNrXYvc3ZtyZxdHHb5LLDpwcVNPtNk1sdA4yJZTXZiI1tN5Lb+tzu8ADIv5q2MAUOBO
+         jcfrl9aniEzeM+OLtRTml5ln1GUO68NBqB4tYbj4ya11dlhqUkb/VUh1tzj2leLxGxOa
+         /0OA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789959205; x=1790564005;
+        d=1e100.net; s=20260707; t=1789959289; x=1790564089;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Se1G+XHmYZanJdo+24xpc9gmmy2jZ9LFjhb6Fx5cYxc=;
-        b=ypMrljqQVkHCNiXOBq9CiCU5dIGpavrwWLEgCZ3VPUkfIGKgQLOy15irGDfd6+nXVH
-         VvFZ/cza6cA5PAiBQcs6MCTagC/eDktG1Ze1iDgzbc8wOsUodVg2gih5ruDaiB13AYC4
-         L4GAVavh7DF3YKKMd0wcTRV9aFoTOVKN/iOndvzMnN6ZKzez5Yx9DVNOyPDKArKgNPyi
-         xPLkBcFWQlPxpOlgqXoXtudj5UjUAlycwTnAPEK+cxXxePqMCGhfKsm69OTV18MSxKXG
-         ZsBmMbBmCT2aO8tiKbNWGzxFtOVxZ0X1Orox3cvGjOVpuyuEiO05tIrbdYy3whOJTgZ3
-         /8Yg==
-X-Forwarded-Encrypted: i=1; AKwUvBzKstd3Yj/L0rscL7BIyrpq93S9F77ZI/8/IPqRSIB2RiffScp/JhGyeS/eN6jR78LdNcUprhLOuHp3Kw==@vger.kernel.org
-X-Gm-Message-State: AFuF++khEPEm8Fc4uDoC4NH5GMN4SwncXOa9wtGeh74ieUZ4pMBQsT0p
-	weB3D70LHqemGv0YmxnMxJ3eljfflgLhkuuK1ZHA2XNLVrg27WkfsMpR
-X-Gm-Gg: AYBFou0sRqD5P1P39wrA0kDna2rSAtLjsZMiYOKGmrfhKpERAeP25i5ZBA83QhmSZtZ
-	ucR3uEXqsMJAHpb8t6RuMWhvAMSCPteof5xwdOdlFtME3Gmx4fYv3BPQ2dUbmOy7G0P7VGM+JMn
-	EBI/wpsUlxjO/RLpjjGt5y0qBIlau7LEutPI4/sgvufyvI8JON8ujddlFAUX82aKeERXnrrtvSo
-	FcSVKwlub7wMN5as72Cl4u7gQ0ex4kO5DJBaHEXZJA33+47U34SezFn0lVdTz2Vv84waGRixgTA
-	1YbpkPpWZnX1y6n8o7MaI6MPgAwo8jYhhSt8EuHtWI3GPW/BIDqBDQWDv/jGycrSecDEgIWww8y
-	gFm4w+0MYvQYzjQ5Iw02EQ+0B8on5fisXGi0Ys5nZ5qGAQezeuYweUV/tMYDc+EIAqqd3awC5UY
-	lZb5fUAJqO2bKHM0k1sO3TG+RKzqNcGGHI+g4Y+rek+tJC76Rn13uHyvaUrDG80pwarWrnkB3Jo
-	bjRrjxXOCrjCvDX15VV4HshGBrFo9URJtT7VmvI
-X-Received: by 2002:a17:90b:1cd0:b0:396:7c01:553f with SMTP id 98e67ed59e1d1-39e36106b85mr17920856a91.21.1789959204603;
-        Sun, 20 Sep 2026 19:53:24 -0700 (PDT)
+        bh=RymOXsL7ZaFtcdX4qP1HD6ZlQqD0fg82alSWO9QFV0s=;
+        b=jWeBMcyoEQLIRpAakp9Nx/SB3wQoS62ugF6qpxM2kz3hlQ6tYsFy/AidKm5rG69Nxg
+         56SEkN2W4WRkIW8F6NWzt/udDa9g4kw2Mja8figTYeCszRdjwcwlXVrT+qROb3Iepuuu
+         k1GFT5jz7eb/72xR9BR/90IUjyfqGk6+xobsfAo1o+FhA5iT5lnOJ7r0xFAg36Nmzj4u
+         J8duTyrKaHPpn0f85bYpjzjbfSTT2PWRsG6vcuYDbIRc9ddmo1k1rUUWLWCsnL6Db2Z3
+         QmqOP6UsaBbU+IOUpo9XEdPRZjqYD7QBjYOcLbe9uIP6Vkr9+9YJ8UU9/F1sikeU3JLB
+         19jg==
+X-Gm-Message-State: AFuF++n43UZtlAsRgmINMmvzhhTHGfg94VazyNJIdFxfgFHYelPxghad
+	PwqRXAz0UKs6zQ6fCuHPRA3+fw355fGoenCn9viQP5bJh1EA5aUsZESy
+X-Gm-Gg: AYBFou0vpzHT+2rOCJSL1OGtWB1Bhn4iauWf0gQfqXfTf9kgF763dfbZXQJz+zfawWb
+	zIXygQVdYanyU35+J29wXJEZSSuigfptbHQl4K3E7o8LstxowsPkVbtc6pKZCmrhLyQhVATHfta
+	0c5nDuBvYJIQISdfU+uMuGVDsDkyIz+jOAw+w315GnciW1+48NRABBZhZ/KnWQyFO4TECdOtlKX
+	uQE2aeIbNE8g8w+cNPh6gV6EaBKddG5QT+KVnuUAo8e5tFBeW7Z4c2T9G+FJ8s69pFCZ8OA+Q+I
+	fOGxM1esnlu0J8fu8Z4phSxnwuNnM1miYsjDjEuLEMjJX0ahQpPXeht6hs+RMRtrwPd1WIPBobB
+	8rGMXpLWRvhOVyxKJzZ8rxzCHraI9dRyQMLlT1c6hj1JjjcTTETsxlG5g5F+B1Bh195RZYwIzE+
+	5amrIPo++aX2iYOlt2nIq9TmIAv843Q7F3u6rQthB+CBCqYRkci3m+fDgl+9tk68/ZjmSHd8taY
+	OHBNxtOd5nwgDmiWW+WVu3xrHsBQoc8vwuLBvg3BceIn+7MC4E=
+X-Received: by 2002:a17:903:380d:b0:2dd:c100:313f with SMTP id d9443c01a7336-2ddc1003247mr81656005ad.59.1789959288840;
+        Sun, 20 Sep 2026 19:54:48 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:3844:3355:5928:66ce])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-144d53968afsm16719079c88.0.2026.09.20.19.53.23
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33c331d5a21sm15408982eec.31.2026.09.20.19.54.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Sep 2026 19:53:23 -0700 (PDT)
-Date: Sun, 20 Sep 2026 19:53:20 -0700
+        Sun, 20 Sep 2026 19:54:48 -0700 (PDT)
+Date: Sun, 20 Sep 2026 19:54:45 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
-Cc: rosencutter@gmail.com, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH] Input: synaptics - Add LEN205b entry to smbus_pnp_ids
- for ThinkPad T490
-Message-ID: <arCcF3rLAM9AW0OY@google.com>
-References: <CAOGuaRh025eKcBf9P8UrvtXNp68vQ0HVF2EbNMp-kpdaC1HNpA@mail.gmail.com>
- <20260920200730.1836756-1-lovekeshsolanki00@gmail.com>
+Cc: linux-input@vger.kernel.org, Heiko Brey <cico0815@gmx.de>, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: i8042 - add nomux quirk for Fujitsu LIFEBOOK U7410
+Message-ID: <arCccVxkp16QbAs2@google.com>
+References: <20260920113541.1484808-1-lovekeshsolanki00@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -78,16 +75,23 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260920200730.1836756-1-lovekeshsolanki00@gmail.com>
+In-Reply-To: <20260920113541.1484808-1-lovekeshsolanki00@gmail.com>
 
-On Mon, Sep 21, 2026 at 01:37:30AM +0530, Lovekesh Solanki wrote:
-> Lenovo ThinkPad T490 has a Synaptics Touchpad that supports SMBus/RMI4
-> mode, but is not listed in smbus_pnp_ids table.
+On Sun, Sep 20, 2026 at 05:05:41PM +0530, Lovekesh Solanki wrote:
+> On the Fujitsu LIFEBOOK U7410 the internal keyboard and touchpad die
+> shortly after boot if i8042 multiplexing controller is probed and
+> switched to muxed mode. These multiplexing setup commands disturb the EC
+> emulated keyboard and atkbd reports "Spurious ACK" and "Unknown key
+> pressed" warnings, after which both keyboard and touchpad stop
+> delivering events. Both touchpad and keyboard work in BIOS and GRUB.
 > 
-> Add LEN205b to smbus_pnp_ids[] passlist.
+> Disabling multiplexer using i8042.nomux=1 makes both devices work on
+> warm/cold boot.
 > 
-> Reported-by: John Rosencutter <rosencutter@gmail.com>
-> Closes: https://lore.kernel.org/all/CAOGuaRh025eKcBf9P8UrvtXNp68vQ0HVF2EbNMp-kpdaC1HNpA@mail.gmail.com/
+> Add a DMI quirk to force nomux mode for this model.
+> 
+> Reported-by: Heiko Brey <cico0815@gmx.de>
+> Link: https://lore.kernel.org/all/89f36f3f5e4c2d07b9ff72bc0b355875c336e498.camel@gmx.de/
 > Signed-off-by: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
 
 Applied, thank you.

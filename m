@@ -1,138 +1,145 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04F6B4B1D0E;
-	Mon, 21 Sep 2026 18:30:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8C68363097;
+	Mon, 21 Sep 2026 18:34:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790015454; cv=none; b=Gdvyq9Egt68Nht99fn6A3isjXQY5Qt9Bk6ndAsFQUMrJ+jXKDKQv1F0P2jreWwShTRC+sPe2JkqXesZ6V5lAHRr9JWYCQFxS+frS8w8+o3G9ZH4DXtAa5HtQlGUd1yQSjEURgxDYA56GPgiYYmu7EFuVZ2GT0Jl97iog9JVB0Bg=
+	t=1790015672; cv=none; b=QPKpwiomW/kXO+mY6TNH6BP2g816sKxZ7D8k8QjRlIboEb6h3x2zf4fS0ik7CZ9vDVFkUmD7XMcHvRonRHuy9zdUlJhHcZf46kSPLyjIim0zuTrge5hLxjyjENEWVoZjHefh3oTHVXn7RwQfFxnRZBpwosrVqqyMrnCuN3A9O4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790015454; c=relaxed/simple;
-	bh=qZg0P2AiCkgyh+ZNuTgMYnn2gyCp30ke+O7RIybYTiU=;
+	s=arc-20240116; t=1790015672; c=relaxed/simple;
+	bh=dk3Fs0cpA0zMtsYsqShFh3dMrxoKlR07YnjThecHsb8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=m/fXhElzVIn8zICYXnL0hLQWB4VUtiplg80i9yBCLV/mRkl41/Fb2BpIoJ6Q/Sd/PxGPkCy1cuRriVyLWfSefBzxbrWcGATOsdauP/vvbaS3wzOxBRheEdyuLo//LJ6kyfVFNsFAcbQsXTInaZLI7Hhg7VmH7b3LibWR9uRbVBc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g9l4aCVe; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=b4wto8oTLhS/3s7sn1hVOh7MoPeKhZlurJYSUZv7tQJpyx7lqnjqycob61YCMGpgkuFYYOh2jRq1t7YVFUe4iUml9h+y8LfF7l5I+AHTeToLb77PhRHTR3auWY3oNkQQRv+bQfYop7FF09Ho8qLMyKwavxVRX1bYfflPAdexNXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LTOq6PM4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g9l4aCVe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 170471F000FF;
-	Mon, 21 Sep 2026 18:30:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LTOq6PM4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFBD1F000FF;
+	Mon, 21 Sep 2026 18:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790015452;
-	bh=68CLDjYIP6lmfl6NPmKCNglItNv8hvpwIrOxM6A+RA8=;
+	s=k20260515; t=1790015670;
+	bh=K4nLHz9z6IQcGHmWPtSRGWzAX0Kugw/YmY22EH4TG4U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=g9l4aCVeKCeG9Efb8LLAXRgeWw+YgBfHmONYpwlEmQBmWWLI0ssCNqRWhsLBNbPkH
-	 G9HDYwuBJJiOfCCQ+16pSupehcXAEw0oc5JA6e4cK5v//zlwT1qyfBLFcdEpUg+2PJ
-	 TXS1MHK6r6C09meYS157EZZ0OKHw/l0woNpI9ve0U4arD09S7BGBAbbtWSvHU15Di0
-	 C+vg/YWqy0RZl1rnlfOmR1rGse6GkHQ0u8UPF1YFNvGpTXDD2uh/ZOrnkpprzRhRgf
-	 y7HVibMPDO8Xf70M19+AIqrU/eFJZM9WnPhjIyVO/KOT9nLlqkA7pkLc5fDO84RPio
-	 8StDcuSDlcL2A==
+	b=LTOq6PM4Loabuc4O1F5tiDkMymp923XxpCeXQVC3Ws1Wh+dVWju63c3jIr/bjfko2
+	 o29Fbf1Me9nKgxu+hrpmzZ+n2Y0Xyy9l5SPmJd6pvqy/N1+rSrtFYegX1TcADLU59N
+	 CtxuHex76kAXhFKDdNju2kSA/6QG382zkaKzHIxdrohNZENt7oW2rtYtmVUsDthOSX
+	 LSnEZu5gGgTPPWcTUdt2hSofd/bAEUZvGD3ZeIzfmcxTzOJdezmdLsoL+rM0ZknDku
+	 mOoi5ICWkT0GTosv/hzygADQuXkw52WgMGDt1VQKBzCG3z7WqAQGS56/uhLVzRVgR6
+	 LYK1YzkmWuzmg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 16/19] thermal: qcom: tsens: Add support for MSM8952
- tsens
+Subject: Re: [PATCH v3 17/19] arm64: dts: qcom: Add initial support for
+ MSM8952
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: mfd@lists.linux.dev, dri-devel@lists.freedesktop.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, lee@kernel.org, robh@kernel.org
-In-Reply-To: <20260921-msm8952-initial-support-v3-16-b96fd3fe298b@mainlining.org>
+Cc: linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, mfd@lists.linux.dev, lee@kernel.org, linux-input@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, conor+dt@kernel.org
+In-Reply-To: <20260921-msm8952-initial-support-v3-17-b96fd3fe298b@mainlining.org>
 References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
- <20260921-msm8952-initial-support-v3-16-b96fd3fe298b@mainlining.org>
+ <20260921-msm8952-initial-support-v3-17-b96fd3fe298b@mainlining.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 18:30:51 +0000
-Message-Id: <20260921183052.170471F000FF@smtp.kernel.org>
+Date: Mon, 21 Sep 2026 18:34:29 +0000
+Message-Id: <20260921183429.DAFBD1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] thermal: tsens: Use-after-free in tsens_probe() via __init section=
- mismatch
-- [High] thermal: tsens: Heap buffer overflow in init_8952() via DT override
+- [High] arm64: dts: qcom: cpu cooling devices bound to 'hot' instead of 'p=
+assive' trip points
 --
 
-commit 5408ae137c176a5df112132baa926440df23a1b3
+commit b31c2ca10f75d0572d43b7d8403a096fd44b8429
 Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
+arm64: dts: qcom: Add initial support for MSM8952
 
-thermal: qcom: tsens: Add support for MSM8952 tsens
+Adds initial device tree support for the MSM8952 SoC, porting it from a
+downstream reference and adding calculation support for qfprom nodes.
 
-This commit adds TSENS thermal sensor support for the Qualcomm MSM8952
-platform. It introduces calibration data for 11 sensors and wires up the
-associated platform data structure.
-
+Link: https://github.com/Asderdd/android_kernel_generalmobile_shamrock/blob=
+/cm-14.1/arch/arm/boot/dts/qcom/msm8952.dtsi
+Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
+ear-7.0.0_r0.3/arch/arm/boot/dts/qcom/msm8952.dtsi
 Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
 ear-7.0.0_r0.3/drivers/thermal/msm-tsens.c#1621
 
-> diff --git a/drivers/thermal/qcom/tsens-v1.c b/drivers/thermal/qcom/tsens=
--v1.c
-> index faa5d00788ca6..f4201748ea297 100644
-> --- a/drivers/thermal/qcom/tsens-v1.c
-> +++ b/drivers/thermal/qcom/tsens-v1.c
-> @@ -145,6 +145,37 @@ static const struct reg_field tsens_v1_regfields[MAX=
-_REGFIELDS] =3D {
->  	[TRDY] =3D REG_FIELD(TM_TRDY_OFF, 0, 0),
->  };
-> =20
-> +static int __init init_8952(struct tsens_priv *priv)
+> diff --git a/arch/arm64/boot/dts/qcom/msm8952.dtsi b/arch/arm64/boot/dts/=
+qcom/msm8952.dtsi
+> new file mode 100644
+> index 0000000000000..fa343271a0249
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/qcom/msm8952.dtsi
 
-[Severity: High]
-Does marking this function as __init risk a use-after-free if the device is
-probed late?
-
-If tsens_probe() runs after the initial kernel boot sequence, for instance =
-due
-to a standard -EPROBE_DEFER or a manual sysfs bind, the .init.text section
-containing this function will have already been freed. Since this function =
-is
-assigned to ops_8952.init and invoked dynamically by tsens_probe(), executi=
-ng
-it after boot would jump into freed memory:
-
-drivers/thermal/qcom/tsens.c:tsens_probe() {
-    ...
-    if (priv->ops->init) {
-        ret =3D priv->ops->init(priv);
-    ...
-}
-
-> +{
-> +	for (int i =3D 0; i < priv->num_sensors; ++i)
-> +		priv->sensor[i].slope =3D 3200;
-> +
-> +	priv->sensor[0].p1_calib_offset =3D 2;
-> +	priv->sensor[0].p2_calib_offset =3D -1;
-
-[Severity: High]
-Could these unconditional writes overflow the priv->sensor flexible array?
-
-In tsens_probe(), the array size is dynamically allocated based on the
-"#qcom,sensors" device tree property:
-
-drivers/thermal/qcom/tsens.c:tsens_probe() {
-    ...
-    of_property_read_u32(np, "#qcom,sensors", &num_sensors);
-    ...
-    priv =3D devm_kzalloc(dev,
-                 struct_size(priv, sensor, num_sensors),
-                 GFP_KERNEL);
-    ...
-}
-
-If a malformed or custom device tree overrides this property to a value less
-than 11, the array will be allocated with fewer elements. However, this code
-unconditionally writes to hardcoded indices up to priv->sensor[10], which
-could cause a heap buffer overflow.
-
-> +	priv->sensor[1].p1_calib_offset =3D -4;
-> +	priv->sensor[1].p2_calib_offset =3D -4;
 [ ... ]
-> +	priv->sensor[10].p1_calib_offset =3D -3;
-> +	priv->sensor[10].p2_calib_offset =3D -2;
+
+> @@ -0,0 +1,2696 @@
+
+[ ... ]
+
+> +		cpu4-thermal {
+> +			polling-delay-passive =3D <250>;
 > +
-> +	return init_common(priv);
-> +}
+> +			thermal-sensors =3D <&tsens 5>;
+> +
+> +			cooling-maps {
+> +				map0 {
+> +					trip =3D <&cpu4_alert1>;
+> +					cooling-device =3D <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+
+[Severity: High]
+Does this cooling map bind to the hot trip point instead of the passive one?
+
+The Linux thermal subsystem's default step_wise governor ignores hot and
+critical trip points for cooling devices. Binding CPU frequency cooling
+devices to cpu4_alert1 (which is defined as type hot) completely prevents
+thermal throttling.=20
+
+Under sustained CPU load, the system will keep heating up until it hits the
+critical trip point and undergoes a hard, uncontrolled thermal shutdown.=20
+Should this bind to cpu4_alert0 instead?
+
+> +				};
+> +			};
+> +
+> +			trips {
+> +				cpu4_alert0: trip-point0 {
+> +					temperature =3D <75000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "passive";
+> +				};
+> +
+> +				cpu4_alert1: trip-point1 {
+> +					temperature =3D <85000>;
+> +					hysteresis =3D <2000>;
+> +					type =3D "hot";
+> +				};
+
+[ ... ]
+
+> +		cpu0-3-thermal {
+> +			polling-delay-passive =3D <250>;
+> +
+> +			thermal-sensors =3D <&tsens 9>;
+> +
+> +			cooling-maps {
+> +				map0 {
+> +					trip =3D <&cpu0_alert1>;
+> +					cooling-device =3D <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+
+[Severity: High]
+Similarly for the little core cluster, does this also incorrectly bind to t=
+he
+hot trip point cpu0_alert1? This will prevent thermal throttling on these
+cores as well.
+
+> +							 <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+> +							 <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
+> +							 <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
+> +				};
+> +			};
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260921-msm8952-in=
-itial-support-v3-0-b96fd3fe298b@mainlining.org?part=3D16
+itial-support-v3-0-b96fd3fe298b@mainlining.org?part=3D17

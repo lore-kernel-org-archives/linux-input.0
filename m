@@ -1,189 +1,153 @@
-Received: from mail-pz2-f12.google.com (mail-pz2-f12.google.com [74.125.228.12])
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F7284078C2
-	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 07:31:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A90742B316
+	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 07:34:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.227.141
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789975864; cv=pass; b=dqURxUuxWM6Qhcb99ugA8FglJFg6zs8qysFajPWcwXsiJgwzfR85vLtAmYoJ/g1VMg1vTMmUnU7JGvpQA8V+30kLyXixGiFNFk58W59f2rYtyTPU8/3UeX48K91pAkGucnXUr0mlOfZ82+BiuZZMkMvGynuvbJBf9warhrKJksg=
+	t=1789976059; cv=pass; b=sfQg/+CR6jlLGEh/ztDM8TwWiPga0ggTY0jatE+NhFOx163nwrNGEkhPN0IdXjPsky3pf0CWNaPdv6B1bOwI/DKo7/FNmI7dCj/GFoSgDRsQc7EaOD6yqk/oJNt+8ooRwHZcBmmJo6c2oHDpCHddn7tacA23OlKPxsBhYWxcLhQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789975864; c=relaxed/simple;
-	bh=+kodcrZ7Rfq3RbtOm64zvOegmrBogr+8Wwr1ekULfyY=;
+	s=arc-20240116; t=1789976059; c=relaxed/simple;
+	bh=57Sok7jJDa/57dP/GDfeHEhYnwuYZlpWnaikd4BSZrk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZEZuM6Q11z+wjJ2+4McM+9vX7ipZnwUPQ6Xg8EbTZx2WUs3a0i9VLce9jyMfPL/OgLNsXp25D5ZRAhR3FiubLLOjhLqTm3s1V06hVc/yocU18CctVEiA3k9bShGs6/VgTM2fC0Gc+vKnhrnKq7eC7cBiBofEhkBYcsK+c3Kq/lw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jD1gc/W/; arc=pass smtp.client-ip=74.125.228.12
+	 To:Cc:Content-Type; b=crniq+feB5WmMHNDANb/c2OA1NuEKdbR/FlV1v4ni+xNe8bWgkwedSTmGmruPKR86QphKorQx0b0D8tStmDP2lU26xxYWr5+qyoVEDrXgAfyCRwvR9L6M2BUViUDyEFf1qBqzM4nLZQwVod6GofcsaSOfsF93zOhexxBggPAeUs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bRho8oHk; arc=pass smtp.client-ip=74.125.227.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jD1gc/W/"
-Received: by mail-pz2-f12.google.com with SMTP id 41be03b00d2f7-cc1cea4bfd1so1775341a12.0
-        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 00:31:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789975862; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bRho8oHk"
+Received: by mail-pj2-f13.google.com with SMTP id 98e67ed59e1d1-396ccb652d7so2322592a91.0
+        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 00:34:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789976057; cv=none;
         d=google.com; s=arc-20260327;
-        b=VfBGr1Ei5azfR4zKST3VH0iNeA8k8PZGaImw1kWpexQWisCLcpmnltmDD64GqoAjxP
-         fM/X5NJtsfS7fJ89prBVO88wF8IcvJZroGGLQ8uf88oHAJ8S9Csu6UgC0q11XY41b+97
-         Mc1r6dFZJ3LrcOwsRCvgSWHc/tVll/jEKsbNvnIsVPk23F2mtvuLcnOoNEBov9wCZqRd
-         EhGEsFHBCiEdxH2R49YHK98Bhs6dQj4nhrTPerUJRGAxCoEXknRn6LZDO2ZqaK08nZWO
-         i+aB3a0Io8CfsYffKvfgl9sbjzINCrBS0vN4VfERa25c1WnDZqO/2ZLc44oxpCc3X7Jh
-         01PA==
+        b=cIWhDeCKvk1TmKAQJbYAu+XagtWk3E3oYrBanQ8nR1EcolvvbCqqmpj5CRVMCcWBaV
+         1Jv6y0uUBbK55+Xbkr9nSKSSsMscyv4p04ZIW9/qYVsL4d4e7/Gw0VA/oAkZlq+EzqSZ
+         0WJGhy5XhG/ZKWcOmn8nWd9sHVpW94ra+sK322/TTWnLjdUA1jwT1CLUWwnP+x3u0OZ6
+         EK7eRX5VFlSQu9EF1lzbDhne+L25ETNqB+bhwYeyQ5tpWGoC69WO6Tex8RQ3+/Ace/Oq
+         hvQ5SbtjZ4DzX73f8VhQu1984ua8wGAf0lp10salCAikXBKNyAF0UeNyH2S3vSGQJfeu
+         PgSg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=q1BZ6sJCmqeFIahqjVQKO9ObElEe/vXNKUx/QqdQ6iE=;
-        fh=JtHyjYhOEQgdRJvrMCaErD+5j6DgeAT271J3AU5VlBg=;
-        b=XSyfhTuVgX+C/c9e3vyU6NPHO75SwgCD/8GHJ2XpSHVOBCClG7SvIiAlRZ+KJFztrD
-         019n3HrWzgd2SA+foPlkzsZ84qxEs0g8KxgZj0sEUU0ks1FWkl0LhTLd5RHkSxRtUgG/
-         9ax8k7kYbg8j+2gOfZT7FDx2tBPxGd87DGxKU37tmf+YRiguJbryEmHFumNteOyR2VUb
-         djdLvR2YpENkl7DN5B/MRnCIPfA4hu4+rajfwPIq4vGWeQlYkgi7aKF6XhPFIQhJdGe/
-         /K+F2EfW8NlemMe0/YL1u/OEzmwlApZajx7QyZtDx42AOVKaD45gbwyVqA5GyfJ/0Qc3
-         8Kvw==;
+        bh=i/KB7XKvlLtdNPe51SuZ6hkHW35ikyi0W/vUmCBDQwM=;
+        fh=RHoiIRGJxagBBaSL2ov/wEaPRnz5x73H6flD0Tg1IBw=;
+        b=a2DIDuxZGLrNYCw8Y03Ywiulq6ulfIGAWzNVGfIzT7uxlb9jeCnYKSMaxFVge2da/c
+         LirWXEeyo/MaW3+3GBZ1tsbMM+fkDmnurmLAExrC/xtMo3tk1gqyWOSDwYmQ7rfHs7Ed
+         YNlyDDypuzv9z9FBz7ZAnQTZZP7GKNoRK68XXUNbmPgdsqpjEwKMcNNTxvhRrnsYET7g
+         HGVkRqDFFova4PbChThrtWqqvNyM9j4IboiJXAh7quKiXmR4sYzXIBpGJYXg4MawB4lX
+         9uoD+ly5a8Zg+GNl8sZkNvovwCGNh9EKwSfrSmpYVE836jLt0qv9YkE9fdqXdKpCMeJU
+         GO1w==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789975862; x=1790580662; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789976057; x=1790580857; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=q1BZ6sJCmqeFIahqjVQKO9ObElEe/vXNKUx/QqdQ6iE=;
-        b=jD1gc/W/eQYVqx+yirVe2qcyxe+donWRgWllTIa+7VE9+YQJpmeal1Rk0LOgaDcry3
-         CuOI/JxJJI52Wsmu7eYoX1vkz5XJvFN+BfSEzY0Gn5YGMnZZ+WpXeMtv/PCNa3YpWlo8
-         s9hlAknJ3Qs1c0R42qcLm2LyzNL24XghGRMB1PXSn54MvoQOde6Cud7hsfyOlSGdMN9n
-         8FJXDNTZlmmR79EqWzI6FBGzPfCGDgiRg9UWmYQl9dgfe0NzixXKlHk5TC/12PLNK4zS
-         RbqumxQSe17kO1x8LDxXCTnnBqvxMkz+ipuP2SCD7m6l6cbkmTgd4ow7pTU+7NgWu8UD
-         wPvQ==
+        bh=i/KB7XKvlLtdNPe51SuZ6hkHW35ikyi0W/vUmCBDQwM=;
+        b=bRho8oHkSZ6eNFFlMVFarqQ5ou6tGwP6n0eX0AMCacl0jOnq/EcGvM7lHBlgkmMQP7
+         zLLh08JXmiwSrxOeMNy0Tw7uLfdHnUz1OHewAdYTttaeLiZZIRbpdqKAm1exhBXt0SJ2
+         uwLkghVLI+wKYXaKcDPzLNu4LmatZLIhyK9LSr7vpCufUr4zYs+7bCeFlZ0tLLW0hSZD
+         TgyIWK0sBY2F98z5zFIvPOsTthpcp0n1jNIxNiXIZlkb07px7TcCrRNBMw8uaYpQmBZT
+         ni3Oas86iQDAeF7bEgd4d758qslkBQczuds/1ZuAokt+/PN415MLqRAZdPxSP20gQeeM
+         UVvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789975862; x=1790580662;
+        d=1e100.net; s=20260707; t=1789976057; x=1790580857;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=q1BZ6sJCmqeFIahqjVQKO9ObElEe/vXNKUx/QqdQ6iE=;
-        b=13lVqOzP7VRtDLJIxazDvi0cY2jpG3YYpVZn/Ixhfg10DTISj54E9nyqYw0QtGoyfN
-         Q9K2WeX3aEL18USafCFkdL3A6c30eZCcXIEhIRUtY+6oCRpRxg2mOg45iBPnDUD58xAE
-         a1MVg3fn/G2iAV8OiVN2WsUwvjfezrKK66/z6ITinGgJ9Ub2R4r27mglKmzzMMCfoZIM
-         ooqZB9xYv5ytaP/wXfxVeqz7pZ7yTcEXCnv03kYDuVBfXF45GNWr9zLOvkL3XnJmG0SB
-         UXsXkgHVhkMyBq3L96WZfOvzLNkAtqRBvFYXhCyNMDLM7fRrZ0isau3UIy8Tq3Iyg9ff
-         8TAw==
-X-Forwarded-Encrypted: i=1; AKwUvBxrbdydifrtrSOYyQfcA8k1IEjyID35BwoPafaAdxFXjNwrdrnQJq6Z+wJQ6xmDdKEYvokYfpr6bAJrng==@vger.kernel.org
-X-Gm-Message-State: AFuF++no+xdzFB62KW4XDjwXUvskAPySlKhIaipYCGgnkxXpranJfJzR
-	ZWZIRoFTHfeEDog1Mc6WLtfaZV4V3eTVpFkjHaLxzc90eSV986w2sEVdPrvDgdeaoW0JB1+pwjM
-	G/0rJlIHWC7qeMkXgLxwAhyBfAFK+jn4=
-X-Gm-Gg: AYBFou1OIcxRTRwfpH3L67XUX6PJMKLpQsrC1X1I3a31k0HMUKqmLxdNfCrlOEWFgm/
-	WlNxu7RCr7UBbqCGOuSyLdYVOtXtEjtpmTRVWLP4uDzPhL9VhnXLjyFtlIXIW5qfyOyaxMCUoK1
-	ksNGMYK7RQLpbjKY+8eIgmahwbie3/3hK38vLJi8F9j8yQ/ef3/93uxXi8WCooOSO5FXJwyN14p
-	kK1a6q5a55k2yccWdOY/6/+nYJarr/0/kwowu39Td4Qhp0gJILuIqxmyBiO2GEpfa45JIfQ1pFl
-	aEnemWIEHeD3nX9cvoQI/FatR/Ih3wm/KvokhcOk7wB9ukFvCXY7TtLWnzPt6p8zxQdFB2EgfOU
-	h+P506hpDMoZy
-X-Received: by 2002:a05:6a21:6b05:b0:3da:c2f5:a2aa with SMTP id
- adf61e73a8af0-3dd8c3323a9mr17128224637.18.1789975862197; Mon, 21 Sep 2026
- 00:31:02 -0700 (PDT)
+        bh=i/KB7XKvlLtdNPe51SuZ6hkHW35ikyi0W/vUmCBDQwM=;
+        b=d3OT60VQdl+2wJ2ki1H0/BJpxfnFla8B1Wy1sO2lli5B6eEO3X8IPFdn5PsHROkDoI
+         yC9pY+8mlxzee42PLgXzETHNRCn5RhfV59k64VLfnoT/3PuSI5h2axcey5zJuN7cROJL
+         2Rl+Vz3e4XCGgBILYW+yMxRvP3Uc2HTQOL3PJv9FXQz6TuYeJ5+oQfBUd8kVycHSEhh/
+         e1mywrcyhz3dpiaIDlxMJTAj1giZnCEAy+JejvAjD9uXK5Bl+GTRNadtA/R7w9RBPNm0
+         BX6TJQDMk5L2/L8SjkPJri15Nl0Fhh/KKE/DhTuAaeD/iF7ROAAIyqgKpWjSPVsFvZhf
+         Z0PQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz0fqUqnagnP3H/hyGAftUtuqNz6na8DzHmmyyq9rZC5+lyLXe4sUE2rxrSSP9CEonGNohhe95luZ8z0w==@vger.kernel.org
+X-Gm-Message-State: AFuF++lp/19cFp8CxB9WRTkgDML6SuZtrFx3LZbdwLX3tPLyd3ZCQCjv
+	jx0FCeABXSgZzO0TkfXYbOTBBl1VRbUdjdr1Ti9vxYpaj3E2jP8Suzcako8FUlnw84P7mAVHmQs
+	mRKW2oRhDVv1ArTyD6X+JrevEZ1dVqtA=
+X-Gm-Gg: AYBFou2LrQThdU2RD7niVFt7RN7DMkgsd5kOSwUbnVmDMK1MZl79COJzBUKg+IFd4oV
+	TshRbBEdmdv1T300xvx7O2pyXXYKhUpvym6NBK06GqreG4VYQlMloxi6ZKFWpgqS2MQWSr33D25
+	MChvCjlP+xvvBbA6/dq5Yt1QaoUlCbeu9149dt0qKUEBoyi3WmxPSinMHMRQAD3VkfMWn0p4P3f
+	2m6VT7x/DwYKd79YBayQG6aMd1bk9LySPsNTLS1AgaKPIYSMLQLBd5tMlpxtCF6jJCtwpItJgZf
+	ayRwJzgaPUSInLYbB6bYbJ0bNrrV9bo3VZKTNufCqri5lYH3oEc+GKd1qdp67Th5HDB7RBK46k1
+	+e0oLSLRhdIcX
+X-Received: by 2002:a17:90b:4b87:b0:39e:345b:3323 with SMTP id
+ 98e67ed59e1d1-39e54fb121dmr14066759a91.22.1789976057124; Mon, 21 Sep 2026
+ 00:34:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260721095654.429346-1-clamor95@gmail.com> <20260721095654.429346-2-clamor95@gmail.com>
- <178463529533.2776661.17291216407355479584.robh@kernel.org>
- <20260909162654.GK2133376@google.com> <CAPVz0n2zLd2SPrHGb5vSX3AvRrofbA7Q54YFpmcPP6032MUw+Q@mail.gmail.com>
-In-Reply-To: <CAPVz0n2zLd2SPrHGb5vSX3AvRrofbA7Q54YFpmcPP6032MUw+Q@mail.gmail.com>
+References: <20260721095233.420823-1-clamor95@gmail.com> <20260721095233.420823-5-clamor95@gmail.com>
+ <CAPVz0n2rhZk0fjM06u=C5H4LgVOsN6ACriO1o+byx0dyqTwGzQ@mail.gmail.com> <CAPVz0n2mzwp-ffUu7tw5ojXgM=+G-PT3V9pHN--dT=dnYw5hHw@mail.gmail.com>
+In-Reply-To: <CAPVz0n2mzwp-ffUu7tw5ojXgM=+G-PT3V9pHN--dT=dnYw5hHw@mail.gmail.com>
 From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Mon, 21 Sep 2026 10:30:50 +0300
-X-Gm-Features: AcwNN1Xwan51ardBlULGfF9_kTLOoiJJ0xUxr2pfFDkGmuB0AEVFXrA3aSj0HMQ
-Message-ID: <CAPVz0n2o0OYFWsoXrYXcoAPNz2L4sKi2=JvXPdQzfvha1mOm_A@mail.gmail.com>
-Subject: Re: [PATCH v7 1/6] dt-bindings: leds: leds-cpcap: convert to DT schema
-To: Lee Jones <lee@kernel.org>
-Cc: "Rob Herring (Arm)" <robh@kernel.org>, Pavel Machek <pavel@kernel.org>, devicetree@vger.kernel.org, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Conor Dooley <conor+dt@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
+Date: Mon, 21 Sep 2026 10:34:04 +0300
+X-Gm-Features: AcwNN1W6gcxmcfy1bLN5jucC74BzWiaaqHA32OWE3YHnq2Or7J12ypc4KJW69uA
+Message-ID: <CAPVz0n2ZeYk8WbWfW7L1kLsQN4e0mdQ7nM4Lozy16z9X8kPCWA@mail.gmail.com>
+Subject: Re: [PATCH v10 4/7] input: keyboard: Add driver for ASUS Transformer
+ dock multimedia keys
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org, 
+	linux-pm@vger.kernel.org, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>, 
+	=?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-=D1=81=D1=80, 9 =D0=B2=D0=B5=D1=80. 2026=E2=80=AF=D1=80. =D0=BE 19:50 Svyat=
+=D0=BD=D0=B4, 6 =D0=B2=D0=B5=D1=80. 2026=E2=80=AF=D1=80. =D0=BE 20:22 Svyat=
 oslav Ryhel <clamor95@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
 >
-> =D1=81=D1=80, 9 =D0=B2=D0=B5=D1=80. 2026=E2=80=AF=D1=80. =D0=BE 19:27 Lee=
- Jones <lee@kernel.org> =D0=BF=D0=B8=D1=88=D0=B5:
+> =D1=81=D1=80, 19 =D1=81=D0=B5=D1=80=D0=BF. 2026=E2=80=AF=D1=80. =D0=BE 12=
+:20 Svyatoslav Ryhel <clamor95@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
 > >
-> > On Tue, 21 Jul 2026, Rob Herring (Arm) wrote:
+> > =D0=B2=D1=82, 21 =D0=BB=D0=B8=D0=BF. 2026=E2=80=AF=D1=80. =D0=BE 12:53 =
+Svyatoslav Ryhel <clamor95@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+> > >
+> > > From: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+> > >
+> > > Add support for multimedia top button row of ASUS Transformer's Mobil=
+e
+> > > Dock keyboard. Driver is made that function keys (F1-F12) are used by
+> > > default which suits average Linux use better and with pressing
+> > > ScreenLock + AltGr function keys layout is switched to multimedia key=
+s.
+> > > Only Dock keyboard input events are tracked for AltGr pressing.
+> > >
+> > > Co-developed-by: Ion Agorria <ion@agorria.com>
+> > > Signed-off-by: Ion Agorria <ion@agorria.com>
+> > > Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+> > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> > > ---
+> > >  drivers/input/keyboard/Kconfig                |  10 +
+> > >  drivers/input/keyboard/Makefile               |   1 +
+> > >  .../input/keyboard/asus-transformer-ec-keys.c | 310 ++++++++++++++++=
+++
+> > >  3 files changed, 321 insertions(+)
+> > >  create mode 100644 drivers/input/keyboard/asus-transformer-ec-keys.c
+> > >
 > >
-> > >
-> > > On Tue, 21 Jul 2026 12:56:48 +0300, Svyatoslav Ryhel wrote:
-> > > > Convert LEDs devicetree bindings for the Motorola CPCAP MFD from TX=
-T to
-> > > > YAML format. This patch does not change any functionality; the bind=
-ings
-> > > > remain the same.
-> > > >
-> > > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > > Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-> > > > ---
-> > > >  .../devicetree/bindings/leds/leds-cpcap.txt   | 29 -------------
-> > > >  .../bindings/leds/motorola,cpcap-leds.yaml    | 42 +++++++++++++++=
-++++
-> > > >  2 files changed, 42 insertions(+), 29 deletions(-)
-> > > >  delete mode 100644 Documentation/devicetree/bindings/leds/leds-cpc=
-ap.txt
-> > > >  create mode 100644 Documentation/devicetree/bindings/leds/motorola=
-,cpcap-leds.yaml
-> > > >
-> > >
-> > > My bot found errors running 'make dt_binding_check' on your patch:
-> > >
-> > > yamllint warnings/errors:
-> > >
-> > > dtschema/dtc warnings/errors:
-> > >
-> > >
-> > > doc reference errors (make refcheckdocs):
-> > > Warning: Documentation/devicetree/bindings/leds/motorola,cpcap-leds.y=
-aml references a file that doesn't exist: Documentation/devicetree/bindings=
-/mfd/motorola,cpcap.yaml
-> > > Warning: Documentation/devicetree/bindings/mfd/motorola-cpcap.txt ref=
-erences a file that doesn't exist: Documentation/devicetree/bindings/leds/l=
-eds-cpcap.txt
-> > > Documentation/devicetree/bindings/leds/motorola,cpcap-leds.yaml: Docu=
-mentation/devicetree/bindings/mfd/motorola,cpcap.yaml
-> > > Documentation/devicetree/bindings/mfd/motorola-cpcap.txt: Documentati=
-on/devicetree/bindings/leds/leds-cpcap.txt
-> > >
-> > > See https://patchwork.kernel.org/project/devicetree/patch/20260721095=
-654.429346-2-clamor95@gmail.com
-> > >
-> > > The base for the series is generally the latest rc1. A different depe=
-ndency
-> > > should be noted in *this* patch.
-> > >
-> > > If you already ran 'make dt_binding_check' and didn't see the above
-> > > error(s), then make sure 'yamllint' is installed and dt-schema is up =
-to
-> > > date:
-> > >
-> > > pip3 install dtschema --upgrade
-> > >
-> > > Please check and re-submit after running the above command yourself. =
-Note
-> > > that DT_SCHEMA_FILES can be set to your schema file to speed up check=
-ing
-> > > your schema. However, it must be unset to test all examples with your=
- schema.
+> > Hello Dmitry!
 > >
-> > This one.
+> > May you please take a look? ATM only ACK on input patches left.
 > >
+> > Thank you!
 >
-> As you can see only complain is that reference in the leds yaml to
-> Documentation/devicetree/bindings/mfd/motorola,cpcap.yaml does not
-> exist. All cpcap cell bindings were converted one by one as separate
-> commits, so this is natural since motorola,cpcap.yaml will be
-> converted last and patch doing this is included in the series. It does
-> not bring any regressions in yaml and dt schema checks.
+> Hello Dmitry!
 >
+> May you please take a look? ATM only ACK on input patches left. I
+> would like this patch set to move forward.
+>
+> Thank you!
 
-Hello Lee!
+Hello Dmitry!
 
-Is this explanation sufficient? Rob left his Reviewed-by to all DT
-related patches of this series.
-
-> > --
-> > Lee Jones
+May you please take a look? ATM only ACK on input patches left. I
+would like this series to move forward. Thank you!

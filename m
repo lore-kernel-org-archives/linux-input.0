@@ -1,129 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pz2-f40.google.com (mail-pz2-f40.google.com [74.125.228.40])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B9C84FD279;
-	Mon, 21 Sep 2026 18:45:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB1B04FDA6B
+	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 18:49:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.40
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790016353; cv=none; b=OAXoelolND1617bpnKlpT0whabZlvsYbOYs0V0zecyPvqMEC1yH6Q5BalFlNLRc/u39ewiMFrRN0pmpVATmudNBJGKJVqrzQtFhRuIdm2QOJC0DcQvATqyCHIpZGEOTEqWKOv2tVJ0oqzt8j5PAqj+x4O/G2Dg8/4oGRDfykxJA=
+	t=1790016581; cv=none; b=duyJxa7NFIzwB8+nrSCdNK16bbNskR+QZVudiexH0OGgPI8LJIK0912sX3vHN5QUKAnbT7+S9ncZQBCvrJ4MfnMkRKxBUaIBtBgtc4R6hZN91cVb20eQHkcl1prpUlmt/eziJfc0Fv+s0nskrnssCV/FC9v9IjYx2X1ZlLlXAeU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790016353; c=relaxed/simple;
-	bh=kCfoNnDr74bsP5NZe91DHEqKq8mWUVuN1/QqkWwDiUU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=UmUYOpDArl007JLy33YGe7VRv9IFPX72bhemoMwgKdARS5q9ohl6/kP4Q5rLgx/v7GSH3JkMqXxMvRP7PfdBoiEdbog4iTnhedfWlb9JrjgCC9gW7If47aq57ePSlibido3o0uz2Qshls7q3GuhJ5vdyPy9Tw3898ua5nSAM4Tc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B7sPp0Ko; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790016581; c=relaxed/simple;
+	bh=YHvvmOG7XYxGrePjd3RJHsMHV5sxexGE/IHowYzt+FI=;
+	h=From:To:Cc:Subject:MIME-Version:Content-Type:Date:Message-ID; b=lPEhCTXNvf2GfKQ0no5kIMRNUetEk8IkCUZ9kMVd2u/9AfQBZgG7BVCreWFPrZHMdkOPyRKdpBi9EiPy9E97BkdalxQDlPY59nfarcpkhRPoLZXQ431A14XuRL6AaYWt4TNKWHzd8UwQ9V2wgblqjY1V6mulJTsdpz2PvZhvEi4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GO7iHZxp; arc=none smtp.client-ip=74.125.228.40
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B7sPp0Ko"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E831F000FF;
-	Mon, 21 Sep 2026 18:45:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790016352;
-	bh=QEXaBe/wzZMYxtsyY6HAox3T6MRIaBTtCY7Bf/0jZgA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=B7sPp0KokBZVnD5b0XdYGpYUlUMFOOhwDWvG1H2RLehfFWy8Y9tCykC2y2eSkAmTT
-	 fFm5I5qnPYW38WUIJvt8ilVAyS4mjdz2IwV8cJUgVQY3t80mJdn7TftrViM+1e8/il
-	 P1Bld2sxD+Ku2XoEnqkWSSNULbtwh08rSZhwg4WnJy74Y8NYDxq6lxttwc5eympOSp
-	 FY/8rfCzzR47dglTiUNwFwG74sIASFI1A9qRqs9/BCPa/cenPT5Jrxvey6uBtthwMJ
-	 NMqxYayia2HJmLb6E8919DX2pPL7gD/dKrTVJKPcufrOaBfi1RHUgjKAb5hkV8Ez0g
-	 nEfUOgTax2uQg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 13/19] drm: msm: mdp5: Add MDP5 configuration for
- MSM8952
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: robh@kernel.org, linux-clk@vger.kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org, mfd@lists.linux.dev, conor+dt@kernel.org, dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260921-msm8952-initial-support-v3-13-b96fd3fe298b@mainlining.org>
-References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
- <20260921-msm8952-initial-support-v3-13-b96fd3fe298b@mainlining.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 18:45:51 +0000
-Message-Id: <20260921184551.71E831F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GO7iHZxp"
+Received: by mail-pz2-f40.google.com with SMTP id 41be03b00d2f7-cc515bef69dso2195355a12.2
+        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 11:49:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790016579; x=1790621379; darn=vger.kernel.org;
+        h=message-id:date:content-transfer-encoding:content-type:mime-version
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=8uJZEiZCOi7zzVfQoheYkZxBxMAwj8RbqVTaMRlED7o=;
+        b=GO7iHZxpYC1yIlPwrSvVC7aNcf2evyOIuLYXMyY6NNmYUNevp45mR/eZY+LfqwxOqA
+         AaUDvlqBRRCYhKy6AynF5nuO/kuz5luTXP2Lvo1hMgSPj7HgLzoR2G+XMuKszaoPZHdm
+         MVCXbqqlayXF6iPHZF9Kw8GnP/uLPnK8JQyZJhty7SarZidCd0cCb1Zv3W5JQReohbW6
+         hm3+bQ85EbBrbVRaaryiAm2atpspDvoi1KXSDaCHq89CN/N4qXlSlqB8YPDpYl1xkEaM
+         9sVoVVzCM2BVJSSiulJlf2EnqzeeCD/FWWweQM8WcKdun2XQ/S2RtVgqKOc0FpaqvarV
+         MCOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790016579; x=1790621379;
+        h=message-id:date:content-transfer-encoding:content-type:mime-version
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=8uJZEiZCOi7zzVfQoheYkZxBxMAwj8RbqVTaMRlED7o=;
+        b=lc8st90E7GQVeodWaqu/7PJYHfragGDggBXVAMJQeUNlQeHYtv3U+uIq22oXAj2F9K
+         v9T20qE7PBMB7ttwBOb5aPlyl+oDGNE61ysX6Wdvomzek935AWN/uarmJzlrzWmafEwe
+         HOWfDKrR8MQam7rMlXmEYrc8hreU1T9bq9kEQc3oTrGChB58v0ZknMln1SymjUmlZXDW
+         ZYiVa9yRQ4e4RgD3TzWIS+287L0twwmMfnHitSv9awwaGyVPFrkd5bkk490KLAELV6Jr
+         iX67YDEDY0y87OBZx66OdOfgVw7zUnw59kW6L8ipW/e4lZfIx73YdMmJ0w2qS12nRqzy
+         AHKA==
+X-Forwarded-Encrypted: i=1; AKwUvBy9ZvCD/TV0QBLvaxuf1dVULwf4OY9aEViDZjgF4Nlgfwy87c2yKVZY65SwXYOkwcJpmROSkg8DRs2IuA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nwZkzCwi0/IQamsxcVsHTuZ8FVPRldR6CFScFeN2YOPSiiBDat
+	D8uuhA5CI9zyhLr9hHu1mUpQvkghC1XiwYvoaN0c5rzSG0KbWv6flelYll+0tj/a
+X-Gm-Gg: AYBFou0rgJJAfB8mraMWTbx1iiHZS739sY5XWIsopHXBWgh8pObnj95HM3BTgdEUbpo
+	B3FS3rqekqV8aWGMkmhN/a9chi8Iy811E4KRtG3pUGuILkWcv2EUQiRSMLTJZgx1ZBbNyJu4Rp1
+	JqZLbw3BlC1gKQhj/gmiIKYanSAw4is457fWDhB0QftgK9gzy8CHpBJp9FoZqFz6YwNqoRnTf3U
+	7UvWMOEx/DcYcBibIu9Xxd0/dqiKUHcPmS1BgzBuHthi9nyAYd5q17iwYNqayIppOdZBqFu3QRV
+	wx29UzNRByuWXFJGdUHmZYsQ5l2yyb0F+S6nuS9lLEn3Ni0VK4EfKJamDa9eICzrX8fxDMInYVt
+	vWmJuG0844QMStCjY3Wv1kpFVX/hxzgvuwCjYsMRgw1TXISScbvdQW+s06lWFFjJH6XDOcX33ma
+	J3zQ4ot7jq1gy6bChpSZMAsNOZc21pJq7RtM/QMcNe98BBJ9jIseYVihmHJscPjwJuj1rNtjZot
+	tQvYa+z+dl0nnN5Ehjhwj4=
+X-Received: by 2002:a17:90b:1dce:b0:39e:6a80:dda3 with SMTP id 98e67ed59e1d1-39e6a810c76mr11349225a91.42.1790016578958;
+        Mon, 21 Sep 2026 11:49:38 -0700 (PDT)
+Received: from SANGHOON. ([1.220.132.212])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-39e52d5adc1sm8579800a91.0.2026.09.21.11.49.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2026 11:49:35 -0700 (PDT)
+From: Sang-Hoon Choi <csh0052@gmail.com>
+To: "Daniel J. Ogorchock" <djogorchock@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>,
+    Benjamin Tissoires <bentiss@kernel.org>,
+    linux-input@vger.kernel.org,
+    Changyul Lee <lcy8047@gmail.com>
+Subject: [PATCH] HID: nintendo: release the player ID when LED setup fails
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Sep 2026 03:49:28 +0900
+Message-ID: <179001656825.91284.1468613120745540918.idr-bug-07@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] drm/msm: Missing designated initializers in lm.base array maps LM3=
- to 0x0
-- [High] drm/msm: Hardware register corruption from exposing LM cursor as S=
-SPP pipe
---
+joycon_leds_create() allocates a player ID before allocating the LED
+names and registering the LEDs. If one of those later steps fails,
+nintendo_hid_probe() jumps to err_io_stop and skips the ID cleanup.
+The failed probe leaves the allocated ID in nintendo_player_id_allocator.
 
-commit a462b33778a7f0e919c295ca897f61ab29c8108c
-Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Use err_ida for this failure, as the power supply and input setup error
+paths already do. If the ID allocation itself failed, player_id is
+U32_MAX and ida_free() leaves the allocator untouched.
 
-drm: msm: mdp5: Add MDP5 configuration for MSM8952
+Fixes: 5307de63d71d ("HID: nintendo: use ida for LED player id")
+Reported-by: Changyul Lee <lcy8047@gmail.com>
+Assisted-by: LLM
+Signed-off-by: Sang-Hoon Choi <csh0052@gmail.com>
+---
+Found during source review at mainline
+5dd1818b15d98d4a20806cd00b1b40320b06004f. The affected source is unchanged
+at f0100363d8c374bd8e9ea7c9ba02744f0b802ca4.
 
-Add the mdp5_cfg_hw entry for MDP5 version v1.12 found on MSM8952.
+The modified hid-nintendo.o compiled with x86 allmodconfig and W=1.
+I have not tested this on a controller or injected LED setup failures.
 
-> diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c b/drivers/gpu/drm/m=
-sm/disp/mdp5/mdp5_cfg.c
-> index 7c91fc1915f39..d34c94d6f7e2e 100644
-> --- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
-> +++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c
-[ ... ]
-> +static const struct mdp5_cfg_hw msm8952_config =3D {
-> +	.name =3D "msm8952",
-[ ... ]
-> +	.pipe_cursor =3D {
-> +		.count =3D 1,
-> +		.base =3D { 0x440DC },
-> +		.caps =3D MDP_PIPE_CAP_HFLIP	|
-> +			MDP_PIPE_CAP_VFLIP	|
-> +			MDP_PIPE_CAP_SW_PIX_EXT	|
-> +			MDP_PIPE_CAP_CURSOR	|
-> +			0,
-> +	},
-
-[Severity: High]
-Does exposing the LM cursor as an SSPP pipe corrupt the LM cursor registers?
-
-When userspace performs an atomic plane update on this cursor plane,
-mdp5_plane_mode_set() writes standard SSPP pipe configurations to
-0x440DC, which is the exact address of REG_MDP5_LM_CURSOR_STRIDE(0).
-
-Because the two hardware blocks have completely different register layouts,
-SSPP registers like SRC0_ADDR end up being written into LM CURSOR_XY
-coordinates, corrupting the layer mixer's cursor configuration.
-
-Should this cursor be handled by mdp5_crtc_cursor_set() instead of being
-exposed as a pipe_cursor?
-
-> +	.lm =3D {
-> +		.count =3D 2,
-> +		.base =3D { 0x44000, 0x47000 },
-
-[Severity: High]
-Will the base address for the LM3 (Writeback) hardware mixer evaluate to 0x=
-0?
-
-When the driver configures the Writeback interface (LM3), it indexes
-mdp5_cfg->lm.base using the instance ID (mixer->lm =3D 3). Since the array
-was initialized sequentially as { 0x44000, 0x47000 }, base[1] receives
-0x47000 while base[3] is zero-initialized.
-
-Writing layer mixer configuration to 0x0 corrupts the global MDP5 control
-registers, leading to severe hardware malfunction or system crash.
-
-Should this use designated initializers (e.g., [0] =3D 0x44000, [3] =3D 0x4=
-7000)?
-
-> +		.instances =3D {
-> +				{ .id =3D 0, .pp =3D 0, .dspp =3D 0,
-> +				  .caps =3D MDP_LM_CAP_DISPLAY, },
-> +				{ .id =3D 3, .pp =3D -1, .dspp =3D -1,
-> +				  .caps =3D MDP_LM_CAP_WB },
-> +			     },
-> +		.nb_stages =3D 8,
-> +		.max_width =3D 2048,
-> +		.max_height =3D 0xFFFF,
-> +	},
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260921-msm8952-in=
-itial-support-v3-0-b96fd3fe298b@mainlining.org?part=3D13
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 43e0f2aae..bec0e7652 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2784,7 +2784,7 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 	ret = joycon_leds_create(ctlr);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
+-		goto err_io_stop;
++		goto err_ida;
+ 	}
+ 
+ 	/* Initialize the battery power supply */

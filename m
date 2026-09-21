@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF4724F96A8;
-	Mon, 21 Sep 2026 18:19:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 171754FB9B7;
+	Mon, 21 Sep 2026 18:19:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790014753; cv=none; b=BjGjhxNFhT/CY2D8nU/j4cZoCjw5fKD2X4FVZj+Q6V8gL30Cckbx16a15aqScvSCQgFsxDYyXlnJKsrbXZ0TVlIPFecAkiDWhv2FfSbx37NJD9W8jrKAfnmu4/RF5A0IiNR2Ire1KanAKbO34xmT8ChDZOSHFEYAVHcSFqOVRds=
+	t=1790014753; cv=none; b=dscr02/wd05nEx8IBdizYZ36YZ0T7lEqn74UOKzXg/Sh5ReHN6KjK37jE1HgBJ3DUqhGMHb2DBp5/TawDhVjSXRkSfvuaVXL8LEzBYBfOMmYIsChJkG+rcimUVLo02HMtnFlICZmBf+OIT8QIEqQ4nM5SWbaqecpKeTeFRGIyqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790014753; c=relaxed/simple;
-	bh=wQbePRamCK6qP0HQmCfbQPjwS++8UxIWO8FopCf4Qv0=;
+	bh=ctHaSGcvyw3H8wQm3ii/7WZwBxWZ9vwphTZ5+6+nWy4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gm4Mll7CSYv+iAFJgRp4ABwvnwOerA0Haq2waZWflpbP23XlVv4yJ86kDgtyh9lA81INyLIBBzysPEoVbMp9VRr6spSfEuO6kAAdNWxNO2lUKRBfdQAXyw+9JsygQ4yrYcCyyLhgP3iOGRNtYBKy/C0sUYFcvqfBk3Xq9YOtvQU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rztN/2Bu; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=pfTKSrJEaDVnpBhsojD4oKWHy6rUzKBX7TnYhp56/eMKf9X36i1vkqxIRwNFeYcKpDmHkZ1C/NTTgkgSKZrT1/7DDvpZ8q9RJQlGOWcd/2VWnKALzaprmT9dVEwaNhQ6Cta5r5QvPQWioSw+nyRkl0bs7BqG7ISNYjvoCWrQk64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KzdMzOkN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rztN/2Bu"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 95460C4AF1A;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KzdMzOkN"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 80C21C4AF65;
 	Mon, 21 Sep 2026 18:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1790014752;
-	bh=wQbePRamCK6qP0HQmCfbQPjwS++8UxIWO8FopCf4Qv0=;
+	bh=ctHaSGcvyw3H8wQm3ii/7WZwBxWZ9vwphTZ5+6+nWy4=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=rztN/2BuhCFXQNHvQ8VJiFJVXpL1xw9rkc6SYX+/sCWTew/jjjewsWLbGAsVdT8Nm
-	 YnKK3F0O31muyHT52bd2J4dXq6lNyvxw+UCTUn28Z8a9kT6tBtctvfGLmSjV86e/st
-	 5f2O8ej3iz3bI30z4r3VNBudscPFP9hzCagsF43CvqRliOe7JJGvMPwbYWhYTI6DVs
-	 8RQslTDr1VZ7s2wLjdoITb8zS0e0lIzeQRxn9YrAQC5Z6P2/orMjAxiytzMpLKiJ/t
-	 duojVuJQscCTPrNPh8CSRTsXe51eF7snm5IMlPc1c1UPK+T8Jx7Q/0VCM0Kc2jh8Gf
-	 1HKqH1mZsmpag==
+	b=KzdMzOkNOyXx50B/mZAp4Sr3zCItKvax/K+/7to3JTSZmuEkg1Fo6IXp/QiZJKhLE
+	 XlfgK9Fx7h8GzEkjNVF5OzQqudxluLBsMXvjSLn+TjAUMgNcJwXhR0wCWb5c3UD0t3
+	 zmQluwH/ZBvdatwRj30JuTC7k1/JI3j2yEBULT08SuwWm23olKKXxHCNqH+h8F6PtJ
+	 /KFiKIboebz8ab6lnzRlvfqJN7KkfD0qVeE1ECPHB3EKJlEtcer86q+5SOXnOO3+OR
+	 PjS79Zr/bqC8g6O8LB9V3V0I8k9tX/YXyQ73mkP8a3mg1GoDES2DbVC/CaGIRCMzn4
+	 CIDWTjE8Chbjg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7893CC982EE;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 604E0C982FA;
 	Mon, 21 Sep 2026 18:19:12 +0000 (UTC)
 From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
-Date: Mon, 21 Sep 2026 21:18:57 +0300
-Subject: [PATCH v3 06/19] dt-bindings: vendor-prefixes: Add General Mobile
+Date: Mon, 21 Sep 2026 21:18:56 +0300
+Subject: [PATCH v3 05/19] dt-bindings: mmc: sdhci-msm: Add MSM8952
+ compatible
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260921-msm8952-initial-support-v3-6-b96fd3fe298b@mainlining.org>
+Message-Id: <20260921-msm8952-initial-support-v3-5-b96fd3fe298b@mainlining.org>
 References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
 In-Reply-To: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
 To: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
@@ -73,14 +74,13 @@ Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
  linux-mmc@vger.kernel.org, iommu@lists.linux.dev, mfd@lists.linux.dev, 
  dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, 
  Krzysztof Kozlowski <krzk@kernel.org>, linux-pm@vger.kernel.org, 
- linux-input@vger.kernel.org, Muzaffer Kadir <muzafferkadir@mainlining.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+ linux-input@vger.kernel.org, Muzaffer Kadir <muzafferkadir@mainlining.org>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1790014748; l=921;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790014748; l=861;
  i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
- bh=PnYLUgGz3s0uCTErVdwKOvW0TSbIMZuWd4fgenpThBM=;
- b=oooIact20WyWw3vnWthGA4tgys+GchSsDImgXI2OZloY1CLI2yJ4FYpu2H1TfCf8iN/euYXgn
- MsqmOcr0/lhCkGVVwozpZirzO43nZZxcWp74nOGVPNFSnLIw3lavYc6
+ bh=uQuDsY7sKCtxhxupdBeZKbofdc/eOc+AEju250sV/h8=;
+ b=5bo6Glg8xIDB0IqcOMpsjfx6TEdUNtAcAjWM6/Eh4Z25sWgteEFdun/P28zIXLJvbvsvxvCxQ
+ F2N2run4UfSBrJoz80bZGUEy3gF9319Y08wgeBv0AX3+8jRewNt1abb
 X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
  pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
 X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
@@ -90,28 +90,26 @@ Reply-To: muzafferkadir@mainlining.org
 
 From: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Add vendor prefix for General Mobile.
-Link: https://www.generalmobile.com
+Document the compatible string for the SDHCI controller on the
+MSM8952 platform.
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 ---
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-index 4a5cf436eb14..8197b4155b6d 100644
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml
-@@ -662,6 +662,8 @@ patternProperties:
-     description: Gemei Digital Technology Co., Ltd.
-   "^gemtek,.*":
-     description: Gemtek Technology Co., Ltd.
-+  "^generalmobile,.*":
-+    description: General Mobile Fzc.
-   "^genesys,.*":
-     description: Genesys Logic, Inc.
-   "^genexis,.*":
+diff --git a/Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml b/Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml
+index 69bd44e65ad7..9d4409c958fa 100644
+--- a/Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml
++++ b/Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml
+@@ -26,6 +26,7 @@ properties:
+               - qcom,ipq4019-sdhci
+               - qcom,ipq8074-sdhci
+               - qcom,msm8226-sdhci
++              - qcom,msm8952-sdhci
+               - qcom,msm8953-sdhci
+               - qcom,msm8974-sdhci
+               - qcom,msm8976-sdhci
 
 -- 
 2.55.0

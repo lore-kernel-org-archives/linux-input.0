@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 598FD5013C3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B50502541;
 	Mon, 21 Sep 2026 18:19:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790014754; cv=none; b=ABF3gnF8N7U2h221zawKAey00Judcfx7eza4HvRDYtpZ+FxElHOztv1B7CVzlygge+YwUqK8tCBma3oCP4WpU+JEB4BO+CGshyxzVwbVclkEAU2VTGurh7j4+N4wyCmLBOfklVyCqT7c/5iU1F3CqF2fWqxGRZ+3sNBg95rMLv4=
+	t=1790014754; cv=none; b=RisrMDFUeSxmR1r6iqbBl86xQNftSiAZcWz0lzPR0BrVJk/M6siHtIAj/ervqYDksRKedotpplVwN7fUWQVs8QdptimV0mCT94AdTxjuoX2FYMFMAT0tSnBE6BvXl1zmuYCrIqZrAJtqwkaoWl5EGP0NvmF0o7C7wxS4bW591gk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790014754; c=relaxed/simple;
-	bh=e8AQbyRP7RLyAcm9yJ1C4l2EkIpH9lqpf5eaVeei7Dg=;
+	bh=vAFIOZywJ3Cf6QH20r/UhBzUAEPsdRIi9SW9imqskR8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=p691ERO7/jbKLJPdlt1IDNmuivFpTxNbizdtunE/krxdM2ScaNe8mM+dFP05xoJHqf0P15ZnKrjHFNDpFyMJYVcm64KqY3idzM25Ev0rFJ776rbYRVR/9tPQ5dFUMnAg7XZzYcMYJnbFTzRqsJnkt3wNgDueSGoc9ApngVgNS6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ml7SsoOA; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=JnA0jiLDIp9xGE8GEASCcKK88ttCivSMgQ7FKGuXCHTiLs3Txli+niQnQ+F3kTEvNCvMilw1aUpNn58Ht05LFwlRPN2BlOSOqYDrYQsH9DaiCS7ctxaSUYCmTBl/0VxtDY0xsti9MlNaBXVa1nDxOm6IMHvSkAJkZhWhdc90yzk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FjzzYvId; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ml7SsoOA"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id CB77CC4AF1C;
-	Mon, 21 Sep 2026 18:19:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FjzzYvId"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 1138FC4AF0E;
+	Mon, 21 Sep 2026 18:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1790014754;
-	bh=e8AQbyRP7RLyAcm9yJ1C4l2EkIpH9lqpf5eaVeei7Dg=;
+	bh=vAFIOZywJ3Cf6QH20r/UhBzUAEPsdRIi9SW9imqskR8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=ml7SsoOAkZs5w3MfKppbtXnYfPcb3+Y4Jp5nNgANuT2i7qUincBs/aFBQPC2lG/xN
-	 ZwXiX0KyeGaS6Um/tM15qrVTpafAhSU9Q3ZLaWVfYUHUrQILyvEzQYQNwCVh7K9ko1
-	 xN46mtfWXOX4Zfy6OUDQsD9L/9p3qBWOC+qwPM5Jo0gKh2PTzlLb5sT0+V5Yd8aeo0
-	 ef8lQTh86Rk3OhfCM6+8gizgCProwBI4JT/1N5f60hd5QUWJffVkVIzcAh3KD9OANc
-	 rbwMkyRdSb+H9cGawJqIayr6Ah0ma7A0aQXS+GCICGFhFB1vGL4C4NKaosCmiF1B7p
-	 azYV5w7SczrgA==
+	b=FjzzYvIdv4mz7WtH84SsnUC0ZTLkzYBWqROlEHiYWK9OPyaY9/CKyk4GbrbWKdadT
+	 GqEjWfEJ+5jwxYRF3FKoptb/S0Kaq6WjumuEPJBcojho3FnvmKadV3niN0+SOdYvd6
+	 KbZ0GRkilqiFyAGRuCoP5vFV8VppyTDoiC6Nq09ASP6qCgxmZGbTo7uRgN4XI7+frH
+	 qZ0L0Ip+rDH4cpujXG9K8+F5fTRfBqu74z4LdmKMlbV7xRyzdk77lmZgrD/LhOtL6A
+	 53AoHd6Pk6Wq4JC50iAuqQ08zkGfUGo/tUOQ3jQ/NsS1LIvrvZ/qj8EOsrGJ5kSNm1
+	 XX4pMwogm/IIw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B30AEC982F7;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAA83C982ED;
 	Mon, 21 Sep 2026 18:19:13 +0000 (UTC)
 From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
-Date: Mon, 21 Sep 2026 21:19:07 +0300
-Subject: [PATCH v3 16/19] thermal: qcom: tsens: Add support for MSM8952
- tsens
+Date: Mon, 21 Sep 2026 21:19:09 +0300
+Subject: [PATCH v3 18/19] dt-bindings: input: touchscreen: goodix: Add
+ binding for GT970
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260921-msm8952-initial-support-v3-16-b96fd3fe298b@mainlining.org>
+Message-Id: <20260921-msm8952-initial-support-v3-18-b96fd3fe298b@mainlining.org>
 References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
 In-Reply-To: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
 To: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
@@ -76,11 +76,11 @@ Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
  Krzysztof Kozlowski <krzk@kernel.org>, linux-pm@vger.kernel.org, 
  linux-input@vger.kernel.org, Muzaffer Kadir <muzafferkadir@mainlining.org>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1790014748; l=3737;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790014748; l=1586;
  i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
- bh=vXpWx7d9wR4FUlrmSi9iyg3W662IEtM1fT94x3Vg7pY=;
- b=78/Pu94tu2l7kpYjz44z3MaPWHG5SSGXtcpdajtedv2cwzshsRC1ZgvRYzpKsZrP0j13Yqie6
- 92aoKqLvUytD7TPwM/myGsZrJItU6un7mRPmesJYkVSFVMntWAPd/oD
+ bh=7Oq7rS5EzM26Gux3h9WgKT4CbZy8lSOyKUpp4zcOUuY=;
+ b=5GNutjokBiTs7aasmJJm6UC3BS8bSmyr/ejrMAdp/A7QMobG7W8nu3jKLq8jr3hqtf3F9Azi4
+ X+TrEwDyGrDDqR42DoAb7uezNKegEQOwSc3QOhC1Ex/mwFnXZxA9EOR
 X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
  pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
 X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
@@ -90,108 +90,60 @@ Reply-To: muzafferkadir@mainlining.org
 
 From: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Add MSM8952 support for tsens.
+GT970 works with GT911 driver, document it to be
+used with GT911 compatible.
 
-Downstream does a lot of advanced things with calculations.
-But seems like using tsens-v1 directly works too.
-
-Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-wear-7.0.0_r0.3/drivers/thermal/msm-tsens.c#1621
 Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 ---
- drivers/thermal/qcom/tsens-v1.c | 44 +++++++++++++++++++++++++++++++++++++++++
- drivers/thermal/qcom/tsens.c    |  3 +++
- drivers/thermal/qcom/tsens.h    |  2 +-
- 3 files changed, 48 insertions(+), 1 deletion(-)
+ .../bindings/input/touchscreen/goodix.yaml         | 35 ++++++++++++----------
+ 1 file changed, 20 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/thermal/qcom/tsens-v1.c b/drivers/thermal/qcom/tsens-v1.c
-index faa5d00788ca..f4201748ea29 100644
---- a/drivers/thermal/qcom/tsens-v1.c
-+++ b/drivers/thermal/qcom/tsens-v1.c
-@@ -145,6 +145,37 @@ static const struct reg_field tsens_v1_regfields[MAX_REGFIELDS] = {
- 	[TRDY] = REG_FIELD(TM_TRDY_OFF, 0, 0),
- };
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+index a26a54d63a1c..4be2c137abd7 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
+@@ -14,21 +14,26 @@ allOf:
  
-+static int __init init_8952(struct tsens_priv *priv)
-+{
-+	for (int i = 0; i < priv->num_sensors; ++i)
-+		priv->sensor[i].slope = 3200;
-+
-+	priv->sensor[0].p1_calib_offset = 2;
-+	priv->sensor[0].p2_calib_offset = -1;
-+	priv->sensor[1].p1_calib_offset = -4;
-+	priv->sensor[1].p2_calib_offset = -4;
-+	priv->sensor[2].p1_calib_offset = 4;
-+	priv->sensor[2].p2_calib_offset = 5;
-+	priv->sensor[3].p1_calib_offset = 1;
-+	priv->sensor[3].p2_calib_offset = 1;
-+	priv->sensor[4].p1_calib_offset = 2;
-+	priv->sensor[4].p2_calib_offset = 3;
-+	priv->sensor[5].p1_calib_offset = -1;
-+	priv->sensor[5].p2_calib_offset = -1;
-+	priv->sensor[6].p1_calib_offset = 0;
-+	priv->sensor[6].p2_calib_offset = -1;
-+	priv->sensor[7].p1_calib_offset = 3;
-+	priv->sensor[7].p2_calib_offset = 4;
-+	priv->sensor[8].p1_calib_offset = 2;
-+	priv->sensor[8].p2_calib_offset = 4;
-+	priv->sensor[9].p1_calib_offset = 0;
-+	priv->sensor[9].p2_calib_offset = 0;
-+	priv->sensor[10].p1_calib_offset = -3;
-+	priv->sensor[10].p2_calib_offset = -2;
-+
-+	return init_common(priv);
-+}
-+
- static int __init init_8956(struct tsens_priv *priv) {
- 	priv->sensor[0].slope = 3313;
- 	priv->sensor[1].slope = 3275;
-@@ -223,6 +254,19 @@ struct tsens_plat_data data_8937 = {
- 	.fields		= tsens_v1_regfields,
- };
+ properties:
+   compatible:
+-    enum:
+-      - goodix,gt1151
+-      - goodix,gt1158
+-      - goodix,gt5663
+-      - goodix,gt5688
+-      - goodix,gt911
+-      - goodix,gt9110
+-      - goodix,gt912
+-      - goodix,gt9147
+-      - goodix,gt917s
+-      - goodix,gt927
+-      - goodix,gt9271
+-      - goodix,gt928
+-      - goodix,gt9286
+-      - goodix,gt967
++    oneOf:
++      - enum:
++          - goodix,gt1151
++          - goodix,gt1158
++          - goodix,gt5663
++          - goodix,gt5688
++          - goodix,gt911
++          - goodix,gt9110
++          - goodix,gt912
++          - goodix,gt9147
++          - goodix,gt917s
++          - goodix,gt927
++          - goodix,gt9271
++          - goodix,gt928
++          - goodix,gt9286
++          - goodix,gt967
++      - items:
++          - enum:
++              - goodix,gt970
++          - const: goodix,gt911
  
-+static const struct tsens_ops ops_8952 = {
-+	.init		= init_8952,
-+	.calibrate	= tsens_calibrate_common,
-+	.get_temp	= get_temp_tsens_valid,
-+};
-+
-+struct tsens_plat_data data_8952 = {
-+	.num_sensors	= 11,
-+	.ops		= &ops_8952,
-+	.feat		= &tsens_v1_feat,
-+	.fields		= tsens_v1_regfields,
-+};
-+
- static const struct tsens_ops ops_8956 = {
- 	.init		= init_8956,
- 	.calibrate	= tsens_calibrate_common,
-diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
-index b5ec70201e2f..4d7013fc79d6 100644
---- a/drivers/thermal/qcom/tsens.c
-+++ b/drivers/thermal/qcom/tsens.c
-@@ -1191,6 +1191,9 @@ static const struct of_device_id tsens_table[] = {
- 	}, {
- 		.compatible = "qcom,msm8939-tsens",
- 		.data = &data_8939,
-+	}, {
-+		.compatible = "qcom,msm8952-tsens",
-+		.data = &data_8952,
- 	}, {
- 		.compatible = "qcom,msm8956-tsens",
- 		.data = &data_8956,
-diff --git a/drivers/thermal/qcom/tsens.h b/drivers/thermal/qcom/tsens.h
-index e8376accdff3..a35b15312961 100644
---- a/drivers/thermal/qcom/tsens.h
-+++ b/drivers/thermal/qcom/tsens.h
-@@ -669,7 +669,7 @@ extern struct tsens_plat_data data_8960;
- extern struct tsens_plat_data data_8226, data_8909, data_8916, data_8939, data_8974, data_9607;
- 
- /* TSENS v1 targets */
--extern struct tsens_plat_data data_tsens_v1, data_8937, data_8976, data_8956;
-+extern struct tsens_plat_data data_tsens_v1, data_8937, data_8952, data_8976, data_8956;
- 
- /* TSENS v1 with no RPM targets */
- extern const struct tsens_plat_data data_ipq5018;
+   reg:
+     enum: [ 0x5d, 0x14 ]
 
 -- 
 2.55.0

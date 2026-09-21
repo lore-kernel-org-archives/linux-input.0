@@ -1,90 +1,98 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 310A349DB8E;
-	Mon, 21 Sep 2026 13:19:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08886369D66
+	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 16:20:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789996797; cv=none; b=ge1tc3FzRio/jEc3JPt5IGeJP+dfRKJs04P3Uw0vxNWcca1SxMKkhwquQkpvDH6eAxccFj9stGr40LYPItwkxOI1P7rxxTtvM32Ncsu4n55NxLr5gOqMY4jITbK5G0mP4DrMkgIoySbm5HoBcXiCdJ+W/aX6FciBKR6vYTzEwiI=
+	t=1790007609; cv=none; b=I92EDzSHX6EJfxhio/GgRzpLtuopCjdNDr23y0wGcjmisXnQj2ndeqcPI8wHzdajUa21n1Z6+3BR1Uh/tXUBiqjzjpXq5CMe3BTB8u+067ZtcgFqfOXfvkTXAUbj6pY7P4G6Zj6ITc7oj+cBop39w+5pdq3A9oOitbpWY4Tuiq0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789996797; c=relaxed/simple;
-	bh=/GwFm8YGuKNtWhy+5FLEEpJzllXHxg4Yt37OjV2G+mM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=J/2lDdOVoRnfNkdogngmX+AuFk92XrM4y2SJkd0YvaXsc3B2tFa8Z0NghdvzmqPpAamZqA4O3MxC3AJHnFSilnVovG9YaMrK2IRHYb9Qa5owxJNp0TmvIN3JLwhg9QZmiLUsbAEOB8OkhjZ/1l18P6ElPYtYstgIYAI5ZdI0EtE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 1d85befeb5bf11f19a56ed5b684f684d-20260921
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:ff4e3418-4495-4aed-ab25-b067e9505520,IP:0,U
-	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:25
-X-CID-META: VersionHash:7db8b62,CLOUDID:13aff417612db476555169e270e198a6,BulkI
-	D:nil,BulkQuantity:0,SF:102|136|850|865|898,TC:nil,Content:0|15|16|50|99,E
-	DM:5|-100,IP:nil,URL:99|1,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OS
-	I:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_ULS
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 1d85befeb5bf11f19a56ed5b684f684d-20260921
-X-User: zhangheng@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <zhangheng@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1056557169; Mon, 21 Sep 2026 21:19:46 +0800
-From: Zhang Heng <zhangheng@kylinos.cn>
-To: dmitry.torokhov@gmail.com,
-	cryolitia.pukngae@linux.dev,
-	kees+treewide@kernel.org,
-	DongLin_Lyu@outlook.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Zhang Heng <zhangheng@kylinos.cn>
-Subject: [PATCH] Input: atkbd - rate-limit unknown key warnings
-Date: Mon, 21 Sep 2026 21:19:34 +0800
-Message-Id: <20260921131934.677541-1-zhangheng@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	s=arc-20240116; t=1790007609; c=relaxed/simple;
+	bh=YsokBT9eFCV3CfHCgmNaqagx+Bh1+qcugK+hkEsl6As=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IOWOLxNQRHvArWJ7ZyOqKKP+7Mu9JNkItELDx3Avh7LfxCSMYsX6DiOR6tM78+3/x8/i7Es+B21ikjy/6WSAyvg7AuNZ6/qZ//bVx1DrpfTsfLuY/76+K2iAGDfnvxiDkzAP8sf6Lb2Jt/qMlzciLrsfHtgfdnmhcYfLAmpyQdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CFLWy/0n; arc=none smtp.client-ip=74.125.227.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CFLWy/0n"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccb652d7so2874874a91.0
+        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 09:20:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790007607; x=1790612407; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Lng9J8cl9n0YFW5Bwkq4qc0T7LpY93jg7ENgMgRtrQQ=;
+        b=CFLWy/0nIV3G+FcbfhLtuoZ2jBmCyctkdbOsz8rq49om69I+3xQAsUDy31SO+NiAo5
+         Luggx0tfenoX9OS2J7IcnQ+bdfZ4A5CWmDimVs+4KxW9YhmkrlZFpGa56G02QsAdv2tr
+         jJAvH7QYU3fuP7YgsXNRX03iNugkYjj8ZdoWUdUEMrQZg9aZFz2WUJkGl4ni+RCnuncW
+         fbhPDf3zyStLJ0uvcaWBS48PFwNvPyKmiyaGTwf2N+6XR+ze91bZSVcynJTk/ZR+D+/7
+         0IEhJPJuR7qlNU8TbhWRtDCEqhzJLnEj1aanOV0V5gPKr36DbgM5sJ7jQr/YQhNplD3Z
+         yCCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790007607; x=1790612407;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Lng9J8cl9n0YFW5Bwkq4qc0T7LpY93jg7ENgMgRtrQQ=;
+        b=vcf9jPOPl9MhLOIKcV24ts4GdyVYPjRv0ww/Yj5xYe2DlR2bcyv6SrwtTigJ01ypwY
+         SEM6JCf3uCBPoAWLA4SX9PaIi34wacawDVKLGkeVqJ2+UAh7rFFseFAkdSkKckwUg2FT
+         DsIf6ysrfBLXdfcmhuHCehEtb+VIybc7wmE7qhSxhYZuj5lITWqfcy5E+5otDOmbptts
+         nbx6So79Yfk63wxnrxQ2z7wqEoq11TvG3XDr/V1oxGqr5kBIlpJ7Y2jk5VpXTc77QWFN
+         6x0EY40I7PcrmYM/RmlfshKq16AMJJPiAlvw/YhGPBW4woA4cc2Eq2vpofeFSRmgKAjj
+         H2WQ==
+X-Gm-Message-State: AFuF++nCPQyztscscM4VVzL035MQ+a0a8y98OYhnXQuh0goUk+pBdUgC
+	thbzIiI8ekwICn+mlYMOGm94m1S/sUnJ2Jq8XmoP700ntILxlfX/xlGl
+X-Gm-Gg: AYBFou2a+3Msea6V/oeShirNLeT2ZXxlFMid+5wxNLTpMoKPqF/AA8FcEr8yQ6juVUn
+	drHFHlHGDZJtMaW+ACbPVUd6gpI7a1FIZycXzEUXaYwmEVzjzfwYpEICl5s27Qvqz/ZKi+xUm6+
+	Qq4FPdqOSvs7JcNxn/EzKMKPlufHujHGMpIVy3K4AIr0E5vQhIzpqVZKec7kGfR0qUg2WnovOku
+	MJdLBLKtFZL5FyH9DECV5fZnWtnOqrKqwEaXc1gVBuGOHA+QH682AliIU0VImy3H+HE+bBIs+i7
+	2FowpNkIdnH5z0tSljcbAmkzMLofmQCyarUCgPMGEdcMjpq/+zMewSVidjeIeHgdXMUxKO45nGT
+	6PCXSchydq9kWaGCcgPK1ze34CUEceLPsM+vUVFQolaKfQDraZIELVmZP4L/vyMhOfqmR26VVZ7
+	4wF/HdG9pblV42rsw0SJgTPPeHokjvRq8ExtFFB4e3sApEY8JRglnl/42tKVruxUQ3TXbyA86HA
+	Wxbp3tSncWWSiU0IJE5luVUppdX6Qmzf5MlclDZOj2L50tlLtIr
+X-Received: by 2002:a17:90b:3ec7:b0:39e:6c6a:4b65 with SMTP id 98e67ed59e1d1-39e6c6a5463mr10817094a91.47.1790007607182;
+        Mon, 21 Sep 2026 09:20:07 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:e1a7:4f7b:11d4:34fa])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a0320b6ad5sm4352436a91.0.2026.09.21.09.20.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2026 09:20:06 -0700 (PDT)
+Date: Mon, 21 Sep 2026 09:20:03 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: David Heidelberg <david@ixit.cz>
+Cc: linux-input@vger.kernel.org
+Subject: Re: Double tap to wake optionality
+Message-ID: <arFYaZ-bXFMt2rlu@google.com>
+References: <4f9e942c-823e-4ab1-81ed-184b5f8388d6@ixit.cz>
+ <aqcxlFLHh3V5vQvt@google.com>
+ <2e1d1610-1d16-434d-82aa-54289ffd0eb1@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2e1d1610-1d16-434d-82aa-54289ffd0eb1@ixit.cz>
 
-Replace dev_warn() with dev_warn_ratelimited() for unmapped scancode
-warnings, matching the existing rate-limited handling of spurious
-ACK/NAK events in the same function. 
+On Mon, Sep 21, 2026 at 01:19:15PM +0200, David Heidelberg wrote:
+> P.S. There was some discussion in the ML about letting panel blank and
+> toucscreehn interact, but I cannot find it.
+> 
+> Having the handling of the panel off -> TS autosuspend workflow in the
+> kernel would be pretty nice.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=221214
-Signed-off-by: Zhang Heng <zhangheng@kylinos.cn>
----
- drivers/input/keyboard/atkbd.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+I think this is the "follower" model - a touch controller integrated
+into a panel that is being powered down together with it. There was a
+patchset [1] in the last couple of weeks but I have not had a chance to
+look at it yet...
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 93650c98206d..26523329040b 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -497,13 +497,11 @@ static void atkbd_receive_byte(struct ps2dev *ps2dev, u8 data)
- 	case ATKBD_KEY_NULL:
- 		break;
- 	case ATKBD_KEY_UNKNOWN:
--		dev_warn(&serio->dev,
--			 "Unknown key %s (%s set %d, code %#x on %s).\n",
--			 atkbd->release ? "released" : "pressed",
--			 atkbd->translated ? "translated" : "raw",
--			 atkbd->set, code, serio->phys);
--		dev_warn(&serio->dev,
--			 "Use 'setkeycodes %s%02x <keycode>' to make it known.\n",
--			 code & 0x80 ? "e0" : "", code & 0x7f);
-+		dev_warn_ratelimited(&serio->dev,
-+				     "Unknown key %s (%s set %d, code %#x on %s); use 'setkeycodes %s%02x <keycode>' to make it known.\n",
-+				     atkbd->release ? "released" : "pressed",
-+				     atkbd->translated ? "translated" : "raw",
-+				     atkbd->set, code, serio->phys,
-+				     code & 0x80 ? "e0" : "", code & 0x7f);
- 		input_sync(dev);
- 		break;
+[1] https://lore.kernel.org/all/20260911133234.736A21F000FF@smtp.kernel.org/
+
+Thanks.
+
 -- 
-2.25.1
+Dmitry

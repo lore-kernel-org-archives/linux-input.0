@@ -1,121 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C10842749DC;
-	Mon, 21 Sep 2026 02:08:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4B772F7EF3
+	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 02:38:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789956505; cv=none; b=Sz8RuoSYa1oR3a4WazywDPmW0XftqFzPW5JwAfXmVrkB7f2e5fOADSzM0AqVe6Ef/8GZLpyHfN3OBTjmUkwhL3L3Nv23pV1fyP3Ipb6Tl/0j6thEMa6J3K6CNRakM4P1Udf1wvlmgqcWQEMx5UlVM7svuPs4xJ3O3zZQp95HJz8=
+	t=1789958330; cv=none; b=KxesI1ygKfvWVlAUrJ2LfTbs9ES6LQwie1RZGOAWilaBV1aWFnqwZLQl/fr+JeuKCPFl/sXj9lC6XhtDhvSvW+poXEk77XaeS0wbVwfkYNuwa+gPl+EtUauOUD14ioiVZZHo2vQl2eukcxGcMuIyZ3p/SNX0CKigjbT7j5GacE8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789956505; c=relaxed/simple;
-	bh=FaQMT0rE37baVWJSJ0dRe4PqLBIHpn+9HdLmHtyFE5k=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VDLbG9ZMRKhPgbaL1Si6LCm376dPZivQNGZ8qw/+0jxJCtA+Yj8Mn6VfOxd9/dfvM3Ktgz+Zgw5BXQ0G01xKagxHpaZOnUjejrVqLpO2XlrOpmmDqO6Cb8sYiRpO0Qzcpo6ROekCQJEzmXHvDHCKN6XKMm+09BmwI83tkkt/HXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XZkPaFQH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789958330; c=relaxed/simple;
+	bh=roqCL/hZ7Ph4PBse9KxMlNOZ2C57CeVfUJf+MSM/X5o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SIjfo471kEP1tag6WWY+JkIlrB0UN8bFKRrVRtmenMYw0bTtbFTRrw9+Zp9LgJOJa4HKPmzGTHTgdYYMSrs8aV9CUHVxgq53xUGbNAgKA5M4Ay4Xa5N2pf1obGJcL+5BHtrQnLA+boJ6/9ANkVIOTmaHD1B9EhL5v5qjPYZiGbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CM8VYNeu; arc=none smtp.client-ip=74.125.227.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XZkPaFQH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C8DB1F000FF;
-	Mon, 21 Sep 2026 02:08:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789956503;
-	bh=NpIRnFxqUUD3tCptCr10Wb+X9uJvASSGEA6JSURbCr4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=XZkPaFQHJ/onb/hbeK+wuQOu8zy2YVScKURFRY04c0BF7yrtvTNfT5xQQMjbFC9M2
-	 z41m/Jzg3z/cU03Z8EdS/9Oxwq8lbNg5ME8M/wSyYdvPQlZ/G1WdawhYS5u9yYrDGl
-	 OpQ6ZcXXdgftyVBhQz8FcIyjCqfJeWPMBiwdiH3CDt8zTXRl70j9YQBBIaQBt3cwcR
-	 gx0sXh/Rga0P2/CAqPPVVs3k2Du83t8NSQS0VJ0l/IIQEpxkpLLJqBemsLCA2LLVgs
-	 Lh+BZds9HPaFDB52fH85RmjbWcQaygKJqAqdKyJ1ql+8hjZDuwp5/NRsqbrZNuwIse
-	 JXYb1aQihgltQ==
-Date: Mon, 21 Sep 2026 03:08:20 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: "Zhang, Lixu" <lixu.zhang@intel.com>
-Cc: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>, Yibo Tan
- <lhfff@tju.edu.cn>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
- <bentiss@kernel.org>, "Shevchenko, Andriy" <andriy.shevchenko@intel.com>,
- "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
- "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v1] HID: sensor-hub: synchronize multi-value read
- cancellation
-Message-ID: <20260921030820.3ef1a6bd@jic23-hlaptop>
-In-Reply-To: <SJ0PR11MB56133EB59F6A661ECE3820D593B82@SJ0PR11MB5613.namprd11.prod.outlook.com>
-References: <20260910112338.4171983-1-lhfff@tju.edu.cn>
-	<9ae8e6b44ffaf5affb7324f802a3626c581ac461.camel@linux.intel.com>
-	<SJ0PR11MB56133EB59F6A661ECE3820D593B82@SJ0PR11MB5613.namprd11.prod.outlook.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CM8VYNeu"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-39b910bdf2eso1639408a91.2
+        for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 19:38:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789958328; x=1790563128; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ORBs3m+ws4OHfu45BhvkuHCmS+gMggmNeMZoCuvyzTw=;
+        b=CM8VYNeuW0VOL6B8yt/DRO+ysw3pyTQ3yl/tUnQvN+Im8R7kSAuDn43fTL6sDUqlKY
+         rhdEDGSKL2FiGxZCwLRP8R0DBGaPVVll43KpNDgruBNu+2RtBEhq5oLXDHIY53ZdxppW
+         PnEKkW2uh6WeyifZWbD1OAqUAVGxShKGrORQQmt9GkKUnK7x2PbluE4w9BDk+Cr3JfGE
+         NApn0WCFGXTzgeE5Rl5r1tPUjgiNcgbl0ztnZWIxhvKzdprZr+Xhj9W+kaWZx/uKxziD
+         9W117Ij7n7vOqgpHQ4fa+9SSLwdXdKwULSuGqh9DXYlCtwa7ZplLTF2a2Zvx2Pig4UQ0
+         S/dg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789958328; x=1790563128;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ORBs3m+ws4OHfu45BhvkuHCmS+gMggmNeMZoCuvyzTw=;
+        b=0GwyMKFpIiaQHTkC0cIg43TKpaZYeZcDGrfjnQOXNQnqJSPXCvPvivc/G//uaiIK9K
+         ba0PCUh6hlpRCNACecNn7ANzqgaTthEAV5FxKu2UCSdw3/Gxcc8vTbUqm5un5EnFWlgP
+         85l5r4oK9b6JCBgxfxFIMKTuwLcBv3JxkMApk5TEYn88bANlLPGgLZOE/BhREcD2oGhE
+         WM3vAfqzgsi6YYXhs8vyV1Vv8GX596Iz3M9SPPtLXdZY/r7B8Nr7RkAyHuH01w7XklB9
+         StvofZs4Q/M5B1t2AqsUtaY5xg26qAT5gWhugTSoHFFZpfqQgWlyU/UmFyc4wCYCgeRq
+         PKCQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzrVNFnkIUyRQIOemNk6caIJeubEEaBIb6kpsJIuWj4Mma6B/8WjQEgeb0Uv+TJVPCqc7IUk/UcGIZuAA==@vger.kernel.org
+X-Gm-Message-State: AFuF++kIwQMmGZ1tlEwu3whtgAqR7ZRk9SOZoF0Ta2D+zHu5lWiZuLD5
+	xz42g1fQMfGGZeqrChfmr+5b1bCvjYm4OLcy2Qe6PYRnC+0Xan9k2x0o
+X-Gm-Gg: AYBFou3hy8qJNVX5tRAXuQ6r1f9Ukoxov2YLVqiLwTO4yYll242OVP0+WoAprEz9tRg
+	9LrZoxFZVAX91gBa3F2CsnlnztQyDfiHnkNlvOIbJYBJ/h0M3HrPgExgD1t4+amQuvpiQI8KJoX
+	CBr8A+gEWeP4g8b1YEOLlZfyp3mB4PTYGLdQUP7IQ2C8bYSl2mq8Iq2X543kRDtkydFqukRhFpq
+	Wj/wn+adnY08trgN5rxTi+JCoct1ggBVFpmmWznJJCcIla1dIU5rgHXBaph6idnQO0l+iZSMhIr
+	d3ameumeGUPLGN86auu8EHBTCU8905kKBO1D0CNqvC8+DrLdvcQWQdhxBKk/tZ/pQZ9Vh2AZnu1
+	3jCHN//nfWWt5B474pFWT0e8ZBsQYYHaHUli+YCdT4BDUwr5L4kwn/+5+tKsmlPxg9qQ4zVC7/S
+	xnNnlJpud539zwifoI7Xan+9ieulKgHZCYuYhUU6scWg/eq7WhOBvU2zoW8QGy8MWPbp5GJUJvw
+	CX9UzBuLK0n7q10smf7mG2i3sm412yXre9JDnwS
+X-Received: by 2002:a17:90b:5281:b0:3a0:3673:dbbf with SMTP id 98e67ed59e1d1-3a03673dd7bmr3956785a91.59.1789958327913;
+        Sun, 20 Sep 2026 19:38:47 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:3844:3355:5928:66ce])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33c3318744dsm14208387eec.20.2026.09.20.19.38.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Sep 2026 19:38:47 -0700 (PDT)
+Date: Sun, 20 Sep 2026 19:38:44 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Helge Deller <deller@gmx.de>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-parisc@vger.kernel.org
+Subject: Re: [PATCH 1/7] Input: gscps2 - clean up driver code style and
+ structure
+Message-ID: <arCYnPusyDZxrdCp@google.com>
+References: <20260830-gscps2-v1-0-c733d4cae7f9@gmail.com>
+ <20260830-gscps2-v1-1-c733d4cae7f9@gmail.com>
+ <4cc9fe4b-c3c3-46ff-a32f-d2a86c0ce077@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4cc9fe4b-c3c3-46ff-a32f-d2a86c0ce077@gmx.de>
 
-On Thu, 17 Sep 2026 01:16:09 +0000
-"Zhang, Lixu" <lixu.zhang@intel.com> wrote:
-
-> >-----Original Message-----
-> >From: Zhang, Lixu
-> >Sent: Friday, September 11, 2026 1:17 PM
-> >To: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>; Yibo Tan
-> ><lhfff@tju.edu.cn>; Jiri Kosina <jikos@kernel.org>; Jonathan Cameron
-> ><jic23@kernel.org>; Benjamin Tissoires <bentiss@kernel.org>
-> >Cc: Shevchenko, Andriy <andriy.shevchenko@intel.com>; linux-
-> >input@vger.kernel.org; linux-iio@vger.kernel.org; linux-kernel@vger.kernel.org
-> >Subject: RE: [PATCH v1] HID: sensor-hub: synchronize multi-value read
-> >cancellation
-> >  
-> >>-----Original Message-----
-> >>From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-> >>Sent: Friday, September 11, 2026 2:29 AM
-> >>To: Yibo Tan <lhfff@tju.edu.cn>; Jiri Kosina <jikos@kernel.org>;
-> >>Jonathan Cameron <jic23@kernel.org>; Benjamin Tissoires
-> >><bentiss@kernel.org>
-> >>Cc: Zhang, Lixu <lixu.zhang@intel.com>; Shevchenko, Andriy
-> >><andriy.shevchenko@intel.com>; linux-input@vger.kernel.org; linux-
-> >>iio@vger.kernel.org; linux-kernel@vger.kernel.org
-> >>Subject: Re: [PATCH v1] HID: sensor-hub: synchronize multi-value read
-> >>cancellation
-> >>
-> >>On Thu, 2026-09-10 at 19:23 +0800, Yibo Tan wrote:  
-> >>> sensor_hub_input_attr_read_values() publishes a caller-owned buffer
-> >>> to the raw-event path. If its interruptible wait times out or is
-> >>> interrupted, it clears pending.status without taking data->lock and
-> >>> returns.
-> >>>  
-> >>
-> >>Hi Lixu,
-> >>
-> >>Please give me quick test. Change itself looks good, not sure if we
-> >>need something more.  
-> >Hi Srinivas,
-> >
-> >The machine is currently running other tests. Once they are done next week, I
-> >will run a quick test on this change and get back to you with feedback.  
+On Tue, Sep 15, 2026 at 11:51:28AM +0200, Helge Deller wrote:
+> Hi Dmitry,
 > 
-> Tested-by: Zhang Lixu <lixu.zhang@intel.com>
+> On 8/30/26 22:52, Dmitry Torokhov wrote:
+> > Clean up code style issues and function ordering in the gscps2 driver:
+> > - Reorder functions to place gscps2_interrupt() before its callers,
+> >    allowing removal of its forward declaration.
+> > - Change gscps2_enable() to accept a boolean parameter and remove the
+> >    ENABLE and DISABLE macro definitions.
+> > - Convert printk() calls to dev_dbg() and dev_warn().
+> > - Fix operator spacing and multi-variable assignment.
+> > - Add spinlock comment and use cpu_relax() in spin-wait loop.
+> > 
+> > Assisted-by: LLM
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >   drivers/input/serio/gscps2.c | 208 +++++++++++++++++++------------------------
+> >   1 file changed, 91 insertions(+), 117 deletions(-)
+> you may add for the whole series:
 > 
-> I did some basic validation on a real HID sensor hub / rotation sensor system and did not see a regression from this patch.
-> 
-Great. Thanks!
+> Acked-by: Helge Deller <deller@gmx.de>
+> Tested-by: Helge Deller <deller@gmx.de>
 
-Yibo Tan, please can you spin a v2 addressing the other feedback.
+Thank you Helge!
 
-thanks,
-
-Jonathan
-
-> Thanks,
-> Lixu
-> 
-> >
-> >Thanks,
-> >Lixu
-> >  
-> >>
-> >>Thanks,
-> >>Srinivas  
-> >  
-> 
-
+-- 
+Dmitry

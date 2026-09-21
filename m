@@ -1,76 +1,75 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4B772F7EF3
-	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 02:38:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6522324293C
+	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 02:53:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789958330; cv=none; b=KxesI1ygKfvWVlAUrJ2LfTbs9ES6LQwie1RZGOAWilaBV1aWFnqwZLQl/fr+JeuKCPFl/sXj9lC6XhtDhvSvW+poXEk77XaeS0wbVwfkYNuwa+gPl+EtUauOUD14ioiVZZHo2vQl2eukcxGcMuIyZ3p/SNX0CKigjbT7j5GacE8=
+	t=1789959206; cv=none; b=N0H4CCR1LkLDnz3lopjWU97zLi2lvHUbXQrT6oe3uDDF55dEh6vWkqiuXs1/loEmsflvKdBoiZhnqbFkfL9Qas0io+g0vyKePeT4AUkeIX1MI8wog0xcltLdsyNgYDaSwP0imdP+hq7ksPTyLB6rOm3/aqWO13Fwa1kX/w4MzXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789958330; c=relaxed/simple;
-	bh=roqCL/hZ7Ph4PBse9KxMlNOZ2C57CeVfUJf+MSM/X5o=;
+	s=arc-20240116; t=1789959206; c=relaxed/simple;
+	bh=VHyYEAblzmgSTYDzcQ/rTwb+iNZ/FxfSAGGwjEdaK7A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SIjfo471kEP1tag6WWY+JkIlrB0UN8bFKRrVRtmenMYw0bTtbFTRrw9+Zp9LgJOJa4HKPmzGTHTgdYYMSrs8aV9CUHVxgq53xUGbNAgKA5M4Ay4Xa5N2pf1obGJcL+5BHtrQnLA+boJ6/9ANkVIOTmaHD1B9EhL5v5qjPYZiGbA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CM8VYNeu; arc=none smtp.client-ip=74.125.227.140
+	 Content-Type:Content-Disposition:In-Reply-To; b=pYD0p2+vq+xgs4cq9gbjGiaDFMjCMSAQNSTt8vcJL34UQ+TdA7I+QJ7peZOlIuANhJwdsYvfIpz4l0oV60S3kjDpVLf8sfgZJefg1y441bsferJhtW36wj54sAbTFINjNwJXeJbgx/ErvYD4wAv+2K/uh6ob8wcW0LfG4xMiQds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UYcJLfmA; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CM8VYNeu"
-Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-39b910bdf2eso1639408a91.2
-        for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 19:38:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UYcJLfmA"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-39647184c73so2960248a91.1
+        for <linux-input@vger.kernel.org>; Sun, 20 Sep 2026 19:53:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789958328; x=1790563128; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789959205; x=1790564005; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=ORBs3m+ws4OHfu45BhvkuHCmS+gMggmNeMZoCuvyzTw=;
-        b=CM8VYNeuW0VOL6B8yt/DRO+ysw3pyTQ3yl/tUnQvN+Im8R7kSAuDn43fTL6sDUqlKY
-         rhdEDGSKL2FiGxZCwLRP8R0DBGaPVVll43KpNDgruBNu+2RtBEhq5oLXDHIY53ZdxppW
-         PnEKkW2uh6WeyifZWbD1OAqUAVGxShKGrORQQmt9GkKUnK7x2PbluE4w9BDk+Cr3JfGE
-         NApn0WCFGXTzgeE5Rl5r1tPUjgiNcgbl0ztnZWIxhvKzdprZr+Xhj9W+kaWZx/uKxziD
-         9W117Ij7n7vOqgpHQ4fa+9SSLwdXdKwULSuGqh9DXYlCtwa7ZplLTF2a2Zvx2Pig4UQ0
-         S/dg==
+        bh=Se1G+XHmYZanJdo+24xpc9gmmy2jZ9LFjhb6Fx5cYxc=;
+        b=UYcJLfmATlfAb3FOZbA9bzP3BBXBSBL1VsaWvoHMydZ3svQtVebR/G7Havfn52kwDS
+         1u9AT6KSzqJC5mQjPWI3vo+J/Qs6GJNqGUny6IJtpdZvae9BcXeLhcrSg8Oq2n9SnezW
+         spA8K83dunsCbme03vb4KSSgOIjzg3B1Tj5xvDn/29qEEeLOpmsM7j5ygh5uyQTh1iMa
+         Sswhl5zxRm2jejEeK+XKJLCslLeW7M6DjSkPKJmAQGHxvrA/wfG6+j6jJYRRYgN5Aj2R
+         EExsOL7BzdrF+YE4UnZJXIG5tjKHonAqB1xgBU6nxiBdNgoxwZw6lNoTiqN0OiyQ4N1A
+         yw0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789958328; x=1790563128;
+        d=1e100.net; s=20260707; t=1789959205; x=1790564005;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ORBs3m+ws4OHfu45BhvkuHCmS+gMggmNeMZoCuvyzTw=;
-        b=0GwyMKFpIiaQHTkC0cIg43TKpaZYeZcDGrfjnQOXNQnqJSPXCvPvivc/G//uaiIK9K
-         ba0PCUh6hlpRCNACecNn7ANzqgaTthEAV5FxKu2UCSdw3/Gxcc8vTbUqm5un5EnFWlgP
-         85l5r4oK9b6JCBgxfxFIMKTuwLcBv3JxkMApk5TEYn88bANlLPGgLZOE/BhREcD2oGhE
-         WM3vAfqzgsi6YYXhs8vyV1Vv8GX596Iz3M9SPPtLXdZY/r7B8Nr7RkAyHuH01w7XklB9
-         StvofZs4Q/M5B1t2AqsUtaY5xg26qAT5gWhugTSoHFFZpfqQgWlyU/UmFyc4wCYCgeRq
-         PKCQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzrVNFnkIUyRQIOemNk6caIJeubEEaBIb6kpsJIuWj4Mma6B/8WjQEgeb0Uv+TJVPCqc7IUk/UcGIZuAA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kIwQMmGZ1tlEwu3whtgAqR7ZRk9SOZoF0Ta2D+zHu5lWiZuLD5
-	xz42g1fQMfGGZeqrChfmr+5b1bCvjYm4OLcy2Qe6PYRnC+0Xan9k2x0o
-X-Gm-Gg: AYBFou3hy8qJNVX5tRAXuQ6r1f9Ukoxov2YLVqiLwTO4yYll242OVP0+WoAprEz9tRg
-	9LrZoxFZVAX91gBa3F2CsnlnztQyDfiHnkNlvOIbJYBJ/h0M3HrPgExgD1t4+amQuvpiQI8KJoX
-	CBr8A+gEWeP4g8b1YEOLlZfyp3mB4PTYGLdQUP7IQ2C8bYSl2mq8Iq2X543kRDtkydFqukRhFpq
-	Wj/wn+adnY08trgN5rxTi+JCoct1ggBVFpmmWznJJCcIla1dIU5rgHXBaph6idnQO0l+iZSMhIr
-	d3ameumeGUPLGN86auu8EHBTCU8905kKBO1D0CNqvC8+DrLdvcQWQdhxBKk/tZ/pQZ9Vh2AZnu1
-	3jCHN//nfWWt5B474pFWT0e8ZBsQYYHaHUli+YCdT4BDUwr5L4kwn/+5+tKsmlPxg9qQ4zVC7/S
-	xnNnlJpud539zwifoI7Xan+9ieulKgHZCYuYhUU6scWg/eq7WhOBvU2zoW8QGy8MWPbp5GJUJvw
-	CX9UzBuLK0n7q10smf7mG2i3sm412yXre9JDnwS
-X-Received: by 2002:a17:90b:5281:b0:3a0:3673:dbbf with SMTP id 98e67ed59e1d1-3a03673dd7bmr3956785a91.59.1789958327913;
-        Sun, 20 Sep 2026 19:38:47 -0700 (PDT)
+        bh=Se1G+XHmYZanJdo+24xpc9gmmy2jZ9LFjhb6Fx5cYxc=;
+        b=ypMrljqQVkHCNiXOBq9CiCU5dIGpavrwWLEgCZ3VPUkfIGKgQLOy15irGDfd6+nXVH
+         VvFZ/cza6cA5PAiBQcs6MCTagC/eDktG1Ze1iDgzbc8wOsUodVg2gih5ruDaiB13AYC4
+         L4GAVavh7DF3YKKMd0wcTRV9aFoTOVKN/iOndvzMnN6ZKzez5Yx9DVNOyPDKArKgNPyi
+         xPLkBcFWQlPxpOlgqXoXtudj5UjUAlycwTnAPEK+cxXxePqMCGhfKsm69OTV18MSxKXG
+         ZsBmMbBmCT2aO8tiKbNWGzxFtOVxZ0X1Orox3cvGjOVpuyuEiO05tIrbdYy3whOJTgZ3
+         /8Yg==
+X-Forwarded-Encrypted: i=1; AKwUvBzKstd3Yj/L0rscL7BIyrpq93S9F77ZI/8/IPqRSIB2RiffScp/JhGyeS/eN6jR78LdNcUprhLOuHp3Kw==@vger.kernel.org
+X-Gm-Message-State: AFuF++khEPEm8Fc4uDoC4NH5GMN4SwncXOa9wtGeh74ieUZ4pMBQsT0p
+	weB3D70LHqemGv0YmxnMxJ3eljfflgLhkuuK1ZHA2XNLVrg27WkfsMpR
+X-Gm-Gg: AYBFou0sRqD5P1P39wrA0kDna2rSAtLjsZMiYOKGmrfhKpERAeP25i5ZBA83QhmSZtZ
+	ucR3uEXqsMJAHpb8t6RuMWhvAMSCPteof5xwdOdlFtME3Gmx4fYv3BPQ2dUbmOy7G0P7VGM+JMn
+	EBI/wpsUlxjO/RLpjjGt5y0qBIlau7LEutPI4/sgvufyvI8JON8ujddlFAUX82aKeERXnrrtvSo
+	FcSVKwlub7wMN5as72Cl4u7gQ0ex4kO5DJBaHEXZJA33+47U34SezFn0lVdTz2Vv84waGRixgTA
+	1YbpkPpWZnX1y6n8o7MaI6MPgAwo8jYhhSt8EuHtWI3GPW/BIDqBDQWDv/jGycrSecDEgIWww8y
+	gFm4w+0MYvQYzjQ5Iw02EQ+0B8on5fisXGi0Ys5nZ5qGAQezeuYweUV/tMYDc+EIAqqd3awC5UY
+	lZb5fUAJqO2bKHM0k1sO3TG+RKzqNcGGHI+g4Y+rek+tJC76Rn13uHyvaUrDG80pwarWrnkB3Jo
+	bjRrjxXOCrjCvDX15VV4HshGBrFo9URJtT7VmvI
+X-Received: by 2002:a17:90b:1cd0:b0:396:7c01:553f with SMTP id 98e67ed59e1d1-39e36106b85mr17920856a91.21.1789959204603;
+        Sun, 20 Sep 2026 19:53:24 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:3844:3355:5928:66ce])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33c3318744dsm14208387eec.20.2026.09.20.19.38.46
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-144d53968afsm16719079c88.0.2026.09.20.19.53.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Sep 2026 19:38:47 -0700 (PDT)
-Date: Sun, 20 Sep 2026 19:38:44 -0700
+        Sun, 20 Sep 2026 19:53:23 -0700 (PDT)
+Date: Sun, 20 Sep 2026 19:53:20 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Helge Deller <deller@gmx.de>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-parisc@vger.kernel.org
-Subject: Re: [PATCH 1/7] Input: gscps2 - clean up driver code style and
- structure
-Message-ID: <arCYnPusyDZxrdCp@google.com>
-References: <20260830-gscps2-v1-0-c733d4cae7f9@gmail.com>
- <20260830-gscps2-v1-1-c733d4cae7f9@gmail.com>
- <4cc9fe4b-c3c3-46ff-a32f-d2a86c0ce077@gmx.de>
+To: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
+Cc: rosencutter@gmail.com, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics - Add LEN205b entry to smbus_pnp_ids
+ for ThinkPad T490
+Message-ID: <arCcF3rLAM9AW0OY@google.com>
+References: <CAOGuaRh025eKcBf9P8UrvtXNp68vQ0HVF2EbNMp-kpdaC1HNpA@mail.gmail.com>
+ <20260920200730.1836756-1-lovekeshsolanki00@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,32 +78,19 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4cc9fe4b-c3c3-46ff-a32f-d2a86c0ce077@gmx.de>
+In-Reply-To: <20260920200730.1836756-1-lovekeshsolanki00@gmail.com>
 
-On Tue, Sep 15, 2026 at 11:51:28AM +0200, Helge Deller wrote:
-> Hi Dmitry,
+On Mon, Sep 21, 2026 at 01:37:30AM +0530, Lovekesh Solanki wrote:
+> Lenovo ThinkPad T490 has a Synaptics Touchpad that supports SMBus/RMI4
+> mode, but is not listed in smbus_pnp_ids table.
 > 
-> On 8/30/26 22:52, Dmitry Torokhov wrote:
-> > Clean up code style issues and function ordering in the gscps2 driver:
-> > - Reorder functions to place gscps2_interrupt() before its callers,
-> >    allowing removal of its forward declaration.
-> > - Change gscps2_enable() to accept a boolean parameter and remove the
-> >    ENABLE and DISABLE macro definitions.
-> > - Convert printk() calls to dev_dbg() and dev_warn().
-> > - Fix operator spacing and multi-variable assignment.
-> > - Add spinlock comment and use cpu_relax() in spin-wait loop.
-> > 
-> > Assisted-by: LLM
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >   drivers/input/serio/gscps2.c | 208 +++++++++++++++++++------------------------
-> >   1 file changed, 91 insertions(+), 117 deletions(-)
-> you may add for the whole series:
+> Add LEN205b to smbus_pnp_ids[] passlist.
 > 
-> Acked-by: Helge Deller <deller@gmx.de>
-> Tested-by: Helge Deller <deller@gmx.de>
+> Reported-by: John Rosencutter <rosencutter@gmail.com>
+> Closes: https://lore.kernel.org/all/CAOGuaRh025eKcBf9P8UrvtXNp68vQ0HVF2EbNMp-kpdaC1HNpA@mail.gmail.com/
+> Signed-off-by: Lovekesh Solanki <lovekeshsolanki00@gmail.com>
 
-Thank you Helge!
+Applied, thank you.
 
 -- 
 Dmitry

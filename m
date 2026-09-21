@@ -1,138 +1,210 @@
-Received: from e3i491.smtp2go.com (e3i491.smtp2go.com [158.120.85.235])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8E914DA540
-	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 17:56:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.85.235
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56E18495AE9;
+	Mon, 21 Sep 2026 18:19:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790013390; cv=none; b=GaSOdrSL1P18iVZfkn4fkPlPM/OlhSZ+KwqEFeltfGnLOqGcESbwIhyuXR9XqLG5FohMwaKZI2rOTXrNHqVGgYpiiLQPyvN7v6+EA4aDimbbLXhyg835ZuookPg/wOL5Nfbr29mSk1bONtuQn7yqAFJawIfNALV3cmtBTQmxqCI=
+	t=1790014752; cv=none; b=RdbioLmPoYcGNX1j4tXE15+TQRh1MIvfAytAzuBWXms27uTyMYrJj4AnfVVVZkeS+SPQXFj+7iMuqyyeoXpea5q4bJMKD9qZjymQrvj7hHnloR0cnNh3uDwvcHr8q9vUjOvH66dw0pcTu8bzHYtN4JiOwVMM43QGFmtVhy/75oA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790013390; c=relaxed/simple;
-	bh=MmGlw/FKtavcqD6RK9Oq+bIRNLn34GzZW7OjJjSNmZA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=m9HpKmajPhLMsKf/6Epixw9SRTjPY+7S4/pOGiVGaMD4uR2ZKxwytENFYBg1G8WyVJ2UiC3DYLmeNeRcPLXMJlmg4JVMKlLox/A1Emw6DPQ5hSASA/QWaTmqAjP+L2ULQ2PEr0jr3KA30f12HeWQ/thSxqxPBdBoXkgzcVfRIHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fkr.dev; spf=pass smtp.mailfrom=em1020969.fkr.dev; arc=none smtp.client-ip=158.120.85.235
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fkr.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em1020969.fkr.dev
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fkr.dev;
- i=@fkr.dev; q=dns/txt; s=s1020969; t=1790013162; h=from : subject : to
- : message-id : date : list-unsubscribe : list-unsubscribe-post;
- bh=Oit/fXpUixaMtBaz4wE+a3+fGATGvQuaNCHZFAv15vY=;
- b=Zeoqfdg940J45va+hXhwQc5SygYvyLg49sUHvgXcOo5sMQWgFSAy3GXYLkkXDHlGn6WwV
- mASTNDDUdBlSWrKFOfikDDX5QtBJpWzhc6XKE1FhFCKxdBLsRKXf6flBl5GWI5OT1HMAHf2
- y5JYi/L1zsWrPiDHsZj6FIApqi8nFWYMPWjKa5XO+Tzk9kYBpX+/j/aMCGKv0+T9ocPZr99
- TM4fOvpcvwiAdSeBacr5uDLN6bdhS8ddD469wXBMm0UGtoscmr0nkskJ9c9aZe+cmth15Co
- rbNMgbjx0MHjYBbCD2x/9bnK9t5KQzm/BcdY8M4qxMvv/jFQb0y4GiTPxhDw==
-Received: from [10.244.246.9] (helo=fkr.dev)
-	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128:X25519)
-	(Exim 4.100)
-	(envelope-from <florian.krischer@fkr.dev>)
-	id 1x8iBy-4o5NDgriYu2-lIZH;
-	Mon, 21 Sep 2026 17:52:38 +0000
-DKIM-Signature: a=rsa-sha256; bh=Oit/fXpUixaMtBaz4wE+a3+fGATGvQuaNCHZFAv15vY=; c=relaxed/relaxed; d=fkr.dev; 
- =?utf-8?q?h=3DSubject=3ASubject=3ASender=3ATo=3ATo=3ACc=3ACc=3AFrom=3AFrom=3ADate=3ADate=3AMIME-Version=3AMIME-Versio?=
- =?utf-8?q?n=3AContent-Type=3AContent-Type=3AContent-Transfer-Encoding=3AContent-Transfer-Encoding=3AReply-To=3AIn-Rep?=
- =?utf-8?q?ly-To=3AIn-Reply-To=3AMessage-Id=3AMessage-Id=3AReferences=3AReferences=3AAutocrypt=3AOpenpgp=3B?=
- i=@fkr.dev; s=default; t=1790013157; v=1; x=1790445157;
- b=Y3U3KtvbA4p2z+6VZrnvYLHsaxTC3nTnneBrqE417KRO9YKmysecxJ/7vh9epFngHzIoXL2r
- 2M2D5zspDUh2IY5maKtZHe3FXURT3+HhOl00oMfrBfud45dd5HWVHBmi/hodNjGRX3r3evkG3TY
- SX12nTPSL6WbWwNOhP9+MIPV/i4bHztNg6QfLG7HjFl/2mU207ad6B1agwJvDhuQRCYRk1HZXmk
- AtzTwwV3eAmeskfRWwXVAEwo03fPp9IxZR86YmluXppRERTm5lbdvx+5r6IIBsn9aks2QgIlii1
- i/OJ6evWkaZYC126Mh/zmxBLUQEw3+kmHJeETzRQPsAqw==
-Received: by fkr.dev (envelope-sender <florian.krischer@fkr.dev>) with
- ESMTPS id a3a8de78; Mon, 21 Sep 2026 17:52:37 +0000
-From: Florian Krischer <florian.krischer@fkr.dev>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Lee Jones <lee@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Florian Krischer <florian.krischer@fkr.dev>
-Subject: [PATCH v10 fixup 1/2] mfd: asus-transformer-ec: use 8-byte event
- reads on SL101
-Date: Mon, 21 Sep 2026 19:52:36 +0200
-Message-ID: <20260921175234.3137985-2-florian.krischer@fkr.dev>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260721095233.420823-1-clamor95@gmail.com>
-References: <20260721095233.420823-1-clamor95@gmail.com>
+	s=arc-20240116; t=1790014752; c=relaxed/simple;
+	bh=BpRcOMKg3LS8V8DqNarIsVgSnibco3n89MGgkueN2dc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=moe0jViHK0FbBeJuizU71EQx1Pj1ScqL3XMM/vpituquXyixK8jWqOODy6kxd2eIsiP4J+2QQaaIMd3cX1UE+VAUr7lRBJ2E1mj88q3dz65L6gjkjtGF3GIMpaWYNNGMQpc/v3ezBPR5cXjgJKXhNIoU3fXQcRykUJdkVcPhLr4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cExF5tZq; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cExF5tZq"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id F1401C2BCB3;
+	Mon, 21 Sep 2026 18:19:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1790014752;
+	bh=BpRcOMKg3LS8V8DqNarIsVgSnibco3n89MGgkueN2dc=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=cExF5tZqDDGIWkrqVOUJS1uzg/RBkCnHzxT6HcXgoDtmN1LAJbnTTv6oGPJqVQxAl
+	 k18J2I6fmd8xuZbx3LY8px3h0AkJZLwFSEdVEtrTTD60vFI4lPtkrYm9CFWKnDETHI
+	 CG8a0JmNb1Oj3febBeqMvVUek5StYiMlQhsHNoRAoxNjroHt+11lxxSrCO9u8xPY47
+	 BEwpPejlaWUL2kojHyZuxNLPUuKKXdKPawgMAcjCTfhVoPpo92KoZopXADc7XW2K9E
+	 HaQTtJ8prLX+WqGmQ7iA17VDJOhk1rw8HR9NCQIEgTLf5O+PaF3wpDjR3zw3U14ClY
+	 +QGoKqhWOcxKA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCB63C982EE;
+	Mon, 21 Sep 2026 18:19:11 +0000 (UTC)
+From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
+Subject: [PATCH v3 00/19] Add Initial Support For MSM8952, Add General
+ Mobile Shamrock
+Date: Mon, 21 Sep 2026 21:18:51 +0300
+Message-Id: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
-Feedback-ID: 1020969m:1020969amTSgpp:1020969szvVW0a6mP
-X-smtpcorp-track: 3wp7BOkHQ2Gc.1xsZHnFCm4R-.FUIyfwqL8ZO
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3XNQQ6CMBAF0KuQrq1pRwrUlfcwLiqMMAm0pMVGQ
+ 7i7hbgwMSz/5P83MwvoCQM7ZzPzGCmQsymcDhmrO2Nb5NSkzEBAIbTQfAhDpRVwsjSR6Xl4jqP
+ zEy+EEUrXgFIhS+vR44Nem3y9pdxRmJx/b4+iXK9fU8KuGSUXXGCZgyqru4L8MhiyfarZ9uh8y
+ 1Y4wi9W7GOQsFJXdepB06D8w5Zl+QAMNnZ2EAEAAA==
+X-Change-ID: 20260909-msm8952-initial-support-60a059c2e15e
+To: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+ Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
+ Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>, 
+ Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
+ "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
+ Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>, 
+ Rob Clark <robin.clark@oss.qualcomm.com>, 
+ Dmitry Baryshkov <lumag@kernel.org>, 
+ Abhinav Kumar <abhinav.kumar@linux.dev>, 
+ Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
+ Marijn Suijten <marijn.suijten@somainline.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>, 
+ Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+ Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>, 
+ Tony Luck <tony.luck@intel.com>, 
+ "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org, 
+ linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-mmc@vger.kernel.org, iommu@lists.linux.dev, mfd@lists.linux.dev, 
+ dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, 
+ Krzysztof Kozlowski <krzk@kernel.org>, linux-pm@vger.kernel.org, 
+ linux-input@vger.kernel.org, Muzaffer Kadir <muzafferkadir@mainlining.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
+ Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
+ Abel Vesa <abel.vesa@oss.qualcomm.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790014748; l=5337;
+ i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
+ bh=BpRcOMKg3LS8V8DqNarIsVgSnibco3n89MGgkueN2dc=;
+ b=6d13bf2rcAw9hZjgCqRhx3KaAyNMRl7pBSwIaYokFdaChqCK+NJqUuNKUp/H2hb89vl9tkXXB
+ OZwD9zD3YBTDzCAbk2QST9OKaOBjHsbOO67kWdLyO/DWCgGUyfG7Vul
+X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
+ pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
+X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
+ with auth_id=954
+X-Original-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Reply-To: muzafferkadir@mainlining.org
 
-The SL101 embedded controller exposes the event window at 0x6a through
-8-byte reads. This matches the downstream ASUS SL101 driver, which uses
-an 8-byte SMBus I2C block read for command responses and events.
+MSM8952 is a SoC with 8 core cpu and Adreno 405 gpu.
 
-The generic 32-byte event read used by v10 prevents the physical SL101
-keyboard from completing PS/2 initialization.
+Ported without uart connection. ramoops and usb
+mainly used to debug.
+USB is not enabled in this series because it
+depends on the not yet upstreamed (and not developed by me)
+pmi8950_smbcharger.
 
-Use a variant-specific event read length for the SL101 in both the
-clear-buffer and interrupt paths. Keep the 32-byte entry size for other
-variants.
+General Mobile shamrock display panel driver
+is generated using MSM8916's mdss dsi panel
+driver generator and tested with it. I didn't
+include it.
 
-Tested on an ASUS Eee Pad Slider SL101 with EC firmware SL101-0202.
-With the matching serio fixup, the built-in keyboard completes atkbd
-initialization and works.
+The GCC and DTS files are derived from existing
+Qualcomm source files. Original copyright notices
+are retained.
 
-Signed-off-by: Florian Krischer <florian.krischer@fkr.dev>
+GCC is based on msm8939's gcc file.
+SoC device tree is based on MSM8937 file.
+
+in some downstreams MSM8952 GCC is merged with
+MSM8917 and MSM8937's. But upstreamed MSM8917 is
+based on different GCC and different pll structure.
+I have no way to verify MSM8952 pll so I am not sure
+about how correct pll structure is.
+
+Pinctrl driver was submitted and merged here:
+https://lore.kernel.org/all/20260907-msm8952-pinctrl-v5-0-9a2d8d72ffdb@mainlining.org/
+
+Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 ---
- drivers/mfd/asus-transformer-ec.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+Changes in v3:
+- Improved GCC driver, also rewrote resets part
+- Rewrote the dt-binding side of gcc
+- Reformatted Device tree files with dt-check-style tool
+- Added reset to sdhci1 and sdhci2
+- Added cx regulator to gcc
+- Added gcc commit messages that it is a derived driver
+- Dropped adsp_mem, renamed lpass_mem to adsp_mem
+- Changed tusb320 interrupt from rising to falling as downstream uses
+- Link to v2: https://patch.msgid.link/20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org
 
---- a/drivers/mfd/asus-transformer-ec.c
-+++ b/drivers/mfd/asus-transformer-ec.c
-@@ -229,8 +229,18 @@
- 	return ret;
- }
+Changes in v2:
+- Changed device dts file as David's and Konrad's suggestions
+- Removed accidental duplicated clock assigments and fixed wrong gcc gp1,gp2
+  and gp3 parent_maps
+- Updated commit messages to make it wrapped at 72 character.
+- Fixed spi1 tlmm node naming
+- Added remaining spi and i2c nodes
+- Wired up mpm
+- Add mmio-sram to rpm_msg_ram
+- Reformatted msm8952.dtsi
+- Removed rpmcc-msm8952 driver entry and replaced it with rpmcc-msm8976
+- Merged sdhci tlmm pins to single nodes, now it is similar to existing SoCs
+- Rebased to latest linux-next, now storage works
+- Removed polling-delay properties from tsens
+- Link to v1: https://lore.kernel.org/r/20260912-msm8952-initial-support-v1-0-0e742578b524@mainlining.org
 
-+static size_t asus_ec_read_size(const struct asus_ec_data *ddata)
-+{
-+	/* SL101 firmware exposes an 8-byte event window at 0x6a. */
-+	if (ddata->info->variant == ASUSEC_SL101_DOCK)
-+		return 8;
-+
-+	return ASUSEC_ENTRY_SIZE;
-+}
-+
- static void asus_ec_clear_buffer(struct asus_ec_data *ddata)
- {
-+	size_t read_size = asus_ec_read_size(ddata);
- 	int ret, retry = ASUSEC_RSP_BUFFER_SIZE;
+---
+Muzaffer Kadir (19):
+      dt-bindings: clock: qcom: Add MSM8952 global clock controller
+      clk: qcom: Add global clock controller driver for MSM8952
+      dt-bindings: nvmem: Add compatible for MSM8952
+      dt-bindings: power: rpmpd: Add MSM8952 power domains
+      dt-bindings: mmc: sdhci-msm: Add MSM8952 compatible
+      dt-bindings: vendor-prefixes: Add General Mobile
+      dt-bindings: arm: qcom: Document MSM8952 SoC binding
+      dt-bindings: iommu: qcom,iommu: Add MSM8952 IOMMU to SMMUv2 compatibles
+      dt-bindings: mfd: qcom,tcsr: Add compatible for MSM8952
+      dt-bindings: display/msm: qcom, mdp5: Add MSM8952 compatible
+      dt-bindings: firmware: qcom,scm: Document MSM8952 SCM
+      dt-bindings: clock: qcom,rpmcc: Add MSM8952 compatible
+      drm: msm: mdp5: Add MDP5 configuration for MSM8952
+      soc: qcom: ubwc: Add UBWC config for MSM8952
+      dt-bindings: thermal: tsens: Add MSM8952
+      thermal: qcom: tsens: Add support for MSM8952 tsens
+      arm64: dts: qcom: Add initial support for MSM8952
+      dt-bindings: input: touchscreen: goodix: Add binding for GT970
+      arm64: dts: qcom: generalmobile-shamrock: new device
 
- 	/*
-@@ -239,8 +249,8 @@
- 	 */
- 	while (retry--) {
- 		ret = i2c_smbus_read_i2c_block_data(ddata->client, ASUSEC_READ_BUF,
--						    ASUSEC_ENTRY_SIZE, ddata->ec_buf);
--		if (ret < ASUSEC_ENTRY_SIZE)
-+						    read_size, ddata->ec_buf);
-+		if (ret < read_size)
- 			continue;
+ Documentation/devicetree/bindings/arm/qcom.yaml    |    6 +
+ .../bindings/clock/qcom,gcc-msm8952.yaml           |   65 +
+ .../devicetree/bindings/clock/qcom,rpmcc.yaml      |    5 +
+ .../devicetree/bindings/display/msm/qcom,mdp5.yaml |    1 +
+ .../devicetree/bindings/firmware/qcom,scm.yaml     |    3 +
+ .../bindings/input/touchscreen/goodix.yaml         |   35 +-
+ .../devicetree/bindings/iommu/qcom,iommu.yaml      |    1 +
+ .../devicetree/bindings/mfd/qcom,tcsr.yaml         |    1 +
+ .../devicetree/bindings/mmc/qcom,sdhci-msm.yaml    |    1 +
+ .../devicetree/bindings/nvmem/qcom,qfprom.yaml     |    1 +
+ .../devicetree/bindings/power/qcom,rpmpd.yaml      |    1 +
+ .../devicetree/bindings/thermal/qcom-tsens.yaml    |    1 +
+ .../devicetree/bindings/vendor-prefixes.yaml       |    2 +
+ arch/arm64/boot/dts/qcom/Makefile                  |    1 +
+ .../dts/qcom/msm8952-generalmobile-shamrock.dts    |  435 +++
+ arch/arm64/boot/dts/qcom/msm8952.dtsi              | 2696 +++++++++++++++
+ drivers/clk/qcom/Kconfig                           |   10 +
+ drivers/clk/qcom/Makefile                          |    1 +
+ drivers/clk/qcom/gcc-msm8952.c                     | 3548 ++++++++++++++++++++
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_cfg.c           |   81 +
+ drivers/soc/qcom/ubwc_config.c                     |    1 +
+ drivers/thermal/qcom/tsens-v1.c                    |   44 +
+ drivers/thermal/qcom/tsens.c                       |    3 +
+ drivers/thermal/qcom/tsens.h                       |    2 +-
+ include/dt-bindings/clock/qcom,gcc-msm8952.h       |  215 ++
+ 25 files changed, 7144 insertions(+), 16 deletions(-)
+---
+base-commit: e657a464aba873f5eaf3ca821b6e4016674492d6
+change-id: 20260909-msm8952-initial-support-60a059c2e15e
 
- 		if (ddata->ec_buf[ASUSEC_IRQ_STATUS] & ASUSEC_OBF_MASK)
-@@ -318,12 +328,13 @@
- static irqreturn_t asus_ec_interrupt(int irq, void *dev_id)
- {
- 	struct asus_ec_data *ddata = dev_id;
-+	size_t read_size = asus_ec_read_size(ddata);
- 	unsigned long notify_action;
- 	int ret;
+Best regards,
+--  
+Muzaffer Kadir <muzafferkadir@mainlining.org>
 
- 	ret = i2c_smbus_read_i2c_block_data(ddata->client, ASUSEC_READ_BUF,
--					    ASUSEC_ENTRY_SIZE, ddata->ec_buf);
--	if (ret < ASUSEC_ENTRY_SIZE)
-+					    read_size, ddata->ec_buf);
-+	if (ret < read_size)
- 		return IRQ_NONE;
 
- 	/* Check status byte with ASUSEC_OBF_MASK if data is valid */
---

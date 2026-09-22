@@ -1,111 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pz2-f43.google.com (mail-pz2-f43.google.com [74.125.228.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F86C1E7C23
-	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 03:05:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 177F6265629
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 03:38:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790046323; cv=none; b=qqoX3oHfS7yo3JOwsyCIxljf2oozN6TjAGzXj5qgyvVn7sZdpb1lRuNbYLlYPLyVnZDztcQeanwIudYufnlxWE7WVOvF5uiaKD/5Ka+DgmcK8xHjGLJAwKlGamjzCWTAo9bJQkc40AyOzhbNuc15HktKqsNkA6kB83XhBIqquyQ=
+	t=1790048287; cv=none; b=dok5JCmMAJiVqj5Htvvkl590m/cpdQ2Paz1MThYMrg0fj6Bvzp8EAoC+NvjwTUlswGt6bse6qejKvLnlvmVKobUTgC2aAE89qm19Y18F+M+JvgQim28bT83a4AcdeFFbHk9zVg9qqX3KyVKZxLVto152EraoxvCUuMrNJma7i7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790046323; c=relaxed/simple;
-	bh=3i8heWWjN7z+N1gv2VvbSNwzvAF93d0Mfko5XUKTPnY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SLTzAeQDChkIOUpGVZZNf9vApWiPnVddpZ+xz9AW0aSR/mZ4htJQD/tkB7dd43UngIu9TLCeiotJOWtwUHe0XYNu1xu92GXv9tbeRK9t6I9dN5XZVAX6mbSKaGJNajSXuz3RxNEbV6bd7Tpa//lyvllqvtE/u7beO9MNxMjSfXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ltuM16T4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790048287; c=relaxed/simple;
+	bh=2Sit3yjN/GWAbdTHlI2AQIlIrquV4mQqFiv0Dgnepec=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=W1JjSDwPTcbRDf9RU38sKO/2R3+BQvcwjSQmHUBWVBFS1SmJACzxJi7sjErjIEjkcinyCcrhbLs8+kIn1x3iQWdVEnP2MSZmTt+mQkfu9l/0oIM8lIH4O4suaWIMieZ4JG8LdxM0gFw9NxPazFubEKS8+mUQRxOfpF7Y4aACCYQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tLUtl4yB; arc=none smtp.client-ip=74.125.228.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ltuM16T4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9CAA1F000FF;
-	Tue, 22 Sep 2026 03:05:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790046322;
-	bh=ri/q5gf49svdVFFFtV7QchzC4IkHBwgcZAeFC443cVA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ltuM16T4LBwhumISNXcgR3VdyiVByJRmA/O6fqt0bF5pyIloC3vSc2cJFm2PRJ921
-	 jr2G5kEIn7uLwEqrf7TM4mtZGUOx4CGJtdtsbpLilE4rXKxgnBNFNobkF8eo5uu+pM
-	 L0dUR0UvBR4YY+QOxk97ryZNeYE5vINh3swEtZfW3DS1ju5ht4FNTLlX9O2SlHF6hm
-	 uYnWe1g55LNn0vsIjyrHQ9LA+noZplaiMyAR80Fv9gdyteFtNEiHkVGCXHERVqX0u3
-	 FQ2Jbmp+G88ZhjLtfVepUNlyq2iBcRNOTw9DxJbB25bAD2mpf0OyxPzKt5v9q7d0u8
-	 luPqha0Dpm0Qw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] HID: Intel-thc-hid: Intel-quickspi: Use
- hid_safe_input_report()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Even Xu" <even.xu@intel.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260922025437.940072-3-even.xu@intel.com>
-References: <20260922025437.940072-1-even.xu@intel.com>
- <20260922025437.940072-3-even.xu@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 03:05:21 +0000
-Message-Id: <20260922030521.C9CAA1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tLUtl4yB"
+Received: by mail-pz2-f43.google.com with SMTP id 41be03b00d2f7-cc4c08393dfso3012851a12.3
+        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 20:38:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790048285; x=1790653085; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=BIMk5ipKoZWRD7DzzBr8ps4MQh4Scmpp0BDfJZnXK0g=;
+        b=tLUtl4yBjDCGsz2KVyIkqDaNh8qO5flVWZFGbU9N0NQz2n4eZstwY41dNsoOr2w81m
+         rpp2o0kGwNz7A34eBvYTMgSUouwWOXEh8q4A0a27bzGDh2ZWrRpSLAOQfwfhAMTl+R4o
+         B+v74w0R+FhDhOxBMBtd1qMJURyzogZkkCK+1bQRiBFqTMLO7XTITFIaEU/khYEiJvCC
+         XuplogjZfiezrtp6WatDE3rUAiwMhI1qR/kFV1xrNJMv6eSSt+F7IhvevMUMdu9d5lR0
+         6SDhcwZMn5DSXmuGcCm9ebRgnxXKIGztUTSR0TNuRBlLw++QxV/zxbCnlBPjZDL3/HBW
+         ssNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790048285; x=1790653085;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=BIMk5ipKoZWRD7DzzBr8ps4MQh4Scmpp0BDfJZnXK0g=;
+        b=kZZ70TjCP+plDGxDtkf5jvc/9MWehb5Ch1LVtTcJyHip/cIwF/ZFo6wLUqbMplImX1
+         DT8K5g21ixa6GXiy/3pLZ3NXw05rF7mevixJEskVLqaV1aBpMUE+Wl9+vdmoHBtIvmK8
+         c3QTONN8np4yS/J3Y0/bZjGON5kmXGuHiKJnjNq4ksxTfuaz6KmTalbc9cPlyB538LZU
+         2xi/hm1+Z+bXrH+sRSpmNaa5dhcyNzL+71Za+Gu4NUwjOQoaEXdbNq7Dh2cauWCIaV/F
+         /EV7rApoMu9Yl8LGQ+uY+Ux2nX6yZQro+TdAhZKe5Q4hUJtEO0m4OUX2uSY0DQBJXO0o
+         6B7w==
+X-Forwarded-Encrypted: i=1; AKwUvBwCckc/0M8diDMHo/gXHAuKW/tKORNykGWwu4hEYczQ2GHez3lFFCxaLpzkkTZksg9HCJMz/OoUweitUA==@vger.kernel.org
+X-Gm-Message-State: AFuF++ktRJKwz4T0HPxV53UyrGIxIJ5AKNPAnyFbBHBcqRG24GkHntKZ
+	bGNGosxeo+N+upBwuvJ6+TB3qb9YrMiITdJs9rRUi1AqfiTci0XIIXCp
+X-Gm-Gg: AYBFou1CFIlrrMLgSbrr52YVs49HpHMMKcolLGJ5qomM5ppKmpfhlOLYaRtwABr1Toy
+	58sW/wuOspCeMugG8fyY2VynZ6EXDQF6kbL3qSdjguva3t0xNx6Qw91rDoVM016o8O4MbGC6mQu
+	GX7NJjkm/eQnQwYokIJOdkgMJtdToRz3nlP9hisg6P2zeMDuf672A24SzyfOyh6QwV2n8IUD647
+	IhyurBOX7YWS96ebEA4dWD3+PuzKXFxTdotHG/o1F2AOaliLDltRvMXxsSsWYo5owA2B7+eusOB
+	XfJoRJAtRS6lxZqEEL02NdDtCavW6Wb6OWF1z3VAamFpnfd/C9aOL8Sl4bezxqctTXHTwhIPx95
+	tCoNBOlicuK06sNZ+/nM3AzToLJYxdthOnnPQzl+xJUrGVtJxv+slqCYfReiAj8EzJGBi9nQfZQ
+	ptlH4A+qn+eLK9pa6aaiCbJG3yYYzsBgUnLLuayml4yhKcxrVSny/8IdjYLs/a8G1ORNYTkkFrj
+	UN4uUkwBVBiDxOjB7bF7vX4NzDoyr/4ghFboeuD
+X-Received: by 2002:a05:6300:8811:b0:3dd:a007:cb2c with SMTP id adf61e73a8af0-3dda007d26emr13269696637.40.1790048285330;
+        Mon, 21 Sep 2026 20:38:05 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:e1a7:4f7b:11d4:34fa])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33e613154bdsm1298997eec.24.2026.09.21.20.38.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Sep 2026 20:38:04 -0700 (PDT)
+Date: Mon, 21 Sep 2026 20:38:01 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Zhang Heng <zhangheng@kylinos.cn>
+Cc: cryolitia.pukngae@linux.dev, kees+treewide@kernel.org, 
+	DongLin_Lyu@outlook.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: atkbd - rate-limit unknown key warnings
+Message-ID: <arH309acsp-cMzIW@google.com>
+References: <20260921131934.677541-1-zhangheng@kylinos.cn>
+ <arFZdtgmZXcK9k1V@google.com>
+ <3aa95d2e-9398-482a-8bd5-876ef1e2ce89@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3aa95d2e-9398-482a-8bd5-876ef1e2ce89@kylinos.cn>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] hid: intel-thc-hid: heap OOB write and report rejection due to inc=
-orrect buf_size
---
+On Tue, Sep 22, 2026 at 10:12:15AM +0800, Zhang Heng wrote:
+> Thanks for your reply. This fix should be handled in userspace. It’s just
+> that for ordinary users, they see a lot of warning messages after pressing
+> keys, so perhaps it would be better to limit the output. I also agree with
+> you that this patch is not necessary—after all, the benefit of this patch is
+> indeed limited. If the patch is not merged, I’m fine with that.
 
-commit 89b3a4008ccfc5430514595b9a4bdb1131455535
-Author: Even Xu <even.xu@intel.com>
+If you submit a patch to systemd's 60-keyboard.hwdb introducing the
+mapping you will solve this issue for users.
 
-    HID: Intel-thc-hid: Intel-quickspi: Use hid_safe_input_report()
-   =20
-    Replace the deprecated hid_input_report() with
-    hid_safe_input_report(), which takes the allocated size of the input
-    report buffer and allows hid-core to validate the reported data length
-    against the actual buffer size.
-   =20
-    Track the allocated size of qsdev->input_buf in the new input_len
-    field and pass it through quickspi_hid_send_report() to
-    hid_safe_input_report() to prevent potential out-of-bounds reads.
+Thanks.
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c=
- b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> index 847c5ec55569a..0df33c44fbffe 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-> @@ -240,7 +240,7 @@ void quickspi_handle_input_data(struct quickspi_devic=
-e *qsdev, u32 buf_len)
->  		input_len =3D sizeof(body_hdr->content_id) + input_len;
->  		input_report =3D input_body->content - sizeof(body_hdr->content_id);
-> =20
-> -		ret =3D quickspi_hid_send_report(qsdev, input_report, input_len);
-> +		ret =3D quickspi_hid_send_report(qsdev, input_report, qsdev->input_len=
-, input_len);
-
-[Severity: High]
-Does passing qsdev->input_len as the buf_size here overstate the available
-buffer space?
-
-In quickspi_handle_input_data(), input_report is calculated as an offset in=
-to
-the allocated buffer:
-
-    input_report =3D input_body->content - sizeof(body_hdr->content_id);
-
-This offsets the pointer by 3 bytes into the qsdev->input_buf allocation.
-However, qsdev->input_len represents the total allocation size, not the
-remaining space from the input_report pointer.
-
-When this overstated size reaches hid_safe_input_report(), if a short report
-requires padding, hid_report_raw_event() in the HID core could write up to
-3 bytes past the end of the qsdev->input_buf allocation via memset(), causi=
-ng
-a heap out-of-bounds write.
-
-Additionally, if a maximum-sized report is received, the data length will
-strictly exceed the stated buf_size, causing the HID core to falsely reject
-the report with -EINVAL.
-
-Should the buf_size passed to quickspi_hid_send_report() account for the
-offset into the buffer?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922025437.9400=
-72-1-even.xu@intel.com?part=3D2
+-- 
+Dmitry

@@ -1,137 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EEB7334C1C
-	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 23:16:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BD0B425872;
+	Tue, 22 Sep 2026 23:27:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790118986; cv=none; b=bRqt0Zr3e1pkhk+wdEtzoRgNSbLmNpK4/+6gwmPqZxRfU75oTWsGsi5kRUQGbLeStnCND+NhnqpK/SB6WLkm3WKedO1lbelZCZqGggq23vfTGoRhZTlzjbtuz8leeyoxR1bbzKedjwDFGGbRLsmdgwJWEbc5LHsCSxwTWgB1FGI=
+	t=1790119656; cv=none; b=SMhjAYCIq2Wwt3n3LLxmXP+YbLD8iEBagO6wQTOKdccIitq98HDKCrplWs5yYkdETazl4xf64lUgI+bD1Pvr01BNQLeivf3eohzTMZ3uy6gfGTiJWp+/Ki6jBeGmgzxORNpfUMJyN7XrzHtkNcE9+7BkhRextiaXGD4PjXx3B0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790118986; c=relaxed/simple;
-	bh=rTxLLsiQab5uXuebhNicjV2ddpVNOHKHfE8Ho7QvoeQ=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Q0bWGbJmZcNpRh/OwmxaxLUil4wUzKmEnpzXU7pyKuyxKy5fcSWKbVO9GDUIWrG9E+2095/hiZ51zRtfSTV+KNTou3hgNFLrkUi3tKwfdv9AlyAcMZ3qXWmwHdadBsmV9KC9XtDGKo6AQQqs82axKG2yZKSwiysw6k8T1iEBArA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KOJSbnKY; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790119656; c=relaxed/simple;
+	bh=MsM6Q3k+xZGBgqTNeflUgX0yRpWfvapZFPDDSbiUcRY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=rFFURgdj72ij7kHBiKzXYDUgOtKJaTJ54tvBTBSSbW1mJvz95ezWmYYrRhW3eTM7AG6rvTLXukUfwS9/yUn4xgASAWXrP9D+Wvm/hY6gkDXl8H8516ZZgxFT0ytARUvNaiHlGTI0Lye4Qxu+zcm6WvsVFt4pG2bZdPlqN1RiCYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=Coa/JF/C; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KOJSbnKY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 600451F000FF;
-	Tue, 22 Sep 2026 23:16:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790118984;
-	bh=C12cF7aPMVNvfWntk5NmF2LwwwqAg2p3hZMBz/aDoik=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KOJSbnKYZg08W+hU0z7Ix/kI1A3NUkkVBfGbDtNuXpejsSQ7xb1tNMHX1NY6M4djx
-	 ovVG2z7nSPiOumVdhx783+MxNDvYz2R/VGNkdcf8RSu9R01/1wR4R+37LIN0/rUBdk
-	 Pu69NM1V3rR9zRvCecw/SWBCJbaB1EhxgMHNnir7FHLUk0ytYL7SWC6wBwAncZ9uMa
-	 xKcdUJswTBzsOwUQhsG3myeE3ja6u5Iq+eoafgNwrsdIev855OIpk0vpi50iWOBnZu
-	 qp8xxaM2NrtN81Gspig7TGS5K/UxOox3PiFsybIEaM1ocU88v+ysLdb9/TCHyR/Kh7
-	 qRJDICp3hV2Lg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 12/12] HID: asus: add support for btn remapping
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260922230205.6847-13-denis.benato@linux.dev>
-References: <20260922230205.6847-1-denis.benato@linux.dev>
- <20260922230205.6847-13-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 23:16:24 +0000
-Message-Id: <20260922231624.600451F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="Coa/JF/C"
+Received: from mail01.layka.lan (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id 7ED7382A93;
+	Wed, 23 Sep 2026 01:27:20 +0200 (CEST)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id S76HrBS9fi7C; Wed, 23 Sep 2026 01:27:19 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1790119639; bh=MsM6Q3k+xZGBgqTNeflUgX0yRpWfvapZFPDDSbiUcRY=;
+	h=From:To:Cc:Subject:Date;
+	b=Coa/JF/C5I1UFMhEvq6CNavNdwprNWPHXRUYVw/VGVnhZG/fIcicMob3JpnPFfipJ
+	 M3dBezvQ83UYtAYo529IgY1Wf7ojlOzdSrqFpZ6XMbbbTYS75G0uPaJqWuP7KtG5iN
+	 kv8eMIXAyWjU7KKaTPr9R3D/ZyGtLzZKybaTuxbXnfhwwunSyf1D/8exATSPPFgQgd
+	 +GodSniixBZZzTj1heb1Y8mbHJChOE6TOZNTH3q3DTcqTMxk4LX/MTnh2xgAbnUcnC
+	 TGG5q5rbXr946wMzToioC8jr0F96Qryv+iMEkQHPcr5p0umQkRmLo8sBSg2/UzkJZr
+	 IAqG49P2qAfJA==
+From: "R. Larocque" <rlarocque@disroot.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	dave.wang@emc.com.tw,
+	jingle.wu@emc.com.tw,
+	linux-kernel@vger.kernel.org,
+	"R. Larocque" <rlarocque@disroot.org>
+Subject: [RFC PATCH] Input: elan_i2c_smbus - resend ENABLE_TP on wake from sleep (NOT TESTED, NEEDS TESTER!)
+Date: Tue, 22 Sep 2026 19:17:12 -0400
+Message-ID: <20260922232707.8949-1-rlarocque@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] HID: asus: use-after-free of button_entries during teardown and er=
-ror paths
---
+elan_smbus_sleep_control() sends ETP_SMBUS_SLEEP_CMD to put the
+controller to sleep, but does nothing on wake, leaving a long-standing
+XXX comment questionning wether ETP_SMBUS_ENABLE_TP should be re sent.
 
-commit d969019ebea0db9a650c70e2413a3a0ba90ade15
-Author: Denis Benato <denis.benato@linux.dev>
+elan_initialize() already treats sleep_control(client, false) as a
+genuine "wake device up" primitive (see the ASUS special-firmware
+branch and its accompanying dev_err() message), so this makes the
+non-ASUS/default path resend ETP_SMBUS_ENABLE_TP symetrically with
+elan_smbus_initialize() instead of being a no-op.
 
-HID: asus: add support for btn remapping
+Signed-off-by: Raphaël Larocque <rlarocque@disroot.org>
+---
+RFC: I dont have the Elan SMBus protocol datasheet and consequently 
+havent been able to test this on any real hardware where the previous no-op
+path was actually relied upon. Sending this for testing by
+someone with access to affected devices before it is considered for
+merge. A bad SMBus write to a sleeping controller could leave it
+in a weird state on the wrong firmware revision if unlucky.
 
-This commit adds support for button remapping on ROG Ally devices. It
-introduces sysfs attributes to configure valid remap targets and automatica=
-lly
-refreshes the software cache when the gamepad mode changes.
+ drivers/input/mouse/elan_i2c_smbus.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-[ ... ]
-> @@ -1131,6 +1470,33 @@ static ssize_t gamepad_mode_store(struct device *d=
-ev, struct device_attribute *a
-[ ... ]
-> +	if (cfg->button_entries) {
-> +		for (i =3D 0; i < ALLY_BTN_MAX; i++) {
-> +			sysfs_notify(&dev->kobj, cfg->button_entries[i].group.name,
-> +				     "remap");
-> +			sysfs_notify(&dev->kobj, cfg->button_entries[i].group.name,
-> +				     "macro");
-> +		}
-> +	}
-[ ... ]
-> @@ -2883,12 +3860,22 @@ static void ally_remove_button_attributes(struct =
-hid_device *hdev, struct ally_c
-[ ... ]
->  	kfree(entries);
-> =20
-> -	cfg->button_entries =3D NULL;
-> +	/*
-> +	 * Unpublish the pointers under the lock, so that a sysfs callback
-> +	 * which is still holding config_mutex observes the teardown
-> +	 * instead of freed memory.
-> +	 */
-> +	scoped_guard(mutex, &cfg->config_mutex) {
-> +		cfg->button_entries =3D NULL;
-> +	}
->  }
+diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
+index 0287441cda46..95f5951e9549 100644
+--- a/drivers/input/mouse/elan_i2c_smbus.c
++++ b/drivers/input/mouse/elan_i2c_smbus.c
+@@ -93,10 +93,25 @@ static int elan_smbus_set_mode(struct i2c_client *client, u8 mode)
+ 
+ static int elan_smbus_sleep_control(struct i2c_client *client, bool sleep)
+ {
++	int error;
++
+ 	if (sleep)
+ 		return i2c_smbus_write_byte(client, ETP_SMBUS_SLEEP_CMD);
+-	else
+-		return 0; /* XXX should we send ETP_SMBUS_ENABLE_TP here? */
++
++	/*
++	 * The controller stops touch reporting while asleep; resend
++	 * ETP_SMBUS_ENABLE_TP on wake, mirroring what is done during
++	 * elan_smbus_initialize(), so that reporting actually resumes.
++	 */
++	error = i2c_smbus_write_byte(client, ETP_SMBUS_ENABLE_TP);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to re-enable touchpad after wake: %d\n",
++			error);
++		return error;
++	}
++
++	return 0;
+ }
+ 
+ static int elan_smbus_power_control(struct i2c_client *client, bool enable)
+-- 
+2.55.0
 
-[Severity: High]
-Can this result in a use-after-free when sysfs callbacks run concurrently?
-
-Here entries (which corresponds to cfg->button_entries) is freed via
-kfree(entries) before the pointer is actually set to NULL under
-config_mutex. If a concurrent sysfs write to gamepad_mode_store() acquires
-config_mutex right after this kfree() but before the scoped_guard executes,=
-=20
-it will see a non-NULL cfg->button_entries and dereference freed memory whe=
-n=20
-accessing cfg->button_entries[i].group.name.
-
-Should cfg->button_entries be set to NULL inside the lock before entries is
-freed?
-
-[ ... ]
-> @@ -2861,6 +3833,11 @@ static int ally_create_button_attributes(struct hi=
-d_device *hdev,
-[ ... ]
->  err_cleanup:
->  	while (--i >=3D 0)
->  		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-> =20
-> +	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
-> +		kfree(entries[i].remap_attr);
-> +		kfree(entries[i].macro_attr);
-> +	}
-> +
->  	kfree(entries);
-> =20
->  	cfg->button_entries =3D NULL;
-
-[Severity: High]
-Is there a similar race condition on this error path?
-
-If ally_create_button_attributes() fails and takes this error path,
-cfg->button_entries is set to NULL without holding config_mutex, and after
-entries has already been freed. This seems to expose the same use-after-free
-window to any concurrent sysfs accesses.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922230205.6847=
--1-denis.benato@linux.dev?part=3D12

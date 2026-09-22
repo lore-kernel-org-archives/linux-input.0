@@ -1,122 +1,126 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1F89417BE5;
-	Tue, 22 Sep 2026 08:16:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF6A541A571
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 08:27:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790065014; cv=none; b=Fz5MgyYeMfpAdpngM2D5ztaIErL8H/r8p1Z28XRuFa/kfBvdlv+ErLkLhrm3LQGMWK8vIyw/2RCLnvoyrs7bseEBQVei/fxMb3jsUjIJ1ejvFS3VnUAAIDOlEYv3H+sz4frIroCvvXNuuV/9MLG0v7Lw7tUKLiB7WNgCKbDELYI=
+	t=1790065658; cv=none; b=QOGqVF1Ja3hoQkMUglhXh0ohOh8pSPv9qZCFhHR4HXUnOjCkbIM6HwU0tYBshNTqImwIIWrE1NBCTeJRwfVncPgCZqMNSg+tIuD/euAMlSWUrp9D0bmNcHWezx4u0df78x+66VvaMAGhTnBaBaw8mZfRFMQB27oYg3t7idUjUlM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790065014; c=relaxed/simple;
-	bh=E/NM8T2KZwfRLcR8J/ahxLOTQw75jP+6cRmozKelcwU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=F2VnQqkPMOoYMD157oBpwE/12wvodEqEs36/VaLhD6jPSB+ncBJuV69pTRY+foMtET747/HF14wrQMUJEvXWugOd96j64emPfLJtAnHjxojsVCAmt0cX80UwouB3GcNmwOlf+xNy7OSSc7Vm+vbjltFnx3//bD/xVnbRvZ4negM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WccxMrOh; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790065658; c=relaxed/simple;
+	bh=UobC/aIZPjsxdwIuVy256radJmyOQxArj+4NbZYVR2Y=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=cv8E4++OisSh+p1U1x5oECRf7r/Qy/98bYsecGtdZ+iV+CwLUzlDZuVYEYlwF5vPzJTL/N5cC76nPuBUDdTVAth9Sf4VluqUknTcSOr1peeSZAqg7tobwx5VnIpGLZZ1War/MWXEX58NnZz6WLceMo1Rz+OrCOBhKUyOK78VB0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ggkGNVsA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WccxMrOh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98D351F000FF;
-	Tue, 22 Sep 2026 08:16:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ggkGNVsA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33CB91F00898;
+	Tue, 22 Sep 2026 08:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790065013;
-	bh=I0h+rOyBFje8okjVnSY4zQj1qK4Lape+dWJDy8+Uol4=;
-	h=From:To:Cc:Subject:Date;
-	b=WccxMrOhps3DHgdoVs4eDAbIVvyC0q/AV6g/sFX7bApeX2XMnDvgocyfnD+R6INI7
-	 D7QNVhii6KBbMilScrhOsoFzzfaLH8LsDmucEmGJRlGK1fL+9zwnauUM/d/VYvQknB
-	 OPq62+lDdwg5TmX+1SpxKlDvjZmBT1RzHdLC8ZWylxp1EuxdvFNrbvZ7mAi/IHB+MB
-	 O9BbdKfR3r3q1uJn6d7lIwUrHr9X8a8doM5tBg2iBNLaEQSgUUo+W4JUiQSdSgQ43S
-	 BL4clA90GSCVQqehGsvBwbyQ2d/1UtVxofXxx1AW46c5VXWIXpbh5tGW5g0Wrkv0ea
-	 Gy4v5+23ULrcw==
-From: Lee Jones <lee@kernel.org>
-To: lee@kernel.org,
-	=?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org,
-	=?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
-	Jiri Kosina <jkosina@suse.com>
-Subject: [STABLE v6.1-v5.10 1/1] HID: logitech-hidpp: fix race condition when accessing stale stack pointer
-Date: Tue, 22 Sep 2026 08:16:14 +0000
-Message-ID: <20260922081615.821827-1-lee@kernel.org>
-X-Mailer: git-send-email 2.55.0.1082.g2b9226bbc0-goog
+	s=k20260515; t=1790065657;
+	bh=pzJhu5nWoGUwt5excZ4u/UhHcf/h5/Pnek2heygZBpU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ggkGNVsAZ6THyzh+8jXcXfVJY3pBknUhriZUme6TdCus5VokPGdQ8f4PPS/awTlg/
+	 TZ0c364xDZQ5BO5jUdgosfgGfSpqzeOzqq5ibxd2A+5IDQIXmW0486OzYqjo2o+OB5
+	 KsKZv4655Yy8aY1RS/xYhVzUijpJ6FfOAM3HEI73mDKJBh/nKUT5biSs+OZSfugMMU
+	 iP7DNT087D25XoUEQR1s/9yxtOdMcE3Y3QbORkiAA4PIOoSwPVmqSC20/O/GHm8Gi5
+	 4vGj/R6UaJOrbhRm5dGp1q2JVlgHWB0F1pcemRMhCht2mv7xu5E6EywpQiHed5Y/dd
+	 bc+E/W7bq2z1A==
+From: sashiko-bot@kernel.org
+Subject: Re: [STABLE v6.1-v5.10 1/1] HID: logitech-hidpp: fix race condition
+ when accessing stale stack pointer
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Lee Jones" <lee@kernel.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260922081615.821827-1-lee@kernel.org>
+References: <20260922081615.821827-1-lee@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 22 Sep 2026 08:27:36 +0000
+Message-Id: <20260922082737.33CB91F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-From: Benoît Sevens <bsevens@google.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] hid-logitech-hidpp: data race in hidpp_raw_hidpp_event() allows NU=
+LL pointer deref
+--
 
-commit e2aaf2d3ad92ac4a8afa6b69ad4c38e7747d3d6e upstream.
+commit d3703221a099da6d388bec38af269fe1cd97ac2c
+Author: Beno=C3=AEt Sevens <bsevens@google.com>
 
-The driver uses hidpp->send_receive_buf to point to a stack-allocated
-buffer in the synchronous command path (__do_hidpp_send_message_sync).
-However, this pointer is not cleared when the function returns.
+    HID: logitech-hidpp: fix race condition when accessing stale stack poin=
+ter
 
-If an event is processed (e.g. by a different thread) while the
-send_mutex is held by a new command, but before that command has
-updated send_receive_buf, the handler (hidpp_raw_hidpp_event) will
-observe that the mutex is locked and dereference the stale pointer.
+    The driver uses a stack-allocated buffer in the synchronous command pat=
+h but
+    does not clear the pointer when returning. This patch clears the pointe=
+r and
+    checks for NULL in the event handler to prevent out-of-bounds access.
 
-This results in an out-of-bounds access on a different thread's kernel
-stack (or a NULL pointer dereference on the very first command).
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
+hidpp.c
+> index 8a2aac18dcc51..f584c1007169c 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -322,6 +322,7 @@ static int hidpp_send_message_sync(struct hidpp_devic=
+e *hidpp,
+>  	}
+> =20
+>  exit:
+> +	hidpp->send_receive_buf =3D NULL;
+>  	mutex_unlock(&hidpp->send_mutex);
+>  	return ret;
+> =20
 
-Fix this by:
-1. Clearing hidpp->send_receive_buf to NULL before releasing the mutex
-   in the synchronous command path.
-2. Moving the assignment of the local 'question' and 'answer' pointers
-   inside the mutex_is_locked() block in the handler, and adding
-   a NULL check before dereferencing.
+[ ... ]
 
-Fixes: 2f31c5252910 ("HID: Introduce hidpp, a module to handle Logitech hid++ devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Benoît Sevens <bsevens@google.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
-[Lee: Clear hidpp->send_receive_buf at exit label in hidpp_send_message_sync()
-      as __do_hidpp_send_message_sync() was split out later in 60165ab774cb]
-Signed-off-by: Lee Jones <lee@kernel.org>
----
- drivers/hid/hid-logitech-hidpp.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+> @@ -3590,6 +3590,12 @@ static int hidpp_raw_hidpp_event(struct hidpp_devi=
+ce *hidpp, u8 *data,
+>  	 * previously sent command.
+>  	 */
+>  	if (unlikely(mutex_is_locked(&hidpp->send_mutex))) {
+> +		question =3D hidpp->send_receive_buf;
+> +		answer =3D hidpp->send_receive_buf;
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index c65b5f004bac..4f597804c551 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -316,6 +316,7 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
- 	}
- 
- exit:
-+	hidpp->send_receive_buf = NULL;
- 	mutex_unlock(&hidpp->send_mutex);
- 	return ret;
- 
-@@ -3621,8 +3622,7 @@ static int hidpp_input_configured(struct hid_device *hdev,
- static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 		int size)
- {
--	struct hidpp_report *question = hidpp->send_receive_buf;
--	struct hidpp_report *answer = hidpp->send_receive_buf;
-+	struct hidpp_report *question, *answer;
- 	struct hidpp_report *report = (struct hidpp_report *)data;
- 	int ret;
- 
-@@ -3631,6 +3631,12 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 	 * previously sent command.
- 	 */
- 	if (unlikely(mutex_is_locked(&hidpp->send_mutex))) {
-+		question = hidpp->send_receive_buf;
-+		answer = hidpp->send_receive_buf;
-+
-+		if (!question)
-+			return 0;
-+
- 		/*
- 		 * Check for a correct hidpp20 answer or the corresponding
- 		 * error
--- 
-2.55.0.1082.g2b9226bbc0-goog
+[Severity: High]
+Can these sequential lockless reads of hidpp->send_receive_buf allow a data
+race?
 
+Because hidpp_raw_hidpp_event() does not hold send_mutex when checking
+mutex_is_locked(), another thread running hidpp_send_message_sync() could
+modify hidpp->send_receive_buf concurrently.
+
+If hidpp_send_message_sync() executes:
+
+    hidpp->send_receive_buf =3D NULL;
+
+exactly between the assignments to question and answer, could question
+receive a non-NULL pointer while answer receives NULL?
+
+> +
+> +		if (!question)
+> +			return 0;
+> +
+
+If the second read yields NULL for answer, the question check will pass.
+Then, if the report matches, the handler will execute:
+
+    *answer =3D *report;
+
+Could this result in a NULL pointer dereference and panic the kernel?
+Would it be safer to read hidpp->send_receive_buf exactly once,
+perhaps with READ_ONCE(), and assign the result to both question and
+answer?
+
+>  		/*
+>  		 * Check for a correct hidpp20 answer or the corresponding
+>  		 * error
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922081615.8218=
+27-1-lee@kernel.org?part=3D1

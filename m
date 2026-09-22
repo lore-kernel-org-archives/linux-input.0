@@ -1,193 +1,159 @@
-Received: from mail-pj2-f5.google.com (mail-pj2-f5.google.com [74.125.227.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-b1-smtp.messagingengine.com (fhigh-b1-smtp.messagingengine.com [202.12.124.152])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D45C947C110
-	for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 23:38:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DBB7279DCC;
+	Tue, 22 Sep 2026 01:23:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790033930; cv=none; b=H+ms/G/yKmIeWu/v9EM1ZJ0TCyELM/MYPiIHI4rLCtMaxIfygdbk6NLUUIuTDAT3+wVmKzmqWzgFzCn+wF4hnKfZQf9zRgY/L8cTORm7Wa7U0BKxdxANTfeqv2ypXaucd8J6mBA3gTUKAM4k6ErGAVWIB84yXW7JKxNHkzq0pX0=
+	t=1790040220; cv=none; b=H9o4o1u4h9FVLEmwywQhrYFMPR8tmaTd4VMqY17UT9BpD9EulvJS20WWq/WrEHNQPbq5lyHdRdC3eii47es/l5PlWKqkWoiIQQR12AjC00Pae2Sf94myYflD1ghYePH/8Q3tTl/AmWMub8/KLK+894xbplTZbnesXq72Pn9wiQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790033930; c=relaxed/simple;
-	bh=rqsVU2v75gkxGRrnA6Kd+sFAIvpgo1eLDpFSS5L1wHI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oJF7hd/pAkK8vBz2rzrfyGze4rN5IsL5Fp0s0imQ+UUfIF6jm3Ndcfpx6P7eXKmIv1F/XvXDGnOWJT2IhQlJ682yIf7u3nP70NI5dH1gyIOEA0Wb+mvhrIgOmCu5eh5bIzWx9SQ/ut/xuB1MwAd5n/AQ1EfuQEJmHfP/0oJzkM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SKtI1cK5; arc=none smtp.client-ip=74.125.227.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790040220; c=relaxed/simple;
+	bh=qkwY7bpZcT8tzaU519Lq5BhL2mG7LNy2Xqg6UPj/Tf8=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:Subject:Content-Type; b=CB/pyCzwPgskh9l0/rakv/8OHeaC6xge949Tr/a/Nm2pHp1diwWKDcElT0rqosbQMEk7W23QLt8ZGmTDqoce2MRgw8Q9nLfeT4JB7I8zopjlR0auODlxOzLa8SEPxhUXOLBsKQ2fsuk53dT4g3/Yp7Rhm+k88p0BgO6HMPm1nd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=serow.io; spf=pass smtp.mailfrom=serow.io; dkim=pass (2048-bit key) header.d=serow.io header.i=@serow.io header.b=DMUMLNSd; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=LpWECrBh; arc=none smtp.client-ip=202.12.124.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=serow.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=serow.io
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SKtI1cK5"
-Received: by mail-pj2-f5.google.com with SMTP id 98e67ed59e1d1-3965b08a327so31559a91.1
-        for <linux-input@vger.kernel.org>; Mon, 21 Sep 2026 16:38:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790033928; x=1790638728; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Wrl+Ko54P3dzRH5UdtfwfMkqTLgyfcZTLYflkHj53O4=;
-        b=SKtI1cK5r0ff+fOsTUvQCZk4Rf2B3C7N2A3aazDVSKgfVoOpysMecQI8gxKz265/2U
-         07fxqKIWqVzfdoV3JX4UidhpLeru8yvk7U3N7kWNmcfKjSsL0q+gPHW9OYeWzQWd1Nod
-         skOeiLmL/6adoEoD322Xj0N07QHW5X1VRMauEXK4LYP64rMpEPxKatGY5/ZFyg+xNh/i
-         VKvPRlP/K+L3yMZxI0uMV6iL/KC8lUcssFPwSOec5p5e5bY2mKLHtYuPJ8nvedDgXlJp
-         dyUyluRPB7dh4GkmJC97RhILyijEqFWUV+GXEu7qyE80WywLAMzrI6W9d605yM/1Pnf2
-         UHHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790033928; x=1790638728;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Wrl+Ko54P3dzRH5UdtfwfMkqTLgyfcZTLYflkHj53O4=;
-        b=v1NUbRQysVSQkuZuoiyk2P80EbQ6c3j1fxBknLxlPZBnerfm9sX01N7XL5mSTzAFKQ
-         rzsC6xVBN+bJ4TZ4b7WTAJEfLoN0nspi2kjAZGaWqhT5V5cg+kFLz12Pavl2fkBpTmFy
-         FBbOCEUc7TDByktgx+0y+xyg2ivfmh0OJ+1zSZOidszwY7x2X7n/kNRacoHLjwLUhSmm
-         11pl/ZWQE12F92zvVv29bb19fWCXO4Gme4/6zwi3d3Nc8m6xS8h7flVZvHB1STx4HBBQ
-         bzLkXozujopMU4DCckCZaGoBmVHuIrNhurl4ey8AQb6zccMfesA26uQxh6603D/jy4f4
-         hGbw==
-X-Gm-Message-State: AFuF++k35oTmPJ9kEjdcybAd9onHXWJ1Y89Q/Dtd3zkIQSED8KcT3hG4
-	QrUlvxtA/iCZhakSuM5vyOcQ4pKaqAGkQxsTOBMOUo1xX+EZFsvOfWpekN6kjmdUidJULOqB
-X-Gm-Gg: AYBFou3BZRdEfSRyGdNkAGgeTSyNtdcr6hc+N9Tkg2CILKxUvBbGnh2efCB7gNhZHFo
-	8p22ecd5iHkuGaF7QtC+7wY5CpBYUXIo9QdR62/GdcrRKLWfmpIaDK2IV8dPtxf5aZGfkF0Be8N
-	bkzaJnNgviDTgnTl5DUaytEFboMdxkbdxOkpr6Kxo8vMHWg9L3fjh1DFzx5KORhIAIsQNsEucRB
-	j0x7M3YJIkaOGchIBZjzOqWO+EoXChirVwsU81p4rM962lWtvlZcva5daR8J+Cc/6zhZT+M7S6E
-	nxjrYA5xvjlZ/tsblG5RDCxwH+AEoupa82p85MXDBo6EB4YhPMA6dbkGMPE44i0WD3lzFGrjahl
-	+RFu3iqs6KrBbOdEWddrP4PRrfEqSCpV9LwAW5fq2+AuYwaQJED8c8w4OCddbCJoYos34jmbunQ
-	KnWvdcZbFGpcVG60JxQ93mpjQqLzbKXodimA1nSxRLeEUTmwKoikwMBWt2sWGVLMTBzezsB3W3s
-	amaosWslZF0PQ==
-X-Received: by 2002:a17:90a:1507:b0:3a0:238b:db4d with SMTP id 98e67ed59e1d1-3a0238bdf68mr10936600a91.5.1790033928004;
-        Mon, 21 Sep 2026 16:38:48 -0700 (PDT)
-Received: from erdos ([71.89.197.0])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a0674c321dsm1361490a91.14.2026.09.21.16.38.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2026 16:38:47 -0700 (PDT)
-From: Aoto <aoto.tokizawa@gmail.com>
-To: linux-input@vger.kernel.org,
-	konrad.dybcio@oss.qualcomm.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: Aoto Tokizawa <aoto.tokizawa@gmail.com>
-Subject: [PATCH] HID: asus: support the Zenbook A14 (UX3407QA) keyboard
-Date: Mon, 21 Sep 2026 16:37:29 -0700
-Message-ID: <20260921233729.1286-1-aoto.tokizawa@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=serow.io header.i=@serow.io header.b="DMUMLNSd";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="LpWECrBh"
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 1FCF77A0073;
+	Mon, 21 Sep 2026 21:23:37 -0400 (EDT)
+Received: from phl-imap-16 ([10.202.2.88])
+  by phl-compute-03.internal (MEProxy); Mon, 21 Sep 2026 21:23:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=serow.io; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm1; t=1790040216; x=1790126616; bh=y2
+	yB26Ce1uR5hfdEhMeGbsIPkmpdfEsE9PbOrwadxpI=; b=DMUMLNSdEPHaS+Q6vP
+	3umnZnJnVuH3OR1VQPDy2YlH2F+dz0ZEAOD5YHqfnAn4AEH9ogKGtj2ArPVPTXpK
+	LwAHDuLUU+suXHSaU1V97eh/ZQk/lSV63ZzZG/G7TSSReu1Af+q3bJukAYIh1mul
+	IQ1K3dVZ0EW+tfMfXWr4p0ehykiAHlss5bETe3OmMQ8gwrWwjDen3N3qTWMq7ygW
+	fQF+8GwpuhJ2vHcQHFx8FgLwJEkQLT/o9ZaNbpiRISpsAhdRCi3vbqPZNLQynE50
+	G1rW6sU8U+HcaNxbe2uAMFCtpAJvgaAS2HGqPpNMCXqTZkWin1L7VoDHSdP3pMvk
+	G2Tw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm1; t=1790040216; x=1790126616; bh=y2yB26Ce1uR5hfdEhMeGbsIPkmpd
+	fEsE9PbOrwadxpI=; b=LpWECrBhpldkybrjUnKaefygsEgszwxrBpMkbTHcfRlY
+	jbCtXYFkXhD1Y7FgW+RTsvA742bn5ZBp8rjcfse2HBojNk1a72xWcD+XL8GXsqpu
+	gEPFM7mIYYcjOWU53AE/ZpVx0BsGV1T/fjxTxMmrWEFGxAN4tfqAzAV+78ts9tFW
+	4n3W66JMb4HCt/N8OXm9SiJXdzSj0clVgb6eyK8Z2AvNo0HZNpaJj6rAiCpXRfJ7
+	dAx/oOS3VhuzH6JJOBVGrESYzr9JMte8asaOyy2+t98gi/7OKpZMRyCgSPLdxgCN
+	tWOUCL17fkuLRe0pZTIAPelbIkwSrduGV7AvKQqK8w==
+X-ME-Sender: <xms:mNixapLPzTwA-gCCSMNe4y4m-INxIkfXqvQbnzTH40JFh1KBrDRPUw>
+    <xme:mNixav9gRZ6xQIZJV5MjNbRQdJuGiQpfy-O1VqGMBLm4O9IT5jY7wZvAP7VPj7Edj
+    oOy5VRsKD_Z7sF4Ru4WMsRsKN0UybH0csTeOX__a5yiy-8EWGHFF4yb>
+X-ME-Proxy-Cause: dmFkZTEq/TRVa6MTThR+1j2LN7qpYuXLwj82iFMxFu7q2MHMZOafcjaLEkJPlhejv3pSpc
+    /ElWdVMUpec69cp/px/F0Wxsu3GPPntu3MAqspCcPU1GNM01jSCnHcyjaD5ikIQVeDE+Cr
+    4sCCVRJ9gh0ZdnEoAszKCUSsP6csTFLAjZj1wEtS/74TJNYgsd2hSUPkpf8aCVezRLB1JL
+    YIniF4KN9FSeinCTBDBksxUC26hiU9KlE+B4qWHQZXhfiI3U+m1ajz0WJOiU5LOhYljI4C
+    7WTf5cK4fMjR4OXtjoKrTc1XwLkNlXBJiCWDFjyqzaa9MJLxFbx+qJqMwK1BoL/4aFQ7lX
+    67jLEsR02Ayu17aXVWr796qW2eh3tBeJLseybVQYwIK2V2CybIjnR7EQaxo5sR910nnA4H
+    tzARjVcKtG4k91nISkSFqGcXn89n4BXQXjqwlZ0gN4Zi5FcIbNyJ9ptLogV4xDN2WvDaMw
+    bCquXEGYCq0k3zdDlOFbSqsWQlyN9Qqwf/O9bDPb+151TON0AvCbulzt1zuYawvb6L7bN1
+    BUDKKTi+StHB29VziB4Ki7A6T1mBax8GaAhe5uesJSw89e3SN8jot57fTT5218uAk26ykC
+    fmvn9wRDf17IqIFkrgSBQf/KXioLTYRNqAedI5OLRiFlUuiVy6JE+gxFa2Pw
+X-ME-Proxy: <xmx:mNixaiB3LRJ7zMUWTHqUPeyn8xABqUA_qIYjImRFFrdVC_wgwJ1Zhw>
+    <xmx:mNixakpK4VKT_lia1abp00vLl3Q75e6oDTsX4PdnQ6BJaiHwZq6mbQ>
+    <xmx:mNixalErfCSzzZjgnuYvhetIMGHIaGuZdrzZBOr36NC8ZkFmKMgb1w>
+    <xmx:mNixagu235b7EoNQ5kC5Z31DTeLroTMuu80ySPcoiQIUop8MfIII9g>
+    <xmx:mNixam482eNPiQIQTX3TlQkrpvdTzutZX5mWZaqGRtbWhp5yln8Wa9QF>
+Feedback-ID: ia6364811:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 7032A2CC0086; Mon, 21 Sep 2026 21:23:36 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date: Mon, 21 Sep 2026 20:23:16 -0500
+From: "Grant King" <gking@serow.io>
+To: "Jiri Kosina" <jikos@kernel.org>,
+ "Benjamin Tissoires" <bentiss@kernel.org>
+Cc: linux-input <linux-input@vger.kernel.org>,
+ "Linux Regressions" <regressions@lists.linux.dev>,
+ "Linux Stable" <stable@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ "Antheas Kapenekakis" <lkml@antheas.dev>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ "Sasha Levin" <sashal@kernel.org>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "Jann Horn" <jannh@google.com>
+Message-Id: <069bd866-4eb0-4c42-bcf4-6983ba59aa49@slotpi16m74>
+Subject: [REGRESSION 6.18.48 -> 6.18.49] hid-asus: ROG N-Key keyboard dead, also in
+ 6.12.y
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-From: Aoto Tokizawa <aoto.tokizawa@gmail.com>
+Hi,
 
-Signed-off-by: Aoto Tokizawa <aoto.tokizawa@gmail.com>
----
- drivers/hid/hid-asus.c | 48 ++++++++++++++++++++++++++++++++++++------
- drivers/hid/hid-ids.h  |  1 +
- 2 files changed, 43 insertions(+), 6 deletions(-)
+The built-in keyboard on my ROG Zephyrus G14 (GA403UV) stops working on 6.18.49. 6.18.48 is fine. The N-Key controller enumerates, but hid-asus fails to initialise it:
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index c38a2b3b33d9..5e068d0668fe 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -100,6 +100,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define QUIRK_ROG_ALLY_XPAD		BIT(13)
- #define QUIRK_HID_FN_LOCK		BIT(14)
- #define QUIRK_FILTER_CAMERA_COMPANION	BIT(15)
-+#define QUIRK_NO_KBD_INIT	BIT(16)
-+#define QUIRK_A14_KEYBOARD	BIT(17)
- 
- #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
- 						 QUIRK_NO_INIT_REPORTS | \
-@@ -169,6 +171,7 @@ struct asus_drvdata {
- 	bool battery_in_query;
- 	unsigned long battery_next_query;
- 	struct asus_hid_listener listener;
-+	struct led_classdev kbd_backlight;
- 	bool fn_lock;
- };
- 
-@@ -939,6 +942,16 @@ static bool asus_has_report_id(struct hid_device *hdev, u16 report_id)
- 	return false;
- }
- 
-+static int asus_kbd_backlight_set_blocking(struct led_classdev *led,
-+		enum led_brightness brightness)
-+{
-+	struct asus_drvdata *drvdata =
-+		container_of(led, struct asus_drvdata, kbd_backlight);
-+
-+	asus_kbd_set_brightness(drvdata->hdev, brightness);
-+	return 0;
-+}
-+
- static int asus_kbd_register_leds(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-@@ -969,6 +982,24 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
- 			le16_to_cpu(udev->descriptor.idProduct));
- 	}
- 
-+	if ((drvdata->quirks & QUIRK_A14_KEYBOARD)) {
-+		const u8 buf[FEATURE_KBD_REPORT_SIZE] = {
-+			FEATURE_KBD_REPORT_ID, 0xd0, 0x8f, 0x01
-+		};
-+
-+		ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
-+		if (ret < 0)
-+			return ret;
-+
-+		drvdata->kbd_backlight.name = "asus::kbd_backlight";
-+		drvdata->kbd_backlight.max_brightness = 3;
-+		drvdata->kbd_backlight.brightness_set_blocking =
-+			asus_kbd_backlight_set_blocking;
-+
-+		return devm_led_classdev_register(&hdev->dev,
-+						  &drvdata->kbd_backlight);
-+	}
-+
- 	drvdata->listener.brightness_set = asus_kbd_backlight_set;
- 	ret = asus_hid_register_listener(&drvdata->listener);
- 	if (ret < 0) {
-@@ -1493,12 +1524,14 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
- 	}
- 
--	for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
--		if (asus_has_report_id(hdev, asus_report_id_init[r])) {
--			ret = asus_kbd_init(hdev, asus_report_id_init[r]);
--			if (ret < 0)
--				hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
--					 asus_report_id_init[r], ret);
-+	if (!(drvdata->quirks & QUIRK_NO_KBD_INIT)) {
-+		for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
-+			if (asus_has_report_id(hdev, asus_report_id_init[r])) {
-+				ret = asus_kbd_init(hdev, asus_report_id_init[r]);
-+				if (ret < 0)
-+					hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
-+						 asus_report_id_init[r], ret);
-+			}
- 		}
- 	}
- 
-@@ -1670,6 +1703,9 @@ static const __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- static const struct hid_device_id asus_devices[] = {
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD), I2C_KEYBOARD_QUIRKS},
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+		USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_A14_KEYBOARD),
-+	  QUIRK_NO_KBD_INIT | QUIRK_USE_KBD_BACKLIGHT | QUIRK_A14_KEYBOARD },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_KEYBOARD),
- 	  I2C_KEYBOARD_QUIRKS | QUIRK_FILTER_CAMERA_COMPANION },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b3aca5aa9176..a665863b11b8 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -219,6 +219,7 @@
- #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
- #define USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD	0x183d
- #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
-+#define USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_A14_KEYBOARD	0x0220
- #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
- #define USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_KEYBOARD	0x4b42
- #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
--- 
-2.55.0
+`asus 0003:0B05:19B6.0004: using HID for asus::kbd_backlight
+asus 0003:0B05:19B6.0004: Asus failed to request functions: -75
+asus 0003:0B05:19B6.0004: Failed to initialize backlight.
+asus 0003:0B05:19B6.0004: input,hiddev98,hidraw3: USB HID v1.10 Keyboard
+    [ITE Tech. Inc. ITE Device(8910)] on usb-0000:65:00.3-4/input0
+`
+An input node still appears, the keyboard just does nothing. On 6.18.48 those two error lines are absent and /sys/class/leds/asus::kbd_backlight shows up.
 
+`ASUS ROG Zephyrus G14 GA403UV, BIOS GA403UV.308
+keyboard 0b05:19b6 (ROG N-Key), usb-0000:65:00.3-4
+`
+The culprit looks like d0754db7883c ("HID: asus: simplify RGB init sequence") in 6.18.y, a backport of 56d1b33e644c taken as Stable-dep-of: 02bf61dfb44f ("HID: asus: fix missing hid_is_usb() check"). Reading drivers/hid/hid-asus.c at each tag, v6.18.48 has the old code and v6.18.49 is the first with the merged init path; it is still there at v6.18.52. 6.12 LTS has it too, good at v6.12.107 and first bad at v6.12.108, still there at v6.12.110. 6.6.y never took the refactor and 7.1.y already has the mainline structure, so neither looks affected.
+
+Before the patch, the N-Key branch ran the init reports and never called asus_kbd_get_functions():
+
+`if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
+        ret = asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
+        ...
+        ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID1);
+        ...
+        ret = asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID2);
+`
+After it, get_functions runs for every device and returns early on failure, so the 0x5d and 0x5e inits never happen when it fails. That is what kills the keyboard here.
+
+It fails because of a size mismatch. The controller declares feature report 0x5a as 62 bytes:
+
+`06 31 ff     Usage Page (Vendor 0xFF31)
+09 76        Usage (0x76)
+a1 01        Collection (Application)
+85 5a          Report ID (0x5a)
+...
+75 08          Report Size (8)
+95 3e          Report Count (62)
+b1 00          Feature
+c0           End Collection
+`
+and asus_kbd_get_functions() asks for FEATURE_KBD_REPORT_SIZE, which is 16:
+
+`readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
+ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, readbuf,
+                         FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
+                         HID_REQ_GET_REPORT);
+`
+The device answers with all 62 bytes into a 16 byte control transfer, so it overflows and hid_hw_raw_request() returns -EOVERFLOW, the -75 above. The call cannot succeed on this device, which I assume is why the old code kept it out of the N-Key path. That descriptor came from /sys/bus/hid/devices/0003:0B05:19B6.0004/report_descriptor; I can send the whole thing if it is useful.
+
+The patch says "There should be no functional change with this patch", and in mainline that holds, because 0919db9f3583 ("HID: asus: always fully initialize devices") had already moved the init reports into asus_probe() where a failed get_functions only warns. 0919db9f3583 is not in 6.18.y or 6.12.y, so there the inits are still behind the call that fails.
+
+So either revert d0754db7883c in both trees and rework the hid_is_usb() fix against the old structure, or backport 0919db9f3583 alongside it. The revert looks like less risk for stable, but that is your call. Separately, asking for a fixed 16 bytes from a report the device declares as 62 seems wrong in any tree. Sizing the request from the report would make the call work here rather than just avoiding it.
+
+Alpine has what looks like the same bug on a ProArt P16, same error string, same controller, bisected there to the same commit:
+
+`https://gitlab.alpinelinux.org/alpine/aports/-/work_items/18451
+`
+That reporter only loses the keyboard before root is mounted, mine is dead in the running session.
+
+Caveats. I am on a patched distro kernel (Fedora 44, Bazzite "ogc"), not a vanilla build. The function symbols in its hid-asus.ko match upstream v6.18.44's, so I do not think it patches this file, but I have not proven that. I have not bisected; the first-bad releases above come from reading the tags. I have not captured evdev output proving no key events get through, and the 6.12.y entry is from reading source, not from running it. The descriptor was read on 6.18.44, but it comes from the device so it should not vary by kernel.
+
+I can reproduce this on demand and have a USB keyboard for recovery, so I am happy to test patches or build a vanilla 6.18.49 if that would help.
+
+#regzbot introduced: v6.18.48..v6.18.49
+
+Thanks, Grant

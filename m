@@ -1,63 +1,79 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 381B12EBB84;
-	Tue, 22 Sep 2026 02:12:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 112BD2D47F1;
+	Tue, 22 Sep 2026 02:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790043151; cv=none; b=NOQ1xIeibwSdkESc8e/or6lhKfQoM5waZtoVv8AUMC2Dfn4tpEaOlcuNQbSOhUruHzWGxhNjWHXsKG4LUT1ztn7ojLGd+7Qwin2/lmtSVGwK3ibeftCog+ysFgE7BX+JiTqSYRTQzIiVoxzubMGBgrl1ZdNr60OvQBiL0BUE0w0=
+	t=1790045188; cv=none; b=RPeLAF9Lgu4WBk9yf9+KkJ6w0nanoeAoNtwCejZ31rDs9jodThe+GSqXyvFaQTEXII9tukG+GUPPSkOnSJ7T+z71zoHQcoaDZNXXPrUIXr6iIC46/Ku1ftv7uoeRtjpKIBLOD4wB1MS98vFWLluk2wRbb1/7KhqaFnmkSzlKzH4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790043151; c=relaxed/simple;
-	bh=eHWoKfRxmGPXzreu8zc8rpYeDSzg3YxtbwsTrNAtjJA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BTSwH1/mTFSd9o6BBI1NebTp7/ENWsjNXvNEjpgYia902pGAO4Qq4xPj+GofxPoZwxq4sQPfozLK+xvTfvRCHRKmjvfUcxovXni28JDnDePko/s6e09I5q0VUVyBtrswgXSuXMXgGlhWA4B0zjoatixMiKTw7R9bAHecpIQQZmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 09ec904ab62b11f19a56ed5b684f684d-20260922
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.19,REQID:426d5a97-d32a-476e-bda3-5fb3af8e30b9,IP:0,U
-	RL:0,TC:0,Content:20,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:20
-X-CID-META: VersionHash:7db8b62,CLOUDID:2456a60152ecaafebc3660989d2c3875,BulkI
-	D:nil,BulkQuantity:0,SF:81|82|83|102|136|865|898,TC:nil,Content:4|15|16|50
-	|99,EDM:-3|-100,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
-	,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 09ec904ab62b11f19a56ed5b684f684d-20260922
-X-User: zhangheng@kylinos.cn
-Received: from [172.25.120.77] [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <zhangheng@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_128_GCM_SHA256 128/128)
-	with ESMTP id 1664866593; Tue, 22 Sep 2026 10:12:19 +0800
-Message-ID: <3aa95d2e-9398-482a-8bd5-876ef1e2ce89@kylinos.cn>
-Date: Tue, 22 Sep 2026 10:12:15 +0800
+	s=arc-20240116; t=1790045188; c=relaxed/simple;
+	bh=OhxmPCqC9/TdGXS3ReTmdiTavBipeRxPdc1rtd3HUE8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=BKhtRt0mtr/sZ8PdyQl9eQdfnJFwtGB/JGhYoMMBwTcKDjt7JHV8G7iVaEhNQKoHOFaDkhwa25DuC6JJVaJuyTdfWAVSJcWLBhk3O5A4dsSjzJb9Mm1oqkcgFPQdquE6zMAA9xupODTj8Xgr1Uqu9QApDfAEFdjF6fbYVLPbpHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Mezy66vS; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Mezy66vS"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1790045186; x=1821581186;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=OhxmPCqC9/TdGXS3ReTmdiTavBipeRxPdc1rtd3HUE8=;
+  b=Mezy66vSJHsk5tM0t5ezqSn05f++5F5+BYPSlV9Ao+b6wTq+XAXuR+iS
+   hSwVSkUlWsO2Q1rVxL4IfSCRFRN0P3eKgVA2W9ip2SGShbMHr3WuuPRkh
+   xinNeMT1hnDDJ6/GNlM9jN+TcrzzIi8y14tLAlV3kL+LQY54ooMe/HlYd
+   6gwEj+qwo3r8jyddOfaUd0XYon0A7GyT3dt9ax9B1unVRraRSf+5pfsm4
+   PJjYY5oF2pEyhZDoZd2ZLX2zBPTE3TYH70AAevokOyXeDrAcafX48BxCy
+   3Inhi81wBHTbsqGFOoHC6d8CaF89lq8NynF5ihsy1jb/O9t692cmB6T22
+   w==;
+X-CSE-ConnectionGUID: LObRjeimQLKm8XpUJ/5tCA==
+X-CSE-MsgGUID: ZIiuaSAWR7yGQwuSlkD11w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11912"; a="90476358"
+X-IronPort-AV: E=Sophos;i="6.27,115,1787036400"; 
+   d="scan'208";a="90476358"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2026 19:46:25 -0700
+X-CSE-ConnectionGUID: UVMYDN3cTY2KxUMeJHfmIQ==
+X-CSE-MsgGUID: xZo1MYAwQe+XGVXJLimO1A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,115,1787036400"; 
+   d="scan'208";a="272123764"
+Received: from shsensorbuild.sh.intel.com ([10.239.132.194])
+  by fmviesa010.fm.intel.com with ESMTP; 21 Sep 2026 19:46:23 -0700
+From: Even Xu <even.xu@intel.com>
+To: bentiss@kernel.org,
+	jikos@kernel.org
+Cc: srinivas.pandruvada@linux.intel.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Even Xu <even.xu@intel.com>
+Subject: [PATCH 0/2] HID: Intel-thc-hid: Fix potential buffer overflow
+Date: Tue, 22 Sep 2026 10:46:36 +0800
+Message-ID: <20260922024638.932865-1-even.xu@intel.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: atkbd - rate-limit unknown key warnings
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: cryolitia.pukngae@linux.dev, kees+treewide@kernel.org,
- DongLin_Lyu@outlook.com, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260921131934.677541-1-zhangheng@kylinos.cn>
- <arFZdtgmZXcK9k1V@google.com>
-Content-Language: en-US
-From: Zhang Heng <zhangheng@kylinos.cn>
-In-Reply-To: <arFZdtgmZXcK9k1V@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Thanks for your reply. This fix should be handled in userspace. It’s 
-just that for ordinary users, they see a lot of warning messages after 
-pressing keys, so perhaps it would be better to limit the output. I also 
-agree with you that this patch is not necessary—after all, the benefit 
-of this patch is indeed limited. If the patch is not merged, I’m fine 
-with that.
+This patch set allocate enough space for both the payload and the
+packet header for quicki2c and quickspi input and output buffers to 
+prevent a buffer overflow when the payload reaches its maximum size,
+as their sizes are currently calculated from the payload length only.
+
+Even Xu (2):
+  HID: Intel-thc-hid: Intel-quicki2c: Fix buffer overflow
+  HID: Intel-thc-hid: Intel-quickspi: Fix buffer overflow
+
+ drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c | 6 ++++--
+ drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 3 ++-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
+
+-- 
+2.43.0
+

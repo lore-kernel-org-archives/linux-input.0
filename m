@@ -1,111 +1,129 @@
-Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0457F534443;
-	Tue, 22 Sep 2026 23:36:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3118C384242
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 23:37:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790120174; cv=none; b=KCElX63Mi3GpXyQFfjIrLJ0kNj1GRk8YonHsN6Y4fkCYqq6yYUixJsOMFT3h1fg8rtsL335BUp2edY69UntHoyqkfz2CNYyYeKADMx50sjJzO2pyqmvq3y+ShWVEfdIG/wjwpDLGaNZkwRl48Rw2aI+C+gNvJJeg+zOCiRCXUkw=
+	t=1790120274; cv=none; b=Eypb0C3CtnvEG3dTInjXjvz6ZiOc7Z5NnMUY6tD1VacDCPT34yN+40Y43iwrvwbY1O2cufqN7r8g4ZuKQ50txP7DPOhoXvYRfnYC7f5IZXrw3esgy4dfmZIQ7BEWxXPc5eWP2DxSmRR+OYyXfRqR8BVjhtjJ7PaFd8/MyAO4/tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790120174; c=relaxed/simple;
-	bh=fQCDqNYMWXfYuaMG7xP0BtWWt8rzyUy+m0rnKhQRRnU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NxUzzph0X4L7AZYEjjLjny877lWwHbgN5zOXvYIa5hrs3dABYnPWtQcmodYxrEto1Ra5bxzBQPcVA5LjIoQm46uNAVCYslXCKLLwT5Sbpqxq7Dua2RBhYWxPmtWNg/o/5Saw4s6ru03LC/C63k6mVvs+0h4BqtGfri3hNW/HlIM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=eoC5cf0+; arc=none smtp.client-ip=178.21.23.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
+	s=arc-20240116; t=1790120274; c=relaxed/simple;
+	bh=ov8YJxH9NIseO38rpXAO6P6oyCaXiuvq7KT9PuVg7KI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=bThOJK+uj8QNbDRJ5pz+ijvOWAZOzvCacgi69IMyGy83Uwq4P0cgRM/iGuagzhPka+uQ986GoVHwpYmmiOH2XErHGqtXpl764CzkZV2vyOEwNlgOMKOijdSTU1AB2QLQBB2iZWxRQ8CJiZ8F69nbLpaVLemwFsA2KhVw8ZkQnw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FsbFxLNw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="eoC5cf0+"
-Received: from mail01.layka.lan (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id 295F782B20;
-	Wed, 23 Sep 2026 01:36:05 +0200 (CEST)
-X-Virus-Scanned: SPAM Filter at disroot.org
-Received: from layka.disroot.org ([127.0.0.1])
- by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id msRIRTWDIPzA; Wed, 23 Sep 2026 01:36:04 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1790120164; bh=fQCDqNYMWXfYuaMG7xP0BtWWt8rzyUy+m0rnKhQRRnU=;
-	h=From:To:Cc:Subject:Date;
-	b=eoC5cf0+MRWL8Vzk+YB88wW+omtNzfiE2HgRn/WQAhae4y0VKoBLE00YVvMWTjW4p
-	 +cppfVesuWJsKrHuCx2euX17OiBvjBet9koEFeVeocMU/dK+e6MkJXk69nEntdVBQc
-	 O172ELqpwKB6i6L/3ljfLDH6+/aafs6JNYbygZq6jnnTlaH0ccdwJzzqPxCTCMRIyY
-	 l/JvclfDWA+nBjB1sBxhimypdWElDJ26sUmtsizHR3Y/BNH6Z4zBNl3qSe6sETyVhB
-	 x5eKltZwpJ85VswbNbdmM461qtnHepBlRX5NwEHrwXTmk/Mo+1YXs7AqXoX24D4hIF
-	 xBiTXszy+JFZg==
-From: "R. Larocque" <rlarocque@disroot.org>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	dave.wang@emc.com.tw,
-	jingle.wu@emc.com.tw,
-	linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Rapha=C3=ABl=20Larocque?= <rlarocque@disroot.org>
-Subject: [RFC PATCH V2] Input: elan_i2c_smbus - resend ENABLE_TP on wake from sleep (NOT TESTED, NEEDS TESTER!) (v2: typo fixes)
-Date: Tue, 22 Sep 2026 19:35:47 -0400
-Message-ID: <20260922233549.10431-1-rlarocque@disroot.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FsbFxLNw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136E61F000FF;
+	Tue, 22 Sep 2026 23:37:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790120266;
+	bh=7o2tAgXLvifuH2K7pWfvcGt534TC4SSlKycbvizETE4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=FsbFxLNwFgS7FbRYELFx1g9Q11J9e+/v5XZJrL3OX/RBdQ0YoV5BHfM+oGNO7mJ74
+	 vXiPJ/RpqBfPryUrmc7DXxmBSp9fWxD8MwOYMHZ8NjuKGZ6m9/dCLIqYx0KWNQRyLs
+	 SA9WGKpV09VXdUQpHCz1AjUO6IUC0J4ZGRSLcv53mIQVgJB+eT2wVJdemjyZDzWm2e
+	 /QUKw1ti0nu6i1xXHMKzHIQTDBwyrOGVRCZoo1dQ/sEMq5n07R1YCNr437bbZ/6yBt
+	 S5W8brxiZIW++VA1ukcvrmA58NaWMff/fo0xcLBnIcEpWjAaTtRgZ0uOHv/n/HdCDd
+	 EIlT4KqYri9vQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH] Input: elan_i2c_smbus - resend ENABLE_TP on wake
+ from sleep (NOT TESTED, NEEDS TESTER!)
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "R. Larocque" <rlarocque@disroot.org>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20260922232707.8949-1-rlarocque@disroot.org>
+References: <20260922232707.8949-1-rlarocque@disroot.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 22 Sep 2026 23:37:45 +0000
+Message-Id: <20260922233746.136E61F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-From: "Raphaël Larocque" <rlarocque@disroot.org>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] input: redundant ETP_SMBUS_ENABLE_TP command during initializati=
+on
+- [Low] input: explicit failure path violation in elan_smbus_sleep_control()
+--
 
-elan_smbus_sleep_control() sends ETP_SMBUS_SLEEP_CMD to put the
-controller to sleep, but does nothing on wake, leaving a long-standing
-XXX comment questioning whether ETP_SMBUS_ENABLE_TP should be re-sent.
+commit a7e8e038348366c26f0b3d1a3a7f9e778cbce51a
+Author: R. Larocque <rlarocque@disroot.org>
 
-elan_initialize() already treats sleep_control(client, false) as a
-genuine "wake device up" primitive (see the ASUS special-firmware
-branch and its accompanying dev_err() message), so this makes the
-non-ASUS/default path resend ETP_SMBUS_ENABLE_TP symmetrically with
-elan_smbus_initialize() instead of being a no-op.
+Input: elan_i2c_smbus - resend ENABLE_TP on wake from sleep (NOT TESTED, NE=
+EDS TESTER!)
 
-Signed-off-by: Raphaël Larocque <rlarocque@disroot.org>
----
-RFC: I don't have the Elan SMBus protocol datasheet and consequently 
-haven't been able to test this on any real hardware where the previous no-op
-path was actually relied upon. Sending this for testing by
-someone with access to affected devices before it is considered for
-merge. A bad SMBus write to a sleeping controller could leave it
-in a weird state on the wrong firmware revision if unlucky.
+This commit updates the Elan SMBus sleep control to resend the enable comma=
+nd
+when waking up the touchpad. This mirrors the initialization path to ensure
+touch reporting resumes.
 
- drivers/input/mouse/elan_i2c_smbus.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+> diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/e=
+lan_i2c_smbus.c
+> index 0287441cda46d..dd86bd1739c55 100644
+> --- a/drivers/input/mouse/elan_i2c_smbus.c
+> +++ b/drivers/input/mouse/elan_i2c_smbus.c
+> @@ -93,10 +93,25 @@ static int elan_smbus_set_mode(struct i2c_client *cli=
+ent, u8 mode)
+> =20
+>  static int elan_smbus_sleep_control(struct i2c_client *client, bool slee=
+p)
+>  {
+> +	int error;
+> +
+>  	if (sleep)
+>  		return i2c_smbus_write_byte(client, ETP_SMBUS_SLEEP_CMD);
 
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index 0287441cda46..95f5951e9549 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -93,10 +93,25 @@ static int elan_smbus_set_mode(struct i2c_client *client, u8 mode)
- 
- static int elan_smbus_sleep_control(struct i2c_client *client, bool sleep)
- {
-+	int error;
-+
- 	if (sleep)
- 		return i2c_smbus_write_byte(client, ETP_SMBUS_SLEEP_CMD);
--	else
--		return 0; /* XXX should we send ETP_SMBUS_ENABLE_TP here? */
-+
-+	/*
-+	 * The controller stops touch reporting while asleep; resend
-+	 * ETP_SMBUS_ENABLE_TP on wake, mirroring what is done during
-+	 * elan_smbus_initialize(), so that reporting actually resumes.
-+	 */
-+	error = i2c_smbus_write_byte(client, ETP_SMBUS_ENABLE_TP);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"failed to re-enable touchpad after wake: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	return 0;
- }
- 
- static int elan_smbus_power_control(struct i2c_client *client, bool enable)
--- 
-2.55.0
+[Severity: Low]
+Does this direct return bypass the preferred explicit failure path style?
 
+The input subsystem maintainer style guidelines suggest expanding direct
+returns into explicit error checks when a function has multiple failure
+points. Should this be updated to assign the return value to error and retu=
+rn
+explicitly?
+
+> -	else
+> -		return 0; /* XXX should we send ETP_SMBUS_ENABLE_TP here? */
+> +
+> +	/*
+> +	 * The controller stops touch reporting while asleep; resend
+> +	 * ETP_SMBUS_ENABLE_TP on wake, mirroring what is done during
+> +	 * elan_smbus_initialize(), so that reporting actually resumes.
+> +	 */
+> +	error =3D i2c_smbus_write_byte(client, ETP_SMBUS_ENABLE_TP);
+
+[Severity: Medium]
+Will this cause a redundant enable command during initialization that
+might confuse the hardware?
+
+During device probe, the sequence calls the initialization routine and then
+the sleep control routine to wake it up:
+
+__elan_initialize()
+   data->ops->initialize(client)
+      -> elan_smbus_initialize() sends ETP_SMBUS_ENABLE_TP
+   data->ops->sleep_control(client, false)
+      -> elan_smbus_sleep_control() now sends ETP_SMBUS_ENABLE_TP again
+
+Since this patch is explicitly untested on real hardware, is there a risk
+that this double-command could cause unexpected states or fail the probe
+sequence?
+
+> +	if (error) {
+> +		dev_err(&client->dev,
+> +			"failed to re-enable touchpad after wake: %d\n",
+> +			error);
+> +		return error;
+> +	}
+> +
+> +	return 0;
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922232707.8949=
+-1-rlarocque@disroot.org?part=3D1

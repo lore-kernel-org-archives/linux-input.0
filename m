@@ -1,223 +1,207 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from relay12.grserver.gr (relay12.grserver.gr [88.99.38.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6C95528454;
-	Tue, 22 Sep 2026 08:49:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D52352CCF2
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 09:48:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=88.99.38.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790066942; cv=none; b=rFwDkV9zQ7yBwRCL0qQ9QN60pOKVfJHx7+h7n58KnLosTqRjW1z7OTbBYM7kiYtcqYpWIWskWwmsNoFURYg9Nrnk4PduCFJj0bLIw0AhVw1XUCWWw61XbkbquG+orlDqH7f4x/urGOecLvA1mzb4PHS2olQ6Ifh2LXvKbnzwbHc=
+	t=1790070487; cv=none; b=XGfPwUL2bTMXQqAzUuBITOF8GUjvto0BCa+zyHyh6OJOWJHpEXQIlQjggKPnveuffFHiCffTVUU6GsWgPuq+WYDkkzfvUZLG46hlo/mxZaONVA7YUdZYNj5HaAfz/ijJ/3qunjq9g1wTFB1OP+5o8lKAdJWVx6xRrdaGJzsSP8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790066942; c=relaxed/simple;
-	bh=XyoOzB8ihijh/xsKK0YcCfpk1RCVC/mcYFS9N53eUdw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QOxPMo0Q31Y9OWnH7rpc7ieRydLVCB0RQFtVO3vYA6YR/TErGn+NGA2AlgSJaq5a3zKPa+daLA1eFD9UKG9CTs7M8KCUAB8BFXzChzhl36BN9Tjp2gwSqCwSgVBOfpU1cZGOnzx46tGPpqj5EW1Gv1RrXrSBhXgGaTQ00cC2G4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xl21csvZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790070487; c=relaxed/simple;
+	bh=cfbJaDAqXz0WpZfSPMzfJh60AKYaO81sYrd7ccCA7/8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fGt0rL0qDvTR8voMcRbX3UX5uulxO43JnORpo3JTqJMC5dx57/9HD7uNznm8wEshVxX/h6Eo8MoyRe74zZQy+N61lw6Ny1b4LuviX3GUj9wiGWmlgJ6JyU+8qYiGS27bOf5s3v6Y07Kp+oW5V7OXILb+Vfq5B7lu/JmTfnam4cQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=Qgzezyia; arc=none smtp.client-ip=88.99.38.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xl21csvZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7261F00893;
-	Tue, 22 Sep 2026 08:48:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790066940;
-	bh=x2LbWyqsBJi8UoBpecRL5XHK+9G27RrqTqLAShUht5Y=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Xl21csvZQzm6ARRrwxq6HULPt7eS8+OtYd2FFNzF+XvDYWhm9DnqTr1ZukIbSBV4B
-	 iBFeBb7m5kLiZvTutjgrAgMLxB6fGpn17i8S+yM9MDH5EBep8oxe17DJPjDt8fMNUk
-	 qADPT9tecGMPEkwx5h1xj4NgBOqQXdrIZk6utxNivuPgMsmS1b6gbseNlooBQcNx1D
-	 +ZIUO9TT7dgSDbk2FmiR4UAAtJOeVxaGNtw4ylHNUIcJYcjukQTqj7nqrETNJYxgsV
-	 k8U2EsceBqidp3YE9FS8W8SLurztwBQnkWLs6Kh88NvsfqMFoxrqGUtDWUjCblboEf
-	 jZ69U+kdUeSQA==
-Message-ID: <c356fbfa-0787-4314-862c-aa51972d59d7@kernel.org>
-Date: Tue, 22 Sep 2026 10:48:53 +0200
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="Qgzezyia"
+Received: from relay12 (localhost [127.0.0.1])
+	by relay12.grserver.gr (Proxmox) with ESMTP id 2ACF3BD8ED
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 12:47:56 +0300 (EEST)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay12.grserver.gr (Proxmox) with ESMTPS id 5C290BC293
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 12:47:55 +0300 (EEST)
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id AD2E42029FE
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 12:47:54 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1790070474;
+	bh=V5kWROyU8WMPqbcO1XzcbkXzwkxqv3KwZW4+FIRHPa4=;
+	h=Received:From:Subject:To;
+	b=Qgzezyia3COY5O9AK7akiz3Sz7uSMjp+ZhHdUtMC8k4amBtE72VGTqf7RHg8GtAwd
+	 QvrxWkBq3amgfhw6Mv7HifUVDVPsHqmEHcH7GUERRc9iUpRwvm4XSw8D91F/2Mf/Ab
+	 DP1ll5dxZHyhMsxmckBrfrAwi3zCaBE6xMhPn8Ld9+kcuSoTDaG+0ogdHUatRXfMAV
+	 QQmOxRzE8eaBrduHQ8Hwhk0wQuT5wKn3Bqwr/IqQBPMQ87cmlGQ4YU+9dlTJW4Aa+B
+	 DxqoLrEHehxS9e3H9jyLMd1eZAtqKbL67WlwmZKL2bj4rp1YSmB3psmQuJQkNENDxV
+	 rUG1llJTvKMMA==
+Authentication-Results: linux3247.grserver.gr;
+        spf=pass (sender IP is 74.125.227.141) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pj2-f13.google.com
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+Received: by mail-pj2-f13.google.com with SMTP id
+ d9443c01a7336-2d747f05ffcso30374955ad.0
+        for <linux-input@vger.kernel.org>;
+ Tue, 22 Sep 2026 02:47:54 -0700 (PDT)
+X-Forwarded-Encrypted: i=1;
+ AKwUvByZsrv4B3l0yOx81mq1Op5QtqMs5d0ktMGGQvcYdAZ9INs1dDxMh7uFrrxOWlkFs4+m/2p/aTPEF5YSgQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++m0NN1XlGkX5RWiRMQgrqgNtNo/fGKChdWHpnfwPuU59PglJFzW
+	hFNabbyA5NzpiCB7Dg/5ZNoMUFfAhdP/xuBt+9WNhD4g/Rh94eyEPQR38gjkaI5VIe58t6v8TU5
+	njZZdieQ9MoxwSoI41YTn0e43sCqGB5U=
+X-Received: by 2002:a17:902:d4d1:b0:2dd:c168:c4e0 with SMTP id
+ d9443c01a7336-2df60880ed5mr7396975ad.0.1790070473205; Tue, 22 Sep 2026
+ 02:47:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] dt-bindings: input: gpio-keys: add pinctrl states
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Markus Schneider-Pargmann <msp@baylibre.com>,
- Kendall Willis <k-willis@ti.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, s-kochidanadu@ti.com, a-kaur@ti.com,
- s-tripathi1@ti.com, vishalm@ti.com, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-References: <20260912-upstream-gpio-wakeup-v1-0-f0e12484b836@ti.com>
- <20260912-upstream-gpio-wakeup-v1-1-f0e12484b836@ti.com>
- <20260914-unbreakable-competent-beluga-efb5ad@quoll>
- <20260915164819.nlgpuvf37rhzgc66@uda0506412>
- <dec4f6e1-115e-46dd-8fb9-a3c67f1a8811@kernel.org>
- <da881fb0-93da-4d75-88da-8898b2c734eb@kernel.org>
- <20260915174103.ad6tjy6w6s24h2yc@uda0506412>
- <20260916-dancing-loud-guan-fbb1eb@quoll>
- <DLGUOGCLFAI9.2JSS4DCFRYTNI@baylibre.com>
- <dfd82438-1c40-42b7-8a90-bd349a476489@kernel.org>
- <arGGhvIieis2_sZ9@google.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <arGGhvIieis2_sZ9@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <05f99d32-652f-4107-8e2f-379393f614b8@slotpi16m74>
+In-Reply-To: <05f99d32-652f-4107-8e2f-379393f614b8@slotpi16m74>
+From: Antheas Kapenekakis <lkml@antheas.dev>
+Date: Tue, 22 Sep 2026 11:47:41 +0200
+X-Gmail-Original-Message-ID: 
+ <CAGwozwFcBQkdR1SH-11S-pXsWW3GAxZBUbC5WotAOu8uzcDpEg@mail.gmail.com>
+X-Gm-Features: AcwNN1XJ-HDn3RmVtXyvuyKedFAMAYzjGQugTPuqyidvv8yljdU8YUmVKOXpEfQ
+Message-ID: 
+ <CAGwozwFcBQkdR1SH-11S-pXsWW3GAxZBUbC5WotAOu8uzcDpEg@mail.gmail.com>
+Subject: Re: [REGRESSION 6.18.48 -> 6.18.49] hid-asus: ROG N-Key keyboard
+ dead, also in 6.12.y
+To: Grant King <gking@serow.io>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input <linux-input@vger.kernel.org>,
+	Linux Regressions <regressions@lists.linux.dev>,
+ Linux Stable <stable@vger.kernel.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Sasha Levin <sashal@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jann Horn <jannh@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-PPP-Message-ID: 
+ <179007047490.336645.12247041042284765407@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.6 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
-On 21/09/2026 21:35, Dmitry Torokhov wrote:
-> On Sun, Sep 20, 2026 at 12:24:32PM +0200, Krzysztof Kozlowski wrote:
->> On 16/09/2026 17:36, Markus Schneider-Pargmann wrote:
->>> On Wed Sep 16, 2026 at 9:17 AM CEST, Krzysztof Kozlowski wrote:
->>>> On Tue, Sep 15, 2026 at 12:41:03PM -0500, Kendall Willis wrote:
->>>>> On 19:07-20260915, Krzysztof Kozlowski wrote:
->>>>>> On 15/09/2026 19:05, Krzysztof Kozlowski wrote:
->>>>>>> On 15/09/2026 18:48, Kendall Willis wrote:
->>>>>>>> On 12:13-20260914, Krzysztof Kozlowski wrote:
->>>>>>>>> On Sat, Sep 12, 2026 at 04:33:53PM -0500, Kendall Willis wrote:
->>>>>>>>>> Document pinctrl properties on the gpio-keys device node. By using the
->>>>>>>>>> wakeup pinctrl state, the pins are able to wakeup the system from a
->>>>>>>>>> low-power state. The default pinctrl state describes the default pin
->>>>>>>>>> configuration.
->>>>>>>>>>
->>>>>>>>>> Signed-off-by: Kendall Willis <k-willis@ti.com>
->>>>>>>>>> ---
->>>>>>>>>>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 16 ++++++++++++++++
->>>>>>>>>>  1 file changed, 16 insertions(+)
->>>>>>>>>>
->>>>>>>>>> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>>>>>>>>> index cc78c2152921308fe0cad3e29ca78a5fad08f066..b554933e93412d8b6c2ec401dc1e1eeff57d4190 100644
->>>>>>>>>> --- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>>>>>>>>> +++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
->>>>>>>>>> @@ -22,6 +22,22 @@ properties:
->>>>>>>>>>  
->>>>>>>>>>    poll-interval: true
->>>>>>>>>>  
->>>>>>>>>> +  pinctrl-0:
->>>>>>>>>> +    description: Default pinctrl state
->>>>>>>>>> +
->>>>>>>>>> +  pinctrl-1:
->>>>>>>>>> +    description: Wakeup pinctrl state
->>>>>>>>>> +
->>>>>>>>>> +  pinctrl-names:
->>>>>>>>>> +    description:
->>>>>>>>>> +      When present should contain at least "default" describing the default pin
->>>>>>>>>> +      states. The second state called "wakeup" describes the pins in their
->>>>>>>>>> +      wakeup configuration required to exit sleep states.
->>>>>>>>>> +    minItems: 1
->>>>>>>>>> +    items:
->>>>>>>>>> +      - const: default
->>>>>>>>>> +      - const: wakeup
->>>>>>>>>
->>>>>>>>> This will introduce new warnings, which should be being fixed in this
->>>>>>>>> patchset (e.g. at91-kizbox3-hs.dts).
->>>>>>>>>
->>>>>>>>
->>>>>>>> Will fix the binding to work with current device trees.
->>>>>>>>
->>>>>>>>> But nevertheless, isn't second state the sleep state? How can you
->>>>>>>>> configure pins for the wakeup state - like being in the wakeup? You
->>>>>>>>> configure the pins for given state, which will be a system suspend, so
->>>>>>>>> sleep?
->>>>>>>>>
->>>>>>>>
->>>>>>>> The sleep state usually refers to putting the pins in a state to save
->>>>>>>> power. The wakeup pinctrl state is for putting the pins in a state to
->>>>>>>> allow wakeup from suspend for that device. Both 'sleep' and 'wakeup'
->>>>>>>> are for system suspend, but they fill different functions. The CAN
->>>>>>>> subsystem also uses the 'wakeup' state in addition to the 'sleep' state
->>>>>>>> [1].
->>>>>>>
->>>>>>> So you mean sleep would be a separate state? But then aren't both
->>>>>>> exactly the same states? IOW, if device is wakeup-source, it will have
->>>>>>> for "sleep" state pin configuration allowing to wakeup.
->>>>>
->>>>> The 'sleep' and 'wakeup' pin states are both used for suspend. They
->>>>> would just be used separately since only one could be used at a time.
->>>>> The reason 'wakeup' is separated out is because it is more specific for
->>>>> allowing wakeup from the device.
->>>>
->>>> If they cannot be used together, then it is the same state.
->>>
->>> If I understand this patch correctly, 'sleep' is not relevant here.
->>> But 'sleep' and 'wakeup' serve different purposes and can be
->>> used/defined together in a single device in the devicetree:
->>>  - 'sleep' describes the pin state during suspend if wakeup is not
->>>    enabled by the user or there is no 'wakeup' pin state defined.
->>>  - 'wakeup' describes the pin state during suspend if wakeup is enabled
->>>    by the user.
->>> If the user enables wakeup, 'wakeup' is the relevant state and otherwise
->>> 'sleep'. Which one applieas is a runtime decision of the the user.
->>>
->>> I introduced these two states for m_can for that reason. This was
->>> discussed here:
->>>   https://lore.kernel.org/r/DCD1YPX4T779.ADK4JCGW1MU7@baylibre.com
->>>
->>> And then reviewed/applied in v10:
->>>   https://lore.kernel.org/r/175993598226.3512549.5295923279078928995.robh@kernel.org
->>
->> So we seems to be discussing same issue again, because commit msg lacks
->> proper explanations.
->>
->> The problem and difference here is that there is no sleep state.
-> 
-> Isn't there? 
+On Tue, 22 Sept 2026 at 03:34, Grant King <gking@serow.io> wrote:
+>
+> Hi,
+>
+> Resending as plain text; the first copy went out as HTML and the lists wi=
+ll have dropped it. Apologies to those receiving it twice.
+>
+> The built-in keyboard on my ROG Zephyrus G14 (GA403UV) stops working on 6=
+.18.49. 6.18.48 is fine. The N-Key controller enumerates, but hid-asus fail=
+s to initialise it:
+>
+> asus 0003:0B05:19B6.0004: using HID for asus::kbd_backlight
+> asus 0003:0B05:19B6.0004: Asus failed to request functions: -75
+> asus 0003:0B05:19B6.0004: Failed to initialize backlight.
+> asus 0003:0B05:19B6.0004: input,hiddev98,hidraw3: USB HID v1.10 Keyboard
+>     [ITE Tech. Inc. ITE Device(8910)] on usb-0000:65:00.3-4/input0
+>
+> An input node still appears, the keyboard just does nothing. On 6.18.48 t=
+hose two error lines are absent and /sys/class/leds/asus::kbd_backlight sho=
+ws up.
+>
+> ASUS ROG Zephyrus G14 GA403UV, BIOS GA403UV.308
+> keyboard 0b05:19b6 (ROG N-Key), usb-0000:65:00.3-4
+>
+> The culprit looks like d0754db7883c ("HID: asus: simplify RGB init sequen=
+ce") in 6.18.y, a backport of 56d1b33e644c taken as Stable-dep-of: 02bf61df=
+b44f ("HID: asus: fix missing hid_is_usb() check"). Reading drivers/hid/hid=
+-asus.c at each tag, v6.18.48 has the old code and v6.18.49 is the first wi=
+th the merged init path; it is still there at v6.18.52. 6.12 LTS has it too=
+, good at v6.12.107 and first bad at v6.12.108, still there at v6.12.110. 6=
+.6.y never took the refactor and 7.1.y already has the mainline structure, =
+so neither looks affected.
+>
+> Before the patch, the N-Key branch ran the init reports and never called =
+asus_kbd_get_functions():
+>
+> if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
+>         ret =3D asus_kbd_init(hdev, FEATURE_KBD_REPORT_ID);
+>         ...
+>         ret =3D asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID1);
+>         ...
+>         ret =3D asus_kbd_init(hdev, FEATURE_KBD_LED_REPORT_ID2);
+>
+> After it, get_functions runs for every device and returns early on failur=
+e, so the 0x5d and 0x5e inits never happen when it fails. That is what kill=
+s the keyboard here.
+>
+> It fails because of a size mismatch. The controller declares feature repo=
+rt 0x5a as 62 bytes:
+>
+> 06 31 ff     Usage Page (Vendor 0xFF31)
+> 09 76        Usage (0x76)
+> a1 01        Collection (Application)
+> 85 5a          Report ID (0x5a)
+> ...
+> 75 08          Report Size (8)
+> 95 3e          Report Count (62)
+> b1 00          Feature
+> c0           End Collection
+>
+> and asus_kbd_get_functions() asks for FEATURE_KBD_REPORT_SIZE, which is 1=
+6:
+>
+> readbuf =3D kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
+> ret =3D hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, readbuf,
+>                          FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
+>                          HID_REQ_GET_REPORT);
+>
+> The device answers with all 62 bytes into a 16 byte control transfer, so =
+it overflows and hid_hw_raw_request() returns -EOVERFLOW, the -75 above. Th=
+e call cannot succeed on this device, which I assume is why the old code ke=
+pt it out of the N-Key path. That descriptor came from /sys/bus/hid/devices=
+/0003:0B05:19B6.0004/report_descriptor; I can send the whole thing if it is=
+ useful.
+>
+> The patch says "There should be no functional change with this patch", an=
+d in mainline that holds, because 0919db9f3583 ("HID: asus: always fully in=
+itialize devices") had already moved the init reports into asus_probe() whe=
+re a failed get_functions only warns. 0919db9f3583 is not in 6.18.y or 6.12=
+.y, so there the inits are still behind the call that fails.
+>
+> So either revert d0754db7883c in both trees and rework the hid_is_usb() f=
+ix against the old structure, or backport 0919db9f3583 alongside it. The re=
+vert looks like less risk for stable, but that is your call. Separately, as=
+king for a fixed 16 bytes from a report the device declares as 62 seems wro=
+ng in any tree. Sizing the request from the report would make the call work=
+ here rather than just avoiding it.
 
-Isn't. Quoting patch:
+0919db9f3583 came after. You mean e82ae34af29e910 is missing that
+increases FEATURE_KBD_REPORT_SIZE to 64, correct?
 
-+    items:
-+      - const: default
-+      - const: wakeup
+Antheas
 
-No sleep. :( So both the commit msg, rationale and could improve so we
-won't be asking the same questions at v2.
+> Alpine has what looks like the same bug on a ProArt P16, same error strin=
+g, same controller, bisected there to the same commit:
+>
+> https://gitlab.alpinelinux.org/alpine/aports/-/work_items/18451
+>
+> That reporter only loses the keyboard before root is mounted, mine is dea=
+d in the running session.
+>
+> Caveats. I am on a patched distro kernel (Fedora 44, Bazzite "ogc"), not =
+a vanilla build. The function symbols in its hid-asus.ko match upstream v6.=
+18.44's, so I do not think it patches this file, but I have not proven that=
+. I have not bisected; the first-bad releases above come from reading the t=
+ags. I have not captured evdev output proving no key events get through, an=
+d the 6.12.y entry is from reading source, not from running it. The descrip=
+tor was read on 6.18.44, but it comes from the device so it should not vary=
+ by kernel.
+>
+> I can reproduce this on demand and have a USB keyboard for recovery, so I=
+ am happy to test patches or build a vanilla 6.18.49 if that would help.
+>
+> #regzbot introduced: v6.18.48..v6.18.49
+>
+> Thanks, Grant
 
-> The wakeup can be controlled from userspace and can't we
-> possible have 2 distinct pin control states, one for when a device is a
-> potential wakeup source, and another one when the device is in "off"
-> state while system is asleep?
-> 
-> Thanks.
-> 
-
-
-Best regards,
-Krzysztof

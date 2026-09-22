@@ -1,109 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 908672D6E64;
-	Tue, 22 Sep 2026 07:31:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CA9039F188;
+	Tue, 22 Sep 2026 07:54:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790062300; cv=none; b=PQC4sGeqhEyyF1I5+JHxfZTgCkk69OqaVJ2Socwc1YTw8HEvki/Q93tp8nGj92ElX0if+l7JecB6ZZDji/bf/arn3lsfKOkcbKVGJU+XkN13kJGonMvXYkSvGx52YPQzwE7obebu0H62KzAE65S5LRjMQBGgbokz+2chGuw8iEI=
+	t=1790063656; cv=none; b=hPe0XptgM/+PA1ld4utRlfl/AnYxZYlgE5UDD2a0LlkbHkYaR3w1VLgUFHFN9BIqlPiQxtUe9bj2tbFza3pBaQNcIT8gHFIX4ue94ZmKN/rmJMIz4+83qxTkpTzK+2umAp/2QcGneTOFurhz1mgjDRSlMR1Kmf7WWFkZz3988fM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790062300; c=relaxed/simple;
-	bh=+iUKsOj9QehkNvX27bTqyWxdnCTfC9cb72PQksr3A98=;
+	s=arc-20240116; t=1790063656; c=relaxed/simple;
+	bh=KoI4mNGuiofuUwVL60X69VSUVc8IOT6JSlFKwqLihUM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mGuaN2GusMHTKYeG6TwUYIkG1OhnGZzhIMnpbsZK36rWr4kPImg8UFBCewZ/jhJaH0MZxbObd7Cm2MKqg9UCt87xg+7mTUT1xsiz2QLnIm9+jUNbLtjzbRjqYnMyn88KJjPCcRl5OHEPWJDyjTvEmhWq5NziFS+P80cTKVnUbVQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HaPgumb3; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=efi2x4toZs4WgvBrEQCllr8TVdJU7GvCmfaZtQ6B3YEguQ5c9GvuChKlF+fVANPZRTgyvAJe8HW2htpuKNPr3WOibqN0x1mtbI3Il5w7VAq7h0eCPvtDrLgqXEXms56nL9cAzPmDvUo+d00PuDrtslI0+8+ccLcIGOtafLGK+HM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E9BNng5S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HaPgumb3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4BFC1F00893;
-	Tue, 22 Sep 2026 07:31:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E9BNng5S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF3371F000FF;
+	Tue, 22 Sep 2026 07:54:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790062299;
-	bh=vCx8Z0Cvw101Bn+x/dq8ie+wLCtqmnP1DPb+BhNQuw4=;
+	s=k20260515; t=1790063644;
+	bh=TgeKIblBe1/xue7/qgjT+0OwbKuQ61ADgY1/uG2WxQs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=HaPgumb3S4J8bSjGXEQdBOJt9I//3Zw3NIU12CPeS1+28Fe3u7ePrY4oNPWmGGZ/c
-	 4jnh/meee7bCFuFaB9l5ctrb7RRdPWIgNd+xeh20BmtjGG3kxKZSF3fCT2hY0OEg7i
-	 RqiCqDCMHxNheEAsK08VLWBBaKreuFutUmqC2NQ7EN7veRALy37AR48EfVMvCceEBW
-	 yGljoAnSNygxDcPWylldzcqHf4W3NAgVuQ9We67El67iTplQbmPqQOqz6AYilqqk0n
-	 oWmaGAhvadk10meotxTak1NQiqvAlJtvNe6MCOGxuKB/syx85X3H4qUeX1hXdwtyTg
-	 faE+SLAiVicFA==
-Date: Tue, 22 Sep 2026 08:31:34 +0100
+	b=E9BNng5SOdG3QtfLBVMfwAhd6vZRaeuy/NtiYcnDS2aeIxtLBHFX5f63dlGNlZ/ak
+	 2Qa6GexUuAveE70dANZINtMcuYh63lGnpYhTI/GPXV+r64J24Ej2oDXlJLnUvOO3Bh
+	 C1eOO1mzwNxPTacVvQGE0+BfRqmz9Wig2OJR4qLGdW2rcWbMNQMWpfx1TXVLI4oSZc
+	 3h/YznfnIWSUtP52RFQfg5X+UDorROWzAjs2P8aw9AX/ff1x7Dc2VX/2jxm8kuknFW
+	 rtkbafqw53HwwzARrULrRFJX73HGFyn++O4vC5daugLZn21PtE2WoArpQI1Uzxe7lh
+	 vkynowTjDGSlQ==
+Date: Tue, 22 Sep 2026 08:54:00 +0100
 From: Lee Jones <lee@kernel.org>
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org,
-	stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <Jason.Gerecke@wacom.com>
-Subject: Re: [PATCH 1/2] Write shared touch initial status only once
-Message-ID: <20260922073134.GE2348773@google.com>
-References: <20260916020301.24188-1-ping.cheng@wacom.com>
- <CAF8JNhKTVO7xro4qAoq4NG=4TWheb7rFU93AZEfeRJfJeqUfRw@mail.gmail.com>
+To: Jiri Kosina <jikos@kernel.org>, stable@vger.kernel.org
+Cc: Benoit Sevens <bsevens@google.com>,
+	Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
+	Bastien Nocera <hadess@hadess.net>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [STABLE v6.18-v6.6][PATCH] HID: logitech-hidpp: fix race condition
+ when accessing stale stack pointer
+Message-ID: <20260922075400.GA2268440@google.com>
+References: <20260401144811.1242722-1-bsevens@google.com>
+ <81n26386-p78s-5rqq-5s7o-p8s01sr95q74@xreary.bet>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAF8JNhKTVO7xro4qAoq4NG=4TWheb7rFU93AZEfeRJfJeqUfRw@mail.gmail.com>
+In-Reply-To: <81n26386-p78s-5rqq-5s7o-p8s01sr95q74@xreary.bet>
 
-> Do you have any questions about my patches, especially this first one?
-> I added it to make the assignment consistent with your patch. Since
-> the is_soft_touch_switch can only be set by pad, we would only get to
-> this assignment once. It won't be assigned more than once with the
-> current firmware logic. If you don't see an issue with the patch, can
-> you give it an acked-by?
+Dear Stable,
+
+On Thu, 09 Apr 2026, Jiri Kosina wrote:
+
+> On Wed, 1 Apr 2026, Benoit Sevens wrote:
 > 
-> The second patch adds the softkey touch switch back, which is
-> important. I hope my fix can be merged upstream along with your
-> patchset. Otherwise we break userland.
+> > From: Beno=C3=AEt Sevens <bsevens@google.com>
+> > 
+> > The driver uses hidpp->send_receive_buf to point to a stack-allocated
+> > buffer in the synchronous command path (__do_hidpp_send_message_sync).
+> > However, this pointer is not cleared when the function returns.
+> > 
+> > If an event is processed (e.g. by a different thread) while the
+> > send_mutex is held by a new command, but before that command has
+> > updated send_receive_buf, the handler (hidpp_raw_hidpp_event) will
+> > observe that the mutex is locked and dereference the stale pointer.
+> > 
+> > This results in an out-of-bounds access on a different thread's kernel
+> > stack (or a NULL pointer dereference on the very first command).
+> > 
+> > Fix this by:
+> > 1. Clearing hidpp->send_receive_buf to NULL before releasing the mutex
+> >    in the synchronous command path.
+> > 2. Moving the assignment of the local 'question' and 'answer' pointers
+> >    inside the mutex_is_locked() block in the handler, and adding
+> >    a NULL check before dereferencing.
+> 
+> Now applied.
+> 
+> Benjamin had some ideas on further cleanup (allocating with __free__ 
+> instead of using stack pointer), but that'd be a little bigger cleanup, so 
+> let's keep that separate.
 
-Honestly, you know this driver much better than I do.
+Please could we have this commit backported through to linux-6.6.y.
 
-The change looks sound to my uninformed eyes though.
+e2aaf2d3ad92 ("HID: logitech-hidpp: fix race condition when accessing stale stack pointer")
 
-Bear in mind that the subject line does not match the style expected of
-the subsystem - or anywhere else for that matter.  =:-)
-
-> On Tue, Sep 15, 2026 at 7:03 PM Ping Cheng <pinglinux@gmail.com> wrote:
-> >
-> > From: Ping Cheng <ping.cheng@wacom.com>
-> >
-> > To match the same logic as with other shared data during registeration,
-
-Spell check.
-
-> > use WRITE_ONCE for is_touch_on too.
-> >
-> > Cc: stable@vger.kernel.org
-
-Fixes:
-
-With those fixed:
-
-Reviewed-by: Lee Jones <lee@kernel.org>
-
-> > Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-> > ---
-> >  drivers/hid/wacom_sys.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> > index 8dc7aa1c0a26..33fa491fba92 100644
-> > --- a/drivers/hid/wacom_sys.c
-> > +++ b/drivers/hid/wacom_sys.c
-> > @@ -2386,7 +2386,7 @@ static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
-> >                  * match historic default.
-> >                  */
-> >                 if (wacom_wac->is_soft_touch_switch)
-> > -                       wacom_wac->shared->is_touch_on = true;
-> > +                       WRITE_ONCE(wacom_wac->shared->is_touch_on, true);
-> >         }
-> >
-> >         if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH) {
-> > --
-> > 2.55.0
-> >
+I will follow-up with a backported version for the older releases.
 
 -- 
 Lee Jones

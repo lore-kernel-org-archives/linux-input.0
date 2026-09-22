@@ -1,46 +1,46 @@
 Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BD0B425872;
-	Tue, 22 Sep 2026 23:27:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0457F534443;
+	Tue, 22 Sep 2026 23:36:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790119656; cv=none; b=SMhjAYCIq2Wwt3n3LLxmXP+YbLD8iEBagO6wQTOKdccIitq98HDKCrplWs5yYkdETazl4xf64lUgI+bD1Pvr01BNQLeivf3eohzTMZ3uy6gfGTiJWp+/Ki6jBeGmgzxORNpfUMJyN7XrzHtkNcE9+7BkhRextiaXGD4PjXx3B0k=
+	t=1790120174; cv=none; b=KCElX63Mi3GpXyQFfjIrLJ0kNj1GRk8YonHsN6Y4fkCYqq6yYUixJsOMFT3h1fg8rtsL335BUp2edY69UntHoyqkfz2CNYyYeKADMx50sjJzO2pyqmvq3y+ShWVEfdIG/wjwpDLGaNZkwRl48Rw2aI+C+gNvJJeg+zOCiRCXUkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790119656; c=relaxed/simple;
-	bh=MsM6Q3k+xZGBgqTNeflUgX0yRpWfvapZFPDDSbiUcRY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=rFFURgdj72ij7kHBiKzXYDUgOtKJaTJ54tvBTBSSbW1mJvz95ezWmYYrRhW3eTM7AG6rvTLXukUfwS9/yUn4xgASAWXrP9D+Wvm/hY6gkDXl8H8516ZZgxFT0ytARUvNaiHlGTI0Lye4Qxu+zcm6WvsVFt4pG2bZdPlqN1RiCYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=Coa/JF/C; arc=none smtp.client-ip=178.21.23.139
+	s=arc-20240116; t=1790120174; c=relaxed/simple;
+	bh=fQCDqNYMWXfYuaMG7xP0BtWWt8rzyUy+m0rnKhQRRnU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NxUzzph0X4L7AZYEjjLjny877lWwHbgN5zOXvYIa5hrs3dABYnPWtQcmodYxrEto1Ra5bxzBQPcVA5LjIoQm46uNAVCYslXCKLLwT5Sbpqxq7Dua2RBhYWxPmtWNg/o/5Saw4s6ru03LC/C63k6mVvs+0h4BqtGfri3hNW/HlIM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=eoC5cf0+; arc=none smtp.client-ip=178.21.23.139
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="Coa/JF/C"
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="eoC5cf0+"
 Received: from mail01.layka.lan (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id 7ED7382A93;
-	Wed, 23 Sep 2026 01:27:20 +0200 (CEST)
+	by disroot.org (Postfix) with ESMTP id 295F782B20;
+	Wed, 23 Sep 2026 01:36:05 +0200 (CEST)
 X-Virus-Scanned: SPAM Filter at disroot.org
 Received: from layka.disroot.org ([127.0.0.1])
  by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id S76HrBS9fi7C; Wed, 23 Sep 2026 01:27:19 +0200 (CEST)
+ id msRIRTWDIPzA; Wed, 23 Sep 2026 01:36:04 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1790119639; bh=MsM6Q3k+xZGBgqTNeflUgX0yRpWfvapZFPDDSbiUcRY=;
+	t=1790120164; bh=fQCDqNYMWXfYuaMG7xP0BtWWt8rzyUy+m0rnKhQRRnU=;
 	h=From:To:Cc:Subject:Date;
-	b=Coa/JF/C5I1UFMhEvq6CNavNdwprNWPHXRUYVw/VGVnhZG/fIcicMob3JpnPFfipJ
-	 M3dBezvQ83UYtAYo529IgY1Wf7ojlOzdSrqFpZ6XMbbbTYS75G0uPaJqWuP7KtG5iN
-	 kv8eMIXAyWjU7KKaTPr9R3D/ZyGtLzZKybaTuxbXnfhwwunSyf1D/8exATSPPFgQgd
-	 +GodSniixBZZzTj1heb1Y8mbHJChOE6TOZNTH3q3DTcqTMxk4LX/MTnh2xgAbnUcnC
-	 TGG5q5rbXr946wMzToioC8jr0F96Qryv+iMEkQHPcr5p0umQkRmLo8sBSg2/UzkJZr
-	 IAqG49P2qAfJA==
+	b=eoC5cf0+MRWL8Vzk+YB88wW+omtNzfiE2HgRn/WQAhae4y0VKoBLE00YVvMWTjW4p
+	 +cppfVesuWJsKrHuCx2euX17OiBvjBet9koEFeVeocMU/dK+e6MkJXk69nEntdVBQc
+	 O172ELqpwKB6i6L/3ljfLDH6+/aafs6JNYbygZq6jnnTlaH0ccdwJzzqPxCTCMRIyY
+	 l/JvclfDWA+nBjB1sBxhimypdWElDJ26sUmtsizHR3Y/BNH6Z4zBNl3qSe6sETyVhB
+	 x5eKltZwpJ85VswbNbdmM461qtnHepBlRX5NwEHrwXTmk/Mo+1YXs7AqXoX24D4hIF
+	 xBiTXszy+JFZg==
 From: "R. Larocque" <rlarocque@disroot.org>
 To: linux-input@vger.kernel.org
 Cc: dmitry.torokhov@gmail.com,
 	dave.wang@emc.com.tw,
 	jingle.wu@emc.com.tw,
 	linux-kernel@vger.kernel.org,
-	"R. Larocque" <rlarocque@disroot.org>
-Subject: [RFC PATCH] Input: elan_i2c_smbus - resend ENABLE_TP on wake from sleep (NOT TESTED, NEEDS TESTER!)
-Date: Tue, 22 Sep 2026 19:17:12 -0400
-Message-ID: <20260922232707.8949-1-rlarocque@disroot.org>
+	=?UTF-8?q?Rapha=C3=ABl=20Larocque?= <rlarocque@disroot.org>
+Subject: [RFC PATCH V2] Input: elan_i2c_smbus - resend ENABLE_TP on wake from sleep (NOT TESTED, NEEDS TESTER!) (v2: typo fixes)
+Date: Tue, 22 Sep 2026 19:35:47 -0400
+Message-ID: <20260922233549.10431-1-rlarocque@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -50,20 +50,22 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+From: "Raphaël Larocque" <rlarocque@disroot.org>
+
 elan_smbus_sleep_control() sends ETP_SMBUS_SLEEP_CMD to put the
 controller to sleep, but does nothing on wake, leaving a long-standing
-XXX comment questionning wether ETP_SMBUS_ENABLE_TP should be re sent.
+XXX comment questioning whether ETP_SMBUS_ENABLE_TP should be re-sent.
 
 elan_initialize() already treats sleep_control(client, false) as a
 genuine "wake device up" primitive (see the ASUS special-firmware
 branch and its accompanying dev_err() message), so this makes the
-non-ASUS/default path resend ETP_SMBUS_ENABLE_TP symetrically with
+non-ASUS/default path resend ETP_SMBUS_ENABLE_TP symmetrically with
 elan_smbus_initialize() instead of being a no-op.
 
 Signed-off-by: Raphaël Larocque <rlarocque@disroot.org>
 ---
-RFC: I dont have the Elan SMBus protocol datasheet and consequently 
-havent been able to test this on any real hardware where the previous no-op
+RFC: I don't have the Elan SMBus protocol datasheet and consequently 
+haven't been able to test this on any real hardware where the previous no-op
 path was actually relied upon. Sending this for testing by
 someone with access to affected devices before it is considered for
 merge. A bad SMBus write to a sleeping controller could leave it

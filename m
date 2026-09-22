@@ -1,150 +1,125 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AF6332B115
-	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 17:53:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B28247CA9F;
+	Tue, 22 Sep 2026 17:59:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790099583; cv=none; b=ZDgxiIfAFUX17qwbaaXf1/lGPrV8iHfxZNnJiyZQIVTWlBEaCQR7OhZ3wrnrPLaGjzhGQlfxhia5cYb1NyQ3IxSSJ+jXHEeSK9dewmxA0DaN32/QwmAVLtQprpkmReXqzlNrYzN4QVIUReffRt6pMbyNRvEXDESmNFFtadDH9Dc=
+	t=1790099980; cv=none; b=aEgKkhhbuvc85m7fBD3LyioBZkcX0+IsMc7AV9F0O5dPIY5QD2uoGyLAXBhJfHOyWVvCay4dq6E19+nX8fllHhBL4NULuGyC4039Ysy/ZyRBfHk1Plz935PBH9ka0ZuT+soZQmS0IjSl2sOaFHwLrcG8DeTngM91ZKV9BCzI3eA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790099583; c=relaxed/simple;
-	bh=CQA6NbjUo3EXV4lUv4Xiyd2O883D4/uJqRHjzdrcdBM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SSFGyjjE57UicbkV3j/WeiVw/+cSGQv0fx+lP665JH5+hOVoiQ5aVSHI4NyOjaImKOEwgZgzPLv5aeKmM9e3bB4MzyUjhjYnVv8Vj9yc2KjHBYw8eLdF4kuYbUH+epbzCLTDkEudzdGoFopzXH+NHkJkilpWDLP4xLL3iWgLuu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cVp0tZAP; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790099980; c=relaxed/simple;
+	bh=jx/uNNZLZk8HIxGNODSNoU3k029DQGMNduSX9wQ2sAE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Eybar1/RwGNeykjo19ye/RJBQa8Z4az+PHLWu9rC1RNO4vXiemy2keclFL8lhsP6sfk1v/jNT6BuQtfh6GLnIdkwcI+4rd5t6m2BFtncPpovLU6voxAcyCc2bRHoixaySVlNDdiG5xEKc43h3LolXR0jeWh8EUW+gw7WcZUWFfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HgEMKb1j; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cVp0tZAP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54B211F000FF;
-	Tue, 22 Sep 2026 17:53:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HgEMKb1j"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A75D11F000FF;
+	Tue, 22 Sep 2026 17:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790099582;
-	bh=rQZaGcqfyajXT6BzN4U45VzsdbYICj/3Q3pFij9w7lk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cVp0tZAPEkzZMfMmp3YYPEd4mlPWXV4IMT8MKhYfxmkYcaeyHJgNhcczTzOeoCGKZ
-	 NuVLBppMiRJCvyn0r/GOf+jLW4y363t2rFRBysdfYtnV/U2+AWCy1PKX6HKnCtKYTb
-	 zDXa0DBlPHKxx4Lbjuzyja196nYLGtKx62qonosoUV8CqQNCK4cm69xlX2FozYv303
-	 1aLt/Z4/CVzkPQbMxJ5v65JFcbx4CJ/KSCe9cbLoRVJBxX0jETw1xukPp6DLlkCWtY
-	 iZydS+k6U17OYNkmbzUFTVnrjAihurF3xc/MY3kfqU42SFQkMfwDQEUeHNJxsY4Jmo
-	 vE4+WKCNhmEhA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] HID: logitech-hidpp: fix Bolt wheel mode handling
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?RXJpayBIw6VrYW5zc29u?= <erikhakan@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260922-feature-bolt-fix-v1-2-63b0fa8da0d3@gmail.com>
-References: <20260922-feature-bolt-fix-v1-0-63b0fa8da0d3@gmail.com>
- <20260922-feature-bolt-fix-v1-2-63b0fa8da0d3@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 17:53:01 +0000
-Message-Id: <20260922175302.54B211F000FF@smtp.kernel.org>
+	s=k20260515; t=1790099979;
+	bh=0z2Cl7zCFc/oXc1HFK7tWPJd+ORPzl4GjpVmpaly0Os=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=HgEMKb1jz4apgsm8YwOckQcZl21ofaQsrusnOGnysSr5YSINWlNlMYmxR+9v3w4SX
+	 X9qEinh5Je7qceMgW+PgwDJhkimfQ+vynUOQlSU32VeCvjeVPh90QVLDcfGpo/JKHJ
+	 Oely0D1AcBFhzWlS0qe4N/uxDKhnZUn7psIvMv5rPxsh02dutrAhgg5Qt3hQucVngU
+	 LYGSbxgjaRGq2mvUZaAOMYw3FVKJx5zb4uizmJYFQPk+Qc1QYEGOVVflJvapSGGxyZ
+	 eFQf+CuDrjKO06isIH8ev7Zr81XEQPB72wQo/LasdwJKzFgqlmIqxcPZfxFnkwzIzF
+	 noE48+ZmT9Axw==
+Date: Tue, 22 Sep 2026 18:59:35 +0100
+From: Conor Dooley <conor@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: "Rob Herring (Arm)" <robh@kernel.org>, conor+dt@kernel.org,
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+	dmitry.torokhov@gmail.com
+Subject: Re: [PATCH] dt-bindings: input: syna,rmi4: Allow incell supply
+Message-ID: <20260922-ebook-clumsy-2134d11c98f4@spud>
+References: <20260921232738.3135429-1-robh@kernel.org>
+ <20260921233407.17EF71F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="0fnDhJ7gWcnO4/jk"
+Content-Disposition: inline
+In-Reply-To: <20260921233407.17EF71F00893@smtp.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] hid-logitech-hidpp: high-resolution scrolling is no longer enabled=
- by default
-- [Medium] hid-logitech-hidpp: failed capability read permanently breaks sc=
-roll wheel
---
+--0fnDhJ7gWcnO4/jk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-commit ca5a9ddace3102c7dc2ef5b518171ea6cf49e055
-Author: Erik H=C3=A5kansson <erikhakan@gmail.com>
+On Mon, Sep 21, 2026 at 11:34:06PM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+e(s) to consider:
+> - [Medium] dt-bindings: legitimize OS-specific fw_devlink hack in hardwar=
+e schema
+> --
+>=20
+> commit 18108c1337c210aa2101238d8a2bf5d5648f3f22
+> Author: Rob Herring (Arm) <robh@kernel.org>
+>=20
+> dt-bindings: input: syna,rmi4: Allow incell supply
+>=20
+> This commit adds the incell-supply property to the Synaptics RMI4 touch
+> controller device tree binding. It is intended to allow existing Sony Xpe=
+ria
+> Tama board device tree nodes to pass schema validation.
+>=20
+> > diff --git a/Documentation/devicetree/bindings/input/syna,rmi4.yaml b/D=
+ocumentation/devicetree/bindings/input/syna,rmi4.yaml
+> > index fb4804ac3544d..464c83ece4186 100644
+> > --- a/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> > +++ b/Documentation/devicetree/bindings/input/syna,rmi4.yaml
+> > @@ -56,6 +56,7 @@ properties:
+> > =20
+> >    vdd-supply: true
+> >    vio-supply: true
+> > +  incell-supply: true
+>=20
+> [Severity: Medium]
+> Does adding this property to the generic hardware schema violate device t=
+ree
+> design principles by formalizing an OS-specific software workaround?
+>=20
+> Device tree bindings are typically expected to strictly describe actual
+> hardware. The user of this property is the Sony Xperia Tama board
+> configuration, which acknowledges it as a workaround:
+>=20
+> arch/arm64/boot/dts/qcom/sdm845-sony-xperia-tama.dtsi:
+>         /*
+>          * This is a blatant abuse of OF, but the panel driver *needs*
+>          * to probe first, as the power/gpio switching needs to be precis=
+ely
+>          * timed in order for both the display and touch panel to functio=
+n properly.
+>          */
+>         incell-supply =3D <&panel>;
+>=20
+> Since the device tree source explicitly documents this as a mechanism to =
+force
+> fw_devlink probe ordering between the panel and the touch controller, sho=
+uld
+> we avoid spoofing a fake hardware property in the official schema?
+>=20
+> Would it be better to address the probe sequence dependency properly inst=
+ead
+> of institutionalizing this workaround into the formal hardware schema?
 
-HID: logitech-hidpp: fix Bolt wheel mode handling
+Oh dear, do we actually want to merge this?
 
-This patch modifies how high-resolution wheel settings are handled for Bolt
-devices in the HID++ driver. It preserves the device's user-selected resolu=
-tion
-and inversion settings while enabling HID++ notifications for Bolt. It also
-tracks diverted wheel events to apply the correct multiplier for high- and
-low-resolution events.
+--0fnDhJ7gWcnO4/jk
+Content-Type: application/pgp-signature; name=signature.asc
 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index 166980be57b7c..55e9ac5e5ab78 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
+-----BEGIN PGP SIGNATURE-----
 
-[ ... ]
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCarLCBwAKCRB4tDGHoIJi
+0payAP9VyfnB8jWSS7f02EJry4iQT7LVeEryta209l0EHGLrLwD9FlCnMAeKrY7g
+KsE8lE8gfxb8HIIIHHvYtzazMTxt5w0=
+=mGkw
+-----END PGP SIGNATURE-----
 
-> @@ -3912,16 +3939,43 @@ static int hi_res_scroll_enable(struct hidpp_devi=
-ce *hidpp)
->  {
->  	int ret;
->  	u8 multiplier =3D 1;
-> +	bool high_resolution =3D true;
-> +	const bool is_bolt =3D hidpp_is_bolt_child(hidpp->hid_dev);
-> +
-> +	if (is_bolt)
-> +		hidpp->hires_wheel_diverted =3D false;
-> =20
->  	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_HI_RES_WHEEL) {
-> -		bool use_hidpp =3D hidpp_is_bolt_child(hidpp->hid_dev);
-> +		u8 mode;
-> +
-> +		/* Preserve the persistent mode, except for Bolt event routing. */
-> +		ret =3D hidpp_hrw_get_wheel_mode(hidpp, &mode);
-> +		if (ret =3D=3D 0) {
-> +			bool invert =3D mode & HIRES_WHEEL_MODE_INVERT;
-> +			bool use_hidpp =3D mode & HIRES_WHEEL_MODE_USE_HIDPP;
-> +
-> +			high_resolution =3D mode & HIRES_WHEEL_MODE_HIGH_RESOLUTION;
-> +
-> +			/* Preserve user-set resolution and inversion; enable HID++ for Bolt.=
- */
-> +			if (is_bolt && high_resolution && !use_hidpp) {
-> +				ret =3D hidpp_hrw_set_wheel_mode(hidpp, invert,
-> +							       high_resolution, true);
-> +				if (ret =3D=3D 0)
-> +					use_hidpp =3D true;
-> +			}
-
-[Severity: High]
-Does this code intentionally drop the default enablement of high-resolution
-scrolling for non-Bolt devices and low-resolution Bolt devices?
-
-The previous code unconditionally enabled high-resolution mode by calling
-hidpp_hrw_set_wheel_mode(hidpp, false, true, use_hidpp). The new code appea=
-rs
-to remove this entirely for non-Bolt devices, and only enables it for Bolt
-devices if they are already in high-res mode (is_bolt && high_resolution &&
-!use_hidpp).
-
-Could this permanently disable high-resolution scrolling out of the box for
-these devices?
-
-> =20
-> -		ret =3D hidpp_hrw_set_wheel_mode(hidpp, false, true, use_hidpp);
-> -		if (ret =3D=3D 0)
-> -			ret =3D hidpp_hrw_get_wheel_capability(hidpp, &multiplier);
-> +			if (ret =3D=3D 0)
-> +				ret =3D hidpp_hrw_get_wheel_capability(hidpp, &multiplier);
-> +			if (ret =3D=3D 0)
-> +				hidpp->hires_wheel_diverted =3D use_hidpp;
-
-[Severity: Medium]
-What happens if hidpp_hrw_get_wheel_capability() fails due to an intermitte=
-nt
-RF timeout or IO error?
-
-If the hardware is already in use_hidpp mode (or was successfully set to it=
-),
-but the capability read fails, hidpp->hires_wheel_diverted will not be
-updated to match the hardware state.
-
-Could this leave the driver desynchronized from the hardware, causing the r=
-aw
-event handler to permanently drop subsequent HID++ wheel events?
-
-> +		}
->  	} else if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_HI_RES_SCROLL=
-) {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922-feature-bo=
-lt-fix-v1-0-63b0fa8da0d3@gmail.com?part=3D2
+--0fnDhJ7gWcnO4/jk--

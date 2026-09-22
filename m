@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 042FE1E7C23
-	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 03:03:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A2C739CCF8
+	for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 03:03:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790046196; cv=none; b=Il/jbamoFNcS1U+/5UzjjnhAmo9NbjHlWTXaZvcaAtXo7H82pyumOgYS+j7vMqt/bVYTUCs9vzI+EuEUOXB9rNzb6sqQvjDVirRP8yFOhY2GD1MawNRSFBb6iqwY2Z1AXtNrj2zf6aNaLKexyhDqzx7XdHp0dgfJbPEt5p2DnVo=
+	t=1790046227; cv=none; b=H0msX89W+h71pDndNlrIhLwCk84CCK8LFRJmQQkgcqW4WYiO03LNB7Nq1V66pVN68Tg9YP/Vyvl/UppvN7t22O/fI5ZuGlLIy9ShJYbMVw3Q8a95ICYBvFB7MV6aV6VZVyJJRL4o+9AWic280uCuj29ejHXupxaUwTjD/BuFwd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790046196; c=relaxed/simple;
-	bh=IpzQwNX0MlzlMPSB9TjCIHnWBau5kccTq+OzrZkxfGg=;
+	s=arc-20240116; t=1790046227; c=relaxed/simple;
+	bh=ZhC1m+Y56LEiRxhgCDK9geiJ9rgBL6Fiqh9dbqCC52Y=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XZj7DIDb8xBtPUzPWr8KQQxcUJRbs6zU/uXdlt/mbHdNAvDCru290phmGkdYHqqTrHcQJxk1Ot3VyaEnKyEsjiD8z3JzTePVHc7BMDzXDDr2xmP3N4gtWEMtDsslpwZRH+3TOuaEPPkHarBijcCVtJWT3ssuqAJpOQnxHZ0hQC8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WtQqep+Z; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ozprAk2SaNElcgrT1GzkOzNS28ldjJWrkNYMVzl85uZG1wdgOFR0KbBeQqm64heMV5ab0B0VXmVo2AEKdBB4CKoHpC0ctmIAYFb4nCqXyf+kK5GBO8OdGwAchIYvYUVTQ+c4M+CQ1XCX4+tsezmXALl2/6jN5zY6rs2zXpUQl44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kOcVATIu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WtQqep+Z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82CC91F000FF;
-	Tue, 22 Sep 2026 03:03:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kOcVATIu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 531FE1F000FF;
+	Tue, 22 Sep 2026 03:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790046194;
-	bh=b3LHD/oyQLDP9bFuaa3vYxZr64+jxO71ePwXFhRacJM=;
+	s=k20260515; t=1790046225;
+	bh=ai/Yy0ik9sUldVN+0/jBMuLZBT+wK0fh06V6FEnduBE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WtQqep+Z6oOfmu1VChMjwjMw9D38xTeZdXXgbpHx8tZJsAaG3h+b6CMTlrxt+UzVd
-	 43nMjx+0QKKHi1W2xwk6h2G3GA7oWARnNQ0d7dkszTdG2n2avyuGavVW5CPHHZugl5
-	 5fGwJwnn+CeDHV6dPx9e/u0cYQ+AcVkWg2kuxHh2yPcnr9dYEYiutk5oUin6bMdQQ9
-	 Yk0rMVuowaeQBkESPaX+PHvAiANnTBpnTCtjORn/IV6ch+YnxWlYDWAer9sEvQb8Mu
-	 nWZBIRRJzb0wdLI9e8/y2w4MgM9O9jtMuNre8AX042LI7nuOeeyexuxYBDBjmhXWtJ
-	 I6/agCdhPfmzA==
+	b=kOcVATIub8wHnqXLj/ezHIaS/3ihGr2pXpdjwjCelCJL6znPZH6GyQtxmb5V4PL+m
+	 Lq4fS0VequD1NCtDiyn6gTPj7/ze3s5S0965pdUUiYG5H3JsW0Z+jROZMFsWDcciSq
+	 +grF7U/thdMSrMetkBFrdpOLo2VfSVeqfnQvUENhaKgTZoH+YVfFf/Yxevkc7mwmlR
+	 NkT0xQOwybDt3drNoGYlGkXCBrJOERm9TOqMqBJKXqdqKNcN20RFSQbF2XsCWSvi/W
+	 XFmsAXDF7OT149mLsiqyTKL9z5HjlHji2jitUy/5TbxIjTidWsMBxUM4aJdpuMpDt4
+	 m5Wjh10IJgTEQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: Intel-thc-hid: Intel-quicki2c: Fix buffer
- overflow
+Subject: Re: [PATCH 1/2] HID: Intel-thc-hid: Intel-quicki2c: Use
+ hid_safe_input_report()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Even Xu" <even.xu@intel.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20260922024638.932865-2-even.xu@intel.com>
-References: <20260922024638.932865-1-even.xu@intel.com>
- <20260922024638.932865-2-even.xu@intel.com>
+In-Reply-To: <20260922025437.940072-2-even.xu@intel.com>
+References: <20260922025437.940072-1-even.xu@intel.com>
+ <20260922025437.940072-2-even.xu@intel.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 03:03:14 +0000
-Message-Id: <20260922030314.82CC91F000FF@smtp.kernel.org>
+Date: Tue, 22 Sep 2026 03:03:44 +0000
+Message-Id: <20260922030345.531FE1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,69 +47,90 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] hid: intel-quicki2c: incomplete buffer fix and stale report_len =
-causes -EINVAL for large payloads
+- [High] hid: intel-quicki2c: OOB memory access due to unadjusted buffer si=
+ze in hid_safe_input_report()
 --
 
-commit 3ae5fe57bf2559497c69a1a1f4feb9ea45f51690
+commit fd2fb2220e67b32415f7045570713d7e64755020
 Author: Even Xu <even.xu@intel.com>
 
-HID: Intel-thc-hid: Intel-quicki2c: Fix buffer overflow
+HID: Intel-thc-hid: Intel-quicki2c: Use hid_safe_input_report()
 
-The patch modifies buffer allocations in the intel-quicki2c driver to
-account for packet headers in addition to the payload length. This is
-intended to prevent buffer overflows when the payload reaches its maximum
-size.
+This commit replaces the deprecated hid_input_report() with
+hid_safe_input_report(). It tracks the allocated size of the input buffer a=
+nd
+passes it along to allow hid-core to validate the reported data length agai=
+nst
+the actual buffer size.
 
 > diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
 ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> index 0d2ad7bc3648a..2537288b50261 100644
+> index 0d2ad7bc3648a..6cf19dac8e181 100644
 > --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
 > +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> @@ -606,7 +606,8 @@ static int quicki2c_alloc_report_buf(struct quicki2c_=
-device *qcdev)
->  	 */
->  	max_report_len =3D max(le16_to_cpu(qcdev->dev_desc.max_input_len), SZ_4=
-K);
+> @@ -315,7 +315,7 @@ static int handle_input_report(struct quicki2c_device=
+ *qcdev)
+>  		if (qcdev->state !=3D QUICKI2C_ENABLED)
+>  			continue;
 > =20
-> -	qcdev->input_buf =3D devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNE=
-L);
-> +	qcdev->input_buf =3D devm_kzalloc(qcdev->dev,
-> +					HIDI2C_PACKET_LEN(max_report_len), GFP_KERNEL);
->  	if (!qcdev->input_buf)
->  		return -ENOMEM;
+> -		quicki2c_hid_send_report(qcdev, pkt->data,
+> +		quicki2c_hid_send_report(qcdev, pkt->data, qcdev->input_len,
+>  					 HIDI2C_DATA_LEN(le16_to_cpu(pkt->len)));
+
+[Severity: High]
+Does this code pass the unadjusted buffer size when pkt->data is offset by 2
+bytes from the start of the buffer?
+
+The buffer qcdev->input_buf is dynamically allocated to qcdev->input_len
+bytes.
+
+Since pkt is mapped to qcdev->input_buf, pkt->data is offset by
+HIDI2C_LENGTH_LEN (2 bytes) from the start of the allocation.
+
+Passing the full qcdev->input_len overstates the remaining capacity for
+pkt->data by 2 bytes.
+
+[ ... ]
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-hid.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-hid.c
+> index 8075992e8732e..1a220a50d934c 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-hid.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-hid.c
+[ ... ]
+> @@ -157,16 +157,18 @@ void quicki2c_hid_remove(struct quicki2c_device *qc=
+dev)
+>   *
+>   * @qcdev: point to quicki2c device
+>   * @data: point to input report data buffer
+> + * @buf_size: the allocated size of the input report data buffer
+>   * @data_len: the length of input report data
+>   *
+>   * Return: 0 on success, non zero on error.
+>   */
+>  int quicki2c_hid_send_report(struct quicki2c_device *qcdev,
+> -			     void *data, size_t data_len)
+> +			     void *data, size_t buf_size, size_t data_len)
+>  {
+>  	int ret;
 > =20
-> @@ -616,7 +617,8 @@ static int quicki2c_alloc_report_buf(struct quicki2c_=
-device *qcdev)
->  	max_report_len =3D max(le16_to_cpu(qcdev->dev_desc.max_output_len),
->  			     max_report_len);
-> =20
-> -	qcdev->report_buf =3D devm_kzalloc(qcdev->dev, max_report_len, GFP_KERN=
-EL);
-> +	qcdev->report_buf =3D devm_kzalloc(qcdev->dev,
-> +					 HIDI2C_PACKET_LEN(max_report_len), GFP_KERNEL);
+> -	ret =3D hid_input_report(qcdev->hid_dev, HID_INPUT_REPORT, data, data_l=
+en, 1);
+> +	ret =3D hid_safe_input_report(qcdev->hid_dev, HID_INPUT_REPORT, data,
+> +				    buf_size, data_len, 1);
 
-[Severity: Medium]
-Does HIDI2C_PACKET_LEN() add enough space for the headers? It appears to on=
-ly
-add 2 bytes, but output operations and SET_REPORT might require up to 9 byt=
-es
-of command headers (e.g., cmd_reg, cmd, data_reg, length).
+[Severity: High]
+Can passing this unadjusted buf_size to hid_safe_input_report() lead to an
+out-of-bounds access?
 
-Also, qcdev->report_len is not updated to match the new size, remaining as
-max_report_len just below this allocation.
+If a device sends a pkt->len such that HIDI2C_DATA_LEN(pkt->len) equals
+qcdev->input_len, hid_safe_input_report() will trust the data length since =
+it
+does not exceed the provided buf_size.
 
-Will this cause maximum-sized payloads to be incorrectly rejected with -EIN=
-VAL?
-In quicki2c_init_write_buf(), there is a bounds check:
-
-    if (buf_len > write_buf_len)
-        return -EINVAL;
-
-This evaluates the total packet length (including headers) against the
-unadjusted report_len (passed as write_buf_len), causing valid maximum-sized
-payloads to be rejected.
+This would neutralize the core's bounds checks, allowing the core to read or
+zero-pad 2 bytes past the end of the qcdev->input_buf allocation.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922024638.9328=
-65-1-even.xu@intel.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922025437.9400=
+72-1-even.xu@intel.com?part=3D1

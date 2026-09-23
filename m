@@ -1,126 +1,151 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 383003ACF1E;
-	Wed, 23 Sep 2026 07:45:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E08441684B;
+	Wed, 23 Sep 2026 07:54:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790149509; cv=none; b=gBA5uHXxMhhDWardZduitKo5k68LF9cAxoKYOLKmJsL8ugQJvTLQKXhPewSlSyqGiWEaNmKlRF9pA66WLIoBnEfJ9O6TguCf30bZwGIGLK7BROjHB7WkFX57vsaNkCOz9vIy3sx19ysc+B7tBkgw7o1MH9QLio3EvHO411TXU54=
+	t=1790150056; cv=none; b=aoOUQBRrUgwCRHin9R973yLRJUchuvRvA7xTZCP3LWktfCNve0hfaTPPnquiiHocC0ytf6rE1HLLGMo8CsOfSKM9h6UmVJTmez18VFg7jMqQc3KFltIMmwQ71Il33SoaKqR4Bdc5ell3TnlM6Te8LNuMhCFa5tHehm1rZxOj/f4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790149509; c=relaxed/simple;
-	bh=KOlVkCkMG52lIGkn+AVcCgPCQVuaMWrXTRtmM7s6lg0=;
+	s=arc-20240116; t=1790150056; c=relaxed/simple;
+	bh=g5NVr6Ppi6fxR1f48o6Y4diHY1Fv0IIfwPKdZ4ZEi0k=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dFvW+2lFLAswhJzGwMLX6ElFMLvTPxzxguBKYQ2PtpOtmEuxAxbNxIqUDXzjvdp9EHlvNXWepvOB36qMBGL+A24jF8rOCEGSIZ2miaXU8aMS5HiGq3Od61PmNAbAUE9dOSTLf6L/r7iNrCreeYBfj/+D49PvpPnJRy19E5sonh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=byLpmEDO; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=XFUIG+PUV0mbudLdklz2zM/+r8n6+92hfh0AwTzWJvpIsFGubWNqLdudg4mai96dAdlaum/VGMfUUUT+YUmiz09InwWLOvUViMycIxjVjSdQGNTMWdL7RC11O2EBZuI9hoTQUpeLwfBA9hdilXVFFUkqPbREQAwE27HiuAWFFIU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QEXPWWWN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="byLpmEDO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 835DA1F000FF;
-	Wed, 23 Sep 2026 07:45:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QEXPWWWN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A23F11F000FF;
+	Wed, 23 Sep 2026 07:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790149507;
-	bh=slpN7u/BJGqHWMqAK68jqa9z5AbbpMUx92/kMI3bVO0=;
+	s=k20260515; t=1790150055;
+	bh=XI62g0/7hWWvvNwvVWmKBzN879ivTNVDgUYx4tZ0jmE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=byLpmEDOqHvxCmLbF/IxVqARQ1P0jdnuc1XCa1PcGQbhyvpO5q1l9BE3pXBlWd5si
-	 +O0BOQCSBDlmzSWTJZMtzOLQLIcNiH9qkJA3VQgRY792MuLY9rcxmcpbfPOLv6B2XR
-	 +zF3TS9bPqgvI1wixqMBNn8bs+EzPmzOyzJB3YFPD4bosFQsY3mjYQXWNWkUKh23Gv
-	 M6OnhVpSzM+mKo/lwr3EO1hsef0jzWMcHmJ0e6QeNdyX+mARp1dsUAX9K1Px+t7Chb
-	 MPgUIsXg8XPTgZDeTHUl/cGe9zbyECPy6C/fzzGMlnyXWr1IfUoHcy84CAD2huakh4
-	 5e0I0w9QR0JUw==
-Date: Wed, 23 Sep 2026 08:45:03 +0100
-From: Lee Jones <lee@kernel.org>
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org,
-	stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
-Subject: Re: [PATCH 2/2] HID: wacom: Setup SW_MUTE_DEVICE according to the
- order of input registration
-Message-ID: <20260923074503.GD3438784@google.com>
-References: <20260922210527.22420-1-ping.cheng@wacom.com>
+	b=QEXPWWWNPWLQ5sAoNcwxcEAAIPW3/OH7SYCsgUARq6eQdAA49giv/5DoFOhZMJsu9
+	 agwJEWeLhDc0qE26mH1Ev35Bg852UrPJniPW2y0EwMznt7aS7dUSscr+KvjNED6V7/
+	 I1m0hB+W9et8VEh298tRNmfmJMCWE+Lr9FuSRbyTqFwbLzMW/9OAf/pcm3OgEPaXdR
+	 Dy5IdUYQb6O8YMyhKqP1/kpmF0n+1YnmfZVyQDv0oOHiV/RjTdCXghOVa1CzE70N1w
+	 RKvVATyx2Ap/h/v977NymSeuC6LXX7+kP+h+P981dU/6IBDa4+ir/uQXj8rl2t94qq
+	 U2U1vBFaXnk9A==
+Date: Wed, 23 Sep 2026 09:54:09 +0200
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Oleksandr Natalenko <oleksandr@natalenko.name>
+Cc: Erik =?utf-8?Q?H=C3=A5kansson?= <erikhakan@gmail.com>, 
+	Jiri Kosina <jikos@kernel.org>, Filipe =?utf-8?B?TGHDrW5z?= <lains@riseup.net>, 
+	Bastien Nocera <hadess@hadess.net>, Rafael Passos <rafael@rcpassos.me>, 
+	=?utf-8?B?R3LDqWdvaXJl?= Stein <greyxor@protonmail.com>, Alexey Zagorodnikov <xglooom@gmail.com>, 
+	Roman Stingler <roman.stingler@gmail.com>, Lovekesh Solanki <lovekeshsolanki00@gmail.com>, 
+	=?utf-8?B?S2F0ZcWZaW5hIE1lZHbEm2RvdsOh?= <k8ie@mcld.eu>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] HID: logitech-hidpp: fix Bolt hi-res wheel handling
+Message-ID: <arOEsd3o2zgXlyHW@beelink>
+References: <20260922-feature-bolt-fix-v1-0-63b0fa8da0d3@gmail.com>
+ <8P3_vvAUQ0qq3g6Cks8PBg@natalenko.name>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260922210527.22420-1-ping.cheng@wacom.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8P3_vvAUQ0qq3g6Cks8PBg@natalenko.name>
 
-On Tue, 22 Sep 2026, Ping Cheng wrote:
-
-> From: Ping Cheng <ping.cheng@wacom.com>
+On Sep 23 2026, Oleksandr Natalenko wrote:
+> Hello.
 > 
-> The refactored SW_MUTE_DEVICE code assumed that stylus will be
-> the first regiestered input. In reality, touch can be registered
-> before stylus, such as the Wacom Cintiq Pro 13 and 16.
+> On úterý 22. září 2026 19:40:26, středoevropský letní čas Erik Håkansson wrote:
+> > This series aims to fix high-resolution wheel handling for Logitech devices
+> > connected through Bolt receivers as well as respect user settings for
+> > scroll behaviour.
+> > 
+> > Patch 1 is Rafael Passos’s original implementation:
+> > 
+> > https://lore.kernel.org/linux-input/20260904034843.1340846-1-rafael@rcpassos.me/
+> > 
+> > His patch routes Bolt wheel movement through the HID++ child, where the
+> > device’s HiRes Wheel multiplier can be applied. Patch 2 builds on
+> > Rafael’s work by 1. supporting both high-resolution and low-resolution
+> > scroll events, and 2. preserving user-selected high-resolution and
+> > inversion settings.
+> > 
+> > The follow-up patch was developed with reference to the patches and
+> > reported behavior in Magnetar-OS’s `logitech-bolt-hidpp-dkms` repository:
+> > 
+> > https://github.com/Magnetar-OS/logitech-bolt-hidpp-dkms/tree/main/patches
+> > 
+> > So my assumption right now is that the reason for the divergent results
+> > people have had with the two different fix approaches (i.e. either passing
+> > interface 0 and 1 as DJ interfaces, or Rafael's approach), where it works
+> > for some, and only sometimes, etc. is that with user settings coming from
+> > Solaar, we may end up in weird states.
+> > For example, in the original patch, high-resolution events would go through
+> > the generic HID which would treat each tick as a full wheel event, thus 
+> > scaling the scroll way too far. That was solved with Rafael's patch but
+> > that would instead fail to handle low-resolution events if high resolution
+> > was turned off in Solaar while use_hidpp remained enabled, so a low-resolution
+> > delta would be treated as high-resolution, which would result instead in a 
+> > too slow scroll. Possibly, when Oleksandr switched devices, Solaar reapplied
+> > some saved user settings, which conflicted with the driver logic.
+> > 
+> > With this patch, user settings from Solaar (or elsewhere) for high-resolution
+> > mode and scroll inversion will be respected, 
+> > and scrolling should work both in high-resolution and low-resolution mode.
+> > However, if user-space turns off the use_hidpp setting while high_resolution
+> > remains on, this will route high-resolution scroll events to generic HID.
+> > Thus, when high_resolution is on for a Bolt device, the driver will
+> > force use_hidpp to be on during initialisation or reinitialisation, because
+> > otherwise the scaling issue will return.
+> > Solaar may still, after driver initialisation, reapply a saved use_hidpp
+> > setting of off while high_resolution remains on, or the user may change it
+> > to off, which will cause the issue even with this patch.
+> > 
+> > In theory, it should be possible to look at incoming setWheelMode responses
+> > or notifications and, just like on initialisation, enforce use_hidpp as long
+> > as high_resolution is set on a Bolt device. However, I don't know how Solaar
+> > will behave then. There's a risk it will trigger a back-and-forth if Solaar
+> > reapplies its saved setting after the kernel corrects it. Also, even if that
+> > doesn't happen, we should respect user choice even for use_hidpp. Perhaps
+> > the Solaar team can be informed about the problem so they can add a warning
+> > text.
+> > 
+> > Note that I don't have a Bolt mouse to test this with, and my theory is 
+> > mostly inferred, so I would appreciate very much if people with various
+> > Bolt mice could test it out. Also great if you try different settings in 
+> > Solaar, but note that use_hidpp must be on if high_resolution is on, so 
+> > either set it to on in Solaar, or to ignore.
+> > 
+> > Link: https://lore.kernel.org/linux-input/20260712003051.338194-2-erikhakan@gmail.com/
+> > Link: https://lore.kernel.org/linux-input/20260901-bolt-scroll-fix-v1-1-58bca7ae487f@protonmail.com/
+> > Link: https://lore.kernel.org/linux-input/LYMlyJcyQt29e1KlLnEoLw@natalenko.name/
+> > Link: https://lore.kernel.org/linux-input/20260920094508.39682-1-roman.stingler@gmail.com/
+> > Signed-off-by: Erik Håkansson <erikhakan@gmail.com>
+> > ---
+> > Erik Håkansson (1):
+> >       HID: logitech-hidpp: fix Bolt wheel mode handling
+> > 
+> > Rafael Passos (1):
+> >       HID: logitech-hidpp: fix hi-res scroll for Bolt-connected MX Master
+> > 
+> >  drivers/hid/hid-logitech-hidpp.c | 147 ++++++++++++++++++++++++++++++++-------
+> >  1 file changed, 123 insertions(+), 24 deletions(-)
+> > ---
+> > base-commit: 022eb347ff3a48281e7e69c3addcb11bf24afa53
+> > change-id: 20260921-feature-bolt-fix-5f1f642496df
+> > 
+> > Best regards,
 > 
-> This patch covers both touch-first and stylus-first cases.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: ba16e5ffbaa1 ("HID: wacom: Advertise SW_MUTE_DEVICE capability prior to registration")
-> Reviewed-by: Lee Jones <lee@kernel.org>
+> Not sure if I'm testing this right, but with v7.3-rc4 and these two patches scrolling works OK as long as I keep "Scroll Wheel Resolution" in Solaar off. Unlike with unpatched kernel, scrolling doesn't go crazy if I switch between devices. But if I switch "Scroll Wheel Resolution" on, scrolling jumps crazy again.
 
-I did not review this patch!
+Hopefully we've got all of the involved people here.
 
-> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-> ---
->  drivers/hid/wacom_wac.c | 22 +++++++++++++++++++---
->  1 file changed, 19 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index c4cd87b781c4..9520296cb349 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -3977,10 +3977,12 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
->  
->  	if (features->type == HID_GENERIC) {
->  		hid_dbg(hdev, "generic touch setup\n");
-> -		if (wacom_wac->has_mute_touch_switch ||
-> -		    (wacom_wac->shared && READ_ONCE(wacom_wac->shared->has_mute_touch_switch))) {
-> +
-> +		/* setup touch switch for those devices that report pen interface first
-> +		 * can only be done here since we only call this routine once
-> +		 */
+Honestly, this whole situation has been running for too long: Bolt can't
+be handled as a DJ receiver, and all the quirks I'm seeing here are
+making things even worse, with the "as long as I keep [some user
+settings] off".
 
-This is the incorrect multi-line comment format.
+Bolt in kernel was adding in 7.3, so I'm going to revert it now, and
+we'll have to have a fully working plan for an eventual inclusion in a
+future kernel version.
 
-Sentences start with uppercase chars.
-
-> +		if (wacom_wac->shared && READ_ONCE(wacom_wac->shared->has_mute_touch_switch)) {
->  			input_set_capability(input_dev, EV_SW, SW_MUTE_DEVICE);
-> -			wacom_wac->has_mute_touch_switch = true;
->  		}
->  		/* setup has already been done */
->  		return 0;
-> @@ -4403,7 +4405,21 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
->  		break;
->  
->  	case INTUOSHT3_BT:
-> +		break;
-> +
->  	case HID_GENERIC:
-> +		if (wacom_wac->shared) {
-> +			/*
-> +			 * setup touch switch capability can only be done here
-> +			 * for those devices that have touch input registered
-> +			 * before stylus and pad inputs.
-
-It might be worth explaining the limitation.
-
-What happens if those prerequisites are not satisfied?
-
-> +			 */
-> +			if (wacom_wac->has_mute_touch_switch &&
-> +			    wacom_wac->shared->touch_input) {
-> +				input_set_capability(wacom_wac->shared->touch_input,
-> +				    EV_SW, SW_MUTE_DEVICE);
-> +			}
-> +		}
->  		break;
->  
->  	default:
-> -- 
-> 2.55.0
-> 
-
--- 
-Lee Jones
+Cheers,
+Benjamin

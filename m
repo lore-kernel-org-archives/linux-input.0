@@ -1,115 +1,166 @@
-Received: from mail-dy2-f43.google.com (mail-dy2-f43.google.com [74.125.229.43])
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 535443CAE7F
-	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 21:15:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F847423EB7
+	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 21:42:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790198114; cv=none; b=duiDnqQY1wBjIPk3SZsrILcflYsdUDD9nb63JRtxAv4Z4DyArr3ILccij7FhySj9S5SMF1t9chxTOHKkUX1Z1cmy5AUkiFQiVqIcgJ5g7l2FS6gAMUK+3nFLKrH8B5CD6oqN3OhPWYfB0ZiJ87F56/pVZUEshY16R+s5BKYUveU=
+	t=1790199770; cv=none; b=SCs1f34NmbbetkrjkmIK8G5q8p3UyU+bSEL1VvjGi+1mGMXGT/WM0kHfd3hp/zP998AnoNiQmeTZVn0JNPZHwgtynQbq+csP/8IWXAN0HgSBbuwbtilPn8ik92ViYc9qemFpw2Ku23NZMcSNnJAVCjQ3AXysbFLKjEvKhtMPj2o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790198114; c=relaxed/simple;
-	bh=mbitNxCUMM39R4YGaQk34WmC5X+e/RPNv6Qj029D3Rk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SrXhfogyGwdfqK+S2vZfEDA23TZ5eyg6qjCS5CvTFBQ+le36J8vgFSBfPw9elHBXwFodW9PpoN8RRSRhaCzJ5G8QPRxmx26yrCiEtTmUMPvHQmpqxdeCoMfj+w9tvkyavAXcywYwnjjmLdm6isntJn5kpyh8tsShR8K9NMjShGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hhYo52Jf; arc=none smtp.client-ip=74.125.229.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790199770; c=relaxed/simple;
+	bh=P8UxBoi3c6dfgfFRuUvBQXAQn7T0thA4jbPoLoodgvI=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=ifDcJOPxCwvT9AdC+xV32nkFchhuuC0OThINFyJnan7tfMzY0OEWV9yGQxk1PPSwJsjjGi/tQOSJ4WpMn5lvsuK7IP8dFCZZifSx9p1gX9bHPVrs5BvNC71vwNF2Lg4Oz48NAY76NfvaizTiO1KGU/e8QFOB9du6myTkAjs8q/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vtpYaRwK; arc=none smtp.client-ip=209.85.214.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hhYo52Jf"
-Received: by mail-dy2-f43.google.com with SMTP id 5a478bee46e88-33c24422d4dso1565131eec.2
-        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 14:15:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vtpYaRwK"
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2cfc52ddc55so12201855ad.3
+        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 14:42:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790198105; x=1790802905; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=+mi6zIs9P8zxgX/W5h8qHY1aY4dnKAV0RC3Zgyj9agc=;
-        b=hhYo52JfAsD52kKOKQN1vkhHUJBQWrRWPt4r2y3MS3lKPx9oc1bJi/ypP+lNTlruZq
-         4LJPrL3GeoQcV6P7atDgm2xB3f5PoP38ZenbeFlqd++Bs+Jkf4/Hn2zmX2gIQySlFL9i
-         SzC4cxFGgt4t+VZsvHpv/qGrZ/kBDKi/s7BVy8cFrazyV49cbyE9e3Vu9x2RHOBAFKHe
-         gcJrLSuBrhjsAObrldZjHPPahllLb4CwbLLxp+8MwBT5Vldo17dTfZYUbQQ6Yr5T+Imr
-         HEp4t0p4oUE3GBlTENPY5PgCr+1CfWgqNQgaKZNjGhvfxQAiLE/8Joe1vDs8q8YJnLwv
-         khnQ==
+        d=google.com; s=20251104; t=1790199769; x=1790804569; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=ZbPFPeyTORjeOg7jOjV9V6Jywp+gStr7Zp4FX6jbmec=;
+        b=vtpYaRwKMnDKkkv+qH9dmDu92b2wMpl1EQHO9V/FsQrDx9+mWE8KgCQ8O/1NxJy9IC
+         W8PG8Zzjjus8DmrEAgn2h+eT0awYFoZNpd3Dqo8s9RVQLr3P4kdBChhn4DmWp5W7/UTm
+         Y4E9MHvAsns9gaUeNV5ybqrPSeiER6xHFhEIaIH9oTOayuMLvmovN5Rke06T3tvsdkkV
+         oj0LWx/hE0eAd2oWyFNgbXKkEexjeyRwgnst7ViL6Dk/0AKYlCuJgUKFdYR2m+pw2tOc
+         Oe+n1C7HuVVBXZ3DeSJFpLDwkFw0uQFhxAvqYKhzdLuBBnBp0yV4e7w9gHUlyuAOygY/
+         qvXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790198105; x=1790802905;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+        d=1e100.net; s=20260707; t=1790199769; x=1790804569;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+mi6zIs9P8zxgX/W5h8qHY1aY4dnKAV0RC3Zgyj9agc=;
-        b=JMFtJNCZqSk+CSUz/sxU45iCaPimnkM0mExDhkgNowhLAQSQEtQ48fLS0m6kpk7QZt
-         lhbwbElBNs6o3f4/wP+ASZVTctMdkXrk2lYl1mU9e+SQXJDetP3X8WAWuYuveaXzaOqG
-         yslx08P7KSro5yey08tl2xSv/Nj5K6U2vwpGz8ENnLoN4qPM3+p61o0R9yt1bWUibYE0
-         5OInFX3+HZKko+Cg1Q3wQzx3Its3Kp3Bu7XEH97yqL/D1VyZPvx1FAB+RkJDYUbRd6aZ
-         8ujXMO1w5o6vHtOJks5bL5ixuTaRX6oZIB+aAxdnBEztVu+UjJJMjQoTolAIqfQ0qwnC
-         M+MQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxh6YpjtuWCLiSersRH0ZevKXcxCemCv2HwQtywC9gwQx5zHCOvAQ/SxPWxqoKKMug8zLFX56aHeyQCkQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++naJ5RCS1dCv7vnHnRJiyoqB7M6veQj0EYMRFuchQPtLvHfnlSA
-	kUkOU1G2V3Ad7s0iKuDWVUaGrsOANrkv6FiYlgh+qwESnkbzF0zBarB1
-X-Gm-Gg: AYBFou3Yo4ESjNHMiR2VOG2w6vTxej1Z3bbdHUf/3bFQpaKtZ4jHbr5S/PzoMinmle7
-	RDmCS82F9WbgF1HVFZYBBhJrmlo6iLtfNZkWv3xD5hJxD0qB7VzoRS/p917P999I1WHVjbTiLQS
-	HY2pVpzE6Op/8JWrE+jG9BROb+h7BrCNe4vkKHlNvrCNMoH2VpMFnyS4f68+5V882M5TEPrjIOS
-	Pc6Hu3/03eoce4NgzIg2H9eyKC/MkVR2yPsRj1sOOj4nycMATVreaPM4eIazJiEZAqaXP5E87/F
-	c+Kl+7nExToyeLjwGuT9fTO4xsVtL6HjbzKVVcbcx0vU0NlMtuNG9ReyEArBi/g2cfcBZCDTwL+
-	/2zaX42nPTHwtplaxdnuknIThTmHvFEg3dxSkhkKrdI2LV136IrjkWcC1h4phn2v3FGO19sn4Fn
-	b74gYeVWQ/ZsKHKVL2WmSUM73I8PUGLHTvPyjF8+TCQZH0q31NLIbwKGOGYVUibGXf+h8/nX437
-	GOgv5XWWk7Z9EjIc5ZQ9iwDfXxDxg==
-X-Received: by 2002:a05:7300:b291:b0:33c:e9d:6d49 with SMTP id 5a478bee46e88-34003baa73amr302118eec.39.1790198105220;
-        Wed, 23 Sep 2026 14:15:05 -0700 (PDT)
-Received: from localhost.localdomain ([103.16.69.192])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33e97236754sm6863234eec.29.2026.09.23.14.15.02
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 23 Sep 2026 14:15:04 -0700 (PDT)
-From: Aditya Dash <mradityadash@gmail.com>
-To: "Derek J . Clark" <derekjohn.clark@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 5/7] HID: hid-lenovo-go: normalize calibration failure status
-Date: Thu, 24 Sep 2026 02:44:58 +0530
-Message-ID: <20260923211458.32755-1-mradityadash@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <836F1B09-60CA-4A82-8293-0F9CF506E593@gmail.com>
-References: <836F1B09-60CA-4A82-8293-0F9CF506E593@gmail.com>
+        bh=ZbPFPeyTORjeOg7jOjV9V6Jywp+gStr7Zp4FX6jbmec=;
+        b=ju42afy7B29PkE96pBEiFqDXWCw2Ks4YDAbZg/02GXHKmOHVx6WI6zrSFTlQecWrKQ
+         TW2Gk50/DwByFOkRIegxvnfaxFpH1cJB3TQ2TURoTsVfS0VRL0QY61xJa1KnqnT2rPq3
+         kjv0ZJBGR3wzc3gZFZGKw519vsikMujMUvaMahChdW2tnQZ6pxQyowAVjuXbotvWZB0b
+         jwhMTkY80tImkDlAGw/SrKl/jOTke/mo/rRw0Rf9+XWGABy5a7rpHzNyz2F3NusRFNjj
+         AfGbfToMHbv7wGFz+51irAy1XZM8Wq8OAz5eRhdtB2MclgMmb4cM72Xc+JyTpqbddH1h
+         ogYA==
+X-Forwarded-Encrypted: i=1; AKwUvBxAAobzyDxwucrPj116erc95L12jAPkYfnXOGTUo8HwBifj1CfDvyUBTKyj1GXc6oZ3gXWaGJfcImzwdA==@vger.kernel.org
+X-Gm-Message-State: AFuF++mnq4oLXAHZSgsXZMLXD4XMatr606NAbspNGmzBZxoCLKsWLSrE
+	WAjGQ9fAHOmawXo/zgEr7Hwind+y8fbQrExxhaqAkQGa36AJcsfY8wa0aQZ6dptmDgzPFokIH9s
+	O
+X-Received: from plrd9.prod.google.com ([2002:a17:902:aa89:b0:2dd:bf7a:f211])
+ (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:1b4e:b0:2c8:2808:3ec9
+ with SMTP id d9443c01a7336-2df7e26759fmr3174125ad.12.1790199768442; Wed, 23
+ Sep 2026 14:42:48 -0700 (PDT)
+Date: Wed, 23 Sep 2026 21:42:46 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.0.rc1.310.g51773c2048-goog
+Message-ID: <20260923214246.3098156-1-morbo@google.com>
+Subject: [PATCH] HID: bpf: fix lockless race on device_data allocation
+From: Bill Wendling <morbo@google.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Ihor Solodrai <ihor.solodrai@linux.dev>, Puranjay Mohan <puranjay@kernel.org>, 
+	Johan Hovold <johan@kernel.org>, Yiyang Chen <chenyy23@mails.tsinghua.edu.cn>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kees Cook <kees@kernel.org>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	bpf@vger.kernel.org, Bill Wendling <morbo@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Derek,
+When attaching a hid_device_event BPF program to an already-connected
+HID device, hid_bpf_reg() calls hid_bpf_allocate_event_data() while
+holding only hdev->bpf.prog_list_lock. Concurrently, incoming HID
+reports invoke dispatch_hid_bpf_device_event() while holding only
+hdev->driver_input_lock.
 
-According to my observations, data[1] seems to give the correct status
-instead of data[0].
+Previously, __hid_bpf_allocate_data() assigned *data (device_data)
+before *size (allocated_data) without release semantics, and
+dispatch_hid_bpf_device_event() loaded hdev->bpf.allocated_data and
+initialized ctx_kern before checking whether hdev->bpf.device_data was
+non-NULL. A concurrent reader could therefore observe device_data != NULL
+with allocated_data == 0, skipping the memset() clear and dropping the
+report with -EINVAL (or dereferencing NULL if device_data was reloaded
+for the NULL check).
 
-device_type in cmd_rep seems to indicate the left or right controller, and
-data[0] the calibration device (gyro, joystick, or trigger).
+Use WRITE_ONCE() and smp_store_release() in __hid_bpf_allocate_data() so
+allocated_data and the zeroed buffer are visible before device_data becomes
+non-NULL, and pair it with smp_load_acquire() in
+dispatch_hid_bpf_device_event() before reading allocated_data and
+initializing ctx_kern.
 
-To validate that, I ran the left gyro calibration on my Legion Go 1
-and failed it on purpose.
+Fixes: 658ee5a64fcf ("HID: bpf: allocate data memory for device_event BPF programs")
+Assisted-by: LLM
+Signed-off-by: Bill Wendling <morbo@google.com>
+---
+ drivers/hid/bpf/hid_bpf_dispatch.c | 38 +++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 14 deletions(-)
 
-Here is the raw data alongside cmd_rep, its contents, and data array
+diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
+index d46779b63660..1a0c4fa6ed86 100644
+--- a/drivers/hid/bpf/hid_bpf_dispatch.c
++++ b/drivers/hid/bpf/hid_bpf_dispatch.c
+@@ -28,16 +28,10 @@ dispatch_hid_bpf_device_event(struct hid_device *hdev, enum hid_report_type type
+ 			      size_t *buf_size, u32 *size, int interrupt, u64 source,
+ 			      bool from_bpf)
+ {
+-	struct hid_bpf_ctx_kern ctx_kern = {
+-		.ctx = {
+-			.hid = hdev,
+-			.allocated_size = hdev->bpf.allocated_data,
+-			.size = *size,
+-		},
+-		.data = hdev->bpf.device_data,
+-		.from_bpf = from_bpf,
+-	};
++	struct hid_bpf_ctx_kern ctx_kern;
+ 	struct hid_bpf_ops *e;
++	u8 *device_data;
++	u32 allocated_data;
+ 	int ret;
+ 
+ 	if (unlikely(hdev->bpf.destroyed))
+@@ -46,11 +40,26 @@ dispatch_hid_bpf_device_event(struct hid_device *hdev, enum hid_report_type type
+ 	if (type >= HID_REPORT_TYPES)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	/* no program has been attached yet */
+-	if (!hdev->bpf.device_data)
++	/*
++	 * No program has been attached yet. Pairs with smp_store_release()
++	 * in __hid_bpf_allocate_data().
++	 */
++	device_data = smp_load_acquire(&hdev->bpf.device_data);
++	if (!device_data)
+ 		return data;
+ 
+-	memset(ctx_kern.data, 0, hdev->bpf.allocated_data);
++	allocated_data = READ_ONCE(hdev->bpf.allocated_data);
++	ctx_kern = (struct hid_bpf_ctx_kern){
++		.ctx = {
++			.hid = hdev,
++			.allocated_size = allocated_data,
++			.size = *size,
++		},
++		.data = device_data,
++		.from_bpf = from_bpf,
++	};
++
++	memset(ctx_kern.data, 0, allocated_data);
+ 	memcpy(ctx_kern.data, data, *size);
+ 
+ 	rcu_read_lock();
+@@ -255,8 +264,9 @@ static int __hid_bpf_allocate_data(struct hid_device *hdev, u8 **data, u32 *size
+ 	if (!alloc_data)
+ 		return -ENOMEM;
+ 
+-	*data = alloc_data;
+-	*size = alloc_size;
++	WRITE_ONCE(*size, alloc_size);
++	/* Pairs with smp_load_acquire() in dispatch_hid_bpf_device_event() */
++	smp_store_release(data, alloc_data);
+ 
+ 	return 0;
+ }
+-- 
+2.56.0.rc1.310.g51773c2048-goog
 
-  raw        04 00 a0 02 03 01 02 01 00
-
-  cmd_rep    report_id   0x04
-             id          0x00
-             cmd         0xa0
-             sub_cmd     0x02
-             device_type 0x03 (left controller)
-
-  data[0]    0x01 (gyro)
-  data[1]    0x02 (failure)
-  data[2..3] 0x0001 (reason, little-endian)
-
-Reading data[0] as the status would report this failure as success.
-
-Therefore I lean towards keeping it as is.
-
-Thanks,
-Aditya

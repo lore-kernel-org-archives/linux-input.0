@@ -1,171 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32C923B27FB
-	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 03:41:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E02D44238B
+	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 06:31:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790134863; cv=none; b=otMBu0i77UI8JYjz+iVP5AFGUrvQKr6rs/NJTlwwULhJkC/fgXr5MYqE6J5wwuI8J1RPWiso1BpNTGhIkeGwp2bdvr64GzegRLG2oMmtsTLIsosHX8stM0PF5oEo3O2MdWQ+t6qTgMZbMui4CePLANt2qsUlUFeu8a0apbK1oBQ=
+	t=1790145084; cv=none; b=t6YdeC/1TIn9VISQ/lrZQIEqhSrsHLC2jZd6XCInAFr2UFdERP3ikxk43A2DsiuddVSoemui6HScHa8kT/8elC3XTZF6nW/A7GR0LNPR4sVP6rLOmVWCNUOYmZqdF8/fG+mKEAhjwcsGnjB7us/uofxsFy/4eXszVqZpY4fW47c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790134863; c=relaxed/simple;
-	bh=Zw1YuiAS0na63NLUFNv8D4pLnD/he3QMQIVjRGhW+mw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IF8qZ+7VI0VBDvALn7BNgzq0Y4ILDopjFulsiQr2Y9hBd/S9oVNUoOkhuyVZqArsGjPf0Re+UDIB2/IXHgHlX1n/QcxQ1Z8CU6ziRza6RbbkO2YJMEyMH1jg7ERt9rYfcX6tblrhZJTA9vYwmpK11E1caLpS2oayfg3HVS1fqAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HdJL0jxR; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790145084; c=relaxed/simple;
+	bh=yMpiKx3kguhJmc8qDGn1V3CoMpzc68Grv59UbQqZkL0=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=OS5HRaAS9qhGu+RoAdYGW0WZaPmkC1pCthqbS2GXbrQYIOrabUQRltUAeTG+ou0TcfHceR84g2oa8mZyc4GRk+gcZYAUVgx3SKa8IJF4VquoR3xUUI4d+BNkuA6/BAQP49njDdB9TNUiaQmwKlC/lB8k4+OGwvFT55BVMOSWyCc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FxpHxazF; arc=none smtp.client-ip=209.85.214.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--morbo.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HdJL0jxR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D691F000FF;
-	Wed, 23 Sep 2026 03:41:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790134860;
-	bh=K4Oi9UnzIUX4y6F48NIPKHeAf7XUo62qmH7d5OCW3EY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HdJL0jxR0i2Jiz3akTDDCT6zFN1ckCnOfrHowNQ6yhKy1N6xt6NwtseTLw7lD4AZ0
-	 fajsv/tnmW0PCTP4snkYAB6LVWoLvNdtNaWDWKO2btNbvGXTRT9+HYVgCxgr1/ZQDK
-	 xSow3c2zrITCKdx95yaGnsT+sqnCqm7xeBzPWrC4GDMdWpKPqSv+tzKxDgSdDaRfKC
-	 qXN87pXv2ZT66XF8Rkvh2GlQQBaW9lPpTvFsYiKd8FhJ/caz3l9MHim9+/q+JQBFFg
-	 Otut5R3dZ46xxSYw9DavqEVreUQGGwg2CX2z/ZoBfKSqtT/LC5SUHTg/xXvdaFx76V
-	 fEWtxPHAEpmWA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: playstation: Fix DualShock4 dongle hotplug work
- use-after-free
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fan Wu" <fanwu01@zju.edu.cn>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260923032634.417433-1-fanwu01@zju.edu.cn>
-References: <20260923032634.417433-1-fanwu01@zju.edu.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 23 Sep 2026 03:41:00 +0000
-Message-Id: <20260923034100.92D691F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FxpHxazF"
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2db3b126c9fso6722395ad.0
+        for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 23:31:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1790145077; x=1790749877; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=tFs7REmvg7ALs7gDnIPL2Cm/x5EKpm+iCAcxe/e+E3M=;
+        b=FxpHxazFm8D/CPAXV5DSHZoW+G0poMCEivZO3tIXv92LeWfvEvfuB2U8yNyWoEzEPG
+         lNwmf7/LPBRcypLAD3FHrlFwqeGFTOusgZzeEM5tyUCxcAEsB6wMbpZTzFrXE1wXFVpf
+         KHpD/wgsKjtiGKABseYf9aEaJRFpMUHx5XfYPFkQUZO6eJZfpUEPJOIXx1giRWZ2Pamj
+         3hU3IGzGNs8A9WrxKzmi9QgO2Og9saYy0gBukEhgrXtr71pn+7vxjC8Zdiwy/luzg2v0
+         vN68O9D5l3+9h1hvMl+XDfCMIRPfM4yfCrpw9K4klVjuOyngqhar66wM7YpBzXDIYaP0
+         VF6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790145077; x=1790749877;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=tFs7REmvg7ALs7gDnIPL2Cm/x5EKpm+iCAcxe/e+E3M=;
+        b=JkumevcNs1jwntptUfiIlQAAJa2pEhgu+/h6PbZ3WAq/lHSBb5yo6Xqy4Cg1PPkUuQ
+         ilsHPghq8JVkYwfCSUzqk052ZlpERA+8QUPJICZKVp+SiK8N4wVtbTcqEVm5hX9jcRLy
+         0c/1gZd9rJlOGfGGCzmyfqkp8hioFZ2fZjGQwJrtTtb+vgeS9wyNiy/lpmnDcgjz/WLE
+         +tTcy+JCcxyodIGRl6FgQcGOpwgHNqa82U53e+gXlpvYG3F+F1CpmydH6ABXURJdFwFp
+         OVOcWStp3dnfTAvha7C3MzI9SjxvttW4Jr1DeGZPNQjZeBZuwpVguNMX1g18a2Tl1t77
+         TD5Q==
+X-Forwarded-Encrypted: i=1; AKwUvBzGI4qTiaBHix4X4N79opfmWSrY63q2H7pzq4OPgaVmMkPMfcCQokuJdPv9LM7N17+Xj5Gjrv1yP+rIIg==@vger.kernel.org
+X-Gm-Message-State: AFuF++kTrZjskQXj9gbS5UGWRqFQdYEzQU7PMHx3PS1slGuRUQwOXnK2
+	Emu/hvF2yC+vFfZsnBx3ByrtI5siGdlQ/VDwJgvWqVR1xlKrNEEp25uQfe41fS4U6xcLp1eohSB
+	n
+X-Received: from pleg9.prod.google.com ([2002:a17:902:e389:b0:2dd:26c1:6565])
+ (user=morbo job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:3d05:b0:2dd:319:c9ef
+ with SMTP id d9443c01a7336-2df69d28094mr16150785ad.3.1790145077322; Tue, 22
+ Sep 2026 23:31:17 -0700 (PDT)
+Date: Wed, 23 Sep 2026 06:31:14 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.1082.g2b9226bbc0-goog
+Message-ID: <20260923063114.2683575-1-morbo@google.com>
+Subject: [PATCH] HID: bpf: add __counted_by_ptr attribute to device_data
+From: Bill Wendling <morbo@google.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Kees Cook <kees@kernel.org>, "Gustavo A. R. Silva" <gustavoars@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	bpf@vger.kernel.org, Bill Wendling <morbo@google.com>, 
+	codemender-patching+linux@google.com
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] hid: redundant synchronization due to false-positive race
---
+The 'struct hid_bpf' contains a 'device_data' pointer field (of type
+'u8 *') and an 'allocated_data' field (of type 'u32') that specifies the
+size in bytes of the allocated memory for 'device_data'. Since
+'device_data' is a pointer to 'u8' (elements of size 1 byte),
+'allocated_data' represents the exact count of elements allocated for
+'device_data'.
 
-commit 13619e48822a1be542eef83182d65e856c6ee40b
-Author: Fan Wu <fanwu01@zju.edu.cn>
+Annotate the 'device_data' field of 'struct hid_bpf' with the
+'__counted_by_ptr' attribute, pointing to 'allocated_data'. This enables
+bounds-checking sanitizers (like KASAN and UBSAN) to detect
+out-of-bounds accesses to 'device_data'.
 
-HID: playstation: Fix DualShock4 dongle hotplug work use-after-free
-   =20
-This commit attempts to fix a use-after-free issue by adding synchronization
-state (dongle_hotplug_worker_initialized) and clearing it during error and
-teardown paths. It claims this prevents the raw_event handler from scheduli=
-ng
-work concurrently during probe() and remove().
+Because the count 'allocated_data' is always set before any access and
+accurately tracks the allocated buffer size at all times, adding
+'__counted_by_ptr' will not cause runtime panics or false-positive
+bounds checks.
 
-> HID: playstation: Fix DualShock4 dongle hotplug work use-after-free
->
-> dualshock4_remove() cancels ds4->dongle_hotplug_worker while input
-> reports can still arrive: hid_hw_close() and hid_hw_stop() only run
-> later in ps_remove(), so a dongle connect report in that window makes
-> dualshock4_dongle_parse_report() schedule the just-cancelled work
-> again. ds4 is devm-managed and freed once ps_remove() returns, so
-> dualshock4_dongle_calibration_work() then runs on freed memory.
->
-> The dualshock4_create() error path has the same exposure. Reports are
-> already flowing when it runs, because ps_probe() starts and opens the
-> device before creating it, so the connect branch of the dongle report
-> handler can also queue ds4->output_worker through its lightbar update.
+Cc: codemender-patching+linux@google.com
+Assisted-by: LLM
+Signed-off-by: Bill Wendling <morbo@google.com>
+---
+ include/linux/hid_bpf.h | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-Is this race actually possible?
+diff --git a/include/linux/hid_bpf.h b/include/linux/hid_bpf.h
+index 19fffa4574a4..f45fb9cccece 100644
+--- a/include/linux/hid_bpf.h
++++ b/include/linux/hid_bpf.h
+@@ -185,10 +185,12 @@ struct hid_bpf_ops {
+ 
+ /* stored in each device */
+ struct hid_bpf {
+-	u8 *device_data;		/* allocated when a bpf program of type
+-					 * SEC(f.../hid_bpf_device_event) has been attached
+-					 * to this HID device
+-					 */
++	/*
++	 * allocated when a bpf program of type
++	 * SEC(f.../hid_bpf_device_event) has been attached
++	 * to this HID device
++	 */
++	u8 *device_data __counted_by_ptr(allocated_data);
+ 	u32 allocated_data;
+ 	bool destroyed;			/* prevents the assignment of any progs */
+ 
+-- 
+2.55.0.1082.g2b9226bbc0-goog
 
-Looking at the HID core, __hid_input_report() uses down_trylock() on
-hdev->driver_input_lock and drops incoming reports when the lock is held.
-
-During initialization, hid_device_probe() acquires this exact lock before
-calling the driver's probe function (ps_probe()). The driver never calls
-hid_device_io_start(), meaning this lock is held for the entire duration
-of ps_probe(), including all of dualshock4_create().
-
-Similarly, during teardown, hid_device_remove() acquires this lock before
-calling the driver's remove function (ps_remove()), meaning it is held
-for the entire duration of dualshock4_remove().
-
-Since dualshock4_dongle_parse_report() is called from the raw_event
-handler, which is fed by __hid_input_report(), it cannot execute concurrent=
-ly
-with either dualshock4_create() or dualshock4_remove().
-
-> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-> index f9dc9378cf777..1b7a18fbeeb4b 100644
-> --- a/drivers/hid/hid-playstation.c
-> +++ b/drivers/hid/hid-playstation.c
-[ ... ]
-> @@ -2618,10 +2619,12 @@ static int dualshock4_dongle_parse_report(struct =
-ps_device *ps_dev, struct hid_r
-> =20
->  			dualshock4_set_default_lightbar_colors(ds4);
-> =20
-> -			scoped_guard(spinlock_irqsave, &ps_dev->lock)
-> +			scoped_guard(spinlock_irqsave, &ps_dev->lock) {
->  				ds4->dongle_state =3D DONGLE_CALIBRATING;
-> =20
-> -			schedule_work(&ds4->dongle_hotplug_worker);
-> +				if (ds4->dongle_hotplug_worker_initialized)
-> +					schedule_work(&ds4->dongle_hotplug_worker);
-> +			}
-
-[Severity: Medium]
-Does this flag check actually do anything in dualshock4_dongle_parse_report=
-(),
-given that this function cannot run concurrently with the teardown sequence?
-
->  			/* Don't process the report since we don't have
->  			 * calibration data, but let hidraw have it anyway.
-[ ... ]
-> @@ -2677,8 +2680,12 @@ static void dualshock4_remove(struct ps_device *ps=
-_dev)
-> =20
->  	cancel_work_sync(&ds4->output_worker);
-> =20
-> -	if (ps_dev->hdev->product =3D=3D USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONG=
-LE)
-> +	if (ps_dev->hdev->product =3D=3D USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONG=
-LE) {
-> +		scoped_guard(spinlock_irqsave, &ds4->base.lock)
-> +			ds4->dongle_hotplug_worker_initialized =3D false;
-> +
->  		cancel_work_sync(&ds4->dongle_hotplug_worker);
-> +	}
->  }
-
-[Severity: Medium]
-Does clearing this flag in dualshock4_remove() prevent a race, or is the
-incoming report path already physically blocked by hdev->driver_input_lock?
-
-[ ... ]
-> @@ -2858,6 +2868,18 @@ static struct ps_device *dualshock4_create(struct =
-hid_device *hdev)
-> =20
->  err:
->  	ps_devices_list_remove(ps_dev);
-> +err_cancel:
-> +	scoped_guard(spinlock_irqsave, &ps_dev->lock)
-> +		ds4->output_worker_initialized =3D false;
-> +
-> +	cancel_work_sync(&ds4->output_worker);
-> +
-> +	if (ds4->dongle_hotplug_worker_initialized) {
-> +		scoped_guard(spinlock_irqsave, &ps_dev->lock)
-> +			ds4->dongle_hotplug_worker_initialized =3D false;
-> +
-> +		cancel_work_sync(&ds4->dongle_hotplug_worker);
-> +	}
->  	return ERR_PTR(ret);
->  }
-
-[Severity: Medium]
-Since hdev->driver_input_lock is held throughout dualshock4_create(), are
-these flag checks and locks on the error path protecting against a race that
-is impossible to hit?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260923032634.4174=
-33-1-fanwu01@zju.edu.cn?part=3D1

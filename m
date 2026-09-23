@@ -1,81 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf2-f12.google.com (mail-lf2-f12.google.com [74.125.229.204])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAE141FC0;
-	Wed, 23 Sep 2026 08:10:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BCC7497B84
+	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 10:52:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.204
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790151014; cv=none; b=b6ccGVZA11Ga5Lu5eYJ7Hg+lhaecWXVmYxX009Klzopuzsr1yu7HIiu2xOM4XDIAG+rcniaRHd7RACF4xCP9nk1Kx7RTmBgZYTpynm/5Sl9VFbdZJluWNizx0LkuCex3cKCzEpYBw4p6SBIgh85zZApAGkiJGkJszmeva444flA=
+	t=1790160754; cv=none; b=EIWxwVpNS6aTemr5eWkxzVBz0JRc7GBwJA58M5xVcpzpUXTTctYkWE58e+VPuO3NtuS989mWSzEdemmtMLsrtZ4I7cbeJFPGNPA5qANzHOkj8G1zQju4qFNLKtqeHqo9fzp+8rppzI3TmzN61HfPuntfsYklb3kWIuXtw2VoSKc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790151014; c=relaxed/simple;
-	bh=8DJs7Le9Gqlq7NjGc11VnwKk4ER//sx6M71RI6H9FV4=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=bbIVig/1NYWL7Ri1Z4Hh4dANQvsPWnSli2RTsjvoDayebfhsuHuYZkuV9jsvUMQtERNX0IkOLd+uMsY66R45qHgld8l4dNAIANwaLRJmfS1UEyNKRI5pz78k5AM4PLSKoI4SzndNBTy+ZAGCB+alW1uJ9/NSRXPpgs68//bgxmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f3CtpED6; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790160754; c=relaxed/simple;
+	bh=xrHgSFEJMs78mvMQZzVM9Z+570q3BIZmlyKkhqlhnVM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=m4d6CQv3dcJNB45c0TW+k0Vry3mNlwPxrCdj4NelAAm4WpzJ3Y/mcV+tpDX0i9CB9LEw+Q9Un2HlTrxAjyL976Wn0P5HZpHet112VJ8EL9WG961lczbdt3YqRuqqXd8EKPLqPOthzgMqgCE3WHLtob4j/09rybW2+wl2toRTtM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P4AiaCk8; arc=none smtp.client-ip=74.125.229.204
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f3CtpED6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC16E1F000FF;
-	Wed, 23 Sep 2026 08:10:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790151013;
-	bh=bF5EuWptzVSTQfet611C4PFTltOQ6Ec0LJhPTHDaTpc=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=f3CtpED6aHAyLsdhnqOt5xu2P9oYQ4pgcdy5/Q0I10bt4XWZBDgkAQx4OBYUH3chs
-	 cu9xpMsWd/O4xYU4Gy7wCZ6lgld3p0T2EyvSGt45VlDIuFB3ot7G0ywkQzNDuPdEll
-	 bBlWduFDyHTRCCH/EBoI2eRRofV51kEoF8NvPxfj3Ux4Z4+x7La/EcJegG76pvOm62
-	 jP3GqTXvkWk3mi8FVcTVtjmCuhByB8ruuDDiQif/VA1U0/eCakZM43/eSKmetCWpfX
-	 oi3yE2kvvw8dnsAWfCefCPbv0cCB0sd2EtDkkgTp/TvPzkcEyZgxcHorxvj+wjtxn3
-	 gZ59OUkiaoRQg==
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
- Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, 
- Rafael Passos <rafael@rcpassos.me>, 
- =?utf-8?q?Gr=C3=A9goire_Stein?= <greyxor@protonmail.com>, 
- Alexey Zagorodnikov <xglooom@gmail.com>, 
- Oleksandr Natalenko <oleksandr@natalenko.name>, 
- Roman Stingler <roman.stingler@gmail.com>, 
- Lovekesh Solanki <lovekeshsolanki00@gmail.com>, 
- =?utf-8?q?Kate=C5=99ina_Medv=C4=9Bdov=C3=A1?= <k8ie@mcld.eu>, 
- =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>, 
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20260923-revert-bolt-v1-1-52c2ef6f614d@kernel.org>
-References: <20260923-revert-bolt-v1-1-52c2ef6f614d@kernel.org>
-Subject: Re: [PATCH] Revert "HID: logitech: add Bolt receiver support for
- Logitech HID++ devices"
-Message-Id: <179015101056.20800.11230803034120852820.b4-ty@b4>
-Date: Wed, 23 Sep 2026 10:10:10 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P4AiaCk8"
+Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b5e4f1744eso571306e87.1
+        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 03:52:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790160739; x=1790765539; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=zKBPC/HUfOeYNRheVRrqScAzgVBluDo4sVjYT3kJwDs=;
+        b=P4AiaCk8q33o00b6TkSm1uwzVp5j0bs+/88asbiXZtADY7f1+3KtNXu9rL+3FsG0E3
+         T42MPte4MQqs8LOxFJcved1noxayJhtXz5YyZIQG8V34OtfN0D4kNZVkiVfe1YqgLiOg
+         x+QEyRGDJ9FRoJBdn45QI/F3cB6QTebsVIuV+qNylPrGk5kp0C8y9IlGy4+caRpSUC3B
+         MVBX8EVUQ4kyNBZaLX4DnzBerymMZ66Rp8oi26CEZ/Sjvp/9nE8rMl+bgi6e4DYYnyOX
+         rgJWpKPatF6zcsnF5eqrcW3Xmp5tiipbqADwuPH9lBA42zq6FCwLRVafz/ixT3DYcRee
+         1Vqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790160739; x=1790765539;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=zKBPC/HUfOeYNRheVRrqScAzgVBluDo4sVjYT3kJwDs=;
+        b=hFsCqrPZHbPWwwrwW/WI2oxpfHTp/pkB/vthIbUxRTsAl76QGomH4/AZzs7FQvG8Lk
+         NfRv7dp7TnuAfa4LMMBOrkk4GugzG/XLiyc98pNL71E08GmzcGmyZr3ots1cX8eH0oNv
+         YRgOVjNDuTmsOwbQIgnXrxFdjMevpVtB7PJR7s0IaODPxsaJBsxJX2A8tEtnlYbgbyNA
+         8ziFuSEpOTEwJkQWpw5aowl6ijdlNG4LHVXG9qtF1tq/wP0DacuvZ0D63H9wA+YcnDbE
+         cXoxYAYSSlTF77ZG+F/X0s/uW3dFuTgTjJVeuKhe6iZ/8Z+Lvk5Uq7S7WYmkXmt8F5pm
+         pD6A==
+X-Gm-Message-State: AFuF++n5AY0Bl2vJ4VpeE4dqnSdkrM/55ESVomhCPeBakcm9K1LZKhSe
+	6+9/Vqu+2ecdlT8ALMraJxbmpJTlef+BQwXYL4DRIbXy9d+UyrKUOsJJ
+X-Gm-Gg: AYBFou0E1a+lyu3ITyi4JbnbtWssL/dMQr2U8EVLGsgHEJaVJxv24ACNig3zYBsMWll
+	xtsThWus5UlAO61itPG+WBCSiiw8M5hkz7jBJSgG6WM7vDW69N82Q96yVRqUgqEz8uQCs3wkZSf
+	rCHICOAIna4x74SRwZXhvvEVXTbrm9EmzhPhBrAuysaVaz1Bzd4oRgzlFbuSmBUa+VwwoIns778
+	DIf2NpcT4j3Kj/q6VtKn9wQNEx1mqDYgqBGvQfvizOAUzOkFlNxMua3EZ/G818sQjjOTKH+T+uz
+	ETJ9DfK5fCwI2iRcYtEaB9pSr/yYuw0z4xwtyLeeDqrQK5BuyPECoFcogOeJUSgXjiS6+EIGqJr
+	Y+6rOTAiEoUpwxE3tz+jylDJaI8kLg0IOYn9VwwmnwvHnsRLNwuBqpfHF91pJ+/Zfbu+X+Znqy9
+	YBtfkL0Mtg04o0ctWgMyRFCdzVgm6adK806d/zeHx227qw8IAfMsKtKpw7XjV31POuN0hhKmJOk
+	6wNH7e4M0XfpNU/nBW7uzUjBavQgA==
+X-Received: by 2002:a05:6512:b1d:b0:5b5:e66f:2ac2 with SMTP id 2adb3069b0e04-5b8d8952ef2mr759840e87.6.1790160738756;
+        Wed, 23 Sep 2026 03:52:18 -0700 (PDT)
+Received: from DESKTOP-7GRJKK0 ([188.226.104.175])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b8d8589e1csm503208e87.54.2026.09.23.03.52.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Sep 2026 03:52:18 -0700 (PDT)
+From: Vladimir <anykey196@gmail.com>
+To: Chen-Yu Tsai <wens@kernel.org>,
+	Samuel Holland <samuel@sholland.org>
+Cc: linux-input@vger.kernel.org,
+	linux-sunxi@lists.linux.dev,
+	Vladnwx <vladnwx@users.noreply.github.com>
+Subject: [PATCH] Input: axp20x-pek - add AXP313a support
+Date: Wed, 23 Sep 2026 15:52:14 +0500
+Message-ID: <20260923105215.1633-1-anykey196@gmail.com>
+X-Mailer: git-send-email 2.55.0.windows.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
+Content-Transfer-Encoding: 8bit
 
-On Wed, 23 Sep 2026 10:06:58 +0200, Benjamin Tissoires wrote:
-> This reverts commit 022eb347ff3a48281e7e69c3addcb11bf24afa53.
-> 
-> Introducing Bolt as a DJ receiver created a lot of troubles for users
-> with their scroll wheel going crazy.
-> 
-> This is because we have 2 issues:
-> - Bolt doesn't say which device sends which event, so having 2 mice
->   connected on the same receiver means one will be normal and the other
->   deadly slow or deadly fast
-> - userspace also tinker with those settings, meaning that users are not
->   happy with the new default settings.
-> 
-> [...]
+From: Vladnwx <vladnwx@users.noreply.github.com>
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.3/upstream-fixes), thanks!
+The AXP313a MFD driver registers its power button cell as "axp313a-pek",
+but the axp20x-pek platform id table only matches "axp20x-pek" and
+"axp221-pek". The power button therefore never probes on boards using the
+AXP313a PMIC (e.g. the OrangePi Zero 2W).
 
-[1/1] Revert "HID: logitech: add Bolt receiver support for Logitech HID++ devices"
-      https://git.kernel.org/hid/hid/c/3fabd8ec206b
+Add the missing id table entry. The register layout used by the driver
+matches the AXP313a, so the generic axp20x_info is reused.
 
-Cheers,
+Tested on: OrangePi Zero 2W (Allwinner H618 + AXP313a), kernel 7.1.13.
+
+Signed-off-by: Vladnwx <vladnwx@users.noreply.github.com>
+---
+ drivers/input/misc/axp20x-pek.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index 24f9e9d89..d4e2fc9a9 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -393,6 +393,10 @@ static const struct platform_device_id axp_pek_id_match[] = {
+ 		.name = "axp221-pek",
+ 		.driver_data = (kernel_ulong_t)&axp221_info,
+ 	},
++	{
++		.name = "axp313a-pek",
++		.driver_data = (kernel_ulong_t)&axp20x_info,
++	},
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
 -- 
-Benjamin Tissoires <bentiss@kernel.org>
+2.53.0
 

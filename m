@@ -1,40 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55775391E44;
-	Wed, 23 Sep 2026 16:48:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B114753979F;
+	Wed, 23 Sep 2026 16:50:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790182130; cv=none; b=cCth3QHMlsa6DeNMHBu3eLdJS29gC50pmeZ/FSU0U9fJPdklFwflZLLWT1ha0V/suivayOMkkuZROuokwPtjnQSGo2QM0ArsD8XVBxnmldqCt9jC+QzosKNZS/2rc3IvgK8AQN/Rq3XSzE69A2phmDSYpzvNby5Zih1bnzGkh0s=
+	t=1790182235; cv=none; b=gdRp5YE0SDPx6C/cpPIOr/yW1eND9GbTli5VHs589I8KMDtYOQbmvBSZlkSyQU+cYDnN9MyoXMoJxyXxS+wm4GGZfXAjUcy3RUC3KC1sPGHtzGyLrh6ibzPRPS6R13T787KIJ0rnvgoYhHX2GK5PKtoJctriLYfecJ+rRzkjsn0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790182130; c=relaxed/simple;
-	bh=BYIcpqAK16u8g+M1ivZG04ozTWXFHJj+IGRrNdFggnI=;
+	s=arc-20240116; t=1790182235; c=relaxed/simple;
+	bh=qnhpWcOTUhlbHgo0G5qdKrpwcuAvxyTbIte+678S0hI=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=LmGosnYTeLMp/Fne4fw/I27hY7xCo9piI9OARNUfxcznIzYdCgxS9LfK3l8Z4/m7MFlryfxBbs553UX/jib0bJaWjpNPKFAmwxbT0DYLZ06EM0XT5SLgfh3i0+ZCddaY6iFBm3odpmotbkHnN1M5AF6QkovSxwwZ7zTEKHDitEE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d/xOVlLM; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=f8NXne4aUn54X1KifOiszPNGm+a+ZchcxBnijDj7/nf4LWcBRHKAO8BsAvEaEPzk+6nDUVEPfkW6/NGJ2mUPKCqlxQtsi8QYlzqLxFNvMpEXFm4AP//LPdVQLLUODVNFUCN1/lAOWmL+r26Q0uf+jnpFFS2esC9s5TjwUM/SPFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OYYGzYVn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d/xOVlLM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEEE41F000FF;
-	Wed, 23 Sep 2026 16:48:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OYYGzYVn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F911F000FF;
+	Wed, 23 Sep 2026 16:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790182128;
-	bh=tE52/jnXHmgC9c9ae7W6XJ5JCQheopPCzSagzGWBE6s=;
+	s=k20260515; t=1790182234;
+	bh=1xWgHwZWH1TRXZmwGuSO0z6vDIcHiOa1CmXcRsSUal4=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=d/xOVlLMkNP6XYktVSHYJIuf+3XfEPlcz9zLYPUIqH/6OavnsW3B1ZsSgON76BXoh
-	 IZPivHP9d4boYVrMU9TWMmBJXxw1TIFzwO80TXbOnxGTZ4DQKZcNmXb7Hc3s1T4yNK
-	 4+ZC9n8JIM57CJIRnXn4xAg9+tjpv9FpbuVD+bbY0V9HAFSSNQJVYl7WpGaajCB0DM
-	 a708L+wynsXSzLBXWHs2SMWV6sw49kn7f3SDB2MFFYMF1mP7XEBr/J79DzFBo5sIqy
-	 t4n4PNUvKfDdPJXBIu3eiPAviuMBzGCrIxBbg406u0uSJ9/KHwnB81MVtIFRwf+Po6
-	 19+NxWpiFQ06w==
-Date: Wed, 23 Sep 2026 18:48:45 +0200 (CEST)
+	b=OYYGzYVnMOASN0EcIEvhF90FFbqedcFlwHQb4xuEW621JzNBnRYmwro2N66fb+d+p
+	 JkiZjyZAXDiydeg7bHSu7cuKXXelN5aoAoTetAekIqMicm+ldgxQPEwqzyYOjMcx3Q
+	 4bfPO2/sAkjSu2CWXnCpJXsi7h7sdR7oR6bqwRcF5myoxUmgGy8tT0m5EY2xp+mURr
+	 21UPS5sJCn/iDxV846fcfk+v3mK7IVBSMZkrBHyTw6sSiSt+L2WHHrPqZhq6Xjhtzs
+	 Van98rrrEXuuZwuSwvoPRzkNorp0nk+fAJlnajl82kgfj9PtT/4uD6ccT00KZvPnbP
+	 sPZPldQ0Ah9GA==
+Date: Wed, 23 Sep 2026 18:50:31 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
 To: Even Xu <even.xu@intel.com>
 cc: bentiss@kernel.org, srinivas.pandruvada@linux.intel.com, 
     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] HID: Intel-thc-hid: Fix potential buffer overflow
-In-Reply-To: <20260922024638.932865-1-even.xu@intel.com>
-Message-ID: <86p88s15-qp61-1pn4-9308-5po75rp7q192@xreary.bet>
-References: <20260922024638.932865-1-even.xu@intel.com>
+Subject: Re: [PATCH 0/2] HID: Intel-thc-hid: Use hid_safe_input_report()
+In-Reply-To: <20260922025437.940072-1-even.xu@intel.com>
+Message-ID: <8o1s43n1-spn5-oqn0-38p6-sps024p3p1o6@xreary.bet>
+References: <20260922025437.940072-1-even.xu@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,16 +45,10 @@ Content-Type: text/plain; charset=US-ASCII
 
 On Tue, 22 Sep 2026, Even Xu wrote:
 
-> This patch set allocate enough space for both the payload and the
-> packet header for quicki2c and quickspi input and output buffers to 
-> prevent a buffer overflow when the payload reaches its maximum size,
-> as their sizes are currently calculated from the payload length only.
-> 
-> Even Xu (2):
->   HID: Intel-thc-hid: Intel-quicki2c: Fix buffer overflow
->   HID: Intel-thc-hid: Intel-quickspi: Fix buffer overflow
+> This patch set replace the legacy hid_input_report() with new
+> hid_safe_input_report() in quicki2c and quickspi drivers.
 
-Applied to hid.git#for-7.3/upstream-fixes, thanks.
+Applied, thanks.
 
 -- 
 Jiri Kosina

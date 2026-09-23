@@ -1,149 +1,171 @@
-Received: from mail-yx2-f13.google.com (mail-yx2-f13.google.com [74.125.224.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 547FE37F339
-	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 03:37:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.141
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790134630; cv=pass; b=P/scAyALW+pE+bdlO9EAGEYE3unVI4ZLGk/pVU5EUD3MLaqs3tuyTFdrFaNY9WYFDWjqWOSKRZ8Al9BLEYbZCT3XcBynISpWCZigmZ+3cgPXZFrkpamuGt7malDh/YqdAI9gSBH83D8cJGQGqecVTDOogf/9U7vJvw4b5UFC//o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790134630; c=relaxed/simple;
-	bh=yfqpp8WYOenmjb3oYHuHBnzp/XrvWdHp+mrIFBFp1P0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oufodO5bMkWpQrlLqH1ZjczxaxkJ9IhGxV0DzzPFoXf+X56Ks+AX733d+3n0Sn1vvgp/re8VhGlJm+B2b+gd6On/XLEnf/zx9WjF7VOmxFO2A/82aScdGOXPWMGJcWYfQjxDLH7CuIg2FcErF/uu/f0Gdfoyx8Cf4QOHyXIaBcM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eDIBoSoj; arc=pass smtp.client-ip=74.125.224.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32C923B27FB
+	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 03:41:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790134863; cv=none; b=otMBu0i77UI8JYjz+iVP5AFGUrvQKr6rs/NJTlwwULhJkC/fgXr5MYqE6J5wwuI8J1RPWiso1BpNTGhIkeGwp2bdvr64GzegRLG2oMmtsTLIsosHX8stM0PF5oEo3O2MdWQ+t6qTgMZbMui4CePLANt2qsUlUFeu8a0apbK1oBQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790134863; c=relaxed/simple;
+	bh=Zw1YuiAS0na63NLUFNv8D4pLnD/he3QMQIVjRGhW+mw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=IF8qZ+7VI0VBDvALn7BNgzq0Y4ILDopjFulsiQr2Y9hBd/S9oVNUoOkhuyVZqArsGjPf0Re+UDIB2/IXHgHlX1n/QcxQ1Z8CU6ziRza6RbbkO2YJMEyMH1jg7ERt9rYfcX6tblrhZJTA9vYwmpK11E1caLpS2oayfg3HVS1fqAQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HdJL0jxR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eDIBoSoj"
-Received: by mail-yx2-f13.google.com with SMTP id 956f58d0204a3-66e4aae314aso399575d50.3
-        for <linux-input@vger.kernel.org>; Tue, 22 Sep 2026 20:37:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790134627; cv=none;
-        d=google.com; s=arc-20260327;
-        b=U2A2nDKNJi5Gpu/bU2WvJGg1s7ZAyteiyDPiX+a+legLf/XuC1dHvM2YM37mChtyQL
-         BBBULPBM8QCm4ImvCRc/ypqCvmfp/wAyJ16F+EiCIaTAnpAjpevxct5ox++yFeNYoehW
-         bNo3KP8/mnY2keaaeISfh3ME/Em06XZ8DTKu6+lzAxWH6sIAgx8CRaiyYvVeh5tBDB5L
-         KCXUENNccuKj9/RuOTlBT3FI0EjQzO5qewl++oyqrxPDoBuFveBjk1hAZp0DGvnU5ctF
-         7t6/oiBrRAM81pborYmdzD4HHMl7lhXwkJLODody4t62xMjH4Jd1EuNR90JFQ1smOSjB
-         SPXg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=+ZFmROfgidpQl1un31xXH76vvuzAN+m1uLmNu7y+jkk=;
-        fh=lBthZElrSxSwbOuUrGCLn1OS2KO1r8GnUKv3M3lbXWw=;
-        b=RZzISAPMQZft2sLfwu9sdJcvL80Zb4ho+p+NXWPaXPw5KUf80Kplsnywakk10qrRRH
-         89gfgJKT0rG/SLG5ex0oheZ/FhyxGoT0nftiX11FM9nxYmJjwa26NZyDHgDxaD20AaZl
-         rmKY0I+FB5tHrF9RiR2fTGqCofne7vwLKrbTtv67I5YW0I0+Vx4GDHgJSUCdRwKMASfe
-         ++jK55HCshrOCCBDGiTERL7ROkCyTirBGodXSHgBTl8ecSDD4vifHdScqYjg0CWXL5RV
-         T3pDuid4hhqQAqZjycKKmBiwLfQceciPXJHSDOh5nisbGdHYC/yrqmN4sPMFT+s0m0up
-         IHVQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790134627; x=1790739427; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=+ZFmROfgidpQl1un31xXH76vvuzAN+m1uLmNu7y+jkk=;
-        b=eDIBoSojFqTGVFJSfpyI+dgrVgJ+kbpRm8SU7quzy3mtWIaJZUcTEArA5PiD0OXPtA
-         qM3yyS8ekPeyyl96ZoemqcL3PX6cxDYD2orEt4+EwXzzZM3LVWyO9xzWPULcGLbMPrK7
-         MVf04tgbehhhT2EkzHQx8jbsHEGOIeDqXxD4dRaMtK4SuZwd+pew/FM05mGmdkbYizSe
-         TIAp+6/Qlvuuqd9MeFq8ZK53c5a2GPdJH80phkvoV/0FwJt9No1jzw+FqBT6F2iABMW8
-         Sie1Db2lZxDLs5f7uLQt9KV2Poc7X/qJelP/4vqatL81y1r9M74FE7ZYT6fITAQMnUN0
-         jqXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790134627; x=1790739427;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+ZFmROfgidpQl1un31xXH76vvuzAN+m1uLmNu7y+jkk=;
-        b=l4WZFZmYFlcUfqaAnUgeXzTKCXmGVVCAcQc7r54KXtsYBGfZMvIKx8ucwQfIYy/xDJ
-         /6cYRwLD4JszIH9hnKoTHVg/wl+hu0Cq3PkyByopvAJuS5Z0vNBqSAZruc4l9Z0/DT47
-         q4MeNtgjx1chmvU2dyfchDghAcCWHq3mJOZd2JBpS1S2PnydwIkNg4ugTdMb8Vgu/THM
-         Fzdw1lgXEaGsbya5eWvaTN+6FJaW/k2DTDayFYYXCyrIOIpB0ct9gooxI/ubUVinnuiC
-         JoiuiquElveJEmKfjoiiYAAs3b+TI9HLzIbOLYMjyQG42owIT1PYcNs0/ieW5Kp7wgvc
-         zW3w==
-X-Forwarded-Encrypted: i=1; AKwUvBy8ScAndCIrB/KR7QGEaz99gZRO9CFAO+qi7MTrDvocBrcQDybHWyJApecJdHR8/eaMB0GM+hmFEMQuww==@vger.kernel.org
-X-Gm-Message-State: AFuF++kBK8bELOLGoSILUSc2O58cGa6kmD4qbGtKI4dT4Pzl29JGTP6r
-	te4gHpDzusDWMJMMeTf5oCl/vluPJB5qTiK6ey//rNEZknJnZXW/B6InqLyB9HX4DK2zG11UvH5
-	TwsVuxdtvLfU2Vlf6EWZwfYA2mz7W8kjMbO2n
-X-Gm-Gg: AYBFou0CNaMwVuNLkVUMJUgCEMSKNcbaozU1HR+3VZ3iy+m3UrEL0GSqqSTBu6l/193
-	ny+F2S17F1Ziu8T4k2Ui+Qn8S/rh47X0RNkPrLXQKDBkd6vKtGDLQFyoX08/B24nea/18wqgBuc
-	R33Zq2pVMtxaJqw7BakEtMZIXO2dXasPwL97Pi8yPsm5BKi5LWc3usX5FB3e4OoFt+fG2HFMQ4x
-	pkcdPHKXRk257MlW0cfCSNSHWdhGdXaydgNT81mGhLprAA9y8Z9kFSwfaNWavuq9ga+XE0GcCws
-	oyAYEjXbZETtrqnBcJUt6E0f4sKIINF9nsUps7O1TId7UuwEfg1Xtn6LythMjNd56HtK9IZ/CSN
-	dUw7dwhImo1hrCbbkhAmd/Ifl5YH20RsdYqlCc54/bMJ0ONKjb8hqJQ==
-X-Received: by 2002:a05:690e:813:20b0:66f:7d56:cf77 with SMTP id
- 956f58d0204a3-672d578ffd7mr617427d50.26.1790134627332; Tue, 22 Sep 2026
- 20:37:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HdJL0jxR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92D691F000FF;
+	Wed, 23 Sep 2026 03:41:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790134860;
+	bh=K4Oi9UnzIUX4y6F48NIPKHeAf7XUo62qmH7d5OCW3EY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=HdJL0jxR0i2Jiz3akTDDCT6zFN1ckCnOfrHowNQ6yhKy1N6xt6NwtseTLw7lD4AZ0
+	 fajsv/tnmW0PCTP4snkYAB6LVWoLvNdtNaWDWKO2btNbvGXTRT9+HYVgCxgr1/ZQDK
+	 xSow3c2zrITCKdx95yaGnsT+sqnCqm7xeBzPWrC4GDMdWpKPqSv+tzKxDgSdDaRfKC
+	 qXN87pXv2ZT66XF8Rkvh2GlQQBaW9lPpTvFsYiKd8FhJ/caz3l9MHim9+/q+JQBFFg
+	 Otut5R3dZ46xxSYw9DavqEVreUQGGwg2CX2z/ZoBfKSqtT/LC5SUHTg/xXvdaFx76V
+	 fEWtxPHAEpmWA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: playstation: Fix DualShock4 dongle hotplug work
+ use-after-free
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Fan Wu" <fanwu01@zju.edu.cn>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260923032634.417433-1-fanwu01@zju.edu.cn>
+References: <20260923032634.417433-1-fanwu01@zju.edu.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 23 Sep 2026 03:41:00 +0000
+Message-Id: <20260923034100.92D691F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260806080018.10050-1-kartikey406@gmail.com>
-In-Reply-To: <20260806080018.10050-1-kartikey406@gmail.com>
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-Date: Wed, 23 Sep 2026 09:06:55 +0530
-X-Gm-Features: AcwNN1UgAdWRW0CPTd0_d3jSSC0DEL0l0d8D5ZdtmqlAgKIGlSvpt7WCNa3r8tk
-Message-ID: <CADhLXY4_jL0b5P+7_vHBdkGeNRAYJN4MFEPSoV2fyMdAKHWAHQ@mail.gmail.com>
-Subject: Re: [PATCH] Input: sur40 - fix use-after-free in sur40_open()
-To: dmitry.torokhov@gmail.com
-Cc: kees@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 6, 2026 at 1:30=E2=80=AFPM Deepanshu Kartikey <kartikey406@gmai=
-l.com> wrote:
->
-> If any of the registration steps after input_register_device() fail
-> (v4l2_device_register(), vb2_queue_init(), ctrl handler setup,
-> video_register_device()), the error path frees sur40 via
-> input_free_device() + kfree() without ever calling
-> input_unregister_device(). Since the input device was already
-> registered, it remains live and openable, so a racing open() (e.g.
-> from udevd) can dereference the freed sur40 via sur40_open().
->
-> Split the unwind so that once input_register_device() has succeeded,
-> the failure path properly calls input_unregister_device() before
-> freeing sur40 and its buffer.
->
-> Fixes: 08b936012964 ("Input: sur40 - switch to using polled mode of input=
- devices")
-> Reported-by: syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3D683f6c071b5abfc266c1
-> Tested-by: syzbot+683f6c071b5abfc266c1@syzkaller.appspotmail.com
-> Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
-> ---
->  drivers/input/touchscreen/sur40.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscree=
-n/sur40.c
-> index fe63d53d56db..b0958422ff76 100644
-> --- a/drivers/input/touchscreen/sur40.c
-> +++ b/drivers/input/touchscreen/sur40.c
-> @@ -808,6 +808,10 @@ static int sur40_probe(struct usb_interface *interfa=
-ce,
->         video_unregister_device(&sur40->vdev);
->  err_unreg_v4l2:
->         v4l2_device_unregister(&sur40->v4l2);
-> +       input_unregister_device(input);
-> +       kfree(sur40->bulk_in_buffer);
-> +       kfree(sur40);
-> +       return error;
->  err_free_buffer:
->         kfree(sur40->bulk_in_buffer);
->  err_free_input:
-> --
-> 2.34.1
->
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] hid: redundant synchronization due to false-positive race
+--
 
-Gentle Reminder. Please let me know the status of this patch.
+commit 13619e48822a1be542eef83182d65e856c6ee40b
+Author: Fan Wu <fanwu01@zju.edu.cn>
 
-Thanks
+HID: playstation: Fix DualShock4 dongle hotplug work use-after-free
+   =20
+This commit attempts to fix a use-after-free issue by adding synchronization
+state (dongle_hotplug_worker_initialized) and clearing it during error and
+teardown paths. It claims this prevents the raw_event handler from scheduli=
+ng
+work concurrently during probe() and remove().
 
-Deepanshu
+> HID: playstation: Fix DualShock4 dongle hotplug work use-after-free
+>
+> dualshock4_remove() cancels ds4->dongle_hotplug_worker while input
+> reports can still arrive: hid_hw_close() and hid_hw_stop() only run
+> later in ps_remove(), so a dongle connect report in that window makes
+> dualshock4_dongle_parse_report() schedule the just-cancelled work
+> again. ds4 is devm-managed and freed once ps_remove() returns, so
+> dualshock4_dongle_calibration_work() then runs on freed memory.
+>
+> The dualshock4_create() error path has the same exposure. Reports are
+> already flowing when it runs, because ps_probe() starts and opens the
+> device before creating it, so the connect branch of the dongle report
+> handler can also queue ds4->output_worker through its lightbar update.
+
+Is this race actually possible?
+
+Looking at the HID core, __hid_input_report() uses down_trylock() on
+hdev->driver_input_lock and drops incoming reports when the lock is held.
+
+During initialization, hid_device_probe() acquires this exact lock before
+calling the driver's probe function (ps_probe()). The driver never calls
+hid_device_io_start(), meaning this lock is held for the entire duration
+of ps_probe(), including all of dualshock4_create().
+
+Similarly, during teardown, hid_device_remove() acquires this lock before
+calling the driver's remove function (ps_remove()), meaning it is held
+for the entire duration of dualshock4_remove().
+
+Since dualshock4_dongle_parse_report() is called from the raw_event
+handler, which is fed by __hid_input_report(), it cannot execute concurrent=
+ly
+with either dualshock4_create() or dualshock4_remove().
+
+> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+> index f9dc9378cf777..1b7a18fbeeb4b 100644
+> --- a/drivers/hid/hid-playstation.c
+> +++ b/drivers/hid/hid-playstation.c
+[ ... ]
+> @@ -2618,10 +2619,12 @@ static int dualshock4_dongle_parse_report(struct =
+ps_device *ps_dev, struct hid_r
+> =20
+>  			dualshock4_set_default_lightbar_colors(ds4);
+> =20
+> -			scoped_guard(spinlock_irqsave, &ps_dev->lock)
+> +			scoped_guard(spinlock_irqsave, &ps_dev->lock) {
+>  				ds4->dongle_state =3D DONGLE_CALIBRATING;
+> =20
+> -			schedule_work(&ds4->dongle_hotplug_worker);
+> +				if (ds4->dongle_hotplug_worker_initialized)
+> +					schedule_work(&ds4->dongle_hotplug_worker);
+> +			}
+
+[Severity: Medium]
+Does this flag check actually do anything in dualshock4_dongle_parse_report=
+(),
+given that this function cannot run concurrently with the teardown sequence?
+
+>  			/* Don't process the report since we don't have
+>  			 * calibration data, but let hidraw have it anyway.
+[ ... ]
+> @@ -2677,8 +2680,12 @@ static void dualshock4_remove(struct ps_device *ps=
+_dev)
+> =20
+>  	cancel_work_sync(&ds4->output_worker);
+> =20
+> -	if (ps_dev->hdev->product =3D=3D USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONG=
+LE)
+> +	if (ps_dev->hdev->product =3D=3D USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONG=
+LE) {
+> +		scoped_guard(spinlock_irqsave, &ds4->base.lock)
+> +			ds4->dongle_hotplug_worker_initialized =3D false;
+> +
+>  		cancel_work_sync(&ds4->dongle_hotplug_worker);
+> +	}
+>  }
+
+[Severity: Medium]
+Does clearing this flag in dualshock4_remove() prevent a race, or is the
+incoming report path already physically blocked by hdev->driver_input_lock?
+
+[ ... ]
+> @@ -2858,6 +2868,18 @@ static struct ps_device *dualshock4_create(struct =
+hid_device *hdev)
+> =20
+>  err:
+>  	ps_devices_list_remove(ps_dev);
+> +err_cancel:
+> +	scoped_guard(spinlock_irqsave, &ps_dev->lock)
+> +		ds4->output_worker_initialized =3D false;
+> +
+> +	cancel_work_sync(&ds4->output_worker);
+> +
+> +	if (ds4->dongle_hotplug_worker_initialized) {
+> +		scoped_guard(spinlock_irqsave, &ps_dev->lock)
+> +			ds4->dongle_hotplug_worker_initialized =3D false;
+> +
+> +		cancel_work_sync(&ds4->dongle_hotplug_worker);
+> +	}
+>  	return ERR_PTR(ret);
+>  }
+
+[Severity: Medium]
+Since hdev->driver_input_lock is held throughout dualshock4_create(), are
+these flag checks and locks on the error path protecting against a race that
+is impossible to hit?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260923032634.4174=
+33-1-fanwu01@zju.edu.cn?part=3D1

@@ -1,131 +1,126 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6A27361974;
-	Wed, 23 Sep 2026 07:12:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 383003ACF1E;
+	Wed, 23 Sep 2026 07:45:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790147567; cv=none; b=NuTBcnO3JBDugTcjI1RZ8M7QpTxfvGWgDaAJXkxjJ7jNj6MznOmZkx3q85KRgV8fTp/IAjc71M88PwWbk7I8uAMqQiDtL1LM+3A6sUdUayyO0bthZD4uX1/VOtgeZcMPpycia8/I4ZatQm5PYeHMOlfSiCeS3g1uwzSP9bIJ6tA=
+	t=1790149509; cv=none; b=gBA5uHXxMhhDWardZduitKo5k68LF9cAxoKYOLKmJsL8ugQJvTLQKXhPewSlSyqGiWEaNmKlRF9pA66WLIoBnEfJ9O6TguCf30bZwGIGLK7BROjHB7WkFX57vsaNkCOz9vIy3sx19ysc+B7tBkgw7o1MH9QLio3EvHO411TXU54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790147567; c=relaxed/simple;
-	bh=L36iXjmgeLF9QB4QbihxTNoFK3jgnto30OAu5YXot88=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=fLhawsO9yJ/B4iQOSFRmjOo9JTz6IDUBSy/hWyUNki30Syt9WEj2gYZIelYxovUvScdQ8bQh24VHnDQq1uBUPsZ2TcxFg17N6i4G/xk5bK1uwLWUG+u9qDxNQdadLKK0vM6hfi9zRST+6fgfThW6eGTulot5FYbYRvhyvkbkuiQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ApXfAf2M; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790149509; c=relaxed/simple;
+	bh=KOlVkCkMG52lIGkn+AVcCgPCQVuaMWrXTRtmM7s6lg0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dFvW+2lFLAswhJzGwMLX6ElFMLvTPxzxguBKYQ2PtpOtmEuxAxbNxIqUDXzjvdp9EHlvNXWepvOB36qMBGL+A24jF8rOCEGSIZ2miaXU8aMS5HiGq3Od61PmNAbAUE9dOSTLf6L/r7iNrCreeYBfj/+D49PvpPnJRy19E5sonh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=byLpmEDO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ApXfAf2M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161FE1F000FF;
-	Wed, 23 Sep 2026 07:12:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="byLpmEDO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 835DA1F000FF;
+	Wed, 23 Sep 2026 07:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790147566;
-	bh=K5jrxZI/CMJF7j8AIaM1EPKSYzwwFdDhFbqtLb87WN8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ApXfAf2MRsoKM8IKa9WL2hIGzuzWcN+jST+bsOkIDxtqVH9OOxZCBylFAoz0NK/no
-	 +o1xTc/EKq9O2BuLoels44DemBeZvRNKjM88jkbGLIDfwDSeiTA8OYeeSaGQX9YSnG
-	 vA9v4NaeEhRaknkUUexvf0dNuh5sT/UnXAH/S4pxtceNjjXVdLNgFl5873Ff8Os7BC
-	 G28TypZO1/bidQs5Ecr71/9ZOMCfA0qS8N8sShMxfXJDtv6tFseoyPBBhOhPb0DYZE
-	 7dmBmupxFiyFy0bLTSFNLHw/53DT30+SJ3RZpFvTwYu1XcC7q1xTJZ70JN8MJ28q1f
-	 +vlNSZzEtaS9Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: bpf: add __counted_by_ptr attribute to
- device_data
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bill Wendling" <morbo@google.com>
-Cc: dmitry.torokhov@gmail.com, bpf@vger.kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260923065612.2707049-1-morbo@google.com>
-References: <20260923063114.2683575-1-morbo@google.com>
- <20260923065612.2707049-1-morbo@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 23 Sep 2026 07:12:45 +0000
-Message-Id: <20260923071246.161FE1F000FF@smtp.kernel.org>
+	s=k20260515; t=1790149507;
+	bh=slpN7u/BJGqHWMqAK68jqa9z5AbbpMUx92/kMI3bVO0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=byLpmEDOqHvxCmLbF/IxVqARQ1P0jdnuc1XCa1PcGQbhyvpO5q1l9BE3pXBlWd5si
+	 +O0BOQCSBDlmzSWTJZMtzOLQLIcNiH9qkJA3VQgRY792MuLY9rcxmcpbfPOLv6B2XR
+	 +zF3TS9bPqgvI1wixqMBNn8bs+EzPmzOyzJB3YFPD4bosFQsY3mjYQXWNWkUKh23Gv
+	 M6OnhVpSzM+mKo/lwr3EO1hsef0jzWMcHmJ0e6QeNdyX+mARp1dsUAX9K1Px+t7Chb
+	 MPgUIsXg8XPTgZDeTHUl/cGe9zbyECPy6C/fzzGMlnyXWr1IfUoHcy84CAD2huakh4
+	 5e0I0w9QR0JUw==
+Date: Wed, 23 Sep 2026 08:45:03 +0100
+From: Lee Jones <lee@kernel.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org,
+	stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
+Subject: Re: [PATCH 2/2] HID: wacom: Setup SW_MUTE_DEVICE according to the
+ order of input registration
+Message-ID: <20260923074503.GD3438784@google.com>
+References: <20260922210527.22420-1-ping.cheng@wacom.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260922210527.22420-1-ping.cheng@wacom.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] hid-bpf: kernel panic in FORTIFY memcpy due to lockless allocation=
- race
---
+On Tue, 22 Sep 2026, Ping Cheng wrote:
 
-commit 146c59142d1d9271032a5ce18e55e70b22ecb2ec
-Author: Bill Wendling <morbo@google.com>
+> From: Ping Cheng <ping.cheng@wacom.com>
+> 
+> The refactored SW_MUTE_DEVICE code assumed that stylus will be
+> the first regiestered input. In reality, touch can be registered
+> before stylus, such as the Wacom Cintiq Pro 13 and 16.
+> 
+> This patch covers both touch-first and stylus-first cases.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: ba16e5ffbaa1 ("HID: wacom: Advertise SW_MUTE_DEVICE capability prior to registration")
+> Reviewed-by: Lee Jones <lee@kernel.org>
 
-HID: bpf: add __counted_by_ptr attribute to device_data
+I did not review this patch!
 
-This commit adds the __counted_by_ptr attribute to the device_data field in
-struct hid_bpf, pointing to allocated_data. It also swaps the assignment or=
-der
-of size and data in __hid_bpf_allocate_data() to ensure the buffer size is =
-set
-before the pointer.
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+> ---
+>  drivers/hid/wacom_wac.c | 22 +++++++++++++++++++---
+>  1 file changed, 19 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index c4cd87b781c4..9520296cb349 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -3977,10 +3977,12 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+>  
+>  	if (features->type == HID_GENERIC) {
+>  		hid_dbg(hdev, "generic touch setup\n");
+> -		if (wacom_wac->has_mute_touch_switch ||
+> -		    (wacom_wac->shared && READ_ONCE(wacom_wac->shared->has_mute_touch_switch))) {
+> +
+> +		/* setup touch switch for those devices that report pen interface first
+> +		 * can only be done here since we only call this routine once
+> +		 */
 
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
-_dispatch.c
-> index d46779b63660b..fb302d0b97970 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -255,8 +255,8 @@ static int __hid_bpf_allocate_data(struct hid_device =
-*hdev, u8 **data, u32 *size
->  	if (!alloc_data)
->  		return -ENOMEM;
-> =20
-> -	*data =3D alloc_data;
->  	*size =3D alloc_size;
-> +	*data =3D alloc_data;
+This is the incorrect multi-line comment format.
 
-[Severity: High]
-Does this lockless assignment guarantee that the reader will observe
-allocated_data being set before device_data?
+Sentences start with uppercase chars.
 
-Without memory barriers like smp_store_release(), the CPU can reorder these
-stores. Concurrently, an incoming HID report triggering
-dispatch_hid_bpf_device_event() can read these fields locklessly without
-smp_load_acquire().
+> +		if (wacom_wac->shared && READ_ONCE(wacom_wac->shared->has_mute_touch_switch)) {
+>  			input_set_capability(input_dev, EV_SW, SW_MUTE_DEVICE);
+> -			wacom_wac->has_mute_touch_switch = true;
+>  		}
+>  		/* setup has already been done */
+>  		return 0;
+> @@ -4403,7 +4405,21 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
+>  		break;
+>  
+>  	case INTUOSHT3_BT:
+> +		break;
+> +
+>  	case HID_GENERIC:
+> +		if (wacom_wac->shared) {
+> +			/*
+> +			 * setup touch switch capability can only be done here
+> +			 * for those devices that have touch input registered
+> +			 * before stylus and pad inputs.
 
-If the reader observes device_data !=3D NULL but allocated_data =3D=3D 0, c=
-an it
-lead to a fatal FORTIFY bounds check panic here:
+It might be worth explaining the limitation.
 
-drivers/hid/bpf/hid_bpf_dispatch.c:dispatch_hid_bpf_device_event() {
-    ...
-    memcpy(ctx_kern.data, data, *size);
-    ...
-}
+What happens if those prerequisites are not satisfied?
 
-Because the __counted_by_ptr annotation statically ties the bounds of
-device_data to allocated_data, if allocated_data is 0, ctx_kern.data would
-inherit a 0 bound. Calling memcpy() to write into it would then trigger a
-kernel panic.
+> +			 */
+> +			if (wacom_wac->has_mute_touch_switch &&
+> +			    wacom_wac->shared->touch_input) {
+> +				input_set_capability(wacom_wac->shared->touch_input,
+> +				    EV_SW, SW_MUTE_DEVICE);
+> +			}
+> +		}
+>  		break;
+>  
+>  	default:
+> -- 
+> 2.55.0
+> 
 
-> =20
->  	return 0;
->  }
-> diff --git a/include/linux/hid_bpf.h b/include/linux/hid_bpf.h
-> index 19fffa4574a47..f45fb9cccece8 100644
-> --- a/include/linux/hid_bpf.h
-> +++ b/include/linux/hid_bpf.h
-> @@ -185,10 +185,12 @@ struct hid_bpf_ops {
-> =20
->  /* stored in each device */
->  struct hid_bpf {
-> -	u8 *device_data;		/* allocated when a bpf program of type
-> -					 * SEC(f.../hid_bpf_device_event) has been attached
-> -					 * to this HID device
-> -					 */
-> +	/*
-> +	 * allocated when a bpf program of type
-> +	 * SEC(f.../hid_bpf_device_event) has been attached
-> +	 * to this HID device
-> +	 */
-> +	u8 *device_data __counted_by_ptr(allocated_data);
->  	u32 allocated_data;
->  	bool destroyed;			/* prevents the assignment of any progs */
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260923065612.2707=
-049-1-morbo@google.com?part=3D1
+-- 
+Lee Jones

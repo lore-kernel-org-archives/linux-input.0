@@ -1,124 +1,139 @@
-Received: from mail-dl2-f43.google.com (mail-dl2-f43.google.com [74.125.229.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95AEE381EBC
-	for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 22:45:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DABF1419318;
+	Wed, 23 Sep 2026 23:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790203532; cv=none; b=UBhHkjadw00SnjHQkAuD+FnkU17GFmG9fVa13zDhI9wAJfuH/CpC9ClOEWgmpyFaZoZ4AJsKaVAuFZc/VkTlDUCyl1SkHgBWQ/7wmuev2YVRB9vVl8yIJIjbULZ1PjYHREe9N3K3kEPPwazLYYOoAyI29PbXqsCNHGkoTy2rVTM=
+	t=1790204575; cv=none; b=PTjAmDeLfCJYoUTEudGWuv242TjTRuwvR4DrwF56sRsgiYOdjw7FdH62g8tOgswrvUpHN6MHJePcpcbrcuXiA9iGFk377HlSd7tIGoJ59M4XXU5gp63K2i/g2wYBJDb6MFK7MnJEVQHdbSlgHsYH0lRUVNvb7caToP3AoYu3/wc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790203532; c=relaxed/simple;
-	bh=tWVcT6JwHJnc3d53UK7tUHvXHwCvOt2tIFjp3h4BWSs=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=PiIuimDkAWzT71p3MDNByRuvgPdC9kjNtn+0u3RMUHUDHIRI8SFFKwYFCzAhSBT/hRhHBTLGCdOoT7NNjSVx781I9VOFXmhdy6VKUZ65F5CjRBKMIkuDnq9MvzOAJAPa2ys9QuQ+Wd+yMEk4sLnDd3qNeCjAQQqFiT/gPr4CWHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cy66AtbU; arc=none smtp.client-ip=74.125.229.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790204575; c=relaxed/simple;
+	bh=uAugRGH16wsmxqcx1FqDZnuGBAp7pwo//J+Mwq4oFEc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=osaonTi76xgyZ4+PcZVO7ZdrnIocsnPMsZfHYFBqTdtDWpyPp86Z5Xls0ftKoEXgrMaMlTBopyHUh9Dlpd5cAisboKgU0ir35pf4DjgOoRx3tuifz35aPUU99u4MUYN8VPujixYuw4rguxHdJAA4RuW6hrSYvTmI+pQ9oJoJISM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ixPri4BZ; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cy66AtbU"
-Received: by mail-dl2-f43.google.com with SMTP id a92af1059eb24-143880e27dfso402820c88.1
-        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 15:45:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790203529; x=1790808329; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=tMHazq21ogGHqSDoBKzZAYFbxPofg+lpr7Oo8QXp/yQ=;
-        b=cy66AtbUJ1VkhLXnQaKRmtCBBoshqlI5ak+MjPdXfk+pX9Uv/pcaiLA2fuJC/C0u3O
-         +SMUB3SWO7nJyBmJfJZmcsUWpPUrhAhGyPW5ZMqUWL8qMHijq1dy8tzjVy5FBo9TxYLH
-         rpBPwmP7gWRax1WTlPqm3Po22hlUvO0Zy/C/XQdXQI18ulFQ9IwMia49aoubG4HCA83Y
-         kxmevIpsnWdLuoeQil82/rvFaBZ8MEuIZxrjm5RyI/j0+5xDhUVJRaFX4uT1WhgfuXOh
-         xmcH9kfY1C4MjOb3oNuUdOcZmMgJS2vMG+gkzzEJ32APi6y56R5kLV6qCnTMCmQ1SoeD
-         YnLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790203529; x=1790808329;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=tMHazq21ogGHqSDoBKzZAYFbxPofg+lpr7Oo8QXp/yQ=;
-        b=xF68aQRfyJyUErDg7H7V8+Gcdi1J43qEd577s19xtKDnrpllAnTwh5R/9YIuKy1qRt
-         IYIV6vUQctslvZbonpCxU56NJ4Cel6XpNc4j3f491BlrBmaqibmt6OITeCDFwyIjv+yp
-         C0W/G18XpDmYJOrGN0wktJou6VDJj5r+HzRxVTUmjyf0mwEzt+ymy2GbKcAqQERBKWGO
-         7AdeT7VEdqn+Rmo1AN9MM419kS2/bjueP/qh1up4Jrnfvvhr0MBYqyDiLY4JS6jOItPj
-         FxhqRBbmUuz7SFjw7DrJOfAe3bN37/bTOkiixXHDclP5jur31UhpPabIZbhwSdJ1WWCr
-         anMg==
-X-Forwarded-Encrypted: i=1; AKwUvBysxw5SmEjFJ1I9IZOYCmMZ0Q5Ocao6z8z15o33dptu0V7URzpUXLdQPbA9fn7mhZk198V5JaSurLY2zQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++mbOzL2JC790aW+DuDu0sMwOS/m6V05kk4xNXJE7kG3y1GHA2hd
-	cHzjPiLyqm7MdGuoknzs1Vbm0BoDcQ/P5oHsn7/KD6E7vVmhj8aVRrbHfpJZag==
-X-Gm-Gg: AYBFou0RZB8CjBiVAF+NXFG3KVLAhVNxDi9iTn8ZeCrNEwSlOa6HJwUmplNJlekx1uh
-	hkeEXIVSi4I9HEfKHDWp4/LfrYDYVtvksDJaPIGsyY3hrXMmJMPlm+r7lJAH3WE1xlYRb0thnR1
-	v+ZBVK6RODpra+85hF/oPqxIBcnZ/JHlzaDd0RAcRJka/XqiWEyxdP/gwJLvFz8Iq0CdcbcFUwz
-	ZtWYEEFUwKf02+vi3KwS63a7IzAO11qT+p28Uts2DuaFJ1gqZ5qUzKM13Ztd61XRL2TDWIoI+p2
-	LbMENRzQGeF2PWLyS8ErZvTP83F6GNlRXO5ZUXDcYZ/P+kFdsTdeormM3pnkGujgUHLjDSbdhqL
-	BWpTo/Hli3F4ol8zXjdo02+EmdTWH0I12MAvK5l2R+3djjNBw4cD6LeWFwUEPcigicr5KVCw8nE
-	IOneguzhca7ycLYh9EJX//cGIKBGg3+wItVCb2ouyX65m4Bp3PJPeM3aKFy1iDFowr4m8rdJfOj
-	eYjhXsuTpbFeU75utpZJ/EW0Hh3eb6TgeLbjE+YGfKPFrIfmLF2T9FZgKfFlW8msapU
-X-Received: by 2002:a05:701b:4286:10b0:143:2968:564d with SMTP id a92af1059eb24-14503fde4dcmr416556c88.27.1790203529383;
-        Wed, 23 Sep 2026 15:45:29 -0700 (PDT)
-Received: from ehlo.thunderbird.net (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-144f9877462sm7915545c88.10.2026.09.23.15.45.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Sep 2026 15:45:28 -0700 (PDT)
-Date: Wed, 23 Sep 2026 15:45:28 -0700
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: Aditya Dash <mradityadash@gmail.com>
-CC: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- Mark Pearson <mpearson-lenovo@squebb.ca>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v3_5/7=5D_HID=3A_hid-lenovo-go?=
- =?US-ASCII?Q?=3A_normalize_calibration_failure_status?=
-User-Agent: Thunderbird for Android
-In-Reply-To: <20260923211458.32755-1-mradityadash@gmail.com>
-References: <836F1B09-60CA-4A82-8293-0F9CF506E593@gmail.com> <20260923211458.32755-1-mradityadash@gmail.com>
-Message-ID: <71564420-F3C8-4963-82B4-D23A6815D688@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ixPri4BZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1790204573; x=1821740573;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=uAugRGH16wsmxqcx1FqDZnuGBAp7pwo//J+Mwq4oFEc=;
+  b=ixPri4BZezrLPEz+VC621Fd3eEGzfJT+ZqKyjz2cqtkY8WPDGs8CaevH
+   44g+g9Y3sYlL1LKuk0CapiBrDjWpumu5lkTkhmE0nTkuymnvnEuqQLHYR
+   Qtxhn0GbmSvW8xnqmXXxoiyekaDeTSfnamQKN3GQQs1hkObs30S4RnAxe
+   331CQknl/224c8gwh24UQbT4lNYoLqnmd+IUXCP37CsOGl2+iGBmVKPHs
+   phgVjjQSCj14zujYU3Ls6F+KNwGp32H5orujWMEbhmiXfu3+Kq6N+SQrv
+   8JS2Lh7X3STXL6G3xnmwrk54nxGM5Qo2cTinC6iZMOWUSBRuTPTInXqrJ
+   Q==;
+X-CSE-ConnectionGUID: l9VdUJWHQzKQ/TIPL4bg1Q==
+X-CSE-MsgGUID: MRzI7J98TmGw5pMcjQzaeQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11914"; a="93454287"
+X-IronPort-AV: E=Sophos;i="6.27,119,1787036400"; 
+   d="scan'208";a="93454287"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2026 16:02:51 -0700
+X-CSE-ConnectionGUID: oPAwhSaNQ8OV80vqHZFIwg==
+X-CSE-MsgGUID: tpjFAtejQumZhlCrR36mjQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,119,1787036400"; 
+   d="scan'208";a="273998590"
+Received: from lkp-server01.sh.intel.com (HELO 462990a40a85) ([10.239.97.150])
+  by fmviesa008.fm.intel.com with ESMTP; 23 Sep 2026 16:02:49 -0700
+Received: from kbuild by 462990a40a85 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1x9VzC-00000000HvW-2OuA;
+	Wed, 23 Sep 2026 23:02:46 +0000
+Date: Thu, 24 Sep 2026 07:02:33 +0800
+From: kernel test robot <lkp@intel.com>
+To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com
+Subject: Re: [PATCH] Input: serio - don't sleep on serio_mutex from
+ drvctl_store()
+Message-ID: <202609240622.tn7TrVy2-lkp@intel.com>
+References: <20260919124604.210505-1-ngocthang2710.1999@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260919124604.210505-1-ngocthang2710.1999@gmail.com>
 
-On September 23, 2026 2:14:58 PM PDT, Aditya Dash <mradityadash@gmail=2Ecom=
-> wrote:
->Hi Derek,
->
->According to my observations, data[1] seems to give the correct status
->instead of data[0]=2E
->
->device_type in cmd_rep seems to indicate the left or right controller, an=
-d
->data[0] the calibration device (gyro, joystick, or trigger)=2E
->
->To validate that, I ran the left gyro calibration on my Legion Go 1
->and failed it on purpose=2E
->
->Here is the raw data alongside cmd_rep, its contents, and data array
->
->  raw        04 00 a0 02 03 01 02 01 00
->
->  cmd_rep    report_id   0x04
->             id          0x00
->             cmd         0xa0
->             sub_cmd     0x02
->             device_type 0x03 (left controller)
->
->  data[0]    0x01 (gyro)
->  data[1]    0x02 (failure)
->  data[2=2E=2E3] 0x0001 (reason, little-endian)
->
->Reading data[0] as the status would report this failure as success=2E
->
->Therefore I lean towards keeping it as is=2E
+Hi Nguyen,
 
- Okay, Sounds good=2E
+kernel test robot noticed the following build errors:
 
-Thanks,
-Derek
+[auto build test ERROR on dtor-input/next]
+[also build test ERROR on dtor-input/for-linus linus/master v7.3-rc4 next-20260922]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
->Thanks,
->Aditya
+url:    https://github.com/intel-lab-lkp/linux/commits/Nguyen-Ngoc-Thang/Input-serio-don-t-sleep-on-serio_mutex-from-drvctl_store/20260919-194604
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+patch link:    https://lore.kernel.org/r/20260919124604.210505-1-ngocthang2710.1999%40gmail.com
+patch subject: [PATCH] Input: serio - don't sleep on serio_mutex from drvctl_store()
+config: x86_64-kexec (https://download.01.org/0day-ci/archive/20260924/202609240622.tn7TrVy2-lkp@intel.com/config)
+compiler: clang version 22.1.3 (https://github.com/llvm/llvm-project e9846648fd6183ee6d8cbdb4502213fcf902a211)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260924/202609240622.tn7TrVy2-lkp@intel.com/reproduce)
 
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202609240622.tn7TrVy2-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> drivers/input/serio/serio.c:361:38: error: call to undeclared function 'restart_syscall'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+     361 |         scoped_cond_guard(mutex_try, return restart_syscall(), &serio_mutex) {
+         |                                             ^
+   1 error generated.
+
+
+vim +/restart_syscall +361 drivers/input/serio/serio.c
+
+   353	
+   354	static ssize_t drvctl_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+   355	{
+   356		struct serio *serio = to_serio_port(dev);
+   357		struct device_driver *drv;
+   358		int error;
+   359	
+   360		/* Port removal holds serio_mutex and drains us: don't wait for it. */
+ > 361		scoped_cond_guard(mutex_try, return restart_syscall(), &serio_mutex) {
+   362			if (!strncmp(buf, "none", count)) {
+   363				serio_disconnect_port(serio);
+   364			} else if (!strncmp(buf, "reconnect", count)) {
+   365				serio_reconnect_subtree(serio);
+   366			} else if (!strncmp(buf, "rescan", count)) {
+   367				serio_disconnect_port(serio);
+   368				serio_find_driver(serio);
+   369				serio_remove_duplicate_events(serio, SERIO_RESCAN_PORT);
+   370			} else if ((drv = driver_find(buf, &serio_bus)) != NULL) {
+   371				serio_disconnect_port(serio);
+   372				error = serio_bind_driver(serio, to_serio_driver(drv));
+   373				serio_remove_duplicate_events(serio, SERIO_RESCAN_PORT);
+   374				if (error)
+   375					return error;
+   376			} else {
+   377				return -EINVAL;
+   378			}
+   379		}
+   380	
+   381		return count;
+   382	}
+   383	
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

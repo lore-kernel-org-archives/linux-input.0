@@ -1,141 +1,126 @@
-Received: from mail-pj2-f43.google.com (mail-pj2-f43.google.com [74.125.227.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CBF63B5854
-	for <linux-input@vger.kernel.org>; Thu, 24 Sep 2026 04:33:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C0C338A720;
+	Thu, 24 Sep 2026 05:34:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790224431; cv=none; b=I9cJL9zvaTf+MNEaL5+D9l0/GKjBkJRoukWGkUos1VTLIVH6raBPDkd4YPmk6PYUlujzlUOfMJlidPmM25jDwchJZJmxpEnR1kfJ4JOKlSMqqJgYmESUeC7N0/xnddtamTJb6p3pYRQ8OBHsPsAg3ruFut3w+qBR6WvWMjg9s18=
+	t=1790228083; cv=none; b=IvdrzQazPCbN4EWB0Sdj1P9H0mEhV91NBOtl338pGGhS3vyYyKU9pn5pKulQbMoIQMmJu7Xv1RZcQfWPFvGWmoHL5YuBKRWpXEUBSsfL0ZU4CEADTddGEwS1LQECuRHRACHkl7raKa/tzs/3+KwrOkkcqcVi7pz7N8Dv8RDhAlQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790224431; c=relaxed/simple;
-	bh=udQ5SvOfEFJRoSpEeM2DTmvXBIixvY25zbrzK65E2+4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CVcIAx074VN1+HKMtNE/RHePPvvo8L94EY/6wYDdklWAtGbnmsWtx6yEMwZsXad28fjIGRqMvAy5jo5Z2uGop6uYePTxkgItENGVmgxUCiR1leMf2edBKzyXv/73OEISEGr62KWLoRc9pWJSZV68IM5R247H7cN/DhrVhJftUMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IIjHevZr; arc=none smtp.client-ip=74.125.227.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790228083; c=relaxed/simple;
+	bh=XcIGfAnJrnYbeHogfOS381lzlAK9XTIRgTSoH7NRArk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=MBLdpZ6fcGH4LDdu5XMNSZcpWKgRkgJLq5NnpkuZnAAIA7TMszYqaRiGVFG62urzR46Ob5QSzX+kkNd43UGMabxSlGtTseZ/bzRLzuhp5REpkG79wq/Rbl6xzCXw8Osve4RK18+eidpTUhguPjxJTy4ECySqYOwJYBv3ZRn7IuQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fwwBjSvG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IIjHevZr"
-Received: by mail-pj2-f43.google.com with SMTP id d9443c01a7336-2db1ca069c8so8586025ad.3
-        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 21:33:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790224429; x=1790829229; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Y4vvzIu3QIeoIKEnWqNtiV06AkWPOeNhNL2yLykrai0=;
-        b=IIjHevZr5JUqk9b2CO56O2f6LcacqkD1hzfcD6CjAA3iaexSZF+QoicphYN8AWyjhh
-         XumI12HVXAar9JpWoe34etpzhjhv1YpjPL0ewRSATlJXdBwBzcYr8ifeZQkzn5nIQ2xW
-         7qB+sC13i9ocED3LXhABxpnHX6brSAaHKo/i4pKv7KriUOENmAezHyFnKPCkZiRvrQWD
-         Z4i5InmMwUJRekR7wN1rKzi39s3IVCDtBDIeMT6M9VOvD9TGvwG3iia0R4EMVLao1Ln/
-         fr59vuKnNUbQMiG1P+I4xMSYuF2Hh0wcUSRBP0mYYe+g3AOKuDykuJx6GkO59/uzeDWQ
-         +Zyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790224429; x=1790829229;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Y4vvzIu3QIeoIKEnWqNtiV06AkWPOeNhNL2yLykrai0=;
-        b=nv/7S1/conukngqJ8tvQFLhfNG00+fe7uPptFqHC9gdZXVVdT77o5ZNrcvNjXEm5mp
-         8C3gfw160txTTwkG376ifzW98LYdEY7IhDAOkM3E23Xbsil80lFqhZNzx1lw8HVzh8kt
-         t0p4AF3JFab/4YWqFm3bDRqFDKQM091tvZLyPr29OXXjZUf4PB3w8bxJ+c48k7+RBXEw
-         Lw9TKzuIwiNDmUQwnOi+28gIPzDENW/zM8qwevZpMNAD4iZEfqKNdQUPNYIBC1k1yPeX
-         BP0vo8ePOF2mhL8bMOtW0ysAazSX1PTv0XPs4Hncf3TgklszK6gUpyxShUktuidfT7Bm
-         N2Qg==
-X-Gm-Message-State: AFuF++k214lJzrLwHLP7vzezK0RibNYV3Mn/g4SxRHPy1csrNOjiKQ46
-	ySVEFkyng2zwjJ2jyoYOwTsrhgbvvzb2SsgCCx9e4nL+9iv6jxoetwOH
-X-Gm-Gg: AYBFou0lBWYekMjNG9uS71Ix/ZSUnGw9E8wflvCgPB0gKNGmDjKlv0Hmg0ddgR3HG/t
-	Csa22mCuFiBQiyHWtI9y0Gc8bmcFiRuiyu7pLaIGfVrl8m7C0sOpvbPdrtzx0aVEh+NxdATMEL1
-	6ROIVxgosKOY58AlMTn+v4iMRzRvr/5/kUMu+Uw4QClOt9EFJhh1LCfA1kYGwvwn1EY663XBXCH
-	JGrMKVFLEPNItBHQr8cd7wIg5TF1dJ2RMwWhz+B41sTIfRv6hp93AO0j8qDKBAAkR7WU8/xjnK/
-	Tehq5cUySNBlxjmT241aMfhh3e+sY/Ae1fcIQ8XFoLIeUq0wDGApiww59hsicfA7cSEtqkewLYj
-	2PUtkCdSYqDGgmbJEGhRvAx5VwMoZ3XwpEZ0pzNY5G2msW7dY0z5VVqgqEmA0fuPXdTCzOnZruS
-	GXFBFm50xaRc4FFb+t7RsTy9edjPk0+ypYt9UnlxPPzr2s3sJt7ns+F9B+c/oCLgeCg4V06SBHe
-	uLMVrHySNTmLvBtClC50XaE91+d9RGAWuU7y4Eu
-X-Received: by 2002:a17:903:24d:b0:2dd:c100:b2c3 with SMTP id d9443c01a7336-2df7dc48c22mr10231635ad.46.1790224429058;
-        Wed, 23 Sep 2026 21:33:49 -0700 (PDT)
-Received: from thangnn-Dell.vingroup.local ([101.99.14.40])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2df6a5a982esm19662755ad.22.2026.09.23.21.33.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2026 21:33:48 -0700 (PDT)
-From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	sashiko-bot@kernel.org,
-	syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com,
-	lkp@intel.com,
-	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-Subject: [PATCH v3] Input: serio - don't sleep on serio_mutex from drvctl_store()
-Date: Thu, 24 Sep 2026 11:32:02 +0700
-Message-ID: <20260924043202.719245-1-ngocthang2710.1999@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fwwBjSvG"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2478EC2BCF5;
+	Thu, 24 Sep 2026 05:34:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1790228082;
+	bh=XcIGfAnJrnYbeHogfOS381lzlAK9XTIRgTSoH7NRArk=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=fwwBjSvGGRXbymBVhtomRpX+5Fk2P6h95rDsVCcF8sppeKwuCpa9rW9exFtUawgOt
+	 3QG7XfNZDcEFbDti5zrAyg5gBhWrjWMrlvs6/vQkDml3k6hyJDpLdIhf0iQvRtGp70
+	 b++IjggnAej39J8rxLT9J7BTRmzP0sRd28V5sNJZqXqMlWm3Y32B+Uayx2ifmFqCBk
+	 D+Qw4ced0JMc8u5WQzJpt5kzHfFB0JBr0+ByKGL3oIs8/Vm+FeynmZOLwqPFiZ86Xi
+	 uOG4eVhWQoSx+P9LQJ1NT+R04X6xjpi4q5HfQJMrPe3PPj3Ner0plM+elywXp4uhi1
+	 ZCJhhPSgmM4eg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED461C98313;
+	Thu, 24 Sep 2026 05:34:41 +0000 (UTC)
+From: Nikolay Plastinin via B4 Relay <devnull+plaztininikolai.gmail.com@kernel.org>
+Date: Thu, 24 Sep 2026 13:34:41 +0800
+Subject: [PATCH] HID: asus: report the airplane mode key on ROG Flow X13
+ GV302X
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260924-gv302x-airplane-key-v1-1-f05192f55ec5@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MSw5AMBRG4a3IHbtJ1SPYihhU/bghJW0iROxdY
+ /gNznkowAsCtclDHqcE2V1EliZkF+NmsIzRpJWuVKMLns9c6YuN+GMzDrzi5mwaLOrSKlhDsTw
+ 8Jrn+a9e/7wfusWV/ZQAAAA==
+X-Change-ID: 20260924-gv302x-airplane-key-1fbce85c0eca
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Nikolay Plastinin <plaztininikolai@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790228080; l=2177;
+ i=plaztininikolai@gmail.com; s=20260924; h=from:subject:message-id;
+ bh=mJdKPQatGowY1qY91BwxCcA//J2IOAjSEGPrBaT1nCo=;
+ b=sd4+LVrV3OzwpJyu9AV/5TZBiLYlImtYXkdWKlYvHT13RBSOl/92G0NGXTXxFLMFI34ogI5wO
+ d8kbX9LdzxuAk30nV53WcRc84TyskXmuIjVvmfANGffKuuDnkeTi2bR
+X-Developer-Key: i=plaztininikolai@gmail.com; a=ed25519;
+ pk=bmHrETa14IbiLNkJSoiLqUMni+IeSFwhOSDM4vVFN4s=
+X-Endpoint-Received: by B4 Relay for plaztininikolai@gmail.com/20260924
+ with auth_id=1052
+X-Original-From: Nikolay Plastinin <plaztininikolai@gmail.com>
+Reply-To: plaztininikolai@gmail.com
 
-Writing to the drvctl attribute takes serio_mutex while holding the
-attribute's kernfs active reference. serio_unregister_port() does the
-opposite: it holds serio_mutex and device_del() then waits for active
-references to drain in kernfs_drain(). If a drvctl write is in flight
-when the port is unregistered, the writer waits for serio_mutex and the
-unregistering task waits for the writer, and neither makes progress.
-Interruptibility of the lock does not help, as nothing signals the writer.
+From: Nikolay Plastinin <plaztininikolai@gmail.com>
 
-lockdep reports it as:
+On the ROG Flow X13 GV302X (N-KEY keyboard 0b05:19b6), Fn+F12 (airplane
+mode) sends report 0x03, which the report descriptor declares as a
+Wireless Radio Controls collection with a single Wireless Radio Button
+bit followed by 7 bits of padding. The keyboard however sends the ASUS
+keycode 0x88 in that byte ("03 88 00 00 00 00"), so the button bit is 0
+and hid-input never reports KEY_RFKILL. The key release comes as an
+empty 0x5a report.
 
-  WARNING: possible circular locking dependency detected
-  repro/4908 is trying to acquire lock:
-   (kn->active){++++}-{0:0}, at: __kernfs_remove+0x34c/0xb90
-  but task is already holding lock:
-   (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40
-   drvctl_store
-   sysfs_kf_write
-   ...
-   kernfs_drain
-   device_del
-   serio_destroy_port
-   serio_unregister_port
-   userio_char_release
+Replace 0x88 with the button bit in reports of the Wireless Radio
+Controls collection on ROG N-KEY keyboards, so that hid-input reports
+KEY_RFKILL (it already simulates the release for this usage).
 
-Use mutex_trylock() and restart the syscall when the mutex is busy, so
-the active reference is dropped before waiting. Once the port is being
-removed the retried write fails with -ENODEV.
+Tested on a GV302XV with 7.2.7: every Fn+F12 press now reports
+KEY_RFKILL, and Plasma toggles airplane mode.
 
-Reported-by: syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1075f6dc93f398c1857e
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+Assisted-by: LLM
+Signed-off-by: Nikolay Plastinin <plaztininikolai@gmail.com>
 ---
- drivers/input/serio/serio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/hid/hid-asus.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 54dd26249b02..ebee89adc8a6 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -15,6 +15,7 @@
- #include <linux/serio.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
-+#include <linux/sched/signal.h>
- #include <linux/slab.h>
- #include <linux/workqueue.h>
- #include <linux/mutex.h>
-@@ -357,7 +358,8 @@ static ssize_t drvctl_store(struct device *dev, struct device_attribute *attr, c
- 	struct device_driver *drv;
- 	int error;
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 7dc6417fe..cee7d9a1f 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -51,6 +51,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define FEATURE_KBD_LED_REPORT_ID1 0x5d
+ #define FEATURE_KBD_LED_REPORT_ID2 0x5e
  
--	scoped_cond_guard(mutex_intr, return -EINTR, &serio_mutex) {
-+	/* Removal holds serio_mutex and waits for us: retry, don't sleep. */
-+	scoped_cond_guard(mutex_try, return restart_syscall(), &serio_mutex) {
- 		if (!strncmp(buf, "none", count)) {
- 			serio_disconnect_port(serio);
- 		} else if (!strncmp(buf, "reconnect", count)) {
++#define ASUS_AIRPLANE_KEY_CODE 0x88
++
+ #define ROG_ALLY_REPORT_SIZE 64
+ #define ROG_ALLY_X_MIN_MCU 313
+ #define ROG_ALLY_MIN_MCU 319
+@@ -549,6 +551,16 @@ static int asus_raw_event(struct hid_device *hdev,
+ 		 */
+ 		if (data[0] == 0x02 && data[1] == 0x30)
+ 			return -1;
++
++		/*
++		 * Some ROG laptops (e.g. ROG Flow X13 GV302X) send the airplane
++		 * mode keycode 0x88 in the Wireless Radio Controls report instead
++		 * of setting its Wireless Radio Button bit, so the key press is
++		 * lost. Report the button press instead.
++		 */
++		if (report->application == HID_GD_WIRELESS_RADIO_CTLS &&
++		    data[1] == ASUS_AIRPLANE_KEY_CODE)
++			data[1] = 0x01;
+ 	}
+ 
+ 	if (drvdata->quirks & QUIRK_ROG_CLAYMORE_II_KEYBOARD) {
 
-base-commit: daae2ab46e0cb612f50ca1d86cf50e5962461ae5
+---
+base-commit: d72f75f1d9c038ead2588b42de6c2531e3b80bea
+change-id: 20260924-gv302x-airplane-key-1fbce85c0eca
+
+Best regards,
 -- 
-2.43.0
+Nikolay Plastinin <plaztininikolai@gmail.com>
+
 

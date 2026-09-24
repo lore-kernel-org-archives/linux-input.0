@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE923A9DB2;
-	Thu, 24 Sep 2026 11:56:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E70BF292B2E;
+	Thu, 24 Sep 2026 12:00:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790250968; cv=none; b=NqvBlyW4xPGi9UXy+kliocjZv/MqqOM7XbaFL6MSy4OviTTfqjZLa2bPHzJ6LCkyhPEKlUkDdC/cjx87Pzf//TxZEZKXCFJBhK7aRAAvurk+hWLHR2i+UMrOEWduatOuBPFlDCCc6mTCrpS6yQ9DvAczpS/GYvoxxcvh3r5BrA0=
+	t=1790251256; cv=none; b=Aw6UgEksPJ8juL6i1qIFKwZ2rNGBY3tTlHCkVqNKwgIGNFxf2plzgjMPlc9Th77DyibBkfIb0wrW0DNoDnkNa/c2t/ny7GNYAZRYjQzo/lKO93aAhYvyfReLVNdaCgsZTMeaWxbGXCuny9oLwtONPNzXGSDYTM8BXK/NtgkiD+M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790250968; c=relaxed/simple;
-	bh=kYeFIwrgMb+YJDX4SSk0nBhrpd8lYVsV6WdBSHa+kVA=;
+	s=arc-20240116; t=1790251256; c=relaxed/simple;
+	bh=ocyIUkRejGonrqNNXLNErNChpud8SRd1V8ljDXGQre4=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=J3CCFkxRxYzH77Lg1Z5cI3GxI8hfLNwOvPDsjOqZ0rZWqE4OPqP+7HAqt5hqo0wp84ovuBC0zOpTu5p3prVlLcHtYsnjjcL8XwKjxH0CVBSfw1pAQbMEnyBA67qAbBUorqO7V2/dZ8LSgGgv271WNAxtLB7K+0l65thqgoaTkU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UuNX04L/; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=h3g9z7hdNXz20S+VJbd4Bk0bZhdFbE+/Z1DTYXzDno2FI6v52QsexX3gajpOwYANHlYJvNbcqf5qWPgKmfyF0bbTVaKfbBwo1ePG3lQoM2avah9p6rLeXIHNL9tezhWo8QsqshX+ymoicgImGvTyT4qtRcGpDJttliaHXulhd6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JyIqMTG0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UuNX04L/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90EFD1F000FF;
-	Thu, 24 Sep 2026 11:56:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JyIqMTG0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BA681F00893;
+	Thu, 24 Sep 2026 12:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790250966;
-	bh=Bk5DwM8PPL4Re8917OunGzw8BjTlRWhX8Jdc3Ar5N7Q=;
+	s=k20260515; t=1790251254;
+	bh=L8yZ373mum5/nUoW2QrJhJt+T06mJJBXnoxDaavWLrc=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=UuNX04L/3YWqt+g1NPUvDezj+lW9JUKPSbu3e5kM162ct/KZtC1NCHSYMrSdhHK5L
-	 t2mRRR/jzGGKvdHVYcHPUScmBO8m2X6fW7U8t0xMmdOIn88ZGHpEiWTIQbZI5ck0XM
-	 RM5a7dxrGTj0/46zj6nEj6ZC2DYWeSfwXiZ06z6C3a47nLHevm2j9NHTL+E32iZeam
-	 YVR39cerODZ7Zo9asox+lgX2z5/F+dO+ZKEK5yIo7gwQVt/YzlJSmDzkSktYBV/Vw1
-	 VfcjXkivqXfss+KX676a/vENKElu2CqrwlDkYlrl0RcQCjhsix8j5jjONV4ziHM559
-	 ZmRsM47cQDH0g==
+	b=JyIqMTG0c+Qx44TSmFM6uBHznOQz60lST1bfV6ZbhDjC0llBs4dW7dl4EzULPK143
+	 lpVL63bcedXvMo9zswn6vGdN7agE+XZBTYbA9x/H+m+3fL5KVn1Ejjmy8HHr/Mafbl
+	 A4VwOjQmEqd373jC8MSPyjtDB5ZwbKz2pxjg/fzVt5Tt0/QH6Q8clOAGBWHSUXp+7u
+	 EPfH2+qjEOBDD2CocoZRsJsa3MTMOK27j+YRv9nTsh6AInq1ltdsae+oJsjqNqVAUf
+	 PF8I1mwmFIQ/mmNoqPFg5dd5V/0gdKKeTzYb8e4EW7er74tZ/0jySxjsvJcm3FADqR
+	 x5s+2UX+uCpmg==
 From: Lee Jones <lee@kernel.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -33,12 +33,12 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
  Pavel Machek <pavel@kernel.org>, Svyatoslav Ryhel <clamor95@gmail.com>
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
-In-Reply-To: <20260721095654.429346-2-clamor95@gmail.com>
-References: <20260721095654.429346-2-clamor95@gmail.com>
-Subject: Re: (subset) [PATCH v7 1/6] dt-bindings: leds: leds-cpcap: convert
- to DT schema
-Message-Id: <179025096434.466500.400174146164651131.b4-ty@b4>
-Date: Thu, 24 Sep 2026 12:56:04 +0100
+In-Reply-To: <20260721095654.429346-1-clamor95@gmail.com>
+References: <20260721095654.429346-1-clamor95@gmail.com>
+Subject: Re: (subset) [PATCH v7 0/6] mfd: cpcap: convert documentation to
+ schema and add Mot board support
+Message-Id: <179025125217.476152.9697106280920245262.b4-ty@b4>
+Date: Thu, 24 Sep 2026 13:00:52 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,15 +49,31 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailer: b4 0.16-dev-ad80c
 
-On Tue, 21 Jul 2026 12:56:48 +0300, Svyatoslav Ryhel wrote:
-> Convert LEDs devicetree bindings for the Motorola CPCAP MFD from TXT to
-> YAML format. This patch does not change any functionality; the bindings
-> remain the same.
+On Tue, 21 Jul 2026 12:56:47 +0300, Svyatoslav Ryhel wrote:
+> The initial goal was only to add support for the CPCAP used in the Mot
+> Tegra20 board; however, since the documentation was already partially
+> converted, I decided to complete the conversion to schema too.
+> 
+> The CPCAP regulator, leds, rtc, pwrbutton and core files were converted
+> from TXT to YAML while preserving the original structure. Mot board
+> compatibility was added to the regulator and core schema. Since these
+> were one-line patches, they were not separated into dedicated commits;
+> however, the commit message notes this for both cases.
+> 
+> [...]
 
 Applied, thanks!
 
-[1/6] dt-bindings: leds: leds-cpcap: convert to DT schema
-      commit: d4948551280b1d52c1896b7c80d5383b7d8ad7c5
+[2/6] dt-bindings: input: cpcap-pwrbutton: convert to DT schema
+      commit: ae30468a4934028adaaf5525f6f7bcda26371607
+[3/6] dt-bindings: mfd: motorola-cpcap: convert to DT schema
+      commit: 6f58e93a2e2f199df32d963d01ad5e1ec0a96387
+[4/6] dt-bindings: mfd: motorola-cpcap: document Mapphone and Mot CPCAP
+      commit: e968cfb307587a6a3fe9d591fa92d4f5d57e19a5
+[5/6] mfd: motorola-cpcap: diverge configuration per-board
+      commit: 4436f6aba79e10e2b447b8a0f874c13964518747
+[6/6] mfd: motorola-cpcap: add support for Mot CPCAP composition
+      commit: 008fc93904285ec99e3d5dac5fa5d5aaab1e9ff6
 
 --
 Lee Jones [李琼斯]

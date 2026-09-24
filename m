@@ -1,88 +1,88 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1CF5379998;
-	Thu, 24 Sep 2026 14:28:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 600DD3C1F2B;
+	Thu, 24 Sep 2026 14:29:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790260116; cv=none; b=HuhshssmcjTAil56nNf1WENOz7GIvYFaB5l0ycv+lWeDOSfuh2/0V4oI6VsuE6NZC9uaXsOSVZwMmHfBuE2EJlHxNjwX1TNoVDu0dvQ/evf7i3CqedSOx+Uz1eGBFtzdrIeRMK7RMIp1L/uLh4ulOVOyKFpRe/6E+kK98fiuumY=
+	t=1790260190; cv=none; b=qM7k+s5Vh3v4PnRnzvpp6LBJPuxGAbWJIzj+0263eem0DJesQgC5lxWUXScLh0n2dphXlBly/7Q75H08361mVqGZYQGX1h+stIkV+e1mIz3UfiRbMAwpjiQRfrGIg258tdqlgYz666D/bytFnEVgvSrPYKbgS7GbRJ0frOeTPbk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790260116; c=relaxed/simple;
-	bh=4aCUQy0hWo8IdaDKDTYMyFJ7kry/jltOSeuRCSB2Cb4=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=ilYRrGUtSnb3p7FscXGs022Kn6hsnIWJEMfN3hL7giDTvatdDdGNF/SarEERBsOQ9heZP9jVxk66E6k634MfuvLvure4zV5KCp7R1BaPrnUFY56e983mZtLNFz50c86w83rp8SCzBb8WDP54Jw6JHSfT1c8u8EXlQKaywl+Qx7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cAanq/HC; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790260190; c=relaxed/simple;
+	bh=Ub+3/LjacvaUqdOxYYLSHvFyTLyuECjtpkx7iJQJUNs=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=k17PzunFJ64wcoYEG8qZhPgcnJr7h17IJtHhq2KW4gL410tqGTQ73EPrGBO+J6F/5jPp+X5vmC5DeRhpMvWTbh1g/oHnleZxlp8hv0+lfO0y6nDHBdgNnACTBwSspU5p9/k3Zu11h8siO8GYXKV7ttrSElgGMMfmIPD3ueBF//g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=KAuHs8ea; arc=none smtp.client-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cAanq/HC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 010121F00893;
-	Thu, 24 Sep 2026 14:28:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790260110;
-	bh=IL6ClCwIjkZWXa+/sikAWRTuWWNCeUnK+ge6atvO8+M=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=cAanq/HC3J8+Nv74HWHMMsnf0HUL2z8Yx0G3QNxBFsbIJXebsZOfmmG+sNEdqzh+G
-	 yhzVjJZbm4dPGZFF1NpUrCnE4NXRu5SAmuyHWYfH1Qw1SnIlH/sdao7pzGHPcjdtso
-	 hhh1ah6O8YA9dzpCrnTkeCCZ74NP14gr62drZeCVEybtrl0JLnx3O8ikowIk3TdeW2
-	 IQPmDqkmQ76fHJpzkKiiYzpN5sD7jS+f9jUf+7oMRUMtRlRXx1qH8l8d3hMowJ+Jf0
-	 vhKdEBC1+V7wAqzLHB7OhZy7p2zEWkPk7yi6zn8uSo3DhwifnZplpvIiJUK6JIDQSw
-	 c9g3Tm7I8atOA==
-From: Lee Jones <lee@kernel.org>
-To: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
- Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
- Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>, 
- Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
- "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
- Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>, 
- Rob Clark <robin.clark@oss.qualcomm.com>, 
- Dmitry Baryshkov <lumag@kernel.org>, 
- Abhinav Kumar <abhinav.kumar@linux.dev>, 
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
- Marijn Suijten <marijn.suijten@somainline.org>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>, 
- Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>, 
- Tony Luck <tony.luck@intel.com>, 
- "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Muzaffer Kadir <muzafferkadir@mainlining.org>
-Cc: David Heidelberg <david@ixit.cz>, Dang Huynh <danct12@riseup.net>, 
- phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- linux-clk@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org, 
- iommu@lists.linux.dev, mfd@lists.linux.dev, dri-devel@lists.freedesktop.org, 
- freedreno@lists.freedesktop.org, Krzysztof Kozlowski <krzk@kernel.org>, 
- linux-pm@vger.kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20260916-msm8952-initial-support-v2-9-798c2602dde1@mainlining.org>
-References: <20260916-msm8952-initial-support-v2-9-798c2602dde1@mainlining.org>
-Subject: Re: (subset) [PATCH v2 09/19] dt-bindings: mfd: qcom,tcsr: Add
- compatible for MSM8952
-Message-Id: <179026010074.638531.9042726679993021271.b4-ty@b4>
-Date: Thu, 24 Sep 2026 15:28:20 +0100
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="KAuHs8ea"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=qa
+	HAH+1ZMTl/gD4fLztgyqc9+PNnhNHQlR0rToTOKmw=; b=KAuHs8eaTb6P06gjOx
+	I3uwInj+g8r9NuOb69Q66YNgGkfMu07GTY1Bxd/GMnXMoLwz/VP1/ARyryxTF+Xo
+	FwCvl1s7jlQLH6rFDtwfHpkrScpRsTto6Awp3HrCe6ySF6TtpzCUbZOnlE14aVdP
+	yXpuz4lHHn/rwzKvG0fYEjHVM=
+Received: from pc.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-2 (Coremail) with SMTP id _____wD3v7zAM7VqMhFPAg--.56297S3;
+	Thu, 24 Sep 2026 22:29:23 +0800 (CST)
+From: Jiale Yao <yaojiale02@163.com>
+To: Stefan Achatz <erazor_de@users.sourceforge.net>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Jiale Yao <yaojiale02@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH 1/7] HID: roccat: isku: reject short button reports
+Date: Thu, 24 Sep 2026 22:29:11 +0800
+Message-Id: <20260924142918.1177952-2-yaojiale02@163.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260924142918.1177952-1-yaojiale02@163.com>
+References: <20260924142918.1177952-1-yaojiale02@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.16-dev-ad80c
+X-CM-TRANSID:_____wD3v7zAM7VqMhFPAg--.56297S3
+X-Coremail-Antispam: 1Uf129KBjvdXoW7JryDuryDGr18KFW5trWxtFb_yoWktrX_ua
+	4xuwn7Wr1kGFyktr1rtr4avr9rtw45uF1fZ3yjqFnaqry5Z3W3urnaqrn5WryUWrs5ua4q
+	kwn8Aa4xZrsI9jkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRmD7zPUUUUU==
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbCzQMFP2q1M8OSsQAA34
 
-On Wed, 16 Sep 2026 17:22:14 +0300, Muzaffer Kadir wrote:
-> Document the qcom,tcsr-msm8952 compatible.
+The raw event callback runs before HID core validates and zero-pads the
+report.  It passes the buffer to helpers which inspect data[0] and, for a
+button report, read the complete struct isku_report_button.  A truncated
+report can therefore cause an out-of-bounds read.
 
-Applied, thanks!
+Require enough data for the button report before calling either helper.
+Commit 47669bec44fe ("HID: asus: refactor the two workqueues and init
+sequence") added the same kind of raw-event length validation to hid-asus.
 
-[09/19] dt-bindings: mfd: qcom,tcsr: Add compatible for MSM8952
-        commit: 319633b06ff2bfc2a7a60d2cfcab2e681a343b27
+Fixes: d41c2a7011df ("HID: roccat: Add support for Isku keyboard")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jiale Yao <yaojiale02@163.com>
+---
+ drivers/hid/hid-roccat-isku.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---
-Lee Jones [李琼斯]
+diff --git a/drivers/hid/hid-roccat-isku.c b/drivers/hid/hid-roccat-isku.c
+index 93a49c93ae8c..ef1ec9ccaa82 100644
+--- a/drivers/hid/hid-roccat-isku.c
++++ b/drivers/hid/hid-roccat-isku.c
+@@ -411,6 +411,9 @@ static int isku_raw_event(struct hid_device *hdev,
+ 	if (isku == NULL)
+ 		return 0;
+ 
++	if (size < sizeof(struct isku_report_button))
++		return 0;
++
+ 	isku_keep_values_up_to_date(isku, data);
+ 
+ 	if (isku->roccat_claimed)
+-- 
+2.34.1
 

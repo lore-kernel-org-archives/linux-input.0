@@ -1,248 +1,208 @@
-Received: from pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.83.148.184])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej2-f43.google.com (mail-ej2-f43.google.com [74.125.228.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC3A54CE673;
-	Thu, 24 Sep 2026 20:39:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.83.148.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A216B411A1C
+	for <linux-input@vger.kernel.org>; Thu, 24 Sep 2026 21:41:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790282367; cv=none; b=iLKJStC44exuAM0MBnCiCeeqb+BasIB2gJRB42o/97BjmEx9m8uJwQ35666bH7mK9CdhxpkB4Spip6o6KSfZqvLhcbu/ecBW+ZghYLIftxoDfKGmPYwoRlqrwqS12hnt3paMvkeRwQpE8kK3yv2DD+fpL9NBnnz40NsJHX9+J30=
+	t=1790286109; cv=none; b=rALQIBiR/5UiyRVt5mXUwWkze3bRAoQwhVlUGdM8nSwkoHzUk2mDSYvNGUfH5Vum+xh7qixHykT4gpsHh+9ZddDCR4MJ7rTLVg9oQh05vZq2blEhe8iZF+7mIGgueWwjmSJCvfWWgIXxhKODuLQ+IPJUOECfc9LpWsBOi6weK7s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790282367; c=relaxed/simple;
-	bh=3jVrqWHVmL2RraT3Mi3b21L1yYxL47Uc+1gWwEb2hek=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NefUoHXJw6tlbIIo/nJlsGbOmLqL7WLgxbedpeNr+6iZVU2DKd9gch0brOUBd0AFo8U9aFP8wj5rbfNK7sCQIeC9SmxSuLkN3EIWtASDBJ8f+ZMXRrjA4TGwCYG7nD55vcxA3QtVLwKIOAp1ZFJO6RTnZvkHfprCfNadP1XzJEE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=eIw7o1X6; arc=none smtp.client-ip=35.83.148.184
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
+	s=arc-20240116; t=1790286109; c=relaxed/simple;
+	bh=mB1lKnqG8AuGXcQNR1csYPfP5+PMcGwbkZuQoheHxxI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=eedMTOx0G0smfX2rxkWwE/wJjzliRUbr+r63GutZzqlXMCLE1Wo+62sr9m6xVcDsjzxgvSQr587NDrE4SCoQt8cDwwFkJhIUV2hc/XbBGeS4IrzWWCDtZ0XjHBi3y2//du8KsxGHY2QfonReLTEiA9sBTrKvnEiF4V/nrCI3XPA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QXY1w3wp; arc=none smtp.client-ip=74.125.228.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="eIw7o1X6"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QXY1w3wp"
+Received: by mail-ej2-f43.google.com with SMTP id a640c23a62f3a-c2a8b9acbc6so43131066b.0
+        for <linux-input@vger.kernel.org>; Thu, 24 Sep 2026 14:41:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1790282365; x=1821818365;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=kBejIS3XTPtv+8rSCICSRV8LuykKs33Sp+7QIDwXSd8=;
-  b=eIw7o1X6qni55ZJJmy4MM+aD4BR5LZWYrPoxdqqEOIXm3mDFqBdtNLRd
-   hV/vd+zxa2Tpw/jSkfKpthqTJCh6w6gadPFcjpGlkm8bPVX7S5gklCRQn
-   rOlfGZwQhMswKMH/9mqWHYVTg7yjxRLvzaaAxwL0GDwvnd3arKHaGW385
-   ZiUmLNLMuMCDNVk5IedTkA6QYjTbAYKE6GrBrIAGtdTx6c0CLkff9+Xwx
-   UBfwiUZWpjjWIiVv7eJFEte7fYGN8L2PEj0chyd2kViG17NFpEm4+Gx2T
-   CqPk2k9p06/KD+jRlmRjc7rOKtTd1vy5S8Rhvz5VRDZhxO8p1XpTGV2sv
-   Q==;
-X-CSE-ConnectionGUID: hxBSeCFRTyGM15gG+jc36g==
-X-CSE-MsgGUID: 4f6jy1ZcSkSQwh4gAX8SiA==
-X-IronPort-AV: E=Sophos;i="6.27,121,1787011200"; 
-   d="scan'208";a="29367262"
-Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
-  by internal-pdx-out-014.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Sep 2026 20:39:25 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [205.251.233.111:29520]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.33.144:2525] with esmtp (Farcaster)
- id adf95163-f066-4943-bfe1-5ee58d62e57f; Thu, 24 Sep 2026 20:39:25 +0000 (UTC)
-X-Farcaster-Flow-ID: adf95163-f066-4943-bfe1-5ee58d62e57f
-Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.49;
- Thu, 24 Sep 2026 20:39:24 +0000
-Received: from dev-dsk-surajjs-2c-afd24e6d.us-west-2.amazon.com
- (10.189.247.117) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.49; Thu, 24 Sep 2026
- 20:39:24 +0000
-From: Suraj Jitindar Singh <surajjs@amazon.com>
-To: <stable@vger.kernel.org>
-CC: Vitaly Kuznetsov <vkuznets@redhat.com>, Michael Kelley
-	<mhklinux@outlook.com>, "K . Y . Srinivasan" <kys@microsoft.com>, "Haiyang
- Zhang" <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
-	<decui@microsoft.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
-	<benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	<linux-hyperv@vger.kernel.org>, <linux-input@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Saurabh Sengar <ssengar@linux.microsoft.com>,
-	Jiri Kosina <jkosina@suse.com>
-Subject: [PATCH 6.1.y] HID: hyperv: streamline driver probe to avoid devres issues
-Date: Thu, 24 Sep 2026 20:39:21 +0000
-Message-ID: <20260924203921.21711-1-surajjs@amazon.com>
-X-Mailer: git-send-email 2.47.3
+        d=gmail.com; s=20251104; t=1790286106; x=1790890906; darn=vger.kernel.org;
+        h=content-type:content-transfer-encoding:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=UHm5NRcTpn9N2haWjZVbXQGdMzSK/m+AUPZA427MG1U=;
+        b=QXY1w3wpQwAgbhTjT5CCS5WpabOu/IWI7Gi+tnfYOvUfqj2xVt/9nkrv4Z1Z3Tn96a
+         ij8r44H+q//06756dO6hWo2eMOr0ebIYX7g+ApoF0Zpl23UI1t1oBMk1BbAvdES0mJtd
+         6UMPAehliIhjk6eSFS7pcql6rzHmFafYr/w+T5G54uUzD5UvP+yzQrnxMXFIn0hS2NWp
+         hZEPWg7q5idUr3zvY3roUyKerQ4rTc4ARXJ+1QTq0yoGAxQIHO1Uedm5E6rv0TcJEN7f
+         JSTn1YcRm+HKg8HrpJ6HFmSy8U2pRess2ym2xsPdL/LhYM32Vjri+oNvYeCHl5HxLZmH
+         t0Lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790286106; x=1790890906;
+        h=content-type:content-transfer-encoding:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=UHm5NRcTpn9N2haWjZVbXQGdMzSK/m+AUPZA427MG1U=;
+        b=y09vEiRjjyDAbCsGHFjXZcSkUmiR5EPnc/MletR0g7gTIsdm9un/3gfO2KJhsZottu
+         CYn7XWSYDrJAxM9oWsQkhLBSohxuimy4dpb6zpnWzCK96GmooJMwT3p/9yoZAf9Szvhp
+         p9Ww5P2gRq4nKnjWnxz43ivdvagE2oODN51qbeaMfSpS+YhIqzv3qU9NtZzOGx+wqXQh
+         M645ZVhOI+Iw3vQMAO+ESyc3w1YKkzxxustoqqhI3OAqJgbuzHzZz4RVVSUhvGo8ModG
+         uyHJMl9Hd4sRRSLQ6cDxRafazFlDyfgvm052dKNV6A5hS9Ok9hIUnwhld79+EUgZSCPX
+         lXLg==
+X-Forwarded-Encrypted: i=1; AKwUvBzerJ5ynbwITi9ohqJtQk1/90Z5pvEn31JyOthctzXLuL5QA9sIQF2eoU/WioIHOdWXD18EmRFOBccv/A==@vger.kernel.org
+X-Gm-Message-State: AFuF++l2xJ68pN9LF+s9lb7iCIBA/Xt06r7ioQ7Pykm2im97xuWkLW0y
+	ePag82aUUGk7uIh9TKj5dpm2yJ9y1du/qPycw0fX7BmZuQ9MvHhvbfO43HgwTI4/twI=
+X-Gm-Gg: AYBFou1QAyGGm10Y+A4J3xjt7Ym+qyj2DczjNHKqe86rWE5L5gjNmvAr4vlkOT/VKTI
+	xWP1V4o6YKXjUguMNCPJES09wMHenIBxXTvfEDCgiTdLzTVPuSrFirsnREgMx7+mS3syRCFzKWy
+	bkSMy+jSNVO5TOdooy+Re3FwD5QWHFn5kcZtQwD59MGjKfX5IWkbluLtHA9uannt9y0OBGWvRFe
+	F0uiOEwS8d+nDZUfC9ugd4bF8L8y+JmI/Nrxa4+8/1XcGYWHnMs0arqhcLNC3CsHefxsxHYmNqJ
+	LKGd0oS5ftrBU0qVaOqVtwam25MTIGVZyg5Q3Xk3FbC00nN5Z3aCny5M90YoTUYrJyzNda0ny5W
+	IjWizBn+IV+Lbf1iCOeAHhSlNbXc/VoLODRdbiCkloXNPDWO9tLf1C95/smCM/u7T5hcgKe4ep1
+	3DONHmz92uWQs9d0vh9fWTUe3IPng+W292JREsLw3Lpt0IK54n7Ag1wgb+hv8X1qQVHk9BaeSQi
+	Znx2uDWDHNBTbPE5jdiw0jmoM3ZOpfFPz5oRSs7BU1A7sm3stzxGQ==
+X-Received: by 2002:a17:907:9285:b0:c29:f742:c532 with SMTP id a640c23a62f3a-c2ac246a374mr326439066b.40.1790286105689;
+        Thu, 24 Sep 2026 14:41:45 -0700 (PDT)
+Received: from fedora.localnet (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2ae678ec74sm19676366b.4.2026.09.24.14.41.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Sep 2026 14:41:44 -0700 (PDT)
+From: Erik =?UTF-8?B?SMOla2Fuc3Nvbg==?= <erikhakan@gmail.com>
+To: Oleksandr Natalenko <oleksandr@natalenko.name>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ Filipe =?UTF-8?B?TGHDrW5z?= <lains@riseup.net>,
+ Bastien Nocera <hadess@hadess.net>, Rafael Passos <rafael@rcpassos.me>,
+ =?UTF-8?B?R3LDqWdvaXJl?= Stein <greyxor@protonmail.com>,
+ Alexey Zagorodnikov <xglooom@gmail.com>,
+ Roman Stingler <roman.stingler@gmail.com>,
+ Lovekesh Solanki <lovekeshsolanki00@gmail.com>,
+ =?UTF-8?B?S2F0ZcWZaW5hIE1lZHbEm2RvdsOh?= <k8ie@mcld.eu>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] HID: logitech-hidpp: fix Bolt hi-res wheel handling
+Date: Thu, 24 Sep 2026 23:41:41 +0200
+Message-ID: <r8QjhQUkS86zOaJsxE4nUw@gmail.com>
+In-Reply-To: <xpFXjeFKTb2mOjg5M5iN0g@natalenko.name>
+References:
+ <20260922-feature-bolt-fix-v1-0-63b0fa8da0d3@gmail.com>
+ <97b3c67c-03ea-4ae6-ba64-afcdbbd8f36b@gmail.com>
+ <xpFXjeFKTb2mOjg5M5iN0g@natalenko.name>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D031UWC003.ant.amazon.com (10.13.139.252) To
- EX19D001UWA001.ant.amazon.com (10.13.138.214)
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Hi again!
 
-commit 66ef47faa90d838cda131fe1f7776456cc3b59f2 upstream
+I have some semi-good news regarding both the quirks, the conflict with user-
+space setting in Solaar, and regarding being able to separate reports by 
+device, so e.g. different capability mice can be used simultaneously.
 
-It was found that unloading 'hid_hyperv' module results in a devres
-complaint:
+Long text with background and description first, so scroll down for the actual 
+solution. :) 
 
- ...
- hv_vmbus: unregistering driver hid_hyperv
- ------------[ cut here ]------------
- WARNING: CPU: 2 PID: 3983 at drivers/base/devres.c:691 devres_release_group+0x1f2/0x2c0
- ...
- Call Trace:
-  <TASK>
-  ? devres_release_group+0x1f2/0x2c0
-  ? __warn+0xd1/0x1c0
-  ? devres_release_group+0x1f2/0x2c0
-  ? report_bug+0x32a/0x3c0
-  ? handle_bug+0x53/0xa0
-  ? exc_invalid_op+0x18/0x50
-  ? asm_exc_invalid_op+0x1a/0x20
-  ? devres_release_group+0x1f2/0x2c0
-  ? devres_release_group+0x90/0x2c0
-  ? rcu_is_watching+0x15/0xb0
-  ? __pfx_devres_release_group+0x10/0x10
-  hid_device_remove+0xf5/0x220
-  device_release_driver_internal+0x371/0x540
-  ? klist_put+0xf3/0x170
-  bus_remove_device+0x1f1/0x3f0
-  device_del+0x33f/0x8c0
-  ? __pfx_device_del+0x10/0x10
-  ? cleanup_srcu_struct+0x337/0x500
-  hid_destroy_device+0xc8/0x130
-  mousevsc_remove+0xd2/0x1d0 [hid_hyperv]
-  device_release_driver_internal+0x371/0x540
-  driver_detach+0xc5/0x180
-  bus_remove_driver+0x11e/0x2a0
-  ? __mutex_unlock_slowpath+0x160/0x5e0
-  vmbus_driver_unregister+0x62/0x2b0 [hv_vmbus]
-  ...
+In an effort to figure out if we could have separation of events by device, I 
+tried digging into whether I could force the Bolt receiver into DJ mode, 
+similar to what is done for Unifying devices, and I investigated how it's done 
+for my Lightspeed device, given that it's treated differently from regular 
+Unifying devices in code.
+Some looking at the HID++ protocols that are available online, as well as some 
+probing of the USB interfaces revealed that the Lightspeed receiver does 
+indeed support DJ, but unfortunately the Bolt receiver does not.
+At least it does not support the same command as Unifying and Lightspeed 
+receivers and no digging online or by probing hardware revealed anything.
 
-And the issue seems to be that the corresponding devres group is not
-allocated. Normally, devres_open_group() is called from
-__hid_device_probe() but Hyper-V HID driver overrides 'hid_dev->driver'
-with 'mousevsc_hid_driver' stub and basically re-implements
-__hid_device_probe() by calling hid_parse() and hid_hw_start() but not
-devres_open_group(). hid_device_probe() does not call __hid_device_probe()
-for it. Later, when the driver is removed, hid_device_remove() calls
-devres_release_group() as it doesn't check whether hdev->driver was
-initially overridden or not.
+However, when digging around I realized that the Lightspeed receiver is NOT 
+put into DJ mode, but still all three interfaces are claimed by the DJ driver, 
+yet the mouse works as it should. With tshark capture of wire data I saw that 
+for Lightspeed, mouse events come as regular native HID, not as HID++ 
+reports., i.e. the DJ mode is not used. And frankly, since the Lightspeed 
+supports at most 1 mouse and 1 keyboard, separating devices are not necessary, 
+except for the HID++ report on device status, such as battery and connection 
+status, and those are sent on HID++ regardless of mode.
 
-The issue seems to be related to the commit 62c68e7cee33 ("HID: ensure
-timely release of driver-allocated resources") but the commit itself seems
-to be correct.
+But previously, the theory has been that generic HID reports can't go through 
+the DJ driver, but obviously it works for Lightspeed but not Bolt mice. 
+Although keyboard does work. So I investigated some more and it turns out that 
+when the DJ driver creates a virtual HID device it sends a descriptor on to 
+the HID core, and this descriptor describes a bunch of stuff, including the 
+size of the mouse movement reports. This descriptor is different for different 
+receivers, and the default one has a movement report size of 12 bits. However, 
+when inspecting the real Bolt descriptor (the same one read by the native HID 
+when we do NOT let DJ claim the mouse and keyboard interfaces), I saw that the 
+real report is 16 bits. Same as most relatively modern receivers.
 
-Fix the issue by dropping the 'hid_dev->driver' override and using
-hid_register_driver()/hid_unregister_driver() instead. Alternatively, it
-would have been possible to rely on the default handling but
-HID_CONNECT_DEFAULT implies HID_CONNECT_HIDRAW and it doesn't seem to work
-for mousevsc as-is.
+So, I now *strongly* suspect that the reports of overly sensitive or phantom 
+moves, and possibly scrolls, are the result of the HID layer trying to 
+interpret a 16-bit report as 12 bits.
+Without a Bolt mouse I can't verify of course, so I'll need some help with 
+that.
 
-Fixes: 62c68e7cee33 ("HID: ensure timely release of driver-allocated resources")
-Suggested-by: Michael Kelley <mhklinux@outlook.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Michael Kelley <mhklinux@outlook.com>
-Tested-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
-[ 6.1: context adjusted only - mousevsc_ll_driver is non-const in 6.1
-  because the hid_ll_driver constification (for-6.12/constify-rdesc,
-  e.g. 054e0bd34577) is not present; the applied diff is identical to
-  the upstream commit, no functional change ]
-Signed-off-by: Suraj Jitindar Singh <surajjs@amazon.com>
+During my digging, I *also* realized that HID++ reports already carry a device 
+index, thus making every report that comes through HID++ separable by device, 
+as well as the fact that for the existing 0x2121 (High resolution scroll over 
+HID++) functionality, there was a bug, and scrolling seems to not have worked 
+for any mouse over HID++, regardless of receiver type.
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -456,6 +456,25 @@ static int mousevsc_hid_raw_request(struct hid_device *hid,
- 	return 0;
- }
- 
-+static int mousevsc_hid_probe(struct hid_device *hid_dev, const struct hid_device_id *id)
-+{
-+	int ret;
-+
-+	ret = hid_parse(hid_dev);
-+	if (ret) {
-+		hid_err(hid_dev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hid_dev, HID_CONNECT_HIDINPUT | HID_CONNECT_HIDDEV);
-+	if (ret) {
-+		hid_err(hid_dev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
- static struct hid_ll_driver mousevsc_ll_driver = {
- 	.parse = mousevsc_hid_parse,
- 	.open = mousevsc_hid_open,
-@@ -465,7 +484,16 @@ static struct hid_ll_driver mousevsc_ll_driver = {
- 	.raw_request = mousevsc_hid_raw_request,
- };
- 
--static struct hid_driver mousevsc_hid_driver;
-+static const struct hid_device_id mousevsc_devices[] = {
-+	{ HID_DEVICE(BUS_VIRTUAL, HID_GROUP_ANY, 0x045E, 0x0621) },
-+	{ }
-+};
-+
-+static struct hid_driver mousevsc_hid_driver = {
-+	.name = "hid-hyperv",
-+	.id_table = mousevsc_devices,
-+	.probe = mousevsc_hid_probe,
-+};
- 
- static int mousevsc_probe(struct hv_device *device,
- 			const struct hv_vmbus_device_id *dev_id)
-@@ -507,7 +535,6 @@ static int mousevsc_probe(struct hv_device *device,
- 	}
- 
- 	hid_dev->ll_driver = &mousevsc_ll_driver;
--	hid_dev->driver = &mousevsc_hid_driver;
- 	hid_dev->bus = BUS_VIRTUAL;
- 	hid_dev->vendor = input_dev->hid_dev_info.vendor;
- 	hid_dev->product = input_dev->hid_dev_info.product;
-@@ -522,20 +549,6 @@ static int mousevsc_probe(struct hv_device *device,
- 	if (ret)
- 		goto probe_err2;
- 
--
--	ret = hid_parse(hid_dev);
--	if (ret) {
--		hid_err(hid_dev, "parse failed\n");
--		goto probe_err2;
--	}
--
--	ret = hid_hw_start(hid_dev, HID_CONNECT_HIDINPUT | HID_CONNECT_HIDDEV);
--
--	if (ret) {
--		hid_err(hid_dev, "hw start failed\n");
--		goto probe_err2;
--	}
--
- 	device_init_wakeup(&device->device, true);
- 
- 	input_dev->connected = true;
-@@ -615,12 +628,23 @@ static struct  hv_driver mousevsc_drv = {
- 
- static int __init mousevsc_init(void)
- {
--	return vmbus_driver_register(&mousevsc_drv);
-+	int ret;
-+
-+	ret = hid_register_driver(&mousevsc_hid_driver);
-+	if (ret)
-+		return ret;
-+
-+	ret = vmbus_driver_register(&mousevsc_drv);
-+	if (ret)
-+		hid_unregister_driver(&mousevsc_hid_driver);
-+
-+	return ret;
- }
- 
- static void __exit mousevsc_exit(void)
- {
- 	vmbus_driver_unregister(&mousevsc_drv);
-+	hid_unregister_driver(&mousevsc_hid_driver);
- }
- 
- MODULE_LICENSE("GPL");
+So, to the solution then:
+
+I'm currently working on a new version of the patch which will align the Bolt 
+receiver much closer to how other receivers work, most close to the Lightspeed 
+receiver, by letting the DJ driver claim all three interfaces again, but fixing 
+the device descriptor, which should let the mouse movement work as intended.
+This also means that scrolling, whether high or low resolution, should work as 
+intended even when use_hidpp=0.
+I'm also improving the 0x2121 handling so that the existing bug that would 
+break scrolling for any existing mouse using `use_hidpp=1`, as well as 
+retaining the improvement to respect user settings in Solaar. Also, the 0x2121 
+protocol notes that the scroll invert setting only affects events sent through 
+native HID, not diverted, so I will also fix that so inversion will work 
+regardless of diversion.
+I.e. now scrolling should work as intended regardless of `use_hidpp` and 
+`high_resolution`, and there will be no more conflict between kernel and user-
+space settings in Solaar or elsewhere!
+
+However, as noted, only HID++ reports carry a device index. Thus, regular 
+mouse and keyboard reports that will still go through interface 0 and 1 will 
+be indistinguishable between devices, but for special keyboard keys (volume, 
+brightness, screenshot, etc.) as well as scroll events when `use_hidpp=1`. 
+I.e. for the reports that actually matter, distinction will be possible!
+
+tl;dr:
+I'm writing a new patch that I'm pretty confident will work without quirky 
+workarounds, it aligns better with existing receivers and thus less complex 
+code, while also improving 0x2121 scrolling for all mice and getting rid of 
+the conflict with Solaar.
+
+Patch should be coming within the next few days.
+
+Oleksandr Natalenko wrote:
+> 
+> You are right, the "Scroll Wheel Diversion" diversion switch was off for me.
+> I've enabled it along with "Scroll Wheel Resolution", and the scrolling
+> stays normal and survives both resume and device switching.
+
+Great, then I'm even more confident in my new patch. With it, it should work 
+with Scroll Wheel Diversion on or off!
+
+> 
+> Somewhat unrelated note: if I enable "Thumb Wheel Diversion", the thumb
+> wheel stops working altogether. It's probably not supported by the driver
+> at all in HID++ mode?
+> 
+
+Correct, the driver does not implement 0x2150 (Thumbwheel) in HID++ at all. 
+However, since we're interested in diverting through HID++ for device 
+separation purposes, I'm looking into implementing 0x2150 too to enable that 
+diversion for that too.
+And while reading the protocol there, I noticed that it also supports touch 
+events on the thumbwheel. There's three different statuses, single_tap, proxy, 
+and touch. Touch is continuous touch, single_tap is tap, and proxy is whether 
+a finger is in close proximity but not quite touching. 
+Does your mouse by any chance support that? If so, can you tell if it sends a 
+button event on tap or touch when in non-diverted mode? Or possibly if it does 
+so in Windows. I don't know what I should map those events to really :) 
+
+Benjamin Tissoires wrote:
+> Bolt in kernel was adding in 7.3, so I'm going to revert it now, and
+> we'll have to have a fully working plan for an eventual inclusion in a
+> future kernel version.
+
+
+

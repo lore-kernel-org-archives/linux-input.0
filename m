@@ -1,93 +1,88 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFA00382F03;
-	Thu, 24 Sep 2026 14:14:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1CF5379998;
+	Thu, 24 Sep 2026 14:28:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790259250; cv=none; b=Jkwgg/c9qQrKYQ8lyfHroCZlxsu1iJZbXo+w1h5YH+YpzKE/5hAqhLJ84C+rC/fu7aFK7yxrPrrPa1vuAtCQlJ3rg9m4lsDPZUs6Q79VVJezK1svFVg4EOaWEe8z0BwTkf9M4bzHNE7Z6dELnVqH26OmhbP9Bn9ZrAxR8Zf4DTE=
+	t=1790260116; cv=none; b=HuhshssmcjTAil56nNf1WENOz7GIvYFaB5l0ycv+lWeDOSfuh2/0V4oI6VsuE6NZC9uaXsOSVZwMmHfBuE2EJlHxNjwX1TNoVDu0dvQ/evf7i3CqedSOx+Uz1eGBFtzdrIeRMK7RMIp1L/uLh4ulOVOyKFpRe/6E+kK98fiuumY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790259250; c=relaxed/simple;
-	bh=I0x4pLD4nLQwGeVJ220ZLW09C9oN4AYcKS5nDS8BcW0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ebfm4EdJypec4rxqTS5Q0CqDU/ulpYev12SCuvL36/fqRN7JRoXSMjP6gsM35RGoElgTbwCBdgAXzplLyp6G368c5ENJr838BiYi9HydfDiJ0v4g2S1FP9RvRtuFgj5VZzPg207OuQLenviBGxe9LepcJ/wXuXiVxzTZvfGTrj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=N4lHVaLN; arc=none smtp.client-ip=220.197.31.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1790260116; c=relaxed/simple;
+	bh=4aCUQy0hWo8IdaDKDTYMyFJ7kry/jltOSeuRCSB2Cb4=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=ilYRrGUtSnb3p7FscXGs022Kn6hsnIWJEMfN3hL7giDTvatdDdGNF/SarEERBsOQ9heZP9jVxk66E6k634MfuvLvure4zV5KCp7R1BaPrnUFY56e983mZtLNFz50c86w83rp8SCzBb8WDP54Jw6JHSfT1c8u8EXlQKaywl+Qx7Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cAanq/HC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="N4lHVaLN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=7e
-	zqlRLaB/m82usWg35QC8fvDRKkXCvResgkSMj6v4E=; b=N4lHVaLNIQtpQv25Zx
-	D1Yu2lI8jpbgUsOzbR9Q4eVqxQX7+ul9JUkLbu6K8uvcCaB+aMarFvtLpxKA1vGW
-	RgonBjrkR+zr4Xpa7llth4Q2J/XyDCe1t/26jTDvlfpFthII5XLsGntDDDGmg7jo
-	QqrqP+3KrP0O23wsfLceiYAjA=
-Received: from pc.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wDXN8sIMLVqBMA4Ag--.5098S9;
-	Thu, 24 Sep 2026 22:13:38 +0800 (CST)
-From: Jiale Yao <yaojiale02@163.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Masaki Ota <masaki.ota@jp.alps.com>,
-	"Daniel M. Lambea" <dmlambea@gmail.com>,
-	David Barksdale <dbarksdale@uplogix.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Jiale Yao <yaojiale02@163.com>,
-	stable@vger.kernel.org
-Subject: [PATCH 07/10] HID: mcp2221: validate response report length
-Date: Thu, 24 Sep 2026 22:13:22 +0800
-Message-Id: <20260924141326.1154421-8-yaojiale02@163.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260924141326.1154421-1-yaojiale02@163.com>
-References: <20260924141326.1154421-1-yaojiale02@163.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cAanq/HC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 010121F00893;
+	Thu, 24 Sep 2026 14:28:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790260110;
+	bh=IL6ClCwIjkZWXa+/sikAWRTuWWNCeUnK+ge6atvO8+M=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=cAanq/HC3J8+Nv74HWHMMsnf0HUL2z8Yx0G3QNxBFsbIJXebsZOfmmG+sNEdqzh+G
+	 yhzVjJZbm4dPGZFF1NpUrCnE4NXRu5SAmuyHWYfH1Qw1SnIlH/sdao7pzGHPcjdtso
+	 hhh1ah6O8YA9dzpCrnTkeCCZ74NP14gr62drZeCVEybtrl0JLnx3O8ikowIk3TdeW2
+	 IQPmDqkmQ76fHJpzkKiiYzpN5sD7jS+f9jUf+7oMRUMtRlRXx1qH8l8d3hMowJ+Jf0
+	 vhKdEBC1+V7wAqzLHB7OhZy7p2zEWkPk7yi6zn8uSo3DhwifnZplpvIiJUK6JIDQSw
+	 c9g3Tm7I8atOA==
+From: Lee Jones <lee@kernel.org>
+To: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+ Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
+ Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>, 
+ Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
+ "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
+ Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>, 
+ Rob Clark <robin.clark@oss.qualcomm.com>, 
+ Dmitry Baryshkov <lumag@kernel.org>, 
+ Abhinav Kumar <abhinav.kumar@linux.dev>, 
+ Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
+ Marijn Suijten <marijn.suijten@somainline.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>, 
+ Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+ Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>, 
+ Tony Luck <tony.luck@intel.com>, 
+ "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Muzaffer Kadir <muzafferkadir@mainlining.org>
+Cc: David Heidelberg <david@ixit.cz>, Dang Huynh <danct12@riseup.net>, 
+ phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+ linux-clk@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org, 
+ iommu@lists.linux.dev, mfd@lists.linux.dev, dri-devel@lists.freedesktop.org, 
+ freedreno@lists.freedesktop.org, Krzysztof Kozlowski <krzk@kernel.org>, 
+ linux-pm@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260916-msm8952-initial-support-v2-9-798c2602dde1@mainlining.org>
+References: <20260916-msm8952-initial-support-v2-9-798c2602dde1@mainlining.org>
+Subject: Re: (subset) [PATCH v2 09/19] dt-bindings: mfd: qcom,tcsr: Add
+ compatible for MSM8952
+Message-Id: <179026010074.638531.9042726679993021271.b4-ty@b4>
+Date: Thu, 24 Sep 2026 15:28:20 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDXN8sIMLVqBMA4Ag--.5098S9
-X-Coremail-Antispam: 1Uf129KBjvJXoW7tFW5tr4kAw4rXFyxWr4rXwb_yoW8GF43pF
-	Z0q39YyrW5Jr4I934DCr1kG34fG3Z7G3y7uFW3W3WrX3s8Gw1YyF1j9asYgrWrXFWvgFn3
-	Jws5KrsxGa4j93DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pijQ6LUUUUU=
-X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbCzRIYUmq1MBJFQAAA3t
+X-Mailer: b4 0.16-dev-ad80c
 
-MCP2221 responses are 64-byte reports, but mcp2221_raw_event() currently
-accepts any report of at least four bytes.  Several response handlers read
-far beyond that minimum.  In particular, the I2C status response reads
-offset 20 and copies ADC samples starting at offset 50.  Other GPIO, SRAM,
-and flash response handlers also access fixed offsets beyond byte three.
+On Wed, 16 Sep 2026 17:22:14 +0300, Muzaffer Kadir wrote:
+> Document the qcom,tcsr-msm8952 compatible.
 
-The HID core invokes raw_event callbacks before validating the report
-length, so a truncated response can cause an out-of-bounds read.  Require a
-complete protocol report before dispatching any response handler.
+Applied, thanks!
 
-Commit 47669bec44fe ("HID: asus: refactor the two workqueues and init
-sequence") added the same kind of raw_event length validation to hid-asus.
+[09/19] dt-bindings: mfd: qcom,tcsr: Add compatible for MSM8952
+        commit: 319633b06ff2bfc2a7a60d2cfcab2e681a343b27
 
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiale Yao <yaojiale02@163.com>
----
- drivers/hid/hid-mcp2221.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index d52ce3531ab7..db0b15622c39 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -865,7 +865,7 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 	u8 *buf;
- 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
- 
--	if (size < 4)
-+	if (size < sizeof(mcp->txbuf))
- 		return 0;
- 
- 	switch (data[0]) {
--- 
-2.34.1
+--
+Lee Jones [李琼斯]
 

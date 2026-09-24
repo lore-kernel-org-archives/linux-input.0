@@ -1,132 +1,155 @@
-Received: from mail-pj2-f43.google.com (mail-pj2-f43.google.com [74.125.227.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 833F63DA7D6
-	for <linux-input@vger.kernel.org>; Thu, 24 Sep 2026 04:06:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 441E532A3D7;
+	Thu, 24 Sep 2026 04:10:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790222762; cv=none; b=LqzW3JOzD1BWisbBAhwCmfI8jk8I/bWeSN0Dz+Umm14qyPErymX9W4l+C6Z90GyeZU/pQLpdwD8B9wovjgJHiojk87X1dUj8e8cxfGmlswyTBp7i1QZgWCaIr0gK0AJcpTUyc8IvZb0QtWmAUvEr+om/CIuNg1VSHgrHMmsWRx4=
+	t=1790223026; cv=none; b=jYs9DcXThrmNtwxbIs86X48MGXY1KhGwKBVCtEbCjohgRcWBXwgSOmblFy3669wp7mbUX2hZO/apP3QyKH2IMY9zva8YpxmznWXcOQP27F3eDawvlm0CDdMfsc0Vp9T9JRTZ6u7Je34UScuRIdhSDNrzyEgDRLAzdhnfodsltlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790222762; c=relaxed/simple;
-	bh=VhwDNULfRsTeeYNpUUXF068Y8WCwNp3CrlFHi6vQTXI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Dh7L4S4dbg5BTIhzSnYCrMj7aTBzQW+HeqC+GNa/9VY8dcY0Hv7ApqasRG2yNLSlxNDnOwyDnkwhaEBCFE4GT5BzYQUiiKOiGMHg/+SaWmkXk8/C/2VEdEHCrhNpo2vW00s11W8bGm4+9RWv6meGd3a519PtqOLhCzKKbyJFIBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IM1jF3Ch; arc=none smtp.client-ip=74.125.227.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790223026; c=relaxed/simple;
+	bh=/R79mf0UN30aDwOcAu+xr3w+bnwKPwqVeOzknFxhMtI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bvOIctohg/vMay0rUCswGLoq/kuNc7+yf7avktZnD0sVnuLlxaaUXx2aXiMIHemAjlf9i4Y4qqJFcSJSAB8/ihA0o0Rk/U6O3BkEn0gmpr9SWJMJBEg56c/X24b1asj4IwaWurlwNREUxExyO2An0xe6MEQPbN8Bt0mnpxzzxGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QQf1+PxM; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IM1jF3Ch"
-Received: by mail-pj2-f43.google.com with SMTP id 98e67ed59e1d1-396ccdaea76so729286a91.0
-        for <linux-input@vger.kernel.org>; Wed, 23 Sep 2026 21:06:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790222761; x=1790827561; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=PhZF8mPv+fRcVNjbFSDLsT1qu+MWxdYp9Nch/L7zjGE=;
-        b=IM1jF3Ch1SJSP5lcp/+aJJ0Dt2dnzKRD/RR+zaViSZmfFXdEBdWxHu8TVhs6obz4Cp
-         hY/dR+9TU3CNJspwZRUcdY6vG+GPJ9tm3aygGF89YXNrEar8B5Q0ITq/0Ra8R7uSbD0l
-         YSYK+PGISsjjGQHebxAL63rnGAwhTJqwdNhbFy42MvNlsD0dmn4GGF6ScAttobhceV5a
-         ojXZAKpBkuPqDc/gfqNhlkHUbztLPGL4wD5W8mQ89nYApExZrp+VI6ZUZrWRhP2zELPC
-         g9qpt39HgnopKcgH72zdQKJEL/0xZtpQKS5wcQMH0mybYtPBWELJHzO7/HocI9rrn27X
-         kvZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790222761; x=1790827561;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=PhZF8mPv+fRcVNjbFSDLsT1qu+MWxdYp9Nch/L7zjGE=;
-        b=cUz/qYSLgnI9tJrKnRRDWs/X7i+QYr/Vm3aV14Kaqsh2Yhjvc1i9Nt0fOs/5gOM9wG
-         XYVuWGs/cFgOEmtcSgSBkPXYyQglaDtzirHMXgJiSolH0J4XlTIlpSwovCHRDr6Pa7yE
-         dEv5TPtPMkMLk8Z3TKUFF7UHl/xSJG54zTZj/QtTDdFzrjlAt9G1A1jaYCUra5WM21QI
-         LRBr3TQnH4+IB7AiD33L2gnchK4cxg3F4t9u4sxDxmkzIqaUwiov0dXW5C/kY4xemVN+
-         uy/onLDZOZslGiIGRgYmDKD2CAhA4y1WS3usJqgzBO1DkIAKcpzwRwY96Gt1HAH/Go/v
-         J/5Q==
-X-Gm-Message-State: AFuF++nD2wMVXDD3tHxJphCxKfKpor5gb/k6I0gaFetBPJoX4dxHWx8L
-	6wBEQghNc6AZk2HVGWlbidu4u4z+2Y8RfcQExZnRndJL4CpPU/2Z09za
-X-Gm-Gg: AYBFou3xNSUU9xpydkCzhbMrY6f20AUU7hA0IVEWMHu8xGUyM96VrhNoBmJ6/46R38q
-	hV6n2MZwyGvqQL3ri0J6q4Fgc5hnnnirb19E5JOdMMPuICmNXtIQAep4ZTH/0zLZICDZpcDZpwq
-	iwKF7uIR8SFBWZZnYP086fRb+/87Eib7Tl5Z5f+wcELqooLeqFNMoJmXQ7k4B5srXnI9RQSoZsO
-	VZ4hxXlW1qXwo0il1q1a9F0Rvi3VC2P7exVmqNeOsp7ADFXFLD+yAx0/CyPBFmbAlhy4RWPgesR
-	dlMqPViyxe7xRp+WBMy6jih8HnlNeqigu9xSJPz4+2r0kP72/CSiqZK4LTSiyUJp1GDDK17ZnA6
-	o+dLfOjiFXnrXnj+VlJRdMtltfUzA0FeF5rL6p46s4JZAbG7S9Sk9MeGBHCVieohcqrV7jJ9Ekf
-	K/qPT4B+8Zz+bg57dGdX+ExIOyGDAcZsgIDFQh6fPXZuSoRox51qz9J1rRRm3DDNCiqWnhN/YzA
-	fc4nM8u6uQyS3/q8Up1eT70ko/g46wwezMoCL4=
-X-Received: by 2002:a17:90a:d410:b0:398:9bd3:d6d4 with SMTP id 98e67ed59e1d1-3a098651f1emr672367a91.14.1790222760570;
-        Wed, 23 Sep 2026 21:06:00 -0700 (PDT)
-Received: from thangnn-Dell.vingroup.local ([101.99.23.84])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a09e359a9bsm259410a91.3.2026.09.23.21.05.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Sep 2026 21:06:00 -0700 (PDT)
-From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com,
-	lkp@intel.com,
-	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-Subject: [PATCH v2] Input: serio - don't sleep on serio_mutex from drvctl_store()
-Date: Thu, 24 Sep 2026 11:04:30 +0700
-Message-ID: <20260924040430.711439-1-ngocthang2710.1999@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QQf1+PxM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1790223025; x=1821759025;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=/R79mf0UN30aDwOcAu+xr3w+bnwKPwqVeOzknFxhMtI=;
+  b=QQf1+PxMJDnC0sx2IoGQcA4WAKmd432UoIhBT+SKtCIGvryWfaivpu4N
+   dtnwUKp43ZZSHRA8os5vvpZvymjxaUwYTOg2vYjLEMgiYB6UrHqkgmyhQ
+   hQlG5WftOCYBr6aKdITU0yRNz3MOCk/tw9ZB4ABKsQi8w44YUmmKg7Zf/
+   DVwaEJI3AnNpmrbhDPXjtQ02Sq7b/PIwvR/DKd/ftK3wAAhMk8RpXsgqc
+   ke2CP/wUDwfEq6rKwD9SrjVDS4NMPxDKlibwNoPliWnlRFghqAR/8mFko
+   3QCfVfvs6rXVWTNhNb2WTNSdlGnn8hYdwPbEIxtMWycfkmuU7sXbITmR0
+   g==;
+X-CSE-ConnectionGUID: dN0UkuUVQqGDbFszSdHzDA==
+X-CSE-MsgGUID: Eq2/u/VKR3GZuqo/3fG83w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11914"; a="94802348"
+X-IronPort-AV: E=Sophos;i="6.27,119,1787036400"; 
+   d="scan'208";a="94802348"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Sep 2026 21:10:24 -0700
+X-CSE-ConnectionGUID: +Z9BmMAST3utUSdVgPQUBg==
+X-CSE-MsgGUID: wuav5v6NQAuyY7aW/32L3A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,119,1787036400"; 
+   d="scan'208";a="300154550"
+Received: from lkp-server01.sh.intel.com (HELO 462990a40a85) ([10.239.97.150])
+  by fmviesa002.fm.intel.com with ESMTP; 23 Sep 2026 21:10:23 -0700
+Received: from kbuild by 462990a40a85 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1x9amq-00000000IBa-2izI;
+	Thu, 24 Sep 2026 04:10:20 +0000
+Date: Thu, 24 Sep 2026 12:09:46 +0800
+From: kernel test robot <lkp@intel.com>
+To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev,
+	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com
+Subject: Re: [PATCH] Input: serio - don't sleep on serio_mutex from
+ drvctl_store()
+Message-ID: <202609241230.lUW53GKL-lkp@intel.com>
+References: <20260919124604.210505-1-ngocthang2710.1999@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260919124604.210505-1-ngocthang2710.1999@gmail.com>
 
-Writing to the drvctl attribute takes serio_mutex while holding the
-attribute's kernfs active reference. serio_unregister_port() does the
-opposite: it holds serio_mutex and device_del() then waits for active
-references to drain in kernfs_drain(). If a drvctl write is in flight
-when the port is unregistered, the writer waits for serio_mutex and the
-unregistering task waits for the writer, and neither makes progress.
-Interruptibility of the lock does not help, as nothing signals the writer.
+Hi Nguyen,
 
-lockdep reports it as:
+kernel test robot noticed the following build errors:
 
-  WARNING: possible circular locking dependency detected
-  repro/4908 is trying to acquire lock:
-   (kn->active){++++}-{0:0}, at: __kernfs_remove+0x34c/0xb90
-  but task is already holding lock:
-   (serio_mutex){+.+.}-{4:4}, at: serio_unregister_port+0x1b/0x40
-   drvctl_store
-   sysfs_kf_write
-   ...
-   kernfs_drain
-   device_del
-   serio_destroy_port
-   serio_unregister_port
-   userio_char_release
+[auto build test ERROR on dtor-input/next]
+[also build test ERROR on dtor-input/for-linus linus/master v7.3-rc4 next-20260922]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Use mutex_trylock() and restart the syscall when the mutex is busy, so
-the active reference is dropped before waiting. Once the port is being
-removed the retried write fails with -ENODEV.
+url:    https://github.com/intel-lab-lkp/linux/commits/Nguyen-Ngoc-Thang/Input-serio-don-t-sleep-on-serio_mutex-from-drvctl_store/20260919-194604
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+patch link:    https://lore.kernel.org/r/20260919124604.210505-1-ngocthang2710.1999%40gmail.com
+patch subject: [PATCH] Input: serio - don't sleep on serio_mutex from drvctl_store()
+config: x86_64-rhel-9.4 (https://download.01.org/0day-ci/archive/20260924/202609241230.lUW53GKL-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260924/202609241230.lUW53GKL-lkp@intel.com/reproduce)
 
-Reported-by: syzbot+1075f6dc93f398c1857e@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1075f6dc93f398c1857e
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
----
- drivers/input/serio/serio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202609241230.lUW53GKL-lkp@intel.com/
 
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 54dd26249b02..5b650421e066 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -357,7 +357,8 @@ static ssize_t drvctl_store(struct device *dev, struct device_attribute *attr, c
- 	struct device_driver *drv;
- 	int error;
- 
--	scoped_cond_guard(mutex_intr, return -EINTR, &serio_mutex) {
-+	/* Port removal holds serio_mutex and drains us: don't wait for it. */
-+	scoped_cond_guard(mutex_try, return -EAGAIN, &serio_mutex) {
- 		if (!strncmp(buf, "none", count)) {
- 			serio_disconnect_port(serio);
- 		} else if (!strncmp(buf, "reconnect", count)) {
+All errors (new ones prefixed by >>):
 
-base-commit: daae2ab46e0cb612f50ca1d86cf50e5962461ae5
--- 
-2.43.0
+   In file included from include/linux/jump_label.h:78,
+                    from include/linux/dynamic_debug.h:6,
+                    from include/linux/printk.h:620,
+                    from include/asm-generic/bug.h:31,
+                    from arch/x86/include/asm/bug.h:195,
+                    from arch/x86/include/asm/alternative.h:9,
+                    from arch/x86/include/asm/barrier.h:5,
+                    from include/linux/list.h:11,
+                    from include/linux/module.h:12,
+                    from drivers/input/serio/serio.c:14:
+   drivers/input/serio/serio.c: In function 'drvctl_store':
+>> drivers/input/serio/serio.c:361:45: error: implicit declaration of function 'restart_syscall'; did you mean 'do_no_restart_syscall'? [-Wimplicit-function-declaration]
+     361 |         scoped_cond_guard(mutex_try, return restart_syscall(), &serio_mutex) {
+         |                                             ^~~~~~~~~~~~~~~
+   include/linux/cleanup.h:457:25: note: in definition of macro '__scoped_cond_guard'
+     457 |                         _fail;                                          \
+         |                         ^~~~~
+   drivers/input/serio/serio.c:361:9: note: in expansion of macro 'scoped_cond_guard'
+     361 |         scoped_cond_guard(mutex_try, return restart_syscall(), &serio_mutex) {
+         |         ^~~~~~~~~~~~~~~~~
 
+
+vim +361 drivers/input/serio/serio.c
+
+   353	
+   354	static ssize_t drvctl_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+   355	{
+   356		struct serio *serio = to_serio_port(dev);
+   357		struct device_driver *drv;
+   358		int error;
+   359	
+   360		/* Port removal holds serio_mutex and drains us: don't wait for it. */
+ > 361		scoped_cond_guard(mutex_try, return restart_syscall(), &serio_mutex) {
+   362			if (!strncmp(buf, "none", count)) {
+   363				serio_disconnect_port(serio);
+   364			} else if (!strncmp(buf, "reconnect", count)) {
+   365				serio_reconnect_subtree(serio);
+   366			} else if (!strncmp(buf, "rescan", count)) {
+   367				serio_disconnect_port(serio);
+   368				serio_find_driver(serio);
+   369				serio_remove_duplicate_events(serio, SERIO_RESCAN_PORT);
+   370			} else if ((drv = driver_find(buf, &serio_bus)) != NULL) {
+   371				serio_disconnect_port(serio);
+   372				error = serio_bind_driver(serio, to_serio_driver(drv));
+   373				serio_remove_duplicate_events(serio, SERIO_RESCAN_PORT);
+   374				if (error)
+   375					return error;
+   376			} else {
+   377				return -EINVAL;
+   378			}
+   379		}
+   380	
+   381		return count;
+   382	}
+   383	
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

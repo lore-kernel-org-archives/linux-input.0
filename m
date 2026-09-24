@@ -1,64 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6686230E82E
-	for <linux-input@vger.kernel.org>; Thu, 24 Sep 2026 13:48:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2BE5384CC3;
+	Thu, 24 Sep 2026 14:13:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790257715; cv=none; b=pevrs62AJ2F4RV5AocIuatdDYwTGfCPkGnK0TKOZvYy8THPU4e0uW+ZqBhuamJptmWRTnzrvdgRaMDBX86R7QLwInFHpktB96ZcPWb0Bye0fMhup70sVjKmMqhmYd3bF4AfdRQhbVMzOXzwkmsK1GtW+Ncy0TyVEYVTVgkI+gAw=
+	t=1790259233; cv=none; b=CBklRIWrOTLheRL7FEXTznAb2RtnyWkxXpKa1GHJHJsRUECrUozfHqnWVd2hZhmk1FhjULwKci1JqE1ocmEA97Ku6WuRn4bpyEJY4JF8yGZJPGtYt90i70UNd1FP6Co57ncxoZWx8YYuDCMux3wbEHnTJUpD0fK0fg4IiEHr9es=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790257715; c=relaxed/simple;
-	bh=gSja6kpXXUojh09M/4kJXwE8p86uDkqtjI3BHopOTGM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ndxvrnd+08+cJI2EUsvGEths0MVNmuh2D63QauF2+x5NHogPHdr3c/kICVeQgCPOk5C8Q1JQtZ3cwJhRYbQpFlwlEaO8qwqfwYwQqtQuWmnj5vbZgKGLYj/nSMJHjXV9JamH7f5qLS3rJQJoT5IvvvwPFz+ufxKUqWLoEwGVjHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kpK6rC5x; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790259233; c=relaxed/simple;
+	bh=8GJVh8zyxnT5u0h4IreF5rD+qZqANbXKz98OmJ810PA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=ZzkB8C9+f9f9L+YwtFzED7Fds9IYGYn2YWAYSHF18dscD5MJA8PKCh1kNKJPFKUriqaVsOjlczX7kdt0PMXRrJ12uWF3NLZB8r2pKuwHCPwqPFESBclcurrJIo/wMuEBQPTdCkKT81cgA7P0dDUQg0W2adkWLeh96pzE6fQoVWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=eNIQyNPD; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kpK6rC5x"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 079181F000FF;
-	Thu, 24 Sep 2026 13:48:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790257714;
-	bh=KjnzZUZd3TZQLHyPIQHMu2uaRT1JlP5YvUqiQe5fdF8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=kpK6rC5x7sEJ8QdcHD3hZ6vQlOa9GU2oPRQDlheKnE0uuA3ngvazta3A7FIDyc3NC
-	 dnoc3P4UuvB0V6Qc68OIcTzEBu2VtcADcTN3UDYFsiMMWEm1gUYFKFfLd0Y2xFjkJQ
-	 blgAkqh1Wo46VxubXYQ/ZAkWnJMkKCabONg45KQ2IQ5PwX7FjkSpLyZi51DEirMDLb
-	 vSd4N/icPGjC1RDkHZpB8Ahw94P1MLCsi0aU5Y5FVbOBUpxe4z3WfQmCnjcc1p9BTk
-	 HkY0uKpIaCBy3AcOnEuyUqL02V5ms0095I4moCp5VpxFYumFAIvPZ3ai0WMm5BNlR2
-	 K8Q+57b4KDv3A==
-Date: Thu, 24 Sep 2026 14:48:30 +0100
-From: Lee Jones <lee@kernel.org>
-To: "Cheng, Ping" <Ping.Cheng@wacom.com>
-Cc: "jikos@kernel.org" <jikos@kernel.org>,
-	"bentiss@kernel.org" <bentiss@kernel.org>,
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Subject: Re: [PATCH 2/2] Setup touch switch for different order of input
- registration
-Message-ID: <20260924134830.GC453446@google.com>
-References: <20260923214928.18760-1-ping.cheng@wacom.com>
- <20260924065137.GM3864833@google.com>
- <GV2PR07MB9153825A137B384ED830006F9B812@GV2PR07MB9153.eurprd07.prod.outlook.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="eNIQyNPD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=X3
+	B0WsYGwWxeNRan1ARn3/d6wJOVWNtlnr5O1j4FW5A=; b=eNIQyNPD0HMNVzG/tN
+	ep7iBe8kPsil12NByxOEAIfidff8xSbulnv1tdyAL9Bm+4haik8zoR1JuCCch4Rk
+	vIOD3mCVP6dEgfoLGDMlB0sWTe3BeHzdvfkq07ajBR90P4ytsiHuBnKT/jViWd2p
+	xkUy/3qGdrHWpPqyQAXJ6/8GU=
+Received: from pc.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wDXN8sIMLVqBMA4Ag--.5098S4;
+	Thu, 24 Sep 2026 22:13:32 +0800 (CST)
+From: Jiale Yao <yaojiale02@163.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Masaki Ota <masaki.ota@jp.alps.com>,
+	"Daniel M. Lambea" <dmlambea@gmail.com>,
+	David Barksdale <dbarksdale@uplogix.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Jiale Yao <yaojiale02@163.com>,
+	stable@vger.kernel.org
+Subject: [PATCH 02/10] HID: cougar: reject short special-key reports
+Date: Thu, 24 Sep 2026 22:13:17 +0800
+Message-Id: <20260924141326.1154421-3-yaojiale02@163.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260924141326.1154421-1-yaojiale02@163.com>
+References: <20260924141326.1154421-1-yaojiale02@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <GV2PR07MB9153825A137B384ED830006F9B812@GV2PR07MB9153.eurprd07.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDXN8sIMLVqBMA4Ag--.5098S4
+X-Coremail-Antispam: 1Uf129KBjvJXoW7WFy3GFWxXFWxCrWxWrW7Arb_yoW8GF4UpF
+	s8tr90krZrtrWfuw1rGw1UCFyFvwn5JrW29FyrGw1Fvwn09FnIgay093sFqFW5Zw40qr9F
+	kwsrtrs5uFyDuaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pR1q2tUUUUU=
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC7wwXUWq1MAxX5wAA32
 
-On Thu, 24 Sep 2026, Cheng, Ping wrote:
+The HID core invokes raw_event callbacks before validating the report
+length.  cougar_raw_event() reads the key code and action from offsets one
+and two without checking that those bytes are present.  A short report on
+the special interface can therefore cause an out-of-bounds read.
 
-> Hi Lee,
-> 
-> Sorry I picked the wrong patch to submit. I did update this patch as you suggested...
-> 
-> I am on vacation in the next 2 weeks (starting today). I'll submit the set again when I am back at work.
-> 
-> So, you would not give a reviewed-by for this patch, even if I update it according to your suggestion, right?
+Consume reports that do not contain the action field before accessing the
+fixed offsets, consistent with the callback's handling of other reports on
+the special interface.
 
-I'd be happy to provide a Reviewed-by tag for what it would be worth.
+Commit 47669bec44fe ("HID: asus: refactor the two workqueues and init
+sequence") added the same kind of raw_event length validation to hid-asus.
 
+Fixes: b8e759b8f6da ("HID: cougar: Add support for the Cougar 500k Gaming Keyboard")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jiale Yao <yaojiale02@163.com>
+---
+ drivers/hid/hid-cougar.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/hid/hid-cougar.c b/drivers/hid/hid-cougar.c
+index ad027c45f162..7156658166f5 100644
+--- a/drivers/hid/hid-cougar.c
++++ b/drivers/hid/hid-cougar.c
+@@ -270,6 +270,9 @@ static int cougar_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	if (!shared->enabled || !shared->input)
+ 		return -EPERM;
+ 
++	if (size <= COUGAR_FIELD_ACTION)
++		return -EPERM;
++
+ 	code = data[COUGAR_FIELD_CODE];
+ 	action = data[COUGAR_FIELD_ACTION];
+ 	for (i = 0; cougar_mapping[i][0]; i++) {
 -- 
-Lee Jones
+2.34.1
+

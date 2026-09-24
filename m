@@ -1,30 +1,29 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 288DD391E6D;
-	Thu, 24 Sep 2026 14:13:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26CA381AE3;
+	Thu, 24 Sep 2026 14:13:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790259234; cv=none; b=YHb4l03Jqr6loJjMHF4Or7XNxYtszrO0u1wRL5JaYwb0vPsuNjqAhmiigcve5NWqJTCiyo0j5Y/+eiakSVrJGZ+2+MSGDF81tMollytoeVQQ/IwsaVJu84tcYqZ0ktrjqLL07qhPFxY8l4SqSVM1K/xRXEKQtxy/B4Zh0BicFaE=
+	t=1790259236; cv=none; b=p5N6BRU/O2CFjHmZbLfD8X2ajmvTL0ykTIEhBLcp8o66Gb8vOXZrXVIJm/U1fXtoLirpWFs5Qgrh2qUsdfxI82yyny72dYAHNfn2epliNxQS9Eab6NOBJ0zacoOEZhuV4LTQzsRelCBQXV3oBZVE0rHyzzY5Cf9TCcrxMBTRQ4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790259234; c=relaxed/simple;
-	bh=HXm1yorfvdGtaMEBU6GpbVck/uABmJb16a14ZL/lNTY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=ugSrU1nvQgDImAUdh5jTb529/UMir00uoSaplBKxL03gq9ebJIHmozMa+18aqE0JIcQnT67pKismOgcszV4FNvjd/lmtKzFAorxEV9VmjMDhgOksz7y57OZxxrIecaQwVDC1uwurJpAY4sgLEEadJs1b14WO9t4vnn+sT4kV3es=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=az25/qV9; arc=none smtp.client-ip=220.197.31.2
+	s=arc-20240116; t=1790259236; c=relaxed/simple;
+	bh=T4eoCY3beb6FIImrfgTMKYKm3HPqG5R8ByKQyPshLkY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=jx7yUNfHe1cV8ajuUzPjdbnekbKp6+bOO/6hQS2DHz31MEIIpXKtugAy2Mw40gRKpYAfK7fi3FXpRlH5o1ztCUzZvwxFlyYj6rWoajdFJDYKpIg9y/l9iYJAalwnKxigfeIUljHtIXPZRA6YUsKXONGUQZq/LQx/fsZFcbb5RUc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=OVnkFkud; arc=none smtp.client-ip=117.135.210.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="az25/qV9"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="OVnkFkud"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=yJ
-	vO0Bk4vmm7stk9qO/JlCSbCGgN6pBCu9S63MWOT60=; b=az25/qV9tGKhS/hov8
-	mDMk7ahA8XYIYHpPZysrlLmVpROlVsGR/7qwkau5PWopRNYMfr2iLW+SAP1MEqyj
-	HMNDvin+gYCLE85xgNnqJgK8GWWA0BPvZh6T3QPKasm2o3odZKNUIKSyk3qx004v
-	oplBmeLIsX+J3rnCMC0e82XHI=
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=+o
+	91K5lVbT2dniebC4dw84ZvThaNdc+FPUBeGwv37vM=; b=OVnkFkudWhAlivJkA7
+	gj36YsRDLZyB5YJPKyg9P07eJ0TqhBKRsrc7+dFWmMDM8RpnpN3tc9XjR2cYIBCd
+	lWGgVkR5u9vJ28N6SL2Ax9rI8wdP4kxTlF0HFK+QKImP58d2QC4CxytiCH5aGI6U
+	Qzh/eFui+Cgb8TR/I2xs5WAWc=
 Received: from pc.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wDXN8sIMLVqBMA4Ag--.5098S3;
-	Thu, 24 Sep 2026 22:13:31 +0800 (CST)
+	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wDXN8sIMLVqBMA4Ag--.5098S2;
+	Thu, 24 Sep 2026 22:13:29 +0800 (CST)
 From: Jiale Yao <yaojiale02@163.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>,
@@ -33,14 +32,11 @@ To: Jiri Kosina <jikos@kernel.org>,
 	David Barksdale <dbarksdale@uplogix.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Cc: Jiale Yao <yaojiale02@163.com>,
-	stable@vger.kernel.org
-Subject: [PATCH 01/10] HID: alps: reject short input reports
-Date: Thu, 24 Sep 2026 22:13:16 +0800
-Message-Id: <20260924141326.1154421-2-yaojiale02@163.com>
+Cc: Jiale Yao <yaojiale02@163.com>
+Subject: [PATCH 00/10] HID: validate short reports in raw_event callbacks
+Date: Thu, 24 Sep 2026 22:13:15 +0800
+Message-Id: <20260924141326.1154421-1-yaojiale02@163.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260924141326.1154421-1-yaojiale02@163.com>
-References: <20260924141326.1154421-1-yaojiale02@163.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,68 +44,54 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDXN8sIMLVqBMA4Ag--.5098S3
-X-Coremail-Antispam: 1Uf129KBjvJXoW7uFykJF47CF1UAr1fKryxuFg_yoW8ur1DpF
-	Z5Gr95trW5tr1fZFWjqrn8Ca4ayryxXryxXFy7K34I9w15X34UuF109ryFvr4a9r48Krsx
-	Kr4q9FnYk3WDZaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0ztNt3sUUUUU=
-X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbCzgsWUGq1MAvEpwAA3E
+X-CM-TRANSID:_____wDXN8sIMLVqBMA4Ag--.5098S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxJry3JFW3Jw4xCF17JFy7Jrb_yoW8CrykpF
+	WkA390yr45ArW7Cw13tw4UCFy5Krs7JFyYvFy0k3W5W3ZYya45XF4S934YqrZ3XF48tr92
+	gF4vq39xCFyj9aDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEubyLUUUUU=
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbCzgkWUGq1MAnEiQAA3q
 
-The HID core invokes a driver's raw_event callback before validating the
-report length.  Both ALPS input parsers therefore need to validate size
-before accessing their fixed-format reports.
+__hid_input_report() calls a driver's raw_event callback before
+hid_report_raw_event() validates the received length against the report
+descriptor.  A raw_event callback must therefore validate size before
+accessing fixed offsets or casting data to a protocol structure.
 
-t4_raw_event() casts the buffer to struct t4_input_report and reads its
-contacts and button.  u1_raw_event() reads five bytes per configured finger
-starting at offset three, or six bytes for a stick report.  A short report
-can make either parser read beyond the valid data.
+Ten HID drivers currently access fields beyond the received length when a
+device supplies a truncated report.  Add protocol-specific checks before
+those accesses.  The patches are independent and each changes one driver.
 
-Reject reports that do not contain all fields used by the selected parser.
+The mcp2200, pxrc, and zydacron cases were reproduced with a fake HID
+transport under KASAN.  Their individual commit messages include the
+relevant reports.  The remaining paths were verified by following their
+fixed-offset accesses from raw_event.
 
-Commit 47669bec44fe ("HID: asus: refactor the two workqueues and init
-sequence") added the same kind of raw_event length validation to hid-asus.
+This follows the local raw_event size check added to hid-asus by commit
+47669bec44fe ("HID: asus: refactor the two workqueues and init sequence").
 
-Fixes: 2562756dde55 ("HID: add Alps I2C HID Touchpad-Stick support")
-Fixes: 73196ebe134d ("HID: alps: add support for Alps T4 Touchpad device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jiale Yao <yaojiale02@163.com>
----
- drivers/hid/hid-alps.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+Jiale Yao (10):
+  HID: alps: reject short input reports
+  HID: cougar: reject short special-key reports
+  HID: cp2112: validate response report lengths
+  HID: elo: reject short touchscreen reports
+  HID: logitech-dj: validate unnumbered keyboard reports
+  HID: mcp2200: validate READ_ALL response length
+  HID: mcp2221: validate response report length
+  HID: prodikeys: validate fixed-format MIDI reports
+  HID: pxrc: reject short input reports
+  HID: zydacron: validate key report length
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index 67179e3fe39b..b1950aff6ad4 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -322,7 +322,7 @@ static int t4_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 	int i;
- 	struct t4_input_report *p_report = (struct t4_input_report *)data;
- 
--	if (!data)
-+	if (size < sizeof(*p_report))
- 		return 0;
- 	for (i = 0; i < hdata->max_fingers; i++) {
- 		x = p_report->contact[i].x_hi << 8 | p_report->contact[i].x_lo;
-@@ -370,6 +370,9 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 		break;
- 	case U1_ABSOLUTE_REPORT_ID:
- 	case U1_ABSOLUTE_REPORT_ID_SECD:
-+		if (size < 3 + hdata->max_fingers * 5)
-+			return 0;
-+
- 		for (i = 0; i < hdata->max_fingers; i++) {
- 			u8 *contact = &data[i * 5];
- 
-@@ -407,6 +410,9 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
- 		return 1;
- 
- 	case U1_SP_ABSOLUTE_REPORT_ID:
-+		if (size < 6)
-+			return 0;
-+
- 		sp_x = get_unaligned_le16(data+2);
- 		sp_y = get_unaligned_le16(data+4);
- 
+ drivers/hid/hid-alps.c        | 8 +++++++-
+ drivers/hid/hid-cougar.c      | 3 +++
+ drivers/hid/hid-cp2112.c      | 9 ++++++++-
+ drivers/hid/hid-elo.c         | 3 +++
+ drivers/hid/hid-logitech-dj.c | 3 +++
+ drivers/hid/hid-mcp2200.c     | 5 +++++
+ drivers/hid/hid-mcp2221.c     | 2 +-
+ drivers/hid/hid-prodikeys.c   | 7 ++++++-
+ drivers/hid/hid-pxrc.c        | 3 +++
+ drivers/hid/hid-zydacron.c    | 3 +++
+ 10 files changed, 42 insertions(+), 4 deletions(-)
+
 -- 
 2.34.1
 

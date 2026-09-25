@@ -1,222 +1,144 @@
-Received: from mail-dy2-f15.google.com (mail-dy2-f15.google.com [74.125.229.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ixit.cz (ixit.cz [84.42.129.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4A4A446060
-	for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 19:27:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CD1A4E8DFA;
+	Fri, 25 Sep 2026 19:48:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790364464; cv=none; b=tJs4dtIwR6TBFNtb6oLkX0KEwRXVSpprGilnFCqRqfIfTIiY48K0XJg0bbvSzPcF3K+BasQkUJe+0+qAq9QeCeK3yt+isXKzCJFylhLmP49ilmg8CWn+d3klgPw7yHqudL06WzCDig8IA9zfItEaL1epI4X3VNtebqUcoKImCeI=
+	t=1790365707; cv=none; b=A2yFEKdU42NCbesSQCNKBZxn6XgyTh1VAB5GqeuL7d73AbknPP5zTjMcO+/5jICeV/dUSTuQsPjBS27362qCpQXD+RfCC/ofxgFEAp9QeJfexdaYIqz4aJV2IdTeLK2gyKqjHJKx0m21NXDGZc/G8M71G3eIqDGyAa/s5wan9eg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790364464; c=relaxed/simple;
-	bh=6SU9XvusmasAr35BYeFHgnzOH+gX4OvUuLSAZmMQ2ho=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BVNsSCL6j/VC73Wzt/CwnbfHTtFCGb+ycjLLMyn3RTZYOcmq9OjcHRE8VrTM0HqdFfrZ2QpnZhtOo2uk8H3mHeymHoNcsKHuqFqkfvgcAWOSd5tZvb7tUOZFNEw3BXR3QwZl84oWQlJkOjBa1zaARwW0A6gHsrjxRdTT5CKWrk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Xv6dVm3M; arc=none smtp.client-ip=74.125.229.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790365707; c=relaxed/simple;
+	bh=C62xArAqKjFYTe9fBgBsPrEb+56dKqvULln787lmLic=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=R9SfDbCPYNJ6T8xT4oc+/uaH/iI8oac9AmHvOAZhwihiNt+yfil2FO2u40PVmAo3NMANZ6k/yKiJxh3k1ptHs+Dlv7OFMMUjEWPXflmtFlvZv/F6kei0BWPuVc+xGJCfH5a31Tl1nsYo5v7o0OvSkJHaoafGyfN06B/cPVa4NXg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=z1ixV01+; arc=none smtp.client-ip=84.42.129.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Xv6dVm3M"
-Received: by mail-dy2-f15.google.com with SMTP id 5a478bee46e88-32dec843c37so1816202eec.3
-        for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 12:27:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790364462; x=1790969262; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=RWDSKWZuEkPlk2u1p84ALBilVUhoSm1EjrDy3t/LqSE=;
-        b=Xv6dVm3M9sree4WnoqgszAszL6cjx9VZVK8h2qE8l4YBo7bfBOi17WM0NCuy9lB+N9
-         Ew+rC11bB1Mj8hPezFuX9HLdQt5N7uTCybS7eFTsrJiwdJVvHjsglG9/rO2itkuEaGRv
-         in351Yt4wQEb354KFefOAJRlSg7ROYWoD4guWvS4I9lRs8338YxyWLyRkhaJdQcaP5k6
-         cusGF1n32FDdSsq168qLJpcp6z89Ka/U5ctkVkaQ0LTUKMyWmBALqmIy6ViXQsE5pWmn
-         DypVsistOIlds4DJiiw9wgYGcnMxgBm6IWxNTFOrE0J0MX3HsY2EYJucubpm+WrMIs2t
-         Ri3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790364462; x=1790969262;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RWDSKWZuEkPlk2u1p84ALBilVUhoSm1EjrDy3t/LqSE=;
-        b=gk06ZylPQ/BogRHdok/Pxgw16CKUL4VUm68p9aBrXtDoc0dzW3YgzYQkMp7blrA7r/
-         ufaVbynPcW45OB81986qAMhtdIMOR6lYOlmMkUJCzLgp44hy7/poZl6Fkj0D2ZYbfE/u
-         oaJAu/WEfCkcEHnIE2MEU1PXg8uNYoYv2nWbPpdria2Az6ct+Xjf6EJbiKBn0cNpe6Ip
-         MJtul+8BG09ocnzZx/hrhcNm5gaJDfOIQyZ8/Vhc3otd0r9PPSgFCFYVj+XreMB17uo3
-         mNP8fsBiQuFWe2uTcyLmMLBFuliP5P99Sa8bsWb1LOx6o5eKT9dTuCi3CNDiphpoEIkn
-         vo/Q==
-X-Forwarded-Encrypted: i=1; AKwUvBzwcdypfuazPJY0VKAhs7TeCAhMFxvk4y+8Qf4MX3KT1jCH66Q10hUzub2JSTo82jzeNRE7YHCO3IsuwA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lkN5/cFj/TIU1S075Z73isNT2LZ1MtEbMvJpllr9HMH0fkJEpl
-	EZm5ElBVJBSlqBh7J85esHpeb5oX8uwiR1yL1PW71Cx9a/IYDDqmq7V6
-X-Gm-Gg: AYBFou3+VZhXaqh9YZmdxUsgja5815ynlBfSaBWph8+gE/gMajv6WoUprUPwXpR62w+
-	lv+ZcFxH3xxDCTzUCnc6HsMkbi/KD+bgvwNvmbMLUSpLsNC1xW59VmnfhN+ZNKXywTdj2GALDKi
-	/RFd+patucbpDEA8Hhhz5WqgWuCsXpuqOIVITUJSmQblDVGh9ZkGqk2oimHl8+Yfp3WYGp5ese8
-	GXqbWJzj1Ak9fWRohNQHVOiwf/NIM5CS1ArPpEt0d4WxrbruRrIdxBiBS5+tzXboRIKjU4qRN4M
-	bsBz7h2jnbtzivStFG4ZFemTFwJrlFPpfcXZwL+G1Yr8MUlQax/785QXhfw7XWgd1GlqiOgPVzf
-	UQ88CpNdR53hrQqft4TTbu5vzdn9OcS0wKxdEMwB1JJrsvTIIxajl4PjDkrnNPPuKu/+gwg6vZN
-	+5T4syWq/QH1G7bFXzl14Q3e3gbJY8o6DJHCcD+85Q2/KokvbINSIpcDbQWFfobjI9jv7bNWKvr
-	jf9HXclHcElw+9h/qcSEUCNMx4MBPtGVbZk/j0=
-X-Received: by 2002:a05:7300:ae23:b0:342:890a:40a8 with SMTP id 5a478bee46e88-342890a4389mr792661eec.30.1790364461569;
-        Fri, 25 Sep 2026 12:27:41 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:375:19cf:5fee:be32])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-341460f5166sm7801383eec.29.2026.09.25.12.27.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Sep 2026 12:27:40 -0700 (PDT)
-Date: Fri, 25 Sep 2026 12:27:37 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: david@ixit.cz
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
-	Alexandre Torgue <alexandre.torgue@foss.st.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Henrik Rydberg <rydberg@bitmath.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Petr Hodina <petr.hodina@protonmail.com>, 
-	linux-input@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	phone-devel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v7 1/4] Input: stmfts - wait for controller ready after
- reset
-Message-ID: <arbJrK9zfoO1dGzy@google.com>
-References: <20260907-stmfts5-v7-0-4a53381cd038@ixit.cz>
- <20260907-stmfts5-v7-1-4a53381cd038@ixit.cz>
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="z1ixV01+"
+Received: from [IPV6:2a02:830a:f787:8f00:d622:eaa3:3dd6:8f5e] (unknown [IPv6:2a02:830a:f787:8f00:d622:eaa3:3dd6:8f5e])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by ixit.cz (Postfix) with ESMTPSA id A1FBB53401E9;
+	Fri, 25 Sep 2026 21:48:22 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+	t=1790365702;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=Jmxowlh8dx4cnk1PAZboFsGtd98nrGjzJK5X1uKxjhc=;
+	b=z1ixV01+hyamCp5xeWVL638GCR/f7wHS/bpW1dQ30RP07ohwuQCOz6fi3w3jlp0GTT1o/3
+	Q+Q6aILwO7dPr728wn/JpreOUKdMkCIMJJPOYfJF2sHN1RFvJH+SbPqtyqi9KS1IrQXXWg
+	JXWh2/21dV3FFkFlAxqpEuvWlphVxmE=
+Message-ID: <f8a5ce16-bc6b-4dbe-9262-cd5be0e33451@ixit.cz>
+Date: Fri, 25 Sep 2026 21:48:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260907-stmfts5-v7-1-4a53381cd038@ixit.cz>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 2/4] dt-bindings: input: touchscreen: st,stmfts:
+ Introduce STM FTS5
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>,
+ Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>,
+ Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org
+References: <20260907-stmfts5-v7-0-4a53381cd038@ixit.cz>
+ <20260907-stmfts5-v7-2-4a53381cd038@ixit.cz> <arbIsdvRzPCqPXfs@google.com>
+Content-Language: en-US, cs-CZ
+From: David Heidelberg <david@ixit.cz>
+Autocrypt: addr=david@ixit.cz; keydata=
+ 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
+In-Reply-To: <arbIsdvRzPCqPXfs@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi David,
+On 25/09/2026 21:19, Dmitry Torokhov wrote:
+> Hi David,
+> 
+> On Mon, Sep 07, 2026 at 12:50:20PM +0200, David Heidelberg via B4 Relay wrote:
+>>           touchscreen@49 {
+>>               compatible = "st,stmfts";
+>>               reg = <0x49>;
+>> -            interrupt-parent = <&gpa1>;
+>> -            interrupts = <1 IRQ_TYPE_LEVEL_LOW>;
+>> -            touchscreen-size-x = <1599>;
+>> -            touchscreen-size-y = <2559>;
+>> +            interrupts-extended = <&gpa1 1 IRQ_TYPE_LEVEL_LOW>;
+>> +            touchscreen-size-x = <1600>;
+>> +            touchscreen-size-y = <2560>;
+> 
+> Krzysztof questioned this change. You need to explain why this is being
+> changed (and potentially split it into a separate patch as it does not
+> seem to be related to STMFT5 introduction).
 
-On Mon, Sep 07, 2026 at 12:50:19PM +0200, David Heidelberg via B4 Relay wrote:
->  
-> -static void stmfts_reset(struct stmfts_data *sdata)
-> +static int stmfts_reset(struct stmfts_data *sdata)
->  {
->  	gpiod_set_value_cansleep(sdata->reset_gpio, 1);
->  	msleep(20);
->  
-> +	reinit_completion(&sdata->cmd_done);
->  	gpiod_set_value_cansleep(sdata->reset_gpio, 0);
-> -	msleep(50);
-> +	enable_irq(sdata->client->irq);
-> +
-> +	if (!wait_for_completion_timeout(&sdata->cmd_done,
-> +					 msecs_to_jiffies(STMFTS_RESET_TIMEOUT_MS)))
-> +		return -ETIMEDOUT;
-> +
-> +	return 0;
->  }
->  
->  static int stmfts_configure(struct stmfts_data *sdata)
->  {
->  	int err;
->  
->  	err = stmfts_command(sdata, STMFTS_SYSTEM_RESET);
->  	if (err)
-> @@ -593,42 +602,47 @@ static int stmfts_power_on(struct stmfts_data *sdata)
->  		return err;
->  
->  	/*
->  	 * The datasheet does not specify the power on time, but considering
->  	 * that the reset time is < 10ms, I sleep 20ms to be sure
->  	 */
->  	msleep(20);
->  
-> -	if (sdata->reset_gpio)
-> -		stmfts_reset(sdata);
-> +	if (sdata->reset_gpio) {
-> +		err = stmfts_reset(sdata);
-> +		if (err) {
-> +			dev_err(&sdata->client->dev,
-> +				"controller not ready after reset: %d\n", err);
-> +			goto err_disable_irq;
-> +		}
-> +	} else {
-> +		enable_irq(sdata->client->irq);
-> +		msleep(50);
-> +	}
->  
->  	err = stmfts_read_system_info(sdata);
->  	if (err)
-> -		goto err_disable_regulators;
-> -
-> -	enable_irq(sdata->client->irq);
-> -
-> -	msleep(50);
-> +		goto err_disable_irq;
+Oh, sorry about that, I thought I addressed it, but apparently not.
+I'll just split it.
 
+David
 
-I think the logic is becoming quite convoluted here, and factored out
-stmfts_reset() does not help. How about we make it look like this:
+> 
+>>               touch-key-connected;
+>>               avdd-supply = <&ldo30_reg>;
+>>               vdd-supply = <&ldo31_reg>;
+>>               ledvdd-supply = <&ldo33_reg>;
+>>           };
+>>       };
+>>
+> 
+> Thanks.
+> 
 
-static int stmfts_power_on(struct stmfts_data *sdata)
-{
-	int err;
-
-	if (sdata->reset_gpio) {
-		gpiod_set_value_cansleep(sdata->reset_gpio, 1);
-		/* a short delay before powering up */
-		usleep_range(1000, 1500);
-	}
-
-	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
-				    sdata->supplies);
-	if (err)
-		return err;
-
-	if (sdata->reset_gpio) {
-		reinit_completion(&sdata->cmd_done);
-
-		/*
-		 * The datasheet does not specify the power on time, but
-		 * considering that the reset time is < 10ms, sleep for 20ms
-		 * to be sure before releasing reset line.
-		 */
-		msleep(20);
-		gpiod_set_value_cansleep(sdata->reset_gpio, 0);
-
-		enable_irq(sdata->client->irq);
-
-		if (!wait_for_completion_timeout(&sdata->cmd_done,
-						 msecs_to_jiffies(STMFTS_RESET_TIMEOUT_MS))) {
-			dev_err(&sdata->client->dev, "controller not ready after reset");
-			err = -ETIMEDOUT;
-			goto err_disable_irq;
-		}
-	} else {
-		/*
-		 * We do not know the real controller state (was it powered
-		 * off or reset). Let's hope that this is enough time to
-		 * initialize.
-		 */
-		msleep(70);
-
-		enable_irq(sdata->client->irq);
-	}
-
-	err = sdata->ops->configure(sdata);
-	if (err)
-		goto err_disable_irq;
-
-	/*
-	 * At this point no one is using the touchscreen
-	 * and I don't really care about the return value
-	 */
-	(void)i2c_smbus_write_byte(sdata->client, STMFTS_SLEEP_IN);
-
-	return 0;
-
-err_disable_irq:
-	disable_irq(sdata->client->irq);
-
-	regulator_bulk_disable(ARRAY_SIZE(stmfts_supplies), sdata->supplies);
-	return err;
-}
-
-
-Thanks.
-
--- 
-Dmitry

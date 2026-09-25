@@ -1,70 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy2-f42.google.com (mail-dy2-f42.google.com [74.125.229.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BBC446D0B4;
-	Fri, 25 Sep 2026 07:46:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 162DA37B01F
+	for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 09:24:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790322364; cv=none; b=ngQfWsSe7RTmnPrf44asFd45ymPWVVGyg3EbIKutovIqpSOcydFb2egL33QQvfeu0WZMYA740QO0u/8wUTqXBUvm4EEnZO8IQqINMTofv2m6cHy4qH5iRXlL+Pd8Ay/NmPxakrR+WgUeTtQbKihADoMtg6sKGf39q+saF77tX44=
+	t=1790328302; cv=none; b=dNSXPSSf2uPDmtDg5AaN8625dHdozt9BGEAEVtDmVPg4sfpUQIlBZHJEjjqKwhGAlyTvCutDBW7GuxUgwqYy+SClquVEJHdON1N18Bfssw+dqgAZRDVnmZmqy8Gv9TRQq993RiP9vlMRlnK5Z1BETKeBE5AQke+NcJMfyL3g83M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790322364; c=relaxed/simple;
-	bh=riYq6OKMYegM1B0GVCH0DJyK2fe3mY/rTPYTYYmVUro=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=ZSXK+un9cO/wvsb5wf4TZbCobF6Oht2NkjcMU+9kknvVhXPiieale6sM2KUU57kWsXRYVYzgLuCpCs47pMz8qrVwFYC6Lt1m9QkU2EbhDOGBrpL03Sxubh2R+ksvZYSWQaduEUHrlVb7pD/DO3Y+YBdsDZHROCQSPAXDCSmtTFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LxCIJSeM; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790328302; c=relaxed/simple;
+	bh=rsyuw981n4NVhsIaBTUsHYg+kOmfbqnfnOOq108N0y8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r1UpWxOs1xDOoCafO3HT7CHItkz0DA2E2QPaQCDjSEFfIEl7+3qhbZPENh14wVy8qyT+wbPdL0xyfCIZi7vLyOS6Ef8iFsH2O1ytNQMl8vz6K4HoqppcIOkaN0ja6ehVeD/picOadnP1cYXoPu4vMhBvYTk1rwKW+GLhEU9Seug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wg2tGkdn; arc=none smtp.client-ip=74.125.229.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LxCIJSeM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B27451F000FF;
-	Fri, 25 Sep 2026 07:46:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790322362;
-	bh=fgp57Y0foq2G1j/7LLzFZqIU8Hc1ayNJsYPGWIzRsfU=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=LxCIJSeMqhoPioUankmKaNl2HWqPiEw9oHZCqMKvK0/LShJicYI6q9WFH/rDMz8QW
-	 AaMeJPrRxZDdYkpH7ZUaxQuAcNJ8LaN1VibtFu6BpW7KdR0uohl0O+nMI3OS/QsSGB
-	 rPCK7mFl9lYZoW92EkV+LMmU4hYbHhbiiBj1eFtpGG1CmkKJ5NJKOuR0X9jhVdKnb8
-	 cPfEnwLSR95Grj1DzM4P7q/Oj/53gJhih7Jh4MTlZrV7O6U08Gp3djcMWfdVqIZ/a0
-	 ERRfZ+HMRQKNrM4ac23/Q8V2m1SVFwfQeEWlwkKdclvZKjseHl7dOuqdTtDWS+jQTo
-	 d6FYaPMLURbDA==
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>, 
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-kselftest@vger.kernel.org, stable@vger.kernel.org
-In-Reply-To: <20260915-wip-bpf-signed_size-v1-0-6bc8f3d09f5b@kernel.org>
-References: <20260915-wip-bpf-signed_size-v1-0-6bc8f3d09f5b@kernel.org>
-Subject: Re: [PATCH 0/2] HID: bpf: add one ssize_t check detected by
- Sashiko
-Message-Id: <179032236044.351067.2844140440422327024.b4-ty@b4>
-Date: Fri, 25 Sep 2026 09:46:00 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wg2tGkdn"
+Received: by mail-dy2-f42.google.com with SMTP id 5a478bee46e88-341d0522b4dso503057eec.1
+        for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 02:24:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790328298; x=1790933098; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=v2Xgw42/7p7dsnyTvA1Jhb5iy5oJXJ+/JZaVZl7VGKg=;
+        b=Wg2tGkdn9RVFIkNyo0uNbmXlKH3UVq9/GnB1Mm3+tKWdIqF55dZR5N/nOzRRu8RH4w
+         deUDuaztTm1WWcVnggP8OWLquX/FwbFLR01a8MTsdVZRXZTHffYfYiDCYBrcoClq4rZ1
+         QbQ78XpL1NzrJJFGtTjR7z+wpx5t056QRfpPDoborOP3mjbLQcRMJ9Wr7nWK+m2Xpb3S
+         c0/TzFZ5G0Es8PjhH+mCWP+/Q29iviRyWK8L/hi4o09Pv7fvgjlZNlA+7UwkaxNrytUW
+         v6dsuoUxNbeN1plfKZZ1X+QH/4HvwvUYdL5OR3cftUQraKRJD9ovtlyjzLbyi1W1J42F
+         uliQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790328298; x=1790933098;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=v2Xgw42/7p7dsnyTvA1Jhb5iy5oJXJ+/JZaVZl7VGKg=;
+        b=nS7t50j35XzRLLgHEZGq3Mz2d9kj06puHy2ICq2M9mFc2esJ44z3uOjRr204QSMX0/
+         YNaLNJYadC9OVmZ7oLLkVOypsgbtpXuuub/F5MTUYa+jfBHV2cNYtAV/546f9gEtows3
+         XLvDMJg9AOZueiD898BUNBIhy0SFAB5p5vFob6JrrbeX5NCB4OCtGxhCqe1DAIXCdzz1
+         WYLg0jHRFFNs9kRylquvR4oXHGtCbKJ2s21jZBOkxS0MGQM84mcmNwgYdo745z7gqEcx
+         MedM7iKMAONCS52Es68S4fq+LNbz/sPSZ97wiiaUEUcmOfpOfK5puCa3Yi63eQ9Mq252
+         RDUQ==
+X-Gm-Message-State: AFuF++n3ASFEUfPEKAj7VT5cGHfTNQrcLExlmYH0Tei1/wGYpk7fEenw
+	O52qR7lU/Pkh1AjWrQ8SD4lQ3wUoVb54jvq2hFLmboQ1IdUCm8u73R43
+X-Gm-Gg: AYBFou10MZhc7eohEeBUzLt6Wow9djQ3X0wqZaqmJYyc6nLkOL+TIkvj/nSKmqfk3/D
+	l5jOeBmCH8jMUFdqN2h7bof4q7Aq13ofL4OOO33Ltv3XVGjlmXd1vWRp0QWPF4WU5Vhm9Hq2xKg
+	sYrxxNs86wMQ963d+l6FrOE/F8V1Wq3kLNqkjJnIqQpJ0/QoUQ80rr/bQt/PZD5sB32Zh0Wv9Mk
+	Ru+TIMZHDxFPoYQzdWUpeFlhnSibEk4RDYxjH/+z6S5n2RC//NwknAmHbqQqSI+24mKlju0DT+0
+	6FZuY6A7o5ITULbxUEJq4PeRb2jpW1OCGfyZ3nqREmdiE7asaPKr+pM7OSmawIy9cKPIk7kEdWc
+	sfiHz2LBL6ca9DHrEXBQ2On3EkYImdp6lNrczi1iZOiEve3+O7yImGtuUst0ewcVYuH/C2hM5Yb
+	c3p+BqM94vl/QTcmo/WlVPyqhIav2M77GYDc60WBsOsSzUgo637PwplMxRqdXDKxkRWEjlQT4ci
+	mI1sfCIocGTZcDTKdGcy1YQHSk=
+X-Received: by 2002:a05:693c:6082:b0:33c:19bc:d8d2 with SMTP id 5a478bee46e88-340039b5202mr6094857eec.31.1790328297715;
+        Fri, 25 Sep 2026 02:24:57 -0700 (PDT)
+Received: from localhost.localdomain ([2405:201:8004:98ea:c60f:8ff:fe17:57ff])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34145727589sm5035806eec.23.2026.09.25.02.24.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Sep 2026 02:24:57 -0700 (PDT)
+From: Bihaan Sen <stevewholikesthings@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Bihaan Sen <stevewholikesthings@gmail.com>
+Subject: [PATCH] Input: xpad - add support for 8BitDo Pro 2 Wired Controller for Xbox
+Date: Fri, 25 Sep 2026 14:54:34 +0530
+Message-ID: <20260925092439.79904-1-stevewholikesthings@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
+Content-Transfer-Encoding: 8bit
 
-On Tue, 15 Sep 2026 17:46:56 +0200, Benjamin Tissoires wrote:
-> Sashiko detected an existing issue in hid_bpf_hw_request:
-> if the transport layer returns an error code, hid_bpf_hw_request
-> returns success, which can confuse the caller.
-> 
-> Add the actual fix and a selftest to ensure this gets properly passed
-> around.
-> 
-> [...]
+The 8BitDo Pro 2 Wired Controller for Xbox is already matched by the
+vendor-wide XPAD_XBOXONE_VENDOR(0x2dc8) entry, but a later hardware
+revision reports product ID 0x201e, which has no entry in the
+xpad_device table. The device therefore binds and functions but is
+exposed to userspace as "Generic X-Box pad".
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.3/upstream-fixes), thanks!
+Add the VID/PID pair so the controller is named correctly.
 
-[1/2] HID: bpf: cast size to ssize_t when checking hid_bpf_hw_request
-      https://git.kernel.org/hid/hid/c/3afefbfe55c2
-[2/2] selftest/hid: add test for negative return codes for hid_bpf_hw_request
-      https://git.kernel.org/hid/hid/c/3f35b678a1d6
+Signed-off-by: Bihaan Sen <stevewholikesthings@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Cheers,
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index feb8f368f834..e7af88bfb8da 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -371,6 +371,7 @@ static const struct xpad_device {
+ 	{ 0x294b, 0x3404, "Snakebyte GAMEPAD RGB X", 0, XTYPE_XBOXONE },
+ 	{ 0x2993, 0x2001, "TECNO Pocket Go", 0, XTYPE_XBOX360 },
+ 	{ 0x2dc8, 0x2000, "8BitDo Pro 2 Wired Controller fox Xbox", 0, XTYPE_XBOXONE },
++	{ 0x2dc8, 0x201e, "8BitDo Pro 2 Wired Controller for Xbox", 0, XTYPE_XBOXONE },
+ 	{ 0x2dc8, 0x200f, "8BitDo Ultimate 3-mode Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+ 	{ 0x2dc8, 0x3106, "8BitDo Ultimate Wireless / Pro 2 Wired Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x2dc8, 0x3109, "8BitDo Ultimate Wireless Bluetooth", 0, XTYPE_XBOX360 },
 -- 
-Benjamin Tissoires <bentiss@kernel.org>
+2.55.0
 

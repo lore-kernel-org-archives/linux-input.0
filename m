@@ -1,174 +1,203 @@
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
+Received: from mail-dy2-f7.google.com (mail-dy2-f7.google.com [74.125.229.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A3B135839C
-	for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 03:12:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF6461A683E
+	for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 05:53:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790305959; cv=none; b=MhmIsQjdKuW2wd9hdXc8G6jzVuooL1AHqBvMNyOMe1Kn6f/vdkZ73CyRZf2gVTlgGXxQrYH7l+Tj5A4WkX87aEsU5JkefU+tZGkMxrvEHB6vrQLMJoatcEM2In90j/AdX+yCPy34uegkIykl43BqfAffp7m5ayg+1t+Ird0ixz0=
+	t=1790315635; cv=none; b=nyYVBxCTQ8Kg6NmMT+tBfpdhEhBx8lDtFTGpPy2X4rTOo1WfPpISQpamrFgeeJXgRTUDjdikXS7HTwA1NwTT8YB8iT2JAEz/Si8ebRk5LPja5R7qkqNzlmjOJaLzhGBE71xZ/gULPQUS+wKA3Y7m4BuYlybFo1MNd0Gf40lJQuU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790305959; c=relaxed/simple;
-	bh=BEGQyAViAFvo9buNB17wzKBw6fwyufkWzHqjSUbgeUY=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=D6bkKoUta6Pjc/iv9LtrJ5Hrbh51QPo83I7HAD2t+JoYZDYypH6qXDJMDTUCRUDYf3okPTt8l0bHdNGHpnE7dVk20UXU/qr3yirSE1A9bL6jl1N67m8pHVaaDey+bARqADfmSFv4mL0tuKDcq2JjdxgmSYgKv2Pg4G5G8+GtGPg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-4dc57e2a3f2so416295b6e.0
-        for <linux-input@vger.kernel.org>; Thu, 24 Sep 2026 20:12:37 -0700 (PDT)
+	s=arc-20240116; t=1790315635; c=relaxed/simple;
+	bh=9UoWjWaESjDMUlMyTkMRgNrA700dRx0UDrmL4E4REhE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FaYheTU4LFQAZ28kEE5W6XghqFotCacS1px3rrKQQ4zbp2PjvViKzTLtp5nYvKXtEOtK6CdZK/TKIBiTm99D475zHeyV/Z1fJ9j8V5Q1zmwFIUWHNkN+vmg0w/dmHbc1d6ysDSgpPjW0SteUCsxvvqWLi+vrFW1PHCavMfj9r2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bZSKiJYo; arc=none smtp.client-ip=74.125.229.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bZSKiJYo"
+Received: by mail-dy2-f7.google.com with SMTP id 5a478bee46e88-33e59607d38so166219eec.0
+        for <linux-input@vger.kernel.org>; Thu, 24 Sep 2026 22:53:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790315633; x=1790920433; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7Vi3IxgwSsOevvydlu8/IZa5og6w6hJIIh0I+gaTv90=;
+        b=bZSKiJYoMTwJhrmGWV25DYu8UWBo0uoKrVYo1wzFdMiHO4utqa3RE8NNMZQba59Hy5
+         eDL5dvbsGNrdLFRpNvmUJvZBTerGf+6yrOapfQkBANbuhJvJgfwPkNnndKtcdMHK+PnY
+         es5mG93GCqslMLWD29snrpzmVTKg2R1sFhzbgkLu0gzpx5gjR7/eovqc04NabeWcC0c8
+         uVxxiYlkhnqMpKUKlAS//mDU/dotU37vJ2Rc8I4K30N/fVyllPyPq2cLZe59B1ljXkO4
+         mSn0JzoZvevMgj1k60nwXDu6mD0KnoWZm7xpeypWM+iw9934BQ3jaPB234gXywijQQkh
+         7AGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790305957; x=1790910757;
-        h=content-type:to:from:subject:message-id:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vY0NX4ApRysCA7uTZsdZ7zWqUDLZEMeIYv6ocAtfnU0=;
-        b=eb4/Ger3NxhcIBK2ajCAtNRldXGIcPcNSpjMmNc0hpFKsI//Um7jL7YB7Q10N9IsQR
-         BvdOldJ6BO9A+fKh7wVczTlTNJ/Zfrx9w8S4RO5oEs3R5seUPoyro30P0gO9GngEhL1r
-         6K6YOjVZ+l8aeARpWxHp78kooL+lLAEtpAjosGe/sYxAZGSJh9c4axt8pBM4Um933HJw
-         TVEQxIVbqbX09YAiAHbqcALKqhbu5lBeg+heYdIPH+rFxaLdFLt+8UF5Q2zKXJZUwD6C
-         loSHsxG2VgT0z04r4XwHZuugrxX6jKwgPpuLc/gz+1q3T3hAfLFt+xtKApmrySn2lGj/
-         2dTg==
-X-Forwarded-Encrypted: i=1; AKwUvBxsJ+91mkmjOQZMOD4y/0rVdqElmAtyjdLJD4rLR4rKDrs2LqNLXuxPMK7l8VkX4Lb9FnhPcr7AyeS15w==@vger.kernel.org
-X-Gm-Message-State: AFuF++m1hk8UnASL0t5MbxRo2KI4jDh/8CFAmsHOkG/FwXoxf9j+QpXY
-	yQnXjYHk7zak5mgL0P5N/Ef7WOwz2pMKL1HW1PBGum3xr1XhEccsIQjILMZtRjH/e9oyhuYTR12
-	mS8khCJ3S/WKmL7T48mEveCBXFTymnmAqdJa7d5jMD1OQuLw/KQb3leu6gxQ=
+        d=1e100.net; s=20260707; t=1790315633; x=1790920433;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7Vi3IxgwSsOevvydlu8/IZa5og6w6hJIIh0I+gaTv90=;
+        b=p+wJpKoEfEqKZ81py7sFyWJGhtJTedbdofNlu1a+FuIqDvPMfuUVlbIUzi+Kg2ZEGT
+         auMDEBZiM4OjB9xSwuCo4L9SOYoDywrgQ77JgWmjDqptn4xEBF4/121JcPVBQq7yfT31
+         U/2ggEiOSaTizkmQrZnfORCc1XFSCH9t3HSW7FYT37OD4OWMc9e4XwYAO/ogUw6fyRXH
+         aoJGMIGp9c9JoMWMsFeDNPyojhuybIExMYNT79ZNVQ4ixNtuicRDVKuATp3z3Zfn6CQ+
+         3/Gxm1f0PDN0mZi1b3akL/aqGLmmmyCcQ/ump/tefvjD+f4uY6jQEK1pgKMyRRfpGpgG
+         5UeA==
+X-Gm-Message-State: AFuF++lL9lyuDEYG+YKrm9CvAvmTqrFmqBd0SXHizVhWDxBr+ZVr8BI0
+	nu916kdTYAh9reUTEm0hlCkiVUDsUsvtpjUz7Lt4HA19QCCJ2j4MXz1d
+X-Gm-Gg: AYBFou3OxAQPn8O/gk/ccmTs9aoiQWmrsJzfQm0o/peAXI9PvIAMeVG+3udeOy4+9gn
+	3VI8QZpnRIUQZZy6sd3hTOkfnKYE4wy8bMaNE7W4FY4S3xXxMGWD/CotSyTzlq5feodhsFR4CUQ
+	Zs8WLPB42M0H/NJh9263LRoN/caVb5p7Qg0jPry15OLYITleBU+HxkkpbpFVcV2TEqSLsQwSbVq
+	vQcWS9rPVQRZgzkmOyiAkn2PXMagB3rPltAA5Y9TmIdzgRDWRDlp5akLjxIMkQDpC7P7T27LMv1
+	wF7K4iZFTc8ErCBqdE+61IiBVhIJFEjbQxtNU7EUufhEQ81V7EVwsn2PnB0DB3ziBNB4NT5Odig
+	ocad9xfVzX08gbkI9x9s7XMDhFkguJS0TCtbYg9gvdmMZHzn6mfvjXoPA8tUmqTRYSVk7WOCwGh
+	SY7ittWpON7YqlCMlaeSw938yPaHrkRWF8x6Ce80YXwImtELFsAUr25aF2bm54UagWsi5J61Lyq
+	1/dUW1w/foSxKi16j4DmR7YUAiKFdjMmT227llUhaSbWMj13pNe
+X-Received: by 2002:a05:7301:6197:10b0:33c:2308:c0af with SMTP id 5a478bee46e88-340048961afmr3706889eec.17.1790315632351;
+        Thu, 24 Sep 2026 22:53:52 -0700 (PDT)
+Received: from Raccoon ([113.30.177.23])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3414407ea69sm3628692eec.7.2026.09.24.22.53.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Sep 2026 22:53:51 -0700 (PDT)
+From: Rohinthan P <rokinthanp03@gmail.com>
+To: ping.cheng@wacom.com,
+	jason.gerecke@wacom.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	syzbot+ae7f998154426e723cbf@syzkaller.appspotmail.com
+Subject: [PATCH] HID: wacom: check for NULL pad_input before reporting pad events
+Date: Fri, 25 Sep 2026 11:23:46 +0530
+Message-ID: <20260925055346.19890-1-rokinthanp03@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6808:190c:b0:4d6:92d4:c804 with SMTP id
- 5614622812f47-4d72bc45aacmr5565913b6e.60.1790305957037; Thu, 24 Sep 2026
- 20:12:37 -0700 (PDT)
-Date: Thu, 24 Sep 2026 20:12:37 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6ab5e6a5.80e1c6cc.1e8e5f.0022.GAE@google.com>
-Subject: [syzbot] [input?] general protection fault in wacom_report_numbered_buttons
-From: syzbot <syzbot+ae7f998154426e723cbf@syzkaller.appspotmail.com>
-To: bentiss@kernel.org, jason.gerecke@wacom.com, jikos@kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	ping.cheng@wacom.com, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello,
+When a Wacom device interface does not have pad capabilities (for
+example, when wacom_setup_pad_input_capabilities() returns an error
+or the interface is configured as pen-only), wacom_wac->pad_input is
+set to NULL.
 
-syzbot found the following issue on:
+If incoming HID reports contain pad packets (such as
+WACOM_REPORT_INTUOSPAD, WACOM_REPORT_INTUOS5PAD, or
+WACOM_REPORT_CINTIQPAD), wacom_intuos_pad() assigns
+input = wacom->pad_input and proceeds without verifying that input is
+non-NULL. It calls wacom_report_numbered_buttons(input, ...), which
+dereferences input via input_get_drvdata(input), triggering a general
+protection fault / NULL pointer dereference:
 
-HEAD commit:    62f4c998b297 Merge tag 'parisc-for-7.3-rc5' of git://git.k..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=135c9d15580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7d012d9c67977ee4
-dashboard link: https://syzkaller.appspot.com/bug?extid=ae7f998154426e723cbf
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17bb9c05580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=15fdc2c9580000
+  Oops: general protection fault, probably for non-canonical address 0xdffffc000000006c: 0000 [#1] SMP KASAN NOPTI
+  KASAN: null-ptr-deref in range [0x0000000000000360-0x0000000000000367]
+  RIP: 0010:dev_get_drvdata include/linux/device.h:991 [inline]
+  RIP: 0010:input_get_drvdata include/linux/input.h:396 [inline]
+  RIP: 0010:wacom_report_numbered_buttons+0x37/0x210 drivers/hid/wacom_wac.c:4225
+  Call Trace:
+   <TASK>
+   wacom_intuos_pad drivers/hid/wacom_wac.c:643 [inline]
+   wacom_intuos_irq+0x2f8/0x3430 drivers/hid/wacom_wac.c:1042
+   wacom_bpt_irq drivers/hid/wacom_wac.c:3290 [inline]
+   wacom_wac_irq+0x196b/0xab80 drivers/hid/wacom_wac.c:3560
+   wacom_raw_event+0x6bb/0xba0 drivers/hid/wacom_sys.c:183
 
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-62f4c998.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/c666932d3795/vmlinux-62f4c998.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/70accf49dc19/bzImage-62f4c998.xz
+Add checks to verify that pad_input / input_dev is not NULL in
+wacom_intuos_pad(), wacom_report_numbered_buttons(),
+wacom_intuos_pro2_bt_pad(), and wacom_intuos_gen3_bt_pad(). In addition,
+in wacom_intuos_irq(), return immediately if the packet is a pad report
+to prevent pad packets from erroneously falling through to pen event
+handling routines when pad_input is not allocated.
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Fixes: 49005b9fd052 ("HID: wacom: Refactor button-to-key translation into function")
 Reported-by: syzbot+ae7f998154426e723cbf@syzkaller.appspotmail.com
-
-Oops: general protection fault, probably for non-canonical address 0xdffffc000000006c: 0000 [#1] SMP KASAN NOPTI
-KASAN: null-ptr-deref in range [0x0000000000000360-0x0000000000000367]
-CPU: 2 UID: 0 PID: 6256 Comm: syz.0.237 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-RIP: 0010:dev_get_drvdata include/linux/device.h:991 [inline]
-RIP: 0010:input_get_drvdata include/linux/input.h:396 [inline]
-RIP: 0010:wacom_report_numbered_buttons+0x37/0x210 drivers/hid/wacom_wac.c:4225
-Code: f5 53 48 89 fb 48 83 ec 10 48 89 3c 24 e8 71 92 f1 f8 48 8d bb 60 03 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 b7 01 00 00 48 8b 04 24 4c 8b a0 60 03 00 00 49
-RSP: 0018:ffffc90027b5f9a0 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 000000000000006c RSI: ffffffff891a901f RDI: 0000000000000360
-RBP: 0000000000000008 R08: 0000000000000005 R09: 000000000000001f
-R10: 0000000000000008 R11: 0000000000000000 R12: 0000000000000000
-R13: 00000000000002a8 R14: 0000000000000000 R15: 0000000000000000
-FS:  000055558f635500(0000) GS:ffff8880d5d53000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000200000001000 CR3: 000000003797a000 CR4: 0000000000352ef0
-Call Trace:
- <TASK>
- wacom_intuos_pad drivers/hid/wacom_wac.c:643 [inline]
- wacom_intuos_irq+0x2f8/0x3430 drivers/hid/wacom_wac.c:1042
- wacom_bpt_irq drivers/hid/wacom_wac.c:3290 [inline]
- wacom_wac_irq+0x196b/0xab80 drivers/hid/wacom_wac.c:3560
- wacom_raw_event+0x6bb/0xba0 drivers/hid/wacom_sys.c:183
- __hid_input_report.constprop.0+0x319/0x470 drivers/hid/hid-core.c:2175
- uhid_dev_input2 drivers/hid/uhid.c:609 [inline]
- uhid_char_write+0xb6b/0x10e0 drivers/hid/uhid.c:767
- vfs_write+0x2aa/0x1050 fs/read_write.c:685
- ksys_write+0x1f8/0x250 fs/read_write.c:739
- do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
- do_syscall_64+0x123/0x790 arch/x86/entry/syscall_64.c:84
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f6e4899e159
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007ffee1ed0688 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 00007f6e48c25fa0 RCX: 00007f6e4899e159
-RDX: 0000000000000010 RSI: 0000200000000300 RDI: 0000000000000003
-RBP: 00007f6e48a3506b R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007f6e48c25fac R14: 00007f6e48c25fa0 R15: 00007f6e48c25fa0
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
-RIP: 0010:dev_get_drvdata include/linux/device.h:991 [inline]
-RIP: 0010:input_get_drvdata include/linux/input.h:396 [inline]
-RIP: 0010:wacom_report_numbered_buttons+0x37/0x210 drivers/hid/wacom_wac.c:4225
-Code: f5 53 48 89 fb 48 83 ec 10 48 89 3c 24 e8 71 92 f1 f8 48 8d bb 60 03 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 b7 01 00 00 48 8b 04 24 4c 8b a0 60 03 00 00 49
-RSP: 0018:ffffc90027b5f9a0 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 000000000000006c RSI: ffffffff891a901f RDI: 0000000000000360
-RBP: 0000000000000008 R08: 0000000000000005 R09: 000000000000001f
-R10: 0000000000000008 R11: 0000000000000000 R12: 0000000000000000
-R13: 00000000000002a8 R14: 0000000000000000 R15: 0000000000000000
-FS:  000055558f635500(0000) GS:ffff8880d5d53000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000200000001000 CR3: 000000003797a000 CR4: 0000000000352ef0
-----------------
-Code disassembly (best guess):
-   0:	f5                   	cmc
-   1:	53                   	push   %rbx
-   2:	48 89 fb             	mov    %rdi,%rbx
-   5:	48 83 ec 10          	sub    $0x10,%rsp
-   9:	48 89 3c 24          	mov    %rdi,(%rsp)
-   d:	e8 71 92 f1 f8       	call   0xf8f19283
-  12:	48 8d bb 60 03 00 00 	lea    0x360(%rbx),%rdi
-  19:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
-  20:	fc ff df
-  23:	48 89 fa             	mov    %rdi,%rdx
-  26:	48 c1 ea 03          	shr    $0x3,%rdx
-* 2a:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1) <-- trapping instruction
-  2e:	0f 85 b7 01 00 00    	jne    0x1eb
-  34:	48 8b 04 24          	mov    (%rsp),%rax
-  38:	4c 8b a0 60 03 00 00 	mov    0x360(%rax),%r12
-  3f:	49                   	rex.WB
-
-
+Closes: https://syzkaller.appspot.com/bug?extid=ae7f998154426e723cbf
+Signed-off-by: Rohinthan P <rokinthanp03@gmail.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ drivers/hid/wacom_wac.c | 38 ++++++++++++++++++++++++++++----------
+ 1 file changed, 28 insertions(+), 10 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index af76e49..6a13724 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -529,6 +529,9 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 	      data[0] == WACOM_REPORT_CINTIQPAD))
+ 		return 0;
+ 
++	if (!input)
++		return 0;
++
+ 	if (features->type >= INTUOS4S && features->type <= INTUOS4L) {
+ 		buttons = (data[3] << 1) | (data[2] & 0x01);
+ 		ring1 = data[1];
+@@ -1039,9 +1042,10 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 	}
+ 
+ 	/* process pad events */
+-	result = wacom_intuos_pad(wacom);
+-	if (result)
+-		return result;
++	if (data[0] == WACOM_REPORT_INTUOSPAD ||
++	    data[0] == WACOM_REPORT_INTUOS5PAD ||
++	    data[0] == WACOM_REPORT_CINTIQPAD)
++		return wacom_intuos_pad(wacom);
+ 
+ 	/* process in/out prox events */
+ 	result = wacom_intuos_inout(wacom);
+@@ -1475,12 +1479,17 @@ static void wacom_intuos_pro2_bt_pad(struct wacom_wac *wacom)
+ 	struct input_dev *pad_input = wacom->pad_input;
+ 	unsigned char *data = wacom->data;
+ 	int nbuttons = wacom->features.numbered_buttons;
++	int expresskeys, center, ring;
++	bool ringstatus, prox;
++
++	if (!pad_input)
++		return;
+ 
+-	int expresskeys = data[282];
+-	int center = (data[281] & 0x40) >> 6;
+-	int ring = data[285] & 0x7F;
+-	bool ringstatus = data[285] & 0x80;
+-	bool prox = expresskeys || center || ringstatus;
++	expresskeys = data[282];
++	center = (data[281] & 0x40) >> 6;
++	ring = data[285] & 0x7F;
++	ringstatus = data[285] & 0x80;
++	prox = expresskeys || center || ringstatus;
+ 
+ 	/* Fix touchring data: userspace expects 0 at left and increasing clockwise */
+ 	ring = 71 - ring;
+@@ -1515,8 +1524,12 @@ static void wacom_intuos_gen3_bt_pad(struct wacom_wac *wacom)
+ {
+ 	struct input_dev *pad_input = wacom->pad_input;
+ 	unsigned char *data = wacom->data;
++	int buttons;
+ 
+-	int buttons = data[44];
++	if (!pad_input)
++		return;
++
++	buttons = data[44];
+ 
+ 	wacom_report_numbered_buttons(pad_input, 4, buttons);
+ 
+@@ -4220,9 +4233,14 @@ static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
+ static void wacom_report_numbered_buttons(struct input_dev *input_dev,
+ 				int button_count, int mask)
+ {
+-	struct wacom *wacom = input_get_drvdata(input_dev);
++	struct wacom *wacom;
+ 	int i;
+ 
++	if (!input_dev)
++		return;
++
++	wacom = input_get_drvdata(input_dev);
++
+ 	for (i = 0; i < wacom->led.count; i++)
+ 		wacom_update_led(wacom,  button_count, mask, i);
+ 
+-- 
+2.53.0
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup

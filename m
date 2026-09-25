@@ -1,84 +1,70 @@
-Received: from rusty.tulip.relay.mailchannels.net (rusty.tulip.relay.mailchannels.net [23.83.218.252])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 419D541F378;
-	Fri, 25 Sep 2026 06:37:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.83.218.252
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BBC446D0B4;
+	Fri, 25 Sep 2026 07:46:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790318254; cv=none; b=QM+A1iX7NA01wcAYoGLuG0NXcvomPb73no+poQgzRMOzTNBONZnH7dWqPUJ1u0IlbwwGlVJY+Ry09drbQgvvRIUM8NhirVtTy/tJaW4I5MmDpuZ1KY1dEi4MWHLmbOBI8OaXJPvhFFD9/sUm3R/ve4d/mQGYA9jeY5AzHKK7Zdc=
+	t=1790322364; cv=none; b=ngQfWsSe7RTmnPrf44asFd45ymPWVVGyg3EbIKutovIqpSOcydFb2egL33QQvfeu0WZMYA740QO0u/8wUTqXBUvm4EEnZO8IQqINMTofv2m6cHy4qH5iRXlL+Pd8Ay/NmPxakrR+WgUeTtQbKihADoMtg6sKGf39q+saF77tX44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790318254; c=relaxed/simple;
-	bh=YGqPYDWhC4i7zOAD3gZF/Wrf24Q2CnyiCjjIhDow910=;
-	h=From:To:Cc:Subject:Message-ID:In-Reply-To:References:MIME-Version:
-	 Date; b=gWDHM8WbigsZg7eqmhmc9g9KtFAhSJu9ikKQRRLcXi+jID6jRDZybX9pUPckcjEp3JtwWnR4k9RSTqRjcoWiR/usKunDvxoQi4ADiTbUo1y+BmPtM7xic6x5STXyuE/31Uvt1fwndFEFqaHgNX7UPDNav6mbB/5NOCnm1LUWhfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=laserology.net; spf=pass smtp.mailfrom=laserology.net; dkim=pass (2048-bit key) header.d=laserology.net header.i=@laserology.net header.b=gDcQ4VYt; arc=none smtp.client-ip=23.83.218.252
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=laserology.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=laserology.net
+	s=arc-20240116; t=1790322364; c=relaxed/simple;
+	bh=riYq6OKMYegM1B0GVCH0DJyK2fe3mY/rTPYTYYmVUro=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=ZSXK+un9cO/wvsb5wf4TZbCobF6Oht2NkjcMU+9kknvVhXPiieale6sM2KUU57kWsXRYVYzgLuCpCs47pMz8qrVwFYC6Lt1m9QkU2EbhDOGBrpL03Sxubh2R+ksvZYSWQaduEUHrlVb7pD/DO3Y+YBdsDZHROCQSPAXDCSmtTFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LxCIJSeM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=laserology.net header.i=@laserology.net header.b="gDcQ4VYt"
-X-Sender-Id: hostingeremail|x-authuser|admin@laserology.net
-Received: from relay.mailchannels.net (localhost [127.0.0.1])
-	by relay.mailchannels.net (Postfix) with ESMTP id 75C76461289;
-	Fri, 25 Sep 2026 06:37:31 +0000 (UTC)
-Received: from fr-int-smtpout20.hostinger.io (100-96-18-208.trex-nlb.outbound.svc.cluster.local [100.96.18.208])
-	(Authenticated sender: hostingeremail)
-	by relay.mailchannels.net (Postfix) with ESMTPA id 68A38461940;
-	Fri, 25 Sep 2026 06:37:30 +0000 (UTC)
-X-Sender-Id: hostingeremail|x-authuser|admin@laserology.net
-X-MC-Relay: Neutral
-X-MailChannels-SenderId: hostingeremail|x-authuser|admin@laserology.net
-X-MailChannels-Auth-Id: hostingeremail
-X-Drop-Occur: 0f98f8c6740443f8_1790318251278_451908546
-X-MC-Loop-Signature: 1790318251278:1829671893
-X-MC-Ingress-Time: 1790318251277
-Received: from fr-int-smtpout20.hostinger.io (fr-int-smtpout20.hostinger.io
- [148.222.54.36])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384)
-	by 100.96.18.208 (trex/8.0.2);
-	Fri, 25 Sep 2026 06:37:31 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=laserology.net;
-	s=hostingermail1; t=1790318248;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=YGqPYDWhC4i7zOAD3gZF/Wrf24Q2CnyiCjjIhDow910=;
-	b=gDcQ4VYtVpLgNX5EbEoKY6ryv1QIiUxK08Rk+uXL2r5LB32fJz3u0sMIkY+XcJZWWrbjYi
-	OOz4KsspSXzcZW4jJXyvLUHhk1CAmlqfWG9vzP6CXPUepGwICp7R+KC6OgYihY/wbzEUN/
-	GeZTmGg+DKgvGq+6stkoBCNBYMyY8Ep+OQwVZGLdOd6HGveGChgC9h7Tt/AgMeaU+bNwKo
-	oNzmL23lysQl7puSjj5abBCE2hqH8StHdsepdBl9H0CeolYleJRS8LdheycPj2Aavr0KzD
-	yl1Ygv/QcBDaiIWdcqDdMEoK/gXkWwN2VyTKP3DPLDmIZIHtEUIVtwKVTUeDFg==
-Received: from toolbx (unknown [IPv6:2605:59c0:2068:2608:c60b:fd48:4dc7:1cbd])
-	(Authenticated sender: admin@laserology.net)
-	by smtp.hostinger.com (smtp.hostinger.com) with ESMTPSA id 4hrgx31TwCz1xt7;
-	Fri, 25 Sep 2026 06:37:26 +0000 (UTC)
-From: Evan Lawrence <development@laserology.net>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Evan Lawrence <development@laserology.net>,
-	linux-input@vger.kernel.org,
-	linux-api@vger.kernel.org,
-	Miroslav Bendik <miroslav.bendik@gmail.com>
-Subject: Re: [PATCH v5] Input: synaptics - add pass-through mode for TrackPoint
-Message-ID: <20260925063705.104607-1-development@laserology.net>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260815004214.68767-1-development@laserology.net>
-References: <an9ocXI6b7WEI8D2@google.com> <20260815004214.68767-1-development@laserology.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LxCIJSeM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B27451F000FF;
+	Fri, 25 Sep 2026 07:46:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790322362;
+	bh=fgp57Y0foq2G1j/7LLzFZqIU8Hc1ayNJsYPGWIzRsfU=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=LxCIJSeMqhoPioUankmKaNl2HWqPiEw9oHZCqMKvK0/LShJicYI6q9WFH/rDMz8QW
+	 AaMeJPrRxZDdYkpH7ZUaxQuAcNJ8LaN1VibtFu6BpW7KdR0uohl0O+nMI3OS/QsSGB
+	 rPCK7mFl9lYZoW92EkV+LMmU4hYbHhbiiBj1eFtpGG1CmkKJ5NJKOuR0X9jhVdKnb8
+	 cPfEnwLSR95Grj1DzM4P7q/Oj/53gJhih7Jh4MTlZrV7O6U08Gp3djcMWfdVqIZ/a0
+	 ERRfZ+HMRQKNrM4ac23/Q8V2m1SVFwfQeEWlwkKdclvZKjseHl7dOuqdTtDWS+jQTo
+	 d6FYaPMLURbDA==
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Jiri Kosina <jikos@kernel.org>, Shuah Khan <shuah@kernel.org>, 
+ Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <20260915-wip-bpf-signed_size-v1-0-6bc8f3d09f5b@kernel.org>
+References: <20260915-wip-bpf-signed_size-v1-0-6bc8f3d09f5b@kernel.org>
+Subject: Re: [PATCH 0/2] HID: bpf: add one ssize_t check detected by
+ Sashiko
+Message-Id: <179032236044.351067.2844140440422327024.b4-ty@b4>
+Date: Fri, 25 Sep 2026 09:46:00 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Date: Fri, 25 Sep 2026 06:37:26 +0000 (UTC)
-X-CM-Envelope: MS4xfLoINS+pwsDKhhXJER5c105q3C2PcwGDiaOUESddC4EtP/APEAk8kmje9cYXNtL3Ma3b8W2+8a2hBS4FIUygShmM4TivQ+SpJVYsKBKkz0LrHi4LQ7ht W0fiowayWXSyQroQLaHsKMUr4epJDa2ZIsm1gVpy70JgF/y21FtRCC/0Elr+48QHanbC7aY36trHkl1tzUJu8tkXHLFCeFpjk2EF1x1G1lAW+EDUpROFtMti rJr8/0m1oAx36wWPkK/oL0oAR/rLx/qq/9CJhAxCNQIckDXkOAaxgT27NSyKGTG9aIrVSLX7Yyms07mfdQuRv7GO/snOrXjyLHVs9kr6fWSzYP80f3xF3vx7 mt2h/ZgdZkfHJJHZaVO/LvJD8hcUIvnalOJUV8MDlFBpVc4MsDaIgo3HRm3gtaUtqSUzWJ3f
-X-CM-Analysis: v=2.4 cv=Gq4Q+V1C c=1 sm=1 tr=0 ts=6ab616a8 a=bXe6bw2OB92olpQ1pPvang==:617 a=xqWC_Br6kY4A:10 a=YAInsrs56s76XBf-yU8A:9
-X-AuthUser: admin@laserology.net
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.15.2
 
-Quick clarification: the T14 Gen 1 / P14s Gen 2a RMI4 support is local to my
-tree only -- I haven't pushed it to Spencer's repo or submitted it anywhere.
-It's early but promising (bring-up works on both machines, no full test matrix
-yet). The only things I've filed there are the two hardware inventories, so I
-didn't mean to imply this had landed or been fully validated.
+On Tue, 15 Sep 2026 17:46:56 +0200, Benjamin Tissoires wrote:
+> Sashiko detected an existing issue in hid_bpf_hw_request:
+> if the transport layer returns an error code, hid_bpf_hw_request
+> returns success, which can confuse the caller.
+> 
+> Add the actual fix and a selftest to ensure this gets properly passed
+> around.
+> 
+> [...]
 
-Evan
+Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.3/upstream-fixes), thanks!
+
+[1/2] HID: bpf: cast size to ssize_t when checking hid_bpf_hw_request
+      https://git.kernel.org/hid/hid/c/3afefbfe55c2
+[2/2] selftest/hid: add test for negative return codes for hid_bpf_hw_request
+      https://git.kernel.org/hid/hid/c/3f35b678a1d6
+
+Cheers,
+-- 
+Benjamin Tissoires <bentiss@kernel.org>
+

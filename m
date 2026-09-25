@@ -1,183 +1,90 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23B5029DB64;
-	Fri, 25 Sep 2026 12:18:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51145481FAA;
+	Fri, 25 Sep 2026 13:37:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790338733; cv=none; b=YVCLxR9hFwcHhhfT31VPYhA9x91WBYTJGTbU8vtFVZE4kq/V6qeNFXpzPc52zRwuu9FWZBN1El3TKMiY+U6wxCh+0ho//4CoFS+VkNlbtbWwsezPsHSLFrdFjkGlLex73nmEQN88+AgdYp8oMbbBCEHB3IVnCRVVr4xL+hipVRo=
+	t=1790343434; cv=none; b=p0H0QwLxrRrl/msEBdDc1XKQn+fi+eZNiXqeMVfWrprFcQeRfITfgP0LglB2s7qSIH9hbgTkiW2aiaH08tyzv6+9y49pkBFCTHk5VEiYcFjB0XlD7g7smS4apawmRclP1/ogZ/KWnQXEFK/6cXN/02RSpn07BjVIW7Pc2lGhVBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790338733; c=relaxed/simple;
-	bh=164GKJ22csF16AjhDOLZzO5jGNBSrwLPFvF74TgmueM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KPoFzybGq6YgWVqHIJx1N3Ulb5a9PHXNhxks3yTNxh8ElNxNenWQIrpMo3JDD04uyK7bjTPIiq5CFqemTYkjXnryZiy6crDXzV1EgZJcJlKyb2nvjD7W2+uxUQfh4mx7FdJ4jMe8+wpnxkepFGxgDM6jD9a4tU8GRenJMD8qetM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kl4Bwps1; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790343434; c=relaxed/simple;
+	bh=tppLKGihpPbrBaoD6zrC97omhc4nZCVt4fENCagZiKo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Ce+UF4dJbRKBB1Kv8yXyASIGE2CdLwIZ8ghtDF6n29KV08pss0CepBVjIRwIbY9jQGZYp0UtbR4HOWASZTSSUAbA7Gy4IstEQBBsjpE2KFrS5Msi0mhG+9prtCv2eoj5dJJ1RojZqDWA/YZitqqNvcExwKJdBfnwhYarMJcP7KE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=D0a7jcAT; arc=none smtp.client-ip=220.197.31.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kl4Bwps1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E4F41F000FF;
-	Fri, 25 Sep 2026 12:18:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790338731;
-	bh=0mB3MttGUs3XRFf28KCYLV1eCQ2/cDsa+O2hLTEaYRs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kl4Bwps1RFoaA9L4XHW07Jbx4PDyk+iJobkaMURceNvEgEViUzOUcmxZsYJ95IhLr
-	 SI4B9FLRCFkcmkwoAYoM0V4jh5YrqoY2dvQon5eccSfz+8OEW5eOPkCa84ty7L/Sow
-	 rQ3/FJByVeAbep8SVIUrdLFYv9Y09Gio9w/0kTtdnChFJ1ImF5ZeZAq9rlSWWqnhYw
-	 eW6BqYSxeZRBYzYzO2ri54m9Xd79y91p+gnQOWnLI6Rk6A5sYT92peeJxKxUa5FMOw
-	 I3PvZy1BddlJv7CCQKGv8TI3YXQz78ajAjL1olMbi5eCWZv+DEo/ZlNf/uHUgAFLfM
-	 fUxL/ov3TGong==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 05/10] mailbox: apple: Add DockChannel FIFO
- controller
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Michael Reeves" <michael.reeves077@gmail.com>
-Cc: devicetree@vger.kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, conor+dt@kernel.org
-In-Reply-To: <20260925-apple-mtp-keyboard-final-v4-5-304c267518f4@gmail.com>
-References: <20260925-apple-mtp-keyboard-final-v4-0-304c267518f4@gmail.com>
- <20260925-apple-mtp-keyboard-final-v4-5-304c267518f4@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 25 Sep 2026 12:18:50 +0000
-Message-Id: <20260925121851.4E4F41F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="D0a7jcAT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Rz
+	F04bESnonyKgD5D1eC1a+7YoFMLwMQxE8AgHg55KQ=; b=D0a7jcAT4BrkA0qSV1
+	7Jsick2GZ/50XBPro1ifVUVbEDKF1B9kyrY2MlatMcgdJsmol4n5jUj3H4Krhf6Y
+	IvpM++cNSGFq9BOfVyiJvTM8ppAeqvnETqItvz83Y8p9SIfstn8vnKXWw8+60ijf
+	BfQcewQKb/ni3m/Fa8hl8jGvk=
+Received: from pc.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wD3P5vpeLZqaNgdAw--.65146S2;
+	Fri, 25 Sep 2026 21:36:42 +0800 (CST)
+From: Jiale Yao <yaojiale02@163.com>
+To: Hans de Goede <hansg@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Jens Reidel <adrian@mainlining.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Jiale Yao <yaojiale02@163.com>
+Subject: [PATCH] Input: goodix_berlin - reject devices without match data
+Date: Fri, 25 Sep 2026 21:36:38 +0800
+Message-Id: <20260925133639.2229728-1-yaojiale02@163.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wD3P5vpeLZqaNgdAw--.65146S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7uFW8Ww45CryrArykCw1xKrg_yoW8GFW3pF
+	W5Ca4xKryUXa13tw48tryDZFya9w18Ww4rKFyqk3y093s8WryUZr1akrW3Za4YyFW5J3WU
+	Ary7Z3sru3sxA3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEjg4wUUUUU=
+X-CM-SenderInfo: x1dryxhdohiji6rwjhhfrp/xtbC7wqg2mq2eOrHmgAA3M
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] irq: infinite IRQ storm on early/spurious TX interrupt
-- [High] mailbox: TOCTOU race loses TX completion interrupt
-- [High] mailbox: missed RX interrupt on startup drops pre-existing data
---
+A device bound through driver_override need not match an entry in the
+driver tables. In that case spi_get_device_match_data() returns NULL,
+but goodix_berlin_spi_probe() dereferences the result while calculating
+the regmap transfer limits.
 
-commit cccb050135d4c52daf05b87f17ad880ef928b912
-Author: Michael Reeves <michael.reeves077@gmail.com>
+Reject devices without match data before using the chip information.
 
-mailbox: apple: Add DockChannel FIFO controller
+Fixes: 4d395cb071a3 ("Input: goodix_berlin - add support for Berlin-A series")
+Signed-off-by: Jiale Yao <yaojiale02@163.com>
+---
+ drivers/input/touchscreen/goodix_berlin_spi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-This adds a driver for Apple's DockChannel hardware FIFO used by coprocesso=
-rs.
-It exposes the FIFO pair as a Linux mailbox channel and handles interrupts
-in a thread.
+diff --git a/drivers/input/touchscreen/goodix_berlin_spi.c b/drivers/input/touchscreen/goodix_berlin_spi.c
+index 01f850f484c2..db9e151ced65 100644
+--- a/drivers/input/touchscreen/goodix_berlin_spi.c
++++ b/drivers/input/touchscreen/goodix_berlin_spi.c
+@@ -127,12 +127,16 @@ static const struct input_id goodix_berlin_spi_input_id = {
+ 
+ static int goodix_berlin_spi_probe(struct spi_device *spi)
+ {
+-	const struct goodix_berlin_ic_data *ic_data = spi_get_device_match_data(spi);
++	const struct goodix_berlin_ic_data *ic_data;
+ 	struct regmap_config regmap_config;
+ 	struct regmap *regmap;
+ 	size_t max_size;
+ 	int error = 0;
+ 
++	ic_data = spi_get_device_match_data(spi);
++	if (!ic_data)
++		return -ENODATA;
++
+ 	spi->mode = SPI_MODE_0;
+ 	spi->bits_per_word = 8;
+ 	error = spi_setup(spi);
+-- 
+2.34.1
 
-> diff --git a/drivers/mailbox/apple-dockchannel.c b/drivers/mailbox/apple-=
-dockchannel.c
-> new file mode 100644
-> --- /dev/null
-> +++ b/drivers/mailbox/apple-dockchannel.c
-
-[ ... ]
-
-> +static void apple_dockchannel_irq_enable(struct apple_dockchannel *dc, u=
-32 bits)
-> +{
-> +	/*
-> +	 * IRQ_FLAG is write-to-clear. Clear stale latched flags before
-> +	 * unmasking so the next interrupt reflects current FIFO state.
-> +	 */
-> +	writel_relaxed(bits, dc->irq_base + IRQ_FLAG);
-> +	apple_dockchannel_irq_update(dc, bits, true);
-> +}
-
-[ ... ]
-
-> +static int apple_dockchannel_send_data(struct mbox_chan *chan, void *dat=
-a)
-> +{
-
-[ ... ]
-
-> +	dc->tx_active =3D true;
-> +
-> +	apple_dockchannel_write(dc, msg->data, msg->len);
-> +	writel_relaxed(APPLE_DOCKCHANNEL_FIFO_SIZE,
-> +		       dc->config_base + CONFIG_TX_THRESH);
-> +	apple_dockchannel_irq_enable(dc, dc->irq_tx);
-
-[Severity: High]
-If the coprocessor is fast enough to drain the FIFO before
-apple_dockchannel_irq_enable() executes, the hardware might latch the
-TX-empty interrupt flag.
-
-Since apple_dockchannel_irq_enable() unconditionally writes to IRQ_FLAG
-to clear latched flags, does this destroy a valid completion interrupt
-and stall the channel permanently?
-
-> +
-> +	spin_unlock_irqrestore(&dc->lock, flags);
-> +
-> +	return 0;
-> +}
-> +
-> +static int apple_dockchannel_startup(struct mbox_chan *chan)
-> +{
-> +	struct apple_dockchannel *dc =3D chan->con_priv;
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&dc->lock, flags);
-> +	/*
-> +	 * The mailbox framework has no per-client RX threshold. Use byte
-> +	 * granularity because UART-style DockChannel clients require it.
-> +	 */
-> +	writel_relaxed(1, dc->config_base + CONFIG_RX_THRESH);
-> +	apple_dockchannel_irq_enable(dc, dc->irq_rx);
-
-[Severity: High]
-During startup, apple_dockchannel_irq_enable() unconditionally clears
-latched RX interrupts.
-
-If the coprocessor sent data to the FIFO before the mailbox was opened,
-does this clear the latched interrupt without reading the data?=20
-
-Since the FIFO is already above the threshold, this could strand pre-existi=
-ng
-data by not generating a new edge interrupt.
-
-> +	spin_unlock_irqrestore(&dc->lock, flags);
-> +
-> +	enable_irq(dc->irq);
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> +static irqreturn_t apple_dockchannel_irq_thread(int irq, void *data)
-> +{
-
-[ ... ]
-
-> +	if (pending & dc->irq_tx) {
-> +		if (apple_dockchannel_tx_empty(dc)) {
-> +			apple_dockchannel_irq_disable(dc, dc->irq_tx);
-> +			tx_done =3D dc->tx_active;
-> +			dc->tx_active =3D false;
-> +		} else {
-> +			pending &=3D ~dc->irq_tx;
-> +		}
-> +	}
-> +
-> +	writel_relaxed(pending, dc->irq_base + IRQ_FLAG);
-
-[ ... ]
-
-> +	if (!(pending & dc->irq_rx))
-> +		return pending ? IRQ_HANDLED : IRQ_NONE;
-
-[Severity: High]
-If the hardware triggers an early or spurious TX interrupt before the FIFO
-is completely empty, apple_dockchannel_tx_empty() is false, which drops the
-TX flag from the pending mask.
-
-When pending is written back to IRQ_FLAG, the unmasked TX interrupt flag
-is left uncleared in the hardware register.
-
-If there is no RX interrupt pending, the function returns IRQ_NONE. Because
-the interrupt is left asserted in hardware and unmasked at the controller,
-will this cause an immediate re-trigger and an infinite IRQ storm?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260925-apple-mtp-=
-keyboard-final-v4-0-304c267518f4@gmail.com?part=3D5

@@ -1,299 +1,330 @@
-Received: from mail-dl2-f12.google.com (mail-dl2-f12.google.com [74.125.229.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E1804EE843
-	for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 22:18:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D879B4FDE67;
+	Fri, 25 Sep 2026 22:27:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790374698; cv=none; b=Ffqj9MioWYYQpDe48aQGaTtsYAnatDx1x6DRPmE1LGOZq73hXazldI/d/1cGGnT9wYKGZFidziZcqqUhNBpZWO02dXyO3HPqty0B4ZP/VtVfI4zeL9ndy6soCq+0bB56rrMse3fawDSv9APT3zqNiQ5m1M8aRBr7oTh6ah6OvWQ=
+	t=1790375281; cv=none; b=Gr1nB15eXCGvGN08vnMT4Q10tZMtlPkTfgf5okuESt32/yzKcjrmCaWe/KefcrgLimtmMAHMv+9R+W0xnACj0otgsvXbuT2cpNWxc0IxKv5b/c+sDcrX6HxCc4na54va95/a4vajoITD7ROQRztg+ddZU9Vlkbhy6uPqFeevlts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790374698; c=relaxed/simple;
-	bh=lUyCqvIhkx+oa2eX2J77bBkV43sFd/DsKxrwXJcJW70=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EN9EyhDw3Z45IoDMZ2HbUAu+qGyc2nQ3WCt7/b/Bc1kQWAhkNt1AC67CGRssDRqyW4lI1dplgE3q8CAvrqbaNEadYyLLl7Hdl6bZ/WQWvIvB6cH7Tb4wjiFcBaLUyb5l1IAkGSM98lJX5pxvnQ3+/lU6Qxfn2b/qlnvpKgUgnQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jqK0M+3r; arc=none smtp.client-ip=74.125.229.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790375281; c=relaxed/simple;
+	bh=F3JyrnU1T/7MY1F59ID3BIeap1ZmUL/wyu5htRqpiQ0=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=h4psPyf2nCExd67tgXPYPmh4YOEKI2ZKvjl7c31ftRSFf4Tg+x+wiRWRox9Q9B69zZ+V4jVkhR988t7SUTmxoCadjOXz8hkjiklB6LfRdFjRgYI/1vJtN9PSJTTxU8M6Otm1YkJnb3tLHwl8obprtSZT+6NQrVvJsen1oGcvUZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.mailfrom=mainlining.org; dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=JVAyHatN; dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=pR6lN4bC; arc=none smtp.client-ip=5.75.144.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mainlining.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jqK0M+3r"
-Received: by mail-dl2-f12.google.com with SMTP id a92af1059eb24-142dd046b87so1066888c88.2
-        for <linux-input@vger.kernel.org>; Fri, 25 Sep 2026 15:18:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790374695; x=1790979495; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ayLp4Jx22xan0yoaXXO0H5UJI37HFonSA4zUCdy+nIo=;
-        b=jqK0M+3rOKmnvbUCAihw+0CnJmxPVScYGgTauAfdDzHWgiMVfW72Ga9i6+HDuThXuU
-         4U6sFRkMObqrl/wYTTFVVwBGXcDlP4Ionpv3mxDVzBZBrL3CGEyawwTfbl7qsr/kkPi2
-         V8rM7wMyJh7B7UEj4XvR38+CmkaSV8rSb8X43A5qDDJ2ZJZdbBL/zaQj6JzmbxjaM8Q6
-         tyVfcVJuBqXBVv4lf27RqQgS7vb+erG9qGWfQrDnAkKb9SWQi1pyVkq7wCG/UZw82zsi
-         gbTP+KsDDWiW4JtEnBiVkF60eSmsEizKkfT7x4EWNyrknbhgaiyDF5/6Vv62aTTPX2xp
-         BrcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790374695; x=1790979495;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=ayLp4Jx22xan0yoaXXO0H5UJI37HFonSA4zUCdy+nIo=;
-        b=1PcSIH2F3uAxU6onesnjjIfmFSkTEFFhfA04EH6j0KQL08ltUwo4YNeLmbY1grqz9W
-         rq1b9MS3eCLTLm0ciuS6mDn3VpqCv03VyuVXT6DG1ytRneVAhYWu061RBu/s1qYYoGDY
-         I80xq+0ccqIRVfszEENQJfthRhG2tRWLA3dskEnqPXvwTLSrb2hufv8wJNk8+LtdNYaL
-         ZVOLQUe7qyy0Q/1XoPnRhGfxPCVYzv/p/pagwxz+tgaeLChlILNKLWf3RoOFZ/hj5L90
-         ws8wOr9buAjlKqlGntPsEk3j0SivmLE5t05crATWshfN/0ZDI33+96e3rhwt9Kd3ItKe
-         B/nQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxFkfQHaLHtVKodZuBkp3bKzN4ewlg12GIzQtT2oW9riOVTgS3H3OZw/bTXS6fgdlh1jTqjtjDuIxu9dg==@vger.kernel.org
-X-Gm-Message-State: AFuF++nEhK0nwcdTFnjQBIl9fM7Q/5YJZmn8H4tNBYv21no/C6Qpwd46
-	PaBHHq0u4ubinz/oiNZrwVXsHvTUbU/exVJ9RqHbi0c+G4lo56/G3i2K
-X-Gm-Gg: AYBFou1Rke1+BLwMpvZbl/OWcOdAQfSI086QMZ26qLFqdCc3MBOWM+/dLqO60C+cKZC
-	76Nu8jqefp8lgzuVfkbEjmjOTAeT41Tb9aTGUuIEyiqBh9ZaWjHwq6gY7zg36gUXsRO9nGHRn6s
-	pQNw6ViIm4U6RqGk6+95et9PBkbRWCtBjYTN6XROBNfmxHd1RYCzLeBZDxXs0Y2ixej3HzZpXAA
-	11FcNklRghhMtNslxV+0E7Y/fAvig1l3H2wx4E9yrXUi8AUuWZzN6aSltp3ygHvkukvq5y/pktY
-	nTUmslKndnF3Yd0iAZQTeCwNdOvHKkDdC5AtM8RbUvFP4HLCjnRHidT/zM+SzoSA7+6oBP4xogh
-	sbxliwqHNvXfGMXYC/omaia21D7vWGL2jBvQzU7TH4LdZy6kN8MwZtJvNGk+cmNH1v1hnHD4e/j
-	OnRNGVMSEOtC6WcpAaw8uAFSbVe9We63QyCgk9PdW/2P1QQQ+bUVmGFz0DvX/5o92Qf4zO2uikq
-	IY6/zEkkJNyX7SybeGEOsVXQjN28Tsf/UlfeoQ=
-X-Received: by 2002:a05:7022:288:b0:138:3613:dc6 with SMTP id a92af1059eb24-146ce67ee45mr1270576c88.14.1790374694857;
-        Fri, 25 Sep 2026 15:18:14 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:375:19cf:5fee:be32])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-145aa0cb6b9sm7166213c88.1.2026.09.25.15.18.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Sep 2026 15:18:14 -0700 (PDT)
-Date: Fri, 25 Sep 2026 15:18:10 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: david@ixit.cz
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
-	Alexandre Torgue <alexandre.torgue@foss.st.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Henrik Rydberg <rydberg@bitmath.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Petr Hodina <petr.hodina@protonmail.com>, 
-	linux-input@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	Krzysztof Kozlowski <krzk@kernel.org>, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	phone-devel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v8 1/5] Input: stmfts - wait for controller ready after
- reset
-Message-ID: <arbyyscK-3xYlj6H@google.com>
-References: <20260925-stmfts5-v8-0-0fcf49e2c85f@ixit.cz>
- <20260925-stmfts5-v8-1-0fcf49e2c85f@ixit.cz>
+	dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="JVAyHatN";
+	dkim=permerror (0-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="pR6lN4bC"
+DKIM-Signature: v=1; a=rsa-sha256; s=202507r; d=mainlining.org; c=relaxed/relaxed;
+	h=Message-ID:Subject:To:From:Date; t=1790375262; bh=A+iKWh5sj5YoOcrwdCL0h8j
+	CSUwRstI5vEoHvPHIJoI=; b=JVAyHatNWNvnhAg0tCBcDElFuGPkRnfUol+s4hJLPX6tYGI3ed
+	bwr2Md+LCni/ho6GyJEzErsWgGaW+i02dH2b+dBMDqRCI9/HjXdtEI2tZQIqD2d1WwCjrP25KUk
+	612HcmgaMnWNOeLNaav8CwtMJsR+XT5i/U8DM1WdqFERDrMa6GsgL/h7vjZGv0Jt4tf4L7u/2hP
+	/unEl8L3b2Lj2aoUa1FtE4W4UhRGPqSl9p5HK5fF7dCFGF3gs9uyGtBKZEvJvZVX/sWoo4quqKc
+	r6i7pfb43QS9S0SfFFkWQ8nu/zY6PHCEbfAfuGBx5Zlk11axbcfC8jrNLAm/hgS+Vcg==;
+DKIM-Signature: v=1; a=ed25519-sha256; s=202507e; d=mainlining.org; c=relaxed/relaxed;
+	h=Message-ID:Subject:To:From:Date; t=1790375262; bh=A+iKWh5sj5YoOcrwdCL0h8j
+	CSUwRstI5vEoHvPHIJoI=; b=pR6lN4bCmjgTzxfTIKniik2AjkDBGP0oObQcwcSbYh2PEdDTtB
+	U35u9OCJJr1lrCan0f/Llqwo95kPH+DgUpCg==;
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260925-stmfts5-v8-1-0fcf49e2c85f@ixit.cz>
+Date: Sat, 26 Sep 2026 00:27:42 +0200
+From: =?UTF-8?Q?Barnab=C3=A1s_Cz=C3=A9m=C3=A1n?=
+ <barnabas.czeman@mainlining.org>
+To: =?UTF-8?Q?Y=C4=B0=C4=9E=C4=B0TCAN_KAVAKLI?= <kavakliyigitcan@gmail.com>
+Cc: Lee Jones <lee@kernel.org>, Daniel Thompson <danielt@kernel.org>, Jingoo
+ Han <jingoohan1@gmail.com>, Pavel Machek <pavel@kernel.org>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Helge Deller <deller@gmx.de>, Liam Girdwood
+ <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Sumit Semwal
+ <sumit.semwal@linaro.org>, Neil Armstrong <neil.armstrong@linaro.org>,
+ Jessica Zhang <jesszhan0024@gmail.com>, Maarten Lankhorst
+ <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Rob Clark
+ <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov <lumag@kernel.org>, Abhinav
+ Kumar <abhinav.kumar@linux.dev>, Sean Paul <sean@poorly.run>, Marijn Suijten
+ <marijn.suijten@somainline.org>, Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, dri-devel@lists.freedesktop.org,
+ linux-leds@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ freedreno@lists.freedesktop.org
+Subject: Re: [PATCH RFC 04/10] drm/panel: novatek-nt36672a: add Tianma FHD+
+ video mode panel
+In-Reply-To: <20260911-ginkgo-submission-final-v1-4-0e68e63a18d4@gmail.com>
+References: <20260911-ginkgo-submission-final-v1-0-0e68e63a18d4@gmail.com>
+ <20260911-ginkgo-submission-final-v1-4-0e68e63a18d4@gmail.com>
+Message-ID: <8396770e7f5c85d4e8ac111b83bf8ad0@mainlining.org>
+X-Sender: barnabas.czeman@mainlining.org
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 25, 2026 at 11:22:19PM +0200, David Heidelberg via B4 Relay wrote:
-> From: David Heidelberg <david@ixit.cz>
+On 2026-09-11 10:51, YİĞİTCAN KAVAKLI wrote:
+> Add support for the 1080x2340 Tianma video mode panel with Novatek
+> NT36672A driver IC found in the Xiaomi Redmi Note 8 (ginkgo / SM6125).
 > 
-> After releasing the reset line stmfts_reset() sleeps a fixed 50 ms and
-> stmfts_power_on() another 50 ms before the first I2C access.  That is
-> enough for a warm reset, but when both supplies were really cut during
-> system suspend the controller boots from cold and can need longer.  If
-> it does, the first read fails, stmfts_resume() returns an error and the
-> touchscreen is left powered off with its interrupt disabled.
+> Changes:
+> - Add 1080x2340 display mode timings (183.025 MHz pixel clock)
+> - Add verified DCS initialization sequences for pages 0x25, 0x20, 0x24,
+>   0x26, and user command page 0x10
+> - Add standard DRM panel .enable and .disable callbacks to coordinate
+>   display on/off commands with active DSI video stream
+> - Set prepare_prev_first = true for host controller synchronization
+> - Optimize power-on reset sequence to nominal 10ms timings
 > 
-> The controller posts a controller ready event once it has booted, and
-> the event parser already completes cmd_done on it.  Enable the interrupt
-> right after releasing reset and wait for that event instead of sleeping,
-> giving the controller 300 ms, the total budget the vendor driver allows.
-> Boards without a reset line keep the old timing.
-> 
-> Usually phones such as Pixel 4a and Xiaomi Mi 8 needs longer delay, so
-> without this change touchscreen stops working.
-> 
-> Fixes: 8a1f9de80e45 ("Input: stmfts - add optional reset GPIO support")
-> Cc: stable@vger.kernel.org
-> Co-developed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: David Heidelberg <david@ixit.cz>
+> Signed-off-by: YİĞİTCAN KAVAKLI <kavakliyigitcan@gmail.com>
 > ---
->  drivers/input/touchscreen/stmfts.c | 60 ++++++++++++++++++++++++--------------
->  1 file changed, 38 insertions(+), 22 deletions(-)
+>  drivers/gpu/drm/panel/panel-novatek-nt36672a.c | 141 
+> ++++++++++++++++++++-----
+>  1 file changed, 117 insertions(+), 24 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-> index 972687797f826..1720202d6186b 100644
-> --- a/drivers/input/touchscreen/stmfts.c
-> +++ b/drivers/input/touchscreen/stmfts.c
-> @@ -59,16 +59,18 @@
->  #define STMFTS_MASK_X_MSB			0x0f
->  #define STMFTS_MASK_Y_LSB			0xf0
->  
->  /* key related event masks */
->  #define STMFTS_MASK_KEY_NO_TOUCH		0x00
->  #define STMFTS_MASK_KEY_MENU			0x01
->  #define STMFTS_MASK_KEY_BACK			0x02
->  
-> +#define STMFTS_RESET_TIMEOUT_MS	300
-> +
->  #define STMFTS_EVENT_SIZE	8
->  #define STMFTS_STACK_DEPTH	32
->  #define STMFTS_DATA_MAX_SIZE	(STMFTS_EVENT_SIZE * STMFTS_STACK_DEPTH)
->  #define STMFTS_MAX_FINGERS	10
->  #define STMFTS_DEV_NAME		"stmfts"
->  
->  static const struct regulator_bulk_data stmfts_supplies[] = {
->  	{ .supply = "vdd" },
-> @@ -538,25 +540,16 @@ static int stmfts_read_system_info(struct stmfts_data *sdata)
->  	sdata->chip_ver = reg[0];
->  	sdata->fw_ver = be16_to_cpup((__be16 *)&reg[2]);
->  	sdata->config_id = reg[4];
->  	sdata->config_ver = reg[5];
->  
+> diff --git a/drivers/gpu/drm/panel/panel-novatek-nt36672a.c 
+> b/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
+> index 
+> 464d9ce47d87dc857c3a565a63156ac79ddeb30c..b69213790441f204016895a391b58f676762b1aa 
+> 100644
+> --- a/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
+> +++ b/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
+> @@ -34,7 +34,7 @@ static const char * const nt36672a_regulator_names[] 
+> = {
+>  	"vddneg",
+>  };
+> 
+> -static unsigned long const nt36672a_regulator_enable_loads[] = {
+> +static const unsigned long nt36672a_regulator_enable_loads[] = {
+>  	62000,
+>  	100000,
+>  	100000
+> @@ -92,18 +92,12 @@ static int nt36672a_panel_unprepare(struct 
+> drm_panel *panel)
+>  	if (pinfo->desc->send_deinit_cmds)
+>  		pinfo->desc->send_deinit_cmds(&dsi_ctx);
+> 
+> -	/* Reset error to continue with display off even if send_cmds failed 
+> */
+> +	/* Reset error to continue power-down even if send_cmds failed */
+>  	dsi_ctx.accum_err = 0;
+> -	mipi_dsi_dcs_set_display_off_multi(&dsi_ctx);
+> -	/* Reset error to continue power-down even if display off failed */
+> -	dsi_ctx.accum_err = 0;
+> -
+> -	/* 120ms delay required here as per DCS spec */
+> -	msleep(120);
+> 
+>  	mipi_dsi_dcs_enter_sleep_mode_multi(&dsi_ctx);
+> 
+> -	/* 0x3C = 60ms delay */
+> +	/* 60ms delay as per DCS spec */
+>  	msleep(60);
+> 
+>  	nt36672a_panel_power_off(panel);
+> @@ -120,15 +114,14 @@ static int nt36672a_panel_power_on(struct 
+> nt36672a_panel *pinfo)
+>  		return ret;
+> 
+>  	/*
+> -	 * As per downstream kernel, Reset sequence of Tianma FHD panel 
+> requires the panel to
+> -	 * be out of reset for 10ms, followed by being held in reset for 
+> 10ms. But for Android
+> -	 * AOSP, we needed to bump it upto 200ms otherwise we get white 
+> screen sometimes.
+> -	 * FIXME: Try to reduce this 200ms to a lesser value.
+> +	 * Reset sequence: 10ms out of reset, 10ms held in reset, 10ms out of 
+> reset.
+>  	 */
+> -	gpiod_set_value(pinfo->reset_gpio, 1);
+> -	msleep(200);
+> -	gpiod_set_value(pinfo->reset_gpio, 0);
+> -	msleep(200);
+> +	gpiod_set_value_cansleep(pinfo->reset_gpio, 0);
+> +	usleep_range(10000, 11000);
+> +	gpiod_set_value_cansleep(pinfo->reset_gpio, 1);
+> +	usleep_range(10000, 11000);
+> +	gpiod_set_value_cansleep(pinfo->reset_gpio, 0);
+> +	usleep_range(10000, 11000);
+> 
 >  	return 0;
 >  }
->  
-> -static void stmfts_reset(struct stmfts_data *sdata)
-> -{
-> -	gpiod_set_value_cansleep(sdata->reset_gpio, 1);
-> -	msleep(20);
+> @@ -146,19 +139,41 @@ static int nt36672a_panel_prepare(struct 
+> drm_panel *panel)
+> 
+>  	mipi_dsi_dcs_exit_sleep_mode_multi(&dsi_ctx);
+> 
+> -	/* 0x46 = 70 ms delay */
+> -	mipi_dsi_msleep(&dsi_ctx, 70);
 > -
-> -	gpiod_set_value_cansleep(sdata->reset_gpio, 0);
-> -	msleep(50);
-> -}
+> -	mipi_dsi_dcs_set_display_on_multi(&dsi_ctx);
+> +	/* 80 ms delay as per DCS spec / downstream timing */
+> +	msleep(80);
+> 
+>  	/* Send rest of the init cmds */
+>  	if (pinfo->desc->send_init_cmds_2)
+>  		pinfo->desc->send_init_cmds_2(&dsi_ctx);
+> 
+> -	mipi_dsi_msleep(&dsi_ctx, 120);
 > -
->  static int stmfts_configure(struct stmfts_data *sdata)
->  {
->  	int err;
->  
->  	err = stmfts_command(sdata, STMFTS_SYSTEM_RESET);
->  	if (err)
->  		return err;
->  
-> @@ -582,53 +575,76 @@ static int stmfts_configure(struct stmfts_data *sdata)
->  
->  	return 0;
+>  	if (dsi_ctx.accum_err < 0)
+> -		gpiod_set_value(pinfo->reset_gpio, 0);
+> +		gpiod_set_value_cansleep(pinfo->reset_gpio, 0);
+> +
+> +	return dsi_ctx.accum_err;
+> +}
+> +
+> +static int nt36672a_panel_enable(struct drm_panel *panel)
+> +{
+> +	struct nt36672a_panel *pinfo = to_nt36672a_panel(panel);
+> +	struct mipi_dsi_multi_context dsi_ctx = { .dsi = pinfo->link };
+> +
+> +	mipi_dsi_dcs_set_display_on_multi(&dsi_ctx);
+> +
+> +	/* Frame settling delay */
+> +	msleep(20);
+> +
+> +	return dsi_ctx.accum_err;
+> +}
+> +
+> +static int nt36672a_panel_disable(struct drm_panel *panel)
+> +{
+> +	struct nt36672a_panel *pinfo = to_nt36672a_panel(panel);
+> +	struct mipi_dsi_multi_context dsi_ctx = { .dsi = pinfo->link };
+> +
+> +	mipi_dsi_dcs_set_display_off_multi(&dsi_ctx);
+> +
+> +	/* 120ms delay as per DCS spec */
+> +	msleep(120);
+> 
+>  	return dsi_ctx.accum_err;
 >  }
->  
->  static int stmfts_power_on(struct stmfts_data *sdata)
+> @@ -189,6 +204,8 @@ static int nt36672a_panel_get_modes(struct 
+> drm_panel *panel,
+>  static const struct drm_panel_funcs panel_funcs = {
+>  	.unprepare = nt36672a_panel_unprepare,
+>  	.prepare = nt36672a_panel_prepare,
+> +	.enable = nt36672a_panel_enable,
+> +	.disable = nt36672a_panel_disable,
+As far as I know adding .enable and .disable callbacks for on/off 
+commands is a workaround for -110 time outs
+and not a proper fix, as a workaround .disable is enough.
+Here is an another attempt with the same workaround and it was declined:
+https://lore.kernel.org/all/20240509-jdi-use-disable-v1-1-5c175b2ea1ee@gmail.com/
+We have this commit for this issue at downstream 
+https://github.com/msm8953-mainline/linux/commit/c1adb576d7b49833d0d48c5ffae18372c9db668e
+but in my understanding it also should not considered a proper fix.
+>  	.get_modes = nt36672a_panel_get_modes,
+>  };
+> 
+> @@ -404,6 +421,79 @@ static const struct nt36672a_panel_desc 
+> tianma_fhd_video_panel_desc = {
+>  	.send_deinit_cmds = tianma_fhd_video_send_deinit_cmds,
+>  };
+> 
+> +static void tianma_ginkgo_send_init_cmds(struct mipi_dsi_multi_context 
+> *dsi_ctx)
+> +{
+> +	/* Page 0x25 init */
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x25);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x18, 0x96);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x05, 0x04);
+> +
+> +	/* Page 0x20 init */
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x20);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x78, 0x01);
+> +
+> +	/* Page 0x24 init */
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x24);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x82, 0x13);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x84, 0x31);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x88, 0x13);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x8a, 0x31);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x8e, 0xe4);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x8f, 0x01);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x90, 0x80);
+> +
+> +	/* Page 0x26 init */
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x26);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xfb, 0x01);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xa9, 0x12);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xaa, 0x10);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xae, 0x8a);
+> +
+> +	/* Page 0x10 (User command page) */
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xff, 0x10);
+> +}
+> +
+> +static void tianma_ginkgo_send_post_on_cmds(struct 
+> mipi_dsi_multi_context *dsi_ctx)
+> +{
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0xb0, 0x01);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x35, 0x00);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x68, 0x04, 0x03);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x51, 0xb8);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x53, 0x2c);
+> +	mipi_dsi_dcs_write_seq_multi(dsi_ctx, 0x55, 0x00);
+> +}
+> +
+> +static const struct drm_display_mode tianma_ginkgo_fhd_video_mode = {
+> +	.clock		= 183025,
+> +
+> +	.hdisplay	= 1080,
+> +	.hsync_start	= 1080 + 90,
+> +	.hsync_end	= 1080 + 90 + 2,
+> +	.htotal		= 1080 + 90 + 2 + 120,
+> +
+> +	.vdisplay	= 2340,
+> +	.vsync_start	= 2340 + 10,
+> +	.vsync_end	= 2340 + 10 + 3,
+> +	.vtotal		= 2340 + 10 + 3 + 8,
+> +
+> +	.type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
+> +};
+> +
+> +static const struct nt36672a_panel_desc 
+> tianma_ginkgo_fhd_video_panel_desc = {
+> +	.display_mode = &tianma_ginkgo_fhd_video_mode,
+> +	.panel_name = "tianma-ginkgo-fhd-video",
+> +	.width_mm = 67,
+> +	.height_mm = 145,
+> +	.mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_LPM,
+> +	.format = MIPI_DSI_FMT_RGB888,
+> +	.lanes = 4,
+> +	.send_init_cmds_1 = tianma_ginkgo_send_init_cmds,
+> +	.send_init_cmds_2 = tianma_ginkgo_send_post_on_cmds,
+> +};
+> +
+>  static int nt36672a_panel_add(struct nt36672a_panel *pinfo)
 >  {
->  	int err;
->  
-> +	if (sdata->reset_gpio) {
-> +		gpiod_set_value_cansleep(sdata->reset_gpio, 1);
-> +		/* a short delay before powering up */
-> +		usleep_range(1000, 1500);
-> +	}
+>  	struct device *dev = &pinfo->link->dev;
+> @@ -428,6 +518,8 @@ static int nt36672a_panel_add(struct nt36672a_panel 
+> *pinfo)
+>  	if (ret)
+>  		return dev_err_probe(dev, ret, "Failed to get backlight\n");
+> 
+> +	pinfo->base.prepare_prev_first = true;
 > +
->  	err = regulator_bulk_enable(ARRAY_SIZE(stmfts_supplies),
->  				    sdata->supplies);
->  	if (err)
->  		return err;
->  
-> -	/*
-> -	 * The datasheet does not specify the power on time, but considering
-> -	 * that the reset time is < 10ms, I sleep 20ms to be sure
-> -	 */
-> -	msleep(20);
-> +	if (sdata->reset_gpio) {
-> +		reinit_completion(&sdata->cmd_done);
->  
-> -	if (sdata->reset_gpio)
-> -		stmfts_reset(sdata);
-> +		/*
-> +		 * The datasheet does not specify the power on time, but
-> +		 * considering that the reset time is < 10ms, sleep for 20ms
-> +		 * to be sure before releasing reset line.
-> +		 */
-> +		msleep(20);
-> +		gpiod_set_value_cansleep(sdata->reset_gpio, 0);
->  
-> -	err = stmfts_read_system_info(sdata);
-> -	if (err)
-> -		goto err_disable_regulators;
-> +		enable_irq(sdata->client->irq);
->  
-> -	enable_irq(sdata->client->irq);
-> +		if (!wait_for_completion_timeout(&sdata->cmd_done,
-> +						 msecs_to_jiffies(STMFTS_RESET_TIMEOUT_MS))) {
-> +			dev_err(&sdata->client->dev, "controller not ready after reset");
-> +			err = -ETIMEDOUT;
-> +			goto err_disable_irq;
-> +		}
-> +	} else {
-> +		/*
-> +		 * We do not know the real controller state (was it powered
-> +		 * off or reset). Let's hope that this is enough time to
-> +		 * initialize.
-> +		 */
-> +		msleep(70);
-> +
-> +		enable_irq(sdata->client->irq);
-
-Sashiko gave me an idea. What if we do this:
-
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index 1720202d6186..e147a27f57b3 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -578,6 +578,7 @@ static int stmfts_configure(struct stmfts_data *sdata)
- 
- static int stmfts_power_on(struct stmfts_data *sdata)
- {
-+	unsigned int timeout;
- 	int err;
- 
- 	if (sdata->reset_gpio) {
-@@ -591,9 +592,9 @@ static int stmfts_power_on(struct stmfts_data *sdata)
- 	if (err)
- 		return err;
- 
--	if (sdata->reset_gpio) {
--		reinit_completion(&sdata->cmd_done);
-+	reinit_completion(&sdata->cmd_done);
- 
-+	if (sdata->reset_gpio) {
- 		/*
- 		 * The datasheet does not specify the power on time, but
- 		 * considering that the reset time is < 10ms, sleep for 20ms
-@@ -602,23 +603,29 @@ static int stmfts_power_on(struct stmfts_data *sdata)
- 		msleep(20);
- 		gpiod_set_value_cansleep(sdata->reset_gpio, 0);
- 
--		enable_irq(sdata->client->irq);
--
--		if (!wait_for_completion_timeout(&sdata->cmd_done,
--						 msecs_to_jiffies(STMFTS_RESET_TIMEOUT_MS))) {
--			dev_err(&sdata->client->dev, "controller not ready after reset");
--			err = -ETIMEDOUT;
--			goto err_disable_irq;
--		}
-+		timeout = STMFTS_RESET_TIMEOUT_MS;
- 	} else {
- 		/*
- 		 * We do not know the real controller state (was it powered
- 		 * off or reset). Let's hope that this is enough time to
- 		 * initialize.
- 		 */
--		msleep(70);
-+		timeout = 70;
-+	}
- 
--		enable_irq(sdata->client->irq);
-+	enable_irq(sdata->client->irq);
-+
-+	if (!wait_for_completion_timeout(&sdata->cmd_done,
-+					 msecs_to_jiffies(timeout))) {
-+		if (sdata->reset_gpio) {
-+			dev_err(&sdata->client->dev, "controller not ready after reset");
-+			err = -ETIMEDOUT;
-+			goto err_disable_irq;
-+		}
-+		/*
-+		 * If we did not reset the countroller ourselves continue
-+		 * even if we did not receive "ready" message.
-+		 */
- 	}
- 
- 	err = stmfts_read_system_info(sdata);
-
-No need to resend the series unless there is more feedback on the
-bindings.
-
-Thanks.
-
--- 
-Dmitry
+>  	drm_panel_add(&pinfo->base);
+> 
+>  	return 0;
+> @@ -481,6 +573,7 @@ static void nt36672a_panel_remove(struct 
+> mipi_dsi_device *dsi)
+> 
+>  static const struct of_device_id tianma_fhd_video_of_match[] = {
+>  	{ .compatible = "tianma,fhd-video", .data = 
+> &tianma_fhd_video_panel_desc },
+> +	{ .compatible = "tianma,fhd-video-ginkgo", .data = 
+> &tianma_ginkgo_fhd_video_panel_desc },
+>  	{ },
+>  };
+>  MODULE_DEVICE_TABLE(of, tianma_fhd_video_of_match);

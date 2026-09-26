@@ -1,156 +1,100 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F246C63CB;
-	Sat, 26 Sep 2026 20:26:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCBC6370AE6
+	for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 20:37:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790454410; cv=none; b=G4vr4gGkBUMlZQSCAjnrbMzjCvJNtn5rvIr7z9jb1lukcFbJa70CJTtk2BtsCMew9NdPUEy9YMI1XkXmG0OMapg52hjBy6g/WP2RSWwlcMtq9Znqj1DQQDxeRBy4Wf41+ANTC/UdPukNzNHHSOn2MNOQOphWVJEeQTNKmETRkQ4=
+	t=1790455066; cv=none; b=BWIMvdoBFNnixOiKIjDUzRri7N2xq3OgBNIiFoOUf+o9eoHvLwMtS1C2OVu5KwNcZTiI6PCR2cwAc+TFTvmT4tPwPy3bBxWj93qxTBwehYobmNX0QpR9Y3lyQd2yyH/3oPe5IoOvwxOHhOeIXRJ6jYP7Ij8qGWhsQUUufsHwi9M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790454410; c=relaxed/simple;
-	bh=cS0QdhLNkY9KqLzjGfE/25az1mVmYzQU0keGJqcZq38=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=VHRkHqsqB3yfBd1yhr2+zKDT4Z6G4vx6lySIzQ3CqM2Zd9R8gp1w+tTX4VBLcxz+wstRcxH5CW1u4xd+FOUfMh5VVX5rg1RQFMzPwPVb63Xz/Q2bC9oND7kUfk6Vt3gY7x50F88ewK+pKeZlFaiSghn882w/Lw12BaPfcE+et6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FYqAIkE9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1790455066; c=relaxed/simple;
+	bh=2rYLYxdXBLVs2RXuanVQdMaxrD/FVpzxKnTvwECaxHs=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=RgsQgIBHF9RSH2jyFCKHwm+RaeR7OAbKqMOWMWmMwPwbe69MoHvtiz8w7j2FrtneUAGvjAzghKCLwViNL23p+8YDjtYMgmaAEWl0ZWTYb5SeDFn1bPl5QttT+SdlkyvpZd5z8wK5wjpwOsLtzL68nanq60+BxqbAlgBNowDK7EI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=enIpg6RF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FYqAIkE9"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 958FAC2BCB8;
-	Sat, 26 Sep 2026 20:26:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1790454409;
-	bh=cS0QdhLNkY9KqLzjGfE/25az1mVmYzQU0keGJqcZq38=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=FYqAIkE9EqpXw7t5fJC0GVr6ENvaI8xJfZLAgqkLsJcctHDdBDZbM2atOsH7Q1I27
-	 mKrzlnFFo909c1Zv7vRpQB28WxlB8ETyMJN8OWiLb+alDP7NrD62m/12WoaIzOM7Sh
-	 57QFSYzP2RFzYGufXyr8GPSIFouaDYdhewtFZdhGUIREF25BK//6nM0/fWq6pybdJ1
-	 Stj5EfRWR8pgeLcV/waJlK9glvndM2eqakA5VtL6a5CTOmJy1cI83BwmsqgIWvwHHw
-	 G4p2VYCg5ndR61qr8Y/XRbOS1hjS0nfpoD3K2WfLHS8xfTg4JYWRz9rWb3YH18lzdn
-	 LXyAn5nn+m/qA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CAD3C9832A;
-	Sat, 26 Sep 2026 20:26:49 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Sat, 26 Sep 2026 22:26:47 +0200
-Subject: [PATCH v2] Input: s6sy761 - fix resume ordering and restore
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="enIpg6RF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82FAA1F000FF;
+	Sat, 26 Sep 2026 20:37:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790455064;
+	bh=pHl0ZeWvfGqtpu9Xwtz+Tvn3Xip4bNsQe9hhErl+JSA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=enIpg6RFGm7VzQkWh+0vDAceRgx7ylqJhAHagIPHwY9X843WWyoySudc2v3J7mQ4/
+	 4yIFfEPINJ5lrkARH6nM5vvnCRGjl5WzKLKEL2K5Q6QzYkdrAiFZEKmXPMaY3N6AX+
+	 fVRzdv5DSTnTXS0mTysYEiiJ6usXtHRQOSPhcgIqZsdGhATHDmM9bvx8aZAgn2vNGd
+	 4ahknRaA8mOac8d70t9nQ8g0PoELaxKcjhx0Mi21mMAQHMHgsppy5lduRMEC5/HPDh
+	 908q/bH+NL76gf6DbJ3hYej9PrLMxZiReZmJL5D0xF/3hm9WqE9YziSKnhd5stwONF
+	 gTJKR7L/7/L7A==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] Input: s6sy761 - fix resume ordering and restore
  sensing
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "David Heidelberg" <david@ixit.cz>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
+References: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 26 Sep 2026 20:37:44 +0000
+Message-Id: <20260926203744.82FAA1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WNQQ6CMBBFr0JmbU1bsRVX3sOwoGUq4wJIpxCQc
- HcB1y5f8v77CzBGQoZ7tkDEkZi6dgN9ysA3VftCQfXGoKU2stAXwYZna5TggXtsa6FzY3Mnb1f
- rKthWfcRA01F8lj/mwb3Rpz2zGw1x6uJ8XI5q9/7XRyWUMCGEwqBV3skHTZTO/gPluq5fbIySR
- 74AAAA=
-X-Change-ID: 20260923-s6sy761-suspend-24674b0857ba
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Andi Shyti <andi@etezian.org>, Rob Herring <robh@kernel.org>, 
- Marco Mattiolo <marco.mattiolo@hotmail.it>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- phone-devel@vger.kernel.org, stable@vger.kernel.org, 
- David Heidelberg <david@ixit.cz>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2550; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=zam6eeZKJN3iy7FLZYqEzX+RoG2h8gfBIV6S+jPTMYo=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBquCqItB6OXXeLTO07zF/aNObgie6pXfvp/zXcC
- zuQCrStHxWJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCargqiAAKCRBgAj/E00kg
- cqI3D/wKUm1IG782wR+Rk+uc2OaP3CIfhd1+ZBDvW0FB5RqTvXHF+TquSmHjSF57RxvHre05s73
- +gRed7O8MXuFKQ8mHiBghTNJQTlxgha2mPm65bIpVERb05naperVRvgdXszbkei0AAZPdWyb8x7
- WfFaXEt7vDoK0TdpYmoPADBk029kj5sIwSoIf2C9dywTp2127bAjgDG/rBBiL6ayAY5SKTBHsS8
- Vo2giTI2IMUmb8QkCvy5yy2ALez1TmCVwngHWKlnRtRR4k8zPGmckUtqR4aC23iJ/jKJ6eIuH2G
- eTc4ZKAJDgI+KuufStFcNtfPueBsjXxzngZj6Zj6VEN4nFu/WGBjo1AWbdxdPNMmXsMl8L5VsTS
- Ys1A6FmRkUDBH4mFbpiHBE1wTBiS4m48xhyfYPy7Bbl1BGK1RrZV/Yo1yAZ1Kcu5tkt0qqFZb/P
- NZMk5GL7c+y6A0ztmVoHIEBdIz1hZ9SW1aKQZxHnmfOjgfzOCgXui1kK9fYGLjzdrCQVlc18Y/8
- KvwzxPpnKfuC9OL4leGUQS+pH0mrK+FOldq1v5SSJdopODAY2obzKk+HckeKhPwFY/xyaeyvfPx
- nlD6AS8pPHw+EB1U4mMPIWFFAzBlwi509DheTMtkmqgX3cXudm6B1Jf2g25164nnZVHEeP9xZQ3
- gfnKKYF9czjMEfA==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
 
-From: David Heidelberg <david@ixit.cz>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] input: permanent IRQ disable on s6sy761_power_on() failure
+--
 
-System suspend powers the controller off and resume powers it back on,
-but the resume path enables the interrupt before s6sy761_power_on()
-checks the boot. The firmware raises its boot-complete event on the
-interrupt line, the threaded handler consumes it, s6sy761_power_on()
-then reads an empty event and resume fails with -ENODEV, skipping the
-touch function setup:
+commit e5e3e44a0960351c54b4dc02894567b7b504952c
+Author: David Heidelberg <david@ixit.cz>
 
-s6sy761 2-0048: PM: dpm_run_callback(): s6sy761_resume [s6sy761] returns -19
+Input: s6sy761 - fix resume ordering and restore sensing
 
-Power the chip on first and only then unmask the interrupt. Once resume
-completes the boot handshake the chip comes back with sensing off, as
-at probe where input_open() turns it on, so the touchscreen stays dead
-after resume. Send SENSE_ON again when the input device is open.
+This commit alters the resume ordering to power on the controller before
+unmasking the interrupt, addressing an issue where the boot-complete
+event was consumed prematurely. It also ensures SENSE_ON is re-sent upon
+resume if the input device is already open.
 
-Tested on a Pixel 3 XL over several s2idle cycles: resume succeeds and
-the touch function and sense status match the pre-suspend state.
+> diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscr=
+een/s6sy761.c
+> index 0f24a9b730635..899c179fb2d31 100644
+> --- a/drivers/input/touchscreen/s6sy761.c
+> +++ b/drivers/input/touchscreen/s6sy761.c
+> @@ -500,10 +500,22 @@ static int s6sy761_suspend(struct device *dev)
+>  static int s6sy761_resume(struct device *dev)
+>  {
+>  	struct s6sy761_data *sdata =3D dev_get_drvdata(dev);
+> +	int err;
+> +
+> +	err =3D s6sy761_power_on(sdata);
+> +	if (err)
+> +		return err;
 
-Assisted-by: LLM
-Cc: stable@vger.kernel.org
-Fixes: 0145a7141e59 ("Input: add support for the Samsung S6SY761 touchscreen")
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
-Changes in v2:
-- Explicit return err in _resume. (Dmitry)
-- Do not enable interrupt when power on fails. (Dmitry)
-- Link to v1: https://patch.msgid.link/20260923-s6sy761-suspend-v1-1-6fff96e71cb0@ixit.cz
----
- drivers/input/touchscreen/s6sy761.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+[Severity: Medium]
+Will this early return permanently disable the interrupt if power on fails?
 
-diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
-index 0f24a9b730635..899c179fb2d31 100644
---- a/drivers/input/touchscreen/s6sy761.c
-+++ b/drivers/input/touchscreen/s6sy761.c
-@@ -495,20 +495,32 @@ static int s6sy761_suspend(struct device *dev)
- 	s6sy761_power_off(sdata);
- 
- 	return 0;
- }
- 
- static int s6sy761_resume(struct device *dev)
- {
- 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
-+	int err;
-+
-+	err = s6sy761_power_on(sdata);
-+	if (err)
-+		return err;
- 
- 	enable_irq(sdata->client->irq);
- 
--	return s6sy761_power_on(sdata);
-+	guard(mutex)(&sdata->input->mutex);
-+
-+	if (!input_device_enabled(sdata->input))
-+		return 0;
-+
-+	err = i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_ON);
-+
-+	return err;
- }
- 
- static const struct dev_pm_ops s6sy761_pm_ops = {
- 	SYSTEM_SLEEP_PM_OPS(s6sy761_suspend, s6sy761_resume)
- 	RUNTIME_PM_OPS(s6sy761_runtime_suspend, s6sy761_runtime_resume, NULL)
- };
- 
- #ifdef CONFIG_OF
+If s6sy761_power_on() fails (for example, due to a transient I2C error
+during resume), this early return skips enable_irq(). However, the PM core
+will still clear the suspended state despite the error.
 
----
-base-commit: 7079a12d7506b07fb53b54a664bfad5fa9b16d70
-change-id: 20260923-s6sy761-suspend-24674b0857ba
+On the next system suspend cycle, s6sy761_suspend() will run again and call
+disable_irq(), which unconditionally increments the IRQ disable depth to 2.
+A subsequent successful resume would then call enable_irq() only once,
+reducing the depth back to 1, which leaves the IRQ permanently disabled.
 
-Best regards,
---  
-David Heidelberg <david@ixit.cz>
+Should the error path balance the IRQ state to avoid losing touchscreen
+functionality after a transient failure?
 
+> =20
+>  	enable_irq(sdata->client->irq);
+> =20
 
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260926-s6sy761-su=
+spend-v2-1-8f00a96ee6e8@ixit.cz?part=3D1

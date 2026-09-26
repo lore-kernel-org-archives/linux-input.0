@@ -1,109 +1,122 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C29045D180;
-	Sat, 26 Sep 2026 13:17:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0EBC3BE179
+	for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 13:33:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790428660; cv=none; b=gwg0aLalNmuI7jt5BVMNDpETXjwWserGQwwEsOVDFDxACNzcLe5bsniJktQZYSBuQizRawHabrfbmeUIL5BkpKHpBzWz2ZOuESMXltQ6OyWaAC/Vxr7rtD2Cnv7odKHw3jFOrP4wHjpl26z7qy1RKhRIcfofswBwNEHp0GvGG34=
+	t=1790429636; cv=none; b=LN+PI6Qc99jHXNJvz6E+rUpXGu2whuKIXltKHITwBP3IPT5T7XiAI3CAgMJN+vmlNTQmmMw5KCp7u9PncP3P9wJmic/2GXqIXr3pR/H5axwGRUnrhiNTuty5sW5paJ300q9VlQ4JMeSbPLMQuuIWhEhDXOOdeZ+Wl4eX181/Rrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790428660; c=relaxed/simple;
-	bh=dMncSx2UyYLi2dqedF+v1BK1FWHzRgo/LCaroSYg0tc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=lQu0+u9kQ7ymG9raxahwM9KfaGovMls0faS8AOga1FUSwfQZSY1dKzkjNhbJFrof98Qiyyr+vq8Dq9+2DjJAya3I0fMwPBxckUal2/NNYt9TyBNFkRDPwbukrDXv0PVBpgbBAlFd5IgFizGlyO5nf9PESQBPw5OcAFWH7GYwlw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YAqq27kk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790429636; c=relaxed/simple;
+	bh=MrlVxnFXxZHjKk0I45EHOzWwEZcii7SXEGWwNHTJnnA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=EylHASPMMqOVITg9zXD9jglo4n4lakPZ+QS01S5yoMcQ4fGAfxBiaOH40IyzzxQmxlMSRgOg09ORzf+9Q04cwGembQVJMHGaf8NN0hiDRK+WVQjk+hlsjeOPJmjvYa+CQws0h1thgsvU4m4puNddLt483NPpkGGmK3Hl/8Fh6yU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VV4Uqhwg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YAqq27kk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 523FE1F008BC;
-	Sat, 26 Sep 2026 13:17:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VV4Uqhwg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 717B91F000FF;
+	Sat, 26 Sep 2026 13:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790428659;
-	bh=+XrNL16ZCg2GVmApUxxrwAUI6/bTuhIIbKwqFaiiCBs=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=YAqq27kksXDUuc5wh1SjhduSlDqU8MGIy1c6OXOdPIfjkQ7LaI/Bt+sEgclzO60xb
-	 5xWLizQxgtMVsZ8xiQzogJ51sEik7BylX0bQi7Mql1SSSCv3fB7yVRbI+sQleasR6U
-	 jYGT8HicdvYrST8eFGjaUYT5l/0C2QKaTBXx3Pcxz1fwQt1/bLNTj/E5o/30Y61H97
-	 llR/4vpzGH733BqPiOnbieZedVlTM3GUBNWVVWiBhndobrx+gIhBT40pSV8n2rQAWk
-	 uRFa14mc5W+ZPozPibQHGf90KbR7OqvZ6yEkm6s9olW0wD3UllttRAay1nyxhsgLZC
-	 gVz5eYzmgA1WQ==
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Sat, 26 Sep 2026 14:17:04 +0100
-Subject: [PATCH 6/6] fbdev: sh_mobile_lcdc: check for fb_deferred_io_init()
- error
+	s=k20260515; t=1790429635;
+	bh=f7zKPBnbUp6eUB/KEXui9d/UrTXlZyGna2N3UHmO1JU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VV4Uqhwg3goroXJnxSkntCl+TmsX91WAbIX36NP0HdAsMQqSpMWFeuVD/0l6lwyPe
+	 8DLlGyS1dPIeD6gS9Mxq2uLszlKaqoDG+RZtfUiXP6g3V4tQu0yRVK4Iu5Z+C2b+DD
+	 zNWeHwQIPTRjrjQkJ7FxFkVtciH4m/6gZeqIiqwAXuDjc6beCnLcDvFGVZPLodElLD
+	 bCxP+W08dYW3S/Cidgwhtv6Pi6hpsm5NHfyysFHWJsJAUU0gfBIghmPouRcPlFkFLE
+	 1s0RnnXPkZwccH/kjWQU4pTgZ2TBR8Dgo4Z4JVg4Nv/GMT8s9ucYnGPveH6APD+lEA
+	 h5G7/HSuWMfSg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 6/6] fbdev: sh_mobile_lcdc: check for
+ fb_deferred_io_init() error
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
+Cc: dmitry.torokhov@gmail.com, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org
+In-Reply-To: <20260926-fix-fbdefio-error-handling-v1-6-a94810b6e263@kernel.org>
+References: <20260926-fix-fbdefio-error-handling-v1-0-a94810b6e263@kernel.org>
+ <20260926-fix-fbdefio-error-handling-v1-6-a94810b6e263@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 26 Sep 2026 13:33:54 +0000
+Message-Id: <20260926133355.717B91F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260926-fix-fbdefio-error-handling-v1-6-a94810b6e263@kernel.org>
-References: <20260926-fix-fbdefio-error-handling-v1-0-a94810b6e263@kernel.org>
-In-Reply-To: <20260926-fix-fbdefio-error-handling-v1-0-a94810b6e263@kernel.org>
-To: Helge Deller <deller@gmx.de>, 
- Javier Martinez Canillas <javierm@redhat.com>, 
- Thomas Zimmermann <tzimmermann@suse.de>, 
- =?utf-8?q?Bruno_Pr=C3=A9mont?= <bonbons@linux-vserver.org>, 
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- Bernie Thompson <bernie@plugable.com>, Greg Kroah-Hartman <gregkh@suse.de>, 
- Steve Glendinning <steve.glendinning@shawell.net>, 
- Florian Tobias Schandinat <FlorianSchandinat@gmx.de>
-Cc: linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
- Steve Glendinning <steve.glendinning@smsc.com>, 
- "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, stable@vger.kernel.org
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1566; i=ljs@kernel.org;
- h=from:subject:message-id; bh=dMncSx2UyYLi2dqedF+v1BK1FWHzRgo/LCaroSYg0tc=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLK2H73KEn/g933Vea0zd8uU13Sbhb0Xd1pskP0pmqM44
- +f1UGXujlIWBjEuBlkxRZbnX8T3B4mEzeu84O8GM4eVCWQIAxenAEyE25uR4WuJzjGueXH6rO9c
- rt42ua3H+PeC3/vQ4IXFGbmmV/5rnGVkeCYx2SyqMvp756PXugXGn/dXX1/rqSm89LfTeWlXlXe
- fuQE=
-X-Developer-Key: i=ljs@kernel.org; a=openpgp;
- fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-fb_deferred_io_init() allocates deferred I/O state, populating
-info->fbdefio_state, or leaving it NULL if an error occurs.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] fbdev: sh_mobile_lcdc: clock leak on fb_deferred_io_init() failure
+--
 
-Currently sh_mobile_lcdc_start() ignores its return value.
+commit 5d69f4a8e3d4f95bd3f24c9c5188ad04101636e7
+Author: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-Therefore if an error arises in fb_deferred_io_init() (for instance, due
-to an allocation failure) info->fbdefio_state is left NULL.
+fbdev: sh_mobile_lcdc: check for fb_deferred_io_init() error
 
-When the file is subsequently opened, fb_open() will dereference a NULL
-pointer (calling fb_deferred_io_open()).
+This commit updates sh_mobile_lcdc_start() to check the return value of
+fb_deferred_io_init(). If it fails, info->fbdefio is cleared to prevent
+sh_mobile_lcdc_stop() from cleaning up uninitialized deferred I/O state,
+and the function returns the error.
 
-Fix this by checking for the error.
+> diff --git a/drivers/video/fbdev/sh_mobile_lcdcfb.c b/drivers/video/fbdev=
+/sh_mobile_lcdcfb.c
+> index e8324b01700f6..1409a5cc736b0 100644
+> --- a/drivers/video/fbdev/sh_mobile_lcdcfb.c
+> +++ b/drivers/video/fbdev/sh_mobile_lcdcfb.c
+> @@ -1042,7 +1042,11 @@ static int sh_mobile_lcdc_start(struct sh_mobile_l=
+cdc_priv *priv)
+>  			ch->defio.deferred_io =3D sh_mobile_lcdc_deferred_io;
+>  			ch->defio.delay =3D msecs_to_jiffies(tmp);
+>  			ch->info->fbdefio =3D &ch->defio;
+> -			fb_deferred_io_init(ch->info);
+> +			ret =3D fb_deferred_io_init(ch->info);
+> +			if (ret) {
+> +				ch->info->fbdefio =3D NULL;
+> +				return ret;
+> +			}
 
-Also clear info->fbdefio in that case, so that sh_mobile_lcdc_stop() does
-not attempt to clean up deferred I/O state that was never initialised.
+[Severity: High]
+Does this early return bypass unwinding the clocks and stopping the hardwar=
+e?
 
-Fixes: 56c134f7f1b5 ("fbdev: Track deferred-I/O pages in pageref struct")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
----
- drivers/video/fbdev/sh_mobile_lcdcfb.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+Earlier in sh_mobile_lcdc_start(), the clocks are enabled and the hardware =
+is
+started. When called via the FBIOPUT_VSCREENINFO ioctl through
+sh_mobile_lcdc_set_par(), a failure here exits without disabling the clocks=
+ or
+stopping the hardware:
 
-diff --git a/drivers/video/fbdev/sh_mobile_lcdcfb.c b/drivers/video/fbdev/sh_mobile_lcdcfb.c
-index e8324b01700f..1409a5cc736b 100644
---- a/drivers/video/fbdev/sh_mobile_lcdcfb.c
-+++ b/drivers/video/fbdev/sh_mobile_lcdcfb.c
-@@ -1042,7 +1042,11 @@ static int sh_mobile_lcdc_start(struct sh_mobile_lcdc_priv *priv)
- 			ch->defio.deferred_io = sh_mobile_lcdc_deferred_io;
- 			ch->defio.delay = msecs_to_jiffies(tmp);
- 			ch->info->fbdefio = &ch->defio;
--			fb_deferred_io_init(ch->info);
-+			ret = fb_deferred_io_init(ch->info);
-+			if (ret) {
-+				ch->info->fbdefio = NULL;
-+				return ret;
-+			}
- 		}
- 
- 		sh_mobile_lcdc_display_on(ch);
+drivers/video/fbdev/sh_mobile_lcdcfb.c:sh_mobile_lcdc_set_par() {
+    ...
+	ret =3D sh_mobile_lcdc_start(ch->lcdc);
+	if (ret < 0)
+		dev_err(info->dev, "%s: unable to restart LCDC\n", __func__);
+    ...
+}
 
--- 
-2.55.0
+Additionally, in a multi-channel setup during probe, the failure on one
+channel bypasses sh_mobile_lcdc_channel_fb_register(). This causes the error
+handler sh_mobile_lcdc_stop() to explicitly call clk_on() for the successful
+channel, creating an unmatched increment:
 
+drivers/video/fbdev/sh_mobile_lcdcfb.c:sh_mobile_lcdc_stop() {
+    ...
+		if (ch->info && ch->info->fbdefio) {
+			...
+			sh_mobile_lcdc_clk_on(priv);
+		}
+    ...
+}
+
+Could this lead to a permanent leak of the hardware clock reference count
+(priv->hw_usecnt) and leave the LCDC hardware running in an error state?
+
+>  		}
+> =20
+>  		sh_mobile_lcdc_display_on(ch);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260926-fix-fbdefi=
+o-error-handling-v1-0-a94810b6e263@kernel.org?part=3D6

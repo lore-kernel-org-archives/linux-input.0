@@ -1,81 +1,79 @@
-Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
+Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 223B2261B9E
-	for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 18:31:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F203933D51A
+	for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 18:38:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790447509; cv=none; b=gDGVJqvEK895AmSSD/5qwxIdudahie7o9NSu1osy/PHYFGayTWSHi1fEULEVnD+GJWVUkE+5MxJWtCw8wp8OF1wXOnd1CSLekwXutbrRjV8Du799LhCorM0wlOkwHi44GyII5sDSXVxVlTRr2I49YUOR30khqcp/PsRabHskSVY=
+	t=1790447886; cv=none; b=Ub037AcPOzTUl2tM2JKFk3kAHyaIhZSvCC4uFRXlGicPn0/K1bKkixD8Z8T1F2VRC6l4rdxmwr5OH0odk+b9caVpCZ5tfZD+ZKEyJbaHbIZG5e7U86BvH10yXKPtOIm3TSSFQbDZWw//bfTNz5X8nT1mt4bVs/b38zqQhSxYbyY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790447509; c=relaxed/simple;
-	bh=ZTJPjPJxE0WNlUfHRSqhiAYlVk8gMUP4vwmB54Medcc=;
+	s=arc-20240116; t=1790447886; c=relaxed/simple;
+	bh=MjR9f5NoOpd2UaB4XR935SG4yKAkwURqh5Ir7DGq2js=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cVYpmqYM9NtMePL9Z4Kjr9MH7IWYacWd4EjBFcFVSFqvMS8n+2a8/HJAzPBf+0T6OCyOIDN9H4B8zuRENdfozG25hWs9+9evbrokgbgpA1rcHS0Ns7hlPuUdZuIl3sUPCKd1rJMVLCVIt297ifav+/FVvx3UfMgbGCOSvWLdc38=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PM727M6b; arc=none smtp.client-ip=74.125.225.98
+	 MIME-Version; b=U4bgYUzCmpmTP3msamgnVRlsm2VRsX4Q6+7YMSWGLv24PDYLDR3zF91/xpUTzIil8KkNJGliKXCCeeQbQt3E3lRWaLvKPSrqgrXDkq73eksc205OWT+sQ08n9PuhXUHHkX1Dx0qbpQekg8yfz+9uoHYkRq0Ho6ZrYB8f/MHXoxY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R/W2veP4; arc=none smtp.client-ip=74.125.227.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PM727M6b"
-Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48881a62e09so880230f8f.2
-        for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 11:31:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R/W2veP4"
+Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-39b2ad83dc6so1279314a91.0
+        for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 11:38:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790447505; x=1791052305; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790447881; x=1791052681; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=ZTJPjPJxE0WNlUfHRSqhiAYlVk8gMUP4vwmB54Medcc=;
-        b=PM727M6bvHo7LgABTeXzZQHagXOS00tJFIBldBtAB+kks9qKxu7mvzqzk4pXqFGcZs
-         TqOhueVag5HuxXVZSxYY1mronhkUNpH+OOVxTfRb+HwAQmMiIrbwrA3lmt1j4nxMYX0u
-         X1/PcNoQ+fzK6EWWwIEpox6lXzEj339SixBak/3xJZ0fGVIrXo1U5yluCo/NOgFcS73v
-         2Wje4DvclSs/QIEhKT6y8wTSSz355LYFuR8i4+Vdt+Qbl0oUeNdRiEOJRkmDn79YVbnK
-         JY9HalDRj+XsgTFJvT7L4KfQNGOoN/1S1JEipUu25BTYkZ93qGO65pAu1HnyNuqwJxd5
-         Rj4g==
+        bh=d1XUqqZiqb1qQXuql8X0BjOj5vyi7AUzXY8wnAT+llc=;
+        b=R/W2veP4mzySdhsOnD0yds2gON7IT7lgnSOtYBBcJ21NG90/GMJXUEDrZ8+mxNYWn/
+         C9DjoGHTcot99i8bCDQQuGDUdltS0wciPA82mVFJBh8tKLB/+9Dnxr7B/bXhwD6db7bW
+         YdnbdI5HRd/nEeMw6sp+OORE+aBVfQIGAjyGUNJq8OBp4g/i7GSb9umD9Y53Au1gusBF
+         PSgjQCr7gD5h7mw+8Ro0nMhJYypTD4iVZWEdvYxq77T9/Uk0ZtpBnjeqX2kI+frEeRy+
+         4q9HgDVa7OBEVoJssugoJX2mXFVICMn7WMKO9F9/VLsPSCCV6oIbl2JUGZpYdzgjVb5h
+         sLfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790447505; x=1791052305;
+        d=1e100.net; s=20260707; t=1790447881; x=1791052681;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZTJPjPJxE0WNlUfHRSqhiAYlVk8gMUP4vwmB54Medcc=;
-        b=wRq9XNbLDzD3HB5LEc8rokUj+t3oOC1rx1yOqCWfnpOBLCB/tqpgLGHV8AiEf3vCS+
-         b1PtkQe/Yshob/6HQ5RKGK/KO06lWxuah4nmnDeTZV4+KezDj/qMS92wXgklf5Lo+e/V
-         3KI7EbW3EKqd2WA+TaQP1N07I4pmUmRhGUAZSoKnhtSH96UsckkvJXqWDLu91URODJkn
-         NkPFE04Or5ljK7UV1WdHCcPt/I6CwIVshpuiroYAMQMLnDZ8UnOIlp1fRirBmebrDZtE
-         skjWKDoFSEexuKLbsZOYpMGPuyHa/0FwMOZOX6IBDhZpK4pnEZlwbCPUwKEYT7i4PPxm
-         /c6Q==
-X-Forwarded-Encrypted: i=1; AKwUvBy5vOjAzGKfeHUBR/64R+nmbc/wefrn/v8smoLiZPQCMUFI8gN4AI8VPgq1k4ddu9X2uWfIk87yj2l5HQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLw7k/Mc0ifjbYFv5cqYk5RWzBpjGdmQLOh8x3nXe+UcIF4YKyY
-	Xt8l2hSZ5riSzIPUJy7GSo60KSiYAE+palqOVnHHHgjiUWbFj8/mCS9dA0qFTOo6
-X-Gm-Gg: AYBFou3s5YWpVqk8w33t6vnWC6ABi1ANMZ0gpXxaJ2xr7QeVibHaTcOU2vcLLzbxto8
-	glUnoE2+UB8E2/25ArG3VmPtDAZJ9QUUqgvWtJ0nUWW/54gNCMjuy8vyF7DVz/kh7jBqSSTs5VP
-	GtAnqdUtwJ5KS0VF6zXBPVPF5VsVNFYaQjZzzINp+h5ndYcAf/+oqGMJw/pRhV08QPB2oTLpwJK
-	9ZJz1qGSpNS6b2oWlYKon6bzfr8Mmb9nCxfbSJtgd6iV9qQ+XIkkwP+UIpJWQyM/9moID7m5nuu
-	/Jjwg5ynzUKlzU5F4hrEtymMaUiOllY7t6CyGQQ8DCZCswHZ8Y3Ygw/x+/M8b1F7F4HIXd013Ue
-	4/emydO3kkKFRicRBx3QUNjS+JW4tzFS1qsSFj+12tPs5pMsQbem73UX5fbMcONQrZR3Nx+0t0h
-	Vow0ZFRRSh9C+6wzaQ2OyZS8MmsslGKpAH9XBj39xXZDXt6noh6/FeLTgHJwbWLR/Ug82IZKykE
-	MZx/qEb
-X-Received: by 2002:a05:6000:468c:b0:488:79db:c73b with SMTP id ffacd0b85a97d-48879dbca28mr7473819f8f.24.1790447505235;
-        Sat, 26 Sep 2026 11:31:45 -0700 (PDT)
-Received: from m2.. ([37.142.154.181])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-4887a34a4e9sm13167970f8f.11.2026.09.26.11.31.42
+        bh=d1XUqqZiqb1qQXuql8X0BjOj5vyi7AUzXY8wnAT+llc=;
+        b=1zhd2zO5XPSGQC3Lh76pdJ1STVkAlgx8OQsJcOWku+NTy4g2/rWR4cS6ypnTEBCEJE
+         7i6P4y61Xmyjgp33FVqV8fyTcTxdkvJuk2F9kqufFieu695hzGRJJxMd5wswKEShlpeV
+         EUb+EX634lBpFhwsL+kLegu1AWf9J80UPpF9bds3D9G8roZ3eqkuCEGh/rPEV2ftNSuT
+         Rw0mm6/odpAah3ZotZwsuJ1WeAms8Xhzrd9qT8nNAqDjNZ5WSBvtLlFcAeFV/ZJAXOXd
+         JKc3Zh6PP3sB723DUqT53WFoJwZ6CdnIDCR1aKvC8vVrGK9Lu1bj+7f2vf2jJpboVwJF
+         0sIQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwkeYzljzpGKA+70ENk9X4XRK6DZ6o78Nv05NoBpVtJoVoLAphoOMwMSkMFe+R1ENgMxPletPl+3VImEw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJpaxEHYeOvrc7XZyDCX3V3N8GezyVmBVVL263Ml3JCtxz0gumm
+	zDyKmC5qxXdj3saNoOZgVudCB/bBByKUHwX25sQrgVPQKuJKKjeL592/
+X-Gm-Gg: AYBFou0Naqn/NdLP5Kytcrt1tLXKCVL+Av2U3FCvIFYBpSjmumvOL+EXarapH3KKJ0l
+	0Vb6ZK8nQAMdOyAqQi0SZ0RgmCaVcLn5+y3wMohd9BNDc0BnxG+ScvC4Ln+ucUFI+ACWES9GblI
+	gMDyfgxY8l/03XMhRVKF6iKBj8XygZJQwSmRrzgBgU93tnUhnluLy8/BCGJuinN01TfvI9Op5mq
+	rTahfezzfIEqJ/4qKLNhSgDs1T0XnCSfLaLLe9L/rgOUzJ+xh8iOK18/ST+LA8F/JkuLPNoZDWD
+	/eDzLBc/JEZx6bvkH1l4uMVUXWfeTnVYBskZAPK9okZM+6PPnQ+Brc1bjPBNb8FV3W8HO5BWWRB
+	Src4IeLMlgb3bRNqW+Ps8YWMi8/XDxIkDaLi919ylMiL5A+1+VUXBNz5ctA1DukRmKHIf3OOg/9
+	Qw0afyz1mrn9gzkrdgIDYAOPLYb8xg49/bNBBR4lXgxNl6E3EiUEKKmYalQQCA0f5CtXdIpX7M1
+	Oa8F3/h8OygHyYO+3qjBXpwnMmEiBWapg==
+X-Received: by 2002:a17:90b:1c92:b0:39e:6c68:c77d with SMTP id 98e67ed59e1d1-3a098e0515cmr8310824a91.51.1790447881043;
+        Sat, 26 Sep 2026 11:38:01 -0700 (PDT)
+Received: from jmoon ([118.220.156.4])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a0b9355e49sm10939486a91.4.2026.09.26.11.37.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Sep 2026 11:31:44 -0700 (PDT)
-From: Michael Zaidman <michael.zaidman@gmail.com>
-To: Benjamin Tissoires <bentiss@kernel.org>,
-	Lee Jones <lee@kernel.org>,
-	Linus Walleij <linusw@kernel.org>
-Cc: michael.zaidman@gmail.com,
-	jikos@kernel.org,
-	brgl@kernel.org,
+        Sat, 26 Sep 2026 11:38:00 -0700 (PDT)
+From: Jinmo Yang <jinmo44.yang@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jinmo Yang <jinmo44.yang@gmail.com>,
+	Ping Cheng <ping.cheng@wacom.com>,
+	Jason Gerecke <jason.gerecke@wacom.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
 	linux-input@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/13] HID: ft260: add UART and GPIO support, plus I2C fixes
-Date: Sat, 26 Sep 2026 21:31:34 +0300
-Message-ID: <20260926183136.25146-1-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <aqvHqSOgziyfhWgp@beelink>
-References: <20260827205116.GJ2943942@google.com> <20260827222550.24634-1-michael.zaidman@gmail.com> <apaLLD4ZXhNV-Dph@beelink> <CAD++jLng_gdqoehT+c8sXoqy+tdUc7eAXXpAvhC_zJZwnX5tzA@mail.gmail.com> <20260916125806.GR11487@google.com> <aqucXBi0Fmq-tCWr@beelink> <20260917100455.GG1605367@google.com> <aqvHqSOgziyfhWgp@beelink>
+Subject: Re: [PATCH v2] HID: wacom: fix NULL pointer dereference in wacom_intuos_pad()
+Date: Sun, 27 Sep 2026 03:37:57 +0900
+Message-ID: <20260926183757.3347378-1-jinmo44.yang@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <579o8so3-09o3-o312-4sq0-0qp6n672q46p@xreary.bet>
+References: <20260523150101.611473-1-jinmo44.yang@gmail.com> <20260523150619.615565-1-jinmo44.yang@gmail.com> <ahoH87pet5BUQwfD@google.com> <579o8so3-09o3-o312-4sq0-0qp6n672q46p@xreary.bet>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -84,68 +82,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi Benjamin, Lee, Linus,
+On Wed, 10 Jun 2026, Jiri Kosina wrote:
+> Jinmo, are you planning to submit extended version of the patch, please?
 
-On Thu, 17 Sep 2026 at 13:07 +0200, Benjamin Tissoires wrote:
+Yes - sorry for the long delay. Dmitry's observation turned out to be
+broader than pad_input, so I audited the whole driver before replying.
 
-> I think HID is just the transport layer (like USB, I2C, SPI, etc...) so
-> it shouldn't count as one of the additional subsystems to MFD.
+The check already exists in three places, just not everywhere:
 
-Agreed for the FT260. The HID reports are the transport. The functions
-are UART, GPIO and I2C.
+  wacom_wac.c:1807/1815  wacom_tpc_irq                  pen, touch
+  wacom_wac.c:1210       wacom_intuos_bt_process_data    pad
+  wacom_wac.c:2192       wacom_wac_pad_event             (HID_GENERIC)
 
-Jiri answered me off-list on 11 September, before the mails of 14 to
-17 September. He has no strong preference, and he left the sequencing
-to me.
+so the inconsistency is inside the legacy dispatch. The clearest case is
+two adjacent lines in wacom_intuos_bt_process_data(), one checked and
+one not:
 
-I will land the current driver first, and do the MFD split as its own
-series once this one is in the tree.
+	input_sync(wacom->pen_input);		/* :1209 */
+	if (wacom->pad_input)			/* :1210 */
+		input_sync(wacom->pad_input);
 
-GPIO support has been in the out-of-tree driver since 20 November 2022
-[1]. The serial driver was added there on 12 January 2024.
-That is where its bugs were found and fixed. Folding an MFD conversion
-into the same series would replace that structure while the UART and
-GPIO support is still under review. Landing the tested layout first
-keeps those two reviews apart.
+The pointers can be NULL on a fully successful probe: the handler is
+chosen by features.type from the id table (wacom_sys.c:2945), while the
+input devices are allocated from what the descriptor declares. When
+wacom_setup_{pen,touch,pad}_input_capabilities() returns -ENODEV,
+wacom_setup_inputs() frees that input, NULLs the pointer and still
+returns 0 (wacom_sys.c:2172-2196) - "no pen in use on this interface".
+wacom_wac_irq() then still routes reports to a handler that dereferences
+it. No error injection is needed; a descriptor declaring only touch
+usages is enough.
 
-I maintain this driver in my free time, and my bandwidth for the next
-few months is limited. A split across drivers/mfd, drivers/tty,
-drivers/gpio and drivers/i2c in this series would stall the UART and
-GPIO support.
+15 locations, each reproduced as a KASAN NULL-pointer dereference on
+linux-next 20260925, x86_64, from one /dev/uhid device plus a single
+UHID_INPUT2 write:
 
-The parent device depends on the strap pins. One HID feature report,
-0xA1 System Settings, carries chip mode, the clock, i2c_enable,
-uart_mode, the UART frame and flow control, and the GPIO pin-function
-selects. The I2C interface owns that report, and registers the
-gpiochip, in I2C-only mode. The UART interface does both once UART is
-strapped. Enabling I2C or changing the UART mode moves pins between the
-I2C or UART function and GPIO. That parent is easier to define against
-a driver that is already in the tree.
+  wacom_wac.c:137    wacom_penpartner_irq            pen_input
+  wacom_wac.c:227    wacom_pl_irq                    pen_input
+  wacom_wac.c:244    wacom_ptu_irq                   pen_input
+  wacom_wac.c:303    wacom_dtus_irq                  pad_input
+  wacom_wac.c:326    wacom_dtus_irq                  pen_input
+  wacom_wac.c:391    wacom_graphire_irq              pen_input
+  wacom_wac.c:444    wacom_graphire_irq              pad_input
+  wacom_wac.c:594    wacom_intuos_pad                pad_input
+  wacom_wac.c:1209   wacom_intuos_bt_process_data    pen_input
+  wacom_wac.c:1232   wacom_intuos_bt_irq            pen_input (dev_warn)
+  wacom_wac.c:3100   wacom_bpt_touch                 touch_input
+  wacom_wac.c:3117   wacom_bpt_touch                 pad_input
+  wacom_wac.c:3130   wacom_bpt3_touch_msg            touch_input
+  wacom_wac.c:3178   wacom_bpt3_button_msg           pad_input
+  wacom_wac.c:4229   wacom_report_numbered_buttons   pad_input
 
-The MFD series will follow the constraints from this thread. Lee, the
-code that calls the MFD API will live in drivers/mfd, and that file
-will do the shared setup only. The UART, GPIO and I2C drivers will live
-in their own subsystems. Benjamin, the child devices will keep fwnode
-support, so an ACPI or DT child can attach the way your cp2112 CI does
-today.
+Jason, your review of my earlier series ("HID: wacom: add report length
+validation in irq handlers", 17 May) asked for the length checks to move
+into the sub-functions with len passed in, plus WACOM_PKGLEN_* names.
+Eight handlers already take len and eight do not, and six of those eight
+are also on the list above - so I would like to fold the two together
+and do one edit per handler: take len, use a named constant, and check
+the input device in the same place.
 
-On Tue, 1 Sep 2026 at 16:02 +0200, Benjamin Tissoires wrote:
+On the shape of the fix: I plan to put a check where each pointer is
+taken, as wacom_tpc_irq() already does. A per-features.type table of
+required inputs would be one place instead of ~15, but a handler's needs
+vary by report id - wacom_graphire_irq() takes pen_input on one branch
+and pad_input on another - so the mask would have to demand every input
+the handler might touch, and would then reject reports that work today
+on a pen-only interface, which the "no pen in use on this interface"
+case says is legitimate. Say the word if you would rather have that
+anyway.
 
-> It is maybe a lot to ask, but Michael, can you demo the MFD split on
-> one/two functionality so we can check which approach is the best?
-> Ideally 2 features that would be intricating well enough to demonstrate
-> how hard/easy it would be.
-
-The two features that interact here are GPIO and the I2C and UART
-functions.
-The split is one MFD parent for the two HID interfaces. A demo that
-splits only the I2C part cannot show the gpiochip ownership above,
-which moves between the I2C and the UART interface: with the I2C side
-moved out, there is no configuration where that change can be tested.
-The MFD series has to do the whole device at once, and it comes after
-this one.
-
-[1] https://github.com/MichaelZaidman/hid-ft260/commit/e40e56953e8c2b23c222d76e97b5f5e274b91603
+I will post it as a series split by device family shortly, with the
+shared helpers (wacom_report_numbered_buttons(),
+wacom_wac_finger_count_touches()) guarded once each, since several
+handlers converge on them.
 
 Thanks,
-Michael
+Jinmo

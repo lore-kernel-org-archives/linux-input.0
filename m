@@ -1,94 +1,112 @@
-Received: from www620.your-server.de (www620.your-server.de [168.119.26.6])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C57233A63EF;
-	Sat, 26 Sep 2026 13:09:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.26.6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B7E1448BB3;
+	Sat, 26 Sep 2026 13:17:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790428151; cv=none; b=eS2kp7Y4NMIozpwcxhWxhya4UJA0Qb7xJhjGEWwLoMJ/g9eZK13n0u7CuT++Gw9ecr9BO2JL4ijzZMxw5ncdx4Ob7mB7hjSCrBvFCXvcMZs9OEBx9eEhOTvbAVloR/DEyBjd/jU3vF02sC1btePCzLBCC8gYepfouGayOIKJqzs=
+	t=1790428634; cv=none; b=C4dom8yA3cPqYnrgQHXyjVYQWH/vdPyEaYUS2jCvouEYsA5EmK4T3797WOD9wCrld/3IgRUfDhCUvO6Ve5MkxPo3c5ZsNWvDyS94lNODjxucHB9F+2L6BjaM5KsQZe0UNg8rsA78KlOUBfWPZnop2EL/SkTT9QXxIzPimpurLn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790428151; c=relaxed/simple;
-	bh=BbQ5akPp1BQFQ9ykGY8d/FuFUN9iRBXAJBm7G/qNlak=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uroxwNsU6IryFr5M2fw6fZ+dAPCOeKeIs01NW8z2VDa3wm+EMuIVzVQpojz2wgOnLTEPEvdueR2Y4ND4kKgAfK40V+2DGU/ZyvZ5buupJ/LdvuxtEqvhvdFElxUO6GX52Cxs0a7ZhqotrvaKQzfvUJCGAOPvoP5E+of4No89I+4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=teffenberger.de; spf=pass smtp.mailfrom=teffenberger.de; dkim=pass (2048-bit key) header.d=teffenberger.de header.i=@teffenberger.de header.b=G+v724GF; arc=none smtp.client-ip=168.119.26.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=teffenberger.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=teffenberger.de
+	s=arc-20240116; t=1790428634; c=relaxed/simple;
+	bh=nk6tWgfWfCzVJ80HB+E43ly8yTYHGUV6LKNb27D3Q4g=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=D7o4mtm5shdS26vypbZwSsWcHUpzsMKGnrXi2951SxhVq6pjdogVePRyyHVNcSjFyozAwFl6QYUTiuosjkYrmMCmo3GfA9nCWclta7lyvbCnswRBy68c8UMMdzueebzpIRlO89MbHXQBRdNmsjee4eqYwwO1l36f3KOhqCAsj+g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m+w3z9c4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=teffenberger.de header.i=@teffenberger.de header.b="G+v724GF"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=teffenberger.de; s=default2512; h=Content-Transfer-Encoding:MIME-Version:
-	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References;
-	bh=wdhKzywdHf+DaB31Nhg1gsI3OI6zK98p+n+CISESsKg=; b=G+v724GFvmMCwSM050r+rx4e+4
-	E3aJpWAT3HQ3uFkatczXqxiYDxuWVQrb+qlmvIlQwlLLkN/TRAEEUqKXmdw2gJkIn4UAXet5JhZub
-	sQV7Ebh2rjQJGr5RLpSvlz+nb9iOXMrpD9zwNSrwFDbztuwc8+aZrFFEJHZ/8s2odhUbjn+fCM3P+
-	zNaApeAEQBnn4uwB8U0waUvgRL8NHaW60+mO20iP0LAS/D+mN/Np3/ivo9aHMZIz+R+UieuIuG+FV
-	g+zWdfdeup8cZOqBUG3GfC8issM6w2Bwf++5hU3Wqf3L/z4YWwZGi0DIau7hygOhwmNf9nX36hg3a
-	8DKk4YzQ==;
-Received: from sslproxy08.your-server.de ([78.47.166.52])
-	by www620.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.96.2)
-	(envelope-from <mail@teffenberger.de>)
-	id 1xARle-000NGS-06;
-	Sat, 26 Sep 2026 14:44:38 +0200
-Received: from localhost ([127.0.0.1])
-	by sslproxy08.your-server.de with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mail@teffenberger.de>)
-	id 1xARl6-0002ci-17;
-	Sat, 26 Sep 2026 14:44:37 +0200
-From: Tjark Effenberger <mail@teffenberger.de>
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-kernel@vger.kernel.org,
-	Tjark Effenberger <mail@teffenberger.de>
-Subject: [PATCH] HID: Kysona: Add support for Kysona M600V2 variant
-Date: Sat, 26 Sep 2026 14:43:37 +0200
-Message-ID: <20260926124337.45870-1-mail@teffenberger.de>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m+w3z9c4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC151F000FF;
+	Sat, 26 Sep 2026 13:17:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790428633;
+	bh=6K6aRJbm7O7grujLpKfmwFADDk/4ClgBVhZ4DN1sLn4=;
+	h=From:Subject:Date:To:Cc;
+	b=m+w3z9c4uR3Tk1a+jEp1F89n3VGMnDg0YXzs4afked4AIoPSeW26r/FEPyUP5w3MT
+	 LZ2iWYiB/6baEW0O3nPZdNcpkLC11oTcAWoUadbraQWCQZJnerna1kKGZJoMQxyjYG
+	 rs6iDi/wsSr2kd8OHMPjgQ0Y0gkqN1KMZKRSsCvnAh/SkThlHWgE6bHMfOtg5QtBLF
+	 Pb733RnWIiObeUfPHruNaHFUnfKxguYogzsbsIJB4smncQwe9BKB7akbl5v5OeG3nE
+	 P4AZIbTJiwRjzrJ8rLKxT6ZvfXhoJTAc54l3H668uOwNTM1Nn/a9BgNGIfEQ/WQ7eC
+	 GHFp5ppRc3CYg==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Subject: [PATCH 0/6] fbdev: fixup callers which ignore errors from
+ fb_deferred_io_init()
+Date: Sat, 26 Sep 2026 14:16:58 +0100
+Message-Id: <20260926-fix-fbdefio-error-handling-v1-0-a94810b6e263@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: Clear (ClamAV 1.4.3/28135/Sat Sep 26 08:24:13 2026)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avErBtQo6CuEi0yxxoIjREiCO/e0
+ PLD479QSJgKTM0LQjcXzknDtg1sx5p2Qg7a4IwbzOgGjPxg9IEiZySRLKgsnJx2XL3tem/s2G0
+ edHCJquefz0utH+HA3R5sAAAA
+X-Change-ID: 20260926-fix-fbdefio-error-handling-ab135b0193cb
+To: Helge Deller <deller@gmx.de>, 
+ Javier Martinez Canillas <javierm@redhat.com>, 
+ Thomas Zimmermann <tzimmermann@suse.de>, 
+ =?utf-8?q?Bruno_Pr=C3=A9mont?= <bonbons@linux-vserver.org>, 
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ Bernie Thompson <bernie@plugable.com>, Greg Kroah-Hartman <gregkh@suse.de>, 
+ Steve Glendinning <steve.glendinning@shawell.net>, 
+ Florian Tobias Schandinat <FlorianSchandinat@gmx.de>
+Cc: linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+ Steve Glendinning <steve.glendinning@smsc.com>, 
+ "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, stable@vger.kernel.org
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1832; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=nk6tWgfWfCzVJ80HB+E43ly8yTYHGUV6LKNb27D3Q4g=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLK2H71yU8auJ7GmyeWWIqPwfdbAMG+nBPuSZTY5e++wm
+ 78PFDbqKGVhEONikBVTZHn+RXx/kEjYvM4L/m4wc1iZQIYwcHEKwETOljAybFJ1X2V3r/74+UyO
+ Z8pClw9dTdZ8MXkq+6Y5Gn9vrucKWs/wP+IY53zuhRM/zVQJZviWOPFZ8S+j8/OF5ly1WKaYZpl
+ uxgUA
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-The M600V2 has a different HID ID on the wireless dongle.
+Commit 56c134f7f1b5 ("fbdev: Track deferred-I/O pages in pageref struct")
+converted fb_deferred_io_init() from a void function to one returning an
+error value.
 
-Signed-off-by: Tjark Effenberger <mail@teffenberger.de>
+However a number of callers don't seem to have been apprised of the fact
+and continue to treat it like a void function.
+
+This is problematic, as upon allocation failure, struct
+fb_info->fbdefio_state is NULL.
+
+That means when a subsequent operation is performed upon the driver, for
+instance opening the file, a NULL pointer dereference occurs.
+
+Update all of the remaining drivers which fail to check this to do so.
+
+This issue was discovered as part of a separate series which updated logic
+belonging to ssd1307fb.
+
+Also fix up a separate issue with a BUG_ON() occurring on allocation
+failure for udlfb and smcufx.
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-kysona.c | 1 +
- 2 files changed, 2 insertions(+)
+Lorenzo Stoakes (ARM) (6):
+      fbdev: ssd1307fb: check for fb_deferred_io_init() error
+      fbdev: xen-fbfront: check for fb_deferred_io_init() error
+      HID: picoLCD: check for fb_deferred_io_init() error
+      fbdev: udlfb: check for fb_deferred_io_init() error
+      fbdev: smscufx: check for fb_deferred_io_init() error
+      fbdev: sh_mobile_lcdc: check for fb_deferred_io_init() error
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9a473f72c8cb..7ac47f585910 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -822,6 +822,7 @@
- 
- #define USB_VENDOR_ID_KYSONA		0x3554
- #define USB_DEVICE_ID_KYSONA_M600_DONGLE	0xF57C
-+#define USB_DEVICE_ID_KYSONA_M600V2_DONGLE	0xf5d5
- #define USB_DEVICE_ID_KYSONA_M600_WIRED	0xF57D
- 
- #define USB_VENDOR_ID_LABTEC		0x1020
-diff --git a/drivers/hid/hid-kysona.c b/drivers/hid/hid-kysona.c
-index ccbd8380064e..8457cb7df7bb 100644
---- a/drivers/hid/hid-kysona.c
-+++ b/drivers/hid/hid-kysona.c
-@@ -272,6 +272,7 @@ static void kysona_remove(struct hid_device *hdev)
- static const struct hid_device_id kysona_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600_WIRED) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_KYSONA, USB_DEVICE_ID_KYSONA_M600V2_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_VXE, USB_DEVICE_ID_VXE_DRAGONFLY_R1_PRO_WIRED) },
- 	{ }
+ drivers/hid/hid-picolcd_fb.c           | 12 +++++++++---
+ drivers/video/fbdev/sh_mobile_lcdcfb.c |  6 +++++-
+ drivers/video/fbdev/smscufx.c          |  9 ++++++---
+ drivers/video/fbdev/ssd1307fb.c        |  6 +++++-
+ drivers/video/fbdev/udlfb.c            |  9 ++++++---
+ drivers/video/fbdev/xen-fbfront.c      |  7 ++++++-
+ 6 files changed, 37 insertions(+), 12 deletions(-)
+---
+base-commit: 6812ce4e4379ffc99c52401ec28f0d7ffbc36206
+change-id: 20260926-fix-fbdefio-error-handling-ab135b0193cb
+
+Best regards,
 -- 
-2.55.0
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
 

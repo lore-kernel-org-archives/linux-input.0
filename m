@@ -1,211 +1,115 @@
-Received: from prime.voidband.net (prime.voidband.net [199.247.17.104])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed2-f35.google.com (mail-ed2-f35.google.com [74.125.228.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A90E4435515;
-	Sat, 26 Sep 2026 11:39:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.247.17.104
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47105346A11
+	for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 11:52:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790422788; cv=none; b=TOwbqd2a2UUV7fMc6pXDL/9mqk0mHbvUgqgF1pFO1ozUbzvdRsbIXDAiFecNbrkS/myJsAQMuXVIpuB0dklA8TxRFRlj0Jtt8qpenr9J+CEqqACVZfPB6SjZ/z5PUqDuhdhqZT+9L1aZftfb7rCDchsW+Ohg80BEfqbq91TnbkQ=
+	t=1790423568; cv=none; b=guS283OWL11zp5KWMmNt7uiDgrpVgnV5uFbLHw1elozV9qppSnTuP94ld67MCe5hnvkj79fS/imNR0FWhPDu5rfs0JksQiOMDByciwIEmPe5qZlDK2QqGCdXCx2Yge515kyqDxdkWwVTRVE4/GjlOv42BAerKtGNbRJlisgKd3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790422788; c=relaxed/simple;
-	bh=cuNKH4pvEVCeZfte7NHr0oy4ZZd0gVB6U4sChqvziio=;
+	s=arc-20240116; t=1790423568; c=relaxed/simple;
+	bh=LNGo9Lk6YmczPhmSAhIOAoe3rGeQtCB78blB4lGK4ec=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hhYNcD/7KHah3xjoPJBCuQD2JSpGBIV7vCmYhWXklMfqLSG2wdnt3RK3fVrc18xICuc54Z+Onm/bsioaAKTJI8AEBrE5+MozaaGxDEzzKmHhtR5TbBTvRP1rov7Q5l408SfgAMSBQzHXsXUeWHbkY1xs3ucfeDVMt5gDh2IhHvQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=natalenko.name; spf=pass smtp.mailfrom=natalenko.name; dkim=pass (1024-bit key) header.d=natalenko.name header.i=@natalenko.name header.b=rqAl1Sg6; arc=none smtp.client-ip=199.247.17.104
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=natalenko.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=natalenko.name
+	 MIME-Version:Content-Type; b=kylZY8kxu6FF362FahgoPZvBtGkSIRST3F6RWMhbYgtpFU7FnFaqh91KCPbBegXuPvMq4ifYkN7g1yHFAU8G+NqhX2yL81RT4RMQeVE3a+IQDK4M4LuOYN/JD4hHi8JoN+gnjrRlQykgtnc3DglNN28TJXB4QP5d71G8/6ac3xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mUa2i5PO; arc=none smtp.client-ip=74.125.228.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=natalenko.name header.i=@natalenko.name header.b="rqAl1Sg6"
-Received: from spock.localnet (unknown [212.20.115.26])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519MLKEM768 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by prime.voidband.net (Postfix) with ESMTPSA id 051E8635B041;
-	Sat, 26 Sep 2026 13:39:34 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=natalenko.name;
-	s=dkim-20170712; t=1790422775;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=R6UBZUFq28OyhNCIHlHndnioqbqtl36+sZEkhkB0BX0=;
-	b=rqAl1Sg629vM/Wa4hB55bVjxe7xW/x0DTkXam7QMW3km7irQJu0tvjt0VzZVEUYE6CIpZd
-	qy/xJz2ek0HDYQhOIaCp1seWNQqU6Z119cyK/FWsWkAMheKsqzDa/wFQFvDJ69CsmYFTrj
-	36nSZK9/AtGVu4+cBn54TqzbIfxuis0=
-From: Oleksandr Natalenko <oleksandr@natalenko.name>
-To: Erik =?UTF-8?B?SMOla2Fuc3Nvbg==?= <erikhakan@gmail.com>
-Cc: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
- Filipe =?UTF-8?B?TGHDrW5z?= <lains@riseup.net>,
- Bastien Nocera <hadess@hadess.net>, Rafael Passos <rafael@rcpassos.me>,
- =?UTF-8?B?R3LDqWdvaXJl?= Stein <greyxor@protonmail.com>,
- Alexey Zagorodnikov <xglooom@gmail.com>,
- Roman Stingler <roman.stingler@gmail.com>,
- Lovekesh Solanki <lovekeshsolanki00@gmail.com>,
- =?UTF-8?B?S2F0ZcWZaW5hIE1lZHbEm2RvdsOh?= <k8ie@mcld.eu>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] HID: logitech-hidpp: fix Bolt hi-res wheel handling
-Date: Sat, 26 Sep 2026 13:39:18 +0200
-Message-ID: <n5eDnakzS0uqjND_OMcM0A@natalenko.name>
-In-Reply-To: <2UD2rmaWS9W0wgq6AdNLxw@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mUa2i5PO"
+Received: by mail-ed2-f35.google.com with SMTP id 4fb4d7f45d1cf-6aaf10bf094so1748747a12.2
+        for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 04:52:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790423565; x=1791028365; darn=vger.kernel.org;
+        h=content-type:content-transfer-encoding:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=jOZJQtJF+6fvMtqVqH7Ln6MjEBTAkHYNteQQULMHp44=;
+        b=mUa2i5POAb3aQkstDAzP2yPAI/sWYdXK8hXR7bou4CcpG+EKqTVD6hiJ+CPNwudPbe
+         qQgdrP8fXTfNdthd8MceEm0Y59d+QsTnmFd2Y5UNI4seX425tA++2l2E4r/urO4Rss2U
+         JP+RwZRrfQh9L2fjm+80kIL0Q6q9tXJgSX4+yCCLeDQlqKrRGm6sKVYlGgwsSoOrsOqP
+         DuxlzNMh51sHRL/6BLobNj3rYvyrbnehJ1eboUXjVK0BVYoWVneysqGnFfouMuC9OfWd
+         6wEZlnL618uYNo9gufrkznMXLOzmCWeyLWqBCtRONonwcS0zx+k+SHsqstmDfh3IKxV0
+         BFqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790423565; x=1791028365;
+        h=content-type:content-transfer-encoding:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=jOZJQtJF+6fvMtqVqH7Ln6MjEBTAkHYNteQQULMHp44=;
+        b=bVHeC6j9LXXG2LG9UWnasUjgPVsqnx7vdHvr4czHRaqe/3gSJeCH8rRWoNg/V3Glf5
+         LUm8r8IQzaHCIjXBySqAksxHRjVxA9a5+Be5gZWFDFYCNxptSBUEyHh/8dDiAS08FSg1
+         iKJWYl2Pz9do639/bqhHNpCls37k6TM991shQDzNJiusBP3BAmOqO5wVolE/tZas5QNX
+         Ouer85I5NRgJe1MheC6VM5H1lDxOZcQEzrD2mshQFMx70lVx0sQybSDZWHtj7qYzoGcZ
+         ynDMo4y8jiDT24abAGSnX6Vka+d/36s8IoM64uZiy8XbGWeIANhU97r58j6fTxVU68IO
+         U6pw==
+X-Forwarded-Encrypted: i=1; AKwUvByLPuhlJSyNp3A53BVgkmnaS34AHtQ4a0zldgOa4l2YCZwPR62Iuhs6wuPtDalFMhFRxlbKYMD8H3M3zQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++lSbSZYxzsRh0VGVKQER1CRUcuz+HCYunQV5AiGeZbLFVATso1Z
+	d4X4k9Wc/dmkZtdGd4BXo1qn22d9Ycmym87cgxkixLHinpGB/b+962NvVCIe7p50RkU=
+X-Gm-Gg: AYBFou3YTDFBsxqBpRRvh358sM5ugGkj/wtGOpOLY8vPjb1xTfmPc0PeiDQyjY4ozWI
+	m27/Skgv/wKDc5h9bxpWmOWup1aOpDl1xzUkmb+QzYTE0JLwsFFvihZ5nfoPZdwCUIBgYf+/o7o
+	tFOen7VpQdxrOhV0vw4z3WA/BtgdctgFPjBpOu5K3LnJig5eNmEAfa2wntOltTTslsCw+4wdnHQ
+	swhIzp9js9nVqr0AX1lx4XA9Wyc73YR/WW+hDng/XqLQO34glDVEXngeDtbRWeM+dpcuc3Zsa1N
+	csMVTJjMZYNODpv/zMgxDA53Xh0RcPwMKOU5Cq1cdvT6vdyXn6NH+jPgV4WRxZS89/82zJFAUgW
+	74XlqYRRGrqBt7OSOMX2rl6PRiyyl9NEg4GpQvWhKRJPvVAeVNT34XWxumPnzisVsJIeXQZ9kle
+	CHcI8X1gDxPCHFhbdS5n7eLBtbsKJs/sbvMznNXv1XFOXCmL/Ft2mDBh/2Fky8r18TPpmc8EIus
+	iY3VMy5eZ74eIUZusdw3NouLmB2gcQ+49bnE1nbcEc=
+X-Received: by 2002:a05:6402:21d8:b0:6aa:734b:1a2e with SMTP id 4fb4d7f45d1cf-6aac9090952mr6404194a12.40.1790423565326;
+        Sat, 26 Sep 2026 04:52:45 -0700 (PDT)
+Received: from fedora.localnet (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6ab5be57b13sm414448a12.33.2026.09.26.04.52.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Sep 2026 04:52:42 -0700 (PDT)
+From: Erik =?UTF-8?B?SMOla2Fuc3Nvbg==?= <erikhakan@gmail.com>
+To: Roman Stingler <roman.stingler@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>, johannes.goede@oss.qualcomm.com
+Cc: Lovekesh Solanki <lovekeshsolanki00@gmail.com>,
+ Filipe Lains <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ regressions@lists.linux.dev
+Subject:
+ Re: [PATCH] HID: logitech-hidpp: do not overwrite the device's hi-res wheel
+ mode
+Date: Sat, 26 Sep 2026 13:52:40 +0200
+Message-ID: <407JHeAkQjaIVOP3-Y7zGg@gmail.com>
+In-Reply-To: <9acaeb9e-551d-474a-9c3e-9be5f667297f@oss.qualcomm.com>
 References:
- <20260922-feature-bolt-fix-v1-0-63b0fa8da0d3@gmail.com>
- <6UWkRWWaSvGIWNWwY_bPDw@natalenko.name> <2UD2rmaWS9W0wgq6AdNLxw@gmail.com>
+ <20260923181203.422097-1-roman.stingler@gmail.com>
+ <9acaeb9e-551d-474a-9c3e-9be5f667297f@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPartcw7f7aEOSrKqhVgH9dBNCA";
- micalg="pgp-sha512"; protocol="application/pgp-signature"
-x-ms-reactions: disallow
-
---nextPartcw7f7aEOSrKqhVgH9dBNCA
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"; protected-headers="v1"
-From: Oleksandr Natalenko <oleksandr@natalenko.name>
-To: Erik =?UTF-8?B?SMOla2Fuc3Nvbg==?= <erikhakan@gmail.com>
-Subject: Re: [PATCH 0/2] HID: logitech-hidpp: fix Bolt hi-res wheel handling
-Date: Sat, 26 Sep 2026 13:39:18 +0200
-Message-ID: <n5eDnakzS0uqjND_OMcM0A@natalenko.name>
-In-Reply-To: <2UD2rmaWS9W0wgq6AdNLxw@gmail.com>
-MIME-Version: 1.0
-
-Hello.
-
-On sobota 26. z=C3=A1=C5=99=C3=AD 2026 13:13:09, st=C5=99edoevropsk=C3=BD l=
-etn=C3=AD =C4=8Das Erik H=C3=A5kansson wrote:
-> On Thursday, 24 September 2026 23:57:05 Central European Summer Time Olek=
-sandr=20
-> Natalenko wrote:
->=20
-> > No idea TBH. The mouse is this one:
-> >=20
-> > https://www.logitech.com/en-us/shop/p/mx-master-4
-> >=20
-> > I haven't seen proximity mentioned anywhere is specs. But I can try to =
-sniff
-> > for these events, just let me know how.
->=20
-> Great, thanks, we can do some tshark capture then. That's what I did loca=
-lly.=20
->=20
-> 1. First, in Solaar, make sure diversion is off.
->=20
-> 2. Then, find what bus and device your mouse is on:
->=20
-> lsusb -d 046d:c548
->=20
-> It should give an answer like this:
-> Bus 005 Device 007: ID 046d:c548 Logitech, Inc. Logi Bolt Receiver
->=20
-> 3. And from there you get bus=3D5 and device=3D7, so do a tshark capture:
-> sudo tshark -i usbmon5 -Y 'usb.device_address =3D=3D 7 && usb.urb_type =
-=3D=3D 0x43 &&=20
-> usb.transfer_type =3D=3D 0x01 && usb.data_len > 0' -x
->=20
-> This should output ALL incoming data, i.e. including every little mouse=20
-> movement, so it will be noisy.
-> So try to keep the mouse stationary to minimize noise and try to only tou=
-ch=20
-> the thumbwheel. Both hovering your finger very close but not quite touchi=
-ng,=20
-> then a single tap, and finally just holding your finger still on the whee=
-l.
->=20
-> I saw some information online though that the MX Master 4 supports touch,=
- but=20
-> not tap or proximity, so presumably we'll only get one of the three.
-
-So, with this:
-
-# modprobe usbmon
-
-$ lsusb -d 046d:c548
-Bus 001 Device 003: ID 046d:c548 Logitech, Inc. Logi Bolt Receiver
-
-# tshark -i usbmon1 -Y 'usb.device_address =3D=3D 3 && usb.urb_type =3D=3D =
-0x43 && usb.transfer_type =3D=3D 0x01 && usb.data_len > 0' -x
-
-when diversion is off, I don't have anything when I interact with the thumb=
-wheel (except when scrolling it, of course).
-
-But when the diversion is on, there's some traffic. I'm not sure if it come=
-s from touching, or the slightest movements of the thumbwheel are detected =
-too, but I tried to be very careful.
-
-This is touching:
-
-0000  00 23 e7 90 c5 8d ff ff 43 01 83 03 01 00 2d 00   .#......C.....-.
-0010  76 ae b7 6a 00 00 00 00 01 1a 0e 00 00 00 00 00   v..j............
-0020  14 00 00 00 14 00 00 00 00 00 00 00 00 00 00 00   ................
-0030  01 00 00 00 00 00 00 00 04 02 00 00 00 00 00 00   ................
-0040  11 02 13 00 00 00 00 00 00 02 00 00 00 00 00 00   ................
-0050  00 00 00 00                                       ....
-
-This is untouching:
-
-0000  00 23 e7 90 c5 8d ff ff 43 01 83 03 01 00 2d 00   .#......C.....-.
-0010  79 ae b7 6a 00 00 00 00 5e c1 05 00 00 00 00 00   y..j....^.......
-0020  14 00 00 00 14 00 00 00 00 00 00 00 00 00 00 00   ................
-0030  01 00 00 00 00 00 00 00 04 02 00 00 00 00 00 00   ................
-0040  11 02 13 00 00 00 00 00 00 00 00 00 00 00 00 00   ................
-0050  00 00 00 00
-
-> 4. Please also give me the output of:
-> sudo lsusb -v -d 046d:c548 | grep -E 'bInterfaceNumber|bEndpointAddress'
-> It should list the interfaces on the Bolt receiver, which should be the t=
-wo=20
-> native HID interfaces and the HID++ interface that I think is for devices=
- with=20
-> touchpads.
-
-# lsusb -v -d 046d:c548 | grep -E 'bInterfaceNumber|bEndpointAddress'
-      bInterfaceNumber        0
-        bEndpointAddress     0x81  EP 1 IN
-      bInterfaceNumber        1
-        bEndpointAddress     0x82  EP 2 IN
-      bInterfaceNumber        2
-        bEndpointAddress     0x83  EP 3 IN
-      bInterfaceNumber        3
-        bEndpointAddress     0x84  EP 4 IN
-
-Thanks.
-
-> 5. If you want, you can try the same when the Solaar Divert is set to on =
-as=20
-> well, that would give confirmation that the mouse follows the protocol fo=
-und=20
-> online.
->=20
-> If you get a lot of data that you don't want to send on the LKML you can =
-just=20
-> send it directly to me if you want :)=20
-
-=2D-=20
-Oleksandr Natalenko, MSE
---nextPartcw7f7aEOSrKqhVgH9dBNCA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
 Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 
------BEGIN PGP SIGNATURE-----
+Hi!
 
-iQIzBAABCgAdFiEEZUOOw5ESFLHZZtOKil/iNcg8M0sFAmq3ruYACgkQil/iNcg8
-M0sFlxAAuG8tkk8izNXS5kzJFaHGIWHnGicSP3BlU2QB2KdMhVueH/sNBr0i23rD
-2BWam77d6o+3YqHebo1z0NQGcB4gKupX5MIRRbWJDaalUu9ouoMukNetceGeIzbv
-q+2oiWXf2uGJNMKaEh0blEVmTj0Qfo+JZu/7dP93hu9fH0JpGR5jNgsPty+/ioRt
-1+vO/puddfrOGyWoeOq02oWasLNiMYO4fZcCjxmSMWSB5/VrT15jfAokO24eIxCa
-jHLEaxfr/aHFIOCoTepvGNED3ltRNJ+hE4AIsGJI8/c4z5uaQTH8KdvIeym+GP9m
-vFrs7/N7Ty+DrsZZrrrDUooXubHzQj8/nGI7I4iwNKSTbMx0+jVQm3Kll/NX5S7l
-lgwLcDlmY4M9OluCY7TNWckKgp/lf+ztJ4Ew6UpxeRx8Tu/8upv5r5muhfMH+Nh9
-lZ15fQtyWFym+H67Q00jr3mKZMikyDu6W21Wfhhj0xrfYwY73UJXLZkcO0oqhtCH
-42CDZMvuDNvFcBTOpmnw/dLXSNvQ1udvV7QYLIqucAv68KilRW3avaPnConVELYi
-0Re3gl8Y+cyYUDyfQo2DhW2qu+Cm5iABgBxeZ+Ujby4RJ/4gPmmFqhPQSpNYINyd
-vLNiALCH99D4IgM65K6O+Hh6KEsktf8SUEYLTDH0Z55FlaNsH8w=
-=jByn
------END PGP SIGNATURE-----
+I just wanted to point out that the original patch has been reverted due the 
+issues caused so this patch can't be applied currently, but I'm working on a 
+new approach that I hope will fix everything.
 
---nextPartcw7f7aEOSrKqhVgH9dBNCA--
+On Friday, 25 September 2026 11:50:59 Central European Summer Time 
+johannes.goede@oss.qualcomm.com wrote:
+> So in so far as this is a solution at all, it really should be
+> limited to Bolt devices only. Although I wonder what switching
+> Bolt devices to the hidpp driver wins us after this patch?
+> Do they still gain any meaningful functionality from the switch
+> to the hidpp driver?
+
+Mainly it's getting device information such as battery and connection status, 
+but also, theoretically supporting multiple Bolt devices that have different 
+capabilities and settings. E.g. two different mice, one with high resolution, 
+one without, or two identical mice but one with invert enabled and one 
+without, etc. Unlikely scenarios, but at least theoretically possible.
+And same for keyboards, it enables separation by device of any Logitech-
+proprietary signals coming through the receiver, as well as optionally e.g. 
+media keys and brightness, etc.
+
+Cheers
+Erik
 
 
 

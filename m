@@ -1,183 +1,144 @@
-Received: from ixit.cz (ixit.cz [84.42.129.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed2-f12.google.com (mail-ed2-f12.google.com [74.125.228.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 805183DB655;
-	Sat, 26 Sep 2026 09:55:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD7543E410E
+	for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 11:13:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790416509; cv=none; b=euh54/+Q5dF79um4bMioDTYR5cGIUnkjmdfoFshbIv25oWe4g8tIMBv1KtmOTxhgwwbxePvGnNuikEyyoMSAs/qNeEcoKP2it1QCLbqVtzsoAbB5vD/ekioDl5LDsXGZnbU6AYYGrvSLunXX/+sCgWCTBGTvWRcxgvrojSJD+Z4=
+	t=1790421195; cv=none; b=e4AKV+xRDzdqw+ZXtWklI58sa8CbcnRMrh8Qe/zAKiGgvk9U+hKIswbb0vrWUWJzEkAQdn46eX37k8jo/JnnAWDzeJpMdeahLSXB6wwKOD3RMfx2gvFTJcWRfoIMHJZzvA5owCEaETNhzSOIOGNW9D1VdgKFQmm7Jvd8zbdDN48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790416509; c=relaxed/simple;
-	bh=d3yPoZPNCzeh+K127bR9RSO6Nj48iTjKgG7zkSD1icM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=B1q0V/UMyevc2clsL/dDfYdvg4dru3xdoGUlTA8K23CSQmQVht+sRljxhYjUaweoHAOVXsQ0ZPyi34u8aRWA1/EsPMnB7oTn7cOfAS/5tJbCJFeJUmXPdi1X5Dyb/6zAu7xs5MxEEA7CF3cnBVPcnLqXRtwssslMQ11GiQ8F/QU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=sHRtMZAA; arc=none smtp.client-ip=84.42.129.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	s=arc-20240116; t=1790421195; c=relaxed/simple;
+	bh=DLgC3aps3XoDhJw1Zkr5LjA4E7cGsw40nQ05koVXezU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JWUTyjY+4i9sEjz3qqcUtT917dRGgEx8UTXu6HWMXyPigHlLP625wvEVmWvgHTnUqjWnp/yIR/7GB+wp7lETtET+fJMLedy96Gt8fHdGxbfaFo+iJHNJBjVk3ZptPsWbbiAaQaZpMq68BoVQcA2rBMPpY2msglhv+QLbKd3oUS4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ROKJgTLX; arc=none smtp.client-ip=74.125.228.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="sHRtMZAA"
-Received: from [IPV6:2a02:830a:f787:8f00:d622:eaa3:3dd6:8f5e] (unknown [IPv6:2a02:830a:f787:8f00:d622:eaa3:3dd6:8f5e])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id D5D9C5340CEE;
-	Sat, 26 Sep 2026 11:55:03 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1790416504;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=32rpdRY1d+z3I43eDHyo/Txi1c6izkB8dW4wsRXOcy4=;
-	b=sHRtMZAAldTESvErMIFIB/BeSlgtma36U9wm1GorQc/UZg7tqznuPif/K+9E798gsxA+V4
-	Ib2lA1n86HZDSv3rNI9YM/+TKmXPOVWUiiY7zFT/TmhVtJkm9/1XWt7m75Cm6c6lwqeBWB
-	fEUTlc9ZvifG2qaaStCoQi85zjRZxRk=
-Message-ID: <187c9ec1-03fe-40a8-8c97-415b1a7aac23@ixit.cz>
-Date: Sat, 26 Sep 2026 11:55:03 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ROKJgTLX"
+Received: by mail-ed2-f12.google.com with SMTP id 4fb4d7f45d1cf-6a8038a9f10so2233001a12.1
+        for <linux-input@vger.kernel.org>; Sat, 26 Sep 2026 04:13:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790421192; x=1791025992; darn=vger.kernel.org;
+        h=content-type:content-transfer-encoding:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=SV0LRzTvQ8p2vwhmqhzurHNmTdPATy7R4StnDd5yBSM=;
+        b=ROKJgTLXymsWgzJl5Ashi+MQIs7EI8mBXazssB5N7Vd52sxpM1ft8MPerTy97i0g2R
+         07qCC3Kf1mrO93cLwqh2IJxvxtpXXwaVazKrnFiN4UoQbVT4DV5H8JTud5UZHuferJJ5
+         SiEp9EWcO5M/XkX7IZULIKfQHGffj98FkiXg1TxuHgQAi7eOLfi5rgQpzgsMqpP/k4zf
+         mYcfs/Ev0HLKSgArAg9yENlDjCx6rnl/GK5zIvDeQQYd0PdZifv3R1e2SUFAFPLuRPcj
+         YvLJg+AamFBsFykvh3Bg6Fq5oD3S0YcUGV53tE7UeRrGlYuH96jxvzY2Y3s0mT4eH/o8
+         Kvuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790421192; x=1791025992;
+        h=content-type:content-transfer-encoding:mime-version:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=SV0LRzTvQ8p2vwhmqhzurHNmTdPATy7R4StnDd5yBSM=;
+        b=COr4kGpuLyzwxqDKA32n6IKWBEV9HxU1Mil4O+iajqOh/AB89OgdevBckH0xdbsyx2
+         TbI69rXILwYuCWiTYRvXzpL5pM5xr1YwQJlxLTkGTpcn5b/yVvXpvnu38I669XiavMTI
+         bxVviBT59SXxDYEaX4JprfJnXN3+d5KhS0aZ/yo2QdAWUERHfrRX87D086zEEYsOOOQg
+         l7d/0NbSQbQaoBttps3BF6iDWZ8Ay8oNGV5fll/S2zQbN3vd627shjrb+Fb/nCbc3Y72
+         n+RT8c3qne0kT8gMzBIJ6jtmf9VnGknBtSVLNNrlt4cuVNwTnhZDPVhetmENzoGthidA
+         oCPg==
+X-Forwarded-Encrypted: i=1; AKwUvBzOALlfZcBWt1jqbkEe9Ae9V7PXhkpUrg1DsWJcBAEDAFSwT33QlgmigfvQikSOQugAKaVpPJmiBrDXlw==@vger.kernel.org
+X-Gm-Message-State: AFuF++l+X5Wzo8spmAWjAtUCHtTVYvqf1aPPsn4SI7KECzkZDnsrLekr
+	0oZHeuYy8zO29+0g4vyPM1H5uAZMcOg8ZG6g6/PBYNE8veWgdtBLuJFk
+X-Gm-Gg: AYBFou1N8jZQGeDNQTKs6D2E2P5wL2gNAKSstdupznECL3jd4xlaa5VcYESj/VvyKzW
+	+swzKdiR/WzSIX4m8GaCUZp6BOsMl8H6GWkIHfoubWLqtZ88ASX1N6FAuEU88j2QDV4qWTTpKQW
+	K4rwyHmNx9aAfQLZfcdI1c0KnKigNGDLfHHEhCGanxnm2nMiRt85YvgaTQeQtr08ZZlUqo9J3ue
+	5HCIr8/tzSbs1FJIAROh8WQ10YzdOJ1YBtqMJN44sD96dZDKHoDBfZX6lmGhSampNIlwonRO1Fi
+	8kRSC/YrW6In2cTZ77TuOKWkil2i4TZI7PaG8dMxoVu6Q2ibD9/Xp80N1spKFm+13yP552F24Mk
+	HXQ2/U7nFJ6m12FQNCs1mORzV1melbffjqNMxYCu7BgI3ga0tZvrI24Jvh/PcIpC/atB63TYwXS
+	b/gpddLpIzACO4iRhjyuD3gLVt55/RyprnCycFVI9P4+ZmsnfR9ZTm3ZnzqKgDMIEuysTIERhSC
+	Lyg6Wo4J4PM6yHshsI8x/cP5Y2IA15x/njMv3x92Uo=
+X-Received: by 2002:a05:6402:52c9:b0:6a9:984b:4c71 with SMTP id 4fb4d7f45d1cf-6aac90dca01mr6954387a12.33.1790421191787;
+        Sat, 26 Sep 2026 04:13:11 -0700 (PDT)
+Received: from fedora.localnet (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6aae5dd5e49sm1928651a12.19.2026.09.26.04.13.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Sep 2026 04:13:11 -0700 (PDT)
+From: Erik =?UTF-8?B?SMOla2Fuc3Nvbg==?= <erikhakan@gmail.com>
+To: Oleksandr Natalenko <oleksandr@natalenko.name>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ Filipe =?UTF-8?B?TGHDrW5z?= <lains@riseup.net>,
+ Bastien Nocera <hadess@hadess.net>, Rafael Passos <rafael@rcpassos.me>,
+ =?UTF-8?B?R3LDqWdvaXJl?= Stein <greyxor@protonmail.com>,
+ Alexey Zagorodnikov <xglooom@gmail.com>,
+ Roman Stingler <roman.stingler@gmail.com>,
+ Lovekesh Solanki <lovekeshsolanki00@gmail.com>,
+ =?UTF-8?B?S2F0ZcWZaW5hIE1lZHbEm2RvdsOh?= <k8ie@mcld.eu>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] HID: logitech-hidpp: fix Bolt hi-res wheel handling
+Date: Sat, 26 Sep 2026 13:13:09 +0200
+Message-ID: <2UD2rmaWS9W0wgq6AdNLxw@gmail.com>
+In-Reply-To: <6UWkRWWaSvGIWNWwY_bPDw@natalenko.name>
+References:
+ <20260922-feature-bolt-fix-v1-0-63b0fa8da0d3@gmail.com>
+ <r8QjhQUkS86zOaJsxE4nUw@gmail.com> <6UWkRWWaSvGIWNWwY_bPDw@natalenko.name>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: s6sy761 - fix resume ordering and restore sensing
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andi Shyti <andi@etezian.org>, Rob Herring <robh@kernel.org>,
- Marco Mattiolo <marco.mattiolo@hotmail.it>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, phone-devel@vger.kernel.org,
- stable@vger.kernel.org
-References: <20260923-s6sy761-suspend-v1-1-6fff96e71cb0@ixit.cz>
- <ardMSVsG1RlOOkNp@google.com>
-Content-Language: en-US, cs-CZ
-From: David Heidelberg <david@ixit.cz>
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-In-Reply-To: <ardMSVsG1RlOOkNp@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
 
-On 26/09/2026 06:40, Dmitry Torokhov wrote:
-> Hi David,
+Hi!
+
+On Thursday, 24 September 2026 23:57:05 Central European Summer Time Oleksandr 
+Natalenko wrote:
+
+> No idea TBH. The mouse is this one:
 > 
-> On Wed, Sep 23, 2026 at 03:27:06PM +0200, David Heidelberg via B4 Relay wrote:
->> From: David Heidelberg <david@ixit.cz>
->>
->> System suspend powers the controller off and resume powers it back on,
->> but the resume path enables the interrupt before s6sy761_power_on()
->> checks the boot. The firmware raises its boot-complete event on the
->> interrupt line, the threaded handler consumes it, s6sy761_power_on()
->> then reads an empty event and resume fails with -ENODEV, skipping the
->> touch function setup:
->>
->>    s6sy761 2-0048: PM: dpm_run_callback(): s6sy761_resume [s6sy761] returns -19
->>
->> Power the chip on first and only then unmask the interrupt. Once resume
->> completes the boot handshake the chip comes back with sensing off, as
->> at probe where input_open() turns it on, so the touchscreen stays dead
->> after resume. Send SENSE_ON again when the input device is open.
->>
->> Tested on a Pixel 3 XL over several s2idle cycles: resume succeeds and
->> the touch function and sense status match the pre-suspend state.
->>
->> Assisted-by: LLM
->> Cc: stable@vger.kernel.org
->> Fixes: 0145a7141e59 ("Input: add support for the Samsung S6SY761 touchscreen")
->> Signed-off-by: David Heidelberg <david@ixit.cz>
->> ---
->>   drivers/input/touchscreen/s6sy761.c | 11 ++++++++++-
->>   1 file changed, 10 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
->> index 0f24a9b730635..c52c45a7d1029 100644
->> --- a/drivers/input/touchscreen/s6sy761.c
->> +++ b/drivers/input/touchscreen/s6sy761.c
->> @@ -495,20 +495,29 @@ static int s6sy761_suspend(struct device *dev)
->>   	s6sy761_power_off(sdata);
->>   
->>   	return 0;
->>   }
->>   
->>   static int s6sy761_resume(struct device *dev)
->>   {
->>   	struct s6sy761_data *sdata = dev_get_drvdata(dev);
->> +	int err;
->>   
->> +	err = s6sy761_power_on(sdata);
->>   	enable_irq(sdata->client->irq);
+> https://www.logitech.com/en-us/shop/p/mx-master-4
 > 
-> Why are we enabling the interrupt even if power on failed?
+> I haven't seen proximity mentioned anywhere is specs. But I can try to sniff
+> for these events, just let me know how.
 
-originally I moved the enable_irq after condition, but LLM kept convincing me 
-it's wrong:
+Great, thanks, we can do some tshark capture then. That's what I did locally. 
 
-enable_irq() still runs when power-on fails. That is correct, because the next 
-suspend or unbind calls disable_irq() again through s6sy761_power_off(), and the 
-two calls must stay paired.
+1. First, in Solaar, make sure diversion is off.
 
-In case of failure the power_off will be run anyway, thus it make sense to me.
+2. Then, find what bus and device your mouse is on:
 
-> 
->> +	if (err)
->> +		return err;
->>   
->> -	return s6sy761_power_on(sdata);
->> +	guard(mutex)(&sdata->input->mutex);
->> +
->> +	if (!input_device_enabled(sdata->input))
->> +		return 0;
->> +
->> +	return i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_ON);
-> 
-> Explicit return err/return 0 please - there are multiple failure points
-> in this function.
+lsusb -d 046d:c548
 
-Sure, I'll send next version making the explicit return.
+It should give an answer like this:
+Bus 005 Device 007: ID 046d:c548 Logitech, Inc. Logi Bolt Receiver
 
-David
+3. And from there you get bus=5 and device=7, so do a tshark capture:
+sudo tshark -i usbmon5 -Y 'usb.device_address == 7 && usb.urb_type == 0x43 && 
+usb.transfer_type == 0x01 && usb.data_len > 0' -x
 
-> 
-> Thanks.
-> 
+This should output ALL incoming data, i.e. including every little mouse 
+movement, so it will be noisy.
+So try to keep the mouse stationary to minimize noise and try to only touch 
+the thumbwheel. Both hovering your finger very close but not quite touching, 
+then a single tap, and finally just holding your finger still on the wheel.
+
+I saw some information online though that the MX Master 4 supports touch, but 
+not tap or proximity, so presumably we'll only get one of the three.
+
+4. Please also give me the output of:
+sudo lsusb -v -d 046d:c548 | grep -E 'bInterfaceNumber|bEndpointAddress'
+It should list the interfaces on the Bolt receiver, which should be the two 
+native HID interfaces and the HID++ interface that I think is for devices with 
+touchpads.
+
+5. If you want, you can try the same when the Solaar Divert is set to on as 
+well, that would give confirmation that the mouse follows the protocol found 
+online.
+
+If you get a lot of data that you don't want to send on the LKML you can just 
+send it directly to me if you want :) 
+
+Cheers!
+Erik
+
+
+
 

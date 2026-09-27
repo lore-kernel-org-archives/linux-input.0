@@ -1,74 +1,73 @@
-Received: from mail-ej2-f42.google.com (mail-ej2-f42.google.com [74.125.228.170])
+Received: from mail-pj2-f13.google.com (mail-pj2-f13.google.com [74.125.227.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65603379960
-	for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 11:44:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8157A3B1EC7
+	for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 15:30:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790509480; cv=none; b=DvDLCCwV+I/TTDN9MQ5SRCSh46kZhKF8EDBrDt0687xnm2ylCyNns0e75CUv6lyhVi5Nqccv0k0zlHWZ3FGcykf25Urlg/YJxpONpREc5odmWJWKmT29mMHcQwfssXJbaXMN621df1muu52WUr6TQaXQ0dLdQjxR+7lfD7AfAW8=
+	t=1790523023; cv=none; b=rSQeNK8GC4pFvCociQjVQEFyPw/RSDqDeKW6GO5MZlxzS0Z5nXbYtmO/o0WyV4YniqPdR1LhkgoyjzQFsHMf51MWpY2OwblKOjGjGQy/ZDnLXCp95aq3YnSSDecqxWuwPrIByeXLnUytL95AysHOlkHzNX7BdI21iuz93jCrNdQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790509480; c=relaxed/simple;
-	bh=hf0wX8L+LlOnBK/0W9a1hoHrZm6rTBLmfL8ZB2OOX60=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FvhaQ90KK9qBjY2OyZLxN5NKJ+cdx211LZg4Wl/NRKCm7tUp2WlNgBybnTjYOrZl/nl/7WNHdTpH1aTL3jbpf0ebncn7uaJ4SU1UckGMvAMN25c0oHVDhoczkueGQzXWcrGjjjRtlIbrwBU0w6+hd0fjIujWF1xCsD0tApcj8BY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GxdalUWk; arc=none smtp.client-ip=74.125.228.170
+	s=arc-20240116; t=1790523023; c=relaxed/simple;
+	bh=a0rewO12vdtnPhBBS/nIg+3RPM7hKRWtmasS1tiBbUk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=j6Kkg/61zQIbMVOn3FXsCeY+7/x8XHZ3QzBgaxzF1JjwLPeI96mpH81VeAk4JI5i4JmMmWHh+O9v7O39dKDnAN//h2PbL6dl+Zwbpd8j8TTDR0N3kycQKNz7xHm3xArtIh/pZouK+//0G4hHdu88f0WanE84IVxXyv9xiwMVdjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DmZyox2N; arc=none smtp.client-ip=74.125.227.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GxdalUWk"
-Received: by mail-ej2-f42.google.com with SMTP id a640c23a62f3a-c2bca99f463so80034966b.0
-        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 04:44:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DmZyox2N"
+Received: by mail-pj2-f13.google.com with SMTP id d9443c01a7336-2dd53691be5so15183585ad.1
+        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 08:30:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790509476; x=1791114276; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790523021; x=1791127821; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kX6+iIntdcgKoHvnXvTvQFxv7ZWuRjd/+5VmFDIp/gY=;
-        b=GxdalUWkBw7Y8/6w4QLEKPLA8Deq6SPAHHy5QGWsHiHbruosurjFfP0EpHjgRGy+ru
-         TvPI7p20h+TNKAy3OuP0JPmjZTvLZ6kxgTPuHfvVq8Rzv5DymwYht9sVtMS+XACLrP4t
-         x6xTSn8x7Qa5CwlBijdENpxRSE4raF0UqzmSDWmczrBql/ZEdEuLwDNWLQqAhTrV0B0Y
-         rMyO5Z73lx9gzlANOhZwtqQT1fahjI+ITRkPkFSUB22FnEMuqlTkqyZRl789oWbwK6fY
-         iGm9ap6nCp+6wlmgo9uBeu6eh1j1KmCFR2VXjYrSOCaAs/2PnMuDAuGyMIirUlsz5Y6l
-         SHMA==
+        bh=mjhaILwxKgFt49EiWkQN7M/n6MN/CEKyFnK5lZJ/n7U=;
+        b=DmZyox2NU3Yyz8znjAW7WTerIVEzDDHVS+0fB5Z8qiDGC4xJfhTqMXRM5PdAFWmN83
+         0q+aZmoJmoIChZyDitjpR4X9jHY8eYuCEzeSwY7QntCw1GEZvBgBWNrJtkHcRllnDW5m
+         uqo01dZAA/M8L/1q1KTZydQ9STXAc531ciL3L0qPWo3RcLehDQFn5LAxDtIGQw1TF0a5
+         mex4zMgOQCkaLXC80+rFnHp1kjA8FQlyl6i+k7VeZ4QQC5O2aFWZKFT6PpEgtVGvIZR2
+         c0Dqnd85okZhVmQQdHjCGk1UQrH9eUdMTp6VfpkV0Ro4vHphsFtTzp0t5ZEkYtE4bQ2b
+         DEaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790509476; x=1791114276;
+        d=1e100.net; s=20260707; t=1790523021; x=1791127821;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=kX6+iIntdcgKoHvnXvTvQFxv7ZWuRjd/+5VmFDIp/gY=;
-        b=kFScPzge1XX5j/NmszvjELAMLdd0HfWQ4Z/B7QzVP84300IxNj+R6iiGZtg1020tZJ
-         AB0pvG+8mGB1g7mrlrKje+AswPpSSqfK8905hFhtYpwIdRn2ldTrOUexzXCliAXj03pM
-         PvRli2TfNMfOKVeIoRp4ZcJdHvPNCZom5BH2hJe0Y+7rbiZu6hHJkbMpUyzYgjXnBzv4
-         E+DMsGGHc5CcxfSQMCR4jEr6fwATm7Lde7VFxVywXnNaKUGWjRBiaGeDrqOMi74s1j3M
-         3K40zABd076BzsGQrvMaljqrx8WkoGzkfPD6cns5gD4jXsyyU8GTTvszWKtvBfG3J49N
-         WWeQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzRAPzIBMyPM9cBvOS25bDh3WknHRDxOBfEUUFdMvSD+wSfLyrjFiE1vNYywTueP+j/yXrjGyhhW7F0dQ==@vger.kernel.org
-X-Gm-Message-State: AFuF++n3R5gDVmz7Zn3UmA0JQqZXcNQTIH9M5+PcK5vf1P8Bn9CQ4LCG
-	eXwBipb7BSiLYMeJ5huOxlLDW4jUP75o4ucsYtn6TnsH/TKyVGnrDySb
-X-Gm-Gg: AYBFou0zTuBp8ujr4oN4btSJdoXxIoC1RcTpBLnWOCvtN1guI9Baas0t4K1dw7FlFot
-	FvDtkTOTCAcWu+EhbXnovdSx+/y8P/weXLNj93b++bclLLa//stIQ5H38h12aTCutMdlmHRmJxI
-	4fmQiUw9Ka6IUap/vKYPo0+g48Y2qyoTC8crGHtv1puvXeS6CN+NZ6R7LZlUMbS1KWO4QLYOULr
-	uGgw3j3/PYVP98tOQ49NGgBlrFrzEL0CuVWn2b4f54Nbp1avH6mlVdv+WnFrmXdoEs+pUYoE56U
-	oj70AU7p3KeK1ZCbo7rYX5B/zkZN019t7DHJ8KzKeCIwgdcgzagi5BYevTyUbKoyJhoJ1JI6Tat
-	L3v9Mlf4ISrb+EPZcJUabEYNgTEaz1diPOz3/WiF5yrLfcor+4Tx0fZRoxvGuiB4XlC0gyWKMNc
-	9e1Tf1sYzhAAvxeUFrQ1GagbfJlxAZy2c9Wxl5hPw1snE+bNH5w/gbocEbWRTaVo6+MVA1xHhZ6
-	9jz/FO1s3wWWi5d+UfhEic1T91IwpxbLUywESns/Ti58alT/sTQAIki6teBbA0OC5shvnsM00qU
-	6dp07e23gps=
-X-Received: by 2002:a17:906:628b:b0:c26:3377:752b with SMTP id a640c23a62f3a-c2ac21fa2bemr891918966b.3.1790509476432;
-        Sun, 27 Sep 2026 04:44:36 -0700 (PDT)
-Received: from localhost.localdomain (84-216-182-59.customers.ownit.se. [84.216.182.59])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2ae7356d1csm338411266b.18.2026.09.27.04.44.35
+        bh=mjhaILwxKgFt49EiWkQN7M/n6MN/CEKyFnK5lZJ/n7U=;
+        b=rYt7BylYow+5qgxmxZsMOyxXG/j0kHTNCzr+EFSPvkUlGct7wJtxSMssJQC+l2FffM
+         8jJoq7CnjU2Ctmtc9a4qmdGK7al8E9+UeNr/z9+Q7jML8zCBBMp2Ph8clXdtqM6jbvfp
+         6NemY+OPJwodkMw0u7Ww3bU0YBncctAyESNfdWUpgVoq2/cPm9jc+785hmvplUfEZJXj
+         B2aXsXLvBV4my53xgzS++zNVzZLVhhcd9gCpIDg+I+TULkX1IYWLxIrDwo4uP/hsP0w6
+         3IcYAYukVyUoTJhU7wUwIv/wUcLrBd16dEMuv1cqBItFLIECjF3z9HxAYgL9xuFzPoHY
+         Sx+A==
+X-Gm-Message-State: AFq9FYJm57RvgmnnJvtyja/Snf3Xxu13KGWeaJMOdDOrb4qVmoPx6XWJ
+	aE+NneQnWRavwIVBmM4YRyyB+9UXtP+/QI3irc/1lPnlXWm1okcrUils
+X-Gm-Gg: AYBFou3wi5FeBQt/sn2MHne+BYUTQRz55eD9EA8yjZTweEZaOZaI1+yUDvo55e7jmYv
+	QBt+ohhneDiNC4A0LXvP0gQrtGr3EMlGEUjUbzz83rorU6kHvyfmExJpw4olReQu6ZKaQPZ0Ziv
+	rdqlMCwBoXiWN2CgJrWc3HwyXhnBxPg7EfM9JupM2j2yPNhDzgBEIAQMNhwPFEc4gFjcxKI+AFC
+	feJI9AXjuud9p6lotEtIMRRZIqF51gefPN1gtMNOoA3KxvPVsA3vvvLj3XqaBaaMzim048xcVud
+	aSUXNwAPPfWf5t2kceK+oSEsLQ02hCJpW+4PzX29tCSx808/JJJCdKN1nfx+L81f+c6lVduMS1d
+	18V4/wUuL8uXm98RD9b3vfHS8dPakDZS+yiX3hdqsjP7EnYMHzfPPcwPfO7gPSIrozdH+qjRXyv
+	afkhn0hzttLjHkXIepzgjHA4As2RbFAI3XIf2eEq39FfxLzERPf5hHLWjtJlbRqHxPdsDZAMHR4
+	HiAhHPp2hqa1ilyhhcboS0=
+X-Received: by 2002:a17:903:1a43:b0:2df:ab36:f15f with SMTP id d9443c01a7336-2dfab36f4femr28967115ad.43.1790523020553;
+        Sun, 27 Sep 2026 08:30:20 -0700 (PDT)
+Received: from jmoon ([118.220.156.4])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2df9142b00dsm30373515ad.49.2026.09.27.08.30.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 04:44:36 -0700 (PDT)
-From: Pooyan Azad <pooyan.azadparvar@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
-	Muhammad Bilal <meatuni001@gmail.com>,
-	Herlangga Maulani <w1zardsec@proton.me>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: raydium_i2c_ts - validate report parameters
-Date: Sun, 27 Sep 2026 13:44:25 +0200
-Message-ID: <20260927114425.442803-1-pooyan.azadparvar@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        Sun, 27 Sep 2026 08:30:18 -0700 (PDT)
+From: Jinmo Yang <jinmo44.yang@gmail.com>
+To: david@readahead.eu,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Jinmo Yang <jinmo44.yang@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: wiimote: initialise rumble_worker once per device
+Date: Mon, 28 Sep 2026 00:30:14 +0900
+Message-ID: <20260927153014.1395106-1-jinmo44.yang@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,161 +76,195 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The controller supplies packet and per-contact sizes used to allocate and
-parse touch reports. The driver trusts these values without validation.
+wdata->rumble_worker is a single work_struct in struct wiimote_data, but
+two different modules called INIT_WORK() on it:
 
-A packet size smaller than the two-byte checksum makes report_size wrap,
-allowing the IRQ handler to read beyond the report buffer. A zero or
-undersized contact size can cause a divide by zero or make the contact
-parser read beyond a record.
+  wiimod_rumble_probe()  devtype module, once per device
+  wiimod_pro_probe()     extension module, once per extension hotplug
 
-Validate both sizes before publishing them, and reject reports that
-describe more contacts than the input device has slots.
+These have independent lifetimes.  The devtype module is loaded once by
+wiimote_modules_load() and stays until wiimote_destroy(), while the
+extension module is loaded and unloaded any number of times by
+wiimote_ext_load() / wiimote_ext_unload().  wiimote_ext_load() calls the
+extension probe with no lock and no cancel_work_sync(), and for the
+common EXT_NONE -> EXT_PRO_CONTROLLER transition the preceding
+wiimote_ext_unload() is a no-op because wiimod_ext_table[] maps both
+EXT_NONE and EXT_UNKNOWN to wiimod_dummy, which has no .remove.
 
-Allocate the report buffer once valid main firmware information is
-available, and resize it if a firmware update changes the packet size.
-This also handles devices that probe in bootloader mode, where the packet
-size is not known yet.
+So nothing stops the force-feedback path, which is still live in the
+base module, from having queued the work already:
 
-Finally, return main firmware query failures from initialization so probe
-and firmware update do not continue with invalid report parameters. Keep
-bootloader HWID query failures non-fatal so the recovery interface remains
-available.
+	/* wiimod_rumble_play() */
+	wdata->state.cache_rumble = value;
+	schedule_work(&wdata->rumble_worker);
 
-Fixes: 48a2b783483b ("Input: add Raydium I2C touchscreen driver")
-Link: https://lore.kernel.org/all/20260728135127.48971-1-meatuni001@gmail.com/
+INIT_WORK() on a queued work item is memory corruption.  __INIT_WORK()
+does
+
+	(_work)->data = (atomic_long_t) WORK_DATA_INIT();
+	INIT_LIST_HEAD(&(_work)->entry);
+
+which clears the pool reference and the PENDING bit, and re-points
+->entry at itself while the item is still linked into the worker pool
+list, leaving its neighbours pointing at a node that has left the list.
+
+Note that CONFIG_DEBUG_OBJECTS_WORK hides the impact rather than just
+reporting it: work_fixup_init() calls cancel_work_sync() for the caller,
+so a debug kernel prints a warning and then repairs the state.  That is
+the kernel stating what the driver should have done.  Production kernels
+have no such repair.
+
+Initialise the work once in wiimote_create(), which is where the object
+that contains it is created and which already initialises
+wdata->queue.worker, wdata->init_worker and wdata->timer, and drop both
+module-level INIT_WORK() calls.  wiimote_create() runs as the first
+statement of wiimote_hid_probe(), before hid_parse() and hid_hw_start(),
+so it strictly precedes the existence of any input device and therefore
+of any path that could queue the work.
+
+This does not affect the deadlock fix in commit f50f9aabf32d ("HID:
+wiimote: fix FF deadlock").  That fix is the offload itself - caching
+the value and deferring to a worker instead of taking state.lock inside
+the FF callback - and this patch leaves wiimod_rumble_play(),
+wiimod_rumble_worker() and state.cache_rumble untouched.  Only the
+placement of the initialisation changes.
+
+The two halves come from different actors, and both are available on a
+stock Android phone without root.  The extension hotplug half needs only
+/dev/uhid, which is group 3011 and held by the shell.  The shell cannot
+write to an evdev node - SELinux grants it read access only - so the
+force-feedback half comes from an ordinary app calling
+InputDevice.getVibrator().vibrate(), which reaches EVIOCSFF through
+system_server; VIBRATE is a normal permission and is granted
+automatically.  A paired Bluetooth HID device can supply the hotplug
+half instead of /dev/uhid.
+
+The ordering matters: the device has to be created without an extension
+so that the devtype resolves to a GEN10/GEN20 that includes
+WIIMOD_RUMBLE, because WIIMOTE_DEV_PRO_CONTROLLER does not, and the
+extension has to be plugged afterwards.
+
+Measured before the change:
+
+  Pixel 11, stock Android 17 user build, SELinux enforcing, no KASAN and
+  no DEBUG_OBJECTS at runtime, kernel 6.12.81: reboots with
+  ro.boot.bootreason=kernel_panic one to two seconds after the two paths
+  start overlapping.
+
+    Unable to handle kernel NULL pointer dereference at virtual address
+      0000000000000008
+    CPU: 5 Comm: kworker/5:4
+    Workqueue:  wiimod_rumble_worker (events)
+    pc : process_scheduled_works+0xd4/0x810
+    Kernel panic - not syncing: Oops: Fatal exception
+
+  The empty workqueue name in that line is itself the corruption:
+  print_worker_info() reads wq->name with copy_from_kernel_nofault() and
+  it failed, while another CPU in the same dump shows the normal form,
+  "Workqueue: events wiimote_init_worker" - the task that called
+  wiimod_pro_probe().
+
+  x86_64 with CONFIG_KASAN_GENERIC and CONFIG_DEBUG_OBJECTS_WORK both
+  enabled, 15 s in: KASAN says nothing, because INIT_WORK() writes to a
+  valid field of a live object, and DEBUG_OBJECTS_WORK reports
+
+    ODEBUG: init active (active state 0) object type: work_struct
+      hint: wiimod_rumble_worker+0x0/0x70
+    WARNING: lib/debugobjects.c:629 at debug_print_object
+    Workqueue: events wiimote_init_worker
+     __debug_object_init+0x1ff/0x3b0
+     __init_work+0x51/0x60
+     wiimod_pro_probe+0x28/0xba0
+     wiimote_init_worker.cold+0xb6a/0xe88
+
+After the change the same reproducer drives 36774 extension hotplugs and
+612156 force-feedback plays in 60 s on that x86_64 kernel with no ODEBUG,
+WARNING or KASAN output, and the rumble reports still arrive, so the
+force-feedback path is unaffected.
+
+Fixes: f50f9aabf32d ("HID: wiimote: fix FF deadlock")
 Cc: stable@vger.kernel.org
-Signed-off-by: Pooyan Azad <pooyan.azadparvar@gmail.com>
+Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
 ---
-This partially overlaps Muhammad Bilal's earlier patch linked above. That
-patch propagates both main and bootloader query errors. This version keeps
-bootloader HWID errors non-fatal so recovery remains available, and moves
-report-buffer allocation into the main query path so size changes can be
-handled safely.
+Notes for reviewers, not for the commit message:
 
-Compile-tested with:
+ - base-commit below is the public next-20260925 tag, but the three files
+   touched are byte-identical in linux-next, hid/for-next, hid/master and
+   hid/for-7.4/*, and the patch applies to all of them unchanged, so pick
+   whichever tree suits.
 
-  make O=/tmp/raydium-build W=1 -j$(nproc) \
-    drivers/input/touchscreen/raydium_i2c_ts.o
+ - It conflicts textually with the pending series "[PATCH v4 0/4] HID:
+   wiimote: new LED behavior on connect + scoped_guards" from Rafael Passos
+   (<20260817213840.1053216-1-rafael@rcpassos.me>), whose 4/4 rewrites
+   wiimote_create() and drops the call. Happy to rebase on top of that if it
+   goes in first; I kept this one standalone because it is a stable
+   candidate and that series is a refactor.
 
- drivers/input/touchscreen/raydium_i2c_ts.c | 64 +++++++++++++---------
- 1 file changed, 39 insertions(+), 25 deletions(-)
+ - The reproducer is a reactive /dev/uhid wiimote emulator, plus a
+   reflection-only dex run through app_process to drive the force-feedback
+   half on Android. I can post either if that would help.
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 0256055abcef..1d7f53d0b9fe 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -64,6 +64,7 @@
- #define RM_CONTACT_PRESSURE_POS	5
- #define RM_CONTACT_WIDTH_X_POS	6
- #define RM_CONTACT_WIDTH_Y_POS	7
-+#define RM_MIN_CONTACT_SIZE	(RM_CONTACT_WIDTH_Y_POS + 1)
+ drivers/hid/hid-wiimote-core.c    | 1 +
+ drivers/hid/hid-wiimote-modules.c | 5 +----
+ drivers/hid/hid-wiimote.h         | 1 +
+ 3 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+index 63c4fa8fbb9b..1946c23867c8 100644
+--- a/drivers/hid/hid-wiimote-core.c
++++ b/drivers/hid/hid-wiimote-core.c
+@@ -1754,6 +1754,7 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+ 	wdata->state.cmd_battery = 0xff;
  
- /* Bootloader relative info */
- #define RM_BL_WRT_CMD_SIZE	3	/* bl flash wrt cmd size */
-@@ -331,7 +332,10 @@ static int raydium_i2c_query_ts_info(struct raydium_data *ts)
+ 	INIT_WORK(&wdata->init_worker, wiimote_init_worker);
++	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
+ 	timer_setup(&wdata->timer, wiimote_init_timeout, 0);
+ 
+ 	return wdata;
+diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-modules.c
+index dccb78bb3afd..c5b48065638e 100644
+--- a/drivers/hid/hid-wiimote-modules.c
++++ b/drivers/hid/hid-wiimote-modules.c
+@@ -117,7 +117,7 @@ static const struct wiimod_ops wiimod_keys = {
+  */
+ 
+ /* used by wiimod_rumble and wiipro_rumble */
+-static void wiimod_rumble_worker(struct work_struct *work)
++void wiimod_rumble_worker(struct work_struct *work)
  {
- 	struct i2c_client *client = ts->client;
- 	struct raydium_data_info data_info;
-+	struct raydium_info info;
- 	__le32 query_bank_addr;
-+	u8 *report_data;
-+	u8 report_size;
- 
- 	int error, retry_cnt;
- 
-@@ -341,26 +345,22 @@ static int raydium_i2c_query_ts_info(struct raydium_data *ts)
- 		if (error)
- 			continue;
- 
--		/*
--		 * Warn user if we already allocated memory for reports and
--		 * then the size changed (due to firmware update?) and keep
--		 * old size instead.
--		 */
--		if (ts->report_data && ts->pkg_size != data_info.pkg_size) {
--			dev_warn(&client->dev,
--				 "report size changes, was: %d, new: %d\n",
--				 ts->pkg_size, data_info.pkg_size);
--		} else {
--			ts->pkg_size = data_info.pkg_size;
--			ts->report_size = ts->pkg_size - RM_PACKET_CRC_SIZE;
-+		if (data_info.pkg_size < RM_PACKET_CRC_SIZE) {
-+			dev_err(&client->dev,
-+				"invalid report sizes: packet=%u contact=%u\n",
-+				data_info.pkg_size, data_info.tp_info_size);
-+			return -EINVAL;
- 		}
- 
--		ts->contact_size = data_info.tp_info_size;
--		ts->data_bank_addr = le32_to_cpu(data_info.data_bank_addr);
+ 	struct wiimote_data *wdata = container_of(work, struct wiimote_data,
+ 						  rumble_worker);
+@@ -155,8 +155,6 @@ static int wiimod_rumble_play(struct input_dev *dev, void *data,
+ static int wiimod_rumble_probe(const struct wiimod_ops *ops,
+ 			       struct wiimote_data *wdata)
+ {
+-	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
 -
--		dev_dbg(&client->dev,
--			"data_bank_addr: %#08x, report_size: %d, contact_size: %d\n",
--			ts->data_bank_addr, ts->report_size, ts->contact_size);
-+		report_size = data_info.pkg_size - RM_PACKET_CRC_SIZE;
-+		if (data_info.tp_info_size < RM_MIN_CONTACT_SIZE ||
-+		    data_info.tp_info_size > report_size ||
-+		    report_size / data_info.tp_info_size > RM_MAX_TOUCH_NUM) {
-+			dev_err(&client->dev,
-+				"invalid report sizes: packet=%u contact=%u\n",
-+				data_info.pkg_size, data_info.tp_info_size);
-+			return -EINVAL;
-+		}
+ 	set_bit(FF_RUMBLE, wdata->input->ffbit);
+ 	if (input_ff_create_memless(wdata->input, NULL, wiimod_rumble_play))
+ 		return -ENOMEM;
+@@ -1865,7 +1863,6 @@ static int wiimod_pro_probe(const struct wiimod_ops *ops,
+ 	int ret, i;
+ 	unsigned long flags;
  
- 		error = raydium_i2c_read(client, RM_CMD_QUERY_BANK,
- 					 &query_bank_addr,
-@@ -369,10 +369,29 @@ static int raydium_i2c_query_ts_info(struct raydium_data *ts)
- 			continue;
+-	INIT_WORK(&wdata->rumble_worker, wiimod_rumble_worker);
+ 	wdata->state.calib_pro_sticks[0] = 0;
+ 	wdata->state.calib_pro_sticks[1] = 0;
+ 	wdata->state.calib_pro_sticks[2] = 0;
+diff --git a/drivers/hid/hid-wiimote.h b/drivers/hid/hid-wiimote.h
+index 9c12f63f6dd2..c63cd0a68e0c 100644
+--- a/drivers/hid/hid-wiimote.h
++++ b/drivers/hid/hid-wiimote.h
+@@ -262,6 +262,7 @@ enum wiiproto_reqs {
+ #define dev_to_wii(pdev) hid_get_drvdata(to_hid_device(pdev))
  
- 		error = raydium_i2c_read(client, le32_to_cpu(query_bank_addr),
--					 &ts->info, sizeof(ts->info));
-+					 &info, sizeof(info));
- 		if (error)
- 			continue;
+ void __wiimote_schedule(struct wiimote_data *wdata);
++void wiimod_rumble_worker(struct work_struct *work);
  
-+		if (!ts->report_data || ts->pkg_size != data_info.pkg_size) {
-+			report_data = devm_krealloc(&client->dev, ts->report_data,
-+						    data_info.pkg_size, GFP_KERNEL);
-+			if (!report_data)
-+				return -ENOMEM;
-+
-+			ts->report_data = report_data;
-+		}
-+
-+		ts->pkg_size = data_info.pkg_size;
-+		ts->report_size = report_size;
-+		ts->contact_size = data_info.tp_info_size;
-+		ts->data_bank_addr = le32_to_cpu(data_info.data_bank_addr);
-+		ts->info = info;
-+
-+		dev_dbg(&client->dev,
-+			"data_bank_addr: %#08x, report_size: %d, contact_size: %d\n",
-+			ts->data_bank_addr, ts->report_size, ts->contact_size);
-+
- 		return 0;
- 	}
- 
-@@ -428,7 +447,7 @@ static int raydium_i2c_initialize(struct raydium_data *ts)
- 	if (ts->boot_mode == RAYDIUM_TS_BLDR)
- 		raydium_i2c_query_ts_bootloader_info(ts);
- 	else
--		raydium_i2c_query_ts_info(ts);
-+		error = raydium_i2c_query_ts_info(ts);
- 
- 	return error;
- }
-@@ -1116,11 +1135,6 @@ static int raydium_i2c_probe(struct i2c_client *client)
- 		return error;
- 	}
- 
--	ts->report_data = devm_kmalloc(&client->dev,
--				       ts->pkg_size, GFP_KERNEL);
--	if (!ts->report_data)
--		return -ENOMEM;
--
- 	ts->input = devm_input_allocate_device(&client->dev);
- 	if (!ts->input) {
- 		dev_err(&client->dev, "Failed to allocate input device\n");
+ extern void wiiproto_req_drm(struct wiimote_data *wdata, __u8 drm);
+ extern void wiiproto_req_rumble(struct wiimote_data *wdata, __u8 rumble);
+
+base-commit: f5f84daefcd92d7a630066635ecea1433ed5eac7
 -- 
-2.43.0
+2.53.0
+

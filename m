@@ -1,74 +1,75 @@
-Received: from mail-dl2-f43.google.com (mail-dl2-f43.google.com [74.125.229.171])
+Received: from mail-dl2-f41.google.com (mail-dl2-f41.google.com [74.125.229.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46A7E329E4B
-	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 02:39:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 279A030CD95
+	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 04:38:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790563141; cv=none; b=VULf2j5Thg0YPfTlG8k1mKqiWuQ/Drn4bzDbrPW3zlwYOvQwloM0sMHXXYyCWHvNgzUgFz1kIl2bzwA758qalq6zs1B3QP/nOZVRddmHfGUaL26Wdo21QjKUacFZaRRKOLRCJjCRNVRdv8b7AEBIky8B0neFOi6rt/xhqpleG0I=
+	t=1790570330; cv=none; b=FvMts4oYraIO41vYU3GRVzJIjpWiP2e3QY3S3tURC4ybbF1c+xw+ZZpXPc5z2rr8yupoH6tMu41PF/0qhwDUie/807N3dz1sRgunUoyBFEVmPX1edOMphtM8FJmTMhQjpr+YGHgHuXx8MkMvJsWyF5tAN281/utMtQD1QjSlexE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790563141; c=relaxed/simple;
-	bh=32vTrhXuSPhSuvH6ppfrnrXmUGsMV1jLT/64X7vg52k=;
+	s=arc-20240116; t=1790570330; c=relaxed/simple;
+	bh=oYMPXUg5FRpTGpq/VChufToWIT8D2XYBNz1jqWQZd14=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YxPqgjCyCSdziNAnT5F5BNQSYMNbiNzvTIjb6dH69XxuFO39A1vcR9f2ws09GMI4fah0n/qD7Hi8HTlkgT34pQXD6B4x+Po0FRc9tFDv81cUbjU+7f+0NxhYxz0ST2AWx2j3QgNajIJOxM821pOcitrCvcZdz27g7Jn6mwkGWWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FO1T+g2E; arc=none smtp.client-ip=74.125.229.171
+	 Content-Type:Content-Disposition:In-Reply-To; b=FWkg+roYcroZ3Jl1OsAJvMcRLHFenO6YquGMUP5Rn5InPSAtsOSfwpB3/7b9DJs94pkz5d9qzewddnMdCwuiDKv4mwdSn1w2R/FvAVvONwkzQCQbaEmX1Hkhij5Qu5LQ2JEWjRGu3PTrafxzAQ7LCoDdsPYCElQ2xjVCn+2+5l8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q+S9GrTH; arc=none smtp.client-ip=74.125.229.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FO1T+g2E"
-Received: by mail-dl2-f43.google.com with SMTP id a92af1059eb24-145047ad220so723263c88.3
-        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 19:39:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q+S9GrTH"
+Received: by mail-dl2-f41.google.com with SMTP id a92af1059eb24-1474c6b7742so932579c88.1
+        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 21:38:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790563139; x=1791167939; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790570328; x=1791175128; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=hohreTZ1D5kmhWyHdWg4gFGwuZ4oX9gPFnSKD6YYJb0=;
-        b=FO1T+g2E80H3X/WpQ5bwXJxf1h28sDSPw4TPA7BP9y1jAG2ME3LqzqMYG/325IDtuV
-         d/6MBF8L3gQgaqhcOVtkGnasb6lbbtamuzFXeUeV65xzNOjqjczHk5mIKtc7aiLtU2SA
-         30noA6f9o9jkJPqsSbVkJfStxvHnQVrE8GKL+NXTrRk6e+nkX4LF0MwpFminrZyIPKmF
-         uCF6V8l3g3cO3PRGXLGOpi7LoZYb54TstBZUcfMFiEQP62PeJ9sGvqD//ZEukxDQHxsQ
-         rpGZU+s3VC+1uo7iEojRYR8w7SZCEv9Few0v9FhuicsgRodiLzgpQwBKU2HLjFQ55wRR
-         BesA==
+        bh=S9YFNOM35bVSfIS9/7AW72GbBEe1YCeVTQopxAj3TL0=;
+        b=Q+S9GrTHakmOPeFFNUbWxnb7iokwjTb6dKNPNxocRySVeYxMcySNBHP5pWjMFfqFeI
+         T1U3iRA9w5c2Isj9IZeQ/ZMvmxMK0eYpmgbQW6Jpq/mvQkc45mDAnebvBTfG5xnwvLWt
+         nFAia4LO2aYxcG/cwwftKzqy1RznYw7grjJ3GAwHISrkG+32oME39aG1suLcC+cnsP3e
+         8pCLXvmcix9WlPRnA5Hwx1haoQrW0GqjFM6vNZb3uzy3HMAiq/xmHLbssbRKT1ndq9c6
+         +qS50F2g8mvn0rXZIlJOeFImlPbKbq/FnZIrOKRs7kHf9qtGT1dLv6StiEsDCMVzxnmJ
+         DVjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790563139; x=1791167939;
+        d=1e100.net; s=20260707; t=1790570328; x=1791175128;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=hohreTZ1D5kmhWyHdWg4gFGwuZ4oX9gPFnSKD6YYJb0=;
-        b=1qRacVSur5PHqRPkqnSoQHRBvyUEItF9KwO8qiiD7KDUEtcwdDrHhsfLIMk8RRpvwE
-         hO835irTshVZvA/LbMJp/WHDjUh3LeB2gtwDbJwmxGAhUrcusVt3pSfUFvhYOilVEmSX
-         uCetMu9VCrUPXuBxSILIfW+J3TJhybc1g8/sB3+RsJF+n1XZK5LS+LDBKv9OFEGyvGGg
-         4KJNddILlUtk4f2Bcnxmhd/O1gonvxT/vsKL6pJnVojfJbsQKElTyH3yycoJD+DNYYN1
-         e3VzZVJoA/JsFQqmcmDRjfqo0jzy6wUdSMa1iDQ1vYbWMgZ/1qsPQutXAKLbX89NQFHB
-         mGLQ==
-X-Forwarded-Encrypted: i=1; AKwUvByjk6xWnWa0N45E9H++ERvQ1PlIsU81U93tdYo5lnZV8yxa3epii0+f/l/9K0kbUY8WDUuuDX1y1SDHjA==@vger.kernel.org
-X-Gm-Message-State: AFuF++lkRLTF67OkEtYFGY2cD+UGB0U/kjnilaU492nrZBG2+/bsDu0n
-	n1PQtN6XvuW5u2ivI7eC+qwQ5tfFrLesIa5SUm/Igl8U/66Y88Y7+XjP
-X-Gm-Gg: AYBFou314IIj8UorLPezzxThx0/b4UIlDiAhWr5cAK/JT8A6TZyfu4AOoTQ1eLaGLJm
-	Ha6DqH8GX05vu4NjLQyLiU5C404RR87DKCV8Fj0SXDSNLAMugX3JSbJ6E6e/nWvNevvi4G6dE6X
-	bqJZ8tLCE3G4RhIZIVD78v+XXM/fCk/B3t4DU+0/IANCTnFHAh72+2/33ZnaC8FgF0h2HseiVno
-	nNe4qji0nwoVSXqiOjQ6WCcHiAxxpCU2RpzoEBrzguttfwoL+LaXnNmfHZ+3JyGbw+5cc5GXz9S
-	o3nEsQiAp2CZ8lPyjgFfNJn2kdF4i+D2AsMLoqoAWTOHbcd0Rc93AX9E6M24XdToT0NiFauK/61
-	+kTillEbyB0AutbchfRflTOjdVPzA5QDl2sCpsc2Dj1hmgOlW5S2LBeM60fcWFTMQ2CSoTPPJ/W
-	GWeWz9b+5FeUwrg4IiVbP7W62vGa77rrYZ7/jEwoetkIwkfaA3x0MF8ynnyFfpmDD2t3A7/JaCf
-	Ss/kJDFoyEbwVEZNNTSW7lrXBeAS839F+Re50xD
-X-Received: by 2002:a05:701b:2704:b0:148:4d6c:2018 with SMTP id a92af1059eb24-1484d6c2790mr5162472c88.22.1790563139078;
-        Sun, 27 Sep 2026 19:38:59 -0700 (PDT)
+        bh=S9YFNOM35bVSfIS9/7AW72GbBEe1YCeVTQopxAj3TL0=;
+        b=DWTtXHJMn7QXsqWJID4aYLuZOF2pQfMZsxYl2z0p+XkiSKH9eQ1oevxCul5BEZ3QKC
+         UYYL5RTnkTtvPDKjGpfxZsFFOGtES/CBumvNhJYKn+GaDG4tjG6apnwr9YVYi+xBc2i1
+         nZ1Ktz9yaz4ZAKNCY575oF/vY8fO30ea2Booaevc4PVOVWLhUEceEBmndFdPnSzbh6tL
+         i1WT6/oI+8nOiFMtpQzSiDyjdRA5E+o9aXE40EythOgznRnvRknlRVs3ctc2dqMCqyBM
+         lIJOYPlwBjjcYMyB3MojEEuzR5TwyWfmwIAytvkF+pHQTrS8VOInf9taj86RHVSfA42z
+         yb9A==
+X-Forwarded-Encrypted: i=1; AKwUvBxxQT+BHOD7nrd+2pFyHnme4fRYPZQu0hFbUhdwrEEPecPreeuYDP59kkgdSELlbyDWWbEExdoOGkD77w==@vger.kernel.org
+X-Gm-Message-State: AFuF++klQ2/RpTwDm2QivYaaYD2POIc8+VvlrV/HkU3qYL6FVt8iW2u0
+	eCgnQWxiq8ehSF2dsUV1J5lGldjE12gkTityBTCDCX38ic1Vbq0qvl2m
+X-Gm-Gg: AYBFou3c+d/Q2VRMur+cZ+CW4og2ERoZ7oMcMi0AwLwbo34w5EcfCu6IIHnzOVCU7Mv
+	EM0YeqEdT7pD0yBodtSogKgtp1mlAag4c5u9BCoEJzvh32kcfKtr7cGqKlTc4OAxUgEkgvUbKn+
+	oM9Az9IYW3eDDjxf6eRrjSjZcds40XrVahnyZhfPS0LOzdNxyddo57irUsU/yO7iekHaHmGj3dA
+	fHEwzzAhDaQU0sxJw2PoOIjsH29vCNp0l73d+87DXC79eV9fs78m5GYm95VhChMJDOLswE3wh7Q
+	WkqPL89OFQFIwpbZIbn+ITwCpR0GFkQlKP7XWtn4bAmpbzfLJePNBXEvEzxzchGO7w+F5gPAAa/
+	2WjrmJKVd/8ycaVGfsGEB8QCldSYNr1TQljODJoJOd6BUtjYRqmK6+I7EbdUPZ5CjHcylpRymPl
+	r71r0Gff+WBNhVrP78QrxFRBylyySvFhZou595JZKJ6sBl2+0GjrCao5DCUeWe07JZtLxyiC8kx
+	lSTaEAqb7I+Fh9/mBkS6vYFYwXmNkfIqlRlCUDlUg==
+X-Received: by 2002:a05:7022:b048:10b0:144:e658:94f with SMTP id a92af1059eb24-146d0f33db2mr8902859c88.43.1790570328080;
+        Sun, 27 Sep 2026 21:38:48 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:526d:2f94:503b:aada])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-145ad9e097fsm23406482c88.13.2026.09.27.19.38.57
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-147913a776fsm16358758c88.17.2026.09.27.21.38.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 19:38:58 -0700 (PDT)
-Date: Sun, 27 Sep 2026 19:38:54 -0700
+        Sun, 27 Sep 2026 21:38:47 -0700 (PDT)
+Date: Sun, 27 Sep 2026 21:38:43 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Pooyan Azad <pooyan.azadparvar@gmail.com>
-Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>, 
-	Muhammad Bilal <meatuni001@gmail.com>, Herlangga Maulani <w1zardsec@proton.me>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: raydium_i2c_ts - validate report parameters
-Message-ID: <arnRiZyWe6zmd68S@google.com>
-References: <20260927114425.442803-1-pooyan.azadparvar@gmail.com>
+To: david@ixit.cz
+Cc: Andi Shyti <andi@etezian.org>, Rob Herring <robh@kernel.org>, 
+	Marco Mattiolo <marco.mattiolo@hotmail.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	phone-devel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] Input: s6sy761 - fix resume ordering and restore
+ sensing
+Message-ID: <arnvS7Hk7uIKKLrZ@google.com>
+References: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,38 +78,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260927114425.442803-1-pooyan.azadparvar@gmail.com>
+In-Reply-To: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
 
-Hi Pooyan,
+On Sat, Sep 26, 2026 at 10:26:47PM +0200, David Heidelberg via B4 Relay wrote:
+> From: David Heidelberg <david@ixit.cz>
+> 
+> System suspend powers the controller off and resume powers it back on,
+> but the resume path enables the interrupt before s6sy761_power_on()
+> checks the boot. The firmware raises its boot-complete event on the
+> interrupt line, the threaded handler consumes it, s6sy761_power_on()
+> then reads an empty event and resume fails with -ENODEV, skipping the
+> touch function setup:
+> 
+> s6sy761 2-0048: PM: dpm_run_callback(): s6sy761_resume [s6sy761] returns -19
+> 
+> Power the chip on first and only then unmask the interrupt. Once resume
+> completes the boot handshake the chip comes back with sensing off, as
+> at probe where input_open() turns it on, so the touchscreen stays dead
+> after resume. Send SENSE_ON again when the input device is open.
+> 
+> Tested on a Pixel 3 XL over several s2idle cycles: resume succeeds and
+> the touch function and sense status match the pre-suspend state.
+> 
+> Assisted-by: LLM
+> Cc: stable@vger.kernel.org
+> Fixes: 0145a7141e59 ("Input: add support for the Samsung S6SY761 touchscreen")
+> Signed-off-by: David Heidelberg <david@ixit.cz>
 
-On Sun, Sep 27, 2026 at 01:44:25PM +0200, Pooyan Azad wrote:
-> The controller supplies packet and per-contact sizes used to allocate and
-> parse touch reports. The driver trusts these values without validation.
-> 
-> A packet size smaller than the two-byte checksum makes report_size wrap,
-> allowing the IRQ handler to read beyond the report buffer. A zero or
-> undersized contact size can cause a divide by zero or make the contact
-> parser read beyond a record.
-> 
-> Validate both sizes before publishing them, and reject reports that
-> describe more contacts than the input device has slots.
-> 
-> Allocate the report buffer once valid main firmware information is
-> available, and resize it if a firmware update changes the packet size.
-> This also handles devices that probe in bootloader mode, where the packet
-> size is not known yet.
-> 
-> Finally, return main firmware query failures from initialization so probe
-> and firmware update do not continue with invalid report parameters. Keep
-> bootloader HWID query failures non-fatal so the recovery interface remains
-> available.
-
-It looks like there ate 3 somewhat independent changes. Please split the
-incoming data validation from the buffer management and handling
-bootloader query failures. I think only the data validation needs to go
-into stable, the rest are regular behavior improvements.
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

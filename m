@@ -1,111 +1,108 @@
-Received: from mail-dl2-f41.google.com (mail-dl2-f41.google.com [74.125.229.169])
+Received: from mail-dy2-f42.google.com (mail-dy2-f42.google.com [74.125.229.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 279A030CD95
-	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 04:38:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24F2A352029
+	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 04:51:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790570330; cv=none; b=FvMts4oYraIO41vYU3GRVzJIjpWiP2e3QY3S3tURC4ybbF1c+xw+ZZpXPc5z2rr8yupoH6tMu41PF/0qhwDUie/807N3dz1sRgunUoyBFEVmPX1edOMphtM8FJmTMhQjpr+YGHgHuXx8MkMvJsWyF5tAN281/utMtQD1QjSlexE=
+	t=1790571089; cv=none; b=LBUfRgarFs6L+xXwDziKQPv2fGe7PhBbnuFV6h3gsrLrs3AHt6965M2OQc/zlDZr+TCtARaE6zSmmqnLTyqYP+ioJeWUi5eCNKuOTf0bOtmXvL0u2VesADX/22j1MqJgN28WoJe3Cvf2jpEjuSXpjGWM06TveucOvX0OcWeqEhE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790570330; c=relaxed/simple;
-	bh=oYMPXUg5FRpTGpq/VChufToWIT8D2XYBNz1jqWQZd14=;
+	s=arc-20240116; t=1790571089; c=relaxed/simple;
+	bh=/RiLw2SErvUKqOgeJzpySOUxPAqr2XROBbtgzqBp1HE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FWkg+roYcroZ3Jl1OsAJvMcRLHFenO6YquGMUP5Rn5InPSAtsOSfwpB3/7b9DJs94pkz5d9qzewddnMdCwuiDKv4mwdSn1w2R/FvAVvONwkzQCQbaEmX1Hkhij5Qu5LQ2JEWjRGu3PTrafxzAQ7LCoDdsPYCElQ2xjVCn+2+5l8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q+S9GrTH; arc=none smtp.client-ip=74.125.229.169
+	 Content-Type:Content-Disposition:In-Reply-To; b=LWuJG5Hp5KmJx8m+FUn6JKml7/x/zBwJIpr3MO9cD3rc9nTvyEB9NOsHpQpgo8i0aJKiwEbY4JSrBcLjgk7vTBXeJbqouEtjPUdHPK6mc2PIUxzY7Z2QYRjlaNQv+BdhhsBAvHFsXNBaA6fqXyZbOuellrZ7VTCIH8wu6V984K8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o7ccztPx; arc=none smtp.client-ip=74.125.229.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q+S9GrTH"
-Received: by mail-dl2-f41.google.com with SMTP id a92af1059eb24-1474c6b7742so932579c88.1
-        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 21:38:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o7ccztPx"
+Received: by mail-dy2-f42.google.com with SMTP id 5a478bee46e88-341fe27b718so2591371eec.0
+        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 21:51:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790570328; x=1791175128; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=S9YFNOM35bVSfIS9/7AW72GbBEe1YCeVTQopxAj3TL0=;
-        b=Q+S9GrTHakmOPeFFNUbWxnb7iokwjTb6dKNPNxocRySVeYxMcySNBHP5pWjMFfqFeI
-         T1U3iRA9w5c2Isj9IZeQ/ZMvmxMK0eYpmgbQW6Jpq/mvQkc45mDAnebvBTfG5xnwvLWt
-         nFAia4LO2aYxcG/cwwftKzqy1RznYw7grjJ3GAwHISrkG+32oME39aG1suLcC+cnsP3e
-         8pCLXvmcix9WlPRnA5Hwx1haoQrW0GqjFM6vNZb3uzy3HMAiq/xmHLbssbRKT1ndq9c6
-         +qS50F2g8mvn0rXZIlJOeFImlPbKbq/FnZIrOKRs7kHf9qtGT1dLv6StiEsDCMVzxnmJ
-         DVjQ==
+        d=gmail.com; s=20251104; t=1790571087; x=1791175887; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=fxBVsadU3CapuSwF1ZwYMR5BhuIaCuGr5O6zle7Zy+0=;
+        b=o7ccztPxpxzhKsryUU5W3ki29pXPltPeaqr7hj1j6KqXGcLvALnP0J8kbzDYwDVw/a
+         XEgl3Hu37uW8e9r87QEM7N2pRr33Fanvwk2j6kw9YqPjLHWIqZ2QEkrSPa44mMr6v9ms
+         Hv2K+bJYOEQiNl/fr5AgpqGCD8m1sKPHF/Uzd2IF5h19Po0wnhQf8dJsQNjnTckDOMX5
+         qqUrjif4ryPR1gfsrk3qLyR+U/k+9IMahMkzQav8kuBBn3zIjwYHOBk/VXh9xRchJ77T
+         1/1Cue8wGD6DeSrcvV7R034lH9uViAVHLMhgwHkcZNTDbqiVJ8gxva10lAXFI4UIghKX
+         6SOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790570328; x=1791175128;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=S9YFNOM35bVSfIS9/7AW72GbBEe1YCeVTQopxAj3TL0=;
-        b=DWTtXHJMn7QXsqWJID4aYLuZOF2pQfMZsxYl2z0p+XkiSKH9eQ1oevxCul5BEZ3QKC
-         UYYL5RTnkTtvPDKjGpfxZsFFOGtES/CBumvNhJYKn+GaDG4tjG6apnwr9YVYi+xBc2i1
-         nZ1Ktz9yaz4ZAKNCY575oF/vY8fO30ea2Booaevc4PVOVWLhUEceEBmndFdPnSzbh6tL
-         i1WT6/oI+8nOiFMtpQzSiDyjdRA5E+o9aXE40EythOgznRnvRknlRVs3ctc2dqMCqyBM
-         lIJOYPlwBjjcYMyB3MojEEuzR5TwyWfmwIAytvkF+pHQTrS8VOInf9taj86RHVSfA42z
-         yb9A==
-X-Forwarded-Encrypted: i=1; AKwUvBxxQT+BHOD7nrd+2pFyHnme4fRYPZQu0hFbUhdwrEEPecPreeuYDP59kkgdSELlbyDWWbEExdoOGkD77w==@vger.kernel.org
-X-Gm-Message-State: AFuF++klQ2/RpTwDm2QivYaaYD2POIc8+VvlrV/HkU3qYL6FVt8iW2u0
-	eCgnQWxiq8ehSF2dsUV1J5lGldjE12gkTityBTCDCX38ic1Vbq0qvl2m
-X-Gm-Gg: AYBFou3c+d/Q2VRMur+cZ+CW4og2ERoZ7oMcMi0AwLwbo34w5EcfCu6IIHnzOVCU7Mv
-	EM0YeqEdT7pD0yBodtSogKgtp1mlAag4c5u9BCoEJzvh32kcfKtr7cGqKlTc4OAxUgEkgvUbKn+
-	oM9Az9IYW3eDDjxf6eRrjSjZcds40XrVahnyZhfPS0LOzdNxyddo57irUsU/yO7iekHaHmGj3dA
-	fHEwzzAhDaQU0sxJw2PoOIjsH29vCNp0l73d+87DXC79eV9fs78m5GYm95VhChMJDOLswE3wh7Q
-	WkqPL89OFQFIwpbZIbn+ITwCpR0GFkQlKP7XWtn4bAmpbzfLJePNBXEvEzxzchGO7w+F5gPAAa/
-	2WjrmJKVd/8ycaVGfsGEB8QCldSYNr1TQljODJoJOd6BUtjYRqmK6+I7EbdUPZ5CjHcylpRymPl
-	r71r0Gff+WBNhVrP78QrxFRBylyySvFhZou595JZKJ6sBl2+0GjrCao5DCUeWe07JZtLxyiC8kx
-	lSTaEAqb7I+Fh9/mBkS6vYFYwXmNkfIqlRlCUDlUg==
-X-Received: by 2002:a05:7022:b048:10b0:144:e658:94f with SMTP id a92af1059eb24-146d0f33db2mr8902859c88.43.1790570328080;
-        Sun, 27 Sep 2026 21:38:48 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1790571087; x=1791175887;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=fxBVsadU3CapuSwF1ZwYMR5BhuIaCuGr5O6zle7Zy+0=;
+        b=ZWhAFw3eOacRfL+yNE/FLev4WJ7DUhPv5+mjaRfFnBAyK5KwUmUI0iKwvVUFI2KdsG
+         BvSa8xzJnzMpC5zckn1sxiyp0EnAyJovX3OMSYgLlsRyRllQmPHiztwbVlvALzPxBshI
+         6c+Y06OBed2xddYQ/F8xwWglMappZ5ZpZzX5wrdlIzrfLWMpFBZB8Qm8xt91Dtb3G9/Z
+         QvUAvISRZRyAT+YKDONMOKY603stE+IkwtqIeOwd9TULp8tfFTEGnHHPhBaSR62sicV4
+         /tqyNRkEm4HmtyMp5Cup0zIZp4+qEFSXaq2/2jo2dM8vCR3ixgsLcYv+YqwpzRP9wdip
+         7kMQ==
+X-Gm-Message-State: AFuF++kWEmDk4skWF8ioOE2xKIg9BRcvYmHIl3SnOzHYCm1LbVaypM+l
+	zok/M4aZslX2BgK84aSlK9LShfbiGah8jIj3ASN9kIc4q6GXFEwUmyYA
+X-Gm-Gg: AYBFou3WTAXSevjbK4vBR001QUKQu+yssGEhexCbN1YIBk/xad0tG5djRDCpog9TcQR
+	v531pkDJmepCzfESStrzN9yA/ZSlDPo8lEw5DxdA8YuTEIN/vl72OQgrwBaEJojoKjiT0d9RIvU
+	nbCqejzCYH0UmpszTQqQmO90Bz2gWrHLZqAFhglQXXc63yrzC+2k+2D7vuCASw9bmjJ18rJZlFo
+	maZxSupAM541ccFrMpO0uC9cBb8CiEjCo0HEwStDJxqiWFPxLY2ANSSLMtvDB7dEEA1HzHj7V7d
+	DJrm7QGUMRRqn8sAR4YLY7AejlPF9cXbp+Dl2eBXofeaar3DvXExC5W8Fu+H/sbPMPp/HObzmnX
+	nQZeR+6TDaxmCBihxNV0djCmNKvztr72gHgwwpGUnH8WLhWAsL4v0usEQu7XDEbtKyKO8n5NEKu
+	wiafXK/cUlI1Xq56N214exlitYNFTjFfsh22Wevt27nMIq+v0Z41VVZHCV6CHe7ZQWIhuttf8I+
+	tXzdMzc/XQurtZxSNH2hTP0HfHvwCKQU43SormU
+X-Received: by 2002:a05:7301:4201:b0:33b:ea8c:811b with SMTP id 5a478bee46e88-3426fbbeb5dmr8469221eec.5.1790571086738;
+        Sun, 27 Sep 2026 21:51:26 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:526d:2f94:503b:aada])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-147913a776fsm16358758c88.17.2026.09.27.21.38.46
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34145c166cfsm22840869eec.28.2026.09.27.21.51.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 21:38:47 -0700 (PDT)
-Date: Sun, 27 Sep 2026 21:38:43 -0700
+        Sun, 27 Sep 2026 21:51:26 -0700 (PDT)
+Date: Sun, 27 Sep 2026 21:51:23 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: david@ixit.cz
-Cc: Andi Shyti <andi@etezian.org>, Rob Herring <robh@kernel.org>, 
-	Marco Mattiolo <marco.mattiolo@hotmail.it>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	phone-devel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] Input: s6sy761 - fix resume ordering and restore
- sensing
-Message-ID: <arnvS7Hk7uIKKLrZ@google.com>
-References: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
+To: "R. Larocque" <rlarocque@disroot.org>
+Cc: linux-input@vger.kernel.org, salmundani@gmail.com, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics - limit T440p InterTouch quirk to
+ LEN0036
+Message-ID: <arnyJnqIpwcwX2nT@google.com>
+References: <20260927005810.85971-1-rlarocque@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260927005810.85971-1-rlarocque@disroot.org>
 
-On Sat, Sep 26, 2026 at 10:26:47PM +0200, David Heidelberg via B4 Relay wrote:
-> From: David Heidelberg <david@ixit.cz>
+On Sat, Sep 26, 2026 at 08:58:10PM -0400, R. Larocque wrote:
+> From: "Raphaël Larocque" <rlarocque@disroot.org>
 > 
-> System suspend powers the controller off and resume powers it back on,
-> but the resume path enables the interrupt before s6sy761_power_on()
-> checks the boot. The firmware raises its boot-complete event on the
-> interrupt line, the threaded handler consumes it, s6sy761_power_on()
-> then reads an empty event and resume fails with -ENODEV, skipping the
-> touch function setup:
+> The ThinkPad L440 also uses board id 2722, but does not have the SMBus
+> initialization problem seen on the T440p. On the L440, the SMBus
+> companion becomes available shortly after psmouse probes, allowing the
+> touchpad to use SMBus/RMI4 normally.
 > 
-> s6sy761 2-0048: PM: dpm_run_callback(): s6sy761_resume [s6sy761] returns -19
+> The T440p's quirk is currently applied to all Synaptics touchpads with
+> board id 2722, unnecessarily disabling SMBus InterTouch on the L440,
+> as reported by Daniel Salmun.
 > 
-> Power the chip on first and only then unmask the interrupt. Once resume
-> completes the boot handshake the chip comes back with sensing off, as
-> at probe where input_open() turns it on, so the touchscreen stays dead
-> after resume. Send SENSE_ON again when the input device is open.
+> Restrict the quirk to PNP ID LEN0036, which identifies the T440p, so
+> that other devices sharing board id 2722 retain their normal
+> SMBus/RMI4 operation.
 > 
-> Tested on a Pixel 3 XL over several s2idle cycles: resume succeeds and
-> the touch function and sense status match the pre-suspend state.
-> 
-> Assisted-by: LLM
+> Reported-by: Daniel Salmun <salmundani@gmail.com>
+> Link: https://lore.kernel.org/all/20260925230039.236786-1-salmundani@gmail.com/
+> Fixes: 26eb3d92c7a4 ("Input: synaptics - disable InterTouch on ThinkPad T440p (board id 2722)")
 > Cc: stable@vger.kernel.org
-> Fixes: 0145a7141e59 ("Input: add support for the Samsung S6SY761 touchscreen")
-> Signed-off-by: David Heidelberg <david@ixit.cz>
+> Signed-off-by: Raphaël Larocque <rlarocque@disroot.org>
 
-Applied, thank you.
+Swapped the condition (since integer check is cheaper) and applied,
+thank you.
 
 -- 
 Dmitry

@@ -1,129 +1,146 @@
-Received: from mail-ed2-f35.google.com (mail-ed2-f35.google.com [74.125.228.99])
+Received: from mail-wr2-f34.google.com (mail-wr2-f34.google.com [74.125.225.98])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8CB4EBAED
-	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 16:26:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FCA24F3923
+	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 17:01:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.98
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790612807; cv=none; b=mGiYa9RZfUsOYXOn0jEwD+EReLsKn/CRhgNX3cNuL4NI7NyWidbXm57JycaKuCxGdiIcSwUR3CHRi50TUrax8Q5n+MNkDUtz4Nt+jmsTF2jgw7oisroHQP53ZDbXpAHfWsyC8yEQt9HDyWPGWCWSaGgjD4QkFP6sJ8PFzDcmZO4=
+	t=1790614902; cv=none; b=i9PPF+P0Oc6QHocbTI3jwASgq1KO2rFyyP6dgrkblov6HCZRna/nXegxXiKQVcupiKad+y2GSDbnwGgo4F6tLk00jRcgfXs9z/Rrjl3a57Xo1XlsiIhmuctcidx4qW7ro8PLEb2113gmCmJKy0bwkV7Hyh6CKKIFXe8H7nAcUkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790612807; c=relaxed/simple;
-	bh=A9JWXJhhYbjEw0Q/FmT2TC0JFq9NWAqh52pS9DhlAR4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iOJtCe6IGEPt+hWciebaRb73/gQMK9C8bfZbjWX7i9f6tSjuaFosiPNTTz1b6dYHZWWcgQZ+pPagbuUn0DVURW+R5j9bAN5JPfCskrevCRsBDJOtVg/g3sFHUsKtXslFuykcp07ESsXl2kF095bdW/r5IXvmHLlRuGjWR3Dk3wY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TH0fldog; arc=none smtp.client-ip=74.125.228.99
+	s=arc-20240116; t=1790614902; c=relaxed/simple;
+	bh=KAWoRJnQZFC+wNPZWuHpeFmk0SLt9PjBuOpYJLLP4iE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Y3ibHjRMds5Whisa6RrUfnAg//m2GrPjSWHz4OI2jgWgZoLFHY+BNKXGaOC4hVxRcz9nJ+O2HXRBpyeXuD5kckkbQg1K+CJLcDHMZiy1gTLIzn/NX+U6gDRME44acV+/qVDWeZEERr9U27g0woRUkrc5YHednFGpXBT78h9uMs0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=COrSW8I5; arc=none smtp.client-ip=74.125.225.98
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TH0fldog"
-Received: by mail-ed2-f35.google.com with SMTP id 4fb4d7f45d1cf-6a6056ac81fso4612093a12.2
-        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 09:26:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="COrSW8I5"
+Received: by mail-wr2-f34.google.com with SMTP id ffacd0b85a97d-48884b926f0so2082950f8f.3
+        for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 10:01:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790612804; x=1791217604; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ciF559s1gnabWjBTiObZN3nBwqiMjrqb8Ji1Ou0L1qE=;
-        b=TH0fldogRN5oibEj0bfbhKVI6R8puOEOaMRhE6kSVi2aKZzIyJZ6prBABkI0GS2i54
-         Rqd3oHua+WoVPUsjg1ezyPQMAGNuTztNM0t/SwMJRpu4ZZo/5rFxtlh6gXRZEMW6y3FX
-         dBThd5Z9yggoExThAVm6hOZ7TLOcS1l5zT/pll7nkXy98pT0yKf8MPn15IOmUxRh3iuv
-         SzCo8ovjO9DxGunlv+JAp+2OEbwC/aYWVzQ7tAbsKUJHO4O3I2IfZeoemjONdS30eFBs
-         4cAEiw27bncyCI1fgnnG1AENBiiGOYgOLzGTAdHE+RUT3CXFTJq0VUJ8EMUpoLR8zHjV
-         OewQ==
+        d=gmail.com; s=20251104; t=1790614896; x=1791219696; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=EJgu7dBVVSEoL1PykSd4+CN+iWvbT1X4zLMDrQ1CYXk=;
+        b=COrSW8I5oIlYJNFW4ZNHiR9J8DrzbJafA4LQndOwDgMnF8o4jxIhWIEe3lR4njGABO
+         2apxZCDqgDOV1x1tCUVqosVTYaWVX4ie9fXDslNBa2lN2Esbmia0phvYC0f+HeS7vfcG
+         KTaL71GaIl9WgTqSJJLgY6ipnn2LW1LOxz8ph84m9uTaw6XQ81q9FiAKBNdkTvWTp+PJ
+         pibZ7QTtgJoLgTSaEM1NUy+rdVVLoSvgLBBAL2t1X/90v6SX8z17g/97c6usNON+WLaZ
+         2kWPThlL2203LSk1UFCTH3Fl0mi8FY8xEPMLh/S+Ug+mqMwo1w8bE0IEh2wSMau8cmR9
+         21fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790612804; x=1791217604;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ciF559s1gnabWjBTiObZN3nBwqiMjrqb8Ji1Ou0L1qE=;
-        b=O1T+n1Y7uTrxDj+NWg33OaeB3cteOWT6ZAV4o45Zdc39Wz+TIo/7/T264zusdxKEPj
-         oUnGKEKdOwRYyM2Nz38ACHkqJ46BQxIeU0JazfEKesg5bc/iDKu9KEu9O7x4Cw48Zg24
-         X+O0FkwG48xOsjYamfawughH5uZnEsNATpyOZji1Y7dQH/wxo1YjfqgEg8YquhKfNG2p
-         ulaSkBI9NExdvnjAQ0mO5m+02ucu8Oo0oYILqRvpWWmnW9xSsHmabas71OvykEGgO34Z
-         8FiAjsRq6ZOMsUaUbvE868OL32n1bWODheyfIGKuPJ5NVtFN6ITx94+aUeprcWUfHoZ5
-         U8Pg==
-X-Forwarded-Encrypted: i=1; AKwUvBw1rOXITAYUOWXjOLCPmGcZ5xUro7GIrTlV8XEHiCKCLCC7IJuSmDqaMDhSB/rRnY19ayhlwqoW34c+EA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLXL28Mll008Kh9bpOUXxMvunda0B/gRFMdW8UljI6DkAXpv2xw
-	jvdCCUt+15jUtYQrt3jFwjrzS+7Azq32exi+DuvEy3QGcsAhRR2gN6M2
-X-Gm-Gg: AYBFou2xEdRJzEYbEOlRo6EqiejmRg23pQ/Ye/byDfnHkUBlFb+Qb9F6Y8amJHCArHa
-	/xRfSnkTXIDwoWO+oCNjO8DjFjU4aSFGdP4dPZIB2BLk/Rg64CGeCI5VQlOLh9OLN8IFErPBrDN
-	D7XsjZGLXTtbW/tVUg9b+icrA5FioPIp2lPGyHVn5m60Z5Cl2D4Zn5hXMnNnm/PLXbqlxZxFrah
-	dX2ReXUkgiFgjLNmEcJpBdd4c5J7LnSS2YvaQx/tN1HYcFBqi2fkM4IF0qbAFra3W7pGdkc/M0J
-	MUFOsoJc3rTmOzwyThx2OVZHRHN2mGr94Y/6eBmazvqxRN2Xkv9mlwAmBabJCkvtO2yOJdWsJJR
-	r4RRQ+r3BMWGEb7C3lfg7eyByWR5CksLK2IW5B3NYxcEALiYrv63XAdIcRwsUfOOBHDvFRhn4qM
-	8rsVA1SCUnSOGT3SKApeMJAAI+yTTH+zGKvWCfNNGDinh7mlRVFGXg1jWV+HB3XccHhkGOWfiF0
-	0jmg0Xcd1YSIG8TF/QIl9Y/VcADJkcZK/5E3+DCGuiDBKSUKyITCzA7Ba2CsNPXB9SrefURIOFw
-	1W7Hv7UdCnQ=
-X-Received: by 2002:a05:6402:23d2:b0:6aa:f187:26bc with SMTP id 4fb4d7f45d1cf-6aaf1873468mr5827998a12.39.1790612803776;
-        Mon, 28 Sep 2026 09:26:43 -0700 (PDT)
-Received: from localhost.localdomain (84-216-182-59.customers.ownit.se. [84.216.182.59])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6aae5cb9a72sm4277474a12.7.2026.09.28.09.26.43
+        d=1e100.net; s=20260707; t=1790614896; x=1791219696;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=EJgu7dBVVSEoL1PykSd4+CN+iWvbT1X4zLMDrQ1CYXk=;
+        b=GYCq8fkkgrxP5GE5r/XbYrI1Eig6a07lv0THwwWSZGF61QDNxytEfIl7YmQq20xi0t
+         ZDEJpmtgXZuE2FdHAiS6goD5r4fkpzyS58Mtz+517VZGU9FGWtJzf+55YsAi2VWSZyYX
+         r1oSSmrg63c1hN6eUHWlidEgpL9snGNk8aKlvTQlIX1JTWCQOCidK4Hd3oYPe2Weou/J
+         MnddZKIGtWGZCFrfFfwYJNKVdD8k0CC8+VUuM4De6D2ULjP9WUJ084+AAJwC4Vl9xUg0
+         ctnnC2W1fnYpfjLw7IOL4L6ss7TPyH+7ztvuhQJKBPEOktZFQcpHb89GbouuzqM1QuRc
+         kROw==
+X-Gm-Message-State: AFq9FYL9K3xDCy8owbobJeTjlbhw2QSyhrM/youNcgB4z56fryRcDIqy
+	37ERupJMsv1UaBzRv7aOlzrB67WRkKNisT35WM/zc9+CymKX9AKBoN8=
+X-Gm-Gg: AYBFou0xT812Fx+sQW4rtX8AU9TwiZsw/KasaolXUtlNXlAL5mB/glNltfH2FeBuK4l
+	jZ5JmZWtNLavbUhT8hD2840oWbSp7g+vHD7FkezyIeHK8alG0A861HO5lmrUyfFGSTAtaOddgSP
+	jIvvBOo9BrgWp/KZ1g6KLJoXtRnI7sYBwJd0JgKXr1wvfceUPt1RDpgANt2Yw76QfbjFcIV6WyM
+	a9Qd9wHKsGMXGtBtUfIODyOywUkWySr1BJCnwwbuQrl85jqQ7LJYDdKs111hAulyvyqvfeY3BgA
+	R65hAC4x6uNYOrWsrFDtO8XYClp/JtPDRKQ7dQtbiKcewB3tjBCuvftDVs4oMhJW0aMDC2ClTRJ
+	W42mqIUClpaMzzyVwDt6KVBykoQQrdOBbJNAAxMRpCIz5lhafyERv8LVuNQBaEznuwkir3wVFy4
+	GJ1rrgW5ccUxS45RGQt0lqRq8S2pqi8pMTKJQBwdT8vjtlCu7SH5WTkAy/3x2SttFWBub4wa/Br
+	MpcPD99DXGjl/jhFXGqxczStSXXkjAA66tZbeSyiNVpsgInMoyqSFmTE7E=
+X-Received: by 2002:a5d:59c9:0:b0:488:8232:d16e with SMTP id ffacd0b85a97d-4888232d398mr16910718f8f.45.1790614895902;
+        Mon, 28 Sep 2026 10:01:35 -0700 (PDT)
+Received: from localhost.localdomain ([31.223.84.8])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4887a349731sm29240918f8f.12.2026.09.28.10.01.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Sep 2026 09:26:43 -0700 (PDT)
-From: Pooyan Azad <pooyan.azadparvar@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
-	Muhammad Bilal <meatuni001@gmail.com>,
-	Herlangga Maulani <w1zardsec@proton.me>,
-	Rob Herring <robh@kernel.org>,
-	Jeffrey Lin <jeffrey.lin@rad-ic.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/3] Input: raydium_i2c_ts - defer report buffer allocation
-Date: Mon, 28 Sep 2026 18:26:18 +0200
-Message-ID: <ab1e1006a0ddebacc8b36023a062651fdbe57e97.1790612085.git.pooyan.azadparvar@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1790612085.git.pooyan.azadparvar@gmail.com>
-References: <cover.1790612085.git.pooyan.azadparvar@gmail.com>
+        Mon, 28 Sep 2026 10:01:35 -0700 (PDT)
+From: "=?UTF-8?q?Habil=20Eren=20T=C3=BCrker?=" <habilerenturker@gmail.com>
+X-Google-Original-From: =?UTF-8?q?Habil=20Eren=20T=C3=BCrker?= <habilerenturker@hotmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	=?UTF-8?q?Habil=20Eren=20T=C3=BCrker?= <habilerenturker@hotmail.com>
+Subject: [PATCH] Input: fix potential use-after-free in input_devices_seq_show
+Date: Mon, 28 Sep 2026 19:56:48 +0300
+Message-ID: <20260928170051.58695-1-habilerenturker@hotmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Devices may probe in bootloader mode, where the main firmware packet size
-is not available yet. Allocating the report buffer from probe in this state
-requests zero bytes and leaves a ZERO_SIZE_PTR until firmware is updated.
+The input_devices_seq_show() function accesses the input_dev structure
+while holding input_mutex. However, the device can still be freed
+concurrently, leading to a use-after-free.
 
-Allocate the buffer from the main firmware information query instead. The
-query runs before the IRQ is requested during normal probe and with the IRQ
-disabled after a firmware update, so changing the allocation point does not
-introduce a race with the IRQ handler.
+Fix this by taking a reference to the input device in
+input_devices_seq_start() and dropping it in input_devices_seq_stop().
 
-Link: https://lore.kernel.org/r/20260927114425.442803-1-pooyan.azadparvar@gmail.com/
-Reviewed-by: Muhammad Bilal <meatuni001@gmail.com>
-Signed-off-by: Pooyan Azad <pooyan.azadparvar@gmail.com>
+Tested-by: Habil Eren Türker <habilerenturker@hotmail.com>
+Signed-off-by: Habil Eren Türker <habilerenturker@hotmail.com>
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/input/input.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 00990c61010f..1d7f53d0b9fe 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -373,7 +373,7 @@ static int raydium_i2c_query_ts_info(struct raydium_data *ts)
- 		if (error)
- 			continue;
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index cf6fecea7..14a95e816 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1051,6 +1051,7 @@ static __poll_t input_proc_devices_poll(struct file *file, poll_table *wait)
+ static void *input_devices_seq_start(struct seq_file *seq, loff_t *pos)
+ {
+ 	struct input_seq_state *state = seq->private;
++	void *v;
+ 	int error;
  
--		if (ts->report_data && ts->pkg_size != data_info.pkg_size) {
-+		if (!ts->report_data || ts->pkg_size != data_info.pkg_size) {
- 			report_data = devm_krealloc(&client->dev, ts->report_data,
- 						    data_info.pkg_size, GFP_KERNEL);
- 			if (!report_data)
-@@ -1135,11 +1135,6 @@ static int raydium_i2c_probe(struct i2c_client *client)
- 		return error;
- 	}
+ 	error = mutex_lock_interruptible(&input_mutex);
+@@ -1061,7 +1062,11 @@ static void *input_devices_seq_start(struct seq_file *seq, loff_t *pos)
  
--	ts->report_data = devm_kmalloc(&client->dev,
--				       ts->pkg_size, GFP_KERNEL);
--	if (!ts->report_data)
--		return -ENOMEM;
--
- 	ts->input = devm_input_allocate_device(&client->dev);
- 	if (!ts->input) {
- 		dev_err(&client->dev, "Failed to allocate input device\n");
+ 	state->mutex_acquired = true;
+ 
+-	return seq_list_start(&input_dev_list, *pos);
++	v = seq_list_start(&input_dev_list, *pos);
++	if (v)
++		input_get_device(container_of(v, struct input_dev, node));
++
++	return v;
+ }
+ 
+ static void *input_devices_seq_next(struct seq_file *seq, void *v, loff_t *pos)
+@@ -1077,6 +1082,17 @@ static void input_seq_stop(struct seq_file *seq, void *v)
+ 		mutex_unlock(&input_mutex);
+ }
+ 
++static void input_devices_seq_stop(struct seq_file *seq, void *v)
++{
++	struct input_seq_state *state = seq->private;
++
++	if (v)
++		input_put_device(container_of(v, struct input_dev, node));
++
++	if (state->mutex_acquired)
++		mutex_unlock(&input_mutex);
++}
++
+ static void input_seq_print_bitmap(struct seq_file *seq, const char *name,
+ 				   unsigned long *bitmap, int max)
+ {
+@@ -1151,7 +1167,7 @@ static int input_devices_seq_show(struct seq_file *seq, void *v)
+ static const struct seq_operations input_devices_seq_ops = {
+ 	.start	= input_devices_seq_start,
+ 	.next	= input_devices_seq_next,
+-	.stop	= input_seq_stop,
++	.stop	= input_devices_seq_stop,
+ 	.show	= input_devices_seq_show,
+ };
+ 
 -- 
-2.43.0
+2.47.3
 

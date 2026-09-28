@@ -1,158 +1,150 @@
-Received: from mail-dl2-f43.google.com (mail-dl2-f43.google.com [74.125.229.171])
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 329A922A7F6
-	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 05:24:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790573060; cv=none; b=tpef0m1ZEhA2gBDVenxN4XCwzmYPCAORjaf+f2mCxO1Uzza5tCQEwjk/eaUZy7r5CRAHMfSTehIGzyhg9c1KBR1AdJ7bvpT+AS8KmYuZbPAWu1PbDwIwDqhFGNTVdPgjsscbV4EO3BUQ61Fbt+QSivTLK6CMpGjcJ0iDneEXdaM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790573060; c=relaxed/simple;
-	bh=OW3IsxBl6tCqKKAnstBEUrLHOa6AKWtDkVy2NAn8chY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=em6/jriJtoUEBeGa8l3C4XIe+WMYmE3MULj9nKg1PL9N1fXyx/QGVWRCXLRYRKmxz9hAtKyHa2dBi27GmBQQJw42Ct0gmQxga1AcnbGi0hyeOS+6ckrAMkod3mjw7vv9BniTpqGPg9CMFk5Y0+uwmz/wOf84ofUO/fMtqumvYWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kG1rWeNN; arc=none smtp.client-ip=74.125.229.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CF1935C69B
+	for <linux-input@vger.kernel.org>; Mon, 28 Sep 2026 06:04:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.225.141
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790575500; cv=pass; b=a/zN/UPrA0BKrtXATuzbowtuaQbJsWoN//Z8NU587/GkWQNFtofD++xPP37Kgy+LDIPT2qcV2XLWq5oMaKZ3aKkHN/R9FEnr2IiWzKYCUhKXY+bWWYb1eqTX630VaXVNSayGnGkb5fK3WcogxwNSpRB4fS1lXfeeH5wxZmM7Yxo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790575500; c=relaxed/simple;
+	bh=GYLuVesnje3a3q8fx40L4GXeBGM+JoVDaVm2RxVQTuk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jajEVAI3bGM4O3lBWIeXcNFDw28Xm33LoS/J2wEbDc7Ufxz+MURWK0i+zCRYfYc1jZJwNFsqrPun0pzssd2cNlCixIZysWdpx94Mo4JVB+yEqGaHgZ65buPhBDBEzPOMcRclmZZlpjzoGHoq6zT/Omb0inRqmwN5DbMQcGJ6Iuw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ISvg+HHs; arc=pass smtp.client-ip=74.125.225.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kG1rWeNN"
-Received: by mail-dl2-f43.google.com with SMTP id a92af1059eb24-142dd04edb5so4399040c88.2
-        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 22:24:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ISvg+HHs"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e83a388f8so19680105e9.1
+        for <linux-input@vger.kernel.org>; Sun, 27 Sep 2026 23:04:58 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790575497; cv=none;
+        d=google.com; s=arc-20260327;
+        b=HYhG5s6ftrFDh270vdgq8qOKZOwsHDqr0H+FzdKIHASEDYzRrq26f5j7UXPOa88/P2
+         HQ4P4qEFYCilWJCNfyPexNckbi0RvoYNYrvXsnyMEyUADbgB0dfhKHmNlbDdPCqwvM6u
+         DU0QknEjXe0OEI9wxYqZsPF9x34l9RFMkrKmZE61P0nx74zSsMmW4cla2HSn/7BBTwum
+         LkHzXSTZ3AO8RzQ8BuzW6AhqkcwlDPKAVpw2baM+Exfd0XnzLJ/jU1VHdnCq706dDQBL
+         +AkS5ATW5M0lOTixLEZMLnPAeK1Kpn8K0vni1dyCDSE+j+rZYPAo/4O69xmwBUmpQyHJ
+         jP/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=GYLuVesnje3a3q8fx40L4GXeBGM+JoVDaVm2RxVQTuk=;
+        fh=UDZwEzLTPam51zXlKbMkSer/FKnKbvHGqP5JsJ7b4jg=;
+        b=qFtT0ojRYJLNYeR8Ehguge0D1fm7Nnn6uKuq8Vfys0cZrmv0J2qYVZiIz/cvBfmFVC
+         y1eyNsheTlzndLq8NvX8AJkpmbewuQD4tq1WlWZh1uCvQwnIDtFClHSIfqdeZ0raF31H
+         +T9pQA8r6o4HLw6okpz/gZY5uEGjyKhW1SiHMw9b/uZA+9FlMJw3RPamrDTT1cfZZHpN
+         Ve/WuUjjtNELkcwXI7Q+21+Yeuz7RWd5fgUM8oBIuWqBy5AzMwCS/OqMWjH5fTZCuHbw
+         JyTUX1w/exX8XMXu5+S84o0QwZgr8Gs3Kowj5NDKamVIemiSypqPUOPLP5RN/GM8R00Y
+         z4EA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790573057; x=1791177857; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1790575497; x=1791180297; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=CcMHtJq/SKFUMlfzan7qThpVdoDXAq0IWpnhSiUtUuM=;
-        b=kG1rWeNN94iz/oRwmPRjYsa+KaOoclyv2dWKUpy+QHdSMayLY4TM8cyl6AJ3a9fnlB
-         VjtwOE0hGiUBmUSmaHIl4h3Kg87XBX0W53XEpLO7xvQ6z9yCQD5yWisMlLLLBNzV5+U/
-         iHr4PTaRx6yvstCQmIKw03Onbss087HDAK1+hL6ehF7nKaNQ8oifPgP9ossCHqgXwfql
-         hGNagzrf7t8+IWieI0GQr8k95sRAD0otVRKx12YPqCHBJZRJhsoSG/mwM/tEoNmKML0H
-         rR1dT8eyjb/lWuImWsWZ50fOBe57vluOnENmIXHW/Xgs0q+YJ7U5suyRLb2Q7rYTyRE2
-         V/ag==
+        bh=GYLuVesnje3a3q8fx40L4GXeBGM+JoVDaVm2RxVQTuk=;
+        b=ISvg+HHs0Vm0kqLWM+2/0HRrZVYH+VC1VhwlHOLDmCvsx91QfggJxDXqNrK9ECD05k
+         lnCYubiO8LVc9K3qp7IywkBFt4ARA1G4P3P1DUJpWJnTnDTrISeynfHNRyWw52wsGo6E
+         SS0lck2gn17ckG2MAWItOe+ZQ1eX4LVn/yb9bElk3izPGGM3FpcOMBFz/3TiNDAt3Ofh
+         3QNLuuPrrbpPgLh0jVyBJed1e5C19VBhpkxuUJ88XF5IoFb8aXsKQ3970eP8on3/5P8K
+         fvlpuH2Unxhg4j6UMJYlqneV8BalfgXvEFxCk6mxfTx+F5rm0I2MmX3/ulouaFx6krWH
+         u6CQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790573057; x=1791177857;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1790575497; x=1791180297;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=CcMHtJq/SKFUMlfzan7qThpVdoDXAq0IWpnhSiUtUuM=;
-        b=KZhEiQDOn1qsBe+x/mO6966+TzFksVPnRS3nzimfslAzZsoXEt6hdcrTpKC7h1PpWE
-         gljZtSvLCCI+br6G1MX597tllP2pSVUJFup35Mjo+5hJv3OAYuQEOVwo82VZHCgGCVah
-         Npi+fY39xe7cYSw8H6Ps6FctiuZmOjL/Pu0XT71lP64N7P6m6Qm0z+WyMd/IMqXfHlS1
-         1BIqYuS/AvCmAzC3FUbcdzmnOSI8js+oac9YNhOxqzOOoQn3rkEGmFuxD8HGDVtw4Dha
-         QYouj+Fd1w23GjLXvjvTyOTEkVnMf8N6hKMgRuMnFoRg6OsH004iOZifqQUNZe9wzk7o
-         wkDA==
-X-Forwarded-Encrypted: i=1; AKwUvBxo99Yn3UD3pu85WGCodS/wCdgrD7f0ZV7yvxegzO+0vJ+nfU0Wdn5kNkaxrQGQsSV9ztZbntz8qxiP9w==@vger.kernel.org
-X-Gm-Message-State: AFuF++lLuM/eWKL4j6DZ0qNtKe+67QVLdJK6C9sjcsO0VsjMdBs1Riad
-	RTlpNUxX9PBv+6VgWpITmGykKMxfGgAuuoQJNL4emK8EOLJCJFEaF9Aa
-X-Gm-Gg: AYBFou3M4Nit7CTHjb8hXju8tcajMU7WdFI5oISYLWZpyG1nfq/6NBFv+AD4W6FrIaa
-	P5xBIVyriRF6WHbdYwH+VcxlPpegUZ8PUPHTb/TM4Pwbjkk2Gy7JpAt9Kn/wff7ZAflKW14T576
-	PoVL8VdZtPwD8EhK300YSKIzZ5tTqzuY1q77nyWSzlFtibvoSv/C2ZESO3q3H1tdTG6HxP9xsqO
-	rwCU1UU4OiwPuMnqmoW/E+ZCemdsxH/ohdacwoO23aaOrjuzlJbCim/CgsK77SY5Q5S7SVIFPZ1
-	pkc2bj9khofvFJyPxvwBPZmv4rPzxP5lTzWE+tb5oT84AghYjvKTVAVVndnhGumImAc8LhB5Flj
-	DEqM4TRfURgsQ3TrTIbNkKofXnY0aymtkDM3aQpxCd05JrPvW1w79USMdd2J3r2bd2g0OgAEJCy
-	cSmVEUZObHy85boNrBAuU3wgWniJFBSc1dM/Gc3sbJsAPfQ057CfSrmbTWn/3M426XDhCFzq8c8
-	GsLARr4/UkLR5IH+y5cJrlnB3L40ukqwGVr4jH7eXHVFwEkYrY=
-X-Received: by 2002:a05:701b:4346:b0:144:ed03:7c6a with SMTP id a92af1059eb24-146ce680bf8mr9028371c88.15.1790573057171;
-        Sun, 27 Sep 2026 22:24:17 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:526d:2f94:503b:aada])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-146bb6551d9sm14745215c88.9.2026.09.27.22.24.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 22:24:15 -0700 (PDT)
-Date: Sun, 27 Sep 2026 22:24:13 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Danish Khateeb <danishkhateeb03@gmail.com>
-Cc: jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: microsoft: cancel the rumble work on removal
-Message-ID: <arn5XTGp7XIOmdB2@google.com>
-References: <20260927011220.4193-1-danishkhateeb03@gmail.com>
+        bh=GYLuVesnje3a3q8fx40L4GXeBGM+JoVDaVm2RxVQTuk=;
+        b=KhWNWCwtlr/yL86cVrfwvVSzIkuLmWq2BEVS7nI3u9HzWF+YXxteDoM6KQW7APjNow
+         VFVg5HeZAWOMp54bD1ahgLjzsrp1/9W3TxPh7eV8GokGd2gheU+ILf6697PoxyfZZGGI
+         iC13149ro3tsV7jFZTADnK/P5hMyS+SGcoHtYewv06q4s8n7iixwIokUeR2E0zoylrLl
+         e3o2en1//AHWug0WyVze2A7GfWpMNrp2o6EDrtwhCkGSSVBBN8CKVZ3pxjVAW+4g/hcd
+         cTAih8E1VRxVP3qW5OeN3d7yY8iw62KdKJD45izrzYTwbjYSqhqTAlkYzXFWu1jsgm+x
+         W8hg==
+X-Forwarded-Encrypted: i=1; AKwUvBz5cCzr31kmyTglOjHOlDiQvZms6as1q5WTW41+aQNLuxjuokHVHywiRZ0GpiqQz99hvcIGRSgxR2kIxg==@vger.kernel.org
+X-Gm-Message-State: AFuF++mbAlPTwfuWpWqgdJoyezcygZKUYWFgYUgAxOppFKRkDAepNLit
+	6GdT5NlbmIbwMdjCvSSw5ZMqvvraaiYB8eyzTAu7p4PZ/1pqYFXix/rCaKANq34hLKo3M/EtTKz
+	lYDP/q6D52pAZw2u7Z1C3/OzPwWavLSA=
+X-Gm-Gg: AYBFou2XozerrTD2UF4WtLpuJuCDycYRNHMj2Ql71PFdpzH7KBZEqPvBJw0Ugom/ky6
+	JsB7/+ytqxluBu0hJ3tClcM/01ZcEZ4ug0tGl+BfAAnJ4CMPAueAh3xMpkKw/UH1cMhE0SaueNk
+	wcMmmTR2zY5ztd0u6Eo740Z6ro7LVMxsVongPmMPDcOLI7MerqS+my2TFAEMLTHUapDKil/Bdv5
+	CppvQ/1qc/CgvfBPgxGryRLjot8uThP4tZTMBENk8pC/itymYvFHo+y4P5oiXXW8COEsWr7eLL7
+	tN9i7zx6zEvvSvp1vG2+mtk91EocJ3yRoEImZskfkK7daTPDh4+6tZzjkSoiPVf1Q80dz9N+6X1
+	SXxEhLQ5TEwhSvbgGdfJz6W5IIP5uBnB31TcWfeqoffc=
+X-Received: by 2002:a05:600c:314f:b0:49f:e4ca:e09 with SMTP id
+ 5b1f17b1804b1-49fe66ca9e5mr205820295e9.3.1790575496482; Sun, 27 Sep 2026
+ 23:04:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260927011220.4193-1-danishkhateeb03@gmail.com>
+References: <20260927114425.442803-1-pooyan.azadparvar@gmail.com> <arnRiZyWe6zmd68S@google.com>
+In-Reply-To: <arnRiZyWe6zmd68S@google.com>
+From: Pooyan Azadparvar <pooyan.azadparvar@gmail.com>
+Date: Mon, 28 Sep 2026 08:04:45 +0200
+X-Gm-Features: AclHuK_3fgXapZcya5CBrYMS9Xf5tOl9z-cRxefBRXPrIhRa93bw0gYBhPqW9Z8
+Message-ID: <CANC3H+LG5tHnSU+8cnBUt1HEyUecN7M7=guF0yr6AOTa3cGtUg@mail.gmail.com>
+Subject: Re: [PATCH] Input: raydium_i2c_ts - validate report parameters
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@baylibre.com>, 
+	Muhammad Bilal <meatuni001@gmail.com>, Herlangga Maulani <w1zardsec@proton.me>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Danish,
+Thanks Dmitry,
 
-On Sat, Sep 26, 2026 at 08:12:20PM -0500, Danish Khateeb wrote:
-> Commit 1cfc77a64b71 ("HID: microsoft: move FF initialization to
-> .input_configured()") removed ms_remove_ff() along with ms_init_ff(),
-> and with it the only cancel_work_sync() of ff_worker. Nothing waits for
-> the rumble work any more before devres frees struct ms_data and the
-> report buffer that the work fills in.
-> 
-> Removing the device queues the work itself: hid_hw_stop() unregisters
-> the input device, and if an effect is playing, input_ff_flush() stops
-> it through ms_play_effect(). The work usually runs before remove()
-> returns, but nothing guarantees it.
-> 
-> Cancel the work again after hid_hw_stop(), when the input device is gone
-> and nothing can queue it any more. Initialize it in ms_probe(), so that
-> it can be cancelled for devices without force feedback too.
-> 
-> Fixes: 1cfc77a64b71 ("HID: microsoft: move FF initialization to .input_configured()")
-> Assisted-by: LLM
-> Signed-off-by: Danish Khateeb <danishkhateeb03@gmail.com>
-> ---
-> 
-> Notes:
->     Tested in QEMU on a next-20260925 KASAN kernel with uhid devices bound
->     to hid-microsoft: an Xbox Wireless Controller (BT 045e:0b13) destroyed
->     while a rumble effect was playing and its evdev node was open (20
->     cycles), a Natural Ergonomic 4000 (no force feedback, 5 cycles), then
->     rmmod. Tracing shows the removal queuing ff_worker. There are no
->     warnings with or without this patch: I could not reproduce the
->     use-after-free, as the work always ran before remove() returned. A W=1
->     build is clean.
-> 
->  drivers/hid/hid-microsoft.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index a7d3493a6141..1b527954937d 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-> @@ -335,7 +335,6 @@ static int ms_input_configured(struct hid_device *hdev, struct hid_input *hidinp
->  		return 0;
->  
->  	ms->hdev = hdev;
-> -	INIT_WORK(&ms->ff_worker, ms_ff_worker);
->  
->  	ms->output_report_dmabuf = devm_kzalloc(&hdev->dev,
->  						sizeof(struct xb1s_ff_report),
-> @@ -358,6 +357,7 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		return -ENOMEM;
->  
->  	ms->quirks = quirks;
-> +	INIT_WORK(&ms->ff_worker, ms_ff_worker);
->  
->  	hid_set_drvdata(hdev, ms);
->  
-> @@ -384,7 +384,11 @@ static int ms_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  }
->  static void ms_remove(struct hid_device *hdev)
->  {
-> +	struct ms_data *ms = hid_get_drvdata(hdev);
-> +
->  	hid_hw_stop(hdev);
-> +	/* Unregistering the input device stops rumble, which queues the work */
-> +	cancel_work_sync(&ms->ff_worker);
+Sure, I'll split these up in v2 and keep the validation fix separate for st=
+able.
 
-I think this is too late: by this time the hardware is shut off so if
-the work is still running and tries to access the hardware there may be
-failures.
+Thanks,
+Pooyan
 
-I think I will add support for "slow" effect playback to memoryless
-handling so that the drivers do not need to worry about managing their
-private work items.
 
-Thanks.
-
--- 
-Dmitry
+On Mon, Sep 28, 2026 at 4:38=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Pooyan,
+>
+> On Sun, Sep 27, 2026 at 01:44:25PM +0200, Pooyan Azad wrote:
+> > The controller supplies packet and per-contact sizes used to allocate a=
+nd
+> > parse touch reports. The driver trusts these values without validation.
+> >
+> > A packet size smaller than the two-byte checksum makes report_size wrap=
+,
+> > allowing the IRQ handler to read beyond the report buffer. A zero or
+> > undersized contact size can cause a divide by zero or make the contact
+> > parser read beyond a record.
+> >
+> > Validate both sizes before publishing them, and reject reports that
+> > describe more contacts than the input device has slots.
+> >
+> > Allocate the report buffer once valid main firmware information is
+> > available, and resize it if a firmware update changes the packet size.
+> > This also handles devices that probe in bootloader mode, where the pack=
+et
+> > size is not known yet.
+> >
+> > Finally, return main firmware query failures from initialization so pro=
+be
+> > and firmware update do not continue with invalid report parameters. Kee=
+p
+> > bootloader HWID query failures non-fatal so the recovery interface rema=
+ins
+> > available.
+>
+> It looks like there ate 3 somewhat independent changes. Please split the
+> incoming data validation from the buffer management and handling
+> bootloader query failures. I think only the data validation needs to go
+> into stable, the rest are regular behavior improvements.
+>
+> Thanks.
+>
+> --
+> Dmitry

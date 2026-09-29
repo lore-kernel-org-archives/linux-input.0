@@ -1,120 +1,151 @@
-Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from outbound.ms.icloud.com (ms-2004e-snip4-10.eps.apple.com [57.103.74.200])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3A737AA9E
-	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 17:29:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AB80457E4E
+	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 20:37:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.74.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790702948; cv=none; b=doAN3wpVcF5rgxZlrtZS3gn7xiNAyn33xtLFiFZBowy0WVkhMj3FQVpIFQ6uFnogIUM3YvRHtmE6+/VAZ1qlH2NlqXM7A8xgq8OoWz+Tt6z4qWRZPmLJnDKrSRRY6TwY1xo777kAhJ8mNjwKlDEUDbBVtl32y2vZqoHQfK93oAI=
+	t=1790714236; cv=none; b=rgvxVo7deUzga9qPCCBkXFMSAvoglZGCBrNucGNZpQWvfHLccvfLR0AxWCACRRcz4qkQk4K2sG4A+2CL2Hu8BfSHgQsKtu2udt5Uxc9QOwwm5Q/NkyGJtWdADqj68mS4WMoqoZvPMGYIAH4PRMCxfeVnLUt3O5aoBq2vD5i9Su8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790702948; c=relaxed/simple;
-	bh=NCnkL09yq/ZbgV5OpIBuVnAcKZhxoffH1DwX/cYV/9g=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KvxFGiZqvCQ503MRl5tYUcLuFPo3hKLnSnoaONaklamZsj0oP59aZ4/jsOE/gocWYN7t+ecdEPZiFTAVeMrnnGhSsklEAwcZ70y2QKqSPJyXEVhsQD1ozX2LVc6N4hywuCREXYVGRsOraB4dr/nLOXMxbmjA1lVi40ALM73sr3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kmkgiuf5; arc=none smtp.client-ip=74.125.225.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790714236; c=relaxed/simple;
+	bh=CmlE80pSLORwSx812eu1SFv+69BqG+tG5JfC1lXaUWw=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=gFPAdpgtpupFGJc4xuIWC7sV20iKjVrOgqsbBk8qWjKYG9z/rxoM0Po9GpZsvVDPFE1MLDCJ/laaJXHlMQdG7JDlTSryseMgovdk6lUWTpiHVxQqnmNustGI02bkIkE3XV3ZDlseAgI70P9uH57RCxRJv4e/YbTsapJtUt/Zpqw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lcb.to.it; spf=pass smtp.mailfrom=lcb.to.it; dkim=pass (2048-bit key) header.d=lcb.to.it header.i=@lcb.to.it header.b=Hmma00I1; arc=none smtp.client-ip=57.103.74.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lcb.to.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lcb.to.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kmkgiuf5"
-Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49e79a408deso28248205e9.2
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 10:29:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790702945; x=1791307745; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=NCnkL09yq/ZbgV5OpIBuVnAcKZhxoffH1DwX/cYV/9g=;
-        b=kmkgiuf5e9WUQfSDfKmaYRbqLtjTFm+9n1wnTFWehnedCSoG2IlT2XCNURVSrtQFRd
-         7HzmImYloA3ELsogTL+DYsA/prHXbwrOAEQZvVLzhedtiFjsXibyEVyWkMybeymKWRl1
-         CHylpEzvNy2Tkoqw15lmedYSaRa+qRxYz+Nkb1E7b+Qqnc+is2URyfVqEve6gxzoE15b
-         Q6bAXL01I2ltCcjnA/z4Q7TNoCbvWEG5NsqmMXcGaY9mvSppVnqxxWPG+gjfJQMIPnV9
-         HXKl0nr1S3/sRwJsvg4PQtgWSxN0uWWQQJEN+KQJwv8IO4IKXShcL9RgwXIQG48jiqXq
-         qCag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790702945; x=1791307745;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=NCnkL09yq/ZbgV5OpIBuVnAcKZhxoffH1DwX/cYV/9g=;
-        b=20S5Qq8PbdEu6BHTRPhA82Q7Eq7/pnRmL1zWt+eD+W7R8ddv4R3Kf8e39F/iWs0eXY
-         a7k2tE6KoseBfy8/3eZxjj6la+daiiv8fitlhkoUJY8mCMwaotTVI8cGnp/L4MdLZ1xy
-         rUQnoa7PupqJMRJj8QZf/gy4j6i4cDYD4cR5InfonwV9k6Hg3euhcbL3iiH0A6svUVRy
-         RzMswj9PzRQ5tqC4UvUrDPv7kKbcqQTexsryyrXK8607R9OzSoRaRR25KlcxgwScd95U
-         PEoxEm+H18gFamkI3G9C7ImQ54g/BU80f4O1aF1/IwvMNbIe0YJ6anJhpbznuxfKRN46
-         AnsQ==
-X-Forwarded-Encrypted: i=1; AKwUvByanpu3MkcNAda5WeG19zfaO2cv35wz5hifqh7s9Tj7Kpva6k6+8VHQzoFysgkyMFNV6QmkG/deGxjBgA==@vger.kernel.org
-X-Gm-Message-State: AFuF++kKmv5l+vs3te3UaOfDYBXhP3aYtD8jWZGkmCl3o8CHRIooY+ru
-	aTR6NuHNjryZwG+Aih42clB5uTMSUqJxRzfw+xy5otWbc5C0b7PoTncN
-X-Gm-Gg: AYBFou2NQRDI5V3tV4waSccgPa7nqaHQbHQjtDSLEna6MiTFKFWNy1FT0EyJe83A5DO
-	8Ch2Lx85lTW08HQWfW+LrHiWRD016wWLljG//e/DxZKK/vUBvBLpMG0C0A4L8eg095jZfLMRx15
-	7aM65IHlOnOUNvXkQRURzlj+q9poutvpW1EpcJAPwobkP4c01w5f/8xk7Hpnf9C988Lzv2zQLne
-	LYPfJwAZZ+IOBVjQvAhmY8gXeADcCka5Wpep/YLHZ2ixbRui5ST8zFdhVVunPnjOYOZR7i0ZHXx
-	PcZMmZdDLn4qj7pdo8qBlZcZIHtKZo6EtY/qec8sbbI7pWJHVddVyD9Aqooyj09SRm6kIweSeZ5
-	+I6OowpCnRAGKC9tcPDrGjMk5TtEV4KF8UnvMtKNCmbc0XzNvgaFry8sHhqY6hWo0C2ZR31lfvH
-	7yUD6+T3f6MuiXqFcoVoh+9te+CwUaY9iRcBjlG9lytwq70KrRSxlVPUqhEbuFN7kZdSKvg00Tz
-	5Cbt+l5veRUl3To8m75+dSwEbobt1xdgfpDSIL6ZVScaFOiOzipExDDHV9F01x9LFELbw8K4/AZ
-	Q39O4Q==
-X-Received: by 2002:a05:600d:6402:20b0:4a0:98c:596f with SMTP id 5b1f17b1804b1-4a0098c5c28mr65592195e9.12.1790702945279;
-        Tue, 29 Sep 2026 10:29:05 -0700 (PDT)
-Received: from localhost ([188.234.148.119])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01489a590sm3572765e9.0.2026.09.29.10.29.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2026 10:29:04 -0700 (PDT)
-From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-To: tiwai@suse.de
-Cc: tiwai@suse.com,
-	perex@perex.cz,
-	jikos@kernel.org,
-	bentiss@kernel.org,
-	mikhail.v.gavrilov@gmail.com,
-	linux-sound@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH v6 0/2] the Topping M62's vendor controls, on the component framework
-Date: Tue, 29 Sep 2026 22:29:02 +0500
-Message-ID: <20260929172902.210581-1-mikhail.v.gavrilov@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260904165848.3940603-1-mikhail.v.gavrilov@gmail.com>
-References: <20260904165848.3940603-1-mikhail.v.gavrilov@gmail.com>
+	dkim=pass (2048-bit key) header.d=lcb.to.it header.i=@lcb.to.it header.b="Hmma00I1"
+Received: from outbound.ms.icloud.com (unknown [127.0.0.2])
+	by p00-icloudmta-asmtp-us-west-3a-60-percent-11 (Postfix) with ESMTPS id 1D75818001DC;
+	Tue, 29 Sep 2026 20:37:10 +0000 (UTC)
+X-ICL-RepId: 01a0eee2-b8c6-701d-bd84-4469f180ccb1
+X-ICL-Out-Info: HUtFAUMHWwJACUgATUQeDx5WFlZNRAJCTQhBBkMEWRxBCU0dXwVcEhVdRV4MRR9bHlZWQwxHDkAfeRRQDxkfXV5QDBMLU1ZeE1tWRwIZAkZQSxsOWxcDVxxWRVwYQwldBVccHQBERVsTVRdGCRkIXR0ZCEcfCjADQg5WA0MHRQAtGRxXUFsIUF5NFx0EQ0tfGV1FD15UCFZGWhsCQAMJBEkUTAIJVEYKFgsaHl5UXFFBWhwCWwVdVzBVG1FDQwQcGU1GExlOG1dNWg1AGVgGbRRWFVIEWQ==
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lcb.to.it; s=sig1; t=1790714234; x=1793306234; bh=zmp8SFl84gZRi5OkpkQVvlEiTxHsOKWX9tq1JueGvnA=; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type:x-icloud-hme; b=Hmma00I1iCTJetJLa+4lEcU2IJz2CTZSLyP1/eSX7O2Hin+njeiX/5qIFzrt+kQDK74uL3SnlcUh04MdlhLy+vnTjVqWijHsko8nXx0qy0a8+RCxN+3PYVD2Y69zNbWLRuUrTvLUxDZmGGTQmytTTxtliHu8e71gBk+v1SvjlPKUWIOBA/sSihPvkfrmdXYF3cNvP25Dg1dZjV+3f97zit0hRXHLuSOe/i9h90i3kmWTHuNQPVD/gbSvPHDaTh62yeey/PV3n1JSKWy+uTUAWmFPm9cIX4IgY1BRCQlpo2lGHKlOoogPYRN9xls7jzVByl8ZrUj1269tsPCKVBZJ9w==
+mail-alias-created-date: 1748381178872
+Received: from [10.69.1.69] (unknown [17.156.208.39])
+	by p00-icloudmta-asmtp-us-west-3a-60-percent-11 (Postfix) with ESMTPSA id 07A2C1800128;
+	Tue, 29 Sep 2026 20:37:08 +0000 (UTC)
+Message-ID: <3ccd6cc1-4b69-41dc-8f2b-3c7c1cd1626e@lcb.to.it>
+Date: Tue, 29 Sep 2026 22:37:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3
+ 14IWC11
+From: Martino Papero <martino.papero@lcb.to.it>
+To: Hans de Goede <hansg@kernel.org>, Iustin Ivan <iustinivan2002@gmail.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20260911182328.9267-1-iustinivan2002@gmail.com>
+ <db8af2fe-481d-454b-a205-4f22cd9b7a0d@kernel.org>
+ <f849e969-364c-4138-b4d0-ec761022a32f@lcb.to.it>
+Content-Language: en-US, it-IT
+In-Reply-To: <f849e969-364c-4138-b4d0-ec761022a32f@lcb.to.it>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: 9JlmH3iyPLzgemWWF9Fou-DUGXNdTqPo
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA4MiBTYWx0ZWRfXzX4PcDGFh85E
+ GiqboE8JyjiohHnoEtkhUvhRVaVCRL10/aWKG9PFm+QJogYvicTUtlu0V8BBkjFOx3noM20blfZ
+ AzPxJ1jG6IeR4QklnnZzZKgmer6gbQYkkj0KM983MU5qB8loOXIyd+GggkHd6jvv9vHnGvtj8Iw
+ rqv2fvdEWiVJ11cKqscjiMqCBoeX3J2KTwqTe4G0rMaAl8PjmcnFcOicDorFkkrevGNf8m4V3vB
+ llCzz3WaFNbNaDcdzSYbgjgipip2mCEUZU9GH6zGsRToebWtnLJ+qgB/xP4esIWHHviya6Ck9Vv
+ o+4CgMfnaFb8wBX3LGV+8iFibDYxoayUoosjo4G/VJaZwUEXsIoY2vY2GiWcKM=
+X-Authority-Info-Out: v=2.4 cv=K4Ev3iWI c=1 sm=1 tr=0 ts=6abc2177
+ cx=c_apl:c_pps:t_out a=kRaGL2Q7qLiahLf3O6OaIA==:117
+ a=kRaGL2Q7qLiahLf3O6OaIA==:17 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8
+ a=3zCP-tckM5ql3hE0fiwA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 9JlmH3iyPLzgemWWF9Fou-DUGXNdTqPo
+X-JNJ: AAAAAAABvqZ69FQdBawXlj+s49PQOgiboPcUwYZUMrWYErmdxHFYAdED5eSlp3rj3Y6HN/4Y6WIozw5nZpuw5Vz+kkhZ2YHbFKhCDx9DlF1EmoGF5/X+RgqiTm7lOqddiSeOr5GSlQ2LXaRXTjEF3P2myJRkYJNgvgcKvN6hr4veke+YcuyUKZQVUGv1VTH8bpQTPsciTCUUf6PB+5hkq6+bEallsgChhFJovl2dyWMop2JjBYT/aLH7mKixGPf+1+mCpT0XT/Zr9n09LJFdbbb4fm97OC9yMXZaZarjWqEgdE1uCYG8HFbgZYurEneiy1fqgHg+7cHGgsusIRPVclbiDjVQPVxIpd+BAOSorCTcCw+QAwCiqYeFlsoT5gwjCX5K4uOfzXwEwFXMNubyJHt699gFiF1nsqgUIJSGB4RKsHxfz846iuSXgGYCHV7GJti9ZKPZTYGZezoX++bEeBYAuuJGuTRy1Nep341R2Tum9T13i/zHHN8krmy4a0VyVaX4AWePAy4qo6U5KT71JM12efGSB5tSST+kW8+6gcxZOXef269sNn9zfRjlV1GeasMMuIvMbu7pa2QBylipMwtcVzsxC3dQ0AqCXOsMZH2kqxiXQs03TABFXdHQ1eNSx7uo2jduzfdY8hlZTN3XJsra2padRSKUFdUPWLCeo2Yt9meTcZElfbWx2OX7D7vxtfENlRIhpbbRDpRshCPhEmbAzCzVM37XCrVqFv0T8423O6K9PVT+G86Y1D4VZ2SHJzdPLSW+DDQgROfrK/o8BIuvKLVFG3LaFiXmBn7egxsiIMpbVNBjDy9IwrhTfUwo3bwein15YmWomTnhT2PUCzwpLMUPhD77DFRs9W+2qNHNMCnK6IeWuHykdT63Au9rrJ25s6j6MJhArV26jtUs7Ts/VpMzuIq/7PyuXC4z2LkmruN30tYQtIrGXzl2tOGXvrzRU/xiLqYuH5PavjnjU2Cj5uvtHjC
+ U/wAXfKodBAOShx/MlYMZsfU5dQDrJIZ4bdzIBWUQrtABxU1evpcnhFJn/QOclohbQ4IpdKX/0+sto12UQDpD/fHZjegn4DiREimci4SIWM41QSNz2COuNVPH928HSpQFvYdHE37g6E2/xfICk93dcJHdiEQ9xuA2kMe/JEX+a/XsPnwic2sAZffcK7SnqQeTAL1+UbaU0S/eKTawLKQ4Mx0imrsUi19ck1/idm+5LV+ylZfbrVxHI+j6PJ/3zkGVNjB75szX37X0O1h8Iqd60MHu3zS7cz0EXPG7ppWOVGPO7lFLJ0wvCZ4ACuxT8Q+3i2h67xrFcfIOyYjUW+xD/qDchj1vLtCcA9uR4L5tl/KKwPmTr6rK7zQB
 
-Hi Takashi,
 
-A gentle ping on this. The problem is unchanged: on Linux the M62's
-preamp gains, output volumes and source selectors can only be set by
-hand on the front panel. v6 is the component split you suggested; v8
-stays posted as the alternative.
+Il 19/09/26 02:09, Martino Papero ha scritto:
+>
+> Il 11/09/26 20:52, Hans de Goede ha scritto:
+>> Hi,
+>> I'm starting to wonder if we should not just make this behavior the 
+>> default.
+>>
+>> IIRC the whole deactivate thing was added as a workaround for 
+>> multi-byte scancodes
+>> getting split-up during suspend/resume. I wonder if we can come-up 
+>> with some
+>> better fix for that ?
+>>
+>> Regards,
+>>
+>> Hans
+>
+>
+> Hi,
+>
+> I tested the same atkbd_deactivate_fixup on a Lenovo IdeaPad Slim 3 
+> 15IWC11 (83RR), which was affected by the keyboard issue previously 
+> discussed here:
+>
+> https://lore.kernel.org/all/20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com/ 
+> <https://lore.kernel.org/all/20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com/> 
+>
+>
+> Without any kernel quirk, the internal keyboard does not work. I had 
+> been using:
+>
+> |i8042.nopnp=1 i8042.dumbkbd=1|
+>
+> which makes the keyboard work, but prevents the Caps Lock LED from 
+> working.
+>
+> I built Fedora kernel 7.2.5 with the following additional DMI entry:
+>
+> {
+>     /* Lenovo IdeaPad Slim 3 15IWC11 (83RR) */
+>     .matches = {
+>     DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+>     DMI_MATCH(DMI_PRODUCT_NAME, "83RR"),
+>     },
+>     .callback = atkbd_deactivate_fixup,
+> },|
+>
+> I booted this kernel without any i8042 command-line parameters.
+>
+> The internal keyboard and Caps Lock LED both work correctly. I also 
+> tested suspend/resume and a cold boot, with no issues so far.
+>
+> DMI:
+> LENOVO 83RR
+> LENOVO_MT_83RR_BU_idea_FM_IdeaPad Slim 3 15IWC11
+>
+> So it looks like the 83RR can use the same atkbd_deactivate_fixup as 
+> the 83RQ.
+>
+> I can test a revised patch if needed.
+>
+> Regards,
+> Martino
 
-Since posting, v6 has run on the hardware as sent: all nine controls,
-panel and ALSA following each other, fifty module unload/load cycles
-and the cable pulled out mid-write three times, under KASAN and
-lockdep. Nothing in the log.
 
-The one wart in the cover letter is worse than it says. Reloading the
-HID module takes the controls off a live card and puts them back, and
-ALSA reports that correctly, but WirePlumber does not merely lose its
-faders -- it segfaults. That is for WirePlumber to fix and an issue is
-open there, but it is a cost of this road that v8 does not have.
+Hi,
 
-One thing points the other way. The card also reports its battery
-level unasked, and the natural home for that is a power_supply with
-device scope, as hid-corsair-void does. In a HID driver that is a
-small patch on top; on the v8 road it would have to be registered
-from a snd-usb-audio mixer quirk, and I cannot find anything there
-that does so. I have not written it and would like to know the road
-first.
+Just following up on this.
 
-So the question is the one from the cover letter: this road or v8?
+The 83RR is still working reliably with atkbd_deactivate_fixup after 
+further use, without i8042.nopnp or i8042.dumbkbd.
 
-Jiri, Benjamin: the needs_remote_wakeup question is still open --
-whether clearing it after hid_hw_open() is acceptable, or whether
-usbhid should offer a way to take input reports without it.
+Would it be useful for me to submit a separate patch adding the Lenovo 
+IdeaPad Slim 3 15IWC11 (83RR) to the atkbd_deactivate_fixup DMI table?
 
-Thanks,
-Mikhail
+I can prepare and test the patch on the affected hardware. 
+Alternatively, if the generic solution discussed above is preferred, I 
+am happy to test that as well.
+
+Regards,
+Martino
+
+

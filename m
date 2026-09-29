@@ -1,68 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54C4A3ADB89;
-	Tue, 29 Sep 2026 08:40:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D54B350E5AA;
+	Tue, 29 Sep 2026 12:10:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790671233; cv=none; b=bG5SJfabHACHU82iFqFyBJnHSAsPASGhEAVPzQ/ynAbq7bM3zrWwweI/3+VS/OvW6duSqXKI1Yj1hL9P7G5FlhgTK6vTUNHlIoSgUJc//P21rEbfIx6uIAvzl+JUUv0JW+XMWgSp/Mfsb66+MMWlJcEDe2nHaabqwNLBX981qbI=
+	t=1790683806; cv=none; b=hEgd749UHhcJAkBVagpqEEplcvObgDn0jDa/Ddn7r3bmH/ORF23KlC0B5BvFVy+8L0gvc2tem3fgQqdNW3qdPRDrAuP3xZfxokEUFQT5AWpLsRXMtUB5GH0S+cHbAJsM/3gIk5wDoq2N8KePJiqkVdNm3sl9Hl2UIeSaxPtHtN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790671233; c=relaxed/simple;
-	bh=Aa6xYmK1NnTvuK2o2Uu6k+mRLLRVlvUUTVe8tXlCKMU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CKI3irhT0cXQKpwKR92awpa64EiKZCew6M9S6QGE3TL5/8SuuyFCNRNPMk4COplUpdeuaobJN2uKFVRthhR3XLeYAImysWYVlTOgS8upvylM6AiP4EDBAFIJXmqXPzeNOoXk+c9Jnrtbzo5SbLdmW2qtXAsA5mJucX1NuBKnClk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b7UXzj5G; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b7UXzj5G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E54851F000FF;
-	Tue, 29 Sep 2026 08:40:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790671231;
-	bh=j/CLrtLe3fBJ5VYGQS5tjlTm/0gBXqbRsnQnrAUdh0U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=b7UXzj5G5hYhlifBWvT6qdrIYlAI4T3HRclnX9E1LyQnzSqpZ+B7e542BqZN6j5Qm
-	 n+T4qs2S5MLg542Uwg1EbLTSeHsN5KAyhtggdlfyRBN+rLGb7JTsb4gRBNVIY48yA0
-	 GagFw6DwbzwFbtRFNsDNCRZcQBMedT5rzWTFGOYqDbFfZBc9YZ5QtYqHqO4NFiZJ4u
-	 hIzg3RTWna54IhStecRwt6JqYkki+HjnzDx9nUPX1j4gYJ4xSSfHJ93ymg9BmlKqH2
-	 EQbhwsxBGtta+nF4DSWAn0e0MOJeYNAgCjPEdZKVCpCuS29xUDlXwhh5EFe20ToGlA
-	 cnUbf4aGTmXIg==
-Date: Tue, 29 Sep 2026 10:40:27 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: David Heidelberg <david@ixit.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
-	Petr Hodina <petr.hodina@protonmail.com>, linux-input@vger.kernel.org, 
-	linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	phone-devel@vger.kernel.org
-Subject: Re: [PATCH v8 3/5] dt-bindings: input: touchscreen: st,stmfts:
- Introduce STM FTS5
-Message-ID: <20260929-vigorous-cyan-chihuahua-b0e4a2@quoll>
-References: <20260925-stmfts5-v8-0-0fcf49e2c85f@ixit.cz>
- <20260925-stmfts5-v8-3-0fcf49e2c85f@ixit.cz>
+	s=arc-20240116; t=1790683806; c=relaxed/simple;
+	bh=0TQIG6b0QhiYyhhVsn09ZaXE0tRmvWDczzbfnRItPCs=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=iYH6/Lc8nmgvf/dFl5/YsQXRM71QXh8ZP6Exwm5OSzufUiKLjBG3GKMA+JpahV6nyEqmA+ffoKO8VdAY3uujf297UAv7V91w1JJX572vKNFwJ52fQX/tK+IeYwvwRb2+gH0wdANp35GRlevuv2tgiPam02HkSZ0cPrmfnkEp+fo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org; spf=pass smtp.helo=mail.mainlining.org; arc=none smtp.client-ip=5.75.144.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.helo=mail.mainlining.org
+Message-ID: <d3b99da7-bc64-4df8-94ab-25080474ee35@mainlining.org>
+Date: Tue, 29 Sep 2026 15:09:27 +0300
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260925-stmfts5-v8-3-0fcf49e2c85f@ixit.cz>
+User-Agent: Mozilla Thunderbird
+From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Subject: Re: [PATCH v3 16/19] thermal: qcom: tsens: Add support for MSM8952
+ tsens
+To: Daniel Lezcano <daniel.lezcano@oss.qualcomm.com>
+Cc: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
+ Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>,
+ Jerome Brunet <jbrunet+clk@baylibre.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Srinivas Kandagatla <srini@kernel.org>,
+ Ulf Hansson <ulfh@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>,
+ "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
+ Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov
+ <lumag@kernel.org>, Abhinav Kumar <abhinav.kumar@linux.dev>,
+ Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
+ Marijn Suijten <marijn.suijten@somainline.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Robert Marko <robimarko@gmail.com>, Guru Das Srinagesh <linux@gurudas.dev>,
+ Amit Kucheria <amitk@kernel.org>, Thara Gopinath <thara.gopinath@gmail.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, Kees Cook <kees@kernel.org>,
+ Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli"
+ <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mmc@vger.kernel.org, iommu@lists.linux.dev, mfd@lists.linux.dev,
+ dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
+ Krzysztof Kozlowski <krzk@kernel.org>, linux-pm@vger.kernel.org,
+ linux-input@vger.kernel.org
+References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
+ <20260921-msm8952-initial-support-v3-16-b96fd3fe298b@mainlining.org>
+ <4de27200-3598-47b7-b0af-8f7acd037618@oss.qualcomm.com>
+Content-Language: en-US
+In-Reply-To: <4de27200-3598-47b7-b0af-8f7acd037618@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Sep 25, 2026 at 11:22:21PM +0200, David Heidelberg wrote:
-> Introduce more recent STM FTS5 touchscreen support.
+Hi Daniel,
+
+On Tue, 29 Sep 2026 09:11:28 +0200, Daniel Lezcano wrote:
+> On 9/21/26 20:19, Muzaffer Kadir via B4 Relay wrote:
+>> From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+>>
+>> Add MSM8952 support for tsens.
+>>
+>> Downstream does a lot of advanced things with calculations.
+>> But seems like using tsens-v1 directly works too.
 > 
-> Signed-off-by: David Heidelberg <david@ixit.cz>
-> ---
->  .../bindings/input/touchscreen/st,stmfts.yaml      | 22 ++++++++++++++++++----
->  1 file changed, 18 insertions(+), 4 deletions(-)
+> Can you elaborate a bit the changelog please ?
+> 
+> Thanks
+> 
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+MSM8952 has 11 sensors
+and 3200 default slope (according to downstream)
+
+For tests, this is the table for readings:
+tsens sensor 0  1  2  3  4  5  6  7  8  9  10
+TWRP         32 31 29 28 28 31 30 30 30 32 30
+this patch   31 29 31 29 29 31 30 31 31 30 30
+
+Both are read from same device, one after the other,
+First upstream then TWRP.
+2 degree difference seems reasonable in my idea,
+as there is a reboot process happens in between reads and
+downstream has more power saving features than this port.
+
+I don't know any way to independently measure temperature.
+
+I reused offsets and slope from downstream.
+
+My commit message wasn't good, I will expand the
+commit message by v4.
 
 Best regards,
-Krzysztof
-
+Muzaffer Kadir

@@ -1,138 +1,176 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2562639E178
-	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 07:14:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 925CD37A821;
+	Tue, 29 Sep 2026 07:39:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790666093; cv=none; b=QUgrt/7Llo0I9BqPJVUCLGHElE7fj4EK5WJl1Ps6Yd8Anroi1dWaeyyor6P8KMVmb3kMlvA5IVD8jOexcRHJAb+zEGOd1dhOuimgAPongJGrXdpG4DmF3H+nP3wfrOPNJ41F6GSjpfByMSyNOkIGW0OxieiB3LmjaYIZWWg56ks=
+	t=1790667599; cv=none; b=O8s+NoTuL/ClzgQfult4fpTFCpJ9P5eCjNC4MGbkXmw5wS8LqdXkVUxG0Oq8OHqgPV9lYHibv9cl1pAfIMkkamIfOZYByUSfahh5xfKUzhnS1ipC8HY9FnRxBnLfUlLagaPYy+kB51rOzNHUWixBqOo+APxAqXtnVKpvBcyw88I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790666093; c=relaxed/simple;
-	bh=+3VDPjF9InWdBEUagYo8hjEZ7Fzj9+nGVcbz2o0Q71o=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dPUbQpkc37AbVROpgTFOG/XtyfigEs6DRhxqT15BoNPj6ofZ2qh4Q2i7s29945urRfQpwFeeXz5RbIfwCgDu7t9x9yEOW/AD3guWwJWt1kdq1iBFxp7pma6O1+bVXek5dfjUTrV16aBbBqfB+KF5yxQWTkI+CoRD7ybOBKvTD0g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ub4n12/t; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790667599; c=relaxed/simple;
+	bh=y0dzu7ob3UmPk/H1zTfNyDfnolxfGhUWR2dqtm3KL1g=;
+	h=From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:Date; b=Vfb7RWCPwGzj7nlHyeh6FyseWlMiy068f6VzLAeQKFI6cbuv63CMztRc/FMm8cbTicm3jawl+YojyWagYnVqqthdVNUD7Ddg/wWIadMPeqtMJHUAdHQZZ1KpMD98xBz+bMHdI04GExSyBeLqXiBXnNMR/ZVPxi7yIAjwM1XX/EQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oEJ7zX5b; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ub4n12/t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B28441F000FF;
-	Tue, 29 Sep 2026 07:14:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oEJ7zX5b"
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id D039B1F00898;
+	Tue, 29 Sep 2026 07:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790666091;
-	bh=Ms5z6AzKwtDDTI0sPhGlm8+AkyxIf3BsSX3UMNrxskc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Ub4n12/tBjy3td6IDA8so6n8/kzVd4XAqNBpsDFKuXsa++F4LJjIYRzypbCOEPEO9
-	 6M6AjQFMYjxk1jGUY2ZLKDbA3VOnfhwljOYh6QX0rqRZOFi9PlS82nXzu2pQdA/2CW
-	 fuxr0tCb1gX1kgHzpSofqdlOSssAFybWMG+xsKlgYN70CbikR0keCpQZoLM5VvTBnA
-	 mZklVCrM+7g91i3/2c8XCe/MMus8jBFULeyn7nGJk3bc0jD+wgsFWU+mg3Fe4LXLlH
-	 ZgoyTjXV9TY10oxu0v8QRzIYnMZAAAxD4PaQ/ZwR3uzbAzTr23TmL8sHT9dSfw1dIs
-	 3iVp/Z2qxfuog==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/3] HID: roccat: use device_is_registered() to check
- whether device is available
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Antipov" <dmantipov@yandex.ru>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20260929065743.134635-2-dmantipov@yandex.ru>
-References: <20260929065743.134635-1-dmantipov@yandex.ru>
- <20260929065743.134635-2-dmantipov@yandex.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 29 Sep 2026 07:14:51 +0000
-Message-Id: <20260929071451.B28441F000FF@smtp.kernel.org>
+	s=k20260515; t=1790667598;
+	bh=vDL0qwhi/Q8PBC/n1Ot2vI5BEahLy6mimceHsqZsJiM=;
+	h=From:To:Cc:Subject:Date;
+	b=oEJ7zX5bpahzWjFnsSca/uOGkdgYKDhQd7dQcuuDE8kGLBJJ7u7cugyIhChJ72KqP
+	 smiWlSdQhhTHsY1m1ZeW9ODCuhvjfblrOH1i2R7sqkVbWxfvSAUH900TK8kcPaVs2u
+	 lEE0BvtvpHmoF3uCVUh5JvgCsETGT/tdjmoMeczyfKXHESVs2IQs3WLwTtdaPaSjEj
+	 8ZrCgHkdR4nVOl1P9fuVzg7Q6+JFcJAWcEZhjpYR3ZtNNd8aSsIPJWeinKv+zpQous
+	 eBAon51s1RlyDIGiV/yxcllw91O0wbwOsweuZifV7iHhNQzrrCdiLvDXQ7BMzrJGLv
+	 K+MDccY6zVGcQ==
+From: "syzbot" <syzbot@kernel.org>
+To: syzkaller-bugs@googlegroups.com, Slawomir Stepien <sst@poczta.fm>, "Henk Vergonet" <Henk.Vergonet@gmail.com>, "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, <linux-input@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org, syzbot@lists.linux.dev
+Subject: [PATCH] Input: yealink - abort URB submission on fatal errors
+Message-ID: <fcf3ed99-54ce-4049-9f7d-611827e7adad@mail.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Date: Tue, 29 Sep 2026 07:39:57 +0000 (UTC)
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] HID: roccat: Use-After-Free in roccat_device_available() via devic=
-e_is_registered()
---
+From: Slawomir Stepien <sst@poczta.fm>
 
-commit 79c5b3b7724b3fbf847bc777badc500fdf61abef
-Author: Dmitry Antipov <dmantipov@yandex.ru>
+The yealink driver uses two URBs (interrupt and control) to communicate
+with the device. When an URB completes with an error status (such as
+-EPROTO), the completion handlers (urb_irq_callback and urb_ctl_callback)
+log the error but do not abort. Instead, they proceed to process the
+potentially invalid data and unconditionally resubmit the URB.
 
-    HID: roccat: use device_is_registered() to check whether device is avai=
-lable
+Because control URBs are not rate-limited by the USB core, resubmitting a
+failing control URB in a tight loop floods the console with error messages
+and keeps the CPU completely busy in the softirq context. This eventually
+triggers an RCU preempt stall:
 
-This patch introduces roccat_device_available() to check if a device is
-available (using device_is_registered()), removing the explicit 'exist'
-flag from struct roccat_device.
+yealink 3-1:36.0: unexpected response 0
+yealink 3-1:36.0: urb_ctl_callback - urb status -71
+rcu: INFO: rcu_preempt self-detected stall on CPU
+Call Trace:
+ __console_flush_and_unlock kernel/printk/printk.c:3373 [inline]
+ console_unlock+0xd1/0x1c0 kernel/printk/printk.c:3413
+ dev_vprintk_emit+0x338/0x400 drivers/base/core.c:4996
+ dev_printk_emit+0xee/0x140 drivers/base/core.c:5007
+ usb_generic_driver_probe+0x10b/0x150 drivers/usb/core/generic.c:252
+ ...
+ hub_event+0x28e8/0x4d30 drivers/usb/core/hub.c:5953
+ worker_thread+0x92d/0xe10 kernel/workqueue.c:3486
+ kthread+0x388/0x470 kernel/kthread.c:436
 
-> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index 5deb6da8d4f74..96aa508111a1b 100644
-> --- a/drivers/hid/hid-roccat.c
-> +++ b/drivers/hid/hid-roccat.c
-[ ... ]
-> @@ -70,6 +69,13 @@ static struct roccat_device *devices[ROCCAT_MAX_DEVICE=
-S];
->  /* protects modifications of devices array */
->  static DEFINE_MUTEX(devices_lock);
-> =20
-> +static bool roccat_device_available(struct roccat_device *device)
-> +{
-> +	struct device *dev =3D READ_ONCE(device->dev);
-> +
-> +	return dev ? device_is_registered(dev) : false;
+Fix this by checking the URB status for fatal errors (-ECONNRESET, -ENOENT,
+-ESHUTDOWN, -ENODEV) in both urb_irq_callback() and urb_ctl_callback(). If
+a fatal error is detected, the callback now returns early, breaking the
+resubmission loop. For other non-zero statuses, skip processing the
+response data and jump directly to resubmission. Additionally, use
+dev_err_ratelimited() instead of dev_err() to prevent flooding the console
+and triggering an RCU stall.
 
-[Severity: High]
-Are we dereferencing the cached dev pointer here without holding a reference
-count?
+Fixes: aca951a22a1d ("[PATCH] input-driver-yealink-P1K-usb-phone")
+Assisted-by: Gemini:gemini-3.8-flash syzbot
+Reported-by: syzbot+78e2288f58b881ed3c45@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
+Link: https://syzkaller.appspot.com/ai_job?id=89a6c0c7-a0c4-4f05-b1b1-e36a92e373e0
+Signed-off-by: Slawomir Stepien <sst@poczta.fm>
 
-If a thread reads the dev pointer here, gets preempted while device_destroy=
-()
-frees it, and then evaluates device_is_registered(dev), could this lead to a
-Use-After-Free?
+---
+diff --git a/drivers/input/misc/yealink.c b/drivers/input/misc/yealink.c
+index 560f895a0..f0ec4c5ea 100644
+--- a/drivers/input/misc/yealink.c
++++ b/drivers/input/misc/yealink.c
+@@ -405,9 +405,19 @@ static void urb_irq_callback(struct urb *urb)
+ 	struct yealink_dev *yld = urb->context;
+ 	int ret, status = urb->status;
+ 
+-	if (status)
+-		dev_err(&yld->intf->dev, "%s - urb status %d\n",
+-			__func__, status);
++	switch (status) {
++	case 0:
++		break;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++	case -ENODEV:
++		return;
++	default:
++		dev_err_ratelimited(&yld->intf->dev, "%s - urb status %d\n",
++				    __func__, status);
++		goto resubmit;
++	}
+ 
+ 	switch (yld->irq_data->cmd) {
+ 	case CMD_KEYPRESS:
+@@ -429,12 +439,13 @@ static void urb_irq_callback(struct urb *urb)
+ 
+ 	yealink_do_idle_tasks(yld);
+ 
++resubmit:
+ 	if (!yld->shutdown) {
+ 		ret = usb_submit_urb(yld->urb_ctl, GFP_ATOMIC);
+ 		if (ret && ret != -EPERM)
+-			dev_err(&yld->intf->dev,
+-				"%s - usb_submit_urb failed %d\n",
+-				__func__, ret);
++			dev_err_ratelimited(&yld->intf->dev,
++					    "%s - usb_submit_urb failed %d\n",
++					    __func__, ret);
+ 	}
+ }
+ 
+@@ -443,9 +454,21 @@ static void urb_ctl_callback(struct urb *urb)
+ 	struct yealink_dev *yld = urb->context;
+ 	int ret = 0, status = urb->status;
+ 
+-	if (status)
+-		dev_err(&yld->intf->dev, "%s - urb status %d\n",
+-			__func__, status);
++	switch (status) {
++	case 0:
++		break;
++	case -ECONNRESET:
++	case -ENOENT:
++	case -ESHUTDOWN:
++	case -ENODEV:
++		return;
++	default:
++		dev_err_ratelimited(&yld->intf->dev, "%s - urb status %d\n",
++				    __func__, status);
++		if (!yld->shutdown)
++			ret = usb_submit_urb(yld->urb_ctl, GFP_ATOMIC);
++		goto out;
++	}
+ 
+ 	switch (yld->ctl_data->cmd) {
+ 	case CMD_KEYPRESS:
+@@ -462,9 +485,11 @@ static void urb_ctl_callback(struct urb *urb)
+ 		break;
+ 	}
+ 
++out:
+ 	if (ret && ret != -EPERM)
+-		dev_err(&yld->intf->dev, "%s - usb_submit_urb failed %d\n",
+-			__func__, ret);
++		dev_err_ratelimited(&yld->intf->dev,
++				    "%s - usb_submit_urb failed %d\n",
++				    __func__, ret);
+ }
+ 
+ /*******************************************************************************
 
-This is not fixed by subsequent patches in the series (e.g., commit
-"HID: roccat: use kref to manage device instances"), which only refcount
-the struct roccat_device, not the struct device.
 
-> +}
-> +
->  static void roccat_free_device(struct roccat_device *device)
->  {
->  	int i;
-[ ... ]
-> @@ -149,7 +155,7 @@ static __poll_t roccat_poll(struct file *file, poll_t=
-able *wait)
->  	poll_wait(file, &reader->device->wait, wait);
->  	if (reader->cbuf_start !=3D reader->device->cbuf_end)
->  		return EPOLLIN | EPOLLRDNORM;
-> -	if (!reader->device->exist)
-> +	if (!roccat_device_available(reader->device))
-
-[Severity: High]
-Is it possible for a lockless caller like roccat_poll() to trigger the
-Use-After-Free vulnerability mentioned above by reading dev concurrently?
-
->  		return EPOLLERR | EPOLLHUP;
->  	return 0;
->  }
-[ ... ]
-> @@ -369,10 +374,8 @@ void roccat_disconnect(int minor)
->  	mutex_lock(&devices_lock);
->  	device =3D devices[minor];
-> =20
-> -	device->exist =3D 0; /* TODO exist maybe not needed */
-> -
->  	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
-> -
-> +	WRITE_ONCE(device->dev, NULL);
-
-[Severity: High]
-Can this sequence unregister and free the struct device memory concurrently
-before the pointer is cleared, causing the Use-After-Free?
-
-Could device_destroy() drop the final reference and free the struct device
-memory immediately before WRITE_ONCE() clears the pointer?
-
->  	devices[minor] =3D NULL;
-> =20
->  	if (device->open) {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929065743.1346=
-35-1-dmantipov@yandex.ru?part=3D1
+base-commit: 1590cf0329716306e948a8fc29f1d3ee87d3989f
+-- 
+See https://goo.gle/syzbot-ai-patches for information about AI-generated patches.
+The person who has signed off on the patch is responsible for
+addressing comments.
+syzbot engineers can be reached at syzkaller@googlegroups.com.

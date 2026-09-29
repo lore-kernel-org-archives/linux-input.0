@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF833E8660;
-	Tue, 29 Sep 2026 08:28:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54C4A3ADB89;
+	Tue, 29 Sep 2026 08:40:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790670540; cv=none; b=A20xRIVJCTEHEqWKFtHq4Wv5tGrV8N5mRgdy+5+5kBkmwVjIWK93KLoVn2D68w3ktz78oTnXafBNc2knN9Tw4ZtpKgWEbnQdvCgdwvpzOs9//bEjSkVuAdfjO9ecaJuu1ObAscnXGL8rkaOxjglqk4sYgo+YTQerE7X9RXuKSCk=
+	t=1790671233; cv=none; b=bG5SJfabHACHU82iFqFyBJnHSAsPASGhEAVPzQ/ynAbq7bM3zrWwweI/3+VS/OvW6duSqXKI1Yj1hL9P7G5FlhgTK6vTUNHlIoSgUJc//P21rEbfIx6uIAvzl+JUUv0JW+XMWgSp/Mfsb66+MMWlJcEDe2nHaabqwNLBX981qbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790670540; c=relaxed/simple;
-	bh=mABRqTBqPueqtJGb7KsMKUob1wDgoqJsYHR/i9IbX/A=;
+	s=arc-20240116; t=1790671233; c=relaxed/simple;
+	bh=Aa6xYmK1NnTvuK2o2Uu6k+mRLLRVlvUUTVe8tXlCKMU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=du5PIUfvW7NmJKMfumbT/y6Z+wKkvq1YLDjMYFYDFgHpZdX6rUwa7HwSZsuBaVdJ7mwvsRULFU7f9PAbf+GkOnp75WGVJYJof0uhroJBcN/QC2qMjga7ddPvaOREAN/ZC21O+rsaQaR+XThG6obt5ZVIfnQWcFQP7RZgL3HpwCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UjvnRiVR; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=CKI3irhT0cXQKpwKR92awpa64EiKZCew6M9S6QGE3TL5/8SuuyFCNRNPMk4COplUpdeuaobJN2uKFVRthhR3XLeYAImysWYVlTOgS8upvylM6AiP4EDBAFIJXmqXPzeNOoXk+c9Jnrtbzo5SbLdmW2qtXAsA5mJucX1NuBKnClk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b7UXzj5G; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UjvnRiVR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CAE61F000FF;
-	Tue, 29 Sep 2026 08:28:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b7UXzj5G"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E54851F000FF;
+	Tue, 29 Sep 2026 08:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790670539;
-	bh=ErXCTMd9axWR1jD8SecS5bDbICUqt/ph2JGq6IOzvnc=;
+	s=k20260515; t=1790671231;
+	bh=j/CLrtLe3fBJ5VYGQS5tjlTm/0gBXqbRsnQnrAUdh0U=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UjvnRiVRm1aRTjDBmXAHjvoILtdKlmNUrWu5POLFor62ynYJOA2fqSgDoGskFgpcc
-	 GUv26YNxDVioC+74jtuhRekodZlyV6udP1q+3nZlQV7fLMPqrsoznjaCXLLqly9EKP
-	 /LG0lATEOjarG/jYJEX8qhJByFwGciiG+KCBY285l7GnGgDTyXJw9/Lo2iFrSBtDB8
-	 15ZEZNJNnOoijG2PYgn5j72A13l5JKZ9ALWuw7WH6YzCIgBLTtPhT1DZcBfoMqXNQd
-	 s3fgOGNj0DkUN8ypqcb6i5p32tWgsxoTXKgZpzUfaYs1kguO75iiUmjp2uY+iS0TLU
-	 kuTlAyyJXLjhQ==
-Date: Tue, 29 Sep 2026 10:28:55 +0200
+	b=b7UXzj5G5hYhlifBWvT6qdrIYlAI4T3HRclnX9E1LyQnzSqpZ+B7e542BqZN6j5Qm
+	 n+T4qs2S5MLg542Uwg1EbLTSeHsN5KAyhtggdlfyRBN+rLGb7JTsb4gRBNVIY48yA0
+	 GagFw6DwbzwFbtRFNsDNCRZcQBMedT5rzWTFGOYqDbFfZBc9YZ5QtYqHqO4NFiZJ4u
+	 hIzg3RTWna54IhStecRwt6JqYkki+HjnzDx9nUPX1j4gYJ4xSSfHJ93ymg9BmlKqH2
+	 EQbhwsxBGtta+nF4DSWAn0e0MOJeYNAgCjPEdZKVCpCuS29xUDlXwhh5EFe20ToGlA
+	 cnUbf4aGTmXIg==
+Date: Tue, 29 Sep 2026 10:40:27 +0200
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: David Heidelberg <david@ixit.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -38,11 +38,11 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, 
 	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
 	phone-devel@vger.kernel.org
-Subject: Re: [PATCH v8 2/5] dt-bindings: input: touchscreen: st,stmfts:
- Improve example
-Message-ID: <20260929-brilliant-magic-cobra-462c86@quoll>
+Subject: Re: [PATCH v8 3/5] dt-bindings: input: touchscreen: st,stmfts:
+ Introduce STM FTS5
+Message-ID: <20260929-vigorous-cyan-chihuahua-b0e4a2@quoll>
 References: <20260925-stmfts5-v8-0-0fcf49e2c85f@ixit.cz>
- <20260925-stmfts5-v8-2-0fcf49e2c85f@ixit.cz>
+ <20260925-stmfts5-v8-3-0fcf49e2c85f@ixit.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -51,21 +51,17 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260925-stmfts5-v8-2-0fcf49e2c85f@ixit.cz>
+In-Reply-To: <20260925-stmfts5-v8-3-0fcf49e2c85f@ixit.cz>
 
-On Fri, Sep 25, 2026 at 11:22:20PM +0200, David Heidelberg wrote:
-> The touchscreen-size-{x,y} is exact number, the -1 deduction is done on
-> driver side.
-> 
-> Example now use interrupts-extended and size obviously not deducted by
-> one.
+On Fri, Sep 25, 2026 at 11:22:21PM +0200, David Heidelberg wrote:
+> Introduce more recent STM FTS5 touchscreen support.
 > 
 > Signed-off-by: David Heidelberg <david@ixit.cz>
 > ---
->  Documentation/devicetree/bindings/input/touchscreen/st,stmfts.yaml | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
+>  .../bindings/input/touchscreen/st,stmfts.yaml      | 22 ++++++++++++++++++----
+>  1 file changed, 18 insertions(+), 4 deletions(-)
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
 Best regards,
 Krzysztof

@@ -1,217 +1,329 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFF4552BE55
-	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 13:34:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B2783DC4D9
+	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 16:24:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.53
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790688871; cv=pass; b=LxXVk+uvMjAYdiC0NQHkeiVtOdch2W2qvapdm+a22CU7XUUNk2Vu8x3N97g9vREORKjN+ux4wwrlV4u3sJAmT+W4EGXBeDhmx/1NvV2FZmHi1n751fvAuEnA5h3ZGcKbAK69yLBP4UZAel31UBoymJu4U2qlLhViqxhMkGIOUWM=
+	t=1790699072; cv=pass; b=N37P8gHCrTC8Mnb2dcLqdwUvHPp6vU9Ni3i/CuzELJI5v1VJunUJfA+GdH50/jvHEM/S5hK94hGEuMBsXrYEjDipp/wJyFYxGKyYndl+WY31KFOP2sQO/74/1IO+N5qRdHUfy40dwzyUDxNPCJmVmQXgK4wNs5v33BcG1tc22+g=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790688871; c=relaxed/simple;
-	bh=aatIQCpb5b6E18tOT607YiK+lREgF4JTQbKPFrO+iVw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LBQB6ubOErzCiNPnC+yXzxVCFmZA6/lf0BGsVMITOY5hoKfv3Xc35rhvTlKSfNuwTG70HguQ0gbin/NvJSLf90m2ffS3aLPFFREbMsTBaOW5hjN24cMMXPoOajwS2A+V9LCbrXnGWAvWaZSiNsN02e7n2MMSmjmUYwT4jWmptwM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=hk6mvLlV; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=MnW5UteW; arc=pass smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1790699072; c=relaxed/simple;
+	bh=OiFfvlWJs6VF81gj/qO4+BJh04sQYQTdaRDgChDt4T0=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=ShFIli4KAwgJ36sXmRvu0Ih3qUKJFocvq3mBL+nSTPxVpXO2A00OFa/0oGPq6M5hBZByPNJcthqKH/5nY3B536+fhaC0pBQDzaU9BHhxaOmu/Kui7QXO+ps+tRKqlHGy9uVVAva2TMsddbsEwFxTHI2wY78TWS1lOIvuwcDIfrs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O14ajAyI; arc=pass smtp.client-ip=209.85.217.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="hk6mvLlV";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="MnW5UteW"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TCqeGC349948
-	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 13:34:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ApZtp9mCDzFhUghEqNRHfpNQRpHQIPz3H5GND00+/Q8=; b=hk6mvLlVWv66MepN
-	iXjqUBQgGPOer5qnBJte12x4wjPvxOCEYL7J06CYjn0EHwKp/mQIZhzGf/7PTCrr
-	JPVMRa5P31yNjd0syZbjgMb1SqSQl0EhM88wLqYun1EFTHMdFhjcUQaYctLQJvLB
-	m8rrLNP8N82Uo9R+rz0dot2NO2Ag+BRrRZy3QHNaATzsOSBlDlmyQoF67xxVYAwr
-	6AvhbgJpiztMCqAaEVjfmc1yrAp8Qnex8FnEzTZH2Oi00Q9D6r5JmaAxiFebRClG
-	r3l0ApPic+NoNoV0+qGAVh5h3Rn6Nx3BILxnO83SaAFd/J++STdI9TWC1odBWbQy
-	41skTw==
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com [209.85.216.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h01vkk2ef-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 13:34:28 +0000 (GMT)
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-38ecc48b3c2so9309237a91.1
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 06:34:28 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790688867; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O14ajAyI"
+Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-7b1e67fcd84so768734137.1
+        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 09:24:31 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1790699070; cv=none;
         d=google.com; s=arc-20260327;
-        b=cv9N6Cqv+Q6mW/gH6Z9NtnEYgu+4Yo9MEsmETOl8T10xovO54k7mdigt4iUX4Dr8Vz
-         lWO1BRBlNOhrEdrKbn4giOM73/IfNErLux94PJtt/V9DSmCAWYt9ckec8X7hfC18gedV
-         YbgEhf7UT6gSM0dvCffxBTjAMpbD8YFFFTgAe4baBWbMtJPqmJ+YuQWuQY9h9qAsLyeo
-         /+6R5VeeIW1wrj9jo95SOsSdKkshA3AJ/iwxEJS2hjb40f0x9xun+BIzimqMANo3k0XJ
-         NA97WfSRw9xbWdZp7Pz+O8HFdSKDcVTMmjYwgMmqm5CLhX1yvyoM240y3VlgYwM9LgUS
-         nEZw==
+        b=sVoAM+FzdqpIu81PbTzSzXt9dsDdjUYtMt3XUsXf1J140s/R6sXwAaZpp3veLjKg1p
+         vzhFg3cZstAJhoBpyNpEcSAbivFFGqQ0SpKM2lGFx+GwxVOSruWWmeYqJVKKRFcSDcip
+         nmS0v0Rt75oFDY+0yUt/aYsv4HBIobmnxhjuXkZgOAAinwwHirWmorvSOCMgtIC8cwYe
+         N1Lhxm+98dLkRxG5NIOPOeRB9tAcGQJUvOpcUN80ABCcvpchZeer6rin8ny9kNQAvxJI
+         A8XoTRAdrco1T/ib4tIcL2Icvq03qpEl3Rwt/ADeaxVxhts0grx2Yie1NzZp6SRY9fT8
+         DWlA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ApZtp9mCDzFhUghEqNRHfpNQRpHQIPz3H5GND00+/Q8=;
-        fh=QNRGKC35vrLunyDduHe6G2miN3B9c3Tqck3QvlcG6zU=;
-        b=GfRE9ekFvGtVy9+xN4ZMwKSv/5+A5Oa9WvgjE9uNmQgV9HbxoHP6Jiq4gASfZXmjL9
-         JaA8tLIDCmcdQMR90Kk5qfqeSdeBQjhImVSof18b1hgwss9ADSV4woPX9iTiPh4AcNfR
-         1PZqxGh9tMK1Lby3KYosHMcOmFOGcUNpOFqISL17Q+wK+uqz6RTh3Op4zv+43Jy7Pvni
-         i+g1CDAKF7wK7lEQEQLU8P20aOI+HE71kTjp1Ym6weDBH8bMZW0whnwpR8RYfX9b3/8w
-         vpxQCJ+zEJZrVTkzVP92pAyqh8B9c6zP3KaBEafbSlsXWwfqxD/YDJBZmmOrZv3EQHPU
-         71qg==;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=KRnzn7RtxO1DWD+6hLZa3OrVg6rKZeVOY4ToBS5GP6s=;
+        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
+        b=UzXj3jDqX6NmbxDwbVGIUQ1RggTOV8YKi3WKRUL/Fsf1gN0IQE+3SHG2yGTt1KNFr/
+         VvJus+sRKze9pdoDI8xw0nMyvVBbY1aRu8HA7z983FMxxx1ikHM10okwiyjlB0/F2zl+
+         aN6gijrhh735yzZyBAUgHSmepVZ9nBA0QisEBiHYTJQDnRcgi5GyPuwjY1mVJAd+o50c
+         oZ8KLgGtSy+lZpH0bXVrQ3MJhPbLykFYjeWlMKfUP3PSHZcq/MTEGU0oyc+Ve5fiHV+O
+         B23NENhBx0px6MKHqMoGPkZj114lMXYdXWPXt09MdXJbcumnfa2UTM6Z7z4sUNT/aNFg
+         NT5A==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1790688867; x=1791293667; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=ApZtp9mCDzFhUghEqNRHfpNQRpHQIPz3H5GND00+/Q8=;
-        b=MnW5UteW5tCkE0domqFe0WMEddVoAo24BrHbfCGicKqHJ7zswfoA07vSpvD8NfqOnE
-         fF8ELmym2xBwXyl8/OfGKwGsoqqQxQokZj3gd+Dq32ZPO3DRhsUh73z2LfN2tdHpGy/H
-         EPBeds6ekZJPCl8GDtF9YdK/apasEgcCZd5m+U8eKxUnzX94w6I8HytVWl5AvvjGs3zR
-         DpK+qksSdODDf/RHW+WZU/BkBWAdIHCAI/QR4tzPiMQzi530jEw/yRRLhlCn3CDzzxlv
-         lqWsAjIxiU5+U2yWw0xsJgp1V2E0KCF+z32vgJSxHnU3S1tTCcTS6PAXS2gHKiJQLrhb
-         2M1A==
+        d=gmail.com; s=20251104; t=1790699070; x=1791303870; darn=vger.kernel.org;
+        h=content-type:to:subject:message-id:date:from:mime-version:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=KRnzn7RtxO1DWD+6hLZa3OrVg6rKZeVOY4ToBS5GP6s=;
+        b=O14ajAyIquqhlykVUS+flofSHaDqMnczJMf2GlfaNDp4KTeFeoGcU60/LlTblUWQWg
+         Muz/SJoOgt9L6dS5BuCAQ+npCLphOs/63ytMK5N7o8dFL3kai3smFJfyOpneCr2WbUHT
+         WkizJJAp/wf83Xrad+0v/gE+X6dcTDETXFSKce/RJZw6e09x756aRJxwoN0ZT9vw5iDs
+         WrBZeW0iPh2a2CxLdZ9cyDvyrc1p+22XudsYIG3mDtWUZ/7W+RnuXzrG4rmTR76vexl9
+         kJSqcjzKDs//shWvZv1LMKA8OqM2Ihy2snwfIgZuudY55w4RckKeDB/8qK4/bUxs01kC
+         3nqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790688867; x=1791293667;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1790699070; x=1791303870;
+        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ApZtp9mCDzFhUghEqNRHfpNQRpHQIPz3H5GND00+/Q8=;
-        b=scrH6sOshO2XxtPFKlwdQ2QLp5Q5nYNn5twrLqzSn1qwSK/4p7V3eQ6VyJgOoK9CX5
-         /BGcjXvoLwaCBnRymoFjCPBIrhWAYmjry99QMzR8B9Fx669OZ4Rz/rrqb3eRJ+qQCVlm
-         aPK4LAHKUaqIoZgkPeA8khXUcPMY79LGFPevLX9WZHKYjARsmvyMUNnfDC/kmmI9BR6e
-         NlqH+F9MmiCWZ5YaioBwz3ldz2V2oBsjz+PcgLNWgWtHxEjOGy9ulCM/2jXBCriiqIoU
-         pMUq8sYj19QHX5j7byOfHJkswrSdTq6N1dCju4yO671ES1+7mB91UT3UrEiF97N1Y7UK
-         5mSg==
-X-Forwarded-Encrypted: i=1; AKwUvBxHuDrazzPcq4EHsR98ItmdpAHySM0CJpJ/gl5+QlhnwBTzF96aQ8VlyhW/+mGQZCzvVGwfu83pt7/50A==@vger.kernel.org
-X-Gm-Message-State: AFq9FYIVWklyOl58KJYgX7ArZ5UtKSpFaaqBG0+cgm/ZQyA+Jpp4VGLe
-	71oUq5z2BeJvXkkQkUqlR/pF9LE4DSp4wQ5ZGU0MIP1GoIJGtmusxs81mDxQjkzOpVvMqrpJAKQ
-	pTeTzMa5eDXmygF7Z6PIFsuR7aXzzJlbl9VT6ruzolPTPuJYPMHrmDQ+yPlx61Qx9fz2IO9DtGA
-	5KM9211+92zcEcTBDxXQbQAzpjUQrCf+pSINVOi2fz
-X-Gm-Gg: AYBFou2/mGv/KPiEyDRqPTwTUq4OH/EAM5ul4MsY0KyK/mi6P26WOB6bJ++tcbJh/+T
-	BlIx7TuKp02ahi9CcB+0lQMkFRvW77OfL/V6umYQ/1/VBpN+uwT8nzOGcnMtxS3WxIQOyQ/l7br
-	6vB3CV6rCLIS1k/EVkHSaCGnG8HRcbF/Rlbl/ui5mFXYszO9mliyrD/SHVmg==
-X-Received: by 2002:a17:90b:2b8c:b0:3a0:574f:5854 with SMTP id 98e67ed59e1d1-3a0bb60e74cmr11071558a91.39.1790688867369;
-        Tue, 29 Sep 2026 06:34:27 -0700 (PDT)
-X-Received: by 2002:a17:90b:2b8c:b0:3a0:574f:5854 with SMTP id
- 98e67ed59e1d1-3a0bb60e74cmr11071507a91.39.1790688866886; Tue, 29 Sep 2026
- 06:34:26 -0700 (PDT)
+        bh=KRnzn7RtxO1DWD+6hLZa3OrVg6rKZeVOY4ToBS5GP6s=;
+        b=PmfYVXnbT/VK8kbfKs9Na9J/HDhs13pnJgxj8pDoL3B/GiUxhwt01/Hg7RaJgEsZOC
+         C9Vv6KzuPJKbA7WIKWRRE1fCC11Z1n9FvU9ftKudHFtvXg9JW+2DiVRzmbnhiEaaem+t
+         8MUuNBZwGD3MFbAZz5ZEz/DwLzkGEYn5pUqyP9NBIc7p0wJa4f21oe1bN3dHCu8q6USa
+         JElk1t9H7VOLgqmikm9IoorNOZLngTRc4OzJiM4EhfUvQVZuWGq5rMiXDCESFDmrgFRa
+         3hyA3co+zi3LXWceHK5BA1aVEw2AaOdRh1NAin3uIP39GefNr1PV1/SJkTMKPdAeGH4V
+         yvOw==
+X-Gm-Message-State: AFq9FYIEeBcT2o/bpw/FaqyutZNKbIKVHFPO8Y7sRqy7kC7AqJln2xG2
+	8tlktENqcv1znUnwY6kVvOuVkU3jwcyaN+8835baGpCoL1pqqdHVbmHETao4uRiE7QrvlGqQdx/
+	u6Syl/5GsZiOicVQBfCHuc58dywloEM1XMVyqGj4=
+X-Gm-Gg: AYBFou3edIYpsOA/HAmH9aG7K3R1+8MSBwK2gPGhLCU+Xb74jWRs8ajBWPI3k2r3men
+	gld5LwxEQrboU+kuS90yNdv5C6dK/4wlb4HNr2aFolQ3i9ydF1Yrq/+dljSoLnNaeANiP+9XXwg
+	ptLtcUQgRrpLcyb0GCpTQYy0R56dVwP+QOH4qI9/A/HyCtiHFk6uKs7f2XT0y/mSK5kB+YyLDGb
+	wwh5qRXcocBg+ra82BL8tOS3ZQe80t2Wn+HDWC6Bu11pYApZvTttUMuY+rAkvqBuk65d8YcCBss
+	iHnjF2twg7kq3Rrg3U7bXwkElpbVfAvAGPo0y4+H+DlfQrlNJa4TjPQ=
+X-Received: by 2002:a05:6102:860e:20b0:7a1:f2b5:646a with SMTP id
+ ada2fe7eead31-7b950f91f71mr626389137.39.1790699069965; Tue, 29 Sep 2026
+ 09:24:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
- <20260921-msm8952-initial-support-v3-5-b96fd3fe298b@mainlining.org>
-In-Reply-To: <20260921-msm8952-initial-support-v3-5-b96fd3fe298b@mainlining.org>
-From: Ulf Hansson <ulf.hansson@oss.qualcomm.com>
-Date: Tue, 29 Sep 2026 15:34:16 +0200
-X-Gm-Features: AclHuK_IsoMVZ8jA--KFIskLK5LDOvw3Q0lyiLyhAEn2l6B1awM5w3Hl8Ax8gbg
-Message-ID: <CAPx+jO9qPRgae_VqWrGQ8bhDOHBf+zDzw3A-BxCMa25XfPaa7Q@mail.gmail.com>
-Subject: Re: [PATCH v3 05/19] dt-bindings: mmc: sdhci-msm: Add MSM8952 compatible
-To: muzafferkadir@mainlining.org
-Cc: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>,
-        Jerome Brunet <jbrunet+clk@baylibre.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Srinivas Kandagatla <srini@kernel.org>, Ulf Hansson <ulfh@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
-        Rob Clark <robin.clark@oss.qualcomm.com>,
-        Dmitry Baryshkov <lumag@kernel.org>,
-        Abhinav Kumar <abhinav.kumar@linux.dev>,
-        Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Robert Marko <robimarko@gmail.com>,
-        Guru Das Srinagesh <linux@gurudas.dev>,
-        Amit Kucheria <amitk@kernel.org>,
-        Thara Gopinath <thara.gopinath@gmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-        Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mmc@vger.kernel.org, iommu@lists.linux.dev, mfd@lists.linux.dev,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        Krzysztof Kozlowski <krzk@kernel.org>, linux-pm@vger.kernel.org,
-        linux-input@vger.kernel.org
+From: Saeed Alian <aliansaeed82@gmail.com>
+Date: Tue, 29 Sep 2026 19:54:18 +0330
+X-Gm-Features: AclHuK-DU0mmayqLeQvlWn__Ek_EgqwWDbveo0974IQwMqOtvqfww_GXLfz8vek
+Message-ID: <CAOjs+X05nhF7QUM9i7NuBZe-6+rdQ4Ch1LRj31K+-tvTzjLoAA@mail.gmail.com>
+Subject: psmouse/synaptics: "lost sync at byte 1" + 1s touchpad freeze after
+ keyboard use, ThinkPad T14 Gen 1 AMD (LEN2064)
+To: linux-input@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA1NCBTYWx0ZWRfX2VCwme0cbEzm
- xEGSJWXEauSsFi4zOMc6zZjZkDPQuEAEztZpsKn1ZpN8UhkT2Pbc0/VGoP5lOIVZW0ITdfnQYCz
- DShnd5pTl+4tUFfYHCyDFGUHie/AKL/jhfzUDUsSaEXfZPx22HBjltaHsiMs3vR9wX9gTbDzN6Q
- KnNUN9DKEWnbRpoWyqcQXA8KF3fVY+Wh94wVTDgFXmONTnCPCjDEKhDC2e8bnuXiZf0ARxhJ1MY
- V7bac1YWeonpmAeMFK5I9za/N4wthPOUnlG7gBhcVW86iLYSRNkId0G5JUyb6oonx6aFGUVEnwh
- 1+PS9uyFLEOCWLk54XKMMLZ++4YlsdqcCjjbeFoJr1xLPfs8y3Q2xGX6D/MaP7N137mbI3OLBnS
- uIdJyp2L8iMNmJdZ3ytjKg9/4pP+VGu55zh0awtRQDLP/+JLo3VJNEecZRy7oK1gEWRlzzDgyYn
- cPxF7sIqt9Py6l1QaNQ==
-X-Proofpoint-GUID: 4_1rE9EEIfQnMFRszeuSPAqVCwR_Q66K
-X-Authority-Analysis: v=2.4 cv=VcVir1p9 c=1 sm=1 tr=0 ts=6abbbe64 cx=c_pps
- a=RP+M6JBNLl+fLTcSJhASfg==:117 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=rJkE3RaqiGZ5pbrm-msn:22 a=VwQbUJbxAAAA:8 a=OuZLqq7tAAAA:8
- a=wO7LUizMVtHDz2nkp9wA:9 a=QEXdDO2ut3YA:10 a=iS9zxrgQBfv6-_F4QbHw:22
- a=AKGiAy9iJ-JzxKVHQNES:22
-X-Proofpoint-ORIG-GUID: 4_1rE9EEIfQnMFRszeuSPAqVCwR_Q66K
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI5MDA1NCBTYWx0ZWRfX5pFdKMZgToLl
- cMiHb5EECneV9QwwxRKzKuxoWitkDjIaaJZYbpQ5GqVp4pmHZwhWXPe1aPcEXOH+etMdNKyDkMj
- 0PzOB4f2myvdk4fvjnd8Kg+QlZP+New=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-29_04,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 bulkscore=0 clxscore=1015 suspectscore=0
- lowpriorityscore=0 spamscore=0 phishscore=0 malwarescore=0 adultscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609290054
 
-On Mon, Sep 21, 2026 at 8:19=E2=80=AFPM Muzaffer Kadir via B4 Relay
-<devnull+muzafferkadir.mainlining.org@kernel.org> wrote:
->
-> From: Muzaffer Kadir <muzafferkadir@mainlining.org>
->
-> Document the compatible string for the SDHCI controller on the
-> MSM8952 platform.
->
-> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Hello,
 
-Applied for next, thanks!
+My ThinkPad T14 Gen 1 (AMD) has a touchpad that freezes for about 1 second
+after keyboard use. It does not happen on Windows 11 on the same machine.
 
-Kind regards
-Uffe
+Hardware/Software:
+
+Laptop: Lenovo ThinkPad T14 Gen 1 (AMD), Ryzen 5 PRO 4650U, 16 GB
+BIOS: R1BET87W (1.56), firmware up to date
+Touchpad: Synaptics, PNP: LEN2064 PNP0f13 (PS/2, serio1)
+TrackPoint: Elan, fw 0x12 (serio2, via Synaptics pass-through)
+System: Devuan (Debian 13 based), runit, X11 + bspwm
+Kernels: 6.12.107+deb13-amd64 (Debian), and [Arch kernel version], both affected
+
+Symptom:
+
+When I type and then start using the touchpad, the pointer freezes for
+about 1 second and then recovers. It happens most of the time after
+keyboard use, but is somewhat random. Otherwise the touchpad works.
+
+psmouse dmesg at boot:
+
+[    1.629431] psmouse serio1: synaptics: queried max coordinates: x
+[..5678], y [..4694]
+[    1.668582] psmouse serio1: synaptics: queried min coordinates: x
+[1266..], y [1162..]
+[    1.668604] psmouse serio1: synaptics: Your touchpad (PNP: LEN2064
+PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi
+are not used, you might want to try setting
+psmouse.synaptics_intertouch to 1 and report this to
+linux-input@vger.kernel.org.
+[    1.735086] psmouse serio1: synaptics: Touchpad model: 1, fw:
+10.32, id: 0x1e2a1, caps: 0xf014a3/0x940300/0x12e800/0x500000, board
+id: 3471, fw id: 3972349
+[    1.735110] psmouse serio1: synaptics: serio: Synaptics
+pass-through port at isa0060/serio1/input0
+[    2.330797] psmouse serio2: trackpoint: Elan TrackPoint firmware:
+0x12, buttons: 3/3
+
+and dmesg when a freeze happens:
+
+[   33.971790] psmouse serio1: TouchPad at isa0060/serio1/input0 lost
+sync at byte 1
+[   33.972796] psmouse serio1: TouchPad at isa0060/serio1/input0 lost
+sync at byte 1
+[   33.975158] psmouse serio1: TouchPad at isa0060/serio1/input0 lost
+sync at byte 1
+[   33.982765] psmouse serio1: TouchPad at isa0060/serio1/input0 lost
+sync at byte 1
+[   33.985432] psmouse serio1: TouchPad at isa0060/serio1/input0 lost
+sync at byte 1
+[   33.985443] psmouse serio1: issuing reconnect request
+[   34.788737] psmouse serio1: synaptics: queried max coordinates: x
+[..5678], y [..4694]
+[   34.829578] psmouse serio1: synaptics: queried min coordinates: x
+[1266..], y [1162..]
+
+so I tried using psmouse.synaptics_intertouch=1 in /etc/default/grub:
+
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=1 nowatchdog quiet
+udev.log_level=1 psmouse.synaptics_intertouch=1"
+
+and `update-grub` then reboot.
+I got this log in the dmesg:
+
+[ 1.695701] psmouse serio1: synaptics: Trying to set up SMBus access
+[ 1.698722] psmouse serio1: synaptics: SMbus companion is not ready yet
+
+What i tried (no effect unless noted):
+  - psmouse.synaptics_intertouch=1
+  - psmouse.synaptics_intertouch=0
+  - i8042.nomux=1, i8042.reset=1, i8042.noloop=1, all combinations,
+    with and without intertouch=1
+  - psmouse.resetafter=10/60/100: no change; =0: touchpad stays dead
+  - psmouse.rate=50/100
+  - i8042.nopnp, i8042.notimeout, i8042.kbdreset, all combinations.
+  - TrackPoint disabled [BIOS]
+  - processor.max_cstate=1
+  - psmouse.proto=imps or exps: freezes stop, but two-finger scrolling
+is lost, which I need.
+  - Windows 11 (all drivers updated): no freeze
+  - Arch with kernel 7.2.2: same freeze
+
+Also here are some commands that I used to debug the whole situation:
+
+`
+> lsmod | grep -E 'i2c|rmi'
+i2c_algo_bit           16384  1 amdgpu
+i2c_piix4              28672  0
+i2c_smbus              16384  1 i2c_piix4
+i2c_scmi               16384  0
+
+> cat /proc/bus/input/devices | grep -A5 -i synaptics
+N: Name="SynPS/2 Synaptics TouchPad"
+P: Phys=isa0060/serio1/input0
+S: Sysfs=/devices/platform/i8042/serio1/input/input3
+U: Uniq=
+H: Handlers=mouse0 event2
+B: PROP=5
+--
+P: Phys=synaptics-pt/serio0/input0
+S: Sysfs=/devices/platform/i8042/serio1/serio2/input/input4
+U: Uniq=
+H: Handlers=mouse1 event3
+B: PROP=21
+B: EV=7
+`
+
+installed `i2c-tools`:
+
+`
+> i2cdetect -l
+(got no output)
 
 
-> ---
->  Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml b/=
-Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml
-> index 69bd44e65ad7..9d4409c958fa 100644
-> --- a/Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml
-> +++ b/Documentation/devicetree/bindings/mmc/qcom,sdhci-msm.yaml
-> @@ -26,6 +26,7 @@ properties:
->                - qcom,ipq4019-sdhci
->                - qcom,ipq8074-sdhci
->                - qcom,msm8226-sdhci
-> +              - qcom,msm8952-sdhci
->                - qcom,msm8953-sdhci
->                - qcom,msm8974-sdhci
->                - qcom,msm8976-sdhci
->
-> --
-> 2.55.0
->
->
+
+> i2cdetect -F 0
+Error: Could not open file /dev/i2c-0' or /dev/i2c/0': No such file or directory
+`
+
+so I loaded i2c-dev `modprobe i2c-dev`:
+
+`
+> i2cdetect -F 0
+Functionalities implemented by /dev/i2c-0:
+I2C                              yes
+SMBus Quick Command              no
+SMBus Send Byte                  yes
+SMBus Receive Byte               yes
+SMBus Write Byte                 yes
+SMBus Read Byte                  yes
+SMBus Write Word                 yes
+SMBus Read Word                  yes
+SMBus Process Call               no
+SMBus Block Write                yes
+SMBus Block Read                 yes
+SMBus Block Process Call         no
+SMBus PEC                        no
+I2C Block Write                  yes
+I2C Block Read                   yes
+SMBus Host Notify                no
+10-bit addressing                yes
+Target mode                      no
+
+
+
+> i2cdetect -l
+i2c-0   i2c             Synopsys DesignWare I2C adapter         I2C adapter
+i2c-1   smbus           SMBus PIIX4 adapter port 0 at 0b00      SMBus adapter
+i2c-2   smbus           SMBus PIIX4 adapter port 2 at 0b00      SMBus adapter
+i2c-3   smbus           SMBus PIIX4 adapter port 1 at 0b20      SMBus adapter
+i2c-4   i2c             AMDGPU DM i2c hw bus 0                  I2C adapter
+i2c-5   i2c             AMDGPU DM i2c hw bus 1                  I2C adapter
+i2c-6   i2c             AMDGPU DM i2c hw bus 2                  I2C adapter
+i2c-7   i2c             AMDGPU DM i2c hw bus 3                  I2C adapter
+i2c-8   i2c             AMDGPU DM aux hw bus 0                  I2C adapter
+i2c-9   i2c             AMDGPU DM aux hw bus 2                  I2C adapter
+i2c-10  i2c             AMDGPU DM aux hw bus 3                  I2C adapter
+
+
+
+> i2cdetect -F 1
+Functionalities implemented by /dev/i2c-1:
+I2C                              no
+SMBus Quick Command              yes
+SMBus Send Byte                  yes
+SMBus Receive Byte               yes
+SMBus Write Byte                 yes
+SMBus Read Byte                  yes
+SMBus Write Word                 yes
+SMBus Read Word                  yes
+SMBus Process Call               no
+SMBus Block Write                yes
+SMBus Block Read                 yes
+SMBus Block Process Call         no
+SMBus PEC                        no
+I2C Block Write                  no
+I2C Block Read                   no
+SMBus Host Notify                no
+10-bit addressing                no
+Target mode                      no
+
+
+
+> i2cdetect -F 2
+Functionalities implemented by /dev/i2c-2:
+I2C                              no
+SMBus Quick Command              yes
+SMBus Send Byte                  yes
+SMBus Receive Byte               yes
+SMBus Write Byte                 yes
+SMBus Read Byte                  yes
+SMBus Write Word                 yes
+SMBus Read Word                  yes
+SMBus Process Call               no
+SMBus Block Write                yes
+SMBus Block Read                 yes
+SMBus Block Process Call         no
+SMBus PEC                        no
+I2C Block Write                  no
+I2C Block Read                   no
+SMBus Host Notify                no
+10-bit addressing                no
+Target mode                      no
+
+
+
+> i2cdetect -F 3
+Functionalities implemented by /dev/i2c-3:
+I2C                              no
+SMBus Quick Command              yes
+SMBus Send Byte                  yes
+SMBus Receive Byte               yes
+SMBus Write Byte                 yes
+SMBus Read Byte                  yes
+SMBus Write Word                 yes
+SMBus Read Word                  yes
+SMBus Process Call               no
+SMBus Block Write                yes
+SMBus Block Read                 yes
+SMBus Block Process Call         no
+SMBus PEC                        no
+I2C Block Write                  no
+I2C Block Read                   no
+SMBus Host Notify                no
+10-bit addressing                no
+Target mode                      no
+`
+
+
+QUESTIONS
+  1. Is there a known fix or patch for this PS/2 sync loss?
+  2. Is this pad expected to be reachable over SMBus/RMI4 on this
+     platform, and if so what is missing on AMD PIIX4?
+  3. Could this be hardware related, given that Windows is unaffected?
+
+I can provide full dmesg, acpidump and i8042 debug output, and can test
+patches.
+
+Thanks,
+Saeed Alian

@@ -1,30 +1,30 @@
-Received: from outbound.ci.icloud.com (ci-2005b-snip4-11.eps.apple.com [57.103.89.151])
+Received: from outbound.ci.icloud.com (ci-2005g-snip4-4.eps.apple.com [57.103.89.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79AED408629
-	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 19:56:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.89.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46210457E64
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 19:56:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.89.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790798181; cv=none; b=XsHG6TjeIkLi1gwZCfSVbjU9lQhyl7o6e/gDF9lOYQ5lkOr3CJQTEq4epb8cKP8X/Gzkca2WJquNPxAlOXHZ36C7q8c4J2UDkzsaiJpwBNYNAAOzI7UWsaDEnSO+tdP8YP/VlpKkRXRMwG+lfssu/HrcE3TwwpHG1oVKLneT/JM=
+	t=1790798183; cv=none; b=aCqOz1INUBYAU8vjAI7pzb8YGrXfkJNlLmruNmY/bM/7gaanxpAkcn3KJIXw+/cWGTu1JqaeqLeGSP+k4hy0FctLxG0cpcZMm9gE4TABJL0r565WgBn+cKM0YQ5Xv9CBvdOiQUXm1wNnde/14DVEwWqL+9N+X/izXpttXN5qPdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790798181; c=relaxed/simple;
-	bh=kmuwNiJn3ZyTxp/YnNiJtuvpqbvFe+TNwtju9JJIipU=;
+	s=arc-20240116; t=1790798183; c=relaxed/simple;
+	bh=oGmUFB/MpMNafUA0RMVHIXMbgM0ez4iK/6QDiyjYEcA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PofKWhsVdyn6PyIO18KAJk4kN+Rd7xHk+79VGwb9O3P2D/FjOb2Lf11IdGIbb7Pp3peDxghBQ3pVjstHrdddeZk1O6MnLJ0qX6HZ3+oTinWg41skwgHAnTMrufyqFpjHT4CpjGikvAZEArhXq3OrF2WP3YBQ7LjufC5J5EsmEzo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com; spf=pass smtp.mailfrom=me.com; dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=keTFjK7E; arc=none smtp.client-ip=57.103.89.151
+	 MIME-Version:Content-Type; b=k09MJLLHXef2mouV3OmwtYe5yzRMaQes6ifAxzdfiT/YYtEwJgmOy8J5GaFebvOF0MZGXzf9a7a26k9R+vYp3lQKEDkICmKOt85VKUiKixsaKrUuWOz+xDHXS1f8zrKGcLFQ0aXG6UFRX6FJx6SGiu3kVyJ9NWXJ2/HmDkWybCI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com; spf=pass smtp.mailfrom=me.com; dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=oN4r9Sfn; arc=none smtp.client-ip=57.103.89.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=me.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b="keTFjK7E"
+	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b="oN4r9Sfn"
 Received: from outbound.ci.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-central-1k-60-percent-1 (Postfix) with ESMTPS id D867818000CB;
-	Wed, 30 Sep 2026 19:56:18 +0000 (UTC)
-X-ICL-RepId: 01a0f3e3-aa20-75ef-ba7d-ad5422319efd
-X-ICL-Out-Info: HUtFAUMHWwJACUgBTUQeDx5WFlZNRAJCTQFLHV8HWBxHD1YKTVIPDxYKFkFcWytfFRcbXAAXDVZNVB0dDlgGEgJaRQVNXw5eHwQXRhlVBEceXVZQBBkCURxWDVdDVARfUEkMQVBsWgBHF0gdXRlZb1BdHA4AUkVRH1RYXgRTVg5DWBkGXQFcUBQKHVBbBghRElxOUVlUClNHCRoCXlRZAUhaSgdVAVkBXghPCl0AUgdHC04dCl4fHBYKFkFcWytfFRcbXAAJS0YJSR0OBFQHXQVd
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai; t=1790798179; x=1793390179; bh=Pi9cE/d3v5wa+kAHgpPI3GwenIK4zniVyL0HuZt0Es0=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=keTFjK7ELNNuijZpnpDj4Rbs7bkJy22AfcaefKY/y8Cda8vyvV71zfCyK/IX5CVlgX8VD5VbQgZzJsYuhOhhEv5fzKQRXCm+QTcMq1OQLwkR+lSU6w3uR6yvrdOuuspYdtjlU4rHwMcgsc2t7LCWnYvvjHa9ToAo5SLVHcXllrNWnxSUFDiSN95b7Aqzs41lEfzk80ZuWQFSfnurfA5s8gKbf/Zj/ahiX7HDxqiqW4MjqdcdMD3WZOSe5WImTItDv72mH6mVdbIq9ElP6jfEywBwQu1WlPgVeFyEhGSkOgGRqFJfF5BcSLDTagF4l9YQriejrpebHB+bcYg0oEWnaA==
+	by p00-icloudmta-asmtp-us-central-1k-60-percent-1 (Postfix) with ESMTPS id 5890118000D9;
+	Wed, 30 Sep 2026 19:56:20 +0000 (UTC)
+X-ICL-RepId: 01a0f3e3-afd2-70eb-bc1f-08ca77af964f
+X-ICL-Out-Info: HUtFAUMHWwJACUgBTUQeDx5WFlZNRAJCTQFLHV8HWBxHD1YKTVIPDxYKFkFcWytfFRcbXAAXDVZNVB0dDlgGEgJaRQVNXw5eHwQXRhlVBEceXVZQBBkCURxWDVdDVARfUEkMQVBsWgBHF0gdXRlZb1BdHA4AUkVRH1RYXgRTVg4VXRkHDgZdB0QJSgUPD10DRFxAUVQDWQRHCkFRCwRaBRILHgNaU1lUXghPCl0AUgdHC04dCl4fHBYKFkFcWytfFRcbXAAJS0YJSR0OBFQHXQVd
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai; t=1790798181; x=1793390181; bh=RMVcVOjzi/nkuaQxubHVcQZHoaKYAiWgakLvYkQNjr4=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=oN4r9Sfn+jBRFQ/+5I/HmoFF2j7m/qpSy52gxmM1EVyQp7EauZCOfRSZJTYF40pxEKyJnZPWmCZdhbfly3wX3rU7LEW1AdzjOfQyRYychqZrUwjVmSrCQ/M8Na9K2O3KrG4DWRPBGxBBtH/q0aaVP1StYeW1s9AS0aw07LHtzY5U0j4GzIjrj/ozKWKQ3oOjoriQFIFtZGRkj31vupk0Z0HMTDgAbok/2XySf8GQosPnqkBXt8taO36X+m3fRJWHR3vpkOFrV+ix+EF7R6yKREzekmJAPvzJsNgaQPt6p7WuPm8a8jU8KVIzOUs9vIurQj+S078yZyth857vCqGy5A==
 Received: from fedora.vpn.altanet.fr (unknown [17.57.156.36])
-	by p00-icloudmta-asmtp-us-central-1k-60-percent-1 (Postfix) with ESMTPSA id 82371180011D;
-	Wed, 30 Sep 2026 19:56:17 +0000 (UTC)
+	by p00-icloudmta-asmtp-us-central-1k-60-percent-1 (Postfix) with ESMTPSA id D91C5180013B;
+	Wed, 30 Sep 2026 19:56:18 +0000 (UTC)
 From: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>
 To: Benjamin Tissoires <bentiss@kernel.org>,
 	Jiri Kosina <jikos@kernel.org>
@@ -32,9 +32,9 @@ Cc: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>,
 	Ivan Gorinov <linux-kernel@altimeter.info>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/4] HID: winwing: factor out vendor SET_LEDX report builder
-Date: Wed, 30 Sep 2026 15:55:57 -0400
-Message-ID: <3aa5067bd3ec61ccbe6b4caa70b13c238c248623.1790795726.git.f3nr1l@me.com>
+Subject: [PATCH 2/4] HID: winwing: make the LED set and lighting controller model-dependent
+Date: Wed, 30 Sep 2026 15:55:58 -0400
+Message-ID: <eda4c1654026b8614e8b9426739bf317b2f07d2f.1790795726.git.f3nr1l@me.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <cover.1790795726.git.f3nr1l@me.com>
 References: <cover.1790795726.git.f3nr1l@me.com>
@@ -46,204 +46,180 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Authority-Info-Out: v=2.4 cv=BKa+bVQG c=1 sm=1 tr=0 ts=6abd6963
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MSBTYWx0ZWRfX5vLQqlmM8Lix
+ uuqfT5QbZaXKynZ65eXcKdJj1KvYozOyccK8JdyXnSBicmVij6b17DCHVjBcGvm5jXiN3YyfQjq
+ j1KQ5+/4bnIuCQZoeZh5GGnk6RJtGQhdORteQjy3u4vGeXdqMPJTB4L7QGXEu76F1Rvo/wq3FeT
+ FvVxrnXUifPSbLWb+WvHlfQ585BZVxZBFLE+ab7ff6AyDtsZaCul7s0p7OvchK90gI23rTzyuzF
+ zUrdeKC+nOWbd4ff2Fl51S7weYICDWHtixAHI1Vo4rGpHeMAnhQvj4GqjC2X1ndAPRS5uH5POeY
+ IpxJyLSzpUaYzyktlFNiDnUmCVOc3hrYNLTKtt+pZ83nHaadb/gIod+E7uDe7Y=
+X-Proofpoint-ORIG-GUID: n93gFiBoQ6X3h7vuGo3rhQUnMHGsnn0b
+X-Proofpoint-GUID: n93gFiBoQ6X3h7vuGo3rhQUnMHGsnn0b
+X-Authority-Info-Out: v=2.4 cv=TembdBQh c=1 sm=1 tr=0 ts=6abd6964
  cx=c_apl:c_pps:t_out a=2G65uMN5HjSv0sBfM2Yj2w==:117
  a=2G65uMN5HjSv0sBfM2Yj2w==:17 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
  a=M51BFTxLslgA:10 a=x7bEGLp0ZPQA:10 a=tnT-KND3AOYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=HHGDD-5mAAAA:8 a=x0iCFx657FB7-1Nh1_0A:9
+ a=VkNPw1HP01LnGYTKEx00:22 a=HHGDD-5mAAAA:8 a=3PAn0j2qTEdplpVEXuoA:9
  a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MSBTYWx0ZWRfXwKOqaHLHXW/7
- Qgbe6LabokONfN6S24j6Az/hjKSEIkODQC17n2S1wYSMbWagJpDdyTM8p1yoi61VEQGfGgS1bqT
- wz/fLqcYWWYAqotuHWnzEpycn5j/jkLmTAm575t51u4iavCSN031D+f4lpND1/kZq5yUZxYfAje
- 7kirAYecd6F2YiYad/EacbbdrM9bLBge/U4tCuC8vF54i62HF04IesByZMm6/yDW/3ze8d9hMYY
- LaJA3fmQx/78EBpPyqXO7idaV0u1aqYQYc1FLkACYnEQ4LbGmVQ9HRuxSjX7jmUDcTc5VOUTmDL
- xx2uDsmdSgVBcP5wp0fucjeOMtTMV5ssmzWG4txfUInxg28yvA4dj3PMWEbY+s=
-X-Proofpoint-GUID: pA5qtLaTWrOAwG4MMDnvEgg0l8Fo8QWT
-X-Proofpoint-ORIG-GUID: pA5qtLaTWrOAwG4MMDnvEgg0l8Fo8QWT
-X-JNJ: AAAAAAABQu7QGbv3lQc59PiTXfIEuptCHlq0/wI5la4dOECURPapZ9bzhNKOqPmR7VpvfXXcmowEXboqMYmK/3LEI8S6FljkGdLEsQEEDpu7ncRs1mplYrzglbJANPIIXWROFg/fhz+wwEBX7QtDUTVx06d9WJA5RcQjmOxzYBzs3n2Lb27v8DzoMPWh00he3UfsspRUYL9CziADTpWgszoVqih88DSIiXepwqjEQgN3HBH+jl2Xq3xVz+APllJh0VacyybjW93dhcMOi4qW/YqNomtUbhxusEbqi8iWS1iKKbqLXFMPlemTm7LWsBidl9+4hMb5bzHmjqLptixNnmG3elie9eMw+kfL5Gc+D/PWIBQd114c18IKB6YFF6P9AbD7Fza2veD6LvQ+87AA5IiWKr+jCBClyvxtwEZMMQfZ72j5L2zxcfwMET/l796vGZFICqmjTmMtYxz0fnlIxBBT/q6wLdy3B2ou/8bp+5V1URYpBP5nQXzJQwLtpN1l8NMQzC2YKSfRAKWsxIpuqxYNHcjfBiFfRw/pJhwiV4WkSQ8oTLrnJZ7PID9Z4TkLUJ5pHUce6K4GCgkbSBMkW0pOICV1AwFhqhcorI+L2sQMuf31XBX5OMJi8PbmM/tGA+PrPSQSOzZUma9aXJcNNxcvuEjxuAkXe210Befj5FR4KW58HIUOQD8vTWkJ3wobnwBq88M5gFcBBTHMpXo77PQkO9ff0JGv8x5CQRpshUjOEvCVaFBf45Jn0pzZntEs5Hj1o+7ZhPMhNyjREwglBQiK1Jo55MA=
+X-JNJ: AAAAAAABiLpizMv7Ihz2xLrsik15WQsBqtmFkDXOSNpch38hmk5E81Pi2XVnzPc6cfQkSVsYoMiii1jsbKOjSqc8xM0ME9Lux6f29M7T/xwUvxoTXmxlmqZomCoTVc1nD5IMIaptHd6/TiJF0wqbomS8DXEgBQKxBpL+jbA2XynU/wm3ZXXV6GFQOx8IAxnGJieEpn/zEfxJ/SBjU1uMVGLF3KwM4Ljaf2YA08Vk54CbOh5jDCXEFXlDPxl14s7NKW1jHyU+hqhmoDCT1I1UE24CB2NFA5n8yensez/8dVEK41t+lPY1dnVAJYYoIl9IQlU/PLre0AEpoDhyoLD+hyszWb1Gfr2+l0U40yznZhi5rB5tNDVAVQr3Huf2J+f6WqOqib7ekNMpo3J3tDfB0BJ8L7ex2I8FLFxs2AGKrI7LxUPlEcwvMB+VFOFX8rZ/2gE7nysfwfPkOfeLXiU7mDapaWJmGIYBhvoru30fLyiTxFOQ9xs02CzR8Z+dCAMcd/khHBGWH8rRSfDlTz5LNYc70zALsdNlg/9gGwyz/2b2EV3L/TEGhPRmuJIFC0viHtZnj48VG32lvEsCOkJEnHN0EtsCxm2rksIGJz/4G/A32/OC28QSg/HO91gu+afDIU7/kTwasFZA0RmoIjeXU9QmidzT2XuvHCizPJmGk3Kh+puFFFAfxbEoA9ONxvq3DFz+X743Eds1BZV32n7RE5fTBpW5uXmnvreiT+4gFgsDPWE+e6Gu+k6Ky98ARy+w4l7IuXOyusVjs4putEwi0ZqB9a3Osg6siI7E6Tp3TQ==
 X-Apple-Category-Label: MjczODQ1OTkzOiRjYXRlZ29yeSRfUGVyc29uYWws
 
-The LED and the rumble paths each open-code the same 14-byte vendor
-report byte by byte, leaving the meaning of every field to the reader.
-Name the fields and build the report in one place.
+The driver hardcodes the three LEDs of the Orion 2 throttle base and the
+lighting controller they are addressed to. Other WinWing devices speaking
+this protocol carry a different LED set on a different controller, so
+move both to the per-device data and select them once at init time.
 
-A report is addressed to one of the controllers making up the product by
-a (device, family) pair: the Orion 2 lighting controller answers on
-0x60/0xbe, the two grip rumble motors on 0x01/0xbf and 0x03/0xbf.
+Turn has_grip15 into a quirk mask at the same time, so that a model can
+be described by more than one bit.
 
-No functional change: the bytes put on the wire are identical.
+No functional change: the Orion 2 keeps its three LEDs on device 0x60,
+family 0xbe, and the same button mapping.
 
 Signed-off-by: René Onier <f3nr1l@me.com>
 ---
- drivers/hid/hid-winwing.c | 123 +++++++++++++++++++-------------------
- 1 file changed, 60 insertions(+), 63 deletions(-)
+ drivers/hid/hid-winwing.c | 52 ++++++++++++++++++++++++++-------------
+ 1 file changed, 35 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
-index cbfdb9c66e..a9bf81c19f 100644
+index a9bf81c19f..9ec0d2cf53 100644
 --- a/drivers/hid/hid-winwing.c
 +++ b/drivers/hid/hid-winwing.c
-@@ -16,6 +16,30 @@
+@@ -40,6 +40,9 @@
+ #define WINWING_RUMBLE_LEFT_DEVICE	0x01
+ #define WINWING_RUMBLE_RIGHT_DEVICE	0x03
  
- #define MAX_REPORT 16
- 
-+/*
-+ * Vendor output report (report ID 2, 14 bytes):
-+ *
-+ *	[0] report ID	[1] device	[2] family	[3..4] zero
-+ *	[5] payload length	[6] opcode	[7..] arguments
-+ *
-+ * The device and family bytes select which of the controllers making up the
-+ * product the report is addressed to; unknown reports are silently dropped.
-+ */
-+#define WINWING_REPORT_ID	0x02
-+#define WINWING_REPORT_LEN	14
-+
-+#define WINWING_OP_SET_LEDX	0x49	/* arguments: LED index, value */
-+#define WINWING_SET_LEDX_LEN	3
-+
-+/* Lighting controller of the Orion 2 throttle base */
-+#define ORION2_LIGHT_DEVICE	0x60
-+#define ORION2_LIGHT_FAMILY	0xbe
-+
-+/* Rumble motors of the TGRIP-15 grips, one report each */
-+#define WINWING_STICK_FAMILY		0xbf
-+#define WINWING_RUMBLE_LEFT_DEVICE	0x01
-+#define WINWING_RUMBLE_RIGHT_DEVICE	0x03
++/* Grip with a rumble motor and more than 32 buttons */
++#define WINWING_GRIP15		BIT(0)
 +
  struct winwing_led {
  	struct led_classdev cdev;
  	struct hid_device *hdev;
-@@ -47,36 +71,41 @@ struct winwing_drv_data {
+@@ -52,7 +55,7 @@ struct winwing_led_info {
+ 	const char *led_name;
+ };
+ 
+-static const struct winwing_led_info led_info[3] = {
++static const struct winwing_led_info orion2_led_info[] = {
+ 	{ 0, 255, "backlight" },
+ 	{ 1, 1, "a-a" },
+ 	{ 2, 1, "a-g" },
+@@ -67,7 +70,13 @@ struct winwing_drv_data {
+ 	struct ff_rumble_effect rumble;
+ 	int rumble_left;
+ 	int rumble_right;
+-	int has_grip15;
++	unsigned long quirks;
++
++	/* Lighting controller and LED set of this model */
++	unsigned int num_leds;
++	__u8 led_device;
++	__u8 led_family;
++
  	struct winwing_led leds[];
  };
  
-+/*
-+ * Build a vendor report addressed to one controller and send it. The caller
-+ * owns @buf and any serialization it needs.
-+ *
-+ * Mimicking requests captured by usbmon when the LEDs and the rumble motors
-+ * are controlled by the vendor's app in a VM.
-+ */
-+static int winwing_send_set_ledx(struct hid_device *hdev, __u8 *buf,
-+		__u8 device, __u8 family, __u8 index, __u8 value)
-+{
-+	memset(buf, 0, WINWING_REPORT_LEN);
-+
-+	buf[0] = WINWING_REPORT_ID;
-+	buf[1] = device;
-+	buf[2] = family;
-+	buf[5] = WINWING_SET_LEDX_LEN;
-+	buf[6] = WINWING_OP_SET_LEDX;
-+	buf[7] = index;
-+	buf[8] = value;
-+
-+	return hid_hw_output_report(hdev, buf, WINWING_REPORT_LEN);
-+}
-+
- static int winwing_led_write(struct led_classdev *cdev,
- 		enum led_brightness br)
- {
- 	struct winwing_led *led = (struct winwing_led *) cdev;
- 	struct winwing_drv_data *data = hid_get_drvdata(led->hdev);
--	__u8 *buf = data->report_lights;
- 	int ret;
- 
+@@ -104,7 +113,7 @@ static int winwing_led_write(struct led_classdev *cdev,
  	mutex_lock(&data->lights_lock);
  
--	/*
--	 * Mimicking requests captured by usbmon when LEDs
--	 * are controlled by the vendor's app in a VM.
--	 */
--	buf[0] = 0x02;
--	buf[1] = 0x60;
--	buf[2] = 0xbe;
--	buf[3] = 0x00;
--	buf[4] = 0x00;
--	buf[5] = 0x03;
--	buf[6] = 0x49;
--	buf[7] = led->number;
--	buf[8] = br;
--	buf[9] = 0x00;
--	buf[10] = 0;
--	buf[11] = 0;
--	buf[12] = 0;
--	buf[13] = 0;
--
--	ret = hid_hw_output_report(led->hdev, buf, 14);
-+	ret = winwing_send_set_ledx(led->hdev, data->report_lights,
-+			ORION2_LIGHT_DEVICE, ORION2_LIGHT_FAMILY,
-+			led->number, br);
+ 	ret = winwing_send_set_ledx(led->hdev, data->report_lights,
+-			ORION2_LIGHT_DEVICE, ORION2_LIGHT_FAMILY,
++			data->led_device, data->led_family,
+ 			led->number, br);
  
  	mutex_unlock(&data->lights_lock);
+@@ -115,10 +124,11 @@ static int winwing_led_write(struct led_classdev *cdev,
+ static int winwing_init_led(struct hid_device *hdev,
+ 		struct input_dev *input)
+ {
++	const struct winwing_led_info *table;
+ 	struct winwing_drv_data *data;
+ 	struct winwing_led *led;
+-	int ret;
+-	int i;
++	int ret = 0;
++	unsigned int i;
  
-@@ -242,28 +271,12 @@ static int winwing_haptic_rumble(struct winwing_drv_data *data)
- 	if (m != data->rumble_left) {
- 		int ret;
+ 	data = hid_get_drvdata(hdev);
  
--		/*
--		 * Mimicking requests captured by usbmon when rumble
--		 * is activated by the vendor's app in a VM.
--		 */
--		buf[0] = 0x02;
--		buf[1] = 0x01;
--		buf[2] = 0xbf;
--		buf[3] = 0x00;
--		buf[4] = 0x00;
--		buf[5] = 0x03;
--		buf[6] = 0x49;
--		buf[7] = 0x00;
--		buf[8] = m;
--		buf[9] = 0x00;
--		buf[10] = 0;
--		buf[11] = 0;
--		buf[12] = 0;
--		buf[13] = 0;
--
--		ret = hid_hw_output_report(data->hdev, buf, 14);
-+		ret = winwing_send_set_ledx(data->hdev, buf,
-+				WINWING_RUMBLE_LEFT_DEVICE,
-+				WINWING_STICK_FAMILY, 0, m);
- 		if (ret < 0) {
--			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
-+			hid_err(data->hdev, "error %d (%*ph)\n", ret,
-+					WINWING_REPORT_LEN, buf);
- 			return ret;
- 		}
- 		data->rumble_left = m;
-@@ -273,28 +286,12 @@ static int winwing_haptic_rumble(struct winwing_drv_data *data)
- 	if (m != data->rumble_right) {
- 		int ret;
+@@ -130,8 +140,13 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	if (!data->report_lights)
+ 		return -ENOMEM;
  
--		/*
--		 * Mimicking requests captured by usbmon when rumble
--		 * is activated by the vendor's app in a VM.
--		 */
--		buf[0] = 0x02;
--		buf[1] = 0x03;
--		buf[2] = 0xbf;
--		buf[3] = 0x00;
--		buf[4] = 0x00;
--		buf[5] = 0x03;
--		buf[6] = 0x49;
--		buf[7] = 0x00;
--		buf[8] = m;
--		buf[9] = 0x00;
--		buf[10] = 0;
--		buf[11] = 0;
--		buf[12] = 0;
--		buf[13] = 0;
--
--		ret = hid_hw_output_report(data->hdev, buf, 14);
-+		ret = winwing_send_set_ledx(data->hdev, buf,
-+				WINWING_RUMBLE_RIGHT_DEVICE,
-+				WINWING_STICK_FAMILY, 0, m);
- 		if (ret < 0) {
--			hid_err(data->hdev, "error %d (%*ph)\n", ret, 14, buf);
-+			hid_err(data->hdev, "error %d (%*ph)\n", ret,
-+					WINWING_REPORT_LEN, buf);
- 			return ret;
- 		}
- 		data->rumble_right = m;
+-	for (i = 0; i < 3; i += 1) {
+-		const struct winwing_led_info *info = &led_info[i];
++	table = orion2_led_info;
++	data->num_leds = ARRAY_SIZE(orion2_led_info);
++	data->led_device = ORION2_LIGHT_DEVICE;
++	data->led_family = ORION2_LIGHT_FAMILY;
++
++	for (i = 0; i < data->num_leds; i += 1) {
++		const struct winwing_led_info *info = &table[i];
+ 
+ 		led = &data->leds[i];
+ 		led->hdev = hdev;
+@@ -155,7 +170,7 @@ static int winwing_init_led(struct hid_device *hdev,
+ 	return ret;
+ }
+ 
+-static int winwing_map_button(int button, int has_grip15)
++static int winwing_map_button(int button, int map_more_buttons)
+ {
+ 	if (button < 1)
+ 		return KEY_RESERVED;
+@@ -179,7 +194,7 @@ static int winwing_map_button(int button, int has_grip15)
+ 		return (button - 65) + BTN_TRIGGER_HAPPY17;
+ 	}
+ 
+-	if (!has_grip15) {
++	if (!map_more_buttons) {
+ 		/*
+ 		 * Not mapping numbers [33 .. 64] which
+ 		 * are not assigned to any real buttons
+@@ -232,7 +247,7 @@ static int winwing_input_mapping(struct hid_device *hdev,
+ 	/* Button numbers start with 1 */
+ 	button = usage->hid & HID_USAGE;
+ 
+-	code = winwing_map_button(button, data->has_grip15);
++	code = winwing_map_button(button, data->quirks & WINWING_GRIP15);
+ 
+ 	hid_map_usage(hi, usage, bit, max, EV_KEY, code);
+ 
+@@ -368,7 +383,7 @@ static int winwing_probe(struct hid_device *hdev,
+ 		return -ENOMEM;
+ 
+ 	data->hdev = hdev;
+-	data->has_grip15 = id->driver_data;
++	data->quirks = id->driver_data;
+ 	hid_set_drvdata(hdev, data);
+ 
+ 	mutex_init(&data->lights_lock);
+@@ -414,18 +429,21 @@ static int winwing_input_configured(struct hid_device *hdev,
+ 	if (ret)
+ 		hid_err(hdev, "led init failed\n");
+ 
+-	if (data->has_grip15)
++	if (data->quirks & WINWING_GRIP15)
+ 		winwing_init_ff(hdev, hidinput);
+ 
+ 	return ret;
+ }
+ 
+-/* Set driver_data to 1 for grips with rumble motor and more than 32 buttons */
+ static const struct hid_device_id winwing_devices[] = {
+-	{ HID_USB_DEVICE(0x4098, 0xbd65), .driver_data = 1 },  /* TGRIP-15E  */
+-	{ HID_USB_DEVICE(0x4098, 0xbd64), .driver_data = 1 },  /* TGRIP-15EX */
+-	{ HID_USB_DEVICE(0x4098, 0xbe68), .driver_data = 0 },  /* TGRIP-16EX */
+-	{ HID_USB_DEVICE(0x4098, 0xbe62), .driver_data = 0 },  /* TGRIP-18   */
++	{ HID_USB_DEVICE(0x4098, 0xbd65),      /* TGRIP-15E  */
++	  .driver_data = WINWING_GRIP15 },
++	{ HID_USB_DEVICE(0x4098, 0xbd64),      /* TGRIP-15EX */
++	  .driver_data = WINWING_GRIP15 },
++	{ HID_USB_DEVICE(0x4098, 0xbe68),      /* TGRIP-16EX */
++	  .driver_data = 0 },
++	{ HID_USB_DEVICE(0x4098, 0xbe62),      /* TGRIP-18   */
++	  .driver_data = 0 },
+ 	{}
+ };
+ 
 -- 
 2.55.0
 

@@ -1,230 +1,207 @@
-Received: from mail-dy2-f41.google.com (mail-dy2-f41.google.com [74.125.229.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEE393AEF2E
-	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 05:18:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FB673BB113;
+	Wed, 30 Sep 2026 06:22:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790745530; cv=none; b=C2S5CKx5HK6GyfjEweq7iZlPid+2q+syyQIKlnH+J52PUhaTn7fOkvyFi04HYJInOuQqBIcqvVhwu5W13XUxS3AGJtviXn1Id637H4zxlCjP3TZ52Fw8WLmYNcMt2pdMMdJC3YVrs1qqkHz0v8/eo4RvGwrYpqMTVlQoD7E5i58=
+	t=1790749373; cv=none; b=bH0rbZghmIkKbEPsCvPzsv/6HLSDLALnMtzmK1rNcmMfvMAjzZbhU3svvue8ghIm4Io51q4A6Q2Rs3id1WdOrt8eWNmMyxKsI07KVeu08GWANJeVMUHdFzMWj85u841F+JLimNggx1f/lBQCAwYabRYtn+Tx8IhjtCMCm+Oi7M0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790745530; c=relaxed/simple;
-	bh=mVZKYZ5RQngGFM3QbYSpefMNSi76MF6IjaQzPsyX+Ho=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=KKbD3a853pxv1md8eeK77PqkmQz+4Jbf0p03nhfUcw/7anuHZSsH1VNJpguz2wM18/wD09OH2YvHBxNcW86dlQTuErNeaqg+stnDLQ6UaqGhwXz4Ltb0c4fd+R6aauj8at/csOrgJDD4OnNyhfcqrXnZaZjZlFY9HRADoM6GA+I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PfgY14de; arc=none smtp.client-ip=74.125.229.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790749373; c=relaxed/simple;
+	bh=rtNUZwDU+3thMLtaT2oI+T5OiKsS3YLtKp2NBRhe4uQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Fh4eeBr5XWv1Q6wbhROY7iUtJTLAA16LF6sZkxzLcQnLsvdFxQKJurq/ObkK8aznoZvMFryWhes2Df2samTmh7ioTlwU6R+g0mHQg4z9ttgAmVTO2ehg9b1NvYH2XBzuI4wDbG4S5SY5KHRtiiRUPWiq+usWgJmg4GPCPcmyu7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bGeH0kKD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PfgY14de"
-Received: by mail-dy2-f41.google.com with SMTP id 5a478bee46e88-34c0b552ccfso571388eec.3
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 22:18:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790745528; x=1791350328; darn=vger.kernel.org;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=gB3RSmmxTuZvY13a4OJmrWrVo3q4uhhENWZDBtXDYhQ=;
-        b=PfgY14deA1oW53vtBxlkkKzAI9PYxLNVP42HMV7nykmq+boLCk8g4CvfzWCj6SWZ3x
-         7QtAh5TqNF2jGg6evkqkLB7d87b8BszoXMxDm1YHGfP3OpqdD/1OAB+A3sxGZjaUQMbt
-         VLP/qdv2+3TTc/ntymh9rrVin6SwErn1UhJhM34Xy5niXTMhNkiF02t4sG1L3BcvsyCY
-         A83FVHWQ0YDrh0LnmfujOzUm4xE4r0DuGs6Tz57/8gJ5pURb63BRzKbuOQ9PL6zFtMDm
-         3W2aRm9icbEW0Ab2JQNHu+ZAvxh1ybAw4tVEvE9jd5O62fGAk/vB/mCcVpuybz83Lz/O
-         5zaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790745528; x=1791350328;
-        h=content-disposition:content-type:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=gB3RSmmxTuZvY13a4OJmrWrVo3q4uhhENWZDBtXDYhQ=;
-        b=thBZDuq43SuthVLOxA6zzDeUHUzvJEF2bVdTvOzkCUABM8C7UCaJ2oINaQdcvB+0+J
-         cETcPezPLwffVhTaBnazQE94IpnYJIfcq0mUDnRSl9Q8ia7A66o+svl7/CriiUgFrQ0T
-         /7gwqd2Z6N3HpOwn1qDE+zYj2+q5TzgJhZ+OwUGjPtPp/1KCl7o9sdj53rOHC77SZPbB
-         7YKS/9+LkXXoSijZ0rWIzVemPVUmFqPXBXw+rDCn2Q/dEGYA85IqSY6ZqdmA6z38CfSp
-         8wpO0XNrL4BR8fB04Hnuk7cZU+QgP+uVtXA9SWcvBh0xiL687grjrOtqkV3omhrrOwWl
-         63Pw==
-X-Gm-Message-State: AFq9FYII04FVTUlcnxwjwP2eThJOlj+AGkGt1tnwYgtXkBGk1x7+gwgR
-	pz8XmRRTqoTtXxb2WI4JHl0q1k7y1Sdo44V0WgA46PUBAJwUq5ena7HVEFiqCdiB
-X-Gm-Gg: AYBFou1R3eJ+TcuE5Fa1GtvKhpUEI4dSnKCYCiUKtXPi7HBTyVDyPyKkFyJr3fHuXIJ
-	X5+YCaiQ3kvMLNXRPBRvEgrHG9wEI2mna6iCw1Qxd/HEhiprfopRPOTmoafkSyTnAcJaAz4N/zO
-	biWlNSy9c1W+5xI/TgIDptkCl0+wmkbU5rx9UtIvtHwycH8pJWR/zmQwnDAQ8I8Czg759RT7Fed
-	owrIxAMxpaQvrROpwVYC/3nJZ24VjEkut0cNI9QoRAS1VggC1Z27tYs7sB986074z+dmAJstzGO
-	xr9/dFJ897HjOOaWQs8HJ3KA458EQPD7iZYiTICrNoyyyvS5Vit0HlKk8/UitwLZqKqhlMsIcxJ
-	fcRhyI7FEIMOIA01836FxdlunZNApbuN3IDQYGxqipjvD1kQFNgfVw1TZMsXPZTA+04//LA8HoK
-	+/+uTvd2/4ffIoXlNo1/iZ84+cvHThU2ESLB/YmviuPyvt7Voin9m+Ix5ctNEGPefoDCfVFNWdQ
-	+N+8eDDKNEQuIVaFmqNOPsAofyVdF06r7cdqAUmD7ASsClzbrs=
-X-Received: by 2002:a05:7300:598c:b0:343:4a95:f120 with SMTP id 5a478bee46e88-34cdc8bdef4mr567282eec.25.1790745527671;
-        Tue, 29 Sep 2026 22:18:47 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:101a:5ce6:a15e:d8ca])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34cf4a63ac9sm898281eec.10.2026.09.29.22.18.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2026 22:18:47 -0700 (PDT)
-Date: Tue, 29 Sep 2026 22:18:44 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: David Heidelberg <david@ixit.cz>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: s6sy761 - fix error handling in power management paths
-Message-ID: <arya1u_Rqtt85lyc@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bGeH0kKD"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A0924C2BCF4;
+	Wed, 30 Sep 2026 06:22:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1790749372;
+	bh=rtNUZwDU+3thMLtaT2oI+T5OiKsS3YLtKp2NBRhe4uQ=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=bGeH0kKDlTtTTuLXt3hLKT0R5IZOUQapWAtWvPPGsECfw+k2or+CYOQEfjrJgQ7Jx
+	 0XPzagQVBujJFD/ysBjLKziheXirJhz71OQSOMa24XmIr4vVCVxukT+/yDT4xeCPhp
+	 IaFZNb9lHywEE+hshdwF1V7bLz1Hef+yzHaEK/N5Y0nLo6vFkmJ4yLVZtslYpt3SM2
+	 sOZT2zroUYh4n3rSdOclufgvj2p7qqrscImzW037fB126diNwIUvgYNrhUHXlkIXF4
+	 rsqOxznVsIiDdc1suIjo8BZUUE+K0nXnpvTjnjCnb1f+HfKBO4yCta6YiOoz03r/hI
+	 AtikSsURca8sQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E90FCA5FB1;
+	Wed, 30 Sep 2026 06:22:52 +0000 (UTC)
+From: Waqar Gulzar via B4 Relay <devnull+iamwaqargulzar.gmail.com@kernel.org>
+Date: Wed, 30 Sep 2026 11:22:49 +0500
+Subject: [PATCH] HID: i2c-hid-acpi: restore touchscreen IRQ routing on HP
+ OmniBook X Flip 16
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260930-b4-elan2514-irq-route-v1-1-44671bf01d05@gmail.com>
+X-B4-Tracking: v=1; b=H4sIALiqvGoC/yXMQQqDMBBA0avIrDsQY7TaqxQXJk7siEQ7URHEu
+ zdtl2/x/wmRhCnCIztBaOfIc0jIbxm4VxcGQu6TQStdqaZQaA3S1AVd5gZZ3ijzthL2tb4b73y
+ tSgupXYQ8H7/vs/07bnYkt35ncF0fk1cS8nkAAAA=
+X-Change-ID: 20260930-b4-elan2514-irq-route-d8274fcf805b
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-acpi@vger.kernel.org, stable@vger.kernel.org, 
+ Waqar Gulzar <iamwaqargulzar@gmail.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790749371; l=5531;
+ i=iamwaqargulzar@gmail.com; s=20260930; h=from:subject:message-id;
+ bh=i/kcWiyvC9sOaZJ1/0neMN3dO4OBwcexqs5ODF8WpnE=;
+ b=587x1mpxQN0x62TTKWKXtPdtKnrhddDQKiq2/8MFrl7x+g6GrAgLnUMYhz2h4sdOnNmRDDYel
+ 8PYX7GrgiGMDHCTLbK1KdvQrU2RjE1InqS+UeAijEHn1IxH/SdGfWKW
+X-Developer-Key: i=iamwaqargulzar@gmail.com; a=ed25519;
+ pk=SaQhB3EnN6qioo4wuu0rBv6REy1Nx9hz3QOh3Qp9xtk=
+X-Endpoint-Received: by B4 Relay for iamwaqargulzar@gmail.com/20260930 with
+ auth_id=1083
+X-Original-From: Waqar Gulzar <iamwaqargulzar@gmail.com>
+Reply-To: iamwaqargulzar@gmail.com
 
-In s6sy761_power_on(), if any of the I2C operations or status checks
-fail after enabling the regulators, the function returns an error while
-leaving the regulators enabled. Conversely, in s6sy761_resume(), if
-powering on the controller fails, enable_irq() is skipped while the PM
-core still marks the device as resumed. A subsequent system suspend or
-driver unbind then invokes s6sy761_power_off() again, attempting to
-disable already disabled regulators and incrementing the IRQ disable
-depth a second time, which leaves the interrupt permanently disabled on
-later resumes. Additionally, if restoring sensing in s6sy761_resume()
-fails, the controller is left powered on.
+From: Waqar Gulzar <iamwaqargulzar@gmail.com>
 
-Track whether the controller is powered up with a powered_up flag,
-unwind regulator enablement on error in s6sy761_power_on(), move
-disable_irq() to s6sy761_suspend() so it is only called during system
-sleep when the controller is powered up, and power off the controller
-if restoring sensing fails during resume.
+On the HP OmniBook X Flip 16 the ELAN2514 touchscreen interrupt is a
+GPIO pad (GPP_E_18) routed directly to the IO-APIC. The firmware's
+touchscreen power resource does
 
-Reported-by: sashiko-bot@kernel.org
-Assisted-by: LLM
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+    PTPL._ON:  \_SB.SGRA (TPI2, TPIP)        // TPIP = T0IP = 0
+    PTPL._OFF: \_SB.SGRA (TPI2, TPIP ^ 1)
+
+while the device's _INI enables routing with SGRA (GPLI, T0IP ^ 1).
+So _ON clears PADCFG0.GPIROUTIOXAPIC and disconnects the pad from the
+IO-APIC. Linux evaluates _ON at probe and on every D3->D0 transition
+(Windows apparently does not while _STA already reports the resource
+on), after which the level-triggered IRQ never deasserts:
+
+  - ~630 interrupts/s while idle, nearly every read returns 0xffff
+  - frames shifted by a leading 0xff, "incomplete report (67/7167)"
+  - stylus reports arrive at ~25 Hz instead of the native ~268 Hz
+  - touch stalls and false stylus proximity
+
+Re-enable the routing through the firmware's own \_SB.SGRA helper from
+the power_up hook, which runs at probe and on resume before the HID
+reset.
+
+Tested on board 8DA1 (BIOS F.20): idle interrupts drop from ~630/s to
+0 after boot and after s2idle resume, and pen and touch behave as on
+Windows. Board 8DA0 is the other board ID of this model and is reported
+to have the same firmware code, so it is included, but it has not been
+tested because I do not have access to one.
+
+Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2142384
+Link: https://github.com/testyfishy/hp-omnibook-flip16-touchscreen-fix
+Link: https://github.com/iamwaqargulzar/hp-omnibook-x-flip-16-linux-touchscreen-pen-fix
+Cc: stable@vger.kernel.org
+Signed-off-by: Waqar Gulzar <iamwaqargulzar@gmail.com>
 ---
- drivers/input/touchscreen/s6sy761.c | 59 +++++++++++++++++++++--------
- 1 file changed, 43 insertions(+), 16 deletions(-)
+The HP OmniBook X Flip 16 firmware disconnects the ELAN2514 touchscreen
+interrupt from the IO-APIC in its power resource _ON method, which Linux
+runs at probe and resume. This patch re-enables the routing through the
+firmware's own helper from i2c-hid-acpi's power_up hook.
 
-diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
-index 899c179fb2d3..a770628d2b94 100644
---- a/drivers/input/touchscreen/s6sy761.c
-+++ b/drivers/input/touchscreen/s6sy761.c
-@@ -108,6 +108,8 @@ struct s6sy761_data {
+Tested on board 8DA1 with BIOS F.20 on Linux 7.2.8, including s2idle
+resume. The 8DA0 entry is untested (I do not have that board).
+
+Full analysis, ACPI excerpts, and Windows/Linux traces:
+https://github.com/iamwaqargulzar/hp-omnibook-x-flip-16-linux-touchscreen-pen-fix
+---
+ drivers/hid/i2c-hid/i2c-hid-acpi.c | 58 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi.c b/drivers/hid/i2c-hid/i2c-hid-acpi.c
+index 9371db200..b6348ee3d 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
++++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
+@@ -21,6 +21,7 @@
  
- 	u16 devid;
- 	u8 tx_channel;
-+
-+	bool powered_up;
- };
- 
- /*
-@@ -307,32 +309,41 @@ static int s6sy761_power_on(struct s6sy761_data *sdata)
- 					    S6SY761_EVENT_SIZE,
- 					    buffer);
- 	if (ret < 0)
--		return ret;
-+		goto err_disable_regulators;
- 
- 	event = (buffer[0] >> 2) & 0xf;
- 
- 	if ((event != S6SY761_EVENT_INFO &&
- 	     event != S6SY761_EVENT_VENDOR_INFO) ||
- 	    buffer[1] != S6SY761_INFO_BOOT_COMPLETE) {
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_disable_regulators;
- 	}
- 
- 	ret = i2c_smbus_read_byte_data(sdata->client, S6SY761_BOOT_STATUS);
- 	if (ret < 0)
--		return ret;
-+		goto err_disable_regulators;
- 
- 	/* for some reasons the device might be stuck in the bootloader */
--	if (ret != S6SY761_BS_APPLICATION)
--		return -ENODEV;
-+	if (ret != S6SY761_BS_APPLICATION) {
-+		ret = -ENODEV;
-+		goto err_disable_regulators;
-+	}
- 
- 	/* enable touch functionality */
- 	ret = i2c_smbus_write_word_data(sdata->client,
- 					S6SY761_TOUCH_FUNCTION,
- 					S6SY761_MASK_TOUCH);
- 	if (ret)
--		return ret;
-+		goto err_disable_regulators;
- 
-+	sdata->powered_up = true;
- 	return 0;
-+
-+err_disable_regulators:
-+	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
-+			       sdata->regulators);
-+	return ret;
+ #include <linux/acpi.h>
+ #include <linux/device.h>
++#include <linux/dmi.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+@@ -55,6 +56,60 @@ static void i2c_hid_acpi_restore_sequence(struct i2chid_ops *ops)
+ 	i2c_hid_acpi_get_descriptor(ihid_acpi->adev);
  }
  
- static int s6sy761_hw_init(struct s6sy761_data *sdata,
-@@ -381,9 +392,11 @@ static void s6sy761_power_off(void *data)
- {
- 	struct s6sy761_data *sdata = data;
- 
--	disable_irq(sdata->client->irq);
--	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
--						sdata->regulators);
-+	if (!sdata->powered_up)
-+		return;
++/*
++ * HP OmniBook X Flip 16 (boards 8DA0/8DA1): the touchscreen power resource
++ * \_SB.PC00.I2C4.PTPL._ON writes the wrong value to the GPIROUTIOXAPIC bit
++ * of the touchscreen interrupt pad, disconnecting it from the IO-APIC. The
++ * level-triggered interrupt then never deasserts, the controller is read
++ * continuously (~630 reads/s while idle) and it cannot deliver pen reports
++ * at its native rate. Windows does not run _ON while the resource already
++ * reports on, so it is not affected. Linux runs _ON at probe and on every
++ * resume, so re-enable the routing with the firmware's own helper before
++ * the HID reset.
++ */
++static const struct dmi_system_id i2c_hid_acpi_irq_route_dmi[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "8DA0"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
++			DMI_EXACT_MATCH(DMI_BOARD_NAME, "8DA1"),
++		},
++	},
++	{ }
++};
 +
-+	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators), sdata->regulators);
-+	sdata->powered_up = false;
- }
- 
- static int s6sy761_probe(struct i2c_client *client)
-@@ -492,11 +505,24 @@ static int s6sy761_suspend(struct device *dev)
- {
- 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
- 
--	s6sy761_power_off(sdata);
-+	if (sdata->powered_up) {
-+		disable_irq(sdata->client->irq);
-+		s6sy761_power_off(sdata);
-+	}
- 
- 	return 0;
- }
- 
-+static int s6sy761_restore_sense(struct s6sy761_data *sdata)
++static int i2c_hid_acpi_restore_irq_route(struct i2chid_ops *ops)
 +{
-+	guard(mutex)(&sdata->input->mutex);
++	struct i2c_hid_acpi *ihid_acpi = container_of(ops, struct i2c_hid_acpi, ops);
++	union acpi_object args[2];
++	struct acpi_object_list arg_list = { ARRAY_SIZE(args), args };
++	unsigned long long pad;
++	acpi_status status;
 +
-+	if (!input_device_enabled(sdata->input))
++	status = acpi_evaluate_integer(NULL, "\\GPLI", NULL, &pad);
++	if (ACPI_FAILURE(status))
 +		return 0;
 +
-+	return i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_ON);
++	args[0].type = ACPI_TYPE_INTEGER;
++	args[0].integer.value = pad;
++	args[1].type = ACPI_TYPE_INTEGER;
++	args[1].integer.value = 1;
++
++	status = acpi_evaluate_object(NULL, "\\_SB.SGRA", &arg_list, NULL);
++	if (ACPI_FAILURE(status))
++		acpi_handle_warn(acpi_device_handle(ihid_acpi->adev),
++				 "failed to restore interrupt routing: %s\n",
++				 acpi_format_exception(status));
++
++	/* Never fail probe or resume because of this workaround */
++	return 0;
 +}
 +
- static int s6sy761_resume(struct device *dev)
+ static void i2c_hid_acpi_shutdown_tail(struct i2chid_ops *ops)
  {
- 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
-@@ -506,15 +532,16 @@ static int s6sy761_resume(struct device *dev)
- 	if (err)
- 		return err;
+ 	struct i2c_hid_acpi *ihid_acpi = container_of(ops, struct i2c_hid_acpi, ops);
+@@ -85,6 +140,9 @@ static int i2c_hid_acpi_probe(struct i2c_client *client)
+ 	ihid_acpi->adev = adev;
+ 	ihid_acpi->ops.shutdown_tail = i2c_hid_acpi_shutdown_tail;
+ 	ihid_acpi->ops.restore_sequence = i2c_hid_acpi_restore_sequence;
++	if (acpi_dev_hid_uid_match(ihid_acpi->adev, "ELAN2514", NULL) &&
++	    dmi_check_system(i2c_hid_acpi_irq_route_dmi))
++		ihid_acpi->ops.power_up = i2c_hid_acpi_restore_irq_route;
  
--	enable_irq(sdata->client->irq);
--
--	guard(mutex)(&sdata->input->mutex);
-+	err = s6sy761_restore_sense(sdata);
-+	if (err)
-+		goto err_power_off;
+ 	acpi_device_fix_up_power(adev);
  
--	if (!input_device_enabled(sdata->input))
--		return 0;
-+	enable_irq(sdata->client->irq);
- 
--	err = i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_ON);
-+	return 0;
- 
-+err_power_off:
-+	s6sy761_power_off(sdata);
- 	return err;
- }
- 
--- 
-2.56.0.rc1.315.gc6ed9934b7-goog
+
+---
+base-commit: 145c2b2e9a5c0f794fb4009bcb072ab19f8ccfcd
+change-id: 20260930-b4-elan2514-irq-route-d8274fcf805b
+
+Best regards,
+--  
+Waqar Gulzar <iamwaqargulzar@gmail.com>
 
 
--- 
-Dmitry

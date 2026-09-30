@@ -1,40 +1,42 @@
-Received: from outbound.ci.icloud.com (ci-2005k-snip4-11.eps.apple.com [57.103.89.241])
+Received: from outbound.ci.icloud.com (ci-2006j-snip4-6.eps.apple.com [57.103.90.227])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FA5144A708
-	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 19:56:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.89.241
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B79DC408629
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 19:59:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.90.227
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790798187; cv=none; b=E6iMnuqL8/nxYuZD/9f4KMiwDrBOkoDC+LKIv2m/pY2UikNdkxIInD5MUfiA7geMKKW32UEULugW6HJZmVtfvoJUbXAC/BCQupVlysM/jLgPC3NfLDKItIgk8nikYklBPsmGzOVBMw3xJ50xzZ04Nzmnsbx5TcNJ/aKtyHEGqtc=
+	t=1790798343; cv=none; b=f9xQkQl8miJe7w2Up+xYMUvxFX0e7MCx4OcfcHpk7MbCOpSoVxf87wAaPNVMrchI2Img+Ie/AcRmNaM8EwA4SGCQ1ykttTGaUY9e1nSCwggQh/YciZqCEYn5sgw7GnFx6g23iWM0lqzBDF5OvYZ1H6k1Me6lPiy8KVFA58cT4To=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790798187; c=relaxed/simple;
-	bh=O2A4H6Pu8HokgZldss/bPwxeyavMmKJMdUMBnMemgjw=;
+	s=arc-20240116; t=1790798343; c=relaxed/simple;
+	bh=RGsx7d8YxrSJ957myMpLdIcSFy/GszTr01KBM3l5WF4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cL53KIHgrVxKhwQBfwc9aMpalyTJvchDxeAqOCkq5yGQsU7oYh4n8SpkxwuIpZWCE3vP7Y47T/Kw1Bp3432TqSQFdvFysHLS4NgGqYuLDXY14ikg3RD8hXUi99baXq2ZRGjSAyqg6LTrpkrQ2Un4OyI0tQtqXvs9lAP+n7pkt/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com; spf=pass smtp.mailfrom=me.com; dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=UP8gsUSZ; arc=none smtp.client-ip=57.103.89.241
+	 MIME-Version:Content-Type; b=ZsCvUZC4QzQb1buXrueKjUCjn9rlQBIwgtFgEXXWMjHORhqAw267Y75B5pFUXda2y5crXO3hBkJCEZZc5lHt/gyGOLx+os7ojaWCBGjLt7706m7DPASf/SNcFs9aX70KJZzcomF1GQqqH0adCegG2qhvrn3JIZzA3IK4fUkifYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com; spf=pass smtp.mailfrom=me.com; dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=eTDyJp6c; arc=none smtp.client-ip=57.103.90.227
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=me.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b="UP8gsUSZ"
+	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b="eTDyJp6c"
 Received: from outbound.ci.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-central-1k-60-percent-1 (Postfix) with ESMTPS id 4012118000BD;
-	Wed, 30 Sep 2026 19:56:23 +0000 (UTC)
-X-ICL-RepId: 01a0f3e3-bb10-7c41-8aee-bc938b0ca488
-X-ICL-Out-Info: HUtFAUMHWwJACUgATUQeDx5WFlZNRAJCTQFLHV8HWBxHD1YKTVIPDxYKFkFcWytfFRcbXAAXDVZNVB0dDlgGEgJaRQVNXw5eHwQXRhlVBEceXVZQBBkCURxWDVdDVARfUEkMQVBsWgBHF0gdXRlZb1BdHA4AUkVRH1RYXgRTVg4SDhkGWVNbARZdTAdeDlIDQA0cVllWWQVFAUsFWQNYBkUMHgULUQ4FXghPCl0AUgdHC04dCl4fHBYKFkFcWytfFRcbXAAJS0YJSR0OBFQHXQVd
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai; t=1790798185; x=1793390185; bh=pokyHhBR6X0gbDC7x63a1yzY/tTPFsNMFjxmqKxT2Xs=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=UP8gsUSZqVznjZabkhIX8xGv/2AVfnNi0U9Oc9iTv/9xqjVcN5Cg/GE7VJLrn2NbqWExw327dk5Q/4UcLJaHoAVOhUX7QqxZyEMxRMqsY6I2kyYB5ihft0KyQ/1fu4NVtzn4MNq+6pGuCeqApPzaUgKpyVbFypRtLPtnGnLkTnDovool6OTNN9HkMOScPNBBJjjl+fQ9IeuloGeSyrg2LNt9FCaccvuVIp6GQTa76irqgz2ob7utNyoPh97bcfyy3CWp64SBqwJiwFcx6Ytm2+NpPvT6M+pN5ErmBRLKsTlM6tvsEinNQehlkL7egpl6HiZpz8wVxqSH7ADD9aSarg==
+	by p00-icloudmta-asmtp-us-central-1k-60-percent-3 (Postfix) with ESMTPS id AA41E18000DB;
+	Wed, 30 Sep 2026 19:58:59 +0000 (UTC)
+X-ICL-RepId: 01a0f3e6-1e41-72ce-b032-cd2c2001953b
+X-ICL-Out-Info: HUtFAUMHWwJACUgBTUQeDx5WFlZNRAJCTQFLHV8HWBxHD1YKTVIPDxYKFkFcWytfFRcbXAAXDVZNVB0dDlgGEgJaRQtNXw5eHwQXRhlVBEceXVZQBBkCURxWDVdDVARfUEkMQVBsWgBHF0gdXRlZb1BdHA4AUkVRH1RYXgRTVg5CCUoFXQ5YAkEATQtYBUUBQQlJClkARgNdX0tdHwYHch1cVlACWlUSBEAIVlBeCF4fTBw=
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai; t=1790798340; x=1793390340; bh=zJcTaZYxavhBdn1eQQ/e1H1+1iNILcKE8DTRtC1gIuI=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=eTDyJp6czbidF800GPLXRt5fF6Zy1cQA8G25ox5aoPriprmXxrCW0lZ/Hj93RhFbrsAwbAf18UwL90YUbkJ2jj0Pw84UHMUK0DQ3TzshJN5QGkkLGTVo5YhUVsryxW0hKWXx2+xk3ZkZZQ+fq0/Aw1nTrtt0DmAcjBxjJDoA3UInFovIePnr4zlGjDtseGZSWyE13p5DWE/8Ev1747yiNHq8gFeXMp6I3bp6xekztCqlac8fzPXdfkWwyohcgIS6kQnOd0HRFz2xwxUCvrWP6C0Zwo0yMSq/NzXailau9DK7w1CHDePXQDmi9ljyOnLy9Yn8BHPSlFa/7W/uJwhW5A==
 Received: from fedora.vpn.altanet.fr (unknown [17.57.156.36])
-	by p00-icloudmta-asmtp-us-central-1k-60-percent-1 (Postfix) with ESMTPSA id 938D018000B4;
-	Wed, 30 Sep 2026 19:56:21 +0000 (UTC)
+	by p00-icloudmta-asmtp-us-central-1k-60-percent-3 (Postfix) with ESMTPSA id D8F151800162;
+	Wed, 30 Sep 2026 19:58:57 +0000 (UTC)
 From: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>
 To: Benjamin Tissoires <bentiss@kernel.org>,
 	Jiri Kosina <jikos@kernel.org>
 Cc: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>,
 	Ivan Gorinov <linux-kernel@altimeter.info>,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] HID: winwing: drive the URSA MINOR rumble motor
-Date: Wed, 30 Sep 2026 15:56:00 -0400
-Message-ID: <b7a54d03fd44399104de4a275836443455f6ffe7.1790795726.git.f3nr1l@me.com>
+	linux-kernel@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Guangshuo Li <lgs201920130244@gmail.com>
+Subject: Re: [PATCH 0/2] HID: winwing: two teardown fixes
+Date: Wed, 30 Sep 2026 15:58:52 -0400
+Message-ID: <20260930195852.3101947-1-f3nr1l@me.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <cover.1790795726.git.f3nr1l@me.com>
 References: <cover.1790795726.git.f3nr1l@me.com>
@@ -46,136 +48,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MSBTYWx0ZWRfX2aHb7mOmmpBB
- m8vc4jBQZbELD2P1sgEV7yd7Y44eMXf3PihHqpqaMu8uOGqs3+3BexIEfp1BAru/2O5l0HUKA+R
- sbtE52N8FHdoYeloyTb0/00HWSXti/wCjKbBn2PEvSJXqj8CM0d1v0xfZPFvVn9lXTXODTOTFWS
- epfft2Uj+GziWw7kBciSe3uoPm0LoV/WOxjIVPPmyX9Ywr3RyNf7PzJrSBahhKFEOQyu+41TARI
- 1y7ulw9NnVKaKRjwgFLhfAshaGlKquj4ngP4LPslQxFJQ5eKR3bAtlfdx5CjWSVIDR+IK67xQJ0
- pLAikYxCf7Oxk1TwT++gfl5av7WlPVISfqCE36/2UP5uZv628DChYk2QKUDAYE=
-X-Proofpoint-ORIG-GUID: CNhK9tc8ex5AN1fq4a1n9qqCmWcWnTPr
-X-Proofpoint-GUID: CNhK9tc8ex5AN1fq4a1n9qqCmWcWnTPr
-X-Authority-Info-Out: v=2.4 cv=OK4qHCaB c=1 sm=1 tr=0 ts=6abd6967
+X-Proofpoint-ORIG-GUID: Bh_Ef1kIElePAbo-NHAvQvHPZQRE7Y79
+X-Proofpoint-GUID: Bh_Ef1kIElePAbo-NHAvQvHPZQRE7Y79
+X-Authority-Info-Out: v=2.4 cv=T4+BjvKQ c=1 sm=1 tr=0 ts=6abd6a04
  cx=c_apl:c_pps:t_out a=2G65uMN5HjSv0sBfM2Yj2w==:117
  a=2G65uMN5HjSv0sBfM2Yj2w==:17 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
  a=M51BFTxLslgA:10 a=x7bEGLp0ZPQA:10 a=tnT-KND3AOYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=HHGDD-5mAAAA:8 a=pvo7c7CdJwnF_bxRcHMA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-JNJ: AAAAAAAB027aMPDaIL4GsnGYfUnsU7Odc98xG43uKVopPWNbCGWQw55b/POeDQQJRGiTd2efZcmvot48gTkJhz7P8SGEDOD/eLdwX53sCPA0G9ZkBPXlzE8o5It60c+Q1EKWPKYmJ6qwwOPpDK8nKlbJh/NpxsPUSi2LcNT9PIQeHKh1wiNEFmBY0MBQj2ve+HRlcXZ+4cVTOgydtaCnLJVX9XU5sq3AvqJVnLUSZSIjIJelEymf1Av+wplxCp+nTkgf0FlM7NOWNoOas4cUjSQJrgzMYKhhmc+aK+kdJFCG+TKeseOxh+5oto8g3EDlyCaXG/0XJEoek0YJU2tbYgRlrrH7rKT8Bzy1unJ6brgpC7nSX5QB2btZWJqJOGqsgsG5MtCmdhSPESq98AosXZp65en6tDE+sDN1Lp7qvnQHk8yKKbVqwkJcpW3vzWmKG6qHMuV0UJC6hz4NpdDtQSO4LFlh59XoxWNR5/8HO/p3WtXftbesNIFL/R70fd6mgwH46OY3Y4NFdf7Qge7AAtmwvxHjYWyDOAPU8XR4PwXmkXqbcWIPY3ynNqo7t3aT4SvOFQ77UxzCuZBVikOgqOQAgRGonKNLhfUrWEM4FabEP5DABJ4AwgVo2gR+B3tNbAAFuTDFCOftiBDzriWV6kVHR9i4lDI0FX2pn1L20iiAyalE1LGR5/OXGwuby58w7xFHXjJjpXQUiQ4aM8auFEYkkFQ3bPjM8kBW5ByMfI8Ut6iSB1+6skXLJX2Br4IAlUJ2c+sJzcjDD96NZ00wZUm7/CQyFDEphy5IkbZ5ZyS7Nlmnpqbumok=
+ a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8
+ a=hCq73as0fieUF7sB1GUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MSBTYWx0ZWRfX5pur28cfAAkw
+ 8Qqh+OfMIqTpzgpWNOwTd+aB8cGdvmp3S8B1+ZRwW2diMptqln6/M4gooMS/6PM6/16uDYu5RLT
+ 7Y5djVX21ipR6aW+MTViF0vrfbReihkAs8Sjgblep5T/fjuTFFShn0atChTNMYzt5dI2B35NSbJ
+ RdxKG9gVjp/k2lkq4ZkrHGZhV1cjjStRTX1ChRLLUwX44jnaC+EnpmSVe9IFBZaw1ISisPgixqt
+ i/QwDw7zFzJeI4UulUyKzKpjHeYbIRtPEl6qjaE3J0bfjjgJ6sDLcEXo3fbd+eKhbrjyqZoLVHy
+ 3pR2FJN8rKDaTbIrnEMcZcBFX1m/yhoxqXuLZuXCSfwn3rGbxYQuauwsEhyC7U=
+X-JNJ: AAAAAAABBghs0Svo0th2mMm2+QWCc0Gqce4mw2bWDqV0eU0rY6uCvczqTw5lQqa97r2XQEHKT/+NSrCaNdoylCom0mXL76LKBv+FhCD4IE18ZpOsTcufmjtbKUWUwYIJvjO0Bx7cpKkiMqSlSJcEgdTzumgV3aRdWNZs1Yadc/0bHoYavSKr4OKBo93syxzKHN56Y3cGs3UErf6QlfvvlzrTVb/CM8JlNcXMVtgzm8jBEgSrzBpfp4LyyYr0lXb42SFJDQEXDwfora7tGJmXnmmYphj4t5mNF5DzlZ6Q1DQrtLoXu6PQB2c3yVAuaUB1acFyFtJ7HfIqdpXxUeEaMkJUm/400fzwR+Qt0Ttv91mDck7vdZcWfehy1Naml/A5KmON31yPHgK7OS7ScqTEfuj1cZhyP/fLhtNzoslNTmZdWD1OJPzA/2f2yrxQn4tMY1PvgrfPBv1ADTcoSFDFTPYXUIvrpxeDNHYtJqRgAcVEhVI3wTeFvFbmbdXLCGq7D66oYwKtivbTsABVCpXMQNx/IDs4N9vPitdxOc2hDP1gC4c86Urlvnr65JaOcAQrYPY0qdnIWBehivEafJprycd93w6sXmmk2+ey1G+f+sVW3DfHYncioOINLz/+DZK3C25VVQ+wcwsQjqegqjESufjXQmwmZZBc1hWa1A1jIUjbpoLo4U+mBL07dH5pxAB7QurUrvpfg0eaGsB8nGgOU9A6uXA6PAVFTuwvW8CVrKLn23Ep5RzDZD5htAh3BHHMI6CY/zOuA+KddyyYz7i3xc/DTh4jKI57IfAK7mlzsZuqO92EDwLy8sq5VSrnQV0khaH1DlzhojNtk+tSNpzH052EHrH+28NgxI8NKjYhhAij8W9IU82O06iPLAKN4AVICmafzlLagQFpJ5unkWZlhh8ugB6Sm9SGgU7Fnc2iamEp2X3q1gDF5qS5VjGzIAWrPevIuCnL1FHwkA5IJ4Lwzyl+solGXfR
+ di8RDl/03hXWHwHM7ZbdD62g3bxuz+MoNo8D45WZakz4ioJtKBQBMFCP8gUtR/VBje9vE3D4pngs1LHa3bNh/9AsaLYEO9oepDq+LND8uT87CRBQ2usZupOiOz90Vk6u31vOqb2SUy/LHwr9x+WarXXyJa3IhQE+qamrxLXO8zNxcFyj/qH7oXQ4pHo2L+RrscNC4272mPSJU0zeB5E+NLT+HUmRCZrVGy0ed2kyBq9MQpcvZcz7dFgup2PkH4mj/pu+Qf1ar9cCXa7PjLPdiIoXabPkVXLfdvRo=
 X-Apple-Category-Label: MjczODQ1OTkzOiRjYXRlZ29yeSRfUGVyc29uYWws
 
-An URSA MINOR stick has a single rumble motor, carried by the grip rather
-than by the base and addressed by its own device number, derived from the
-product id. The two-motor throttle path sends to device 0x01 and 0x03,
-which a stick ignores, so give it its own path.
+A note for whoever picks this up: patch 1 touches the same lines of
+winwing_remove() as Guangshuo Li's "HID: winwing: remove unpaired
+hid_hw_close()", posted on 13 September:
+https://lore.kernel.org/linux-input/20260913143909.1589019-1-lgs201920130244@gmail.com/
 
-Both magnitudes feed the one motor and the stronger one wins, which is
-what the memoryless force-feedback core expects of a device that cannot
-drive them separately.
+The two changes are compatible. With both applied, the end of
+winwing_remove() becomes:
 
-The Orion 2 keeps its two motors.
+	hid_hw_stop(hdev);
 
-Signed-off-by: René Onier <f3nr1l@me.com>
----
- drivers/hid/hid-winwing.c | 50 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 49 insertions(+), 1 deletion(-)
+	/* ...comment from patch 1... */
+	if (data)
+		cancel_work_sync(&data->rumble_work);
 
-diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
-index a52e7efece..86caff9183 100644
---- a/drivers/hid/hid-winwing.c
-+++ b/drivers/hid/hid-winwing.c
-@@ -4,6 +4,7 @@
-  * HID driver for WinWing Orion 2 throttle and URSA MINOR sticks
-  *
-  * Copyright (c) 2023 Ivan Gorinov
-+ * Copyright (c) 2026 René Onier
-  */
- 
- #include <linux/device.h>
-@@ -45,8 +46,10 @@
- #define URSA_LIGHT_DEVICE	0x20
- #define URSA_LIGHT_FAMILY	0xbb
- 
--/* Rumble motors of the TGRIP-15 grips, one report each */
-+/* Rumble motors answer on the grip, not on the base */
- #define WINWING_STICK_FAMILY		0xbf
-+
-+/* The TGRIP-15 grips have two motors, each taking its own report */
- #define WINWING_RUMBLE_LEFT_DEVICE	0x01
- #define WINWING_RUMBLE_RIGHT_DEVICE	0x03
- 
-@@ -95,6 +98,10 @@ struct winwing_drv_data {
- 	int rumble_right;
- 	unsigned long quirks;
- 
-+	/* URSA MINOR: single motor, on the grip */
-+	__u8 rumble_device;
-+	int rumble_sent;
-+
- 	/* Lighting controller and LED set of this model */
- 	unsigned int num_leds;
- 	__u8 led_device;
-@@ -296,6 +303,40 @@ static inline int convert_magnitude(int x)
- 	return ((x * 255) >> 16) + 1;
- }
- 
-+/* Device number of the grip, 0x09 for the left stick and 0x0a for the right */
-+static inline __u8 winwing_ursa_device(__u32 product)
-+{
-+	return (product & 0xff) - 0x20;
-+}
-+
-+/*
-+ * An URSA MINOR stick has a single motor, driven by the same opcode as the
-+ * lights but addressed to the grip instead of the base. Both magnitudes feed
-+ * it and the stronger one wins.
-+ */
-+static int winwing_ursa_rumble(struct winwing_drv_data *data, __u8 *buf)
-+{
-+	int ret;
-+	__u8 m;
-+
-+	m = convert_magnitude(max(data->rumble.strong_magnitude,
-+				data->rumble.weak_magnitude));
-+
-+	if (m == data->rumble_sent)
-+		return 0;
-+
-+	ret = winwing_send_set_ledx(data->hdev, buf, data->rumble_device,
-+			WINWING_STICK_FAMILY, 0, m);
-+	if (ret < 0) {
-+		hid_err(data->hdev, "error %d (%*ph)\n", ret,
-+				WINWING_REPORT_LEN, buf);
-+		return ret;
-+	}
-+	data->rumble_sent = m;
-+
-+	return 0;
-+}
-+
- static int winwing_haptic_rumble(struct winwing_drv_data *data)
- {
- 	__u8 *buf;
-@@ -312,6 +353,9 @@ static int winwing_haptic_rumble(struct winwing_drv_data *data)
- 	if (!buf)
- 		return -EINVAL;
- 
-+	if (data->quirks & WINWING_URSA_MINOR)
-+		return winwing_ursa_rumble(data, buf);
-+
- 	m = convert_magnitude(data->rumble.strong_magnitude);
- 	if (m != data->rumble_left) {
- 		int ret;
-@@ -382,6 +426,10 @@ static int winwing_init_ff(struct hid_device *hdev, struct hid_input *hidinput)
- 	data->report_rumble = devm_kzalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
- 	data->rumble_left = -1;
- 	data->rumble_right = -1;
-+	data->rumble_sent = -1;
-+
-+	if (data->quirks & WINWING_URSA_MINOR)
-+		data->rumble_device = winwing_ursa_device(hdev->product);
- 
- 	input_set_capability(hidinput->input, EV_FF, FF_RUMBLE);
- 
--- 
-2.55.0
+Whichever goes in first, I am happy to rebase mine on top of it.
 
+René

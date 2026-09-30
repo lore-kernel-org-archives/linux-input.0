@@ -1,213 +1,175 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy2-f32.google.com (mail-dy2-f32.google.com [74.125.229.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45A621E0DD8;
-	Wed, 30 Sep 2026 17:59:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FB7F511E73
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 18:15:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790791166; cv=none; b=gNgeWLdSYRvmwL5ouRn9tPcq+kHyZLrIKRut9AFnvFk4vhaHu80jWRB6/QeQ+9JGU/p7D3JKZ/Tq6ioZoAFQoR8A/V61HunlGS1EVUNVF6IyLevGupnVzw82g6qEbN99T2Gtcs4JtYSLuBI7K/VPcuNbKtASF2GC4jh6OPuJ06g=
+	t=1790792128; cv=none; b=EvGsDvAgpcIaoklok58514Y1zUJvYnBMIkUbrWzD90uFyYJPVdr9XFBFE+a0I41twxh0b88UPWZw3UjqQr+oclQWa20RbejkvlLB6qrwWjueFqUJ83LP+CGBO9R5YcI3Mec8O9Zf9vnVVIT+XY72ts5KomqRMbmi/Nu0q0522nk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790791166; c=relaxed/simple;
-	bh=ZgC4Sqq5xwC4zBkq2aPMLurpWwH1EohFR4jPcM5VQo8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=k1/74cd3H5QJFEzfXVlfUC2FKJnJjwINfvrqB9MmElid1+3a0q2WXXn3OTBU3b9MGYyFFiQBcMLlPh3O8LfOq+P9ZtbURfsSGnkRRJjIw73dbaNCLCkp1WsdHTVyn9qMquEnPG+xpr9XvvVIecGnZJiXbqWFlxfgSlAShwBNimU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d0JKb0Cm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790792128; c=relaxed/simple;
+	bh=PjwQSo8+rc1z4kQGROqeb9DwEQTAe+aDRBgukQAKf5s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=imiY/FPEDAtZ1+uRqBrV5TsEzKohpFWahMv6+mjIZtLH9jG3TiDYOfi9bYs7IyaOr0ptVdCtT2r0ND21EebHXOc1RsBVZTf77bVVdY1oeZlLg+8fet5Yh6d7pNbaM+ZC7JTG4yF7Xnn0EfKewluqw2ilCjuj+QS5V8n2t6VtsUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WrdEPs79; arc=none smtp.client-ip=74.125.229.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d0JKb0Cm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A9F1F00898;
-	Wed, 30 Sep 2026 17:59:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790791164;
-	bh=PLNnyjohnPl4xhPf587W7AbXGI/7ND1XrL+7doDL6DM=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=d0JKb0CmRdhluE8uLDeT9N6n1smocOz7Xwk/hpnHijzMtlfsXi191uDheAuqdv158
-	 cfg/OV9Hw9MCZQxfoROVEssTPai52Bn4xcakQ8l/zgPtEZCcky2LIBpNlrGL0ZLVPk
-	 E59OfmIbKRBOSJuo/MymqDq6IFyHC/rENsHEoHf7p2Pci86Oh4r3wynb9Efe1vu2dr
-	 01tuUB1QKJtLSUxTB9lMZYhXLYCGbmBZM4WYOKwixZf0zYAbzEO8Rya/+BMhzEOWQs
-	 iZtvaMKK3IdyfCSi54+zEPslcolPtFwRoPoLcHV0ocYnh5A1j3UiizXRNPycFEvIyi
-	 cJQf12h+HCRBw==
-Date: Wed, 30 Sep 2026 18:59:19 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Yibo Tan <lhfff@tju.edu.cn>, Jiri Kosina <jikos@kernel.org>, Benjamin
- Tissoires <bentiss@kernel.org>, Andy Shevchenko
- <andriy.shevchenko@intel.com>, Zhang Lixu	 <lixu.zhang@intel.com>,
- linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] HID: sensor-hub: Fail unfinished multi-value reads
- on removal
-Message-ID: <20260930185919.54170a4e@jic23-hlaptop>
-In-Reply-To: <20260913182120.01bac5c3@jic23-hlaptop>
-References: <20260913045411.5e2f5b25@jic23-hlaptop>
-	<20260913072910.1944300-1-lhfff@tju.edu.cn>
-	<5b28a9e82b8f3d4458b678505ef7063525ce1141.camel@linux.intel.com>
-	<20260913182120.01bac5c3@jic23-hlaptop>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WrdEPs79"
+Received: by mail-dy2-f32.google.com with SMTP id 5a478bee46e88-34b223602d7so1666223eec.2
+        for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 11:15:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790792126; x=1791396926; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wH6osFmbfPcAMlnmB5/HkiVaJyqglqDpKQWfsMmkLu4=;
+        b=WrdEPs79QdOoJmkRxK2aWw31Wbv87SoEwgFBzJQ38rF9lFZjE9aMMoBDBZbo/U9QmA
+         ynrQptzq0uq7NSSwigYknpdNZOT6RHXLQCzBa5fQC93tMQ0VhscWJ7z3gDLVTD7c9QgN
+         Avu5yETt2rsWqohRf731jKWVKdP0BCCb+l2ZqsW+2880EtFcHq/tpRehvTcja0e3kjdS
+         l0MO+kL/6DNvQFXLZXYsO4B09fwThABSBCrWO475eeXDrfqgbvlJrPzYcdDZ3H8biD8H
+         SDra9T0iBtUath5eribXHvdy8/XL9Kogd3mM/QgNfcfQq8p8XaMZwFYQadzqIrIiKk++
+         tAxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790792126; x=1791396926;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=wH6osFmbfPcAMlnmB5/HkiVaJyqglqDpKQWfsMmkLu4=;
+        b=qlHJAwZgsC0smBjBrKhhnPlf2L5P3AfMNaqGFbVtplRcH63X2OcmqDlCzp/hecE1z7
+         OX04FE1o0iTi4Yk7Rfa1xgbpxVPa3vStE1hYvptopPteouCGqHiDvT+gPF0Uxgl1g9aO
+         1BH2vXeaweiJl3AvWjmYh/qpQxoWTqKO7Wc8ngbrQoPhfsMAGpfe0P90oyJuXJ0vmkll
+         jZ+tZu+OzCmbBSJnwOAff1hf2ZWagPoe1OUhdxwLR2enZK1R4rmVHKRvQIIKrt0BD+cl
+         g7S/wyseRhHreJfbTkOV4GMc6xdSw7okXTzR7BM1+uT/wYs58lbXqcu1oJhpJWpBJJZj
+         /0ug==
+X-Forwarded-Encrypted: i=1; AKwUvBxPfs5+GDBSPS4w7tGZnasIkYLqklHPVnuo94TXyZu4ujhaNwpRhvuJe5MvNi1JlKXQ217RzZM7kMkjSg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLNZx0eS9bLMx4vtQeTfGkyWQdJrB5gHDrKVb1IPU6NKnCG/bRl
+	Jps5RQVPba3N4b+78tvN4up2ZbWPhdLcWRCUY8NiYu2iqWzRP4n/wKPO
+X-Gm-Gg: AYBFou2okewJjaeR3iODzwKAApZbnrYSuq52J6gnVMqnzdjko3B2R7iVeYjurAbW0Is
+	oQt5gQuR08ctEBwEG5NoFbrwP6b7R9hKfJKS1+fujR+fWR1TlHwUrnbKmo6X5vi9BbdwOEbmBL+
+	O+C0M1hiT+wklit92PQR3EG4wOGsb8CmOxV6P7wzoVWuNRt+yq/oTdKswPX6fYMLWBlbeFGQCoo
+	dOocFWjAzQ64T+7dy/kHMqoQOdnUqPUEkA9XL3bvtILvnOPyGSmeSbBwj1hZtuEV4GlVwPQqFHC
+	dJw0kPdMUt7qU7M1ynlLTfaCZl2Z6HEhep7uOqeNZ/ShVzs3ncdgnurP/b8aAP6j7pLGcH34Sox
+	qVtu+q40kL1iLvXFNe6f8m+LB8UXTH7kdUTArtDuoldxrl7PpIvI0Od/BRs3bZAqjGxalex0FKC
+	Pj/8vcjvzk0ax4QLktDqTK6VeIHSOW2AO9rSi/I7u7FD9ighRJArGyShPFNRsyeADgvja6a0hLx
+	G5xqxmMZobAi0lIq/R1V/2DMMy0aMTLnMDKgR/w
+X-Received: by 2002:a05:7301:1a02:b0:34b:ee3a:10af with SMTP id 5a478bee46e88-34cd91735admr2161022eec.4.1790792126094;
+        Wed, 30 Sep 2026 11:15:26 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:f011:1d53:dc9c:51d4])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34db3f3159dsm572457eec.20.2026.09.30.11.15.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Sep 2026 11:15:25 -0700 (PDT)
+Date: Wed, 30 Sep 2026 11:15:22 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Habil Eren =?utf-8?Q?T=C3=BCrker?= <habilerenturker@gmail.com>
+Cc: Habil Eren =?utf-8?Q?T=C3=BCrker?= <habilerenturker@hotmail.com>, 
+	sashiko-bot@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	sashiko-reviews@lists.linux.dev
+Subject: Re: [PATCH v2] Input: fix potential use-after-free in
+ input_devices_seq_show
+Message-ID: <ar1RZeMi9OK4Gro2@google.com>
+References: <20260928171306.59206-1-habilerenturker@hotmail.com>
+ <20260928172128.D6AB41F000FF@smtp.kernel.org>
+ <20260928181704.61015-1-habilerenturker@hotmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260928181704.61015-1-habilerenturker@hotmail.com>
 
-On Sun, 13 Sep 2026 18:21:20 +0100
-Jonathan Cameron <jic23@kernel.org> wrote:
+Hi Türker,
 
-> On Sun, 13 Sep 2026 08:50:35 -0700
-> srinivas pandruvada <srinivas.pandruvada@linux.intel.com> wrote:
->=20
-> > On Sun, 2026-09-13 at 15:29 +0800, Yibo Tan wrote: =20
-> > > sensor_hub_remove() completes pending reads after stopping the HID
-> > > device,
-> > > but does not record why they completed.=C2=A0 A successful completion=
- wait
-> > > therefore returns zero even if no complete input report was received.
-> > > Multi-value IIO callers then format their untouched automatic buffer
-> > > as a
-> > > successful result.
-> > >=20
-> > > With a valid four-element signed 32-bit quaternion report descriptor,
-> > > an
-> > > unprivileged reader received all 16 bytes of the untouched buffer.=C2=
-=A0
-> > > Across
-> > > 11 independent KASLR-enabled boots, four reads exposed exact pointers
-> > > to
-> > > dev_rot_channels or dev_sysfs_ops.=C2=A0 Subtracting the matching lin=
-k-
-> > > time
-> > > symbol address recovered the kernel KASLR slide in all four cases.
-> > >=20
-> > > The reader ran as UID/GID 65534 with no effective capabilities
-> > > through the
-> > > mode-0644 IIO attribute.=C2=A0 The test used a privileged UHID broker=
- to
-> > > create
-> > > and remove the provider; it does not demonstrate unprivileged
-> > > provider
-> > > removal.
-> > >=20
-> > > Mark a pending request as shut down before completing it from the
-> > > removal
-> > > path, and return -ENODEV from a multi-value read that observes the
-> > > marker
-> > > after a successful wait.=C2=A0 Let removal win even if a response rac=
-ed
-> > > with
-> > > teardown, since the device is no longer available.
-> > >=20
-> > > The Root B-only repair returned -ENODEV with no payload or kernel
-> > > diagnostic in 3/3 matching signed-32-bit runs.=C2=A0 The source
-> > > reproducer,
-> > > complete vulnerable and fixed serial logs, result tables, and
-> > > checksums are
-> > > available in [1].
-> > >=20
-> > > Link:
-> > > https://github.com/kimaiden1984-boop/linux-kernel-poc-collections/tre=
-e/main/cases/hid-sensor-quaternion-root-b-kaslr
-> > > =C2=A0[1]
-> > > Fixes: f784fcea4506 ("HID: sensor-hub: Add
-> > > sensor_hub_input_attr_read_values() for multi-byte reads")
-> > > Cc: stable@vger.kernel.org
-> > > Suggested-by: Jonathan Cameron <jic23@kernel.org>
-> > > Assisted-by: LLM
-> > > Signed-off-by: Yibo Tan <lhfff@tju.edu.cn>   =20
-> >=20
-> >=20
-> > Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com> =20
->=20
-> Applied to the fixes branch of iio.git.
->=20
-> It might or might not go upstream before the next merge windows. In pract=
-ice
-> I'm going to assume these devices are typically not hotplugable except in
-> dev kits so we are unlikely to see this on production devices unless
-> someone manually removes?  That does affect whether to fix it, but only h=
-ow
-> fast we rush it upstream!
+On Mon, Sep 28, 2026 at 09:15:24PM +0300, Habil Eren Türker wrote:
+> This patch is withdrawn.
+>
+> Sashiko's assessment is correct. input_mutex already protects the device
+> during seq_file iteration, so the explicit refcounting is unnecessary.
+> Additionally, the patch had two bugs: a refcount imbalance in next() and
+> a missing IS_ERR() check in stop(), which could lead to a kernel panic
+> or use-after-free.
+>
+> I will investigate the actual root cause further.
 
-I fluffed this again :(.  One day I'll remember which bits of this driver
-stack sit in drivers/hid.
+To save you some time digging through the syzbot reports I had an LLM
+scan them and here are the findings:
 
-Should go via that tree not IIO. So I'll drop it.
+It is not the struct input_dev itself that is being freed while on
+input_dev_list, but rather the strings pointed to by dev->name or
+dev->phys when a driver either fails to unregister its input device
+before freeing its private data, or leaks an input_dev instance.
 
-Reviewed-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+Because syzbot groups KASAN crashes by the top frame (string_nocheck() ->
+string() -> vsnprintf() -> seq_printf()), the 63 crash reports under
+https://syzkaller.appspot.com/bug?extid=bc6b37960b1d13f68f9f actually
+belong to three separate bugs:
 
+1. 25 of the 63 reports crash in irq_seq_show() (kernel/irq/proc.c:601)
+   when reading /proc/interrupts, which is unrelated to input.
 
->=20
-> Jonathan
->=20
-> >=20
-> >  =20
-> > > ---
-> > > Changes in v3:
-> > > - Replace the raw_size error sentinel with a dedicated teardown flag,
-> > > as
-> > > =C2=A0 suggested by Jonathan Cameron.
-> > > - Let teardown win if it races with a completed response.
-> > >=20
-> > > v2:
-> > > https://lore.kernel.org/r/20260912050257.837340-1-lhfff@tju.edu.cn/
-> > >=20
-> > > =C2=A0drivers/hid/hid-sensor-hub.c=C2=A0=C2=A0 | 6 +++++-
-> > > =C2=A0include/linux/hid-sensor-hub.h | 2 ++
-> > > =C2=A02 files changed, 7 insertions(+), 1 deletion(-)
-> > >=20
-> > > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
-> > > hub.c
-> > > index 6470a290ebfc..a9bd72218c07 100644
-> > > --- a/drivers/hid/hid-sensor-hub.c
-> > > +++ b/drivers/hid/hid-sensor-hub.c
-> > > @@ -334,6 +334,8 @@ int sensor_hub_input_attr_read_values(struct
-> > > hid_sensor_hub_device *hsdev,
-> > > =C2=A0			ret =3D -ETIMEDOUT;
-> > > =C2=A0		else if (cycles < 0)
-> > > =C2=A0			ret =3D cycles;
-> > > +		else if (hsdev->pending.shutdown)
-> > > +			ret =3D -ENODEV;
-> > > =C2=A0
-> > > =C2=A0		hsdev->pending.status =3D false;
-> > > =C2=A0	}
-> > > @@ -805,8 +807,10 @@ static int sensor_hub_finalize_pending_fn(struct
-> > > device *dev, void *data)
-> > > =C2=A0{
-> > > =C2=A0	struct hid_sensor_hub_device *hsdev =3D dev->platform_data;
-> > > =C2=A0
-> > > -	if (hsdev->pending.status)
-> > > +	if (hsdev->pending.status) {
-> > > +		hsdev->pending.shutdown =3D true;
-> > > =C2=A0		complete(&hsdev->pending.ready);
-> > > +	}
-> > > =C2=A0
-> > > =C2=A0	return 0;
-> > > =C2=A0}
-> > > diff --git a/include/linux/hid-sensor-hub.h b/include/linux/hid-
-> > > sensor-hub.h
-> > > index ab5cc8db3fbb..5aecf4474183 100644
-> > > --- a/include/linux/hid-sensor-hub.h
-> > > +++ b/include/linux/hid-sensor-hub.h
-> > > @@ -38,6 +38,7 @@ struct hid_sensor_hub_attribute_info {
-> > > =C2=A0/**
-> > > =C2=A0 * struct sensor_hub_pending - Synchronous read pending informa=
-tion
-> > > =C2=A0 * @status:		Pending status true/false.
-> > > + * @shutdown:		The device is being removed.
-> > > =C2=A0 * @ready:		Completion synchronization data.
-> > > =C2=A0 * @usage_id:		Usage id for physical device, e.g. gyro
-> > > usage id.
-> > > =C2=A0 * @attr_usage_id:	Usage Id of a field, e.g. X-axis for a gyro.
-> > > @@ -48,6 +49,7 @@ struct hid_sensor_hub_attribute_info {
-> > > =C2=A0 */
-> > > =C2=A0struct sensor_hub_pending {
-> > > =C2=A0	bool status;
-> > > +	bool shutdown;
-> > > =C2=A0	struct completion ready;
-> > > =C2=A0	u32 usage_id;
-> > > =C2=A0	u32 attr_usage_id;   =20
-> >  =20
->=20
->=20
+2. 29 of the reports (including the initial syzbot report [1]) crash in
+   input_devices_seq_show() on line 1178 when formatting dev->name:
 
+     seq_printf(seq, "N: Name=\"%s\"\n", dev->name ? dev->name : "");
+
+   In all 29 reports, the bad read is at offset 0x758 (1880 bytes) inside
+   a kmalloc-2k object. In most runs that slab slot had already exited
+   the KASAN quarantine and been reallocated (for example by netlink
+   __alloc_skb() or sk_prot_alloc()), masking the original owner.
+   However, one report [2] (log [3]) caught the object before reuse:
+
+     Allocated by: redrat3_dev_probe() (drivers/media/rc/redrat3.c:1023)
+     Freed by:     redrat3_delete() <- redrat3_dev_probe() (redrat3.c:1124)
+
+   redrat3_init_rc_dev() registered the rc_dev (and its input_dev, with
+   input_dev->name pointing to rr3->name at offset 0x758 of struct
+   redrat3_dev), and when redrat3_enable_detector() subsequently failed,
+   the error path freed rr3 without calling rc_unregister_device(),
+   leaving the input_dev registered with a dangling dev->name pointer.
+   This is already fixed in linux-next by commit af452b9e0133 ("media:
+   redrat3: fix UAF in probe error path leaving rc device registered").
+
+3. The remaining 9 reports crash in input_devices_seq_show() on the next
+   line (drivers/input/input.c:1179) when formatting dev->phys:
+
+     seq_printf(seq, "P: Phys=%s\n", dev->phys ? dev->phys : "");
+
+   (dev->name does not fault there because xpad->name points to a static
+   string literal in xpad_device[].) All 9 reports read offset 0x220
+   (544 bytes) inside a kmalloc-1k object (offsetof(struct usb_xpad,
+   phys)). Two reports [4] (log [5]) and [6] caught the struct usb_xpad
+   object before slab reuse:
+
+     Allocated by: xpad_probe() (drivers/input/joystick/xpad.c:2052)
+     Freed by:     xpad_disconnect() (drivers/input/joystick/xpad.c:2236)
+     Last work:    xpad360w_process_packet() <- xpad_irq_in()
+
+   In xpad360w_process_packet(), xpad->pad_present is updated in URB
+   completion context and schedules xpad->work (xpad_presence_work()).
+   If presence packets toggle xpad->pad_present (true -> false -> true)
+   before xpad_presence_work() runs, xpad_presence_work() sees
+   xpad->pad_present == true and calls xpad_init_input() again even
+   though xpad->input_created is already true. That overwrites xpad->dev
+   (and xpad->led) and leaks the old input_dev on input_dev_list (in [5]
+   it registers input69 through input79 on the same USB interface). When
+   xpad_disconnect() later runs, xpad_deinit_input() only unregisters
+   the last xpad->dev and frees xpad, leaving the leaked input_dev
+   instances on input_dev_list with dev->phys pointing into freed
+   xpad->phys.
+
+[1] https://syzkaller.appspot.com/text?tag=CrashReport&x=12bef8c9580000
+[2] https://syzkaller.appspot.com/text?tag=CrashReport&x=15d46e79580000
+[3] https://syzkaller.appspot.com/text?tag=CrashLog&x=16cc5679580000
+[4] https://syzkaller.appspot.com/text?tag=CrashReport&x=115fd67e580000
+[5] https://syzkaller.appspot.com/text?tag=CrashLog&x=17f40456580000
+[6] https://syzkaller.appspot.com/text?tag=CrashReport&x=11131092580000
+
+Thanks.
+
+-- 
+Dmitry

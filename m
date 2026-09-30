@@ -1,131 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E3E7446BE0;
-	Wed, 30 Sep 2026 08:05:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5534E4CDDE6;
+	Wed, 30 Sep 2026 12:03:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790755541; cv=none; b=NGlRiH7OcpfitkO3Y7U+6fxdUdEVol8tWmw6D7N/rVtWYEL2M6KxSfU7YOev+ne9yikp4+bSl4aRQVJ3qIJvMaWfyCnJwyoj+W3PPjGJthXP1CzwuIBJNShkb/gK3/9LVZlgILq3FQHzMQTBWULWUlOvkYuTa3ITa6FJcgdEP3Y=
+	t=1790769812; cv=none; b=VYtKELaXPnMexSGggMCclOTobwDHA2BWlpHpwaHCGN12Bpq02xEjoHDEGWyFdjH6YbnTdcRqF3ScpGJ2Amfi3eXdgSzohiZ5NDSbvG01KBScI4ukU+QpxTGKO4gJQGdMS4/I74w/LJ/W4QIo2n/nzzTZW4+l9wsRTMZCvtRdK3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790755541; c=relaxed/simple;
-	bh=bA5RGmVi8QPO47pRoIpnyvShczznrPxAsOYKaVmvejE=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=BU/jaglc+AYmWPWYAdDcy8fvZT9hTW3sL4hUawWCbnxjOI+PE37f5tAI8EYLcvO1ENK7PKF89AcEhf09YfQ3jgr86kE5zckM1B9H+6yODaZ9FhzywiE//p8xiWj/ROAF5Cz2VM2IWz26bWkTod3a4irNCW9NksF25RaoHVnQge0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e3vod8ec; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790769812; c=relaxed/simple;
+	bh=6lbuV7NQgZFjl1ILQWUN4EDNHopI2RUwMC9WbbikSqE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lDDmLpypQnZ1P3I88hOmIQAgdMbEyafKslALZAv1djYoN0xjKm/lSWW3ugYDDQZ5Zw86G4+5ZGmXMSxuzOKbC34rtqybJmP0+xwDMViVYdBc3fChYObBiZcGVqluvmvrF2y6Z28N2WgEwnh95npQrsNQvWkZzep+Hyn2jvZf7cA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=ph9oPahs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e3vod8ec"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FBA01F00898;
-	Wed, 30 Sep 2026 08:05:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790755540;
-	bh=oHu8TD0gBwvICgVAe5FHk53wpXDvt9OKTi0hPQxVrpo=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To;
-	b=e3vod8ecaON3MlO8JKRjVWhHj1yMfcW4yx5O+pJ2Qae8Wy+hSVsrwCyLtSBV3RFYm
-	 wmXodDi4gBJIGdMiJI+kRZyP5duK2oe1mw3e7nCXKZCT9iBSqy9fR2BUJvisEABpzo
-	 V8YDI81f7GYT7EQNF4qc3OwyMqwxbNjMhdzikyqCyxByk5mDb1PpUHpqLSzJZxhH+v
-	 jd9nc0DqJCQXH2oqq/wWOYOZTWMOAQ7fSciZ7gIbScr/Fn5e4TlrcQqX0B5ULvnCfQ
-	 2hN/27hdioI0MC2cYekVnfsP2zUx7CGXlxTZOKlI/uQHkiRLUrtlqayogBWrprR/Ti
-	 mzNKqmaoj6jyQ==
-Message-ID: <48b7f6ef-e5f9-445e-820d-fdfd1458452b@kernel.org>
-Date: Wed, 30 Sep 2026 10:05:37 +0200
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="ph9oPahs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 634501F000FF;
+	Wed, 30 Sep 2026 12:03:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1790769810;
+	bh=BhAyzd9uTMpVYzVpHh6/1OjAKRboCVsQXnv3jAa2oYE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ph9oPahs4mfWZLa5gj+KoJ5Jo1gusei4vZ7+UW9pV5zt0CSy4LGiINv/z/EG2Sp6x
+	 J1TSqjebbNW/6v5i1+fkBFROUUrZGq8pvhRHaCmtAQO4HrgwZ4sud8K1KmEcVPHN0m
+	 7o+0gQFwEN4xVPByd5bEY+1sucP3iI9a4X790hdk=
+Date: Wed, 30 Sep 2026 14:03:24 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Daniel Salmun <salmundani@gmail.com>
+Cc: stable@vger.kernel.org, patches@lists.linux.dev,
+	=?iso-8859-1?Q?Rapha=EBl?= Larocque <rlarocque@disroot.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH 6.18 303/398] Input: synaptics - disable InterTouch on
+ ThinkPad T440p (board id 2722)
+Message-ID: <2026093008-ricotta-dealer-ad24@gregkh>
+References: <20260923140643.441954610@linuxfoundation.org>
+ <20260923140651.274430576@linuxfoundation.org>
+ <5ed0ee13-9502-42f1-94b7-a99607ca2bea@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Hans Verkuil <hverkuil+cisco@kernel.org>
-Subject: Re: [PATCH v1 2/2] Input: sur40 - keep device state alive until the
- video node is released
-To: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
- dmitry.torokhov@gmail.com
-Cc: floe@butterbrot.org, linux-input@vger.kernel.org,
- linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
- syzbot+eb4706daf505f9c4b547@syzkaller.appspotmail.com, stable@vger.kernel.org
-References: <20260920113949.12726-1-ngocthang2710.1999@gmail.com>
- <20260920113949.12726-3-ngocthang2710.1999@gmail.com>
-Content-Language: en-US, nl
-In-Reply-To: <20260920113949.12726-3-ngocthang2710.1999@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5ed0ee13-9502-42f1-94b7-a99607ca2bea@gmail.com>
 
-On 20/09/2026 13:39, Nguyen Ngoc Thang wrote:
-> sur40_disconnect() frees the sur40_state, which embeds the video_device,
-> the v4l2_device and the vb2_queue, while a video node may still be open.
-> Closing that file afterwards touches freed memory:
+On Sat, Sep 26, 2026 at 08:19:55PM -0300, Daniel Salmun wrote:
+> On 9/23/26 11:06, Greg Kroah-Hartman wrote:
+> > 6.18-stable review patch.  If anyone has any objections, please let
+> > me know.
+> > 
+> > ------------------
+> > 
+> > From: Raphaël Larocque <rlarocque@disroot.org>
+> > 
+> > commit 26eb3d92c7a4d7adb1ae1740ca6e8e100b11d1ec upstream.
+> > 
+> > The Lenovo ThinkPad T440p (PNP ID LEN0036, board id 2722) has a
+> > Synaptics touchpad whose SMBus companion is not ready at boot and
+> > takes roughly 200 seconds to appear.
+> [...]
+> > Disable SMBus InterTouch for board id 2722 so the touchpad and
+> > TrackPoint work immediately via PS/2 from boot.
 > 
->   BUG: KASAN: slab-use-after-free in vb2_core_queue_release+0x12d/0x150
->   Read of size 4 at addr ffff888066fa8aa8 by task v4l_id/28733
->    vb2_core_queue_release+0x12d/0x150
->    vb2_fop_release+0x16e/0x200
->    v4l2_release+0x22c/0x350
->    __fput+0x418/0xa50
->   Freed by task 16811:
->    kfree+0x1c5/0x650
->    sur40_disconnect+0xaf/0x140
+> I have a concern about this one. Board id 2722 isn't specific to the
+> T440p. My ThinkPad L440 has the same Synaptics board id, and this patch
+> would move it from SMBus/RMI4 to PS/2. I have never hit the issue this
+> commit fixes, and I haven't seen it reported on other potentially
+> affected models either.
 > 
-> Give the v4l2_device a release callback that frees the bulk buffer and
-> the state, and drop the disconnect path's own reference with
-> v4l2_device_put(). The last closer of the node then does the freeing.
-> The probe error paths never open the node and keep freeing directly.
+> I sent a patch [1] that limits the quirk to the T440p. Previous
+> attempts to move these touchpads to PS/2 were rejected [2], as
+> explained in that patch's commit message.
 > 
-> Reported-by: syzbot+eb4706daf505f9c4b547@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=eb4706daf505f9c4b547
-> Fixes: e831cd251fb9 ("[media] add raw video stream support for Samsung SUR40")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
-
-Reviewed-by: Hans Verkuil <hverkuil+cisco@kernel.org>
-
-Regards,
-
-	Hans
-
-> ---
->  drivers/input/touchscreen/sur40.c | 15 ++++++++++++---
->  1 file changed, 12 insertions(+), 3 deletions(-)
+> Could this be dropped from the stable queue until it's sorted out
+> upstream?
 > 
-> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-> index 7020bcf9b81a..efd4fe557cef 100644
-> --- a/drivers/input/touchscreen/sur40.c
-> +++ b/drivers/input/touchscreen/sur40.c
-> @@ -648,6 +648,15 @@ static int sur40_input_setup_events(struct input_dev *input_dev)
->  }
->  
->  /* Check candidate USB interface. */
-> +/* Runs once the last video node reference is gone. */
-> +static void sur40_release(struct v4l2_device *v4l2)
-> +{
-> +	struct sur40_state *sur40 = container_of(v4l2, struct sur40_state, v4l2);
-> +
-> +	kfree(sur40->bulk_in_buffer);
-> +	kfree(sur40);
-> +}
-> +
->  static int sur40_probe(struct usb_interface *interface,
->  		       const struct usb_device_id *id)
->  {
-> @@ -733,6 +742,7 @@ static int sur40_probe(struct usb_interface *interface,
->  			"Unable to register video master device.");
->  		goto err_free_buffer;
->  	}
-> +	sur40->v4l2.release = sur40_release;
->  
->  	/* initialize the lock and subdevice */
->  	sur40->queue = sur40_queue;
-> @@ -831,11 +841,10 @@ static void sur40_disconnect(struct usb_interface *interface)
->  	video_unregister_device(&sur40->vdev);
->  	v4l2_device_unregister(&sur40->v4l2);
->  
-> -	kfree(sur40->bulk_in_buffer);
-> -	kfree(sur40);
-> -
->  	usb_set_intfdata(interface, NULL);
->  	dev_dbg(&interface->dev, "%s is now disconnected\n", DRIVER_DESC);
-> +
-> +	v4l2_device_put(&sur40->v4l2);
->  }
->  
->  /*
+> [1] https://lore.kernel.org/all/20260925230039.236786-1-
+> salmundani@gmail.com/
+> [2] https://lore.kernel.org/linux-
+> input/65C23A49-5A55-4CF4-9AFD-2DA504DAABF5@duggan.us/
+> 
 
+Let's just queue up whatever gets commited in Linus's tree to resolve
+this.
+
+thanks,
+
+greg k-h

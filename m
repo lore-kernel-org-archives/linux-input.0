@@ -1,151 +1,226 @@
-Received: from outbound.ms.icloud.com (ms-2004e-snip4-10.eps.apple.com [57.103.74.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f40.google.com (mail-pj2-f40.google.com [74.125.227.168])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AB80457E4E
-	for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 20:37:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.74.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 456EC25DB0D
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 00:22:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790714236; cv=none; b=rgvxVo7deUzga9qPCCBkXFMSAvoglZGCBrNucGNZpQWvfHLccvfLR0AxWCACRRcz4qkQk4K2sG4A+2CL2Hu8BfSHgQsKtu2udt5Uxc9QOwwm5Q/NkyGJtWdADqj68mS4WMoqoZvPMGYIAH4PRMCxfeVnLUt3O5aoBq2vD5i9Su8=
+	t=1790727742; cv=none; b=T8VBSFVHV/vZRE3YFvNfCLE6PK+1bGf5mV+773C6yn0yIDwTex2rEDewGCVu/vmbkFT8ZlrTw9S9g6QGabYPu7CyVLcwJwmQXeaXHoDWHdN6nPvEgeXim5s5nUbyUnHakleCtL5VPS+B6CmMQ1wyKyfpsZOoXgTM9aRRpD3amhM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790714236; c=relaxed/simple;
-	bh=CmlE80pSLORwSx812eu1SFv+69BqG+tG5JfC1lXaUWw=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=gFPAdpgtpupFGJc4xuIWC7sV20iKjVrOgqsbBk8qWjKYG9z/rxoM0Po9GpZsvVDPFE1MLDCJ/laaJXHlMQdG7JDlTSryseMgovdk6lUWTpiHVxQqnmNustGI02bkIkE3XV3ZDlseAgI70P9uH57RCxRJv4e/YbTsapJtUt/Zpqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lcb.to.it; spf=pass smtp.mailfrom=lcb.to.it; dkim=pass (2048-bit key) header.d=lcb.to.it header.i=@lcb.to.it header.b=Hmma00I1; arc=none smtp.client-ip=57.103.74.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lcb.to.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lcb.to.it
+	s=arc-20240116; t=1790727742; c=relaxed/simple;
+	bh=RS3ADzVfxL8qqGmpxz4abkEC5P9mt7MTpddiH2NP6KQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Xij34kWVk42zAXPw3mrf/6YeHOnoxF3Du7TJF9UxblCIOKdJ1VpDgPof338fhtajfqzzC761MNTxIptm1SIq+gYmGc2icGnSNW/h0M8EvoaoF+5KVvWVIfEjB9JgDRie8mRcLSDIXB4u6R7uu43GiMMhQlTEctIiv/IFcOdO1CI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K58U5GhN; arc=none smtp.client-ip=74.125.227.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lcb.to.it header.i=@lcb.to.it header.b="Hmma00I1"
-Received: from outbound.ms.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-west-3a-60-percent-11 (Postfix) with ESMTPS id 1D75818001DC;
-	Tue, 29 Sep 2026 20:37:10 +0000 (UTC)
-X-ICL-RepId: 01a0eee2-b8c6-701d-bd84-4469f180ccb1
-X-ICL-Out-Info: HUtFAUMHWwJACUgATUQeDx5WFlZNRAJCTQhBBkMEWRxBCU0dXwVcEhVdRV4MRR9bHlZWQwxHDkAfeRRQDxkfXV5QDBMLU1ZeE1tWRwIZAkZQSxsOWxcDVxxWRVwYQwldBVccHQBERVsTVRdGCRkIXR0ZCEcfCjADQg5WA0MHRQAtGRxXUFsIUF5NFx0EQ0tfGV1FD15UCFZGWhsCQAMJBEkUTAIJVEYKFgsaHl5UXFFBWhwCWwVdVzBVG1FDQwQcGU1GExlOG1dNWg1AGVgGbRRWFVIEWQ==
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lcb.to.it; s=sig1; t=1790714234; x=1793306234; bh=zmp8SFl84gZRi5OkpkQVvlEiTxHsOKWX9tq1JueGvnA=; h=Message-ID:Date:MIME-Version:Subject:From:To:Content-Type:x-icloud-hme; b=Hmma00I1iCTJetJLa+4lEcU2IJz2CTZSLyP1/eSX7O2Hin+njeiX/5qIFzrt+kQDK74uL3SnlcUh04MdlhLy+vnTjVqWijHsko8nXx0qy0a8+RCxN+3PYVD2Y69zNbWLRuUrTvLUxDZmGGTQmytTTxtliHu8e71gBk+v1SvjlPKUWIOBA/sSihPvkfrmdXYF3cNvP25Dg1dZjV+3f97zit0hRXHLuSOe/i9h90i3kmWTHuNQPVD/gbSvPHDaTh62yeey/PV3n1JSKWy+uTUAWmFPm9cIX4IgY1BRCQlpo2lGHKlOoogPYRN9xls7jzVByl8ZrUj1269tsPCKVBZJ9w==
-mail-alias-created-date: 1748381178872
-Received: from [10.69.1.69] (unknown [17.156.208.39])
-	by p00-icloudmta-asmtp-us-west-3a-60-percent-11 (Postfix) with ESMTPSA id 07A2C1800128;
-	Tue, 29 Sep 2026 20:37:08 +0000 (UTC)
-Message-ID: <3ccd6cc1-4b69-41dc-8f2b-3c7c1cd1626e@lcb.to.it>
-Date: Tue, 29 Sep 2026 22:37:06 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K58U5GhN"
+Received: by mail-pj2-f40.google.com with SMTP id 98e67ed59e1d1-3a0f64df6a6so1728173a91.3
+        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 17:22:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790727739; x=1791332539; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=CfCX2ufsEicMArdWfEJGMSdcRPfc57DekObWO7Y+3J0=;
+        b=K58U5GhNGfnTm7QtEqNrNPJG8XBAuknpOsqxO1wc6OgktYIGPkMtt8oh4BzG+yTsBQ
+         sIg/x0YJp7ZUzWsCz4bnKuVqxeYkXckOejjWqYZiiu6Xwjyw8KhhqQzmjjYm0enAKcgc
+         rHxbrpFTC/AvL7mFlq5dstGWjsKIXCwgugX8JNowdgdz3JoU1LWjhDaVo3A+V+GibmAX
+         s4ia44m1AjTXZdoJ+xTRoXb0ZAP1zuNV6/zW0bW2IErewaJsAxxo7Djaxnf1T1SLAdB7
+         tKSVLUby8UHXYB3a0W26teomcDe1LisR/qeI1trTAp5Ez4EIaUxRs0eryowzsEC6VTcd
+         EPsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790727739; x=1791332539;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CfCX2ufsEicMArdWfEJGMSdcRPfc57DekObWO7Y+3J0=;
+        b=oF9YXHwm/mKU9qqfin0MFknGIGSSJLX8ivbQre+XE0lswbb2dTZqGjBCdkBOPY4Z2W
+         hehTOFCIKQam7k9Ai1e8TJTAOmTtUDEtXb/iEsiYYzZivI+giCsFfbO9JIzR3EDJ/03o
+         SKx1yZjezmgqhJkZ49l/TRO1XEs2tMxtKK7YmyZRC4OT5kIHMg+Y74IXhH6A5vm9Y1xJ
+         xLFVzVQAkXQ622PuhGEzdgxSQdju0l39ybFTfAfoBldnh268K3yR0fBW67bXK5IdreDZ
+         iLwJqyEJuPtLp/mh1bIB+WT2uUISJh6jFFi4+XBTr9VXygpI3HKVt4KbhSRkxGaNE8ie
+         0ZFA==
+X-Gm-Message-State: AFq9FYIEpejsG3AUiuEAbKF3YsEeC1EvkCqFbJlsZxsomjqmMQ8Yr/sv
+	mtV9frZpGB1uLgEpJe2lu/zJqozCW1cBegU44XYx9zVhWp+NI+Np/hi5
+X-Gm-Gg: AYBFou3w1oVBstdC2UjWBe82SQnEuAifvjrW/PklmEFxHOB+znlWIW6bxhmzx2TY4A+
+	CdjeilNt9tSMyeqfhP1PZtAuplePjjx/kp4K99OeK7isEsx95i0DpQrBZXiOmIBVhK9bgJFyp5g
+	7uuKUjpwXPdK4KuW2nJm2QIeyZD4SgGOdKLM3FPGcAkmddiyWYMsht1iOY3l9o/Ty0RBI5yRob/
+	9szbHiiVgXj93T9eJOzeaonlQ1Oc/MIhZTZs1X9FCeJaOpJSekJd+X0Re7qkCWN2JCT+EX0Zztf
+	hcCoDyCMzZ4hSDOOUbK1Pa3YCMgRVwJWNYU9rk2+kKFLduRw0vVba71/b77/6ZvW1XUcFlX/uVB
+	ZHzf+KZFQhtdRuv5SAFKojfoAkAly/nJdWL27Z2HWIU9D4yaDcfsOXsdbrDEhnsNawUJ2foWNjv
+	gfnPjOw5fcfAl9bkxhWiXfsRXfxPTJXVLTVnlbDkA4nnEIbnsEH8JBIW+MfEuW8bK0
+X-Received: by 2002:a17:90b:4a4e:b0:39e:237c:50e0 with SMTP id 98e67ed59e1d1-3a4bfdebb0amr783292a91.13.1790727738878;
+        Tue, 29 Sep 2026 17:22:18 -0700 (PDT)
+Received: from fedora ([2400:2410:5f2b:700:6bda:eb8:32f0:3372])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a4c7632de2sm242073a91.4.2026.09.29.17.22.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2026 17:22:18 -0700 (PDT)
+From: Vishnu Sankar <vishnuocv@gmail.com>
+To: "Derek J . Clark" <derekjohn.clark@gmail.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Vishnu Sankar <vishnuocv@gmail.com>,
+	Mark Pearson <mpearson@squebb.ca>
+Subject: [PATCH] HID: lenovo: add fn+F7 display switch support for X12 and X13 Folio
+Date: Wed, 30 Sep 2026 09:21:33 +0900
+Message-ID: <20260930002133.10794-1-vishnuocv@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3
- 14IWC11
-From: Martino Papero <martino.papero@lcb.to.it>
-To: Hans de Goede <hansg@kernel.org>, Iustin Ivan <iustinivan2002@gmail.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org
-References: <20260911182328.9267-1-iustinivan2002@gmail.com>
- <db8af2fe-481d-454b-a205-4f22cd9b7a0d@kernel.org>
- <f849e969-364c-4138-b4d0-ec761022a32f@lcb.to.it>
-Content-Language: en-US, it-IT
-In-Reply-To: <f849e969-364c-4138-b4d0-ec761022a32f@lcb.to.it>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: 9JlmH3iyPLzgemWWF9Fou-DUGXNdTqPo
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA4MiBTYWx0ZWRfXzX4PcDGFh85E
- GiqboE8JyjiohHnoEtkhUvhRVaVCRL10/aWKG9PFm+QJogYvicTUtlu0V8BBkjFOx3noM20blfZ
- AzPxJ1jG6IeR4QklnnZzZKgmer6gbQYkkj0KM983MU5qB8loOXIyd+GggkHd6jvv9vHnGvtj8Iw
- rqv2fvdEWiVJ11cKqscjiMqCBoeX3J2KTwqTe4G0rMaAl8PjmcnFcOicDorFkkrevGNf8m4V3vB
- llCzz3WaFNbNaDcdzSYbgjgipip2mCEUZU9GH6zGsRToebWtnLJ+qgB/xP4esIWHHviya6Ck9Vv
- o+4CgMfnaFb8wBX3LGV+8iFibDYxoayUoosjo4G/VJaZwUEXsIoY2vY2GiWcKM=
-X-Authority-Info-Out: v=2.4 cv=K4Ev3iWI c=1 sm=1 tr=0 ts=6abc2177
- cx=c_apl:c_pps:t_out a=kRaGL2Q7qLiahLf3O6OaIA==:117
- a=kRaGL2Q7qLiahLf3O6OaIA==:17 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8
- a=3zCP-tckM5ql3hE0fiwA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 9JlmH3iyPLzgemWWF9Fou-DUGXNdTqPo
-X-JNJ: AAAAAAABvqZ69FQdBawXlj+s49PQOgiboPcUwYZUMrWYErmdxHFYAdED5eSlp3rj3Y6HN/4Y6WIozw5nZpuw5Vz+kkhZ2YHbFKhCDx9DlF1EmoGF5/X+RgqiTm7lOqddiSeOr5GSlQ2LXaRXTjEF3P2myJRkYJNgvgcKvN6hr4veke+YcuyUKZQVUGv1VTH8bpQTPsciTCUUf6PB+5hkq6+bEallsgChhFJovl2dyWMop2JjBYT/aLH7mKixGPf+1+mCpT0XT/Zr9n09LJFdbbb4fm97OC9yMXZaZarjWqEgdE1uCYG8HFbgZYurEneiy1fqgHg+7cHGgsusIRPVclbiDjVQPVxIpd+BAOSorCTcCw+QAwCiqYeFlsoT5gwjCX5K4uOfzXwEwFXMNubyJHt699gFiF1nsqgUIJSGB4RKsHxfz846iuSXgGYCHV7GJti9ZKPZTYGZezoX++bEeBYAuuJGuTRy1Nep341R2Tum9T13i/zHHN8krmy4a0VyVaX4AWePAy4qo6U5KT71JM12efGSB5tSST+kW8+6gcxZOXef269sNn9zfRjlV1GeasMMuIvMbu7pa2QBylipMwtcVzsxC3dQ0AqCXOsMZH2kqxiXQs03TABFXdHQ1eNSx7uo2jduzfdY8hlZTN3XJsra2padRSKUFdUPWLCeo2Yt9meTcZElfbWx2OX7D7vxtfENlRIhpbbRDpRshCPhEmbAzCzVM37XCrVqFv0T8423O6K9PVT+G86Y1D4VZ2SHJzdPLSW+DDQgROfrK/o8BIuvKLVFG3LaFiXmBn7egxsiIMpbVNBjDy9IwrhTfUwo3bwein15YmWomTnhT2PUCzwpLMUPhD77DFRs9W+2qNHNMCnK6IeWuHykdT63Au9rrJ25s6j6MJhArV26jtUs7Ts/VpMzuIq/7PyuXC4z2LkmruN30tYQtIrGXzl2tOGXvrzRU/xiLqYuH5PavjnjU2Cj5uvtHjC
- U/wAXfKodBAOShx/MlYMZsfU5dQDrJIZ4bdzIBWUQrtABxU1evpcnhFJn/QOclohbQ4IpdKX/0+sto12UQDpD/fHZjegn4DiREimci4SIWM41QSNz2COuNVPH928HSpQFvYdHE37g6E2/xfICk93dcJHdiEQ9xuA2kMe/JEX+a/XsPnwic2sAZffcK7SnqQeTAL1+UbaU0S/eKTawLKQ4Mx0imrsUi19ck1/idm+5LV+ylZfbrVxHI+j6PJ/3zkGVNjB75szX37X0O1h8Iqd60MHu3zS7cz0EXPG7ppWOVGPO7lFLJ0wvCZ4ACuxT8Q+3i2h67xrFcfIOyYjUW+xD/qDchj1vLtCcA9uR4L5tl/KKwPmTr6rK7zQB
 
+On ThinkPad X12 and X13 detachable keyboards FN+F7 reports the Super+P
+key chord, which behaves differently from FN+F7 on other Thinkpads.
+In particular giving a shorter on screen display time making it harder
+for users to select their preferred display mode.
 
-Il 19/09/26 02:09, Martino Papero ha scritto:
->
-> Il 11/09/26 20:52, Hans de Goede ha scritto:
->> Hi,
->> I'm starting to wonder if we should not just make this behavior the 
->> default.
->>
->> IIRC the whole deactivate thing was added as a workaround for 
->> multi-byte scancodes
->> getting split-up during suspend/resume. I wonder if we can come-up 
->> with some
->> better fix for that ?
->>
->> Regards,
->>
->> Hans
->
->
-> Hi,
->
-> I tested the same atkbd_deactivate_fixup on a Lenovo IdeaPad Slim 3 
-> 15IWC11 (83RR), which was affected by the keyboard issue previously 
-> discussed here:
->
-> https://lore.kernel.org/all/20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com/ 
-> <https://lore.kernel.org/all/20260628-ideapad-kbd-leds-v1-0-50b421d94927@gmail.com/> 
->
->
-> Without any kernel quirk, the internal keyboard does not work. I had 
-> been using:
->
-> |i8042.nopnp=1 i8042.dumbkbd=1|
->
-> which makes the keyboard work, but prevents the Caps Lock LED from 
-> working.
->
-> I built Fedora kernel 7.2.5 with the following additional DMI entry:
->
-> {
->     /* Lenovo IdeaPad Slim 3 15IWC11 (83RR) */
->     .matches = {
->     DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
->     DMI_MATCH(DMI_PRODUCT_NAME, "83RR"),
->     },
->     .callback = atkbd_deactivate_fixup,
-> },|
->
-> I booted this kernel without any i8042 command-line parameters.
->
-> The internal keyboard and Caps Lock LED both work correctly. I also 
-> tested suspend/resume and a cold boot, with no issues so far.
->
-> DMI:
-> LENOVO 83RR
-> LENOVO_MT_83RR_BU_idea_FM_IdeaPad Slim 3 15IWC11
->
-> So it looks like the 83RR can use the same atkbd_deactivate_fixup as 
-> the 83RQ.
->
-> I can test a revised patch if needed.
->
-> Regards,
-> Martino
+Newer keyboard FW is now available, allowing the keyboard to be
+configured by the OS to provide the standard FN+F7 KEY_SWITCHVIDEOMODE
+code as used on other Thinkpads.
 
+Detect if the capability is present and enables the mode if available
+on initial probe and resume.
 
-Hi,
+Suggested-by: Mark Pearson <mpearson@squebb.ca>
+Signed-off-by: Vishnu Sankar <vishnuocv@gmail.com>
+---
+ drivers/hid/hid-lenovo.c | 71 +++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 66 insertions(+), 5 deletions(-)
 
-Just following up on this.
-
-The 83RR is still working reliably with atkbd_deactivate_fixup after 
-further use, without i8042.nopnp or i8042.dumbkbd.
-
-Would it be useful for me to submit a separate patch adding the Lenovo 
-IdeaPad Slim 3 15IWC11 (83RR) to the atkbd_deactivate_fixup DMI table?
-
-I can prepare and test the patch on the affected hardware. 
-Alternatively, if the generic solution discussed above is preferred, I 
-am happy to test that as well.
-
-Regards,
-Martino
-
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index 3976d7b53b14..6b4b689c8834 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -44,6 +44,7 @@
+ #define TP_X12_RAW_HOTKEY_FN_F10	0x00000803
+ #define TP_X12_RAW_HOTKEY_FN_F12	0x00000403
+ #define TP_X12_RAW_HOTKEY_FN_SPACE	0x18001003
++#define TP_X12_RAW_HOTKEY_FN_F7		0x00000815
+ 
+ struct lenovo_drvdata {
+ 	u8 led_report[3]; /* Must be first for proper alignment */
+@@ -557,6 +558,34 @@ static int lenovo_send_cmd_cptkbd(struct hid_device *hdev,
+ 	return ret < 0 ? ret : 0; /* BT returns 0, USB returns sizeof(buf) */
+ }
+ 
++/* X12/X13 folio Fn+F7 reporting mode: feature report 0xa4, [id, mode]. */
++#define TP_X12_FEATURE_HOTKEY_MODE	0xa4
++#define TP_X12_MODE_DEDICATED_HOTKEY	0x01
++
++/*
++ * Select how the X12/X13 detachable folio reports Fn+F7 (display switch):
++ * a dedicated vendor hotkey (report ID 0x15) instead of the default
++ * Super+P key chords.
++ */
++static int lenovo_send_hotkey_mode_tp10ubkbd(struct hid_device *hdev, u8 mode)
++{
++	unsigned char *buf;
++	int ret;
++
++	buf = kzalloc(2, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	buf[0] = TP_X12_FEATURE_HOTKEY_MODE;
++	buf[1] = mode;
++
++	ret = hid_hw_raw_request(hdev, TP_X12_FEATURE_HOTKEY_MODE, buf, 2,
++				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++
++	kfree(buf);
++	return ret < 0 ? ret : 0;
++}
++
+ static void lenovo_features_set_cptkbd(struct hid_device *hdev)
+ {
+ 	int ret;
+@@ -739,6 +768,10 @@ static int lenovo_raw_event_TP_X12_tab(struct hid_device *hdev, u32 raw_data)
+ 		case TP_X12_RAW_HOTKEY_FN_F4:
+ 			report_key_event(input, LENOVO_KEY_MICMUTE);
+ 			return 1;
++		case TP_X12_RAW_HOTKEY_FN_F7:
++			/* Fn-F7: switch/extend external display */
++			report_key_event(input, KEY_SWITCHVIDEOMODE);
++			return 1;
+ 		/* Power-mode or Airplane mode will be called based on the device*/
+ 		case TP_X12_RAW_HOTKEY_FN_F8:
+ 			/*
+@@ -794,11 +827,22 @@ static int lenovo_raw_event(struct hid_device *hdev,
+ 	 * Lenovo TP X12 Tab KBD's Fn+XX is HID raw data defined. Report ID is 0x03
+ 	 * e.g.: Raw data received for MIC mute is 0x00020003.
+ 	 */
+-	if (unlikely((hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB ||
+-		      hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB2 ||
+-		      hdev->product == USB_DEVICE_ID_LENOVO_X13_TAB) &&
+-		      size >= 4 && report->id == 0x03))
+-		return lenovo_raw_event_TP_X12_tab(hdev, get_unaligned_le32(data));
++	if (unlikely(hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB ||
++		     hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB2 ||
++		     hdev->product == USB_DEVICE_ID_LENOVO_X13_TAB)) {
++		/* Existing 0x03 vendor hotkeys (8-byte). */
++		if (size >= 4 && report->id == 0x03)
++			return lenovo_raw_event_TP_X12_tab(hdev,
++				get_unaligned_le32(data));
++
++		/* Dedicated-mode display-switch (F7): 3-byte 0x15 report. */
++		if (report->id == 0x15 && size >= 3) {
++			u8 pad[4] = { data[0], data[1], data[2], 0 };
++
++			return lenovo_raw_event_TP_X12_tab(hdev,
++					get_unaligned_le32(pad));
++		}
++	}
+ 
+ 	return 0;
+ }
+@@ -1366,6 +1410,12 @@ static int lenovo_probe_tp10ubkbd(struct hid_device *hdev)
+ 
+ 	lenovo_led_set_tp10ubkbd(hdev, TP10UBKBD_FN_LOCK_LED, data->fn_lock);
+ 
++	if (hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB ||
++	    hdev->product == USB_DEVICE_ID_LENOVO_X12_TAB2 ||
++	    hdev->product == USB_DEVICE_ID_LENOVO_X13_TAB)
++		lenovo_send_hotkey_mode_tp10ubkbd(hdev,
++						  TP_X12_MODE_DEDICATED_HOTKEY);
++
+ 	ret = sysfs_create_group(&hdev->dev.kobj, &lenovo_attr_group_tp10ubkbd);
+ 	if (ret)
+ 		return ret;
+@@ -1439,6 +1489,13 @@ static int lenovo_reset_resume(struct hid_device *hdev)
+ 			lenovo_features_set_cptkbd(hdev);
+ 
+ 		break;
++	case USB_DEVICE_ID_LENOVO_X12_TAB:
++	case USB_DEVICE_ID_LENOVO_X12_TAB2:
++	case USB_DEVICE_ID_LENOVO_X13_TAB:
++		lenovo_send_hotkey_mode_tp10ubkbd(hdev,
++						  TP_X12_MODE_DEDICATED_HOTKEY);
++		break;
++
+ 	default:
+ 		break;
+ 	}
+@@ -1526,9 +1583,13 @@ static int lenovo_input_configured(struct hid_device *hdev,
+ 						hi->input->propbit);
+ 			}
+ 			break;
++		case USB_DEVICE_ID_LENOVO_X12_TAB:
++			input_set_capability(hi->input, EV_KEY, KEY_SWITCHVIDEOMODE);
++			break;
+ 		case USB_DEVICE_ID_LENOVO_X12_TAB2:
+ 		case USB_DEVICE_ID_LENOVO_X13_TAB:
+ 			input_set_capability(hi->input, EV_KEY, KEY_PERFORMANCE);
++			input_set_capability(hi->input, EV_KEY, KEY_SWITCHVIDEOMODE);
+ 			break;
+ 	}
+ 
+-- 
+2.55.0
 

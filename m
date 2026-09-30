@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E4FA50B8DE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FF2151AED5;
 	Wed, 30 Sep 2026 16:08:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790784485; cv=none; b=rND0zzLu4ZQF0ZVmUoVyYb2s2luUDdQKwvauEqg+1E/WTIO/ijO00+vXSSMCOPusHINCpwHBh9YpsHsF2Dk09Vc4+OYl5N9S9nlJg9vNnhXHRaivg6M4XvQGK5RxegloRdIX8cs19JJqTNmXGC+Shia1S1UgYnZslCnGeosO6OQ=
+	t=1790784485; cv=none; b=PwKIBObHLMeJXU/nqlnh/VeHw+uKi0pBOU+NKgIaQigDWkOA4Gvui5fBDaYYmZVik/JRV0AoqUDP+7F9X+gpHw7/OV9F66mCI9ZA4Ac5FUwP/yzkZ3WyXX1Ji4GX8kR5pj2YiFgR/YIVztZe4d8lhNpe+wE0NcgU6WZwFMdQRQI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790784485; c=relaxed/simple;
-	bh=vhr3jJVJbkkdrVQjQBqkGhncAIMgy0DHJwn54om0vj4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=bNtAU3T9h2VgiN2y5M/tJEDpRmbWjiDYYyKZl2bJpx0cCr04/tlMG80aFufB3VPvOgKrZ3gRHyuscnIB6lSftiJ0mI/eOmuja87GLMyLX51GhuzWgrkikKcLgsIayflCJOzm3lpLOEZa3XnSZ8dVokKXFThXBCL8V4fGvZ0rPr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gir3bh9v; arc=none smtp.client-ip=10.30.226.201
+	bh=i/nl+2/ftfJQdEEeUWjYhOBTqNBkCsF47VtX9GXuLpU=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rKmMf3qfnF2897TySIZqtYHVmqJgIULli0S7XJvBUnSI3bZJUFMxclc/+o0y9VJqQo+6122aU1SzynSrvZ+xVNfgjuezb6KqRRXGo2hVJIWH8huQgtU3p+fClOtUZ8sr8VWBzc0PwZDn5fzZEX81BF6e632nlc4czWtOGAljPJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=awBxrIP8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gir3bh9v"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B9CFAC4AF16;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="awBxrIP8"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9F102C2BCB9;
 	Wed, 30 Sep 2026 16:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1790784483;
-	bh=vhr3jJVJbkkdrVQjQBqkGhncAIMgy0DHJwn54om0vj4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=Gir3bh9vZNqz8LF2sUnIjCJPumj/k2J+V/aw6iYqyjtqzPL6H/i7rAoV3M7VpH6e6
-	 UxxHWRIxYX+vPI+57OvKW4jhQ7V8Py0JadGGj6ngmWAT6noQUPa3Yr31XughLx0t0Y
-	 sGIJvsufpDNnGhl1691yVSE5IhQOsoQhFFEEfS6lT35GvfRLqrkDf5Nen3bBDLCQp1
-	 7BhKxTCJFQ1MPg1aUTiS2AAvadZWiNGrwkfT6o6J7U9Dj9b64z70y92FeCFcO2SBew
-	 7nHtqJTkGIm7y1S4TdhcA1MtPeIV8tXpDvdIeUAOA+MHH/JYL/HR+/futGCGXitnni
-	 KVtP0Ux5IDHeA==
+	bh=i/nl+2/ftfJQdEEeUWjYhOBTqNBkCsF47VtX9GXuLpU=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=awBxrIP8DylgwRMH9s3TR8kOY3JWTTopHXyXEU8F+3wMKE2bM4VuqfPpFzbdiC7gA
+	 BMsrLUw/LOGf4fyG8U5tD86Yxiqn+GFTaxLR6WvPm9b9lRsTJBhBVrKUm97slldnIt
+	 ASzmP3n6Le65PVb6j4JQRI89cQa+Qx78FLOi85DyFuodPEydvly7R7lbmAhgaYqUio
+	 h5WYIm5NkOSX5Xd+OusWMpPhIMqXPh1TChoeGdphePIg0V2/DLpzt7vPAZsPFDGaWv
+	 axr1dAYyza11GCHJr0fVYL+mZur2yJ5uOVIuc9Vo+qlHD8t5VYE0TYvdPk2roMRTr0
+	 K0qMvutDmK7YQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 993BACA5FC7;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A514CA5FCB;
 	Wed, 30 Sep 2026 16:08:03 +0000 (UTC)
 From: Armandas Kvietkus via B4 Relay <devnull+armandas.kvietkus.proton.me@kernel.org>
-Date: Wed, 30 Sep 2026 18:08:03 +0200
-Subject: [PATCH 1/2] dt-bindings: input: awinic,aw86927: Add Awinic AW8697
+Subject: [PATCH 0/2] Input: Add Awinic AW8697 haptics driver
+Date: Wed, 30 Sep 2026 18:08:02 +0200
+Message-Id: <20260930-mainlining-v1-0-c303cbdb00c8@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,9 +40,10 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260930-mainlining-v1-1-c303cbdb00c8@proton.me>
-References: <20260930-mainlining-v1-0-c303cbdb00c8@proton.me>
-In-Reply-To: <20260930-mainlining-v1-0-c303cbdb00c8@proton.me>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMTQ5AMBBA4avIrDUp4vcqYtHWYIQhLSIRd1csv
+ 8V7Fzi0hA6q4AKLBzla2CMKAzCD4h4Ftd4QyziTZSLFrIgnYuJeSN0WOtepUZkBH6wWOzq/Wd3
+ 8drse0WzvAe77Ac557Q5uAAAA
+X-Change-ID: 20260930-mainlining-0bd8b7b5ca6c
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, 
@@ -51,11 +52,11 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, 
  Armandas Kvietkus <armandas.kvietkus@proton.me>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1790784482; l=910;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790784482; l=1161;
  i=armandas.kvietkus@proton.me; h=from:subject:message-id;
- bh=vjgADZjYsmMEWYX2/CD2xEyWknfDHe2frU9LLl603ik=;
- b=9H2f/yikka6KgHS/XPF5Uo6dHq3RwBVhhmUB8Scz5Mr5LBR8OUz8x9dqyOdfrW0OB9rEkQqsb
- VrXnZH4LMBkBQu/MOZ08DhhvWSaNBSk+/0tt8Wx3LHX+ij6lkSuR5oQ
+ bh=i/nl+2/ftfJQdEEeUWjYhOBTqNBkCsF47VtX9GXuLpU=;
+ b=A2JRVmR0dxoD+z/IKhCWstkdllfASWFoGHAeektW123uL5V2saBbgtQX1hcW5qqx+7+o2ratu
+ YKRgU+bre0lAhy+oP2I45YabkFTsAOTsuc9KOIOQ8DTcTEz0HMVZjxQ
 X-Developer-Key: i=armandas.kvietkus@proton.me; a=ed25519;
  pk=wuqmImJ9sKlDVcwALOvfGhjj7G8EBjjM4TpCdmlrAf8=
 X-Endpoint-Received: by B4 Relay for armandas.kvietkus@proton.me/default
@@ -63,33 +64,34 @@ X-Endpoint-Received: by B4 Relay for armandas.kvietkus@proton.me/default
 X-Original-From: Armandas Kvietkus <armandas.kvietkus@proton.me>
 Reply-To: armandas.kvietkus@proton.me
 
-From: Armandas Kvietkus <armandas.kvietkus@proton.me>
+This series adds a driver for the Awinic AW8697 LRA haptic driver IC.
+It is the vibrator in the Xiaomi POCO F3.
 
-The AW8697 uses the same bus, interrupt and reset lines as the AW86927.
-The register map is different, so there is no fallback compatible.
+The AW8697 is an older generation than the AW86927. The register map
+is different, so it gets its own driver. The binding reuses
+awinic,aw86927.yaml.
+
+Tested on the phone: rumble at several strengths, 72 effects in a row,
+stop on close, driver rebind and module reload.
 
 Signed-off-by: Armandas Kvietkus <armandas.kvietkus@proton.me>
 ---
- Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Armandas Kvietkus (2):
+      dt-bindings: input: awinic,aw86927: Add Awinic AW8697
+      Input: aw8697 - Add Awinic AW8697 haptics driver
 
-diff --git a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-index bd74b81488f6..f0e26664e3e4 100644
---- a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-+++ b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-@@ -12,7 +12,9 @@ maintainers:
- properties:
-   compatible:
-     oneOf:
--      - const: awinic,aw86927
-+      - enum:
-+          - awinic,aw8697
-+          - awinic,aw86927
-       - items:
-           - enum:
-               - awinic,aw86938
+ .../devicetree/bindings/input/awinic,aw86927.yaml  |   4 +-
+ MAINTAINERS                                        |   6 +
+ drivers/input/misc/Kconfig                         |  14 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/aw8697.c                        | 725 +++++++++++++++++++++
+ 5 files changed, 749 insertions(+), 1 deletion(-)
+---
+base-commit: 165768bb70265b5c38cf0b73fafd75be235f8b14
+change-id: 20260930-mainlining-0bd8b7b5ca6c
 
--- 
-2.55.0
+Best regards,
+--  
+Armandas Kvietkus <armandas.kvietkus@proton.me>
 
 

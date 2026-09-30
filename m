@@ -1,143 +1,116 @@
-Received: from mail-4317.protonmail.ch (mail-4317.protonmail.ch [185.70.43.17])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-108-mta57.mxroute.com (mail-108-mta57.mxroute.com [136.175.108.57])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B163353A95;
-	Wed, 30 Sep 2026 01:16:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FA422931F7
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 04:30:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=136.175.108.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790731001; cv=none; b=Ew4/5a3JujMjeBtNxyLepiukphgJxoUDzpZv0vof+P5LlDo5JskD4Mr5Uv4dH6LxabU+ALQFcBhsdqH2C45aR8wcNqrcxmuR9BEBt41m6Q3NihirbL/A7tfpK/Toyl6aEbNG+64svTj7DWsYUJvtAbisf9tPW1DCn6kq7Hj2q6o=
+	t=1790742621; cv=none; b=HqXpksakqaaaYp1LnsGZKO5HLhffaPDI3+tty2pk5iL5OZ0p9H+z7ftl1IMkS5HSkIqvQcIsMNFzRcJT4Xm80N7RtozZ0764bCOin7kH+hTReyfWxlWY2fofqsNtJVdRd6q8dtXFZSAqwe46E2I9lF15kkeA9LRIieV6qi3kMug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790731001; c=relaxed/simple;
-	bh=VOhb+ySPVjRl8pDoPgMbFA9u93Svvz7os4YzgT6Oa/M=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=iY3jzIjTbhHmUSnSMU6XL4oQDO3onC5Ew5SswyyyPMatRXGpNCss1DI48y/y/AiXr+ZP9E2Oaj28MgJCMo/e9zF9prHhvdW8Us59HtZhmuqYZOo1ZNGHGys+reKK6uolZR5PpDx9Sz3TMBYPzeSpGrg+S16ozlUtTkml+uy7TTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gonzalezerik.com; spf=pass smtp.mailfrom=gonzalezerik.com; dkim=pass (2048-bit key) header.d=gonzalezerik.com header.i=@gonzalezerik.com header.b=IkiGSpOE; arc=none smtp.client-ip=185.70.43.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gonzalezerik.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gonzalezerik.com
+	s=arc-20240116; t=1790742621; c=relaxed/simple;
+	bh=8a6Nd2BP8tdgqPGtiKuTPSDEdvr2//3RiAZ4eXytnf0=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=cchfY0o8Z96x4Rb7JXNJ3hYUA26LHHz9k5rVxlXHo1IfHc3al7pezg7Up38KpTooiWkRuzKpDi+HUqNf5lkLy9JnD/36d6WruuaqgqL8DMeMqubDnB+ENiM2hxyEmcTf7dL/EL3VlJySN78iyzOlipuhGKP2PfI3aFYZnS8hwL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pepdata.pt; spf=pass smtp.mailfrom=pepdata.pt; dkim=fail (0-bit key) header.d=pepdata.pt header.i=@pepdata.pt header.b=N+n+XHnk reason="key not found in DNS"; arc=none smtp.client-ip=136.175.108.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pepdata.pt
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pepdata.pt
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gonzalezerik.com header.i=@gonzalezerik.com header.b="IkiGSpOE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gonzalezerik.com;
-	s=protonmail; t=1790730988; x=1790990188;
-	bh=RdM+UiliwQYfF+1fJ+nv82vgIHd7yfAaTg60+i6aCqo=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=IkiGSpOEIM4h6WFSE3k2m5p+GByeaNGqppVbGxz2YLrtV2qKvRmyeZErQX24PBXnD
-	 xnHX9nzt1x0gpaXCta43luyN2032c/HOoPCqr96luEukZty3A21DLb12iN9i0MencH
-	 xwl7dvu6kwg91gvyl0qU45WiuMjp9eqbuxlkOknxpQ8Xbq+5FYZXrPx6tKiwApGBK5
-	 UT3UQBN00Eb/FDICC5H0SpLp93pKbg3EbXKkQV+N3Wet8WCeoaCYQdRiqPjsinHpyz
-	 wqw5bmgWONAGExAOCX0nTjWERXBZ+dKaPUl56j7QdcJVzarSw4oLiPVVhw2fkwXosJ
-	 EGDu5i1pkO03Q==
-Date: Wed, 30 Sep 2026 01:16:22 +0000
-To: Basavaraj Natikar <basavaraj.natikar@amd.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-From: Erik Gonzalez <dev@gonzalezerik.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] HID: amd_sfh: Fix report type of get_report replies
-Message-ID: <20260930011603.476486-1-dev@gonzalezerik.com>
-Feedback-ID: 214839413:user:proton
-X-Pm-Message-ID: 75a657cf4435a63336237d388f829bd3a93cc1fa
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=pepdata.pt header.i=@pepdata.pt header.b="N+n+XHnk"
+Received: from filter006.mxroute.com ([136.175.111.3] filter006.mxroute.com)
+ (Authenticated sender: mN4UYu2MZsgR)
+ by mail-108-mta57.mxroute.com (ZoneMTA) with ESMTPSA id 1a0f08f22f500028b2.008
+ for <linux-input@vger.kernel.org>
+ (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+ Wed, 30 Sep 2026 04:25:07 +0000
+X-Zone-Loop: 2ea5f6172de00660da29ec40f256a14295cb8b3a5c47
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=pepdata.pt;
+	s=x; h=Content-Transfer-Encoding:Content-Type:Subject:From:Cc:To:MIME-Version
+	:Date:Message-ID:Sender:Reply-To:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
+	References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
+	List-Owner:List-Archive; bh=Q3rqBbYafqKOzi82dlVrf5nDhBNnr4qzwYl6NBphMIo=; b=N
+	+n+XHnkvl57tkgr+1lh3zD7TEDjnLAuYf0qV13TcacOExVK/0eksiilJeByEW6j/Zj0JV7OMwVKbA
+	jKfFi7c1As1IndqZrZxVsgRP7vOqJDuMUPDKQXTNzy9pBREU16zPCV1FKOHP5I9lVuPirT3T04clJ
+	u3hoSm/5cBHDt+HRwYzQ82Ef3kDl/sIzT/vAZHtS+vVqT0UArtloWME1wJHzU4SoqmKoUAv2FiwWd
+	lPdXMC/jXG0ZUa/A3vihBtOa16ZQlHL8sxS0wPZ6rHRNQIP8c3whe94K6uMIR3nT6QsNGvBTm183u
+	nxtdpQ9rEIsx9dovb6NxtGF8IvMevcUnw==;
+Message-ID: <14ed23dd-b171-4ffb-b368-5c717f56188c@pepdata.pt>
+Date: Wed, 30 Sep 2026 05:24:59 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Sasha Levin <sashal@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>,
+ Antheas Kapenekakis <lkml@antheas.dev>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ linux-input@vger.kernel.org, regressions@lists.linux.dev
+From: =?UTF-8?Q?Andr=C3=A9_Pinheiro?= <andre@pepdata.pt>
+Subject: [REGRESSION] 6.18.y: HID: asus: ROG keyboard 0b05:19b6 stops working
+ after 56d1b33e644c backport; missing buffer size fix e82ae34af29e
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Authenticated-Id: andre@pepdata.pt
 
-amd_sfh_work() passes the reply to a get_report request to
-hid_input_report() with cli_data->report_type[] as the report type. That
-array has never been written since the driver was added, so it is always
-0 (HID_INPUT_REPORT), and replies to feature report requests reach the
-HID core as input reports.
+Hi,
 
-The HID core then checks the payload against the input report with the
-same ID. Since commit 0a3fe972a7cb ("HID: core: Mitigate potential OOB
-by removing bogus memset()"), a report shorter than that is rejected
-instead of being zero-padded. On an ASUS ProArt PX13 (HN7306EAC) running
-7.2.6 this logs:
+Since 6.18.49, the internal keyboard of ASUS ROG Zephyrus G16 GU605MV
+(USB 0b05:19b6, ITE Device(8910), bcdDevice 0.03) can stop sending input
+events. 6.18.42 works. 6.18.51 is broken. I did not test 6.18.49/6.18.50.
 
-  hid-sensor-hub 0020:1022:0001.0005: Event data for report 1 was too short=
- (15 vs 14)
-  hid-sensor-hub 0020:1022:0001.0006: Event data for report 4 was too short=
- (18 vs 14)
+Cause: the backport of 56d1b33e644c ("HID: asus: simplify RGB init
+sequence") made asus_kbd_get_functions() run for QUIRK_ROG_NKEY_KEYBOARD
+devices too. That function reads feature report 0x5A into a buffer of
+FEATURE_KBD_REPORT_SIZE = 16 bytes. This device answers with 63 bytes, so
+the transfer fails with EOVERFLOW. The buffer size fix is in mainline as
+e82ae34af29e ("HID: asus: fortify keyboard handshake", 
+FEATURE_KBD_REPORT_SIZE
+16 -> 64; its message says "Since the response is more than 16 bytes,
+increase the buffer size to 64 as well to avoid overflow errors"). It is in
+the same series as 56d1b33e644c but was not backported. v7.0 has the value
+64 (checked in the source, not booted on this machine).
 
-14 bytes is the size of feature reports 1 and 4 in the report
-descriptors the driver provides; 15 and 18 bytes are the input reports
-with those IDs. Attributes backed by feature reports then read wrong
-values: the accelerometer's in_accel_sampling_frequency reads 10.000000
-instead of 12.500000, and in_accel_hysteresis reads 0.000000 instead of
-1.270000. Input reports are not affected, because their type happens to
-be 0.
+Symptom (6.18.51):
+   asus 0003:0B05:19B6.0001: Asus failed to request functions: -75
+   asus 0003:0B05:19B6.0001: Failed to initialize backlight.
+usbmon:
+   S Ci:1:002:0 s a1 01 035a 0000 0010 16 <
+   C Ci:1:002:0 -75 0
 
-Pass the type of the request being completed instead, and remove the
-unused report_type[] array.
+The HID report descriptor (1102 bytes, from sysfs) declares Feature report
+0x5A as 62 data bytes plus the report ID (63). The device matches its own
+descriptor; the driver buffer is too small.
 
-The same "report 4 was too short (18 vs 14)" message has been reported
-for the Lenovo Legion Go S, where the accelerometer and gyroscope do not
-register. That may be the same bug; I have not tested that device.
+Evidence. Same physical device and USB host controller (xhci on 6.18.42) in
+both runs, only the guest kernel driving the HID device changes; bytes read
+from the evdev node while typing:
+   guest 6.18.42: 16776 bytes in 12 s
+   guest 6.18.51: -75 as above, 0 bytes in 12 s
 
-The bug was found, and this change and description were written, with
-the help of an AI coding assistant. The analysis was checked against the
-report descriptors of the PX13, and the change was tested on it by
-loading amd_sfh built for the running 7.2.6 kernel without and with it:
-without it, the messages and values above; with it, no messages, and
-sampling frequency and hysteresis read 12.500000 and 1.270000.
+Requests sent by hand on 6.18.42 through hidraw (HIDIOCGFEATURE on report
+0x5A), device re-enumerated before each case, bytes in 5 s windows:
+   GET 16, no SET before:  7488 -> EOVERFLOW -> 0
+   GET 32, no SET before:  7776 -> EOVERFLOW -> 0
+   GET 64, no SET before:  8208 -> ok, 63 bytes returned -> 8568
+   SET 5a 05 20 31 00 08, then GET 64: 8496 -> ok, 63 bytes -> 7920
+   SET, then GET 16:       7848 -> EOVERFLOW -> 7056 (did not silence 
+this run)
+   (an earlier run of SET, GET 16: 2736 -> 6984 after SET -> 0 after GET)
+With a 64-byte buffer byte 6 of the reply is 0x83, i.e. 
+SUPPORT_KBD_BACKLIGHT
+is set. So with the fix the driver would register the backlight instead of
+failing. One or two runs per case, only this device tested.
 
-Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fus=
-ion Hub (SFH)")
-Link: https://github.com/ublue-os/bazzite/issues/5796
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-5-5
-Signed-off-by: Erik Gonzalez <dev@gonzalezerik.com>
----
-Not tested: other devices with the AMD Sensor Fusion Hub (including the
-Legion Go S), and a booted hid.git kernel. The code this touches is the
-same in hid.git for-next and 7.2.6; the patch was build-tested on
-for-next (clang, W=3D1, no new warnings) and runtime-tested on 7.2.6.
+Request: please backport e82ae34af29e (or at least the 
+FEATURE_KBD_REPORT_SIZE
+16 -> 64 change) to 6.18.y, and to any other stable branch that received
+56d1b33e644c. Alternatively drop 56d1b33e644c there.
 
- drivers/hid/amd-sfh-hid/amd_sfh_client.c | 4 ++--
- drivers/hid/amd-sfh-hid/amd_sfh_hid.h    | 1 -
- 2 files changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh=
--hid/amd_sfh_client.c
-index ae6add0b9..a68b275f0 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-@@ -95,7 +95,7 @@ void amd_sfh_work(struct work_struct *work)
- =09=09=09=09=09=09    cli_data->feature_report[current_index]);
- =09=09if (report_size)
- =09=09=09hid_input_report(cli_data->hid_sensor_hubs[current_index],
--=09=09=09=09=09 cli_data->report_type[current_index],
-+=09=09=09=09=09 node_type,
- =09=09=09=09=09 cli_data->feature_report[current_index], report_size, 0);
- =09=09else
- =09=09=09pr_err("AMDSFH: Invalid report size\n");
-@@ -104,7 +104,7 @@ void amd_sfh_work(struct work_struct *work)
- =09=09report_size =3D mp2_ops->get_in_rep(current_index, sensor_index, rep=
-ort_id, in_data);
- =09=09if (report_size)
- =09=09=09hid_input_report(cli_data->hid_sensor_hubs[current_index],
--=09=09=09=09=09 cli_data->report_type[current_index],
-+=09=09=09=09=09 node_type,
- =09=09=09=09=09 in_data->input_report[current_index], report_size, 0);
- =09=09else
- =09=09=09pr_err("AMDSFH: Invalid report size\n");
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h b/drivers/hid/amd-sfh-hi=
-d/amd_sfh_hid.h
-index 7452b0302..928cff682 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
-@@ -45,7 +45,6 @@ struct amdtp_cl_data {
- =09dma_addr_t sensor_dma_addr[MAX_HID_DEVICES];
- =09u32 sensor_sts[MAX_HID_DEVICES];
- =09u32 sensor_requested_cnt[MAX_HID_DEVICES];
--=09u8 report_type[MAX_HID_DEVICES];
- =09u8 report_id[MAX_HID_DEVICES];
- =09u8 sensor_idx[MAX_HID_DEVICES];
- =09u8 *feature_report[MAX_HID_DEVICES];
-
-base-commit: 145c2b2e9a5c0f794fb4009bcb072ab19f8ccfcd
---=20
-2.55.0
-
+Thanks,
+André
 

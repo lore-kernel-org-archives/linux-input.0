@@ -1,74 +1,69 @@
-Received: from mail-dl2-f43.google.com (mail-dl2-f43.google.com [74.125.229.171])
+Received: from mail-dy2-f41.google.com (mail-dy2-f41.google.com [74.125.229.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60A8E363086
-	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 05:14:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEE393AEF2E
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 05:18:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790745290; cv=none; b=Wwd7NH+IdfyyQjkyN2LYQuTevs8SehKTaHZWA/TLPtGEDcr6WyuzBd+DiopRzEXYmy8GHDXi6IlAypOPmMxS6ED/dfwKq02NVQi2DrVaKXm4sbgaIp+SCqcyc3C8viLmFE4GedVUYiuzGBxkXGjB6IoF1cqPHiQz1fO+ixLbtiY=
+	t=1790745530; cv=none; b=C2S5CKx5HK6GyfjEweq7iZlPid+2q+syyQIKlnH+J52PUhaTn7fOkvyFi04HYJInOuQqBIcqvVhwu5W13XUxS3AGJtviXn1Id637H4zxlCjP3TZ52Fw8WLmYNcMt2pdMMdJC3YVrs1qqkHz0v8/eo4RvGwrYpqMTVlQoD7E5i58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790745290; c=relaxed/simple;
-	bh=0DwyDbiXHFs6nzuVuyMWZLug6XA5RmgSBkppMkUsuCY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YUn1yqB8fg1sVSKQO763MwBW4gUDg355HoIKKdViaothHC4piIlnEeXUZjSEaY1hg+GLI0tjr0f6MAh3dlz91svMT7eb9XoSaaI8xITcCF1sNe9+KBlt25jarekeyZ9WjUMF+aIp0x/zqIEL8OXEZvvXEWHttE3TnLOEvmSef5M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aVZhn7VL; arc=none smtp.client-ip=74.125.229.171
+	s=arc-20240116; t=1790745530; c=relaxed/simple;
+	bh=mVZKYZ5RQngGFM3QbYSpefMNSi76MF6IjaQzPsyX+Ho=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=KKbD3a853pxv1md8eeK77PqkmQz+4Jbf0p03nhfUcw/7anuHZSsH1VNJpguz2wM18/wD09OH2YvHBxNcW86dlQTuErNeaqg+stnDLQ6UaqGhwXz4Ltb0c4fd+R6aauj8at/csOrgJDD4OnNyhfcqrXnZaZjZlFY9HRADoM6GA+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PfgY14de; arc=none smtp.client-ip=74.125.229.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aVZhn7VL"
-Received: by mail-dl2-f43.google.com with SMTP id a92af1059eb24-142dd04be87so1107030c88.1
-        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 22:14:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PfgY14de"
+Received: by mail-dy2-f41.google.com with SMTP id 5a478bee46e88-34c0b552ccfso571388eec.3
+        for <linux-input@vger.kernel.org>; Tue, 29 Sep 2026 22:18:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790745288; x=1791350088; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=S9KLD/n4FOKEHxzSj3ZLLw0Kd4SGiqNFcDpZxx8Aapk=;
-        b=aVZhn7VLDhvIy9uYubldd6aLLoQZq7CKJMTQcw2LX18Bcnidw6XR3mx4QYLup2+CzM
-         0EBcOc2TkcSYnhT6QkP2kEczqQzst48BtafaylldFnNP/4P/xyJ3cMDJDm7d0bmKXYr9
-         8e+gRjSVjUV4Bq3hlVM/mn68MHXEFfj5vPVtm5vPHjM1jmhx132DHouXLFO3iBlTDzHN
-         cCTAqVSmJktilg5IjEhF//6t5RhXk5uJ3ozngGahkPVxsp2w6GCuvb7boU8Ms50ImPfE
-         GisRAfpjrbKiORSvYnhIbC1HCY8wEFrArhzhIMXuvGpINj6ucXhqQMB7k4ravKQOFmNO
-         t+zA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790745288; x=1791350088;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1790745528; x=1791350328; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=S9KLD/n4FOKEHxzSj3ZLLw0Kd4SGiqNFcDpZxx8Aapk=;
-        b=CsjgX761/PfZYGhYPMKo6yIEeWDQnYa+BQZ3CGyOPgO7mRNRNstgWsvSY9A2AqHmNl
-         2HHaNN4YmHwu2nxHbEtEBx6szcxV66+0FEd/xkjWvbTQP5lF/3mn+hWL8ugWHbN1jxj0
-         bgf3AUtzq7VIx3HlZqGPCgqtJnY4elah+1ZfXfyigl1dpkJ7zShGre2LukFh1IYudPgC
-         QSw0QMRO3u/grY26T8Ftid2fYBS6YVMVxS6CeQYmxwG9goaTQBGa+nSIOyA7qqXX2OLL
-         rfBQe3MooV/4XuLtBuuxgsjo2xEkGeLKXir9UZYXng4Um/Tu7vaGujC6doyqlZEOI7EB
-         GGxQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxSpz9B2VrsYB56wo6eOmPMe6TNHBVjgwvhfH/awuFwO+KX1UjvO3fc6FOpdlh9ZP2K1kEMl10WGOjPBg==@vger.kernel.org
-X-Gm-Message-State: AFuF++l6HCSLhXEznMyzCP7T1IOTp46v0LH8ejwFeuT5X6kYAVrQa5Ki
-	Ph22lOcsFAS5uU03EdPMWZgTF1ysvQIeJFkhQxUe3rfjCXDmp+EMXIyo
-X-Gm-Gg: AYBFou1tygQVWVoCmr/1A/UYHpiVvwWob4mPh62LzOjCzP88Tb16mXGTlGk/maEGntI
-	tLZkmLL6EsdN6gZMMycOYOlv+3Vj9g06XDYYGPZJMdOSDxfG0BynU6Ie1qcU8do6TcMtdy9vHjZ
-	IIU3WqHicpoF1mz1F5FW5Vm+0t1ijy51V4pOqHjY2FMdTUp1pFkGza3D2wrrqlH+VAK6cd6jbQE
-	Y9ka8MVv0RANV3aZtTgf+AeHLadhCoI/6qX9M0XmCfJOE5RdG9GlmtS3rnN8WcBitgmXUzYn8Et
-	LvryK6QEkNOgikhK358KkXL9UEU2PoT3FTaCoXAp8270Oh3ah+qlj7InpjnT0rdhIRDHOh9SnZ0
-	ne87+I4nsosFxZHoxcfKZQC/XbGAo1s/wj7LuEn1o7QsiVFaXWYLsyFlC3tHTeYR+aj1T1aGDCK
-	undjZJn8nGiYQ38TXfUFMZUzs9YRiaSNIRfivmVjGFGqFIo8+vJ87qUZtFWERV8vn+86G43EHBp
-	Q0eVeCqk5DJwXPER/2C5A7iRd8N4sXXW+rqzeTM
-X-Received: by 2002:a05:7023:a4b:20b0:143:342a:3d3d with SMTP id a92af1059eb24-14d2d8b8ac8mr124363c88.0.1790745288339;
-        Tue, 29 Sep 2026 22:14:48 -0700 (PDT)
+        bh=gB3RSmmxTuZvY13a4OJmrWrVo3q4uhhENWZDBtXDYhQ=;
+        b=PfgY14deA1oW53vtBxlkkKzAI9PYxLNVP42HMV7nykmq+boLCk8g4CvfzWCj6SWZ3x
+         7QtAh5TqNF2jGg6evkqkLB7d87b8BszoXMxDm1YHGfP3OpqdD/1OAB+A3sxGZjaUQMbt
+         VLP/qdv2+3TTc/ntymh9rrVin6SwErn1UhJhM34Xy5niXTMhNkiF02t4sG1L3BcvsyCY
+         A83FVHWQ0YDrh0LnmfujOzUm4xE4r0DuGs6Tz57/8gJ5pURb63BRzKbuOQ9PL6zFtMDm
+         3W2aRm9icbEW0Ab2JQNHu+ZAvxh1ybAw4tVEvE9jd5O62fGAk/vB/mCcVpuybz83Lz/O
+         5zaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790745528; x=1791350328;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=gB3RSmmxTuZvY13a4OJmrWrVo3q4uhhENWZDBtXDYhQ=;
+        b=thBZDuq43SuthVLOxA6zzDeUHUzvJEF2bVdTvOzkCUABM8C7UCaJ2oINaQdcvB+0+J
+         cETcPezPLwffVhTaBnazQE94IpnYJIfcq0mUDnRSl9Q8ia7A66o+svl7/CriiUgFrQ0T
+         /7gwqd2Z6N3HpOwn1qDE+zYj2+q5TzgJhZ+OwUGjPtPp/1KCl7o9sdj53rOHC77SZPbB
+         7YKS/9+LkXXoSijZ0rWIzVemPVUmFqPXBXw+rDCn2Q/dEGYA85IqSY6ZqdmA6z38CfSp
+         8wpO0XNrL4BR8fB04Hnuk7cZU+QgP+uVtXA9SWcvBh0xiL687grjrOtqkV3omhrrOwWl
+         63Pw==
+X-Gm-Message-State: AFq9FYII04FVTUlcnxwjwP2eThJOlj+AGkGt1tnwYgtXkBGk1x7+gwgR
+	pz8XmRRTqoTtXxb2WI4JHl0q1k7y1Sdo44V0WgA46PUBAJwUq5ena7HVEFiqCdiB
+X-Gm-Gg: AYBFou1R3eJ+TcuE5Fa1GtvKhpUEI4dSnKCYCiUKtXPi7HBTyVDyPyKkFyJr3fHuXIJ
+	X5+YCaiQ3kvMLNXRPBRvEgrHG9wEI2mna6iCw1Qxd/HEhiprfopRPOTmoafkSyTnAcJaAz4N/zO
+	biWlNSy9c1W+5xI/TgIDptkCl0+wmkbU5rx9UtIvtHwycH8pJWR/zmQwnDAQ8I8Czg759RT7Fed
+	owrIxAMxpaQvrROpwVYC/3nJZ24VjEkut0cNI9QoRAS1VggC1Z27tYs7sB986074z+dmAJstzGO
+	xr9/dFJ897HjOOaWQs8HJ3KA458EQPD7iZYiTICrNoyyyvS5Vit0HlKk8/UitwLZqKqhlMsIcxJ
+	fcRhyI7FEIMOIA01836FxdlunZNApbuN3IDQYGxqipjvD1kQFNgfVw1TZMsXPZTA+04//LA8HoK
+	+/+uTvd2/4ffIoXlNo1/iZ84+cvHThU2ESLB/YmviuPyvt7Voin9m+Ix5ctNEGPefoDCfVFNWdQ
+	+N+8eDDKNEQuIVaFmqNOPsAofyVdF06r7cdqAUmD7ASsClzbrs=
+X-Received: by 2002:a05:7300:598c:b0:343:4a95:f120 with SMTP id 5a478bee46e88-34cdc8bdef4mr567282eec.25.1790745527671;
+        Tue, 29 Sep 2026 22:18:47 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:101a:5ce6:a15e:d8ca])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-14d089da7e0sm1218538c88.10.2026.09.29.22.14.47
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34cf4a63ac9sm898281eec.10.2026.09.29.22.18.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2026 22:14:47 -0700 (PDT)
-Date: Tue, 29 Sep 2026 22:14:44 -0700
+        Tue, 29 Sep 2026 22:18:47 -0700 (PDT)
+Date: Tue, 29 Sep 2026 22:18:44 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: David Heidelberg <david@ixit.cz>, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] Input: s6sy761 - fix resume ordering and restore
- sensing
-Message-ID: <aryaRAaXNJTv0yUG@google.com>
-References: <20260926-s6sy761-suspend-v2-1-8f00a96ee6e8@ixit.cz>
- <20260926203744.82FAA1F000FF@smtp.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: David Heidelberg <david@ixit.cz>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: s6sy761 - fix error handling in power management paths
+Message-ID: <arya1u_Rqtt85lyc@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -77,52 +72,159 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260926203744.82FAA1F000FF@smtp.kernel.org>
 
-On Sat, Sep 26, 2026 at 08:37:44PM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [Medium] input: permanent IRQ disable on s6sy761_power_on() failure
-> --
-> 
-> commit e5e3e44a0960351c54b4dc02894567b7b504952c
-> Author: David Heidelberg <david@ixit.cz>
-> 
-> Input: s6sy761 - fix resume ordering and restore sensing
-> 
-> This commit alters the resume ordering to power on the controller before
-> unmasking the interrupt, addressing an issue where the boot-complete
-> event was consumed prematurely. It also ensures SENSE_ON is re-sent upon
-> resume if the input device is already open.
-> 
-> > diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
-> > index 0f24a9b730635..899c179fb2d31 100644
-> > --- a/drivers/input/touchscreen/s6sy761.c
-> > +++ b/drivers/input/touchscreen/s6sy761.c
-> > @@ -500,10 +500,22 @@ static int s6sy761_suspend(struct device *dev)
-> >  static int s6sy761_resume(struct device *dev)
-> >  {
-> >  	struct s6sy761_data *sdata = dev_get_drvdata(dev);
-> > +	int err;
-> > +
-> > +	err = s6sy761_power_on(sdata);
-> > +	if (err)
-> > +		return err;
-> 
-> [Severity: Medium]
-> Will this early return permanently disable the interrupt if power on fails?
-> 
-> If s6sy761_power_on() fails (for example, due to a transient I2C error
-> during resume), this early return skips enable_irq(). However, the PM core
-> will still clear the suspended state despite the error.
+In s6sy761_power_on(), if any of the I2C operations or status checks
+fail after enabling the regulators, the function returns an error while
+leaving the regulators enabled. Conversely, in s6sy761_resume(), if
+powering on the controller fails, enable_irq() is skipped while the PM
+core still marks the device as resumed. A subsequent system suspend or
+driver unbind then invokes s6sy761_power_off() again, attempting to
+disable already disabled regulators and incrementing the IRQ disable
+depth a second time, which leaves the interrupt permanently disabled on
+later resumes. Additionally, if restoring sensing in s6sy761_resume()
+fails, the controller is left powered on.
 
-It looks like the PM core never implemented properly trackign device
-state and not calling suspend on devices that has not resumed. That
-means that we need to do it ourselves. We definitely do not want to keep
-interrupts enabled if powering up the device failed.
+Track whether the controller is powered up with a powered_up flag,
+unwind regulator enablement on error in s6sy761_power_on(), move
+disable_irq() to s6sy761_suspend() so it is only called during system
+sleep when the controller is powered up, and power off the controller
+if restoring sensing fails during resume.
 
-I'll send out a patch fixing this.
+Reported-by: sashiko-bot@kernel.org
+Assisted-by: LLM
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/s6sy761.c | 59 +++++++++++++++++++++--------
+ 1 file changed, 43 insertions(+), 16 deletions(-)
 
-Thanks.
+diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
+index 899c179fb2d3..a770628d2b94 100644
+--- a/drivers/input/touchscreen/s6sy761.c
++++ b/drivers/input/touchscreen/s6sy761.c
+@@ -108,6 +108,8 @@ struct s6sy761_data {
+ 
+ 	u16 devid;
+ 	u8 tx_channel;
++
++	bool powered_up;
+ };
+ 
+ /*
+@@ -307,32 +309,41 @@ static int s6sy761_power_on(struct s6sy761_data *sdata)
+ 					    S6SY761_EVENT_SIZE,
+ 					    buffer);
+ 	if (ret < 0)
+-		return ret;
++		goto err_disable_regulators;
+ 
+ 	event = (buffer[0] >> 2) & 0xf;
+ 
+ 	if ((event != S6SY761_EVENT_INFO &&
+ 	     event != S6SY761_EVENT_VENDOR_INFO) ||
+ 	    buffer[1] != S6SY761_INFO_BOOT_COMPLETE) {
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto err_disable_regulators;
+ 	}
+ 
+ 	ret = i2c_smbus_read_byte_data(sdata->client, S6SY761_BOOT_STATUS);
+ 	if (ret < 0)
+-		return ret;
++		goto err_disable_regulators;
+ 
+ 	/* for some reasons the device might be stuck in the bootloader */
+-	if (ret != S6SY761_BS_APPLICATION)
+-		return -ENODEV;
++	if (ret != S6SY761_BS_APPLICATION) {
++		ret = -ENODEV;
++		goto err_disable_regulators;
++	}
+ 
+ 	/* enable touch functionality */
+ 	ret = i2c_smbus_write_word_data(sdata->client,
+ 					S6SY761_TOUCH_FUNCTION,
+ 					S6SY761_MASK_TOUCH);
+ 	if (ret)
+-		return ret;
++		goto err_disable_regulators;
+ 
++	sdata->powered_up = true;
+ 	return 0;
++
++err_disable_regulators:
++	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
++			       sdata->regulators);
++	return ret;
+ }
+ 
+ static int s6sy761_hw_init(struct s6sy761_data *sdata,
+@@ -381,9 +392,11 @@ static void s6sy761_power_off(void *data)
+ {
+ 	struct s6sy761_data *sdata = data;
+ 
+-	disable_irq(sdata->client->irq);
+-	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
+-						sdata->regulators);
++	if (!sdata->powered_up)
++		return;
++
++	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators), sdata->regulators);
++	sdata->powered_up = false;
+ }
+ 
+ static int s6sy761_probe(struct i2c_client *client)
+@@ -492,11 +505,24 @@ static int s6sy761_suspend(struct device *dev)
+ {
+ 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
+ 
+-	s6sy761_power_off(sdata);
++	if (sdata->powered_up) {
++		disable_irq(sdata->client->irq);
++		s6sy761_power_off(sdata);
++	}
+ 
+ 	return 0;
+ }
+ 
++static int s6sy761_restore_sense(struct s6sy761_data *sdata)
++{
++	guard(mutex)(&sdata->input->mutex);
++
++	if (!input_device_enabled(sdata->input))
++		return 0;
++
++	return i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_ON);
++}
++
+ static int s6sy761_resume(struct device *dev)
+ {
+ 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
+@@ -506,15 +532,16 @@ static int s6sy761_resume(struct device *dev)
+ 	if (err)
+ 		return err;
+ 
+-	enable_irq(sdata->client->irq);
+-
+-	guard(mutex)(&sdata->input->mutex);
++	err = s6sy761_restore_sense(sdata);
++	if (err)
++		goto err_power_off;
+ 
+-	if (!input_device_enabled(sdata->input))
+-		return 0;
++	enable_irq(sdata->client->irq);
+ 
+-	err = i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_ON);
++	return 0;
+ 
++err_power_off:
++	s6sy761_power_off(sdata);
+ 	return err;
+ }
+ 
+-- 
+2.56.0.rc1.315.gc6ed9934b7-goog
+
 
 -- 
 Dmitry

@@ -1,85 +1,103 @@
-Received: from outbound.ci.icloud.com (ci-2006j-snip4-6.eps.apple.com [57.103.90.227])
+Received: from outbound.st.icloud.com (st-2001i-snip4-11.eps.apple.com [57.103.76.113])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B79DC408629
-	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 19:59:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.90.227
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B05EB47127E
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 20:10:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.76.113
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790798343; cv=none; b=f9xQkQl8miJe7w2Up+xYMUvxFX0e7MCx4OcfcHpk7MbCOpSoVxf87wAaPNVMrchI2Img+Ie/AcRmNaM8EwA4SGCQ1ykttTGaUY9e1nSCwggQh/YciZqCEYn5sgw7GnFx6g23iWM0lqzBDF5OvYZ1H6k1Me6lPiy8KVFA58cT4To=
+	t=1790799050; cv=none; b=gCMNX5hyx/6ZkdM7UvCPOIDBmhor3mRm0xbQAGk02IbplQ8i6KsAEKJl/7edVMugtKGkQyUw65EuVQA05PW6jZ/eAfCbJSRwLtr6QQTkOL52jlePog2UjNC9xIHFOTk82qP0Z+CR/kRlWos/2fBDIBhIb6z4P6woC3Eccl7d1JQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790798343; c=relaxed/simple;
-	bh=RGsx7d8YxrSJ957myMpLdIcSFy/GszTr01KBM3l5WF4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ZsCvUZC4QzQb1buXrueKjUCjn9rlQBIwgtFgEXXWMjHORhqAw267Y75B5pFUXda2y5crXO3hBkJCEZZc5lHt/gyGOLx+os7ojaWCBGjLt7706m7DPASf/SNcFs9aX70KJZzcomF1GQqqH0adCegG2qhvrn3JIZzA3IK4fUkifYU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com; spf=pass smtp.mailfrom=me.com; dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=eTDyJp6c; arc=none smtp.client-ip=57.103.90.227
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=me.com
+	s=arc-20240116; t=1790799050; c=relaxed/simple;
+	bh=IbBDmu8yKjwGDDfuW5fb36L/iyffUzang3lZ1QrX23Q=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=DQjMVp2WhQ6/ekEIMZwWN0g9mafOpxX6pKUUpcmxfnGiW+QrX2oE/V0b8HkWaPUSSlv+qSDKxXlbvh8IaDm8YQuz142KIiZkjO9Do00tSMZPoilv55hhCvf8JGP3wfij5MWrcyqqG8TWRNP/NTwmYiu7ORGxfAW7/hZF79y+RmM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lcb.to.it; spf=pass smtp.mailfrom=lcb.to.it; dkim=pass (2048-bit key) header.d=lcb.to.it header.i=@lcb.to.it header.b=e84243bj; arc=none smtp.client-ip=57.103.76.113
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lcb.to.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lcb.to.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b="eTDyJp6c"
-Received: from outbound.ci.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-central-1k-60-percent-3 (Postfix) with ESMTPS id AA41E18000DB;
-	Wed, 30 Sep 2026 19:58:59 +0000 (UTC)
-X-ICL-RepId: 01a0f3e6-1e41-72ce-b032-cd2c2001953b
-X-ICL-Out-Info: HUtFAUMHWwJACUgBTUQeDx5WFlZNRAJCTQFLHV8HWBxHD1YKTVIPDxYKFkFcWytfFRcbXAAXDVZNVB0dDlgGEgJaRQtNXw5eHwQXRhlVBEceXVZQBBkCURxWDVdDVARfUEkMQVBsWgBHF0gdXRlZb1BdHA4AUkVRH1RYXgRTVg5CCUoFXQ5YAkEATQtYBUUBQQlJClkARgNdX0tdHwYHch1cVlACWlUSBEAIVlBeCF4fTBw=
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai; t=1790798340; x=1793390340; bh=zJcTaZYxavhBdn1eQQ/e1H1+1iNILcKE8DTRtC1gIuI=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=eTDyJp6czbidF800GPLXRt5fF6Zy1cQA8G25ox5aoPriprmXxrCW0lZ/Hj93RhFbrsAwbAf18UwL90YUbkJ2jj0Pw84UHMUK0DQ3TzshJN5QGkkLGTVo5YhUVsryxW0hKWXx2+xk3ZkZZQ+fq0/Aw1nTrtt0DmAcjBxjJDoA3UInFovIePnr4zlGjDtseGZSWyE13p5DWE/8Ev1747yiNHq8gFeXMp6I3bp6xekztCqlac8fzPXdfkWwyohcgIS6kQnOd0HRFz2xwxUCvrWP6C0Zwo0yMSq/NzXailau9DK7w1CHDePXQDmi9ljyOnLy9Yn8BHPSlFa/7W/uJwhW5A==
-Received: from fedora.vpn.altanet.fr (unknown [17.57.156.36])
-	by p00-icloudmta-asmtp-us-central-1k-60-percent-3 (Postfix) with ESMTPSA id D8F151800162;
-	Wed, 30 Sep 2026 19:58:57 +0000 (UTC)
-From: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>
-To: Benjamin Tissoires <bentiss@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>
-Cc: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>,
-	Ivan Gorinov <linux-kernel@altimeter.info>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Guangshuo Li <lgs201920130244@gmail.com>
-Subject: Re: [PATCH 0/2] HID: winwing: two teardown fixes
-Date: Wed, 30 Sep 2026 15:58:52 -0400
-Message-ID: <20260930195852.3101947-1-f3nr1l@me.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <cover.1790795726.git.f3nr1l@me.com>
-References: <cover.1790795726.git.f3nr1l@me.com>
+	dkim=pass (2048-bit key) header.d=lcb.to.it header.i=@lcb.to.it header.b="e84243bj"
+Received: from outbound.st.icloud.com (unknown [127.0.0.2])
+	by p00-icloudmta-asmtp-us-east-1a-100-percent-9 (Postfix) with ESMTPS id EC8C81800120;
+	Wed, 30 Sep 2026 20:10:44 +0000 (UTC)
+X-ICL-RepId: 01a0f3f0-e0da-7afb-a1b7-380d2343b9b4
+X-ICL-Out-Info: HUtFAUMHWwJACUgBTUQeDx5WFlZNRAJCTQhBBkMEWRxBCU0dXwVcEhVdRV4MRR9bHlZWQwxHDkAfeRRQDxkfXV5QDBMLU1ZeE1tWRwIZAkZQSxsOWRcDVxxWRVwYQwldBVccHR5DRVsTVRdGCRkIXR0ZCEcfCjADQg5WA0MHRQAtGRxXUFsIUF5NFx0EQ0tfGV1FDw4HCQdJDhoLQFJcUxQUTFUPVkZTQlsaHlhTWQdCXEtXC1UPATBVG1FDQwQcGU1GExlOG1dNWg1AGVgGbRRWFVIEWQ==
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lcb.to.it; s=sig1; t=1790799047; x=1793391047; bh=+OPch1KwDEc0ucCy9Ue6atr70dhpjypjbN94qw7/q6Q=; h=Message-ID:Date:MIME-Version:To:From:Subject:Content-Type:x-icloud-hme; b=e84243bjpos62hK8rbYYc00DX+4HqhGvbSmWvb81pSPNMGMu5766R3s+VT9aPQonsANQmdnFCxOi1f1yG11pl+VtT7rAdE6Xu2qO1iIb1M+vJdNLmeHhIakVfSmm/K36SBuEGy39id0YNxWcjDdbRMVwgiQ2ut5XuT3JmldKrmfeT+6xnCvAEZISfaxwKVaImqFyl57Oe5/NlfdSgHybo9DkZnvnc1p4H0+NuBuMOVDmcZtmHqFz/SNPQPeZ5H3jrbEAv92cpy5/YEXdHXWNHW5YjeCnUaxU5pJDiQNZfzG9tLuehkEZUcSxoT12xWudp18HolvytkOfxhLaFRXa/A==
+mail-alias-created-date: 1748381178872
+Received: from [10.69.1.69] (unknown [17.156.216.30])
+	by p00-icloudmta-asmtp-us-east-1a-100-percent-9 (Postfix) with ESMTPSA id 3A1231800785;
+	Wed, 30 Sep 2026 20:10:43 +0000 (UTC)
+Message-ID: <c0b597b8-e7ad-4fba-a2bb-5d252e3dfbd3@lcb.to.it>
+Date: Wed, 30 Sep 2026 22:10:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US, it-IT
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Hans de Goede <hansg@kernel.org>
+From: Martino Papero <martino.papero@lcb.to.it>
+Subject: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3
+ 15IWC11
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: Bh_Ef1kIElePAbo-NHAvQvHPZQRE7Y79
-X-Proofpoint-GUID: Bh_Ef1kIElePAbo-NHAvQvHPZQRE7Y79
-X-Authority-Info-Out: v=2.4 cv=T4+BjvKQ c=1 sm=1 tr=0 ts=6abd6a04
- cx=c_apl:c_pps:t_out a=2G65uMN5HjSv0sBfM2Yj2w==:117
- a=2G65uMN5HjSv0sBfM2Yj2w==:17 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
- a=M51BFTxLslgA:10 a=x7bEGLp0ZPQA:10 a=tnT-KND3AOYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=pGLkceISAAAA:8
- a=hCq73as0fieUF7sB1GUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MSBTYWx0ZWRfX5pur28cfAAkw
- 8Qqh+OfMIqTpzgpWNOwTd+aB8cGdvmp3S8B1+ZRwW2diMptqln6/M4gooMS/6PM6/16uDYu5RLT
- 7Y5djVX21ipR6aW+MTViF0vrfbReihkAs8Sjgblep5T/fjuTFFShn0atChTNMYzt5dI2B35NSbJ
- RdxKG9gVjp/k2lkq4ZkrHGZhV1cjjStRTX1ChRLLUwX44jnaC+EnpmSVe9IFBZaw1ISisPgixqt
- i/QwDw7zFzJeI4UulUyKzKpjHeYbIRtPEl6qjaE3J0bfjjgJ6sDLcEXo3fbd+eKhbrjyqZoLVHy
- 3pR2FJN8rKDaTbIrnEMcZcBFX1m/yhoxqXuLZuXCSfwn3rGbxYQuauwsEhyC7U=
-X-JNJ: AAAAAAABBghs0Svo0th2mMm2+QWCc0Gqce4mw2bWDqV0eU0rY6uCvczqTw5lQqa97r2XQEHKT/+NSrCaNdoylCom0mXL76LKBv+FhCD4IE18ZpOsTcufmjtbKUWUwYIJvjO0Bx7cpKkiMqSlSJcEgdTzumgV3aRdWNZs1Yadc/0bHoYavSKr4OKBo93syxzKHN56Y3cGs3UErf6QlfvvlzrTVb/CM8JlNcXMVtgzm8jBEgSrzBpfp4LyyYr0lXb42SFJDQEXDwfora7tGJmXnmmYphj4t5mNF5DzlZ6Q1DQrtLoXu6PQB2c3yVAuaUB1acFyFtJ7HfIqdpXxUeEaMkJUm/400fzwR+Qt0Ttv91mDck7vdZcWfehy1Naml/A5KmON31yPHgK7OS7ScqTEfuj1cZhyP/fLhtNzoslNTmZdWD1OJPzA/2f2yrxQn4tMY1PvgrfPBv1ADTcoSFDFTPYXUIvrpxeDNHYtJqRgAcVEhVI3wTeFvFbmbdXLCGq7D66oYwKtivbTsABVCpXMQNx/IDs4N9vPitdxOc2hDP1gC4c86Urlvnr65JaOcAQrYPY0qdnIWBehivEafJprycd93w6sXmmk2+ey1G+f+sVW3DfHYncioOINLz/+DZK3C25VVQ+wcwsQjqegqjESufjXQmwmZZBc1hWa1A1jIUjbpoLo4U+mBL07dH5pxAB7QurUrvpfg0eaGsB8nGgOU9A6uXA6PAVFTuwvW8CVrKLn23Ep5RzDZD5htAh3BHHMI6CY/zOuA+KddyyYz7i3xc/DTh4jKI57IfAK7mlzsZuqO92EDwLy8sq5VSrnQV0khaH1DlzhojNtk+tSNpzH052EHrH+28NgxI8NKjYhhAij8W9IU82O06iPLAKN4AVICmafzlLagQFpJ5unkWZlhh8ugB6Sm9SGgU7Fnc2iamEp2X3q1gDF5qS5VjGzIAWrPevIuCnL1FHwkA5IJ4Lwzyl+solGXfR
- di8RDl/03hXWHwHM7ZbdD62g3bxuz+MoNo8D45WZakz4ioJtKBQBMFCP8gUtR/VBje9vE3D4pngs1LHa3bNh/9AsaLYEO9oepDq+LND8uT87CRBQ2usZupOiOz90Vk6u31vOqb2SUy/LHwr9x+WarXXyJa3IhQE+qamrxLXO8zNxcFyj/qH7oXQ4pHo2L+RrscNC4272mPSJU0zeB5E+NLT+HUmRCZrVGy0ed2kyBq9MQpcvZcz7dFgup2PkH4mj/pu+Qf1ar9cCXa7PjLPdiIoXabPkVXLfdvRo=
-X-Apple-Category-Label: MjczODQ1OTkzOiRjYXRlZ29yeSRfUGVyc29uYWws
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-ORIG-GUID: _aqvkKRvFVCrqhf6EFTqWk9n5eOIjM3w
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MiBTYWx0ZWRfX2GaJn5bU8szo
+ 6/0291YZc9zTg8oXXESQwBjz/VPEkeGSS8b/EkJUCO/LE3Zyu9P4EWW/MAckQ/WFrBQXhBpxVQk
+ USjY3g8veG+pBSYt4k0WSFlAyzL2+XiZw3Vx7TIjCmgaXI7sx2y2uYs+I7cDDJ1hVTTRdXrTPjs
+ Ym73fVlgmjmixBKHaV6eQl1ZqqtsERIFCJFEZb8HUa1HbtKbZmiN8+lntkzN1bG1Ne/gqlckjsI
+ nV4J96au3AnufmgwG/FivK+gUTJvVC1XvrUxhzHjslbE/1i1XVAhvmRnsIG3BHdhRQMe3WTNe6R
+ z+ZXIHs31IdWX5uurDWbtgZZF//oGAVk47v5Xs5eRXuq1yApZRaLquulbAe2t4=
+X-Authority-Info-Out: v=2.4 cv=Zrng6t7G c=1 sm=1 tr=0 ts=6abd6cc5
+ cx=c_apl:c_pps:t_out a=oyWFxbOnq+dmhQrAPgaJYA==:117
+ a=oyWFxbOnq+dmhQrAPgaJYA==:17 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=VwQbUJbxAAAA:8 a=qxBrxa7OMxVuxdj_4mIA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: _aqvkKRvFVCrqhf6EFTqWk9n5eOIjM3w
+X-JNJ: AAAAAAABOAKOG2qYJEFsQ/LpllXoqSzXPj1/CNOM8vMs+zCoqbFBXZyua2q6rgLE/yDKCUSNhHqzdc9ZuVDIeqAEdxdWenBAoH+I0qE4qBaSXxpbZd8/Gku3ynqIoBCurfBZp5VFjSDass5rRDSIkEnBpqBYA0bLi2sRkb/kjajOppbkyfMAax3gwG6LHDXL/CrYwh/vk+IOk1oE+WzmrAYsGRnTU5OOucoANqkiyqxEYgqnvGLM2zpZVYze5NJDExnGZIY8frDnDz1nFbzEoHERLjO2k8OVDTL9iJtb3fOMAIwNhD48CjKTBaJ2fhIUf0EQeDStDniCx95qqa6KJFmUYPmaiAFHBgKHeHoSREgZWtkuQ7eNy5x55WcJT3gmtSArLEWe0xbagwUPXaBj/lzV52eS0aoBla7HkfBhfwp01eHqQn5AsNbjOjPlFKtXIyCqoscVohu0kFL67f/K7CxxdqSmuQLfPEQ3W6ir5IDTa4rbrD/HLRZZW2YDz4I2O2eIjsMm6jPvvBHqelQ4ViH2/3u/ASPyk06rvRydgF88WsL4/DhwjhR2bB5qYCVKngn0M5q73Ijw2k42bpdKtn6TAA9WcD2RigfVf9pqM/U4NG7G4zFJrVrQ3YcPt7JwZbHc3WlnzivC/R6njkN3VVD6lr8sWk/WzltsaX3R3AMYzJjXywxWlz8rp3eNnPS25DDkfxrbgVDy9OW+phMo6LmRHQ6Wt5TSHh69W2UIRsCw6YyU8WR4qM/IgmLGpSC6/LZ34aFoLJ9j2y5nuvJIxeTuEdlNC7Um2OYNuJS/sB2p1YafECsYuGJ/OKyF4BLI3Wrf07GF27/HMKpiueZbl08b4w+CRKTy3yDi5jt6vGtnSh1TMwb2fu1t68IUif+PFF6leTCzKI9CpLnNi+51ilnKz7EOXjiVxaXnspGiTIPjzrAi3G+2UgB9WdqwH/5Y8Bze+y4gVJH2PCPeU6I0tFQg+/WX1x5
+ oMNibaqUIroKNcXDnSk13Kj7mInfoMUHleFT2GR3txMsSSFDXWUOC73Yb0vxbGXf/oT6TilyzoegcOJWvNyxhoW2prNiObK82I/q9bNmlJCQt4QvUDhTs3VYKkm9ifAOXoIl1mAQxvJIDQfpJSG6fiYZ2XNhuP8yZqFvFGiQMZF4SLHobI7ChcmWbNUtetp85arak+dSv5NGFcUN+atwk5bMYGAz6FBrblO+XTHuGltZvRRpq3vD3WGxntpcVNNT90nIQqqr/0Yq0qg9AVTbseAscavBH2QijSIuQJ8c3
 
-A note for whoever picks this up: patch 1 touches the same lines of
-winwing_remove() as Guangshuo Li's "HID: winwing: remove unpaired
-hid_hw_close()", posted on 13 September:
-https://lore.kernel.org/linux-input/20260913143909.1589019-1-lgs201920130244@gmail.com/
+The internal keyboard on the Lenovo IdeaPad Slim 3 15IWC11 (83RR)
+does not work correctly with the default i8042 settings. Using
+i8042.nopnp=1 and i8042.dumbkbd=1 restores keyboard input, but prevents
+the Caps Lock LED from working. Using i8042.nopnp=1 alone does not fix
+the keyboard.
 
-The two changes are compatible. With both applied, the end of
-winwing_remove() becomes:
+The laptop works correctly when atkbd_deactivate_fixup is used instead.
+Add a DMI quirk for the 83RR to enable it.
 
-	hid_hw_stop(hdev);
+This was tested without any i8042 command-line parameters. Keyboard
+input and the Caps Lock LED work correctly, including after suspend
+and resume and after a cold boot.
 
-	/* ...comment from patch 1... */
-	if (data)
-		cancel_work_sync(&data->rumble_work);
+Link: https://lore.kernel.org/all/4f43465f-98ba-4722-8e29-03df20315369@kernel.org/
+Signed-off-by: Martino Papero <martino.papero@lcb.to.it>
+---
+ drivers/input/keyboard/atkbd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Whichever goes in first, I am happy to rebase mine on top of it.
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 93650c982..b5ee5697a 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1938,6 +1938,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
+ 	},
++	{
++		/* Lenovo IdeaPad Slim 3 15IWC11 (83RR) */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "83RR"),
++		},
++		.callback = atkbd_deactivate_fixup,
++	},
+ 	{
+ 		/* Xiaomi Book Pro 14 (TM2424) */
+ 		.matches = {
 
-René
+base-commit: 551c722f40809618230001baccf219193e22fc5a
+-- 
+2.55.0

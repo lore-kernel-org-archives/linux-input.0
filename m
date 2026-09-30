@@ -1,29 +1,30 @@
-Received: from outbound.pv.icloud.com (pv-2001j-snip4-8.eps.apple.com [57.103.64.101])
+Received: from outbound.pv.icloud.com (pv-2001c-snip4-2.eps.apple.com [57.103.64.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6335946D2C8
-	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 19:38:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.64.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 269464718E2
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 19:38:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.64.105
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790797088; cv=none; b=N0vO63/3OZbZf6eVrPzw0Em5MkfekZ4M7c1qJloKlCF0YFK/ZJB2Peg3Ggc/8k/G5AA7aBQrPwVMPcjNxv91Ds/dxT1OsF6Zj4zLwFwFwDiDCR8j4Y6dhK5jX66NF7Nft3+mtfN9qtcZniyJfpDLAv4uAfHdsjenZdkjxBtxZr0=
+	t=1790797103; cv=none; b=mJHFqhKzZRH2gyMAgd0AOqauMHOrmMwXTorh5S6AFFO2fzflALkE0RA5tZjFUsvWrHOxaDda0LGzNX/lw173NrUvoR4abRWejhGvM1p/fQLxtih/2BFzXkYi+dqhbt5ZtI/qSJQcvkcCAC7fqmGtTvuyO3OgMr50O0qvQrsSh9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790797088; c=relaxed/simple;
-	bh=mHmfLrNTGx+b/0/s87nTCknXQ2zTaqP3hhwitizwAmc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DMVm5GEAM44eDUqdWCLA75bkh7mcF+CW2Y35MUn7tbPUHkP0mHbEJA+0dBnrhoFF98vv3chKMzSSjo7MRxb2gY5SN1Dj2yRahytmx+mL/qet1fHO0H710F4K10FN40EntArlyrfj9mnUtIDEn3Aa/A6/NS9G5AkpI8qFjCjt09w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com; spf=pass smtp.mailfrom=me.com; dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=E8Z9RMTC; arc=none smtp.client-ip=57.103.64.101
+	s=arc-20240116; t=1790797103; c=relaxed/simple;
+	bh=mahWO6Hv67HejFru7SGWB6IyczElkIkBqJJGZg8oGes=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VtsclGgbb0Ky6aRjkEyq65hw82jB8SIOUieIPIaEoF2e2Nz2hhvRtpaDdDrn3Xb1x9dQgqWyoMZe2Qw8MgWda+4TQ9PO+aWX6paO7VL1AWJnQqHkMGnv8YqhB3dlCgXwxiTEnpEcZUc9ygoQyOkEskxthw3RBUtIg3wjYvKd6i4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com; spf=pass smtp.mailfrom=me.com; dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b=sAFbiX/d; arc=none smtp.client-ip=57.103.64.105
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=me.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=me.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b="E8Z9RMTC"
+	dkim=pass (2048-bit key) header.d=me.com header.i=@me.com header.b="sAFbiX/d"
 Received: from outbound.pv.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-west-1a-60-percent-10 (Postfix) with ESMTPS id 0531E180013C;
-	Wed, 30 Sep 2026 19:38:05 +0000 (UTC)
-X-ICL-RepId: 01a0f3d2-fd16-7e79-87e2-5eee55880ac9
-X-ICL-Out-Info: HUtFAUMHWwJACUgBTUQeDx5WFlZNRAJCTQFLHV8HWBxHD1YKTVIPDxYKFkFcWytfFRcbXAAXDVZNVB0dDlgGEgJaRQRNXw5eHwQXRhlVBEceXVZDGxkCURxWDVdDVARfUEkMQVBsWgBHF0gdXRlZb1BdHA4AUkVRH1RYXgRTVg4TVg5WHxlaBUkJTwpYAFkEXl4RR0NRWFwCCBRzAFJFUR9URhMZThtXTVAbXwJCDw==
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai; t=1790797087; x=1793389087; bh=oqR5z2oHEqdzqiAvnE44B60F+sBnKAwcy0aKZtJFpBA=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=E8Z9RMTCm8GqVRXYWrJujRhKS2FCKIZUvXqpgrAj4yilfL4IYG1hc1S92VN5kR5/DB+1TPQS4HFLnIaNWxAp7+hK/aVdHEeUDBAyCJiKeYhieXZUKwzFWx9qEtjQlE247b1QczQDbtcCs4PES7d//v3Yh7+b6m4U+/yGDqN6Dav6o7mLeNub4N03ypqQC1F97WnBHseDXT5g0VHSoOOW8picgeOD78c+ig09e2HGobojFKBs0imZiHVdewwyZ+STUKX96MJrqa8vyfjFahxVsZegZUA+8hreWUNneXaS0EbAkrum4BWH5YlYgE3W2XXGU9nyy2FctHyJFe9s0dEFgA==
+	by p00-icloudmta-asmtp-us-west-1a-60-percent-10 (Postfix) with ESMTPS id AEE201800117;
+	Wed, 30 Sep 2026 19:38:19 +0000 (UTC)
+X-ICL-RepId: 01a0f3d3-3270-7c81-9e3d-1d804f2d2978
+X-ICL-Out-Info: HUtFAUMHWwJACUgBTUQeDx5WFlZNRAJCTQFLHV8HWBxHD1YKTVIPDxYKFkFcWytfFRcbXAAXDVZNVB0dDlgGEgJaRQRNXw5eHwQXRhlVBEceXVZDGxkCURxWDVdDVARfUEkMQVBsWgBHF0gdXRlZb1BdHA4AUkVRH1RYXgRTVg5CWksHCwZcBhZaS1BdUl0BEg1JAg5TCgcUWh0BCQNSU0gOQQoJAwkCXghPCl0AUgdHC04dCl4fHBYKFkFcWytfFRcbXAAJS0YJSR0OBFQHXQVd
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=me.com; s=1a1hai; t=1790797101; x=1793389101; bh=UUN03FSJarvghL1KapM0oVMxVGRDEvQLk2HJdY/QbGg=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=sAFbiX/dYEV2LtzhOZiIAChHayJ2y4tcIaKoIGYMW0fclT5XCCKTZ0vNmg6jFNbIdbGIzL5O/yhqZTCY/mNWBRtvSsTEtWB3M9W1r82qMLs8LurE29Tw4Hk542nsSLRsf79D+W5VOUtCL3yBtYEy8LZLbsLEWmoyDMGj/oFQtvzMAhCAMJO21DYfR9puKkn0aM8a19y6cV/iOXjGE4xAH9FKrlxE/DBdzWgPB4KrpkQ7VDUzXpoHrJoDOj+qtSlWwxQCeRa1N3pmnrk1xlBdX621vyXrSoEw1RdXwxLANe3R6TgRKtGnjelz4/99ZzZq6e4oXUAG6NeAqgWz8/RgJw==
 Received: from fedora.vpn.altanet.fr (unknown [17.156.192.29])
-	by p00-icloudmta-asmtp-us-west-1a-60-percent-10 (Postfix) with ESMTPSA id ED04B1801FEF;
-	Wed, 30 Sep 2026 19:38:03 +0000 (UTC)
+	by p00-icloudmta-asmtp-us-west-1a-60-percent-10 (Postfix) with ESMTPSA id 638EF1801FD2;
+	Wed, 30 Sep 2026 19:38:17 +0000 (UTC)
 From: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>
 To: Benjamin Tissoires <bentiss@kernel.org>,
 	Jiri Kosina <jikos@kernel.org>
@@ -32,10 +33,12 @@ Cc: =?UTF-8?q?Ren=C3=A9=20Onier?= <f3nr1l@me.com>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 0/2] HID: winwing: two teardown fixes
-Date: Wed, 30 Sep 2026 15:37:49 -0400
-Message-ID: <cover.1790795726.git.f3nr1l@me.com>
+Subject: [PATCH 1/2] HID: winwing: fix use-after-free of the rumble work
+Date: Wed, 30 Sep 2026 15:37:50 -0400
+Message-ID: <2c34f174fc3c0e63b411cda5dce2d49a8799d4b0.1790795726.git.f3nr1l@me.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <cover.1790795726.git.f3nr1l@me.com>
+References: <cover.1790795726.git.f3nr1l@me.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,80 +47,90 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: D3Prgu7fvwmrQkJ8W27YYn0gIEqDuZMq
-X-Proofpoint-ORIG-GUID: D3Prgu7fvwmrQkJ8W27YYn0gIEqDuZMq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MCBTYWx0ZWRfX/9/6qKAR89XB
- frbx/oorcqRqcUg1y6EnPakyLMkBVV2eXcQiDQYtGK9fTiNK+5qywlEf4/nT6EIy4eQGni0wde4
- GrjX0tzyYYwrVISyQmVH318s4GW1H6zPLDyKmtvF+kn9fwU+YVSeoJUmoaQC6Kxhbf3M6gfKotm
- HevXH5D7P4CYhEkpu0s9ge7txIJTRYEdG9BJ9UXRy76tUwVpss0t2Jmff50mh67LuRxHxffa7kC
- IuA5R7RTdMLe+2qBltW/GqgvjvSgH3fZ6MXOq3nXB68cePG52Mx1iRzki3IhNeYRZ0uwhHy7xXn
- i7nclhaE9bO3ojv49wk5gXhvzmVQyTYjKvgNHoAq3+MD9tNxNKEqEF1LZkRv0o=
-X-Authority-Info-Out: v=2.4 cv=IbuKmGqa c=1 sm=1 tr=0 ts=6abd651e
+X-Proofpoint-ORIG-GUID: SFxw5p3wIgl2jSlwXBea0qIOGBVEvtPf
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDA4MCBTYWx0ZWRfX0grNS0khfgot
+ Xk1COne9O6Z68r64J83tH6Aepop+RM9L9ryxu0xHTclAiyUDz82kAxZdcUlXLN9GSKtcwRMuKhY
+ WhdQPZ+2yjG+1Sqear1AGnlInXTxswBtRlqyJt6aVSpDC6SYBIUizlHiGqcu8pUUZy+d6BfWapv
+ A1KXkvsngGAmS0qrdPsMZWwtJEYejYSNugh8bFu19wrbE7ArV50KFj6j2b2iDuGM8wKqMS+YwK1
+ /6bGdeJkT5UrpuWWN1c61kCG3T1BOolUbBXwXz3EqT7o3WLe8SIgsWhK7NvLflBoTffTdFD96e6
+ Boqy65xIyXlMoVfahgWrYofiPlIv9IxRdLMEM5dHUbN9Xm8yFoMT7CJPHCblK4=
+X-Authority-Info-Out: v=2.4 cv=J9GnLQnS c=1 sm=1 tr=0 ts=6abd652c
  cx=c_apl:c_pps:t_out a=aW9mcIavGNWWFvFFKOxBSA==:117
  a=aW9mcIavGNWWFvFFKOxBSA==:17 a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10
  a=M51BFTxLslgA:10 a=x7bEGLp0ZPQA:10 a=tnT-KND3AOYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=NVxr5sMXn2Treso2F6kA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10
-X-JNJ: AAAAAAAB15mj72XKTaP4q27R8zeGtwKfiJCzMcoEvS1jMaj2JEu0jlPJAe8xqYKx7gRZWV3hB+Yfc3UFiQ7d6PJCDf6h9glkBGs43Cgh6uVU13jk5mPgU7Uy9tCPgw0fXyWusNQ82O/6Ny0A5Ohh08++cJGOiMfVfYIxamVrdg/zE4coIqC4rryP/NnNDxWzXP8Cy+FakphLymzGYBPnX1Qe7w5AGCP2mg85nLAm4xl+Bm4S0a5zOZTihNZ3L9jYvVukDNw1qAeROg2dJbhyVUlyRwCVLVhupCHw0U828QUpTqjWccb9nTtIha8A2KPaPb2pQ3EZntuLJm//8rKyh5GG9cejDWHFxnNl6A1opCZAc/487s1PHcq52bEJM6DKojr8rWav9Fi61YuY0D0y3ZUfObP7SjsUWWwAgZ7nJPjtvRlqWL/PwGI9x+t98UzvFM8pNT7WQ66y5fuMM1fEPefCbuUAClNFDc6PHfSFOCQ8O89LT7VWFLf7KO5RRXNMYt/S/MHbq+YrXouix15HBV8IpHqnzx6yiubL1hcqIxNNKhRlCPEkwT2XmM9T+NeyRhyQrGh5h4zmFxNmupU7aCaQgRYjUv3JN4PuIRfiF8DTu+fQY3rI+3gwV+8G8G4VuTrWbayxoQDKrOWs5scwozqP/Eg0C6vs06mXKWtxzOlZ/pDQwHgyTwKzY1/PsQPJEL0qeGDcozC9gihBXkmk1M6ZCByZzA0MEV2JdT07anMQstmFBNuQ3tgKAmA0tydiW1T9vqZ4T6nTN739/PJn43F9hCr3GpW4BayoEJxy9seYrRdiit+ZzhGZYarm682ht2IKn1pMR3L5qNr9WLRyf0fxTkrLhCJTVMPrk6nnPAG6+ju/zbHtlItZpmzef+WAzGq/q7D8G9V8GgCPBSjiAKkTkvCOPCumuOx5EuiV8ydj2Fi4Vp/InpxV14hpQDrQtz5aC9FitOFBYxYNy+igLfY5cqSwH7o
- unp74Cgo0b/bYT7McazCgSiPuBEVPZ5awAeSyuhWVxNmXjEAGrapuL5eaOmgT/x3X+CjIBJ2ftt82ZnXwFiRSMXm0BxtgqiWxroNL0N7GACbZmLz3cIOes3qIYcKgG9KrF0TWENVs6Hgn8WUqLaj5I/HJVHSI3pL6Tb4hc5hq7rZWi1ciISwnzcTJTcthejDJ5Mwz5bWaLS513zbPACCMioBJzMDDp9YWY/OZNCROWJGvn7K8Cg2WhJ3f
+ a=VkNPw1HP01LnGYTKEx00:22 a=HHGDD-5mAAAA:8 a=rKEBkSQJ8dcQsvHFcgsA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: SFxw5p3wIgl2jSlwXBea0qIOGBVEvtPf
+X-JNJ: AAAAAAABA21QjXv1wyEbO9ENdwif3RSPdaV+ps5ssAGTaKdoyM98lqlzf5W+tXhhr/iNKVomM7Ib9zhDmhzOSJUZsTr48wUiiu3C5ch/mNSBq8L7J1xyMI/YDukdnxqRQcUf2OIKcN2OLd0WX+gqWVo+IywDxznNwdS/hL1MJqHwKbfo73wlX1P6uA2NCqtlRTFw9OFMDDB86lCz8ZkSG2yRJhYBiQUUMTtPTWf1bgzQ1MJSxT6Mvr3Hub8byNI7rr3pg2icz+3y/JvovXgIIieWjsiRJs+4IsWdOFnEmjDvwjxOkmVMIv30dZQnO6Xf1waUQFWxsddp/AHzKJ33ZRi3OYD8/NUeV+XEHKAoXTiNNpX3WX+2hhNmbD3XITgVPta7T2yiyOD0KkuVe3vso40GAfA7fbe8tRh7dKBxlWl51BzgfhP70yCaZBQiyqyyUR9Myt2RR6L+VIILbUtG4k2Wpa1hF45ObuFaW5w9wj3hJ+PkMSn+GdmjJZ0ZzEHRQ2lNt6ixNKR19XlxMeaTH4tpXS438kMVOdiSv6dJrMo6W6WCw/h2COHoTeqWtDhRDJym3PCiOk5EZp9o68Ndv28SjJjkN9NyfDSGwjl2yijt5xkiXgLUD0Ds341vyLlK9zbPK9OfxQZquRb0vEiYEi8xE4oxjQIv51LrP8bjeUxhAdKchhaoWQbfB3aq8GmCZDU7ruwxV5vG7uA+ZGXI+6QWLAkurfgiccLfcWn+zuY7UX3HP7z87qqanKID5z0WuxMXgPzqf9C5paZmLsCj6A1hJKHL5SGnsXl8FwY9sESRGJoR2EAF
 X-Apple-Category-Label: MjczODQ1OTkzOiRjYXRlZ29yeSRfUGVyc29uYWws
 
-Two teardown bugs in hid-winwing, both present in mainline. The series is
-based on hid.git for-next, which already carries the related fix
-a1a5ad37e50c ("HID: winwing: fix use-after-free in force feedback
-teardown"); it does not depend on it.
+winwing_remove() cancels the rumble work before it tears the device
+down:
 
-Patch 1 fixes a use-after-free of the rumble work item. winwing_remove()
-cancels the work before it stops the device, but stopping the device flushes
-the force feedback effects, which calls the driver's play_effect handler one
-last time and queues the work again:
+	if (data)
+		cancel_work_sync(&data->rumble_work);
 
-  hid_hw_stop() -> input_unregister_device() -> evdev_cleanup()
-    -> input_flush_device() -> input_ff_flush() -> erase_effect()
-    -> ml_ff_playback(dev, id, 0) -> ml_play_effects()
-    -> winwing_play_effect() -> schedule_work(&data->rumble_work)
+	hid_hw_close(hdev);
+	hid_hw_stop(hdev);
 
-The data the work runs on is devm-allocated, and hid_device_remove() releases
-the driver's devres group as soon as .remove returns, so the requeued work
-runs on freed memory. Cancelling after hid_hw_stop() closes the window: once
-the input device is gone nothing can queue the work again, and the driver
-data is still valid until .remove returns.
+Nothing keeps the work from being queued again after that cancel.
+hid_hw_stop() unregisters the input device, and evdev_cleanup() flushes
+it while it is still open: input_flush_device() -> input_ff_flush() ->
+erase_effect() -> ff->playback(dev, id, 0). On a memoryless device that
+is ml_ff_playback(), which marks a playing effect as aborting and calls
+ml_play_effects(), handing the driver the combined - now zeroed -
+effect. That is winwing_play_effect(), and it ends with
 
-Patch 2 initialises data->lights_lock, which winwing_led_write() has been
-taking since the driver was merged. The mutex only ever gets the zeroing from
-devm_kzalloc(); CONFIG_DEBUG_MUTEXES and lockdep both flag it on the first
-brightness write.
+	return schedule_work(&data->rumble_work);
 
-Patch 1 needs a device with a rumble motor to trigger; patch 2 affects every
-supported device. Both were pointed out by the automated Sashiko review of
-the earlier force feedback fix on linux-input, and confirmed by reading the
-teardown path rather than by a crash. I have since exercised patch 1 on URSA MINOR sticks, with the URSA
-MINOR series (posted separately, on top of this one) applied: unloading the
-module while a 5 s rumble effect is playing. ftrace shows the chain above
-taking place inside hid_hw_stop(), and the requeued work running before
-winwing_remove() returns; no warning or oops (on a kernel without KASAN).
+Unbinding, rmmod'ing or unplugging the device while an effect is playing
+therefore queues the work again, after cancel_work_sync() has run.
 
-A third, related issue is deliberately left out of this series. The LED class
-devices are registered with devm_led_classdev_register(), so they outlive
-hid_hw_stop() by the length of the devres pass that hid_device_remove() runs
-after .remove returns. A sysfs brightness write in that window reaches
-hid_hw_output_report() on a stopped device; usbhid returns an error once its
-output URB pointer has been cleared, but that check is not serialised against
-usbhid_stop(). Fixing it inside the driver means dropping devm for the LEDs
-and unwinding them by hand in the probe error paths - a fair amount of churn
-for a narrow race, and the same shape exists in other HID drivers that
-register LEDs with devm, so it may belong in the HID core instead. I have a
-driver-side patch ready and will post it separately if you prefer that.
+The driver data is devm-allocated, and hid_device_remove() releases the
+driver's devres group as soon as winwing_remove() returns. The pending
+work then runs on freed memory: both the work_struct itself and the
+report buffer winwing_haptic_rumble() writes into live in that
+allocation.
 
-René Onier (2):
-  HID: winwing: fix use-after-free of the rumble work
-  HID: winwing: initialize the lights_lock mutex
+Cancel the work once the device has been stopped instead. After
+hid_hw_stop() has returned the input device is gone and no further
+effect can be played, so a single cancel_work_sync() is enough. The
+driver data is still valid at that point, since devres only runs after
+winwing_remove() has returned, so a work item that is still running
+while the transport goes down touches valid memory only; its
+hid_hw_output_report() call simply fails once the low-level driver has
+torn its endpoints down.
 
- drivers/hid/hid-winwing.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+Fixes: 42d020b54edc ("HID: winwing: Enable rumble effects")
+Signed-off-by: René Onier <f3nr1l@me.com>
+---
+ drivers/hid/hid-winwing.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-
-base-commit: 145c2b2e9a5c0f794fb4009bcb072ab19f8ccfcd
+diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+index 19b92c2c65..e8030fdc14 100644
+--- a/drivers/hid/hid-winwing.c
++++ b/drivers/hid/hid-winwing.c
+@@ -391,11 +391,16 @@ static void winwing_remove(struct hid_device *hdev)
+ 
+ 	data = (struct winwing_drv_data *) hid_get_drvdata(hdev);
+ 
+-	if (data)
+-		cancel_work_sync(&data->rumble_work);
+-
+ 	hid_hw_close(hdev);
+ 	hid_hw_stop(hdev);
++
++	/*
++	 * Only cancel the work once the input device is gone: stopping the
++	 * device flushes the force feedback effects, which plays them one
++	 * last time and queues the work again.
++	 */
++	if (data)
++		cancel_work_sync(&data->rumble_work);
+ }
+ 
+ static int winwing_input_configured(struct hid_device *hdev,
 -- 
 2.55.0
 

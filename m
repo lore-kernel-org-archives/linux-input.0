@@ -1,104 +1,218 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EF9E3E024B;
-	Wed, 30 Sep 2026 20:36:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B29E51DE1C
+	for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 21:33:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790800580; cv=none; b=r+N8slp2xveNua0HljuWqrmAnbaxjKce9jvvYB+h6+YYL399eiCoHFHj7kKkyKywuUkAoli9NvHnj6SorWa83oaU89vihmltibJaLElfTRdh5SesYLnNTljGoGb76+mAozH7yJG7JjSe9beiqjIOlZf4jFFvvFVYWh1l+1AqjUU=
+	t=1790804012; cv=none; b=NOOL32cNeRjdNET3dmLEdwxVfMNZxcga+QI9tTjgY1AM2VhUtlV3i6cN3irnKfAvDtIYlF3zE56Z680A7t/mi/tVrgj3eRR+kwL3VDfhzXbIvWUvI6n36mmdWao3B1588YElWH3upi4Qh5UyK1m1jL+YU8LQmJ6HjJdio1D6FVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790800580; c=relaxed/simple;
-	bh=tNlIwn1LrJp3ghtDRtGrFyiIHufjQqCG5nlvEpAP99U=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EwTzKIz/Z5RW3s/4lb5OdF255fj1zVyay7U9pR0fe6ICSGlss5sxZo7/tjFwuEyoFjmVJVc9rtU4f7Ja7x5EsbLy5GkZ+ClD/K3JbZ9PFyAwnTMPMZxROlOX3ixxKitQ40p+olYU2W97x9bDk9wzQs2QCYwBCqXj1HEYt3hBm8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F0y85Hhb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790804012; c=relaxed/simple;
+	bh=MYK7tdi4Oypb4pea0xD2o67bKC5yeMKz3ljLGMgPNgw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RSnmK2JBa9K7jb7IWgFXZLFjLDZuK0l051TsLpc1LBC9pR77NoWfQHwEUVy3VQyW35tbCGVv3Q3EEj/fxQ4kBWJRHrXhE2bGF+kP5ukqi3hPB68vVdaNxE7l3vSur2TireX080Cxxgo7hfxrxNn3YHHEh8jYLBe8OHfPopUXhJ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TjMTELcm; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F0y85Hhb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE8591F000FF;
-	Wed, 30 Sep 2026 20:36:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790800577;
-	bh=bHRAUieKFXhe3YwL9l8D5DWxS34JW3k2sR3rMEAAkb0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=F0y85HhbKndHM6ps70RRuINjylQnVGM2hdfebHSv/6CjxvNtRc4FbUUkJP2eqLc4A
-	 tu32H1RgdKeYtHgl2L225O9MKgfWpVTo+ZL0aPPqLMZwZFhIWgRl6IZ/4aB+Jk6uV/
-	 ZHNOxkxXbX4L48XSl57cCFJRuHnChZ3hLr8exatLe+DA5d/ASeaGxlyhYMYBPzP7AB
-	 creJi/FDzts3PrtzByL6ZeJNUmDXiY3xwUcMo8Y8+eaidxUALx+ju/zW5zFOj3jVTq
-	 Zx1cT9NoHVsc377+v2G5q7B3NI3rtgLb81ciGfKbXuzC2bN0/XwAvpJsoykdEyhPPg
-	 PdhZOYKIUdqtQ==
-Message-ID: <4bb28c93-f4f2-498a-84e6-96670a336bbe@kernel.org>
-Date: Wed, 30 Sep 2026 22:36:14 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TjMTELcm"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-4a003bd18e5so21425395e9.0
+        for <linux-input@vger.kernel.org>; Wed, 30 Sep 2026 14:33:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790804007; x=1791408807; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=B8BUJKi9C7LAekCEGvKTAzu5hMBS3qiARC5hGgrbqX0=;
+        b=TjMTELcmYdI7Lu/wzRoNBZ/4cFfmvWOtMtm0bTEqllAToLscBEsqBbMjMWaZfJDCEy
+         DMvOaVWhAOAE6uyreWrwgkc/xtZ0HxQWMTlBQVXrdBBmfMhZiJ5XwNlYkuM0tQGXhc+A
+         WR7hBn7DTQQ9ADVX+cc3nOBWBqDjG092UuRF8LchOMdCLsX4inBnExJaV+37KlnZQTQZ
+         tmc7vGqRtMsM/14jZmmSoF9lVrbNDTIOaWbXZE9dJWXjIojurOTGDP7POu0cB09pE5TX
+         gp/SEWR/YDrUJWiCu3wLkBPviCWqoet8yzFC85h1Cn3nKom4+1ncS3/8cW+5IssxI0qk
+         1bxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790804007; x=1791408807;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=B8BUJKi9C7LAekCEGvKTAzu5hMBS3qiARC5hGgrbqX0=;
+        b=ZQqtQ6cWLzxxjDrQSBx+clik3gxp/y4cMwF5zDtqIFivV7gYnZPwBXoJFTsNIqCkT/
+         SEFjjtXtZQozUAC9OMjmt2qf2L34w4Kp/UuQF6M6leKVAuIPxls6ICbMcW/JezY0TU55
+         wpbllD/IMuk+BdkMxoj1kDbJy2D87VaBS7ESdZIncKnjdhpL+CULD5PggitTKd0oFtMS
+         0CV3lwAaKEIFwb+9CGT5WKzWyV2wiBjIPPMgNb10xkmtoqUpmiiTWI3DbL3vwx+IzDUu
+         A+ERwhiHU/XojdxHFJEyp9XZCTKt0H8Zi2FnYn9Jcp5fePH47644nZjgsmKUN+rNAYQw
+         lA2w==
+X-Forwarded-Encrypted: i=1; AKwUvBwcM9IAS7O4+uhsggpRtGnQuabjUFktrc6XmRDv5njfcAzfZwOINmXyLgy814ntiWyDvdvhm2ovGsAvtQ==@vger.kernel.org
+X-Gm-Message-State: AFuF++n+8FZIPbkjekTm4391HcBmBW0w/On3IBBF3k8CtFdchNnT8OI+
+	I6hoIE0TLJnF89OtiNC5YuyhKaTQ4wXDYmuxdPQ6IVPNC23JEilRrLlf
+X-Gm-Gg: AYBFou3/RLDYy/RzuVLcXZ6utvys9/NY3p/2lfxsTEl6OYHBPauP2L7rQxQc1HAYxwf
+	Cfcc9lWonnwA8bTBumwRIToX39lnw3gVw/Zpvurbh/fBQuU6JadtyaV2Qz6f/RvoFr/5JasZBsL
+	+V/Aig5Zc/52jHf8/NctJRW60fzmL2eeXDN4TB5UYy5ficag7STrk1IdaJ028opcWL43gBmM7O+
+	Ai+GV/054FPbEw5DLzfv2WyjZgxsWMqPGdjxx6OlBiHoIIeqz8/bJkSSk4GdT5KVzgCgSuFpfDU
+	GVo9TopepDYwJWCnfsgukHxbVbPkNlD6M26OBDPOWHV93jBRMdH65kyb6LldsmXhhWCcP4p/fbq
+	LK0sPvs2NvdRAbnwXr4PuHVs28apV0V5Mn4fKMLjvR1DWC6j76n14mVY5kStPSwfdG2xUoQQS9H
+	d77JPGD2b/1EdDOfr+GRHDl88cOjMxjSIvAG0Wrm9uqrQA8VNGZ9+b6r1DPHisDnzY1r8yGDRB8
+	DANG9q4KmWhQhgtv0lIDcB63CXGaH21O24WXkTTpS4RmOTTXzV7PrHk2U3PVCdKoO733xs=
+X-Received: by 2002:a05:600c:608d:b0:4a0:17a:8844 with SMTP id 5b1f17b1804b1-4a01ad8fdd0mr43216825e9.1.1790804007254;
+        Wed, 30 Sep 2026 14:33:27 -0700 (PDT)
+Received: from localhost ([188.234.148.119])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a01feb7198sm6355255e9.1.2026.09.30.14.33.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Sep 2026 14:33:26 -0700 (PDT)
+From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org,
+	tiwai@suse.de
+Cc: tiwai@suse.com,
+	perex@perex.cz,
+	linux-input@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	mikhail.v.gavrilov@gmail.com
+Subject: [PATCH v7 0/2] the Topping M62's vendor controls, on the component framework
+Date: Thu,  1 Oct 2026 02:33:20 +0500
+Message-ID: <20260930213322.32454-1-mikhail.v.gavrilov@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3
- 15IWC11
-To: Martino Papero <martino.papero@lcb.to.it>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <c0b597b8-e7ad-4fba-a2bb-5d252e3dfbd3@lcb.to.it>
-From: Hans de Goede <hansg@kernel.org>
-Content-Language: en-US, nl
-In-Reply-To: <c0b597b8-e7ad-4fba-a2bb-5d252e3dfbd3@lcb.to.it>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Hi,
+The Topping M62 keeps its analogue input gains, output volumes and
+output source selectors behind a vendor protocol on a HID interface,
+outside the USB Audio Class. On Linux they can only be set by hand on
+the front panel; the one capture gain snd-usb-audio exposes is a
+digital trim after the converter.
 
-On 30-Sep-26 22:10, Martino Papero wrote:
-> The internal keyboard on the Lenovo IdeaPad Slim 3 15IWC11 (83RR)
-> does not work correctly with the default i8042 settings. Using
-> i8042.nopnp=1 and i8042.dumbkbd=1 restores keyboard input, but prevents
-> the Caps Lock LED from working. Using i8042.nopnp=1 alone does not fix
-> the keyboard.
-> 
-> The laptop works correctly when atkbd_deactivate_fixup is used instead.
-> Add a DMI quirk for the 83RR to enable it.
-> 
-> This was tested without any i8042 command-line parameters. Keyboard
-> input and the Caps Lock LED work correctly, including after suspend
-> and resume and after a cold boot.
-> 
-> Link: https://lore.kernel.org/all/4f43465f-98ba-4722-8e29-03df20315369@kernel.org/
-> Signed-off-by: Martino Papero <martino.papero@lcb.to.it>
+This series makes them ordinary ALSA controls on the card
+snd-usb-audio already creates. 1/2 is a HID driver that speaks the
+protocol. 2/2 makes the M62's mixer quirk a component master, which
+hands the HID driver its struct snd_card at bind time and takes the
+controls away at unbind; neither driver needs to know about the
+other's disconnect.
 
-Thanks, patch looks good to me:
+This is the first posting without RFC. The split was Takashi's
+suggestion in the thread of an earlier series that did the same job
+as a mixer quirk claiming the HID interface. After RFC v6 he wrote,
+for the audio side:
 
-Reviewed-by: Hans de Goede <johannes.goede@oss.qualcomm.com>
-Cc: stable@vger.kernel.org
+  If the implementation with the component works actually, I'm for
+  it. So, from the audio side, feel free to submit patches for
+  upstreaming without RFC.
 
-Regards,
+  https://lore.kernel.org/all/87mrsy50gy.wl-tiwai@suse.de/
 
-Hans
+and left the question of which tree takes it until the HID side is
+settled. So this posting is mainly for Jiri and Benjamin.
 
+The one HID question the RFC carried is gone. RFC v6 cleared
+intf->needs_remote_wakeup after hid_hw_open(), so that the card could
+runtime-suspend although it has no remote wakeup. That was wrong for
+this driver. The card reports every turn of a front-panel knob, and a
+suspended card without remote wakeup cannot deliver one; after resume
+it re-reports the gains of connected inputs but not the output
+volumes, so a headphone volume changed while it slept would stay stale
+in its control. v7 leaves the flag as usbhid_open() sets it, which is
+what every other driver in drivers/hid does -- none of them touches
+it -- and runtime autosuspend of the card is refused while the driver
+is bound.
 
-> ---
->  drivers/input/keyboard/atkbd.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-> index 93650c982..b5ee5697a 100644
-> --- a/drivers/input/keyboard/atkbd.c
-> +++ b/drivers/input/keyboard/atkbd.c
-> @@ -1938,6 +1938,14 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
->  		},
->  		.callback = atkbd_deactivate_fixup,
->  	},
-> +	{
-> +		/* Lenovo IdeaPad Slim 3 15IWC11 (83RR) */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "83RR"),
-> +		},
-> +		.callback = atkbd_deactivate_fixup,
-> +	},
->  	{
->  		/* Xiaomi Book Pro 14 (TM2424) */
->  		.matches = {
-> 
-> base-commit: 551c722f40809618230001baccf219193e22fc5a
+On the tree question: the two patches depend on each other neither at
+build time nor at run time. 1/2 alone binds, speaks to the card and
+creates no controls; 2/2 alone registers a master that never matches.
+They can go through one tree or each through its own.
+
+Changes since RFC v6
+(https://lore.kernel.org/all/20260904165848.3940603-1-mikhail.v.gavrilov@gmail.com/):
+
+  - the needs_remote_wakeup clear in probe is gone, with the comment
+    that carried it, as above. Nothing else changed.
+
+What the card reports
+
+After a subscribe the card reports itself in two waves: jacks at about
+0.9 s, then at about 5.2 s the jacks again, the output mutes and the
+gain of each input whose jack is present. Every turn of a front-panel
+knob is reported as it happens. A source selector is never reported:
+the card reports events, and a selector has no front-panel control.
+So the controls are published at bind and carry whatever alsactl
+restores, and the selectors start at an "Unknown" item until something
+writes them. 1/2's commit message has the details.
+
+One problem outside the kernel, now fixed there: removing controls
+from a live card -- which is what unbinding this driver does --
+corrupted the heap of any process holding the card through alsa-lib's
+ctl remap plugin, and UCM profiles that use MixerRemap put WirePlumber
+in exactly that position. It crashed some time later, inside unrelated
+free() calls. The cause is a one-line slip in
+remap_forget_numid_child(), present since alsa-lib 1.2.14; the fix is
+posted:
+
+  https://lore.kernel.org/alsa-devel/20260930212624.30308-1-mikhail.v.gavrilov@gmail.com/
+
+Tested
+
+Fedora, 7.3.0-rc5-551c722f4080 plus this series, with KASAN (generic),
+lockdep and UBSAN; M62 firmware V87.05.45.48.27. The loaded module was
+matched against the installed file by build ID, so everything below
+ran on the code posted here.
+
+All nine controls present, and front-panel knobs reported to ALSA as
+they turn.
+
+Fifty cycles of module unload and load against a live card with
+PipeWire running: fifty binds and nothing in the kernel log. With stock
+alsa-lib WirePlumber crashes during this, for the reason above; with
+the fix, ten cycles under valgrind run clean.
+
+System suspend to RAM and back: the headphone source selector kept its
+value across it, and the front panel still reports afterwards.
+
+The cable pulled out twice while a control was being written in a
+loop: no write errors logged, and the card binds again when plugged
+back in.
+
+Two M62s on one host, on different hub ports, one in Pro Audio mode
+and one in Mobile Mode: each binds to its own HID device and carries
+its own nine controls, a knob on the second card's panel produces
+events on that card only, and unplugging the first leaves the second's
+controls in place.
+
+With no UCM profile involved -- the card in Mobile Mode, where none
+applies -- PipeWire's stock analog-output-headphones path finds
+"Headphone Playback Volume" by name, and the desktop volume drives the
+card's analogue headphone stage through the driver.
+
+Not tested:
+
+  - an audio-side unbind and rebind with the HID driver left bound;
+  - hibernation, and with it .reset_resume, which shares
+    topping_resume() with .resume: this machine powers off instead of
+    saving an image, for reasons unrelated to this series;
+  - kmemleak, compiled in here but disabled at boot;
+  - a card whose battery has run down;
+  - a big-endian host.
+
+Mikhail Gavrilov (2):
+  HID: topping-m62: driver for the M62's vendor controls
+  ALSA: usb-audio: bind the Topping M62's vendor controls
+
+ MAINTAINERS                   |   9 +
+ drivers/hid/Kconfig           |  19 +
+ drivers/hid/Makefile          |   1 +
+ drivers/hid/hid-ids.h         |   3 +
+ drivers/hid/hid-quirks.c      |   3 +
+ drivers/hid/hid-topping-m62.c | 911 ++++++++++++++++++++++++++++++++++
+ sound/usb/Makefile            |   1 +
+ sound/usb/mixer_quirks.c      |   5 +
+ sound/usb/mixer_topping.c     | 236 +++++++++
+ sound/usb/mixer_topping.h     |   7 +
+ 10 files changed, 1195 insertions(+)
+ create mode 100644 drivers/hid/hid-topping-m62.c
+ create mode 100644 sound/usb/mixer_topping.c
+ create mode 100644 sound/usb/mixer_topping.h
+
+-- 
+2.55.0
 

@@ -1,52 +1,52 @@
 Received: from pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.34.181.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC50365192;
-	Thu,  1 Oct 2026 22:53:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 598BA4B828D;
+	Thu,  1 Oct 2026 22:53:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.34.181.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790895223; cv=none; b=UUrtqddyN7WK0i5RUrsz4FlKcCC9ljE1Yu14ER6t5ruqhqeiTrNfzarizEAj7LEd7sHGhsvZdfIcOUtEZMZ3eQAc/Rgq8uG6WGhCViGH3qv5qbigfK1rGdWf4a2NfO2K1jLsUrZ67QZr8BbKCaiK6Y+MwFCIDmLpslzVbvREs54=
+	t=1790895238; cv=none; b=Vb3vyONj2EV1Viunc6BF+meeF9Y/40bsz2zCwjNE9M/RR3OaDf1fPV+YT5/WX2jUvc59fnsXO0J7MVaHmiqICM3449dyoH/S5ugGhDUzV7PsEcUY/VZYK9qXrMd+F4J+5FSgJeGwxkQyTAS1JBczoxg1uPtTRTnsrHbymQXk9yI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790895223; c=relaxed/simple;
-	bh=T43jUJi2kR/rX5xIRdsVTQQF8erXtEIOLoPVyhU91As=;
+	s=arc-20240116; t=1790895238; c=relaxed/simple;
+	bh=RMsqgCD7Mx2tYSltlpaqJFtVB6ImEwaLj0C/belD0o0=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=O+5SGNx5v/XfsrXjOB/dbUBQKIKFJxfvF9pcZtMTEB9m5NBKZGoFgWVR1CW5Ro/x9l0aSNe6BP9iWDJdGdl/DALWMFG0QTiLen6SSobBqW5OJcpxV9LUstAM55TnjOZ3bU7TG9lRnz8MWU3UQRTDTVn2w4t8AJYCDcOO6yfOaCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=KD373dBd; arc=none smtp.client-ip=52.34.181.151
+	 MIME-Version:Content-Type; b=Z1zNzS953BNx3INClaFILwwXNRxa23f7Ko9JcJW6+tx3XHNvi27Kuim5Ppxn8zGdM0uItRJqcEXvR3GcUOzZTPh86LE7Yd7btcTAWXfrIZGBQ5NozYCtPyY6rVd56tqrumz3h29F5TM2Yu1GgNYJq3jroESYe9vWfvLimuPkcJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=IB9ve49k; arc=none smtp.client-ip=52.34.181.151
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="KD373dBd"
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="IB9ve49k"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
-  t=1790895220; x=1822431220;
+  t=1790895236; x=1822431236;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=5VvPPVPWMXiqIcqmtv3/HdT5S1eE1Fvx9dtRsICpElQ=;
-  b=KD373dBdZb/g/JwST5UPUbxUd4Hhlwa8nUd/vH2iatYixAsYCV466G1K
-   kqppGOC0mXsO2tp5FU6zPbzPhSicoc7Rgj91VCPCV+Vzu9mlOk/H5rISV
-   LWgAWfEpAS2HjLKsRg4A8Ev+1jFHl1hI3BlAHCr86pZaxaVlgztFkb1i4
-   PZmGWY/wP7AF78oNaC6qnUFdikG3YkgZRRuEwVgScKYuIUAxWCbkpadxW
-   qlN6JcyXTHMk6p8EGjivcYivcSzVCdxCmenmI2QOHbWTPp6ppjoLmhB6i
-   dYZ/7FNq0Tfe/iwK1utRE5aHF4jqe7JC9kwyYFAAQeW5zySsQicbZcl/j
-   w==;
-X-CSE-ConnectionGUID: A4PC98ueQAGMvC6ojp1PVw==
-X-CSE-MsgGUID: 7appViYMTciK14eh3fBgag==
+  bh=xsVBl4lbVXYKvc84DcomMFE+JKw551Jx6qM17D38wUc=;
+  b=IB9ve49k6Q5iknVh13HrDk02U/SYKyZ/vHTYZiMpZq/OoDs2+yFqbwOn
+   ytEFSjxPUnz3DhHNdkmZBQfdpLd8Q/OFcZV2cIGPPz+7aOsb+xKljuyM5
+   I88H0rCnD3xOKynbLRFgd5t4NSNRoLIovVHMdofYJphHup2McEO86LCSi
+   eE+Z8ONQ8e+6uNqiFu7fmnaLVFsGX5e9E5Y/iGf4Xa/mkpdeAVuKuPBwm
+   i+g1ZtutOtnC+HusGLuyOORXySt+inpa1EeU29aDtuJ/6pKn0c1vRZPgd
+   yq+tHqBfk1oAM4p11X2haMy0UqeL6dPtB0NSTthUOoZiI9HXxd6V/MYwF
+   Q==;
+X-CSE-ConnectionGUID: FxGqClP3QIeyFecIMM3Etw==
+X-CSE-MsgGUID: +Y3hfgP4SPiGyYHMWZs3iQ==
 X-IronPort-AV: E=Sophos;i="6.27,135,1787011200"; 
-   d="scan'208";a="30175436"
-Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
-  by internal-pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Oct 2026 22:53:40 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [205.251.233.48:1307]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.10.141:2525] with esmtp (Farcaster)
- id 5c4f78e8-b119-45c3-a048-13aaeb9d79e7; Thu, 1 Oct 2026 22:53:40 +0000 (UTC)
-X-Farcaster-Flow-ID: 5c4f78e8-b119-45c3-a048-13aaeb9d79e7
+   d="scan'208";a="30175450"
+Received: from ip-10-5-6-203.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.6.203])
+  by internal-pdx-out-007.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Oct 2026 22:53:56 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.178:3008]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.61.153:2525] with esmtp (Farcaster)
+ id 781587d9-7db1-412c-b237-3f814f310e21; Thu, 1 Oct 2026 22:53:55 +0000 (UTC)
+X-Farcaster-Flow-ID: 781587d9-7db1-412c-b237-3f814f310e21
 Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.49;
- Thu, 1 Oct 2026 22:53:39 +0000
+ Thu, 1 Oct 2026 22:53:55 +0000
 Received: from dev-dsk-wanjay-2c-d25651b4.us-west-2.amazon.com (172.19.198.4)
  by EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.49;
- Thu, 1 Oct 2026 22:53:39 +0000
+ Thu, 1 Oct 2026 22:53:55 +0000
 From: Jay Wang <wanjay@amazon.com>
 To: <bpf@vger.kernel.org>, Alexei Starovoitov <ast@kernel.org>, "Daniel
  Borkmann" <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
@@ -75,9 +75,9 @@ CC: Alan Maguire <alan.maguire@oracle.com>, Martin KaFai Lau
 	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Hazem Mohamed
  Abuelfotoh" <abuehaze@amazon.com>, Bjoern Doebel <doebel@amazon.de>, "Martin
  Pohlack" <mpohlack@amazon.de>, <jay.wang.upstream@gmail.com>
-Subject: [PATCH bpf-next v4 05/12] bpf, tracing: load the vmlinux BTF where tracefs and bpffs requests start
-Date: Thu, 1 Oct 2026 22:52:07 +0000
-Message-ID: <20261001225214.12351-6-wanjay@amazon.com>
+Subject: [PATCH bpf-next v4 06/12] bpf: defer vmlinux kfunc and struct_ops registrations
+Date: Thu, 1 Oct 2026 22:52:08 +0000
+Message-ID: <20261001225214.12351-7-wanjay@amazon.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261001225214.12351-1-wanjay@amazon.com>
 References: <20261001225214.12351-1-wanjay@amazon.com>
@@ -89,250 +89,408 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: EX19D040UWA001.ant.amazon.com (10.13.139.22) To
+X-ClientProxiedBy: EX19D039UWB004.ant.amazon.com (10.13.138.57) To
  EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-With CONFIG_DEBUG_INFO_BTF=m, bpf_get_btf_vmlinux() and
-bpf_find_btf_id() do not load the vmlinux BTF: loading waits for user
-space, and their callers were not written for that.  Besides the bpf()
-system call and /sys/kernel/btf/vmlinux, some tracefs and bpffs requests
-need the BTF.  Load it at the start of those, with
-bpf_load_btf_vmlinux(), and have the code that only uses the BTF if it
-happens to be there peek:
+With CONFIG_DEBUG_INFO_BTF=m the vmlinux BTF is loaded on first use.  For
+that to save anything, nothing may pull it in at boot.  The verifier no
+longer does since the previous patches, but register_btf_kfunc_id_set(),
+register_btf_id_dtor_kfuncs() and register_bpf_struct_ops() for vmlinux
+run from initcalls and need the parsed BTF.
 
- - Reading a tracepoint's btf_ids file (events/*/btf_ids): built-in
-   events use the vmlinux BTF, and module BTF is only registered once
-   that is loaded.  event_btf_ids_read() looks the BTF up under
-   event_mutex, which the trace notifier of the btf_vmlinux module
-   takes, so load it before taking the mutex, on the first read() of
-   the file (not again for the one that returns EOF).
- - Probe events with BTF arguments ($argN, argument names, $retval,
-   $current, typecasts): the parser loads the BTF before looking a
-   function or struct up.  It holds dyn_event_ops_mutex, which loading
-   a module never takes: besides event creation, only
-   dyn_event_register() takes it, from built-in init code.  Loading
-   here also keeps a $retval from silently losing its type.
- - The ftrace function argument printer (func-args, funcgraph-args)
-   runs in the trace output path, which includes ftrace_dump() with
-   interrupts disabled.  It only prints the arguments if the BTF is
-   already loaded, and never loads it: that also avoids one modprobe
-   per trace line when the module is not installed.
- - bpffs: parsing delegate_* mount options (fs_context) loads the BTF
-   when a value names commands or types, which are looked up in it;
-   "any" and numeric masks need no BTF and do not load it.  Showing the
-   options in /proc/*/mountinfo runs under namespace_sem; it only uses
-   the names if the BTF is already there and falls back to hex, as it
-   already does without BTF.
+Queue them instead (btf_defer_reg()) and apply them in
+btf_parse_vmlinux(), before the BTF is published, so that no program can
+see a vmlinux BTF without its kfuncs and struct_ops, not even by id: the
+id is reserved before the queue is applied, so that nothing can fail once
+it is, and installed afterwards (btf_reserve_id(), btf_install_id()).
+Applying a struct_ops runs its ->init(), which registers the kfunc sets
+of its hook; those land back on the queue, so it is drained in a loop
+until a pass adds nothing, and only then are new registrations applied
+directly.  The dtor arrays are copied: every caller in the tree builds
+them on the stack of its initcall.
 
-With CONFIG_DEBUG_INFO_BTF=y bpf_load_btf_vmlinux() is
-bpf_get_btf_vmlinux() and the BTF is parsed at boot, so nothing changes.
+The queue has its own lock, btf_vmlinux_regs_mutex: it is drained under
+btf_vmlinux_lock, and with its own lock btf_module_mutex, which the
+module notifier takes, is never taken under btf_vmlinux_lock, so the two
+stay unordered.
+
+A parse failure other than -ENOMEM is remembered by
+bpf_load_btf_vmlinux(), so nothing would ever apply the queue: it is then
+freed and closed, and later registrations fail as they do with =y.
+
+Module registrations are not queued yet; the next patch does that
+together with deferring the module BTF itself.  With =y the BTF is
+present from boot and nothing is queued.  Nothing here is reachable
+until the Kconfig symbol becomes a tristate.
 
 Signed-off-by: Jay Wang <wanjay@amazon.com>
 ---
- kernel/bpf/inode.c          | 44 ++++++++++++++++++++++++-------------
- kernel/trace/trace_events.c | 10 +++++++++
- kernel/trace/trace_output.c |  7 ++++++
- kernel/trace/trace_probe.c  | 16 ++++++++++++++
- 4 files changed, 62 insertions(+), 15 deletions(-)
+ kernel/bpf/btf.c | 271 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 268 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
-index 7837968c0842..d05bbb61a593 100644
---- a/kernel/bpf/inode.c
-+++ b/kernel/bpf/inode.c
-@@ -658,7 +658,11 @@ struct bpffs_btf_enums {
- 	const struct btf_type *attach_t;
- };
- 
--static int find_bpffs_btf_enums(struct bpffs_btf_enums *info)
-+/*
-+ * @load: load the vmlinux BTF if necessary (CONFIG_DEBUG_INFO_BTF=m), see
-+ * bpf_load_btf_vmlinux(); otherwise only use it if it is already parsed.
-+ */
-+static int find_bpffs_btf_enums(struct bpffs_btf_enums *info, bool load)
- {
- 	struct {
- 		const struct btf_type **type;
-@@ -674,7 +678,7 @@ static int find_bpffs_btf_enums(struct bpffs_btf_enums *info)
- 
- 	memset(info, 0, sizeof(*info));
- 
--	btf = bpf_get_btf_vmlinux();
-+	btf = load ? bpf_load_btf_vmlinux() : bpf_peek_btf_vmlinux();
- 	if (IS_ERR(btf))
- 		return PTR_ERR(btf);
- 	if (!btf)
-@@ -795,8 +799,11 @@ static int bpf_show_options(struct seq_file *m, struct dentry *root)
- 	    opts->delegate_progs || opts->delegate_attachs) {
- 		struct bpffs_btf_enums info;
- 
--		/* ignore errors, fallback to hex */
--		(void)find_bpffs_btf_enums(&info);
-+		/*
-+		 * ignore errors, fallback to hex; this runs under
-+		 * namespace_sem, so do not load the BTF from here
-+		 */
-+		(void)find_bpffs_btf_enums(&info, false);
- 
- 		mask = (1ULL << __MAX_BPF_CMD) - 1;
- 		seq_print_delegate_opts(m, "delegate_cmds",
-@@ -1052,35 +1059,33 @@ static int bpf_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 	case OPT_DELEGATE_MAPS:
- 	case OPT_DELEGATE_PROGS:
- 	case OPT_DELEGATE_ATTACHS: {
--		struct bpffs_btf_enums info;
--		const struct btf_type *enum_t;
-+		struct bpffs_btf_enums info = {};
-+		const struct btf_type **enum_t;
-+		bool enums_tried = false;
- 		const char *enum_pfx;
--		u64 *delegate_msk, msk = 0;
-+		u64 *delegate_msk, msk = 0, num;
- 		char *p, *str;
- 		int val;
- 
--		/* ignore errors, fallback to hex */
--		(void)find_bpffs_btf_enums(&info);
--
- 		switch (opt) {
- 		case OPT_DELEGATE_CMDS:
- 			delegate_msk = &opts->delegate_cmds;
--			enum_t = info.cmd_t;
-+			enum_t = &info.cmd_t;
- 			enum_pfx = "BPF_";
- 			break;
- 		case OPT_DELEGATE_MAPS:
- 			delegate_msk = &opts->delegate_maps;
--			enum_t = info.map_t;
-+			enum_t = &info.map_t;
- 			enum_pfx = "BPF_MAP_TYPE_";
- 			break;
- 		case OPT_DELEGATE_PROGS:
- 			delegate_msk = &opts->delegate_progs;
--			enum_t = info.prog_t;
-+			enum_t = &info.prog_t;
- 			enum_pfx = "BPF_PROG_TYPE_";
- 			break;
- 		case OPT_DELEGATE_ATTACHS:
- 			delegate_msk = &opts->delegate_attachs;
--			enum_t = info.attach_t;
-+			enum_t = &info.attach_t;
- 			enum_pfx = "BPF_";
- 			break;
- 		default:
-@@ -1089,9 +1094,18 @@ static int bpf_parse_param(struct fs_context *fc, struct fs_parameter *param)
- 
- 		str = param->string;
- 		while ((p = strsep(&str, ":"))) {
-+			/*
-+			 * Only names need the vmlinux BTF: "any" and numbers do
-+			 * not load it.  Ignore errors, fallback to hex.
-+			 */
-+			if (strcmp(p, "any") && kstrtou64(p, 0, &num) && !enums_tried) {
-+				(void)find_bpffs_btf_enums(&info, true);
-+				enums_tried = true;
-+			}
-+
- 			if (strcmp(p, "any") == 0) {
- 				msk |= ~0ULL;
--			} else if (find_btf_enum_const(info.btf, enum_t, enum_pfx, p, &val)) {
-+			} else if (find_btf_enum_const(info.btf, *enum_t, enum_pfx, p, &val)) {
- 				msk |= 1ULL << val;
- 			} else {
- 				err = kstrtou64(p, 0, &msk);
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index 30c0ddf90887..c887ac6a4857 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -23,6 +23,7 @@
- #include <linux/sort.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-+#include <linux/bpf.h>
- #include <linux/btf.h>
- 
- #include <trace/events/sched.h>
-@@ -2245,6 +2246,15 @@ event_btf_ids_read(struct file *filp, char __user *ubuf, size_t cnt, loff_t *ppo
- 	char buf[128];
- 	int len;
- 
-+	/*
-+	 * Built-in events use the vmlinux BTF, and with CONFIG_DEBUG_INFO_BTF=m
-+	 * module BTF is only registered once that is loaded.  Loading it loads
-+	 * a module, whose trace notifier takes event_mutex: load it before
-+	 * taking that, and only for the first read, not again for the EOF one.
-+	 */
-+	if (!*ppos)
-+		bpf_load_btf_vmlinux();
-+
- 	/* Module unload could free call->class and ids[] mid-read. */
- 	scoped_guard(mutex, &event_mutex) {
- 		file = event_file_file(filp);
-diff --git a/kernel/trace/trace_output.c b/kernel/trace/trace_output.c
-index a5ad76175d10..1f346e524ee6 100644
---- a/kernel/trace/trace_output.c
-+++ b/kernel/trace/trace_output.c
-@@ -739,6 +739,13 @@ void print_function_args(struct trace_seq *s, unsigned long *args,
- 	if (lookup_symbol_name(func, name))
- 		goto out;
- 
-+	/*
-+	 * This can run with interrupts disabled (ftrace_dump()): only use
-+	 * the vmlinux BTF if it is parsed, never load it from here.
-+	 */
-+	if (IS_ERR_OR_NULL(bpf_peek_btf_vmlinux()))
-+		goto out;
-+
- 	/* TODO: Pass module name here too */
- 	t = btf_find_func_proto(name, &btf);
- 	if (IS_ERR_OR_NULL(t))
-diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
-index 804442b2f7d2..d53ee1ef820c 100644
---- a/kernel/trace/trace_probe.c
-+++ b/kernel/trace/trace_probe.c
-@@ -531,6 +531,19 @@ static const char *fetch_type_from_btf_type(struct btf *btf,
- 	return NULL;
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 2aa9d4b3f438..96241dc62dc3 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -1786,13 +1786,13 @@ static int btf_add_type(struct btf_verifier_env *env, struct btf_type *t)
+ 	return 0;
  }
  
-+/*
-+ * Arguments described by BTF need the vmlinux BTF.  With
-+ * CONFIG_DEBUG_INFO_BTF=m it may not be loaded yet, so load it before looking
-+ * anything up.  Parsing holds dyn_event_ops_mutex, which loading a module
-+ * never takes: besides event creation, only dyn_event_register() takes it,
-+ * from built-in init code.
-+ */
-+static void trace_probe_load_btf(void)
+-static int btf_alloc_id(struct btf *btf)
++static int __btf_alloc_id(struct btf *btf, struct btf *entry)
+ {
+ 	int id;
+ 
+ 	idr_preload(GFP_KERNEL);
+ 	spin_lock_bh(&btf_idr_lock);
+-	id = idr_alloc_cyclic(&btf_idr, btf, 1, INT_MAX, GFP_ATOMIC);
++	id = idr_alloc_cyclic(&btf_idr, entry, 1, INT_MAX, GFP_ATOMIC);
+ 	if (id > 0)
+ 		btf->id = id;
+ 	spin_unlock_bh(&btf_idr_lock);
+@@ -1804,6 +1804,29 @@ static int btf_alloc_id(struct btf *btf)
+ 	return id > 0 ? 0 : id;
+ }
+ 
++static int btf_alloc_id(struct btf *btf)
 +{
-+	lockdep_assert_held(&dyn_event_ops_mutex);
-+	bpf_load_btf_vmlinux();
++	return __btf_alloc_id(btf, btf);
 +}
 +
- static int query_btf_context(struct traceprobe_parse_context *ctx)
++/*
++ * A BTF that gets registrations applied after it is parsed, with
++ * CONFIG_DEBUG_INFO_BTF=m, has its id reserved before, so that nothing can
++ * fail once they are applied, and installed after, so that nobody finds it
++ * by id in the meantime (btf_get_fd_by_id() and idr_get_next() skip NULL).
++ */
++static int btf_reserve_id(struct btf *btf)
++{
++	return __btf_alloc_id(btf, NULL);
++}
++
++static void btf_install_id(struct btf *btf)
++{
++	spin_lock_bh(&btf_idr_lock);
++	idr_replace(&btf_idr, btf, btf->id);
++	spin_unlock_bh(&btf_idr_lock);
++}
++
+ static void btf_free_id(struct btf *btf)
  {
- 	const struct btf_param *param;
-@@ -544,6 +557,7 @@ static int query_btf_context(struct traceprobe_parse_context *ctx)
- 	if (!ctx->funcname)
- 		return -EINVAL;
+ 	unsigned long flags;
+@@ -6960,6 +6983,9 @@ static struct btf *btf_parse_base(struct btf_verifier_env *env, const char *name
+ 	return ERR_PTR(err);
+ }
  
-+	trace_probe_load_btf();
- 	type = btf_find_func_proto(ctx->funcname, &btf);
- 	if (!type)
- 		return -ENOENT;
-@@ -762,6 +776,7 @@ static int parse_btf_arg(char *varname,
- 	if (!strcmp(varname, "$current")) {
- 		code->op = FETCH_OP_CURRENT;
- 		/* If no typecast is specified for $current, use task_struct by default */
-+		trace_probe_load_btf();
- 		ret = bpf_find_btf_id("task_struct", BTF_KIND_STRUCT, &ctx->struct_btf);
- 		if (ret < 0) {
- 			trace_probe_log_err(ctx->offset, NO_BTF_ENTRY);
-@@ -890,6 +905,7 @@ static int query_btf_struct(const char *sname, struct traceprobe_parse_context *
- 		ctx->struct_btf = NULL;
++static void btf_apply_deferred_vmlinux_regs(struct btf *btf);
++static void btf_drop_deferred_vmlinux_regs(void);
++
+ struct btf *btf_parse_vmlinux(void)
+ {
+ 	struct btf_verifier_env *env = NULL;
+@@ -6986,13 +7012,29 @@ struct btf *btf_parse_vmlinux(void)
+ 
+ 	/* btf_parse_vmlinux() runs under btf_vmlinux_lock */
+ 	bpf_ctx_convert.t = btf_type_by_id(btf, bpf_ctx_convert_btf_id[0]);
+-	err = btf_alloc_id(btf);
++	err = btf_reserve_id(btf);
+ 	if (err) {
+ 		bpf_ctx_convert.t = NULL;
+ 		btf_free(btf);
+ 		btf = ERR_PTR(err);
++		goto err_out;
  	}
++
++	/*
++	 * With CONFIG_DEBUG_INFO_BTF=m, kfunc, dtor kfunc and struct_ops
++	 * registrations for vmlinux made before the BTF was available were
++	 * queued; apply them now, before the BTF becomes visible to anyone,
++	 * by id or through bpf_get_btf_vmlinux().
++	 */
++	btf_apply_deferred_vmlinux_regs(btf);
++	btf_install_id(btf);
+ err_out:
++	/*
++	 * Any failure but -ENOMEM is remembered by bpf_load_btf_vmlinux(), so
++	 * the queued registrations would never be applied.
++	 */
++	if (IS_ERR(btf) && PTR_ERR(btf) != -ENOMEM)
++		btf_drop_deferred_vmlinux_regs();
+ 	btf_verifier_env_free(env);
+ 	return btf;
+ }
+@@ -9110,6 +9152,33 @@ enum {
+ #define BTF_MODULE_NOTIFIER 1
+ #endif
  
-+	trace_probe_load_btf();
- 	id = bpf_find_btf_id(sname, BTF_KIND_STRUCT, &btf);
- 	if (id < 0)
- 		return id;
++/*
++ * CONFIG_DEBUG_INFO_BTF=m: a kfunc, dtor kfunc or struct_ops registration
++ * made while the BTF it applies to is not available yet.  Kept until the BTF
++ * arrives, see btf_defer_reg().
++ */
++enum btf_deferred_reg_kind {
++	BTF_DEFERRED_KFUNC_SET,
++	BTF_DEFERRED_DTOR_KFUNCS,
++	BTF_DEFERRED_STRUCT_OPS,
++};
++
++struct btf_deferred_reg {
++	struct list_head list;
++	enum btf_deferred_reg_kind kind;
++	union {
++		struct {
++			enum btf_kfunc_hook hook;
++			const struct btf_kfunc_id_set *kset;
++		} kfunc;
++		struct {
++			const struct btf_id_dtor_kfunc *dtors;
++			u32 cnt;
++		} dtor;
++		struct bpf_struct_ops *st_ops;
++	};
++};
++
+ #ifdef BTF_MODULE_NOTIFIER
+ struct btf_module {
+ 	struct list_head list;
+@@ -9905,12 +9974,22 @@ static int btf_kfunc_id_set_add(struct btf *btf, enum btf_kfunc_hook hook,
+ 	return btf_populate_kfunc_set(btf, hook, kset);
+ }
+ 
++static int btf_defer_reg(struct module *owner, const struct btf_deferred_reg *tmpl);
++
+ static int __register_btf_kfunc_id_set(enum btf_kfunc_hook hook,
+ 				       const struct btf_kfunc_id_set *kset)
+ {
++	struct btf_deferred_reg tmpl = {
++		.kind = BTF_DEFERRED_KFUNC_SET,
++		.kfunc = { .hook = hook, .kset = kset },
++	};
+ 	struct btf *btf;
+ 	int ret;
+ 
++	ret = btf_defer_reg(kset->owner, &tmpl);
++	if (ret)
++		return ret > 0 ? 0 : ret;
++
+ 	btf = btf_get_module_btf(kset->owner);
+ 	if (!btf)
+ 		return check_btf_kconfigs(kset->owner, "kfunc");
+@@ -10079,9 +10158,17 @@ static int btf_dtor_kfuncs_add(struct btf *btf, const struct btf_id_dtor_kfunc *
+ int register_btf_id_dtor_kfuncs(const struct btf_id_dtor_kfunc *dtors, u32 add_cnt,
+ 				struct module *owner)
+ {
++	struct btf_deferred_reg tmpl = {
++		.kind = BTF_DEFERRED_DTOR_KFUNCS,
++		.dtor = { .dtors = dtors, .cnt = add_cnt },
++	};
+ 	struct btf *btf;
+ 	int ret;
+ 
++	ret = btf_defer_reg(owner, &tmpl);
++	if (ret)
++		return ret > 0 ? 0 : ret;
++
+ 	btf = btf_get_module_btf(owner);
+ 	if (!btf)
+ 		return check_btf_kconfigs(owner, "dtor kfuncs");
+@@ -10751,9 +10838,17 @@ static int btf_struct_ops_register(struct btf *btf, struct bpf_struct_ops *st_op
+ 
+ int __register_bpf_struct_ops(struct bpf_struct_ops *st_ops)
+ {
++	struct btf_deferred_reg tmpl = {
++		.kind = BTF_DEFERRED_STRUCT_OPS,
++		.st_ops = st_ops,
++	};
+ 	struct btf *btf;
+ 	int err;
+ 
++	err = btf_defer_reg(st_ops->owner, &tmpl);
++	if (err)
++		return err > 0 ? 0 : err;
++
+ 	btf = btf_get_module_btf(st_ops->owner);
+ 	if (!btf)
+ 		return check_btf_kconfigs(st_ops->owner, "struct_ops");
+@@ -10765,8 +10860,178 @@ int __register_bpf_struct_ops(struct bpf_struct_ops *st_ops)
+ 	return err;
+ }
+ EXPORT_SYMBOL_GPL(__register_bpf_struct_ops);
++#elif defined(BTF_MODULE_NOTIFIER)
++static int btf_struct_ops_register(struct btf *btf, struct bpf_struct_ops *st_ops)
++{
++	return -EOPNOTSUPP;
++}
+ #endif
+ 
++/*
++ * CONFIG_DEBUG_INFO_BTF=m: registrations for vmlinux made before its BTF is
++ * available wait in btf_vmlinux_deferred_regs until btf_parse_vmlinux()
++ * applies them.
++ */
++#ifdef BTF_MODULE_NOTIFIER
++/*
++ * The queue has its own lock: it is drained under btf_vmlinux_lock, and
++ * with its own lock btf_module_mutex, which the module notifier takes, is
++ * never taken under btf_vmlinux_lock, so the two stay unordered.
++ */
++static DEFINE_MUTEX(btf_vmlinux_regs_mutex);
++static LIST_HEAD(btf_vmlinux_deferred_regs);
++/* Set when the vmlinux BTF is parsed; new registrations apply directly */
++static bool btf_vmlinux_regs_closed;
++
++/*
++ * Queue @tmpl if the BTF for @owner is not available yet.  Returns 1 if the
++ * registration was queued and is to be considered done, 0 if the caller has
++ * to apply it, or -ENOMEM.  Only vmlinux registrations are queued so far.
++ */
++static int btf_defer_reg(struct module *owner, const struct btf_deferred_reg *tmpl)
++{
++	struct list_head *head = NULL;
++	struct btf_deferred_reg *reg;
++
++	if (!IS_MODULE(CONFIG_DEBUG_INFO_BTF) || owner)
++		return 0;
++
++	guard(mutex)(&btf_vmlinux_regs_mutex);
++	if (!btf_vmlinux_regs_closed)
++		head = &btf_vmlinux_deferred_regs;
++	if (!head)
++		return 0;
++
++	reg = kmemdup(tmpl, sizeof(*reg), GFP_KERNEL);
++	if (!reg)
++		return -ENOMEM;
++	/*
++	 * kfunc id sets and struct_ops are static data of their owner, but
++	 * the dtor arrays are commonly built on the stack of the initcall.
++	 */
++	if (reg->kind == BTF_DEFERRED_DTOR_KFUNCS) {
++		reg->dtor.dtors = kmemdup_array(tmpl->dtor.dtors, tmpl->dtor.cnt,
++						sizeof(*tmpl->dtor.dtors), GFP_KERNEL);
++		if (!reg->dtor.dtors) {
++			kfree(reg);
++			return -ENOMEM;
++		}
++	}
++	list_add_tail(&reg->list, head);
++	return 1;
++}
++
++static void btf_free_deferred_reg(struct btf_deferred_reg *reg)
++{
++	if (reg->kind == BTF_DEFERRED_DTOR_KFUNCS)
++		kfree(reg->dtor.dtors);
++	kfree(reg);
++}
++
++static const char *btf_deferred_reg_name(const struct btf_deferred_reg *reg)
++{
++	switch (reg->kind) {
++	case BTF_DEFERRED_KFUNC_SET:	return "kfunc set";
++	case BTF_DEFERRED_DTOR_KFUNCS:	return "dtor kfuncs";
++	case BTF_DEFERRED_STRUCT_OPS:	return "struct_ops";
++	}
++	return "?";
++}
++
++static int btf_apply_deferred_reg(struct btf *btf, const struct btf_deferred_reg *reg)
++{
++	switch (reg->kind) {
++	case BTF_DEFERRED_KFUNC_SET:
++		return btf_kfunc_id_set_add(btf, reg->kfunc.hook, reg->kfunc.kset);
++	case BTF_DEFERRED_DTOR_KFUNCS:
++		return btf_dtor_kfuncs_add(btf, reg->dtor.dtors, reg->dtor.cnt);
++	case BTF_DEFERRED_STRUCT_OPS:
++		return btf_struct_ops_register(btf, reg->st_ops);
++	}
++	return -EINVAL;
++}
++
++/* Apply and free the registrations in @regs to @btf. */
++static void btf_apply_deferred_regs(struct btf *btf, struct list_head *regs)
++{
++	struct btf_deferred_reg *reg, *tmp;
++	int err;
++
++	list_for_each_entry_safe(reg, tmp, regs, list) {
++		err = btf_apply_deferred_reg(btf, reg);
++		if (err)
++			pr_warn("failed to register deferred %s for [%s] BTF: %d\n",
++				btf_deferred_reg_name(reg), btf->name, err);
++		list_del(&reg->list);
++		btf_free_deferred_reg(reg);
++	}
++}
++
++/*
++ * The vmlinux BTF has just been parsed; apply the registrations that waited
++ * for it.  Runs under btf_vmlinux_lock, before @btf is published, so nothing
++ * can observe a vmlinux BTF without its kfuncs and struct_ops.
++ *
++ * Applying a registration can queue further ones: a struct_ops ->init()
++ * registers the kfuncs of its hook.  Those cannot be applied directly, the
++ * BTF is only published once we are done, so the queue stays open until a
++ * pass applies nothing new, and only then are registrations applied directly.
++ */
++static void btf_apply_deferred_vmlinux_regs(struct btf *btf)
++{
++	LIST_HEAD(regs);
++
++	if (!IS_MODULE(CONFIG_DEBUG_INFO_BTF))
++		return;
++
++	mutex_lock(&btf_vmlinux_regs_mutex);
++	while (!list_empty(&btf_vmlinux_deferred_regs)) {
++		list_splice_init(&btf_vmlinux_deferred_regs, &regs);
++		mutex_unlock(&btf_vmlinux_regs_mutex);
++		btf_apply_deferred_regs(btf, &regs);
++		mutex_lock(&btf_vmlinux_regs_mutex);
++	}
++	btf_vmlinux_regs_closed = true;
++	mutex_unlock(&btf_vmlinux_regs_mutex);
++}
++
++/*
++ * The vmlinux BTF will not become available: free the queued registrations
++ * and close the queue, so that later ones fail as they do with =y.
++ */
++static void btf_drop_deferred_vmlinux_regs(void)
++{
++	struct btf_deferred_reg *reg, *tmp;
++	LIST_HEAD(regs);
++
++	if (!IS_MODULE(CONFIG_DEBUG_INFO_BTF))
++		return;
++
++	mutex_lock(&btf_vmlinux_regs_mutex);
++	list_splice_init(&btf_vmlinux_deferred_regs, &regs);
++	btf_vmlinux_regs_closed = true;
++	mutex_unlock(&btf_vmlinux_regs_mutex);
++
++	list_for_each_entry_safe(reg, tmp, &regs, list) {
++		list_del(&reg->list);
++		btf_free_deferred_reg(reg);
++	}
++}
++#else
++static int btf_defer_reg(struct module *owner, const struct btf_deferred_reg *tmpl)
++{
++	return 0;
++}
++
++static void btf_apply_deferred_vmlinux_regs(struct btf *btf)
++{
++}
++
++static void btf_drop_deferred_vmlinux_regs(void)
++{
++}
++#endif /* BTF_MODULE_NOTIFIER */
++
+ bool btf_param_match_suffix(const struct btf *btf,
+ 			    const struct btf_param *arg,
+ 			    const char *suffix)
 -- 
 2.47.3
 

@@ -1,110 +1,69 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FEC643F4AF;
-	Thu,  1 Oct 2026 11:02:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED8A14E8DEB;
+	Thu,  1 Oct 2026 11:03:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.142.180.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790852560; cv=none; b=IWwMi09FuXoRweJq9loznNX3ZzAve7BscqtCamBR/ZBdNBoI7m9PvwIw+hFYufiNoCVg5MN/meWRgKK1z66YYM7g8aFcgAmgc+/88JR8kPn+xKxVi1BA/F/dglpCBf1f/Nl3MHsXzWcUjPuOD3TnwpZt4kndBPVdtJKhfrMDxa4=
+	t=1790852634; cv=none; b=j+kwMEinwclA+wYxYm7iLBIjtdnshQe8Tq3UliBGQi7J/unfMCVL/n64uc7nDLuQOgADQ/SwsQOoo5g47RgV5/IyrsjGwEi/b39XwNZXJU7eV9xt26jkDl89No9UI86lVs0kdT6kWH/4j/u+tcP4qoR5y54OycSdZRt/euaBNnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790852560; c=relaxed/simple;
-	bh=6jqhue7Pr1raul2URy4Rmi+yWvGbQ5FeFqOFT1WVFSs=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=U2AFFxhrDHZvlDej3CzQazZsHAG7BpK+6NK56kKqVkiPh8/k/kIc++373dX/off6p7BD+Uv7PxkGk4kDrNwxFZnsE7kLjx4MDsOAnPm1PFJ7NirBUhdQg/DZKlP7mmSzl9Gwr9H9vx2FHS3hNHGAWpHhZ5keRKe7ZiSlHD8StxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lZcASYTY; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lZcASYTY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63FB61F000FF;
-	Thu,  1 Oct 2026 11:02:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790852555;
-	bh=/hUKXWkLFn4ibUCquv1pSNwugRZJ/gX7PSj9h4lioig=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=lZcASYTYdqdjLutSonii9y9SUOPtW6ZSSkygW/cqeoKW4vdOnVKUSpmf8eJUNfruC
-	 EhBWLnmiH/453BQohL50yfm8wHYOtTmC88iVYvfHpnMcQd2yQkU0y7knqYDcDmF9Cv
-	 8t5k9jliDZVslK/yA02OHHd3QiPNewqExxJLnrGtCzv3hnl6EUoDa+Qd0+ZZSwO3Tw
-	 wN21RtgFtfk0e+H6DjtkHdQM/CbHjfczkIOkKGO5XDRtdhugy2bxYTzrTlq1tHtnEL
-	 yCZhxq+P/u8C06elGmEzgcVLr/nHdF1cE+5oc3Yh+2Q4elRU0BdvoHS8PUSEIYj3dB
-	 PKRfT8tAOD20A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/4] dt-bindings: input: touchscreen: hynitron,cst816x:
- configure axes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Daniel Golle" <daniel@makrotopia.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, robh@kernel.org
-In-Reply-To: <d18629ede3f2fd5a08d0cbdaf82f4254e89500ed.1790851590.git.daniel@makrotopia.org>
-References: <cover.1790851590.git.daniel@makrotopia.org>
- <d18629ede3f2fd5a08d0cbdaf82f4254e89500ed.1790851590.git.daniel@makrotopia.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 01 Oct 2026 11:02:35 +0000
-Message-Id: <20261001110235.63FB61F000FF@smtp.kernel.org>
+	s=arc-20240116; t=1790852634; c=relaxed/simple;
+	bh=mlqiKR8dEEGY8EOIatdYdVuuOosVjCNuhX+H1UzS8X8=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=R3DzlBR40PjssgtSyCJoCz+korehmpBwSDkEmHxWHIul+eUWX3PxJnYsp9wmFbKRvc0c0PWBPnOULEtLDibnhvUtIuoue7b+TYqq9f7pT6XO7mxcg4/GCznnz9yv8n/3kEyTo5Uq7HJ4A5kU846ZshktfACaUUSYaRLjoXzXwKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org; spf=pass smtp.mailfrom=makrotopia.org; arc=none smtp.client-ip=185.142.180.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=makrotopia.org
+Received: from local
+	by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256:X25519MLKEM768)
+	 (Exim 4.100.1)
+	(envelope-from <daniel@makrotopia.org>)
+	id 1xCEOe-000000003fJ-1Poi;
+	Thu, 01 Oct 2026 10:52:16 +0000
+Date: Thu, 1 Oct 2026 11:52:08 +0100
+From: Daniel Golle <daniel@makrotopia.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Daniel Golle <daniel@makrotopia.org>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>,
+	Oleh Kuzhylnyi <kuzhylol@gmail.com>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Chad Monroe <chad@monroe.io>, John Crispin <john@phrozen.org>
+Subject: [PATCH 0/4] Input: hynitron-cst816x: axis properties and gesture keys
+Message-ID: <cover.1790851590.git.daniel@makrotopia.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] dt-bindings: incorrect use of additionalProperties with $ref
---
+This series improves the hynitron-cst816x touchscreen driver. It makes
+the driver respect the common touchscreen axis properties, which are
+now documented in the binding as well, and it keeps gesture keys from
+getting stuck.
 
-commit 0f12b787d0fbdb216a571a789ed3dfa0d0a368db
-Author: Daniel Golle <daniel@makrotopia.org>
+The gesture key is reported with the controller's touch flag as its
+value, so the key stays pressed once the controller stops reporting
+the gesture code. The controller has no lift event to offer, so the
+keys are now released on the first report carrying no gesture code, or
+40 ms after the last one that carried a code, whichever comes first.
 
-dt-bindings: input: touchscreen: hynitron,cst816x: configure axes
+Daniel Golle (4):
+  dt-bindings: input: touchscreen: hynitron,cst816x: configure axes
+  Input: hynitron-cst816x: respect touchscreen DT properties
+  Input: hynitron-cst816x: release gesture keys
+  Input: hynitron-cst816x: time out gesture key release
 
-This commit references touchscreen.yaml and allows the properties
-touchscreen-inverted-x, touchscreen-inverted-y, and touchscreen-swapped-x-y.
+ .../input/touchscreen/hynitron,cst816x.yaml   |  8 +++
+ drivers/input/touchscreen/hynitron-cst816x.c  | 71 +++++++++++++++++--
+ 2 files changed, 74 insertions(+), 5 deletions(-)
 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/hynitron=
-,cst816x.yaml b/Documentation/devicetree/bindings/input/touchscreen/hynitro=
-n,cst816x.yaml
-> --- a/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816=
-x.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816=
-x.yaml
-> @@ -36,6 +36,10 @@ properties:
->        - description: Slide right gesture
->        - description: Long press gesture
-> =20
-> +  touchscreen-inverted-x: true
-> +  touchscreen-inverted-y: true
-> +  touchscreen-swapped-x-y: true
 
-[Severity: Low]
-Looking at the properties block in
-Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml, =
-are
-these redundant definitions a direct workaround for the improperly configur=
-ed
-additionalProperties keyword below?
-
-> +
->  required:
->    - compatible
->    - reg
-> @@ -43,6 +47,9 @@ required:
-> =20
->  additionalProperties: false
-> =20
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-
-[Severity: Low]
-Looking at the allOf block in the same file, does the combination of
-additionalProperties: false and a $ref create a constraint collision that
-restricts validation exclusively to locally defined properties, breaking pr=
-oper
-schema inheritance?
-
-If a valid generic touchscreen property (e.g., touchscreen-size-x) not
-explicitly listed in the local schema is defined, running make dtbs_check
-will incorrectly reject it. Would changing additionalProperties: false to
-unevaluatedProperties: false address this when inheriting from another sche=
-ma?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/d18629ede3f2fd5a08d=
-0cbdaf82f4254e89500ed.1790851590.git.daniel@makrotopia.org?part=3D1
+base-commit: 6474fa070f2b8013b4b87350b775b8c3be6e8aac
+-- 
+2.55.0

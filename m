@@ -1,128 +1,76 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDA3930D3EE;
-	Thu,  1 Oct 2026 19:01:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55345223DE5;
+	Thu,  1 Oct 2026 20:01:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790881295; cv=none; b=KLVuTpWKfCrThSnd8o4+dUwC51h7wdvuorv0WgY10eDcjvjaZ/BPsDzy2AdBoXvkUHAz/vmJxiHKveWOYbPBtzUtnBbxRAOiNqk1MaNAPUh6WieiFI1R0MywPPAjz24Jf9J9Ra37TbgQJ0Xi013YkC1w9kOr3IAcf92AQ68FIIA=
+	t=1790884903; cv=none; b=A9VZTF03VAbnahOTcy0/hcuhQntMEiB7KbTReIBQWaCRmgoXclxkW8Lo+0viOu49Sdgf2R/mN5PQGWal407AbeswDgUfbm1FeturFKn8BUwyO/hFB27uHbGduTXXjTX/VWTSO3qNJSdHz//RCihaMrQDI2UrzJJgBY9OUEZx/74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790881295; c=relaxed/simple;
-	bh=naaofPLz+eVZUA5dRqQnlQXrYE+NvgiNN9jc6qs1v2s=;
+	s=arc-20240116; t=1790884903; c=relaxed/simple;
+	bh=ggxNSpP3Hn1LcPdUV/KR2cbbD88ahegm5TbfX0Ae29g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C2wQ1WxPVyo8F7I1/L3SYlDS/z5myYu8Aq8AJh+vVdKlOBeH8pKEK7L+okfPFJwW136Ihpg1QekHO/bbrcT4Rawzg/Kz65lBuwlpnoVx707r+v6terKKSf1+ookj37VWVEYkOqD4ZfCdhFGXiBw7Js/+0m6xf6rIbwRJX9CYi7U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m3gslfp0; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=J+NtFdm/sF1mNn3ma5Fr9q9u63jkuUSREVSQS2zB9SeRkArZ9npRxipfb5UtxwievQ80IeKmzO3njdnDjjzGj2knoExPkKlAeNHCyFrWkCOCMxRJZrhj0tnEm1MX8iBM36SrykNxw0OMy14fHFY9F8QaMpIdlaStD+a11gD1byU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bkh6s/5R; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m3gslfp0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 142861F000FF;
-	Thu,  1 Oct 2026 19:01:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bkh6s/5R"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F05FD1F00893;
+	Thu,  1 Oct 2026 20:01:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790881294;
-	bh=GWNWpQ2eHdazpKjdnJTkioc9xf2U5wFkrBfmQYi2Wn4=;
+	s=k20260515; t=1790884895;
+	bh=2rQ3MjhUL67IRerVEtD/pq8p5QhM7sDP0ixSOCswnuo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=m3gslfp0pVwiFOtPqrzJ2hGy3n1/SsMs2p94OoTiwgeg9pMsuEMF6KF1JwonAO/nn
-	 f+9S2kANDJIw6zQHUyjjdL9WVmVELKsXe885fdK2Yi9wvTW4Lomr9mJXkdxf8VkzdN
-	 goU6WgZ9HwO2/JipU3DdO8kuYuiHxXWEWCJ3L7QbQZXKQmOBF7JwdtZ1IlKWSf3riy
-	 Q6QhIxgVujOCXzTQ9vCufyCB+uE1MvwYIKD4qKv3ArrrPAZuh8hzLHRAiwM+af7kIp
-	 wWvBfHFqVy1j8IvPdaR7Vd7m2l41qXgOiFp8b3zAQX9Xv82F25gKeyNPQmBWFgC2et
-	 2i9+v+WvZncgA==
-Date: Thu, 1 Oct 2026 20:01:30 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Daniel Golle <daniel@makrotopia.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	b=bkh6s/5RELFUQKTJE6EOYDIR8GmI1OaKrtIbrs1kxEzBuGuRuWsGgtXLbOnkgHvjb
+	 UFbehAuDPTc4r7ld5CnZgDfwfVl77CyX2ffEa5nYM3mM0vcR/lOV2QPEQxS2f6u0RY
+	 /9PMsjwzTGFbyO6scHsD98F2CM2eGGrf//m3YMSJ+crQwcbK6SVE/Z5jiXuLJthrjp
+	 f40VP6h0I/eiZYYGRdxaP4h5d2ZMTu0kiNMI7xYPQPYpI78R66HS4tUwRBVYlOhrXm
+	 joxzt9hIi7DJ6XwwZvhYY156MvPcbSGphOggOHHw0ggZGdBsHX5y1A+twmKz4eINVP
+	 ikveMW4UiOuEQ==
+Date: Thu, 1 Oct 2026 15:01:33 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Kendall Willis <k-willis@ti.com>
+Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>,
-	Oleh Kuzhylnyi <kuzhylol@gmail.com>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Chad Monroe <chad@monroe.io>, John Crispin <john@phrozen.org>
-Subject: Re: [PATCH 1/4] dt-bindings: input: touchscreen: hynitron,cst816x:
- configure axes
-Message-ID: <20261001-roundup-variably-0113ae7c21cd@spud>
-References: <cover.1790851590.git.daniel@makrotopia.org>
- <d18629ede3f2fd5a08d0cbdaf82f4254e89500ed.1790851590.git.daniel@makrotopia.org>
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, msp@baylibre.com,
+	s-tripathi1@ti.com, vishalm@ti.com, linux-input@vger.kernel.org,
+	a-kaur@ti.com, s-kochidanadu@ti.com, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] dt-bindings: input: gpio-keys: add pinctrl states
+Message-ID: <179088489296.1749674.5492156640851777675.robh@kernel.org>
+References: <20261001-upstream-gpio-wakeup-v3-0-6f3bcde367a3@ti.com>
+ <20261001-upstream-gpio-wakeup-v3-1-6f3bcde367a3@ti.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="QS45YFD/wi4jfYsw"
-Content-Disposition: inline
-In-Reply-To: <d18629ede3f2fd5a08d0cbdaf82f4254e89500ed.1790851590.git.daniel@makrotopia.org>
-
---QS45YFD/wi4jfYsw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20261001-upstream-gpio-wakeup-v3-1-6f3bcde367a3@ti.com>
 
-On Thu, Oct 01, 2026 at 11:52:31AM +0100, Daniel Golle wrote:
-> Reference touchscreen.yaml and allow properties
-> 'touchscreen-inverted-x', 'touchscreen-inverted-y' and
-> 'touchscreen-swapped-x-y'.
 
-This is a useless commit message, it just says what the diff does.
-Please provide a justification for why this is the right thing to do.
-pw-bot: changes-requested
-
->=20
-> Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+On Thu, 01 Oct 2026 10:50:33 -0500, Kendall Willis wrote:
+> Document pinctrl properties on the gpio-keys device node. The default
+> pinctrl state describes the default pin configuration. The wakeup state
+> configures pins to be able to wakeup the system from suspend if GPIO is a
+> wakeup source.
+> 
+> The pinctrl sleep state is not defined here despite being used to configure
+> pins for system suspend to save power. It is not defined since no
+> gpio-key device tree nodes utilize it. If the sleep state was added, a
+> device could use both the wakeup state and sleep state. The sleep state
+> would be entered upon suspend when wakeup is disabled for the device,
+> whereas the wakeup state would be entered upon suspend if wakeup is enabled
+> for the device. For now only the wakeup state is defined since it is
+> used specifically to enable pin configurations that can wakeup the
+> system from suspend.
+> 
+> Signed-off-by: Kendall Willis <k-willis@ti.com>
 > ---
->  .../bindings/input/touchscreen/hynitron,cst816x.yaml      | 8 ++++++++
->  1 file changed, 8 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/hynitron=
-,cst816x.yaml b/Documentation/devicetree/bindings/input/touchscreen/hynitro=
-n,cst816x.yaml
-> index 72d4da636881e..ba56bf61038c5 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816=
-x.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816=
-x.yaml
-> @@ -36,6 +36,10 @@ properties:
->        - description: Slide right gesture
->        - description: Long press gesture
-> =20
-> +  touchscreen-inverted-x: true
-> +  touchscreen-inverted-y: true
-> +  touchscreen-swapped-x-y: true
-> +
->  required:
->    - compatible
->    - reg
-> @@ -43,6 +47,9 @@ required:
-> =20
->  additionalProperties: false
-> =20
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +
->  examples:
->    - |
->      #include <dt-bindings/gpio/gpio.h>
-> @@ -59,6 +66,7 @@ examples:
->              reset-gpios =3D <&gpio 17 GPIO_ACTIVE_LOW>;
->              linux,keycodes =3D <KEY_UP>, <KEY_DOWN>, <KEY_LEFT>, <KEY_RI=
-GHT>,
->                               <BTN_TOOL_TRIPLETAP>;
-> +            touchscreen-swapped-x-y;
->          };
->      };
-> =20
-> --=20
-> 2.55.0
+>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+> 
 
---QS45YFD/wi4jfYsw
-Content-Type: application/pgp-signature; name=signature.asc
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCar6uCQAKCRB4tDGHoIJi
-0uj+AQCvn0YDvZEvx4tzA6Gh2ziefjsofjBQWtlVr8PoKmPgVgEA20jfQAaeSg4k
-emQh/LYYUXBoj/+8pg+Kk+kt/s+xMQ0=
-=TeEk
------END PGP SIGNATURE-----
-
---QS45YFD/wi4jfYsw--

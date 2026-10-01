@@ -1,16 +1,16 @@
 Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C77379EDA;
-	Thu,  1 Oct 2026 10:53:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76575409285;
+	Thu,  1 Oct 2026 10:53:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.142.180.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790851987; cv=none; b=cfPp1Ujd4BbUQimOoBeXISBt8G6ygImAiGL60Cf8kaBS9kVwXwVC4BabEtjjsOTV1NBFnmvIrkXeHLXzFqpDGFgKnU4lvpfdBn8tlLG2EgGKzSV7iv37NCLIZ8DUnDvy8XWW4nKUpJaaILUgmkxBe3IQIQESYmvDhrnLzYLJAbU=
+	t=1790851999; cv=none; b=gUreUnz9tm16FiFXRz0YxZX/Po9SkkXQH+DUy8XxAHjJnEtNuqZBNxMwgR8tvylJl7yeaT2RVn4kVgD2O1mWGMmR/ShGPxTdFHsE1X/1+W9uro9BzKJZ0x9pv3CEdoU0a/9k/BRGc5U1okTZ/am950fCqAjQiu2c2rz557t7F20=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790851987; c=relaxed/simple;
-	bh=YmiizVIOYHKqWOpOBSck0M51lxKIh+PACKiIebMZDiQ=;
+	s=arc-20240116; t=1790851999; c=relaxed/simple;
+	bh=75TwJ64icNSZGUIUN1gymkKWVAWJ+aKovNPyvLDNm78=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ObnBIHcx1R/MU6KHjPzot1Bl47D47sQhyht17KVLlqgQXWaugAvkllXXHRFQeS3Apt043qp0nwLmOdzPAR1Sc67ZROJbjr7eCQWnIeE7QGR8oze0oPTBdHcT/J87wkO8lGtfaOgrgB3eUZ/NA0JX5AZSeJWjLAy9Efg5z+x/ltw=
+	 Content-Type:Content-Disposition:In-Reply-To; b=lJsiN/AQP02eV0ryR7tkqCvqZqNfw4YfyHigjOCP9rFLeSphCY74r6+qw3qqWCFVSYsXZ9uQcC1K/V4nTWJaeDVMcLMFpN1Hx93Qox9IphyEd0QO//z0OMKzwvxB4cyVC7gAK9+YbsBaOaCCddbd2JNfwQ2scGLBT14w+bVAzAI=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org; spf=pass smtp.mailfrom=makrotopia.org; arc=none smtp.client-ip=185.142.180.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=makrotopia.org
@@ -18,9 +18,9 @@ Received: from local
 	by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256:X25519MLKEM768)
 	 (Exim 4.100.1)
 	(envelope-from <daniel@makrotopia.org>)
-	id 1xCEPP-000000003gd-0lUk;
-	Thu, 01 Oct 2026 10:53:03 +0000
-Date: Thu, 1 Oct 2026 11:53:00 +0100
+	id 1xCEPa-000000003gu-1MQl;
+	Thu, 01 Oct 2026 10:53:14 +0000
+Date: Thu, 1 Oct 2026 11:53:11 +0100
 From: Daniel Golle <daniel@makrotopia.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -31,8 +31,8 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Oleh Kuzhylnyi <kuzhylol@gmail.com>, linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Chad Monroe <chad@monroe.io>, John Crispin <john@phrozen.org>
-Subject: [PATCH 3/4] Input: hynitron-cst816x: release gesture keys
-Message-ID: <6f87a6c44555a0abb5d7f677250c28aacb230fbc.1790851590.git.daniel@makrotopia.org>
+Subject: [PATCH 4/4] Input: hynitron-cst816x: time out gesture key release
+Message-ID: <ea9fa494cfb0a10cee72795a60ed5481fb227de5.1790851590.git.daniel@makrotopia.org>
 References: <cover.1790851590.git.daniel@makrotopia.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -44,52 +44,145 @@ Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <cover.1790851590.git.daniel@makrotopia.org>
 
-The gesture key is reported with the value of the touch flag, so it
-stays pressed once the controller stops reporting the gesture code
-while the finger is still down. Report the press on its own and
-release the keys the input core still holds down on the first report
-that carries no gesture code.
+The controller reports a gesture code once and can then stay quiet
+until the next touch, which leaves the gesture key pressed for as long
+as the panel is left alone. Release the gesture keys 40 ms after the
+last report that carried a gesture code, so that the release comes
+from whichever happens first, the timeout or a report without a
+gesture code. The 40 ms matches TSC200X_PENUP_TIME_MS, chosen there
+for the same want of a lift event from the controller, and has to stay
+above the interval between consecutive reports of a held gesture.
 
-Fixes: c87a819bec86 ("Input: add driver for Hynitron CST816x series")
 Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 ---
- drivers/input/touchscreen/hynitron-cst816x.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/hynitron-cst816x.c | 51 ++++++++++++++++++--
+ 1 file changed, 48 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/input/touchscreen/hynitron-cst816x.c b/drivers/input/touchscreen/hynitron-cst816x.c
-index 865c5a767ba01..e2093518e8af1 100644
+index e2093518e8af1..30f8ea314ed2c 100644
 --- a/drivers/input/touchscreen/hynitron-cst816x.c
 +++ b/drivers/input/touchscreen/hynitron-cst816x.c
-@@ -168,6 +168,18 @@ static void cst816x_reset(struct cst816x_priv *priv)
+@@ -15,9 +15,12 @@
+ #include <linux/unaligned.h>
+ #include <linux/interrupt.h>
+ #include <linux/module.h>
++#include <linux/spinlock.h>
++#include <linux/timer.h>
+ 
+ #define CST816X_RD_REG		0x01
+ #define CST816X_NUM_KEYS	5
++#define CST816X_GEST_HOLD_MS	40
+ 
+ struct cst816x_touch {
+ 	u8 gest;
+@@ -32,6 +35,9 @@ struct cst816x_priv {
+ 	struct input_dev *input;
+ 	unsigned int keycode[CST816X_NUM_KEYS];
+ 	unsigned int keycodemax;
++	struct timer_list release_timer;
++	/* lock keeps the timeout out of the middle of a report */
++	spinlock_t lock;
+ 	struct touchscreen_properties prop;
+ };
+ 
+@@ -168,8 +174,9 @@ static void cst816x_reset(struct cst816x_priv *priv)
  	msleep(100);
  }
  
-+static void cst816x_release_keys(struct cst816x_priv *priv)
-+{
-+	unsigned int i;
+-static void cst816x_release_keys(struct cst816x_priv *priv)
++static bool cst816x_release_keys(struct cst816x_priv *priv)
+ {
++	bool released = false;
+ 	unsigned int i;
+ 
+ 	for (i = 0; i < priv->keycodemax; i++) {
+@@ -177,33 +184,65 @@ static void cst816x_release_keys(struct cst816x_priv *priv)
+ 			continue;
+ 
+ 		input_report_key(priv->input, priv->keycode[i], 0);
++		released = true;
+ 	}
 +
-+	for (i = 0; i < priv->keycodemax; i++) {
-+		if (!test_bit(priv->keycode[i], priv->input->key))
-+			continue;
-+
-+		input_report_key(priv->input, priv->keycode[i], 0);
-+	}
++	return released;
 +}
 +
++static void cst816x_release_timeout(struct timer_list *t)
++{
++	struct cst816x_priv *priv = timer_container_of(priv, t, release_timer);
++	unsigned long flags;
++
++	spin_lock_irqsave(&priv->lock, flags);
++
++	if (cst816x_release_keys(priv))
++		input_sync(priv->input);
++
++	spin_unlock_irqrestore(&priv->lock, flags);
+ }
+ 
  static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
  {
  	struct cst816x_priv *priv = cookie;
-@@ -181,8 +193,9 @@ static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
+ 	struct cst816x_touch tch;
++	unsigned long flags;
  
- 	if (tch.gest)
+ 	if (!cst816x_process_touch(priv, &tch))
+ 		return IRQ_HANDLED;
+ 
++	spin_lock_irqsave(&priv->lock, flags);
++
+ 	touchscreen_report_pos(priv->input, &priv->prop,
+ 			       tch.abs_x, tch.abs_y, false);
+ 
+-	if (tch.gest)
++	if (tch.gest) {
  		input_report_key(priv->input,
--				 priv->keycode[cst816x_gest_idx(tch.gest)],
--				 tch.active);
-+				 priv->keycode[cst816x_gest_idx(tch.gest)], 1);
-+	else
-+		cst816x_release_keys(priv);
+ 				 priv->keycode[cst816x_gest_idx(tch.gest)], 1);
+-	else
++		mod_timer(&priv->release_timer,
++			  jiffies + msecs_to_jiffies(CST816X_GEST_HOLD_MS));
++	} else {
++		timer_delete(&priv->release_timer);
+ 		cst816x_release_keys(priv);
++	}
  
  	input_report_key(priv->input, BTN_TOUCH, tch.active);
  
+ 	input_sync(priv->input);
+ 
++	spin_unlock_irqrestore(&priv->lock, flags);
++
+ 	return IRQ_HANDLED;
+ }
+ 
++static void cst816x_timer_stop(void *data)
++{
++	struct cst816x_priv *priv = data;
++
++	timer_delete_sync(&priv->release_timer);
++}
++
+ static int cst816x_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+@@ -215,6 +254,8 @@ static int cst816x_probe(struct i2c_client *client)
+ 		return -ENOMEM;
+ 
+ 	priv->client = client;
++	spin_lock_init(&priv->lock);
++	timer_setup(&priv->release_timer, cst816x_release_timeout, 0);
+ 
+ 	priv->reset = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(priv->reset))
+@@ -232,6 +273,10 @@ static int cst816x_probe(struct i2c_client *client)
+ 	if (error)
+ 		return dev_err_probe(dev, error, "input register failed\n");
+ 
++	error = devm_add_action_or_reset(dev, cst816x_timer_stop, priv);
++	if (error)
++		return error;
++
+ 	error = devm_request_threaded_irq(dev, client->irq,
+ 					  NULL, cst816x_irq_cb, IRQF_ONESHOT,
+ 					  dev_driver_string(dev), priv);
 -- 
 2.55.0

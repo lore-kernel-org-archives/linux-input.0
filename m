@@ -1,68 +1,68 @@
-Received: from mail-ed2-f32.google.com (mail-ed2-f32.google.com [74.125.228.96])
+Received: from mail-ed2-f31.google.com (mail-ed2-f31.google.com [74.125.228.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DA084779BC
-	for <linux-input@vger.kernel.org>; Thu,  1 Oct 2026 22:23:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.96
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D74CC47255C
+	for <linux-input@vger.kernel.org>; Thu,  1 Oct 2026 22:23:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790893429; cv=none; b=qUhqrZyIGMYIbMXiJ8NybBDI5XrYYUr6Ky84hlH/iUVTirsSkxJqDyFbARbcA+aeWkxtqKMg5M9IHX6y5fqjSNZ8eUotbjPIXyTjlatT+8sxfVd07tDefdk9oZI0s08M/6Ky15NnSJR4PSUqD0CCIGLaXrF0za6IT+Ws4ZGvwpM=
+	t=1790893432; cv=none; b=V0ZZSFW2s0DGRPDPO+zVi7TKiQJlCrIh6HfI0yfxr9tcH7bUIUK+OA4iFxtaiRgqytQkyNCEfL4RBEdpss86X4kuS2Fbb1vtFJA/ZODDdbxlHaHRxl6KMsmr28eGf6P051fpqzH1v2wOUl/O6zDLQmu0p8jvoM+zVzfyUlAN3QQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790893429; c=relaxed/simple;
-	bh=EApQxXc5dbW5RjUDZcAqxqTjvKPO05LDpgDUyURUDbU=;
+	s=arc-20240116; t=1790893432; c=relaxed/simple;
+	bh=x/e7yl7s008BSTuPC74pXBWvyM9+VoR6pKRHyo0aohM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=YIXh7/xqC6AkTwacXJ9IVlxFYe415G8aJonr1ynZoGXM4BQyPK9PTdIxvQJXKGdWuZpxq6KAQ3/8Vfd7yrWqfKLTEO0nTgqBY3I6kLgTFuEijqFC+Ket0GvCdGrzaGAwrIIOoegkMumQ0qbAg/lu7rFDGv6wxaScf8gJJBEO8i4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GtIAFyXX; arc=none smtp.client-ip=74.125.228.96
+	 In-Reply-To:To:Cc; b=rp4uxDAad5FFpjXoh+CVhsRFOmM9fZQ/T4DxY7Nj3PprUP9A5kW/m3+NdNHKIYn7N0Nr8BybS64r/XxkwIbVUnPGm5hsB1hmScrbvzEQg5YIEKJpMwz3cbeq+wn38ZLH2z6+jHhyQJJ1cSU0Y9m71F5LFeCWNGh+cRSH4jQp1AM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lPqAqikl; arc=none smtp.client-ip=74.125.228.95
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GtIAFyXX"
-Received: by mail-ed2-f32.google.com with SMTP id 4fb4d7f45d1cf-6af7d702c76so1946475a12.1
-        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2026 15:23:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lPqAqikl"
+Received: by mail-ed2-f31.google.com with SMTP id 4fb4d7f45d1cf-6ae19959791so3208245a12.3
+        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2026 15:23:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790893425; x=1791498225; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1790893428; x=1791498228; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=mfS2cfWmds0Y11TiQVtwStV3lengQMkN7F/hQmnyrAA=;
-        b=GtIAFyXX6RnABYkOmORFQhK/sOgiCPjsD3P1Lk3jv+o4EaDOjhecMjUUAxEf+DKO8j
-         QQjdEi09vhIuuHspdXtr1fgBFuEwp9SIs9ZGa9ROEeXT3wy9rc4BGhIW9YN4CMXGGDQH
-         TgYZXCdHgLxss7GS7/TB5iKn1eS5u6Dpx1hXKRbimDwbWYLQpv+Hdk9q2ahVbvk0QiXN
-         eravX9W94XleCB0EvqqNFDkb2mpjUKiF4E7aycCN9VyRhp3D6M2IDcMm47ZRDPssU9zD
-         pPROWVFiY/NagTxqZ2i148Mk0lBVEIsoZxq7ZZQFING4zl+ukmXbtc8hl1/lzD+Ul90v
-         Slqg==
+        bh=2+id7PyiU+adIvbfICPLwOsQXEP7V5BiOEh7awbxMJQ=;
+        b=lPqAqiklUHdyr3ZpPwN0B3wzZ5ZRVQVmh5YIsMACayIWap771iMfdKHIhnmOP4Woxw
+         aNG3zkkzUPeWbssy+mUfa1tEnEkonxbfFHsXAEcW5zqzTwTsAZyD6VSrxwbhjpe+4+Ye
+         Kp+g0B9SnCRsSk1lMR0JrdcirxUSJCMrkd5Fiwt73yRQxhMbUI4krXHTQAnsnSYmFVQi
+         SzSXNKvtVeqQPJDsaSRGS53YlmXROaYiLaqdMfhNF1FVOiAXVZfUL0tlGj+X8fRvbArW
+         lcl+lUA7Wykhu4QjBwQUzC4wHeLaV2LzOOilFo4w7BxJZoHt+DMFk51C5vkstn6EVdtL
+         LT1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790893425; x=1791498225;
+        d=1e100.net; s=20260707; t=1790893428; x=1791498228;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=mfS2cfWmds0Y11TiQVtwStV3lengQMkN7F/hQmnyrAA=;
-        b=U6QsdKcSMs5ELJfNPzbF1fj8DM/jYOByMgf7DzcRLbUOOWx/z1hrky3IwIhPDLiTuF
-         ihfnsxFxX5/mOqsfcH5+U3qSKG7N93XCgp4a54PpO8MJ+4TpnYJqDkm7CuPM/ra0hYWo
-         /q57jRCnfCvD2/LADM4KeIlWJeJtRWhe4qyI/40yWm/nhcnF1Wh5EVEGGxQGT27ksc8y
-         D43MGnbJfpIIP8k5BY8PnU9M25K5DuhRebKtIb0dYrxFdBX3lwdGsOjgtbjQNXtLHdd6
-         y2s9SZVIML04PWmD8hUYl7qIlk97GT81a3XnGk2kXykbw2ULL5OMfEGZUWnK8eIGS/lj
-         5FaQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw94eN5b/oYCnVlc+vOZQfujnXLMtRQIbnkX0nApsegzfummDT9UDEbqmcJrFt+iSS5yLTFTpx/9KJ5iw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJO22qQooMEWDKAQKALKBpzALGCPL2qSvcwUwzh+MsQxfeHOa01
-	yU+MlSCeGNZm+tSTgZxkOmVa0XpDfQf84rdY9lNSKSlwZEa8nRW0MVZv
-X-Gm-Gg: AYBFou0eMWLdWnQ9lqc8Z0X5IM/TsKoX/LjgpxkxpAo0c013kh0xwfrimebVOJ2gjch
-	g3fRY94E4mobdLWSeKVokst6/fAOuM1d63tH84qodibJsg/s+kVTmreEuHxAVKjdMVyK/mOLNQW
-	RCRJrnqiuACcdP5TFTj/N+xEpEQK0BG1R2pTSmeXFE4Wu7l1EPQFx2RUr45webGrfoinyCKXooE
-	sdP22uaxeqH/8P8JyNlR1Zl8NwETF4OSEP142OiWjxf1NS+oWx/goReV3Pb7hUqPqesB6ulgeV5
-	gENfbTnJ+SSu2rm/Kx5y0QhPc4pwO9AYBMjNHyHFOUs3tRnuaCcfFsQzwCgStR/GutuHCH+MGm/
-	StIipoSEjVKD1Fi2llUIuTKICCCThIy41WOrBFpk8Q/Tgxq8NonEbVNpGDHP3ZJ7fiXPT4gGeC1
-	9IGHPKcIOy+3eNwIRM1+BogYN/OaMg82yo+13JhNUrUjgB/hW4bU2IGZ0VVze//WQ55cW7JXfbA
-	X1uU3mczGfeZu+wys0T6JG+jePszyKkCS3ziDYQJw7SraFcoTCrJg==
-X-Received: by 2002:a05:6402:4019:b0:6aa:f260:b851 with SMTP id 4fb4d7f45d1cf-6af9e30ec5dmr417794a12.33.1790893425261;
-        Thu, 01 Oct 2026 15:23:45 -0700 (PDT)
+        bh=2+id7PyiU+adIvbfICPLwOsQXEP7V5BiOEh7awbxMJQ=;
+        b=k+cElt1Eoo4M5X3laDCS2j1f+O97rEeIM59zWngy52zfByIK3DU12MB4Zy7oRjqcgq
+         vZQJWZfACKfA/5VLRJi5zEfyGUE31ywn+BhQoIRqdW2lBew/hR7pwaL5Xs9DfzCAYJjc
+         iQC7lOcisy97iwOCo4e6Q/QeuzOq2wqZuB2hOLkLQSqJUlanYymIZ0yTcgzXDpuyVqla
+         6klejzxMTWWF4lsnaLctbW1KR57d6DTYTzFWPdgmd+ED9LLZ2uxhe05nQRCMabkofoXu
+         sShD9NxKOMOLrZUXHqUj4RXCycibix0yiOb/zykjZunpxKzGU9F7I+GJQNcDw6sk8Cnc
+         an7g==
+X-Forwarded-Encrypted: i=1; AKwUvByTcri5I78L94cWDbihTsyeQDfOD0AX8k9dTUM/IDuMTJRCnh/3qQLlh/d3gHEGjXWrkF3eFK55a20/rQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIzFnwUwHbyPDFde4o+fptWpOUqJjVYhQpj+P/TleagtyWapY8h
+	VztNxuPIbocCOiRaawSwjCtPxylGONjm8YICZ6ASKYardg4GqTHZ1zKG
+X-Gm-Gg: AYBFou0mNVQl4GmRgLQdlECcUp6YwM4Nr8LGDGB9qajWnJPT+hNbx0PSEQH+apoBs/u
+	YIsO22Is0Heeq8Bg+uORbxTF/gwgL6ct6SPksfEHLkery5zXAxe+8ttXfjIKU5YYz4tBdxc++jG
+	29Fi36pF/Itvcb5Bcrmf6/k4DXP4vnUjEgqVr+vJprxsnVewSi+VXFXRxdd4yZozeC+xKEn+7rg
+	U6YgdLrOq+uf6ilDfSbjEQXHtrnJW3Kj4rXv+I5W2cPRwjsbqQVVqVoP/dtiSsQtsXZdwEEpbOR
+	nuCTDTgNFnEK2y6sdFbAtdsl8479D71Tib8ylutDMnMggJ2Zyy4PwrKdQsM9yhNUmy0L0UK5XZn
+	KiW3P4jX37BpmnOvwg+AbzwfmeXMMKS2BQgZns5YSlaLJSapEqz1gKBfX0E1jxm/ZdskugfAJQ7
+	Tw7uGWWGCVhMjxSdeRkvG0RjrVjzOz20UV4L02KPklLuW7er5LSQSSBN2hO1cmQyhTop2N9WU7d
+	kJhgydzjZ5mz7BSKmzNt5bQBcrvb55lpdR06fD/a3w=
+X-Received: by 2002:a05:6402:21ca:b0:6a9:9766:59ad with SMTP id 4fb4d7f45d1cf-6af9e33b4e6mr300424a12.43.1790893427996;
+        Thu, 01 Oct 2026 15:23:47 -0700 (PDT)
 Received: from [192.168.86.89] (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6af9d87399esm238935a12.9.2026.10.01.15.23.42
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6af9d87399esm238935a12.9.2026.10.01.15.23.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 Oct 2026 15:23:44 -0700 (PDT)
+        Thu, 01 Oct 2026 15:23:46 -0700 (PDT)
 From: =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>
-Date: Fri, 02 Oct 2026 00:23:35 +0200
-Subject: [PATCH RFC 1/4] HID: logitech: add Bolt receiver support
+Date: Fri, 02 Oct 2026 00:23:36 +0200
+Subject: [PATCH RFC 2/4] HID: logitech: handle HID++ thumbwheel reports
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,7 +71,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261002-bolt-input-rfc-v1-1-333e1f350586@gmail.com>
+Message-Id: <20261002-bolt-input-rfc-v1-2-333e1f350586@gmail.com>
 References: <20261002-bolt-input-rfc-v1-0-333e1f350586@gmail.com>
 In-Reply-To: <20261002-bolt-input-rfc-v1-0-333e1f350586@gmail.com>
 To: =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
@@ -87,393 +87,404 @@ Cc: Rafael Passos <rafael@rcpassos.me>,
  linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1790893419; l=14084;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790893419; l=14730;
  i=erikhakan@gmail.com; s=20260922; h=from:subject:message-id;
- bh=EApQxXc5dbW5RjUDZcAqxqTjvKPO05LDpgDUyURUDbU=;
- b=nIzoNV7V9FaDvLch6tTy3rSAX4JITwNl/r3onn9nasIdOUEqOlYMCCuvWxYBFI+pIWAqk7cHI
- FQJJzgPclIyCYB/JERxoa3ZMpjET/MbBH0Whup+ewYXmYq94jzhcLi4
+ bh=x/e7yl7s008BSTuPC74pXBWvyM9+VoR6pKRHyo0aohM=;
+ b=6NyJyC4afN7mKDb/EwQaD6Xiwz+UmJxwEtKOrIQbQ2wJmx9refGzhf2PnEGzpzrKgZvoZ/lsh
+ 7B5XOJlWPYnCnjNHGHcwHz3tfk52lCzOE4uiJ/QXJGUCb7Iyfhgxmq1
 X-Developer-Key: i=erikhakan@gmail.com; a=ed25519;
  pk=brCZX79/H6Z7mPgiNX6TDY45ZjODPth0eXRDUgh1mNI=
 
-Add Logitech Bolt receiver support to the Logitech HID receiver and HID++
-drivers.
+Add support for HID++ thumbwheel reports on devices that support the 0x2150
+feature. Read resolution and default direction. For Bolt devices, default
+to diverting thumbwheel reports to HID++ to get device index support, so
+source device is identifiable.
 
-This allows Bolt-connected HID++ devices to expose battery information
-through the kernel power_supply path, so userspace tools can report their
-battery status with the correct device model.
-
-Have hid-logitech-dj claim Bolt interfaces 0-2 and use the
-mse_high_res_descriptor for virtual mice, instead of the default
-mse_descriptor, to properly handle reports as 16-bit instead of 12-bit.
-
-Since Bolt receivers do not support DJ mode, reroute supported reports for
-Bolt devices over HID++, so device identification is possible through the
-HID++ device index. Ordinary mouse and keyboard reports still use native
-HID, and are not possible to divert to HID++, and since native HID reports
-lack device index, it will still not be possible to identify which device
-sent them.
-Extend 0x2121 high resolution scroll to work over HID++, including software
-inversion for inverted scrolling, and make Bolt devices default to HID++
-diversion for 0x2121 reports.
-
-Also, treat HIDPP_ERROR_CONNECT_FAIL like other disconnected-device errors
-when retrieving protocol version to avoid protocol error messages when a
-Bolt device powers off.
-
-Tested with:
-- Logitech MX Keys for Business via Bolt receiver
+Generalize the scroll handling to support the thumbwheel events in addition
+to the already supported vertical scroll events.
 
 Signed-off-by: Erik Håkansson <erikhakan@gmail.com>
 ---
- drivers/hid/hid-logitech-dj.c    |  33 +++++++-
- drivers/hid/hid-logitech-hidpp.c | 160 ++++++++++++++++++++++++++++++++++-----
- 2 files changed, 173 insertions(+), 20 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 217 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 192 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 390d106d5dc1..8a53e631f476 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -121,6 +121,7 @@ enum recvr_type {
- 	recvr_type_27mhz,
- 	recvr_type_bluetooth,
- 	recvr_type_dinovo,
-+	recvr_type_bolt,
- };
- 
- struct dj_report {
-@@ -637,8 +638,6 @@ static const u8 hid_reportid_size_map[NUMBER_OF_HID_REPORTS] = {
- };
- 
- 
--#define LOGITECH_DJ_INTERFACE_NUMBER 0x02
--
- static const struct hid_ll_driver logi_dj_ll_driver;
- 
- static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev);
-@@ -1156,6 +1155,10 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
- 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
-+	case 0x10:
-+		device_type = "Bolt";
-+		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
-+		break;
- 	}
- 
- 	/* custom receiver device (eg. powerplay) */
-@@ -1540,7 +1543,8 @@ static int logi_dj_ll_parse(struct hid_device *hid)
- 	if (djdev->reports_supported & STD_MOUSE) {
- 		dbg_hid("%s: sending a mouse descriptor, reports_supported: %llx\n",
- 			__func__, djdev->reports_supported);
--		if (djdev->dj_receiver_dev->type == recvr_type_gaming_hidpp ||
-+		if (djdev->dj_receiver_dev->type == recvr_type_bolt ||
-+		    djdev->dj_receiver_dev->type == recvr_type_gaming_hidpp ||
- 		    djdev->dj_receiver_dev->type == recvr_type_mouse_only)
- 			rdcat(rdesc, &rsize, mse_high_res_descriptor,
- 			      sizeof(mse_high_res_descriptor));
-@@ -1745,6 +1749,24 @@ static int logi_dj_hidpp_event(struct hid_device *hdev,
- 
- 	dj_dev = djrcv_dev->paired_dj_devices[device_index];
- 
-+	/*
-+	 * Bolt receivers send explicit unpair notifications as HID++ events;
-+	 * queue device removal when we receive one.
-+	 */
-+	if (djrcv_dev->type == recvr_type_bolt &&
-+	    hidpp_report->report_id == REPORT_ID_HIDPP_SHORT &&
-+	    hidpp_report->sub_id == REPORT_TYPE_NOTIF_DEVICE_UNPAIRED) {
-+		struct dj_workitem workitem = {
-+			.device_index = device_index,
-+			.type = WORKITEM_TYPE_UNPAIRED,
-+		};
-+
-+		kfifo_in(&djrcv_dev->notif_fifo, &workitem, sizeof(workitem));
-+		schedule_work(&djrcv_dev->work);
-+		spin_unlock_irqrestore(&djrcv_dev->lock, flags);
-+		return false;
-+	}
-+
- 	/*
- 	 * With 27 MHz receivers, we do not get an explicit unpair event,
- 	 * remove the old device if the user has paired a *different* device.
-@@ -1894,6 +1916,7 @@ static int logi_dj_probe(struct hid_device *hdev,
- 	case recvr_type_27mhz:		no_dj_interfaces = 2; break;
- 	case recvr_type_bluetooth:	no_dj_interfaces = 2; break;
- 	case recvr_type_dinovo:		no_dj_interfaces = 2; break;
-+	case recvr_type_bolt:		no_dj_interfaces = 3; break;
- 	}
- 	if (hid_is_usb(hdev)) {
- 		intf = to_usb_interface(hdev->dev.parent);
-@@ -2103,6 +2126,10 @@ static const struct hid_device_id logi_dj_receivers[] = {
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_3),
- 	 .driver_data = recvr_type_gaming_hidpp_ls_1_3},
-+	{ /* Logitech Bolt receiver (0xc548) */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+			 USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER),
-+	 .driver_data = recvr_type_bolt},
- 	{ /* Logitech lightspeed receiver (0xc54d) */
- 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_4),
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 9646380febac..ff6a1095e7ba 100644
+index ff6a1095e7ba..464685ad21bb 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -213,6 +213,8 @@ struct hidpp_device {
+@@ -23,6 +23,8 @@
+ #include <linux/workqueue.h>
+ #include <linux/atomic.h>
+ #include <linux/fixp-arith.h>
++#include <linux/limits.h>
++#include <linux/math64.h>
+ #include <linux/unaligned.h>
+ #include "usbhid/usbhid.h"
+ #include "hid-ids.h"
+@@ -98,6 +100,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_CAPABILITY_HIDPP20_HI_RES_SCROLL	BIT(8)
+ #define HIDPP_CAPABILITY_HIDPP10_FAST_SCROLL	BIT(9)
+ #define HIDPP_CAPABILITY_ADC_MEASUREMENT	BIT(10)
++#define HIDPP_CAPABILITY_HIDPP20_THUMBWHEEL	BIT(11)
  
- 	int hires_wheel_multiplier;
+ #define lg_map_key_clear(c)  hid_map_usage_clear(hi, usage, bit, max, EV_KEY, (c))
+ 
+@@ -165,15 +168,21 @@ struct hidpp_battery {
+ /**
+  * struct hidpp_scroll_counter - Utility class for processing high-resolution
+  *                             scroll events.
+- * @wheel_multiplier: the scalar multiplier to be applied to each wheel event
++ * @scale_numerator: numerator of normal scroll steps per device count
++ * @scale_denominator: denominator of normal scroll steps per device count
+  * @remainder: counts the number of high-resolution units moved since the last
+  *             low-resolution event (REL_WHEEL or REL_HWHEEL) was sent. Should
+  *             only be used by class methods.
+  * @direction: direction of last movement (1 or -1)
+  * @last_time: last event time, used to reset remainder after inactivity
++ *
++ * One device count represents scale_numerator / scale_denominator normal
++ * scroll steps: 1 / wheel_multiplier for a vertical wheel, or native_res /
++ * diverted_res for a diverted thumbwheel.
+  */
+ struct hidpp_scroll_counter {
+-	int wheel_multiplier;
++	u16 scale_numerator;
++	u16 scale_denominator;
+ 	int remainder;
+ 	int direction;
+ 	unsigned long long last_time;
+@@ -206,6 +215,7 @@ struct hidpp_device {
+ 
+ 	struct hidpp_battery battery;
+ 	struct hidpp_scroll_counter vertical_wheel_counter;
++	struct hidpp_scroll_counter thumbwheel_counter;
+ 
+ 	u8 wireless_feature_index;
+ 	u8 reprog_controls_feature_index;
+@@ -215,6 +225,8 @@ struct hidpp_device {
  	u8 hires_wheel_feature_index;
-+	bool hires_wheel_has_invert;
-+	bool hires_wheel_invert;
+ 	bool hires_wheel_has_invert;
+ 	bool hires_wheel_invert;
++	u8 thumbwheel_feature_index;
++	bool thumbwheel_positive_right;
  
  	bool connected_once;
  };
-@@ -988,7 +990,8 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 	}
+@@ -544,28 +556,42 @@ static void hidpp_update_usb_wireless_status(struct hidpp_device *hidpp)
  
- 	/* the device might not be connected */
--	if (ret == HIDPP_ERROR_RESOURCE_ERROR ||
-+	if (ret == HIDPP_ERROR_CONNECT_FAIL ||
-+	    ret == HIDPP_ERROR_RESOURCE_ERROR ||
- 	    ret == HIDPP_ERROR_UNKNOWN_DEVICE)
- 		return -EIO;
- 
-@@ -2044,9 +2047,15 @@ static int hidpp_hrs_set_highres_scrolling_mode(struct hidpp_device *hidpp,
- 
- #define CMD_HIRES_WHEEL_GET_WHEEL_CAPABILITY	0x00
- #define CMD_HIRES_WHEEL_SET_WHEEL_MODE		0x20
-+#define EVENT_HIRES_WHEEL_MOVEMENT		0x00
-+#define HIRES_WHEEL_CAPABILITY_HAS_INVERT	BIT(3)
-+#define HIRES_WHEEL_MODE_USE_HIDPP		BIT(0)
-+#define HIRES_WHEEL_MODE_HIGH_RESOLUTION	BIT(1)
-+#define HIRES_WHEEL_MODE_INVERT			BIT(2)
-+#define HIRES_WHEEL_EVENT_HIGH_RESOLUTION	BIT(4)
- 
- static int hidpp_hrw_get_wheel_capability(struct hidpp_device *hidpp,
--	u8 *multiplier)
-+	u8 *multiplier, bool *has_invert)
+ /**
+  * hidpp_scroll_counter_handle_scroll() - Send high- and low-resolution scroll
+- *                                        events given a high-resolution wheel
+- *                                        movement.
++ *                                        events given a wheel movement.
+  * @input_dev: Pointer to the input device
+- * @counter: a hid_scroll_counter struct describing the wheel.
+- * @hi_res_value: the movement of the wheel, in the mouse's high-resolution
+- *                units.
++ * @counter: a hidpp_scroll_counter struct describing the wheel.
++ * @value: the movement of the wheel, in the device's reporting units.
++ * @hi_res_code: high-resolution event code for this wheel axis.
++ * @low_res_code: low-resolution event code for this wheel axis.
+  *
+- * Given a high-resolution movement, this function converts the movement into
++ * Given a wheel movement, this function converts the movement into
+  * fractions of 120 and emits high-resolution scroll events for the input
+- * device. It also uses the multiplier from &struct hid_scroll_counter to
+- * emit low-resolution scroll events when appropriate for
+- * backwards-compatibility with userspace input libraries.
++ * device. It also uses the counter to emit low-resolution scroll events
++ * when appropriate for backwards-compatibility with userspace input
++ * libraries.
++ *
++ * Return: true if a nonzero scroll event was reported
+  */
+-static void hidpp_scroll_counter_handle_scroll(struct input_dev *input_dev,
++static bool hidpp_scroll_counter_handle_scroll(struct input_dev *input_dev,
+ 					       struct hidpp_scroll_counter *counter,
+-					       int hi_res_value)
++					       int value,
++					       unsigned int hi_res_code,
++					       unsigned int low_res_code)
  {
- 	u8 feature_index;
- 	int ret;
-@@ -2064,6 +2073,8 @@ static int hidpp_hrw_get_wheel_capability(struct hidpp_device *hidpp,
- 		goto return_default;
++	s64 scaled;
++	int hi_res_value;
+ 	int low_res_value, remainder, direction;
+ 	unsigned long long now, previous;
  
- 	*multiplier = response.fap.params[0];
-+	*has_invert = response.fap.params[1] &
-+		HIRES_WHEEL_CAPABILITY_HAS_INVERT;
- 	return 0;
- return_default:
- 	hid_warn(hidpp->hid_dev,
-@@ -2084,9 +2095,9 @@ static int hidpp_hrw_set_wheel_mode(struct hidpp_device *hidpp, bool invert,
- 	if (ret)
- 		return ret;
- 
--	params[0] = (invert          ? BIT(2) : 0) |
--		    (high_resolution ? BIT(1) : 0) |
--		    (use_hidpp       ? BIT(0) : 0);
-+	params[0] = (invert          ? HIRES_WHEEL_MODE_INVERT : 0) |
-+		    (high_resolution ? HIRES_WHEEL_MODE_HIGH_RESOLUTION : 0) |
-+		    (use_hidpp       ? HIRES_WHEEL_MODE_USE_HIDPP : 0);
- 
- 	return hidpp_send_fap_command_sync(hidpp, feature_index,
- 					   CMD_HIRES_WHEEL_SET_WHEEL_MODE,
-@@ -3903,15 +3914,58 @@ static int hidpp10_consumer_keys_raw_event(struct hidpp_device *hidpp,
- /* High-resolution scroll wheels                                              */
- /* -------------------------------------------------------------------------- */
- 
-+static bool hidpp_is_bolt_child(struct hid_device *hdev)
-+{
-+	struct device *parent = hdev->dev.parent;
-+	struct hid_device *receiver_hdev;
-+
-+	if (hdev->group != HID_GROUP_LOGITECH_DJ_DEVICE || !parent)
+-	hi_res_value = hi_res_value * 120/counter->wheel_multiplier;
+-	input_report_rel(input_dev, REL_WHEEL_HI_RES, hi_res_value);
++	if (!counter->scale_denominator)
 +		return false;
 +
-+	receiver_hdev = to_hid_device(parent);
-+	return receiver_hdev->vendor == USB_VENDOR_ID_LOGITECH &&
-+	       receiver_hdev->product == USB_DEVICE_ID_LOGITECH_BOLT_RECEIVER;
-+}
++	scaled = div_s64((s64)value * 120 * counter->scale_numerator,
++			 counter->scale_denominator);
++	if (!scaled || scaled > INT_MAX - 120 || scaled < INT_MIN + 120)
++		return false;
++	hi_res_value = scaled;
 +
-+static void hidpp_hrw_update_wheel_mode(struct hidpp_device *hidpp,
-+	bool invert, bool high_resolution)
-+{
-+	hidpp->hires_wheel_invert = invert;
-+	hidpp->vertical_wheel_counter.wheel_multiplier =
-+		(high_resolution && hidpp->hires_wheel_multiplier > 0) ?
-+		hidpp->hires_wheel_multiplier : 1;
-+}
-+
- static int hi_res_scroll_enable(struct hidpp_device *hidpp)
- {
--	int ret;
-+	int ret, fallback_ret;
- 	u8 multiplier = 1;
-+	bool has_invert = false;
++	input_report_rel(input_dev, hi_res_code, hi_res_value);
  
- 	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_HI_RES_WHEEL) {
--		ret = hidpp_hrw_set_wheel_mode(hidpp, false, true, false);
--		if (ret == 0)
--			ret = hidpp_hrw_get_wheel_capability(hidpp, &multiplier);
-+		/* Check capabilities before setting mode, to guard against
-+		 * enabling high res and then failing to read multiplier.
-+		 */
-+		ret = hidpp_hrw_get_wheel_capability(hidpp, &multiplier,
-+						     &has_invert);
-+		if (ret) {
-+			/* Avoid diverting wheel reports without a known
-+			 * multiplier.
-+			 */
-+			fallback_ret = hidpp_hrw_set_wheel_mode(hidpp, false,
-+							 false, false);
-+			if (fallback_ret)
-+				hid_dbg(hidpp->hid_dev,
-+					"Could not restore native wheel reporting: %d\n",
-+					fallback_ret);
-+			hidpp->hires_wheel_multiplier = 1;
-+			hidpp->hires_wheel_has_invert = false;
-+			hidpp_hrw_update_wheel_mode(hidpp, false, false);
-+			return ret;
-+		}
-+		ret = hidpp_hrw_set_wheel_mode(hidpp, false, true,
-+					      hidpp_is_bolt_child(
-+					       hidpp->hid_dev));
- 	} else if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_HI_RES_SCROLL) {
- 		ret = hidpp_hrs_set_highres_scrolling_mode(hidpp, true,
- 							   &multiplier);
-@@ -3933,6 +3987,10 @@ static int hi_res_scroll_enable(struct hidpp_device *hidpp)
- 
- 	hidpp->hires_wheel_multiplier = multiplier;
- 	hidpp->vertical_wheel_counter.wheel_multiplier = multiplier;
-+	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_HI_RES_WHEEL) {
-+		hidpp->hires_wheel_has_invert = has_invert;
-+		hidpp_hrw_update_wheel_mode(hidpp, false, true);
-+	}
- 	hid_dbg(hidpp->hid_dev, "wheel multiplier = %d\n", multiplier);
- 	return 0;
- }
-@@ -3975,6 +4033,10 @@ static int hidpp_initialize_hires_scroll(struct hidpp_device *hidpp)
- 	return 0;
- }
- 
-+/*
-+ * The low nibble of data[3] is the software ID: 0 for wheel
-+ * notifications, nonzero and echoed from the request for replies.
-+ */
- static int hidpp20_hires_wheel_raw_event(struct hidpp_device *hidpp,
- 						u8 *data, int size)
- {
-@@ -3988,12 +4050,47 @@ static int hidpp20_hires_wheel_raw_event(struct hidpp_device *hidpp,
- 	    data[2] != hidpp->hires_wheel_feature_index)
- 		return 0;
- 
-+	/* This checks only the function nibble, not software ID, so in theory
-+	 * an event with ID 0x20 would also apply here, but there is none in
-+	 * the 0x2121 specification.
-+	 */
- 	if ((data[3] & 0xf0) == CMD_HIRES_WHEEL_SET_WHEEL_MODE) {
- 		u8 mode = data[4];
--		bool hires = (mode & 0x02) != 0;
--		int new_multiplier = (hires && hidpp->hires_wheel_multiplier > 0)
--			? hidpp->hires_wheel_multiplier : 1;
--		hidpp->vertical_wheel_counter.wheel_multiplier = new_multiplier;
-+
-+		hidpp_hrw_update_wheel_mode(hidpp,
-+			mode & HIRES_WHEEL_MODE_INVERT,
-+			mode & HIRES_WHEEL_MODE_HIGH_RESOLUTION);
-+		return 1;
-+	}
-+
-+	/* Match wheelMovement (function 0, software ID 0). */
-+	if (data[3] == EVENT_HIRES_WHEEL_MOVEMENT) {
-+		int delta;
-+
-+		if (size < 7 || !hidpp->input ||
-+		    hidpp->hires_wheel_multiplier <= 0)
-+			return 1;
-+
-+		/* The event flag describes whether the event is high resolution
-+		 * or not.
-+		 */
-+		hidpp->vertical_wheel_counter.wheel_multiplier =
-+			(data[4] & HIRES_WHEEL_EVENT_HIGH_RESOLUTION) ?
-+			hidpp->hires_wheel_multiplier : 1;
-+
-+		delta = (s16)get_unaligned_be16(&data[5]);
-+		if (!delta)
-+			return 1;
-+
-+		/* HID++ 2.0 does not invert scroll regardless of setting,
-+		 * hence do so in driver
-+		 */
-+		if (hidpp->hires_wheel_has_invert && hidpp->hires_wheel_invert)
-+			delta = -delta;
-+
-+		hidpp_scroll_counter_handle_scroll(hidpp->input,
-+			&hidpp->vertical_wheel_counter, delta);
-+		input_sync(hidpp->input);
- 		return 1;
+ 	remainder = counter->remainder;
+ 	direction = hi_res_value > 0 ? 1 : -1;
+@@ -599,10 +625,11 @@ static void hidpp_scroll_counter_handle_scroll(struct input_dev *input_dev,
+ 		low_res_value = remainder / 120;
+ 		if (low_res_value == 0)
+ 			low_res_value = (hi_res_value > 0 ? 1 : -1);
+-		input_report_rel(input_dev, REL_WHEEL, low_res_value);
++		input_report_rel(input_dev, low_res_code, low_res_value);
+ 		remainder -= low_res_value * 120;
  	}
- 
-@@ -4295,7 +4392,7 @@ static int hidpp_event(struct hid_device *hdev, struct hid_field *field,
- 	/* A scroll event may occur before the multiplier has been retrieved or
- 	 * the input device set, or high-res scroll enabling may fail. In such
- 	 * cases we must return early (falling back to default behaviour) to
--	 * avoid a crash in hidpp_scroll_counter_handle_scroll.
-+	 * avoid consuming an event that we cannot scale.
- 	 */
- 	if (!(hidpp->capabilities & HIDPP_CAPABILITY_HI_RES_SCROLL)
- 	    || value == 0 || hidpp->input == NULL
-@@ -4404,8 +4501,37 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 	return ret;
+ 	counter->remainder = remainder;
++	return true;
  }
  
-+static int hidpp_bolt_init(struct hidpp_device *hidpp)
+ /* -------------------------------------------------------------------------- */
+@@ -2104,6 +2131,47 @@ static int hidpp_hrw_set_wheel_mode(struct hidpp_device *hidpp, bool invert,
+ 					   params, sizeof(params), &response);
+ }
+ 
++/* -------------------------------------------------------------------------- */
++/* 0x2150: Thumbwheel                                                         */
++/* -------------------------------------------------------------------------- */
++
++#define HIDPP_PAGE_THUMBWHEEL			0x2150
++#define CMD_THUMBWHEEL_GET_INFO			0x00
++#define CMD_THUMBWHEEL_SET_REPORTING		0x20
++#define EVENT_THUMBWHEEL			0x00
++
++static int hidpp_thumbwheel_get_info(struct hidpp_device *hidpp,
++				    u16 *native_res, u16 *diverted_res,
++				    bool *positive_right)
 +{
-+	struct hid_device *hdev = hidpp->hid_dev;
-+	char *name;
++	struct hidpp_report response;
 +	int ret;
 +
-+	ret = hidpp_serial_init(hidpp);
++	ret = hidpp_send_fap_command_sync(hidpp,
++					  hidpp->thumbwheel_feature_index,
++					  CMD_THUMBWHEEL_GET_INFO,
++					  NULL, 0, &response);
 +	if (ret)
 +		return ret;
 +
-+	name = hidpp_get_device_name(hidpp);
-+	if (!name)
-+		return -EIO;
-+
-+	snprintf(hdev->name, sizeof(hdev->name), "%s", name);
-+	dbg_hid("HID++ Bolt: Got name: %s\n", name);
-+
-+	kfree(name);
++	*native_res = get_unaligned_be16(&response.fap.params[0]);
++	*diverted_res = get_unaligned_be16(&response.fap.params[2]);
++	*positive_right = response.fap.params[4] & BIT(0);
 +	return 0;
 +}
 +
-+static int hidpp_receiver_init(struct hidpp_device *hidpp)
++static int hidpp_thumbwheel_set_reporting(struct hidpp_device *hidpp,
++					 bool diverted)
 +{
-+	if (hidpp_is_bolt_child(hidpp->hid_dev))
-+		return hidpp_bolt_init(hidpp);
++	struct hidpp_report response;
++	u8 params[2] = { diverted, 0 }; /* No inversion. */
 +
-+	return hidpp_unifying_init(hidpp);
++	return hidpp_send_fap_command_sync(hidpp,
++					   hidpp->thumbwheel_feature_index,
++					   CMD_THUMBWHEEL_SET_REPORTING,
++					   params, sizeof(params), &response);
 +}
 +
- /* Get name + serial for USB and Bluetooth HID++ devices */
--static void hidpp_non_unifying_init(struct hidpp_device *hidpp)
-+static void hidpp_non_receiver_init(struct hidpp_device *hidpp)
+ /* -------------------------------------------------------------------------- */
+ /* 0x4301: Solar Keyboard                                                     */
+ /* -------------------------------------------------------------------------- */
+@@ -3323,7 +3391,8 @@ static int m560_raw_event(struct hid_device *hdev, u8 *data, int size)
+ 		v = sign_extend32(data[6], 7);
+ 		if (v != 0)
+ 			hidpp_scroll_counter_handle_scroll(hidpp->input,
+-					&hidpp->vertical_wheel_counter, v);
++					&hidpp->vertical_wheel_counter, v,
++					REL_WHEEL_HI_RES, REL_WHEEL);
+ 
+ 		input_sync(hidpp->input);
+ 	}
+@@ -3931,7 +4000,8 @@ static void hidpp_hrw_update_wheel_mode(struct hidpp_device *hidpp,
+ 	bool invert, bool high_resolution)
  {
- 	struct hid_device *hdev = hidpp->hid_dev;
- 	char *name;
-@@ -4757,9 +4883,9 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	hidpp->hires_wheel_invert = invert;
+-	hidpp->vertical_wheel_counter.wheel_multiplier =
++	hidpp->vertical_wheel_counter.scale_numerator = 1;
++	hidpp->vertical_wheel_counter.scale_denominator =
+ 		(high_resolution && hidpp->hires_wheel_multiplier > 0) ?
+ 		hidpp->hires_wheel_multiplier : 1;
+ }
+@@ -3986,10 +4056,12 @@ static int hi_res_scroll_enable(struct hidpp_device *hidpp)
+ 	}
  
- 	/* Get name + serial, store in hdev->name + hdev->uniq */
- 	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
--		hidpp_unifying_init(hidpp);
-+		hidpp_receiver_init(hidpp);
- 	else
--		hidpp_non_unifying_init(hidpp);
-+		hidpp_non_receiver_init(hidpp);
+ 	hidpp->hires_wheel_multiplier = multiplier;
+-	hidpp->vertical_wheel_counter.wheel_multiplier = multiplier;
+ 	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_HI_RES_WHEEL) {
+ 		hidpp->hires_wheel_has_invert = has_invert;
+ 		hidpp_hrw_update_wheel_mode(hidpp, false, true);
++	} else {
++		hidpp->vertical_wheel_counter.scale_numerator = 1;
++		hidpp->vertical_wheel_counter.scale_denominator = multiplier;
+ 	}
+ 	hid_dbg(hidpp->hid_dev, "wheel multiplier = %d\n", multiplier);
+ 	return 0;
+@@ -4033,6 +4105,49 @@ static int hidpp_initialize_hires_scroll(struct hidpp_device *hidpp)
+ 	return 0;
+ }
  
- 	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
- 		connect_mask &= ~HID_CONNECT_HIDINPUT;
++static void thumbwheel_scroll_enable(struct hidpp_device *hidpp)
++{
++	bool divert;
++	int ret;
++
++	memset(&hidpp->thumbwheel_counter, 0,
++	       sizeof(hidpp->thumbwheel_counter));
++	ret = hidpp_thumbwheel_get_info(hidpp,
++			&hidpp->thumbwheel_counter.scale_numerator,
++			&hidpp->thumbwheel_counter.scale_denominator,
++			&hidpp->thumbwheel_positive_right);
++
++	/* Non-Bolt devices should default to native HID. Don't enable HID++ */
++	if (!hidpp_is_bolt_child(hidpp->hid_dev))
++		return;
++
++	/* Divert only when both resolutions are available; otherwise request
++	 * native HID reporting.
++	 */
++	divert = !ret && hidpp->thumbwheel_counter.scale_numerator &&
++		 hidpp->thumbwheel_counter.scale_denominator;
++	ret = hidpp_thumbwheel_set_reporting(hidpp, divert);
++	if (ret)
++		hid_dbg(hidpp->hid_dev,
++			"Could not set thumbwheel reporting mode: %d\n", ret);
++}
++
++static void hidpp_initialize_thumbwheel_scroll(struct hidpp_device *hidpp)
++{
++	int ret;
++
++	hidpp->capabilities &= ~HIDPP_CAPABILITY_HIDPP20_THUMBWHEEL;
++	hidpp->thumbwheel_feature_index = 0xff;
++	if (hidpp->protocol_major < 2)
++		return;
++
++	ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_THUMBWHEEL,
++				     &hidpp->thumbwheel_feature_index);
++	if (ret)
++		return;
++	hidpp->capabilities |= HIDPP_CAPABILITY_HIDPP20_THUMBWHEEL;
++}
++
+ /*
+  * The low nibble of data[3] is the software ID: 0 for wheel
+  * notifications, nonzero and echoed from the request for replies.
+@@ -4074,7 +4189,7 @@ static int hidpp20_hires_wheel_raw_event(struct hidpp_device *hidpp,
+ 		/* The event flag describes whether the event is high resolution
+ 		 * or not.
+ 		 */
+-		hidpp->vertical_wheel_counter.wheel_multiplier =
++		hidpp->vertical_wheel_counter.scale_denominator =
+ 			(data[4] & HIRES_WHEEL_EVENT_HIGH_RESOLUTION) ?
+ 			hidpp->hires_wheel_multiplier : 1;
+ 
+@@ -4088,15 +4203,57 @@ static int hidpp20_hires_wheel_raw_event(struct hidpp_device *hidpp,
+ 		if (hidpp->hires_wheel_has_invert && hidpp->hires_wheel_invert)
+ 			delta = -delta;
+ 
+-		hidpp_scroll_counter_handle_scroll(hidpp->input,
+-			&hidpp->vertical_wheel_counter, delta);
+-		input_sync(hidpp->input);
++		if (hidpp_scroll_counter_handle_scroll(hidpp->input,
++			&hidpp->vertical_wheel_counter, delta,
++			REL_WHEEL_HI_RES, REL_WHEEL))
++			input_sync(hidpp->input);
+ 		return 1;
+ 	}
+ 
+ 	return 0;
+ }
+ 
++static int hidpp20_thumbwheel_raw_event(struct hidpp_device *hidpp,
++					       u8 *data, int size)
++{
++	int delta;
++
++	if (hidpp->thumbwheel_feature_index == 0xff)
++		return 0;
++
++	if (size < 6)
++		return 0;
++
++	if (data[0] != REPORT_ID_HIDPP_LONG ||
++	    data[2] != hidpp->thumbwheel_feature_index)
++		return 0;
++
++	if (data[3] != EVENT_THUMBWHEEL)
++		return 0;
++
++	if (!hidpp->input || !hidpp->thumbwheel_counter.scale_numerator ||
++	    !hidpp->thumbwheel_counter.scale_denominator)
++		return 1;
++
++	/* The specification calls this scroll delta "rotation". The event also
++	 * carries rotation_status, touch, proximity and single_tap data which
++	 * may be exposed in the future.
++	 */
++	delta = (s16)get_unaligned_be16(&data[4]);
++	if (!delta)
++		return 1;
++
++	/* Linux reports left as negative and right as positive. */
++	if (!hidpp->thumbwheel_positive_right)
++		delta = -delta;
++
++	if (hidpp_scroll_counter_handle_scroll(hidpp->input,
++			&hidpp->thumbwheel_counter, delta,
++			REL_HWHEEL_HI_RES, REL_HWHEEL))
++		input_sync(hidpp->input);
++	return 1;
++}
++
+ /* -------------------------------------------------------------------------- */
+ /* Generic HID++ devices                                                      */
+ /* -------------------------------------------------------------------------- */
+@@ -4323,6 +4480,12 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
+ 			return ret;
+ 	}
+ 
++	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_THUMBWHEEL) {
++		ret = hidpp20_thumbwheel_raw_event(hidpp, data, size);
++		if (ret != 0)
++			return ret;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -4396,10 +4559,11 @@ static int hidpp_event(struct hid_device *hdev, struct hid_field *field,
+ 	 */
+ 	if (!(hidpp->capabilities & HIDPP_CAPABILITY_HI_RES_SCROLL)
+ 	    || value == 0 || hidpp->input == NULL
+-	    || counter->wheel_multiplier == 0)
++	    || counter->scale_denominator == 0)
+ 		return 0;
+ 
+-	hidpp_scroll_counter_handle_scroll(hidpp->input, counter, value);
++	hidpp_scroll_counter_handle_scroll(hidpp->input, counter, value,
++					   REL_WHEEL_HI_RES, REL_WHEEL);
+ 	return 1;
+ }
+ 
+@@ -4664,6 +4828,7 @@ static void hidpp_connect_event(struct work_struct *work)
+ 	hidpp_initialize_battery(hidpp);
+ 	if (!hid_is_usb(hidpp->hid_dev))
+ 		hidpp_initialize_hires_scroll(hidpp);
++	hidpp_initialize_thumbwheel_scroll(hidpp);
+ 
+ 	/* forward current battery state */
+ 	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP10_BATTERY) {
+@@ -4687,6 +4852,8 @@ static void hidpp_connect_event(struct work_struct *work)
+ 
+ 	if (hidpp->capabilities & HIDPP_CAPABILITY_HI_RES_SCROLL)
+ 		hi_res_scroll_enable(hidpp);
++	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_THUMBWHEEL)
++		thumbwheel_scroll_enable(hidpp);
+ 
+ 	if (!(hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT) || hidpp->delayed_input)
+ 		/* if the input nodes are already created, we can stop now */
 
 -- 
 2.55.0

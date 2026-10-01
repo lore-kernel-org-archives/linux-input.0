@@ -1,113 +1,130 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+Received: from mail-ej2-f43.google.com (mail-ej2-f43.google.com [74.125.228.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA981483BF1
-	for <linux-input@vger.kernel.org>; Thu,  1 Oct 2026 11:24:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790853862; cv=pass; b=FVlhq7HZw/xiqoA+SbdsAmjNm1G9QVckPCpmcZ9akpppWyhwy5Hlj2NkfWuyfjagR4aq0nySuvs1q1fVt6kevi8C9a4kLVdEqoVXRYn5Cu1zHyxL5iloksmnDzUNe5mYlEsOHosY1zufdGZuA/wh3w8RtBNgJkuwKg+UXgw+dCU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790853862; c=relaxed/simple;
-	bh=MjakQU0TJ7fnlpf+s4YZ/yOnBdEhv1DXExJ6Ugw6CEI=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=aFe8LZhsISMB0L8w5BW7AQEJ4qnceb6zao5VJBVH7zGKPWRYRl4F45a0EkWIjzyrQy5q0kSGXF4WKklamoDsQQPdWka5MOkRfza7WeAKsJ0PQNaC/1RX8rza0REPyj33SNXZJR1COvmxe5E/KsSgBrbLPYEafctUdEvvjfMgznU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sd6bAuKm; arc=pass smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C4AD44F562
+	for <linux-input@vger.kernel.org>; Thu,  1 Oct 2026 12:38:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.171
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790858336; cv=none; b=s7gpwafDcMXJyxSoQ2axFvcYVytngEM0SokjxNMJDNanAB6vt8DcS+wJhNoECtuSbr04LjCigGSPN2u4PYgi+LlbdGK/8NyufXyjnDJb35pwjy3MUlKZp2rxKTIeRbyI1xIQdtysKu4pDygQq/gDVgecAwZAsH91YADzBTvODCA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790858336; c=relaxed/simple;
+	bh=LH7NORxv66FEX3jWbIOrRO/sqHn5Y0T6wUJ1L0gRjAc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=WaZgDcczTNC664eftjN7NXdiE3cZKYutsqYSZH0NQQOnf7WTdYneSWYSl0ZXIumtlPKEPut0/UdAh/8ycLJIw64/cPLpeQ4nh/GZFLcj+tZBUCM+ame8C0R4fh4J7obBWuXrxg0zUp/imdsGZpbjgrJbKQjCnDGZl3yloTkavwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com; spf=pass smtp.mailfrom=fairphone.com; dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b=20SdLa7/; arc=none smtp.client-ip=74.125.228.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fairphone.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fairphone.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sd6bAuKm"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6acb9c018ffso880133a12.1
-        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2026 04:24:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790853859; cv=none;
-        d=google.com; s=arc-20260327;
-        b=FIgEfX8uD7HcopE09iF9cCalH8pTlmRMgAdkxOaeUBlFtNEVEyu9UfOwG4HV99OzIE
-         PgJhaN/OzVgYSABwcp2GcZgfKKlTvlHIQwoWueFW0dXyy0F/HvFIqfdaubUnhJF8OHD8
-         ht/csnJXh1+lCfXVEXfyn74FIWa0FNqQHj9XrCKf0+FeOn1CLxAcLr1E476KuV1TX1R5
-         Ulwr/a7wF2P2mnoDoAmuO9tUi99yAjk2uFeBwNGsjNJs26Hb7HYZH49GLdnPY3q3bv2X
-         Q6CdvSmDOzi5s3nG4l2cfXtX/WaxySIh3IlEijKqkcxiBLHY0swaJO/QiZ2uSoZ3D5Jt
-         UsnA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=zU+Cj6MAZUAjJAd7DyWi5yjqQ6RKzbmURqdto4PSCZ8=;
-        fh=5AYZXPjzKY78uu6UY+idlrKrRwayhAU1vb8FiZuLBv4=;
-        b=UAMPU2UliYv9fFfbbJf/uaeBmQ7SO65hWV7hhZEIWZKJtuB7KhHRgcy/6nZRGcPguO
-         De8Iq4b1+3wy29duablCVrGp1DgV+DXOtKVB2GpPoEbGnfaebLcRNaenrp8CUhGUxSM1
-         LLvoKcaLxT7pjIrJc2vMgI6+uM5BZnFIo0cS08CTgeI3vrZayLaRXn2PFqbGC51vYzzT
-         RP7+6d1Me55zE1VVvxQ3HntLC5Ex2Swb5gD6VyLqI/2NQrgqwsMvcvVf/LWE0TyoTv61
-         2XOUVI3D1i25LloUOKZvHO9iQLxE0TZFRo/BRkAAGwe22CWRTrquPYvU7Y47x11i8kKX
-         neOg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=fairphone.com header.i=@fairphone.com header.b="20SdLa7/"
+Received: by mail-ej2-f43.google.com with SMTP id a640c23a62f3a-c2e2050feb1so312769466b.1
+        for <linux-input@vger.kernel.org>; Thu, 01 Oct 2026 05:38:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790853859; x=1791458659; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=zU+Cj6MAZUAjJAd7DyWi5yjqQ6RKzbmURqdto4PSCZ8=;
-        b=sd6bAuKmKTt8TADJLteKx/cpZjp1gUSFnf/QjdoTll1tofLGe70ox8i6QLiLCvXmFh
-         ScONl4zF9Kq0O5Hdlhrxy6pgL1yt7CMEsG77B4NjCWknag4U/rWN+8l46Zj54oYDKEya
-         jp6WLnT0PxCN0u0mL0od2DCeNPMk+VJkOutnWowjHSKYhn2XvD7SzZBjlAkZnNJ/zQ0N
-         zFm8ysXupXCLTEWSFJDXSPVbr0hS1+f30Mo4f9xQKcZpCAEJ8rEptvrRUs1Bnr+vf6fT
-         oJJu0QSNLeAfcLQgwbtmB+LHoD9ORmXOhFkpEWdmtlgX6cPkVWDd4YXa4yRRvS5ofgZU
-         BEoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790853859; x=1791458659;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=fairphone.com; s=fair; t=1790858332; x=1791463132; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=zU+Cj6MAZUAjJAd7DyWi5yjqQ6RKzbmURqdto4PSCZ8=;
-        b=kbw4kh9leKf4Wz4+5Oq2O645ebcwnwPBSt4EzsTFbCWaI9C23Sm9ZmzKmiYaFBggFz
-         guV1eVIBn+sNYcX4LEQsNoC2ct9frF9yQ+N+KDCWMiSY7Uw8SRQrh0/eqLbrAVlzN81O
-         Xzh10rTm8ONMG3vSHHdakd78TSa2oQERUyCzbtKtYKyBtEGr9EM731GKDYUIG5Myl0WI
-         ga30WVR4oi2mlmKywWtplMFpZD2U+2GWcpqB8QNJKha5J2SW7fYG96Id5jn0KK6nvW5z
-         IJy4jhEJ/2FveKxmuat72hqVVumlRniuCa+VU7vGAyJnKyrp9+wMOWbkXGi85vDSISfm
-         x7ZA==
-X-Gm-Message-State: AFq9FYKnol968nGUMQAebnHtjzRVvZnms6Er8lR0IK68vIseE0STQRZE
-	5N0d6vkAXTG5NJG43m8j29H79ixOFsWXr84UumhfywQwJrgbtUQ81zdUcBUnfquN7/REB14MpiV
-	HRUoXad1HhgJ9RO9AXy16A0AY0f9iQsDiz91w
-X-Gm-Gg: AYBFou214Rz7QGudYOq2ePNzNZTWVrAnkH23Yc1LJM1Ggt4z1axnpfoWvqdiyu+xiUS
-	3jxX01AV4dss1cNHGwXY8RebAeB8RxryG8fYMFsWU0YzrJNYnn48T2uWf48gxlPYlnNf2TndTht
-	EZc9HTiVDXYv/yn3mVwHhy+MB6VAUh2F2HWuzm4hSC94Cvk+6104iAJZoj0G5fUCdPoyfx9VjeJ
-	cAzV8upLA2pFIdlyz3/opIdaaGncaClHAUlNWTqDTf+iTRAhcB404UwUJwvtqhLJ1ffzrs1m2G8
-	sjCx/ZmRhyRK5nRHQfWrbShYGBV9K88DRaunCw5etDOGD85mqFa7A3Q+oCanKp/Zj5CrXaMxe5G
-	igbXzGt2QZqo=
-X-Received: by 2002:a05:6402:5165:b0:6a9:8863:ada4 with SMTP id
- 4fb4d7f45d1cf-6ae307e5667mr1521584a12.3.1790853858765; Thu, 01 Oct 2026
- 04:24:18 -0700 (PDT)
+        bh=OUyuclWQzI//VqLPH9CkNGa/oPcpJlozfgVYmGJRkxg=;
+        b=20SdLa7/20FjJtCT9zY2doakqfF+431cVDD/as7w5VVDZGsKq03i3V+N+XDlz8vj38
+         mwSQMe+ZerQqLcIK9Obr//n8k2ynXnWcjQMfr4EaAsLsb/pL3EMGIrdCKPNtinDMCr8h
+         j7eEQhYSwwIOWu7w9U/+DXBEd5Xow7afwcke0GiuALjEm2vLOUu8gJ5eI4EOdEUKwwNX
+         w2t2MnriuuT2c8wFU79rmYAh9Y4CrPBya9eNW4X3HoK9nq7ZuZA6JWaM8kSCJ+xGB+i9
+         qcevUqnSwyAKhTCb2ZTD3HUxHmm8VeBoeCnkZAdmSKRXjMfxOJXQQCIvSn1oFDDR+su6
+         qFwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790858332; x=1791463132;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=OUyuclWQzI//VqLPH9CkNGa/oPcpJlozfgVYmGJRkxg=;
+        b=EIWCrziWOmKpqWW7BqsByt+nY7D1tLGaeH/JLhtQI+n0hCshMHCMfs4op9dI3wnmmk
+         4Dzxc/vnukdLenggStWmbbPZI0NTMnBWOYQ48nS+DoKp5hYipnFEobpnLsD0bHluKEXY
+         M+yXRyVecFPQ3bo7aV6RHTnangZZhK5pwIa1cS60/m62Wg1mwdctEY35Pa5inkteo3RS
+         +vBNvtd7dsRi8vkGeYtFp/r+MstxziFZ8bYZx3AyOPqpcnehMHh+L4n5RUa/zGQ7W31d
+         88ZbKOKxoF4/IT7Hzo5+kqYy9OxPxPZh5cn44Ky9qK09+w77Tfqq5lIIx2nBYjKTCiF6
+         iQlw==
+X-Gm-Message-State: AFuF++nnKeohI3WJGE7zsH8dgn/s4E13gWs0oFHQ7TT3USQp4/F3AQOp
+	TkFN1nE1YhtGq5xQGG2rzOtZ+XKbABOuqVRU6FQVNWliuT40R4x5L31GYX9LF0VrYBU=
+X-Gm-Gg: AYBFou1rVruQIEWNgmHCbpp2BgJpiHHG6M0350mFIneafAjRuXyEW7cedznDmyA3QOV
+	4T9D4h3TRUvsu6fTddMpyAjAj+7z2dKvFUw/DlQQy2pZuGjUD2z0giZvNMjnzBF85PpLLY1V5ni
+	4+ORd/Efv2vdDksModv8SFlYVaWBWKf9MXA3CygsXmHmoM+6gqSYpRLRhLmmMuhXoJpcPuJ8FSl
+	ReXeDuzG/MP/x6dwOPwIjNvCWxaIym5hySshTJlRjPwDj8WhAVLTzjJY6zuJnHhI9OtVNhYdIkT
+	NtM1CNMwfEY79JGpvYSvs5IKAMCJYcOEvAGbLwdUhNdn5KIDCxPzjrlMMRuGR4E9z8Z3w4A4W6W
+	EkjYTwpQfnZFdqPI48GZMtRPuFQAm49Ld2cuKn09SXUIoQJfu4/D+5BOO9gqCpJyy59cBxh02+g
+	t1i0vjdkMSDfExqK+UcB6EYtZlbbtrJoDYBSCZ1i7tNFDR1Mg7Zv8E1vkPI+9u3/bcbKiblQWHJ
+	aLRXZFLwR+oyUrdGQnkJi/r9w39ZrPDNpBN+zFglEAwA/+Ns52+XREF
+X-Received: by 2002:a17:907:720a:b0:c29:6136:9f66 with SMTP id a640c23a62f3a-c2e23ca277dmr381283966b.14.1790858332210;
+        Thu, 01 Oct 2026 05:38:52 -0700 (PDT)
+Received: from [172.16.220.225] (144-178-202-138.static.ef-service.nl. [144.178.202.138])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c2e31c8ee1fsm150346766b.24.2026.10.01.05.38.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 01 Oct 2026 05:38:51 -0700 (PDT)
+From: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Subject: [PATCH v2 0/3] AW8695 haptic driver.
+Date: Thu, 01 Oct 2026 14:38:49 +0200
+Message-Id: <20261001-aw8695_haptic_fp4_driver-v2-0-1bd38b1943de@fairphone.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Maurizio De Santis <desantis.maurizio@gmail.com>
-Date: Thu, 1 Oct 2026 13:24:06 +0200
-X-Gm-Features: AclHuK_-C81vMJeUlWVixPxv7I4f8jei6XYt9NRQ5nky4WspLVzbifEEz8SRozk
-Message-ID: <CA+_M_JdzQe-zW84nqc0R=oYC_WtLz6zOt43Uk0ZAYE4-6Fmhwg@mail.gmail.com>
-Subject: Re: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3 14IWC11
-To: hdegoede@redhat.com, iustinivan2002@gmail.com
-Cc: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFpUvmoC/3WOyw6CMBBFf4XM2hLKo6Ws/A9DSIVBZiHgFKuG8
+ O9WWLs8k3vnnhUcMqGDKlqB0ZOjaQyQniJoBzveUFAXGNIkVYmWSthXqUzRDHZeqG36OW86Jo8
+ sMqPzTKLRKish1GfGnt7760t9MOPjGRaW4whX61C00/1OSxV5HWeC2wJ+2YHcMvFnt/JyD+8CR
+ ub/BbwUiZCF6nWRh6Cx594Sz8M0YhxWoN627Qv3dkoT8AAAAA==
+X-Change-ID: 20260716-aw8695_haptic_fp4_driver-397431e97638
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Luca Weiss <luca.weiss@fairphone.com>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+ Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1790858331; l=1438;
+ i=griffin.kroah@fairphone.com; s=20250804; h=from:subject:message-id;
+ bh=LH7NORxv66FEX3jWbIOrRO/sqHn5Y0T6wUJ1L0gRjAc=;
+ b=EnZLRLKhoakjdmWYHztx8sNsElJOrI+eqDJC8ddS0p31KWyRFj0dzH7nU9U511OQ/Yr0lhH+X
+ BCjRVrfoRnTD1pbn+C3jVQcqzyZBrBQBGkf+qNklvlPKNODC09i5+V/
+X-Developer-Key: i=griffin.kroah@fairphone.com; a=ed25519;
+ pk=drSBvqKFiR+xucmLWONHSq/wGrW+YvcVtBXFYnYzn8U=
 
-Hi,
+Clean-up of the aw8695 haptic driver patchset that was sent in 2022.
+Variables dependant on devicetree have been hardcoded, and unnecessary
+functions have been removed.
 
-I am reporting a regression regarding the recent atkbd_deactivate_fixup
-quirk.
+Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+---
+Changes in v2:
+- Added power management.
+- Reformatted DTB schema.
+- Removed unnecessary IRQ dev_dbg messages.
+- Changed reset pin bias to pull-up.
+- Changed error handling to reflect subsystem style guidelines.
+- Link to v1: https://lore.kernel.org/r/20260914-aw8695_haptic_fp4_driver-v1-0-156f7549149a@fairphone.com
 
-- BIOS U2CN19WW: The quirk (and atkbd.skip_deactivate=1) worked perfectly.
-  Keyboard functional, CapsLock LED working.
+---
+Griffin Kroah-Hartman (1):
+      dt-bindings: input: Add compatibility for Awinic AW8695
 
-- BIOS U2CN24WW (latest vendor update): The quirk no longer works.
-  The internal keyboard freezes completely at boot (except for some
-function keys).
+Luca Weiss (2):
+      Input - aw8695: Add driver for AW8695 haptics
+      arm64: dts: qcom: sm7225-fairphone-fp4: Add AW8695 haptics
 
-Tested combinations via GRUB on U2CN24WW:
-- atkbd.skip_deactivate=1 (fails)
-- atkbd.skip_deactivate=1 i8042.nopnp=1 i8042.reset=1 (fails)
-- atkbd.skip_deactivate=1 i8042.direct=1 i8042.dumbkbd=0 (fails)
-- i8042.nopnp=1 pci=nocrs atkbd.skip_deactivate=1 (fails, causes boot crash)
-- i8042.nopnp=1 atkbd.skip_deactivate=1 button.lid_init_state=open (fails)
+ .../devicetree/bindings/input/awinic,aw86927.yaml  |   5 +-
+ arch/arm64/boot/dts/qcom/sm7225-fairphone-fp4.dts  |  26 +-
+ drivers/input/misc/Kconfig                         |  11 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/aw8695.c                        | 803 +++++++++++++++++++++
+ 5 files changed, 844 insertions(+), 2 deletions(-)
+---
+base-commit: 5a956dde5526a634dca7ccad27c051ebcc306089
+change-id: 20260716-aw8695_haptic_fp4_driver-397431e97638
 
-The only way to get the keyboard working on U2CN24WW is falling back to
-'i8042.dumbkbd=1 atkbd.softrepeat=1', which disables the CapsLock LED again.
+Best regards,
+-- 
+Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
 
-Regards,
-Maurizio

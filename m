@@ -1,199 +1,234 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.savoirfairelinux.com (mail.savoirfairelinux.com [208.88.110.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF0AB39D6DD;
-	Fri,  2 Oct 2026 18:37:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A1D53AEF24;
+	Fri,  2 Oct 2026 18:42:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=208.88.110.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790966274; cv=none; b=U3Y1D32ibWeZ5jCNrThypc2Pk13C6T9sXXVk5Qo4ZHf20+Z7kWSOK7uIsTUdqpUoZVoCPfOEQwvTfrfzUSD/0HDAkYu6r+BtkFz8+yfnjaPA1w1+LxmcsxG9ohnyS/YX+LDjsRufH6vf3K5uygTrbQbcPnPIxF9JJdeoWLDPwIE=
+	t=1790966541; cv=none; b=O6hdOG6ramQs9d+Lc+CAEJ3Q9gJTL5qKJkH3vHHWjvz0/5ow8gL4Gr7KWImXBO0XleNgK6ZUc8QBqNKkwG039JqeF3S4t3sQE8MfdHZ98sIncAlNfxzR3FUq8KasBv7loTKzX5f3Yq7aA1f3MgAdkaNX75Dzfp4I20BFwyaE5/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790966274; c=relaxed/simple;
-	bh=ldwGc4g4rdpXemZLNZitsJ1Klj/xYUzGc7QiOYMjCXg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=K75yshqMO1bW472dio2eSDQ30BH/2o4GdVpPKGO2Urk/JssfPej+0iTev9q7mUJ9qvR5Tv/kxCbAfCtOsFKxqS6yVI+rvz6F/ZOIrJp/oMdz6tHOtpDzbcbpX3a/GaMX/H62WkLVdOW1WRSFiGgMT9Ga23tN7dl5dUk98tz080A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZzfirRRm; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1790966541; c=relaxed/simple;
+	bh=oisXcTJ9rN/JqV4S6YhuiOPIB3Nlgae9GHCl6jZn288=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=UcSKWpy0pyyOYAoLx65ilzs3mg8F7G8HlB5c0/WIcOWcybEcJkYQUogoebzmkqX05UUAPfjkwFx+Rio1O6uop1yJuy+ntg3YAmNXww/ZfTrw2hI9OoGwBZYmF41mtbIHDcrr6pihIN94LS3+211cLyLotzTtS1VdZ0OL5Mlj564=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=savoirfairelinux.com; spf=none smtp.mailfrom=mail.savoirfairelinux.com; dkim=pass (2048-bit key) header.d=savoirfairelinux.com header.i=@savoirfairelinux.com header.b=Roh0qCjg; arc=none smtp.client-ip=208.88.110.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=savoirfairelinux.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=mail.savoirfairelinux.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZzfirRRm"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 90FABC2BCF4;
-	Fri,  2 Oct 2026 18:37:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1790966274;
-	bh=ldwGc4g4rdpXemZLNZitsJ1Klj/xYUzGc7QiOYMjCXg=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=ZzfirRRmdGhC4FoSeBuqRevuIJ1tL84QfUHlXX7l8E57VBM2DkMb7OMOS90H7Ydhs
-	 fXxRGVZvNiJTdPA7F2jAnAzFW4Kr8toBsnXan1OXyqH6qr4GMsypl7lBeNSmyQtHTu
-	 SdttNMYpYcnqAuNYrGgW/9/AcKz8lc3xHzpBwSNfKsJSpad1cs0xe1ACQ96geHacE9
-	 nALNVUsjwkxC3q7rSjuzaZ76KWjXGtWei9hF5m+zDvrmK2t/0Fa5f3ECfEF0zW32aX
-	 074CsxvgWBsCutcC1mT7eoQYD43im9/q4Igwh4qKYPbIZWvtP+sqVyljVCgVR34UIy
-	 8Cz9/UWvtqGCA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D0F4CA5FE0;
-	Fri,  2 Oct 2026 18:37:54 +0000 (UTC)
-From: DMS via B4 Relay <devnull+dms3studio.gmail.com@kernel.org>
-Date: Fri, 02 Oct 2026 11:37:42 -0700
-Subject: [PATCH] HID: i2c-hid: add quirk to send initial output reports for
- Acer SFA14-I31
+	dkim=pass (2048-bit key) header.d=savoirfairelinux.com header.i=@savoirfairelinux.com header.b="Roh0qCjg"
+Received: from localhost (localhost [127.0.0.1])
+	by mail.savoirfairelinux.com (Postfix) with ESMTP id BBCE03D81839;
+	Fri,  2 Oct 2026 14:35:42 -0400 (EDT)
+Received: from mail.savoirfairelinux.com ([127.0.0.1])
+ by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavis, port 10032)
+ with ESMTP id 06V3Hts8TVfr; Fri,  2 Oct 2026 14:35:41 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+	by mail.savoirfairelinux.com (Postfix) with ESMTP id 2BD553D81846;
+	Fri,  2 Oct 2026 14:35:41 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.savoirfairelinux.com 2BD553D81846
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=savoirfairelinux.com; s=DFC430D2-D198-11EC-948E-34200CB392D2;
+	t=1790966141; bh=ocWsfnL4ZNF9F/ibmOKh10OnqNUAfFtCOc+pug7u1EQ=;
+	h=From:To:Date:Message-Id:MIME-Version;
+	b=Roh0qCjgWQw49srJRpXpQ8FP+vlu4ZI06Y0/BFGDKlrvsAL0hDwbO2z8jQM2iB4u0
+	 qBr0BD/znA+p8y5pTgEfBrNOJ1mWbke+RqlOwf9qeLFzBriezsXL7mXipTaNLjudlR
+	 i0aD3nZGQ7H9M/3LdMxkZ+JIKT5pDW7EhdqapuFbeMkZzcHDWJd0ojGu/kjLzb92FD
+	 DBuXh5weHLZQ0flfSDaHlHdDHV0CREPEItjpubj5xHvGqA2Ws5fy6o0RqhqCrcaaRu
+	 rESwMMj90idVXMo68uu/HyjB1bVWsgVugcTRG/zdDVNfJeO091/QHCj63xuHM9NxyX
+	 9uiZUBuVZLXHA==
+X-Virus-Scanned: amavis at mail.savoirfairelinux.com
+Received: from mail.savoirfairelinux.com ([127.0.0.1])
+ by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavis, port 10026)
+ with ESMTP id 7CYMOHAZ22RR; Fri,  2 Oct 2026 14:35:41 -0400 (EDT)
+Received: from localhost (unknown [192.168.51.254])
+	by mail.savoirfairelinux.com (Postfix) with ESMTPSA id E0A363D815B9;
+	Fri,  2 Oct 2026 14:35:40 -0400 (EDT)
+From: Marc-Olivier Champagne <marc-olivier.champagne@savoirfairelinux.com>
+To: Linus Walleij <linusw@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Maxime Ripard <mripard@kernel.org>,
+	=?UTF-8?q?Myl=C3=A8ne=20Josserand?= <mylene.josserand@bootlin.com>,
+	Alistair Francis <alistair@alistair23.me>,
+	Hugo Villeneuve <hvilleneuve@dimonoff.com>,
+	Marc-Olivier Champagne <marc-olivier.champagne@savoirfairelinux.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Jerome Oufella <jerome.oufella@savoirfairelinux.com>,
+	Felix Boucher <felix.boucher@savoirfairelinux.com>,
+	Quentin Lehoux <quentin.lehoux@savoirfairelinux.com>
+Subject: [PATCH 2/3] Input: cyttsp5 - init IRQ early to avoid app startup problems
+Date: Fri,  2 Oct 2026 14:35:28 -0400
+Message-Id: <20261002183529.166248-3-marc-olivier.champagne@savoirfairelinux.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20261002183529.166248-1-marc-olivier.champagne@savoirfairelinux.com>
+References: <20261002183529.166248-1-marc-olivier.champagne@savoirfairelinux.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261002-swift-sfa14-kbd-v1-1-ad312bca1076@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMMQ6DMAxA0asgz7WURJChV0EdQmKDqQRVDLQS4
- u4EOr7h/x2UspDCs9oh0yYq81RgHxXEIUw9oaRicMZ5a4xD/QovqBxsje8uoQ1MyTfEjXdQqk8
- mlt99bF9/69qNFJdrA8dxApEjuO9zAAAA
-X-Change-ID: 20261002-swift-sfa14-kbd-1afed65ef562
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- DMS <dms3studio@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1790966274; l=5013;
- i=dms3studio@gmail.com; s=20261002; h=from:subject:message-id;
- bh=u1O1iFC2D7Dw2S1dibG8iHZiy30p8p5HSOsHgNyzOWM=;
- b=aT7+qGPM9y8ZN7KzP5Qqww6C/qUObvRTJ7G6tMmWekK8O8RY4aLdrSpdcvuQI6MV5jRqTCVX3
- sW2Vnu/nywtDTbk9YUy4FbtpDoAkVy1fabteZQasx0pks91y2/Jk7Ts
-X-Developer-Key: i=dms3studio@gmail.com; a=ed25519;
- pk=iEKXvjgvX82Pm5Lmco/mZzbmqo1aPwVXtxvX4fpbgNE=
-X-Endpoint-Received: by B4 Relay for dms3studio@gmail.com/20261002 with
- auth_id=1102
-X-Original-From: DMS <dms3studio@gmail.com>
-Reply-To: dms3studio@gmail.com
+Content-Transfer-Encoding: quoted-printable
 
-From: DMS <dms3studio@gmail.com>
+Sometimes, the driver reports an error when trying to start the
+application.
 
-The internal keyboard of the Acer Swift Air 14 (SFA14-I31, ACPI
-1025174B, HID 049f:5343) does not send any input reports after probe.
-It stays silent, and its GPIO interrupt never fires, until the host has
-written an output report to it at least once.
+After a reset, the bootloader will assert the interrupt pin to indicate
+when it is ready to communicate with the host; on our hardware this
+happens about 3.4 ms after the reset line is released. But since
+cyttsp5_probe() configures the IRQ and then immediately jumps to
+cyttsp5_startup(), there is a chance that the interrupt pin assertion
+can happen at around the same time that we try to deassert it by
+calling cyttsp5_deassert_int().
 
-The input core only forwards LED state to the device when it changes.
-All LEDs start off, so no output report is written at boot and the
-keyboard is unusable until the first suspend/resume cycle, where
-input_dev_toggle() re-sends the LED state unconditionally. Closing and
-opening the lid is the only way to get a working keyboard.
+Initializing the IRQ while the reset pin is asserted ensures that this
+first interrupt is handled by cyttsp5_handle_irq(), which deasserts the
+interrupt pin by reading the input buffer. Therefore, calling
+cyttsp5_deassert_int() is no longer needed in that case.
 
-Add I2C_HID_QUIRK_INIT_OUTPUT_REPORTS, which sends every output report
-once with its initial field values right after the HID device has been
-added, and enable it for this keyboard.
+However, when cyttsp5_handle_irq() has processed that first interrupt,
+it has set the cmd_done completion. Because of that, the launch
+application command would complete before its own response has been
+received. Instead of sleeping a fixed 20 ms and hoping the reset
+sentinel has already been received, wait for it explicitly after
+releasing the reset line, so that its completion is consumed before the
+first command is sent.
 
-Tested on an SFA14-I31 (BIOS V1.01) with a 7.2.8 kernel and this change
-applied to i2c-hid as a module: the keyboard works from boot without a
-suspend/resume cycle, and suspend/resume keeps working. Without it,
-writing the LED output report by hand (i2ctransfer) or toggling the
-capslock LED through sysfs has the same effect, while resetting or
-re-powering the device does not. This version, rebased on hid.git
-for-next, was build-tested only.
+Without a reset line, the device may still be powering up if enabling
+the regulators turned it on, or may already be running, and the reset
+sentinel may have been raised before the IRQ was requested. Keep the
+20 ms delay and the cyttsp5_deassert_int() call in that case, then wait
+for the interrupt handler to finish and drop the completion it may have
+set, so that the sentinel does not complete the first command either
+way.
 
-Assisted-by: LLM
-Signed-off-by: DMS <dms3studio@gmail.com>
+This relies on the previous patch, which makes cyttsp5_handle_irq()
+reliably identify the reset sentinel.
+
+Fixes: 5b0c03e24a06 ("Input: Add driver for Cypress Generation 5 touchscr=
+een")
+Cc: stable@vger.kernel.org
+Suggested-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+Assisted-by: Copilot:claude-fable-5.1
+Signed-off-by: Marc-Olivier Champagne <marc-olivier.champagne@savoirfaire=
+linux.com>
 ---
-This was debugged and written with the help of an AI coding assistant
-(Claude), working over SSH on the affected laptop. It counted keyboard
-interrupts, traced i2c-hid with dynamic debug during a pm_test=devices
-cycle, and replayed raw I2C transfers to isolate the LED output report
-as the trigger. Rebinding i2c-hid (which resets the device), rebinding
-the I2C controller and manual SET_POWER commands were ruled out. I
-reviewed the change and tested it on my machine as described in the
-commit message.
+ drivers/input/touchscreen/cyttsp5.c | 66 +++++++++++++++++++++++------
+ 1 file changed, 53 insertions(+), 13 deletions(-)
 
-If you would rather handle this generically, e.g. by syncing LED state
-when hid-input connects, I am happy to test that instead.
----
- drivers/hid/hid-ids.h              |  3 +++
- drivers/hid/i2c-hid/i2c-hid-core.c | 36 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 39 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index a9537b7bb..5e6096caf 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -39,6 +39,9 @@
- #define USB_DEVICE_ID_ACECAD_FLAIR	0x0004
- #define USB_DEVICE_ID_ACECAD_302	0x0008
- 
-+#define I2C_VENDOR_ID_ACER_KBD		0x049f
-+#define I2C_PRODUCT_ID_ACER_SFA14_KBD	0x5343
-+
- #define USB_VENDOR_ID_ACRUX		0x1a34
- 
- #define USB_VENDOR_ID_ACTIONSTAR	0x2101
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index a8a985485..f54671092 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -52,6 +52,7 @@
- #define I2C_HID_QUIRK_NO_SLEEP_ON_SUSPEND	BIT(5)
- #define I2C_HID_QUIRK_DELAY_WAKEUP_AFTER_RESUME BIT(6)
- #define I2C_HID_QUIRK_RE_POWER_ON		BIT(7)
-+#define I2C_HID_QUIRK_INIT_OUTPUT_REPORTS	BIT(8)
- 
- /* Command opcodes */
- #define I2C_HID_OPCODE_RESET			0x01
-@@ -155,6 +156,12 @@ static const struct i2c_hid_quirks {
- 		 I2C_HID_QUIRK_DELAY_WAKEUP_AFTER_RESUME },
- 	{ I2C_VENDOR_ID_BLTP, I2C_PRODUCT_ID_BLTP7853,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-+	/*
-+	 * The Acer Swift SFA14-I31 keyboard sends no input until the host
-+	 * has written an output (LED) report at least once
-+	 */
-+	{ I2C_VENDOR_ID_ACER_KBD, I2C_PRODUCT_ID_ACER_SFA14_KBD,
-+		I2C_HID_QUIRK_INIT_OUTPUT_REPORTS },
- 	{ 0, 0 }
- };
- 
-@@ -1079,6 +1086,32 @@ static int __i2c_hid_core_probe(struct i2c_hid *ihid)
- 	return 0;
+diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscr=
+een/cyttsp5.c
+index 04e141eceb45..beeb7d5bcd2c 100644
+--- a/drivers/input/touchscreen/cyttsp5.c
++++ b/drivers/input/touchscreen/cyttsp5.c
+@@ -88,6 +88,7 @@
+ #define CY_HID_OUTPUT_GET_SYSINFO_TIMEOUT_MS	3000
+ #define CY_HID_GET_HID_DESCRIPTOR_TIMEOUT_MS	4000
+ #define CY_HID_SET_POWER_TIMEOUT		500
++#define CY_HID_RESET_SENTINEL_TIMEOUT_MS	1000
+=20
+ /* maximum number of concurrent tracks */
+ #define TOUCH_REPORT_SIZE			10
+@@ -760,6 +761,30 @@ static int cyttsp5_deassert_int(struct cyttsp5 *ts)
+ 	return -EINVAL;
  }
- 
+=20
 +/*
-+ * The input core only writes LED state when it changes (and on resume), so
-+ * a device that waits for an output report never gets one at boot. Send
-+ * every output report once with its initial field values.
++ * After a reset the device asserts the interrupt line with a zero-lengt=
+h
++ * report (reset sentinel) once it is ready to communicate. Consume it s=
+o
++ * that it does not complete the next command.
 + */
-+static void i2c_hid_send_initial_output_reports(struct hid_device *hid)
++static int cyttsp5_wait_reset_sentinel(struct cyttsp5 *ts)
 +{
-+	struct hid_report_enum *report_enum = &hid->report_enum[HID_OUTPUT_REPORT];
-+	struct hid_report *report;
-+	u8 *buf;
-+	int ret;
++	unsigned long timeout =3D msecs_to_jiffies(CY_HID_RESET_SENTINEL_TIMEOU=
+T_MS);
++	int rc;
 +
-+	list_for_each_entry(report, &report_enum->report_list, list) {
-+		buf = hid_alloc_report_buf(report, GFP_KERNEL);
-+		if (!buf)
-+			return;
-+
-+		hid_output_report(report, buf);
-+		ret = i2c_hid_output_report(hid, buf, hid_report_len(report));
-+		if (ret < 0)
-+			hid_warn(hid, "failed to send initial output report %u: %d\n",
-+				 report->id, ret);
-+		kfree(buf);
++	rc =3D wait_for_completion_interruptible_timeout(&ts->cmd_done, timeout=
+);
++	if (rc <=3D 0) {
++		dev_err(ts->dev, "Reset sentinel timed out\n");
++		return -ETIMEDOUT;
 +	}
++
++	if (get_unaligned_le16(&ts->response_buf[0]) !=3D 0) {
++		dev_err(ts->dev, "Unexpected report instead of reset sentinel\n");
++		return -EPROTO;
++	}
++
++	return 0;
 +}
 +
- static int i2c_hid_core_register_hid(struct i2c_hid *ihid)
+ static int cyttsp5_fill_all_touch(struct cyttsp5 *ts)
  {
- 	struct i2c_client *client = ihid->client;
-@@ -1099,6 +1132,9 @@ static int i2c_hid_core_register_hid(struct i2c_hid *ihid)
- 	if (ihid->quirks & I2C_HID_QUIRK_RE_POWER_ON)
- 		ret = i2c_hid_set_power(ihid, I2C_HID_PWR_ON);
- 
-+	if (ihid->quirks & I2C_HID_QUIRK_INIT_OUTPUT_REPORTS)
-+		i2c_hid_send_initial_output_reports(hid);
+ 	struct cyttsp5_sysinfo *si =3D &ts->sysinfo;
+@@ -786,12 +811,6 @@ static int cyttsp5_startup(struct cyttsp5 *ts)
+ {
+ 	int error;
+=20
+-	error =3D cyttsp5_deassert_int(ts);
+-	if (error) {
+-		dev_err(ts->dev, "Error on deassert int r=3D%d\n", error);
+-		return -ENODEV;
+-	}
+-
+ 	/*
+ 	 * Launch the application as the device starts in bootloader mode
+ 	 * because of a power-on-reset
+@@ -888,13 +907,6 @@ static int cyttsp5_probe(struct device *dev, struct =
+regmap *regmap, int irq,
+ 		return error;
+ 	}
+=20
+-	fsleep(10); /* Ensure long-enough reset pulse (minimum 10us). */
+-
+-	gpiod_set_value_cansleep(ts->reset_gpio, 0);
+-
+-	/* Need a delay to have device up */
+-	msleep(20);
+-
+ 	error =3D devm_request_threaded_irq(dev, irq, NULL, cyttsp5_handle_irq,
+ 					  IRQF_ONESHOT, name, ts);
+ 	if (error) {
+@@ -902,6 +914,34 @@ static int cyttsp5_probe(struct device *dev, struct =
+regmap *regmap, int irq,
+ 		return error;
+ 	}
+=20
++	fsleep(10); /* Ensure long-enough reset pulse (minimum 10us). */
 +
- 	return ret;
- }
- 
-
----
-base-commit: 145c2b2e9a5c0f794fb4009bcb072ab19f8ccfcd
-change-id: 20261002-swift-sfa14-kbd-1afed65ef562
-
-Best regards,
---  
-DMS <dms3studio@gmail.com>
-
++	gpiod_set_value_cansleep(ts->reset_gpio, 0);
++
++	if (ts->reset_gpio) {
++		error =3D cyttsp5_wait_reset_sentinel(ts);
++		if (error)
++			return error;
++	} else {
++		/*
++		 * Without a reset line, the device may be powering up or
++		 * already running. Give it time to come up, then make sure a
++		 * reset sentinel does not complete the first command: read it
++		 * if it came before the IRQ was requested, otherwise drop the
++		 * completion set by the interrupt handler.
++		 */
++		msleep(20);
++
++		error =3D cyttsp5_deassert_int(ts);
++		if (error) {
++			dev_err(ts->dev, "Error on deassert int r=3D%d\n", error);
++			return error;
++		}
++
++		synchronize_irq(irq);
++		try_wait_for_completion(&ts->cmd_done);
++	}
++
+ 	error =3D cyttsp5_startup(ts);
+ 	if (error) {
+ 		dev_err(ts->dev, "Fail initial startup r=3D%d\n", error);
+--=20
+2.34.1
 

@@ -1,16 +1,16 @@
 Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E0453FC5CD;
-	Fri,  2 Oct 2026 12:47:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4BDA49159D;
+	Fri,  2 Oct 2026 12:47:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.142.180.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790945247; cv=none; b=ry3HZl3wNCJ24tHeJ/sv0HmhtU+gjCeoThlWHuiyQdAUo1e0SixK/PM5kOM/F6uOzZigPt7l1IQUof5TGpRfSkzA2BUcDO6hlV3kQ8vxsbALUJKYl+rLLpy49Ax+9FMovliS72lKFyHomA6xbXbIc+m9iY7JlVI52Ih39eOoyA8=
+	t=1790945250; cv=none; b=euRqwxaDowWBdqEW8qK4h+1xQvnis8yKYYG8pZ0WM1ZPg2lFos1a+IzT4yUiFc1Z93+GQcGBbjS/9xyTPjZFEPCfYsKJ5t6mgqZTW8M6CcHoKjmBrLmi4NFkMIBzdADo6rL+/GUKNT/G5q16cf9wn77aR82z1v7SylSnXxXuwJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790945247; c=relaxed/simple;
-	bh=AHVx/Q1GmZhBuPUNmnAr3l6u5ZYKy+cNTxNKgGbss5U=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=CPuD7H6iJiPpZqp1fV5JgqTH1i7x5OaSP6zMCst9GoO386hFeReMHsYNk14FuBz1i7TyQrzjnbrIp11eR9J8pD+51Eq2tsbGPyVEqfi4V14GPJIBsf5YmwnvM3flxiPEh10CfUk7HZbu3cykL3HWdcs45VeQGPiFOjeu8+i1KMo=
+	s=arc-20240116; t=1790945250; c=relaxed/simple;
+	bh=1kBkac6LNnm0H0y/GognaOLkx+algFyVH6DXASx8gWo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FHyRzLfCj+3uH6UA2vqby/SboOcF0Nvp1Vr+QUK31mp3I1iVCMYrVXhNrNKRXDbTVt6mNyoahwgjOSu5EFg10EqFplAwhIKvWxko/wkTtE7R0fJnbmpB/rHDG45pbf5rkRo6GvjJjCkTWbwUB+6fBmMDvCWdNzVbg9urBtrzAls=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org; spf=pass smtp.mailfrom=makrotopia.org; arc=none smtp.client-ip=185.142.180.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=makrotopia.org
@@ -18,9 +18,9 @@ Received: from local
 	by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256:X25519MLKEM768)
 	 (Exim 4.100.1)
 	(envelope-from <daniel@makrotopia.org>)
-	id 1xCcfP-0000000039f-3IYK;
-	Fri, 02 Oct 2026 12:47:11 +0000
-Date: Fri, 2 Oct 2026 13:47:08 +0100
+	id 1xCcfc-0000000039z-3INZ;
+	Fri, 02 Oct 2026 12:47:24 +0000
+Date: Fri, 2 Oct 2026 13:47:21 +0100
 From: Daniel Golle <daniel@makrotopia.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -33,9 +33,10 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Oleh Kuzhylnyi <kuzhylol@gmail.com>, linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Chad Monroe <chad@monroe.io>, John Crispin <john@phrozen.org>
-Subject: [PATCH v2 0/5] Input: hynitron-cst816x: axes, gesture keys and panel
- power
-Message-ID: <cover.1790944534.git.daniel@makrotopia.org>
+Subject: [PATCH v2 1/5] dt-bindings: input: touchscreen: hynitron,cst816x:
+ axes and panel
+Message-ID: <04a70b1cb0969ec4e4b38f7945e0b22a977b038b.1790944534.git.daniel@makrotopia.org>
+References: <cover.1790944534.git.daniel@makrotopia.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,54 +45,68 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <cover.1790944534.git.daniel@makrotopia.org>
 
-This series improves the hynitron-cst816x touchscreen driver. It makes
-the driver respect the common touchscreen axis properties, which are
-now documented in the binding as well, it keeps gesture keys from
-getting stuck, and it lets the controller follow the panel it is
-mounted on.
+The chip hands out coordinates in its own frame and knows nothing of
+the panel it is glued to, so how it is oriented against that panel,
+which coordinate range the assembly reports and how noisy it is are
+properties of the board. Reference touchscreen.yaml so that a board
+can state them with the common axis properties. Allow the 'panel'
+phandle as well, since these controllers are mounted on the panel and
+fed from its rail, which asks for the two to be power sequenced
+together.
 
-The gesture key is reported with the controller's touch flag as its
-value, so the key stays pressed once the controller stops reporting
-the gesture code. The controller has no lift event to offer, so the
-keys are now released on the first report carrying no gesture code, or
-40 ms after the last one that carried a code, whichever comes first.
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+---
+v2:
+- allow touchscreen-min-x/y, touchscreen-size-x/y and
+  touchscreen-fuzz-x/y as well (Sashiko AI review)
+- allow the 'panel' phandle
+- justify the change in the commit message (Conor Dooley)
 
-Boards which mount the controller on the panel feed it from the
-panel's rail, so the reset and the interrupt now wait for the panel to
-be prepared, which the common 'panel' phandle asks for.
+ .../input/touchscreen/hynitron,cst816x.yaml      | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-Changes since v1:
-- the binding allows touchscreen-min-x/y, touchscreen-size-x/y and
-  touchscreen-fuzz-x/y as well, which touchscreen_parse_properties()
-  already honours; the 240x240 default is unchanged
-- the binding allows the 'panel' phandle, and patch 5 is new: it
-  follows the panel's power sequence
-- the binding commit message carries a justification (Conor Dooley)
-- keycodes above KEY_MAX are rejected, which keeps the gesture key
-  lookup inside the input core's key bitmap (Sashiko AI review)
-- the timed release is skipped when the interrupt handler re-armed the
-  timer while the timer callback waited for the lock (Sashiko AI
-  review)
-- the Sashiko AI review also asked about additionalProperties next to
-  a $ref, which stays, as this binding allows a subset of
-  touchscreen.yaml (writing-schema.rst)
-
-Link: https://lore.kernel.org/r/cover.1790851590.git.daniel@makrotopia.org
-
-Daniel Golle (5):
-  dt-bindings: input: touchscreen: hynitron,cst816x: axes and panel
-  Input: hynitron-cst816x: respect touchscreen DT properties
-  Input: hynitron-cst816x: release gesture keys
-  Input: hynitron-cst816x: time out gesture key release
-  Input: hynitron-cst816x: power sequence with the panel
-
- .../input/touchscreen/hynitron,cst816x.yaml   |  16 ++
- drivers/input/touchscreen/Kconfig             |   2 +
- drivers/input/touchscreen/hynitron-cst816x.c  | 182 +++++++++++++++---
- 3 files changed, 171 insertions(+), 29 deletions(-)
-
-
-base-commit: 6474fa070f2b8013b4b87350b775b8c3be6e8aac
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml b/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml
+index 72d4da636881e..027a2b3dcf2e8 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/hynitron,cst816x.yaml
+@@ -36,6 +36,18 @@ properties:
+       - description: Slide right gesture
+       - description: Long press gesture
+ 
++  panel: true
++
++  touchscreen-min-x: true
++  touchscreen-min-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-fuzz-x: true
++  touchscreen-fuzz-y: true
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-swapped-x-y: true
++
+ required:
+   - compatible
+   - reg
+@@ -43,6 +55,9 @@ required:
+ 
+ additionalProperties: false
+ 
++allOf:
++  - $ref: touchscreen.yaml#
++
+ examples:
+   - |
+     #include <dt-bindings/gpio/gpio.h>
+@@ -59,6 +74,7 @@ examples:
+             reset-gpios = <&gpio 17 GPIO_ACTIVE_LOW>;
+             linux,keycodes = <KEY_UP>, <KEY_DOWN>, <KEY_LEFT>, <KEY_RIGHT>,
+                              <BTN_TOOL_TRIPLETAP>;
++            touchscreen-swapped-x-y;
+         };
+     };
+ 
 -- 
 2.55.0

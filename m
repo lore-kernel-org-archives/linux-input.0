@@ -1,70 +1,70 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50205472F71;
-	Fri,  2 Oct 2026 09:14:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26C7547DFB6;
+	Fri,  2 Oct 2026 09:14:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790932456; cv=none; b=KFxRmiWQzA9+V0olCr5/mYgx8wxV08Aut6St1DK7Taecr3ZCvhhSkOjJiDXvk/pvcweM1ReM9EtkoadgiMBgqm8LtSeOJjsW3XdnAin6Tt2XNATcbZDh1pqZCw6CwmDdrHQHDSgNmIsuJIUldv7EWyrer8OiBzAmteKUEtUJMoQ=
+	t=1790932458; cv=none; b=BUoHJZl3oebiXUcv6QHIf8mtBip3p85MqpFAZaKNA5aR1VincNpgnhO+NfZP/8Fc8mLvdh4ibhwuKOs4SMEIaqJke0zGF6KAZjau0v3q88Key9qE9S3wZvv0nWh0qSSdXjxjuRdsk45dasWcr0GAFEdx4GvMSNM+1BpRHCcuxFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790932456; c=relaxed/simple;
-	bh=JGWnBvTL/tazdianXboc0+bQAs5iP7aKGiWdkpd0iWQ=;
+	s=arc-20240116; t=1790932458; c=relaxed/simple;
+	bh=xje1qa+XqpjCxK7Hf365zVzPjInNKAL7/44wJiFWht8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Z4HnJGLQqLYWjZ1jbPF+JV/VRPGXT4MAYBm/RETmrvZKW3eX2F+m7lpI1POoU9ibAbObG0InSamFiVk3EXiwfHBg8ii7B7VcDXEUBsZ8+nl6J04t/lnpAtvk8luibDlBXoP18KTcBmOYzCUQ7QME98sEOi/3pFEQpWBq2iXdmu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=luHCADfJ; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gauvmuLEsIwRfeZ7dofVMkE2XY0B7W9nRJOtOHhVwGL1CLkyi1bOgsjF2E/Ljg3xCCgNGkaQnBEm9E6ypClBkYX+5HyDsyWyQcHXckPfFdGCAyzwOtalEjho2h9dIzj968f8p2z1P1ze8g3+ejTKXsnUcFR3JKaVwk97czZzr/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MShTwfyi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="luHCADfJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81FF1F00893;
-	Fri,  2 Oct 2026 09:14:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MShTwfyi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DBEB1F00893;
+	Fri,  2 Oct 2026 09:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790932455;
-	bh=fyM2cQ7ItIL8C8ZMAcWkOhvNanevRH+k3AD9FSOQztk=;
+	s=k20260515; t=1790932457;
+	bh=u4nUaE6X06J6oJaNon/hWE7dB7yD2iszAa0UbIzs5RQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=luHCADfJCgUvLsX4TrxOJ16Vjdh2o93u7KyKzPOT1dWI09/kCXVrXZeJJLUtC5Gdi
-	 8ryqxgBSZYKNqHV8aBaZJZPNlnu2hT016eq9zMqZbtORK7nrf7UlqNRdffLSTdrIgy
-	 L5y8JU/5TgFeS3l4p+2AJf4FgB2tO+DQyBqEmoVtHTVSExaf/DrVy6EVCfmwIUlGgy
-	 4MeS6VHcvYkv6uVywDXI6qPz0w4LOCm/kYxi9jj9mAMtg113dbb5kNTk0AD4tH+dfU
-	 t5990Zfqwf88iAAon3OH/uxesIXDAYLUPVnMRdWiLvMPxvJpArJ/gL9QRYoe9teJeA
-	 P3Jwc5Y/N0RMQ==
+	b=MShTwfyikkFeTUYy4nEPIuJNnB61kC1d3oOfWdN+cwhBu4Y1Lh6/fQvon4SYQ9yHv
+	 WgbYtci233c+THa1vVdEt178iWZW+UDesIaTHx4Vcfd6BNO+fSJ17h/0IUX2W26p7a
+	 8QaSJf9nUzG9sEu4aSZhDfwx7Cud4oUGWxxAXFrGTPfOkGYmKw6gTabMeB8rsGhZKY
+	 HbjnTI9Ca2gKNcaSk8FOZCy9pAK86KFEeudCvcjEeFpcwV1bBhVkrHkubP9pnj6ixU
+	 yYuhn8o3wedlb3hohfjMS8LFrAum2VMDKShBCy23x6NoliLkaHgzFk57jW6LBEqbLr
+	 F5ZKCocccdS+w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH bpf-next v4 04/12] bpf: take the vmlinux BTF from the
- btf_vmlinux module
+Subject: Re: [PATCH bpf-next v4 05/12] bpf, tracing: load the vmlinux BTF
+ where tracefs and bpffs requests start
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jay Wang" <wanjay@amazon.com>
-Cc: linux-modules@vger.kernel.org, dmitry.torokhov@gmail.com, linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org, sched-ext@lists.linux.dev, gary@garyguo.net, "Petr
- Pavlu" <petr.pavlu@suse.com>, bpf@vger.kernel.org, ojeda@kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20261001225214.12351-5-wanjay@amazon.com>
+Cc: linux-modules@vger.kernel.org, ojeda@kernel.org, bpf@vger.kernel.org, "Petr
+ Pavlu" <petr.pavlu@suse.com>, gary@garyguo.net, linux-trace-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, sched-ext@lists.linux.dev, linux-perf-users@vger.kernel.org
+In-Reply-To: <20261001225214.12351-6-wanjay@amazon.com>
 References: <20261001225214.12351-1-wanjay@amazon.com>
- <20261001225214.12351-5-wanjay@amazon.com>
+ <20261001225214.12351-6-wanjay@amazon.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 02 Oct 2026 09:14:14 +0000
-Message-Id: <20261002091414.A81FF1F00893@smtp.kernel.org>
+Date: Fri, 02 Oct 2026 09:14:16 +0000
+Message-Id: <20261002091416.7DBEB1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-> Add the runtime side of delivering the vmlinux BTF as a module: with
-> CONFIG_DEBUG_INFO_BTF=3Dm the BTF is carried by a module named btf_vmlinux
-> and installed by the BTF module notifier when it loads.  Nothing in this
-> patch is reachable yet: CONFIG_DEBUG_INFO_BTF is still a bool and every
-> new path is under IS_MODULE(CONFIG_DEBUG_INFO_BTF); the kbuild side and
-> the Kconfig change follow.
+> With CONFIG_DEBUG_INFO_BTF=3Dm, bpf_get_btf_vmlinux() and
+> bpf_find_btf_id() do not load the vmlinux BTF: loading waits for user
+> space, and their callers were not written for that.  Besides the bpf()
+> system call and /sys/kernel/btf/vmlinux, some tracefs and bpffs requests
+> need the BTF.  Load it at the start of those, with
+> bpf_load_btf_vmlinux(), and have the code that only uses the BTF if it
+> happens to be there peek:
 >=20
-> With CONFIG_DEBUG_INFO_BTF=3Dy the vmlinux BTF, 5.4 MiB on x86-64 with a
-> distribution config, is part of the kernel image and resident from boot
-> whether anything uses it or not.  Most systems never do.  Carrying it in
-> a module that is loaded on first use makes the memory a cost of using
-> BTF rather than of having a kernel that supports it.
->=20
-> btf_vmlinux_data() hands out the raw vmlinux BTF: from __start_BTF with
-> =3Dy, or with =3Dm from a vmalloc_user() copy that the notifier makes when
+>  - Reading a tracepoint's btf_ids file (events/*/btf_ids): built-in
+>    events use the vmlinux BTF, and module BTF is only registered once
+>    that is loaded.  event_btf_ids_read() looks the BTF up under
+>    event_mutex, which the trace notifier of the btf_vmlinux module
+>    takes, so load it before taking the mutex, on the first read() of
+>    the file (not again for the one that returns EOF).
+>  - Probe events with BTF arguments ($argN, argument names, $retval,
 > [ ... ]
-> maps the probed file.  Before the BTF is loaded mmap() fails, and libbpf,
-> which tries mmap() first, falls back to read(); afterwards it maps the
-> vmalloc_user() copy with remap_vmalloc_range().
+>=20
+> With CONFIG_DEBUG_INFO_BTF=3Dy bpf_load_btf_vmlinux() is
+> bpf_get_btf_vmlinux() and the BTF is parsed at boot, so nothing changes.
 >=20
 > Signed-off-by: Jay Wang <wanjay@amazon.com>
 
@@ -72,5 +72,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001225214.1235=
-1-1-wanjay@amazon.com?part=3D4
+1-1-wanjay@amazon.com?part=3D5
 

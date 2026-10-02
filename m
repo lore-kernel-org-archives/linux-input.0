@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2697949C4D4;
-	Fri,  2 Oct 2026 13:14:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7892049B5B0;
+	Fri,  2 Oct 2026 13:26:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790946877; cv=none; b=KM3NhsPjHFcYAtNtmLHSYGwfTFnDdoVv2CqUuLHqvJPwwnI76MdjGE9KfRj1CFKrdKITlmJ3+C7Ytl3I1EliP0s4BFtut4K7Ij5M/f5HA3+I3TvSScOsegyLfqYFpfl6oIaZzL8Xb9uxhTkJvyLPGBMbW8nBgti7z6AgyD3zFW4=
+	t=1790947615; cv=none; b=bGySwidQmg6pQ9cdm+hEmtjDI1dYa0EONewoDHrq+DkcgbrVcft7gSjqvkAYo1y5DEgByw6mU18aGjW2aRWhndVnRS0bWZsqxbZsn8oic3SL/BBpmu8xjZQGdUjje41i9qAWo4HcinwgYlcaIrbf+VCggS+1lyTaY8g7E0Aukqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790946877; c=relaxed/simple;
-	bh=z0iIc2tve1rNuxj2OFEUTRxpGF2GkGvJrNH0erFscH0=;
+	s=arc-20240116; t=1790947615; c=relaxed/simple;
+	bh=1pnwwkQubkDwLdCpcqdwupsj9/qnViGcxUC7rJ1lrbw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=oUB9fsrcWQ1QJw2aPTWOtjruiiQH8JslBGR+uhz8iDkHkrNt/x9Or3BMg16Q3TXI3ddbEQtojvftBpI+krYKleBS/JtpBgBG4MHldkfsdLk+Mp3F5etqczMh0Yqry3rxBbe3dOMchusO/ZQCm8toRMGA97RTArSS+hx+nnSj/1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gwAJ2+2v; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=OZWuwQyPVGdQPho5aBbOnuoyyocZHK916tLiZ6eo7DYqN86QAGP2HSWcV/pXo0tUo3dGA1+FpMR2JLcYbM4YnzL24EXaV+BsKogzEhBv3xwgm8wJOy4GuWAcNCT/JO3cruNozjYsrTxW18fmU/1uXwf3ysyHqf4DkfVefEkmWl4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KA9OP6gd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gwAJ2+2v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66E641F00893;
-	Fri,  2 Oct 2026 13:14:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KA9OP6gd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C06DB1F000FF;
+	Fri,  2 Oct 2026 13:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790946875;
-	bh=8/Std+9B1ry0MSHmZ2fFkOi48SGFV8Bgcd3WKbni33Q=;
+	s=k20260515; t=1790947614;
+	bh=vCGJB4quEF05q1J9Qd9cW29CW7EbhQBCJb983SsaagY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gwAJ2+2vCmSj0n0KTww4OZsmotsnLJKIlSm+kBi4r3mLLprD1BvA8GJsHfpD0nFni
-	 0jCUeuKo9dCA7hm1GRe2mx35YTl7mu70/wgNxTBGZjvFONl/jazv7ARlHLnsyzm7e2
-	 2oBLh8ofKQUeJE5ZbLLzO79NiDkVcTLA0qWdgObjc+8djkZ6siCO4ughTh92bz4lI2
-	 zJF4rbF5eQsTW9qfXgVs0h7XUOPogAbR/s4EbBGmBNc9DSMTqYma+F1gC2WMGB202n
-	 jQSrkLc0s/7upD2lKJc1VcaYmKtmAXHk8iHEtLU6EmNVbsWPWa+M/7LMPde4AN49Yg
-	 Y9quAVn/hlmQQ==
+	b=KA9OP6gd2slVytZJt/KJanfE5rZaVsOelvicNibFA22kQyKouOB+Ce3lBtItN17K6
+	 Nxlht8SVZ8UJdM0d6dDJ9EHomKt1LLB77br0ZE4kh/W3tFpJ1HeIFbS0S68EHv6ESr
+	 GZ8vpaqtWQixV5iGTxt/9vJzdVbOghZx/M3Uzb3JAr6PmPCwG50Jbv0xX7NeNbdc1P
+	 QKNOk4fC7a0d3NtZB7q78ZXi/4zOZYJeZYYn6Go8Kcj0hfOsqGM0DIhhiGOmV7Idfv
+	 B+cE3Re5cWot1dwPdpP9o8cokJu7yv1j2wz0LwNlUpXPF3FyneATUPl6wLPmAPu9pT
+	 Qnk+iPlNtoKAA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/5] Input: hynitron-cst816x: time out gesture key
- release
+Subject: Re: [PATCH v2 5/5] Input: hynitron-cst816x: power sequence with the
+ panel
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Daniel Golle" <daniel@makrotopia.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org
-In-Reply-To: <909d4a3a2182ede94e76f60954279774d5f91b15.1790944534.git.daniel@makrotopia.org>
+Cc: linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org
+In-Reply-To: <67e9a67e17a977053eaacef203416473f4c63968.1790944534.git.daniel@makrotopia.org>
 References: <cover.1790944534.git.daniel@makrotopia.org>
- <909d4a3a2182ede94e76f60954279774d5f91b15.1790944534.git.daniel@makrotopia.org>
+ <67e9a67e17a977053eaacef203416473f4c63968.1790944534.git.daniel@makrotopia.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 02 Oct 2026 13:14:34 +0000
-Message-Id: <20261002131435.66E641F00893@smtp.kernel.org>
+Date: Fri, 02 Oct 2026 13:26:53 +0000
+Message-Id: <20261002132653.C06DB1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,47 +47,52 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] timers: use timer_shutdown_sync() for devres teardown path
+- [Low] kconfig: built-in driver links to module due to incomplete DRM_PANE=
+L dependency
 --
 
-commit f56704648dd845b470f4641ef231af0c72507d76
+commit 334717615b8688937194889ec9606ffff8c712fd
 Author: Daniel Golle <daniel@makrotopia.org>
 
-Input: hynitron-cst816x: time out gesture key release
+Input: hynitron-cst816x: power sequence with the panel
+   =20
+Boards which mount the controller on the panel feed it from the
+panel's rail, where a reset and the first interrupts are only
+meaningful once the panel is powered. Register as a DRM panel follower
+when the device tree points at a panel, so that the reset stays
+asserted and the interrupt masked until the panel is prepared, and a
+pressed key is released before the panel goes down again.
 
-This commit introduces a timer to release the gesture keys 40 ms after the
-last report containing a gesture code. This prevents the gesture key from
-remaining pressed indefinitely if the panel stops reporting after the
-initial gesture event.
-
-> diff --git a/drivers/input/touchscreen/hynitron-cst816x.c b/drivers/input=
-/touchscreen/hynitron-cst816x.c
-> --- a/drivers/input/touchscreen/hynitron-cst816x.c
-> +++ b/drivers/input/touchscreen/hynitron-cst816x.c
-[ ... ]
-> +static void cst816x_timer_stop(void *data)
-> +{
-> +	struct cst816x_priv *priv =3D data;
-> +
-> +	timer_delete_sync(&priv->release_timer);
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscree=
+n/Kconfig
+> index 9b9ae8ac3f7fd..0beb499e24f20 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -478,6 +478,8 @@ config TOUCHSCREEN_HYNITRON_CSTXXX
+>  config TOUCHSCREEN_HYNITRON_CST816X
+>  	tristate "Hynitron CST816x touchscreen"
+>  	depends on I2C
+> +	# We call into panel code, so if DRM=3Dm, this can't be 'y'
+> +	depends on DRM || !DRM
 
 [Severity: Low]
-Does this devres teardown path need to use timer_shutdown_sync() instead of
-timer_delete_sync()?
+Does this allow a configuration where the driver is built-in but links to a
+module?
 
-Using timer_delete_sync() in a final teardown path is deprecated. The timer
-subsystem introduced timer_shutdown_sync() to permanently disable timers
-during teardown.
+The driver relies on devm_drm_panel_add_follower() from the drm_panel
+framework. If DRM=3Dy but DRM_PANEL=3Dm, and TOUCHSCREEN_HYNITRON_CST816X=
+=3Dy, the
+built-in touchscreen driver will have an unresolved external reference to
+devm_drm_panel_add_follower() in drm_panel.ko, causing a build linking
+failure.
 
-Because devres executes actions in last-in, first-out order, the interrupt
-is already freed and synchronized before the timer is stopped. A re-arm race
-is structurally impossible here, making this an API compliance regression
-rather than a use-after-free bug.
+Should this dependency be tied directly to DRM_PANEL instead, such as
+depends on DRM_PANEL || !DRM_PANEL?
 
-> +}
-> +
->  static int cst816x_probe(struct i2c_client *client)
+>  	help
+>  	  Say Y here if you have a touchscreen using a Hynitron
+>  	  CST816x series touchscreen controller.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1790944534.gi=
-t.daniel@makrotopia.org?part=3D4
+t.daniel@makrotopia.org?part=3D5

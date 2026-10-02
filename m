@@ -1,136 +1,76 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B9964734F9
-	for <linux-input@vger.kernel.org>; Fri,  2 Oct 2026 09:14:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB1D04746AE;
+	Fri,  2 Oct 2026 09:14:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790932443; cv=none; b=iPOEEZh4F4hnmo+KXQI8rBsc8haxAgEg3ChqIQu16J6C4CrhDOzGeBkM4a52+kkCRVeU7lZU9TjzbUilVO2XXWhCh2hJ67SYTy5V9t8oos5ko/pjgK/YlyAWiRCMdNFuFBh6JqBkjMCvtJyH+wMMst4s4KOSlgdWg1QAp/LUioU=
+	t=1790932449; cv=none; b=OO8TE/65TBrPSF9+KEJ0yVUcOQh7InFpyyUHImbx0FouAD9ZYBIMw4KrVj4gJLG+B1Fp/Gu+UKzeCyq+E0tu0ij6Ptqj34V/oYnvCx1x2K79j84kwQI8YUuOs66IxmhPxBPzkjQGO60s2fMBQMftH0wcKz6RVePuOyb5YAAESHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790932443; c=relaxed/simple;
-	bh=zpFrNM/hFBVHZyomc1WBPBSTD5momA0VT1i/b3eO2us=;
+	s=arc-20240116; t=1790932449; c=relaxed/simple;
+	bh=i+L6umLn8Z+swB5e/ezod3yKaQQItgE1+v82GarEcf8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WU9Cs8F0RifCS9BTWhNfyi6vgQmJchizNs/P3r7mpXI/b+dSQWxZJKRlshPf0zrMVEr/dLNbN2Uf0GXLA9/ZFTtBNtyXX47yDywSM4ntVJWmwqPbFOaYNidcji21SMrCaoaNYi5B36gc37zxHC5esT5qsj9YxBL9mhsn3qNym4s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VyEBin36; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=hJHN07UDTY4/FKol0tQ4KICptw9InHxZXS1BdWPBxkzz1+wFsxBDp4qbmpE43D2wYV5fEGmar/JZAXWfsJRo9wJYLe6A755Pl9Gn7kdsefsKbRAQ2LZbcAZpSdmVHMLDuOPldTPrXW6XY8FMADcG92kjS4S6q6ezzYCYq7eJQqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PorT1Gxe; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VyEBin36"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C17011F00899;
-	Fri,  2 Oct 2026 09:14:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PorT1Gxe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E1161F000FF;
+	Fri,  2 Oct 2026 09:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790932442;
-	bh=BTg7FUS7L6jNH5DmorNu7s6Mq61rLJNvLjySgAvHXoQ=;
+	s=k20260515; t=1790932447;
+	bh=5ellbPr8x94rTylTsDiFZddy2NzL3VmyKG0ClhU0u9s=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VyEBin36jy7KKw+mZcFAuxBuYxJ8Pj8vDUnl6S8bwGpQ0NChqmtlRLMzBMJICDzLS
-	 U9f3E96vlEGbDEygUIWQBFruNl6tZz50T7NqfmAOxJH5BxL81g20fEHmCFb9Zzn2WQ
-	 JpbKIKT5ckmJlRklbthBpuSUbMtLkfUaQLwkmupcDFftxKQeKVO4roOgwnrc+R5Pz6
-	 VVQC0RR3RKg0IuaRIUP9Hxhs6K/TeEJY9XmiwAF6HTBcLzUj2ix3op7Ghf82MEIXk9
-	 n8gFsdxdqlph4jTSc8LsRFKlHHwRI0HQK9wh2/ziaoXR+meaKwaIQe5tDIx+XQF9vv
-	 eXjWmUDMfnCtQ==
+	b=PorT1GxeCTQYPX519lAxP8lBCW/e9L3vsM3kOW2FhASinPrhK1PZgggB7nVem9Dye
+	 38oJDlarSF3Qq99AtrLY0+hCkpnvDAAaVZSx1p7VNjh5TNTrKOHn3TCp1gy3dBoDB5
+	 HiYwhacb6o12jQoncy8xM0Eut7oRcH+aGwKpWajJP8ISS1aLP5fH0GSR+yUyHCb3WT
+	 id3CoqEvKNyFhgiCYk2hFH4GSC20biINPIzT7y5wCukbBu9p2Drpfk8mzDZw9D2J53
+	 15qM3EqLY8CO0yXqJk031hNu6en2YgwCEeG8G19+DM0rs5PNXH4MPqIaHa1ABp+5l1
+	 GItR7pK2y7ruA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 2/4] HID: logitech: handle HID++ thumbwheel reports
+Subject: Re: [PATCH bpf-next v4 10/12] resolve_btfids: add --btf_link to
+ fill in .BTF.link records
 Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?RXJpayBIw6VrYW5zc29u?= <erikhakan@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261002-bolt-input-rfc-v1-2-333e1f350586@gmail.com>
-References: <20261002-bolt-input-rfc-v1-0-333e1f350586@gmail.com>
- <20261002-bolt-input-rfc-v1-2-333e1f350586@gmail.com>
+To: "Jay Wang" <wanjay@amazon.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, bpf@vger.kernel.org, sched-ext@lists.linux.dev, linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org, "Petr
+ Pavlu" <petr.pavlu@suse.com>, gary@garyguo.net, linux-modules@vger.kernel.org, ojeda@kernel.org
+In-Reply-To: <20261001225214.12351-11-wanjay@amazon.com>
+References: <20261001225214.12351-1-wanjay@amazon.com>
+ <20261001225214.12351-11-wanjay@amazon.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 02 Oct 2026 09:14:01 +0000
-Message-Id: <20261002091401.C17011F00899@smtp.kernel.org>
+Date: Fri, 02 Oct 2026 09:14:06 +0000
+Message-Id: <20261002091407.4E1161F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] hid: logitech-hidpp: divide-by-zero in thumbwheel scroll due to un=
-protected memset
-- [Medium] hid: logitech-hidpp: M560 vertical scroll dropped on init failure
---
+> From: Alan Maguire <alan.maguire@oracle.com>
+>=20
+> With CONFIG_DEBUG_INFO_BTF=3Dm the vmlinux BTF is not part of the kernel
+> image but carried by a module, and the kernel has to know, before that
+> module is loaded, which module that is, how large the BTF is and which
+> BTF it was built with.  It keeps that in a .BTF.link record (struct
+> btf_link): the name of the module, NUL-padded to the target's
+> __MODULE_NAME_LEN, the SHA-256 of the BTF, and its size in the byte
+> order of the target.  Inline BTF delivered as a module, a planned
+> follow-up, needs the same for its own section, in .BTF.inline.link.
+>=20
+> Fill these records in where .BTF_ids is patched, after the final link,
+> when the BTF is final: the --patch_btfids pass takes one or more
+>=20
+>     --btf_link <section>:<module>:<raw BTF file>
+> [ ... ]
+>  inline BTF changes; take the ELF class and byte order from the ELF
+>  header in patch_btf_link() rather than from elf_collect(), set up libelf
+>  there too, report each failure, refuse an overlong section name and
+>  --btf_link without --patch_btfids, document the option]
+> Signed-off-by: Jay Wang <wanjay@amazon.com>
 
-commit 67886caf8cb1bbca1343ff56109a68fec18fa393
-Author: Erik H=C3=A5kansson <erikhakan@gmail.com>
-
-    HID: logitech: handle HID++ thumbwheel reports
-
-This commit adds support for HID++ thumbwheel reports for devices with the
-0x2150 feature and generalizes scroll handling. For Bolt devices, it defaul=
-ts
-to diverting thumbwheel reports to HID++ to get device index support.
-
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-=
-hidpp.c
-> index ff6a1095e7ba9..464685ad21bbc 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-
-[ ... ]
-
-> @@ -3323,7 +3391,8 @@ static int m560_raw_event(struct hid_device *hdev, =
-u8 *data, int size)
->  		v =3D sign_extend32(data[6], 7);
->  		if (v !=3D 0)
->  			hidpp_scroll_counter_handle_scroll(hidpp->input,
-> -					&hidpp->vertical_wheel_counter, v);
-> +					&hidpp->vertical_wheel_counter, v,
-> +					REL_WHEEL_HI_RES, REL_WHEEL);
-
-[Severity: Medium]
-When high-resolution scroll initialization fails, scale_denominator remains
-zero. In this scenario, hidpp_scroll_counter_handle_scroll() will return
-false. Does this code need a fallback path to ensure standard low-resolution
-scroll events are still reported instead of silently dropping the vertical
-scroll completely?
-
-> =20
->  		input_sync(hidpp->input);
->  	}
-
-[ ... ]
-
-> @@ -4033,6 +4105,49 @@ static int hidpp_initialize_hires_scroll(struct hi=
-dpp_device *hidpp)
->  	return 0;
->  }
-> =20
-> +static void thumbwheel_scroll_enable(struct hidpp_device *hidpp)
-> +{
-> +	bool divert;
-> +	int ret;
-> +
-> +	memset(&hidpp->thumbwheel_counter, 0,
-> +	       sizeof(hidpp->thumbwheel_counter));
-
-[Severity: High]
-Can this memset() race with hidpp20_thumbwheel_raw_event() in softirq conte=
-xt?
-
-If a wireless device wakes from sleep, hidpp_connect_event() could be queued
-in a worker thread, calling thumbwheel_scroll_enable().
-
-If the user scrolls concurrently, hidpp20_thumbwheel_raw_event() might
-evaluate the scale_denominator check using the old counter value:
-
-	if (!hidpp->input || !hidpp->thumbwheel_counter.scale_numerator ||
-	    !hidpp->thumbwheel_counter.scale_denominator)
-		return 1;
-
-And then the worker thread zeroes the struct just before it is used in
-hidpp_scroll_counter_handle_scroll():
-
-	scaled =3D div_s64((s64)value * 120 * counter->scale_numerator,
-			 counter->scale_denominator);
-
-Could this result in a divide-by-zero kernel panic?
-
-> +	ret =3D hidpp_thumbwheel_get_info(hidpp,
-> +			&hidpp->thumbwheel_counter.scale_numerator,
-> +			&hidpp->thumbwheel_counter.scale_denominator,
-> +			&hidpp->thumbwheel_positive_right);
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261002-bolt-input=
--rfc-v1-0-333e1f350586@gmail.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001225214.1235=
+1-1-wanjay@amazon.com?part=3D10
+

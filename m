@@ -1,106 +1,116 @@
-Received: from mail-pz2-f42.google.com (mail-pz2-f42.google.com [74.125.228.42])
+Received: from mail-dy2-f6.google.com (mail-dy2-f6.google.com [74.125.229.6])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CAD13612E8
-	for <linux-input@vger.kernel.org>; Sat,  3 Oct 2026 06:38:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2CA43346B4
+	for <linux-input@vger.kernel.org>; Sat,  3 Oct 2026 07:30:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.6
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791009487; cv=none; b=Ej7V2U5IxWk8V05Vr4ZhSrFy+u2I4/y88YkHWtpziBUIia7Fa4hPCGXoJvsf9QTdC7nXYXNj6y2bQE4uBD6V/yAKAkCeOVp/j+QKG5IKMbbOFHyR9wEzlCGy9Bz3Fr76tY3Q9wLyhq5/QW6FiaVfAey3xmraqYwjrWr7Q1LuvWg=
+	t=1791012621; cv=none; b=gp3uzeD22RKzdObLXuM4zW+ZnaEmx+CdSximQwG/H4mm12cawi8f9UJb5BQ1FlQ/HRQq8VzBvqm0jhvnL6XGBzJBm5O9Yh7H/5YTexk0ZkE721QmdQpNsVcVikMjXW1vYHFCoo97lSkxB2waiSuPZWV6Jmi8hQdpplEr5NKwERU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791009487; c=relaxed/simple;
-	bh=w2CHf/Ruyl0ieMWiVy7QleNiafjxfD+l+EFZ1XXXNB8=;
-	h=Content-Type:Date:Message-Id:Cc:Subject:From:To:In-Reply-To:
-	 References:MIME-Version; b=RTBVv+RrZEcVhXjDctZgewopeJLXj5kWV5rP2HNyrpNB97xNshmtgJSt5pDM4SS/Vch1MGkCneu/TA2uRpMoRW4fqDzgBtHBUukSytfWvIYLA6zXXESPY/wo1zBpzzfkQv8enXlmGZojdgvdhrO7lhkiz1HylcAjwoOjmOywEXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ir4gbnxE; arc=none smtp.client-ip=74.125.228.42
+	s=arc-20240116; t=1791012621; c=relaxed/simple;
+	bh=LnxEf66efq5ClvHb8mJ8XP6ctEeYvZYYAThQ0YvTz/s=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Y5eGLLC6NjuIkolHN040t9CKuTz79zPcKey2wQ1C+iRI+kD1W3k9daL5cv+PZcHNWOhqaezeHV1iUQ93AaH2ZKp3mHUSvjDgTcJ7VOwR4jYrSpQlWmnnftB9DgP30aAL+E9X6bH7y3hM21COQVqFw9w6u4oqH110q91cYUIi1Xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YNtkdzJK; arc=none smtp.client-ip=74.125.229.6
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ir4gbnxE"
-Received: by mail-pz2-f42.google.com with SMTP id 41be03b00d2f7-cc4c3304784so48115a12.3
-        for <linux-input@vger.kernel.org>; Fri, 02 Oct 2026 23:38:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YNtkdzJK"
+Received: by mail-dy2-f6.google.com with SMTP id 5a478bee46e88-34ef736eee2so45964eec.0
+        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2026 00:30:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791009484; x=1791614284; darn=vger.kernel.org;
-        h=mime-version:content-transfer-encoding:references:in-reply-to:to
-         :from:subject:cc:message-id:date:content-type:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=rn5qy1uct3HxkhX0TLP/tcAeQOQET/L/4W2RbNiSgQ4=;
-        b=ir4gbnxEYnj8MisDdoh2wYz7JDHlJTCmhf8medao28SMIzq4NAWkf0ReXrErcyRePu
-         KYL62hbQCDuBRabP53yqOzo21q9Z1Qu3JS02vsmrsF8lbmufMc4VpPVBKi79MTCXIo33
-         8wUcc7BS5tppb1lzOCyUW7Pbd4tZpmLBF0s9MhdUEdgZxxOIoFlh8nRqh77cIJ+d1Kom
-         XVc+9Py5vO/ZY7NNBhTjHYlKbzBd2zgUgxGmrTTjIPGnpaerNNgFmzGLOupGDtJvz9op
-         e7c8gqGeTkF4yGlIJr6T4txba4hezFKH+14YeDOtMxg+o3hzr8eeMmp1c+W9zjWzOzVO
-         MJ1A==
+        d=gmail.com; s=20251104; t=1791012619; x=1791617419; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=qNX8WzPm1xbL15gYTvgsxtiYlRVrGYOY+Ynh0OU8gUA=;
+        b=YNtkdzJKh+CTHdYmHTMSq0tCqHTF47XwBrL+EWaAxEL1WFmgGaJSpRxUlMcRRhiyax
+         N29AY1L7isIVDVqBJaH/HB+MRr+L0mbzc1dd7ZnbSi30eOQWIbldyvt0EE4qkBSt5Xjx
+         E3EaR+efjB01XiaXAoDYuwDL/2RcPZdJNeb6iWxeLGMC9NptpVVrtqtPlVst46oHrFpu
+         JNEA3pwwDJGCtgufBhLoJXGtxJy00zmQqHeHjuVYow+yRplhuDZdIlaKO2/5Sk4RKyiv
+         ailhI2ZzwLo0lVVzT2OLY0J2mFYxT7h3sTi+bzon8ufpc+8d5oYaHyMrt+Fweo7HddaK
+         FVGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791009484; x=1791614284;
-        h=mime-version:content-transfer-encoding:references:in-reply-to:to
-         :from:subject:cc:message-id:date:content-type:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=rn5qy1uct3HxkhX0TLP/tcAeQOQET/L/4W2RbNiSgQ4=;
-        b=ELP5BbkUZKuFL0UCg2RpgVDCW0ssNKLF6SNkO1qPMJvbqlRFH5Ct2ySh5ii2suPhfE
-         ZOMY7377DIHpAesT6jYytil1/s3mgNKQBLgbSNJkkVaVohQHmDVCS86wYZKKV+wrW1Oh
-         u3KKlWVq44zO/RKnaPEgMqFPQV/7beXvpbgG/MxFzkJbA2eXVi1wXw4JUgYLkgvqQYW1
-         SDAq/RD1JUlBxXhPFCwB1HiZng3f0ByhYX+Gd4Nd1ACa4MlSE8wXFnO+pBTao8dIJf4t
-         +nZbd/2UgN7+pRAUdo8tppwE+bWWTgfDGKcrNEp6FCsGHDx2K2ewl9b2LRsqgPaOyuGr
-         9UAw==
-X-Forwarded-Encrypted: i=1; AKwUvBz8SVxRLHg/lOJ1Xm5moqfdym8/FraOWAiCcRdWZJZZ4DtFsyEkXYgmTJ3bHRsXV9w0CwbP5oWR4LNssg==@vger.kernel.org
-X-Gm-Message-State: AFuF++ljFGHZwsPL8g3d+lQh//CrtmInY0t7vMA4GgOdA0jy0CDY6EUY
-	aVbGzitbi5BkkqOniWL3fJnb9dprFkPOshS1LYDyjaBWJYp8bb6j66lj
-X-Gm-Gg: AYBFou3QaEO4w9Tl3ndnJy+bAfCfaZy2ny1mrrGDubwFQst2wRq1YwRC8ybhwA3UiRS
-	gIpQedAvME9I3/xSjFR0b8sgB0TKwYBH9j8A6DNJBE2mUiw0M0X1eszTMtJsPR3QqVSR8EpgEiS
-	PO7SgyD1eWf8H6bbD2QyvJwNU/MLWxGS6FzeICQkAChGQyN24HjOv4+bSM0TVw/Lziq7BzelaBt
-	YyrCbYYCMslHK4Tgkgu4w46w9azXjubUF8oqvo4osFS/hvjHKWq6sNk208z2GpXFctopUh1qL6P
-	ydaFqvEFIxfqDVF5If/W3SnEC84KSk/z0aP5XZCUJaLElwbd3Re1JvsXj7aPj0mDkQPJAwtXEat
-	gohkidNKSJChhaReVbG2//++1Rn4O2BjypbjtgmpK1mwWQQvZcg9VIvF7MKaLn2MqwJs6iQYWhx
-	negtTjulJQeCGA9ZxCQ1CiR8yH8Y1550r2SRSfeBcV4XCWxPnpxhyoBYMfDUlTnFoWpweQyDx6R
-	rekmgZ4DVQqLXRGUW4SWoKYgbFF6S5Rr0/Fsw90Et0ymP21Jzg68k+D5n5SrPd7zrdSWmS3HLkm
-	Ccs=
-X-Received: by 2002:a05:6a20:7495:b0:3e0:b778:d988 with SMTP id adf61e73a8af0-3e0bd4bff2bmr4998287637.83.1791009484332;
-        Fri, 02 Oct 2026 23:38:04 -0700 (PDT)
-Received: from localhost ([153.61.198.249])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc9f7370db1sm1809155a12.17.2026.10.02.23.38.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 Oct 2026 23:38:03 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 03 Oct 2026 06:38:02 +0000
-Message-Id: <DLUZVHOLSN1B.115EUX4KJBEA3@gmail.com>
-Cc: <alan.maguire@oracle.com>, <martin.lau@linux.dev>,
- <yonghong.song@linux.dev>, <jolsa@kernel.org>, <qmo@kernel.org>,
- <nathan@kernel.org>, <nsc@kernel.org>, <linux-kbuild@vger.kernel.org>,
- <linux@weissschuh.net>, <christian@heusel.eu>, <mcgrof@kernel.org>,
- <petr.pavlu@suse.com>, <samitolvanen@google.com>,
- <linux-modules@vger.kernel.org>, <rostedt@goodmis.org>,
- <mhiramat@kernel.org>, <mathieu.desnoyers@efficios.com>,
- <linux-trace-kernel@vger.kernel.org>, <acme@kernel.org>,
- <namhyung@kernel.org>, <irogers@google.com>,
- <linux-perf-users@vger.kernel.org>, <jikos@kernel.org>,
- <bentiss@kernel.org>, <linux-input@vger.kernel.org>, <tj@kernel.org>,
- <void@manifault.com>, <arighi@nvidia.com>, <changwoo@igalia.com>,
- <sched-ext@lists.linux.dev>, <shuah@kernel.org>,
- <linux-kselftest@vger.kernel.org>, <ojeda@kernel.org>,
- <rust-for-linux@vger.kernel.org>, <arnd@arndb.de>,
- <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <abuehaze@amazon.com>, <doebel@amazon.de>, <mpohlack@amazon.de>,
- <jay.wang.upstream@gmail.com>
-Subject: Re: [PATCH bpf-next v4 00/12] bpf: make the vmlinux BTF an
- on-demand loadable module (CONFIG_DEBUG_INFO_BTF=m) to save ~5.4 MB memory
-From: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
-To: "Ihor Solodrai" <ihor.solodrai@linux.dev>, "Jay Wang"
- <wanjay@amazon.com>, <bpf@vger.kernel.org>, <daniel@iogearbox.net>,
- <andrii@kernel.org>, <eddyz87@gmail.com>, <memxor@gmail.com>
-In-Reply-To: <44315425-c505-46fe-8379-f19d78ff3abb@linux.dev>
-References: <596bfb65-db2d-413b-8039-c921031b50fd@linux.dev> <20261002073422.14253-1-wanjay@amazon.com> <44315425-c505-46fe-8379-f19d78ff3abb@linux.dev>
-X-Mailer: mkdraft (claude review draft; edit before sending)
-Content-Transfer-Encoding: 8bit
+        d=1e100.net; s=20260707; t=1791012619; x=1791617419;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=qNX8WzPm1xbL15gYTvgsxtiYlRVrGYOY+Ynh0OU8gUA=;
+        b=20M6Ces+dTTw2CaXY5OqsiTDRz+U0AlaJM87BHboCRwBqxOODuoP2sfhjPDc5JmcDd
+         5fUbEuTcWk/zjmrRza02NGSIazRqV0ttv3eiZMBk3OGEhKUdGRjb+lG7JP7714doRq2x
+         rsonT8T4nlCg2EWmNQ4fVm9jYfuwFf55qiLODXwRmFDTpvI5fvMeAccpNmtRTx6B+I5D
+         ABjC2mcm4b5GHnAlcS2zNCFuWJKhq/rI2DwJf+NZ0+E47FL43Px4xbEbA5NLvCEGAVYi
+         ddUnWVz3DPJZsMviqhamQtPLxld2quMKEieIZWT1UHTFs9YD8M/oISnm7FNhHWMTIp2V
+         opxQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwGPslf2cqLFblKr0/7ND/lPoS66Gxmi/1MFn062XKznbaKRnDxoEcoDQJLhvq3RScdP+Fp5+5zCX692Q==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJslVrY5TMhmy9NF/HWhaUNXLa4WoWM24EjvYTcMy3oi0gtL/2O
+	/pHgQrjVayUtyerXb81rOtPhdjnbLBuD8ep5bRSUFKfqF2vXATwocY/a
+X-Gm-Gg: AYBFou22NhCniHSFYftuCpLF6jvscEPbnGVfUUMGcnoDFdqqMMWikhLuDL6t6i8opkV
+	r2H0sMF8IjX0npKdQCvuPZ3cpxKTKl0sFJYrmuEOOs6pUTMN8bSbPKoydOWRIO8wQWlvtD4eJnj
+	3mxPh9/xNvdsfTJF5IVkIs7ZcXrZz1X9Txx3j7HMga8u7B8irc4MYWRf8RS16sfZay1hdytEAOu
+	xV2s4Qruv5en6A+pOe+HqG5EuOeHuPBXFRto5rM2ZVlP0gO70nV+DdLzu1gJ61C0vAvZXIdymwI
+	PANohP0F7gznAiJvz74/XjNcwQCxMMVC8/H7Cu3ySaxxgd8Es5g9t1J1AZMQdg1oA7mqevFlNos
+	GJH3/T2kcPlozDNRayjqtfCssfGLIOR6L/5aohF133cLd04hjKj1pfMF+P3sOHeWtl/hBOWI3OJ
+	d5EI+Z663QLrDG0RZFk7q+KlwdZ59EyCVJ+Mg8Bw6FE/N9Uzjh2Ad76nDqVOyv+MrEQGdzkWYnH
+	hPMU6QXAA==
+X-Received: by 2002:a05:7301:9e08:b0:34b:401a:4648 with SMTP id 5a478bee46e88-34f150e388cmr5276725eec.20.1791012618690;
+        Sat, 03 Oct 2026 00:30:18 -0700 (PDT)
+Received: from linuxmint.. ([2802:8010:9a2c:8801:3f96:aa95:7a0d:7d89])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34f15019999sm10911097eec.29.2026.10.03.00.30.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 03 Oct 2026 00:30:18 -0700 (PDT)
+From: Nehuen Lian Bova <nehuenlian.kernel@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org
+Cc: Aditya Garg <aditya.garg@linux.dev>,
+	linux-kernel@vger.kernel.org,
+	Nehuen Lian Bova <nehuenlian.kernel@gmail.com>,
+	syzbot+5ad4fc9c8360b68e353f@syzkaller.appspotmail.com
+Subject: [PATCH v2] HID: magicmouse: fix null pointer dereference in magicmouse_event()
+Date: Sat,  3 Oct 2026 04:29:59 -0300
+Message-ID: <20261003072959.388811-1-nehuenlian.kernel@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261003011820.1295672-1-nehuenlian.kernel@gmail.com>
+References: <20261003011820.1295672-1-nehuenlian.kernel@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Fri, Oct 02, 2026 at 01:58 PM Ihor Solodrai <ihor.solodrai@linux.dev> wrote:
->      Keep zstd-compressed blob in the kernel image and decompress and
->      parse it synchronously on first use.
+Add a guard clause to check if 'msc' and 'msc->input' is NULL
+before attempting to access its fields, preventing a general
+protection fault.
 
-imo this is the only one of the three worth considering.
+Fixes: b8d56ef91cc3 ("HID: magicmouse: Apple Magic Mouse 2 USB-C support")
+Reported-by: syzbot+5ad4fc9c8360b68e353f@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=5ad4fc9c8360b68e353f
+Signed-off-by: Nehuen Lian Bova <nehuenlian.kernel@gmail.com>
+---
+Changes in v2:
+ - Also check msc->input before dereferencing it, not just msc
+
+ drivers/hid/hid-magicmouse.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index d637c0477379..e6d4d4930526 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -553,6 +553,10 @@ static int magicmouse_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
++
++	if (!msc || !msc->input)
++		return 0;
++
+ 	if ((msc->input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
+ 	     msc->input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE2_USBC) &&
+ 	    field->report->id == MOUSE2_REPORT_ID) {
+-- 
+2.43.0
+

@@ -1,107 +1,221 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.nozomi.space (mail.nozomi.space [139.162.184.125])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8CCF25B095
-	for <linux-input@vger.kernel.org>; Sat,  3 Oct 2026 12:19:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CE4A2E7367;
+	Sat,  3 Oct 2026 14:27:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.162.184.125
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791029953; cv=none; b=bQG0x80eXR4i/Pop1tn8F4GJLQHeYdqDSL+BCIxsFjUpzjCk8pYL1JtnZW69kFYyVwF0jgafLHTAEgmDoB9OOfWthpbiUkqP54uRSaV2z5JG+lghLt9AVCh5zRBTuStEiacMOHzjne9pU/rLn3zoFdU7JYnwThm/dO4z1l+2wHM=
+	t=1791037677; cv=none; b=cecZLtTu7T2H9HO+RLr7QCeWcCIiyEvdQKP5NOkyt6aXrEzkWJ2g7w2e424wn9cDsD++YtwShAziBuhe4UUiKMXEo90i18ngKbnwM1u4ajTScDOUF4QyHipYSvpW8+85yV9Bf1wcmWt58QrS9x4ViMPMqYdn2ixB2AxsR+Bi5vc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791029953; c=relaxed/simple;
-	bh=V0/7vUbzZ2WS3ekKYc+/9kx/XXTqOYvzaiHvHZHSBnk=;
-	h=Content-Type:Date:Message-Id:Cc:Subject:From:To:In-Reply-To:
-	 References:MIME-Version; b=RdvKgLz1SZnAdqqQWsmyFaMcuFR5tzr/F3fXXs/8bla4khNZw5TRmmNjwv8/PceI8A+/lvLuWkX88Kp/dDTF0Qr+BOJzRXbIg9nSrzHGL/1Zm3Dob8XJ17v3WGqLRTDxBwAEVplveWtHzbkUFGIwvsRf0bcdeFgjfezWz+muTrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ya1uPvVe; arc=none smtp.client-ip=209.85.215.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791037677; c=relaxed/simple;
+	bh=XqCWkgfqw+hMDm3yM9yHPr8Mh9uRobz+FUj5vmgfGzE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oJ9n2I296i566gDHN9mjp/n2Vnj6m11PzFCchHTJgLggBHbfaTdLTN384AlCcnsmOVxLPnDAvtPKT7SApRGqfqtZKoDTVDWN3Ngki3e21/y9q1YMQIS1Idz67ZdQWxN/pMUjSMtWr2nN5l9fEihpVFolqpib1UXMBgIrhgERfM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nozomi.space; spf=pass smtp.mailfrom=nozomi.space; dkim=pass (2048-bit key) header.d=nozomi.space header.i=@nozomi.space header.b=gNR1hzBM; arc=none smtp.client-ip=139.162.184.125
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=nozomi.space
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nozomi.space
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ya1uPvVe"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-cc4dbcf2b85so192422a12.3
-        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2026 05:19:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791029944; x=1791634744; darn=vger.kernel.org;
-        h=mime-version:content-transfer-encoding:references:in-reply-to:to
-         :from:subject:cc:message-id:date:content-type:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=V0/7vUbzZ2WS3ekKYc+/9kx/XXTqOYvzaiHvHZHSBnk=;
-        b=Ya1uPvVeeM6n17IR0e8tR+Fjn4A7Tt8xHAj2K4RCLwhM/hfRH2CLdq5KVXsqQ+7+x3
-         Bjh71FLm+eHABWYeuAqtB8u41rC6u3Gv0BBngTOtNGGVVoYenWZdoIx3EaA3DW/NqxEm
-         r1BZUyVLORTMFFEYNnrQzZPkAX5SzAzBvz9lKEZ3dm47fm7OGnnuU6Pf8eBH/fTDejMv
-         npC3Z2mnofQdhE53ZvxxScLXy/4abR1ig/Pap4sIskWXMbYdPYLxYYrtmb8UwcnIJNTw
-         789AGnYTn0CFfvhsFtKtHWJVNh1VUA9JUAmfn7mEfHa9u0CqKMUz5YKq5/iDP7QXZpvj
-         C1RA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791029944; x=1791634744;
-        h=mime-version:content-transfer-encoding:references:in-reply-to:to
-         :from:subject:cc:message-id:date:content-type:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=V0/7vUbzZ2WS3ekKYc+/9kx/XXTqOYvzaiHvHZHSBnk=;
-        b=Hra9DmAQ+TlZ648CP4u24AtSWBACOJ0a32clCfYNBa1lT4yue8m5suV3DzLG3rVHAb
-         9phzJ1U1U4iCaLSyhP7KAyIjeMYJJOim/eWFSCauPcGT9V5/bHUewkaS6u1EyE9tSVuV
-         7IqxkcGoB9W8Kb2rafXnOgMOD2yCRXgfgtQ1pdM7L1iFIq+fBlu2FB4vgyVhPxGv1lXO
-         iLuO5CUJVTUMKvtebEy5cLqBT0Yfm5Ng3C0uLpsbgMR1811SETouzxYE1VT9fav2fJOF
-         tVWoYx0/uXhQCxSUsbVuHrLdccj3WK3GUt0ZoKPf8MVQHIP8zRbTvotcitCdPagJLSwv
-         0MBw==
-X-Forwarded-Encrypted: i=1; AKwUvBxww+h6laYc0gG8AEH0m7ZnRlwLDFXOwoYOHX/KvoeDRi5l/RuBvCd8gJE2bPp9tQj2ggCUkVM4ut1LVA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mD0xQq4viH0ZwOZN6Vp4ziDeFNxE/JNZWScyb8JtBZA2lCb7Gj
-	pa2mSvwxCxSPrz8NY0Kx2pheI9IlKesBoU3RYDfbdCqnwan4QMg8FOox
-X-Gm-Gg: AYBFou0mdUlBFoXSD0/NU53XWjAIP+aGanf9p/F8k3T5NHI0w0Jukeymwk0EvLarDS1
-	3AkUKu3MDeuzqmYyVk0YxpIZaz8TXX7rYzKnjAZSBcLqbLobDDAscsSB/8YGiPMwMvL1OUcNXR+
-	RRdVwqgfWLv81ftjQkAKBU50h8+iLrOCy3SLnsEwBDO0iBT1oZ7ClOAdkkcDt5+d84gRwOGef6t
-	ipCv8MK2QFmZ3gVBVtde/t+LM78PkPYWMPxr5+czA4fVHObJt7yJ8KPtob3qJ7C2siS6TYWtPOw
-	/kIPXPkWxOmAuelTSJ5o/Z4LifShOL8DYL464oJRHxmOKqLSsIK+HWXVh46YvImtje8XrLoPSX+
-	lyJ6Xn004eeThmCgvSM8QaWhL6dJ8zfmsUU94i64n/pU/patPXJNpQW4V8/tcxxv9Y5wB13uIYj
-	4J+Q7xJdXxKmDKwIR2c+zZF/oeKStBnIWHnd+wGeIV58vq0V4tGhZt9AurpSzMJVLBucmteEdRo
-	AO7Lq6aKw45EdVNP1ifstKlOqQwjMUDoyQw6kbeN1VCfJ2SQ1IkjP/RALJPUaF8NWXvhc2wGh5e
-	qIY=
-X-Received: by 2002:a05:6a21:d89:b0:3dd:a197:7360 with SMTP id adf61e73a8af0-3e0d6d8ff80mr2052536637.57.1791029943830;
-        Sat, 03 Oct 2026 05:19:03 -0700 (PDT)
-Received: from localhost ([153.61.198.247])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cca561e9d1dsm1740373a12.6.2026.10.03.05.19.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 03 Oct 2026 05:19:03 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 03 Oct 2026 12:19:02 +0000
-Message-Id: <DLV74KRI1SBL.MYZVQAB3N6QG@gmail.com>
-Cc: <abuehaze@amazon.com>, <acme@kernel.org>, <andrii@kernel.org>,
- <arighi@nvidia.com>, <arnd@arndb.de>, <bentiss@kernel.org>,
- <bpf@vger.kernel.org>, <changwoo@igalia.com>, <christian@heusel.eu>,
- <daniel@iogearbox.net>, <doebel@amazon.de>, <eddyz87@gmail.com>,
- <ihor.solodrai@linux.dev>, <irogers@google.com>,
- <jay.wang.upstream@gmail.com>, <jikos@kernel.org>, <jolsa@kernel.org>,
- <linux-doc@vger.kernel.org>, <linux-input@vger.kernel.org>,
- <linux-kbuild@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <linux-kselftest@vger.kernel.org>, <linux-modules@vger.kernel.org>,
- <linux-perf-users@vger.kernel.org>, <linux-trace-kernel@vger.kernel.org>,
- <linux@weissschuh.net>, <martin.lau@linux.dev>,
- <mathieu.desnoyers@efficios.com>, <mcgrof@kernel.org>, <memxor@gmail.com>,
- <mhiramat@kernel.org>, <mpohlack@amazon.de>, <namhyung@kernel.org>,
- <nathan@kernel.org>, <nsc@kernel.org>, <ojeda@kernel.org>,
- <petr.pavlu@suse.com>, <qmo@kernel.org>, <rostedt@goodmis.org>,
- <rust-for-linux@vger.kernel.org>, <samitolvanen@google.com>,
- <sched-ext@lists.linux.dev>, <shuah@kernel.org>, <tj@kernel.org>,
- <void@manifault.com>, <wanjay@amazon.com>, <yonghong.song@linux.dev>
-Subject: Re: [PATCH bpf-next v4 00/12] bpf: make the vmlinux BTF an
- on-demand loadable module (CONFIG_DEBUG_INFO_BTF=m) to save ~5.4 MB memory
-From: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
-To: "Alan Maguire" <alan.maguire@oracle.com>
-In-Reply-To: <7fe71959-1c58-4b6f-9019-6f886683530e@oracle.com>
-References: <DLUZVHOLSN1B.115EUX4KJBEA3@gmail.com> <7fe71959-1c58-4b6f-9019-6f886683530e@oracle.com>
-X-Mailer: mkdraft (claude review draft; edit before sending)
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=nozomi.space header.i=@nozomi.space header.b="gNR1hzBM"
+From: =?UTF-8?q?Micha=C5=82=20Kope=C4=87?= <michal@nozomi.space>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nozomi.space;
+	s=mail; t=1791037674;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=r4icjsWdDNkFPI9eCM7uyv38hNANdJsnlkRLB77xRkU=;
+	b=gNR1hzBMANQJtp5eKwFLNMI/JAJCj/zB4hjVIa03gke5UjqsZSjQlOdgoXI3utwQnWxNvl
+	bVAgWQvJ9F3b95nWfzzgnCFY9hNCZsSe4Yvk9lb2cCjGRalafrIY/W4vqxUAZrT7O1SAJv
+	Zl94AIVh6jyKGKrJ95DUfU1VShlZH8BSVVwgfrHxRURkC0FaLjqkQ4+cZndEsclg2SFU9T
+	vUixe6mZ543af2DCnhZ5SR84yIvUdUMniTphj40qAq7VH3/ZlVZEcmSM4l3W6wwZ81usUe
+	Mp4xAODyyqaC59HlpjAehxtE+TJ6RcWu+fpXEs3TklgJUrFi2/fXX6cHEfaG9A==
+To: linux-input@vger.kernel.org
+Cc: devicetree@vger.kernel.org,
+	linux-mediatek@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Allen Lin <allencl_lin@hotmail.com>,
+	Tylor Yang <tylor_yang@himax.corp-partner.google.com>,
+	Felix Kaechele <felix@kaechele.ca>,
+	Douglas Anderson <dianders@chromium.org>,
+	=?UTF-8?q?Micha=C5=82=20Kope=C4=87?= <michal@nozomi.space>
+Subject: [PATCH v5 5/6] HID: himax: Report the touch and heatmap data
+Date: Sat,  3 Oct 2026 16:27:40 +0200
+Message-ID: <20261003142741.48634-6-michal@nozomi.space>
+In-Reply-To: <20261003142741.48634-1-michal@nozomi.space>
+References: <20261003142741.48634-1-michal@nozomi.space>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Sat, Oct 03, 2026 at 12:45 PM Alan Maguire <alan.maguire@oracle.com> wrote:
-> The only overall cost is if when we wind up using vmlinux BTF with the compressed
-> .BTF section, since we have to do a full vmlinux BTF allocation (on top of the
-> spac taken up by the compressed .BTF section) right? So slight penalty if vmlinux
-> is used, but big gain if not.
+With the HX83102J firmware on Ciri, every interrupt delivers a frame
+with the touch report, the stylus report and a heatmap. The driver only
+passed the stylus report to HID core, so touches were never reported.
+The firmware report descriptor also declares the heatmap as input
+report 97, and hid-multitouch rejected the frames that did not carry it
+in full, after which the driver reset the controller over and over.
 
-I think it can be copied compressed into vmalloc area and
-freed after decompress, so memory usage should be exactly the same.
+Report the touch report as well, and size the transfer buffer for the
+heatmap that follows the stylus report. The IC packs the heatmap as
+12-bit values, while report 97 declares 16-bit ones, so unpack it into
+a separate buffer before reporting it.
+
+The heatmap handling is based on Tylor Yang's change to the ChromeOS
+kernel driver.
+
+Link: https://chromium-review.googlesource.com/c/chromiumos/third_party/kernel/+/5326106
+Co-developed-by: Tylor Yang <tylor_yang@himax.corp-partner.google.com>
+Signed-off-by: Tylor Yang <tylor_yang@himax.corp-partner.google.com>
+Signed-off-by: Michał Kopeć <michal@nozomi.space>
+---
+ drivers/hid/hid-himax.c | 51 +++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-himax.h |  6 +++++
+ 2 files changed, 57 insertions(+)
+
+diff --git a/drivers/hid/hid-himax.c b/drivers/hid/hid-himax.c
+index 533d7be629147..40abae724743d 100644
+--- a/drivers/hid/hid-himax.c
++++ b/drivers/hid/hid-himax.c
+@@ -2150,6 +2150,37 @@ static void himax_hid_remove(struct himax_ts_data *ts)
+ 	ts->hid = NULL;
+ }
+ 
++/**
++ * himax_decompress_heatmap() - Unpack the heatmap into its HID report
++ * @ts: Himax touch screen data
++ * @src: Heatmap as read from the event stack
++ *
++ * The IC packs two 12-bit heatmap values into three bytes, while the HID
++ * report descriptor of the firmware declares 16-bit values. Copy the report
++ * ID and heatmap info header, then widen every pair of values to the
++ * little-endian 16-bit layout of the report.
++ *
++ * Return: None
++ */
++static void himax_decompress_heatmap(struct himax_ts_data *ts, const u8 *src)
++{
++	u32 i;
++	u32 count = ts->ic_data.rx_num * ts->ic_data.tx_num;
++	const u32 header_size = HIMAX_HEAT_MAP_INFO_SZ + 1;
++	u8 *dst = ts->heatmap_buf;
++
++	memcpy(dst, src, header_size);
++	for (i = 0; i < count; i += 2) {
++		const u8 *packed = src + header_size + i * 3 / 2;
++		u8 *unpacked = dst + header_size + i * 2;
++
++		unpacked[0] = packed[0];
++		unpacked[1] = packed[2] >> 4;
++		unpacked[2] = packed[1];
++		unpacked[3] = packed[2] & 0x0f;
++	}
++}
++
+ /**
+  * himax_ts_operation() - Process the touch interrupt data
+  * @ts: Himax touch screen data
+@@ -2175,6 +2206,10 @@ static int himax_ts_operation(struct himax_ts_data *ts)
+ 	if (ret == HIMAX_TS_GET_DATA_FAIL)
+ 		return ret;
+ 	if (ts->hid_probed) {
++		ret = himax_hid_report(ts,
++				       ts->xfer_buf + HIMAX_HID_REPORT_HDR_SZ,
++				       ts->hid_desc.max_input_length -
++				       HIMAX_HID_REPORT_HDR_SZ);
+ 		offset = ts->hid_desc.max_input_length;
+ 		if (ts->ic_data.stylus_function) {
+ 			ret += himax_hid_report(ts,
+@@ -2183,6 +2218,11 @@ static int himax_ts_operation(struct himax_ts_data *ts)
+ 						HIMAX_HID_REPORT_HDR_SZ);
+ 			offset += ts->hid_desc.max_input_length;
+ 		}
++		himax_decompress_heatmap(ts,
++					 ts->xfer_buf + offset + HIMAX_HID_REPORT_HDR_SZ);
++		ret += himax_hid_report(ts, ts->heatmap_buf,
++					(ts->ic_data.rx_num * ts->ic_data.tx_num * 2) +
++					HIMAX_HEAT_MAP_INFO_SZ + 1);
+ 	}
+ 
+ 	if (ret != 0)
+@@ -2322,6 +2362,9 @@ static int himax_hid_report_data_init(struct himax_ts_data *ts)
+ 	ts->touch_data_sz = ts->hid_desc.max_input_length;
+ 	if (ts->ic_data.stylus_function)
+ 		ts->touch_data_sz += ts->hid_desc.max_input_length;
++	ts->heatmap_data_size = ts->ic_data.rx_num * ts->ic_data.tx_num * 3 / 2;
++	ts->touch_data_sz += HIMAX_HEAT_MAP_HEADER_SZ +
++			     HIMAX_HEAT_MAP_INFO_SZ + ts->heatmap_data_size;
+ 	if (ts->touch_data_sz != ts->xfer_buf_sz) {
+ 		kfree(ts->xfer_buf);
+ 		ts->xfer_buf_sz = 0;
+@@ -2331,6 +2374,14 @@ static int himax_hid_report_data_init(struct himax_ts_data *ts)
+ 		ts->xfer_buf_sz = ts->touch_data_sz;
+ 	}
+ 
++	if (!ts->heatmap_buf) {
++		ts->heatmap_buf = devm_kzalloc(ts->dev,
++					       ts->ic_data.rx_num * ts->ic_data.tx_num * 2 +
++					       HIMAX_HEAT_MAP_INFO_SZ + 1, GFP_KERNEL);
++		if (!ts->heatmap_buf)
++			return -ENOMEM;
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/hid/hid-himax.h b/drivers/hid/hid-himax.h
+index 71599520b8006..3582f8e00ef1b 100644
+--- a/drivers/hid/hid-himax.h
++++ b/drivers/hid/hid-himax.h
+@@ -52,6 +52,8 @@
+ #define HIMAX_ZF_PARTITION_DESC_SZ			16U
+ /* HIDRAW report header size */
+ #define HIMAX_HID_REPORT_HDR_SZ				2U
++#define HIMAX_HEAT_MAP_HEADER_SZ			3U
++#define HIMAX_HEAT_MAP_INFO_SZ				20U
+ /* hx83102j IC parameters */
+ #define HIMAX_HX83102J_DSRAM_SZ				73728U
+ #define HIMAX_HX83102J_FLASH_SIZE			261120U
+@@ -392,11 +394,13 @@ struct himax_platform_data {
+  * @xfer_buf: Interrupt data buffer
+  * @xfer_rx_data: SPI Transfer receive data buffer
+  * @xfer_tx_data: SPI Transfer transmit data buffer
++ * @heatmap_buf: Decompressed heatmap HID report
+  * @zf_update_cfg_buffer: Zero flash update configuration buffer
+  * @himax_irq: IRQ number
+  * @chip_max_dsram_size: Maximum size of DSRAM
+  * @spi_xfer_max_sz: Size of SPI controller max transfer size
+  * @xfer_buf_sz: Size of interrupt data buffer
++ * @heatmap_data_size: Packed heatmap data size
+  * @irq_state: IRQ state
+  * @irq_lock: Spin lock for irq
+  * @initialized: Indicate the driver is initialized
+@@ -424,11 +428,13 @@ struct himax_ts_data {
+ 	u8 *xfer_buf;
+ 	u8 *xfer_rx_data;
+ 	u8 *xfer_tx_data;
++	u8 *heatmap_buf;
+ 	u8 *zf_update_cfg_buffer;
+ 	s32 himax_irq;
+ 	u32 chip_max_dsram_size;
+ 	u32 spi_xfer_max_sz;
+ 	u32 xfer_buf_sz;
++	u32 heatmap_data_size;
+ 	atomic_t irq_state;
+ 	/* lock for irq_save */
+ 	spinlock_t irq_lock;
+-- 
+2.55.0
+

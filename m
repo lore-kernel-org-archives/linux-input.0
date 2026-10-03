@@ -1,64 +1,65 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B900345EAD
-	for <linux-input@vger.kernel.org>; Sat,  3 Oct 2026 18:45:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC3E934D93C
+	for <linux-input@vger.kernel.org>; Sat,  3 Oct 2026 20:07:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791053106; cv=none; b=EY5+C15ln1t1wfMiK8uXezursYskAe/0ZnieDvdQmXAcvfiDZ+5h+z1UUH9wDovYsqAYmqLR2Wmet18Nej0cI+l5WkLL7vbeLYgAfdM64lvw6msaFNSm3xL6Kb9eUpaAU61MfgXbr7df3rm17nbXLXEUGWcGg9LcBPaSGRFuTlE=
+	t=1791058040; cv=none; b=Fzw3XbcE49iT0sYkEaTdL2ku9sO6aQU5h4z9DHy/7OYDHVrkSkkVn1nyK6xdrGyz+nkFNRG29UZymR11OjLR50b7Yf+uVxdRG31pjwz/XxpdH1hGDiFz+T2TmMZrrsm1xhOninjyDKdCJwFDQg0eEjOdB5DHNW/Xl6C5xan/T8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791053106; c=relaxed/simple;
-	bh=zkssaX7fnkDc+x6aCkdXY3ObHAFxkiEVjiZd3OTMEDw=;
+	s=arc-20240116; t=1791058040; c=relaxed/simple;
+	bh=7JbPPMC9KEMGlful8kZbuXTUQyPP8BqdUCabjv3tsqo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=i5GLzG0K6oL1qRrm20j9hrl/tmaGKRc7fPwotcAkd1XjiOazpBHO4vYbJYtCN11TnbreXQyeOHeIboEL2nMc5UKucWyZohysbHeY2D03iX7Tdz2ubZHH/6Qg6u+1a5DUd+5lK9SxVq+5eue6E8rMSXlJpXT965rntX5QtviNV0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MLQeRUKj; arc=none smtp.client-ip=74.125.225.140
+	 MIME-Version; b=K+q9zL4aurFrmSz+lM74pDfypsT1MH524IuSPvtv7P774g3WXrpCDM86CHSh6qDff7ndnyojU92CzKWjuIRS/Qrg7I9LeZvvtH6ScEqW7S83SkigVyc7GIytcFo8yUxVYrvuyRr4X+c4onbjmqGTSarxTSABYczDV6IPrHMcTZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VWD8gNSl; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MLQeRUKj"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49ffe281cb1so4853575e9.1
-        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2026 11:45:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VWD8gNSl"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a1688d7769so4167435e9.0
+        for <linux-input@vger.kernel.org>; Sat, 03 Oct 2026 13:07:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791053103; x=1791657903; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791058037; x=1791662837; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=djtqvvNIWPRflD8Kc+E4AOFA+52E0tOwKn2avDlsL70=;
-        b=MLQeRUKjFdDQnuyu0HBn7Dlza7jShYOsC2KPpgjatvc/DX8Saits3acwGLJuF7msim
-         4r6NLudViYA3IjMMxs4xRTRH1LjHI0JKUzj6suoYPeHLcfi3swx0ZLznrcctTsho/Wy3
-         8zsmJnVkAI/PVqenenOftqkx2a5pZcN3zIHE1bW337UwG1ctLZVN0J1WSbv3V3bfI1in
-         iZgo8aAbf9fEMd3IBmgZAySCNds/Xnu2Ec3xUZ51n0Fu/ZGv+ARf9LR/ykDNL5FyC7ws
-         PFrWPt6mrmUu9z2nbmWhrG+gd+c04CfHhlMfKGP2lWP6Og9uejtPbjK/pFJe73ZuLaM/
-         RMbg==
+        bh=H1zvj0uCRg+B5aiBl/n8A7h6RRgbM/5lvnwXxsY+iJY=;
+        b=VWD8gNSlyz6iAoxaQdCnMqlK0cfEKUdF8i+ApIJ0beBxkzY76aTI5kaPqIWeQPt6cl
+         9jp5KKtNcyHYpQGHJbWWNQWh3EYXMg1G6A74FNCJ6PDuLOtLvXmnAYesFqabe/1KeQRD
+         wi+dL8L6lgsXS5T8QQSp570+/MrTvRgBUYEHEYRWZ4KEcXep4Nj1liFOLZoh40m70Nkt
+         4RgCMOhXRDmWPdVnjTZfi8zXWYCigfcpPbt9FiqsfD6A/tmHTnjHxuTYM91GQ3TDuusg
+         GMq9RVJZWzr5cFeHdAwhsNUzSwnZzk6DxojnlekQb0hcd9rmxsfTWNeV9BojAZfcj0vS
+         joAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791053103; x=1791657903;
+        d=1e100.net; s=20260707; t=1791058037; x=1791662837;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=djtqvvNIWPRflD8Kc+E4AOFA+52E0tOwKn2avDlsL70=;
-        b=sk5qHmIuG3Lz8PXhOs1Pm8XirWQT7s39BRKoR3Cd/1em6wi7DjlWq+1RZ57MPzVGOI
-         mWC4UFGhn+pTdaE+Q2l4QbcWTHDlmcTV1uh9JRT8TxbVJ/31O0IbaCCouZcXgCFmeSQn
-         Op46xBu8mirruj9Dg3CqKlOFBLOQizIkHhtDbhZaQZgwP4sxPs3n47wg9dnP4xSIHqdj
-         KJL4igfieW5SPehcqy+EBPYKe+UgVAMB52R8746bfm8RL0Ag29JriX7VtjcYFl2mCPgt
-         YzqQooevppeNTyoTXsIrbK7JPlZmnu+zHGxL1ue3jzf5vZ7Z9G/RpKnzTUD3adp4N+Hl
-         hCmw==
-X-Forwarded-Encrypted: i=1; AKwUvByhZKR9aC6FWkmQSVLXCpD+x/vnl4wnkxTy8rUk+v15b9DG8b/yIadNV75dfttFw9gLyOUnzuX51LiO3g==@vger.kernel.org
-X-Gm-Message-State: AFuF++nq+VZ7OLveDm0d7uAAkhzie28V5gJfDQDBKffjDbvItbj6IPyZ
-	VwTfN3D7Qjcm9sGj0s9mzQ+ST38zNYGhdgnZNCn3AgfgLfnylTGL/2ow
-X-Gm-Gg: AYBFou1CM/0kfbs4E7IALSB8UuPmEvNACjK5M0sA/qHkWumo/1J32q+uQDi0y6fj8V2
-	jKOwET3zpsNN49otpNHyoe2huWn5vn5tzhtTvmtV31NeghIyKL0ZohhxlkGTQcJcS6VLKBidKDd
-	Q7tuKF2mbmo4hUFkIeLRHqGsyGq6HYKlhCVLKGirxtXNnB8HEHJ1MHg9RQ8lnP/zO7xp32OYwTa
-	1SuBMfeiEuCv1QmE4PbtCcRLIBGQdpSXDbW6hLA+TeHEiKOXrOZQeCr4jB0+Ey90UyWW1cZXiOm
-	trjtcVPRg40aqyfu5dWwNz4YROsLyGWAO38Wi6w/R+y5ZDt08QQ3F9s38sUXyXxjbd6v4AUo1xe
-	htoQkg+1zGqUNY3Uail4JmMlcw1ay/4Y9fTG0xPkHeYIBRQ+HUV1r10JbskXuKiIZSsZbkz7hGc
-	UHUiafxt7ETNK7iFgvCIngEKNxgv/PVNlHtqtdXH+kNUGyw47SzWf/t8cJIRhtOreZXxMMO/bCM
-	21uXqgcI7+5r8xVKfpOD/rR4Cvxs65QfIbmPdPsAqgedz/CGbfWV9tZgPT4pGIg5ngeUA8=
-X-Received: by 2002:a05:600c:a404:b0:4a1:6af7:9c23 with SMTP id 5b1f17b1804b1-4a16af7a0d6mr31350755e9.7.1791053103279;
-        Sat, 03 Oct 2026 11:45:03 -0700 (PDT)
+        bh=H1zvj0uCRg+B5aiBl/n8A7h6RRgbM/5lvnwXxsY+iJY=;
+        b=HHgQ/zX6pwF/5vq9GMmCO3aA5Y43YhduISSK2V4JEsVZX3ErgbTnF9fleGnVli9leJ
+         xcgZ18Y3kwTTiRE0PZehyLvLg1nEUgoLGZWuQBhrlOTNBKm/IIqW5G6I8+QVT8rNdkRp
+         n3mmdqj5f2oYaK++U6JLePflWrkk8YDHSRTMGeMFLrZazFZU0S/XnhppMZJNW2r7R4uB
+         CUyKnoXpM9h9TaAtsJqjwYwhg9pv0hSGMVD8FXlIa+5xnwdSPtE1a8cvdDlykbQVCN5g
+         M49wy5iz3UJ+y3K9rgiwccjogBQ1XZcvetAjz732CdUgF5gxgeAFtlzHqUq5fCzKI6+i
+         DC0g==
+X-Forwarded-Encrypted: i=1; AKwUvBz3bceeSO7oFLxzgNBwDsCLOM5Sm7n9FiNgp+VdGmGgRtWClVXHY4X9k4afmDcXndEAPOsvdIxrKqaqIA==@vger.kernel.org
+X-Gm-Message-State: AFuF++nBBzjc9/0xfJreBd9cJwzYPNiiQRmW09DiOvGEClkiMzjyU71z
+	4ZZ0guWc8ywZTnnbsNxl9OucEBBE3XVxqE2AZnE0i/Y6lVwd2GfwIgAFZGTgSdVO/t9JWEaP
+X-Gm-Gg: AYBFou3c9VUze48wtlFtSaJOkxWhyFQWoeJbK3zK7tSRyB5qpYXEdqjyqBGxMFQO2EE
+	5p80UviLCEHMXY1Zgn9fnVZK8X0aQ58QxinKX0krgLJA+XVc5HMdSfC6iub9H2+62DZL6yHI2sv
+	lMCN0B+ZfNdxsCqIOhvwPQiAhJY5jGEnnI5V3qWbZ23D03OKLVAgVI3hA1b98ZSwnUHRFc6pZuX
+	Q2OllEYxuyTT7e2QkIOzZOZrHr2N+X0l50F+muHgSU5lGXi580+hY/x2WPvLuyZ97J9CsLCkPZN
+	UR8x7aHTwdOFhVs3pqSHtBMeXsOFAAkK/AFJT9gaEQ65V/fEMWm9l2oZSylJKdMMguqW2n6oM8O
+	QGP2+RR32/byUqg15cIAgXmzZoZh1V1Dyk6lxBAoLhWp2VSOAyBd1UIT/TmrPrac958w9ObwMvJ
+	ZfsyXxsf4u3HRCAIVYsqOSD4Ot0AUiIG6WXTQH0L//p45ttZI2Lhj5SdwRRkrrZqaONwTbCmf2z
+	NZLrgq1gSsQTiAZPhfTRvbg3Kse+rMrem9t5rvjFybAL5/5SBo6rBWCN9/uBJ8NpNk7lUY8lSI4
+	39850Q==
+X-Received: by 2002:a05:600c:a41:b0:4a0:23f:8b0d with SMTP id 5b1f17b1804b1-4a1680b9df0mr46578785e9.2.1791058036797;
+        Sat, 03 Oct 2026 13:07:16 -0700 (PDT)
 Received: from localhost ([188.234.148.119])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a027740a2fsm222261035e9.13.2026.10.03.11.45.00
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a027f2a4c4sm209114545e9.2.2026.10.03.13.07.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 03 Oct 2026 11:45:02 -0700 (PDT)
+        Sat, 03 Oct 2026 13:07:15 -0700 (PDT)
 From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org,
@@ -68,12 +69,12 @@ Cc: tiwai@suse.com,
 	linux-input@vger.kernel.org,
 	linux-sound@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v7 0/2] the Topping M62's vendor controls, on the component framework
-Date: Sat,  3 Oct 2026 23:44:59 +0500
-Message-ID: <20261003184459.35138-1-mikhail.v.gavrilov@gmail.com>
+Subject: Re: [PATCH v8 0/2] the Topping M62's vendor controls, on the component framework
+Date: Sun,  4 Oct 2026 01:07:13 +0500
+Message-ID: <20261003200713.50742-1-mikhail.v.gavrilov@gmail.com>
 X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260930213322.32454-1-mikhail.v.gavrilov@gmail.com>
-References: <20260930213322.32454-1-mikhail.v.gavrilov@gmail.com>
+In-Reply-To: <20261003184217.34671-1-mikhail.v.gavrilov@gmail.com>
+References: <20261003184217.34671-1-mikhail.v.gavrilov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -82,9 +83,35 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Superseded by v8, which moves the controls into snd-usb-audio and
-renames the HID driver to hid-topping:
-https://lore.kernel.org/all/20261003184217.34671-1-mikhail.v.gavrilov@gmail.com/
+A correction to the Tested section: "other firmware" is wrong. The
+card keeps its operating mode in the high byte of bcdDevice -- 01xx
+Mobile, 02xx Live Streaming, 03xx Pro Audio -- so the second card's
+1.45 is Mobile Mode, against Pro Audio Mode (3.27) on the first.
+
+That also covers the one item the letter lists as not re-run for v8,
+Mobile Mode without a UCM profile. The second card ran in Mobile Mode
+throughout: its nine controls were created, it bound again in each of
+the fifty reload cycles, its own knob reported to its own card after
+the second suspend while the first card's knob left it alone before
+and after, and its cable pull ended in a clean rebind.
+
+Two items from the "Not tested" list have been run since, on the
+first card, each time with all three of its snd-usb-audio interfaces
+unbound and the control interface bound again:
+
+  - with the HID driver left bound: the component bound again on the
+    new card at once, all nineteen controls were back, and the
+    headphone volume was as before the unbind;
+  - with hid-topping unloaded first and loaded after the card had
+    registered: both components bound at the load, and the nine
+    controls appeared on the registered card. They start from the
+    driver's defaults, the headphone volume at 0: the restorers act
+    when the card appears, before these controls exist, so "alsactl
+    restore" has to be run again, and it brings the saved values
+    back.
+
+No WARNING, BUG, KASAN, UBSAN, lockdep report or call trace in the
+kernel log over these runs.
 
 -- 
 Thanks,

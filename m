@@ -1,137 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl2-f41.google.com (mail-dl2-f41.google.com [74.125.229.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72C6137CD40
-	for <linux-input@vger.kernel.org>; Sat,  3 Oct 2026 01:33:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1F3E33936F
+	for <linux-input@vger.kernel.org>; Sat,  3 Oct 2026 05:08:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790991222; cv=none; b=Vui8orURxb7KVdVyLuStXkSTIJzOhzLGoCQDLSm7MZ0mKQj07RmVUGyFKgGAGHTJqUtaVFSWgtWFib4gRsLBgCJlGSyWoSWpNsIHqFcP3DEWRmMLGrRwzHKLoj0jiyi9LpK1Q+qOAQ9mVnaCG+toZS3noAnMDeEdvEBxAd5NHEI=
+	t=1791004102; cv=none; b=lO/8S5QZhkMzDM8OI9n4W77Zh1rxNzVhB3fJR0oF+vv3qRt+aSGuR05MA4coLa9+PVPfszSTPv9B6x+2ca5I674APBJNU8ueL/VEXSDzI8L+ZTsWC3J6ZpUpUKLJgCUaTFs3GmApYa4tw0iOu4QaU47XUlIdRPEzZGT31BB3HCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790991222; c=relaxed/simple;
-	bh=aAFtJbofNggnLhlUYhZURB5T14lUqlnECNY6G+HDHX8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NjzxWZ+cA/cqNFv4WQXwrCwmsDSnFjbME0kW2kTptfH/1C/ZI9E9nLqGFhXc3RvIfpGDmdN/kfaa7b5wrmVYfGcJGaiA91850PWYyzXAk0Qakp9m+yg98rNDZfsKMd/Tr6n1Q9bptA5iyShb8zjkt0U61Opt6gT/3crwuyHf5ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=erLHJsca; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791004102; c=relaxed/simple;
+	bh=CpIVr0I85Zas4kFay/lmQRfyzCeQAC85EdsxCTmXls8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oC8iFgcqwiQdAgC/M7y/hNXmh9wf7stR1Yi/RInxj5saU9e77aXLuW8jhybr/ZivLK4rAuoU37a4afvQApaoRpsLWh38D9o2RIp2EnudMmNBDC4mj0iqNQQEdCBWoN++CbDf4+J4xVXyig1q/nlF9YNZQyz1SZbtm65F4MNTwR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Esf+2oHx; arc=none smtp.client-ip=74.125.229.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="erLHJsca"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FDBE1F000FF;
-	Sat,  3 Oct 2026 01:33:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790991220;
-	bh=U8JTMd6rbBBrtqYf2Y69dgGuXiljBgdMHPrADHSMzwE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=erLHJsca9Tw6LHYtx3yxhpnU37MJp+L8xMzzFQTr044Qh2wsnCl67WZa5txFkd9pQ
-	 OKKtLrWoup23jKcANouC/ZAgCbrnp3sMqYaaVmg8QAnFgTVNBsW7Ax2uIxMZB6V3gV
-	 A1DajKDALvSvHnB736fNAV5j+AgQaxOn27zMedubTwjxcq8utf5V04ASMxixud30WY
-	 73tftGOQSBn55kzfUEkej/EIzX21CLxogVXNtWpvKU7aFI+g8H/D526S2DWemaEwGM
-	 x0a1KQNMx50r4Na7vNMwyL+mvPFjio7MK7KJkEouuHrNWUbbxBWuV8jcMGBCS89FZ3
-	 4oaw4q8UkM+sA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: i2c-hid: add quirk to send initial output reports
- for Acer SFA14-I31
-Reply-To: sashiko-reviews@lists.linux.dev
-To: DMS <dms3studio@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261002-swift-sfa14-kbd-v1-1-ad312bca1076@gmail.com>
-References: <20261002-swift-sfa14-kbd-v1-1-ad312bca1076@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 03 Oct 2026 01:33:40 +0000
-Message-Id: <20261003013340.9FDBE1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Esf+2oHx"
+Received: by mail-dl2-f41.google.com with SMTP id a92af1059eb24-148b5c829e8so33567c88.0
+        for <linux-input@vger.kernel.org>; Fri, 02 Oct 2026 22:08:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791004100; x=1791608900; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=26XkV0aC8VpwuUxrEo6yFlDkCBgaJ9gL4qbHVPOCbZ4=;
+        b=Esf+2oHxxWBcgV63QVIVzoxn5NGWhzBxDgZMzd1vXOKTbcH30FYRTBVTzJQ6EgVmBc
+         GhiJ+6mYQO3btI5o71ZQyrrjJSI1aAdKd0zg2NN+2ykV/hC5Gaf8cuHjfRw6EPI6XKq4
+         492uv00kJ3bd7g+QHFD6bcFXJn6vMOM41W/Stlau3PaQ6CF/0v8LIruz4U7WDLyqvQyG
+         mubaetYtNOiTyQOCuAQn4NzBturOZZTvEUwl25ent63gMTsjVsJYEO5FRovbOScBf6Y8
+         28RS/Qv53cPoujUFxbXHRjQT1VbNXcaAf+KjWS8Htoup2mE9Mp5Yx9WvtQ91rPKagkoL
+         gpiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791004100; x=1791608900;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=26XkV0aC8VpwuUxrEo6yFlDkCBgaJ9gL4qbHVPOCbZ4=;
+        b=PdXlbCyGZOvplMeXpgiourxN/a9JZylzXqK4JOGdQ9W0F4s/CR8vnetXze9RiAZvfQ
+         APvyBV/99REEMnzXx6bHGyYMrIAAVggoKL8f/Rrc4UukNVHxBmksFpiFCTjGandwXaHH
+         9qk5FIdR7Ag9BIJFkuJocFuxLpDphA8bRqpayjPgMN/Qf+uxXp8EpHY+R6sxx33u4IWl
+         NfZPc9RN754+cYX/afGDGZ/jiVmQDzk71nLA9cDbH657SqIpj74MPHnwZK3iS79/PhLg
+         hlyN5XJouDfUxfL3fms5ZHyACkpRn/utauCjFTvVrJUPqDp0jLTcZjFpDZhx7mhznmXy
+         89Sg==
+X-Gm-Message-State: AFuF++m6mbHvjRSTPikAgln/3EFjC0V3zpMM2NSP6D7lF1SVSivXzQ6E
+	ZMfaUCvRT5tnHFGe0jcjcMkU4HZ/9DH2cneYpHm79/ta1IjXq6ZO/3b19R1MYgHF
+X-Gm-Gg: AYBFou2YpEnEXsb6jCLL6cmrq06ll1zuZvYTVgqfzyV+nzEw8MtDxkhCiXlUXOtnOgY
+	5t5WdzpC7wHeRXJvaIyxqeYM8kU3OpuJSiDxhqrfMn4aZvD1OYOt2v5tQUsQ3qLhYf3hcHp7bML
+	NdwgWYYfHppVo9rPUUuOeP1gmZT3rGQ8ZdjTcyYmWFJbZlxr8VKn+4haX9IMcAoDmVTplFq0B+c
+	TC5Y++uBxbszsZF77VcRknr3fPQliHrGfySNrKA9Usv55wXMx2KxJX2PRM1Qdjn/qzZHiMFMrpM
+	Dp8L9Z9bEUw37AYPvmVFKIjnDm+YYhh7HX5CPe5zl47p3IKnvoIoO/n++d3rAi+UPOS7ebFgcWG
+	iaiddLVO1Na0V8mn9y8551P6ROxei4VOHyja1D5R6gFGfEhwFOm1H1owDV3eVm0tu6w11Wm5rbp
+	/XiJ0Uc1mqjInLpQ9YK/maWHeHGBfUQ0ZZ9OeYxiuNsrOsumsLLMo3TNt1cGi7YePrVNbfR/Qsf
+	EWVAwT1n3zzQR2UJTN/QX9M1fS56GtKt4aVE0rNxYebzC+f5bY=
+X-Received: by 2002:a05:7022:107:b0:14e:9480:e5a4 with SMTP id a92af1059eb24-14f5c4ef00dmr7752937c88.23.1791004099685;
+        Fri, 02 Oct 2026 22:08:19 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:f6b0:90e5:8010:fce8])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-151fcec9a95sm2363486c88.15.2026.10.02.22.08.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Oct 2026 22:08:19 -0700 (PDT)
+Date: Fri, 2 Oct 2026 22:08:16 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Martino Papero <martino.papero@lcb.to.it>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Hans de Goede <hansg@kernel.org>
+Subject: Re: [PATCH] Input: atkbd - skip deactivate for Lenovo IdeaPad Slim 3
+ 15IWC11
+Message-ID: <asCNvLDGPHHpV3RU@google.com>
+References: <c0b597b8-e7ad-4fba-a2bb-5d252e3dfbd3@lcb.to.it>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c0b597b8-e7ad-4fba-a2bb-5d252e3dfbd3@lcb.to.it>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] hid: i2c-hid: silent quirk failure due to dependency on synchronou=
-s driver binding
-- [High] hid: i2c-hid: unprotected report_list traversal causes data race a=
-nd UAF
---
+On Wed, Sep 30, 2026 at 10:10:41PM +0200, Martino Papero wrote:
+> The internal keyboard on the Lenovo IdeaPad Slim 3 15IWC11 (83RR)
+> does not work correctly with the default i8042 settings. Using
+> i8042.nopnp=1 and i8042.dumbkbd=1 restores keyboard input, but prevents
+> the Caps Lock LED from working. Using i8042.nopnp=1 alone does not fix
+> the keyboard.
+> 
+> The laptop works correctly when atkbd_deactivate_fixup is used instead.
+> Add a DMI quirk for the 83RR to enable it.
+> 
+> This was tested without any i8042 command-line parameters. Keyboard
+> input and the Caps Lock LED work correctly, including after suspend
+> and resume and after a cold boot.
+> 
+> Link: https://lore.kernel.org/all/4f43465f-98ba-4722-8e29-03df20315369@kernel.org/
+> Signed-off-by: Martino Papero <martino.papero@lcb.to.it>
 
-commit 8bcb0b187653aa75d332fb5ab3f4c9d75928faf8
-Author: DMS <dms3studio@gmail.com>
+Applied, thank you.
 
-HID: i2c-hid: add quirk to send initial output reports for Acer SFA14-I31
-
-The internal keyboard of the Acer Swift Air 14 (SFA14-I31, ACPI
-1025174B, HID 049f:5343) does not send any input reports after probe.
-It stays silent, and its GPIO interrupt never fires, until the host has
-written an output report to it at least once.
-
-Add I2C_HID_QUIRK_INIT_OUTPUT_REPORTS, which sends every output report
-once with its initial field values right after the HID device has been
-added, and enable it for this keyboard.
-
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c=
--hid-core.c
-> index a8a9854854f52..f546710925e64 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-
-[ ... ]
-
-> @@ -1079,6 +1086,32 @@ static int __i2c_hid_core_probe(struct i2c_hid *ih=
-id)
->  	return 0;
->  }
-> =20
-> +/*
-> + * The input core only writes LED state when it changes (and on resume),=
- so
-> + * a device that waits for an output report never gets one at boot. Send
-> + * every output report once with its initial field values.
-> + */
-> +static void i2c_hid_send_initial_output_reports(struct hid_device *hid)
-> +{
-> +	struct hid_report_enum *report_enum =3D &hid->report_enum[HID_OUTPUT_RE=
-PORT];
-> +	struct hid_report *report;
-> +	u8 *buf;
-> +	int ret;
-> +
-> +	list_for_each_entry(report, &report_enum->report_list, list) {
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-[Severity: High]
-Does this unsynchronized iteration risk a data race or use-after-free?
-
-Because hid_add_device() has already exposed the device to the driver core
-and userspace, the high-level driver could be binding asynchronously and
-mutating the list via hid_register_report(), or unbinding and freeing the
-reports concurrently via hid_close_report().
-
-[ ... ]
-
-> @@ -1099,6 +1132,9 @@ static int i2c_hid_core_register_hid(struct i2c_hid=
- *ihid)
->  	if (ihid->quirks & I2C_HID_QUIRK_RE_POWER_ON)
->  		ret =3D i2c_hid_set_power(ihid, I2C_HID_PWR_ON);
-> =20
-> +	if (ihid->quirks & I2C_HID_QUIRK_INIT_OUTPUT_REPORTS)
-> +		i2c_hid_send_initial_output_reports(hid);
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-[Severity: High]
-Will this reliably send the initial reports?
-
-Because this executes immediately after hid_add_device() registers the
-device, reports are not parsed and added to report_list yet. The list is
-only populated when the high-level driver (e.g. hid-generic) probes and
-calls hid_parse().
-
-If the high-level driver binds asynchronously or is loaded as a module
-after i2c-hid, i2c_hid_send_initial_output_reports() will iterate over an
-empty list and silently do nothing, leaving the keyboard unresponsive.
-
-> +
->  	return ret;
->  }
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261002-swift-sfa1=
-4-kbd-v1-1-ad312bca1076@gmail.com?part=3D1
+-- 
+Dmitry

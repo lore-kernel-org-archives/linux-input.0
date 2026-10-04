@@ -1,132 +1,140 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F25AB3BE16A
-	for <linux-input@vger.kernel.org>; Sun,  4 Oct 2026 16:11:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791130292; cv=none; b=n5c39E41FIRzujy04piCy/144kdXE5sAZ03nTU27MsKNpdybPMLmjYas+VYocQGYPOp5e0GRyZSZ9OK0Vej/52ZJFV7gJmi9BHoG3Sfr8VeUK+fvAuhSB03mPA0z6pRBOeLUUirxCeGC1MtzpiapCR1IvCoJ0ezcDYCSgzXnevE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791130292; c=relaxed/simple;
-	bh=wUYNiTWX+TL0NiUCwgeJWYmNnbHCGNo0gWd36ZomX74=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rpDnunS0W54T57X7tVNqRfAxZ2nLmIFq35QeQFGFIZJu6zQqd5G1Xo0APva4cets4cwAS/eZL/hGXgtdqrN/uNezsODAxQQHRH5c+SWUU9OrDhlkkCunUzI5Uc/LQtM40k+t57dU2EW0a6hZBVSAth10F9yZ2J3X8arfVgqggfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jH+59CTY; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1378E47208D
+	for <linux-input@vger.kernel.org>; Sun,  4 Oct 2026 18:28:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.50
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791138526; cv=pass; b=diKF4n7t5SLF9Vapdj4j2IPYnMmkakIf/yrOcH+Jh8SU2QtjdxqNKRbpkNVyJvZS1tAc+YzTyz2ealFAhELS1jioNlkdMUxVwCvDPm0nJhOBYX3+0sUoTTYnLVTAcb9fOff0lGvP3oB75iOxJFZDY9fFD3Rku4IgZ5+qBf8qVvM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791138526; c=relaxed/simple;
+	bh=PxqfG3noaduioN/5mitkwhnMLpJEQJ7gOtF2dX/MVvE=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=rLYRg/zjcTW5X//vjxkNvnf9Gn1QQ7oFpwyoYhXdUS81utJew2yVs3z02XPqBsAhUZ4bqeRZCcafoXtxjExg+MdTzpFqJZVTSRkOicNh3qjzQVOm6V0hvvgaCO7vZq5lorvu7qtDWY4qQVLQoLEt2w2uRlrldA/RU4iAmSBoW/E=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZdSmV9+q; arc=pass smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jH+59CTY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25BF41F000FF;
-	Sun,  4 Oct 2026 16:11:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791130289;
-	bh=06WCtls/oIRC8GY7pl88lIO8H9STtlZPe3lyvKprJTQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jH+59CTYgiUoj2anOTuvTultDZbpgu0jUT4eTwprH/fPte114XJzVjvtCYXn2ATeQ
-	 A8KjTyGoquwEofy1rGn0pzAmbMpT7GKyWoeOUusbbllZbsML/dr4clQDdF9nx+x+S9
-	 QRzvAu7DJq8b19Vw6vpl9LRH1VzhJTv8/v03mc+IlYCUN2uveWI4OSj45JfJv/4kts
-	 1cLtyJN/t7lDZhxbrGnd2xgK2pcAwW567S7iAZlos1WgnkB43vDtUmy0WSWQOUwHK4
-	 Frhai8qlYpxwSzC6s0SA3KpOVe/gMDm22sAOXJ14wINpfLOEPCiA8Trk3qkpr4w0lZ
-	 f/pQslM2u5h+g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH -next 2/3] HID: amd_sfh: Add operating-mode telemetry
- sysfs attributes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Basavaraj Natikar" <Basavaraj.Natikar@amd.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261004155919.726226-3-Basavaraj.Natikar@amd.com>
-References: <20261004155919.726226-1-Basavaraj.Natikar@amd.com>
- <20261004155919.726226-3-Basavaraj.Natikar@amd.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 04 Oct 2026 16:11:28 +0000
-Message-Id: <20261004161129.25BF41F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZdSmV9+q"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-6a9bd4db6ccso1314101a12.0
+        for <linux-input@vger.kernel.org>; Sun, 04 Oct 2026 11:28:44 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791138523; cv=none;
+        d=google.com; s=arc-20260327;
+        b=D6sKZjy/DTWfldW5lCnCyOlNpMbq9Lt8rW0cX6iWvddISEetELSEKkFGmVoJiL198o
+         2OH+TwxkJV1C+avEi8H1tSw5/lUX489YLpu+IQy0b07cD8+97BVmEfADfaZgb0k1jbkB
+         2T8khBHEztoB8jjncGjiVdOs6MzO8XONGn1HPXAjlRDe2pP7esIRQ1aJW2fYCTHbEO7h
+         ++eQpVSWsUheOHKTAo5Dtluo3IPqdGBNVQ+OeQ6wh7hw3Yqh0M8GZ3iomcnmEf3/0smW
+         l/gitoKM7O8CyelDj86blYqGTlvJwCuYcc+k9N06i5L+kmr6ddYqhmreXGCBZ8tSZM19
+         xUxA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=Z/qjIieeuv+RUMs2JiN8pEjWXIW5C5S+QNbM972WqYU=;
+        fh=XN3IN7IFLqxBV+BC/SekM15S5ItBygoXovstbPrww3o=;
+        b=KoaByBrWY7dapYiTXhZdj7GmuU4VyjRDn0Eww+bOYkQQw8zGfo9+FyhAgrQ/VFFeYV
+         QjBZ9sXo5KznnOlhHy4hK14QKkGjGoqEJK4u2O7QpJdOLs0GwzrTPX172WDFt06LMvT/
+         LCzJwJ2dBMCzzqb2NSfWTvyykI6kKKt7oiAH8CZa8QnSaMl5MmS3Bpog3sTdHu+FxLOo
+         i56onAWzuCGcqCO5Q7wliRsj4oBJ1eyLHosvS0lJnjs+QhxDzSg0oMKMRXzDZKD5eQ8r
+         st8JUIbSgZ4t6eJBaTGJm5WfKPKX3w+t3m7MQYJ0v67f8g+6taK4ephapMVhR3JuEUsU
+         QneQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791138523; x=1791743323; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Z/qjIieeuv+RUMs2JiN8pEjWXIW5C5S+QNbM972WqYU=;
+        b=ZdSmV9+qBrpVG/N2VFNcuORPBgCO5NliQ1iM8F204rzJj/VPVaIlgG+xMjJg6Z6EhM
+         neEJQ6KdPjW7m7NuJy6iv64g3l3o4DiRPdNK7D5KNUeFkp3cO78gRyGb/ptI1UpMgK6P
+         rc37cb+JxR0ta1y3cPxqaG7hMre9L6l9AtM+GItlWqrL2we7pYphByxeLS7/VsqtUrTq
+         TMfRIim7ab5bmdv4vM30WroMMbR7M8oi8lmvaem/Ua9RBm+Rg6vTR3dGGHeDJNPW9/S/
+         fd6QfO5peQZ7YCU6tH/TAb+0ZItjDdcbcLOGcTRi0jMrwXcqkzBm2EbRoiOQVhUG2IL3
+         piNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791138523; x=1791743323;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=Z/qjIieeuv+RUMs2JiN8pEjWXIW5C5S+QNbM972WqYU=;
+        b=Ew8mhUm4r01hM1GDoYHEsrKdQi7jHLucEeqwJ6cqcdyyYD7yNpBQ+ORvh0/PRJdLj+
+         VD0xcrTaLm0G1AOMEJmuYvjc1b7FLZMhYsmp1PN+mJUKW2wSKgln32+d8BQJ5adnlg0s
+         86BQxtfcE2lWIHvpJnPDNd6H92lz3FSwAgM0nhVEYBHZL/+YFAPx7GcVghvzNPVAt7qY
+         4OQyPXf0GFT6OZ03xq0MWae9evRvjVHyy/CedECqB4m/3nthEPoYWtKUJJ0qt0ZYpdDC
+         cWJXshrhyFThXdwm90VmbWMx5++SCgM8sYmqX1viVMasPqSsC8yXqFVCsqZs5WTDrVEW
+         uUDQ==
+X-Gm-Message-State: AFq9FYK9FXPFCJNswgd/LPy9sLIUhpmkKduE1VSZt2XhdnDJIOqRm0ag
+	96F1WXeBKV0eVzWof9IQ8Lj5gCllfbZKQTWb1JGuEISfoWYpnySlsBTaGVqOEXBhJJmLEjHihuC
+	6aKXEjI6aqKnxfBB8Q69j+qjR0xfHivlsPL6nQT4=
+X-Gm-Gg: AYBFou3F57gjnVPo5XYajiJj3hSz2WEsVLp1ezk5x4YfaNMfqSS5GaIIIcjyOjgMeB4
+	QManHPDCTfKDqnO+DNwop/IG5CJSwcFqmf4BzZpGdFhiPm21NVhYrFloq2JeRRuHarOrGnAubg9
+	nxB3Ti7SMufoUQXQtTeM3f9/1V2ByZAoP1Y4EOKnYVTDuPOkqThICO0XnNsaKHHP1ZAkL9w8btJ
+	YXWEnF4pOsfsyY+LDg9CtDzYImpoM2wiAbaQ9Lk//Sbd7Bkf7lLFKu+vln6+0xs8nWw+rm/J5nJ
+	MQepSagmLdDJvOvRYa9sEwzw32Kz4BoTId7XhjBEH1LoGWVtPFEZqQ==
+X-Received: by 2002:a05:6402:401e:b0:6aa:9fef:641c with SMTP id
+ 4fb4d7f45d1cf-6afada0d18amr4944144a12.28.1791138523028; Sun, 04 Oct 2026
+ 11:28:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Bob West <standardmetalindustries@gmail.com>
+Date: Sun, 4 Oct 2026 14:28:30 -0400
+X-Gm-Features: AclHuK-XPsJ1B0aCUrUTVKstMSbWA4kWLloNsA4kTbBpKpuFXri5iRU8fvv0G9g
+Message-ID: <CAOA39XYkQJPtT-_9yKPQ5WXNeDujhKR+xStxcY-=0GS1mLNLvg@mail.gmail.com>
+Subject: [BUG] HID: intel-thc-hid: quicki2c probe intermittently fails with
+ -EBUSY ("THC PIO is still busy!") on Lunar Lake (Lenovo Yoga 9 2-in-1 14ILL10)
+To: linux-input@vger.kernel.org
+Cc: even.xu@intel.com, xinpeng.sun@intel.com
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] amd_sfh: torn read of telemetry data via memcpy_fromio()
-- [Low] amd_sfh: build failures due to undefined identifiers
---
+Hi Even, Xinpeng,
 
-commit 74c8f353108e77a41e51aa1613b0b46c89693fcd
-Author: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+On my Lenovo Yoga 9 2-in-1 14ILL10 (Lunar Lake), the touchscreen/pen
+(Wacom 056A:53E6 behind THC 8086:a848) intermittently fails to come up
+at boot. intel_quicki2c probe fails with -EBUSY, and touch stays dead
+for the rest of that boot. It failed on 2 of my last 8 boots, with the
+same kernel and BIOS on good and bad boots. A reboot usually fixes it.
 
-HID: amd_sfh: Add operating-mode telemetry sysfs attributes
+Hardware / software:
+  Machine:  LENOVO 83LC, Yoga 9 2-in-1 14ILL10
+  BIOS:     Q9CN28WW (11/04/2025)
+  Kernel:   7.2.5-3-omarchy (Arch-based, x86_64)
+  THC:      00:10.0 Touch Host Controller #0 ID1 [8086:a848], subsys [17aa:380a]
 
-The Sensor Fusion Hub reports additional operating-mode telemetry
-through the SRA sensor, such as in-bag and out-of-bag detection,
-on-table or on-lap placement, hinge angle, lid status and the platform
-device mode.
+Failing boot:
+  intel_quicki2c 0000:00:10.0: THC interrupt already quiesce
+  intel_quicki2c 0000:00:10.0: THC PIO is still busy!
+  intel_quicki2c 0000:00:10.0: Read THC I2C SubIP register failed -16,
+offset 108
+  intel_quicki2c 0000:00:10.0: QuickI2C device init failed
+  intel_quicki2c 0000:00:10.0: probe with driver intel_quicki2c failed
+with error -16
 
-> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c b/drivers/hid/amd-sf=
-h-hid/amd_sfh_sysfs.c
-> index db1cc205d25b9..8af4df09760f0 100644
-> --- a/drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c
-> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c
+Working boot:
+  intel_quicki2c 0000:00:10.0: THC interrupt already quiesce
+  intel_quicki2c 0000:00:10.0: Can't find wake GPIO resource
+  input: quicki2c-hid 056A:53E6 Touchscreen as
+/devices/pci0000:00/0000:00:10.0/...
+  intel_quicki2c 0000:00:10.0: Invalid packet, len (255 vs 16) report
+id (0 vs 11)
+  wacom 0001:056A:53E6.xxxx: hidraw: <UNKNOWN> HID v0.02 Mouse
+[quicki2c-hid 056A:53E6]
+  input: Wacom quicki2c-hid 056A:53E6 Pen / Finger ...
 
-[ ... ]
+Once it is in the failed state, nothing I tried from userspace recovers it.
+Every attempt gives the same "PIO is still busy" error:
+  - modprobe -r / modprobe intel_quicki2c (repeated)
+  - PCI function reset via sysfs (reset_method is "acpi")
+  - PCI remove + rescan of 0000:00:10.0
+  - s2idle suspend/resume (rtcwake -m freeze) with d3cold_allowed=1 and
+    power/control=auto. The device stayed in D0, so it never lost power.
 
-> @@ -41,19 +43,78 @@ static ssize_t hpd_store(struct device *dev,
->  }
->  static DEVICE_ATTR_RW(hpd);
-> =20
-> +/* Operating-mode telemetry reported by the SRA sensor, exposed read-onl=
-y. */
-> +static int amd_sfh_read_op_mode(struct amd_mp2_dev *mp2, struct sfh_op_m=
-ode *mode)
-> +{
-> +	struct sfh_accel_data accel_data;
-> +	void __iomem *sensoraddr;
-> +
-> +	if (!mp2->sfh1_1_ops || !mp2->dev_en.is_sra_present)
-> +		return -ENODEV;
-> +
-> +	if (mp2->mp2_ver >=3D MP2_VER_1_2) {
+So it looks like THC_SS_CIP is left set by firmware, or by an earlier
+PIO that never completes, and nothing short of a reboot clears it.
+Would it be safe for probe to clear or reset the PIO sequencer (or retry
+after an _RST of the touch IC) when CIP is already set at init? I'm happy
+to test patches or collect more debug output (register dumps, dynamic
+debug, full dmesg) on request.
 
-[Severity: Low]
-Is MP2_VER_1_2 defined in this tree? Compiling this patch results in a build
-failure because MP2_VER_1_2 is undeclared.
-
-> +		sensoraddr =3D mp2->vsbase +
-> +			(SRA_IDX * SENSOR_DATA_MEM_SIZE_DEFAULT) +
-> +			OFFSET_SENSOR_DATA_DEFAULT;
-> +		memcpy_fromio(&accel_data, sensoraddr, sizeof(struct sfh_accel_data));
-
-[Severity: Medium]
-Could this memcpy_fromio() lead to torn reads? Since memcpy_fromio() perfor=
-ms
-bulk non-atomic reads, concurrent firmware updates to the shared MMIO region
-might expose a corrupted mixture of old and new telemetry states to userspa=
-ce
-when reading these sysfs attributes.
-
-Should this use an atomic read like readl() instead?
-
-> +		mode->val =3D accel_data.c2p3_data;
-
-[Severity: Low]
-Does struct sfh_accel_data contain a c2p3_data field? Looking at
-drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.h:
-
-struct sfh_accel_data {
-        struct sfh_common_data commondata;
-        struct sfh_float32 acceldata;
-        u32 accelstatus;
-};
-
-It appears the field c2p3_data is missing, which causes a build failure
-when compiling this driver.
-
-> +	} else {
-> +		mode->val =3D readl(mp2->mmio + amd_get_c2p_val(mp2, 3));
-> +	}
-> +
-> +	return 0;
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261004155919.7262=
-26-1-Basavaraj.Natikar@amd.com?part=3D2
+Thanks,
+Bob West

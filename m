@@ -1,159 +1,128 @@
-Received: from mail-ed2-f31.google.com (mail-ed2-f31.google.com [74.125.228.95])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com [35.155.198.111])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9445F3DAACD
-	for <linux-input@vger.kernel.org>; Sun,  4 Oct 2026 21:36:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.95
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B944040BCDB;
+	Sun,  4 Oct 2026 22:21:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.155.198.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791149799; cv=none; b=bb+tNYF/Ic7macAdIkGZYI3+G573NmIQW7fZLVosrvDl5VE1/ENK3IUwFRRMVBKnxZD9xa3qToGGPPQVQAP2WB9KcpSq52EwZhoYeEOeNgY3D8tcCq0yse3OHp6G9kGBZIyLyC8EZd5avVOjkPcfd/w4ZDdh+Se0egYU6G1M4w4=
+	t=1791152503; cv=none; b=hP5NcYUQLz0SEAJoHtZvA/+7a3j3G/qmQopPJYb39DFEgyPypN20ETVfDg1uIp/diGfrAe7hPCIR1NLLN+wcOb68sjQn/gDsB1HA/GmrVbKT4HGbZ9V0y9nbsH4tXVONd3KkCZ4Y8fMnUmewpU9l91961IX0f729rgW2ZwPkD5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791149799; c=relaxed/simple;
-	bh=isfTBrqY9p5m/ED+4flN0cts6u/U4CK8ScTtSCqlZ1E=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:
-	 References:In-Reply-To; b=XkxORd8ePTMsILRxMKgeENKx+0Z+cHZyBsoUzuyRQdLY0kjy1JQj6yr/hbmbJ0uH7SYNaPqnSsH+cWfYyqxUTFVulXGgCL/887ovD2PDIfFsplus+L4Mq0nynf8kb9S8KmEDscPvXlSFSJt0jUvurS/WLljLfBZ0+O4HcgTF72M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ATbYxx61; arc=none smtp.client-ip=74.125.228.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791152503; c=relaxed/simple;
+	bh=8MfZas74TP4bH2JkIBPs6F1Wj3cq6DvSuL/z6D0z5ro=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=XMkpqibyn48tYhDvpD2uwRxOE32m5JsEQEzT5g3o3BwcH5c+hiC2XvWc9sP8vUr1qhDP1vGwhWhG1PR4/uHxitA0S/UmlWzxXkNwIIH903s0X2ePc5gZGzaJ6G3wzp0vNaKzDUDBF3AsBSyQ60Zm9au3e1s0xQowgkT5gDOZS0I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.com; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=Af33HbjK; arc=none smtp.client-ip=35.155.198.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ATbYxx61"
-Received: by mail-ed2-f31.google.com with SMTP id 4fb4d7f45d1cf-6ae19319854so1426312a12.3
-        for <linux-input@vger.kernel.org>; Sun, 04 Oct 2026 14:36:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="Af33HbjK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791149796; x=1791754596; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:message-id:date:content-type
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=1Qs/HNAMN3+qC8yepsmEsO4vU7YCCa/bUjxjtXFFHYg=;
-        b=ATbYxx61nHcJSRT5Glr+PNxHZZREoLXxOlIICME0sYSyPjmh280SWtvvqsd73BKNe6
-         UV2IT/l1zJj8/B1V6lBF18bRpo/BuHVmN1lZfRxmGupgbsXwZIOBV9wEHHZeQfyVJ1T7
-         NtvDO1M84zAAUQ7d6RP5pmuJGzZh9aNCi0r4EmOqu5ZA02xwzC5twpejgK+KPx0OXqM3
-         jgNGkG4bsT+sx7khkHkamiF08GRF8PUS0NPhEA9NUZkYWUiNKkfeOuPENeHKSNyusniX
-         VY7f+nggs7AxuSQt0egaKfDjI2nsDJp4PeXPuP2F7m6S0f+BbfHozXHMmN6c3LuzjDYh
-         Qseg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791149796; x=1791754596;
-        h=in-reply-to:references:to:from:subject:message-id:date:content-type
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=1Qs/HNAMN3+qC8yepsmEsO4vU7YCCa/bUjxjtXFFHYg=;
-        b=00Y2H3QmCG2YC9AnvP+M9M3HDooHbIoXVZS71nJw6KnzlIeMu8JduZAlVOpZLw+YzS
-         +UgqWRqIQkQG0MN+ce97o0YGlNptQKdJwxXYbyUSa3Ld0ToujADVY7ncY9DcAgJSC3ou
-         XOC9KPdohW7K2o0mQN5yw9Snq0KydlWV3xHeAzg2Aegb9ldcyhzGGT3leo1VnglIpIY5
-         A7CQm1iq9gAJn7YRcvv3KFArBcOxZbZeRIcD7GPzg9tdswxMWq22IFC3IBLGV3BvcB8h
-         HPSAJzjZKq2LOUbPaSEgdqnscVyh19L8z230ml7GvtbqVT5mfjIYplW+XtMFNiXRHeqS
-         OFLg==
-X-Forwarded-Encrypted: i=1; AKwUvBzEztaBpZS0auw9d4rA0IAJIsYRBlOWgv8EpWalvDDxkUj3N0E2K37NfRJyStw7nlbJY9z0o52tChgaYw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYIGrHvNK4XodvMX9pk1sAKYe0B69vX4wiTRWw2jfJFkecg0zaJW
-	wEdvO1vOie99T3Tfd1cj5cs/Ju7HCZ3hklAZD09AjLQEUJzqGLJvGH57
-X-Gm-Gg: AYBFou0i3QVRlH/r0jkZCG7nyWq9SLcbjcY2LIAVpxWDKZVUY7OPf4nvQs8hpF1w/NK
-	5XJbmE2+VWMkKCF+ODBs/ADYy+bqbQre1jA4+ZRaxkdv/mnshVc3TM54OfTL+PzMMG8oCoCP933
-	se+E8lZO6+sLnLm5iSDzBm15dsxN8h1W/ZQwbtxhYbBaMMkCddoVgTE2lVFLQGc1rDi6pb2rPl7
-	Qn2bvaNHWjAx0IqLhiqLr+iYaXxsXCtC934UGrn3Yt9fJ7LDSyV5YWhXSj0i0nXQa7nc7XAlxAI
-	G57ufcaZbY8Ab9Jc5TN6T7wRabux7PwT/q4zaIWv4TUXM9KK5iu4fWiEpLxMDIpBxL3/LmwyN17
-	0vK6Eo2vHLOmX8RguyOvM25aTICE01jNpWj1XZXZGoABxICddkZ7TwYG/tmdsr3cgLKrC9xp7is
-	eG7dO2NaJpsI437AxW84QxDesFuBVxgb1ZcnwNG7P8D0Gc2/O0rZ8PjZgRbE1o9rs1zyfcQHkw4
-	pi6z3I=
-X-Received: by 2002:a05:6402:5486:b0:6aa:915a:f51e with SMTP id 4fb4d7f45d1cf-6af9e2e11a3mr6565114a12.17.1791149795652;
-        Sun, 04 Oct 2026 14:36:35 -0700 (PDT)
-Received: from localhost ([46.205.201.71])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6afb01e59cesm2457040a12.12.2026.10.04.14.36.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 04 Oct 2026 14:36:34 -0700 (PDT)
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1791152497; x=1822688497;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=gGkA92gKn6Umlg7Do4va51y7OdkAYyeZaeaCQws/E94=;
+  b=Af33HbjKYOCoaBHpbzVoHqqWybQPyWBlTj0a00UAD2IeqbAc3dpdQkBL
+   mh4WA9KlMwvATVJKClsCma4kaZvyhOSZmnydGJyi+AiB5AhirTES9AkYQ
+   Bl72vIFxnHNfYbAsPgH1GOuHcyRUSMDYBjuq29vnP4tVB5c9OyDTOzTox
+   dT/QMY1RX1/1ZdkuQGmEEWrRhyvs10S/rU8Ta/PeEVA/gaw1ffZkPsuR7
+   zZ+P9C+lTnTro5hq1CDTahhEnDh1GbFv9TRyjUihioWWtkcv/5u6Edvo3
+   0bXjSK8UAustB45O2nSHSJrLvOEWZLs3GVQMCXFtI0EX6dtSIEQkq8g4n
+   g==;
+X-CSE-ConnectionGUID: bhwPuL6iQoibWn7EKQVtmQ==
+X-CSE-MsgGUID: iF4tuhgNQbWGyCqDCfgFXA==
+X-IronPort-AV: E=Sophos;i="6.27,141,1787011200"; 
+   d="scan'208";a="30278872"
+Received: from ip-10-5-12-219.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.12.219])
+  by internal-pdx-out-009.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Oct 2026 22:21:32 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.178:21386]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.24.164:2525] with esmtp (Farcaster)
+ id 0691faea-dd80-4741-bdc2-6e25b9dd697c; Sun, 4 Oct 2026 22:21:32 +0000 (UTC)
+X-Farcaster-Flow-ID: 0691faea-dd80-4741-bdc2-6e25b9dd697c
+Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.49;
+ Sun, 4 Oct 2026 22:21:31 +0000
+Received: from dev-dsk-wanjay-2c-d25651b4.us-west-2.amazon.com (172.19.198.4)
+ by EX19D001UWA001.ant.amazon.com (10.13.138.214) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.49;
+ Sun, 4 Oct 2026 22:21:31 +0000
+From: Jay Wang <wanjay@amazon.com>
+To: <ihor.solodrai@linux.dev>, <bpf@vger.kernel.org>, <ast@kernel.org>,
+	<daniel@iogearbox.net>, <andrii@kernel.org>, <eddyz87@gmail.com>,
+	<memxor@gmail.com>
+CC: <alan.maguire@oracle.com>, <martin.lau@linux.dev>,
+	<yonghong.song@linux.dev>, <jolsa@kernel.org>, <qmo@kernel.org>,
+	<nathan@kernel.org>, <nsc@kernel.org>, <linux-kbuild@vger.kernel.org>,
+	<linux@weissschuh.net>, <christian@heusel.eu>, <mcgrof@kernel.org>,
+	<petr.pavlu@suse.com>, <samitolvanen@google.com>,
+	<linux-modules@vger.kernel.org>, <rostedt@goodmis.org>,
+	<mhiramat@kernel.org>, <mathieu.desnoyers@efficios.com>,
+	<linux-trace-kernel@vger.kernel.org>, <acme@kernel.org>,
+	<namhyung@kernel.org>, <irogers@google.com>,
+	<linux-perf-users@vger.kernel.org>, <jikos@kernel.org>, <bentiss@kernel.org>,
+	<linux-input@vger.kernel.org>, <tj@kernel.org>, <void@manifault.com>,
+	<arighi@nvidia.com>, <changwoo@igalia.com>, <sched-ext@lists.linux.dev>,
+	<shuah@kernel.org>, <linux-kselftest@vger.kernel.org>, <ojeda@kernel.org>,
+	<rust-for-linux@vger.kernel.org>, <arnd@arndb.de>,
+	<linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<abuehaze@amazon.com>, <doebel@amazon.de>, <mpohlack@amazon.de>,
+	<jay.wang.upstream@gmail.com>
+Subject: Re: [PATCH bpf-next v4 00/12] bpf: make the vmlinux BTF an on-demand loadable module (CONFIG_DEBUG_INFO_BTF=m) to save ~5.4 MB memory
+Date: Sun, 4 Oct 2026 22:21:27 +0000
+Message-ID: <20261004222127.31128-1-wanjay@amazon.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <44315425-c505-46fe-8379-f19d78ff3abb@linux.dev>
+References: <44315425-c505-46fe-8379-f19d78ff3abb@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 04 Oct 2026 23:36:33 +0200
-Message-Id: <DLWDLZK1ZVOJ.G23QIUQTEMEC@gmail.com>
-Subject: Re: [PATCH v2 3/5] Input: hynitron-cst816x: release gesture keys
-From: "Oleh Kuzhylnyi" <kuzhylol@gmail.com>
-To: "Daniel Golle" <daniel@makrotopia.org>, "Dmitry Torokhov"
- <dmitry.torokhov@gmail.com>, "Rob Herring" <robh@kernel.org>, "Krzysztof
- Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>,
- "Hendrik Noack" <hendrik-noack@gmx.de>, "Arnd Bergmann" <arnd@arndb.de>,
- "Ferass El Hafidi" <funderscore@postmarketos.org>,
- =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
- <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
-X-Mailer: aerc 0.17.0
-References: <cover.1790944534.git.daniel@makrotopia.org>
- <7199967eb45b1c3adcb7efc859380f6f3dbf7bdd.1790944534.git.daniel@makrotopia.org>
-In-Reply-To: <7199967eb45b1c3adcb7efc859380f6f3dbf7bdd.1790944534.git.daniel@makrotopia.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D031UWC004.ant.amazon.com (10.13.139.246) To
+ EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-On Fri Oct 2, 2026 at 2:47 PM CEST, Daniel Golle wrote:
-> The gesture key is reported with the value of the touch flag, so it
-> stays pressed once the controller stops reporting the gesture code
-> while the finger is still down. Report the press on its own and
-> release the keys the input core still holds down on the first report
-> that carries no gesture code. Keycodes above KEY_MAX are rejected,
-> as that release looks the key state up in the input core's key bitmap.
->
-> Fixes: c87a819bec86 ("Input: add driver for Hynitron CST816x series")
-> Signed-off-by: Daniel Golle <daniel@makrotopia.org>
-> ---
-> v2:
-> - reject keycodes above KEY_MAX and publish keycodemax only once the
->   whole array validates (Sashiko AI review)
->
->  static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
->  {
->  	struct cst816x_priv *priv =3D cookie;
-> @@ -181,8 +205,9 @@ static irqreturn_t cst816x_irq_cb(int irq, void *cook=
-ie)
-> =20
->  	if (tch.gest)
->  		input_report_key(priv->input,
-> -				 priv->keycode[cst816x_gest_idx(tch.gest)],
-> -				 tch.active);
-> +				 priv->keycode[cst816x_gest_idx(tch.gest)], 1);
+>    - If I know I don't need BPF on the workload, and these 5.4 MB
+>      bite me, I can just turn off BPF
 
-Tested on CST816S setup, found out a subtle issue: cst816x_gest_idx() maps =
-unhandled
-single-click (0x05) and long-press (0x0C) gestures to index 4.
+They cannot, even when they know they do not need it.  As the cover
+letter says, the cloud provider usually ships one kernel build to all of
+its customers.  Customers install their own packages and workloads around
+that kernel, but they do not build or customize the kernel.  Turning
+BPF off is not a switch they have.
 
-Input subsystem ignores SINGLE_TOUCH (code 0x5) events with tch.active =3D=
-=3D 0 (t: 0).
-Instead, reporting index 4 (single-click 0x05 minus 1) with tch.active =3D=
-=3D 1 falls into BTN_TOOL_TRIPLETAP linux,keycodes element.
+> What I find strange is for a user of this scale *to not know* whether
+> BPF will be used in the workload or not, which is what lazy load may
+> solve.
 
-As a result every single touch accompanied by BTN_TOOL_TRIPLETAP:
-Event: time 1791148663.331439, type 3 (EV_ABS), code 0 (ABS_X), value 117
-Event: time 1791148663.331439, type 3 (EV_ABS), code 1 (ABS_Y), value 124
-Event: time 1791148663.331439, type 1 (EV_KEY), code 334 (BTN_TOOL_TRIPLETA=
-P), value 0
-Event: time 1791148663.331439, type 1 (EV_KEY), code 330 (BTN_TOUCH), value=
- 1
-Event: time 1791148663.331439, -------------- SYN_REPORT ------------
-Event: time 1791148663.397477, type 1 (EV_KEY), code 330 (BTN_TOUCH), value=
- 0
-Event: time 1791148663.397477, -------------- SYN_REPORT ------------
-Event: time 1791148663.409413, type 1 (EV_KEY), code 334 (BTN_TOOL_TRIPLETA=
-P), value 1
-Event: time 1791148663.409413, -------------- SYN_REPORT ------------
+They do know.  They run predictable workloads on a large number of
+small instances, and BPF is not part of them.  They spread the load by
+resource usage, so at that scale every byte matters: more free memory
+on each instance means fewer instances in total.
 
-Interrupts:
-cst816x 1-0015: x: 127, y: 124, t: 0, g: 0x5 // Finger down (index 4, tch.a=
-ctive =3D=3D 1)
-cst816x 1-0015: x: 117, y: 124, t: 1, g: 0x0
-cst816x 1-0015: x: 117, y: 124, t: 1, g: 0x0
-cst816x 1-0015: x: 117, y: 124, t: 0, g: 0x0
-cst816x 1-0015: x: 117, y: 124, t: 0, g: 0x5 // Finged up (index 4, tch.act=
-ive =3D=3D 1)
+>    * Compress it.
+[...]
+>      Keep zstd-compressed blob in the kernel image and decompress and
+>      parse it synchronously on first use.
 
-I suggest either gate the gesture branch on tch.active so a finger-up
-single-click never fires a key, or fix cst816x_gest_idx() to map 0x5/0xC
-to their own valid slots so they stop aliasing the TRIPLETAP keycode.
+Thanks for putting this forward.  This compression approach is simpler 
+than loading a module.  I expect the overall code complexity to stay similar
+to v3, since both need to find the first user and defer the module BTF parsing
+until then, but it should be easier to merge into mainline because it avoids
+the request_module() deadlocks.
 
-Best regards,
-Oleh Kuzhylnyi
+Would you like to prepare it for a formal submission, or would you
+like me to do so?  Either works for me.  Ideally it lands in time for
+the next LTS kernel, so that we can adopt it there.
 
-> +	else
-> +		cst816x_release_keys(priv);
-> =20
->  	input_report_key(priv->input, BTN_TOUCH, tch.active);
-> =20
-
+From what I can see, most of the work left is in that deferral.
+Whoever needs the BTF first also parses the waiting module BTFs and
+replays the queued registrations, struct_ops ->init() included, under
+whatever locks it holds at that point, e.g. event_mutex or
+bpf_verifier_lock, or inside the module notifier.  So the
+cand_cache_mutex ABBA you found may not be the only deadlock.  Besides
+that, only x86_64 was touched so far, so it needs extending to the
+other architectures as well.

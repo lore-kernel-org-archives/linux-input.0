@@ -1,226 +1,129 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E6A1A704B
-	for <linux-input@vger.kernel.org>; Sun,  4 Oct 2026 11:15:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 027AD31716D
+	for <linux-input@vger.kernel.org>; Sun,  4 Oct 2026 11:28:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791112537; cv=none; b=bi7YTrUGo0tn/H6Y/UH83cN3ZqR+ro38Fa+yVEdCObjCxldlaKYoOWW7YdPQ78z1J5R8mig5aDlX4PH5tpWzR+6pB8SWrPIDEMqIs0gg8BG9oOV5PHHkdG+DlpmvGEqH3L2jjX9poq9RD6zZWNR9+TG9ICTBcaQUH5CE3zwyGEk=
+	t=1791113294; cv=none; b=dU5hDhzJpLpekAwJQT8DpGXqRXq1RgKn5RiXB53zc2JwI9GIu/OY9Bdt18PJV4ldDEn+41+QaJCKIKSRHnZHRJPfeDIssDJnbz+prF579Q9HoEr0zpUok+4704/uZcSc+oJl6wZpR4vb7F0OkYcpnzryetkYdPSmluSucluWhNI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791112537; c=relaxed/simple;
-	bh=5souf5P8cdCDKNKE8Vfd9AYxuOtIE3Hf7UU1MdVziio=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dq0AujPseTV77+x+3C1JyhphqbTt+UcHavrRNWJ0U7NMScQvmi5k8Yy3bYqXtBju/+RVoEyh87ctD4ITyJa6CS34GSbRwq1HcWAiCM+dryDEAGmjXt30vnk0yVleDlqw/WG2LcTMFaiy7WQu1zoWHPv4LgHgqDNq+LZJ5pV7hcc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=o4fii7NG; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791113294; c=relaxed/simple;
+	bh=WW8HjIEMS+WNOuWdVB9arZ8ZWMGWvlE4K9iAwahtNtQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=trwDT1BaKjTmxiTyqTqjFCe9prK2lrVSXrF7mFbdwNvHnDQMFVKiSia3/scGXSaAOuZrZ37u6Y3Yco5II78K8lCnxAD8eAV6q98AAAVOVfQ3m4aa7QgI52bWqFXlBH/vvH53uy/issC/4XfOMv6roUkscWZAZmDwfuxQT+8sKgc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AqwKG+6v; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o4fii7NG"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-381b831d535so712182a91.0
-        for <linux-input@vger.kernel.org>; Sun, 04 Oct 2026 04:15:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791112535; x=1791717335; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Tsx+aDb2dwCtUhjqNMOb40F6ukqlNEoo0x6nqwwDid0=;
-        b=o4fii7NGfBvUvDI/+fVjIoC9oPfR3VhAO4DFVri39Kd1n6gF5/6YfJJO7gZ0dtRthp
-         x/bQ12tMNPP8f4KVMS+2DHVHHY9Y37L7bsdHp+CsS6tsXEF9TOfDThE5HaovGPCmtn0T
-         Da/+/jsASYv2s7gt9q7xGRehXeA/X7QL3Ve7leZMH5zyhQNvLcFFjDCj+fdJ2DjsNd3w
-         2LAIeak/P/5gbwFN77gZ2z6M6QRWb3R/Dc5+6TsMlZIyekmOpDsBCjeo93yB7Wkjokzr
-         2scGZrKu+EdiSBX0C+Ri4bxe0rWBAI44vKM9t2ki029kIebOQWcL/1d3exNTDOcwywPs
-         OfyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791112535; x=1791717335;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Tsx+aDb2dwCtUhjqNMOb40F6ukqlNEoo0x6nqwwDid0=;
-        b=okQfFnObmAD+L1IfuvwDi2+2QiC8T+cu4mLkGKRpNxz2Kt5Tm2Q4vXMD8VK4T2ie1t
-         Ku2YJxNrZqmJm551ml5ngLH2k0iVwW8tGVCmGPg0OvUP5DD7QCRmqYCAjRR7C+PWph1Z
-         VoEHBVsSTYQ9k3aXeNuqmX7aAt9MJrEW3jFKejdJFpWgJ2iYLr8LZEfIBLZvGG8wRw6N
-         m/znlJtTkXGJa3ZJQJIEe5vu08ILSwuXW9ktif9mfdzSixOo5A+ve7/A94Bc6pHlLTiX
-         FmTwqJrQUpJ35NR5FSo+Ffh2AtEQPnlQWTmtTnOCPxBMCplZdHHg0BfRmLX9JJ63r4Ij
-         0l1Q==
-X-Gm-Message-State: AFq9FYIv0ybqA9dmH1YMimJrjsfcmssasL9yNoslMy0alPz8pxOG5rFb
-	zk9PaOcO6PcTSJmmZ3Z3RR8savDakwe+1f/06GontwYgDfGxH38VArkT
-X-Gm-Gg: AYBFou0msRlBqiZxBozMEBihRE/pegWV043mCew1sT5LL8AtwLasJz9tITPUNpfNcfk
-	Bm7xLp+ncUdg1gWULQ1H6AhlC/KdbhF7R4ppoK+B347TiVMwYcLpEvCgItx2bOFSCdD/y25U07F
-	nnfNxLSrwD1GRGw1lgYv5THAp+u6L7V1gfFt7VGpLx1xFXkkZmLdvm4SPrjxOXft684Dl9napHk
-	jnyRKOt7drVXMhRBn8eBT+Bf8UKScG4lZVl+3qgI602zWXgUXwZW1pGcWaMJLaHWyhnmQ1th5zF
-	MYsI6b84urKju6KkXZHxW9PhJNBPVyWfg8SzeuMQ/UCrDVLMrzx7nB8o/UGkvATjgxyvw5gFfE5
-	tHojpjFxV2bMC5I699OCIHCxLpyeaTLXd0dFQprjidd1DPORruKidYWJ+74ELQyngm8sAZMFVOr
-	vJN+annwCKWvs18ZY7qucKhHvTirE7YYQsj8RyVlr810CcC4B9pct/tHkx716uw99BiARb/mY0o
-	2ZaZj724REVv+uQyC0Hxnk=
-X-Received: by 2002:a17:90b:3949:b0:3a4:7d7c:1866 with SMTP id 98e67ed59e1d1-3a787775e3cmr3455592a91.61.1791112534791;
-        Sun, 04 Oct 2026 04:15:34 -0700 (PDT)
-Received: from jmoon ([118.220.156.4])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cc9f73556efsm2776007a12.9.2026.10.04.04.15.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 04 Oct 2026 04:15:34 -0700 (PDT)
-From: Jinmo Yang <jinmo44.yang@gmail.com>
-To: ping.cheng@wacom.com,
-	jason.gerecke@wacom.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jinmo Yang <jinmo44.yang@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH 1/1] HID: wacom: serialize mode changes with device removal
-Date: Sun,  4 Oct 2026 20:13:26 +0900
-Message-ID: <20261004111353.118025-2-jinmo44.yang@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261004111353.118025-1-jinmo44.yang@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AqwKG+6v"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 460B21F000FF;
+	Sun,  4 Oct 2026 11:28:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791113292;
+	bh=ioluZzqWNEwdxFPINrS9MxoCywj2Ig37mDH12czexRA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=AqwKG+6vwd2rQI/Q//fbtMxit75nbW1Zga0t//xjSRvtOYNTsta9dskrsB70SLtIv
+	 9a4X9JzZrAriMdzQhrFzcgEO9bfFkvfJ7i1VTtooCqf4eKQdHH3bMMGcmIIq1QmhAy
+	 VDe0M0JglXJeIX8kAG7xwKv8Q+yD8Dc2+nIrDm41CDCT5xqXkOC3DsvLY9fi2NrvGq
+	 HQyEpkYXQ140zTLc1aY8uI7bFHK8IvVJoIeuDeszOpkMDq+QvVcGrRXf+bym6zRr0r
+	 qD0etY92Qf3JsBicm25h7ifWtX/FLgENgHrMrMvIIw2XDEEVvODUhWhU2Jlz0KR60h
+	 mospTWP9sSEZg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/1] HID: wacom: serialize mode changes with device
+ removal
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jinmo Yang" <jinmo44.yang@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20261004111353.118025-2-jinmo44.yang@gmail.com>
 References: <20261004111353.118025-1-jinmo44.yang@gmail.com>
+ <20261004111353.118025-2-jinmo44.yang@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 04 Oct 2026 11:28:11 +0000
+Message-Id: <20261004112812.460B21F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-wacom_mode_change_work() takes both siblings' struct wacom out of
-wacom_shared and tears down and rebuilds them, holding no reference to
-either. wacom_remove() cancels only the work owned by the device being
-removed, so a worker owned by the other sibling keeps using this device
-after its remove callback returns, and hid_device_remove() then frees
-struct wacom along with the driver's devres group.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] hid: wacom: Use-After-Free due to sibling worker restarting hardwa=
+re during remove
+--
 
-Reproduced under KASAN on hid.git master (fe2ec83746e5) with a uhid
-reproducer that binds a sibling pair, sends a mode-change report and then
-closes one sibling's descriptor, 10 boots out of 10:
+commit d345d10fbdd75c5608a4db1f5c93eaec7ccc124e
+Author: Jinmo Yang <jinmo44.yang@gmail.com>
+Subject: HID: wacom: serialize mode changes with device removal
 
-  BUG: KASAN: slab-use-after-free in wacom_parse_and_register+0x4fa8/0x58e0
-  Read of size 8 at addr ffff88800be431f8 by task kworker/0:2/75
-  Workqueue: events wacom_mode_change_work
-   wacom_parse_and_register+0x4fa8/0x58e0
-   wacom_mode_change_work+0x333/0x7e0
-   process_one_work+0xa3b/0x19b0
-  Allocated by task 11:  devm_kmalloc <- wacom_probe
-  Freed by task 82:      devres_release_group <- hid_device_remove,
-                         under uhid_char_release <- __x64_sys_close
-
-The same object is also written: wacom_feature_mapping() stores
-features->touch_max into it, four bytes at a fixed offset, with the value
-taken from a feature report. Closing one sibling's /dev/uhid descriptor is
-all it takes, with no privilege, and a reference on the hid_device would
-not help: struct wacom is devm_kzalloc() on &hdev->dev.
-
-Serialize mode-change workers with wacom_remove() using a driver-wide
-mutex, cancelling the device's own work first so that a worker blocked on
-the mutex cannot deadlock removal. wacom_add_shared_data() registers its
-devres action inside the group wacom_parse_and_register() opens, so
-wacom_remove() clears this device's shared pen or touch pointer under the
-mutex and no later worker can pick it up.
-
-The worker also snapshots both shared pointers and returns on a NULL
-wacom_wac.shared, because releasing the first sibling's devres can drop
-the last reference to the shared data.
+This commit adds a driver-wide wacom_mode_change_lock mutex to serialize
+mode-change workers with wacom_remove(). The goal is to prevent a sibling
+device's mode-change worker from accessing a removed device's struct wacom
+after it has been freed.
 
 Fixes: 4082da80f46a ("HID: wacom: generic: add mode change touch key")
 Cc: stable@vger.kernel.org
-Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
----
-Applies to hid.git master (fe2ec83746e5). It does not apply to for-next;
-see the cover letter.
 
- drivers/hid/wacom_sys.c | 36 +++++++++++++++++++++++++++---------
- 1 file changed, 27 insertions(+), 9 deletions(-)
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+[ ... ]
+> @@ -2783,22 +2784,32 @@ static void wacom_remote_work(struct work_struct =
+*work)
+>  static void wacom_mode_change_work(struct work_struct *work)
+>  {
+[ ... ]
+> +	if (pen) {
+> +		wacom1 =3D hid_get_drvdata(pen);
+>  		wacom_release_resources(wacom1);
+>  		hid_hw_stop(wacom1->hdev);
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 40770affdbde..ecd7b38b1418 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -764,6 +764,7 @@ struct wacom_hdev_data {
- 
- static LIST_HEAD(wacom_udev_list);
- static DEFINE_MUTEX(wacom_udev_list_lock);
-+static DEFINE_MUTEX(wacom_mode_change_lock);
- 
- static bool wacom_are_sibling(struct hid_device *hdev,
- 		struct hid_device *sibling)
-@@ -2783,22 +2784,32 @@ static void wacom_remote_work(struct work_struct *work)
- static void wacom_mode_change_work(struct work_struct *work)
- {
- 	struct wacom *wacom = container_of(work, struct wacom, mode_change_work);
--	struct wacom_shared *shared = wacom->wacom_wac.shared;
-+	struct wacom_shared *shared;
-+	struct hid_device *pen;
-+	struct hid_device *touch;
- 	struct wacom *wacom1 = NULL;
- 	struct wacom *wacom2 = NULL;
--	bool is_direct = wacom->wacom_wac.is_direct_mode;
-+	bool is_direct;
- 	int error = 0;
- 
--	if (shared->pen) {
--		wacom1 = hid_get_drvdata(shared->pen);
-+	mutex_lock(&wacom_mode_change_lock);
-+	shared = wacom->wacom_wac.shared;
-+	if (!shared)
-+		goto out;
-+	pen = shared->pen;
-+	touch = shared->touch;
-+	is_direct = wacom->wacom_wac.is_direct_mode;
-+
-+	if (pen) {
-+		wacom1 = hid_get_drvdata(pen);
- 		wacom_release_resources(wacom1);
- 		hid_hw_stop(wacom1->hdev);
- 		wacom1->wacom_wac.has_mode_change = true;
- 		wacom1->wacom_wac.is_direct_mode = is_direct;
- 	}
- 
--	if (shared->touch) {
--		wacom2 = hid_get_drvdata(shared->touch);
-+	if (touch) {
-+		wacom2 = hid_get_drvdata(touch);
- 		wacom_release_resources(wacom2);
- 		hid_hw_stop(wacom2->hdev);
- 		wacom2->wacom_wac.has_mode_change = true;
-@@ -2808,16 +2819,17 @@ static void wacom_mode_change_work(struct work_struct *work)
- 	if (wacom1) {
- 		error = wacom_parse_and_register(wacom1, false);
- 		if (error)
--			return;
-+			goto out;
- 	}
- 
- 	if (wacom2) {
- 		error = wacom_parse_and_register(wacom2, false);
- 		if (error)
--			return;
-+			goto out;
- 	}
- 
--	return;
-+out:
-+	mutex_unlock(&wacom_mode_change_lock);
- }
- 
- static int wacom_probe(struct hid_device *hdev,
-@@ -2916,6 +2928,10 @@ static void wacom_remove(struct hid_device *hdev)
- 	cancel_work_sync(&wacom->battery_work);
- 	cancel_work_sync(&wacom->remote_work);
- 	cancel_work_sync(&wacom->mode_change_work);
-+
-+	/* A sibling's mode-change work can also access this device. */
-+	mutex_lock(&wacom_mode_change_lock);
-+
- 	timer_delete_sync(&wacom->idleprox_timer);
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		device_remove_file(&hdev->dev, &dev_attr_speed);
-@@ -2925,6 +2941,8 @@ static void wacom_remove(struct hid_device *hdev)
- 
- 	if (wacom->wacom_wac.features.type != REMOTE)
- 		wacom_release_resources(wacom);
-+
-+	mutex_unlock(&wacom_mode_change_lock);
- }
- 
- static int wacom_resume(struct hid_device *hdev)
--- 
-2.53.0
+[Severity: High]
+If a sibling worker is running concurrently with wacom_remove(), could this
+double-stop the hardware of the device being removed?
 
+[ ... ]
+>  	if (wacom1) {
+>  		error =3D wacom_parse_and_register(wacom1, false);
+>  		if (error)
+> -			return;
+> +			goto out;
+>  	}
+
+[Severity: High]
+Could the sibling worker restart the hardware via wacom_parse_and_register()
+(which calls hid_hw_start()) here, while wacom_remove() is blocked waiting
+on the wacom_mode_change_lock?
+
+[ ... ]
+> @@ -2916,6 +2928,10 @@ static void wacom_remove(struct hid_device *hdev)
+>  	cancel_work_sync(&wacom->battery_work);
+>  	cancel_work_sync(&wacom->remote_work);
+>  	cancel_work_sync(&wacom->mode_change_work);
+> +
+> +	/* A sibling's mode-change work can also access this device. */
+> +	mutex_lock(&wacom_mode_change_lock);
+
+[Severity: High]
+Since wacom_remove() executes teardown steps like hid_hw_stop() before
+acquiring the lock, and only cancels its own worker, could a sibling's
+worker continue running and bypass these teardown steps?
+
+[ ... ]
+>  	if (wacom->wacom_wac.features.type !=3D REMOTE)
+>  		wacom_release_resources(wacom);
+> +
+> +	mutex_unlock(&wacom_mode_change_lock);
+>  }
+
+[Severity: High]
+If the sibling's worker restarted the hardware via wacom_parse_and_register=
+(),
+wacom_remove() returns here without calling hid_hw_stop() again.
+
+Will this leave the device's hidraw nodes active and registered after the
+driver is unbound, leading to a Use-After-Free of struct wacom when accessed
+by userspace?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261004111353.1180=
+25-1-jinmo44.yang@gmail.com?part=3D1

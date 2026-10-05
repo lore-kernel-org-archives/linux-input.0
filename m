@@ -1,104 +1,98 @@
-Received: from mail-24431.protonmail.ch (mail-24431.protonmail.ch [109.224.244.31])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f9.google.com (mail-pj2-f9.google.com [74.125.227.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D71CC2857EA
-	for <linux-input@vger.kernel.org>; Tue,  6 Oct 2026 00:39:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75C331C28E
+	for <linux-input@vger.kernel.org>; Tue,  6 Oct 2026 02:21:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791247160; cv=none; b=se6MDwX/06lZQNaJfSc2/ObaNMxl86rM5Qggs/lb7ZzQxSGQ9/jVSOwW3AIBTcvi5eWEf8HpVCU3Ou32VySPt6OS9DqBsL0cJ/xcJRxpofrq4WwWgc+DpqVIDzMVKWvCiQii4i8sQ9+5qev/S+AeRh3NnQ1/1EhROiMjEluRTlM=
+	t=1791253310; cv=none; b=QcgZHE/6b7uYNt0t5Iuo7C4qy9EplhmXv7P3no1ID/ixH3Sh4zoazN9st6/R7nb7nllQK58tAEn1XBmbo0LLYYOrYnSRCM6tQMDPEFXZqsH4x2DQkxwYzBDCbSEYwyYRzIA19W+o3lF8e8TQjnrsBLwCW+X4Di6fnsXGlaNRCN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791247160; c=relaxed/simple;
-	bh=WEDtKlOnNBa5EiqX7zeJadNMrqXvGqjnajPXo1AZTXY=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=TPOCnGTAz5TeWzxBks49dOPtA5tTNYBYFvioY/wsxZTD/rt441jDTVym48bDEGRwKf63BWCyQ7aDhC+YSoYu1h15lgU+vaHGr0Lg1RI8673r6QzHCwcexIhnbbXDbicHMfW45rU9MvPyvjv7xoCuw3eZABqfKuWyAC8KrNoJrD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=m8SK+n96; arc=none smtp.client-ip=109.224.244.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1791253310; c=relaxed/simple;
+	bh=X+ApK4aJZtFExDbkXvaDoXYcLNfzIgduLawtL28y0aU=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=hdA8hi+dr+r6C6e3cU0QAN/GctNnpktwrXPwDBacQ003TmOedK7nbGPTbfuz7zd7ju7IdtPrt6agIw14aKpIWeL+53/jA6pCWokV3ppFHbnGL8sW8jDZLLOUOiGh7MjY/pC+ieL1/SBdK7XTzngitIR6cTU0GPIF0LN/yx+R1Xo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=URkQY5Q7; arc=none smtp.client-ip=74.125.227.137
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="m8SK+n96"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=j4kbytbcajfenpwk5ezlimtrkq.protonmail2; t=1791247152;
-	x=1791506352; bh=DKyc+PsM81uZUwTY/Zzz/kpS8Y+ASO006jmCy6FVAsU=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=m8SK+n96mj5tNtIKjtHWNgBOs8Lk0KC9EFSV3zGbnakrtoxhTo/im/EHfRa9iR/vI
-	 VlE9gBfqObXsq3YhkFJgVaR48ioFVONYPJippSDhts/94UhB7Wv00ZKbnBRJJe/BAA
-	 SYahELBTfhsOXJoKbmkZ22BVe4GODAe07Hg7OhYQEzdJwQ5i6DEvWVfCS678+/2jer
-	 WOGwx5PIrZrC1TqHslq7FV/KwCD2S2I5Y0+j/kJoohlxluGDbEIIVA+/21618KIvam
-	 +HNsUJgK0jk5UBdImAZlCDLWQCXuwTtECm4X5do80eSWjyt64A3LS8iuywuFIdh7rB
-	 hJdDMg7dpCr7Q==
-Date: Tue, 06 Oct 2026 00:39:07 +0000
-To: Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>
-From: Bartosz Barc <bpbarc@proton.me>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?utf-8?Q?Bartosz_Pawe=C5=82_Barc?= <bpbarc@proton.me>
-Subject: [PATCH 2/2] HID: uclogic: Report stylus invert state for UGEE v2 devices
-Message-ID: <20261006003844.10839-3-bpbarc@proton.me>
-In-Reply-To: <20261006003844.10839-1-bpbarc@proton.me>
-References: <20261006003844.10839-1-bpbarc@proton.me>
-Feedback-ID: 109962581:user:proton
-X-Pm-Message-ID: ba6ac088ff46d4fea8f836d0ef2781beee18a19e
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="URkQY5Q7"
+Received: by mail-pj2-f9.google.com with SMTP id d9443c01a7336-2e497ed2ccbso11575205ad.1
+        for <linux-input@vger.kernel.org>; Mon, 05 Oct 2026 19:21:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791253309; x=1791858109; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=yHf9jQyY1fl7nbJNPZDapSRASsYMYa+IT9UPrDjnf0A=;
+        b=URkQY5Q7Jua73dZHJIBl14Xsm5VJmY10W2KjRDJGtQKd+LHmX0yNg2JcElqyPN5Wtl
+         AVespsUFjIYUvMGjTYxizg3IBqaEwxTQ2fCrMqzxRQIlFQnkLl29z4jN05WLggZLMrTq
+         V6f51hEaCPIkhAEMqyaVVKZIaty9e6xA95mhp+pCq+cBO6+2s1xvxriZtQgyZsAxpa12
+         UHrsLuBO7LpLNXWQoHyg03rN4JJ3xey3gwiPRkNm+fjpERaAKkwwM6+S+pyxlt6cx16h
+         NtUXLxZ6FJwCemWcrzUKT9NF+X/NtNAhMcg2qPhh0MJEKQefQ7YlzgO9z2BznRcq26JR
+         82iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791253309; x=1791858109;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yHf9jQyY1fl7nbJNPZDapSRASsYMYa+IT9UPrDjnf0A=;
+        b=HYqACZXjrg2pGmDsZne0LMvms+qJ37x2lrB3Y/BHRKQQzf+AyFKXKRcqCNMgo1BgPm
+         g3STjgF4m2pW+I5itLiVofYqJOCpbkdFYex/FPc5262HHvfiT/XzxCVFAMxBHcpc79qq
+         K3JkFjSZTyDShr4tmugBOirl0Ipn7Cxrk/cNrVaQbHzPGl6JXf+jB7EuGJM/hZ3siOzR
+         v/GzrlqXPi0FsY9VRQp4ZCMJ+14nIhxNLzt0QwPRYplyB6WwYbldS5R7AtnBGxjGCcC7
+         UCXIrOXN3jzyEjiY0WrssCP15M6rrEEj+QZQOjkBgdZivkAKZ8TlqiCoidb+F7pNlz7Q
+         V8EQ==
+X-Forwarded-Encrypted: i=1; AKwUvByU5KSbPafjzpd6EV1Rs2e2DmLvgviWkrWrCgsNxhoNeZsVio4g8s4ZaeuHLpbNR9leyE8rMs63YcseuA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIKEKmUWkM/ikUEzEjKlNSBV8/NizQibK3h9Ikbn6No9SfyfZ6r
+	J1vQFNYJRz4ASVOad3m0cjunrHi55agJCZJ1KElA4e6VynGIUmqgWabe
+X-Gm-Gg: AYBFou07Wn3swE8Ar29q3Ntmc+unCmwZl7AbI0wH6Lgbb/nTrHIOB8CYlXtuwkLLCdP
+	5w2SW0NOYGewQ7J+hopMkxe5Wi8AIA6p9QLFl2o5OBpj5pcA0pjQT0w21jGF5wLsBv3XFwKOCpD
+	cmFPBnQxWCnReWKMGS0QReNlBNV8AIJqh5ieIl08q1TDVh6EXNlQWsYmtFLMj4OaBY9S6nF8Qea
+	he98OhGTLzNtLPa9S/A6+MAcJCwrqC3PL21n2/CGnqD+LLOGBOwRekTHYemfEVodOA8ft8vb1N1
+	C+ActQWzKaQzJgb+igpO92jikPtqRqgDVul67P653pVboc6OQyJIhJCycAvpZaY4P9xp27KT7Wr
+	OdpQelJGJ8wOSop63Gpwfw2+uUIlix2B05AGt9neUmT5ipeXiQKr8qLy+Zq/MIhPb2PXELZi08R
+	vvUigo7aXjxVMUtSwoYhtntB+LKnLsystOA4JjxzUzyGPvbc2Jd4qN/7G75CnHZqhmsgP6fWDXk
+	nfKPC10iRdVvr6eX46EzCuFlfkXLQ7bPHPRH3dRRFMMEcnHbJSSuSK+X8QZe89wVlJ5i8+fSh7A
+	Ruo=
+X-Received: by 2002:a17:902:ef48:b0:2dd:c100:943e with SMTP id d9443c01a7336-2e5dcdfd37cmr230685ad.60.1791253308790;
+        Mon, 05 Oct 2026 19:21:48 -0700 (PDT)
+Received: from [192.168.73.37] (n106-71-19-159.sun21.vic.optusnet.com.au. [106.71.19.159])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e5ccdd1f8esm2815245ad.83.2026.10.05.19.21.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 05 Oct 2026 19:21:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 3/4] HID: picolcd: Use min() macro to simplify code
+From: Aveline Noir <jm5905938@gmail.com>
+To: Chen Changcheng <chenchangcheng@kylinos.cn>
+Cc: bonbons@linux-vserver.org, jikos@kernel.org, bentiss@kernel.org, 
+ srinivas.pandruvada@linux.intel.com, even.xu@intel.com, 
+ xinpeng.sun@intel.com, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, ccc194101@163.com
+In-Reply-To: <20260728025750.48249-4-chenchangcheng@kylinos.cn>
+References: <20260728025750.48249-1-chenchangcheng@kylinos.cn>
+ <20260728025750.48249-4-chenchangcheng@kylinos.cn>
+Date: Tue, 06 Oct 2026 02:59:11 +0800
+Message-Id: <179122675117.249704.5624307905971961639.b4-review@b4>
+X-Mailer: b4 0.15.2
 
-From: Bartosz Pawe=C5=82 Barc <bpbarc@proton.me>
+On Tue, 28 Jul 2026 10:57:49 +0800, Chen Changcheng <chenchangcheng@kylinos.cn> wrote:
 
-Captured raw reports from the XP-Pen Artist 12 (2nd Gen) show that the
-first of the two bits immediately after Tip Switch, Barrel Switch,
-Tablet Pick (one that is currently declared as padding) is set whenever
-the stylus is flipped to the eraser end, and otherwise is set to zero:
+GCC/Clang builds, W=1, sparse and checkpatch passed
+with no new warnings. QEMU/UHID EEPROM tests passed;
+both versions showed the same existing 
+atomic-scheduling warnings.
+Makes sense to me.
 
-hovering, nib:    1010 0000
-pressing, nib:    1010 0001
-hovering, eraser: 1010 1000
-pressing, eraser: 1010 1001
+Reviewed-by: Aveline Noir <jm5905938@gmail.com>
+Tested-by: Aveline Noir <jm5905938@gmail.com>
 
-Declare that bit as Usage (Invert) from the Digitizer page, which already
-gets mapped to BTN_TOOL_RUBBER.
-
-This field is part of the shared uclogic_rdesc_ugee_v2_pen_template_arr
-template used by multiple devices. As this change only reclaims a
-padding bit, it should not affect devices that do not support this
-feature, assuming their hardware leaves that bit as a zero. I have only
-tested this with the XP-Pen Artist 12 (2nd Gen), so further testing with
-other UGEE v2 devices would be appreciated.
-
-Signed-off-by: Bartosz Pawe=C5=82 Barc <bpbarc@proton.me>
----
- drivers/hid/hid-uclogic-rdesc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdes=
-c.c
-index a1b31511b625..186beca6a26a 100644
---- a/drivers/hid/hid-uclogic-rdesc.c
-+++ b/drivers/hid/hid-uclogic-rdesc.c
-@@ -878,13 +878,14 @@ const __u8 uclogic_rdesc_ugee_v2_pen_template_arr[] =
-=3D {
- =090x09, 0x42,         /*          Usage (Tip Switch),             */
- =090x09, 0x44,         /*          Usage (Barrel Switch),          */
- =090x09, 0x46,         /*          Usage (Tablet Pick),            */
-+=090x09, 0x3c,         /*          Usage (Invert),                 */
- =090x75, 0x01,         /*          Report Size (1),                */
--=090x95, 0x03,         /*          Report Count (3),               */
-+=090x95, 0x04,         /*          Report Count (4),               */
- =090x14,               /*          Logical Minimum (0),            */
- =090x25, 0x01,         /*          Logical Maximum (1),            */
- =090x81, 0x02,         /*          Input (Variable),               */
--=090x95, 0x02,         /*          Report Count (2),               */
--=090x81, 0x03,         /*          Input (Constant, Variable),     */
-+=090x95, 0x01,         /*          Report Count (1),               */
-+=090x81, 0x03,         /*          Input (Constant),               */
- =090x09, 0x32,         /*          Usage (In Range),               */
- =090x95, 0x01,         /*          Report Count (1),               */
- =090x81, 0x02,         /*          Input (Variable),               */
---=20
-2.56.0
-
-
+-- 
+Aveline Noir <jm5905938@gmail.com>

@@ -1,16 +1,16 @@
 Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC48D3CF211;
-	Mon,  5 Oct 2026 21:11:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4E9A12C534;
+	Mon,  5 Oct 2026 21:11:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.142.180.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791234695; cv=none; b=lJx9WCtdaNwjhD8J1J9geSl+Be0TbrANqZtU6tRfnFrQkeLbXOmkkWFzoXHcDfnOVfBOzc6zm6EySm+rXLNhaAfzJXtTCwL0NiQupUtXJV2sfd4idd/YNNEuDP1obsdin5/epZrH0KDj/ogJLND16UJdpCPv6/EStaTDGiyksJg=
+	t=1791234712; cv=none; b=bQ1XSoPX2yjtqbe5VoZ/VmrsSRtFtOqaAL3ZyoI5DXpAM7WhYEpLRq+e036JtSEhqlEKeALkFUsufJjwIDMITBEvpTre9H2mD7YK+dkAKdvdLZJxL8GNjrxtj9/T9omifAg/XiebYUMXeVf/iUcXAoMcawC13cLFYTJWO4gVbIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791234695; c=relaxed/simple;
-	bh=PLpMpktIp4qHpfpFHqLw/hDjT+R8eyUI6m4rP4spPI4=;
+	s=arc-20240116; t=1791234712; c=relaxed/simple;
+	bh=mxY9anan2m0XiW0X4z+xPRHbj3QGSNnEyJSqOH6TJcA=;
 	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KjQrcWpvkeVYswlAQzGWLNwB+hqqqXeTPuOLStftjhJWzHmHcjxlj+Joooj9o3am4bWhbrZvEi0rhui09dxGDmOx/9mG5dP9gRmf44MoUdvpmP6teCkjvHSiMnnEHDvIO/PS6tX4em70RW6nqAbwFlgv2MHpco7jRFHcVTKn2dI=
+	 Content-Type:Content-Disposition:In-Reply-To; b=PyjnRP/OLSW4fx7hmEggkJBD1HbrSVVH6lM5oX36avdd6uBKPalMkoRUIjRC45niz5AN68M9HYDXCdAgVfmHH/z9AFHDwg+EAVzd2YjEbSY+OUg+xNdbixdorg70Bg22YtgAnj9x9iqL2kAQwz4Solf34Aqsl2+qUDz1M4QnfnI=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org; spf=pass smtp.mailfrom=makrotopia.org; arc=none smtp.client-ip=185.142.180.65
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=makrotopia.org
@@ -18,9 +18,9 @@ Received: from local
 	by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256:X25519MLKEM768)
 	 (Exim 4.100.1)
 	(envelope-from <daniel@makrotopia.org>)
-	id 1xDpy6-000000005v7-3YBn;
-	Mon, 05 Oct 2026 21:11:30 +0000
-Date: Mon, 5 Oct 2026 22:11:28 +0100
+	id 1xDpyO-000000005vM-088R;
+	Mon, 05 Oct 2026 21:11:48 +0000
+Date: Mon, 5 Oct 2026 22:11:45 +0100
 From: Daniel Golle <daniel@makrotopia.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -30,9 +30,8 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>,
 	Oleh Kuzhylnyi <kuzhylol@gmail.com>, linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v4 2/5] Input: hynitron-cst816x: respect touchscreen DT
- properties
-Message-ID: <9e3cca6e6f43c886c58d9258fca4ad19cff066b4.1791233147.git.daniel@makrotopia.org>
+Subject: [PATCH v4 3/5] Input: hynitron-cst816x: release gesture keys
+Message-ID: <5312d67200e3251b2be08aef0a726d50d94fadde.1791233147.git.daniel@makrotopia.org>
 References: <cover.1791233147.git.daniel@makrotopia.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -44,59 +43,165 @@ Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <cover.1791233147.git.daniel@makrotopia.org>
 
-Parse common touchscreen properties and use touchscreen_report_pos()
-instead of reporting raw absolute position.
+The gesture key is reported with the value of the touch flag, so it
+stays pressed once the controller stops reporting the gesture code
+while the finger is still down. Report the press on its own and
+release the keys the input core still holds down on the first report
+that carries no gesture code. Report a key only for the gesture codes
+the binding names: the controller also sends codes such as single
+click, and the index fallback aliased those onto the long-press
+keycode. Keycodes above KEY_MAX are rejected, as that release looks
+the key state up in the input core's key bitmap.
 
-This makes the driver respect the touchscreen-min-x/y,
-touchscreen-size-x/y, touchscreen-fuzz-x/y, touchscreen-inverted-x/y
-and touchscreen-swapped-x-y properties.
-
+Fixes: c87a819bec86 ("Input: add driver for Hynitron CST816x series")
 Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 ---
+v4:
+- map only the documented gesture codes to keys, as single click
+  aliased onto the long-press keycode (Oleh Kuzhylnyi)
+- read each keycode once in the release loop, so the key it tests is
+  the key it releases (Sashiko AI review)
 v2:
-- name all the properties the parser honours, no functional change
+- reject keycodes above KEY_MAX and publish keycodemax only once the
+  whole array validates (Sashiko AI review)
 
- drivers/input/touchscreen/hynitron-cst816x.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/hynitron-cst816x.c | 87 +++++++++++++-------
+ 1 file changed, 55 insertions(+), 32 deletions(-)
 
 diff --git a/drivers/input/touchscreen/hynitron-cst816x.c b/drivers/input/touchscreen/hynitron-cst816x.c
-index 47d9cd7412d1b..865c5a767ba01 100644
+index 865c5a767ba01..2d8f0b78a3a8a 100644
 --- a/drivers/input/touchscreen/hynitron-cst816x.c
 +++ b/drivers/input/touchscreen/hynitron-cst816x.c
-@@ -11,6 +11,7 @@
- #include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/input.h>
-+#include <linux/input/touchscreen.h>
- #include <linux/unaligned.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-@@ -31,6 +32,7 @@ struct cst816x_priv {
- 	struct input_dev *input;
- 	unsigned int keycode[CST816X_NUM_KEYS];
- 	unsigned int keycodemax;
-+	struct touchscreen_properties prop;
- };
+@@ -39,28 +39,40 @@ static int cst816x_parse_keycodes(struct device *dev, struct cst816x_priv *priv)
+ {
+ 	int count;
+ 	int error;
++	int i;
  
- static int cst816x_parse_keycodes(struct device *dev, struct cst816x_priv *priv)
-@@ -142,6 +144,7 @@ static int cst816x_register_input(struct cst816x_priv *priv)
- 	input_set_abs_params(priv->input, ABS_X, 0, 240, 0, 0);
- 	input_set_abs_params(priv->input, ABS_Y, 0, 240, 0, 0);
- 	input_set_capability(priv->input, EV_KEY, BTN_TOUCH);
-+	touchscreen_parse_properties(priv->input, false, &priv->prop);
+-	if (device_property_present(dev, "linux,keycodes")) {
+-		count = device_property_count_u32(dev, "linux,keycodes");
+-		if (count < 0) {
+-			error = count;
+-			dev_err(dev, "failed to count keys: %d\n", error);
+-			return error;
+-		} else if (count > ARRAY_SIZE(priv->keycode)) {
+-			dev_err(dev, "too many keys defined: %d\n", count);
+-			return -EINVAL;
+-		}
+-		priv->keycodemax = count;
+-
+-		error = device_property_read_u32_array(dev, "linux,keycodes",
+-						       priv->keycode,
+-						       priv->keycodemax);
+-		if (error) {
+-			dev_err(dev, "failed to read keycodes: %d\n", error);
+-			return error;
+-		}
++	if (!device_property_present(dev, "linux,keycodes"))
++		return 0;
++
++	count = device_property_count_u32(dev, "linux,keycodes");
++	if (count < 0) {
++		error = count;
++		dev_err(dev, "failed to count keys: %d\n", error);
++		return error;
++	}
++
++	if (count > ARRAY_SIZE(priv->keycode)) {
++		dev_err(dev, "too many keys defined: %d\n", count);
++		return -EINVAL;
++	}
++
++	error = device_property_read_u32_array(dev, "linux,keycodes",
++					       priv->keycode, count);
++	if (error) {
++		dev_err(dev, "failed to read keycodes: %d\n", error);
++		return error;
++	}
++
++	for (i = 0; i < count; i++) {
++		if (priv->keycode[i] <= KEY_MAX)
++			continue;
++
++		dev_err(dev, "keycode %u out of range\n", priv->keycode[i]);
++		return -EINVAL;
+ 	}
  
- 	priv->input->keycode = priv->keycode;
- 	priv->input->keycodesize = sizeof(priv->keycode[0]);
-@@ -173,8 +176,8 @@ static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
++	priv->keycodemax = count;
++
+ 	return 0;
+ }
+ 
+@@ -94,24 +106,19 @@ static int cst816x_i2c_read_register(struct cst816x_priv *priv, u8 reg,
+ 	return 0;
+ }
+ 
+-static u8 cst816x_gest_idx(u8 gest)
++static unsigned int cst816x_gest_keycode(struct cst816x_priv *priv, u8 gest)
+ {
+-	u8 index;
+-
+ 	switch (gest) {
+ 	case 0x01: /* Slide up gesture */
+ 	case 0x02: /* Slide down gesture */
+ 	case 0x03: /* Slide left gesture */
+ 	case 0x04: /* Slide right gesture */
+-		index = gest;
+-		break;
++		return priv->keycode[gest - 1];
+ 	case 0x0c: /* Long press gesture */
++		return priv->keycode[CST816X_NUM_KEYS - 1];
+ 	default:
+-		index = CST816X_NUM_KEYS;
+-		break;
++		return KEY_RESERVED;
+ 	}
+-
+-	return index - 1;
+ }
+ 
+ static bool cst816x_process_touch(struct cst816x_priv *priv,
+@@ -168,10 +175,25 @@ static void cst816x_reset(struct cst816x_priv *priv)
+ 	msleep(100);
+ }
+ 
++static void cst816x_release_keys(struct cst816x_priv *priv)
++{
++	unsigned int key;
++	unsigned int i;
++
++	for (i = 0; i < priv->keycodemax; i++) {
++		key = priv->keycode[i];
++		if (!test_bit(key, priv->input->key))
++			continue;
++
++		input_report_key(priv->input, key, 0);
++	}
++}
++
+ static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
+ {
+ 	struct cst816x_priv *priv = cookie;
+ 	struct cst816x_touch tch;
++	unsigned int key;
+ 
  	if (!cst816x_process_touch(priv, &tch))
  		return IRQ_HANDLED;
+@@ -179,10 +201,11 @@ static irqreturn_t cst816x_irq_cb(int irq, void *cookie)
+ 	touchscreen_report_pos(priv->input, &priv->prop,
+ 			       tch.abs_x, tch.abs_y, false);
  
--	input_report_abs(priv->input, ABS_X, tch.abs_x);
--	input_report_abs(priv->input, ABS_Y, tch.abs_y);
-+	touchscreen_report_pos(priv->input, &priv->prop,
-+			       tch.abs_x, tch.abs_y, false);
+-	if (tch.gest)
+-		input_report_key(priv->input,
+-				 priv->keycode[cst816x_gest_idx(tch.gest)],
+-				 tch.active);
++	key = cst816x_gest_keycode(priv, tch.gest);
++	if (key != KEY_RESERVED)
++		input_report_key(priv->input, key, 1);
++	else
++		cst816x_release_keys(priv);
  
- 	if (tch.gest)
- 		input_report_key(priv->input,
+ 	input_report_key(priv->input, BTN_TOUCH, tch.active);
+ 
 -- 
 2.56.0

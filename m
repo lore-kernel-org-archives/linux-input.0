@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF2C631F989;
-	Mon,  5 Oct 2026 11:33:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B95E47DFB9;
+	Mon,  5 Oct 2026 11:33:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791200013; cv=none; b=nBW5HHe91frdpTjpBoYu2VeOtTD/4KQoaRmB90jUD5xR06gQgLcEYK1IguOBkmaxVGkrt2jMeot+Wuht0+VKPtfNNanbAmmS7RBUzRV1+vztcZwycKJNpfbn7X1uC7bsTCvYNBP9TR6MsjwPMkonUCEqbEoeASMbITl7PkvqVKU=
+	t=1791200016; cv=none; b=OA6b1DOp5X+myjozcRP3MVPfqEHdbuPDuxbFrqguE8AsjXMXP0N09p6x8lfV3zJwoudtm4ZXu6DG/XjdWzvaEMHX4zCkv5uHBrtYyA/N9zJ08C84MLjCAP/aScpo0kEpIW9Z9AUgUtjBKsffwqzR9NyD53KycH3H6AQYUC95XpQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791200013; c=relaxed/simple;
-	bh=Wpr48c94oU5+NvzPcit0pqXalaVgtcp9KdCZNclssVY=;
+	s=arc-20240116; t=1791200016; c=relaxed/simple;
+	bh=ahBIlnJEjw2sBwQJf8wwHpcKkVLVi+ixJDkQPGiwDsI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=X8jMVXeL7TlbVEZsbJU9uWLOhXOpOt6JMsIWa0kVWvta6QAIRxZBeQp76aBGFsT410PsnH523H6O8PimdwY2XCCX2vaxYkBdzKHnPmM1AYzNH5AWj2chZzdbBs0uoPz6Y4Og8ucCp+52nC2GBBm9pyfajJQ5K1VTYvzl0HV1mqc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DAIHjFWA; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=TK1thZL7s2A078pDYRxN+aKOO6rZV3pE3Yd2gZ4qXvqfYbd3qLC9/rgPnqSKBNR2Z0iGljhKpz2bTyMK6cqdVU/xmPsxKRoGO08QOUFmRAHpD7OTjw235fg5vccvTvM5Cfbu2mPPO3gxbdiqyaK3j3aZQcmIpH4LYe5lYBFNdM8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=daXvwKBf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DAIHjFWA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B80CC1F000FF;
-	Mon,  5 Oct 2026 11:33:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="daXvwKBf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9607C1F000FF;
+	Mon,  5 Oct 2026 11:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791200012;
-	bh=CDSI1fzd06xogRlRsAAlSIYZUx/yG6yhOmXVab/hmYc=;
+	s=k20260515; t=1791200015;
+	bh=44k8QmXo0RbzfFYGwBkCWl1z3Rv7AbzCxmoTN/2j7jE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=DAIHjFWAxf3xmj/jwYqfZwZ3E1mfmWBY9gBGxuEz+hac12tLDEw1xFYEQai0vqGXr
-	 jv3ltiorrhLfi+YBk4d0asUZKPAWiQQzrw3Qbx9y9k0u9CBjZmqR3vQRqM0A4YxSAE
-	 iiovdQT0LoDxmYm/9q/caD/w+O/o18v1JgDKvZVuQmdQbgeZt13oSKtalEfh6pWnCq
-	 xyqUqNNRIsn3ptFwE7sm24QRwi1YS6P5LeHZxFJBCmGMhsTKS0RYmsY9vQ+HsINNyY
-	 QVInw/TGlIBjwKHGRD6i6noNqm8SLkI6cm2x1sWh+Q0ojxZRHXJIvUw0d5RPUF7AkF
-	 PYy1fF/7cq7zw==
-Date: Mon, 5 Oct 2026 13:17:12 +0200
+	b=daXvwKBfn45TTkPjYEogaW/8bzC7dWExtHjFuOSW+CTnZI8UZJqisOLHtEWUxdmjS
+	 WfR76xQK5ZicHJnvrYGEoLXulXVsrCIzmDyJ9lsvn8Rzme4/ipxNWMP0d8csQdQyTH
+	 qW0Up9Ia05nx3LwvkJ5rKWOUxTVuME3Q7ijIutS1DFPEMA2qqB/G/NducNpTv5StJI
+	 EuTNz1S1c7ZbizJub5Xe5DXhXe87wAdSVK6m/xr550MJVVsJXo+zptvU1KjUHk/VFy
+	 Ep4ud9da7IQSmdxwQ57Hqx3JmE1yzEUstTeqq86eR2N+WPAHxLwii/mxOSjLUaxaYk
+	 r6mFtzcpuM+QA==
+Date: Mon, 5 Oct 2026 13:32:52 +0200
 From: Nicolas Schier <nsc@kernel.org>
 To: Jay Wang <wanjay@amazon.com>
 Cc: bpf@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
@@ -64,9 +64,9 @@ Cc: bpf@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
 	Hazem Mohamed Abuelfotoh <abuehaze@amazon.com>,
 	Bjoern Doebel <doebel@amazon.de>,
 	Martin Pohlack <mpohlack@amazon.de>, jay.wang.upstream@gmail.com
-Subject: Re: [PATCH bpf-next v4 11/12] tools, samples: take the vmlinux BTF
- from vmlinux.unstripped first
-Message-ID: <asOHOPlWCp1kKZiT@derry.ads.avm.de>
+Subject: Re: [PATCH bpf-next v4 09/12] bpf, trace, net: prepare
+ CONFIG_DEBUG_INFO_BTF checks for a tristate
+Message-ID: <asOK5Gl1Oe9d5bwr@derry.ads.avm.de>
 Mail-Followup-To: Nicolas Schier <nsc@kernel.org>,
 	Jay Wang <wanjay@amazon.com>, bpf@vger.kernel.org,
 	Alexei Starovoitov <ast@kernel.org>,
@@ -105,7 +105,7 @@ Mail-Followup-To: Nicolas Schier <nsc@kernel.org>,
 	Bjoern Doebel <doebel@amazon.de>,
 	Martin Pohlack <mpohlack@amazon.de>, jay.wang.upstream@gmail.com
 References: <20261001225214.12351-1-wanjay@amazon.com>
- <20261001225214.12351-12-wanjay@amazon.com>
+ <20261001225214.12351-10-wanjay@amazon.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -114,64 +114,69 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261001225214.12351-12-wanjay@amazon.com>
+In-Reply-To: <20261001225214.12351-10-wanjay@amazon.com>
 
-On Thu, Oct 01, 2026 at 10:52:13PM +0000, Jay Wang wrote:
-> With CONFIG_DEBUG_INFO_BTF=m, which the next patch makes possible, the
-> vmlinux BTF is not part of vmlinux: scripts/Makefile.vmlinux strips .BTF
-> from it, and only vmlinux.unstripped, from which vmlinux is made, keeps
-> it.  The tools and samples that generate vmlinux.h from a kernel build
-> tree take the first vmlinux they find, so after an =m build they would
-> pick one without BTF and fail, e.g. the bpftool skeletons when bpftool is
-> built from the kernel tree right after the kernel.
+On Thu, Oct 01, 2026 at 10:52:11PM +0000, Jay Wang wrote:
+> The next patch makes CONFIG_DEBUG_INFO_BTF a tristate.  With =m, Kconfig
+> defines CONFIG_DEBUG_INFO_BTF_MODULE instead of CONFIG_DEBUG_INFO_BTF,
+> so every check that must hold for both =y and =m has to be written for
+> it:
 > 
-> Look for vmlinux.unstripped before vmlinux in each of these lists.  Every
-> kernel build produces it, and with =y it carries the same BTF as vmlinux,
-> so nothing changes there.  perf filters the candidates for a .BTF
-> section, but its unanchored grep also matches .BTF_ids and .BTF.link,
-> which vmlinux keeps with =m; match the section name exactly.
+>  - #ifdef CONFIG_DEBUG_INFO_BTF becomes #if IS_ENABLED(...) where the
+>    generated BTF and its id tables must be the same for =y and =m: the
+>    .BTF_ids tables (btf_ids.h), the BTF type tags (compiler_types.h), and
+>    the tracepoint and syscall BTF ids (trace_events.h, trace_syscalls.c).
+>    Leaving them would silently produce empty id sets with =m.
+> 
+>  - obj-$(CONFIG_DEBUG_INFO_BTF) and include-$(CONFIG_DEBUG_INFO_BTF)
+>    become $(subst m,y,...) where the object is built into the kernel
+>    regardless: sysfs_btf.o, the netfilter and xfrm kfunc objects, and
+>    scripts/Makefile.btf.  Otherwise =m would try to build them as
+>    modules (xfrm_state_bpf.o fails modpost for lack of MODULE_LICENSE)
+>    or skip the BTF generation flags.
+> 
+>  - "depends on !DEBUG_INFO_BTF" becomes "depends on DEBUG_INFO_BTF=n"
+>    for RUST and GENDWARFKSYMS: with =m the BTF is generated as with =y,
+>    so the pahole restrictions they express still apply, but !m is m,
+>    which a bool option takes as y.
+> 
+> No functional change: CONFIG_DEBUG_INFO_BTF is still a bool, for which
+> IS_ENABLED() and #ifdef agree, $(subst m,y,y) is y and "=n" is "!".
 > 
 > Signed-off-by: Jay Wang <wanjay@amazon.com>
 > ---
->  samples/bpf/Makefile                       | 6 +++++-
->  samples/hid/Makefile                       | 6 +++++-
->  tools/bpf/bpftool/Makefile                 | 6 +++++-
->  tools/perf/bpf_skel.mak                    | 8 ++++++--
->  tools/sched_ext/Makefile                   | 6 +++++-
->  tools/testing/selftests/bpf/Makefile       | 6 +++++-
->  tools/testing/selftests/hid/Makefile       | 6 +++++-
->  tools/testing/selftests/sched_ext/Makefile | 6 +++++-
->  8 files changed, 41 insertions(+), 9 deletions(-)
+>  Makefile                       | 3 ++-
+>  include/linux/btf_ids.h        | 2 +-
+>  include/linux/compiler_types.h | 2 +-
+>  include/trace/trace_events.h   | 2 +-
+>  init/Kconfig                   | 2 +-
+>  kernel/bpf/Makefile            | 2 +-
+>  kernel/module/Kconfig          | 2 +-
+>  kernel/trace/trace_syscalls.c  | 6 +++---
+>  net/netfilter/Makefile         | 6 +++---
+>  net/xfrm/Makefile              | 4 ++--
+>  10 files changed, 16 insertions(+), 15 deletions(-)
 > 
-> diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
-> index c28e65046986..fb5cd2d5b6f8 100644
-> --- a/samples/bpf/Makefile
-> +++ b/samples/bpf/Makefile
-> @@ -305,8 +305,12 @@ $(obj)/$(TRACE_HELPERS): TPROGS_CFLAGS := $(TPROGS_CFLAGS) -D__must_check=
->  
->  -include $(BPF_SAMPLES_PATH)/Makefile.target
->  
-> -VMLINUX_BTF_PATHS ?= $(abspath $(if $(O),$(O)/vmlinux))				\
-> +# With CONFIG_DEBUG_INFO_BTF=m only vmlinux.unstripped has the BTF
-> +VMLINUX_BTF_PATHS ?= $(abspath $(if $(O),$(O)/vmlinux.unstripped))		\
-> +		     $(abspath $(if $(O),$(O)/vmlinux))				\
-> +		     $(abspath $(if $(KBUILD_OUTPUT),$(KBUILD_OUTPUT)/vmlinux.unstripped))	\
->  		     $(abspath $(if $(KBUILD_OUTPUT),$(KBUILD_OUTPUT)/vmlinux))	\
-> +		     $(abspath $(objtree)/vmlinux.unstripped)			\
->  		     $(abspath $(objtree)/vmlinux)
+> diff --git a/Makefile b/Makefile
+> index 751a08643bf8..f561516e1735 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -1208,7 +1208,8 @@ endif
+>  # include additional Makefiles when needed
+>  include-y			:= scripts/Makefile.warn
+>  include-$(CONFIG_DEBUG_INFO)	+= scripts/Makefile.debug
+> -include-$(CONFIG_DEBUG_INFO_BTF)+= scripts/Makefile.btf
+> +# CONFIG_DEBUG_INFO_BTF is a tristate; BTF is generated for both y and m
+> +include-$(subst m,y,$(CONFIG_DEBUG_INFO_BTF)) += scripts/Makefile.btf
 
-(out-of-scope for the concrete patch)
+Please drop the comment and use the shorter 'm' to 'y' conversion:
 
-I am surprised that of these multi-ambiguous path list.  It looks to me
-as if samples/bpf/ and samples/hid/ are always built via Kbuild, thus
-there is proper management of variables like O, KBUILD_OUTPUT and
-objtree already.  I'd expect 
+include-$(CONFIG_DEBUG_INFO_BTF:m=y)	+= scripts/Makefile.btf
 
-		     $(abspath $(objtree)/vmlinux.unstripped)			\
-  		     $(abspath $(objtree)/vmlinux)
+and possibly also for kernel/bpf/Makefile and net/netfilter/Makefile.
 
-to be enough here.  But I may be missing something.
+Thanks
 
 
-Kind regards,
+-- 
 Nicolas

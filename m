@@ -1,122 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from pidgin.makrotopia.org (pidgin.makrotopia.org [185.142.180.65])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 254053AFD04;
-	Mon,  5 Oct 2026 20:58:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7267312C534;
+	Mon,  5 Oct 2026 21:11:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.142.180.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791233928; cv=none; b=M4ky7G0+nzIFknk6JwGHAL04jbd7+4w2zTfoFJZY4WY8GDhoNOwneYrk18d4jJZG5acZdfL7cVxZkm1Dm1+56/DcjEvFu1BieNflyfc4P73ZgQZRYEq8VegLsjnzZ8+zBY9E5vDamJood4Oe2JHTSrQEs75HR8fcDf63w5CopRs=
+	t=1791234665; cv=none; b=fKy+Rk7CLd7BUFq+NTFeewU9eILkBU/cIfjB9oq3T1b7c2nWnehwANER2v0Z7tDXQCbeAwGASsQWttnz+uMQMmBD4G4RZqRT+YUfvbzBoO9QJrVgpcMll1gch7m7IC4elwQXqy1M2oYHQ1snqxvAKczTAJpC2C+iW8m2kHTKm1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791233928; c=relaxed/simple;
-	bh=cWJzSeEgUOn1fONEJPm2yXbwWmEZyxZDe8jtE/MKm38=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=skq1/eRAjUjgVDGQU2MlZWh5iQXa/o8GIOb8vU/2U2d+CnQ+sbTjwNt3v333kFFC/DC6LMKUWyLdanVl404SULrP23ybPdUalUi0gnY5+HEjy32qr4779c393CWbiprxa4W52Yn4ctrxQy5RU4mweVVGJ6WgIxMIvJrbaSlwD6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b681qA/m; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b681qA/m"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A7A51F000FF;
-	Mon,  5 Oct 2026 20:58:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791233924;
-	bh=JkZHWJeytLHBVcPXej5UorMm99ervEZMmFzmf5ZWoXs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=b681qA/mWzMXKxJ7SqKiLJ8TC5gSUiyyaQMbq8NvSdfckbdpnSFcdt2rs2ZKQUlA5
-	 FjUPSGxwZvw6tKtNiEIKjkSWi2DMiKdN4P9koJj8o033oOG8NcFtrY9W/0da+k7Zo0
-	 WiZRiwkTApTZioPkdrfn+sa5Kh4TONlk4OXYY+ckA6qN/WF0t3LyVc2VIVUYsLUWRy
-	 wZbCr0gpqkq7+0G5hvFu7hAul9CwvB8AOABrE4RW1mViUxVh+cOBdm94NUhE+ima/g
-	 9nYhbEu6BTsrhY4CQFLyhzmvlScJa2KpdDc0I2m/Gjfq7/0kl7uPXdlDlhZ/H1wlmq
-	 2KUvjcgmkpAyA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/2] Input: gpio-keys - support wakeup pinctrl state
- on suspend
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Kendall Willis" <k-willis@ti.com>
-Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20261005-upstream-gpio-wakeup-v4-2-96f092de4690@ti.com>
-References: <20261005-upstream-gpio-wakeup-v4-0-96f092de4690@ti.com>
- <20261005-upstream-gpio-wakeup-v4-2-96f092de4690@ti.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 05 Oct 2026 20:58:43 +0000
-Message-Id: <20261005205844.2A7A51F000FF@smtp.kernel.org>
+	s=arc-20240116; t=1791234665; c=relaxed/simple;
+	bh=BIhAI00MM0Jg6fbL3wj6gAh8Sw7u7ewXetF914AdZTw=;
+	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=iKpifGPPS+NLiFt650dEW2HhcSV6670sZMw5+47kvPxRuv0Io0VeZbJ+k0zj68dtvAjzfNjEbTY9f75XR4jd7t+mWFLAXR/s0gmcgUnn++aTibARJok8gyBh+RpgN/DJpWOX+v/XEVez2Fenp1DRUUNGgHKL/Av0etED1PvZ6qo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org; spf=pass smtp.mailfrom=makrotopia.org; arc=none smtp.client-ip=185.142.180.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=makrotopia.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=makrotopia.org
+Received: from local
+	by pidgin.makrotopia.org with esmtpsa (TLS1.3:TLS_AES_256_GCM_SHA384:256:X25519MLKEM768)
+	 (Exim 4.100.1)
+	(envelope-from <daniel@makrotopia.org>)
+	id 1xDpxZ-000000005uZ-2p07;
+	Mon, 05 Oct 2026 21:10:57 +0000
+Date: Mon, 5 Oct 2026 22:10:54 +0100
+From: Daniel Golle <daniel@makrotopia.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Daniel Golle <daniel@makrotopia.org>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@baylibre.com>,
+	Oleh Kuzhylnyi <kuzhylol@gmail.com>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v4 0/5] Input: hynitron-cst816x: axes and gesture keys
+Message-ID: <cover.1791233147.git.daniel@makrotopia.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] input: spurious key press on resume due to LIFO violation in pin=
-ctrl teardown
---
+This series improves the hynitron-cst816x touchscreen driver. It makes
+the driver respect the common touchscreen axis properties, which the
+binding now describes along with the rest of touchscreen.yaml, and it
+keeps gesture keys from getting stuck. It also marks the sensor as
+mapping straight onto the display.
 
-commit 77748a917235cbadd6477449603ad11920308ecf
-Author: Kendall Willis <k-willis@ti.com>
+The gesture key is reported with the controller's touch flag as its
+value, so the key stays pressed once the controller stops reporting
+the gesture code. The controller has no lift event to offer, so the
+keys are now released on the first report carrying no gesture code, or
+40 ms after the last one that carried a code, whichever comes first.
 
-Input: gpio-keys - support wakeup pinctrl state on suspend
+Changes since v3:
+- patch 5 is new: INPUT_PROP_DIRECT marks the sensor as overlaying the
+  display, which userspace otherwise has to deduce from the event
+  types it emits
+- a key is reported only for the gesture codes the binding names, as
+  the controller also sends single click, which aliased onto the
+  long-press keycode on a CST816S (Oleh Kuzhylnyi)
+- the release loop reads each keycode once, so the key it tests is the
+  key it releases (Sashiko AI review)
 
-This commit adds support for selecting a wakeup pinctrl state on suspend and
-restoring the default state on resume for GPIO devices. This enables wakeup
-support on certain platforms where the GPIO controller is powered down duri=
-ng
-suspend.
+Changes since v2:
+- the binding describes the whole of touchscreen.yaml through
+  unevaluatedProperties (Krzysztof Kozlowski)
+- the panel follower patch is dropped. It serves a panel that
+  registers a drm_panel, while a MIPI DBI display driven by
+  panel-mipi-dbi owns the DRM device itself and registers none, so on
+  such a board the lookup defers for ever and the touchscreen never
+  probes. The 'panel' phandle stays described in the binding
+- the release timer is stopped with timer_shutdown_sync() in the
+  devres action (Sashiko AI review)
 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/=
-gpio_keys.c
-> index e196174856796..b8ecaaded6a44 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-[ ... ]
-> @@ -1022,6 +1042,9 @@ gpio_keys_enable_wakeup(struct gpio_keys_drvdata *d=
-data)
->  	return 0;
-> =20
->  err_out:
-> +	if (!IS_ERR_OR_NULL(ddata->pinctrl_wakeup))
-> +		pinctrl_pm_select_default_state(ddata->input->dev.parent);
-> +
-[Severity: Medium]
-Could this error path in gpio_keys_enable_wakeup() in
-drivers/input/keyboard/gpio_keys.c trigger a spurious IRQ?
+Changes since v1:
+- the binding allows touchscreen-min-x/y, touchscreen-size-x/y and
+  touchscreen-fuzz-x/y as well, which touchscreen_parse_properties()
+  already honours; the 240x240 default is unchanged
+- the binding allows the 'panel' phandle, and patch 5 is new: it
+  follows the panel's power sequence
+- the binding commit message carries a justification (Conor Dooley)
+- keycodes above KEY_MAX are rejected, which keeps the gesture key
+  lookup inside the input core's key bitmap (Sashiko AI review)
+- the timed release is skipped when the interrupt handler re-armed the
+  timer while the timer callback waited for the lock (Sashiko AI
+  review)
+- the Sashiko AI review also asked about additionalProperties next to
+  a $ref, which stays, as this binding allows a subset of
+  touchscreen.yaml (writing-schema.rst)
 
-The default pinctrl state is restored before the successfully configured
-wakeup IRQs are disabled. If switching the pinctrl state causes a glitch
-on the GPIO line, an IRQ might fire prematurely.
+Link: https://lore.kernel.org/r/cover.1790851590.git.daniel@makrotopia.org
+Link: https://lore.kernel.org/r/cover.1790944534.git.daniel@makrotopia.org
+Link: https://lore.kernel.org/r/cover.1791103511.git.daniel@makrotopia.org
 
->  	while (i--) {
->  		bdata =3D &ddata->data[i];
->  		if (bdata->button->wakeup)
-> @@ -1038,6 +1061,9 @@ gpio_keys_disable_wakeup(struct gpio_keys_drvdata *=
-ddata)
->  	struct gpio_button_data *bdata;
->  	int i;
-> =20
-> +	if (!IS_ERR_OR_NULL(ddata->pinctrl_wakeup))
-> +		pinctrl_pm_select_default_state(ddata->input->dev.parent);
-> +
-[Severity: Medium]
-Can this ordering in gpio_keys_disable_wakeup() in
-drivers/input/keyboard/gpio_keys.c inject a spurious key press on system
-resume?
+Daniel Golle (5):
+  dt-bindings: input: touchscreen: hynitron,cst816x: axes and panel
+  Input: hynitron-cst816x: respect touchscreen DT properties
+  Input: hynitron-cst816x: release gesture keys
+  Input: hynitron-cst816x: time out gesture key release
+  Input: hynitron-cst816x: set INPUT_PROP_DIRECT
 
-On resume, gpio_keys_disable_wakeup() restores the default pinctrl state
-before disabling the wakeup IRQs and clearing bdata->suspended. If the
-pinctrl state transition causes a line glitch, the IRQ fires while
-bdata->suspended is still true.
+ .../input/touchscreen/hynitron,cst816x.yaml   |   6 +-
+ drivers/input/touchscreen/hynitron-cst816x.c  | 141 +++++++++++++-----
+ 2 files changed, 112 insertions(+), 35 deletions(-)
 
-The IRQ handler then sees bdata->suspended is true and explicitly
-simulates a key press to handle transient wakeup events. If this key is
-mapped to a power or sleep button, it might cause the system to immediately
-re-suspend or power off.
 
-Should the default pinctrl state be restored after disabling the IRQs and
-clearing the suspended state to maintain a strict LIFO teardown order?
-
->  	for (i =3D 0; i < ddata->pdata->nbuttons; i++) {
->  		bdata =3D &ddata->data[i];
->  		bdata->suspended =3D false;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261005-upstream-g=
-pio-wakeup-v4-1-96f092de4690@ti.com?part=3D2
+base-commit: 6474fa070f2b8013b4b87350b775b8c3be6e8aac
+-- 
+2.56.0

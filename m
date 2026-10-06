@@ -1,255 +1,146 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010041.outbound.protection.outlook.com [52.101.201.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FE883C09E9
-	for <linux-input@vger.kernel.org>; Tue,  6 Oct 2026 08:53:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D9F0213E89
+	for <linux-input@vger.kernel.org>; Tue,  6 Oct 2026 10:38:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.41
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791276803; cv=pass; b=G1tX8Nracakt8uwqZK49aiTqDtwQ+YQAnm+Lanyk5lanACeswuqQG5ZcABgjLua6lr7i0x8Wx9dtc6ovquK1a9tC7uTLDrn7PXXl4st1ee0jnMKqh8qLlWPkI7Xdtu8obYym+RpeqNtEzm8GcdK5fjoJKCwYrqRExl+uUYKQ6vI=
+	t=1791283101; cv=fail; b=QiYA5fjBt25uPinra3UNVJUe/MeFj1AJyAequw7NvtWLBqEm4I693JnFhqW4CDAUCDNc9WVZx6VsMvp0vAbiUzn75epM3gWBqxcOKFYl7r5XDuw1J8jHJ0TzEuo29RN7i7EMq18I8SPcpiEkH02SN8zrrplerMQW5km2Jzh5v4M=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791276803; c=relaxed/simple;
-	bh=VLcjVIGQA/r1W3ldFK6WW8apuDX6mf7txYWwobfyjFI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SJ1jxQtgmHKy2PiTj6AJsiV6QKzAX7r7i3xVL8CFqaNRvKwMobH6Sk0msHe2f5uCTwbCpx8cKSSVyVMWtM0KfYnyoPq4Z69pGiAJIkijY+v/Y1fJZ05ajOyT/pveiKePVeJ4PykTiP9Wod5rQQZGRTAgOO5P3XVMkMUQvL/OqEA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=N11QSB1z; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Qkr4eG01; arc=pass smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1791283101; c=relaxed/simple;
+	bh=8t3JQwGu19sq+HMiLingVkDcGjSAmpfS8Ro2RHjixQc=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=bqxCIcSCmyWvnFsFUFLn0fHSMJ8AbuuAnluZ1EW4zYMEhQ+Hp+/LHKGeU/TaRvdtDuuI9F4x7RwofZ3rVKjwVXVDffkj6gLpPAY6VrVdId0wcW25tFIgn4Js7tC56m+A7TKwWSBwaBqpQWSJmI/7HtHkofefK9n1oz0RJc4wLAY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=WAI7oOL+; arc=fail smtp.client-ip=52.101.201.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="N11QSB1z";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Qkr4eG01"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6966e3Sa3902863
-	for <linux-input@vger.kernel.org>; Tue, 6 Oct 2026 08:53:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=QQGtjGd8ssqWuv/V61Y20ONf
-	ksGn+OprzCvB7AXUQWs=; b=N11QSB1zHyJJcjTIZFpax126Tk7PweRduHBLIQfr
-	9WI/6tPVU6/1Sq7jSIhD7iJncx2dewrhweyDOeUxV7rS7YUMXPT4CrkLbzD5QgzM
-	2q+RyDEN71+5KHHvSjS5clpUzoAVcBcq//y305l50RsWDd6KAR//l+rjuKWZCW2+
-	wipkInHf7SGEizuN4h6jeybHNmEW2SJIBirz46aStIzpgr6hKBd8oLIihZDzjNR7
-	sb8BuFtQnbettKsV3vvYdZC4V6ZTrDJylyo07DXmfIVN3D37HZ2g3ECCIl7F5JQn
-	rUollOwbyfQoRHPqdxD6SfvQavDSjhPpLiyRB6m2GiM92g==
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4h4a7dvfsh-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 06 Oct 2026 08:53:20 +0000 (GMT)
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2db8e9fe9c7so28585235ad.0
-        for <linux-input@vger.kernel.org>; Tue, 06 Oct 2026 01:53:20 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791276800; cv=none;
-        d=google.com; s=arc-20260327;
-        b=sqRkIoFC9W9/dIMva8HsjlNcIMp7WzAqCRok806Qjy9RS18d25ouKv0DXDuiYobrA1
-         PN7LrDtjYV/s8303vRPTnWkHswjJZW46ahvzRodwkGTOKMQF6LbeOIEQcdNfHRtuV88S
-         rnXpqYGQ4D+wiC2nwXnnGUN7d/5De7MEyfJ9TUpqRObrfiZAQOTuwRJuveFskXnPquBh
-         h5noytufQZQV8MGZDrnOO8kM1P7uOWd4jj0XTKeeG7rZ8Nye8nN9+Rs7CJsf3p+yPhaI
-         WbOFGHNq9xso58Qnhj3Ejq5iBwKgRU3x4TjrgrY8B8RCANwGwConC3r0J5tMBQ4QblJs
-         OoXg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=QQGtjGd8ssqWuv/V61Y20ONfksGn+OprzCvB7AXUQWs=;
-        fh=PiWzbbsxsDD6uuObv+07fDwe+6gtrVpQLpdIDSwYguA=;
-        b=Sf9R5+4jpo3+0vTZfgDCO2it2hIu8W47A46MHiErejn5FM1Bu0V+L3Va0sayo46R5a
-         mtz6HAPMmNQo3vYdy5CfZBON2/mHzYqMCKzfGgs/9wTx1+iKcKKKdX1+hrNrw1zERVnZ
-         aUHh1enAf3pil/5+53VtjjPXNxGn2rjXG+H+pLNmHfJxG6TJDebeuqJPsAtIg0JEdjMa
-         6BUsmLbAtNF9tjV4a1HW5ANSeEmXdQaXPkdNtu40KrwufRoo/rvtrCeQyW/x5xrxRfg3
-         MTaykC/JisJBrOZ/2TadNGXwEmg0AluSpXfrHJ045MvOE7Ri5/1dkIacUZV5UQor/yvp
-         4FiQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1791276800; x=1791881600; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QQGtjGd8ssqWuv/V61Y20ONfksGn+OprzCvB7AXUQWs=;
-        b=Qkr4eG01L0SgWYMfOLboetbicjTMNFGSU7JPC2tjjTaCTQMktFXJluk6fDheGWWXkF
-         6d7cPrJtLG8mTpQnuLYzCxPGblvN/bkY9KTDYnZzUvxRxa6rkoT2L+M2QRgorfM1Fn9m
-         VhvqpAfx6GhmBQQCXL0Mwo7WTzdU9CILnTAPSY3yJ3/Uuuzn0yNInynG8huoeQWGxFP2
-         SZIZMZh675alBPyodQFoDSKuEbBKqkKMgyjvG8EwgP2dCzYd2bHvnMW+I6D5poG2v4v1
-         IuShUpDIMjX/35RcLteyA8vlZYqS331kQ5XLwO+5kQwtjhAX0wyr5KrEAupSG+HMskif
-         X2jQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791276800; x=1791881600;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=QQGtjGd8ssqWuv/V61Y20ONfksGn+OprzCvB7AXUQWs=;
-        b=Wv8C1MrVGU7tAg9JAoehVKjT89ywIxuUSdw1lcFMGBRy3+7KBUW0YnFoDvxl3jv5ot
-         l163drqTKekqKjbD4HNgTBiNGrzBv5EjuEph7n3cWN0XNqmvWRsrkj7/udIefCDip8tx
-         a12iGTNmSRRCSh5Gmd3IoMdIL3dRCE0hM9ipuv1aazgqds64RkLyZguFZfLXTLSSmMf7
-         eB3hOZeog4DQEHQfywEq1z6c94qcffrupO/+2p5EfalOkld4WSvg/bgLQ45Ng51Gl6Hk
-         GjKY3SQwxfsakmOjuZeXbXW/33MSjaY2949lr2zlmw4L7KUbfIZ/2+668PMni/EERv/b
-         jlAA==
-X-Forwarded-Encrypted: i=1; AKwUvBzmBoe68yJO4vMDnohu+vOfApruRhX/Oqk4GgCD8yowEr3C/McrxBlS3w1ZRH+I7LWVifDj4+fsxRVIZA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJCvyD/zLVzst+VIiHyndrMiXzpvlyQ9ZAmkr9/nsEha25oNwx3
-	ZVL0XGDDPoin033hhnoQPcCZKXj0aQdzirpgG/xQnSaD9TFwsKhPPDwkiesa+MDFNGA416/XbRb
-	rmoSiu+A0/jKUpo7WGIj8FHw6cXoXnshWUbq4PLj5ItFgiDsMUnCHexANKZHURYpMLTLPtmnwBK
-	AAIllliTj4I7TlTaMv+lzKvKYoY99japD24ZqBRCtZ
-X-Gm-Gg: AYBFou0ywwLHJzDXtXtcWX701EAvE7GULwSpJcx6L8Jkl7NCNStNSYDXoJM8CYVVP9f
-	JJGv2p/i0ZdpW5MQkRE+S07IajvC2+hgwXDbYJCbqgzr5h07tQ33E76NZAFMs/JFGVMHlYvqMxK
-	/hG9vvET94Ps6yhnOXjsypg/2n+FTHPwrDUJjsi9SVavIZVVLiNzS1YKLEna1jq/Kx8fyOglar7
-	pMjxROP1QZEyJY=
-X-Received: by 2002:a17:903:388f:b0:2e4:949b:1ea1 with SMTP id d9443c01a7336-2e5dcde4da4mr6597105ad.55.1791276799650;
-        Tue, 06 Oct 2026 01:53:19 -0700 (PDT)
-X-Received: by 2002:a17:903:388f:b0:2e4:949b:1ea1 with SMTP id
- d9443c01a7336-2e5dcde4da4mr6596685ad.55.1791276799127; Tue, 06 Oct 2026
- 01:53:19 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="WAI7oOL+"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QajGVG74aUe/406/9oqc67o835vVp3hzgpHivBSWJZFNwUH6SrvVxWMNCKScyx757MkgDD5uYImIvxr5Pl0nCCelgVkZKCJeh/jmZjoSrcEB8uXiGDYF9KZzOTSh540Q1r/ILZjNNxzozWVyyyaDP3pREtRbt89n3ZGhBmlld2dXesBQwfM1oCBbLMGbv/bk+YizGgt2Uum5CPW3FsnCvMs/tw1iEtHBivSIC5neCy53rJtLUG8nREbEmfZXFaOp7aAgiCbH1e/LrIwfmi6Fs+tv/AQ+wFu/pQL6H0Z5PcL582DsqIheAzWu8DY6uT6xxMRZJZgg+fHqZyT1dCWLNg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=SvM6RgCmFHh2sBUdKsieN0Nb1imoA7JBKk4Ork6LV14=;
+ b=vL3PNBurUJlaxeZw/1Y9vXCPK6gURZm/PH1kIcaL9smaO6hsv0nP7T2PVVM8G8LDAEaoswj1q3lK+lkcQImztnXI64Xo6WKVn8ewrcBEwGWVC9U8SuPPebldaZEOlUfKZCZR65b+IrTnzkYBYemnXX4SZFzh33oWdANo5f/PyrmoZzVbfzBEOV4p+eZ88XV6BKRBnG8Iotl5gbWfD688LKW13lTjgluLpJEp7I7f31mVuw+MorXGdP5QgpTJu91NnlSN9yFMFhcRQBZ7X9+qFl2fVT986X+dlfscGu7rAXBFgMvNJJ+Ntuh5TltuiVxwjJtDWUI3VjMofxcqJADuMg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=SvM6RgCmFHh2sBUdKsieN0Nb1imoA7JBKk4Ork6LV14=;
+ b=WAI7oOL+vRZqlP5gDDl0qWa2caLJnyQl/QntzNZabjFj4LQnKLQCxcwBW9SoTKXiSdmZ0Z7D60EvjfzGDQgK5f+PDRO9q6dZV4pugbe9FImBwk6QMR2k8nTYTqAgoKusuGBcGlwrc+E32SpJo3twI3fxAfzHGU/wCScYluvRZWk=
+Received: from MN2PR05CA0056.namprd05.prod.outlook.com (2603:10b6:208:236::25)
+ by IA0PR12MB8352.namprd12.prod.outlook.com (2603:10b6:208:3dd::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.24; Tue, 6 Oct
+ 2026 10:38:17 +0000
+Received: from BN1PEPF00005FFC.namprd05.prod.outlook.com
+ (2603:10b6:208:236:cafe::8c) by MN2PR05CA0056.outlook.office365.com
+ (2603:10b6:208:236::25) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.496.5 via Frontend Transport; Tue, 6
+ Oct 2026 10:38:17 +0000
+X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
+ is 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ BN1PEPF00005FFC.mail.protection.outlook.com (10.167.243.228) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.496.14 via Frontend Transport; Tue, 6 Oct 2026 10:38:17 +0000
+Received: from airavat.amd.com (10.180.168.240) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.49; Tue, 6 Oct
+ 2026 05:38:14 -0500
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+To: <jikos@kernel.org>, <bentiss@kernel.org>
+CC: <linux-input@vger.kernel.org>, Basavaraj Natikar
+	<Basavaraj.Natikar@amd.com>
+Subject: [PATCH -next v2 0/4] HID: amd_sfh: operating-mode telemetry sysfs and report fixes
+Date: Tue, 6 Oct 2026 16:07:50 +0530
+Message-ID: <20261006103754.3614316-1-Basavaraj.Natikar@amd.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org>
- <179098834078.3641559.798772743228949994.b4-ty@b4> <e590764c-1ef7-4166-9c2d-a96a89029736@mainlining.org>
-In-Reply-To: <e590764c-1ef7-4166-9c2d-a96a89029736@mainlining.org>
-From: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>
-Date: Tue, 6 Oct 2026 10:53:07 +0200
-X-Gm-Features: AclHuK-hxeLXCCkrwwvQbFIYUVeIjRX4eEFvyGsggP4ez254hGL6BWI-C4KAx08
-Message-ID: <CAO9ioeVAf2GgS+wu9GiQ3kM-_1KnrdMfhcpVotxhiFegEiZP2A@mail.gmail.com>
-Subject: Re: [PATCH v3 00/19] Add Initial Support For MSM8952, Add General
- Mobile Shamrock
-To: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Cc: Bjorn Andersson <andersson@kernel.org>, Abel Vesa <abelvesa@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>,
-        Jerome Brunet <jbrunet+clk@baylibre.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Srinivas Kandagatla <srini@kernel.org>, Ulf Hansson <ulfh@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        "Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>, Lee Jones <lee@kernel.org>,
-        Rob Clark <robin.clark@oss.qualcomm.com>,
-        Dmitry Baryshkov <lumag@kernel.org>,
-        Abhinav Kumar <abhinav.kumar@linux.dev>,
-        Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Robert Marko <robimarko@gmail.com>,
-        Guru Das Srinagesh <linux@gurudas.dev>,
-        Amit Kucheria <amitk@kernel.org>,
-        Thara Gopinath <thara.gopinath@gmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-        Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mmc@vger.kernel.org, iommu@lists.linux.dev, mfd@lists.linux.dev,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        Krzysztof Kozlowski <krzk@kernel.org>, linux-pm@vger.kernel.org,
-        linux-input@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
-        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        Abel Vesa <abel.vesa@oss.qualcomm.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDAzNSBTYWx0ZWRfX+5T8leaAioTu
- rIfSkUfHGTJl6k5lzl2EH+lJuqeUBCNY+YLihZbfDqO70zPBEo0ttJoXooyTh7pOeYovVDO5271
- rOUtkO0qkrcFWmRWhRWsj9asfdKdagE=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDAzNSBTYWx0ZWRfXyzaNcmpn4qkA
- Hpf5wSm3qgJd8tqhCg1Jmqvi9VV3NnlEutvPmv8qvLATDz7UZN3pk22Y/SnkkrHArHRzayQMlaQ
- t73D2fiANySwrgW8SqL7p7YY3F7yFHuEnfbc0eX0E/lb7z3pJQtjA5krO5EdcIqQBn3wnpGB24Y
- 4BYWqPCu21+yW8AgScI0M+e4qTWTpBiN9bfa9zb1iwUpaNHMxCFqHp0F5fbir2/4Y0CDeMQTOyw
- IoDOtFT+2a+7W74dxD4tP2A39jKuxRIkNEaWhN8zQ4DK85zVPcZUZq44R24dscGeR0BydfMn7l+
- FfeeJFnT4gqDzHW4h3h9Oqf6jjt6uHPF5vbfjzrrMTnl1FhRA3PqCLHFp07RLiO+T0s2vgiNjOX
- GE6xTZgkwGxW1sK63G+s08gFOlfRMrSdnXkGpODFCYmbN9CEtZvIh40H6CC79IX7bUCNVYvXObw
- BBpPqNoPdeV6rnPPXYg==
-X-Proofpoint-GUID: Y2ikNhb-3Z-Ipin1MdIdnT0c-S9AOwGF
-X-Authority-Analysis: v=2.4 cv=SvwFe/O0 c=1 sm=1 tr=0 ts=6ac4b700 cx=c_pps
- a=JL+w9abYAAE89/QcEU+0QA==:117 a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10
- a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
- a=ZpdpYltYx_vBUK5n70dp:22 a=e5mUnYsNAAAA:8 a=OuZLqq7tAAAA:8
- a=wG-LvS21qxlCLh7KYX8A:9 a=QEXdDO2ut3YA:10 a=324X-CrmTo6CU4MGRt3R:22
- a=Vxmtnl_E_bksehYqCbjh:22 a=AKGiAy9iJ-JzxKVHQNES:22
-X-Proofpoint-ORIG-GUID: Y2ikNhb-3Z-Ipin1MdIdnT0c-S9AOwGF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-06_02,2026-10-05_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 bulkscore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
- adultscore=0 malwarescore=0 clxscore=1015 phishscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610060035
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: satlexmb08.amd.com (10.181.42.217) To satlexmb07.amd.com
+ (10.181.42.216)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN1PEPF00005FFC:EE_|IA0PR12MB8352:EE_
+X-MS-Office365-Filtering-Correlation-Id: a25c05d7-926a-4d9b-f635-08df2395eeb0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|36860700016|23010399003|1800799024|376014|6133799003|10067099003|18002099003|11063799006|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	g2sBeuDHmhky5ySai7551/x7UEqp2U0fEByHZiCa+n/xNtUOK78cYUtr3BMz8GFXRXkaC8uoAeFGHprgCzlRjy/wOCnMTL8m5dUrHwZHE16pMNDeontC1r9wvEl7t4JKFiqIj3q842noDum26fkoUPcLh3n3zzuAryTUOhLupalgEUtvFkekMQcD964wGAfVGeAuJa6H9sIy/w5/Ct/tqRwDgJ8uQ5b2rFIlu6AGGc9EzRY7AaEJHX3g13VQMyAJjm3aN4GEHqgCymoX/fwfyy37w1sM6S5hrP95Ngo/+9MaYLtm3eYGkAL27JLdYYCleSlQaKFkwdyvh30DS7CKIE/h8DWnYKDg1hKBUPgSFJZAMKmLeSdhAY5zX8T86XsH0JAp+NkQItmuVGOioXX+PqhBN3SUMSv6WnP+ZYCiIjA7mgYq9/yab2MQh37Y/ghDQRQKmkC406nzUD+qpMdn7IsHoKp3GZCICR7w9LnQ9V11MAupM+DdS6Q6juF4iBiybPk5zV23TeTjIHGuaq+K285CV36DoubkulX+xMWItCdJ4F3nWd9SyJuW2MrbzX3J1bAu67lNJhY7ED2nov7aOGa+gc056V/cwBMKPv3OB+PyZHWUKBiXpMI/1sEyeo8N+LmTZwkLvTpJfDMbcAoNs4d77FWKHK5mCcf1li7pHUWmxJehsAvMEp6Ec8shBc9fDwSes1l9rAN9HXB/BET4Ug==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(23010399003)(1800799024)(376014)(6133799003)(10067099003)(18002099003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	5k75pVJQuB1WxRL/oHpvn2eMCbnh021BmDJqPhp9TiSgJ7tMsLMmGhu4t7/9jWevWqN6BG4SBB/BgTc6y/lnnfBKfadaUJcY3PGA2sif6MgKiNeoNf4YuiP28GrnRSRTcemNee5DjWmAji2ntCJpUtybHMsUy0kba4Ohhbwqw3Ez0qV43enUyLcVWaYTn7olcBt+siKQjB9CyQjuRJ9z/MH7hzDTdSxpM+Vur3cU+vGvbtOP5f3w5KgnQ0eFgnmmgwYQe1NeGsOScoIfanx4UeOpQxmyKdAxISrFlfYKwfEViNINaoEZnZMzhF5jraB6mpeTbHF6FyXqnPLSD41KKS2VfmQa2dhDGwUBsK92DPiv2kEvC/L65dn/eAbNPq9TQ7nL4X7yhcCNXBlf3eOS0M2N8lI+UbHOMmkO8yxoWmLDIoUDyd6VwbDBBga39LMD
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Oct 2026 10:38:17.1154
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: a25c05d7-926a-4d9b-f635-08df2395eeb0
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BN1PEPF00005FFC.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB8352
 
-On Mon, 5 Oct 2026 at 16:00, Muzaffer Kadir
-<muzafferkadir@mainlining.org> wrote:
->
-> On Sat,  3 Oct 2026 03:46:52 +0300, Dmitry Baryshkov wrote:
-> > On Mon, 21 Sep 2026 21:18:51 +0300, Muzaffer Kadir wrote:
-> >> MSM8952 is a SoC with 8 core cpu and Adreno 405 gpu.
-> >>
-> >> Ported without uart connection. ramoops and usb
-> >> mainly used to debug.
-> >> USB is not enabled in this series because it
-> >> depends on the not yet upstreamed (and not developed by me)
-> >> pmi8950_smbcharger.
-> >>
-> >> [...]
-> >
-> > Applied to ttt, thanks!
-> >
-> > [01/19] dt-bindings: clock: qcom: Add MSM8952 global clock controller
-> >         (no commit info)
-> > [02/19] clk: qcom: Add global clock controller driver for MSM8952
-> >         (no commit info)
-> > [03/19] dt-bindings: nvmem: Add compatible for MSM8952
-> >         (no commit info)
-> > [04/19] dt-bindings: power: rpmpd: Add MSM8952 power domains
-> >         (no commit info)
-> > [05/19] dt-bindings: mmc: sdhci-msm: Add MSM8952 compatible
-> >         (no commit info)
-> > [06/19] dt-bindings: vendor-prefixes: Add General Mobile
-> >         (no commit info)
-> > [07/19] dt-bindings: arm: qcom: Document MSM8952 SoC binding
-> >         (no commit info)
-> > [08/19] dt-bindings: iommu: qcom,iommu: Add MSM8952 IOMMU to SMMUv2 compatibles
-> >         (no commit info)
-> > [09/19] dt-bindings: mfd: qcom,tcsr: Add compatible for MSM8952
-> >         (no commit info)
-> > [10/19] dt-bindings: display/msm: qcom, mdp5: Add MSM8952 compatible
-> >         https://gitlab.freedesktop.org/lumag/msm/-/commit/df6ce9e6447e
-> > [11/19] dt-bindings: firmware: qcom,scm: Document MSM8952 SCM
-> >         (no commit info)
-> > [12/19] dt-bindings: clock: qcom,rpmcc: Add MSM8952 compatible
-> >         (no commit info)
-> > [13/19] drm: msm: mdp5: Add MDP5 configuration for MSM8952
-> >         https://gitlab.freedesktop.org/lumag/msm/-/commit/7af226f9aa59
-> > [14/19] soc: qcom: ubwc: Add UBWC config for MSM8952
-> >         (no commit info)
-> > [15/19] dt-bindings: thermal: tsens: Add MSM8952
-> >         (no commit info)
-> > [16/19] thermal: qcom: tsens: Add support for MSM8952 tsens
-> >         (no commit info)
-> > [17/19] arm64: dts: qcom: Add initial support for MSM8952
-> >         (no commit info)
-> > [18/19] dt-bindings: input: touchscreen: goodix: Add binding for GT970
-> >         (no commit info)
-> > [19/19] arm64: dts: qcom: generalmobile-shamrock: new device
-> >         (no commit info)
->
-> Hi Dmitry,
->
-> Thanks for accepting MDP5 patches.
->
-> The message lists all 19 patches, but only 10 and 13 have commit
-> links, the rest say "(no commit info)". Does this mean the whole
-> series was applied, or only the MDP5 ones?
+This series extends the amd-sfh sysfs interface with operating-mode
+telemetry and fixes two HID report handling issues.
 
-Only MDP5 ones.
+Patch 1 moves the existing sysfs attribute handling into a dedicated file
+in preparation for adding more attributes (no functional change).
 
->
-> Best regards,
-> Muzaffer Kadir
->
+Patch 2 exposes the operating-mode telemetry reported by the SRA sensor
+(in-bag, out-of-bag, on-table, hinge angle, lid status and device mode)
+as read-only sysfs attributes.
 
+Patch 3 removes an unsupported motion-state field from the accelerometer
+HID report descriptor that the hardware never populates, which caused
+hid-core to drop every accelerometer input report.
+
+Patch 4 passes the requested report type to HID core. This prevents ALS
+feature reports from being parsed as input reports and fixes the
+"Event data for report 4 was too short (18 vs 14)" warning.
+
+Changes in v2:
+- Add a fix for feature reports being sent to HID core as input reports.
+
+
+Basavaraj Natikar (4):
+  HID: amd_sfh: Move sysfs attributes to a separate file
+  HID: amd_sfh: Add operating-mode telemetry sysfs attributes
+  HID: amd_sfh: Remove unsupported motion-state field from accelerometer
+    report
+  HID: amd_sfh: Use report type from request node
+
+ .../ABI/testing/sysfs-driver-amd-sfh          |  60 ++++++++
+ MAINTAINERS                                   |   1 +
+ drivers/hid/amd-sfh-hid/Makefile              |   1 +
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c      |   4 +-
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c        |  55 +------
+ drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c       | 134 ++++++++++++++++++
+ drivers/hid/amd-sfh-hid/amd_sfh_sysfs.h       |  19 +++
+ .../hid_descriptor/amd_sfh_hid_desc.h         |   2 -
+ .../hid_descriptor/amd_sfh_hid_report_desc.h  |   7 -
+ 9 files changed, 219 insertions(+), 64 deletions(-)
+ create mode 100644 drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c
+ create mode 100644 drivers/hid/amd-sfh-hid/amd_sfh_sysfs.h
 
 -- 
-With best wishes
-Dmitry
+2.34.1
+

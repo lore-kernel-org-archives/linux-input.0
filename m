@@ -1,139 +1,119 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00E42352FB0
-	for <linux-input@vger.kernel.org>; Tue,  6 Oct 2026 10:41:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D6C39A7F2
+	for <linux-input@vger.kernel.org>; Tue,  6 Oct 2026 10:50:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791283301; cv=none; b=QJVyPny1UMGyqrz7ewEvaI+VB2l9G0dKHhlpjzGXUi1JAPVO3ZzgtdkCq1Eo2USx66AYO1BJm7ov0rvp5rdN5BNjMbvE3iluPCbn8zS5E4l2RQvHfk9CE2Byd9fVA3fNqRqgbOSLzFWhnMIz71ZcuWFG8ro2o9Nj+CeNNpi6ukk=
+	t=1791283824; cv=none; b=TW57JcvBiNdAhAVqjvUZRz/ShUYfAcIPPdCPTCreAPAj6B//AcMcmgVzaqhipNg3h52a9wGoCzy56ulfG9BYdhGK2m7G1FboPmKOF1+4p0ka8rsmq6EPyLNa8JVIKBmKGlVsa3Mjw55OCx69PQwuy+4+akJM84EFPJ12pG6dbLo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791283301; c=relaxed/simple;
-	bh=zGfqUCx6jXAzT6zCCJ7NiL3kT8DKVER0oBryCp4Dxcs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ax6Ba29xO3rmvyam7MZ230t6kvgdn2tK6q5RxaUlc2ChPbytdu4Dnv2VDWy40iP4seupLh0DfUSFjm319a3N87Br+OlOH5lqSqSuID5wvECrV5FXIhUdAUF3twwDXOPKyIyDSBPsbdVg6MmBsvir4DqFkkqTDTG6+/UeB2iGP74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RiGJzJG5; arc=none smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791283824; c=relaxed/simple;
+	bh=V+snvFTtHCSaH53jeGJbCejJFBu8kAAyLKdptcEy9sA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Iw+c9fw8pJ92HksIhQmUG1gvvcSgM6Y7uzVLdePxbWlP/MR6XMGMA3n2nl6ViJ7U/T+O/3L92Py+ri/hCWb4msNTZUrFjPmwaRXF2ehG18c0404ACFZYNrSNUG58As490n2EauEG0t49I4Uc8h60pQUcGIzz+6qt92spvo3su9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KhAkdNuR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RiGJzJG5"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-48c02782159so347541f8f.0
-        for <linux-input@vger.kernel.org>; Tue, 06 Oct 2026 03:41:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791283297; x=1791888097; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=u9EgTKWvY83NOreoEpihq3C4uu+WwUDt2rznQTC8D2g=;
-        b=RiGJzJG5n0Z9tkkWW7q5OVVdQFwdMvdu+B6c2pZTXH1iwDGUgdO3b8B7KhDcaUbklp
-         SKsBPoiSn58rLdkGnYH/02aMimAfPT67yOsv99OZ52ZMpIbcfVAIAQtF77EN+vj2Tasi
-         BiFj7fneJnlFUfnyNB9scjz1o/ACOrXOZTsCW/ONz47k6KL79ocllOEDynh2hFF7KYD0
-         YLmhJYYDwVbtaNesv6EhF9Ofxbho94LWWIhpYt8jidhWhxZiHQyX+RAlllHPA9i2HlKC
-         A6n6WkvufLuhIZsHCNFP9MrrKfDY215t2WPG/smIebLumLZuQlT4xxBAf5h2FK7/Mf+D
-         Lu7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791283297; x=1791888097;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=u9EgTKWvY83NOreoEpihq3C4uu+WwUDt2rznQTC8D2g=;
-        b=QTvv17hCbMleFKUJBeMXL9l7NSHiGYo1HTT6IzMhJw6cwRVuathlFiMQAZj1zNQ08e
-         g5bKYe+58yezEXKfR6axusdwg4mpBLQiY+MT5zhIq3qjhfHDo/Oa9BvPlrpzBhcKCAHj
-         gMKsuPsk1iw5w1GdZK7xQwc1eA8X61O6Pwrt8vryBKccwfDtFtWinVHfYHrfBQcS+jpU
-         /ihqeRjomQu0kuBVqkpo8wx/a3PCr1BoUQDNhIaPMuLRFSPczcwM6v9nKOlQGwaPQ9xK
-         yclm1S/PFK8qdJozukkU1Whi7bVQsV9TUNFnjpqK9IPCNd+yUR7Ngg3i1WK6NJpJoJUR
-         J/qw==
-X-Forwarded-Encrypted: i=1; AKwUvBx/mIDoheEAU4Pw8y8wwhJbAvsNAmDCSvfJzAdzupig8cd6NGW9vr0HLW60o1dppl9G5c+9WyXjBpsaSw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYILiFwAvT1AXduVL7ag0eICQz33FjQQQVIZFWVzmZPqCVI62jPQ
-	ul/HHhRyX3+zKtI3kI8K8xn079SSSltjr2AljKVzUCeJcE/ebdk4bp8=
-X-Gm-Gg: AYBFou3MfpqCyzLM7fthIkxyjmtuuldUHbI89izJTwpUwgRoLxuVEw1ank7UG7Y8tKC
-	bwXZfwUTt4ssTMs/X/9FwenlEF/8+8DZwIL61sboFcF+9vbFnnGVM721XySVSOQoo4K05KhbGqi
-	W1FtmwduLLNX7zEa9Q/WXvZeW0tNWt4JK8vfUqP4v21gQV85LBdy+0lXicIQXltlC0CZiC+SSJF
-	8D1vqtbZ4X4b4hi/Ch1B03onl1rb4IUq6dHjwv3+4NAk4YsT2NMgjtlSbMmF1/ctwjTdphHNMfB
-	4vLPQ0oKjsunC2zPK1HAqN3bjiiJIo4vddueryj8GhewYB801W8rmOerQhctOTvLhMuu9ZKFslq
-	t03otGhV3m9lKJcuc5tnWxmZ1Wj1Qf2K+pebdd8iqMyy7ybyu+IL5g7+LMtD63/WE31o+Ja20Zt
-	3jrFWScqtveduRBBUOR5ZkDH3GYSzbTTfGvARPQzrtQ4o96eEuBwIujzpCfxUEMqiYGIAaZe0Kz
-	2SmkFFRKwsTf8GyKaKuKCEAB+kbkRGGHCRRt9irCMyjQQCsNQ==
-X-Received: by 2002:a05:6000:2dc7:b0:48c:41c2:46d6 with SMTP id ffacd0b85a97d-48c6d1c1c1amr2258645f8f.35.1791283296969;
-        Tue, 06 Oct 2026 03:41:36 -0700 (PDT)
-Received: from lithos ([2a02:810d:4a94:b300:d1f6:bf6:35f2:f07c])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48c622704a5sm22046834f8f.15.2026.10.06.03.41.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Oct 2026 03:41:36 -0700 (PDT)
-Date: Tue, 6 Oct 2026 12:41:31 +0200
-From: Florian Fuchs <fuchsfl@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Adrian McMenamin <adrianmcmenamin@gmail.com>,
-	linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-	linux-input@vger.kernel.org, linux-mtd@lists.infradead.org,
-	linux-sh@vger.kernel.org
-Subject: Re: [PATCH 02/26] Input: maple_keyb - fix key press detection
-Message-ID: <asTQW0F2nqp2Kj86@lithos>
-References: <20260703-b4-maple-cleanup-v1-0-41e424964da5@gmail.com>
- <20260703-b4-maple-cleanup-v1-2-41e424964da5@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KhAkdNuR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DEBD1F000FF;
+	Tue,  6 Oct 2026 10:50:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791283823;
+	bh=zehTSoLIr28n6xHsORK4UOvb3AMLaCqtB3Hy2z1QUaA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=KhAkdNuRwMqlKn//avKANtCrr7GcYr2O5/6kp0abVrVuMLGfh5NDr6KO25UwNp8iw
+	 AgI+mMj20M3+Ho6i8U9dcThcGqeuO6AcWSmYK0WMcixXbbAdyqPGh9lB/90tA/5hL9
+	 orr4YNT88DgzE+LB41OTqvXbIORnJKii4UGcNZYeLXKl78wEGmbq35n/cuz8po2eaj
+	 DxQF46ACwQc/tkTStht2UDubM/56BD+IhTRkCPBQoRW42kgn4mcaUK9LHW5HWeqh/N
+	 ncmN6j2R4N0/bEZ+K5fW/xmi2JkZjs5ZC6W7tofoofmgaEp7zoc7Y0ciqgMhijQVYG
+	 6CIoy6scvgXxA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH -next v2 2/4] HID: amd_sfh: Add operating-mode telemetry
+ sysfs attributes
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Basavaraj Natikar" <Basavaraj.Natikar@amd.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20261006103754.3614316-3-Basavaraj.Natikar@amd.com>
+References: <20261006103754.3614316-1-Basavaraj.Natikar@amd.com>
+ <20261006103754.3614316-3-Basavaraj.Natikar@amd.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 06 Oct 2026 10:50:22 +0000
+Message-Id: <20261006105023.1DEBD1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260703-b4-maple-cleanup-v1-2-41e424964da5@gmail.com>
 
-On 03 Jul 22:57, Dmitry Torokhov wrote:
-> The key press detection logic was using ptr instead of !ptr (where ptr is
-> the result of memchr searching for the new key in the old keys).
-> 
-> If ptr is not NULL, it means the key was already pressed in the previous
-> report, so it is not a new press. If ptr is NULL, it means the key was
-> not pressed before, so it is a new press.
-> 
-> Using ptr instead of !ptr caused new presses to be ignored in the first
-> poll cycle (only reported in the second cycle if still held, because
-> then it was in 'old'), and caused redundant press events to be sent
-> on every subsequent poll while the key was held.
-> 
-> Fix this by using !ptr for press detection, matching the release
-> detection logic.
-> 
-> Fixes: b11d2127c489 ("Input: add support for SEGA Dreamcast keyboard")
-> Assisted-by: Antigravity:gemini-3.5-flash
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/keyboard/maple_keyb.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-> index 3d5538dd4f23..623d7951405b 100644
-> --- a/drivers/input/keyboard/maple_keyb.c
-> +++ b/drivers/input/keyboard/maple_keyb.c
-> @@ -107,7 +107,7 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
->  		}
->  		ptr = memchr(kbd->old + 2, kbd->new[i], 6);
->  		code = kbd->new[i];
-> -		if (code > 3 && ptr) {
-> +		if (code > 3 && !ptr) {
->  			keycode = kbd->keycode[code];
->  			if (keycode) {
->  				input_event(dev, EV_MSC, MSC_SCAN, code);
-> 
-> -- 
-> 2.55.0.rc0.799.gd6f94ed593-goog
-> 
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] hid: non-atomic copy into mismatched struct for SRA data
+- [Low] hid: build failure due to non-existent c2p3_data member
+--
 
-Hi Dmitry,
-do you want to pick this patch as well? It improves key press detection,
-so would be nice.
+commit ee7fce24f1e5a01f6f7e6e6cd19e09582b434ae4
+Author: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-Tested-By: Florian Fuchs <fuchsfl@gmail.com>
+HID: amd_sfh: Add operating-mode telemetry sysfs attributes
 
+The Sensor Fusion Hub reports additional operating-mode telemetry through
+the SRA sensor. This commit exposes these states read-only through sysfs
+so that userspace can consume them.
 
-Regards
-Florian
+> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c b/drivers/hid/amd-sf=
+h-hid/amd_sfh_sysfs.c
+> index db1cc205d25b9..8af4df09760f0 100644
+> --- a/drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c
+> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_sysfs.c
+[ ... ]
+> @@ -41,19 +43,78 @@ static ssize_t hpd_store(struct device *dev,
+>  }
+>  static DEVICE_ATTR_RW(hpd);
+> =20
+> +/* Operating-mode telemetry reported by the SRA sensor, exposed read-onl=
+y. */
+> +static int amd_sfh_read_op_mode(struct amd_mp2_dev *mp2, struct sfh_op_m=
+ode *mode)
+> +{
+> +	struct sfh_accel_data accel_data;
+> +	void __iomem *sensoraddr;
+> +
+> +	if (!mp2->sfh1_1_ops || !mp2->dev_en.is_sra_present)
+> +		return -ENODEV;
+> +
+> +	if (mp2->mp2_ver >=3D MP2_VER_1_2) {
+> +		sensoraddr =3D mp2->vsbase +
+> +			(SRA_IDX * SENSOR_DATA_MEM_SIZE_DEFAULT) +
+> +			OFFSET_SENSOR_DATA_DEFAULT;
+> +		memcpy_fromio(&accel_data, sensoraddr, sizeof(struct sfh_accel_data));
+
+[Severity: Medium]
+Does amd_sfh_read_op_mode() perform a multi-byte, non-atomic bulk I/O copy
+from shared hardware memory using the wrong struct type (accelerometer inst=
+ead
+of SRA)?
+
+Reading any of the new SRA telemetry sysfs attributes on a device with MP2
+version >=3D 1.2 could risk torn reads from concurrent hardware updates.
+
+Could a targeted, atomic readl() be used instead to read the single 32-bit
+register value?
+
+> +		mode->val =3D accel_data.c2p3_data;
+
+[Severity: Low]
+Does struct sfh_accel_data have a c2p3_data member?
+
+It appears this member does not exist, which causes an immediate compilation
+failure when compiling the amd_sfh module.
+
+> +	} else {
+> +		mode->val =3D readl(mp2->mmio + amd_get_c2p_val(mp2, 3));
+> +	}
+> +
+> +	return 0;
+> +}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261006103754.3614=
+316-1-Basavaraj.Natikar@amd.com?part=3D2

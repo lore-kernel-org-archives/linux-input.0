@@ -1,155 +1,127 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A7DA49B47F
-	for <linux-input@vger.kernel.org>; Wed,  7 Oct 2026 09:05:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791363936; cv=pass; b=F/KUVdwgnw7AVThe0nds9S932iwRom5dJf7PYm500XWMN4bYmn8AH5s8HXAvwUV3IzT+5DpxibD8qx4mdedxh3uxWSE6pF1NPNA+8xEdSr61kXWRSwfFOMJxOf6tLTBwrwiXBRD/OFe9LpnspWYgsxv+HIZbf+uMypnw831x19A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791363936; c=relaxed/simple;
-	bh=LJK4k9+FK6S0VP6imYj2QsZHzrZYFltqhgqnT9sHTTM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YRvRhgIdREDBKsIxXpygAoOmXbMmDrDN+r/DnPpKoLQC4kqyaJRnmH5eWzlcfhBhSr/3vQbDkD8FsWLPGMT+6Z9KeBAI7kMx3LpEYX7mKUCxsohbx9Ho2mIR1CTzR6n/dzdEI7u5YBOdfsel55TV5hpGj8etJOCO2RkoOVvcw4I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hg4nyiH9; arc=pass smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5AA34B5157
+	for <linux-input@vger.kernel.org>; Wed,  7 Oct 2026 16:28:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791390494; cv=none; b=qqKEvGP9hrGwbL9COxFo5O/RXI+LYZ3AGXA4DgtaVPWo1sIe/Cv1PVAPq1QZfCXy3o9z8JjWuUWm/RsPm2wJSXxffarcnCBZauwCMKoDG8Ef7JGthuNqoXCbbo+O+ZpZU3Uty4wQ3XZ2ZNziJW4SCtIKU63GlrGh2wUmhSitwcs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791390494; c=relaxed/simple;
+	bh=g24tLA/3dhshJtjhfImC89zVIL2/mIHY6gHdvT9uvno=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fuQRIHS9hWIlXkVZklbCNUAXnjd3s/WsdQ5BcycmFdOQ0JT/vub1Dwj1lvMyOc/uJOgBgwLitd1flTOjHjv1ZCCJ76uzvW72zi3awk/wwpVL+jbKzRB1ZbsqDS/bt9QqOK+YxCWJgwR2pnHyREWdizG09D+MAug3KJCMRrTK/EM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aXIf6UE7; arc=none smtp.client-ip=209.85.221.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hg4nyiH9"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-48af27fe287so1182844f8f.0
-        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2026 02:05:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791363898; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VZvvbRyHXocjDFBhtI5q9FqUbPejFOSVb5jc5NvUP9V5HsaqdtIbuiILWMyijmrH+i
-         SBUSqru0OxXUlA6/nNpaT61712kuduSBohj2UVE8Rk1j8nNeUIF/OwgcZJEfBAks8Wc7
-         3WUQWeRf+SgAWlpFsD6hzhvGetlc5KLtgzGNc2QwIu/SzI03qTilObj1LmLHo4UWT4gU
-         +fcXwdNzXelkDiP4PPlMrdHIa8r0w4rghMb4uzcBsCJZRoMerWGvKrKZb/Qr3SD2lFnc
-         s6iINLTPUYlR2veIbi30la+0gsr7Mz5ivtPNfXqgb59J9OPAHTVrlbrf4GyzYP6n+DkA
-         EjgQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=E36HoO2bl1lQRnp5YJO39xoegHQevQRhaq8fZKyuhuc=;
-        fh=WkWxYlu1QyijHZ6vPtNOGpU6cC9cvMw6QQgJI0U9gwM=;
-        b=XIV1hLCtXm9y+9rdO4QNh37OeiNCbzQmmIImp9Xi2jDNsKB82aT1hytAHfNd82U45Z
-         au2vBmpMUSNzudEj4T4YbTSjhhM6c85IKe/kmD87YSdK6frSpzEqVs3DpyEIipknGUju
-         dIqQ9sMDSp0pcTm8yVpOyUvDDJz+rVwAm6NWOJP+AJUQGCT5HXxm+Gc0mRWTcWm0km7H
-         ULesAjmk1uCYnFH1K5vpg9S3/n16WNrlo+1GFumwdEbqZWOCY36UwLItRs2GowA5+1n0
-         qHlv052tRkXqYDN1kg/b0G0ycIDUTrbIhHef8Gy/eacr8sLUTiicS2fIPvNBX44QG7M7
-         5q9w==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aXIf6UE7"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-48c45111bebso1435426f8f.0
+        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2026 09:28:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791363898; x=1791968698; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=E36HoO2bl1lQRnp5YJO39xoegHQevQRhaq8fZKyuhuc=;
-        b=hg4nyiH9/g2Oz4ambYX+iij2CVMo0lI+tx5CvP9BRFvPRLtZC3HK6fstw4VTNM7GQN
-         xOB7mU1tpeZrlJ5a/H4lJ22ITcy4YJo9lt5XcaquaLioy8K6cP6V1WBvG1FQv7XDyP82
-         LFdCV20phJ4B+alYJ93HmJyysenFSJ5yNyPB7aYnZ9kRjTEg19WZt4S90o3Hw20xRJ+y
-         siYnxqH2uVTMoNtRq3aK0bjLiszWKbd7THVP1yC2rnvrqtli7HWPHfWwMgWw7sY/yRb4
-         ZUOARInYc8l/4SY9mxH1FSI8d2CkGI1CgC/dGmzl1DlxJTd8vHeYvPBMIdaEBkV9E2//
-         QvUA==
+        d=gmail.com; s=20251104; t=1791390491; x=1791995291; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=wITKzh5wW1j9YD2B+DIVbeYkbAtDPNXFE+j076Iz2Dc=;
+        b=aXIf6UE7BhCgHZ1CEe9HcqHdhvgW5ungWcr7UBRY+VvRh643aiNNl8BGbexkX/2YtT
+         Iowx1V6a9EnPqR5/9LyNXDdOI/C7SVlJeZKEyBkABL04x+DihAOkzmRLXQ/1eKmraLo2
+         G6qPchi10aa99XqRP2xmC0mOmodVcOmEXGdUFCpLnTh3luq2ZcNcSILfkhI1VkhFsjD4
+         wLkoJHFQ/vMlVOFkqsDnJlrWo0CrmgmX5HAwRMheLQKe0LagV83Hw2LzaJqgtu+KdrK4
+         KBf4KqSRseQObI9NQRshibiKqSfXzaTMSINbGUH3v1Ifb3m/848GJbnGOHr2N2OBG7Gk
+         SDYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791363898; x=1791968698;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=E36HoO2bl1lQRnp5YJO39xoegHQevQRhaq8fZKyuhuc=;
-        b=c9d37N9SysQN05Q8zQpi55qwyd29WKzc2eEz826TUTtkAoYZKfYDNRF+q/WK9KLfsw
-         37OVnxLDlcYP5Z2+V/4uXp1rLIxA9P08QmI4EuNujS3KMy/lmtowYUADYS4pUHz27yfL
-         6Cm8W90zxbFZy6G5L4BaJ9UBXMk455/fRbahII0EEw4BPMmeZvatCJJ0/zUIgC5WIWFB
-         MADXqNYJbJ0RokldPPCxVuMXWo8Gt8CJwIf8liSisXsU+GbR0LDjp8sutTVjhc+alGt3
-         3RelwQJ3YTmuybB8jG18ybDOov74blxXLS2XDw1/TRU3x/Xs8YUNh7610/OlRShyMS5e
-         4k2A==
-X-Forwarded-Encrypted: i=1; AKwUvBx0eyJKeNIVemBXOyZ4uauHJM+9INWQn17De8wpdBSLq4yPRJJetaujdGcVxeyZGT51NUiE9kreMNrU2Q==@vger.kernel.org
-X-Gm-Message-State: AFq9FYK42ccuBxSxu1v27XO0CpSKpsX9A+/gvREDuWJR7Ri6tChrsUes
-	diTBzzJltMJJDKcCbhOC1QMHS5r+9pZx86plGt8HUWA3DideRSo70T+XhvxmSwMdtrxquLdEq8Z
-	dt/cSNbO3hJuwKNwZNDNwCNXqkqJHIec=
-X-Gm-Gg: AYBFou2J0f8q7KvnfkHPd/61l8aaWYixR5ODEmArnQwpdl30SLILk5tgqY9SI8Ovsgm
-	LhFO2IPwQT7wuta4rRDcXxYofepmzqjwJUEARqcjDXaachtGyBjOzeaCWHfpxyNE+HZdZ21yMb3
-	SeZDjGp955hCt7SGrUTjOQVfzEDh3P2YRKzodoL1RH958QqZQAXRNj9BCwmwdZuk3E4Xk2IMBqi
-	b1UKubM8EsZxTLu+6xb8D99Bjq51aknneUJstuZZwn8aiJgfof3PvBoCFMxSPs8hD21njf2FsHk
-	JkuMTaird4WyG5yplVFjy1xHuzrXtsSFteff7+qbIBbOijOAJ52jYWM3Mvw0A2thZbvgLibrRa6
-	8a8qSU3S4uZ8lcywUti6lan4YNZz6j3r66We83Y239Hfa
-X-Received: by 2002:a5d:5f84:0:b0:48c:571a:a1aa with SMTP id
- ffacd0b85a97d-48c72779abcmr3033081f8f.19.1791363898205; Wed, 07 Oct 2026
- 02:04:58 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791390491; x=1791995291;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wITKzh5wW1j9YD2B+DIVbeYkbAtDPNXFE+j076Iz2Dc=;
+        b=zxQ8uCkGBfPyi4I83RY2Pnw4UsngQpv0B+YcmluYloq6GEXNKjZkZVeK2hb+JYR5FO
+         /ekfa3jStRi0NeAq+8BeCGXq4VipS8H9tkAFDLXdp4TFQCQHMJEPgfWL9SsrO4Ntt2/W
+         6u525FCLh9N68vZN3o0AMKtttcXRT5qW1oh2+71kgaFHgwruGR5fWAVGi8Bem2W+nA/q
+         t283z8jcmvOOvBjhmzuNRby1zuoun/FciSlgTj7aA+XkJs+R/2f8tATn5/hTjrytpYKo
+         n08BT3EwbfVyOKDlP8+B/kRhfPgNEwBz31ieM9A81l01vqdS2/T7HbU1YlIQcnXSQxaF
+         0fNw==
+X-Gm-Message-State: AFq9FYIAdAxIoG1yWQxnRXfsWwQ9vlhMKopumzN48z5YytWHaeB0avfo
+	PYU4PlmRsA1eB6RXr7qKghM0HjZSuiNH1m9Qu1Lcft2BCb7kn4SK3T8=
+X-Gm-Gg: AYBFou1t8iJHVdHCGsBss/HuQfaiFtqmLHV8fdXunfRDDK3CsEUyY26Hg7tVhco/0iE
+	RV9cU13zWILrsvviQuivjBt4eoPqhwvBigGSC1Qq++pq+cUfyZmUUFnUfHgax023OVHFzCTMIQ4
+	uZOrNuMjQJW4WbxzVQ19NgK8IGJkT67OHIskGsbsXPHb/SfWmLnlijSfTzxYEaYyyneJpV+2otJ
+	tzJkgSTG8zMZb9N6X52/w0zoNZNsuuP7orB9NQYJOXswfgMWKN/j7XkXTTETsV8O6FWIpcjFrY/
+	xaupIb50LnlMWMxpe9ptT8hjU/jhIbUU0yUwy6FaSSaF/8Fg5ceic8DuuQ/lxEMJypOWui21UYS
+	LKinAqOwapdlg0GTyQERwYQjss/VFUSRt7MGmW4EiirMpPX5aehYqis/ikX+1FZqhFy7+tz8sL+
+	f5AdagDoo/Ge6yrk8h84De9TynyDwdXfqYr9NdEdQ=
+X-Received: by 2002:a5d:5284:0:b0:48a:ef5c:fc2c with SMTP id ffacd0b85a97d-48c7278da82mr4164015f8f.48.1791390490777;
+        Wed, 07 Oct 2026 09:28:10 -0700 (PDT)
+Received: from debian.. ([2001:41d0:303:db6b::])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48c71d13a01sm6697451f8f.29.2026.10.07.09.28.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Oct 2026 09:28:09 -0700 (PDT)
+From: Tristan Madani <tristmd@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	bpf@vger.kernel.org,
+	stable@vger.kernel.org,
+	Tristan Madani <tristan@talencesecurity.com>
+Subject: [PATCH v2] HID: core: fix device cleanup on allocation failure
+Date: Wed,  7 Oct 2026 16:28:08 +0000
+Message-ID: <20261007162808.373024-1-tristmd@gmail.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260904080524.3872926-1-tristmd@gmail.com>
+References: <20260904080524.3872926-1-tristmd@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260927114425.442803-1-pooyan.azadparvar@gmail.com> <cover.1790612085.git.pooyan.azadparvar@gmail.com>
-In-Reply-To: <cover.1790612085.git.pooyan.azadparvar@gmail.com>
-From: Pooyan Azadparvar <pooyan.azadparvar@gmail.com>
-Date: Wed, 7 Oct 2026 11:04:46 +0200
-X-Gm-Features: AclHuK8xJQ6Fne9ZpkS7d6oSSqfAzB9NOx42HiHkCjgoiIsL7KKjyXseT1JY3aI
-Message-ID: <CANC3H+Lc3GCuWpqr2ydCkYmRxTu4em+vM9R4gd-vEn_kzu-gyQ@mail.gmail.com>
-Subject: Re: [PATCH v2 0/3] Input: raydium_i2c_ts report handling fixes
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@baylibre.com>, 
-	Muhammad Bilal <meatuni001@gmail.com>, Herlangga Maulani <w1zardsec@proton.me>, 
-	Rob Herring <robh@kernel.org>, Jeffrey Lin <jeffrey.lin@rad-ic.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Dmitry,
+From: Tristan Madani <tristan@talencesecurity.com>
 
-A gentle ping on this v2 series. Please let me know if there is
-anything else I should address.
-Thanks,
-Pooyan
+hid_allocate_device() calls hid_destroy_device() in its error path when
+hid_bpf_device_init() fails.  hid_destroy_device() invokes
+hid_bpf_destroy_device(), which calls synchronize_srcu() and
+cleanup_srcu_struct() on the SRCU structure.  However,
+hid_bpf_device_init() returns the result of init_srcu_struct(), so
+when it fails, init_srcu_struct() was called but did not succeed and
+its failure path rolled the SRCU internal pointers back to NULL.
+Dereferencing them causes a general protection fault.
 
-On Mon, Sep 28, 2026 at 6:26=E2=80=AFPM Pooyan Azad <pooyan.azadparvar@gmai=
-l.com> wrote:
->
-> Hi Dmitry,
->
-> This is v2 of the Raydium report parameter patch, split as requested.
->
-> Patch 1 validates the packet and contact sizes supplied by the controller=
-.
-> It also propagates main firmware query errors because otherwise a validat=
-ion
-> failure would be ignored by initialization. This is the only patch marked
-> for stable.
->
-> Patch 2 resizes an existing report buffer when a firmware update changes =
-the
-> packet size. Patch 3 moves the initial allocation to the main firmware qu=
-ery
-> so devices can remain usable for recovery when they probe in bootloader m=
-ode.
->
-> Changes in v2:
-> - Split validation, buffer resizing, and bootloader-mode allocation handl=
-ing
->   into separate patches.
-> - Mark only the validation fix for stable.
-> - Rebase onto v7.3-rc5.
->
-> The series was compile-tested with:
->
->   make O=3D/tmp/raydium-build W=3D1 -j$(nproc) \
->        drivers/input/touchscreen/raydium_i2c_ts.o
->
-> No runtime testing with a Raydium controller was performed.
->
-> Thanks,
-> Pooyan
->
-> Pooyan Azad (3):
->   Input: raydium_i2c_ts - validate report parameters
->   Input: raydium_i2c_ts - resize report buffer after firmware update
->   Input: raydium_i2c_ts - defer report buffer allocation
->
->  drivers/input/touchscreen/raydium_i2c_ts.c | 64 +++++++++++++---------
->  1 file changed, 39 insertions(+), 25 deletions(-)
->
-> --
-> 2.43.0
+Use put_device() directly in the error path to release the device
+without invoking SRCU cleanup on the failed state.
+
+Fixes: 6cd735f0e57a ("HID: bpf: protect HID-BPF prog_list access by a SRCU")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+---
+
+Changes since v1:
+  - Updated commit message to clarify that init_srcu_struct() was called
+    but failed (rolled pointers back to NULL), not that it was never called.
+  - Updated code comment to match.
+  Per bpf-ci bot review feedback.
+ drivers/hid/hid-core.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index a3ff0514f9cdf..7d1b781c6debf 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -3115,7 +3115,11 @@ struct hid_device *hid_allocate_device(void)
+ 	return hdev;
+ 
+ out_err:
+-	hid_destroy_device(hdev);
++	/* init_srcu_struct() was called but failed; the SRCU struct
++	 * is not usable.  Skip hid_destroy_device() which would call
++	 * cleanup_srcu_struct() on the failed state.
++	 */
++	put_device(&hdev->dev);
+ 	return ERR_PTR(ret);
+ }
+ EXPORT_SYMBOL_GPL(hid_allocate_device);
+-- 
+2.47.3
+

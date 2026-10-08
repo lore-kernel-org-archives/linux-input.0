@@ -1,116 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com [209.85.221.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 792F931F99A
-	for <linux-input@vger.kernel.org>; Thu,  8 Oct 2026 07:24:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791444280; cv=none; b=ie89oVeP0iVPVjt9y5RqkeFh78tJOOsRH0uyNakbSyri+YS4ejZDkzmwbPvQO5VFejEPJNp9vCkoleDpMU5yiDPpyU77csEafabDyEMTeqZ99ChZdkNVK1YKPwhAPpB7qDYE7RfEYl3EJZJVNja9AdZrZyQgNQH7B4M/OOAQQ5E=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791444280; c=relaxed/simple;
-	bh=BUpN7OnIra7nTefQxJsO0PbRLWYuHUgttc7NsFd99lU=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=NrB6dd8GjnT1wBl5naGNULQuJCdBTcBmbmIHQWxt+evOVf+8qYMtz3E9PUcqRWnGwgme2N+F2DTI9LVDzV+ZR+bL2rCM7TQYP6aOYv4s7hxFYN4XGCcBL772FHAVkEQy6jFqKC2mETupJXyJjNM3xIOjQBkDcNbNHyA3OiPGEtk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jfstfDGx; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D6323BFE2D
+	for <linux-input@vger.kernel.org>; Thu,  8 Oct 2026 07:45:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791445545; cv=pass; b=ZXe69gIdaXPR0Sv72nm+0P4dKAbgGiRo3tMJg+XBnWwSnZ3DyWRUdIIBElTTiCGltpwn+ilelgg9U+euurRVfaD7D48IWDXmoIfbZali8MVBVdBR86HPqhrHwjPRJ7DiIIkWmMc+RaxxaTcmRPXaYWcU9CkXBt5ZFKbZze3QfjA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791445545; c=relaxed/simple;
+	bh=5W9MU2ubquZd47q7s5eZMw9anlgx2vW7wLgtcc/INV4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ikwT1JeII1CAn1JE8ZXZ+qllrQttyTIigmgfyMi+v/o+y4EwBAJzfMHVbxhUF5Koyq/ojNuG003Rh4Y2MB+yyzrPTjTzEfkYtPPGru9Z9HPtQbFICbiWnUJLeZpPjnJXkRg2v9aGDduAc+ODkw9SvKVFy1bKslORREef9jgJ900=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U5TDrUby; arc=pass smtp.client-ip=209.85.221.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jfstfDGx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73B721F000FF;
-	Thu,  8 Oct 2026 07:24:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791444275;
-	bh=nuZLJiE9KY+oukAq/Gl2WfntaIEPj7qWu5tz5wz10Ok=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jfstfDGxtCQfUNUpg6qxjuzV8WXIWEcxQhptVhRh1YhHmmGMAdMF4dOyQwvZ3hGlW
-	 yFtn7AFehIr0Y5XFfpbfj/a8LlkOltI2nDXl30sAHxi+u0BB3wy4+0V38KxPmRdW+v
-	 P9+RUiWBMRXG7A/eth4LPEdmr3aTwqyf/9M6g5lxeDUDS0CzuP/jtdlpCL5TRNtuE/
-	 ddEfkoNqnv3bXhJOHyEJNVSME5iAez82wUTB5aFCMBcU7L4WW8NwapdpYOFpkAVR7i
-	 AkgcK9YmwD8NITxSziv6zwsFrksREg05PX1iU/bZrSQXrZKgm8vMfjgUiOdeloCZCO
-	 XCpkGBRYQXdAg==
-Message-ID: <sashiko-outbox-163750@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: i2c-hid-acpi: restore touchscreen IRQ routing
- on HP OmniBook Flip laptops
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Waqar Gulzar" <iamwaqargulzar@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261008-b4-elan2514-irq-route-v2-1-432d95eb7348@gmail.com>
-References: <20261008-b4-elan2514-irq-route-v2-1-432d95eb7348@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 08 Oct 2026 07:24:34 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U5TDrUby"
+Received: by mail-vk1-f176.google.com with SMTP id 71dfb90a1353d-5e78346891fso982834e0c.1
+        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2026 00:45:43 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791445542; cv=none;
+        d=google.com; s=arc-20260327;
+        b=XoMYZFCq1sxtPnLFM4exa53ih8RDbqm3lhva0RSnqO40tC3LNEuSCKXMNT/FBm9wse
+         w/T+ibOKUWcy+/FiZDQThmIl6/htKZXNTCWL/qVpXpAqpecfMpqaWeT0139qn4DQydUX
+         oWthoLrmmJxG6S6fXjstdRwmwBTo92Y0C2l+gtopjqLLT1nbL7j27wUGMBjGKqsuCqhQ
+         kSLBapZ7+TpV6MyozZCoJtM1B7ZLPVHr7CXkdiwAD/bnXbnjdusIKrhU9sApnjCB1qhw
+         37v9YGK1rxAlkXQRieFIoKj1EK/BwhhpYkRRoDjU5yxHNUDakKHXYT+8JM0A4AvDwolT
+         B9Lw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=5W9MU2ubquZd47q7s5eZMw9anlgx2vW7wLgtcc/INV4=;
+        fh=fFRAZMIP8faJ5TuJk/AizzjSxdOENbm1e2FGzBOF+rA=;
+        b=IxV8T1QPLIFviMWNMepykUJjv9fHjBQBF+aUweon2eNcsNKTFRFkbQ/W/1j7TdzzlS
+         pF5YPhDXhWfYbDkIVGW1JlATBCEH6/ZTSLGi2tZGMLNXtumc30MbziXLuU5E8DDLHyIM
+         fmgEAY8GiZjVZDqblRhs/GuxtqFzDNWpArG1AUR/rpYfd/LxFYIqN+quZEWy8RraTzad
+         VoXfkMNLmBy1PGghvUvnHOwYrpos2ZRd9LzRBpSfZpCGbRWeP1yY8OkgbrY+2fr9A3O4
+         IXHJkp47P+9QCBZ7oeY2IXZxSbGLIwDiY48i446ps8Qfkq1A84MVNfgSIGQDF/wHd31c
+         4TUw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791445542; x=1792050342; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=5W9MU2ubquZd47q7s5eZMw9anlgx2vW7wLgtcc/INV4=;
+        b=U5TDrUby9a2QAE+EfXvpR/klql70x2s2Jo23myTGP+sWk9fJvhLYzDY0uWMPvbQVaS
+         SQPVogWYXwg5977bKv4sg8HTu7SEHGORr2DUNpnRNktGguxMyilZS1IgVw03j0QeIvb0
+         LGZZ6VjeYQcGj5WbSJs+Re4XMFzWnETgI1FOD2hsJv0Yq/ip/PM2cZ74QsIbC1q20O5I
+         651cEzjsZoYrbXin1O6h2oaBhaeKeRNVlbFmKEtb20Fs54IW3hMavc7zJiihscRSu4W6
+         F7ZfcQykuk2Qg3AZUIrXSVEs8pauFmcJkTtjxelReyYqyaw3KJFP5LN7L9dNqTP1GAn6
+         tV0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791445542; x=1792050342;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=5W9MU2ubquZd47q7s5eZMw9anlgx2vW7wLgtcc/INV4=;
+        b=qupS8/ENfmnGcrb5wWBXDRm8Qi5RP55evtEDc1IzXjnctXr/yVZV/T4uKIxwbR91RJ
+         U6KVl32Kxss+y0mCWCP8nloG+Z7p+9FzAACD/wVyM+4hkkCqPEN8zsbRttmu8KCg5bCg
+         jw+fklX5Hnb4cH8PHQLzYN5fMf4gt03i9rOU0UKKexNHAXmupASNS4kS/bQHuEt/euEr
+         pY3nWJE68vdHCPdyYT5ATpr1kX23WFzkXDH1bEgrWOwViT+tcg0QLo+hsnWqhMaE5G3C
+         GInZc5bA5Nz/XntBJQM2h/IPN3CHgyERM0VdY1sccEJoIlDYkO3dvLCHtgTJ+glyD3rP
+         NjCw==
+X-Forwarded-Encrypted: i=1; AKwUvBwOTcN5IZJJA/MuATrlCooK00oSgvgKeVDSUtSon4/d1G5pkSM4tNfSX1UDVPokCnB0bAPp/X313yumYQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKbUGLw/h/KuhR6jENWFvJCF+z6D6/h9qlIrrvOwF/m/WsNi9k/
+	IcmWUwn49qmvycU9UoSYxEy/DjUODiNMdCNbGP/AOwTKkcpcJ9iOCudWsl0b7ZVPqRVhFmZV5Cc
+	w2ZFqQ2kLABHxwP2AmF0X2ar/bjOOhM8p5uFDSlSVsg==
+X-Gm-Gg: AYBFou3FGUmKzY4HKDfZ7YwFJvMqsgYLw9GAR6axQWI+u1b5riR/3BX4a5RoRGFf4ZG
+	4LYc2haXMNbVp8TVvmHh29Y5p0cl3lgwMXYZ9GfzImt0TtNMiziEWFhP+UUMKg1bHCJfEePoVew
+	rCHK1Ja4+AxSwEX7yi6/WwtSZDg5GegiME7D5xYRt34TrU5znxf7lESO74X2QaaJ42hlOHwNkPL
+	4UgYW1QFxJ4tXlEY9vezrJkUDQF2yQQ+WbgDk5ChP/79apu4/aPomovsLTQKYduVOdR8nQ//NtL
+	Rcuh2XDqeChS4Hfs3P1Y+218PUMWnr0qAe9lJfFFBwypCwA36HJKiKQppflfPrz1rxC/kiwXpE7
+	b8Z+t4O/SPJjc1Xu5pSfrGNB0Da70aAI1vUZpz8vCHJUevR7Crs9+gnEM7DK6k3Va/0+v5q08wA
+	qSf81IwT4BoDqhE3ejYKLNGPwVWG1EmDgdUhQsi8Dj9QmLaOOT6gGg2jU=
+X-Received: by 2002:a05:6122:4b81:b0:5e2:ef90:d438 with SMTP id
+ 71dfb90a1353d-5e6d2c26fa1mr1670535e0c.13.1791445541148; Thu, 08 Oct 2026
+ 00:45:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20261008-b4-elan2514-irq-route-v2-1-432d95eb7348@gmail.com> <sashiko-outbox-163750@kernel.org>
+In-Reply-To: <sashiko-outbox-163750@kernel.org>
+From: Waqar Gulzar <iamwaqargulzar@gmail.com>
+Date: Thu, 8 Oct 2026 12:45:29 +0500
+X-Gm-Features: AclHuK8q4VPUC_WMWTIOyFQ3S2zIGEHB1qbr-nZwIRCXR2cKAYAVR4iHOlSzFiQ
+Message-ID: <CADeB2YrOd10OX-BzjJ30p4ukC0OsCv3-gooOf0WxXfiZx7ChMg@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid-acpi: restore touchscreen IRQ routing on
+ HP OmniBook Flip laptops
+To: sashiko-reviews@lists.linux.dev
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] hid: i2c-hid-acpi: ACPI IRQ routing workaround bypassed on resume =
-if wakeup enabled
---
+On the wakeup question (same as raised on v1): the ELAN2514 is not
+wake-capable on these boards. TPL1 has no _PRW, and its _CRS interrupt
+is not marked wake-capable, so i2c_acpi_get_irq() reports wake_capable
+= false, I2C_CLIENT_WAKE is never set, and the device has no
+power/wakeup attribute in sysfs (checked on 8DA1, BIOS F.20).
+device_may_wakeup() is therefore always false, and power_up runs on
+every resume.
 
-commit 395f14993542089fc82210b5b3e47d5cf6164163
-Author: Waqar Gulzar <iamwaqargulzar@gmail.com>
+If a future firmware marked the interrupt wake-capable,
+i2c_hid_core_suspend() would also skip power_down under the same
+condition, so the driver would not take the device through the
+D3cold/_ON cycle that clears the routing in the first place.
 
-HID: i2c-hid-acpi: restore touchscreen IRQ routing on HP OmniBook Flip lapt=
-ops
-
-This patch works around a firmware bug on several HP OmniBook Flip laptops
-where the touchscreen ACPI _ON method incorrectly disconnects the interrupt
-from the IO-APIC. It attempts to re-enable the correct IRQ routing during
-device initialization and resume using the i2c_hid_acpi driver's power_up
-hook.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D220854
-Link: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/2142384
-Link: https://github.com/testyfishy/hp-omnibook-flip16-touchscreen-fix
-Link: https://github.com/iamwaqargulzar/hp-omnibook-x-flip-16-linux-touchsc=
-reen-pen-fix
-
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi.c b/drivers/hid/i2c-hid/i2c=
--hid-acpi.c
-> index 9371db200fc4d..b307d9a3d0455 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-
-[ ... ]
-
-> @@ -147,6 +147,9 @@ static int i2c_hid_acpi_probe(struct i2c_client *clie=
-nt)
->  	ihid_acpi->adev =3D adev;
->  	ihid_acpi->ops.shutdown_tail =3D i2c_hid_acpi_shutdown_tail;
->  	ihid_acpi->ops.restore_sequence =3D i2c_hid_acpi_restore_sequence;
-> +	if (acpi_dev_hid_uid_match(ihid_acpi->adev, "ELAN2514", NULL) &&
-> +	    dmi_check_system(i2c_hid_acpi_irq_route_dmi))
-> +		ihid_acpi->ops.power_up =3D i2c_hid_acpi_restore_irq_route;
-
-[Severity: High]
-Does this workaround get bypassed on system resume if the device is
-configured as a wakeup source?
-
-Looking at i2c_hid_core_resume() in drivers/hid/i2c-hid/i2c-hid-core.c,
-the power_up hook is skipped if the device may wake the system:
-
-drivers/hid/i2c-hid/i2c-hid-core.c:i2c_hid_core_resume() {
-    ...
-	if (!device_may_wakeup(&client->dev))
-		i2c_hid_core_power_up(ihid);
-    ...
-}
-
-If the user or system configures the touchscreen to wake the system from
-sleep, the ACPI _ON method will run during the transition back to D0 and
-disconnect the IRQ routing, but the power_up hook won't be called to
-restore it.
-
-Could this cause the interrupt storm to return immediately upon enabling
-the IRQ on system resume?
-
-> =20
->  	acpi_device_fix_up_power(adev);
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008-b4-elan251=
-4-irq-route-v2-1-432d95eb7348@gmail.com?part=3D1
+Waqar

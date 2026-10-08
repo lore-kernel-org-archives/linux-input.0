@@ -1,69 +1,69 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E87D03C10A0
-	for <linux-input@vger.kernel.org>; Thu,  8 Oct 2026 07:55:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE4213E5A32
+	for <linux-input@vger.kernel.org>; Thu,  8 Oct 2026 07:55:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791446103; cv=none; b=j0O8P7Hahnr0vnGspXUgX/R2YX36Pqz2WYqOqVk6Q+STOpTTCHBTX0Q2xN0tBu9vyBXmqYnN+6op4BCea75BhEuPAfW2JOhhCF101aYESDE0Ra1YSmgTtHlHLPPsS3RSqT3ZKowkTCFrmWBywqNYhQgqKeD5+ds3iKbyaN4TNTw=
+	t=1791446161; cv=none; b=HINaGcjWkEFqGY13n04PYUiCYOlh9fh2tEXopCgdfpT4Wb5zRAJZ5cNXF3avnxg5B/nV5T2ZlOtlRw8Wd6EAXa3QBrAVl8RJEPdOeKGvrriY0Dwr4UENGMmgTFDQipidmKV7yVNIGfE+QzIm/n74h/kNdzLG8bSSVoZWesXVkbE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791446103; c=relaxed/simple;
-	bh=0sdnIgsW/7O1yxiEVd1NMidwd+7MWbZHjpGHHLdtTqA=;
+	s=arc-20240116; t=1791446161; c=relaxed/simple;
+	bh=1eLsAsBcb3/SU5wMEmlWmiLY4M5auQ2xVNRdqlqUs4c=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ei1aT7mwDBYdk8bexVboB1szP6Ow00nMiJWVq3tTifEkW/7TgOCKiXaGfcoFSr3/waDxf84gpL/wAhunn6vDPSJ0LaJMryNh1GzGhPkZ3RkJDUiJNPvOMIv7mpyO3buX2V8jymOsQnoFvpBDUKc0mF2QUeNkHAkU3mN3yaxMOqs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rU7WxcG9; arc=none smtp.client-ip=209.85.128.51
+	 MIME-Version:Content-Type; b=f4J9/q3W+/9oYnOLVyqvpVV9K/yEUp/L5iil/VIDMsKFXqQEYqfvuff1Ody3Umc5deGfCIiOLjNOHGBz8KjS7WqlQD+bsyLB0RxzH+n0sJliseogjj7KRznCogwnpds5AGK46X3bUs4GwPNHb1v2Z+yKnacUlBndPimHw8lhEvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PPhLKAKL; arc=none smtp.client-ip=209.85.221.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rU7WxcG9"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a168355946so24437065e9.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2026 00:55:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PPhLKAKL"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-487049569b6so1867618f8f.1
+        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2026 00:55:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791446100; x=1792050900; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791446158; x=1792050958; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=ee/nOmTXlnTKv+9t3QjlgWh7DWnVNJTswfF5DULCt7Y=;
-        b=rU7WxcG9FQ0WfjIRwN1QBSLd274UzEmREVCwG86VNZzOQmO8RPn9nEwshv1ingB29r
-         0PYo8nHouyZqKjpxwUniaw0Q1frLN44A4iCnB0GSPmqUU26Y9g1p4V388xwZZ5lKNxlM
-         +28usrukC8nX4XDcLGN5p9H040pWwYFazZyi7R7pRVeRsKyTvFQk+bG3wbgw6rHoEBgr
-         V8+EfHtLjTzet6Hlf2iricUGa+06RiMPap1ksxPcMF4kYjE8+YLf6PbcXEyBFsK9E0Hu
-         Lb9X8JuE1DJgofXm1V1jcyouRR7iHGnMEjox1ekaezJRPn1vcS0dnwfLAKS36t7C5Jzj
-         6ThA==
+        bh=RqJ80RZLGvdSDJWSa/30QB3K8CJAPo6KFuj937ftJzU=;
+        b=PPhLKAKLe3Xj3jWLUOoBBNGiy5nU11Mdq8tEOP1WIqNd6b97t8C+0nqokWqG9J2cR2
+         KParJi47v2JiNiCIh0v7u5ANu5urcvf5ZsBEBWKjAeOu2zRcIE4mNfdSdZu2uQUXRCQh
+         1RWNVNHf36C7BhA781Ua1+oce37wOirjhHrtx1sItMEuPzLa6EI0neX+DO9L7ZPbW6xg
+         BEj1zHerprEsF7mmOplUPasj817BHcBCeZ5sdlS3nMfdkNVqiJfJij9Px+SVohyig0k0
+         cgo2EPgilaS0Vv5alzeroYb0VoojSzPeuXAlIMKJ18EvRZKsDfgvDWeZEHDWJcN0S3r5
+         +jmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791446100; x=1792050900;
+        d=1e100.net; s=20260707; t=1791446158; x=1792050958;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=ee/nOmTXlnTKv+9t3QjlgWh7DWnVNJTswfF5DULCt7Y=;
-        b=f0ToayejAIJ92ndE8+WUtdB9Cc9R83wdIYcLy4eP0ON14zlPsG2Ol/oVeaYijLzAWc
-         fMR8U0OQTsHHR8RyHDf9bhPwre758FYm2w7Cf7EJNqlPNKvZ6L3EWH9qp4iLZC9R7Dgg
-         KFrVRzzjDICcZvqEAkkagh01sXGQqBWcgCdNRgdQK9EXiCdhjBfRJwIru8dZNuK3myAG
-         GoF7dabdhjTts2fW59rl5vvfd0tESx8zwnb63lCRoge1IFmkZxvj5FwLbFDCelxhbM2z
-         pC5vKPDGLqx+tMFHYJwR7Lzh2DRVYrfK6mnreG91mTJmKYn+a6351aBn9ZrmG+awWeaF
-         eNfg==
-X-Forwarded-Encrypted: i=1; AKwUvBz0fKzlBoiqjqKoL2WIoyR4RBAMEXAKewHS2mnYsnZFogrqN209rDs5ZT8NyPasqdeX2yuADt30BrOO/g==@vger.kernel.org
-X-Gm-Message-State: AFuF++lqmKQ6/H6SnvjUMGx2pxOFZcOW1OMwmfJj8LjJE3MFhEaRZI3c
-	Pc03nXMXsiX97YSa/7/hMi/qjoYaXney2TOrsSuV9F9L4g4C/PWr77cZ
-X-Gm-Gg: AYBFou12PAAgfZrMuseJZe00+a3QA1nSd5rPPGQWWA9ATR/+leNGxIVnWwE7gCYoqOa
-	VOr72UrBxsPorggtb8v07O0Ovr8KpeLLL9is6C5y/FxkmbtuHr42M4WSVSFJm1c8ZmbUVNUrUzl
-	dTeXkYIWwcyFWftkAYRpP3/otY/L6FCdECfLIMCi5jJleDmjoJBLkShZiaVWobfCa9Z0pQKx08o
-	Swrpo8pXH1BQVL2U7GWFZQQS7z6xRrmN8sqy3n2FIn1Ol+/OZ5xNrL38Y2YAWiUg06Nb8BVSUQZ
-	GyKnZeNZjsaQAjW0KzFdaQ2Ok33R4jm5xEKH+1X22M++cp45ruBW3Txonc4a8fjHiWK8bu00xCK
-	VIy4H3umP4t8cewddwePFaz88djYl/S4bg+FPwJadp5/z+x/IJ8/9G7z1i2ODh8Xf7YYAxYNTkh
-	4JOAg3UGqUgRhI2TQarQRaOGKPkcgQSu1N4GVrIamdy42Y66yb79yzFld41ZD/Z24S2BFpeMWPT
-	653Z9xxOAZ6oUG7yvFoPKK+kePV7MIUfuRhL6JllB87LRKovBPhdz1/HUHbm+KqatMxnkRr+SC/
-	5JDI4daWdWUM/NS0XIVlBs57r/TfvdMtOwZ8ONGtFifKn8WJ5jyDT+NHi8aU0RC+Yh5nkamUdGc
-	6WSyyJbv5ad2fQ0ifFg2NeYm9GUyy1hLQEjsT8wdrGypmLAZCozxUXXm4hJFtpzglycsNgKGbAA
-	BjqynD
-X-Received: by 2002:a05:600c:4594:b0:4a0:1cfd:321 with SMTP id 5b1f17b1804b1-4a180313bbcmr78950685e9.12.1791446100084;
-        Thu, 08 Oct 2026 00:55:00 -0700 (PDT)
+        bh=RqJ80RZLGvdSDJWSa/30QB3K8CJAPo6KFuj937ftJzU=;
+        b=PNI+H9qdpHjusiJMvcy5iFeKpK4Nc8fE/HeJcJ6Hiy6jV2sUTCdRoyCim9DaQGvVg5
+         NLWv1OjA66pzaHVlHfgHb0epqHPSQz5nQmpb9LxnlXT/RDrXTtdgT8Qut82f9vFqVSir
+         lVUfPP+BhundXYrKGnnaxEQVxzEbDfPW0BWY6TLem19b8DxZos9PzYx8+cnEe2Nbvyee
+         hGJom+8zuzQiT/sFgMesTwrnkqSCcFIO2sIBqavSapNdgJ7V8eXUELi4c3XOfo8Xf/SL
+         umnPjva8pCurXCfKP1qPeS3S9sOUUF4Q2Eo6ZKMEl+VJNif+YMKfgtl5rrbwp4Ftm7Pc
+         yWBA==
+X-Forwarded-Encrypted: i=1; AKwUvBwmQcnpSPN6ZxRy9tXR2dKf7M9dId9q2YAkcj+0ROJXPhCDZ1pGobMpX12md3qCwvT0kKaC42jn4izKYg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLBE0UAlR61QHUbcPquGkUvjYRTHAQLSQMboWccqKKfCbfgjFq8
+	3U+MhS96pWpofXVkFYHDN/ZB90xXh5I1nbUWAkezyjpdtlfVUI6BEgib
+X-Gm-Gg: AYBFou2TgOZUaEUmLnX0f28tgCUIRzHUlJvyDwi1rOe/2+paYvKb5FucscSbpkTmFZm
+	xu8dr/828AD4AWt8+g2Z1VbxePDWypb3E2VXn+ln6p2wtEWBKc5Jc3Mf28+FUU6kNQn+/RY4Kaq
+	DdcnRKprNIz3PZ8C6zur+FgC1g7WUG+74jV9VKsNR7flDEB4wcjjH8lI4XfBPkJQgcERgEiC7O3
+	KB9Ybl2d2/FznJdJWuzqizrH05YbvffqFWBR3Fa6czJLaDE13QvFBgtzO8xAmgScWhwQQFL2PS5
+	zNr/tQIRdCunQIYoilfGFtSEYvHqEQHMtvThOq8X7u/QMqMcqwJTVYy/OoidNJzU0cczqCaZV0X
+	ibM4t2BgjOni9kAOHhWiXp2znE8RQwoMjm539kX20Ig3O3/B1nzNn/1YhFYwFsvUeTic+D5nDzJ
+	WJgkcdpTNq44b8esNTiWb0OdQuPr1ChGpNsWQHTJe0lZa/8oV4DHOGD4X0Hv9sONHLbQ8cCQY80
+	oaWgqa4+ByLVuGOORtU0KUNRU9yDiShgwSjgPQ4Km3ILJS2m4IlRRf3TMa5BPq6Y10n7CjaLVTG
+	Agpu6q8HxttodeJCdhzhjBb6TSlc7U2JoGTtjFy5tdB2A9GvIpSXuA2P2gsm/QZxHOmLUYuKVrM
+	QLTnEpbsPWWsJKA/Do++nemEViu9YdH4oZN7kBpUE8VaYZR6YyTuOGbL9xS2me30XF8Aacs2EBJ
+	7koUXA8Q==
+X-Received: by 2002:adf:ed4c:0:b0:487:1662:cf4c with SMTP id ffacd0b85a97d-48c72707d0fmr7555934f8f.7.1791446158003;
+        Thu, 08 Oct 2026 00:55:58 -0700 (PDT)
 Received: from localhost (90-182-112-124.rcp.o2.cz. [90.182.112.124])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48c71d1245bsm9635929f8f.26.2026.10.08.00.54.59
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48c71d31767sm10344398f8f.51.2026.10.08.00.55.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2026 00:54:59 -0700 (PDT)
-Date: Thu, 8 Oct 2026 09:54:59 +0200
+        Thu, 08 Oct 2026 00:55:57 -0700 (PDT)
+Date: Thu, 8 Oct 2026 09:55:57 +0200
 From: Joshua Crofts <joshua.crofts1@gmail.com>
 To: Christopher Hoover <ch@murgatroid.com>
 Cc: Jonathan Cameron <jic23@kernel.org>, Jiri Kosina <jikos@kernel.org>,
@@ -74,7 +74,7 @@ Cc: Jonathan Cameron <jic23@kernel.org>, Jiri Kosina <jikos@kernel.org>,
  linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v2 0/3] iio: hid-sensors: fix shared callbacks in
  temperature and humidity
-Message-ID: <20261008095459.000023f9@gmail.com>
+Message-ID: <20261008095557.0000617a@gmail.com>
 In-Reply-To: <20261007184423.622445-1-ch@murgatroid.com>
 References: <20261007072329.27806-1-ch@murgatroid.com>
 	<20261007184423.622445-1-ch@murgatroid.com>
@@ -120,7 +120,8 @@ Christopher Hoover <ch@murgatroid.com> wrote:
 > 
 > base-commit: 9ee8306121495d2a25aa5d1bfd519f2748786b83
 
-Reviewed-by: Joshua Crofts <joshua.crofts1@gmail.com>
+Also for future reference, please don't send a new version as a
+reply to the previous version, it breaks tooling :(
 
 -- 
 Kind regards,

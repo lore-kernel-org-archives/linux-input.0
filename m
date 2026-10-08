@@ -1,71 +1,70 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A293F13FEE;
-	Thu,  8 Oct 2026 04:17:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D843B9927
+	for <linux-input@vger.kernel.org>; Thu,  8 Oct 2026 05:40:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791433044; cv=none; b=VUbTJBWtt/81baA9hKiZueBWnJUooqx+Bajlsi5nqqtngzRBY3gTYVQ9IE5KkNRYrmzTxkASAmatpgsWZLfPpqObHnFK/YxPfagT7DGjO9u1mnR7hI3vPPOjo7T4L58YxxprnsFUTtNDCRnqHjGxKlBqd6mC2cwdX7MhIwWHMN4=
+	t=1791438038; cv=none; b=gmRR+LaJnT8/9vFd75fPRsjCgQjD+jmamjo7QOMbdAjjVSwXcax4MH0HZ3t7h74RoaME+r2lVB6uynxlnC52M6jg21zuEpzWxkLIO+TOT2cngha2lMu5MqnV6ysnXQXYRpeJeb/BEyxXGQSNAe2KuEgqd06AqZi9Yhp8TRFGHN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791433044; c=relaxed/simple;
-	bh=ICoeoosIWbTj/bG3WY0JednzspW3OE5fElre7njVj3w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fZsZXXxS4j5EEa620e+AOk3E6ahL0JMTIOnFcQ/XkBtuIkiX2ZnuVcLNsF4ltYT87kZQP9gO528SNPSQLiz2ED19/D+qt2+dotFwJk/X+FJFmg5IyJjW0IeuXoKheWY8QFvv/D2J+T7M2p4jgKt0TS0sSQRLRGP5RJEFCp/jryY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gd3oPJ83; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1791438038; c=relaxed/simple;
+	bh=CvBIAcTaNvBuf6s0Q0MU5WX2dqdvQEhblCbv7hdG+20=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=RvKW1exek6y4zlHtYqXoTI/78+w+Ilk+QxyhiGlLptirO9rScl5hXxL4X/DVTFFmxGfQqQKb3nx1zOHTgOwdJucmN+WCMvCwlzRhSgye6DGI9BJl/M2TYq6F5HbHa+Fkl8hsuKfi/bKWfyrog7OpD1+W+lpAtOBl6hSlJJmCCpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QOPzuVWF; arc=none smtp.client-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gd3oPJ83"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1791433042; x=1822969042;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ICoeoosIWbTj/bG3WY0JednzspW3OE5fElre7njVj3w=;
-  b=gd3oPJ83XGb+YLcb9aWk7ek1lt+DYzyJXAq99wIgeLGYbODgkLV9/A9X
-   GHBol4zPRy4N0yGZNpBOkrVj2gz6Dyvk4R9bOMrg6ax5QGpp1DRXurW8P
-   qYlNWM2dGD1AIEWOCDRRIstqGRbN9/+opKy365LOWaPkKhWYSOjWcuvX/
-   PwHm6Snd29BolIMs1CC+58WsSCBBb2vED0tsEwRZRVrFLN7Zo0/wcCkWd
-   QABzKy84zEdrxWJGL3ypLj+DqNcibH3Ja8XuSAm3CBsbt2GsnXo4sV8C1
-   zjI3VDETj0PC4p+Juo4GvLhpny8h4Zr1AXxRtG7yGk8hfqV1w7QvOv2DU
-   Q==;
-X-CSE-ConnectionGUID: 5jJqOiUuQOKQIqlceT6+Ew==
-X-CSE-MsgGUID: cT5XPE/WQLGr4Blx/60z7g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11928"; a="93666"
-X-IronPort-AV: E=Sophos;i="6.27,145,1787036400"; 
-   d="scan'208";a="93666"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Oct 2026 21:17:22 -0700
-X-CSE-ConnectionGUID: 1X/HIWkKQfaPub1ZSubZsA==
-X-CSE-MsgGUID: 8OfYMzt+SP+/v2se8fG8kQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,145,1787036400"; 
-   d="scan'208";a="229129"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by fmviesa008.fm.intel.com with ESMTP; 07 Oct 2026 21:17:17 -0700
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xEfZC-000000003yS-1WSy;
-	Thu, 08 Oct 2026 04:17:14 +0000
-Date: Thu, 8 Oct 2026 12:16:16 +0800
-From: kernel test robot <lkp@intel.com>
-To: Karl Mehltretter <kmehltretter@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Karl Mehltretter <kmehltretter@gmail.com>,
-	Hans Verkuil <hverkuil@kernel.org>,
-	Florian Echtler <floe@butterbrot.org>,
-	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	linux-media@vger.kernel.org, linux-usb@vger.kernel.org,
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [RFT PATCH] Input: sur40 - fix DMA handling in video capture
-Message-ID: <202610081252.0UqYKs2X-lkp@intel.com>
-References: <20261007054430.40155-1-kmehltretter@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QOPzuVWF"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-33c2520ad38so6119403eec.1
+        for <linux-input@vger.kernel.org>; Wed, 07 Oct 2026 22:40:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791438037; x=1792042837; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=X9kdlXgDyFx5+Qdxi4wxGtejd514wpSbKU1RMyqlmI4=;
+        b=QOPzuVWF4Lui7eUCXDZWz8oTardi6iBrdtoA47B5u4MoSn+pBhFFxNhLRgV5CA3Ud7
+         J+To4vfgZFU0zynuw8LTsVk5ym6DLOCPTQGjzQSIx62LLCRgEYU8ZvCfOmUtNaGxH3t4
+         4egiryehox/eBL+ckbslvF+YRzs3RKFWiD7nNElvmnKH0Z8dNSnUa6h8Z8oRSEUcRJKg
+         3lyC1hk4wnJAJW6EM8ux00adAWunBI3GDb5XDHZsczxHYbf+M0psGbchSE6k77u6JOzS
+         /Zkizl5XELwFE61G9QixO3rufsrakcMhZcIQKvMngG9NeHIUkq3syG1Kw8QQ00S3nWEO
+         MDLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791438037; x=1792042837;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=X9kdlXgDyFx5+Qdxi4wxGtejd514wpSbKU1RMyqlmI4=;
+        b=EG5HtrHW1kVaYdvqp9MybBDSw9ZQ1EdYlPCfxOfy8YB8x0Uxcmcyo9egvN5Zb+lAi/
+         7YsvykLr51ge8rd7LbX5a9SGKZdrHmXF9lI8De5RzkBEp7BmeiRXxgpYJXIhzX9Vo4PF
+         d6+HkfAgWBua4qWfWJ0LHiOPEKLt/Fp5bQ299Z+h6iOZ80t8cdjVKJcRgA3WmRIDcxQ+
+         ZbfWgyYhxCyBvZq0RU5hgUeww9sYPDmk1HGy0/iVnJuDGUHYApQJC9W36wDgOtYLsXjt
+         oGBCldcJDPVtsB2t6+sWUO1mx69GFHHP6XOJ9MOIylajBtaCsewrg0vXYECSK9PF+Bal
+         xc6g==
+X-Gm-Message-State: AFuF++lvUCLprnJRg2MT3JSZlMLnc1g9xHC3r7935LguN7FXOzTLb0rn
+	H8xmiAYRWfpcKfF9Zb4j8uewgE7vuzQ498DLGkSQ09ro/e4fAWGHMco8MvOqU+4UZ3k=
+X-Gm-Gg: AYBFou3q9zFYk+wegY7rnZYyPJExdqcmcmQ+DODsSO58byJ1Tw74iwbitB11E702SbK
+	E0lpLrSR3ZRrS0m/jNyPA12DQILkmOo/R0eqZh2aR31A12EwP2X3CqoE3kR3nIhkUsv2UccMExX
+	gdR5Du7O79RgnrwSCZwb9pubBqQEUPWfgoenVyzRV5TGW+cXZtL7QIdSbZHtZTfH4yqRgebIyrD
+	oDU2BMO2U9njLOMFW9RIZaGXue0M8yYrFFP9G8EkbHhMp1ex/GFL4KHrIPKE61lBEVBky9ExFRR
+	R7tIXQnDu1KqUeERKueHneqCdURwxlsN5IlwwC9z6Zw8Z7TbF2WsXvCiKeAYbZVF06U6Kx0VfFN
+	u7P1kFoj6ofuYEAkeIZW+b21uxE7uuIVBaYDL6nuQ+PaSSHY3cONeSpIz08FUuXoTc4qrhAMSrt
+	Nqi+0GEgpL1jk5qI5805otshXDO3GJ1++Fh7SBEVbVjxsgatSU9HUQVxl+8ai1GlA8mPj3aYqpH
+	UtaXEktg9Wyzj2N4Yrn/YzApE1HL83gnn6rgWFi
+X-Received: by 2002:a05:7301:3d0e:b0:351:5112:ec4b with SMTP id 5a478bee46e88-3515da5dc10mr4941142eec.2.1791438036553;
+        Wed, 07 Oct 2026 22:40:36 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:3002:e11e:c053:ebcb])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3515aeb5fffsm11498076eec.6.2026.10.07.22.40.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Oct 2026 22:40:36 -0700 (PDT)
+Date: Wed, 7 Oct 2026 22:40:33 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: matrix_keypad - propagate error code from
+ matrix_keypad_build_keymap()
+Message-ID: <ascss_vYXDPXIxmn@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,32 +73,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261007054430.40155-1-kmehltretter@gmail.com>
 
-Hi Karl,
+When switching to managed resources in matrix_keypad_probe(), the error
+return path after matrix_keypad_build_keymap() was replaced with a
+hardcoded -ENOMEM instead of propagating the real error code.
 
-kernel test robot noticed the following build warnings:
+Return the original error so the actual failure reason is preserved.
 
-[auto build test WARNING on 2c3418fffa9d037b2038a6db48be63f9e2291806]
+Fixes: 7d0f351da460 ("Input: matrix_keypad - switch to using managed resources")
+Reported-by: sashiko-bot@kernel.org
+Assisted-by: LLM
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/matrix_keypad.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Karl-Mehltretter/Input-sur40-fix-DMA-handling-in-video-capture/20261007-074430
-base:   2c3418fffa9d037b2038a6db48be63f9e2291806
-patch link:    https://lore.kernel.org/r/20261007054430.40155-1-kmehltretter%40gmail.com
-patch subject: [RFT PATCH] Input: sur40 - fix DMA handling in video capture
-config: arm64-randconfig-1003-20261007 (https://download.01.org/0day-ci/archive/20261008/202610081252.0UqYKs2X-lkp@intel.com/config)
-compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261008/202610081252.0UqYKs2X-lkp@intel.com/reproduce)
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index f4a63a7bdad1..596696a0773b 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -443,7 +443,7 @@ static int matrix_keypad_probe(struct platform_device *pdev)
+ 					 NULL, input_dev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "failed to build keymap\n");
+-		return -ENOMEM;
++		return err;
+ 	}
+ 
+ 	if (!device_property_read_bool(&pdev->dev, "linux,no-autorepeat"))
+-- 
+2.56.0.385.gd3acb90ef8-goog
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202610081252.0UqYKs2X-lkp@intel.com/
 
-All warnings (new ones prefixed by >>, old ones prefixed by <<):
-
->> WARNING: modpost: drivers/input/touchscreen/sur40.ko: module uses symbol 'dma_buf_begin_cpu_access' from namespace 'DMA_BUF', but does not import it.
->> WARNING: modpost: drivers/input/touchscreen/sur40.ko: module uses symbol 'dma_buf_end_cpu_access' from namespace 'DMA_BUF', but does not import it.
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+-- 
+Dmitry

@@ -1,63 +1,63 @@
-Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CE12486BB5
-	for <linux-input@vger.kernel.org>; Thu,  8 Oct 2026 09:47:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12A448E0D5
+	for <linux-input@vger.kernel.org>; Thu,  8 Oct 2026 09:47:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791452864; cv=none; b=eYnFa5/30XdM3pnQDQ9Isz9EMDesCjX+0oeEFNQiRFa3TcC4HrRaXgCHzFhErkX2mP3Z7mVYG8hOI/qUU9dsUC479mdJvERxpT5M+sJpKrWm2j+yeeMNEktrEWKLvZCCqnLqD33CCPOh5h9DDySJ1ZFq2FSbnRsbXO+9ojK+iNY=
+	t=1791452866; cv=none; b=ePv4AAoifCwhj5Eho4/Yf0enrhDaIpTFei9BqpeYJkWnml8wmb9lgYl4HVZS+X2hzQsbWtqqPFKtkLDEOLCcxZwFNFZyghsurXx+pkw+hUIc5MHJ2SuEi0pEj7+hKDjJjoSidKk3Q0zmhU4ujEu0Eijc1C4BeF97/b/BP8Q/zQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791452864; c=relaxed/simple;
-	bh=XcwHK6uRd8xzF6/DxitWQzYDtYqQuI+luucpSOQyR2g=;
+	s=arc-20240116; t=1791452866; c=relaxed/simple;
+	bh=ipo+QoYim+E7JPIpTXWB+a1L1mWdKwNskDFvsmmr6KY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=doJFxI8NPWmnm6Sx+LW4IUfXe5LyqY5C750Izg+Muw8z3XZaFk6E9/YOrBkLE9q7Xhk8U61oftYO21epoR3Xt52R53fUW9Nb+O+jJTlGpBh8aCAnrcjmPvW8I2rfM1cpxFiM42002CBMchu1smcCTs1nG/hDJy9Hom9FzbQ4EAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qioQUycz; arc=none smtp.client-ip=74.125.82.54
+	 MIME-Version; b=hB3ls/dBB4Il1Ufi9eZJ6EHr9bqBZ8R+qFarPCW8OJkOoHrxE8L6QV3sSyhMVJRTs7x3EvJP7T4ilDZRXhlL47F0VLM1Sbp4OSzGTZEJSeCDwPXYVbe7EERSHTg080xouZEQYm4WDzzajVyjy4gRuK/2G1buKDVOI13ORZIk9Xw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sASoNHE2; arc=none smtp.client-ip=74.125.82.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qioQUycz"
-Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-141395927feso4463176c88.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2026 02:47:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sASoNHE2"
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-351f7a0b13bso178548eec.1
+        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2026 02:47:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791452862; x=1792057662; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791452865; x=1792057665; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=hDdtCCRK+vtCeWTEJQTIRUbKMjqc82M6uTiT5DUqjb0=;
-        b=qioQUyczd6L6eI6x5Yl4Dbp22cQzjm/mxczVt529CwljZN0ZZ8HzPBaiyc1oPN+rg3
-         Hc1ScajY4C3HTBZdZ9y/hUrOWdcMPkTFrbpl9IzWgL7aZoLYPDQ8uPGlI/XTyJoUeRW8
-         3Qn9h4kPeOZLVO0SXWhzO97jB/RKYjzOuW33uLRnizwHkzrujKmk36DYnxsbuX9DtEhj
-         9gMwA2pTie/J/WeuOxdX+jm3/tF9+TQ5LlhI6sYVOsDhLeGd96DhkYILS4DG4OG6IKy4
-         1JRkUFNVJUUyC9cuhWUK6LBZ8I3hMzkXlb3y64HDitGy7VqgrR6TlxF/Albuy69T/WrK
-         idoA==
+        bh=FUQRlvg9AsM862GlCoL4Kg1tB8eW4uEtlo087+kXFRQ=;
+        b=sASoNHE2vJbtTuQosk6WZu8ZoPuY0itiiRIBpKNgH8c0XmK/hO2h66sySvkSEKerKt
+         qPDa1kVjfvAhkDOPr09Oo9n2aGqa0+yedUMfBuq9OAiPVFbNeOFIYSRS69wUZ92/324M
+         LnWwqZ/PpcaxS5GMJP0sQlueK9QU1ljwTEQY1riI+fCGlk9aT15FLx7ehfInqCII60uj
+         WIZbSHtNVVnk5sbf4Xi+7+mlGaoTT1la+47dJU6XeD5M/FuBajr54jF0KwzB9QNf5X6h
+         zampvnmIQQqgXArucvy0mZlV8dxj9BYLZT4HtowvSA0jpPPjlxcPPPqBcrV5OOGqb9eh
+         qFYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791452862; x=1792057662;
+        d=1e100.net; s=20260707; t=1791452865; x=1792057665;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=hDdtCCRK+vtCeWTEJQTIRUbKMjqc82M6uTiT5DUqjb0=;
-        b=Df54SHocuTTkFprc5I3QsI7bCxxB1sfgQr7BKt/Rz69rh2ea2u5qncKZuGsjF7HeyL
-         2b4jhhwIdY61pi7EBk4Lhd96CTWxP+TpXpP+HIF4dfuD5RM1pRryUDYTE1XfwVfc3rz3
-         B89YcfAqZsCGTcSbzQlK15b2Xis7r0YHHeX1whM2ZMe8r85bgayBop5UJjEY0ILSFT7p
-         JVJABIO6cg/CU8JAbaG4emkBT6nwCKXwTHYPUz3GzS5wDzvlAqD1RkzHKpn7TAxHFX0j
-         ob/TwmN6KD2yzNIjwjVW1JR2dqZ7mV641zDJzVDwwe5r0VwKR3nUZqBEmaszuhark8+O
-         h8Cw==
-X-Gm-Message-State: AFuF++ktaaqmWFPErP2SPq0BE6eAkJODQguIJXn5PU9jw2bEkOK1V1Y7
-	1U0HBQ47GUqkb+Ku+1/psQshGhkJzuVWKCBdgXIoF+F81M2oo5o8UXLSFv9XYLxOYT+G5w==
-X-Gm-Gg: AYBFou0Wm6OWfSTxw/qa0PCLXk5J9ZpckoS6xrNegBwfqVLxtShwJZciD+w+DYGHgb5
-	e84NEtvm0gmqGQ2DulplhKANFAQHdLbY0NnAuZKzvk76mvqfq4Fr7ew1PR+Yk24fCl1cf8f5RE4
-	YzWoR3f7CxfJwM5/VeuGGillqMpLG5HZGC+0QISsk2AgYR3WRNHesA3UWiBplU6zYkVwEx6Pojk
-	xstKS6UkqAMqkqywv/OXWQ28XCQsLiMY7LKcVeV6wA3wGdBlX6uTKId62YSBseKjnnlPUgOQlbO
-	BzvDNbgJ4HyMAAuLXg8sq3p3lT6nfckF9CZfYxJ41xJUICavPBFXLj3sUQY0ct5fWso1HQy34D5
-	tpJmgpR/JprGuQtxRxfboc/SL4BVstKn0+E0BFPzrbssnoJc5jHvHfi953L4nxDUao0eBOGG2rg
-	/mX5GxPAnQ00j0gpbiAI6fSMW6d3mDWHlydnuN/ThsNkk7lWs7QpMPuLXFhgF9qwIkrY2Cuhiih
-	JKhiUMFTXZbiasZNM8m0t9pH3lGJKW1qNrQzwepFY/beqCBF5rqkUMGQBppKuM=
-X-Received: by 2002:a05:7022:43a9:b0:14d:3c0c:79ec with SMTP id a92af1059eb24-162044c07d6mr8099962c88.9.1791452862103;
-        Thu, 08 Oct 2026 02:47:42 -0700 (PDT)
+        bh=FUQRlvg9AsM862GlCoL4Kg1tB8eW4uEtlo087+kXFRQ=;
+        b=xlMZOYFLgxxSemSIortbpbxlr3MP3KPHdNh/NM9dpV9LBXyVod+7vk/Y8CRdZLxTZm
+         3gLP/XYpK1P9VkHu6vOVciMJfsHumYeSo2A3+15fMNaqoSZvvPYCkeQL1Y92FXhr5xLg
+         nVEoKzgz1zeZ2oqH9ZRFwIqlBl7aV2SDmB0J/wBd/NPeuH8DCU+d9sa2716biDCRIVvs
+         FHtzxaAXLnWJvEMfwQZQogWvoNpsXGKOWmvjDhQQkZSciFm0vew9S9ZV6nML+6vw9uY5
+         HYQIPfQr24y7jKq5OXnal7hNlIXdGj1VevSB0HjzVTqsLQz+IFj4MmlhWT+1TaYLjHP9
+         zQqQ==
+X-Gm-Message-State: AFuF++nzpLhJ5KHhhv2GjcCV0Ih7ORdVXiXRFMqjMwx8KVv3vr/GGbPm
+	eikYP80bSHnoGFQabceZJE5Xk7/TUDGuYpcpP8kzLgEhupldp2EC4qVvTKOcFn6uN8R3tA==
+X-Gm-Gg: AYBFou0hfG3Ck+HgViPp8dyh3JJIXGoM5rg1cuM4pTwgliQdDVoTIttSSII+gv/rVg7
+	k+/nkHp+nBYD67nWh46V6IcnHB/JZCgXdCzGu2ItsNudX0SSMYySZmfVQvvgEyG7sUtTYQFVFQk
+	G8OTtqhta9As2WODYW/cj+uMk/fnI/+JxW5fuoZqs5HtshftZm6jA84Pv1frleAa31IbJme4XrC
+	vTfsBWlb822CxA/7OxwlhlQ8ynfMWn4uLXS3MLBCn28W6YZl9jzC+WY2h01/A0wAShOpfOSRSGo
+	hQDgh4iu2APyi7Cyz9wFgaxL2pE5aLnELG++Ea2YME3gJqOUXhL0EuYPtjlOfqAy4miK02775Px
+	dmLA0aQ4E2BLvk9AnoQyAJOaerf8n0k5BsF2b8RxVI0nH6k9kKqjgchxlebotJLZ2YeWmGbexEH
+	OO3LqXD3iWkPIJsK/rqYb5HdkfSQnpsfeFyvuIpclPR2xLyBlfokVfhW6WFm2EgunJv7UXaGHCq
+	cVH/YvqC5IHqKSUpMc+6Vu7VGe5Kfgm7p16HKyZc01PqbhuhS/SPq2xFyEC7iM=
+X-Received: by 2002:a05:7301:7b81:b0:351:606f:2832 with SMTP id 5a478bee46e88-35177179563mr2721847eec.3.1791452864794;
+        Thu, 08 Oct 2026 02:47:44 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:3002:e11e:c053:ebcb])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3515aeb5c00sm14994424eec.8.2026.10.08.02.47.40
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3515aeb5c00sm14994424eec.8.2026.10.08.02.47.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2026 02:47:41 -0700 (PDT)
+        Thu, 08 Oct 2026 02:47:42 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: linux-input@vger.kernel.org
 Cc: Support Opensource <support.opensource@diasemi.com>,
@@ -65,9 +65,9 @@ Cc: Support Opensource <support.opensource@diasemi.com>,
 	Dan Murphy <dmurphy@ti.com>,
 	Yegor Yefremov <yegorslists@googlemail.com>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] Input: drv2665 - fix input device parent assignment
-Date: Thu,  8 Oct 2026 02:47:32 -0700
-Message-ID: <20261008094736.918137-2-dmitry.torokhov@gmail.com>
+Subject: [PATCH 3/4] Input: drv2667 - fix input device parent assignment
+Date: Thu,  8 Oct 2026 02:47:33 -0700
+Message-ID: <20261008094736.918137-3-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
 In-Reply-To: <20261008094736.918137-1-dmitry.torokhov@gmail.com>
 References: <20261008094736.918137-1-dmitry.torokhov@gmail.com>
@@ -89,23 +89,23 @@ driver unbind, leading to use-after-free.
 devm_input_allocate_device() already sets input_dev->dev.parent to
 &client->dev. Drop the redundant and erroneous assignment.
 
-Fixes: 4d10da13467e ("Input: add TI drv2665 haptics driver")
+Fixes: 1c24622572d6 ("Input: add support for the DRV2667 haptic driver")
 Assisted-by: LLM
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/drv2665.c | 1 -
+ drivers/input/misc/drv2667.c | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
-index 4f8c1f69aa63..134d65fdcf2d 100644
---- a/drivers/input/misc/drv2665.c
-+++ b/drivers/input/misc/drv2665.c
-@@ -180,7 +180,6 @@ static int drv2665_probe(struct i2c_client *client)
+diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
+index 97309984fa7c..bbda7b4cbdcb 100644
+--- a/drivers/input/misc/drv2667.c
++++ b/drivers/input/misc/drv2667.c
+@@ -357,7 +357,6 @@ static int drv2667_probe(struct i2c_client *client)
  	}
  
- 	haptics->input_dev->name = "drv2665:haptics";
+ 	haptics->input_dev->name = "drv2667:haptics";
 -	haptics->input_dev->dev.parent = client->dev.parent;
- 	haptics->input_dev->close = drv2665_close;
+ 	haptics->input_dev->close = drv2667_close;
  	input_set_drvdata(haptics->input_dev, haptics);
  	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
 -- 

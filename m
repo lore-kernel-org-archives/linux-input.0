@@ -1,132 +1,110 @@
-Received: from mta1.migadu.com (out-9.mta1.migadu.com [95.215.58.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 472CE4E01FE
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 11:49:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FF74C10D1
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 12:07:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791546581; cv=none; b=fZmWojZXYGmeqA6XaB5+qkanATwGsdvwD54CYR0e8JO+lYMhs8aneFNaS+Yvym6h41k+n5QX2zsepNzu53YJL/1uusOrar2Pf8xH9SoYw7KDv2RwSK5lxHWxAA3fpbiOA6zKUPqcbFxDoZXC6fg4C1LwADb6RRWtXJH8I829GHY=
+	t=1791547666; cv=none; b=R51wjZVhc3USRZa6IkQ7XDqwQgpgX9nP/pG7jCLxIa+U+NTYApi2/EtQSys9DqZ1/pXRO2TT/kwYoWct8FDCMShiWFuK1OilcsFH8lXIAD8eykbaxnB7ANqdYZFomGWV35Hgm9ZNm8QWuICGVSvzG+TVmZUSDcZclR/fSWe1gVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791546581; c=relaxed/simple;
-	bh=kSldjP/LJAFNxvSitEbFvA30E6J1HGiVZNJXHPDdUoQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=J49uL5p2Zy/OSE1I4XirJagLBJETEyZzy4BefVWvL27VcIGLXsF/a5Xof4FETGch6An3JjgZ5QrTnWEnIQKnwoWn22tOzzDsZa1MDljYSTLYK+OMfRm3kvcLOyY/AAreJnx349wfUwFVcbpdG6MAaiOCaEvyORKq6glvoq77cz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=DBcb9KEA; arc=none smtp.client-ip=95.215.58.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1791547666; c=relaxed/simple;
+	bh=aHCyUK6iiGQGjCAwdsbsj8LmT18pjkgVJDlT+cJfH6c=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=mZR5pi6xe2xZ36HFh1IBGaAxknZ1Tb8YbIFVhSJVT2YcwnxmTnWuDHf13ohjyyh+dEknlp84BhfKksN7ZsMLGlx+2A46qqiz2R9lZCXOlcwTDR225yVa062bbVpngySA+Iix+OFZbjOCp8VQaTf7GsKY6iOOOHvYcUFlweO5xaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z6CQKyLi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="DBcb9KEA"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=kSldjP/LJAFNxvSitEbFvA30E6J1HGiVZNJXHPDdUoQ=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1791546569; v=1; x=1792151369;
- b=DBcb9KEA+UiQacIChJV3LVSb0P1LZkOrziIXE55PIRDsloHYwq1K7n4LbLwL+0ixZxOLGDat
- RCUcPyskKE5VuPMOMMIc8IG6b1tNqZRHHb5M8+vLvS8GfH4eVw25pnnbw9vHK2CtST1g0wp103W
- uXiNN2thgyFYu4088SZ6IgrY=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 5218cc65a865b242;
-	Fri, 09 Oct 2026 11:49:29 +0000
-X-Mizu-Trace-ID: 5218cc65a865b242
-X-Migadu-Flow: FLOW_OUT
-From: Denis Benato <denis.benato@linux.dev>
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org,
-	"Benjamin Tissoires" <bentiss@kernel.org>,
-	"Jiri Kosina" <jikos@kernel.org>,
-	"Luke D . Jones" <luke@ljones.dev>,
-	"Mateusz Schyboll" <dragonn@op.pl>,
-	"Denis Benato" <benato.denis96@gmail.com>,
-	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v2 2/3] HID: asus: reinitialize the device after exiting a sleep state
-Date: Fri,  9 Oct 2026 11:49:20 +0000
-Message-ID: <20261009114921.5242-3-denis.benato@linux.dev>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261009114921.5242-1-denis.benato@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z6CQKyLi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 611331F000FF;
+	Fri,  9 Oct 2026 12:07:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791547661;
+	bh=DQsXgW1R2YEXCmQ+stNzWuxpePQElGUsLoBP64627s8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Z6CQKyLiUMC9lVPEO1K9MJPuaTviD0z5gTrta9qGfBztZRcPd4PhaCA6OYQYQuGEh
+	 veP3oOYQwg7bSSy4R5zxfqzTboOD0dCjr9ezHoQmMPcgWkQAqYNivLMPa3iZBtgPV8
+	 /2gkX5KEB9WAaUpkS7/HXu2ozahkhFM2YqZ0zWCZZnjDHfG7tsDXffuJX8ti3eSSkZ
+	 PepbFfPjvHcn26Hrz2iR0CvAH5XIHXbXTgwN59A5Wvm1uN9ePfPXkPMvPsmYD6p9ED
+	 b0WhDBRMhVZlpQYfFS9Uux/TtbPh/ZkSzPmrx8VHjmZqoyt5QaW0gu+ygVXJOuOZcZ
+	 Q77grmQvLBDHQ==
+Message-ID: <sashiko-outbox-165480@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 2/3] HID: asus: reinitialize the device after exiting
+ a sleep state
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Denis Benato" <denis.benato@linux.dev>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20261009114921.5242-3-denis.benato@linux.dev>
 References: <20261009114921.5242-1-denis.benato@linux.dev>
+ <20261009114921.5242-3-denis.benato@linux.dev>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 09 Oct 2026 12:07:40 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The ROG ally needs to have the EC string sent back after resuming from
-s2idle since the USB device can be turned completely off by the firmware
-when mcu_powersave firmware-attribute is set to 1.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] hid: asus: missing backlight and OOBE restoration in reset_resume
+--
 
-This may also be true for other laptops and certain features might stop
-working after the device exit from sleep.
+commit fec26e5b201c893ff8605557f1064dad33a366a5
+Author: Denis Benato <denis.benato@linux.dev>
 
-Assisted-by: opencode:glm-5.2
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
----
- drivers/hid/hid-asus.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+HID: asus: reinitialize the device after exiting a sleep state
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 3a8b8b7e90f7..03150d29eec5 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1384,6 +1384,28 @@ static int asus_start_multitouch(struct hid_device *hdev)
- 	return 0;
- }
- 
-+/*
-+ * Initialize the reports of the device.
-+ *
-+ * Failures are intentionally not fatal: asus_kbd_init() tolerates a wrong
-+ * handshake until this is verified to work for all devices, so a failure
-+ * is only reported and the initialization of the remaining reports is
-+ * still attempted.
-+ */
-+static void asus_initialize_reports(struct hid_device *hdev)
-+{
-+	int ret;
-+
-+	for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
-+		if (asus_has_report_id(hdev, asus_report_id_init[r])) {
-+			ret = asus_kbd_init(hdev, asus_report_id_init[r]);
-+			if (ret < 0)
-+				hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
-+					 asus_report_id_init[r], ret);
-+		}
-+	}
-+}
-+
- static int __maybe_unused asus_resume(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-@@ -1403,6 +1425,9 @@ static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
- {
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
- 
-+	if (!drvdata->tp)
-+		asus_initialize_reports(hdev);
-+
- 	if (drvdata->tp)
- 		return asus_start_multitouch(hdev);
- 
-@@ -1517,16 +1542,8 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
- 	}
- 
--	if (!drvdata->tp) {
--		for (int r = 0; r < ARRAY_SIZE(asus_report_id_init); r++) {
--			if (asus_has_report_id(hdev, asus_report_id_init[r])) {
--				ret = asus_kbd_init(hdev, asus_report_id_init[r]);
--				if (ret < 0)
--					hid_warn(hdev, "Failed to initialize 0x%x: %d.\n",
--						 asus_report_id_init[r], ret);
--			}
--		}
--	}
-+	if (!drvdata->tp)
-+		asus_initialize_reports(hdev);
- 
- 	/* Laptops keyboard backlight is always at 0x5a */
- 	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
--- 
-2.47.3
+This commit adds report initialization logic when resuming from s2idle to
+handle cases where the firmware completely turns off the USB device, such
+as on the ROG Ally. It introduces an asus_initialize_reports() helper
+called during probe and reset_resume.
 
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index baa8589d45ae2..e6218abdac49c 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+
+[ ... ]
+
+> @@ -1403,6 +1425,9 @@ static int __maybe_unused asus_reset_resume(struct =
+hid_device *hdev)
+>  {
+>  	struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
+> =20
+> +	if (!drvdata->tp)
+> +		asus_initialize_reports(hdev);
+> +
+>  	if (drvdata->tp)
+>  		return asus_start_multitouch(hdev);
+> =20
+>  	return 0;
+>  }
+
+[Severity: Medium]
+Does this miss restoring the backlight and OOBE disablement state?
+
+When the system enters sleep and the USB device loses power, the USB PM
+core will invoke asus_reset_resume() instead of asus_resume() upon waking.
+While this commit adds report re-initialization here, it appears to miss
+the backlight restoration and OOBE disablement.
+
+For example, asus_resume() restores the keyboard backlight:
+
+static int __maybe_unused asus_resume(struct hid_device *hdev)
+{
+	...
+	if (drvdata->listener.brightness_set)
+		asus_kbd_backlight_set(&drvdata->listener,
+		                       drvdata->kbd_backlight_brightness);
+
+	return 0;
+}
+
+Since asus_reset_resume() does not include this restoration, the keyboard
+backlight may fail to turn back on after a hard reset or power loss during
+sleep. Can we safely mirror the restore sequence from asus_resume() here?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009114921.5242=
+-1-denis.benato@linux.dev?part=3D2

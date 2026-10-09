@@ -1,128 +1,100 @@
 Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574E137A822
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 19:07:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 813A43B0584
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 19:16:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791572876; cv=none; b=jKLfxmLKqIgnjMClnVCOVJFR6nZ+5u9fd8SZAYwDN3xHJkvF2r79A0mLIYMOHwj30omYpC0d+O7Nokw6KGWN4m2JmemZPV8q2pzpRutGFhAVgTkwcMkpDNh8Lg1SjztvAVuTICkwdB/Xxmm33hRRFC9F6UWpyvwAE4tCpxiRbEo=
+	t=1791573375; cv=none; b=raTB55GIJycJ2CrtRp8pPVHjQNyGUD8iCRucgjtQegGbIz5MQRrzQ1ZC9pz7feK4fy4N9DiRboE/xNKL1QZllu0P2gTuOcE087trvW25OOqRhI8ttxkOro/rBK7jurrQUzDqp/FuTkBxVRKOFRqZvqcrm4HjXU0BUSOQ2rb24Xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791572876; c=relaxed/simple;
-	bh=oCSvTdXERt+oQFp/V52Il0O0Va3F3t1XTd5mQjPemvw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=p5mz70C+WD7J38JE03+FZh3ZFcvHwzQrHV8jK9nKvcE7CsBqDqPmKuKaTZ+RIHEucy83bYlGvVIzSD08YVoPl1SRyDi49pfURfVmNeYIhstaAk2lNsQwyR1lD4ocjq5ZGOeMTiU6iRpVAhObWJbhCzPqfX30tbP71/uler1M+5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e7qddauF; arc=none smtp.client-ip=74.125.82.177
+	s=arc-20240116; t=1791573375; c=relaxed/simple;
+	bh=sLOAPCgamWe5dUzceRoWlkyLurqi25tTAPBLcoKdD0w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QTtX6ZVZz08dQnOfFhJZWHLX4LCrzUzuRd2oUaGFSXVZYStnil8iK0Zs20H3dRp6Vvpo7PT34qTR+SGDzNAWEr9vcEzBwGwxJ4C2mjuvKR4n3CdgfxEprCOjEAbVFRR28pZRHZCsQc1LRBHEcGF99W8NiHq03BZgas5Tej9ppnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TJH2a/bz; arc=none smtp.client-ip=74.125.82.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e7qddauF"
-Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-35829219da8so3305eec.0
-        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 12:07:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TJH2a/bz"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-33e6279a1d7so45127eec.1
+        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 12:16:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791572874; x=1792177674; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ByNS+o1NUbSuUxwr1m7Zp7UN3FXrFp68YUrjN0G+wX0=;
-        b=e7qddauFd6/+EwJz0mbMQ7oLKQatDXXGj58FhYUOl1YZia6pB7VdTmpLehKLvIdL5v
-         RIg1fxqvcoIsg7ezbAiTLMp71ME0WsSuRw954PvCkx/50yQb2dMNOvd11RPOV02GgFgw
-         kRh+m6BnQUbXnwBJQnh5/bXVEYfNhwOcvgeGP4vQKyAh/djIME4b0kmbUpnF6grrpZ/O
-         cm+83YqdL44R/WB5r8wUB3XBDG/cdBhL3HgM8xcQWjdIqCmubpz9KpDeVUTozWePuWhl
-         Dmm3/+qibD0unQDhhv0+qi+KEaw9HUYL6QupI4M86wxM9N7kElVd2wg8KiK4FJoLYW32
-         8x3A==
+        d=gmail.com; s=20251104; t=1791573373; x=1792178173; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=0bY4AgXSvP8hqipveJnkvyGML0b46h1xg59dJBanoB8=;
+        b=TJH2a/bzgHrxYXnqA9Ues5WjFn+ctabp5gbJ0OurVR1HTZ4htP0fSsFD7mDPBniel2
+         xhjsLHZvM4DFPrA5J4CtkeXl0F526CO1b4BZU2ziC7ymzhqXR7Fc+Vb+76NliwWWwWSX
+         bAU2GKBEISYCPWCEBo5qVTa1pZ1cS+66VZxgGVGo9Y7ljfTqkcFYK5gVc2uhwiPY+PoT
+         x+PMSogRBjxjvaIbs11EF71Qo16RPXYaqR9/nTWBlAoxPcqkEsCY9CHeMO01b+1YvBOU
+         kv/3w9lAPlskNOk9W5K+8IaVjoY8pZipb/lr9c/nLQsnlVPEXR2bTi4IrzgW45fWH13X
+         QCVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791572874; x=1792177674;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ByNS+o1NUbSuUxwr1m7Zp7UN3FXrFp68YUrjN0G+wX0=;
-        b=oIOQ935dUDLvPGFmoFm47iZyi6j8ABxtwFkaZGsDQdR6ZKi4rhatQm40alrvEGHaOs
-         zqHmWJunz9EWmwkiwvtlTJtKtAAgJg8hbqgELbryYw7eKGR5iP884qnBMhnAYhhEIC1r
-         GQq7GDAmXJksevLjL0xQ4wld3AbC/IbfVumQKsxXjcJ3F2PE+3KgqzAn95Eu2Egxd8NB
-         XNHCC1sPxi31mc3r9N+N0y9OAje+6mTOb+uH0hz7I92yjOMB3w02GTLo9qZZhzvHEc6i
-         DLzdClC+h824edhtem6rOChwCmI4FbxGbEP0ptRAKKW5OIFCXbkC9TYK4KDLYJZNZeQS
-         JeVA==
-X-Gm-Message-State: AFuF++la9dHJNXRBRFaEsIJiJCMUgp8cHQphip1tqwWXsji2+vItiRbW
-	WDJzpWM+PrLBmOLD9zRpoqQhMXjzHY3W+U9m2nYfmRy4K31oIvNng5PVDIFBYZg3
-X-Gm-Gg: AYBFou0ViELchvtkU1db6xNvN3Wn3Xry8QV+MvJ1qL+3ZAMLFX53WSB8iXdIIMe7PcQ
-	Mn0UPsQzSYhL91fSxy7342p7aYSnJVAqPikF/f56+eR39PAsGwXtq8YwvHvflbFys6Q1MdlVDLX
-	qa/Bv5kS+MDY2Dmq/2W3iDi8f9DQxf75HEY1tga04Nqm6UnZ3MBOEWPl7Pr7HloL2d8jMICQkHZ
-	iPphY3onGfKG1zUcD2g1L/eeCtxSYxXrPz3Sab7XVn4VHkU9wO3LOVw/y0b7bgH6zoH5EDJWavg
-	B/B3aqoI9J0NMFQTnBrvhDZZMyiC7TN6Jo6yTuuCZQS9OaUIycDK/p7aMai8Wi/TGpFLrPAjK+r
-	jVcAKS6EaCu8Tdl1NsZN5OcBUtA5iMmK8BsGDwQUZV7Nvd5Go6sQSjP24YSDNNsYb0TV8kVrlyu
-	1XhyKpV4xPQEt2Mem4jPfRJk733vkAlOrML95atjw6l2m4MiDlUGC5TM4NpRRks52R/SIdadSiP
-	GF0eUD2lDqMCXJLNXGcw2tHQbB4guzDwpo8DCu1RS8KII6kqjBp2jgG+qlVwlU=
-X-Received: by 2002:a05:7301:690e:b0:353:e390:e395 with SMTP id 5a478bee46e88-353e390e66emr2529768eec.24.1791572874261;
-        Fri, 09 Oct 2026 12:07:54 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:8725:99de:769c:1fe])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537c61eaa0sm10191598eec.0.2026.10.09.12.07.53
+        d=1e100.net; s=20260707; t=1791573373; x=1792178173;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0bY4AgXSvP8hqipveJnkvyGML0b46h1xg59dJBanoB8=;
+        b=mNpICK+D8qJge8FC4cbqFbrzCyn/+UYTx1awSAJpinGC+MMi+JdGC+Fo/65fhEBfzb
+         z3wxdmS7Ku3QyUGfbB8prs7l4Br4tvKTYgHtqvLiGCRKmxJ7jBmdwyTW4sM/iBWEOrik
+         WK7ZHAUqDb9mc4irabeDubN444kFiV0X4ye32bZ+bNDm0AICOvx5iL1K7hvPBw/0i5Nq
+         omMI4tSZQtUtwJxxz1l/EeTEXetAD5Vlh6fFpiPJiU+hysMQs9uNSvhbXlDAWSAgGpgs
+         9XVQLBf3fMRS3afKyzNFQkazLuc9RAqCXrmvUp/sJtM9YccgGLyEtYby4zXdKuqsCFQd
+         Bfbw==
+X-Gm-Message-State: AFq9FYIougbUxkI3OntKR+TC5VK2eVS62NJr87MWtuSWUb1jF2RXun/d
+	GtL1CKnDzxOSKfBzkY3T9i6A+vn30mUefMjiMabIitXt8ityXB+9G6psVz8C+1wY
+X-Gm-Gg: AYBFou0K38QyLEDrr09BO8bd9lf5w42An0OzWc3s9pg6NzzL2w/Ydg8Mgys2wvoD918
+	mZj/+9R2I+eA80o6DLXBSpOoQARFeFjUP3YvPAdq6Hhbve1o5bBVVhWTaGRIGsFkscUi3uHbCQo
+	WzINs4Otr8oWNfQZpTRO7+xYE3/du59Nu5onVJWRWUEb3dnhZKqG3HR2FS8TuNwnHxNE/11Swlq
+	6EmB7wgCmVZQnEzRNBy1LBCeRtwtOXxIBTDQsreqmRp9W9wqjmpfxlnK2j4x1woPthOULfpz+9v
+	6v3Znni7liI/7lyrGWqnv+0g77DfgSrdpheoZD528shmamLsKqZE+HPLMtejthpTGKfGudD/Gow
+	MHZrpZu3hSP/LXv47hsK6kapcw0OJEqDmITWXpHc3dW135OUIuRcvDIqZM5qXUzQ9uNPouiprFI
+	zmX5T4WxdkwYZ2SUCLgs6BnCE7RbHWvN6Uw+WqnxAhCHW3oOiuRpIMV+ipnXyvZH/A72nJDdiRa
+	8UEZt8utdxIuT3HXsV4RVhGtvWzytlDO1HuKABCDfcWTmOfzQ==
+X-Received: by 2002:a05:7301:490e:b0:354:e37d:abb2 with SMTP id 5a478bee46e88-354e37daceemr2237247eec.36.1791573373344;
+        Fri, 09 Oct 2026 12:16:13 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:8725:99de:769c:1fe])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cacb61asm8116206eec.21.2026.10.09.12.16.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Oct 2026 12:07:53 -0700 (PDT)
+        Fri, 09 Oct 2026 12:16:12 -0700 (PDT)
+Date: Fri, 9 Oct 2026 12:16:09 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: Ping Cheng <ping.cheng@wacom.com>,
-	Jason Gerecke <jason.gerecke@wacom.com>,
-	Peter Hutterer <peter.hutterer@who-t.net>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] Input: wacom_w8001 - use ACQUIRE() for interruptible mutex in w8001_open()
-Date: Fri,  9 Oct 2026 12:07:44 -0700
-Message-ID: <20261009190746.803607-3-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
-In-Reply-To: <20261009190746.803607-1-dmitry.torokhov@gmail.com>
-References: <20261009190746.803607-1-dmitry.torokhov@gmail.com>
+To: krisfur@proton.me
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: xpad - add support for Corsair Novablade Pro
+Message-ID: <ask9bQQVgLhPSSRu@google.com>
+References: <20261009-xpad-corsair-novablade-v1-1-e58746bef99f@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261009-xpad-corsair-novablade-v1-1-e58746bef99f@proton.me>
 
-Switch from scoped_guard(mutex_intr, ...) with an error fallback of
--EINTR to ACQUIRE(mutex_intr, lock) and ACQUIRE_ERR(mutex_intr, &lock).
-This flattens the function logic and propagates the exact return value
-from mutex_lock_interruptible().
+On Fri, Oct 09, 2026 at 03:47:10PM +0100, Krzysztof Furman via B4 Relay wrote:
+> From: Krzysztof Furman <krisfur@proton.me>
+> 
+> Add device IDs for the Corsair Novablade Pro leverless fight controller
+> in both wired (0x2b1f) and 2.4 GHz receiver (0x2b2b) modes, and add
+> Corsair's vendor ID to the Xbox 360 vendor match list.
+> 
+> Outside of its PS4/PS5 modes the controller uses the Xbox 360 protocol
+> (vendor-specific class, subclass 93, protocol 1) on interface 0, which
+> xpad does not currently bind, so no gamepad device is created. The
+> PS4/PS5 modes present a standard HID gamepad and already work with
+> hid-generic.
+> 
+> Tested on 7.2.5 with the 2.4 GHz receiver and wired.
+> 
+> Assisted-by: Claude Opus 5.5
+> Signed-off-by: Krzysztof Furman <krisfur@proton.me>
 
-Assisted-by: LLM
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/wacom_w8001.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+Applied, thank you.
 
-diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touchscreen/wacom_w8001.c
-index e967f2413706..b34fcac44f63 100644
---- a/drivers/input/touchscreen/wacom_w8001.c
-+++ b/drivers/input/touchscreen/wacom_w8001.c
-@@ -387,18 +387,20 @@ static int w8001_open(struct input_dev *dev)
- 	struct w8001 *w8001 = input_get_drvdata(dev);
- 	int err;
- 
--	scoped_guard(mutex_intr, &w8001->mutex) {
--		if (w8001->open_count == 0) {
--			err = w8001_command(w8001, W8001_CMD_START, false);
--			if (err)
--				return err;
--		}
-+	ACQUIRE(mutex_intr, lock)(&w8001->mutex);
-+	err = ACQUIRE_ERR(mutex_intr, &lock);
-+	if (err)
-+		return err;
- 
--		w8001->open_count++;
--		return 0;
-+	if (w8001->open_count == 0) {
-+		err = w8001_command(w8001, W8001_CMD_START, false);
-+		if (err)
-+			return err;
- 	}
- 
--	return -EINTR;
-+	w8001->open_count++;
-+
-+	return 0;
- }
- 
- static void w8001_close(struct input_dev *dev)
 -- 
-2.56.0.385.gd3acb90ef8-goog
-
+Dmitry

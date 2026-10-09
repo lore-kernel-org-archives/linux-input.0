@@ -1,176 +1,163 @@
-Received: from mail-vk1-f182.google.com (mail-vk1-f182.google.com [209.85.221.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA6223546F0
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 03:12:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 539AE35C6B6
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 03:22:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791515537; cv=none; b=iESzIL843zoOezUKfpF54tBmwb/hXhJp5YI3qBRpBupj6qJoEZo0JfrV9gsDCN8aezpEgTiEtri2tFLH0lwopvq7m+HJ+7g3XPYsvOTLjNbZwKrJfu18AWSiB6lIF9trcK7JvKH6qVNoXvyVZ8bBB1REpT1VjWoDiZB/rcXA2xU=
+	t=1791516167; cv=none; b=kNZadW5A6wCbwRVffuky/N3hZCQvJyNM5EuDUQQNBzlH02MaOy7YaValjjF9r6DZl22ORXoPK0EIcNoFNYvjItEt80kYJkLvQm476EZKdnEB5Wl5y4PQzSjUExJ3x0Z1hcS+05Mn75on4aYCYsmpucQ7mlABTkOS4xXOHiMy8fA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791515537; c=relaxed/simple;
-	bh=FfXq19o0LIgTCw0SO+Op5Rv5TKYGoxRLlU+jTxLkmk4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K7/li/gnAJaEIk5jdMFWA20hfhsKgYiYHW4r7aPqCT8nUlXf07W6vAOrNyCJoGtWuWW/Eo5ckH73Ive65N6X2Kew+vlVviKz/6hoeYS0GJFKFOpkgRqq+P5pIaY6+8VVV5n8LKHt1Mu8OmGnxDUhxSWyWlBcUtCkUPobsUNLVXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=idaFz2bj; arc=none smtp.client-ip=209.85.221.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791516167; c=relaxed/simple;
+	bh=7R/2vN9/Cc9Z7g3Yn6adz3n/erGVN+VtI/Ic1p8WVAs=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=HVvSwaH+3TD/SMqzAtoQzmIp4CNzgOpRmJr9VSAphjuh5ABWSPQOS4BDRX04fRcZXnZYlEl1/WsjyD77ShVbf+H8Ju46TSMUD28l1M7Vqw7kssENUqbDZH0K29zR6uwdcBrFX6CkrPGno9df3W/mcOF8VeJFZqjpnyk4k9b1UIM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WFiy7XTM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="idaFz2bj"
-Received: by mail-vk1-f182.google.com with SMTP id 71dfb90a1353d-5dc2dc6d3fdso1410883e0c.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2026 20:12:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791515533; x=1792120333; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=2lGnbxYVsuq+Lgb6XonYa97KYSsgkUoCFPmQ6flzydM=;
-        b=idaFz2bjpJqJl9ER5G3rR77VHQTLOlQzUztwWxO7i+TtPiE7y80EMCNcdtxt1DHMco
-         DJBu7ZSAsEsXnNla5QdQmXQhYnMD9Qlc3Ek5uWux6UBMlOw/zfTJpg0l6W87zGRZy3d6
-         AmSVKr+PBC9bP8rlAl1pKwmiwDfxs3IxML/QguGYNLEoUHLk2FAko0Zj/IOW/xwD/j5x
-         mo8An1LDZNbKYjvVpYd1TLazQqayoepf+AQloQlPLo92e3Iip3cddRk8wC0v+T+RwToT
-         o2Z4VB6uk3dzXVyrFg8Plaje/8MSgv/cX3H7cct8RAjMXfobIvUY0gMSufTuIwiP/icL
-         M0Eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791515533; x=1792120333;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=2lGnbxYVsuq+Lgb6XonYa97KYSsgkUoCFPmQ6flzydM=;
-        b=Qp33trzmWulZEcA7+EiYaBDgakcv9AGDQmSfbBnk1JEhdd4D2H85mTF6hi8iPF/pON
-         5K/bIjr+zh4fw9nm4Tr9woCii+BpqnQjOOhXYCk/lr3iUGN2qioVkNJdgcMrYHgYhFNP
-         cDrVv6QDj3sok+kbA/tY2JCCUpYKsYCTT/SlODbG29881SOGmZLgiSBfYypu43LjUF+V
-         kF1i+XEu1wvxAZkUt3quIpyf3KdqJEPBltlXk1f1XwQ05Pah28zGK2E33VqDz8P/0YOp
-         ldPJz6LgCU8BOuW+S98MJC32++WYAEQvIgy5SQeSEs+N7y6IFcMuyV0FNUaI7VqYXxPZ
-         oHdg==
-X-Gm-Message-State: AFq9FYK5JmGx/gFwKgxarAmr9tJDZc97byi3O4G5lfMuNJ5vHqNCsKso
-	ky8NfI9sSGn5xnO/YWHUiyD/4TmfnD88hWYNNo4TRs3TSqqmqXxPiOJo
-X-Gm-Gg: AYBFou1y1hijiFwXObVSIHWQ2fC9qD0fAzj0QukdAcLHoA67PK0p1cAz/L/qdvFJ9Py
-	VniX5mMHFcjJezbKrPlPYPLBIsWkOh59PtNvRrikUjFGG31nnbC1NAqUONAA/c6+JPSF1cLzyR5
-	zVAQ/OB3MZEuQeVqNfrK1jTQsbrWiL2XU8+sPmWlpMn/zFE46V/3a+WXTqCtmb5qpo0nmLaRTbP
-	KYfguDTZMNaZl7mIbcckXQk//+3BP9imizVgPQOWoXiuTTeM3JuVZt8zoMkRSAS93x4QMafq+0R
-	zfw2F70EaQWNNja+a37jRo9/9DM5yUDE9Cm5FeQAfz41F883DGelYKWtZkq6rvNgtF+NvJWcnzG
-	nHuNAaDNd6waAi/BRq7ZDhh6rYyX30oaenjCRnFmFg3wb1BbZVmutlXSni4fvLVqNBGfZ5ObUMu
-	VUuD9WIYnxf1pxYIGgmlX8ZHH2A2cCtD4I3EXTZ3poCaQQM+D77q0HXJ0ffWCGZjA=
-X-Received: by 2002:a05:6122:1da0:b0:5c9:a60d:3279 with SMTP id 71dfb90a1353d-5e91f4d6f14mr145097e0c.13.1791515533458;
-        Thu, 08 Oct 2026 20:12:13 -0700 (PDT)
-Received: from beelink.. ([187.13.210.57])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5e91cbf5d1fsm766684e0c.14.2026.10.08.20.12.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2026 20:12:12 -0700 (PDT)
-From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-Subject: [PATCH] HID: haptic: fix use-after-free of devm haptic data in hid_haptic_destroy()
-Date: Fri,  9 Oct 2026 00:12:03 -0300
-Message-ID: <20261009031203.3127352-1-qwe.aldo@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WFiy7XTM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7100C1F00893;
+	Fri,  9 Oct 2026 03:22:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791516154;
+	bh=nKg1BBIPd8tI2Fw+17JtfVt7jnxykhNxKxqlgMXuSxc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=WFiy7XTMGNZHRgYSvokFTRl9GUjmDdmtc/aFVe2E4A+koRkzTnnxnNVJGG1NIDdlJ
+	 BSfzN9ICsjJPYOfEXaUiOHi0wJyJ/Jel+C+iSuTF01KR3RAf4j7XCebkm0KxzzF30k
+	 9UwdKyqOjIAef1WQy8nD27HFmxEenMZdqVyss3hTW62cEvHws+A0KrvEJUruXZDqGu
+	 zG3GMaKzqFw6LVOwsaekGwDBZQGY/D+t/FWKRVusnAgb+o5cinq5xr+1VExHcd6m2P
+	 8RAWHtlaBimYAQ7sO8wI6unMvhPBzCnUmkKyza7A0y770baxwNiyXXqIGPYmcXVcey
+	 BpFI6LnZVCzYg==
+Message-ID: <sashiko-outbox-164756@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: haptic: fix use-after-free of devm haptic data in
+ hid_haptic_destroy()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aldo Ariel Panzardo" <qwe.aldo@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20261009031203.3127352-1-qwe.aldo@gmail.com>
+References: <20261009031203.3127352-1-qwe.aldo@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 09 Oct 2026 03:22:33 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-mt_probe() allocates td->haptic with devm_kzalloc(), tying its
-lifetime to the HID device's driver unbind.  hid_haptic_init() then
-installs hid_haptic_destroy() as the force-feedback destroy callback,
-which dereferences haptic->hdev on its very first line.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [High] input: guaranteed double free of haptic structure in hid_haptic_de=
+stroy()
+- [High] hid: double free of td->haptic on mt_probe() error paths
+- [Medium] hid: memory leak of td->haptic for non-touchpad devices with pre=
+ssure
+--
 
-When the HID device is removed while a process still holds an evdev
-fd, devres frees td->haptic at unbind time, but hid_haptic_destroy()
-runs later from input_dev_release() when the last fd closes.  The
-callback operates on freed memory.
+commit 9428ea91bd775df855a2be1ddad3deee003770fa
+Author: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 
-The existing get_device()/put_device() pair in init/destroy pins the
-struct hid_device but does not keep its devres allocations alive,
-since devres runs at driver unbind, not at the final device kref put.
+HID: haptic: fix use-after-free of devm haptic data in hid_haptic_destroy()
 
-Replace devm_kzalloc() with plain kzalloc() for the haptic struct so
-it outlives the driver.  Free it at the end of hid_haptic_destroy(),
-which already tears down every sub-allocation manually and holds a
-device reference that keeps hdev alive until the kfree.  On the
-non-haptic path and the error paths in mt_probe(), use kfree()
-instead of devm_kfree().
+This commit changes td->haptic allocation from devm_kzalloc() to kzalloc()=
+=20
+to prevent a use-after-free when the HID device is unbound while evdev is=20
+still open. It also adds explicit kfree() calls in the destruction callback
+and error paths to manage the memory manually.
 
-Fixes: 8d0bf7908b5a ("HID: multitouch: add haptic multitouch support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
----
- drivers/hid/hid-haptic.c     |  2 ++
- drivers/hid/hid-multitouch.c | 18 ++++++++++++------
- 2 files changed, 14 insertions(+), 6 deletions(-)
+> diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
+> index 8760eeb08b2cd..6c365dbf0b9cf 100644
+> --- a/drivers/hid/hid-haptic.c
+> +++ b/drivers/hid/hid-haptic.c
+[ ... ]
+> @@ -406,6 +406,8 @@ static void hid_haptic_destroy(struct ff_device *ff)
+>  	haptic->hid_usage_map =3D NULL;
+> =20
+>  	module_put(THIS_MODULE);
+> +
+> +	kfree(haptic);
 
-diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
-index 8760eeb08..6c365dbf0 100644
---- a/drivers/hid/hid-haptic.c
-+++ b/drivers/hid/hid-haptic.c
-@@ -406,6 +406,8 @@ static void hid_haptic_destroy(struct ff_device *ff)
- 	haptic->hid_usage_map = NULL;
- 
- 	module_put(THIS_MODULE);
-+
-+	kfree(haptic);
- }
- 
- int hid_haptic_init(struct hid_device *hdev,
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 4e19a0c4d..4f7b97cd4 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -2132,7 +2132,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
- 		return -ENOMEM;
- 	}
--	td->haptic = devm_kzalloc(&hdev->dev, sizeof(*(td->haptic)), GFP_KERNEL);
-+	td->haptic = kzalloc(sizeof(*(td->haptic)), GFP_KERNEL);
- 	if (!td->haptic)
- 		return -ENOMEM;
- 
-@@ -2181,12 +2181,14 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	ret = hid_parse(hdev);
- 	if (ret != 0)
--		return ret;
-+		goto err_free_haptic;
- 
- 	if (mtclass->name == MT_CLS_APPLE_TOUCHBAR &&
- 	    !hid_find_field(hdev, HID_INPUT_REPORT,
--			    HID_DG_TOUCHPAD, HID_DG_TRANSDUCER_INDEX))
--		return -ENODEV;
-+			    HID_DG_TOUCHPAD, HID_DG_TRANSDUCER_INDEX)) {
-+		ret = -ENODEV;
-+		goto err_free_haptic;
-+	}
- 
- 	if (mtclass->quirks & MT_QUIRK_FIX_CONST_CONTACT_ID)
- 		mt_fix_const_fields(hdev, HID_DG_CONTACTID);
-@@ -2196,7 +2198,7 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret)
--		return ret;
-+		goto err_free_haptic;
- 
- 	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
- 	if (ret)
-@@ -2206,9 +2208,13 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	mt_set_modes(hdev, HID_LATENCY_NORMAL, TOUCHPAD_REPORT_ALL);
- 
- 	if (!td->is_haptic_touchpad)
--		devm_kfree(&hdev->dev, td->haptic);
-+		kfree(td->haptic);
- 
- 	return 0;
-+
-+err_free_haptic:
-+	kfree(td->haptic);
-+	return ret;
- }
- 
- static int mt_suspend(struct hid_device *hdev, pm_message_t state)
--- 
-2.43.0
+[Severity: High]
+Does this code introduce a double free?
 
+This function is registered as the ff->destroy callback for the
+force-feedback device in hid_haptic_init(). The input core's
+input_ff_destroy() function unconditionally calls kfree(ff->private)
+immediately after executing the ff->destroy callback.
+
+Since haptic and ff->private point to the exact same memory, it looks
+like this will result in a double-free whenever the force-feedback device
+is destroyed.
+
+>  }
+> =20
+>  int hid_haptic_init(struct hid_device *hdev,
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 4e19a0c4d2381..4f7b97cd4baa5 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+[ ... ]
+> @@ -2196,7 +2198,7 @@ static int mt_probe(struct hid_device *hdev, const =
+struct hid_device_id *id)
+> =20
+>  	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>  	if (ret)
+> -		return ret;
+> +		goto err_free_haptic;
+> =20
+>  	ret =3D sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+>  	if (ret)
+> @@ -2206,9 +2208,13 @@ static int mt_probe(struct hid_device *hdev, const=
+ struct hid_device_id *id)
+>  	mt_set_modes(hdev, HID_LATENCY_NORMAL, TOUCHPAD_REPORT_ALL);
+> =20
+>  	if (!td->is_haptic_touchpad)
+> -		devm_kfree(&hdev->dev, td->haptic);
+> +		kfree(td->haptic);
+
+[Severity: Medium]
+Will this leak td->haptic for non-touchpad devices reporting pressure?
+
+If the device reports pressure, mt_input_mapping() sets=20
+td->is_haptic_touchpad =3D true. Then in mt_input_configured(), if the
+device application is not a touchpad (e.g. a touchscreen),=20
+hid_haptic_input_configured() immediately returns -1.
+
+Because -1 is not 0, mt_input_configured() fails to reset=20
+td->is_haptic_touchpad to false.
+
+The haptic setup is aborted, so the memory is never attached to the input
+core. Later, mt_probe() sees td->is_haptic_touchpad as true and bypasses
+this kfree(), leaking the memory since it is no longer devm-managed.
+
+> =20
+>  	return 0;
+> +
+> +err_free_haptic:
+> +	kfree(td->haptic);
+
+[Severity: High]
+Can this kfree() result in a double-free during partial initialization
+failures?
+
+If hid_hw_start() successfully sets up the haptic device via=20
+hid_haptic_init(), ownership of td->haptic is transferred to the input core=
+=20
+as ff->private.
+
+If a subsequent initialization step inside hid_hw_start() fails (like=20
+registering a secondary input interface), the HID core unwinds by=20
+destroying registered input devices. This calls input_ff_destroy() and=20
+frees ff->private.
+
+When hid_hw_start() returns an error code, mt_probe() jumps here to=20
+err_free_haptic and explicitly executes kfree(td->haptic), freeing the
+same memory again.
+
+> +	return ret;
+>  }
+> =20
+>  static int mt_suspend(struct hid_device *hdev, pm_message_t state)
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009031203.3127=
+352-1-qwe.aldo@gmail.com?part=3D1

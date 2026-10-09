@@ -1,89 +1,77 @@
-Received: from mta1.migadu.com (out-3.mta1.migadu.com [95.215.58.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EEA64DEC3E
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 11:49:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B9864BEE53;
+	Fri,  9 Oct 2026 11:49:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791546580; cv=none; b=XealAEisySjooQy75aeq3LKSY+UkqeorE+Zpntb6e+tkm+y0tatwWSz3rqb02vert/Vo7ETfD+xRWgNZkAMdrSvMsmhf1yEkZhbunKbV1ox9AeE6TJ0MFUFb7njqlrZXiBqxJJiFStb/0Fns2B7dua1pHr4DI7Z3EToI40t6h8Q=
+	t=1791546581; cv=none; b=R4Slt9xHoXMK6sCsASp0LGMkFv0ZvS++5acncY5C7R6PK7zazrjYtFIgFSvvaDFSYWKbdXl03AmQ/yoefM6XnyrDStQj7Db7f8MmTK9tNxDQp+EQ2sYtR0JM1CUgX1Sp/Nwn9pZbBgmPpmOGi3antKblhlEqZgZd9f8LaAscZXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791546580; c=relaxed/simple;
-	bh=enIApucpcWJltIl6KtVfvTPviU7qOoTkYGNdO7+VSrE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dUM/tfPqKIL7EidKGLxKGcO6MFr1sW9vXQnpv7Zda6FI28IgE0fcyCEnTi1wylt5LVIefzsHklN2r8rerN/T7yZd1AYGYon6UVkaUFXjUfNBlSS0gxaE+R0/jhN0vWeMDovNSypjhz+CoBG8vuUrHVsYRWAAeQ/L0EupQfNjOVU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=w4a3uYaO; arc=none smtp.client-ip=95.215.58.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1791546581; c=relaxed/simple;
+	bh=qqpWBb6K0zxBB49oafd/WyrzEvAjnkElc6lknN10aDQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o/+QmwG92eBhVTr9O6ZrsXYUubR+RzCyejEKT/dN1eDw1WURrtn4eCfyrjY6V4YoNYts80Ic3zUgtZ0bOIq6Y3Oev1mWIZhbyayTAikP8AyXdegkb8AMy6oJBcL27bU5wQRibkphLFASRCO4g3ag69PYgeky3VWgHUhT3wMp7q8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dlS+lTP+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="w4a3uYaO"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=enIApucpcWJltIl6KtVfvTPviU7qOoTkYGNdO7+VSrE=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1791546566; v=1; x=1792151366;
- b=w4a3uYaO+Pgp0n/eCxIf0t+F8eLZnZbno2jPpY8w2ikwAtpWxlcOafecxfNoywPkAJ/YIxYi
- G9ShuCtocgvNbHv4fJXDWS3I7G80RJFSPhZNhcY5qDy8jJMFYJRxiyA3OH4VWhRvML0G0LIEfZr
- ItAcMlYnY3UivnkB87iVTOXQ=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id be8d6ac0e782d348;
-	Fri, 09 Oct 2026 11:49:26 +0000
-X-Mizu-Trace-ID: be8d6ac0e782d348
-X-Migadu-Flow: FLOW_OUT
-From: Denis Benato <denis.benato@linux.dev>
-To: linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dlS+lTP+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BE491F00898;
+	Fri,  9 Oct 2026 11:49:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791546572;
+	bh=CIyXD8wTbt3nZtZ5v+UTmUyElDBfr2EMxvYLIBrKQjY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=dlS+lTP+H5P82dbQnhwsvIM7M2QtStqmsl4/8YzjCzNW6nLQ7fP8nsOklLjxqTKPQ
+	 oYyz3qaFva9yrKND7feZiBP/cu35e6EXNoqOg83EZMKYRPDASNzelMKz9TAjAEs74k
+	 N54vGN8f0Sml53COFVjxziwLs/b4+UrmgiGqtZv9XWp1UpiwBHSlhyLKS2FwbXAg2B
+	 eQ30QhMBjz3D94amAxWAZER5pNcMRxma+o2rDxVog7tbwZgnDwzbeGTZRmqrRzVz4I
+	 psXifW/L5Yt67dIraRL5PzgHqJEu2mfnWT3Yb7EqrVwNUn9vKkQO/31Fw3waw8y/XH
+	 oK76Uv2O1NUrQ==
+Date: Fri, 9 Oct 2026 12:49:25 +0100
+From: Lee Jones <lee@kernel.org>
+To: Andrej Scek <scek.andrej@gmail.com>
 Cc: linux-input@vger.kernel.org,
-	"Benjamin Tissoires" <bentiss@kernel.org>,
-	"Jiri Kosina" <jikos@kernel.org>,
-	"Luke D . Jones" <luke@ljones.dev>,
-	"Mateusz Schyboll" <dragonn@op.pl>,
-	"Denis Benato" <benato.denis96@gmail.com>,
-	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v2 0/3] HID: asus: improve the driver support for laptops
-Date: Fri,  9 Oct 2026 11:49:18 +0000
-Message-ID: <20261009114921.5242-1-denis.benato@linux.dev>
-X-Mailer: git-send-email 2.47.3
+	Basavaraj Natikar <basavaraj.natikar@amd.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	srinivas.pandruvada@linux.intel.com,
+	Jonathan Cameron <jic23@kernel.org>, linux-iio@vger.kernel.org,
+	regressions@lists.linux.dev
+Subject: Re: [REGRESSION] amd_sfh: accelerometer broken since 6.19 ("Event
+ data for report 1 was too short (15 vs 14)")
+Message-ID: <20261009114925.GB199624@google.com>
+References: <CADrS85612m-Hh-G4BJmOhy-y6r3Ni3kD8_GM-2QRBeWWEEZWuA@mail.gmail.com>
+ <CADrS857iYjafXEZcHRSmeOFjrzs0DYG5Dp2PeS0n669cHBjAuQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADrS857iYjafXEZcHRSmeOFjrzs0DYG5Dp2PeS0n669cHBjAuQ@mail.gmail.com>
 
-Hi all,
+On Fri, 02 Oct 2026, Andrej Scek wrote:
 
-Antheas has requested reviewing the XG mobile patch on this cycle so
-I am re-submotting a modified version that is a bit cleaner because
-it uses LED_CORE_SUSPENDRESUME instead of re-sending the LED state
-manually on resume, but it's functionally equivalent.
+> Update: this looks like it is caused by
+> 
+>   0a3fe972a7cb ("HID: core: Mitigate potential OOB by removing bogus memset()")
+> 
+> which was backported to the 6.18.y and 6.19.y stable trees on 2026-04-11.
+> 6.18.16 predates that backport and works; 6.19.12 and 7.2.8 contain it and
+> fail. The AMD SFH sends 14-byte reports where the descriptor declares 15, and
+> those are now rejected instead of zero-padded. (This corrects my earlier note
+> that hid-core had no relevant changes; I had only checked v6.18..v6.19.)
+> 
+> The same symptom on another AMD SFH device (Legion Go S, "18 vs 14"):
+> https://github.com/ublue-os/bazzite/issues/5796
+> 
+> So AMD SFH (hid-amdsfh 1022:0001) probably needs to be covered by whatever
+> short-report quirk/fix is adopted for this.
+> 
+> #regzbot introduced: 0a3fe972a7cb
 
-I also included a patch to fix a pre-existing issue that was flagged
-by sashiko-bot, albeit I'm not entirely sure if it can really happen
-in practice, though it is safer to handle it correctly given the
-actual code change is so small and leaving it documented helps future
-changes.
-
-I also moved some code to reduce nesting and improve the resume path
-on ROG ally and other N-KEY devices.
-
-Best regards,
-Denis Benato
-
-Link v1: https://lore.kernel.org/all/20260813144736.2477941-1-denis.benato@linux.dev/
-
-Changelog:
-
--v2
-  - HID: asus: add support for xgm led
-    - Solve an impossible error reported by sashiko-bot regarding teardown on error
-
-Denis Benato (3):
-  HID: asus: document and harden the worker teardown
-  HID: asus: reinitialize the device after exiting a sleep state
-  HID: asus: add support for xgm led
-
- drivers/hid/hid-asus.c | 148 ++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 138 insertions(+), 10 deletions(-)
+This is on my radar.  Leave it with me.
 
 -- 
-2.47.3
-
+Lee Jones

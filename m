@@ -1,97 +1,145 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C15D4E234D
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 16:15:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 519CE33B6D6
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 17:24:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791562536; cv=none; b=enpHgfIn+gPuhNZ1XIwnkmHSspMxoq055ANNLLq+GY6HTWJTMV9El9IpkqjY9C1djzcEhrN5UJ7qmm5NQFv6jtdtGUkjFpIr1PkirCeeMrE8iVo5CO3QrF1gHrlNoj73sR7Z9xb+K8K5L3l0fPA1GMVhMVAdvsz65TX9vIdfZ3c=
+	t=1791566655; cv=none; b=PPFtPE2nt36siV/e7Br6N1tccG6pdqX5Fx1sG8kI7UdzlIWFTYgve04hTQlGTplKZzOW4a+Hzx8jstHtrGCA1pEioIU/8K7+hF5M/hFTCPrI0cPaVeDyUKEcG99RPjfNtOZ6zIefSrgLVP29tE2NtR/8fXprH/7Pe+bUljPiTBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791562536; c=relaxed/simple;
-	bh=fkCGVwmKIpjHe694X+0ebN6/UjIIXO236sQO1cY9Hv8=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=QeIEkLO+fVS6aL9A3Kk5OoCsERG5aoVSYuEo9/D2CHCjKhmTog/opnAtT4h8ymSTeAgxlRIk8FYCWRuXi9AONW1ux0qgriZww/6gXkIwSXlMxNKPXY4U1F82Pvke3JqRZbdo4/lXfION/VZlVI1VLCZiqe1H5VI0lEvqAVbB3Zo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ORvZ2Y9g; arc=none smtp.client-ip=209.85.128.49
+	s=arc-20240116; t=1791566655; c=relaxed/simple;
+	bh=VFysVpEzuY8YIJW9d/0IzEmfKNAQdee0KKSzflKaTuA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JoniKPbK6wpEzJsZvYN1KfP/cIJg2epdp2INWao5CPiIWYVC5PfL9AMWb4I+bbTZ6v1u/8jkJf/RIe3yRQSqypkivSPUPAXsTMd8iVcRGItAVqMUtBct7WS3UNc+oao0aYF1Fap7aH1Ztun06QQ8Fgjn4DfZix8dW1i5mKXptuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qZ5YjG7d; arc=none smtp.client-ip=209.85.214.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ORvZ2Y9g"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4a0286c981dso67345e9.2
-        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 09:15:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qZ5YjG7d"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2e60f9af6e6so27711755ad.3
+        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 10:24:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791562533; x=1792167333; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=fkCGVwmKIpjHe694X+0ebN6/UjIIXO236sQO1cY9Hv8=;
-        b=ORvZ2Y9gZn3XtoxgNoA1qjW7qlYxFh8ui4oSn2cUv99MzMxgw7s4prvjLpB2dU6gzp
-         6YZCqIzGFU+qVOY+2G5umJqw1g4fTVXY16V22cA7SPePDMrdDuPUWROAPnfC99awIlj0
-         kfO1yLU3tvcwtwCXk89SIKlNO2qg99x2N2z5V2Vv9UPEZSLMbcfBcA6pyxVnYR7d1jFA
-         da0Qqz9iQnxSaTrK/k+Eq+1VdwqQwY4fce/uEY8A8fYVtO/wv22TDv937awZekij4QEf
-         z2gAS9E0+TMHHyJXXs/pix3WxGUqZTfcCgYat4J/s6zHqfNNUPzCLA8713Hvf3mqwStX
-         NfJA==
+        d=gmail.com; s=20251104; t=1791566653; x=1792171453; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=0MgP/Yvmg9WREY6HrimkIjIQqXOyMedJLEXkISSPgT0=;
+        b=qZ5YjG7d7fSw7o0DMAmePRu7hcS2xZz3zqcw6tR1loygGKORjVgg7hxAlglm0alg1z
+         jT5YzPV/dDEozPTHqdr2DDUwqukSxEDBiSD2dxCPZ5MoacAI1YBwAI4mCfcXzGHW/oKl
+         ih2MqoAT9KZXs8+TVLSHGuNtz5ZkHVHsVRTFJRhhUI+ONXrpMHeUyQyE1mjiLl+wAOKY
+         HoXee5WbjdUuauPnXNgeqMRc9Sl/6csXrsu1M8VYldmfb13B0cQdMY8GdEPd9UC+W8lS
+         7pHD8fKtZ1Rin9v/6Uf4HaFpUwSjBZ4Xzx2K6iyweAtBVh4gKu1jpzi2KawGAmz0uR0B
+         CAPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791562533; x=1792167333;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=fkCGVwmKIpjHe694X+0ebN6/UjIIXO236sQO1cY9Hv8=;
-        b=lmgLKOKe2Zmb7DWxgnE2i0qm8KxNxRdZoJe6W0UCjCxa8n4cDQyUPWIzvxzFjYlofV
-         VQQ+jLmnoLtsymOn/pRw/hMMe5e/0MykjItimrRJms0dxXc4/DQAWGyGsqLlHnw3aByY
-         EKl28wd+/7nfuUxZYKCy6G8jL/ZT8EF4oClAziNq3vAY/38t8ajMFFUYePCKgmhfwKB5
-         4n1VJSEC8wh1HVaSjnw6hsADxpdOhA4L2MhW1rNDqrKOw+/+2mB0pEW9BoTSfbNq9efA
-         KkBRFmiwKBYFfDrRtezlJJPEmAENjUwtpoPh4a49G/7dTGY41rxUuWD83jWtPoVLMBzy
-         g0Fg==
-X-Gm-Message-State: AFuF++misIaWzmWNMj0fKe7qJrtK93Uski39VKnXqDUPuwmWtgbEaT3I
-	YD6wS0bbldtiPgzyU3eM8JXdJtd7haKSwtoc0o7vzlHmj7SAn10Y1hgjUPQTuW65
-X-Gm-Gg: AYBFou0cgOjkeTRTUxkuLmh0Y6Pa08XBUubiZ9HycfD2hr696W1OwcNG6xC/NEBlmG/
-	VSkBXQfr3nxhj+iCBcAq8FnGrtgKpQvqV3OaHxA8z365jA3OP/BI/4EEJ+bMEL5PJsagDPnoQw7
-	KoWUYTvNYWZwdBEtUxBbPKNZLqZ+quLg+lvwdk5EDLMjaBEV1+yOAN9XK4c4RaNf8JyXCW0oGyB
-	wnBwtPFBvkfH1dQ0zjXdPLEJpnxzqKVhsW9wK8G2A5nP7Oq0/xHhxMg/Q6vMqUWXZxmwryGyqhi
-	rmhYNIqK0pBz+H79mGEsv8nztTjc3GnwjWFPRwisd4BWTRg43Nfuc6cviWQ2mjeXNrciJVVlLju
-	QX0F00GsmZeUi/RKbJREugD23fTdKtdD6n9Wv6ZpATEvWDeKmlzi7cPHp3ENkYtcLCrSvhGCnNf
-	Tico82aiPcdi+dA+F0fa5Fd0xbBPqhsf4+y+UV3Uufk7FR00ohf/Rn2DCgLmSZIFBREV/OUvA1c
-	2O7FOQ7V2ITSDxcjJs4s+Olx2+fbBJ0o0DHFDzAC/pY+pkFQZDAcEMO2eK0IuHJRQ==
-X-Received: by 2002:a05:600c:e557:10b0:4a1:8efb:c9ae with SMTP id 5b1f17b1804b1-4a18efbcae9mr28358095e9.23.1791562532539;
-        Fri, 09 Oct 2026 09:15:32 -0700 (PDT)
-Received: from localhost (185.64.3.89.rev.sfr.net. [89.3.64.185])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dba1be42esm4909273f8f.5.2026.10.09.09.15.31
+        d=1e100.net; s=20260707; t=1791566653; x=1792171453;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0MgP/Yvmg9WREY6HrimkIjIQqXOyMedJLEXkISSPgT0=;
+        b=MuoZfb9BX9Xa3kfCYn1VVMa1Qm8tkWSyy/378vine7XaX3m4xtt4s9ZgHLEiJBFy/W
+         5bt9iO2uS7iF10mud8VuzZDtM6uayuWmxst8akcI5wNzCsREtDXbZN0Eei+UJwedIbQ/
+         58i7SKrD3vkotbn6VO7yM1gRrumcPc6m2LZFtn0/O/jH66D+zJ4jzr5fEbhPGaBefGqb
+         Xwe5Gtax+KEoABMmFHO7TLhLQSEmK3OVAqKyVNYvIh9wjVhGwco1rD8MP2jhDX3JtZYf
+         DuShNNVAWVXitqP0n7zAwYUieSqD6wXTjp1/4OC7hOH+BCaIxLUShzFhSN38VLU8xqaX
+         Q7MQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwz1r7/c0JloQHL2nkVjA0ga4f2Yr1XIjOej77r1ktxvtot7V/P+9NMgu5X+wMGcCV3V5LMR8BiOKRdHA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLAsWEtvAxu2FnihAu5d3v1J4fLsqkOi/aPUT3DNlLR5SlsStoO
+	kBZ0HMr1SH3RtXrZOyS52hpmCsxoUWNBS+iydu1ahmypPLnRFDlrvYlMI3HQZdzy
+X-Gm-Gg: AYBFou3+Bjho8YWcHG787T5TcA9hW1q4vGEhT1r7tc7YXw/7YL0ADqzIG7G8K/m962o
+	QpOMcBDhQ3wlUKy3BhNAkcuA14yAAtQe2QmWfTKXF+ymiCTc6wJPnIJ14RJCj85QAurQ5iOF1HE
+	LVqG+ZMswA0k1A4lBcvRsESxaqqmObRp0dWCgNYQbr8hl+4h5VfnDzWySRJOZMBELvDleorYdsj
+	SGyPVi2NSEaPNXtA5HxH5AQGFqK8/OvqOIoQhCfC+rT9fdXPYKnWL9H3t0K7cM7VLSP1i6GIsSE
+	tltWlPkz3dqMKMJLKXaQj7cwlGipQNy3q1Lz0GaGIgKBXNMyMiNjt3aej3rlcrbLrgHx8Y3v3s/
+	oLYkiRAOzXyEXmUNkgzDgkxOgqRjJQGnoR9t0qupmHV0Uc2nK90iOV4Vs6RulPshNY0dQrIKLdr
+	BCTT8eS5q4yiwb1Wdd8nCSFtNaRea45Jdi3oVK/q4JF2iE3lTh9AYqprdIWR1/ujS9KFBv9Ac7y
+	EFUn+u8MOIfXU2N2BbR5qMVYB4dtIpFVRVN9fR6
+X-Received: by 2002:a17:902:d58f:b0:2e5:d33a:88da with SMTP id d9443c01a7336-2e842cd4632mr20971865ad.16.1791566652480;
+        Fri, 09 Oct 2026 10:24:12 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:8725:99de:769c:1fe])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e8422e1643sm14442125ad.70.2026.10.09.10.24.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Oct 2026 09:15:31 -0700 (PDT)
-Date: Fri, 09 Oct 2026 18:15:30 +0200
-From: Jerome Tollet <jerome.tollet@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org, bentiss@kernel.org, lains@riseup.net
-Subject: [RFC] Radio diagnostics for USB wireless receivers
-Message-ID: <cu0019-rfc-f29e990c-f139-45e7-af04-5f01ac2f4ca8@gmail.com>
+        Fri, 09 Oct 2026 10:24:11 -0700 (PDT)
+Date: Fri, 9 Oct 2026 10:24:08 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Haotian Zhang <vulab@iscas.ac.cn>, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Ville Syrjala <syrjala@sci.fi>
+Subject: Re: [PATCH] Input: ati_remote2 - fix type confusion in device
+ attribute handlers
+Message-ID: <askiJMSDiLRTeJyX@google.com>
+References: <20261009040302.3087205-1-vulab@iscas.ac.cn>
+ <20261009-shapeless-silky-deer-acd3bc@quoll>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261009-shapeless-silky-deer-acd3bc@quoll>
 
-Hi,
+On Fri, Oct 09, 2026 at 08:10:08AM +0200, Krzysztof Kozlowski wrote:
+> 
+> On Fri, 09 Oct 2026 12:03:02 +0800, Haotian Zhang wrote:
+> > The channel_mask and mode_mask attributes are instantiated by the driver
+> > core through struct usb_driver::dev_groups, so they are attached to the
+> > usb_interface bound to the driver, not to the usb_device.  The four
+> > show/store handlers still call to_usb_device(dev), which applies the
+> > struct usb_device container_of() to a struct usb_interface::dev and thus
+> > produces a bogus usb_device pointer.  usb_ifnum_to_if() reads that
+> > pointer as udev->actconfig and dereferences it, and its result is passed
+> > to usb_get_intfdata() without any NULL check, so reading or writing the
+> > world-readable attributes can crash the kernel.
+> > 
+> > Use to_usb_interface(dev) so the handlers recover the interface that the
+> > attributes belong to, matching the other drivers converted to dev_groups.
+> > 
+> > Fixes: b20d6bf8014b ("Input: ati-remote2 - use driver core to instantiate device attributes")
+> > Assisted-by: DeepSeek-V4.1-Flash
+> > Signed-off-by: Haotian Zhang <vulab@iscas.ac.cn>
+> > ---
+> >  drivers/input/misc/ati_remote2.c | 12 ++++--------
+> >  1 file changed, 4 insertions(+), 8 deletions(-)
+> > 
+> 
+> 
+> 
+> Multiple things here:
+> 1. Your team ignored completely previous feedback.
+> 
+> 2. You use multiple identities with this email, thus I actually doubt we speak
+>    with actual person.
+> 
+> 3. Finally, same feedback:
+> You sent multiple independent patches, to multiple independent
+> subsystems. The amount of these patches clearly suggest this was
+> AI generated and most likely not tested.
+> 
+> More importantly, you sent all this work without properly organizing
+> relevant patches into patchsets. This makes reviewing difficult
+> and might cause multiple reviewers to address the same issue.
+> Replying to the entire set is impossible and requires handling each
+> patch independently, instead of applying or discarding the set.
+> Maintainers also won't see the bigger picture of your work. Quite
+> worrying.
+> 
+> This is on the verge of hostile patch: bomb us with so many
+> contributions, we won't be able to handle them in efficient manner,
+> like responding ONCE to ask you to slow down.  Considering all this
+> is untested and LLM generated, I have even more doubts whether this
+> should be considered for review.
 
-Would common radio diagnostics be useful for USB receivers with
-firmware-managed wireless links, such as those used by mice, keyboards
-and headsets?
+Not sure what was wrong with previous submissions, this is first time I
+see it. This fixes a valid regression that I introduced when moved
+attribute registration into dev_groups and inadvertently attached it to
+the wrong device instance. We could consider reverting the original
+patch, but since nobody complained in 2 years I think I'll simply take
+this one.
 
-The motivation is troubleshooting reception issues, including suspected
-interference from nearby USB 3 equipment.
+Thanks.
 
-I have an experimental Logitech C-U0019 module exposing a raw RSSI
-candidate through debugfs, without replacing hid-generic:
-
-https://github.com/jtollet/logitech-cu0019-radio
-
-A common kernel interface could provide consistent access to supported
-radio metrics, without each application implementing receiver-specific
-protocols. Would this justify kernel support, or would a shared userspace
-API be preferable?
-
-Are there existing discussions or conventions to follow?
-
-Thanks,
-Jerome
+-- 
+Dmitry

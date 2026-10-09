@@ -1,165 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 921AE49D5BB
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 15:45:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4771365A02
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 15:45:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791560723; cv=none; b=lNWB6AtRs4jkbI89l0Bapzl2zhw5EVl9+fOwuJHVUNO5oTOfkbN22HGkaLYkrgu60up4pXfw8OpRfci1sVRVdPmp6Y3+/PJx5tLG27PITOon3Bb5jROnCRPruJKY0+cHA8NV5XLI9DYHgSgUemo3nk1XdQtYjlHVZyGNHgGB4/g=
+	t=1791560741; cv=none; b=IaxEqoiA8bj5RmUS9Na0EpvYRW+AkeOwaoUGV04jaNRAvwkXc5PRbZWMztgzIDgrc0gbP56VbBfrPB6U6Nyz7mfEj6fbPbS/xV6F8maxWti9D8pCbaUFfAJlZHwf7gDlGv4P/De9sNkx3R5V8j/27vJPm3DQoOBnR8PNXO2EFig=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791560723; c=relaxed/simple;
-	bh=MH8Rln4yhM2xMA8jOwT7wEryesOt1RmXY/ykHVKZVqQ=;
+	s=arc-20240116; t=1791560741; c=relaxed/simple;
+	bh=5op7WHvgHlI+cQ/ZFLMqkTjZRTc/RjApO5XMZ6CY3Lo=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=oIpMIL+rux8Cu6R7X7oDAs0r0bbNVZ7zldelqQhEkGTDKMCwCMV5hAAQL/dKVAqX0XPCol/KbyyDi0FCTAG7KBDmenaxNZms5TPTq4vsIkSHb6tIV7vis/sJGPxT0czakImHh2PoQHY0fvd/80aPttjtEst7vadAk/H99iSgWgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BqdVhrPj; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=m1HtFnmCUB5wFWRJKJiZexa2ZJtGsjAB2dJy6ZftuMUuhYLV2PjH4osHspg8z84jUT2X323z8IUYsXHoTJnUK1nbUwpNiL/f8HLyToqzBAgtY/CwcDfKclo+cAtOjSyquZJklRe9/RhG8OjA46ZvRAMNO3lT2oKRr3p/McvD+vk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TOpkKcFV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BqdVhrPj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2D131F000FF;
-	Fri,  9 Oct 2026 15:45:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TOpkKcFV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C7C11F000FF;
+	Fri,  9 Oct 2026 15:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791560719;
-	bh=zfdljkRIW9NgHBbeIHMPvIHW1h5Unpj1CBlGOt8HPX8=;
+	s=k20260515; t=1791560740;
+	bh=ybFkAmmKkhWS5ZbMoxKz9A7e5xuFCSlRYLHeRtNYwyQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BqdVhrPjdDEmswzK3Beaoec+tORGB86ed93d6TVXptDW/eC4GX45Ni4nTi5YBCJld
-	 w8lhLXQas8rs+o3pRAhj0rj0kDOfFuCxDzdlMzyR4aipU2cQ6ZnWMnIA+/e/DlN5pu
-	 cIrlTj9pIMk2c1o13Gyuslm2tpPW8KNqXhKQWXBcrfInmNEq36Yol4cZi/1nygj4Dx
-	 q824+wV7abfm1iv0Cyj8Qn36X90PeJ42xGg0bVjRxSAOKcJ0HsWEeDAOfaA00j6nur
-	 VxTiaj4WppqTW8ddljzQtfciwZfSTv+VoszI1otMlcQqpt4eovRXv+/tSDXaNN+O1X
-	 u7/3E2BXtfp7g==
-Message-ID: <sashiko-outbox-165792@kernel.org>
+	b=TOpkKcFV/qWNFVIu3vJTdqUn9SuNkvE/o6bxob2Vpqrn3XZ9fRVjR7FvFXvjhPRAT
+	 277mOWCWLm5+1R1rcrB17/IiOwgn54uf6e/FuIJedqHsqq2hvYic5r7q5ZOIgKi4kg
+	 rFhjg1U+KDo7DATp6nbEQIPN3TOT98bDPUqibdkAGnR5ahi7HmFzBsZTcbgiJFxGAu
+	 KKlLSD3JiWmEeODU4imopHHlm1wqhGt30x6kt1HO0r68jsKHeDprqViDBCQ5XFLLDx
+	 GxVmJbV107oOOlrUoUVbja7MTFcEuzFTePMKD1Pxdp07anK6fJuMcYjjESs4tymcRw
+	 NSW0hVvYZW2Mg==
+Message-ID: <sashiko-outbox-165793@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/7] HID: asus: Cycle the platform profile from the
- Zenbook Duo profile key
+Subject: Re: [PATCH v2 6/7] HID: asus: add prod-id, quirk for Zenbook Duo
+ keyboard
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Paolo Pisati" <p.pisati@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261009153459.124752-5-p.pisati@gmail.com>
+In-Reply-To: <20261009153459.124752-7-p.pisati@gmail.com>
 References: <20261009153459.124752-1-p.pisati@gmail.com>
- <20261009153459.124752-5-p.pisati@gmail.com>
+ <20261009153459.124752-7-p.pisati@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 15:45:19 +0000
+Date: Fri, 09 Oct 2026 15:45:39 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] hid: asus: ABBA deadlock between driver_input_lock and worker canc=
-ellation in remove()
-- [High] hid: asus: unbounded GFP_ATOMIC allocation in profile cycle event
+- [High] hid: hid-asus hijacks Zenbook Duo touchpad over Bluetooth
 --
 
-commit f048215156fec2e6351754bc8e9e549f5a266615
-Author: Joshua Leivenzon <hacker1024@users.sourceforge.net>
-Subject: HID: asus: Cycle the platform profile from the Zenbook Duo profile=
- key
+commit 5e5f2becf13b4e6d6ecb2a2d14e80b4b0f934932
+Author: Luke Jones <luke@ljones.dev>
 
-This commit adds support for the Zenbook Duo performance mode key by routing
-the 0x9d vendor usage event to cycle the platform profile. The processing is
-deferred to the driver's workqueue to avoid taking mutexes in the HID input
-path.
+HID: asus: add prod-id, quirk for Zenbook Duo keyboard
+
+This commit adds USB and Bluetooth device IDs for the 2024/2025/2026 ASUS
+Zenbook Duo detachable keyboards. It sets up initialization quirks and binds
+the USB IDs strictly to HID_GROUP_GENERIC so the touchpad interface can be
+handled by hid-multitouch.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-> @@ -423,6 +425,28 @@ static int asus_kbd_fn_lock_set(struct asus_drvdata =
-*drvdata, bool enabled)
->  	return 0;
->  }
-> =20
-> +static int asus_platform_profile_cycle(struct asus_drvdata *drvdata)
-> +{
-> +	struct asus_work_action *action;
-> +	unsigned long flags;
-> +
-> +	if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
-> +		return 0;
-> +
-> +	action =3D kzalloc_obj(struct asus_work_action, GFP_ATOMIC);
-
-[Severity: High]
-Can a flood of 0x9d HID events cause memory exhaustion?
-
-For each incoming event, asus_event() calls asus_platform_profile_cycle(),
-which performs a GFP_ATOMIC allocation and appends it to the worker queue
-without any length limit.
-
-If a device sends these events continuously at a high rate, and the workque=
-ue
-thread stalls on the profile_lock mutex in platform_profile_cycle(), could
-this interrupt-driven URB completion handler exhaust atomic memory reserves
-before the workqueue can process them?
-
-> +	if (!action)
-> +		return -ENOMEM;
-> +
-> +	action->type =3D PLATFORM_PROFILE_CYCLE;
-> +	INIT_LIST_HEAD(&action->node);
-> +
-> +	spin_lock_irqsave(&drvdata->worker->lock, flags);
-> +	asus_worker_schedule(drvdata->worker, action);
-> +	spin_unlock_irqrestore(&drvdata->worker->lock, flags);
-> +
-> +	return 0;
-> +}
 
 [ ... ]
 
-> @@ -788,6 +830,13 @@ static void asus_work(struct work_struct *work)
->  	case WMI_FAN:
->  		asus_kbd_wmi_fan(worker->hdev, &action->data.fan_hid_data);
->  		break;
-> +	case PLATFORM_PROFILE_CYCLE:
-> +		if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
-> +			break;
-> +		ret =3D platform_profile_cycle();
+> @@ -1834,6 +1834,29 @@ static const struct hid_device_id asus_devices[] =
+=3D {
+>  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
+>  	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+>  		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
+> +	/*
+> +	 * Zenbook Duo detachable keyboards. Bind the USB IDs to the
+> +	 * HID_GROUP_GENERIC group only, like the ROG Z13 Folio, so that
+> +	 * hid-multitouch keeps handling the touchpad interfaces.
+> +	 */
+> +	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
 
 [Severity: High]
-This problem wasn't introduced by this patch, but does relying on this work=
-er
-architecture expose an ABBA deadlock during device removal?
+The commit message notes the intent to restrict USB IDs to HID_GROUP_GENERI=
+C,
+so that hid-multitouch keeps handling the touchpad. Will using
+HID_BLUETOOTH_DEVICE for the Bluetooth IDs cause hid-asus to unintentionally
+hijack the touchpad over Bluetooth?
 
-If a user presses the fan control key, the WMI_FAN action is queued. If the
-WMI driver is unavailable, asus_kbd_wmi_fan() acquires driver_input_lock:
+HID_BLUETOOTH_DEVICE sets .group to HID_GROUP_ANY (0). Because
+hid_match_one_id() treats HID_GROUP_ANY as a wildcard, hid-asus will match
+and bind to all HID device nodes that share this Vendor and Product ID,
+including the HID_GROUP_MULTITOUCH_WIN_8 node.
 
-asus_kbd_wmi_fan() {
-        ...
-        down(&hdev->driver_input_lock);
-        hid_report_raw_event(...);
-        up(&hdev->driver_input_lock);
-}
+Should these Bluetooth IDs (for UX8406MA, UX8406CA, and UX8407AA) explicitly
+use HID_DEVICE with HID_GROUP_GENERIC to match the USB ID behavior and
+prevent the multitouch driver from losing PTP capabilities?
 
-However, if the device is unplugged or unbound simultaneously, the HID core
-acquires driver_input_lock in hid_device_remove() before calling asus_remov=
-e().
-asus_remove() then waits for the worker to finish:
-
-asus_remove() {
-        ...
-        asus_worker_stop(drvdata->worker);
-            -> cancel_work_sync(&worker->work);
-        hid_hw_stop(hdev);
-}
-
-This creates a situation where the worker thread blocks indefinitely on
-driver_input_lock, while the remove thread blocks indefinitely waiting for =
-the
-worker via cancel_work_sync().
-
-Since this patch extends the same worker thread design, could this lead to a
-system hang if device removal races with the workqueue?
-
-> +		if (ret)
-> +			hid_dbg(worker->hdev, "Failed to cycle the platform profile: %d\n", r=
-et);
-> +		break;
->  	default:
->  		hid_err(worker->hdev, "Invalid action type: %d\n", action->type);
->  		break;
+> +	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+>  	{ }
+>  };
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009153459.1247=
-52-1-p.pisati@gmail.com?part=3D4
+52-1-p.pisati@gmail.com?part=3D6

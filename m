@@ -1,167 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f170.google.com (mail-vk1-f170.google.com [209.85.221.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61EA8238150
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 02:44:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AAED33B975
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 03:02:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791513889; cv=none; b=ToJbuysqpY0QE3bzDSyJHUG9SQgVKnH06BhbsLzvCmPxQzpUvS8qxmXC6mGqtzLkw5Ksv+21VjDEfhJlQXSZxYDtB5ZWh0QPX2Ugqbgplp/9BmWzT4jkDEa4/uMpTAhycCVRBqbHzAG73Fkfr3T5UQgBDnf4YG6xfJ+DcCCs6Rk=
+	t=1791514923; cv=none; b=XnQqNPkyKrbY6nInAcp6Z1WiKPqJE9rtPIBsc9ZbCdDBVkjnR7hPm+j3Zqh63vtx3ynAojs0lKqmP4dJZDLzDQt1o3B8UDBTzmU7iCpG9ySyvO8b4+gIbieSwXoTYdLshH4KFT/l+OM7Sw0GYAmg/LPaq6KPPD91jMJ/1wxp5tY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791513889; c=relaxed/simple;
-	bh=Ewb8lLmm3+62lpheXuHI+fuPzonVBVNOz4y0N7/9Xcs=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=WbGFggSivCBb0KmsyQwmfY3V1VIT26Ftr+hjz1cxCGwwkLZBfxizJ1cJ/0zdYvO3ZA53iF+w0mcMqF31GRUtararIqNeenUclk552HiYLg6zdizhvdAlfjN/FsVCS6rGTW9ZRfRcvYriKo8kJC8RrU4Zp6Df9Fli41LINAM9zg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oItMbmJg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791514923; c=relaxed/simple;
+	bh=5asG3VC5w3TUvVixdyxfgI8KzY7Moi5gyJxCI4+fNbU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=OEwDnsZeIZTmmltPSr0gkEmzi4NqEVOvw4GtJJ3iyggjp06OTA6gXjvCtPjl3UMAXWjrL7P0bspSsMwNtiZzWIPo1r/1KjD50RPvVyazJjzdXe/6dwpkyHTRgEd6LE7HVoXFI+0KUl4+Fpzc3D69ZGuwq8xYHhR7d0xU1PgodAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MXy1wbMl; arc=none smtp.client-ip=209.85.221.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oItMbmJg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9BF91F000FF;
-	Fri,  9 Oct 2026 02:44:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791513888;
-	bh=KCvXC48tSHNWY0N2vXkXYYK0CbxRYWEyc6ubwuzsdAo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oItMbmJgD+Nh3EDfIpjH3XG2v67+zvJDZSYj2ov63Y/7OAoGKE2XYFXS2sZf350LA
-	 0rfUl3d4oPa+fV9mF6NHGjWapqQcRD2FMHxrZAmAbgK33X510DpvSkejoUY6CAMU3Q
-	 MGfyjJbMqxp8yWPWN6dnJTBbCrkC5PDMqytL0L+yKz9IBFC87x64Nv7UqiwoYJFR8u
-	 xW/0xlf2wrJmT+UBU9Tr41qbbVj/xElFLNvMLSD8y9L0sMi8lYEV/NAUCuGvlD8v7C
-	 VMcG9w065SMQbp6F18+jMUScaQN7yd4I28ElWx/xnvYMZMlKQRgpWFwaoCF/Tki7Y4
-	 arEIehUupavow==
-Message-ID: <sashiko-outbox-164734@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/3] HID: wiimote: turn on the LEDs indicating the
- controller id
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Rafael Passos" <rafael@rcpassos.me>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261009022844.2790778-2-rafael@rcpassos.me>
-References: <20261009022844.2790778-1-rafael@rcpassos.me>
- <20261009022844.2790778-2-rafael@rcpassos.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 02:44:47 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MXy1wbMl"
+Received: by mail-vk1-f170.google.com with SMTP id 71dfb90a1353d-5e6b5794d26so1314989e0c.1
+        for <linux-input@vger.kernel.org>; Thu, 08 Oct 2026 20:02:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791514921; x=1792119721; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=raXHB8sKIbJTbaXcJKAPo87IpoS6XFLm7UNctFzOohQ=;
+        b=MXy1wbMlPUz51dcJWgy5xHwsL4IXcG76mmcFdKJY4PVrhwWEFUp4JUI9XaW9zrdMDc
+         DImz/pdndOp6dJS/dUTSFYMTjfMJeaBt/w4PZvhH2Zva8M9VUo/411zUYo8wXl+/QZED
+         fFjGjzhJqAl7VdyFBE4dMZARU9/emo3yePOapjXpPb89GfSRTcYIAHxbgBGl5OyNIVEi
+         7fgUl9Taiazg9lMUwV/wYO4xQr/Xws2mSVcwdsuD7X065Byqo3Rh806RhHkQPW0MlpyO
+         beJwAt/AE/hkaPDsDisJD7BgC2EQ3VhVnJ+7QbcsRqPnKLHOWllJOeu44NbGcdjQ4Ga/
+         dwQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791514921; x=1792119721;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=raXHB8sKIbJTbaXcJKAPo87IpoS6XFLm7UNctFzOohQ=;
+        b=dzi/sM604SOn86bZRlJn3ChCikO/Avi6ikhPSVIb/VR1AQG+Tj0CQysJQikP1z+jtx
+         msRIRiwJUkwyQbN6TM4JjthxVJM9T616V8ThUI4PechFr5cyaxYFqcvNkiqxHXK0LCqD
+         fZ3HM7EV0BznRXcEpg/ufAIeKh6Bo+LliZaFE5iKW21rxV99DJLzs1giMArzsq7bbCN1
+         5F6O4gdbRc8kRvDP4qiPSHk81rx2wj3QJQVdJQIS2WjWCXxSUnGe/W39Wn7uLmkq3w9v
+         ikbCn26Kpuspsz6nTyYxw1Pi1FDHyPU6UD61Iejl8kKe4TqN/wUqsrtnn8ffWa6WSS9T
+         VNOg==
+X-Forwarded-Encrypted: i=1; AKwUvByvBibONbMBlPTcNMOYJkUEZc6MEj3kfyDs36LQPksQBwUK4RebNrquNKEse097zjKEtQKDHcvqFZlyJA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKIG09QHyGEGUXduRHKImj33dSvuITtLIT5IversKW+mmXF6BHv
+	F7wh8PrWAqkp0Y5hWdIfoC7R9fhKHMoQ/TQC2V6fyGM4nTC8QZOqEwsy3DI1QB8QfMbIvQ==
+X-Gm-Gg: AYBFou2Chp5vjt6TPNDqXqE2djGdppFe1OWvNRcM/30PCQp91XpQdS7/Np6FrYEl5PG
+	UuMU6mcnoHXoRobP14HP4ilh9vK0nVXZGuGHBTAi915yQx3QbSlw5w49K46eNMPnUIPrf5HWVaz
+	/EcaiBfvSiAVJakSgLV2zg0HE0ynpDaqX2r7i8YJG5EAsW6ElkL6U73Frdes4cr2Wl/CYXZP4bu
+	ReL5N8fk8zrS9qFcBE/kMG+aEE87/gq/3bqsPKUEiEQkAJwztAeGsBYkvquKIQvXGoZFIBH94Md
+	qeplOxCHtkZCTWZ7U5e82ApfYpyHAdiy4bk1nH8Wvg2Yy6XZPkuYeWUN9dOzp7reyp+SAxE4gzF
+	qp+VQQVNFeSi7YF3LhBbwXWAIwnbizco3nZ4y09snQFOUlOch+SGo40lPRccryVUF78B5bKzV1z
+	ZJREMqpL4zXYDiOKzjmfH7XHHEApVAI79ExtlPpAVcyFgO+IYrNebkJVdDdfpHdbg=
+X-Received: by 2002:ac5:ccd2:0:b0:5d4:3376:f42b with SMTP id 71dfb90a1353d-5e91e5b3fadmr135336e0c.4.1791514921229;
+        Thu, 08 Oct 2026 20:02:01 -0700 (PDT)
+Received: from beelink.. ([187.13.210.57])
+        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5e91cab8c40sm802352e0c.3.2026.10.08.20.01.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 Oct 2026 20:02:00 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Aldo Ariel Panzardo <qwe.aldo@gmail.com>,
+	linux-input@vger.kernel.org
+Subject: Re: [PATCH v3] HID: wacom: avoid overflows in sequence number tracking
+Date: Fri,  9 Oct 2026 00:01:50 -0300
+Message-ID: <20261009030152.3050239-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260915145229.3069117-1-qwe.aldo@gmail.com>
+References: <20260915145229.3069117-1-qwe.aldo@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] hid: wiimote: UAF on probe error path due to early sysfs exposure
-- [Medium] hid: wiimote: premature ida_free() races with running workers
---
+Hi Jiri, Benjamin,
 
-commit a053e1ef17e333e649ad6046f972b3ed52cf7844
-Author: Rafael Passos <rafael@rcpassos.me>
+Friendly ping on these three HID patches, all sent September 15:
 
-HID: wiimote: turn on the LEDs indicating the controller id
+  - [PATCH v3] HID: wacom: avoid overflows in sequence number tracking
+    (v3 fixes the __moddi3 link failure on hexagon/arm32 reported by
+    lkp on v2, using div64_s64 for the remainder)
 
-The behavior in a Wii/Wii U console is to have each controller turn on
-a different LED indicating the controller id. This commit implements the
-same behavior using the ida struct. Unlike switch controllers, each ID
-only turns one LED (from 1 to 4).
+  - [PATCH v2] HID: wacom: validate battery range before scaling
+    (v2 clamps to [0,100] instead of rejecting, per Sashiko review)
 
-> diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-cor=
-e.c
-> --- a/drivers/hid/hid-wiimote-core.c
-> +++ b/drivers/hid/hid-wiimote-core.c
-> @@ -670,7 +677,10 @@ static void wiimote_modules_load(struct wiimote_data=
- *wdata,
-> =20
->  	spin_lock_irq(&wdata->state.lock);
->  	wdata->state.devtype =3D devtype;
-> +	/* after loading modules, set the Player ID LED cycling the available L=
-EDs*/
-> +	wiiproto_req_leds(wdata, player_leds[(wdata->player_id - 1U) % ARRAY_SI=
-ZE(player_leds)]);
->  	spin_unlock_irq(&wdata->state.lock);
-> +
->  	return;
+  - [PATCH] HID: core: avoid signed overflow in multiplier calculation
 
-[Severity: High]
-Could wdata->player_id be 0 here if the initialization worker runs before
-probe finishes allocating the ID?
+All three target stable.  Let me know if any need changes.
 
-If a sysfs write to dev_attr_extension triggers the initialization worker
-before wiimote_hid_probe() has assigned player_id via ida_alloc_range(),
-wdata->player_id will still be 0. This would cause an underflow in the
-calculation (0 - 1U) % 4, incorrectly indexing player_leds[3].
-
-[ ... ]
-
-> @@ -1759,12 +1770,18 @@ static struct wiimote_data *wiimote_create(struct=
- hid_device *hdev)
->  	return wdata;
->  }
-> =20
-> +/* Global id allocator for wii remotes */
-> +static DEFINE_IDA(wiimote_ida);
-> +
->  static void wiimote_destroy(struct wiimote_data *wdata)
->  {
->  	unsigned long flags;
-> =20
->  	wiidebug_deinit(wdata);
-> =20
-> +	if (wdata->player_id > 0)
-> +		ida_free(&wiimote_ida, wdata->player_id);
-> +
->  	/* prevent init_worker from being scheduled again */
->  	spin_lock_irqsave(&wdata->state.lock, flags);
->  	wdata->state.flags |=3D WIIPROTO_FLAG_EXITING;
->  	spin_unlock_irqrestore(&wdata->state.lock, flags);
-> =20
->  	cancel_work_sync(&wdata->init_worker);
-
-[Severity: Medium]
-Is it safe to free the player ID here before synchronously cancelling
-wdata->init_worker?
-
-If the asynchronous initialization worker or timer is actively executing (f=
-or
-example, performing a periodic hotplug scan or LED setup), releasing the ID
-early could allow a concurrently probing wiimote to claim the same player I=
-D.
-
-This would result in the still-executing worker of the tearing-down device
-continuing to use the old wdata->player_id, which could potentially conflict
-with the newly registered device. Should the ida_free() be moved to run
-after cancel_work_sync() and timer_shutdown_sync()?
-
-[ ... ]
-
-> @@ -1834,7 +1851,14 @@ static int wiimote_hid_probe(struct hid_device *hd=
-ev,
->  	if (ret)
->  		goto err_free;
-> =20
-> -	hid_info(hdev, "New device registered\n");
-> +	ret =3D ida_alloc_range(&wiimote_ida, 1, 255, GFP_KERNEL);
-> +	if (ret < 1) {
-> +		hid_err(hdev, "cannot allocate controller id\n");
-> +		goto err_free;
-> +	}
-> +
-> +	wdata->player_id =3D ret;
-
-[Severity: High]
-Does this sequence create a use-after-free window if probe fails?
-
-Prior to this point in wiimote_hid_probe(), device_create_file() exposes
-sysfs nodes like dev_attr_extension. If userspace writes to "extension",
-it can queue wdata->init_worker.
-
-If a subsequent step fails (like device_create_file for dev_attr_devtype
-failing before ida_alloc_range), the error path jumps to err_ext. The
-err_ext path removes the file and eventually calls kfree(wdata) without
-calling cancel_work_sync(&wdata->init_worker). If the init_worker was
-already queued by userspace, it will execute and dereference the freed
-wdata.
-
-Could the sysfs nodes be created only after player_id is allocated and
-all probe setup is complete, or should the err_ext path be updated to
-cancel pending work?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009022844.2790=
-778-1-rafael@rcpassos.me?part=3D1
+Thanks,
+Aldo

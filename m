@@ -1,110 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30470421239;
-	Fri,  9 Oct 2026 06:10:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27ED149EC5D;
+	Fri,  9 Oct 2026 10:35:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791526213; cv=none; b=Hhbsk+vFv2c12wZNUlti0YEekUqV4EwfNOTDbf5gKVl145LUhZQbrgxu9ObApfnRxPI2/uZtCupv8Kuoiu8aORBvjiT1hhv7Zko81AxmuEHRheazHq4D3v+UFSpr7A2d/UB4KQXc9Vwk3VKQcpwYuXoEqJYFW28sZyVQjPhN3Ek=
+	t=1791542122; cv=none; b=HRHmTLs121HUymaUBa3iS9nPtRDr2YoBgtOWubIW+taIlAvHL8YQxzvjxq7JMDFxaxn5CJ3AoSKiYlOjqM7TgEIVQDStmxMDtT19zN72pN9l6hA/EQ9c3mLXgg2+PE7+qoJBAgg2JcfSRKqmJU9aTUPRDduGO++hcWNfvwX8mSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791526213; c=relaxed/simple;
-	bh=qPZUI5AERDbsMwVw1xRusZQKPYUc/YAJLop+eInFbRI=;
+	s=arc-20240116; t=1791542122; c=relaxed/simple;
+	bh=MdDd40xdrLHiIdxTsGMSfQgOcKsmowKhQAg2xWrd3YE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R8UAi1Ero4aF8e1e4Dsi1Q2Bisr55H++ZT9wG/mDEZPiM8rvCqTP+eqfqul3AovdG2XOuHM4PcoQ9pvx3WL9IbMlzcelrHolA6IxE0fd2W+RV4IWlcto+19d/OYFZDuL4AOLuK277oMVK10TDZvMGZefUfa//iTI5HKlySsO61s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eisZVZI7; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=d/HQepdyLld547FoWND7ZALMGKK+z3UuCo9O5mcfvuF6ZN0p+C7gr4QikOYT5ud2DjR9Ya3gaD8CcVO6xrKXOlk5XkIZDoY7ODaFyjYpAfeKBBslDIKOizKMj9WJPz3NDkf9UFXRD4uOccirOnTxf6QvSmRiB74kGVe6o/XaV4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gtaMZMIi; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eisZVZI7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B991F000FF;
-	Fri,  9 Oct 2026 06:10:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791526211;
-	bh=BC3rl7y513ctwp4yg4sDTNp9NBnOhsJNy1rfcB5SVoU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=eisZVZI7kFhRfMyPIll4w1FF+8Wd4ddNwiwigIb84oSBeNDerOiDFMkEnUjSOVN+e
-	 UHJCU+ScV6Y4vMxAKsLOD+X9lU2KZs5615fHGaikAEuWDhWK/UVgafdcsucmYihf3H
-	 wFU/LHKV3CrjOsnw8xzg25kBAroEBUvWlgYzYw6XNWOtZ8fbz+YK5zyv5ufs0J0G52
-	 9OO+K6DEaIopXI4+CdLkFbCAclKRk4qXhGPsFmE3KkSwQzcmMPPhMRZlhoHFIfZqoM
-	 R+JCjGHdzt+GtUd0vHBSjUFmDKIIIcysYr6dDAn5W3QDnW357jWT9He75BPAWd2yU6
-	 /bEKuh7FRQZBA==
-Date: Fri, 9 Oct 2026 08:10:08 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Haotian Zhang <vulab@iscas.ac.cn>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Ville Syrjala <syrjala@sci.fi>
-Subject: Re: [PATCH] Input: ati_remote2 - fix type confusion in device
- attribute handlers
-Message-ID: <20261009-shapeless-silky-deer-acd3bc@quoll>
-References: <20261009040302.3087205-1-vulab@iscas.ac.cn>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gtaMZMIi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1791542119; x=1823078119;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=MdDd40xdrLHiIdxTsGMSfQgOcKsmowKhQAg2xWrd3YE=;
+  b=gtaMZMIi3we3JbpQQdyOY5kDWPAftT/FnhfLp6212nj6pV/gJcx74ckL
+   fgrFbI0QMem0oUj5OCldMjzFAkb3P+LyVvBdkJn84MkxGZPQWoK1VU9LM
+   VYgITGrYEkqkVnpejev0uXHGApXnkKcQwMh0PtuOSwD8YgcuWwFbuMKHy
+   WLDQRDDUqrTj9AcjMM6ZF2mcJgbjEmCy1GSNKQSp6ggGUcdtbcgoAc6sJ
+   CiaA/k6eaMibX/nBaetIOr/2dDmdu3U2JaM3mzoCmTfqkj5Rj9xMJvHrP
+   Ze6xyl1r60Dt9/xkBKRUXYJ5CHw+4/Yo8MHX3JBmErX1s+rQl0idZ55W6
+   w==;
+X-CSE-ConnectionGUID: jR5e6h61RTiTYR13C42K/Q==
+X-CSE-MsgGUID: 3I8MS9RtT+G71OnXMLkK/w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11929"; a="226350"
+X-IronPort-AV: E=Sophos;i="6.27,148,1787036400"; 
+   d="scan'208";a="226350"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2026 03:35:18 -0700
+X-CSE-ConnectionGUID: Foae2iWPT5KceI19Zc9wqQ==
+X-CSE-MsgGUID: F6X5ZtNWRK6CM62SdzeM9A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,148,1787036400"; 
+   d="scan'208";a="605296"
+Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
+  by fmviesa009.fm.intel.com with ESMTP; 09 Oct 2026 03:35:11 -0700
+Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1xF7wR-000000005dY-2o3F;
+	Fri, 09 Oct 2026 10:35:07 +0000
+Date: Fri, 9 Oct 2026 18:35:01 +0800
+From: kernel test robot <lkp@intel.com>
+To: Karl Mehltretter <kmehltretter@gmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev,
+	Karl Mehltretter <kmehltretter@gmail.com>,
+	Hans Verkuil <hverkuil@kernel.org>,
+	Florian Echtler <floe@butterbrot.org>,
+	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	linux-media@vger.kernel.org, linux-usb@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [RFT PATCH] Input: sur40 - fix DMA handling in video capture
+Message-ID: <202610091847.RMZt5Cy1-lkp@intel.com>
+References: <20261007054430.40155-1-kmehltretter@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261009040302.3087205-1-vulab@iscas.ac.cn>
+In-Reply-To: <20261007054430.40155-1-kmehltretter@gmail.com>
 
+Hi Karl,
 
-On Fri, 09 Oct 2026 12:03:02 +0800, Haotian Zhang wrote:
-> The channel_mask and mode_mask attributes are instantiated by the driver
-> core through struct usb_driver::dev_groups, so they are attached to the
-> usb_interface bound to the driver, not to the usb_device.  The four
-> show/store handlers still call to_usb_device(dev), which applies the
-> struct usb_device container_of() to a struct usb_interface::dev and thus
-> produces a bogus usb_device pointer.  usb_ifnum_to_if() reads that
-> pointer as udev->actconfig and dereferences it, and its result is passed
-> to usb_get_intfdata() without any NULL check, so reading or writing the
-> world-readable attributes can crash the kernel.
-> 
-> Use to_usb_interface(dev) so the handlers recover the interface that the
-> attributes belong to, matching the other drivers converted to dev_groups.
-> 
-> Fixes: b20d6bf8014b ("Input: ati-remote2 - use driver core to instantiate device attributes")
-> Assisted-by: DeepSeek-V4.1-Flash
-> Signed-off-by: Haotian Zhang <vulab@iscas.ac.cn>
-> ---
->  drivers/input/misc/ati_remote2.c | 12 ++++--------
->  1 file changed, 4 insertions(+), 8 deletions(-)
-> 
+kernel test robot noticed the following build errors:
 
+[auto build test ERROR on 2c3418fffa9d037b2038a6db48be63f9e2291806]
 
+url:    https://github.com/intel-lab-lkp/linux/commits/Karl-Mehltretter/Input-sur40-fix-DMA-handling-in-video-capture/20261007-074430
+base:   2c3418fffa9d037b2038a6db48be63f9e2291806
+patch link:    https://lore.kernel.org/r/20261007054430.40155-1-kmehltretter%40gmail.com
+patch subject: [RFT PATCH] Input: sur40 - fix DMA handling in video capture
+config: arm-randconfig-1003-20261009 (https://download.01.org/0day-ci/archive/20261009/202610091847.RMZt5Cy1-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261009/202610091847.RMZt5Cy1-lkp@intel.com/reproduce)
 
-Multiple things here:
-1. Your team ignored completely previous feedback.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202610091847.RMZt5Cy1-lkp@intel.com/
 
-2. You use multiple identities with this email, thus I actually doubt we speak
-   with actual person.
+All errors (new ones prefixed by >>, old ones prefixed by <<):
 
-3. Finally, same feedback:
-You sent multiple independent patches, to multiple independent
-subsystems. The amount of these patches clearly suggest this was
-AI generated and most likely not tested.
+>> ERROR: modpost: drivers/input/touchscreen/sur40.ko: module uses symbol 'dma_buf_begin_cpu_access' from namespace 'DMA_BUF', but does not import it.
+>> ERROR: modpost: drivers/input/touchscreen/sur40.ko: module uses symbol 'dma_buf_end_cpu_access' from namespace 'DMA_BUF', but does not import it.
 
-More importantly, you sent all this work without properly organizing
-relevant patches into patchsets. This makes reviewing difficult
-and might cause multiple reviewers to address the same issue.
-Replying to the entire set is impossible and requires handling each
-patch independently, instead of applying or discarding the set.
-Maintainers also won't see the bigger picture of your work. Quite
-worrying.
-
-This is on the verge of hostile patch: bomb us with so many
-contributions, we won't be able to handle them in efficient manner,
-like responding ONCE to ask you to slow down.  Considering all this
-is untested and LLM generated, I have even more doubts whether this
-should be considered for review.
-
-Please read kernel documentation BEFORE posting more work. It will
-explain you how to identify subsystems, how to organize your work per
-subsystem (so a patchset grouping multiple patches with a short cover
-letter), how to document usage of LLM and how what you should not do
-if this was posted in a good faith.
-
-Best regards,
-Krzysztof
-
-
-
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

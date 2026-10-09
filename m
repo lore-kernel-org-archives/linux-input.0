@@ -1,1264 +1,192 @@
-Received: from mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42C334DEC12
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 12:28:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B98AE3AD53F;
+	Fri,  9 Oct 2026 12:38:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791548954; cv=none; b=mcX/MyttAgEn2tmn+/cgqfSaOGTmLFpI7sC/1c2obdl5Euv7G06wJzxiUTmVJsx3tyz6dr6zBXiVixhBlxw4gEcSTAHF8vaF0HSnb9JeGiyPen9lA3gF5K9Q+6Ak+cXHOuv1faS0m9XboTGx8iJSFANTQJxsCQXxhu72MlvfCHE=
+	t=1791549540; cv=none; b=FEhS471ewKc5SwFc96S083jla049tDSfx+6x+Cms+6Q24FOw92YOtgLztVC3J+N42/o5y65zprcSiIO32t342rAQpGfV5AKshQJXbNOlwdupNlUSerga/rYjcppbqvPg/BJ8Cwxgfk6Z6HxfggFrhWx3sHmt+LylIVc5DJ6N9f8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791548954; c=relaxed/simple;
-	bh=4Ik+LcrvQDz6OIMAkYsTM5h8QDcclGT4Pmbjn/YM3/M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BM4Y81Xje6/2zQNfWoIqaWOnsIG8TtESuq9w1LT6yJGbtmGUnmbahSQyMNcCVjoFK7I1cTjU8K9T2N9JMonwRyIU37TYp3W1xs0aemfXwIiibBMB7HV3jFPHWQzxPt6vcQ6BVzADeQ3LGgizIMCF6uiDC454OYL98MaE+xCf8HU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=fV/bnDNo; arc=none smtp.client-ip=91.218.175.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1791549540; c=relaxed/simple;
+	bh=mYJeETVCNP2+H5ciwRB8prpvI8n8SWmD+UM2Lh8j4vE=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=HE0dsQIo0GojV4ChFKOpTiRTKEp0ziqfnz9qjd+b43U2jRRE2ssUqgnAx5Hl7W/soo+4Dk56gZXcyBZEwRkGNXzyJdo2KCr7G4UotzStNVwzYTNvBZvO14sdHBLIxaMLnRv0mHIoIADUTax9w8pet/bp52AhIH0LfdbDRzQfckM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nm4KH86I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="fV/bnDNo"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=4Ik+LcrvQDz6OIMAkYsTM5h8QDcclGT4Pmbjn/YM3/M=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1791548937; v=1; x=1792153737;
- b=fV/bnDNoutXCzBGQyccAO48W+cVvbR9RKtVEYhnXsfAkeCamNC+6W/PrHkyz+xPQwKQNM0Mg
- VogZDC6Ks95XRSXB19L8hSimhKi+UndtaAg5CViMBJsmfE7xEQBjpPSL6slVGZMSbnd+CHjcip+
- cXVnqwaL8IFC3vhBVAlaiDtM=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id a8f0dc35fa6b183c;
-	Fri, 09 Oct 2026 12:28:57 +0000
-X-Mizu-Trace-ID: a8f0dc35fa6b183c
-X-Migadu-Flow: FLOW_OUT
-From: Denis Benato <denis.benato@linux.dev>
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org,
-	"Benjamin Tissoires" <bentiss@kernel.org>,
-	"Jiri Kosina" <jikos@kernel.org>,
-	"Luke D . Jones" <luke@ljones.dev>,
-	"Mateusz Schyboll" <dragonn@op.pl>,
-	"Denis Benato" <benato.denis96@gmail.com>,
-	Denis Benato <denis.benato@linux.dev>,
-	Jonathan LoBue <jlobue10@gmail.com>
-Subject: [PATCH v9 12/12] HID: asus: add support for btn remapping
-Date: Fri,  9 Oct 2026 12:28:20 +0000
-Message-ID: <20261009122820.7603-13-denis.benato@linux.dev>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261009122820.7603-1-denis.benato@linux.dev>
-References: <20261009122820.7603-1-denis.benato@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nm4KH86I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE3231F000FF;
+	Fri,  9 Oct 2026 12:38:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791549532;
+	bh=I6TzdPelictgj+or68X6V1FsAGHB0pBRmiHcq2fTJ5o=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Nm4KH86IVIrg/SL7KYWCWR2LEbEEYbRP1z9k0gWk4ry02ly4WK655BRQCxzRJuaMZ
+	 3oBo1vzwvO4F6D1mQI1UYYxx61Vjd1wGQUWeLg6rO+yYrAJ0F6D6sum09TtPhD2rxg
+	 O4NvxBb47oSa74m6v+Rvv1Jtbw9QPs30kwgvxMSzbGdc8E1dkg56kHwr6q9+Kb+2Ph
+	 2lljACrp9AOdM3VfFPx4Brk/Qljw6VwWGrIexLBML11ig1GqS9mblxzuT8ILhQb+ww
+	 7M8gNU0SEQsepG2xgfI4FLDo3WO7atdLSRMRbNeagYZnanvJ1DAYWi6WrQkLL863yp
+	 ULjPo5Mv2yl1w==
+Message-ID: <sashiko-outbox-165548@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] Input: add OnePlus/OPPO Pad pogo-pin keyboard
+ serdev driver
+Reply-To: sashiko-reviews@lists.linux.dev
+To: wyibo6109@gmail.com
+Cc: conor+dt@kernel.org, robh@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261009122046.551915-3-wyibo6109@gmail.com>
+References: <20261009122046.551915-1-wyibo6109@gmail.com>
+ <20261009122046.551915-3-wyibo6109@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 09 Oct 2026 12:38:51 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add support for buttons remapping: the ability to assign different
-button events to each one of the physical button on the device.
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+s) to consider:
+- [High] input: UAF in led_work due to teardown ordering
+- [High] serdev: UAF in plug_work due to active port during devres teardown
+- [High] workqueue: UAF due to detect_work and hb_work cyclic dependency
+- [High] workqueue: UAF due to pogo_wake_irq_enable missing synchronize_irq
+- [High] input: Race between plug_work and power_off leaks input devices
+- [Low] leds: Success logging in probe violates guidelines
+--
 
-Each button exposes a remap_index sysfs attribute listing the valid
-remap target names for the current gamepad mode: M1 and M2 can be
-remapped to anything at any time, while other buttons may only be
-remapped to gamepad codes in gamepad mode and keyboard/mouse/media
-codes in desktop mode.
+commit 0ce1872d7cb39e14970c678cd47393649379aea8
+Author: Yibo Wang <wyibo6109@gmail.com>
 
-When the gamepad mode is changed the firmware automatically restores
-its internal defaults, so the software cache is refreshed to reflect
-the hardware state.
+Input: add OnePlus/OPPO Pad pogo-pin keyboard serdev driver
 
-Assisted-by: opencode:glm-5.2
-Assisted-by: Claude:claude-fable-5
-Signed-off-by: Luke Jones <luke@ljones.dev>
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
-Signed-off-by: Jonathan LoBue <jlobue10@gmail.com>
----
- drivers/hid/hid-asus.c | 1059 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 1037 insertions(+), 22 deletions(-)
+Adds a serdev driver for the Tinno keyboard MCU used by OnePlus and OPPO
+Pad smart keyboards. Communication happens over a half-duplex UART using
+a custom framed protocol. The driver exposes touchpad, keys, and backlight
+controls to userspace.
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 686c9a2a8ca7..7eafd3b4f735 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -268,9 +268,25 @@ struct ally_turbo_config {
- 	struct ally_btn_turbo_params btn_m1;
- };
- 
-+/* Button remap attribute structure */
-+struct button_remap_attr {
-+	struct device_attribute dev_attr;
-+	enum ally_button_id button_id;
-+	bool is_macro;
-+	/*
-+	 * The attributes are created while hid_asus_ally_probe() is still
-+	 * running, before asus_probe() publishes drvdata->rog_ally: carry
-+	 * the pointer like the turbo entries do, so the callbacks work
-+	 * from the moment the files exist.
-+	 */
-+	struct ally_handheld *ally;
-+};
-+
-+#define to_button_remap_attr(x) container_of(x, struct button_remap_attr, dev_attr)
-+
- struct ally_btn_sysfs_entry {
- 	struct attribute_group group;
--	struct attribute *attrs[5]; /* turbo_period + toggle_period + ranges + NULL */
-+	struct attribute *attrs[8]; /* turbo + ranges + remap + macro + remap_index + NULL */
- 	/*
- 	 * The entries are created while hid_asus_ally_probe() is still running,
- 	 * before asus_probe() publishes drvdata->rog_ally: carrying the shared
-@@ -282,6 +298,9 @@ struct ally_btn_sysfs_entry {
- 	enum ally_button_id btn;
- 	struct device_attribute attr_turbo_period;
- 	struct device_attribute attr_toggle_period;
-+	struct button_remap_attr *remap_attr;
-+	struct button_remap_attr *macro_attr;
-+	struct device_attribute attr_remap_index;
- };
- 
- enum ally_gamepad_mode_index {
-@@ -289,6 +308,35 @@ enum ally_gamepad_mode_index {
- 	ALLY_GAMEPAD_MODE_KEYBOARD = 0x02,
- };
- 
-+/* Button pair indexes for mapping commands */
-+enum btn_pair_index {
-+	BTN_PAIR_DPAD_UPDOWN    = 0x01,
-+	BTN_PAIR_DPAD_LEFTRIGHT = 0x02,
-+	BTN_PAIR_STICK_LR       = 0x03,
-+	BTN_PAIR_BUMPER_LR      = 0x04,
-+	BTN_PAIR_AB             = 0x05,
-+	BTN_PAIR_XY             = 0x06,
-+	BTN_PAIR_VIEW_MENU      = 0x07,
-+	BTN_PAIR_M1M2           = 0x08,
-+	BTN_PAIR_TRIGGER_LR     = 0x09,
-+};
-+
-+struct button_map {
-+	const struct btn_code_map *remap;
-+	const struct btn_code_map *macro;
-+};
-+
-+struct button_pair_map {
-+	enum btn_pair_index pair_index;
-+	struct button_map first;
-+	struct button_map second;
-+};
-+
-+/* Store button mapping per gamepad mode */
-+struct ally_button_mapping {
-+	struct button_pair_map button_pairs[9]; /* 9 button pairs */
-+};
-+
- struct ally_config {
- 	/* Must be locked if the data is being changed */
- 	struct mutex config_mutex;
-@@ -324,6 +372,8 @@ struct ally_config {
- 
- 	struct ally_turbo_config turbo;
- 	struct ally_btn_sysfs_entry *button_entries;
-+	/* Button mappings of the current gamepad mode */
-+	struct ally_button_mapping button_mappings;
- 
- 	struct ally_joystick_resp_curve left_curve;
- 	struct ally_joystick_resp_curve right_curve;
-@@ -1062,6 +1112,295 @@ static int ally_set_gamepad_mode(struct ally_handheld *ally, struct hid_device *
- 	return 0;
- }
- 
-+enum btn_map_type {
-+	BTN_TYPE_NONE = 0,
-+	BTN_TYPE_PAD = 0x01,
-+	BTN_TYPE_KB = 0x02,
-+	BTN_TYPE_MOUSE = 0x03,
-+	BTN_TYPE_MEDIA = 0x05,
-+};
-+
-+struct btn_code_map {
-+	unsigned char type;
-+	unsigned char value;
-+	const char *name;
-+};
-+
-+static const struct btn_code_map ally_btn_codes[] = {
-+	{ BTN_TYPE_NONE, 0x00, "NONE" },
-+	/* Gamepad button codes */
-+	{ BTN_TYPE_PAD, 0x01, "BTN_SOUTH" },
-+	{ BTN_TYPE_PAD, 0x02, "BTN_EAST" },
-+	{ BTN_TYPE_PAD, 0x03, "BTN_NORTH" },
-+	{ BTN_TYPE_PAD, 0x04, "BTN_WEST" },
-+	{ BTN_TYPE_PAD, 0x05, "BTN_TL" },
-+	{ BTN_TYPE_PAD, 0x06, "BTN_TR" },
-+	{ BTN_TYPE_PAD, 0x07, "BTN_THUMBL" },
-+	{ BTN_TYPE_PAD, 0x08, "BTN_THUMBR" },
-+	{ BTN_TYPE_PAD, 0x09, "ABS_HAT0Y_NEG" },
-+	{ BTN_TYPE_PAD, 0x0A, "ABS_HAT0Y_POS" },
-+	{ BTN_TYPE_PAD, 0x0B, "ABS_HAT0X_NEG" },
-+	{ BTN_TYPE_PAD, 0x0C, "ABS_HAT0X_POS" },
-+	{ BTN_TYPE_PAD, 0x0D, "ABS_Z" },
-+	{ BTN_TYPE_PAD, 0x0E, "ABS_RZ" },
-+	{ BTN_TYPE_PAD, 0x11, "BTN_SELECT" },
-+	{ BTN_TYPE_PAD, 0x12, "BTN_START" },
-+	{ BTN_TYPE_PAD, 0x13, "BTN_MODE" },
-+
-+	/* Keyboard button codes */
-+	{ BTN_TYPE_KB, 0x8E, "FN_M2" },
-+	{ BTN_TYPE_KB, 0x8F, "FN_M1" },
-+	{ BTN_TYPE_KB, 0x76, "KEY_ESC" },
-+	{ BTN_TYPE_KB, 0x05, "KEY_F1" },
-+	{ BTN_TYPE_KB, 0x06, "KEY_F2" },
-+	{ BTN_TYPE_KB, 0x04, "KEY_F3" },
-+	{ BTN_TYPE_KB, 0x0C, "KEY_F4" },
-+	{ BTN_TYPE_KB, 0x03, "KEY_F5" },
-+	{ BTN_TYPE_KB, 0x0B, "KEY_F6" },
-+	{ BTN_TYPE_KB, 0x80, "KEY_F7" },
-+	{ BTN_TYPE_KB, 0x0A, "KEY_F8" },
-+	{ BTN_TYPE_KB, 0x01, "KEY_F9" },
-+	{ BTN_TYPE_KB, 0x09, "KEY_F10" },
-+	{ BTN_TYPE_KB, 0x78, "KEY_F11" },
-+	{ BTN_TYPE_KB, 0x07, "KEY_F12" },
-+	{ BTN_TYPE_KB, 0x08, "KEY_F13" },
-+	{ BTN_TYPE_KB, 0x10, "KEY_F14" },
-+	{ BTN_TYPE_KB, 0x18, "KEY_F15" },
-+	{ BTN_TYPE_KB, 0x0E, "KEY_GRAVE" }, // backtick
-+	{ BTN_TYPE_KB, 0x16, "KEY_1" },
-+	{ BTN_TYPE_KB, 0x1E, "KEY_2" },
-+	{ BTN_TYPE_KB, 0x26, "KEY_3" },
-+	{ BTN_TYPE_KB, 0x25, "KEY_4" },
-+	{ BTN_TYPE_KB, 0x2E, "KEY_5" },
-+	{ BTN_TYPE_KB, 0x36, "KEY_6" },
-+	{ BTN_TYPE_KB, 0x3D, "KEY_7" },
-+	{ BTN_TYPE_KB, 0x3E, "KEY_8" },
-+	{ BTN_TYPE_KB, 0x46, "KEY_9" },
-+	{ BTN_TYPE_KB, 0x45, "KEY_0" },
-+	{ BTN_TYPE_KB, 0x4E, "KEY_MINUS" }, // hyphen
-+	{ BTN_TYPE_KB, 0x55, "KEY_EQUAL" },
-+	{ BTN_TYPE_KB, 0x66, "KEY_BACKSPACE" },
-+	{ BTN_TYPE_KB, 0x0D, "KEY_TAB" },
-+	{ BTN_TYPE_KB, 0x15, "KEY_Q" },
-+	{ BTN_TYPE_KB, 0x1D, "KEY_W" },
-+	{ BTN_TYPE_KB, 0x24, "KEY_E" },
-+	{ BTN_TYPE_KB, 0x2D, "KEY_R" },
-+	{ BTN_TYPE_KB, 0x2C, "KEY_T" },
-+	{ BTN_TYPE_KB, 0x35, "KEY_Y" },
-+	{ BTN_TYPE_KB, 0x3C, "KEY_U" },
-+	{ BTN_TYPE_KB, 0x43, "KEY_I" },
-+	{ BTN_TYPE_KB, 0x44, "KEY_O" },
-+	{ BTN_TYPE_KB, 0x4D, "KEY_P" },
-+	{ BTN_TYPE_KB, 0x54, "KEY_LEFTBRACE" },
-+	{ BTN_TYPE_KB, 0x5B, "KEY_RIGHTBRACE" },
-+	{ BTN_TYPE_KB, 0x5D, "KEY_BACKSLASH" },
-+	{ BTN_TYPE_KB, 0x58, "KEY_CAPSLOCK" },
-+	{ BTN_TYPE_KB, 0x1C, "KEY_A" },
-+	{ BTN_TYPE_KB, 0x1B, "KEY_S" },
-+	{ BTN_TYPE_KB, 0x23, "KEY_D" },
-+	{ BTN_TYPE_KB, 0x2B, "KEY_F" },
-+	{ BTN_TYPE_KB, 0x34, "KEY_G" },
-+	{ BTN_TYPE_KB, 0x33, "KEY_H" },
-+	{ BTN_TYPE_KB, 0x3B, "KEY_J" },
-+	{ BTN_TYPE_KB, 0x42, "KEY_K" },
-+	{ BTN_TYPE_KB, 0x4B, "KEY_L" },
-+	{ BTN_TYPE_KB, 0x4C, "KEY_SEMICOLON" },
-+	{ BTN_TYPE_KB, 0x52, "KEY_APOSTROPHE" },
-+	{ BTN_TYPE_KB, 0x5A, "KEY_ENTER" },
-+	{ BTN_TYPE_KB, 0x88, "KEY_LEFTSHIFT" },
-+	{ BTN_TYPE_KB, 0x1A, "KEY_Z" },
-+	{ BTN_TYPE_KB, 0x22, "KEY_X" },
-+	{ BTN_TYPE_KB, 0x21, "KEY_C" },
-+	{ BTN_TYPE_KB, 0x2A, "KEY_V" },
-+	{ BTN_TYPE_KB, 0x32, "KEY_B" },
-+	{ BTN_TYPE_KB, 0x31, "KEY_N" },
-+	{ BTN_TYPE_KB, 0x3A, "KEY_M" },
-+	{ BTN_TYPE_KB, 0x41, "KEY_COMMA" },
-+	{ BTN_TYPE_KB, 0x49, "KEY_DOT" },
-+	{ BTN_TYPE_KB, 0x4A, "KEY_SLASH" },
-+	{ BTN_TYPE_KB, 0x89, "KEY_RIGHTSHIFT" },
-+	{ BTN_TYPE_KB, 0x82, "KEY_LEFTMETA" },
-+	{ BTN_TYPE_KB, 0x8A, "KEY_LEFTALT" },
-+	{ BTN_TYPE_KB, 0x29, "KEY_SPACE" },
-+	{ BTN_TYPE_KB, 0x8B, "KEY_RIGHTALT" },
-+	{ BTN_TYPE_KB, 0x84, "KEY_COMPOSE" },
-+	{ BTN_TYPE_KB, 0x8D, "KEY_RIGHTCTRL" },
-+	{ BTN_TYPE_KB, 0xC3, "KEY_SYSRQ" },
-+	{ BTN_TYPE_KB, 0x7E, "KEY_SCROLLLOCK" },
-+	{ BTN_TYPE_KB, 0x91, "KEY_PAUSE" },
-+	{ BTN_TYPE_KB, 0xC2, "KEY_INSERT" },
-+	{ BTN_TYPE_KB, 0x94, "KEY_HOME" },
-+	{ BTN_TYPE_KB, 0x96, "KEY_PAGEUP" },
-+	{ BTN_TYPE_KB, 0xC0, "KEY_DELETE" },
-+	{ BTN_TYPE_KB, 0x95, "KEY_END" },
-+	{ BTN_TYPE_KB, 0x97, "KEY_PAGEDOWN" },
-+	{ BTN_TYPE_KB, 0x98, "KEY_UP" },
-+	{ BTN_TYPE_KB, 0x99, "KEY_DOWN" },
-+	{ BTN_TYPE_KB, 0x9A, "KEY_LEFT" },
-+	{ BTN_TYPE_KB, 0x9B, "KEY_RIGHT" },
-+
-+	/* Numpad button codes */
-+	{ BTN_TYPE_KB, 0x77, "KEY_NUMLOCK" },
-+	{ BTN_TYPE_KB, 0x90, "KEY_KPSLASH" },
-+	{ BTN_TYPE_KB, 0x7C, "KEY_KPASTERISK" },
-+	{ BTN_TYPE_KB, 0x7B, "KEY_KPMINUS" },
-+	{ BTN_TYPE_KB, 0x70, "KEY_KP0" },
-+	{ BTN_TYPE_KB, 0x69, "KEY_KP1" },
-+	{ BTN_TYPE_KB, 0x72, "KEY_KP2" },
-+	{ BTN_TYPE_KB, 0x7A, "KEY_KP3" },
-+	{ BTN_TYPE_KB, 0x6B, "KEY_KP4" },
-+	{ BTN_TYPE_KB, 0x73, "KEY_KP5" },
-+	{ BTN_TYPE_KB, 0x74, "KEY_KP6" },
-+	{ BTN_TYPE_KB, 0x6C, "KEY_KP7" },
-+	{ BTN_TYPE_KB, 0x75, "KEY_KP8" },
-+	{ BTN_TYPE_KB, 0x7D, "KEY_KP9" },
-+	{ BTN_TYPE_KB, 0x79, "KEY_KPPLUS" },
-+	{ BTN_TYPE_KB, 0x81, "KEY_KPENTER" },
-+	{ BTN_TYPE_KB, 0x71, "KEY_KPDOT" },
-+
-+	/* Mouse button codes */
-+	{ BTN_TYPE_MOUSE, 0x01, "BTN_LEFT" },
-+	{ BTN_TYPE_MOUSE, 0x02, "BTN_RIGHT" },
-+	{ BTN_TYPE_MOUSE, 0x03, "BTN_MIDDLE" },
-+	{ BTN_TYPE_MOUSE, 0x04, "REL_WHEEL_HI_RES_UP" },
-+	{ BTN_TYPE_MOUSE, 0x05, "REL_WHEEL_HI_RES_DOWN" },
-+
-+	/* Media button codes */
-+	{ BTN_TYPE_MEDIA, 0x16, "MEDIA_SCREENSHOT" },
-+	{ BTN_TYPE_MEDIA, 0x19, "MEDIA_SHOW_KEYBOARD" },
-+	{ BTN_TYPE_MEDIA, 0x1C, "MEDIA_SHOW_DESKTOP" },
-+	{ BTN_TYPE_MEDIA, 0x1E, "MEDIA_START_RECORDING" },
-+	{ BTN_TYPE_MEDIA, 0x01, "MEDIA_MIC_OFF" },
-+	{ BTN_TYPE_MEDIA, 0x02, "MEDIA_VOL_DOWN" },
-+	{ BTN_TYPE_MEDIA, 0x03, "MEDIA_VOL_UP" },
-+};
-+
-+static const size_t keymap_len = ARRAY_SIZE(ally_btn_codes);
-+
-+static const struct btn_code_map *find_button_by_name(const char *name);
-+
-+static void ally_set_default_gamepad_mapping(struct ally_button_mapping *map)
-+{
-+	int i;
-+
-+	/* Set all pair indexes and initialize to NONE */
-+	for (i = 0; i < 9; i++) {
-+		map->button_pairs[i].pair_index = i + 1;
-+		map->button_pairs[i].first.remap =
-+			find_button_by_name("NONE");
-+		map->button_pairs[i].first.macro =
-+			find_button_by_name("NONE");
-+		map->button_pairs[i].second.remap =
-+			find_button_by_name("NONE");
-+		map->button_pairs[i].second.macro =
-+			find_button_by_name("NONE");
-+	}
-+
-+	map->button_pairs[BTN_PAIR_AB - 1].first.remap =
-+		find_button_by_name("BTN_SOUTH");
-+	map->button_pairs[BTN_PAIR_AB - 1].second.remap =
-+		find_button_by_name("BTN_EAST");
-+
-+	map->button_pairs[BTN_PAIR_XY - 1].first.remap =
-+		find_button_by_name("BTN_NORTH");
-+	map->button_pairs[BTN_PAIR_XY - 1].second.remap =
-+		find_button_by_name("BTN_WEST");
-+
-+	map->button_pairs[BTN_PAIR_BUMPER_LR - 1].first.remap =
-+		find_button_by_name("BTN_TL");
-+	map->button_pairs[BTN_PAIR_BUMPER_LR - 1].second.remap =
-+		find_button_by_name("BTN_TR");
-+
-+	map->button_pairs[BTN_PAIR_STICK_LR - 1].first.remap =
-+		find_button_by_name("BTN_THUMBL");
-+	map->button_pairs[BTN_PAIR_STICK_LR - 1].second.remap =
-+		find_button_by_name("BTN_THUMBR");
-+
-+	map->button_pairs[BTN_PAIR_DPAD_UPDOWN - 1].first.remap =
-+		find_button_by_name("ABS_HAT0Y_NEG");
-+	map->button_pairs[BTN_PAIR_DPAD_UPDOWN - 1].second.remap =
-+		find_button_by_name("ABS_HAT0Y_POS");
-+
-+	map->button_pairs[BTN_PAIR_DPAD_LEFTRIGHT - 1].first.remap =
-+		find_button_by_name("ABS_HAT0X_NEG");
-+	map->button_pairs[BTN_PAIR_DPAD_LEFTRIGHT - 1].second.remap =
-+		find_button_by_name("ABS_HAT0X_POS");
-+
-+	map->button_pairs[BTN_PAIR_TRIGGER_LR - 1].first.remap =
-+		find_button_by_name("ABS_Z");
-+	map->button_pairs[BTN_PAIR_TRIGGER_LR - 1].second.remap =
-+		find_button_by_name("ABS_RZ");
-+
-+	map->button_pairs[BTN_PAIR_VIEW_MENU - 1].first.remap =
-+		find_button_by_name("BTN_SELECT");
-+	map->button_pairs[BTN_PAIR_VIEW_MENU - 1].second.remap =
-+		find_button_by_name("BTN_START");
-+
-+	map->button_pairs[BTN_PAIR_M1M2 - 1].first.remap =
-+		find_button_by_name("FN_M2");
-+	map->button_pairs[BTN_PAIR_M1M2 - 1].second.remap =
-+		find_button_by_name("FN_M1");
-+}
-+
-+static void ally_set_default_keyboard_mapping(struct ally_button_mapping *map)
-+{
-+	int i;
-+
-+	/* Set all pair indexes and initialize to NONE */
-+	for (i = 0; i < 9; i++) {
-+		map->button_pairs[i].pair_index = i + 1;
-+		map->button_pairs[i].first.remap =
-+			find_button_by_name("NONE");
-+		map->button_pairs[i].first.macro =
-+			find_button_by_name("NONE");
-+		map->button_pairs[i].second.remap =
-+			find_button_by_name("NONE");
-+		map->button_pairs[i].second.macro =
-+			find_button_by_name("NONE");
-+	}
-+
-+	/*
-+	 * Desktop mode defaults: keyboard and mouse mappings.
-+	 * Buttons not listed here (dpad, view, menu) remain NONE.
-+	 */
-+
-+	/* btn_a => KEY_SPACE, btn_b => KEY_E */
-+	map->button_pairs[BTN_PAIR_AB - 1].first.remap =
-+		find_button_by_name("KEY_SPACE");
-+	map->button_pairs[BTN_PAIR_AB - 1].second.remap =
-+		find_button_by_name("KEY_E");
-+
-+	/* btn_x => KEY_R, btn_y => KEY_F */
-+	map->button_pairs[BTN_PAIR_XY - 1].first.remap =
-+		find_button_by_name("KEY_R");
-+	map->button_pairs[BTN_PAIR_XY - 1].second.remap =
-+		find_button_by_name("KEY_F");
-+
-+	/* LB => wheel up, RB => wheel down */
-+	map->button_pairs[BTN_PAIR_BUMPER_LR - 1].first.remap =
-+		find_button_by_name("REL_WHEEL_HI_RES_UP");
-+	map->button_pairs[BTN_PAIR_BUMPER_LR - 1].second.remap =
-+		find_button_by_name("REL_WHEEL_HI_RES_DOWN");
-+
-+	/* left stick click => left click, right stick click => left shift */
-+	map->button_pairs[BTN_PAIR_STICK_LR - 1].first.remap =
-+		find_button_by_name("BTN_LEFT");
-+	map->button_pairs[BTN_PAIR_STICK_LR - 1].second.remap =
-+		find_button_by_name("KEY_LEFTSHIFT");
-+
-+	/* LT => left click, RT => right click */
-+	map->button_pairs[BTN_PAIR_TRIGGER_LR - 1].first.remap =
-+		find_button_by_name("BTN_LEFT");
-+	map->button_pairs[BTN_PAIR_TRIGGER_LR - 1].second.remap =
-+		find_button_by_name("BTN_RIGHT");
-+
-+	/* M2 => FN_M2, M1 => FN_M1 */
-+	map->button_pairs[BTN_PAIR_M1M2 - 1].first.remap =
-+		find_button_by_name("FN_M2");
-+	map->button_pairs[BTN_PAIR_M1M2 - 1].second.remap =
-+		find_button_by_name("FN_M1");
-+}
-+
- static ssize_t gamepad_mode_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct hid_device *hdev = to_hid_device(dev);
-@@ -1103,7 +1442,7 @@ static ssize_t gamepad_mode_store(struct device *dev, struct device_attribute *a
- 	struct ally_config *cfg;
- 	u8 mode_byte;
- 	int mode;
--	int ret;
-+	int ret, i;
- 
- 	if (!ally)
- 		return -ENODEV;
-@@ -1131,6 +1470,33 @@ static ssize_t gamepad_mode_store(struct device *dev, struct device_attribute *a
- 
- 	cfg->gamepad_mode = mode_byte;
- 
-+	/*
-+	 * When the gamepad mode changes, the hardware automatically
-+	 * resets all button mappings to its internal defaults for the
-+	 * new mode.
-+	 *
-+	 * Refresh the software cache so that subsequent
-+	 * reads from sysfs reflect what the firmware is actually
-+	 * using.
-+	 */
-+	if (mode_byte == ALLY_GAMEPAD_MODE_GAMEPAD)
-+		ally_set_default_gamepad_mapping(&cfg->button_mappings);
-+	else if (mode_byte == ALLY_GAMEPAD_MODE_KEYBOARD)
-+		ally_set_default_keyboard_mapping(&cfg->button_mappings);
-+
-+	/*
-+	 * The re-defaulted mappings are what the remap and macro files
-+	 * report: wake anyone polling them about the new values.
-+	 */
-+	if (cfg->button_entries) {
-+		for (i = 0; i < ALLY_BTN_MAX; i++) {
-+			sysfs_notify(&dev->kobj, cfg->button_entries[i].group.name,
-+				     "remap");
-+			sysfs_notify(&dev->kobj, cfg->button_entries[i].group.name,
-+				     "macro");
-+		}
-+	}
-+
- 	hid_dbg(hdev, "Set gamepad mode to %s\n", ally_gamepad_mode_text[mode]);
- 
- 	sysfs_notify(&dev->kobj, NULL, "gamepad_mode");
-@@ -2806,6 +3172,575 @@ static void ally_btn_turbo_init_attrs(struct ally_btn_sysfs_entry *entry)
- 	entry->attrs[4] = NULL;
- }
- 
-+/**
-+ * find_button_by_name() - Find a button code map by its name
-+ * @name: name of the button code to look up
-+ *
-+ * Return: the matching button code map, or NULL if not found
-+ */
-+static const struct btn_code_map *find_button_by_name(const char *name)
-+{
-+	int i;
-+
-+	for (i = 0; i < keymap_len; i++) {
-+		if (strcmp(ally_btn_codes[i].name, name) == 0)
-+			return &ally_btn_codes[i];
-+	}
-+
-+	return NULL;
-+}
-+
-+/**
-+ * ally_remap_code_valid() - Check if a remap target is valid for a button
-+ * @btn: button to remap
-+ * @gamepad_mode: gamepad mode to validate the remap against
-+ * @code: remap target to check
-+ * @is_macro: whether the target is assigned to the macro mapping
-+ *
-+ * M1 and M2 can be remapped to anything at any time.
-+ * All other buttons may only be remapped to gamepad buttons (BTN_TYPE_PAD)
-+ * when in gamepad mode, and to keyboard/mouse/media codes when in desktop
-+ * (keyboard) mode.  BTN_TYPE_NONE (unmapped) is always allowed.
-+ * Macro mappings are executed by the MCU as input sequences on the virtual
-+ * keyboard and are accepted regardless of the current gamepad mode.
-+ *
-+ * Return: true if the remap is valid, false otherwise
-+ */
-+static bool ally_remap_code_valid(enum ally_button_id btn, u8 gamepad_mode,
-+				  const struct btn_code_map *code, bool is_macro)
-+{
-+	if (!code)
-+		return false;
-+
-+	/* M1 and M2 can be remapped to everything */
-+	if (btn == ALLY_BTN_M1 || btn == ALLY_BTN_M2)
-+		return true;
-+
-+	/* NONE is always valid */
-+	if (code->type == BTN_TYPE_NONE)
-+		return true;
-+
-+	/* Macros are not restricted by the controller emulation mode */
-+	if (is_macro)
-+		return true;
-+
-+	if (gamepad_mode == ALLY_GAMEPAD_MODE_GAMEPAD)
-+		return code->type == BTN_TYPE_PAD;
-+
-+	/* Desktop / keyboard mode: allow keyboard, mouse and media */
-+	return code->type == BTN_TYPE_KB ||
-+	       code->type == BTN_TYPE_MOUSE ||
-+	       code->type == BTN_TYPE_MEDIA;
-+}
-+
-+/**
-+ * ally_set_button_mapping() - Set the button mapping for a button pair
-+ * @hdev: HID device
-+ * @ally: ally handheld structure
-+ * @mapping: button pair mapping to send to the device
-+ *
-+ * Return: count of data transferred, negative if error
-+ */
-+static int ally_set_button_mapping(struct hid_device *hdev, struct ally_handheld *ally,
-+				   struct button_pair_map *mapping)
-+{
-+	/* The MCU mapping block is four consecutive 11-byte entries starting at
-+	 * buf[5]: first remap 5-15, first macro 16-26, second remap 27-37,
-+	 * second macro 38-48 (see hid-asus-ally __btn_pair_to_pkt, BTN_CODE_LEN).
-+	 */
-+	u8 macro_bytes[11] = {0};
-+	u8 btn_bytes[11] = {0};
-+
-+	if (!mapping || !mapping->first.remap || !mapping->first.macro ||
-+	    !mapping->second.remap || !mapping->second.macro)
-+		return -EINVAL;
-+
-+	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_MAPPING, NULL, 0);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	/* This packet is slightly different from the other
-+	 * as before the packet length there is an extra byte
-+	 * which is the pair index.
-+	 */
-+	buf[3] = mapping->pair_index;
-+	buf[4] = 0x2C; /* Length */
-+
-+	/* First button mapping */
-+	buf[5] = mapping->first.remap->type;
-+	/* Fill in bytes 6-14 with button code */
-+	if (mapping->first.remap->type) {
-+		memset(btn_bytes, 0, sizeof(btn_bytes));
-+		btn_bytes[0] = mapping->first.remap->type;
-+
-+		/* Value byte position depends on type: pad=1, kb=2, media=3,
-+		 * mouse=4 (see hid-asus-ally BTN_CODE definitions).
-+		 */
-+		switch (mapping->first.remap->type) {
-+		case BTN_TYPE_NONE:
-+			break;
-+		case BTN_TYPE_PAD:
-+			btn_bytes[1] = mapping->first.remap->value;
-+			break;
-+		case BTN_TYPE_KB:
-+			btn_bytes[2] = mapping->first.remap->value;
-+			break;
-+		case BTN_TYPE_MEDIA:
-+			btn_bytes[3] = mapping->first.remap->value;
-+			break;
-+		case BTN_TYPE_MOUSE:
-+			btn_bytes[4] = mapping->first.remap->value;
-+			break;
-+		}
-+		memcpy(&buf[5], btn_bytes, 11);
-+	}
-+
-+	/* Macro mapping for first button if any */
-+	buf[16] = mapping->first.macro->type;
-+	if (mapping->first.macro->type) {
-+		memset(macro_bytes, 0, sizeof(macro_bytes));
-+		macro_bytes[0] = mapping->first.macro->type;
-+
-+		switch (mapping->first.macro->type) {
-+		case BTN_TYPE_NONE:
-+			break;
-+		case BTN_TYPE_PAD:
-+			macro_bytes[1] = mapping->first.macro->value;
-+			break;
-+		case BTN_TYPE_KB:
-+			macro_bytes[2] = mapping->first.macro->value;
-+			break;
-+		case BTN_TYPE_MEDIA:
-+			macro_bytes[3] = mapping->first.macro->value;
-+			break;
-+		case BTN_TYPE_MOUSE:
-+			macro_bytes[4] = mapping->first.macro->value;
-+			break;
-+		}
-+		memcpy(&buf[16], macro_bytes, 11);
-+	}
-+
-+	/* Second button mapping */
-+	buf[27] = mapping->second.remap->type;
-+	/* Fill in bytes 28-36 with button code */
-+	if (mapping->second.remap->type) {
-+		memset(btn_bytes, 0, sizeof(btn_bytes));
-+		btn_bytes[0] = mapping->second.remap->type;
-+
-+		switch (mapping->second.remap->type) {
-+		case BTN_TYPE_NONE:
-+			break;
-+		case BTN_TYPE_PAD:
-+			btn_bytes[1] = mapping->second.remap->value;
-+			break;
-+		case BTN_TYPE_KB:
-+			btn_bytes[2] = mapping->second.remap->value;
-+			break;
-+		case BTN_TYPE_MEDIA:
-+			btn_bytes[3] = mapping->second.remap->value;
-+			break;
-+		case BTN_TYPE_MOUSE:
-+			btn_bytes[4] = mapping->second.remap->value;
-+			break;
-+		}
-+		memcpy(&buf[27], btn_bytes, 11);
-+	}
-+
-+	/* Macro mapping for second button if any */
-+	buf[38] = mapping->second.macro->type;
-+	if (mapping->second.macro->type) {
-+		memset(macro_bytes, 0, sizeof(macro_bytes));
-+		macro_bytes[0] = mapping->second.macro->type;
-+
-+		switch (mapping->second.macro->type) {
-+		case BTN_TYPE_NONE:
-+			break;
-+		case BTN_TYPE_PAD:
-+			macro_bytes[1] = mapping->second.macro->value;
-+			break;
-+		case BTN_TYPE_KB:
-+			macro_bytes[2] = mapping->second.macro->value;
-+			break;
-+		case BTN_TYPE_MEDIA:
-+			macro_bytes[3] = mapping->second.macro->value;
-+			break;
-+		case BTN_TYPE_MOUSE:
-+			macro_bytes[4] = mapping->second.macro->value;
-+			break;
-+		}
-+		memcpy(&buf[38], macro_bytes, 11);
-+	}
-+
-+	return ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
-+}
-+
-+/**
-+ * ally_apply_button_mappings() - Push the recorded mappings of the current
-+ * gamepad mode to the controller
-+ * @hdev: HID device
-+ * @ally: ally handheld structure
-+ * @cfg: ally config structure
-+ *
-+ * An MCU reset restores the firmware default mappings: push the recorded
-+ * ones again so that the hardware keeps matching what userspace
-+ * configured. The caller must hold cfg->config_mutex, exactly like the
-+ * sysfs store callbacks that update single pairs.
-+ */
-+static void ally_apply_button_mappings(struct hid_device *hdev,
-+				       struct ally_handheld *ally,
-+				       struct ally_config *cfg)
-+{
-+	struct ally_button_mapping *mode_map;
-+	int i, ret;
-+
-+	mode_map = &cfg->button_mappings;
-+
-+	for (i = 0; i < ARRAY_SIZE(mode_map->button_pairs); i++) {
-+		mode_map->button_pairs[i].pair_index = i + 1;
-+
-+		ret = ally_set_button_mapping(hdev, ally,
-+					      &mode_map->button_pairs[i]);
-+		if (ret < 0) {
-+			hid_warn(hdev,
-+					 "Failed to restore button mappings: %d\n",
-+					 ret);
-+			return;
-+		}
-+	}
-+}
-+
-+/**
-+ * get_button_pair_info() - Get the pair index and position of a button
-+ * @button_id: button to look up
-+ * @pair_idx: output pointer for the pair index of the button
-+ * @is_first: output pointer for the position of the button within the pair
-+ *
-+ * Return: 0 on success, negative errno on failure
-+ */
-+static int get_button_pair_info(enum ally_button_id button_id,
-+				enum btn_pair_index *pair_idx,
-+				bool *is_first)
-+{
-+	switch (button_id) {
-+	case ALLY_BTN_DU:
-+		*pair_idx = BTN_PAIR_DPAD_UPDOWN;
-+		*is_first = true;
-+		break;
-+	case ALLY_BTN_DD:
-+		*pair_idx = BTN_PAIR_DPAD_UPDOWN;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_DL:
-+		*pair_idx = BTN_PAIR_DPAD_LEFTRIGHT;
-+		*is_first = true;
-+		break;
-+	case ALLY_BTN_DR:
-+		*pair_idx = BTN_PAIR_DPAD_LEFTRIGHT;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_J0B:
-+		*pair_idx = BTN_PAIR_STICK_LR;
-+		*is_first = true;
-+		break;
-+	case ALLY_BTN_J1B:
-+		*pair_idx = BTN_PAIR_STICK_LR;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_LB:
-+		*pair_idx = BTN_PAIR_BUMPER_LR;
-+		*is_first = true;
-+		break;
-+	case ALLY_BTN_RB:
-+		*pair_idx = BTN_PAIR_BUMPER_LR;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_A:
-+		*pair_idx = BTN_PAIR_AB;
-+		*is_first = true;
-+		break;
-+	case ALLY_BTN_B:
-+		*pair_idx = BTN_PAIR_AB;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_X:
-+		*pair_idx = BTN_PAIR_XY;
-+		*is_first = true;
-+		break;
-+	case ALLY_BTN_Y:
-+		*pair_idx = BTN_PAIR_XY;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_VIEW:
-+		*pair_idx = BTN_PAIR_VIEW_MENU;
-+		*is_first = true;
-+		break;
-+	case ALLY_BTN_MENU:
-+		*pair_idx = BTN_PAIR_VIEW_MENU;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_M1:
-+		*pair_idx = BTN_PAIR_M1M2;
-+		*is_first = false;
-+		break;
-+	case ALLY_BTN_M2:
-+		*pair_idx = BTN_PAIR_M1M2;
-+		*is_first = true;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static ssize_t button_remap_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct button_remap_attr *btn_attr = to_button_remap_attr(attr);
-+	struct ally_handheld *ally = btn_attr->ally;
-+	const struct btn_code_map *code;
-+	struct ally_config *cfg;
-+	enum ally_button_id button_id = btn_attr->button_id;
-+	enum btn_pair_index pair_idx;
-+	struct button_pair_map *pair;
-+	struct button_map *btn_map;
-+	bool is_first;
-+	int ret;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	ret = get_button_pair_info(button_id, &pair_idx, &is_first);
-+	if (ret < 0)
-+		return ret;
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	pair = &cfg->button_mappings.button_pairs[pair_idx - 1];
-+	btn_map = is_first ? &pair->first : &pair->second;
-+	code = btn_attr->is_macro ? btn_map->macro : btn_map->remap;
-+
-+	/*
-+	 * The mappings are never NULL: the defaults, the mode-switch
-+	 * re-defaults and the store rollback all guarantee it. A miss
-+	 * means a broken default table, so fail loudly instead of
-+	 * dereferencing.
-+	 */
-+	if (!code)
-+		return -EIO;
-+
-+	if (code->type == BTN_TYPE_NONE)
-+		return sysfs_emit(buf, "NONE\n");
-+
-+	return sysfs_emit(buf, "%s\n", code->name);
-+}
-+
-+static ssize_t button_remap_store(struct device *dev,
-+				  struct device_attribute *attr,
-+				  const char *buf, size_t count)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct button_remap_attr *btn_attr = to_button_remap_attr(attr);
-+	struct ally_handheld *ally = btn_attr->ally;
-+	enum ally_button_id button_id = btn_attr->button_id;
-+	struct ally_button_mapping *mode_map;
-+	const struct btn_code_map *code;
-+	const struct btn_code_map *old_code;
-+	enum btn_pair_index pair_idx;
-+	struct button_pair_map *pair;
-+	struct button_map *btn_map;
-+	struct ally_config *cfg;
-+	char btn_name[32];
-+	bool is_first;
-+	bool undo_hw;
-+	int ret, i;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	if (sscanf(buf, "%31s", btn_name) != 1)
-+		return -EINVAL;
-+
-+	/* Handle "NONE" specially */
-+	if (strcmp(btn_name, "NONE") == 0) {
-+		code = &ally_btn_codes[0]; /* NONE entry */
-+	} else {
-+		code = find_button_by_name(btn_name);
-+		if (!code)
-+			return -EINVAL;
-+	}
-+
-+	ret = get_button_pair_info(button_id, &pair_idx, &is_first);
-+	if (ret < 0)
-+		return ret;
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	/*
-+	 * Validate the remap target while holding the lock: the
-+	 * gamepad mode can change concurrently, and the check must
-+	 * be done against the very mode the mapping is written to.
-+	 */
-+	if (!ally_remap_code_valid(button_id, cfg->gamepad_mode, code,
-+				   btn_attr->is_macro))
-+		return -EINVAL;
-+
-+	/* Access the mapping for current gamepad mode */
-+	pair = &cfg->button_mappings.button_pairs[pair_idx - 1];
-+	btn_map = is_first ? &pair->first : &pair->second;
-+
-+	if (btn_attr->is_macro) {
-+		old_code = btn_map->macro;
-+		btn_map->macro = code;
-+	} else {
-+		old_code = btn_map->remap;
-+		btn_map->remap = code;
-+	}
-+
-+	/* Update pair index */
-+	pair->pair_index = pair_idx;
-+
-+	/*
-+	 * Send mapping to device with the caveat that first
-+	 * generation devices require individual button pair updates.
-+	 */
-+	if (cfg->is_ally_x) {
-+		ret = ally_set_button_mapping(hdev, ally, pair);
-+		undo_hw = false;
-+	} else {
-+		mode_map = &cfg->button_mappings;
-+		ret = 0;
-+		for (i = 0; i < 9; i++) {
-+			mode_map->button_pairs[i].pair_index = i + 1;
-+			ret = ally_set_button_mapping(hdev, ally,
-+				&mode_map->button_pairs[i]);
-+			if (ret < 0)
-+				break;
-+		}
-+
-+		/*
-+		 * Pairs are pushed one at a time: remember whether
-+		 * the target pair reached the hardware before a
-+		 * later pair failed, so the rollback below can undo
-+		 * it on the device too.
-+		 */
-+		undo_hw = ret < 0 && i > pair_idx - 1;
-+	}
-+
-+	/*
-+	 * The hardware rejected the update: restore the previous
-+	 * mapping so that the software cache keeps describing the
-+	 * state the device is actually in.
-+	 */
-+	if (ret < 0) {
-+		if (btn_attr->is_macro)
-+			btn_map->macro = old_code;
-+		else
-+			btn_map->remap = old_code;
-+
-+		/*
-+		 * The target pair was already committed before a
-+		 * later pair failed: push the restored mapping once
-+		 * more so the hardware matches the cache again. Best
-+		 * effort only: the device is misbehaving already.
-+		 */
-+		if (undo_hw)
-+			ally_set_button_mapping(hdev, ally, pair);
-+
-+		hid_err(hdev, "Failed to set button mapping: %d\n", ret);
-+		return ret;
-+	}
-+
-+	sysfs_notify(&dev->kobj, ally_button_names[btn_attr->button_id],
-+		     btn_attr->is_macro ? "macro" : "remap");
-+
-+	return count;
-+}
-+
-+/**
-+ * button_remap_attr_create() - Create a button remap attribute
-+ * @ally: ally handheld structure
-+ * @button_id: button the attribute is for
-+ * @is_macro: whether the attribute controls the macro mapping
-+ *
-+ * Return: the newly created attribute, or NULL on allocation failure
-+ */
-+static struct button_remap_attr *button_remap_attr_create(struct ally_handheld *ally,
-+							  enum ally_button_id button_id,
-+							  bool is_macro)
-+{
-+	struct button_remap_attr *attr __free(kfree) = kzalloc_obj(*attr);
-+	if (!attr)
-+		return NULL;
-+
-+	attr->ally = ally;
-+	attr->button_id = button_id;
-+	attr->is_macro = is_macro;
-+	sysfs_attr_init(&attr->dev_attr.attr);
-+	attr->dev_attr.attr.name = is_macro ? "macro" : "remap";
-+	attr->dev_attr.attr.mode = 0644;
-+	attr->dev_attr.show = button_remap_show;
-+	attr->dev_attr.store = button_remap_store;
-+
-+	return no_free_ptr(attr);
-+}
-+
-+/**
-+ * btn_remap_index_show() - Show the list of valid remap targets for a button
-+ * @dev: device the attribute belongs to
-+ * @attr: attribute being read
-+ * @buf: buffer to write the list into
-+ *
-+ * M1/M2 list everything; other buttons list only the codes valid for the
-+ * active mode (gamepad buttons in gamepad mode, keyboard / mouse / media
-+ * in desktop mode).
-+ *
-+ * Return: number of characters written
-+ */
-+static ssize_t btn_remap_index_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	struct ally_btn_sysfs_entry *entry = container_of(attr,
-+		struct ally_btn_sysfs_entry, attr_remap_index);
-+	struct ally_config *cfg;
-+	enum ally_button_id btn = entry->btn;
-+	u8 mode;
-+	ssize_t len = 0;
-+	int i;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	scoped_guard(mutex, &cfg->config_mutex)
-+		mode = cfg->gamepad_mode;
-+
-+	for (i = 0; i < keymap_len; i++) {
-+		if (!ally_remap_code_valid(btn, mode, &ally_btn_codes[i], false))
-+			continue;
-+		len += sysfs_emit_at(buf, len, "%s ", ally_btn_codes[i].name);
-+	}
-+
-+	if (len > 0)
-+		buf[len - 1] = '\n';
-+
-+	return len;
-+}
-+
- /**
-  * ally_create_button_attributes() - Create turbo button attributes
-  * @hdev: HID device
-@@ -2815,15 +3750,12 @@ static void ally_btn_turbo_init_attrs(struct ally_btn_sysfs_entry *entry)
-  * Return: 0 on success, negative errno on failure
-  */
- static int ally_create_button_attributes(struct hid_device *hdev,
--					 struct ally_handheld *ally,
--					 struct ally_config *cfg)
-+					  struct ally_handheld *ally,
-+					  struct ally_config *cfg)
- {
- 	struct ally_btn_sysfs_entry *entries;
- 	int i, ret;
- 
--	if (!cfg->turbo_support)
--		return 0;
--
- 	entries = kcalloc(ALLY_BTN_MAX, sizeof(*entries), GFP_KERNEL);
- 	if (!entries)
- 		return -ENOMEM;
-@@ -2836,13 +3768,53 @@ static int ally_create_button_attributes(struct hid_device *hdev,
- 		entries[i].hdev = hdev;
- 		entries[i].btn = i;
- 
--		if (!ally_btn_get_turbo_params(cfg, i)) {
--			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
--			ret = -EINVAL;
-+		if (cfg->turbo_support) {
-+			if (!ally_btn_get_turbo_params(cfg, i)) {
-+				hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-+				ret = -EINVAL;
-+				goto err_cleanup;
-+			}
-+
-+			ally_btn_turbo_init_attrs(&entries[i]);
-+		}
-+
-+		entries[i].remap_attr = button_remap_attr_create(ally, i, false);
-+		if (!entries[i].remap_attr) {
-+			ret = -ENOMEM;
- 			goto err_cleanup;
- 		}
- 
--		ally_btn_turbo_init_attrs(&entries[i]);
-+		entries[i].macro_attr = button_remap_attr_create(ally, i, true);
-+		if (!entries[i].macro_attr) {
-+			ret = -ENOMEM;
-+			goto err_cleanup;
-+		}
-+
-+		/* Initialize the remap_index attribute */
-+		sysfs_attr_init(&entries[i].attr_remap_index.attr);
-+		entries[i].attr_remap_index.attr.name = "remap_index";
-+		entries[i].attr_remap_index.attr.mode = 0444;
-+		entries[i].attr_remap_index.show = btn_remap_index_show;
-+		entries[i].attr_remap_index.store = NULL;
-+
-+		/* Set up attributes array based on what's supported */
-+		if (cfg->turbo_support) {
-+			entries[i].attrs[4] =
-+				&entries[i].remap_attr->dev_attr.attr;
-+			entries[i].attrs[5] =
-+				&entries[i].macro_attr->dev_attr.attr;
-+			entries[i].attrs[6] =
-+				&entries[i].attr_remap_index.attr;
-+			entries[i].attrs[7] = NULL;
-+		} else {
-+			entries[i].attrs[0] =
-+				&entries[i].remap_attr->dev_attr.attr;
-+			entries[i].attrs[1] =
-+				&entries[i].macro_attr->dev_attr.attr;
-+			entries[i].attrs[2] =
-+				&entries[i].attr_remap_index.attr;
-+			entries[i].attrs[3] = NULL;
-+		}
- 
- 		entries[i].group.name = ally_button_names[i];
- 		entries[i].group.attrs = entries[i].attrs;
-@@ -2858,12 +3830,27 @@ static int ally_create_button_attributes(struct hid_device *hdev,
- 	return 0;
- 
- err_cleanup:
-+	/*
-+	 * Unpublish first: the readers of button_entries (like the
-+	 * gamepad_mode_store() cross-notification) hold config_mutex and
-+	 * must observe either the live array or NULL, never a freed one.
-+	 * The lock is released again before the removals, so a straggler
-+	 * callback waiting on it can drain against the not yet freed
-+	 * entries.
-+	 */
-+	scoped_guard(mutex, &cfg->config_mutex) {
-+		cfg->button_entries = NULL;
-+	}
-+
- 	while (--i >= 0)
- 		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
- 
--	kfree(entries);
-+	for (i = 0; i < ALLY_BTN_MAX; i++) {
-+		kfree(entries[i].remap_attr);
-+		kfree(entries[i].macro_attr);
-+	}
- 
--	cfg->button_entries = NULL;
-+	kfree(entries);
- 
- 	return ret;
- }
-@@ -2883,12 +3870,26 @@ static void ally_remove_button_attributes(struct hid_device *hdev, struct ally_c
- 
- 	entries = cfg->button_entries;
- 
--	for (i = 0; i < ALLY_BTN_MAX; i++)
-+	/*
-+	 * Unpublish first: the readers of button_entries (like the
-+	 * gamepad_mode_store() cross-notification) hold config_mutex and
-+	 * must observe either the live array or NULL, never a freed one.
-+	 * The lock is released again before the removals, so a straggler
-+	 * callback waiting on it can drain against the not yet freed
-+	 * entries, and sysfs_remove_group() waits for the last ones to
-+	 * finish before the memory goes away.
-+	 */
-+	scoped_guard(mutex, &cfg->config_mutex) {
-+		cfg->button_entries = NULL;
-+	}
-+
-+	for (i = 0; i < ALLY_BTN_MAX; i++) {
- 		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-+		kfree(entries[i].remap_attr);
-+		kfree(entries[i].macro_attr);
-+	}
- 
- 	kfree(entries);
--
--	cfg->button_entries = NULL;
- }
- 
- /**
-@@ -2929,6 +3930,13 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
- 
- 	if (!cfg->initialized) {
- 		cfg->gamepad_mode = ALLY_GAMEPAD_MODE_GAMEPAD;
-+		/*
-+		 * Populate the button mappings for the default mode: a mode
-+		 * switch re-defaults them, while on a later probe they hold
-+		 * the values the user configured, which are what the restore
-+		 * path re-applies to the controller.
-+		 */
-+		ally_set_default_gamepad_mapping(&cfg->button_mappings);
- 		cfg->xbox_controller_enabled = true;
- 		cfg->left_deadzone = 10;
- 		cfg->left_outer_threshold = 90;
-@@ -3001,12 +4009,15 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
- 		cal_created = ARRAY_SIZE(ally_cal_attr_groups);
- 	}
- 
--	if (cfg->turbo_support) {
--		ret = ally_create_button_attributes(hdev, ally, cfg);
--		if (ret < 0) {
--			hid_err(hdev, "Failed to create button attributes: %d\n", ret);
--			goto ally_config_create_sysfs_err;
--		}
-+	/*
-+	 * The button attributes carry the remap/macro attributes too, so
-+	 * they are created for every device with button directories, not
-+	 * only the ones with turbo support.
-+	 */
-+	ret = ally_create_button_attributes(hdev, ally, cfg);
-+	if (ret < 0) {
-+		hid_err(hdev, "Failed to create button attributes: %d\n", ret);
-+		goto ally_config_create_sysfs_err;
- 	}
- 
- 	cfg->initialized = true;
-@@ -3601,6 +4612,10 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
- 				 ret);
- 	}
- 
-+	/* The mappings exist only if the button attributes were created. */
-+	if (cfg->button_entries)
-+		ally_apply_button_mappings(hdev, ally, cfg);
-+
- 	return 0;
- }
- 
--- 
-2.47.3
+> diff --git a/drivers/input/keyboard/oneplus-pogo-kbd.c b/drivers/input/ke=
+yboard/oneplus-pogo-kbd.c
+> index 0000000000000..589f31ecef848
+> --- /dev/null
+> +++ b/drivers/input/keyboard/oneplus-pogo-kbd.c
+> @@ -778,7 +778,7 @@
+>  static void pogo_wake_irq_enable(struct pogo_kbd *kb, bool enable)
+>  {
+>  	if (enable =3D=3D kb->wake_irq_enabled)
+>  		return;
 
+[Severity: High]
+If pogo_wake_isr() fires concurrently, sets kb->wake_irq_enabled =3D false,
+and then pogo_remove() calls pogo_wake_irq_enable(kb, false), will this
+return early and bypass disable_irq()?
+
+Since disable_irq() also acts as a synchronize_irq(), missing it might
+allow the preempted ISR to resume and queue detect_work after it has
+already been cancelled in pogo_remove().
+
+[ ... ]
+
+> @@ -849,10 +849,10 @@
+>  static void pogo_plug_work(struct work_struct *work)
+>  {
+>  	struct pogo_kbd *kb =3D container_of(work, struct pogo_kbd, plug_work);
+>  	int ret;
+> =20
+>  	if (!kb->powered || !kb->connected)
+>  		return;
+> =20
+>  	if (!kb->kbd) {
+>  		ret =3D pogo_register_inputs(kb);
+
+[Severity: High]
+Can a race between pogo_plug_work() and pogo_power_off() leak input
+devices?
+
+If pogo_plug_work() evaluates kb->connected as true, and concurrently
+pogo_power_off() sets kb->connected =3D false (unregistering nothing since
+kb->kbd is still NULL):
+
+- pogo_plug_work() would then allocate and register the input devices.
+- The state becomes desynchronized: kb->connected is false, but devices
+  are registered.
+
+When the driver unbinds, pogo_remove() calls pogo_power_off(), which will
+skip unregistering the devices because kb->connected is false. Will this
+leave the input devices leaked and pointing to freed memory?
+
+[ ... ]
+
+> @@ -1074,6 +1074,6 @@
+>  	/* evaluate the current attach state; enables the irq when idle */
+>  	schedule_delayed_work(&kb->detect_work,
+>  			      msecs_to_jiffies(POGO_DETECT_DEBOUNCE_MS));
+> =20
+>  	dev_info(dev, "pogo keyboard link ready (wake irq %d)\n", kb->wake_irq);
+
+[Severity: Low]
+This isn't a bug, but does this success log violate the LED subsystem
+guidelines? The guidelines suggest only logging errors or warnings during
+probe, to avoid cluttering the kernel log with success messages.
+
+>  	return 0;
+>  }
+
+[ ... ]
+
+> @@ -1084,7 +1084,7 @@
+>  static void pogo_remove(struct serdev_device *serdev)
+>  {
+>  	struct pogo_kbd *kb =3D serdev_device_get_drvdata(serdev);
+> =20
+>  	pogo_wake_irq_enable(kb, false);
+>  	cancel_delayed_work_sync(&kb->detect_work);
+>  	cancel_delayed_work_sync(&kb->hb_work);
+
+[Severity: High]
+Because detect_work and hb_work can queue each other, and neither checks a
+shared teardown flag (like kb->going_away), could hb_work re-arm
+detect_work after detect_work was cancelled?
+
+If hb_work is running concurrently during pogo_remove():
+1. cancel_delayed_work_sync() for detect_work returns.
+2. hb_work calls schedule_delayed_work() for detect_work.
+3. cancel_delayed_work_sync() for hb_work waits for hb_work to finish.
+
+This leaves detect_work pending after pogo_remove() returns, which would
+lead to a use-after-free when devres frees the kb structure.
+
+>  	cancel_work_sync(&kb->plug_work);
+
+[Severity: High]
+Since the serdev port is managed by devm_serdev_device_open(), the UART
+receiver remains active until devres cleanup, which executes after
+pogo_remove() returns.
+
+Could an incoming UART frame trigger pogo_handle_sync() and re-queue
+plug_work after this cancellation? If the work remains queued after devres
+frees the kb memory, it would cause a use-after-free.
+
+Similarly, if pogo_probe() fails after devm_serdev_device_open(), could an
+incoming frame schedule the work on the error path where it is never
+cancelled? Does the UART receiver need to be closed or the callback
+disabled prior to work cancellation?
+
+>  	cancel_work_sync(&kb->led_work);
+>  	pogo_power_off(kb);
+
+[Severity: High]
+Because pogo_power_off(kb) is called after cancelling led_work, the input
+devices are still fully registered and active during cancellation.
+
+Can a concurrent EV_LED event routed by the input core trigger
+pogo_kbd_event(), which unconditionally calls schedule_work() for
+led_work? If led_work is re-armed after it was cancelled, it will execute
+on freed memory once devres cleans up. Should the input devices be
+unregistered before cancelling led_work?
+
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009122046.5519=
+15-1-wyibo6109@gmail.com?part=3D2

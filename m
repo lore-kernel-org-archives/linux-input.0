@@ -1,165 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28AD539768D
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 03:42:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91CA23955C9;
+	Fri,  9 Oct 2026 04:03:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791517379; cv=none; b=dQ19OhTJZbEFHRc5uW1cO5ugfjbr2t0MddSKk1WycICdLCwUc+AtWXIzG99TGEfuLzu28UntFErkTjNu6Ixb3DkgfBe/Os5a8VAn22vGQNc8RtB/A7h4OwfOfy7UHpYx5uL+Bm4ijZJguVB0MH5EuR0ZdZcmr2v71lgr1E0c9s8=
+	t=1791518589; cv=none; b=JibzgYhcIOYQLNnPgZkVYo+/z0EXDpiGLftzTNvd9yW1E4jn1qYLV7/BieVVKUUJLZFuUIgwVYpr4rFuj2DWEy7nDZyOwY9DO6hlkqyptiS0FStGI5atyJkh/v3vi72FRRIh7G6//1zXXV7ivreU7NicI68zl+x8UVY4TffCk/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791517379; c=relaxed/simple;
-	bh=cSelemOpzW0OekeRwY/VcK3OcTjycgijuR84rFCXApw=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=ljeuFocuWTsUepODxmkBmS/p18/Cv2hgy6jfqBHigPzeM5BM590zLzB7adRj2ecsZ/nMMq8bMfLZMfu5Zd3ZWgrP83VwjAmzmmFv9Xu8cvZWiUskgqmGGvbm1nuUv95P1mqz/2lLhL2tGduxVfXaVGhVEeqkuJJzBW3OhoiY2wk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Pi05FSto; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Pi05FSto"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 630411F000FF;
-	Fri,  9 Oct 2026 03:42:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791517362;
-	bh=RPTPJfLDNJ9t9QWl/AWWGsRnGpQTpPj0uyZGnKH7lQQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Pi05FStogD0UrHuDdyiPNRVY/CxhubsYbAkWqnkwxO346HdGAsTYsnboh1VmFTDRR
-	 ABks/1hg0xhuQ3r+OWQoBKSlRGRPSuVJwzArBG91HqgmR9c077ghwfj03rnPY04wUR
-	 fxwkaww6GGqWVsgCD9p1Vi2LEGVjZRIbZ+L8LbIfAa0gdkHTnJ2u5SgwdYHI/Hfnaz
-	 GpmcMmbZxoogrpqmjZHbpnWc3uyblqfPls4qyq4fFZoOCLTjBFVBukkC1HSVhp6YLu
-	 saDmUBndms/lyMe7UMFPw+BPsLlgsGZOS4SzJa3n35IptxwMFrNo1otzY6gYssq6z6
-	 GedTWK4rIfM9w==
-Message-ID: <sashiko-outbox-164785@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] HID: haptic: fix use-after-free of devm haptic data
- in hid_haptic_destroy()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aldo Ariel Panzardo" <qwe.aldo@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261009032607.3233482-1-qwe.aldo@gmail.com>
-References: <20261009032607.3233482-1-qwe.aldo@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 03:42:41 +0000
+	s=arc-20240116; t=1791518589; c=relaxed/simple;
+	bh=bt+j5oOUx9wDTb+5qlSVDSKdo/Ckz750QTVjjbM7enY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ov5NaXHG741+LNremlxq6F/AEljMRZ5Q6RLQzaqHKipVz3CHQN31iwWxdPv39Yab49uce39+G9zDyk/8R3eEkoT7waErBDSoRvEqpZZt2ym68dmGdIwD6wrs11t6B5GQL1DjxO05ZaX25onMWs3Q/hk2sErbvxRATFCJHTuj7Rw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from fc87d0ffb700.home.arpa (unknown [36.110.52.2])
+	by APP-03 (Coremail) with SMTP id rQCowAD3_jxzZ8hqQFwbCg--.2398S2;
+	Fri, 09 Oct 2026 12:03:00 +0800 (CST)
+From: Haotian Zhang <vulab@iscas.ac.cn>
+To: Ville Syrjala <syrjala@sci.fi>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: ati_remote2 - fix type confusion in device attribute handlers
+Date: Fri,  9 Oct 2026 12:03:02 +0800
+Message-Id: <20261009040302.3087205-1-vulab@iscas.ac.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:rQCowAD3_jxzZ8hqQFwbCg--.2398S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxAw1xGr4rGw13tw15GF15urg_yoW5AFy7pF
+	4DGayUKr4UJFn7WanFyr48Za4S9w18Ca4FkF1Iyw4S9rn7Ga4fXFy0yry3A3yrCrWFkr15
+	J3Z8Kw1UWayrGFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkmb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
+	A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xII
+	jxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwV
+	C2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC
+	0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAFwI0_Cr0_Gr
+	1UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7AKxVWUAVWU
+	twCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r
+	1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij
+	64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr
+	0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF
+	0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjxUgeHgUUUUU
+X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiDAQPA2rIJHz+tgAAs2
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] input: double free of haptic struct due to input_ff_destroy() auto=
--free
-- [High] hid: double free of td->haptic on device removal
-- [High] hid: memory leak and UAF of td->haptic on hid_hw_start error
-- [Medium] hid: memory leak of td->haptic on hid_hw_start() failure
-- [Medium] hid: memory leak of td->haptic on hid_hw_start() failure
---
+The channel_mask and mode_mask attributes are instantiated by the driver
+core through struct usb_driver::dev_groups, so they are attached to the
+usb_interface bound to the driver, not to the usb_device.  The four
+show/store handlers still call to_usb_device(dev), which applies the
+struct usb_device container_of() to a struct usb_interface::dev and thus
+produces a bogus usb_device pointer.  usb_ifnum_to_if() reads that
+pointer as udev->actconfig and dereferences it, and its result is passed
+to usb_get_intfdata() without any NULL check, so reading or writing the
+world-readable attributes can crash the kernel.
 
-commit ca7640e3726f1a30aa5c64767994c043a634455a
-Author: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Use to_usb_interface(dev) so the handlers recover the interface that the
+attributes belong to, matching the other drivers converted to dev_groups.
 
-HID: haptic: fix use-after-free of devm haptic data in hid_haptic_destroy()
+Fixes: b20d6bf8014b ("Input: ati-remote2 - use driver core to instantiate device attributes")
+Assisted-by: DeepSeek-V4.1-Flash
+Signed-off-by: Haotian Zhang <vulab@iscas.ac.cn>
+---
+ drivers/input/misc/ati_remote2.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-This patch attempts to fix a use-after-free by replacing devm_kzalloc with
-kzalloc for the haptic data so it outlives driver unbind. It introduces
-manual teardown in the hid_haptic_destroy callback and updates the error
-paths in mt_probe to free the unmanaged memory.
+diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
+index 8db2dca84975..3e0f874e9b16 100644
+--- a/drivers/input/misc/ati_remote2.c
++++ b/drivers/input/misc/ati_remote2.c
+@@ -672,8 +672,7 @@ static ssize_t ati_remote2_show_channel_mask(struct device *dev,
+ 					     struct device_attribute *attr,
+ 					     char *buf)
+ {
+-	struct usb_device *udev = to_usb_device(dev);
+-	struct usb_interface *intf = usb_ifnum_to_if(udev, 0);
++	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct ati_remote2 *ar2 = usb_get_intfdata(intf);
+ 
+ 	return sprintf(buf, "0x%04x\n", ar2->channel_mask);
+@@ -683,8 +682,7 @@ static ssize_t ati_remote2_store_channel_mask(struct device *dev,
+ 					      struct device_attribute *attr,
+ 					      const char *buf, size_t count)
+ {
+-	struct usb_device *udev = to_usb_device(dev);
+-	struct usb_interface *intf = usb_ifnum_to_if(udev, 0);
++	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct ati_remote2 *ar2 = usb_get_intfdata(intf);
+ 	unsigned int mask;
+ 	int r;
+@@ -720,8 +718,7 @@ static ssize_t ati_remote2_show_mode_mask(struct device *dev,
+ 					  struct device_attribute *attr,
+ 					  char *buf)
+ {
+-	struct usb_device *udev = to_usb_device(dev);
+-	struct usb_interface *intf = usb_ifnum_to_if(udev, 0);
++	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct ati_remote2 *ar2 = usb_get_intfdata(intf);
+ 
+ 	return sprintf(buf, "0x%02x\n", ar2->mode_mask);
+@@ -731,8 +728,7 @@ static ssize_t ati_remote2_store_mode_mask(struct device *dev,
+ 					   struct device_attribute *attr,
+ 					   const char *buf, size_t count)
+ {
+-	struct usb_device *udev = to_usb_device(dev);
+-	struct usb_interface *intf = usb_ifnum_to_if(udev, 0);
++	struct usb_interface *intf = to_usb_interface(dev);
+ 	struct ati_remote2 *ar2 = usb_get_intfdata(intf);
+ 	unsigned int mask;
+ 	int err;
+-- 
+2.25.1
 
-> diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
-> index 8760eeb08b2cd..6c365dbf0b9cf 100644
-> --- a/drivers/hid/hid-haptic.c
-> +++ b/drivers/hid/hid-haptic.c
-> @@ -406,6 +406,8 @@ static void hid_haptic_destroy(struct ff_device *ff)
->  	haptic->hid_usage_map =3D NULL;
-> =20
->  	module_put(THIS_MODULE);
-> +
-> +	kfree(haptic);
->  }
-
-[Severity: High]
-Does this explicit kfree() cause a double free?
-
-Looking at the input core's teardown path in input_ff_destroy(), the core
-automatically frees ff->private immediately after calling the driver's
-destroy callback:
-
-drivers/input/ff-core.c:input_ff_destroy() {
-        ...
-        if (ff->destroy)
-                ff->destroy(ff);
-        kfree(ff->private);
-        ...
-}
-
-Since hid_haptic_init() sets ff->private to the haptic struct, the newly
-added kfree(haptic) here will free the pointer, and then the input core
-will immediately free it again.
-
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 4e19a0c4d2381..f4d8d640d9577 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -2132,7 +2132,7 @@ static int mt_probe(struct hid_device *hdev, const =
-struct hid_device_id *id)
->  		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
->  		return -ENOMEM;
->  	}
-> -	td->haptic =3D devm_kzalloc(&hdev->dev, sizeof(*(td->haptic)), GFP_KERN=
-EL);
-> +	td->haptic =3D kzalloc(sizeof(*(td->haptic)), GFP_KERNEL);
->  	if (!td->haptic)
->  		return -ENOMEM;
-
-[ ... ]
-
-> @@ -2206,9 +2208,13 @@ static int mt_probe(struct hid_device *hdev, const=
- struct hid_device_id *id)
->  	mt_set_modes(hdev, HID_LATENCY_NORMAL, TOUCHPAD_REPORT_ALL);
-> =20
->  	if (!td->is_haptic_touchpad)
-> -		devm_kfree(&hdev->dev, td->haptic);
-> +		kfree(td->haptic);
-> =20
->  	return 0;
-> +
-> +err_free_haptic:
-> +	kfree(td->haptic);
-> +	return ret;
->  }
-
-[Severity: High]
-Does this leak the td->haptic structure when hid_hw_start() fails?
-
-Since td->haptic is now allocated with kzalloc() instead of devm_kzalloc(),
-it requires manual cleanup on all failure paths. However, the error path
-for hid_hw_start() in mt_probe() returns directly without freeing it:
-
-mt_probe() {
-        ...
-        ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-        if (ret)
-                return ret;
-        ...
-}
-
-If hid_hw_start() fails early (for example, during low-level transport
-initialization before hidinput_connect() runs), the force-feedback
-callback is never registered and the memory allocated for td->haptic is
-permanently leaked.
-
-Additionally, could this sequence lead to a use-after-free if
-hidinput_connect() fails but another transport succeeds?
-
-If hid_haptic_init() successfully installs the FF callback, but input
-registration unwinds due to a failure, the input core frees td->haptic
-via the hid_haptic_destroy() callback.
-
-If another transport like hidraw subsequently succeeds, hid_hw_start()
-will return 0 and mt_probe() completes successfully. The driver would
-then be bound with td->haptic pointing to freed memory, leading to a
-use-after-free when incoming HID reports are processed in
-mt_process_slot() by calling hid_haptic_pressure_increase().
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009032607.3233=
-482-1-qwe.aldo@gmail.com?part=3D1

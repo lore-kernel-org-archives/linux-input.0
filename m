@@ -1,33 +1,33 @@
-Received: from mta0.migadu.com (out-146.mta0.migadu.com [91.218.175.146])
+Received: from mta0.migadu.com (out-154.mta0.migadu.com [91.218.175.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682C44BB274
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 12:28:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.146
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCB5F4D17AF
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 12:28:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791548927; cv=none; b=nBAF0Js5nOlaW7WaNus0mkcEov0ITH55Nez0x9Q2p1thikUofwDtgl9g+aSD71GFIZM1tPnJgVn4ONyfqOmqXMZIRYpusxD60KObre1jUYq3mUSse0Ip8CHSkRJhS/L68RlBQSlXARPzNcwGwcqBMDHYQlgnZ3VtHKEB1SUL4lo=
+	t=1791548932; cv=none; b=Ms2qqFPvr8pKkUYaZHZZ+TnV9nJ6neK/Gup/2rtoipl2Nj/wjjXzyZW2sQJXcX30ICI49Br++D6eswwYk5wUtY7tdBnP6C/1gNrUGAKzAqlznuvzzw4PjWL9LqcdCxl20ud2s+5DqCFK2sz03+ITM/XjFNvde25NkHHxgWkReFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791548927; c=relaxed/simple;
-	bh=A6m7qQllM6TKp9WmwQoOpR6hq5t70whw+vGC1HLpNEY=;
+	s=arc-20240116; t=1791548932; c=relaxed/simple;
+	bh=Z4Q38JeB6St4hArsI3Zzk1K/95oKNYz7ZFVaAOerUQw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cA8oOI56jwSa8l7N7K/3e6lfmYUpRqSa4doVPWGsOn3tOIXU+Hqfkpn8yjFWgmjP8Cplrw7xCjOvAjF+ylXFWYOYbXHMTFXW+fr+G+ooM6O1RYDZmxuiFY13ArX0cRl587KoL1H2tTWcjh6PmdCQgRYqgim77/4tjyg5BqjincU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=L1e+ulcw; arc=none smtp.client-ip=91.218.175.146
+	 MIME-Version; b=gvXUjEOnul4IX+1xeHV+aD3L2p5oAJPo9Z8xFzaYfM+cfLQCVLHaPJVmoULLhmh2SVRVZl0WRfb2y0nGgT0U6xFfsgboS4BXjhoffBuUReFF/EqM93/v83r1QygqcSnK88FYLoDO7i52aXcXPnc0um8mezrx3GYdUOg2HvoHqI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=rZCQCAOq; arc=none smtp.client-ip=91.218.175.154
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="L1e+ulcw"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="rZCQCAOq"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=A6m7qQllM6TKp9WmwQoOpR6hq5t70whw+vGC1HLpNEY=;
+DKIM-Signature: a=rsa-sha256; bh=Z4Q38JeB6St4hArsI3Zzk1K/95oKNYz7ZFVaAOerUQw=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1791548917; v=1; x=1792153717;
- b=L1e+ulcwQFAlNAw6IJs5XuhP0UtyUdCoMa0zx1km2Z5tS0OQhzYpEVVo0q1MN7idYZGE/I5C
- wHu/Pxw/rvUjuyDYQL1WHoT9Vj30dfvswC7FDVT3BneiLvf+i3Faf1xZUXnlrcZg2zzp/D8AHto
- LCKeQSax6VEg3V97sR8rkD4U=
+ t=1791548921; v=1; x=1792153721;
+ b=rZCQCAOqCCGANgw6vXX1NX0zBJ5AcFdeKxyUSoQn4xALWyIMAhbFWlNLJZL9jDHDxObyOho6
+ 2An0vYrjVYlhKzxVYb0WiUXHdhAQzvq5swE5o1J0lfWHEza46/wlM+WRxKlATNjQ9AZz19dMs8A
+ v6rPjhvciZQpkYDp6U9vRn4Y=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 4ffa226f866172cb;
-	Fri, 09 Oct 2026 12:28:37 +0000
-X-Mizu-Trace-ID: 4ffa226f866172cb
+Received: by smtp.migadu.com with ESMTPS id cedf61008df1f5e0;
+	Fri, 09 Oct 2026 12:28:41 +0000
+X-Mizu-Trace-ID: cedf61008df1f5e0
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -38,9 +38,9 @@ Cc: linux-input@vger.kernel.org,
 	"Mateusz Schyboll" <dragonn@op.pl>,
 	"Denis Benato" <benato.denis96@gmail.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v9 05/12] HID: asus: add joysticks inner and outer range configuration
-Date: Fri,  9 Oct 2026 12:28:13 +0000
-Message-ID: <20261009122820.7603-6-denis.benato@linux.dev>
+Subject: [PATCH v9 06/12] HID: asus: add triggers inner and outer range configuration
+Date: Fri,  9 Oct 2026 12:28:14 +0000
+Message-ID: <20261009122820.7603-7-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261009122820.7603-1-denis.benato@linux.dev>
 References: <20261009122820.7603-1-denis.benato@linux.dev>
@@ -52,61 +52,61 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ROG Ally devices supports configuring joysticks inner and outer range:
-add sysfs attributes to allow userspace modifying the sensitivity
-of those controllers.
+ROG Ally devices allows configuring inner and outer ranges for triggers
+buttons on the back: allow userspace to configure the sensitivity by
+exposing sysfs attributes.
 
 Assisted-by: opencode:glm-5.2
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 Signed-off-by: Luke Jones <luke@ljones.dev>
 ---
- drivers/hid/hid-asus.c | 433 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 433 insertions(+)
+ drivers/hid/hid-asus.c | 393 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 393 insertions(+)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index c7c5be576297..354579a11f60 100644
+index 354579a11f60..3affb0e39e50 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1030,6 +1030,358 @@ static struct device_attribute dev_attr_right_vibration_intensity =
- static struct device_attribute dev_attr_right_vibration_intensity_range =
- 	__ATTR(intensity_range, 0444, right_vibration_intensity_range_show, NULL);
+@@ -1382,6 +1382,357 @@ static struct device_attribute dev_attr_right_joystick_outer_threshold =
+ static struct device_attribute dev_attr_right_joystick_outer_threshold_range =
+ 	__ATTR(outer_threshold_range, 0444, right_joystick_outer_threshold_range_show, NULL);
  
 +/**
-+ * ally_set_joystick_thresholds() - Generic function to set joystick ranges
++ * ally_set_trigger_ranges() - Generic function to set triggers ranges
 + * @ally: ally handheld structure
 + * @hdev: HID device
-+ * @left_it: inner threshold (deadzone) of the left stick (0-50)
-+ * @left_ot: outer threshold of the left stick (70-100)
-+ * @right_it: inner threshold (deadzone) of the right stick (0-50)
-+ * @right_ot: outer threshold of the right stick (70-100)
++ * @left_it: lower limit of the left trigger range (0-50)
++ * @left_ot: upper limit of the left trigger range (70-100)
++ * @right_it: lower limit of the right trigger range (0-50)
++ * @right_ot: upper limit of the right trigger range (70-100)
 + *
 + * This function sends the command to set both inner and outer threshold
-+ * for the left and right joysticks.
++ * for the left and right triggers.
 + *
 + * Return: 0 on success, negative errno on failure
 + */
-+static int ally_set_joystick_thresholds(struct ally_handheld *ally,
-+					struct hid_device *hdev,
-+					u8 left_it, u8 left_ot, u8 right_it, u8 right_ot)
++static int ally_set_trigger_ranges(struct ally_handheld *ally,
++				   struct hid_device *hdev,
++				   u8 left_it, u8 left_ot, u8 right_it, u8 right_ot)
 +{
 +	const u8 payload[] = { left_it, left_ot, right_it, right_ot };
 +	int ret;
 +
-+	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_JOYSTICK_DEADZONE, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_TRIGGER_RANGE, payload, sizeof(payload));
 +	if (!buf)
 +		return -ENOMEM;
 +
 +	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
 +	if (ret < 0) {
-+		hid_err(hdev, "Failed to set joystick ranges: %d\n", ret);
++		hid_err(hdev, "Failed to set trigger ranges: %d\n", ret);
 +		return ret;
 +	}
 +
 +	return 0;
 +}
 +
-+static ssize_t left_joystick_inner_threshold_show(struct device *dev, struct device_attribute *attr,
-+						  char *buf)
++static ssize_t left_trigger_range_lower_limit_show(struct device *dev,
++						   struct device_attribute *attr, char *buf)
 +{
 +	struct hid_device *hdev = to_hid_device(dev);
 +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
@@ -125,155 +125,10 @@ index c7c5be576297..354579a11f60 100644
 +	if (!cfg->user_cal_support)
 +		return -EOPNOTSUPP;
 +
-+	return sysfs_emit(buf, "%u\n", cfg->left_deadzone);
++	return sysfs_emit(buf, "%u\n", cfg->left_trigger_min);
 +}
 +
-+static ssize_t left_joystick_inner_threshold_store(struct device *dev,
-+						   struct device_attribute *attr,
-+						   const char *buf, size_t count)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *const ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
-+	u8 value;
-+	int ret;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	ret = kstrtou8(buf, 10, &value);
-+	if (ret || value > 50)
-+		return -EINVAL;
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	if (!cfg->user_cal_support)
-+		return -EOPNOTSUPP;
-+
-+	ret = ally_set_joystick_thresholds(ally, hdev,
-+					   value,
-+					   cfg->left_outer_threshold,
-+					   cfg->right_deadzone,
-+					   cfg->right_outer_threshold);
-+	if (ret)
-+		return ret;
-+
-+	cfg->left_deadzone = value;
-+
-+	sysfs_notify(&dev->kobj, "left_joystick_axis", "inner_threshold");
-+
-+	return count;
-+}
-+
-+static ssize_t left_joystick_inner_threshold_range_show(struct device *dev,
-+							struct device_attribute *attr,
-+							char *buf)
-+{
-+	return sysfs_emit(buf, "0 50\n");
-+}
-+
-+static ssize_t left_joystick_outer_threshold_show(struct device *dev, struct device_attribute *attr,
-+						  char *buf)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *const ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	if (!cfg->user_cal_support)
-+		return -EOPNOTSUPP;
-+
-+	return sysfs_emit(buf, "%u\n", cfg->left_outer_threshold);
-+}
-+
-+static ssize_t left_joystick_outer_threshold_store(struct device *dev,
-+						   struct device_attribute *attr,
-+						   const char *buf, size_t count)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *const ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
-+	u8 value;
-+	int ret;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	ret = kstrtou8(buf, 10, &value);
-+	if (ret || value < 70 || value > 100)
-+		return -EINVAL;
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	if (!cfg->user_cal_support)
-+		return -EOPNOTSUPP;
-+
-+	ret = ally_set_joystick_thresholds(ally, hdev,
-+					   cfg->left_deadzone,
-+					   value,
-+					   cfg->right_deadzone,
-+					   cfg->right_outer_threshold);
-+	if (ret)
-+		return ret;
-+
-+	cfg->left_outer_threshold = value;
-+
-+	sysfs_notify(&dev->kobj, "left_joystick_axis", "outer_threshold");
-+
-+	return count;
-+}
-+
-+static ssize_t left_joystick_outer_threshold_range_show(struct device *dev,
-+							struct device_attribute *attr,
-+							char *buf)
-+{
-+	return sysfs_emit(buf, "70 100\n");
-+}
-+
-+static ssize_t right_joystick_inner_threshold_show(struct device *dev,
-+						   struct device_attribute *attr,
-+						   char *buf)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *const ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	if (!cfg->user_cal_support)
-+		return -EOPNOTSUPP;
-+
-+	return sysfs_emit(buf, "%u\n", cfg->right_deadzone);
-+}
-+
-+static ssize_t right_joystick_inner_threshold_store(struct device *dev,
++static ssize_t left_trigger_range_lower_limit_store(struct device *dev,
 +						    struct device_attribute *attr,
 +						    const char *buf, size_t count)
 +{
@@ -300,29 +155,173 @@ index c7c5be576297..354579a11f60 100644
 +	if (!cfg->user_cal_support)
 +		return -EOPNOTSUPP;
 +
-+	ret = ally_set_joystick_thresholds(ally, hdev,
-+					   cfg->left_deadzone,
-+					   cfg->left_outer_threshold,
-+					   value,
-+					   cfg->right_outer_threshold);
++	ret = ally_set_trigger_ranges(ally, hdev,
++				      value,
++				      cfg->left_trigger_max,
++				      cfg->right_trigger_min,
++				      cfg->right_trigger_max);
 +	if (ret)
 +		return ret;
 +
-+	cfg->right_deadzone = value;
++	cfg->left_trigger_min = value;
 +
-+	sysfs_notify(&dev->kobj, "right_joystick_axis", "inner_threshold");
++	sysfs_notify(&dev->kobj, "left_trigger", "range_lower_limit");
 +
 +	return count;
 +}
 +
-+static ssize_t right_joystick_inner_threshold_range_show(struct device *dev,
++static ssize_t left_trigger_range_lower_limit_range_show(struct device *dev,
 +							 struct device_attribute *attr,
 +							 char *buf)
 +{
 +	return sysfs_emit(buf, "0 50\n");
 +}
 +
-+static ssize_t right_joystick_outer_threshold_show(struct device *dev,
++static ssize_t right_trigger_range_upper_limit_show(struct device *dev,
++						    struct device_attribute *attr, char *buf)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *const ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++
++	if (!ally)
++		return -ENODEV;
++
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	if (!cfg->user_cal_support)
++		return -EOPNOTSUPP;
++
++	return sysfs_emit(buf, "%u\n", cfg->right_trigger_max);
++}
++
++static ssize_t right_trigger_range_upper_limit_store(struct device *dev,
++						     struct device_attribute *attr,
++						     const char *buf, size_t count)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *const ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++	u8 value;
++	int ret;
++
++	if (!ally)
++		return -ENODEV;
++
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
++
++	ret = kstrtou8(buf, 10, &value);
++	if (ret || value < 70 || value > 100)
++		return -EINVAL;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	if (!cfg->user_cal_support)
++		return -EOPNOTSUPP;
++
++	ret = ally_set_trigger_ranges(ally, hdev,
++				      cfg->left_trigger_min,
++				      cfg->left_trigger_max,
++				      cfg->right_trigger_min,
++				      value);
++	if (ret)
++		return ret;
++
++	cfg->right_trigger_max = value;
++
++	sysfs_notify(&dev->kobj, "right_trigger", "range_upper_limit");
++
++	return count;
++}
++
++static ssize_t right_trigger_range_upper_limit_range_show(struct device *dev,
++							  struct device_attribute *attr,
++							  char *buf)
++{
++	return sysfs_emit(buf, "70 100\n");
++}
++
++static ssize_t right_trigger_range_lower_limit_show(struct device *dev,
++						    struct device_attribute *attr, char *buf)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *const ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++
++	if (!ally)
++		return -ENODEV;
++
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	if (!cfg->user_cal_support)
++		return -EOPNOTSUPP;
++
++	return sysfs_emit(buf, "%u\n", cfg->right_trigger_min);
++}
++
++static ssize_t right_trigger_range_lower_limit_store(struct device *dev,
++						     struct device_attribute *attr,
++						     const char *buf, size_t count)
++{
++	struct hid_device *hdev = to_hid_device(dev);
++	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
++	struct ally_handheld *const ally = drvdata->rog_ally;
++	struct ally_config *cfg;
++	u8 value;
++	int ret;
++
++	if (!ally)
++		return -ENODEV;
++
++	cfg = ally_get_config(ally);
++	if (!cfg)
++		return -ENODEV;
++
++	ret = kstrtou8(buf, 10, &value);
++	if (ret || value > 50)
++		return -EINVAL;
++
++	guard(mutex)(&cfg->config_mutex);
++
++	if (!cfg->user_cal_support)
++		return -EOPNOTSUPP;
++
++	ret = ally_set_trigger_ranges(ally, hdev,
++				      cfg->left_trigger_min,
++				      cfg->left_trigger_max,
++				      value,
++				      cfg->right_trigger_max);
++	if (ret)
++		return ret;
++
++	cfg->right_trigger_min = value;
++
++	sysfs_notify(&dev->kobj, "right_trigger", "range_lower_limit");
++
++	return count;
++}
++
++static ssize_t right_trigger_range_lower_limit_range_show(struct device *dev,
++							  struct device_attribute *attr,
++							  char *buf)
++{
++	return sysfs_emit(buf, "0 50\n");
++}
++
++static ssize_t left_trigger_range_upper_limit_show(struct device *dev,
 +						   struct device_attribute *attr,
 +						   char *buf)
 +{
@@ -343,10 +342,10 @@ index c7c5be576297..354579a11f60 100644
 +	if (!cfg->user_cal_support)
 +		return -EOPNOTSUPP;
 +
-+	return sysfs_emit(buf, "%u\n", cfg->right_outer_threshold);
++	return sysfs_emit(buf, "%u\n", cfg->left_trigger_max);
 +}
 +
-+static ssize_t right_joystick_outer_threshold_store(struct device *dev,
++static ssize_t left_trigger_range_upper_limit_store(struct device *dev,
 +						    struct device_attribute *attr,
 +						    const char *buf, size_t count)
 +{
@@ -373,175 +372,132 @@ index c7c5be576297..354579a11f60 100644
 +	if (!cfg->user_cal_support)
 +		return -EOPNOTSUPP;
 +
-+	ret = ally_set_joystick_thresholds(ally, hdev,
-+					   cfg->left_deadzone,
-+					   cfg->left_outer_threshold,
-+					   cfg->right_deadzone,
-+					   value);
++	ret = ally_set_trigger_ranges(ally, hdev,
++				      cfg->left_trigger_min,
++				      value,
++				      cfg->right_trigger_min,
++				      cfg->right_trigger_max);
 +	if (ret)
 +		return ret;
 +
-+	cfg->right_outer_threshold = value;
++	cfg->left_trigger_max = value;
 +
-+	sysfs_notify(&dev->kobj, "right_joystick_axis", "outer_threshold");
++	sysfs_notify(&dev->kobj, "left_trigger", "range_upper_limit");
 +
 +	return count;
 +}
 +
-+static ssize_t right_joystick_outer_threshold_range_show(struct device *dev,
++static ssize_t left_trigger_range_upper_limit_range_show(struct device *dev,
 +							 struct device_attribute *attr,
 +							 char *buf)
 +{
 +	return sysfs_emit(buf, "70 100\n");
 +}
 +
-+static struct device_attribute dev_attr_left_joystick_inner_threshold =
-+	__ATTR(inner_threshold, 0644, left_joystick_inner_threshold_show,
-+	       left_joystick_inner_threshold_store);
++static struct device_attribute dev_attr_left_trigger_range_lower_limit =
++	__ATTR(range_lower_limit, 0644, left_trigger_range_lower_limit_show,
++	       left_trigger_range_lower_limit_store);
 +
-+static struct device_attribute dev_attr_left_joystick_inner_threshold_range =
-+	__ATTR(inner_threshold_range, 0444, left_joystick_inner_threshold_range_show, NULL);
++static struct device_attribute dev_attr_left_trigger_range_lower_limit_range =
++	__ATTR(range_lower_limit_range, 0444, left_trigger_range_lower_limit_range_show, NULL);
 +
-+static struct device_attribute dev_attr_left_joystick_outer_threshold =
-+	__ATTR(outer_threshold, 0644, left_joystick_outer_threshold_show,
-+	       left_joystick_outer_threshold_store);
++static struct device_attribute dev_attr_left_trigger_range_upper_limit =
++	__ATTR(range_upper_limit, 0644, left_trigger_range_upper_limit_show,
++	       left_trigger_range_upper_limit_store);
 +
-+static struct device_attribute dev_attr_left_joystick_outer_threshold_range =
-+	__ATTR(outer_threshold_range, 0444, left_joystick_outer_threshold_range_show, NULL);
++static struct device_attribute dev_attr_left_trigger_range_upper_limit_range =
++	__ATTR(range_upper_limit_range, 0444, left_trigger_range_upper_limit_range_show, NULL);
 +
-+static struct device_attribute dev_attr_right_joystick_inner_threshold =
-+	__ATTR(inner_threshold, 0644, right_joystick_inner_threshold_show,
-+	       right_joystick_inner_threshold_store);
++static struct device_attribute dev_attr_right_trigger_range_lower_limit =
++	__ATTR(range_lower_limit, 0644, right_trigger_range_lower_limit_show,
++	       right_trigger_range_lower_limit_store);
 +
-+static struct device_attribute dev_attr_right_joystick_inner_threshold_range =
-+	__ATTR(inner_threshold_range, 0444, right_joystick_inner_threshold_range_show, NULL);
++static struct device_attribute dev_attr_right_trigger_range_lower_limit_range =
++	__ATTR(range_lower_limit_range, 0444, right_trigger_range_lower_limit_range_show, NULL);
 +
-+static struct device_attribute dev_attr_right_joystick_outer_threshold =
-+	__ATTR(outer_threshold, 0644, right_joystick_outer_threshold_show,
-+	       right_joystick_outer_threshold_store);
++static struct device_attribute dev_attr_right_trigger_range_upper_limit =
++	__ATTR(range_upper_limit, 0644, right_trigger_range_upper_limit_show,
++	       right_trigger_range_upper_limit_store);
 +
-+static struct device_attribute dev_attr_right_joystick_outer_threshold_range =
-+	__ATTR(outer_threshold_range, 0444, right_joystick_outer_threshold_range_show, NULL);
++static struct device_attribute dev_attr_right_trigger_range_upper_limit_range =
++	__ATTR(range_upper_limit_range, 0444, right_trigger_range_upper_limit_range_show, NULL);
 +
  static struct attribute *ally_config_attrs[] = {
  	&dev_attr_xbox_controller.attr,
  	NULL
-@@ -1047,6 +1399,22 @@ static struct attribute *ally_right_vibration_attrs[] = {
+@@ -1415,6 +1766,22 @@ static struct attribute *right_joystick_axis_attrs[] = {
  	NULL
  };
  
-+static struct attribute *left_joystick_axis_attrs[] = {
-+	&dev_attr_left_joystick_inner_threshold.attr,
-+	&dev_attr_left_joystick_outer_threshold.attr,
-+	&dev_attr_left_joystick_inner_threshold_range.attr,
-+	&dev_attr_left_joystick_outer_threshold_range.attr,
++static struct attribute *left_trigger_attrs[] = {
++	&dev_attr_left_trigger_range_lower_limit.attr,
++	&dev_attr_left_trigger_range_upper_limit.attr,
++	&dev_attr_left_trigger_range_lower_limit_range.attr,
++	&dev_attr_left_trigger_range_upper_limit_range.attr,
 +	NULL
 +};
 +
-+static struct attribute *right_joystick_axis_attrs[] = {
-+	&dev_attr_right_joystick_inner_threshold.attr,
-+	&dev_attr_right_joystick_outer_threshold.attr,
-+	&dev_attr_right_joystick_inner_threshold_range.attr,
-+	&dev_attr_right_joystick_outer_threshold_range.attr,
++static struct attribute *right_trigger_attrs[] = {
++	&dev_attr_right_trigger_range_lower_limit.attr,
++	&dev_attr_right_trigger_range_upper_limit.attr,
++	&dev_attr_right_trigger_range_lower_limit_range.attr,
++	&dev_attr_right_trigger_range_upper_limit_range.attr,
 +	NULL
 +};
 +
  static const struct attribute_group ally_attr_groups[] = {
  	{
  		.attrs = ally_config_attrs,
-@@ -1061,6 +1429,28 @@ static const struct attribute_group ally_attr_groups[] = {
- 	},
+@@ -1446,9 +1813,21 @@ static const struct attribute_group ally_right_joystick_axis_group = {
+ 	.attrs = right_joystick_axis_attrs,
  };
  
-+/*
-+ * The joystick and trigger range calibration attributes are tied to the
-+ * user-calibration capability: their sysfs groups are registered only
-+ * when the device supports configuring those parameters, and the show
-+ * and store callbacks reject accesses with -EOPNOTSUPP regardless, in
-+ * case the groups are registered for another supported feature.
-+ */
-+static const struct attribute_group ally_left_joystick_axis_group = {
-+	.name = "left_joystick_axis",
-+	.attrs = left_joystick_axis_attrs,
++static const struct attribute_group ally_left_trigger_group = {
++	.name = "left_trigger",
++	.attrs = left_trigger_attrs,
 +};
 +
-+static const struct attribute_group ally_right_joystick_axis_group = {
-+	.name = "right_joystick_axis",
-+	.attrs = right_joystick_axis_attrs,
++static const struct attribute_group ally_right_trigger_group = {
++	.name = "right_trigger",
++	.attrs = right_trigger_attrs,
 +};
 +
-+static const struct attribute_group *const ally_cal_attr_groups[] = {
-+	&ally_left_joystick_axis_group,
-+	&ally_right_joystick_axis_group,
-+};
-+
+ static const struct attribute_group *const ally_cal_attr_groups[] = {
+ 	&ally_left_joystick_axis_group,
+ 	&ally_right_joystick_axis_group,
++	&ally_left_trigger_group,
++	&ally_right_trigger_group,
+ };
+ 
  /**
-  * ally_config_create() - Initialize configuration and create sysfs entries
-  * @hdev: HID device
-@@ -1121,6 +1511,25 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
- 		}
+@@ -1493,6 +1872,10 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
+ 		cfg->left_outer_threshold = 90;
+ 		cfg->right_deadzone = 10;
+ 		cfg->right_outer_threshold = 90;
++		cfg->left_trigger_min = 0;
++		cfg->left_trigger_max = 100;
++		cfg->right_trigger_min = 0;
++		cfg->right_trigger_max = 100;
+ 		cfg->vibration_intensity_left = 100;
+ 		cfg->vibration_intensity_right = 100;
  	}
- 
-+	/* Skip the calibration groups when the capability is missing. */
-+	if (cfg->user_cal_support) {
-+		int cal_i;
+@@ -1880,6 +2263,16 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
+ 			hid_warn(hdev,
+ 					 "Failed to restore joystick thresholds: %d\n",
+ 					 ret);
 +
-+		for (cal_i = 0; cal_i < ARRAY_SIZE(ally_cal_attr_groups);
-+		     cal_i++) {
-+			ret = sysfs_create_group(&hdev->dev.kobj,
-+						 ally_cal_attr_groups[cal_i]);
-+			if (ret < 0) {
-+				hid_err(hdev, "Failed to create sysfs group '%s': %d\n",
-+					ally_cal_attr_groups[cal_i]->name, ret);
-+				while (cal_i-- > 0)
-+					sysfs_remove_group(&hdev->dev.kobj,
-+							   ally_cal_attr_groups[cal_i]);
-+				goto ally_config_create_sysfs_err;
-+			}
-+		}
-+	}
-+
- 	cfg->initialized = true;
- 
- 	return cfg;
-@@ -1151,6 +1560,18 @@ static void ally_config_remove(struct hid_device *hdev, struct ally_config *cfg)
- 
- 	for (i = 0; i < ARRAY_SIZE(ally_attr_groups); i++)
- 		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[i]);
-+
-+	/*
-+	 * The calibration groups are removed with the same gating used to
-+	 * create them, so a device without those capabilities does not
-+	 * trigger a "not found" warning.
-+	 */
-+	if (cfg->user_cal_support || cfg->anti_deadzone_support ||
-+	    cfg->resp_curve_support) {
-+		for (i = 0; i < ARRAY_SIZE(ally_cal_attr_groups); i++)
-+			sysfs_remove_group(&hdev->dev.kobj,
-+						   ally_cal_attr_groups[i]);
-+	}
- }
- 
- /**
-@@ -1449,6 +1870,18 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
- 		hid_warn(hdev, "Failed to restore vibration intensity: %d\n",
- 			 ret);
- 
-+	if (cfg->user_cal_support) {
-+		ret = ally_set_joystick_thresholds(ally, hdev,
-+						   cfg->left_deadzone,
-+						   cfg->left_outer_threshold,
-+						   cfg->right_deadzone,
-+						   cfg->right_outer_threshold);
++		ret = ally_set_trigger_ranges(ally, hdev,
++					      cfg->left_trigger_min,
++					      cfg->left_trigger_max,
++					      cfg->right_trigger_min,
++					      cfg->right_trigger_max);
 +		if (ret < 0)
 +			hid_warn(hdev,
-+					 "Failed to restore joystick thresholds: %d\n",
++					 "Failed to restore trigger ranges: %d\n",
 +					 ret);
-+	}
-+
- 	return 0;
- }
+ 	}
  
+ 	return 0;
 -- 
 2.47.3
 

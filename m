@@ -1,44 +1,45 @@
 Received: from TYPPR03CU001.outbound.protection.outlook.com (mail-japaneastazon11022073.outbound.protection.outlook.com [52.101.126.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 239684E1C9B;
-	Fri,  9 Oct 2026 14:47:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D9FB4E7809;
+	Fri,  9 Oct 2026 14:47:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.126.73
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791557266; cv=fail; b=JQL5ElJMr8/57wG+WScJU2IYClWsuLXAY0HuGVewtB6dxz9ji11t4+NYd17vh9CHAovCYF5H2hLmlTVRloMy79QOITVkQ/jr0DoJwtNXprL6cyrVH9iFwbZFCrQujDt7vO4dOQ7A3nq3AkR7/G8TIphQHH4UrGtnYg/HwI4AGjg=
+	t=1791557268; cv=fail; b=HQIy1YVLQfYZ1FULPsnfLFLLfPQB3IKvbw28cn58IpcHbMpq4K/jPAqPE1w2TEiqqhIqbZdW5zd+n501Cpo6qeK/DjyY+sUK0FOR36xaUbslNZqCrPrF78dGG7aEdpnD1nxL7ZHe1llYtjx1ilTAv+gpy0WAHd73ogKxre0T0Tk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791557266; c=relaxed/simple;
-	bh=MRg+QUKbh0b78mWsgxLpStHMkDggJzXGRAazm4x0v5Y=;
-	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=Z5sMtQnA7BkrNGAUJjLj65ePIDR1dDwY7SvBvrM8iFm2REx6zGyBJm0YNzO+0U+iPynZiyECDJCOAYf0ByDOO08pQXsYCshD7CLvwEdFQ6KFevAED4VRNB3RyY/Tye9cowaSFQOyMu3zZaZg5nFlD8A9m3SgtKJ5Ucd20d4mcH4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crepuse.com; spf=pass smtp.mailfrom=crepuse.com; dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b=SSS7MQFE; arc=fail smtp.client-ip=52.101.126.73
+	s=arc-20240116; t=1791557268; c=relaxed/simple;
+	bh=8qczvNugv0pn9abK98x0Xn15CX3RXvaoZ25AwbTN2NM=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=pgMny9FpIMt+0dEMmKrZaV/UnXgOX53AKYVcNO3daOoNaPI/UOhXs1qGA5B5QCBK0PB5quupTPRnL/jKZFEIzdxm8Ct+mbrf2wH27WZbd4+jXV7iGgfcBrieLJC6Gw0L984Xl3FYKN9ni0ve2rbX5EzrlHZNSZhfiT27tlJgY6U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crepuse.com; spf=pass smtp.mailfrom=crepuse.com; dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b=QmjLKzSo; arc=fail smtp.client-ip=52.101.126.73
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crepuse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crepuse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b="SSS7MQFE"
+	dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b="QmjLKzSo"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=VqaCqmi2+lGFa6qkR9i9Fo0qRBoiBJATaHQD6xUpFJGRzdPWbPwmD7+FSzy/TW9Q6Dr67tTbKAn5gGR9kq8ZfUjsaEzPHrpZ2UrcwF8QEQy84DDXaCqLeIfrIxPjoqyZKlwDsjuaHtJmHVGNSp1KJW5vyp8cJ4ZDUu2tMDOf0Kcpl2CuGOD+zBgReZUYibo/bFT0wTUc1/JJi1rGGM+NvkQS3sARKjjCCk+U8K42+2bYoDjmhdEFEN6BrUhUd/4Vm4Ed0qDftH5Lbm/zhKyBychg0K9hfzbZ5h0kVeyVrNT5/YudddmIBa6p4iIvrMxpJoy80bTH8SNGitwQaqh9aQ==
+ b=t9ZVdXb7/RZI8brTfQ3bgDUa8rhU+qdwHGmyWROAyBpIUKoqW2iRwIFexG8U8FebhL1kaMZsG8DyOclquk2c/K91nDKKfgSUCfsl3KxQeJZcCmHGJrmUjoQQ0ZB26nYKTTcmLuxdaY1CrwS5reXVMQEgRFdqOyeK1A/7oEQc/umnqQvw7lObTmJlitxt1K9FSLqa+oDXZ+L6J1bAin26BrNKNepZhtV8IYI0SOjJb6eawuzlUGIMRAe4UrzK4ACBs2yowph/l0/yd29ehHRL9ixkAAt9075ldIaGfZTVvq0Ttn2JDV0lxL/0PSnnF/QRQH4o72sXfiNvdWb3CiY2/Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2wW4p6hwy3kLMfHFu9TMeEQGUKeZ8iU6iXWa0dL/cg0=;
- b=F5I4pW3YyRQg7zpFomxO2KevQ2s3+8TLfH56dzlUPaUglv5GC0a1Hxhi4dIWQNKuQ3KSc1f92BPv9eRZcj7UyTPPeBvF4rwNTDOFLdbjAj50Sbo1Y2i1XXBA62a69twCw7dRj1jC2BU2NV8s5U78wKM+PNa+R+K/iO8IkS14aaRh1zAruVghsgj4gVynOJyHWNUlNPKfocQWqdgf4N6nNN2lBxu+w8z2EjaHdCOsftthL/yAo156tZ7vsro+sEyRVzceFnI85+P54HwmKTW0uNury/WW26hSiVtE/rcBnPwURbvUQlZ6ZRVCHHtE9988RxfTcON57ojZCrr76HnnaA==
+ bh=C6BmGdGi71A84oPOnFWe6pQYtfsk9m+hnl8Q6p8coOM=;
+ b=yZVzHtIKE56axjQumVfUqwWESZKZ72ZBiwwPv4AlMw2ggm6evw1Hi8plAYQ4ds0V+iZ+MR84/KG1UWSWoELWD6pgCRGUaNSyjqteyvgM3EixQci5q/1nMw+x0rsM2mmvq0XHhWBXSRz0WJkhmCiQAqHRJHXkdECC71woAvO1QvpVjswqpXrcxb0FCK3zSmwOvF63zwmpOqZLSiYIzbZC1pEZt+ltV0qvOQmTetyjMuTuWNr7Iq8CGVl2Yi0VPH3rjM+Tam3QWU3ZTsex75/8Tpqf6JfhMlHMO0ot023CDxLZx/1HnbvmP3cO8P5Mt+lZwEOBFKyB8Ugy5hqGOSYNRg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=crepuse.com; dmarc=pass action=none header.from=crepuse.com;
  dkim=pass header.d=crepuse.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crepuse.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2wW4p6hwy3kLMfHFu9TMeEQGUKeZ8iU6iXWa0dL/cg0=;
- b=SSS7MQFErWSd+N8YZntRA4WzOB0dhVx3qMXV+lQ9tTI2sepq8bI2qAPAPKXEOs8sjF2npSF1KkFZFBxW6JgVppsOAdwcV3yAvcNFzDYe9j50ONNQZXr4t9zEm9+aG+8xIQsEhnc4TXH8xYSr5+YYgNoaDvAmhyXg9paAkxaoH3J1JVNJJzBvSUwyc0q16o/4OYhRkZxJueI1SyNkl0sN12ueaQf/NV6lJ6bzou/VgNeearykosD+Yxwb83tDATNK765T/ogPC8ZliFHSQeaiH+dLebSOR+/smlMNlYiAcIpWJxE7RvaaKroCtV48XFq2ED3WFHh7QuUOrM/cTfXt7g==
+ bh=C6BmGdGi71A84oPOnFWe6pQYtfsk9m+hnl8Q6p8coOM=;
+ b=QmjLKzSoSot9apX9dAVqZKWVCaBv4mrv32NBy82uXQOW/EeV9MMY8yxCUOwKw+YnA/R5bzNFJZIF6cf6IAjmjzwJn+aTPgOaB0tR9AJcR8gr9amFkQJnb4jFA+QW5HaJ5XNV1Q5uFP34My0z+PxDKiZwSH6EY6XXRbyeKTsue1AsI6EBXuiZ0qFyq3IQhqfGmDwK9ukvexOu4OSk/2c7ImH2zEppueF7KnZE30RMNAYuoKsgh/oQuqEq8lZ4EvlN/3P+H65gjHHPnO/JgzGUyFtrEuNIaiSgewRERkTPzeepfEkkGEY+fDHki8TXLZRwV9b1LTVgFDdknlFYIVKkVQ==
 Received: from KUYPR01MB8186.apcprd01.prod.exchangelabs.com
  (2603:1096:d10:8d::16) by KUXPR01MB8095.apcprd01.prod.exchangelabs.com
  (2603:1096:d10:9d::12) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.17; Fri, 9 Oct
- 2026 14:47:41 +0000
+ 2026 14:47:42 +0000
 Received: from KUYPR01MB8186.apcprd01.prod.exchangelabs.com
  ([fe80::fe2d:77d4:b78a:358a]) by KUYPR01MB8186.apcprd01.prod.exchangelabs.com
  ([fe80::fe2d:77d4:b78a:358a%4]) with mapi id 15.21.0496.015; Fri, 9 Oct 2026
- 14:47:40 +0000
+ 14:47:42 +0000
 From: Miotsuki Mizuno <founder@crepuse.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 CC: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -46,11 +47,13 @@ CC: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
 	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
 	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH 0/3] Add Nsiway NS2009 touchscreen support
-Thread-Topic: [PATCH 0/3] Add Nsiway NS2009 touchscreen support
-Thread-Index: AQHdV/0i2sZ9VtigXkKmzmGQESBo2g==
-Date: Fri, 9 Oct 2026 14:47:40 +0000
-Message-ID: <20261009144729.85832-1-founder@crepuse.com>
+Subject: [PATCH 1/3] dt-bindings: vendor-prefixes: add Nsiway
+Thread-Topic: [PATCH 1/3] dt-bindings: vendor-prefixes: add Nsiway
+Thread-Index: AQHdV/0jvYTdfh2PJ0620dWmyGCWbw==
+Date: Fri, 9 Oct 2026 14:47:41 +0000
+Message-ID: <20261009144729.85832-2-founder@crepuse.com>
+References: <20261009144729.85832-1-founder@crepuse.com>
+In-Reply-To: <20261009144729.85832-1-founder@crepuse.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach:
@@ -59,47 +62,47 @@ authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=crepuse.com;
 x-ms-publictraffictype: Email
 x-ms-traffictypediagnostic: KUYPR01MB8186:EE_|KUXPR01MB8095:EE_
-x-ms-office365-filtering-correlation-id: 4a202b88-eae8-4f99-5937-08df261444ff
+x-ms-office365-filtering-correlation-id: e214a257-c403-4893-9148-08df261445a9
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam:
- BCL:0;ARA:13230040|23010399003|1800799024|376014|366016|38070700021|10067099003|56012099006|18002099003|3023799007;
+ BCL:0;ARA:13230040|23010399003|1800799024|376014|366016|38070700021|10067099003|260925022911599003|260925021311599003|56012099006|260925021911599003|22082099003|18002099003;
 x-microsoft-antispam-message-info:
- LT3NccEH8sP1TwZvrvE2U0CClcucjzsm9vlHMdZeCw4mUM8rsaw9OKcQqJIc/fBfje2oNxGgVPKvRwu/p/9eThI6Td6pEU5nmmcKXyKhzvjbsQOgk0rPGTBpf1KwenC3GxcvYqCuG/NmQiUFYjpFQ4oSTDny7r0m9b9eIPUG/CkGeI6SQbJ9hW3Vk0FSpWiE2Od+uU19nInbC9KU3H1CM9KHaGxeGMJwKvfDlcWnvoD7Mc/UXNc9r2IMZrBTv2VEAVq3TzFzlvIMpmPpmjZrRt6nTilDjOzCj0Dxn66RkwTVDaKa3/A7Wx0DCva+MPBIu+y1oOZ/+oY7WnYpJuNWY8hj4hctlgxHMNyqyPBhI1Ze0rJXosHLYf74KfDIkzYdGirfMJB5ioUFsG8I7D24SzRkJIFTcM6JyA9HIdcl08LO2cVT5RGHt8v4Rhtl96T5ewbZW5S2lZpYpn9o6+t7aZdeDpiAyloD4zV8OPvD29ClbJOBA/dZq435DylEFEYLacyxFnQ2wNt/ngTOj1Q3Z424garRfRUIvsQWBao2ebVWk0omoOfN0XJsjl2Zmtvxt2/dePxuaNcMTzaOUImz5b7QQdi5Q9mWy2MR0rsARWmiHHYtfN9re6tX8FVf1tsHGwYs5eKlGHB2FXLAWETNPUFamL8COoGNSq4qj3ts1j+Drao6qfgHHKSrT+8PKFM6sHS+NdrnDwDX9sN5ZhLf/5TAKClvQOIVWqxRaD2Zpxo=
+ ZTTvAD+g2t+jN6ko40aiIha0j97nCVIuZYN6TuRi+spCZATbbSVYy8i8IDRJIacULBItmBQP4p9e2hFavVjsEiYUuAaZezKQ9t5MiBQCl4yOP/tz39vhEbRpvRg4qr4gpTmaeoBml4/WNssa5uN1h0ab4xYYtR0knOALxtNUTVtpz6LBaING16miUm2q2X/8NROVDPQ/l9blve2M93UgPB0waUGDDvB4oPDygg2DYkV01spxz/131Kje0lahuFmFuccGFu230pGt/5vu6olhodrpwI0PSiF/KrhCePutyU2DldDI1NFlFcud1/Tf1vG6wklOWbeNAGsnwO3h4CV6ArJxSLr+WwR/QFIRz5V2uKSwF+BBOfho+j1TFQSVsxh9M8vC1GbAAYFBdWVnlNc7FBHXvxNCWZCTPCcBzPXzrd9oy+kPrZX76Ph3N5ksSvScFZH51n0d+RwYkxL+d/rpzuB0FHApcj/lqyVxwMOJX1tlDFa3FBVLdFnpNqiQ2y+kStHEcL2bmysb7bnFZgzscvm5tlQSgeUl7jqQ6XmBUtBTbQmKNqdjLZvlPZkD03RXMVvM5kBwasU9lKs6afWsAQOegnTdm3DNwe1fAJvz7o7U18NSyrj3cAxZjTyb06kPJETVo1VBFYSvgDww1Iu1W2BG3VqvV0BZj3fUPP+g36rxLKQyJSmaiaSO5MF+GVPS6T18XXTow0WGMxGOLaUooAoC5Jb5eXxoFcSukVBdmT0=
 x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KUYPR01MB8186.apcprd01.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(366016)(38070700021)(10067099003)(56012099006)(18002099003)(3023799007);DIR:OUT;SFP:1102;
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KUYPR01MB8186.apcprd01.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(366016)(38070700021)(10067099003)(260925022911599003)(260925021311599003)(56012099006)(260925021911599003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
 x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?GlwmO+dHompKNsyIIKOjTiN+EKUbtzxgb9szHK0UAzRdYh/ApTDB3lRAut?=
- =?iso-8859-1?Q?3iyT9GVga7c1mMBeLa1WRHBDCicJFszVx7GMY5zEwLw4TeurlewmeTTP2g?=
- =?iso-8859-1?Q?76W+AUh5485J6ERM9vnqbSDUx1GqHc0/c0FaAxoK91hVFqsdTBcIUAxarw?=
- =?iso-8859-1?Q?y3mvPFqS3IztNMAArKETjyIR0hfZuZt5aaLdC7dGXWDn2dLhAuKvOWwJUj?=
- =?iso-8859-1?Q?inT9FcovT3/hEbaIogLk6NFADUP3H1tAWmQCgV1QAkBoY3PpnGBWsHoTyw?=
- =?iso-8859-1?Q?tnMUm2E+0ZESn86xGV7lVksJk/39YuI++nV3V5cdEq37zI/ZvKlTZRBRPh?=
- =?iso-8859-1?Q?14L7aO2IBUcPobdaYVnsI0rSZWpzCbP4VWSzxrA5THXsBI9eP6ZaMPxdDU?=
- =?iso-8859-1?Q?Rhj2xsxg9ABi0xCsZkVhR8oEbe3EHC1CI0WqiJgqqp4sM/yK41OAdTFNsX?=
- =?iso-8859-1?Q?7QwioZltyDbRvCLK2eNmu97MlKQSHhwXLePV8QuU9iB4PXUssCEzKOnGUE?=
- =?iso-8859-1?Q?ytGeZMSiyEDpCm7bqyVG1YwqIiMp17dbMhuWONP+391GK5ClDwRNEvK8Kv?=
- =?iso-8859-1?Q?i3bdZSZf7n3NcXA7MuVuK01YkBXySUJXYj8Kar4Kjz0OHdYCDQSbU4dkL7?=
- =?iso-8859-1?Q?VVRhhgob0oopHO49oaZyJmfdAkhhTQ8rAVJ67p6MSnjhyNP8AnyZJNwmzE?=
- =?iso-8859-1?Q?uEE6Ig7BRb4WW3z6JjfiVCSTG3g3SKe7vNJySHchFTmmrALXmNdBybeR7k?=
- =?iso-8859-1?Q?2pU/0+rlbKlOIjllMeEy3A9abpT8mwyjzmqQP6LrOzvC4J8zJIBWajTYBD?=
- =?iso-8859-1?Q?UxQxsSXZNBao2Lu+SH2HZlWpL48apgvujju+h5iqapj9ZAqlZBqGnVwuuz?=
- =?iso-8859-1?Q?OTbui8pIe/vWP2/CmYcCZzZvMt6yN+vvnzdmG3jxRxcHoA5fy4VCZmCBcU?=
- =?iso-8859-1?Q?nTT9Tx6EtbBKgS7mbhFcun1ehmRZuGRJxQhOgNPBAhPpYDUpjY2B6qqPlI?=
- =?iso-8859-1?Q?vEbsy4foTm95BIjmhybdVF3yphfVMgbMygKykl2Vh3NsJr2f72KStDaOPe?=
- =?iso-8859-1?Q?Y+BiSeVHX9gYplkxPHwFJPHvF0/R/1Md+mzN2YuVSF6QAtaRy8PsLJjnSD?=
- =?iso-8859-1?Q?3f5ABt6j2y8mO2zdOkJZpCg8Rw/FpgYVaByMVVYkkn9iWlxWLGJsOc/bvZ?=
- =?iso-8859-1?Q?lpAGHN9ZABr9GwouHQ/72v7mJRg5tJG6PDqXN6gaF48lF9uChmvlA/Q2NI?=
- =?iso-8859-1?Q?zxSZB1vZdeYLIYHljPWEx4JNyEbbZ5c4tPqG1XUJdX7606fHs/0zf0Bazs?=
- =?iso-8859-1?Q?om+4ARR1Y9vaXxk89DIVNtfQqxzeKmvzwmW2SKRGQAt4MIGG9+zUUliJAU?=
- =?iso-8859-1?Q?WpHRnTHRQq8hh03ZK+SE2/DrIz3EsXKTK2ikl9LTDhRrfVJAVUT3TbNaZJ?=
- =?iso-8859-1?Q?lNtpg+mqccteX6+1rhimWb7wd3l1sBKzl72rjAi67956KphmuDh+/h/v6F?=
- =?iso-8859-1?Q?6lT9H1N7fohrKx5/as1O71d1VYRpxT0j59XBCk1o+fucDNawua2mkO+LpE?=
- =?iso-8859-1?Q?hEwN038xWq2qVrtumB2LB3aM5ChqDMb/rfU0+ZgJfMfdIDPjpZloNyrTfy?=
- =?iso-8859-1?Q?9LaxqJ369UCu13DeC7XEGouO4FReMU4B1KoAhD7GL4776UenqcvA0oWJqO?=
- =?iso-8859-1?Q?gJpF3abSOJ/+pxNmkZmYkY12DdB9UxU/FGyNS5me4Tv4Nq9vwLuNffSi6C?=
- =?iso-8859-1?Q?ND5Q34ITGEnhWtmaRcXWg5c5DK5xyx/bXQG+FmTZaH5Xie?=
+ =?iso-8859-1?Q?rKtRSc9tZrdPKY/FWGXl0O3aQ8SS1hmdGURtduKNixja5PFy/6Zof0lqL5?=
+ =?iso-8859-1?Q?/ecPln3gOzhTYDO5P+VuPvgWaleIAQV8aoa7mKoUwzC2vwP7zKi9TQ6qeb?=
+ =?iso-8859-1?Q?bjmBcf+kVnwF633Rf+IeDLgzChHNQGk1kKlnKe7o3MLcFZt8RK2bU4sAZm?=
+ =?iso-8859-1?Q?W3ffiMBB++fnCeXKtVf83wd610cFeHDR20iK6GMZ1gfCCVRB5SUDgNySiT?=
+ =?iso-8859-1?Q?XrLwEkkWQKMoNedr9QwwCpi80qm32Hi2TKZFqBYRRdvlab/tigebYqr9oJ?=
+ =?iso-8859-1?Q?YbIzIj1o8TA1IJI28vnC7j2VXuQJ3U8ic3W9n3JyXop7igPFymcm+lAiHK?=
+ =?iso-8859-1?Q?JGIegn4Kmxq7wO2yzEKK06UKDph2ScMxG0ZTNOh2/ir8YN75PiTlCAp3Cn?=
+ =?iso-8859-1?Q?T+6pGiY0kk1vZSOH3GlsI0JVwR6HkVhk1j3FzZvEkeyUI1CU+hOQDBGRZ6?=
+ =?iso-8859-1?Q?e3obUTSix4YzM62vcmoVKISd0mIyEGAED7eNk2k9I3iEBh1HkXaO2oFidD?=
+ =?iso-8859-1?Q?20YtCeemDC0+bHb4noGpgB19ckJlXTH1mPmZ7ikyqsiX4hvbXorAwFUxnL?=
+ =?iso-8859-1?Q?WygLdqun0H/fN6F7LyCVkIF5a5RczKnJA64GEWuhJSz/BOV8eZuodxrsRo?=
+ =?iso-8859-1?Q?7WV7yBw/y0FXExJxCz7yLG73KzCYcCTkXgKvVFtMaqAAqfBRF3ZyFrOi1M?=
+ =?iso-8859-1?Q?wKrQNV2+S6RYdiI2l5laSMIICnCPxndHuqmViYEilaQoJ2aDLfpragr1N3?=
+ =?iso-8859-1?Q?NpjhZRPnrvz10PoA01HiRk7AIdLm4iC5FisDlSOZ9KtaoK349WR15KeNZO?=
+ =?iso-8859-1?Q?XAE0jt7JxLlZkY74aqk9XsDFlTFPRh7u7vrlcLIm8cPwqO2/cooIVRWmXr?=
+ =?iso-8859-1?Q?Qk4kWx22Cis4BNxlwDKBMajhIitRqlI/i89jL+0XfZWQUwUf5rUb32oO7z?=
+ =?iso-8859-1?Q?5sDVhmgvgbsdbDJj8JLMElPLaw/BdDSNJbV6mhUtIhCub57W9xEsgVfZCY?=
+ =?iso-8859-1?Q?0yt6J1MjW3a6xBum48khv4azEyPSCLpULY4Et2D17WaVvl5RTA4nv65ee6?=
+ =?iso-8859-1?Q?AsCxyq0XgZyeriUDrTtwMTDklAYLKE2F+/skRA89i+q2gUN5yfSwu1fSoe?=
+ =?iso-8859-1?Q?8ybwL9OfS5WM9/cq6p5ykLOI/MxHRboUz+Fg3F1tj8rTRX1QueN0bmSJKS?=
+ =?iso-8859-1?Q?M9CToQIU00+o86U+Fru/1gJ3K/aT9Bc8deJd35kgVkhdwJUoHJEUE8dEDE?=
+ =?iso-8859-1?Q?bZdQ3yGtw4S/QwAypaHwZ7IVMG0AS3M0+4WNG9eN/3NaoL288VCzUsNx8B?=
+ =?iso-8859-1?Q?sIYXz5opdRDpNlsqP3fyElwmdIYSU/QSGObpwj5VY8eSQ+innMGI2VaeyY?=
+ =?iso-8859-1?Q?EuQIiEd14OQMTWMAOfznF2WagzfxIZAxNBd+WackGu7zEIDtuWOONZQLJs?=
+ =?iso-8859-1?Q?NZjARaTyIQnBtCeWNA3UD1pqriN35FnMSJIvNY1WeIoYNwFgu8uo9IaDzB?=
+ =?iso-8859-1?Q?X96XX7rMiz393yUG6N6JV1Fl3S4D9Q+TC8A+0p7GhKULUPAFpkOmRNn6Ki?=
+ =?iso-8859-1?Q?O28dZUWuY5YZwIh/wOIHV2DQ/8xm8+HDgGOtsg83JFe9CJzo82YG9ANeq9?=
+ =?iso-8859-1?Q?ItaENa/Kd37oBJEY7iAeNdtQs1CMhVFA382Ho+XMgvy8EfbfJ9fVjTxGkj?=
+ =?iso-8859-1?Q?mUPpuuIcgQ/XImcjt+C19mdaFRp2agspzzl+OnV8fDgwwRF+xrg6rSrh57?=
+ =?iso-8859-1?Q?XeuxuRr0jqPwOBlp+yHgjUTW51VJw0acaYFBrtYA72fLt5?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -111,78 +114,34 @@ MIME-Version: 1.0
 X-OriginatorOrg: crepuse.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: KUYPR01MB8186.apcprd01.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4a202b88-eae8-4f99-5937-08df261444ff
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Oct 2026 14:47:40.8276
+X-MS-Exchange-CrossTenant-Network-Message-Id: e214a257-c403-4893-9148-08df261445a9
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Oct 2026 14:47:41.8294
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 9e189589-0b8b-4283-80ca-b0157c0a04fa
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 4cPbPI/Jw1YiR2sL5Cn0S3EStODsvyQRSQpv8M0Wvs9F3fLCFRxVPH+/WcqemnpgdYcPC2tRRvhtJxBmSOWzaA==
+X-MS-Exchange-CrossTenant-userprincipalname: Cac0u+N8XH6B7s+kp6G8nNYU6Uj2FLzqz4ia3hrF2LZke5GVEb5OzD6NwDahEjAocG/TkFUnLEQx1k7dfjlI3A==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: KUXPR01MB8095
 
-Add polling support for the Nsiway NS2009 I2C resistive touchscreen=0A=
-controller, together with its vendor prefix and DT binding. Coordinates=0A=
-are 12-bit ADC readings; raw Z1 is used only to detect contact. The driver=
+Nsiway manufactures the NS2009 I2C resistive touchscreen controller.=0A=
+Add its vendor prefix for the touchscreen binding.=0A=
 =0A=
-uses a 30 ms polling interval and the common touchscreen transforms.=0A=
+Signed-off-by: Mizuno Miotsuki <founder@crepuse.com>=0A=
+---=0A=
+ Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++=0A=
+ 1 file changed, 2 insertions(+)=0A=
 =0A=
-The implementation derives from Icenowy Zheng's 2017 polling driver [1].=0A=
-It uses the current input polling API and managed input allocation, with=0A=
-no private copy of the input core's touch-key state. Failed, short or=0A=
-malformed I2C reads release the current contact and discard coordinates;=0A=
-a later valid sample can report a new contact. A transient read error can=
-=0A=
-therefore cause a pen-up rather than retain an indefinitely active contact.=
-=0A=
-=0A=
-The driver checks the zero padding in the second byte of a 12-bit response,=
-=0A=
-as specified by the read-command format. Responses with nonzero padding=0A=
-are rejected before the decoded value is assigned.=0A=
-=0A=
-The historical Z1 threshold of 80 remains the default. Boards can override=
-=0A=
-it with touchscreen-min-pressure; the tested UNIHIKER M10 V1.2 uses 150.=0A=
-IRQ, wakeup and calibrated pressure reporting are outside this series.=0A=
-Board DTS changes are also separate.=0A=
-=0A=
-Validation:=0A=
-- Latest mainline base: ARM64 driver-object build with W=3D1, and in-tree=
-=0A=
-  dt_binding_check for the unchanged NS2009 binding.=0A=
-- UNIHIKER M10 V1.2, Linux 6.18: clicks, long presses, directed drags,=0A=
-  axis orientation, release, and three held-contact inhibit/uninhibit=0A=
-  cycles. A validation module changed only the driver registration name=0A=
-  to replace the existing built-in driver; the read/poll/probe code is=0A=
-  the same as this series. The boot Image and DTB were retained.=0A=
-- Two malformed Z1 responses were rejected during the physical run;=0A=
-  subsequent contacts were reported normally without stuck key state.=0A=
-- Controlled read/poll/probe tests with ASan/UBSan cover all 4096 valid=0A=
-  ADC values, every nonzero padding nibble on Z1/X/Y, threshold bounds,=0A=
-  malformed properties, core key resets, short/failed reads and recovery.=
-=0A=
-=0A=
-Physical NACK/short-read fault injection and system suspend/resume were=0A=
-not tested. This is a new three-patch series, not a continuation of the=0A=
-board-specific BSP changes.=0A=
-=0A=
-[1] https://lore.kernel.org/all/20170315155140.54518-4-icenowy@aosc.xyz/=0A=
-=0A=
-Mizuno Miotsuki (3):=0A=
-  dt-bindings: vendor-prefixes: add Nsiway=0A=
-  dt-bindings: input: touchscreen: add Nsiway NS2009=0A=
-  Input: add Nsiway NS2009 resistive touchscreen driver=0A=
-=0A=
- .../input/touchscreen/nsiway,ns2009.yaml      |  64 +++++++=0A=
- .../devicetree/bindings/vendor-prefixes.yaml  |   2 +=0A=
- MAINTAINERS                                   |   7 +=0A=
- drivers/input/touchscreen/Kconfig             |  10 +=0A=
- drivers/input/touchscreen/Makefile            |   1 +=0A=
- drivers/input/touchscreen/ns2009.c            | 175 ++++++++++++++++++=0A=
- 6 files changed, 259 insertions(+)=0A=
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/nsi=
-way,ns2009.yaml=0A=
- create mode 100644 drivers/input/touchscreen/ns2009.c=0A=
-=0A=
-=0A=
-base-commit: af32da41b0327b9c6a37856ba82b6760d6c8d10e=0A=
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Docum=
+entation/devicetree/bindings/vendor-prefixes.yaml=0A=
+index ba2002969373..a180012054c9 100644=0A=
+--- a/Documentation/devicetree/bindings/vendor-prefixes.yaml=0A=
++++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml=0A=
+@@ -1214,6 +1214,8 @@ patternProperties:=0A=
+     description: Novatek=0A=
+   "^novtech,.*":=0A=
+     description: NovTech, Inc.=0A=
++  "^nsiway,.*":=0A=
++    description: Shenzhen Nsiway Technology Co., Ltd.=0A=
+   "^nuclei,.*":=0A=
+     description: Nuclei System Technology=0A=
+   "^numonyx,.*":=0A=

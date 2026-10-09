@@ -1,44 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA97C370AFC;
-	Fri,  9 Oct 2026 22:29:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14CC73D9674;
+	Fri,  9 Oct 2026 22:36:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791584969; cv=none; b=ZaRcwZsj2dKYwJWeFla75ESyBMz945ugcGt//6L1TfDjax6Hn5NmfACeSXQKWCfPoEygXOUyZpS1+ERuqChW+OY6s8vW1L/jNoAMLV6xDzdsD0P99TR7UYoxNGC23sc5SdRQB9+Y3Ozd26oIK1Wbd0waWY7Pdl3+cxzDMwQWY5M=
+	t=1791585412; cv=none; b=LSMEGbkgXW2MDeysIjqhThmbaZrrkBgzzdMY8YxaxMF9eDUKKo/iBXHjcSvonOxeP04Zg3yEfiJ/aNjB/WYmDZcrtcIAOV0c7RDBUiNYx29UuJK8bYr3UweQM7rqy03RJfd0hHJoP/toHsPLS/zuxF5m/CCaKUI0OxQS1QdnI/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791584969; c=relaxed/simple;
-	bh=909OBO5JYCiY22ecZ5im9VlGdEbfJZuXGsFWc9LtfEQ=;
+	s=arc-20240116; t=1791585412; c=relaxed/simple;
+	bh=dFum9+v9baFw73xBVY+ui262WinfvW06V2r9KGd0ADA=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=CJiQUFXgVIzJcdNT0P9Qaqypm2ycmHwddEWal+PHitXPVm4EKzVgGMwZqyJPJKsTgv2kc85Ty2Rt7qsuSTW16dVB894ITHyGRpqBeSGjpp9wLwnobCMVt1zcljV7Mv3+SY7H3MqfH5+bdAP1cQFZD11ODA602ggBo1szUt+01tk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L10q3OqE; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=GzVS5sL/quUApRombozcF5lXGTbLkD7kcxWdCqPicu6SIMmgBZaCUx4b1U2U5YJdTACItkriPJp/Ow9VpjZgfCEnkJ+uCXCXDZx38d1LLpQVSci/rDB1NuWxOBKGJi//+5iwqJm2Hyz5CFLraEL6IonoLK3jQobUziGS5fl3DoA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EQPVj2ie; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L10q3OqE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB78A1F000FF;
-	Fri,  9 Oct 2026 22:29:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EQPVj2ie"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11FA11F000FF;
+	Fri,  9 Oct 2026 22:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791584968;
-	bh=72efFbPH45tY4RYMllSyI2XpJHChk5GF3zdOjY5IPqI=;
+	s=k20260515; t=1791585410;
+	bh=fprAEFd0nspdnH7l7zs3d09WGplFQp59cFwuT04zPoI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L10q3OqEUlZ13ps9JMWe0cUsvdHXK8Bjoi7nm44ikY++tTcldVqMcMwJrSqH/u8eL
-	 WQ3ZrE8nI/m4fzS//JNsjkekM0nTdnz0fpIp3hlN9QoBiu9SilaBx/9Lq8M7Qg8TxF
-	 OPS9JHPx+6Gl/prakeMfDCcX7SMJQTUeaLl9ZXxOcuWdK/seMeZY57bifd1BFH6u8l
-	 Qndy91oi5JiFCsLaVgmMJTy+/dYy9Ln+qZWWLpmugRXXC61NBUWL23SPUM6qqrHwpE
-	 9wMe4NjjXo2GzMndHgfdq8WyxXvhT8PNXg1KJ41Eac0k+vs/2cVozlrZoftx+W1Uuv
-	 w5Ha2niY7CKJA==
-Message-ID: <sashiko-outbox-166133@kernel.org>
+	b=EQPVj2ieeMtOvRfXbKzN4JiZswXm41dOl8kxkJkNqR+csTeGnsdX9CBZ93gGK8Gbv
+	 xwbCSq2Oav2hz0OMbG9Tp2aAhUom+we8ILYiOkWluPIYavc60cnApcmg6KeKFMqkVm
+	 DRiSgQSHe3C0pCJO/wGraZmN6bep+6Yjb8dGQ0OWoyKCowkMzD8CDJ04vajkKsDvv+
+	 vMHQnB3a1Y0tKtIfT80587cWUMy7onmtcaxmuZmzqrVorTJp7lSYJ/nO3vpmNO211g
+	 3TDHN3R/7eXZBAZQPh63nfooUY3ddmyZ140FnOWRXmf9TZL0fNSh1xSPTV+6WcmvID
+	 cK3gWfOTFBi+A==
+Message-ID: <sashiko-outbox-166150@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 01/11] Documentation: Correction in HID output_report
- callback description.
+Subject: Re: [PATCH v5 11/11] HID: spi-hid: add panel follower support
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jingyuan Liang" <jingyliang@chromium.org>
-Cc: conor+dt@kernel.org, linux-input@vger.kernel.org, robh@kernel.org, devicetree@vger.kernel.org, linux-trace-kernel@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261009-send-upstream-v5-1-384af01da3ee@chromium.org>
+Cc: conor+dt@kernel.org, linux-trace-kernel@vger.kernel.org, robh@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261009-send-upstream-v5-11-384af01da3ee@chromium.org>
 References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
- <20261009-send-upstream-v5-1-384af01da3ee@chromium.org>
+ <20261009-send-upstream-v5-11-384af01da3ee@chromium.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 22:29:27 +0000
+Date: Fri, 09 Oct 2026 22:36:49 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,50 +46,68 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] hid: documentation incorrectly relaxes asynchronous requirement =
-for output_report
+- [Low] spi-hid: Inconsistent wake IRQ configuration for panel followers
 --
 
-commit 6d8fa62fc058c7f5630a13cc92c85b7867bc9869
-Author: Jarrett Schultz <jaschultz@microsoft.com>
+commit 4c8d0ec463c5dbd300c392f3f924992096f8ebc1
+Author: Jingyuan Liang <jingyliang@chromium.org>
 
-Documentation: Correction in HID output_report callback description.
+HID: spi-hid: add panel follower support
+   =20
+This commit adds support to the spi-hid transport driver to act as a
+panel follower, allowing its power state to be sequenced with a display
+panel.
 
-This commit updates the documentation for the HID output_report callback.
-It changes the description to state that the callback might be asynchronous
-rather than strictly requiring it, citing i2c-hid as an example.
-
-> diff --git a/Documentation/hid/hid-transport.rst b/Documentation/hid/hid-=
-transport.rst
-> index 6f1692da296cf..2008cf432af12 100644
-> --- a/Documentation/hid/hid-transport.rst
-> +++ b/Documentation/hid/hid-transport.rst
-> @@ -327,8 +327,8 @@ The available HID callbacks are:
+> diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi=
+-hid-core.c
+> --- a/drivers/hid/spi-hid/spi-hid-core.c
+> +++ b/drivers/hid/spi-hid/spi-hid-core.c
+[ ... ]
+> @@ -1577,21 +1676,17 @@ int spi_hid_core_probe(struct spi_device *spi, st=
+ruct spihid_ops *ops,
+>  		}
+>  	}
 > =20
->     Send raw output report via intr channel. Used by some HID device driv=
-ers
->     which require high throughput for outgoing requests on the intr chann=
-el. This
-> -   must not cause SET_REPORT calls! This must be implemented as asynchro=
-nous
-> -   output report on the intr channel!
-> +   must not cause SET_REPORT calls! This call might be asynchronous, so =
-the
-> +   caller should not expect an immediate response!
+> -	error =3D shid->ops->power_up(shid->ops);
+> -	if (error) {
+> -		dev_err(dev, "%s: could not power up\n", __func__);
+> -		return error;
+> -	}
+> -
+> -	error =3D shid->ops->deassert_reset(shid->ops);
+> -	if (error) {
+> -		dev_err(dev, "%s: failed to deassert reset: %d\n", __func__, error);
+> -		shid->ops->power_down(shid->ops);
+> -		return error;
+> +	if (shid->is_panel_follower) {
+> +		error =3D spi_hid_register_panel_follower(shid);
+> +		if (error)
+> +			return dev_err_probe(dev, error,
+> +					     "Failed to register panel follower\n");
 
-[Severity: Medium]
-Does this documentation change contradict the strict architectural guarante=
-es
-of the HID subsystem?
+[Severity: Low]
+Does this sequence leave a dangling, inactive wake IRQ attached to the
+device when it is a panel follower?
 
-The HID subsystem design rules mandate that the output_report callback must
-be asynchronous to prevent latency spikes, performance degradation, or
-deadlocks on the high-throughput interrupt channel.
+In spi_hid_core_probe() just prior to this block, the code checks
+device_can_wakeup(dev) and unconditionally allocates the wake IRQ via
+devm_pm_set_wake_irq().
 
-By stating that the call "might be asynchronous", could this inadvertently
-mislead future transport driver authors into implementing blocking,
-synchronous callbacks where they are not permitted?
+However, if the device is a panel follower, it calls
+spi_hid_register_panel_follower() here. Inside that function, it checks
+device_can_wakeup(dev) again, warns the user, and forcibly disables the
+capability:
+
+    if (device_can_wakeup(dev)) {
+        dev_warn(dev, "Can't wakeup if following panel\n");
+        device_set_wakeup_capable(dev, false);
+    }
+
+Because the capability is disabled after the IRQ is already requested, it
+appears to waste resources by allocating an IRQ that is immediately rendered
+unusable. Should the panel follower check and the potential clearing of the
+wakeup capability occur before the wake IRQ is requested?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009-send-upstr=
-eam-v5-0-384af01da3ee@chromium.org?part=3D1
+eam-v5-0-384af01da3ee@chromium.org?part=3D11

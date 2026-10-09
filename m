@@ -1,92 +1,209 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0127A424D46
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 20:03:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 191363E49C0
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 22:26:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791576197; cv=none; b=b6pPiH1x8ntNcRBF9dwWvMadCoYzqUuILMCxJsdVk7XmW5cDXRWui8pnTPrueRhu49dugM4xGvTHN0onNTBHskW7B20aam2AnAtvVud5Qu8xOEU750moQ5TSYPuKCx+kuECBR6ZsA9i0yOkhjJwVZc3lFHp7dt+YTYoqzYYmQKA=
+	t=1791584800; cv=none; b=ur7F75UeeXzAqIO18bicujIgW6NVuxn27g7PNEoxIAu9kwplxERBb9xeBSkNQHwks6381+Ru6CzQRwChDg/LKp9tuSgQQ8wRmpWTj5MYaXlus3LdbeamhLlrGAr1WD1Wv5Y9SD/odCJB+k1uHzNkbbzOx/GL7h0XOW7y3xDahg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791576197; c=relaxed/simple;
-	bh=b2+tEnS6Is5tFDYWU2E8JVCbBEdDNXKQkC1xbjM0ato=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=PaiSdingoS27C6VzJmEpZ/hrpmjKeH9BZV7nLbbIotuz/wwPrVq+zVNf/fTIQ8UIRQZ8CIZbAIUjK6DoS4T5dXts7iQwTpxdYFSRrOnY/efQfsRUrNsp6HoHkjcOo1VoO7MXyDsvNW+x+kwBFEIekXrK2y0llaeOajr3vp9X33o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FTMOtpeN; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791584800; c=relaxed/simple;
+	bh=Nj1qlIpON3VaMJM8UbfjiD8khDpWPWvFN1Ci3Mk1V50=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=QjYqX628d7Mdz/QneRZ/abRwEpQZjWLw/fNNR9F0xCt1emaS2d0OoKnFAkU0FAq1tUF0Rz5RQJVJ22+WMluQzcP6z2SS1L68qagyGZ55/MEPIc5rgFXPVBLTEsSEbRdhHeeVmhkbXWtFfxd/wf4nR8s27LJ4IMoUI/9r2IDcFBg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=LAyaa34E; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FTMOtpeN"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a021c809e3so2330185e9.0
-        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 13:03:15 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="LAyaa34E"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2e61ac64ec3so1681755ad.2
+        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 15:26:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791576194; x=1792180994; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:subject:from:cc:to
-         :content-language:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=6zmy1rcMM7No0NS8WH+IZGD4QJSIgLlc9r4zWyICc98=;
-        b=FTMOtpeNnb6JKR8Af9cMtS+gl1pZR03pdZdJno12Dl2IV7OxmyLa7T0VPH7OXg6YQH
-         RQst995d75WCWqvfPUn4DL5XXYfEwJg+9asPOFeKOIyinFXIwYmaIH9B52XdKQkWP0UH
-         fVp4v0waw2WyxXEfZfmJU7nnICcsy87BTDm1caGrjev+xeEdKPp1HK8RUfGq0ROclIvH
-         j9TqXM3Wt/9B/152tgjpq755MJ798iXhRU3Gm42TsNtH6ddUC8+aqF+knur38deeGXW7
-         U5KUC42E9j9YCPY8Ftag6/kae8AE3dEUPStDLlM6QsV0rZ5atpSbImCLwpPIblcqvLOQ
-         cQ+g==
+        d=chromium.org; s=google; t=1791584798; x=1792189598; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=FUz1DD2WLXF8FMCF65KzWxeNZSEe/yJbWO0PR68AnX4=;
+        b=LAyaa34EJdvWYlMTFjxZMKlgEtHOeBEsJfmGT7npnHodGoSWTmK/XYZVa7CXL+qIs3
+         DlogidZogBIdrAR9Q8ofeigrh0zJLaT3IBGSouQcLLrm+stEKfNb6cQTWD8naTe5O9LD
+         mF/unoJvj/AU1mRHJZnvhpMc03BQWOSeX4iX0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791576194; x=1792180994;
-        h=content-transfer-encoding:content-type:subject:from:cc:to
-         :content-language:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6zmy1rcMM7No0NS8WH+IZGD4QJSIgLlc9r4zWyICc98=;
-        b=O56eBoWX8rWMjEH9wWgT8L5okOTGn7MOdU0I5/3+vLWsGaKPrQqjjYkbpg3q+nabhb
-         ULf55pWE1HmLO8kZNHguEj7F/k7eeb7XyNsfmbg5AmYOnvBS3XBKmfm0OtxgyUnGR45G
-         wu9TMNnUzh9KoOAOG0yFwz/U242RJhDPLIjVIrlb48JON3L5shu0yTqNntWFpyF/AywP
-         jkPIfQzHCVB31zQasdVJvGAUeyOF5uwOnYqT7Ipf/PH7Picc2X/PGVFJ33DwPHLiCJW2
-         VZNSSlXa8i5bkTYFTbUWGSKws2p5cgonU4/wJSM7ZcxlrqFc22Fq/l7lPvqmDJS4oNZO
-         6Zng==
-X-Forwarded-Encrypted: i=1; AKwUvByBjVx4sapAyD21yBdfUfiWqjThxWgIBLYeQydA1fDxYz3xIxt4wWa7mfVtN0FMPJEOIdDkX04MtXtExA==@vger.kernel.org
-X-Gm-Message-State: AFuF++mleTNugvKBBBKFbXX1ZQcrkmOharjnUFFW8CF0ZKMDEW8c7z4Y
-	ejI22yPUYDfJh2tOTWaaKpWYOb5ehm8qkc3nwOy1QVXkRS0xkn27kQ5r
-X-Gm-Gg: AYBFou3DNazeqBzEnRMMtFrfcHgmh2tyS3vZSFVm3CUnasPTEXJmcGraKpK2KWlWqSR
-	rsYtV4DkSHMpQEO4eCgEgF3rNLf6RiR60geLrOKKqVtxBrMyrkgeMPKvswqfeQiO+CaSqjj91DD
-	exqPCx9rwUcm4AFSfQSGqKtniY2IZ7YJoKiyUOl7L2TCU0d4XC9Cwsvwj3/vYqzB4fpPJc4uA97
-	FYNsQH29VyP5fFie0tFgkdfZcnI4pSXsvikmvjuoA2docQ+r/zRNeOfhQ+bstgDHO1PWP7sR+a9
-	Y7gvGOlN4PVJ6uHGcUA799lAoJj4rt1fFrQWPwom2b2dYF8UXyQwtj5GRzGUlhOmF6h+vhIaB7U
-	w98ja2Ybdcs7DtWyG1C6DIV0MxiLZ6lqQmTM2xOEpKUt+Xsd772mitDyF4WdCMIDJcTcWolTeo1
-	lQc5dLsB1lV21OKejEo4rYRIZh3N0GinUWx0bFAT60DgBp1C5O+fU7LK55DdT+qmjOyxrs8ap1P
-	n1SheDAoTzAS2DUwc9cNwRCfHgqv7EudGEqr5hOdvwpA5qz4w==
-X-Received: by 2002:a05:600c:46cf:b0:499:b65e:49c9 with SMTP id 5b1f17b1804b1-4a18e47ad5fmr61536425e9.10.1791576193931;
-        Fri, 09 Oct 2026 13:03:13 -0700 (PDT)
-Received: from ?IPV6:2001:9e8:89a7:e5d5:36a1:7337:a199:6e96? ([2001:9e8:89a7:e5d5:36a1:7337:a199:6e96])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a190c49d5csm73570965e9.3.2026.10.09.13.03.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 09 Oct 2026 13:03:13 -0700 (PDT)
-Message-ID: <19c6120c-8eec-4ddb-9d41-d19162e92638@gmail.com>
-Date: Fri, 9 Oct 2026 22:03:12 +0200
+        d=1e100.net; s=20260707; t=1791584798; x=1792189598;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=FUz1DD2WLXF8FMCF65KzWxeNZSEe/yJbWO0PR68AnX4=;
+        b=nUqhYeSIdlnmjDBzUD/fHdkOjar8jBjtYyYk0LBZ0pfFNf/Rt12guWwxFx/9FSbRXp
+         X91wMQWXB8erQFrmKQ3A+e++QTfuR+E+TJAFe14DfcYSMYltXMD7dZzLgXiIgj2oNKDC
+         JwEIzVADSKXuEPehmayQeJNMBEwfYTbAuqqw6eBujJjSX261/AJonj6oFhNpHkPo5946
+         0JgLjWugTj1QzKjJGkdM6YZ1OQdNlcnFUTAqe0Y0wuAgdE1vgCVCNdj67w7ADoOl3ApA
+         kGsF/cLl0flIm84FZkcwjssys2FdlFM/KBcoNDq7uGAN3EGnQSJ+GRchbk2ROzb3cGGv
+         IQYw==
+X-Gm-Message-State: AFq9FYKV03XG6NhHRwcHmB0iU9gqztTJAEnbULUKxzMmx1JynAE7tkpR
+	6nN/4pGLyholK4a00uy1yiGoQPFjA+9EVoINXL8G5WzVZMeT8/Zyxyu5E9YiarYJOA==
+X-Gm-Gg: AYBFou3rPBKehlnMjzbPrd78NchPnoifAJrj9mZVxvSYBtSNnw3jU71+qu65zhW+XiC
+	NCIoyW12ZLvZO0TKn8UrnXyB2O80T+VnDeoHVltujge/+xt5To2nkGVUv5xXp3trY3OPmJJsmjc
+	UTL5nNIhmw+uFfT3Uign40TLv5JWfxhue1x6huNnms3Go9W+/KVpF7bU8Xjk/5BsIbI1TjpMD7P
+	hQkC5xxCRTbhcxDx+Xef9P6FhnINEXqRMn7eOhJs1/LGypZeuaOkVimH8rufSb7G2FeGaBopLhf
+	CAtspW0WJPA4iYlJbOuMQR+0kHuaMpxuDJoFGK+99AWe0UqVIbZ84uj/KmvXN5zj2b8+ARJiLPj
+	mNc7784nnNSfiLHf35w71UiU5nR1O43U+64TvR6odxfnkLwi5hQGLgizIFwgaUO/pDpR1g2kGHM
+	gycXXckRA0cZAW7QGjqTOVnW3k9HqglrLyQFH65wDR9j+e2hkodblHTTPqnBxZkZeA44/NaTvpa
+	D/UKiWjS441cHUgTooFWVzJY8wKqiy6FFHGETFvIY2QodwSpISNKw9wv69OEoK11yF628Tu0hg9
+X-Received: by 2002:a17:903:22d2:b0:2e2:c283:354f with SMTP id d9443c01a7336-2e842abfe53mr30774615ad.28.1791584798347;
+        Fri, 09 Oct 2026 15:26:38 -0700 (PDT)
+Received: from jingyliang-input-linux.c.googlers.com (35.152.82.34.bc.googleusercontent.com. [34.82.152.35])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e84219e503sm16660725ad.17.2026.10.09.15.26.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Oct 2026 15:26:37 -0700 (PDT)
+From: Jingyuan Liang <jingyliang@chromium.org>
+Subject: [PATCH v5 00/11] Add spi-hid transport driver
+Date: Fri, 09 Oct 2026 22:25:25 +0000
+Message-Id: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US, de-DE
-To: lendev4@proton.me
-Cc: basavaraj.natikar@amd.com, linux-input@vger.kernel.org
-From: =?UTF-8?B?UmVnw7Zsw7YgTWFhc3M=?= <regoeloemaass@gmail.com>
-Subject: Re: [BUG] amd_sfh: ~10-second resume delay from accelerometer
- response timeout
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIANZpyWoC/23PSw7CIBCA4asY1mJgeEhdeQ/josJgWfQRUKIxv
+ buoixrS5T+Z+ZJ5kYQxYCKHzYtEzCGFcSihthtiu3a4Ig2uNAEGmgEHmnBw9D6lW8S2p3vltXc
+ NugaQlJspog+Pr3c6l+5Cuo3x+eUz/0x/kmCikjKnjHLF1aUFbrxwR9vFsQ/3fjfGK/lgGf4Ak
+ DUABVDALZrWe2/0CiAWQLL6lywKoFnDrVTGCbVfAeQClM0akAW4GCmcQm3RiQqY5/kNc2Ls0nA
+ BAAA=
+X-Change-ID: 20260212-send-upstream-75f6fd9ed92e
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ Jonathan Corbet <corbet@lwn.net>, Mark Brown <broonie@kernel.org>, 
+ Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org, 
+ linux-trace-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
+ hbarnor@chromium.org, tfiga@chromium.org, fqwqf@fqwqf.xyz, daleyo@gmail.com, 
+ Jingyuan Liang <jingyliang@chromium.org>, 
+ Jarrett Schultz <jaschultz@microsoft.com>, 
+ Dmitry Antipov <dmanti@microsoft.com>, Angela Czubak <acz@semihalf.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791584797; l=5428;
+ i=jingyliang@chromium.org; s=20260213; h=from:subject:message-id;
+ bh=Nj1qlIpON3VaMJM8UbfjiD8khDpWPWvFN1Ci3Mk1V50=;
+ b=etJd3b3UVqagUxqvjiTG6zOPQhMZq5oZ2SbYUYzjkoeHHWcPQb1WlCN+9PEKh/Wi8HCO2T+1x
+ O6h+agGpXM0BUSCGRCXk1lARzHY3remF5IYc9vlS0ExrdTDgSttfctW
+X-Developer-Key: i=jingyliang@chromium.org; a=ed25519;
+ pk=VTYSdqslTtYOjWWoIGgYoWupGWqNSidrggReKMgfPo4=
 
-Hello,
+This series picks up the spi-hid driver work originally started by
+Microsoft. The patch breakdown has been modified and the implementation
+has been refactored to address upstream feedback and testing issues. We
+are submitting this as a new series while keeping the original sign-off
+chain to reflect the history.
 
-I'm seeing the same bug on a different machine (Asus Vivobook S 16 Flip, 
-Ryzen 5 7530U) and reported it here: 
-https://lore.kernel.org/linux-input/6ad35436-63ac-4bc0-8d38-90ffe03b6db9@gmail.com/.
+Same as the original series, there is a change to HID documentation, some
+HID core changes to support a SPI device, the SPI HID transport driver,
+and HID over SPI Device Tree binding. We have added the HID over SPI ACPI
+support, power management, panel follower, and quirks for Ilitek touch
+controllers.
 
-I can confirm that on the latest kernel version the problem still persists.
+Original authors: Jarrett Schultz <jaschultz@microsoft.com>,
+		  Dmitry Antipov <dmanti@microsoft.com>
+Link: https://lore.kernel.org/r/86b63b7b-afda-d7f4-7bfa-175085d5a8ef@gmail.com
 
-Happy to help with further questions if needed.
+Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
+---
+Changes in v5:
+- Fix request/response races; match GET_FEATURE responses by report ID
+- Reset the device on response timeout; wait uninterruptibly
+- Validate device descriptor and report lengths; fix buffer sizing
+- Honor rtype in raw_request(); fix GET_REPORT off-by-one
+- Use hid_safe_input_report(); forward input reports only while open
+- Disable IRQ around hid_device teardown; fix a sparse warning
+- Use disable_work_sync() for reset_work in remove()
+- Cap trace copies at 64 bytes; cacheline-align read approval buffers
+- ACPI: select RESET_CONTROLLER, use device_reset_optional()
+- OF & DT: read opcodes as u8, use dev_err_probe(), require reg
+- PM: cancel reset_work on suspend, wait for reset before
+  reset_resume(), fix IRQ imbalance on resume failure
+- Panel follower: fix regulator/IRQ imbalance; depend on DRM || !DRM
+- Link to v4: https://lore.kernel.org/r/20260609-send-upstream-v4-0-b843d5e6ced3@chromium.org
 
+Changes in v4:
+- Extended io_lock scope to protect the shid->hid pointer lifecycle
+  against races with the IRQ handler
+- Cacheline-aligned DMA buffers, enforced 4-byte alignment
+- Added error rollback for failed suspend/resume transitions
+- Moved IRQ request to probe with IRQF_NO_AUTOEN (disabled by default)
+- DT Bindings & OF Driver:
+  - Required a device-specific compatible string in the schema.
+  - Added description to explain why opcodes and addresses properties
+    need to be defined in the schema
+  - Added `spi-peripheral-props.yaml` reference and switched to
+    `unevaluatedProperties: false`.
+  - Added fallback to default timing parameters in OF driver if match
+    data is missing.
+- Link to v3: https://lore.kernel.org/r/20260402-send-upstream-v3-0-6091c458d357@chromium.org
 
-Thanks.
+Changes in v3:
+- Add io_lock init
+- Relocate tracepoints to drivers/hid/spi-hid/ and fix tracepoint macros
+- Add tracepoints for sync, error handling, reset, and report processing
+- Clean up internal includes and fix Makefile CFLAGS
+- Add more details in v2 changelog
+- Link to v2: https://lore.kernel.org/r/20260324-send-upstream-v2-0-521ce8afff86@chromium.org
+
+Changes in v2:
+- Clean up DT bindings: fix formatting and remove timing and flags properties
+- Update DT binding example: use a device-specific compatible and drop
+  reset_assert
+- Simplify ACPI/OF match tables by removing ACPI_PTR/of_match_ptr
+- Refactor OF driver to use match data for timing parameters instead
+  of DT properties
+- Switch to fsleep() for delays in ACPI and OF drivers
+- Drop patch 12 as it is vendor specific
+- Add a lock to fix input/output concurrency race
+- Link to v1: https://lore.kernel.org/r/20260303-send-upstream-v1-0-1515ba218f3d@chromium.org
+
+---
+Angela Czubak (2):
+      HID: spi-hid: add transport driver skeleton for HID over SPI bus
+      HID: spi-hid: add ACPI support for HID over SPI
+
+Jarrett Schultz (3):
+      Documentation: Correction in HID output_report callback description.
+      HID: Add BUS_SPI support and define HID_SPI_DEVICE macro
+      HID: spi-hid: add device tree support for HID over SPI
+
+Jingyuan Liang (6):
+      HID: spi-hid: add spi-hid driver HID layer
+      HID: spi-hid: add HID SPI protocol implementation
+      HID: spi-hid: add spi_hid traces
+      dt-bindings: input: Document hid-over-spi DT schema
+      HID: spi-hid: add power management implementation
+      HID: spi-hid: add panel follower support
+
+ .../devicetree/bindings/input/hid-over-spi.yaml    |  130 ++
+ Documentation/hid/hid-transport.rst                |    4 +-
+ drivers/hid/Kconfig                                |    2 +
+ drivers/hid/Makefile                               |    2 +
+ drivers/hid/hid-core.c                             |    3 +
+ drivers/hid/spi-hid/Kconfig                        |   50 +
+ drivers/hid/spi-hid/Makefile                       |   12 +
+ drivers/hid/spi-hid/spi-hid-acpi.c                 |  262 +++
+ drivers/hid/spi-hid/spi-hid-core.c                 | 1754 ++++++++++++++++++++
+ drivers/hid/spi-hid/spi-hid-core.h                 |  118 ++
+ drivers/hid/spi-hid/spi-hid-of.c                   |  243 +++
+ drivers/hid/spi-hid/spi-hid-trace.h                |  184 ++
+ drivers/hid/spi-hid/spi-hid.h                      |   46 +
+ include/linux/hid.h                                |    2 +
+ 14 files changed, 2810 insertions(+), 2 deletions(-)
+---
+base-commit: ee9c669f9bf5fd2c24206746ded9382fe810df89
+change-id: 20260212-send-upstream-75f6fd9ed92e
+
+Best regards,
+-- 
+Jingyuan Liang <jingyliang@chromium.org>
 

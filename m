@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3466F3B9D98;
-	Fri,  9 Oct 2026 22:42:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B7AA3B9D98;
+	Fri,  9 Oct 2026 22:43:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791585773; cv=none; b=Fomr0e48wyyiVuBK0Ziy9gQjSzUmP5+IBDnF5lNxP24PBGoqd3rueXg7SEhUoh4KlbUO0ks9UYkvd4ck5TEd9kfEu5as0v+FhrHFwZENv1pQwtikFeKm4/p9X6RHRDKJJnM7q7KIyFpS43CJXcs09QwzkhDFxX+esKcny/RkvSQ=
+	t=1791585789; cv=none; b=PYzK6Q5RsMfBYUkBbIG+RajBcSUVz60t4TWIP/CaNNmL4IgbBk/xiZxDWw+7/Q5Tk2hXwp+sJuA9GO0KH34kOLHnKLr5s8hPMUZUI9/LX6z3RLHdiN+jLyfMaGGntlBIDQaYw5FzII/XoDm38h0wHS7mGiS+TR/8LFw/ZNwtv7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791585773; c=relaxed/simple;
-	bh=oURz/JmDsetXO+K9ZPONSbCOyrnyxxV0tZ87S08DBp8=;
+	s=arc-20240116; t=1791585789; c=relaxed/simple;
+	bh=t0Cuus17c2jhVpB24oJNjpT9ohWUgou9/KKAbMac6sE=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=i9ArvGhBCJWyG4qs+SubJQfqTrCe3OU6fpxXZCwO4f02Yde3Zpdq+1PxnRUO6A/qWwrAcYF/RoPOJQWLhdMEoclxjdCkFRRV3SairuGJY3J8KBnG/+fFqpTBzEXPS2XU77D8bg720lZ8jMWNnaHE1l8Z7I6quovNN0UATfmVYic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ieNmLEx5; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=YquOMVkuE5bBAnNt1fhC1R+7ORjY1mrWDom1sH0ebx5WJxPPBjlooUqHb1GtqlMdzOQ2fNNN2y2kaqBWPucjzGxXCSfyUo/I0j484BtLtzEq+nCiJU52FKat36i+f4C7G5oWWovUkWJOdEKr8W+NEZ+DxbeQEmupDTo5ng1tc+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YWYjIFqi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ieNmLEx5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43AA71F000FF;
-	Fri,  9 Oct 2026 22:42:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YWYjIFqi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704D11F000FF;
+	Fri,  9 Oct 2026 22:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791585771;
-	bh=RbV9LR8fZ+2UTC/+k3hm9KTxWxQrO0lb0Ws3Vt/h9nM=;
+	s=k20260515; t=1791585788;
+	bh=+pO0HrJhJqvLuPJQS/64z/UpGim+n4GcYOaIbZsRbLk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ieNmLEx5dliMuLi0Y/U460fkOii5DEW3QrzUlOliuw+0y6yE5iSEz8VCE7XMAGVJn
-	 b1u4uukJKhFuSNU20HqtjwtSN5kU5CBKHjHMoKsJMzNMiAZwwGFID0IgxgIQMDFmvr
-	 b5reHz9xXOkkZdEb7m1uiFihVxL2XOIKmKSBcKDPud0FgrYEWPLKQslEXHiy+qye6I
-	 hsrPNURVObZATwKr4358iqo1N4n00YAyuGj3YRt/lnNyd4BaftVxzhdOmoAQZEPnfv
-	 hADFASBv5NxR2ucZd09Lf492JI9OG7eNVWMm3+aHxQpVD6m1JOijPWj8LQx5hNU/Km
-	 d5UnMzT9qu/2A==
-Message-ID: <sashiko-outbox-166154@kernel.org>
+	b=YWYjIFqirimRdWt10k477XglwxY8CKao5tpo3h/khaKtqh6nc6izMOuTp8XKVrnvQ
+	 cHDJhf4fNiGB+ZKX+PfGarR4Iax+hNB9Brdn4r1MnmKISIdTKG2yczwKAWfV0PZRWp
+	 0KRkWuYirHZCq54qOZw7bw2qtZuGk2bTwcH+nhsnV3DMS4FSfZg3+cypy6fSl3Zkip
+	 ct7bEbSlbcTLCjg7lUG86eanAQVkaAnoavEoIvKyIUgvtXd8MqROJhIRHlmPYd69it
+	 VokXhpjEuWRsslseLBzFwPNXI6KQUjUcrvkwLwDT6o+0SCSteXtBnYeXPRgsI6Bnxp
+	 dD3Lm+1LZlAOw==
+Message-ID: <sashiko-outbox-166155@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 04/11] HID: spi-hid: add spi-hid driver HID layer
+Subject: Re: [PATCH v5 10/11] HID: spi-hid: add power management
+ implementation
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jingyuan Liang" <jingyliang@chromium.org>
-Cc: conor+dt@kernel.org, robh@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-trace-kernel@vger.kernel.org
-In-Reply-To: <20261009-send-upstream-v5-4-384af01da3ee@chromium.org>
+Cc: linux-trace-kernel@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org
+In-Reply-To: <20261009-send-upstream-v5-10-384af01da3ee@chromium.org>
 References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
- <20261009-send-upstream-v5-4-384af01da3ee@chromium.org>
+ <20261009-send-upstream-v5-10-384af01da3ee@chromium.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 22:42:50 +0000
+Date: Fri, 09 Oct 2026 22:43:06 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,113 +47,82 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] hid: output_report callback sleeps in atomic context
+- [Medium] spi-hid: hid_driver_reset_resume() races with error recovery dur=
+ing resume
 --
 
-commit 954a3684cea1bad33a85c00ff6725f7553c75027
+commit e43c402ebe88a8dd98c0bab5a81f64d825faf560
 Author: Jingyuan Liang <jingyliang@chromium.org>
 
-    HID: spi-hid: add spi-hid driver HID layer
-   =20
-    Add HID low level driver callbacks to register SPI as a HID driver, and
-    an external touch device as a HID device.
+    HID: spi-hid: add power management implementation
+
+This commit implements power management callbacks for the HID over SPI
+driver. It introduces suspend and resume operations, handling device
+power state and reset coordination during system transitions.
 
 > diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi=
 -hid-core.c
-> index 02a7608c4b882..fca7a44eeb9f9 100644
+> index f4e9b4e1294ed..66bfc251bd915 100644
 > --- a/drivers/hid/spi-hid/spi-hid-core.c
 > +++ b/drivers/hid/spi-hid/spi-hid-core.c
 [ ... ]
-> +static int spi_hid_send_output_report(struct spi_hid *shid,
-> +				      struct spi_hid_output_report *report)
+> +static int spi_hid_resume(struct spi_hid *shid)
 > +{
-> +	guard(mutex)(&shid->output_lock);
-> +	return __spi_hid_send_output_report(shid, report);
-> +}
-> +
-> +static int __spi_hid_sync_request(struct spi_hid *shid,
-> +				  struct spi_hid_output_report *report)
-> +{
+> +	int error;
 > +	struct device *dev =3D &shid->spi->dev;
-> +	int error;
+> +	bool was_reset =3D false;
 > +
-> +	reinit_completion(&shid->output_done);
-> +
-> +	error =3D __spi_hid_send_output_report(shid, report);
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D wait_for_completion_interruptible_timeout(&shid->output_done,
-> +							  msecs_to_jiffies(SPI_HID_RESP_TIMEOUT));
-> +	if (error =3D=3D 0) {
-> +		dev_err(dev, "Response timed out\n");
-> +		return -ETIMEDOUT;
-> +	}
-> +	if (error < 0)
-> +		return error;
-> +
-> +	return 0;
-> +}
-> +
-> +static int spi_hid_sync_request(struct spi_hid *shid,
-> +				struct spi_hid_output_report *report)
-> +{
-> +	guard(mutex)(&shid->output_lock);
-> +	return __spi_hid_sync_request(shid, report);
-> +}
+> +	guard(mutex)(&shid->power_lock);
+> +	if (test_bit(SPI_HID_DEAD, &shid->flags)) {
 [ ... ]
-> +static int spi_hid_ll_output_report(struct hid_device *hid, __u8 *buf,
-> +				    size_t len)
-> +{
-> +	struct spi_device *spi =3D hid->driver_data;
-> +	struct spi_hid *shid =3D spi_get_drvdata(spi);
-> +	struct device *dev =3D &spi->dev;
-> +	struct spi_hid_output_report report =3D {
-> +		.report_type =3D OUTPUT_REPORT,
-> +		.content_length =3D len - 1,
-> +		.content_id =3D buf[0],
-> +		.content =3D &buf[1],
-> +	};
-> +	int error;
+> +	enable_irq(shid->spi->irq);
 > +
-> +	if (!test_bit(SPI_HID_READY, &shid->flags)) {
-> +		dev_err(dev, "%s called in unready state\n", __func__);
-> +		return -ENODEV;
+> +	/*
+> +	 * For devices that may wake up, process work that was pending when
+> +	 * suspend cancelled reset_work. Otherwise suspend already dropped it.
+> +	 */
+> +	if (test_bit(SPI_HID_RESET_RESPONSE, &shid->flags) ||
+> +	    test_bit(SPI_HID_CREATE_DEVICE, &shid->flags) ||
+> +	    test_bit(SPI_HID_ERROR, &shid->flags))
+> +		schedule_work(&shid->reset_work);
+> +
+> +	if (shid->hid) {
+> +		if (was_reset)
+> +			spi_hid_wait_for_reset(shid);
+> +		error =3D hid_driver_reset_resume(shid->hid);
+
+[Severity: Medium]
+Does hid_driver_reset_resume() race with error recovery here?
+
+In spi_hid_resume() (drivers/hid/spi-hid/spi-hid-core.c), the power_lock is
+acquired at the beginning of the function and held until it returns.
+
+If a wakeup-capable device suspends while an error recovery is pending
+(the SPI_HID_ERROR flag is set), spi_hid_suspend() cancels reset_work and
+leaves the device powered on.
+
+During system resume, spi_hid_resume() reschedules reset_work to handle the
+pending error. However, because the device was left powered on, was_reset is
+false, causing spi_hid_resume() to skip spi_hid_wait_for_reset().
+
+It then immediately calls hid_driver_reset_resume() while still holding
+power_lock. Because reset_work requires power_lock to execute
+spi_hid_error_handler(), the scheduled error recovery is blocked until
+spi_hid_resume() returns.
+
+Consequently, hid_driver_reset_resume() attempts to communicate with the
+device synchronously while it is physically still in an unresponsive error
+state, which will time out or fail, aborting the device resume.
+
+> +		if (error) {
+> +			dev_err(dev, "%s: failed to reset resume hid driver: %d\n",
+> +				__func__, error);
+> +			return error;
+> +		}
 > +	}
-> +
-> +	if (shid->desc.no_output_report_ack)
-> +		error =3D spi_hid_send_output_report(shid, &report);
-> +	else
-> +		error =3D spi_hid_sync_request(shid, &report);
-
-[Severity: High]
-Can this code sleep in an atomic context?
-
-The HID subsystem requires the output_report callback to be asynchronous be=
-cause
-it can be invoked from atomic contexts, such as softirqs for LED triggers or
-force feedback.
-
-Both spi_hid_send_output_report() and spi_hid_sync_request() acquire a mute=
-x,
-which will sleep. Furthermore, spi_hid_sync_request() blocks by calling
-wait_for_completion_interruptible_timeout() in __spi_hid_sync_request() whi=
-le
-waiting for the response.
-
-Will calling these synchronous primitives from the output_report callback l=
-ead
-to a scheduling while atomic BUG and cause a kernel panic?
-
-> +
-> +	if (error) {
-> +		dev_err(dev, "failed to send output report\n");
-> +		return error;
-> +	}
-> +
-> +	return len;
+> +	return 0;
 > +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009-send-upstr=
-eam-v5-0-384af01da3ee@chromium.org?part=3D4
+eam-v5-0-384af01da3ee@chromium.org?part=3D10

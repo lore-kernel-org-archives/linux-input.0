@@ -1,157 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta0.migadu.com (out-236.mta0.migadu.com [91.218.175.236])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97FFE4A261C
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 11:28:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4DA54DD6DB
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 11:46:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.236
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791545315; cv=none; b=Qy8699JeCTcwdUvbYjYcTmeeU4DBW71vN5t/gCB2UdoNZwjIiEK/iLv/oLpa0RV7nQjZgWCXWjbtOrUWoEBey6RCZwd2RGRo4B3gmXCoJha1HKXjWRT1CA2oGswn0BVWjTvd8v+Ahn/0pi3Enrjkbw+EzZ8JdVmLIbjAFvTCXD8=
+	t=1791546424; cv=none; b=UYDmYY1L5+g+WRBr9HJOuCQv0+9trnOZMHaAGW+yJCj74xvYcBop5q7pAyFMOJUDxgKC41XDqml+pSMeKa2VqMovZ0f9kUgfldgoqqkpmklKwAbF5N0bo/Bi/Ds6hDFHIPK12KHbojsBex3QJbZw1Cb2E30+3EC++kymD1+hVsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791545315; c=relaxed/simple;
-	bh=W5r/dCNq/NAmQs6Vz/8vLEnW8NZ6WGOrMgjv12jnhzA=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=Tmmjw8W+b/SUt9nvv2xxw/t3iT/6tZXgcj5OI0rmt6S+4l11HW0rSW5oa103x3HIOmioV2AIhgBwigWmlFdcQfVsz+iNRDwRozTVe2wCSCwsanriZhfi1EIiAztfOFVafX8Psk4s2Z6INv0uhEDf4+h+wnsJFKsMN1oaNd9ZOzk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WZ7GyswX; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791546424; c=relaxed/simple;
+	bh=eNzg+bfeFy0bMPZ3YN8tWVXL0Hv6lyLk8riO4DNvSqU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Z+z5ntrOHjcheVsTEYphWg73UvbmulX+au7krdTQ6DWeHH+f6gdGxJsHQgvmwut4rXdYlXGAQIwPxSvPHccuxWRbdGUPXM1FoLqwC8U80Sz6g9rwWkrUzQILMofh/0+UGmx19P6mdKF8rVjV5S7sgUwiCwPb9s58dyBRP0Mc2IA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UiFKGTxV; arc=none smtp.client-ip=91.218.175.236
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WZ7GyswX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B2A1F000FF;
-	Fri,  9 Oct 2026 11:28:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791545307;
-	bh=EnnRvDv84bxx+o5aYVJPEZcjfbq5nsje4N/L4BjjQdc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WZ7GyswXc3qv7bOtfT5h5Vn1fqVTLLf3E0r31TnFZAvhX1I7ZjRh9kDJqkEkfuJTl
-	 etPYdwmGRuRtRjOa0ncnxThK14DhyQy0hSdCQJrzZBnONp9Nl/eXykzG+98Y2n0LDZ
-	 sxhFeLtJUZOzmegf56+S1XIH/qUd6zjJ97aVrN/pzl6irnR/rUT3F7JcMjrqbDMphH
-	 HjAmFZi7nqH6QWqOyUG6RkqIoTs6TCP6nFnfX0bigWGzqpo0Kj8ZPJheqpBFFPUOq8
-	 ajiZl5G38fD1usTDZ6gsXiOjlcd5Uxt9CjQqJaM8SANOPLqzItoLZju2UgMbLv+dTR
-	 FHlciykdqaR2w==
-Message-ID: <sashiko-outbox-165372@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] HID: multitouch: use kzalloc for haptic data to fix
- use-after-free
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aldo Ariel Panzardo" <qwe.aldo@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261009110509.2432308-1-qwe.aldo@gmail.com>
-References: <20261009032607.3233482-1-qwe.aldo@gmail.com>
- <20261009110509.2432308-1-qwe.aldo@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 11:28:26 +0000
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UiFKGTxV"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=eNzg+bfeFy0bMPZ3YN8tWVXL0Hv6lyLk8riO4DNvSqU=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1791546413; v=1; x=1792151213;
+ b=UiFKGTxVEZgL6U/5GHQDWyPPTHucCPoWoWJlsG2jZjNycpAPk6RoGqxop9cfnwAD5cM6+GZt
+ e4h/Twmq6wQqYUN6NoU2bDJ9kgQLX4g7uQSo984jTkyZ6WgAwReQtNHJx70vPXwnC/1xofbHhPm
+ R8OPW8FUs6MHdlnioOkQnOJI=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id c9cd8961b0ec5f7b;
+	Fri, 09 Oct 2026 11:46:53 +0000
+X-Mizu-Trace-ID: c9cd8961b0ec5f7b
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <ecba8e43-c2c6-4d29-a4bb-09e905f319d4@linux.dev>
+Date: Fri, 9 Oct 2026 13:46:52 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/2] Input: xpad - introduce a static table to ignore
+ devices
+To: Jiri Kosina <jikos@kernel.org>
+Cc: 'Benjamin Tissoires' <bentiss@kernel.org>,
+ 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, "Derek J. Clark" <derekjohn.clark@gmail.com>
+References: <20260811125856.1692045-1-denis.benato@linux.dev>
+ <20260811125856.1692045-3-denis.benato@linux.dev>
+ <6598sn1p-p330-1r7o-q43p-r1rnr7nn0022@xreary.bet>
+Content-Language: en-US
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <6598sn1p-p330-1r7o-q43p-r1rnr7nn0022@xreary.bet>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] hid: hid-multitouch: UAF / Double-free of td->haptic on hid_haptic=
-_init() failure
-- [Medium] hid: memory leak of td->haptic due to premature flag set
---
 
-commit a50aea65dd06f11fa05d83509c540cc3680b3b08
-Author: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+On 9/11/26 16:11, Jiri Kosina wrote:
+> On Tue, 11 Aug 2026, Denis Benato wrote:
+>
+>> Certain devices can work both as HID and as an xpad device: binding both
+>> would duplicate inputs causing userspace to receive double inputs; at the
+>> same time if a HID device is available it is to be preferred as it can
+>> support additional features such as integrated IMU and additional buttons
+>> and more, depending on the specific driver, therefore allow only the
+>> best driver available to bind the device.
+>>
+>> Suggested-by: Derek J. Clark <derekjohn.clark@gmail.com>
+>> Signed-off-by: Denis Benato <denis.benato@linux.dev>
+> I'd like to have Dmitry's Ack on this one before taking the Flydigi 
+> support through the HID tree.
 
-    HID: multitouch: use kzalloc for haptic data to fix use-after-free
+Hi Jiri,
 
-This commit replaces devm_kzalloc() with plain kzalloc() for td->haptic
-to ensure it survives driver unbind. It introduces manual kfree() calls on
-error paths and when the haptic subsystem is not used.
 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 4e19a0c4d2381..9cbe61832328c 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-[ ... ]
-> @@ -2195,8 +2197,11 @@ static int mt_probe(struct hid_device *hdev, const=
- struct hid_device_id *id)
->  		hdev->quirks |=3D HID_QUIRK_NOGET;
-> =20
->  	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> -	if (ret)
-> +	if (ret) {
-> +		if (!td->is_haptic_touchpad)
-> +			kfree(td->haptic);
->  		return ret;
-> +	}
+Any news on this front yet?
 
-[Severity: Medium]
-Does this error path leak td->haptic if hid_hw_start() fails after mapping
-but before configuration?
-
-td->is_haptic_touchpad is set to true during the report mapping phase in
-mt_touch_input_mapping(). If hid_hw_start() fails after this mapping is don=
-e,
-but before the configuration phase (for example, if hidinput_connect() fails
-to allocate an input device), td->is_haptic_touchpad will be true.=20
-
-The input core has not taken ownership of td->haptic yet, so skipping kfree=
-()
-here would leak the memory.
-
-[ ... ]
-> @@ -2206,9 +2211,13 @@ static int mt_probe(struct hid_device *hdev, const=
- struct hid_device_id *id)
->  	mt_set_modes(hdev, HID_LATENCY_NORMAL, TOUCHPAD_REPORT_ALL);
-> =20
->  	if (!td->is_haptic_touchpad)
-> -		devm_kfree(&hdev->dev, td->haptic);
-> +		kfree(td->haptic);
-> =20
->  	return 0;
-
-[Severity: High]
-Does this skip kfree() and lead to a memory leak if
-hid_haptic_input_configured() returns an error?
-
-In mt_input_configured(), the flag is only cleared if the configuration
-returns 0:
-
-drivers/hid/hid-multitouch.c:mt_input_configured() {
-    ...
-    if (hid_haptic_input_configured(hdev, td->haptic, hi) =3D=3D 0)
-        td->is_haptic_touchpad =3D false;
-    ...
-}
-
-If hid_haptic_input_configured() returns -1 (e.g., when the device lacks a
-touchpad application), the flag remains true. The success path in mt_probe()
-would then skip freeing td->haptic, leading to a memory leak.
-
-Additionally, can this cause a use-after-free or a double-free on
-hid_haptic_init() failure?
-
-If try_module_get() fails in hid_haptic_init(), it jumps to the input_free
-label without setting an error code:
-
-drivers/hid/hid-haptic.c:hid_haptic_init() {
-    if (!try_module_get(THIS_MODULE)) {
-        dev_err(&hdev->dev, "Failed to increase module count.\n");
-        goto input_free;
-    }
-    ...
-input_free:
-    input_ff_destroy(dev);
-    ...
-}
-
-This path calls input_ff_destroy(), which unconditionally frees ff->private
-(which points to td->haptic). Because no error code is returned,
-mt_input_configured() incorrectly assumes success and leaves
-td->is_haptic_touchpad set to true.
-
-This leaves a dangling pointer in td->haptic since it was already freed by
-input_ff_destroy(), potentially leading to a use-after-free on subsequent
-touch events.
-
-If the missing error code in hid_haptic_init() is corrected,
-mt_input_configured() would set the flag to false, and this success path
-in mt_probe() would call kfree(td->haptic) on already freed memory, causing
-a double-free.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009110509.2432=
-308-1-qwe.aldo@gmail.com?part=3D1
+> Thanks.
+>
+>> ---
+>>  drivers/input/joystick/xpad.c | 24 ++++++++++++++++++++++++
+>>  1 file changed, 24 insertions(+)
+>>
+>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+>> index feb8f368f834..545119a4fb36 100644
+>> --- a/drivers/input/joystick/xpad.c
+>> +++ b/drivers/input/joystick/xpad.c
+>> @@ -406,6 +406,18 @@ static const struct xpad_device {
+>>  	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
+>>  };
+>>  
+>> +#define XPAD_SUBSTITUTE(_vid, _pid, _enabled) \
+>> +	{ .vid = (_vid), .pid = (_pid), .enabled = (_enabled) }
+>> +
+>> +static const struct xpad_excluded_device {
+>> +	u16 vid;
+>> +	u16 pid;
+>> +	bool enabled;
+>> +} xpad_excluded_devices[] = {
+>> +	XPAD_SUBSTITUTE(0x37d7, 0x2401, IS_ENABLED(CONFIG_HID_FLYDIGI)),
+>> +	{ }
+>> +};
+>> +
+>>  /* buttons shared with xbox and xbox360 */
+>>  static const signed short xpad_common_btn[] = {
+>>  	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
+>> @@ -2044,11 +2056,23 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+>>  	struct usb_device *udev = interface_to_usbdev(intf);
+>>  	struct usb_xpad *xpad;
+>>  	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
+>> +	const struct xpad_excluded_device *excluded;
+>>  	int i, error;
+>>  
+>>  	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
+>>  		return -ENODEV;
+>>  
+>> +	for (excluded = xpad_excluded_devices;
+>> +	     excluded->vid || excluded->pid;
+>> +	     excluded++) {
+>> +		if (!excluded->enabled)
+>> +			continue;
+>> +
+>> +		if (le16_to_cpu(udev->descriptor.idVendor) == excluded->vid &&
+>> +		    le16_to_cpu(udev->descriptor.idProduct) == excluded->pid)
+>> +			return -ENODEV;
+>> +	}
+>> +
+>>  	for (i = 0; xpad_device[i].idVendor; i++) {
+>>  		if ((le16_to_cpu(udev->descriptor.idVendor) == xpad_device[i].idVendor) &&
+>>  		    (le16_to_cpu(udev->descriptor.idProduct) == xpad_device[i].idProduct))
+>> -- 
+>> 2.47.3
+>>

@@ -1,104 +1,93 @@
-Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98CD3175A74
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 02:35:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A059F310784
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 02:44:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791513301; cv=none; b=AioWauFzLluDYDyjwO20/niz3LCWMO3kvTVO69EAF1V+UEGuQs4+KJSFITc/sWnKRXY5zGoQD7XQ3yar5ipBn4wdFDuAE7GiAcHvEapNIJFOLPCKLpFqV9L3Mhj/y8OQOF71W0PtxU52P/d+CpfbS8Wo3oF90Ie6Ejkl+FnIeo4=
+	t=1791513873; cv=none; b=TVi+5dH1lLdbXzHQS1mOWLaj3GesryU+OZ6Fn1KnrJvskRXDJSRyWIk3R8AEE3wToxlNpOTgBAKno5I4zxS4trbiPbjCdPde9xTQ5O7pcaeqfp3mGEB44yb5CwENn2n1BNXHbkhiVxpSRw5LmBhVIaPQj7UJnlR78k/MKNd7WW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791513301; c=relaxed/simple;
-	bh=WREXE+nC2vo8qpqDBsF/IhOMXR30v1bZpQEYcy5zNns=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bvYs3/dMDqHxo7NfH57IOjDOBbqLP+Rb1+qUiCT6PQ0wuV4eD0fArJXzOnyN2KwwWv7vdjnoRcffmu2hH6BOFyc23T2NKh0cv0/s4y0UhzVWBMvBKCdRJXfshaQh6L3W3Pe4z7d3K3WBtx551oUZSw70OEbAsZ9rYm3l2L3dQ6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=I0L7jE2Z; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=EFd9nYKO; arc=none smtp.client-ip=34.202.193.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
+	s=arc-20240116; t=1791513873; c=relaxed/simple;
+	bh=f0DJX35WYe/Q/8Gxu7Ao1YMwEKFrvc3Z9o07etHD5N8=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=YtrUX4r1X5BDjcNfPDJPHPowkwuYn5WFGnYQUKJe9+7REmso2rStoXUr6VqzR3HqzdMNGmYNo41Dj1bQQdAqyMg8h0KM5BF2WTumlVYYJthGechVQYsFuSAbt9GyWxjFGLBbi5peE7Y2KGR60669fT2K0qBJb7NNpreATEpSUqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Er7ajpZ3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="I0L7jE2Z";
-	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="EFd9nYKO"
-DKIM-Signature: a=rsa-sha256; b=I0L7jE2ZZgKpeB7ApzOYtPkTK4e3jtzw0nt+PHw/CJw8yEkn11QscTVoVVwY3jvvztJr6E2SbjT24C0Mm73B3tLwh+hkyi735sgcs1YbewGxK01izr/ksLYY2Dri1HxsOgyMlS7MmmMqrKQyU3zGa9tWpJJ14Q+2aSeGLAguYW1zxi06Pb89iORNtbvh4Ac6CM/rPgkQMWWRfk804i1j08iBbP40f2mfG+WOG6XH6yOHUeyuTpL2j0oGAt3uJBWtb4LY9AMrxdjOAZIRMt+9zL9GzQ7EXlaf5vvUmtqFwcyYeqzybPukN3pkaqG1k8oaG7UlYnuxt9cbpOTD83iA8g==; s=purelymail2; d=rcpassos.me; v=1; bh=WREXE+nC2vo8qpqDBsF/IhOMXR30v1bZpQEYcy5zNns=; h=Received:From:To:Subject:Date;
-DKIM-Signature: a=rsa-sha256; b=EFd9nYKO4UPFcq3MLVNF+SqOSoKlmzeoQe0SbqfVu7JsIwUAwhj9hhP9/yAc85uE2QLeWbWXoLOvTRmmWrBB11uqOJaX296a43XCS9cjYGssqkJ29dz2Ib74rTClXhW3xgio5r/sUv2WTK/cjxm7+b2rj0GGqZeRqqNYBRIzCxdPbF5b15/lRZJQUdUox+rrm5PCKZxtS7BkjYo1pEjJX9tXGr7Obn1koVlViO5QFja47xRJb3/lZGOJrBggJhcs6e6viWmwL+jL/aZRVGu+nX9rHT1OJTb+aldvcpt/oxT0prI3a9cA5HwkYcIX63c1S9cbFDRnm0LDeK22pFuVUQ==; s=purelymail2; d=purelymail.com; v=1; bh=WREXE+nC2vo8qpqDBsF/IhOMXR30v1bZpQEYcy5zNns=; h=Feedback-ID:Received:From:To:Subject:Date;
-Feedback-ID: 45355:7809:null:purelymail
-X-Pm-Original-To: linux-input@vger.kernel.org
-Authentication-Results: purelymail.com; auth=pass
-Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id 703998172;
-          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
-          Fri, 09 Oct 2026 02:34:47 +0000 (UTC)
-From: Rafael Passos <rafael@rcpassos.me>
-To: David Rheinsberg <david@readahead.eu>,
-	bentiss@kernel.org,
-	jikos@kernel.org
-Cc: Shuah Khan <skhan@linuxfoundation.org>,
-	Brigham Campbell <me@brighamcampbell.com>,
-	Jori Koolstra <jkoolstra@xs4all.nl>,
-	Rafael Passos <rafael@rcpassos.me>,
-	linux-input@vger.kernel.org
-Subject: [PATCH v5 3/3] HID: wiimote: led_probe with scoped cleanup
-Date: Thu,  8 Oct 2026 23:28:01 -0300
-Message-ID: <20261009022844.2790778-4-rafael@rcpassos.me>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261009022844.2790778-1-rafael@rcpassos.me>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Er7ajpZ3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EAEF1F000FF;
+	Fri,  9 Oct 2026 02:44:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791513872;
+	bh=zmEsAUeAyk2z9hFg9GIJ6Iq8SLk9Geb7rkfuZYJfwm4=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Er7ajpZ3Rr4iC2aevBuz1scA5QtAxMldv5NPL0yfH3ISC9cGnfpmbGBmzZmpq0jdn
+	 usNa5enClYYDOtgaXViFXZ3kxIlfI/oSDsCSXEi0d6vDNPv3RGwxbXkm6f0LSIGRIJ
+	 Y+acwdi2C9w4pRAqhjI4nebY79DbtGx4/aTgdur5R0Xjz/H4CRxTYeFtQWeAfiy2+j
+	 HJ4Mtvju5s6pSi1S3JvnvkjuJbtYzqryOP8K+YjbfN3rkjekh1Bk7TMXCJmLCxN1QJ
+	 sC2aBYkil4492cIUQdvuhjOT3sRzoeiM3u6LHBH7MAjEg7Elb/p0UHw+XscVRrJUPg
+	 ArZWlPdW5GajA==
+Message-ID: <sashiko-outbox-164733@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 2/3] HID: wiimote: replace spinlock pairs with
+ scoped_guard
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rafael Passos" <rafael@rcpassos.me>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261009022844.2790778-3-rafael@rcpassos.me>
 References: <20261009022844.2790778-1-rafael@rcpassos.me>
+ <20261009022844.2790778-3-rafael@rcpassos.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 09 Oct 2026 02:44:31 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-MIME-Autoconverted: from 8bit to quoted-printable by Purelymail
-Content-Type: text/plain; charset=UTF-8
 
-Cleanup code in led probe function, using the modern scoped cleanup.
-This prevents mistakes in future changes to this function.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] hid: incorrect preprocessor directive indentation
+--
 
-Signed-off-by: Rafael Passos <rafael@rcpassos.me>
-Reviewed-by: David Rheinsberg <david@readahead.eu>
----
- drivers/hid/hid-wiimote-modules.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+commit 6b73789c825ec316d85d88975b55b4fcb3448d0c
+Author: Rafael Passos <rafael@rcpassos.me>
 
-diff --git a/drivers/hid/hid-wiimote-modules.c b/drivers/hid/hid-wiimote-mo=
-dules.c
-index fa8c63eb6097d..199589cbf2b85 100644
---- a/drivers/hid/hid-wiimote-modules.c
-+++ b/drivers/hid/hid-wiimote-modules.c
-@@ -339,9 +339,9 @@ static void wiimod_led_set(struct led_classdev *led_dev=
-,
- static int wiimod_led_probe(const struct wiimod_ops *ops,
- =09=09=09    struct wiimote_data *wdata)
- {
-+=09struct led_classdev *led __free(kfree) =3D NULL;
- =09struct device *dev =3D &wdata->hdev->dev;
- =09size_t namesz =3D strlen(dev_name(dev)) + 9;
--=09struct led_classdev *led;
- =09char *name;
- =09int ret;
-=20
-@@ -359,15 +359,14 @@ static int wiimod_led_probe(const struct wiimod_ops *=
-ops,
-=20
- =09wdata->leds[ops->arg] =3D led;
- =09ret =3D led_classdev_register(dev, led);
--=09if (ret)
--=09=09goto err_free;
-+=09if (ret) {
-+=09=09wdata->leds[ops->arg] =3D NULL;
-+=09=09return ret;
-+=09}
-+
-+=09retain_and_null_ptr(led);
-=20
- =09return 0;
--
--err_free:
--=09wdata->leds[ops->arg] =3D NULL;
--=09kfree(led);
--=09return ret;
- }
-=20
- static void wiimod_led_remove(const struct wiimod_ops *ops,
+HID: wiimote: replace spinlock pairs with scoped_guard
+
+This commit replaces manual lock/unlock sequences with scoped guards in the
+wiimote driver. This is a cleanup that does not change behavior but aims to
+make the code safer to modify in the future.
+
+> diff --git a/drivers/hid/hid-wiimote-debug.c b/drivers/hid/hid-wiimote-de=
+bug.c
+> index fc847c2a1c1f1..b8027bb236089 100644
+> --- a/drivers/hid/hid-wiimote-debug.c
+> +++ b/drivers/hid/hid-wiimote-debug.c
+> @@ -7,12 +7,13 @@
+>  /*
+>   */
+> =20
+> -#include <linux/debugfs.h>
+> -#include <linux/module.h>
+> -#include <linux/seq_file.h>
+> -#include <linux/spinlock.h>
+> -#include <linux/uaccess.h>
+> -#include "hid-wiimote.h"
+> + #include <linux/cleanup.h>
+> + #include <linux/debugfs.h>
+> + #include <linux/module.h>
+
+[Severity: Low]
+This isn't a bug, but could we remove the leading spaces before these #incl=
+ude
+directives? The extra indentation violates the standard kernel coding style.
+
+> + #include <linux/seq_file.h>
+> + #include <linux/spinlock.h>
+> + #include <linux/uaccess.h>
+> + #include "hid-wiimote.h"
+
 --=20
-2.55.0
-
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009022844.2790=
+778-1-rafael@rcpassos.me?part=3D2

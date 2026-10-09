@@ -1,64 +1,64 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0153835FF6C
-	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 12:12:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CDCF41D103
+	for <linux-input@vger.kernel.org>; Fri,  9 Oct 2026 12:12:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791547937; cv=none; b=DdE7oxk0BC00hYop+BPi4ptOMaTywRcOwyRWvHzeiZhAJd1c7jKyIy4w8bj2BRCQ7riLk3x7grg4/XZfMFZg6BnzK9EdnJQRbegrrqYyh/yqb74vXRKBSwUKjzx4PnOOMAjTRsKGMhDyHN3RR276yN0TnuAO6BaNDklHuAlpTp4=
+	t=1791547947; cv=none; b=DU9OX6KDb2A+CgSgHcfVQiw0bW+JUzynupnMHcgeTOstN0C9afR389pXjlh2AV/BR/2cN4pAVynkhC/CHseRQzuZEYaV3/BY3QyraMD4sNiqS68GPsM5Sxm2EijTnymeerroJtMJqf+kpf8bYtne1xGfS12CmAusY9tIR7il4Qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791547937; c=relaxed/simple;
-	bh=DxUv0mvssxN3iJhOpegrRee7xWpW2o1yHuPk8Cu2DW0=;
+	s=arc-20240116; t=1791547947; c=relaxed/simple;
+	bh=smy/9I2zeXZ3tUBWMjGdBpUQQhQOFz7R/5ZhIBaJIdc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DKBvvIZBU5W71ZxRTAjhXkrey7+MmTQV1TSHxPvqCUi403CMsnp71XCyb4CcRcr6RRtgNbtbrPt8moq+KIevmXeH3/ZfACbnHMc3rkRJZgPozrLa0GszyHQ4KUWmkZM3hW2K9ImPM9vXnXHvnDdwJLblXjxTFby4BVJCZEh+uIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q7eftOCQ; arc=none smtp.client-ip=209.85.210.182
+	 MIME-Version; b=RIeZ1c/h7z3REzElbEXzDBvO3OGuO7ONtyY10vswJmOCDNqLz0a2p/VXOr0iHgJKmi3ze+nOBwFNRP3Ke70aoIV6zQp7uHD63UCr6mCUJs/GI2JVZOQ4OtmJVULtdVegEzn/F5T934sRYwphciCoqyNI8WvfLbx7cUAoUSvpHoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q2/ymsmr; arc=none smtp.client-ip=209.85.210.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q7eftOCQ"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-868b3248b2cso3357211b3a.1
-        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 05:12:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q2/ymsmr"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-85377c8bc96so2460629b3a.3
+        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 05:12:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791547928; x=1792152728; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791547937; x=1792152737; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=gs2kW6mPfU0JJJVaVDYl+M+hweObzydf3vfAXZLYSp8=;
-        b=q7eftOCQFL/ND2nrKQhri/Ob2QMezalXYZi2D8cUEmp4yBewe8DzaC2XNFmSFxDi+F
-         DlHGJR2oo+ryPD6MyvyR6Dbpfk9WfjdOS1CobbO+w3mCZCKFg5E9GM+EtNhNrqmXvlRQ
-         O/WHuqcMP6gotbStQJlOKYlloLhmeUkpUSWNlgK/vBexnsiI+GIQ+qXsT0H7UpUbVLnQ
-         kL0fB429qIlcojp9+XkMPI83I6xhmib8EwXDf3YG0HMqMRtMpEuxRje/9HIEE7fxFbaW
-         QD/72nXYz3n+7V1RdnQyiHFOm8p8O9eTd6C2PQClEtJZJJ/utNxonz2zLxP9jjUHFeRs
-         Dhyw==
+        bh=PtrU1MB2pqKnWLxhytU6meOsdBWTXmdC2qrviV7jGvM=;
+        b=q2/ymsmr1pnTckzhdosHa7ewgG829rt+dWU7SUh9reOGQt0FGEAxs479RzgQHHaSoo
+         yNk0T1E35/oiYwk0GIsNtpmbT2fPVyMyPdFGyXMa+dPklsSHi8zMVtMo3bMFahg28/Vz
+         QZzZ9645C+rEcnG11o/AqpfIPUbANXCNbLXI9ZwCg7fj22cYMCKQKnKj2jQLnvfUjH8j
+         GmlqcGDkuIBvyadqZkdiaioVRfwrWEw3Yk/lX5kSqtIw1BxEboYNQZMHYCWLfcZQ7eSZ
+         a12UCdFG/xkIccz4wBPBA7fZPZiGis58S6mcFrMKbll0rpsNDNy5b9yCEDo6TKKRgfoy
+         t1GQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791547928; x=1792152728;
+        d=1e100.net; s=20260707; t=1791547937; x=1792152737;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=gs2kW6mPfU0JJJVaVDYl+M+hweObzydf3vfAXZLYSp8=;
-        b=lnH5Z8xh6D1nWHQvVCANDs6sQPce/nRYoBVtxnOkZGNkcYgBIOSGIV3vg46lIkc3iO
-         M3gS8VRsyY+I9xRc8EbBCi1fr8vil+uP3huNsI7nRd8A7krQHqKRFHgrzTcU1dzsWcKn
-         tlsYfamd45LxOBLDvFT7U4obh3zo9Gqyw4M9SXxisBvc94WlU/lLUBvtV1ySrFkLpIVb
-         P5RguBOqWo1M3ZPB2sQ3HhNzves/R/iQAz6Gs22F0YFmT/if5PIZpAwZYlBReb2Uo8WO
-         xKmyGb5UP8GbVKVYreorJwJynQU8vMXxEqfrNdJ5uSKkZxWmeYPW16poDPOBuFGmrv1O
-         2ktw==
-X-Forwarded-Encrypted: i=1; AKwUvByp97+DLW3Lu31ZimwOubkBMlNGHmg/GC+M8Ea379FmJbDyEjHLDDv4yHIZGiLYdRvI/cRnU4tha/SuBA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJoSNUYFrBZ9kPnXeKroIjVKFMVGwf+aVcN5nkAGBTAFCKSMRon
-	/Y9Fj4jd+tqKrW1IVuv05lRbmoC1pgbmQAmruY1WHSdYa5sDxZs9m5Y/
-X-Gm-Gg: AYBFou0vCDVUzxcC4fz8nOV7V3W4t93CSELJITRSXLjq3T9wf8LpbuIr6fCB+51nPAx
-	Z+iSs7eWE5uXA+A1yKmNofP6Hs5qioPwi8hZtvhL9ZAWyjz+uRdEMQJNuGJYJQ+i0j6DYjqp1rz
-	hxDsczUOVoNB1kx1cZBnPj/NpQ3Ajc928MS2eKr8FJzoYrVgzh71tOh8htffTn68sbCR3UygeK3
-	MFbTpj76O0OkEhD1/81K8AnlxOt+GcJHuzzFi4vScnz3vEQR2qsOm8cs2kC4fPvgLKtGkXFxrmC
-	LxsxwHR6MEUKnoCBYzvpBNc7OE4wuqMPWlXJe8zZBhJgpT0b/h0lq8ZCFKLuuLik6Eq19ECeoKK
-	HjHN2+qStO9IRBuHH7PReDVsuhPt13Tvb9Zc+NwrgOHv3DnT5uM+y/xEgir3nXhyyuvftstJnvL
-	kFTajwzfQICxQRBCdW6BTcc/w+C8S78bZLbDNDK5OEon3r21+INpRadKXlOW2SjR5yc767mkkw+
-	ro=
-X-Received: by 2002:a05:6a00:f94:b0:880:74b9:dd07 with SMTP id d2e1a72fcca58-897c8d80f39mr1466367b3a.57.1791547928207;
-        Fri, 09 Oct 2026 05:12:08 -0700 (PDT)
+        bh=PtrU1MB2pqKnWLxhytU6meOsdBWTXmdC2qrviV7jGvM=;
+        b=zWeT3GQWQdzJKtIeJs5kcqnTYHXhv16qw1gWrL60o+yXOs5fzx1BVaxlnuhPR+CGB9
+         GdlO4N4TjYxJFQLGJMBWCMNWDoVGs+Q15EgBaZbn25KV2NuI7OtrTcqBv5cJZ9v3LOPA
+         1kEVwJws4rU6EkZCiXgnTo5i3ZPYNvdUPWcZUAoXbN2pwJl6qIensWF0QhYeODrce3dn
+         Tvf02NrSCmqrtfnrRcx8r1cxwQQkZQBYchvermkADDihoWoD6q0r3nIlRTaYnf/Ie8cP
+         YlNGScdJEaS3Mp2+9UOJ++MAGck6IWDiV4qs3natceWqA9EQi51tV2mHkQzM5+jPWoID
+         eyUQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzq/PfgDoPP/d7VCxDzUDoWdrWaHdeOssTAp95I5l4NLLOOt5jXEW6r0NzEsI3yX5pY+dPE86m65pNsxg==@vger.kernel.org
+X-Gm-Message-State: AFuF++kWWzidnSWJmDUBilnLTKoVotDq0EG1m7iM/QkVkn3Ay3nznUcp
+	AWTOq4VHmHjzmokuk+eTdzq8v4/shjJ0rjflbjVvGpoGQqBGUdgiNVqT
+X-Gm-Gg: AYBFou3hsyPTU2bJur2TMYyoUU+EPc9pyc9y2qH7A6MdW9x5B5BLHNM04Rd+D4luzjN
+	9XURvaxbOlPDgnkpp/oVagEGAXmn1RNX2m+9i0V7STa3hSZ1r5K+ljky2TROKu/NaOQ5F+RKVgq
+	grUeCX9+dkOXUOx10WTG0hU9mRbuwl2IZ2RIZjiM8CDDweAuh3l3d65OICs1Z/mmmBljGG/O+Gx
+	iv//h+IRNADFz01IYN52LyEVKhh1AWKuyZ4L0Vy1GGNQ4pw+booDvnkkiF5meL9NubdUfVMjkk2
+	kH8RZXVYVQJeighkVtRdjL4x7GpDF0D2E55dZJffvLWZ22QcXvvD0GY9YOEFB8s2ODAO3EOqzOV
+	bR6znSySkOQttSN2985lnH1kOJAYa3d+LgA5UGSpuZypcnTheyslULgJeTxk7hEi4T5l9RHhfTb
+	DAWktnbcuJ4f8nQgMhsAzt8bzofK0FboEkfg8YiERDKiPe8xPsSMxPOXLIcmbeEvnVdvor0PNhJ
+	hU=
+X-Received: by 2002:a05:6a20:2d14:b0:3de:5928:7f33 with SMTP id adf61e73a8af0-3e16be4d971mr1306809637.39.1791547937127;
+        Fri, 09 Oct 2026 05:12:17 -0700 (PDT)
 Received: from wyb-ms7e59 ([38.55.195.146])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-896c3eca287sm786243b3a.37.2026.10.09.05.12.05
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-896c3eca287sm786243b3a.37.2026.10.09.05.12.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Oct 2026 05:12:07 -0700 (PDT)
+        Fri, 09 Oct 2026 05:12:16 -0700 (PDT)
 From: Yibo Wang <wyibo6109@gmail.com>
 X-Google-Original-From: Yibo Wang <2024312277@stu.hit.edu.cn>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -69,9 +69,9 @@ Cc: Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Yibo Wang <wyibo6109@gmail.com>
-Subject: [PATCH 1/2] dt-bindings: input: add OnePlus pogo-pin keyboard binding
-Date: Fri,  9 Oct 2026 07:11:42 -0500
-Message-ID: <20261009121143.550498-2-2024312277@stu.hit.edu.cn>
+Subject: [PATCH 2/2] Input: add OnePlus/OPPO Pad pogo-pin keyboard serdev driver
+Date: Fri,  9 Oct 2026 07:11:43 -0500
+Message-ID: <20261009121143.550498-3-2024312277@stu.hit.edu.cn>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261009121143.550498-1-2024312277@stu.hit.edu.cn>
 References: <20261009121143.550498-1-2024312277@stu.hit.edu.cn>
@@ -85,123 +85,1195 @@ Content-Transfer-Encoding: 8bit
 
 From: Yibo Wang <wyibo6109@gmail.com>
 
-Binding for the Tinno keyboard MCU used by the OnePlus Pad 3 Pro /
-Pad 4 and OPPO Pad 5 Pro smart keyboards, attached to a tablet UART.
-Describes the supply, TX-gate and wake GPIOs and the touchpad
-geometry properties, with a MAINTAINERS entry.
+Clean-room serdev driver for the Tinno keyboard MCU used by the OnePlus
+Pad 3 Pro / Pad 4 and OPPO Pad 5 Pro smart keyboards, replacing the
+vendor platform driver that depends on a downstream msm_geni_serial
+callback and a user-space held tty fd.
+
+The MCU speaks a framed "one wire bus" protocol over a half-duplex
+921600 8N1 UART: 8x 0x55 preamble, 0xF1, src/dst address, cmd, len,
+payload, CRC16-IBM (poly 0x8005, init 0xC596), 0xFE, 4x 0xAA.  Host TX is
+gated onto the shared wire by a PMIC GPIO for the duration of a frame
+(450us before, 300us after) and every host frame is echoed back on RX.
+
+Supported: attach detection via the wake GPIO + 100ms heartbeat timeout,
+touchpad, function/URL keys and the keyboard backlight exposed as a
+"pogo-keyboard::kbd_backlight" LED class device (max 100, the range the
+MCU accepts) so UPower and the desktop keyboard-backlight controls drive
+it through the standard interface.  The backlight level is cached while
+detached and restored on re-attach.
+
+Two robustness fixes are folded in from bring-up:
+
+1. The MCU keeps sending the plug-in sync frame (0x2F/0x01) every 100 ms
+   until the host reports its wake state (0x3A/0x02); only then does it
+   switch to regular heartbeats (0x2F/0x05).  Treat a repeated plug-in
+   frame as a re-plug only once heartbeats have been seen, and send the
+   wake notification on attach, otherwise the LED re-send loop at 10 Hz
+   collides with the MCU and drops the link a few minutes after boot.
+
+2. After a heartbeat timeout the detect path sampled the wake line once;
+   it now re-arms detection properly so a working keyboard is picked up
+   again without a re-plug.
+
+DT binding for the "oneplus,pogo-keyboard" device is added along with a
+MAINTAINERS entry.
 
 Signed-off-by: Yibo Wang <wyibo6109@gmail.com>
 ---
- .../bindings/input/oneplus,pogo-keyboard.yaml | 81 +++++++++++++++++++
- MAINTAINERS                                   |  7 ++
- 2 files changed, 88 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
+ drivers/input/keyboard/Kconfig            |   11 +
+ drivers/input/keyboard/Makefile           |    1 +
+ drivers/input/keyboard/oneplus-pogo-kbd.c | 1109 +++++++++++++++++++++
+ 3 files changed, 1121 insertions(+)
+ create mode 100644 drivers/input/keyboard/oneplus-pogo-kbd.c
 
-diff --git a/Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml b/Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
-new file mode 100644
-index 000000000..849558458
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
-@@ -0,0 +1,81 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+# Copyright (c) 2026 Yibo Wang <wyibo6109@gmail.com>
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/oneplus,pogo-keyboard.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: OnePlus / OPPO Pad pogo-pin smart keyboard
-+
-+maintainers:
-+  - Yibo Wang <wyibo6109@gmail.com>
-+
-+description: |
-+  The Tinno keyboard MCU used by the OnePlus Pad 3 Pro / Pad 4 and OPPO
-+  Pad 5 Pro smart keyboards.  It is attached to a tablet UART and speaks
-+  a framed half-duplex protocol over a shared single wire; host
-+  transmission is gated onto the wire by a PMIC GPIO for the duration of
-+  a frame.  The device provides a keyboard matrix, a touchpad and a
-+  keyboard backlight.
-+
-+allOf:
-+  - $ref: /schemas/serial/serial-peripheral-props.yaml#
-+
-+properties:
-+  compatible:
-+    const: oneplus,pogo-keyboard
-+
-+  power-gpios:
-+    description: GPIO enabling the keyboard supply, held high while attached.
-+    maxItems: 1
-+
-+  tx-enable-gpios:
-+    description: GPIO gating host TX onto the shared one-wire bus.
-+    maxItems: 1
-+
-+  wake-gpios:
-+    description: GPIO signalling attach/detach, also used as the wake line.
-+    maxItems: 1
-+
-+  touchpad-xy-max:
-+    description: Touchpad maximum X and Y coordinates in units.
-+    items:
-+      - description: maximum X
-+      - description: maximum Y
-+    minItems: 2
-+    maxItems: 2
-+
-+  touchpad-xy-resolution:
-+    description: Touchpad X and Y resolution in units per millimetre.
-+    items:
-+      - description: X resolution
-+      - description: Y resolution
-+    minItems: 2
-+    maxItems: 2
-+
-+required:
-+  - compatible
-+  - power-gpios
-+  - tx-enable-gpios
-+  - wake-gpios
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+
-+    serial {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        keyboard {
-+            compatible = "oneplus,pogo-keyboard";
-+            power-gpios = <&pmic_gpios 12 GPIO_ACTIVE_HIGH>;
-+            tx-enable-gpios = <&pmic2_gpios 6 GPIO_ACTIVE_HIGH>;
-+            wake-gpios = <&tlmm 151 GPIO_ACTIVE_LOW>;
-+            touchpad-xy-max = <2560 1440>;
-+            touchpad-xy-resolution = <24 25>;
-+        };
-+    };
-+...
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8014b9f82..e978a26c1 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -20149,6 +20149,13 @@ S:	Maintained
- T:	git git://linuxtv.org/media.git
- F:	drivers/media/i2c/ov9734.c
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 9d1019ba0..ced2a2174 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -806,4 +806,15 @@ config KEYBOARD_CYPRESS_SF
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called cypress-sf.
  
-+ONEPLUS POGO-PIN KEYBOARD DRIVER
-+M:	Yibo Wang <wyibo6109@gmail.com>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
-+F:	drivers/input/keyboard/oneplus-pogo-kbd.c
++config KEYBOARD_ONEPLUS_POGO
++	tristate "OnePlus/OPPO Pad pogo-pin keyboard"
++	depends on SERIAL_DEV_BUS && GPIOLIB
++	help
++	  Say Y here to enable the magnetic pogo-pin keyboard with touchpad
++	  used by OnePlus Pad 3 Pro / Pad 4 and OPPO Pad 5 Pro.  The keyboard
++	  MCU talks a framed protocol over a half-duplex UART.
 +
- ONBOARD USB HUB DRIVER
- M:	Matthias Kaehlcke <mka@chromium.org>
- L:	linux-usb@vger.kernel.org
++	  To compile this driver as a module, choose M here: the
++	  module will be called oneplus-pogo-kbd.
++
+ endif
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 60bb7baf8..3554c5011 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -50,6 +50,7 @@ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+ obj-$(CONFIG_KEYBOARD_NSPIRE)		+= nspire-keypad.o
+ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+ obj-$(CONFIG_KEYBOARD_OMAP4)		+= omap4-keypad.o
++obj-$(CONFIG_KEYBOARD_ONEPLUS_POGO)	+= oneplus-pogo-kbd.o
+ obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
+ obj-$(CONFIG_KEYBOARD_PINEPHONE)	+= pinephone-keyboard.o
+ obj-$(CONFIG_KEYBOARD_PMIC8XXX)		+= pmic8xxx-keypad.o
+diff --git a/drivers/input/keyboard/oneplus-pogo-kbd.c b/drivers/input/keyboard/oneplus-pogo-kbd.c
+new file mode 100644
+index 000000000..589f31ece
+--- /dev/null
++++ b/drivers/input/keyboard/oneplus-pogo-kbd.c
+@@ -0,0 +1,1109 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * OnePlus / OPPO Pad pogo-pin keyboard driver (Tinno keyboard MCU)
++ *
++ * The keyboard hangs off a half-duplex UART (921600 8N1) carried over the
++ * pogo pins: a single data wire is shared by the host TX and the keyboard
++ * TX.  The host TX is gated onto the wire by a PMIC GPIO which is only
++ * asserted while a frame is being sent; every host frame is therefore
++ * echoed back on RX.  The same wire is also routed to a plain GPIO that is
++ * used for attach detection while the keyboard is unpowered.
++ *
++ * Frame format ("one wire bus"):
++ *
++ *   55 x8 | F1 | src | dst | cmd | len | payload[len] | crc_hi crc_lo | FE | AA x4
++ *
++ * src/dst are 0xA1 (keyboard) and 0xA2 (pad).  CRC16 uses the IBM polynomial
++ * 0x8005 (MSB first, init 0xC596) over F1 .. payload.  Replies carry cmd + 1.
++ *
++ * Unsolicited keyboard frames: 0x01 keys (HID boot report), 0x02 consumer
++ * keys (two LE16 HID usages), 0x03 touchpad, 0x2F sync/heartbeat (~100 ms).
++ */
++
++#include <linux/bitops.h>
++#include <linux/completion.h>
++#include <linux/delay.h>
++#include <linux/gpio/consumer.h>
++#include <linux/input.h>
++#include <linux/input/mt.h>
++#include <linux/interrupt.h>
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/leds.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/of.h>
++#include <linux/property.h>
++#include <linux/serdev.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/sysfs.h>
++#include <linux/unaligned.h>
++#include <linux/workqueue.h>
++
++#define POGO_BAUD		921600
++
++#define OWB_HEAD_SYNC		0x55
++#define OWB_TAIL_SYNC		0xAA
++#define OWB_START		0xF1
++#define OWB_START_REPEAT	0xF2
++#define OWB_END			0xFE
++#define OWB_ADDR_KBD		0xA1
++#define OWB_ADDR_PAD		0xA2
++
++#define OWB_HEAD_SYNC_LEN	8
++#define OWB_TAIL_SYNC_LEN	4
++#define OWB_HDR_LEN		5	/* start, src, dst, cmd, len */
++#define OWB_TRAILER_LEN		5	/* crc(2), end, tail sync(2) seen on rx */
++#define OWB_MAX_PAYLOAD		128
++#define OWB_RX_BUF_LEN		(OWB_HDR_LEN + OWB_MAX_PAYLOAD + OWB_TRAILER_LEN)
++#define OWB_TX_BUF_LEN		(OWB_HEAD_SYNC_LEN + OWB_HDR_LEN + OWB_MAX_PAYLOAD + \
++				 2 + 1 + OWB_TAIL_SYNC_LEN)
++
++#define OWB_CRC_POLY		0x8005
++#define OWB_CRC_INIT		0xC596
++
++/* main commands */
++#define OWB_CMD_KEYS		0x01
++#define OWB_CMD_MEDIA_KEYS	0x02
++#define OWB_CMD_TOUCHPAD	0x03
++#define OWB_CMD_PARAM_SET	0x20
++#define OWB_CMD_SYNC_UPLOAD	0x2F
++#define OWB_CMD_GENERAL		0x3A
++#define OWB_CMD_GENERAL_ACK	0x3B
++
++/* 0x3A sub commands */
++#define OWB_GEN_SLEEP		0x02
++#define OWB_GEN_BATTERY_STATUS	0x0E
++#define OWB_GEN_BRIGHTNESS	0x1C
++
++/* sync upload sub commands */
++#define OWB_SYNC_PLUG_IN	0x01
++#define OWB_SYNC_HEARTBEAT	0x05
++
++/* timing, all derived from the vendor driver */
++#define POGO_TX_GATE_ON_US	450
++#define POGO_TX_GATE_OFF_US	300
++#define POGO_ECHO_TIMEOUT_MS	50
++#define POGO_RESP_TIMEOUT_MS	100
++#define POGO_XFER_RETRIES	3
++#define POGO_DETECT_DEBOUNCE_MS	120
++#define POGO_DETECT_SAMPLES	6	/* 6 x 20 ms, as the vendor driver */
++#define POGO_DETECT_SAMPLE_MS	20
++#define POGO_HB_POLL_MS		250
++#define POGO_HB_TIMEOUT_MS	500	/* after the first sync frame */
++#define POGO_BOOT_TIMEOUT_MS	2000	/* power on -> first sync frame */
++#define POGO_RETRY_MIN_MS	1000
++#define POGO_RETRY_MAX_MS	30000
++
++#define POGO_TOUCH_FINGERS	5
++#define POGO_TOUCH_REC_LEN	5
++#define POGO_KEY_REPORT_LEN	8
++#define POGO_MEDIA_REPORT_LEN	4
++#define POGO_MAC_LEN		6
++#define POGO_BACKLIGHT_MAX	100	/* MCU accepts 0..100 */
++
++struct pogo_kbd {
++	struct serdev_device *serdev;
++	struct device *dev;
++
++	struct gpio_desc *power_gpio;
++	struct gpio_desc *tx_en_gpio;
++	struct gpio_desc *wake_gpio;
++	int wake_irq;
++	bool wake_irq_enabled;
++
++	/* rx frame assembly, serdev receive context only */
++	u8 rx_buf[OWB_RX_BUF_LEN];
++	unsigned int rx_len;
++	unsigned int rx_expected;
++	unsigned int sync_cnt;
++	bool in_frame;
++
++	/* host -> keyboard transfers */
++	struct mutex io_lock;
++	struct completion echo_done;
++	struct completion resp_done;
++	u8 tx_cmd;
++	bool tx_pending;
++	u8 resp[OWB_MAX_PAYLOAD];
++	unsigned int resp_len;
++
++	/* link state */
++	bool powered;
++	bool connected;
++	bool hb_seen;		/* MCU left its plug-in phase */
++	unsigned long last_rx;
++	unsigned int retry_ms;
++	u8 brand;
++	u8 mac[POGO_MAC_LEN];
++	int battery_level;
++
++	struct delayed_work detect_work;
++	struct delayed_work hb_work;
++	struct work_struct plug_work;
++	struct work_struct led_work;
++	bool caps_led;
++	struct led_classdev backlight;
++	u8 brightness;
++
++	/* input */
++	struct mutex input_lock;
++	struct input_dev *kbd;
++	struct input_dev *tp;
++	u8 old_keys[POGO_KEY_REPORT_LEN];
++	u8 old_media[POGO_MEDIA_REPORT_LEN];
++	u32 tp_max_x, tp_max_y, tp_res_x, tp_res_y;
++	char kbd_name[64];
++	char tp_name[64];
++};
++
++/* HID boot keyboard usage -> linux keycode, identical to usbkbd + vendor extras */
++static const unsigned char pogo_keycode[256] = {
++	  0,  0,  0,  0, 30, 48, 46, 32, 18, 33, 34, 35, 23, 36, 37, 38,
++	 50, 49, 24, 25, 16, 19, 31, 20, 22, 47, 17, 45, 21, 44,  2,  3,
++	  4,  5,  6,  7,  8,  9, 10, 11, 28,  1, 14, 15, 57, 12, 13, 26,
++	 27, 43, 43, 39, 40, 41, 51, 52, 53, 58, 59, 60, 61, 62, 63, 64,
++	 65, 66, 67, 68, 87, 88, 99, 70, 119, 110, 102, 104, 111, 107, 109, 106,
++	105, 108, 103, 69, 98, 55, 74, 78, 96, 79, 80, 81, 75, 76, 77, 71,
++	 72, 73, 82, 83, 86, 127, 116, 117, 183, 184, 185, 186, 187, 188, 189, 190,
++	191, 192, 193, 194, 134, 138, 130, 132, 128, 129, 131, 137, 133, 135, 136, 113,
++	115, 114,  0,  0,  0, 121,  0, 89, 93, 124, 92, 94, 95,  0,  0,  0,
++	122, 123, 90, 91, 85,  0,  0,  0,  0,  0,  0,  0, 111,  0,  0,  0,
++	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
++	  0,  0,  0,  0,  0,  0, 179, 180,  0,  0,  0,  0,  0,  0,  0,  0,
++	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
++	  0,  0,  0,  0,  0,  0,  0,  0, 111,  0,  0,  0,  0,  0,  0,  0,
++	 29, 42, 56, 125, 97, 54, 100, 126, 164, 166, 165, 163, 161, 115, 114, 113,
++	150, 158, 159, 128, 136, 177, 178, 176, 142, 152, 173, 140,  0,  0,  0,  0
++};
++
++/* HID consumer usage -> linux keycode for the function row */
++static const struct {
++	u16 usage;
++	u16 keycode;
++} pogo_media_keys[] = {
++	{ 0x070, KEY_BRIGHTNESSDOWN },
++	{ 0x06f, KEY_BRIGHTNESSUP },
++	{ 0x0e2, KEY_MUTE },
++	{ 0x0ea, KEY_VOLUMEDOWN },
++	{ 0x0e9, KEY_VOLUMEUP },
++	{ 0x224, KEY_BACK },
++	{ 0x38e, KEY_SCREENLOCK },
++	{ 0x390, KEY_KBD_LAYOUT_NEXT },
++	{ 0x391, KEY_MICMUTE },
++	{ 0x392, KEY_TOUCHPAD_TOGGLE },
++	{ 0x393, KEY_SEARCH },
++	{ 0x394, KEY_FULL_SCREEN },
++	{ 0x395, KEY_SELECTIVE_SCREENSHOT },
++	{ 0x397, KEY_PROG1 },
++	{ 0x398, KEY_PROG2 },
++	{ 0x399, KEY_PROG3 },
++	{ 0x0cd, KEY_PLAYPAUSE },
++	{ 0x0b5, KEY_NEXTSONG },
++	{ 0x0b6, KEY_PREVIOUSSONG },
++	{ 0x244, KEY_APPSELECT },
++	{ 0x2fa, KEY_ASSISTANT },
++	{ 0x1d0, KEY_FN },
++};
++
++static const char * const pogo_brand_names[] = {
++	"OPPO Pad 5 Pro Smart Keyboard",
++	"OnePlus Pad 3 Pro Smart Keyboard",
++	"OnePlus Pad 4 Smart Keyboard",
++};
++
++/* ------------------------------------------------------------------------ */
++/* framing                                                                  */
++
++static u16 owb_crc16(const u8 *buf, unsigned int len)
++{
++	u16 crc = OWB_CRC_INIT;
++	unsigned int i, bit;
++
++	for (i = 0; i < len; i++) {
++		u8 data = buf[i];
++
++		for (bit = 0; bit < 8; bit++) {
++			bool feedback = (crc ^ (data << 8)) & 0x8000;
++
++			crc <<= 1;
++			if (feedback)
++				crc ^= OWB_CRC_POLY;
++			data <<= 1;
++		}
++	}
++	return crc;
++}
++
++static unsigned int owb_build_frame(u8 *out, u8 cmd, const u8 *payload, u8 len)
++{
++	unsigned int n = 0;
++	u16 crc;
++
++	memset(out, OWB_HEAD_SYNC, OWB_HEAD_SYNC_LEN);
++	n += OWB_HEAD_SYNC_LEN;
++	out[n++] = OWB_START;
++	out[n++] = OWB_ADDR_PAD;
++	out[n++] = OWB_ADDR_KBD;
++	out[n++] = cmd;
++	out[n++] = len;
++	memcpy(&out[n], payload, len);
++	n += len;
++	crc = owb_crc16(&out[OWB_HEAD_SYNC_LEN], OWB_HDR_LEN + len);
++	out[n++] = crc >> 8;
++	out[n++] = crc & 0xff;
++	out[n++] = OWB_END;
++	memset(&out[n], OWB_TAIL_SYNC, OWB_TAIL_SYNC_LEN);
++	n += OWB_TAIL_SYNC_LEN;
++
++	return n;
++}
++
++/* ------------------------------------------------------------------------ */
++/* host -> keyboard                                                         */
++
++/*
++ * Send cmd/payload and optionally wait for the cmd + 1 reply.  The reply
++ * (cmd, len, data...) is copied to @resp when non-NULL and its length is
++ * returned.  Process context only; serialised by io_lock.
++ */
++static int pogo_xfer(struct pogo_kbd *kb, u8 cmd, const u8 *payload, u8 len,
++		     u8 *resp, unsigned int resp_size)
++{
++	u8 frame[OWB_TX_BUF_LEN];
++	unsigned int frame_len;
++	int attempt, ret = -ETIMEDOUT;
++
++	if (len > OWB_MAX_PAYLOAD)
++		return -EINVAL;
++
++	frame_len = owb_build_frame(frame, cmd, payload, len);
++	print_hex_dump_debug("pogo tx: ", DUMP_PREFIX_NONE, 32, 1, frame, frame_len, false);
++
++	mutex_lock(&kb->io_lock);
++	for (attempt = 0; attempt < POGO_XFER_RETRIES; attempt++) {
++		bool echoed;
++
++		reinit_completion(&kb->echo_done);
++		reinit_completion(&kb->resp_done);
++		kb->tx_cmd = cmd;
++		WRITE_ONCE(kb->tx_pending, true);
++
++		gpiod_set_value_cansleep(kb->tx_en_gpio, 1);
++		usleep_range(POGO_TX_GATE_ON_US, POGO_TX_GATE_ON_US + 50);
++
++		ret = serdev_device_write(kb->serdev, frame, frame_len,
++					  msecs_to_jiffies(POGO_RESP_TIMEOUT_MS));
++		if (ret >= 0)
++			serdev_device_wait_until_sent(kb->serdev,
++						      msecs_to_jiffies(20));
++
++		/*
++		 * Release the wire as soon as the last bit is out: the MCU
++		 * answers within a few hundred microseconds and would collide
++		 * with our idle-high TX driver otherwise.  The echo is only
++		 * checked afterwards, it is already queued in the tty buffer.
++		 */
++		usleep_range(POGO_TX_GATE_OFF_US, POGO_TX_GATE_OFF_US + 50);
++		gpiod_set_value_cansleep(kb->tx_en_gpio, 0);
++
++		echoed = wait_for_completion_timeout(&kb->echo_done,
++				msecs_to_jiffies(POGO_ECHO_TIMEOUT_MS)) != 0;
++
++		if (ret < 0) {
++			dev_warn(kb->dev, "cmd 0x%02x write failed: %d\n", cmd, ret);
++			continue;
++		}
++		if (!echoed) {
++			dev_dbg(kb->dev, "cmd 0x%02x: no echo\n", cmd);
++			ret = -EIO;
++			continue;
++		}
++		if (!resp) {
++			ret = 0;
++			break;
++		}
++		if (wait_for_completion_timeout(&kb->resp_done,
++				msecs_to_jiffies(POGO_RESP_TIMEOUT_MS))) {
++			unsigned int n = min(kb->resp_len, resp_size);
++
++			memcpy(resp, kb->resp, n);
++			ret = n;
++			break;
++		}
++		dev_dbg(kb->dev, "cmd 0x%02x: no reply\n", cmd);
++		ret = -ETIMEDOUT;
++	}
++	WRITE_ONCE(kb->tx_pending, false);
++	mutex_unlock(&kb->io_lock);
++
++	return ret;
++}
++
++static int pogo_set_general(struct pogo_kbd *kb, u8 sub, u8 value)
++{
++	const u8 payload[] = { sub, 0x01, value };
++	u8 resp[8];
++	int ret;
++
++	ret = pogo_xfer(kb, OWB_CMD_GENERAL, payload, sizeof(payload),
++			resp, sizeof(resp));
++	if (ret < 0)
++		return ret;
++	if (ret < 3 || resp[0] != OWB_CMD_GENERAL_ACK || resp[2] != sub)
++		return -EPROTO;
++	return 0;
++}
++
++static int pogo_set_leds(struct pogo_kbd *kb)
++{
++	/* parameter 0x0D "led state": caps, reserved, mute, mic */
++	const u8 payload[] = { 0x0D, 0x04, kb->caps_led, 0x00, 0x00, 0x00 };
++
++	return pogo_xfer(kb, OWB_CMD_PARAM_SET, payload, sizeof(payload),
++			 NULL, 0);
++}
++
++/* ------------------------------------------------------------------------ */
++/* input reporting (input_lock held)                                        */
++
++static void pogo_report_keys(struct pogo_kbd *kb, const u8 *rep)
++{
++	struct input_dev *input = kb->kbd;
++	int i;
++
++	for (i = 0; i < 8; i++)
++		input_report_key(input, pogo_keycode[i + 224], (rep[0] >> i) & 1);
++
++	for (i = 2; i < POGO_KEY_REPORT_LEN; i++) {
++		u8 old = kb->old_keys[i], new = rep[i];
++
++		if (old > 3 && !memchr(rep + 2, old, 6)) {
++			if (pogo_keycode[old])
++				input_report_key(input, pogo_keycode[old], 0);
++			else
++				dev_dbg(kb->dev, "unknown scancode %#x released\n", old);
++		}
++		if (new > 3 && !memchr(kb->old_keys + 2, new, 6)) {
++			if (pogo_keycode[new])
++				input_report_key(input, pogo_keycode[new], 1);
++			else
++				dev_dbg(kb->dev, "unknown scancode %#x pressed\n", new);
++		}
++	}
++	input_sync(input);
++	memcpy(kb->old_keys, rep, POGO_KEY_REPORT_LEN);
++}
++
++static int pogo_media_keycode(u16 usage)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(pogo_media_keys); i++)
++		if (pogo_media_keys[i].usage == usage)
++			return pogo_media_keys[i].keycode;
++	return 0;
++}
++
++static bool pogo_media_has(const u8 *rep, u16 usage)
++{
++	return get_unaligned_le16(rep) == usage ||
++	       get_unaligned_le16(rep + 2) == usage;
++}
++
++static void pogo_report_media(struct pogo_kbd *kb, const u8 *rep)
++{
++	struct input_dev *input = kb->kbd;
++	int i;
++
++	for (i = 0; i < POGO_MEDIA_REPORT_LEN; i += 2) {
++		u16 old = get_unaligned_le16(kb->old_media + i);
++		u16 new = get_unaligned_le16(rep + i);
++		int code;
++
++		if (old && !pogo_media_has(rep, old)) {
++			code = pogo_media_keycode(old);
++			if (code)
++				input_report_key(input, code, 0);
++		}
++		if (new && !pogo_media_has(kb->old_media, new)) {
++			code = pogo_media_keycode(new);
++			if (code)
++				input_report_key(input, code, 1);
++			else
++				dev_dbg(kb->dev, "unknown consumer usage %#x\n", new);
++		}
++	}
++	input_sync(input);
++	memcpy(kb->old_media, rep, POGO_MEDIA_REPORT_LEN);
++}
++
++/*
++ * Touchpad payload: fingers x {flags, x_lo, x_hi, y_lo, y_hi} followed by
++ * an optional 16 bit pressure, a finger count byte and a button byte.
++ * flags: [7:4] slot id, [1] down, [1:0] palm (2 = palm).
++ */
++static void pogo_report_touchpad(struct pogo_kbd *kb, const u8 *data,
++				 unsigned int len)
++{
++	struct input_dev *input = kb->tp;
++	unsigned int fingers, i;
++	u8 buttons;
++
++	if (len < 2)
++		return;
++	buttons = data[len - 1];
++	fingers = data[len - 2];
++	if (fingers > POGO_TOUCH_FINGERS ||
++	    fingers * POGO_TOUCH_REC_LEN + 2 > len)
++		return;
++
++	for (i = 0; i < fingers; i++) {
++		const u8 *rec = data + i * POGO_TOUCH_REC_LEN;
++		unsigned int slot = rec[0] >> 4;
++		bool down = rec[0] & BIT(1);
++		unsigned int tool = (rec[0] & 0x03) == 0x02 ?
++				    MT_TOOL_PALM : MT_TOOL_FINGER;
++
++		if (slot >= POGO_TOUCH_FINGERS)
++			continue;
++		input_mt_slot(input, slot);
++		input_mt_report_slot_state(input, tool, down);
++		if (down) {
++			input_report_abs(input, ABS_MT_POSITION_X,
++					 get_unaligned_le16(rec + 1));
++			input_report_abs(input, ABS_MT_POSITION_Y,
++					 get_unaligned_le16(rec + 3));
++		}
++	}
++	input_mt_sync_frame(input);
++	/* clickpad: libinput derives left/right from the finger position */
++	input_report_key(input, BTN_LEFT, buttons & 0x03);
++	input_sync(input);
++}
++
++static void pogo_release_all(struct pogo_kbd *kb)
++{
++	static const u8 zeros[POGO_KEY_REPORT_LEN];
++
++	if (kb->kbd) {
++		pogo_report_keys(kb, zeros);
++		pogo_report_media(kb, zeros);
++	}
++	if (kb->tp) {
++		input_mt_sync_frame(kb->tp);
++		input_report_key(kb->tp, BTN_LEFT, 0);
++		input_sync(kb->tp);
++	}
++}
++
++static int pogo_kbd_event(struct input_dev *input, unsigned int type,
++			  unsigned int code, int value)
++{
++	struct pogo_kbd *kb = input_get_drvdata(input);
++
++	if (type != EV_LED || code != LED_CAPSL)
++		return -EINVAL;
++
++	kb->caps_led = !!value;
++	schedule_work(&kb->led_work);
++	return 0;
++}
++
++static int pogo_register_inputs(struct pogo_kbd *kb)
++{
++	struct input_dev *kbd, *tp;
++	const char *name;
++	int i, ret;
++
++	name = (kb->brand >= 1 && kb->brand <= ARRAY_SIZE(pogo_brand_names)) ?
++		pogo_brand_names[kb->brand - 1] : "Pogo Keyboard";
++	snprintf(kb->kbd_name, sizeof(kb->kbd_name), "%s", name);
++	snprintf(kb->tp_name, sizeof(kb->tp_name), "%s Touchpad", name);
++
++	kbd = input_allocate_device();
++	tp = input_allocate_device();
++	if (!kbd || !tp) {
++		ret = -ENOMEM;
++		goto err_free;
++	}
++
++	kbd->name = kb->kbd_name;
++	kbd->phys = "pogo/input0";
++	kbd->dev.parent = kb->dev;
++	kbd->id.bustype = BUS_HOST;
++	kbd->id.vendor = 0x22d9;
++	kbd->id.product = 0x3869;
++	kbd->id.version = 0x0010;
++	kbd->event = pogo_kbd_event;
++	input_set_drvdata(kbd, kb);
++	__set_bit(EV_KEY, kbd->evbit);
++	__set_bit(EV_REP, kbd->evbit);
++	__set_bit(EV_LED, kbd->evbit);
++	__set_bit(LED_CAPSL, kbd->ledbit);
++	for (i = 0; i < ARRAY_SIZE(pogo_keycode); i++)
++		if (pogo_keycode[i])
++			__set_bit(pogo_keycode[i], kbd->keybit);
++	for (i = 0; i < ARRAY_SIZE(pogo_media_keys); i++)
++		__set_bit(pogo_media_keys[i].keycode, kbd->keybit);
++
++	tp->name = kb->tp_name;
++	tp->phys = "pogo/input1";
++	tp->dev.parent = kb->dev;
++	tp->id.bustype = BUS_HOST;
++	tp->id.vendor = 0x22d9;
++	tp->id.product = 0x3869;
++	tp->id.version = 0x0010;
++	input_set_drvdata(tp, kb);
++	__set_bit(EV_KEY, tp->evbit);
++	__set_bit(BTN_LEFT, tp->keybit);
++	__set_bit(INPUT_PROP_POINTER, tp->propbit);
++	__set_bit(INPUT_PROP_BUTTONPAD, tp->propbit);
++	input_set_abs_params(tp, ABS_MT_POSITION_X, 0, kb->tp_max_x, 0, 0);
++	input_set_abs_params(tp, ABS_MT_POSITION_Y, 0, kb->tp_max_y, 0, 0);
++	input_abs_set_res(tp, ABS_MT_POSITION_X, kb->tp_res_x);
++	input_abs_set_res(tp, ABS_MT_POSITION_Y, kb->tp_res_y);
++	ret = input_mt_init_slots(tp, POGO_TOUCH_FINGERS,
++				  INPUT_MT_POINTER | INPUT_MT_DROP_UNUSED);
++	if (ret)
++		goto err_free;
++
++	ret = input_register_device(kbd);
++	if (ret)
++		goto err_free;
++	ret = input_register_device(tp);
++	if (ret) {
++		input_unregister_device(kbd);
++		kbd = NULL;
++		goto err_free;
++	}
++
++	mutex_lock(&kb->input_lock);
++	kb->kbd = kbd;
++	kb->tp = tp;
++	mutex_unlock(&kb->input_lock);
++	return 0;
++
++err_free:
++	input_free_device(tp);
++	input_free_device(kbd);
++	return ret;
++}
++
++static void pogo_unregister_inputs(struct pogo_kbd *kb)
++{
++	struct input_dev *kbd, *tp;
++
++	mutex_lock(&kb->input_lock);
++	pogo_release_all(kb);
++	kbd = kb->kbd;
++	tp = kb->tp;
++	kb->kbd = NULL;
++	kb->tp = NULL;
++	memset(kb->old_keys, 0, sizeof(kb->old_keys));
++	memset(kb->old_media, 0, sizeof(kb->old_media));
++	mutex_unlock(&kb->input_lock);
++
++	if (tp)
++		input_unregister_device(tp);
++	if (kbd)
++		input_unregister_device(kbd);
++}
++
++/* ------------------------------------------------------------------------ */
++/* rx path (serdev receive context)                                         */
++
++static void pogo_handle_sync(struct pogo_kbd *kb, const u8 *p, unsigned int len)
++{
++	bool replug = false;
++
++	if (len < 2)
++		return;
++
++	if (p[0] == OWB_SYNC_PLUG_IN && p[1] == 0x02 && len >= 9) {
++		kb->brand = p[2];
++		memcpy(kb->mac, &p[3], POGO_MAC_LEN);
++		/*
++		 * The MCU repeats this frame until the host has talked to it;
++		 * only a plug-in frame after regular heartbeats is a re-plug.
++		 */
++		replug = kb->connected && kb->hb_seen;
++	} else if (p[0] == OWB_SYNC_HEARTBEAT && p[1] == 0x02 && len >= 10) {
++		kb->brand = p[3];
++		memcpy(kb->mac, &p[4], POGO_MAC_LEN);
++		kb->hb_seen = true;
++	}
++
++	if (!kb->connected || replug) {
++		kb->connected = true;
++		kb->hb_seen = false;
++		kb->retry_ms = POGO_RETRY_MIN_MS;
++		schedule_work(&kb->plug_work);
++	}
++}
++
++static void pogo_handle_frame(struct pogo_kbd *kb, const u8 *f, unsigned int n)
++{
++	u8 src = f[1], cmd = f[3], len = f[4];
++	const u8 *payload = &f[OWB_HDR_LEN];
++
++	if (src == OWB_ADDR_PAD) {
++		/* our own frame echoed back through the shared wire */
++		if (READ_ONCE(kb->tx_pending) && cmd == kb->tx_cmd)
++			complete(&kb->echo_done);
++		return;
++	}
++	if (src != OWB_ADDR_KBD)
++		return;
++
++	kb->last_rx = jiffies;
++
++	switch (cmd) {
++	case OWB_CMD_KEYS:
++		if (len < POGO_KEY_REPORT_LEN)
++			break;
++		mutex_lock(&kb->input_lock);
++		if (kb->kbd)
++			pogo_report_keys(kb, payload);
++		mutex_unlock(&kb->input_lock);
++		break;
++	case OWB_CMD_MEDIA_KEYS:
++		if (len < POGO_MEDIA_REPORT_LEN)
++			break;
++		mutex_lock(&kb->input_lock);
++		if (kb->kbd)
++			pogo_report_media(kb, payload);
++		mutex_unlock(&kb->input_lock);
++		break;
++	case OWB_CMD_TOUCHPAD:
++		mutex_lock(&kb->input_lock);
++		if (kb->tp)
++			pogo_report_touchpad(kb, payload, len);
++		mutex_unlock(&kb->input_lock);
++		break;
++	case OWB_CMD_SYNC_UPLOAD:
++		pogo_handle_sync(kb, payload, len);
++		break;
++	default:
++		if (cmd == OWB_CMD_GENERAL_ACK && len >= 4 &&
++		    payload[0] == OWB_GEN_BATTERY_STATUS)
++			kb->battery_level = payload[2];
++
++		if (READ_ONCE(kb->tx_pending) && cmd == kb->tx_cmd + 1) {
++			/* reply layout for callers: cmd, len, payload */
++			kb->resp_len = min_t(unsigned int, len + 2, sizeof(kb->resp));
++			memcpy(kb->resp, &f[3], kb->resp_len);
++			complete(&kb->resp_done);
++		} else {
++			dev_dbg(kb->dev, "unhandled frame cmd 0x%02x len %u\n",
++				cmd, len);
++		}
++		break;
++	}
++}
++
++static void pogo_rx_frame_done(struct pogo_kbd *kb)
++{
++	const u8 *f = kb->rx_buf;
++	unsigned int n = kb->rx_len;
++	u16 crc = (f[n - 5] << 8) | f[n - 4];
++
++	if (f[n - 3] != OWB_END || f[n - 2] != OWB_TAIL_SYNC ||
++	    f[n - 1] != OWB_TAIL_SYNC) {
++		dev_dbg(kb->dev, "bad frame trailer\n");
++		return;
++	}
++	if (crc != owb_crc16(f, n - 5)) {
++		dev_dbg(kb->dev, "bad crc %04x\n", crc);
++		return;
++	}
++	pogo_handle_frame(kb, f, n);
++}
++
++static void pogo_rx_byte(struct pogo_kbd *kb, u8 c)
++{
++	if (!kb->in_frame) {
++		if (c == OWB_HEAD_SYNC) {
++			kb->sync_cnt++;
++			return;
++		}
++		if ((c == OWB_START || c == OWB_START_REPEAT) &&
++		    kb->sync_cnt >= 4) {
++			kb->in_frame = true;
++			kb->rx_len = 0;
++			kb->rx_expected = 0;
++			kb->rx_buf[kb->rx_len++] = c;
++		}
++		kb->sync_cnt = 0;
++		return;
++	}
++
++	kb->rx_buf[kb->rx_len++] = c;
++
++	if (kb->rx_len == OWB_HDR_LEN) {
++		kb->rx_expected = OWB_HDR_LEN + c + OWB_TRAILER_LEN;
++		if (kb->rx_expected > sizeof(kb->rx_buf)) {
++			kb->in_frame = false;
++			return;
++		}
++	}
++	if (!kb->rx_expected || kb->rx_len < kb->rx_expected)
++		return;
++
++	kb->in_frame = false;
++	pogo_rx_frame_done(kb);
++}
++
++static size_t pogo_receive_buf(struct serdev_device *serdev, const u8 *data,
++			       size_t count)
++{
++	struct pogo_kbd *kb = serdev_device_get_drvdata(serdev);
++	size_t i;
++
++	print_hex_dump_debug("pogo rx: ", DUMP_PREFIX_NONE, 32, 1, data, count, false);
++	for (i = 0; i < count; i++)
++		pogo_rx_byte(kb, data[i]);
++	return count;
++}
++
++static const struct serdev_device_ops pogo_serdev_ops = {
++	.receive_buf = pogo_receive_buf,
++	.write_wakeup = serdev_device_write_wakeup,
++};
++
++/* ------------------------------------------------------------------------ */
++/* power / attach state machine (process context)                           */
++
++static void pogo_wake_irq_enable(struct pogo_kbd *kb, bool enable)
++{
++	if (enable == kb->wake_irq_enabled)
++		return;
++	if (enable)
++		enable_irq(kb->wake_irq);
++	else
++		disable_irq(kb->wake_irq);
++	kb->wake_irq_enabled = enable;
++}
++
++static void pogo_power_on(struct pogo_kbd *kb)
++{
++	dev_dbg(kb->dev, "power on\n");
++	kb->connected = false;
++	kb->hb_seen = false;
++	kb->battery_level = -1;
++	kb->last_rx = jiffies;
++	kb->powered = true;
++	gpiod_set_value_cansleep(kb->power_gpio, 1);
++	mod_delayed_work(system_dfl_wq, &kb->hb_work,
++			 msecs_to_jiffies(POGO_HB_POLL_MS));
++}
++
++static void pogo_power_off(struct pogo_kbd *kb)
++{
++	dev_dbg(kb->dev, "power off\n");
++	kb->powered = false;
++	gpiod_set_value_cansleep(kb->power_gpio, 0);
++	if (kb->connected) {
++		kb->connected = false;
++		pogo_unregister_inputs(kb);
++		dev_info(kb->dev, "keyboard detached\n");
++	}
++}
++
++static void pogo_detect_work(struct work_struct *work)
++{
++	struct pogo_kbd *kb = container_of(work, struct pogo_kbd,
++					   detect_work.work);
++
++	int i;
++
++	if (kb->powered)
++		return;
++
++	/* the unpowered keyboard holds the wire low; require a stable level */
++	for (i = 0; i < POGO_DETECT_SAMPLES; i++) {
++		if (!gpiod_get_value_cansleep(kb->wake_gpio))
++			break;
++		msleep(POGO_DETECT_SAMPLE_MS);
++	}
++	if (i == POGO_DETECT_SAMPLES) {
++		pogo_power_on(kb);
++		return;
++	}
++
++	kb->retry_ms = POGO_RETRY_MIN_MS;
++	pogo_wake_irq_enable(kb, true);
++	/* the edge may have happened before the irq was armed */
++	if (gpiod_get_value_cansleep(kb->wake_gpio))
++		mod_delayed_work(system_dfl_wq, &kb->detect_work,
++				 msecs_to_jiffies(POGO_DETECT_DEBOUNCE_MS));
++}
++
++static void pogo_hb_work(struct work_struct *work)
++{
++	struct pogo_kbd *kb = container_of(work, struct pogo_kbd, hb_work.work);
++	unsigned int timeout = kb->connected ? POGO_HB_TIMEOUT_MS :
++					       POGO_BOOT_TIMEOUT_MS;
++
++	if (!kb->powered)
++		return;
++
++	if (time_before(jiffies, kb->last_rx + msecs_to_jiffies(timeout))) {
++		schedule_delayed_work(&kb->hb_work,
++				      msecs_to_jiffies(POGO_HB_POLL_MS));
++		return;
++	}
++
++	dev_dbg(kb->dev, "heartbeat lost (%s)\n",
++		kb->connected ? "connected" : "booting");
++	pogo_power_off(kb);
++
++	/* re-arm: retry while the wake line still reports a keyboard */
++	schedule_delayed_work(&kb->detect_work, msecs_to_jiffies(kb->retry_ms));
++	kb->retry_ms = min(kb->retry_ms * 2, POGO_RETRY_MAX_MS);
++}
++
++static void pogo_plug_work(struct work_struct *work)
++{
++	struct pogo_kbd *kb = container_of(work, struct pogo_kbd, plug_work);
++	int ret;
++
++	if (!kb->powered || !kb->connected)
++		return;
++
++	if (!kb->kbd) {
++		ret = pogo_register_inputs(kb);
++		if (ret) {
++			dev_err(kb->dev, "failed to register input devices: %d\n",
++				ret);
++			return;
++		}
++		dev_info(kb->dev, "keyboard attached: %s (brand %u, mac %pM)\n",
++			 kb->kbd_name, kb->brand, kb->mac);
++	}
++
++	/*
++	 * Report the host as awake: this is what moves the MCU from the
++	 * repeated plug-in sync frames to regular heartbeats.  Then restore
++	 * the host side state on the (possibly re-plugged) MCU.
++	 */
++	ret = pogo_set_general(kb, OWB_GEN_SLEEP, 0);
++	if (ret)
++		dev_warn(kb->dev, "wake notify failed: %d\n", ret);
++	pogo_set_leds(kb);
++	if (kb->brightness)
++		pogo_set_general(kb, OWB_GEN_BRIGHTNESS, kb->brightness);
++}
++
++/* ------------------------------------------------------------------------ */
++/* keyboard backlight as a LED class device (picked up by UPower/GNOME)    */
++
++static int pogo_backlight_set(struct led_classdev *cdev, enum led_brightness value)
++{
++	struct pogo_kbd *kb = container_of(cdev, struct pogo_kbd, backlight);
++
++	kb->brightness = value;
++	/* when detached just remember the level; plug_work restores it */
++	if (!kb->connected)
++		return 0;
++	return pogo_set_general(kb, OWB_GEN_BRIGHTNESS, value);
++}
++
++static int pogo_register_backlight(struct pogo_kbd *kb)
++{
++	struct led_init_data init_data = {
++		/* no colour: yields "pogo-keyboard::kbd_backlight" */
++		.default_label = ":" LED_FUNCTION_KBD_BACKLIGHT,
++		.devicename = "pogo-keyboard",
++	};
++
++	kb->backlight.max_brightness = POGO_BACKLIGHT_MAX;
++	kb->backlight.brightness_set_blocking = pogo_backlight_set;
++	kb->backlight.flags = LED_CORE_SUSPENDRESUME;
++
++	return devm_led_classdev_register_ext(kb->dev, &kb->backlight, &init_data);
++}
++
++static void pogo_led_work(struct work_struct *work)
++{
++	struct pogo_kbd *kb = container_of(work, struct pogo_kbd, led_work);
++
++	if (kb->connected)
++		pogo_set_leds(kb);
++}
++
++static irqreturn_t pogo_wake_isr(int irq, void *data)
++{
++	struct pogo_kbd *kb = data;
++
++	/* the wire carries UART traffic once powered; stay quiet until then */
++	disable_irq_nosync(irq);
++	kb->wake_irq_enabled = false;
++	mod_delayed_work(system_dfl_wq, &kb->detect_work,
++			 msecs_to_jiffies(POGO_DETECT_DEBOUNCE_MS));
++	return IRQ_HANDLED;
++}
++
++/* ------------------------------------------------------------------------ */
++/* sysfs: keyboard battery and link state                                   */
++
++static ssize_t battery_level_show(struct device *dev,
++				  struct device_attribute *attr, char *buf)
++{
++	struct pogo_kbd *kb = dev_get_drvdata(dev);
++
++	if (!kb->connected)
++		return -ENODEV;
++	/* only keyboards with a battery push 0x0E status frames */
++	if (kb->battery_level < 0)
++		return -ENODATA;
++	return sysfs_emit(buf, "%d\n", kb->battery_level);
++}
++static DEVICE_ATTR_RO(battery_level);
++
++static ssize_t connected_show(struct device *dev,
++			      struct device_attribute *attr, char *buf)
++{
++	struct pogo_kbd *kb = dev_get_drvdata(dev);
++
++	return sysfs_emit(buf, "%d\n", kb->connected);
++}
++static DEVICE_ATTR_RO(connected);
++
++static struct attribute *pogo_attrs[] = {
++	&dev_attr_battery_level.attr,
++	&dev_attr_connected.attr,
++	NULL
++};
++ATTRIBUTE_GROUPS(pogo);
++
++/* ------------------------------------------------------------------------ */
++/* probe / remove                                                           */
++
++static int pogo_parse_dt(struct pogo_kbd *kb)
++{
++	struct device *dev = kb->dev;
++	u32 val[2];
++
++	kb->power_gpio = devm_gpiod_get(dev, "power", GPIOD_OUT_LOW);
++	if (IS_ERR(kb->power_gpio))
++		return dev_err_probe(dev, PTR_ERR(kb->power_gpio), "power gpio\n");
++
++	kb->tx_en_gpio = devm_gpiod_get(dev, "tx-enable", GPIOD_OUT_LOW);
++	if (IS_ERR(kb->tx_en_gpio))
++		return dev_err_probe(dev, PTR_ERR(kb->tx_en_gpio),
++				     "tx-enable gpio\n");
++
++	kb->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_IN);
++	if (IS_ERR(kb->wake_gpio))
++		return dev_err_probe(dev, PTR_ERR(kb->wake_gpio), "wake gpio\n");
++
++	kb->wake_irq = gpiod_to_irq(kb->wake_gpio);
++	if (kb->wake_irq < 0)
++		return dev_err_probe(dev, kb->wake_irq, "wake irq\n");
++
++	kb->tp_max_x = 2560;
++	kb->tp_max_y = 1440;
++	if (!device_property_read_u32_array(dev, "touchpad-xy-max", val, 2)) {
++		kb->tp_max_x = val[0];
++		kb->tp_max_y = val[1];
++	}
++	if (!device_property_read_u32_array(dev, "touchpad-xy-resolution",
++					    val, 2)) {
++		kb->tp_res_x = val[0];
++		kb->tp_res_y = val[1];
++	}
++	return 0;
++}
++
++static int pogo_probe(struct serdev_device *serdev)
++{
++	struct device *dev = &serdev->dev;
++	struct pogo_kbd *kb;
++	int ret;
++
++	kb = devm_kzalloc(dev, sizeof(*kb), GFP_KERNEL);
++	if (!kb)
++		return -ENOMEM;
++
++	kb->serdev = serdev;
++	kb->dev = dev;
++	kb->battery_level = -1;
++	kb->retry_ms = POGO_RETRY_MIN_MS;
++	mutex_init(&kb->io_lock);
++	mutex_init(&kb->input_lock);
++	init_completion(&kb->echo_done);
++	init_completion(&kb->resp_done);
++	INIT_DELAYED_WORK(&kb->detect_work, pogo_detect_work);
++	INIT_DELAYED_WORK(&kb->hb_work, pogo_hb_work);
++	INIT_WORK(&kb->plug_work, pogo_plug_work);
++	INIT_WORK(&kb->led_work, pogo_led_work);
++	serdev_device_set_drvdata(serdev, kb);
++
++	ret = pogo_parse_dt(kb);
++	if (ret)
++		return ret;
++
++	serdev_device_set_client_ops(serdev, &pogo_serdev_ops);
++	ret = devm_serdev_device_open(dev, serdev);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to open serdev\n");
++
++	ret = serdev_device_set_baudrate(serdev, POGO_BAUD);
++	if (ret != POGO_BAUD)
++		dev_warn(dev, "baudrate set to %d instead of %d\n", ret, POGO_BAUD);
++	serdev_device_set_flow_control(serdev, false);
++	ret = serdev_device_set_parity(serdev, SERDEV_PARITY_NONE);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to set parity\n");
++
++	ret = pogo_register_backlight(kb);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to register backlight\n");
++
++	ret = devm_request_irq(dev, kb->wake_irq, pogo_wake_isr,
++			       IRQF_TRIGGER_FALLING | IRQF_NO_AUTOEN,
++			       dev_name(dev), kb);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to request wake irq\n");
++
++	/* evaluate the current attach state; enables the irq when idle */
++	schedule_delayed_work(&kb->detect_work,
++			      msecs_to_jiffies(POGO_DETECT_DEBOUNCE_MS));
++
++	dev_info(dev, "pogo keyboard link ready (wake irq %d)\n", kb->wake_irq);
++	return 0;
++}
++
++static void pogo_remove(struct serdev_device *serdev)
++{
++	struct pogo_kbd *kb = serdev_device_get_drvdata(serdev);
++
++	pogo_wake_irq_enable(kb, false);
++	cancel_delayed_work_sync(&kb->detect_work);
++	cancel_delayed_work_sync(&kb->hb_work);
++	cancel_work_sync(&kb->plug_work);
++	cancel_work_sync(&kb->led_work);
++	pogo_power_off(kb);
++}
++
++static const struct of_device_id pogo_of_match[] = {
++	{ .compatible = "oneplus,pogo-keyboard" },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, pogo_of_match);
++
++static struct serdev_device_driver pogo_driver = {
++	.probe = pogo_probe,
++	.remove = pogo_remove,
++	.driver = {
++		.name = "oneplus-pogo-kbd",
++		.of_match_table = pogo_of_match,
++		.dev_groups = pogo_groups,
++	},
++};
++module_serdev_device_driver(pogo_driver);
++
++MODULE_DESCRIPTION("OnePlus/OPPO Pad pogo-pin keyboard driver");
++MODULE_LICENSE("GPL");
 -- 
 2.53.0
 

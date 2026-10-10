@@ -1,36 +1,36 @@
-Received: from e234-50.smtp-out.ap-northeast-1.amazonses.com (e234-50.smtp-out.ap-northeast-1.amazonses.com [23.251.234.50])
+Received: from e234-57.smtp-out.ap-northeast-1.amazonses.com (e234-57.smtp-out.ap-northeast-1.amazonses.com [23.251.234.57])
 	(using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B2EB43785C;
-	Sat, 10 Oct 2026 16:57:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 121AC3B38A9;
+	Sat, 10 Oct 2026 16:57:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791651467; cv=none; b=ldvvUhRNqxhD++x3KJENklZzbejUO7/9up6f4QuCaBNKjZknPRrm6/m2NPcg0ZUWFxzH5/iaEM2La/TU0fvA9+QFPh4Un/pmuDygXAlN6SXLE8o391llQSDFXvt/ynCZ08EmSrbUI6MSW6xwcTDiFPPVPPeMg8xKSa3wTX+xaPE=
+	t=1791651472; cv=none; b=rTUE46yypEMi8vQC3eCNOoPm1NqemYCdPEm3hPVoMcLt5BNJ/g5E0IPyHj/Ho6mNiPSuMuVZ9EJnlR8DqmCQiTxaKjC4RUJWHhXJjf/DkgbgJYNYuxLu2UfrpyucN8d64PnSABNE7PDNCQBEHBCyzY27sTZvbeoCpdBVcYKs+C4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791651467; c=relaxed/simple;
-	bh=aksgV1pX7hZ75DsQ7q58lK5Wc84k8iWogcZMZ1IW2mM=;
+	s=arc-20240116; t=1791651472; c=relaxed/simple;
+	bh=gYrbNgjzXub9X5dd2apyZ4b6ziQybWU7QCrft4GxRc8=;
 	h=In-Reply-To:From:To:Cc:Subject:Message-ID:Date:MIME-Version:
-	 Content-Type; b=risRYiHSAc7XHkNysGETgrVr9ETHx+rUvKN8qdkPSTJt4PoOWl2MqprhCY7sJ2DLgbRdAlLG0TGiaIpu42rTB+ezZ4j5oDStnKxWw44qTi7WGrdaKrxM5Dgpfel4yrn8T3vFt2ZLMJEhvzO2/r/24Eoh4men3CitZeRHtI0Sq1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=Ok3+472x; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=q8k61AG2; arc=none smtp.client-ip=23.251.234.50
+	 Content-Type; b=D8miApZlZY50d5Yefw6QOO03dMiswDwilVS4cXxmnWZztLpzJ2HiXwJM+w8FBWVuvCrGilvPtFET1Fsmr33mvuWH22ikNtCpO1wd62OX0yk/0muq0OLninTrq2MDpUqF7VjhVW9Zipzn5qYCiHcjbujus6T6zMonocoG7+k6b6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=zTBaVIfN; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=AOkLcvuW; arc=none smtp.client-ip=23.251.234.57
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="Ok3+472x";
-	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="q8k61AG2"
+	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="zTBaVIfN";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="AOkLcvuW"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
-	d=fqwqf.xyz; t=1791651464;
+	d=fqwqf.xyz; t=1791651470;
 	h=In-Reply-To:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
-	bh=aksgV1pX7hZ75DsQ7q58lK5Wc84k8iWogcZMZ1IW2mM=;
-	b=Ok3+472xoXFQJZmMIBydn6FiCvdjsYxKUneE2/Tp3S1EOcwM31x+97wu6KTrFE6V
-	lRnPk9VMJgiKvBYGH4zTF4NJu1D3zZY7r/pxDZo2Ew8LOWFaM9PBcs+pO0Ng13WbSql
-	PESMlCTUhj6pl54LKVEx8p9XA7t/0ygF2RBv+ThQ=
+	bh=gYrbNgjzXub9X5dd2apyZ4b6ziQybWU7QCrft4GxRc8=;
+	b=zTBaVIfNGrayvLaikro5Om26H4u7/JXxZS9Niv/fQjhfdyxPO9KLcYgxX2CSpw+4
+	hEKJ0+c/IRhuQb2neE8afEv71nAJYn9gMiP1iXVuoe4JHjliMqpH1g0vcGP4EzQEFML
+	Tt2UgkqBrAY8kIMSnzqjVMx5u+0tQFzMBrayd+ZU=
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1791651464;
+	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1791651470;
 	h=In-Reply-To:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
-	bh=aksgV1pX7hZ75DsQ7q58lK5Wc84k8iWogcZMZ1IW2mM=;
-	b=q8k61AG27fpaLxmE7a80Ga+K8beKzjuJgV9z8oeJ7uNOhYnLM5FnpKQOIW1EVPKA
-	8OJ/l2i2KCZzufJahliRaZTs+t4/WfVxKREnAOIoibBlbsKifzdvAgUDvPzYiXGr2TU
-	heIpGQdqRCRy/nip/yKEbLurrmxZKWaifBriKilU=
+	bh=gYrbNgjzXub9X5dd2apyZ4b6ziQybWU7QCrft4GxRc8=;
+	b=AOkLcvuWhG2AOGuc2MZkJ373LZWV9SMzlryvvM0UVX4g2BlrUwXA0BqH9xaKMcAx
+	DpYkZiJzWyz2AKpP5so56LdnusBWUHpgKu5yCit+N7DNvsNDAwpxZ79kMFJ5hN2VzZz
+	RL8Ve5rkkAt90AY3C5nyXGgoGkqXhHObKkKTrc78=
 In-Reply-To: <20261010165732.43465-1-fqwqf@fqwqf.xyz>
 X-Mailer: git-send-email 2.53.0
 From: fQwQf <fqwqf@fqwqf.xyz>
@@ -40,11 +40,11 @@ Cc: jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com,
 	daleyo@gmail.com, broonie@kernel.org, linux-spi@vger.kernel.org, 
 	devicetree@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org, 
 	conor+dt@kernel.org
-Subject: [RFC PATCH 1/6] HID: spi-hid: isolate DMA transfers from protocol
- buffers
-Message-ID: <010601a126bfc294-77d164c8-ffab-4893-9e80-ef000188ca3d-000000@ap-northeast-1.amazonses.com>
+Subject: [RFC PATCH 3/6] HID: spi-hid: assemble bounded fragmented input
+ reports
+Message-ID: <010601a126bfd9ca-7ca456f4-3977-469e-891e-bd5ba3459280-000000@ap-northeast-1.amazonses.com>
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 10 Oct 2026 16:57:43 +0000
+Date: Sat, 10 Oct 2026 16:57:49 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -53,143 +53,234 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Feedback-ID: :1.ap-northeast-1.6BGMgStFQE7EJYq5syaCRzdneEHVt/+DAaGDrqUmDs9QLO4/SllUBZ3fHvnZ8rcAX/3IjUyTRgi5JFZsWrikFHwlPJqCkqEMlxDFM4JXh+ycxH/J5Tudg5bGdz6h4331g1L1EFsGR8kuYNfGLsrxz4Nym4YXoPcZxeVkrHry4Zx21n8vEVLEjc7s+OCM8PU9:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
-X-SES-Outgoing: 2026.10.10-23.251.234.50
+X-SES-Outgoing: 2026.10.10-23.251.234.57
 
-The body starts four bytes into the input buffer. Receiving DMA directly
-into it can share a cache line with the header and does not meet
-controllers that require aligned DMA buffers. Use separate aligned TX
-and RX regions under io_lock, and copy received data only after a
-successful transfer. Keep protocol parsing buffers away from streaming
-DMA.
+Keep fragment lengths separate from complete HID report lengths.
+Assemble DATA reports into a dedicated buffer, enforce the declared
+content length and final padding, and reject fragmented command
+responses. Discard incomplete reports after a one-second gap or during
+error recovery and suspend.
 
-Overallocate the managed storage and align the DMA view explicitly to
-ARCH_DMA_MINALIGN, keeping the allocation base for realloc/free. Publish
-the new transfer capacity only after allocation succeeds.
+Require a body header before parsing and bound=
+ allocations to 8 KiB.
+Preserve the v5 request serialization and response =
+matching.
+
+Use the existing max_fragment_length descriptor field for each =
+fragment;
+max_input_length describes a complete input report and remains =
+distinct.
 
 Signed-off-by: Jizhou Tong <fqwqf@fqwqf.xyz>
 ---
- drivers/hid/spi-hid/spi-h=
-id-core.c | 33 ++++++++++++++++++++++++------
- drivers/hid/spi-hid/spi-hid-=
-core.h |  3 +++
- 2 files changed, 30 insertions(+), 6 deletions(-)
+ drivers/hid/spi-hid/spi-hid-core.c | 70 +++++++++++++++++++++++++-----
+ drivers/hid/spi-hid/spi-hid-core.h |  4 ++
+ 2 files changed, 63 =
+insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi-h=
-id-core.c
-index 0046dfdd82677bb55c5a0b6742cdfaa8fec224c6..=
-65a1cd2c72e8025f50a188e17afd2fa5b359abb1 100644
---- =
-a/drivers/hid/spi-hid/spi-hid-core.c
-+++ b/drivers/hid/spi-hid/spi-hid-core=
-.c
-@@ -193,14 +193,19 @@ static void spi_hid_populate_output_header(u8 *buf=
-,
- static int spi_hid_input_sync(struct spi_hid *shid, void *buf, u16 =
-length,
- 			      bool is_header)
- {
-+	u8 *rx =3D shid->xfer_buf + =
-ARCH_DMA_MINALIGN;
- 	int error;
+diff --git a/drivers/hid/spi-hid/spi-hid-co=
+re.c b/drivers/hid/spi-hid/spi-hid-core.c
+index 9d02c156fcd641e9c944c0dfe08=
+b5aad57a97f6a..2778d147b202ab663928a851198eca8fe628b16a 100644
+--- a/drivers/hid/spi-hid/spi-hid-core.c
++++ b/drivers/hid/spi-hid/spi-hid-=
+core.c
+@@ -146,7 +146,6 @@ static void spi_hid_parse_dev_desc(const struct =
+hidspi_dev_descriptor *raw,
+ 	desc->max_input_length =3D =
+le16_to_cpu(raw->max_input_len);
+ 	desc->max_output_length =3D =
+le16_to_cpu(raw->max_output_len);
 =20
--	shid->input_transfer[0].tx_buf =3D =
-is_header ?
--					 shid->read_approval_header :
--					 =
-shid->read_approval_body;
-+	if (length > shid->xfer_size - =
-ARCH_DMA_MINALIGN)
-+		return -EMSGSIZE;
-+
-+	memcpy(shid->xfer_buf, =
-is_header ? shid->read_approval_header :
-+					 shid->read_approval_body,
-+	       SPI_HID_READ_APPROVAL_LEN);
-+	shid->input_transfer[0].tx_buf =3D =
-shid->xfer_buf;
- 	shid->input_transfer[0].len =3D SPI_HID_READ_APPROVAL_LEN=
-;
+-	/* FIXME: multi-fragment not =
+supported, field below not used */
+ 	desc->max_fragment_length =3D =
+le16_to_cpu(raw->max_frag_len);
 =20
--	shid->input_transfer[1].rx_buf =3D buf;
-+	shid->input_transfer[1].=
-rx_buf =3D rx;
- 	shid->input_transfer[1].len =3D length;
+ 	desc->vendor_id =3D =
+le16_to_cpu(raw->vendor_id);
+@@ -335,6 +334,7 @@ static int =
+spi_hid_suspend(struct spi_hid *shid)
+ 	 */
+ 	disable_irq(shid->spi->irq);
+ 	cancel_work_sync(&shid->reset_work);
++	shid->fragment_len =3D 0;
 =20
- 	spi_message_init_with_transfers(&shid->input_message,
-@@ -219,6 +224,7 @@ static int spi_hid_input_sync(struct spi_hid *shid, =
-void *buf, u16 length,
- 		return error;
- 	}
+ 	guard(mutex)(&shid->power_lock);
+ 	if (!device_may_wakeup(dev)) {
+@@ -468,6 +468,7 @@ static void spi_hid_error_handler(struct spi_hid *shid)
+ 		return;
 =20
-+	memcpy(buf, rx, length);
+ 	disable_irq(shid->spi->irq);
++	shid->fragment_len =3D 0;
+=20
+ 	if (shid->reset_attempts++ >=3D SPI_HID_MAX_RESET_ATTEMPTS) {
+ 		dev_err(dev, "unresponsive device, aborting\n");
+@@ -1039,6 +1040,48 @@ static int spi_hid_process_input_report(struct =
+spi_hid *shid,
  	return 0;
  }
 =20
-@@ -226,7 +232,11 @@ static int spi_hid_output(struct =
-spi_hid *shid, const void *buf, u16 length)
- {
- 	int error;
-=20
--	error =3D spi_write(shid->spi, buf, length);
-+	if (length > =
-shid->xfer_size)
-+		return -EMSGSIZE;
++/* Only DATA reports may be fragmented; =
+command responses remain atomic. */
++static int spi_hid_accept_fragment(str=
+uct spi_hid *shid,
++				   const struct spi_hid_input_header *header)
++{
++	struct spi_hid_input_report body;
++	u16 len =3D header->report_length;
++	unsigned int total;
++	int error;
 +
-+	memcpy(shid->xfer_buf, buf, =
-length);
-+	error =3D spi_write(shid->spi, shid->xfer_buf, length);
++	if (shid->fragment_len &&
++	    time_after(jiffies, shid->fragment_time + msecs_to_jiffies(1000)))
++		goto invalid;
++	if (!shid->fragment_len) {
++		if =
+(header->last_fragment_flag)
++			return spi_hid_process_input_report(shid, =
+shid->input);
++		spi_hid_populate_input_body(shid->input->body, &body);
++		if (body.report_type !=3D DATA || body.content_length > shid->bufsize)
++			goto invalid;
++		shid->fragment_expected =3D HIDSPI_INPUT_BODY_SIZE(bod=
+y.content_length);
++	}
++	total =3D shid->fragment_len + len;
++	if (total > round_up(shid->bufsize + HIDSPI_INPUT_BODY_HEADER_SIZE, 4) ||
++	    (!header->last_fragment_flag && total >=3D shid->fragment_expected) =
+||
++	    (header->last_fragment_flag && total !=3D ALIGN(shid->fragment_exp=
+ected, 4)))
++		goto invalid;
++	memcpy((u8 *)shid->fragment + =
+offsetof(struct spi_hid_input_buf, body) +
++	       shid->fragment_len, =
+shid->input->body, len);
++	shid->fragment_len =3D total;
++	shid->fragment_time =3D jiffies;
++	if (!header->last_fragment_flag)
++		return 0;
++
++	memcpy(shid->fragment->header, shid->input->header, =
+HIDSPI_INPUT_HEADER_SIZE);
++	put_unaligned_le16((total / 4) | BIT(14), =
+&shid->fragment->header[1]);
++	error =3D spi_hid_process_input_report(shid,=
+ shid->fragment);
++	shid->fragment_len =3D 0;
++	return error;
++invalid:
++	shid->fragment_len =3D 0;
++	return -EPROTO;
++}
++
+ static int =
+spi_hid_bus_validate_header(struct spi_hid *shid,
+ 				       struct =
+spi_hid_input_header *header)
+ {
+@@ -1061,24 +1104,20 @@ static int =
+spi_hid_bus_validate_header(struct spi_hid *shid,
+ 	 * report_length is =
+device-provided and is used as the size of the body
+ 	 * transfer, so it must never exceed the input buffer.
+ 	 */
+-	if (header->report_length > max_body) {
++	if (header->report_length < =
+HIDSPI_INPUT_BODY_HEADER_SIZE ||
++	    header->report_length > max_body) {
+ 		dev_err(dev, "Input report too big: %u > %u\n",
+ 			=
+header->report_length, max_body);
+ 		return -EMSGSIZE;
+ 	}
 =20
+-	if (shid->desc.max_input_length !=3D 0 &&
+-	    header->report_length > =
+shid->desc.max_input_length) {
++	if (shid->desc.max_fragment_length &&
++	    header->report_length > shid->desc.max_fragment_length) {
+ 		dev_err(dev, "Input report body size %u > max expected of %u\n",
+-			header->report_length, shid->desc.max_input_length);
++			header->report_length, shid->desc.max_fragment_length);
+ 		return -EMSGSIZE;
+ 	}
+=20
+-	if (header->last_fragment_flag !=3D 1) {
+-		dev_err(dev, "Multi-fragment reports not supported\n");
+-		return -EOPNOTSUPP;
+-	}
+-
+ 	if (header->sync_const !=3D =
+SPI_HID_INPUT_HEADER_SYNC_BYTE) {
+ 		dev_err(dev, "Invalid input report =
+sync constant (0x%x)\n",
+ 			header->sync_const);
+@@ -1149,6 +1188,7 @@ =
+static int spi_hid_set_request(struct spi_hid *shid, u8 *arg_buf, u16 =
+arg_len,
+ /* Schedule a reset to recover from an error in the IRQ handler. =
+*/
+ static irqreturn_t spi_hid_irq_error(struct spi_hid *shid)
+ {
++	shid->fragment_len =3D 0;
+ 	set_bit(SPI_HID_ERROR, &shid->flags);
+ 	schedule_work(&shid->reset_work);
+=20
+@@ -1231,7 +1271,7 @@ static =
+irqreturn_t spi_hid_dev_irq(int irq, void *_shid)
+ 		}
+ 	}
+=20
+-	error =3D spi_hid_process_input_report(shid, shid->input);
++	error =3D spi_hid_accept_fragment(shid, &header);
  	if (error) {
- 		shid->bus_error_count++;
-@@ -1210,6 +1220,7 @@ static int=
- spi_hid_alloc_buffers(struct spi_hid *shid, size_t report_size)
- 	int inbufsize =3D round_up(sizeof(shid->input->header) +
- 				 sizeof(shid->input->body) + report_size, 4);
- 	int outbufsize =3D =
-round_up(sizeof(shid->output->header) + report_size, 4);
-+	size_t xfer_size;
+ 		dev_err(dev, "Failed to process input report: %d\n", error);
+ 		return spi_hid_irq_error(shid);
+@@ -1249,6 +1289,9 @@ static int =
+spi_hid_alloc_buffers(struct spi_hid *shid, size_t report_size)
+ 	size_t xfer_size;
  	void *tmp;
 =20
- 	tmp =3D devm_krealloc(dev, =
-shid->output, outbufsize, GFP_KERNEL | __GFP_ZERO);
-@@ -1227,8 +1238,18 @@ static int spi_hid_alloc_buffers(struct spi_hid =
++	if (report_size > SZ_8K)
++		return -EMSGSIZE;
++
+ 	tmp =3D devm_krealloc(dev, shid->output, =
+outbufsize, GFP_KERNEL | __GFP_ZERO);
+ 	if (!tmp)
+ 		return -ENOMEM;
+@@ -1264,6 +1307,11 @@ static int spi_hid_alloc_buffers(struct spi_hid =
 *shid, size_t report_size)
  		return -ENOMEM;
  	shid->response =3D tmp;
 =20
--	if (!shid->output || !shid->input || !shid->response)
-+	/* io_lock serializes the separate, DMA-aligned TX and RX regions. */
-+	xfer_size =3D ALIGN(max(inbufsize, outbufsize), ARCH_DMA_MINALIGN) +
-+		    ARCH_DMA_MINALIGN;
-+	/* Keep ownership separate from the explicitly =
-aligned DMA view. */
-+	tmp =3D devm_krealloc(dev, shid->xfer_alloc,
-+			    xfer_size + ARCH_DMA_MINALIGN - 1,
-+			    GFP_KERNEL | =
++	tmp =3D devm_krealloc(dev, shid->fragment, inbufsize, GFP_KERNEL | =
 __GFP_ZERO);
 +	if (!tmp)
- 		return -ENOMEM;
-+	shid->xfer_alloc =3D tmp;
-+	shid->xfer_buf =3D PTR_ALIGN(tmp, ARCH_DMA_MINALIGN);
-+	shid->xfer_size =3D xfer_size;
++		return -ENOMEM;
++	shid->fragment =3D tmp;
++
+ 	/* io_lock serializes the separate, DMA-aligned TX and RX regions. */
+ 	xfer_size =3D ALIGN(max(inbufsize, outbufsize), ARCH_DMA_MINALIGN) +
+ 		    ARCH_DMA_MINALIGN;
+diff --git a/drivers/hid/spi-hid/spi-hid-core.h =
+b/drivers/hid/spi-hid/spi-hid-core.h
+index 554288dd17631edc1a503755b04170c0=
+4501bcb7..635d66daaf456cdb65c57146758ea7c64a1537f7 100644
+--- a/drivers/hid/spi-hid/spi-hid-core.h
++++ b/drivers/hid/spi-hid/spi-hid-=
+core.h
+@@ -61,6 +61,10 @@ struct spi_hid {
+ 	struct spi_hid_output_buf =
+*output;	/* Output buffer. */
+ 	struct spi_hid_input_buf *input;	/* Input =
+buffer. */
+ 	struct spi_hid_input_buf *response;	/* Response buffer. */
++	struct spi_hid_input_buf *fragment;
++	u16 fragment_len;
++	u16 fragment_expected;
++	unsigned long fragment_time;
 =20
- 	shid->bufsize =3D report_size;
-=20
-diff --git a/drivers/hid/spi-hid/spi-hid-core.h b/drivers/hid/spi-hid/spi-h=
-id-core.h
-index 631897dd9e8a2f7a7c0ca29a5ae6e79e83e12579..=
-9cbe2e57400443bd68056057d08f97c39c403a70 100644
---- =
-a/drivers/hid/spi-hid/spi-hid-core.h
-+++ b/drivers/hid/spi-hid/spi-hid-core=
-.h
-@@ -44,6 +44,9 @@ struct spi_hid_device_descriptor {
-=20
- /* Driver context */
- struct spi_hid {
-+	void *xfer_alloc;
-+	u8 *xfer_buf;
-+	size_t xfer_size;
- 	struct spi_device	*spi;	/* spi device. */
- 	struct hid_device	*hid;	/* pointer to corresponding HID dev. */
-=20
+ 	struct drm_panel_follower panel_follower;
+ 	bool	is_panel_follower;

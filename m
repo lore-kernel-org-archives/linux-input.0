@@ -1,36 +1,36 @@
-Received: from e234-56.smtp-out.ap-northeast-1.amazonses.com (e234-56.smtp-out.ap-northeast-1.amazonses.com [23.251.234.56])
+Received: from e234-57.smtp-out.ap-northeast-1.amazonses.com (e234-57.smtp-out.ap-northeast-1.amazonses.com [23.251.234.57])
 	(using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DC083BE163;
-	Sat, 10 Oct 2026 16:57:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A61B74582EF;
+	Sat, 10 Oct 2026 16:57:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791651472; cv=none; b=EHpnwi5vMEsCHM+BhPt1KJrPWK7JzqhWuDBLRdwwIQSWmUfQOGc/r1zIpQzyNUk9eGlaw80EfwfsyCpY65MauNFnGBZmCky12HdgkkOlmZGiGRpLnaziRvObgy4SzPp6lowTLnvM2hF0jLOlB8GLHVc7AiOrpcGyj0QeshzIBG0=
+	t=1791651474; cv=none; b=s9yVS9vfC+2i37Xq6sPes9ExR7zrBgZ/gGo+wQhktA54IZrvv/BYiayXcpLjzd2reSK6tzwT+eKCByu4phgFqi5oA/impYdnPTweR8htW4TFQOzyKzYXAkY+ZH2DaZLRLIN45/+TaYPNUd8YQGzXagVjweI+fGJWiTNFMQMSn3I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791651472; c=relaxed/simple;
-	bh=kXbIf5/9xYmnmT6dcocndnvXtyd4N64Gcj+PHJdrnls=;
+	s=arc-20240116; t=1791651474; c=relaxed/simple;
+	bh=R101s1JAm81QfOw00PtFuU3yhRQhQAZva33Ah/p0Lbg=;
 	h=In-Reply-To:From:To:Cc:Subject:Message-ID:Date:MIME-Version:
-	 Content-Type; b=ZQbpfQejFjMHaE1mpqaLkRPZwNTcdjAvc/Mhifw9MW8A1xtm/37PuNY7keJpSVik5sZbxrWEiYeTMjhhlbhT7XPc1T3sat5OMttLrC+Yjgg/G8LVBvcc7y5yVJlbgr6ies2TupQtzAY6OJyXYhtqfkOq2gOkku76bjZoV/ceAUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=gQvWL9OO; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=FJ8W8NYh; arc=none smtp.client-ip=23.251.234.56
+	 Content-Type; b=Ey6wU8ezPKA6HjdvJPQF3mgWjsWcFBl77LBZ8mCr1CDxyugzLc1lT3kJWPtmPFfZBndeuhDXOODu8ElLktVKj+XJwcGrLG2s2J2gGT+OY0fXsBP8pgf94ewUYgclJdFbeHltn5+POF6rUUuzM6igzg9oBAu9jQu5hzgeyFuGFA0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=ruxRkX/J; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=RRBx8yzg; arc=none smtp.client-ip=23.251.234.57
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="gQvWL9OO";
-	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="FJ8W8NYh"
+	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="ruxRkX/J";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="RRBx8yzg"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
-	d=fqwqf.xyz; t=1791651470;
+	d=fqwqf.xyz; t=1791651471;
 	h=In-Reply-To:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
-	bh=kXbIf5/9xYmnmT6dcocndnvXtyd4N64Gcj+PHJdrnls=;
-	b=gQvWL9OOAB2qh/hHv9D+NjSzchNmhUajfCHbmmSk03Tl8yySkdzK9bwYDWGDAx5L
-	a3kNZJd3jBa8YNvid5x2snqtGaB8noXHMONFo532vJGapFH4q5+vWHpDBg65zOld3KS
-	HnmFHckK8ZI2g6YI/TIMtx3jF6PjAcwvAjiBTcAg=
+	bh=R101s1JAm81QfOw00PtFuU3yhRQhQAZva33Ah/p0Lbg=;
+	b=ruxRkX/JiSyDV/SuBKfG4ouwheV5UFzjDZu5ycGQg5IxrW5YeDEBPGONF2QTQDVn
+	q/uDdqwcc29h1xBnjSEsrEYVt623ZSd0BvpvsB8zS8WWs6H31IIf0/Yk6T/snbxG5f2
+	Hwg5Qb9wJ7hdDGZTigoW5lZxq16NMWsBPL0CDnrc=
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1791651470;
+	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1791651471;
 	h=In-Reply-To:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
-	bh=kXbIf5/9xYmnmT6dcocndnvXtyd4N64Gcj+PHJdrnls=;
-	b=FJ8W8NYhpZZXwS04P/XZVs/BOq40ZznP2NW3qexJBhUq/2F2WBNVi0djwWI8Up1x
-	xduIY/NKJf8W3NVJ25JVthlrwP5BhUKRuIeV4sK+se363V/tKXcgrOuXrz4OKvyaB2W
-	5cdnERYVBDfMEvSJlQr8T3JwOhlMaK/vjMGb5YJ0=
+	bh=R101s1JAm81QfOw00PtFuU3yhRQhQAZva33Ah/p0Lbg=;
+	b=RRBx8yzgP8QsRQP5rwsLiYYrRhlM4pA88X8hZakqJpqNGrl1tP6+rdZvJQr8KkAy
+	t0WSnurEq4G183AXg7Ahxc5EHBfkHmQlt1qZOYYmluA8nZ/L9YzXnBh5dirlT1hBpjN
+	9iXXSkEHETv8i45AbYuJ57XUuWwnfaYbuz6cCgRo=
 In-Reply-To: <20261010165732.43465-1-fqwqf@fqwqf.xyz>
 X-Mailer: git-send-email 2.53.0
 From: fQwQf <fqwqf@fqwqf.xyz>
@@ -40,11 +40,11 @@ Cc: jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com,
 	daleyo@gmail.com, broonie@kernel.org, linux-spi@vger.kernel.org, 
 	devicetree@vger.kernel.org, robh@kernel.org, krzk+dt@kernel.org, 
 	conor+dt@kernel.org
-Subject: [RFC PATCH 4/6] dt-bindings: input: describe the Romulus13 QSPI
- touchpad
-Message-ID: <010601a126bfdb39-6c28068c-cb45-4a6f-873f-99f26b812505-000000@ap-northeast-1.amazonses.com>
+Subject: [RFC PATCH 6/6] HID: spi-hid: expose readiness for reset
+ diagnostics
+Message-ID: <010601a126bfe036-2b296fdb-9206-47f7-9089-99c1d09b240e-000000@ap-northeast-1.amazonses.com>
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 10 Oct 2026 16:57:50 +0000
+Date: Sat, 10 Oct 2026 16:57:51 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -53,124 +53,124 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Feedback-ID: :1.ap-northeast-1.6BGMgStFQE7EJYq5syaCRzdneEHVt/+DAaGDrqUmDs9QLO4/SllUBZ3fHvnZ8rcAX/3IjUyTRgi5JFZsWrikFHwlPJqCkqEMlxDFM4JXh+ycxH/J5Tudg5bGdz6h4331g1L1EFsGR8kuYNfGLsrxz4Nym4YXoPcZxeVkrHry4Zx21n8vEVLEjc7s+OCM8PU9:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
-X-SES-Outgoing: 2026.10.10-23.251.234.56
+X-SES-Outgoing: 2026.10.10-23.251.234.57
 
-Describe the fixed-address HID-over-SPI touchpad on Surface Laptop 7
-13.8-inch, with quad address/data transfers, an active-low reset and a 5
-V supply.
+Retain the read-only readiness status used to correlate descriptor
+refresh and hidraw reconnection with iptsd logs. Document it alongside
+the existing bus, regulator and device-reset counters.
+
+Limit the Romulus maintenance entry to its binding and ABI documentation.
 
 Signed-off-by: Jizhou Tong <fqwqf@fqwqf.xyz>
 ---
- .../input/microsoft,romulus13-touchpad.yaml   | 86 +++++++++++++++++++
- 1 file changed, 86 insertions(+)
+ ...=
+/ABI/testing/sysfs-bus-spi-devices-spi-hid | 30 +++++++++++++++++++
+ MAINTAINERS                                   |  7 +++++
+ drivers/hid/spi-hid/spi-hid-core.c            | 11 +++++++
+ 3 files changed, 48 insertions(+)
  create mode 100644 =
-Documentation/devicetree/bindings/input/microsoft,romulus13-touchpad.yaml
+Documentation/ABI/testing/sysfs-bus-spi-devices-spi-hid
 
-diff --git a/Documentation/devicetree/bindings/input/microsoft,=
-romulus13-touchpad.yaml b/Documentation/devicetree/bindings/input/microsoft=
-,romulus13-touchpad.yaml
+diff --git a/Documentation/ABI/testing/sysfs-bus-spi-devices-spi-hid =
+b/Documentation/ABI/testing/sysfs-bus-spi-devices-spi-hid
 new file mode 100644
-index =
-0000000000000000000000000000000000000000..88e4664c56e7fb1c3f9f5949a3ded2f9d=
-7070604
+index 0000000000000000000000000000000000000000..=
+5c55748a082e028a2fb7a0aadbde5d92eed50950
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/input/microso=
-ft,romulus13-touchpad.yaml
-@@ -0,0 +1,86 @@
-+# SPDX-License-Identifier: =
-(GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.=
-org/schemas/input/microsoft,romulus13-touchpad.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/Documentation/ABI/testing/sysfs-bus-spi-devices-spi-hid
+@@ -0,0 +1,30 @@
++What:		/sys/bus/spi/devices/.../ready
++Date:		October 2026
++Contact:	Jizhou Tong <fqwqf@fqwqf.xyz>
++Description:
++		Read-only generic HID SPI readiness: "ready" or "not ready".
++		The device must be ready and opened before input is delivered.
 +
-+title: Microsoft Surface Laptop 7 13.8-inch QSPI touchpad
++What:		/sys/bus/spi/devices/.../bus_error_count
++Date:		October 2026
++Contact:	Jizhou Tong <fqwqf@fqwqf.xyz>
++Description:
++		Read-only pair "COUNT (ERROR)". COUNT accumulates transport
++		failures and invalid input headers since bind and may wrap.
++		ERROR is the last such negative errno. The two fields are
++		sampled independently. Unlike the previous downstream SL7
++		driver, a successful transfer does not clear this counter.
 +
-+maintainers:
-+  - Jizhou Tong <fqwqf@fqwqf.xyz>
++What:		/sys/bus/spi/devices/.../regulator_error_count
++Date:		October 2026
++Contact:	Jizhou Tong <fqwqf@fqwqf.xyz>
++Description:
++		Read-only pair "COUNT (ERROR)" of accumulated regulator
++		failures and the last errno. Fields are sampled independently.
 +
-+description:
-+  The touchpad on the =
-13.8-inch Surface Laptop 7 uses the HID SPI v3
-+  protocol over a quad SPI =
-connection. Its supply and board reset states
-+  must be controlled during =
-initialization and recovery.
++What:		/sys/bus/spi/devices/.../device_initiated_reset_count
++Date:		October 2026
++Contact:	Jizhou Tong <fqwqf@fqwqf.xyz>
++Description:
++		Read-only unsigned count of reset responses processed while
++		the generic HID ready flag was set. Starts at zero on bind.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c52ec2d7d3c12ace1f6e2f6012a328=
+44bd8f364e..858ec47345400b0cf751e7c8cc13140b462c701a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11626,6 +11626,13 @@ L:	=
+linux-input@vger.kernel.org
+ S:	Maintained
+ F:	drivers/hid/hid-nvidia-shiel=
+d.c
+=20
++HID OVER SPI ROMULUS13 INTEGRATION
++M:	Jizhou Tong <fqwqf@fqwqf.=
+xyz>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	Documentation/ABI/testing/sysfs-bus-spi-devices-spi-hid
++F:	Documentation/devicetree/bindings/input/microsoft,romulus13-touchpad.=
+yaml
 +
-+allOf:
-+  - $ref: /schemas/spi/spi-peripher=
-al-props.yaml#
+ HID PHOENIX RC FLIGHT CONTROLLER
+ M:	Marcus Folkesson <marcus.=
+folkesson@gmail.com>
+ L:	linux-input@vger.kernel.org
+diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi-h=
+id-core.c
+index bd27bc3ea34c5fa65a903dd204800dbdafe3a7bc..=
+167ee347588fd6248c647e8d970324e96d99d8a8 100644
+--- =
+a/drivers/hid/spi-hid/spi-hid-core.c
++++ b/drivers/hid/spi-hid/spi-hid-core=
+.c
+@@ -1568,6 +1568,16 @@ static struct hid_ll_driver spi_hid_ll_driver =3D=
+ {
+ 	.raw_request =3D spi_hid_ll_raw_request,
+ };
+=20
++static ssize_t ready_show(struct device *dev,
++			  struct =
+device_attribute *attr, char *buf)
++{
++	struct spi_hid *shid =3D =
+spi_mem_get_drvdata(dev_get_drvdata(dev));
 +
-+properties:
-+  compatible:
-+    const: microsoft,=
-romulus13-touchpad
++	return sysfs_emit(buf, =
+"%s\n", test_bit(SPI_HID_READY, &shid->flags) ?
++			  "ready" : "not =
+ready");
++}
++static DEVICE_ATTR_RO(ready);
 +
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  vdd-supply:
-+    description: Touchpad 5 V supply.
-+
-+  spi-max-frequency:
-+    maximum: 20000000
-+
-+  spi-rx-bus-width:
-+    items:
-+      - const: 4
-+
-+  spi-tx-bus-width:
-+    items:
-+      - const: 4
-+
-+  reset-gpios:
-+    maxItems: 1
-+    description: Active-low touchpad reset.
-+
-+  pinctrl-0: true
-+
-+  pinctrl-names:
-+    items:
-+      - const: default
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - vdd-supply
-+  - spi-rx-bus-width
-+  - spi-tx-bus-width
-+  - reset-gpios
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include =
-<dt-bindings/interrupt-controller/irq.h>
-+    #include =
-<dt-bindings/gpio/gpio.h>
-+
-+    spi {
-+        #address-cells =3D <1>;
-+        #size-cells =3D <0>;
-+
-+        touchpad@0 {
-+            compatible =3D "microsoft,romulus13-touchpad";
-+            reg =3D <0>;
-+            spi-max-frequency =3D <20000000>;
-+            spi-rx-bus-width =3D <4>;
-+            spi-tx-bus-width =3D =
-<4>;
-+            interrupts-extended =3D <&tlmm 3 IRQ_TYPE_LEVEL_LOW>;
-+            vdd-supply =3D <&vreg_ts_5p0>;
-+            reset-gpios =3D =
-<&tlmm 120 GPIO_ACTIVE_LOW>;
-+            pinctrl-0 =3D <&touchpad_reset>;
-+            pinctrl-names =3D "default";
-+        };
-+    };
+ static ssize_t =
+bus_error_count_show(struct device *dev,
+ 				    struct device_attribute =
+*attr, char *buf)
+ {
+@@ -1601,6 +1611,7 @@ static ssize_t =
+device_initiated_reset_count_show(struct device *dev,
+ static DEVICE_ATTR_RO(device_initiated_reset_count);
+=20
+ static struct attribute *spi_hid_attrs[] =3D {
++	&dev_attr_ready.attr,
+ 	&dev_attr_bus_error_count.attr,
+ 	&dev_attr_regulator_error_count.attr,
+ 	&dev_attr_device_initiated_reset_count.attr,

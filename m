@@ -1,258 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from e234-58.smtp-out.ap-northeast-1.amazonses.com (e234-58.smtp-out.ap-northeast-1.amazonses.com [23.251.234.58])
+	(using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4CE37F738;
-	Sat, 10 Oct 2026 14:48:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61A733C9EE5;
+	Sat, 10 Oct 2026 16:57:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.58
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791643708; cv=none; b=Ns6JXFKpTwHjibGK5EVU5z7SA6YWOfkPYVyamPTq+/J17ACuRIbe57ZW4MirttpSx39Tc0/bhMZxu9whsLgyFNBqenTR5idxSUKGOK1P2PDOoWflpY0M8ltMvpLtTLynyiAXMlL7yg8BFFvoHNUpoFulP4NqVOfwZH5ZopEYsYo=
+	t=1791651458; cv=none; b=DF/URsHjbuLH5wFsKTtYH5xPAqvqxZs/nL61kYfGz+92g65nMw5DZmI4AKSMyIiMXODZK1wrSWnyXlUJgr9W0KLHicJ3kBJkNF2weaWNu9lbaIbQQNXbZ0fZ1Z3AtMCOVxrRuqdXMm3tJkQdWtGW/IqcjaWjBwkwrNBOqlaeDLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791643708; c=relaxed/simple;
-	bh=9eXAqUdHb5iCwJj/z9DZAOPpshce/oZh24S/ryTsQAs=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=UHJNKNHZ+njeszCOKV5P7xpu1qqNF+xeGuv97ZhEAKfpzsXKwTPnCS/7hTVAlHIv2b0ns73YBexuytFgMMcrrLC89XBmWIoUUFXGOT3uvRPQO8rmj6IQhfH5b3g6kpCiHFio4PWBnQ2gHrhzoygk8ndgUQUCSShbDPclI4d2aTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Sy+KvSJe; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791651458; c=relaxed/simple;
+	bh=kbXkac4jsWCkGWIevizgSpubemBBAlHy3w4chXA86Og=;
+	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Date:
+	 MIME-Version:Content-Type; b=upcmcBunU1G/DabkGjBR6SVpg1PRq4HkoS4FVOv52nSEVoH3+celzqYN3JsXVR4Pg/KRxqRIru5XglyQVw0y+/0Iliy04AkPrV46VaJdmgX4iEQ6E1oEtNOHB7KA10LNAo2REiEQ/1EBS5fAY05hibAjjrdJsdsSNdtKk7RuaGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=EtnktIIM; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=hmqNOgkS; arc=none smtp.client-ip=23.251.234.58
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Sy+KvSJe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B544B1F000FF;
-	Sat, 10 Oct 2026 14:48:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791643707;
-	bh=kpBw1ITpbJRICLuBLzE9RSXUVtHvenA1B64+VKkuL4U=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Sy+KvSJeWG28jpegXjlKzYQVfVIp2S6QGu5S7Fb6pnGgbHAgcSBthy1bH+DmUunYZ
-	 Kce+dNld104RKpWvJTGwqVAVqeLAQmaZSwXCuBbqMNJN1nCRj6yyncNQfXb+kUSujF
-	 6FAF6GE1quv5XuUV04gqYSxCbEjMyly0jxSu4Ui0E229ewKY7NIjqd7ZKNsdxEQp86
-	 OC51uHgMLeTOIPOWzPSrq0izapHMjbokThyrBOOSYiVXx2HmsnJGQmjx8pIfzbKKGL
-	 4tyR3OrsLB/k6YeyPjNBUzcf8z/zgpNl6Yt5MGEJtHXfDhMHpv2PjqA3s3e0v4zpbW
-	 e9egtD4x6G5Cg==
-Message-ID: <sashiko-outbox-166671@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] Input: add OnePlus/OPPO Pad pogo-pin keyboard
- serdev driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: wyibo6109@gmail.com
-Cc: linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261010143836.173883-3-wyibo6109@gmail.com>
-References: <20261009122046.551915-1-wyibo6109@gmail.com>
- <20261010143836.173883-1-wyibo6109@gmail.com>
- <20261010143836.173883-3-wyibo6109@gmail.com>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="EtnktIIM";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="hmqNOgkS"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
+	d=fqwqf.xyz; t=1791651456;
+	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
+	bh=kbXkac4jsWCkGWIevizgSpubemBBAlHy3w4chXA86Og=;
+	b=EtnktIIMP3yQodOK2UBkaVrsoiow2F6/tQJX5/TKYc1NsilNNg8dZU6y1cgu2J/c
+	A13Abr5lBSHpYjXmNQ62Fomb3voqWXvz611VDokXpLfiZV8S5ijDBl2AJDqr7v/g3eV
+	aF+61LIjAup/9qQ/lpnpN26XX72uduGmXfSQQJYY=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1791651456;
+	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
+	bh=kbXkac4jsWCkGWIevizgSpubemBBAlHy3w4chXA86Og=;
+	b=hmqNOgkSJ31+RyjSU1mz0br5Jfw4LqDO1tGWzC/3GfvgLuC2rW61Ox6rkSfjNKWO
+	7wqfdVOpXxtSB30LjWLmO/NuMoKa3kBK46JU8/7/KJfEKa+Au0ivRoGwh6iDMfzUC68
+	pKKMD+7gYPzDQF7G/8eW/tcRgmHKjNrxPTNhL4/I=
+In-Reply-To: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
+References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
+X-Mailer: git-send-email 2.53.0
+From: fQwQf <fqwqf@fqwqf.xyz>
+To: jingyliang@chromium.org
+Cc: jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] HID: spi-hid: handle reset assertion and resume
+ handshake failures
+Message-ID: <010601a126bfa3ae-858150e8-f0a7-4bae-9c37-d82180d8128e-000000@ap-northeast-1.amazonses.com>
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 10 Oct 2026 14:48:26 +0000
+Date: Sat, 10 Oct 2026 16:57:35 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Feedback-ID: :1.ap-northeast-1.6BGMgStFQE7EJYq5syaCRzdneEHVt/+DAaGDrqUmDs9QLO4/SllUBZ3fHvnZ8rcAX/3IjUyTRgi5JFZsWrikFHwlPJqCkqEMlxDFM4JXh+ycxH/J5Tudg5bGdz6h4331g1L1EFsGR8kuYNfGLsrxz4Nym4YXoPcZxeVkrHry4Zx21n8vEVLEjc7s+OCM8PU9:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
+X-SES-Outgoing: 2026.10.10-23.251.234.58
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] input: UAF due to lockless quitting checks and incorrect work canc=
-ellation order
-- [Medium] input: Data race on link state variables due to missing state_lo=
-ck in RX path
-- [Medium] input: Race condition and missing memory barriers in TX/RX compl=
-etion logic
---
+Hi Jingyuan,
 
-commit 6e3d28332505730268c90370cf0f07792b89214b
-Author: Yibo Wang <wyibo6109@gmail.com>
+I applied the complete v5 series to its stated base and found=
+ two
+remaining error paths:
 
-Input: add OnePlus/OPPO Pad pogo-pin keyboard serdev driver
+- Initialization continues after =
+assert_reset() fails, powering up the
+  device and enabling its IRQ while =
+returning success.
+- The resume reset wait only logs a missing device =
+descriptor, so the
+  HID reset_resume callback can run without a completed =
+handshake.
 
-This adds a serdev driver for the Tinno keyboard MCU used by OnePlus/OPPO P=
-ad
-smart keyboards. It implements a framed protocol over a half-duplex UART for
-input events, heartbeat, and backlight control.
+Propagate the assertion error, and return -ETIMEDOUT from the =
+reset wait
+while scheduling the existing bounded recovery worker. Skip the =
+HID
+resume callback on that timeout, including the failed-suspend rollback
+path, where the original suspend error remains the return value.
+The PM core can therefore report an incomplete resume, while the worker
+may still recover the device asynchronously.
 
-> diff --git a/drivers/input/keyboard/oneplus-pogo-kbd.c b/drivers/input/ke=
-yboard/oneplus-pogo-kbd.c
-> index 0000000000000..298f0eff52116
-> --- /dev/null
-> +++ b/drivers/input/keyboard/oneplus-pogo-kbd.c
-[ ... ]
-> +static int pogo_xfer(struct pogo_kbd *kb, u8 cmd, const u8 *payload, u8 =
-len,
-> +		     u8 *resp, unsigned int resp_size)
-> +{
-[ ... ]
-> +	mutex_lock(&kb->io_lock);
-> +	for (attempt =3D 0; attempt < POGO_XFER_RETRIES; attempt++) {
-> +		bool echoed;
-> +
-> +		/*
-> +		 * Drop any late echo/reply of the previous attempt: with
-> +		 * tx_pending cleared the RX path ignores frames until the
-> +		 * transfer below re-arms, so a delayed reply cannot complete
-> +		 * the fresh iteration or race the resp buffer.
-> +		 */
-> +		WRITE_ONCE(kb->tx_pending, false);
-> +		reinit_completion(&kb->echo_done);
-> +		reinit_completion(&kb->resp_done);
-> +		kb->tx_cmd =3D cmd;
-> +		WRITE_ONCE(kb->tx_pending, true);
+The actual driver functions =
+were exercised with mock firmware/IRQ/HID
+interfaces under ASan/UBSan. The =
+SL7 integration's SPI-HID core, OF and
+ACPI objects compile with W=3D1 on =
+ARM64. The full integration boots and
+works in normal use on SL7. Logs from=
+ two s2idle cycles show the touchpad
+being re-enumerated and iptsd =
+reconnecting automatically; the transport
+and regulator error counters =
+remain zero.
 
-[Severity: Medium]
-Since WRITE_ONCE does not emit a hardware memory barrier, could the CPU reo=
-rder
-these stores on weakly-ordered architectures?
+Based on your v5:
+https://lore.kernel.=
+org/all/20261009-send-upstream-v5-0-384af01da3ee@chromium.org/
+Upstream base: ee9c669f9bf5fd2c24206746ded9382fe810df89.
 
-This might allow the RX thread to see tx_pending =3D=3D true while still re=
-ading
-the old tx_cmd, opening a race condition.
+Best regards,
+Jizhou Tong
 
-[ ... ]
-> +static void pogo_handle_sync(struct pogo_kbd *kb, const u8 *p, unsigned =
-int len)
-> +{
-> +	bool replug =3D false;
-> +
-> +	if (len < 2)
-> +		return;
-> +
-> +	if (p[0] =3D=3D OWB_SYNC_PLUG_IN && p[1] =3D=3D 0x02 && len >=3D 9) {
-> +		kb->brand =3D p[2];
-> +		memcpy(kb->mac, &p[3], POGO_MAC_LEN);
-> +		/*
-> +		 * The MCU repeats this frame until the host has talked to it;
-> +		 * only a plug-in frame after regular heartbeats is a re-plug.
-> +		 */
-> +		replug =3D kb->connected && kb->hb_seen;
-> +	} else if (p[0] =3D=3D OWB_SYNC_HEARTBEAT && p[1] =3D=3D 0x02 && len >=
-=3D 10) {
-> +		kb->brand =3D p[3];
-> +		memcpy(kb->mac, &p[4], POGO_MAC_LEN);
-> +		kb->hb_seen =3D true;
-> +	}
-> +
-> +	if (!kb->connected || replug) {
-> +		kb->connected =3D true;
-> +		kb->hb_seen =3D false;
-> +		kb->retry_ms =3D POGO_RETRY_MIN_MS;
+fQwQf (2):
+  HID: spi-hid: propagate reset assertion errors =
+during initialization
+  HID: spi-hid: report a missing reset handshake on =
+resume
 
-[Severity: Medium]
-Are these link state variables modified without holding kb->state_lock here?
+ drivers/hid/spi-hid/spi-hid-core.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-Because pogo_handle_sync() runs in the RX worker context, it can execute
-concurrently with workqueues running pogo_power_off() or pogo_power_on().
-This data race could corrupt the driver's state machine logic.
 
-> +		if (!READ_ONCE(kb->quitting))
-> +			schedule_work(&kb->plug_work);
-
-[Severity: High]
-Does this lockless quitting check allow a use-after-free?
-
-If the RX thread evaluates !READ_ONCE(kb->quitting) as true but is preempted
-before calling schedule_work(), pogo_remove() might finish cancelling plug_=
-work
-and return.
-
-The RX thread would then resume and queue plug_work after it has been
-cancelled, leading to a use-after-free when devres frees kb.
-
-> +	}
-> +}
-> +
-> +static void pogo_handle_frame(struct pogo_kbd *kb, const u8 *f, unsigned=
- int n)
-> +{
-[ ... ]
-> +	switch (cmd) {
-> +	case OWB_CMD_KEYS:
-[ ... ]
-> +	case OWB_CMD_SYNC_UPLOAD:
-> +		pogo_handle_sync(kb, payload, len);
-> +		break;
-> +	default:
-> +		if (cmd =3D=3D OWB_CMD_GENERAL_ACK && len >=3D 4 &&
-> +		    payload[0] =3D=3D OWB_GEN_BATTERY_STATUS)
-> +			kb->battery_level =3D payload[2];
-> +
-> +		if (READ_ONCE(kb->tx_pending) && cmd =3D=3D kb->tx_cmd + 1) {
-
-[Severity: Medium]
-Is there a missing acquire barrier (smp_load_acquire) when reading tx_pendi=
-ng
-and tx_cmd here?
-
-Furthermore, since the RX thread's check is not protected by a lock, it cou=
-ld
-be preempted between evaluating tx_pending and reading tx_cmd, which might
-result in erroneously completing a new transfer using an old response.
-
-> +			/* reply layout for callers: cmd, len, payload */
-> +			kb->resp_len =3D min_t(unsigned int, len + 2, sizeof(kb->resp));
-> +			memcpy(kb->resp, &f[3], kb->resp_len);
-> +			complete(&kb->resp_done);
-> +		} else {
-> +			dev_dbg(kb->dev, "unhandled frame cmd 0x%02x len %u\n",
-> +				cmd, len);
-> +		}
-> +		break;
-> +	}
-> +}
-[ ... ]
-> +static void pogo_hb_work(struct work_struct *work)
-> +{
-[ ... ]
-> +	/* re-arm: retry while the wake line still reports a keyboard */
-> +	if (!READ_ONCE(kb->quitting))
-> +		schedule_delayed_work(&kb->detect_work,
-> +				      msecs_to_jiffies(kb->retry_ms));
-
-[Severity: High]
-Could hb_work queue detect_work after it has been cancelled?
-
-Since pogo_remove() cancels detect_work before hb_work, if hb_work executes
-concurrently with teardown, this lockless check allows schedule_delayed_wor=
-k()
-to run after cancel_delayed_work_sync(&kb->detect_work) has completed.
-
-This leaves detect_work permanently queued, leading to another use-after-fr=
-ee
-when kb is freed.
-
-> +	kb->retry_ms =3D min(kb->retry_ms * 2, POGO_RETRY_MAX_MS);
-> +}
-[ ... ]
-> +static void pogo_remove(struct serdev_device *serdev)
-> +{
-> +	struct pogo_kbd *kb =3D serdev_device_get_drvdata(serdev);
-> +
-> +	/*
-> +	 * Stop the world first: with quitting set, the RX path and the
-> +	 * works stop queueing each other, so the cancels below cannot be
-> +	 * undone again.  The wake IRQ is disabled (and any in-flight ISR
-> +	 * finished) before detect_work is cancelled.
-> +	 */
-> +	WRITE_ONCE(kb->quitting, true);
-> +	pogo_wake_irq_enable(kb, false);
-> +	cancel_delayed_work_sync(&kb->detect_work);
-> +	cancel_delayed_work_sync(&kb->hb_work);
-> +	cancel_work_sync(&kb->plug_work);
-
-[Severity: High]
-Does this cancellation order correctly prevent works from being queued?
-
-As noted above, cancelling detect_work before hb_work permits hb_work to
-re-queue detect_work during teardown.
-
-Additionally, the RX path's lockless check against kb->quitting means plug_=
-work
-can be queued after cancel_work_sync() completes, due to delayed devres ser=
-dev
-closure.
-
-> +
-> +	/* unregisters the input devices, the last possible led_work queuer */
-> +	pogo_power_off(kb);
-> +
-> +	/* flush a led_work queued before the inputs went away */
-> +	cancel_work_sync(&kb->led_work);
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261010143836.1738=
-83-1-wyibo6109@gmail.com?part=3D2
+base-commit: ee9c669f9bf5fd2c24206746ded9382fe810df89
+prerequisite-patch-id: b401890d766019f0677a572f18bb389cd8827721
+prerequisite-patch-id: beaf91cb29f3a735559a3251092ac0ac17810b10
+prerequisite-patch-id: 909ee816b83e0bc8bb4b560f8c7cc0c8109c4516
+prerequisite-patch-id: 8b60145a9a853a32881af27181c26dff0e82a33e
+prerequisite-patch-id: bcb36384a391e48222f0924b0c571fb0eac19ae7
+prerequisite-patch-id: 816dfccf7d35ea041c0d7c08c7bfbe061a45c7dc
+prerequisite-patch-id: 67a41d4cb6bfa41248d89a8f967d4414cff2da2e
+prerequisite-patch-id: d0bf155ff4d70a3aeb88ec0232f04a4b2edb3598
+prerequisite-patch-id: f18d9032e5ed5713beb37527dba225ec79589b31
+prerequisite-patch-id: 854affdd16efb5696f9ed1d2a8cdb50dababe724
+prerequisite-patch-id: 248c986cba937716c739b804039376ac3823f618

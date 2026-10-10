@@ -1,135 +1,109 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from ixit.cz (ixit.cz [84.42.129.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B27326FDBF
-	for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 09:52:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B13F7495041;
+	Sat, 10 Oct 2026 13:09:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791625944; cv=none; b=iuEgK4ddj8Z9gzXj3L6Dy/SY3SpNqiYWtxPaMkXkjCZEYe27CL2DhW3lFng7D3Rdx7WwVoTahwGFefAx5qQyYf5fEUU0iTpfvpPnfH7RYXvDzscnIjp+xLlylaLsIjuGI7kzoyQ6ASMRKJFwW4p4NQagdeCvMUBpqLSXs23sCYI=
+	t=1791637755; cv=none; b=RuIYrn00tFFc+8+i0qV3y+/wD9cIkAjVGK6ypkrfyjeAndFGq7n2/dXyQgMHk4XBXOcjP1+wWcviLAWaCDSMpRUJ8X8xRxNKkRDhmMTzbdLzOzVHNzSjtqGvZNiyrCMAkoy76N9yldQrh57P0v8WDW3n9EBvs3yL0c2fGBBt3m4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791625944; c=relaxed/simple;
-	bh=mk5d9tC24rGNkVl4N2wjp+2iHC1JHLrMtiHh8SzfUh0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g+m0Xyj30hBRw0gDZhoU64uX2bKbEeKTaWaMhHBxU4R1TARJiA6E+74d+URQIO4BRPKEflg4GTQKrkadn6rgyDtEjxTlEIZw9e9FmW+oPwQZm2aLtdI8XGsVtVQg29+O/DqSFmfdq5BYtAwUmvQSwTAJDYU95hpQ7zL8ybAtBVg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lUxhHV2k; arc=none smtp.client-ip=74.125.82.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791637755; c=relaxed/simple;
+	bh=8DssSaJsHim/+maUAmaaLIsfaehlMuYbnxy/x70yhP4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hraBcaiDkUGeOZFVVDyAVmXLBSLX2aO3a4P3c7hXMaomVi7A1Xo5LM7SlsID0oOIUNud+v5Dyxp5P/gNzRbY8AjzDmhmgc6qbdzSJnJz55FT//ULK3a2JqtGnlQgKb+76DvMptOwfPtAjZ14D8DDae55sh8bR9NFGQdovSgpCp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=MYLyURag; arc=none smtp.client-ip=84.42.129.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lUxhHV2k"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-356b1e20700so795595eec.1
-        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 02:52:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791625942; x=1792230742; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=0pPSekHCdqwAP9xCOYutxpz0IcPAFNRJuReHEkaVZhQ=;
-        b=lUxhHV2k/uAbqKhA2n7PabJT4Tl7fqdHUT0j4a2kIRL5jzIuz6CSfXGFgfkmIRD15t
-         UTc5mcpsn4VQ8Dv7qj5UV+nQN4KO1ZvjnUfrOULyAHnYX3VmiJBjrpVOz5CqUZRLWPHv
-         c3gUsbb392AB8GYlrrLF6jTHOsZouweLlXczdgVGJz+fDL6B5CyIutdsJvXLqohkq8w4
-         fsqMY391qdCD99/dtnL1gK8+BdkVCTjOtcfXPP3K7bA7aLibI88ttHWbhuvJsSedbCM6
-         7kemg4e+H2Zt39dlaO8q6P/xxdQa8lodxYfY8KBXRMZxNvO9YSb69Louj7KG7um07pSw
-         1ARA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791625942; x=1792230742;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=0pPSekHCdqwAP9xCOYutxpz0IcPAFNRJuReHEkaVZhQ=;
-        b=XtuL3IQz8AnL0zU1tMN6+SwrfzyU57KzWX2pSbhGjMvE5Jx9dafOwr9sRGmPiB7Amh
-         nMJpptZH41COIX/ZK9xP6g0K+3EFbj5HPRjVU90CaHQZCYvb4srInih7gRazMXQ3kpzl
-         gBzY0/tkZ0cFNpTGrULsOjx/QQ1lVYAvAf5CT6z+nVgY0jg89jQUOB5ftE33tMzx8IG0
-         7xsFd0mkUECCbigXKGQg11cotS9PCFpqj7Nd72sSj7885ZfLxRKvrbaxjR5RNdN58r4V
-         AjPeLbUwMiqfjqyYA+jA2u38U99GSXp2oOrr7f/2bhX640FTSzGm3eMfKOBl0OUmA++X
-         SbQA==
-X-Forwarded-Encrypted: i=1; AKwUvBzyTeEUbQcRmmU73SVIay/thq8HARfD66EMsiK+dNdjab24VIlYW6y5tUl2R7T0DMcv7soIZEeHI4UKxg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKADecevgmu26fmAPNem2AePkMRytDHOzNdXlVvzMkkxpL7B0hV
-	c6yloxeau88d5JpJ1iwzUku3tH/LreFYCIaBKCRTRoE+oCLR7vQjf3bqD9HC7s1v
-X-Gm-Gg: AYBFou0cO9scOaMHpWVa4Qee6nMYaUqUw1fl5G52mhj4y2tlqmrO0UQXaKcgnjt1x64
-	kGD4Km0bQSkEFjWQDA8VtYMWDjSdqy0Q+LfMygDzBWqv/3i9anP1zUqqQPQjKom31YvqzsDfO15
-	eQeXPfyVprdVSUQe0RIEgG3mFb/OYT8PEV0bwpfd9GKW9UCsZtYyFz7tDbHYkeNTiP2c03gcwyB
-	7gDOf20uMuAoyox01eoE0ntuv0flT1ObnmiZqL6p2XnAlkwg43zOZgURVakZBYk0m5u4aHdpfQX
-	xzvpGdQHorc9hR+XNRn2zcYpqOAC9MVZkWGGTSo3/VoUmjMyIcZPAZPHgG1V9wpuCsZGluzv43E
-	L0kNbgD4nm8air5qHe0DHdDauvynqXfcwpoLk9s8g2RO0VSVvqGC0QqamU6px9cE3FMbp9FbRCh
-	Z3ts9ZAx+E56DT/Oyvk1Vc7RzScmMXFBsHNJH3L8EF6v9M9ddw7DenaFVIGSOZBZCy+nIpjo8qk
-	h5UjIAMR/5RClhT0qPqmlyVLUEyjnjZ0KV1Y522Icf1BX9lvvOqZPS2m5u+hgoJPSeQ0k8yZsfC
-	I9bdWIPCD+nbFoj1Xiz99DTRJ1lLcCa9zlerOU05PkY=
-X-Received: by 2002:a05:701b:454f:10b0:14e:5e6b:e6e2 with SMTP id a92af1059eb24-16a13a7b96emr5516674c88.18.1791625942124;
-        Sat, 10 Oct 2026 02:52:22 -0700 (PDT)
-Received: from arch.taild3b82f.ts.net ([2401:4900:ad48:72a2:ee93:5e1d:7172:c27b])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-169a567bd18sm12615815c88.21.2026.10.10.02.52.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2026 02:52:21 -0700 (PDT)
-From: Krish Gulati <krishgulati7@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Andy Lutomirski <luto@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Krish Gulati <krishgulati7@gmail.com>,
-	syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: core: serialize report_descriptor_read() against probe and remove
-Date: Sat, 10 Oct 2026 15:21:02 +0530
-Message-ID: <20261010095211.12831-1-krishgulati7@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="MYLyURag"
+Received: from [IPV6:2003:100:7701:8b01::1815] (p2003010077018b010000000000001815.dip0.t-ipconnect.de [IPv6:2003:100:7701:8b01::1815])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by ixit.cz (Postfix) with ESMTPSA id 269DD5340E52;
+	Sat, 10 Oct 2026 15:02:56 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
+	t=1791637376;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=EotFNgfyUJAk/u2/nPeXgorvOU7nrQpuCtAnNFh0fQs=;
+	b=MYLyURagGN3T76OGhw47R4KCQL/5bh+4pFOwSKz0xsvNlmO0XG5od29H9Z72GGznoozped
+	tGbe4vtxelSWHhZqJQRuZFWV20ojGjLvqD13ZDULDf0rE78UiZue2oPXXFwoUfZIjxcbTe
+	QLnJvQZ7bZ+FtGckkm6pQTls11Q8MGo=
+Message-ID: <89489dd6-1626-474f-a529-12aa5f9c563b@ixit.cz>
+Date: Sat, 10 Oct 2026 15:02:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: s6sy761 - drop duplicate axis initialization in
+ s6sy761_probe()
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+References: <asdjLHHNrrtjIKCb@google.com>
+Content-Language: en-US, cs-CZ
+From: David Heidelberg <david@ixit.cz>
+Autocrypt: addr=david@ixit.cz; keydata=
+ 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
+In-Reply-To: <asdjLHHNrrtjIKCb@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Since commit 54f32fd5dff9 ("HID: Make report_descriptor available for
-all devices"), the "report_descriptor" sysfs attribute is part of the
-device's attribute group, so it exists from device_add() until
-device_del(). It reads hdev->rdesc, but that buffer only lives from
-hid_open_report() until hid_close_report(), that is, for the duration
-of a driver binding. For a driver with a report_fixup() callback,
-rdesc is a private copy that hid_close_report() frees, so a read that
-races with the driver being unbound accesses freed memory. syzbot
-reports this as:
 
-  BUG: KASAN: slab-use-after-free in report_descriptor_read+0xb5/0x100
-  Read of size 24 at addr ffff888078d61f00 by task fido_id/7281
-  ...
-  Allocated by task 10:
-   kmemdup_noprof+0x2b/0x70
-   hid_open_report+0x1fa/0xf00
-   lg_probe+0x29c/0x890
-   hid_device_probe+0x46a/0x870
-   ...
 
-Because hid_close_report() also clears rdesc and rsize, the same missing
-serialization can make the reader see a NULL rdesc with a non-zero
-rsize.
+On 08/10/2026 11:33, Dmitry Torokhov wrote:
+> ABS_MT_TOUCH_MAJOR and ABS_MT_TOUCH_MINOR are initialized twice with
+> identical parameters in s6sy761_probe(). Remove the duplicate calls.
+> 
+> Reported-by: sashiko-bot@kernel.org
+> Assisted-by: LLM
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+with or without Fixes: tag,
 
-Hold the device lock in report_descriptor_read(). The driver core
-already holds it across probe and remove, so a read can no longer
-overlap with them.
-
-Reported-by: syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com
-Tested-by: syzbot+bc537ca7a0efe33988eb@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=bc537ca7a0efe33988eb
-Fixes: 54f32fd5dff9 ("HID: Make report_descriptor available for all devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Krish Gulati <krishgulati7@gmail.com>
----
- drivers/hid/hid-core.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index a3ff0514f9cd..824557a02544 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2270,6 +2270,8 @@ report_descriptor_read(struct file *filp, struct kobject *kobj,
- 	struct device *dev = kobj_to_dev(kobj);
- 	struct hid_device *hdev = to_hid_device(dev);
- 
-+	guard(device)(dev);
-+
- 	if (off >= hdev->rsize)
- 		return 0;
- 
--- 
-2.56.0
-
+Reviewed-by: David Heidelberg <david@ixit.cz>

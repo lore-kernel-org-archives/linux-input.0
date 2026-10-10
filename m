@@ -1,70 +1,74 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F6A633EAF3
-	for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 18:00:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E09D5331209
+	for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 18:00:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791655235; cv=none; b=Pj7LC4PoYlC0mm3VXkA91n1+gKEsu1zMKUDPPoQHOibc/HB3kwExm8KnbAlMUZKIeEn6dByVUxew2pqpCzSxs8TVCHHpB2Z5LAVBvYkDDJWXSGo6vc/j2ScKFqWYmo+VW626pM5dovVjkcFGtS3EwlVgjx+ULyOPzZhGidQBktc=
+	t=1791655237; cv=none; b=fszdKuUHsCIEiqMPb9H67wy6/x9oLlw6x39WCJjTnOrftRl4ousNc8Gsjm9rt6csil8+4+mC791SgE1hLPUO9Y4w0tyQXDIZ7ILLIeHjf2kLl7zF7t0Y2V3jdhTa4Dtswr77GD04wM4AeAkVDkHBVMFcitcJ41fbcmE33ge+TQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791655235; c=relaxed/simple;
-	bh=QEE/N6PnwPszZHQB06FbCOKn/XxBs8ay66Sp+xmfqv4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=L5bkyAB9Fz4HPn9d5GtM/u9aAheCDFRbXh9W6Uf8wFmXNYpwGepdpYNWZH/S7bZKzeu7jcKepvjjjafm7saBEsV0whipG+sR4FDlCPYHLIPvRP5vqZRM+0UU2GUu1HPuulEdvWKUNFvTZUxQw67gJ52dP93SFdvNcwtqL0ou0Ww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net; spf=pass smtp.mailfrom=voidship.net; dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b=WoD+fPtV; arc=none smtp.client-ip=209.85.160.177
+	s=arc-20240116; t=1791655237; c=relaxed/simple;
+	bh=nq2M5xW2fxIZLcvXpCROZkWVmTxCmiexhtFVPMX+4E0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=iISA8mNlhNPxsoHa5OnbKsu3F+1rf9jw5auN/EP92dWZzrzCQjhGz20VWLYqxWk9+oPxM9gJXu+Nm2TJbV90s0aTeUmGm9OaayFfK6ZAmBH5e/ahDFWaCeN66kmBZtAB9DOdk93Mh6dzWro+rqIvK+Js60S32Kza5J8DbpO7+ac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net; spf=pass smtp.mailfrom=voidship.net; dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b=VSDxD+wo; arc=none smtp.client-ip=209.85.219.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=voidship.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b="WoD+fPtV"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-53505bc6524so74399881cf.0
-        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 11:00:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b="VSDxD+wo"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-91b52ba422cso10322746d6.2
+        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 11:00:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=voidship-net.20251104.gappssmtp.com; s=20251104; t=1791655233; x=1792260033; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=OCsenb9Bskg3bCFGqLkiR40EBE50kMlcijLAOuMhnEE=;
-        b=WoD+fPtVVsk8glmY0MtOSLbCvFA1NpzTK03e+ePsgmzbL+/V3/iZF8E5Isqst/hZiv
-         Dw4r2XizyYpKnWUGjsjEr4XLNNypm2geSXy021YfzC4UyWJoss/6dc3T2uDHTgT66LWy
-         goTjXHw0eKg0da3o2Fzsy1OlVUBelYetpVEkiTiV1MlBq1hVN6yo6N8yy/5pgrhD3dwU
-         MH4M7JmLLDrhOTov4SE6bEwVDjP9xLsbUwAbw/M/p0VfHcLoJ0Yuj4mmBKheJJKdwlKi
-         SffPGBIsW9FG6PJtItcc9XaeFnilsfLmI6URdviRhuKb9S+3FnEGzqE7X8db3kyYnCdb
-         pGaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791655233; x=1792260033;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=voidship-net.20251104.gappssmtp.com; s=20251104; t=1791655235; x=1792260035; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=OCsenb9Bskg3bCFGqLkiR40EBE50kMlcijLAOuMhnEE=;
-        b=23Cvfx0ONT/GCQOinEdjd+5QN7DOYYFgYRcrqhn5oxeBTNXnIQi1x+DncrDJ4NgRAe
-         X/Mse599J0GvBuuuD9FQwjc2k51zE/F+3Lz2b0RZHqokp2cO2lscyzjoryyyvYxiP8Rz
-         yakVcVWogw1jR9ijTJCEb3hrpJS++Yhr2jCjGTqSPp01Zfape4dy3ClNPimMnn0g/jUt
-         CN4fQXpmrA+X7/ptFs4WzKIkXDBq1GwMvDBTLlosH0nnMMbMJWuY8ptJlYNn2M7keigl
-         KNP4Dk09qO4a9csjSxiYPtnIf0PAnB8eZv88WgvPcWsvURiHU8cDI4zXT28bgJeiR4aF
-         erEQ==
-X-Gm-Message-State: AFq9FYK8UC6SCxKKt3GVze7b9v2Qu0RxoQmWfq+yK2iGHtanLUcYA08w
-	dLjh23ci9tIoJGdxheZFRsVwXU4Q0h/UGVpPWiAF7rel1gyPqo4c5YlBCcj9KQovW2zaYzLtuJD
-	qipaLpZA=
-X-Gm-Gg: AYBFou3Z45AnS+tNpxW9yFsXLbNFBG9PvOtwGSNVyk8u0O8qStv3xrzCKba1ArxU+Ht
-	vT2oIIgfHgBpQxq09VmjCaVt8SK/pJvoPaGOutfMHL/Kkn4BQr6zhatttc6b/v1pMO5c9SDpWE1
-	jH2mHYKjLti/k22dWu/AcNK6lNCZc/QzwEkBmx3BnbMLj6L1zwheMSuMBnjJvZcLKeqUd6v42V6
-	12//mSRYzg3WNNxPh/uBp9B015tIE69XVioHIJrZ2OIBpFryNgmPvR+HZQzrhZMUquF8G0RLvXT
-	O1+RDp1V9QY8hnzTiZf9d6ZNZ09D8MDLEnevW+2yrzDij1E7a9ugaqCIRpRSWgeP63xNblAJw2P
-	uqEuSDrAaYpTplcBh4tZNNYmXsp2kqxF0V7ALSIwFOXxJ48h/u0Fi+729X6qV8nm/CH1DR5/N4Q
-	Ml5h3v0veudmIBkqSa1ehP6u36jO6O7RMqBU61QjZ48Yox2T+wII+8owajwCSmvpP5GzlYfQcGa
-	ezgGHNIkUR/f+iXLtPkQt2XUEku9dJaJGAWF3l3
-X-Received: by 2002:a05:622a:120b:b0:532:8063:4ccc with SMTP id d75a77b69052e-5359d6a6713mr90845801cf.3.1791655233434;
-        Sat, 10 Oct 2026 11:00:33 -0700 (PDT)
+        bh=NC4wjVkYj33ouDrpIw20yvXN7Xm00WRsU6XHf7agKPU=;
+        b=VSDxD+wohXyD4ZBFdk1rb4Rpqrq+jBJAEjEz/sXfu7aUQMynbcXOEZawr3VKSkKNnj
+         ynl8PUwtrRQKZO7MF54oZZGgZHZ92jiwLkmjV+nyU2c5jlpjIbGFBno7+7YhaXSX1iWo
+         FZeDApZwGU1guoQ1VcmFF1zlXzXIvvHuiEH2KA6RV6Tk+KYUVR3+M3qfBDCBNMBDFZCN
+         0mMkjrzKNbqcUc3p1rHTuyg8yEkQxPxPt7eoh0wNoV6xCABa/swuFEm287AlND3rlTNk
+         WUQLHIiVusDN19xYcGcjoOM8UGZz4pPG5IETMbtoDQ9AduItTbmbtk/uHtSnKrakq7Y7
+         6+Cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791655235; x=1792260035;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NC4wjVkYj33ouDrpIw20yvXN7Xm00WRsU6XHf7agKPU=;
+        b=FCD6Qt8WKX7HoyXqDgrBctJ0cblP87TgXpzkmzuXT3koeuh94xjjEvOwYTUiaOoWBp
+         nHmPBxEYnFlJRrJUkjXHsVkvehLjZGeTN6AcWVT5+fqX4ZRPo7a0m4AndqOXdTVXp2VK
+         8VRnYbKrxfGKmiz5evCtP2Lc1AyQ7d8v92XLAqKB3tDXk9hGTBFj3dbYDrcrbKGRJsV1
+         7O4A2Mn0mCDxqIVFll3pe+uz6lTA/uGventwjUxF+50GLsygEuvcjaCMBTNmErMCE6jQ
+         tLKUtdMKyNw99Tv/t7D0/bFs44OU3kSe64X71j+fuZeMi2pn1pW3JWFnVh8gt/pTNQVe
+         M3og==
+X-Gm-Message-State: AFq9FYLFg+3F/+KUBOMDoCoAB/sqKVcficAZiCi5HxrwkoO3UkQX53Rr
+	EUTd8BOKQJdujog5l7YRfGslmYsn6OXi/h6WjGuuXuav5fR3Lk14rP2qb/M0erho/raGgXPrCCL
+	4qZDiUFU=
+X-Gm-Gg: AYBFou1up38+kQxsgOELyTACzbOyFkK4RaXjDk1aZ7TGE7FKKJBao4tgMmf5lQj95fr
+	7l20AXrWOF7ean5FE4MwWDIiCJ7kPe0JUyh7wB+K0j74Cru1zK9EXq22a/jQOjuKQww7Y6WkLvA
+	Iu5OIOC47osnDAjleQ3UFgpSklcNHpJQY22gkOFZYlXpkRDA/g7bGxaIPOCBBK+8gcZvVGXuqf2
+	GUiLN7caag+KTHphDsGXEFzNA5pvv18l1oGhzAjl285sj+dWZkUDY6lSXJozfKNXpusRgC/RI0F
+	8f78j66F0q1q2TIjUkQyIZYuGrR/KWDMQTweao+OOIjMW5yfUUt5qeLsFitxVS1oDn6RC2gsC/j
+	TOSVCjOTNqG3/tKJqWpc2nFupsVcvH3lFmpcGPfNI+iNKuzI14uqXmnvl+QtS31YPh4oGKXcWON
+	Rs2hdGs746mg0i74mtuC202koCCvVrPOXwdPoMNWgvCr0LB1loWlW6xQhcmu+ZhqnW+M+d6kCfk
+	IvZmF6EfxhyDLJIzGSFVDpYWr8mRmX8drw2T+zm
+X-Received: by 2002:ad4:5c69:0:b0:919:8358:a18d with SMTP id 6a1803df08f44-91b554c3186mr100818906d6.13.1791655234205;
+        Sat, 10 Oct 2026 11:00:34 -0700 (PDT)
 Received: from boomzilla (dynamic-acs-24-101-237-49.zoominternet.net. [24.101.237.49])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b550175e3sm50339326d6.11.2026.10.10.11.00.32
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b550175e3sm50339326d6.11.2026.10.10.11.00.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 10 Oct 2026 11:00:32 -0700 (PDT)
+        Sat, 10 Oct 2026 11:00:33 -0700 (PDT)
 From: Karlos Abel <kabel@voidship.net>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] Input: discard pre-registration events and test state seeding
-Date: Sat, 10 Oct 2026 14:00:29 -0400
-Message-ID: <20261010180031.7-1-kabel@voidship.net>
+Subject: [PATCH 1/2] Input: discard pre-registration events before attaching handlers
+Date: Sat, 10 Oct 2026 14:00:30 -0400
+Message-ID: <20261010180031.7-2-kabel@voidship.net>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261010180031.7-1-kabel@voidship.net>
+References: <20261010180031.7-1-kabel@voidship.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -73,39 +77,46 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This series prevents input handlers from receiving buffered initialization
-events after device registration. On a ThinkPad T14 Gen 6, a later LED
-update flushed a stale SW_RFKILL_ALL event seeded by thinkpad_acpi.
-The fix drops the pending events and their timestamp before handlers
-attach, while retaining the seeded switch and absolute-axis state.
+input_event() permits drivers to seed switch and absolute-axis state
+before registration without delivering those events to input handlers.
+After event-buffer allocation moved to input_allocate_device(), such
+initialization events can remain queued across input_register_device()
+when the buffer does not need resizing.
 
-Patch 1 contains the six-line runtime fix. Patch 2 adds KUnit coverage for
-registration with and without event-buffer resizing. The test uses a
-virtual SW_DOCK device and performs no real radio operations.
+A later injected LED event followed by SYN_REPORT then delivers the old
+switch event to newly attached handlers. This was observed with the
+initial SW_RFKILL_ALL event from thinkpad_acpi on a ThinkPad T14 Gen 6:
+an LED update replayed the initial radio-switch event after registration.
+Registration can also leave a pre-registration timestamp attached to the
+first real event packet, including when the event buffer is resized.
 
-Tested on mainline 3857c2fe5449541e24afc5efdb0f81a8a8f9a3a0 (7.3.0-rc6):
- - Tests alone on the unmodified input core: four pass, two fail.
-   The non-resizing case replays one stale switch event; both cases
-   retain the initialization timestamp.
- - Patch 1 alone: all four existing input-core tests pass.
- - Both patches: all six input-core tests pass.
-Both source commits were built and tested under UML without compiler
-warnings. The final files match the earlier failing/passing comparison.
+Clear the pending event count and monotonic timestamp under event_lock
+before attaching handlers. Keep the switch and absolute-axis state that
+was seeded by those events. Resetting the monotonic timestamp follows the
+existing flush path and lets the next packet obtain a fresh timestamp.
 
-The same runtime fix was also tested with QEMU/KVM on Arch 7.2.7 and on
-the ThinkPad.
+Fixes: 0cd587735205 ("Input: preallocate memory to hold event values")
+Cc: stable@vger.kernel.org
+Assisted-by: LLM
+Signed-off-by: Karlos Abel <kabel@voidship.net>
+---
+ drivers/input/input.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-AI assistance: OpenAI Codex assisted source analysis, the fix, regression
-tests and this text. The submitter performed the physical hardware
-comparisons.
-
-Karlos Abel (2):
-  Input: discard pre-registration events before attaching handlers
-  Input: test state seeding across device registration
-
- drivers/input/input.c            |   6 ++
- drivers/input/tests/input_test.c | 168 +++++++++++++++++++++++++++++++
- 2 files changed, 174 insertions(+)
-
-
-base-commit: 3857c2fe5449541e24afc5efdb0f81a8a8f9a3a0
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 01c91fec9..d59d62caa 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2445,6 +2445,12 @@ int input_register_device(struct input_dev *dev)
+ 
+ 	error = -EINTR;
+ 	scoped_cond_guard(mutex_intr, goto err_device_del, &input_mutex) {
++		/* Keep seeded state, but do not replay pre-registration events. */
++		scoped_guard(spinlock_irq, &dev->event_lock) {
++			dev->num_vals = 0;
++			dev->timestamp[INPUT_CLK_MONO] = ktime_set(0, 0);
++		}
++
+ 		list_add_tail(&dev->node, &input_dev_list);
+ 
+ 		list_for_each_entry(handler, &input_handler_list, node)

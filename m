@@ -1,109 +1,140 @@
-Received: from ixit.cz (ixit.cz [84.42.129.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B13F7495041;
-	Sat, 10 Oct 2026 13:09:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.42.129.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E549C367F4A
+	for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 13:49:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791637755; cv=none; b=RuIYrn00tFFc+8+i0qV3y+/wD9cIkAjVGK6ypkrfyjeAndFGq7n2/dXyQgMHk4XBXOcjP1+wWcviLAWaCDSMpRUJ8X8xRxNKkRDhmMTzbdLzOzVHNzSjtqGvZNiyrCMAkoy76N9yldQrh57P0v8WDW3n9EBvs3yL0c2fGBBt3m4=
+	t=1791640145; cv=none; b=aSJD1QQ9+JeK+93uKp/LYNU/PSZPAwUF0g6+Af9YhebxQ4UQHTvC4yyr9RJk+mMB3Pue/DePQCLXt9XE5povNryrj9XdFKPgoyEGaDgNYfHtyaJ/fed/u+VjqGe1uvEw2BaQw9vBFEvVV90fvwm3oT6HjxBio6kTmqndVGGZjU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791637755; c=relaxed/simple;
-	bh=8DssSaJsHim/+maUAmaaLIsfaehlMuYbnxy/x70yhP4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hraBcaiDkUGeOZFVVDyAVmXLBSLX2aO3a4P3c7hXMaomVi7A1Xo5LM7SlsID0oOIUNud+v5Dyxp5P/gNzRbY8AjzDmhmgc6qbdzSJnJz55FT//ULK3a2JqtGnlQgKb+76DvMptOwfPtAjZ14D8DDae55sh8bR9NFGQdovSgpCp8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz; spf=pass smtp.mailfrom=ixit.cz; dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b=MYLyURag; arc=none smtp.client-ip=84.42.129.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ixit.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ixit.cz
+	s=arc-20240116; t=1791640145; c=relaxed/simple;
+	bh=MgS3AEUVPRpcN55hZd5xfi5t4pjX0Iurq2Q5bJVcUnY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fb9Z+KYdauC7snMNN2BSz38Q9VsKzs3efn9Kp1TfOcUiZ4Dx6WSdu4MSyDpNCsunGH/HfG6B0Iemm614gyp2mJFzUEAX1Zo2G7tVut3szhY+qOMFu+3cBBXf5HorCmx9heS2ZaBPoCjOfGLnMd90oCPMM/iBgzm2aDvLew7HYOI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu; spf=fail smtp.mailfrom=g.harvard.edu; dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b=m1f1URTA; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rowland.harvard.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=g.harvard.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ixit.cz header.i=@ixit.cz header.b="MYLyURag"
-Received: from [IPV6:2003:100:7701:8b01::1815] (p2003010077018b010000000000001815.dip0.t-ipconnect.de [IPv6:2003:100:7701:8b01::1815])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by ixit.cz (Postfix) with ESMTPSA id 269DD5340E52;
-	Sat, 10 Oct 2026 15:02:56 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-	t=1791637376;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=EotFNgfyUJAk/u2/nPeXgorvOU7nrQpuCtAnNFh0fQs=;
-	b=MYLyURagGN3T76OGhw47R4KCQL/5bh+4pFOwSKz0xsvNlmO0XG5od29H9Z72GGznoozped
-	tGbe4vtxelSWHhZqJQRuZFWV20ojGjLvqD13ZDULDf0rE78UiZue2oPXXFwoUfZIjxcbTe
-	QLnJvQZ7bZ+FtGckkm6pQTls11Q8MGo=
-Message-ID: <89489dd6-1626-474f-a529-12aa5f9c563b@ixit.cz>
-Date: Sat, 10 Oct 2026 15:02:55 +0200
+	dkim=pass (2048-bit key) header.d=rowland.harvard.edu header.i=@rowland.harvard.edu header.b="m1f1URTA"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-917b78dfe30so12030036d6.0
+        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 06:49:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rowland.harvard.edu; s=google; t=1791640143; x=1792244943; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Tdm1TxznS8Z9AVlEqsfQUaZdl9GVN7DC6/4QW7CmuQs=;
+        b=m1f1URTAivH9y1fDuVJ8sC35Wg5m+2cLuagzCWkwO5PyQl78pi2SMbsjN8Fr5WdbE1
+         +bAukqhbMIvekXkFgSa248EQ+EM2+pfGczcTu6LxrsH3jhMofKPTkKcG31xK3ea2nb9v
+         +X0RdMPa1mobf5PiX3ioa+MEgY8GidF6hkduBXUlPl4kZqX+GdWMa5dHd9hf3L7IUA6T
+         tSYY79drDY6MOmYvYiJUyM19N/0LEP6svMO8GjupTs5Bj2Gl2KgqAzDtqT5fCR5Dmg3Y
+         dotqseM6N9Qdam9oH9jFHaaQ3PAZNpEysqMG2BRoC61qdhtcWuTKFJd8nNBcrf1x1hCY
+         QYgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791640143; x=1792244943;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Tdm1TxznS8Z9AVlEqsfQUaZdl9GVN7DC6/4QW7CmuQs=;
+        b=OciiUu78vXS21/AJvHNSY7aQzRi/84y0izQs+n21C+jdf7A9kSp327ObXfnM7XZrpp
+         UZ3IAGgk0cxgHoFnC8I0F0YJ1aipF/4Izv+2siXydkwnu+zKD0XcW9yhYn43by+Hy9MB
+         odwz3FxBgMeZd03BVfe8eVyUi7Mktm6pWi+1xJREbWT+16vrcmRlc59y1NLKK/WYsAks
+         iOSg3HbfcM0Jyf0B9/yIy4nA3SRcGVGvLGR08Z+Zlx1rTVWoqZFJc1sV2/WJr/wrZ3Vh
+         zPUypCqIg+uCysn7FJEuapbTZSi4yeIFdgRbXrbmClPxwNNN5QFalgdsM8kU9QeiMTJv
+         S2Qg==
+X-Gm-Message-State: AFq9FYLLol3nor9tQrn3fy//gsp1ftgY6F20a650rkZgnQaz3czXy6HS
+	GngPl3jBLTiVApVQLEWxFdWdOPyAhC/W2JBWrgvIAGgm24dfLvDRZtU9Ib8p34ED6w==
+X-Gm-Gg: AYBFou2Mt2Dssl07YT1ggYoTbTSo07JvHq2iwBwfXgdMZgGI6O81Ic6Cp92N68zPwR3
+	bRAISf3w/4VNw+z//FVPqsfH3AY05QXyseeUaQP0MWAxghZtuLntP2w8x6SmxYiCZptbPJs6m6a
+	rik4uTEyIuGHaCuXWGdLGbJUlijsdINXTjUwbH0oH9Q17cbdst0ZvyIXNNZg7qxCd+PBi2AQ5ru
+	+pAGGNzHdLHRRqlh6miGtSChXDvxMwGNc2HMfOy0rncMldPyo6qtNDUFN8bs1RDKsEAPPZFh9Ij
+	t7AEtdWhUlZo/5OxrWebFm75SgEvV5KoFCSjlDr5IJ4A4CUiTCpOpe3G1pcHXuRymoJA33j5HML
+	a/rzp4/cJ1T1rFNLtGu/LCdkMkRreL690As+aYaVgSAFOzQ4+KVZnLKqTj66doukeZMUHwTJpAX
+	YVSPV40LQkvppDQ33P3jesA2iXPq0V+Rs/0C8Peak7M6qBTKoT4dl5kOJVa0DU/OIKF7XMNp0=
+X-Received: by 2002:a05:6214:2f90:b0:914:4eff:e88e with SMTP id 6a1803df08f44-91b55574847mr79043426d6.41.1791640142564;
+        Sat, 10 Oct 2026 06:49:02 -0700 (PDT)
+Received: from rowland.harvard.edu ([2601:19b:d01:d210::1b7d])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b5501859fsm45217386d6.16.2026.10.10.06.49.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 10 Oct 2026 06:49:02 -0700 (PDT)
+Date: Sat, 10 Oct 2026 09:48:59 -0400
+From: Alan Stern <stern@rowland.harvard.edu>
+To: syzbot <syzbot+25a1d2907885b2182275@syzkaller.appspotmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Subject: Re: [syzbot] [input?] [usb?] UBSAN: shift-out-of-bounds in s32ton (3)
+Message-ID: <f10557f6-fe56-4f3e-b138-c1624465a15e@rowland.harvard.edu>
+References: <6ac9cbd8.a150a118.27e199.0025.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Input: s6sy761 - drop duplicate axis initialization in
- s6sy761_probe()
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-References: <asdjLHHNrrtjIKCb@google.com>
-Content-Language: en-US, cs-CZ
-From: David Heidelberg <david@ixit.cz>
-Autocrypt: addr=david@ixit.cz; keydata=
- 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
-In-Reply-To: <asdjLHHNrrtjIKCb@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6ac9cbd8.a150a118.27e199.0025.GAE@google.com>
 
-
-
-On 08/10/2026 11:33, Dmitry Torokhov wrote:
-> ABS_MT_TOUCH_MAJOR and ABS_MT_TOUCH_MINOR are initialized twice with
-> identical parameters in s6sy761_probe(). Remove the duplicate calls.
+On Fri, Oct 09, 2026 at 10:23:36PM -0700, syzbot wrote:
+> Hello,
 > 
-> Reported-by: sashiko-bot@kernel.org
-> Assisted-by: LLM
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-with or without Fixes: tag,
+> syzbot found the following issue on:
+> 
+> HEAD commit:    5926a7da8789 Merge 7.3-rc6 into usb-next
+> git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
+> console output: https://syzkaller.appspot.com/x/log.txt?x=11fc7ff5580000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=7f0127eb11110629
+> dashboard link: https://syzkaller.appspot.com/bug?extid=25a1d2907885b2182275
+> compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=124fc715580000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=174ed835580000
+> 
+> Downloadable assets:
+> disk image: https://storage.googleapis.com/syzbot-assets/0667b4f9388e/disk-5926a7da.raw.xz
+> vmlinux: https://storage.googleapis.com/syzbot-assets/0a1f8551bcab/vmlinux-5926a7da.xz
+> kernel image: https://storage.googleapis.com/syzbot-assets/03e51d6db4ed/bzImage-5926a7da.xz
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+25a1d2907885b2182275@syzkaller.appspotmail.com
+> 
+> usb 4-1: config 0 interface 0 has no altsetting 0
+> usb 4-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+> usb 4-1: config 0 descriptor??
+> ------------[ cut here ]------------
+> UBSAN: shift-out-of-bounds in drivers/hid/hid-core.c:80:21
+> shift exponent 32 is too large for 32-bit type 'int'
+> CPU: 1 UID: 0 PID: 780 Comm: kworker/1:2 Not tainted syzkaller #0 PREEMPT(lazy) 
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/16/2026
+> Workqueue: usb_hub_wq hub_event
+> Call Trace:
+>  <TASK>
+>  __dump_stack lib/dump_stack.c:94 [inline]
+>  dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
+>  ubsan_epilogue+0xa/0x30 lib/ubsan.c:233
+>  __ubsan_handle_shift_out_of_bounds+0x279/0x2a0 lib/ubsan.c:494
+>  s32ton.part.0.cold+0x1b/0x26 drivers/hid/hid-core.c:80
+>  s32ton drivers/hid/hid-core.c:71 [inline]
 
-Reviewed-by: David Heidelberg <david@ixit.cz>
+Converting a signed 32-bit integer to a signed 32-bit integer should be 
+a no-op.
+
+Alan Stern
+
+#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git 5926a7da8789
+
+Index: usb-devel/drivers/hid/hid-core.c
+===================================================================
+--- usb-devel.orig/drivers/hid/hid-core.c
++++ usb-devel/drivers/hid/hid-core.c
+@@ -71,8 +71,8 @@ static u32 s32ton(__s32 value, unsigned
+ 	if (!value || !n)
+ 		return 0;
+ 
+-	if (n > 32)
+-		n = 32;
++	if (n >= 32)
++		return (u32) value;
+ 
+ 	a = value >> (n - 1);
+ 	if (a && a != -1)

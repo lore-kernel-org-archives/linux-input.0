@@ -1,128 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B7AA3B9D98;
-	Fri,  9 Oct 2026 22:43:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 479F23290A6
+	for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 03:49:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791585789; cv=none; b=PYzK6Q5RsMfBYUkBbIG+RajBcSUVz60t4TWIP/CaNNmL4IgbBk/xiZxDWw+7/Q5Tk2hXwp+sJuA9GO0KH34kOLHnKLr5s8hPMUZUI9/LX6z3RLHdiN+jLyfMaGGntlBIDQaYw5FzII/XoDm38h0wHS7mGiS+TR/8LFw/ZNwtv7Q=
+	t=1791604191; cv=none; b=CiWCDajnOgW2mtugm3QoBte40IFwlmHQcunFiubAJqgUpNlPlxLYep1niZEoHTKi4sQfXgTxbH2TMXK/g2gKOqQMXJ9p/W7MSw827h4Ix3lbcmmUgg8B42/MvqXs/v8UiuGFt09C3dDTZkSB1NfgVLz5T5XlqL/W/VsomVTZRLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791585789; c=relaxed/simple;
-	bh=t0Cuus17c2jhVpB24oJNjpT9ohWUgou9/KKAbMac6sE=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=YquOMVkuE5bBAnNt1fhC1R+7ORjY1mrWDom1sH0ebx5WJxPPBjlooUqHb1GtqlMdzOQ2fNNN2y2kaqBWPucjzGxXCSfyUo/I0j484BtLtzEq+nCiJU52FKat36i+f4C7G5oWWovUkWJOdEKr8W+NEZ+DxbeQEmupDTo5ng1tc+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YWYjIFqi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791604191; c=relaxed/simple;
+	bh=6/K+eNNExrDxiz4cNrHR8UMtpKftRFjou/DDzEJJAUw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qELCYX9Gq/3E5JUl9y9FLgxeAD4buwBXoz9ChFYmUsMZ3k/kfwVCZ7G5CFKhDERgC71vD6+HmK45fMIt+BTfZKYY2TWxol6eMekWK2LmNcsyHV8zoEvjERPRLsZH57iDbqBqPCtYrB/WuIQaSJI8IDCMDq132q3JGROgGYjVb30=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q5ZZ2KCz; arc=none smtp.client-ip=74.125.82.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YWYjIFqi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 704D11F000FF;
-	Fri,  9 Oct 2026 22:43:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791585788;
-	bh=+pO0HrJhJqvLuPJQS/64z/UpGim+n4GcYOaIbZsRbLk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YWYjIFqirimRdWt10k477XglwxY8CKao5tpo3h/khaKtqh6nc6izMOuTp8XKVrnvQ
-	 cHDJhf4fNiGB+ZKX+PfGarR4Iax+hNB9Brdn4r1MnmKISIdTKG2yczwKAWfV0PZRWp
-	 0KRkWuYirHZCq54qOZw7bw2qtZuGk2bTwcH+nhsnV3DMS4FSfZg3+cypy6fSl3Zkip
-	 ct7bEbSlbcTLCjg7lUG86eanAQVkaAnoavEoIvKyIUgvtXd8MqROJhIRHlmPYd69it
-	 VokXhpjEuWRsslseLBzFwPNXI6KQUjUcrvkwLwDT6o+0SCSteXtBnYeXPRgsI6Bnxp
-	 dD3Lm+1LZlAOw==
-Message-ID: <sashiko-outbox-166155@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 10/11] HID: spi-hid: add power management
- implementation
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jingyuan Liang" <jingyliang@chromium.org>
-Cc: linux-trace-kernel@vger.kernel.org, linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org
-In-Reply-To: <20261009-send-upstream-v5-10-384af01da3ee@chromium.org>
-References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
- <20261009-send-upstream-v5-10-384af01da3ee@chromium.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 22:43:06 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q5ZZ2KCz"
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-15168a20b47so268417c88.1
+        for <linux-input@vger.kernel.org>; Fri, 09 Oct 2026 20:49:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791604189; x=1792208989; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=zVQetDWwW2PxKKO9Z+bh0RgGH3A8eaKFTq7bp+ejMxs=;
+        b=q5ZZ2KCznOGwoh46UJDV6PO5mjOT1U/wdxIy55LiUDFFo7iOkPCoSQ6Vuh3ggwMQTQ
+         Z7uUjM2/IDZitej+JHDCy4jHlMNe2ZtbCivR8NdyKPYWGFv1qIIaMtDQzUBBjMDSKx/u
+         d91XVq6WJGQaLVmC7CiGSZvwQpy9sjx4YtfBJPcQEUVf4lmqG4uDdRh1iigd5X4Vc4X3
+         lpfh0ZF61YnyOff9JmQiieNCtF4oEfw6Wb7H4iT1Q/NPp2rovpXNIuhD/1luiGkceGhN
+         kj2yCrfLAuL+tCCZYqXAvu+NlEUIodCxpdyA17F3y4GZb9k7yLexg3JKJp2lt5QD0nRl
+         rJdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791604189; x=1792208989;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=zVQetDWwW2PxKKO9Z+bh0RgGH3A8eaKFTq7bp+ejMxs=;
+        b=GSyzraCQIprPgi2Rfex0jukwfCtUsDDdzy+JCYB/A126/oH4/vW318I0oUBOKJOAa6
+         pYkE70512QrbR490qm2kGN6B9Qmr7bR/Ovcl2tbxue6tyCfoG+2YndNNqrfB4YKXuJZI
+         0UFhtGZxnjYu9E7aRw814TxJjq/nvskrLKquxz1jHAIN2G3ZxCFGFFxi5sscx/fY6jgL
+         yrHlAdmcwlO6qJS0aoWVNG9MHF0KsOY2mF2ev8/QYV5L35Mn6JmEmisc4W7V1wbgKncx
+         d1JnH4Ga3J9781XPDvwEBjTYNiE2I4A2sTcCf9kOW5F3YJiFdB90cHMitcogTjzTjjEi
+         TLog==
+X-Forwarded-Encrypted: i=1; AKwUvBx/BKfKKEEqeHz7FNiCsXuqIMSozrrzYWnExGjOlYo1D/tPXXm1eUExg2F0I06EHJ/NVJUAnmryDuULeQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJaKjeP9Rqqpm/1U9GONztpE8HTk7f2aZYGF/utRMsU7HnktFqh
+	pXH/D45PrVV5hoOH2PiA8gfL43CrlQFHZiG+R59L78Bfgxtf1nkcGv5m
+X-Gm-Gg: AYBFou3UI+DqJk9etjFxfDEhGJEync405TuZMLdyvQKuO3UUfE6qUsSQ/WelbGnmXag
+	nlOHsytcVXP/bOtpZ7hhxlag+PG/odBT+uCz9WjMUomuOLM4OymqOJyOHMvKqcmEA26WBxeNOE9
+	TLROkqYMhxN1XEc81Bkyvw1ylrTEeYpSwxYYmrs3QwgWW58eLgnchuCrJHbb+ncJAmBc0/i1ZEE
+	XZgXOybZPDpHXzPqQwbx6tou14f0AynXLiuR5sUlQ6753lc2qcXUUZstOZ6OxJA7jRHoDuHoklL
+	/NoUHeyKYDofEwBeLJNQHS+LhDrIJtT5tMVjUY0ftPYpxs1+3RX69i03CzXovT214grO+4JzIpl
+	I2LgBNaqMqdXMJWwZgA3IA/4zV+8rUl0psBMS5GgGYqGoWRl+UubdzKIH79E6BPWoUHxg9GOPev
+	UeMOrg8H9ZaFKKQtjhZNdUDo0Cv+0EbDHk1rBtOHgzjPaMVWIawTPr002T9rrYi2F5LHTGax9/v
+	ixHi/spGMWPUuyo33R2Wt+t26QSRVuTGvv9dC3A
+X-Received: by 2002:a05:7022:5f18:b0:143:298f:33b6 with SMTP id a92af1059eb24-16a6203ab5emr4327883c88.46.1791604189134;
+        Fri, 09 Oct 2026 20:49:49 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:b7ea:19aa:c6f7:8c02])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-169a1dd5cb5sm8835444c88.6.2026.10.09.20.49.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Oct 2026 20:49:48 -0700 (PDT)
+Date: Fri, 9 Oct 2026 20:49:45 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Wei Jie Law <98lawweijie@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jikos@kernel.org>, 
+	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] Input: synaptics-rmi4 - fix irq[] overrun with 7
+ interrupt sources
+Message-ID: <asm1vCJYVKA5bHnd@google.com>
+References: <20260825103123.12216-1-98lawweijie@gmail.com>
+ <20260825103123.12216-2-98lawweijie@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260825103123.12216-2-98lawweijie@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] spi-hid: hid_driver_reset_resume() races with error recovery dur=
-ing resume
---
+Hi Wei,
 
-commit e43c402ebe88a8dd98c0bab5a81f64d825faf560
-Author: Jingyuan Liang <jingyliang@chromium.org>
+On Tue, Aug 25, 2026 at 06:31:22PM +0800, Wei Jie Law wrote:
+> rmi_read_pdt_entry() takes the interrupt source count straight out of the
+> Page Description Table entry the device supplies:
+>
+> 	entry->interrupt_source_count = buf[4] & RMI_PDT_INT_SOURCE_COUNT_MASK;
+>
+> RMI_PDT_INT_SOURCE_COUNT_MASK is 0x07, so the value can be 7, and
+> rmi_create_function() copies it verbatim into fn->num_of_irqs.  But
+> struct rmi_function declares
+>
+> 	int irq[RMI_FN_MAX_IRQS];
+>
+> with RMI_FN_MAX_IRQS == 6, and both rmi_create_function_irq() and
+> rmi_unregister_function() index that array up to fn->num_of_irqs.
+...
+> Size the array to match the three bit field that feeds it.  Clamping
+> num_of_irqs instead would silently drop an interrupt source a device is
+> allowed to declare, and would desynchronise irq_pos for every function
+> created after it.
 
-    HID: spi-hid: add power management implementation
+Per the Synaptics RMI4 specification (Section "Function Descriptor
+registers"), only values 0 through 6 directly specify an interrupt
+count, while value 7 is reserved to indicate "more than 6 interrupt
+sources" (which is why the comment above RMI_FN_MAX_IRQS states "up
+to 6 interrupt sources in the normal manner").
 
-This commit implements power management callbacks for the HID over SPI
-driver. It introduces suspend and resume operations, handling device
-power state and reset coordination during system transitions.
+Since the driver does not implement support for functions with more than
+6 interrupt sources, we should keep RMI_FN_MAX_IRQS as 6 and reject
+functions reporting interrupt_source_count > RMI_FN_MAX_IRQS with
+-EINVAL during PDT scanning in rmi_scan_pdt_page() (after the
+RMI4_END_OF_PDT() check so unpopulated 0xff entries still terminate the
+scan cleanly).
 
-> diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi=
--hid-core.c
-> index f4e9b4e1294ed..66bfc251bd915 100644
-> --- a/drivers/hid/spi-hid/spi-hid-core.c
-> +++ b/drivers/hid/spi-hid/spi-hid-core.c
-[ ... ]
-> +static int spi_hid_resume(struct spi_hid *shid)
-> +{
-> +	int error;
-> +	struct device *dev =3D &shid->spi->dev;
-> +	bool was_reset =3D false;
-> +
-> +	guard(mutex)(&shid->power_lock);
-> +	if (test_bit(SPI_HID_DEAD, &shid->flags)) {
-[ ... ]
-> +	enable_irq(shid->spi->irq);
-> +
-> +	/*
-> +	 * For devices that may wake up, process work that was pending when
-> +	 * suspend cancelled reset_work. Otherwise suspend already dropped it.
-> +	 */
-> +	if (test_bit(SPI_HID_RESET_RESPONSE, &shid->flags) ||
-> +	    test_bit(SPI_HID_CREATE_DEVICE, &shid->flags) ||
-> +	    test_bit(SPI_HID_ERROR, &shid->flags))
-> +		schedule_work(&shid->reset_work);
-> +
-> +	if (shid->hid) {
-> +		if (was_reset)
-> +			spi_hid_wait_for_reset(shid);
-> +		error =3D hid_driver_reset_resume(shid->hid);
+Thanks.
 
-[Severity: Medium]
-Does hid_driver_reset_resume() race with error recovery here?
-
-In spi_hid_resume() (drivers/hid/spi-hid/spi-hid-core.c), the power_lock is
-acquired at the beginning of the function and held until it returns.
-
-If a wakeup-capable device suspends while an error recovery is pending
-(the SPI_HID_ERROR flag is set), spi_hid_suspend() cancels reset_work and
-leaves the device powered on.
-
-During system resume, spi_hid_resume() reschedules reset_work to handle the
-pending error. However, because the device was left powered on, was_reset is
-false, causing spi_hid_resume() to skip spi_hid_wait_for_reset().
-
-It then immediately calls hid_driver_reset_resume() while still holding
-power_lock. Because reset_work requires power_lock to execute
-spi_hid_error_handler(), the scheduled error recovery is blocked until
-spi_hid_resume() returns.
-
-Consequently, hid_driver_reset_resume() attempts to communicate with the
-device synchronously while it is physically still in an unresponsive error
-state, which will time out or fail, aborting the device resume.
-
-> +		if (error) {
-> +			dev_err(dev, "%s: failed to reset resume hid driver: %d\n",
-> +				__func__, error);
-> +			return error;
-> +		}
-> +	}
-> +	return 0;
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009-send-upstr=
-eam-v5-0-384af01da3ee@chromium.org?part=3D10
+-- 
+Dmitry

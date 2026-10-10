@@ -1,157 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1BC5370AC7
-	for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 18:08:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 834CF3EB11E
+	for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 19:10:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791655731; cv=none; b=SLPZwo/3ueij67hEswd6bETBHXmKxMOOo5Ni9JkuTbi8MIVkDCT2j+crfK754iGqsV24DnctmMettEjFxqSpnZDtkT5g8wjeURNsWhu1c08DwVtw5baX1z0yffliWh8FQYOL6FQhhReHKFKZlRNYvpBjJjctqgpuhCj/64Lam/A=
+	t=1791659437; cv=none; b=mUAUAcLEze0Dp0+kztSL3UrXEjSRBrlb4KIAz3TxRGRTaUIJWgLvx0OkgGNNoNuP/11DCkDqdyGXx8lrGO/T5WSYX8ymZ6kTk6A7JRt1vwHchCLyi0Ggb7cfG4wHGVKCLBVPJdcju22WbQHp2Mc98xj0zkm+WcJTCqFh94bshco=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791655731; c=relaxed/simple;
-	bh=GPjg00wMeBdBMKF93C5CIDXW7oBYcoza+KKS0NAA2W4=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=WdoCwErDSn1Pwu/vJrRf+OBF9DQNvm6mUokGGC5hxTUllfOyDOlukWdsqEUXBqa2NpXDxsRN1fZ5gb0BUIyE2ZHMBUID9aZXUA7MznNZw1VwMk+VAGwfwo62Q9x9Ht+6fo7vEY7wbN7ibs3RrUIu5HQj/8oiKMv8svSVF7AR7Eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=loFviU7d; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791659437; c=relaxed/simple;
+	bh=nq2M5xW2fxIZLcvXpCROZkWVmTxCmiexhtFVPMX+4E0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dQOaWL/lR9KQG263STThdOFNa2qVOSU+xbLhcY8xd+lorQHc11cakhMcNoXmzS4FIX4BhKQtkrmNg8/ZirFR9XVNCqjGGWQPUufGKrS7Em43+bgdFDRggcjnPKS1L0icYhq1LIJmwZBI2fGV+5KyxlP4T12SPPVgMuHEVBjhqz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net; spf=pass smtp.mailfrom=voidship.net; dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b=0PWRAhgE; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=voidship.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="loFviU7d"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 252B91F000FF;
-	Sat, 10 Oct 2026 18:08:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791655730;
-	bh=IvZlT47zE0MGl4iwoRZwqkYMF/oCl23Tl9PURx79T1M=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=loFviU7dE32GjqvZsFodAneZsTvUFRl3LoYcn7NN6jECHSXOEW9dfd/UVpJc94uc0
-	 unKFMsaGPBvBcyDulUPUwS8Gouo3GfrvYYBosU3cNyrNhoYAywun37tqjcJHXRyPk4
-	 +56TYT38f9zWF9dwHVVx4tIsmfoUswW/BWOQwwMPMegy77dSFaFF7cjuhgyiHopLyo
-	 7p1rfcGTpQCX8ttqOwlvfm2BiY1SNVpWUWxQJF8OIyoJ7KxdtsFV3XSNzmjfl7brdK
-	 yJZo/JNZw9ENBCjaDC8ae8STgm6afuPASAuSwq0SXcLtew/NXdueiv5WJBEQxCuXdN
-	 GhRSYa+TtjERg==
-Message-ID: <sashiko-outbox-166792@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] Input: test state seeding across device
- registration
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Karlos Abel" <kabel@voidship.net>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261010180031.7-3-kabel@voidship.net>
-References: <20261010180031.7-1-kabel@voidship.net>
- <20261010180031.7-3-kabel@voidship.net>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 10 Oct 2026 18:08:49 +0000
+	dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b="0PWRAhgE"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-93e635220b4so76988685a.1
+        for <linux-input@vger.kernel.org>; Sat, 10 Oct 2026 12:10:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=voidship-net.20251104.gappssmtp.com; s=20251104; t=1791659435; x=1792264235; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=NC4wjVkYj33ouDrpIw20yvXN7Xm00WRsU6XHf7agKPU=;
+        b=0PWRAhgENIhtm3y7JAN/pxCXiLSot55w+AN0BC4VmXWnTKePswJiGJ54j2LE8uWILO
+         LF4odu3qPT3aTEEnYWx2OVK+Sr5ayUSrn+3Te4UGEbAIhitMtrpS2uYKoN32kKReL2Lf
+         1LfN03UgoP9TvkJ6cyoWl8ZcUhJAQp4jLrLpOAb9T0fJJrDpMB5faxVfYJ44CImPEaXN
+         ExpZ+dLEeMoSx4UwrLnDf55ls82aqmH/3oE+PnhXmdn99WhD88UjAM8m/OlVkm9GI5ep
+         BrJ1Ta5Zwxu5T50HQukblQCh2eDD1V8F6io/IKW4ILJAEvxc+cU1QMLpEo3G+pRS5XKR
+         bI3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791659435; x=1792264235;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NC4wjVkYj33ouDrpIw20yvXN7Xm00WRsU6XHf7agKPU=;
+        b=C6wbOCDc9Cd3E40tYGAtKlSAYmEAr3txz+wFifCWTNVAJalqMscZWf0hH4x87Np/8X
+         e6QL0zpmxW/fzPVNmyvIEkw8OYX2YR3yrY+Xwf3u98oIp/Y/6j5q+oOzyJdJ4Aq2hZVJ
+         0RMcRgPBPRSmPQIBSGzsqWapJmZXfm/1qhUyWpd5hJbLKs9UgbO2ua9EZGpauBHXbmx2
+         LbB1el4ckt7fQ66ieGFFDGFzx2wK1lCOkNY/RBxQ9/Y7OyH0XHcowF4Mc1t0JfcaNmLD
+         2Vfnem9DzpxDdQhluaDHRZIL0U26kbmnuJHjq8xpHnTiwDSOPFboMuu/VgkljVxpmx8O
+         5Z8g==
+X-Gm-Message-State: AFq9FYLWzxFCalCB9v58QajXMsPEJgOlsH++rifuwM2mquxiKWa+nJbH
+	ZKwOFi19+o8yUM4XKwlqf+TvTmcHwYA+jR17VO1Z4HJAdouh7WSemzG2QbhvBhUTu7o=
+X-Gm-Gg: AYBFou0VZjk65AocaCGSQVtO+pglWKVVmMEXX1seRMNi3wzbEm3ScTs4ujlN0f2wbcA
+	asDzuFm0kHi1PdvuzdyR4fqjPTnQlM8HykonKN43Ag4gHEQq2PaBba3M3SqPzZH51zQGH0ldos+
+	isHcCqbJVHFpXWneM9o/tuRbuGdUOZPjzsXzyTgxvy1KJVLlLS4sLQbXqNUoPrnQieT+v6mq2mD
+	T6tbKAdsrusVn7GoNip+ALmkwRMGr46XCV7Tsm2voaGEtvsZEpdqNuLf7Nw+EqMQwXJwSXtPC3R
+	m+MRuoB8O4j6aG9KqbEOaO8+qlAZFfBAwJzTEKch8VZb+TYYlZJpQthh30zALqLaAKd7rxbEeCU
+	vY/K3kh67LnLCqYWyB2XFeYHUPaVjaONqRiZgUxtRkueopBg8cRwVGUiTIG9mngBqAk0GDarvZf
+	ajIA/ayCOqhedVeOujXm4HrlmiPoOjh4ZKChu61+HSjIZ4ec7WLwHVpENuqIfrqGrfAPAmSiB1x
+	mO81Ud+ZuqhB/zY8uhEMFZt02E8J+yG6Q3H1on7Vg==
+X-Received: by 2002:a05:620a:28c9:b0:93c:b721:b10d with SMTP id af79cd13be357-93ebd0bf9edmr935613485a.8.1791659435345;
+        Sat, 10 Oct 2026 12:10:35 -0700 (PDT)
+Received: from boomzilla (dynamic-acs-24-101-237-49.zoominternet.net. [24.101.237.49])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93eb986c0cfsm489355685a.19.2026.10.10.12.10.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 10 Oct 2026 12:10:35 -0700 (PDT)
+From: Karlos Abel <kabel@voidship.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	sashiko-bot@kernel.org
+Subject: [PATCH v2 1/2] Input: discard pre-registration events before attaching handlers
+Date: Sat, 10 Oct 2026 15:10:32 -0400
+Message-ID: <20261010191033.23577-2-kabel@voidship.net>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20261010191033.23577-1-kabel@voidship.net>
+References: <20261010191033.23577-1-kabel@voidship.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] input: missing absinfo allocation check in input_set_abs_params ca=
-uses NULL pointer dereference
-- [Medium] input: dangling pointer match in test teardown allows accidental=
- binding to unrelated devices
---
+input_event() permits drivers to seed switch and absolute-axis state
+before registration without delivering those events to input handlers.
+After event-buffer allocation moved to input_allocate_device(), such
+initialization events can remain queued across input_register_device()
+when the buffer does not need resizing.
 
-commit 2e31a0267a25d47a7a2da67f7fbb5534d7ebbae1
-Author: Karlos Abel <kabel@voidship.net>
+A later injected LED event followed by SYN_REPORT then delivers the old
+switch event to newly attached handlers. This was observed with the
+initial SW_RFKILL_ALL event from thinkpad_acpi on a ThinkPad T14 Gen 6:
+an LED update replayed the initial radio-switch event after registration.
+Registration can also leave a pre-registration timestamp attached to the
+first real event packet, including when the event buffer is resized.
 
-Input: test state seeding across device registration
+Clear the pending event count and monotonic timestamp under event_lock
+before attaching handlers. Keep the switch and absolute-axis state that
+was seeded by those events. Resetting the monotonic timestamp follows the
+existing flush path and lets the next packet obtain a fresh timestamp.
 
-This commit adds KUnit coverage for input events used to initialize device
-state before registration. It exercises both original event buffers and lar=
-ger
-resizing buffers, verifying the correct retention and delivery of states.
+Fixes: 0cd587735205 ("Input: preallocate memory to hold event values")
+Cc: stable@vger.kernel.org
+Assisted-by: LLM
+Signed-off-by: Karlos Abel <kabel@voidship.net>
+---
+ drivers/input/input.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-> diff --git a/drivers/input/tests/input_test.c b/drivers/input/tests/input=
-_test.c
-> index e105ce71a920a..889d9e7ec922f 100644
-> --- a/drivers/input/tests/input_test.c
-> +++ b/drivers/input/tests/input_test.c
-[ ... ]
-> @@ -161,11 +161,179 @@ static void input_test_grab(struct kunit *test)
-[ ... ]
-> +static bool input_seed_match(struct input_handler *handler,
-> +			     struct input_dev *dev)
-> +{
-> +	struct input_seed_test *seed =3D container_of(handler, struct input_see=
-d_test,
-> +						  handler);
-> +
-> +	return seed->dev =3D=3D dev;
-> +}
-[ ... ]
-> +	/* An ABS axis also raises the estimated event-buffer size. */
-> +	if (resize) {
-> +		input_set_abs_params(seed->dev, ABS_X, 0, 100, 0, 0);
-> +		seed->dev->hint_events_per_packet =3D 128;
-> +	}
-
-[Severity: High]
-Does this code risk a NULL pointer dereference if the internal allocation
-for `absinfo` fails?
-
-Functions like `input_set_abs_params()` set `EV_ABS` in `dev->evbit` and the
-specific axis in `dev->absbit` before calling `input_alloc_absinfo()`. If t=
-his
-allocation fails (e.g., due to memory pressure), they return silently, leav=
-ing
-the capability bits permanently set while `dev->absinfo` remains NULL.
-
-[ ... ]
-> +	/* Initialize state before registration, without a SYN_REPORT. */
-> +	input_set_timestamp(seed->dev, seed_timestamp);
-> +	input_report_switch(seed->dev, SW_DOCK, 1);
-> +	if (resize)
-> +		input_report_abs(seed->dev, ABS_X, 42);
-
-Because this test explicitly relies on seeding initial absolute axis state =
-via
-`input_report_abs()` before registration, if the allocation failed during
-`input_set_abs_params()`, this subsequent event injection causes
-`input_handle_abs_event()` to unconditionally dereference
-`dev->absinfo[code].value`. This results in a NULL pointer dereference
-regression before the delayed missing-absinfo check in
-`input_register_device()` can catch it.
-
-Should the failure state of `input_set_abs_params()` be checked here, or
-should `input_alloc_absinfo()` be verified to have succeeded before
-continuing?
-
-[ ... ]
-> +unregister_device:
-> +	input_unregister_device(seed->dev);
-> +	input_unregister_handler(&seed->handler);
-
-[Severity: Medium]
-Can this sequence lead to a use-after-free regression and accidental binding
-to unrelated devices?
-
-In this teardown path of `input_test_seed_events()`,
-`input_unregister_device()` is called before `input_unregister_handler()`.
-For a non-devres device, unregistering calls `input_put_device()`, dropping
-the final reference and immediately freeing the device memory. However, the
-custom test handler remains on the global `input_handler_list`.
-
-If another input device registers concurrently during this window, the input
-core iterates all handlers and calls `input_seed_match()`. This function
-evaluates `seed->dev =3D=3D dev` using the freed memory. If the slab alloca=
-tor
-reused that exact memory address for the newly registered device, the match
-will incorrectly return true, and the test handler will erroneously attempt
-to bind to the unrelated device.
-
-Should `input_unregister_handler()` be called before
-`input_unregister_device()` to avoid this race condition?
-
-> +	return;
-> +
-> +unregister_handler:
-> +	input_unregister_handler(&seed->handler);
-> +free_device:
-> +	input_free_device(seed->dev);
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261010180031.7-1-=
-kabel@voidship.net?part=3D2
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 01c91fec9..d59d62caa 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2445,6 +2445,12 @@ int input_register_device(struct input_dev *dev)
+ 
+ 	error = -EINTR;
+ 	scoped_cond_guard(mutex_intr, goto err_device_del, &input_mutex) {
++		/* Keep seeded state, but do not replay pre-registration events. */
++		scoped_guard(spinlock_irq, &dev->event_lock) {
++			dev->num_vals = 0;
++			dev->timestamp[INPUT_CLK_MONO] = ktime_set(0, 0);
++		}
++
+ 		list_add_tail(&dev->node, &input_dev_list);
+ 
+ 		list_for_each_entry(handler, &input_handler_list, node)

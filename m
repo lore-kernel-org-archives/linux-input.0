@@ -1,253 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1550930E83F;
-	Sun, 11 Oct 2026 18:26:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26AD838C406
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:05:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791743219; cv=none; b=UT++Ia2y+6XU959JljSlpZu/fm/oXF/+UAt78c8l/bCvnRX/1WpUi0t1pjW8cH0zTAIeVGdW7L2IbO1bHcxaG3Moxe//WIUL/R2phAwWizewCs9t8uoQA2GU5Kkj4vvZAWeMeJEgzEBgZY8E7YtO9Q3t6W5TDNeKS12mfA71SbM=
+	t=1791756338; cv=none; b=QEVP70+nIVqLYPqI6/tlM4nIGowiFMxiWNdnt6L4TbMl67Wdu4qJSb7A77UCq827JglKxm8spncOxdZlmv4d7dGFtKBuilZsFrD1IxJO+8niYesGaM75j448A9MBajC/pFTi/DmdGyiivnThel2b1suhV9VhT8qCEPLEFEsLelo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791743219; c=relaxed/simple;
-	bh=oSJ/ZslUiF9shLW6hEhQxk0zRYFM18ZAqTuRIY6xu54=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=ECuk6taAxA+RwjykN1joeAaogTK558M0RGTDSalCmixNOdzoAO1z+yxqyz9jGDFaJZoVJW52raZBgC39LtxRTgLa/PStEGouaekzC1ocapS7FwubGr/nqIXBtpGstQnXVPxAbCS1raRzrZCg5s/yKZdqtpbefQK2aY+IdQWOgm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bY2X4Nq5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791756338; c=relaxed/simple;
+	bh=No2YuVut+yvKVP4Gc3VbjZiY6kYBHQiFWeVJHG5ZJ+A=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=fPmHxfLSIWFgbQctH3xkhC1kxPBjBqb4RVHNRG6VLptCfqqeJk2Ae5oXYBwSH38w22RGZP/48luDfKDSWlzkBcvZe12u4WzPFp02Ib7WXZToYCnVwA9r/0vVVYRx+DthBxUV5UhpTowJzTu6vvkswk8lxyzvY3w8lXHr5dU7PKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kSrFTuU7; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bY2X4Nq5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B1B1F0089B;
-	Sun, 11 Oct 2026 18:26:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791743218;
-	bh=rxGwIY2IEdGUVvkCUR0SvEwzfMVuxTJiVFN4fAwbAl0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bY2X4Nq5HFLVF1EeDDo5Cuko1DFRKFf1G+jhZItVDgYr2dwuUUhAXaR/aoBQ+9qP9
-	 A+vxIPKpzhK5RvErRRPwJdioSDTdoXshy3u8T8Z1oDmAgOo1Olqhhl0iuri7QUElXr
-	 nGSJePqKQ6ko03TKzNXNXooFuwWLSXf4p3/Mv08oht7R2+F40F+tW1pcufHGyzvfS1
-	 6fwZJPhl73e5ViYqlbGUd0LAwQz2/a1bL5x2VQGG2rDK2kkW0hfjjuZng7rTrY7xdq
-	 qE5A4qOwFkdC9cW3w/Ic7nU6cUz2/N1mandjFikV/mZlYGU2tE/rxs4GjeriKwKpl/
-	 LoLcfQgGchTfg==
-Message-ID: <sashiko-outbox-167377@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/3] HID: Add Himax HX83102J SPI touchscreen driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TWljaGHFgiBLb3BlxIc=?= <michal@nozomi.space>
-Cc: linux-input@vger.kernel.org, conor+dt@kernel.org, robh@kernel.org, dmitry.torokhov@gmail.com, devicetree@vger.kernel.org
-In-Reply-To: <20261011181633.1778969-3-michal@nozomi.space>
-References: <20261011181633.1778969-1-michal@nozomi.space>
- <20261011181633.1778969-3-michal@nozomi.space>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 11 Oct 2026 18:26:57 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kSrFTuU7"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-917c04630c2so19284056d6.3
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 15:05:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791756336; x=1792361136; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:content-type:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=No2YuVut+yvKVP4Gc3VbjZiY6kYBHQiFWeVJHG5ZJ+A=;
+        b=kSrFTuU7lwiFje4ypqm4qzHv5q1sIZbIFofOorZI3naKRnU0x8zdXczu+Bkx3G1/7w
+         TYnhEfNjJFzHrR61U5shQTuJa44qbvWEY3WapUSuzXU9c9cbgUJZeMKcRNK5E/US+Hsv
+         3e/ktzBalZBrG0BMS0aq/AIBVp/2zk3/SfjF6vTkbP5Rsm2WJmV7um0kel2dHqVkLFwC
+         4gCN1XwRVY96rXv0si8O5dckUrLkBYeKYPRu3l63HUoAdPCDDTe9hELExqvHCGzjAZ17
+         68c61XS1Xajaf4ZWBlTA85cI5nH28HuEze27lmZ7ltseEN0IllKfIlrWtjWdeL3jeDme
+         xk7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791756336; x=1792361136;
+        h=content-transfer-encoding:mime-version:content-type:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=No2YuVut+yvKVP4Gc3VbjZiY6kYBHQiFWeVJHG5ZJ+A=;
+        b=op/t81g1//Y5dA4iuJP4WN360NFxlgHv6ZU0WQ0JFKd8iAQo5fKtwZD3SSy/KXBO1d
+         rlWlLf26SsvC/INkGI9aHMq/qlzGneHFGYBIxditopeP5XOM0iW+ou0elB+Q0K+mW+zg
+         +rPB2ZGXwX4K/Hr6cQzKByo/vVvDOQQbm+wbmNuuiGw1gJYw4eoiO+z1uRELf6R/bZs4
+         XjPpWzqJIx3EVB6g/JR3reSC3HfBRnKAU7j32K8JwKz7Wt7zn3Z6LBEo1TJ4M0gGMlxm
+         jPQZ4KEhZDpMVMUj3RA5FRxSR6JZV+tH6Ju+AMMihm/oBMZ7OROpXJWNEVgGWJI8FMyV
+         ePvQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzuvOtf2PX7/qgAGei+ZcxIqjGdg7IU3whhBv1cF/yfCxrjnGkAQhJTQxqjj+kb13JdhOt/flAnBeLAmw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYItrKWxuf+0ly8PUMlMJ5hSLwPCzE0Ve6SZ+69Bs1YQSjyp8mrY
+	FTBmCVUYuJT1bllT4k/HYT05T+qRk7HNOpo/7L7abah9v4qJT1XhdrM=
+X-Gm-Gg: AYBFou2S6/ycbtOhfuduI1WZF3Nc5UgXDWJr5hdTsQfh8D9zSsYwS+k0dcNV6zcJ0Yk
+	XA1KisU41XILWJaKMdElus5rtpeAkgjNIczKfM35OE1c2jdwMzxY3w0qLPTJxX1XL/HUimm0h6P
+	dTiBibxLW5+Msp6qlymrEtTQrYT4AifflIyI4g+PLwflnQCsMFAMQKVHsoepVTzcX/hQ6OBpB20
+	E+FBsKhSbVWe39oKu7yF3QOfNb/ZFPScQwxfSjk8JcgIa5QLbOOudAUiHHrhNZQ0GXEKA7WmzqF
+	rHhCQsQFK3HR2o/CDV5BHPJrk10v37WYuOKhrYKxzTv8vh+Ln98W5hJHeUyklJ6h1LJ5C8muqqv
+	yLL9FDO1HX7ciiaGmQhl2GgMYvBILN6t5ow4l1sbdNo0BFq59VrT+liXq9/Ld3oSwzUhX3NmxBN
+	HSxyN1wND3e/ugE7z7ZeOKb46iWYuvqeQInq34K8IR9uPRY1L9C8fGz9HyR08krXnPvhx2RcPNc
+	s96FL5RDr7ib58yxNOyqwkNtbALzAbObAC68bRh7ww4hwvd/OxGbd6PZnAyNOOASBkCSeRh8zIj
+	aXANtahyyeOn3yOGTtmSq4xgHsWrK5D02/jBLt0=
+X-Received: by 2002:a05:6214:5d08:b0:917:a256:c151 with SMTP id 6a1803df08f44-91b557c63f4mr151810126d6.45.1791756335963;
+        Sun, 11 Oct 2026 15:05:35 -0700 (PDT)
+Received: from i4-gl-tmk5904-1.ad.psu.edu ([130.203.156.90])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b54e7f6a1sm79788786d6.6.2026.10.11.15.05.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 11 Oct 2026 15:05:35 -0700 (PDT)
+From: Myeonghun Pak <mhun512@gmail.com>
+To: Even Xu <even.xu@intel.com>,
+	Xinpeng Sun <xinpeng.sun@intel.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Ijae Kim <ae878000@gmail.com>
+Subject: [PATCH 0/2] HID: intel-thc-hid: quiesce interrupts before final teardown
+Date: Sun, 11 Oct 2026 18:05:29 -0400
+Message-ID: <20261011220531.2073892-1-mhun512@gmail.com>
+X-Mailer: git-send-email 2.53.0
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] hid: himax_hid_raw_request() returns requested length instead of a=
-ctual bytes written, leaking uninitialized memory
-- [High] hid: hardware swallows commands after himax_pin_reset() due to mis=
-sing dummy bus read
-- [Low] hid: himax_hid_add() fails to initialize mandatory hid_device field=
-s (phys, uniq, country)
---
+QuickSPI and QuickI2C can tear down HID/DMA resources while IRQ handlers
+are still running. Stop new IRQ handling, wait for running handlers,
+then drain recovery work and mask THC interrupts before final teardown.
 
-commit 09f1c425ef5c3359e150cf5f66b3a172b5847898
-Author: Micha=C5=82 Kope=C4=87 <michal@nozomi.space>
+This series covers remove, probe unwind and shutdown.
 
-HID: Add Himax HX83102J SPI touchscreen driver
+GCC 15.2.0 x86_64 W=1 builds, strict checkpatch and patch application
+checks passed. No hardware runtime testing.
 
-This commit adds a new driver for the Himax HX83102J touch and display driv=
-er
-integrated (TDDI) controller, connecting over SPI and sending HID reports.
-The driver supports loading firmware for flashless variants and coordinates
-power management with the display panel.
+Base: 238650ef6c7c7cca08e032527329424c9fbd70e5
 
-Link: https://lore.kernel.org/all/TY0PR06MB56110754EB9D827BE3304A259E0F2@TY=
-0PR06MB5611.apcprd06.prod.outlook.com/ [1]
-Link: https://chromium-review.googlesource.com/c/chromiumos/third_party/ker=
-nel/+/5326106 [2]
+1. HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
+2. HID: intel-thc-hid: quicki2c: quiesce IRQs during teardown
 
-> diff --git a/drivers/hid/hid-himax-spi.c b/drivers/hid/hid-himax-spi.c
-> new file mode 100644
-> index 0000000000000..98ee51658b362
-> --- /dev/null
-> +++ b/drivers/hid/hid-himax-spi.c
-
-[ ... ]
-
-> +static int himax_sense_off(struct himax_ts_data *ts)
-> +{
-> +	unsigned int tries =3D 5;
-> +	u32 val;
-> +	int ret;
-> +
-> +	while (tries--) {
-> +		ret =3D himax_enter_safe_mode(ts);
-> +		if (ret)
-> +			return ret;
-> +
-> +		ret =3D himax_read32(ts, HIMAX_REG_FW_STATUS, &val);
-> +		if (ret)
-> +			return ret;
-> +
-> +		if (FIELD_GET(HIMAX_FW_STATE, val) =3D=3D HIMAX_FW_STATE_SAFE_MODE) {
-> +			/* The touch MCU can't be used before the TCON is reset */
-> +			ret =3D himax_write32(ts, HX83102J_REG_TCON_RST, 0);
-> +			if (ret)
-> +				return ret;
-> +
-> +			fsleep(1000);
-> +			return 0;
-> +		}
-> +
-> +		fsleep(5000);
-> +		himax_pin_reset(ts);
-> +	}
-> +
-> +	return -EIO;
-> +}
-
-[Severity: High]
-Does this error recovery loop inadvertently swallow the safe mode command?
-
-The documentation in himax_interface_on() states that the hardware swallows
-the first SPI transaction after a pin reset. Here, himax_pin_reset(ts)
-is called and the loop immediately restarts with himax_enter_safe_mode(ts).
-Without a dummy read to wake the bus, the safe mode command itself might be
-swallowed, which could prevent the IC from ever entering safe mode and
-create an infinite failure loop.
-
-> +static int himax_sense_on(struct himax_ts_data *ts)
-> +{
-> +	int ret;
-> +
-> +	ret =3D himax_interface_on(ts);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret =3D himax_write32(ts, HIMAX_REG_CTRL_FW, HIMAX_FW_RE_INIT);
-> +	if (ret)
-> +		return ret;
-> +
-> +	fsleep(10000);
-> +	himax_pin_reset(ts);
-> +
-> +	ret =3D himax_enable_hw_crc(ts);
-
-[Severity: High]
-Could the hardware swallow the first AHB configuration write here?
-
-Similarly to the loop in himax_sense_off(), a hardware reset from
-himax_pin_reset(ts) is immediately followed by a write function
-(himax_enable_hw_crc). This means the first AHB configuration write
-(HIMAX_BUS_AHB_CONTI inside himax_ahb_set_burst) might be swallowed
-by the sleeping bus, potentially corrupting the AHB transaction state.
-
-[ ... ]
-
-> +static int himax_hid_raw_request(struct hid_device *hid, unsigned char r=
-eportnum,
-> +				 u8 *buf, size_t len, unsigned char rtype, int reqtype)
-> +{
-> +	struct himax_ts_data *ts =3D hid->driver_data;
-> +
-> +	/* The only feature report the driver serves is the maximum contact cou=
-nt */
-> +	if (reqtype !=3D HID_REQ_GET_REPORT || reportnum !=3D HIMAX_REPORT_ID_C=
-ONTACT_MAX ||
-> +	    len < 2)
-> +		return -EINVAL;
-> +
-> +	buf[0] =3D reportnum;
-> +	buf[1] =3D ts->max_points;
-> +
-> +	return len;
-
-[Severity: High]
-Does this code leak uninitialized kernel heap memory to userspace?
-
-The driver handles HID_REQ_GET_REPORT requests by populating exactly 2 byte=
-s.
-However, it unconditionally returns len (the size of the buffer requested
-by the caller) rather than 2.=20
-
-When userspace issues an ioctl (like HIDIOCGFEATURE) with a length larger
-than 2, the hidraw core allocates a buffer of size len using kmalloc(), whi=
-ch
-does not zero memory. Because the driver returns len, hidraw copies the full
-buffer back to userspace, leaking the remaining uninitialized bytes.
-
-[ ... ]
-
-> +static int himax_hid_add(struct himax_ts_data *ts)
-> +{
-> +	const struct himax_hid_desc *desc =3D ts->hid_desc;
-> +	struct hid_device *hid;
-> +	int ret;
-> +
-> +	if (!ts->event_buf) {
-> +		ret =3D himax_read_ic_info(ts);
-> +		if (ret)
-> +			return ret;
-> +
-> +		ret =3D himax_alloc_report_bufs(ts);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	hid =3D hid_allocate_device();
-> +	if (IS_ERR(hid))
-> +		return PTR_ERR(hid);
-> +
-> +	hid->driver_data =3D ts;
-> +	hid->ll_driver =3D &himax_hid_ll_driver;
-> +	hid->bus =3D BUS_SPI;
-> +	hid->dev.parent =3D ts->dev;
-> +	hid->version =3D le16_to_cpu(desc->bcd_version);
-> +	hid->vendor =3D le16_to_cpu(desc->vendor_id);
-> +	hid->product =3D le16_to_cpu(desc->product_id);
-> +	snprintf(hid->name, sizeof(hid->name), "hid-hxtp %04X:%04X",
-> +		 hid->vendor, hid->product);
-> +
-> +	ret =3D hid_add_device(hid);
-
-[Severity: Low]
-Are there missing initializations for mandatory hid_device fields here?
-
-According to the HID Subsystem Guide, before registration, the transport
-driver must fully initialize the hid_device fields, including phys, uniq,
-and country. While hid_allocate_device() zeroes the structure, explicitly
-setting these fields is a documented subsystem requirement for all
-transport drivers before calling hid_add_device().
-
-[ ... ]
-
-> +static irqreturn_t himax_irq(int irq, void *data)
-> +{
-> +	struct himax_ts_data *ts =3D data;
-> +	size_t len =3D ts->max_input_len - HIMAX_REPORT_HDR_SIZE;
-> +	size_t pos =3D HIMAX_REPORT_HDR_SIZE;
-> +	int ret;
-> +
-> +	ret =3D himax_read_events(ts);
-> +	if (ret) {
-> +		dev_warn_ratelimited(ts->dev, "failed to read events: %d\n", ret);
-> +		himax_pin_reset(ts);
-> +		himax_reload_to_active(ts);
-> +		return IRQ_HANDLED;
-> +	}
-
-[Severity: High]
-Is a dummy bus read also needed here during error recovery?
-
-The error recovery path calls himax_pin_reset(ts) and directly writes to
-HIMAX_REG_RELOAD_TO_ACTIVE. Just like the reset cases in himax_sense_off()
-and himax_sense_on(), this command might be swallowed by the sleeping bus,
-leaving the hardware in an inconsistent state.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011181633.1778=
-969-1-michal@nozomi.space?part=3D2
+Assisted-by: LLM

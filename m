@@ -1,164 +1,140 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7360242D75F;
-	Sun, 11 Oct 2026 12:58:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F19C33A9610;
+	Sun, 11 Oct 2026 13:02:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791723492; cv=none; b=bbIrjEcz2MMnR6cisbQplZnxFT7Yv/poDzBCGFp/Epxu17C9jqePBRm9ZNI4iyg4QWvcQ/QcAIxi7YoaJf72oXBql3jOoIHmNEnWQNV5XQN/E1ZWdjC8zPylnQdbelUrhgC+lc8vtUAXiLdEJWP+f6TbhvEZonfVeOLoOHLC0oA=
+	t=1791723753; cv=none; b=R6eG1ZKrjij5m3L+L4Dc/uIcE4ZfRFTyTmyLmjieqMN686r8n+mNWwh6ZNud81nhIqte07zS4KTqNhJa8stCbugR7ltgv4wZeiWm/wlFwek2YjchUuEgHIMumU3y4cF++e5gfNrMLDJWTiSjkNUwBSHz1AQmTa2Po299+iN8LQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791723492; c=relaxed/simple;
-	bh=DX6llhpFtoDb4aFjD5zaFUIgYPU5tnEvYZ0rafn2GAc=;
+	s=arc-20240116; t=1791723753; c=relaxed/simple;
+	bh=2cfKRB66rCmy50MfzlYJ08pR5joT9DEb8F3OnflX+b0=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=KoIbA3ZiCVRWQKZuZM5QAhz1i7joLwKIyiToIvE6PLE2wlkpfJaiVzDhf8YTvVk9SYlOraxyxKOiwr1YOaT34i5DrZxcLYNj5xumpIvpqhRVdhU4Tlr9ZillIL5kGgahPhjiaAjcWQxAK+EDvgmuhqn/JBFzcZn6LJ8meYsboDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=COSFPMIu; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=ac2Cx+vvDXfAA/dP3OS9DLelnlGAH/+SY02FL9zARKNaAQdPNI4sc3Gm+Y4F+6JAwR1kjQpaeluxzV6uJKy+9Z+yz38VXtMNrnhn+TlD2J1A2B/4mFgjdCBes0Khzz6Fk2oqVNLzYXniNY0tj2Xe7tOBHJpUJcMtkS5pHsNlVfQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f7awnH6/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="COSFPMIu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8CDC1F0089B;
-	Sun, 11 Oct 2026 12:58:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f7awnH6/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42BA31F0089C;
+	Sun, 11 Oct 2026 13:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791723491;
-	bh=qdKtLbkoT5VGP98wqAKW3666wxFngeILpnpmWR84u3o=;
+	s=k20260515; t=1791723751;
+	bh=6dTdksdLt8JD8fVLGoXwnCZZirEASfN6bEExMp73F8I=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=COSFPMIui2XQL805LqLXF41ofmaFBJwh0IL/0hgXhLdMcJ10hiT7g0g8IzI0cB/ov
-	 5hzAM2b9fjd7GJzFE+yqgw0MRO/hz4qkJnLX806QOSGYkZrL4CQMHzn14ZgHMkOS0N
-	 Xjl3Ed72JSsvwCzECvsNOeK+dqafiDG2fLUniX25YFgooa75MjjLb1/Q48BVl3Y7GJ
-	 ffDrBylgQdFvRQc8/OsRfpjhx8FwgGrfffXK/eQl8HMaY+Hpz0QvVAEm8uzcEmb2Vk
-	 okvkBddtDglKZSxdh3lKb9PCpzJB+l+LWPCf/PFa6DE6+MY0RDs2dYR1oWDAifJ3Ym
-	 cL8zg0kLGCrUQ==
-Message-ID: <sashiko-outbox-167233@kernel.org>
+	b=f7awnH6/qAbRZMVcn7vWKE4sw4Nv7NZxXWrASk0iM8aYVT15fDUxZ5bstiMdmjE55
+	 RHBITWmM3PG3qa+VX2oTRpv6gDFTR3HvrXNxxE8a2MA8ekoXkrsIigPjQNfMKP9eGw
+	 Vx2f/HopCSUz04KeMBZ5qG6e+Uhd/oaONLI79TX/Ji8+fyKsvZXIvQ/jPJr2xVzbLy
+	 sD64G3VGnEK/Pe+BlvVAt1eyCBkqb+IY2GGtb8Pe9qYPykKPLuOzw1LqksIw1eG6Fl
+	 +Z/1FBmMMavH/Vz7ivVZdOzK6Xp7WkxTKqbyjL9usPzG5sKtFHa1DRyWHj314r2exw
+	 y8Y3uDlGgw3JQ==
+Message-ID: <sashiko-outbox-167242@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/7] Input: s6sy761 - add reset GPIO support
+Subject: Re: [PATCH 4/7] Input: s6sy761 - add SPI support for S6SY791
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Lukas Timmermann" <foss@timmermann.space>
-Cc: conor+dt@kernel.org, linux-input@vger.kernel.org, robh@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261011-lat3st-google-raven-touch-upstream-v1-3-2a9f55159b9e@timmermann.space>
+Cc: conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, robh@kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20261011-lat3st-google-raven-touch-upstream-v1-4-2a9f55159b9e@timmermann.space>
 References: <20261011-lat3st-google-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space>
- <20261011-lat3st-google-raven-touch-upstream-v1-3-2a9f55159b9e@timmermann.space>
+ <20261011-lat3st-google-raven-touch-upstream-v1-4-2a9f55159b9e@timmermann.space>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 11 Oct 2026 12:58:10 +0000
+Date: Sun, 11 Oct 2026 13:02:30 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] input: Unbalanced devm cleanup calling disable_irq() and regulator=
-_bulk_disable()
-- [Medium] input: Regulator and GPIO state leak on resume failure
-- [Low] input: Unconditional 10ms delay for optional reset GPIO
+- [High] input: s6sy761: DMA API violation in i2c_transfer with stack buffe=
+rs
 --
 
-commit 4cab9258eec8d868d79c658c070f807a7b520161
+commit 4918bc0af27755ebb84f3e96213a8de871d7f898
 Author: Lukas Timmermann <foss@timmermann.space>
 
-Input: s6sy761 - add reset GPIO support
+Input: s6sy761 - add SPI support for S6SY791
 
-This commit introduces support for an optional reset GPIO to the s6sy761 dr=
-iver.
-It asserts the reset line on power down and deasserts it 10 ms after enabli=
-ng
-supplies during power on. This ensures the controller is held in reset while
-supplies are coming up, mirroring the vendor driver's behavior.
+This commit adds SPI support for the S6SY791 touchscreen controller.
+It implements the SPI framing and read delays based on the downstream drive=
+r.
+The new functionality operates over full-duplex SPI with padded transfers.
 
-> diff --git a/drivers/input/touchscreen/s6sy761_core.c b/drivers/input/tou=
-chscreen/s6sy761_core.c
-> index 0e455060dbc0b..8541cd9aa930b 100644
-> --- a/drivers/input/touchscreen/s6sy761_core.c
-> +++ b/drivers/input/touchscreen/s6sy761_core.c
+> diff --git a/drivers/input/touchscreen/s6sy761_spi.c b/drivers/input/touc=
+hscreen/s6sy761_spi.c
+> new file mode 100644
+> index 0000000000000..c6627e61c2856
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/s6sy761_spi.c
 
 [ ... ]
 
-> @@ -297,6 +299,9 @@ static int s6sy761_power_on(struct s6sy761_data *sdat=
-a)
->  	if (ret)
->  		return ret;
-> =20
-> +	usleep_range(10000, 11000);
-> +	gpiod_set_value_cansleep(sdata->reset_gpio, 0);
+> +static int s6sy761_spi_read(struct device *dev, u8 *xfer_buf,
+> +			    u8 cmd, size_t length, void *values)
+> +{
+> +	struct spi_device *spi =3D to_spi_device(dev);
+> +	struct spi_transfer reply =3D { };
 
-[Severity: Low]
-Could this delay be skipped if reset_gpio is NULL?
+[ ... ]
 
-The commit message states "The GPIO is optional, so boards without it are
-unaffected", but the 10ms sleep appears to execute regardless of whether
-reset_gpio is valid or NULL.
-
-Would this unnecessarily slow down probe and system resume on boards without
-the GPIO?
-
-[Severity: Medium]
-Will an early return later in this function fail to clean up the regulators
-and the newly added reset GPIO?
-
-If the hardware stops responding during the I2C boot checks in system resum=
-e,
-s6sy761_power_on() returns an error here:
-
-    /* double check whether the touch is functional */
-    ret =3D s6sy761_read(sdata, S6SY761_READ_ONE_EVENT,
-                       S6SY761_EVENT_SIZE, buffer);
-    if (ret < 0)
-        return ret;
-
-Since devres does not run on resume failures, this error propagates to the =
-PM
-core without cleanup. Could this permanently leak the regulator enable count
-and leave the GPIO deasserted?
-
+> +	ret =3D spi_sync_transfer(spi, &reply, 1);
+> +	if (ret)
+> +		return ret;
 > +
->  	msleep(140);
-> =20
->  	/* double check whether the touch is functional */
-
-[ ... ]
-
-> @@ -370,6 +375,7 @@ static void s6sy761_power_off(void *data)
->  	struct s6sy761_data *sdata =3D data;
-> =20
->  	disable_irq(sdata->irq);
-> +	gpiod_set_value_cansleep(sdata->reset_gpio, 1);
->  	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
->  						sdata->regulators);
->  }
-
-[ ... ]
-
-> @@ -406,6 +412,12 @@ int s6sy761_probe(struct device *dev, const struct s=
-6sy761_bus_ops *bus_ops, int
->  	if (err)
->  		return err;
-> =20
-> +	sdata->reset_gpio =3D devm_gpiod_get_optional(dev, "reset",
-> +						    GPIOD_OUT_HIGH);
-> +	if (IS_ERR(sdata->reset_gpio))
-> +		return dev_err_probe(dev, PTR_ERR(sdata->reset_gpio),
-> +				     "failed to get reset GPIO\n");
+> +	if (xfer_buf[0] !=3D S6SY761_SPI_SYNC_CODE ||
+> +	    xfer_buf[5] !=3D cmd ||
+> +	    xfer_buf[resp_len - 1] !=3D
+> +			s6sy761_spi_checksum(xfer_buf, resp_len - 1))
+> +		return -EIO;
 > +
->  	err =3D devm_add_action_or_reset(dev, s6sy761_power_off, sdata);
+> +	memcpy(values, xfer_buf + S6SY761_SPI_READ_HEADER_SIZE, length);
+> +
+> +	return 0;
+> +}
 
 [Severity: High]
-Does this queue the devm action before the regulators are enabled and before
-the IRQ is requested?
+While the SPI implementation safely copies the response into the values buf=
+fer
+using memcpy, does the I2C implementation violate DMA safety requirements
+by passing this buffer directly into i2c_transfer?
 
-If probe fails early, devres unwinds and executes s6sy761_power_off(). Also,
-on a successful probe, devres will execute in LIFO order during unbind, fir=
-st
-freeing the IRQ via devm_free_irq(), and then executing s6sy761_power_off().
+Looking at drivers/input/touchscreen/s6sy761_core.c:s6sy761_power_on(),
+it allocates a small buffer on the stack and passes it down to the bus read
+routine:
 
-In both cases, this would blindly call disable_irq() on an unrequested or
-already-freed IRQ, and call regulator_bulk_disable() on unenabled regulator=
-s.
+    u8 buffer[S6SY761_EVENT_SIZE];
+    ...
+    ret =3D s6sy761_read(sdata, S6SY761_READ_ONE_EVENT, S6SY761_EVENT_SIZE,=
+ buffer);
 
-Could this corrupt the IRQ disable depth and trigger regulator framework
-underflow warnings?
+This calls s6sy761_i2c_read() in drivers/input/touchscreen/s6sy761_i2c.c,
+which assigns both the caller's stack pointer (values) and its own local
+stack variable (&cmd) directly to struct i2c_msg buffers:
 
->  	if (err)
->  		return err;
+	struct i2c_msg msgs[2] =3D {
+		{
+			.addr	=3D client->addr,
+			.len	=3D 1,
+			.buf	=3D &cmd,
+		},
+		{
+			.addr	=3D client->addr,
+			.flags	=3D I2C_M_RD,
+			.len	=3D length,
+			.buf	=3D values,
+		},
+	};
+	int ret;
+
+	ret =3D i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+
+It then calls i2c_transfer() which may use DMA. Stack memory is not DMA-safe
+(especially with CONFIG_VMAP_STACK), leading to potential memory corruption=
+ or
+kernel panics when DMA operates on stack addresses. Is it possible to use t=
+he
+dynamically allocated xfer_buf for I2C transfers instead?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011-lat3st-goo=
-gle-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space?part=3D3
+gle-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space?part=3D4

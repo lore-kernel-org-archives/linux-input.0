@@ -1,46 +1,46 @@
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
+Received: from mout-p-103.mailbox.org (mout-p-103.mailbox.org [80.241.56.161])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDB1E449B0C;
-	Sun, 11 Oct 2026 12:48:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1997D44AB6A;
+	Sun, 11 Oct 2026 12:48:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.161
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791722890; cv=none; b=jeea8pDkCb/J63GJG+83SuX9T0v6P4Nb9t8ArlPFnLdv7US1978r1V8rP6TsoOusak9ox7XEfrUvIMtqc0En3TzKgy2yIIg6eg5Rw3uBYt9JtZR5quMJcrxlk5OG19g8RAL94b9/G1X6ZW/yHR7+/mrpnvTqBncMVBsFMti/qVU=
+	t=1791722893; cv=none; b=koe6TlZBqOYv367jNN2w0XnAloy/mDKpwSF2gcE5znQOCb9x7lvS2aMy/+V70S2jhu2t1Jg43FVew4YJc2scFGR+0q7VVRwhxFPXbpBjgu+EPDU8uPdGRpAv9ndhXnieC20cT8ELcnCOxVXU9TouIcpreM5t4bs51dqu3mCxsPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791722890; c=relaxed/simple;
-	bh=xxdun+jpC6Nu2v4NmzhP63P51sO5rlgib9jNwzCfulY=;
+	s=arc-20240116; t=1791722893; c=relaxed/simple;
+	bh=gN4UgkLS8QLtEFaYPdNUsR3sVd7C0RD3rHgob5KIHhc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=CIbPTaS5eyrbAjazyDjPrkFn4W2pG2KbWouShJ29OzFRHYG9Cj+EvYNkrbFxIt5xGalwsgwbjIzbg/LEm8rvyyTUKtaKuq5IIK8j91AchnFOcbk5PF3eMcdjQgCveZi6XMMelhGbcKohHUDXP7eNcbjgrNdRrmOnxseaT/kWIF0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=timmermann.space; spf=pass smtp.mailfrom=timmermann.space; dkim=pass (2048-bit key) header.d=timmermann.space header.i=@timmermann.space header.b=cdNrqHwc; arc=none smtp.client-ip=80.241.56.152
+	 In-Reply-To:To:Cc; b=HTVue2+4nYp45aggmSrdGr8am78Yq9hkhCErZm+mnXTKT8urhtSqX1qvobCNAMz4lADM5vXU3gp8tKNPRxes+qWuYBmtm+0lPfPYuRCUUKJ7GlixNyq3UZFHpF270LBX9R8U1tWXU4kmREgK/H+asx1See5fQDp5yUEtecOBAlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=timmermann.space; spf=pass smtp.mailfrom=timmermann.space; dkim=pass (2048-bit key) header.d=timmermann.space header.i=@timmermann.space header.b=e2HTwqKd; arc=none smtp.client-ip=80.241.56.161
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=timmermann.space
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=timmermann.space
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=timmermann.space header.i=@timmermann.space header.b="cdNrqHwc"
+	dkim=pass (2048-bit key) header.d=timmermann.space header.i=@timmermann.space header.b="e2HTwqKd"
 Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:b231:465::2])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4j2gPK6jV0zKpd6;
-	Sun, 11 Oct 2026 14:48:05 +0200 (CEST)
+	by mout-p-103.mailbox.org (Postfix) with ESMTPS id 4j2gPN0KsyzKnW0;
+	Sun, 11 Oct 2026 14:48:08 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=timmermann.space;
-	s=MBO0001; t=1791722885;
+	s=MBO0001; t=1791722888;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8k/Z2xwl+3btNwSPJmc5tsS1sCA2p1AE9AkNGzp8/kQ=;
-	b=cdNrqHwcV9s7r8wl1x9EM6FVNesps5ew3i4HRmYRCfEFaH4MLXf4OOib3pFXVrOpziLzal
-	jbv1NmsE/giObucb1t+7xGUgvOuK/Gfa1c2r0UEsR7/eD7KMfUIGKj1g1OIcK4pdniZeGp
-	8MXRfbryc8ek4ijOJQKp61fuR7siL5NDVwst4n98PiBUL1klRBLlTrIHCNqhuUFzUmMPg/
-	GLmjZisZ7P1sEw15XBOmPvetlOi4sqsGGilVOPcLDUhJup+zst0uk7DKRuPnmJN3VaxnIj
-	r7RxeikjY+2ox+9cVRAxd6pHKE8taSFCSsBBFG6d2XckIEeCv4C/t9Smc4rVhw==
+	bh=KzO6vrA9N4fsDhFNeH4o0N3aibrDbQ4U2XBDQBbfshw=;
+	b=e2HTwqKds/FLVAnUTpusFGyWZPzFMRmVtMPD2wB7BdlQtrq4Qjo1YPprCXGQvliebHwbu9
+	ipnYthdph7t3SBbUtV0xiUnjXLaHzGhAGpMDEiNwXJL69J4bwp45W0gkBd4fyXSmuFDXi1
+	3/mzAJvz42WJjId+FDNoCXYWVoErRlO1MRY5CavYkg5pqFFGnviG8slGPZzljWalkFLDCZ
+	yD0T/z7Adpy9ba0tR6HD7KlIfG++f+cQ39TSg/LyKXSqeQyR8WpyCm5Nq9SpvVYCllp88G
+	1w8v2pzaeHFHskFCvVQUIgyzTdF4WhwYmbWuUSoFO3lRqqM+dbJznH6STzufZw==
 Authentication-Results: outgoing_mbo_mout;
 	dkim=none;
 	spf=pass (outgoing_mbo_mout: domain of foss@timmermann.space designates 2001:67c:2050:b231:465::2 as permitted sender) smtp.mailfrom=foss@timmermann.space
 From: Lukas Timmermann <foss@timmermann.space>
-Date: Sun, 11 Oct 2026 14:45:01 +0200
-Subject: [PATCH 6/7] arm64: dts: exynos: gs101-raven: add S6SY791
- touchscreen
+Date: Sun, 11 Oct 2026 14:45:02 +0200
+Subject: [PATCH 7/7] MAINTAINERS: add entry for Samsung S6SY761 touchscreen
+ driver
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261011-lat3st-google-raven-touch-upstream-v1-6-2a9f55159b9e@timmermann.space>
+Message-Id: <20261011-lat3st-google-raven-touch-upstream-v1-7-2a9f55159b9e@timmermann.space>
 References: <20261011-lat3st-google-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space>
 In-Reply-To: <20261011-lat3st-google-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space>
 To: Lukas Timmermann <foss@timmermann.space>, 
@@ -64,77 +64,34 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
  linux-samsung-soc@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Rspamd-Queue-Id: 4j2gPK6jV0zKpd6
+X-Rspamd-Queue-Id: 4j2gPN0KsyzKnW0
 
-Configure USI11 as SPI controller and add the S6SY791 touchscreen with
-its supplies, reset and interrupt lines.
-
-The touch SPI bus can be muxed between the AP and the AOC coprocessor
-via TS_SPI_SEL (gpp26-1). Hog it low so the AP owns the bus.
+Add a MAINTAINERS entry for the S6SY761 driver and its binding, which
+currently have no entry.
 
 Signed-off-by: Lukas Timmermann <foss@timmermann.space>
 ---
- arch/arm64/boot/dts/exynos/google/gs101-raven.dts | 50 +++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/exynos/google/gs101-raven.dts b/arch/arm64/boot/dts/exynos/google/gs101-raven.dts
-index 7c4273796a22..02b19e39055a 100644
---- a/arch/arm64/boot/dts/exynos/google/gs101-raven.dts
-+++ b/arch/arm64/boot/dts/exynos/google/gs101-raven.dts
-@@ -47,3 +47,53 @@ &framebuffer0 {
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f53047aa8d3c..9de472b68ea9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -24430,6 +24430,13 @@ F:	Documentation/devicetree/bindings/media/samsung,exynos4212-fimc-lite.yaml
+ F:	Documentation/devicetree/bindings/media/samsung,fimc.yaml
+ F:	drivers/media/platform/samsung/exynos4-is/
  
- 	status = "okay";
- };
++SAMSUNG S6SY761 TOUCHSCREEN DRIVER
++M:	Lukas Timmermann <foss@timmermann.space>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.yaml
++F:	drivers/input/touchscreen/s6sy761*
 +
-+&gpp26 {
-+	/* TS_SPI_SEL: low = AP owns the touch SPI bus, high = AOC */
-+	ts-spi-sel-hog {
-+		gpio-hog;
-+		gpios = <1 GPIO_ACTIVE_HIGH>;
-+		output-low;
-+		line-name = "ts-spi-sel";
-+	};
-+};
-+
-+&pinctrl_gpio_alive {
-+	ts_irq: ts-irq-pins {
-+		samsung,pins = "gpa9-0";
-+		samsung,pin-function = <GS101_PIN_FUNC_EINT>;
-+		samsung,pin-pud = <GS101_PIN_PULL_NONE>;
-+		samsung,pin-drv = <GS101_PIN_DRV_2_5_MA>;
-+	};
-+};
-+
-+&spi_11 {
-+	cs-gpios = <&gpp23 3 GPIO_ACTIVE_LOW>;
-+	num-cs = <1>;
-+	pinctrl-0 = <&spi11_bus &spi11_cs>;
-+	pinctrl-names = "default";
-+	status = "okay";
-+
-+	touchscreen@0 {
-+		compatible = "samsung,s6sy791";
-+		reg = <0>;
-+		spi-max-frequency = <10000000>;
-+		spi-cpol;
-+		spi-cpha;
-+
-+		interrupt-parent = <&gpa9>;
-+		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
-+		pinctrl-0 = <&ts_irq>;
-+		pinctrl-names = "default";
-+
-+		reset-gpios = <&gpp26 0 GPIO_ACTIVE_LOW>;
-+
-+		vdd-supply = <&s2mpg10_ldo25m>;
-+		avdd-supply = <&s2mpg10_ldo26m>;
-+	};
-+};
-+
-+&usi11 {
-+	samsung,mode = <USI_MODE_SPI>;
-+	status = "okay";
-+};
+ SAMSUNG SOC CLOCK DRIVERS
+ M:	Krzysztof Kozlowski <krzk@kernel.org>
+ M:	Sylwester Nawrocki <s.nawrocki@samsung.com>
 
 -- 
 2.56.0

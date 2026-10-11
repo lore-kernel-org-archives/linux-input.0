@@ -1,143 +1,123 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA8E32D8376
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:30:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBA4535C698
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 23:06:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791757860; cv=none; b=DURfyeN/X06ZKOi/K9T9p1I5BQ3gVPC00iFPbIsfxbSbJVsvgXsXqVzPaDZA5iDDtmYLc/TXZ0OIFFn14lex4maaEavIPc5FVcEq/lGIdpGxbJJTwe90Kd9EUTR1jsZl4SG62fPq0tY5/Xn/j0zflWpoeExI28xRzezHzJdshHA=
+	t=1791759984; cv=none; b=kf91C8Yq7yoRuR2HGpQkusLt3EtNxp7wovC/DGUHBXeO+PO8AtHP8QZ1Cnibq60Nshor4nUQeiHwlwXzd7J3hfDb16yJKF3rXhqdE6k+HwfTnySnYmoNCVJPgK+ct8oCZ7i9uVbMspuCkD+/c57UYSvCdKdGszRW1Cwpe+tjcYk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791757860; c=relaxed/simple;
-	bh=RUhZ687WiXbhHP2A7uEREv91fU3FDbersCArglngaxQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Ou7zz9AUTod/UISfYB/QReIQvvtZmy86vrLkE9dLBndGK/inqdHGIweQQZg+M6MQWpMg3BWs7z3rpj8f6JZAMABbK6Fcq1k02DlfLqaQxHRVQ3/cMzSAKyuRpT/wT/PEJjKdsoBfD1uPuc5l323hZYkH71K43gvMZoC840u2os8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net; spf=pass smtp.mailfrom=voidship.net; dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b=icjRwqbP; arc=none smtp.client-ip=209.85.160.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=voidship.net
+	s=arc-20240116; t=1791759984; c=relaxed/simple;
+	bh=GId+tRXTCvTzFm3HINSe/LmkKEkAakiciV2ix96r7+k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Au0gcn+x7r3INrS6uP6VyWeZ4j+s/ipz1Y1DFj1dJubQAPOG/N9l0DE+MJbXQGpGhZNbhr53fl2IpJkHaSWIHkk+7KBSNtQXjQM9UR2Xl4UsAXVUkqrXnx3AX8rUcpZNdTD/FHqt/NhZ5OU7NPEchNwI16YzB7f0vX3gInYNgq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=QXlcqlfG; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b="icjRwqbP"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-533797e72e8so7382501cf.2
-        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 15:30:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="QXlcqlfG"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-48870973bddso750102f8f.1
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 16:06:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=voidship-net.20251104.gappssmtp.com; s=20251104; t=1791757857; x=1792362657; darn=vger.kernel.org;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+        d=baylibre.com; s=google; t=1791759980; x=1792364780; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=RUhZ687WiXbhHP2A7uEREv91fU3FDbersCArglngaxQ=;
-        b=icjRwqbPlBojkQofC5EzCPZGf8XxvgLLPHDYu0na0R4+WiQEnSci8sH3DkIpNwjkE6
-         fIDyR/aY1oeIpKyVdowLEWOC7bP0KC/5lh/uZ8BUs+HGS9qIriwmvf7GHQxh6WfAGzai
-         4TZ3bLoykATY7OM/pU6FJkVFm7SoCHlbdL5bw4dqfWXRPuYeJUhWGH6xk2Ry0ETGFwjZ
-         TCYEnEqAj+1pzkM+Myp8xEfZRTtOVYm7CacWLAsO+tk9NGxDV3gKTWl1NQ58fU5y6dtY
-         EZ0bDZdAXUyiMd2qHv41E1faJ36kaIsuD4s8OY2GjLGEfjsE64soX57mI0bBXCTufxt9
-         8wgg==
+        bh=GId+tRXTCvTzFm3HINSe/LmkKEkAakiciV2ix96r7+k=;
+        b=QXlcqlfGq8qJflB8PXiVeVhLNEArs7zM+5eyofiXwFPfWETqNKQgEYbd0pTB6Xy4ft
+         l4q2tJuxoOb9j8yBoXmk14mQLz0YQVoYNmeRJ1EjVXB75Udsm1j6oLS1cteb8+Ljq/Uk
+         PwjU6Td64OjPURTdDizsrvAe1iqiP4B88WH+WbcmDKa1eTyfOZle2DoD3R1LBqFSKxKn
+         MOc6ghgvBjDiyYdULGqrzQIcB9UFLxjOsbFlhAluW4KpfKPv9jUI6Ke8Xt+T1Bi+taJi
+         FwVF0zcAApTf+6C82ep7AvBsNxi9OOPcVP+FZelgFDLlwDfG5LqIq399SipNvoFo35+J
+         Zcqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791757857; x=1792362657;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+        d=1e100.net; s=20260707; t=1791759980; x=1792364780;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=RUhZ687WiXbhHP2A7uEREv91fU3FDbersCArglngaxQ=;
-        b=H1warbKVOqNdP/k1h10UACb9XiItcQ82G2zewSCX/n0zZPUoOKAkjkBqX40DU36eJ1
-         Jr/1LgtLVrGjuIU7dqFJcfA3l/fhz/gHHBEthujgQRdYnOCbKE37txt4App6bbBhLcX6
-         gvqmuI/WQv5raFKOqlyFtvkKjWM9Iesj122k+JxQ4dw8e4WXAuUzE7EOE1BtydxkFAET
-         2RYIiQT7xfzQ1hORQL6ZpzS2nnksBlueroUtaG3DstMjeT5C/quU1j2Yv/6XxBjKSICe
-         PWWT5+BgTR5iL15NMU0xkAfToAMZCE82ykd3Lkq9MZtmZCztWVnyMqpdj+ZeXTM9V3VO
-         lBcw==
-X-Gm-Message-State: AFq9FYJtGwWfgtulWEIP7yLHJBrDDbw9DCGkqN7C5WZIBvH9qCPT6dok
-	zLpEIto0PW7+I8+4qHKB9LDcdAPr2q5K7rihNDfOTV5iMjYJZtd1YhptqEkcJYqRpPY=
-X-Gm-Gg: AYBFou3NvB+ywehdp+XtjS0wCtPPze4vgZOIPeUHzCw0P/w/ihX5bxu8/r0ANDfaNnx
-	tK+FFwLiJzBAE+0qOn9sVh6BxkRd6PeochjxYa0BKIDinCUr5iURY7xmEAKhEzE4ipvq63LsBGU
-	GR60xxPEqdHDAG1YKl3WDnPmqCU1HWIs89HGH7AgwAdr3WwfxHO/Hfv77d+gEGz1YKdnIduVEGv
-	2xyBL1uosc2V+ZGccqUEDlgStr+/L9OBu5f4WwxUYOdgc9430//MPVZCRKC0QNbgAXLMpbmEumo
-	tYA3ng0ZQjvn6bydFmoJ8REVumPYPH4cgkf+qd7QxzzDL1hQKBIpHDaTmewEkK7CjXAYJv7Ec2G
-	cPxl4dwtGcwshfDZbxanuyOp8BPqTAOMEFk+G9wT9tYE8tpGD5ItlDvftn4cQBOPVbNdITTwMnC
-	NYVvyxcmeRNXAkEdl4rWk6YDCpOh6FgTzKgFw5aagiHy8h2sGjsRVxj5hLqIl8NSIHph+KN3nPZ
-	/B+gIM+LsDZ86CLPv4F98AMS38T12/2oySwBlC26CR8vo2Me/ZD6s2rI5k4
-X-Received: by 2002:a05:622a:22c6:10b0:535:db6c:139e with SMTP id d75a77b69052e-535db6c1fb3mr1848091cf.64.1791757857443;
-        Sun, 11 Oct 2026 15:30:57 -0700 (PDT)
-Received: from boomzilla.local (dynamic-acs-24-101-237-49.zoominternet.net. [24.101.237.49])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5359b7324c9sm67778241cf.12.2026.10.11.15.30.56
+        bh=GId+tRXTCvTzFm3HINSe/LmkKEkAakiciV2ix96r7+k=;
+        b=azGIGagz84exnFPjJboetiiJcz6BX1f3r2BSB+ws7L4vqnlISNNGBh4GezF8ekkZ/U
+         hbXU7rgp4l7Xgz2cRzdOLkcvdbD4vZNDaEV3gn/0zjq+Pmgm9n/KvsLPzSpxmI2jTV0+
+         TB6oxaZhXjPigM8YjCntNXaH8RXGtzp+jW9xgTRO9BvPp6ADdWiy1oNk/SIyXaZkkWTm
+         sc03JzPHEm209TimoKPthgkRIknkHEbtUFkQNVuGVhqoC+dBT+eoMF1uTjSvSywwMbg9
+         D3E/HATd+5WCx7MwEiD7w8009aDvTyCXQf5adRXe+YAZUZ3y6tG8LdTo8GsV96sBZDyO
+         XtBQ==
+X-Gm-Message-State: AFq9FYKnBd73XEGNAhwt/14voi7Vy0Hd83xvEvNih38y7UFwDJqWqh/+
+	BKn1cmOGC0Wdo0UPsiOOGbgw577wuAuRD3IrnGEr9k19xctcDfEmpXmWqo4vIXXcDuQ=
+X-Gm-Gg: AYBFou2fMUHAcIMLr5Nr7o/yohbl+syWs2qnoZt3GhgK2sVGnwgd6UApcRysZ2vq8O/
+	zAGyV0W0qr3WF+B4QYrAJioTNzyR9O32LT99/mgLzU/VqmeFuOJFh+FwYDyURzA8H88KKi7nEnF
+	YdSfPjYJY3iS2QCh+cG6yGmONigABagmmEDjjbFqeBu4YwWWFf3t9ZnebdDyBTXcZx6Xza6+CM0
+	K2/71anJPZrAhlZhKzAu4Ccxzr6U5ToVSLgxWgk9ZC0DeGXAU9tRIexGmqb12QIyFvvErKdNJf7
+	RiuR0Nj//kojrQ2IMIw1FBFyHI+cDdqVNXFdwPy/LC5JX6Mx4358F+iHPDu5V+9lmBQpi/j0M+p
+	iP53md2VejhZWvHZg/CuM6UQMS115kcYzz3KGQbrtK66fWFkisP83HdAlu1fQMJYqtKH8t7OsLx
+	75cr3FGlQ7Xqc+VeQyezCN9TgLCpvBsm4QUxK5GBim9j71DebYiF0MS6U1jp2htPA/lI+PFPP8n
+	8c=
+X-Received: by 2002:a05:6000:2306:b0:488:8347:a110 with SMTP id ffacd0b85a97d-48dba9e6163mr13299157f8f.7.1791759979566;
+        Sun, 11 Oct 2026 16:06:19 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48dc1abcaecsm12488698f8f.18.2026.10.11.16.06.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 15:30:56 -0700 (PDT)
-From: Karlos Abel <kabel@voidship.net>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject:
- Re: [PATCH 0/2] Input: discard pre-registration events and test state seeding
-Date: Sun, 11 Oct 2026 18:30:51 -0400
-Message-ID:
- <179175785190.2.15570576039664484922.input-plain-reply@voidship.net>
-In-Reply-To: <assT056aFmzMHmON@google.com>
-References:
- <20261010180031.7-1-kabel@voidship.net> <assT056aFmzMHmON@google.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+        Sun, 11 Oct 2026 16:06:17 -0700 (PDT)
+Date: Mon, 12 Oct 2026 01:06:14 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: =?utf-8?B?TWljaGHFgiBLb3BlxIc=?= <michal@nozomi.space>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com, 
+	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, matthias.bgg@gmail.com, 
+	angelogioacchino.delregno@collabora.com, allencl_lin@hotmail.com, 
+	tylor_yang@himax.corp-partner.google.com, felix@kaechele.ca, dianders@chromium.org
+Subject: Re: [PATCH v6 2/3] HID: Add Himax HX83102J SPI touchscreen driver
+Message-ID: <aswV0ATke05Aa-q5@monoceros>
+References: <20261011181633.1778969-1-michal@nozomi.space>
+ <20261011181633.1778969-3-michal@nozomi.space>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-
-Resending in plain text; the mailing lists rejected my previous reply
-because it contained HTML.
-
-Hi Dmitry,
-
-The observed problem is the initial switch event being delivered later and
-undoing a subsequent Bluetooth soft-block. It does not depend on the event
-timestamp.
-
-hotkey_init() seeds SW_RFKILL_ALL=1 before registering the input device,
-without calling input_sync(). That updates the switch state, but also
-leaves the event queued across registration.
-
-In the unpatched hardware trace:
-
-At 74.486 seconds, Bluetooth is explicitly soft-blocked.
-At 80.300 seconds, Xorg injects LED updates followed by SYN_REPORT. There
-is already one event queued.
-That flush delivers the old SW_RFKILL_ALL=1 to rfkill_event(), which
-schedules a global unblock and turns Bluetooth back on.
-
-rfkill_start() already reads the initial switch state when the handler
-attaches; this later delivery produces an additional action after userspace
-has changed the soft-block state.
-
-Regarding the missing input_sync(): from reading the initialization path,
-simply adding it alongside the seed would be ignored because EV_SYN is not
-enabled on this device until input_register_device().
-
-I targeted registration because input_event() documents pre-registration
-seeding as updating initial state without delivering those events to
-handlers. The patch retains that state while discarding the pending events.
-The timestamp reset addresses a separate stale-timestamp case covered by
-the tests.
-
-Thanks very much,
-
-Karlos
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="2zn2xrgow5dc2xy6"
+Content-Disposition: inline
+In-Reply-To: <20261011181633.1778969-3-michal@nozomi.space>
 
 
-On Sun, Oct 11, 2026 at 12:45 AM Dmitry Torokhov <dmitry.torokhov@gmail.com>
-wrote:
+--2zn2xrgow5dc2xy6
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v6 2/3] HID: Add Himax HX83102J SPI touchscreen driver
+MIME-Version: 1.0
 
-> Hi Karlos,
->
-> On Sat, Oct 10, 2026 at 02:00:29PM -0400, Karlos Abel wrote:
-> > This series prevents input handlers from receiving buffered
-> initialization
-> > events after device registration. On a ThinkPad T14 Gen 6, a later LED
-> > update flushed a stale SW_RFKILL_ALL event seeded by thinkpad_acpi.
-> > The fix drops the pending events and their timestamp before handlers
-> > attach, while retaining the seeded switch and absolute-axis state.
->
-> Could you explain why these seeded events give you trouble? Is it
-> because thinkpad_acpi() forgets to send input_sync() and so the
-> timestamp is stale/wrong?
->
-> Thanks.
->
-> --
-> Dmitry
->
+Hello,
+
+On Sun, Oct 11, 2026 at 08:16:32PM +0200, Micha=C5=82 Kope=C4=87 wrote:
+> +#include <linux/mod_devicetable.h>
+
+Please don't include <linux/mod_devicetable.h>. This file introduces a
+big amount of unneeded dependencies. You can rely on <linux/spi/spi.h>
+to provide of_device_id and spi_device_id (which are the ones you
+actually use). Alternatively---if you want to go full iwyu---include
+linux/device-id/of.h and linux/device-id/spi.h directly.
+
+Best regards
+Uwe
+
+--2zn2xrgow5dc2xy6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrMFmMACgkQj4D7WH0S
+/k4MXgf9EcZ3GfDdHxsy9EN8ExCwEfNg60ObLE8QD0gdVxF+YdCbdpGNF2XrpYvk
+exy5MWNHx1evhGI8uT/bu9C/jyhN3agP3CnjN8IYUDxTDMIt6AnsMR8o/K87exej
+Jwx8C3Y9Yo3SQpDDR4mJF9ftPo4LgbCWne5l9cEAMH4M2i2xBYSZrMNHdPsRZ8rh
+91JD5Nl0fgYKcD290dVrM6Yyzy0jTpbUgTEm039g0ev8eEvvylQcfsP30oqEDaI9
+sHPHaxeZY+jPpKiOqzfBMP1IzFSQNXt86mzcWDLKLVHalJWEh7O1dnfv1SqWhPEA
+s2aLRmZvKqCLimKqBYM+vLnmUtqynA==
+=yG/u
+-----END PGP SIGNATURE-----
+
+--2zn2xrgow5dc2xy6--

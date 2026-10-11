@@ -1,134 +1,127 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86E0E33B6F4
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 17:29:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 251283019CD
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 18:12:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.172
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791739778; cv=pass; b=Quu47knnz6xP46RgnkDUEBokjnkNe3UBywoKSrHzC3V4daIiC19StvpHN+YlLVDuWFlnOn6CB8IfEROipNhayOB2dha+DolLjyl+MyzPpsyPymrHiRTGtmWA6dqiRX3JR/sLzXRP6Vqhf+aGjnZsRNV8VKG1alpV8X7TC10KY/A=
+	t=1791742381; cv=pass; b=OYMSxuUhKbcnp+JII6TkGRbuknkErklTNrJTXjnoQFtkzX7kQJrzA9tUFUbUnNvY9bi5BQlOyFjoIbF8QLx8utUbIkKvXbgbRsNTNObQuuJ3fqOcG9WlTQWmdJyAaIWis2/AR1wQgUlrUx0NAt3/hIgx+G4v+Sgc74OjItharoc=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791739778; c=relaxed/simple;
-	bh=tkjOrtWzfvAkN6ASJLjJRMDquvEPYg5g2p0E9cG6xAQ=;
+	s=arc-20240116; t=1791742381; c=relaxed/simple;
+	bh=gwRi8tJ5LauvJF15FnsWPOaMsiBcZj8ycmgZAY2TY4w=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fR9EoXxOezUfbGy/K8gbWcd8ElfNlMsYHCtZ9vv0DqTIGeksyAggSu1IZEFdsohMNh34YFzN9CzD8nyL3GFvumnKQPZl2HUo8xmKb5tvbMuWkQ9xNiem5r4h30+G4SM5aChE0nvFiSnSG43ZlQSmTetsrXF+W6vZqusOJoXxifs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=M/5ZYxMj; arc=pass smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	 To:Cc:Content-Type; b=bGoDLT+HoPQjssL6G+xGQ9vcHl5CRS5v+177iyKyd3oDz+kghDaxUbGkLLWqveIdx3bnz9DgPEBqB0sLY+IKySnjUu4avpsqItNkbD9CATBDzX+jrIiDSoL9U0Y6QKmJ2M/I4lj7ITd0Xun/B5oMJiOtpeog0Pcvl2g3F/jFPUw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cg5b/B48; arc=pass smtp.client-ip=74.125.82.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="M/5ZYxMj"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3a60cb94b80so14266091fa.2
-        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 10:29:36 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791739774; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cg5b/B48"
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-33c2520ad38so2756474eec.1
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 11:12:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791742379; cv=none;
         d=google.com; s=arc-20260327;
-        b=MkU7PlW3WesoSaZtiHPv57YZw0KPoyQaAg+AiyTZ0NzjLuX1O+En1OAwTzCekAMcMT
-         ubJweYPo2caMpNQNTSiqOzbJqMqOKCzf3K/IrK1YBD/q0HigegTHfClBgwyJiCTe0VA1
-         Y5ktTPJ6NEB878VR2SSpn/JJxdovzwyaKEn/OFxMxKzr1f92LFewd3hcS8J3BoSrqON+
-         OobQy1WTQwEdtd9sljgeaL6ok7ifacDsMCTof/WQv5eXly+mBzH/eXX44m2PZkMblr9V
-         7uIKtOsuNuZ5apGvKJqSMt6Swsm0Stq6+eF3ut+SBIK+sQ2/FHIK1t1MOJDeJsJRtIFQ
-         duiA==
+        b=gtNG35UcZyM+CnH4ZVaZQj4imk0soDZN12xKZJ4AEqOysm2h2FmHC3sPYDvyo9Qozp
+         DSZzSBsJdyW4SkHfEO0qJOGzKL9Eng80WUGuaGOO8U9jQ5neTZ5I+dngY+4kHkmOC7mG
+         pARahlvWpcUtLffyeIfdJMX9ZedhSOYk78LTV9lXlg++9Fdg5R5zTrBC6iQPg53c+um0
+         BaTPviHO/Ycv18uOrPCj7tI5Q8odPVKSdUUi7569yIooSNbuQPUGWBzQQ7wWfHBJlQkn
+         v8LbtDdusryieWOYBJt0paRRIhEjcQSEe5ZKF0Cwu/INRLcy4B+XFnhKMg+96/4npxNL
+         1yZw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=lCu02LFOYMeDJJjF4fmtFwaOG6AS3l/NEzfbXyNBgZg=;
-        fh=7yd9CSNOEZW+cf8i8AhvqZIFfcMdyA4d1+DsLgp2vEQ=;
-        b=reJoBqLVd2qzRGTn6QSqwSQjPVwccLzGCCc5u03+l03BnMtNSd72kCcZ42G9ciEwj2
-         fWRaEhQl4RELvb0vOyeAzHPLdbRFVEgz8VmNL7hhC0z2++N/kjeRVxPJbzXFuosgUGqV
-         49wqtPIOBpZ06xSRm+RBZ1Wt6n49gwnxqmgMuezZ/JEKOqmwbmpJ0ZGqXrGClKMaGkSQ
-         HLdbirXVuhyHhpCdOXHVKkGZmEHv1xlUVrqbUPP14m+/HufvnWE0srrLAe4uBAPmm0yS
-         +icwemiWr/YLjuTsk2Uh0tat0mVfe2PisplnkpVDCI1dFlFksnbLpsbe9NfiygMASE+q
-         WHxA==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=gwRi8tJ5LauvJF15FnsWPOaMsiBcZj8ycmgZAY2TY4w=;
+        fh=a5+m8SSY9vQcXufU3UbZd4R59CMCX3YEHw1gUWy2fh0=;
+        b=ci1zFOocToKSYGZaK2+mXehDproy9gfq3UU+8ccRlQGqWTXj4eKz9Tt4nYIA4zlC7M
+         NcklcTQIsjAlKw+W/d7I8TKKfv8SoyMuo0lY67Drj/QmPp5qWchfQa6PLhYoc/MwAeCr
+         k5+SllExUOE3CXmpiLckZkTSG4d/FyMhEihVRQCCvXva7D8bic1TS0az377zRrLw2P77
+         0Hqjy49sWpR1JABI3PgbzGgO3BiaWjIS4uxcbZoAlGAV+q5hiamIAcDlvdAMPF4HM30Z
+         MuG9xcOj9xSHY++BH/23wngSdZ14OD7TWtOCSZLVPxnJXaNzQSLhPQcJEwmDo/YavOmh
+         eXhQ==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1791739774; x=1792344574; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=lCu02LFOYMeDJJjF4fmtFwaOG6AS3l/NEzfbXyNBgZg=;
-        b=M/5ZYxMj9PnXSaZWoiTkJl8Ity+azlcvU5zteYizyysVNPtEXeSGtIanr8qCd7Hm7T
-         22OdcazQrc9iU/huEHvazgwTuyg2jSaCt73iAkMsTJWxyIS7YyVv+a8mfwQgT5GMt92V
-         vClA8NurSz9xMTWB1YV7EvwSlfRNAhpsYw0DE=
+        d=gmail.com; s=20251104; t=1791742379; x=1792347179; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=gwRi8tJ5LauvJF15FnsWPOaMsiBcZj8ycmgZAY2TY4w=;
+        b=cg5b/B482OUEHIyUOiMGEfhIDYnFdmVLCPuk//Gb3hEnVfAtI5lW2XuvLOm3Vwhv5m
+         d/MDzRmudHFTDKKYN9/yOE8XXbezepP8Qjh2IafESYzqBggmxnwe8frz+7904OG4/JiV
+         p67s9nc+7t0kvH/hr+mPodwvuVpMuZcs8vYNmrVx/6XM1ASMjrvL0KgJsf5Hc3E8+adB
+         r97eUPqeTOZWJ4V0sT7zMpLtS+iOozgMrjebqajOpmkUQN3xxgbmR0JxnMclTXpVTCo2
+         HYYgSxjmrqyf0fMRpwhZL+0h+bIwdg9lzSZ2zwPArwo4D5nccqO5nXSm0Buzg8ZpsjVZ
+         tRQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791739774; x=1792344574;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=lCu02LFOYMeDJJjF4fmtFwaOG6AS3l/NEzfbXyNBgZg=;
-        b=xXLoSWLUcq9AsQPiRPkg2H6i0K0fvjd7UJ8HTE/l0dRojbV5z232u1HlF0GsvY8iSZ
-         4gNc0EKMvV25Y/6IoEbLMOgRQCHROA/Nu+UwcckzGQPz9VVAcB9dSpX6sWHiwtjPhatM
-         MU22Cen5y9N9LdD9GW0zBULfUfDulIqT+SCkAav3hpMobvyOBZjSOdzIiJY0qFMP9How
-         pErcT6GAVlwbR1kabzKQh/48gi4IDsyr2WFBgbaId+pA4hiYGc14kh3rsuQ6XyJ+Xu4j
-         /HTAl7e/kP9WIf2rxz3v1E9GDBR+zwUGX+4rnTG8kUqZ9s1LEfQaGrS+1NDGjR5dmSLm
-         BhZg==
-X-Forwarded-Encrypted: i=1; AKwUvBylvoC7NuSofPVze+5LozhR8RU/GGeILPhkSqir18Eg0E+lYAxB1ikrEyjAN/hRki4xRCfa5FC3HXqI+Q==@vger.kernel.org
-X-Gm-Message-State: AFq9FYI5ksw9JG9Ckd9dGMvlZ92Dxo1ARsbBOEVsBrjY2jme+oO8/mxO
-	l0w3xkcgpFCN3heNbud8mhh4y8tFRDVfVYli74vcR+Zm9kZltwpKari1lDnQAc83nD1vsBMP/in
-	hb0zIVrrks8bUYMWBNo9llzRKvIpIiJzMDVsVkS232Xl0MAdf/004t1koJyI=
-X-Gm-Gg: AYBFou0OfdELBtGLdXWIsFIs0r54IkDDymf8o3V25ICNgGQeABCWDB6ugOWPn/rbbhn
-	fb3jUYkP6w3tfBmnY1dwIStoJbEfQuQufrCiI8qdNimhUQzerG/IF8UzeOzTY/mC6DvgcKBuveQ
-	b49t4PVvZGYbmALOe0EGIyp/Lts0UKEYC2+/+MEr125v5WALM7ssiWHxxN8sn8PXYbDAdoqPwmj
-	FoyugUbDL9mrxkfQMv0kps1EZp/0HAm+aLh6zcojpYS0yd9iN+yYgnRNwTLw6bpA5ib/xR7eIpv
-	CKVrRvGsD9HlMGRaGyA9mJFQDrndaUTRKhvPewzBbrI0lbJqxRLC1EXqEZSiTM6A8L4jKT8F6MU
-	byIL6kiwA7A==
-X-Received: by 2002:a05:651c:a38c:20b0:3a9:8546:ee13 with SMTP id
- 38308e7fff4ca-3a9c5749725mr12016031fa.19.1791739774534; Sun, 11 Oct 2026
- 10:29:34 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791742379; x=1792347179;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=gwRi8tJ5LauvJF15FnsWPOaMsiBcZj8ycmgZAY2TY4w=;
+        b=1jCUPx9e1LslG3qFV0Xg7CQzvTtjr03siFmA1oVTBVzqDFU1kmX7+xYffX/YKU6R73
+         RPeJPgBy7CUE9NYqKi51VNHszJCjJngviL/tXLMLeiwZjH+yYAxej3o1qBA6RIZ0QKI6
+         gQYD+kVpUMJHaKvg77KGgFBV54miOp238hIUQNE5l96STj3vkZ7NK+OGAOmsjkRnrXRp
+         KVtkfnynx/2gBqKB1P7sBWhMSdF0VsbvKNGDt8vYzeuUTjKUnq0tHj68jf6osanSOSVB
+         +/Y1f2UDwkqxhb/DfByo9bWOHbqBelEZYGQqRmJRs0rcpA8fQEKo/9fmLtHkCua+L/3z
+         ZHDg==
+X-Gm-Message-State: AFq9FYJ4lWD5q0NW/9oHamarJXSbh/MU5Rxa00FLbTXBlY0ST+zGOXG3
+	9wzvIb41v+stCn1kcIFK06J7GEIB71nrLB5LCZvw77lfxo6YnGaKh9zxJo2AjPnS9ejZnU5NdVW
+	WCA+bgQaxeZnRQnXaK44U3zlyoc3ctQY=
+X-Gm-Gg: AYBFou0+PLaTreEQ4XcVBQ1bRhwh4d6kMPdfYPPgGnievqmd4hYFXqSrS7I2ithxJU6
+	oeFXOWYc/fU53WjJyXCR+m/6iSCEaEbZtFn0K3CrrhTNWlZkTScxtcYPjQIvprDI0tPWMoxtOK6
+	Wnx1IbbxWeY7+Hw13am6t2Ujn2kC2AUBb16kzYgYsWjrXhccWoXW3ayVt3AAtxWjw2ec8oAJkbg
+	arbz3E6GcKkxps2TlX/B397slEXdT/dnQGd3gVsP64bdQf9Ga5Zbu36tnOmCqSH5GRQCQgZf+vM
+	EotDl6GjpYfff5erwzhSJ3U+q963kkls4zL38mLj55vfdFTRXjcTK1ywuXhcLXK9+htVencd1j8
+	DW7EUxjvJVB2Rug==
+X-Received: by 2002:a05:693c:62c5:b0:353:7d40:6636 with SMTP id
+ 5a478bee46e88-3537dedaae9mr9900985eec.1.1791742378990; Sun, 11 Oct 2026
+ 11:12:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261006-upstream-vivaldi-fix-v1-1-bbc9a7f14ea6@chromium.org> <asfk_jRVjY8pXzjt@google.com>
-In-Reply-To: <asfk_jRVjY8pXzjt@google.com>
-From: Shashikirana H K <shashikiranah@chromium.org>
-Date: Sun, 11 Oct 2026 17:29:22 +0000
-X-Gm-Features: AclHuK9ZAHiF05P5Ep5pwVbDh3L0xmk8bEDd4KYnMtCBumJ8hsz-7P7vYfRjDBU
-Message-ID: <CAH=natbNnhVMO0vXmhTi5wipEsfMr9wy7u_PRCXDYFaWJXqoCA@mail.gmail.com>
-Subject: Re: [PATCH] HID: vivaldi: Validate Report ID and length in feature mapping
+References: <asmCc1VxVPLIMgY6@google.com>
+In-Reply-To: <asmCc1VxVPLIMgY6@google.com>
+From: Christian Lamparter <chunkeey@gmail.com>
+Date: Sun, 11 Oct 2026 20:12:47 +0200
+X-Gm-Features: AclHuK8acOi8aVEUTuLTHFRamALp4FOSGaLarP7QqSjuV8P0SghSz45EXW4MkW0
+Message-ID: <CAAd0S9A6zNJU=BkUgpGtdHBgkcnQ0NyOWb46aDnBuGCf0TKvmA@mail.gmail.com>
+Subject: Re: [PATCH] Input: reject parent overrides on managed input devices
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Stephen Boyd <swboyd@chromium.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Tzung-Bi Shih <tzungbi@chromium.org>, 
-	"Sean O'Brien" <seobrien@chromium.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	linux-wireless <linux-wireless@vger.kernel.org>, Johannes Berg <johannes@sipsolutions.net>, 
+	Jeff Johnson <jjohnson@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
+On Sat, Oct 10, 2026 at 5:54=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> When an input device is allocated with devm_input_allocate_device(), the
+> owner struct device is set as dev->dev.parent and holds the
+> devm_input_device_release resource. Later, input_register_device()
+> attaches the devm_input_device_unregister resource to dev->dev.parent.
 
-Thank you for reviewing the patch!
+Ok, why would this be a problem? If something other than the devres
+garbage collection
+callback access the data after it was unregistered... what else is
+supposed to happen
+other than a crash.
 
-> Devices typically do not return short reports. Could you please tell me
-> what prompted this change?
+for what's worth: this patch seems to be a "spite" response to this:
+https://lore.kernel.org/linux-wireless/20261008-carl9170-reverts-v2-0-3ecb1=
+2089797@gmail.com/
 
-This came up while testing with synthetic/uhid devices that return
-malformed GET_REPORT responses (either fewer bytes than report_len or a
-different Report ID in report_data[0] than requested). When that happens,
-vivaldi_feature_mapping() still passes the buffer to hid_report_raw_event(),
-which then looks up a different report via data[0] or processes unreceived
-bytes from the buffer.
+I think someone else is working on a separate fix:
+https://lwn.net/Articles/1038523/: "Revocable references for transient devi=
+ces"
+With todays Patch-Series V14 on: https://lkml.org/lkml/2026/10/11/475
 
-Since legitimate Vivaldi keyboards always return the full feature report,
-rejecting short reads outright with `if (ret != report_len)` (similar to
-hammer_get_folded_state() in hid-google-hammer.c) would be even cleaner
-than passing `ret` to hid_report_raw_event().
+From what I can tell, this should have been what devres was trying to solve=
+.
 
-> I do not think checking whether report is numbered is needed. While
-> transports handle numbered and non-numbered reports differently here I
-> believe we always have report number (0 for unnumbered) in first byte.
-> Also, shouldn't this check be in hid core if it is needed?
-
-Agreed on both points:
-1. Dropping `report->id &&` and simply checking `report_data[0] != report->id`
-   (like mt_get_feature() in hid-multitouch.c) works for both numbered and
-   unnumbered reports since transports place 0 in byte 0 for unnumbered
-   reports.
-2. Checking `buf[0] != reportnum` on HID_REQ_GET_REPORT directly in hid-core
-   (e.g. in __hid_hw_raw_request()) would protect all HID drivers at once.
-
-Jiri, Benjamin, Dmitry -- would you prefer a v2 that checks
-`ret != report_len` and `report_data[0] != report->id` in
-vivaldi_feature_mapping(), or moving the `buf[0] != reportnum` check for
-HID_REQ_GET_REPORT into hid-core?
-
-Thanks,
-Shashikirana
+Cheers,
+Christian

@@ -1,115 +1,66 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sendmail.purelymail.com (sendmail.purelymail.com [34.202.193.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA9A644A3F3;
-	Sun, 11 Oct 2026 12:53:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3916C449B3F
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 12:55:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=34.202.193.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791723219; cv=none; b=FeJCpGnSpOPu9AcURBjBeegavuHorr0mW13dFiYgtsesi1xkgkRjYqJH3dq6nrxSgzi4+8jBagb9Q898Yy496h9rlEQmokbx9VKk9T5H+61tjRcnRmljpvCBuCYHnAGD26z5R/mQ+CGMbGbBZNlwpIR+cjIzri5NrQtCPMTPA1M=
+	t=1791723301; cv=none; b=H/QsssRF9e0Zc/QqKUU7cf7LPhdwWPTCiBDuYMN2SZ3ynyLuhg1ly6kpiM6iaQUxrL5N+I0pICqL8PxoD3Ryknf3Vw5d/w5uPLyHsVDje9UjEgBBfw6DsRo3v7MnZ5B3FzSVU7EGLFBl0J3Cvi/xFu1jLe244KDd6i8BCWrioU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791723219; c=relaxed/simple;
-	bh=eNhgn7/ENoI96xjYGD5lJxJWy2Q1q4hFzrUXfImRFVo=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=DLLQmLoJ2gcWztatU7ZzljywK0TPPXCtOxYPo5PAuB7WFNZZ1Tm9jARWXeEFEehRawMXp+OInNL8RRa/bWhcn39Mr+4EOFf0KiITsXku1qzfkCkM7jGvyEPA389mrfwceMBA0SMXB/fz0Bg/TrgQYIFslgGge8sXbuNjnIk0UKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WYgG1hpo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791723301; c=relaxed/simple;
+	bh=VHyARekaathNQ5Zci7oOBsg7sj2Qlf9OcQZbK7UdEsw=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:Subject:Cc:From:
+	 References:In-Reply-To; b=p8nSd8AaTVclKPNTqgxS2LJrx68AddVHy79HwsM3DvaY/6hgyjtQN27q2jEBi7BwI57o+aQXjT5cOx2UwX18wW5k99kkmiIakoP/HD8PJ/pXQ9gTgZI/YGmj21isJxOI8waRdy1vmSbD4NpdPzPg113Z5EAUb0RppQSqOL6Uks0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me; spf=pass smtp.mailfrom=rcpassos.me; dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b=C4jbCrFE; dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b=fjn9nKcy; arc=none smtp.client-ip=34.202.193.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rcpassos.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rcpassos.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WYgG1hpo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D50E1F0089B;
-	Sun, 11 Oct 2026 12:53:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791723217;
-	bh=Mr85LdfHSYtOyRLpsIzxq5zWTiQfhtBgCzmso2uO/io=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WYgG1hpoKb0bK+to1y8sy/z5BDdUCPajALZReuQoG3YteP97vyTWGBtkZDNKEKU/N
-	 1H2aiYp0nvSmtEUnjZJMdaoj5Qz6CpEbhfIUkkSHAttorAaSUJwSxeGRv0YNe9bFKF
-	 mkAEBPP3WaZiZ4etI91CrtoRGiqZerpXPcBfFVwATYgnhdNbnFhNAdjyZHIqS/tceR
-	 gHGl2YmFfzDpdBB3EP5tZJUggNC2uwsDGMujWacM/6d+nwJXDNFSh4992jqgw/qrJX
-	 C+OsaGg27jCcT7faNzyHOV9HNs7A+ANRXRxaNJsvPhHyKEgOfYmq0OqgZ3dXLNtPJu
-	 cQitjbFEhW+9w==
-Message-ID: <sashiko-outbox-167228@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/7] dt-bindings: input: touchscreen: samsung,s6sy761:
- Add S6SY791 and reset GPIO
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Lukas Timmermann" <foss@timmermann.space>
-Cc: dmitry.torokhov@gmail.com, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org
-In-Reply-To: <20261011-lat3st-google-raven-touch-upstream-v1-1-2a9f55159b9e@timmermann.space>
-References: <20261011-lat3st-google-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space>
- <20261011-lat3st-google-raven-touch-upstream-v1-1-2a9f55159b9e@timmermann.space>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 11 Oct 2026 12:53:36 +0000
+	dkim=pass (2048-bit key) header.d=rcpassos.me header.i=@rcpassos.me header.b="C4jbCrFE";
+	dkim=pass (2048-bit key) header.d=purelymail.com header.i=@purelymail.com header.b="fjn9nKcy"
+DKIM-Signature: a=rsa-sha256; b=C4jbCrFE/W12TPc1ILoUvwd+datRx7yDbFEc6sLiaaFu2kWECpnBn7Jlvsmz1FJcLt4ZbAnBRZuvx72djY0ke1kvTSBYe+OtBsNfJiu8kXwU8yVvso60ElYJ93wjPO6BIFlKKJIiz7tH6e7+xMeUxntX2ihXz0PB3Dns1TwVbQlNLUQiO9oyMCvI901yrYYW/2/V8BZZrYOlHSAcX5jjpBODSesHnBnTIWczeBQOFKqDrdhnPRsBHpceG5ujfTfKlQC/S6SfbOt/aKoWlpDMh7H6ysaJ+ztYZ/uO52UVMmB4ULgvpmdjAlxwBbfopJvo2jBa/7DKqp56JFp8o2KgoQ==; s=purelymail2; d=rcpassos.me; v=1; bh=VHyARekaathNQ5Zci7oOBsg7sj2Qlf9OcQZbK7UdEsw=; h=Received:Date:To:Subject:From;
+DKIM-Signature: a=rsa-sha256; b=fjn9nKcyS5XDM6aVmVm28CAnUulrTLkrAd4UBA7ClS97y49iHL8HgD9ZuYGbHX3EdBiA3Fut+Q2W66tWyB+NegxQ/4Dn+TNmBNJMMC58U0ug3AoIbN6MxtZndfRibobODAdHxY+Rfv6NlRXvrSlzsP4qQ9wutZuihPvIvuSHpJqrEFMYKtNgufaHC8oC8bnSNidtW/J+4i/D+ujnuk9qGoq8b2sTTdWEOshbOgLQDBOs7fp4cZS+gv06Eh0mPwo0A/NDQ+dgG+l0UIltIMbLQoJPmfo4O+MDmGyveed8ATP2BxV7jEQD3vGdfb2IcsYZhPP3JS3fUTrYLnZhlq+2gQ==; s=purelymail2; d=purelymail.com; v=1; bh=VHyARekaathNQ5Zci7oOBsg7sj2Qlf9OcQZbK7UdEsw=; h=Feedback-ID:Received:Date:To:Subject:From;
+Feedback-ID: 45355:7809:null:purelymail
+X-Pm-Original-To: linux-input@vger.kernel.org
+Authentication-Results: purelymail.com; auth=pass
+Received: by smtp.purelymail.com (Purelymail SMTP) with ESMTPSA id -581114090;
+          (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384);
+          Sun, 11 Oct 2026 12:54:47 +0000 (UTC)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sun, 11 Oct 2026 09:54:55 -0300
+Message-Id: <DM20WF04H7JK.2HBWS4KGUBW19@rcpassos.me>
+To: <sashiko-reviews@lists.linux.dev>, "Rafael Passos" <rafael@rcpassos.me>
+Subject: Re: [PATCH v5 2/3] HID: wiimote: replace spinlock pairs with
+ scoped_guard
+Cc: <linux-input@vger.kernel.org>, <dmitry.torokhov@gmail.com>
+From: "Rafael Passos" <rafael@rcpassos.me>
+X-Mailer: aerc 0.22.0
+References: <20261009022844.2790778-1-rafael@rcpassos.me>
+ <20261009022844.2790778-3-rafael@rcpassos.me>
+ <sashiko-outbox-164733@kernel.org>
+In-Reply-To: <sashiko-outbox-164733@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] dt-bindings: unconditional SPI properties allow I2C variant to pass=
- with invalid properties
---
+Oh well, I dont know how this happened.
 
-commit ea887456e038f98ac0c943c8af10e4e502dc0827
-Author: Lukas Timmermann <foss@timmermann.space>
+I will wait for reviews in the rest of the patchset before sending a new ve=
+rsion...
 
-dt-bindings: input: touchscreen: samsung,s6sy761: Add S6SY791 and reset GPIO
+On Thu Oct 8, 2026 at 11:44 PM -03, sashiko-bot wrote:
+> [Severity: Low]
+> This isn't a bug, but could we remove the leading spaces before these #in=
+clude
+> directives? The extra indentation violates the standard kernel coding sty=
+le.
+>
+>> + #include <linux/seq_file.h>
+>> + #include <linux/spinlock.h>
+>> + #include <linux/uaccess.h>
+>> + #include "hid-wiimote.h"
 
-This patch adds the S6SY791 SPI-based touchscreen controller as a variant
-alongside the existing I2C-based S6SY761. It also adds support for an optio=
-nal
-reset GPIO and references spi-peripheral-props for the SPI bus properties.
 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/samsung,=
-s6sy761.yaml b/Documentation/devicetree/bindings/input/touchscreen/samsung,=
-s6sy761.yaml
-> index 1ffd17af3c53f..d24f35038934a 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761=
-.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761=
-.yaml
-> @@ -8,13 +8,17 @@ title: Samsung S6SY761 touchscreen controller
-> =20
->  maintainers:
->    - Andi Shyti <andi.shyti@kernel.org>
-> +  - Lukas Timmermann <foss@timmermann.space>
-> =20
->  allOf:
->    - $ref: touchscreen.yaml#
-> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-
-[Severity: Low]
-Does this allow the I2C variant to pass validation with invalid properties?
-
-By unconditionally referencing spi-peripheral-props.yaml in the global allOf
-list, device trees for the I2C variant (samsung,s6sy761) can now include SPI
-properties and silently pass schema validation.
-
-Should this $ref be moved to an if-then block that matches only the
-samsung,s6sy791 compatible string?
-
-[ ... ]
-
->    avdd-supply: true
->    vdd-supply: true
-> =20
-> +  spi-max-frequency: true
-> +
-> +  spi-cpha: true
-> +
-> +  spi-cpol: true
-> +
-
-[Severity: Low]
-Similarly, these SPI properties are added at the top-level. Does this globa=
-lly
-permit them for both interfaces, defeating the unevaluatedProperties: false
-check for the I2C variant?
-
-Could these properties be restricted to the samsung,s6sy791 variant using an
-if-then block?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011-lat3st-goo=
-gle-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space?part=3D1

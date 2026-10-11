@@ -1,159 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63DF6352018;
-	Sun, 11 Oct 2026 17:05:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791738331; cv=none; b=CYVfbrLdaPqV8BLVEOXJuw+TacPmgQDlXZqBywUipM12/P3XiETfH2qLkNYyR4Ancl0AFo8KubkZn0HleoLeqgJgmqNrSsNJZex8/rMbHJVFCzoUg44yvAUYuNKQ5bzzNqhFh1xmznHJhN7ktDd7MeGYjl/hONVvgjFy22CMFyU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791738331; c=relaxed/simple;
-	bh=mb1pfsKStAtOWi0JjAKyCXnmZ4JpO6beOtEbcuGKXOE=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=Bx37sNFpjOh9n2RALg+FZZU9kMpSnIxEGo1Ap7Zkxf+EhXVyyyANifg3B1EKz5VFIt/3hSiKQBdxdM11PZ+pwUxeHJlpVLYFtY0dLR15ljv3qrrwtwHUpXq1qjTbH9ocmQAApc0BLCJn4GDD6c138ihy/GuoFZV9AAx70Le9Ivk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XDt/J8kE; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86E0E33B6F4
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 17:29:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.176
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791739778; cv=pass; b=Quu47knnz6xP46RgnkDUEBokjnkNe3UBywoKSrHzC3V4daIiC19StvpHN+YlLVDuWFlnOn6CB8IfEROipNhayOB2dha+DolLjyl+MyzPpsyPymrHiRTGtmWA6dqiRX3JR/sLzXRP6Vqhf+aGjnZsRNV8VKG1alpV8X7TC10KY/A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791739778; c=relaxed/simple;
+	bh=tkjOrtWzfvAkN6ASJLjJRMDquvEPYg5g2p0E9cG6xAQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fR9EoXxOezUfbGy/K8gbWcd8ElfNlMsYHCtZ9vv0DqTIGeksyAggSu1IZEFdsohMNh34YFzN9CzD8nyL3GFvumnKQPZl2HUo8xmKb5tvbMuWkQ9xNiem5r4h30+G4SM5aChE0nvFiSnSG43ZlQSmTetsrXF+W6vZqusOJoXxifs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=M/5ZYxMj; arc=pass smtp.client-ip=209.85.208.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XDt/J8kE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E97E1F0089B;
-	Sun, 11 Oct 2026 17:05:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791738324;
-	bh=bSbnPJwXPaMgLz/4E+GvY9XRN2SpViYwTCmV9XCwNV4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XDt/J8kEoThMhx2nRDKuifvoYftN9R9h41zBlt2fNUFJLzWPqAtFEpx3KWKxnn1Nh
-	 +inmqlsZekPUKYhadK25q5NBz+aWYSN4DnpMDv1LCWsAVrYg/Rg3HAD/ZG6eAiDIbg
-	 mZTy17BtFCeVkFWkiy/gnV+XK0ypcooPsmqLj3FGMLSoohyU+8exyzKpX5DcdhFsiM
-	 RtR+RvrYYPFrIPHAAlnWYPpqMVL3pAMEXTNNfjXZyOFpHRTwJpWQW7rqCEz2caKB+E
-	 6z4ewUAM1ZCuHvz/kenxOQqDGXokpxsjGV/nr9yns8ST+8IuTR+/9e97WdjR8tlIjO
-	 iWVsOd+Wcv9Ug==
-Message-ID: <sashiko-outbox-167333@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 5/7] arm64: dts: qcom: Add initial support for
- MSM8952
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Muzaffer Kadir" <muzafferkadir@mainlining.org>
-Cc: dmitry.torokhov@gmail.com, conor+dt@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org
-In-Reply-To: <20261011-msm8952-initial-support-v5-5-1857074992ec@mainlining.org>
-References: <20261011-msm8952-initial-support-v5-0-1857074992ec@mainlining.org>
- <20261011-msm8952-initial-support-v5-5-1857074992ec@mainlining.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 11 Oct 2026 17:05:23 +0000
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="M/5ZYxMj"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3a60cb94b80so14266091fa.2
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 10:29:36 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791739774; cv=none;
+        d=google.com; s=arc-20260327;
+        b=MkU7PlW3WesoSaZtiHPv57YZw0KPoyQaAg+AiyTZ0NzjLuX1O+En1OAwTzCekAMcMT
+         ubJweYPo2caMpNQNTSiqOzbJqMqOKCzf3K/IrK1YBD/q0HigegTHfClBgwyJiCTe0VA1
+         Y5ktTPJ6NEB878VR2SSpn/JJxdovzwyaKEn/OFxMxKzr1f92LFewd3hcS8J3BoSrqON+
+         OobQy1WTQwEdtd9sljgeaL6ok7ifacDsMCTof/WQv5eXly+mBzH/eXX44m2PZkMblr9V
+         7uIKtOsuNuZ5apGvKJqSMt6Swsm0Stq6+eF3ut+SBIK+sQ2/FHIK1t1MOJDeJsJRtIFQ
+         duiA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=lCu02LFOYMeDJJjF4fmtFwaOG6AS3l/NEzfbXyNBgZg=;
+        fh=7yd9CSNOEZW+cf8i8AhvqZIFfcMdyA4d1+DsLgp2vEQ=;
+        b=reJoBqLVd2qzRGTn6QSqwSQjPVwccLzGCCc5u03+l03BnMtNSd72kCcZ42G9ciEwj2
+         fWRaEhQl4RELvb0vOyeAzHPLdbRFVEgz8VmNL7hhC0z2++N/kjeRVxPJbzXFuosgUGqV
+         49wqtPIOBpZ06xSRm+RBZ1Wt6n49gwnxqmgMuezZ/JEKOqmwbmpJ0ZGqXrGClKMaGkSQ
+         HLdbirXVuhyHhpCdOXHVKkGZmEHv1xlUVrqbUPP14m+/HufvnWE0srrLAe4uBAPmm0yS
+         +icwemiWr/YLjuTsk2Uh0tat0mVfe2PisplnkpVDCI1dFlFksnbLpsbe9NfiygMASE+q
+         WHxA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1791739774; x=1792344574; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=lCu02LFOYMeDJJjF4fmtFwaOG6AS3l/NEzfbXyNBgZg=;
+        b=M/5ZYxMj9PnXSaZWoiTkJl8Ity+azlcvU5zteYizyysVNPtEXeSGtIanr8qCd7Hm7T
+         22OdcazQrc9iU/huEHvazgwTuyg2jSaCt73iAkMsTJWxyIS7YyVv+a8mfwQgT5GMt92V
+         vClA8NurSz9xMTWB1YV7EvwSlfRNAhpsYw0DE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791739774; x=1792344574;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=lCu02LFOYMeDJJjF4fmtFwaOG6AS3l/NEzfbXyNBgZg=;
+        b=xXLoSWLUcq9AsQPiRPkg2H6i0K0fvjd7UJ8HTE/l0dRojbV5z232u1HlF0GsvY8iSZ
+         4gNc0EKMvV25Y/6IoEbLMOgRQCHROA/Nu+UwcckzGQPz9VVAcB9dSpX6sWHiwtjPhatM
+         MU22Cen5y9N9LdD9GW0zBULfUfDulIqT+SCkAav3hpMobvyOBZjSOdzIiJY0qFMP9How
+         pErcT6GAVlwbR1kabzKQh/48gi4IDsyr2WFBgbaId+pA4hiYGc14kh3rsuQ6XyJ+Xu4j
+         /HTAl7e/kP9WIf2rxz3v1E9GDBR+zwUGX+4rnTG8kUqZ9s1LEfQaGrS+1NDGjR5dmSLm
+         BhZg==
+X-Forwarded-Encrypted: i=1; AKwUvBylvoC7NuSofPVze+5LozhR8RU/GGeILPhkSqir18Eg0E+lYAxB1ikrEyjAN/hRki4xRCfa5FC3HXqI+Q==@vger.kernel.org
+X-Gm-Message-State: AFq9FYI5ksw9JG9Ckd9dGMvlZ92Dxo1ARsbBOEVsBrjY2jme+oO8/mxO
+	l0w3xkcgpFCN3heNbud8mhh4y8tFRDVfVYli74vcR+Zm9kZltwpKari1lDnQAc83nD1vsBMP/in
+	hb0zIVrrks8bUYMWBNo9llzRKvIpIiJzMDVsVkS232Xl0MAdf/004t1koJyI=
+X-Gm-Gg: AYBFou0OfdELBtGLdXWIsFIs0r54IkDDymf8o3V25ICNgGQeABCWDB6ugOWPn/rbbhn
+	fb3jUYkP6w3tfBmnY1dwIStoJbEfQuQufrCiI8qdNimhUQzerG/IF8UzeOzTY/mC6DvgcKBuveQ
+	b49t4PVvZGYbmALOe0EGIyp/Lts0UKEYC2+/+MEr125v5WALM7ssiWHxxN8sn8PXYbDAdoqPwmj
+	FoyugUbDL9mrxkfQMv0kps1EZp/0HAm+aLh6zcojpYS0yd9iN+yYgnRNwTLw6bpA5ib/xR7eIpv
+	CKVrRvGsD9HlMGRaGyA9mJFQDrndaUTRKhvPewzBbrI0lbJqxRLC1EXqEZSiTM6A8L4jKT8F6MU
+	byIL6kiwA7A==
+X-Received: by 2002:a05:651c:a38c:20b0:3a9:8546:ee13 with SMTP id
+ 38308e7fff4ca-3a9c5749725mr12016031fa.19.1791739774534; Sun, 11 Oct 2026
+ 10:29:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20261006-upstream-vivaldi-fix-v1-1-bbc9a7f14ea6@chromium.org> <asfk_jRVjY8pXzjt@google.com>
+In-Reply-To: <asfk_jRVjY8pXzjt@google.com>
+From: Shashikirana H K <shashikiranah@chromium.org>
+Date: Sun, 11 Oct 2026 17:29:22 +0000
+X-Gm-Features: AclHuK9ZAHiF05P5Ep5pwVbDh3L0xmk8bEDd4KYnMtCBumJ8hsz-7P7vYfRjDBU
+Message-ID: <CAH=natbNnhVMO0vXmhTi5wipEsfMr9wy7u_PRCXDYFaWJXqoCA@mail.gmail.com>
+Subject: Re: [PATCH] HID: vivaldi: Validate Report ID and length in feature mapping
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Stephen Boyd <swboyd@chromium.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Tzung-Bi Shih <tzungbi@chromium.org>, 
+	"Sean O'Brien" <seobrien@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] dts: thermal: CPU cooling-maps improperly bound to 'hot' trip poin=
-ts
---
+Hi Dmitry,
 
-commit cc303e4c44111ecaf69188771f4ff5a8e34c3552
-Author: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Thank you for reviewing the patch!
 
-arm64: dts: qcom: Add initial support for MSM8952
+> Devices typically do not return short reports. Could you please tell me
+> what prompted this change?
 
-This commit adds initial device tree support for the Qualcomm MSM8952 SoC.
-It introduces the base dtsi file containing CPU topology, memory maps,
-system controllers, and thermal configurations.
+This came up while testing with synthetic/uhid devices that return
+malformed GET_REPORT responses (either fewer bytes than report_len or a
+different Report ID in report_data[0] than requested). When that happens,
+vivaldi_feature_mapping() still passes the buffer to hid_report_raw_event(),
+which then looks up a different report via data[0] or processes unreceived
+bytes from the buffer.
 
-Link: https://github.com/Asderdd/android_kernel_generalmobile_shamrock/blob=
-/cm-14.1/arch/arm/boot/dts/qcom/msm8952.dtsi
-Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
-ear-7.0.0_r0.3/arch/arm/boot/dts/qcom/msm8952.dtsi
-Link: https://android.googlesource.com/kernel/msm.git/+/refs/tags/android-w=
-ear-7.0.0_r0.3/drivers/thermal/msm-tsens.c#1621
+Since legitimate Vivaldi keyboards always return the full feature report,
+rejecting short reads outright with `if (ret != report_len)` (similar to
+hammer_get_folded_state() in hid-google-hammer.c) would be even cleaner
+than passing `ret` to hid_report_raw_event().
 
-> diff --git a/arch/arm64/boot/dts/qcom/msm8952.dtsi b/arch/arm64/boot/dts/=
-qcom/msm8952.dtsi
-> new file mode 100644
-> index 0000000000000..18010f56ac5d0
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/msm8952.dtsi
+> I do not think checking whether report is numbered is needed. While
+> transports handle numbered and non-numbered reports differently here I
+> believe we always have report number (0 for unnumbered) in first byte.
+> Also, shouldn't this check be in hid core if it is needed?
 
-[ ... ]
+Agreed on both points:
+1. Dropping `report->id &&` and simply checking `report_data[0] != report->id`
+   (like mt_get_feature() in hid-multitouch.c) works for both numbered and
+   unnumbered reports since transports place 0 in byte 0 for unnumbered
+   reports.
+2. Checking `buf[0] != reportnum` on HID_REQ_GET_REPORT directly in hid-core
+   (e.g. in __hid_hw_raw_request()) would protect all HID drivers at once.
 
-> +		cpu4-thermal {
-> +			polling-delay-passive =3D <250>;
-> +
-> +			thermal-sensors =3D <&tsens 5>;
-> +
-> +			cooling-maps {
-> +				map0 {
-> +					trip =3D <&cpu4_alert1>;
-> +					cooling-device =3D <&cpu4 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-> +				};
-> +			};
-> +
-> +			trips {
-> +				cpu4_alert0: trip-point0 {
-> +					temperature =3D <75000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "passive";
-> +				};
-> +
-> +				cpu4_alert1: trip-point1 {
-> +					temperature =3D <85000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "hot";
-					^^^^^^^^^^^
+Jiri, Benjamin, Dmitry -- would you prefer a v2 that checks
+`ret != report_len` and `report_data[0] != report->id` in
+vivaldi_feature_mapping(), or moving the `buf[0] != reportnum` check for
+HID_REQ_GET_REPORT into hid-core?
 
-[Severity: High]
-Will the thermal governor ignore this cooling action? Under the step_wise
-governor, hot trip points are typically ignored for CPU throttling, which
-might leave the CPU unprotected from overheating.
-
-Would it be better to alter the trip point type to passive to ensure
-throttling engages properly before shutdown limits are reached?
-
-> +				};
-> +
-> +				cpu4_crit: cpu-crit {
-> +					temperature =3D <110000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "critical";
-> +				};
-> +			};
-> +		};
-
-[ ... ]
-
-> +		cpu0-3-thermal {
-> +			polling-delay-passive =3D <250>;
-> +
-> +			thermal-sensors =3D <&tsens 9>;
-> +
-> +			cooling-maps {
-> +				map0 {
-> +					trip =3D <&cpu0_alert1>;
-> +					cooling-device =3D <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
-> +							 <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
-> +							 <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
-> +							 <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-> +				};
-> +			};
-> +
-> +			trips {
-> +				cpu0_alert0: trip-point0 {
-> +					temperature =3D <75000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "passive";
-> +				};
-> +
-> +				cpu0_alert1: trip-point1 {
-> +					temperature =3D <85000>;
-> +					hysteresis =3D <2000>;
-> +					type =3D "hot";
-					^^^^^^^^^^^
-
-[Severity: High]
-This appears to apply the same logical pattern to the little cores thermal
-zone. Since cpu0_alert1 is also defined as a hot trip point, could this
-likewise fail to throttle the cluster and leave the SoC unprotected?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011-msm8952-in=
-itial-support-v5-0-1857074992ec@mainlining.org?part=3D5
+Thanks,
+Shashikirana

@@ -1,77 +1,76 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBA4535C698
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 23:06:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C3772E7380
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 23:16:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791759984; cv=none; b=kf91C8Yq7yoRuR2HGpQkusLt3EtNxp7wovC/DGUHBXeO+PO8AtHP8QZ1Cnibq60Nshor4nUQeiHwlwXzd7J3hfDb16yJKF3rXhqdE6k+HwfTnySnYmoNCVJPgK+ct8oCZ7i9uVbMspuCkD+/c57UYSvCdKdGszRW1Cwpe+tjcYk=
+	t=1791760573; cv=none; b=oDfBiXTY8gq9xPvlrhTtEFGUvw84lly5s531k8UnC7jcm7VQpL3vG63McqIp/MIF0MsNqqzLU3wGdAdXrpQtU+e7Ol4l4TuYARUAheydwBTRAyhgP2b33TEzVMcYr6h2ffl6I3jYpIqp1qwLzb+SDjfAZW+OBlAEVKVi6M/b3j8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791759984; c=relaxed/simple;
-	bh=GId+tRXTCvTzFm3HINSe/LmkKEkAakiciV2ix96r7+k=;
+	s=arc-20240116; t=1791760573; c=relaxed/simple;
+	bh=LmVQj7uu7MJqrKqgNSP5uYYVsgcU/25VPpMhJmIGlMw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Au0gcn+x7r3INrS6uP6VyWeZ4j+s/ipz1Y1DFj1dJubQAPOG/N9l0DE+MJbXQGpGhZNbhr53fl2IpJkHaSWIHkk+7KBSNtQXjQM9UR2Xl4UsAXVUkqrXnx3AX8rUcpZNdTD/FHqt/NhZ5OU7NPEchNwI16YzB7f0vX3gInYNgq4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=QXlcqlfG; arc=none smtp.client-ip=209.85.221.49
+	 Content-Type:Content-Disposition:In-Reply-To; b=bfiprf/eh6bVkDIjUib2oFXnaHeoAvFooJgOdSKLJ6nR6DqjOGHs9Qz6QgZ+2J8xY9/gawXqXJD9h0F8G3KPAbMw6GoRkUVarlw0jR/JVZZ877bsNPa3izmGepykDHFPtvAD43hFi/SVw14Q6D20en6BLfjOW3HAEwOrHY/wUmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Sztr5wgH; arc=none smtp.client-ip=209.85.128.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="QXlcqlfG"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-48870973bddso750102f8f.1
-        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 16:06:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Sztr5wgH"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4a180fbeef5so11959705e9.1
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 16:16:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1791759980; x=1792364780; darn=vger.kernel.org;
+        d=baylibre.com; s=google; t=1791760571; x=1792365371; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=GId+tRXTCvTzFm3HINSe/LmkKEkAakiciV2ix96r7+k=;
-        b=QXlcqlfGq8qJflB8PXiVeVhLNEArs7zM+5eyofiXwFPfWETqNKQgEYbd0pTB6Xy4ft
-         l4q2tJuxoOb9j8yBoXmk14mQLz0YQVoYNmeRJ1EjVXB75Udsm1j6oLS1cteb8+Ljq/Uk
-         PwjU6Td64OjPURTdDizsrvAe1iqiP4B88WH+WbcmDKa1eTyfOZle2DoD3R1LBqFSKxKn
-         MOc6ghgvBjDiyYdULGqrzQIcB9UFLxjOsbFlhAluW4KpfKPv9jUI6Ke8Xt+T1Bi+taJi
-         FwVF0zcAApTf+6C82ep7AvBsNxi9OOPcVP+FZelgFDLlwDfG5LqIq399SipNvoFo35+J
-         Zcqg==
+        bh=LmVQj7uu7MJqrKqgNSP5uYYVsgcU/25VPpMhJmIGlMw=;
+        b=Sztr5wgHMnUNvoPb0SWAp/YNM6eyxBGF/XwVKdTFZ6ZSDyZmpkrRZ7B3hxKuza9qwM
+         sYIEBqQ9SUbmW3ycIykNwl+EuLJ7WQMJOLEn+mHlOIbZ/VU7HbysS+HT1qK03qODor0i
+         xZBYGTbAjH2fp3xoZYI+DGTijLEsczwgnXVV1JwdHkfIWczY8aAdqZlc2BVFSBujAUv8
+         hmWrUeqOAVTxWNNTTk7erKumnE0ip2PPsexJNPJrPkUJP2TcH8OCEtKfvqYCQP6gsFo0
+         f8BpfnIIedJg5azpYToOigcDlSucdnOQSTdoQDHg8kmoufzh8v3hJXTRWW9WJrQNlbuV
+         bQ4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791759980; x=1792364780;
+        d=1e100.net; s=20260707; t=1791760571; x=1792365371;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=GId+tRXTCvTzFm3HINSe/LmkKEkAakiciV2ix96r7+k=;
-        b=azGIGagz84exnFPjJboetiiJcz6BX1f3r2BSB+ws7L4vqnlISNNGBh4GezF8ekkZ/U
-         hbXU7rgp4l7Xgz2cRzdOLkcvdbD4vZNDaEV3gn/0zjq+Pmgm9n/KvsLPzSpxmI2jTV0+
-         TB6oxaZhXjPigM8YjCntNXaH8RXGtzp+jW9xgTRO9BvPp6ADdWiy1oNk/SIyXaZkkWTm
-         sc03JzPHEm209TimoKPthgkRIknkHEbtUFkQNVuGVhqoC+dBT+eoMF1uTjSvSywwMbg9
-         D3E/HATd+5WCx7MwEiD7w8009aDvTyCXQf5adRXe+YAZUZ3y6tG8LdTo8GsV96sBZDyO
-         XtBQ==
-X-Gm-Message-State: AFq9FYKnBd73XEGNAhwt/14voi7Vy0Hd83xvEvNih38y7UFwDJqWqh/+
-	BKn1cmOGC0Wdo0UPsiOOGbgw577wuAuRD3IrnGEr9k19xctcDfEmpXmWqo4vIXXcDuQ=
-X-Gm-Gg: AYBFou2fMUHAcIMLr5Nr7o/yohbl+syWs2qnoZt3GhgK2sVGnwgd6UApcRysZ2vq8O/
-	zAGyV0W0qr3WF+B4QYrAJioTNzyR9O32LT99/mgLzU/VqmeFuOJFh+FwYDyURzA8H88KKi7nEnF
-	YdSfPjYJY3iS2QCh+cG6yGmONigABagmmEDjjbFqeBu4YwWWFf3t9ZnebdDyBTXcZx6Xza6+CM0
-	K2/71anJPZrAhlZhKzAu4Ccxzr6U5ToVSLgxWgk9ZC0DeGXAU9tRIexGmqb12QIyFvvErKdNJf7
-	RiuR0Nj//kojrQ2IMIw1FBFyHI+cDdqVNXFdwPy/LC5JX6Mx4358F+iHPDu5V+9lmBQpi/j0M+p
-	iP53md2VejhZWvHZg/CuM6UQMS115kcYzz3KGQbrtK66fWFkisP83HdAlu1fQMJYqtKH8t7OsLx
-	75cr3FGlQ7Xqc+VeQyezCN9TgLCpvBsm4QUxK5GBim9j71DebYiF0MS6U1jp2htPA/lI+PFPP8n
-	8c=
-X-Received: by 2002:a05:6000:2306:b0:488:8347:a110 with SMTP id ffacd0b85a97d-48dba9e6163mr13299157f8f.7.1791759979566;
-        Sun, 11 Oct 2026 16:06:19 -0700 (PDT)
+        bh=LmVQj7uu7MJqrKqgNSP5uYYVsgcU/25VPpMhJmIGlMw=;
+        b=fuk+/KdccG0FUyWkRH7VBBExI0iP5tBiCx+zWVpF6IhoTFaQUvE+BdpyNKhpgC41qP
+         U/pZwLUk4KcSAvvjyyd/o7DJIb3OXupdOvWyy4DfabWHIKFRELhfRFvkkN6EURcJrI0a
+         3//jYKBn9C4S8UMiLdJglJLmn5mLe3d5DDyfmjtwx/FxhVeNYsaPpTILXzQf9sfEuVnr
+         S8bQdjrjCjrKg2kEeXye8ipXpQDTeDnojmfUwkh+Xm0pE4bfTZjwaEltKOAEf5kVgKG6
+         6wRkFcNXTEKwxQ6P5LG1MQkq42yoQirnzJGlzPZkf6M23TWPZlBkHRVTjzsUHmpkL8st
+         fVTQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxrGVgsWFzJcnTROkehM0GEIdtM1oy/2vXORDZVeGHL24g/V2kvOO+7ofATzHhOJRbAk6WyOIUCLs2lXQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLW32LvKD2Fu2DT4YHAnpCeTgwkgYOiLMJDoa0TqJeNK8LqKNUd
+	tkgAX65XG1zY7TD3WPJH11vxkGL7h4XZ6/golvG86nMuIa0/vQKoCff+udtCbw2fqD4=
+X-Gm-Gg: AYBFou2Wao9gP0crp9uj27b9f3aqkzuQEigGcTs7HnOFW65RQyCZBRq0XoXyL8/ULCW
+	qE5we7rDQG4WhG1iJGSigxvQCf9iOsmL60VQQBjvKL/jQ/Lcmz1PZQuCiz+sHCRbq1laNKAkbjm
+	MlIL6qHXlIgrXGnjtmr9vjm7UCy+rXPJV+MtZI21akeP9EMJKKjpFINeHO9X5MqMjwrSuZhBtdj
+	sHOu+jnM/WEK4ZkibZRxbTbIwu43FG5fLN3jiTGv1lf6vhsEHqrlkAP0ZGNUhjzEMoyfCZARoq9
+	RnoGUpnTNmxoAepH8xSNPRVnmyYZgsGodfZ2+u8q1WewEDvAqKFnnooWLvVjBdLmE+sO/faRGNI
+	ikMAjsNuxO/5xq923hP/tLWCH4r19Zs/1LqRrsMdeYtefJ/9LSpbtPeMqJoW9UiyLUyrgw/rZW1
+	Iqe/FaT3s+JPFAjNdaP5a7Smj1Egvhq5qmJMdrkjTbr9M800e1UsL5Fpg7iLLEymL6Mjtv2gzMD
+	yQ=
+X-Received: by 2002:a05:600c:8105:b0:4a1:775b:5eb2 with SMTP id 5b1f17b1804b1-4a18e48362emr139928885e9.13.1791760570708;
+        Sun, 11 Oct 2026 16:16:10 -0700 (PDT)
 Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-48dc1abcaecsm12488698f8f.18.2026.10.11.16.06.15
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4a18be964dfsm240506775e9.7.2026.10.11.16.16.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 16:06:17 -0700 (PDT)
-Date: Mon, 12 Oct 2026 01:06:14 +0200
+        Sun, 11 Oct 2026 16:16:08 -0700 (PDT)
+Date: Mon, 12 Oct 2026 01:16:08 +0200
 From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: =?utf-8?B?TWljaGHFgiBLb3BlxIc=?= <michal@nozomi.space>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-mediatek@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com, 
-	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, matthias.bgg@gmail.com, 
-	angelogioacchino.delregno@collabora.com, allencl_lin@hotmail.com, 
-	tylor_yang@himax.corp-partner.google.com, felix@kaechele.ca, dianders@chromium.org
-Subject: Re: [PATCH v6 2/3] HID: Add Himax HX83102J SPI touchscreen driver
-Message-ID: <aswV0ATke05Aa-q5@monoceros>
-References: <20261011181633.1778969-1-michal@nozomi.space>
- <20261011181633.1778969-3-michal@nozomi.space>
+To: armandas.kvietkus@proton.me
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Griffin Kroah-Hartman <griffin.kroah@fairphone.com>, 
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] Input: aw8697 - Add Awinic AW8697 haptics driver
+Message-ID: <aswYYk71JspzTQaO@monoceros>
+References: <20260930-mainlining-v1-0-c303cbdb00c8@proton.me>
+ <20260930-mainlining-v1-2-c303cbdb00c8@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,45 +78,41 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="2zn2xrgow5dc2xy6"
+	protocol="application/pgp-signature"; boundary="5ridkd3llbbsodmf"
 Content-Disposition: inline
-In-Reply-To: <20261011181633.1778969-3-michal@nozomi.space>
+In-Reply-To: <20260930-mainlining-v1-2-c303cbdb00c8@proton.me>
 
 
---2zn2xrgow5dc2xy6
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
+--5ridkd3llbbsodmf
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v6 2/3] HID: Add Himax HX83102J SPI touchscreen driver
+Subject: Re: [PATCH 2/2] Input: aw8697 - Add Awinic AW8697 haptics driver
 MIME-Version: 1.0
 
 Hello,
 
-On Sun, Oct 11, 2026 at 08:16:32PM +0200, Micha=C5=82 Kope=C4=87 wrote:
+On Wed, Sep 30, 2026 at 06:08:04PM +0200, Armandas Kvietkus via B4 Relay wrote:
 > +#include <linux/mod_devicetable.h>
 
-Please don't include <linux/mod_devicetable.h>. This file introduces a
-big amount of unneeded dependencies. You can rely on <linux/spi/spi.h>
-to provide of_device_id and spi_device_id (which are the ones you
-actually use). Alternatively---if you want to go full iwyu---include
-linux/device-id/of.h and linux/device-id/spi.h directly.
+Please drop this include, <linux/i2c.h> already provides of_device_id
+and i2c_device_id, so you only gain unnecessary dependencies here.
 
 Best regards
 Uwe
 
---2zn2xrgow5dc2xy6
+--5ridkd3llbbsodmf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrMFmMACgkQj4D7WH0S
-/k4MXgf9EcZ3GfDdHxsy9EN8ExCwEfNg60ObLE8QD0gdVxF+YdCbdpGNF2XrpYvk
-exy5MWNHx1evhGI8uT/bu9C/jyhN3agP3CnjN8IYUDxTDMIt6AnsMR8o/K87exej
-Jwx8C3Y9Yo3SQpDDR4mJF9ftPo4LgbCWne5l9cEAMH4M2i2xBYSZrMNHdPsRZ8rh
-91JD5Nl0fgYKcD290dVrM6Yyzy0jTpbUgTEm039g0ev8eEvvylQcfsP30oqEDaI9
-sHPHaxeZY+jPpKiOqzfBMP1IzFSQNXt86mzcWDLKLVHalJWEh7O1dnfv1SqWhPEA
-s2aLRmZvKqCLimKqBYM+vLnmUtqynA==
-=yG/u
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrMGLUACgkQj4D7WH0S
+/k6kxQf+IukpznR2fVDe2FYjwtjDRNGy/yLsBjaEG3d4asAugaTEUfUdBPK0dCFW
+zgab2jxZXtXpWm145NHWKc2TXTY5fdbyzDo1lLTObUvw0XqXoEWjEV2Z1uFhMx2z
+b5SpQGJhkddN3tFDIayYA5uFwo9c7vYr2w2UjXnJL4YAaGR9UETvZgP3FeuBs0YI
+kqqR/z0K4q9zTl8LqcRdV8bkRBzetw8xopnurhb8rkB5eNwc0kUsfHG5ogpHyXGT
+CDtMfYaqC9NxfohfFB2/0T/ITMS2HmQ1koWTWmyY/iBpCfWjfbqFlBrAR18rD4V8
+GpJ5ZqYJeVW8FJIpYCiOsjce2bry9w==
+=8biG
 -----END PGP SIGNATURE-----
 
---2zn2xrgow5dc2xy6--
+--5ridkd3llbbsodmf--

@@ -1,204 +1,111 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B74BB4611F4
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:05:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B30142DA3D
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:20:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791756341; cv=none; b=a/ZXO5Zh7hJewIVY4ObZ+AwsmQccX/+XnMRAe5A7UO6mz4iVc7SPxhIc2S1wTJIo/4e1YuLOYLQ1pi8065cm2tx6RoPetNUsly1NUKZOAnVRlbo3+tttBGX0oPee38qmFk570m7oxuJdjo4tzg+5oRQ7OttDFIriI47lm8doe2w=
+	t=1791757225; cv=none; b=XaEyKYeP3GhiJPLhmIFLuutVme0KNA2c82YWOJXwJii1Z694sT5iTk2OiMHu+RUSav0YymJxb6EjXX+Sj8qC9vcLxQ0zin8OYwG0GbjQSQ3Bxibf647/w9RlmFlfkd6jsAtDa0ugnXs4S4nNwuy7hkwGJfvy73FtYSYEVDvDg/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791756341; c=relaxed/simple;
-	bh=QfvGJss0zjBml6IUWkokKgpncvyAlImazlL9B9iJcg4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=miCgC6INkBMbcjl6qWVtKkhN9cl486I5pyZkgBIf1BcsPYx7GyQkoZe9+RdFK2Cc6WLEva5NwhROiGfpT4OMCy6uL22bOK6N/DkYlRThNEfm6zWPtQ4YlPu4EdYatNwJZpvxfJYUDXDf755OG1LGZ9GzNKHZED2rMsFiXRW3+b4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HWKCi8Tl; arc=none smtp.client-ip=209.85.219.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791757225; c=relaxed/simple;
+	bh=3tET96btQ5l9uELilDN7bFpHN4VSTQR+H9PEXlvrhIs=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=p6EUNJuyjkV9cDfmDqIyFlgfMgwK9FnxHcOJiFLPXDulKLawAvobAe1k5Jm6/XgbipeVF4x4UYw8QLYHsZVaATig17R3yKmwuxq1KsLE28XKYSH2L06WVxPeA+usDo2KRwTqVmKo2GXSnHcWvU8O/G6NKr5fE7eU+VDFSVMoWWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Aw7gMEDY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HWKCi8Tl"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-917866225aaso24025246d6.1
-        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 15:05:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791756338; x=1792361138; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=l9wqZaK4fJlc35GVIrKL+JyJeSSN6uS29/WxDZBB/tM=;
-        b=HWKCi8TlHe+Bga40gM/1RvMezQXI454ppjMkJw3JMRJdYPaTrKMyD0EPOvopQ/gSWl
-         SCwkosrJIiJepLPvC+8Im2WP3VVWLwtvH1x7O1IY8QueQqPM48dL4olzROiq/j9Vbqlm
-         IVNQ5IoU0DXz7VYr4JJ0MmM4Olx+cO7HCZKHZJqZQrJlPzvlClALEllm8/N0XF8xyfMo
-         p0idY35f2cWV4xo3eTUAvCGGJn1n8zQB6D9eGtRSlMpfo19CaiKLXHYpVuNYkRaLfOjO
-         mi4t5WNMb5mzHnVcJaa7yB+4241/i9Qlxq3Mu8CHog5/k5WXPn7RupFHoL19l21438u6
-         xU3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791756338; x=1792361138;
-        h=content-transfer-encoding:mime-version:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=l9wqZaK4fJlc35GVIrKL+JyJeSSN6uS29/WxDZBB/tM=;
-        b=2nQWu1m85os90ZISH9r89mHLnB1UlrZN992l7jZhXoXSVK2FDd4WlrbN+ake78fGg6
-         khBtL5CSGc+SWynIJdgISxbncAbR1yaMR/sRD+j/izipBtloCb58h0FK3PVAzQtWjPtJ
-         9WCJBBWrqEByqWbptdeiBgZxMQqqPJ8ySbCK14t3KhC/1L0oPwrkZjvFB7mCcSSEcNFk
-         mRlI1VKbLG0mDbrE8/S1SnKQZ7af+9yAgh1s477yrsv2u/PushRUBszdLea/gO9Qtf5J
-         kGwC//UFUD7mQHWzBCdoVG5HHgLFEV06cy6uOe87Ff3fd2fWyRd3bnK9nhPXiPLP41bu
-         uq4Q==
-X-Forwarded-Encrypted: i=1; AKwUvBxCUwElvweo9+iE/cC21BTQKzmTQD/5F82HpEgEjWsAKa/6SUt371i+n/2j4m0IeM0RCzhSCi5ihu90xw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLdesRalTzQhMkpkLTKRpEHN+OVBKH0zixCR9EE9ehkZ1FLkm+Y
-	GVUtQTg7s/qrvuIFwIcOhMq+jPDWOeNZCeif19aHFm+K3tGKBV9uaMk=
-X-Gm-Gg: AYBFou29KCV9Xtb4jZ2IJfnU7S75Slv2wQiUfKbZsT4DB2PV7Zre2QF4MXmSIOqOT6z
-	oQlv8XIYovEtekF7ZOxoFzebnoJ1IUXpf5oXsB0V0QSxoIvs7sAtinmIrGVeP6kWqYJfq62+3vc
-	bgBgBGP+9pB9r10aWpjBxhXehjCLWZAgjbvdCuPq3lr1Lepp7Hwxsxv0D8F2wtoH1AM7kPpUQ+1
-	mlbMaNbA3yRV/vAK+51mon7xU8rUzzKzc+ksaQFXLeFsSXXncONTZ4badLrSKRr1fICfDXji8bu
-	QFeo5Bt0bIVCXOYeLubqlgXXIIw5dLX/sLB5mmnhdNoO7kso4n3QcL/aUkCGzcbk8VD0cterVKA
-	80sFAp6FF3JINyiXSNMYQcN1dbBqKh5bhg2jn+Dbma6JVC7VYZ7As5gMroECU+NusQmKJl5VyC+
-	b6/b+3W7Jb16zHPRuSo1exBf8EdvLPOVqIYtB0TQvoT+X2O/h4IyZ+JE/wcYhw1CL4jzWDdvRoB
-	rTi6l8ZgFe4YrZVAj3PMDxVusRXXVRCrdyClaQbVAzMN3mB36R1PGHMmf7aeB/KYlpD+AWozkAV
-	Sw875OJKYWKSRJ3FD2918SoeLR/t
-X-Received: by 2002:a05:6214:5188:b0:917:7c94:dcb3 with SMTP id 6a1803df08f44-91b557c3ba8mr148170766d6.45.1791756338486;
-        Sun, 11 Oct 2026 15:05:38 -0700 (PDT)
-Received: from i4-gl-tmk5904-1.ad.psu.edu ([130.203.156.90])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b54e7f6a1sm79788786d6.6.2026.10.11.15.05.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 15:05:37 -0700 (PDT)
-From: Myeonghun Pak <mhun512@gmail.com>
-To: Even Xu <even.xu@intel.com>,
-	Xinpeng Sun <xinpeng.sun@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Mark Pearson <mpearson-lenovo@squebb.ca>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ijae Kim <ae878000@gmail.com>
-Subject: [PATCH 2/2] HID: intel-thc-hid: quicki2c: quiesce IRQs during teardown
-Date: Sun, 11 Oct 2026 18:05:31 -0400
-Message-ID: <20261011220531.2073892-3-mhun512@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261011220531.2073892-1-mhun512@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Aw7gMEDY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F0C1F0089B;
+	Sun, 11 Oct 2026 22:20:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791757224;
+	bh=hXxO8jJcrLemkhaVAabgNeuzq1oJqHGkMulNWjbLUrg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Aw7gMEDYc+rqg7Nx2Bf73d6DKzK+5yj2nCpB73nYtld93qSh09fcC7deYEelvY8Zt
+	 tcR6xKZfK4VMpPQvX3Gyp/W9q2mZpySQh9Iz1rLUJwRI65p2ms7TMjyjMF5kLVK+LP
+	 gwHtz4vmONMY2/Sgknu4IXBNFKzgxcu4UAWwN2fl6XGsUD2u6a6PR3hDVqKOGd3OF/
+	 M1tzQ1pJ/m6ZmQI3Y7mlKUOWpDs3tniBYFu4iLBqHwXG0dupPC9zvJaUE+lUzB1c/o
+	 pP/BQb1Qm0WffisvTrDes/vPcocJI/K5antpzCL7/ejNDanvxuHhjSJ6e2oCSLUMuX
+	 dZLxPPzjeJgRA==
+Message-ID: <sashiko-outbox-167473@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/2] HID: intel-thc-hid: quicki2c: quiesce IRQs during
+ teardown
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Myeonghun Pak" <mhun512@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+In-Reply-To: <20261011220531.2073892-3-mhun512@gmail.com>
 References: <20261011220531.2073892-1-mhun512@gmail.com>
-Content-Type: text/plain; charset="utf-8"
+ <20261011220531.2073892-3-mhun512@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 11 Oct 2026 22:20:23 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The managed IRQ can access HID/DMA buffers or queue recovery work while
-remove or probe unwind tears down those resources.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] hid: intel-thc: 1s timeout on HID teardown commands due to early=
+ IRQ disable
+--
 
-Disable and synchronize the IRQ, drain recovery work, then mask THC
-interrupts before freeing the IRQ and releasing HID/DMA resources.
-Track IRQ/DMA initialization for conditional probe cleanup.
+commit 074bce22ab8075bef92df21dcd016a16b939a785
+Author: Myeonghun Pak <mhun512@gmail.com>
 
-Disable the IRQ before shutdown deinit as well. Keep IRQ disabling and
-release outside the shared hibernation helper.
+HID: intel-thc-hid: quicki2c: quiesce IRQs during teardown
 
-This issue was found by static analysis.
+This commit disables and synchronizes the IRQ, drains recovery work, and
+masks THC interrupts before freeing the IRQ and releasing HID/DMA resources.
+It tracks IRQ/DMA initialization for conditional probe cleanup and disables
+the IRQ during shutdown as well.
 
-Fixes: 66b59bfce6d9 ("HID: intel-thc-hid: intel-quicki2c: Complete THC QuickI2C driver")
-Assisted-by: LLM
-Co-developed-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
----
-Compile-tested with GCC, W=1 (x86_64). No runtime testing.
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
+ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> index 7a913f717efaa..ac073be894817 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+[ ... ]
+> @@ -788,9 +798,12 @@ static void quicki2c_remove(struct pci_dev *pdev)
+>  	if (!qcdev)
+>  		return;
+> =20
+> -	quicki2c_hid_remove(qcdev);
+> -
+> +	WRITE_ONCE(qcdev->recovery_disabled, true);
+> +	disable_irq(pdev->irq);
+>  	quicki2c_dev_deinit(qcdev);
+> +	devm_free_irq(&pdev->dev, pdev->irq, qcdev);
+> +
+> +	quicki2c_hid_remove(qcdev);
 
-Related recovery-work review and series:
-https://lore-kernel.gnuweeb.org/linux-input/20260717035609.3874015-1-even.xu@intel.com/T/
-https://patchew.org/linux/20260729050145.2272597-1-even.xu@intel.com/
+[Severity: Medium]
+Could moving the IRQ disable/free and device deinit before
+quicki2c_hid_remove() break any HID raw_requests issued during high-level
+driver teardown?
 
- .../intel-quicki2c/pci-quicki2c.c             | 28 +++++++++++++++----
- 1 file changed, 22 insertions(+), 6 deletions(-)
+High-level HID drivers (like hid-multitouch) often send final commands
+(e.g., turning off LEDs or disabling features) during their remove
+callback, which is triggered by hid_destroy_device() inside
+quicki2c_hid_remove().
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-index 0d2ad7bc3648..9a9b640f32b3 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-@@ -648,6 +648,8 @@ static int quicki2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- {
- 	const struct quicki2c_ddata *ddata = (const struct quicki2c_ddata *)id->driver_data;
- 	struct quicki2c_device *qcdev;
-+	bool dma_initialized = false;
-+	bool irq_requested = false;
- 	void __iomem *mem_addr;
- 	int ret;
- 
-@@ -700,6 +702,7 @@ static int quicki2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 					qcdev);
- 	if (ret)
- 		goto dev_deinit;
-+	irq_requested = true;
- 
- 	ret = quicki2c_get_device_descriptor(qcdev);
- 	if (ret) {
-@@ -718,6 +721,7 @@ static int quicki2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		dev_err(&pdev->dev, "Setup THC DMA failed, ret= %d\n", ret);
- 		goto dev_deinit;
- 	}
-+	dma_initialized = true;
- 
- 	ret = thc_interrupt_quiesce(qcdev->thc_hw, false);
- 	if (ret)
-@@ -738,13 +742,13 @@ static int quicki2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	ret = quicki2c_get_report_descriptor(qcdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Get report descriptor failed, ret = %d\n", ret);
--		goto dma_deinit;
-+		goto dev_deinit;
- 	}
- 
- 	ret = quicki2c_hid_probe(qcdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to register HID device, ret = %d\n", ret);
--		goto dma_deinit;
-+		goto dev_deinit;
- 	}
- 
- 	qcdev->state = QUICKI2C_ENABLED;
-@@ -759,10 +763,16 @@ static int quicki2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- 	return 0;
- 
--dma_deinit:
--	quicki2c_dma_deinit(qcdev);
- dev_deinit:
-+	if (irq_requested) {
-+		WRITE_ONCE(qcdev->recovery_disabled, true);
-+		disable_irq(pdev->irq);
-+	}
- 	quicki2c_dev_deinit(qcdev);
-+	if (irq_requested)
-+		devm_free_irq(&pdev->dev, pdev->irq, qcdev);
-+	if (dma_initialized)
-+		quicki2c_dma_deinit(qcdev);
- disable_pci_device:
- 	pci_clear_master(pdev);
- 
-@@ -784,9 +794,12 @@ static void quicki2c_remove(struct pci_dev *pdev)
- 	if (!qcdev)
- 		return;
- 
--	quicki2c_hid_remove(qcdev);
--
-+	WRITE_ONCE(qcdev->recovery_disabled, true);
-+	disable_irq(pdev->irq);
- 	quicki2c_dev_deinit(qcdev);
-+	devm_free_irq(&pdev->dev, pdev->irq, qcdev);
-+
-+	quicki2c_hid_remove(qcdev);
- 
- 	quicki2c_dma_deinit(qcdev);
- 
-@@ -811,6 +824,9 @@ static void quicki2c_shutdown(struct pci_dev *pdev)
- 	if (!qcdev)
- 		return;
- 
-+	WRITE_ONCE(qcdev->recovery_disabled, true);
-+	disable_irq(pdev->irq);
-+
- 	quicki2c_dev_deinit(qcdev);
- 
- 	/* Must stop DMA before reboot to avoid DMA entering into unknown state */
+Since the patch moves disable_irq() and devm_free_irq() before
+quicki2c_hid_remove(), thc_dma_write() in intel-thc-dma.c will block
+for 1 second waiting for an IRQ completion that will never arrive:
+
+	ret =3D wait_event_interruptible_timeout(dev->write_complete_wait, dev->wr=
+ite_done, 1 * HZ);
+	if (ret <=3D 0 || !dev->write_done) {
+		dev_err_once(dev->dev, "timeout for waiting TxDMA completion\n");
+		ret =3D -ETIMEDOUT;
+		goto end;
+	}
+
+This might unconditionally introduce a 1-second delay per command
+during device unbind or system shutdown if the bound high-level HID driver
+issues any hardware commands in its remove callback.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011220531.2073=
+892-1-mhun512@gmail.com?part=3D2

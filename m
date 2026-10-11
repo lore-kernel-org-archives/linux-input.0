@@ -1,126 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E04F367B8B
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:21:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA8E32D8376
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:30:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791757266; cv=none; b=BADTZlW5TKA/ehuQgg+txXnmc/04uTQOAiT4UFBQcAnMmGKCNSPWiOAj6Esurojpw6ZXhnJi7JAROK8Lo6xSxp0kUZoh+4Ec5K2/WU3VuqV38DMDoDUeX6/Y4/K1rgHytQNmTDHeeIvw0/XBKoE6Hbg4vBLpAtJGlyKatxra13Y=
+	t=1791757860; cv=none; b=DURfyeN/X06ZKOi/K9T9p1I5BQ3gVPC00iFPbIsfxbSbJVsvgXsXqVzPaDZA5iDDtmYLc/TXZ0OIFFn14lex4maaEavIPc5FVcEq/lGIdpGxbJJTwe90Kd9EUTR1jsZl4SG62fPq0tY5/Xn/j0zflWpoeExI28xRzezHzJdshHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791757266; c=relaxed/simple;
-	bh=7aeyxbJ1AvXaMYthPR2UWBVyUkzk1Hu5yyCbG+IMSIw=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=XhMj2ZDuhGrNLihc0SrbifqACSkhlLwQZvhavycskAQkWCRMfMpZoioBXjv89OYnk3uIhjGhK8R62XDsjqafqNyw0y6kBiRsmHIHGAtn+BfNYpJpKcCMZkAsmpKnQSvOd9KUBZxgZ2hhaTdWrk8iDZaFeoP5XY3DTo6hp0Xog8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cQhVwVKt; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791757860; c=relaxed/simple;
+	bh=RUhZ687WiXbhHP2A7uEREv91fU3FDbersCArglngaxQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Ou7zz9AUTod/UISfYB/QReIQvvtZmy86vrLkE9dLBndGK/inqdHGIweQQZg+M6MQWpMg3BWs7z3rpj8f6JZAMABbK6Fcq1k02DlfLqaQxHRVQ3/cMzSAKyuRpT/wT/PEJjKdsoBfD1uPuc5l323hZYkH71K43gvMZoC840u2os8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net; spf=pass smtp.mailfrom=voidship.net; dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b=icjRwqbP; arc=none smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=voidship.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cQhVwVKt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 993AA1F0089B;
-	Sun, 11 Oct 2026 22:21:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791757264;
-	bh=fmAXjjfdFG/WUU/lnbGgnO07XDUnu6066NCmW1ocqwE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cQhVwVKtfhxMXtgICIg3PSgdGHBiKYi2IveOHN/fIUEfTp82D7dTj1y0/PwW7oqwu
-	 2gZaZBrr0OLxKHG9QB/jeUoSYIlNQxgXQ6DfTBEZOl8Hp5gQTFcjuOLltzCSebea77
-	 PXrZ/CFjiNtZK3Q+YZ9uCG9Hy1THjmKBC1ySUKc2Y6qpLnh0ymF2YBnPjOrke0cOyR
-	 JyyymyVJCChsj65t+OfZdq0y+8QK8Lfz6ALJ/xm/ZowskRvU6BVcHF9za9an8NBLxg
-	 HdL3uwRARnwbu5fYs59QqUf4jNpY5EXqNMOqmeUpVv3HSI9i4heb+p4Wp8/6FOam4/
-	 5aRRN4fdQB02w==
-Message-ID: <sashiko-outbox-167476@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs during
- teardown
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Myeonghun Pak" <mhun512@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261011220531.2073892-2-mhun512@gmail.com>
-References: <20261011220531.2073892-1-mhun512@gmail.com>
- <20261011220531.2073892-2-mhun512@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 11 Oct 2026 22:21:04 +0000
+	dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b="icjRwqbP"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-533797e72e8so7382501cf.2
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 15:30:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=voidship-net.20251104.gappssmtp.com; s=20251104; t=1791757857; x=1792362657; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=RUhZ687WiXbhHP2A7uEREv91fU3FDbersCArglngaxQ=;
+        b=icjRwqbPlBojkQofC5EzCPZGf8XxvgLLPHDYu0na0R4+WiQEnSci8sH3DkIpNwjkE6
+         fIDyR/aY1oeIpKyVdowLEWOC7bP0KC/5lh/uZ8BUs+HGS9qIriwmvf7GHQxh6WfAGzai
+         4TZ3bLoykATY7OM/pU6FJkVFm7SoCHlbdL5bw4dqfWXRPuYeJUhWGH6xk2Ry0ETGFwjZ
+         TCYEnEqAj+1pzkM+Myp8xEfZRTtOVYm7CacWLAsO+tk9NGxDV3gKTWl1NQ58fU5y6dtY
+         EZ0bDZdAXUyiMd2qHv41E1faJ36kaIsuD4s8OY2GjLGEfjsE64soX57mI0bBXCTufxt9
+         8wgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791757857; x=1792362657;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=RUhZ687WiXbhHP2A7uEREv91fU3FDbersCArglngaxQ=;
+        b=H1warbKVOqNdP/k1h10UACb9XiItcQ82G2zewSCX/n0zZPUoOKAkjkBqX40DU36eJ1
+         Jr/1LgtLVrGjuIU7dqFJcfA3l/fhz/gHHBEthujgQRdYnOCbKE37txt4App6bbBhLcX6
+         gvqmuI/WQv5raFKOqlyFtvkKjWM9Iesj122k+JxQ4dw8e4WXAuUzE7EOE1BtydxkFAET
+         2RYIiQT7xfzQ1hORQL6ZpzS2nnksBlueroUtaG3DstMjeT5C/quU1j2Yv/6XxBjKSICe
+         PWWT5+BgTR5iL15NMU0xkAfToAMZCE82ykd3Lkq9MZtmZCztWVnyMqpdj+ZeXTM9V3VO
+         lBcw==
+X-Gm-Message-State: AFq9FYJtGwWfgtulWEIP7yLHJBrDDbw9DCGkqN7C5WZIBvH9qCPT6dok
+	zLpEIto0PW7+I8+4qHKB9LDcdAPr2q5K7rihNDfOTV5iMjYJZtd1YhptqEkcJYqRpPY=
+X-Gm-Gg: AYBFou3NvB+ywehdp+XtjS0wCtPPze4vgZOIPeUHzCw0P/w/ihX5bxu8/r0ANDfaNnx
+	tK+FFwLiJzBAE+0qOn9sVh6BxkRd6PeochjxYa0BKIDinCUr5iURY7xmEAKhEzE4ipvq63LsBGU
+	GR60xxPEqdHDAG1YKl3WDnPmqCU1HWIs89HGH7AgwAdr3WwfxHO/Hfv77d+gEGz1YKdnIduVEGv
+	2xyBL1uosc2V+ZGccqUEDlgStr+/L9OBu5f4WwxUYOdgc9430//MPVZCRKC0QNbgAXLMpbmEumo
+	tYA3ng0ZQjvn6bydFmoJ8REVumPYPH4cgkf+qd7QxzzDL1hQKBIpHDaTmewEkK7CjXAYJv7Ec2G
+	cPxl4dwtGcwshfDZbxanuyOp8BPqTAOMEFk+G9wT9tYE8tpGD5ItlDvftn4cQBOPVbNdITTwMnC
+	NYVvyxcmeRNXAkEdl4rWk6YDCpOh6FgTzKgFw5aagiHy8h2sGjsRVxj5hLqIl8NSIHph+KN3nPZ
+	/B+gIM+LsDZ86CLPv4F98AMS38T12/2oySwBlC26CR8vo2Me/ZD6s2rI5k4
+X-Received: by 2002:a05:622a:22c6:10b0:535:db6c:139e with SMTP id d75a77b69052e-535db6c1fb3mr1848091cf.64.1791757857443;
+        Sun, 11 Oct 2026 15:30:57 -0700 (PDT)
+Received: from boomzilla.local (dynamic-acs-24-101-237-49.zoominternet.net. [24.101.237.49])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5359b7324c9sm67778241cf.12.2026.10.11.15.30.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 11 Oct 2026 15:30:56 -0700 (PDT)
+From: Karlos Abel <kabel@voidship.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject:
+ Re: [PATCH 0/2] Input: discard pre-registration events and test state seeding
+Date: Sun, 11 Oct 2026 18:30:51 -0400
+Message-ID:
+ <179175785190.2.15570576039664484922.input-plain-reply@voidship.net>
+In-Reply-To: <assT056aFmzMHmON@google.com>
+References:
+ <20261010180031.7-1-kabel@voidship.net> <assT056aFmzMHmON@google.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] hid: intel-thc-hid: DMA UAF due to HID deregistration race in remo=
-ve
---
+Resending in plain text; the mailing lists rejected my previous reply
+because it contained HTML.
 
-commit 664b72e58bd5cb1485c8eb563326dab08180f916
-Author: Myeonghun Pak <mhun512@gmail.com>
+Hi Dmitry,
 
-HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
+The observed problem is the initial switch event being delivered later and
+undoing a subsequent Bluetooth soft-block. It does not depend on the event
+timestamp.
 
-This commit disables and synchronizes the IRQ and drains recovery work prior
-to freeing the IRQ and releasing HID/DMA resources. It introduces this orde=
-red
-teardown in both the probe error and remove paths.
+hotkey_init() seeds SW_RFKILL_ALL=1 before registering the input device,
+without calling input_sync(). That updates the switch state, but also
+leaves the event queued across registration.
 
-Link: https://lore-kernel.gnuweeb.org/linux-input/20260717035609.3874015-1-=
-even.xu@intel.com/T/
-Link: https://patchew.org/linux/20260729050145.2272597-1-even.xu@intel.com/
+In the unpatched hardware trace:
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
-ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> index 53023e30cf8d4..c67476a378573 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-[ ... ]
-> @@ -721,9 +731,12 @@ static void quickspi_remove(struct pci_dev *pdev)
->  	if (!qsdev)
->  		return;
-> =20
-> -	quickspi_hid_remove(qsdev);
-> -
-> +	WRITE_ONCE(qsdev->recovery_disabled, true);
-> +	disable_irq(pdev->irq);
->  	quickspi_dev_deinit(qsdev);
-> +	devm_free_irq(&pdev->dev, pdev->irq, qsdev);
-> +
-> +	quickspi_hid_remove(qsdev);
+At 74.486 seconds, Bluetooth is explicitly soft-blocked.
+At 80.300 seconds, Xorg injects LED updates followed by SYN_REPORT. There
+is already one event queued.
+That flush delivers the old SW_RFKILL_ALL=1 to rfkill_event(), which
+schedules a global unblock and turns Bluetooth back on.
 
-[Severity: High]
-Does this sequence open a race window for a hardware DMA use-after-free?
+rfkill_start() already reads the initial switch state when the handler
+attaches; this later delivery produces an additional action after userspace
+has changed the soft-block state.
 
-By tearing down the hardware and disabling interrupts before unregistering =
-the
-HID device, it appears userspace can still issue a request via hidraw during
-unbind.
+Regarding the missing input_sync(): from reading the initialization path,
+simply adding it alongside the seed would be ignored because EV_SYN is not
+enabled on this device until input_register_device().
 
-If a raw_request is queued on the disabled device, it may call thc_dma_writ=
-e()
-to submit a TxDMA request:
+I targeted registration because input_event() documents pre-registration
+seeding as updating initial state without delivering those events to
+handlers. The patch retains that state while discarding the pending events.
+The timestamp reset addresses a separate stale-timestamp case covered by
+the tests.
 
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:thc_dma_write() {
-    ...
-	ret =3D wait_event_interruptible_timeout(dev->write_complete_wait, dev->wr=
-ite_done, 1 * HZ);
-	if (ret <=3D 0 || !dev->write_done) {
-		dev_err_once(dev->dev, "timeout for waiting TxDMA completion\n");
-		ret =3D -ETIMEDOUT;
-		goto end;
-	}
-    ...
-}
+Thanks very much,
 
-Because IRQs are disabled here, the wait will time out and return -ETIMEDOU=
-T,
-but it fails to clear the TxDMA START bit.
+Karlos
 
-quickspi_remove() will then proceed to unregister the HID device and call
-quickspi_dma_deinit(), which frees the DMA buffers without clearing the TxD=
-MA
-START bit. Could this allow the hardware TxDMA engine to remain active and
-access freed DMA memory, leading to memory corruption or an IOMMU fault?
 
-Note that follow-up patches in the series do not appear to resolve this rac=
-e.
+On Sun, Oct 11, 2026 at 12:45 AM Dmitry Torokhov <dmitry.torokhov@gmail.com>
+wrote:
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011220531.2073=
-892-1-mhun512@gmail.com?part=3D1
+> Hi Karlos,
+>
+> On Sat, Oct 10, 2026 at 02:00:29PM -0400, Karlos Abel wrote:
+> > This series prevents input handlers from receiving buffered
+> initialization
+> > events after device registration. On a ThinkPad T14 Gen 6, a later LED
+> > update flushed a stale SW_RFKILL_ALL event seeded by thinkpad_acpi.
+> > The fix drops the pending events and their timestamp before handlers
+> > attach, while retaining the seeded switch and absolute-axis state.
+>
+> Could you explain why these seeded events give you trouble? Is it
+> because thinkpad_acpi() forgets to send input_sync() and so the
+> timestamp is stale/wrong?
+>
+> Thanks.
+>
+> --
+> Dmitry
+>

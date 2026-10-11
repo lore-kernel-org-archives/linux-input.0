@@ -1,118 +1,92 @@
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96A87372EE2;
-	Sun, 11 Oct 2026 12:56:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8567344C66B;
+	Sun, 11 Oct 2026 12:57:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791723409; cv=none; b=t0XvRB9dzpSkxKmBwrHKPm7B7ej8SWKwTI/YDp2/PRBE1V537AvGxrzzRWhdMX9J/ew64zDRzPxqfhoTwMgie/RwTU8wGIwE7fj9oLjlAo+NiYEZ8MqeyOCd6Ev38FWdd2PMFBEWcVW79W0CgbnrfH2q4kPdAZH028WTRbUZcjI=
+	t=1791723431; cv=none; b=EKJm6aQqfgMsx3unSTxjdsFGzKKitqVURY4evQnDc/S9EQrGQSPLxx0BmNCjfeR1e+8OQAYG65uwmzmF9s3tl9rmxxgAP2gxQVeXKYs220Oj6Ej52lRqiBm1oaz5TL1HdmMuBYk54cscfXhErUhn6CrAbvGaFk3SkxItEdlgIuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791723409; c=relaxed/simple;
-	bh=aDKj2U0X/DE9Yy9OF/iPoSmXRkPpr6DL3PcMg2CUwWY=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=CPRwS9bAgDf4z/Bmlwjqr9hm3Nd1XeCdQ+wbpdsQW5r6SlU7VRifkn/ZJUxeFalH8xqhNSLO1sv89+lRAmuR8or2Rqlq6LgNd22cXWZHCQIQrQcYpcoOz2rkfwiPSarHjp9KoMnzUNUNXdpGo7P4hqFI5N2fDJpA5D2ZD3gPMGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=timmermann.space; spf=pass smtp.mailfrom=timmermann.space; dkim=pass (2048-bit key) header.d=timmermann.space header.i=@timmermann.space header.b=RQioT9p6; arc=none smtp.client-ip=80.241.56.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=timmermann.space
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=timmermann.space
+	s=arc-20240116; t=1791723431; c=relaxed/simple;
+	bh=UewO25v2+KHh6lZYktE6joFs5kyAGdzQIYXQSJvLsds=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=PMMsYdRmq6j4oJmRZ1ffNtJKplzklnVYoKDYDVRKe7DfJci12+jfhVNENv86+Z3FWyK2JLQdTIRcATrQvCTck9TaoMMMeQLaIZRKsKzxRqKYSdciG+Cn1pvakzurcp+/kwj8Up6msTkk1EHqD0DmPGYl3NwcAYkBc0wG5u2TYI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WR+Y/XjX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=timmermann.space header.i=@timmermann.space header.b="RQioT9p6"
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:b231:465::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519MLKEM768 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4j2gP31l6Nz8tCW;
-	Sun, 11 Oct 2026 14:47:51 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=timmermann.space;
-	s=MBO0001; t=1791722871;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=btNDbK48xuDBWKfwWNXMiDHC86J0cvKtwBVfd31rk2M=;
-	b=RQioT9p67PYKErxNhpz+kKu2Q3oSLUKo1fHwnvF4zFuyDf7q7xholJKQ90gVmGYIt+kMMw
-	Pp3+TVONM9Oww1ZTTMR2pOEHBcNvpYZ+N4rlG3oXLDgxf8vnE7vybaSYEc7Q0ymgX0HA6I
-	clCzsBD+BIzj46L+r4ZrIc99B95JRck9m6Q5bCUY9u1/KQBY9bjm9Aq36NbSI/MJpQZ/Z1
-	Hv5xdWa080YDk5dc6YU2JlgTO6UVXCtHa6MlYXSWM5wV5NJjm07uimQBkdMkziX0/aHmnL
-	X3vjdoHebYNUPYFK7bL79Gc2xn0bra3ABSFWlQpLPShXF2HbBU5gs/0za/m/+Q==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=none;
-	spf=pass (outgoing_mbo_mout: domain of foss@timmermann.space designates 2001:67c:2050:b231:465::2 as permitted sender) smtp.mailfrom=foss@timmermann.space
-From: Lukas Timmermann <foss@timmermann.space>
-Subject: [PATCH 0/7] Input: s6sy761 - add SPI support for the S6SY791
-Date: Sun, 11 Oct 2026 14:44:55 +0200
-Message-Id: <20261011-lat3st-google-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WR+Y/XjX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D32C31F0089B;
+	Sun, 11 Oct 2026 12:57:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791723430;
+	bh=eWw/OXt8sQQa5wBXzZsoENxWu+zzw1hSdtYf6U0eWHc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=WR+Y/XjXlgBjAJM/OycmJ3CmCujCgUWY3KbuGIxvNeGJhO1QiYWqIhXsAjIvSNA2c
+	 XSPq17p/ribXPUPEcV7J3poHbTU7Px6GsblfPJW1pwmtKjeiyYqrZTe52wOh0/nCci
+	 mAoQypdXnLSw/jqaE3/UI8GQmO6xPr/l47rQXG9PmmKAOyQJVXcp4yc8DLmHaZYVqz
+	 7ahFyuDkzhAcRULPCMUf1Me7GChBgU57Kll0cefdSb9t5SHzSJVOCbadTUd/t5H+Di
+	 gj3nCXKR0EklTVbcGDN9JqBF4txiMVgdTgcNmmprp10U0m3G2Fpkl4TiYJLzOQdct3
+	 LWFIIl9vJE/Lw==
+Message-ID: <sashiko-outbox-167232@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/7] Input: s6sy761 - split into core and I2C modules
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Lukas Timmermann" <foss@timmermann.space>
+Cc: linux-input@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, devicetree@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261011-lat3st-google-raven-touch-upstream-v1-2-2a9f55159b9e@timmermann.space>
+References: <20261011-lat3st-google-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space>
+ <20261011-lat3st-google-raven-touch-upstream-v1-2-2a9f55159b9e@timmermann.space>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 11 Oct 2026 12:57:09 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXNQQqDMBBA0avIrDvgpFCwVyldpHESU2wimYkI4
- t2b1uXb/L+DcIkscO92KLxGiTk10KUDN9kUGOPYDKY3N+qJcLZ6FcWQc5gZi105oebqJqyLaGH
- 7QU+DdSMZ8sZBCy2Ffdz+k8fztNTXm53+ynAcXykHBiqGAAAA
-X-Change-ID: 20261011-lat3st-google-raven-touch-upstream-f19acd121f2c
-To: Lukas Timmermann <foss@timmermann.space>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Peter Griffin <peter.griffin@linaro.org>, 
- =?utf-8?q?Andr=C3=A9_Draszik?= <andre.draszik@linaro.org>, 
- Tudor Ambarus <tudor.ambarus@linaro.org>, 
- Alim Akhtar <alim.akhtar@samsung.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-samsung-soc@vger.kernel.org
-X-Mailer: b4 0.15.2
-X-Rspamd-Queue-Id: 4j2gP31l6Nz8tCW
 
-This series adds SPI support to S6SY761 touch controllers, specifically
-S6SY791 devices. Also included are the necessary adjustments in the DTS
-for the Google Pixel 6 Pro (raven) which uses the aforementioned SPI
-version. As the mentioned board has a reset line wired, I also added that
-functionality to the bindings and driver. To implement SPI versions
-cleanly, the driver was split into core and bus transfer modules like
-seen in other drivers.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] i2c: missing named initializer for struct i2c_device_id array
+--
 
-This series was successfully tested with a Google Pixel 6 Pro. The I2C
-transfer part was untested because I don't have a device with an
-S6SY761 controller.
+commit 51d3d608cec412c03a6a7e8a8664d2c06b76fa92
+Author: Lukas Timmermann <foss@timmermann.space>
 
-Known issue: on gs101 the touchscreen probe at boot fails with -EIO
-because the very first SPI transfer is not understood by the controller
-(the reply is all zeros); rebinding the driver works. This looks like
-spi-s3c64xx applying CPOL/CPHA only in transfer_one(), after chip
-select has been asserted, but I have not verified this further. It is
-not addressed by this series.
+Input: s6sy761 - split into core and I2C modules
 
-Patches 1-4 and 7 are meant for the input tree, patches 5-6 for the
-Samsung SoC tree. The DTS patches depend on the binding in patch 1.
+This commit splits the s6sy761 touchscreen driver into a bus-agnostic core
+and an I2C transport module in preparation for SPI support. It also adds a
+mutex to protect the shared transfer buffer across threads.
 
----
-Lukas Timmermann (7):
-      dt-bindings: input: touchscreen: samsung,s6sy761: Add S6SY791 and reset GPIO
-      Input: s6sy761 - split into core and I2C modules
-      Input: s6sy761 - add reset GPIO support
-      Input: s6sy761 - add SPI support for S6SY791
-      arm64: dts: exynos: gs101-pixel-common: add labels for touchscreen supplies
-      arm64: dts: exynos: gs101-raven: add S6SY791 touchscreen
-      MAINTAINERS: add entry for Samsung S6SY761 touchscreen driver
+> diff --git a/drivers/input/touchscreen/s6sy761_i2c.c b/drivers/input/touc=
+hscreen/s6sy761_i2c.c
+> new file mode 100644
+> index 0000000000000..b5cbebfd722a8
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/s6sy761_i2c.c
+[ ... ]
+> +static const struct of_device_id s6sy761_of_match[] =3D {
+> +	{ .compatible =3D "samsung,s6sy761", },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, s6sy761_of_match);
+> +
+> +static const struct i2c_device_id s6sy761_id[] =3D {
+> +	{ "s6sy761" },
 
- .../input/touchscreen/samsung,s6sy761.yaml         |  37 +++-
- MAINTAINERS                                        |   7 +
- .../boot/dts/exynos/google/gs101-pixel-common.dtsi |   4 +-
- arch/arm64/boot/dts/exynos/google/gs101-raven.dts  |  50 +++++
- drivers/input/touchscreen/Kconfig                  |  20 +-
- drivers/input/touchscreen/Makefile                 |   4 +-
- .../touchscreen/{s6sy761.c => s6sy761_core.c}      | 226 ++++++++++-----------
- drivers/input/touchscreen/s6sy761_core.h           |  34 ++++
- drivers/input/touchscreen/s6sy761_i2c.c            | 112 ++++++++++
- drivers/input/touchscreen/s6sy761_spi.c            | 172 ++++++++++++++++
- 10 files changed, 534 insertions(+), 132 deletions(-)
----
-base-commit: 3857c2fe5449541e24afc5efdb0f81a8a8f9a3a0
-change-id: 20261011-lat3st-google-raven-touch-upstream-f19acd121f2c
+[Severity: Low]
+Does this array declaration intentionally omit the named initializer? The I=
+2C
+subsystem guidelines require initialized arrays of type struct i2c_device_id
+to use named initializers (e.g., { .name =3D "s6sy761" }) to remain robust
+against layout changes. It looks like the named initializer was present in =
+the
+original code but was dropped during the driver split.
 
-Best regards,
---  
-Lukas Timmermann <foss@timmermann.space>
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(i2c, s6sy761_id);
 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011-lat3st-goo=
+gle-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space?part=3D2

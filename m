@@ -1,63 +1,75 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from libero.it (smtp-33.italiaonline.it [213.209.10.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33A90455175;
-	Sun, 11 Oct 2026 15:14:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712A0282F1E
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 15:37:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.209.10.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791731646; cv=none; b=d6nOnUtF1IjUR5AMGNSte/ja4zXLEjX/+dZn/PTX0/vNFeUk/z4LAebtIcuVDh+9WMKSI3EvDbAb7G7v5iyBvk5aUeC3JL7BvEOYtEm/zQi9wcsvPDM65fc3WRBrPUXetkU5eQRE0nECta2tsv2bTD77AQpCiwN/mKx3xPzc5vM=
+	t=1791733044; cv=none; b=pJm1/rJ3FS7o4MWhiYU6KRbKdXlljbhoNRg/DPAD6NyXDGawKtatVL6li5SuRARq/EdgP5FO5LFYbpE97xBXtyigJhO92laZZiAl4dmZSrxJkS9ImCMC2YE3ifc7oLblGqpMkF0srnEsD9zEz0mW5qPeiQvLDRV/y+0Rc5CHMCA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791731646; c=relaxed/simple;
-	bh=C6X1DAVuH9YMkghWAQFvlSlr9Cj2+AFsHYkgQKsHLME=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=rF7BoiuIwJr2pAu8ZcEBE/WhBfJNU2fBjaAlMIkf+1Y/GrKbQsLgtFDVgYDhN1BI/X9oWeW4UIHSWbokK5WZVmbUkptjGmPEB/dKIhwm2nhIx9mbjUWNHpqlNSf6STA9nmg3D4XUTv6Rlq8BfMcCwdS0MyAqP1osmdVSiOwIsRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jih+CeBG; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791733044; c=relaxed/simple;
+	bh=TXluLokLhWQnxiJS5jZwfeoysdUBM/mReUut4Cwhf9w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pLTz4VylP671wM2tQLoRVTSoUHZFoTX2y2zZ9V77pBhAhADICtCCP0MTwtJ0scHPFOIWCP3GpQjHMl2GpVcpuGEIIsRvMvXg5KYsY2QnQptyl4r+SATWf/7Zr4aPNPZdm+O40Wy/cdDOJiQS2RCVOpKZ1zE3M1pGly3HLP+DgXY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=libero.it; spf=pass smtp.mailfrom=libero.it; dkim=pass (2048-bit key) header.d=libero.it header.i=@libero.it header.b=vBXoHLVe; arc=none smtp.client-ip=213.209.10.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=libero.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=libero.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jih+CeBG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE431F0089B;
-	Sun, 11 Oct 2026 15:14:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791731644;
-	bh=5zXnYprVq1nNCdtAgnl/QNxubBgabTeHXNA1qTQIue0=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=Jih+CeBGxa8lqLn2VuktmxJ50YA8emDXuvdfIv8cAFu6vNfsp/Mpe9iPIVThlirB/
-	 b/7gluj2Cmc5LgZiCtBiu96sNpCISav9coD8B8H7ykpir7ay3MWx3KEYF4QJGzRae8
-	 69x2T0ptqWFC60x/RzLgaIv7rJTSrIoDvVCAyk3rVIHRJ3gFuj4tybeKMIRwDv3bQF
-	 VMRgZno+5P7CyXk40/CVNVOUbDF/1yEYh7O7cA4SzchSeDdC9uiDYNqofVg7Zh1pf/
-	 Kq+Dxpod8hPT3TqlZVNrhZP5DtnqMS6bGhcdo7W1K6zC1hBObYxA4zh9To0n2zvUS2
-	 DVMZuyPJZwfdg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id B468A38119C4;
-	Sun, 11 Oct 2026 15:14:04 +0000 (UTC)
-Subject: Re: [git pull] Input updates for v7.3-rc6
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <asr3A-2qdU6MSCTZ@google.com>
-References: <asr3A-2qdU6MSCTZ@google.com>
-X-PR-Tracked-List-Id: <linux-input.vger.kernel.org>
-X-PR-Tracked-Message-Id: <asr3A-2qdU6MSCTZ@google.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc6
-X-PR-Tracked-Commit-Id: 41363c27b8509bd4efcba244803edac9ba25d1b5
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: b88c841d11641923fa3a4da011d7202cd89df68a
-Message-Id: <179173164330.2080702.8882988715559478368.pr-tracker-bot@kernel.org>
-Date: Sun, 11 Oct 2026 15:14:03 +0000
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=libero.it header.i=@libero.it header.b="vBXoHLVe"
+Received: from KnightIndustries ([151.45.156.93])
+	by smtp-33.iol.local with ESMTPA
+	id FvZLxCa18Dle7FvZTx1plX; Sun, 11 Oct 2026 17:34:43 +0200
+x-libjamoibt: 1601
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=libero.it; s=s2021;
+	t=1791732883; bh=62EleFhyZGwhO3p0AH1Pl1laLzKzwkSu5KufzyDZCwU=;
+	h=From;
+	b=vBXoHLVeGGd3E7tU3mtuGG8MCgC7bpIvePQzE/uBuP1xpCgUTNR+WL4SD4OJM9r1H
+	 fVETnqHy7drDjE7/aWnK0b4BhOwlBBUJD8YsNA27nbw+BdfoJ9M3ebCRdBA8JrVB+f
+	 uHfIvLAylxzdFfq7FeThj/ZsWHskFKBZssUqdwxUYcjBzX+Qpst1lnBkwcBxLBoHa2
+	 5rsvqRpr/CxnrPzQ6fTzse5ghhck8TD39JJhJf61yoduBhiSnU+ma27fQR+KHPfW4Z
+	 wxUHe++xgKE3d14lNnFxJN0F+QhzVs/sLQWupPSL8CQrkXgidkaa2Nn5d1fuIvvIEE
+	 PIUiub2+FDX0g==
+X-CNFS-Analysis: v=2.4 cv=CMkamxrD c=1 sm=1 tr=0 ts=6acbac93 cx=a_exe
+ a=dMomL7OUOMxyzfrmwCBbWw==:117 a=dMomL7OUOMxyzfrmwCBbWw==:17
+ a=QmeXOjnvPUAQAOWKIboA:9
+From: Francesco Orlando <francesco.orlando99@libero.it>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	Francesco Orlando <francesco.orlando99@libero.it>
+Subject: [PATCH] Input: xpad - add GameSir Nova Lite support
+Date: Sun, 11 Oct 2026 17:34:22 +0200
+Message-ID: <20261011153422.66844-1-francesco.orlando99@libero.it>
+X-Mailer: git-send-email 2.56.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4xfPthnCyaYappShurNMWWFikDDn8aguPYzJakQVknHrIlQ5AMam10R9VwofN5wQQHcPF4Ta4Eo4QqDxwnywNnZRsT5BCADXvnllQwBKYm2cz9Iv0NKpCK
+ fkG5yLM/Nno2uf1LvHRvyUoygsjYpJMP43qol52SqRZKHQKCP/qZVDXI0T0CPTwamUIPEWb6eG2iX583jIJqoyxa5wRS71d5rBMztLC9ve0OyDMn2FEFjxnP
+ UZmmlmj9PEwj+jkvqDUHwpomY0eAkNh6k3GMO+tEei1Pmv42EgHPfoqWgMlp2ZK/
 
-The pull request you sent on Sat, 10 Oct 2026 19:40:13 -0700:
+    Add vendor and product ID for GameSir Nova Lite (0x3537:0x1040)
+    in XInput mode to enable force feedback rumble support.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v7.3-rc6
+Signed-off-by: Francesco Orlando <francesco.orlando99@libero.it>
+---
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/b88c841d11641923fa3a4da011d7202cd89df68a
-
-Thank you!
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 6406ceab9..00a26693d 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -403,6 +403,7 @@ static const struct xpad_device {
+ 	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
+ 	{ 0x3507, 0x000b, "ZENAIM LEVERLESS", 0, XTYPE_XBOX360 },
+ 	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
++	{ 0x3537, 0x1040, "GameSir Nova Lite", 0, XTYPE_XBOX360 },
+ 	{ 0x3537, 0x100f, "GameSir Nova 2 Lite", 0, XTYPE_XBOX360 },
+ 	{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
+ 	{ 0x3651, 0x1000, "CRKD SG", 0, XTYPE_XBOX360 },
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.56.0
+

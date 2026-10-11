@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B30142DA3D
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:20:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E04F367B8B
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 22:21:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791757225; cv=none; b=XaEyKYeP3GhiJPLhmIFLuutVme0KNA2c82YWOJXwJii1Z694sT5iTk2OiMHu+RUSav0YymJxb6EjXX+Sj8qC9vcLxQ0zin8OYwG0GbjQSQ3Bxibf647/w9RlmFlfkd6jsAtDa0ugnXs4S4nNwuy7hkwGJfvy73FtYSYEVDvDg/8=
+	t=1791757266; cv=none; b=BADTZlW5TKA/ehuQgg+txXnmc/04uTQOAiT4UFBQcAnMmGKCNSPWiOAj6Esurojpw6ZXhnJi7JAROK8Lo6xSxp0kUZoh+4Ec5K2/WU3VuqV38DMDoDUeX6/Y4/K1rgHytQNmTDHeeIvw0/XBKoE6Hbg4vBLpAtJGlyKatxra13Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791757225; c=relaxed/simple;
-	bh=3tET96btQ5l9uELilDN7bFpHN4VSTQR+H9PEXlvrhIs=;
+	s=arc-20240116; t=1791757266; c=relaxed/simple;
+	bh=7aeyxbJ1AvXaMYthPR2UWBVyUkzk1Hu5yyCbG+IMSIw=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=p6EUNJuyjkV9cDfmDqIyFlgfMgwK9FnxHcOJiFLPXDulKLawAvobAe1k5Jm6/XgbipeVF4x4UYw8QLYHsZVaATig17R3yKmwuxq1KsLE28XKYSH2L06WVxPeA+usDo2KRwTqVmKo2GXSnHcWvU8O/G6NKr5fE7eU+VDFSVMoWWk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Aw7gMEDY; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=XhMj2ZDuhGrNLihc0SrbifqACSkhlLwQZvhavycskAQkWCRMfMpZoioBXjv89OYnk3uIhjGhK8R62XDsjqafqNyw0y6kBiRsmHIHGAtn+BfNYpJpKcCMZkAsmpKnQSvOd9KUBZxgZ2hhaTdWrk8iDZaFeoP5XY3DTo6hp0Xog8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cQhVwVKt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Aw7gMEDY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F0C1F0089B;
-	Sun, 11 Oct 2026 22:20:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cQhVwVKt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 993AA1F0089B;
+	Sun, 11 Oct 2026 22:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791757224;
-	bh=hXxO8jJcrLemkhaVAabgNeuzq1oJqHGkMulNWjbLUrg=;
+	s=k20260515; t=1791757264;
+	bh=fmAXjjfdFG/WUU/lnbGgnO07XDUnu6066NCmW1ocqwE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Aw7gMEDYc+rqg7Nx2Bf73d6DKzK+5yj2nCpB73nYtld93qSh09fcC7deYEelvY8Zt
-	 tcR6xKZfK4VMpPQvX3Gyp/W9q2mZpySQh9Iz1rLUJwRI65p2ms7TMjyjMF5kLVK+LP
-	 gwHtz4vmONMY2/Sgknu4IXBNFKzgxcu4UAWwN2fl6XGsUD2u6a6PR3hDVqKOGd3OF/
-	 M1tzQ1pJ/m6ZmQI3Y7mlKUOWpDs3tniBYFu4iLBqHwXG0dupPC9zvJaUE+lUzB1c/o
-	 pP/BQb1Qm0WffisvTrDes/vPcocJI/K5antpzCL7/ejNDanvxuHhjSJ6e2oCSLUMuX
-	 dZLxPPzjeJgRA==
-Message-ID: <sashiko-outbox-167473@kernel.org>
+	b=cQhVwVKtfhxMXtgICIg3PSgdGHBiKYi2IveOHN/fIUEfTp82D7dTj1y0/PwW7oqwu
+	 2gZaZBrr0OLxKHG9QB/jeUoSYIlNQxgXQ6DfTBEZOl8Hp5gQTFcjuOLltzCSebea77
+	 PXrZ/CFjiNtZK3Q+YZ9uCG9Hy1THjmKBC1ySUKc2Y6qpLnh0ymF2YBnPjOrke0cOyR
+	 JyyymyVJCChsj65t+OfZdq0y+8QK8Lfz6ALJ/xm/ZowskRvU6BVcHF9za9an8NBLxg
+	 HdL3uwRARnwbu5fYs59QqUf4jNpY5EXqNMOqmeUpVv3HSI9i4heb+p4Wp8/6FOam4/
+	 5aRRN4fdQB02w==
+Message-ID: <sashiko-outbox-167476@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] HID: intel-thc-hid: quicki2c: quiesce IRQs during
+Subject: Re: [PATCH 1/2] HID: intel-thc-hid: quickspi: quiesce IRQs during
  teardown
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Myeonghun Pak" <mhun512@gmail.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261011220531.2073892-3-mhun512@gmail.com>
+In-Reply-To: <20261011220531.2073892-2-mhun512@gmail.com>
 References: <20261011220531.2073892-1-mhun512@gmail.com>
- <20261011220531.2073892-3-mhun512@gmail.com>
+ <20261011220531.2073892-2-mhun512@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 11 Oct 2026 22:20:23 +0000
+Date: Sun, 11 Oct 2026 22:21:04 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,53 +47,57 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] hid: intel-thc: 1s timeout on HID teardown commands due to early=
- IRQ disable
+- [High] hid: intel-thc-hid: DMA UAF due to HID deregistration race in remo=
+ve
 --
 
-commit 074bce22ab8075bef92df21dcd016a16b939a785
+commit 664b72e58bd5cb1485c8eb563326dab08180f916
 Author: Myeonghun Pak <mhun512@gmail.com>
 
-HID: intel-thc-hid: quicki2c: quiesce IRQs during teardown
+HID: intel-thc-hid: quickspi: quiesce IRQs during teardown
 
-This commit disables and synchronizes the IRQ, drains recovery work, and
-masks THC interrupts before freeing the IRQ and releasing HID/DMA resources.
-It tracks IRQ/DMA initialization for conditional probe cleanup and disables
-the IRQ during shutdown as well.
+This commit disables and synchronizes the IRQ and drains recovery work prior
+to freeing the IRQ and releasing HID/DMA resources. It introduces this orde=
+red
+teardown in both the probe error and remove paths.
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/dr=
-ivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> index 7a913f717efaa..ac073be894817 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+Link: https://lore-kernel.gnuweeb.org/linux-input/20260717035609.3874015-1-=
+even.xu@intel.com/T/
+Link: https://patchew.org/linux/20260729050145.2272597-1-even.xu@intel.com/
+
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
+ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index 53023e30cf8d4..c67476a378573 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
 [ ... ]
-> @@ -788,9 +798,12 @@ static void quicki2c_remove(struct pci_dev *pdev)
->  	if (!qcdev)
+> @@ -721,9 +731,12 @@ static void quickspi_remove(struct pci_dev *pdev)
+>  	if (!qsdev)
 >  		return;
 > =20
-> -	quicki2c_hid_remove(qcdev);
+> -	quickspi_hid_remove(qsdev);
 > -
-> +	WRITE_ONCE(qcdev->recovery_disabled, true);
+> +	WRITE_ONCE(qsdev->recovery_disabled, true);
 > +	disable_irq(pdev->irq);
->  	quicki2c_dev_deinit(qcdev);
-> +	devm_free_irq(&pdev->dev, pdev->irq, qcdev);
+>  	quickspi_dev_deinit(qsdev);
+> +	devm_free_irq(&pdev->dev, pdev->irq, qsdev);
 > +
-> +	quicki2c_hid_remove(qcdev);
+> +	quickspi_hid_remove(qsdev);
 
-[Severity: Medium]
-Could moving the IRQ disable/free and device deinit before
-quicki2c_hid_remove() break any HID raw_requests issued during high-level
-driver teardown?
+[Severity: High]
+Does this sequence open a race window for a hardware DMA use-after-free?
 
-High-level HID drivers (like hid-multitouch) often send final commands
-(e.g., turning off LEDs or disabling features) during their remove
-callback, which is triggered by hid_destroy_device() inside
-quicki2c_hid_remove().
+By tearing down the hardware and disabling interrupts before unregistering =
+the
+HID device, it appears userspace can still issue a request via hidraw during
+unbind.
 
-Since the patch moves disable_irq() and devm_free_irq() before
-quicki2c_hid_remove(), thc_dma_write() in intel-thc-dma.c will block
-for 1 second waiting for an IRQ completion that will never arrive:
+If a raw_request is queued on the disabled device, it may call thc_dma_writ=
+e()
+to submit a TxDMA request:
 
+drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:thc_dma_write() {
+    ...
 	ret =3D wait_event_interruptible_timeout(dev->write_complete_wait, dev->wr=
 ite_done, 1 * HZ);
 	if (ret <=3D 0 || !dev->write_done) {
@@ -101,11 +105,22 @@ ite_done, 1 * HZ);
 		ret =3D -ETIMEDOUT;
 		goto end;
 	}
+    ...
+}
 
-This might unconditionally introduce a 1-second delay per command
-during device unbind or system shutdown if the bound high-level HID driver
-issues any hardware commands in its remove callback.
+Because IRQs are disabled here, the wait will time out and return -ETIMEDOU=
+T,
+but it fails to clear the TxDMA START bit.
+
+quickspi_remove() will then proceed to unregister the HID device and call
+quickspi_dma_deinit(), which frees the DMA buffers without clearing the TxD=
+MA
+START bit. Could this allow the hardware TxDMA engine to remain active and
+access freed DMA memory, leading to memory corruption or an IOMMU fault?
+
+Note that follow-up patches in the series do not appear to resolve this rac=
+e.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261011220531.2073=
-892-1-mhun512@gmail.com?part=3D2
+892-1-mhun512@gmail.com?part=3D1

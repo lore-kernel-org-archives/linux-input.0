@@ -1,57 +1,57 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ADC4381AF
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 01:48:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A5591A682C
+	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 02:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791683339; cv=none; b=BDD49xQnqL6xzmqqV3iAZUJg9bsPdCdgBVtpTs++FcOGRPVeSWRUytlDZucqgonKzBKo1YS7Kmr9eIdf7FC/rNs+9rbBBlbmmZgCy0Rv88EV81UFip4Zo1ba5RHxEFp+Am6yd51UXuEjPhFMWkBdRAGI5MR8GAFbRNK0b6+QneA=
+	t=1791685681; cv=none; b=pvkvslQ4gqsT/H7mY+vJzydtHVIWgnGYnwPHiTdD+rU8coYu3mhS2AmrAI3QnwRRvR7/ECXGp2beN6ENWI4o42MPeNjpP1weo5Ji8xtK5WAdBjcWuWAT0mP5jWoE9ny9Q+QgDS9kZ4spfCkQeL0zQSdG+RaLJvMmv2vvZoSSUPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791683339; c=relaxed/simple;
-	bh=Et5QC6w1STM/TbKSZ4/E9xWuhz9SBxWIITsgvK4INAU=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=iHI4fwXxCDaIU7OC003+zzpDyfDghEzJJFDd4Da+trf29PNfstHlnI54FqFxnCqLKZPqy1lFN6coGY0N0W+DOANJ/WtoQy1wROXOpR2C8qYLzk3vo3bwq9Fa88EzjQlv6JTzpHROYldpoxuGRKSdI9TBM884K5ci447KYwEAYhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MP885VlS; arc=none smtp.client-ip=198.175.65.9
+	s=arc-20240116; t=1791685681; c=relaxed/simple;
+	bh=E7ELmZGwnyItyvKq3Po07EWmme6hlmoatJpBf+ULTDo=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=XQM3KEXWA0T/2OH2oQ1b6qwItD0rTkCB2cxeWqepDOjFNxNgR0qWEy/pvVYsfwrGRw50rvu3w+5xKNp5QE/6bKAQMNUOA5diyh5y2EMcqker0RsGHV3xSiKLe7CiJltzSZlG9ZRPQbKM7tyJDhKLxNfkvNWZIEHAvUAAQF1fP/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lrj3Nwku; arc=none smtp.client-ip=198.175.65.19
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MP885VlS"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lrj3Nwku"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1791683337; x=1823219337;
+  t=1791685680; x=1823221680;
   h=date:from:to:cc:subject:message-id;
-  bh=Et5QC6w1STM/TbKSZ4/E9xWuhz9SBxWIITsgvK4INAU=;
-  b=MP885VlS9Kvb1LQbGPTrBiIfUCdoDXRrb2oNpHz1pXaY0ym/zOw+Nasa
-   Ry1E46C4HckZBLdklWwDKwhav90S1dISbZbZ1xgDehjuNjt/cWGF+xtVo
-   xF+iIVpGQL/3xf7Af/wxkqTKXop5txr9EuYUw6OdLpbaIYjir0FZNxUM2
-   0EUjdQcDO6sol9abnZcqN3h32zlDxBQWUOKeBG1esT+0MUnT0DwnalmNP
-   lANgmXPBrJn4paGyaMMRWdKXnEeCxHtEinoMBzg3fQfK2zIrixJLsmMnO
-   yWJXbG5nuPHDMTgJxJy5hT6QjHGoVe8qYdGbCIHzSbmJBW0V+3E3IS9zJ
+  bh=E7ELmZGwnyItyvKq3Po07EWmme6hlmoatJpBf+ULTDo=;
+  b=lrj3Nwku46/hWsULkJIbD9OXQwEJckNz1rdjs+V2PycvqsqZ7zLXVVeO
+   E2SPBoKF0bWjh91ADLscUHNzjdEsx2/011XTYZTcfYJ+tK5BtHlAz8uFa
+   3FiNJKGJKTDRYIQVP7f2iDoUkLjSabqVD25UJst6i5ns8V2Dhs721sfpI
+   9+EQHtEbr5cZF6nH2JWGdxan14UKXzBCV4gZiYVJHeeS68ABknJlxI1EV
+   +DfNZKsde/w23Iy2VFMriXJkCOZ+M0xCAixg4naQYH4K8oYhZk3NG+ZTd
+   aX/eMmi4LrsFhP6GIpMPCpjAsdd+4yTfnOdxM1ZsemxZIgfLXDMUpm8yz
    g==;
-X-CSE-ConnectionGUID: 57NprQIIRZKm3Goo52LGRg==
-X-CSE-MsgGUID: vVEqgraVRnqDjFavHAceYg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11931"; a="321669"
+X-CSE-ConnectionGUID: WcRE0IxhStC/j+ee0hoIsg==
+X-CSE-MsgGUID: cYXsKIhOSSyRokPHknMqgg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11931"; a="462220"
 X-IronPort-AV: E=Sophos;i="6.27,150,1787036400"; 
-   d="scan'208";a="321669"
-Received: from fmviesa012.fm.intel.com ([10.60.135.152])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Oct 2026 18:48:56 -0700
-X-CSE-ConnectionGUID: 1hO4LaYsR4SMf7dc8pVL4w==
-X-CSE-MsgGUID: vSWpaLsZS4a6I9JzWZOoMg==
+   d="scan'208";a="462220"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Oct 2026 19:28:00 -0700
+X-CSE-ConnectionGUID: B8nM7TMIQz2b1kiGdJk1Fw==
+X-CSE-MsgGUID: dMpHOpqVQvWS1/Yzf4feZA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.27,150,1787036400"; 
-   d="scan'208";a="2398940"
+   d="scan'208";a="587735"
 Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by fmviesa012.fm.intel.com with ESMTP; 10 Oct 2026 18:48:55 -0700
+  by orviesa002.jf.intel.com with ESMTP; 10 Oct 2026 19:27:58 -0700
 Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1xFigG-00000000AE6-1SCt;
-	Sun, 11 Oct 2026 01:48:52 +0000
-Date: Sun, 11 Oct 2026 09:48:10 +0800
+	id 1xFjI3-00000000AGq-3BYx;
+	Sun, 11 Oct 2026 02:27:55 +0000
+Date: Sun, 11 Oct 2026 10:27:45 +0800
 From: kernel test robot <lkp@intel.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
-Subject: [dtor-input:master] BUILD SUCCESS
- 8a1a516e8ee68a0c99bd46eec1cc052637bd4670
-Message-ID: <202610110907.xkHOda2D-lkp@intel.com>
+Subject: [dtor-input:for-linus] BUILD SUCCESS
+ 41363c27b8509bd4efcba244803edac9ba25d1b5
+Message-ID: <202610111041.fs3fmoKf-lkp@intel.com>
 User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -59,12 +59,12 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git master
-branch HEAD: 8a1a516e8ee68a0c99bd46eec1cc052637bd4670  Input: wm97xx - drop redundant wm->input_dev->dev.parent assignment
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+branch HEAD: 41363c27b8509bd4efcba244803edac9ba25d1b5  Input: xpad - add support for 8BitDo Pro 2 Wired Controller for Xbox
 
-elapsed time: 1266m
+elapsed time: 1306m
 
-configs tested: 360
+configs tested: 366
 configs skipped: 6
 
 The following configs have been built successfully.
@@ -237,16 +237,22 @@ parisc                             allnoconfig    clang-24
 parisc                            allyesconfig    clang-17
 parisc                               defconfig    gcc-16.1.0
 parisc                 generic-64bit_defconfig    gcc-16.1.0
+parisc                randconfig-1000-20261011    clang-24
+parisc                randconfig-1001-20261011    clang-24
 parisc               randconfig-r2201-20261010    gcc-10.5.0 smatch
 parisc64                             defconfig    clang-24
 powerpc                           allmodconfig    gcc-16.1.0
 powerpc                            allnoconfig    clang-24
 powerpc                        ebony_defconfig    gcc-16.1.0
+powerpc               randconfig-1000-20261011    clang-24
+powerpc               randconfig-1001-20261011    clang-24
 powerpc              randconfig-r2107-20261010    clang-20   cocci
 powerpc              randconfig-r2202-20261010    clang-17   smatch
 powerpc              randconfig-r2302-20261010    gcc-8.5.0  sparse
 powerpc              randconfig-r2306-20261009    gcc-11.5.0 sparse
 powerpc                       tqm8xx_defconfig    gcc-16.1.0
+powerpc64             randconfig-1000-20261011    clang-24
+powerpc64             randconfig-1001-20261011    clang-24
 powerpc64            randconfig-r2104-20261010    clang-20   cocci
 powerpc64            randconfig-r2301-20261010    clang-17   sparse
 powerpc64            randconfig-r2304-20261009    clang-22   sparse

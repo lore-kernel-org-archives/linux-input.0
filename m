@@ -1,69 +1,69 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906D9494834
-	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 15:04:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BC294A1387
+	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 15:42:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791817448; cv=none; b=VV53XPjpX1o3zb6T9n19TbsFsxncm3e0IuSjHq25xEo7qpaOl2UZpo97sE9Jc+iwvQogM+EfHpw/n4YFgDtH8XEMNOoaCn6WkosgERJL9bePJ0sqZGxWQwFO/X8EJBUKmaUTZq0fMGXFABJXJaKEKjp++W/xKCfKA0KD2xbeNCw=
+	t=1791819768; cv=none; b=UJPWB6MQDxE7lwkzfpDXDJZlxGP6Zi/1GgdcCcsm1afbMCvr83ERpTWb/ez6SH8bc86vpS1anJgde5lNQQkykRQMoFCf7y0KIzwuOrLH3D7GRIAvvO967W3LJ9cf4EDrwOcNkDvx3uPFxIOsT2SevF+nBNnXh7fWZpGbVF9cBhw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791817448; c=relaxed/simple;
-	bh=H9V8PNkfJ5sW8/jSQUrOuBSl7Cz74i70YCcDktWR95I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o1iTBVm6Ur5pN03m1M1Un4LbMKDu/YKe2jTcPFrg0E5ne8BWFDaUZgZKsffZjCGqo+BDlE2BzTxedInONwKuT48MWUgxprfIYZ1tTu+qqIRMtCtTzst7wONEkFZBtzOLXdCJD7Ke5IHLqjXxkymeJyP+mtOmr2TE8mfuLNxXlUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GtDQ8gBs; arc=none smtp.client-ip=209.85.221.47
+	s=arc-20240116; t=1791819768; c=relaxed/simple;
+	bh=M9dpQi4tgba0alF8ToireGxXNWyOZbiXHyjQLcZzwDE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JptmkiPsLNUsPs9X/sgSuqA3d4PiZR6uQO37YbO+IZXZxxKorMIoGNpTb2aLzLbzcpsFFKbTOOb4tLxGlSaEgt6qET3SEU7wtTjqhbAM0iFU4UspzRz0RJi/MJFUuIfc6Ar1DeWbdVmfDYB1ZeEN/6lDSogh1lJSELr37kNAPqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UVpcPjgW; arc=none smtp.client-ip=209.85.216.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GtDQ8gBs"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-48b02b1b4cfso2588750f8f.0
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 08:04:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UVpcPjgW"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38759bcd877so1162133a91.2
+        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 08:42:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791817446; x=1792422246; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791819766; x=1792424566; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=h/nvV2cklHSmRo+LXEn+M2vsUBu+RuTvY4bWwWcFK2s=;
-        b=GtDQ8gBsJ9gD9Re77yG6s3DvyZgNclTzIa6ItH9WeA9o9ZcDq6vfkQC8/oyW9Kefjp
-         rKJgSf1T8bd6zFvorCZd0NOgalkyDCwm6LWu/m45y/sWtDlZ4jUrpYaoZTXxxobQ+qog
-         n+pOYUheJZCTzrRpVuBuQ5h2B8ZzAWczpqns7hJbO/HM1tPsFd1+XXkZlC+SEBpFXCWk
-         1GpFog40Q3hInVzpZj31jhnuzKtaWRnyyFvTvooe5256pg0qw3a808MAEdfN7N8DYeoi
-         MGCBphO2+lCvg4vv6yfxsvrKGIkvV8IlGep1oLyiDnulXVRF6AZyrqg3OqieXIf+P3Be
-         c+Ww==
+        bh=u/2jqcJ/ml0TlpXSlqx8y6UB+yt84Zsc+jol0ebsN+s=;
+        b=UVpcPjgWho+0O5cr65op1QK+LT8ao/hnHs6SUxzeXYUO+Y+46PC6HV1DoNNCoUA2DQ
+         TCg/Iax8cdkgF9fTYMsNzZNWrseGHuNSTZ3REAaEKS+KBhcTNA5iX5ga2sX62foVzUUV
+         Wwv7HcWUHT7JHEf0/aIppOz1wrVCui/MtWvWh9C94INhnnk3Y5XYFMqhHQ3ucWEKVUiq
+         GX5/nz1LG9vVbv0sOFATzYLufQQhdF1Jt8y1ThmDgomlSGJ88HMVXV3qAyeQt8g5ZcX2
+         F4PkjLPj3/ArWxXp19euDw0eX58pZ11tGczyd4HjH5V+PlBQMxAZLTFiMao7mhMzCTQw
+         /7uQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791817446; x=1792422246;
+        d=1e100.net; s=20260707; t=1791819766; x=1792424566;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=h/nvV2cklHSmRo+LXEn+M2vsUBu+RuTvY4bWwWcFK2s=;
-        b=z/hkTZoWkqOVWQGHkQ+vJkVSVKOoOjK/fYwW+I3lvnGaqd3ptSx4KtaOjBcc0fJv0I
-         p8DMR5FQsGTGiNKr16/4MGni/Kix+WjueAmljroLnxohYSRbDMqnWqT1UiC8SytXcU8w
-         c06FEdb0HJiB58mNpwbm8kZ9Abps/iPnio5EsKbOcJPX2nWZ5ZaRsVAHnOockqzXBn/p
-         I8k5ycl65+a17IB4lSmm8Sof2Q96Vy878lAFtfhMe3UosmQRa3mKmjFA+oKyS1UZjKfl
-         OeyvroBgL8RhNYbeDgTf1meY5yllzj0eThaYsWftXWAeBiF/uAo/crRwOlM+Dw7PEf7l
-         jC8w==
-X-Gm-Message-State: AFq9FYLjRpQrFe/Tvy8SR+NRnvsWrStIYHfl4z6fCYED8Ph+v3J92M2C
-	35l1lBB6TNtGnhaR3AnRtOsHabwrarWEgk0wdAfUFBw315hflxKbkSGO
-X-Gm-Gg: AYBFou111bd/KkAdgVcBOOx0pe3cKkWnHS1VcnsrBXH/LG/UBKM5TtboT8cw9NZPzPS
-	CR4z3xrA+JoSFCbfY6ZU8iGhwxvuynay/IqkIM8RYtlM2Qtfh6T3hNMYwaLv1WIivOg9u3inUIA
-	esu4uYaoKKt36+q5RuKJ6tY5S3gzS0LXE1eag5g18j1V5WlKVE54CgZrE1TyPubz51LIFwEanpi
-	keK2zg3XEDEVjGtrCsTwLb4MiFY45sTpBoABsE0IVpro2cC5j0XNiJtKeBxEAEPjohmunSA7ugL
-	PDpsP6QHrRRDgTvVhFh0CWzftdI1HB1ltNE+OobV8yZTufDr5Jww0m5s3rFXe9C6FuVeimAAv+F
-	xMz/YXEa9cZom8J2snetpUbpxWabTc1w2j6qPrvFug3y1iAXPxKGRxQRepHB2SPX8HqHSwXRyOH
-	5gXMRyH1ap5gFuN70cr6nyPrfO8O9H6xusJdNbCar2GwB5huZsRNHKHEesZUDIz1um7ihuHHcYc
-	OWOzVbC6qwfEdj3pvmOGXVJjRYk2nN+F3Mu4VvO
-X-Received: by 2002:a05:600c:8b02:b0:4a1:6d2d:d8bb with SMTP id 5b1f17b1804b1-4a18e4a00dfmr199483155e9.12.1791817445597;
-        Mon, 12 Oct 2026 08:04:05 -0700 (PDT)
-Received: from omarchy-pc.home ([2a02:1210:1420:2d00:f162:21b0:b215:be1d])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18c198134sm294214765e9.15.2026.10.12.08.04.02
+        bh=u/2jqcJ/ml0TlpXSlqx8y6UB+yt84Zsc+jol0ebsN+s=;
+        b=iI3nDUVA4KOLA2fq2ypXSN7GCqTANGa6ex3tpheZHa5RU9wKXiU/7JHq7oW1d5bsdU
+         D7rzHRCoO+iXWTJAvqK2kYuBvbY7jA2H+JsyXWuMuB76bI0dJImQAzBgoT/Imw7vzV8A
+         2XZEN3xogMNrLuxg3Cvi/uFIk9zS7CduUuBp6bTxOSReo39zQIba/15MK9ICeC48gUDh
+         TqBggtsHk70czbxtTlYrixW+EOgPl+LfOxQs/5IP9pUo33Ir80gARxqIF7pTXzLzglL0
+         JZoOj4AhHMx7zP8NvC3pzdS30MQyLffl4lxP81I3PdkirYKVgDAD1x5DpU9uCBNFrRPd
+         robw==
+X-Gm-Message-State: AFq9FYLfz32Wg6/lc/s7kSPRoQJPrw+IJqIlnVKkki6TOVZqAf8HzIY3
+	1isHtIUMmp1VHya1toiPSEDmAPwJvMWDU1R6xJqyaPD4DqWsR0NKWJlziXT85w==
+X-Gm-Gg: AYBFou0qFE3LJpcvhdJgGOU0k032XIvBFp7x5L11KNI5QuqpNpMCid8Y+3Bipl9KKzs
+	Y7TvCUhRGdPQZeJ7p/HHj+7+n2wstY1qeUpqgX+Fw0lGXdD2aSSH2RRG1ygaurndn0KtiGr1CQ1
+	IXlB9LOwCgLlFLphwULHrrzyCYkAxj/nT66Hi68g89T1/OyAb4QBUEDDGK0Ls5K2tyhuZ84dp8K
+	INS7Y49vHeYLh7Hwi+LLcYnyW+SDHRrYZphxP36AV+U1R0dhYXD7ihylteIMbH0Z5lFqsfzNy9x
+	zoWhAlTiWnYCV09u7ZAbp0fnqPftO5qaFRCgj+Em3z6h5cIAe5DNSY/kK5iYtT8E4xBDfBFOn2y
+	ciUTARV7vli//me4FGSKOt/pVxY7BiDoUelDrR1Y1oUn2dW2zktchNb+vfxTtw8VAwzQMjhpS5N
+	QDeTOwZ+WC6OZmrLOl1C+6iAcbEcYLP4PrbD5GF6ZmyDiT6KUwaA4ZvQKyNGFSTaPPlYfZMByth
+	M3s6zOKEx/V1S4H
+X-Received: by 2002:a17:90b:1d03:b0:3a5:de8:2c4f with SMTP id 98e67ed59e1d1-3ab3b04c2d0mr6638993a91.65.1791819766331;
+        Mon, 12 Oct 2026 08:42:46 -0700 (PDT)
+Received: from ROGZephyrusG16Air ([240e:b8f:977f:f400:ec2a:b15e:fef8:70a])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ab36f46dfesm17098384a91.8.2026.10.12.08.42.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2026 08:04:03 -0700 (PDT)
-From: Gabor Tanz <gabor.tanz@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
+        Mon, 12 Oct 2026 08:42:45 -0700 (PDT)
+From: Liang Haowen <nbg2974@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org,
+	bentiss@kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: quirks: Always poll the Anne Pro 2 with product ID a292
-Date: Mon, 12 Oct 2026 17:03:57 +0200
-Message-ID: <20261012150357.685671-1-gabor.tanz@gmail.com>
+Subject: [PATCH] HID: add ALWAYS_POLL quirk for YJX-CHIP EWEADN wireless receivers
+Date: Mon, 12 Oct 2026 23:42:40 +0800
+Message-ID: <20261012154240.33221-1-nbg2974@gmail.com>
 X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -73,53 +73,54 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The wired Anne Pro 2 identifying as 04d9:a292 stops delivering keyboard
-input after a period of inactivity. Unplugging and reconnecting the
-keyboard restores input.
+The 2.4 GHz receiver in EWEADN G5 wireless mice (YJX-CHIP A8A5:2255)
+presents its mouse data on a standard interrupt IN endpoint. usbhid
+only submits read URBs for an input device while a userspace consumer
+holds it open, so on boot or replug the mouse pointer stays dead until
+something opens the node.
 
-Keeping ObinsKit running prevents the problem. A read-only userspace
-reader that keeps USB HID interface 1 open also prevents it, as does
-usbhid.quirks=0x04d9:0xa292:0x00000400 without either application running.
+The same receiver ships with a number of other EWEADN models (A6, A7,
+E7, E9, E11, G2SE A, GS02 Pro, S7, S9SE, X23), so the quirk covers
+the whole family.
 
-Commit ca28aff0e1dc ("HID: quirks: Always poll Obins Anne Pro 2
-keyboard") added HID_QUIRK_ALWAYS_POLL for product ID a293.
-The variant identifying as 04d9:a292 exhibits the same symptom.
-Apply the quirk to this product ID as well.
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-Cc: stable@vger.kernel.org
-Assisted-by: LLM
-Signed-off-by: Gabor Tanz <gabor.tanz@gmail.com>
+Signed-off-by: Liang Haowen <nbg2974@gmail.com>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index cb7f16d75..3b19b742d 100644
+index cb7f16d..1ccdfa5 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -747,6 +747,7 @@
- #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
- #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
- #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
-+#define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A292	0xa292
- #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293	0xa293
+@@ -1633,6 +1633,9 @@
+ #define USB_VENDOR_ID_YEALINK		0x6993
+ #define USB_DEVICE_ID_YEALINK_P1K_P4K_B2K	0xb001
  
- #define USB_VENDOR_ID_IMATION		0x0718
++#define USB_VENDOR_ID_YJXCHIP		0xa8a5
++#define USB_DEVICE_ID_YJXCHIP_MOUSE	0x2255
++
+ #define USB_VENDOR_ID_ZEROPLUS		0x0c12
+ 
+ #define USB_VENDOR_ID_ZYDACRON	0x13EC
 diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 96a36c5ba..d15a587f1 100644
+index 96a36c5..92bd84e 100644
 --- a/drivers/hid/hid-quirks.c
 +++ b/drivers/hid/hid-quirks.c
-@@ -102,6 +102,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING), HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096), HID_QUIRK_NO_INIT_REPORTS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A292), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A), HID_QUIRK_MULTI_INPUT },
-
-base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
+@@ -222,6 +222,8 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD2, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD), HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_YJXCHIP, USB_DEVICE_ID_YJXCHIP_MOUSE),
++		HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_GROUP_AUDIO), HID_QUIRK_NOGET },
+ 
+ 	{ 0 }
 -- 
 2.55.0
 

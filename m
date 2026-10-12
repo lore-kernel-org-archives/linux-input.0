@@ -1,124 +1,199 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEF82377A9C
-	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 20:26:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E20304ED1BB
+	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 20:29:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791836782; cv=none; b=Po5vG/ZwOsRUw23d+L4Zaqc5qA33SaPb8OUjdbt7MndEK+n1bJFgXnQx51BPEp2tc+bFT6sJvL+6FlDrqvFWGv6Xz2XwSGImKF+gBfUIPQYhcTfnSN19AVyIEl2wUFvvqYnQehT7/bPFpFyW2fOZSWhwg8bkEJsiRBJ4Kf5Kr8Q=
+	t=1791836946; cv=none; b=AeK+3NoDGoYJGzMHC9bp6o7VoczatecJe4vfauIrIvJa8uhRCiVSHCvqjgJ6Kr71zQF3VXQy2g9cWyAT5Tl+uokRk0/zW062D8YrITzVQThJbC+/yhmGVleld45Pn3tKAB/aogda4foFxVmthbjKN5yxW8bkkuO8SwYk7T8KBVg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791836782; c=relaxed/simple;
-	bh=vmKXvAzGauadXk5SWMgQIxyQpwUsT0AMS3T0wesoca4=;
+	s=arc-20240116; t=1791836946; c=relaxed/simple;
+	bh=vb/TsIJ4yY5Z9gO5IJJkekNOyNChL4ptBr+gMKrDTzY=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=QWApMjQGTcHAbMmTcpgqglL2hFfzWkqpdCOvPcM0wtyAS9cmUsv7T/M36lyrDT5yF0MYV2L60rNR0Mb237PYJCvCpHwNmbjpEkWAhHdvwtLSMTUj7s6Q+0TkXtXr3pQUjIrkT2di1e1ynGQrGZhiv2+/+3ecoczLhN0oJ51ChB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L8VjpzdR; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=tyZV3M0FAT3zorovlsvV3POhVcub8x3RSEBHLft2dCjHujLIjNLeSe+LJi4gzGdhpUCGrVx/zMtVRjksuk6x++yeQz6UliJUy93JQ0XFefJWtZhc922OD/6gzcMAeS4Kf3OueWFd2XUSjeUTofG9tfO2NerIMWfxwsQJwdjInI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oIyvmxuf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L8VjpzdR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B7FF1F0089B;
-	Mon, 12 Oct 2026 20:26:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oIyvmxuf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18EEE1F0089B;
+	Mon, 12 Oct 2026 20:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791836781;
-	bh=s5HMsQUj3eyOAA8WKI6L3gMxkzf/QzUN91FYWAjqeR0=;
+	s=k20260515; t=1791836943;
+	bh=maNb2DS6sO9QpzfkflQqygHWVDRyMjPoQ5AUHqF3ZLo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L8VjpzdRaDJiSr4N/a2Kk78l3g7MH6bEyrvp/FMeXLYSLcx3nGc/snroSx4y1jwm8
-	 dbkLWuIoZhU7TM+X32ihMZcsIk1RSfzyHso4XkSPzRmxe2iHL8+lTGu2S2q0I238zO
-	 fKRPbL9Ali5DDSy0J5tYr+2R7uW2PP5xynUKoZQmuect7a0u7q33XJIjXykwgc/OSU
-	 vYo8hvl5n701Oo0pVJSfXbhxUo/jcnJlAk6LVhrabWbsZ7ijiIBlxtwh2Syyrysa4N
-	 u0PZPKm5CHC0cD0o9cPHEufIhCx7jTwCJntNKamd5MbcJuhoi+6340MVLEOykq8JBe
-	 xtmHNyeqWLr+Q==
-Message-ID: <sashiko-outbox-168593@kernel.org>
+	b=oIyvmxufd+CVfqN3FXGjyIzBjoQfe3Tn6csrUQ0nowIavNcKUi0CyODMz659A8ggD
+	 m8Kobn5Zi9bPxDF5bllGP4E91LGsf1XkiWj3xnUk5kZMXydI0rTan8kvWw/CwlJLM8
+	 sM5lJboYCIf7SaVmf5YYPhP1bb31qixqZcqNewRDWR7ogOmhcZTI+ZoWWYo4fLMlt5
+	 USnWMR6WXAZjsHdbwnNQncR8MvulbIEQh52+Ni9LFA7kVoeINSILISGzE2PbOYQHGX
+	 gyiCn/TP3F5eFPWBwJEhHu1SbGWUpnLjn3B2QORfAQBvgqcFkFZrWNdGDuwQMUub8d
+	 O6+BYMRE/BXYw==
+Message-ID: <sashiko-outbox-168594@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/5] HID: UNCTRL: add periodic battery reporting using a
- workqueue
+Subject: Re: [PATCH 4/5] HID: UNCTRL: keep a single battery when a mouse has
+ multiple connections
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bishwa Bhusan Saha" <contact@bishwasaha.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261013-b4-unctrl-m1-battery-v1-3-4a50203b7177@bishwasaha.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261013-b4-unctrl-m1-battery-v1-4-4a50203b7177@bishwasaha.com>
 References: <20261013-b4-unctrl-m1-battery-v1-0-4a50203b7177@bishwasaha.com>
- <20261013-b4-unctrl-m1-battery-v1-3-4a50203b7177@bishwasaha.com>
+ <20261013-b4-unctrl-m1-battery-v1-4-4a50203b7177@bishwasaha.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 12 Oct 2026 20:26:20 +0000
+Date: Mon, 12 Oct 2026 20:29:02 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [Medium] hid: unctrl: initial battery query reply dropped during probe
-- [Medium] pm: battery polling work wakes CPU every 5s during s2idle
+- [High] hid: uaf in unctrl_remove() due to early work cancellation and lis=
+t exposure
+- [High] hid: uaf of power_supply in unctrl_raw_event() racing with cross-d=
+evice probe
+- [High] hid: uaf of dev in unctrl_probe() error path due to concurrent bat=
+tery transfer
+- [Medium] hid: permanent battery loss due to missing rollback in unctrl_ba=
+ttery_register()
 --
 
-commit 96156a773d135475c7c9f3eca5f3c8ad662fe691
+commit 01440f9100f714c61f17b835003fbfa0e20c249f
 Author: Bishwa Bhusan Saha <contact@bishwasaha.com>
 
-HID: UNCTRL: add periodic battery reporting using a workqueue
+    HID: UNCTRL: keep a single battery when a mouse has multiple connections
 
-This patch adds a delayed workqueue to check the battery status every
-5 seconds for the UNCTRL HID device.
+    This patch modifies the unctrl_m1 driver to register a single power
+    supply across multiple connections (e.g., wired and dongle) of the same
+    mouse. It transfers the power supply ownership when a more capable
+    connection appears or disappears.
 
 > diff --git a/drivers/hid/hid-unctrl-m1.c b/drivers/hid/hid-unctrl-m1.c
-> index 59259dee7e429..1e73cad1e3f91 100644
 > --- a/drivers/hid/hid-unctrl-m1.c
 > +++ b/drivers/hid/hid-unctrl-m1.c
-
 [ ... ]
-
-> @@ -132,6 +137,17 @@ static void unctrl_fetch_battery(struct hid_device *=
-hdev)
->  	kfree(write_buf);
->  }
+> @@ -181,32 +181,32 @@ static int unctrl_battery_register(struct unctrl_de=
+v *dev)
+>  	if (owner) {
+>  		struct power_supply *owner_battery;
 > =20
-> +static void unctrl_battery_timer_tick(struct work_struct *work)
-> +{
-> +	struct unctrl_dev *dev =3D
-> +		container_of(work, struct unctrl_dev, battery_work.work);
-> +
-> +	unctrl_fetch_battery(dev->hdev);
-> +
-> +	schedule_delayed_work(&dev->battery_work,
-> +			      msecs_to_jiffies(UNCTRL_BATTERY_TIMEOUT_MS));
-> +}
+>  		cancel_delayed_work_sync(&owner->battery_work);
+>  		/* so a raw_event cannot touch the supply being unregistered */
+>  		scoped_guard(spinlock_irqsave, &owner->lock) {
+>  			owner_battery =3D owner->battery;
+>  			owner->battery =3D NULL;
+>  		}
+>  		power_supply_unregister(owner_battery);
+>  	}
+> =20
+>  	battery =3D power_supply_register(&dev->hdev->dev, &dev->battery_desc,
+>  					&config);
+>  	if (IS_ERR(battery)) {
+>  		ret =3D PTR_ERR(battery);
+>  		hid_err(dev->hdev,
+>  			"%s:power_supply_register failed with error %d\n",
+>  			__func__, ret);
+>  		return ret;
 
 [Severity: Medium]
-Will this scheduled work continuously wake up the CPU during system suspend?
+If power_supply_register() fails here, does the original owner's battery=20
+remain unregistered forever?
 
-Since schedule_delayed_work() implicitly queues to the non-freezable system=
-_wq
-and the driver does not implement suspend/resume callbacks to cancel this w=
-ork,
-it appears this timer will keep firing every 5 seconds.
+We just cancelled the owner's work and unregistered its battery above, but=
+=20
+the error path doesn't restore it. Could this leave the active device=20
+permanently without battery reporting?
 
-If the system enters s2idle suspend, could this prevent deep sleep and cause
-unnecessary power drain?
-
-[ ... ]
-
-> @@ -155,6 +171,8 @@ static int unctrl_battery_register(struct unctrl_dev =
-*dev)
->  		 dev->battery_desc.name);
+>  	}
 > =20
->  	unctrl_fetch_battery(dev->hdev);
-> +	schedule_delayed_work(&dev->battery_work,
-> +			      msecs_to_jiffies(UNCTRL_BATTERY_TIMEOUT_MS));
+>  	power_supply_powers(battery, &dev->hdev->dev);
+[ ... ]
+> @@ -312,11 +312,11 @@ static int unctrl_probe(struct hid_device *hdev, co=
+nst struct hid_device_id *id)
+>  	if (ret)
+>  		goto err_del;
 > =20
 >  	return 0;
+> =20
+>  err_del:
+>  	mutex_lock(&unctrl_lock);
+>  	list_del(&dev->list);
+>  	mutex_unlock(&unctrl_lock);
+
+[Severity: High]
+Is there a use-after-free risk in this error path due to a concurrent=20
+battery transfer?
+
+During the time between the failing unctrl_battery_register() returning and=
+=20
+re-acquiring the lock here at err_del, could a concurrent unctrl_remove()=20
+on another connection find this dev in unctrl_connections?
+
+If that happens, the other thread would transfer its battery to this failing
+dev and schedule dev->battery_work. This work would remain active after=20
+kfree(dev) is called at the end of this function.
+
+>  	hid_hw_close(hdev);
+>  	hid_hw_stop(hdev);
+>  	hid_set_drvdata(hdev, NULL);
+>  	kfree(dev);
+>  	return ret;
 >  }
+[ ... ]
+> @@ -336,15 +336,15 @@ static int unctrl_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+[ ... ]
+>  	scoped_guard(spinlock_irqsave, &dev->lock) {
+>  		/* the receiver reports 0% while the mouse is switched off */
+>  		dev->battery_capacity =3D min_t(u8, data[4], 100);
+>  		dev->mode =3D data[5];
+>  		dev->online =3D dev->battery_capacity !=3D 0;
+>  		battery =3D dev->battery;
+>  	}
+> =20
+>  	/* only schedules a work, so this is safe from the completion path */
+>  	if (battery)
+>  		power_supply_changed(battery);
 
-[Severity: Medium]
-Could the initial battery query reply be dropped by the HID core?
+[Severity: High]
+Can power_supply_changed() dereference a freed pointer here?
 
-This function is called during unctrl_probe(), and it sends a battery query
-via unctrl_fetch_battery(), but hid_device_io_start() hasn't been called to
-unblock the input path.
+If a new connection probes concurrently, it can call unctrl_battery_registe=
+r(),=20
+which acquires this dev->lock, sets dev->battery =3D NULL, and immediately=
+=20
+calls power_supply_unregister().=20
 
-If the device replies quickly before unctrl_probe() finishes and the
-driver_input_lock is released, wouldn't the HID core silently drop the inco=
-ming
-report with -EBUSY?
+Since power_supply_unregister() synchronously frees the battery, and this=20
+code drops dev->lock before using the cached battery pointer, could this=20
+lead to a use-after-free?
+
+>  	return 0;
+>  }
+> =20
+>  static void unctrl_remove(struct hid_device *hdev)
+>  {
+>  	struct unctrl_dev *dev =3D hid_get_drvdata(hdev);
+>  	struct unctrl_dev *other;
+> =20
+>  	/* Stop polling before the transport goes down. */
+>  	if (dev) {
+>  		cancel_delayed_work_sync(&dev->battery_work);
+
+[Severity: High]
+Could dev->battery_work be rescheduled after this cancellation, leading to
+a use-after-free?
+
+Since dev is still in the global unctrl_connections list here (it isn't=20
+removed until the mutex_lock(&unctrl_lock) later in the function), could a=
+=20
+concurrent unctrl_probe() or unctrl_remove() from another device find it,=20
+transfer a battery to it, and call schedule_delayed_work()?
+
+If so, the rescheduled work might execute after kfree(dev) is called.
+
+>  		hid_hw_close(hdev);
+>  	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-unctrl-=
-m1-battery-v1-0-4a50203b7177@bishwasaha.com?part=3D3
+m1-battery-v1-0-4a50203b7177@bishwasaha.com?part=3D4

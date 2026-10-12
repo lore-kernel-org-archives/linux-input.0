@@ -1,150 +1,67 @@
-Received: from smtpbgsg2.qq.com (smtpbgsg2.qq.com [54.254.200.128])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4BC332B9B5;
-	Mon, 12 Oct 2026 08:47:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.254.200.128
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 651CF46E01E;
+	Mon, 12 Oct 2026 09:00:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791794855; cv=none; b=qLMZBvp9vUPjuL6+oY8pIEiVu//l/a+O9aq2nugTD+0g3CgB9DQl+/5iA9ZoNYgVvYXhPO+cS5Z5OFQzYMg+mgUd6nXJXGdeOI0ZoOV60N3DMCinW3wzSY5ExvlLSzP4P0kEBwscGXDHiW8G1TQDNbUoYBqLVXG9zwc3m4flMus=
+	t=1791795618; cv=none; b=GpE/40nP2PqAYwjVBHaYP2vGDi2zaKHhLfu1B2LpzQZm8jppJ2iKPXo/hQc/nN63J32sOB94scdAHa64qyJYtMV/TxfVXCpw/fVrplvixsftYQIxJzpyOPdG9eH/qwdMfEVXy9BRpNHBUHzxnrQ+2FgufZr1/+D5SZxbsR2rmHo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791794855; c=relaxed/simple;
-	bh=3R/USU+euw2fUKAAaeYqzQHWGcvp6RUwWeES0qtoHT8=;
-	h=From:To:Cc:Subject:Mime-Version:Content-Type:Date:Message-ID; b=nPEC0TpJjZiAFO8zSN8Oz+9xiPmTGPtQNruky05qeLo/G8F88g1rA/YTiZo6c/0cfx41KqIpdThHY6vMRhM5EOaWd0etiTDKhfbvWJjXfEUdBlVtRmN0QBm6nA1fQquNB6HKAn8UmxlO3zCwrq65Y2gBbfpGEUk//Q9hYUlYeQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mail.sustech.edu.cn; spf=pass smtp.mailfrom=mail.sustech.edu.cn; dkim=pass (1024-bit key) header.d=mail.sustech.edu.cn header.i=@mail.sustech.edu.cn header.b=ZIY0rdWI; arc=none smtp.client-ip=54.254.200.128
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mail.sustech.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.sustech.edu.cn
+	s=arc-20240116; t=1791795618; c=relaxed/simple;
+	bh=Q3mJIUIzupaCTwR4E8sslo9WFz+q8rVuwZLJKszN/MU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UlI0JBKgOyV694pK3lgxO4p4Qnjx1k2b4kT8D2QiyYEtlFzbS+JqG08hnpNJWwha1aWEN8nfrMDHpYM/aGu8DxnMCB3XvOLrcziVPpOHPiiBD3Hgwj+PW7lO/EVezY2cXo20+Qq7tJ4VND9Z1mYgQ+6ikdulX4x2bL9847LdTVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bjzrJK4w; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mail.sustech.edu.cn header.i=@mail.sustech.edu.cn header.b="ZIY0rdWI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mail.sustech.edu.cn;
-	s=oemc2211; t=1791794824;
-	bh=3R/USU+euw2fUKAAaeYqzQHWGcvp6RUwWeES0qtoHT8=;
-	h=From:To:Subject:Mime-Version:Date:Message-ID;
-	b=ZIY0rdWIyjnroLfvfomyd4BStF8FVtAuQYSs4yNIjSgKDgAihJushXp5GI5f1FWcK
-	 I9MaH7j94nHsxStKBjc1RJsaN80rrRLbn8j/+KfUsbcdgtO+Y6ULuBXlVkau2CW8pi
-	 yHABbKPF0KIpzoyiTaHkvqeRIlx2amXo07OLgCUM=
-EX-QQ-RecipientCnt: 5
-X-QQ-GoodBg: 2
-X-QQ-SSF: 00400000000000F0
-X-QQ-FEAT: D4aqtcRDiqT5O6woayF/e4a5Q3Hc6xeqNi5U4KBjHQ0=
-X-QQ-BUSINESS-ORIGIN: 2
-X-QQ-Originating-IP: 1l4UswVSFemzZKEGbJdvaBM/MzzTqxGrXP5RCjEXC8Xdoxdl36B23OSlq/ZSQim0
-X-QQ-STYLE: 
-X-QQ-mid: lv3gz7b-0t1791794820t936602bc
-From: "=?utf-8?B?U2hpIExlY3Vu?=" <shilc2025@mail.sustech.edu.cn>
-To: "=?utf-8?B?bGludXgtaW5wdXQ=?=" <linux-input@vger.kernel.org>
-Cc: "=?utf-8?B?amlrb3M=?=" <jikos@kernel.org>, "=?utf-8?B?YmVudGlzcw==?=" <bentiss@kernel.org>, "=?utf-8?B?YnBm?=" <bpf@vger.kernel.org>
-Subject: HID-BPF: CAP_BPF-only process can inject input into host session
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bjzrJK4w"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 147381F0089B;
+	Mon, 12 Oct 2026 09:00:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791795617;
+	bh=yraBTXL1hctV87L1JCVNYMrGNm7lunduFfWP2hWirds=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=bjzrJK4wCo/k6NUNhzu/YjzJxAKXaWBxQUWHjgj8TAQGgw/I6T36448n7H6sP+e6n
+	 9kM+MSae0QkQX0q53w2EJDKdYNSYDkEj88/D3bnfYM+/geCNoAJ1kcEtIrneRujVPz
+	 8aKP0eizhl4NHj3oPVq2k3BJLLJ652h+86/qKamT1HCJCfev+0CEgSNrQnTCkgrNl7
+	 hlTSEmHCPr2cAYE3zf8EGMCEOqoxUi3WTZzee5qC69dDVJGeP98Zxc1kKqK9NcAQvT
+	 VkCyK4/9X88WvjGyDSyZmtw7aSuEKWwCbH3EyAKzlf+8ATA8vqrgLRq+TAchdDyjez
+	 +lMujTnzCxprQ==
+Date: Mon, 12 Oct 2026 11:00:12 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Miotsuki Mizuno <founder@crepuse.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Icenowy Zheng <icenowy@aosc.io>, 
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/3] dt-bindings: vendor-prefixes: add Nsiway
+Message-ID: <20261012-powerful-amiable-ibis-30a4ba@quoll>
+References: <20261009144729.85832-1-founder@crepuse.com>
+ <20261009144729.85832-2-founder@crepuse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
-Date: Mon, 12 Oct 2026 16:47:00 +0800
-X-Priority: 3
-Message-ID: <tencent_3B9FD2455BEBDF351B2CD453@qq.com>
-X-QQ-MIME: TCMime 1.0 by Tencent
-X-Mailer: QQMail 2.x
-X-QQ-Mailer: QQMail 2.x
-X-BIZMAIL-ID: 3037474504504123198
-X-Address-Ticket:version=;type=;ticket_id=;id_list=;display_name=;session_id=;
-X-QQ-SENDSIZE: 520
-Received: from qq.com (unknown [127.0.0.1])
-	by smtp.qq.com (ESMTP) with SMTP
-	id ; Mon, 12 Oct 2026 16:47:01 +0800 (CST)
-Feedback-ID: lv:mail.sustech.edu.cn:qybglogicsvrgz:qybglogicsvrgz5b-0
-X-QQ-XMAILINFO: NpNGBNXPqmmi88tp4QbGDDR4pFSFCMdgWKBZHvJFwUAcgIiPb9FJKXXA
-	byRY+NziuixZXghpQNHqxCrpQM4E4TxNp9ztEefF2AEm+SzXgaqOIlywtnke34OMNNIzsJV
-	753rBsGmIJoMPo+ENgcYUOSOXpWe5aPci9nfr+fMg3FYGQxhZIuUQW9z7552mVS4oF8sGOj
-	XDJMfsDzsq7wG9cdwVnYlsTVm0Jm6ciiU43E+FcPXvZtUeyt4SnTg8xRnLpUM1Rfnlszv7j
-	pMITylZi4ILy7XHVVVZx326+unpR6Mdgo4fVPsS8Lc4kFMvwjFnmPpSQYEQwKNFlRlODBdh
-	t1VUfZAwr3NkVmZ/3Ho9FT+k9CzR7zgVdlVyORYO3sqD3chsLUOkBOZOPxZQJc3+pLlrIoK
-	kog7LO39ut9wS9J2JOjg2Gv0yxDyiNvP6XQ/0Tt/vj5u1cTY4NiDrKe52HZ4CezUnV97dVX
-	ZB4VpZgu6JidoWQ0ZfCNynCnaWf1Hg9rwJN6KStLXYQxVvDb0NJmAnhaGeax3HV9HcJisir
-	q3QlXUaSIkt1UtEHBmfjZg8/KL+JZo3qLhYGW/Rqpx+gL+zIwaoL7tY3/kL8AL5i5ogDnZO
-	p8tD2iwpeXYmZ6tK80mloMAgHkh01YNCAIb5TMb+C9q6mpz4v4USgNrEgut/q3FJ+WNu+Bc
-	BQ08bbXa7U6Y6uUuOrl1vFKH2O/Kx+c1AXr+5x2r4PxRvcYlOxQQLLSYihWZ0vL7l0lW+EQ
-	q1xvba0IMGhCFJlZuwUOwvjFhAqdfoEscmu7b5tNXnEsLklpaa4KGt9GScJIFYctU7L9w8y
-	jWI9vFtUokb9ZUUPG9hfZcirYT1BLzw2vjxUIHlqBesSddcEzhAltxnCuNPsDBf5XCLKV11
-	qPTCdM8mi9r6Gl6eEK52O0D96Qg7UxQNG3VFWtpaj0NswfiUAgt0YGmI7Bmh+/N9lbyXE8g
-	HXYUyyEukPJxnsY14URYqltj1GFQttZLCj0yrkRsQK5e1tjwTgTWkZHgT
-X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
-X-QQ-RECHKSPAM: 0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20261009144729.85832-2-founder@crepuse.com>
 
-SGksDQoNCkdyYW50aW5nIGEgd29ya2xvYWQgcGVybWlzc2lvbiB0byBtYW5hZ2UgZUJQRiBj
-YW4gYWxzbyBncmFudCBpdCB0aGUNCmFiaWxpdHkgdG8gdHlwZSBvbiB0aGUgaG9zdC4NCg0K
-QSBwcm9jZXNzIHRoYXQgaG9sZHMgb25seSBDQVBfQlBGLCBydW5uaW5nIGFzIGEgbm9uLXJv
-b3QgdXNlciBpbnNpZGUgYQ0KY29udGFpbmVyIHdpdGggbm8gZGV2aWNlIG5vZGVzIGFuZCBu
-byBYMTEgb3IgV2F5bGFuZCBzb2NrZXQsIGNhbiBsb2FkIGENCkJQRl9QUk9HX1RZUEVfU1lT
-Q0FMTCBwcm9ncmFtIHRoYXQgY2FsbHMgaGlkX2JwZl9hbGxvY2F0ZV9jb250ZXh0KCkgYW5k
-DQpoaWRfYnBmX2lucHV0X3JlcG9ydCgpLCBydW4gaXQgdGhyb3VnaCBCUEZfUFJPR19URVNU
-X1JVTiwgYW5kIGluamVjdA0Ka2V5Ym9hcmQgcmVwb3J0cyBpbnRvIGFuIGFscmVhZHktYXV0
-aG9yaXplZCBISUQgZGV2aWNlLiAgVGhlIHJlcG9ydHMNCnRyYXZlbCB0aGUgbm9ybWFsIEhJ
-RCBpbnB1dCBwYXRoIGFuZCByZWFjaCB0aGUgaG9zdCdzIHVubG9ja2VkIHNlc3Npb24NCihY
-MTEgZGVza3RvcCBvciB0ZXh0IGNvbnNvbGUpIGFzIGlmIHR5cGVkIG9uIHRoZSBkZXZpY2Us
-IHNvIHRoZSBhdHRhY2tlcg0KZXhlY3V0ZXMgY29tbWFuZHMgYXMgdGhlIGxvZ2dlZC1pbiB1
-c2VyOyBvbiBhIHNlcnZlciB3aXRoIGEgbWFuYWdlbWVudA0KY29udHJvbGxlciwgdGhhdCBz
-ZXNzaW9uIGlzIHRoZSBvcGVyYXRvcidzIGNvbnNvbGUuICBDb250YWluZXIgcGxhdGZvcm1z
-DQpncmFudCBDQVBfQlBGIHRvIG5ldHdvcmtpbmcgYW5kIG9ic2VydmFiaWxpdHkgd29ya2xv
-YWRzLCBzbyB0aGUNCmNhcGFiaWxpdHkgaG9sZGVyIGlzIHJlYWxpc3RpYyByYXRoZXIgdGhh
-biBjb250cml2ZWQuDQoNCkRldGFpbGVkIGRlc2NyaXB0aW9uOg0KDQotIFByb2JsZW06IHRo
-ZSB1bmF0dGFjaGVkIHN5c2NhbGwgcGF0aCBjYW4gaW5qZWN0IGlucHV0IHdpdGggQ0FQX0JQ
-Rg0KICBhbG9uZS4gIEF0dGFjaGluZyBhIHN0cnVjdF9vcHMgcHJvZ3JhbSB0byBhIGRldmlj
-ZSByZXF1aXJlcw0KICBDQVBfQlBGK0NBUF9QRVJGTU9OLCBidXQgYSBzeXNjYWxsIHByb2dy
-YW0gY2FsbGluZw0KICBoaWRfYnBmX2lucHV0X3JlcG9ydCgpIG5lZWRzIG9ubHkgQ0FQX0JQ
-RiBhbmQgbGVhdmVzIG5vIHBlci1kZXZpY2UNCiAgcmVjb3JkLg0KDQotIFJlYWNoYWJpbGl0
-eTogYSBub24tcm9vdCBjb250YWluZXIgaG9sZGluZyBDQVBfQlBGLCBvbmUNCiAgYWxyZWFk
-eS1hdXRob3JpemVkIEhJRCBkZXZpY2UsIGFuZCBhbiB1bmxvY2tlZCBzZXNzaW9uLiAgTm8g
-bWFsaWNpb3VzDQogIGRldmljZSwgZmlybXdhcmUsIFVTQiB0cmFmZmljLCB2ZXJpZmllciBm
-bGF3IG9yIG1lbW9yeS1zYWZldHkgYnVnIGlzDQogIGludm9sdmVkLg0KDQotIEVmZmVjdDog
-YXJiaXRyYXJ5IGNvbW1hbmRzIHR5cGVkIGFzIHRoZSBob3N0IHVzZXIgaW4gdGhlIGZvY3Vz
-ZWQNCiAgc2Vzc2lvbiwgaW5jbHVkaW5nIGEgc2VydmVyJ3MgQk1DIHZpcnR1YWwgY29uc29s
-ZS4gIFdpdGggQ0FQX1BFUkZNT04sDQogIHRoZSBzdHJ1Y3Rfb3BzIHBhdGggY2FuIGluIGFk
-ZGl0aW9uIHJld3JpdGUgdGhlIHJlcG9ydCBkZXNjcmlwdG9yIHNvDQogIGFuIGF1dGhvcml6
-ZWQgbW91c2UgcHJlc2VudHMgYSBrZXlib2FyZCBjb2xsZWN0aW9uLg0KDQotIE1ldGhvZCBh
-bmQgdGVzdGluZzogYSByZXByb2R1Y2VyIGJ1aWx0IGFnYWluc3QgdGhlIHN0cnVjdF9vcHMg
-SElELUJQRg0KICBBUEksIHJ1biBpbiBRRU1VIG9uIFVidW50dSAyNi4wNCAvIGtlcm5lbCA3
-LjAuMC0yOC1nZW5lcmljDQogIChDT05GSUdfSElEX0JQRj15LCBCVEYgZW5hYmxlZCkgYW5k
-IG9uIGFuIEFyY2ggNy4xLjUgaG9zdC4NCiAgQ2FwYWJpbGl0eS1yZXN0cmljdGVkIG5vbi1y
-b290IHJ1bnMgd2l0aCBzZXRwcml2IGNvbmZpcm0gdGhlIHRocmVlDQogIGNhc2VzIGFib3Zl
-OyAxMDAwIG9mIDEwMDAgaW5qZWN0aW9ucyB3ZXJlIGFjY2VwdGVkOyBjb21tYW5kcyBsYW5k
-ZWQgaW4NCiAgYm90aCBhbiBYIHNlc3Npb24gYW5kIGEgdGV4dCBjb25zb2xlLiAgT2xkZXIs
-IHByZS1zdHJ1Y3Rfb3BzIGtlcm5lbHMNCiAgYXJlIHVudGVzdGVkLg0KDQotIFBvc3NpYmxl
-IGZpeDogYSBjYXBhYmlsaXR5IGNoZWNrIG9uIHRoZSBzeXNjYWxsIHBhdGggdGhhdCByZWFj
-aGVzDQogIGhpZF9icGZfaW5wdXRfcmVwb3J0KCkvaGlkX2JwZl90cnlfaW5wdXRfcmVwb3J0
-KCksIG9yIGEgcG9saWN5IGdhdGUgYXQNCiAgcHJvZ3JhbSBsb2FkLiAgV2UgaW1wbGVtZW50
-ZWQgdGhlIGxhdHRlciBhcyBhbiBMU00gcHJvZ3JhbSBvbg0KICBzZWN1cml0eV9icGZfcHJv
-Z19sb2FkIHRoYXQgZGVuaWVzIGEgbG9hZCBjYWxsaW5nIGFueSBvZiB0aGUgc2V2ZW4NCiAg
-SElELUJQRiBrZnVuY3M7IGl0IHN0b3BzIHRoZSBpbmplY3RvciB3aXRoIC1FUEVSTSBhbmQg
-Y29zdHMgYWJvdXQNCiAgMjQgdXMgb24gYSB3b3JzdC1jYXNlIDQwOTYtaW5zdHJ1Y3Rpb24g
-bG9hZCwgd2l0aCBubyBpbnB1dC1wYXRoIGNvc3QuDQoNCk15IHJlYWRpbmcgaXMgdGhhdCB0
-aGlzIGlzIG5vdCBhIGtlcm5lbCB2dWxuZXJhYmlsaXR5OiB0aGUgcHJvZ3JhbSBpcw0KdmVy
-aWZpZXItY2xlYW4sIG5vIGNoZWNrIGlzIGJ5cGFzc2VkIGFuZCBub3RoaW5nIGlzIG1lbW9y
-eS11bnNhZmUgLS0gdGhlDQptYWxpY2UgaXMgaW4gdGhlIHJlcG9ydCBkYXRhLiAgVGhlIGJl
-aGF2aW9yIGFsc28gbWF0Y2hlcw0KRG9jdW1lbnRhdGlvbi9oaWQvaGlkLWJwZi5yc3QsIHdo
-aWNoIGRvY3VtZW50cyBoaWRfYnBmX2lucHV0X3JlcG9ydCgpDQpmcm9tIHN5c2NhbGwgcHJv
-Z3JhbXMgYW5kIGFscmVhZHkgY2FsbHMgdGhlIHRyYWNpbmcgdXNlIGNhc2UgImdvZC1tb2Rl
-Ii4NCldoYXQgSSBjYW5ub3Qgc2V0dGxlIG15c2VsZiBpcyB3aGV0aGVyIHRoZSBjYXBhYmls
-aXR5IHNwbGl0IGlzIHdoYXQgeW91DQppbnRlbmRlZC4NCg0KVGhlIG9uZSBwb2ludCBJIHdv
-dWxkIGxpa2UgYW4gYW5zd2VyIG9uIGlzIHRoZSBhc3ltbWV0cnkgaXRzZWxmOiBpZiB0aGUN
-CkNBUF9QRVJGTU9OIHJlcXVpcmVtZW50IGlzIGFib3V0IHRoZSBhdHRhY2gvSVJRIGNvbnRl
-eHQgcmF0aGVyIHRoYW4NCmFib3V0IGlucHV0LCB0aGVuIHRoaXMgaXMgZXhwZWN0ZWQgYW5k
-IEkgaGF2ZSBubyBmdXJ0aGVyIGNvbmNlcm4uICBJZiB5b3UNCndvdWxkIHJhdGhlciBjbG9z
-ZSBpdCwgSSBjYW4gcG9zdCB0aGUgTFNNIGdhdGUsIHRob3VnaCBpdCBpcyBub3QgdGhlIG9u
-bHkNCnBvc3NpYmxlIGZpeC4NCg0KV2hhdCBJIGFtIGFza2luZyBmb3I6DQoNCjEuIENvbmZp
-cm0gb3IgY29ycmVjdCB0aGUgcmVhZGluZyBhYm92ZS4NCjIuIElmIGl0IGlzIGEgYnVnOiBz
-YXkgc28sIGFuZCBJIHdpbGwgZm9sbG93IHRoZSBzZWN1cml0eSBwcm9jZXNzDQogICBpbnN0
-ZWFkLg0KMy4gSWYgaXQgaXMgaW50ZW5kZWQ6IGEgc2hvcnQgc3RhdGVtZW50IG9uIHRoaXMg
-dGhyZWFkIHdvdWxkIGhlbHAsIGFuZA0KICAgd2l0aCB5b3VyIHBlcm1pc3Npb24gSSB3b3Vs
-ZCBjaXRlIGl0IGFzIHRoZSBtYWludGFpbmVycycgcG9zaXRpb24uICBJDQogICBhbSBub3Qg
-YXNraW5nIGZvciBhIENWRSBvciBmb3IgeW91IHRvIGVuZG9yc2UgdGhlIHBhcGVyLg0KDQpU
-aGlzIGNvbWVzIGZyb20gYSBwYXBlciB3ZSBhcmUgcHJlcGFyaW5nLiBJdCBpcyBub3Qgc3Vi
-bWl0dGVkIHlldCBhbmQNCm5vdGhpbmcgd2lsbCBiZSBwdWJsaXNoZWQgZm9yIHNvbWUgdGlt
-ZSwgc28gdGhlcmUgaXMgbm8gZGVhZGxpbmUgaGVyZS4NClRoZSByZXByb2R1Y2VyLCBsb2dz
-IGFuZCBjb2RlIGFyZSBhdmFpbGFibGUgb24gcmVxdWVzdCwgYW5kIEkgYW0gaGFwcHkgdG8N
-CmRpc2N1c3MgZXZlcnl0aGluZyBvbiB0aGUgbGlzdC4NCg0KVGhhbmtzLA0KU2hpIExlY3Vu
-IDxzaGlsYzIwMjVAbWFpbC5zdXN0ZWNoLmVkdS5jbj4=
+On Fri, Oct 09, 2026 at 02:47:41PM +0000, Miotsuki Mizuno wrote:
+> Nsiway manufactures the NS2009 I2C resistive touchscreen controller.
+> Add its vendor prefix for the touchscreen binding.
+> 
+> Signed-off-by: Mizuno Miotsuki <founder@crepuse.com>
+
+Honestly, how mismatch can happen? git commit --signoff
+
+Please run scripts/checkpatch.pl on the patches and fix reported
+warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
+patches and (probably) fix more warnings. Some warnings can be ignored,
+especially from --strict run, but the code here looks like it needs a
+fix. Feel free to get in touch if the warning is not clear.
+
+Best regards,
+Krzysztof
 

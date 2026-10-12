@@ -1,135 +1,121 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65E07E54B
-	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 00:07:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AB46367B60;
+	Mon, 12 Oct 2026 06:04:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791763643; cv=none; b=XB5JYyyCKomEPQhD3Ia4CQF+/u+KHkqrJPuHghtxn19NK75lXNkc6YuuhScrqPSLpmhY4Ek77tI33tyGz2Ip9VvwcS3520CeYstWiUwhO3kdWevOTe63Iy5NQGY0uSTSgMYGkQ/r6cX/6dvmAO8AAyNJhiDEL6NKuj+3omzTUe8=
+	t=1791785089; cv=none; b=PuzL9d18lHiBzdw6Nj5WSA57fQewxKoGcxyBTOfFdKf80OESxunWcd9EibbFqJItBV5k5XAd+cDHTX/EtH4v1RTDZR6LiPkSfL52hBsUMcKLXUZ20kTtNCP1r0/h4phs+BYr+fRkyt/jdq8yrKK/qpxdtwH7pI09tmTpEojauNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791763643; c=relaxed/simple;
-	bh=NvU8lTGY5wOw1EfVIjl8TWYGKj/afTUacaEvubBQpBU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nPBYowstiQmOV2jAYbq85QBIn82b10uPDyCYf8KuQYGI4KKdBHoGbu6S6z2mRPI7EC4ABFs5d9nXm8+010SSSlFj05H/Mf7obX6hthNDxKXMq657eEiymSs99sZ+JtGuv+eexSzJyHyU5jV1qfMdaXLW85F3lu+K2jYB4xLr/BI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JHLGCi3w; arc=none smtp.client-ip=74.125.82.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791785089; c=relaxed/simple;
+	bh=wsCaupWmTE8Xdj57F18yMHRYSHjo/aBIBZq8IeFdniE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RNUhjgWxs0OSP4qVEGKRoa4X1iT0IQRIDqusEeqht3nbkXTq1a/ErXvB5TQBLPQ0z/d5LyA72sYXRpXhfjP3CDMS0fXpNzsQhtwqnHSRVT4+FqLkAaIJGw0Bz5sps7s14c+99PzwXsXdL9rw8sbMVk54WSO7+42Z6MquMgQuYaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YFR5XPx7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JHLGCi3w"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-3514b90bb89so2585067eec.1
-        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 17:07:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791763641; x=1792368441; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=wGay7rJNBB/90A9EPg71UJBrKb3VyPWYiVs9WPdHtBM=;
-        b=JHLGCi3wE1HpryGt4QEax5h2SGR1BDCYrZEcI+S2PWcwcwY9u6HuSxxa+9rFaHRe6w
-         WGVTdgkZ33jqUs2tnVuxerv9T41/+dOFjs77uAttvz+FtPWswPvxi4eD/AfTAJFesARx
-         zuhWC1/Bn515NdKydtZHkE5BOYLb0RzL7KLCkfoIc0njg2WQbPfkQRmoGXWsL9KJ3fHQ
-         mxqZP6DPXP2Ep3zw86F2mS9EWq4Cw5LCkjoSPmb2Rf10pacDBXyTDThuZbPwot1l+JoY
-         Q4fjQ38y9pCEaMWFwx8Rel7iU+KFyX7UvjoyCn1A1tVYI66ahUlHjArfX+DQtmpbrjxm
-         af2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791763641; x=1792368441;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=wGay7rJNBB/90A9EPg71UJBrKb3VyPWYiVs9WPdHtBM=;
-        b=zKJjCKYozDEtZHQ/vpMtDwRSgMku4Xp6xlZHLgq0EHroov5acvyt9f/5S98ecP0LX/
-         jCRwkJMx5zU+9Kj9N4Xzz9XK1CwTnm7jmcl32N47EynhKLra07y/n1T3AzT7Q7Oj0jQz
-         az2BRiV+9eTd1tS3FveCK0Y4i/f2w/JphcsIWChaLxba5sJkRDzi3Qilv70tU/NWO++9
-         Se3rICqmJKdupQb3c2JwDqf6ZDUZM9CWXba5Ah30BKY37c8BU5PLv0saO8gXsF9Y+yoH
-         CpOF2Kf2uyowSPX0hTfuIBhBWAVvfPl2p+yVwbn5FZHM5pGg1ZyqhVc9Bte43dJM1AtY
-         lDQA==
-X-Gm-Message-State: AFq9FYKGex+4LWtp4+kMMKYhUjHz32o28FTX8qdUWbcUHAGJgCG56z1V
-	GYXpwKG8EAz5spijdPOX3fsw/hWAqB9hLfKkx9+hMP/ZKw8WZkskVXZT
-X-Gm-Gg: AYBFou07/FidKUTU2T3gu970BYZ276G0bu8HOdXClfVrtHDXXwOvvGThGLExK9KX0jn
-	XzQEuCMKhiiOZucE+FZJyPKvlvYrO5h2fjQabyhBbTnCZVgdVmKHvolXE59QqlM1IvdYyBtvQQN
-	aMf1oBtXm7Lb61uKblGJHMkRFCGKk2l69WEbLsxyfPcMqGs2yM8T3qJ01BK95TFqQx+YVcdCpXE
-	Dxlj9YrOWe0/q/wNRE6IhiCg6KLWZD/oq4N0lF/RW6tCFTQ81WkuAFu/b9FJtiayqkPZgQUu6lA
-	AAsd1ZR+TOIIcri0rb5uAtLKrYFAh7ZdWFLNIIKRwmCly6LloPTh8E4NEYuETdzdO3bkn6/QwCY
-	oejKKm/gswdNBp3scqPDljNdymQOIt3cqCl1l6AIiJn8RdS2MS4c3fd9CVe75wLwNbIPDOAGfsj
-	+2FI8iP/CRF7GHVZ5Vfs2UZZnyY8W9u69f2Te6+pcG7O0CQF/+n+rkKVFhvZASiXMJ3/a6DigOG
-	Vf+j3mI02nk4FdIxw+k90yln813THcjhR7oybdQ0Yqp/sSTG30=
-X-Received: by 2002:a05:693c:6218:b0:34d:3ad2:680e with SMTP id 5a478bee46e88-3537df9e261mr12921018eec.14.1791763641210;
-        Sun, 11 Oct 2026 17:07:21 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:8999:e631:ed58:366a])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537ca1ba7esm26650789eec.7.2026.10.11.17.07.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 17:07:20 -0700 (PDT)
-Date: Sun, 11 Oct 2026 17:07:17 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Christian Lamparter <chunkeey@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-	linux-wireless <linux-wireless@vger.kernel.org>, Johannes Berg <johannes@sipsolutions.net>, 
-	Jeff Johnson <jjohnson@kernel.org>
-Subject: Re: [PATCH] Input: reject parent overrides on managed input devices
-Message-ID: <aswinjw7Ov6auPrn@google.com>
-References: <asmCc1VxVPLIMgY6@google.com>
- <CAAd0S9A6zNJU=BkUgpGtdHBgkcnQ0NyOWb46aDnBuGCf0TKvmA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YFR5XPx7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 979701F0089B;
+	Mon, 12 Oct 2026 06:04:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791785088;
+	bh=HHfWHjWV61LYPfzfGjbSk/13e1VVPrQht3tWRrZHfYs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=YFR5XPx7WfZr9lvccRlWYf6I1SRcVawgkcwMJzU4WxmC9y1f7xeaOCNCUFbJ8PSmi
+	 mFQjXj+ATpL8MRNrr+M6iYS6QqsAYb06cRTKpZRyPX7Rb2iPWqWnNrcQ0l1PLH8miB
+	 mpt9TDfTFeo+KQdzj+J2Om5JRZuH2gAG2O3CU5j5ods9oe1mlgrk/SU8pDc86lXC/k
+	 v9rrkqaRj0k1N7TPyldlbK6CZvBnME0X9nRIJe5kBYtPGlfy+PNhERcoyli4tVjs7e
+	 2nOwqFjYBh0tPbygLA9kePJmZ77e0bYUIp4iV3Ehnu/d5zrK+xCElUJoctvGuvXv7L
+	 nom+09r+d4EaA==
+Message-ID: <be3f853e-8b37-4b41-a998-94de1cb552f3@kernel.org>
+Date: Mon, 12 Oct 2026 08:04:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAAd0S9A6zNJU=BkUgpGtdHBgkcnQ0NyOWb46aDnBuGCf0TKvmA@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 01/11] Documentation: Correction in HID output_report
+ callback description.
+To: Jingyuan Liang <jingyliang@chromium.org>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Mark Brown <broonie@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+ Masami Hiramatsu <mhiramat@kernel.org>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ hbarnor@chromium.org, tfiga@chromium.org, fqwqf@fqwqf.xyz, daleyo@gmail.com,
+ Jarrett Schultz <jaschultz@microsoft.com>,
+ Dmitry Antipov <dmanti@microsoft.com>
+References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
+ <20261009-send-upstream-v5-1-384af01da3ee@chromium.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20261009-send-upstream-v5-1-384af01da3ee@chromium.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sun, Oct 11, 2026 at 08:12:47PM +0200, Christian Lamparter wrote:
-> On Sat, Oct 10, 2026 at 5:54 AM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > When an input device is allocated with devm_input_allocate_device(), the
-> > owner struct device is set as dev->dev.parent and holds the
-> > devm_input_device_release resource. Later, input_register_device()
-> > attaches the devm_input_device_unregister resource to dev->dev.parent.
+On 10/10/2026 00:25, Jingyuan Liang wrote:
+> From: Jarrett Schultz <jaschultz@microsoft.com>
 > 
-> Ok, why would this be a problem? If something other than the devres
-> garbage collection
-> callback access the data after it was unregistered... what else is
-> supposed to happen
-> other than a crash.
-
-If the owner is overridden one possibility is that input device stays
-registered while the rest of resources have already been released. Quite
-often it is "name" and "phys" pointers. Since the input device stays
-registered, userspace can access it, which results in UAF scenarios.
-They are reported by syzbot and may serve as an attack vector on a
-device.
-
+> Originally output_report callback was described as must-be asynchronous,
+> but that is not the case in some implementations, namely i2c-hid.
+> Correct the documentation to say that it may be asynchronous.
 > 
-> for what's worth: this patch seems to be a "spite" response to this:
-> https://lore.kernel.org/linux-wireless/20261008-carl9170-reverts-v2-0-3ecb12089797@gmail.com/
+> Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
+> Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Tested-by: Dale Whinham <daleyo@gmail.com>
 
-Heh, no. I was simply tracking a syzbot report and I have identified 5
-drivers that do the wrong thing. 4 of them are input subsystem and I
-posted patches and will pick them up through my tree, and one is that
-wireless driver that I posed patches (reverts) fixing as well.
+No, you cannot test documentation. Do not add fake tags when they simply
+do not apply.
 
-I want to make sure we do not introduce any more such cases, so I am
-adding a runtime check that will fire if someone will try to add another
-such case.
 
-Frankly I do not really care how you will fix your driver. I posted the
-patches that should resolve the issue, you are free to take them or come
-up with your own. This patch will take care of the issue from my end. 
 
-> 
-> I think someone else is working on a separate fix:
-> https://lwn.net/Articles/1038523/: "Revocable references for transient devices"
-> With todays Patch-Series V14 on: https://lkml.org/lkml/2026/10/11/475
-> 
-> From what I can tell, this should have been what devres was trying to solve.
-
-No, not really. It solves different use case altogether.
-
-Thanks.
-
--- 
-Dmitry
+Best regards,
+Krzysztof

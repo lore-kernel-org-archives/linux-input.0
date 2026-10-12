@@ -1,118 +1,135 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C3772E7380
-	for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 23:16:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65E07E54B
+	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 00:07:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791760573; cv=none; b=oDfBiXTY8gq9xPvlrhTtEFGUvw84lly5s531k8UnC7jcm7VQpL3vG63McqIp/MIF0MsNqqzLU3wGdAdXrpQtU+e7Ol4l4TuYARUAheydwBTRAyhgP2b33TEzVMcYr6h2ffl6I3jYpIqp1qwLzb+SDjfAZW+OBlAEVKVi6M/b3j8=
+	t=1791763643; cv=none; b=XB5JYyyCKomEPQhD3Ia4CQF+/u+KHkqrJPuHghtxn19NK75lXNkc6YuuhScrqPSLpmhY4Ek77tI33tyGz2Ip9VvwcS3520CeYstWiUwhO3kdWevOTe63Iy5NQGY0uSTSgMYGkQ/r6cX/6dvmAO8AAyNJhiDEL6NKuj+3omzTUe8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791760573; c=relaxed/simple;
-	bh=LmVQj7uu7MJqrKqgNSP5uYYVsgcU/25VPpMhJmIGlMw=;
+	s=arc-20240116; t=1791763643; c=relaxed/simple;
+	bh=NvU8lTGY5wOw1EfVIjl8TWYGKj/afTUacaEvubBQpBU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bfiprf/eh6bVkDIjUib2oFXnaHeoAvFooJgOdSKLJ6nR6DqjOGHs9Qz6QgZ+2J8xY9/gawXqXJD9h0F8G3KPAbMw6GoRkUVarlw0jR/JVZZ877bsNPa3izmGepykDHFPtvAD43hFi/SVw14Q6D20en6BLfjOW3HAEwOrHY/wUmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Sztr5wgH; arc=none smtp.client-ip=209.85.128.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=nPBYowstiQmOV2jAYbq85QBIn82b10uPDyCYf8KuQYGI4KKdBHoGbu6S6z2mRPI7EC4ABFs5d9nXm8+010SSSlFj05H/Mf7obX6hthNDxKXMq657eEiymSs99sZ+JtGuv+eexSzJyHyU5jV1qfMdaXLW85F3lu+K2jYB4xLr/BI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JHLGCi3w; arc=none smtp.client-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Sztr5wgH"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4a180fbeef5so11959705e9.1
-        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 16:16:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JHLGCi3w"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-3514b90bb89so2585067eec.1
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 17:07:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1791760571; x=1792365371; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=LmVQj7uu7MJqrKqgNSP5uYYVsgcU/25VPpMhJmIGlMw=;
-        b=Sztr5wgHMnUNvoPb0SWAp/YNM6eyxBGF/XwVKdTFZ6ZSDyZmpkrRZ7B3hxKuza9qwM
-         sYIEBqQ9SUbmW3ycIykNwl+EuLJ7WQMJOLEn+mHlOIbZ/VU7HbysS+HT1qK03qODor0i
-         xZBYGTbAjH2fp3xoZYI+DGTijLEsczwgnXVV1JwdHkfIWczY8aAdqZlc2BVFSBujAUv8
-         hmWrUeqOAVTxWNNTTk7erKumnE0ip2PPsexJNPJrPkUJP2TcH8OCEtKfvqYCQP6gsFo0
-         f8BpfnIIedJg5azpYToOigcDlSucdnOQSTdoQDHg8kmoufzh8v3hJXTRWW9WJrQNlbuV
-         bQ4g==
+        d=gmail.com; s=20251104; t=1791763641; x=1792368441; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wGay7rJNBB/90A9EPg71UJBrKb3VyPWYiVs9WPdHtBM=;
+        b=JHLGCi3wE1HpryGt4QEax5h2SGR1BDCYrZEcI+S2PWcwcwY9u6HuSxxa+9rFaHRe6w
+         WGVTdgkZ33jqUs2tnVuxerv9T41/+dOFjs77uAttvz+FtPWswPvxi4eD/AfTAJFesARx
+         zuhWC1/Bn515NdKydtZHkE5BOYLb0RzL7KLCkfoIc0njg2WQbPfkQRmoGXWsL9KJ3fHQ
+         mxqZP6DPXP2Ep3zw86F2mS9EWq4Cw5LCkjoSPmb2Rf10pacDBXyTDThuZbPwot1l+JoY
+         Q4fjQ38y9pCEaMWFwx8Rel7iU+KFyX7UvjoyCn1A1tVYI66ahUlHjArfX+DQtmpbrjxm
+         af2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791760571; x=1792365371;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LmVQj7uu7MJqrKqgNSP5uYYVsgcU/25VPpMhJmIGlMw=;
-        b=fuk+/KdccG0FUyWkRH7VBBExI0iP5tBiCx+zWVpF6IhoTFaQUvE+BdpyNKhpgC41qP
-         U/pZwLUk4KcSAvvjyyd/o7DJIb3OXupdOvWyy4DfabWHIKFRELhfRFvkkN6EURcJrI0a
-         3//jYKBn9C4S8UMiLdJglJLmn5mLe3d5DDyfmjtwx/FxhVeNYsaPpTILXzQf9sfEuVnr
-         S8bQdjrjCjrKg2kEeXye8ipXpQDTeDnojmfUwkh+Xm0pE4bfTZjwaEltKOAEf5kVgKG6
-         6wRkFcNXTEKwxQ6P5LG1MQkq42yoQirnzJGlzPZkf6M23TWPZlBkHRVTjzsUHmpkL8st
-         fVTQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxrGVgsWFzJcnTROkehM0GEIdtM1oy/2vXORDZVeGHL24g/V2kvOO+7ofATzHhOJRbAk6WyOIUCLs2lXQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLW32LvKD2Fu2DT4YHAnpCeTgwkgYOiLMJDoa0TqJeNK8LqKNUd
-	tkgAX65XG1zY7TD3WPJH11vxkGL7h4XZ6/golvG86nMuIa0/vQKoCff+udtCbw2fqD4=
-X-Gm-Gg: AYBFou2Wao9gP0crp9uj27b9f3aqkzuQEigGcTs7HnOFW65RQyCZBRq0XoXyL8/ULCW
-	qE5we7rDQG4WhG1iJGSigxvQCf9iOsmL60VQQBjvKL/jQ/Lcmz1PZQuCiz+sHCRbq1laNKAkbjm
-	MlIL6qHXlIgrXGnjtmr9vjm7UCy+rXPJV+MtZI21akeP9EMJKKjpFINeHO9X5MqMjwrSuZhBtdj
-	sHOu+jnM/WEK4ZkibZRxbTbIwu43FG5fLN3jiTGv1lf6vhsEHqrlkAP0ZGNUhjzEMoyfCZARoq9
-	RnoGUpnTNmxoAepH8xSNPRVnmyYZgsGodfZ2+u8q1WewEDvAqKFnnooWLvVjBdLmE+sO/faRGNI
-	ikMAjsNuxO/5xq923hP/tLWCH4r19Zs/1LqRrsMdeYtefJ/9LSpbtPeMqJoW9UiyLUyrgw/rZW1
-	Iqe/FaT3s+JPFAjNdaP5a7Smj1Egvhq5qmJMdrkjTbr9M800e1UsL5Fpg7iLLEymL6Mjtv2gzMD
-	yQ=
-X-Received: by 2002:a05:600c:8105:b0:4a1:775b:5eb2 with SMTP id 5b1f17b1804b1-4a18e48362emr139928885e9.13.1791760570708;
-        Sun, 11 Oct 2026 16:16:10 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4a18be964dfsm240506775e9.7.2026.10.11.16.16.08
+        d=1e100.net; s=20260707; t=1791763641; x=1792368441;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=wGay7rJNBB/90A9EPg71UJBrKb3VyPWYiVs9WPdHtBM=;
+        b=zKJjCKYozDEtZHQ/vpMtDwRSgMku4Xp6xlZHLgq0EHroov5acvyt9f/5S98ecP0LX/
+         jCRwkJMx5zU+9Kj9N4Xzz9XK1CwTnm7jmcl32N47EynhKLra07y/n1T3AzT7Q7Oj0jQz
+         az2BRiV+9eTd1tS3FveCK0Y4i/f2w/JphcsIWChaLxba5sJkRDzi3Qilv70tU/NWO++9
+         Se3rICqmJKdupQb3c2JwDqf6ZDUZM9CWXba5Ah30BKY37c8BU5PLv0saO8gXsF9Y+yoH
+         CpOF2Kf2uyowSPX0hTfuIBhBWAVvfPl2p+yVwbn5FZHM5pGg1ZyqhVc9Bte43dJM1AtY
+         lDQA==
+X-Gm-Message-State: AFq9FYKGex+4LWtp4+kMMKYhUjHz32o28FTX8qdUWbcUHAGJgCG56z1V
+	GYXpwKG8EAz5spijdPOX3fsw/hWAqB9hLfKkx9+hMP/ZKw8WZkskVXZT
+X-Gm-Gg: AYBFou07/FidKUTU2T3gu970BYZ276G0bu8HOdXClfVrtHDXXwOvvGThGLExK9KX0jn
+	XzQEuCMKhiiOZucE+FZJyPKvlvYrO5h2fjQabyhBbTnCZVgdVmKHvolXE59QqlM1IvdYyBtvQQN
+	aMf1oBtXm7Lb61uKblGJHMkRFCGKk2l69WEbLsxyfPcMqGs2yM8T3qJ01BK95TFqQx+YVcdCpXE
+	Dxlj9YrOWe0/q/wNRE6IhiCg6KLWZD/oq4N0lF/RW6tCFTQ81WkuAFu/b9FJtiayqkPZgQUu6lA
+	AAsd1ZR+TOIIcri0rb5uAtLKrYFAh7ZdWFLNIIKRwmCly6LloPTh8E4NEYuETdzdO3bkn6/QwCY
+	oejKKm/gswdNBp3scqPDljNdymQOIt3cqCl1l6AIiJn8RdS2MS4c3fd9CVe75wLwNbIPDOAGfsj
+	+2FI8iP/CRF7GHVZ5Vfs2UZZnyY8W9u69f2Te6+pcG7O0CQF/+n+rkKVFhvZASiXMJ3/a6DigOG
+	Vf+j3mI02nk4FdIxw+k90yln813THcjhR7oybdQ0Yqp/sSTG30=
+X-Received: by 2002:a05:693c:6218:b0:34d:3ad2:680e with SMTP id 5a478bee46e88-3537df9e261mr12921018eec.14.1791763641210;
+        Sun, 11 Oct 2026 17:07:21 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:8999:e631:ed58:366a])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537ca1ba7esm26650789eec.7.2026.10.11.17.07.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 11 Oct 2026 16:16:08 -0700 (PDT)
-Date: Mon, 12 Oct 2026 01:16:08 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: armandas.kvietkus@proton.me
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Griffin Kroah-Hartman <griffin.kroah@fairphone.com>, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Input: aw8697 - Add Awinic AW8697 haptics driver
-Message-ID: <aswYYk71JspzTQaO@monoceros>
-References: <20260930-mainlining-v1-0-c303cbdb00c8@proton.me>
- <20260930-mainlining-v1-2-c303cbdb00c8@proton.me>
+        Sun, 11 Oct 2026 17:07:20 -0700 (PDT)
+Date: Sun, 11 Oct 2026 17:07:17 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Christian Lamparter <chunkeey@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	linux-wireless <linux-wireless@vger.kernel.org>, Johannes Berg <johannes@sipsolutions.net>, 
+	Jeff Johnson <jjohnson@kernel.org>
+Subject: Re: [PATCH] Input: reject parent overrides on managed input devices
+Message-ID: <aswinjw7Ov6auPrn@google.com>
+References: <asmCc1VxVPLIMgY6@google.com>
+ <CAAd0S9A6zNJU=BkUgpGtdHBgkcnQ0NyOWb46aDnBuGCf0TKvmA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="5ridkd3llbbsodmf"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260930-mainlining-v1-2-c303cbdb00c8@proton.me>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAAd0S9A6zNJU=BkUgpGtdHBgkcnQ0NyOWb46aDnBuGCf0TKvmA@mail.gmail.com>
 
+On Sun, Oct 11, 2026 at 08:12:47PM +0200, Christian Lamparter wrote:
+> On Sat, Oct 10, 2026 at 5:54 AM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> >
+> > When an input device is allocated with devm_input_allocate_device(), the
+> > owner struct device is set as dev->dev.parent and holds the
+> > devm_input_device_release resource. Later, input_register_device()
+> > attaches the devm_input_device_unregister resource to dev->dev.parent.
+> 
+> Ok, why would this be a problem? If something other than the devres
+> garbage collection
+> callback access the data after it was unregistered... what else is
+> supposed to happen
+> other than a crash.
 
---5ridkd3llbbsodmf
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Subject: Re: [PATCH 2/2] Input: aw8697 - Add Awinic AW8697 haptics driver
-MIME-Version: 1.0
+If the owner is overridden one possibility is that input device stays
+registered while the rest of resources have already been released. Quite
+often it is "name" and "phys" pointers. Since the input device stays
+registered, userspace can access it, which results in UAF scenarios.
+They are reported by syzbot and may serve as an attack vector on a
+device.
 
-Hello,
+> 
+> for what's worth: this patch seems to be a "spite" response to this:
+> https://lore.kernel.org/linux-wireless/20261008-carl9170-reverts-v2-0-3ecb12089797@gmail.com/
 
-On Wed, Sep 30, 2026 at 06:08:04PM +0200, Armandas Kvietkus via B4 Relay wrote:
-> +#include <linux/mod_devicetable.h>
+Heh, no. I was simply tracking a syzbot report and I have identified 5
+drivers that do the wrong thing. 4 of them are input subsystem and I
+posted patches and will pick them up through my tree, and one is that
+wireless driver that I posed patches (reverts) fixing as well.
 
-Please drop this include, <linux/i2c.h> already provides of_device_id
-and i2c_device_id, so you only gain unnecessary dependencies here.
+I want to make sure we do not introduce any more such cases, so I am
+adding a runtime check that will fire if someone will try to add another
+such case.
 
-Best regards
-Uwe
+Frankly I do not really care how you will fix your driver. I posted the
+patches that should resolve the issue, you are free to take them or come
+up with your own. This patch will take care of the issue from my end. 
 
---5ridkd3llbbsodmf
-Content-Type: application/pgp-signature; name="signature.asc"
+> 
+> I think someone else is working on a separate fix:
+> https://lwn.net/Articles/1038523/: "Revocable references for transient devices"
+> With todays Patch-Series V14 on: https://lkml.org/lkml/2026/10/11/475
+> 
+> From what I can tell, this should have been what devres was trying to solve.
 
------BEGIN PGP SIGNATURE-----
+No, not really. It solves different use case altogether.
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmrMGLUACgkQj4D7WH0S
-/k6kxQf+IukpznR2fVDe2FYjwtjDRNGy/yLsBjaEG3d4asAugaTEUfUdBPK0dCFW
-zgab2jxZXtXpWm145NHWKc2TXTY5fdbyzDo1lLTObUvw0XqXoEWjEV2Z1uFhMx2z
-b5SpQGJhkddN3tFDIayYA5uFwo9c7vYr2w2UjXnJL4YAaGR9UETvZgP3FeuBs0YI
-kqqR/z0K4q9zTl8LqcRdV8bkRBzetw8xopnurhb8rkB5eNwc0kUsfHG5ogpHyXGT
-CDtMfYaqC9NxfohfFB2/0T/ITMS2HmQ1koWTWmyY/iBpCfWjfbqFlBrAR18rD4V8
-GpJ5ZqYJeVW8FJIpYCiOsjce2bry9w==
-=8biG
------END PGP SIGNATURE-----
+Thanks.
 
---5ridkd3llbbsodmf--
+-- 
+Dmitry

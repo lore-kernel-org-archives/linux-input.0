@@ -1,152 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f69.google.com (mail-dl1-f69.google.com [74.125.82.69])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F8C04F93B3
-	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 21:27:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 300CB3BF68D
+	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 21:29:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.69
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791840449; cv=none; b=ABPOt2ofKiKKU6Dq5xgvef32jIMTF5R68phhQw0qI7Q/3gUVWOX9wPDL0ffx14vmHSoWxzaVhNE8awVKfb3wrI7txUuHcHajKSkDXPJXl9xOT50x6M1eXchdv1q1yBgjjE78sSL8dD8SFcX3GqbjGeMO7tkRO9Z+AIAarfeclMM=
+	t=1791840560; cv=none; b=oEJgB0s2YmrlH+uJKsuDjW/S67ChgH72ahJlWn+DnezoO+z7xbwqmW5RdYu43geT6nLohEexuJ1E7hXSEP3m4ztTR3cTXp3AUDafOwHq25xEOE+W4K49LiKj0IUR58/zpzwvRoEA7aXBe6qymB3/u7fLUINkwkaCJnt90/+eot8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791840449; c=relaxed/simple;
-	bh=T0j9JmA+MWXvLpStdbcIPg1E/xybwogp5DBc2jN2R/8=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=h9uZm/DwYJnmKeiG91FGQAPQHPLDpR1mxZgv/so4ty0eFoAfTZgDSk3K02tTn7ED9L/pwGp9uUk6pw/lVhsYkkFDcsAda9xLKCGepHnA7mzkxrFglSRSwHLk1hQm3e5ju003PamNflFF3UhyZNJBsU4QBCFhicvVTpVDSR/O6iM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IMAmurKj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791840560; c=relaxed/simple;
+	bh=aRKMbIGGKLQZB5T9Mq5bX2WoGw64VZBibz5j826Kskg=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=jvb8JN72IfC5oM63Ymnrm/wvlPGb2Qx8/KJuMmo8GKGMSwFQOwbieppbQKPpk3nTmqSSzBGIUklm00v5c37Juncd1Ik9r1nQOFLG+N4fDxUzTp+dchLaZyMeHO6LYf/A59UfH2lE/XTm76w6OmbFa2ha7Mo9YXh1hcsFOs7QQU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rmsPW6qS; arc=none smtp.client-ip=74.125.82.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IMAmurKj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BBA11F0089B;
-	Mon, 12 Oct 2026 21:27:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791840448;
-	bh=A2K+gathfxooyV6Qr4Tvg9yVPGkSZsYFyVme1jTy9vw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IMAmurKjATynVHkAToHhcVLxebLoZCoZvsBHV84YfOolRTS5gwhhNQ5OOIV6hyR3w
-	 BMqPfyPJ9rFJTAQVcJ43WYd/t+uDxem+HWdKbswNLtGY2Y/D+CP7OZwizyo5+GoBxA
-	 JAGltR0LTNZClL95DgzHIi7YKjCbzFoDLvqDFkSgMvhOdslgI6sdCDLFuUUiDEqn2E
-	 QuziVHPG/s3lYP6xIFN0uCPumxuNqRPN+KntPl9zHd1qW/WW1/xnaeDrb7E5xyOsp0
-	 QCjFgi6dZtcQ/WSqWqsf6AjV6yUNaWSLrNIwW/qEbI4dudQX5I50D1oo45RC9kI3d+
-	 fFgkSqesiFPcw==
-Message-ID: <sashiko-outbox-168625@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/5] HID: UNCTRL: keep a single battery when a mouse
- has multiple connections
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Bishwa Bhusan Saha" <contact@bishwasaha.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261013-b4-unctrl-m1-battery-v2-4-bd6752021753@bishwasaha.com>
-References: <20261013-b4-unctrl-m1-battery-v2-0-bd6752021753@bishwasaha.com>
- <20261013-b4-unctrl-m1-battery-v2-4-bd6752021753@bishwasaha.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 12 Oct 2026 21:27:27 +0000
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rmsPW6qS"
+Received: by mail-dl1-f69.google.com with SMTP id a92af1059eb24-147be78cd56so9327700c88.1
+        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 14:29:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1791840558; x=1792445358; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7Sfy4MAE5xrKVWAYhshU9QLY8Lh9h2prWnQYSdhiJr0=;
+        b=rmsPW6qSheNG2A5GXI6Mda2Bi1YWkE1Z5fWcBAeqtWe5Q6kxUOhJtjmjdHtBY7mkzn
+         DMuprobZcc1N00EHDVFOPM/Nr+DMBwFX/MMQpA4oXXKJES19wVPqEAg0GH6CP09vFnwO
+         EG4eLVGCf5S4tAzV79xj1+XGitfHEcp+tmBEV+wqv6/tPpBQ0Paz8wyH6h+PAySJuZyn
+         0CSqM6+5ir960EyQFDaKnOfOmAxUm4jYZ4g7b4fB+1jGFzpgBVy6spC3igC1jShski3S
+         vX5/36dnlig2vQhTzV574sGO/y2TLeW+3qdQfmz/aH6KoBF7uKlF4sYnC1lV5cYH2Dae
+         YdQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791840558; x=1792445358;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=7Sfy4MAE5xrKVWAYhshU9QLY8Lh9h2prWnQYSdhiJr0=;
+        b=DMsP1EDG4srGBHvt8Zuvovu7kyvjk/JGbQUiMAwa/cG/daO4hkgJp5cUBQIoOKhgx0
+         fOpteUSfyaoAZTX5zQsh1nCPeJQ1ta6ZRdSB1AT4qP0+JTrAQDoylVkd4WlcHHUOvTOf
+         OgjDirKDcjatVOa5xnT3W0Qgb67SS5c2QCKO70qsOcbJoXUazOLcQRCLCDzNLkiMtU5K
+         ao6hWGf9CC7IhyPwqDS/CQhKAqqMJJvwEGHm4QOMGtmOgzfu+F+av66TEWqGzWQKuasB
+         OWAqmHoIlNbhYog4JKMx4LwTxUeZ+m71FWm3CQwZoxsKzubK+GjLAmBfYEcNa02RwQUd
+         jUDA==
+X-Forwarded-Encrypted: i=1; AKwUvBzLa4GGjiLLCldVwCaaoPAY4S7aioAYqAjOUxP1NnGpkTmaOpvtW8u4OtIVy1U3J/Z02/KI/i6liXvjPg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYI1hvH+Um74GbGVpNcplmDN0DDZJuo9L7dS/KRtvBu3zv2HWllA
+	2CsQayrxK7TQbhsu4/71Jrz+uqblzKaj8YCsvUCEZ0oItwh494j2Kn/r632thwRdJQ5kgl8+K8f
+	H6Zn5+dXcZQ==
+X-Received: from dlep17-n2.prod.google.com ([2002:a05:701b:4591:20b0:14a:c841:ce30])
+ (user=jiangzp job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:e11:b0:145:3a5:d918
+ with SMTP id a92af1059eb24-16a640fd0admr22091007c88.33.1791840557790; Mon, 12
+ Oct 2026 14:29:17 -0700 (PDT)
+Date: Mon, 12 Oct 2026 21:29:02 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
+Message-ID: <20261012212902.3491839-1-jiangzp@google.com>
+Subject: [PATCH] HID: vivaldi: avoid redundant feature report reads per usage
+From: Zhengping Jiang <jiangzp@google.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephen Boyd <swboyd@chromium.org>, 
+	Archie Pusaka <apusaka@google.com>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Zhengping Jiang <jiangzp@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] hid: unctrl: use-after-free via concurrent battery handover to a s=
-topped device
-- [High] hid: unctrl: UAF in usbhid_output_report due to delayed worker can=
-cel order
---
+vivaldi_feature_mapping() is invoked by hidinput_configure_usages() in
+ascending usage_index order for each usage in the top-row physical keymap
+field. Because fetching the feature report at usage_index == 0 already
+reads the entire report from hardware and populates field->value[] for all
+usages in the field, calling hid_hw_raw_request() again for subsequent
+usages redundantly reads the same report N times (e.g., 12 sequential BLE
+GATT reads taking ~2s on Vivaldi BLE keyboards).
 
-commit e4a86ecd29d9dc9de2cb5ac805fe6b509cef727d
-Author: Bishwa Bhusan Saha <contact@bishwasaha.com>
+Only fetch the feature report from hardware on the first usage
+(usage->usage_index == 0) and reuse field->value[usage->usage_index] for
+subsequent usages in the field.
 
-HID: UNCTRL: keep a single battery when a mouse has multiple connections
+Fixes: 33bbe04a15f2 ("HID: google: extract Vivaldi hid feature mapping for use in hid-hammer")
+Signed-off-by: Zhengping Jiang <jiangzp@google.com>
+---
+ drivers/hid/hid-vivaldi-common.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-The UNCTRL RAGE mouse can be connected over its 2.4 GHz dongle and its
-wired connection at the same time. This patch avoids reporting two
-separate batteries by registering the power supply only on the active
-connection, handing it over dynamically when that connection goes away.
+diff --git a/drivers/hid/hid-vivaldi-common.c b/drivers/hid/hid-vivaldi-common.c
+index c3c9fe9e697b..cfee7be4d759 100644
+--- a/drivers/hid/hid-vivaldi-common.c
++++ b/drivers/hid/hid-vivaldi-common.c
+@@ -49,6 +49,12 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
+ 	if (fn_key > data->num_function_row_keys)
+ 		data->num_function_row_keys = fn_key;
+ 
++	if (usage->usage_index) {
++		data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
++			field->value[usage->usage_index];
++		return;
++	}
++
+ 	report_data = buf = hid_alloc_report_buf(report, GFP_KERNEL);
+ 	if (!report_data)
+ 		return;
+-- 
+2.56.0.385.gd3acb90ef8-goog
 
-> diff --git a/drivers/hid/hid-unctrl-m1.c b/drivers/hid/hid-unctrl-m1.c
-> --- a/drivers/hid/hid-unctrl-m1.c
-> +++ b/drivers/hid/hid-unctrl-m1.c
-
-[ ... ]
-
-> @@ -302,20 +364,41 @@ static int unctrl_raw_event(struct hid_device *hdev=
-, struct hid_report *report,
->  static void unctrl_remove(struct hid_device *hdev)
->  {
->  	struct unctrl_dev *dev =3D hid_get_drvdata(hdev);
-> +	struct unctrl_dev *other;
-> =20
->  	/* Stop polling before the transport goes down. */
-> -	if (dev) {
-> -		cancel_delayed_work_sync(&dev->battery_work);
-> +	if (dev)
->  		hid_hw_close(hdev);
-> -	}
-> =20
->  	hid_hw_stop(hdev);
-> =20
->  	if (!dev)
->  		return;
-> =20
-> -	if (dev->battery)
-> -		power_supply_unregister(dev->battery);
-> +	/*
-> +	 * Pass the battery to a capable connection without one, so that it
-> +	 * keeps being reported when the owner disappears.
-> +	 */
-> +	mutex_lock(&unctrl_lock);
-> +	list_del(&dev->list);
-> +	/* out of the list, nothing can reach this device anymore */
-> +	cancel_delayed_work_sync(&dev->battery_work);
-
-[Severity: High]
-Can this cause a use-after-free in the transport driver? By moving the
-cancellation of the delayed worker battery_work to after hid_hw_stop(),
-the self-rescheduling worker might run concurrently with or after the
-transport is torn down.
-
-For example, hid_hw_stop() invokes the transport driver's stop routine
-like usbhid_stop(), which frees resources such as usbhid->urbout. If the
-un-cancelled worker executes unctrl_battery_timer_tick() and calls
-hid_hw_output_report(), the transport driver might evaluate its urbout
-pointer without locking, creating a time-of-check to time-of-use race
-that dereferences the freed pointer.
-
-> +	if (dev->battery) {
-> +		struct power_supply *battery;
-> +
-> +		scoped_guard(spinlock_irqsave, &dev->lock) {
-> +			battery =3D dev->battery;
-> +			dev->battery =3D NULL;
-> +		}
-> +		power_supply_unregister(battery);
-> +		list_for_each_entry(other, &unctrl_connections, list) {
-> +			if (!other->vendor || other->battery)
-> +				continue;
-> +			unctrl_battery_register(other);
-
-[Severity: High]
-Can this trigger a use-after-free if two devices are concurrently removed?
-
-hid_hw_stop() is called before the device is removed from the
-unctrl_connections list under unctrl_lock.
-
-If Thread A is executing unctrl_remove() for Device A, it will call
-hid_hw_stop(A->hdev).
-
-If Thread B is concurrently executing unctrl_remove() for Device B, it might
-acquire unctrl_lock before Thread A. Thread B will iterate the list, find
-Device A, and hand the battery to it by calling unctrl_battery_register().
-
-This triggers unctrl_fetch_battery(), which issues a hardware query via
-hid_hw_output_report(). Since Device A's transport has already been stopped
-by Thread A, accessing the hardware can trigger a use-after-free.
-
-> +			break;
-> +		}
-> +	}
-> +	mutex_unlock(&unctrl_lock);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-unctrl-=
-m1-battery-v2-0-bd6752021753@bishwasaha.com?part=3D4

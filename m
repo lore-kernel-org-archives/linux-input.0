@@ -1,45 +1,45 @@
 Received: from SEYPR02CU001.outbound.protection.outlook.com (mail-koreacentralazon11023119.outbound.protection.outlook.com [40.107.44.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0275847A893;
-	Mon, 12 Oct 2026 12:17:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4F2F47CA68;
+	Mon, 12 Oct 2026 12:17:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.44.119
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791807437; cv=fail; b=qD0aPl4ljDNKzaCl8yAxOOZsqsg5fP9Q8qwVHqlx5Q8ZdKfXgCoQiJFqbabS+OtYjjajX3nsx93JwzJVwAiOZL3/WjimsU96Zr0AwWSH3dWf4RrE6nT8uiy1zJ4qNGfeYtcsj6uqdRhpNDnCR50Fa+0T+z8HwHmTQmg+NuM1Tws=
+	t=1791807439; cv=fail; b=GziqX1Rlp/qGnZ+aga9qyK/JrgtbMrcImXfPy+pjpG3kPOVHf2zErFq7scuhv2XNM0mVz0Pwre4kuC2tJljSzqv0yLaOGfFwwKyoJFCSPkjytw3K0W4I75otFUG8JySyg/wa4p0FOIBGs9dPIqojMEyrYJxJ/eLnKvxnKXiflIs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791807437; c=relaxed/simple;
-	bh=XDcqWVkgSrZrwPyaqidq7Z9gWXPw2/LR02uNFtzgKo8=;
+	s=arc-20240116; t=1791807439; c=relaxed/simple;
+	bh=yYnHhSOozMWjs1tkbTmiuNCG2vuE4yUqYzwCxl8IE/c=;
 	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Jg8BTTEjHs5pY/a98Q2mu309kXKtv/8E2xnLtrrDxH+CB0IKa9OihgVU0c9S87eDH0PGdwA3yyyLn3bbatJJ40x9OV0PPsW+IH6MbsI9fi8crct+rRu9jZsoyuKl1aFEeIwYA4m+BGSgOGoUaZXQRABK+Ouk4PdqSbuC20q3JCc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crepuse.com; spf=pass smtp.mailfrom=crepuse.com; dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b=aFMTct78; arc=fail smtp.client-ip=40.107.44.119
+	 Content-Type:MIME-Version; b=Z+zsozf8tznS4rkxryvgVJ62zQFLOlpjKugCbLh/xBVomlMor6q5wNXMfFnuvA/smiAgqr/z6+PbPtNXiBgDfmVadqUFARGCO6bya+vhfdbfeF4NXaraTA6cw7gNYX30duuG7EjQJIEGmAgeN75OF/txTG7L2d9hE5i1q2CiBU4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crepuse.com; spf=pass smtp.mailfrom=crepuse.com; dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b=WsbquiDs; arc=fail smtp.client-ip=40.107.44.119
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=crepuse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=crepuse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b="aFMTct78"
+	dkim=pass (2048-bit key) header.d=crepuse.com header.i=@crepuse.com header.b="WsbquiDs"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=dLwnmiDU34tlNgUUYrTn29m2IedY1ZG6owj8KkGYuBV8kecJ/YPAdPC9LT9efzxq0e4e9nf8AfAY0SDRzlpXJXth12KqLns7vVLQbtCP9QOPDv/vGJ1mKdY05TLkcyvPpyAXDQmiw+N2sWSiIh4Vk83ysUYLg7v5fsdupx+4W4zQ3NMuy8RCEJL9NqF2QLbhZo18qtceMVLHlpvoih7je1CVB82IAuFoKhM2DxXRSOxidhG4S0MtmQuMX8rdLQ+n1Mour+DnXYFb71lCElQTKYANx58GT+HpYTp7WyuQR/xM28EY8moKUxDoJEEQ5GObnM3ArVnNFdE22l+cCCWzCg==
+ b=yG6ICl1Q10gfnWgBC9GL7ve9SceCfkRG28MmQmAleFbvMu7ChJcHC8F8hKMHeGoIpqmqgVvxWdPg+CP0bNVodgiDSXKOP3I9sMMSs1V+NuxSo9dLiL6gqeTXJLyb0OvPzc5nVp+0gPpGyyK+3I0Li4jyBAQV2fT6qcPDRi8xY0R7KuFDL6JpIOr3JcAMOQzkqg4DFCR98mJJkxL8ZW05eeKd/jPtYSiPMymxLTehiB1DnrIAOMEDrsqcGjr5PIFCEkhjx8U8ij7tgz82Wfv9TDxuo2uhi8Vlql57eK63gZtODfpwsY2yvolz4FcIEizW5mppbmzmJa8lc5uUOwecJw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iIweXyRGisZ1shTKfX3ZNlx9xBFMXflzmB8w+TgEink=;
- b=R/CzN9viICHnrDm2+jTgB3UOP/2Y/ye1jJiif8oKkdXXaEFl1gpX3kE+BRYf2RJWcpLfWatsbVBqk+nW4NKeuJGQTOxOhw7ibgVxrNfaJnzaMuHxHos2h6IPj16YNZVTJtpCqatc5ip4AW2kF+LWA9jxJBJq/UsNvxzOId2AuQCQ5SGJIP6dmE45Teh4oHgDFh4Qpn2hKbJk/nNFyS8KqPWfBope8S+Q58TffzOjHblhRJWK3JQETQSju9zklqorPOJxy7Iop1Gi9e4YwZ5vV0OTS3EAN+FnvAjbKQgN61DvzLdGynfHrl/0/hbdZ8de6f3TSjXMb0O9PvgH7MBNMg==
+ bh=CTXNPTIiy2eC/jOzX2NOCoufouphib6NA3rllXsQU/w=;
+ b=ZI+vK8mr3kgqyf8TbbWkKHIk9T6KsqgtcMk87sd5Z3Pv9jac1ulTvpLiFQCAbQxM9aB+nyc+ZWyT117kmCqI4KQD6FPCtlhuVRXR0LtHPCSL4s8cRKwv8z0p8aFueAPu2KKT2OybnN/eDON8+molk3WK+x8EGb6r/6xJZvklGVpU9rsdg3tHN60qHj8+xlWpCg9KBigNMb0pYTv5ylOQQAq+aLswws70MfcCNZ/SUbl7/hZoN7mQrzj/i7f7Nnui1PTTyXIHBv4Yv22nLnm6kSElxK/0nWpO/IjqDt0oCJj4dBTqVCrKzdZbGcX9AXFJFrb8CtuRYCTXww2Oz+qNWg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=crepuse.com; dmarc=pass action=none header.from=crepuse.com;
  dkim=pass header.d=crepuse.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crepuse.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iIweXyRGisZ1shTKfX3ZNlx9xBFMXflzmB8w+TgEink=;
- b=aFMTct78D/3sdRd/EjY9nSiNx/R+yqqs2ua2+etUslN9yubS9YK37Hmnp6f77/WFYz1l5R/8P8p14y5CPuw+sXoA/ZnvJ3CEvAYPXoXkkCrBjAjRw6UVPQ3HK1UNnYEF/81L3BaxBdhtAZnjmk9hcv9Ue1fQhuqatK2lwU9H0O4fwSYYMoKOlr68shXtgALt+C5AAMlLJj8cUdVApCKP/tKWctlnbMIitbKmUzPKsQ/m1vzh6FG/l1KhHWFpSwNo+SbDRjyfPU9olK/bqXg8EcFotzhPqaoeTJT+MWm/mpSDqQoDs5WpzwEKXe/m5ZcV/W2JC6DXdwYB0BXsQXaKLw==
+ bh=CTXNPTIiy2eC/jOzX2NOCoufouphib6NA3rllXsQU/w=;
+ b=WsbquiDsSfUJc36iIBCHe6wUuoxzNrzfN1SXKmXJZsY9K0NnseeUaHlbHPgZJOB9TOjina4UTfzjOrl53czvGtfizNQ/AwCH/KdFBb3AUg9ijDHDdIxGMbBo7lNujaXGODMbN4GYczsErfEWuKGfyIeqJF5CbIFmsw3URVhktvAj76DKFjv541a5nLmvps1Wap/KnU8+l6d4K1HkKTYkZ7Q6yqa2jNoLcuesAVqV+T353sbGw5F1ya3VL2ctR2+3k1HpfHQ4bRqoPPc6jsnlDtpVVfY+aP86pi3USOvAJentbEqarxOXEHtl3KmEJdrXXLTVzsZEv/5v+GFIR6q+oA==
 Received: from KUYPR01MB8186.apcprd01.prod.exchangelabs.com
  (2603:1096:d10:8d::16) by TY2PPF1753F85B8.apcprd01.prod.exchangelabs.com
  (2603:1096:408::389) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.21; Mon, 12 Oct
- 2026 12:17:07 +0000
+ 2026 12:17:08 +0000
 Received: from KUYPR01MB8186.apcprd01.prod.exchangelabs.com
  ([fe80::fe2d:77d4:b78a:358a]) by KUYPR01MB8186.apcprd01.prod.exchangelabs.com
  ([fe80::fe2d:77d4:b78a:358a%4]) with mapi id 15.21.0496.020; Mon, 12 Oct 2026
- 12:17:07 +0000
+ 12:17:08 +0000
 From: Miotsuki Mizuno <founder@crepuse.com>
 To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 CC: "conor+dt@kernel.org" <conor+dt@kernel.org>, "devicetree@vger.kernel.org"
@@ -47,11 +47,12 @@ CC: "conor+dt@kernel.org" <conor+dt@kernel.org>, "devicetree@vger.kernel.org"
 	"krzk+dt@kernel.org" <krzk+dt@kernel.org>, "linux-input@vger.kernel.org"
 	<linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org"
 	<linux-kernel@vger.kernel.org>, "robh@kernel.org" <robh@kernel.org>
-Subject: [PATCH v3 1/3] dt-bindings: vendor-prefixes: add Nsiway
-Thread-Topic: [PATCH v3 1/3] dt-bindings: vendor-prefixes: add Nsiway
-Thread-Index: AQHdWkOZxaIGNgavAUC/ZvgpC4O0wg==
-Date: Mon, 12 Oct 2026 12:17:07 +0000
-Message-ID: <20261012121705.53396-2-founder@crepuse.com>
+Subject: [PATCH v3 2/3] dt-bindings: input: touchscreen: add Nsiway NS2009
+Thread-Topic: [PATCH v3 2/3] dt-bindings: input: touchscreen: add Nsiway
+ NS2009
+Thread-Index: AQHdWkOalXj34gOswkeOPjbDMzfoxQ==
+Date: Mon, 12 Oct 2026 12:17:08 +0000
+Message-ID: <20261012121705.53396-3-founder@crepuse.com>
 References: <20261012121705.53396-1-founder@crepuse.com>
 In-Reply-To: <20261012121705.53396-1-founder@crepuse.com>
 Accept-Language: en-US
@@ -62,47 +63,47 @@ authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=crepuse.com;
 x-ms-publictraffictype: Email
 x-ms-traffictypediagnostic: KUYPR01MB8186:EE_|TY2PPF1753F85B8:EE_
-x-ms-office365-filtering-correlation-id: 1cb60517-025a-455c-31d9-08df285abbd4
+x-ms-office365-filtering-correlation-id: 8ed9bed5-2657-4fc0-3a1e-08df285abc94
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam:
- BCL:0;ARA:13230040|376014|1800799024|366016|23010399003|38070700021|56012099006|261009223027099003|260925021311599003|260925022911599003|260925021911599003|10067099003|22082099003|18002099003;
+ BCL:0;ARA:13230040|376014|1800799024|366016|23010399003|38070700021|56012099006|261009223027099003|10067099003|22082099003|18002099003|3023799007;
 x-microsoft-antispam-message-info:
- 1azfjv8RPqNeXK5Hm8a0QhmQH6t0ZNQ5Xsi4iXMzs3YlyYPFllvfoI129pTlY/jVfWEgcUM1m7iyET8sY3bnN2xXPGJ4piNb2USFC9fUHCIh+wEPFjoYyh7wxRRlfWHeeLnn6OQuLX/fw0l4sNaPlq0FotTLSKYpU0uNgQVsuRBUdwba1w/oOMlZEN9Lx362N8BhjCxxPsOsyKsCOqfmiQnbGUIlLTHHtjCiX8D+0P4eM4VHhoLO22Q56xj6ecqWY1h/9KuO1HQxBaxBEiqx/Inq/lYlPZ/bfusUx+xe2HhoIQa8AEAhdzg7pnBlI3XBFQ+BxYqnwvE5MN3R/BhtyqCi+Annp6wgdxsM3bw7FVb0TJJypVdQ5XX0seRKhyJj+ZpqxK8RalKn27bQE1EtTamJMwxbrAy5BfGahRQ2dxQcLopYzNgIqtN0ZA4u3xJg7EghnNejbGYMjMTjWACa4+lZGUB71hD4t2ynwxFC02EkLGCyaIROeQvJFFR7yEKfMwzBKuWXyeTteQ4SRf8m434/QMnthZkSeyMqV2O+bwK6+zE2t7Z/Fh90jH8W95hTCp8GuJpalbs4RxEJHCOVBzBdEGcaYOerwBBUwBsnIFxtluSB0Wq3pfMO9LJloX9P2LZldsXL/YN9qP8uziw9IYhKHIHgpHqnj7ZlQoIFP+UqjyU1x5xiKOPuFnA5zY1bilx/tQ9Pk921sgPHDnMzyLruaaSQR5phXPYDqYGT1Zo=
+ 0DIHANKb+wEwyh5HI1qK1AeVXpecPLg3575iYleayD9mYIymOI5a9/YXaz4Ts/ecGDcczrwcaKSgC39pYt4YtTPZp5azR9hI34pPSQL1b4BeMjvJMRBkQBX0et7aUiy8ioT0YytRMHUxud+mYEicmF9//YEC0odEkLu14i44Kp3FMp45pJwuwRKQlgZ7F1q7iObrC7RKNfVkeWVqSdY+cm/7wHgAyvpQrAY+2W1z/I0r/x4NGXgvh6x25Uv+02YlU/Z4V/IiS8yr5OEpWB+rWMr4sPXv6xbB2WSflESTJjXhbKfSYhFiylqhPAey6519YGMGJBqyiFzxSw8rZerZJeyovMaccI+RMlqt9+C+nIelAZpPSkihErUXC9R5sjH2NymWjubrktdq/v29ibd0wYWaFj+PVjDclZtRtfNngM068cy0IiKT87OxhsoeYmHp8EqmZWH2Q91pR49GnzaRBPJ55l+QUBd3H7mOkUK/v8y1dK3TmCvY4FOz7N09j/zMSKDbkzh+Px2/BW95zmtTzLcZagd0NWCdqkHy0Mjjma+9dr51YFniK9aj/T9LA2flfPFceKHFEgV3c68czvy3vjqdgDng+PwJ2mEHj6xDp5sGlUSF4dRGBB3MdqkDzi7vZSNLI0ED0gphYnHaAo+ImXBUWlhIAlwF+37M1NTn90k=
 x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KUYPR01MB8186.apcprd01.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(23010399003)(38070700021)(56012099006)(261009223027099003)(260925021311599003)(260925022911599003)(260925021911599003)(10067099003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:KUYPR01MB8186.apcprd01.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(23010399003)(38070700021)(56012099006)(261009223027099003)(10067099003)(22082099003)(18002099003)(3023799007);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
 x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?l3GBlY++9+2xQbO+zzQWlWF1OWTDFmQnMBkyE3SYDK/R7eXE0eyKua2FXI?=
- =?iso-8859-1?Q?dsHlSDueKqU7//cBQ/74HC5fvb12N/h15ISNo6WLtbio2WyqEZXtrk/tzt?=
- =?iso-8859-1?Q?KMwz/sFPHNuwzLG3W9GihxrcXzinfcxxOiUIWv3q3PVRgBQmYp056yzW89?=
- =?iso-8859-1?Q?Zgl+Qmf6X1Gen61VUd8lQCYOGJ7NxQH9p5SnCK213K63WiEkdUpSmngXO0?=
- =?iso-8859-1?Q?ouzaBXiKoB9bozuARzdgXrFP3eVkzn7ZuEcsQgRO1OgbqMrDGn8RUDjlfI?=
- =?iso-8859-1?Q?NUQpNci3hbcHZvP5Z+OzSupCdvgt2ysaMSS4rWwFG4MCZeHq/ZlLkRvm7D?=
- =?iso-8859-1?Q?IWj8EhtcEda/Kk8jcfrI+uTB/7liN3ov46UV530+P9W3nNGtvH5nyNlIT/?=
- =?iso-8859-1?Q?J22Y5NGj2iSsNaeBpkpHVtRpXFuNblRRLSFChrtDVviFK6io3rdRksLreE?=
- =?iso-8859-1?Q?bAg2q/QxK85shoCa8PqzqbgeAVTG1Z6lLwz37rqSvUI81IBVi8gJzTKNn1?=
- =?iso-8859-1?Q?X9hJ9uVwcm8lNIKG3HGSTXBWtbGao7wT2Cjq8Nm0rTaNB/IT8xf5tGmtvR?=
- =?iso-8859-1?Q?LNF6LeYi+8y6kxS4TB161Chu7xszfCN3LiUp6CX1fOAy2OALKmLGGM/DAn?=
- =?iso-8859-1?Q?8jg3X6YiOQfE7Fl24CYssgZVJGTqHN5TJ9YfiozYwPx/A5utgWNXU1lri0?=
- =?iso-8859-1?Q?iOAjar5kp8gThqBseQ5lMdgn9MixByzzXFbGpBj2Dg5JAOtFgPDAedkZ2g?=
- =?iso-8859-1?Q?s4iBWomaqXPyMw3VZ+gwd/M1M6UB3GR0D/PfjKNsaav0KTryDkssfneLvk?=
- =?iso-8859-1?Q?PuVz8yNQaEtwn/VnwLeiUzrPha4tWN0VBSTHp5ZEWuOv619YPUORMXNA6w?=
- =?iso-8859-1?Q?kOELWkMfhkpgsNwu6gVL3fdM9C32NSXNMqJBaMsz1P9SQtueApuamTunjl?=
- =?iso-8859-1?Q?bRRnWUR2dAOvJxoIWm7VFcSV0gVw7vUs8ZibfXfB+PFBS8S1pxu8q6ngnL?=
- =?iso-8859-1?Q?nk37fG4QUH33Sx2rRls4eiwvUEutypaiDz3YUpKJmi6MTiVF0pyx7SbKXL?=
- =?iso-8859-1?Q?+MwoNCRGixywxPjR63DBv30FXqNnCFU0EnATk1F0epZvE17n3bMC+90vwO?=
- =?iso-8859-1?Q?jyGGEffpogoATQ5bqtwyWwdsmuhMz2AfYSOVuDdapGR6Rk/IlllLguGrgh?=
- =?iso-8859-1?Q?K8RhVBqshXH4DhW5loQSASFTjTB9lPc0s1XzO92yEZ5Z4+yUmFJOrejjQ6?=
- =?iso-8859-1?Q?yKUYvh+TG4tl2r34KnsaDEK1eJwQ+m4dqm8/XRjTpQOMdIcG3u6YabCho1?=
- =?iso-8859-1?Q?xqfMgenILQQ4QADUbEltK3odCKn8hhB32BIa1IWF1p2gxct9pG7YhBAMTQ?=
- =?iso-8859-1?Q?TU+WMrK4gm7bwgvJwr25TiFyodqb6I/aSjZNtZtYCHwhQjfYSe2B2a4K5w?=
- =?iso-8859-1?Q?wzdKNemTUUxsEZKHp/y+IYc2ZkWLxqf1awOv+54IhCPAR3uAyQNmGXeC65?=
- =?iso-8859-1?Q?gW4V+tPEmx3lMpThjQ8I8yL6q7fEMMtyaDxJPdmI6Pm5U1fOWauZWOPXeX?=
- =?iso-8859-1?Q?DgW8dhTGDbvQjltdZhe58meUdeouL5IYEJfh7zWPnpX3qmKdGMQthXQKPe?=
- =?iso-8859-1?Q?JZOeHdGE6iTdiucXkn0pphDMUkihJBQBgoR9lZ1R34uP0z+lhxp2FEDoVC?=
- =?iso-8859-1?Q?IESiEw7ijOiQ7OuF1tYOeDrIutW6izegK9IeobvaZL9Bkf42U4oeIrYys3?=
- =?iso-8859-1?Q?BYQoq4xbN+0GxszcFZF8+O3b1vn/Jw3zlkv9O7GJDM5oTn?=
+ =?iso-8859-1?Q?+AIGYxFwEtySz9ODFCr+aQkI214xwtGPN0uOwvXv8mncJ3tmtAO9NO/ZL6?=
+ =?iso-8859-1?Q?77xTs5yeNqg+N+x6oU8UhcCJ5XB330QWgfpXbr4BU2j7HwnUqfO8jf9h/c?=
+ =?iso-8859-1?Q?C+M5aeCO8BVDmHBRb2gN7dCRr/KtAx2GlasETxMe1S1wMWVkimXFcLhiuf?=
+ =?iso-8859-1?Q?IQdvXmTTzGhWvn3MjzCJRX5QPpcjRHUgAVQ9jgplOB6ggSZE5vsCt5Kc9X?=
+ =?iso-8859-1?Q?IOUx9hkvpjXWM5lg7qDakr/APn5ALhQlBCM8ube0Fkh6nZr4jnpmdnayEl?=
+ =?iso-8859-1?Q?TOFOqrOGc2hpf3pmQxMGgk/Lx4QFBPHuA23yDy+0I7DbrOu6RxUw5XWuaS?=
+ =?iso-8859-1?Q?clrT40gfcwumLBXwtSCwETL39H1kY88GmFS2IU15QfE4wiE4hbvYttMdbq?=
+ =?iso-8859-1?Q?K4xeTUwt95PQoBkwYX50wwrwzyaMCpLwIEIPwybJEoxb73v/MyrjykT6c8?=
+ =?iso-8859-1?Q?H7mDHxoTtDnLD3T/jOJYMK5YN7SzUOdPShJm0vJFqNAJsRe05ed/4ID8i4?=
+ =?iso-8859-1?Q?BXfbgudkobEhcxxwg2M0qdoVSHyTb0anxrfPPes2hdTs/elY3A1cucQHbd?=
+ =?iso-8859-1?Q?3t1azetFZM9zFAjmtvU+8kW7iG5x8UAgRacXUsejHVUm7neTlwjTzdOFca?=
+ =?iso-8859-1?Q?FAipgIBaIm1J6E728SoKwKTmvVMR9ImZGnE2jASfqRdQXnQ/KzOk3hWJZI?=
+ =?iso-8859-1?Q?IFzMnE8SoEIMk3Q56o37dpoHxzJx8NTOOKzSukmbYeaxOZGGNTPdfVEDVW?=
+ =?iso-8859-1?Q?TGSAEd0J/VupW8vaF9+8hjK51PlJ4tQ/1U5UwamT29H5aBejp3wb8Enkr8?=
+ =?iso-8859-1?Q?8LbieldKj4Xm9C2L6i4ZDfFRbxU08hgZsdxwTA+fDe/PBOC3Y6/Y8pqJj7?=
+ =?iso-8859-1?Q?/ARlZLS8IZtK2pgiVNHhGQYz7p/pZl0YoTjHGErmhbDzpxMJeAlwftgDXV?=
+ =?iso-8859-1?Q?42m1P0qfzSqz5QKCbiGKm39nFISGPLrvw2MNM4S+PR9q9NG4baeZGyaJwT?=
+ =?iso-8859-1?Q?Qp+sjqOfaNoFcP/HKVlnRy3PDEhneBsqvp8X3ts6hBa4LXZ7OvsrXbfl+j?=
+ =?iso-8859-1?Q?n1+Ur7fVV1Xd51XXukOTrl0YmCu4fQFxNDLvTm9rAWZxGmenzqmgOc511F?=
+ =?iso-8859-1?Q?Q+XYSAmBctS3ag2zRK9ROGZ/v1IvKo2kigOuFDVtMy+fBvigCxY0egk7t4?=
+ =?iso-8859-1?Q?6twdwb01nmgolS8UqxMn7U+PSt9ucWNYbW9aAi/NSWudLEGk5cEdkOTg2h?=
+ =?iso-8859-1?Q?7TjK6thHti5w8czUurBGkzdUCQKtaShptSDfs4e1B0vfE5a373xXRQFMPB?=
+ =?iso-8859-1?Q?K3zUKVexMxDZyHGp8omPGM6R48sEBqfugbwd44or3KZ25G1dt6Za4ASVct?=
+ =?iso-8859-1?Q?wnNT6nKBQ5Chyk6d5HDbofQa9L4TMEEVavIPRbvRepFfKP5YdzCxi1qZE9?=
+ =?iso-8859-1?Q?Iceyjzh+qq0XyIYbym5j2/cFuVlvHno0ew0TSSk1OAPX3Bphu0Ojw+udH1?=
+ =?iso-8859-1?Q?2jcADrGHWUoCX+qw7noosuvSmYKWYfgoXYhEg4RbQn/9R2ERaQ1Lpfc2zs?=
+ =?iso-8859-1?Q?pTDr2NaXDHEdngdZwMJCcDI2iPQ+O57/Ho0gi0KSPsko56ED6/Cr7DQkhv?=
+ =?iso-8859-1?Q?Qy3qPao6t5buvxR1vt53OY31Ib0F9KlRA46I8rwcg1n6/uoUeY7pE9Vjvq?=
+ =?iso-8859-1?Q?Mu8Y0IoBpBk9v0jYyKWWteZlx340wrZexwNKiW6NXln7iZZ7hQr1p5lr+E?=
+ =?iso-8859-1?Q?XW/hZeosbb1JL/HM2h773w7DyEoTmWvxpBy9GN5CbVTduJ?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -114,39 +115,140 @@ MIME-Version: 1.0
 X-OriginatorOrg: crepuse.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: KUYPR01MB8186.apcprd01.prod.exchangelabs.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1cb60517-025a-455c-31d9-08df285abbd4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Oct 2026 12:17:07.3001
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8ed9bed5-2657-4fc0-3a1e-08df285abc94
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Oct 2026 12:17:08.5716
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 9e189589-0b8b-4283-80ca-b0157c0a04fa
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: uR+VCL6PeMDBt/zj0gIjn5X9s41ucCYzPm64I0s54lMpOQefh4MFdW8l2Bx7u/ctk6Wuw/vez87OSMUlT83SYA==
+X-MS-Exchange-CrossTenant-userprincipalname: n9kTQmrt7+mZG6Kh79TkiGzM8POMYCU/Z956k2jOoyg5v6F46sr+PoaIdnJ8Oo6i3jWE7xys8rFfN9+Id/cZ/A==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY2PPF1753F85B8
 
 From: Mizuno Miotsuki <founder@crepuse.com>=0A=
 =0A=
-Nsiway manufactures the NS2009 I2C resistive touchscreen controller.=0A=
-Add its vendor prefix for the touchscreen binding.=0A=
+Describe the Nsiway NS2009 four-wire resistive touchscreen controller=0A=
+with optional pen interrupt, power and reference supplies, and touch=0A=
+resistance measurement properties. Include one complete example.=0A=
 =0A=
 Signed-off-by: Mizuno Miotsuki <founder@crepuse.com>=0A=
 ---=0A=
- Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++=0A=
- 1 file changed, 2 insertions(+)=0A=
+ .../input/touchscreen/nsiway,ns2009.yaml      | 78 +++++++++++++++++++=0A=
+ MAINTAINERS                                   |  6 ++=0A=
+ 2 files changed, 84 insertions(+)=0A=
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/nsi=
+way,ns2009.yaml=0A=
 =0A=
-diff --git a/Documentation/devicetree/bindings/vendor-prefixes.yaml b/Docum=
-entation/devicetree/bindings/vendor-prefixes.yaml=0A=
-index ba2002969373..a180012054c9 100644=0A=
---- a/Documentation/devicetree/bindings/vendor-prefixes.yaml=0A=
-+++ b/Documentation/devicetree/bindings/vendor-prefixes.yaml=0A=
-@@ -1214,6 +1214,8 @@ patternProperties:=0A=
-     description: Novatek=0A=
-   "^novtech,.*":=0A=
-     description: NovTech, Inc.=0A=
-+  "^nsiway,.*":=0A=
-+    description: Shenzhen Nsiway Technology Co., Ltd.=0A=
-   "^nuclei,.*":=0A=
-     description: Nuclei System Technology=0A=
-   "^numonyx,.*":=0A=
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/nsiway,ns2=
+009.yaml b/Documentation/devicetree/bindings/input/touchscreen/nsiway,ns200=
+9.yaml=0A=
+new file mode 100644=0A=
+index 000000000000..caea15b5c5a3=0A=
+--- /dev/null=0A=
++++ b/Documentation/devicetree/bindings/input/touchscreen/nsiway,ns2009.yam=
+l=0A=
+@@ -0,0 +1,78 @@=0A=
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)=0A=
++%YAML 1.2=0A=
++---=0A=
++$id: http://devicetree.org/schemas/input/touchscreen/nsiway,ns2009.yaml#=
+=0A=
++$schema: http://devicetree.org/meta-schemas/core.yaml#=0A=
++=0A=
++title: Nsiway NS2009 resistive touchscreen controller=0A=
++=0A=
++maintainers:=0A=
++  - Mizuno Miotsuki <founder@crepuse.com>=0A=
++=0A=
++description:=0A=
++  Nsiway NS2009 is an I2C four-wire resistive touchscreen controller with=
+=0A=
++  a 12-bit ADC, an active-low pen interrupt and touch resistance measureme=
+nt.=0A=
++=0A=
++allOf:=0A=
++  - $ref: touchscreen.yaml#=0A=
++=0A=
++properties:=0A=
++  compatible:=0A=
++    const: nsiway,ns2009=0A=
++=0A=
++  reg:=0A=
++    maxItems: 1=0A=
++=0A=
++  interrupts:=0A=
++    maxItems: 1=0A=
++    description:=0A=
++      Active-low pen interrupt output. Optional when the signal is not=0A=
++      connected.=0A=
++=0A=
++  wakeup-source:=0A=
++    type: boolean=0A=
++=0A=
++  vdd-supply:=0A=
++    description: Main power supply.=0A=
++=0A=
++  vref-supply:=0A=
++    description: External ADC reference voltage supply.=0A=
++=0A=
++  touchscreen-min-pressure:=0A=
++    minimum: 1=0A=
++    maximum: 4095=0A=
++    default: 80=0A=
++    description:=0A=
++      Minimum raw Z1 reading considered a touch. This is a contact detecti=
+on=0A=
++      threshold, not a calibrated pressure value. Boards may require a hig=
+her=0A=
++      empirically determined threshold than the historical driver default.=
+=0A=
++=0A=
++required:=0A=
++  - compatible=0A=
++  - reg=0A=
++=0A=
++unevaluatedProperties: false=0A=
++=0A=
++examples:=0A=
++  - |=0A=
++    #include <dt-bindings/interrupt-controller/irq.h>=0A=
++=0A=
++    i2c {=0A=
++        #address-cells =3D <1>;=0A=
++        #size-cells =3D <0>;=0A=
++=0A=
++        touchscreen@48 {=0A=
++            compatible =3D "nsiway,ns2009";=0A=
++            reg =3D <0x48>;=0A=
++            interrupt-parent =3D <&gpio1>;=0A=
++            interrupts =3D <7 IRQ_TYPE_LEVEL_LOW>;=0A=
++            wakeup-source;=0A=
++            vdd-supply =3D <&vdd>;=0A=
++            vref-supply =3D <&vref>;=0A=
++            touchscreen-x-plate-ohms =3D <400>;=0A=
++            touchscreen-min-pressure =3D <150>;=0A=
++            touchscreen-max-pressure =3D <4095>;=0A=
++            touchscreen-fuzz-pressure =3D <16>;=0A=
++            touchscreen-inverted-y;=0A=
++        };=0A=
++    };=0A=
+diff --git a/MAINTAINERS b/MAINTAINERS=0A=
+index f53047aa8d3c..696f2badc49c 100644=0A=
+--- a/MAINTAINERS=0A=
++++ b/MAINTAINERS=0A=
+@@ -19467,6 +19467,12 @@ S:	Maintained=0A=
+ F:	Documentation/core-api/symbol-namespaces.rst=0A=
+ F:	scripts/nsdeps=0A=
+ =0A=
++NSIWAY NS2009 TOUCHSCREEN CONTROLLER=0A=
++M:	Mizuno Miotsuki <founder@crepuse.com>=0A=
++L:	linux-input@vger.kernel.org=0A=
++S:	Maintained=0A=
++F:	Documentation/devicetree/bindings/input/touchscreen/nsiway,ns2009.yaml=
+=0A=
++=0A=
+ NTB AMD DRIVER=0A=
+ M:	Basavaraj Natikar <Basavaraj.Natikar@amd.com>=0A=
+ M:	Shyam Sundar S K <Shyam-sundar.S-k@amd.com>=0A=
 -- =0A=
 2.56.0=0A=
 =0A=

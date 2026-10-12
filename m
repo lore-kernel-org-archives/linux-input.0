@@ -1,115 +1,152 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DB942BFC7B
-	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 21:20:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F8C04F93B3
+	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 21:27:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791840018; cv=none; b=hLE8Bm0ebvS5BTSXGsY7HGJBETMNtK3PdiT5BOyfxgm/bT033CVFPFBkcIcyTP39T9lW0oj2Lx3eKs+3TsfAlPZBHMz3STkIufCiYRiaDECpdPY+mMxUEDDw/KiY/zea+Gnz6+8L0V5hRZiDHhTATou63U9ghQMbTyaYOCIfN74=
+	t=1791840449; cv=none; b=ABPOt2ofKiKKU6Dq5xgvef32jIMTF5R68phhQw0qI7Q/3gUVWOX9wPDL0ffx14vmHSoWxzaVhNE8awVKfb3wrI7txUuHcHajKSkDXPJXl9xOT50x6M1eXchdv1q1yBgjjE78sSL8dD8SFcX3GqbjGeMO7tkRO9Z+AIAarfeclMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791840018; c=relaxed/simple;
-	bh=uTpVL8VFxiH0aXwtgaqKoP5zxzsZ7uRk4O7pMWoaOi0=;
+	s=arc-20240116; t=1791840449; c=relaxed/simple;
+	bh=T0j9JmA+MWXvLpStdbcIPg1E/xybwogp5DBc2jN2R/8=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=hOIZAjCSVephPh9s1Fs5DFSxNH895CA4qDnyrZLIqgTJx5/I9WJkI+IDGRHWdRlN6o3iD6i12Wm+Ah8UKOsNX9TVUk9zPgO/1nFrXzITiJUyhmmv3R9NTnKtDXWJqY+3nY2Huf9cB2orS8TVKLNzG+t4/476vHNHk/xulPo5D18=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l5pa+xwr; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=h9uZm/DwYJnmKeiG91FGQAPQHPLDpR1mxZgv/so4ty0eFoAfTZgDSk3K02tTn7ED9L/pwGp9uUk6pw/lVhsYkkFDcsAda9xLKCGepHnA7mzkxrFglSRSwHLk1hQm3e5ju003PamNflFF3UhyZNJBsU4QBCFhicvVTpVDSR/O6iM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IMAmurKj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l5pa+xwr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F07601F0089B;
-	Mon, 12 Oct 2026 21:20:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IMAmurKj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BBA11F0089B;
+	Mon, 12 Oct 2026 21:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791840017;
-	bh=CHIMEk2xK/Fw1yJgwI/OV1boLhouWHei2v2o3fnlE2o=;
+	s=k20260515; t=1791840448;
+	bh=A2K+gathfxooyV6Qr4Tvg9yVPGkSZsYFyVme1jTy9vw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=l5pa+xwrTTf/sDz4JZ8GwIGRJzzL0QHgmr1O4s9q1V7dSfsyNso6bJvmJnHpOMYWJ
-	 O2LSox2gRIiSPGuN5TnOI8Wk0VSwwKVn62QavVpj5UbBmDoNo/9xZPb6jrRpZmRUW8
-	 rckvIc+4iQI6GhtREColn04JPehGsumcmw5jjv7UpqLG705qtGiDPhXvNrLct4xLBs
-	 W565FQ3+GSbZQCiNIy/IdROlsP9z0GR7ajca8KxJpdkAvBpyW85ud+q1UplS8LY0hu
-	 AXOLXshMAqy2OAx+cZAegUlwGSu82ZNZJMlOpyvq0DErAhTwWYmRaIvQ3xceNuCGvC
-	 lhjUHd0b7CwEw==
-Message-ID: <sashiko-outbox-168615@kernel.org>
+	b=IMAmurKjATynVHkAToHhcVLxebLoZCoZvsBHV84YfOolRTS5gwhhNQ5OOIV6hyR3w
+	 BMqPfyPJ9rFJTAQVcJ43WYd/t+uDxem+HWdKbswNLtGY2Y/D+CP7OZwizyo5+GoBxA
+	 JAGltR0LTNZClL95DgzHIi7YKjCbzFoDLvqDFkSgMvhOdslgI6sdCDLFuUUiDEqn2E
+	 QuziVHPG/s3lYP6xIFN0uCPumxuNqRPN+KntPl9zHd1qW/WW1/xnaeDrb7E5xyOsp0
+	 QCjFgi6dZtcQ/WSqWqsf6AjV6yUNaWSLrNIwW/qEbI4dudQX5I50D1oo45RC9kI3d+
+	 fFgkSqesiFPcw==
+Message-ID: <sashiko-outbox-168625@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/5] HID: UNCTRL: add basic battery reporting for
- UNCTRL RAGE Mouse
+Subject: Re: [PATCH v2 4/5] HID: UNCTRL: keep a single battery when a mouse
+ has multiple connections
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bishwa Bhusan Saha" <contact@bishwasaha.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
-In-Reply-To: <20261013-b4-unctrl-m1-battery-v2-2-bd6752021753@bishwasaha.com>
+In-Reply-To: <20261013-b4-unctrl-m1-battery-v2-4-bd6752021753@bishwasaha.com>
 References: <20261013-b4-unctrl-m1-battery-v2-0-bd6752021753@bishwasaha.com>
- <20261013-b4-unctrl-m1-battery-v2-2-bd6752021753@bishwasaha.com>
+ <20261013-b4-unctrl-m1-battery-v2-4-bd6752021753@bishwasaha.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 12 Oct 2026 21:20:16 +0000
+Date: Mon, 12 Oct 2026 21:27:27 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] hid: unbalanced hid_hw_close() in unctrl_remove() for non-vendor i=
-nterfaces
+- [High] hid: unctrl: use-after-free via concurrent battery handover to a s=
+topped device
+- [High] hid: unctrl: UAF in usbhid_output_report due to delayed worker can=
+cel order
 --
 
-commit 34f6450fbc06f0259d8e3dc8b22b5c1567b8c302
+commit e4a86ecd29d9dc9de2cb5ac805fe6b509cef727d
 Author: Bishwa Bhusan Saha <contact@bishwasaha.com>
-HID: UNCTRL: add basic battery reporting for UNCTRL RAGE Mouse
 
-This initial patch will probe the battery only once. A later patch
-will add periodic checking.
+HID: UNCTRL: keep a single battery when a mouse has multiple connections
+
+The UNCTRL RAGE mouse can be connected over its 2.4 GHz dongle and its
+wired connection at the same time. This patch avoids reporting two
+separate batteries by registering the power supply only on the active
+connection, handing it over dynamically when that connection goes away.
 
 > diff --git a/drivers/hid/hid-unctrl-m1.c b/drivers/hid/hid-unctrl-m1.c
-> new file mode 100644
-> index 0000000000000..3896468adf77f
-> --- /dev/null
+> --- a/drivers/hid/hid-unctrl-m1.c
 > +++ b/drivers/hid/hid-unctrl-m1.c
+
 [ ... ]
-> +static int unctrl_probe(struct hid_device *hdev, const struct hid_device=
-_id *id)
-> +{
-[ ... ]
-> +	ret =3D hid_hw_start(hdev, connect_mask);
-> +	if (ret) {
-> +		hid_err(hdev, "%s:hw start failed with error %d\n", __func__,
-> +			ret);
-> +		return ret;
-> +	}
-> +
-> +	if (!vendor)
-> +		return 0;
-> +
-> +	dev =3D kzalloc_obj(*dev);
-[ ... ]
-> +	/* usbhid polls the interrupt in endpoint only while it is open */
-> +	ret =3D hid_hw_open(hdev);
-[ ... ]
-> +static void unctrl_remove(struct hid_device *hdev)
-> +{
-> +	struct unctrl_dev *dev =3D hid_get_drvdata(hdev);
-> +
-> +	hid_hw_close(hdev);
+
+> @@ -302,20 +364,41 @@ static int unctrl_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+>  static void unctrl_remove(struct hid_device *hdev)
+>  {
+>  	struct unctrl_dev *dev =3D hid_get_drvdata(hdev);
+> +	struct unctrl_dev *other;
+> =20
+>  	/* Stop polling before the transport goes down. */
+> -	if (dev) {
+> -		cancel_delayed_work_sync(&dev->battery_work);
+> +	if (dev)
+>  		hid_hw_close(hdev);
+> -	}
+> =20
+>  	hid_hw_stop(hdev);
+> =20
+>  	if (!dev)
+>  		return;
+> =20
+> -	if (dev->battery)
+> -		power_supply_unregister(dev->battery);
+> +	/*
+> +	 * Pass the battery to a capable connection without one, so that it
+> +	 * keeps being reported when the owner disappears.
+> +	 */
+> +	mutex_lock(&unctrl_lock);
+> +	list_del(&dev->list);
+> +	/* out of the list, nothing can reach this device anymore */
+> +	cancel_delayed_work_sync(&dev->battery_work);
 
 [Severity: High]
-Does this code cause a hardware reference count underflow for non-vendor
-interfaces?
+Can this cause a use-after-free in the transport driver? By moving the
+cancellation of the delayed worker battery_work to after hid_hw_stop(),
+the self-rescheduling worker might run concurrently with or after the
+transport is torn down.
 
-When the driver binds to a non-vendor interface, unctrl_probe() correctly
-returns 0 early without calling hid_hw_open() or allocating the private
-dev struct. However, upon driver unbind, unctrl_remove() unconditionally
-calls hid_hw_close() before checking if dev is NULL.
+For example, hid_hw_stop() invokes the transport driver's stop routine
+like usbhid_stop(), which frees resources such as usbhid->urbout. If the
+un-cancelled worker executes unctrl_battery_timer_tick() and calls
+hid_hw_output_report(), the transport driver might evaluate its urbout
+pointer without locking, creating a time-of-check to time-of-use race
+that dereferences the freed pointer.
 
-Any hot-unplug, module unload, or manual driver unbind of a non-vendor
-interface will trigger this unbalanced close, underflowing the
-hdev->ll_open_count. This corrupts the transport open state and prevents
-the device from being properly opened subsequently (e.g., by hidraw or
-hidinput).
-
+> +	if (dev->battery) {
+> +		struct power_supply *battery;
 > +
-> +	hid_hw_stop(hdev);
-> +
-> +	if (!dev)
-> +		return;
+> +		scoped_guard(spinlock_irqsave, &dev->lock) {
+> +			battery =3D dev->battery;
+> +			dev->battery =3D NULL;
+> +		}
+> +		power_supply_unregister(battery);
+> +		list_for_each_entry(other, &unctrl_connections, list) {
+> +			if (!other->vendor || other->battery)
+> +				continue;
+> +			unctrl_battery_register(other);
+
+[Severity: High]
+Can this trigger a use-after-free if two devices are concurrently removed?
+
+hid_hw_stop() is called before the device is removed from the
+unctrl_connections list under unctrl_lock.
+
+If Thread A is executing unctrl_remove() for Device A, it will call
+hid_hw_stop(A->hdev).
+
+If Thread B is concurrently executing unctrl_remove() for Device B, it might
+acquire unctrl_lock before Thread A. Thread B will iterate the list, find
+Device A, and hand the battery to it by calling unctrl_battery_register().
+
+This triggers unctrl_fetch_battery(), which issues a hardware query via
+hid_hw_output_report(). Since Device A's transport has already been stopped
+by Thread A, accessing the hardware can trigger a use-after-free.
+
+> +			break;
+> +		}
+> +	}
+> +	mutex_unlock(&unctrl_lock);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-unctrl-=
-m1-battery-v2-0-bd6752021753@bishwasaha.com?part=3D2
+m1-battery-v2-0-bd6752021753@bishwasaha.com?part=3D4

@@ -1,118 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D999E33F59C;
-	Mon, 12 Oct 2026 06:05:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC08D36D9FE
+	for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 06:12:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791785137; cv=none; b=DuHji+cLmHo2mlvI2QLSv9XPb0BVCwLg/phoQSxWwxnD1i3VDD01lPtzt5vAvmlBn+9IsjZeKMQXDC0AHcZtD2Q26RMxWIuNP3523PFp/ssIF/Ol3axg3pkrpLaCbPbpJL4T9Uuy/1jtkg8OxYmCDVPVwda9fxxBY1epHBAejug=
+	t=1791785554; cv=none; b=JWbTh3XmxdVcScNG8quSTOmJ0eWWHp+fDtxGrl0dx/9njMoHsALCiE3QZD55u5BtjuoIH0GOiy3iWkRf2NfYI4yugX5SVjSkkg4z/Rdkb9JLduYvFC3EJy3wzWbVAI0N7rlv2JftYFMBM1jmc3s80Bod/VNMPUQVN2/NLZ7HEh8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791785137; c=relaxed/simple;
-	bh=beQa+DI+F888sK7apR3knG33kZZQpCR8lIwCaKguaC8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=B5TFAgA3Me89NSV8nYdwl+mslBBvHU+jQLrpHu6uv5UIzUsE25XntMbaWkMnjSSkuxdVLMyNRBFkJ88iVPEaLE/KUkYaGaXTtx0jMsVnuQkXDd+gtgE2oql/xlF53RGCGYN2KlBles9WWYkJuH7S/yJsuCp9VHlPXFoUlGhIv/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MyHcZjNI; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791785554; c=relaxed/simple;
+	bh=zZXbfruO/r/RWqf/E75oLX6W4C4wA0wKXl1yDwwK0Zs=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Disposition; b=ZWNJTMRsOwTJnqfk2xRdEADR24K/gaJbpdNBC1Jr+Un4x9xz5SpNHjjYeqqylXStjcNjDqbbcrfO5zgYk90qz220pDhAsDZA6ojcvo6nEfmGPuYIbCT2VF2uTrjbmCf6wAOHhA/YPgDtenFdrYhA3zNUD2Y05Gq7SJj+y8D3nvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E8tDgM4r; arc=none smtp.client-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MyHcZjNI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D63F1F0089B;
-	Mon, 12 Oct 2026 06:05:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791785136;
-	bh=ys9Q5nq9RGCH9TxLe8jSzAR8n/kR5uhkjEivdRY/C6I=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=MyHcZjNIGx/NFm6+BmrVg7xFHMGG8WaiVGQQ9S4vAJpS7EQ5IilD7HBqia62R2Cr7
-	 XR36DrqiUxg/Pod9evnCQcaEUYo+ZRbY2tnIajVE8wvQUCnXsg/zMj12cJW52sE5Pn
-	 YGrNdcpDN+XKDRLB3geHxUU0DhP+71STi/WiikfRKSqSsUVKft0qkSJverWUKXHUaz
-	 t4pPoIo17gxKgZWV+soIpgQCxmO99hH5dsRcY0RSWLk8mgfK4SHxun5RYq486qKPeL
-	 aW2FByvp6t3PPhq0P9sWLypU44c0vtgMzHnBGjSHVbvf5qaJv2RgiyJExHA362FhIN
-	 iuhUoTGH85ZyQ==
-Message-ID: <998a8c7b-82e3-4370-b0f4-765deccdb348@kernel.org>
-Date: Mon, 12 Oct 2026 08:05:26 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E8tDgM4r"
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-33fb4680717so2230508eec.1
+        for <linux-input@vger.kernel.org>; Sun, 11 Oct 2026 23:12:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791785553; x=1792390353; darn=vger.kernel.org;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=4HdBEWpf0g+zfKwHgHUCZB4RLqnwmfHXY9y3S77eIlQ=;
+        b=E8tDgM4rs8KdG7AE2DyALGcKo4Og5/xmtTe70lY2GEFzDh5te340MBIXXm1bpiRDP4
+         +J/+8z9Fik6QpOlAPSnUZYwaGbfO0VjIjHTPQod8Jzy6UXybiUzCyN/Hz9rZlTP0HRb/
+         ARuJICMmv/1/mbVnrrZQyYit7s3LpGHh4OBfWsUuGh+LVMLC+Bt1oW/laCRi8FvTEieA
+         IEmW2aiW79CyArxqi/DTCtMt1689AYqaNI8AwqrAGbHlW11n4dg6CNxsOmmICvQ3Iu+U
+         FkhPpmpq61LTBp6WyWP2yzpZCQylvNeYYRJcpGWLVkP9+VIF+YdHzUlbE+7WvFhlcHs3
+         NuhA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791785553; x=1792390353;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=4HdBEWpf0g+zfKwHgHUCZB4RLqnwmfHXY9y3S77eIlQ=;
+        b=MpkI8BhClYOR43Q7cakXmwUIOq4rTsOGC7LlZuFFwS+3NyYsAEGa6iWZCnn3U6gM1t
+         3yof+GYyFj+SBfzdhLy9vrRIzw1gIF/fMqO7CLec1Q3jPhtXR8W7TRISoMJQXBNYlw3n
+         dOlqlSSOxUsh2a6FXrtujQywVmePK9hQ0Mxrk1O4Zsq6W4i3nxvj83X+Mh1mWc3McgGz
+         f6F7OjhD4qoVUaqHiaAW8JkgZ3jJQnb794+xFjqVq+kevo/JZrZXSOHNI0JeWVopPckG
+         KsA2IVMjST1eGemHSTlZyOw1i87Y/c3wfP3CkTisQNiQjjcszZ3G0iHhoL4AgwjqSSlo
+         Ok1A==
+X-Gm-Message-State: AFq9FYIpcRXG5Zh5apnR+gPIMFfYhZKQFiQdIJJlHkt1cqV4vzVp1KYj
+	N2OOn8S++EENK/8/IYg/XQh0ekP2ZmE9IMu4tumW06vY84uwNoZknale
+X-Gm-Gg: AYBFou2hQvdTp+4B2ArOaI/ovfUpl7RCmTKaG4d6UHkhRq4XZDYhvOVX+zb4wOr6Nh9
+	9ZAt83JhxBCQ1jBa0CU47MGOKhyM5kpqbpRoQb/NpWg7vySsUcAi2DA2NOBJv+4gJcLr3wfymE4
+	fBWnBoAsCwu0wdvHPW1q/f72XBXrQ6BHk+xhHHCz/vd6ah7/k7Gcr18sFnROdx6RC3oiS4zy8KD
+	FBLOZkdbBXA/r/RLSi9auRe7gGk7JRBqhsPmwk3TNAhohbY8UH7o46K7uJAZ3VO3QHQMSWaSxYf
+	YvNBWFoywbkvi2xsT9a5oP8OAemru4hk0cswmnpih1QF1SVM0gW2FSOlfeLtxHs3yrcrG/Es5H3
+	r/77Tz+hirCjMmOotjMsdsl8leB4ThkaULDI4nqC+uNrKleVoZZ8ogTVx3eKntseBVem3p8noqJ
+	K/GJdqM16FJeK+zS1knZ9ONutNM0v8fn24OORb2AkWZTqp+CSB/1sUo2Ro3W0jLSlvCUKC1/2tD
+	T29hYT2FuHDwXU/hA0L/u0fQZxy0KAcHdv61nc=
+X-Received: by 2002:a05:693c:42c9:b0:359:9e84:dc99 with SMTP id 5a478bee46e88-3599e84ea9bmr4362357eec.0.1791785552678;
+        Sun, 11 Oct 2026 23:12:32 -0700 (PDT)
+Received: from localhost ([2a00:79e0:2ebe:8:8999:e631:ed58:366a])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-353810403e9sm29420009eec.2.2026.10.11.23.12.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 11 Oct 2026 23:12:31 -0700 (PDT)
+Date: Sun, 11 Oct 2026 23:12:30 -0700
+Message-ID: <98c68af25f9fc08500eb818a6d77d0d7@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Karlos Abel <kabel@voidship.net>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] Input: discard pre-registration events and test state seeding
+In-Reply-To: <179175785190.2.15570576039664484922.input-plain-reply@voidship.net>
+References: <20261010180031.7-1-kabel@voidship.net> <assT056aFmzMHmON@google.com> <179175785190.2.15570576039664484922.input-plain-reply@voidship.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 09/11] dt-bindings: input: Document hid-over-spi DT
- schema
-To: Jingyuan Liang <jingyliang@chromium.org>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Mark Brown <broonie@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, devicetree@vger.kernel.org,
- hbarnor@chromium.org, tfiga@chromium.org, fqwqf@fqwqf.xyz, daleyo@gmail.com,
- Dmitry Antipov <dmanti@microsoft.com>,
- Jarrett Schultz <jaschultz@microsoft.com>
-References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
- <20261009-send-upstream-v5-9-384af01da3ee@chromium.org>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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
-In-Reply-To: <20261009-send-upstream-v5-9-384af01da3ee@chromium.org>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On 10/10/2026 00:25, Jingyuan Liang wrote:
-> Documentation describes the required and optional properties for
-> implementing Device Tree for a Microsoft G6 Touch Digitizer that
-> supports HID over SPI Protocol 1.0 specification.
-> 
-> The properties are common to HID over SPI.
-> 
-> Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
-> Signed-off-by: Jarrett Schultz <jaschultz@microsoft.com>
-> Tested-by: Dale Whinham <daleyo@gmail.com>
+Hi Karlos,
 
-No, fake test.
+On Sun, Oct 11, 2026 at 06:30:51PM -0400, Karlos Abel wrote:
+> The observed problem is the initial switch event being delivered later and
+> undoing a subsequent Bluetooth soft-block. It does not depend on the event
+> timestamp.
+>
+> hotkey_init() seeds SW_RFKILL_ALL=1 before registering the input device,
+> without calling input_sync(). That updates the switch state, but also
+> leaves the event queued across registration.
+>
+> In the unpatched hardware trace:
+>
+> At 74.486 seconds, Bluetooth is explicitly soft-blocked.
+> At 80.300 seconds, Xorg injects LED updates followed by SYN_REPORT. There
+> is already one event queued.
+> That flush delivers the old SW_RFKILL_ALL=1 to rfkill_event(), which
+> schedules a global unblock and turns Bluetooth back on.
+>
+> rfkill_start() already reads the initial switch state when the handler
+> attaches; this later delivery produces an additional action after userspace
+> has changed the soft-block state.
+>
+> Regarding the missing input_sync(): from reading the initialization path,
+> simply adding it alongside the seed would be ignored because EV_SYN is not
+> enabled on this device until input_register_device().
 
-Best regards,
-Krzysztof
+Thank you for the trace - that makes the whole picture clear.
+
+If input core handles EV_SYN properly from the start without requiring it
+to be set in dev->evbit, calling input_sync() while seeding initial device
+state will flush dev->vals right away. Then those seeded events will not
+stay stuck in the queue and handlers attached later will never see them,
+so there is no need to explicitly reset the queue in
+input_register_device().
+
+I will apply a patch to input core to always accept EV_SYN events. Could
+you please send a patch for thinkpad_acpi adding the missing
+input_sync(tpacpi_inputdev) after reporting the initial switch states in
+hotkey_init()?
+
+Thanks.
+
+-- 
+Dmitry

@@ -1,163 +1,172 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f200.google.com (mail-dy1-f200.google.com [74.125.82.200])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B01E3F3297;
-	Tue, 13 Oct 2026 17:43:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C138453E302
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 19:23:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791913392; cv=none; b=h92twzCej8wVtABe9KqXDC1GHmr+UB5IoR9vUBPuZFHRTb14rAVUA52qb7uZTSwwQ04reYWVUrJafpeRfMpdG7LQW547yr76OM+M9HL3n065ysG0o2f7gJ7Ok1zVtP6/ZZMTvOw0hIAo4BEx53uBezzzwyLO/qcciMzTOlpnnPE=
+	t=1791919404; cv=none; b=Us4+Iq4oG92IahZQoeYQPXsuM9rPRASABTe8pt9+4mrtDpA+4SkOlMma3Lsaar1+n9A40C32/zRYRqqi9kErKW8i6BCmePxZI/yHRr0KLI8TehB5GplQKjZGIG80NtMKoB85exbHjIgk2qMziWdYrX0LEtmJr24Ztl+lmLRUql0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791913392; c=relaxed/simple;
-	bh=BfLysc7irxR+XDTczYre+fCkPr8C+IBZcwMYjkmeQtc=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=h/ihOc4VbHJ9jgaNA6Fuwrbb38IhSPCB1bbrYMxCNpY3xh7ZO99PmgYxF0xTFQHsAAposiX3FKz6RvVM7hwBDW/0KcesqXghbvls5FIllhGrQ+wzZ6uMYS/sF6mDzJknd4Wu0q2rQryIDJBnhoesHPP6B2XufSq8lAczTGb2rMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NfrvLbt+; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791919404; c=relaxed/simple;
+	bh=g2qxUy7IFikV6xUmbIyhiAzQ6YzIq1HUqLdaIb5t1mY=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=jwXKnGMP3ULcjzcE+KSwgB4ycTujSbsTVsxPecP1nj0wik+2QJZWctwmlrYLudCo9fiZ+yHkESFBSjJONNo9BQS9U+arvwDM5qubxxcoj532D9nefX729akIqllWTSwIwxcVouFwqBGIpxY1Ub5mr+92vL6UIkoHXqjpP/aRSV0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hOsEzCNi; arc=none smtp.client-ip=74.125.82.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NfrvLbt+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E1E1F00893;
-	Tue, 13 Oct 2026 17:43:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791913390;
-	bh=Clciui7Ad+2C/TJ///VSZeRTPX3odvcPRsa574mjyU4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NfrvLbt+WRBWlATlmsZyTNQE4XjAQjBUQ4Z5qn752zDqg4DLVR/LUgYixmSJWN5ke
-	 NEYie6d7xQIR3GpqcojH00VhcuyxJcHWP1au7dqacibM0oV9W8w06TqKaukp6ZUEL1
-	 rCnxkHVKTWkc+rP4qhQsZQqrmYRBPc+wWgF6Dtne37GErvhgeemXwaNDyaQuoXkUoF
-	 QSC8dFvjKd2A0E9r5GQJxKDp2dL9nyP5SkiKRu4LRzWjPyhvxBItBvPOF1bE+7SQW2
-	 rItRRSCcObgSuv5z53oDYOB/bEh0RLclHMIvFEuwQ/WWU3wxnDNihZfT7JtFd9zj9L
-	 m45URVdJtyHZw==
-Message-ID: <sashiko-outbox-170247@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20261013173504.451391-3-clamor95@gmail.com>
-References: <20261013173504.451391-1-clamor95@gmail.com>
- <20261013173504.451391-3-clamor95@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 17:43:08 +0000
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hOsEzCNi"
+Received: by mail-dy1-f200.google.com with SMTP id 5a478bee46e88-35d4538fd74so1139738eec.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 12:23:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1791919402; x=1792524202; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=lEEdqCEQUD4T9M1eE5hxDiuhPAtkdgQ/QcKfOV1qWHk=;
+        b=hOsEzCNiK4MKjF9bMqH9pExzZDKArax/dvIvBhsq3yNT8JIweQqP4x5/hHBL50dqBC
+         CmzZgLgt+68Sve/gtAWYIS9VVT4ohMNvTH6Sly0f87jNQ/IDwOOOq2SzznGbBdvMqy1n
+         cuOpyiuxAxvsd6gd9sN64+yEeYHM2By5PLsOB7LtWRXKMSUC5pVNFFTLyIVWg6j6kFAq
+         UgWz7MOh4Rly2t+pYK7ovEAYVQebodlT6TiOejP4kZj4OENIwjFE4MhCnCvdCq1h3+hn
+         6EjxenKVEABoSsrjVAihjE/1Cz4FOF4eVmAJe+MABJVkYVYr+oBV+RkT+cSgIrGuXmHE
+         FGjg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791919402; x=1792524202;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lEEdqCEQUD4T9M1eE5hxDiuhPAtkdgQ/QcKfOV1qWHk=;
+        b=FBnBxAvSJHYpnYHxCCyaVRe+LPXKwg0dE2rvJcnqB/uqzS9kavN+bzqdanlONNL7pH
+         cvUto89jTdbPAl6iRFAcxtIvG+q1IuiPVkocuPN0kJMClmewrAoPDCh2RH+2xu8RuY5o
+         Xnppr8Mgw4rmypyhZf8dlgUUJ7fw6nWOEyy1LJlleqnIOqT2ssQULGN6G4WiUEFRUds3
+         xZD1PjfAOB1FOZ5sCSBYP/gdweKKxa+HJ4BmE5hXREbZPTMQt2Q2Oibp5mOjmXAjJa4M
+         xIN1YACvjInGRWsC/YJjHX302g6YBczVIdiwmKfTS1RDY34quk8HGPDVM6FNVPfWAoMi
+         S0gw==
+X-Forwarded-Encrypted: i=1; AKwUvBzEQssmNv1Ymd8zXHL8w/RstitB3fFYdR6Pa6/h6msH/peVPZPwYVRjIBhqKU7c5cpNkqdsYJZ1Z8rYEQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJkj961wxy4x4VKSqSMtilJW1NeVeVIHSXdP3SgWsh1D7QOBio5
+	j62XyHy05ktolEmF9ugDoYrcBXIpKIeCiw9cFlM6JiMXYLkJrz0jvaI1nTiHUIcpsBlsbdgF9Ri
+	rqG1zI9PV/g==
+X-Received: from dybgx38.prod.google.com ([2002:a05:7301:2426:b0:352:745b:e97e])
+ (user=jiangzp job=prod-delivery.src-stubby-dispatcher) by 2002:a05:693c:20d1:20b0:35c:a8da:c525
+ with SMTP id 5a478bee46e88-35ca8dad3a3mr3370915eec.31.1791919401241; Tue, 13
+ Oct 2026 12:23:21 -0700 (PDT)
+Date: Tue, 13 Oct 2026 19:23:18 +0000
+In-Reply-To: <20261012220225.3594376-1-jiangzp@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+References: <20261012220225.3594376-1-jiangzp@google.com>
+X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
+Message-ID: <20261013192318.1828453-1-jiangzp@google.com>
+Subject: [PATCH v3] HID: vivaldi: avoid redundant feature report reads per usage
+From: Zhengping Jiang <jiangzp@google.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephen Boyd <swboyd@chromium.org>, 
+	Archie Pusaka <apusaka@google.com>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Zhengping Jiang <jiangzp@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] mfd: bespoke parent-child accessor and global shared header
-- [Medium] mfd: hard-coded cell IDs instead of PLATFORM_DEVID_AUTO
---
+vivaldi_feature_mapping() is invoked by hidinput_configure_usages() in
+ascending usage_index order for each usage in the top-row physical keymap
+field. Because fetching the feature report at usage_index == 0 already
+reads the entire report from hardware and populates field->value[] for all
+usages in the field, calling hid_hw_raw_request() again for subsequent
+usages redundantly reads the same report N times (e.g., 12 sequential BLE
+GATT reads taking ~2s on Vivaldi BLE keyboards).
 
-commit b490e5f8ad65fb577857c831f5de2998a3c0d3de
-Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+Fetch the feature report from hardware once per HID_USAGE_FN_ROW_PHYSMAP
+field at usage_index == 0 before validating individual usage entries, and
+reuse field->value[usage->usage_index] for subsequent usages in the field.
 
-mfd: Add driver for ASUS Transformer embedded controller
+Fixes: 33bbe04a15f2 ("HID: google: extract Vivaldi hid feature mapping for use in hid-hammer")
+Signed-off-by: Zhengping Jiang <jiangzp@google.com>
+---
+Changes in v3:
+- Add comment explaining why the report is only read at usage_index == 0
+  and how failed reads rely on zero-initialized field->value[].
+- Jump/fall through to parse_usage on read failure so usage_index == 0
+  updates num_function_row_keys consistently with subsequent usages and
+  preserves original behavior when only one usage is present.
 
-Support Nuvoton NPCE795-based ECs as used in Asus Transformer TF201, TF300T,
-TF300TG, TF300TL and TF700T pad and dock, as well as TF101 dock and TF600T,
-P1801-T and TF701T pad. This is a glue driver handling detection and common
-operations for EC's functions.
+Changes in v2:
+- Move per-usage validation (HID_UP_ORDINAL and fn_key bounds) after the
+  usage_index == 0 hardware read so the report is still fetched even if
+  usage[0] is non-ordinal or out of bounds.
 
-> diff --git a/drivers/mfd/asus-transformer-ec.c b/drivers/mfd/asus-transfo=
-rmer-ec.c
-> new file mode 100644
-> index 0000000000000..37dcd1b77465d
-> --- /dev/null
-> +++ b/drivers/mfd/asus-transformer-ec.c
+ drivers/hid/hid-vivaldi-common.c | 34 +++++++++++++++++++++-----------
+ 1 file changed, 22 insertions(+), 12 deletions(-)
 
-[ ... ]
+diff --git a/drivers/hid/hid-vivaldi-common.c b/drivers/hid/hid-vivaldi-common.c
+index c3c9fe9e697b..2d85555289d8 100644
+--- a/drivers/hid/hid-vivaldi-common.c
++++ b/drivers/hid/hid-vivaldi-common.c
+@@ -33,21 +33,22 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
+ {
+ 	struct vivaldi_data *data = hid_get_drvdata(hdev);
+ 	struct hid_report *report = field->report;
+-	u8 *report_data, *buf;
++	u8 *report_data, *buf = NULL;
+ 	u32 report_len;
+ 	unsigned int fn_key;
+ 	int ret;
+ 
+-	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP ||
+-	    (usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
++	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP)
+ 		return;
+ 
+-	fn_key = usage->hid & HID_USAGE;
+-	if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
+-		return;
+-
+-	if (fn_key > data->num_function_row_keys)
+-		data->num_function_row_keys = fn_key;
++	/*
++	 * Read the feature report only at usage_index == 0, as a single read
++	 * populates field->value[] for all usages in the field. If the read
++	 * fails, subsequent usages will not re-read the report and will rely
++	 * on field->value[] being zero-initialized.
++	 */
++	if (usage->usage_index)
++		goto parse_usage;
+ 
+ 	report_data = buf = hid_alloc_report_buf(report, GFP_KERNEL);
+ 	if (!report_data)
+@@ -72,7 +73,7 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
+ 	if (ret < 0) {
+ 		dev_warn(&hdev->dev, "failed to fetch feature %d\n",
+ 			 field->report->id);
+-		goto out;
++		goto parse_usage;
+ 	}
+ 
+ 	if (!report->id) {
+@@ -86,11 +87,20 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
+ 
+ 	ret = __hid_report_raw_event(hdev, HID_FEATURE_REPORT, report_data,
+ 				     report_len, report_len, 0);
+-	if (ret) {
++	if (ret)
+ 		dev_warn(&hdev->dev, "failed to report feature %d\n",
+ 			 field->report->id);
++
++parse_usage:
++	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
+ 		goto out;
+-	}
++
++	fn_key = usage->hid & HID_USAGE;
++	if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
++		goto out;
++
++	if (fn_key > data->num_function_row_keys)
++		data->num_function_row_keys = fn_key;
+ 
+ 	data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
+ 		field->value[usage->usage_index];
+-- 
+2.56.0.385.gd3acb90ef8-goog
 
-> +int asus_dockram_access_ctl(struct i2c_client *client, u64 *out, u64 mas=
-k,
-> +			    u64 xor)
-> +{
-> +	struct dockram_ec_data *ddata =3D i2c_get_clientdata(client);
-> +	u8 *buf =3D ddata->ctl_buf;
-> +	u64 val;
-> +	int ret =3D 0;
-
-[Severity: Medium]
-Does this introduce a bespoke parent-child accessor?
-
-The MFD architecture guidelines strictly prohibit writing bespoke accessors=
- or
-helper functions in the parent driver to pass state to child devices, as th=
-is
-creates tight coupling. Instead, child drivers should retrieve parent data
-using standard APIs like dev_get_drvdata(pdev->dev.parent).
-
-[ ... ]
-
-> +static const struct mfd_cell asus_ec_tf101_dock_mfd_devices[] =3D {
-> +	MFD_CELL_BASIC("asus-transformer-ec-battery", NULL, NULL, 0, 1),
-> +	MFD_CELL_BASIC("asus-transformer-ec-charger", NULL, NULL, 0, 1),
-> +	MFD_CELL_BASIC("asus-transformer-ec-led", NULL, NULL, 0, 1),
-> +	MFD_CELL_NAME("asus-transformer-ec-kbc"),
-> +	MFD_CELL_NAME("asus-transformer-ec-keys"),
-> +};
-
-[Severity: Medium]
-Are these hard-coded cell IDs intended?
-
-The MFD guidelines require using PLATFORM_DEVID_AUTO for automatic cell
-indexing to avoid sysfs naming collisions and driver load failures. Here it
-appears a hard-coded ID of 1 is assigned for the battery, charger, and led
-subdevices.
-
-[ ... ]
-
-> +	/* Parent I2C controller uses DMA, ASUS EC and child devices do not */
-> +	client->dev.coherent_dma_mask =3D 0;
-> +	client->dev.dma_mask =3D &client->dev.coherent_dma_mask;
-> +
-> +	return devm_mfd_add_devices(dev, 0, cells, num_cells, NULL, 0, NULL);
-> +}
-
-[Severity: Medium]
-Could we pass PLATFORM_DEVID_AUTO instead of 0 for the base id here?
-
-Passing 0 bypasses auto-indexing and violates the MFD subsystem constraints
-for cell identification.
-
-> diff --git a/include/linux/mfd/asus-transformer-ec.h b/include/linux/mfd/=
-asus-transformer-ec.h
-> new file mode 100644
-> index 0000000000000..d09d3b70171ef
-> --- /dev/null
-> +++ b/include/linux/mfd/asus-transformer-ec.h
-
-[ ... ]
-
-> +/**
-> + * struct asusec_core - public part shared with all cells
-> + *
-> + * @model: firmware version running on the EC
-> + * @name: prefix associated with the EC
-> + * @dockram: pointer to Dockram's i2c_client
-> + * @notify_list: notify list used by cells
-> + * @keyboard_mask: mask of keyboard packets
-> + */
-> +struct asusec_core {
-> +	const char *model;
-> +	const char *name;
-> +	struct i2c_client *dockram;
-> +	struct blocking_notifier_head notify_list;
-> +	u8 keyboard_mask;
-> +};
-
-[Severity: Medium]
-Is this shared structure and header required in the global include director=
-y?
-
-This appears to violate the MFD API layering guidelines, which state that
-driver-specific header files should not be included in the global
-include/linux/mfd/ directory if they are only used by the parent and its
-immediate children. They should be kept local to drivers/mfd/ to avoid
-tight coupling.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013173504.4513=
-91-1-clamor95@gmail.com?part=3D2

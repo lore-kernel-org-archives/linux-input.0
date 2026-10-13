@@ -1,65 +1,65 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01CD23BBFC9
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 10:40:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B9984B1468
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 10:40:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791888041; cv=none; b=dPbP3SwQHdeCH7xQ4LdyjKJ472ZeWq/xJu4JXH2p6HzKr/rqKg7dtOw77tPE+PPmBEDA0wwQC0HnwARhi7mQBxOONseEdp3e+0aVmb3en7IRxbrcz+bOHQNvG/9wzFIG3FTGfCCRZEFJCEpPXw8Gv8JBx6bFpavb6SpjSbtM48I=
+	t=1791888043; cv=none; b=P+yGXMzzrpY81Xprxh+Bb0hheWqlNiYc9XhLxbkBarFBxiLS/iEOAm8dbML0Z7CEbHPcMQeh5h1rPK2ZUo/cavBBxrYO93/b/hFl/5ZGemI9d+MtSJLxhzybfsmS/utdfoXbOtJZu96yNkF51QjOGOnyxtCMICtsmFOHrFcCeAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791888041; c=relaxed/simple;
-	bh=CkRsJ159TvaDsvquCPxKwJ6wdILNj5u3k2nbupL6rAs=;
+	s=arc-20240116; t=1791888043; c=relaxed/simple;
+	bh=2tPy3L1V1Pj2mCJhMzzBqu81AbTRVnmuuSC7iBXZ+Cs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DKwtLvU21V3/iRC7L+pYQA7DeY1vXL/8zXKXUbJYvdAjaP8Tii9HXDD6Lr45bxBKqDAmCKsBynEukX1200lG14FOBwwGsC3MFx/W9AMwCWXCVTzXTVuxNskD4s8UDGnMSyV7GTicd8HmbsCE6GohpRI70LotEyDWERohwJzf2qg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J50Xe8QR; arc=none smtp.client-ip=209.85.128.45
+	 MIME-Version:Content-Type; b=eHLzU+02w6++BL5X3fbPwDpdKkXW1LpoD9jh9BTxUlNdH3JMmlh/ovkSA6DavEda25lwSkut2V4dEi8fQZGVROrrhPIBN0rgd6uEFpvsz28YQlBIheS312cScdXVLv580rGXE+GKtQ5+zxOTqjjeGb7IumDaTj3V6Ir26qWevno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U3MfStnq; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J50Xe8QR"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a1ad2e2391so3958135e9.0
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:40:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U3MfStnq"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4a19cba5c14so21230845e9.3
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:40:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791888038; x=1792492838; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791888039; x=1792492839; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=7KHR1iqY8VcX9IADGibYzOfCACxk2AXBdRyC6sfDr5Y=;
-        b=J50Xe8QRU8waWzvmYjxmzT/KQbl0AonZ0Elu2nJW8wkS/5tfKzkLA3mBtItL8u4Nmw
-         jzbwOd3aiGFYAh8Q6eVBfuRsAYJ5ksAcN+Wo/NiP+E4aeGRQY9NIuXxK6IyvX5CaqWbz
-         Gp5Bmhpovs95txe9NNs2VYvBj3QFBUK4pFu9ocQzV9cAzVISfwzo7RI8frKQ6ZMcgBR1
-         BL8sCA1nHADR+M1Is0ia6EWFRSEfjIuVv3wfcVBcnES/99zRHlYO+5tCuGBBBCc8WUVb
-         EYIPjfE9nzkuejRt4HF+wm+LAObbt+gVsfeEAnikq8TR4lyNPhLA9kstZ/EBSQvlX7K+
-         IDqQ==
+        bh=sSCD00MHTVjn0PHz7qIzklKIm7L3L48OpEEZ46f3Bf8=;
+        b=U3MfStnqS0UqsJQUFF6mtFQK6XbMNWk2qQpwOI8RvtCbDyMZAaF51lzGPUIokbcFw3
+         doc9E2iiOgOF1Rg3sffUnhW2Tx96SovG3gVryZ9QI65FKXUd90Kz58g1RF4VgGVq6PKc
+         ACsOMvfa8v3h4GHY9+NZ/wXRTa4qpNnjrLklWFkir+HC2Vq0r9DUFuzMNvosvUXA987n
+         Hj4qjLXiD54nHaqgBpAIg7GWWxavoW75M3nwJjW0GljuzsxdIYmvEhHuAFy9S7oUoJDc
+         hY8y6Hario4WrZ/O20dfWcIOEyCIqVHE3OJVm1pzX0ie2pDCNUZlefeo78JzUQlBFECg
+         OIug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791888038; x=1792492838;
+        d=1e100.net; s=20260707; t=1791888039; x=1792492839;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=7KHR1iqY8VcX9IADGibYzOfCACxk2AXBdRyC6sfDr5Y=;
-        b=Mvu/MteIKtUnbv1DvgXs06/I1syL/t0rVx7q/hwE0ZVuc6x0QFFaiyvLYKb3zvUZAp
-         fEeNB7UFyxzsMXjKp7AuPwSqS5h98hzaVra4x4uwuRfO9Xn9SK0sFt3rVKi5/yX+ASKz
-         GiUmr2knGi1uouGHFkbZkiSy8bYDwm9cMEYBgDsl4mcDtjUNrwVymDzW4bAplTCK2ZlX
-         Wbt+OHUJ7S1sgpy1cp4dIf21pVc+Urh7WJNLib8UMr3FCRY9QpdlKcGEb8NaJO3lVAa2
-         arMJLXs8t+hYfGW/QPbOTSb9OTJZhB0njzfVNVyxbF2eAiZVD5NK7h+jVaH8P4733wBc
-         M86A==
-X-Forwarded-Encrypted: i=1; AKwUvBxQ1E9onfMncQ4JQvugrhY6XZfXNRGMx7kaixdK2YWX9j3Ulzm1TageQx4FihfO9fSrH6IlF1chrxrptQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJN889jp1i0f3hpJFwYT4r9K7jRVzH+qx3yDSM3pmBXU2IeasW/
-	pzayJnHvpowrXajLfNcUbZ/voKBzIX5Bx8FIWfakk5skjbZANmgqq1UT
-X-Gm-Gg: AYBFou0n471WSVJwAGBTdTYuJGzQvHp/TKQiNKG1t4kBPn2iLSyftiC+Z1m9+rEPUlK
-	+kOo4kQ/6HYapyOuHwpwLBVBoI2Tg4KKV1AW5PZQofe3dHrpvhx6PfNEmNeeBQLifYgl0C5CsmK
-	RjLEsdBHN0JtoKO0JTvMdf3eRmuJCaVFaZWeU9aAl6+zzojzF99Q3wiZJxfCmUnLXEizJ58VkVZ
-	cRBA0fY+NTlA6ToTrdkAQ5UXUacyBOXBaLXhoZztbcBmUbYrKIOTnb7A1n4XeGIuiZAYwR4QrDc
-	b/sFXfK92k/jkSG/40S71WYyLvniFCX/npZISxTcpDlb6NYSyXfcv1ai5CkNj9zX/ZqrASj9/aH
-	gVGaH74RroHjTIErOWO3enZWaL2B8Y4bZ5CbhMiEGY0nR16dOiUagCtiQgSQminmCg89KnYF+wR
-	iSo4ZMj8hr/xS2Hy8gnI4Jt0OAHuGKF69BWqu7u0QcuzVr+Xwp/f4sZYPqFwgBEa7+QAc4zPcYP
-	UQ1LgLL+lcEex/chzYp5W2WZeeH5DKoo5dw+a6uQBHxb7uBydpPV1VuJQ==
-X-Received: by 2002:a05:600c:4594:b0:49d:1fa8:b266 with SMTP id 5b1f17b1804b1-4a18e4d6ac3mr234388855e9.26.1791888037890;
-        Tue, 13 Oct 2026 03:40:37 -0700 (PDT)
+        bh=sSCD00MHTVjn0PHz7qIzklKIm7L3L48OpEEZ46f3Bf8=;
+        b=fMJKAr170QvBbQJHT9uNmvL3GyFH1lv2FYES+fkkx1WbXJwqDxViOw9erzAu7GZVkD
+         1Zf9ZtSY3auxVBXch/ihDINCK5Jy9id+TVqRIPjOhPtMdFNVwKLU/5FxbEdIRf8RQDCK
+         39LNYVgXEeqMOEhLKy6+1BQXWy3LQXjnQmWuHDzp/qXwFzH3AYaHrfU7Q/HT08o2exB4
+         0VfaLs/enzMueu2N2w4aAQ7ILrm+JGwmuG8npgQ+ww1xTTF5GCA6EDscwRbpr7eG2EUK
+         Xsy3BfiQ07zuccZmloeUG8McTnQjRvQ4MVRxtUJ6Svuuy2/3+QkhTMAKD/TMSgE72xB/
+         cmVg==
+X-Forwarded-Encrypted: i=1; AKwUvBwYEq/DNYxZMig54G44zXLaZaefA/6NNmofY0KkDday0k4cQ1y9WGewUF9d6K7llI1zVqpNNSfdXx9uBQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIID9WJ1+4arHsxnYyCYKpCYp9ijr4tisekiqAgImZXuKR6fjYs
+	9WyM9QdufS0WxDEkkJKiJrd11HgGShP3gJFR3bIh4b3o2t0vayE0/afK
+X-Gm-Gg: AYBFou0x9Q5FX97AnZhF918N/SblSlEgXql66JAKVZKw9e0Cq8IomNyyiF/7MDLmwuR
+	joRgM13JbmgPfYXmP3ZhCvta1ohC0CfNKUvF+VyqfvuMPp5YTykVfyxJjyLx7L99otY02CwHy7z
+	vsPNnwtqSK4RRD5HeL+9g2ZuS8uubPJ9WCVwOf0hOqsLtBPqFciNvlvDk9pE5hdR149/79mgAfn
+	VYBgHKNqtzaMpcmhnQ4kIKIuLaoHcWfBWA583P/HxY+MutIciYZzmt6CVd4sHBKgp5cx+55W9++
+	5tSatsi7cWG0Q7PLXCyTEs8IeZ8eRNrPz8Kcic50XZJTG+r/M/ap+JVd3YbLOsHash+hr0LzpeM
+	HosMHwhzgPXfaJ7I2YwyFksir6YD5X69803YRk+EKo7NHT964Z4HJt8u8M5+2lFicrOHMsgKfk8
+	kZvyPsplWl7ACjzDtaNrIHHfFM89CWMp85d3w1aj3ZEv1CrxiH2ZwEy5uxwrJ6E75e5NcuvZhmd
+	vp6CcqeIcyZYhkOoN/h2V42N8P0uKzCgQmZqHRATXgCZyxevOK0WQdO4pueBdsqDqqW
+X-Received: by 2002:a05:600c:c3c1:10b0:4a1:ac66:5f93 with SMTP id 5b1f17b1804b1-4a1ac666305mr22437795e9.8.1791888039122;
+        Tue, 13 Oct 2026 03:40:39 -0700 (PDT)
 Received: from gmail.com ([2a01:e11:1403:8620:e22b:cb88:4091:8aab])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0ac3970sm4191952f8f.37.2026.10.13.03.40.37
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18be96549sm505948015e9.6.2026.10.13.03.40.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 03:40:37 -0700 (PDT)
+        Tue, 13 Oct 2026 03:40:38 -0700 (PDT)
 From: Paolo Pisati <p.pisati@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -71,9 +71,9 @@ Cc: Joshua Leivenzon <hacker1024@users.sourceforge.net>,
 	=?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>,
 	Nathan Chancellor <nathan@kernel.org>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v3 3/7] HID: asus: Force hid-input to bind to the Zenbook Duo hotkey interface
-Date: Tue, 13 Oct 2026 12:40:00 +0200
-Message-ID: <20261013104033.36079-4-p.pisati@gmail.com>
+Subject: [PATCH v3 4/7] HID: asus: Cycle the platform profile from the Zenbook Duo profile key
+Date: Tue, 13 Oct 2026 12:40:01 +0200
+Message-ID: <20261013104033.36079-5-p.pisati@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261013104033.36079-1-p.pisati@gmail.com>
 References: <20261013104033.36079-1-p.pisati@gmail.com>
@@ -88,60 +88,146 @@ Content-Transfer-Encoding: 8bit
 
 From: Joshua Leivenzon <hacker1024@users.sourceforge.net>
 
-The Zenbook Duo USB keyboard reports its hotkeys on a dedicated
-interface, separate from the keyboard and consumer control ones, that
-only contains ASUS vendor usage collections. hid-input does not
-consider those an input application and never binds to the interface,
-so the hotkeys are never mapped.
+The Zenbook Duo keyboard reports Fn+F, the performance mode key, as
+vendor usage 0x9d. On the built-in keyboards of other ASUS laptops the
+same key arrives through asus-wmi, which cycles the platform profile
+in response. Do the same here so the key works on the detachable
+keyboard too.
 
-Pass HID_CONNECT_HIDINPUT_FORCE for the interface of Zenbook Duo
-keyboards that carries the ASUS vendor collection, which skips that
-check, so the vendor usages go through asus_input_mapping() like on
-any other ASUS keyboard. The other interfaces either have a proper
-input application or nothing worth an input device.
+asus_event() runs from the HID input path, which for USB is the URB
+completion handler, while platform_profile_cycle() takes a mutex, so run
+it from the driver's worker like the Fn-lock toggle, and consume the
+event. Queue at most one cycle at a time, so that a device repeating the
+key cannot grow the worker's list. Only call it when the platform
+profile class is reachable: it is not built on architectures without
+ACPI, where HID_ASUS still is, and it may be a module while HID_ASUS is
+built in.
 
 Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
-[pisati: use HID_CONNECT_HIDINPUT_FORCE on the vendor interface instead
- of injecting a fake keyboard collection into its report descriptor]
+[pisati: defer platform_profile_cycle() to the worker and queue at
+ most one cycle, return 1 from asus_event() instead of propagating
+ its return value, and guard the call with
+ IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE)]
 Assisted-by: LLM
 Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
 Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
 ---
- drivers/hid/hid-asus.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/hid/hid-asus.c | 67 ++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 65 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 242e273e4cb3..d69431615c27 100644
+index d69431615c27..b127f5c38f60 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1405,6 +1405,7 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	struct asus_drvdata *drvdata;
- 	struct hid_report *rep;
- 	bool is_vendor = false;
-+	unsigned int connect_mask;
- 	int ret;
+@@ -29,6 +29,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
+ #include <linux/power_supply.h>
++#include <linux/platform_profile.h>
+ #include <linux/leds.h>
  
- 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
-@@ -1500,7 +1501,18 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
+ #include "hid-ids.h"
+@@ -115,6 +116,7 @@ enum asus_work_action_type {
+ 	FN_LOCK_SYNC,
+ 	BRIGHTNESS_SET,
+ 	WMI_FAN,
++	PLATFORM_PROFILE_CYCLE,
+ };
+ 
+ struct hid_raw_event_data {
+@@ -423,6 +425,42 @@ static int asus_kbd_fn_lock_set(struct asus_drvdata *drvdata, bool enabled)
+ 	return 0;
+ }
+ 
++static int asus_platform_profile_cycle(struct asus_drvdata *drvdata)
++{
++	struct asus_worker *worker = drvdata->worker;
++	struct asus_work_action *action, *pending;
++	unsigned long flags;
++	int ret = 0;
++
++	if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
++		return 0;
++
++	spin_lock_irqsave(&worker->lock, flags);
++
++	/*
++	 * One pending cycle is enough: a key press cannot outrun the
++	 * worker, and a device repeating the key must not grow the list.
++	 */
++	list_for_each_entry(pending, &worker->actions, node) {
++		if (pending->type == PLATFORM_PROFILE_CYCLE)
++			goto unlock;
++	}
++
++	action = kzalloc_obj(struct asus_work_action, GFP_ATOMIC);
++	if (!action) {
++		ret = -ENOMEM;
++		goto unlock;
++	}
++
++	action->type = PLATFORM_PROFILE_CYCLE;
++	INIT_LIST_HEAD(&action->node);
++	asus_worker_schedule(worker, action);
++
++unlock:
++	spin_unlock_irqrestore(&worker->lock, flags);
++	return ret;
++}
++
+ static int asus_kbd_wmi_fan_send(struct asus_drvdata *drvdata, u8 *report_data,
+ 				 size_t report_size)
+ {
+@@ -459,8 +497,25 @@ static int asus_event(struct hid_device *hdev, struct hid_field *field,
+ 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR &&
+ 	    (usage->hid & HID_USAGE) != 0x00 &&
+ 	    (usage->hid & HID_USAGE) != 0xff && !usage->type) {
+-		hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
+-			 usage->hid & HID_USAGE);
++		/*
++		 * Some vendor usages do not map to a key and need special
++		 * handling.
++		 */
++		switch (usage->hid & HID_USAGE) {
++		case 0x9d: /* Zenbook Duo Fn+F: cycle the platform profile */
++			if (value) {
++				ret = asus_platform_profile_cycle(drvdata);
++				if (ret) {
++					hid_err(hdev, "Failed to cycle the platform profile: %d\n",
++						ret);
++					return ret;
++				}
++			}
++			return 1;
++		default:
++			hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
++				 usage->hid & HID_USAGE);
++		}
  	}
  
--	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	/*
-+	 * The Zenbook Duo keyboard reports its hotkeys on a dedicated USB
-+	 * interface that only has vendor usage collections, which hid-input
-+	 * does not consider an input application. Make it bind to the
-+	 * interface carrying the ASUS vendor collection anyway so the
-+	 * hotkeys get mapped.
-+	 */
-+	connect_mask = HID_CONNECT_DEFAULT;
-+	if ((drvdata->quirks & QUIRK_ZENBOOK_DUO_KEYBOARD) && is_vendor)
-+		connect_mask |= HID_CONNECT_HIDINPUT_FORCE;
-+
-+	ret = hid_hw_start(hdev, connect_mask);
- 	if (ret) {
- 		asus_worker_stop(drvdata->worker);
- 		hid_err(hdev, "Asus hw start failed: %d\n", ret);
+ 	if (usage->type == EV_KEY && value) {
+@@ -765,6 +820,7 @@ static void asus_work(struct work_struct *work)
+ 	struct asus_worker *worker = container_of(work, struct asus_worker, work);
+ 	struct asus_work_action *action = NULL;
+ 	unsigned long flags;
++	int ret;
+ 
+ 	/* Save the action to be performed and clear the flag */
+ 	spin_lock_irqsave(&worker->lock, flags);
+@@ -788,6 +844,13 @@ static void asus_work(struct work_struct *work)
+ 	case WMI_FAN:
+ 		asus_kbd_wmi_fan(worker->hdev, &action->data.fan_hid_data);
+ 		break;
++	case PLATFORM_PROFILE_CYCLE:
++		if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
++			break;
++		ret = platform_profile_cycle();
++		if (ret)
++			hid_dbg(worker->hdev, "Failed to cycle the platform profile: %d\n", ret);
++		break;
+ 	default:
+ 		hid_err(worker->hdev, "Invalid action type: %d\n", action->type);
+ 		break;
 -- 
 2.43.0
 

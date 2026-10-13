@@ -1,69 +1,69 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E750547F2FE
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:42:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BC6647887B
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:42:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791862953; cv=none; b=SZT+B2AtB9f+Q/8XcpgwX9Rvl6HaB74Bd41Zz1QJ9El3iILzDmkQ7p107Z1gJMbAx3Rv5M9PRnXn2n6CavwG6ojVPghaVW2aO6PV5ARH0dcRVj3LMcpeNJSfEOnUYYYUImlDlJXkqW9G0BczLsY6eKHVdIfvcGn9EeBkYLppje4=
+	t=1791862953; cv=none; b=fghepFvsXMUCMh7DttbdOXnziF+6ptO6a3ssvJCG7/tN+PHw8UTUmdExvMwf++2cNp0ROulmhcbodBvNfI3f8rmXzYXnad7WU0wiF68ZIiUSWEmMWwhlZWNJpf3elJmVCXv28cJN2SBnpkclrqWTxxI22FpBcYlFFQjJXiF4XR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1791862953; c=relaxed/simple;
-	bh=8WHjR6Y3FYP/UdZNsrdNGrWq9ncm7ckzhqHWtFq/KFY=;
+	bh=MW3pyeNZaeTw696bnv759T/r7OXQCBFEDxtk0xrWJu0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VjKBDXBsX63XwdNwyvEVXtRbju1swFnX9X5XDdNJSTP1NcVyfy2H4IPNRqvhrFvh2kZg7baEfmu6AqfOK/dcS+Z/yaEu0yRKCewX5eBnAntoZ1aL9OdKDQN2aY9N3IaQoPwh/39PFviuK25ZEa64izPisbs+xJ4mhOarByPDLyY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WNprEhDr; arc=none smtp.client-ip=74.125.82.171
+	 In-Reply-To:To:Cc; b=kzAIdO8201d4n7Z29fGfFmorzcvunAJh5ocJ58RENNUXS+yZ5kt5b/mrqpdXheOfU4n1qEkz0Nlu7cYWGrrOZnueEdNlpgd53qjm/VwHq2rLWWFPe+1Ez/PAwbzEuYXHNAEOXEHXUg9F9JXd5NQZDlvIl30R9z+sT+3FUs2V/qw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NvTS6z9d; arc=none smtp.client-ip=74.125.82.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WNprEhDr"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-35a31bb9fb6so1126695eec.1
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 20:42:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NvTS6z9d"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-3282db206d3so4784076eec.0
+        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 20:42:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791862947; x=1792467747; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791862949; x=1792467749; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Qppf84QoHZGS5TMpFwUMwLIr3ZVPsYBrBYVC6qpryv4=;
-        b=WNprEhDrRJMgvlpNGfJKLzPsX6y9yfLpylotdyiuXoqLhhvw9ca2vk0r0h61ZUT0fA
-         +6D1u807oDqr7J7LxOmgq3kLc7AQoV1+OgAx7j0IctaA1MAz6Qw7A2KNMcOHGm8fOupJ
-         v6gmMgUsttBwEwc9EkgOaZEcd1ePkO7tp+RURWjkxb2HHLBY8ELsJ2UmuKz5Td/yYeJT
-         aRcPaQHNheQo0rPne336V6B5QWVPPyFkFQrBNsyJsSXUkqEf2/J4cP/D0mn32p5VGQtP
-         kw5bjcFInx2ZiREDHsgh3ZBbQsbO8epbjJe+gSjFloONzp1MgOChNsvyLBAJCT3ANwbj
-         1aGg==
+        bh=YRRv98G9cn0AlpTayBXQFsFs2oRDwoIU3+IQF5Vkek4=;
+        b=NvTS6z9ddnomUVb+xpfL3J4iJgBwGQjFiSH5xHwT8J+Sa8qImtpb+vmaTVF/tZBm1r
+         8GeEGIgakQJGcuVqPE3S4sjpSgEoSxg51rA/SEfqR4Q1sLd+Q8lJf0xnTn7mM/+t5rhT
+         V/79Jh7JBFhuP/HRmYGopf8VYWe1PhKE4LCX2UvqwM68deuhagRlb7oeZnWj/JDHH9iF
+         nuAPkwLXe4VVFQ2gSBYw5xlxVaeywV5QwEJDvb2kbYAwwoYUtFuLdy5N3ruaCCzasehQ
+         Glfn5GqwbV2jq88HF3tQGHQ7bX1/Xza9uMhYD0G4D2WciLhPofLzXgFgWG4N0FQ87Oq/
+         X+Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791862947; x=1792467747;
+        d=1e100.net; s=20260707; t=1791862949; x=1792467749;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Qppf84QoHZGS5TMpFwUMwLIr3ZVPsYBrBYVC6qpryv4=;
-        b=ZcZlaMxBww6PobK+JXLfqAH8BFqTvNnkhoX/07yHkSixCTszJIcq//PpMqpdd2Pdub
-         FwwSR4IS/JPl7X1PEY2vKBYWg4A/i59AYVrClULg71a5vJlOx5wg9p4Uxu6nNMo9/Alf
-         hRG3uyQPyvDFpfWnDet5qEEpaFSNCoU2ILGESe/iEEsrjtJoarnb0pOJmkIdcW2vDV/p
-         reVyP1SEkeUTGjpVZouRI+siHz7o3KK6ibreCNa37fqGBif1Awzrs4LJUghFS8r6gkFB
-         SYWV/Di8OhblA4Lsafs8Vakb2mUG7DT+jvhuA31iRpJd03GnlaieBGPp5LcuG307BK2J
-         2iaQ==
-X-Forwarded-Encrypted: i=1; AKwUvBy+cF5yyUwyWOVrIQjDbL9f8PpC4n2MIis4F5FLU6Z9oMmc3aqKPPyuTvXmzxpZRHNa4nZHaHJbPMAxIA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYL2/96J/OTGdI8Af694IIkZ+usPnq05S8qZeQsOy61Xy08SOHBt
-	POwZNSmE6dOCYnmjkm7EXWAM4uYxWzaTSD9I6ya2Gqt9ES/0EDy+FNKK
-X-Gm-Gg: AYBFou0gW4O9VALIXTc7eaWlK98dVTOI+8tC9kkfXQfc7xH+m5jOUE92RFXwfCNo+yl
-	k85IPlYR/NO7BR/Npio52LaxSa1VhKVhmCX5sS2GzNxivwq0z+tAu9DfB2iTAQWkQJb0Sg/F9ig
-	1jggUKxXzQ+aHIJQrsyutFcEyN2SFcrJ41uI4s2iVsogCnWXwK1CIIb/lRKRawCffuqrv51ZzJT
-	kUJTrGlGwxYvy3en5Xa5iYYDCOK8B3Vy9KcU8Z61w5C5iD4N8yeHplE8bLxVpIYSb4edhn5ZqWn
-	LcxwbnrJwfMEHOFpSranMGeQTWStrpYb9wzV1xD/OEMKkaIXUR6sgjn2GYcgQ/ID4JNjBYldNUa
-	3cgdABAFhHvn/eKJ/OHwuoB7Tc9YEyKNU9kffDSS7rN/e1clWIMiV5OfMndSmlDx0FIGSSL5J20
-	r7W5b+OY6Ew3mThbb06dKo7g8DoMUDzhLKF8tm5zkicpPth7Qu3MNFcIV02a/96++R/pkGOduST
-	k8iNQBb4zJBrs/qARvAcEf8skiWsNBSt2XsyRUCL6U2RVh5302uKOp/Kf6kkpRO5MpDEq4s+w==
-X-Received: by 2002:a05:7300:fd03:b0:351:4866:255c with SMTP id 5a478bee46e88-3537e058277mr21437793eec.32.1791862946940;
-        Mon, 12 Oct 2026 20:42:26 -0700 (PDT)
+        bh=YRRv98G9cn0AlpTayBXQFsFs2oRDwoIU3+IQF5Vkek4=;
+        b=JGVvMtqxIRmUnk3F42r7klHfpYh8nXs7WERZIgsZ7mpGTsqP2Fvn8NX690xrEYjuJc
+         sYZwbDdCAv5umqjiUQnROcelNQfARljM7bZA6AyFwBvJus7pewzjZsCI2izoygSboLCN
+         KzVloi9zY1RI/XzCqVyJDhvD7cOhtMkIuRn3hBM41ikfrIvi7UsIpraqlaSu7AqG5OOL
+         NZ4ekpK3lOoojse2X5NBtYwtujH9ww3WKsUufqz3sGbFZYcDOj7pOJsx3Qpgnc6/a6Km
+         A2zH8AoQweQkZliyzTGVtfxDXZm3TElr9YaImF+OJ3EoZenu61VRxgYjx0/vtpvBGkt9
+         o2DA==
+X-Forwarded-Encrypted: i=1; AKwUvBy+cQCaubaKWncKkckZ2vZ2blUYVcEsmWDPTXIOmHbn8MH+vVwxlc6y7SFpJoAt91ooJoITTAKZRLLx+g==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKxFIIDxg+CtDIuuu4K4k0sU3d4wWi4+1+wdFtch2LlroaTeao3
+	vLnnGC39O3nIU3Nx6ZI2BE8qcmSiPNydj3gfKWoDwsdmyFCoTYWFvc7l
+X-Gm-Gg: AYBFou07t8Uo9c3z/pc8sb7qJLMo1Rv6FV2zW7Dt06iXBdpremUrmShNDNsZwLdTiLt
+	zYgWN4jGa4YrfXLiIaMn9wtF535we4k2YkURA19S90j8MGNmVdoo3Bgph4zcsJG7yKpSmasrzK2
+	FJUx53cTa2EmpvcblQu74QV44SJIEYEi9dzjGbBgeFU4qSCWEce48LJQMC7pnfHNhs0vchSIGCb
+	ipFiyqd1e//qvODJqh/4hp0FFxEZgR2vMctOGaJq9vYAucIvykIiPopswRXiMZZ/DadLAEzHWkG
+	dL1HDtXpp9JFc++YRKk+yzC6QObgvbo/b/dfZ+vwFdwg+RW5CP+NTEa53l+/hoe5rjCa6gsgWQa
+	NK0Zsc2QE184+5DJ25U4KTLNmFffXxJFtsflFphafl2Jr2jK4LGjNqxNUXa4crJ01cRXESBnwPo
+	k4yjppvhrTHuQ5Dxq52EM+OjnX2sDebr6sW9FtVIfCYdxcZyDd4ukFK6mLIm1kaBtvm7SgHc7OI
+	syNZMLl9pdEmWHx+e/ggh2OXqd5EZrZFIkJDEwp3G9cuP0ZSpvNFF9mAS0HZuM=
+X-Received: by 2002:a05:693c:41c7:10b0:353:5cf0:df09 with SMTP id 5a478bee46e88-3537df8d300mr16954343eec.8.1791862948560;
+        Mon, 12 Oct 2026 20:42:28 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:679a:f35b:7c29:e0f2])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cb68e56sm35268677eec.29.2026.10.12.20.42.25
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cb68e56sm35268677eec.29.2026.10.12.20.42.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2026 20:42:26 -0700 (PDT)
+        Mon, 12 Oct 2026 20:42:27 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Mon, 12 Oct 2026 20:42:18 -0700
-Subject: [PATCH 2/9] HID: core: Fix GET_REPORT input processing for
- unnumbered reports
+Date: Mon, 12 Oct 2026 20:42:19 -0700
+Subject: [PATCH 3/9] HID: core: Reject mixing numbered and unnumbered
+ reports
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -72,7 +72,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261012-hid-core-report-validation-v1-2-e0dd5cb60b2e@gmail.com>
+Message-Id: <20261012-hid-core-report-validation-v1-3-e0dd5cb60b2e@gmail.com>
 References: <20261012-hid-core-report-validation-v1-0-e0dd5cb60b2e@gmail.com>
 In-Reply-To: <20261012-hid-core-report-validation-v1-0-e0dd5cb60b2e@gmail.com>
 To: Marcel Holtmann <marcel@holtmann.org>, 
@@ -86,44 +86,39 @@ Cc: linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-input@vger.kernel.org, Shashikirana H K <shashikiranah@chromium.org>
 X-Mailer: b4 0.17-dev-e56a4
 
-When emulating report retrieval requests in the HID core, low-level
-transport drivers store a dummy report ID of 0 at the start of the
-buffer for unnumbered reports, with the actual report payload placed
-after the initial byte.
+According to the Device Class Definition for HID, if any report of a
+given type includes a Report ID tag, all reports of that type must
+include a Report ID tag. Mixing numbered and unnumbered reports within
+the same report enumeration is invalid and causes confusion when sizing
+and parsing incoming and outgoing transfers.
 
-Passing the raw transfer buffer and total returned length directly to
-the input layer causes unnumbered reports to be processed with an
-extraneous leading byte and an incorrect payload length. Offset the
-buffer past the leading byte and deduct the dummy report ID from the
-length when forwarding unnumbered reports to the input layer.
+Reject descriptors that attempt to mix numbered and unnumbered reports
+within the same report enumeration by warning and aborting report
+registration.
 
-Fixes: 0d0777ccaa2d ("HID: core: ensure __hid_request reserves the report ID as the first byte")
 Assisted-by: LLM
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-core.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/hid/hid-core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index ec7c2860c93e..a33e864a25f9 100644
+index a33e864a25f9..3a9bd56dbf85 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -2033,8 +2033,13 @@ int __hid_request(struct hid_device *hid, struct hid_report *report,
- 		return ret;
- 	}
+@@ -96,6 +96,12 @@ struct hid_report *hid_register_report(struct hid_device *device,
+ 	if (report_enum->report_id_hash[id])
+ 		return report_enum->report_id_hash[id];
  
--	if (reqtype == HID_REQ_GET_REPORT)
--		hid_input_report(hid, report->type, buf, ret, 0);
-+	if (reqtype == HID_REQ_GET_REPORT) {
-+		if (report->id == 0)
-+			ret--;
-+
-+		if (ret > 0)
-+			hid_input_report(hid, report->type, data_buf, ret, 0);
++	if ((id == 0 && report_enum->numbered) ||
++	    (id != 0 && report_enum->report_id_hash[0])) {
++		hid_warn(device, "not allowed to mix numbered and unnumbered reports\n");
++		return NULL;
 +	}
- 
- 	return 0;
- }
++
+ 	report = kzalloc_obj(struct hid_report);
+ 	if (!report)
+ 		return NULL;
 
 -- 
 2.56.0.385.gd3acb90ef8-goog

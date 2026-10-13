@@ -1,114 +1,131 @@
-Received: from mta1.migadu.com (out-196.mta1.migadu.com [95.215.58.196])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A14D43B6C1C
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 13:56:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C920051DDE5;
+	Tue, 13 Oct 2026 14:42:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791899814; cv=none; b=f5lN4bfRAZexFbE91+KTaUVDtem/B8Ych/v/ssizA6cZ/n60OCerATlEagISlGKunG3tvH4NF4SeDHW9V2pqOt+t/Aza7paKfI8dYZ7x8+hWJqVN3YH9SGuIjKlGAFTZe7QfD6SsXS7rcfmi0+tRo/A7F1IL7hTs10gJ8MznGa4=
+	t=1791902566; cv=none; b=dpoveZxGlO2mg6XBzYEs1pL4r4iKn3KnRqGvuim8sBf9Q+CXY6scO0MN8QtoB2X8b1ieVubgsDxpJqaFyRTf1RE2QUflfhCLHGPdoL1au7D7gtZkH4i9zaVf3kjBAqk1ElOM4V1WQUF7+cMugJ/QpRufxQx5Uz6G/RMfy+0XCAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791899814; c=relaxed/simple;
-	bh=xSFFb7PWkaW97gkeM7trCyD9tBCSii9Ae975DGQazfA=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=Lb5m8yCHlCOc4yvFey1gMJ+4gF6I0QUfBGkKC+qYwvh4Tk/lIeSU8VYudxmQHW2zGSuhG9BjNMoE4RfCz1bz+8ytwJmEBYnGki9Ph56u4LwxFBSuWL+z+IcPrsAH/qpIexNzGyaOORLONk/2c7RDI/LS0mNjkjL3C8YPE+hI0cc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=AISG7Woa; arc=none smtp.client-ip=95.215.58.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1791902566; c=relaxed/simple;
+	bh=csndEIJALGjmkNsNoRfoNPp6dxs2xMbpUWFP/TJNYmw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=nk9tgpVZ4OzqFRwBBVausTXk7BcHFy+XPQ60gNothYYdmDm9pocr9/VoAXcV7RHsiLscAxJG6Hu7EvaN3G3YFZwL7Oqhp3YLquaInZc4JmV6PQeg2uXZ6mtRZ5KiOJmLnyRacOu8VawRD795Pm9h+bFqcOdkZEa4f6QRdcVgJ7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dCtjWbmA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="AISG7Woa"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=xSFFb7PWkaW97gkeM7trCyD9tBCSii9Ae975DGQazfA=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1791899810; v=1; x=1792504610;
- b=AISG7WoaXVoFT1krIS9wbLLMMEJ/WQR3DMNL5WN/+8wEsCPRlYGI2KoqHhAhm9GFC+U8xdFV
- sRACsulGyDrIHtrXIINU5VouPm4a0Zd8Ls+MLWxgrs3xv5XjSz96ufnfJloBjzzWfOxE8OvduDm
- bAj4Zajsm+qxfGJu+T38+FaI=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id b0b7d4626a6db7bb;
-	Tue, 13 Oct 2026 13:56:50 +0000
-X-Mizu-Trace-ID: b0b7d4626a6db7bb
-X-Migadu-Flow: FLOW_OUT
-Date: Tue, 13 Oct 2026 16:56:39 +0300
-From: Denis Benato <denis.benato@linux.dev>
-To: =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>
-Cc: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Luke Jones <luke@ljones.dev>,
-	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
-	Ivan Levchenko <me@livan.pro>, Nathan Chancellor <nathan@kernel.org>
-Message-ID: <424edeef-9663-4e64-a267-66a185b3df07@linux.dev>
-In-Reply-To: <20261013114506.1697676-1-rebecca.mara@posteo.de>
-References: <20261013104033.36079-1-p.pisati@gmail.com> <20261013114506.1697676-1-rebecca.mara@posteo.de>
-Subject: Re: [PATCH v3 0/7] HID: asus: ASUS Zenbook Duo keyboard support
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dCtjWbmA"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7DA0AC2BCFA;
+	Tue, 13 Oct 2026 14:42:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1791902566;
+	bh=csndEIJALGjmkNsNoRfoNPp6dxs2xMbpUWFP/TJNYmw=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=dCtjWbmANFBcUzBtxp6wSderFJt/36c2iNBQe6qxQlQeCFCPZpmIs43V0zcSj3SOJ
+	 5DDKiPuZoLsqjyF5xs8PRu3H1XYR7YWg/6Ood3y46QgwMXyFOSLL8ohkjX8RlkzQeQ
+	 Nf5J5JNNy9XDm02QfT/ZrBCKfT0kbn4jUy7VCvhwFTors+ACSCyo+9yQvr5I8qT7QS
+	 lv77h8hpCn0uRrYiOwKdl4sAkmvkG08dTriUSrQwTPCnvw/4tIHigxrSCdk2WR4V4c
+	 9PJFibiMx4JLAtikSTKchOuxg2gUuM2N8363KiX7zwfsCxRCPvlXDf8IWg6jOaJzPh
+	 j/OMpAxVMWAcg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B9C9CC6B0F;
+	Tue, 13 Oct 2026 14:42:46 +0000 (UTC)
+From: Armandas Kvietkus via B4 Relay <devnull+armandas.kvietkus.proton.me@kernel.org>
+Subject: [PATCH v3 0/2] Input: Add Awinic AW8697 haptics driver
+Date: Tue, 13 Oct 2026 16:42:44 +0200
+Message-Id: <20261013-mainlining-v3-0-fca981f62b57@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Correlation-ID: <424edeef-9663-4e64-a267-66a185b3df07@linux.dev>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WNwQ7CIBAFf6XhLGYLVVtP/ofx0AVs11hooBJN0
+ 38X6sWDHid5M29mwXgygR2LmXkTKZCzCeSmYKpvbWc46cRMgNhDI4EPLdk7WbIdB9Q1HnCn2r1
+ iSRi9udJzjZ0vHw4PvBk15UJe9BQm51/rWyzz7mc4lhy4kiAVagRQ9Wn0bnJ2OxiWw1H8V0VSK
+ 0AsUTaV1PitLsvyBsHJ11LxAAAA
+X-Change-ID: 20260930-mainlining-0bd8b7b5ca6c
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>, 
+ Armandas Kvietkus <armandas.kvietkus@proton.me>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791902565; l=2577;
+ i=armandas.kvietkus@proton.me; h=from:subject:message-id;
+ bh=csndEIJALGjmkNsNoRfoNPp6dxs2xMbpUWFP/TJNYmw=;
+ b=SUygf2am8eMZuDRJdhM45GRb/k61pT9uA9j+5GI0oW6Nk6B1Cx3kzn+BQfu0Jq40HZdsHth4t
+ 7deTL2JCcqYAGoKlKJH9UhxMtr7xlzcQnHjdSSQgNrWnAeJaNQwtuAE
+X-Developer-Key: i=armandas.kvietkus@proton.me; a=ed25519;
+ pk=wuqmImJ9sKlDVcwALOvfGhjj7G8EBjjM4TpCdmlrAf8=
+X-Endpoint-Received: by B4 Relay for armandas.kvietkus@proton.me/default
+ with auth_id=974
+X-Original-From: Armandas Kvietkus <armandas.kvietkus@proton.me>
+Reply-To: armandas.kvietkus@proton.me
 
-13 ott 2026 14:45:22 Rebecca Mara M=C3=BCller <rebecca.mara@posteo.de>:
+This series adds a driver for the Awinic AW8697 LRA haptic driver IC.
+It is the vibrator in the Xiaomi POCO F3.
 
-> On Tue, Oct 13, 2026 at 12:39:57PM +0200, Paolo Pisati wrote:
->> - Bind the Bluetooth IDs to HID_GROUP_GENERIC as well: over Bluetooth
->> =C2=A0 the touchpad is a second HID device with the same IDs, which hid-=
-asus
->> =C2=A0 must leave to hid-multitouch (Sashiko).
->
-> I re-tested v3 the same way as v2 on a UX8407AA: applied on top of
-> base-commit 8099f9da59f1 (the resulting hid-asus.c matches the index
-> line of 7/7), built unmodified as an out-of-tree module against a
-> 7.0.11-based distribution kernel, with my userspace workaround stopped.
->
-> - Docked (USB, 0b05:1cd7), module loaded with the keyboard attached and
-> =C2=A0 then three dock cycles: the five keyboard interfaces bind to hid-a=
-sus,
-> =C2=A0 the touchpad stays with hid-multitouch. Hotkeys, keyboard backligh=
-t,
-> =C2=A0 volume/mute, mic mute, the screenshot key and Fn+F profile cycling
-> =C2=A0 (balanced <-> performance) work. The delayed handshake re-send nev=
-er
-> =C2=A0 failed.
-> - Bluetooth (0b05:1cd8): the keyboard device (generic group) binds to
-> =C2=A0 hid-asus and the touchpad device (multitouch group) to hid-multito=
-uch,
-> =C2=A0 as intended by the v3 change. The same keys and the touchpad work.
->
-> The screen brightness keys emit KEY_BRIGHTNESSDOWN/KEY_BRIGHTNESSUP when
-> docked (checked with an evdev reader).
->
-> My Tested-by from v2 holds for v3:
->
+The AW8697 is an older generation than the AW86927. The register map
+is different, so it gets its own driver. The binding reuses
+awinic,aw86927.yaml.
 
-Hi all,
+Tested on the phone: rumble at several strengths, 72 effects in a row,
+stop on close, driver rebind and module reload.
 
-I'll re-send this mail as the other client formatted in html and the mailin=
-g list rejected the message. Apologies.
+Signed-off-by: Armandas Kvietkus <armandas.kvietkus@proton.me>
+---
+Changes in v3:
+- Drop <linux/mod_devicetable.h>. <linux/i2c.h> provides
+  i2c_device_id and of_device_id. (Uwe)
+- Use a named initializer in the i2c_device_id table. (Uwe)
+- Add Acked-by from Krzysztof to the binding.
+- Link to v2: https://patch.msgid.link/20260930-mainlining-v2-0-40bb1b3943db@proton.me
 
-I'm currently on vacation so I will need to postpone reviewing this.
+Changes in v2:
+- Do not queue I2C work from the ff-memless timer during system
+  suspend. A suspended flag is set and cleared under the input event
+  lock, as in da7280. Tested with delayed effects across suspend.
+- Use explicit error checks instead of returning the last regmap call.
+- The NULL IRQ name finding is not changed. devm_request_threaded_irq()
+  uses dev_name() when the name is NULL. /proc/interrupts shows 11-005a.
+- Link to v1: https://patch.msgid.link/20260930-mainlining-v1-0-c303cbdb00c8@proton.me
 
-My greatest concern is with report size: every device needs its own and har=
-dcoding it is not an option anymore because no device can be fully made hap=
-py (and working): xg mobile is 300, ally and new ROGs is 64, some have 32, =
-some 16 and I think TP is 15.
+v2 only fixes findings from the automated AI review. I will not send
+another revision for automated review findings alone, because that
+can go on forever. I will wait for human review.
 
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Rob Herring <robh@kernel.org>
+To: Krzysztof Kozlowski <krzk+dt@kernel.org>
+To: Conor Dooley <conor+dt@kernel.org>
+To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+To: Armandas Kvietkus <armandas.kvietkus@proton.me>
+Cc: linux-input@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-I have yet to look at the patch that changes the report size but please mak=
-e the report size variable reading it from the descriptor.
+---
+Armandas Kvietkus (2):
+      dt-bindings: input: awinic,aw86927: Add Awinic AW8697
+      Input: aw8697 - Add Awinic AW8697 haptics driver
 
-I will be beack the 18th October.
+ .../devicetree/bindings/input/awinic,aw86927.yaml  |   4 +-
+ MAINTAINERS                                        |   6 +
+ drivers/input/misc/Kconfig                         |  14 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/aw8697.c                        | 760 +++++++++++++++++++++
+ 5 files changed, 784 insertions(+), 1 deletion(-)
+---
+base-commit: 165768bb70265b5c38cf0b73fafd75be235f8b14
+change-id: 20260930-mainlining-0bd8b7b5ca6c
 
 Best regards,
-Denis
+--  
+Armandas Kvietkus <armandas.kvietkus@proton.me>
 
-
-
-> Tested-by: Rebecca Mara M=C3=BCller <rebecca.mara@posteo.de> # UX8407AA
->
-> Thanks,
-> Rebecca
 

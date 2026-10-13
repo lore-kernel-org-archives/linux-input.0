@@ -1,123 +1,171 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8B7418A22
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:57:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28E1F41F5C7
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 04:00:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791863849; cv=none; b=O4bznfHt+BFGSuRzYV2+tZZl9ZKiwWqX2zgpp38wxpUBDJPEP5khh0bPCMjsuE906z2uigDikPQYWXZPLIOFA5XCWW8VDfasiI4kODC7N6hrQ7OB50JRzGBcVE7z9sErFXLYZOVgX7cGrVfrljW0fxLlMnSVjP0W0QqZVsq8yZ0=
+	t=1791864017; cv=none; b=SpqW053QQHmGeISww+NCFQ6XhTN1TW1RTyAY4sBzcAYOLzv+ZoVIR4oGrZexZ9NPrZnlGxTnEd1EwtDRTS9BurK15FT4WiVE2LCPiPNixq7PigIoc2QwRgZsTt+9h8JUg/MN92GK6Eo/ssUSBeum2J6q2nbpi6KCa1L6APoHycQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791863849; c=relaxed/simple;
-	bh=OeIO6VMigs7d/xgMcCyP5rHCxkmMqBepMJamPW7F4x8=;
+	s=arc-20240116; t=1791864017; c=relaxed/simple;
+	bh=6BKnGNiwvfML3fksZBPC+9VGUmwf2rZFvJmcXBWvpmY=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=b8bXP6pPuoIIruRVaB+TiJT0mIg5NdwxrD+V7UmCdg4YOd7MsMdlhRttUt5JSUqDSht9E9hEHiLkpBoumwlnxLWR7aVe5fl4etMc7MhvJCOkniB4gox46VmciHOZC07gWStP7i8IRbwGdMLQtuh55v7yCALEFEeGu4huVJf0UPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QP9vs2Dk; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=sHfzxcrprFJdLZmWCQJ0OD6jrxm8gmVkGJLc5NbWpKVZtsg7OOel+GmtkqtNFbO0Q5Rsfs2/Eh9jR7H+d8yApLDm0aEPFrgEVjI8X2ZVKiUAYyL1ZhxpP/wDMftLUok36V3yTY3PMPLw4Bm/PEJe72Ha0eITz97n6iju/076XVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j9qKZvuo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QP9vs2Dk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6371F000FF;
-	Tue, 13 Oct 2026 03:57:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j9qKZvuo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8653D1F000FF;
+	Tue, 13 Oct 2026 04:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791863848;
-	bh=H+C4cMGMB3N1cbQM9EThefWMV0FtVuhvCr+0+EojygA=;
+	s=k20260515; t=1791864015;
+	bh=3giWnTqLsPXdUwDQVCPJjJWMhQrwpe8FMwcdqq0IbM4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QP9vs2Dke+xOvQ3VL4Z6VfBkBxB67gTrYEBgBfsSUIoRjYYZuO9Zi7FF41Axloaub
-	 xJ4HQ2Qsp7uDZsnc8TGUrYIrOQquZTA1uuJVy/hAbDPORbSRILJUImbvq7aOO92jLT
-	 Q94bWiHLja5i3mYT1fC1cn0izaIN8yAtv0f7YADZPateoQoqBy2CJwPmbo18pYp/+a
-	 iVFRayhNPzRNZFWra4+qK+oe5BJlaVOkTAcLqS46VNu5uYEdYc30i4WRBQFsWApn2V
-	 FAokzrHHwUw+/T2iKgOvMwUi3MqRFeOpheoe7Q7LkMD4kWb2RTKlA0hP0gp4CE5e4O
-	 aB+y0UuTIDfuQ==
-Message-ID: <sashiko-outbox-168943@kernel.org>
+	b=j9qKZvuoXSDQB/QfOaDfIOSeBgVGazbrR9AYsGjGERsEeRPozee7sn16pTa53RHUj
+	 KSyOIac7D8URlr25IdZU488WlL1nZQdsja19n0Up22ihCYABLOuC0hbu28T+AZp671
+	 J0vrDnzc7eTxZtOIIlHm51H9bk24p/n7szCmm64Jnh88rmMMFwDiE06awFsqPToAEd
+	 2Jm+T1yCfa2ElP5Fn5pKhZ8E0aYuj1ZUgWDsRII29Yr7B3zH7cqxnSycNRCl0rejyh
+	 7hGjYWNGZbm0L+Np4zWQlhWAXk550hVrSUBm5MLcxJlZz8qRq/Wfu+Dn9T7m4i6Mw/
+	 pZYw+Er0sWCYA==
+Message-ID: <sashiko-outbox-168950@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/9] Bluetooth: HIDP: Fix GET_REPORT and SET_REPORT for
- unnumbered reports
+Subject: Re: [PATCH 4/9] HID: core: Validate GET_REPORT report ID centrally
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
-In-Reply-To: <20261012-hid-core-report-validation-v1-1-e0dd5cb60b2e@gmail.com>
+In-Reply-To: <20261012-hid-core-report-validation-v1-4-e0dd5cb60b2e@gmail.com>
 References: <20261012-hid-core-report-validation-v1-0-e0dd5cb60b2e@gmail.com>
- <20261012-hid-core-report-validation-v1-1-e0dd5cb60b2e@gmail.com>
+ <20261012-hid-core-report-validation-v1-4-e0dd5cb60b2e@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 03:57:27 +0000
+Date: Tue, 13 Oct 2026 04:00:15 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [Medium] bluetooth: hidp: skb memory leak on timeout in hidp_get_raw_repo=
-rt()
+- [High] hid: bpf: HID-BPF cannot fix invalid report IDs due to centralized=
+ validation
+- [High] hid: __hid_hw_raw_request() breaks uhid unnumbered GET_REPORT
+- [Medium] hid: core: un-ratelimited mismatched report ID warning allows lo=
+g flooding DoS
+- [Medium] hid: uninitialized memory read in __hid_hw_raw_request() on time=
+out
 --
 
-commit 9c135d466dcba28a7f3598e00e865c9ade48ff0c
+commit d5fcafe8cdb215ca55eba80f821711e3f7748edf
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Bluetooth: HIDP: Fix GET_REPORT and SET_REPORT for unnumbered reports
+HID: core: Validate GET_REPORT report ID centrally
 
-Adjust Bluetooth HIDP transport callbacks to adhere to the kernel HID
-subsystem convention of using report ID 0 for unnumbered reports. When
-fetching or setting an unnumbered report, the report ID is appended or
-stripped to ensure correct lengths and formatting over the control channel.
+This commit centralizes the check for whether a report retrieval response
+returns the expected report ID into the core HID raw request path. It also
+introduces a new quirk, HID_QUIRK_IGNORE_REPORT_ID_MISMATCH, to handle
+hardware with buggy firmware.
 
-> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> index f5bdf9f1ca638..004a8eed51fb1 100644
-> --- a/net/bluetooth/hidp/core.c
-> +++ b/net/bluetooth/hidp/core.c
-[ ... ]
-> @@ -302,11 +302,25 @@ static int hidp_get_raw_report(struct hid_device *h=
-id,
->  		}
->  	}
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 3a9bd56dbf85e..cd099a420b9b6 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -2565,8 +2565,17 @@ int __hid_hw_raw_request(struct hid_device *hdev,
+>  	if (ret)
+>  		return ret;
 > =20
+> -	return hdev->ll_driver->raw_request(hdev, reportnum, buf, len,
+> +	ret =3D hdev->ll_driver->raw_request(hdev, reportnum, buf, len,
+>  					    rtype, reqtype);
+> +	if (ret > 0 && reqtype =3D=3D HID_REQ_GET_REPORT &&
+> +	    !(hdev->quirks & HID_QUIRK_IGNORE_REPORT_ID_MISMATCH) &&
+> +	    buf[0] !=3D reportnum) {
 
-[Severity: Medium]
-Does this code leak the sk_buff if a timeout or signal occurs concurrently
-with the device response?
+[Severity: High]
+Does this validation break uhid unnumbered GET_REPORT requests?
 
-If wait_event_interruptible_timeout() in hidp_get_raw_report() times out or=
- is
-interrupted by a signal, it proceeds to the err label, which clears the
-HIDP_WAITING_FOR_RETURN flag and unlocks the mutex without freeing
-session->report_return.
+When __hid_hw_raw_request() in drivers/hid/hid-core.c is called for an
+unnumbered report (reportnum =3D=3D 0) on a uhid device, this check expects=
+ buf[0]
+to contain the report ID (0).
 
-Concurrently, if the device response arrives and is processed by
-hidp_recv_ctrl_frame(), it can set session->report_return right as the time=
-out
-occurs:
+However, the uhid driver copies the userspace response verbatim into the
+buffer:
 
-hidp_recv_ctrl_frame() {
-        ...
-        /* hidp_get_raw_report() is waiting on this report. */
-        session->report_return =3D skb;
-        done_with_skb =3D 0;
-        clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
-        wake_up_interruptible(&session->report_queue);
+drivers/hid/uhid.c:uhid_hid_get_report() {
+    ...
+	req =3D &uhid->report_buf.u.get_report_reply;
+	if (req->err) {
+		ret =3D -EIO;
+	} else {
+		ret =3D min3(count, (size_t)req->size, (size_t)UHID_DATA_MAX);
+		memcpy(buf, req->data, ret);
+	}
+    ...
 }
 
-Because the error path does not check or free session->report_return, the
-sk_buff is permanently leaked as subsequent requests will overwrite
-session->report_return without freeing the old one.
+Because uhid does not prepend a dummy 0x00 report ID like usbhid does, buf[=
+0]
+contains the first byte of the data payload. Unless the payload happens to
+start with a 0, this check will fail and spuriously reject valid reports.
 
-> +	/*
-> +	 * In case of unnumbered reports the response from the device will
-> +	 * not have the report ID that the upper layers expect, so we need
-> +	 * to stash it in the buffer ourselves and adjust the data size.
-> +	 */
-> +	if (!report_number) {
-> +		data[0] =3D 0;
-> +		data++;
-> +		count--;
+[Severity: Medium]
+Could this read uninitialized memory?
+
+If a userspace application issues a GET_REPORT request via hidraw, it passes
+an uninitialized kmalloc buffer down to __hid_hw_raw_request():
+
+drivers/hid/hidraw.c:hidraw_get_report() {
+    ...
+	buf =3D kmalloc(count, GFP_KERNEL);
+    ...
+}
+
+If a transport driver like ishtp_raw_request() in
+drivers/hid/intel-ish-hid/ishtp-hid.c times out waiting for the device, but
+returns the length without populating the buffer:
+
+drivers/hid/intel-ish-hid/ishtp-hid.c:ishtp_raw_request() {
+    ...
+	hid_hw_wait(hid);
+
+	return len;
+}
+
+This validation check will evaluate the uninitialized memory and leak one
+byte of kernel heap memory via the warning.
+
+> +		hid_warn(hdev, "mismatched report ID %u (expected %u)\n",
+> +			 buf[0], reportnum);
+
+[Severity: Medium]
+Could this warning cause a log flooding denial of service?
+
+Any local user with read/write access to the hidraw node can synchronously
+trigger this warning in a tight loop by issuing HIDIOCGFEATURE ioctls on a
+device that returns a mismatched report ID.
+
+Because hid_warn() expands to dev_warn() without rate limiting, this can be
+exploited to flood the kernel log.
+
+> +		return -EINVAL;
+
+[Severity: High]
+Does this prevent HID-BPF programs from fixing invalid report IDs?
+
+When a BPF program calls hid_bpf_hw_request() to fetch a feature report from
+the hardware, if the hardware returns an incorrect report ID in buf[0], this
+check intercepts the response and immediately returns -EINVAL.
+
+The BPF program receives -EINVAL instead of the raw data buffer, leaving it
+unable to read the buggy buffer or apply a fixup, forcing the use of hardco=
+ded
+kernel quirks instead.
+
 > +	}
 > +
->  	skb =3D session->report_return;
->  	if (skb) {
-> -		len =3D skb->len < count ? skb->len : count;
-> +		len =3D min_t(size_t, skb->len, count);
->  		memcpy(data, skb->data, len);
->
+> +	return ret;
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012-hid-core-r=
-eport-validation-v1-0-e0dd5cb60b2e@gmail.com?part=3D1
+eport-validation-v1-0-e0dd5cb60b2e@gmail.com?part=3D4

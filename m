@@ -1,108 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58B0379C56
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:57:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8B7418A22
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:57:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791863831; cv=none; b=QO95KqCrF5YJmG6ER2+8WoLosdmj5dWgzSPqCkwMwe5o6tAkLL5BLU3VlRK6MFwnc3Iu44Z/jPQ2bXaA6cKqkjFzgM5bnynVrabiNOZ3lx0X5G8ZlV0CNm+593hXpg6yDQ7IUSxd/1w2zpahLiaYLCqNEmuXmu6SHwBqPn2uuRE=
+	t=1791863849; cv=none; b=O4bznfHt+BFGSuRzYV2+tZZl9ZKiwWqX2zgpp38wxpUBDJPEP5khh0bPCMjsuE906z2uigDikPQYWXZPLIOFA5XCWW8VDfasiI4kODC7N6hrQ7OB50JRzGBcVE7z9sErFXLYZOVgX7cGrVfrljW0fxLlMnSVjP0W0QqZVsq8yZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791863831; c=relaxed/simple;
-	bh=BxgSs0P1taReAKpeQDAvm7pto6zXKv5qnKOHslgxlc0=;
+	s=arc-20240116; t=1791863849; c=relaxed/simple;
+	bh=OeIO6VMigs7d/xgMcCyP5rHCxkmMqBepMJamPW7F4x8=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=mc96moJVQZ0aHsT0y9bMKlsQUvMTAH7mLDhfPmG0Z8Y4/jvj7Akq3DNY2RqJ/BOghEBOONJBhV9Fd6bNF34K50M8rM0yvOdrDr+vSVM5yj+giaQtbMaXzyajDEOXf4WQir0WLrvGFy+eg/zW9A0rLXyxyT4gBK5pwnyeF1SGZ64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kU24/YKI; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=b8bXP6pPuoIIruRVaB+TiJT0mIg5NdwxrD+V7UmCdg4YOd7MsMdlhRttUt5JSUqDSht9E9hEHiLkpBoumwlnxLWR7aVe5fl4etMc7MhvJCOkniB4gox46VmciHOZC07gWStP7i8IRbwGdMLQtuh55v7yCALEFEeGu4huVJf0UPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QP9vs2Dk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kU24/YKI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED841F000FF;
-	Tue, 13 Oct 2026 03:57:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QP9vs2Dk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6371F000FF;
+	Tue, 13 Oct 2026 03:57:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791863830;
-	bh=fcLxbl66svv+3JYbbmWVMOC09q8Cqpy6mHlqxHxjiHE=;
+	s=k20260515; t=1791863848;
+	bh=H+C4cMGMB3N1cbQM9EThefWMV0FtVuhvCr+0+EojygA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kU24/YKIQllMeP7ip+o1ovEJg7vI7yMU7XS9tYU75nFMzs41MkFwQYEt4NRjQG0YI
-	 WMAjE5p8zVo/ZRkXbmkresS/bCMGHbCcgnRgN6OB8RzLwmhG3quaHC3oxEy0sebjVA
-	 nLdDoUTHCBxOKyxTwrli41wnSjJM4fxfj+P3BwUITgJWpkOOn0LS8uoJcYuTvxFrv9
-	 22VdNydjr/L6eWb35o7HGBMk+rML1LWO7ZIacxc5LN8ch0F5rU4EGP/HJYs+8leUk9
-	 2FidwIXq3Ao/9Jq1sI9bfdJu/v6nwtZENVWpL43MvxkueDTFl1+r7m5fOlawDJcDmm
-	 PidmbyOyvK4AQ==
-Message-ID: <sashiko-outbox-168940@kernel.org>
+	b=QP9vs2Dke+xOvQ3VL4Z6VfBkBxB67gTrYEBgBfsSUIoRjYYZuO9Zi7FF41Axloaub
+	 xJ4HQ2Qsp7uDZsnc8TGUrYIrOQquZTA1uuJVy/hAbDPORbSRILJUImbvq7aOO92jLT
+	 Q94bWiHLja5i3mYT1fC1cn0izaIN8yAtv0f7YADZPateoQoqBy2CJwPmbo18pYp/+a
+	 iVFRayhNPzRNZFWra4+qK+oe5BJlaVOkTAcLqS46VNu5uYEdYc30i4WRBQFsWApn2V
+	 FAokzrHHwUw+/T2iKgOvMwUi3MqRFeOpheoe7Q7LkMD4kWb2RTKlA0hP0gp4CE5e4O
+	 aB+y0UuTIDfuQ==
+Message-ID: <sashiko-outbox-168943@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 7/9] HID: intel-thc-hid: Drop redundant report ID
- validation in quicki2c
+Subject: Re: [PATCH 1/9] Bluetooth: HIDP: Fix GET_REPORT and SET_REPORT for
+ unnumbered reports
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
-In-Reply-To: <20261012-hid-core-report-validation-v1-7-e0dd5cb60b2e@gmail.com>
+In-Reply-To: <20261012-hid-core-report-validation-v1-1-e0dd5cb60b2e@gmail.com>
 References: <20261012-hid-core-report-validation-v1-0-e0dd5cb60b2e@gmail.com>
- <20261012-hid-core-report-validation-v1-7-e0dd5cb60b2e@gmail.com>
+ <20261012-hid-core-report-validation-v1-1-e0dd5cb60b2e@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 03:57:09 +0000
+Date: Tue, 13 Oct 2026 03:57:27 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] hid: intel-thc-hid: hidraw GET_REPORT fails if buffer size exceeds=
- report size
-- [Medium] HID: intel-thc-hid: information leak via short DMA read
+- [Medium] bluetooth: hidp: skb memory leak on timeout in hidp_get_raw_repo=
+rt()
 --
 
-commit 75e0494a01241a3ea09c387003f59cc3e7199dc8
+commit 9c135d466dcba28a7f3598e00e865c9ade48ff0c
 Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: HID: intel-thc-hid: Drop redundant report ID validation in quicki2c
 
-This commit removes the report ID validation from the Intel QuickI2C driver=
-'s
-report retrieval path, as the core HID layer now handles this centrally. It
-leaves the packet length validation intact.
+Bluetooth: HIDP: Fix GET_REPORT and SET_REPORT for unnumbered reports
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c=
- b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
-> index 41271301215ab..7a362a2ebe2b3 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
+Adjust Bluetooth HIDP transport callbacks to adhere to the kernel HID
+subsystem convention of using report ID 0 for unnumbered reports. When
+fetching or setting an unnumbered report, the report ID is appended or
+stripped to ensure correct lengths and formatting over the control channel.
+
+> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> index f5bdf9f1ca638..004a8eed51fb1 100644
+> --- a/net/bluetooth/hidp/core.c
+> +++ b/net/bluetooth/hidp/core.c
 [ ... ]
-> @@ -160,9 +160,9 @@ int quicki2c_get_report(struct quicki2c_device *qcdev=
-, u8 report_type,
->  		return ret;
+> @@ -302,11 +302,25 @@ static int hidp_get_raw_report(struct hid_device *h=
+id,
+>  		}
 >  	}
 > =20
-> -	if (HIDI2C_DATA_LEN(le16_to_cpu(rpt->len)) !=3D buf_len || rpt->data[0]=
- !=3D reportnum) {
-> -		dev_err_once(qcdev->dev, "Invalid packet, len (%d vs %zu) report id (%=
-d vs %d)\n",
-> -			     le16_to_cpu(rpt->len), buf_len, rpt->data[0], reportnum);
-> +	if (HIDI2C_DATA_LEN(le16_to_cpu(rpt->len)) !=3D buf_len) {
-
-[Severity: High]
-Does requiring an exact match for buf_len break the hidraw API? If a
-userspace application calls HIDIOCGFEATURE with a standard oversized buffer
-(e.g., HID_MAX_BUFFER_SIZE), buf_len will be larger than the actual report
-size, causing this check to fail with -EINVAL.
 
 [Severity: Medium]
-Is there a risk of leaking stale data on a short DMA read?
+Does this code leak the sk_buff if a timeout or signal occurs concurrently
+with the device response?
 
-If thc_swdma_read() successfully performs a short read, it returns 0 and
-sets read_len to a value smaller than expected, leaving the rest of the DMA
-buffer stale. Because this check exclusively relies on rpt->len instead of
-the updated read_len, a stale rpt->len matching buf_len will pass this
-validation.
+If wait_event_interruptible_timeout() in hidp_get_raw_report() times out or=
+ is
+interrupted by a signal, it proceeds to the err label, which clears the
+HIDP_WAITING_FOR_RETURN flag and unlocks the mutex without freeing
+session->report_return.
 
-This would lead to the memcpy() further down in quicki2c_get_report()
-copying stale kernel memory into the buffer.
+Concurrently, if the device response arrives and is processed by
+hidp_recv_ctrl_frame(), it can set session->report_return right as the time=
+out
+occurs:
 
-> +		dev_err_once(qcdev->dev, "Invalid packet length (%d vs %zu)\n",
-> +			     le16_to_cpu(rpt->len), buf_len);
->  		return -EINVAL;
->  	}
+hidp_recv_ctrl_frame() {
+        ...
+        /* hidp_get_raw_report() is waiting on this report. */
+        session->report_return =3D skb;
+        done_with_skb =3D 0;
+        clear_bit(HIDP_WAITING_FOR_RETURN, &session->flags);
+        wake_up_interruptible(&session->report_queue);
+}
+
+Because the error path does not check or free session->report_return, the
+sk_buff is permanently leaked as subsequent requests will overwrite
+session->report_return without freeing the old one.
+
+> +	/*
+> +	 * In case of unnumbered reports the response from the device will
+> +	 * not have the report ID that the upper layers expect, so we need
+> +	 * to stash it in the buffer ourselves and adjust the data size.
+> +	 */
+> +	if (!report_number) {
+> +		data[0] =3D 0;
+> +		data++;
+> +		count--;
+> +	}
+> +
+>  	skb =3D session->report_return;
+>  	if (skb) {
+> -		len =3D skb->len < count ? skb->len : count;
+> +		len =3D min_t(size_t, skb->len, count);
+>  		memcpy(data, skb->data, len);
 >
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012-hid-core-r=
-eport-validation-v1-0-e0dd5cb60b2e@gmail.com?part=3D7
+eport-validation-v1-0-e0dd5cb60b2e@gmail.com?part=3D1

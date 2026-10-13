@@ -1,65 +1,65 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7192848C3FA
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 17:35:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A321B48A8D1
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 17:35:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791912946; cv=none; b=bHVyv/OTOuoOaFMJCc4tRG9HuPlx4dGffeadgxrmBhrlTvoTEhjJf5+W/O5q7QFaRu/mUgrxlcp/AIT6+rRV/EpVVhEEzjWtPtWinQkZIYZEXguZ2pzUK8OTOQY9SpwlxE5bV4GiWWorhKUxo6qAsjgAn1E6xxF4QibfpZFvKBU=
+	t=1791912952; cv=none; b=pLNeK1MnuHgCc8lf3F3sA2Ug2J6rpwYXVvKWzPfzPoIEFdFSt3m5aPx3Ote8eDe1Hoigu49Kxsqg9BEN3Zrm9KMZx8OGLnNUvS2U0ztivYe9swUm66Y3DhYQmapBZV5vjQ3i0GlSrAsTqCfGq0Vi93P29J2ho+geZu2tjT8kTy0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791912946; c=relaxed/simple;
-	bh=BDqbAktDlHcNaXVuNgFvehSBr7L7Uj+zana2OBhQSBE=;
+	s=arc-20240116; t=1791912952; c=relaxed/simple;
+	bh=vTbgxdJuUc8bPT6jOJqWQoEAVh5xzYo4Dkan0XX08wk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G1CNIBZ5E5cEnpBmTVrwOSn9+cl8+o7RSIVvWGmQh9VlSi9qB5pj+sfunEvXV+BKImi/jQkiKVAeEMmwkRjESCaxITAV13UtaLsHB/L0KLI+ofGHhV8+AxIdVuQT+CPUiEURrDDoOdTBjMPeAt43jYWlPx2Z74CBX68iJaz7of8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kb3E/UdU; arc=none smtp.client-ip=209.85.128.48
+	 MIME-Version:Content-Type; b=umqjcKx4thotA972k4Cip+z04rC5ZH1FePdAn2zwKIoH3QhO3oZ7yLkeaU1BozIR4noW7CXIVEKUJ8ibg5cs0RUt5g4Xc+b9qUEqDJgs9b1K1WlGMcZ7m+5GcBw1uYW8Cn39gpCVCFr14T1vuCqYSCuAwTsrtmqmSjpSXiPj8PE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g4D35+ia; arc=none smtp.client-ip=209.85.128.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kb3E/UdU"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a1682bff3cso659455e9.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 10:35:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g4D35+ia"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4a018792ab3so27315565e9.0
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 10:35:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791912937; x=1792517737; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791912943; x=1792517743; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=QXqO6RB1f6oD4M23FtS1tdaFXlmBo92voxy51qF78Vk=;
-        b=Kb3E/UdUAljOV4khpQyp3Tz3Ek3DE1lqSe8O56XK6e1G3/jRle5pRZHYguxoj7kbl5
-         nDsXERFkGXGxAxKdxSm15Ds76ut7JQsKIyWj67N6Y+uT6Ubhxmr/Lt5uOSIzHzQzfDi1
-         E6LMzrFfxQW7EmXGQXAvNAd3w4jyKFy9XFT3nFNtJXZz/rlM3v0xxL2ZE6p7kH3NMb+D
-         IOBX1v2yxWr1hU8N1Axew7XM4JZhfazNLJt/XHtv61BlIO8FXZGEDjnnodxkejjN/fxs
-         UfUxjs2HMnMmJA0wDZDxbtE9fV83D1KaaJBfiDOtCDTzKVk6sQyFU0RbR8EUES22jKvt
-         Jeow==
+        bh=Dgj4UbbyEsyRyIW26kcdyCzSX0/3ndCVzhgrPch3x2A=;
+        b=g4D35+iaEl9PfyFIoyPrM3Amt1jxoWLGvaShf3SMYQCfo+NvRMp35mq/M/QoY54Qmz
+         VZDqyUvUjSh1nuepyKVVfBhq0HaaQffrrJT/PJ+Aea2l2fjSwFjc67WO+Ymbsr5A8Mri
+         4S2fa7lIUijfl71lUsMv1BWVsgAMTXgdM4da+0/JLg7VhJTuull/px4o/CbHTZZTHJ8g
+         rZdroQO1hM8jE7Th7HW+w1gExVz7MPRHyl1moziLMGOeBHgJJrfnK7aApbBnX62T9hKE
+         VPaqsThWCZc2zDKoMpSEbecHfMaCaA+SPVA7q4BEpvRi4+6B7ljqw7fwKLbpXrF+E6eS
+         MHvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791912937; x=1792517737;
+        d=1e100.net; s=20260707; t=1791912943; x=1792517743;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=QXqO6RB1f6oD4M23FtS1tdaFXlmBo92voxy51qF78Vk=;
-        b=BDk3HtU3C6XdoiS+HMbLHj1AyBhyHQ2yEkiSRgv5DR8b/QKVUyIBAuUp3Dhz3bTCKt
-         GLOZHgSf4cI0epgf7Im9vU2lKgXw5pQ8uzXbLwJWJs+MVj692T1wFV9j5aou96bEYmzN
-         gToXlKwp2U5nFbMEWIvWpboKTSiKwOlthkMPCaYh2uWI5omBrMt65IZ332AM2ngUac5F
-         AfZWHUwMpQ7HBx7blFRXHwpLsMSISNol6vm11KxmQE4deR3lar7ubnT1k2GdVH6Dp8uN
-         +KC9mrS/NGY43kfpQdNnUGOaKL/naGmtnl7eBYHX5OLRrCeA+HwU59MBzdL0IeuER8Hd
-         1HNA==
-X-Forwarded-Encrypted: i=1; AKwUvBy8lbpl6rQNgPF2pDRiko9IPszDo7ia6kGBw7TB5BGbOn1CnRel9iDXJSKfz4LyXIl39YJOI5dLwJY9sg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYK0EtT1l3rRTQHkoZNyiBMkLYDjTdDmPGeLXBPi57zV0LBcP9Ag
-	nr/2RKKsYjFl3lZWi3wgdnYSKLY7skwa/4DOeBvkD0epyVqOIWQjLQG3
-X-Gm-Gg: AYBFou28TSO4UBnoSzO3/Coa7uqnUbDEm36+umW0/Rs7Oj+RyBexV4nLAMrhsHD8Xb6
-	nLwmQeiNPHUd2kyC9AeKucECxDtfdOlLmiZOKk0zGHLAaccuctEFBRPVJKaYcI/xp9osAFQiWfH
-	uADzUWNdxobhGutf9/SBWsxVQ+B62DgswWG5OFoYEbm+f5t6UHgdz72dnAAEzeIz0reVWrTsRFR
-	F0UfIOQmMDPoDeDUUvcz0VbNWq54yxaM4TedzJsfeuQMVuHmoIlsz0t7/4JDrNB3NI3qwEWVUEp
-	Y/Ot14FanT4bR61J86IdSyOmlH3tl4o7wm67Epf1dT0cqm+j2JG/CxP7SFByh0dgtbLU9tLoBDA
-	i1w6nbBrEGDh5+fXn4w7Z1LbvsR66ri1UehgaDkfx2RiChbg/JazscjOy81r+ZY5uvvhanYgF2o
-	hzk0HEP4U4ZK3jIqV+TyE4LpOEG6R3/xBXT6dlLxe3SrXCd5GeVuAuUbxryHMgjgHC4cbLnrAfk
-	icrOyIiqyYt1VjcLH8e65NAHcS39w==
-X-Received: by 2002:a05:600c:4fd5:b0:4a0:5b:7bc0 with SMTP id 5b1f17b1804b1-4a18e49a7e3mr273481405e9.21.1791912937098;
-        Tue, 13 Oct 2026 10:35:37 -0700 (PDT)
+        bh=Dgj4UbbyEsyRyIW26kcdyCzSX0/3ndCVzhgrPch3x2A=;
+        b=a6Q+htd3mRjMs/LX2nlBYmWFeYvg+r7KLbwofbOCepAeSPWir0mqXhHw2A4mKsPOeb
+         SJSoOgHfBha73qlJ/lRxB2zfYm8B+j2rce0OPz4o1xwqEoNrjMTDMnUazA4VBua0/F40
+         LgPwhM6Ym7jU+F0TbLeiN4J9QVZ0y94wIhwFFSVj8Ll03X8NfZ3W4VHgej/ZZVfx7yeS
+         S4DDSVrwJpm1csuWkOdICygz8ibtmYe8FTbx73K2pHfh3B7ZTzmjMePi2lqjwq7a0fK7
+         rO89dKHqZdidz0tqrkBbkrvCDkRddv/USZya1FXMUdjlvPfcqv1NBAzP0PN0BZT+ywWm
+         RTEw==
+X-Forwarded-Encrypted: i=1; AKwUvByBcbKQxXJaBdrSWm4zAMoYj+Lx1xvYJtAxj18hsGMMzYZuAHJGyg2EfmQfR5VpscTiHE/CO9U44x47LA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJXhQ0a8QePoQjaHAgSlHqBFUVmvhdsOpP/0Jma7yPZuKplQvfr
+	duGqQsrZjYxFgXTeSaWS5B3PjZdFprZOTOI4MHhnnOBK/GQ6sc27Oqk4s1tJGA==
+X-Gm-Gg: AYBFou1bniEHbunABI4y7CjcQotZMTZ4LKUSWHQIpi9E+RiMfWjm5ZQJA868cXv7HE+
+	seWOsfuW2IIcRioRdnSg38Fqiat3JXhsSKJ4eyN01pcVx9BaUooBDzEKqXaTfaqGuakdlWdos50
+	URt+z3TBZB/KRs3i5GbyVm9Hen7EzWFI78XffPkTGClHlPmMmlZRDeCd5ndsnlV5K1y5RUXjIrM
+	gEhewAY7OLWhaQ+/kei8JKHLINYGzYUT0AFHQuHx3nhBNd6nP68faHLjc53vwmr3PtQnjwreIUq
+	9Pyf+eFgbJBJ1EeedqtW9Lj2JO9a17x8vUqbUq0ObGsDpImD/znldDrhHn+Zh7Bc7igUQN1aQAO
+	B/be5JQ5+xc7Z8HDU5E4dxOhGQw98ifPaJaiIm8RgkNkGM/E+/ByIRi9Lb7h3GliNEGAYW6xhZV
+	NVJ2HEBNBAkGe6jSzRs/kt9JtbH7MKJcMgG9IClM3u2qVZhwiVEE4BEW/vNiVR98eZ3OXs7zUOK
+	zYCgL2h7pIddSLc7xRHS28koO2sZA==
+X-Received: by 2002:a05:600c:19cd:b0:4a1:80d8:aedb with SMTP id 5b1f17b1804b1-4a18e49d9eamr262856825e9.11.1791912943412;
+        Tue, 13 Oct 2026 10:35:43 -0700 (PDT)
 Received: from xeon ([188.163.112.62])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18ca51465sm284127195e9.4.2026.10.13.10.35.34
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a18ca51465sm284127195e9.4.2026.10.13.10.35.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 10:35:35 -0700 (PDT)
+        Tue, 13 Oct 2026 10:35:42 -0700 (PDT)
 From: Svyatoslav Ryhel <clamor95@gmail.com>
 To: Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -78,9 +78,9 @@ Cc: devicetree@vger.kernel.org,
 	mfd@lists.linux.dev,
 	linux-leds@vger.kernel.org,
 	linux-pm@vger.kernel.org
-Subject: [PATCH v11 4/7] input: keyboard: Add driver for ASUS Transformer dock multimedia keys
-Date: Tue, 13 Oct 2026 20:35:00 +0300
-Message-ID: <20261013173504.451391-5-clamor95@gmail.com>
+Subject: [PATCH v11 7/7] power: supply: Add charger driver for Asus Transformers
+Date: Tue, 13 Oct 2026 20:35:03 +0300
+Message-ID: <20261013173504.451391-8-clamor95@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261013173504.451391-1-clamor95@gmail.com>
 References: <20261013173504.451391-1-clamor95@gmail.com>
@@ -95,309 +95,223 @@ Content-Transfer-Encoding: 8bit
 
 From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-Add support for multimedia top button row of ASUS Transformer's Mobile
-Dock keyboard. Driver is made that function keys (F1-F12) are used by
-default which suits average Linux use better and with pressing
-ScreenLock + AltGr function keys layout is switched to multimedia keys.
-Only Dock keyboard input events are tracked for AltGr pressing.
+Add support for charger detection capabilities found in the embedded
+controller of ASUS Transformer devices.
 
-Co-developed-by: Ion Agorria <ion@agorria.com>
-Signed-off-by: Ion Agorria <ion@agorria.com>
+Suggested-by: Maxim Schwalm <maxim.schwalm@gmail.com>
+Suggested-by: Svyatoslav Ryhel <clamor95@gmail.com>
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 ---
- drivers/input/keyboard/Kconfig                |  10 +
- drivers/input/keyboard/Makefile               |   1 +
- .../input/keyboard/asus-transformer-ec-keys.c | 310 ++++++++++++++++++
- 3 files changed, 321 insertions(+)
- create mode 100644 drivers/input/keyboard/asus-transformer-ec-keys.c
+ drivers/power/supply/Kconfig                  |  11 +
+ drivers/power/supply/Makefile                 |   1 +
+ .../supply/asus-transformer-ec-charger.c      | 208 ++++++++++++++++++
+ 3 files changed, 220 insertions(+)
+ create mode 100644 drivers/power/supply/asus-transformer-ec-charger.c
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index d8c64f333462c..728bc068667e7 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -89,6 +89,16 @@ config KEYBOARD_APPLESPI
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called applespi.
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index 856eb81c97ae9..16d0a38b41b7e 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -508,6 +508,17 @@ config CHARGER_88PM860X
+ 	help
+ 	  Say Y here to enable charger for Marvell 88PM860x chip.
  
-+config KEYBOARD_ASUS_TRANSFORMER_EC
-+	tristate "Asus Transformer's Mobile Dock multimedia keys"
++config CHARGER_ASUS_TRANSFORMER_EC
++	tristate "Asus Transformer's charger driver"
 +	depends on MFD_ASUS_TRANSFORMER_EC
 +	help
-+	  Say Y here if you want to use multimedia keys present on Asus
-+	  Transformer's Mobile Dock.
++	  Say Y here to enable support AC plug detection on Asus Transformer
++	  Dock.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called asus-transformer-ec-keys.
++	  This sub-driver supports charger detection mechanism found in Asus
++	  Transformer tablets and mobile docks and controlled by special
++	  embedded controller.
 +
- config KEYBOARD_ATARI
- 	tristate "Atari keyboard"
- 	depends on ATARI
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 60bb7baf802f7..0d81096887ada 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -11,6 +11,7 @@ obj-$(CONFIG_KEYBOARD_ADP5585)		+= adp5585-keys.o
- obj-$(CONFIG_KEYBOARD_ADP5588)		+= adp5588-keys.o
- obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
- obj-$(CONFIG_KEYBOARD_APPLESPI)		+= applespi.o
-+obj-$(CONFIG_KEYBOARD_ASUS_TRANSFORMER_EC)	+= asus-transformer-ec-keys.o
- obj-$(CONFIG_KEYBOARD_ATARI)		+= atakbd.o
- obj-$(CONFIG_KEYBOARD_ATKBD)		+= atkbd.o
- obj-$(CONFIG_KEYBOARD_BCM)		+= bcm-keypad.o
-diff --git a/drivers/input/keyboard/asus-transformer-ec-keys.c b/drivers/input/keyboard/asus-transformer-ec-keys.c
+ config CHARGER_PF1550
+ 	tristate "NXP PF1550 battery charger driver"
+ 	depends on MFD_PF1550
+diff --git a/drivers/power/supply/Makefile b/drivers/power/supply/Makefile
+index bec4a6263048c..cd3640f4b7480 100644
+--- a/drivers/power/supply/Makefile
++++ b/drivers/power/supply/Makefile
+@@ -69,6 +69,7 @@ obj-$(CONFIG_CHARGER_RT9471)	+= rt9471.o
+ obj-$(CONFIG_CHARGER_RT9756)	+= rt9756.o
+ obj-$(CONFIG_BATTERY_TWL4030_MADC)	+= twl4030_madc_battery.o
+ obj-$(CONFIG_CHARGER_88PM860X)	+= 88pm860x_charger.o
++obj-$(CONFIG_CHARGER_ASUS_TRANSFORMER_EC)	+= asus-transformer-ec-charger.o
+ obj-$(CONFIG_CHARGER_PF1550)	+= pf1550-charger.o
+ obj-$(CONFIG_BATTERY_RX51)	+= rx51_battery.o
+ obj-$(CONFIG_AB8500_BM)		+= ab8500_bmdata.o ab8500_charger.o ab8500_fg.o ab8500_btemp.o ab8500_chargalg.o
+diff --git a/drivers/power/supply/asus-transformer-ec-charger.c b/drivers/power/supply/asus-transformer-ec-charger.c
 new file mode 100644
-index 0000000000000..8e83b27ce60ee
+index 0000000000000..c7a6bd2ba533f
 --- /dev/null
-+++ b/drivers/input/keyboard/asus-transformer-ec-keys.c
-@@ -0,0 +1,310 @@
++++ b/drivers/power/supply/asus-transformer-ec-charger.c
+@@ -0,0 +1,208 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +
-+#include <linux/array_size.h>
 +#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
 +#include <linux/mfd/asus-transformer-ec.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
-+#include <linux/slab.h>
++#include <linux/power_supply.h>
++#include <linux/property.h>
 +
-+#define ASUSEC_EXT_KEY_CODES		0x20
-+
-+struct asus_ec_keys_data {
++struct asus_ec_charger_data {
 +	struct notifier_block nb;
 +	struct asusec_core *ec;
-+	struct input_dev *xidev;
-+	struct input_handler input_handler;
-+	unsigned short keymap[ASUSEC_EXT_KEY_CODES * 2];
-+	const char *kbc_phys;
-+	bool special_key_pressed;
-+	bool special_key_mode;
++	struct power_supply *psy;
++	struct power_supply_desc psy_desc;
 +};
 +
-+static void asus_ec_input_event(struct input_handle *handle,
-+				unsigned int event_type,
-+				unsigned int event_code, int value)
-+{
-+	struct asus_ec_keys_data *priv = handle->handler->private;
-+
-+	/* Store special key state */
-+	if (event_type == EV_KEY && event_code == KEY_RIGHTALT)
-+		WRITE_ONCE(priv->special_key_pressed, !!value);
-+}
-+
-+static int asus_ec_input_connect(struct input_handler *handler,
-+				 struct input_dev *dev,
-+				 const struct input_device_id *id)
-+{
-+	struct asus_ec_keys_data *priv = handler->private;
-+	struct input_handle *handle;
-+	int error;
-+
-+	if (!dev->phys || !strstr(dev->phys, priv->kbc_phys))
-+		return -ENODEV;
-+
-+	handle = kzalloc_obj(*handle);
-+	if (!handle)
-+		return -ENOMEM;
-+
-+	handle->dev = dev;
-+	handle->handler = handler;
-+	handle->name = handler->name;
-+
-+	error = input_register_handle(handle);
-+	if (error)
-+		goto err_free_handle;
-+
-+	error = input_open_device(handle);
-+	if (error)
-+		goto err_unregister_handle;
-+
-+	return 0;
-+
-+ err_unregister_handle:
-+	input_unregister_handle(handle);
-+ err_free_handle:
-+	kfree(handle);
-+
-+	return error;
-+}
-+
-+static void asus_ec_input_disconnect(struct input_handle *handle)
-+{
-+	input_close_device(handle);
-+	input_unregister_handle(handle);
-+	kfree(handle);
-+}
-+
-+static const struct input_device_id asus_ec_input_ids[] = {
-+	{
-+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-+		.evbit = { BIT_MASK(EV_KEY) },
-+	},
-+	{ }
++static enum power_supply_property asus_ec_charger_properties[] = {
++	POWER_SUPPLY_PROP_USB_TYPE,
++	POWER_SUPPLY_PROP_CHARGE_BEHAVIOUR,
++	POWER_SUPPLY_PROP_ONLINE,
++	POWER_SUPPLY_PROP_MODEL_NAME,
 +};
 +
-+static const unsigned short asus_ec_dock_ext_keys[] = {
-+	/* Function keys [0x00 - 0x19] */
-+	[0x01] = KEY_DELETE,
-+	[0x02] = KEY_F1,
-+	[0x03] = KEY_F2,
-+	[0x04] = KEY_F3,
-+	[0x05] = KEY_F4,
-+	[0x06] = KEY_F5,
-+	[0x07] = KEY_F6,
-+	[0x08] = KEY_F7,
-+	[0x10] = KEY_F8,
-+	[0x11] = KEY_F9,
-+	[0x12] = KEY_F10,
-+	[0x13] = KEY_F11,
-+	[0x14] = KEY_F12,
-+	[0x15] = KEY_MUTE,
-+	[0x16] = KEY_VOLUMEDOWN,
-+	[0x17] = KEY_VOLUMEUP,
-+	/* Multimedia keys [0x20 - 0x39] */
-+	[0x21] = KEY_SCREENLOCK,
-+	[0x22] = KEY_WLAN,
-+	[0x23] = KEY_BLUETOOTH,
-+	[0x24] = KEY_TOUCHPAD_TOGGLE,
-+	[0x25] = KEY_BRIGHTNESSDOWN,
-+	[0x26] = KEY_BRIGHTNESSUP,
-+	[0x27] = KEY_BRIGHTNESS_AUTO,
-+	[0x28] = KEY_PRINT,
-+	[0x30] = KEY_WWW,
-+	[0x31] = KEY_CONFIG,
-+	[0x32] = KEY_PREVIOUSSONG,
-+	[0x33] = KEY_PLAYPAUSE,
-+	[0x34] = KEY_NEXTSONG,
-+	[0x35] = KEY_MUTE,
-+	[0x36] = KEY_VOLUMEDOWN,
-+	[0x37] = KEY_VOLUMEUP,
-+};
-+
-+static void asus_ec_keys_report_key(struct input_dev *dev, unsigned int code,
-+				    unsigned int key, bool value)
++static int asus_ec_charger_get_property(struct power_supply *psy,
++					enum power_supply_property psp,
++					union power_supply_propval *val)
 +{
-+	input_event(dev, EV_MSC, MSC_SCAN, code);
-+	input_report_key(dev, key, value);
-+	input_sync(dev);
-+}
++	struct asus_ec_charger_data *priv = power_supply_get_drvdata(psy);
++	enum power_supply_usb_type psu;
++	int ret;
++	u64 ctl;
 +
-+static int asus_ec_keys_process_key(struct input_dev *dev, u8 code)
-+{
-+	struct asus_ec_keys_data *priv = dev_get_drvdata(dev->dev.parent);
-+	unsigned int key = 0;
-+
-+	if (code == 0)
-+		return NOTIFY_DONE;
-+
-+	/* Flip special key mode state when pressing SCREEN LOCK + R ALT */
-+	if (READ_ONCE(priv->special_key_pressed) && code == 1) {
-+		priv->special_key_mode = !priv->special_key_mode;
-+		return NOTIFY_DONE;
++	/* Check if model name is requested first since it needs no hw access */
++	if (psp == POWER_SUPPLY_PROP_MODEL_NAME) {
++		val->strval = priv->ec->model;
++		return 0;
 +	}
 +
-+	/*
-+	 * Relocate code to second "page" if pressed state XOR's mode state
-+	 * This way special key will invert the current mode
-+	 */
-+	if (priv->special_key_mode ^ READ_ONCE(priv->special_key_pressed))
-+		code += ASUSEC_EXT_KEY_CODES;
++	ret = asus_dockram_access_ctl(priv->ec->dockram, &ctl, 0, 0);
++	if (ret)
++		return ret;
 +
-+	if (code < dev->keycodemax) {
-+		unsigned short *map = dev->keycode;
-+
-+		key = map[code];
++	switch (ctl & (ASUSEC_CTL_FULL_POWER_SOURCE | ASUSEC_CTL_DIRECT_POWER_SOURCE)) {
++	case ASUSEC_CTL_FULL_POWER_SOURCE:
++		psu = POWER_SUPPLY_USB_TYPE_CDP;	/* DOCK */
++		break;
++	case ASUSEC_CTL_DIRECT_POWER_SOURCE:
++		psu = POWER_SUPPLY_USB_TYPE_SDP;	/* USB */
++		break;
++	case 0:
++		psu = POWER_SUPPLY_USB_TYPE_UNKNOWN;	/* no power source connected */
++		break;
++	default:
++		psu = POWER_SUPPLY_USB_TYPE_ACA;	/* power adapter */
++		break;
 +	}
 +
-+	if (!key)
-+		key = KEY_UNKNOWN;
++	switch (psp) {
++	case POWER_SUPPLY_PROP_ONLINE:
++		val->intval = psu != POWER_SUPPLY_USB_TYPE_UNKNOWN;
++		return 0;
 +
-+	asus_ec_keys_report_key(dev, code, key, 1);
-+	asus_ec_keys_report_key(dev, code, key, 0);
++	case POWER_SUPPLY_PROP_USB_TYPE:
++		val->intval = psu;
++		return 0;
 +
-+	return NOTIFY_OK;
++	case POWER_SUPPLY_PROP_CHARGE_BEHAVIOUR:
++		if (ctl & ASUSEC_CTL_TEST_DISCHARGE)
++			val->intval = POWER_SUPPLY_CHARGE_BEHAVIOUR_FORCE_DISCHARGE;
++		else if (ctl & ASUSEC_CTL_USB_CHARGE)
++			val->intval = POWER_SUPPLY_CHARGE_BEHAVIOUR_AUTO;
++		else
++			val->intval = POWER_SUPPLY_CHARGE_BEHAVIOUR_INHIBIT_CHARGE;
++		return 0;
++
++	default:
++		return -EINVAL;
++	}
 +}
 +
-+static int asus_ec_keys_notify(struct notifier_block *nb,
-+			       unsigned long action, void *data_)
++static int asus_ec_charger_set_property(struct power_supply *psy,
++					enum power_supply_property psp,
++					const union power_supply_propval *val)
 +{
-+	struct asus_ec_keys_data *priv =
-+		container_of(nb, struct asus_ec_keys_data, nb);
-+	u8 *data = data_;
++	struct asus_ec_charger_data *priv = power_supply_get_drvdata(psy);
 +
-+	if (action & ASUSEC_SMI_MASK)
-+		return NOTIFY_DONE;
++	switch (psp) {
++	case POWER_SUPPLY_PROP_CHARGE_BEHAVIOUR:
++		switch ((enum power_supply_charge_behaviour)val->intval) {
++		case POWER_SUPPLY_CHARGE_BEHAVIOUR_AUTO:
++			return asus_dockram_access_ctl(priv->ec->dockram, NULL,
++				ASUSEC_CTL_TEST_DISCHARGE | ASUSEC_CTL_USB_CHARGE,
++				ASUSEC_CTL_USB_CHARGE);
 +
-+	if (action & ASUSEC_SCI_MASK)
-+		return asus_ec_keys_process_key(priv->xidev, data[2]);
++		case POWER_SUPPLY_CHARGE_BEHAVIOUR_INHIBIT_CHARGE:
++			return asus_dockram_access_ctl(priv->ec->dockram, NULL,
++				ASUSEC_CTL_TEST_DISCHARGE | ASUSEC_CTL_USB_CHARGE, 0);
++
++		case POWER_SUPPLY_CHARGE_BEHAVIOUR_FORCE_DISCHARGE:
++			return asus_dockram_access_ctl(priv->ec->dockram, NULL,
++				ASUSEC_CTL_TEST_DISCHARGE | ASUSEC_CTL_USB_CHARGE,
++				ASUSEC_CTL_TEST_DISCHARGE);
++		default:
++			return -EINVAL;
++		}
++
++	default:
++		return -EINVAL;
++	}
++}
++
++static int asus_ec_charger_property_is_writeable(struct power_supply *psy,
++						 enum power_supply_property psp)
++{
++	switch (psp) {
++	case POWER_SUPPLY_PROP_CHARGE_BEHAVIOUR:
++		return true;
++	default:
++		return false;
++	}
++}
++
++static const struct power_supply_desc asus_ec_charger_desc = {
++	.name = "asus-ec-charger",
++	.type = POWER_SUPPLY_TYPE_USB,
++	.charge_behaviours = BIT(POWER_SUPPLY_CHARGE_BEHAVIOUR_AUTO) |
++			     BIT(POWER_SUPPLY_CHARGE_BEHAVIOUR_INHIBIT_CHARGE) |
++			     BIT(POWER_SUPPLY_CHARGE_BEHAVIOUR_FORCE_DISCHARGE),
++	.usb_types = BIT(POWER_SUPPLY_USB_TYPE_UNKNOWN) |
++		     BIT(POWER_SUPPLY_USB_TYPE_SDP) |
++		     BIT(POWER_SUPPLY_USB_TYPE_CDP) |
++		     BIT(POWER_SUPPLY_USB_TYPE_ACA),
++	.properties = asus_ec_charger_properties,
++	.num_properties = ARRAY_SIZE(asus_ec_charger_properties),
++	.get_property = asus_ec_charger_get_property,
++	.set_property = asus_ec_charger_set_property,
++	.property_is_writeable = asus_ec_charger_property_is_writeable,
++	.no_thermal = true,
++};
++
++static int asus_ec_charger_notify(struct notifier_block *nb,
++				  unsigned long action, void *data)
++{
++	struct asus_ec_charger_data *priv =
++		container_of(nb, struct asus_ec_charger_data, nb);
++
++	switch (action) {
++	case ASUSEC_SMI_ACTION(POWER_NOTIFY):
++	case ASUSEC_SMI_ACTION(ADAPTER_EVENT):
++		power_supply_changed(priv->psy);
++		break;
++	}
 +
 +	return NOTIFY_DONE;
 +}
 +
-+static void asus_ec_keys_setup_keymap(struct asus_ec_keys_data *priv)
++static int asus_ec_charger_probe(struct platform_device *pdev)
 +{
-+	struct input_dev *dev = priv->xidev;
-+	unsigned int i;
-+
-+	BUILD_BUG_ON(ARRAY_SIZE(priv->keymap) < ARRAY_SIZE(asus_ec_dock_ext_keys));
-+
-+	dev->keycode = priv->keymap;
-+	dev->keycodesize = sizeof(*priv->keymap);
-+	dev->keycodemax = ARRAY_SIZE(priv->keymap);
-+
-+	input_set_capability(dev, EV_MSC, MSC_SCAN);
-+	input_set_capability(dev, EV_KEY, KEY_UNKNOWN);
-+
-+	for (i = 0; i < ARRAY_SIZE(asus_ec_dock_ext_keys); i++) {
-+		unsigned int code = asus_ec_dock_ext_keys[i];
-+
-+		if (!code)
-+			continue;
-+
-+		__set_bit(code, dev->keybit);
-+		priv->keymap[i] = code;
-+	}
-+}
-+
-+static int asus_ec_keys_register_handler(struct device *dev,
-+					 struct asus_ec_keys_data *priv)
-+{
-+	struct i2c_client *parent = to_i2c_client(dev->parent);
-+	int error;
-+
-+	priv->input_handler.event = asus_ec_input_event;
-+	priv->input_handler.connect = asus_ec_input_connect;
-+	priv->input_handler.disconnect = asus_ec_input_disconnect;
-+	priv->input_handler.id_table = asus_ec_input_ids;
-+	priv->input_handler.passive_observer = true;
-+	priv->input_handler.private = priv;
-+	priv->input_handler.name = devm_kasprintf(dev, GFP_KERNEL,
-+						  "%s-media-handler",
-+						  priv->ec->name);
-+	if (!priv->input_handler.name)
-+		return -ENOMEM;
-+
-+	priv->kbc_phys = devm_kasprintf(dev, GFP_KERNEL, "i2c-%u-%04x/serio0",
-+					i2c_adapter_id(parent->adapter),
-+					parent->addr);
-+	if (!priv->kbc_phys)
-+		return -ENOMEM;
-+
-+	error = input_register_handler(&priv->input_handler);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static int asus_ec_keys_probe(struct platform_device *pdev)
-+{
-+	struct i2c_client *parent = to_i2c_client(pdev->dev.parent);
 +	struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
++	struct asus_ec_charger_data *priv;
 +	struct device *dev = &pdev->dev;
-+	struct asus_ec_keys_data *priv;
-+	int error;
++	struct power_supply_config cfg = { };
 +
 +	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 +	if (!priv)
@@ -406,60 +320,43 @@ index 0000000000000..8e83b27ce60ee
 +	platform_set_drvdata(pdev, priv);
 +	priv->ec = ec;
 +
-+	priv->xidev = devm_input_allocate_device(dev);
-+	if (!priv->xidev)
++	cfg.fwnode = dev_fwnode(dev->parent);
++	cfg.drv_data = priv;
++
++	memcpy(&priv->psy_desc, &asus_ec_charger_desc, sizeof(priv->psy_desc));
++	priv->psy_desc.name = devm_kasprintf(dev, GFP_KERNEL, "%s-charger",
++					     priv->ec->name);
++	if (!priv->psy_desc.name)
 +		return -ENOMEM;
 +
-+	priv->xidev->name = devm_kasprintf(dev, GFP_KERNEL, "%s Keyboard Ext",
-+					   ec->model);
-+	priv->xidev->phys = devm_kasprintf(dev, GFP_KERNEL, "i2c-%u-%04x",
-+					   i2c_adapter_id(parent->adapter),
-+					   parent->addr);
++	priv->psy = devm_power_supply_register(dev, &priv->psy_desc, &cfg);
++	if (IS_ERR(priv->psy))
++		return dev_err_probe(dev, PTR_ERR(priv->psy),
++				     "Failed to register power supply\n");
 +
-+	if (!priv->xidev->name || !priv->xidev->phys)
-+		return -ENOMEM;
++	priv->nb.notifier_call = asus_ec_charger_notify;
 +
-+	asus_ec_keys_setup_keymap(priv);
-+
-+	error = input_register_device(priv->xidev);
-+	if (error)
-+		return dev_err_probe(dev, error,
-+				     "failed to register extension keys\n");
-+
-+	error = asus_ec_keys_register_handler(dev, priv);
-+	if (error)
-+		return error;
-+
-+	priv->nb.notifier_call = asus_ec_keys_notify;
-+
-+	error = blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
-+	if (error) {
-+		input_unregister_handler(&priv->input_handler);
-+		return error;
-+	}
-+
-+	return 0;
++	return blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
 +}
 +
-+static void asus_ec_keys_remove(struct platform_device *pdev)
++static void asus_ec_charger_remove(struct platform_device *pdev)
 +{
-+	struct asus_ec_keys_data *priv = platform_get_drvdata(pdev);
++	struct asus_ec_charger_data *priv = platform_get_drvdata(pdev);
 +	struct asusec_core *ec = priv->ec;
 +
 +	blocking_notifier_chain_unregister(&ec->notify_list, &priv->nb);
-+	input_unregister_handler(&priv->input_handler);
 +}
 +
-+static struct platform_driver asus_ec_keys_driver = {
-+	.driver.name = "asus-transformer-ec-keys",
-+	.probe = asus_ec_keys_probe,
-+	.remove = asus_ec_keys_remove,
++static struct platform_driver asus_ec_charger_driver = {
++	.driver.name = "asus-transformer-ec-charger",
++	.probe = asus_ec_charger_probe,
++	.remove = asus_ec_charger_remove,
 +};
-+module_platform_driver(asus_ec_keys_driver);
++module_platform_driver(asus_ec_charger_driver);
 +
-+MODULE_ALIAS("platform:asus-transformer-ec-keys");
++MODULE_ALIAS("platform:asus-transformer-ec-charger");
 +MODULE_AUTHOR("Michał Mirosław <mirq-linux@rere.qmqm.pl>");
-+MODULE_DESCRIPTION("ASUS Transformer's multimedia keys driver");
++MODULE_DESCRIPTION("ASUS Transformer Pad battery charger driver");
 +MODULE_LICENSE("GPL");
 -- 
 2.53.0

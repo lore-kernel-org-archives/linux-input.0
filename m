@@ -1,176 +1,170 @@
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BCFB3D6CCF
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 23:06:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791932816; cv=pass; b=ElXyMtqa4SMRqpG0zSM4Qc6TjLKOt7BON16Q5ogVM37Po0bkMjCVyQeB94l3oYTb8kRtgKgJ2Bj7poMmmUFDRgta7AfSRJd3GLG+XFp/njrnA4gKg23CCSB3T5Faw68u/da5OI3XcXmG99fBIJLnCuu/z115peCC7tGfPPBOLVg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791932816; c=relaxed/simple;
-	bh=OJKCxitzFX7Devyeo1RMIWQKY4aZ2+94sv/X63QES54=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cgcJ4Ep/bECVrN6FN9bv+UEL4eTriV+s3Bugo2FU0cwPmjGB43PLN74eJS3HGaj3C4O3uFE5fo/kJfvksh/fJPjIh12pAMzxCaB8G4RRNZBaiBZvEqC7+UX5O1VoGCs0dFwdjk+8GQKxr6isXPtOIQHRJRKhFcWQkq5J+LyQXyk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=LhjcfavC; arc=pass smtp.client-ip=209.85.128.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB0E04EB867
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 23:51:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791935464; cv=none; b=uT1iBN8IPOu4M1BReMIdXRCGos3nUWh/tGc7yonAQt+Tj3BADqKI6kqy58jh1R+PLAuIfP9Od+QuWps0IAXBfUtyZTmAMEeOR4E8YNJ4BA4MMEsBbmNqDdE9gZOOstNzFe52Xd2C4WxPLhSCeAipS/JXWFQJZIrOCI0gdBMmDTs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791935464; c=relaxed/simple;
+	bh=aiuMhEhhajzqsfSxE/gpX2M4LnCvyqPdOXwdjJ+wf+4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XbYQsAoI5bWzVUyAR036tLsDEuERsRUqerjXuwwMPgZ60zvGmO+jIGHidmuyQH+0123O4x/1/f6z+SYbNZUVwWSFy7uCvxg6JCKPf5y+c8AXzr3FmZRR/5kKxmN9V71CzGXIeI5mUs7cYrEWO+6jVHYfGVTJ49FgHYt7i5vfDME=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WwqjaIj/; arc=none smtp.client-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="LhjcfavC"
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-8871ada1a26so3816617b3.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 16:06:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791932813; cv=none;
-        d=google.com; s=arc-20260327;
-        b=UE+a2ja9dbfDoIyw3Gq5rvgQCch+WH2exC7U/M2jfU+qUZVk/UgXp3/CkfODjFdBwD
-         nC20jQAqxv+wAOBBqIFWTKY2DUlEGN/709pQu0G1O5TFlaOLlZC54+lcodoS4k1J5tNW
-         tOHZ6qAtJ0qx1FFxk71fWjEKP90fhQhej6Nun5PeQyfGodXQaS56ZPWlrIftu1bmtXeM
-         +P5WgEGCFlUzMChAX0YTIMCGhmqS/EY2PY3Fa0vFo9H71ALz/05GTnEm4iCDkijqiZD/
-         BlSzKnJet7eIwWKRGf+uIKoFT7oE/vkHoUoWXlTLBqhyFKB/eaRb7lMTEoDyTS6fg3HB
-         t5Gw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=QntlmUV+IlR8FFxFh/1ODDrw2JuP6ngb9YrJOIy5BCA=;
-        fh=ncgXunX0gIvrom1WiS1cFWIZma4g4Mh7NZhFG/vhRZ4=;
-        b=lbGQgmT6GOiUj8mGzDiI+7ZF4JCdb1fx6jSxlBGcapX/EQC18BHAHc4DPHIcbq7w24
-         p9fO2nrx4uuzhJBaz3szhtB4oLAlvonmzlcFehzbrJ3U3QD72Orri06IlalMJqCj1UZX
-         cvcfx/YFjj5nssOmv7nCFm+vCNcVkCkDdTQv3EvsW1pDzEr8w0suBke/DWVRApIQTMvV
-         LNbf3nTeC5ZkL4JAPV70V/P+9MGtK7xhTS81BypCLK5xvwbDMUk9NNA2qUKrp/Mr1sTz
-         /TIO4EIuBjQuKOz7baVAoixVSe3I2HPTbuYjvQiNk6DMvqneN91QI09evg4A74NdyS0E
-         8O6g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WwqjaIj/"
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-354ba08cfd1so5989488eec.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 16:51:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1791932813; x=1792537613; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=QntlmUV+IlR8FFxFh/1ODDrw2JuP6ngb9YrJOIy5BCA=;
-        b=LhjcfavCp9bD3Kt6BHrZPKZfe7C83QVgolYum5AlSX/RQHfYq7ACFgSFfiyOa/MYIh
-         g0vbeOCvoXidnwGNuYun4Y0vu65zajMlnhekuDSSZW3gSwbAxqwHNV9YSK8aFT7zDXHP
-         LDJJGDFwHjPC3wbXiDX9/gohTj454dcIuMHDs=
+        d=gmail.com; s=20251104; t=1791935462; x=1792540262; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=jz79PmNG+KXjzWnL8ROr8qzw/ZQMjbqEAKvxMlEE3xc=;
+        b=WwqjaIj/hBxxkSo8ctUz2awkN+iOvJjGSvy4zvSQ/KG2yf+Bj1RI+hhCUhs6xUjMyu
+         iaHoakxD9fKWYmRUJPRduSx/XSnWnN9xPfhx+9gymi+4VV8z9UXLZBD5miZpk8FQIXMz
+         0cjPlJoDdJLdmUcVQMWG9qIwBfzyXzEcQSkSMRM0v11AJsQNn/yYyI9xWwGzyzsrsDUH
+         hfvQEDwR5wxkX0SBXyey5wZHVS+gTxfXc4WCHHmdMN+GvYS1F1QcMR1G8I95xg2QK0Rr
+         SqtD86Se2TD3QDJn0i8rx19kt+dZ82C854ejucIybKCg0U2zRx3pY94zthqaDyOiGYaL
+         Nl+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791932813; x=1792537613;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QntlmUV+IlR8FFxFh/1ODDrw2JuP6ngb9YrJOIy5BCA=;
-        b=qOLels8uke82cQWR5OX4urJBPhGPL03y7MyO9zFTXeCxi6WqbsT7CtNecgI034VQ1r
-         WCgbjGhtZ4sg2zmxauT3YcwHbmIVHKDibnj83esvmwqwC8Daupa2wOVjslnUgNwoo9Hl
-         5t0hOKp4WheedK6+Y61Pw2ML7SRYp85GR3GTj++Zu3hBlB+P7W8RBMwPlke6qaI0Uve1
-         aFKty20W9ajPwqfjlMS80YXwX3BxAWl3PXKYs06NgmIwWkN39mAJpTFtcHSog+xloYaI
-         CKEeXq5CT/7hJqrQ04kPm4Dklj4ol7eDRrL/p0Ncp2hjz6eJKwvu6nlrbRlOheXJu2MH
-         K4sg==
-X-Forwarded-Encrypted: i=1; AKwUvBzd9FAGlr+WaZEtzTQQq0fM5nECml2qBks4cYCY0zP+tg/EUV/qMmgvzVRKZh13+xxELz7nks3N/xWRdw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYIOPusz8viKtadE7pA/4XRDnzc9G06Zrm17rPAoIUSw5eMoBLdF
-	t70DDPPf1ZbyYEpVs9B8ajCdSh3gMuWkrSQs7h2qgut3CB8jIZhOY8hGxOJ8EtAxQpOFG+tRcPD
-	aSitRkbZcnFeHRzo0Ymv+pRBeC5ScgjM/NkfCGVk2
-X-Gm-Gg: AYBFou1tVrX7ixfCVL5JGQ8ULyGS6mIC9WPHfBPG7/tZn0erugL/9XmbJBZc9UjOxWv
-	SfdofCmlPwl/H9Rwb3oQyp/yIEBEE9Hhw2WJ79iG2gdUcrvO7loxEk5DExL+giq2ZU5rgPgitqW
-	5i53VmnlEW7ZaLG4+k5BC89vwWeLoaF67VBqwjcvTA+GWdB1iS/+PqGmgJXw28YVujXh5IVjpvi
-	GFXNwq8UMI9SqUP8ePu9N0R83mybi/dmDLuvHvAtDTZFWoByFCC7nfIRKoEjSSZoLDQtPR3f36+
-	1Cz1SjL3+drKYvwSkxgMT/Q5Drnl0SPieLt1OFI3Y2HuGamJsCk/Y65cBiaVSaJ+xnHPZuXIyMJ
-	Yw2AvEylpFg==
-X-Received: by 2002:a05:690c:82e:b0:8ac:805b:3a6e with SMTP id
- 00721157ae682-8b07edb832amr35007727b3.25.1791932813416; Tue, 13 Oct 2026
- 16:06:53 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791935462; x=1792540262;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=jz79PmNG+KXjzWnL8ROr8qzw/ZQMjbqEAKvxMlEE3xc=;
+        b=E7IPFEdo/QRnerzXaasO3p82elRwVqYa4TkM25Zd9L43DQNFevWfM3WgWBVG6Z68gB
+         XMbtzx49wYn1VAeBNGww3YHRVd+VsEIzWyfxYZ07X0ivizooOf778JvRxfzDm1O8KVW/
+         WIJI84Chzr+yOnz/2Vk6bTFu2oe59HIzX8Co58ey0Oe15h0P2sf0KrQbp87R6A7PYhm8
+         4xyydgzfxWPunI/xbHalCFaE0DE0S2KtR7SH+xSCa9hfqG3KpL75disrwrdhHG85O9HY
+         MQ0m+DGeA2gZy9mLULi7g4r5cqDXMHoFBd4KvkCOo7sFFK7DqzwZPrVHBVcvMGTIUbbd
+         oZeQ==
+X-Gm-Message-State: AFq9FYLrRYSylM4hHtXuEYBCo/lbrEqn4ONaG7/CWv3hK0ssuIrpSIKJ
+	/FMQK3bLr7Mtg74M5u6Hu2cX/Jp9y3X9orh8I6czvfRJ07WpQ6hrSuXQ
+X-Gm-Gg: AYBFou0MhXdYCuzJxp0BZ/5Ka/xNYKyYmW9bHSb/JYJac5OE/CmaEpiZQqwE5zgcrkr
+	1JF4zdyPy5Ty4sAmXh3KxRMS930LW9jSVPbxeqkaEECwoTbEXyvzh5M7PRhmSaUx5Gv6M++5ysh
+	p4hxSjihUgQ8Iy++0qQxEkAhxkegsC0qPTozhcofOcZqCg4zmaerCQpz8GF1aSEaIBzcEk/8UGf
+	USxoVfDEwTVb5uNljdBEyIlzGpErHMndkq+4T9nE1NL7Zgl9QI+rNxBXsuK2Cr0E/ik+zxYzDnE
+	zJXoZpviIFq/c4pKyUlZ02CQQD4zPQd2F3ZOSkhJMdaCYwnWA8L0WSSOdOizSrj/zsBTYbbjw9N
+	KHGWGrAiwDvRJ6VRuq/dS/GUeO+Mdstflkfp4OFKC3OIBdhKvOoN97eS7vucoeNT3nRCwiVQLUD
+	EUQQdYkiuOltZ/xTeVOyP2GWiO3/IN7b5to2/TI8oF9uoEsN2NRZqGm0r2duApzmWsIgZvizjBv
+	Jyh0dNHW8kddbYM0rqPljjr33cryQmxLi1dGpFf
+X-Received: by 2002:a05:7301:fc8b:b0:34e:67d0:bbb4 with SMTP id 5a478bee46e88-3537e03eedcmr16602477eec.10.1791935461471;
+        Tue, 13 Oct 2026 16:51:01 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:875a:117f:b9ea:5a08])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-35b29c2f861sm27050808eec.11.2026.10.13.16.51.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2026 16:51:00 -0700 (PDT)
+Date: Tue, 13 Oct 2026 16:50:57 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, 
+	Jason Gerecke <jason.gerecke@wacom.com>, Peter Hutterer <peter.hutterer@who-t.net>, 
+	linux-kernel@vger.kernel.org, sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/3] Input: wacom_w8001 - fix teardown order and device
+ lifetime
+Message-ID: <as68uSzmyM3eubYT@google.com>
+References: <20261009190746.803607-1-dmitry.torokhov@gmail.com>
+ <CANRwn3QGaQYUZqm2Mh56v0SgQHY8mLuG+FKCtFXjUPRpP6bpNg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
- <20261009-send-upstream-v5-11-384af01da3ee@chromium.org> <sashiko-outbox-166150@kernel.org>
-In-Reply-To: <sashiko-outbox-166150@kernel.org>
-From: Jingyuan Liang <jingyliang@chromium.org>
-Date: Tue, 13 Oct 2026 16:06:42 -0700
-X-Gm-Features: AclHuK_EPiuPXQkmP4djXq_D1z67MVt8XUJL6Sx0kl0aGpRUcTZIlzf43HHn9kY
-Message-ID: <CAEe3GZH07w_-Be--FnoVJXvOXtQ4pnjO1T8CMkejVaUFrVC9VA@mail.gmail.com>
-Subject: Re: [PATCH v5 11/11] HID: spi-hid: add panel follower support
-To: sashiko-reviews@lists.linux.dev
-Cc: conor+dt@kernel.org, linux-trace-kernel@vger.kernel.org, robh@kernel.org, 
-	linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	dmitry.torokhov@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CANRwn3QGaQYUZqm2Mh56v0SgQHY8mLuG+FKCtFXjUPRpP6bpNg@mail.gmail.com>
 
-On Fri, Oct 9, 2026 at 3:36=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
-> - [Low] spi-hid: Inconsistent wake IRQ configuration for panel followers
-> --
->
-> commit 4c8d0ec463c5dbd300c392f3f924992096f8ebc1
-> Author: Jingyuan Liang <jingyliang@chromium.org>
->
-> HID: spi-hid: add panel follower support
->
-> This commit adds support to the spi-hid transport driver to act as a
-> panel follower, allowing its power state to be sequenced with a display
-> panel.
->
-> > diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/s=
-pi-hid-core.c
-> > --- a/drivers/hid/spi-hid/spi-hid-core.c
-> > +++ b/drivers/hid/spi-hid/spi-hid-core.c
-> [ ... ]
-> > @@ -1577,21 +1676,17 @@ int spi_hid_core_probe(struct spi_device *spi, =
-struct spihid_ops *ops,
-> >               }
-> >       }
+Hi Jason,
+
+On Tue, Oct 13, 2026 at 03:41:53PM -0700, Jason Gerecke wrote:
+> On Fri, Oct 9, 2026 at 12:25 PM Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
 > >
-> > -     error =3D shid->ops->power_up(shid->ops);
-> > -     if (error) {
-> > -             dev_err(dev, "%s: could not power up\n", __func__);
-> > -             return error;
-> > -     }
-> > -
-> > -     error =3D shid->ops->deassert_reset(shid->ops);
-> > -     if (error) {
-> > -             dev_err(dev, "%s: failed to deassert reset: %d\n", __func=
-__, error);
-> > -             shid->ops->power_down(shid->ops);
-> > -             return error;
-> > +     if (shid->is_panel_follower) {
-> > +             error =3D spi_hid_register_panel_follower(shid);
-> > +             if (error)
-> > +                     return dev_err_probe(dev, error,
-> > +                                          "Failed to register panel fo=
-llower\n");
->
-> [Severity: Low]
-> Does this sequence leave a dangling, inactive wake IRQ attached to the
-> device when it is a panel follower?
->
-> In spi_hid_core_probe() just prior to this block, the code checks
-> device_can_wakeup(dev) and unconditionally allocates the wake IRQ via
-> devm_pm_set_wake_irq().
->
-> However, if the device is a panel follower, it calls
-> spi_hid_register_panel_follower() here. Inside that function, it checks
-> device_can_wakeup(dev) again, warns the user, and forcibly disables the
-> capability:
->
->     if (device_can_wakeup(dev)) {
->         dev_warn(dev, "Can't wakeup if following panel\n");
->         device_set_wakeup_capable(dev, false);
->     }
->
-> Because the capability is disabled after the IRQ is already requested, it
-> appears to waste resources by allocating an IRQ that is immediately rende=
-red
-> unusable. Should the panel follower check and the potential clearing of t=
-he
-> wakeup capability occur before the wake IRQ is requested?
+> > In w8001_disconnect(), serio_close() was called before unregistering
+> > the input devices. When input_unregister_device() calls w8001_close()
+> > to shut down the hardware, w8001_command() fails because the serio
+> > port is already closed, preventing W8001_CMD_STOP from reaching the
+> > controller.
+> >
+> > Additionally, w8001_connect() pre-allocated both pen_dev and touch_dev
+> > upfront before serio_open() so w8001_interrupt() could dereference
+> > them unconditionally, and then freed unused input devices mid-probe
+> > without synchronizing with w8001_interrupt() when pen or touch was
+> > absent. That created a race and use-after-free hazard with
+> > w8001_interrupt(), as well as a double-free on the fail4 error path.
+> >
+> > Fix these issues by guarding event reporting in w8001_interrupt()
+> > against NULL device pointers, allocating and registering input devices
+> > on demand after querying capabilities, synchronizing device pointer
+> > publication and teardown with serio_pause_rx, and unregistering input
+> > devices before closing the serio port in both disconnect and probe
+> > error unwind paths.
+> >
+> 
+> This patch seems to be pretty complicated for a 'Fixes' and I'd feel a
+> lot more comfortable reviewing it if it could be broken into smaller
+> chunks. I know that might not be possible, but it's pretty hard to
+> audit all the changes here. There's nothing that sets off loud alarms,
+> but I think at this level of complexity the best I could do is Ack the
+> patch...
 
-This is harmless: devm_pm_set_wake_irq() doesn't request a new IRQ,
-it only marks the existing one as the wake IRQ, and the PM core only
-arms it when wakeup is enabled. i2c-hid has the same sequence (the
-I2C core sets the wake IRQ before the panel follower check).
+Sorry, I do not think it makes sense to split it further...
 
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009-send-ups=
-tream-v5-0-384af01da3ee@chromium.org?part=3D11
+> 
+> > Fixes: 66fd9385ee9c ("Input: wacom_w8001 - simplify w8001_remove")
+> > Fixes: e0361b70175f ("Input: wacom_w8001 - split the touch and pen devices into two devices")
+> > Reported-by: sashiko-bot@kernel.org
+> > Assisted-by: LLM
+> 
+> Just a note that current recommendations are to include the agent name
+> and model version in Assisted-by lines:
+> 
+> https://elixir.bootlin.com/linux/v7.2.9/source/Documentation/process/coding-assistants.rst#L39
+
+Not anymore since 816d9992d9ed ("coding-assistants: simplify
+attribution")
+
+The current format is:
+
+	Assisted-by: LLM [TOOL1] [TOOL2]
+
+as in
+
+	Assisted-by: LLM coccinelle sparse
+
+> > @@ -349,7 +353,9 @@ static irqreturn_t w8001_interrupt(struct serio *serio,
+> >                  * sends invalid data packets that are larger than
+> >                  * W8001_PKTLEN_TPCPEN. Let's start over again.
+> >                  */
+> > -               if (!w8001->touch_dev && w8001->idx > W8001_PKTLEN_TPCPEN - 1)
+> > +               if (!w8001->touch_dev &&
+> > +                   (w8001->data[0] & W8001_TAB_MASK) != W8001_TAB_BYTE &&
+> > +                   w8001->idx > W8001_PKTLEN_TPCPEN - 1)
+> 
+> I'm not an expert in the w8001 protocol and don't have docs handy at
+> the moment. Can you explain the purpose of adding this new
+> W8001_TAB_BYTE check? I have a vague idea that it might have something
+> to do with allowing the query response packets to be processed prior
+> to pen/touch being initialized?
+
+Yes, that's right.
+
+Previously, w8001->touch_dev was pre-allocated before querying the
+hardware, so !w8001->touch_dev was false during probing. Now that
+touch_dev is allocated on demand after the queries complete,
+w8001->touch_dev is NULL during probing, and without the W8001_TAB_BYTE
+check we'd be junking query responses (which are longer than
+W8001_PKTLEN_TPCPEN).
+
+
+Thanks.
+
+-- 
+Dmitry

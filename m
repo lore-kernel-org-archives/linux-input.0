@@ -1,126 +1,222 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-4398.protonmail.ch (mail-4398.protonmail.ch [185.70.43.98])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3020F54CF4D
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:28:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791930517; cv=pass; b=GTpPQ3wRY4DKAL7ytPm0Srctmz9jldyzNb58ad80uSz47PR1tH9cDE6IpzCMPArqWKTILPaexwwO91EWNwqM9bcgg/MoCfQ88W0G4j5hIu1fjPJ2KGSuOuMMni4ryjci6XyoHhSEBNEJPJijJy4gry8/uo6PEmL2Ib6zP3uICIA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791930517; c=relaxed/simple;
-	bh=LbWPDwQYb1MNttmrZiIyG9Roqv9R3ER6b8JaxbDgP4I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qliRskJBKKNMZAoqlxTy/KwcWnVA20zhJ8LeWqeFSF1NlN+i5eLhk97lCbZIw54VGnpMPrwErmh/Yfc/vtawpuETUdDnZXD1tcOxvDoNDeeqzaA4kBFZceGwvkim1k3lD25Ru5n7jJmmla5LXB4GsnS4rirnc7ifLo8mghL8Ui8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=DUSXHq6a; arc=pass smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB57256260C
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:30:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.98
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791930605; cv=none; b=Xacv6kjYtCgd89a+2QmcVijsflw5RmTdl+KVNHlQpdhjV++ZvovizHiA4upuvPjnn9SQhiMj0iqHgSK5KgPAjvQYZpCfVm4fEjvBFPcr/aBhk0DZNOY07XD8PctiiwWYSkhB0cv022m0ov1SW0r21BJsNtMPWo0YRaQGCQmm2P4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791930605; c=relaxed/simple;
+	bh=KarW4zuGSKwvAOkpyYc2bQ64pSANFCpJTa8ymC9rW4o=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=kQyVZ5c+0KuR7LYr1/ZQiwld+xIKx2WOtmCL8FGTyhpeniYzBHzyX7pnl11Mb8RwC6jfRSnILC5LFdCghAPYYApB+PRQNOlPCu90CDq8eFSORL7u3LzOpyY0riUTZFVQZic+dpmcncRViuyIuO/EGm0CeVko+p5ZmxQXlN678Es=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ghoul.dev; spf=pass smtp.mailfrom=ghoul.dev; dkim=pass (2048-bit key) header.d=ghoul.dev header.i=@ghoul.dev header.b=QdWZj4nm; arc=none smtp.client-ip=185.70.43.98
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ghoul.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ghoul.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="DUSXHq6a"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-8b056d58f2aso3698887b3.2
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 15:28:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791930513; cv=none;
-        d=google.com; s=arc-20260327;
-        b=KkssiBQkIuR0KeI3hJPqy/EB5fJMvnmEl6+wyoWk7eXNASBK5JaMWGscHwGH6wKwvt
-         0ogrSuRVoJ7w87gGY/9ZQsQzsCyI8DES6uHDcrSdv27O0zNynQV1UEDN6Yb3Prax1QDj
-         82Hy0ae7tq1ZWlM5CDFV6C7rRYPWCugHWH3PR8yNAutbHhfSD8bnvV3h+pGn0x3vGA1w
-         DPJxq9Mt2/AEV3VD96NOCv7KhWmoiiazYcB+vxXIa1wyfVISnRWTu+QpX3GyKX3K2W+L
-         t1KIiHkuUzQk7urDNrnLIKJ+UEV1SZcG97pu1QJFMkb1QBQaxVWdEPvaQayJm5OdaYMZ
-         bPqg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=LbWPDwQYb1MNttmrZiIyG9Roqv9R3ER6b8JaxbDgP4I=;
-        fh=qfgfLdO2t8ZULc6GEM0Ne6tW348ErQ/oZeq0GHpD7RU=;
-        b=L0MMsNZd3VKhiW287bsTDZG40STAb2MjkoRHlQSBJnqaqHE5qe/devRlQvn2Di3wPT
-         LKCEHxGLGFvL1L15TWWYpJR/eFlhJXwaRuD5H+N6gRFvT9fbsYfyyiMLaGzdEf3NO8Sf
-         GjmlAmAGNVjHDUBLGtlPCw6dfNu1jP2rD49NfPe88Gv7Mj+m6FaWpIgzrnNxVE7Lf/Lx
-         qV+i3oE+0ia4c9pXL6YKAlQAOgh2Gy5wO7sXKUF/7uIysK0i0vfYKpqBXohPvThTggu+
-         ggQKe/w4OIUwN4u0BTCEjcnBOobZSTCGHS0CQygUHrx4v/y/b+577K/qgafU6diXP8g/
-         orrA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1791930513; x=1792535313; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=LbWPDwQYb1MNttmrZiIyG9Roqv9R3ER6b8JaxbDgP4I=;
-        b=DUSXHq6awOXCzmeM9lLEMtkMS1ys4ectWQNADf/Wr89M6R/5Ao9JRiZUqGyXDjy5T2
-         JOT088ik4rp9/uXTDrLqf6AkzM5NhYBRpFSq6CIRt5rO/4hPnJUQfk3MHN3eJIe9KuAR
-         U8PSiCTpeTfIdCGG8YfydaxD3paJQX36Q3vqo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791930513; x=1792535313;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LbWPDwQYb1MNttmrZiIyG9Roqv9R3ER6b8JaxbDgP4I=;
-        b=zBtN7RbpzKKXAzlzxpz+RTK0CERm0x/na9QO56sFl+y/4LNfvBfj7ir9SiDooqTB8B
-         TyACV5mX/HJode7PqmRsXkomR+VGDOSfqJvKCnxk/4b33zwpo3SekHRB5zWAx/QXh9Vp
-         z4TQMeyVkq3XMR95jx2/uwtFb0h58uqL77qgnim7gcakTXdWyUEKhK7Ag4vLPShC7F7Q
-         lXNujnIIz9+ZrjPq1fdI74BCfDM5O/Dl8JrmMx7Q9TC+OIiSi4kQh4tpAJ63WOxMS9e7
-         5qU/dAeLJHAyao73f2xANK4F8/XjAaiX7ntGcum9+I2I6R1KanCBUl01FftIXFQlZHlc
-         qznQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxhZvu66DdxrgRIxjKgL1kuAJft4x7JbOr39a90qGwdqSGB8wS/cjDsy6y+S0zP+mMPu8cfp4xFfUFZgg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYILpJV/AyNq9bdkUuGUiDJUe6N4y1rAd1teZ+j9Mo71sntiKNsW
-	NmyL7G2SK6TU9EL87ETsThS/xEnbjBrFMql1VRUdKQLnbb1t06TJN/gTmSgMiKKd6xDLGFb8jH6
-	H3eLkGk7gM4qq22XS+M/hx2i031f0toBiJrhJtL+O
-X-Gm-Gg: AYBFou1z1Bf2akssTDBN7ItGOuZXiaVojNNmtG3QAzrhmxMYT2eCiFpGhGEOM5vHCnx
-	LGrcFMJ9QS7rv8kWuWwRc8/D++WGiJSnDt5QATmBWYB/yQ5AuobVZ1VRopZYwiBOE13sY6CuNj2
-	XIj+tTG83GyIbqj0nAR2flSzC6HYwiMHsE4Pp+e5T75w7ODRlUU6MS3idTPmQIgLNPPhhX57uFK
-	azGsu1QN4eSkXa87oFDF+bXmIoAoUkVURIp0Ez8Ei0X0JvFrb/GIBRM+E2n/hxmZTe/KvYW0fzR
-	5vH7Ho5/WEleFFM08BwQCPaojM30haGMD99wvcsNsTybzQ+OsIG+jufNxLYCylLcjINjpenaJTv
-	PyptdErYFhiGnd6ZXMqBI
-X-Received: by 2002:a05:690c:6603:b0:8a5:1570:a298 with SMTP id
- 00721157ae682-8b07edfeff1mr40474577b3.50.1791930513249; Tue, 13 Oct 2026
- 15:28:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ghoul.dev header.i=@ghoul.dev header.b="QdWZj4nm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ghoul.dev;
+	s=protonmail2; t=1791930592; x=1792189792;
+	bh=IeMFIm8AOgD/Oiwh2bjh0FeBEf2AKLcI23kRp9digOM=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=QdWZj4nmDb5ixoWUZLD/cVX+8b16XMIYQ3c6AlI0oaEySgDN/6gIdxoZxQgu5U1rW
+	 qYQ28vFPsXc8mcLea5k3rTSNkd+IlKSH/GQdZf1280jEihalEUqo5zjs/FGDJgXCRV
+	 7hXg7gsbYHnKRmGg6RJx3qVUBXOGo9cISaV/lfkfE+nMG5Grs94BxxcWUdgNprV2/W
+	 Ns0TvE0q3JqHH9jiBNmptkMsPyBo8PnfS2aeysSFyY/tyl5JEu0D05unH6cYgA1Cd8
+	 NTDWQlt0SMtsInw1YjhXaIw6UT/FB+Qogi40bKz8IcEYDjFSGT6FBiI3Jui13dXsWZ
+	 p9zQ+dArM/7nQ==
+Date: Tue, 13 Oct 2026 22:29:47 +0000
+To: Antheas Kapenekakis <lkml@antheas.dev>, Thorsten Leemhuis <regressions@leemhuis.info>
+From: Ahmed Yaseen <yaseen@ghoul.dev>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, Denis Benato <denis.benato@linux.dev>, =?utf-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, Kerim Kabirov <the.privat33r+linux@pm.me>, GameBurrow <gameburrow@pm.me>, regressions@lists.linux.dev, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] HID: usbhid: skip interrupt IN polling for devices with no input reports
+Message-ID: <e097faae-6184-4498-9c64-c5736f3b3ac8@ghoul.dev>
+In-Reply-To: <CAGwozwEdQ+EEjfzHM_DAtoygsch=BXR8VWd1yHeKA-BaS=hCUA@mail.gmail.com>
+References: <20260828104159.62399-1-yaseen@ghoul.dev> <20260828104159.62399-2-yaseen@ghoul.dev> <fe51a4ac-540f-4d14-ba76-b69b0eb17164@leemhuis.info> <CAGwozwEdQ+EEjfzHM_DAtoygsch=BXR8VWd1yHeKA-BaS=hCUA@mail.gmail.com>
+Feedback-ID: 177610485:user:proton
+X-Pm-Message-ID: cf048d5b2e86ac93ae38fb43f06638b5c7fa1b14
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
- <20261009-send-upstream-v5-9-384af01da3ee@chromium.org> <998a8c7b-82e3-4370-b0f4-765deccdb348@kernel.org>
-In-Reply-To: <998a8c7b-82e3-4370-b0f4-765deccdb348@kernel.org>
-From: Jingyuan Liang <jingyliang@chromium.org>
-Date: Tue, 13 Oct 2026 15:28:22 -0700
-X-Gm-Features: AclHuK9UE5fFXMlu7KAnmwYM6JrldO8UdUyYtEVe8VXlPWtvlfdV-v2OaGNZ5vI
-Message-ID: <CAEe3GZEuB+i2XS-GnGsmHaaULzThPL2wKT4j6QdMYbCCz47q8w@mail.gmail.com>
-Subject: Re: [PATCH v5 09/11] dt-bindings: input: Document hid-over-spi DT schema
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Jonathan Corbet <corbet@lwn.net>, Mark Brown <broonie@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-spi@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	devicetree@vger.kernel.org, hbarnor@chromium.org, tfiga@chromium.org, 
-	fqwqf@fqwqf.xyz, daleyo@gmail.com, Dmitry Antipov <dmanti@microsoft.com>, 
-	Jarrett Schultz <jaschultz@microsoft.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Oct 11, 2026 at 11:05=E2=80=AFPM Krzysztof Kozlowski <krzk@kernel.o=
-rg> wrote:
->
-> On 10/10/2026 00:25, Jingyuan Liang wrote:
-> > Documentation describes the required and optional properties for
-> > implementing Device Tree for a Microsoft G6 Touch Digitizer that
-> > supports HID over SPI Protocol 1.0 specification.
-> >
-> > The properties are common to HID over SPI.
-> >
-> > Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
-> > Signed-off-by: Jarrett Schultz <jaschultz@microsoft.com>
-> > Tested-by: Dale Whinham <daleyo@gmail.com>
->
-> No, fake test.
+On 10/13/26 18:11, Antheas Kapenekakis wrote:
+> On Tue, 13 Oct 2026 at 14:55, Thorsten Leemhuis
+> <regressions@leemhuis.info> wrote:
+>>
+>> On 8/28/26 12:42, Ahmed Yaseen wrote:
+>>> usbhid starts polling a device's interrupt IN endpoint on open
+>>> (usbhid_open() -> hid_start_in()). If the report descriptor declares no
+>>> input reports there is nothing to read there, so the poll is useless,
+>>> and on some composite devices it is also harmful.
+>>>
+>>> The ASUS ROG N-Key keyboards expose a second, input-less interface used
+>>> only for RGB control via feature reports. Opening its hidraw node (any
+>>> hidraw reader does, including SDL/Steam Input or a plain cat) starts th=
+e
+>>> pointless IN poll and keypress reports on the keyboard interface get
+>>> dropped for as long as the node stays open: a lost key-down drops a
+>>> letter, a lost key-up leaves the key stuck. usbmon shows the dropped
+>>> reports never reach the URB layer.
+>>>
+>>> The useless poll itself is long-standing; commit 4ac74ea68f64 ("HID:
+>>> asus: early return for ROG devices") is what exposes it on these
+>>> devices by keeping the input-less interface alive instead of ejecting
+>>> it, so its hidraw node can be opened and the poll started.
+>>
+>> Hmmm, what's the status here? Ahmed, is this still needed, or was this
+>> fixed in some other way? From the the outside it looks a lot like this
+>> regression fix feel through the cracks, but would be good to get into
+>> 7.4-rc1 to finally fix the dropped keypress reports.
 
-Will drop the tested-by tag in v6, thanks.
+Hi Thorsten,
 
->
-> Best regards,
-> Krzysztof
+Yes, this patch is still very much needed upstream. The current status of t=
+his patch is as follows:
+
+On upstream kernel, this is still waiting to be merged.
+On the OGC Kernel this has been available since 7.1.3 (since July 21)
+On Nobara kernel and G14 kernel, this has been available since 7.1.4 (since=
+ around mid July)
+On CachyOS kernel some users have opened an issue and a PR on the CachyOS k=
+ernel repo and kernel patches repos respectively.
+
+The issue itself is still present in upstream kernel and I'm still waiting =
+for a response from the maintainers. I hope this can be merged upstream ASA=
+P.
+
+It is still a major issue and I have recently encountered users who had swi=
+tched away from Linux to other operating systems for this reason as well. R=
+eports of this issue still come to us in varying ways and we ask these user=
+s to use one of the kernels with fixes installed. In the case of Fedora and=
+ Arch users, this would mean the OGC kernel, Nobara, or G14 kernel. For Deb=
+ian-based distros, the issue is not yet present as the patch that made this=
+ issue become visible is not yet available there. However, when the patch 4=
+ac74ea68f64 ("HID: asus: early return for ROG devices") is available in an =
+LTS kernel, all users of Debian-based distributions will get this regressio=
+n as well, so I believe some urgency is also required here.
+
+Best Regards,
+Yaseen
+>=20
+> Hi Thorsen,
+> there haven't been widespread issues with stuck keys on Asus recently,
+> except one regression with the fan key that merged recently.
+
+Hi Antheas,
+
+As explained above, we do still get these reports. We have users in the (pr=
+eviously ASUS now OGC) discord server, cachyos forum, bazzite repo issues, =
+reddit, etc that do report these issues and multiple commenters who claim t=
+hey have the same issue.
+
+Some of these issues that I found at the time of writing it are linked in t=
+he cover letter of this patchset. Other users reported this in the discord =
+server later, and many users write it off as a one-off issue or a bug with =
+a certain game and those who hit the issue repeatedly either report to us, =
+roll back kernel, or even switch to an alternative like Windows. Kerim and =
+GameBurrow who helped with my testing for example, were users who were able=
+ to reliably recreate the issue in certain games. The reproduction cases in=
+ the patch description (e.g. running cat on the hidraw node) came from them=
+ and trigger it consistently.
+
+>=20
+> This fix targets hid core, so merging it could cause regressions on
+> other devices.
+
+This fix has not caused any regressions so far, and I do not see a scenario=
+ where it would. The patch only affects devices with 0 input reports. Addit=
+ionally, we have the patch on so many widely used kernels and has been pres=
+ent in them for the last 3 months, along with multiple users who added this=
+ patch manually with my guidance. The fix itself is to simply not poll any =
+devices that have no input reports to provide. The reason why other devices=
+ are unaffected is explained in the patch description and my additional pro=
+of is the hundreds of users that use the Nobara kernel, G14 kernel, and the=
+ OGC kernel collectively.
+
+>=20
+> Denis can comment on whether he fixed the regression that primarily
+> lies in the software he maintains separately. I am not sure SDL causes
+> this issue
+
+As one of the maintainers of asusctl myself, I believe I can comment on thi=
+s as well. There was an issue in asusctl previously that opened the hidraw,=
+ and it was patched by Denis months ago. However this did not fix the issue=
+ that polling the hidraw by other means (Steam/Proton and even a simple cat=
+ does this) still triggered the bug. That is what my patch fixes.
+
+I would like to also highlight that this is originally a logical issue in t=
+he kernel that should not have been there in the first place, and if a devi=
+ce regresses because of this fix, it is a device that needs quirking and no=
+t the other way around. That said, even for malformed input reports which y=
+ou have described in your v1 response, they would still be unaffected as we=
+ only skip when there are 0 reports. The quirk HID_QUIRK_ALWAYS_POLL exists=
+ exactly for this reason, and anything without that quirk and no input repo=
+rts has no business being polled.
+
+If the maintainers still prefer it, I would be happy to have this as a quir=
+k for only the ASUS keyboard device instead. I have explained all my reason=
+ing for this approach in the cover letter and as mentioned, no regressions =
+have been reported so far.
+
+Best Regards,
+Yaseen
+
+>=20
+> Best,
+> Antheas
+>=20
+>> Ciao, Thorsten
+>>> Skip the poll in usbhid_open() when the device has no input reports.
+>>> Feature reports and hidraw output keep working over the control and OUT
+>>> endpoints, so the interface is otherwise unaffected.
+>>>
+>>> Fixes: 4ac74ea68f64 ("HID: asus: early return for ROG devices")
+>>> Link: https://discuss.cachyos.org/t/keyboard-input-issues-on-asus-rog-s=
+trix-16-2025-with-cachyos-during-gaming/30823
+>>> Link: https://github.com/ublue-os/bazzite/issues/4590
+>>> Cc: stable@vger.kernel.org
+>>> Tested-by: Kerim Kabirov <the.privat33r+linux@pm.me>
+>>> Tested-by: GameBurrow <gameburrow@pm.me>
+>>> Signed-off-by: Ahmed Yaseen <yaseen@ghoul.dev>
+>>> Reviewed-by: Denis Benato <denis.benato@linux.dev>
+>>> ---
+>>>  drivers/hid/usbhid/hid-core.c | 9 ++++++++-
+>>>  1 file changed, 8 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-cor=
+e.c
+>>> index 96b0181cf819..d7cf2b56e117 100644
+>>> --- a/drivers/hid/usbhid/hid-core.c
+>>> +++ b/drivers/hid/usbhid/hid-core.c
+>>> @@ -688,7 +688,14 @@ static int usbhid_open(struct hid_device *hid)
+>>>
+>>>       set_bit(HID_OPENED, &usbhid->iofl);
+>>>
+>>> -     if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
+>>> +     /*
+>>> +      * ALWAYS_POLL devices are already polled from usbhid_start(), an=
+d a
+>>> +      * device with no input reports has nothing to send on the interr=
+upt
+>>> +      * IN endpoint. In some cases polling is harmful: on the ASUS ROG
+>>> +      * N-Key keyboards it makes the sibling interface drop keypresses=
+.
+>>> +      */
+>>> +     if ((hid->quirks & HID_QUIRK_ALWAYS_POLL) ||
+>>> +         list_empty(&hid->report_enum[HID_INPUT_REPORT].report_list)) =
+{
+>>>               res =3D 0;
+>>>               goto Done;
+>>>       }
+>>>
+>>> base-commit: 8d3ae59288f1e7d58d76558a6ee96d533bc5019f
+
+

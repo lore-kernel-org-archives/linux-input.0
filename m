@@ -1,38 +1,66 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4635D502D45;
-	Tue, 13 Oct 2026 15:04:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12D2F518121
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 15:15:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791903863; cv=none; b=OKPWw4YAPsmvufWSSLret6ZWowtuLoN5HYu0BOe7F1jzVtpITRyfwMUfpZ/ct6UQ4HqKQ6XjE2Rppcqq/TSo1D0qAsdcbtGmqKJCzVVpBYTL/xLHjNty6YvTdPNxKd37+X6czLJvAhKMufz246stoR9TSTK39s5QzHxMWS460iQ=
+	t=1791904541; cv=none; b=EZYn9ok3mHpix4g7FtQeCliXeuwZX61dOKM3euy8UJsWsDEEIyzQLf4Th+J3HLxMKNyZiubNQNBDXgcp8ArKVStk99KVPCIOJjX/QK5aSreC+R81BadMEBglGlSn2vmxszQwRRIQ+O7Pu7knW6CHIlgOtrJvfQiEsUWfY/dTDVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791903863; c=relaxed/simple;
-	bh=s15ihJ8YRuLkrmk35st+iOJ5yoQB9omR5C4j45yrdJ8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=jToEbq7N75glDn7LlwPpJznLf8nscPWwDXBvVoUpUwKTWqs8w8OfxiiDYBY0FPF602f1vCo84DFwQ1Z0M3p8GlFapWTNcNudl7kvAqFxdiEvDVJlEHhjB+1WzcSIxYQNPiXgDAswny46TiLkL33/g4pqOmzPe5SEgtvywGrgTSw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dLtunYoe; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1791904541; c=relaxed/simple;
+	bh=wOidxVLM17lR1bDj1xmePaeabjfnEZRB6ayeFW+JFtY=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=SrWri7Ibx4gt4U4kSG6z5aEAjxePYhV89Uf8q79fB57+avk7Q/b6JZIdOIt8XQkdpnwwcbykGDXxRBBVgq5AdDmAb/BQ6hQVgcQE+TjXcG74K2VNZLbzS5CqVm+61bLt6+Krt7hQacwvIchmk6KPCpQFnw/1OuHmk92mhyWMHKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk; spf=pass smtp.mailfrom=thegoodpenguin.co.uk; dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b=LOsdMM9W; arc=none smtp.client-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thegoodpenguin.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=thegoodpenguin.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dLtunYoe"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id CB4C1C2BCFD;
-	Tue, 13 Oct 2026 15:04:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1791903862;
-	bh=s15ihJ8YRuLkrmk35st+iOJ5yoQB9omR5C4j45yrdJ8=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=dLtunYoevXB+iJL2p1GfIiqFH6Z2uf+vMbYkU0e7Ta3h7fh1HEqC87Xy7oI5ubV7n
-	 7hCwNmMspScNdM0uVNKyAZ/NTWbunzytky6fJNuUQeQMSY/rLk2UOeKAZ3YaU+TT7P
-	 jBOmYTRJciyTQmuQfuzkmRSa/ZcWPJCsJXWrnCUfz76LTQmQv6vWKfo4gZeYCqSTmk
-	 nQ08pxrbcsSdHbbKxEo75JmhYCLxgCT+8AFQmM5GQxVRz/C7GzooxoyKRxGqeJbOgv
-	 Ym83h+q4sZ5/Cj5U4NJ9D8wB5nGxPB4fwRb1UWmXvBDpBWGBBeYbJaD8GFE9W8KbVH
-	 Wuj4Tmk0JAsgw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AED4FCC6B0E;
-	Tue, 13 Oct 2026 15:04:22 +0000 (UTC)
-From: Mizuno Miotsuki via B4 Relay <devnull+founder.crepuse.com@kernel.org>
-Date: Tue, 13 Oct 2026 23:04:22 +0800
-Subject: [PATCH v4 3/3] Input: add Nsiway NS2009 resistive touchscreen
- driver
+	dkim=pass (2048-bit key) header.d=thegoodpenguin-co-uk.20251104.gappssmtp.com header.i=@thegoodpenguin-co-uk.20251104.gappssmtp.com header.b="LOsdMM9W"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-33bf40b0c8bso864666eec.0
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 08:15:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=thegoodpenguin-co-uk.20251104.gappssmtp.com; s=20251104; t=1791904537; x=1792509337; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=6cn15OBuDdPhmTCMVKwa2oTSO6nmWiZTOYVWRAj9v6k=;
+        b=LOsdMM9WDVxo+YTeNoAm3SHypoObv2uIlBY03iWhNDn1zUPToW1kMqc1Y/8/SC3hyx
+         45g2NP2ivguOvy2mST+B2uqcgY43BNMQQLy81PjwqE3nSlAO4ULkgJthEFVLwDUDbPJT
+         xqHEANIrQ8wkJsPcbDIFQ2C9gQAntDgfByHMVX2BnTjCp4bp/m/7uEtPnHeqKWeyV/gp
+         wyuBpL2bZh6xXzMJ0YAVdvmnTiYdpUo2gnNPqakTABfCjGPy12SbcECh5hB9ETgvww0p
+         wqVZWhPn1TJ0cnEVHWoWDw5qeEQGZZS2wEUW9o7ycPEJe9KoLLM2EWrWH2yl/Ug83pYV
+         sUQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791904537; x=1792509337;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=6cn15OBuDdPhmTCMVKwa2oTSO6nmWiZTOYVWRAj9v6k=;
+        b=w40TwKZjUZ09uyGti8fwKaqvJO1LY2CHH57IMcGVSE5XXDu14T8nRY+IGylN1sedbQ
+         Ewd54eslOI4XraWD9kWqLPgV66U3lcxcojdryLk43a6wRTUyBTgR81xKuI8JCLhPFYn5
+         jS+JwR47PMGhAvg5BIIDTlWnVrpCb+K7TPHJH6op1K4flP6QdX6iBTsB+wL1UeSnPh+e
+         dFuUAUvncqvGHmNGzoQej8LYoSaGcbURWs0KRk/am3H3carqRUFyP4xLHK71pnqiqzNn
+         lOcuB7o0DmGcKVnI3q5CMb52Y4iHERB7ZBdCjlSBi6Ku3G0Y3B6mn67UGVq95663qj/q
+         DsIg==
+X-Gm-Message-State: AFq9FYJfOpGeXIzGbuT6LThJTKUfIMFuoPKo/ZTMfGcVMYqPDIIhYXXL
+	iSn87Sd6cB6SapbpAJgiWz2hYIghGS8lBm4d14E7Z3BpDDBz1cyyQNAyduGj4Enn3BM=
+X-Gm-Gg: AYBFou0Vg5RwQpRJR/QniRfth4Ifj9ZuYShL8FwidTPAayr8cx3OPDt+0fzS8jKvO/Z
+	Y8PewiATdi+jc8Iw0cfGaws+9a7ZIhLjEOKPqzH4CzDb28LK5UrnmEDpo9+66OtEpO/IM0R74rE
+	5DKL1AkhY//EZkL9duGFALZtRx7e7/N8XQG0qolj6wsHtBAtBoa10KEiuwy5vogfPh9kvWI3bD7
+	psaxLqUiLBgg6ML2h+t9WJ3qn7q9ld0DfTQ9IvWCf6QPQC657YZrwv4cczmRa6UlD92aQ3exYPt
+	S5lRrlZy93wc5KfCzInz6uc6bOh3s10ENUCoumlV/FCgBgi5yd1Uauthr4NormPgT6BuBPmop6b
+	LqbNf19WsFQkMPn5eFgXkOGsUR001ZbcnyAqDP9GP9p3H3jRZeNvYVauQfJg92T+ZkotYsGrDd3
+	ECNkhisNbTS2ySEQ2KKEzl8UEqaRqWktAEZKlL+WAo9D3QkcWInWeGYWjhVp/xqR9VoGYZlNw1G
+	f5UxUO6owE579A=
+X-Received: by 2002:a05:693c:4159:20b0:34c:8c69:529d with SMTP id 5a478bee46e88-3537e0a9695mr19398687eec.26.1791904536420;
+        Tue, 13 Oct 2026 08:15:36 -0700 (PDT)
+Received: from [10.42.0.1] ([2a00:23c7:1d1a:9c01:49b8:4c98:b3d1:72aa])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-358de54fe47sm30691751eec.31.2026.10.13.08.15.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2026 08:15:34 -0700 (PDT)
+From: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
+Subject: [PATCH 0/4] Input: use designated initializers for acpi_device_id
+Date: Tue, 13 Oct 2026 16:15:21 +0100
+Message-Id: <20261013-acpi-input-v1-0-53ad09ba82b7@thegoodpenguin.co.uk>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,340 +69,92 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261013-review-self-ns2009-v4-20261013-v4-3-98bb21712282@crepuse.com>
-References: <20261013-review-self-ns2009-v4-20261013-v4-0-98bb21712282@crepuse.com>
-In-Reply-To: <20261013-review-self-ns2009-v4-20261013-v4-0-98bb21712282@crepuse.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, icenowy@aosc.io, 
- linux-kernel@vger.kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
- robh@kernel.org, devicetree@vger.kernel.org
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMTQqAIBBA4avErBPUJKKrRIvSqaaFiT8RSHfPa
+ vkt3ssQ0BMG6KsMHk8KdNgCUVegt8muyMgUg+SyFVw0bNKOGFmXIpNopDJdq5TgUALncaHrmw3
+ j75DmHXV8D3DfD3ssq+ZuAAAA
+X-Change-ID: 20261013-acpi-input-2ed24d864410
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, 
+ Nick Dyer <nick@shmanahar.org>, Hans de Goede <hansg@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ chrome-platform@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+ Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=9878;
- i=founder@crepuse.com; s=20261012; h=from:subject:message-id;
- bh=TDCTyGDEUKd8X8csU6CJK+bDq8VurdV+ZeVGdvYWx+w=;
- b=owGbwMvMwCUmds2G2fVJ/hLG02pJDFnnPEr895c/NXKUkwpqq4y1X7/i6MaX5juDTs61SbXx6
- J7QwzO/YyILgxgXg6WYIstsUfbyQ80rrs2d0GQHM4eVCWSItEgDAxCwMPDlJuaVGukY6ZlqG+oZ
- GukY6BgzcHEKwFS7hzP8d9G8Es96+vnfQ6oWCzRs19Y9n3SSd95PzzUVLe6CGq0B+gz/FKwrTu7
- y+7W5Tb8/Q0GEcz8Tr3ndd92HXR4WG/7+MfzFCwA=
-X-Developer-Key: i=founder@crepuse.com; a=openpgp;
- fpr=9B150777C283A8D69D90823E16D63C0345E46FA4
-X-Endpoint-Received: by B4 Relay for founder@crepuse.com/20261012 with
- auth_id=1166
-X-Original-From: Mizuno Miotsuki <founder@crepuse.com>
-Reply-To: founder@crepuse.com
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791904532; l=3150;
+ i=pzalewski@thegoodpenguin.co.uk; s=20260430; h=from:subject:message-id;
+ bh=wOidxVLM17lR1bDj1xmePaeabjfnEZRB6ayeFW+JFtY=;
+ b=3nBJ7LuFCwN0BxizqOoBp4bXcaIg1JOxRLLNOjgImEEFpTUGRJj9GgEbTgxtJDNlq8bnneSjj
+ d99NFSj62JuCotFSi+uU6I3ZgrlwgwKTTqUE5MdgnHyI2NX9zANx80j
+X-Developer-Key: i=pzalewski@thegoodpenguin.co.uk; a=ed25519;
+ pk=vHq4n9IonORH2GTzLv8r6CWAFHzgfBuNkQPXA8NSly0=
 
-From: Mizuno Miotsuki <founder@crepuse.com>
+This series is converting lists that contain the acpi_device_id struct,
+which is defined in the include/linux/device-id/acpi.h to make use of named
+initializers (which they do not use currently). This work is part of the on
+going effort in the kernel associated with device-ids [1]
 
-Add a polling driver for the NS2009 four-wire resistive touchscreen
-controller, derived from Icenowy Zheng's original implementation.
+The plan is to convert acpi_device_id::driver_data to have an anonymous
+union, similarly to what was introduced for PCI and I2C device ID tables.
+The goal is to increase type-safety (most of the existing casts are gone),
+to improve readability and to make use intent a bit more clear:
 
-Read 12-bit X, Y and Z1 samples every 30 ms. Validate the two-byte response
-and its zero padding, discard incomplete samples and release contact on
-read errors. Report touch state on every valid sample so input-core state
-resets cannot strand a held contact. Apply common touchscreen transforms
-and a configurable raw Z1 contact threshold.
+```
+union {
+	kernel_ulong_t driver_data;
+	const void *driver_data_ptr;
+}
+```
 
-Acquire VDD and an optional external VREF. Enable supplies when input is
-opened and disable them after polling stops. Preserve an outstanding
-reference if disable fails so reopening cannot accumulate references;
-retry cleanup after input unregisters.
+But for that to work all lists containing the structs need to use named
+initializers first to avoid triggering -Wmissing-braces. I already have
+patches that implement this and touching a lot of kernel subsystmes that
+use the acpi_device_id struct and that list keeps on growing. Therefore,
+I have decided to split the series per every subsystem into:
+- pre-clean-ups that convert the lists to use named initializers
+  (which is this series)
+- actual implementations that make some of the modules use the new
+  driver_data_ptr member
 
-Touch reporting and input lifecycle tests passed on an UNIHIKER M10 V1.2
-using the real shared vcc_io regulator. Tests used a registration-name-only
-validation module and a temporary live-DT supply property. The shared rail
-remained always-on; no electrical power switching is claimed.
+That way the task can be fragmented into manageable and independent chunks
+of work and makes this effort easier to review.
 
-Signed-off-by: Mizuno Miotsuki <founder@crepuse.com>
+Tested builds on x86-64 and a64 in Yocto using 7.3-rc7.
+
+[1] https://lore.kernel.org/all/cover.1780048925.git.u.kleine-koenig@baylibre.com/
+
+Signed-off-by: Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
 ---
- MAINTAINERS                        |   1 +
- drivers/input/touchscreen/Kconfig  |  10 ++
- drivers/input/touchscreen/Makefile |   1 +
- drivers/input/touchscreen/ns2009.c | 230 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 242 insertions(+)
+Pawel Zalewski (4):
+      Input: keyboard: use named initializers for acpi_device_id
+      Input: misc: use named initializers for acpi_device_id
+      Input: mouse: cyapa: use named initializers for acpi_device_id
+      Input: touchscreen: use named initializers for acpi_device_id
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 696f2badc49c..e282c02ec13f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -19472,6 +19472,7 @@ M:	Mizuno Miotsuki <founder@crepuse.com>
- L:	linux-input@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/input/touchscreen/nsiway,ns2009.yaml
-+F:	drivers/input/touchscreen/ns2009.c
- 
- NTB AMD DRIVER
- M:	Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 9b9ae8ac3f7f..d4cdf1a7e057 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -691,6 +691,16 @@ config TOUCHSCREEN_MTOUCH
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called mtouch.
- 
-+config TOUCHSCREEN_NS2009
-+	tristate "Nsiway NS2009 touchscreen controller"
-+	depends on I2C
-+	help
-+	  Say Y here if you have a resistive touchscreen using the Nsiway
-+	  NS2009 controller connected over I2C.
-+
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called ns2009.
-+
- config TOUCHSCREEN_NOVATEK_NVT_TS
- 	tristate "Novatek NT11205 touchscreen support"
- 	depends on I2C
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index bfd9de83389d..c5fc2062d7cf 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -68,6 +68,7 @@ obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
- obj-$(CONFIG_TOUCHSCREEN_MMS114)	+= mms114.o
- obj-$(CONFIG_TOUCHSCREEN_MSG2638)	+= msg2638.o
- obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtouch.o
-+obj-$(CONFIG_TOUCHSCREEN_NS2009)	+= ns2009.o
- obj-$(CONFIG_TOUCHSCREEN_NOVATEK_NVT_TS)	+= novatek-nvt-ts.o
- obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
- obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
-diff --git a/drivers/input/touchscreen/ns2009.c b/drivers/input/touchscreen/ns2009.c
-new file mode 100644
-index 000000000000..9d9af1dc9542
---- /dev/null
-+++ b/drivers/input/touchscreen/ns2009.c
-@@ -0,0 +1,230 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Nsiway NS2009 resistive touchscreen controller
-+ *
-+ * Copyright (C) 2017 Icenowy Zheng <icenowy@aosc.xyz>
-+ * Portions derived from silead.c:
-+ * Copyright (C) 2014-2015 Intel Corporation
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/touchscreen.h>
-+#include <linux/module.h>
-+#include <linux/property.h>
-+#include <linux/regulator/consumer.h>
-+
-+#define NS2009_POLL_INTERVAL_MS		30
-+#define NS2009_MAX_12BIT		0xfff
-+
-+#define NS2009_READ_X_LOW_POWER_12BIT	0xc0
-+#define NS2009_READ_Y_LOW_POWER_12BIT	0xd0
-+#define NS2009_READ_Z1_LOW_POWER_12BIT	0xe0
-+
-+/* Historical driver default; boards may override via firmware properties. */
-+#define NS2009_DEFAULT_PEN_DOWN_Z1	80
-+
-+struct ns2009_data {
-+	struct i2c_client *client;
-+	struct touchscreen_properties prop;
-+	struct regulator_bulk_data supplies[2];
-+	unsigned int num_supplies;
-+	bool supplies_enabled;
-+	u16 pen_down_z1;
-+};
-+
-+static int ns2009_read_data(struct ns2009_data *data, u8 command, u16 *value)
-+{
-+	u8 raw[2];
-+	int error;
-+
-+	error = i2c_smbus_read_i2c_block_data(data->client, command,
-+					      sizeof(raw), raw);
-+	if (error < 0)
-+		return error;
-+	if (error != sizeof(raw))
-+		return -EIO;
-+	/* The 12-bit result is left-aligned; the remaining bits must be zero. */
-+	if (raw[1] & 0x0f) {
-+		dev_err_ratelimited(&data->client->dev,
-+				    "invalid sample for command %#02x: %02x %02x\n",
-+				    command, raw[0], raw[1]);
-+		return -EIO;
-+	}
-+
-+	*value = (raw[0] << 4) | (raw[1] >> 4);
-+	return 0;
-+}
-+
-+static void ns2009_poll(struct input_dev *input)
-+{
-+	struct ns2009_data *data = input_get_drvdata(input);
-+	u16 x, y, z1;
-+	int error;
-+
-+	error = ns2009_read_data(data, NS2009_READ_Z1_LOW_POWER_12BIT, &z1);
-+	if (error)
-+		goto read_error;
-+
-+	if (z1 < data->pen_down_z1)
-+		goto release;
-+
-+	error = ns2009_read_data(data, NS2009_READ_X_LOW_POWER_12BIT, &x);
-+	if (error)
-+		goto read_error;
-+
-+	error = ns2009_read_data(data, NS2009_READ_Y_LOW_POWER_12BIT, &y);
-+	if (error)
-+		goto read_error;
-+
-+	/* The input core filters repeats and may independently clear key state. */
-+	input_report_key(input, BTN_TOUCH, 1);
-+	touchscreen_report_pos(input, &data->prop, x, y, false);
-+	input_sync(input);
-+	return;
-+
-+read_error:
-+	dev_err_ratelimited(&data->client->dev,
-+			    "failed to poll touch data: %d\n", error);
-+	/* An unreadable sample must not leave an active touch stuck down. */
-+release:
-+	input_report_key(input, BTN_TOUCH, 0);
-+	input_sync(input);
-+}
-+
-+static void ns2009_power_off(void *arg)
-+{
-+	struct ns2009_data *data = arg;
-+	int error;
-+
-+	if (!data->supplies_enabled)
-+		return;
-+
-+	error = regulator_bulk_disable(data->num_supplies, data->supplies);
-+	if (error)
-+		dev_err(&data->client->dev, "failed to disable supplies: %d\n",
-+			error);
-+	else
-+		data->supplies_enabled = false;
-+}
-+
-+static int ns2009_open(struct input_dev *input)
-+{
-+	struct ns2009_data *data = input_get_drvdata(input);
-+	int error;
-+
-+	if (data->supplies_enabled)
-+		return 0;
-+
-+	error = regulator_bulk_enable(data->num_supplies, data->supplies);
-+	if (!error)
-+		data->supplies_enabled = true;
-+	return error;
-+}
-+
-+static void ns2009_close(struct input_dev *input)
-+{
-+	ns2009_power_off(input_get_drvdata(input));
-+}
-+
-+static int ns2009_probe(struct i2c_client *client)
-+{
-+	struct device *dev = &client->dev;
-+	struct ns2009_data *data;
-+	struct input_dev *input;
-+	u32 value;
-+	int error;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+				     I2C_FUNC_SMBUS_READ_I2C_BLOCK))
-+		return dev_err_probe(dev, -EOPNOTSUPP,
-+				     "required SMBus block read is unavailable\n");
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	data->client = client;
-+	data->supplies[0].supply = "vdd";
-+	data->num_supplies = 1;
-+	if (device_property_present(dev, "vref-supply")) {
-+		data->supplies[1].supply = "vref";
-+		data->num_supplies++;
-+	}
-+
-+	error = devm_regulator_bulk_get(dev, data->num_supplies, data->supplies);
-+	if (error)
-+		return dev_err_probe(dev, error, "failed to get supplies\n");
-+
-+	error = devm_add_action_or_reset(dev, ns2009_power_off, data);
-+	if (error)
-+		return error;
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return -ENOMEM;
-+	data->pen_down_z1 = NS2009_DEFAULT_PEN_DOWN_Z1;
-+	if (device_property_present(dev, "touchscreen-min-pressure")) {
-+		error = device_property_read_u32(dev, "touchscreen-min-pressure",
-+						 &value);
-+		if (error)
-+			return dev_err_probe(dev, error,
-+					     "failed to read touchscreen-min-pressure\n");
-+		if (!value || value > NS2009_MAX_12BIT)
-+			return dev_err_probe(dev, -EINVAL,
-+					     "touchscreen-min-pressure must be 1..4095\n");
-+		data->pen_down_z1 = value;
-+	}
-+	input_set_drvdata(input, data);
-+
-+	input->name = "ns2009_ts";
-+	input->phys = "input/ts";
-+	input->open = ns2009_open;
-+	input->close = ns2009_close;
-+	input->id.bustype = BUS_I2C;
-+
-+	__set_bit(INPUT_PROP_DIRECT, input->propbit);
-+	input_set_capability(input, EV_KEY, BTN_TOUCH);
-+	input_set_abs_params(input, ABS_X, 0, NS2009_MAX_12BIT, 32, 0);
-+	input_set_abs_params(input, ABS_Y, 0, NS2009_MAX_12BIT, 16, 0);
-+	touchscreen_parse_properties(input, false, &data->prop);
-+
-+	error = input_setup_polling(input, ns2009_poll);
-+	if (error)
-+		return dev_err_probe(dev, error, "failed to set up polling\n");
-+
-+	input_set_poll_interval(input, NS2009_POLL_INTERVAL_MS);
-+
-+	error = input_register_device(input);
-+	if (error)
-+		return dev_err_probe(dev, error,
-+				     "failed to register input device\n");
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id ns2009_id[] = {
-+	{ .name = "ns2009" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ns2009_id);
-+
-+static const struct of_device_id ns2009_of_match[] = {
-+	{ .compatible = "nsiway,ns2009" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, ns2009_of_match);
-+
-+static struct i2c_driver ns2009_driver = {
-+	.driver = {
-+		.name = "ns2009",
-+		.of_match_table = ns2009_of_match,
-+	},
-+	.probe = ns2009_probe,
-+	.id_table = ns2009_id,
-+};
-+module_i2c_driver(ns2009_driver);
-+
-+MODULE_AUTHOR("Icenowy Zheng <icenowy@aosc.xyz>");
-+MODULE_DESCRIPTION("Nsiway NS2009 resistive touchscreen controller");
-+MODULE_LICENSE("GPL");
+ drivers/input/keyboard/applespi.c           |  2 +-
+ drivers/input/keyboard/cros_ec_keyb.c       |  2 +-
+ drivers/input/keyboard/goldfish_events.c    |  4 ++--
+ drivers/input/misc/atlas_btns.c             |  4 ++--
+ drivers/input/misc/drv260x.c                |  2 +-
+ drivers/input/misc/soc_button_array.c       | 12 ++++++------
+ drivers/input/mouse/cyapa.c                 |  6 +++---
+ drivers/input/touchscreen/atmel_mxt_ts.c    |  4 ++--
+ drivers/input/touchscreen/chipone_icn8505.c |  2 +-
+ drivers/input/touchscreen/elants_i2c.c      |  8 ++++----
+ drivers/input/touchscreen/exc3000.c         |  2 +-
+ drivers/input/touchscreen/goodix.c          |  8 ++++----
+ drivers/input/touchscreen/hideep.c          |  2 +-
+ drivers/input/touchscreen/ilitek_ts_i2c.c   |  4 ++--
+ drivers/input/touchscreen/melfas_mip4.c     |  4 ++--
+ drivers/input/touchscreen/raydium_i2c_ts.c  |  4 ++--
+ drivers/input/touchscreen/silead.c          | 18 +++++++++---------
+ drivers/input/touchscreen/surface3_spi.c    |  2 +-
+ drivers/input/touchscreen/wdt87xx_i2c.c     |  2 +-
+ 19 files changed, 46 insertions(+), 46 deletions(-)
+---
+base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
+change-id: 20261013-acpi-input-2ed24d864410
 
--- 
-2.56.0
-
+Best regards,
+--  
+Pawel Zalewski <pzalewski@thegoodpenguin.co.uk>
 

@@ -1,94 +1,94 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D0D63CFF65
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:42:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C143F56E079
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:42:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.176
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791931353; cv=pass; b=Z+skU9/IcAhwx4rgIVOyosavOHwbkSB7IkFJIkzI319L1xnN8ueoLxazsOkZ5aqEahJGimFhgX6uzpKovwFYpxod6YihjA550NlgEB3AdZ3ejwnl5TwS+LgIV258KlTe5p8McWg0QWL/COr5n2OG/GTP6apYo3IPlrYMAkl9yAs=
+	t=1791931366; cv=pass; b=sxIIOtRh5dNdqKw5eT6geuGTdkO3iIhFYxQLBgr/VEH5qw/ny4ctHs+O3/lrAqH6fT/FqnnEfUeWl7VsLaOfPohub7m7j5rD5oJ69kk5aBgyHTpq58BqoqcdioQr7WXdaPffxw74udioGF/C0yUZbx4IXSbWDOLpq8+d1ZPKXoE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791931353; c=relaxed/simple;
-	bh=iporpxUYIrTyb06KpXIdN9VXXj9308EjfDIu8iUgwCg=;
+	s=arc-20240116; t=1791931366; c=relaxed/simple;
+	bh=C43seu/VWFpovdumtyJjepkGjp/Pd2/TfXo84siSmcw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GlecIk9CRqhysXDr9PND98wR8EU8tfyAqtispdxS3TniQPreXXkit+pqF32pyWgXsZjZwH4fHEyhy6ypXKRNPN2JXnRF98qzSV+5dMwc4XGnaGRkwjuoCfgnuUTdkDrdsG761ssNeuOEE1BV44M5retn4U0rrLJFYcZaGkyZ4dc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kqHXfsIX; arc=pass smtp.client-ip=209.85.219.51
+	 To:Cc:Content-Type; b=eImBULDvY6Wirpz1WTvpRvqW+139an5UzzEDweUyG/GlE6APMEPrBkYvJldUj+loDAQzxHLM8XxirrAbTYjm2gX8pWFuGa0sSQZeitumBMmrdIHN07wUHg9b3UGvurinPe9X2cccfl1g8il5qurGkSD/88O4aUsurvSnRHE10GQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pe8KxoLi; arc=pass smtp.client-ip=209.85.222.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kqHXfsIX"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-9144e8021d3so49238926d6.3
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 15:42:23 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791931343; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pe8KxoLi"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-93e441e14a1so252375285a.2
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 15:42:31 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791931350; cv=none;
         d=google.com; s=arc-20260327;
-        b=cvNggl1sS6QrseTHn3nbFJngTcJQXT6PlD9GiHydMXLY0AtH7DLqc6lDVk1LpN6qnI
-         iuTftaEOAT9l/RrXQYaxzJUOHWhEIaWSiIzh8hQ56/WEW4xNdbJ23FqkRNyoChx55xZf
-         zwnNYsZ6iUNj2JoNKrZtL7+bcm4S4rEdAf/5sbizEQAIHttwCQp25L0yGMOAe1lmgJA7
-         hpLlQz37J1GrjBDzrdUv0sv0UdHTdZ29PQ9p7iM17rzlh6s8o6VYELLGRcmUQ60ld8s8
-         +or9hPn9LzTWg8Ar2wmW4anwAOK31qnMiorsI3cnhKuPCm4YaY/JzT1FIqDLW8DCR9nG
-         BBeg==
+        b=g9663fAeMfKaraKtXzZHDDoCr3FibYZ/LcT8Jx+he+8h70WCUfSvLTPKGcD60WhHes
+         YGThlKlFu+OdyfCijav+ACqOZvJ5DIKxoW96j2Wm8AunaoQHiIZM2UrYfFXyeoJqqCzS
+         TLO8b5OaGBO22qAvHEqh5EE/Z4sx8wOmYTNt3NIeIJtfb1U4T0YqjUdhu/fhn/l27k+p
+         ZIxwZEzLYw1F7lpcMMp5AuN/DRoTGItQWMjb0wzxwhQYVETukM52nFZ8ctv5gRL3VG5P
+         r5g9rdtEgExVCjrNnYJqixtEutlQ4N/eq1Y576TI7xhgJEYEuo60FbvUainFGB56MTtz
+         P+zw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=jK/bI6saLZFEiOcf/Jln9CppeoI9MNJBzDtnRTioY90=;
+        bh=fU6MFjVMU7wK4vdBVH97bBR61iQQtpiyRXrWiXvtIyc=;
         fh=/Fnmi/ChZ4PSCi6daDti7ivBtiCqCVrMSytCFiSl2/4=;
-        b=QK7jnxzU/+QHi1gCxvDVuvJ8WaG6BvsA7g/UmOeKVfMV7cGxz+d3kh+7tbCEQVwbTK
-         PtSA/mYWESQLa20roD7uf5ugXSBr03Kyxi5D9FQyS3fR+RBsBNx75q+U9RzFr6v1s21T
-         MnAls/9J8wK6tj4iuYssqrsPxmx1Idh/Qh2PcMZnHXgbXHn/SqX/oS6O9KFLjNSPFZ+Q
-         H7PA2OeORUWQSS+ywMdMCuu+/fSkydLdIhM3VDSlCbpxqHinm/6/SapmCcoH6Uvg3Saw
-         wnGR90Wr1x+QO9vZtwRIdVCb6SaI+2G7fwcemJdj6/zmuzgzswd7ObjS/fKfVB57TeGh
-         Fp6w==;
+        b=mdkWZ8vdCIwDDipdRelWRZvHt83hyfAaHLAoqKGnRiUkHki+crF8ng4xw0CisvKl5r
+         Q3uF0ImFq2T6rLao4TAaxlzaYthgYJuXoWPzKOxqraXiwFZowhymmJayEXQYG9Girfqy
+         msa9yKUOgLKXYKbzxUfYsFbSqBm4i3ZrFyuMJMPLIlxFGj7QyaHboh0m8n8bIGxtMgmW
+         LmnN66eNlUojLOOmef2WP0vQqzkC289C9mzxiHCXzt7zOaGs2aOmIh45bxnxCqGESHLY
+         Y2qSV3JOnL7tKdtx6x9p37XLJjkoYX6qU4c0aDSbUxl74yC/1n3/5i1JH7mnU0ccQtm4
+         KTXA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791931343; x=1792536143; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791931350; x=1792536150; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=jK/bI6saLZFEiOcf/Jln9CppeoI9MNJBzDtnRTioY90=;
-        b=kqHXfsIXk9f0YhZh/UhUBhmeCMXOvN6Si44i4T2KKGrG/MhpDzF3nz5q92VxcRtJ8k
-         GUIz3YLxTsYzUtwxI8pjgJ6h9a2VStCPWYkDScFjOQskskhRSIE/qRSRZMF1Jsn6sbEp
-         hyzukEspQfeO7re6A97sFtQvCLL+Ulmpn32yStkPEZUO8N8CH9tKs4UPVdXF9ZThHQ2A
-         +XAflqcVenkMOBXsQ4cP2e1l2uCVOq1sBVRQTzr8zkRBVHFrf/d24O7Rh0dOzCerBJmP
-         /d2KMlbNEq0UoyKMpAQTNOF9wrZCd+ZVEx3Wac8aJBGOI9o2OSXPQXyaQFUPxu6lAQx8
-         mJRw==
+        bh=fU6MFjVMU7wK4vdBVH97bBR61iQQtpiyRXrWiXvtIyc=;
+        b=pe8KxoLiF+935KH9jlcNLXmzLgHfkfzSjVMvKz4B0K5r4Z3JsJpTfXMgVLRoMJBSmg
+         crcJAZlrStwp/y656iNs1Qc+Ewlv+2/D+tVtd/5E7S5Deu+/+Iq5gKMilPinCkttLgBd
+         7wZDKn+lfpOk957ekMKfTbPkxQhoLZDVhaABoFYncvG/MRZyuJWm77Kk3ITeJ+9Sg0fD
+         mlApPgPNQb7lp5eATOAnU76+n/VJVJUwWXmTLk0MfQ4zAXwU3MMdgNoKkuRw1DpwH2XZ
+         5Vp78HeRt77SJDjvI3M7XHmBDfh5h5hwye6vUzm3fAyCUZejMF8dQurKAhsBcWpfzO/3
+         D9Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791931343; x=1792536143;
+        d=1e100.net; s=20260707; t=1791931350; x=1792536150;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=jK/bI6saLZFEiOcf/Jln9CppeoI9MNJBzDtnRTioY90=;
-        b=jsa4cvvmmMZNy18inEqVu7USsl5a2o9IjolJTCRCdCEOV75IWrCHLei06uSI6OfIsT
-         AUCq1CCrCfv1BsGGb5JICwhYeOvi1lbEoEle7FNp4uhPzcpUOrEz9urcYO0Cr00fB1cD
-         kwFFiK4ljw9bjmDZkcQ1Seyq9LQK97hDkvBJ3GWw2QYzIeHgKSL41vvS5MYcwBQ7CsRj
-         IUnmT/9KrV6nFAGQZcIQRZ5K7fZbB1oneJgWZQETFJy7xM/4A30s+jG0QVVMufbRiIu6
-         WI0ko+oRZ4yniGSPIkgUxAzZoBpXgnl9YPWnjd2USUgwDGX8PFNOjMBkD1VJ6nXFlb/C
-         Qdcw==
-X-Gm-Message-State: AFq9FYIXoIqE8lJ93nvhRWbFY1pslF3L7oEA0N0cO9gsL/bqDe1LAkm5
-	6/3PZfbNJ+6W1KbUEWrEb5Nd2hyxSeMZ+NIdHeY8Bq2qlED/ukEOZu5NdFs0YXbhbjePaiodPKA
-	vaxu7I8jwhFTINjRsnytQwr/c1o+YeYY=
-X-Gm-Gg: AYBFou2WFdSvq1HhnxMtKy/dUm7uFsiZFDIILXVzKqEftdJ7gczGvvoQcq8VEKtmSDB
-	ppzVWYvRYOGTGxDX1cENsToYkBQolbHVvytRdAS2hOVNRjSoD5F13sIqTRO8wKANgZtlM/BePbQ
-	u3GghZeLABSBOF2W5C9TRvTpL4SlrxNVLA+5VRU7ekt5Sfsl7DTg8aw6sl+7E0yJfkpPbERaDpR
-	elHN5KRy0EWkeHeGVAsX7wQUsS/2Z96KY0dxnWqEzXU9JHtuv1GxGXu6gITImPvQjMM4TKTwCyV
-	Ks1gtToNIdbMdgltMDnnusErvx3PCPXRa/seSuTz1tjR8Y9CnDhqSBG+
-X-Received: by 2002:a05:620a:1720:b0:93e:c12c:9b69 with SMTP id
- af79cd13be357-93ec12c9eb7mr2204975585a.68.1791931342622; Tue, 13 Oct 2026
- 15:42:22 -0700 (PDT)
+        bh=fU6MFjVMU7wK4vdBVH97bBR61iQQtpiyRXrWiXvtIyc=;
+        b=j9wmjwXTP9Z2M1y/ILjAwfoWjyPK0Yj836Dv5hsvwf98V993M2eXWq/j2nPUei4s02
+         to072WkrHo+f2uFHbSCgby4MalkAcuLEEUAjFz9Q85SuKSBF/1LVNK23TXsV3ASpwSKV
+         GNTyQZX6ev0jpNWrgxBOYkIWrKMgPPwZyu2mH+fsC/ktPEqdRxxyS7wZkUptiHb+yS8r
+         uBM+fsTV8FdXU9tU2N+3LnRJ7QxQfZqeE9eT7Xx413ok1DAs0n7sxf5yTEbtyJyZL7VM
+         SIXIJiYm4WcqXjfDPxyWYDq65BL+Xfk25l5hmswCkdvG5BLAYqqHuVFokOgjYrq9ZDmN
+         8Cmg==
+X-Gm-Message-State: AFq9FYJ/OxtGs8U0Ur4tNwxGwuS3adq4jszzu4GEcwVcO32+MGraPnDP
+	lW41f3dSjSoXWYRO5Zwj9oKSSEGHcNsf9rl34L1wGuu1NoTAMA/ALaJrGDJBZPU7UVA3cHqvWp/
+	k6wgrVcjZ8TYrCluF13FSgGAMljFA/SE=
+X-Gm-Gg: AYBFou20kDTTd9xqrind68fzzZkl34+6sCPgioU41tScAU0TuIASrDDLrcGsDwoitca
+	O2k1SfFvrd0f30Cyok4Dnu1uHNu2lSPmhvTyX9/by1isP4eOierUox7rutKFXESuKZNOYgrgLhu
+	sGb+GcnGsc9VavQdXDNvZYjQ4IWwCM5RDJdipKVG1nON1K3aDrR8nX+kCAEf/Dug6ZxjLZWK6sP
+	Re8xpSCmRC2+gl94EM3OfY6fXbhoUnuEiYmXUMUJC+gBxTtJtBEGU+BKB2UeGYoAKnpVFLEwbco
+	hlERhboFe71jRtJ+UygNive0Q/UIT8ZR+BmbaBMWgjKF1WVfhriUbX0=
+X-Received: by 2002:a05:620a:4009:b0:939:733d:cbe0 with SMTP id
+ af79cd13be357-93ebd0e4d2dmr2283163485a.3.1791931350324; Tue, 13 Oct 2026
+ 15:42:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261009190746.803607-1-dmitry.torokhov@gmail.com> <20261009190746.803607-2-dmitry.torokhov@gmail.com>
-In-Reply-To: <20261009190746.803607-2-dmitry.torokhov@gmail.com>
+References: <20261009190746.803607-1-dmitry.torokhov@gmail.com> <20261009190746.803607-3-dmitry.torokhov@gmail.com>
+In-Reply-To: <20261009190746.803607-3-dmitry.torokhov@gmail.com>
 From: Jason Gerecke <killertofu@gmail.com>
-Date: Tue, 13 Oct 2026 15:42:10 -0700
-X-Gm-Features: AclHuK-J5KWlF3YoPuNS4YkFHAwXoG9gERQNCULJ9cs1_40ZYCpV7_jhcmM4GQ4
-Message-ID: <CANRwn3RUdGyEOJEdN1xUjEHwnBX5-UnpZZ+ZBBwY9RBB04FtUQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] Input: wacom_w8001 - assign distinct phys paths to
- pen and touch devices
+Date: Tue, 13 Oct 2026 15:42:19 -0700
+X-Gm-Features: AclHuK_vVSdpPBKX9wl3s3nrh7_1Mr_Atvo0afOjkov7vZ5leLMMruIoft8t7r8
+Message-ID: <CANRwn3Q-vJd00M3ntY7tLmnAc06Euwpqcf4C2ECm2vpvzfXG3g@mail.gmail.com>
+Subject: Re: [PATCH 3/3] Input: wacom_w8001 - use ACQUIRE() for interruptible
+ mutex in w8001_open()
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, 
 	Jason Gerecke <jason.gerecke@wacom.com>, Peter Hutterer <peter.hutterer@who-t.net>, 
@@ -99,29 +99,16 @@ Content-Transfer-Encoding: quoted-printable
 On Fri, Oct 9, 2026 at 12:28=E2=80=AFPM Dmitry Torokhov
 <dmitry.torokhov@gmail.com> wrote:
 >
-> Previously, both pen and touch input devices used the same phys path
-> "%s/input0", which made it impossible for userspace or udev rules to
-> distinguish the devices by physical topology.
+> Switch from scoped_guard(mutex_intr, ...) with an error fallback of
+> -EINTR to ACQUIRE(mutex_intr, lock) and ACQUIRE_ERR(mutex_intr, &lock).
+> This flattens the function logic and propagates the exact return value
+> from mutex_lock_interruptible().
 >
-> Assign distinct phys paths by introducing separate buffers pen_phys
-> ("%s/input0") and touch_phys ("%s/input1") in struct w8001. Pass the
-> corresponding phys path to w8001_allocate_device() during pen and touch
-> setup, and drop the shared phys buffer from struct w8001.
->
-> Fixes: e0361b70175f ("Input: wacom_w8001 - split the touch and pen device=
-s into two devices")
-
-Does this really deserve a "Fixes" tag? This does not seem to be as
-much of a "bug" as it is a limitation. Userspace and udev rules are
-(currently) able to reliably distinguish the devices by name.
-Obviously that's not ideal, but I don't see much benefit to this patch
-getting backported to the stable trees -- especially when /existing/
-udev rules aren't necessarily going to know what to do with this new
-"input1" phys.
-
 > Assisted-by: LLM
 
-Same Assisted-by comments from Patch 1/3 apply.
+Aside from the Assisted-by comment in Patch 1/3, this LGTM.
+
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
 Jason (she/they)
 ---
@@ -134,85 +121,45 @@ So you look at the sixty-fours....
 
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/touchscreen/wacom_w8001.c | 17 +++++++++++------
->  1 file changed, 11 insertions(+), 6 deletions(-)
+>  drivers/input/touchscreen/wacom_w8001.c | 20 +++++++++++---------
+>  1 file changed, 11 insertions(+), 9 deletions(-)
 >
 > diff --git a/drivers/input/touchscreen/wacom_w8001.c b/drivers/input/touc=
 hscreen/wacom_w8001.c
-> index 1c48e2775214..e967f2413706 100644
+> index e967f2413706..b34fcac44f63 100644
 > --- a/drivers/input/touchscreen/wacom_w8001.c
 > +++ b/drivers/input/touchscreen/wacom_w8001.c
-> @@ -91,7 +91,8 @@ struct w8001 {
->         unsigned char response_type;
->         unsigned char response[W8001_MAX_LENGTH];
->         unsigned char data[W8001_MAX_LENGTH];
-> -       char phys[W8001_MAX_PHYS];
-> +       char pen_phys[W8001_MAX_PHYS];
-> +       char touch_phys[W8001_MAX_PHYS];
->         int type;
->         unsigned int pktlen;
->         u16 max_touch_x;
-> @@ -495,7 +496,8 @@ static bool w8001_detect_touch(struct w8001 *w8001,
+> @@ -387,18 +387,20 @@ static int w8001_open(struct input_dev *dev)
+>         struct w8001 *w8001 =3D input_get_drvdata(dev);
+>         int err;
+>
+> -       scoped_guard(mutex_intr, &w8001->mutex) {
+> -               if (w8001->open_count =3D=3D 0) {
+> -                       err =3D w8001_command(w8001, W8001_CMD_START, fal=
+se);
+> -                       if (err)
+> -                               return err;
+> -               }
+> +       ACQUIRE(mutex_intr, lock)(&w8001->mutex);
+> +       err =3D ACQUIRE_ERR(mutex_intr, &lock);
+> +       if (err)
+> +               return err;
+>
+> -               w8001->open_count++;
+> -               return 0;
+> +       if (w8001->open_count =3D=3D 0) {
+> +               err =3D w8001_command(w8001, W8001_CMD_START, false);
+> +               if (err)
+> +                       return err;
+>         }
+>
+> -       return -EINTR;
+> +       w8001->open_count++;
+> +
+> +       return 0;
 >  }
 >
->  static struct input_dev *w8001_allocate_device(struct w8001 *w8001,
-> -                                              const char *name)
-> +                                              const char *name,
-> +                                              const char *phys)
->  {
->         struct input_dev *dev;
->
-> @@ -504,7 +506,7 @@ static struct input_dev *w8001_allocate_device(struct=
- w8001 *w8001,
->                 return NULL;
->
->         dev->name =3D name;
-> -       dev->phys =3D w8001->phys;
-> +       dev->phys =3D phys;
->         dev->id.bustype =3D BUS_RS232;
->         dev->id.product =3D w8001->id;
->         dev->id.vendor =3D 0x056a;
-> @@ -529,8 +531,10 @@ static int w8001_setup_pen(struct w8001 *w8001, cons=
-t char *basename,
->         int error;
->
->         snprintf(w8001->pen_name, sizeof(w8001->pen_name), "%s Pen", base=
-name);
-> +       snprintf(w8001->pen_phys, sizeof(w8001->pen_phys), "%s/input0",
-> +                w8001->serio->phys);
->
-> -       dev =3D w8001_allocate_device(w8001, w8001->pen_name);
-> +       dev =3D w8001_allocate_device(w8001, w8001->pen_name, w8001->pen_=
-phys);
->         if (!dev)
->                 return -ENOMEM;
->
-> @@ -572,8 +576,10 @@ static int w8001_setup_touch(struct w8001 *w8001, co=
-nst char *basename,
->         int error;
->
->         snprintf(w8001->touch_name, sizeof(w8001->touch_name), "%s Finger=
-", basename);
-> +       snprintf(w8001->touch_phys, sizeof(w8001->touch_phys), "%s/input1=
-",
-> +                w8001->serio->phys);
->
-> -       dev =3D w8001_allocate_device(w8001, w8001->touch_name);
-> +       dev =3D w8001_allocate_device(w8001, w8001->touch_name, w8001->to=
-uch_phys);
->         if (!dev)
->                 return -ENOMEM;
->
-> @@ -669,7 +675,6 @@ static int w8001_connect(struct serio *serio, struct =
-serio_driver *drv)
->         w8001->serio =3D serio;
->         mutex_init(&w8001->mutex);
->         init_completion(&w8001->cmd_done);
-> -       snprintf(w8001->phys, sizeof(w8001->phys), "%s/input0", serio->ph=
-ys);
->
->         serio_set_drvdata(serio, w8001);
->         err =3D serio_open(serio, drv);
+>  static void w8001_close(struct input_dev *dev)
 > --
 > 2.56.0.385.gd3acb90ef8-goog
 >

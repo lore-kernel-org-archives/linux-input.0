@@ -1,96 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41646403E9B;
-	Tue, 13 Oct 2026 14:58:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02DA74FE2F1;
+	Tue, 13 Oct 2026 15:04:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791903500; cv=none; b=t3Zr4gMRnwH0hiGx5+n2p6dFtYPHY6mHbHjyUkiKbf69fIbKgLa8j689LV/SFclvl4YON05eKSI3+L6HTGV6NWaTcHEkQjto+FwuZnnr5fsMhO3aqovvWNr1OUInrGQlJ3wgyOipGwDamM+oAEsDxtkBxNepDlYSO+QCb2gOxTU=
+	t=1791903863; cv=none; b=ctcXAgQCiAgLja4K+bsswhDN6aRaSNFrPnW7qcINEYkdz4GSNoqfTRjwMRfLOOGRLbgyqXgX0YioQM3XChG8qW+OhtQ9knNw5OKjEHyK6tMEG+WMr7H8MTL1FxJclgBMWb03WilVc3P795Etwc6zdaGOku13g2hPQ+acG2M4o8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791903500; c=relaxed/simple;
-	bh=AesWvpSqDZiN3Gc5vT1oG/ZFt2uFeIR/WsPgFEY4YPE=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=kwpnQQvrdaigepfDwJl/FhppmJxClvV2TX9lmBA4IhXr4f0XdjYavtYWeTJ4BAyZW5ZTX1POfIL8xuS52rjdfsKhaGE+Nenpv8sPOCIDBVIzPI6z+JySvaH4FGs00crav+suSxScY62LQvlzlXMpB+G3YfTZ+2ryDLpelvG3ZA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AXMHW/9b; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791903863; c=relaxed/simple;
+	bh=8yu9dNhZBhpIpdz+VxK7CfQMxfHf1h6XaO6awx5q90A=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=m4i7x1oXlxkonzeAHv4+zZYrT2mXQ9LSpjL+PDQJNx0pe7DHgo53D7t17/vBdBAxhR6hG9NfzhKPfGOudSLo/o9tZzw9C8LP2B8COVKPnikC3Nvqg9YyACAFm5SweWEubC6Cc7haER8IGqj46DLnwB0Lb16UcXH5e8yRNY+1K4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p+JZFug/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AXMHW/9b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7806B1F000FF;
-	Tue, 13 Oct 2026 14:58:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791903497;
-	bh=cWghkI4pZFc10+YbElzFuA7RMwPdieryb71st2duIm0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AXMHW/9bqHxTpcpDqCgvkPrl5JzHWKkdSuwVjrTX+USxyPed1/DqWQGwMBdhEKZpw
-	 ncPgBoPirswt0x5+We7mPSe3glJh5dSc4UKJoSHcarvwaLFYB2yiM+30S/kBhu642Q
-	 H3y0fr77hBTdaVQecCEvu7vKlzB7QsKBsljBQYnQZy4C+PW7Eh2U2nQNziHw/qKW4+
-	 cq+vW40DGITucEVsfRnTkP7obH+oDIMcWDZya9CGA/JkwmjGT+C/QHnMRd7SooLJAn
-	 GOMs7Acr73I5wrMRGcfd++2aTVsiVtw9cYJOMPRIpOw4kqTsdTL6usSJ8sWLuNUDbJ
-	 5Sz35nCeo7RuA==
-Message-ID: <sashiko-outbox-169953@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] Input: aw8697 - Add Awinic AW8697 haptics driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Armandas Kvietkus" <armandas.kvietkus@proton.me>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261013-mainlining-v3-2-fca981f62b57@proton.me>
-References: <20261013-mainlining-v3-0-fca981f62b57@proton.me>
- <20261013-mainlining-v3-2-fca981f62b57@proton.me>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 14:58:17 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p+JZFug/"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9D463C2BCFA;
+	Tue, 13 Oct 2026 15:04:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1791903862;
+	bh=8yu9dNhZBhpIpdz+VxK7CfQMxfHf1h6XaO6awx5q90A=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=p+JZFug/wO+zYXaedtAWHYYhSgfQgsvDozjECrbD6JgbiI2a2wX64P3PDAjJIdCoc
+	 iCBtTDeHCm+pYMw3dKq6aFLkx0OJzqcYPiFhawrhTkkGj8K3i76rGoBn8C+z8zPJ2p
+	 bKiHZXj9VWr5tVQOdkx5doX/c+9MA7RNUNl86reZSyF8e82Mseqi+CvRjs8ZhhZYqo
+	 pYibukSYcVHtqnO1yc5xXxpBZ4a9gbwc2T9tUWvHrn6//IuKG1lDkH/+AewPD7DNZ8
+	 TcOyNdAknWav8VkF8VOtPx1RGF9HjBW1C8YoG9TNSGGlYjYC1xz9w6ZrStuNR40ZHK
+	 9EByLHGUBr0Pw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76D73CC6B16;
+	Tue, 13 Oct 2026 15:04:22 +0000 (UTC)
+From: Mizuno Miotsuki via B4 Relay <devnull+founder.crepuse.com@kernel.org>
+Subject: [PATCH v4 0/3] Add Nsiway NS2009 resistive touchscreen support
+Date: Tue, 13 Oct 2026 23:04:19 +0800
+Message-Id: <20261013-review-self-ns2009-v4-20261013-v4-0-98bb21712282@crepuse.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAHNIzmoC/z2NwQ7CIBBEf6XZsxspxUb8lcYD4GIxBg2r1aTpv
+ wtUPb6ZyZsZmFIghkMzQ6IpcLjFDGrTgBtNPBOGU2aQQvataDssI3oh09VjZCmExknhv+51573
+ eWyV3HrLknsiHdz0Yjivz017IPYq1LKxhQptMdGOJVv+2+mv1Pfk9wLJ8ADxV6VO1AAAA
+X-Change-ID: 20261013-review-self-ns2009-v4-20261013-693ff98b425f
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, icenowy@aosc.io, 
+ linux-kernel@vger.kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
+ robh@kernel.org, devicetree@vger.kernel.org
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1963;
+ i=founder@crepuse.com; s=20261012; h=from:subject:message-id;
+ bh=8yu9dNhZBhpIpdz+VxK7CfQMxfHf1h6XaO6awx5q90A=;
+ b=owGbwMvMwCUmds2G2fVJ/hLG02pJDFnnPErS2MP3VQioBvCGcmhIuGVsMJo3LdGhqaZx2grT9
+ 8dP1m3omMjCIMbFYCmmyDJblL38UPOKa3MnNNnBzGFlAhkiLdLAAAQsDHy5iXmlRjpGeqbahnqG
+ RjoGOsYMXJwCMNU3BRn+CsxdWhPNNN9gActBfbeJtZOFOMVPpd7IF9DnWfmz//ccLYb/aYEnDv6
+ Z3HIvpmrNqjkPq/5yvwhKaN2xmHWHkVLu5p1b2AE=
+X-Developer-Key: i=founder@crepuse.com; a=openpgp;
+ fpr=9B150777C283A8D69D90823E16D63C0345E46FA4
+X-Endpoint-Received: by B4 Relay for founder@crepuse.com/20261012 with
+ auth_id=1166
+X-Original-From: Mizuno Miotsuki <founder@crepuse.com>
+Reply-To: founder@crepuse.com
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] irq: passing NULL devname to devm_request_threaded_irq()
---
+Add the Nsiway vendor prefix, hardware binding and standalone polling
+input driver for the NS2009.
 
-commit dcca01e09d9b46c0ca4b04c76dcbcff656133fd5
-Author: Armandas Kvietkus <armandas.kvietkus@proton.me>
+Changes since v3:
+- Require vdd-supply following Conor Dooley's review; keep vref-supply
+  optional, including for the 10-pin package without a VREF pin.
+- Manage declared supplies over the input open/close lifecycle and retain
+  an outstanding enable reference if disabling fails.
+- Use a named I2C device-ID initializer following the bot review.
+- Preserve Conor's Acked-by on the unchanged vendor-prefix patch.
 
-Input: aw8697 - Add Awinic AW8697 haptics driver
+Tested on UNIHIKER M10 V1.2 with the real vcc_io regulator: touch, release,
+dragging, open/close and inhibit/uninhibit passed. Tests used a validation
+module and a temporary live-DT supply property; the final DTB has not been
+booted. s2idle resume passed; deep wake remains unresolved.
 
-Add a driver for the Awinic AW8697 LRA haptic driver IC. It supports
-FF_RUMBLE and calibrates the LRA resonance at probe. Based on the aw86927
-driver.
+TSC2007 reuse was investigated, but polling and raw-contact handling still
+need separate policy and TI hardware regression coverage is outstanding.
 
-> diff --git a/drivers/input/misc/aw8697.c b/drivers/input/misc/aw8697.c
-> new file mode 100644
-> index 0000000000000..9f703f81df213
-> --- /dev/null
-> +++ b/drivers/input/misc/aw8697.c
-[ ... ]
-> +static int aw8697_probe(struct i2c_client *client)
-> +{
-[ ... ]
-> +	err =3D regmap_read(haptics->regmap, AW8697_SYSINT_REG, &val);
-> +	if (err)
-> +		return dev_err_probe(dev, err, "Failed to clear interrupts\n");
-> +
-> +	err =3D devm_request_threaded_irq(dev, client->irq, NULL, aw8697_irq,
-> +					IRQF_ONESHOT, NULL, haptics);
+The board DTS is a separate Rockchip series depending on this binding and
+the previously submitted common I2C2 enablement.
 
-[Severity: Low]
-Does passing NULL as the devname argument here cause issues with procfs
-interrupt reporting?=20
+Signed-off-by: Mizuno Miotsuki <founder@crepuse.com>
+---
+Mizuno Miotsuki (3):
+      dt-bindings: vendor-prefixes: add Nsiway
+      dt-bindings: input: touchscreen: add Nsiway NS2009
+      Input: add Nsiway NS2009 resistive touchscreen driver
 
-The interrupt core assigns this pointer directly to the action name field.
-When exposed to userspace via /proc/interrupts, passing NULL causes it to
-print (null) when formatted by the seq_file interface, which degrades
-diagnostic information.=20
+ .../bindings/input/touchscreen/nsiway,ns2009.yaml  |  79 +++++++
+ .../devicetree/bindings/vendor-prefixes.yaml       |   2 +
+ MAINTAINERS                                        |   7 +
+ drivers/input/touchscreen/Kconfig                  |  10 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/ns2009.c                 | 230 +++++++++++++++++++++
+ 6 files changed, 329 insertions(+)
+---
+base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
+change-id: 20261013-review-self-ns2009-v4-20261013-693ff98b425f
 
-Could a valid string like the device name or client name be passed here
-instead of NULL?
+Best regards,
+--  
+Mizuno Miotsuki <founder@crepuse.com>
 
-> +	if (err)
-> +		return dev_err_probe(dev, err, "Failed to request irq\n");
-> +
-> +	INIT_WORK(&haptics->play_work, aw8697_play_work);
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-mainlining=
--v3-0-fca981f62b57@proton.me?part=3D2

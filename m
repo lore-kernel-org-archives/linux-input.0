@@ -1,52 +1,46 @@
-Received: from mta1.migadu.com (out-204.mta1.migadu.com [95.215.58.204])
+Received: from mta1.migadu.com (out-196.mta1.migadu.com [95.215.58.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1383F503BEB
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 13:12:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.204
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A14D43B6C1C
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 13:56:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791897139; cv=none; b=cNSk+1RsanmyFBUbiUd0iZxVFPAQ1Oni51WCn67zCW1zeeCNxy6TAlgfTPU3PKStbzwjGKzYcZHgEmSfLBCmy02Xwqo2GsDBOnd59pl5trrFgypigMtC+p3N+yg0r+QOgYsIxWx5+5f0dd6O+91L3es+DO1pZlA7kzHROJfpkno=
+	t=1791899814; cv=none; b=f5lN4bfRAZexFbE91+KTaUVDtem/B8Ych/v/ssizA6cZ/n60OCerATlEagISlGKunG3tvH4NF4SeDHW9V2pqOt+t/Aza7paKfI8dYZ7x8+hWJqVN3YH9SGuIjKlGAFTZe7QfD6SsXS7rcfmi0+tRo/A7F1IL7hTs10gJ8MznGa4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791897139; c=relaxed/simple;
-	bh=GxGoMm4vBKXboCWqEywkB1ImT232d0kryycTPDywOvA=;
+	s=arc-20240116; t=1791899814; c=relaxed/simple;
+	bh=xSFFb7PWkaW97gkeM7trCyD9tBCSii9Ae975DGQazfA=;
 	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=ngsGkpI2I5vAjgBlUOsn20M063afPN2JSaCNuV5fo/vInYFBm1uPHUV2DUPzOQKbIn6wZutDj20aHA16iOT2JUfR3McFyxzTfmbC1MHEahmgnbFvYrLFzTMnux93rxtvRqdm8Tqbq4Wv7kSeruy0DApHhYiS141py5PgS+2yCfk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=kzZB8/lw; arc=none smtp.client-ip=95.215.58.204
+	 MIME-Version:Content-Type; b=Lb5m8yCHlCOc4yvFey1gMJ+4gF6I0QUfBGkKC+qYwvh4Tk/lIeSU8VYudxmQHW2zGSuhG9BjNMoE4RfCz1bz+8ytwJmEBYnGki9Ph56u4LwxFBSuWL+z+IcPrsAH/qpIexNzGyaOORLONk/2c7RDI/LS0mNjkjL3C8YPE+hI0cc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=AISG7Woa; arc=none smtp.client-ip=95.215.58.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="kzZB8/lw"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="AISG7Woa"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=GxGoMm4vBKXboCWqEywkB1ImT232d0kryycTPDywOvA=;
+DKIM-Signature: a=rsa-sha256; bh=xSFFb7PWkaW97gkeM7trCyD9tBCSii9Ae975DGQazfA=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1791897134; v=1; x=1792501934;
- b=kzZB8/lwMeNbLUdjZV8TbLFvLtF/o6EeW3PgDCK1gNj1AtCu4JTADoRJAj7+NAEiWAI1SD+I
- ZB98d8xRPaNVKGRWOmr/TuRrhhwIgwtPKyDbYQJCvk5cmojxhNPFHD1mKBrWB1SORqZKqVI9Xnz
- ZT353KTwb/kXSmHdCxkGwcxk=
+ t=1791899810; v=1; x=1792504610;
+ b=AISG7WoaXVoFT1krIS9wbLLMMEJ/WQR3DMNL5WN/+8wEsCPRlYGI2KoqHhAhm9GFC+U8xdFV
+ sRACsulGyDrIHtrXIINU5VouPm4a0Zd8Ls+MLWxgrs3xv5XjSz96ufnfJloBjzzWfOxE8OvduDm
+ bAj4Zajsm+qxfGJu+T38+FaI=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 66a73f73837eb63b;
-	Tue, 13 Oct 2026 13:12:14 +0000
-X-Mizu-Trace-ID: 66a73f73837eb63b
+Received: by smtp.migadu.com with ESMTPS id b0b7d4626a6db7bb;
+	Tue, 13 Oct 2026 13:56:50 +0000
+X-Mizu-Trace-ID: b0b7d4626a6db7bb
 X-Migadu-Flow: FLOW_OUT
-Date: Tue, 13 Oct 2026 16:12:04 +0300
+Date: Tue, 13 Oct 2026 16:56:39 +0300
 From: Denis Benato <denis.benato@linux.dev>
-To: Thorsten Leemhuis <regressions@leemhuis.info>
-Cc: Ahmed Yaseen <yaseen@ghoul.dev>, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Antheas Kapenekakis <lkml@antheas.dev>,
-	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Alan Stern <stern@rowland.harvard.edu>,
-	Kerim Kabirov <the.privat33r+linux@pm.me>,
-	GameBurrow <gameburrow@pm.me>, regressions@lists.linux.dev,
-	linux-usb@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Message-ID: <2f85200c-ecc3-4318-9156-16ace09cac7f@linux.dev>
-In-Reply-To: <fe51a4ac-540f-4d14-ba76-b69b0eb17164@leemhuis.info>
-References: <20260828104159.62399-1-yaseen@ghoul.dev> <20260828104159.62399-2-yaseen@ghoul.dev> <fe51a4ac-540f-4d14-ba76-b69b0eb17164@leemhuis.info>
-Subject: Re: [PATCH v2] HID: usbhid: skip interrupt IN polling for devices
- with no input reports
+To: =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>
+Cc: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Luke Jones <luke@ljones.dev>,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	Ivan Levchenko <me@livan.pro>, Nathan Chancellor <nathan@kernel.org>
+Message-ID: <424edeef-9663-4e64-a267-66a185b3df07@linux.dev>
+In-Reply-To: <20261013114506.1697676-1-rebecca.mara@posteo.de>
+References: <20261013104033.36079-1-p.pisati@gmail.com> <20261013114506.1697676-1-rebecca.mara@posteo.de>
+Subject: Re: [PATCH v3 0/7] HID: asus: ASUS Zenbook Duo keyboard support
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -55,90 +49,66 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Correlation-ID: <2f85200c-ecc3-4318-9156-16ace09cac7f@linux.dev>
+X-Correlation-ID: <424edeef-9663-4e64-a267-66a185b3df07@linux.dev>
 
-13 ott 2026 15:55:33 Thorsten Leemhuis <regressions@leemhuis.info>:
+13 ott 2026 14:45:22 Rebecca Mara M=C3=BCller <rebecca.mara@posteo.de>:
 
-> On 8/28/26 12:42, Ahmed Yaseen wrote:
->> usbhid starts polling a device's interrupt IN endpoint on open
->> (usbhid_open() -> hid_start_in()). If the report descriptor declares no
->> input reports there is nothing to read there, so the poll is useless,
->> and on some composite devices it is also harmful.
->>
->> The ASUS ROG N-Key keyboards expose a second, input-less interface used
->> only for RGB control via feature reports. Opening its hidraw node (any
->> hidraw reader does, including SDL/Steam Input or a plain cat) starts the
->> pointless IN poll and keypress reports on the keyboard interface get
->> dropped for as long as the node stays open: a lost key-down drops a
->> letter, a lost key-up leaves the key stuck. usbmon shows the dropped
->> reports never reach the URB layer.
->>
->> The useless poll itself is long-standing; commit 4ac74ea68f64 ("HID:
->> asus: early return for ROG devices") is what exposes it on these
->> devices by keeping the input-less interface alive instead of ejecting
->> it, so its hidraw node can be opened and the poll started.
+> On Tue, Oct 13, 2026 at 12:39:57PM +0200, Paolo Pisati wrote:
+>> - Bind the Bluetooth IDs to HID_GROUP_GENERIC as well: over Bluetooth
+>> =C2=A0 the touchpad is a second HID device with the same IDs, which hid-=
+asus
+>> =C2=A0 must leave to hid-multitouch (Sashiko).
 >
-> Hmmm, what's the status here? Ahmed, is this still needed, or was this
-> fixed in some other way? From the the outside it looks a lot like this
-> regression fix feel through the cracks, but would be good to get into
-> 7.4-rc1 to finally fix the dropped keypress reports.
+> I re-tested v3 the same way as v2 on a UX8407AA: applied on top of
+> base-commit 8099f9da59f1 (the resulting hid-asus.c matches the index
+> line of 7/7), built unmodified as an out-of-tree module against a
+> 7.0.11-based distribution kernel, with my userspace workaround stopped.
+>
+> - Docked (USB, 0b05:1cd7), module loaded with the keyboard attached and
+> =C2=A0 then three dock cycles: the five keyboard interfaces bind to hid-a=
+sus,
+> =C2=A0 the touchpad stays with hid-multitouch. Hotkeys, keyboard backligh=
+t,
+> =C2=A0 volume/mute, mic mute, the screenshot key and Fn+F profile cycling
+> =C2=A0 (balanced <-> performance) work. The delayed handshake re-send nev=
+er
+> =C2=A0 failed.
+> - Bluetooth (0b05:1cd8): the keyboard device (generic group) binds to
+> =C2=A0 hid-asus and the touchpad device (multitouch group) to hid-multito=
+uch,
+> =C2=A0 as intended by the v3 change. The same keys and the touchpad work.
+>
+> The screen brightness keys emit KEY_BRIGHTNESSDOWN/KEY_BRIGHTNESSUP when
+> docked (checked with an evdev reader).
+>
+> My Tested-by from v2 holds for v3:
 >
 
-Hi Thorsten,
+Hi all,
 
-This is very much needed and we had to include it in OGC kernel to avoid hi=
-d devices resetting constantly.
+I'll re-send this mail as the other client formatted in html and the mailin=
+g list rejected the message. Apologies.
 
-It is a very important fix and we are waiting for inclusion upstream becaus=
-e games becomes flat out unplayable with certain combination of tools.
+I'm currently on vacation so I will need to postpone reviewing this.
+
+My greatest concern is with report size: every device needs its own and har=
+dcoding it is not an option anymore because no device can be fully made hap=
+py (and working): xg mobile is 300, ally and new ROGs is 64, some have 32, =
+some 16 and I think TP is 15.
+
+
+I have yet to look at the patch that changes the report size but please mak=
+e the report size variable reading it from the descriptor.
+
+I will be beack the 18th October.
 
 Best regards,
-Denis Benato
+Denis
 
-> Ciao, Thorsten
->> Skip the poll in usbhid_open() when the device has no input reports.
->> Feature reports and hidraw output keep working over the control and OUT
->> endpoints, so the interface is otherwise unaffected.
->>
->> Fixes: 4ac74ea68f64 ("HID: asus: early return for ROG devices")
->> Link: https://discuss.cachyos.org/t/keyboard-input-issues-on-asus-rog-st=
-rix-16-2025-with-cachyos-during-gaming/30823
->> Link: https://github.com/ublue-os/bazzite/issues/4590
->> Cc: stable@vger.kernel.org
->> Tested-by: Kerim Kabirov <the.privat33r+linux@pm.me>
->> Tested-by: GameBurrow <gameburrow@pm.me>
->> Signed-off-by: Ahmed Yaseen <yaseen@ghoul.dev>
->> Reviewed-by: Denis Benato <denis.benato@linux.dev>
->> ---
->> drivers/hid/usbhid/hid-core.c | 9 ++++++++-
->> 1 file changed, 8 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core=
-.c
->> index 96b0181cf819..d7cf2b56e117 100644
->> --- a/drivers/hid/usbhid/hid-core.c
->> +++ b/drivers/hid/usbhid/hid-core.c
->> @@ -688,7 +688,14 @@ static int usbhid_open(struct hid_device *hid)
->>
->> =C2=A0=C2=A0=C2=A0 set_bit(HID_OPENED, &usbhid->iofl);
->>
->> -=C2=A0=C2=A0 if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
->> +=C2=A0=C2=A0 /*
->> +=C2=A0=C2=A0=C2=A0 * ALWAYS_POLL devices are already polled from usbhid=
-_start(), and a
->> +=C2=A0=C2=A0=C2=A0 * device with no input reports has nothing to send o=
-n the interrupt
->> +=C2=A0=C2=A0=C2=A0 * IN endpoint. In some cases polling is harmful: on =
-the ASUS ROG
->> +=C2=A0=C2=A0=C2=A0 * N-Key keyboards it makes the sibling interface dro=
-p keypresses.
->> +=C2=A0=C2=A0=C2=A0 */
->> +=C2=A0=C2=A0 if ((hid->quirks & HID_QUIRK_ALWAYS_POLL) ||
->> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 list_empty(&hid->report_enum[HID_I=
-NPUT_REPORT].report_list)) {
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 res =3D 0;
->> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 goto Done;
->> =C2=A0=C2=A0=C2=A0 }
->>
->> base-commit: 8d3ae59288f1e7d58d76558a6ee96d533bc5019f
+
+
+> Tested-by: Rebecca Mara M=C3=BCller <rebecca.mara@posteo.de> # UX8407AA
+>
+> Thanks,
+> Rebecca
 

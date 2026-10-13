@@ -1,79 +1,79 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9607B4B827E
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 10:40:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEBAB4BA1E1
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 10:40:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791888045; cv=none; b=pvV0CQy3xInmGKEaobUfK8Hxq6Gv3busG/hw0Myu/Q9t0BhoYddk3g1CXG+7KJXpd8/CBMxC+pTfAdwOtYRx4cqzvweiD7ZPlb9v1z7U1dFyiSB/24vHcDu6HAXI8jxJD5fPfjB+g+spKEcT/IYHQmzIHcKNvpB3lLJooiETj4A=
+	t=1791888046; cv=none; b=amYpMOygP3b772dARugjY6nSh9StSFhOUt7Qgf9Xq7f4CTYOHKQK6NO5lpZpFaSpGfDjftIwN7ytsIWkTrtJNUkYuAIe/RylDUDcAKzrnpadY7+PHSgNKitm9v/93PSjDhPk7llFz2JviVeUEkiFH5nf/8CIbJZpAUECz/Uswak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791888045; c=relaxed/simple;
-	bh=qHY9r794klptAm5NgR6mXYBmIoJYfriMTv6kSe8rYJ8=;
+	s=arc-20240116; t=1791888046; c=relaxed/simple;
+	bh=zyhm+tvPqyFdAt4LKL/7t6P2vmUJBYQRiGLkrIn2NRg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ee2mQAhQbYOkt41vetgOfa0TCQSnItWiX/LV162f0n8PVOM+loXZkcab36cb/YbccSOkzB+a8YnQY0FY5TkpsHEcdNe8sE+5cECsSbBM5v6o8CUrgerpA2GbnJvgPo52rBlc51FeRgsQPvvuxyseq59jODJOuKKlaPrkjeOGxiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iLbe/A6S; arc=none smtp.client-ip=209.85.221.47
+	 MIME-Version:Content-Type; b=OyPtQQlLVvYzaF/uy2Dql8MwZvxXQEyXlPNwkDT/WCFvnYQJJvkmMyNAXf+g4lLaPKsP8xRQhMeTkm3bHCP4Xpm+r6NmHcDp8cj/khrUyUhcuVHI1LAzaKXCe7xZnEYgLVWrBMXAQxA2zSJeQCurlMQAIzav8CG742ieK2z72sQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rj8VIV5U; arc=none smtp.client-ip=209.85.221.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iLbe/A6S"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-48c4207ac26so2684977f8f.0
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:40:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rj8VIV5U"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-48c4d870d54so1651866f8f.2
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:40:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791888042; x=1792492842; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791888043; x=1792492843; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=sVHIxs+v+8cplWEc7E3k57dIUCgaz9TOVCQUjbnRADs=;
-        b=iLbe/A6S0R27vOfdRSw57HIOMG9w9805Y8l8y+5xtDtoKjWLV6Iz3yD4d4mYcDr07F
-         9ZfC0tWV4Hrkoel2mcU+w9svCa4kj9AWwU5ZIZXfSSYhJpIRQjk2Rqf/63E5Fanzk9qF
-         VUMlAxAzA29NgakPZOi3d15Fw4QQtzvOyL11iy1eSJRN5mp8IhZp4X6nRwry1mH+XywD
-         o1k3qcatODG/kIxFbY6aMw86+SXzuq5nHOKN26B7FYi1UeucgWMUw5eemYSdLE37wBc1
-         CuIOUqiz6EYNqJySjMMdjNN71Y4wmrxD56+XHVS8jQYu+x4sLSmPEMbxppIEWakJ3baM
-         +3Ng==
+        bh=qDhbS9FDOqI4/556ADfkrnJPUMQ/QAqgRJ0YFjeCtUc=;
+        b=Rj8VIV5UCnENjgJC0b5ZKaNO1xawhm3vfszgk3QebHMi5lI9Ji5OP8PDb7iu4qkPm2
+         H3sb6egWd+UTg73vjivrk1LlJD6UYQsMorUb7gnGfCpfhleMbJoAKeYhccxKQUtiLw+j
+         c/GWCyitDJq7hfOPxllDWZqi/X47NwBW0gc0DZd/EVs5lLfqf46iWym3VCFmW4LnEg1j
+         5EoFiDYCGt1ZZY3dVGlIORDhvaIK34QxYjwB+1O7cZPJ8XihnUKje8xZZqgmmIcJFbcw
+         m1mlhoFNm86ROEhNp0lLdumMWv6iPTSLuFVpXBxH8O3JQjR5YsidSeBFVwjaCxtSesC+
+         u20A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791888042; x=1792492842;
+        d=1e100.net; s=20260707; t=1791888043; x=1792492843;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=sVHIxs+v+8cplWEc7E3k57dIUCgaz9TOVCQUjbnRADs=;
-        b=rgeiujXG9yYnv16kLXdSjDV8+bgCLOClB8iS33cItOj3Kiuq4jO7yfxwlt4+JS+rB7
-         IOqhVg8hAagYRxcT7jjvY/dBFAQx3Rm+Mth8pa6nBtUS95dncnLb9BfzumOlJLcCNzD2
-         3tZTV0KzlBuCwnXfsmKiFRIjfYEE66lGyh1PIT8b1mkiadQy7QUCEkBDB26tVPLhPuu8
-         07CHOy2cyXmjTjmyLvLsvDWY/17m7fndBMoJaVTWbYGMS4VyKlOVrzwxmgGlRRokBZQX
-         ZRKa7DRQxzdnFqwNxbliLOjSB/uJ6jmHw1gO8y6kCo3OMfQrl5hgMdkMOlcjnkrmMM6r
-         3KaA==
-X-Forwarded-Encrypted: i=1; AKwUvBziMhef7/xnZ6smlPACxfWujVqiN3ntzqJoq8lWvxammTIM99bu2HplaXO8Hxw/NP8lE4dRdjcpYElzKQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKyaxmx6pKcfxdLgEle/ttjagiWfFTOMBdK1/VVVXfFucaSCTsf
-	Yyuu4hw1S4yRcqp8OjexRVF9JWyJdWRDseAgcJ40QCdG7hAS2bNm8kuq
-X-Gm-Gg: AYBFou2cSrq3JumUpA7R9oaHC3xgScVuGGaRCTjDdClXGGVo/wA3ni6aJ4yN9XoO6/l
-	R5phKIb+qUvmKH9r4eZOAW7LKLtymk2P+np0E6KJpEww93C6X8fXNwL4EPWtLlHt9+dTyZqmnXB
-	Ot+amUcHvR7Ied3xCBEnOljV1RwOBt1mjYzTCXMnOFdscSGmJoN3vhORdrMskcZc9C9ZkpvR6E3
-	qb8PANauXZxkXxwtIkw5aHXjjdj8nxEztgXpSt2Cg0pc1GaJnGRq5Bf9c2msIaMD8MbTuY1rQKN
-	yKK1MRvv+/MSdiR0vMiv0Qa/uKxRUUQCPAtzwPk+WN1KXMo2kiOk4BSkYPgwREmZv3+genYLMhz
-	tBgdDk59YxLlPsNiFyCBSGXVFmwmCwCWUPJq1860BXPSU/trV3/VH50hDuXdFeSEt0VTzjPBuTw
-	DwUes4O9oYl+lZcAMT3UG7Y85Szmet16DksOo1BOHIB0/Ox4iiKxJh9joYsOqziqYeN0rg2oQv+
-	LBUNfueSDn0vNVss4UerVai2+9CxXk6hfAx0Q15bJ9eagnDzuBV9g174zIS9Aq5JJJt
-X-Received: by 2002:a05:6000:27c6:b0:48c:58c6:99ab with SMTP id ffacd0b85a97d-48dba78775fmr15263242f8f.4.1791888041560;
-        Tue, 13 Oct 2026 03:40:41 -0700 (PDT)
+        bh=qDhbS9FDOqI4/556ADfkrnJPUMQ/QAqgRJ0YFjeCtUc=;
+        b=vg+d5KsGCP8HHhY4IZENItoWQJWxDPrHVLm9Nx0xBoCLPm0UeOmhSbw9a6YIxdSx69
+         ayLlr8kFsLVSL1orQJDIxPAP7+3gkQG+1ULTuT9r5gDiKy15632Pq5KJKZIqBYP2tg8B
+         U9NbJjyhp/54OH1+KJWZjmjePDn+4Z/mHLr4d5XN840xtv281rDLb17uokoGurazTxcJ
+         dLEk7TqZoCsbrWe1So3QBYMvUT+BFl8qv9K9z6kIAKIeDw5ZF/+FfkdQ/4wDQdBJrkC8
+         +iVoLOwxZVCMgCvSsbOaQdHhmNdcySpUYDb1JBUmOI0Ir1ZSBDquQ4qhWSbJxUI/Ug4I
+         Eygg==
+X-Forwarded-Encrypted: i=1; AKwUvBy56NJ48zDXSQ65HeHk5iVl5hiUC0mSWzkEAstcHFVT05/C7jodC1JQpJALMOq0Pb99LVlt6DGPAkte7A==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIEJ/iHgGoL6QyXE22u9EHmwDclBy2q6CjU55btyzqc6H7rgU9d
+	4EfNgv2pcpudi5MxnUNgzuUmpel3j/yFApQGM2OUQsuNApsDU+yUIEsz
+X-Gm-Gg: AYBFou3xGheoFSQXETyIIge7qdPGvnnnnIx/ZnQCrFG296KjDJ+19OA5bVN4FEmWC4K
+	98Jav51zc+2aIGVzbXnVeF6fRYPc1/Ign4FFYwZVPCLI8tR5iCZgHl0brcWj44uA0R9ud/39y6l
+	cxz736+iNnnz3yNY+LNmNHtUKAqJFDfKPpwJ8paP+YtspxW6yxJSQ/s6iLhI7RJnrLtj1/vQHa6
+	BXl7o6z2djU+4hKuOYxsWNMm9Z79QTURmmt2sCJbv7SbPugX0Qz97TbKCE6rc0LdPjhWXQK3Tpm
+	aEiQu+F9lPXHADOZq03w7OkgI0CnbUVUqB5w4B5q0v/qQ7Vr7EZoYFPuKpYqWk1S1huRUi/RS6K
+	JXgHM0/hdqUbA/6oD6bSsnClogQLrqH7i+VX18KodYyYsRuFEK2FHcfpvYExyYoT5Z64lTtSB7D
+	FvmTrFefmYmIe3XuT6ccl+Xmja8d7U+59MSzQMdgWnh7/RSRuXm0NV1pDSQS1euVD35iZ22NiGK
+	+d5owf+GevHiXjpQhNV0vH2/NHI7uIxsTUuDWvY+ah7+p/nA2TRxbBbOQ==
+X-Received: by 2002:a05:6000:2085:b0:488:7496:15b5 with SMTP id ffacd0b85a97d-48dbacf126amr21938485f8f.47.1791888042775;
+        Tue, 13 Oct 2026 03:40:42 -0700 (PDT)
 Received: from gmail.com ([2a01:e11:1403:8620:e22b:cb88:4091:8aab])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0ac3ac5sm4498184f8f.38.2026.10.13.03.40.40
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0bd777fsm4058709f8f.57.2026.10.13.03.40.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 03:40:40 -0700 (PDT)
+        Tue, 13 Oct 2026 03:40:42 -0700 (PDT)
 From: Paolo Pisati <p.pisati@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Luke Jones <luke@ljones.dev>,
+Cc: =?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
+	Luke Jones <luke@ljones.dev>,
 	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
 	Ivan Levchenko <me@livan.pro>,
-	=?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>,
 	Nathan Chancellor <nathan@kernel.org>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v3 6/7] HID: asus: add prod-id, quirk for Zenbook Duo keyboard
-Date: Tue, 13 Oct 2026 12:40:03 +0200
-Message-ID: <20261013104033.36079-7-p.pisati@gmail.com>
+Subject: [PATCH v3 7/7] HID: asus: Re-send the Zenbook Duo keyboard handshake after probe
+Date: Tue, 13 Oct 2026 12:40:04 +0200
+Message-ID: <20261013104033.36079-8-p.pisati@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261013104033.36079-1-p.pisati@gmail.com>
 References: <20261013104033.36079-1-p.pisati@gmail.com>
@@ -86,92 +86,100 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Luke Jones <luke@ljones.dev>
+From: Rebecca Mara Müller <rebecca.mara@posteo.de>
 
-The 2024/2025/2026 ASUS Zenbook Duo has a similar keyboard setup as
-many of the ROG range of laptops, with the same init sequence and
-control for backlight. Enable the keyboard control and backlight by:
-- adding the product ID for 2024/2025/2026 Zenbook Duo keyboard MCU
-- adding the Bluetooth Zenbook Duo keyboard IDs
+When docked, the Zenbook Duo keyboard powers up in F-key mode and
+needs the "ASUS Tech.Inc." handshake to emit hotkeys at all. The
+handshake sent from probe is lost again when hid-multitouch configures
+the touchpad on the sibling USB interface, which resets the keyboard
+to F-key mode, so the hotkeys stop working as soon as the touchpad is
+set up.
 
-Intended for the UX8406-style product line with the fully removable
-keyboard.
+Re-send the handshake from delayed work two seconds after probe.
 
-The keyboard also exposes its touchpad as a separate HID device with
-the same IDs, an interface of the USB device and a second device over
-Bluetooth, so bind the IDs to the HID_GROUP_GENERIC group only, like
-the ROG Z13 Folio, and leave the touchpad to hid-multitouch.
-
-Fn-lock is left out for now: with QUIRK_HID_FN_LOCK the Fn-lock report
-is sent to every interface of the device, before the handshake, and on
-the UX8407AA that stalled the hotkey interface for good. It can be
-added back once the driver only sends it where and when it belongs.
-
-Signed-off-by: Luke Jones <luke@ljones.dev>
-Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
-Signed-off-by: Ivan Levchenko <me@livan.pro>
-[pisati: bind the IDs to HID_GROUP_GENERIC only, drop
- QUIRK_HID_FN_LOCK]
+Assisted-by: LLM
+Signed-off-by: Rebecca Mara Müller <rebecca.mara@posteo.de>
+Link: https://lore.kernel.org/r/20260811125548.1975748-1-rebecca.mara@posteo.de
+[pisati: taken from Rebecca's standalone UX8407AA patch and adapted to
+ the current driver; initialize and cancel the work unconditionally]
 Assisted-by: LLM
 Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
-Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
 ---
- drivers/hid/hid-asus.c | 24 ++++++++++++++++++++++++
- drivers/hid/hid-ids.h  |  6 ++++++
- 2 files changed, 30 insertions(+)
+ drivers/hid/hid-asus.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 7b17553e94b6..503396963eeb 100644
+index 503396963eeb..ce413eb011c4 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -1849,6 +1849,30 @@ static const struct hid_device_id asus_devices[] = {
- 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
-+	/*
-+	 * Zenbook Duo detachable keyboards. The touchpad shows up as a
-+	 * separate HID device with the same IDs, over USB and Bluetooth:
-+	 * bind to the HID_GROUP_GENERIC group only, like the ROG Z13 Folio,
-+	 * so that hid-multitouch keeps handling it.
-+	 */
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
-+	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
-+	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
-+	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
- 	{ }
+@@ -173,6 +173,7 @@ struct asus_drvdata {
+ 	unsigned long battery_next_query;
+ 	struct asus_hid_listener listener;
+ 	bool fn_lock;
++	struct delayed_work reinit_work;
  };
- MODULE_DEVICE_TABLE(hid, asus_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b3aca5aa9176..59f44204d738 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -228,6 +228,12 @@
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD	0x1866
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2	0x19b6
- #define USB_DEVICE_ID_ASUSTEK_ROG_Z13_FOLIO		0x1a30
-+#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD	0x1b2c
-+#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD	0x1b2d
-+#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD	0x1bf2
-+#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD	0x1bf3
-+#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD	0x1cd7
-+#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD	0x1cd8
- #define USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR		0x18c6
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY		0x1abe
- #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X		0x1b4c
+ 
+ static int asus_report_battery(struct asus_drvdata *, u8 *, int);
+@@ -1474,6 +1475,17 @@ static int __maybe_unused asus_reset_resume(struct hid_device *hdev)
+ 	return 0;
+ }
+ 
++static void asus_reinit_work(struct work_struct *work)
++{
++	struct asus_drvdata *drvdata = container_of(work, struct asus_drvdata,
++						    reinit_work.work);
++	int ret;
++
++	ret = asus_kbd_init(drvdata->hdev, FEATURE_KBD_REPORT_ID);
++	if (ret < 0)
++		hid_warn(drvdata->hdev, "Failed to re-initialize the keyboard: %d\n", ret);
++}
++
+ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	struct hid_report_enum *rep_enum;
+@@ -1570,6 +1582,8 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			is_vendor = true;
+ 	}
+ 
++	INIT_DELAYED_WORK(&drvdata->reinit_work, asus_reinit_work);
++
+ 	ret = asus_worker_create(hdev, drvdata);
+ 	if (ret) {
+ 		hid_warn(hdev, "Failed to initialize worker: %d\n", ret);
+@@ -1605,6 +1619,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		}
+ 	}
+ 
++	/*
++	 * When docked, the Zenbook Duo keyboard drops back to F-key mode when
++	 * hid-multitouch configures the touchpad on the sibling USB interface,
++	 * which can happen after the handshake above. Send it again once the
++	 * dust has settled.
++	 */
++	if (is_vendor && (drvdata->quirks & QUIRK_ZENBOOK_DUO_KEYBOARD) &&
++	    hid_is_usb(hdev))
++		schedule_delayed_work(&drvdata->reinit_work, msecs_to_jiffies(2000));
++
+ 	/* Laptops keyboard backlight is always at 0x5a */
+ 	if (is_vendor && (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) &&
+ 	    (asus_has_report_id(hdev, FEATURE_KBD_REPORT_ID)) &&
+@@ -1639,6 +1663,7 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	return 0;
+ err_stop_hw:
++	cancel_delayed_work_sync(&drvdata->reinit_work);
+ 	if (drvdata->listener.brightness_set)
+ 		asus_hid_unregister_listener(&drvdata->listener);
+ 
+@@ -1654,6 +1679,7 @@ static void asus_remove(struct hid_device *hdev)
+ 	if (drvdata->listener.brightness_set)
+ 		asus_hid_unregister_listener(&drvdata->listener);
+ 
++	cancel_delayed_work_sync(&drvdata->reinit_work);
+ 	asus_worker_stop(drvdata->worker);
+ 	hid_hw_stop(hdev);
+ }
 -- 
 2.43.0
 

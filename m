@@ -1,118 +1,108 @@
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BD8347F764
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:42:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58B0379C56
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 03:57:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791862961; cv=none; b=NZZjdRaJIQvOu9P42JuxDCw/lz/BbBk32KSIaQpZc0hNpO90QDjFz0NzB7WKJ0vsBmpYu1Cja8jpnvdWf/H/V5c5QlX5r/JV6oyJ0VnpYidDHumn0AT9razx4oVc+h6klNnMXFDPjQ0cTfQR3iPJ54uAcHXZYzJ84nkl3qjd8GM=
+	t=1791863831; cv=none; b=QO95KqCrF5YJmG6ER2+8WoLosdmj5dWgzSPqCkwMwe5o6tAkLL5BLU3VlRK6MFwnc3Iu44Z/jPQ2bXaA6cKqkjFzgM5bnynVrabiNOZ3lx0X5G8ZlV0CNm+593hXpg6yDQ7IUSxd/1w2zpahLiaYLCqNEmuXmu6SHwBqPn2uuRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791862961; c=relaxed/simple;
-	bh=vOJczOjB0TyoKQuVkW2orzE70JFVuyQyf49j8eErCTk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=C6BPiKGGamxWgGac6Z5oUzyuyIF+AiLt6FlnhljCnbDfjKArYdrHh2fDddRjbrHjiTH+ruxxfOwLakt/vJkwurcap4lWHQnTfS3miwuRhVwzpI2KsIVgTTODRnzZy/Fp1BuTdy6zL570ed2nx4Z/zsKFfIRyixH2Zq57DqDyu0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dL7/Qskh; arc=none smtp.client-ip=74.125.82.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791863831; c=relaxed/simple;
+	bh=BxgSs0P1taReAKpeQDAvm7pto6zXKv5qnKOHslgxlc0=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=mc96moJVQZ0aHsT0y9bMKlsQUvMTAH7mLDhfPmG0Z8Y4/jvj7Akq3DNY2RqJ/BOghEBOONJBhV9Fd6bNF34K50M8rM0yvOdrDr+vSVM5yj+giaQtbMaXzyajDEOXf4WQir0WLrvGFy+eg/zW9A0rLXyxyT4gBK5pwnyeF1SGZ64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kU24/YKI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dL7/Qskh"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-354ba08cfd1so4387245eec.1
-        for <linux-input@vger.kernel.org>; Mon, 12 Oct 2026 20:42:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791862959; x=1792467759; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=2jUpAcTrC5YTZFZzQ8gUcjDGHz/C/y6LLOxwXLI1DTw=;
-        b=dL7/QskhLLhR9SP9+FZZekIxX856Velzj7ahazF1Zt//zguqFw3lGjmS7wfTP95zBV
-         xJ7pI+IpvIJkA+7gAmjgnWN5DixYAqrSd0AT5LUpVup9LsPclxnKg2qWaSO+FAqwIX7q
-         e6+V4vu3oTVNIVA9jofoet4s3ebPu35e2a/Sen+ss4z5dQyB/VGM69ZrvyfDzZY9mTHr
-         h483MpyGkODTtCml8J4eDCizA+eHmj0lcC1cLKo0C4n8HYupZyHRBZFeUBt8Z5kI0c95
-         cT7mD+SM4VO+UGMb1VRYbJURBwWQfscy+nbBvxcwrlC5PU63N1FMrJ9gAx1JXKFHRlds
-         dPKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791862959; x=1792467759;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2jUpAcTrC5YTZFZzQ8gUcjDGHz/C/y6LLOxwXLI1DTw=;
-        b=YBprsvVy2iNJ31hPme/fQL0p3lJGQGH/B0XshDa8kZU2guCs3cDyW5jnCYWFtcMZkV
-         rxlLLtbJHnce3VJVYo3WfQ5LpO0Bz3t0MIKsjwbCa4Nipn/e1pCSu3DFJp3OGhAIf47R
-         FsyNXoJejOYp2J4JZ7n4/y6hbh8NxVlvxJycOJVVgWOnJKtd1aH5GCahrrv8bYQy/Zxm
-         yOOYjwKZPFDO16Fu1hd6gUCwLVIVBZWTHnY5HoNRiOXLoWPf/e6S3EKxtZIGAoWZ0dJf
-         M9aO6T+dpWV5QyWAhQ74h/0iZtw9gLL++DlJ8VhqzfQzTV0nyDkp5CcN4eSy3k0r0oWk
-         n4JQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxpbKFaRt/ciFGFgcPfqjyyWM5vxwZdfoC3JtU8syrB+B9aR7XMl2Ckez2j3ZTpEFNupQ/CaLl4NZ3Y0Q==@vger.kernel.org
-X-Gm-Message-State: AFq9FYICLb0fZZg+3v7/6eCY5G1DPYWbesP7BG7VKrJTFPoffPR/+aJ8
-	4/OTTwB0w8nwW2TF25eaxPNjJ8DS6f/LiuZFlB91vLGcl3TouEK9rBtl
-X-Gm-Gg: AYBFou1JuCLC2N006D+oslz2Gm6Zw9Av3BxTOnMtoYMwQuRcN2gK4dqka2qTh9yM9un
-	AGehjPzg7BSdQaJSVCD3lRokBmEtgomCAl5uBDJlXiwgKmwxiJsNuW8NH0bnwqH5uITi/9LD+8H
-	nKm9c67W+1nbQdDUAToC5cApzM4f/M2IucSDumcfeCuBN/dHbXRvarIFymkO/mqCUiD5u5VSTN2
-	wrFddDkv9ITBAlJo341KbsDxqKmFk04JLldxoqdxxqlkPbZzXNfIjABgeAHvv7S0bvS3B3OLob/
-	nIwmHISuVA4LcJs6raYHP0aMN+rJBBXZD+IU4d+M4NLxBxf9W4pxoI2Wv4CmEFEErjdLkjKh3Mt
-	XLIB/UPVTAoJ8ph1ZWvTw6bHo2dFbUnKUANO4DuyUPa57gpsRne8fJiYUW3LO4cQiGvF5Hg2opq
-	yjQd/64HSnRoXx7udriYgTDeggS+g6Akn55vhM1LPtqdZDInh97ULpidEjlBj88fXA61aW1qCtu
-	nSp2U8O7gTEd9U1tFB4S8uUw4Vo3z5IKfk3AV7ClZxfp+UHkhHVyeL0xSEHEUs=
-X-Received: by 2002:a05:693c:4151:10b0:351:70ec:1071 with SMTP id 5a478bee46e88-3537e0866d5mr17875344eec.16.1791862959195;
-        Mon, 12 Oct 2026 20:42:39 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:679a:f35b:7c29:e0f2])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cb68e56sm35268677eec.29.2026.10.12.20.42.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Oct 2026 20:42:38 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Mon, 12 Oct 2026 20:42:25 -0700
-Subject: [PATCH 9/9] HID: playstation: Drop redundant report ID validation
- in ps_get_report
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kU24/YKI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ED841F000FF;
+	Tue, 13 Oct 2026 03:57:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791863830;
+	bh=fcLxbl66svv+3JYbbmWVMOC09q8Cqpy6mHlqxHxjiHE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=kU24/YKIQllMeP7ip+o1ovEJg7vI7yMU7XS9tYU75nFMzs41MkFwQYEt4NRjQG0YI
+	 WMAjE5p8zVo/ZRkXbmkresS/bCMGHbCcgnRgN6OB8RzLwmhG3quaHC3oxEy0sebjVA
+	 nLdDoUTHCBxOKyxTwrli41wnSjJM4fxfj+P3BwUITgJWpkOOn0LS8uoJcYuTvxFrv9
+	 22VdNydjr/L6eWb35o7HGBMk+rML1LWO7ZIacxc5LN8ch0F5rU4EGP/HJYs+8leUk9
+	 2FidwIXq3Ao/9Jq1sI9bfdJu/v6nwtZENVWpL43MvxkueDTFl1+r7m5fOlawDJcDmm
+	 PidmbyOyvK4AQ==
+Message-ID: <sashiko-outbox-168940@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 7/9] HID: intel-thc-hid: Drop redundant report ID
+ validation in quicki2c
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+In-Reply-To: <20261012-hid-core-report-validation-v1-7-e0dd5cb60b2e@gmail.com>
+References: <20261012-hid-core-report-validation-v1-0-e0dd5cb60b2e@gmail.com>
+ <20261012-hid-core-report-validation-v1-7-e0dd5cb60b2e@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 13 Oct 2026 03:57:09 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261012-hid-core-report-validation-v1-9-e0dd5cb60b2e@gmail.com>
-References: <20261012-hid-core-report-validation-v1-0-e0dd5cb60b2e@gmail.com>
-In-Reply-To: <20261012-hid-core-report-validation-v1-0-e0dd5cb60b2e@gmail.com>
-To: Marcel Holtmann <marcel@holtmann.org>, 
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
- David Rheinsberg <david@readahead.eu>, 
- Frank Praznik <frank.praznik@oh.rr.com>, Jiri Kosina <jikos@kernel.org>, 
- Benjamin Tissoires <bentiss@kernel.org>, Even Xu <even.xu@intel.com>, 
- Xinpeng Sun <xinpeng.sun@intel.com>, 
- Roderick Colenbrander <roderick.colenbrander@sony.com>
-Cc: linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, Shashikirana H K <shashikiranah@chromium.org>
-X-Mailer: b4 0.17-dev-e56a4
 
-Now that the core HID request handling validates returned report IDs
-for report retrieval requests centrally, the report ID check in the
-PlayStation driver is redundant. Drop it.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] hid: intel-thc-hid: hidraw GET_REPORT fails if buffer size exceeds=
+ report size
+- [Medium] HID: intel-thc-hid: information leak via short DMA read
+--
 
-Assisted-by: LLM
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/hid/hid-playstation.c | 5 -----
- 1 file changed, 5 deletions(-)
+commit 75e0494a01241a3ea09c387003f59cc3e7199dc8
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: HID: intel-thc-hid: Drop redundant report ID validation in quicki2c
 
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index f9dc9378cf77..de51a22ecf0c 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -813,11 +813,6 @@ static int ps_get_report(struct hid_device *hdev, u8 report_id, u8 *buf,
- 		return -EINVAL;
- 	}
- 
--	if (buf[0] != report_id) {
--		hid_err(hdev, "Invalid reportID received, expected %d got %d\n", report_id, buf[0]);
--		return -EINVAL;
--	}
--
- 	if (hdev->bus == BUS_BLUETOOTH && check_crc) {
- 		/* Last 4 bytes contains crc32. */
- 		u8 crc_offset = size - 4;
+This commit removes the report ID validation from the Intel QuickI2C driver=
+'s
+report retrieval path, as the core HID layer now handles this centrally. It
+leaves the packet length validation intact.
 
--- 
-2.56.0.385.gd3acb90ef8-goog
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c=
+ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
+> index 41271301215ab..7a362a2ebe2b3 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
+[ ... ]
+> @@ -160,9 +160,9 @@ int quicki2c_get_report(struct quicki2c_device *qcdev=
+, u8 report_type,
+>  		return ret;
+>  	}
+> =20
+> -	if (HIDI2C_DATA_LEN(le16_to_cpu(rpt->len)) !=3D buf_len || rpt->data[0]=
+ !=3D reportnum) {
+> -		dev_err_once(qcdev->dev, "Invalid packet, len (%d vs %zu) report id (%=
+d vs %d)\n",
+> -			     le16_to_cpu(rpt->len), buf_len, rpt->data[0], reportnum);
+> +	if (HIDI2C_DATA_LEN(le16_to_cpu(rpt->len)) !=3D buf_len) {
 
+[Severity: High]
+Does requiring an exact match for buf_len break the hidraw API? If a
+userspace application calls HIDIOCGFEATURE with a standard oversized buffer
+(e.g., HID_MAX_BUFFER_SIZE), buf_len will be larger than the actual report
+size, causing this check to fail with -EINVAL.
+
+[Severity: Medium]
+Is there a risk of leaking stale data on a short DMA read?
+
+If thc_swdma_read() successfully performs a short read, it returns 0 and
+sets read_len to a value smaller than expected, leaving the rest of the DMA
+buffer stale. Because this check exclusively relies on rpt->len instead of
+the updated read_len, a stale rpt->len matching buf_len will pass this
+validation.
+
+This would lead to the memcpy() further down in quicki2c_get_report()
+copying stale kernel memory into the buffer.
+
+> +		dev_err_once(qcdev->dev, "Invalid packet length (%d vs %zu)\n",
+> +			     le16_to_cpu(rpt->len), buf_len);
+>  		return -EINVAL;
+>  	}
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012-hid-core-r=
+eport-validation-v1-0-e0dd5cb60b2e@gmail.com?part=3D7

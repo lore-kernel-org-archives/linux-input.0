@@ -1,79 +1,79 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A70FC5437FA
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:58:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BCFB3D6CCF
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 23:06:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.181
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791932291; cv=pass; b=auQgYg1/gqxr9cPK9VDH9R9WwdN0T8JV3sWIK3+jasNwrmKLjJxp0CvPJLssKPy1cw9id25ECvHb3zKsApR/Yv4JTlhzzHjtMxfDNb2hJK2wz5d7jJjs4dH27yjx17eStTDZdS5eDzkdZLqsUEO1FL5aGwPos1Yr33qXN1yd02g=
+	t=1791932816; cv=pass; b=ElXyMtqa4SMRqpG0zSM4Qc6TjLKOt7BON16Q5ogVM37Po0bkMjCVyQeB94l3oYTb8kRtgKgJ2Bj7poMmmUFDRgta7AfSRJd3GLG+XFp/njrnA4gKg23CCSB3T5Faw68u/da5OI3XcXmG99fBIJLnCuu/z115peCC7tGfPPBOLVg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791932291; c=relaxed/simple;
-	bh=0EpohbfYukostjZXI2ncT+Tc3ZmFCLMbMduDseGX9/s=;
+	s=arc-20240116; t=1791932816; c=relaxed/simple;
+	bh=OJKCxitzFX7Devyeo1RMIWQKY4aZ2+94sv/X63QES54=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Rjnw8aFqjagPVz2Yx1/eEcLJdvwVISCSLySCRrLT127PwJnN9ifmHUe+mqqL0qaeojRUgQ4/30IaMwNiQhokA9aUn7+9eb8MNykybRBECe5I4yl53+egQm3cFTxpdisfxZhjDQ5ySO1i83X6zKMWzKpCzI8td/hsH+/sHlBnMII=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=oZBUNVUP; arc=pass smtp.client-ip=209.85.128.172
+	 To:Cc:Content-Type; b=cgcJ4Ep/bECVrN6FN9bv+UEL4eTriV+s3Bugo2FU0cwPmjGB43PLN74eJS3HGaj3C4O3uFE5fo/kJfvksh/fJPjIh12pAMzxCaB8G4RRNZBaiBZvEqC7+UX5O1VoGCs0dFwdjk+8GQKxr6isXPtOIQHRJRKhFcWQkq5J+LyQXyk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=LhjcfavC; arc=pass smtp.client-ip=209.85.128.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="oZBUNVUP"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-8ab43af5e97so34643817b3.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 15:58:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791932287; cv=none;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="LhjcfavC"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-8871ada1a26so3816617b3.1
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 16:06:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791932813; cv=none;
         d=google.com; s=arc-20260327;
-        b=cLHgYx/aKS/6lriNDQSO40af/oS498LBzbnRL353Oo6E7koTrNuc+sd0dX+DLhpmre
-         P2RW3NXscwY+lZsJjBMXcZqK3zDql5HV+7DxCue1zFSvgVd1HEXDjODvOcQx9n5IzjEo
-         +hMAr2/SK4+C8BhoSdQMko+VbWXc0A91EMYLhy7y7CeQX4nODYHjtC+ROQ01/bOsPSYG
-         w2309hpj2ojypkWEzbOOzgkiauukzIzRsQDzWENQ08Sj4Om2z0PvEuFjqG0bmskteV2b
-         PxFvqkcHSBVFBBbHxsSDWXKIZ110d4HAIP/WuvzAYHLpthndD2ANtyymakrPpOq9ejjF
-         8/aA==
+        b=UE+a2ja9dbfDoIyw3Gq5rvgQCch+WH2exC7U/M2jfU+qUZVk/UgXp3/CkfODjFdBwD
+         nC20jQAqxv+wAOBBqIFWTKY2DUlEGN/709pQu0G1O5TFlaOLlZC54+lcodoS4k1J5tNW
+         tOHZ6qAtJ0qx1FFxk71fWjEKP90fhQhej6Nun5PeQyfGodXQaS56ZPWlrIftu1bmtXeM
+         +P5WgEGCFlUzMChAX0YTIMCGhmqS/EY2PY3Fa0vFo9H71ALz/05GTnEm4iCDkijqiZD/
+         BlSzKnJet7eIwWKRGf+uIKoFT7oE/vkHoUoWXlTLBqhyFKB/eaRb7lMTEoDyTS6fg3HB
+         t5Gw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=FNT5k/R5hoaf9iRJyFQonm0fN6tqHDSkSoHBE1CtQE8=;
-        fh=BnWVTRa+4CzGfopSPvVG2uACWr8TZFA1UPUXAE70XoU=;
-        b=dp0GL4jGq7ElkvGXYvC3CPd87K4gRKHVeJUR7fGOmnOzqE53Xd/pFT1fSzyaGmkeLB
-         jsH6VmaiWx62YlNRh8Oo1f0hQJF7eBRD/LA9Ibmh41POcRHg/iDByPCs8quMLMiteCTT
-         Hp6dQPDlkTZeVPA8S1gonZ8Z+XOcW8FMYZet7XrKwrSWvv0spskcHS1M0wldo43zUh97
-         x4QZtrAz5RTkBAP7TC/yMnOxWpbGSJCsn/PEqUqyX5U33NI/9IUTNnHNjqGL4qq+A/RC
-         6gOySDet5cmRT1cA5I38QBfk2LbWMCsTomUsA3Qw/6aQuoneze3PZ/BhMuVu/7tVQRhL
-         VA4w==;
+        bh=QntlmUV+IlR8FFxFh/1ODDrw2JuP6ngb9YrJOIy5BCA=;
+        fh=ncgXunX0gIvrom1WiS1cFWIZma4g4Mh7NZhFG/vhRZ4=;
+        b=lbGQgmT6GOiUj8mGzDiI+7ZF4JCdb1fx6jSxlBGcapX/EQC18BHAHc4DPHIcbq7w24
+         p9fO2nrx4uuzhJBaz3szhtB4oLAlvonmzlcFehzbrJ3U3QD72Orri06IlalMJqCj1UZX
+         cvcfx/YFjj5nssOmv7nCFm+vCNcVkCkDdTQv3EvsW1pDzEr8w0suBke/DWVRApIQTMvV
+         LNbf3nTeC5ZkL4JAPV70V/P+9MGtK7xhTS81BypCLK5xvwbDMUk9NNA2qUKrp/Mr1sTz
+         /TIO4EIuBjQuKOz7baVAoixVSe3I2HPTbuYjvQiNk6DMvqneN91QI09evg4A74NdyS0E
+         8O6g==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1791932287; x=1792537087; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1791932813; x=1792537613; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=FNT5k/R5hoaf9iRJyFQonm0fN6tqHDSkSoHBE1CtQE8=;
-        b=oZBUNVUPz9F891EBANCiJ1zpQtqx5ZnytrriGsQTtVDwjEfrozhfX3EUQSXt4Uq32m
-         o/62ov5r2iWb0s27TnHD0DtzR75APPg3LI3NvusDHxoQodUNP2XVpwpT7JjY5USRURBy
-         GVmXzV+oBz6/YA6VdTe2OhtUQVY1rruxWflo8=
+        bh=QntlmUV+IlR8FFxFh/1ODDrw2JuP6ngb9YrJOIy5BCA=;
+        b=LhjcfavCp9bD3Kt6BHrZPKZfe7C83QVgolYum5AlSX/RQHfYq7ACFgSFfiyOa/MYIh
+         g0vbeOCvoXidnwGNuYun4Y0vu65zajMlnhekuDSSZW3gSwbAxqwHNV9YSK8aFT7zDXHP
+         LDJJGDFwHjPC3wbXiDX9/gohTj454dcIuMHDs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791932287; x=1792537087;
+        d=1e100.net; s=20260707; t=1791932813; x=1792537613;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=FNT5k/R5hoaf9iRJyFQonm0fN6tqHDSkSoHBE1CtQE8=;
-        b=Z30gpCiuZergp8uMplXUE9CyJGAej2disaqFw/OTjfeylZiX5cklkdEaPeK4wlMkKE
-         8U29hsknz8Py4U9tWyDoS984q4qAVRVh4XKzc/hUkk7K/9S8RHW6zgJGeG9tn73q2sW0
-         r1cCZwJYm1zBGVd9+2n7do28fqEDpoRC1Ihdwl4r/lTc70J0hxVHFX6t33GBRwWqrCSe
-         faf7E3PokPrJkmsiScKexJZl6DqPow+6TWjhB03iT92JHqLpTWfMVtjg/kiukPqPZnN0
-         sffANuYlLaz5slyTW/e3nnokgJN+AZrEiPR3yN/JKtTSHD2JNkhLafF8B4/sg7WTeRAd
-         50OQ==
-X-Forwarded-Encrypted: i=1; AKwUvBw9JeAVbZIRLLDfSK7M1FQ1RFHG29ykiHi10UUBXT6xvAhh6L0GTGKKRVn7sGzqVqGuk2qOMIUV3oY34w==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJqMQba8lCKIxrEbEwmbg9O9jZOWhE6oMOsC1IfMF3NN0SOewX5
-	K3UayUwr9sna0siYr/AogyU+qfB2KngUtczdjZv4bljlfh4EzSNE7URus7RVA/JJNR1eA0Y/4wk
-	W0vKzem9JRosgyRXgFllJrx+aku7Q2NnxNV8gbBmW
-X-Gm-Gg: AYBFou2C9VOK+A2Oh4JaRg6sBCOFNjfh4zRtJd5Yr2jS4Xa1sy7FxCdVxTP4SypOqza
-	5sWniGMTYrLwPgXw0jiXz3z3fTB4MvmEZ16FHSFT83i/soXWdCzmP3maNh9pKZudykyGd98KF3r
-	D1NR8hnnX7w62w8/kLEkwFmOWLQEux24Jl/0n4/dcztM2aEThzDC68OR93cTNQ6oNmU/+KP7uy5
-	g6xpOb96ZMI+mjDT1blHy2LKSP7Mr1dBzo1XHJNWFYmqORdKQ2ZA4qORhMVRWW+6ybQocFshTb+
-	y7rqTjzCLCGelTEykL2q6nTLbz2DXF5Z1GQLKdt6gTN4o7+wO02bbE7/3MzDI+sYb8UHV+Zx2D2
-	TIYUWZLEqAw==
-X-Received: by 2002:a05:690c:47c4:b0:8ac:927:f7e5 with SMTP id
- 00721157ae682-8b07ed0a2e1mr37669057b3.10.1791932287599; Tue, 13 Oct 2026
- 15:58:07 -0700 (PDT)
+        bh=QntlmUV+IlR8FFxFh/1ODDrw2JuP6ngb9YrJOIy5BCA=;
+        b=qOLels8uke82cQWR5OX4urJBPhGPL03y7MyO9zFTXeCxi6WqbsT7CtNecgI034VQ1r
+         WCgbjGhtZ4sg2zmxauT3YcwHbmIVHKDibnj83esvmwqwC8Daupa2wOVjslnUgNwoo9Hl
+         5t0hOKp4WheedK6+Y61Pw2ML7SRYp85GR3GTj++Zu3hBlB+P7W8RBMwPlke6qaI0Uve1
+         aFKty20W9ajPwqfjlMS80YXwX3BxAWl3PXKYs06NgmIwWkN39mAJpTFtcHSog+xloYaI
+         CKEeXq5CT/7hJqrQ04kPm4Dklj4ol7eDRrL/p0Ncp2hjz6eJKwvu6nlrbRlOheXJu2MH
+         K4sg==
+X-Forwarded-Encrypted: i=1; AKwUvBzd9FAGlr+WaZEtzTQQq0fM5nECml2qBks4cYCY0zP+tg/EUV/qMmgvzVRKZh13+xxELz7nks3N/xWRdw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIOPusz8viKtadE7pA/4XRDnzc9G06Zrm17rPAoIUSw5eMoBLdF
+	t70DDPPf1ZbyYEpVs9B8ajCdSh3gMuWkrSQs7h2qgut3CB8jIZhOY8hGxOJ8EtAxQpOFG+tRcPD
+	aSitRkbZcnFeHRzo0Ymv+pRBeC5ScgjM/NkfCGVk2
+X-Gm-Gg: AYBFou1tVrX7ixfCVL5JGQ8ULyGS6mIC9WPHfBPG7/tZn0erugL/9XmbJBZc9UjOxWv
+	SfdofCmlPwl/H9Rwb3oQyp/yIEBEE9Hhw2WJ79iG2gdUcrvO7loxEk5DExL+giq2ZU5rgPgitqW
+	5i53VmnlEW7ZaLG4+k5BC89vwWeLoaF67VBqwjcvTA+GWdB1iS/+PqGmgJXw28YVujXh5IVjpvi
+	GFXNwq8UMI9SqUP8ePu9N0R83mybi/dmDLuvHvAtDTZFWoByFCC7nfIRKoEjSSZoLDQtPR3f36+
+	1Cz1SjL3+drKYvwSkxgMT/Q5Drnl0SPieLt1OFI3Y2HuGamJsCk/Y65cBiaVSaJ+xnHPZuXIyMJ
+	Yw2AvEylpFg==
+X-Received: by 2002:a05:690c:82e:b0:8ac:805b:3a6e with SMTP id
+ 00721157ae682-8b07edb832amr35007727b3.25.1791932813416; Tue, 13 Oct 2026
+ 16:06:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,112 +81,96 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20261009-send-upstream-v5-0-384af01da3ee@chromium.org>
- <20261009-send-upstream-v5-10-384af01da3ee@chromium.org> <sashiko-outbox-166155@kernel.org>
-In-Reply-To: <sashiko-outbox-166155@kernel.org>
+ <20261009-send-upstream-v5-11-384af01da3ee@chromium.org> <sashiko-outbox-166150@kernel.org>
+In-Reply-To: <sashiko-outbox-166150@kernel.org>
 From: Jingyuan Liang <jingyliang@chromium.org>
-Date: Tue, 13 Oct 2026 15:57:56 -0700
-X-Gm-Features: AclHuK81HkBfvQ90JSsC-kMkz_kzpA8f9XGiSlSkqkbfMIOwnBJRPKPpuZiMjK8
-Message-ID: <CAEe3GZGdbXdbqLjAmubh6EwdZ=FgzSDphmTy6YR53PySnH4cvQ@mail.gmail.com>
-Subject: Re: [PATCH v5 10/11] HID: spi-hid: add power management implementation
+Date: Tue, 13 Oct 2026 16:06:42 -0700
+X-Gm-Features: AclHuK_EPiuPXQkmP4djXq_D1z67MVt8XUJL6Sx0kl0aGpRUcTZIlzf43HHn9kY
+Message-ID: <CAEe3GZH07w_-Be--FnoVJXvOXtQ4pnjO1T8CMkejVaUFrVC9VA@mail.gmail.com>
+Subject: Re: [PATCH v5 11/11] HID: spi-hid: add panel follower support
 To: sashiko-reviews@lists.linux.dev
-Cc: linux-trace-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, 
-	devicetree@vger.kernel.org
+Cc: conor+dt@kernel.org, linux-trace-kernel@vger.kernel.org, robh@kernel.org, 
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	dmitry.torokhov@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 9, 2026 at 3:43=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+On Fri, Oct 9, 2026 at 3:36=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
 >
 > Thank you for your contribution! Sashiko AI review found 1 potential issu=
 e(s) to consider:
-> - [Medium] spi-hid: hid_driver_reset_resume() races with error recovery d=
-uring resume
+> - [Low] spi-hid: Inconsistent wake IRQ configuration for panel followers
 > --
 >
-> commit e43c402ebe88a8dd98c0bab5a81f64d825faf560
+> commit 4c8d0ec463c5dbd300c392f3f924992096f8ebc1
 > Author: Jingyuan Liang <jingyliang@chromium.org>
 >
->     HID: spi-hid: add power management implementation
+> HID: spi-hid: add panel follower support
 >
-> This commit implements power management callbacks for the HID over SPI
-> driver. It introduces suspend and resume operations, handling device
-> power state and reset coordination during system transitions.
+> This commit adds support to the spi-hid transport driver to act as a
+> panel follower, allowing its power state to be sequenced with a display
+> panel.
 >
 > > diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/s=
 pi-hid-core.c
-> > index f4e9b4e1294ed..66bfc251bd915 100644
 > > --- a/drivers/hid/spi-hid/spi-hid-core.c
 > > +++ b/drivers/hid/spi-hid/spi-hid-core.c
 > [ ... ]
-> > +static int spi_hid_resume(struct spi_hid *shid)
-> > +{
-> > +     int error;
-> > +     struct device *dev =3D &shid->spi->dev;
-> > +     bool was_reset =3D false;
-> > +
-> > +     guard(mutex)(&shid->power_lock);
-> > +     if (test_bit(SPI_HID_DEAD, &shid->flags)) {
-> [ ... ]
-> > +     enable_irq(shid->spi->irq);
-> > +
-> > +     /*
-> > +      * For devices that may wake up, process work that was pending wh=
-en
-> > +      * suspend cancelled reset_work. Otherwise suspend already droppe=
-d it.
-> > +      */
-> > +     if (test_bit(SPI_HID_RESET_RESPONSE, &shid->flags) ||
-> > +         test_bit(SPI_HID_CREATE_DEVICE, &shid->flags) ||
-> > +         test_bit(SPI_HID_ERROR, &shid->flags))
-> > +             schedule_work(&shid->reset_work);
-> > +
-> > +     if (shid->hid) {
-> > +             if (was_reset)
-> > +                     spi_hid_wait_for_reset(shid);
-> > +             error =3D hid_driver_reset_resume(shid->hid);
+> > @@ -1577,21 +1676,17 @@ int spi_hid_core_probe(struct spi_device *spi, =
+struct spihid_ops *ops,
+> >               }
+> >       }
+> >
+> > -     error =3D shid->ops->power_up(shid->ops);
+> > -     if (error) {
+> > -             dev_err(dev, "%s: could not power up\n", __func__);
+> > -             return error;
+> > -     }
+> > -
+> > -     error =3D shid->ops->deassert_reset(shid->ops);
+> > -     if (error) {
+> > -             dev_err(dev, "%s: failed to deassert reset: %d\n", __func=
+__, error);
+> > -             shid->ops->power_down(shid->ops);
+> > -             return error;
+> > +     if (shid->is_panel_follower) {
+> > +             error =3D spi_hid_register_panel_follower(shid);
+> > +             if (error)
+> > +                     return dev_err_probe(dev, error,
+> > +                                          "Failed to register panel fo=
+llower\n");
 >
-> [Severity: Medium]
-> Does hid_driver_reset_resume() race with error recovery here?
+> [Severity: Low]
+> Does this sequence leave a dangling, inactive wake IRQ attached to the
+> device when it is a panel follower?
 >
-> In spi_hid_resume() (drivers/hid/spi-hid/spi-hid-core.c), the power_lock =
-is
-> acquired at the beginning of the function and held until it returns.
+> In spi_hid_core_probe() just prior to this block, the code checks
+> device_can_wakeup(dev) and unconditionally allocates the wake IRQ via
+> devm_pm_set_wake_irq().
 >
-> If a wakeup-capable device suspends while an error recovery is pending
-> (the SPI_HID_ERROR flag is set), spi_hid_suspend() cancels reset_work and
-> leaves the device powered on.
+> However, if the device is a panel follower, it calls
+> spi_hid_register_panel_follower() here. Inside that function, it checks
+> device_can_wakeup(dev) again, warns the user, and forcibly disables the
+> capability:
 >
-> During system resume, spi_hid_resume() reschedules reset_work to handle t=
+>     if (device_can_wakeup(dev)) {
+>         dev_warn(dev, "Can't wakeup if following panel\n");
+>         device_set_wakeup_capable(dev, false);
+>     }
+>
+> Because the capability is disabled after the IRQ is already requested, it
+> appears to waste resources by allocating an IRQ that is immediately rende=
+red
+> unusable. Should the panel follower check and the potential clearing of t=
 he
-> pending error. However, because the device was left powered on, was_reset=
- is
-> false, causing spi_hid_resume() to skip spi_hid_wait_for_reset().
->
-> It then immediately calls hid_driver_reset_resume() while still holding
-> power_lock. Because reset_work requires power_lock to execute
-> spi_hid_error_handler(), the scheduled error recovery is blocked until
-> spi_hid_resume() returns.
->
-> Consequently, hid_driver_reset_resume() attempts to communicate with the
-> device synchronously while it is physically still in an unresponsive erro=
-r
-> state, which will time out or fail, aborting the device resume.
+> wakeup capability occur before the wake IRQ is requested?
 
-This needs an error to be pending exactly at suspend on a wakeup-enabled
-device. Error recovery still runs right after resume, so I'd rather keep
-the resume path simple.
+This is harmless: devm_pm_set_wake_irq() doesn't request a new IRQ,
+it only marks the existing one as the wake IRQ, and the PM core only
+arms it when wakeup is enabled. i2c-hid has the same sequence (the
+I2C core sets the wake IRQ before the panel follower check).
 
->
-> > +             if (error) {
-> > +                     dev_err(dev, "%s: failed to reset resume hid driv=
-er: %d\n",
-> > +                             __func__, error);
-> > +                     return error;
-> > +             }
-> > +     }
-> > +     return 0;
-> > +}
 >
 > --
 > Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009-send-ups=
-tream-v5-0-384af01da3ee@chromium.org?part=3D10
+tream-v5-0-384af01da3ee@chromium.org?part=3D11

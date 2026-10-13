@@ -1,222 +1,300 @@
-Received: from mail-4398.protonmail.ch (mail-4398.protonmail.ch [185.70.43.98])
+Received: from relay15.grserver.gr (relay15.grserver.gr [46.62.234.254])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB57256260C
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:30:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB07F55C302
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:36:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.62.234.254
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791930605; cv=none; b=Xacv6kjYtCgd89a+2QmcVijsflw5RmTdl+KVNHlQpdhjV++ZvovizHiA4upuvPjnn9SQhiMj0iqHgSK5KgPAjvQYZpCfVm4fEjvBFPcr/aBhk0DZNOY07XD8PctiiwWYSkhB0cv022m0ov1SW0r21BJsNtMPWo0YRaQGCQmm2P4=
+	t=1791930986; cv=none; b=ZAE6oojYQvxQFmQLTdyCCxpJMy9v/1Fe4i2D7NE1PdnEoH8NgpgQ5GaFhTIvatEpvpnqqk7neMik/2Cr9ed9Ha9g4MAhxh4l5251T4uHsTeFddh/ShvrOLCfW1G1r77LNHAREoJCLw7QJy0bfdBt1XBgzTdt/kjigjQDCkk3i2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791930605; c=relaxed/simple;
-	bh=KarW4zuGSKwvAOkpyYc2bQ64pSANFCpJTa8ymC9rW4o=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kQyVZ5c+0KuR7LYr1/ZQiwld+xIKx2WOtmCL8FGTyhpeniYzBHzyX7pnl11Mb8RwC6jfRSnILC5LFdCghAPYYApB+PRQNOlPCu90CDq8eFSORL7u3LzOpyY0riUTZFVQZic+dpmcncRViuyIuO/EGm0CeVko+p5ZmxQXlN678Es=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ghoul.dev; spf=pass smtp.mailfrom=ghoul.dev; dkim=pass (2048-bit key) header.d=ghoul.dev header.i=@ghoul.dev header.b=QdWZj4nm; arc=none smtp.client-ip=185.70.43.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ghoul.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ghoul.dev
+	s=arc-20240116; t=1791930986; c=relaxed/simple;
+	bh=MxW/p9SoaEWXyK/ASzLf3lihmJ+Hxe4/oV/+cjH4Vbg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Ohpg5QwhSdpwuNj/xRJMa0EgxfDWgsnI8VFQdGo3HkjTG2WRelrBlTllQeWCrdboYw/PcJWVKgVdy+rSvX3+LJsgKLf6h4QLb8qM8D+AJawa7+VfiphOAiuuRClwMzJIUvzuuh3665EHDZUHt9MeClptkjx1ay18peRCgMRtAqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=doFrz092; arc=none smtp.client-ip=46.62.234.254
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ghoul.dev header.i=@ghoul.dev header.b="QdWZj4nm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ghoul.dev;
-	s=protonmail2; t=1791930592; x=1792189792;
-	bh=IeMFIm8AOgD/Oiwh2bjh0FeBEf2AKLcI23kRp9digOM=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=QdWZj4nmDb5ixoWUZLD/cVX+8b16XMIYQ3c6AlI0oaEySgDN/6gIdxoZxQgu5U1rW
-	 qYQ28vFPsXc8mcLea5k3rTSNkd+IlKSH/GQdZf1280jEihalEUqo5zjs/FGDJgXCRV
-	 7hXg7gsbYHnKRmGg6RJx3qVUBXOGo9cISaV/lfkfE+nMG5Grs94BxxcWUdgNprV2/W
-	 Ns0TvE0q3JqHH9jiBNmptkMsPyBo8PnfS2aeysSFyY/tyl5JEu0D05unH6cYgA1Cd8
-	 NTDWQlt0SMtsInw1YjhXaIw6UT/FB+Qogi40bKz8IcEYDjFSGT6FBiI3Jui13dXsWZ
-	 p9zQ+dArM/7nQ==
-Date: Tue, 13 Oct 2026 22:29:47 +0000
-To: Antheas Kapenekakis <lkml@antheas.dev>, Thorsten Leemhuis <regressions@leemhuis.info>
-From: Ahmed Yaseen <yaseen@ghoul.dev>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, Denis Benato <denis.benato@linux.dev>, =?utf-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alan Stern <stern@rowland.harvard.edu>, Kerim Kabirov <the.privat33r+linux@pm.me>, GameBurrow <gameburrow@pm.me>, regressions@lists.linux.dev, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] HID: usbhid: skip interrupt IN polling for devices with no input reports
-Message-ID: <e097faae-6184-4498-9c64-c5736f3b3ac8@ghoul.dev>
-In-Reply-To: <CAGwozwEdQ+EEjfzHM_DAtoygsch=BXR8VWd1yHeKA-BaS=hCUA@mail.gmail.com>
-References: <20260828104159.62399-1-yaseen@ghoul.dev> <20260828104159.62399-2-yaseen@ghoul.dev> <fe51a4ac-540f-4d14-ba76-b69b0eb17164@leemhuis.info> <CAGwozwEdQ+EEjfzHM_DAtoygsch=BXR8VWd1yHeKA-BaS=hCUA@mail.gmail.com>
-Feedback-ID: 177610485:user:proton
-X-Pm-Message-ID: cf048d5b2e86ac93ae38fb43f06638b5c7fa1b14
+	dkim=pass (2048-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="doFrz092"
+Received: from relay15 (localhost [127.0.0.1])
+	by relay15.grserver.gr (Proxmox) with ESMTP id C41733EE6B
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:36:12 +0000 (UTC)
+Received: from linux3247.grserver.gr (linux3247.grserver.gr [213.158.90.240])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by relay15.grserver.gr (Proxmox) with ESMTPS id 550B43EE61
+	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:36:11 +0000 (UTC)
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	by linux3247.grserver.gr (Postfix) with ESMTPSA id CEF2F1FDFBE
+	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 01:36:09 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
+	s=default; t=1791930970;
+	bh=SYCWzrGSScC3HWN5RckZZWD1Lre/uOiFxeWF9xM/pjY=;
+	h=Received:From:Subject:To;
+	b=doFrz0922KNxNC5a2LAFrIP3tZaisLs5afDNpIqxixytK1vcW7GljIaTkW8ckp6Uh
+	 LXXVFXQIV8mjCkqEDYGt/ygb9L/LyW+u8qi7yOfGLNdlBsWiMKe6F39JJy1TbSOBJh
+	 +sy2lSfJHgv1TZZbZEUauVZzkbHS1i28GpNstYi/A5LKQyfSdoB1gXF0vckIWlfDzw
+	 /kyNtq7d29uQ1LpLhxAbvgGKsjPlz8VLT6ybPBI55SyhRzPbcNNVwvnJtLIWLUtlSY
+	 kq4oHNMA2qFKRqmJn2P+JLC4OTlH6ssX1AJwMDtXbdYt53p5mwzQma9MRC1x9u16r4
+	 cjpxk0VkrPkog==
+Authentication-Results: linux3247.grserver.gr;
+        spf=pass (sender IP is 209.85.210.169) smtp.mailfrom=lkml@antheas.dev smtp.helo=mail-pf1-f169.google.com
+Received-SPF: pass (linux3247.grserver.gr: connection is authenticated)
+Received: by mail-pf1-f169.google.com with SMTP id
+ d2e1a72fcca58-88b5f43cb8aso1121214b3a.3
+        for <linux-input@vger.kernel.org>;
+ Tue, 13 Oct 2026 15:36:09 -0700 (PDT)
+X-Forwarded-Encrypted: i=1;
+ AKwUvBzbKHaMRXW1KEzcS4pXo/49j/C8RbTVgT2z7rxUwRJ2SQuU9ZKFJA4/7GKpF53xu1dqYGPvTklE6wAUZA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYK1hgl3Qx5iy66U9ZCHLRUqm2T9Pfw1NMQd3Rohuo266dVfwDa9
+	S+Dfm42N3dGdIcAsUz2FAeaF57Mu78CzUl8ycuI9r5TMpl5R9VjRn4fpTtIAb5W4JjFg5fQZl8j
+	ZrvfjL6ElcCDRPXsv3hQBSQ0GFLq9q4I=
+X-Received: by 2002:a05:6a00:9284:b0:890:e1ff:3bac with SMTP id
+ d2e1a72fcca58-897c3ef925emr10844320b3a.8.1791930968155; Tue, 13 Oct 2026
+ 15:36:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20260828104159.62399-1-yaseen@ghoul.dev>
+ <20260828104159.62399-2-yaseen@ghoul.dev>
+ <fe51a4ac-540f-4d14-ba76-b69b0eb17164@leemhuis.info>
+ <CAGwozwEdQ+EEjfzHM_DAtoygsch=BXR8VWd1yHeKA-BaS=hCUA@mail.gmail.com>
+ <e097faae-6184-4498-9c64-c5736f3b3ac8@ghoul.dev>
+In-Reply-To: <e097faae-6184-4498-9c64-c5736f3b3ac8@ghoul.dev>
+From: Antheas Kapenekakis <lkml@antheas.dev>
+Date: Wed, 14 Oct 2026 00:35:56 +0200
+X-Gmail-Original-Message-ID: 
+ <CAGwozwHsWtA2eAmgPMpbmtuxkfVJc0Qby6t0ws16U_Ya=1ZwRA@mail.gmail.com>
+X-Gm-Features: AclHuK_sMJcqGS3LYiw3hdkqgDIznHqojWzKhqkbW_2uYXllk6j4qxTPkcRvlUM
+Message-ID: 
+ <CAGwozwHsWtA2eAmgPMpbmtuxkfVJc0Qby6t0ws16U_Ya=1ZwRA@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: usbhid: skip interrupt IN polling for devices
+ with no input reports
+To: Ahmed Yaseen <yaseen@ghoul.dev>
+Cc: Thorsten Leemhuis <regressions@leemhuis.info>,
+ Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+ Denis Benato <denis.benato@linux.dev>,
+	=?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Alan Stern <stern@rowland.harvard.edu>,
+	Kerim Kabirov <the.privat33r+linux@pm.me>, GameBurrow <gameburrow@pm.me>,
+	regressions@lists.linux.dev, linux-usb@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-PPP-Message-ID: 
+ <179193097021.1333786.11867926709240317639@linux3247.grserver.gr>
+X-PPP-Vhost: antheas.dev
+X-Virus-Scanned: clamav-milter 1.4.6 at linux3247.grserver.gr
+X-Virus-Status: Clean
 
-On 10/13/26 18:11, Antheas Kapenekakis wrote:
-> On Tue, 13 Oct 2026 at 14:55, Thorsten Leemhuis
-> <regressions@leemhuis.info> wrote:
->>
->> On 8/28/26 12:42, Ahmed Yaseen wrote:
->>> usbhid starts polling a device's interrupt IN endpoint on open
->>> (usbhid_open() -> hid_start_in()). If the report descriptor declares no
->>> input reports there is nothing to read there, so the poll is useless,
->>> and on some composite devices it is also harmful.
->>>
->>> The ASUS ROG N-Key keyboards expose a second, input-less interface used
->>> only for RGB control via feature reports. Opening its hidraw node (any
->>> hidraw reader does, including SDL/Steam Input or a plain cat) starts th=
-e
->>> pointless IN poll and keypress reports on the keyboard interface get
->>> dropped for as long as the node stays open: a lost key-down drops a
->>> letter, a lost key-up leaves the key stuck. usbmon shows the dropped
->>> reports never reach the URB layer.
->>>
->>> The useless poll itself is long-standing; commit 4ac74ea68f64 ("HID:
->>> asus: early return for ROG devices") is what exposes it on these
->>> devices by keeping the input-less interface alive instead of ejecting
->>> it, so its hidraw node can be opened and the poll started.
->>
->> Hmmm, what's the status here? Ahmed, is this still needed, or was this
->> fixed in some other way? From the the outside it looks a lot like this
->> regression fix feel through the cracks, but would be good to get into
->> 7.4-rc1 to finally fix the dropped keypress reports.
+On Wed, 14 Oct 2026 at 00:29, Ahmed Yaseen <yaseen@ghoul.dev> wrote:
+>
+> On 10/13/26 18:11, Antheas Kapenekakis wrote:
+> > On Tue, 13 Oct 2026 at 14:55, Thorsten Leemhuis
+> > <regressions@leemhuis.info> wrote:
+> >>
+> >> On 8/28/26 12:42, Ahmed Yaseen wrote:
+> >>> usbhid starts polling a device's interrupt IN endpoint on open
+> >>> (usbhid_open() -> hid_start_in()). If the report descriptor declares =
+no
+> >>> input reports there is nothing to read there, so the poll is useless,
+> >>> and on some composite devices it is also harmful.
+> >>>
+> >>> The ASUS ROG N-Key keyboards expose a second, input-less interface us=
+ed
+> >>> only for RGB control via feature reports. Opening its hidraw node (an=
+y
+> >>> hidraw reader does, including SDL/Steam Input or a plain cat) starts =
+the
+> >>> pointless IN poll and keypress reports on the keyboard interface get
+> >>> dropped for as long as the node stays open: a lost key-down drops a
+> >>> letter, a lost key-up leaves the key stuck. usbmon shows the dropped
+> >>> reports never reach the URB layer.
+> >>>
+> >>> The useless poll itself is long-standing; commit 4ac74ea68f64 ("HID:
+> >>> asus: early return for ROG devices") is what exposes it on these
+> >>> devices by keeping the input-less interface alive instead of ejecting
+> >>> it, so its hidraw node can be opened and the poll started.
+> >>
+> >> Hmmm, what's the status here? Ahmed, is this still needed, or was this
+> >> fixed in some other way? From the the outside it looks a lot like this
+> >> regression fix feel through the cracks, but would be good to get into
+> >> 7.4-rc1 to finally fix the dropped keypress reports.
+>
+> Hi Thorsten,
+>
+> Yes, this patch is still very much needed upstream. The current status of=
+ this patch is as follows:
+>
+> On upstream kernel, this is still waiting to be merged.
+> On the OGC Kernel this has been available since 7.1.3 (since July 21)
+> On Nobara kernel and G14 kernel, this has been available since 7.1.4 (sin=
+ce around mid July)
+> On CachyOS kernel some users have opened an issue and a PR on the CachyOS=
+ kernel repo and kernel patches repos respectively.
+>
+> The issue itself is still present in upstream kernel and I'm still waitin=
+g for a response from the maintainers. I hope this can be merged upstream A=
+SAP.
+>
+> It is still a major issue and I have recently encountered users who had s=
+witched away from Linux to other operating systems for this reason as well.=
+ Reports of this issue still come to us in varying ways and we ask these us=
+ers to use one of the kernels with fixes installed. In the case of Fedora a=
+nd Arch users, this would mean the OGC kernel, Nobara, or G14 kernel. For D=
+ebian-based distros, the issue is not yet present as the patch that made th=
+is issue become visible is not yet available there. However, when the patch=
+ 4ac74ea68f64 ("HID: asus: early return for ROG devices") is available in a=
+n LTS kernel, all users of Debian-based distributions will get this regress=
+ion as well, so I believe some urgency is also required here.
+>
+> Best Regards,
+> Yaseen
+> >
+> > Hi Thorsen,
+> > there haven't been widespread issues with stuck keys on Asus recently,
+> > except one regression with the fan key that merged recently.
+>
+> Hi Antheas,
+>
+> As explained above, we do still get these reports. We have users in the (=
+previously ASUS now OGC) discord server, cachyos forum, bazzite repo issues=
+, reddit, etc that do report these issues and multiple commenters who claim=
+ they have the same issue.
+>
+> Some of these issues that I found at the time of writing it are linked in=
+ the cover letter of this patchset. Other users reported this in the discor=
+d server later, and many users write it off as a one-off issue or a bug wit=
+h a certain game and those who hit the issue repeatedly either report to us=
+, roll back kernel, or even switch to an alternative like Windows. Kerim an=
+d GameBurrow who helped with my testing for example, were users who were ab=
+le to reliably recreate the issue in certain games. The reproduction cases =
+in the patch description (e.g. running cat on the hidraw node) came from th=
+em and trigger it consistently.
+>
+> >
+> > This fix targets hid core, so merging it could cause regressions on
+> > other devices.
+>
+> This fix has not caused any regressions so far, and I do not see a scenar=
+io where it would. The patch only affects devices with 0 input reports. Add=
+itionally, we have the patch on so many widely used kernels and has been pr=
+esent in them for the last 3 months, along with multiple users who added th=
+is patch manually with my guidance. The fix itself is to simply not poll an=
+y devices that have no input reports to provide. The reason why other devic=
+es are unaffected is explained in the patch description and my additional p=
+roof is the hundreds of users that use the Nobara kernel, G14 kernel, and t=
+he OGC kernel collectively.
+>
+> >
+> > Denis can comment on whether he fixed the regression that primarily
+> > lies in the software he maintains separately. I am not sure SDL causes
+> > this issue
+>
+> As one of the maintainers of asusctl myself, I believe I can comment on t=
+his as well. There was an issue in asusctl previously that opened the hidra=
+w, and it was patched by Denis months ago. However this did not fix the iss=
+ue that polling the hidraw by other means (Steam/Proton and even a simple c=
+at does this) still triggered the bug. That is what my patch fixes.
+>
+> I would like to also highlight that this is originally a logical issue in=
+ the kernel that should not have been there in the first place, and if a de=
+vice regresses because of this fix, it is a device that needs quirking and =
+not the other way around. That said, even for malformed input reports which=
+ you have described in your v1 response, they would still be unaffected as =
+we only skip when there are 0 reports. The quirk HID_QUIRK_ALWAYS_POLL exis=
+ts exactly for this reason, and anything without that quirk and no input re=
+ports has no business being polled.
+>
+> If the maintainers still prefer it, I would be happy to have this as a qu=
+irk for only the ASUS keyboard device instead. I have explained all my reas=
+oning for this approach in the cover letter and as mentioned, no regression=
+s have been reported so far.
+>
+> Best Regards,
+> Yaseen
+>
+> >
+> > Best,
+> > Antheas
+> >
+> >> Ciao, Thorsten
+> >>> Skip the poll in usbhid_open() when the device has no input reports.
+> >>> Feature reports and hidraw output keep working over the control and O=
+UT
+> >>> endpoints, so the interface is otherwise unaffected.
+> >>>
+> >>> Fixes: 4ac74ea68f64 ("HID: asus: early return for ROG devices")
+> >>> Link: https://discuss.cachyos.org/t/keyboard-input-issues-on-asus-rog=
+-strix-16-2025-with-cachyos-during-gaming/30823
+> >>> Link: https://github.com/ublue-os/bazzite/issues/4590
+> >>> Cc: stable@vger.kernel.org
+> >>> Tested-by: Kerim Kabirov <the.privat33r+linux@pm.me>
+> >>> Tested-by: GameBurrow <gameburrow@pm.me>
+> >>> Signed-off-by: Ahmed Yaseen <yaseen@ghoul.dev>
+> >>> Reviewed-by: Denis Benato <denis.benato@linux.dev>
+> >>> ---
+> >>>  drivers/hid/usbhid/hid-core.c | 9 ++++++++-
+> >>>  1 file changed, 8 insertions(+), 1 deletion(-)
+> >>>
+> >>> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-c=
+ore.c
+> >>> index 96b0181cf819..d7cf2b56e117 100644
+> >>> --- a/drivers/hid/usbhid/hid-core.c
+> >>> +++ b/drivers/hid/usbhid/hid-core.c
+> >>> @@ -688,7 +688,14 @@ static int usbhid_open(struct hid_device *hid)
+> >>>
+> >>>       set_bit(HID_OPENED, &usbhid->iofl);
+> >>>
+> >>> -     if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
+> >>> +     /*
+> >>> +      * ALWAYS_POLL devices are already polled from usbhid_start(), =
+and a
+> >>> +      * device with no input reports has nothing to send on the inte=
+rrupt
+> >>> +      * IN endpoint. In some cases polling is harmful: on the ASUS R=
+OG
+> >>> +      * N-Key keyboards it makes the sibling interface drop keypress=
+es.
+> >>> +      */
+> >>> +     if ((hid->quirks & HID_QUIRK_ALWAYS_POLL) ||
+> >>> +         list_empty(&hid->report_enum[HID_INPUT_REPORT].report_list)=
+) {
 
-Hi Thorsten,
+Ok, I remember our conversation a few months ago.
 
-Yes, this patch is still very much needed upstream. The current status of t=
-his patch is as follows:
+The hid descriptor should not affect device behavior.
 
-On upstream kernel, this is still waiting to be merged.
-On the OGC Kernel this has been available since 7.1.3 (since July 21)
-On Nobara kernel and G14 kernel, this has been available since 7.1.4 (since=
- around mid July)
-On CachyOS kernel some users have opened an issue and a PR on the CachyOS k=
-ernel repo and kernel patches repos respectively.
+Just because a hid descriptor does not have input reports, you should
+not change the kernel's functionality.
 
-The issue itself is still present in upstream kernel and I'm still waiting =
-for a response from the maintainers. I hope this can be merged upstream ASA=
-P.
+During development, it can be the case a hid device has a partial hid
+descriptor. hidraw does not look at or care about the hid protocol of
+a device. This is what hiddev is for.
 
-It is still a major issue and I have recently encountered users who had swi=
-tched away from Linux to other operating systems for this reason as well. R=
-eports of this issue still come to us in varying ways and we ask these user=
-s to use one of the kernels with fixes installed. In the case of Fedora and=
- Arch users, this would mean the OGC kernel, Nobara, or G14 kernel. For Deb=
-ian-based distros, the issue is not yet present as the patch that made this=
- issue become visible is not yet available there. However, when the patch 4=
-ac74ea68f64 ("HID: asus: early return for ROG devices") is available in an =
-LTS kernel, all users of Debian-based distributions will get this regressio=
-n as well, so I believe some urgency is also required here.
+As it stands this is a heuristic
 
-Best Regards,
-Yaseen
->=20
-> Hi Thorsen,
-> there haven't been widespread issues with stuck keys on Asus recently,
-> except one regression with the fan key that merged recently.
+If the kernel has a bug with how it handles polling on devices without
+input reports, you need to find the underlying issue and fix that. if
+not, you should quirk hid-asus by appending HID_QUIRK_ALWAYS_POLL if
+dev->tp. You never responded to my comment so at least by my side I
+considered the problem resolved.
 
-Hi Antheas,
+Antheas
 
-As explained above, we do still get these reports. We have users in the (pr=
-eviously ASUS now OGC) discord server, cachyos forum, bazzite repo issues, =
-reddit, etc that do report these issues and multiple commenters who claim t=
-hey have the same issue.
-
-Some of these issues that I found at the time of writing it are linked in t=
-he cover letter of this patchset. Other users reported this in the discord =
-server later, and many users write it off as a one-off issue or a bug with =
-a certain game and those who hit the issue repeatedly either report to us, =
-roll back kernel, or even switch to an alternative like Windows. Kerim and =
-GameBurrow who helped with my testing for example, were users who were able=
- to reliably recreate the issue in certain games. The reproduction cases in=
- the patch description (e.g. running cat on the hidraw node) came from them=
- and trigger it consistently.
-
->=20
-> This fix targets hid core, so merging it could cause regressions on
-> other devices.
-
-This fix has not caused any regressions so far, and I do not see a scenario=
- where it would. The patch only affects devices with 0 input reports. Addit=
-ionally, we have the patch on so many widely used kernels and has been pres=
-ent in them for the last 3 months, along with multiple users who added this=
- patch manually with my guidance. The fix itself is to simply not poll any =
-devices that have no input reports to provide. The reason why other devices=
- are unaffected is explained in the patch description and my additional pro=
-of is the hundreds of users that use the Nobara kernel, G14 kernel, and the=
- OGC kernel collectively.
-
->=20
-> Denis can comment on whether he fixed the regression that primarily
-> lies in the software he maintains separately. I am not sure SDL causes
-> this issue
-
-As one of the maintainers of asusctl myself, I believe I can comment on thi=
-s as well. There was an issue in asusctl previously that opened the hidraw,=
- and it was patched by Denis months ago. However this did not fix the issue=
- that polling the hidraw by other means (Steam/Proton and even a simple cat=
- does this) still triggered the bug. That is what my patch fixes.
-
-I would like to also highlight that this is originally a logical issue in t=
-he kernel that should not have been there in the first place, and if a devi=
-ce regresses because of this fix, it is a device that needs quirking and no=
-t the other way around. That said, even for malformed input reports which y=
-ou have described in your v1 response, they would still be unaffected as we=
- only skip when there are 0 reports. The quirk HID_QUIRK_ALWAYS_POLL exists=
- exactly for this reason, and anything without that quirk and no input repo=
-rts has no business being polled.
-
-If the maintainers still prefer it, I would be happy to have this as a quir=
-k for only the ASUS keyboard device instead. I have explained all my reason=
-ing for this approach in the cover letter and as mentioned, no regressions =
-have been reported so far.
-
-Best Regards,
-Yaseen
-
->=20
-> Best,
-> Antheas
->=20
->> Ciao, Thorsten
->>> Skip the poll in usbhid_open() when the device has no input reports.
->>> Feature reports and hidraw output keep working over the control and OUT
->>> endpoints, so the interface is otherwise unaffected.
->>>
->>> Fixes: 4ac74ea68f64 ("HID: asus: early return for ROG devices")
->>> Link: https://discuss.cachyos.org/t/keyboard-input-issues-on-asus-rog-s=
-trix-16-2025-with-cachyos-during-gaming/30823
->>> Link: https://github.com/ublue-os/bazzite/issues/4590
->>> Cc: stable@vger.kernel.org
->>> Tested-by: Kerim Kabirov <the.privat33r+linux@pm.me>
->>> Tested-by: GameBurrow <gameburrow@pm.me>
->>> Signed-off-by: Ahmed Yaseen <yaseen@ghoul.dev>
->>> Reviewed-by: Denis Benato <denis.benato@linux.dev>
->>> ---
->>>  drivers/hid/usbhid/hid-core.c | 9 ++++++++-
->>>  1 file changed, 8 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-cor=
-e.c
->>> index 96b0181cf819..d7cf2b56e117 100644
->>> --- a/drivers/hid/usbhid/hid-core.c
->>> +++ b/drivers/hid/usbhid/hid-core.c
->>> @@ -688,7 +688,14 @@ static int usbhid_open(struct hid_device *hid)
->>>
->>>       set_bit(HID_OPENED, &usbhid->iofl);
->>>
->>> -     if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
->>> +     /*
->>> +      * ALWAYS_POLL devices are already polled from usbhid_start(), an=
-d a
->>> +      * device with no input reports has nothing to send on the interr=
-upt
->>> +      * IN endpoint. In some cases polling is harmful: on the ASUS ROG
->>> +      * N-Key keyboards it makes the sibling interface drop keypresses=
-.
->>> +      */
->>> +     if ((hid->quirks & HID_QUIRK_ALWAYS_POLL) ||
->>> +         list_empty(&hid->report_enum[HID_INPUT_REPORT].report_list)) =
-{
->>>               res =3D 0;
->>>               goto Done;
->>>       }
->>>
->>> base-commit: 8d3ae59288f1e7d58d76558a6ee96d533bc5019f
-
+> >>>               res =3D 0;
+> >>>               goto Done;
+> >>>       }
+> >>>
+> >>> base-commit: 8d3ae59288f1e7d58d76558a6ee96d533bc5019f
+>
+>
+>
 

@@ -1,50 +1,50 @@
-Received: from e234-51.smtp-out.ap-northeast-1.amazonses.com (e234-51.smtp-out.ap-northeast-1.amazonses.com [23.251.234.51])
+Received: from e234-54.smtp-out.ap-northeast-1.amazonses.com (e234-54.smtp-out.ap-northeast-1.amazonses.com [23.251.234.54])
 	(using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A45C388396;
-	Tue, 13 Oct 2026 02:54:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1347A374E5A;
+	Tue, 13 Oct 2026 03:11:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.234.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791860094; cv=none; b=psjg4iafAcqXAA1/KEWGe0RVKKACbVVWSe9I2tuKwEE3BojvjJTZVwTmaO+oQlmT6oNc0Bg7QhsI04Jd/1AoIZ4nObiOzKtK5ruXmiLidq6jqgws9f6j3UMP42Ag31GlYJfkjqmxGTzoluMFPyD7MBoNAEdpXqPExdfJ+YKz3Eg=
+	t=1791861063; cv=none; b=AY4VdUOhms6BHXkrUqp+pWMkVfY4Wxdnx/52B5bBh4D+dDHhcg+HeOvPm1FXOG/JEHrNQUq3EL+SqRb8X1xaWvfBOEbY97gLqSn+2kddl9ig+0AA6OmaoFdDGRMMSa/9T8ApZzr1HxHwTtB4WFwdhRThyj6KeqviwIEPdcRfU4o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791860094; c=relaxed/simple;
-	bh=DfN11+tymQuPv6Gfcmec9TYSNCRLNT2nyvxJmO/r+AM=;
+	s=arc-20240116; t=1791861063; c=relaxed/simple;
+	bh=ArAoV1s5bJIJTPhX+4wmFPiP94Fs/vkvWppAMKAYUR0=;
 	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Date:
-	 MIME-Version:Content-Type; b=Ei2wjaD/O0ffppOe5KhlRvqgDN2eRW5Z5i/8OFvgx1ihmlyjwlL5Rx+AG3ClL9rP4HRdozrkj6DRt8lZtkbZawxKvPDxFp46Vfeqm8mwb2T28M+OsLvKvXlAJ8+34Tyu/gIGch3KA/ZJPd5CpSVdKb3HGln/uflRNrnWmvRfqQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=Q4ABj3JO; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=W6fKv79M; arc=none smtp.client-ip=23.251.234.51
+	 MIME-Version:Content-Type; b=rwBPbzVml6E/6sXuVc7XRwPmmqk6kwT9/1FtXGO2PI/AdG8EdW3o+F2s6v0rNpS+QXVJId1tUgs21DX/d7USAOwgrBkz1c3kt22usep5aTQhbM7BoKJmjz3t2otdBABPvCIiR0EsQH0bhI0P0tTS64TWzKdiq+dPy/x9MMBqXBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz; spf=pass smtp.mailfrom=send.fqwqf.xyz; dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b=uEyH8/u/; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=slxNnCMM; arc=none smtp.client-ip=23.251.234.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.fqwqf.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="Q4ABj3JO";
-	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="W6fKv79M"
+	dkim=pass (1024-bit key) header.d=fqwqf.xyz header.i=@fqwqf.xyz header.b="uEyH8/u/";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="slxNnCMM"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
-	d=fqwqf.xyz; t=1791860092;
+	d=fqwqf.xyz; t=1791861060;
 	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
-	bh=DfN11+tymQuPv6Gfcmec9TYSNCRLNT2nyvxJmO/r+AM=;
-	b=Q4ABj3JOgjKTfRmC5VxTOAeaWAGw1cHMB/lY3cvRQcltz8yRA6jwg015+a4wmm3X
-	hjMn7mk9Bi/m9hpNK58og1aZzAzrlsIxaMcT3agTFcktYHMuEPxUnxfbOQVkzyxVo6M
-	JKadfIZYEMabh3x+2cfOL7uC1y1lRZ+CcL0A0jOQ=
+	bh=ArAoV1s5bJIJTPhX+4wmFPiP94Fs/vkvWppAMKAYUR0=;
+	b=uEyH8/u/0F4o4p3c/uJs7ZMo70IaPfnT/u/svK1ZpC6RLv1U38iwDn5Jongh/3z+
+	rH2F0gOYjLeH90FA4kATXQwuwL/UFeSrkYjD+kJcPzc++Lt2EXRRlmmXN9qWUSHIS7Z
+	9hsyJkg34+itwWYHoL+w2K8ctdAP9UIIlUIPcaWY=
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1791860092;
+	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1791861060;
 	h=In-Reply-To:References:From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
-	bh=DfN11+tymQuPv6Gfcmec9TYSNCRLNT2nyvxJmO/r+AM=;
-	b=W6fKv79MBtm+dm7GZH5JtH2sF/nj2cfLYCzXCA3JA0iFqbsJ3uyQNXulyvlODapM
-	ZA25Oc7U/5Zy8XrTNutvLoBQ9aBEMNBENHl6HqpKGIZoAt18a+dNpBGXHWwzZWq7Dn7
-	zym9Dg0xBzLChUzYI6BkN733OBnBVYpMcM6UIAAA=
+	bh=ArAoV1s5bJIJTPhX+4wmFPiP94Fs/vkvWppAMKAYUR0=;
+	b=slxNnCMMxVjkWClbEYx+oDQWEV3liCDqMfAQvpN2O3cs8nOfNehqcpsmmmCJhBNP
+	dmHD4gTRw/8LKJJ9PNHfbw7JkjU1xkGYn8ZJYGKBNJi8WWbnWltpig/HYCwHSidJ2Hg
+	HU93BkOeZDTTF5Wc3P6GdL8k9htOSDpA1TV34G7g=
 In-Reply-To:
- <010601a126bfa3ae-858150e8-f0a7-4bae-9c37-d82180d8128e-000000@ap-northeast-1.amazonses.com>
+ <010601a1332f2c56-c2ec71f6-0f13-485c-b0e3-ee7a59980147-000000@ap-northeast-1.amazonses.com>
 References:
- <010601a126bfa3ae-858150e8-f0a7-4bae-9c37-d82180d8128e-000000@ap-northeast-1.amazonses.com>
+ <010601a1332f2c56-c2ec71f6-0f13-485c-b0e3-ee7a59980147-000000@ap-northeast-1.amazonses.com>
 X-Mailer: git-send-email 2.53.0
 From: Jizhou Tong <fqwqf@fqwqf.xyz>
 To: Jingyuan Liang <jingyliang@chromium.org>
 Cc: jikos@kernel.org, bentiss@kernel.org, dmitry.torokhov@gmail.com, 
 	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/2] HID: spi-hid: handle reset assertion and resume
- handshake failures
-Message-ID: <010601a1332f2c56-c2ec71f6-0f13-485c-b0e3-ee7a59980147-000000@ap-northeast-1.amazonses.com>
+Subject: [PATCH v2 1/2] HID: spi-hid: propagate reset assertion errors
+ during initialization
+Message-ID: <010601a1333df3f1-5c4b90ef-5f51-47f5-8cf2-ddd81d007a09-000000@ap-northeast-1.amazonses.com>
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 02:54:52 +0000
+Date: Tue, 13 Oct 2026 03:11:00 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -53,81 +53,49 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Feedback-ID: :1.ap-northeast-1.6BGMgStFQE7EJYq5syaCRzdneEHVt/+DAaGDrqUmDs9QLO4/SllUBZ3fHvnZ8rcAX/3IjUyTRgi5JFZsWrikFHwlPJqCkqEMlxDFM4JXh+ycxH/J5Tudg5bGdz6h4331g1L1EFsGR8kuYNfGLsrxz4Nym4YXoPcZxeVkrHry4Zx21n8vEVLEjc7s+OCM8PU9:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
-X-SES-Outgoing: 2026.10.13-23.251.234.51
+X-SES-Outgoing: 2026.10.13-23.251.234.54
 
-Hi Jingyuan,
+Stop initialization if the platform cannot assert reset. Powering up and
+enabling the IRQ after a failed reset assertion can leave the device in
+an unknown state while probe reports success.
 
-I applied the complete v5 series to its stated base and found=
- two
-remaining error paths:
+Return the platform error =
+unchanged from spi_hid_dev_init(). The
+non-panel-follower probe path =
+propagates it through spi_hid_core_probe()
+to the OF or ACPI frontend, =
+failing probe before power-up or IRQ
+enablement.
 
-- Initialization continues after =
-assert_reset() fails, powering up the
-  device and enabling its IRQ while =
-returning success.
-- The resume reset wait only logs a missing device =
-descriptor, so the
-  HID reset_resume callback can run without a completed =
-handshake.
+Signed-off-by: Jizhou =
+Tong <fqwqf@fqwqf.xyz>
+---
+ drivers/hid/spi-hid/spi-hid-core.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Propagate the assertion error, and return -ETIMEDOUT from the =
-reset wait
-while scheduling the existing bounded recovery worker. Skip the =
-HID
-resume callback on that timeout, including the failed-suspend rollback
-path, where the original suspend error remains the return value.
-The PM core can therefore report an incomplete resume, while the worker
-may still recover the device asynchronously.
-
-The actual driver functions =
-were exercised with mock firmware/IRQ/HID
-interfaces under ASan/UBSan. The =
-SL7 integration's SPI-HID core, OF and
-ACPI objects compile with W=3D1 on =
-ARM64. The full integration boots and
-works in normal use on SL7. Logs from=
- two s2idle cycles show the touchpad
-being re-enumerated and iptsd =
-reconnecting automatically; the transport
-and regulator error counters =
-remain zero.
-
-Based on your v5:
-https://lore.kernel.=
-org/all/20261009-send-upstream-v5-0-384af01da3ee@chromium.org/
-Upstream base: ee9c669f9bf5fd2c24206746ded9382fe810df89.
-
-Changes in v2:
-- Explain how the reset assertion error propagates through probe.
-- No code changes from v1.
-
-v1: https://lore.kernel.=
-org/all/010601a126bfa3ae-858150e8-f0a7-4bae-9c37-d82180d8128e-000000@ap-nor=
-theast-1.amazonses.com/
-
-Best regards,
-Jizhou Tong
-
-Jizhou Tong (2):
-  HID: spi-hid: propagate reset assertion errors during initialization
-  HID: spi-hid: report a missing reset handshake on resume
-
- drivers/hid/spi-hid/spi-hid-core.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
-
-
-base-commit: ee9c669f9bf5fd2c24206746ded9382fe810df89
-prerequisite-patch-id: b401890d766019f0677a572f18bb389cd8827721
-prerequisite-patch-id: beaf91cb29f3a735559a3251092ac0ac17810b10
-prerequisite-patch-id: 909ee816b83e0bc8bb4b560f8c7cc0c8109c4516
-prerequisite-patch-id: 8b60145a9a853a32881af27181c26dff0e82a33e
-prerequisite-patch-id: bcb36384a391e48222f0924b0c571fb0eac19ae7
-prerequisite-patch-id: 816dfccf7d35ea041c0d7c08c7bfbe061a45c7dc
-prerequisite-patch-id: 67a41d4cb6bfa41248d89a8f967d4414cff2da2e
-prerequisite-patch-id: d0bf155ff4d70a3aeb88ec0232f04a4b2edb3598
-prerequisite-patch-id: f18d9032e5ed5713beb37527dba225ec79589b31
-prerequisite-patch-id: 854affdd16efb5696f9ed1d2a8cdb50dababe724
-prerequisite-patch-id: 248c986cba937716c739b804039376ac3823f618
+diff --git =
+a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi-hid-core.c
+index 106e92b71ffb62c05a1c10b975759d71440b47b0..1aae7863e87de766444e7eae392=
+335e4b1daa85e 100644
+--- a/drivers/hid/spi-hid/spi-hid-core.c
++++ b/drivers/hid/spi-hid/spi-hid-core.c
+@@ -1524,7 +1524,11 @@ static int =
+spi_hid_dev_init(struct spi_hid *shid)
+=20
+ 	guard(mutex)(&shid->power_lock=
+);
+=20
+-	shid->ops->assert_reset(shid->ops);
++	error =3D =
+shid->ops->assert_reset(shid->ops);
++	if (error) {
++		dev_err(dev, "failed =
+to assert reset: %d\n", error);
++		return error;
++	}
+=20
+ 	shid->ops->sleep_minimal_reset_delay(shid->ops);
+=20
 --=20
 2.53.0
 

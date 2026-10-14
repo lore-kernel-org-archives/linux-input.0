@@ -1,119 +1,60 @@
-Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCBFE4EBAE0
-	for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 23:53:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCED332C94A;
+	Wed, 14 Oct 2026 01:27:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791935630; cv=none; b=pcfoqvkROZblk3v0VSXrFCgpnxCT319uEahDMUZ6hRjEP0Dg+Y3B9vlL27yvyVUBeoskc1KeJs7SkIK94fs02+aXhHOXhv7SgPVDzxKCsZxEWS1ijfg2Q/1l2b31m8BmhWa3LRmay/+EfUt/4kjf7D5OXd2UsvMEbE9hRXTiCcI=
+	t=1791941267; cv=none; b=IMuZt5rMdqExNX8gnzY+fkbN/3jtYIgeZY84uC15E8E/laf2hdNKliIVDFAHI9LR/4PvaIhR0pqPYWZkPq1hMakpnQrpkSZdGMAhN6l0z6IjhQ54Bxt1BPiF0VLA1IEe4yG9/7WEohBmFy3wP7TaHVTDyfqwqyJsKDndGMDMXHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791935630; c=relaxed/simple;
-	bh=8t/CZtcD2UDRis6ElxpuQTCnGFRZydah4tW3kas/HT8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=D7/3XS17sspSUhNa4EDwwqRCNX6R7j3/KlDzU817NYr6xwO4+u0nIxmxi5jTOOyOWebpZnk5lrue9qN7D6DA1pfRvxTxKI4LMppxVZeobY9hmQY+UVeDZK8kMnZBORwU5upbzoTynR8RhvF5vdJANJ4TlTyY4wGvRqtnTDWNwG0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ct3VQvyD; arc=none smtp.client-ip=74.125.82.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791941267; c=relaxed/simple;
+	bh=Yt3cudUSyvmrvEZFm2WltRnnDfmS8+1ttt+mWIO3HbY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aYO80S/LDqhgSi+6Z+Jh+R72efSPDd/u5ug4x2CNpQ320TxkWM432hfp2DexuJLZdf58NccFVCFgSA8Bvlay99STp6KCEYObcH3Fblc848Fs10z6ftak/8NK2+rLJMunyNAWSpj+RJ72Bfoobqa+y9zwQoEg323IPpClpiE6sp8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BAorv5bV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ct3VQvyD"
-Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-141395927feso6720738c88.0
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 16:53:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791935629; x=1792540429; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=TgjzkiHyd5GOcR1gXfvNcSQQu/ffNPe83SfrCAvR204=;
-        b=ct3VQvyDr51QdjF4N3RMP4dhd0HNoBN03GPB8RfEbZ1dnKAZrJP24ZWjQt/7NEprSH
-         gxiq7X78FwMTLXc/TUV4q6eSq7q0AyKFF5L+I9VK2+mJwC5bir6TXZCvdnICibN/tB8+
-         WL4q9uHaC3ZzZmG8igqb2QXJw3/0WnfBB6OxOZD5zRJamD8brRSRU+69TDMpyyyeOtrm
-         jgX/VjMCqUHfUwItMTXinHMTKrCG93ZbG30is5OepZ22+27EeJrk0sI9XJaC+l9ckwcQ
-         dw3xxHMcoJXCRFIK/M3ex2dzJ9R9/+en750GqKUXmypQcs7bsK8eChNOb08KH6MhJFHa
-         FWKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791935629; x=1792540429;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=TgjzkiHyd5GOcR1gXfvNcSQQu/ffNPe83SfrCAvR204=;
-        b=TlP3E8OKUxcg5G1eLbk7wq5V5fupLw+CIvFRTKT1cWbz0qmtgQrmuzk69nr4gchcOV
-         2/KV4aMp0TKeoqHFYziRnKVDSZJGPpuxUW0E0hhiIjq8BIj0rAEh0jI6UCxDa6UCwz9k
-         atiO5HTkwhG0DvVhUUbXJXm5zQoQ3JSjvpxo2vCFPYb0ywO3TzEvdixMsjCCcPy8YTgh
-         TtQ+2+XL/Qm+4vTAwIzPaDZ8K88wMUttPlDu5Kwj0ygA+9JvcBLcCq+UJpUHxy6TOk/l
-         iVayfYDPMlLn7x6ueauCWNo4T+vJAVAp6XhatjOitR1FJxybpxjw89hqfCiqIX6MsR+/
-         PjFg==
-X-Gm-Message-State: AFq9FYIdonYyS05HyEY6doqJRBu0PKXJIFJHPKVdw/D6Glfz1Z1I+ML8
-	06htue+0+UN3ZufFu6y85Uqh+zIG0gbhnWIdL0d9+Ymwds9vIvA5LziK
-X-Gm-Gg: AYBFou0pRI1jbtMp2BfgemnJRAr2lF31TnS44oIkKD7wQanROPrQCE9OGAc4H6KAsUh
-	8qs7DxbTHkeQIuctZYhfuWTTDZ/zSzw3tPVOwsFchCG6eSRcpNfV9mXn6Pt0khgKbyFWWbaJdvC
-	VMhZe/21Q9TMoMBR0hsbUljI6GHkrU796IARY0iIj/1r0R2bjWFxH9NnpzY7KhemIw0bmMyATHf
-	3vuTYdfzB29JQtaUSn4mDoQTCYJS/h+mgDriW5FaoEivhk87sPzgrr23DpS5uEzed7BohzWu7YI
-	btvLYxw1oqSUefKQy2/IGMOCyvsaG5YxflKShEQOUwGRUMxXyv79zXUpQbHbZ3panuLSasESj9Z
-	s4MQCbhATP3EhPtWrXuEEONVfYU2Nw4HqxN2UX/3nV4ZIvSpvdGA0yI96RYpOPpOtSgZH3R7EU0
-	yWX1qh3yBsYvSF3PUxYJ4lgb0hlHej905iLE7NNHLrwTGL4z0tWl/t+zemAkW+h56WLZeEGj5RI
-	uB+wsiV+cLKIvjbSTc/X8G0Sx/ZULXnSJeeJwY4
-X-Received: by 2002:a05:7301:2809:b0:351:202c:c7a5 with SMTP id 5a478bee46e88-3537dba640dmr19039688eec.0.1791935628772;
-        Tue, 13 Oct 2026 16:53:48 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:875a:117f:b9ea:5a08])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cb2954bsm48201384eec.26.2026.10.13.16.53.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 16:53:48 -0700 (PDT)
-Date: Tue, 13 Oct 2026 16:53:45 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, 
-	Jason Gerecke <jason.gerecke@wacom.com>, Peter Hutterer <peter.hutterer@who-t.net>, 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BAorv5bV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B481F00893;
+	Wed, 14 Oct 2026 01:27:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791941266;
+	bh=MVd+j60iEaAuvc6F+U/SFgTeVDPOvIpqqXN5ppAYSGU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=BAorv5bVuqRqIK5nGE9Q5XdSTidZrX9qAV3dCjCdBfMFYAEOchTMj/WbR8ciP/rhs
+	 S1q2/17STP7IBYKtmZqrjHch9/Fyxn852fNpEXiQa1qYKjEoeheOK8jRGt5K0YX3If
+	 n5Ny+8cNfAohje5zBNbVUV4VbLjC9vtwjdl6DNRKe01vX3pHrZnxY+xVZ4W9tzVSLi
+	 U5xbeTKy/foveFkZW6r6cO/w4OzChutXjkjOuq577tGbskC70nwWPSmR5KhpcH9AmZ
+	 VyljruPCu/6ZnplxS2rAjvqZf8iFmyU3Tu0qvJRaFl6zlPUGauczg4aZGq9tKUW8vt
+	 QBjg3JN5/dnAw==
+From: Sasha Levin <sashal@kernel.org>
+To: lee@kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Input: wacom_w8001 - assign distinct phys paths to
- pen and touch devices
-Message-ID: <as7D7idd-843CJkn@google.com>
-References: <20261009190746.803607-1-dmitry.torokhov@gmail.com>
- <20261009190746.803607-2-dmitry.torokhov@gmail.com>
- <CANRwn3RUdGyEOJEdN1xUjEHwnBX5-UnpZZ+ZBBwY9RBB04FtUQ@mail.gmail.com>
+Cc: Sasha Levin <sashal@kernel.org>,
+	stable@vger.kernel.org,
+	Vicki Pfau <vi@endrift.com>,
+	Jiri Kosina <jkosina@suse.com>
+Subject: Re: [STABLE v6.18 1/4] HID: steam: Fully unregister controller when hidraw is opened
+Date: Tue, 13 Oct 2026 21:27:16 -0400
+Message-ID: <2026-10-13-1-daily-reply-0026-hid-steam-6-18-series@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261013091138.526840-1-lee@kernel.org>
+References: <20261013091138.526840-1-lee@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANRwn3RUdGyEOJEdN1xUjEHwnBX5-UnpZZ+ZBBwY9RBB04FtUQ@mail.gmail.com>
 
-On Tue, Oct 13, 2026 at 03:42:10PM -0700, Jason Gerecke wrote:
-> On Fri, Oct 9, 2026 at 12:28 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > Previously, both pen and touch input devices used the same phys path
-> > "%s/input0", which made it impossible for userspace or udev rules to
-> > distinguish the devices by physical topology.
-> >
-> > Assign distinct phys paths by introducing separate buffers pen_phys
-> > ("%s/input0") and touch_phys ("%s/input1") in struct w8001. Pass the
-> > corresponding phys path to w8001_allocate_device() during pen and touch
-> > setup, and drop the shared phys buffer from struct w8001.
-> >
-> > Fixes: e0361b70175f ("Input: wacom_w8001 - split the touch and pen devices into two devices")
-> 
-> Does this really deserve a "Fixes" tag? This does not seem to be as
-> much of a "bug" as it is a limitation. Userspace and udev rules are
-> (currently) able to reliably distinguish the devices by name.
+> To avoid conflicts between anything touching the hidraw and the driver we
+> had previously detached the evdev nodes when the hidraw is opened.
 
-It is a bug as far as input subsystem is concerned and it was introduced
-in the above referenced commit, so it has this tag.
-
-> Obviously that's not ideal, but I don't see much benefit to this patch
-> getting backported to the stable trees -- especially when /existing/
-> udev rules aren't necessarily going to know what to do with this new
-> "input1" phys.
-
-Right. For input subsystem only commits that are explicitly marked
-as Cc: stable@ will be backported to stable trees, so it shoudl not be
-a concern.
-
-Thanks.
+Queued the series for 7.2 and 6.18, thanks.
 
 -- 
-Dmitry
+Thanks,
+Sasha

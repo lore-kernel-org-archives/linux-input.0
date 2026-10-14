@@ -1,284 +1,112 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8701A4C151F
-	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 22:22:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.178
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792016562; cv=pass; b=WBxParP293bap2TUueZVY2MU2zvJ4KNv1i4JMLMQh4IaR+ekOtOVF3iALBNVBfl+PEVHYxrwjX2cboxyNkp2xfIpo/0GIknV8bvyZ2CwDGLKQ3WE+pQdxU1rRW4gAY0HRKeSBI9bL8Lj+WddhxlseW3Slbbb8qvrjNOY5rBCwPk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792016562; c=relaxed/simple;
-	bh=dHSQ8TAun/j9Xho/MQkmlAEDid5vXt4gEpS/xPyEVuw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UGzC1MXvthMoNnk0xoQQSvRSRit6S5BzFNItSwdfjhzSKTMFPaUJx3O2wzKkQqh2OrlaeMhCyiX1OwYMsA8WIKiARPhUHzNSRwoHnNZbEBFuB0f643FI6dJNlhfCD/bs9WY9k4OTXQiSYQGuW9hP13oBakHs0xfaZAWGOtyhY/E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iMQezf7e; arc=pass smtp.client-ip=209.85.222.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A9764A5EB7;
+	Wed, 14 Oct 2026 22:35:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792017309; cv=none; b=qV/ejrM0ZQKJ4ZTr5fBNo2IyrrnJiWYGYD54EG7AXnXl55nQho1El86M+8PwKi/N+KkztI8CR1r+OMcS6dPoE8xZQzPQPZCNevcl6kBXMsk+uWip7ojwtTjILZ1dBRlsTlcui1qUE7c3euLX3mgtVmYT30LxNbaWEykcK65Xqs0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792017309; c=relaxed/simple;
+	bh=AmDME+Tz+w9UcXrraGYGQuY678RxPXZRS4l65fAAWE4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AAdbi3QiMxY2Dwo+CtdiSNLQNF6botrRDM/Ve6kEyI3Qw8HNKmxgxYTMIQ75FEbG/pnXiI3r2oeMSsDqCDttGAeYE1YzMSQXD2nqe1JdWT+zIrVDczx7CwfhcME8ATBpHi43sH4ywBzvDtrroE5wmUhgtpvAaFHeojTZYG0EzsQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WqQWwC29; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iMQezf7e"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-93ef9803765so262780985a.2
-        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 15:22:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792016559; cv=none;
-        d=google.com; s=arc-20260327;
-        b=JOoDHKt/tg6iloouRMoF6jZFW8Jc9/kgDfbh9mupgDpCWa6eHrEL19sIWMuIFxpYBj
-         j2ox8JXEkDbfqY17+mFrS0jIfIdGYsUCgKsIQiG5JkRnra38n2SoUgr8mJqIxkRi40fG
-         lPtiubZqHgtTGoD+y3bMXZDt8m6fSFfkwGZ8INT88SxVg2mo/F4WUcRRKTG+cqEu9C04
-         TTdbI0+QDfX5qOBDiGZTxeVGACJLRu2ENWTQoWyr9uyzGy7/AOt+yAY70T0FR5m7oX07
-         8WEtThCSEJWI67iV4Rh/QOzEueU+r0+nnJ9v7aCoGdd/F/Cn4mGhlrFc75sHyvVAwry6
-         9qFw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=a+jlPqXaLVAni2Q4f11pdb92tYHpkQCT0cVUsiJH2TM=;
-        fh=Ji9jrd4zL3GjMkid6lH96L4PtVBWR9qFCnnhKDjI/j8=;
-        b=UnYbqucYoGLhKHJSjxspP5SAd/Lc1poSFkn/5iL7YN1O4BecUisCPW64VzRhJ8wNOx
-         wgtcUdwnoJ+AjRQgT29ETzdDmNHV/+dqUPnfH5eduhJZt/Psd8l21qBnT2E7+TB48uRR
-         +DKlMJJVMwOLvZDuEUeq/kUBvmE3BfYI+WBtf5fTSXPBlaG0i/Uzlx7jid4oyNQ5MGZk
-         KgzoeSgrhS8UbNw7vQVG4Q2ZB68X43V/dDFi2RgiHezWNDTQlcjeNYV9+m5dJ9i1n+58
-         7vbB3R4Tr7aOY7c4LGTDCjE8JiuHUhIdItM0FpzVdm2J56CBE7JCrGKdT3OELVywboTi
-         pNAw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792016559; x=1792621359; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=a+jlPqXaLVAni2Q4f11pdb92tYHpkQCT0cVUsiJH2TM=;
-        b=iMQezf7evx73/yLjG+I4VeLvDL2xFBHSp53R7qnu5v8bXXOC2rLFzL39BowKHF4kBM
-         H63XIsJdNpK/nYzK7TziONfVaLdLs8Yk2sxDqtBpUinOYJuWYVlW7Fu5KUjc2Ne2OWZr
-         meI+hm7J+uxvZDZqRp1/a6idKdVWNjKFqae4GQ0Jn0LMFWgMtEdl6C0gnPA4YhR0r0Q4
-         05s7BwQW1Izz2xmOXazMoSAbGERZC28p1YLVNyviXHlMCwKSvL4+SasZhMPYf/i8MfJp
-         krDa7QRmHNnj507+gnSpFZsXBRk/xGd9upoElO+EeiadjE+rCvwa2vXQyrAcNdAhiWcP
-         i7Rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792016559; x=1792621359;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=a+jlPqXaLVAni2Q4f11pdb92tYHpkQCT0cVUsiJH2TM=;
-        b=tDiw+8aFXkJwKs5uukRGFSlpyu7XE6jaoih2YlvTpfMVbnw0/F4pC00E34hgoNYosX
-         +bx9FfyTamHst3tqigJv0BwIWnjDsvRPvJb6WC8o+07mhwH0dgrtGFug8d1wRAWuPCtu
-         +OJJlzByc4ZFVcM86KMSkThwLTfMTO/CLWs22TR7NIhKPdJKM+j4nLeuVRTFYlhE49+f
-         BoODcAuvvTAHDtZH6o/khkJOQlf3zbHrpRX11IlKFIIoGZYsYs5DMMI1Z/+0LU+oEplk
-         Ol6qQxdzdq1Ge17mq3uZXr1SdUrDheR/H1NoWbCWl6vpvOresv7tHEwX7JM6pqg7GZpb
-         f/rw==
-X-Forwarded-Encrypted: i=1; AKwUvBypZa2PpQ7N6IZ2+kQQif1JCLGI1QcR26Spps0W5ETq6bg4Bt2n2iyHVWEF2ZVOCsugWnKDz5GfZi30Uw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYL5VQ2gj3HnUEB7APFg0f59t/9A/l0Q1nSGaKhVLpUfhO3zEOLi
-	Ijlcd6BhR3leR9BgGw9SJSx6aBzZQZ2F0JnA6Ph7FFzyQgjwECIzPYjRoV+IBplnwpqTifZwa80
-	r0RsaMj41PGijeEn7zisoLiHYJCp9poM=
-X-Gm-Gg: AYBFou07qJ7YAeazN9XzgHxzc7Jo0IQttbJ/9GsHoaDgilNbd1Hae4fex0IWYRFrox0
-	zIqLXgchcLE3FjUElrMRcOpcuoGVXRrYaCuDHLO9hIUy4/cWfKaFe4P6YS6CY/mHsBkEzdy1hM1
-	3hEpCE6yVypXqXBAOQfwcQIKO1ged8w8UOhbg4VHknCUHnIIrvaRaSphiNpvRdqhtC6UtTuekLv
-	F4p9vYJL3Ecbnbo5iSMHiyyjgeh4Am5BajLuR7qOJiI7YvRA5Az2KoJlEQubT8b2ugMqV5ApaTn
-	EG02QChXmaUjXOg6XVxBxvBO+l9Hw8N3E7u4SPcu127t3X1jw6rla9q6
-X-Received: by 2002:a05:620a:3720:b0:93e:5eaf:dd87 with SMTP id
- af79cd13be357-93ebd2a05fbmr2860841185a.62.1792016559414; Wed, 14 Oct 2026
- 15:22:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WqQWwC29"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1792017307; x=1823553307;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=AmDME+Tz+w9UcXrraGYGQuY678RxPXZRS4l65fAAWE4=;
+  b=WqQWwC29a0eycMorQZ5sdJlvUtFok/tl0tVp6mUaNv0G1eRmUynVlDgt
+   c325wffqCzpUsvDZEf2+IHsQk4M39iIkB4cHRIQSnCAqWMWYA3gE6VkHp
+   mr/k+CuTdF+Jep0ljDvqmoDnN7Nl6qIKLv+GOeXwF0ph6r76prMgF3LKq
+   T/9M0ziwxJ7Hu3IISkF5J3WvjbH84+MvvWE2Hv0Ca6m3irL2rmEVusiW5
+   xcZfwT+C4E1kwAdYhXlQ5BwEeSUJSjXnjsWgDyG38ABQlXh2TdIzQjoOz
+   wnONp35urJwqSHnKuURR/i63eob97EriGlaceMWiKhjNrrL+NWE3Hafe8
+   w==;
+X-CSE-ConnectionGUID: gZ5HcQ3oTkeBIFi5LFdHFw==
+X-CSE-MsgGUID: r3vQQzGCT6Gv0zFNHcgZaw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11935"; a="659032"
+X-IronPort-AV: E=Sophos;i="6.27,158,1787036400"; 
+   d="scan'208";a="659032"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Oct 2026 15:35:06 -0700
+X-CSE-ConnectionGUID: DOunOLk8RbaLId/zN2tjMw==
+X-CSE-MsgGUID: +xMdiST+S3SP7XR59Me36g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,158,1787036400"; 
+   d="scan'208";a="1453123"
+Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 14 Oct 2026 15:35:03 -0700
+Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1xH7Yp-00000000FGw-34Xe;
+	Wed, 14 Oct 2026 22:34:59 +0000
+Date: Thu, 15 Oct 2026 06:34:39 +0800
+From: kernel test robot <lkp@intel.com>
+To: Svyatoslav Ryhel <clamor95@gmail.com>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
+	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>,
+	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+	Florian Krischer <florian.krischer@fkr.dev>
+Cc: oe-kbuild-all@lists.linux.dev, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	mfd@lists.linux.dev, linux-leds@vger.kernel.org,
+	linux-pm@vger.kernel.org
+Subject: Re: [PATCH v11 2/7] mfd: Add driver for ASUS Transformer embedded
+ controller
+Message-ID: <202610150612.syb967F8-lkp@intel.com>
+References: <20261013173504.451391-3-clamor95@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260925055346.19890-1-rokinthanp03@gmail.com>
-In-Reply-To: <20260925055346.19890-1-rokinthanp03@gmail.com>
-From: Jason Gerecke <killertofu@gmail.com>
-Date: Wed, 14 Oct 2026 15:22:27 -0700
-X-Gm-Features: AclHuK-7iMEveaTmmOXFHJA9E6TTkX0hQ4U5frlxF8tQjsuAC9ltDJ84s-wyUq0
-Message-ID: <CANRwn3TtQXnLRmDXVx=FuMDXpBueHQrRk5z-QWNW_EF-KhgsNg@mail.gmail.com>
-Subject: Re: [PATCH] HID: wacom: check for NULL pad_input before reporting pad events
-To: Rohinthan P <rokinthanp03@gmail.com>
-Cc: ping.cheng@wacom.com, jason.gerecke@wacom.com, jikos@kernel.org, 
-	bentiss@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzbot+ae7f998154426e723cbf@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261013173504.451391-3-clamor95@gmail.com>
 
-On Thu, Sep 24, 2026 at 10:53=E2=80=AFPM Rohinthan P <rokinthanp03@gmail.co=
-m> wrote:
->
-> When a Wacom device interface does not have pad capabilities (for
-> example, when wacom_setup_pad_input_capabilities() returns an error
-> or the interface is configured as pen-only), wacom_wac->pad_input is
-> set to NULL.
->
+Hi Svyatoslav,
 
-I imagine that similar problems could occur for the pen and touch
-interfaces too since they're initialized and used in the exact same
-ways (e.g. wacom_intuos_inout and wacom_intuos_general both implicitly
-assume that pen_input is non-NULL). I would recommend creating a
-similar version of this patch that adds the necessary checks for uses
-of pen_input and touch_input.
+kernel test robot noticed the following build warnings:
 
-> If incoming HID reports contain pad packets (such as
-> WACOM_REPORT_INTUOSPAD, WACOM_REPORT_INTUOS5PAD, or
-> WACOM_REPORT_CINTIQPAD), wacom_intuos_pad() assigns
-> input =3D wacom->pad_input and proceeds without verifying that input is
-> non-NULL. It calls wacom_report_numbered_buttons(input, ...), which
-> dereferences input via input_get_drvdata(input), triggering a general
-> protection fault / NULL pointer dereference:
->
->   Oops: general protection fault, probably for non-canonical address 0xdf=
-fffc000000006c: 0000 [#1] SMP KASAN NOPTI
->   KASAN: null-ptr-deref in range [0x0000000000000360-0x0000000000000367]
->   RIP: 0010:dev_get_drvdata include/linux/device.h:991 [inline]
->   RIP: 0010:input_get_drvdata include/linux/input.h:396 [inline]
->   RIP: 0010:wacom_report_numbered_buttons+0x37/0x210 drivers/hid/wacom_wa=
-c.c:4225
->   Call Trace:
->    <TASK>
->    wacom_intuos_pad drivers/hid/wacom_wac.c:643 [inline]
->    wacom_intuos_irq+0x2f8/0x3430 drivers/hid/wacom_wac.c:1042
->    wacom_bpt_irq drivers/hid/wacom_wac.c:3290 [inline]
->    wacom_wac_irq+0x196b/0xab80 drivers/hid/wacom_wac.c:3560
->    wacom_raw_event+0x6bb/0xba0 drivers/hid/wacom_sys.c:183
->
-> Add checks to verify that pad_input / input_dev is not NULL in
-> wacom_intuos_pad(), wacom_report_numbered_buttons(),
-> wacom_intuos_pro2_bt_pad(), and wacom_intuos_gen3_bt_pad(). In addition,
-> in wacom_intuos_irq(), return immediately if the packet is a pad report
-> to prevent pad packets from erroneously falling through to pen event
-> handling routines when pad_input is not allocated.
->
-> Fixes: 49005b9fd052 ("HID: wacom: Refactor button-to-key translation into=
- function")
-> Reported-by: syzbot+ae7f998154426e723cbf@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3Dae7f998154426e723cbf
-> Signed-off-by: Rohinthan P <rokinthanp03@gmail.com>
-> ---
->  drivers/hid/wacom_wac.c | 38 ++++++++++++++++++++++++++++----------
->  1 file changed, 28 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index af76e49..6a13724 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -529,6 +529,9 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
->               data[0] =3D=3D WACOM_REPORT_CINTIQPAD))
->                 return 0;
->
-> +       if (!input)
-> +               return 0;
-> +
+[auto build test WARNING on dtor-input/next]
+[also build test WARNING on dtor-input/for-linus sre-power-supply/for-next robh/for-next linus/master v7.3-rc7 next-20261012]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Please add a dev_warn message before returning. It is extremely
-strange to be processing a pad packet (identified by report ID) and
-*not* have the pad device allocated...
+url:    https://github.com/intel-lab-lkp/linux/commits/Svyatoslav-Ryhel/dt-bindings-embedded-controller-document-ASUS-Transformer-EC/20261013-203457
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+patch link:    https://lore.kernel.org/r/20261013173504.451391-3-clamor95%40gmail.com
+patch subject: [PATCH v11 2/7] mfd: Add driver for ASUS Transformer embedded controller
+config: csky-randconfig-1001-20261015 (https://download.01.org/0day-ci/archive/20261015/202610150612.syb967F8-lkp@intel.com/config)
+compiler: csky-linux-gcc (GCC) 16.1.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261015/202610150612.syb967F8-lkp@intel.com/reproduce)
 
->         if (features->type >=3D INTUOS4S && features->type <=3D INTUOS4L)=
- {
->                 buttons =3D (data[3] << 1) | (data[2] & 0x01);
->                 ring1 =3D data[1];
-> @@ -1039,9 +1042,10 @@ static int wacom_intuos_irq(struct wacom_wac *waco=
-m)
->         }
->
->         /* process pad events */
-> -       result =3D wacom_intuos_pad(wacom);
-> -       if (result)
-> -               return result;
-> +       if (data[0] =3D=3D WACOM_REPORT_INTUOSPAD ||
-> +           data[0] =3D=3D WACOM_REPORT_INTUOS5PAD ||
-> +           data[0] =3D=3D WACOM_REPORT_CINTIQPAD)
-> +               return wacom_intuos_pad(wacom);
->
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202610150612.syb967F8-lkp@intel.com/
 
-This check is already performed within wacom_intuos_pad. Duplicating
-it here is just asking for trouble as one check gets updated but not
-the other. The pad function knows best what kind of reports it should
-handle, so overall I am going to NAK to this particular hunk.
+All warnings (new ones prefixed by >>):
 
->         /* process in/out prox events */
->         result =3D wacom_intuos_inout(wacom);
-> @@ -1475,12 +1479,17 @@ static void wacom_intuos_pro2_bt_pad(struct wacom=
-_wac *wacom)
->         struct input_dev *pad_input =3D wacom->pad_input;
->         unsigned char *data =3D wacom->data;
->         int nbuttons =3D wacom->features.numbered_buttons;
-> +       int expresskeys, center, ring;
-> +       bool ringstatus, prox;
-> +
-> +       if (!pad_input)
-> +               return;
->
-> -       int expresskeys =3D data[282];
-> -       int center =3D (data[281] & 0x40) >> 6;
-> -       int ring =3D data[285] & 0x7F;
-> -       bool ringstatus =3D data[285] & 0x80;
-> -       bool prox =3D expresskeys || center || ringstatus;
-> +       expresskeys =3D data[282];
-> +       center =3D (data[281] & 0x40) >> 6;
-> +       ring =3D data[285] & 0x7F;
-> +       ringstatus =3D data[285] & 0x80;
-> +       prox =3D expresskeys || center || ringstatus;
->
+>> Warning: drivers/mfd/asus-transformer-ec.c:59 struct member 'fmode' not described in 'asus_ec_chip_info'
+   Warning: drivers/mfd/asus-transformer-ec.c:59 Excess struct member 'mode' description in 'asus_ec_chip_info'
+>> Warning: drivers/mfd/asus-transformer-ec.c:79 Excess struct member 'logging_disabled' description in 'asus_ec_data'
+>> Warning: drivers/mfd/asus-transformer-ec.c:59 struct member 'fmode' not described in 'asus_ec_chip_info'
+   Warning: drivers/mfd/asus-transformer-ec.c:59 Excess struct member 'mode' description in 'asus_ec_chip_info'
+>> Warning: drivers/mfd/asus-transformer-ec.c:79 Excess struct member 'logging_disabled' description in 'asus_ec_data'
 
-Most of this hunk is cleanup that has nothing to do with the new
-pad_input check. Please remove the cleanup so this patch can be
-focused on the fix.
-
-Also: similar to wacom_intuos_pad, please add a dev_warn message
-before returning due to NULL pad_input.
-
->         /* Fix touchring data: userspace expects 0 at left and increasing=
- clockwise */
->         ring =3D 71 - ring;
-> @@ -1515,8 +1524,12 @@ static void wacom_intuos_gen3_bt_pad(struct wacom_=
-wac *wacom)
->  {
->         struct input_dev *pad_input =3D wacom->pad_input;
->         unsigned char *data =3D wacom->data;
-> +       int buttons;
->
-> -       int buttons =3D data[44];
-> +       if (!pad_input)
-> +               return;
-> +
-> +       buttons =3D data[44];
->
->         wacom_report_numbered_buttons(pad_input, 4, buttons);
->
-
-Same comments as the hunk above. Remove the cleanup-related change to
-'buttons' and introduce a dev_warn before returning due to NULL
-pad_input.
-
-
-> @@ -4220,9 +4233,14 @@ static void wacom_update_led(struct wacom *wacom, =
-int button_count, int mask,
->  static void wacom_report_numbered_buttons(struct input_dev *input_dev,
->                                 int button_count, int mask)
->  {
-> -       struct wacom *wacom =3D input_get_drvdata(input_dev);
-> +       struct wacom *wacom;
->         int i;
->
-> +       if (!input_dev)
-> +               return;
-> +
-> +       wacom =3D input_get_drvdata(input_dev);
-> +
->         for (i =3D 0; i < wacom->led.count; i++)
->                 wacom_update_led(wacom,  button_count, mask, i);
->
-
-This hunk appears to be redundant since the above hunks appear to
-fully cover and protect all callers of wacom_report_numbered_buttons.
-Generally we try to avoid repeating NULL checks, but since this is a
-utility function maybe it makes sense to keep here. If the NULL check
-is kept, I would request another dev_warn log here as well.
-
-Jason (she/they)
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
-
-> --
-> 2.53.0
->
->
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

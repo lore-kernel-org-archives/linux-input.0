@@ -1,229 +1,145 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA4235326B5;
-	Wed, 14 Oct 2026 14:03:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70843374E5B
+	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 15:25:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791986627; cv=none; b=tCUliTsidJAggnOwwIwuljMhTuDZZ5OKnxrDit21BWE7y5/DtPBanZj1NWSTkJN6TvSYjvkuqlelj/DCrkx1U/lWgcFzlIjWdc37d5hvwO4nYMNY3Fiu4GwEY6RJWq7xtnmAt2gYUyaUzRk4u2ZI39wcL84G2MGGnlwNs5lGWtU=
+	t=1791991522; cv=none; b=B/X459885ilWRbDu9IgurN2P7wXe4EHnPwh6oQFzmbPXSdwIjkknMErz44bvvOttdQDytj9rWQ6nWqE68r4jIVj1Zlm0p9vewH+n2wBqyIV9JL1p908CZd/ipA+ACOm5kh5JSWVCOLaStPn6xz++jmkNDvuuxGxupsBy7VW4E/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791986627; c=relaxed/simple;
-	bh=QXboNzLTxr3eBXF9UQJDEX3cXMIc5L36e1L2g+PHYp8=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=pokTIHMxfBEm5XF6qlCtaAbgVIdobLf5WLTFtCnrd4amB7X5J8N9FpD4JUksjjm6jPw/KGJFnm2Jhtje+TgmKlbr8df7FaWkQHZIxrjDlhgCgPojXLkRasj5iMK6SNareCiIpo1dlnnm35U6r3vHKDEDQ+694xwTK69kamLvLME=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AXGrzPxe; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791991522; c=relaxed/simple;
+	bh=4xtlwMXyWzq87oKXlTSUTSJUcCXtxizVzZJcF/3R7OM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SfKEBL8Sai1ld1NIMopiOXJfn7n1KqRVp8OZT4lNSmwRclquGtJymtwbeEM7VWuVlOxKuzKaNObV9Ufh3jgYPOFezm8R+rqn/PyLb2WmninYPr2tPAPiwejGhQQJChGggo2p+XIGUOCFlPF9o0FaCCXEu7MdrZgzjaXKmzt4UGk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OvV3QGR4; arc=none smtp.client-ip=209.85.217.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AXGrzPxe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B08F51F00A2F;
-	Wed, 14 Oct 2026 14:03:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791986621;
-	bh=mQBE2FT0ku1TFYAqWdNwA6z/reMUrV8Ne9aQWDEfQ9o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AXGrzPxeDwZ5DsK10+ILVTEai/qj5/uZxdwJga45L5AyuHqKA8FbCndjXmadwLb1g
-	 pS14rZoMCpEto/NWgukdF0ATU/3/bHXWNL8urfexQsDez6k8UKR2AFfHd6sEAVWLfZ
-	 N38RUt2j1P+MTvaAVOnZonPCRT1Ddzaznks22zCN3n7RKNElAa4j6I1KyT79fF/1nj
-	 U353D91HklhfBbeO+EsTUzPCjwbAMw2HYjjf2vNyf8T8QjrU2zkWA8X2xXHJb3Ltw0
-	 3D7+4CXaevTvZHiBhHCb9n9yUIoyic85EnCjZAQ6NxXxy445I2zMp2Zd+F4rYEgF6T
-	 EYpHbvI14d1/A==
-Message-ID: <sashiko-outbox-171400@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/2] Input: add OnePlus/OPPO Pad pogo-pin keyboard
- serdev driver
-Reply-To: sashiko-reviews@lists.linux.dev
-To: wyibo6109@gmail.com, linux-input@vger.kernel.org
-Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261014135251.11234-3-wyibo6109@gmail.com>
-References: <20261010143836.173883-1-wyibo6109@gmail.com>
- <20261014135251.11234-1-wyibo6109@gmail.com>
- <20261014135251.11234-3-wyibo6109@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 14 Oct 2026 14:03:40 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OvV3QGR4"
+Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-7c0466d653fso183128137.3
+        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 08:25:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791991520; x=1792596320; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=xZlacUVzzy4HBA3NrxiUhpJFwP6Wb2PV4OZMdQ09R7I=;
+        b=OvV3QGR4FZThAftPriNMh0Z49gdzBDi90bON/J2qGK4x6casf1MCH7iu0i1QXdMSA8
+         BFyJfzLwcxt3JPev9LG1y+5VFqIIjSghbVMKzuB5xyqs4/68DP4kv6fVzv83zMymDsRX
+         1qrn+koBA5ex4K3dDF0QYhHc56uAqHiRM6OIDLgzhtp1jpswVE9dKA5VU43IH4PR4PxM
+         G3t9zI2cftnG/bVhkAMewxJOTecsfyxbw+/gLlhrTs/IEh+CI69jHmYi+lNLiJtZg/+m
+         4J3ogY8xF8roffMtybaOz/QyRuHixaK1iSrl7cPnIt/uMsOcnuoy/Z+UdshEdh0pdDjY
+         Z9HQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791991520; x=1792596320;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=xZlacUVzzy4HBA3NrxiUhpJFwP6Wb2PV4OZMdQ09R7I=;
+        b=1qjVzF6KsKHzq5ZjIUvNqYcY9HsotFgmWmqYYpMtJKDYapuJDfj+JghhDfYW7x+Vm3
+         BTkMBPdRWnt68SGoyCkBv0lhLvnsk7dW+uc7mYvXvG6RGM7IufkFikkuPxcxMKkM4aMf
+         QgzChxymfw0XJ4jYbH+Z0I5f484dalJ2uALOmVNOd8WBQVE5NCtCa7iulQCC/XZbHWVm
+         +4IVh6fZSxJcTeQ8e0K0oCay3PDFulFSbgyjSTDcBZgZdpJjtIvdY7+hXh1lMROreAx2
+         fji5eRX79L4tbxxzC2gL2N8VXRgf2GNFz2/pkxjPAKigY9bp0GIbkX5oARu6tk0zQqJO
+         3OOQ==
+X-Gm-Message-State: AFq9FYLH1O3PgHhHEtuS0OuUjR6vZ/Fm6O1E5HlpD5TwSszUsnwERw7q
+	zZ8qr7JqVeKHi1li4Q420s0sLCElprxPSScmHDZSC3CegDcPNbieOwAqaqT+SRAEcbqVNg==
+X-Gm-Gg: AYBFou2oy7e6BpJeYAvNE7GmHgF6GRtPdF8A8xhJSETwLpuaUn7DDqDOrHUC9GvwJL/
+	/h+k5K2JQBtupavbBvvLB5kcqbPx/4ViSh8ViVzMUib/lU/DiWwa2KA7WmtOfHz/XbhbqaVtjyq
+	n7ABy+EURIwS+WYwAHntti4E9Sx8CgQiBnJRThgLqsYpxIVk2xY5lkXNuWq/20l9H2J7MrSksQZ
+	RuS3J2BSxxclBV/SxV6WoANLL5loc/9H7OwzqetgiyejsrwKcTVWzVNLY9eldIBsMDkKu4xsfpS
+	+k4fmpJZzs0Kmgn8rSBz1ViTXixAs9pp3tHLspxjwrKWTUkNyMPV4sNzXuh1shNoONl04zNJX4c
+	Rj+cy9bZyj7w92PJ7DEXVBl3aNR/Y8dOHsLEwOu6ZS+hQA94+3yMXy+qi2+rzteaxWoRI7rMPzQ
+	Nup10N1zVJm8GG8s4U0rWgxY2OW2aS2Uwb/FLJvg3Dw0nJigTeNw/574v6qDHHkxlnGg/TM2jgD
+	/Q7fIxS0J+CX3rnmApisbZfUzbBmBCWOTI0Zz7sU6uy1YPzg+WPn4XNpQ6Xoq4sNUkzyFTqSwnn
+	ucf6hCvDN2sGaOLwbkqBLn/eKm77hQrgzQVBaeSkEt7fV46g
+X-Received: by 2002:a05:6102:4193:b0:7a7:12b0:fd03 with SMTP id ada2fe7eead31-7cb50ad7b90mr3825371137.0.1791991519989;
+        Wed, 14 Oct 2026 08:25:19 -0700 (PDT)
+Received: from debian-t14-gen1-fuhrysteve.ts.fuhry.app (235.sub-75-230-129.myvzw.com. [75.230.129.235])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b97b5e5b1sm54887516d6.18.2026.10.14.08.25.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Oct 2026 08:25:19 -0700 (PDT)
+From: "Stephen J. Fuhry" <fuhrysteve@gmail.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	"Stephen J. Fuhry" <fuhrysteve@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: input: ignore the battery of Keychron keyboards over Bluetooth
+Date: Wed, 14 Oct 2026 11:25:05 -0400
+Message-ID: <20261014152505.2523337-1-fuhrysteve@gmail.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] input: incorrect work cancellation order and UART teardown sequenc=
-e cause UAF
-- [High] input: early return in pogo_wake_irq_enable bypasses teardown sync=
-hronization causing UAF
-- [Medium] input: data race on link state variables kb->connected and kb->h=
-b_seen
-- [Medium] input: spontaneous battery status frames break protocol by masqu=
-erading as command replies
-- [Low] input: lockless tx_pending synchronization allows late echoes to fa=
-lsely complete retries
---
+Keychron keyboards identify as Apple's wired aluminium keyboard, rev B
+ANSI (05ac:024f), when connected over Bluetooth. hid-apple has bound
+that ID over Bluetooth since commit ebe0b42a4252 ("HID: apple: Add
+support for Keychron K1 wireless keyboard"). The Keychron K8 tested
+here does the same, whichever position its Mac/Windows switch is in.
 
-commit a6ba6892df355bac066ccad7a6e524f24c69aa8a
-Author: Yibo Wang <wyibo6109@gmail.com>
+The report descriptor declares a battery, so hid-input creates a
+power_supply node for it. The keyboard never answers the battery
+feature report. Every read of the node blocks for the full 5 second
+uhid timeout and then returns -ENODATA:
 
-    Input: add OnePlus/OPPO Pad pogo-pin keyboard serdev driver
+  $ time cat .../power_supply/hid-<addr>-battery/capacity
+  cat: ...: No data available
+  real    0m5.10s
 
-This commit adds a serdev driver for the Tinno keyboard MCU used by
-OnePlus and OPPO smart keyboards. The MCU communicates over a half-duplex
-UART using a framed protocol. It supports touchpad, function keys, and
-backlight control.
+Anything that enumerates devices pays this on every pass. With the
+keyboard connected, "udevadm info --export-db" took 10 to 26 seconds;
+with it disconnected, 0.11 seconds. KDE's Solid library enumerates
+devices on the GUI thread, so Dolphin and the Plasma panel froze for the
+same 10 to 26 seconds. upower already gives up on the device and does
+not list it.
 
---- a/drivers/input/keyboard/oneplus-pogo-kbd.c
-+++ b/drivers/input/keyboard/oneplus-pogo-kbd.c
-[ ... ]
-> +static int pogo_xfer(struct pogo_kbd *kb, u8 cmd, const u8 *payload, u8 =
-len,
-> +		     u8 *resp, unsigned int resp_size)
-> +{
-[ ... ]
-> +		/*
-> +		 * Drop any late echo/reply of the previous attempt: with
-> +		 * tx_pending cleared the RX path ignores frames until the
-> +		 * transfer below re-arms, so a delayed reply cannot complete
-> +		 * the fresh iteration or race the resp buffer.
-> +		 */
-> +		WRITE_ONCE(kb->tx_pending, false);
-> +		reinit_completion(&kb->echo_done);
-> +		reinit_completion(&kb->resp_done);
-> +		kb->tx_cmd =3D cmd;
-> +		WRITE_ONCE(kb->tx_pending, true);
+0x024f is a wired-only Apple product, so a Bluetooth device using it is
+not a genuine Apple keyboard. Ignore its battery so the node is never
+created. AVOID_QUERY would stop the blocking read, but the K8 does not
+send the battery in its input reports either. The node would then stay
+at its initial capacity of 0 with status Unknown, which looks like an
+empty battery.
 
-[Severity: Low]
-Does this lockless synchronization for tx_pending allow late echoes to fals=
-ely
-complete retries?
+Cc: stable@vger.kernel.org
+Signed-off-by: Stephen J. Fuhry <fuhrysteve@gmail.com>
+---
+Tested on 7.2.6 (Debian trixie-backports base) on a ThinkPad T14
+Gen 3 with a Keychron K8 paired over Bluetooth: no battery node is
+created and "udevadm info --export-db" takes 0.12 s with the keyboard
+connected. The keyboard types normally and hid-apple still binds it.
 
-If the UART RX path (pogo_handle_frame) observes tx_pending =3D=3D true and
-matches the command, but then stalls just before calling
-complete(&kb->echo_done), pogo_xfer() could time out and start a new retry.
-When the RX thread resumes and calls complete(), it would satisfy the new
-retry's completion with the old echo, potentially masking a real transmissi=
-on
-failure.
+I have only the K8 to test. If another Keychron model on this ID does
+answer the battery report, this hides its battery level. I do not know
+whether any does.
 
-[ ... ]
-> +static void pogo_handle_sync(struct pogo_kbd *kb, const u8 *p, unsigned =
-int len)
-> +{
-[ ... ]
-> +	if (!kb->connected || replug) {
-> +		kb->connected =3D true;
-> +		kb->hb_seen =3D false;
+ drivers/hid/hid-input.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-[Severity: Medium]
-Could this modify the link state variables concurrently with pogo_power_off=
-()?
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index edd6bbf..380ff8a 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -381,6 +381,15 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM,
+ 		USB_DEVICE_ID_ELECOM_BM084),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	/*
++	 * Keychron keyboards in Bluetooth mode reuse the product ID of
++	 * Apple's wired aluminium keyboard. They declare a battery but never
++	 * answer the battery feature report, so each read blocks for the full
++	 * uhid timeout and then fails with -ENODATA.
++	 */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
++		USB_DEVICE_ID_APPLE_ALU_REVB_ANSI),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
+ 		USB_DEVICE_ID_SYMBOL_SCANNER_3),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+-- 
+2.47.3
 
-Since pogo_power_off() modifies kb->connected and kb->powered while holding
-kb->state_lock, but pogo_handle_sync() updates kb->connected and kb->hb_seen
-here locklessly, the RX thread might clobber the teardown state. This could
-leave kb->connected =3D true after the hardware is unpowered, bypassing che=
-cks
-in sysfs interfaces and potentially backfeeding power through the UART pins.
-
-> +		kb->retry_ms =3D POGO_RETRY_MIN_MS;
-> +		if (!READ_ONCE(kb->quitting))
-> +			schedule_work(&kb->plug_work);
-> +	}
-> +}
-> +
-> +static void pogo_handle_frame(struct pogo_kbd *kb, const u8 *f, unsigned=
- int n)
-> +{
-[ ... ]
-> +	default:
-> +		if (cmd =3D=3D OWB_CMD_GENERAL_ACK && len >=3D 4 &&
-> +		    payload[0] =3D=3D OWB_GEN_BATTERY_STATUS)
-> +			kb->battery_level =3D payload[2];
-> +
-> +		if (READ_ONCE(kb->tx_pending) && cmd =3D=3D kb->tx_cmd + 1) {
-
-[Severity: Medium]
-Should there be an 'else' block for the battery status check?
-
-The MCU can spontaneously transmit battery status frames (cmd 0x3B,
-payload[0] 0x0E). If the host is currently waiting for a general command
-reply (kb->tx_cmd =3D=3D 0x3A), the condition cmd =3D=3D kb->tx_cmd + 1 wil=
-l match.
-This causes the battery frame to be falsely accepted as the command reply,
-which could cause pogo_set_general() to fail with -EPROTO and drop the real
-reply that arrives later.
-
-> +			/* reply layout for callers: cmd, len, payload */
-> +			kb->resp_len =3D min_t(unsigned int, len + 2, sizeof(kb->resp));
-> +			memcpy(kb->resp, &f[3], kb->resp_len);
-> +			complete(&kb->resp_done);
-> +		} else {
-[ ... ]
-> +static void pogo_wake_irq_enable(struct pogo_kbd *kb, bool enable)
-> +{
-> +	if (enable =3D=3D kb->wake_irq_enabled)
-> +		return;
-
-[Severity: High]
-Does this early return bypass the synchronization barrier during teardown?
-
-In pogo_wake_isr(), the hardware interrupt calls disable_irq_nosync() and s=
-ets
-kb->wake_irq_enabled =3D false. If pogo_remove() calls pogo_wake_irq_enable=
-(kb, false)
-while the ISR is executing after the flag has been updated, this early retu=
-rn
-will skip the disable_irq() call entirely.
-
-This allows pogo_remove() to proceed with teardown and free the memory whil=
-e the
-ISR is still running and about to queue detect_work, leading to a use-after=
--free.
-
-> +	if (enable) {
-[ ... ]
-> +static void pogo_remove(struct serdev_device *serdev)
-> +{
-> +	struct pogo_kbd *kb =3D serdev_device_get_drvdata(serdev);
-> +
-> +	/*
-> +	 * Stop the world first: with quitting set, the RX path and the
-> +	 * works stop queueing each other, so the cancels below cannot be
-> +	 * undone again.  The wake IRQ is disabled (and any in-flight ISR
-> +	 * finished) before detect_work is cancelled.
-> +	 */
-> +	WRITE_ONCE(kb->quitting, true);
-> +	pogo_wake_irq_enable(kb, false);
-> +	cancel_delayed_work_sync(&kb->detect_work);
-> +	cancel_delayed_work_sync(&kb->hb_work);
-> +	cancel_work_sync(&kb->plug_work);
-
-[Severity: High]
-Could the cancellation order and serdev teardown sequence cause a use-after=
--free?
-
-Because detect_work is cancelled before hb_work, if hb_work is running
-concurrently, it can re-queue detect_work after it has been cancelled. The
-lockless check !READ_ONCE(kb->quitting) allows a thread to read false, stal=
-l,
-and queue the work after these cancellations are finished.
-
-Additionally, since the serdev port remains open during pogo_remove() (it c=
-loses
-later via devres), the UART RX callback can still execute, evaluate the loc=
-kless
-quitting flag as false, and queue plug_work after cancel_work_sync(&kb->plu=
-g_work)
-has already returned.=20
-
-This sequence can leave works queued while devres frees the kb memory.
-
-> +
-> +	/* unregisters the input devices, the last possible led_work queuer */
-> +	pogo_power_off(kb);
-> +
-> +	/* flush a led_work queued before the inputs went away */
-> +	cancel_work_sync(&kb->led_work);
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261014135251.1123=
-4-1-wyibo6109@gmail.com?part=3D2

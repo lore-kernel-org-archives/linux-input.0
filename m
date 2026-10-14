@@ -1,84 +1,79 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7A3C41F5D7
-	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 05:13:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32D6648592F
+	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 10:41:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791954822; cv=none; b=TEUNR73IsMrJmbFmR0AEULRWtITgHbFujj5v0gwD7kQAKqTp7H5yFqnhXK2gg9x93qmsSrwX1fc4YwrHO4kKvF6iJ+J3MyV2fGsfxUDIEpOK1hW804UCmotCZxvUKdmgqU7hvRXdQpkc4ho7qCvB8plhLx5ZfYNC9xMWW2TPT3g=
+	t=1791974493; cv=none; b=LhWTRQP/FG3DROiGh2FTiGCIidggkMHjmCU6hykzGpbtWwfyjaNZreKTLbIxH7HfOvFWRkeimR7TN2ilUsLq0a3Dku/5WqwxbsxCZNv7MDvdHsWu5aWXw/RH+AtawbJoV6YZmAUBoCY/2P5ABNLsHZiJS7YC/GU8K7YYKUQSjM4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791954822; c=relaxed/simple;
-	bh=rpdjqRPo/nMEF5LGfSaxzBsb4+u1UPgA0QiSwAqrJHg=;
+	s=arc-20240116; t=1791974493; c=relaxed/simple;
+	bh=QkXnEoUjS6Asy3QHKoWfyrmwmxRf0oOgi7AmW/HqsaA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IGXVU75d7B+o3drL/bJmv5NnxzZG2cUH+DmhC2NTm7GZ/DCUosIbbZbOMY5zvuzWjY/SyT8buBEQyVAZ/UlFtASGtIigp8OaeS6MMTnsC1sEz5iuED0tz/yHsgXPyTbW5ZcMbUGsyFQXBFZrqXrkVizY+GerVjiMjvXS3SEGADg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fp8zSGpN; arc=none smtp.client-ip=74.125.82.179
+	 MIME-Version; b=dApiw5NqzkyJpYCsbX6TL1YxxLLrLaHflhhYUyBymAI2ZYKrLCC3S23ruX6sVm6I//ikIcOXm/tdHulxCyDciW94qUcbZWTRXk+0w7EbzPdVgX9FjD1IlT/nuBht1xuVMka4Wv3jYs1cMAwoOf16Dkiv8ON/0E33L6uNAgAkzTI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oT7gztfP; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fp8zSGpN"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-3535a54bed9so835452eec.1
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:13:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oT7gztfP"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2e8fe8e343fso13667175ad.2
+        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 03:41:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791954820; x=1792559620; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791974491; x=1792579291; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=6B8ArzIo9Bbqhd/pBaN1TCTzyJMvGcjD8xg/cTLGFCA=;
-        b=fp8zSGpN09mZdm4jVPz448xjU8ePB9n3RMlv45zFAAhWjtXph3gXDnVqp4P33syAtg
-         0r8rQMK5mLVPKo5ki+gFjHld7tZMV+dOHfobCYG2PeNBRhMW7kbLWcPYPCOTgi1DmdNy
-         8MNnKm9Y+p9AHJeMxGNPWx4nLgN0DL4WOmJ4VORcbaoBOCnC+O3jIsSP2Kl8kjks2bR3
-         czkYpr4WjjalGoiVkzIy4rVJERCbJ7BnUNoWnD98kH9s5JoFQgmp6oNvSv+D5/MspryD
-         iVXyvdgcosyPPtelTTx4zTzAPHIbK0s2OqqDBdrBNw6q5jcTOpiz0VKnqnbyHSxAVN34
-         CQZg==
+        bh=834mvMFQ68xQN8ymFd/I3UQRq9F1Cfklp9OOKEeRylA=;
+        b=oT7gztfPlrqiOETOoJyUr70ym9TCNPBGJhRC82N0eu1ii7OhQIGPU6IAYX/F+KJf+T
+         68futkWAigDW9gFExsL6M8GVvwUAU4iEl7aSuMmt91RFATsMF5u6gLeNthpNiYxU93+s
+         7xyPzgi3K4Xwa69vfv2iuV3mwx/lTSiQvrz0M7vr47FHaMejyc6DwyyQM6/Os3o51gNF
+         4QetlLSlsQMKGtuA23ccrf1VDSpFSzQHohd6uloNVc4s2wnEJGdjDIMkf36hJ7RSoY1N
+         BgdATpiOFuLV1Q3cYNx3KtNJ45FWhAlvF0FnR/aQDz5FlAa2lPR+kDoUmutAuKrLfT2Z
+         FmzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791954820; x=1792559620;
+        d=1e100.net; s=20260707; t=1791974491; x=1792579291;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=6B8ArzIo9Bbqhd/pBaN1TCTzyJMvGcjD8xg/cTLGFCA=;
-        b=e5a03o+yuT/SUwWsvo750cNtJpUnGSEC5hFyq98Nsp1nK+pB1HnaeoGLWECuHfY+NW
-         mZyI+ZCUaC2T2GEYJ/AVMWT6yuIN7k4duSKsWWUpkv25tLboss5hO61wq71l77R91T8T
-         fQJx7jcskdXHfl05Dt/3VN9T7MgOOZOsUoifd3twRzRppk5JRcoSDtoI9w1xd4YnQBbl
-         9M86JrwF09OOzkNW5r1uD4xCObHjM+Nt5/AGobsvikUY1blAN7PUVEoHLFHwcdO6RSx9
-         13P9iI4TRCufFw+RGWkySumExmuNbgWVW+X/Vczy7l06RckJiMtg/qpBOg3v989Iq9Hb
-         YIrQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzhADiCTwjbk75h2udbOI1YuREJHfy7nhrKzcI/RnyhDwBauOtyz1b5eR8tynVvUn+Ce70LY9JBLsHIvw==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKq/mcHPD6RSSKqAXOCi+hFtTsFy5usdXx3Kud+VcMgv349Z+tb
-	bXZz0yjWuDQDl1q/CUVO5sXWIPrAIUu9u783Ee7rucADRo8FYe0YGcCO
-X-Gm-Gg: AYBFou0mC8qwe+mN01k3d0XklS6SJxBmwZM1x9WGGUScojsd9EQTyqzSubwSl9bDRv9
-	GeDhPvDChI2hf8V7z2f2CHY3cMr2CIqoM1LMtB0PzuwnR/1lkpFY4S1GqUXUh8eb3/3zX777EMS
-	IAGtkmj0jq955VaVpzb6Fi4j/hqjQXxL+LaMOPEfu32mleZv4b6db017zaq8wZwKn5KNOM1bk5x
-	3SJBussUaAKyKwKDQxm/5Z3IgcJ2Nly5pwkl/q049tX6Yzzq59Nvs8aRqbpOnJwTj65JqOYWySp
-	U5gsGGxCzv3eqXhpH1w/RiAW7ubauZtK37tkrFHdoEP40tnIcbxO28RbFxAJ54ODEUv81u0csIg
-	WbswAQTalsrg2RkUokz3/+OdOJdlXQPo+9a4y8h6xg5b7m6EPBlK78Rk1kGl6IvmGsb7VrqMCYk
-	Eopv04l2oUvCGQ6yobZlGXOKxmNSUncOiM2JAq2W2c8wZ/uMiCPjwHGW1k8TLFO6jjbzgq4eWwr
-	no/oXp03fqS6pkLiOGGjLQNuSFIozZYRSyePMIqIEt6n7wzjZZMwVFm2SEKxbkhx776cD7GeA==
-X-Received: by 2002:a05:7300:8803:b0:353:7b46:4819 with SMTP id 5a478bee46e88-3537e032905mr24065867eec.8.1791954819617;
-        Tue, 13 Oct 2026 22:13:39 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:875a:117f:b9ea:5a08])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cacb61asm51629125eec.21.2026.10.13.22.13.38
+        bh=834mvMFQ68xQN8ymFd/I3UQRq9F1Cfklp9OOKEeRylA=;
+        b=clBMogt7LB+Atn8qHxpug+u1ZSKBWKtpQRnW0uX8sRfCS9X2wEqAf4NXptqc0GJtvg
+         8mHcQPVZJEt6/paLtOMRz3z7ie04B+myCNy6WPF7ASZZCfgIUBjLNZ2LqOO6/Fm1p1EG
+         jan5yd3eB/tjpdRxLqX+LnprTLLRShnnK5tq0e7ZHd2Rq3JFJuqNOBG/rZZ9WQzMTldf
+         hfNWwademAsrTwFXnahUPwQMLit/yJGrSNV6UG0vzO4XoriB2NFkw+ZlKKmmNA3wAedd
+         0KRleRS6/HY7jTiM2j106YDremAYNe3Q5+GFeMLwE4bka1EWtXnk9zDWfrUSrkntiGnw
+         wAdA==
+X-Forwarded-Encrypted: i=1; AKwUvByzE5ah7a/EUQYDPNcfwh06VLyuNUzyp/h5sX7sPOf6el6CDlBZsniBtuMN/Rzuph+6shCL9VpULLhg8Q==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJFsDKuSi2CfaDxPwBua6jE+fP1LQyr/LQENF7lIUm7ziIeb9/D
+	OXgeUisy9VLSKTdxiRAQCgayku7+yGyeBl02L75TPXJphJkECdVStPtA
+X-Gm-Gg: AYBFou0OWTwlMF250zXkYk0Knz2IR7ypgqpsi4pyun2/A/wbnEyvWqjZLJUZ+9qh86R
+	nT3CYvwkdGup6aW4MKN5YnDKlve1a7DrUuyUit1P2PUK21pnQ7sGzRAu0VIGOpHfnil+hebyKDJ
+	IlBVA99a+mkBrgb1gY9owjUhWg9aJX4LMxjLyrx/g3IqplGcv/DG22ZSA0PXVVnUsoVCvQt4+nH
+	qK3tN7l5ythHHhPpsP+efvYlQ2ZU6vwQFRetFhc7GjVOAGnkAm4WPOy0Pg97/vfZdMzj2VjTeL9
+	DzEnTXOJPj/3X0wFOUJ919KSTre3nGFMtTCc+GSbvivHcOut1nkzgcMbOfpe6qvqUZXJ2KQ3Gti
+	+PZQ0nD7bpWNLGF2LyoHXfdqc/ltWT+ZiRQgtZQMV48SGql+cNDhr9Jmmz6cQZ2SpTdMdiIdQjb
+	kVX6xyXx/QiWFi48818C1nLdSqwhc7km7F2rf3aXVGNGHnSIt0aiAjQmejMzYv798X2Q8kqUy59
+	sH4IrniHZqdvta4tjWTv6lHiSEnDYr4Nok1yKnQbhkwVGs2TJq261okzg==
+X-Received: by 2002:a17:902:f64f:b0:2dd:ad73:c984 with SMTP id d9443c01a7336-2e842bc5ae0mr126774105ad.28.1791974491304;
+        Wed, 14 Oct 2026 03:41:31 -0700 (PDT)
+Received: from spark-da2e.tail8e743c.ts.net ([2001:2d8:219e:928:2121:3ae4:3d22:fb3f])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e8422b8dd5sm70016385ad.55.2026.10.14.03.41.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 22:13:38 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Wed, 14 Oct 2026 03:41:30 -0700 (PDT)
+From: Jinmo Yang <jinmo44.yang@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	Michael Zaidman <michael.zaidman@gmail.com>,
-	Rishi Gupta <gupt21@gmail.com>,
-	Heiner Kallweit <hkallweit1@gmail.com>,
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	David Barksdale <dbarksdale@uplogix.com>,
-	Andrej Shadura <andrew@shadura.me>,
-	Johannes Roith <johannes@gnu-linux.rocks>,
 	linux-input@vger.kernel.org,
-	linux-bluetooth@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 5/5] HID: hidraw: Make hidraw.h private to HID subsystem
-Date: Tue, 13 Oct 2026 22:13:25 -0700
-Message-ID: <20261014051326.3784498-6-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
-In-Reply-To: <20261014051326.3784498-1-dmitry.torokhov@gmail.com>
-References: <20261014051326.3784498-1-dmitry.torokhov@gmail.com>
+	linux-kernel@vger.kernel.org,
+	Jinmo Yang <jinmo44.yang@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: cp2112: don't dereference hdev->hidraw unconditionally
+Date: Wed, 14 Oct 2026 10:38:47 +0000
+Message-ID: <20261014103849.1837692-1-jinmo44.yang@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261014051326.3784498-4-dmitry.torokhov@gmail.com>
+References: <20261014051326.3784498-4-dmitry.torokhov@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -87,208 +82,104 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-With all external consumers converted to use the hidraw instance helper,
-hidraw.h no longer needs to be exposed in include/linux.
+cp2112_probe() builds the I2C adapter name from the hidraw minor:
 
-Move the header into drivers/hid, keep private buffer and list
-structures internal to hidraw.c, and drop unneeded symbol exports
-since hidraw and hid-core are built into the same module.
+	snprintf(dev->adap.name, sizeof(dev->adap.name),
+		 "CP2112 SMBus Bridge on hidraw%d",
+		 ((struct hidraw *)hdev->hidraw)->minor);
 
-Assisted-by: LLM
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+hdev->hidraw is set only when hidraw_connect() succeeds; on failure it
+stays NULL and reading ->minor faults.  hidraw_connect() fails when all
+HIDRAW_MAX_DEVICES minors are in use, or on allocation failure.
+
+hid_hw_start() does not report that.  hid_connect() has
+
+	if ((connect_mask & HID_CONNECT_HIDRAW) && !hidraw_connect(hdev))
+		hdev->claimed |= HID_CLAIMED_HIDRAW;
+	...
+	if (!hdev->claimed && !hdev->driver->raw_event) {
+		hid_err(hdev, "device has no listeners, quitting\n");
+		return -ENODEV;
+	}
+
+When hidraw_connect() fails, claimed stays 0 -- but that bail-out also
+requires the driver to have no ->raw_event.  cp2112 sets
+.raw_event = cp2112_raw_event, so the -ENODEV path is skipped,
+hid_connect() returns 0, cp2112_probe() passes its "if (ret)" check, and
+the dereference faults.
+
+The minor is only used for the adapter name, so fall back to the device
+name instead of failing the probe.
+
+Found by coverage-guided fuzzing of the HID subsystem through /dev/uhid
+(syzkaller with extended descriptions), arm64 with KASAN:
+
+Unable to handle kernel paging request at virtual address dfff800000000000
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+pc : cp2112_probe+0x794/0xef0 drivers/hid/hid-cp2112.c:1333
+Call trace:
+ cp2112_probe
+ __hid_device_probe
+ hid_device_probe
+ really_probe
+ device_add
+ hid_add_device
+ uhid_device_add_worker
+ process_one_work
+
+hid-led.c and hid-u2fzero.c read hdev->hidraw the same way, but neither
+sets ->raw_event, so for them hid_connect() does return -ENODEV and their
+error checks catch it.  cp2112 is the only one of the three where the
+bail-out is defeated.
+
+Fixes: 42cb6b35b9e6 ("HID: cp2112: use proper hidraw name with minor number")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
 ---
- drivers/hid/hid-core.c                  |  2 +-
- drivers/hid/hid-cp2112.c                |  2 +-
- drivers/hid/hid-led.c                   |  2 +-
- drivers/hid/hid-u2fzero.c               |  2 +-
- drivers/hid/hidraw.c                    | 33 ++++++++++++++++++++++---
- {include/linux => drivers/hid}/hidraw.h | 29 +---------------------
- 6 files changed, 34 insertions(+), 36 deletions(-)
- rename {include/linux => drivers/hid}/hidraw.h (63%)
+This is the minimal, backportable fix.  Dmitry's series
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c430f2d0d779..a5d03504c061 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -31,10 +31,10 @@
- #include <linux/hid.h>
- #include <linux/hiddev.h>
- #include <linux/hid-debug.h>
--#include <linux/hidraw.h>
- 
- #include "hid-core.h"
- #include "hid-ids.h"
-+#include "hidraw.h"
- 
- /*
-  * Version Information
+  [PATCH 0/5] HID: hidraw: Encapsulate struct hidraw and make hidraw.h private
+  https://lore.kernel.org/linux-input/20261014051326.3784498-1-dmitry.torokhov@gmail.com/
+
+solves the same thing more thoroughly in mainline: 2/5 adds
+hidraw_instance(), which performs this check in one place, 3/5 converts
+cp2112 (and hid-led and hid-u2fzero) to it, and 5/5 makes the raw cast
+impossible by moving hidraw.h out of include/linux.  That is the better
+end state and I am not proposing an alternative to it.
+
+I am sending this separately only because that series moves headers and
+touches include/linux/hid.h, so it is not a stable candidate, while the
+dereference itself has been reachable since v4.12.  If you would rather
+tag 2/5 and 3/5 for stable instead, please drop this patch -- that works
+equally well for me and I will not resend it.
+
+Either way the oops is real and unprivileged; the trace above is from
+/dev/uhid with no special capabilities.  I can test whichever way you go.
+
+ drivers/hid/hid-cp2112.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
 diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 148946b04bff..0f65ce44e677 100644
+index 04379db93571..8883023d432d 100644
 --- a/drivers/hid/hid-cp2112.c
 +++ b/drivers/hid/hid-cp2112.c
-@@ -20,7 +20,6 @@
- #include <linux/cleanup.h>
- #include <linux/gpio/driver.h>
- #include <linux/hid.h>
--#include <linux/hidraw.h>
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-@@ -28,6 +27,7 @@
- #include <linux/string_choices.h>
- #include <linux/usb/ch9.h>
- #include "hid-ids.h"
-+#include "hidraw.h"
+@@ -1330,9 +1330,13 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	dev->adap.algo		= &smbus_algorithm;
+ 	dev->adap.algo_data	= dev;
+ 	dev->adap.dev.parent	= &hdev->dev;
+-	snprintf(dev->adap.name, sizeof(dev->adap.name),
+-		 "CP2112 SMBus Bridge on hidraw%d",
+-		 ((struct hidraw *)hdev->hidraw)->minor);
++	if (hdev->claimed & HID_CLAIMED_HIDRAW)
++		snprintf(dev->adap.name, sizeof(dev->adap.name),
++			 "CP2112 SMBus Bridge on hidraw%d",
++			 ((struct hidraw *)hdev->hidraw)->minor);
++	else
++		snprintf(dev->adap.name, sizeof(dev->adap.name),
++			 "CP2112 SMBus Bridge on %s", dev_name(&hdev->dev));
+ 	dev->hwversion = buf[2];
+ 	init_waitqueue_head(&dev->wait);
  
- /**
-  * enum cp2112_child_acpi_cell_addrs - Child ACPI addresses for CP2112 sub-functions
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index 63fd723d9e69..f5a798c7979e 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -8,12 +8,12 @@
-  */
- 
- #include <linux/hid.h>
--#include <linux/hidraw.h>
- #include <linux/leds.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
- 
- #include "hid-ids.h"
-+#include "hidraw.h"
- 
- enum hidled_report_type {
- 	RAW_REQUEST,
-diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
-index 83e223c12cd6..4b9271b4e45e 100644
---- a/drivers/hid/hid-u2fzero.c
-+++ b/drivers/hid/hid-u2fzero.c
-@@ -12,7 +12,6 @@
-  */
- 
- #include <linux/hid.h>
--#include <linux/hidraw.h>
- #include <linux/hw_random.h>
- #include <linux/leds.h>
- #include <linux/module.h>
-@@ -21,6 +20,7 @@
- 
- #include "usbhid/usbhid.h"
- #include "hid-ids.h"
-+#include "hidraw.h"
- 
- #define DRIVER_SHORT		"u2fzero"
- 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 949e7546339f..9d0df711ed5d 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -27,8 +27,36 @@
- #include <linux/mutex.h>
- #include <linux/sched/signal.h>
- #include <linux/string.h>
-+#include <uapi/linux/hidraw.h>
-+
-+#include "hidraw.h"
-+
-+struct hidraw {
-+	unsigned int minor;
-+	int exist;
-+	int open;
-+	wait_queue_head_t wait;
-+	struct hid_device *hid;
-+	struct device *dev;
-+	spinlock_t list_lock;
-+	struct list_head list;
-+};
-+
-+struct hidraw_report {
-+	__u8 *value;
-+	int len;
-+};
- 
--#include <linux/hidraw.h>
-+struct hidraw_list {
-+	struct hidraw_report buffer[HIDRAW_BUFFER_SIZE];
-+	int head;
-+	int tail;
-+	struct fasync_struct *fasync;
-+	struct hidraw *hidraw;
-+	struct list_head node;
-+	struct mutex read_mutex;
-+	bool revoked;
-+};
- 
- static int hidraw_major;
- static struct cdev hidraw_cdev;
-@@ -594,7 +622,6 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
- 	wake_up_interruptible(&dev->wait);
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(hidraw_report_event);
- 
- int hidraw_connect(struct hid_device *hid)
- {
-@@ -651,7 +678,6 @@ int hidraw_connect(struct hid_device *hid)
- 	return result;
- 
- }
--EXPORT_SYMBOL_GPL(hidraw_connect);
- 
- void hidraw_disconnect(struct hid_device *hid)
- {
-@@ -663,7 +689,6 @@ void hidraw_disconnect(struct hid_device *hid)
- 
- 	up_write(&minors_rwsem);
- }
--EXPORT_SYMBOL_GPL(hidraw_disconnect);
- 
- /**
-  * hidraw_instance - get hidraw instance minor number for a HID device
-diff --git a/include/linux/hidraw.h b/drivers/hid/hidraw.h
-similarity index 63%
-rename from include/linux/hidraw.h
-rename to drivers/hid/hidraw.h
-index 3021454ba513..a822007ce5f8 100644
---- a/include/linux/hidraw.h
-+++ b/drivers/hid/hidraw.h
-@@ -6,35 +6,8 @@
- #define _HIDRAW_H
- 
- #include <linux/errno.h>
--#include <uapi/linux/hidraw.h>
- 
--
--struct hidraw {
--	unsigned int minor;
--	int exist;
--	int open;
--	wait_queue_head_t wait;
--	struct hid_device *hid;
--	struct device *dev;
--	spinlock_t list_lock;
--	struct list_head list;
--};
--
--struct hidraw_report {
--	__u8 *value;
--	int len;
--};
--
--struct hidraw_list {
--	struct hidraw_report buffer[HIDRAW_BUFFER_SIZE];
--	int head;
--	int tail;
--	struct fasync_struct *fasync;
--	struct hidraw *hidraw;
--	struct list_head node;
--	struct mutex read_mutex;
--	bool revoked;
--};
-+struct hid_device;
- 
- #ifdef CONFIG_HIDRAW
- int hidraw_init(void);
 -- 
-2.56.0.385.gd3acb90ef8-goog
+2.43.0
+

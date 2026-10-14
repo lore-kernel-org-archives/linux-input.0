@@ -1,83 +1,80 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0BD931E820
-	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 01:44:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC7C337A826
+	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 05:13:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791942255; cv=none; b=s7Dld5kebk2Bh2R1cRHlYMX10dJRZMxpFvxi5KdPFzzdgE8tOEzxSojwp4fsapkl4DIgH9s74oIT1j7o4IP/Fclenu5osdK4lbvlgUjVJfMpDb3Af4o/GS+hRdXtXdjy8zyPNZZoI2gcsQ/VGy570j895I6ylJni7/c7BqY8NZw=
+	t=1791954813; cv=none; b=HRVIgvCiJk6kCNIopX9FTADEN8l7qRLNJcNyeAp03o3fnt+tX2Om2JwNNVN+xrwdTiKJo7EVWc+84qS5GNpaJWEUBkR8ciLgwGQR00ve7ongmwMO8kAJMLNNomzGUs5aOq8RsWhZ6VTItx/MDEL7t8M27OjAwGDgRAxUB8a76Ps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791942255; c=relaxed/simple;
-	bh=pZLuHo5ZWjv39EmAfep7f0DI3I6NdzNmEzWVgKx/rls=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Pt/G4dANXMIs7p88391GmZ57dcH4WK1+gaUw1iYCGuC19Iampurno++Iv0MkRKLfl54g8tHCWQr0H/wMFEHE++4syiuxIli5IuCbJOUyS0SJn7qesCK+6vrHguE7hodsLcEBdH81aykCCymtub4g4hIwlUzuBZEURhCID1X0RPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net; spf=pass smtp.mailfrom=voidship.net; dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b=qkRM41ms; arc=none smtp.client-ip=209.85.160.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=voidship.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=voidship.net
+	s=arc-20240116; t=1791954813; c=relaxed/simple;
+	bh=9L5+pPNFxNcJItTifh5cuhYQBN+IPdNZ/AlJN1nZVIk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jbPx/lS3+uYYT6aB0xTu8lQ8Wv2id/qk6hsJRfhXeCczqTjNRo6WF5jXmZ0zaHoEfCnv9B84gxhclYJN0Mi8Vk6pifOY51wAvnpvy/vQID0n/6nFf8oPqHE7uqQzKsasLPH6ncOaUelSy9OmPcaDcYjVhRBOKGB38z0l50alY28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p8lRRtCc; arc=none smtp.client-ip=74.125.82.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=voidship-net.20251104.gappssmtp.com header.i=@voidship-net.20251104.gappssmtp.com header.b="qkRM41ms"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-533972e0cccso41927901cf.0
-        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 18:44:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p8lRRtCc"
+Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-15ea896ddc8so848980c88.0
+        for <linux-input@vger.kernel.org>; Tue, 13 Oct 2026 22:13:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=voidship-net.20251104.gappssmtp.com; s=20251104; t=1791942252; x=1792547052; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Dlj6aFpIYGfY0eqR7kOi/l3Gq5Y654XQkcpULmP78WM=;
-        b=qkRM41msFbZxLdCCQXtPBrNJXZlirtPFWl+68p+vcX4rPpYR60J3jGXOYO3gt2awAk
-         vGwDQek6LAhnthSebka1pgXWfFkR7yqaFvu/VuWe1AOlVs4GKaa9teaEX4pJAZ22lPsd
-         xfv1tdGwUZp2CbMLXnsIHvcBhUzRSQld1LxVHDtQtyaat8+Tt58vgpdGHlOfDnfB16Ei
-         GfjYfhjhFHiuknz9dNcUx+KH+G0F+XXzQPkzVQaEtf5N2QQZAln71owJ/GgTNgFbe6OP
-         5RenyIQOFhdeZwBtv0EJbrogu8HtdgbVR9P2lHunBEYpoG4Q7ingji9NU3YD6Ol7DXG3
-         b4ww==
+        d=gmail.com; s=20251104; t=1791954812; x=1792559612; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=o96Wr4ulgCtQjy9azqIV/+wX469kS4vlmKygYY/jVsM=;
+        b=p8lRRtCcTSh1zh+t2rD3UabIvxVvyl5BxSq+vzZsYOywAW4lJ3z8fjt42MQzxCx4kF
+         n98YcG0mgnnmdJ1hMN1rEwE2AcSShG0xQgvzWoVJvmu/J1gbgEt64+emHisupx1Wa/Px
+         XK3CFAQzw9ywEjriPH8BbgMJKf93iCME2GRAfiP6OM2SwKDWGsNbfxrbT2yPLJhXZTYU
+         NhXiAxXpS6QR3IAKaAVjU7k79Mdw3fZMMnvn6D29d0/YqmYDRGAH7Ekm4CcEmspbVLvw
+         RTjA1nF87fByfeXPb9l5m5jDpDLCaMPKsyEc3CNBZ/yLQ/+tDOk2eaQL6DLiovPZQoNJ
+         CVPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791942252; x=1792547052;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Dlj6aFpIYGfY0eqR7kOi/l3Gq5Y654XQkcpULmP78WM=;
-        b=RWRazLwOq54utJ2Lf9Yion37kFmnIUEBZQ7n+ErWhoh1K1ZB8auOXVb89pt+CeixLS
-         cTwXCWVk5pWVbMF1ftk7+T3yW+lehLr6P/rNaJgV5MTxFm3AxrgBWcI6a4KSncq0YR7K
-         zpT6DZkuV/msZ3ezOgOCAQADe5YV10PbxGC9oY2OKxETF7QnCVrPy5S+WTMbvz/u0fAp
-         2IZUhX/oDf+RzPK3hcAO21ohrqNOVYgBgAZ0KbLRb/5ABPFpPgWV1iiAkj6OleTYQPJh
-         vNX/be5SAsUvRUO/JtK8BhNcJG9Pi65W1WDXxgXSRU2qum0zRLnFSeH9DGbfWjb8IWPI
-         FNiA==
-X-Forwarded-Encrypted: i=1; AKwUvBwR848yW041obmO2bN69DBL9W991Smmt/nTTUxF28AlT40qnJ85r99j5UXopPKaTq5dmSOIv68uMrZboQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYItn8iBMukHFeuNM5FiPX53Hf+ZMVUMPt0DnWcg0UT1uOie7dRL
-	WWugsfGcJyb+HIciN5SJMpgSUJVH3u2tkCcPg9avxjrQIhexeTExxYwxhTZvZWrhqnk=
-X-Gm-Gg: AYBFou0dfimn9HYbZWnVY7w0Pc7w10xVshE2JN5mW8wHIqHVYDUMn+tF9Ms8v6+W+wF
-	490CzAzxvojHKjcf1/V6iRg04bk1BYNnHQ1hVN14ZzPLalx9QNF09Wzp2Zv07qwVzKDhzn00crW
-	UstY358D1TIcfCfPXigE8jLGgtfz5On4WJNGVjFj1hu/fseqRcXj9OSa2SLU52J7nGfOMRNpI8B
-	ItbqffiWfJpp8ZpkLGXXuNg8oQvZj+GD4i58uHSIUwF1yj23LnnNUsUr+1i3PoS0Tp2EkmVEiDE
-	uVr2AZi94ayq/o4J6JKrTBAJpfpWBFBYPj03uQMUlfwU2HmJEj7DE/jnyy/szlxFK3yMUqtvfZu
-	NEJnoY3EvnJ4GhrOUn2zTiBaj1GXJ4Gkeob6tZz6pPJgtmOPJU0z5YXJKvbtaLj7P9u4h8Q4GHk
-	FR6E9hj/U6Sur3E1lp+/I4VOzTStSdRjxFKc3p1cbgb1WJEsD6h53p15Kvcv4BTYeZpWExWLa5e
-	jCbUFyiik8uuVqYPXsSoQuf/MBUrHxRkjC+kGp5
-X-Received: by 2002:ac8:5743:0:b0:533:90df:fda3 with SMTP id d75a77b69052e-535fc8a0915mr24634181cf.50.1791942252446;
-        Tue, 13 Oct 2026 18:44:12 -0700 (PDT)
-Received: from boomzilla (dynamic-acs-24-101-237-49.zoominternet.net. [24.101.237.49])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91b97c4a7d9sm40377936d6.47.2026.10.13.18.44.11
+        d=1e100.net; s=20260707; t=1791954812; x=1792559612;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=o96Wr4ulgCtQjy9azqIV/+wX469kS4vlmKygYY/jVsM=;
+        b=N4nI8QYozoIF7VOKkD8BF2TiN0a+IchaBZTeMWAXBF7n9itaGaxo81iTJhXMbon3dJ
+         mXLJFxUQpxJRk8AoLPrpVld2yxy+rnEZ27SVs4sucBsS/gh4ysAt2v8Sb3NYTvKLbbwp
+         gnyoxQucwzZ/drshK01M44BV82RcRJSIAZR6DCxlayhqty4fHhF2zet/N4s0+0s6YMAG
+         1P4xhauhWpc3KWUU4y91d9eOkwu7i5O2/7msOc4bWQXy2y56/IM5VAWGRNNwxqyqr6Sc
+         CqJ03MTL4YlyjH8dTOuBfUGnYRYyi6SwCXAp5xyfGwheQr3U6dtDFHT3dL8rn9HPMK1t
+         nDnA==
+X-Forwarded-Encrypted: i=1; AKwUvBx2OlWi3vY+4o4xrvZbQIJ4f+ym8w6GRgKsilf20EPbwSGprD8MbaWgctb2NW6vEB2xlPy5qD4QnXplcg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKzmeLZgWrA4TaJrLzQD3pUBD7tEidZHD/92gE9hLZt93LknRfl
+	2uvwhpvjQeIShwn+PP7nvmm/McYZ3I1fe4Fo30F3gJhQOoVcedKLhaZe
+X-Gm-Gg: AYBFou1ZCEiFmnmKmFH+rrU9WbIM2uDnhYPQwJnxRAzjPtWTx5nE6H5Hz1DFjOnTSeG
+	4e3MgjT1WUzVzxcX79a3vkq0TSVziHK+WS9UYVTIstv/fNAyaT0XIOY4fmgscQ+Pv1pLAk17qvO
+	BEbHnewCVFxVIPOVoodOyHMhq4rgkVom5hMvdnQTfoIa8SrsA7mczvI7nbSJ05ucm6JaeYF25mq
+	1SnD16YvziPW9d1gCyLDQ74835L0hWq+xNnADksOiJLHdf/jSgbEyLMk4xen4KGepvrNKVNR4g1
+	jjctdF3ZSHcnXGZF9CaQhAImFEX8VBPYMvC648MciJyTMAuTmm4DwIco2NjOCvJRUOujhOw9TFI
+	hVc7j/C1ZJFlLMNSxer1N1EHPXEal+SkyUyUwBpfRI7+zOERT9iUapwStPk7s3cRmxfFyg+vkcP
+	bkF9W+qWYwI2cQtZ0DQ2f8Dpn6Biep6ec0dM6ioLnXYnnWXTtUnnMsVKYP1YZwgK/dvZjHrEFqG
+	TMlhssRayHrKDz35Om3ZXxamxiTr0tmPxWo09ijp/YQqFM8YzvODHowPOuDzyyz/Nj2umjo7g==
+X-Received: by 2002:a05:7022:295:20b0:151:6e80:baa9 with SMTP id a92af1059eb24-16a5e49fdaemr18617461c88.12.1791954811647;
+        Tue, 13 Oct 2026 22:13:31 -0700 (PDT)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:875a:117f:b9ea:5a08])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cacb61asm51629125eec.21.2026.10.13.22.13.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 18:44:12 -0700 (PDT)
-From: Karlos Abel <kabel@voidship.net>
-To: dmitry.torokhov@gmail.com,
-	mpearson-lenovo@squebb.ca,
-	hmh@hmh.eng.br
-Cc: derekjohn.clark@gmail.com,
-	hansg@kernel.org,
-	ilpo.jarvinen@linux.intel.com,
-	platform-driver-x86@vger.kernel.org,
-	ibm-acpi-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org,
+        Tue, 13 Oct 2026 22:13:30 -0700 (PDT)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	Michael Zaidman <michael.zaidman@gmail.com>,
+	Rishi Gupta <gupt21@gmail.com>,
+	Heiner Kallweit <hkallweit1@gmail.com>,
+	David Barksdale <dbarksdale@uplogix.com>,
+	Andrej Shadura <andrew@shadura.me>,
+	Johannes Roith <johannes@gnu-linux.rocks>,
 	linux-input@vger.kernel.org,
-	stable@vger.kernel.org,
-	sashiko-bot@kernel.org
-Subject: [PATCH] platform/x86: thinkpad_acpi: Sync initial switch states
-Date: Tue, 13 Oct 2026 21:44:09 -0400
-Message-ID: <20261014014409.14579-1-kabel@voidship.net>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <98c68af25f9fc08500eb818a6d77d0d7@gmail.com>
-References: <98c68af25f9fc08500eb818a6d77d0d7@gmail.com>
+	linux-bluetooth@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/5] HID: hidraw: Encapsulate struct hidraw and make hidraw.h private
+Date: Tue, 13 Oct 2026 22:13:20 -0700
+Message-ID: <20261014051326.3784498-1-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -86,61 +83,45 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-hotkey_init() reports the initial switch states before registering the
-input device, but does not terminate the packet with input_sync(). Since
-input event buffers are allocated before registration, these events can
-remain queued until a later SYN_REPORT.
+This series cleans up internal HID core and hidraw header boundaries.
 
-On a ThinkPad, a userspace LED update and SYN_REPORT delivered the initial
-SW_RFKILL_ALL=1 event to the rfkill input handler after registration. This
-undid a software radio block that had already been applied.
+First, internal HID core declarations and unused symbol exports are
+moved out of include/linux/hid.h into a private drivers/hid/hid-core.h
+header. Next, a hidraw_instance() accessor is introduced in
+include/linux/hidraw.h so HID drivers that only need the hidraw minor
+number for naming or debug logging no longer dereference struct hidraw
+directly. After converting the drivers and dropping unused
+linux/hidraw.h includes, hidraw.h is moved to drivers/hid/hidraw.h and
+struct hidraw along with its internal buffer and list structures are
+made private to drivers/hid/hidraw.c.
 
-Call input_sync() after reporting the initial switch states to flush the
-packet before input handlers attach. This requires the input-core fix to
-accept EV_SYN events before registration.
+Dmitry Torokhov (5):
+  HID: core: Move internal declarations and drop unused exports
+  HID: hidraw: Introduce hidraw_instance() helper
+  HID: Use hidraw_instance() in drivers
+  HID: Drop unused linux/hidraw.h includes
+  HID: hidraw: Make hidraw.h private to HID subsystem
 
-Fixes: 0cd587735205 ("Input: preallocate memory to hold event values")
-Cc: stable@vger.kernel.org
-Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/r/98c68af25f9fc08500eb818a6d77d0d7@gmail.com
-Assisted-by: LLM
-Signed-off-by: Karlos Abel <kabel@voidship.net>
----
-This is the companion driver change requested in the linked discussion.
-It depends on Dmitry's "Input: always accept EV_SYN in input_event()":
-https://lore.kernel.org/r/asx50uz6iafsyAd5@google.com
-The prerequisite patch ID is included below.
+ drivers/hid/Kconfig                     |  3 ++
+ drivers/hid/hid-core.c                  |  7 ++--
+ drivers/hid/hid-core.h                  | 20 +++++++++++
+ drivers/hid/hid-cp2112.c                | 15 ++++----
+ drivers/hid/hid-ft260.c                 |  2 +-
+ drivers/hid/hid-input.c                 |  4 +--
+ drivers/hid/hid-led.c                   | 10 ++++--
+ drivers/hid/hid-mcp2200.c               |  1 -
+ drivers/hid/hid-mcp2221.c               |  1 -
+ drivers/hid/hid-quirks.c                |  1 +
+ drivers/hid/hid-u2fzero.c               | 10 ++++--
+ drivers/hid/hid-winwing.c               |  1 -
+ drivers/hid/hidraw.c                    | 48 ++++++++++++++++++++++---
+ {include/linux => drivers/hid}/hidraw.h | 32 +++--------------
+ drivers/hid/usbhid/hid-core.c           |  1 -
+ include/linux/hid.h                     |  8 -----
+ net/bluetooth/hidp/core.c               |  1 -
+ 17 files changed, 100 insertions(+), 65 deletions(-)
+ create mode 100644 drivers/hid/hid-core.h
+ rename {include/linux => drivers/hid}/hidraw.h (58%)
 
-Validation on 3857c2fe5449 plus that core patch:
-- KUnit/UML: all six input tests pass with lockdep enabled. The two
-  regression tests fail with either the core change or the pre-registration
-  sync removed, and with both removed.
-- The tests model the driver's event sequence with a virtual input device;
-  they do not execute hotkey_init() or operate real radios.
-- The actual ThinkPad driver object builds without warnings with W=1,
-  configured both built-in and as a module (x86-64/GCC).
-- No new physical-hardware run of this pair yet.
-
-AI assistance covered the change, message, and regression validation.
-
- drivers/platform/x86/lenovo/thinkpad_acpi.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/platform/x86/lenovo/thinkpad_acpi.c b/drivers/platform/x86/lenovo/thinkpad_acpi.c
-index 1661f070c..ea8679398 100644
---- a/drivers/platform/x86/lenovo/thinkpad_acpi.c
-+++ b/drivers/platform/x86/lenovo/thinkpad_acpi.c
-@@ -3497,6 +3497,7 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
- 		input_report_switch(tpacpi_inputdev,
- 				    SW_TABLET_MODE, tabletsw_state);
- 	}
-+	input_sync(tpacpi_inputdev);
- 
- 	/* Do not issue duplicate brightness change events to
- 	 * userspace. tpacpi_detect_brightness_capabilities() must have
-
-base-commit: 3857c2fe5449541e24afc5efdb0f81a8a8f9a3a0
-prerequisite-patch-id: f8539bd5b5201ef9795823552ba68a73b7dd6298
 -- 
-2.56.0
-
+2.56.0.385.gd3acb90ef8-goog

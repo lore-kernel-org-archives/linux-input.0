@@ -1,181 +1,160 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A7D04B827E;
-	Wed, 14 Oct 2026 13:50:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9BB45326BC
+	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 13:53:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791985846; cv=none; b=i2Didl0d9cUY1jEa6KufjHvmuwizDuoRwxZDFoQzWDKTuycKgnA+QB0Y6ndya5YtU9pHY8HGEA4grBWDLLVkyHJO+heaH+79jUzRZYezc5qY5/uUeluqhbEbMuF14wNkvZpfyDWmZzIF2k4PAapEzBa2o4gplbVWED5Su3/WWbg=
+	t=1791985991; cv=none; b=PZVuiGLC8TAeTa4P/O2BgFX1AocczrH4GkNUAS6siMVIIlISvFquBRY1Rko/PwAFr/FT5/g6TlH8cliJWEqoMXVycxQi3Ein9i7D0ILKiCZv8EBtTATXVw/HbeU/WrKBE9R/aJOQBsqElRNu5ZZpRP9JntN/FqjL9zMQuopNc9M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791985846; c=relaxed/simple;
-	bh=UCorDRWwokv2HcjQWlgOOSNQnyvzlvNQqkL1cdIrasI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J1upIQdOQO8bTyfUNx/rjqG3cD378rg9+QdrqCgy0+5zlRWdMgoZlJJO7qkMFHts5rN50hpHqR1mQik/U44KCdYPAJ3hVU7ahxVnUsc9YYtSspcHiJNdjcgvsRFVlizA+MpZPn6nqUfjnPSp0YtUryL9rh+7fGIsB8RUnlh+haY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X/omEvn8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791985991; c=relaxed/simple;
+	bh=4K/OfbKxhhyoFgt/4DQIc1mzkF2vBz5Hc42fatDf+Bk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Tj+gRrqODjS1FRuPbpey084+7bP6ttZ2hFmwzFbEdTR+ufJYgniZIYymBcFhuwZLZA2A3NDER5JOC5n3P98tf6kYPmYDbxjWBXE9E85/ZXNcM7PGJfzvH6EOJWklXw1f348O94n7aHfcZFgRHZqktSAgP5O03ReiWhryzG0euF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OOyHVQ27; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X/omEvn8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 299851F00A2F;
-	Wed, 14 Oct 2026 13:50:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791985844;
-	bh=5lqMThNI2zKyq2SiOS+nnZVc3EiP5RsR12/J79nF/hc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=X/omEvn8pz198htHBnAj2d9i0riIPi8gHqfPCUWadZdumS3uBO+DTxjQ3aTAHnzmQ
-	 2s2vgxQSJWL9V5GiNEXFgsLcIiW1gATEhKZeJezQXnuyF0hKzKrqGvuJzbToM/hp66
-	 UCltM9kDt3VZGQ4YMKFSlp/sxcicEpB8qsF59HyNBCAiBJzPZucfixpEaItpXLhKIb
-	 vdL1kPAuWhL7VFhlmGFm8jOAWvHp/Sr8sQhsYjkkaYf+Biq9n8BZjT5jWooSG9CIAb
-	 Q1SxQDyaOfCZyGpS6U+16DElVXBmaCpLCipdCb9RyCUa4YXvOOoTshzsZr+XauBF7D
-	 0iAT+dKEIczWQ==
-Date: Wed, 14 Oct 2026 15:50:40 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jinmo Yang <jinmo44.yang@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Barksdale <dbarksdale@uplogix.com>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] HID: cp2112: don't dereference hdev->hidraw
- unconditionally
-Message-ID: <as-G9Lh5xFwp_oYn@beelink>
-References: <20261014051326.3784498-4-dmitry.torokhov@gmail.com>
- <20261014103849.1837692-1-jinmo44.yang@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OOyHVQ27"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-cd632f7a4a1so28790a12.3
+        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 06:53:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791985981; x=1792590781; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=UT8AC87k3JtmR9Mgdy2bUpHUaBQHrXk1Cf/Lmj4HaME=;
+        b=OOyHVQ27C7hGcKD7rFVCvRftfUyJ4JS9lZVXxey0n0VR5lDB5L0RmoEo5R7CNzlSs3
+         SA7zONTxDWWKOLwc3aZO6j182FGjgzuI97JZkyTzfW26pO78slmxGYjcmxGGB4SEJPJ+
+         Bh+Z73KTZe0f07iC82+6AhmKnNujgu4Xjl8YAyvxORaymc/LEOq5oHcteG7mKpWU8DMq
+         FjvIMxHcpo+k44RMg/6PIzGdqe+FUGLy7DB25DH2Gy7iAbDdVx0PzZlOjNU09aqGxxoR
+         0V3O7Q7aNHjaNFtR1QC3z2FViVOIr9G4gyNSz8nikiVli0gMi4nAEfmDIPpU2fkTcbkD
+         FiXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791985981; x=1792590781;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UT8AC87k3JtmR9Mgdy2bUpHUaBQHrXk1Cf/Lmj4HaME=;
+        b=KTetIzQam8O7JmpTM7vlYfQI0A2/EtLeqLuckbbDzEaYkVT2XxhDL4mGim84toBdnH
+         FwSg36O8P4N37a/2PX3EHBpbHO+fCwPKMuhxEvcTwtSbX+jg+uXKDXIzC1Gv8JBFf1mD
+         O2QVkwzZpWQIUU7+r1UAjIxl/fLac3aM/hum/0iKypOVgj+RUH3kPesehwrif0LTOBT9
+         IuZU/vkstTW2KIGk2i845CygW/9SXdO6tK0om9PO/7AR4C8nxGfmAo7OEHUHX2IjjsVY
+         EFmCp23mPiaDwJybNfiW2DztiWUwY+gZK3iTUKfgGc1VQGCa9sRksPIs+CCRnKX1VNWb
+         MGHQ==
+X-Forwarded-Encrypted: i=1; AKwUvBzNZDaEs7iVH/mlqM9UjorKw8FbP50gVC45dpI0hFL+//eh4lFLQnieInB3SmpmkPgCa9WXARi7GAEzGQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJcikx6LyCbXxbNpmrfeBdaMuYB5KOJbfoLjLR39Ji5346ijPX6
+	hfTJyUhOFRW3OXbg8k1//5ohvOavePzQd1g6c/BEEIwINvbuN5/1I3R/
+X-Gm-Gg: AYBFou2ouFhz6qinR/RpjnTF9lqoeDIIT1zfZf9MuMWdcqMhznAnEeG66Lebqyh9+9S
+	U6ITu7rnnTgJSkm+tifswK9YaMoiQ0K7NS+dHLzCxMw5Su5Boj+MpIpq4/Yl2vPmVQ1jrxm5QOZ
+	b7G2FJlFAWfxeug+n2o1848ELjtGuhL4yOfbU5cFio/TzhiDaRNYIDBloSLfKvKW5UqjAcOxz3a
+	nR7zyuPj4YljOjHeSFiuGy9O6hnRNXgrFQ+ls10M7edRjxcST415LAgwxjHFZz3zxvFfEtSYs/Y
+	GVtN4+V2T3oQ7w47yfW/sHzOjKLv2tVW1KnxAjJW/OWtQS7bafxCG6fAqYPtfWWx+D0KNfHz64A
+	Nv3rVT3RmyIkY5OnI4Xokvr+a0l+zicCb8qC7PflcBMziCFcSULGoincJ4l65yoTAW682na+huf
+	0elbrAfRyeBn7n0gbQ1whdAqezaHrD1MqwJPRwYMHtyfETjyAODcRUvNHP2xX2dov0/69vneUoC
+	3JlGQ==
+X-Received: by 2002:a05:6a21:8203:b0:3de:2fbc:82c3 with SMTP id adf61e73a8af0-3e16ba9fd1bmr16360118637.10.1791985980935;
+        Wed, 14 Oct 2026 06:53:00 -0700 (PDT)
+Received: from wyb-ms7e59 ([38.55.195.146])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-89d804e6e77sm1121244b3a.40.2026.10.14.06.52.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Oct 2026 06:53:00 -0700 (PDT)
+From: wyibo6109@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yibo Wang <wyibo6109@gmail.com>
+Subject: [PATCH v3 0/2] Input: add support for OnePlus/OPPO Pad pogo-pin keyboards
+Date: Wed, 14 Oct 2026 08:52:49 -0500
+Message-ID: <20261014135251.11234-1-wyibo6109@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261010143836.173883-1-wyibo6109@gmail.com>
+References: <20261010143836.173883-1-wyibo6109@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261014103849.1837692-1-jinmo44.yang@gmail.com>
+Content-Transfer-Encoding: 8bit
 
+From: Yibo Wang <wyibo6109@gmail.com>
 
-Hi Jinmo,
+This series adds support for the magnetic pogo-pin smart keyboards of
+the OnePlus Pad 3 Pro / Pad 4 and the OPPO Pad 5 Pro.  The keyboard is
+built around a Tinno MCU attached to a tablet UART.  Both sides share a
+single data wire, so the host gates its transmission onto the bus with a
+PMIC GPIO for the duration of a frame, and every host frame is echoed
+back on RX.
 
-On Oct 14 2026, Jinmo Yang wrote:
-> cp2112_probe() builds the I2C adapter name from the hidraw minor:
-> 
-> 	snprintf(dev->adap.name, sizeof(dev->adap.name),
-> 		 "CP2112 SMBus Bridge on hidraw%d",
-> 		 ((struct hidraw *)hdev->hidraw)->minor);
-> 
-> hdev->hidraw is set only when hidraw_connect() succeeds; on failure it
-> stays NULL and reading ->minor faults.  hidraw_connect() fails when all
-> HIDRAW_MAX_DEVICES minors are in use, or on allocation failure.
-> 
-> hid_hw_start() does not report that.  hid_connect() has
-> 
-> 	if ((connect_mask & HID_CONNECT_HIDRAW) && !hidraw_connect(hdev))
-> 		hdev->claimed |= HID_CLAIMED_HIDRAW;
-> 	...
-> 	if (!hdev->claimed && !hdev->driver->raw_event) {
-> 		hid_err(hdev, "device has no listeners, quitting\n");
-> 		return -ENODEV;
-> 	}
-> 
-> When hidraw_connect() fails, claimed stays 0 -- but that bail-out also
-> requires the driver to have no ->raw_event.  cp2112 sets
-> .raw_event = cp2112_raw_event, so the -ENODEV path is skipped,
-> hid_connect() returns 0, cp2112_probe() passes its "if (ret)" check, and
-> the dereference faults.
-> 
-> The minor is only used for the adapter name, so fall back to the device
-> name instead of failing the probe.
-> 
-> Found by coverage-guided fuzzing of the HID subsystem through /dev/uhid
-> (syzkaller with extended descriptions), arm64 with KASAN:
-> 
-> Unable to handle kernel paging request at virtual address dfff800000000000
-> KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
-> pc : cp2112_probe+0x794/0xef0 drivers/hid/hid-cp2112.c:1333
-> Call trace:
->  cp2112_probe
->  __hid_device_probe
->  hid_device_probe
->  really_probe
->  device_add
->  hid_add_device
->  uhid_device_add_worker
->  process_one_work
-> 
-> hid-led.c and hid-u2fzero.c read hdev->hidraw the same way, but neither
-> sets ->raw_event, so for them hid_connect() does return -ENODEV and their
-> error checks catch it.  cp2112 is the only one of the three where the
-> bail-out is defeated.
-> 
-> Fixes: 42cb6b35b9e6 ("HID: cp2112: use proper hidraw name with minor number")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
-> ---
-> This is the minimal, backportable fix.  Dmitry's series
-> 
->   [PATCH 0/5] HID: hidraw: Encapsulate struct hidraw and make hidraw.h private
->   https://lore.kernel.org/linux-input/20261014051326.3784498-1-dmitry.torokhov@gmail.com/
-> 
-> solves the same thing more thoroughly in mainline: 2/5 adds
-> hidraw_instance(), which performs this check in one place, 3/5 converts
-> cp2112 (and hid-led and hid-u2fzero) to it, and 5/5 makes the raw cast
-> impossible by moving hidraw.h out of include/linux.  That is the better
-> end state and I am not proposing an alternative to it.
+The MCU speaks a framed "one wire bus" protocol over the half-duplex
+921600 8N1 UART: 8x 0x55 preamble, 0xF1, src/dst addresses, command,
+length, payload, CRC16-IBM (poly 0x8005, init 0xC596), 0xFE and 4x 0xAA.
+The protocol was reverse engineered from the vendor kernel driver; this
+is a clean-room serdev reimplementation that replaces the downstream
+platform driver, which depends on a private msm_geni_serial callback and
+a user-space held tty fd.
 
-Well, you are kind of.
+The core protocol (framing, keys, touchpad, sync/heartbeat) has been
+carried unchanged across four SoC generations of this MCU, from the
+sm8550 era keyboards to the sm8850 ones covered here; only the 0x3A
+general sub-commands grew over time.  Patch 1 adds the DT binding,
+patch 2 the driver.
 
-> 
-> I am sending this separately only because that series moves headers and
-> touches include/linux/hid.h, so it is not a stable candidate, while the
-> dereference itself has been reachable since v4.12.  If you would rather
-> tag 2/5 and 3/5 for stable instead, please drop this patch -- that works
-> equally well for me and I will not resend it.
+Changes in v3:
 
-Rule of thumbs: upstream shouldn't care about backports to LTS. And
-especially in that case: this patch extracts one element from Dmitry's
-series, and creates a half backed patch. What about the 3 other drivers
-Dmitry fixed?
+- the compatible names the tablet project the pogo port belongs to
+  (oneplus,caihong- / erhai- / iceland-pogo-keyboard, the codenames
+  used by the vendor trees) instead of a DT property, and the
+  driver carries a per-project description in the OF match data:
+  feature flags gate each 0x3A general sub-command (caihong, sm8650
+  era, has no wake notification and no backlight; erhai, sm8750 era,
+  adds the wake notification; iceland, sm8850 era, adds the keyboard
+  backlight), while the touchpad geometry and the per-brand product
+  names are per-project constants - the wake notification is skipped
+  and the backlight LED only registered where supported;
 
-So yes, there is a bug, it dates back to 4.12 if you say so, but stable
-is not my problem FWIW. Given the amount of autoselected patches stable
-takes, that's their problem to backport the series, not mine.
+- the touchpad geometry and product names are no longer DT properties:
+  they are fixed per project and live in the driver; the common
+  touchscreen properties (touchscreen-size-x/y, touchscreen-x-mm/y-mm)
+  remain as an optional override, parsed with
+  touchscreen_parse_properties().
 
-As a contributor, you are free to send a [STABLE] series if you care,
-but we won't take a lesser quality patch because it's easier to backport.
+Changes in v2, addressing Krzysztof Kozlowski's review of the binding:
 
-> 
-> Either way the oops is real and unprivileged; the trace above is from
-> /dev/uhid with no special capabilities.  I can test whichever way you go.
+- dropped the redundant "binding" from the dt-bindings subject;
 
-Well, unprivileged is wrong here: /dev/uhid should only be root readable
-and writeable. If you have a distribution that does make it user
-accessible, it's a security hole, and that's their issue. I know some
-third party packages are changing the permissions behind the back of the
-user, and that's their problem, not our.
+- replaced the custom oneplus,touchpad-xy-max/-resolution properties
+  with the common touchscreen properties: the MCU protocol has no way
+  to query the touchpad geometry and the same MCU is shipped in
+  keyboards with different touchpad matrices;
 
-Cheers,
-Benjamin
+- dropped the serial wrapper node from the binding example;
 
-> 
->  drivers/hid/hid-cp2112.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-> index 04379db93571..8883023d432d 100644
-> --- a/drivers/hid/hid-cp2112.c
-> +++ b/drivers/hid/hid-cp2112.c
-> @@ -1330,9 +1330,13 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	dev->adap.algo		= &smbus_algorithm;
->  	dev->adap.algo_data	= dev;
->  	dev->adap.dev.parent	= &hdev->dev;
-> -	snprintf(dev->adap.name, sizeof(dev->adap.name),
-> -		 "CP2112 SMBus Bridge on hidraw%d",
-> -		 ((struct hidraw *)hdev->hidraw)->minor);
-> +	if (hdev->claimed & HID_CLAIMED_HIDRAW)
-> +		snprintf(dev->adap.name, sizeof(dev->adap.name),
-> +			 "CP2112 SMBus Bridge on hidraw%d",
-> +			 ((struct hidraw *)hdev->hidraw)->minor);
-> +	else
-> +		snprintf(dev->adap.name, sizeof(dev->adap.name),
-> +			 "CP2112 SMBus Bridge on %s", dev_name(&hdev->dev));
->  	dev->hwversion = buf[2];
->  	init_waitqueue_head(&dev->wait);
->  
-> -- 
-> 2.43.0
-> 
-> 
+- the MAINTAINERS entry added with the binding references only the
+  binding file; the driver F: line is added together with the driver
+  patch.
+
+Tested on the OnePlus Pad 4 (iceland) running Linux 7.2.0-sm8850
+(v7.2-based iceland tree).
+
+Yibo Wang (2):
+  dt-bindings: input: add OnePlus pogo-pin keyboard
+  Input: add OnePlus/OPPO Pad pogo-pin keyboard serdev driver
+
+ .../bindings/input/oneplus,pogo-keyboard.yaml |   73 +
+ MAINTAINERS                                   |    7 +
+ drivers/input/keyboard/Kconfig                |   13 +
+ drivers/input/keyboard/Makefile               |    1 +
+ drivers/input/keyboard/oneplus-pogo-kbd.c     | 1263 +++++++++++++++++
+ 5 files changed, 1357 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
+ create mode 100644 drivers/input/keyboard/oneplus-pogo-kbd.c
+
+-- 
+2.53.0
+

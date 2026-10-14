@@ -1,88 +1,141 @@
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B55AB5616A4
-	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 17:53:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792000427; cv=none; b=slxvo7RNByKp33MV61eq/nuSpw3dIRyTKN7u4v2dFJkpwcUwY0gsgrAZtwk1KxvBodCJRhvSeR4ZT03RG/MddjrKz5PZl0Wm6FzvHGMDUmrt42Q8A4avxGuzbwqJ6naE+rR7uPqWUTlyZ+hQKcSsSJan9tvihnGFl6Xeqp+3Isk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792000427; c=relaxed/simple;
-	bh=hRr229Cr95OY2+JJl0EtUncc2+R6eOJ16mUx8MHqb7I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qbzUqOXw/90Tu5Hlm+YLefzNI4Dht6ys5fyytGglqNNLaWpqMqMI4GrnC9iyvEXuJDjQ4P/QuV8++NEqGZCfioZb9Q2pZtPtw7GZhLjAkYfuLF4j2n4ZMnkHsfrxeFz4EwNSKWkxeOYfANbF6Yyn1QiuIyNa3yDMBx7dGZQSpv8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=neQoRlXO; arc=none smtp.client-ip=74.125.82.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FFAE44C658
+	for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 21:29:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792013379; cv=pass; b=iR8aI/HS0eZgt+Y8PNsff1El/OA0qrG+i0/9WaLClkv0/hBG5X1jC1usl3k2b/os8b8R/KHkSVi/VBup4C2J/t5MJZrYBNkyn8dfIvn+kpd5WqR/59Cw2cH5o/Ccu2we4feHJZb5cYrlb9fSEN5PW5KIsEZhNuYDcUqpOW+80Zw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792013379; c=relaxed/simple;
+	bh=iefBJmYupKVJayKOqvQ87buV4ppZMJex7WihUR0osRE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DPS22GYFnt1i+O7SjeSSz8uWvuo5okTL4g2yQ/0JN7ea7tC24YfoFz/AjhTPUosZMHC1qOTxi4ANkVIMS7/G+2cF1AOr5BM0a93NPyQW+dDMjLWdH/l88HN8Jcgmn8mqupPuXeavKDOcaQjfFg8OD4nxrO9qpwK69ES1QHSpL54=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JYiMvfnz; arc=pass smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="neQoRlXO"
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-17bc533fda3so1330203c88.1
-        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 10:53:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JYiMvfnz"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-533861a59b8so8610701cf.1
+        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 14:29:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792013377; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Jjhlp7zVBNXDB/7+ohWB44OdRQX9MlUTYeG9q6fUWDW5BM28HNBqhSb1mnQWbc/gXB
+         xwyJy/gO6nchcMPY/YuAl8Ent4MdZHeXgbE/Nlb+94iI5NChlKayQR077jdfGkA0zWvq
+         a8DcdtO3SIXeB/wCSNn1OseW+hT2a7qt0ZWjksnTtvpACaFHMPNeCL4legZk/ePz9TUP
+         SFSKb1KlX5cOBcDRkQEplI5EHfvOgwf2RmQdIvr4bZicyEXI3L0RIPf5ZElDUGaoN2AX
+         JLu/TEm6tskRBNv6YgbNwNV/Vbl6cU1j5tQ86kgik+De2pvSUwVapxoOSFEFDxs/3JzV
+         D4iw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=YwgxusmBTG3+SD3/g0+kXEe8xsc6kMCtJNV8dtSIErM=;
+        fh=hf1lAUjNvrc/Lsr4LVmGMBAX363M715U52gNhn5zP0U=;
+        b=EOEZwOgs3cvJT0m7DvBDQtqQdymS6SXlr1oHVN6ijhxdx+tYyj9p3y7iFiQRkgpYQJ
+         cHTcNf9RZ/LObtb8OALEHa9ZHC+iAF7plIVvEBp2LR0epJLlnAovY9xcfDcu3c97POLp
+         Ovmy0ieJVtqejcwpks3IuSXEytxekZiDm31z/49NHIyqWZ9jOdxf66krFruutt/8ECfn
+         7z/kgy3sv1gbCGEALGV8nwi3E/oZqAt1XfdQaKa+qAnaJv59Ly7ipRRPqNJ91yKS24An
+         9WhWdlv5A3ctPXWJhYo0MwXrs6ZXsDxARDK//br4nlOsNaTai/4WyoSlw9k7qXRXViiF
+         H3vw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792000426; x=1792605226; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1792013377; x=1792618177; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=kLj64hTBXBolUSqkfxopLToY/0ejR9Fisko65Xwg5ts=;
-        b=neQoRlXOvlBcgllroAbMqUVlS5sbLAm+qNxLL14jdSG5PWPIstSrotDygeq5ITHlOb
-         mO1MCPFqkHiv0yatMQWb5dcc3RiLW6xlNtbiZ+COo1Yhi0znBqdPorfOBd6SqFp0q9vX
-         GJxV922wdl2+wtRGTxgQQS/FwJHDUvoTOKN6xuhieI2I7Ieng7DV13zbTXRh9LJ3Nvqd
-         0fhDPcBo0/7NBfb6A/1y5Rh+G0hwRCV37M6wRearMoe0howmBwNc80gaTbM9/8598aNT
-         1CLWS07qT3u5b9EZG+j7pi4vlgXf3rwc7LUzJ/XZqrTEt1VzQkQGV1dkyAmAwlWVGLwi
-         Brnw==
+        bh=YwgxusmBTG3+SD3/g0+kXEe8xsc6kMCtJNV8dtSIErM=;
+        b=JYiMvfnzBMm0PJBMQgYJaKN3PNndQknU5uRJyxJxp770e5ALcIgfqyJmcKb4LDj7O2
+         xqO0ueqKLijwjemP1KfuvVOZo0e6GLsR4+bn1NvmZqeYCC35k7D9tdltzZjT9bDLs2tC
+         kQvkziF4biyejaVfJeB4oZ4bbjeuVDTKD449ebaf4jnrV1dA31PdJRTDgVfUx6hB3MHZ
+         crLvxKt7ae+GUuz23nF9rFTTB9ht00EtJQTmMZ6fox25eDclrvMy6sqG9/Rm6svapNye
+         xqJpIMoyGblHKjEPYeKkCX4d5JiWndzgAmXe6yURqcaqukAp6KfaVEhS5hlluwo0a5Ni
+         qqLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792000426; x=1792605226;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20260707; t=1792013377; x=1792618177;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=kLj64hTBXBolUSqkfxopLToY/0ejR9Fisko65Xwg5ts=;
-        b=PVODAYR0MYfd8rD7dyo1FN1D+ZzMIfgPKsaqyqsakSA74nzjNomKW6cAQqeCBHWRE/
-         Om1mIJRoVROUo38eLNOLUF4+RlpZQgR4++27JYLt4qxt7SyTEnGhOHRK7lo2CSA40oOf
-         vOFSfLIl9cK+fC4YAJvYNDxTgLtwfttslN5wEMQbiQFYd245S+I4AaX+UZnm6OqYGzVy
-         4kwuU+JAvv4cReYe/r0A0NlcVSsEIB/+sukC5yF19+JWXlCt8bUuxA17uSzpbdsNEopV
-         D2cvif2W94hgEwvvSt9Vzj2O7BeETCv9qjvkeSujkNPTenoEm7pXxJQh9eYW1xf03rBm
-         zIlA==
-X-Gm-Message-State: AFq9FYIJ3q7EQOJI0xUByz795snDLzixXtvdLceqVF9UkbsOh4m4vD7P
-	FkiN1pvT/J7oDP6Kakfl0NeBafbwca/7IpEgQz4rlHmsXtML7/0zstVbkElwiiLn
-X-Gm-Gg: AYBFou2U6IYh9SwbCH6IDSsqoxUhGrqjlqG2wdJJrAn/9MJGjcIO+V0EqxMOURYNSTg
-	EUaan8u7MEpqmkyKMbXxXYAeH01r8NI1jMMeFH5Ku8Stwz5GsgdOhu+iuvyNpQ7jdV42Gd0PbyU
-	Dq4vpDA8PoKakVCZLNDw3O0O92dILCSVmy29MfgH8gcqGt6gfTPVYEWMwqnWzuMzAk2L05Cy2ho
-	GszNsfXE5wn3vjRepst4MjAqSWiAVJpbneiumCilPFV/dyU1cq2/fhsS7cfIIyPKvms5AaVWJN0
-	Ol5WeUyRAEVXi20w1E++6gZo9aodSphJTSa5YiZ9nfONeNoRccKPm8uax6neUQIMCfjpJCtxWOx
-	tWcvwKyShrXBjEGClO/xd/jzbwC7XiEuNrsoE87jaqV25KlDyhGhlDphIAXtN9578MIKj7JdTiu
-	UrtsI5xR/dvAyhPCSUx27Zv/4crCCAYjCANNQe3xsfVYB8l3jZM07uOmmBy2JVqOc/f9aK/3F11
-	ak1RXRSZ5U6q+KKwDgYolLTp91IGiesFi60vFDG
-X-Received: by 2002:a05:701b:230c:b0:143:2967:c0b1 with SMTP id a92af1059eb24-16a5fc91121mr22575774c88.25.1792000425485;
-        Wed, 14 Oct 2026 10:53:45 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:875a:117f:b9ea:5a08])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-169a1becb11sm45801314c88.4.2026.10.14.10.53.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2026 10:53:44 -0700 (PDT)
-Date: Wed, 14 Oct 2026 10:53:42 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Francesco Orlando <francesco.orlando99@libero.it>
-Cc: linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] Input: xpad - add GameSir Nova Lite support
-Message-ID: <as_BotJs55sgT53O@google.com>
-References: <20261011165821.72698-1-francesco.orlando99@libero.it>
+        bh=YwgxusmBTG3+SD3/g0+kXEe8xsc6kMCtJNV8dtSIErM=;
+        b=MiwFJxr7J73x8DI8fHmfeX1SZIxFIub7y/RDXJl98OrSUMHqJkqYyKPgF1glSdiSzi
+         VYl73h0hYEank2AWP3wu6/zT/JgIwy+0kQ6D6nnrKa8Smq3aOjRuuajN+MvCd41V6x5Z
+         GNmpBsC0ztzq2Tax4TbyWBgANLH6y28lSF/m/5eIS0rOMTkeHAe6rJumTzg5+EDvUTcd
+         FEJTfDjQx3hqOFbOJDkuHe2x8UdFs8/1ItrKUq2jsryQ/hOf34er3AZbmf46apI/qt3M
+         25mhurSAuCNuMmbW/rFYXiY8szk5rrIAZcBc4QLWJMuB09uM8QwSlPQSzSbQ09Roqkr9
+         L5ow==
+X-Forwarded-Encrypted: i=1; AKwUvBwzKL5C1CBQg1Hieqy713QzEzQCKKydqgFpMojZ0JMtlYYwj4AJic574EqJZqtnUBxVrAgUekj5D78QVg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLcqsojePpEugu+tMPVuOk82BD8NbqY7SPdUFB8Upq2agiJtHym
+	cznrckceSY+RRM+G1mxbql9pEZKjBMOIhwtJRBJd2yAJs6hUDbeFkRmYvT4ELRzhgBbchusUYJf
+	rFDFEh+EeHnuJ3tYCd3qfxvT5H/EEmCs=
+X-Gm-Gg: AYBFou1XLV/+hXRDQZLp3WFC8UvYy0E+qwDwMRfGSGe4UnaCB/Hh+66iKcAd/WeGwdN
+	5uuLNnuRZPtFXyAgrn9y66dIBfbQhFlNKAQ4XLWOsJSZ+0P3x+0BCSer3wKXtcwtjVhGAV5+LPi
+	PkAi3bQAxEW/Ec+odV+0feWBjHFrTcWoNwFS1hROgfGcKtnbtDK/Ljh89H8lvhvh0GzzetywIjz
+	rcPe0XGFcit40OBPqx7GVbTX40qc1V9w/1Ry7HzbUtShFmpjKhofmZLolW+7Z+NSIXOglqArUht
+	5z0XFzzAOsksZVMPVamK0gMz9XhIGt7eIXOZyelacr6kJlmqkq0J850=
+X-Received: by 2002:a05:622a:598c:b0:535:84e3:ceef with SMTP id
+ d75a77b69052e-5359fb86e08mr292010171cf.45.1792013376625; Wed, 14 Oct 2026
+ 14:29:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261011165821.72698-1-francesco.orlando99@libero.it>
+References: <20260924020936.17612-1-matheus.aalmeida@inf.ufrgs.br> <1e4cd74d1d4598dcb22198724323cf00@inf.ufrgs.br>
+In-Reply-To: <1e4cd74d1d4598dcb22198724323cf00@inf.ufrgs.br>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Wed, 14 Oct 2026 14:29:25 -0700
+X-Gm-Features: AclHuK_EW-cvvhCm33wG1LwURzuAIYspTU3DOos0A_N6byRXCMb2FNUeb1-g6hI
+Message-ID: <CANRwn3QfxSxVqGUjOuMhoEhuOHRz0ODdFqUU5wZQKuPNp7kG-Q@mail.gmail.com>
+Subject: Re: [PATCH] HID: wacom: fix wacom_intuos_irq NULL pen_input deref
+To: Matheus Alves de Almeida <matheus.aalmeida@inf.ufrgs.br>
+Cc: Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>, 
+	Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, 
+	syzbot+b5a7cd83622c747977de@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, Oct 11, 2026 at 06:58:21PM +0200, Francesco Orlando wrote:
->     Add vendor and product ID for GameSir Nova Lite (0x3537:0x1040)
->     in XInput mode to enable force feedback rumble support.
-> 
-> Signed-off-by: Francesco Orlando <francesco.orlando99@libero.it>
+On Wed, Oct 7, 2026 at 8:35=E2=80=AFPM Matheus Alves de Almeida
+<matheus.aalmeida@inf.ufrgs.br> wrote:
+>
+> Em 2026-09-23 23:09, Matheus Alves de Almeida escreveu:
+> > Currently, wacom_intuos_irq() passes the parent of wacom_wac's
+> > pen_input to the dev_dbg() in the unknown report path. However,
+> > pen_input can be NULL on interfaces without a pen, causing a
+> > NULL pointer dereference.
+> >
+> > Get the HID device from the enclosing struct wacom and use hid_dbg()
+> > instead.
+> >
+> > Fixes: eb71d1bb270e ("Input: wacom - use dev_xxx() instead of naked
+> > printk()s
+> > and dbg()s")
+> > Reported-by: syzbot+b5a7cd83622c747977de@syzkaller.appspotmail.com
+> > Closes: https://syzkaller.appspot.com/bug?extid=3Db5a7cd83622c747977de
+> > Signed-off-by: Matheus Alves de Almeida <matheus.aalmeida@inf.ufrgs.br>
+>
+> Hi,
+>
+> Gentle ping on this. Has anyone been able to take a look at it yet?
+>
+> Matheus
+>
 
-Applied, thank you.
+Apologies for the delay... I've reviewed the patch and it looks good.
+It does make me wonder about similar patterns elsewhere in the code
+though (calling `dev_dbg(input->dev.parent, ...)` isn't unique to this
+function). I'm happy to take this as a standalone fix for an observed
+crash, but an audit of other log statements is still probably
+reasonable.
 
--- 
-Dmitry
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+
+Jason (she/they)
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....

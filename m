@@ -1,120 +1,108 @@
-Received: from mail.teplosmart.kz (mail.teplosmart.kz [109.248.152.200])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DBC6493D29;
-	Thu, 15 Oct 2026 10:33:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.248.152.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 110044AEBCE;
+	Thu, 15 Oct 2026 10:47:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792060420; cv=none; b=SKHiYwtfNcTpe4xjjNrku/oQDnJyctD6FYdjooUZewLL4+uJLd4+bAkb/jy7owpyudGMWalxtubLvUEHxgJ9STFW7WV0LZK40JlNaDqo+gvrLTGMJ8oc3jMZ5pE8cyuyrfq26uqz7p6+Ahtr7RPflN2CxTU+xd1TJAwQBHpmsBA=
+	t=1792061225; cv=none; b=g+MoiiSIPgWWilhMvDusecFl5ccDOJu/coOqnSfIjuIjFi7pt+v5Cz48N2wemoy/lRZ5kGj4wSzQNkdGjDFnUMJKUlykIc4rdpRcrictsFq2E5VJ47zBx/plGGF2t/AgZ0Vy7xqco+Mh+dmL3cuTbPFrAu2OX6yhh/5LFJ2Q14w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792060420; c=relaxed/simple;
-	bh=x4j1MyhbT+c7+HAuHRvQK/5M5CfjgRnbi3oXyr1fFQc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DE2eUjR9kfdr0B+hjUTMFQXwu4N0cQ9v45c9IoyCR4zHmfEf++AOWDvdLjxcv3nNo9XoEIxB0remNsk0UI9Ir/DoxfrG7Fpy4tt95QBI2rSh9ns9TjtYb3dhE1tWLd3busqhxEtjDiTqhhgRido9E24piQoCd6kfPt/IVX0vP+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=teplosmart.kz; dkim=pass (2048-bit key) header.d=teplosmart.kz header.i=@teplosmart.kz header.b=15Twt2zl; arc=none smtp.client-ip=109.248.152.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=teplosmart.kz
+	s=arc-20240116; t=1792061225; c=relaxed/simple;
+	bh=3l22oUBQUWdDwjGMwhzw0uMg4snUszAq46Il6N+4ums=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=Ht2GbzC2r5FqmquvuR/Y7HdKGTV/faQAbi6NQJkrvTUMnhglEJZ3bpgb+TZ0ygrTLYyVeQjln+WjtH4eIAi//0YCMqt2M3plJYh86PgYjV7GNvl86E0w7348NcYh96B2uPFKfw75+ug3xFAIfO7jC2bOW363iJuf8vGiOI1lZLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XfwHVBMu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=teplosmart.kz header.i=@teplosmart.kz header.b="15Twt2zl"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BE3576654B0;
-	Thu, 15 Oct 2026 15:26:01 +0500 (+05)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=teplosmart.kz;
-	s=dkim; t=1792059962; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding; bh=eigKfEJaMCURfst9+qumadUfklLLvkmWswsRO/BSs7Q=;
-	b=15Twt2zl99pCuLTWLzFUpaoEfxwR1OWU2Q+UabrtDujhyh90KVsxZWay4S+zaSUs4Y1siw
-	pL95CcO8TTNMMeWhy37zzVdi25MNiFGkhaI8+DMg2iosiIOHD4z7PPLdajlvHEcVP98vwV
-	w6RLFlMBOCF0FagywwIcw9t7sfaqlBOfvHyz2HMZJfZwV4LlioNGUslEZAb8o/oALyEaCH
-	hQdiguRszlfuLxyYaKlOMfFV/+oTY5S5niMcsvs7xH4jEIiEpq9SfG6P7sV9nDvFIR277F
-	sRmGLRY87iWX8sO+cXUp4i7/K8zVnyVzpvjc0qJAFjF+jhI7yByX+hgR/UJPOQ==
-From: Fedor Gubenkov <writesfaster@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	writesfaster@gmail.com
-Subject: [PATCH] HID: usbhid: add HID_QUIRK_SKIP_FEATURE_REPORT_ID
-Date: Thu, 15 Oct 2026 15:26:01 +0500
-Message-ID: <20261015102601.1235724-1-writesfaster@gmail.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XfwHVBMu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 023081F000C4;
+	Thu, 15 Oct 2026 10:47:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792061223;
+	bh=Ft+gkYwOAwr7XHuxub+OX7EI1tRPr/sNud4T/vHhp/w=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=XfwHVBMujPCxroB6+pH1C7bnQyRHj879zvcQGbUevWfnyKrfpRt2q8FT10B33eUCf
+	 iiZqSw1tktVLpscKt0sTbfGh/wnw3wxx3CI04vI3uonma/JL3sm12zXC94ORWXimNL
+	 hsbguhTFRjSqjyIXi7GPSWyq7vgokd/nDBS91GuCHeSbHSctgye8g2uL3NnA+HeUZp
+	 gSVdo0LAUtyiAW2+ppv5rOCd/2mIFsUNzuczXBLR6/1JNU5Kz/S3UM3Q8t0hErJxQg
+	 Bb/31v5NXwiu+OVz9UAMZ/xKqRa1Wbtso4EoQt2PvSK7m3WQe6hlgNR1okLlVyZF35
+	 YeaWgIA6jb/Aw==
+Message-ID: <sashiko-outbox-172676@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] HID: usbhid: add HID_QUIRK_SKIP_FEATURE_REPORT_ID
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Fedor Gubenkov" <writesfaster@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261015102601.1235724-1-writesfaster@gmail.com>
+References: <20261015102601.1235724-1-writesfaster@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 15 Oct 2026 10:47:02 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] HID: missing HID_QUIRK_SKIP_FEATURE_REPORT_ID check in usbhid_ge=
+t_raw_report
+--
+
+commit b5d7d6ff27fe5a08bcc6f67c8ed596cb786d6404
+Author: Fedor Gubenkov <writesfaster@gmail.com>
+
+HID: usbhid: add HID_QUIRK_SKIP_FEATURE_REPORT_ID
 
 Some HID dongles implement a stateful challenge/response over HID
-feature reports: a SET_REPORT(Feature) carrying the challenge,
-immediately followed by a GET_REPORT(Feature) returning the response.
+feature reports. This patch introduces a quirk to omit the report ID from
+the SET_REPORT payload, fixing a stall when interacting with the USBKey don=
+gle.
 
-One such dongle (3689:8762, reporting itself as "USBKey"; used by
-several automotive key-programming tools) rejects SET_REPORT(Feature)
-when the report ID byte is present in the payload. For a numbered
-feature report usbhid puts the report ID both into the control-transfer
-wValue and as the first byte of the data, i.e. it sends 21 bytes for a
-20-byte report. The device then STALLs (EPIPE) the following
-GET_REPORT(Feature), which breaks the challenge/response and makes the
-dongle unusable - also for Wine applications relying on it.
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -914,8 +914,10 @@ static int usbhid_set_raw_report(struct hid_device *=
+hid, unsigned int reportnum,
+>  	int ret, skipped_report_id =3D 0;
+> =20
+>  	/* Byte 0 is the report number. Report data starts at byte 1.*/
+> -	if ((rtype =3D=3D HID_OUTPUT_REPORT) &&
+> -	    (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORT_ID))
+> +	if (((rtype =3D=3D HID_OUTPUT_REPORT) &&
+> +	     (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORT_ID)) ||
+> +	    ((rtype =3D=3D HID_FEATURE_REPORT) &&
+> +	     (hid->quirks & HID_QUIRK_SKIP_FEATURE_REPORT_ID)))
+>  		buf[0] =3D 0;
+>  	else
+>  		buf[0] =3D reportnum;
 
-A raw transfer that keeps the report ID only in wValue and omits it
-from the SET_REPORT(Feature) payload (20 bytes) works: the device
-accepts the challenge and returns the response. Confirmed with usbmon:
+[Severity: Medium]
+Since this quirk is used for a challenge/response over feature reports,
+does usbhid_get_raw_report() also need to be updated to handle the response?
 
-  usbhid: Co .. 0302 0000 0015 21 = 02 11 ..  -> GET: C -32 (STALL)
-  libusb: Co .. 0302 0000 0014 20 = 10 11 ..  -> GET: C 0   (response)
+If the device omits the report ID in its response, it appears
+usbhid_get_raw_report() will not offset the buffer for numbered reports:
 
-Mirror the existing HID_QUIRK_SKIP_OUTPUT_REPORT_ID handling for feature
-reports via a new HID_QUIRK_SKIP_FEATURE_REPORT_ID quirk and apply it to
-the 3689:8762 dongle.
+drivers/hid/usbhid/hid-core.c:usbhid_get_raw_report() {
+	/* Byte 0 is the report number. Report data starts at byte 1.*/
+	buf[0] =3D report_number;
+	if (report_number =3D=3D 0x0) {
+		/* Offset the return buffer by 1, so that the report ID
+		   will remain in byte 0. */
+		buf++;
+		count--;
+		skipped_report_id =3D 1;
+	}
+...
+}
 
-Signed-off-by: Fedor Gubenkov <writesfaster@gmail.com>
----
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -408,6 +408,7 @@
- #define HID_QUIRK_X_INVERT			BIT(12)
- #define HID_QUIRK_Y_INVERT			BIT(13)
- #define HID_QUIRK_IGNORE_MOUSE			BIT(14)
-+#define HID_QUIRK_SKIP_FEATURE_REPORT_ID	BIT(15)
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		BIT(16)
- #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		BIT(17)
- #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	BIT(18)
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -914,8 +914,10 @@
- 	int ret, skipped_report_id = 0;
- 
- 	/* Byte 0 is the report number. Report data starts at byte 1.*/
--	if ((rtype == HID_OUTPUT_REPORT) &&
--	    (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORT_ID))
-+	if (((rtype == HID_OUTPUT_REPORT) &&
-+	     (hid->quirks & HID_QUIRK_SKIP_OUTPUT_REPORT_ID)) ||
-+	    ((rtype == HID_FEATURE_REPORT) &&
-+	     (hid->quirks & HID_QUIRK_SKIP_FEATURE_REPORT_ID)))
- 		buf[0] = 0;
- 	else
- 		buf[0] = reportnum;
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1623,6 +1623,9 @@
- #define USB_DEVICE_ID_RAPHNET_2NES2SNES	0x0002
- #define USB_DEVICE_ID_RAPHNET_4NES4SNES	0x0003
- 
-+#define USB_VENDOR_ID_USBKEY		0x3689
-+#define USB_DEVICE_ID_USBKEY_DONGLE	0x8762
-+
- #define USB_VENDOR_ID_UGTIZER			0x2179
- #define USB_DEVICE_ID_UGTIZER_TABLET_GP0610	0x0053
- #define USB_DEVICE_ID_UGTIZER_TABLET_GT5040	0x0077
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -211,6 +211,7 @@
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_WP5540), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_USBKEY, USB_DEVICE_ID_USBKEY_DONGLE), HID_QUIRK_SKIP_FEATURE_REPORT_ID },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_VRS, USB_DEVICE_ID_VRS_R295), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH), HID_QUIRK_MULTI_INPUT },
+Will this cause usb_control_msg() to overwrite buf[0] (the report ID) with =
+the
+first byte of the device's raw payload, resulting in a misaligned payload f=
+or
+user-space applications reading these feature reports?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261015102601.1235=
+724-1-writesfaster@gmail.com?part=3D1

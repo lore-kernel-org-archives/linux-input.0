@@ -1,73 +1,126 @@
-Received: from mail.teplosmart.kz (mail.teplosmart.kz [109.248.152.200])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC3951B166;
-	Thu, 15 Oct 2026 11:33:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.248.152.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 704E73ED128
+	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 14:34:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792064031; cv=none; b=RDrrFICXCwbyWZl7lChSTKFMh+aQzkKOmTfADEb4Sc2esBy1P7KAzip05defDDMyuFOZsqE89JBHAzcbJtGBo+LnFBXGwNShM7Hblc2oCVoA+He6j7hiv195ZihNkBvPxiSZYBqTDgRK72L3jrHksCqnJPUxBIsVhB3J67czVeo=
+	t=1792074881; cv=none; b=E/BMs5Ot5vvq0VL8WdJ7fVHJNRUaLSZQxmcp7es8KYQX7UjCu3GECvrnp98yZnD6FwfiCicMbYnZtGFEl3Hwj71g4Z4bU3dqf6z/gqeeIo9s+wJqqeOVzHp80zofVupZxrA+Ld0zoUm7TzCj5CeOHPqHsIHoXU8BXobKZBbC5EQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792064031; c=relaxed/simple;
-	bh=4C/AZXi9grtRt3mBsT54Kv9HZu2he0XxzoSI6bWEJSY=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=fefuxPaMdshnnGBAqwMcgRXbMSGyoqlB6Uf8L3AXYy7BPCrGLO5hlrgJsq9yJyvEtblu3WHqob5Dxq+W+bub63wKVUK3o58whVi+v5kOyHu8BmVQdUiFcrQRUKRZhZ+vwiugeaZ/JuW+X9x48hzxGdFOg+l0w4HB7L6saMQVuIs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=teplosmart.kz; dkim=pass (2048-bit key) header.d=teplosmart.kz header.i=@teplosmart.kz header.b=mG7L1IjR; arc=none smtp.client-ip=109.248.152.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=teplosmart.kz
+	s=arc-20240116; t=1792074881; c=relaxed/simple;
+	bh=MeLprhUAZMvvtaG2SQyYdpCUNDDVZn+Gy7G5TywqqHA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fAl74GySr4/p7XNWxSo//ut9jvJhhgZupEwfkDrotNfZVAaTZqSV6bOarPIuK8pPjNAkwK7PQ9HXDlvCnAPNpuIYnpv0Bfa/DVnDMkoKbuQ1GTtgF4QmdSgjlPjKDblwDgxe9fRveAe71diBmtma+id2Lu/iDzajqs/+DH6sCMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RT7/VOLd; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=teplosmart.kz header.i=@teplosmart.kz header.b="mG7L1IjR"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id AE65E665B7B;
-	Thu, 15 Oct 2026 16:33:37 +0500 (+05)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=teplosmart.kz;
-	s=dkim; t=1792064020;
-	h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=3uqW+09n5FTefnsRmZrO2GQEJUaCUJKldwLRYEBXOGA=;
-	b=mG7L1IjRLu+uGG2EfQLuqUGWZfJb0Tk1I2nFK8w005sUdo9SL+/Xho4ehmBKsxpXP2O0XY
-	eFZlFSfoLpUH2xW3Ztk09o5P4ft1Por3cwUr82zVaYyCfc9YFba6kVi6eGexJfem3cDvHG
-	/PwI+vNn5V6W3d4TQUVFv/DNyh+SSFXxZACzbFYDXr0bz3Cd0Mg3HTJsccpVdxKJBLNWak
-	sS79RaB9EeOr2SBp3AwP0jCDTfqMhr3bBzyw+hhaEUXIhqMYIeQlyiFX5+EZIozSrX3xdc
-	NPT3CI2uBvwM1xcAPJKZFSTsh2nUacvKlgxgcS78u2g19ELdplpktGAUB07LPA==
-Subject: Re: [PATCH] HID: usbhid: add HID_QUIRK_SKIP_FEATURE_REPORT_ID
-From: Fedor Gubenkov <writesfaster@gmail.com>
-To: jikos@kernel.org, bentiss@kernel.org
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-kernel@vger.kernel.org, writesfaster@gmail.com
-Date: Thu, 15 Oct 2026 16:33:35 +0500
-Message-ID: <179206401538.18141.5875548091082581632@teplosmart.kz>
-In-Reply-To: <20261015102601.1235724-1-writesfaster@gmail.com>
-References: <20261015102601.1235724-1-writesfaster@gmail.com>
-X-Mailer: git-send-email style (smtplib)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RT7/VOLd"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2e60f9af6e6so17691055ad.3
+        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 07:34:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792074880; x=1792679680; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=DwKCN+cdZZKyFrwaQPyGpZEBhl46V22LLAfT1wOQ0EY=;
+        b=RT7/VOLdqOmwHsYpvntbPzjo3dvLOKd5UFsrxmpF3KHg+1/EjLmXaeD+m7sDwKBcgm
+         vObubCQzA1iVDSIjIFSei4MPS0fjs0c990YLy5r7Gb30TYDXHmh2dQt9sFoLSRC1l5RW
+         pRwOtVi7D24b5hUwatqXLybb9TzVLUYV2FhKn2/5JQGPMPlrTErtYbZt5gbJ01AwevkH
+         QoLIkxxYwophsP0fr1xNHHv3iR6WwB1FvfWAv8YS5TxLkt85fs3n2LVSDeM5CNNy/XFj
+         2riJwx7Z2ZpD8lZggYCYTnZb0p8/7ytrMRUbXItEINVAfYJghOFFBmJA88kdOG2kBoEh
+         vWgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792074880; x=1792679680;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=DwKCN+cdZZKyFrwaQPyGpZEBhl46V22LLAfT1wOQ0EY=;
+        b=J/UKZaadUVYiZx/rOWdrKuUVG9ZQPop+TkC3Q35HaytHJde0ximcCFBO28Y0lwAB/d
+         ihSLRCdjfmKHR7G+AzPFxiR02RMDmW33RPn+yedBjfAnzC3GuTb2MDwBrLnaeyorj3Lh
+         kMCduq7QdtyICFarn15d91kJol+PzGoiQ8CqAEy321IhWA0r8yHkeAtgfjDZ/zu8LvI4
+         L5xxQSSC/GGFJtwxEDQYEj7qBkv88n82snRGdAMx+jXBSrwc1Wcsdh/WbPM95usUmK0n
+         Ph2sXNrehlkBNvTegnapULo0kLa65eIVSJNlTFHq3q2MxsbyEHW4X4NpXA6nD4mXd0x6
+         3R8w==
+X-Gm-Message-State: AFq9FYJDOaIWs14STfKmaHtRAsb0uoMdcIuwk073CGem4UiLQqIJ1BwM
+	OqsYwSFYSiErn3HRVxElhDdMl+pcpvcMbB8Q3Za5NH84bmSRqaiNKyeD
+X-Gm-Gg: AYBFou3EbG/CdFXIjiTJoysMOlkIdxxH2SrUFa/MMHaukc9CogUy49px53z4cLpvakR
+	Pglu7mXGubFFOczssefCgmnHzdGORDuiMo5NObc/q+swZ0tFZ5dml7P044+ccz1a7S2O2Ri9S9Q
+	RX7N8chvreB/Wr481xoyDvdnyPg1qCg2Qv9LezxrFUBmauKXasJ1OEb+KJq+EO2YMhXATYEiQyD
+	A1jxXz1ENY8R3TXUPFcA5qmM5mhJKUvmt+jHPuC825NlShF8mv6Yfkzn21v60QAZLl3C8L+qhCE
+	eateSexlMcEOn2bFsj5SFfYVRDkvqvE6Wa+ihsUzhkMC+3higgx9jpgaXGHVH5DRrc2YQb7DhDL
+	5vrUqikbgjgC+Rz6G7zWyzUFZdd72tgqEEzjOsnv/LjgGoPEP5xSvT93Rqo8irTqaXXHX7toqBo
+	vcxiCvmxZV6rcloQ4aijwnD12xmEzjY8D6Oqbq1MSOdgaaeR5cgMDOGL4vppH4DwcCwcFGluMn
+X-Received: by 2002:a17:902:ec8d:b0:2e8:3cab:3af1 with SMTP id d9443c01a7336-2e842cfbc69mr174591995ad.23.1792074879630;
+        Thu, 15 Oct 2026 07:34:39 -0700 (PDT)
+Received: from thangnn-ASUS.. ([2a09:bac5:d45b:16c8::245:c9])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2e8484c1641sm79933765ad.15.2026.10.15.07.34.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Oct 2026 07:34:38 -0700 (PDT)
+From: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Harald Brinkmann <hbrinkmann@braincalibration.de>,
+	Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>,
+	syzbot+eba2b3201bd25a97cddf@syzkaller.appspotmail.com,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: saitek: don't dereference a NULL hidinput in saitek_event()
+Date: Thu, 15 Oct 2026 21:34:33 +0700
+Message-ID: <20261015143433.129525-1-ngocthang2710.1999@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Transfer-Encoding: 8bit
 
-Please drop this patch; I'm NAK-ing my own submission.
+hid_process_event() calls the driver's ->event() for every usage of a
+report, including fields that hidinput did not map to any input device,
+e.g. a constant input item. For those fields field->hidinput is NULL,
+and saitek_event() loads field->hidinput->input unconditionally:
 
-After further testing against the actual device, the premise of this
-patch is wrong. The dongle (3689:8762) *requires* the report ID byte in
-the SET_REPORT(Feature) payload. Captured at the USB level:
+  KASAN: null-ptr-deref in range [0x0000000000000018-0x000000000000001f]
+  RIP: 0010:saitek_event+0x51/0x2b0 drivers/hid/hid-saitek.c:154
+   hid_process_event drivers/hid/hid-core.c:1572
+   hid_report_raw_event drivers/hid/hid-core.c:2109
+   hid_input_report drivers/hid/hid-core.c:2180
+   hid_irq_in drivers/hid/usbhid/hid-core.c
 
-  - SET_REPORT(Feature) with the report ID present (21 bytes): the device
-    returns a valid, challenge-dependent response.
-  - SET_REPORT(Feature) with the report ID stripped (20 bytes) - exactly
-    what HID_QUIRK_SKIP_FEATURE_REPORT_ID produces - the device returns a
-    single constant byte (0xe7) for every challenge, i.e. an invalid
-    reply.
+A device that claims to be a Saitek MMO7 and uses such a descriptor
+triggers it with a single input report.
 
-So the unmodified usbhid behaviour (report ID included, as mandated by
-the HID spec for numbered reports) is already correct for this device,
-and the quirk breaks the only device it targets. My earlier "the 20-byte
-transfer works" observation was a flawed comparison that used a different
-challenge and never actually elicited a valid response.
+Bail out early when the field has no input device, as the other HID
+drivers implementing ->event() already do.
 
-Sorry for the noise.
+Fixes: 37c492c8f6a9 ("HID: quirk for Saitek RAT7 and MMO7 mices' mode button")
+Reported-by: syzbot+eba2b3201bd25a97cddf@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=eba2b3201bd25a97cddf
+Cc: stable@vger.kernel.org
+Signed-off-by: Nguyen Ngoc Thang <ngocthang2710.1999@gmail.com>
+---
+ drivers/hid/hid-saitek.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Thanks,
-Fedor
+diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
+index 6fe7c087c594..2a9e07a4fc77 100644
+--- a/drivers/hid/hid-saitek.c
++++ b/drivers/hid/hid-saitek.c
+@@ -151,7 +151,12 @@ static int saitek_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+ 	struct saitek_sc *ssc = hid_get_drvdata(hdev);
+-	struct input_dev *input = field->hidinput->input;
++	struct input_dev *input;
++
++	if (!field->hidinput)
++		return 0;
++
++	input = field->hidinput->input;
+ 
+ 	if (usage->type == EV_KEY && value &&
+ 			(((ssc->quirks & SAITEK_RELEASE_MODE_RAT7) &&
+-- 
+2.43.0
+

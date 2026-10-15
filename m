@@ -1,546 +1,189 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D098637267A
-	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 07:57:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792051075; cv=pass; b=gwt6mFMOWbpyrckMK6u2a1ydGf+SD++2lkavhs/mKCCvOhaGASVTiGWJRPqpnPXiURlGz3hLS8RWba2/TKzAU67pb1+4MA5bWD/r/7JZ0aiohs932k0/K+u3PMEJYuacW/cpR8vhG6eifuu6oybc4KA21lUTLB70qYjmaWLZ4jY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792051075; c=relaxed/simple;
-	bh=+CP0VyKP++8KzrG+egnIu/uYUo2YQKKTOM2sPrza3ug=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aoSjNKH5TGabfvuU5x+ok1seBm9vdlQ8z88t5aTmm80Q8P51B+bIWhSIwRztFYBQc627pc1lkRiKpxvR+KSzTObok+BAXuco2VHWcup6FSMzJipiHP7f8MzA+wfr3XNpEEltJAjGiB/FKQEvhm3wYLoPpbyjAm4SOOdRi0LQI58=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r7lDU/1k; arc=pass smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r7lDU/1k"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-6ae27f06c2fso3355468a12.3
-        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 00:57:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792051072; cv=none;
-        d=google.com; s=arc-20260327;
-        b=KmN1pUXyt2rQXn+rJALd+njLsx8Zg5ocevpLToa6dW+GLmHCWkjopbGSLT/6/rWfPD
-         joerTeWjFBl6TwYDzBKhIEm1PPuQIEv8lT8abmHP0lLD1+RKC7WbOE2Qnu25EFGiuTBt
-         ofbE1oblM/BRIee7ESyBmNvR9gcdYlKwk5USgfoB4OVOVfnNb+JnFX/SuMwowCRLpPnD
-         xgAKdajewzgFyABgNi55NG9pHu4G07qAxQ+urQz+oD8N4sGZ1XviH5f7wSi81TOMDUv6
-         pCmJ/gfqSBV6zi4GXX7MhXtqb5vkdCsLM2Y4LiiRLPYRsMO8CodAMNxT0V7REmrajqv5
-         0How==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=C5+V64ZjXSQ1A98PRNqx2K8k7nNvu3c8BbnG8cd1zcY=;
-        fh=jzdBPPAJ/gocARjfMP6+NBfrlWxKNl4J1wMlPng4Lx4=;
-        b=s+GxhAGSQVxIadskVL88z0fGhHTc3lfGGN8Qs3sWZnO4iQS8IuYYYPel1Wh6T8qsMi
-         f5zH5437+Eao6ovi81efQkaTyo5T1RhjUf48uY8e2R6k7u+lSaWPdjwGsnTlCs0u/g7e
-         ygaNGAGEaLFLtm2vY09pflnS1lsUgbFkFwUt5Z7jPv49cLX2Ga3XUweYwSbRDV8wwUVS
-         Rh8nRKF+oLtEWNIgkJ6ylfCV7R8zSlyFtqFz0r3nlXl/3EM3He0ndj4biA3n+eEXKnLj
-         xLG5/YV7L7qM9shxryj5bdsnZZw4pvtUQcT+kRmp+aHC5Jl3xkONLSA9164SSgRMwgED
-         obRA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792051072; x=1792655872; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=C5+V64ZjXSQ1A98PRNqx2K8k7nNvu3c8BbnG8cd1zcY=;
-        b=r7lDU/1kx34VbVa1ei/BJwt+VaXnHPRRRXio5CpH4ceCHGRESHvaHmyQL/utCFWrEB
-         aeWO7HssrzsnPx06IN5roCDELGaPD+s0AJAJXCCXWNYDzQFNCol0idFew8nTgZts2oJC
-         8J1aKL3/+Jkk4csRbtoF1lRJa/QUP4ZZsrrVDU+m9H4CIIC6ZkKEB6saQsdMVwg8Ir1E
-         F+/mpFok3Asa0IXTr3bsIMF6lUxHjpnKjroQh9MdH32Q9juhG97IoS8bYgmpJdgp999z
-         Q2zRXhIKtl/S84utZFi+LqK61lejElR9eVrx9Eqeqy0k1nPESSRu3FusI7IMXviwY10q
-         EUSQ==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8174B3DBD60
+	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 08:32:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.198
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792053158; cv=none; b=O3O3W+mjWmkSyvcZDlmlj0OzBRsyjQEyrqLb3OZ+tgw4KTJMTicOctAnDuww+Kez8/aakU/VxR2z8I4wS3yolX+yC7GoE2DLJW05FFxMEsEiDhWVVmQa7+Rls94mZYwc3Ag/IXcmcUbStiGac6AcLWpH3izzHhFAeKkSjb3cDto=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792053158; c=relaxed/simple;
+	bh=trsxjJs4a5p0t0lDB7Iuc9bAOM8VgarbgPTTsfU4A9E=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=qy6dfxjTYtPrJdlVhU9sSuVL7nDtLVL/wswcN3mNxK1JJI0ZKcaQG56e8ax6srT7gttap+wGtmsk8gEl2+qxmQM4bVpw5XZgaXRxIAD0k+aWXJ+gzUD2RiqNxNfygW2rwrYcvcoRgXeM+7jT9chGcfM8vgJ71tJxfVeem/NKLbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f198.google.com with SMTP id 5614622812f47-4f8281066c4so8098294b6e.2
+        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 01:32:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792051072; x=1792655872;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20260707; t=1792053155; x=1792657955;
+        h=content-type:to:from:subject:message-id:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=C5+V64ZjXSQ1A98PRNqx2K8k7nNvu3c8BbnG8cd1zcY=;
-        b=GrLhf3FzrTgqLdSIGPpr8bC0Bcxf0mz3YJrY6Nw8ELot0bZPRrcTAaMbKqkrSccNtH
-         ba0R+HwRKdZev/sfIXmicNGLa3zP92N2CUdG54hIkxFwvLZDglL+hr41xBRUrG2mzUgN
-         tcd7P3TqCTVVnWqhZFYRYL7IYwqcBKTUYViOC2aqXWT0oUgtZN4QJ35AncLw7LXaWgE6
-         7DjAJRXaIJLpbpLn9Jsli2xGnZIW4MEwAGeOniC+2j0g4gbO/v4VdnVHzdtrpufti2BL
-         bO3saK5d2xg2Hre7zU36srJrJS2cZ5WmhiiK0l6mDQX7i7WFW1ARSsrXvGRbfoBUZq5d
-         /HaQ==
-X-Forwarded-Encrypted: i=1; AKwUvBx+CBZJ5oBvpP7xXnesOalgM9UpXgMorKBUD5q8Hw6YWDHM9m636BTgIyQafbx41IPFHThi3ADkWQ3lrQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKYdq2tBNXOZim5FMXuc3tBsKuTrSzk2veVF2n/mCFWx3Y7X/bE
-	mn/iWOx1cI+VbTncVJDIVFgTxg41nWhZDQcpsx3MJNYnG+ke38nzW7bFa3wEVPD60Dv84pXOXrS
-	ny980ymHqL1zhOEW+DiDMmjQ516kPSB4=
-X-Gm-Gg: AYBFou3BxD2dX6lUwXRrjp+275l4KchS1UT252wC0BOFEzjERkp6/hxWwLAvvu9C9i8
-	IXiPNAIGXcVmohDDhQMVz2pXVTgBdgsKTEuUqH1Wy/cY8DC8Vf946rn/Dofu089TcUGMDrkdG4Y
-	gN5CWHW6u7Hyh+QeWfEzGxs+dm4oh/ukd0ZwvPBAAtuuvaB0ZnYCs4oHKuv7leitkfdLpigNcZv
-	AY2kbCWUDjiUvEN7e2/wDJSS6RFsqfE9fPCvH+09eSN6SN8++IVXyIHApGt14p8FI5paCTN+LQT
-	YeuF0abYvys0BMa+nu7ToFqAof0MPLLxrqv4MtGsvwjZeYV9KPPc1nOVj4ybjW+q7uOBGoeF5K6
-	KlibKQpMNkn78
-X-Received: by 2002:a05:6938:a093:20b0:c34:cf13:a930 with SMTP id
- a640c23a62f3a-c34cf13b375mr709472966b.34.1792051071921; Thu, 15 Oct 2026
- 00:57:51 -0700 (PDT)
+        bh=0rr8KpN9JHoF6KJIZzWxfKkUMUAtkKXqxWnSrskXy1Q=;
+        b=UPNOhaQBEmB4LkqztkDDEscMhjQoXyI2Eg6cqkP4nHLc5rcScWCv09/cwWUysnegxE
+         YMlTidMvSAifDA8tsEWVYPG1FHYhSQjxhq0F900vYKoSSkAQrE8EcGTxGCDqEL45NPnQ
+         12SCMfbI2mKLxFZM1HDVOFXsLW90cLG0fPR53dpeo19LM22Auqs7NcMI4H2lhkZFKmSF
+         HzOdeuOmNQQFp79SiRziOjLWC4H+EOJQPYzWDS7JV2iH/2WRJBJmdevPy5CYLnTG/h7j
+         8DFh49G81SFxnEPLC7VovOqbGrEmkwTzB+ujqYKsEb4owkVu+tOv/Iy+Bw+8N73FDVQF
+         1KgQ==
+X-Gm-Message-State: AFq9FYLhBFSlpI67EmiM7Kx2n4XmhfvVu4vkjbraAapd81Bt0wSvmZq7
+	KBhuSgAQ2jmaXeiMIbb28YIknljjQExwBylLGs6TTW80/Nt+2gAr/OLT7ShiNs3/XVBZK4kBfdq
+	0zb/gX+kW20zxXhRHnJQyCqz0HXuP64+A4UO6/VvcmOJo4uv9VycgrLZRIO0=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261013173504.451391-1-clamor95@gmail.com> <20261013173504.451391-5-clamor95@gmail.com>
- <4c7d0796862cb8258ec5357efb10db99@gmail.com>
-In-Reply-To: <4c7d0796862cb8258ec5357efb10db99@gmail.com>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Thu, 15 Oct 2026 10:57:37 +0300
-X-Gm-Features: AclHuK_zOU0vGqHHfQFSlQf47ESHJT_TdqyRFvC8Vv1ThZJQbI7OZw4q7U0ciY0
-Message-ID: <CAPVz0n1U_C0ZvNCP+1ZQ53jOwoy56Fx+9+4PSyYkUBpSQjEhAg@mail.gmail.com>
-Subject: Re: [PATCH v11 4/7] input: keyboard: Add driver for ASUS Transformer
- dock multimedia keys
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, 
-	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>, 
-	=?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	Florian Krischer <florian.krischer@fkr.dev>, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	mfd@lists.linux.dev, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
+X-Received: by 2002:a05:6808:f8c:b0:4c1:f40e:b697 with SMTP id
+ 5614622812f47-50c56bf8ed8mr15803938b6e.38.1792053155521; Thu, 15 Oct 2026
+ 01:32:35 -0700 (PDT)
+Date: Thu, 15 Oct 2026 01:32:35 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6ad08fa3.a150a118.27e199.006c.GAE@google.com>
+Subject: [syzbot] [input?] [usb?] general protection fault in saitek_event
+From: syzbot <syzbot+eba2b3201bd25a97cddf@syzkaller.appspotmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-usb@vger.kernel.org, syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-=D1=87=D1=82, 15 =D0=B6=D0=BE=D0=B2=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 04:3=
-3 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> Hi Svyatoslav,
->
-> On Tue, Oct 13, 2026 at 08:35:00PM +0300, Svyatoslav Ryhel wrote:
-> > Add support for multimedia top button row of ASUS Transformer's Mobile
-> > Dock keyboard. Driver is made that function keys (F1-F12) are used by
-> > default which suits average Linux use better and with pressing
-> > ScreenLock + AltGr function keys layout is switched to multimedia keys.
-> > Only Dock keyboard input events are tracked for AltGr pressing.
->
-> I still think registering a global input_handler just to observe Right Al=
-t
-> state on the dock keyboard is heavier than necessary, and because the
-> handler is a passive observer rather than a filter, pressing AltGr+Screen=
-Lock
-> or AltGr+F1..F12 still leaks the KEY_RIGHTALT press and release events fr=
-om
-> atkbd to userspace alongside the mode switch or media key event.
->
-> Since asus-transformer-ec-kbc already inspects and remaps 0xe0-prefixed
-> scancodes on the keyboard port before passing them to serio, we can track
-> and delay AltGr (0xe0 0x11) there when the extension keys driver is activ=
-e,
-> and coordinate with asus-transformer-ec-keys via struct asusec_core:
->
-> - When AltGr is pressed on the dock keyboard, asus-transformer-ec-kbc
->   delays emitting the 0xe0 0x11 make sequence and sets
->   ec->right_alt_pressed.
-> - If an extension key is pressed while right_alt_pressed is set,
->   asus-transformer-ec-keys sets ec->special_combo_triggered (either
->   toggling special_key_mode on ScreenLock or reporting the shifted key fo=
-r
->   other top-row keys), and asus-transformer-ec-kbc suppresses both the
->   delayed AltGr make and the subsequent AltGr break (0xe0 0xf0 0x11).
-> - If any regular key make event arrives on the primary keyboard port firs=
-t,
->   or if AltGr is released without triggering an extension key combo,
->   asus-transformer-ec-kbc flushes the delayed 0xe0 0x11 make sequence
->   before forwarding the event.
->
-> This avoids registering an input_handler altogether and drops about 100
-> lines of boilerplate from asus-transformer-ec-keys.c.
->
-> What do you think about folding the change below into patches 2, 3, and 4=
-?
->
-> (Also, a minor typo in patch 3/7 in drivers/input/serio/Kconfig:
-> "Asus Transformed's Mobile Dock" -> "Asus Transformer's Mobile Dock".)
->
-> diff --git a/drivers/input/keyboard/asus-transformer-ec-keys.c b/drivers/=
-input/keyboard/asus-transformer-ec-keys.c
-> index 8e83b27ce60e..ec72c38d7653 100644
-> --- a/drivers/input/keyboard/asus-transformer-ec-keys.c
-> +++ b/drivers/input/keyboard/asus-transformer-ec-keys.c
-> @@ -7,7 +7,6 @@
->  #include <linux/mfd/asus-transformer-ec.h>
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
-> -#include <linux/slab.h>
->
->  #define ASUSEC_EXT_KEY_CODES           0x20
->
-> @@ -15,74 +14,8 @@ struct asus_ec_keys_data {
->         struct notifier_block nb;
->         struct asusec_core *ec;
->         struct input_dev *xidev;
-> -       struct input_handler input_handler;
-> -       unsigned short keymap[ASUSEC_EXT_KEY_CODES * 2];
-> -       const char *kbc_phys;
-> -       bool special_key_pressed;
->         bool special_key_mode;
-> -};
-> -
-> -static void asus_ec_input_event(struct input_handle *handle,
-> -                               unsigned int event_type,
-> -                               unsigned int event_code, int value)
-> -{
-> -       struct asus_ec_keys_data *priv =3D handle->handler->private;
-> -
-> -       /* Store special key state */
-> -       if (event_type =3D=3D EV_KEY && event_code =3D=3D KEY_RIGHTALT)
-> -               WRITE_ONCE(priv->special_key_pressed, !!value);
-> -}
-> -
-> -static int asus_ec_input_connect(struct input_handler *handler,
-> -                                struct input_dev *dev,
-> -                                const struct input_device_id *id)
-> -{
-> -       struct asus_ec_keys_data *priv =3D handler->private;
-> -       struct input_handle *handle;
-> -       int error;
-> -
-> -       if (!dev->phys || !strstr(dev->phys, priv->kbc_phys))
-> -               return -ENODEV;
-> -
-> -       handle =3D kzalloc_obj(*handle);
-> -       if (!handle)
-> -               return -ENOMEM;
-> -
-> -       handle->dev =3D dev;
-> -       handle->handler =3D handler;
-> -       handle->name =3D handler->name;
-> -
-> -       error =3D input_register_handle(handle);
-> -       if (error)
-> -               goto err_free_handle;
-> -
-> -       error =3D input_open_device(handle);
-> -       if (error)
-> -               goto err_unregister_handle;
-> -
-> -       return 0;
-> -
-> - err_unregister_handle:
-> -       input_unregister_handle(handle);
-> - err_free_handle:
-> -       kfree(handle);
-> -
-> -       return error;
-> -}
-> -
-> -static void asus_ec_input_disconnect(struct input_handle *handle)
-> -{
-> -       input_close_device(handle);
-> -       input_unregister_handle(handle);
-> -       kfree(handle);
-> -}
-> -
-> -static const struct input_device_id asus_ec_input_ids[] =3D {
-> -       {
-> -               .flags =3D INPUT_DEVICE_ID_MATCH_EVBIT,
-> -               .evbit =3D { BIT_MASK(EV_KEY) },
-> -       },
-> -       { }
-> +       unsigned short keymap[ASUSEC_EXT_KEY_CODES * 2];
->  };
->
->  static const unsigned short asus_ec_dock_ext_keys[] =3D {
-> @@ -138,17 +71,21 @@ static int asus_ec_keys_process_key(struct input_dev=
- *dev, u8 code)
->         if (code =3D=3D 0)
->                 return NOTIFY_DONE;
->
-> -       /* Flip special key mode state when pressing SCREEN LOCK + R ALT =
-*/
-> -       if (READ_ONCE(priv->special_key_pressed) && code =3D=3D 1) {
-> -               priv->special_key_mode =3D !priv->special_key_mode;
-> -               return NOTIFY_DONE;
-> +       if (priv->ec->right_alt_pressed) {
-> +               priv->ec->special_combo_triggered =3D true;
-> +
-> +               /* Flip special key mode state when pressing SCREEN LOCK =
-+ R ALT */
-> +               if (code =3D=3D 1) {
-> +                       priv->special_key_mode =3D !priv->special_key_mod=
-e;
-> +                       return NOTIFY_OK;
-> +               }
->         }
->
->         /*
->          * Relocate code to second "page" if pressed state XOR's mode sta=
-te
->          * This way special key will invert the current mode
->          */
-> -       if (priv->special_key_mode ^ READ_ONCE(priv->special_key_pressed)=
-)
-> +       if (priv->special_key_mode ^ priv->ec->right_alt_pressed)
->                 code +=3D ASUSEC_EXT_KEY_CODES;
->
->         if (code < dev->keycodemax) {
-> @@ -207,37 +144,6 @@ static void asus_ec_keys_setup_keymap(struct asus_ec=
-_keys_data *priv)
->         }
->  }
->
-> -static int asus_ec_keys_register_handler(struct device *dev,
-> -                                        struct asus_ec_keys_data *priv)
-> -{
-> -       struct i2c_client *parent =3D to_i2c_client(dev->parent);
-> -       int error;
-> -
-> -       priv->input_handler.event =3D asus_ec_input_event;
-> -       priv->input_handler.connect =3D asus_ec_input_connect;
-> -       priv->input_handler.disconnect =3D asus_ec_input_disconnect;
-> -       priv->input_handler.id_table =3D asus_ec_input_ids;
-> -       priv->input_handler.passive_observer =3D true;
-> -       priv->input_handler.private =3D priv;
-> -       priv->input_handler.name =3D devm_kasprintf(dev, GFP_KERNEL,
-> -                                                 "%s-media-handler",
-> -                                                 priv->ec->name);
-> -       if (!priv->input_handler.name)
-> -               return -ENOMEM;
-> -
-> -       priv->kbc_phys =3D devm_kasprintf(dev, GFP_KERNEL, "i2c-%u-%04x/s=
-erio0",
-> -                                       i2c_adapter_id(parent->adapter),
-> -                                       parent->addr);
-> -       if (!priv->kbc_phys)
-> -               return -ENOMEM;
-> -
-> -       error =3D input_register_handler(&priv->input_handler);
-> -       if (error)
-> -               return error;
-> -
-> -       return 0;
-> -}
-> -
->  static int asus_ec_keys_probe(struct platform_device *pdev)
->  {
->         struct i2c_client *parent =3D to_i2c_client(pdev->dev.parent);
-> @@ -273,17 +179,13 @@ static int asus_ec_keys_probe(struct platform_devic=
-e *pdev)
->                 return dev_err_probe(dev, error,
->                                      "failed to register extension keys\n=
-");
->
-> -       error =3D asus_ec_keys_register_handler(dev, priv);
-> -       if (error)
-> -               return error;
-> -
->         priv->nb.notifier_call =3D asus_ec_keys_notify;
->
->         error =3D blocking_notifier_chain_register(&ec->notify_list, &pri=
-v->nb);
-> -       if (error) {
-> -               input_unregister_handler(&priv->input_handler);
-> +       if (error)
->                 return error;
-> -       }
-> +
-> +       ec->ext_keys_enabled =3D true;
->
->         return 0;
->  }
-> @@ -293,8 +195,8 @@ static void asus_ec_keys_remove(struct platform_devic=
-e *pdev)
->         struct asus_ec_keys_data *priv =3D platform_get_drvdata(pdev);
->         struct asusec_core *ec =3D priv->ec;
->
-> +       ec->ext_keys_enabled =3D false;
->         blocking_notifier_chain_unregister(&ec->notify_list, &priv->nb);
-> -       input_unregister_handler(&priv->input_handler);
->  }
->
->  static struct platform_driver asus_ec_keys_driver =3D {
-> diff --git a/drivers/input/serio/asus-transformer-ec-kbc.c b/drivers/inpu=
-t/serio/asus-transformer-ec-kbc.c
-> index 62ffaf4d4371..0842158f13da 100644
-> --- a/drivers/input/serio/asus-transformer-ec-kbc.c
-> +++ b/drivers/input/serio/asus-transformer-ec-kbc.c
-> @@ -13,8 +13,85 @@ struct asus_ec_kbc_data {
->         struct asusec_core *ec;
->         struct i2c_client *parent;
->         struct serio *sdev[2];
-> +       bool altgr_delayed;
-> +       bool altgr_suppressed;
->  };
->
-> +static bool asus_ec_kbc_altgr_active(struct asus_ec_kbc_data *priv)
-> +{
-> +       return IS_ENABLED(CONFIG_KEYBOARD_ASUS_TRANSFORMER_EC) &&
-> +              (priv->ec->ext_keys_enabled ||
-> +               priv->altgr_delayed || priv->altgr_suppressed);
-> +}
-> +
-> +static void asus_ec_kbc_reset_altgr(struct asus_ec_kbc_data *priv)
-> +{
-> +       if (!IS_ENABLED(CONFIG_KEYBOARD_ASUS_TRANSFORMER_EC))
-> +               return;
-> +
-> +       priv->ec->right_alt_pressed =3D false;
-> +       priv->ec->special_combo_triggered =3D false;
-> +       priv->altgr_delayed =3D false;
-> +       priv->altgr_suppressed =3D false;
-> +}
-> +
-> +static void asus_ec_kbc_sync_altgr_combo(struct asus_ec_kbc_data *priv)
-> +{
-> +       if (priv->ec->special_combo_triggered) {
-> +               priv->ec->special_combo_triggered =3D false;
-> +               if (priv->altgr_delayed) {
-> +                       priv->altgr_delayed =3D false;
-> +                       priv->altgr_suppressed =3D true;
-> +               }
-> +       }
-> +}
-> +
-> +static void asus_ec_kbc_flush_altgr(struct asus_ec_kbc_data *priv)
-> +{
-> +       if (!asus_ec_kbc_altgr_active(priv))
-> +               return;
-> +
-> +       asus_ec_kbc_sync_altgr_combo(priv);
-> +
-> +       if (!priv->altgr_delayed)
-> +               return;
-> +
-> +       serio_interrupt(priv->sdev[0], 0xe0, 0);
-> +       serio_interrupt(priv->sdev[0], 0x11, 0);
-> +
-> +       priv->altgr_delayed =3D false;
-> +}
-> +
-> +static bool asus_ec_kbc_handle_altgr(struct asus_ec_kbc_data *priv, bool=
- is_release)
-> +{
-> +       bool suppressed;
-> +
-> +       if (!asus_ec_kbc_altgr_active(priv)) {
-> +               asus_ec_kbc_reset_altgr(priv);
-> +               return false;
-> +       }
-> +
-> +       asus_ec_kbc_sync_altgr_combo(priv);
-> +
-> +       if (!is_release) {
-> +               if (!priv->ec->right_alt_pressed) {
-> +                       asus_ec_kbc_reset_altgr(priv);
-> +                       priv->ec->right_alt_pressed =3D true;
-> +                       priv->altgr_delayed =3D true;
-> +                       return true;
-> +               }
-> +
-> +               return priv->altgr_delayed || priv->altgr_suppressed;
-> +       }
-> +
-> +       suppressed =3D priv->altgr_suppressed;
-> +       if (!suppressed)
-> +               asus_ec_kbc_flush_altgr(priv);
-> +
-> +       asus_ec_kbc_reset_altgr(priv);
-> +       return suppressed;
-> +}
-> +
->  static int asus_ec_kbc_notify(struct notifier_block *nb,
->                               unsigned long action, void *data_)
->  {
-> @@ -22,14 +99,18 @@ static int asus_ec_kbc_notify(struct notifier_block *=
-nb,
->         unsigned int port_idx, n;
->         u8 *data =3D data_;
->
-> -       if (action & (ASUSEC_SMI_MASK | ASUSEC_SCI_MASK))
-> +       if (action & (ASUSEC_SMI_MASK | ASUSEC_SCI_MASK)) {
-> +               if (action =3D=3D ASUSEC_SMI_ACTION(HANDSHAKE) ||
-> +                   action =3D=3D ASUSEC_SMI_ACTION(RESET))
-> +                       asus_ec_kbc_reset_altgr(priv);
->                 return NOTIFY_DONE;
-> -       else if (action & ASUSEC_AUX_MASK)
-> +       } else if (action & ASUSEC_AUX_MASK) {
->                 port_idx =3D 1;
-> -       else if (action & priv->ec->keyboard_mask)
-> +       } else if (action & priv->ec->keyboard_mask) {
->                 port_idx =3D 0;
-> -       else
-> +       } else {
->                 return NOTIFY_DONE;
-> +       }
->
->         /*
->          * The data[0] is the number of bytes following the count byte: o=
-ne
-> @@ -46,6 +127,7 @@ static int asus_ec_kbc_notify(struct notifier_block *n=
-b,
->         if (port_idx =3D=3D 0) {
->                 /*
->                  * Remap keyboard key codes to match AT layout:
-> +                * ALTGR:  RIGHT-ALT  [E0 11] -> delayed / suppressed
->                  * SEARCH: RIGHT-META [E0 27] -> LEFT-ALT   [11]
->                  * MENU:   COMPOSE    [E0 2F] -> RIGHT-META [E0 27]
->                  */
-> @@ -53,6 +135,10 @@ static int asus_ec_kbc_notify(struct notifier_block *=
-nb,
->                         u8 *keycode =3D &data[n - 1];
->
->                         switch (*keycode) {
-> +                       case 0x11:
-> +                               if (asus_ec_kbc_handle_altgr(priv, n =3D=
-=3D 3))
-> +                                       return NOTIFY_OK;
-> +                               break;
->                         case 0x27:
->                                 *keycode =3D 0x11;
->                                 ++data;
-> @@ -63,6 +149,15 @@ static int asus_ec_kbc_notify(struct notifier_block *=
-nb,
->                                 break;
->                         }
->                 }
-> +
-> +               /*
-> +                * Only flush delayed AltGr on key make events, ignoring
-> +                * key break codes and PS/2 command responses (ACK, BAT, =
-etc.).
-> +                */
-> +               if ((n =3D=3D 2 && data[0] =3D=3D 0xe0) ||
-> +                   (n =3D=3D 1 && data[0] > 0 && data[0] < 0x84) ||
-> +                   data[0] =3D=3D 0xe1)
-> +                       asus_ec_kbc_flush_altgr(priv);
->         }
->
->         while (n--)
-> diff --git a/include/linux/mfd/asus-transformer-ec.h b/include/linux/mfd/=
-asus-transformer-ec.h
-> index d09d3b70171e..fda6fb08cc41 100644
-> --- a/include/linux/mfd/asus-transformer-ec.h
-> +++ b/include/linux/mfd/asus-transformer-ec.h
-> @@ -19,6 +19,9 @@ struct i2c_client;
->   * @dockram: pointer to Dockram's i2c_client
->   * @notify_list: notify list used by cells
->   * @keyboard_mask: mask of keyboard packets
-> + * @ext_keys_enabled: true if extension keys driver is active
-> + * @right_alt_pressed: state of Right Alt (AltGr) key
-> + * @special_combo_triggered: true if AltGr + extension key combo was tri=
-ggered
->   */
->  struct asusec_core {
->         const char *model;
-> @@ -26,6 +29,9 @@ struct asusec_core {
->         struct i2c_client *dockram;
->         struct blocking_notifier_head notify_list;
->         u8 keyboard_mask;
-> +       bool ext_keys_enabled;
-> +       bool right_alt_pressed;
-> +       bool special_combo_triggered;
->  };
->
->  /* interrupt sources */
->
-> Thanks.
->
-> --
-> Dmitry
+Hello,
 
-This looks very promising. Thank you for taking time and modelling
-this code. I will test it thoroughly and if all goes well, incorporate
-it into v12. If you want me to add any of your credentials let me know
-or you can add them later on while v12 review.
+syzbot found the following issue on:
+
+HEAD commit:    a5ebb76233b7 Merge tag 'edac_urgent_for_v7.3_rc7' of git:/..
+git tree:       upstream
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=14fa29c9580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=4118aaa2d227be26
+dashboard link: https://syzkaller.appspot.com/bug?extid=eba2b3201bd25a97cddf
+compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=158511d1580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1733f435580000
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/f2a7c6a3f91d/disk-a5ebb762.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/9d9d6d2a348b/vmlinux-a5ebb762.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/454e9cb8662e/bzImage-a5ebb762.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+eba2b3201bd25a97cddf@syzkaller.appspotmail.com
+
+Oops: general protection fault, probably for non-canonical address 0xdffffc0000000003: 0000 [#1] SMP KASAN PTI
+KASAN: null-ptr-deref in range [0x0000000000000018-0x000000000000001f]
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/16/2026
+RIP: 0010:saitek_event+0x51/0x2b0 drivers/hid/hid-saitek.c:154
+Code: aa f8 49 83 c6 78 4c 89 f0 48 c1 e8 03 42 80 3c 28 00 74 08 4c 89 f7 e8 4d 5a 1b f9 4d 8b 36 49 83 c6 18 4c 89 f0 48 c1 e8 03 <42> 80 3c 28 00 74 08 4c 89 f7 e8 30 5a 1b f9 49 8b 06 48 89 04 24
+RSP: 0018:ffffc90000007830 EFLAGS: 00010006
+RAX: 0000000000000003 RBX: ffff88801c7ed988 RCX: ffffffff8fa8f000
+RDX: 0000000000000100 RSI: 0000000000000100 RDI: ffff8880773c8000
+RBP: 000000000000008d R08: 0000000000000000 R09: 0000000000000000
+R10: ffff88801c7ed9a8 R11: ffffffff891d95c0 R12: ffffffff910c0c68
+R13: dffffc0000000000 R14: 0000000000000018 R15: ffff8880773c8000
+FS:  0000000000000000(0000) GS:ffff888123abf000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f50c9650ff8 CR3: 000000007ea2a000 CR4: 00000000003526f0
+Call Trace:
+ <IRQ>
+ hid_process_event+0x436/0x620 drivers/hid/hid-core.c:1572
+ hid_process_report drivers/hid/hid-core.c:1730 [inline]
+ hid_report_raw_event+0xf6a/0x1900 drivers/hid/hid-core.c:2109
+ __hid_input_report+0x454/0x580 drivers/hid/hid-core.c:2180
+ hid_ctrl+0x204/0x580 drivers/hid/usbhid/hid-core.c:486
+ __usb_hcd_giveback_urb+0x378/0x540 drivers/usb/core/hcd.c:1657
+ dummy_timer+0xa91/0x4cc0 drivers/usb/gadget/udc/dummy_hcd.c:2023
+ __run_hrtimer kernel/time/hrtimer.c:2074 [inline]
+ __hrtimer_run_queues+0x3bc/0xa10 kernel/time/hrtimer.c:2131
+ hrtimer_run_softirq+0x1e3/0x2e0 kernel/time/hrtimer.c:2148
+ handle_softirqs+0x226/0x860 kernel/softirq.c:645
+ __do_softirq kernel/softirq.c:679 [inline]
+ invoke_softirq kernel/softirq.c:519 [inline]
+ __irq_exit_rcu+0xcb/0x220 kernel/softirq.c:758
+ irq_exit_rcu+0x9/0x30 kernel/softirq.c:775
+ instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
+ sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1062
+ </IRQ>
+ <TASK>
+ asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
+RIP: 0010:pv_native_safe_halt+0xf/0x20 arch/x86/kernel/paravirt.c:64
+Code: 0b 8b 02 e9 c3 08 03 00 cc cc cc 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 66 90 0f 00 2d e3 c5 20 00 fb f4 <c3> cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc 90 90 90 90 90
+RSP: 0018:ffffffff8fa07ca0 EFLAGS: 00000246
+RAX: 00000000000a1669 RBX: ffffffff819becb0 RCX: 8000000000000001
+RDX: 0000000000000001 RSI: ffffffff8e4696a9 RDI: ffffffff8c6dde80
+RBP: ffffffff8fa07d78 R08: ffff8880b8433a1b R09: 1ffff11017086743
+R10: dffffc0000000000 R11: ffffed1017086744 R12: 0000000000000000
+R13: 1ffffffff1f51e00 R14: 1ffffffff1f40f9c R15: dffffc0000000000
+ arch_safe_halt arch/x86/kernel/process.c:767 [inline]
+ default_idle+0x9/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x72/0xb0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x2e0/0x540 kernel/sched/idle.c:355
+ cpu_startup_entry+0x43/0x60 kernel/sched/idle.c:454
+ rest_init+0x378/0x3a0 init/main.c:732
+ start_kernel+0x392/0x3e0 init/main.c:1190
+ x86_64_start_reservations+0x24/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x137/0x1b0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x157
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:saitek_event+0x51/0x2b0 drivers/hid/hid-saitek.c:154
+Code: aa f8 49 83 c6 78 4c 89 f0 48 c1 e8 03 42 80 3c 28 00 74 08 4c 89 f7 e8 4d 5a 1b f9 4d 8b 36 49 83 c6 18 4c 89 f0 48 c1 e8 03 <42> 80 3c 28 00 74 08 4c 89 f7 e8 30 5a 1b f9 49 8b 06 48 89 04 24
+RSP: 0018:ffffc90000007830 EFLAGS: 00010006
+RAX: 0000000000000003 RBX: ffff88801c7ed988 RCX: ffffffff8fa8f000
+RDX: 0000000000000100 RSI: 0000000000000100 RDI: ffff8880773c8000
+RBP: 000000000000008d R08: 0000000000000000 R09: 0000000000000000
+R10: ffff88801c7ed9a8 R11: ffffffff891d95c0 R12: ffffffff910c0c68
+R13: dffffc0000000000 R14: 0000000000000018 R15: ffff8880773c8000
+FS:  0000000000000000(0000) GS:ffff888123abf000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f50c9650ff8 CR3: 000000007ea2a000 CR4: 00000000003526f0
+----------------
+Code disassembly (best guess):
+   0:	aa                   	stos   %al,%es:(%rdi)
+   1:	f8                   	clc
+   2:	49 83 c6 78          	add    $0x78,%r14
+   6:	4c 89 f0             	mov    %r14,%rax
+   9:	48 c1 e8 03          	shr    $0x3,%rax
+   d:	42 80 3c 28 00       	cmpb   $0x0,(%rax,%r13,1)
+  12:	74 08                	je     0x1c
+  14:	4c 89 f7             	mov    %r14,%rdi
+  17:	e8 4d 5a 1b f9       	call   0xf91b5a69
+  1c:	4d 8b 36             	mov    (%r14),%r14
+  1f:	49 83 c6 18          	add    $0x18,%r14
+  23:	4c 89 f0             	mov    %r14,%rax
+  26:	48 c1 e8 03          	shr    $0x3,%rax
+* 2a:	42 80 3c 28 00       	cmpb   $0x0,(%rax,%r13,1) <-- trapping instruction
+  2f:	74 08                	je     0x39
+  31:	4c 89 f7             	mov    %r14,%rdi
+  34:	e8 30 5a 1b f9       	call   0xf91b5a69
+  39:	49 8b 06             	mov    (%r14),%rax
+  3c:	48 89 04 24          	mov    %rax,(%rsp)
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup

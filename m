@@ -1,166 +1,156 @@
-Received: from mail-dl1-f70.google.com (mail-dl1-f70.google.com [74.125.82.70])
+Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDCAC469850
-	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 06:42:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.70
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792046553; cv=none; b=D3eBdjy0zp5spMAXf83u6WauRZuv8wgC7XvpX/BHPs89FNEfMnpgMTFh7xyPbLl83C9BPKflHruGdQYtqFBCYGDK9njm2+XlYm8MjQntnz5VQ2wK69xg6nrZGw/B7q/ZtTGrC0UG9dd8M8MvR4iiNjZL5uf26E9/18fZFB3/H7A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792046553; c=relaxed/simple;
-	bh=ggn8bVnKJA7RHxnagUCHzG2BcdHrEmbAPi5sFWORlCE=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=I3+P81dKKHtcIK2LGVSknNrx8JM2qo2P5D6StfGXCJcAquZ4MYUAAQ7Gued5v5DSMlTsHqcKqH24xuhWg3uBhVM+V45ccLu9NxGMeFDg8sbbS+UkOqG2TW1UvdolGnFvHnvkcm9epgzUV6tBD+6gX3Thd7W1wSx86lAGw7IUnyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=h6qE9L6o; arc=none smtp.client-ip=74.125.82.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8AB64A8A32
+	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 07:49:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.177
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792050583; cv=pass; b=Lj7KLypIANAUfocMgpFyvlqFtTjRuMIFw541TVqR+hnTxeBVA6RwTJjyqYpZj7Y3dsMC/Ml/Aj5PE+er+wDWUKp4/uqHkX8e67ynBIcSxm7xKLeh2xXixt5bTPEDsW93+MG9uFhBhQyrnt7IRO4AWHceAlv2GIsgYe9jlr0rrjw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792050583; c=relaxed/simple;
+	bh=s0GzHLToX8l2pJV6FGUrdQW+qoZWtYzYSSm2Om3AhAk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SVyjEkOF5woc/vbQg9F82Dqj6hh0n8g6kgIjYrR2ZdHaic+JazghoXtzjG2LqdN7EW/SmFDabAiNs2jfvjszeYEzcg1vHjl/W9iTUwRrMmwVWkqMi+912PPN/0YhHeAgeD46bUrEvy0OiuZgPRyVD1jwMa7Na5M15kviSY9T+VY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O0cx1fJ/; arc=pass smtp.client-ip=74.125.82.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="h6qE9L6o"
-Received: by mail-dl1-f70.google.com with SMTP id a92af1059eb24-155a75f91e1so1255887c88.1
-        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 23:42:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O0cx1fJ/"
+Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-35f036b17easo1883886eec.1
+        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 00:49:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792050580; cv=none;
+        d=google.com; s=arc-20260327;
+        b=QcpNT4V63+i4TAp7T7+8N1F/tjjf+7SY24+5JMXf8mbRfUYGkWv7I3MKw/ZU753yGJ
+         OhmaUuXSQutLEUvV6EZCGjQREP2uBxJg7Hr6bxPcLybNpiOpVFQzNTWwSHL+51kjhhbF
+         AZI2/2C2t6YjqeDgeHH7tAK1TofTWQH2Vc2Ddj0+7KcKiKUhMKqPoZFccw3LU8MYPXcJ
+         pPr1Pyd0/4FY4VyzF2CPCJOhbGvMcznJ/PDt/NgHey61vFInhOLnRji6RP/uDF8vrHQj
+         QS6LBN6PG/ty6dmu/O9VnEku9P1F58QcJMzXy2LDQ2NGBbdLFIWyvYopHmFFtEom7WsY
+         jHHA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=bn76A1L1zSnfTuyCF8XnV2/uvU4lFD6V/f9S5z9LEdU=;
+        fh=O26cz1KI7p3pMe+fT/Qk80kcqsqZYpI76ZuMOZvwLI8=;
+        b=iUjdjTtB7RiGxpMVvCakQwwGgQCume3ioFKcR0AoKzzX92wZ8tijRlynOekjykIp4z
+         9qltn+jmtPOJLuXuB8X3wmohDp5g68bqYOb16N27c1PsQgxc25dlJORtqu6GhPdXehOU
+         wU7aIMpHUrHoxLXj/E9aJCmgElULgg4Apl+UgyY+AO41Bh5CatW26HF7TbJrLFyvnF0B
+         cGwTJ02T7KCKlxdIVd890B1XAubnOnQCKJfMIiLGUoy4o/pnh0LBd2agTWLAsZPKzzGa
+         FqiBs4H0MlKnFPc01dd31iaeho01EajRMUJHMrcsLOmtRD23/YblKZayruSVDIToeHXw
+         kaEA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1792046550; x=1792651350; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CWLkBV9BBgDEhHUePIRuI9XTWV7QJLsODe5VGAKrDB0=;
-        b=h6qE9L6oAReYZJOkCTL2XJ+xvRhV5YoVsgUWY3CsgMeB6llEKDKj8vBmJS4/BOphnD
-         hnXiiNne/OHZCNzwlV1hYHmTHHkZX6Gc0B6REo2ekRJgT+dP29+LeR6eVc7wuJFIoNrx
-         5qbl0ylyM/aM9IDuNAej4Z62zLXgaMtCh1Sc/U0jZpA5El9gV5spmPZ5xhobLz253jE+
-         BUYcWdTXKJLnImMRBwGqNd3dOn3SOAzrrOIcDzfhxoYYVgK77mNcP3Ki2q1KL9VRTIj4
-         dFfC9vaEimWaSWuOncqZa2NVWFwPKj1eLGceKUOz2voRcxDiW4yebFpEMYFwZ8uXbe5a
-         WZfQ==
+        d=gmail.com; s=20251104; t=1792050580; x=1792655380; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=bn76A1L1zSnfTuyCF8XnV2/uvU4lFD6V/f9S5z9LEdU=;
+        b=O0cx1fJ/BDpY7KUOgOuGRDjQHPXU2Sax1fG8UyVch+sPis5isWnLDv1fKhlI82OOxS
+         NIfC6XolPitBu+MBvV1+lbhC5MvQeuY4RdH7zDza7wN+PM+j6+X9KHsTn5XfMEVcHs4l
+         UpBVMDNrxx8KWwTuYTO54TYGlMumcnqDAs3qSqNtkdiUb7ddZI52uT3FpXMJX65sPiM9
+         LPFcp/qfPpW2gu7vMvqb0/okQ+p1ZpdJkIkIp6PxCru0wyxuXw1aX2f87vnqUsOxHTG+
+         rv7Hekdck37en3gS4yd5UwKbomrHDGm7JXe7L6XqUwqPdycf4bKkvea9wGCccF/mT7KZ
+         VKYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792046550; x=1792651350;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=CWLkBV9BBgDEhHUePIRuI9XTWV7QJLsODe5VGAKrDB0=;
-        b=pCdFJ6qB8MjtK440MhqeMp3HYNG+uR6ORORVl7wP9IlbduJUU1RwVbrXg1N/ph/Ecw
-         7Lk0jhGoP4burf2GqHMIj6Tr8z0pj8xuxq4m5zec7M1FBYqc/LbZvpeurGaJIRFoHOAw
-         hk5PoRyVW1aOqpYc098QmRv89KF5aVcOapENx2GI7nMak0AM4Xe6eec13HcWYFDU+yKO
-         vbXHIzwWTp363cwEOhTSbLTYc6J2Dv6sJsTjvKY1tb/yvWzrTF0y5rGxwXeZykRnecfT
-         VbYZeSVG0AvMq0z3IrgIx6rmLXRAYA3ukzlUcUcThE7B6bdUgFWdYPvgnOY47ATtNZnQ
-         oicg==
-X-Forwarded-Encrypted: i=1; AKwUvBxJvTjsw0WopVjBtHr9RyPW0Qtp+2lMicAxfo3Fv1i2zPhNkP0YfFdTMTHZoh9XPdPPvPcN2R0a8IOm5A==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKRc8pvz9GMU3CIR2RZRhFfkrik3kq/w7Ayf+zAPEVCK1YF/MSf
-	7HARQiiljrQMNHGy1OA3DxcXU8v6+mgPV4dvbAFYYFfFfHdS/DXvUKrqjiU9EchsOR+Dd6cmkXz
-	10BEd46tsRQ==
-X-Received: from dldyr19-n2.prod.google.com ([2002:a05:701b:4513:20b0:143:75c2:6d21])
- (user=jiangzp job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:e804:b0:13c:f65c:d5b5
- with SMTP id a92af1059eb24-16a0b37d130mr26218964c88.3.1792046549601; Wed, 14
- Oct 2026 23:42:29 -0700 (PDT)
-Date: Thu, 15 Oct 2026 06:42:23 +0000
-In-Reply-To: <01c8cf7d695261ba8270ff57aa8f2a6f@gmail.com>
+        d=1e100.net; s=20260707; t=1792050580; x=1792655380;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=bn76A1L1zSnfTuyCF8XnV2/uvU4lFD6V/f9S5z9LEdU=;
+        b=FQnb8qLrEVK0jrOi+Fbzzsio3djeMytSjEidCmOvR0z3dsPwQu6FJf8pd0iyhjM7+U
+         PCmBU75XnrWnlwu6zxhRjTxEsFd5Ukjjj8eUpefjpRNW89eNyTCNAaOQH76vYo35zRL+
+         DsWSVTF3rjjwllpmOwp6AOtDDz/WectFKLrCKJBkEiB1kG5CXaMaXK9c8xKL+NtyivKh
+         SAEtV8UkAAmF+B15ZqsgphsUMBi9FnE7hB/2M63ehJP9UHua5pRRpiM5XqIH3UJYa9Xv
+         jzdbzOpW8n0kvA0NaWSdRvn4FPeITGB0zMnyUJzYRuw980ZrecME1F06Agmrc8qwAbrO
+         PbeA==
+X-Forwarded-Encrypted: i=1; AKwUvBxUuKMRHGkrc3hMJGfbGfDggFx+utlABrPxWWEMgxNDnqZeKbAAE9gVb1eEkRBrfriiEkuO4i8G+65A8A==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJByfsIg+xH+VbtUJCZdcg4yhPPM1BXRQE88qgSulNk4fRbI2c7
+	pjKUS7dzi3cp4Xo2RwWcRESuhHpIX2EV6PZ7vfExbxZNLva9gVREC4s7fMHvtapEziRuCf8Ek7a
+	wRo+0Xjfr376wxTMJ10moI8gdBKqRU2I=
+X-Gm-Gg: AYBFou3DbQD8JL68oBzPu/QuPtgedu3C3mDocngQH+LDTBitm1VQQApB0opUCtmsfZD
+	evV73FK5FdeAEin0FoBJrGQBnnl+SJF4hypgwLeZycH7hUq9Dk2mRa1CBQCNeZK39LpMZ+l1gkV
+	XNlpWFafD+l/9eX4KAtSYuQFzO1ZnrKH/nnF97Q1+IJrw3XWAx4PCCcOYBl1uvyA+ylBm/FgkIg
+	MblYJH6xlCejOmchGAuot8DCS6W81oxlaxLcEHzznwZ8j7ezXK/3yk0hpiRWzfqmH2zcNHAk+Tc
+	irtPAKB0J0l2UbzEHq6VXMApWcmXQkrto1igepKvSHHUGUMiWiPYbJUBiPyS2UtXu4P44kPEhsM
+	DAFHZDMb+PXHl
+X-Received: by 2002:a05:693c:80c5:b0:35f:6d9d:af68 with SMTP id
+ 5a478bee46e88-35f6d9db757mr1154283eec.23.1792050579562; Thu, 15 Oct 2026
+ 00:49:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <01c8cf7d695261ba8270ff57aa8f2a6f@gmail.com>
-X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
-Message-ID: <20261015064223.1939367-1-jiangzp@google.com>
-Subject: [PATCH v4] HID: vivaldi: avoid redundant feature report reads per usage
-From: Zhengping Jiang <jiangzp@google.com>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Sean O'Brien" <seobrien@chromium.org>, Shashikirana H K <shashikiranah@chromium.org>, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Zhengping Jiang <jiangzp@google.com>
+MIME-Version: 1.0
+References: <20261013173504.451391-1-clamor95@gmail.com> <20261013173504.451391-7-clamor95@gmail.com>
+ <f5d367e3847da2f3d3db0abd0a099920@gmail.com>
+In-Reply-To: <f5d367e3847da2f3d3db0abd0a099920@gmail.com>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Thu, 15 Oct 2026 10:49:28 +0300
+X-Gm-Features: AclHuK_Oo9j5QRqhps9x8wmywtw4oQlKiNMQc_P7VxvfWQOhI0DwxVL2kvoPOvI
+Message-ID: <CAPVz0n1YcHwH7b8kg82Gfh7GaT=O9Sx0YEhx9jAGkZ=C1JV_JA@mail.gmail.com>
+Subject: Re: [PATCH v11 6/7] power: supply: Add driver for ASUS Transformer battery
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, 
+	Sebastian Reichel <sre@kernel.org>, Ion Agorria <ion@agorria.com>, 
+	=?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
+	Florian Krischer <florian.krischer@fkr.dev>, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+	mfd@lists.linux.dev, linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-vivaldi_feature_mapping() is invoked by report_features() in ascending
-usage_index order for each usage in the top-row physical keymap field.
-Because fetching the feature report at usage_index == 0 already reads
-the entire report from hardware, calling hid_hw_raw_request() again for
-subsequent usages redundantly reads the same report N times (e.g., 12
-sequential BLE GATT reads taking ~2s on Vivaldi BLE keyboards).
+=D1=87=D1=82, 15 =D0=B6=D0=BE=D0=B2=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 04:3=
+8 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+>
+> Hi Svyatoslav,
+>
+> On Tue, Oct 13, 2026 at 08:35:02PM +0300, Svyatoslav Ryhel wrote:
+> > +static int asus_ec_battery_get_property(struct power_supply *psy,
+> > +                                     enum power_supply_property psp,
+> > +                                     union power_supply_propval *val)
+> > +{
+> > +     struct asus_ec_battery_data *priv =3D power_supply_get_drvdata(ps=
+y);
+> > +     int ret;
+> > +
+> > +     switch (psp) {
+> > +     case POWER_SUPPLY_PROP_PRESENT:
+> > +             val->intval =3D 1;
+> > +             break;
+> > +
+> > +     default:
+> > +             ret =3D asus_ec_battery_get_value(priv, psp);
+> > +             if (ret < 0)
+> > +                     return ret;
+> > +
+> > +             val->intval =3D (s16)ret;
+> > +
+> > +             switch (psp) {
+> ...
+> > +             case POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW:
+> > +             case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
+> > +                     val->intval *=3D 60;
+> > +                     break;
+>
+> asus_ec_battery_get_value() returns a u16 (via get_unaligned_le16()), and
+> unconditionally casting it with (s16)ret sign-extends unsigned 16-bit
+> properties >=3D 0x8000 into negative values.
+>
+> In particular, when the battery is not discharging or not charging,
+> TIME_TO_EMPTY_NOW / TIME_TO_FULL_NOW report 0xffff, which (s16)ret turns
+> into -1 and then -60 seconds instead of an unsigned value (or -ENODATA).
+> Should only signed properties (like POWER_SUPPLY_PROP_CURRENT_NOW) be cas=
+t
+> to s16?
+>
+> Thanks.
+>
 
-Bail out immediately when usage->usage_index != 0, fetch the feature
-report once at usage_index == 0, and iterate over all usages in the
-field to populate data->function_row_physmap[].
+You have a point. I assume that using val->intval =3D ret * 60 should be
+acceptable.
 
-Fixes: 33bbe04a15f2 ("HID: google: extract Vivaldi hid feature mapping for use in hid-hammer")
-Signed-off-by: Zhengping Jiang <jiangzp@google.com>
----
-Based on "[PATCH v2] HID: vivaldi: Extract feature report value directly in vivaldi_feature_mapping()":
-https://lore.kernel.org/r/20261013-upstream-vivaldi-fix-v2-1-ecc20329d24c@chromium.org
-
-Changes in v4:
-- Rebase on top of Shashikirana's patch using hid_field_extract() and
-  __free(kfree), as suggested by Dmitry Torokhov.
-- Return immediately when usage->usage_index != 0, fetch the report once
-  at usage_index == 0, and loop over all usages in the field so failed
-  reads do not update num_function_row_keys or expose an all-zero keymap.
-- Fix caller name in commit description (report_features()).
-
-Changes in v3:
-- Add comment explaining why the report is only read at usage_index == 0
-  and how failed reads rely on zero-initialized field->value[].
-- Jump/fall through to parse_usage on read failure.
-
-Changes in v2:
-- Move per-usage validation (HID_UP_ORDINAL and fn_key bounds) after the
-  usage_index == 0 hardware read.
-
- drivers/hid/hid-vivaldi-common.c | 33 +++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/hid/hid-vivaldi-common.c b/drivers/hid/hid-vivaldi-common.c
-index 1359a107e63b..973393d09356 100644
---- a/drivers/hid/hid-vivaldi-common.c
-+++ b/drivers/hid/hid-vivaldi-common.c
-@@ -39,19 +39,11 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
- 	unsigned int offset;
- 	u32 report_len;
- 	int ret;
-+	int i;
- 
--	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP ||
--	    (usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL ||
--	    usage->usage_index >= field->report_count)
-+	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP || usage->usage_index)
- 		return;
- 
--	fn_key = usage->hid & HID_USAGE;
--	if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
--		return;
--
--	if (fn_key > data->num_function_row_keys)
--		data->num_function_row_keys = fn_key;
--
- 	u8 *buf __free(kfree) = hid_alloc_report_buf(report, GFP_KERNEL);
- 	if (!buf)
- 		return;
-@@ -74,9 +66,24 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
- 		return;
- 	}
- 
--	offset = field->report_offset + usage->usage_index * field->report_size;
--	data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
--		hid_field_extract(hdev, buf + 1, offset, field->report_size);
-+	for (i = 0; i < field->maxusage && i < field->report_count; i++) {
-+		usage = &field->usage[i];
-+
-+		if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
-+			continue;
-+
-+		fn_key = usage->hid & HID_USAGE;
-+		if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
-+			continue;
-+
-+		if (fn_key > data->num_function_row_keys)
-+			data->num_function_row_keys = fn_key;
-+
-+		offset = field->report_offset + i * field->report_size;
-+		data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
-+			hid_field_extract(hdev, buf + 1, offset,
-+					  field->report_size);
-+	}
- }
- EXPORT_SYMBOL_GPL(vivaldi_feature_mapping);
- 
--- 
-2.56.0.385.gd3acb90ef8-goog
-
+> --
+> Dmitry

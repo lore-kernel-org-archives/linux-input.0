@@ -1,96 +1,96 @@
-Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8AB64A8A32
-	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 07:49:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60C2E4C77A3
+	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 07:54:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.48
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792050583; cv=pass; b=Lj7KLypIANAUfocMgpFyvlqFtTjRuMIFw541TVqR+hnTxeBVA6RwTJjyqYpZj7Y3dsMC/Ml/Aj5PE+er+wDWUKp4/uqHkX8e67ynBIcSxm7xKLeh2xXixt5bTPEDsW93+MG9uFhBhQyrnt7IRO4AWHceAlv2GIsgYe9jlr0rrjw=
+	t=1792050900; cv=pass; b=nQ4URa6Ml5RFCHlz3ec/cm+z7i1T7j030+FGuDHuHKhZ0NN39WLl02gFRUNMLsKecsrGnpCPD0PmcmEknsx5zqJ/SLFjFc3pcvWiOF8q427nEk2BE20RNm1PLh5SnsinF2xsBnv498qNBYxZkmBL45i2ajaO6bJor6LL/NWEbeE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792050583; c=relaxed/simple;
-	bh=s0GzHLToX8l2pJV6FGUrdQW+qoZWtYzYSSm2Om3AhAk=;
+	s=arc-20240116; t=1792050900; c=relaxed/simple;
+	bh=QUhjA9hwUmTXGUjT356rZPUadcbJKMeW3gD2q9pu7ZU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SVyjEkOF5woc/vbQg9F82Dqj6hh0n8g6kgIjYrR2ZdHaic+JazghoXtzjG2LqdN7EW/SmFDabAiNs2jfvjszeYEzcg1vHjl/W9iTUwRrMmwVWkqMi+912PPN/0YhHeAgeD46bUrEvy0OiuZgPRyVD1jwMa7Na5M15kviSY9T+VY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O0cx1fJ/; arc=pass smtp.client-ip=74.125.82.177
+	 To:Cc:Content-Type; b=RB/GrXwAyuAczjs/fDbEtGCQ3tDwnMbfuqn4nd95hItvxh9ADZ9G2C8VFcAADFyN4pHAeGawpdfUCFf/JvBDbjtYN+ITDlykBl2WaU0Bp0EScW+d/+WLtuJ0QN6dCRVwcX5FvUOY56yz8IPgFNB90Zvyc6oQVFcnuFjTXdXSavQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OO/ApVEH; arc=pass smtp.client-ip=209.85.208.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O0cx1fJ/"
-Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-35f036b17easo1883886eec.1
-        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 00:49:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792050580; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OO/ApVEH"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-6acb57c2b88so2332311a12.2
+        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 00:54:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792050895; cv=none;
         d=google.com; s=arc-20260327;
-        b=QcpNT4V63+i4TAp7T7+8N1F/tjjf+7SY24+5JMXf8mbRfUYGkWv7I3MKw/ZU753yGJ
-         OhmaUuXSQutLEUvV6EZCGjQREP2uBxJg7Hr6bxPcLybNpiOpVFQzNTWwSHL+51kjhhbF
-         AZI2/2C2t6YjqeDgeHH7tAK1TofTWQH2Vc2Ddj0+7KcKiKUhMKqPoZFccw3LU8MYPXcJ
-         pPr1Pyd0/4FY4VyzF2CPCJOhbGvMcznJ/PDt/NgHey61vFInhOLnRji6RP/uDF8vrHQj
-         QS6LBN6PG/ty6dmu/O9VnEku9P1F58QcJMzXy2LDQ2NGBbdLFIWyvYopHmFFtEom7WsY
-         jHHA==
+        b=f3NQstVNA0/uNqbuVsCjl2DZFv3lu4m/uJsXTNYSUZPiHmGhkoihPoDPDpNXIKjVTA
+         DaKiFtyE8v/Kg2QP4xhtHV7S4zPcSt1SpK7ofA40rxMmQS/XLRfmaNX9OVUP87ZvoikN
+         4r54HJT96TDwBcmueDQCWovXM/XFdDztR37hrj7QCI/KXbc83RryYS6w4fQoDWB18YJK
+         IlGQVJJiD2EAES50PkuxCFrE6GvPRF/b5kJcoYdaPn3oubrFla8mfOExPxI4jvOgh5hj
+         JgQen23mMLys6WeipO5IBqzSlf8SwlGiMOBJF3z3TsHRy2HYWTqUZRCpLfnXOq3+TqIs
+         tZiQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=bn76A1L1zSnfTuyCF8XnV2/uvU4lFD6V/f9S5z9LEdU=;
-        fh=O26cz1KI7p3pMe+fT/Qk80kcqsqZYpI76ZuMOZvwLI8=;
-        b=iUjdjTtB7RiGxpMVvCakQwwGgQCume3ioFKcR0AoKzzX92wZ8tijRlynOekjykIp4z
-         9qltn+jmtPOJLuXuB8X3wmohDp5g68bqYOb16N27c1PsQgxc25dlJORtqu6GhPdXehOU
-         wU7aIMpHUrHoxLXj/E9aJCmgElULgg4Apl+UgyY+AO41Bh5CatW26HF7TbJrLFyvnF0B
-         cGwTJ02T7KCKlxdIVd890B1XAubnOnQCKJfMIiLGUoy4o/pnh0LBd2agTWLAsZPKzzGa
-         FqiBs4H0MlKnFPc01dd31iaeho01EajRMUJHMrcsLOmtRD23/YblKZayruSVDIToeHXw
-         kaEA==;
+        bh=/sGN7s60I9kDns7tf8RWcyBjmY1L2WRY6Qxl0o1md1A=;
+        fh=Itk89Emli8cQdlkVtDZNFYGKbARt4Gkf8FEKA6RBAzo=;
+        b=b5Remrqf1r7zYj+UhitVO5NNhTdI95G45hXefWLSEQu3zo6gun3RdbwZmHcEA1QZct
+         meXmdL6Y7VCGdKMSybpBAnXr1+FM+C2Y/LwLbyA62iUTIi/52r22TVo2cBc/HWlgTV+0
+         a2HWJu45XzwLcpGnADPjqwpPRYNvVrsfSY96vH2aW9yLXzcvd1jVomD4mu1muijpFqx1
+         ViBsTe7d2jBKceRWfHb3u5/1ig0Vl7xyczJ9eH3YB7whvSCncStGxgsDMWR6+BLRGfOl
+         y3Bqe3Frh81aqpm1y4Lsz/IX3oeZ5PgHu9TY9sGiyP7n40BUieX6x20u8jl/iDs1Y4J7
+         S+Zw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792050580; x=1792655380; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792050895; x=1792655695; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=bn76A1L1zSnfTuyCF8XnV2/uvU4lFD6V/f9S5z9LEdU=;
-        b=O0cx1fJ/BDpY7KUOgOuGRDjQHPXU2Sax1fG8UyVch+sPis5isWnLDv1fKhlI82OOxS
-         NIfC6XolPitBu+MBvV1+lbhC5MvQeuY4RdH7zDza7wN+PM+j6+X9KHsTn5XfMEVcHs4l
-         UpBVMDNrxx8KWwTuYTO54TYGlMumcnqDAs3qSqNtkdiUb7ddZI52uT3FpXMJX65sPiM9
-         LPFcp/qfPpW2gu7vMvqb0/okQ+p1ZpdJkIkIp6PxCru0wyxuXw1aX2f87vnqUsOxHTG+
-         rv7Hekdck37en3gS4yd5UwKbomrHDGm7JXe7L6XqUwqPdycf4bKkvea9wGCccF/mT7KZ
-         VKYQ==
+        bh=/sGN7s60I9kDns7tf8RWcyBjmY1L2WRY6Qxl0o1md1A=;
+        b=OO/ApVEHdlMA+521QfgUyewuRF+kf2hjs0PRCNJq9e9UyMF+NZg4yE8noEbW0VQqiw
+         heeCecfx2SAxsXGljKL8xJcsWHmovEBJ9XE1lJKaKjN6cHPseUAOFx+4YupAR+a+u91y
+         9zcqeE4bNofPGI3CJ1aDfILvdWZINkT+V6a60FcuHlaY9ccgNRIV0HnG+0UNFD3bBCWq
+         Ngp0MVzqCwUy01JBK5LJgypWF2pyVVInExRXgBvz/sc97GSwGS9xkfQkEyISSIJlfFRi
+         XLLz5o4tuiTZmUD5qzvJAUh1OhV/VHAFuGaSZQ8croGvTQtjxplABAs3Roy/E1sdKDgn
+         BUNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792050580; x=1792655380;
+        d=1e100.net; s=20260707; t=1792050895; x=1792655695;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=bn76A1L1zSnfTuyCF8XnV2/uvU4lFD6V/f9S5z9LEdU=;
-        b=FQnb8qLrEVK0jrOi+Fbzzsio3djeMytSjEidCmOvR0z3dsPwQu6FJf8pd0iyhjM7+U
-         PCmBU75XnrWnlwu6zxhRjTxEsFd5Ukjjj8eUpefjpRNW89eNyTCNAaOQH76vYo35zRL+
-         DsWSVTF3rjjwllpmOwp6AOtDDz/WectFKLrCKJBkEiB1kG5CXaMaXK9c8xKL+NtyivKh
-         SAEtV8UkAAmF+B15ZqsgphsUMBi9FnE7hB/2M63ehJP9UHua5pRRpiM5XqIH3UJYa9Xv
-         jzdbzOpW8n0kvA0NaWSdRvn4FPeITGB0zMnyUJzYRuw980ZrecME1F06Agmrc8qwAbrO
-         PbeA==
-X-Forwarded-Encrypted: i=1; AKwUvBxUuKMRHGkrc3hMJGfbGfDggFx+utlABrPxWWEMgxNDnqZeKbAAE9gVb1eEkRBrfriiEkuO4i8G+65A8A==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJByfsIg+xH+VbtUJCZdcg4yhPPM1BXRQE88qgSulNk4fRbI2c7
-	pjKUS7dzi3cp4Xo2RwWcRESuhHpIX2EV6PZ7vfExbxZNLva9gVREC4s7fMHvtapEziRuCf8Ek7a
-	wRo+0Xjfr376wxTMJ10moI8gdBKqRU2I=
-X-Gm-Gg: AYBFou3DbQD8JL68oBzPu/QuPtgedu3C3mDocngQH+LDTBitm1VQQApB0opUCtmsfZD
-	evV73FK5FdeAEin0FoBJrGQBnnl+SJF4hypgwLeZycH7hUq9Dk2mRa1CBQCNeZK39LpMZ+l1gkV
-	XNlpWFafD+l/9eX4KAtSYuQFzO1ZnrKH/nnF97Q1+IJrw3XWAx4PCCcOYBl1uvyA+ylBm/FgkIg
-	MblYJH6xlCejOmchGAuot8DCS6W81oxlaxLcEHzznwZ8j7ezXK/3yk0hpiRWzfqmH2zcNHAk+Tc
-	irtPAKB0J0l2UbzEHq6VXMApWcmXQkrto1igepKvSHHUGUMiWiPYbJUBiPyS2UtXu4P44kPEhsM
-	DAFHZDMb+PXHl
-X-Received: by 2002:a05:693c:80c5:b0:35f:6d9d:af68 with SMTP id
- 5a478bee46e88-35f6d9db757mr1154283eec.23.1792050579562; Thu, 15 Oct 2026
- 00:49:39 -0700 (PDT)
+        bh=/sGN7s60I9kDns7tf8RWcyBjmY1L2WRY6Qxl0o1md1A=;
+        b=JWz4tHgs8872bSozAtY+CmN7/xLF1WkA/4NRbgQzOiTLpWFGduBRKC64mKUG7brV4A
+         DZ2yA22apfErYWJamkLYjjCUUBiudET/Fgerswr2y0EmJfaG2FhEXJmqNLmUf9wXKaNj
+         C2Yuo7f2TU6rhZ2DLu5o5aPxa257Ef3uY3Zvqij8Bfi5PDIYanEghqYYpsiEDxza+hMZ
+         QSpU02c1HUhtDk+nsD45m/xU7GMmN8vmqTH3BwskL4QJpwNdqgscFsal3R3ddZlLJ+uy
+         gBl7/YCoLeDj2HdkpQB3UYmu7DLHDuKy7Ki/Pd/L7ZlmFdfufDRuI3+3Yj2m8VSnLotB
+         a1pA==
+X-Forwarded-Encrypted: i=1; AKwUvBwydML8rscoIeZThFTwf3Rdgz9BupY4onAj9uKUXrU2crohOJdkFmSzN/XPNgH64nEG2ERIqKowS9VRkg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJM2Gu9R7PJ+5bwKNQjEDIJ/GrypktBoyjquJdowdWUhBHJW1JI
+	Hw0N6AHVOfkErNOASLEmrbi0lZGnk7/hCBWlrwSReaHwf33+VlGd99A8HiyEZITWMarAg783aIb
+	f7hvYWyU+CxvbXO9mxLS7DtYatlaPU94=
+X-Gm-Gg: AYBFou2tDksnlBj5tbLRRxgFq6RfSvvzMZmDuw5qEeezjd2yK9xGcWH7zB+JmyG3O6/
+	VhTo027/iZOMpTjLKso8zWaUBXq7AT/XiZWZwgQoxSVKeuwbGW04zW5iA4AJaIoWI+n2toSYF2Z
+	u2iJ2RAv2jXyqZxEuZhlhGIzUeHzq7ZkQ+vXSUN46cl7vNYfZP6z1bLWpwLCF5AYhF8/ckpvjyP
+	6khu96wtIE2zgMUw/shQtufKQMuy6n9OFzLDeIjDMreaP+VsjxNB1pZgQOG8f7xIi4XE+L4XRk9
+	c2VYzuPIzmzbOevQn1+PoV5ZDu/Ot4u84szeexTNJHSFU/sZ7h0eQjdideJnOKCK58kdqAh758l
+	6SW39dHh697bAOLgYwGQ7EQA=
+X-Received: by 2002:a17:907:c60e:10b0:c32:110d:682f with SMTP id
+ a640c23a62f3a-c32110d6952mr1085661366b.18.1792050895249; Thu, 15 Oct 2026
+ 00:54:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261013173504.451391-1-clamor95@gmail.com> <20261013173504.451391-7-clamor95@gmail.com>
- <f5d367e3847da2f3d3db0abd0a099920@gmail.com>
-In-Reply-To: <f5d367e3847da2f3d3db0abd0a099920@gmail.com>
+References: <20261013173504.451391-1-clamor95@gmail.com> <20261013173504.451391-3-clamor95@gmail.com>
+ <d5f54636c25e0e60731adc200a63ceb5@gmail.com>
+In-Reply-To: <d5f54636c25e0e60731adc200a63ceb5@gmail.com>
 From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Thu, 15 Oct 2026 10:49:28 +0300
-X-Gm-Features: AclHuK_Oo9j5QRqhps9x8wmywtw4oQlKiNMQc_P7VxvfWQOhI0DwxVL2kvoPOvI
-Message-ID: <CAPVz0n1YcHwH7b8kg82Gfh7GaT=O9Sx0YEhx9jAGkZ=C1JV_JA@mail.gmail.com>
-Subject: Re: [PATCH v11 6/7] power: supply: Add driver for ASUS Transformer battery
+Date: Thu, 15 Oct 2026 10:54:40 +0300
+X-Gm-Features: AclHuK8G-cs7nBf_jb7Nz-sYHdY2hV4DGcnygUqGWeotEdcljE4mZaNjbadyaBQ
+Message-ID: <CAPVz0n2yR9C4Jan9=0=ck-RyKk1m19s3q4wfLCz9Bvw1TYNS0A@mail.gmail.com>
+Subject: Re: [PATCH v11 2/7] mfd: Add driver for ASUS Transformer embedded controller
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
 	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, 
@@ -103,54 +103,124 @@ Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 =D1=87=D1=82, 15 =D0=B6=D0=BE=D0=B2=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 04:3=
-8 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
+6 Dmitry Torokhov <dmitry.torokhov@gmail.com> =D0=BF=D0=B8=D1=88=D0=B5:
 >
 > Hi Svyatoslav,
 >
-> On Tue, Oct 13, 2026 at 08:35:02PM +0300, Svyatoslav Ryhel wrote:
-> > +static int asus_ec_battery_get_property(struct power_supply *psy,
-> > +                                     enum power_supply_property psp,
-> > +                                     union power_supply_propval *val)
+> On Tue, Oct 13, 2026 at 08:34:58PM +0300, Svyatoslav Ryhel wrote:
+> > +// SPDX-License-Identifier: GPL-2.0-or-later
+> > +
+> > +#include <linux/array_size.h>
+> > +#include <linux/debugfs.h>
+>
+> Unused include (left over after debugfs support was dropped).
+>
+
+Noted
+
+> > +/**
+> > + * struct asus_ec_chip_info
+> > + *
+> > + * @name: prefix associated with the EC
+> > + * @variant: id of programming model of EC
+> > + * @mode: state of Factory Mode bit in EC control register
+> > + * @read_size: size of block to read
+> > + * @keyboard_mask: mask of keyboard packets
+> > + */
+> > +struct asus_ec_chip_info {
+> > +     const char *name;
+> > +     enum asusec_variant variant;
+> > +     enum asusec_mode fmode;
+> > +     u8 read_size;
+> > +     u8 keyboard_mask;
+> > +};
+> > +
+> > +/**
+> > + * struct asus_ec_data
+> > + *
+> > + * @ec: public part shared with all cells (must be first)
+> > + * @ecreq_lock: prevents simultaneous access to EC
+> > + * @ecreq_gpio: EC request GPIO
+> > + * @client: pointer to EC's i2c_client
+> > + * @info: pointer to EC's version description
+> > + * @ec_buf: buffer for EC read
+> > + * @logging_disabled: flag disabling logging on reset events
+> > + */
+> > +struct asus_ec_data {
+> > +     struct asusec_core ec;
+> > +     struct mutex ecreq_lock;
+> > +     struct gpio_desc *ecreq_gpio;
+> > +     struct i2c_client *client;
+> > +     const struct asus_ec_chip_info *info;
+> > +     u8 ec_buf[ASUSEC_ENTRY_BUFSIZE];
+> > +};
+>
+> scripts/kernel-doc warns on these two structs:
+> - In struct asus_ec_chip_info, the kerneldoc says @mode while the field i=
+s
+>   named fmode.
+> - In struct asus_ec_data, @logging_disabled no longer exists.
+>
+
+Noted
+
+> > +int asus_dockram_access_ctl(struct i2c_client *client, u64 *out, u64 m=
+ask,
+> > +                         u64 xor)
 > > +{
-> > +     struct asus_ec_battery_data *priv =3D power_supply_get_drvdata(ps=
-y);
+> > +     struct dockram_ec_data *ddata =3D i2c_get_clientdata(client);
+> > +     u8 *buf =3D ddata->ctl_buf;
+> ...
+> > +static struct i2c_client *devm_asus_dockram_get(struct device *dev)
+> > +{
+> > +     struct i2c_client *parent =3D to_i2c_client(dev);
+> > +     struct i2c_client *dockram;
+> > +     struct dockram_ec_data *ddata;
 > > +     int ret;
 > > +
-> > +     switch (psp) {
-> > +     case POWER_SUPPLY_PROP_PRESENT:
-> > +             val->intval =3D 1;
-> > +             break;
+> > +     dockram =3D i2c_new_ancillary_device(parent, "dockram",
+> > +                                        parent->addr + ASUSEC_DOCKRAM_=
+OFFSET);
+> > +     if (IS_ERR(dockram))
+> > +             return dockram;
 > > +
-> > +     default:
-> > +             ret =3D asus_ec_battery_get_value(priv, psp);
-> > +             if (ret < 0)
-> > +                     return ret;
+> > +     ret =3D devm_add_action_or_reset(dev, asus_ec_release_dockram_dev=
+,
+> > +                                    dockram);
+> > +     if (ret)
+> > +             return ERR_PTR(ret);
 > > +
-> > +             val->intval =3D (s16)ret;
+> > +     ddata =3D devm_kzalloc(&dockram->dev, sizeof(*ddata), GFP_KERNEL)=
+;
+> > +     if (!ddata)
+> > +             return ERR_PTR(-ENOMEM);
 > > +
-> > +             switch (psp) {
-> ...
-> > +             case POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW:
-> > +             case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
-> > +                     val->intval *=3D 60;
-> > +                     break;
+> > +     i2c_set_clientdata(dockram, ddata);
+> > +     mutex_init(&ddata->ctl_lock);
+> > +
+> > +     return dockram;
+> > +}
 >
-> asus_ec_battery_get_value() returns a u16 (via get_unaligned_le16()), and
-> unconditionally casting it with (s16)ret sign-extends unsigned 16-bit
-> properties >=3D 0x8000 into negative values.
+> Attaching ddata to &dockram->dev via devm_kzalloc() and
+> i2c_set_clientdata() is fragile because dockram is bound to the I2C dummy
+> driver. If the dummy driver is unbound from dockram via sysfs, the driver
+> core frees &dockram->dev devres allocations and clears dockram's
+> driver_data to NULL, so the next call to asus_dockram_access_ctl() will
+> dereference NULL.
 >
-> In particular, when the battery is not discharging or not charging,
-> TIME_TO_EMPTY_NOW / TIME_TO_FULL_NOW report 0xffff, which (s16)ret turns
-> into -1 and then -60 seconds instead of an unsigned value (or -ENODATA).
-> Should only signed properties (like POWER_SUPPLY_PROP_CURRENT_NOW) be cas=
-t
-> to s16?
+> Instead of allocating a separate struct dockram_ec_data on the ancillary
+> i2c_client, could ctl_lock and ctl_buf live in struct asus_ec_data (or
+> struct asusec_core) and have asus_dockram_access_ctl() take struct
+> asusec_core *ec?
 >
 > Thanks.
 >
 
-You have a point. I assume that using val->intval =3D ret * 60 should be
-acceptable.
+I did this since dockram and ec can be accessed and work
+independently, hence separate locks and buffers. I would like this to
+remain as it is, but you have a point here. Adding check if dockram
+client is not NULL should resolve possible issues with
+asus_dockram_access_ctl calls.
 
 > --
 > Dmitry

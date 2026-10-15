@@ -1,239 +1,166 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+Received: from mail-dl1-f70.google.com (mail-dl1-f70.google.com [74.125.82.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E18D1FCF41
-	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 05:32:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDCAC469850
+	for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 06:42:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792042376; cv=none; b=ilW99+5oCTn/bF/F60ejPNGEx2ILrqUmj/q4YFhKb4Anc/5jNKt3w8OCgGVHWT8LzebPwGVaPpOe4zvX5nlUYIt+5wAdzQ2dpyXMV65qQjuhcNipj4XqOervhbXe1C6694dxSc9Pn/zNo19CjMkuQIfCvBAh2amQ9dCJAQkQszQ=
+	t=1792046553; cv=none; b=D3eBdjy0zp5spMAXf83u6WauRZuv8wgC7XvpX/BHPs89FNEfMnpgMTFh7xyPbLl83C9BPKflHruGdQYtqFBCYGDK9njm2+XlYm8MjQntnz5VQ2wK69xg6nrZGw/B7q/ZtTGrC0UG9dd8M8MvR4iiNjZL5uf26E9/18fZFB3/H7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792042376; c=relaxed/simple;
-	bh=XNC5w7epAUR8vTY+EFc882zdPztNr+QOcezl42tLC0A=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Disposition; b=rXmH9PHJac8UYEgkFswk4d9crJAklTWiezo5/K4zBDia8dUGkwBG1itOnvQ1JPqg+vadFTfsZO0f0JDE4eAE5oRuwXhZ0mvMchmgMkwljTv6PEnSDillSQL15m/bjJ4RG4a+EtNjDpL4MnUhZd3TTuSNMfhfTvsjhHcBucWkJXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eZkj+OPe; arc=none smtp.client-ip=74.125.82.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1792046553; c=relaxed/simple;
+	bh=ggn8bVnKJA7RHxnagUCHzG2BcdHrEmbAPi5sFWORlCE=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=I3+P81dKKHtcIK2LGVSknNrx8JM2qo2P5D6StfGXCJcAquZ4MYUAAQ7Gued5v5DSMlTsHqcKqH24xuhWg3uBhVM+V45ccLu9NxGMeFDg8sbbS+UkOqG2TW1UvdolGnFvHnvkcm9epgzUV6tBD+6gX3Thd7W1wSx86lAGw7IUnyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=h6qE9L6o; arc=none smtp.client-ip=74.125.82.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--jiangzp.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eZkj+OPe"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-353804b591eso8612368eec.0
-        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 22:32:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="h6qE9L6o"
+Received: by mail-dl1-f70.google.com with SMTP id a92af1059eb24-155a75f91e1so1255887c88.1
+        for <linux-input@vger.kernel.org>; Wed, 14 Oct 2026 23:42:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792042374; x=1792647174; darn=vger.kernel.org;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=GH2n+ldfA9ef99RNFEAwu4ZYJGshxq44G7IMR735/Tw=;
-        b=eZkj+OPeR46Vx+xdLIg6z2qKary5KWxkCXTa2fCLnBN6Zc9afGzUG0uxXe2CIQOanw
-         cvvI0XwQ+sSSYTHHV6XyY99fietD45h0OQE6X6YkRtt6MVF1kiWkHSnJDlhC5zb9lCZ8
-         Jh+9fxOU/MpYf/JAsjcWRXh18hCW2LY4PUK3AECIgEBmIYvl4bVYVbZ1pTldf1V/XO0w
-         t4nD5ly2CiSKFiA0zPeknV4AoxqazXej6R7Ai1FIdDYgQnPOnzzdgl+JRe/7FKrn1ELd
-         KzAD2HNXRz4+Abg7T4NF0ryAoqCHxn0WNjGzS9w62IWoxPWbVVk0kBfQFIwlNrHXLYwo
-         kvVQ==
+        d=google.com; s=20251104; t=1792046550; x=1792651350; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=CWLkBV9BBgDEhHUePIRuI9XTWV7QJLsODe5VGAKrDB0=;
+        b=h6qE9L6oAReYZJOkCTL2XJ+xvRhV5YoVsgUWY3CsgMeB6llEKDKj8vBmJS4/BOphnD
+         hnXiiNne/OHZCNzwlV1hYHmTHHkZX6Gc0B6REo2ekRJgT+dP29+LeR6eVc7wuJFIoNrx
+         5qbl0ylyM/aM9IDuNAej4Z62zLXgaMtCh1Sc/U0jZpA5El9gV5spmPZ5xhobLz253jE+
+         BUYcWdTXKJLnImMRBwGqNd3dOn3SOAzrrOIcDzfhxoYYVgK77mNcP3Ki2q1KL9VRTIj4
+         dFfC9vaEimWaSWuOncqZa2NVWFwPKj1eLGceKUOz2voRcxDiW4yebFpEMYFwZ8uXbe5a
+         WZfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792042374; x=1792647174;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=GH2n+ldfA9ef99RNFEAwu4ZYJGshxq44G7IMR735/Tw=;
-        b=MCs+5/KiuWXoMn1aohB9S5WfvNYAeFYHQB3t5fsPXShQcWfS4VWF8o0B6ZG6qWxwh1
-         NzgecmvHCEKPDUXgx3aHqa0sFCb8yE3tCibyvpFdjIWEpRwqvZ2xwzFGV3GSM03jgMzW
-         XoLxlAXkeUd1ocj0iHd/yEJBVSERJpiL/I6MVEDF4GnMWa0aF+Tv+X0mFSnNIKLUO6pT
-         PvL9hE/rx7xu3IZvRrz0NZjd0RKpUocPp7ZnO9YKGmkoWZzS5dHxuF5yShhONcI5Vw6X
-         VZe+AS2+A0k14DMPepqglXnDMUY5WCZZzubBl6E04DWTW5TeP59tDZ4XvAzweiPWCAxq
-         vLKQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwPyfXAJyVDN5doQxHsvVX207QJOKSOGf9LqB72BaoetuPIRLgHQsJqxoI9Npnst42hAxkxJiEVI9QvVg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLSyYR6Rrw97EvJHV9qJKnlIVK0TGHSKIxnw5/E5RlRyLRtb9Ak
-	HrNqSvVCWM5wNBJ9Wxt4lkYkOVwJ1ItbmCNF7lDabwagRg+3m1LUpt4v
-X-Gm-Gg: AYBFou3SkdcuxcSGZXcawzBsDTMWj81rqmNcs7WM8jzjCQzJFTx6oraVFt2j+RXWPMv
-	PVszJwzHTV+G6gi2zkiL7tyzTzHV9fFxepBpHoMA7fMLYsJcwUC9MnObKStc/WXFXoPQqFcgmlc
-	BK80Y/x8SbwB5ni/hSFiKhQMAqCuoezNAI9x2QS0X4alN8Hdt58POInjLQdRvTzW0GJpq7x0dpO
-	LgVFYRxZyw6hDSAGea9mZ9wsV/lMF2OJpur1pTbIri2rKYwhsWJFxomoZtQysUBuS+AojCf+Q5C
-	N3zchABBZ9Ke9hZz92WnUMpJxLWfSVTrvc345kDnnTS/nKOctNaGVPDFLSEKo0UGz6bBZPkBJHk
-	tU7TvYR1hx2stPHhEv/x3iIyMcaPk8BNtvG6JmhiMkdxhRpqgCbR8taEYaD+brFxW9P+KlEqBc/
-	UBb1sJhsIRQ/Uoiwea93rjzaZxWTtvlrMKbuXWSAW9h6jkbzO9OFScm98NM7QOowji9UvTDKB2t
-	1hayq5O2L0jmD6+CpaWkK3jP9ErB01xyDgT70GqVaR6oOGP
-X-Received: by 2002:a05:7301:6e98:b0:33c:e74:4624 with SMTP id 5a478bee46e88-3537e112919mr25558252eec.27.1792042374072;
-        Wed, 14 Oct 2026 22:32:54 -0700 (PDT)
-Received: from localhost ([2a00:79e0:2ebe:8:821:261c:74c2:4177])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-35c89429484sm22777131eec.23.2026.10.14.22.32.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2026 22:32:53 -0700 (PDT)
-Date: Wed, 14 Oct 2026 22:32:52 -0700
-Message-ID: <01c8cf7d695261ba8270ff57aa8f2a6f@gmail.com>
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Zhengping Jiang <jiangzp@google.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Stephen Boyd <swboyd@chromium.org>,
-	Archie Pusaka <apusaka@google.com>,
-	Shashikirana H K <shashikiranah@chromium.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] HID: vivaldi: avoid redundant feature report reads per usage
-In-Reply-To: <20261013192318.1828453-1-jiangzp@google.com>
-References: <20261012220225.3594376-1-jiangzp@google.com> <20261013192318.1828453-1-jiangzp@google.com>
+        d=1e100.net; s=20260707; t=1792046550; x=1792651350;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=CWLkBV9BBgDEhHUePIRuI9XTWV7QJLsODe5VGAKrDB0=;
+        b=pCdFJ6qB8MjtK440MhqeMp3HYNG+uR6ORORVl7wP9IlbduJUU1RwVbrXg1N/ph/Ecw
+         7Lk0jhGoP4burf2GqHMIj6Tr8z0pj8xuxq4m5zec7M1FBYqc/LbZvpeurGaJIRFoHOAw
+         hk5PoRyVW1aOqpYc098QmRv89KF5aVcOapENx2GI7nMak0AM4Xe6eec13HcWYFDU+yKO
+         vbXHIzwWTp363cwEOhTSbLTYc6J2Dv6sJsTjvKY1tb/yvWzrTF0y5rGxwXeZykRnecfT
+         VbYZeSVG0AvMq0z3IrgIx6rmLXRAYA3ukzlUcUcThE7B6bdUgFWdYPvgnOY47ATtNZnQ
+         oicg==
+X-Forwarded-Encrypted: i=1; AKwUvBxJvTjsw0WopVjBtHr9RyPW0Qtp+2lMicAxfo3Fv1i2zPhNkP0YfFdTMTHZoh9XPdPPvPcN2R0a8IOm5A==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKRc8pvz9GMU3CIR2RZRhFfkrik3kq/w7Ayf+zAPEVCK1YF/MSf
+	7HARQiiljrQMNHGy1OA3DxcXU8v6+mgPV4dvbAFYYFfFfHdS/DXvUKrqjiU9EchsOR+Dd6cmkXz
+	10BEd46tsRQ==
+X-Received: from dldyr19-n2.prod.google.com ([2002:a05:701b:4513:20b0:143:75c2:6d21])
+ (user=jiangzp job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7022:e804:b0:13c:f65c:d5b5
+ with SMTP id a92af1059eb24-16a0b37d130mr26218964c88.3.1792046549601; Wed, 14
+ Oct 2026 23:42:29 -0700 (PDT)
+Date: Thu, 15 Oct 2026 06:42:23 +0000
+In-Reply-To: <01c8cf7d695261ba8270ff57aa8f2a6f@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Mime-Version: 1.0
+References: <01c8cf7d695261ba8270ff57aa8f2a6f@gmail.com>
+X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
+Message-ID: <20261015064223.1939367-1-jiangzp@google.com>
+Subject: [PATCH v4] HID: vivaldi: avoid redundant feature report reads per usage
+From: Zhengping Jiang <jiangzp@google.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Sean O'Brien" <seobrien@chromium.org>, Shashikirana H K <shashikiranah@chromium.org>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Zhengping Jiang <jiangzp@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Zhengping,
+vivaldi_feature_mapping() is invoked by report_features() in ascending
+usage_index order for each usage in the top-row physical keymap field.
+Because fetching the feature report at usage_index == 0 already reads
+the entire report from hardware, calling hid_hw_raw_request() again for
+subsequent usages redundantly reads the same report N times (e.g., 12
+sequential BLE GATT reads taking ~2s on Vivaldi BLE keyboards).
 
-On Tue, Oct 13, 2026 at 07:23:18PM +0000, Zhengping Jiang wrote:
-> vivaldi_feature_mapping() is invoked by hidinput_configure_usages() in
-> ascending usage_index order for each usage in the top-row physical keymap
-> field. Because fetching the feature report at usage_index == 0 already
-> reads the entire report from hardware and populates field->value[] for all
-> usages in the field, calling hid_hw_raw_request() again for subsequent
-> usages redundantly reads the same report N times (e.g., 12 sequential BLE
-> GATT reads taking ~2s on Vivaldi BLE keyboards).
+Bail out immediately when usage->usage_index != 0, fetch the feature
+report once at usage_index == 0, and iterate over all usages in the
+field to populate data->function_row_physmap[].
 
-A minor note on the commit description: drv->feature_mapping() is invoked
-by report_features(), not hidinput_configure_usages().
-
-> diff --git a/drivers/hid/hid-vivaldi-common.c b/drivers/hid/hid-vivaldi-common.c
-> index c3c9fe9e697b..2d85555289d8 100644
-> --- a/drivers/hid/hid-vivaldi-common.c
-> +++ b/drivers/hid/hid-vivaldi-common.c
-> @@ -33,21 +33,22 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
->  {
->  	struct vivaldi_data *data = hid_get_drvdata(hdev);
->  	struct hid_report *report = field->report;
-> -	u8 *report_data, *buf;
-> +	u8 *report_data, *buf = NULL;
->  	u32 report_len;
->  	unsigned int fn_key;
->  	int ret;
->  
-> -	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP ||
-> -	    (usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
-> +	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP)
->  		return;
->  
-> -	fn_key = usage->hid & HID_USAGE;
-> -	if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
-> -		return;
-> -
-> -	if (fn_key > data->num_function_row_keys)
-> -		data->num_function_row_keys = fn_key;
-> +	/*
-> +	 * Read the feature report only at usage_index == 0, as a single read
-> +	 * populates field->value[] for all usages in the field. If the read
-> +	 * fails, subsequent usages will not re-read the report and will rely
-> +	 * on field->value[] being zero-initialized.
-> +	 */
-> +	if (usage->usage_index)
-> +		goto parse_usage;
->  
->  	report_data = buf = hid_alloc_report_buf(report, GFP_KERNEL);
->  	if (!report_data)
-> @@ -72,7 +73,7 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
->  	if (ret < 0) {
->  		dev_warn(&hdev->dev, "failed to fetch feature %d\n",
->  			 field->report->id);
-> -		goto out;
-> +		goto parse_usage;
->  	}
->  
->  	if (!report->id) {
-> @@ -86,11 +87,20 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
->  
->  	ret = __hid_report_raw_event(hdev, HID_FEATURE_REPORT, report_data,
->  				     report_len, report_len, 0);
-
-It looks like this patch was generated against a downstream ChromeOS
-tree (__hid_report_raw_event() does not exist upstream; mainline uses
-hid_report_raw_event()), so it does not apply cleanly.
-
-> -	if (ret) {
-> +	if (ret)
->  		dev_warn(&hdev->dev, "failed to report feature %d\n",
->  			 field->report->id);
-> +
-> +parse_usage:
-> +	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
->  		goto out;
-> -	}
-> +
-> +	fn_key = usage->hid & HID_USAGE;
-> +	if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
-> +		goto out;
-> +
-> +	if (fn_key > data->num_function_row_keys)
-> +		data->num_function_row_keys = fn_key;
->  
->  	data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
->  		field->value[usage->usage_index];
-
-If reading or parsing the feature report fails, we should not be
-updating data->num_function_row_keys or populating
-data->function_row_physmap[] with zeros: vivaldi_is_visible() checks
-data->num_function_row_keys to decide whether to expose the
-function_row_physmap sysfs attribute, and on a failed read we do not
-want to expose a bogus all-zero keymap to userspace.
-
-Also, keeping "out: kfree(buf);" at the very end of the function across
-parse_usage makes the control flow and cleanup awkward (having to
-initialize buf to NULL, jumping over the allocation on usage_index > 0,
-and using goto out in parse_usage even though buf is no longer needed
-once the report is processed), and it prevents using __free(kfree) for
-buf.
-
-Since vivaldi_feature_mapping() already has the entire field in hand,
-why don't we bail out immediately when usage->usage_index != 0, fetch
-the report once at usage_index == 0 using __free(kfree), and iterate
-over all usages in the field right there?
-
-Please rebase your patch on top of Shashikirana's patch extracting the
-feature report value directly via hid_field_extract() before
-resubmitting:
+Fixes: 33bbe04a15f2 ("HID: google: extract Vivaldi hid feature mapping for use in hid-hammer")
+Signed-off-by: Zhengping Jiang <jiangzp@google.com>
+---
+Based on "[PATCH v2] HID: vivaldi: Extract feature report value directly in vivaldi_feature_mapping()":
 https://lore.kernel.org/r/20261013-upstream-vivaldi-fix-v2-1-ecc20329d24c@chromium.org
 
-With that in place, vivaldi_feature_mapping() can simply become:
+Changes in v4:
+- Rebase on top of Shashikirana's patch using hid_field_extract() and
+  __free(kfree), as suggested by Dmitry Torokhov.
+- Return immediately when usage->usage_index != 0, fetch the report once
+  at usage_index == 0, and loop over all usages in the field so failed
+  reads do not update num_function_row_keys or expose an all-zero keymap.
+- Fix caller name in commit description (report_features()).
 
-	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP || usage->usage_index)
-		return;
+Changes in v3:
+- Add comment explaining why the report is only read at usage_index == 0
+  and how failed reads rely on zero-initialized field->value[].
+- Jump/fall through to parse_usage on read failure.
 
-	u8 *buf __free(kfree) = hid_alloc_report_buf(report, GFP_KERNEL);
-	if (!buf)
-		return;
+Changes in v2:
+- Move per-usage validation (HID_UP_ORDINAL and fn_key bounds) after the
+  usage_index == 0 hardware read.
 
-	report_len = hid_report_len(report) + !report->id;
-	ret = hid_hw_raw_request(hdev, report->id, buf, report_len,
-				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-	if (ret != report_len) {
-		dev_warn(&hdev->dev, "failed to fetch feature %d: %d\n",
-			 report->id, ret);
-		return;
-	}
+ drivers/hid/hid-vivaldi-common.c | 33 +++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
 
-	for (i = 0; i < field->maxusage && i < field->report_count; i++) {
-		usage = &field->usage[i];
-
-		if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
-			continue;
-
-		fn_key = usage->hid & HID_USAGE;
-		if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
-			continue;
-
-		if (fn_key > data->num_function_row_keys)
-			data->num_function_row_keys = fn_key;
-
-		offset = field->report_offset + i * field->report_size;
-		data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
-			hid_field_extract(hdev, buf + 1, offset,
-					  field->report_size);
-	}
-
-Thanks.
-
+diff --git a/drivers/hid/hid-vivaldi-common.c b/drivers/hid/hid-vivaldi-common.c
+index 1359a107e63b..973393d09356 100644
+--- a/drivers/hid/hid-vivaldi-common.c
++++ b/drivers/hid/hid-vivaldi-common.c
+@@ -39,19 +39,11 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
+ 	unsigned int offset;
+ 	u32 report_len;
+ 	int ret;
++	int i;
+ 
+-	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP ||
+-	    (usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL ||
+-	    usage->usage_index >= field->report_count)
++	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP || usage->usage_index)
+ 		return;
+ 
+-	fn_key = usage->hid & HID_USAGE;
+-	if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
+-		return;
+-
+-	if (fn_key > data->num_function_row_keys)
+-		data->num_function_row_keys = fn_key;
+-
+ 	u8 *buf __free(kfree) = hid_alloc_report_buf(report, GFP_KERNEL);
+ 	if (!buf)
+ 		return;
+@@ -74,9 +66,24 @@ void vivaldi_feature_mapping(struct hid_device *hdev,
+ 		return;
+ 	}
+ 
+-	offset = field->report_offset + usage->usage_index * field->report_size;
+-	data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
+-		hid_field_extract(hdev, buf + 1, offset, field->report_size);
++	for (i = 0; i < field->maxusage && i < field->report_count; i++) {
++		usage = &field->usage[i];
++
++		if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
++			continue;
++
++		fn_key = usage->hid & HID_USAGE;
++		if (fn_key < MIN_FN_ROW_KEY || fn_key > MAX_FN_ROW_KEY)
++			continue;
++
++		if (fn_key > data->num_function_row_keys)
++			data->num_function_row_keys = fn_key;
++
++		offset = field->report_offset + i * field->report_size;
++		data->function_row_physmap[fn_key - MIN_FN_ROW_KEY] =
++			hid_field_extract(hdev, buf + 1, offset,
++					  field->report_size);
++	}
+ }
+ EXPORT_SYMBOL_GPL(vivaldi_feature_mapping);
+ 
 -- 
-Dmitry
+2.56.0.385.gd3acb90ef8-goog
+

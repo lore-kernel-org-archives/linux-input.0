@@ -1,43 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6BB039C637
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 08:14:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F6F3B38AF
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 08:22:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792138470; cv=none; b=cpB+B9ToI21ac5tjmMd/9xfH02bz9LgEBkGOxyIxkrltzxWBVawt1RfdfArlfpYAZfvtkKqp3iNdz429tMhzVvXz+QIWgCiXlmQ5E/3kur6yUV23nJKeR1txWuj+lc+heaUiMA93tiBnCPQkCfDuvcUdSpTyF0yitaFxFMUGV4Q=
+	t=1792138953; cv=none; b=RFBVMiPWWAgfqcUMoV5UgG2a0LRWtKZzeWiH8E0VE4DmQBYRjBskhyf8qUkNtlbXzf8PsYLYreTRz2vVsdJ4Ko4w44ELANG37XdxFND2Wl15FiBdZKSVRD/0EZ5NC+dRlhOLV+hjTFdgskSPO80X3iRmXtdV8QwBxMely3BqPlk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792138470; c=relaxed/simple;
-	bh=nc2xVyGZatTTib8wVJfq+qI0ScOpY3qaGUxT4g3C3wM=;
+	s=arc-20240116; t=1792138953; c=relaxed/simple;
+	bh=77lIV9+XZf1uAANaHdu24siZBMXAI7EB4PyK+RbmRcM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=O/05n4ayRCc/YefVsSAdFPNAUmltzYysO5JDVX3HyLPGpfhDdfHGMTTS/R7Do8BwA4/50uYw4sNlSEuFva8jKrvpzd30KUzuhGUfoz8/6VIn66OUklSbPc1SKz5CabP1UOkHj1wUuR6lHOXuI+JrbeDGimXyql5R86Nwuq17OrQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nmthsCWF; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=LvVZW3gzxPP8q2Kupqp8wByXIZQP/qazhdDj5D9zKOEda5ZW3C7D5/IUvJQcwm7FbW8lSaLApoF3WKQ5qLHu9k43KZyRO4cCPrieRM+00ty3c2XWsLlUcfla2+e53P68Ehi3jcafNKXa8z3eN1uOiavsFTg/+6hubqd8StmAERQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CjEEx6gt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nmthsCWF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BEFE1F000C4;
-	Fri, 16 Oct 2026 08:14:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CjEEx6gt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B0EB1F000C4;
+	Fri, 16 Oct 2026 08:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792138469;
-	bh=wBNIguumVZ620aob9TsJcjN4G7RtVy5W7wp/zDPuddA=;
+	s=k20260515; t=1792138951;
+	bh=7DdbddfjePR4rYix5Zec9+KbxTW5+hL/VXniVxMhckQ=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=nmthsCWFbkNS2s4dmqfip5y2PTd2eThBdQRK3lG3npRzKzu5SJD7i0WQhMGad06d1
-	 2aiS9b0ddgd7y5aH9MZ4mVAy8m3q54BHwT7julHhMvGoekCeWfGdY/zU+hXIpnJNjI
-	 gPvu5ZXDnRwNJJiGeWIsyUwJDtAe9pxg9wSyNSGKh/vVe04lTf/qFCyjBTCI+c1zVc
-	 u38NEtDuZM1SVriRzp+pQ4WIIsrjT+e+AFUHfMJpc1w20YQMRl8BFZpR6Us895+Zp9
-	 jfaigkMK9HHazf1Jwa2FfV2df28yLvN7FGSGPMcs8DrwRSLTuxOMJ0Jp7xr0JQWUpy
-	 bNcDs8/p2IOJg==
-Date: Fri, 16 Oct 2026 10:14:26 +0200 (CEST)
+	b=CjEEx6gtUEh3TIsgfQMT/l3+XBnNNMy5/GoaVd8Y0eOPJBcg1Uw0reJHfkD7YVM7S
+	 JqXf2kqZNtlM9oPBK8S/Rxw8Uv3nzaUyYaYUZIlutL8nHqKNxP+SnqqcLqU72QrZJB
+	 bpFrNpw9N8R8/geQfdQjMUKe3mMfCWzI+9v0XHiOBFyPswfWxcVqhRYQIqaSXH2CpK
+	 JWKSV0HWmkGcZI2p3+hr7GwrsuoXE1A/CN+zXVX/8GP5bRMAxXbwE8X58ZOxXr/Jf6
+	 V7OTeQWs5zRKX2nCkASw60N/+K4+UoerP5UzPsN9QQnMvd073dGz8+POnLL75gWWsQ
+	 ++yP5ytHo/YUA==
+Date: Fri, 16 Oct 2026 10:22:29 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Rafael Passos <rafael@rcpassos.me>
-cc: David Rheinsberg <david@readahead.eu>, bentiss@kernel.org, 
-    Shuah Khan <skhan@linuxfoundation.org>, 
-    Brigham Campbell <me@brighamcampbell.com>, 
-    Jori Koolstra <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
-Subject: Re: [PATCH v5 0/3] HID: wiimote: new LED behavior on connect +
- scoped_guards
-In-Reply-To: <20261009022844.2790778-1-rafael@rcpassos.me>
-Message-ID: <897q5o18-094p-3884-s8o6-8249n59p0p6q@xreary.bet>
-References: <20261009022844.2790778-1-rafael@rcpassos.me>
+To: Vicki Pfau <vi@endrift.com>
+cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
+    Silvan Jegen <s.jegen@gmail.com>
+Subject: Re: [PATCH v16 0/4] HID: nintendo: Add preliminary Switch 2 controller
+ driver
+In-Reply-To: <20261006061619.2005967-1-vi@endrift.com>
+Message-ID: <r5p492pr-437n-r57q-3np5-77q5o2q45659@xreary.bet>
+References: <20261006061619.2005967-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -46,31 +45,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 8 Oct 2026, Rafael Passos wrote:
+On Mon, 5 Oct 2026, Vicki Pfau wrote:
 
-> Hi,
-> This patchset contains one feature change, and 3 patches appying=20
-> scoped cleanup to locking and to the initialization functions for
-> the led probing and the main wiimote probe call.
+> This adds a new driver for the Switch 2 controllers. The Switch 2 uses an
+> unusual split-interface design such that input and rumble occur on the main
+> HID interface, but all other communication occurs over a "configuration"
+> interface. This is the case on both USB and Bluetooth, so this new driver
+> uses a split-driver design with the HID interface being the "main" driver
+> and the configuration interface is a secondary driver that looks up to the
+> HID interface, sharing resources on a common struct.
 > 
-> The feature is turning different LEDs for each of the first 4 wiimotes conn=
-> ected.
-> >From id 5 forward, the LED will cycle back to 1, and so on.
-> This uses the ida struct, so its quite simple and lightweight.
-> The hid_info log message prints out the controller id.
+> Due to using a non-standard pairing interface as well as Bluetooth
+> communications being extremely limited in the kernel, a custom interface
+> between userspace and the kernel will need to be designed, along with
+> bringup in BlueZ. That is beyond the scope of this initial patch, which
+> only contains the generic HID and USB configuration interface drivers.
 > 
-> While implementing this feature, I decided to cleanup the code using
-> scoped_guard for the many spinlocks in the driver. There are two places
-> where the original lock/unlock version fits best, and I left them
-> untouched.
-> I also used the __free scope cleanup in the wiimote_probe and LED probe.
+> This initial work supports general input for the Joy-Con 2, Pro Controller
+> 2, and GameCube NSO controllers. IMU, rumble and battery support is not yet
+> present.
 > 
-> It was really fun working with this driver.
-> I tested it with 4 Wii Motion Plus remotes (gen2).
-> Video recording of my tests (48s video).
-> https://rcpassos.me/video/wiimote-led-linux-driver
+> This should fix the last thing sashiko has been reporting that isn't
+> complete and utter nonsense. Unless anything seriously bad comes through
+> the next round, or a maintainer tells me I need to fix it, I'm just done.
+> 
+> Vicki Pfau (4):
+>   HID: nintendo: Add preliminary Switch 2 controller driver
+>   HID: nintendo: Add rumble support for Switch 2 controllers
+>   HID: nintendo: Add unified report format support
+>   HID: nintendo: Patch NYXI Hyperion 3 descriptor
 
-Applied to hid.git#for-7.4/wiimote, thanks.
+Applied to hid.git#for-7.4/nintendo, thanks.
 
 -- 
 Jiri Kosina

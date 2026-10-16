@@ -1,78 +1,76 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B61D12C0298
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 03:19:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B0E0376BC1
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 03:27:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792120785; cv=none; b=S+fa4aYlkBvncspAGChHo6lYEM2CehLZ9Bm8Z+1iqoqfI1VDhbGOGkyhkmxHgknys76v/0eDH3JlcGoA3Zn88VpttitK4VQ9M96kUaQXg1GIGB3UPBPfBPEDYgusXHyLaM9kvh1NXcjk7jpg66UXJrNp3ViXJnJr3P6WWfaiMPM=
+	t=1792121262; cv=none; b=PV8xTPcFvrOL91rlFPY/MAz968XQw5rD3GvLzXlacZMgZKeUXuvOEuckASUz6DV2L0+17+eeZu7ZcwMuIeTnkAJakUuDXhfAT6SFQqWVyS3RS+kZ1w0Q+o3HL+h50jx8rEzClMaAs8hS47viPuEeHUfQ7GCrlfQxs2Ck1EccmG4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792120785; c=relaxed/simple;
-	bh=LectKxnVPgl6kp2WA9jYepcXdH0Or/Oem/uGNpqc0Pk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pe9oUIYUGBREWK+G3gvvdF6+FLHpsO9ei4ZuGltPqTkDaNKILrtZMy1ARJFmkMVZ2vDp0LSO+8k1acI26GRncGnASwCIvytUFU9h6LLK7dnaRrAlPq9LUaXyiwzOOViDn9dce/5+iR0on62Oww6ZCR+Z7VoLfiFfJx4mxJomhzU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kg1ajv6k; arc=none smtp.client-ip=209.85.216.48
+	s=arc-20240116; t=1792121262; c=relaxed/simple;
+	bh=+7Xk2sw3Wtz36aZj8CThZvU+Fd3CpGSJQ58bpbKZg1I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LGyzIvjTh3wgM2G87+Z66rhc7BVMRBMe+2Cc1rVoEfkZD2H71IQDVoN0kS/DLkUAuF2C7CJgXgRbmQu4DWArKUGTNfafh+kmJkDwnppbzOmn+CfOQyKMumZLrXDaEd4x7EmKNGLEam3PwNr2xw8j8NO9vTU/aBFW0WVvNQ7EpkY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bcFjEjvm; arc=none smtp.client-ip=74.125.82.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kg1ajv6k"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-3ac77270fbfso1485672a91.2
-        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 20:19:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bcFjEjvm"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-30b6dad2382so14299315eec.0
+        for <linux-input@vger.kernel.org>; Thu, 15 Oct 2026 20:27:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792120784; x=1792725584; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=+TOjkNOOOYODKC3hy+v06oUAuoKTO3qPUXNp5ApotnM=;
-        b=Kg1ajv6kjU0Z6cZp3ZH8xseV3tBQbqf0kwH+M9ZHdiCPjZAEN6I4wLs1M7PaEZr9qm
-         kGOg8iqybHR2ijRzXVm4AkdKalva+ynnn3wMxaFUXlcF58ltcPv2ETQNRIChI/69kZax
-         gFTUD+tIpQPTa1EBY2owCxv4N/kCV1h/H61pRo/0v5ZnD6whQGXlcSaYRVj2QhrF7JMb
-         ODxa4gJbvlEGRBMYUIjWE1kefdmaElTa9G9BSztApSJ5xn37LyL6aTIwjcSDzCHfPu/C
-         jBZb3umQh2GTTFXERqqiJfSfhGY2C/Oke3I1Xo9HJyEpKJshLeLMa04Vt18OM4sxEO1o
-         Sg/w==
+        d=gmail.com; s=20251104; t=1792121260; x=1792726060; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=2YZBaOUFYzuTeMdOIpOPEVgHo9o2UPoUqPPnpI8qbJg=;
+        b=bcFjEjvmTlR3vgr7JYTLAPQy6Csds9L/ke+l8on1BeaVNh5B+znN4NS6J5TkmAsHZl
+         b3fJnxXgbk7HCbUE24oeh10d6HNSTslU316C2qxvv9wVKtWzsRxGflXjFOWpjT6Ek1E3
+         l18ud/2sb2XnQkK5FMdb7kukfpa3gTIbqsTOUdzRfeI5S7X0SSPaS6o7mzbEuRdmOgkp
+         id1Og+UEmWzmoGEfZ9tO2Z3TdCb9eg7JaQ1rA2Kj8aTH73qB99rlkAkJNZfcCxgELGE1
+         EQTivvT029+paOjYahtKzoghOZ28CXjC7RjosqoztSOPiYGNMTjoTue/Z6k9lAw9Vj2h
+         gx8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792120784; x=1792725584;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=+TOjkNOOOYODKC3hy+v06oUAuoKTO3qPUXNp5ApotnM=;
-        b=UN/p/qFxTrlPiNOwTIMeDemauszRrNbHAHbHLqxp+7Qt9UrA21F//v7/Sf6Kn1ULWf
-         CvaIJ0ewP8pJ/SbFbVfxBSBVevYMv7aMj++yyyzFi3iULTQU+DjDJtcS1qkN9Rsrds6u
-         Stg+ylEhDqa3EujuV0f3aWhzXfPGcYnglQHR1K0NCz8tIOamH6RjERafeq3HZpz1iUrJ
-         Xl1yQXc7/DRL1LSXCDvqKFPdvIz+Frq8ArkJJbgp3UirSScZl+1oDdty+fUXS3jA9owW
-         cbk1tDaWYsOMCUWEOVAMD5AZxJ5t1jxoNV7nJm3/auzXcbw40P+Mau+JS0UJ9vGiNneR
-         GvHw==
-X-Forwarded-Encrypted: i=1; AKwUvBx8MxL/pVXNKj1hQB9FwKVwA0wLuLhTsitODGRoSF46Id3TYLBI6+zaoC/bs4i7ZN5O1sugHUm4HNNcwA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYL3cSVRs8TO/mm0JsUy4utjFTIM0AcCqte1fsAy6bBnIdm20c3A
-	BuIZhCZl3+M9KYeTOMGKLXp9YClUaGyYWNu8jACZEIvmRJKxw1H8cB06
-X-Gm-Gg: AYBFou3Cd+oaaHk5LoXwjpQBKXI5wc7aiTlVN87sTRCEMPfBHIzVHuavLzloydm12nT
-	NKaMV2l6rrJHp608CQA75ycco0owhL9oAU7vCNAT5NsBSUFKDokU/bHj6a/4K78SGHVSGShe+1r
-	oNVJcltBkUTPs0vc9k4iFWtddiYoyzWn05bcxnIP1X4hIlwnNmx8IDqkJGLnnhRLn1cPcCWOi6s
-	sr0OT3N51LahzkHANeegCw9ZRRYS9Bjkc9/K4tSw0puMWnUjWZH+TwPcHYbRypxy5V67/EDnoXP
-	3rAaRYYd01HL+TJ5DcvQwxZ+kvub1VCWJYAFqIf0WM+yzVUGL9dBTKIdF6WzVtN8THpR39rdt9+
-	l5VicGQSKzjsY1NEQW6+gO63dtXdUwUQbCC2x2lP9oKTuMwQ8p1TKYl3Wvx9MvOwTk7/IZX9AF2
-	uwEhjBnll6FhnNHSm1Jk/TCyUyM1N280bOcppcgL6Va59w+Z7BLYTCi4ux4nJ3TRVPIwKRCPI+d
-	cLwyUPMmtwKnVil7baxL864inpDwlAmqqHkZQXSvFr7qFbKpMISuCRICkaJvhsw8E/8aCHAEqhK
-	SPhensR6LOxBqnqo2ljalUq1bLmazqA3dkc=
-X-Received: by 2002:a17:90a:d44d:b0:3aa:f4af:1e17 with SMTP id 98e67ed59e1d1-3ab3a9d6d17mr15840009a91.39.1792120783938;
-        Thu, 15 Oct 2026 20:19:43 -0700 (PDT)
-Received: from sanjays-pc.govzhome.govindz.co.nz ([139.180.93.36])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3acc46ebe40sm1960144a91.6.2026.10.15.20.19.40
+        d=1e100.net; s=20260707; t=1792121260; x=1792726060;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=2YZBaOUFYzuTeMdOIpOPEVgHo9o2UPoUqPPnpI8qbJg=;
+        b=y9XwMEVpnceLB4c6SNsYoNFME0eu+BfvOYDreLoLlXuV6CeyOgFF2yLNzOj8WUA+M6
+         CDo8XczqI2wUAh43c3L3BFWMFMGWXlFnjBIMfLElP8wHLXFT+D/ebvR8cMUfaNDDo1xP
+         h6u+vtBAHtumbx1TEm+FxpW7fvA8TTdMi9VCQql7nhBV1DRpwWpghuDi+voU3MffjlV/
+         g5rjTS7PHwH+iRZ1hc8zz9bj2rFazLg/3wzyjKQvs95W5SqPe4fVBIa4o7udrfOkw3ez
+         44skCsfBIdeofGgGXJmW8k/cek86eci3rz79X5TBuI3EbdZ5k19Dl8piCBKWdC+fWYyb
+         gpKA==
+X-Forwarded-Encrypted: i=1; AKwUvBwFT/1/L0bD2mFLHFQyN1wP3F1v4YmgfoZ8GZRzGlMHcmi4mimaj6Aa3H5SjslWGaXpV9tOD0qxXcoe9A==@vger.kernel.org
+X-Gm-Message-State: AFq9FYI31/2x+cL/RXQQxv5eY1Nx7HONc/zxP767Dmcr5YIP+y46dnnA
+	Yu9mgmoanNijdvF99zAitLQx0bJ5C1oVhXudZ0BmaV9bb9AQmTxRbntj
+X-Gm-Gg: AYBFou1VekYIztGNEojSQiHkosax0MLKyCkiOULyLGB5CTHwgvbbR1QuhvEtzn0RU58
+	tjDPl2fzFrLX/VGGCk7yfNMdmMo4ET97T5KWiw2ofnhVxaIgNCrYPna4Rrooos39dJN2PFWMJwg
+	7znHJsvqvnF2lOHEJ9MtuPoqjjuEtfpeXqIQMuS4t3dl5iSutjWmAGQ8rwAEdTck2rNMlIy93NU
+	gdgs9gkw17XwGEHCtGIbMPhmjgmGJKDXxQxQyR/wBsipX8eVEF2sW7f5BoG//wLDuAb4VOo1OCf
+	U/r+iLc7wZ+7mn6VKsjtv5ZjabBN1Iwy3iY+t6DUyUJmg8hvCeJIqyS6v7h/eMzAGUNXGMyUikO
+	oJjGauQ8wegRMYaev4juNPuLsr/go/OmzdXrY24o/Do5+SeUMdsPJDnR149Z/pvV7nUthPIzeTo
+	LuK2TK5JgCAEg6PVofGaEdmp+Bo5DoBupIdRPQgmfdPs/nG8qwOYoM8U/DjBCo/l4ffYZyy/yEx
+	hK+CEGq9RU=
+X-Received: by 2002:a05:7300:828a:b0:34c:d1f2:b552 with SMTP id 5a478bee46e88-3537dedaa87mr26823702eec.4.1792121260463;
+        Thu, 15 Oct 2026 20:27:40 -0700 (PDT)
+Received: from osman.mioffice.cn ([43.224.245.178])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3608258aa66sm2617092eec.20.2026.10.15.20.27.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 Oct 2026 20:19:43 -0700 (PDT)
-From: Sanjay Govind <sanjay.govind9@gmail.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	dmitry.torokhov@gmail.com,
+        Thu, 15 Oct 2026 20:27:39 -0700 (PDT)
+From: Zhan Xusheng <zhanxusheng1024@gmail.com>
+X-Google-Original-From: Zhan Xusheng <zhanxusheng@xiaomi.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: santroller: add driver for Santroller controllers
-Date: Fri, 16 Oct 2026 16:19:37 +1300
-Message-ID: <20261016031937.824565-1-sanjay.govind9@gmail.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <sashiko-outbox-173648@kernel.org>
-References: <20261016025403.779635-1-sanjay.govind9@gmail.com> <sashiko-outbox-173648@kernel.org>
+	linux-serial@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Zhan Xusheng <zhanxusheng@xiaomi.com>
+Subject: [PATCH] Input: sysrq - reset the per-device key state when reparsing reset_seq
+Date: Fri, 16 Oct 2026 11:27:32 +0800
+Message-ID: <20261016032732.2328852-1-zhanxusheng@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,51 +79,67 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Fri, 16 Oct 2026 03:06:58 +0000, sashiko-bot@kernel.org wrote:
-> > +	for (i = 0; i < SANTROLLER_NUM_PLAYER_LEDS; i++) {
-> > +		if (sc->player_leds[i].brightness) {
-> > +			player = i;
-> > +			break;
-> > +		}
-> > +	}
-> > +
-> > +	guard(spinlock_irqsave)(&sc->lock);
-> > +
-> > +	sc->player = player;
->
-> Since the brightness array is read outside sc->lock, one thread might read a
-> stale array, get preempted, and then overwrite the hardware state with an
-> outdated player index after the other thread has updated the state. Moving
-> the array read inside the lock would prevent this.
+sysrq_parse_reset_sequence() rebuilds a device's view of the reset
+sequence, but only clears reset_seq_cnt.  reset_keybit is only ever
+__set_bit() and reset_seq_len is only ever incremented, and nothing else
+in the file clears either.  The struct sysrq_state holding them is
+allocated once per input device in sysrq_connect() and lives until the
+device goes away, so both accumulate across calls.
 
-Agreed. The LED core only serialises writes to the same LED, so two
-player LEDs can be set at once. I'll move the scan under the lock in
-v2.
+The function is called from sysrq_filter() whenever
+sysrq_reset_seq_version has moved on, which happens when the reset_seq
+module parameter is written.  It is mode 0644, so this is reachable at
+runtime:
 
-> In the driver core, dev_groups assigned to the driver structure are
-> evaluated by device_add_groups() before the driver's probe() function is
-> executed. Because hid_set_drvdata() is only called later inside
-> santroller_probe(), drvdata is strictly NULL when this visibility check
-> is performed. This causes it to return 0 and skip attribute creation.
+  # echo 56,29,111 > /sys/module/sysrq/parameters/reset_seq
+  # echo 59,60     > /sys/module/sysrq/parameters/reset_seq
 
-This one is a false positive. really_probe() adds drv->dev_groups
-after call_driver_probe() returns, so drvdata is already set when
-is_visible runs. In testing the attribute is present on the gamepad
-interfaces, and hidden on the configuration interface as intended.
+After the second write reset_seq_len is 5 rather than 2, and
+reset_keybit has five keys set rather than two.  The trigger in
+sysrq_detect_reset_sequence() is
 
-> > +	scoped_guard(spinlock_irqsave, &sc->lock)
-> > +		sc->output_enabled = true;
-> > +
-> > +	ret = hid_connect(hdev, HID_CONNECT_DEFAULT);
-> > +	if (ret) {
-> > +		hid_err(hdev, "failed to connect HID device: %d\n", ret);
-> > +		goto err_stop_output;
-> > +	}
->
-> Does this mix goto-based error handling with scope-based cleanup?
+	if (++state->reset_seq_cnt == state->reset_seq_len &&
+	    !state->reset_canceled)
 
-The guard can't be jumped across here, but I'll move it into a
-santroller_start_output() helper in v2 so probe only uses goto.
+and reset_seq_cnt cannot exceed the number of keys actually in the
+sequence, so holding the whole new sequence no longer resets the machine.
+The stale bits also make keys that were dropped from the sequence still
+test positive, so pressing one takes the increment path instead of
+cancelling, and releasing one decrements reset_seq_cnt, which can take it
+negative.
 
-Thanks,
-Sanjay
+The boot path is not affected: both the command line and
+sysrq_of_get_keyreset_config() leave sysrq_reset_seq_version at its
+initial 1, so a freshly kzalloc'd state parses exactly once with both
+fields already zero.
+
+Clear them along with reset_seq_cnt.
+
+Note the error direction is towards not resetting, as reset_seq_len only
+grows, so this costs an emergency reset on systems that reconfigure the
+sequence rather than causing an unwanted one.
+
+Fixes: 154b7a489a5b ("Input: sysrq - allow specifying alternate reset sequence")
+Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
+---
+ drivers/tty/sysrq.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+index c2e4b31b699aa..d28a4726b07fc 100644
+--- a/drivers/tty/sysrq.c
++++ b/drivers/tty/sysrq.c
+@@ -689,6 +689,8 @@ static void sysrq_parse_reset_sequence(struct sysrq_state *state)
+ 	int i;
+ 	unsigned short key;
+ 
++	bitmap_zero(state->reset_keybit, KEY_CNT);
++	state->reset_seq_len = 0;
+ 	state->reset_seq_cnt = 0;
+ 
+ 	for (i = 0; i < sysrq_reset_seq_len; i++) {
+
+base-commit: 2f2f7eeef8b0a1a9b9ca998231419873ccae8d4e
+-- 
+2.43.0
+

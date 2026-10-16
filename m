@@ -1,76 +1,77 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06DA64C9E0C
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 13:50:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7AF939936E
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 13:55:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792158641; cv=none; b=mmkLRVrIyrOuiogP7NxHI2O5dbF7wBefMwN9UTe/vBvuC10XlYPujIh75DT0f6Kk6qS1vKCBvODSkI7abCyzPki9ia+7hbrw1K6YKndJx8WGwl/Q6n9QPFMnTDFGOHcTGxDOGVcM7Px5GbxTTIITv44fgE3Zt7OYQBgZYMV1Zso=
+	t=1792158938; cv=none; b=u6cxgeC4Cri4gYfDveuSyDnN8Q9NZpOyNXl5bzls0lpFAzDMU0yoWGz3gJrnTuyoOGmkgnEbx/Jm831Qp3Un+SZUKgE1bBY5Kvd10FIBWgCSfNOBjAcY5x/7KcGqBesjo4KWYzVcT/ERgOSWC/EmsLP3nhsmcNypbh8Fa+h1n2A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792158641; c=relaxed/simple;
-	bh=JtWUgmwXdpydz6sojSijM7nIyyfqJH8FXKjubNi9ZEI=;
+	s=arc-20240116; t=1792158938; c=relaxed/simple;
+	bh=WgH0xFGsLcxChp9qekgARXHm3ntKjhWawPAWTCPfAS4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cumWLv7YuERkc9jDA7mWX8lkGBaY19wLjSxJz5zQT9LkqTEW7T0T4LQ9uwTfdP628SvgeGihNu5vzWwd0AbuvuLnCGdg6fKJkUKMiXDTcMXVrJmUdYjsYh4eLIlqB0CTvpx0K+J3aUCGtBbhreHpCSUOUZbzCD3m96RO7OT1Z+o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qCFQOcdM; arc=none smtp.client-ip=209.85.216.47
+	 MIME-Version; b=ccjzl3FBBxmdheVW48WXHqixETuqBgv8RAsjIh466XY5rGKAMoSwKNJjMxsyU5eA0pAEQPvnF2xlNmmKAM1atSnC6rjZp4a3t1agL/rSH/ZVUw0GwxXcNMDzjhm19g/AdnxPDh7JYFpRQve82EgJWhQCdNXT4yg0EQYzzfXXUio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IP6XiVFy; arc=none smtp.client-ip=209.85.218.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qCFQOcdM"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-3a4b9732d5aso1281a91.3
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 06:50:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IP6XiVFy"
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c40e30c26a4so84755966b.0
+        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 06:55:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792158639; x=1792763439; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792158935; x=1792763735; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=JtWUgmwXdpydz6sojSijM7nIyyfqJH8FXKjubNi9ZEI=;
-        b=qCFQOcdM/OUIM2ay1ToK1u5QDmNQfJS/ac0n1pwTIORQbPiLUpQZkknOdiQ2SuQlie
-         fAHqWh+JVHxcHC2aDJO4/EoaTrmXm/ooOBiyRKS1uaCTG/c1snR9FlEJXgOC4IvDrQOc
-         wgT9GW9x8oTS9UBosl2TKDjU6b9mjS0MR9CUTIBZAprPVinBP8TE6ngaUIkVZREcuE1m
-         MzS3V0ghJ+AsvQFmIvvfPevh/Pajla8nsqwoAQbXEbO2g/VY3SXbLP2iwZQanft0VCfs
-         sZI2Ncjph9i/GZLAZr6I1w0+nkBt6B1ogVx2ykeLk+PZA1Oolo8gXKPlYLEmFA4j9C8w
-         t4Zg==
+        bh=FaG+BrVADgXDwHo831rR0nkrlIE/ZtOkilAp8e2t4CM=;
+        b=IP6XiVFy4O4dxgRkddrCfQ8p30NCiUIMrHRL8LLuNKVQzXfRK7QW3z5jjKhMnbM91x
+         7xf946aV8eF3+zEDQ9qvvZZMssd3QFkKMgb6riPRHzLrMGI20aPIgH3y4YOZxftfvJl2
+         wdaFI+0B2JBI+96USezfU4BOxZIcjvWBztqpii7GTVnk7RIQVeJhHzxxaUaeaHEXYUkZ
+         nFjlM1UmwCzEaIrPi1yNJ2IjPU48i5Mnu1vTZvgSQUiHrhfVARbp+p6iUFuJDor9EvTt
+         3spGOamte90OcScjnPT7WriLe4hiJkONzRRXs0jaPKqX221fp6J9bTg20j8ZWKDgr36j
+         LBhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792158639; x=1792763439;
+        d=1e100.net; s=20260707; t=1792158935; x=1792763735;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=JtWUgmwXdpydz6sojSijM7nIyyfqJH8FXKjubNi9ZEI=;
-        b=ZIj7/BT9i8kA+mnijwTYU233nFHvIrAaCj1ttVHbSdpppK4ONSiUQt2axN//y/OaQb
-         vkUBmp6azupZC3QulUiAaoxIuNXTmOcHoAGUts5mFHbOv1QsHsiP+SVPUnOIb32RI6DO
-         4CwiTOmvRcBDOPC2fnwToObW8ZL6fLjF9tQqx6gBy7mxZs/C421Pisx6oCC+g/oyUJL6
-         kG4Tj/iJOtFw1qoCRkJ40JTNGMYQWhlWZvCVnXQavlu4iCXIvAQfNdl94vSxCaLTFDZW
-         S/C0PKHrGEgUGKWI2HHPPJvZjFmwe3ufWbfU8dP+I/fJ0eYQh9N956DlUML9gCwyex5B
-         k/4Q==
-X-Forwarded-Encrypted: i=1; AKwUvBzZVP0SZr2KkKxKPGfjVOJbhO13+jtB91si7cJ4MdkBOCaNzcjrUqAff3bVKAxU/n/fv9eX3m3yQRfv7Q==@vger.kernel.org
-X-Gm-Message-State: AFq9FYISgt4qEP9SqCdFGqhKDlWJLQy/kwUZSTUZe9fk0whfCZaLgUei
-	S0IymrnLFc6gilWGiWdcSBEkWaKbPAPu0tH9q1CNgrx2z0BbILZVH1QJ
-X-Gm-Gg: AYBFou3xzaB2ExwEnuJ1FdF/qtfYGZu6NKAlByQfCAB3c9I3dMUfJ78M21UmZov55U6
-	Dlt2fvseFGlQ1t+bCDTuSV5pI6bTForZGp9bastUEuL8u1/4CZMM60iYyO3irhUeS51RcLm7uWg
-	wilcaV/Fbw7ZbOGnbM/fhIJ8l0vw3r3GvH+xwmXFeE3gGED/WJKnONx9j2DrEdmCYAIC92BVCC4
-	ADhbn+qEbhlhQFlrNT+tEg5t5DycZzUtSv4qcSvFn8nTqMvIbbg4Sk9p36Wy8wVU8xeaTxpkqJw
-	Yfs8MM0sPSdv9Cyna4jv+3IxzQC3My2Po1n+FC7etvFaBmnKots7/9d5D8y8bcQEmlgsxXko5zB
-	tU8MWx++ZdjBYCAmSNFgC9IqxJFf1eCeCywXw5zJ5oFxbDw1GLy1TxDV171VoNKA+nc+MOSyCMM
-	nZ042IKumQbEQDSl+igI0oYMz24C7Obe4e3Napz0Bhv7L+XmNkKIM13odbo4yB9npxtWkVJbTA/
-	o7ruwWW1UgiuYsc6E6zh1j8GjEUQS7meGwGhKgzHU0bYAehYi2jL/MA6m3ps77edpl5semqBw==
-X-Received: by 2002:a17:90a:1101:b0:3ab:884b:65a8 with SMTP id 98e67ed59e1d1-3ab884b6b4bmr12069979a91.26.1792158639135;
-        Fri, 16 Oct 2026 06:50:39 -0700 (PDT)
-Received: from localhost.localdomain ([2405:201:301c:f8cd:1467:1666:71b7:b993])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3acc487e509sm4348279a91.9.2026.10.16.06.50.36
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 16 Oct 2026 06:50:38 -0700 (PDT)
-From: Aryan Sinha <sinha.aryan03@gmail.com>
-To: "Derek J . Clark" <derekjohn.clark@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
+        bh=FaG+BrVADgXDwHo831rR0nkrlIE/ZtOkilAp8e2t4CM=;
+        b=26w+jbVtlZTmooPpidsbAy6+oclc/hO+rM7A+A9XdoRBg5dUzNs0F7VxtazViXZzy/
+         nzXBLkW01tSWVfxs5dg/pGLznWx09vivPr3UA+re3iopM8cU/HzKPOwF6okAK0NL8pa6
+         6BY8Z9BU0M2fzA7pNDgldbs5rCA2r5gtF6aDq7ZRvjjy2rccaCY+ONe2zEgeE1MikqYd
+         zgOzbs4LjT+d1LnrGW60e6Hj4fsOM2WvZGyqbZX3sw/L76HMVYu9DVVRo2Z+BU6jS/Wy
+         3w1CHwoKz6HyY1Embf5is5YiOGVMn3B3p5lzehWtuFQBB0sYgvgQ/yyJ1UXwPIuKve/c
+         3N4Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxCnSSy6Wa0tlbRVD0LfTdzqeTJS86NkBX+KEQkxn7i7DhcpjqwLCM4D1T0g0mtOama+uywoMCxiYeZCw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLgfApWqadBrRWcdgy5NXELWVhNq0hkwexFsyqfRWrHtrKLh+AP
+	iagbL1tpfGJImfkwf9qDTOhBSnsbXGxrD+NGpobPQJb2KdVM/UyeU5B3
+X-Gm-Gg: AYBFou2vowjU2DDT7taFg1n5u3o+omLf9AkJU+AEqwIjkIj6NcCTazawYyXB1tcrGZp
+	sic18+hPNYHrvjIeyrU0fS1ca2ZvGDnwYAXSJ99zLaYuGP2k1TvsDDPXyVgNP7wxp7+06dqHGec
+	2wux9kUKS3ThvMYf//dqHZ9mHZ9XOJEFkfC9J1nwYU762X+CMLJm6Sg0pW469+SZbvG/9H7KWm6
+	YWQ/J8v0bTFCnqAkyNfzaMHU5WhjJB7zE/zin9lAszFFQ+NlCLZ4zp1iNMHsHVF19/Fxr+ISj3e
+	tKXqnUkdOD5HvupiRZyBi8/8mVphHogBiJSzxyvKCiC2x666t8iBpNSs/gpwEVWbz4JTmTSAugH
+	t7JIG7lxKxAG+th0ZkaZhtiyMADChD0igCQANWHBIajJ3LdOqxhRiE9jrm0PR8kUqFPXCMTDZFx
+	YyLj5NZpWCpeMCZSP25Fdnb3zAxkiT0vxdZoaGBt27d5CT2m1ULrLAmcyLYo4kz09e
+X-Received: by 2002:a17:907:a317:b0:c3f:2:6faa with SMTP id a640c23a62f3a-c401e136d98mr341429566b.1.1792158934663;
+        Fri, 16 Oct 2026 06:55:34 -0700 (PDT)
+Received: from beelink ([187.15.113.228])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c408e328775sm75262366b.7.2026.10.16.06.55.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2026 06:55:34 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: dmitry.torokhov@gmail.com,
 	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: hid-msi: Use str_true_false() helper
-Date: Fri, 16 Oct 2026 19:20:11 +0530
-Message-ID: <20261016135031.36131-1-sinha.aryan03@gmail.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20261016101506.14084-1-sinha.aryan03@gmail.com>
-References: <20261016101506.14084-1-sinha.aryan03@gmail.com>
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Subject: [PATCH v5 0/2] HID: multitouch: fix use-after-free of haptic data on delayed input release
+Date: Fri, 16 Oct 2026 10:55:14 -0300
+Message-ID: <20261016135516.2957381-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261009103333.2476105-1-qwe.aldo@gmail.com>
+References: <20261009103333.2476105-1-qwe.aldo@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,11 +80,42 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This is an accidental resend of a patch I already posted on 12 Oct, with
-nothing changed between the two:
+Hi Benjamin,
 
-https://lore.kernel.org/all/20261012154537.42113-1-sinha.aryan03@gmail.com/
+Thanks for the feedback on v4.  Reworked as you asked -- devm_kzalloc
+stays, a devm_add_action() handles teardown, and the try_module_get
+reorder is now a separate patch.
 
-Please drop this copy and use the original. Sorry for the duplication.
+Patch 1 moves try_module_get()/get_device() before input_ff_create()
+so the old input_free error path (which returned ret == 0) goes away.
 
-Aryan
+Patch 2 adds a devm_add_action() callback in hid_haptic_init() that
+does all the resource teardown at unbind.  hid_haptic_destroy() just
+sets ff->private = NULL so the subsequent kfree in input_ff_destroy
+is harmless.  input_get_device() pins the input device for the
+duration of the devres action.
+
+Changes since v4:
+  - keep devm_kzalloc, use devm_add_action (Benjamin)
+  - split reorder into its own patch (Benjamin)
+  - single-owner teardown -- destroy only NULLs ff->private,
+    devm action owns workqueue drain + buffer frees + ref puts
+  - input_get_device pins input_dev against concurrent release
+  - workqueue drained before any pointer NULLs or frees
+  - input_ff_destroy on devm_add_action failure
+  - no hid-multitouch.c or hid-haptic.h changes
+
+v4: https://lore.kernel.org/linux-input/20261009103333.2476105-1-qwe.aldo@gmail.com/
+v3: https://lore.kernel.org/linux-input/20261009110509.2432308-1-qwe.aldo@gmail.com/
+v1: https://lore.kernel.org/linux-input/20261009031207.3233206-1-qwe.aldo@gmail.com/
+
+Aldo Ariel Panzardo (2):
+  HID: haptic: reorder try_module_get/get_device before input_ff_create
+  HID: multitouch: fix use-after-free of haptic data on delayed input
+    release
+
+ drivers/hid/hid-haptic.c | 87 ++++++++++++++++++++++++++++------------
+ 1 file changed, 62 insertions(+), 25 deletions(-)
+
+--
+2.53.0

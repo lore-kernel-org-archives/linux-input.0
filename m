@@ -1,52 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B344231326A;
-	Fri, 16 Oct 2026 09:37:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25D8F3C769B;
+	Fri, 16 Oct 2026 09:40:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792143443; cv=none; b=HEuDdZnYribmRvqVGyRXK0WfwxYZfLXBVYQzl1Z0yoxNC0VOHOMtDMUtKigGoxa5Bz5vpEhEfhFNFYjCLuokfJ4s9YyMMsPkGXC8cn/JIoBma9AwihMSgL/idJTxrH40FuoLOmwuGl8RznvFGG0C9BVf5kgh4CBZb1ze4aRKMPA=
+	t=1792143616; cv=none; b=LciOw371RLrjaDVYGmWsmWdgdIOL5kAQ6reJ3XBXCFfmF4PsnNwImpkDL4+XC9T2jsldRJ/rlUKtclzbnfLObgPvqmvaIFe6xi/u9dGBLRdtXliic+/crg1orXelT8XOOEcqe3ymEbBe8zTCB+kiA0LvfSzym/bO7t6k0fQlzqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792143443; c=relaxed/simple;
-	bh=0h4y8ewI6vpe63BMTbKm8/orUTWs1RpLPPVuvxHBfQA=;
+	s=arc-20240116; t=1792143616; c=relaxed/simple;
+	bh=87hBvvTkVrB1+oH25+2z0W+4Uo1Y5XZjUIjFDdCGplQ=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=JRMfR5cJrKl3MKyZEfe2CwgPqOaQJUW364Bi11j3VTrLDDME97W/rfDE7JKLlGqiHzAhgy9RwAzafkrvkAVF8s+8nkMg1bLyVdN5LX7aVLvCZQEvtko7HB7LMMYmwtwV/4S3ZzW5J8HyRiOf3V2DegRf5WlG5NAzvxJ5bkvomHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hVcucW6j; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=HoOABhsj+Shifbg2fSOodkh6VyXQq1a7JTg4m6NHyIpC1HaXmiT4JhATV+jIPu8EwzLKHRy3dw0EsIiMp414pJIyLJmYuntJRzk693AxWmHOyjYcMn8SfdsdcT2whvUTE3vINdKasQryE/25UUvlKWohiF6JsbAX//YAqCUnQpQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VZtby+uS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hVcucW6j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 103171F000C4;
-	Fri, 16 Oct 2026 09:37:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VZtby+uS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD431F000C4;
+	Fri, 16 Oct 2026 09:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792143442;
-	bh=5sfvuyLfv+Jii3kYwTgfnM4uAxR+GVFTSUQiN0eU2Ns=;
+	s=k20260515; t=1792143614;
+	bh=mNqVn7E6IzG2yYAEwxGNcrT0x+aC2uFLmBLaT7Z2NVw=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=hVcucW6jzLN3hu1kByVp6dfA2ALCYZoUZV0VE4rxRTISONyNweZcdr6qYSZdl2mIA
-	 vVsDAZoG6ozhYsYBAMsOaWzUuctSTQWLMCAE0Hl59rKDqpShphc4BwA78zxh0dL96y
-	 W6wIyM++ddA+KYTQCgIPcU4ru7q7HEwIseqfmNmXC4lSrqiSl+MD+GWMuss8nJmhLo
-	 g+HuVd5opXr3zWuCPJfI/i9hel3dfyVrxotZLAL6dDa90Vw8pYZ8HqFpv9MjWHJuNG
-	 OqXgTcdCrigRAhzmXpLRv4WjyhtLHcbsFa8MfQuHliaO4M5/navwm0089s5sIpdRTj
-	 qpSpxmo/BF21w==
-Date: Fri, 16 Oct 2026 11:37:19 +0200 (CEST)
+	b=VZtby+uSiLnVaHhf8t64ejfccqOtGPJCWv3BfC5bDvgRVj4le7jq/y+OjrMC/3wJ1
+	 40RbWvrONpG0WHS75liZRtWqRLOiPUOdLMoPjeq7P4Tp0rviJjunjXhy1Rzv53I565
+	 nV9XPftEufEJzREyzbHyxf95139VfYX3eT1CLZEyb0BvyBm0qyGrXJ5Sv0nSPiv+5m
+	 t7vd4qknyq1KbxViIaX11uYQdzwzNhFnvNZgl/gzUzkh7uFIfQqnUMfyCRHYZqBAV0
+	 gcDgppYdKqNEc9BkbWkmHVEIPjVaHraxROeVcUdcsdf4VC2V5Mf1JGdGvNR29MkNKM
+	 NQagq8Up9pRTQ==
+Date: Fri, 16 Oct 2026 11:40:12 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Jiale Yao <yaojiale02@163.com>
-cc: Benjamin Tissoires <bentiss@kernel.org>, 
-    =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
-    Rishi Gupta <gupt21@gmail.com>, 
-    Marcus Folkesson <marcus.folkesson@gmail.com>, 
-    Masaki Ota <masaki.ota@jp.alps.com>, 
-    "Daniel M. Lambea" <dmlambea@gmail.com>, 
-    David Barksdale <dbarksdale@uplogix.com>, 
-    Jiri Slaby <jirislaby@kernel.org>, Hans de Goede <hansg@kernel.org>, 
-    Johannes Roith <johannes@gnu-linux.rocks>, 
-    Rahul Rameshbabu <sergeantsagara@protonmail.com>, 
-    Clemens Ladisch <clemens@ladisch.de>, 
-    Don Prince <dhprince-devel@yahoo.co.uk>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH 00/10] HID: validate short reports in raw_event
- callbacks
-In-Reply-To: <20260924144414.1192037-1-yaojiale02@163.com>
-Message-ID: <00135752-q124-75o4-q507-pq99452p5n5n@xreary.bet>
-References: <20260924144414.1192037-1-yaojiale02@163.com>
+To: Denis Benato <denis.benato@linux.dev>
+cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+    Benjamin Tissoires <bentiss@kernel.org>, 
+    "Luke D . Jones" <luke@ljones.dev>, Mateusz Schyboll <dragonn@op.pl>, 
+    Denis Benato <benato.denis96@gmail.com>
+Subject: Re: [PATCH v2 0/3] HID: asus: improve the driver support for
+ laptops
+In-Reply-To: <20261009114921.5242-1-denis.benato@linux.dev>
+Message-ID: <22327453-966p-o133-1pp8-842q1os8s12q@xreary.bet>
+References: <20261009114921.5242-1-denis.benato@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -55,26 +46,36 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Thu, 24 Sep 2026, Jiale Yao wrote:
+On Fri, 9 Oct 2026, Denis Benato wrote:
 
-> __hid_input_report() calls a driver's raw_event callback before
-> hid_report_raw_event() validates the received length against the report
-> descriptor.  A raw_event callback must therefore validate size before
-> accessing fixed offsets or casting data to a protocol structure.
+> Hi all,
 > 
-> Ten HID drivers currently access fields beyond the received length when a
-> device supplies a truncated report.  Add protocol-specific checks before
-> those accesses.  The patches are independent and each changes one driver.
+> Antheas has requested reviewing the XG mobile patch on this cycle so
+> I am re-submotting a modified version that is a bit cleaner because
+> it uses LED_CORE_SUSPENDRESUME instead of re-sending the LED state
+> manually on resume, but it's functionally equivalent.
 > 
-> The mcp2200, pxrc, and zydacron cases were reproduced with a fake HID
-> transport under KASAN.  Their individual commit messages include the
-> relevant reports.  The remaining paths were verified by following their
-> fixed-offset accesses from raw_event.
+> I also included a patch to fix a pre-existing issue that was flagged
+> by sashiko-bot, albeit I'm not entirely sure if it can really happen
+> in practice, though it is safer to handle it correctly given the
+> actual code change is so small and leaving it documented helps future
+> changes.
 > 
-> This follows the local raw_event size check added to hid-asus by commit
-> 47669bec44fe ("HID: asus: refactor the two workqueues and init sequence").
+> I also moved some code to reduce nesting and improve the resume path
+> on ROG ally and other N-KEY devices.
+> 
+> Best regards,
+> Denis Benato
+> 
+> Link v1: https://lore.kernel.org/all/20260813144736.2477941-1-denis.benato@linux.dev/
+> 
+> Changelog:
+> 
+> -v2
+>   - HID: asus: add support for xgm led
+>     - Solve an impossible error reported by sashiko-bot regarding teardown on error
 
-Applied to hid.git#for-7.3/upstream-fixes, thanks.
+Applied to hid.git#for-7.4/asus, thanks.
 
 -- 
 Jiri Kosina

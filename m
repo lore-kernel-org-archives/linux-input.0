@@ -1,168 +1,86 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from outbound.pv.icloud.com (pv-2002d-snip4-2.eps.apple.com [57.103.64.243])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 034294F7CAF
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 16:14:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792167273; cv=pass; b=ORIK7q5EApgm2v7ce7PRA3K58EvkfAIBtnB/6NJGjeNJJxDUs+Nd0dRJQY0sogjK6WwRwF86XN1LX2c83hvyNAmFw0oW6FlYb0vxhOHuos8hl72uy2bESraNTcSB7dbzV8dWrNX8B7JR+kA0yRlOOJD5q2hApTOtTeE5KnFm4G8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792167273; c=relaxed/simple;
-	bh=XWM0PptT48SHio98kQC9yyK4EB0SbfqQBSb6AQOxOw0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BeiTCMTNsM2gcTKh877K2snVo/BWPJVD7Dwi0POsxJt3BPmtyrAQ9DPUUzCyoERi+sLps5l5S8S+O9GJBnlAp7Nmxa8UXWQE8z6E50wUXRLx471+xmVuXR3Ac3D91Q9UvTIAJu6X59uzraPhJlTL03uBx0HRQ7rkcGUCiN56HvE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FyE0CH1/; arc=pass smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5076C502577
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 16:17:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.64.243
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792167465; cv=none; b=LXouClhoMEJ+O7AdmTMM42X0deO/v9MINmxf+8u37o1HY0X5YwjA5VtBKgDiVUeYBQK0tpGjxPX5ZTFQOxHzzsvC7c2WbhounfLovEZOA/V7ucBbop8okTLMNxEo6IYNnM79AzghB+EsPNomCWOFxNwX7D7SlcW/SZkM5sAEGHs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792167465; c=relaxed/simple;
+	bh=3B8aiqdinxgzAT0VpumssvkM/xdQmuYpEQ5Im0EHJVk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=fbTVK0UmA2EvXSAgKvSUctQG+sFhARWp0js8v+UdkBdTuc2bixn5jPcbkumjV/tC64BGEZ7o2OOewi6M3iZhmSDPuLo1AxkoJ/oPT8FZ2yan41vd2CozHUMidt5Zgql07HG1WyfO9x5UsEe8FhXiFqlTsdy+oIMx+2XybnOqZxY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me; spf=pass smtp.mailfrom=matias.me; dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b=k80mpNdL; arc=none smtp.client-ip=57.103.64.243
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matias.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FyE0CH1/"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3a9ad623098so330361fa.1
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 09:14:30 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792167269; cv=none;
-        d=google.com; s=arc-20260327;
-        b=OExGsYsuHEHU+ssiSNc2+jAOnRt/tKO31m79MJsyp+dvAtNFnM+PLc8w2fMcoYtYpc
-         FmRTZkrOfsaaZ5OLGUdI/wUrYbK4iOHZnQ3TjXcMJnee5XJnDvmdnwQ3DqJ6n2YIpseH
-         lIpMqhGIyvqmT2zoLyDP2jG7qhsX9nQfeBS4WE9F45PGlevKvfDsRPFabWJDS7jD6RJl
-         M4ACVYeQ6NUXdVCv7e/RPGRoZvZSKnwnKqStoDn92HT0AeNlEnEmmRqlfHl2Q+cRdZbH
-         GLABfVcLSnI0noyN7w1TP0n85NSPRWMx/q88eKNYifs3GdvATwtCzFB3mVNjF7BbrD3C
-         bgyA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=gZER+Z2hSHjmZyeGIvEluIbU09gJM9ZpLypRSxth3j0=;
-        fh=dfvPRi+t5KvUF1qpgNVmacxvd83mvku6fE8K+/2kbH8=;
-        b=jEaOjq1rVcfBH6krQZaRJmJ2idjr5z77mcGZlHltGMdI0Emgl0GfRToDX0DHEupB9+
-         6aOltP8kf9r1iux3E23I3A5Wl8Wi2IHBAEq/F6DLlCCWolqftM9/p0DYV/v0WDn43gR0
-         ihOvK9Y9WxOhYJ8ei1axn69xEFdvVKUQqKJlgGP8H88oXxNmEP5T6cO7sbyvosre2bY6
-         KBUwEQe3nNE1G4/Sc7b7kqe4QzatG4XjBQuH3OxsjWYCUMIhiUp1drUwjvlu7KEN25x/
-         0cKqFfz2hf2XA3qKRPTB2pUxhQOFI9IxHqJ7dSp+Z2pTuVCe2BXxtgUSNUZ3jj+qY+hj
-         ua6g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792167269; x=1792772069; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=gZER+Z2hSHjmZyeGIvEluIbU09gJM9ZpLypRSxth3j0=;
-        b=FyE0CH1/3k3Y4x0ZC0WBdKR/xBvrp5AkV6fWDY38Zph43mpi8pS7aJiFFXBoJG69vE
-         WY3sTDbAxTpERtQT93X0edh/rXqbqZobNDt9xsI4/XA6qrjlPf9vr2eLiHhrzxO6N9jd
-         Zt4izMjSqz3+IBiVZya23DN7//cKuO9w5zW6qWFQOVTuX5ZnnxTZcpzrQjGrQdPiSIcu
-         3BQO9FKtWsJefmuSe/EbYuU1ETStnNcVwtUvWb0Ejttmtv2I/JJBFMiJ2SvgsEUchkVX
-         O6/viFVChCbvqWs1vMPT4Y5OlCG5/IVQ1nK+WryNeie7tVRNsUWO3EojBArLZW4W/DFf
-         8GnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792167269; x=1792772069;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=gZER+Z2hSHjmZyeGIvEluIbU09gJM9ZpLypRSxth3j0=;
-        b=WI5tfM1I/37UxkMF59LHix/VrFwfSJaGUpND8DFxOg+njAgJt2YaYWU+A47i/y7ylS
-         mie/HpKGRTMTpj1ebGAZBFF3UsXbK9AT4ZwX41ickulF3F/Dohyh8QXwthMmOnjC/iF6
-         zqn1kFc7aXUY583NpGkNkSYlyxGfuUTvf+dMO6WO/Ss76hw+EqXof7qoBM43ARsIXELj
-         rGn6W0RSViNziN2jj9h0NxGEgj9MF1gmryd0r6AQBmf04qMMCK2doDd9pO/30KI6LHbp
-         PPkkaT4nETlw7C03yMsGKVzRBLLPiqmAd8mlC0L2F/iED1Y6hnVyAdn1y8oXUHUDKMPi
-         lVzQ==
-X-Gm-Message-State: AFq9FYKLKs3qnjaszh0G3kVNwCUeMCXxmp4wIlyqKp/Yf931yrSn4QjL
-	/P9gGpVZVK61L7Xt/m6DhG89du5e1nZekL1fb2jlWa4f85QWSx5oXnfajyt12xd/+BNEOtZlz2K
-	Ta41Dc+w2YZooMiSAG/vSsOWgXL8DZf4=
-X-Gm-Gg: AYBFou1rddHWRHBWEwr3lvFq5Jgg3JXv074qQmUxu4Mr+KdEo5R52gP8p4PDHR+g56E
-	lJtqzQ16lMtthGURmjmr2a7uM6m2mCKT0zqgiegeD+cp5k50lVcTXst7rAn+W3UvQ62tWLIgY9t
-	wYpEZ2jw4mlSlgdiDgQ6hrrvDmG+w8P8lWCI3OMD7BJ0UTCWn04yJPelwWNwNruCfNV2myJzLbp
-	qs1eUDLn54lpow+zGfxurj4ybuzl5xdz9IurUGnh0JV36I+QFAkwm6U4q7FEtv2UVAmkG7fR9xt
-	CQk1KxNnXVPJuJ89ZEVfsxKczgaiGy0C98ngF0ahAa/WIs8BtQ7sDx1atDd9pQMC6evxUFYlX0n
-	JuLYADS59IHeM
-X-Received: by 2002:a05:651c:1501:b0:3a9:a9f3:1e93 with SMTP id
- 38308e7fff4ca-3ab29290997mr609181fa.10.1792167268791; Fri, 16 Oct 2026
- 09:14:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b="k80mpNdL"
+Received: from outbound.pv.icloud.com (unknown [127.0.0.2])
+	by p00-icloudmta-asmtp-us-west-1a-100-percent-5 (Postfix) with ESMTPS id 1999A180100A;
+	Fri, 16 Oct 2026 16:17:37 +0000 (UTC)
+X-ICL-RepId: 01a14581-34a7-7e4b-8042-d837683a4627
+X-ICL-Out-Info: HUtFAUMEWwJACUgATUQeDx5WFlZNRAJCTQhAAkMDWBxBDUAdVQFLVxQEEFYBWwRyHVgMWgxERV8VGR5XUFoKRhlYCx0AUktAEwRJA01fDl4fBBdGGVUERx5dVkMbGQJRHFYNV0NUBF9QSQxBUGxaAEcXSB1dGVlvUF0cDgBWH1sRSlZeCBcGWxQERAFdBV0DQAhOAlsGXAFBF0kAVQ5cH0EUEFYBWwRyHVgMWgxERV8VB1hHFEcODxNMC0cCWjRWH1QZWgM=
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=matias.me; s=sig1; t=1792167459; x=1823703459; bh=3B8aiqdinxgzAT0VpumssvkM/xdQmuYpEQ5Im0EHJVk=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=k80mpNdLisjSd+1ij8YHVHpwKrtISuOCVJ72kqkJTotUDcBYcmBYgcv3lANKCV0hyAYU2WDKgS2L143UDTxr8sVv8RTQAX1ixu96VfA7EKeogVpuCt0Dvm64UrTj5Ql5wwP+IGJRMbZWAkZTLNCCabrobeDrV4RAe77l4bE+duehEcBolRrgbk02nFmAC5qKMmt+GqRDRIifSI2bMFyO+ivSsSoRZr60Zs1qwpToaUyV7X8tsH40gBlLZvjdaoTCn3qpx4DyFtQxepUg3uumb/ivjyLtS5u0YgLtrqyTic46bP1eqTFJZ8Cag6JQnfBooYDI8ZXab/FttXl723lmig==
+mail-alias-created-date: 1705102286191
+Received: from localhost.localdomain (unknown [17.156.192.29])
+	by p00-icloudmta-asmtp-us-west-1a-100-percent-5 (Postfix) with ESMTPSA id 482EE180101E;
+	Fri, 16 Oct 2026 16:17:35 +0000 (UTC)
+From: =?UTF-8?q?Mat=C3=ADas=20Mart=C3=ADnez?= <hello@matias.me>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Antheas Kapenekakis <lkml@antheas.dev>,
+	Denis Benato <denis.benato@linux.dev>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	"Derek J . Clark" <derekjohn.clark@gmail.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Armin Wolf <W_Armin@gmx.de>
+Subject: Re: [PATCH v4] HID: ayaneo: Add AYANEO 3 detachable controller driver
+Date: Fri, 16 Oct 2026 13:17:31 -0300
+Message-ID: <20261016161731.13897-1-hello@matias.me>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260925061941.75121-1-hello@matias.me>
+References: <20260925061941.75121-1-hello@matias.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261016114757.1099300-1-meven@kde.org> <sashiko-outbox-174261@kernel.org>
-In-Reply-To: <sashiko-outbox-174261@kernel.org>
-From: =?UTF-8?B?TcOpdmVu?= <meven29@gmail.com>
-Date: Fri, 16 Oct 2026 18:14:15 +0200
-X-Gm-Features: AclHuK934t3G5978UIGy52jZ8v9DVUSyCs0cEfT2mYhlpX3AVMrgexX3inHtJ8k
-Message-ID: <CAOvFf8NOvVUhuD=Ak=kXUN-e32HJTtUh+qyNG2thTHFf-HjHVA@mail.gmail.com>
-Subject: Re: [PATCH v4] HID: logitech-headset: add a battery driver for the
- PRO X 2
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: L_aj4fqf-Zfi25pLJBDpiQMfVbzFS0Z4
+X-Authority-Info-Out: v=2.4 cv=QtJTHFyd c=1 sm=1 tr=0 ts=6ad24e22
+ cx=c_apl:c_pps:t_out a=aW9mcIavGNWWFvFFKOxBSA==:117
+ a=aW9mcIavGNWWFvFFKOxBSA==:17 a=IkcTkHD0fZMA:10 a=MKtGQD3n3ToA:10
+ a=1oJP67jkp3AA:10 a=660iZSQnnn4A:10 a=M51BFTxLslgA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=CS8cKMFXB7MW6LiegxgA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE2MDA2NCBTYWx0ZWRfXzNAt7GR9F5ig
+ 8qLZTxlEm660fAHi4sx+hoz+Sj6WLbZnprt7dn7ROISvm3uitf/Kz+PFNbc7ESOPLq7rdaAOIwp
+ IuHMiLEO3q9NUOJGhgzLptlrIHzrX6uuip0pGkjSlBM1Ij61+3Wlcra9d7GvOgPu2SkydK17tac
+ s5WipUgGha/G0dNlU6ij+hlAjRN4Yzm8w7eXzj8DieTuRdr1VUPQLwYuc6bz+3rLgyzj7IMjiUp
+ bTEAPrb7z5YYqVeNiK7T5ZZlgXfeQEvr0+vCiYwsd1hiWfksv/rd5j8OrQKt8QgmKP5LaHpnJCd
+ aZ76TKxX8hICCGTT0KENTbD0hq4VcBdhioC9JiAmvoDOGqrO1B9+rJQdguvku8=
+X-Proofpoint-GUID: L_aj4fqf-Zfi25pLJBDpiQMfVbzFS0Z4
+X-JNJ: AAAAAAABGW6LBT02nfum/oaLVmwYxM/ieK8GDy7Axve1/9Z33wouSG3smsJ6hn9L1tUBCO64i9v+xumQLu8LSTnlQ/vsZLoC3gxmJjNj2ZIckMhvsVsjJv7hIiETDzVvNXIRx50rdSn3KPV4rUdFE+mgDNPQMYSbIkgx2lfw/m9nqKGYXd2P2U7FvdpzGwuW9UlZxb+ZuORtSNhz3SwlVdnxNbs9FG9viagG1p1H1/cjndfJBYetfjed0Ol7gMSBJhfXnQuzEmaz7BHlQB441JtcvXR2ER3LTLeWzxe/zG4Ivg6xnrBjiWyRBdVPcxQBQ36Ml0/DDfYzHBZWohTLF2VxT0tFL0B1sdBsc/I/YQSBofVs1+CgSSHhpi9w90EHI/yoGBy8oCrHtRuj8pco78xdZilzNYKENUuvgkGhQZakhS+8gF2LlTi/dy2uasjed+ntJXHUNv2tTtVolJqWaf+1YiSaPYqpPt+nYf6H8e4VtE/nYeSda4mD+6lxGUfb/WBr3/2p0hYG8vCbRH12+9FDI8SFySwJhsaqr8iPjHF66FZdL4YCn+n4U+H3mgjWv65pFfMATTn6BwSjY7CIAuUs04wdHdZeV2DjewFC2lUIg4GvxOpzWd8kFgHNPMr+ZYwMYqAxKiRq2mrRJToa/jpr6/o6/XHpsmbCt6f5tFBxM5M6zPVHsm+lds/Y6M2pjPqStarU0W4AtZ7RTKHpvIGEEPufoQUBTvzsx/VH1yTq0rDDGDKsXVaiOE3o7F+mUlvlyQ0iFrTRo0rpEE7f7at6WJr2wSFjcuRpNpYsLaiVwH5CJxFNt7NI8hx1fsylg7U+4QtgFzfTdMKRVXCvyhF8llxPNeKB7/GQmbR77Z5c1N5tYDy14GmSD4ab2oJcATA0egIdTNXwSP21omOXYOpETuQBtmbc522bgFuGYboXOx5E2yV+Q2BXxJvu1t3x9SV48KbLbqbjuDIxyN4J2JRILA8ICSS
+ iUHurDtuPfVSQjTlMW0sQGknPepsCiIFA6JCP5RFDIcWiO146kiiKxawCM9ms0fEkVA9UrQYRvBixpR4qcgT7uOMKJBBWCRTQUB9fBWxNtErgavrxRyzMP0xmNN5eyR6wjOD/Wx5UM5MNP1LjCNttp8haNh3FQafLoKPcBhn9hd9nekfsNRAwAWlMKQ19BE2djB2W01auTOeNqw9YbZYA2cpQs01bx7/C65mq2Sw6MFrrtNUvkRf66FzZjJhXnVXULwz8luuUjzc5m8gFm556LIJFlRXZkgNwnXARHTNUqbSJpG7Zb/PHsh1U+pBs7P+Cp3IPDyuPHYG6sd7v5Jj/QxiRJJZu8b0DPlmd0yN+uFmJrhrtyuIIr8eG65I4g74pnEs7okU/VDId4g==
 
-Le ven. 16 oct. 2026 =C3=A0 13:58, <sashiko-bot@kernel.org> a =C3=A9crit :
->
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
-> - [Low] kconfig: unmet direct dependency on USB_HID for HID_LOGITECH_HEAD=
-SET
-> --
->
-> commit d9d20c74276791f547d49f85750e9fd359bb8c0c
-> Author: M=C3=A9ven Car <meven29@gmail.com>
-> Subject: HID: logitech-headset: add a battery driver for the PRO X 2
->
-> The PRO X 2 LIGHTSPEED receiver does not speak HID++, so
-> hid-logitech-hidpp cannot read its battery. Its report descriptor has a
-> consumer collection for the media keys and two vendor collections, and
-> no report 0x10 or 0x11.
->
-> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > index 0e3a0ccd6901e..60f579be1da69 100644
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -680,6 +680,7 @@ config HID_LOGITECH_DJ
-> >       depends on HIDRAW
-> >       depends on HID_LOGITECH
-> >       select HID_LOGITECH_HIDPP
-> > +     select HID_LOGITECH_HEADSET
-> >       help
-> >       Say Y if you want support for Logitech receivers and devices.
-> >       Logitech receivers are capable of pairing multiple Logitech compl=
-iant
->
-> [ ... ]
->
-> > @@ -687,6 +688,18 @@ config HID_LOGITECH_DJ
-> >       generic USB_HID driver and all incoming events will be multiplexe=
-d
-> >       into a single mouse and a single keyboard device.
-> >
-> > +config HID_LOGITECH_HEADSET
-> > +     tristate
-> > +     depends on USB_HID
-> > +     select POWER_SUPPLY
-> > +     help
->
-> [Severity: Low]
-> Could this select statement in HID_LOGITECH_DJ cause an unmet direct depe=
-ndency
-> warning?
->
-> HID_LOGITECH_DJ unconditionally selects HID_LOGITECH_HEADSET, but
-> HID_LOGITECH_HEADSET specifies a direct dependency on USB_HID.
->
-> Because Kconfig's select directive forces the symbol on without evaluatin=
-g its
-> dependencies, enabling HID_LOGITECH_DJ in a configuration lacking USB_HID=
- will
-> produce an 'unmet direct dependencies' build warning.
->
-> Should HID_LOGITECH_DJ inherit the dependency on USB_HID, or should the s=
-elect
-> be conditional?
+Hi Jiri, Benjamin,
 
-HID_LOGITECH_DJ already depends on USB_HID, so it cannot be enabled
-without it, and the select cannot leave HID_LOGITECH_HEADSET with an
-unmet dependency.
+Gentle ping on this one — v4 went out three weeks ago (Sep 25) and I
+haven't seen any maintainer feedback yet.
 
-HID_LOGITECH_HIDPP also depends on HID_LOGITECH that itself depends on USB_=
-HID.
+I re-checked today and the patch still applies cleanly to hid.git
+for-next (tip ae6927c53). Antheas, who reverse-engineered the protocol,
+has followed the series across revisions and was happy with the final
+shape. The driver has also been running in the OpenGamingCollective and
+Bazzite kernels since late September with no regressions reported.
 
---=20
-M=C3=A9ven
+Is there anything blocking it, or anything you'd like changed? Happy to
+respin if needed.
+
+Thanks,
+Matías

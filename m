@@ -1,155 +1,124 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF19A37F8DD
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 07:06:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE623AA1B2;
+	Fri, 16 Oct 2026 07:19:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792134410; cv=none; b=lSedQ/GqMHzHzHuSjyvx1v49MYLD+urWDM6+ApXN9lEEczfQrJX1YQKHxrxl3ziVcQUlD+/rx5NDQmY9EInrah+FQGZRfYaFuS0fPz1o5x11rMl6Ryvvrn0ToICjBuTTNy8hemP9fnSdwiKmqdqyYgUI6awtpFSA5BFkXoNZ0+Y=
+	t=1792135190; cv=none; b=nfvcoya0zs0/Ul89JleysydE8BDmAwHO6d0bo+C1XQcMpubi5E67p3R7AgN5NpG2f+vL0uxbg676wLYCfp2lCyyLcF8KxRmWuXWHplOgvU/GEdfNfzBcVyq1EpkG7H7aixYfzKdFhDwO5JDzgVFfdMsM+9a+RF3+uFuB2DjZy3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792134410; c=relaxed/simple;
-	bh=USn6w+07pq189JJfQZSEywdO98S2dAszzeqvb9TXxqw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MOR4oZcs4FP+r2rV/qqw7W/zI4cRl7y4D4GxlacJ02PTC6bBJI2nSkiPnm45SfCQFET/j7yoo9HvDS629FBfodSlwuRRKsHCUkDnY/yN3jJ58irZobT+lfgZjXY4c4N3jOW7mxsciyDRUS/4IQV1Vr0vHI3OsqwYbZfu3BV9kYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=km+ZU3If; arc=none smtp.client-ip=74.125.82.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1792135190; c=relaxed/simple;
+	bh=TP0284cGvOJK/wMifYexkuUdWwlspMkVRMzvxwqYSfQ=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=p+TM5I8fUFjKeL+aRAHVyC0E8j08vXaAI+pQLwleVbpSbj6m29qnh3nh/EIik3w+d6Hu5jNHrjtvBQme3HxsckY9EcxNpPZ2xio6hdcO0haigCYSMsFzsbnytpVoiUAtBc8IqNkT2YAeJ2keWEfnWvSkpU5VmCU0g09EnYKOxWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GGUKZKBo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="km+ZU3If"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-35c76e9614aso4520616eec.0
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 00:06:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792134408; x=1792739208; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=oFiWoYztjzXHZLP55NqN/1kpppjMYdgZZKZWx6u33J0=;
-        b=km+ZU3IfUpD4aGLtwUfJgHJkXvXQotBXzQVplB1FmpJpNUBjgNCwJphkPMWpoelFFo
-         bJBsrXkIGFS8r7blZvmf/cxOCv3831xXw4pLStv1eGD0J9qkJnhgfMixj82eMVLvD4QN
-         689g+hZfhzU1qrcBEGzgj0EoULMdFUgL7y4posnF4owhwn0hSC1MssSAo8GNf8X6TzEc
-         apSF6CjhJSwJAyOz3Q1jZTXKHGtJLw3IsP5iGsprDk9CQdlwV3brQDdm535e7zJBlM+y
-         8Z6dxzdqb5UoCJMuu4xgM/VcRtMDQJFwdHABU+8SlzDAX0nJt2kuJYNldok04fsdXmAF
-         Hx7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792134408; x=1792739208;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=oFiWoYztjzXHZLP55NqN/1kpppjMYdgZZKZWx6u33J0=;
-        b=LlZKYGJmVoMxzncAco3G5gekXCaTEPXqbVF2CtmDgNc/z1Qft/iVYteJITA/QFZ5NK
-         uO7VAgd/x7lWjs2yIAaDEcsvC5cEB6el5MySGDNF0b6gXW0zoRDIU65UZbF2BDSNYTJN
-         eN1soxFQ4Lz+OunXANfG/QlFh0moIJIX1bH/GAY1e10o3yeBlJDEiYNMmsHVkb5CggZ1
-         Xi4Wih20rRjjvhBu5vB7pD9XHuxRSrOi6AFho55iV9sddIQ7wYrxLFdVrXIUskOkJFQT
-         ahH5w8lDEMSYGvREYY1QuLoiZKOt+ytlzxnvGCk0KUMxBcEDisyaOrl06BYat3B/T68E
-         tROQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzgwtd7s3mmlyKvKq62evRiNVtFLOTDOiQlxtWm9oczcXtHk0A1WPc70DbjEEifMU+O4VKZXGGq1KGIMA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKfTRYCiSSgfRf/1VptHvBUsfx4A+gk56vnoTQm6tZCRWPnSKeb
-	biDVeKnNgKLorN9VW+7NAV9mEbvNkkrOLq+wb5+atXFddQhR8hV2Lhd8
-X-Gm-Gg: AYBFou3pGLdzNAanG2pbOifEbOdsje5nIoS1pBI1kgbf3YCm0zNwT8FR6UN3Xox8zHv
-	nUQZfDChHw6xNsXQnZXon9r8D4NdqpQy/0btF+eBc5ge54htIB7rbTWBtI+hXZ7jmquFQ0gASrL
-	fUX1G6fRfJEaB2rHzo+WMnWcs3o1REq50nW84Kr4mwFrU42E0Xsn96rXmZx7NLV9Q+7ggaTwoiG
-	e1dWwQyB68FEXJY1r8FTwoqYlhMQ1lt7CDj54PAJdBmXuca96YkOxZukmZ8r13VkW02CW8bqFlT
-	t8fS43MIAqxkusj5335/2riCTagnei/i/BSUzDARgHBy8xN+VE3sufgCC25mGtqnbSRvmPyDWL5
-	/9UPdjd2aJ3KXfU4ecGV2vlB/SNIWIMTRuW6xE/rZbBn2ra9kTvpVeltPDSv+n0ZR3EBUYA2yZk
-	wru2t/3X9x6cpjigyftL2uJ8HL2bCDrbgW8CLmR7AB7Kl+KipfltEC99BJrqwQo1QCaHRj34/Jj
-	uusW/3v6lE=
-X-Received: by 2002:a05:693c:88c9:20b0:34c:79d4:ba0d with SMTP id 5a478bee46e88-3537dffd5b2mr31110310eec.14.1792134407688;
-        Fri, 16 Oct 2026 00:06:47 -0700 (PDT)
-Received: from osman.mioffice.cn ([43.224.245.178])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3607ee0cab0sm5005237eec.3.2026.10.16.00.06.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 00:06:47 -0700 (PDT)
-From: Zhan Xusheng <zhanxusheng1024@gmail.com>
-X-Google-Original-From: Zhan Xusheng <zhanxusheng@xiaomi.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	stable@vger.kernel.org,
-	linux-serial@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Zhan Xusheng <zhanxusheng@xiaomi.com>
-Subject: [PATCH v2] tty: sysrq: reset the per-device key state when reparsing reset_seq
-Date: Fri, 16 Oct 2026 15:06:36 +0800
-Message-ID: <20261016070636.2559899-1-zhanxusheng@xiaomi.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GGUKZKBo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BAE1F000C4;
+	Fri, 16 Oct 2026 07:19:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792135189;
+	bh=yw6D0Pu2FuAtk/kQtkBYCwUIw4riyXhcrsOA5ny2SKw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=GGUKZKBo7uXHULs10Y7+J2p2AgYjGhJ3yUnmK0qx+IDjj86KwOPto/ysGvYEydH4P
+	 GakeF+S6Zgcg5wZ5erFWZFzb/0VuJHsj6FQ1ONBd1DGBWD/z7hWKo3FWBAly/gcfi9
+	 kKJ22DJ646gExrNLfw+OFerzLaCHe3dKhwlj8mkbsLYUCJZ8PJ0Bv3v8M0/bmeKMdK
+	 drivVUlYQXTTTarfuIpGEwpIKVCKJUeH+dH7XI4Fy1vPRnXeiC3c44Foy/hC2YFJBs
+	 ah44JpAGb6BFjacwFIXlYiWLYmpq5kt+l7MZxNjkib5YLfnn3nhMbrYy5fkPXB27tH
+	 jaWbyltWYa1RA==
+Message-ID: <sashiko-outbox-173915@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] tty: sysrq: reset the per-device key state when
+ reparsing reset_seq
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Zhan Xusheng" <zhanxusheng1024@gmail.com>
+Cc: linux-serial@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261016070636.2559899-1-zhanxusheng@xiaomi.com>
+References: <20261016070636.2559899-1-zhanxusheng@xiaomi.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 16 Oct 2026 07:19:48 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] tty: sysrq: TOCTOU race in param_array parsing permanently trunc=
+ates reset sequence
+--
+
+commit d416bc3fc7ebb943414eab9dc3be1f59ade9fcc6
+Author: Zhan Xusheng <zhanxusheng1024@gmail.com>
+
+tty: sysrq: reset the per-device key state when reparsing reset_seq
 
 sysrq_parse_reset_sequence() clears reset_seq_cnt, but reset_keybit is
-only ever __set_bit() and reset_seq_len only ever incremented, and
-nothing else clears either.  struct sysrq_state is allocated once per
-input device in sysrq_connect() and lives until the device goes away, so
-both accumulate every time the sequence is reparsed, which happens
-whenever the reset_seq module parameter is written:
+only ever __set_bit() and reset_seq_len only ever incremented. Since
+struct sysrq_state lives until the device goes away, both accumulate
+every time the sequence is reparsed. This commit fixes this by clearing
+both along with reset_seq_cnt and deleting the keyreset_timer when the
+sequence is redefined.
 
-  # echo 56,29,111 > /sys/module/sysrq/parameters/reset_seq
-  # echo 59,60     > /sys/module/sysrq/parameters/reset_seq
+> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+> index c2e4b31b699aa..013ad3a500703 100644
+> --- a/drivers/tty/sysrq.c
+> +++ b/drivers/tty/sysrq.c
+> @@ -689,6 +689,15 @@ static void sysrq_parse_reset_sequence(struct sysrq_=
+state *state)
+>  	int i;
+>  	unsigned short key;
+> =20
+> +	/*
+> +	 * An armed reset belongs to the sequence being replaced: once the
+> +	 * old keys are gone from reset_keybit their release no longer
+> +	 * cancels it.
+> +	 */
+> +	timer_delete(&state->keyreset_timer);
+> +
+> +	bitmap_zero(state->reset_keybit, KEY_CNT);
+> +	state->reset_seq_len =3D 0;
 
-After the second write reset_keybit holds all five keys and reset_seq_len
-is 5, so the combination that resets the machine is the union of the old
-and the new one.  Holding just 59+60 counts 2 of 5 and does nothing.
-Releasing one of the stale keys decrements reset_seq_cnt below zero.
+[Severity: Medium]
+When a user writes a comma-separated list of keys to the module parameter,
+param_array() updates the sequence elements sequentially:
 
-Clear both along with reset_seq_cnt.
+kernel/params.c:param_array() {
+    ...
+    *num =3D 0;
+    do {
+        ...
+        ret =3D set(val, &kp);
+        ...
+        (*num)++;
+    ...
+}
 
-Doing only that would drop a cancellation the stale bits were providing
-by accident: with sysrq_downtime_ms set, holding a full sequence arms
-keyreset_timer, and the timer is only deleted on a press outside the
-sequence or a release inside it.  With the old keys gone from
-reset_keybit their release matches neither, and the armed reset survives
-into orderly_reboot().  Delete the timer as well, since it belongs to the
-sequence being replaced.
+For each element, sysrq_reset_seq_param_set() increments the global
+sysrq_reset_seq_version before param_array() increments the global length
+sysrq_reset_seq_len (via *num).
 
-The boot paths are unaffected: the command line and
-sysrq_of_get_keyreset_config() leave sysrq_reset_seq_version at 1, so a
-freshly kzalloc'd state parses once with both fields already zero.
+If a hardware keypress triggers sysrq_filter() in the window after the
+version is incremented but before the length is updated:
 
-Fixes: 154b7a489a5b ("Input: sysrq - allow specifying alternate reset sequence")
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
----
-v1: https://lore.kernel.org/all/20261016032732.2328852-1-zhanxusheng@xiaomi.com/
+1. sysrq_handle_keypress() sees a version mismatch and calls
+   sysrq_parse_reset_sequence().
+2. The newly added state->reset_seq_len =3D 0 clears the sequence length.
+3. The loop reads the transient truncated sysrq_reset_seq_len.
+4. state->reset_seq_version permanently caches the new version.
 
-v1 -> v2:
- - Retitle from "Input:" to "tty: sysrq:" and add Cc: stable, per Greg KH.
- - Delete keyreset_timer when the sequence is redefined.  Clearing
-   reset_keybit removes a cancellation the stale bits were providing by
-   accident, so without this an armed reset would survive the release of
-   the old keys.  Reported by the Sashiko bot.
- - Fix the description of the breakage.  reset_seq_cnt does reach
-   reset_seq_len once every accumulated key is held, so the reset
-   combination becomes the union of the old and the new sequence rather
-   than stopping working.
- drivers/tty/sysrq.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Once param_array() finishes and corrects sysrq_reset_seq_len, subsequent
+keypresses will see matching versions and skip reparsing.
 
-diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-index c2e4b31b699aa..013ad3a500703 100644
---- a/drivers/tty/sysrq.c
-+++ b/drivers/tty/sysrq.c
-@@ -689,6 +689,15 @@ static void sysrq_parse_reset_sequence(struct sysrq_state *state)
- 	int i;
- 	unsigned short key;
- 
-+	/*
-+	 * An armed reset belongs to the sequence being replaced: once the
-+	 * old keys are gone from reset_keybit their release no longer
-+	 * cancels it.
-+	 */
-+	timer_delete(&state->keyreset_timer);
-+
-+	bitmap_zero(state->reset_keybit, KEY_CNT);
-+	state->reset_seq_len = 0;
- 	state->reset_seq_cnt = 0;
- 
- 	for (i = 0; i < sysrq_reset_seq_len; i++) {
+Could this cause a regression by permanently leaving the device with a
+truncated reset sequence?
 
-base-commit: 2f2f7eeef8b0a1a9b9ca998231419873ccae8d4e
--- 
-2.43.0
+>  	state->reset_seq_cnt =3D 0;
+> =20
+>  	for (i =3D 0; i < sysrq_reset_seq_len; i++) {
 
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261016070636.2559=
+899-1-zhanxusheng@xiaomi.com?part=3D1

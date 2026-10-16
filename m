@@ -1,130 +1,110 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 674D33B42CD
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 14:33:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC3393932FF
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 15:13:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792161231; cv=none; b=KJR3rqNDrFYd342cxPNwwgbrNNQ3LWAF2htUfQBl36GsRxsZEEBnrUKk+3WBDc9b5oVtPLbJRKXFV2QR9PqzEozO2CJCbIN5DEbEiBCX/aa2jU81MEM27OAhMY+Ewvc5jOnOZSdDbhwSXgxDiys7I/AiJ/OC6zD7zjxkGXlzmzA=
+	t=1792163636; cv=none; b=ZDCOvpLuTP9FpzaYZnN0/HwxgCXw2I+v49CR6S+XTLLk5Wxz3yzXF+zLWDyFDb3rJ4EDv0qyWG8HbbL6EB87bghsTnI+EYnqrfPvhK9sb9790k/1q6mkkX1sEJKmnz+Z55Cxz7xVX/vpXvS3z8olwTTBMu+7xaTh0n/XgIjXY1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792161231; c=relaxed/simple;
-	bh=QSVM91zrGm4qnssPxMt8adG1wTh5Gl2O5ZTVucNf80E=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=qYp7TuAEU1i2zs4I6E+725lBfgYRd7x2tQi3y1byJ/wGvq8TjKXLdDrOzFDYyUJ4/lD7rAyKOlHWWZwVLCUcZG/HvzPfX6Ig7usZfoAo47ApBk82rJ9anuDHcd2546S0eeK8rJZkTtkxZhJBg1X3/CRjJkojnpqiBQFL0vAtMgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IKaq96GS; arc=none smtp.client-ip=74.125.82.182
+	s=arc-20240116; t=1792163636; c=relaxed/simple;
+	bh=SZW8P8HaP/6LFI6azkqEpyOh628pL3diXyOw+JET4z4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aozDA8SeZVjhQzOSVBEskSvCWTvJQrJfieOse9y8hX49BIiizLf9fmlIbf3p8KPPcCTWwgqEPv/fhnenfnvtrc9bNpG4CFKGSsjDAITdwQQuZvWdwdsTQZaCaRys3j+aoR0BWHY9u4eKmKYfOwIulo84A+LKpGR/xwnO5EVVix4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g9GxdE3A; arc=none smtp.client-ip=209.85.160.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IKaq96GS"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-35ef6b49813so4430605eec.0
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 07:33:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g9GxdE3A"
+Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-53512cd2f85so34401cf.1
+        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 08:13:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792161229; x=1792766029; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=QSVM91zrGm4qnssPxMt8adG1wTh5Gl2O5ZTVucNf80E=;
-        b=IKaq96GS98nryJH7BlQfIW0Sj5M6HG8x3l89+qxBL3oatXi5TcMorN9+I9Orf6ndj+
-         XKYmx/e+CHa+yQMUCHT+ivPUheyK6bvKcsLRlmtXFH7XmU/6zOgJXYLGrFxNtVwlSdHn
-         +6hBATKkHk8E/c9HCyMfCcDJGU8sdx/hGahoY0SyAijlC7NP/brRwikSB801H5RcY6+r
-         TYL/pLWn6QAhrvirqaLHPBy57xPeClWHfjx0XWMaDPQA8dhl1USOTIBTFd+CMdn/ZV1y
-         /B/6x20th2THaEwd9NUcOmxaL0mJBabJ4LQs6wphbcftdBn+NxGkZCXCfpoX48yw56OU
-         qsrw==
+        d=gmail.com; s=20251104; t=1792163633; x=1792768433; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=zv8TTKfbeUYEMQDxnGPnn21N4WT11tkkmWwxYn+nfTY=;
+        b=g9GxdE3AnRDhHpq2JtaRCYRYwahCYQkCA3QXNcwF6kEOwQwcumkcGMnpeA2Czi7GYt
+         ETmS/mozBP4P4/Ab4vFaC6b59nN3r8zrMKTCFUqKas/EJW2cuEGnkbc20aDwDis9GX09
+         ZHKjjGJ8PgEp19cBdweQ0ZRUrhYPHa4RqU/e06otogoNHOWW28dIN8ijmK8qQcyRQae1
+         3B8z1LBOPz4o8Po4vE8Kj5N68X9E7pIK4xbokGliEiS1fNVtLJwo77ZF1bbRAdlef1EI
+         w9LX4FgF8ZgZPtthQCbt6nGwxbzbjJd2ihG6+tG5sQuQte60/Bc7GtOJ3m5YGO+ZVM/8
+         pN0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792161229; x=1792766029;
-        h=content-transfer-encoding:content-type:mime-version:message-id
-         :references:in-reply-to:user-agent:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QSVM91zrGm4qnssPxMt8adG1wTh5Gl2O5ZTVucNf80E=;
-        b=Ft7lezX/ecUzXFJtCRI5uyqkr7SIF85r9fko4WiHLybunnSyy3UJdqG0dnb44oXOgm
-         Sv6V/GzLutqOy+ZDgDH8c486nhHMb1VAyagQLkaVERQtNyCbowXAatnSdVd5VLLN+zT6
-         prXdilA22kxN0XLqy/rNaLSVVUvcI7kVqmBs87BMr1OpqyqeDS5kWROGYjTG9meAp4/V
-         Yk0Il3j32otFlfor7aWnFRzDBgpMXeMgWqBSsK/kfGk83bZ2IdpsgnS0Gs+aqpeYM4fw
-         PjlQF8HPVJDiF3ZM3GizZXKEsmHfb9Qz+dP4FwwT09zyJecHSh2/jh/gaQKZOMUcCNFV
-         JY4w==
-X-Forwarded-Encrypted: i=1; AKwUvBx5y1y4BfYekY153r1OayacoPovTEOuzeCQER96OUL9C0UCvGT3ARWh72eke7n29x9vnNkiSKSz+8yHZA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYL6409BGWJz9N4zQ2o/XWu2W8nNSzQEDxCLkvbu0ZyV1ZnowoNF
-	j7Gqphs1cam1pUjX/nD7drJwAtScZNOdCIqmBmHlviufATAUQS3ab9ZxlcFKnQ==
-X-Gm-Gg: AYBFou30Gj1HfaZfd01catiCvKAp1xdfgwqyZ/kFvz1KUCZboGXADXXfOKgC79JSF2L
-	5dGL2pZpOqPCeyGF9MJ5VQHujEm5ccrquqomSGXgtaDZLG84G7u0H1QufBPpWVtJYEN/FlUYv6W
-	f41VYl/JVJRkzyvnwJ0oI469OtsnesGZVjsjfqwoIeFp4RyoQxuEv0ZRH+bni5Xc9WMXprk/zl4
-	qdCmVKILb6lwHdf85bq/RFkO9Aw0C8Jz0Oe5K+iAGkDeHdy1nz76Np5TF+ZNYr3cHT3rms841Cy
-	VSCObEz1PTva547ZA9M+BjCgY394OnLgdN4pnqw4ith48Orq8ubKTK+Bjan6D94ylG7PfYo/WyU
-	c96OO/8xeX2V6FK/B1aJAlV26onhIa6YEi+SuXC1KOsydeaCEdNiBAli29rJBUaN3Z/sgKaEXh2
-	ZmNwRp+YvGqPo+2SQ+d9gphz+Se6+08EyMWV9BwiygNZUzJOdnJd33N/T5jSJskV2QPMYnkkpHW
-	oBNJnzQDEnL3O+hNqtfZXC6piBU/knF0t2tJwbc5MrIuQsdzazVn/nEuoUkOC7XrNVEzg==
-X-Received: by 2002:a05:7022:ea46:10b0:144:fb31:a597 with SMTP id a92af1059eb24-185150c9622mr124919c88.47.1792161229304;
-        Fri, 16 Oct 2026 07:33:49 -0700 (PDT)
-Received: from ehlo.thunderbird.net (108-228-232-20.lightspeed.sndgca.sbcglobal.net. [108.228.232.20])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831c5cb39esm6787446c88.22.2026.10.16.07.33.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 16 Oct 2026 07:33:48 -0700 (PDT)
-Date: Fri, 16 Oct 2026 07:33:50 -0700
-From: "Derek J. Clark" <derekjohn.clark@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>
-CC: Benjamin Tissoires <bentiss@kernel.org>,
- "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- kernel@lists.opengamingcollective.org
-Subject: Re: [PATCH 00/10] HID: hid-lenovo-go-s: Fix various bugs
-User-Agent: Thunderbird for Android
-In-Reply-To: <7s882475-7947-nsq0-60s9-9s52981s18p3@xreary.bet>
-References: <20260914225303.868569-1-derekjohn.clark@gmail.com> <7s882475-7947-nsq0-60s9-9s52981s18p3@xreary.bet>
-Message-ID: <07187173-AFEC-4500-BD17-2A55BCA71FA4@gmail.com>
+        d=1e100.net; s=20260707; t=1792163633; x=1792768433;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=zv8TTKfbeUYEMQDxnGPnn21N4WT11tkkmWwxYn+nfTY=;
+        b=pc6xiRi92zVvw3fHZUTFA/rFNyUGwWYMOYJg0ipYyxhzD/wYnu5ck+Wqg9gKPMf7qp
+         HyErBmZbu9dWALDkaM0dBOKA8/YOxit43+CxLY2PHDodubgdZhXgeo5V3dL7FH+BzFgB
+         f07xwyldQJ3xQHgG8QPkQwFymD4NrqzIKZTrjUQ1i8VPSHrdMUKuRj45+1UQvvM0/4Gk
+         VDqTpdbDRBoac1vxg7yHMRWNxbXoCkelehfXtqk2I1H0RpSvpfJeroRoOQpe52wM/g9L
+         Actz7Mu9hriiTGL21x8/tFB+UZkDHOmW1qamOR75Jc23zxfQYDZ3Stl2c1cjSdEfszfg
+         jC7g==
+X-Forwarded-Encrypted: i=1; AKwUvBxY16HV68FUfbqqOzVu4N3xI5o7Fk828VQ0VhnCC0tw3KSwsN4Sy7vlkaF/G1PTIW1enAhD2aoManrZkQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJyqglbMrnw0ajD2QEVzjYB9lXeTtz+TTt0hZFAigDTDSfVQfmT
+	NVPS08KkXZbd6ORvfoQu3ogLdNnYPlgDbmsPoSNOxA3foTPqQR2jbIQl
+X-Gm-Gg: AYBFou2Z79DM8x5Hgx3gAH8fq+ZWO1aa1+LBvZT7xNApfcIGMyJw+wJ47Ctsvjb7uuE
+	q3Yjh2MG/vNAVRjtqFkSb1RpQiauCTnC5UrnYhgMxOJXDcVh6nog1gYDYcicMijSC+jWSTaJ7Wv
+	+Jpxxxx8I70sFo7LWHqUH+Gro/oqR15fEfVGQMb64gLw0MFd8a/P0mPbdcD939Szg2dcIDPQheP
+	uBQhlDBbZNYNDsYJXxcFSbZ6QkP73ldf3p4Vj1emsBcMapnkPe7Wu2oQoTzHm7d4+9CnSVZf6qX
+	E2Xd37seYfeZF1FD+L91inziY2TxrkJvlsCtSYg8Z27BpIYE/ALG2ba75rfOl8QQbZ5NDG/kWSt
+	zMxeIldw1UgIwMfFix0W0rjKAWbNbcZw2wU++bYtRKamDWrMlv5K4AwdQ+IBEqoMe2bwtsQjhF8
+	J7O5HiNnam373HOrhNoycMK9Wbie2fo1mR8iuRPdR65zrnBwLulMJib+lsT+mIhFk=
+X-Received: by 2002:a05:622a:260b:b0:535:8567:662 with SMTP id d75a77b69052e-5359fe116d0mr371801881cf.62.1792163633191;
+        Fri, 16 Oct 2026 08:13:53 -0700 (PDT)
+Received: from beelink ([187.15.139.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5362aa59b03sm24674041cf.27.2026.10.16.08.13.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2026 08:13:52 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Subject: [PATCH v6 0/2] HID: multitouch: fix use-after-free of haptic data on delayed input release
+Date: Fri, 16 Oct 2026 12:13:40 -0300
+Message-ID: <20261016151343.3120300-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261016135516.2957381-1-qwe.aldo@gmail.com>
+References: <20261016135516.2957381-1-qwe.aldo@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On October 16, 2026 3:03:06 AM PDT, Jiri Kosina <jikos@kernel=2Eorg> wrote:
->On Mon, 14 Sep 2026, Derek J=2E Clark wrote:
->
->> This series fixes various bugs in the hid-lenovo-go-s driver
->>=20
->> Patch 1 fixes a dropped error on return from mcu_property_out()
->>=20
->> Patch 2 creates a mechanism to ignore stale responses if they timed out
->> in the previous command=2E
->>=20
->> Patch 3 fixes a deadlock if the device is removed while cfg_setup() is
->> running=2E
->>=20
->> Patch 4 adds missing pm_ptr to the reset_resume function pointer=2E
->>=20
->> Patch 5 adds a kobject_uevent notify during reset-resume to ensure the
->> os_mode return is caught by udev=2E
->>=20
->> Patch 6 adds a suspend callback to cancel delayed work and re-queue the
->> cfg_setup if the device was suspended prior to or during the work=2E
->>=20
->> Patch 7 moves attribute init to the end of cfg_setup, ensuring the
->> attributes can only be used once the MCU is ready=2E
->>=20
->> Patch 8 reorganizes hid_gos_cfg and renamed it to gos_cfg_drvdata in
->> preparation for later fixes=2E
->>=20
->> Patch 9 moves the static led_classdev to become a member of the drvdata
->> struct=2E
->>=20
->> Patch 10 moved drvdata from a static global to a device allocated
->> struct=2E
->
->Given where we currently are in the development process, I've queued the=
-=20
->whole lot in hid=2Egit#for-7=2E4/lenovo, thanks=2E
+v6 fixes issues found by Sashiko on v5.
 
-Hi Jiri,
+Patch 1 is unchanged -- reorders try_module_get()/get_device() before
+input_ff_create().
 
-I've fixed the bugs Sashiko pointed out locally yesterday (a few of them w=
-ere quite valid) and have been waiting for my local sashiko pass to submit =
-v2=2E I'd recommend waiting to merge them if possible=2E I should be able t=
-o submit them today=2E
+Patch 2 keeps the devm_add_action() design.  Changes since v5:
+  - module_put moved to hid_haptic_destroy so the module stays loaded
+    until the FF subsystem is done with the callback; a second
+    __module_get covers hid_haptic_devm_release itself
+  - guard against double-init (return 0 when haptic->wq is set)
+  - NULL haptic->hdev and haptic->input_dev after put in devm_release
+  - restore dev->flush/event after input_ff_destroy on devm_add_action
+    failure
 
-Thanks,
-Derek
+v5: https://lore.kernel.org/linux-input/20261016135516.2957381-1-qwe.aldo@gmail.com/
+v4: https://lore.kernel.org/linux-input/20261009103333.2476105-1-qwe.aldo@gmail.com/
+v1: https://lore.kernel.org/linux-input/20261009031207.3233206-1-qwe.aldo@gmail.com/
+
+Aldo Ariel Panzardo (2):
+  HID: haptic: reorder try_module_get/get_device before input_ff_create
+  HID: multitouch: fix use-after-free of haptic data on delayed input
+    release
+
+ drivers/hid/hid-haptic.c | 93 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 80 insertions(+), 13 deletions(-)
+
+--
+2.53.0

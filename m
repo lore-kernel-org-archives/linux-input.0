@@ -1,97 +1,76 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BDB34B7A3E
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 13:07:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 323754AF9F1;
+	Fri, 16 Oct 2026 13:12:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792156024; cv=none; b=UhOwhWPf2Lx5PelUuS1lai26zSIDZ2oaNM2cpNbnXOz/hoN6AA02d73k6j/wsM6kKenb7nO7cDq68elBogkTrn1jmHYrf0nHUnomwXioKyGMw18JsgYhvt76PaAtltCHjmhmAZZYxC3fImeIBWr2Wna8GcwedAyf1DElAhwbWd8=
+	t=1792156324; cv=none; b=N3vvU+YcPs82Igu5vU83MxDfeSpaiYIyj+Rz7YoERonGNltOP3yppHy5fJ7yN2m+yoBR6en9pcaIwtCDdJJjXOMwNslh5NFQN+46QqvGaVxF/3itslkyUtVS04Abbl3btWz4T2Y19Cgg45ZXGMVMmCTlVPOOO+Egu+TbZLsVtkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792156024; c=relaxed/simple;
-	bh=1ew6bbxlX9uOw73KIuj2b+3qsY9r0Lnu4XC3xe1vkZM=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=ac7QHTEH8M8zp10vSD/9FSqae9wbXJ335/zzcxQGrXD1jIKWev12E494UkIjmWAovGp98MykfrENkxu+o4OGA+X2qr3fx0MmURibonSZHG6hz3uZWVKl1+2I30h141tz66yguPxtsBzOETsvGH146W+qNmV/5kjx86z71eBiKTM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CnjXyOkh; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792156324; c=relaxed/simple;
+	bh=Mpjq3LYtzLfrUi2F+elPsWKNCQDiDtspv0uRGa5Fw00=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TW/tulFacTajr5V63ZJUdBPHk/LzIVlckFAgEhAdDrlgM00uaGMxnPm0H/dOLyaST/dsPslP9no4FOyumTWks+e19CQkoepUmXPge339EnknJEQ3PK+ZsMalDZtOOXct/FSzZVo8ZdkJVrnnZ0QPCsGtronbbXo27I45pKga+uE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OBMzkgs0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CnjXyOkh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972EF1F000C8;
-	Fri, 16 Oct 2026 13:07:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OBMzkgs0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F8B1F000C4;
+	Fri, 16 Oct 2026 13:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792156021;
-	bh=jtcvZJSlLUNRaBcI2J/z8dZ6Iar6Hl4Kqt3kPz85Pgo=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=CnjXyOkhfCDU5i2UqyNisylPGq/tA2lcJYZRSFsmHqaYC3W3rlqSAJYiHe0NYqrXk
-	 ppy1ReJdIjxAryyKpe9wXdyBWFJhwYvsqt9S8dmmSMOhYmoTnUpW6o4nWzpDFIzMqF
-	 3gTr7HfWj+r+71h2z4ZX+/08Vkp4pe8teF3VeVHe4RApgsxlO2gwamPzTnNxdRzuTj
-	 YxRMH4+rYBtHRID6KihK+NUj4GPfKTeAocO9GeZOTEM9zu/jDJHJYDK6W6ZVqhGzsR
-	 E065WYHTTFsrukvi1oRpY1xCvlq6pAIea6NoB1wKLwzHreMKfV31i2Y3KGctOAhiek
-	 vtJ3lpQDGBZwA==
-Date: Fri, 16 Oct 2026 15:06:58 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: synonym <20000l@pm.me>
-cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 
-    "luke@ljones.dev" <luke@ljones.dev>, 
-    "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
-Subject: Re: ASUS T302CHI keyboard dock (0b05:182f) missing from hid-asus,
- brightness keys dead
-In-Reply-To: <OCupKvK8JTzwwSrGfH05iZGTNOuUCg3cPoiTlNgdDUUt24LbtaNYWciyGx1C90egfE2C8EdnANX7sXM6IwBh5xfycQNq-ji_xAuNLRAVvQQ=@pm.me>
-Message-ID: <o1392s9p-6rrq-3179-289p-447n1703pp1p@xreary.bet>
-References: <OCupKvK8JTzwwSrGfH05iZGTNOuUCg3cPoiTlNgdDUUt24LbtaNYWciyGx1C90egfE2C8EdnANX7sXM6IwBh5xfycQNq-ji_xAuNLRAVvQQ=@pm.me>
+	s=k20260515; t=1792156320;
+	bh=nhb5OIVpHqFOrF6xClYD7WXcnh4voUyydkXqrxYmCbQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=OBMzkgs0e8t0waBRFt/sY8ldf0LBvA7/aJYvUku7PUgVoSWM03C/oO6r1We+3FfQW
+	 Auys2/P/NTLURvTzYd5fUD4R5lFR4G/JIlnPgY6TNM3VKI2SjFqoUA8s/5E6a/xbP1
+	 F7YpgoN24I8TYxBZLRsVgUAHeiwseVi+iXs/hLBGirRyfRSRn0tVY6Odh1DoQKDa/w
+	 OF2Fjx/cZ8rFZKPh4/YrN9+a31BT4LSmevS7VUMzGVuPmJ6JTpa3IOl8oBOuWMxxz/
+	 kj1TUoMWD3IyGmaY7OfSpJYUE19JhwyN+QwC7Vvu0DSencxjZfcXL8WJ/FRiF8w6/A
+	 5whvBU8TOMzjg==
+Date: Fri, 16 Oct 2026 08:11:59 -0500
+From: Rob Herring <robh@kernel.org>
+To: wyibo6109@gmail.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	linux-input@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/2] dt-bindings: input: add OnePlus pogo-pin keyboard
+Message-ID: <20261016131159.GG5059-robh@kernel.org>
+References: <20261015201547.GA2868930-robh@kernel.org>
+ <20261016123255.1019102-1-wyibo6109@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261016123255.1019102-1-wyibo6109@gmail.com>
 
-From: Jiri Kosina <jkosina@suse.com>
+On Fri, Oct 16, 2026 at 07:32:46AM -0500, wyibo6109@gmail.com wrote:
+> From: Yibo Wang <wyibo6109@gmail.com>
+> 
+> Hi Rob,
+> 
+> thanks for the review.
+> 
+> On 15/10/2026 15:15, Rob Herring wrote:
+> > Don't need '|'.
+> 
+> Dropped.
+> 
+> > Wrap lines at 80 char.
+> 
+> Rewrapped, everything now stays within 75 columns.
+> 
+> > As this goes under 'serial' nodes:
+> >
+> > serial {
+> 
+> Restored.
+> 
+> v5 follows as a reply to the v4 cover letter.
 
-synonym reports: "The dock (USB 0b05:182f) reports brightness on the ASUS
-vendor usage page 0xff31, usages 0x10 and 0x20, which hid-asus already maps to
-KEY_BRIGHTNESSDOWN / KEY_BRIGHTNESSUP. Because the device is not in
-asus_devices[], it is claimed by hid-generic, which ignores the vendor page
-entirely, so Fn+F5 and Fn+F6 produce no input events at all - not even a
-scancode. Keys on the standard consumer page (volume) on the same device work
-fine, which makes this look like a backlight or ACPI problem rather than a HID
-one."
+Please don't send new versions as replies.
 
-Add the device ID.
-
-Reported-by: synonym <20000l@pm.me>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
----
- drivers/hid/hid-asus.c | 2 ++
- drivers/hid/hid-ids.h  | 1 +
- 2 files changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index ec966fc0a411..42655a6d59d9 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1733,6 +1733,8 @@ static const struct hid_device_id asus_devices[] = {
- 	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T302CHI_KEYBOARD) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, asus_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 43bbddf84e61..63d69d49ee50 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -218,6 +218,7 @@
- #define USB_DEVICE_ID_ASUSTEK_T100TAF_KEYBOARD	0x1807
- #define USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD	0x8502
- #define USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD	0x183d
-+#define USB_DEVICE_ID_ASUSTEK_T302CHI_KEYBOARD	0x182f
- #define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
- #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
- #define USB_DEVICE_ID_ASUSTEK_I2C_ZENBOOK_KEYBOARD	0x4b42
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Rob

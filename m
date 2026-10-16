@@ -1,41 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29BBD466B4B;
-	Fri, 16 Oct 2026 09:22:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A281646A60B;
+	Fri, 16 Oct 2026 09:24:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792142535; cv=none; b=gjzTXcgQxKGVI9+DSXpmAhPxL3bEhTfL3OfeoGyOYCu0W5mWHVEajC+H+lGyZzPEEMWyu+QTtfagrk5fsJPCzJqgMQDNwe5WohKtFhdLbXFZny4tPfFSOW1FvtUp9d1ImwhqiXCAZDCUjoY5otQoCv2t4v7wxaRS+JO/iksUkSU=
+	t=1792142651; cv=none; b=LMQaq47lhvJMY/4qP/d72wSX7HtqY797T6avoqHzpDNpLqA/CCiYFbv732tpE8W4wz+HvoT3cX3bb9/SbFLlcKSM8cSdAgP1/40zJUNDgCReurJKfLthe58P82lrwXVx1AdFMtaM6Mw/xfVnT2LwheFLyB9L5o9b9dh0m0KOEXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792142535; c=relaxed/simple;
-	bh=etS4pjkAGPjNTCx5ANpUNgbzRBT1VSahH3JOm95zPMs=;
+	s=arc-20240116; t=1792142651; c=relaxed/simple;
+	bh=m7O917i3uMzYQOMatvH4g7Czvk4m5ebtOFl+vKddw0w=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=gRMCakzR/36I0QO3wYr6GJlpwqAtF54blSJvKuQEDYJCDHeKRdmvv1uwUFsURJGw+8uP1T8L5Pv+1ce6qOHXc1EhjnSgmYvf4nZfe2mU9llKr4uBorlA1pMUUmIlqqONyKqxTQrZdFuMDDm2Qksno5LTJVGxPGaksG384pz7JM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ixVGgAg3; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=oTAeX29vLaw8/lFgZAMGclOI/rcZVK+d0WLrp5xM9wrLVKP5+9ck3p+lX53y0af88Gs7h0zIYBsVe+ahF2rwx12XDcMRuT/DrPQTl41utt+a9evK7o4GpfFQ23aSOCQTzEo5gsbZp7Gaqnx0WN+l56GDVpURtElNfzRoZIvzqK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IEPf2gCu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ixVGgAg3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D95E1F000C4;
-	Fri, 16 Oct 2026 09:22:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IEPf2gCu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF30F1F000C4;
+	Fri, 16 Oct 2026 09:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792142534;
-	bh=Qdgxp2ssNEdp4KsTciuAL1L5zVlD+aVGDM8DiApmd88=;
+	s=k20260515; t=1792142650;
+	bh=KZv2cD1G2hG6yQhIbcKJOKql4RCb95L4YETh+BU5DTM=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References;
-	b=ixVGgAg3c1YgnTZc6d7N/wehBnhMGInGU3gbgU6WdjcairiLxbTKFjNHRz79lcOPr
-	 LjyN8CWYN37BUA99y7nCKzZXMCXNV0jwTH2VOxOTvLxywBuVnItdaEwzfx3gzx/iRV
-	 5h9dVIf6d2nsJhqhAQFv9sOqn5H9wKEhQHgRqZ5i/WtHqEvP31ogYZTKAhVucLUJh6
-	 Ew6Lkg7Jr9UroQjOKXdrSM/VU8Eiit5FP7koZjNsjbX5nhRDFWm+V0qOgs96RQp78L
-	 3gvBP6BKFy+e6NRwK77t88G2sv4J/kwPHR5Wr+erIWUutIPzcGZug5gs0xGsuJdcUu
-	 R738y/qeDb92Q==
-Date: Fri, 16 Oct 2026 11:22:11 +0200 (CEST)
+	b=IEPf2gCuKUpDtfh8WMdaZX+4jINZ2H63XBNZYkhTHyz0yVaX+2xqL6Dpm9D4KveX5
+	 1V15WnPfA/BhfeCjvvucg20Nd2FUkMyQtUnRgOTukLJUWVv3nGdWYVOEenDOcCE0ap
+	 UeuZCfY2TlFCB1KgqETF1+MZrEHVyGy8sKzLzjE46nqwyFjaTfQYoLEJho0LZKSYTI
+	 +QRFMr9o37+NmGq091er0JI3AlfCkKn6oZw8IkRBYASFrpFX30uIkD7k6A1kStDGvA
+	 fUVD6s8UeZiBIS85YdWvsFv9gMeu8QzHTMANh/NmpS+pVaw5aOWzFWFb7ThhhDzhzh
+	 dFn5xRbdpCINw==
+Date: Fri, 16 Oct 2026 11:24:07 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Liang Haowen <nbg2974@gmail.com>
-cc: linux-input@vger.kernel.org, bentiss@kernel.org, 
+To: DemonPlayer <a18165943161@gmail.com>
+cc: linux-input@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>, 
     linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: add ALWAYS_POLL quirk for YJX-CHIP EWEADN wireless
- receivers
-In-Reply-To: <20261012154240.33221-1-nbg2974@gmail.com>
-Message-ID: <2024o6n5-po6s-8s39-080q-60285ss8p4o1@xreary.bet>
-References: <20261012154240.33221-1-nbg2974@gmail.com>
+Subject: Re: [PATCH] HID: apple: Add GANSS GS3104T PRO to the non-Apple
+ keyboard list
+In-Reply-To: <20261003161508.22671-1-a18165943161@gmail.com>
+Message-ID: <4n70rp7n-n662-o196-6046-869p96694011@xreary.bet>
+References: <20261003161508.22671-1-a18165943161@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -44,24 +44,35 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 12 Oct 2026, Liang Haowen wrote:
+On Sun, 4 Oct 2026, DemonPlayer wrote:
 
-> The 2.4 GHz receiver in EWEADN G5 wireless mice (YJX-CHIP A8A5:2255)
-> presents its mouse data on a standard interrupt IN endpoint. usbhid
-> only submits read URBs for an input device while a userspace consumer
-> holds it open, so on boot or replug the mouse pointer stays dead until
-> something opens the node.
+> The GANSS GS3104T PRO is a tri-mode mechanical keyboard that reports
+> Apple's vendor and product IDs (05ac:024f) over USB, over its 2.4 GHz
+> receiver and over Bluetooth, so that macOS recognises it without a
+> vendor driver.  hid->name is built from the product string only and it
+> differs per connection mode:
 > 
-> The same receiver ships with a number of other EWEADN models (A6, A7,
-> E7, E9, E11, G2SE A, GS02 Pro, S7, S9SE, X23), so the quirk covers
-> the whole family.
+>   USB:        "HFD GS3104T PRO"   (iManufacturer is "HFD")
+>   2.4 GHz:    "GS3104T-PRO 2.4G"  (no iManufacturer)
+>   Bluetooth:  "GS3104T PRO"
 > 
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: Benjamin Tissoires <bentiss@kernel.org>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
+> All three descriptors carry the Apple Fn key usage (Usage Page 0xFF00,
+> Usage 0x03), so hid-apple claims the device in every mode and applies
+> the Apple function key layout: with the default fnmode=3,
+> hidinput_apple_event() resolves real_fnmode to 1 (fkeyslast), so the
+> F-row sends the media keys and Fn has to be held down to get F1-F12.
+> That is not the behaviour the keyboard has on other operating systems.
 > 
-> Signed-off-by: Liang Haowen <nbg2974@gmail.com>
+> hid-apple already keeps a list of such keyboards and switches them to
+> the fnmode=2 (fkeysfirst) behaviour, but the match is a case-sensitive
+> strncmp() prefix test against hid->name and none of the three names
+> matches an existing entry: the "GANSS" one misses because the brand does
+> not appear in any of the descriptors, and "hfd.cn" does not match
+> either.  The non-Apple handling is thus never enabled and users have to
+> pass hid_apple.fnmode=2 on the kernel command line to get the expected
+> default.
+> 
+> Add all three names to non_apple_keyboards[].
 
 Applied to hid.git#for-7.3/upstream-fixes, thanks.
 

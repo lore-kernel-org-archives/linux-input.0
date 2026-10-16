@@ -1,134 +1,206 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCDFD45C6E0
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 11:46:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792151184; cv=none; b=k0KugWS62Uu/TlUCYEVrZT+Sa+yEAUAuAWf4nuF4rlpbf3jGIVVbt/9e+Xo3MbyZuTNuWzf1Sjc3ZsdbE6Q09mmK9lkXXFuOXkmDrMN3x+VPlSjbr1vi7c1mWdbAk4X+HPG2RU12nUTa23Q2XUpbojO5AZ/2n4ZSkE8P9UKMEnc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792151184; c=relaxed/simple;
-	bh=rhluozYKxXw6NI522eYfhI8raVCMBIXHo/2VaDzyZz4=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=BYomEGsgyZPnOuBNIY22O0KEDiJAkpnT37k9MLQR9iheo7mSvfDqEnjFBIVMKR5Lb7AhNvxJYMTk9KNZkXoBxOlzkoRyxuUbfE5Y9MIWWF2PcbY3wWa0KaBUArYeitKLUOFZkl0lvZUkYbgFNAoIhCceuSLMTbuOx0TZE0xSK3E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Swvv4yj1; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DABFF41DDF0
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 11:47:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792151261; cv=pass; b=kpyDOFsafVNwLhndSyK72DxLrkpjSWNISzT2gUBkU3PCvFvfGuTNtJo9HoH2i9lmhOGthIjy/VhZVZJ80/XOGN58gV5YB63wvgfc1Njf7lTfLGpGWBxWsz5kpVE7ltg19+T4ByNC6gyLkKIbLY8cgUQElvijOhMMvPOF8vNtgaA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792151261; c=relaxed/simple;
+	bh=kkpIgfZ/ZiXjtoXZEZ3MFCi5t0lRiYOOOeVgCHb5/2w=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Mip2p3Xxy34aVQnZFnZ5Yasz3mTTilJEKxK+nm5pXlgucdiCwiz/HmDGVbUwemLn72pDMD6I4Pr/UyJ01VSPeCl7+3PWrmO2RVnB/+4BwJiOx8cSjVZ6EmK9zW8G48HZ2CpPrNYA5DXu1bgyBL/t2NAyNXbGxiqjzqP6WiPk4Fc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KRF22YQU; arc=pass smtp.client-ip=209.85.167.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Swvv4yj1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F0BE1F000C4;
-	Fri, 16 Oct 2026 11:46:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792151182;
-	bh=MP1mIlP9BB37zIUXPx3KdDyBue3JKDhNBt4FzOBnUpA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Swvv4yj18zt9dV7FqkYeFRW6Nft+/LjbhFk/VEo21vSTxwWVs1XscGX1S8qeuWK9s
-	 oLiaQB0poPkSRyx+gC+wKAcV92oMRwtcQPI5NHP9Y8EZm/uR2ePZxDPFx0t505TfIF
-	 tSwQCskLzS2QdPbqZ8beY4pNbo0YuFtE94jYEJbiN9PhglvlROkNkxNMbEIb03nWos
-	 V0RJeTQeB7WLYgpCYnTzWvFV/oLKUe/tBJwZxVxVc5AXkN2IvhUXOCmRyepke4ShrE
-	 NI49bYBlZek+HmvVewY7b1CnABLb1tfsSHW8IFSg7B+mGuhJQ+JUh3dqGmwwHMdN/Q
-	 eMUusTXtFyz0A==
-Message-ID: <sashiko-outbox-174249@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 2/2] HID: roccat: use kref to manage device instances
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Antipov" <dmantipov@yandex.ru>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261016113321.892452-3-dmantipov@yandex.ru>
-References: <atECwbWrAQFpbELS@beelink>
- <20261016113321.892452-1-dmantipov@yandex.ru>
- <20261016113321.892452-3-dmantipov@yandex.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 16 Oct 2026 11:46:21 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KRF22YQU"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5bcb6faf862so2571399e87.2
+        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 04:47:39 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792151258; cv=none;
+        d=google.com; s=arc-20260327;
+        b=c5J1wzJ/thysRx2gbpqnmcHUD5jQz8Tn58ZhlPJT1oCVFP3T/w6SEaxg8xxQrj/xiW
+         3KaqgamT0ozARMokrKmRGPAqXBMU/G7RrFsP/+90gFij5hJvc5xpJEH2mL30Sy7NNi38
+         sYcyVNW1igvRPlKa6cydLnScAe3s2+qmtZkZRW07OkxPTPMSWsHe0XsYG/EwuHJUIQ5I
+         +YKNaZc+QJYviG7txcXP1gSG+TSyKi+5Rv+lO8qVHpNwFH8UDA1lIaTT+6WHClBtuXWs
+         xT3KS8U0PjxVDU7m6Cf0BthzewzhkdHFdheh1xmaDVt2dFFM93b6BuGSV2vnkrOE/Ere
+         7YiA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=0PS3hd2XF0BTImBuwJTgiAEri7mP6JZ48pK3wkCH8+U=;
+        fh=/UStAM+eYd95kwkZ8HtqXLA7K2Zj73fTrNixXnA19jA=;
+        b=TQeODdob/MtkqmL1ddm7EYn0u/NjcpMIDRFVn6PlEivxhiExEWB3NX260Af+ZGZ67u
+         PQycMjEa1XSHHxHFE6w/JNBBD4uuNEmUU/X81uFwGzKKxUzuxknQECPq0BE++Tpxx6f9
+         NwmLj1kWbc3u+dn+VvgoYDf6CFeP2oXma5XSC9H9rgOYaXhWqsHw1dRfyiXUUYULOysn
+         Hxj+GEM2tUu2BGh/7zE5URZglViAj1PC1gbzlfbW4nL3PS1CJCVjXucvHHDJL4BNYalI
+         4pHZya/DVuKL/zy30mFoFzZtlm8mFCkPfAnQRBq1Lm6VkALrcupKE0W3g/p2KmBtlrkn
+         5tMw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792151258; x=1792756058; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=0PS3hd2XF0BTImBuwJTgiAEri7mP6JZ48pK3wkCH8+U=;
+        b=KRF22YQUvTwWOEt4Axnq/vviCtdNr7SBBU1f3ThiRrThiThz9kGyqxqeXYd2F1IEbC
+         OwwUKtB/y7t3C0dyWSWUqPl2GCdeLChxdSxAx58vx0JFJntDF/sYC8n3/6F1LGP0PfQ+
+         FWwrf5asdQ4yfJrJJFnN9YsQhC1JHjSHtF3/D1IxqjVW5yyq9wKzB/CkeXGbgsiEBov5
+         dPp6YFyYjXz2So08p+U8scc8MomKOHpM5aZmEkaec299es8j6cF9gs48qm4MrMw+4UF6
+         5qGb2UgUdAeXlQpMwupR64XsMmEw1XhutaqOzhV6c2gM9NlM5Qa7gFfZidcrQ9LzWNij
+         5d8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792151258; x=1792756058;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0PS3hd2XF0BTImBuwJTgiAEri7mP6JZ48pK3wkCH8+U=;
+        b=dZZEgQIHEXkNUxJelNbFoUPHIpMye6qy/gWTIxbqgMJ0V/vRixq5zltHhUXTFE6tyK
+         1cHZ0hD1k75DVSLNxF/fjSCDPfBRjnF/2siQKfeNVmEWfR2Y73wRfwBfC//EOk9Gxubh
+         txgzvBHkx7TkDl3ymy4HiBUE1ecU1/D4GvZym86b/lsylC4U46wpI0YnCsbiZMKUmskJ
+         zOL1v7Odk5HCMSXlGsztJBrC5hafbSqgSuYf82ZfNDuS3v4ZCwnneldk4vwWBgJ0/+I5
+         Mbdn4Sl+iY1OJpBzscGs+2NqaVDFFJzJUDeHdkE13ghCtehB7Nj+1a71LX15Olu5X+69
+         8zXg==
+X-Forwarded-Encrypted: i=1; AKwUvBwn4ZOjD3UXg8/t34idmzvOCYbLHqVLoworuPRxGnwdzq9Jq0tTy3BfVoCabOhljrIUS2j9A5JrWlqBfA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKomJkFu/VMUjWks3zQa80+qeltVvz/EZwO2ZmHHbKaPV9SFsiX
+	ZNqeLZlmJVnZRyG+NFK0NipVRiZh/8TxbnNobliySsVNNLyrm+em6tdFKN2PMmC6L11EmnR6VgD
+	M04NjLg2JFCJzpdfvzpEHwW34cmaBtqmwqSb9
+X-Gm-Gg: AYBFou3N6QIwWTkxqe0KNADw6HSeUgI40g9Rbq8+oCwPE/MV9UsSgQd4qBxMmkGPZ4A
+	8Noa3ANzrulMedTvvaTDGWao09QY9j8JZ5icTdfL4SGHe4Oc45vVf+rUkyyeHz/U4PDMG1byyaV
+	XwfzUV3ptSENz72KyvmVJ5vT9xfienCfj6P8gKgyhavfTBMzGQ21TeQ7oFxoQQyxqGdyYUFR3rQ
+	+Cz77CJAg+3Ke6oh1OEN7C8MBc1SBjcllOFXh8ttmnYilW3YXxBPuRX9QAN3A+rE9ppx1ODbWTO
+	OJQTiAysVAMEz6P+LPLr8XXY6WzPTXKpYfW+yRoXSRn9Mus+Ppt9zIrb9H/xBEKnXYNxk8Kt1jj
+	HjEQNj4YfByzNpA==
+X-Received: by 2002:a05:6512:1289:b0:5b8:ef97:e372 with SMTP id
+ 2adb3069b0e04-5bcde8c3d93mr8633085e87.46.1792151257596; Fri, 16 Oct 2026
+ 04:47:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20261011124110.62621-1-meven@kde.org> <217o9262-51s4-4r93-o651-27124010q4s5@xreary.bet>
+In-Reply-To: <217o9262-51s4-4r93-o651-27124010q4s5@xreary.bet>
+From: =?UTF-8?B?TcOpdmVu?= <meven29@gmail.com>
+Date: Fri, 16 Oct 2026 13:47:25 +0200
+X-Gm-Features: AclHuK9_fWzBKPBRk0XUBV_UHnFzVFkBU6hk81OAlTpsLOf2bViXI6Or9lgsTmo
+Message-ID: <CAOvFf8O_a07M_jaxdnmeasgueNt1s_AXHB67aRkenvVPzwPgZg@mail.gmail.com>
+Subject: Re: [PATCH v3] HID: logitech-headset: add a battery driver for the
+ PRO X 2
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@riseup.net>, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] hid: roccat: UAF in roccat_device_available() during disconnect
---
+Subject: Re: [PATCH v3] HID: logitech-headset: add a battery driver
+for the PRO X 2
 
-commit bc24653b7f3a809f26552e2e26b0e0b92e805ecd
-Author: Dmitry Antipov <dmantipov@yandex.ru>
+On <date of his mail>, Jiri Kosina wrote:
+> One question though -- is it really practical to have this as a user
+> selectable option?
+> I think it'd make sense to have just selected by HID_LOGITECH_DJ the same
+> way as it selects HID_LOGITECH_HIDPP. What do you think?
 
-HID: roccat: use kref to manage device instances
+Agreed, a separate prompt is not useful here. The driver only matters to
+people with a Logitech receiver, and those kernels have HID_LOGITECH_DJ
+enabled anyway. I missed this opportunity.
 
-Use kref to manage 'struct roccat_device' instances and fix both memory
-leaks and UaF-triggering races between roccat_open()/roccat_release()
-and roccat_connect()/roccat_disconnect() pairs. To avoid the scenario
-when opened device is disconnected and its slot indexed by minor number
-is reused by another device, release the slot in roccat_free_device()
-rather than in roccat_disconnect(). This way, there is a time frame when
-disconnected device may still occupy the slot; to reject such a device,
-add extra roccat_device_available() checks to roccat_open() and
-roccat_ioctl(). Add extra WARN_ON() device check to roccat_disconnect()
-and a few debugging quirks to roccat_free_device() as well.
+In v4, HID_LOGITECH_HEADSET is a hidden option, and HID_LOGITECH_DJ
+selects it next to HID_LOGITECH_HIDPP. HID_LOGITECH_DJ already depends
+on USB_HID, so the select leaves no dependency unmet. I will send it
+shortly.
 
-Link: https://sashiko.dev/#/patchset/20260902094551.200587-1-dmantipov@yand=
-ex.ru?part=3D2
+Thanks,
+M=C3=A9ven
 
-> diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-> index 92a9b9f14f591..581dedde6d66e 100644
-> --- a/drivers/hid/hid-roccat.c
-> +++ b/drivers/hid/hid-roccat.c
-[ ... ]
-> @@ -370,23 +380,25 @@ EXPORT_SYMBOL_GPL(roccat_connect);
->  void roccat_disconnect(int minor)
->  {
->  	struct roccat_device *device;
-> -	struct device *dev;
-> =20
->  	mutex_lock(&devices_lock);
->  	device =3D devices[minor];
-> +	if (WARN_ON(!device))
-> +		goto out;
-> =20
-> -	dev =3D xchg(&device->dev, NULL);
-> -	device_destroy(dev->class, MKDEV(roccat_major, minor));
-> +	if (!WARN_ON(!roccat_device_available(device))) {
-> +		struct device *dev =3D xchg(&device->dev, NULL);
-> =20
-> -	devices[minor] =3D NULL;
-> +		device_destroy(dev->class, MKDEV(roccat_major, minor));
-> +	}
-> =20
->  	if (device->open) {
->  		hid_hw_close(device->hid);
->  		wake_up_interruptible(&device->wait);
-> -	} else {
-> -		roccat_free_device(device);
->  	}
-> =20
-> +	kref_put(&device->ref, roccat_free_device);
-> +out:
->  	mutex_unlock(&devices_lock);
->  }
+Le ven. 16 oct. 2026 =C3=A0 11:04, Jiri Kosina <jikos@kernel.org> a =C3=A9c=
+rit :
+>
+> On Sun, 11 Oct 2026, M=C3=A9ven Car wrote:
+>
+> > The PRO X 2 LIGHTSPEED receiver does not speak HID++, so
+> > hid-logitech-hidpp cannot read its battery. Its report descriptor has a
+> > consumer collection for the media keys and two vendor collections, and
+> > no report 0x10 or 0x11.
+> >
+> > The battery answers on usage page 0xffa0. A single 64 byte frame on
+> > report 0x51 asks for it, with no handshake, and the reply gives the
+> > level and whether the headset is charging. The driver asks every 120
+> > seconds. It also reads the power frames that the headset sends on its
+> > own. A switch-off frame marks the headset absent at once, and a
+> > switch-on frame moves the next request to one second later, so the leve=
+l
+> > appears without waiting for the poll.
+> >
+> > hid-generic sets HID_QUIRK_INPUT_PER_APP, so this receiver had one inpu=
+t
+> > device per application collection, among them the Consumer Control node
+> > for the media keys. A driver does not inherit that quirk, so probe sets
+> > it and the input devices stay as they were.
+> >
+> > The power supply is registered with POWER_SUPPLY_SCOPE_DEVICE. The
+> > headset is present from a reply until the next switch-off frame, and
+> > capacity returns -ENODATA while it is absent, so a headset that is off
+> > when the driver binds reports no level.
+> >
+> > The G522 LIGHTSPEED uses the same vendor protocol with a different fram=
+e
+> > layout. That device is left out until someone can test it.
+> >
+> > Assisted-by: Claude:claude-opus-5
+> > Signed-off-by: M=C3=A9ven Car <meven@kde.org>
+> > ---
+> > Changes in v3:
+> > - Request the battery level one second after a power-on frame, so the
+> >   level appears without waiting for the 120 second poll.
+> > - Report the headset as absent until the first battery reply, and retur=
+n
+> >   -ENODATA for capacity while it is absent.
+> > - Queue the poll on system_dfl_wq instead of the system_wq.
+> >
+> >  drivers/hid/Kconfig                |  11 +
+> >  drivers/hid/Makefile               |   1 +
+> >  drivers/hid/hid-ids.h              |   1 +
+> >  drivers/hid/hid-logitech-headset.c | 319 +++++++++++++++++++++++++++++
+> >  4 files changed, 332 insertions(+)
+> >  create mode 100644 drivers/hid/hid-logitech-headset.c
+> >
+> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> > index 48934c4f3..5c845b1b8 100644
+> > --- a/drivers/hid/Kconfig
+> > +++ b/drivers/hid/Kconfig
+> > @@ -670,6 +670,17 @@ config HID_LOGITECH_DJ
+> >       generic USB_HID driver and all incoming events will be multiplexe=
+d
+> >       into a single mouse and a single keyboard device.
+> >
+> > +config HID_LOGITECH_HEADSET
+> > +     tristate "Logitech wireless headset battery"
+> > +     depends on USB_HID
+> > +     select POWER_SUPPLY
+> > +     help
+> > +     Support for the battery of Logitech wireless gaming headsets that
+> > +     report it over a vendor collection instead of HID++.
+>
+> Thanks a lot for the patch.
+>
+> One question though -- is it really practical to have this as a user
+> selectable option?
+> I think it'd make sense to have just selected by HID_LOGITECH_DJ the same
+> way as it selects HID_LOGITECH_HIDPP. What do you think?
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
 
-[Severity: High]
-Can this concurrent disconnect path trigger a use-after-free in readers?
-
-If CPU1 calls roccat_poll() or roccat_read(), they invoke
-roccat_device_available() without holding devices_lock. That helper loads t=
-he
-pointer locklessly:
-
-drivers/hid/hid-roccat.c:roccat_device_available() {
-	struct device *dev =3D smp_load_acquire(&device->dev);
-
-	return dev ? device_is_registered(dev) : false;
-}
-
-If CPU1 is preempted right after smp_load_acquire(), and CPU2 runs
-roccat_disconnect(), CPU2 will exchange device->dev to NULL and call
-device_destroy(). This drops the final reference and frees the device memor=
-y.
-
-When CPU1 resumes, it will pass the now-freed dev pointer to
-device_is_registered(), causing a use-after-free when accessing
-dev->kobj.state_in_sysfs.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261016113321.8924=
-52-1-dmantipov@yandex.ru?part=3D2
+M=C3=A9ven

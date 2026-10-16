@@ -1,105 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C27431326A;
-	Fri, 16 Oct 2026 03:41:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E8AF387375;
+	Fri, 16 Oct 2026 05:37:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792122101; cv=none; b=g3UJsc8CKe2wd0mApPdC3D4CVh3KQ4lj84I5oi0NkN4u3RJThaL2A5CHYEXUyLphQ74VEWBWVxYKAU2Qj+IvyCkw1L1P18LE7KuKQeib7BtR/wpTbt00vRcZtqwyw4izOMhttKZqOIdX4q6NDEkIkDMyg8jYunfNmu6MYD+j0MM=
+	t=1792129067; cv=none; b=JpBPUQMhPcxZlc9qkE+NiCa7v/AKJSDCVFnF0D/RzDzBTbQGxnGGPMfZHrGrtJGXFXRDHN7USG9EAFLPGAPytZqx+bpDAzq+6NFGWzZfGijElQQzFUIALBbLg+UMdR+qU8pgPl71cYWDkX9LRtIeQw+BDna/CID3dBsGOSKT17s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792122101; c=relaxed/simple;
-	bh=U8RLbG+AXgzVHJZTF9EOpKPj7RAgHCjWPKHQWdzOG1Q=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=c56pK7WAQvPekceOd+HHRbvPYDL/m57y6oanpx4dtCcb8rQd38E1RdFHdcXscTNi/MjNtmUID8UKMi/XOSGTbEZRrvos9nsb2b2nqkFP6DcvswJqTMKJgSGu9z1pFQtjKQBPVDGzLnxDduUjvs0NAtFrAmHUeMkYWTufq+wxT9w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hW5GwEtj; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792129067; c=relaxed/simple;
+	bh=vJfTgfPUfhn8fHCYl0wfzB88SMobhW5sO3haKTJGQMw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hTaTVF76NytCdg6h3L8eIcJjWhf4rfrXt9Kg2IchrEqwRNfAtfl1KJqr1ilKxozH54qj06m9X3yHNSrvB2aMwqPmGIwlWsXhdfCF3k3gONxfDlKTmBDRdLUVmRBu9U1jYlTmpeJZE76uKXbIaui3ySSYMBx2qpw6dxjlbhCpXqg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=GIp3g2ao; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hW5GwEtj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640351F000C4;
-	Fri, 16 Oct 2026 03:41:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792122093;
-	bh=X6+Y7j52qG0oaKi5ToCsoalyTnkODPHttQcNGTAVtRs=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=hW5GwEtjQ5Fhr6bDmYLwAY8khPO9SL+ey4J96fuBoQ4GqMarez83CJKn9Cr3ZfweA
-	 DnwsJNilW9bX/32r99PaEIgrk3in474Lgi4HPnDVZTCmVb6RRs+83kTsN8ZT/Cy5JK
-	 eHj+NUbFOpZ+39Y8eZe6Ai90ZGMd+f+9HsSr4X5uFzwRdc6R3Gni7EyQrrfJJeBqbs
-	 /sv6ct3H/YN2b/fgGr6BSH3Psgomzavn+NURUCbGtqo/MVWNusKPyl4bQgdUW18ecB
-	 8fO8cYY9WFtMZVNwA+vDZ4iu595radMpZzDGHxL9BirJmxCD8JdqygyDZLjC3VJL6T
-	 rWihaG/s+G/ZA==
-Message-ID: <sashiko-outbox-173692@kernel.org>
-From: sashiko-bot@kernel.org
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="GIp3g2ao"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 245B31F000C4;
+	Fri, 16 Oct 2026 05:37:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1792129065;
+	bh=RUD8aFqIEpAPhBkdxouZRQic4xT7I2diCYNJNCGNZr4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=GIp3g2aowY10XC79he7edSoanj1+/KDRy841XK/87fBDTxeOJuQ3tdwbfPckgGQNx
+	 yEllr9Kyzsxl/cLjYmCuRlcglqVOgATYjjE1sCL/OvfhDuom3XP9GwJdXms9o+DAsK
+	 Y2IpqSJeM9hLSn2DoAFGCRKWO/VYWghmgLXlwQ3Y=
+Date: Fri, 16 Oct 2026 07:37:42 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Zhan Xusheng <zhanxusheng1024@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	linux-input@vger.kernel.org, linux-serial@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Zhan Xusheng <zhanxusheng@xiaomi.com>
 Subject: Re: [PATCH] Input: sysrq - reset the per-device key state when
  reparsing reset_seq
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Zhan Xusheng" <zhanxusheng1024@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-serial@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261016032732.2328852-1-zhanxusheng@xiaomi.com>
+Message-ID: <2026101624-dealmaker-camera-094e@gregkh>
 References: <20261016032732.2328852-1-zhanxusheng@xiaomi.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 16 Oct 2026 03:41:33 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261016032732.2328852-1-zhanxusheng@xiaomi.com>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] tty: sysrq: uncancelable reset timer on sequence change
---
+On Fri, Oct 16, 2026 at 11:27:32AM +0800, Zhan Xusheng wrote:
+> sysrq_parse_reset_sequence() rebuilds a device's view of the reset
+> sequence, but only clears reset_seq_cnt.  reset_keybit is only ever
+> __set_bit() and reset_seq_len is only ever incremented, and nothing else
+> in the file clears either.  The struct sysrq_state holding them is
+> allocated once per input device in sysrq_connect() and lives until the
+> device goes away, so both accumulate across calls.
+> 
+> The function is called from sysrq_filter() whenever
+> sysrq_reset_seq_version has moved on, which happens when the reset_seq
+> module parameter is written.  It is mode 0644, so this is reachable at
+> runtime:
+> 
+>   # echo 56,29,111 > /sys/module/sysrq/parameters/reset_seq
+>   # echo 59,60     > /sys/module/sysrq/parameters/reset_seq
+> 
+> After the second write reset_seq_len is 5 rather than 2, and
+> reset_keybit has five keys set rather than two.  The trigger in
+> sysrq_detect_reset_sequence() is
+> 
+> 	if (++state->reset_seq_cnt == state->reset_seq_len &&
+> 	    !state->reset_canceled)
+> 
+> and reset_seq_cnt cannot exceed the number of keys actually in the
+> sequence, so holding the whole new sequence no longer resets the machine.
+> The stale bits also make keys that were dropped from the sequence still
+> test positive, so pressing one takes the increment path instead of
+> cancelling, and releasing one decrements reset_seq_cnt, which can take it
+> negative.
+> 
+> The boot path is not affected: both the command line and
+> sysrq_of_get_keyreset_config() leave sysrq_reset_seq_version at its
+> initial 1, so a freshly kzalloc'd state parses exactly once with both
+> fields already zero.
+> 
+> Clear them along with reset_seq_cnt.
+> 
+> Note the error direction is towards not resetting, as reset_seq_len only
+> grows, so this costs an emergency reset on systems that reconfigure the
+> sequence rather than causing an unwanted one.
+> 
+> Fixes: 154b7a489a5b ("Input: sysrq - allow specifying alternate reset sequence")
+> Signed-off-by: Zhan Xusheng <zhanxusheng@xiaomi.com>
+> ---
+>  drivers/tty/sysrq.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-commit 2166ad442fbe41cfd64e5275427188db06092a2e
-Author: Zhan Xusheng <zhanxusheng1024@gmail.com>
+Hi,
 
-Input: sysrq - reset the per-device key state when reparsing reset_seq
+This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
+a patch that has triggered this response.  He used to manually respond
+to these common problems, but in order to save his sanity (he kept
+writing the same thing over and over, yet to different people), I was
+created.  Hopefully you will not take offence and will fix the problem
+in your patch and resubmit it so that it can be accepted into the Linux
+kernel tree.
 
-This commit clears the accumulated reset_seq_len and reset_keybit state when
-reparsing the reset sequence. This prevents stale keys from affecting the r=
-eset
-detection, as the previous code only cleared reset_seq_cnt.
+You are receiving this message because of the following common error(s)
+as indicated below:
 
-> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-> index c2e4b31b699aa..d28a4726b07fc 100644
-> --- a/drivers/tty/sysrq.c
-> +++ b/drivers/tty/sysrq.c
-> @@ -689,6 +689,8 @@ static void sysrq_parse_reset_sequence(struct sysrq_s=
-tate *state)
->  	int i;
->  	unsigned short key;
-> =20
-> +	bitmap_zero(state->reset_keybit, KEY_CNT);
-> +	state->reset_seq_len =3D 0;
->  	state->reset_seq_cnt =3D 0;
-> =20
->  	for (i =3D 0; i < sysrq_reset_seq_len; i++) {
+- You have marked a patch with a "Fixes:" tag for a commit that is in an
+  older released kernel, yet you do not have a cc: stable line in the
+  signed-off-by area at all, which means that the patch will not be
+  applied to any older kernel releases.  To properly fix this, please
+  follow the documented rules in the
+  Documentation/process/stable-kernel-rules.rst file for how to resolve
+  this.
 
-[Severity: Medium]
-Does clearing the reset_keybit here create a situation where the reset timer
-becomes uncancelable if the sequence changes while keys are held?
+If you wish to discuss this problem further, or you have questions about
+how to resolve this issue, please feel free to respond to this email and
+Greg will reply once he has dug out from the pending patches received
+from other developers.
 
-If sysrq_reset_downtime_ms is configured and a user is currently holding the
-reset sequence keys, the reset timer will be active.  If the sequence is th=
-en
-modified via sysfs, this function clears the old reset_keybit.
+thanks,
 
-When the user subsequently releases the old keys:
-
-drivers/tty/sysrq.c:sysrq_detect_reset_sequence() {
-    if (!test_bit(code, state->reset_keybit)) {
-        /* ... */
-        if (value && state->reset_seq_cnt) {
-            state->reset_canceled =3D true;
-            timer_delete(&state->keyreset_timer);
-        }
-    } else if (value =3D=3D 0) {
-        ...
-}
-
-Because the key is no longer in reset_keybit, it takes the first branch.
-Since this is a key release (value =3D=3D 0), the timer_delete() is skipped,
-leaving the timer active and potentially causing an unwanted system reboot.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261016032732.2328=
-852-1-zhanxusheng@xiaomi.com?part=3D1
+greg k-h's patch email bot

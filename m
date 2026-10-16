@@ -1,124 +1,78 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE623AA1B2;
-	Fri, 16 Oct 2026 07:19:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6BB039C637
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 08:14:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792135190; cv=none; b=nfvcoya0zs0/Ul89JleysydE8BDmAwHO6d0bo+C1XQcMpubi5E67p3R7AgN5NpG2f+vL0uxbg676wLYCfp2lCyyLcF8KxRmWuXWHplOgvU/GEdfNfzBcVyq1EpkG7H7aixYfzKdFhDwO5JDzgVFfdMsM+9a+RF3+uFuB2DjZy3c=
+	t=1792138470; cv=none; b=cpB+B9ToI21ac5tjmMd/9xfH02bz9LgEBkGOxyIxkrltzxWBVawt1RfdfArlfpYAZfvtkKqp3iNdz429tMhzVvXz+QIWgCiXlmQ5E/3kur6yUV23nJKeR1txWuj+lc+heaUiMA93tiBnCPQkCfDuvcUdSpTyF0yitaFxFMUGV4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792135190; c=relaxed/simple;
-	bh=TP0284cGvOJK/wMifYexkuUdWwlspMkVRMzvxwqYSfQ=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=p+TM5I8fUFjKeL+aRAHVyC0E8j08vXaAI+pQLwleVbpSbj6m29qnh3nh/EIik3w+d6Hu5jNHrjtvBQme3HxsckY9EcxNpPZ2xio6hdcO0haigCYSMsFzsbnytpVoiUAtBc8IqNkT2YAeJ2keWEfnWvSkpU5VmCU0g09EnYKOxWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GGUKZKBo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792138470; c=relaxed/simple;
+	bh=nc2xVyGZatTTib8wVJfq+qI0ScOpY3qaGUxT4g3C3wM=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=O/05n4ayRCc/YefVsSAdFPNAUmltzYysO5JDVX3HyLPGpfhDdfHGMTTS/R7Do8BwA4/50uYw4sNlSEuFva8jKrvpzd30KUzuhGUfoz8/6VIn66OUklSbPc1SKz5CabP1UOkHj1wUuR6lHOXuI+JrbeDGimXyql5R86Nwuq17OrQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nmthsCWF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GGUKZKBo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BAE1F000C4;
-	Fri, 16 Oct 2026 07:19:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nmthsCWF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BEFE1F000C4;
+	Fri, 16 Oct 2026 08:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792135189;
-	bh=yw6D0Pu2FuAtk/kQtkBYCwUIw4riyXhcrsOA5ny2SKw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GGUKZKBo7uXHULs10Y7+J2p2AgYjGhJ3yUnmK0qx+IDjj86KwOPto/ysGvYEydH4P
-	 GakeF+S6Zgcg5wZ5erFWZFzb/0VuJHsj6FQ1ONBd1DGBWD/z7hWKo3FWBAly/gcfi9
-	 kKJ22DJ646gExrNLfw+OFerzLaCHe3dKhwlj8mkbsLYUCJZ8PJ0Bv3v8M0/bmeKMdK
-	 drivVUlYQXTTTarfuIpGEwpIKVCKJUeH+dH7XI4Fy1vPRnXeiC3c44Foy/hC2YFJBs
-	 ah44JpAGb6BFjacwFIXlYiWLYmpq5kt+l7MZxNjkib5YLfnn3nhMbrYy5fkPXB27tH
-	 jaWbyltWYa1RA==
-Message-ID: <sashiko-outbox-173915@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] tty: sysrq: reset the per-device key state when
- reparsing reset_seq
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Zhan Xusheng" <zhanxusheng1024@gmail.com>
-Cc: linux-serial@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261016070636.2559899-1-zhanxusheng@xiaomi.com>
-References: <20261016070636.2559899-1-zhanxusheng@xiaomi.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 16 Oct 2026 07:19:48 +0000
+	s=k20260515; t=1792138469;
+	bh=wBNIguumVZ620aob9TsJcjN4G7RtVy5W7wp/zDPuddA=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References;
+	b=nmthsCWFbkNS2s4dmqfip5y2PTd2eThBdQRK3lG3npRzKzu5SJD7i0WQhMGad06d1
+	 2aiS9b0ddgd7y5aH9MZ4mVAy8m3q54BHwT7julHhMvGoekCeWfGdY/zU+hXIpnJNjI
+	 gPvu5ZXDnRwNJJiGeWIsyUwJDtAe9pxg9wSyNSGKh/vVe04lTf/qFCyjBTCI+c1zVc
+	 u38NEtDuZM1SVriRzp+pQ4WIIsrjT+e+AFUHfMJpc1w20YQMRl8BFZpR6Us895+Zp9
+	 jfaigkMK9HHazf1Jwa2FfV2df28yLvN7FGSGPMcs8DrwRSLTuxOMJ0Jp7xr0JQWUpy
+	 bNcDs8/p2IOJg==
+Date: Fri, 16 Oct 2026 10:14:26 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Rafael Passos <rafael@rcpassos.me>
+cc: David Rheinsberg <david@readahead.eu>, bentiss@kernel.org, 
+    Shuah Khan <skhan@linuxfoundation.org>, 
+    Brigham Campbell <me@brighamcampbell.com>, 
+    Jori Koolstra <jkoolstra@xs4all.nl>, linux-input@vger.kernel.org
+Subject: Re: [PATCH v5 0/3] HID: wiimote: new LED behavior on connect +
+ scoped_guards
+In-Reply-To: <20261009022844.2790778-1-rafael@rcpassos.me>
+Message-ID: <897q5o18-094p-3884-s8o6-8249n59p0p6q@xreary.bet>
+References: <20261009022844.2790778-1-rafael@rcpassos.me>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] tty: sysrq: TOCTOU race in param_array parsing permanently trunc=
-ates reset sequence
---
+On Thu, 8 Oct 2026, Rafael Passos wrote:
 
-commit d416bc3fc7ebb943414eab9dc3be1f59ade9fcc6
-Author: Zhan Xusheng <zhanxusheng1024@gmail.com>
+> Hi,
+> This patchset contains one feature change, and 3 patches appying=20
+> scoped cleanup to locking and to the initialization functions for
+> the led probing and the main wiimote probe call.
+> 
+> The feature is turning different LEDs for each of the first 4 wiimotes conn=
+> ected.
+> >From id 5 forward, the LED will cycle back to 1, and so on.
+> This uses the ida struct, so its quite simple and lightweight.
+> The hid_info log message prints out the controller id.
+> 
+> While implementing this feature, I decided to cleanup the code using
+> scoped_guard for the many spinlocks in the driver. There are two places
+> where the original lock/unlock version fits best, and I left them
+> untouched.
+> I also used the __free scope cleanup in the wiimote_probe and LED probe.
+> 
+> It was really fun working with this driver.
+> I tested it with 4 Wii Motion Plus remotes (gen2).
+> Video recording of my tests (48s video).
+> https://rcpassos.me/video/wiimote-led-linux-driver
 
-tty: sysrq: reset the per-device key state when reparsing reset_seq
+Applied to hid.git#for-7.4/wiimote, thanks.
 
-sysrq_parse_reset_sequence() clears reset_seq_cnt, but reset_keybit is
-only ever __set_bit() and reset_seq_len only ever incremented. Since
-struct sysrq_state lives until the device goes away, both accumulate
-every time the sequence is reparsed. This commit fixes this by clearing
-both along with reset_seq_cnt and deleting the keyreset_timer when the
-sequence is redefined.
+-- 
+Jiri Kosina
+SUSE Labs
 
-> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-> index c2e4b31b699aa..013ad3a500703 100644
-> --- a/drivers/tty/sysrq.c
-> +++ b/drivers/tty/sysrq.c
-> @@ -689,6 +689,15 @@ static void sysrq_parse_reset_sequence(struct sysrq_=
-state *state)
->  	int i;
->  	unsigned short key;
-> =20
-> +	/*
-> +	 * An armed reset belongs to the sequence being replaced: once the
-> +	 * old keys are gone from reset_keybit their release no longer
-> +	 * cancels it.
-> +	 */
-> +	timer_delete(&state->keyreset_timer);
-> +
-> +	bitmap_zero(state->reset_keybit, KEY_CNT);
-> +	state->reset_seq_len =3D 0;
-
-[Severity: Medium]
-When a user writes a comma-separated list of keys to the module parameter,
-param_array() updates the sequence elements sequentially:
-
-kernel/params.c:param_array() {
-    ...
-    *num =3D 0;
-    do {
-        ...
-        ret =3D set(val, &kp);
-        ...
-        (*num)++;
-    ...
-}
-
-For each element, sysrq_reset_seq_param_set() increments the global
-sysrq_reset_seq_version before param_array() increments the global length
-sysrq_reset_seq_len (via *num).
-
-If a hardware keypress triggers sysrq_filter() in the window after the
-version is incremented but before the length is updated:
-
-1. sysrq_handle_keypress() sees a version mismatch and calls
-   sysrq_parse_reset_sequence().
-2. The newly added state->reset_seq_len =3D 0 clears the sequence length.
-3. The loop reads the transient truncated sysrq_reset_seq_len.
-4. state->reset_seq_version permanently caches the new version.
-
-Once param_array() finishes and corrects sysrq_reset_seq_len, subsequent
-keypresses will see matching versions and skip reparsing.
-
-Could this cause a regression by permanently leaving the device with a
-truncated reset sequence?
-
->  	state->reset_seq_cnt =3D 0;
-> =20
->  	for (i =3D 0; i < sysrq_reset_seq_len; i++) {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261016070636.2559=
-899-1-zhanxusheng@xiaomi.com?part=3D1

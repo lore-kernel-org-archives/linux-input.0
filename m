@@ -1,86 +1,110 @@
-Received: from outbound.pv.icloud.com (pv-2002d-snip4-2.eps.apple.com [57.103.64.243])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5076C502577
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 16:17:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=57.103.64.243
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0FA137AA78
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 16:34:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792167465; cv=none; b=LXouClhoMEJ+O7AdmTMM42X0deO/v9MINmxf+8u37o1HY0X5YwjA5VtBKgDiVUeYBQK0tpGjxPX5ZTFQOxHzzsvC7c2WbhounfLovEZOA/V7ucBbop8okTLMNxEo6IYNnM79AzghB+EsPNomCWOFxNwX7D7SlcW/SZkM5sAEGHs=
+	t=1792168448; cv=none; b=e/2NkZOH1TKfQllvZeftpR4P00rpoS22CmcwXCdesvGTDKbLfQXkL3PcwQ/WZq5ruK7PkikfElSzv/xzbHuyNRtWUU6Bz9dwtFQtSMEQbQeO7OUI1PGusfuKv3okaid5Rekp/h+FN77EBAdksWPTEeo2a2ba8u0QVRCIeoaEylI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792167465; c=relaxed/simple;
-	bh=3B8aiqdinxgzAT0VpumssvkM/xdQmuYpEQ5Im0EHJVk=;
+	s=arc-20240116; t=1792168448; c=relaxed/simple;
+	bh=qiRAXZkRJEXPmqs8IIFVKCH0Z9Kb5ltx/zf1mIOnkpw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=fbTVK0UmA2EvXSAgKvSUctQG+sFhARWp0js8v+UdkBdTuc2bixn5jPcbkumjV/tC64BGEZ7o2OOewi6M3iZhmSDPuLo1AxkoJ/oPT8FZ2yan41vd2CozHUMidt5Zgql07HG1WyfO9x5UsEe8FhXiFqlTsdy+oIMx+2XybnOqZxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me; spf=pass smtp.mailfrom=matias.me; dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b=k80mpNdL; arc=none smtp.client-ip=57.103.64.243
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=matias.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matias.me
+	 MIME-Version; b=NX7PA92IY3hQrGV6GYv4KknoakF/jS/68DX8gHxpVq0NO/X/R8AbssDmNpne1JUAdnGghjiTSP2T7Qvyxvf17tflzFpT4HHAi/eMirZ7JfC5zTCodAVWHglMqXMvgWTkViSpOpC8JeoSpxFgpod5KqDJlmctm/5C1ljnsXpGWm4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gMryacOp; arc=none smtp.client-ip=209.85.222.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=matias.me header.i=@matias.me header.b="k80mpNdL"
-Received: from outbound.pv.icloud.com (unknown [127.0.0.2])
-	by p00-icloudmta-asmtp-us-west-1a-100-percent-5 (Postfix) with ESMTPS id 1999A180100A;
-	Fri, 16 Oct 2026 16:17:37 +0000 (UTC)
-X-ICL-RepId: 01a14581-34a7-7e4b-8042-d837683a4627
-X-ICL-Out-Info: HUtFAUMEWwJACUgATUQeDx5WFlZNRAJCTQhAAkMDWBxBDUAdVQFLVxQEEFYBWwRyHVgMWgxERV8VGR5XUFoKRhlYCx0AUktAEwRJA01fDl4fBBdGGVUERx5dVkMbGQJRHFYNV0NUBF9QSQxBUGxaAEcXSB1dGVlvUF0cDgBWH1sRSlZeCBcGWxQERAFdBV0DQAhOAlsGXAFBF0kAVQ5cH0EUEFYBWwRyHVgMWgxERV8VB1hHFEcODxNMC0cCWjRWH1QZWgM=
-Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=matias.me; s=sig1; t=1792167459; x=1823703459; bh=3B8aiqdinxgzAT0VpumssvkM/xdQmuYpEQ5Im0EHJVk=; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:x-icloud-hme; b=k80mpNdLisjSd+1ij8YHVHpwKrtISuOCVJ72kqkJTotUDcBYcmBYgcv3lANKCV0hyAYU2WDKgS2L143UDTxr8sVv8RTQAX1ixu96VfA7EKeogVpuCt0Dvm64UrTj5Ql5wwP+IGJRMbZWAkZTLNCCabrobeDrV4RAe77l4bE+duehEcBolRrgbk02nFmAC5qKMmt+GqRDRIifSI2bMFyO+ivSsSoRZr60Zs1qwpToaUyV7X8tsH40gBlLZvjdaoTCn3qpx4DyFtQxepUg3uumb/ivjyLtS5u0YgLtrqyTic46bP1eqTFJZ8Cag6JQnfBooYDI8ZXab/FttXl723lmig==
-mail-alias-created-date: 1705102286191
-Received: from localhost.localdomain (unknown [17.156.192.29])
-	by p00-icloudmta-asmtp-us-west-1a-100-percent-5 (Postfix) with ESMTPSA id 482EE180101E;
-	Fri, 16 Oct 2026 16:17:35 +0000 (UTC)
-From: =?UTF-8?q?Mat=C3=ADas=20Mart=C3=ADnez?= <hello@matias.me>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gMryacOp"
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-93e63ee7b4cso12514585a.2
+        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 09:34:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792168445; x=1792773245; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=hHrZ44E7mwbp2nfJxIBL5668mhyMNf3IrRHINSdc80I=;
+        b=gMryacOp8OWOdnsjDfFoTn8t8hmkzwqNlobI0iYqM7L86wd8LtgLd9xDswuqApgHiT
+         OqJ8mcsHshjwy9LbrNuu/JYC4K3SMkLY7RLcJmkt7pcRAs9oyMVGyVKibvaB7pTl4eS9
+         oznDAaLfB9LHGYgVA9IxXyuA/Eq15F1kxhnZppNHTMY6/pLRPlKMw2409G6mWEjhVCzK
+         khyy94UVbgzDUjAY4sjwefWJLpfQARWUWPat0aYwAc1G+jitJAUk8Mk8x+Fw6VHr9Q2f
+         yFMA4jyA3rNdbP3+l+B2Nh5HQAjSPmRZ+kH6N8GnPlsiWeYtVM92Ma1ywOriLhcsGmOC
+         /r5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792168445; x=1792773245;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=hHrZ44E7mwbp2nfJxIBL5668mhyMNf3IrRHINSdc80I=;
+        b=Ad+PZjQjNGV2lv6eSLtGfnoecgVu2JsWBmAVxhKNbormDs7xGvVrERkAaJSv6XnBeC
+         TXCUvMwwm/rVpSqyWsY8DIzEGFLtoS05mffkmlcuTaHG7KBDyiMitG4cJPJiMUXxXQ1f
+         R3dcaOAFiLq9mUTt1OAnX9DW57sNuXYj6rc+51CN5aBUtDV98QoEaLqkuOUvo+Y9pAZE
+         Kip95BM0hfUEnHswYcZikO3QahcF0STbkxDRAWL5GKYV0lhZMJs+jHVYyloNz0MQfGYz
+         XGipRu4MmjodYWtZCOMVD7JMWJUzt7xz8Rj/nQcS5mHRbM8N7ZVNTkPwqIgI1a8TJdCA
+         b3Mg==
+X-Forwarded-Encrypted: i=1; AKwUvBzH/rWy+69Uo5ANyXp8EHyBFAmi7QNctNVNN8zZivM/WoC9KFH1koC3xaqorA4VpYiwXso3WpAeZ39ZzA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLu+VEnyYSl7eV1OZgbUnGO18Hyf7GSsqojffC9A8kzyX7bcJ8f
+	z3q11pzZOX58EhglhPHsjrcDbRw6H6WsSdvM7d/0w2tjRMiLcm3dJ7IIe40LSp3tUu8=
+X-Gm-Gg: AYBFou2uIjLDJPUPyliIG1U3nnAITKE9id+xVqoFW/olE+k+F/13Y0U51Ng+EZPZvZX
+	oYEsLYpaKJAGNTr1rQqz9OXUwmY/C3kBkOQog/2wAVAqARpOnSPjOnKONpI7g0CtBdQUx/0Kf/x
+	c216gKiSd6BB/Dbg/6wH/RhZUXiTzlkAS858yxDBeDoqH92ac4W4QFk6YpD2xEgfSINIbFJmCdT
+	7jFrrumYLwc+Uf6ePEgpBXU03+/rgwF2XAQtOTeN/ge7uPc3cov3o9u0NnhMknS8kO3rx5p3e6i
+	y/wqch/WFuccrCUtjGewV3AerW8Xu5jPk1gzRsZhS//0Imlr6RPyTPW3+sabv9tmMR2gMZ4wbtT
+	ZAEe/X/D0wHoUH3wZg8c77CVUkDKGKQeRzJxOCLhxr3E/Rb9ZbksJnm9xGKd8lKR+B6rwRLYpnk
+	IKrcoraBojQEZUCcJMoHIoAnTSUrxCMZjMlXDq1ehuz0zOxwc7pGDHPQ3gcem/F6A=
+X-Received: by 2002:a05:620a:439b:b0:939:4a44:5f99 with SMTP id af79cd13be357-93f29b7eac0mr63046685a.10.1792168444661;
+        Fri, 16 Oct 2026 09:34:04 -0700 (PDT)
+Received: from beelink ([187.15.139.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91bcc47bccasm25272806d6.20.2026.10.16.09.34.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 Oct 2026 09:34:04 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Antheas Kapenekakis <lkml@antheas.dev>,
-	Denis Benato <denis.benato@linux.dev>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	"Derek J . Clark" <derekjohn.clark@gmail.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Armin Wolf <W_Armin@gmx.de>
-Subject: Re: [PATCH v4] HID: ayaneo: Add AYANEO 3 detachable controller driver
-Date: Fri, 16 Oct 2026 13:17:31 -0300
-Message-ID: <20261016161731.13897-1-hello@matias.me>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260925061941.75121-1-hello@matias.me>
-References: <20260925061941.75121-1-hello@matias.me>
+	stable@vger.kernel.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Subject: [PATCH v7 0/2] HID: multitouch: fix use-after-free of haptic data on delayed input release
+Date: Fri, 16 Oct 2026 13:33:47 -0300
+Message-ID: <20261016163349.3293666-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261016151343.3120300-1-qwe.aldo@gmail.com>
+References: <20261016151343.3120300-1-qwe.aldo@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: L_aj4fqf-Zfi25pLJBDpiQMfVbzFS0Z4
-X-Authority-Info-Out: v=2.4 cv=QtJTHFyd c=1 sm=1 tr=0 ts=6ad24e22
- cx=c_apl:c_pps:t_out a=aW9mcIavGNWWFvFFKOxBSA==:117
- a=aW9mcIavGNWWFvFFKOxBSA==:17 a=IkcTkHD0fZMA:10 a=MKtGQD3n3ToA:10
- a=1oJP67jkp3AA:10 a=660iZSQnnn4A:10 a=M51BFTxLslgA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=CS8cKMFXB7MW6LiegxgA:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE2MDA2NCBTYWx0ZWRfXzNAt7GR9F5ig
- 8qLZTxlEm660fAHi4sx+hoz+Sj6WLbZnprt7dn7ROISvm3uitf/Kz+PFNbc7ESOPLq7rdaAOIwp
- IuHMiLEO3q9NUOJGhgzLptlrIHzrX6uuip0pGkjSlBM1Ij61+3Wlcra9d7GvOgPu2SkydK17tac
- s5WipUgGha/G0dNlU6ij+hlAjRN4Yzm8w7eXzj8DieTuRdr1VUPQLwYuc6bz+3rLgyzj7IMjiUp
- bTEAPrb7z5YYqVeNiK7T5ZZlgXfeQEvr0+vCiYwsd1hiWfksv/rd5j8OrQKt8QgmKP5LaHpnJCd
- aZ76TKxX8hICCGTT0KENTbD0hq4VcBdhioC9JiAmvoDOGqrO1B9+rJQdguvku8=
-X-Proofpoint-GUID: L_aj4fqf-Zfi25pLJBDpiQMfVbzFS0Z4
-X-JNJ: AAAAAAABGW6LBT02nfum/oaLVmwYxM/ieK8GDy7Axve1/9Z33wouSG3smsJ6hn9L1tUBCO64i9v+xumQLu8LSTnlQ/vsZLoC3gxmJjNj2ZIckMhvsVsjJv7hIiETDzVvNXIRx50rdSn3KPV4rUdFE+mgDNPQMYSbIkgx2lfw/m9nqKGYXd2P2U7FvdpzGwuW9UlZxb+ZuORtSNhz3SwlVdnxNbs9FG9viagG1p1H1/cjndfJBYetfjed0Ol7gMSBJhfXnQuzEmaz7BHlQB441JtcvXR2ER3LTLeWzxe/zG4Ivg6xnrBjiWyRBdVPcxQBQ36Ml0/DDfYzHBZWohTLF2VxT0tFL0B1sdBsc/I/YQSBofVs1+CgSSHhpi9w90EHI/yoGBy8oCrHtRuj8pco78xdZilzNYKENUuvgkGhQZakhS+8gF2LlTi/dy2uasjed+ntJXHUNv2tTtVolJqWaf+1YiSaPYqpPt+nYf6H8e4VtE/nYeSda4mD+6lxGUfb/WBr3/2p0hYG8vCbRH12+9FDI8SFySwJhsaqr8iPjHF66FZdL4YCn+n4U+H3mgjWv65pFfMATTn6BwSjY7CIAuUs04wdHdZeV2DjewFC2lUIg4GvxOpzWd8kFgHNPMr+ZYwMYqAxKiRq2mrRJToa/jpr6/o6/XHpsmbCt6f5tFBxM5M6zPVHsm+lds/Y6M2pjPqStarU0W4AtZ7RTKHpvIGEEPufoQUBTvzsx/VH1yTq0rDDGDKsXVaiOE3o7F+mUlvlyQ0iFrTRo0rpEE7f7at6WJr2wSFjcuRpNpYsLaiVwH5CJxFNt7NI8hx1fsylg7U+4QtgFzfTdMKRVXCvyhF8llxPNeKB7/GQmbR77Z5c1N5tYDy14GmSD4ab2oJcATA0egIdTNXwSP21omOXYOpETuQBtmbc522bgFuGYboXOx5E2yV+Q2BXxJvu1t3x9SV48KbLbqbjuDIxyN4J2JRILA8ICSS
- iUHurDtuPfVSQjTlMW0sQGknPepsCiIFA6JCP5RFDIcWiO146kiiKxawCM9ms0fEkVA9UrQYRvBixpR4qcgT7uOMKJBBWCRTQUB9fBWxNtErgavrxRyzMP0xmNN5eyR6wjOD/Wx5UM5MNP1LjCNttp8haNh3FQafLoKPcBhn9hd9nekfsNRAwAWlMKQ19BE2djB2W01auTOeNqw9YbZYA2cpQs01bx7/C65mq2Sw6MFrrtNUvkRf66FzZjJhXnVXULwz8luuUjzc5m8gFm556LIJFlRXZkgNwnXARHTNUqbSJpG7Zb/PHsh1U+pBs7P+Cp3IPDyuPHYG6sd7v5Jj/QxiRJJZu8b0DPlmd0yN+uFmJrhrtyuIIr8eG65I4g74pnEs7okU/VDId4g==
 
-Hi Jiri, Benjamin,
+v7 fixes issues found by Sashiko on v5 and v6.
 
-Gentle ping on this one — v4 went out three weeks ago (Sep 25) and I
-haven't seen any maintainer feedback yet.
+Patch 1 now moves input_set_capability(EV_FF) after input_ff_create()
+so the capability is not advertised when FF setup fails -- the caller
+masks the error and EVIOCGEFFECTS would deref a NULL dev->ff.
 
-I re-checked today and the patch still applies cleanly to hid.git
-for-next (tip ae6927c53). Antheas, who reverse-engineered the protocol,
-has followed the series across revisions and was happy with the final
-shape. The driver has also been running in the OpenGamingCollective and
-Bazzite kernels since late September with no regressions reported.
+Patch 2 keeps the devm_add_action() design.  Changes since v5:
+  - module_put in hid_haptic_destroy (not devm_release) so the module
+    stays loaded until FF is done; __module_get for devm_release itself
+  - guard against double-init (return 0 when haptic->wq is set)
+  - NULL haptic->hdev and haptic->input_dev after put in devm_release
+  - restore dev->flush/event on devm_add_action failure
 
-Is there anything blocking it, or anything you'd like changed? Happy to
-respin if needed.
+v6: https://lore.kernel.org/linux-input/20261016151343.3120300-1-qwe.aldo@gmail.com/
+v5: https://lore.kernel.org/linux-input/20261016135516.2957381-1-qwe.aldo@gmail.com/
+v4: https://lore.kernel.org/linux-input/20261009103333.2476105-1-qwe.aldo@gmail.com/
+v1: https://lore.kernel.org/linux-input/20261009031207.3233206-1-qwe.aldo@gmail.com/
 
-Thanks,
-Matías
+Aldo Ariel Panzardo (2):
+  HID: haptic: reorder try_module_get/get_device before input_ff_create
+  HID: multitouch: fix use-after-free of haptic data on delayed input
+    release
+
+ drivers/hid/hid-haptic.c | 105 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 79 insertions(+), 26 deletions(-)
+
+--
+2.53.0

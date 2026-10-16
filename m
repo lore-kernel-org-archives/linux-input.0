@@ -1,68 +1,69 @@
-Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8938C3B05AC
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 22:42:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68BC946AA76
+	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 22:42:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792190524; cv=none; b=fGbFzpYtFtT+T14jyn6L1FuGqaZS888z1R0jaJpX0zJhYhwCECCm6+aITkIgapRo9nMxvDyUOc/x95wozIlWCwrMu4S2fosXVv9nKDX3uZQRYSmF18YT3dQoBIQ77X6ml1Pmpcg8jdPcIhwMQ51Peq2DWkkb9qRPlZk5ramWPJM=
+	t=1792190526; cv=none; b=CVifnL/grjNp1GpLhBRpJLa1mWiJPlJ/o3UEGmuHX1eujihYE2hOxnVPuvp97hPlAav9h6G8tQc5oNAD7ZWbWHwyVZ15LNpIF9x6m7PkvjKZUrQIIscvm7ksulf27VJfdzW0B7XjL3v6pAuRVoJjUmPM1y8y9ibVzm5u3i2AseQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792190524; c=relaxed/simple;
-	bh=26nYS9F98fpOF3WKkmoBuNLTRswB/xYDkQKsGGXLWZ4=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=HZtWDRH+yfOE2mH7QbPpF2H/9W5FbVOMKIndt0gdErMulHuR13+cWzfWZZwcGSPb02/iZDzF6QOQSHeN4x/klItuwLg74hVRNFEQ7BkG2BCYStfNiCLWftbpK27g48XwvrWckIVSxw+jXdLORJ2JFPp9ugfRRUOatvSxX6rW6BY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UTbCKXKr; arc=none smtp.client-ip=74.125.82.179
+	s=arc-20240116; t=1792190526; c=relaxed/simple;
+	bh=WzorpVk9chapWpwOob8GI582boBmat7YJhHyMjbooXk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=XpMEe+LGHB4H6/MR2U+ASVXnYZowX3tqDl7VpV4XXhDVFlK6Px8pz5i8zPgdU9bpQy5ff4RDusuKQCclK9fwQzZg/4OiTj+TAeR05xwKIZmSLFlBgntUayT6Cf/ugoQtjz7l2lpyjHEyUW23U/U+PbIsd6vGlfIsqHuJ8k+GKFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VqgtXGqt; arc=none smtp.client-ip=74.125.82.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UTbCKXKr"
-Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-35c76e9614aso448754eec.0
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 15:42:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VqgtXGqt"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-30b6dad2382so1142949eec.0
+        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 15:42:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792190522; x=1792795322; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=eHvg8UIlEplOtldiPLGiOMZ7Z9btapBeKpPyh1admsw=;
-        b=UTbCKXKrU2Ge/iQ7ppxqcpgxRayMmgIYwSc7KTT3+ykQ883oBg0NAaLg6WTNvjo8lP
-         4SX+SdUwVkJm5Y92gxXbj+tfdVg2YHm7nwnyB6bRN18QgvMwG+omDl7k2j8+X+zyNX5d
-         S/OtdGCsfwnq6lMqIRpdJkSuxyIepa5mtePxRywNDomGWd7c14pEIbx/231g0mjebzHs
-         S/8Wt1b7GclokeQKZpdVGVq9LIWB6LCXozAaxODRBZ/26YTVPtSbDPsZrRuA/L3UR7SP
-         zg0dg+J+W+m1WDeA/TJUzQwI5KEpxZWT+mbUi0+8rQzJlUfTT2X1W4fzXEDl4nCAkv3B
-         mf5Q==
+        d=gmail.com; s=20251104; t=1792190524; x=1792795324; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=hxQ3juOVRNgpkeTcscN809epa+8Mjh4WA2LpDZqjj3A=;
+        b=VqgtXGqtH/e92bl1UBv7Jmagt6vwQ4CWpFA8nPR5hnebRj1t/ZwPA2ez2pgfdvntOP
+         Z5HqoiY/ijUTvvqjdQ67VaRtb0ILb/oEL0YtD+f/VDNbG/XdOBoalguOj/KLzoNhB+QA
+         8nJPgSFgYVAABMk/vqeoKCGoZZz3suvddQpGSv4ERA6hyVYP2TA0/kpdN3HTeenZ6k0k
+         XCn99w5zP7Wdv5t2hQuy5dQgmqAGiR++6xll/Ao6NhS/WjufgILY9hy9DlgGOvDGM6q/
+         Ap0uYqdU2m0n0fnSzTSZUraJeraavf+j5ykAI9P2JWN5CY5XE1wRpY+GsoxpR6Gv56cT
+         smZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792190522; x=1792795322;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=eHvg8UIlEplOtldiPLGiOMZ7Z9btapBeKpPyh1admsw=;
-        b=qONObD5VB1B3sXKmD3mvMKKU1TLXsDygmgmBxWs7o7BQcN89LeM5N6XIvGenhgl0BB
-         3LgrTrPryb29eJQvSnrr3d+bV86B4JpV61k5QegSgkHoJo59rsV5aIsSdZHH7tithzEK
-         HOBfbc9kIUh3BODwRSqNv5NPdrMPWYiplN/nlomd1TfwbFvhDSGLZkt3yCauzA3CewzE
-         2PJ4OfzM4Ex0mymNvHl3MuhStGBioFj19VEdnhRKWCvP0ZVVf3uePnZSaTpRZZAzT1St
-         nZPmqdBaZ9Rn37RSVc4dVKgUEHx4SBR2GtJ+8Di4MXGCgPgm252U5RIVljf7f4mIODr0
-         J4Eg==
-X-Forwarded-Encrypted: i=1; AKwUvBzV6tT0tTsW/UW14HNAUFgds9ngqM/bN5aDwCbJ+Kff471W+aKSTzTA2kOMGOex0qxF7sB9ns36vLILPg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKJjn0mpog9u6SPPnILgyJ0tEGaUSTkSbFQGcEM1hyhcfka3mS4
-	QQbQ0pSH6WSQtOc0AyC/nHe1//5SM6/T9Zrs7trKj3fAVDhqdWOua5/R
-X-Gm-Gg: AYBFou07QMIEHc8QTaclsItgd8Djb0nTHY3YZO3ly8ep0KXlEQ0lHe9irszrxh7xrmL
-	84yzjfgueBQ2XBe2w6Vw/VnikdGxaABUl46aaF8dlneJqJQOg5Zmj1mPoM1YSb4x1L6djrujrsb
-	SMHnaNk4S2ZR4GaHydx76z7aHlDcczQpTB4+ASEo/s8nr+gOmTHoLKmZfiIkSp7K7Pnq2P5ZPg7
-	jl6aWSwnK5NfL/a3O1zJ5aBRMUg3shDW44jF/HkQ9D6RfSdNkQDZqxuMkBozkkN6fjmmeC5FJBq
-	eNqqTmJTlQyLxegW9kyKoomcX7HwvI2N96bSnAfgadZeYpTsCBRO1LjruID6uhuwC9rrzQepy2i
-	WqcJaUlwQpqVnTsdZYCHf1sfeGv9Hx7Ja5ib6BmLrQeZ6NYYf6LzfzSAncKllL1VQaPtGu8aVHx
-	ywfVAaqA7EHJvq1OguA16Y6MWNK3usKtFUy4hTF2s7hvWBYWUQvcaD2570z19skxRVloRUZZWcA
-	gZr3wiz/hSAWzccYdVPxp5LXYMKHk1HhArteFHWigIlhw1ZvL930vg2J2P0Rfw=
-X-Received: by 2002:a05:701b:290e:b0:14e:8d1:1012 with SMTP id a92af1059eb24-18512b3e51emr1424452c88.19.1792190521476;
-        Fri, 16 Oct 2026 15:42:01 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1792190524; x=1792795324;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :content-type:mime-version:subject:date:from:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=hxQ3juOVRNgpkeTcscN809epa+8Mjh4WA2LpDZqjj3A=;
+        b=nJtjo56kQ9T74M01hmVps156bD30CP13WCBaGo5hTR8dP3j31Hn+u964qCDD0VQsMj
+         y4p6jvifQqGZMzvsrmnWuoDt5CW+DbYTZf0JGS97vfM4Jo2m1W6FpzTbeEaQHORFzKik
+         k2lkvDFZlDFXi6lFHHEzhZatntpDkriBOPfGNI75ZQSh4brGL2fgrPli7fUjO1KxNWhh
+         U2VGHWaV/7GK92z7bXi16RkP3IFjFyoMup6UxOqQr1ZD6wvHtulOIVaX7Ex2ohs7Ud3D
+         cVUwsH81Ee3C9+jb+jlqNolxfOZJJkdKcFkDmbgktdlcqYAJOIrAVubDc8d9eaptSNy+
+         P2lw==
+X-Forwarded-Encrypted: i=1; AKwUvBwutLyM91K+X7mxKs9CUOsRsjgFhVb4XuB4ChBIStnt46+72sc7s/vZbMpzHPEtHDceO7LeF1MdFQhG2g==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIs/oJ2+9Y4ZipDMmXKaweJnrMGotcyAIt8q9wgiXw4i3Jxn93f
+	O4au1pOeUDg8AInvsTec2sril/LGYO65JHR7MOtQKXouRdHvyHynid/c
+X-Gm-Gg: AYBFou00ito+QDC9GOE1g3HUIOyyzEW4n88NyaoAeSB4JAlQACiTghcFA9FJz1x1Ohk
+	pxKieVnwvNm5QvPnAsfIvAjYb6CWeI22sT2otTbByIV0Z7wIGs6ahE8pKiFnQl3bwbPGZ5apuIS
+	TXII/cJq5aBgcT98v4EY7p/Ymylzw/fhZn1+LNLAlnDYrLWtwSfjZxlh9m0k+OtTzT8dkN8wmhR
+	38TZv9BYZZsY6RuMFtAF2X0Us1chu9btkGmA1nX/QbdJP1DBFI+28F+DMMrQCt3dZlqWuZOpTp9
+	QvlIgFBHyoMRkliUkbbEczLgHHypoNGrQI347dPiu8+8Q8niDXME56AwpD0VvXjXIQMUIEz3Ssc
+	UsiXn6P2L5oR5jFvtsaMhfaGg69LaT1nI7KaYMyWc4fu3V5Hskh4Tzh8gnZCwc1i0ecB+A68gbf
+	SbHSs6zaSAJxARbQG6rB5VV+LZIc6xqqefYNSua2kDZa3h7dZZDg2cNBn7RKHP4Z/xIVOLfNEut
+	v9PMwAfl5pWT3tE15jZyqOxbgHjqldfuxscvYJ1bYy6XxzARSIjen0O1CVdD/0=
+X-Received: by 2002:a05:701b:450f:10b0:185:33ab:4d55 with SMTP id a92af1059eb24-18533ab4e84mr1428104c88.29.1792190524384;
+        Fri, 16 Oct 2026 15:42:04 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:34f0:f27d:9a5d:56e0])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831c4d4675sm8252348c88.21.2026.10.16.15.41.59
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831c4d4675sm8252348c88.21.2026.10.16.15.42.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 15:42:00 -0700 (PDT)
+        Fri, 16 Oct 2026 15:42:02 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v2 0/5] HID: hidraw: Encapsulate struct hidraw and make
- hidraw.h private
-Date: Fri, 16 Oct 2026 15:41:47 -0700
-Message-Id: <20261016-test-hidraw-base-v2-0-153f67a20cad@gmail.com>
+Date: Fri, 16 Oct 2026 15:41:48 -0700
+Subject: [PATCH v2 1/5] HID: core: Move internal declarations and drop
+ unused exports
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -71,11 +72,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIACuo0moC/z2NQQ6CMBQFr0K6toSWUoGV9zAsSvnQr0JNW1FCu
- LsFE5eTzJu3Eg8OwZM6WYmDGT3aKQI/JUQbNQ1AsYtMeMYly5igAXygBjun3rRVHmhfyaIXspC
- 6UiTOng56/BzJa/Nj/2pvoMPe2Q2DPli3HJ8z271/PitYzmWan0shqpIy2o0Y3JJG396NnS/Dq
- PCRajuSZtu2L5Uc/7y/AAAA
-X-Change-ID: 20261014-test-hidraw-base-f965f4656c9a
+Message-Id: <20261016-test-hidraw-base-v2-1-153f67a20cad@gmail.com>
+References: <20261016-test-hidraw-base-v2-0-153f67a20cad@gmail.com>
+In-Reply-To: <20261016-test-hidraw-base-v2-0-153f67a20cad@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
 Cc: Marcel Holtmann <marcel@holtmann.org>, 
  Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
@@ -85,59 +84,164 @@ Cc: Marcel Holtmann <marcel@holtmann.org>,
  linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
 X-Mailer: b4 0.17-dev-e56a4
 
-This series cleans up internal HID core and hidraw header boundaries.
+Several declarations in the public HID header and exported symbols are
+used solely within the core HID module (linked together from hid-core,
+hid-input, and hid-quirks into hid.o).
 
-First, internal HID core declarations and unused symbol exports are
-moved out of include/linux/hid.h into a private drivers/hid/hid-core.h
-header. Next, a hidraw_instance() accessor is introduced in
-include/linux/hidraw.h so HID drivers that only need the hidraw minor
-number for naming or debug logging no longer dereference struct hidraw
-directly. After converting the drivers and dropping unused
-linux/hidraw.h includes, hidraw.h is moved to drivers/hid/hidraw.h and
-struct hidraw along with its internal buffer and list structures are
-made private to drivers/hid/hidraw.c.
+Move internal request, input hook, resolution multiplier, and device
+matching declarations into a private header shared across core HID
+sources, and drop the unused GPL symbol exports.
 
+Assisted-by: LLM
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
-Changes in v2:
-- Rebased onto latest linux-next (next-20261016) / hid.git for-next
-- Updated hidinput_connect() declaration in drivers/hid/hid-core.h in
-  patch 1/5 to use unsigned int connect_mask instead of unsigned int
-  force to match upstream changes
-- Link to v1: https://patch.msgid.link/20261014051326.3784498-1-dmitry.torokhov@gmail.com
+ drivers/hid/hid-core.c   |  3 +--
+ drivers/hid/hid-core.h   | 20 ++++++++++++++++++++
+ drivers/hid/hid-input.c  |  4 +---
+ drivers/hid/hid-quirks.c |  1 +
+ include/linux/hid.h      |  8 --------
+ 5 files changed, 23 insertions(+), 13 deletions(-)
 
----
-Dmitry Torokhov (5):
-      HID: core: Move internal declarations and drop unused exports
-      HID: hidraw: Introduce hidraw_instance() helper
-      HID: Use hidraw_instance() in drivers
-      HID: Drop unused linux/hidraw.h includes
-      HID: hidraw: Make hidraw.h private to HID subsystem
-
- drivers/hid/Kconfig                     |  3 +++
- drivers/hid/hid-core.c                  |  7 +++--
- drivers/hid/hid-core.h                  | 20 ++++++++++++++
- drivers/hid/hid-cp2112.c                | 15 ++++++-----
- drivers/hid/hid-ft260.c                 |  2 +-
- drivers/hid/hid-input.c                 |  4 +--
- drivers/hid/hid-led.c                   | 10 ++++---
- drivers/hid/hid-mcp2200.c               |  1 -
- drivers/hid/hid-mcp2221.c               |  1 -
- drivers/hid/hid-quirks.c                |  1 +
- drivers/hid/hid-u2fzero.c               | 10 ++++---
- drivers/hid/hid-winwing.c               |  1 -
- drivers/hid/hidraw.c                    | 48 ++++++++++++++++++++++++++++++---
- {include/linux => drivers/hid}/hidraw.h | 32 +++-------------------
- drivers/hid/usbhid/hid-core.c           |  1 -
- include/linux/hid.h                     |  8 ------
- net/bluetooth/hidp/core.c               |  1 -
- 17 files changed, 100 insertions(+), 65 deletions(-)
----
-base-commit: 2efb7a11f1aa4d2dc285fe2680cca22cb9f72f64
-change-id: 20261014-test-hidraw-base-f965f4656c9a
-
-Thanks.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index ec7c2860c93e..e2944dbdc9e6 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -33,6 +33,7 @@
+ #include <linux/hid-debug.h>
+ #include <linux/hidraw.h>
+ 
++#include "hid-core.h"
+ #include "hid-ids.h"
+ 
+ /*
+@@ -1249,7 +1250,6 @@ void hid_setup_resolution_multiplier(struct hid_device *hid)
+ 		}
+ 	}
+ }
+-EXPORT_SYMBOL_GPL(hid_setup_resolution_multiplier);
+ 
+ static int hid_parse_collections(struct hid_device *device)
+ {
+@@ -2038,7 +2038,6 @@ int __hid_request(struct hid_device *hid, struct hid_report *report,
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(__hid_request);
+ 
+ int hid_report_raw_event(struct hid_device *hid, enum hid_report_type type, u8 *data,
+ 			 size_t bufsize, u32 size, int interrupt)
+diff --git a/drivers/hid/hid-core.h b/drivers/hid/hid-core.h
+new file mode 100644
+index 000000000000..653bf0f32f94
+--- /dev/null
++++ b/drivers/hid/hid-core.h
+@@ -0,0 +1,20 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++#ifndef __HID_CORE_H
++#define __HID_CORE_H
++
++#include <linux/hid.h>
++
++int __hid_request(struct hid_device *hid, struct hid_report *report,
++		  enum hid_class_request reqtype);
++
++int hidinput_connect(struct hid_device *hid, unsigned int connect_mask);
++void hidinput_disconnect(struct hid_device *hid);
++void hidinput_hid_event(struct hid_device *hid, struct hid_field *field,
++			struct hid_usage *usage, __s32 value);
++void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
++
++void hid_setup_resolution_multiplier(struct hid_device *hid);
++bool hid_match_one_id(const struct hid_device *hdev,
++		      const struct hid_device_id *id);
++
++#endif /* __HID_CORE_H */
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index edd6bbf8342b..d7213f1c417c 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -20,6 +20,7 @@
+ #include <linux/hid.h>
+ #include <linux/hid-debug.h>
+ 
++#include "hid-core.h"
+ #include "hid-ids.h"
+ 
+ #define unk	KEY_UNKNOWN
+@@ -1805,7 +1806,6 @@ void hidinput_report_event(struct hid_device *hid, struct hid_report *report)
+ 	list_for_each_entry(hidinput, &hid->inputs, list)
+ 		input_sync(hidinput->input);
+ }
+-EXPORT_SYMBOL_GPL(hidinput_report_event);
+ 
+ static int hidinput_find_field(struct hid_device *hid, unsigned int type,
+ 			       unsigned int code, struct hid_field **field)
+@@ -2447,7 +2447,6 @@ int hidinput_connect(struct hid_device *hid, unsigned int connect_mask)
+ 
+ 	return -1;
+ }
+-EXPORT_SYMBOL_GPL(hidinput_connect);
+ 
+ void hidinput_disconnect(struct hid_device *hid)
+ {
+@@ -2469,7 +2468,6 @@ void hidinput_disconnect(struct hid_device *hid)
+ 	 * synchronously and are safe. */
+ 	cancel_work_sync(&hid->led_work);
+ }
+-EXPORT_SYMBOL_GPL(hidinput_disconnect);
+ 
+ void hidinput_reset_resume(struct hid_device *hid)
+ {
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 96a36c5ba04f..e885ce3f3a14 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -18,6 +18,7 @@
+ #include <linux/mutex.h>
+ #include <linux/input/elan-i2c-ids.h>
+ 
++#include "hid-core.h"
+ #include "hid-ids.h"
+ 
+ /*
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 8d17b741638c..4b58e9b4ae43 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -1021,10 +1021,6 @@ extern void hid_unregister_driver(struct hid_driver *);
+ 	module_driver(__hid_driver, hid_register_driver, \
+ 		      hid_unregister_driver)
+ 
+-extern void hidinput_hid_event(struct hid_device *, struct hid_field *, struct hid_usage *, __s32);
+-extern void hidinput_report_event(struct hid_device *hid, struct hid_report *report);
+-extern int hidinput_connect(struct hid_device *hid, unsigned int connect_mask);
+-extern void hidinput_disconnect(struct hid_device *);
+ void hidinput_reset_resume(struct hid_device *hid);
+ 
+ struct hid_field *hid_find_field(struct hid_device *hdev, unsigned int report_type,
+@@ -1038,7 +1034,6 @@ struct hid_field *hidinput_get_led_field(struct hid_device *hid);
+ unsigned int hidinput_count_leds(struct hid_device *hid);
+ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
+ void hid_output_report(struct hid_report *report, __u8 *data);
+-int __hid_request(struct hid_device *hid, struct hid_report *rep, enum hid_class_request reqtype);
+ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags);
+ struct hid_device *hid_allocate_device(void);
+ struct hid_report *hid_register_report(struct hid_device *device,
+@@ -1050,13 +1045,10 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
+ 				       unsigned int field_index,
+ 				       unsigned int report_counts);
+ 
+-void hid_setup_resolution_multiplier(struct hid_device *hid);
+ int hid_open_report(struct hid_device *device);
+ int hid_check_keys_pressed(struct hid_device *hid);
+ int hid_connect(struct hid_device *hid, unsigned int connect_mask);
+ void hid_disconnect(struct hid_device *hid);
+-bool hid_match_one_id(const struct hid_device *hdev,
+-		      const struct hid_device_id *id);
+ const struct hid_device_id *hid_match_id(const struct hid_device *hdev,
+ 					 const struct hid_device_id *id);
+ const struct hid_device_id *hid_match_device(struct hid_device *hdev,
 
 -- 
-Dmitry
+2.56.0.176.g3575e65682-goog
 

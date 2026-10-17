@@ -1,167 +1,201 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 119E84F5E0;
-	Sat, 17 Oct 2026 14:16:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06C493CC7DF
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 14:25:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792246619; cv=none; b=G1H2Xo7+hdUAsbMxzUBVEnouqLagmv4u4huTg+F7qs3mKaYOinhbBkAr+1ijDxYyUOQPoIZ7RST1TFwx4EW5otC5fHwTGobLxEY91wnZ1onr7nzsm1bdD/RoszXtH6GaRNYwB7oumX8RgqItw5LIMdjQKDe35xspqdokysrCbyA=
+	t=1792247131; cv=none; b=ZIt6Gq3/HGkXaz/4ONmpXmcuesBdHKOKxi1ZXn8iT98ADUPtNb6o8ZVQ/F5ycCZHUGEDGmV/fZP3JJH47/tHcH7GyL5qDg97ra/t1LSp+YSi0rnciqpSYj1wHb3uhgCvh8HQhR5XenL9doLfznQtFoPpqNtmxq/u1Wkwzqo5Wfc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792246619; c=relaxed/simple;
-	bh=RIZjVekdMiJGiPJizKJfpWWpdC3mduDBFv5TbqTMVl8=;
+	s=arc-20240116; t=1792247131; c=relaxed/simple;
+	bh=uwnTJB37QS3xgjPtqRt6Px53ly9zdcnS6sDEitrB9Og=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=fjh6JOybLKCmtsi9Mbg4kEg7n0i0xR6Gb1jVoiedbg0K6q/rPkfbvTSj3q58Ko37FnPD9UJ2CtjjNIgKaeaude8RqkY0YJseg7QGIQlVlzxiyUU6dDIrbMqdRiZTtZ+1TnV/jC1QMVh0V7A7C3m8xMbfzI4BKUtaLVztFHQfLzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oveaPm8O; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=Lc/+jHbW6wGctZhkZhL+NWaiwQ5Ex/tPfcRs4e2kSiHKWY9CqtX6p14cq2/WnNGM/+cGKFESyJHwblYwlxa3u4xTDxnC+QAz6uuLzy4gdA7/ExHapBM6tAcYKkulZzui6NId2VJ9yvLdp+/qsKaS8YUqH1MZpHABtFQ3FMzw77o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jvKvn9fS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oveaPm8O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53DED1F000C4;
-	Sat, 17 Oct 2026 14:16:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jvKvn9fS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F4C91F000C4;
+	Sat, 17 Oct 2026 14:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792246617;
-	bh=TlW3uCCvPw8oRYqoh8XMlvnaGOk9Zc2ktOuL/qbySGY=;
+	s=k20260515; t=1792247129;
+	bh=MB804161GppfXofo6if1qP7XdxoZi2KLorvjxFqnTKA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oveaPm8OzEOCbzY+SvVSAfSzMIFHFCJHr2xijfAKUMFBslehRYFVI2P3P3fwGgaU1
-	 TpfuAfSkDMHGAjA3TGpP/YWBYh8nR2Cx0kObWcyGpD28UKNqWypVvz289WqAzL80ru
-	 tAfSwbXbj5oVwOs6Ovqzpfr+KTTTdtNKFmiQkKhhDs71xIpc9soYMb/G61zcqcGG6l
-	 vi+CQOlhST3LDnv2ahHOD5oHjB0ZIk7MepO/zDpTCztuh6s2F7cYzkGg7myfRXrDww
-	 k3MqKzvXlst1ChLEzq2zbC36h+LtSX6TO4XCr122iv5w1LOSpM8Cu4smnSBYeeHT21
-	 U1cfn/sZVZ4qw==
-Message-ID: <sashiko-outbox-175542@kernel.org>
+	b=jvKvn9fSliMVBxClmN9OpLqyEPeiIALCEwtFKCsayKkvpCFnxdK7TV6NJNTI5Tn4L
+	 U0qxHA2zvOOtjkV/jRSfjULodJ0GKxr2pAkbasrmfgw09HXgklbzBiwaJlygfv99/L
+	 xjVcJMoW5ksjc68zREyJcEvJ69659J6vXV/WSSQxzjo8861rWspWUlUMdDadomnWOY
+	 ZHGUPIvRB/oH6tZoiAM5PU7JAWP9P9sFtcG/zMHv0dDG36JEu3GHptIbOb6rWy29Ae
+	 rBjqXLfxwVP7dWFnEu0LUKkaqdDeFtTZw6IXxHj2tDCyimIehcmF0TOAgDlcszBZae
+	 4lig6uv4WSUAw==
+Message-ID: <sashiko-outbox-175547@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/7] Input: edt-ft5x06 - move the controller bring-up
- into a helper
+Subject: Re: [PATCH v9 2/2] HID: multitouch: give FF core ownership of
+ haptic state
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Luka Panio" <lukapanio@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261017140827.290666-3-lukapanio@gmail.com>
-References: <20261017140827.290666-1-lukapanio@gmail.com>
- <20261017140827.290666-3-lukapanio@gmail.com>
+To: "Aldo Ariel Panzardo" <qwe.aldo@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261017140332.1480375-3-qwe.aldo@gmail.com>
+References: <20261017140332.1480375-1-qwe.aldo@gmail.com>
+ <20261017140332.1480375-3-qwe.aldo@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 17 Oct 2026 14:16:56 +0000
+Date: Sat, 17 Oct 2026 14:25:28 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Input: edt-ft5x06: edt_ft5x06_ts_init_hw() registers device befo=
-re IRQ
+- [Medium] HID: haptic: hid_haptic_input_configured() configures wrong or s=
+kipped touchpad inputs
+- [Low] HID: haptic: hid_haptic_init() mixes __free() cleanup with goto unw=
+ind labels
 --
 
-commit 5aab9a2f7e5d9f696c6cdfb8f9baf87581af8689
-Author: Luka Panio <lukapanio@gmail.com>
+commit 460ed664066c1c242ed1db3ec867440a01166da3
+Author: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 
-Input: edt-ft5x06 - move the controller bring-up into a helper
+HID: multitouch: give FF core ownership of haptic state
 
-This commit moves the controller reset release, hardware identification,
-input device registration, and debugfs setup out of edt_ft5x06_probe()
-into a new edt_ft5x06_ts_init_hw() helper function.
+This commit clones the mapped haptic state in hid_haptic_init() and
+transfers ownership of the clone to ff->private so the input core frees it
+at final input device release. It also records the first configured input
+device to avoid creating multiple force-feedback instances sharing the same
+HID reports.
 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touch=
-screen/edt-ft5x06.c
-> index 543cc62088c7a..536d633d97a78 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-> @@ -1116,16 +1116,96 @@ static void edt_ft5x06_disable_regulators(void *a=
-rg)
->  	regulator_disable(data->iovcc);
->  }
+> diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
+> index 0a6126e8de5e9..b0fb94f759a37 100644
+> --- a/drivers/hid/hid-haptic.c
+> +++ b/drivers/hid/hid-haptic.c
+> @@ -5,6 +5,7 @@
+>   *  Copyright (c) 2021 Angela Czubak <acz@semihalf.com>
+>   */
 > =20
-> +/*
-> + * Take the controller out of reset, identify it and register the input
-> + * device.
-> + */
-> +static int edt_ft5x06_ts_init_hw(struct edt_ft5x06_ts_data *tsdata)
-> +{
-
-[ ... ]
-
-> +	error =3D input_register_device(input);
-> +	if (error)
-> +		return error;
-> +
-> +	edt_ft5x06_ts_prepare_debugfs(tsdata);
-> +
-> +	return 0;
-> +}
-> +
->  int edt_ft5x06_probe(struct device *dev, struct regmap *regmap, int irq,
->  		     const struct edt_ft5x06_chip_data *chip_data, u16 bustype,
->  		     struct dentry *debugfs)
->  {
-
-[ ... ]
-
-> @@ -1225,78 +1305,22 @@ int edt_ft5x06_probe(struct device *dev, struct r=
-egmap *regmap, int irq,
-
-[ ... ]
-
-> +	error =3D edt_ft5x06_ts_init_hw(tsdata);
-> +	if (error)
->  		return error;
-> -	}
+> +#include <linux/cleanup.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/module.h>
 > =20
->  	irq_flags =3D irq_get_trigger_type(irq);
->  	if (irq_flags =3D=3D IRQF_TRIGGER_NONE)
-> @@ -1310,12 +1334,6 @@ int edt_ft5x06_probe(struct device *dev, struct re=
-gmap *regmap, int irq,
+> @@ -92,6 +93,10 @@ int hid_haptic_input_configured(struct hid_device *hde=
+v,
+> =20
+>  	__set_bit(INPUT_PROP_PRESSUREPAD, hi->input->propbit);
+> =20
+> +	/* The HID reports are shared; create only one FF instance. */
+> +	if (haptic->input_dev)
+> +		return 1;
+> +
+>  	error =3D hid_haptic_init(hdev, haptic, hi->input);
+>  	if (error) {
+>  		dev_warn(&hdev->dev, "Cannot allocate haptic for %s\n",
+> @@ -99,6 +104,8 @@ int hid_haptic_input_configured(struct hid_device *hde=
+v,
 >  		return error;
 >  	}
 > =20
-> -	error =3D input_register_device(input);
-> -	if (error)
-> -		return error;
-> -
-> -	edt_ft5x06_ts_prepare_debugfs(tsdata);
-> -
->  	dev_dbg(dev,
->  		"EDT FT5x06 initialized: IRQ %d, WAKE pin %d, Reset pin %d.\n",
->  		irq,
+> +	haptic->input_dev =3D hi->input;
+> +
 
 [Severity: Medium]
-Previously, edt_ft5x06_probe() called devm_request_threaded_irq() before
-calling input_register_device() and edt_ft5x06_ts_prepare_debugfs().
+Can this attach the single force-feedback instance to the wrong input
+device or mark skipped touchpad inputs with INPUT_PROP_PRESSUREPAD?
 
-With edt_ft5x06_ts_init_hw() now running before devm_request_threaded_irq(),
-the input device and debugfs files are published to userspace before the
-touchscreen IRQ is requested.
+On a multi-input haptic touchpad (for example with
+MT_CLS_WIN_8_FORCE_MULTI_INPUT, which sets HID_QUIRK_MULTI_INPUT),
+hidinput_connect() invokes mt_input_configured() on each hid_input in
+descriptor order before checking hidinput_has_been_populated():
 
-If devm_request_threaded_irq() fails, the input device is announced to
-userspace only to be immediately torn down during devres release.
+drivers/hid/hid-input.c:hidinput_connect() {
+	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
+		if (drv->input_configured &&
+		    drv->input_configured(hid, hidinput))
+			goto out_unwind;
 
-Additionally, because edt_ft5x06_ts_prepare_debugfs() exposes the debugfs
-mode file early, writing 1 to it before or during IRQ setup triggers:
+		if (!hidinput_has_been_populated(hidinput)) {
+			/* no need to register an input device not populated */
+			hidinput_cleanup_hidinput(hid, hidinput);
+			continue;
+		}
+}
 
-edt_ft5x06_debugfs_mode_set()
-  -> edt_ft5x06_factory_mode()
-       disable_irq(tsdata->irq);
-       if (!tsdata->raw_buffer) {
-           tsdata->raw_bufsize =3D tsdata->num_x * tsdata->num_y *
-                                 sizeof(u16);
-           tsdata->raw_buffer =3D kzalloc(tsdata->raw_bufsize, GFP_KERNEL);
-           ...
-       }
+In mt_input_configured(), hid_haptic_input_configured() is called for any
+hid_input with hi->application =3D=3D HID_DG_TOUCHPAD before checking
+rdata->is_mt_collection:
 
-Can this cause disable_irq() (or enable_irq() on error or when switching
-back in edt_ft5x06_work_mode()) to be called before the IRQ is requested, or
-cause irq_startup() inside devm_request_threaded_irq() to re-enable the
-interrupt while tsdata->factory_mode is true?
+drivers/hid/hid-multitouch.c:mt_input_configured() {
+	if (td->is_haptic_touchpad && (td->mtclass.name =3D=3D MT_CLS_WIN_8 ||
+	    td->mtclass.name =3D=3D MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
+	    td->mtclass.name =3D=3D MT_CLS_WIN_8_KEEP_LATENCY_ON_CLOSE)) {
+		if (hi->application =3D=3D HID_DG_TOUCHPAD) {
+			ret =3D hid_haptic_input_configured(hdev, td->haptic, hi);
+}
 
-Also, if devm_request_threaded_irq() fails after tsdata->raw_buffer is
-allocated, edt_ft5x06_remove() -> edt_ft5x06_ts_teardown_debugfs() is not
-run on probe failure. Does this leak tsdata->raw_buffer?
+If a non-multitouch or unpopulated HID_DG_TOUCHPAD report precedes the
+multitouch report, hid_haptic_input_configured() initializes EV_FF on that
+first hid_input (causing hidinput_has_been_populated() to keep and register
+an otherwise empty input_dev), sets haptic->input_dev, and then skips the
+actual multitouch touchpad input_dev.
 
-Should devm_request_threaded_irq() be called before edt_ft5x06_ts_init_hw()
-(for example, with IRQF_NO_AUTOEN if needed until the hardware is ready), or
-should input_register_device() and edt_ft5x06_ts_prepare_debugfs() happen
-after the IRQ is requested?
+In addition, because __set_bit(INPUT_PROP_PRESSUREPAD, hi->input->propbit)
+runs before checking haptic->input_dev, subsequent HID_DG_TOUCHPAD inputs
+that skip hid_haptic_init() still advertise INPUT_PROP_PRESSUREPAD.
 
-oggler
+>  	return 1;
+>  }
+>  EXPORT_SYMBOL_GPL(hid_haptic_input_configured);
+> @@ -414,9 +421,11 @@ static void hid_haptic_destroy(struct ff_device *ff)
+>  }
+> =20
+>  int hid_haptic_init(struct hid_device *hdev,
+> -		    struct hid_haptic_device *haptic,
+> +		    const struct hid_haptic_device *config,
+>  		    struct input_dev *dev)
+>  {
+> +	struct hid_haptic_device *haptic __free(kfree) =3D
+> +		kmemdup(config, sizeof(*config), GFP_KERNEL);
+>  	struct ff_device *ff;
+>  	int ret =3D 0, r;
+>  	struct ff_haptic_effect stop_effect =3D {
+> @@ -425,6 +434,9 @@ int hid_haptic_init(struct hid_device *hdev,
+>  	const char *prefix =3D "hid-haptic";
+>  	char *name;
+> =20
+> +	if (!haptic)
+> +		return -ENOMEM;
+> +
+>  	haptic->hdev =3D hdev;
+>  	haptic->max_waveform_id =3D max(2u, haptic->max_waveform_id);
+>  	haptic->max_duration_id =3D max(2u, haptic->max_duration_id);
+> @@ -517,7 +529,7 @@ int hid_haptic_init(struct hid_device *hdev,
+>  	ff->stop =3D hid_haptic_stop;
+>  	ff->destroy =3D hid_haptic_destroy;
+>  	__module_get(THIS_MODULE);
+> -	ff->private =3D haptic;
+> +	ff->private =3D no_free_ptr(haptic);
+>  	return 0;
+> =20
+>  ff_cap_clear:
+
+[Severity: Low]
+Should hid_haptic_init() avoid mixing __free(kfree) with goto-based cleanup
+labels?
+
+In hid_haptic_init(), haptic is declared with __free(kfree) and transferred
+with no_free_ptr(haptic), while the rest of the function uses a goto unwind
+ladder (ff_cap_clear, buffer_free, output_queue, duration_map, usage_map,
+and exit) that dereferences haptic to free its sub-allocations before scope
+exit runs.
+
+Per include/linux/cleanup.h, goto cleanup labels and __free() helpers
+should not be mixed in the same function. Could haptic be freed explicitly
+at the exit label instead, or all resources in hid_haptic_init() converted
+to scope-based cleanup?
+
+[ ... ]
+
+>
+[::-1]
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261017140827.2906=
-66-1-lukapanio@gmail.com?part=3D2
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261017140332.1480=
+375-1-qwe.aldo@gmail.com?part=3D2

@@ -1,81 +1,81 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CBFE1DA57
-	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 00:05:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 604F129408
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 00:05:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.44
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792195551; cv=pass; b=LYEek74+ShKd/YWRiDgGbLCDIqjZeYTLdtp18V6wOGwC1aKHI4MhGmVY4FkPzLRg1sqUFQffpjZwdf/mAkLDU0WNHOLEYNdqeSWfCp0WyIHUDiRS862H4xwDpcgtzdOLuqyXqLINT+q4D9CjEG9a8rsYIKqeDVUun+BxoiGLJyA=
+	t=1792195555; cv=pass; b=NZXWotYO0bGFLHRwOvX0DG6U479wgtUUDIO4FLN67f4Vrh3phCau5CX44RJkOyEvKyPaKimWipv1iek9Dt+L+BDfwo8dsB9kPBr3UfKxZv77sH6dUKzKTWZnHZcs6uNSbHGAXVkuma9YLgssA/CpxebVep2jCjOc8l0tBQW771s=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792195551; c=relaxed/simple;
-	bh=7sGdRH+GOCeIbPggafCtteXnjrkYq313LLWRk0dNvSs=;
+	s=arc-20240116; t=1792195555; c=relaxed/simple;
+	bh=02BQi84FUAtE5RV52UueDOwghGcWGs0jqPnkAQ/Biq8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WytKvnth8fCmqCFHAiBX9bKF1InH3E52E+wnshC9uRXnLtJ7gfQLYPYeEUiA3vBCz7UFw9fV0zdzD2yPV51sFIb3biRPRRtzk6KUPY7Yv1ZDPKresNvYqfN3b7sGw6kcuOD1aymcp5kI9++ocyettN1+3ggDu/SgPPv3LySkpOI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g94BXGzc; arc=pass smtp.client-ip=209.85.219.46
+	 To:Cc:Content-Type; b=YnOJi0WAbbAAK6aQW89AP4NdZIYyQ7k29sXjQu5yRTNd8bXfJw+HRfx0ndWZpWUsBYJFRcUYMAXENmz3ckdhENmxg+F3G1KG4nX4ddBqaFTfkaZfJVjDVYhgwm/Ww/qpPERkXPLMtS3JKEEs28llM3DYkohZIESZ+kz4F/57xeY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I2Da5ntQ; arc=pass smtp.client-ip=209.85.219.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g94BXGzc"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-917b78dfe30so6713736d6.0
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 17:05:50 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792195549; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I2Da5ntQ"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-917d595138fso2903356d6.3
+        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 17:05:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792195553; cv=none;
         d=google.com; s=arc-20260327;
-        b=F6pMMVrr+kIITaHiDXrE6IJouApwr1waY7JsjaGgnZEIjFFE/NcFt0MobGi2gFcf99
-         yhGOF43deR5dNvFZlHjcpM0mi2+FGdeP56f3hIo43juRd+wwdQWT79VR+r7wL5sdqquD
-         qi+sHRCUWvcwvXF5Sdv0qcJc9YvOVCsyZ8Ew7pQwjyOnkdo0kvamCp+oPJ3LnpWuYHm/
-         MIt4yeM+rnExofKZhbDG43v8sx//BEC+6jFxT6WgjIGU2LFOGgmSiTGl8ZJiEUNuESBL
-         xOCfHkp1Yz4/bKwSDfVThow0AKtatA3EGlZe5giXfVoT9tQwIRitiCRTKcSsv+C/HhP8
-         K3RA==
+        b=MZ3vUgdiWU+I2wVY3XpHHoAgu5QWSE54vWRqnz03cl1JAsZ1JyNI2Qumso53iTioCP
+         EJnd07CF9boJo4XkHMo3ZlOPZsxI2KoKyNrAXFNi9P4PMHZX0FVtI8vF2AYEfrZi3SwQ
+         OkrOEfANMzKipnHAlTF7ULA4Z6JcpqYfBIm57uBRfabA5q2ImCJb91ERlVFIkyW2VJoj
+         qev8UB7kUl+Gza3/JynpaDew2u50gDGmOESTMNaA6s7Py7Dmtg6H/zvOXi2y1BA1JYnO
+         0XK7H8JTJjSSmVaHeRw9Wo2XsumXR7aSNUAHDlkTbXbhEcJ8cbOPIeUgPZCRlJGXxesl
+         JoFw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=cSA7UZw2c3bTiGnVzwM29+KWNJ0lb+yekyy+zeNvwcQ=;
-        fh=BKUemsgkYMFoxpqFMjWEO+/oKCB7CCuZ3EBYedcDbWA=;
-        b=cMMAJJt6lZ4FTw+/uFXxGr20oSDpQned/HO4DY8eeyqvJHf6zMv3It9nsvtjCxy5SQ
-         lXLhrU6KYoZxp7tzfwzCd2DgZlzCASDV+th4pdi/GKspR9ixf7++lNzHBcyECc504Or/
-         P803D5K4IKIPuPDik7y3e9I1FinuBp/s8IvPp6fTFIEiJLk68IUdIr6P32NjBvGuNAQt
-         k1aoDEIMqzSl0yb/CypAZgZzErOHHLp4Gbbovs2mkKqlaIoSW0l3T24CNz2EUDbu3iBT
-         Gc4ngZ7+3D4oJ425ge18cK3oJJ34tS4xvg05CSbBzP3+JCMsBvO9CMqlCkR0h5NSjptM
-         7AiQ==;
+        bh=kK9dd5FfOGQnyxwJqESSjuJBP8NcOkq7nYMyK9tV4Xo=;
+        fh=08lTvKJBjJNw7nYgWBtBxjMd/r5o4DxIKXC+Q6l9lpg=;
+        b=J2nPlURJhhDBMRdLKiW3cjQ2CgiyYc8lINtvxFXz2s+dFnM8BFtYYLOwQoUWzBRTY0
+         6aAZwLF8r/UdHYMIyKoCHt0B6Nd7u7MiJxcz9YsdjeWsJY09cWSKQL6HQWSdqetZCOAq
+         AUzHG/infDuZx71pvoaUQiaMhLsgFTR/cV3d6jLGlFI7ktTYxpAPuP3D4zCH9LvNc0qs
+         s7nc+PpuZXTYWCxOLiMbai57YNwXDAcetNhxELQOej8HTRB6708x+WbVH8UI36/iH8KU
+         OnwvqCMQ0ysDNT20d9VDZGSGw1JEMHjoeXp+Ndek0FwUTMZWwGRE2JnAFRTetE2wrM1n
+         6h2g==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792195549; x=1792800349; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792195553; x=1792800353; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=cSA7UZw2c3bTiGnVzwM29+KWNJ0lb+yekyy+zeNvwcQ=;
-        b=g94BXGzcUfM5/h0F5vseQpt2i9AG2qoz3PGxqBRBXzYVaNnvbThmks0kglshNXu0iC
-         qFBIrP47o0JcQv2WBGCxyhsgIVMKETdpA9435HpOr9H0bLvQSslijfOaSLnSNk3AZduL
-         K5z3UEXoztI8TJ8Db72ydvIjep1do7WrSC24e19pnPlSYoAVFjbY7ZxLLW0+KGIAZJ+H
-         r2YM5TrLbAXa5tce7qyhdpnwWao0Kybsy/fOn/9GAWgaePO3zcpFf2BLwCr/vk/L9cg5
-         aNuyG/uqEdEuUCz9fEJ2P705DXOilz3JAtfNgHhA3zEy/H78xSsULVhnFLhNy1GjekEQ
-         72wg==
+        bh=kK9dd5FfOGQnyxwJqESSjuJBP8NcOkq7nYMyK9tV4Xo=;
+        b=I2Da5ntQy1wRwm2IWbBknBmBrfuYQ0AxYfreIOE3eg1BxZQ/Zo3843Fx4zoRlhC0j9
+         EK/943LyhOquLgI/LHjRFArE1V4htatDRk5X6+MXETpGwzgUJOmrhRjuJfHEb8l+hpr3
+         ewNVEoo62MDbKwOvIAyRaAAJH6F8JclYVm7eNGzTTM9n2MyTlR5O1MGHpxvB24zAoE+o
+         o+A4Dv4Gj8pXw/kuzSAYD6Fqv1F8ROZpyR3mxvT/Supi9MgLtJr89Gvkbk0POl7BvCwG
+         WwIM2e7AI9t/LK0IKAXJmIBGPOJTr2OHhCCK+9F/brkEULWChtCMCdOZ7Fohmb9RDVGg
+         Jl3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792195549; x=1792800349;
+        d=1e100.net; s=20260707; t=1792195553; x=1792800353;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=cSA7UZw2c3bTiGnVzwM29+KWNJ0lb+yekyy+zeNvwcQ=;
-        b=QDy3bV+yGCfpqABkdDXkW82cf8eKF83RE2CMxUgph3Y6J6V6vHQaU94m7zBV5uQP6X
-         cz4fBpGa0WpwNdBmEZpy585x2Q5m9/2xpkXIDfzBN3V/ksDctDRd0ubeeiQ7z8Y341Zn
-         biy+keJGNGy39nb0AV0KUowh8RTfHvjdROa/s1YExW4llJItA2ksminZkrqDcKmfR7ES
-         BsHWXXDlQe72EXHrNiKaZoK0/J+5l2Inh/RDpQA2mgFo5f16sYawrTku3ZuIoHM5Z4fn
-         uo2HnusiOOG3+xNA3Bc5xB7f3BD19ef8Hc0tBT+zeSBBA1tHzVtMoSkEHRJvWEGf0t7Z
-         AdQA==
-X-Forwarded-Encrypted: i=1; AKwUvByRle0qYlUOjM5fOu0Go184QIOTLWQcVAMGt0WHjazo1RSITZr17g8qXWjLcLfo51UAg4CZYquALGq1xA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKW/0UKlbCmUY92p6pMtbQGvVjgHrdDYnGXDImlIWJZlcf2UsVg
-	p4dPnV5abNtnLCLxdviVeco9ysLRZPR3q2qC58t5yt1Zr+d+vbyBabCQR3LPe4Ya7Q6iMz7js3m
-	Wh+8gaa/c9aX278Q32wTmXIiDiMJkM3M=
-X-Gm-Gg: AYBFou3NkcZkBqO2/UjucFzKp9Ixvq84VRhQ9neudCz8SHQN4UlqG2wi42Z5i6oGBoD
-	dWfCRC3jQgAnXVs5Zr2t+DEWkUC9eUngWX1HfPWCUSC8M2yznxfZQwgjqujV2NnVaUumbqtgle5
-	QFrFJl/6U1du1/G/r0ujto+j2Y7MLaHyFUiZY/S5OEEHLm9TcI+f9mmTw9Y5I7/R90LjAzBnuto
-	V/p+V/LBVT4W6Y6hgeICt/9ZLejLEAJOJzcYmjBB1IAZBPmasJuDDjwM67drt7dKw4ISjZB5SRR
-	GBmPsBZ7kmSM318a8hmPAejQQUIyS292kCOmIQhuDczBFd9UWK1oeAo=
-X-Received: by 2002:a05:6214:509d:b0:917:9915:1f76 with SMTP id
- 6a1803df08f44-91bdf0a8018mr27071886d6.30.1792195549268; Fri, 16 Oct 2026
- 17:05:49 -0700 (PDT)
+        bh=kK9dd5FfOGQnyxwJqESSjuJBP8NcOkq7nYMyK9tV4Xo=;
+        b=TPWyhYjaKHPmO1hypHw5XR5pcsVYiv1eOJzl7h+A6T4fhx6pgI4qj30H/4jTDME2BJ
+         Hie1oqu4YAdbBgcGatsVF6VWIBYUjOtIZSZgxG6h6vl8na6epXbaGZ+K5N1oMrb64tn6
+         a6GLDBiaKSF44FNX+MASY8up8gpkc8O+kcBGsCTcd5sHRS2OMWkwYAeSgaVt0NdfjUri
+         LmOb3l5DG31ZrvBBR2HcQ6W81A9emuH5epBuyheEB2AzvlgXsKect+ImMvhX18VbclKX
+         AiK3B7RqxNka4yTeQrB76BAsgAh+2kTe5EjFp24bgVmlfdeVu8vcHfPOnemzMORoYRXE
+         EJyw==
+X-Forwarded-Encrypted: i=1; AKwUvBwutyqUmbP2KnUqU/M/iIiqGOW2x0eEWVugTJPA1730hcB7jSPu0EBlzyaST23acOAJ5IQ/Pn0oeMXoPQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIhe9TX66whhvKLja2Mjtu5Jt7Snns16Lde09IQ0wRX/95pDzoC
+	GlFCXbRBjcDe9TGS+EGb8/Zj2xXwaNqVezMKgG5zthk4pZYKHtyMvS58yKxZObP20k3a+ShmZpJ
+	ZcFG63ZI0/X06wQ6hgzorCH12Z62WUdc=
+X-Gm-Gg: AYBFou09NpAzlt73lD4AiOSdYWTjuds3FWy5GWOl52a/IkBcsx1GcgcoEVPXz/81Avv
+	zw/kiXFhoCNIFzRiZKp70q4pHXDU0OvqXHObHmnjZPBak55T9PxNuCSt2NtRq7t+k8sVsPP2AtQ
+	1QZXb/g+VC0JcqI3zb/bHfkeNa7A15mVZo8idV6tlacou0FzsCSFt47G2cjeBPcfKAifHgG2Vhj
+	1cWrgRsYYajlyea56Eh+hOrnjh2rp6vTRs5n1nBEtYk7g+a+Yvy2hTvPts1L51Pff/3mIILJdTH
+	kf3ZIgrbbvC82edm2yZpxnoL6m67dmhPVmsMH3Oq4FUIhv2URxQiTo0=
+X-Received: by 2002:a05:6214:766:b0:917:8783:341 with SMTP id
+ 6a1803df08f44-91bdf3e1e3bmr28225306d6.45.1792195553124; Fri, 16 Oct 2026
+ 17:05:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -83,14 +83,13 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <579o8so3-09o3-o312-4sq0-0qp6n672q46p@xreary.bet>
- <20260927041138.4112920-1-jinmo44.yang@gmail.com> <20260927041138.4112920-2-jinmo44.yang@gmail.com>
-In-Reply-To: <20260927041138.4112920-2-jinmo44.yang@gmail.com>
+ <20260927041138.4112920-1-jinmo44.yang@gmail.com> <20260927041138.4112920-3-jinmo44.yang@gmail.com>
+In-Reply-To: <20260927041138.4112920-3-jinmo44.yang@gmail.com>
 From: Jason Gerecke <killertofu@gmail.com>
-Date: Fri, 16 Oct 2026 17:05:36 -0700
-X-Gm-Features: AclHuK95QwdgfqCpzXo3U6esCMQ8q2bJI473RTvTkZWxw9RndnhzLiH1N68nFXk
-Message-ID: <CANRwn3TMAhhsL8J43ROhNbFzp-wdin84L_+J42AD8Qrz6wKLHw@mail.gmail.com>
-Subject: Re: [PATCH 1/5] HID: wacom: check the input device in the shared
- report helpers
+Date: Fri, 16 Oct 2026 17:05:41 -0700
+X-Gm-Features: AclHuK_pqOM0nh2PKLmkogbaRyb0DRMy3kSfOq2Ob-BWY6-XdtMjof79nHSmSJM
+Message-ID: <CANRwn3SL3_1ees-D6CQviQRLjwLjCp4Ssjqwj4M_wbb8Fefprw@mail.gmail.com>
+Subject: Re: [PATCH 2/5] HID: wacom: check the input devices in the legacy irq handlers
 To: Jinmo Yang <jinmo44.yang@gmail.com>
 Cc: ping.cheng@wacom.com, jason.gerecke@wacom.com, jikos@kernel.org, 
 	bentiss@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
@@ -101,61 +100,82 @@ Content-Transfer-Encoding: quoted-printable
 On Sat, Sep 26, 2026 at 9:12=E2=80=AFPM Jinmo Yang <jinmo44.yang@gmail.com>=
  wrote:
 >
-> wacom_report_numbered_buttons() and wacom_wac_finger_count_touches() are
-> reached from several report handlers and use the input device they are
-> given without checking it.
+> wacom_penpartner_irq(), wacom_pl_irq(), wacom_ptu_irq(),
+> wacom_dtu_irq(), wacom_dtus_irq() and wacom_graphire_irq() take
+> pen_input, and the latter two also take pad_input, without checking
+> either.
 >
-> Both can see a NULL input device on a fully successful probe. The report
-> handler is selected by features.type from the id table, while the three
-> input devices are allocated from what the report descriptor declares.
-> When wacom_setup_{pen,touch,pad}_input_capabilities() returns -ENODEV,
-> wacom_setup_inputs() frees that input device, sets the pointer to NULL
-> and still returns 0 - the "no pen in use on this interface" case.
-> wacom_wac_irq() then still routes reports to a handler that passes the
-> NULL pointer down.
->
-> Reproduced on linux-next 20260925 (x86_64, KASAN) from one /dev/uhid
+> As described in "HID: wacom: check the input device in the shared
+> report helpers", a partial interface leaves one or two of the three
+> input devices NULL on a fully successful probe, and wacom_wac_irq()
+> still dispatches to these handlers. Seven locations fault, each
+> reproduced on linux-next 20260925 (x86_64, KASAN) from one /dev/uhid
 > device plus a single UHID_INPUT2 write:
 >
->   BUG: KASAN: null-ptr-deref in range [0x290-0x297]
->   RIP: 0010:wacom_report_numbered_buttons+0x37/0x210
->    wacom_intuos_irq+0x29e/0x3300
->    wacom_wac_irq+0x1b59/0xb3f0
+>   wacom_wac.c:137   wacom_penpartner_irq    pen_input
+>   wacom_wac.c:227   wacom_pl_irq            pen_input
+>   wacom_wac.c:244   wacom_ptu_irq           pen_input
+>   wacom_wac.c:303   wacom_dtus_irq          pad_input
+>   wacom_wac.c:326   wacom_dtus_irq          pen_input
+>   wacom_wac.c:391   wacom_graphire_irq      pen_input
+>   wacom_wac.c:444   wacom_graphire_irq      pad_input
+>
+> for example, with vendor 0x056a product 0x0030 (PL) and report id 2:
+>
+>   BUG: KASAN: null-ptr-deref in input_event+0x44/0xb0
+>   Read of size 8 at addr 0000000000000028
+>    wacom_wac_irq+0x2b27/0xb3f0
 >    wacom_raw_event+0x68f/0xb60
 >    __hid_input_report+0x398/0x4d0
 >    uhid_char_write+0xa99/0xfc0
 >
-> Check the pointer in both helpers, following the convention the driver
-> already uses in wacom_tpc_irq() and wacom_wac_pad_event().
+> Check each pointer where it is taken. wacom_dtus_irq() and
+> wacom_graphire_irq() serve both pen and pad reports, so the checks are
+> placed per branch rather than at function entry: an interface that has
+> a pad but no pen must keep delivering pad events.
 >
-> Fixes: 10059cdc0ad0 ("Input: wacom - split out the pad device for Intuos/=
-Cintiq")
+Such a device does not exist for the cases handled by
+wacom_graphire_irq and wacom_dtus_irq. A pen interface is expected for
+all of these device types, and a pad interface is expected for all but
+the GRAPHIRE case. The wacom_setup_device_quirks function takes care
+of ensuring that the pad type gets added to the same interface as the
+pen (for all but GRAPHIRE) so that wacom_setup_pad_input_capabilities
+does not cull the interface later.
+
+It should be safe to move the checks for valid pen and touch
+interfaces to the top of both of these functions (again, with the
+additional condition that wacom_graphire_irq must must ignore a NULL
+pad in the case of a GRAPHIRE type).
+
+> wacom_dtu_irq() gets a check too. Its only dereference is in a
+> dev_dbg(), so it does not fault with CONFIG_DYNAMIC_DEBUG=3Dn, but it is
+> unconditional in the source.
+>
 > Fixes: 2a6cdbdd4cc0 ("HID: wacom: Introduce new 'touch_input' device")
+> Fixes: 862cf5535c0c ("HID: wacom: Introduce a new WACOM_DEVICETYPE_PAD de=
+vice_type")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Jinmo Yang <jinmo44.yang@gmail.com>
 > ---
->  drivers/hid/wacom_wac.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
+>  drivers/hid/wacom_wac.c | 25 +++++++++++++++++++++----
+>  1 file changed, 21 insertions(+), 4 deletions(-)
 >
 > diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index c4cd87b781c4..177a1e09fd05 100644
+> index 177a1e09fd05..794c2865064a 100644
 > --- a/drivers/hid/wacom_wac.c
 > +++ b/drivers/hid/wacom_wac.c
-> @@ -1263,6 +1263,9 @@ static int wacom_wac_finger_count_touches(struct wa=
-com_wac *wacom)
->         int count =3D 0;
->         int i;
+> @@ -128,6 +128,9 @@ static int wacom_penpartner_irq(struct wacom_wac *wac=
+om)
+>         unsigned char *data =3D wacom->data;
+>         struct input_dev *input =3D wacom->pen_input;
 >
 > +       if (!input)
 > +               return 0;
 > +
 
-Checks like this are for an unusual error condition so a dev_warn_once
-or hid_warn_once before returning is suggested. I could even see an
-argument for removing the device if these conditions are encountered,
-but that's probably too extreme. In general, each of the places that
-you perform this check should be updated with such a warning (in this
-and other patches).
+As with patch 1, each of these checks is for an unusual error
+condition so a dev_warn_once or hid_warn_once before returning is
+suggested.
 
 Jason (she/they)
 ---
@@ -166,26 +186,106 @@ But you can=E2=80=99t take seven from three,    /
 So you look at the sixty-fours....
 
 
->         if (!touch_max)
+>         switch (data[0]) {
+>         case 1:
+>                 if (data[5] & 0x80) {
+> @@ -174,6 +177,9 @@ static int wacom_pl_irq(struct wacom_wac *wacom)
+>         struct input_dev *input =3D wacom->pen_input;
+>         int prox, pressure;
+>
+> +       if (!input)
+> +               return 0;
+> +
+>         if (data[0] !=3D WACOM_REPORT_PENABLED) {
+>                 dev_dbg(input->dev.parent,
+>                         "%s: received unknown report #%d\n", __func__, da=
+ta[0]);
+> @@ -233,6 +239,9 @@ static int wacom_ptu_irq(struct wacom_wac *wacom)
+>         unsigned char *data =3D wacom->data;
+>         struct input_dev *input =3D wacom->pen_input;
+>
+> +       if (!input)
+> +               return 0;
+> +
+>         if (data[0] !=3D WACOM_REPORT_PENABLED) {
+>                 dev_dbg(input->dev.parent,
+>                         "%s: received unknown report #%d\n", __func__, da=
+ta[0]);
+> @@ -263,6 +272,9 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)
+>         struct input_dev *input =3D wacom->pen_input;
+>         int prox =3D data[1] & 0x20;
+>
+> +       if (!input)
+> +               return 0;
+> +
+>         dev_dbg(input->dev.parent,
+>                 "%s: received report #%d", __func__, data[0]);
+>
+> @@ -299,6 +311,8 @@ static int wacom_dtus_irq(struct wacom_wac *wacom)
 >                 return 0;
->
-> @@ -4226,9 +4229,14 @@ static void wacom_update_led(struct wacom *wacom, =
-int button_count, int mask,
->  static void wacom_report_numbered_buttons(struct input_dev *input_dev,
->                                 int button_count, int mask)
->  {
-> -       struct wacom *wacom =3D input_get_drvdata(input_dev);
-> +       struct wacom *wacom;
->         int i;
->
-> +       if (!input_dev)
-> +               return;
+>         } else if (data[0] =3D=3D WACOM_REPORT_DTUSPAD) {
+>                 input =3D wacom->pad_input;
+> +               if (!input)
+> +                       return 0;
+>                 input_report_key(input, BTN_0, (data[1] & 0x01));
+>                 input_report_key(input, BTN_1, (data[1] & 0x02));
+>                 input_report_key(input, BTN_2, (data[1] & 0x04));
+> @@ -307,6 +321,9 @@ static int wacom_dtus_irq(struct wacom_wac *wacom)
+>                                  data[1] & 0x0f ? PAD_DEVICE_ID : 0);
+>                 return 1;
+>         } else {
+> +               if (!input)
+> +                       return 0;
 > +
-> +       wacom =3D input_get_drvdata(input_dev);
-> +
->         for (i =3D 0; i < wacom->led.count; i++)
->                 wacom_update_led(wacom,  button_count, mask, i);
+>                 prox =3D data[1] & 0x80;
+>                 if (prox) {
+>                         switch ((data[1] >> 3) & 3) {
+> @@ -363,7 +380,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom=
+)
+>         }
 >
+>         prox =3D data[1] & 0x80;
+> -       if (prox || wacom->id[0]) {
+> +       if (input && (prox || wacom->id[0])) {
+>                 if (prox) {
+>                         switch ((data[1] >> 5) & 3) {
+>
+> @@ -438,7 +455,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom=
+)
+>         switch (features->type) {
+>         case WACOM_G4:
+>                 prox =3D data[7] & 0xf8;
+> -               if (prox || wacom->id[1]) {
+> +               if (pad_input && (prox || wacom->id[1])) {
+>                         wacom->id[1] =3D PAD_DEVICE_ID;
+>                         input_report_key(pad_input, BTN_BACK, (data[7] & =
+0x40));
+>                         input_report_key(pad_input, BTN_FORWARD, (data[7]=
+ & 0x80));
+> @@ -453,7 +470,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom=
+)
+>
+>         case WACOM_MO:
+>                 prox =3D (data[7] & 0xf8) || data[8];
+> -               if (prox || wacom->id[1]) {
+> +               if (pad_input && (prox || wacom->id[1])) {
+>                         wacom->id[1] =3D PAD_DEVICE_ID;
+>                         input_report_key(pad_input, BTN_BACK, (data[7] & =
+0x08));
+>                         input_report_key(pad_input, BTN_LEFT, (data[7] & =
+0x20));
+> @@ -468,7 +485,7 @@ static int wacom_graphire_irq(struct wacom_wac *wacom=
+)
+>                 break;
+>         case GRAPHIRE_BT:
+>                 prox =3D data[7] & 0x03;
+> -               if (prox || wacom->id[1]) {
+> +               if (pad_input && (prox || wacom->id[1])) {
+>                         wacom->id[1] =3D PAD_DEVICE_ID;
+>                         input_report_key(pad_input, BTN_0, (data[7] & 0x0=
+2));
+>                         input_report_key(pad_input, BTN_1, (data[7] & 0x0=
+1));
 > --
 > 2.53.0
 >

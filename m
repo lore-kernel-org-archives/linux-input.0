@@ -1,61 +1,63 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C751C1DA57
-	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 14:03:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 498332248B3
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 14:03:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792245828; cv=none; b=dfAcDUhPCpjzjIWEpS9UiJM+52XBWrjdxk9yEkNdFGh1lLKjOGsHNGO9kz77tvsORGY3l174/6dVv+fmvcv8nuXJd+xrhwMFe6WFXrN/ZdMruGjROnQs8vyPHmgB3Q+bKYLdkRF5n6QybPa+8Oo6KTByTe26QdpasPwxm4/yqUw=
+	t=1792245833; cv=none; b=Pp9z0DludP9UZQWviMsDvC5GAkdr3yf33EVZFVU+s9MYw4TvMSeSpRA2RE2FrOOffo7VAhxWx6gWG/5rpGbRyD4H98Hki/jNiNmtbZ3sauDhvF0zHx49yKLevUXAAGrb2ORunJ2dHIvTC6rDUyIOqOWdAQS0sKAQrtjazsHFH2o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792245828; c=relaxed/simple;
-	bh=Ipy4jjW6gaWuEzPanC91sb5Z60RjQ5DQx4uG0hnW7AE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kYl/X8ltcyYP1yXgUZmnbEZlpH/4zG6A1wMYBblfPlBCOw9XGza2KZ9Ns4v0aw21jS3Rz0TT0mG8K7pkLQGFYccF88Rh1wfzZyT+nH4sU+R7z/EXKuRlkmMCPyaevfUAwLCzECk19JBCOyU+4W8gfoe9E2xzv0YIxMRUGlP2vh0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jUWel9es; arc=none smtp.client-ip=74.125.82.182
+	s=arc-20240116; t=1792245833; c=relaxed/simple;
+	bh=pzHYCNoq9J/xjDTIZm1GzwKAg0a5eysa5HPlMSXc4zM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ue6LW3b8og2riUpKbzJOLkkmC1ZTkK6QH1GgakYeyoFRus4vpKrGE8FjWDEJNahCEBLQO9md7e9ILYnuUPqipFkeYzQF69lrFhidlM/SZxKbiN/9pPeYM6ERhT/zodvMD5JFZyfuH1KnY69zxO2Vj7QwikHQrafwzbT2TASs6OA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a3FxalY7; arc=none smtp.client-ip=74.125.82.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jUWel9es"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-3514b90bb89so2053904eec.1
-        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 07:03:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a3FxalY7"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-35c76e9614aso1342747eec.0
+        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 07:03:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792245826; x=1792850626; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=js+mUJzMMvVUHKyI3sEc56QXGWR7/Maia0gNSzvmDKk=;
-        b=jUWel9esvVxhJpIaJ+McShb0DGZzjCF7Cj6cRFFI93uj9cYAxakCI0t5R0xaB9Dh3d
-         2m0GmBguYK7GsfQfbp1X4FGhmPsNfd+6K00N7ANr4MLED6ocwExVZVgrTIitugv/Jb1g
-         QFBvE9orlx8UTkIE6F4adFPYv6CWh4heyBLqPZQtX30A2PfYB1HHzJ6zskQvlT1H9Ywl
-         kH3ZLBIpe1tt0ffOdFv1+2bQnUSG97tgV2cXmnw6rKSeEQC08l5zqY6BvI6zHzzX/sCv
-         3VKnnRCh3ry+ZR4bIuTNe7OnEeoMEUoNQTVWZ6HUJqQtwyLpfLcq/DyDjx4sIZXmU8Sl
-         iHXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792245826; x=1792850626;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1792245831; x=1792850631; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=js+mUJzMMvVUHKyI3sEc56QXGWR7/Maia0gNSzvmDKk=;
-        b=R1jwuCyOaCRHPaiSVj8AVHa1oJGR8ESMVPEHRQaprNLrA/bySvfwNjZ5za8gGio/G6
-         akbSkY5VnB/nOeTM0VoxmlQlRgixk/LS+Nq8Ktalkcn2V7i+4MJuZik6ydBW4qbC/9Wh
-         nYLHgCtmVvJ0fVg6rESP30nai5QtAzWAB1+dsgRY58AA9b2DXSbhoTNGBNCgvlh+I4wN
-         tx7qYwR6WiDS34Xx3PBgrRQ0ddJBLH3oXBy6BDAuXSiiyjNTNAmXAvl6AFYaPN6jMkjt
-         9SPq6Di3VfX47GVAmDGXFGRaM1hlbQonwIeECjC0uZupLMoaB8NwohwaOAmEUwE7MS9+
-         jOWA==
-X-Forwarded-Encrypted: i=1; AKwUvByAXAUaECKzqDo1D0oQvcmZqPdmMKSS+Rc8vuHn6UnfrDCzh0fg8Dc2HJMTDKfvnRP9wBthc9MKU0ywFA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLdI7tf5N05k+b0m2k+arFoBdEXCul94XjVLBBOP2fiD5ixxrCl
-	NJAruZ4XduuzYMkrIY/0Kxe3N0qldg4rST+6QtaqApdCYCHn4zHzDbax
-X-Gm-Gg: AYBFou0ybJiVubMbMMzBmC6i2R9VTvnAdSRWzfBB7SdtOyLY7a17FKHaXLV037voEJM
-	N0MzcQwy+/i0noh4b6Cy86jm68Nu4W9iyKJGkzWrnEH4h6lzHFeT72HMqvk9mAWrD3YEIzx3ly+
-	L5EL+XFI33Q7nukJjAU9jV4ENhiKcVRTVsBkvrm94lFnFeFYe0J2H/jR5rtSSMI/UsCXW/qb0tU
-	PzfpHTPF9j8w5B84fvpf/woIeKG6iOZQF84dfvmR5yk9TLC82zvhNptPUl/ObSHYgT73sEiSXsy
-	efZmOBdRXrJfXRkGeGStYrlNcw4EGCr5orWfXfI99dik2eILmWAB32AsdWC5bgv3BqBVQGXcq0O
-	G8IrH4xmFeuLHEDtGf/ozpRmr3KkWwawV65LAZ1ZVPXIjKTWWO0mFSu83r7TnogVWTyYGXcmJkh
-	XBTiRtQxOFM7+UPUOEiGqud1IGRav+HsWEs+53CkviumRQ6PFWpzI7BzoEgH9J
-X-Received: by 2002:a05:701a:c90a:b0:151:8280:2c1a with SMTP id a92af1059eb24-18513d85782mr3987345c88.42.1792245825503;
-        Sat, 17 Oct 2026 07:03:45 -0700 (PDT)
+        bh=nt2I2LjFkGPbme+OwhKJrbwORKBaSL5qspjiblTND8U=;
+        b=a3FxalY7XcdxrvhpXKGhlIVz5WidAvfLf1wy1QWmcVvKmylKtLP2yGcUkbH4CzgVQu
+         /p4VInHWHmgSTHJoZ8ftNkYxlOVqPTPDhPuW3ThcNKag1Y45LJG+imaEIThrkm31M60J
+         zVycnZwViGh6FCsagqFe6UC0QcH29z0iXHCCDF3BIG+u5PSgTozkrc8ucuZuz3QmdZyE
+         RMS++QpUrnKyH3VwoPXpwQ56VPPEfWg69ZzZnFEWMOJacDgZV3ErqKpybyCQ1koIkxkx
+         OVyb+tUzxoR6R25o36eC4MHLWAgOtunyehFDhv8KGAt89lHcJkhOe3IF3Aq0a57SMJqP
+         uzXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792245831; x=1792850631;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=nt2I2LjFkGPbme+OwhKJrbwORKBaSL5qspjiblTND8U=;
+        b=PC6YQuUPbKfIP3GIun1xgLTMlxDko3vdOpbc6Yk/kOtg9dwX0NXAg4zCRH3mHVgwgP
+         mmwPu9b93NxfnE/BNWbPQk9nQ2GDqCDNPFczY3K8SPGk37omv+AS9BAVau7W9xMz77ee
+         ID0IsalMbHzXGpSKB5a0FudEwBqgQJ5WhfU1NnzhucO3RTyzRgH8Eb63SE6zwbVFElH5
+         UeiY/wEn260Q2vs1I1fLlvw8qdmXFtpKmL3K2p58BganJfPs9WAb+/BZwEAlMlJEd94K
+         +YwdEH74vo1cSQ8aoVJ3SgzOEIZ8PIbYPqyybewUMPVy698iFPZ9q310w1te1F9fL4q6
+         8EsA==
+X-Forwarded-Encrypted: i=1; AKwUvBzqauqVu/oRaOjb2HYp8Y/qaC38aBRdv3Hs74jTGNgem+dM3hniKG/Dd2uFfZbq66wiDZEbLDdnlfzqJw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIAJ12/tXU80s/ctZof7Ee1qMF8378FPEIlZ/m3ZYmcjdfkfomi
+	BbIIFlgwH/RurtiEKHug/ruAK+9FjJ+Mx+RlZpzStFs+aAT8ofSfKPm5
+X-Gm-Gg: AYBFou3CBJ0iSSrhZ6nkq1On4YQ6pel+FtP5D0x6iIebu3vAyvJX3O1zcDO7uw4EivX
+	krI5kkgT+DdkJXmMRcH4wK+lvZ2LAi54b8jIBI2lYdn/yTMRnu4h81b9GuZBN+YU+KDba2ehkIm
+	ecgP7kM1ASyoEVvu4xV+aRx1PCD3UE7GxrEGT6XS0wkxRJq8ihLiO0ioCeo9Uz249E7Ye4Pt7Xp
+	mbZqMCJpcAO+s1iMm3YN2C0+RcbYPrKL5x3EOuhgfMV00IcLjx6ElntzICwrOep+D3pnS0fOxxy
+	n3hT3n4Fx8K0UJjbKVqSmEVhy/NEtybih8uwbtHCUNkd3Qou3F2StT/+8aaeTNHKbk+gqHKRUXa
+	jlwkxStQL1Tq5wOKU182GWNeyfu7bG9BLiSPy/JhGddnLpo3hu+l/v1tC5i6GwF5LLtqFaERvEZ
+	XEZumKnsbGg8fY0DB4auiVF8CqTZS9ae5NfYclnIFD7e2a7aDaMM/PTjzOJ2eI
+X-Received: by 2002:a05:701b:2610:b0:176:a225:e364 with SMTP id a92af1059eb24-185138b58a9mr3491136c88.35.1792245829507;
+        Sat, 17 Oct 2026 07:03:49 -0700 (PDT)
 Received: from beelink ([186.22.57.86])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831b37ce3fsm12727648c88.14.2026.10.17.07.03.43
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831b37ce3fsm12727648c88.14.2026.10.17.07.03.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Oct 2026 07:03:44 -0700 (PDT)
+        Sat, 17 Oct 2026 07:03:49 -0700 (PDT)
 From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
@@ -63,10 +65,12 @@ Cc: dmitry.torokhov@gmail.com,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH v9 0/2] HID: multitouch: fix haptic lifetime on delayed input release
-Date: Sat, 17 Oct 2026 11:03:30 -0300
-Message-ID: <20261017140332.1480375-1-qwe.aldo@gmail.com>
+Subject: [PATCH v9 1/2] HID: haptic: make FF creation the last fallible init step
+Date: Sat, 17 Oct 2026 11:03:31 -0300
+Message-ID: <20261017140332.1480375-2-qwe.aldo@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261017140332.1480375-1-qwe.aldo@gmail.com>
+References: <20261017140332.1480375-1-qwe.aldo@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -75,54 +79,176 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-An open evdev fd can keep the input device alive after HID unbind.
-The haptic state in ff->private must remain allocated until the input
-device is released, and pending work must finish before HID reports
-are freed.
+The caller holds the module while setting up the device. Use
+__module_get() after input_ff_create() succeeds, leaving no fallible
+step after the FF callbacks are installed.
 
-Following Dmitry's v7 and v8 review, hid_haptic_init() now clones the
-devres-managed mapping state. FF core owns the clone once setup
-succeeds and frees it at final input release.
+Drain haptic work through ff->stop when the input device is
+unregistered, before it drops its parent reference. The destroy
+callback also drains work for devices that were never registered.
+After unregistration, that callback only frees local allocations, so
+remove the extra HID device reference and its error path.
 
-Patch 1 makes input_ff_create() the last fallible initialization step,
-uses __module_get(), and drains pending work through ff->stop at input
-unregistration. It also removes the extra HID device reference and
-propagates haptic setup failures to mt_probe(), including when hidraw
-lets hid_connect() succeed after input setup has failed.
+Clear the FF capability bits if input_ff_create() fails. Return the
+error from hid_haptic_input_configured() and save it in the multitouch
+driver. Probe must fail even if hidraw lets hid_connect() succeed after
+hidinput_connect() has unwound.
 
-Patch 2 allocates the clone in hid_haptic_init() and transfers it with
-no_free_ptr(). It keeps one FF instance per HID device because the
-touchpad inputs share report fields.
+Fixes: 8d0bf7908b5a ("HID: multitouch: add haptic multitouch support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+---
+ drivers/hid/hid-haptic.c     | 48 ++++++++++++++----------------------
+ drivers/hid/hid-multitouch.c | 18 ++++++++++++--
+ 2 files changed, 35 insertions(+), 31 deletions(-)
 
-Changes since v8:
-  - clone the mapping state in hid_haptic_init() and give FF core
-    ownership of the clone
-  - remove the devm release action and extra input/HID references
-  - use __module_get() after input_ff_create()
-  - propagate haptic initialization errors through mt_probe()
-  - drain haptic work at input device unregistration
-
-Build checks on x86_64 with GCC 15.2.0 and W=1 passed: the affected
-objects with HID built in, a minimal vmlinux and modules build with
-HID=m and HID_MULTITOUCH=m, and hid-multitouch.o with HID_HAPTIC=n.
-The full build reported kernel-doc warnings in unmodified files.
-A QEMU/KVM boot with KASAN ran 10 virtual UHID haptic cycles: upload and
-play an effect, destroy the HID device with evdev still open, then close
-the fd. FF_HAPTIC was exposed, output reports were observed, and KASAN
-reported no errors. Physical hardware was not tested.
-
-Base: 58161ead29e50d70a317ea26b472e0c7508e69da
-v8: https://lore.kernel.org/linux-input/20261016173056.3397211-1-qwe.aldo@gmail.com/
-
-Aldo Ariel Panzardo (2):
-  HID: haptic: make FF creation the last fallible init step
-  HID: multitouch: give FF core ownership of haptic state
-
- drivers/hid/hid-haptic.c     | 62 +++++++++++++++++++-----------------
- drivers/hid/hid-haptic.h     |  6 ++--
- drivers/hid/hid-multitouch.c | 18 +++++++++--
- 3 files changed, 52 insertions(+), 34 deletions(-)
-
+diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
+index 8760eeb..0a6126e 100644
+--- a/drivers/hid/hid-haptic.c
++++ b/drivers/hid/hid-haptic.c
+@@ -96,7 +96,7 @@ int hid_haptic_input_configured(struct hid_device *hdev,
+ 	if (error) {
+ 		dev_warn(&hdev->dev, "Cannot allocate haptic for %s\n",
+ 			 hdev->name);
+-		return 0;
++		return error;
+ 	}
+ 
+ 	return 1;
+@@ -377,14 +377,22 @@ static int hid_haptic_erase(struct input_dev *dev, int effect_id)
+ 	return 0;
+ }
+ 
++static void hid_haptic_stop(struct ff_device *ff)
++{
++	struct hid_haptic_device *haptic = ff->private;
++
++	if (haptic->wq) {
++		destroy_workqueue(haptic->wq);
++		haptic->wq = NULL;
++	}
++}
++
+ static void hid_haptic_destroy(struct ff_device *ff)
+ {
+ 	struct hid_haptic_device *haptic = ff->private;
+-	struct hid_device *hdev = haptic->hdev;
+ 	int r;
+ 
+-	if (hdev)
+-		put_device(&hdev->dev);
++	hid_haptic_stop(ff);
+ 
+ 	kfree(haptic->stop_effect.report_buf);
+ 	haptic->stop_effect.report_buf = NULL;
+@@ -396,9 +404,6 @@ static void hid_haptic_destroy(struct ff_device *ff)
+ 	}
+ 	haptic->effect = NULL;
+ 
+-	destroy_workqueue(haptic->wq);
+-	haptic->wq = NULL;
+-
+ 	kfree(haptic->duration_map);
+ 	haptic->duration_map = NULL;
+ 
+@@ -419,8 +424,6 @@ int hid_haptic_init(struct hid_device *hdev,
+ 	};
+ 	const char *prefix = "hid-haptic";
+ 	char *name;
+-	int (*flush)(struct input_dev *dev, struct file *file);
+-	int (*event)(struct input_dev *dev, unsigned int type, unsigned int code, int value);
+ 
+ 	haptic->hdev = hdev;
+ 	haptic->max_waveform_id = max(2u, haptic->max_waveform_id);
+@@ -501,38 +504,25 @@ int hid_haptic_init(struct hid_device *hdev,
+ 
+ 	input_set_capability(dev, EV_FF, FF_HAPTIC);
+ 
+-	flush = dev->flush;
+-	event = dev->event;
+ 	ret = input_ff_create(dev, FF_MAX_EFFECTS);
+ 	if (ret) {
+ 		dev_err(&hdev->dev, "Failed to create ff device.\n");
+-		goto stop_buffer_free;
++		goto ff_cap_clear;
+ 	}
+ 
+ 	ff = dev->ff;
+-	ff->private = haptic;
+ 	ff->upload = hid_haptic_upload_effect;
+ 	ff->playback = hid_haptic_playback;
+ 	ff->erase = hid_haptic_erase;
++	ff->stop = hid_haptic_stop;
+ 	ff->destroy = hid_haptic_destroy;
+-	if (!try_module_get(THIS_MODULE)) {
+-		dev_err(&hdev->dev, "Failed to increase module count.\n");
+-		goto input_free;
+-	}
+-	if (!get_device(&hdev->dev)) {
+-		dev_err(&hdev->dev, "Failed to get hdev device.\n");
+-		module_put(THIS_MODULE);
+-		goto input_free;
+-	}
++	__module_get(THIS_MODULE);
++	ff->private = haptic;
+ 	return 0;
+ 
+-input_free:
+-	input_ff_destroy(dev);
+-	/* Restore dev flush and event */
+-	dev->flush = flush;
+-	dev->event = event;
+-	return ret;
+-stop_buffer_free:
++ff_cap_clear:
++	__clear_bit(FF_HAPTIC, dev->ffbit);
++	__clear_bit(EV_FF, dev->evbit);
+ 	kfree(haptic->stop_effect.report_buf);
+ 	haptic->stop_effect.report_buf = NULL;
+ buffer_free:
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 4e19a0c..154dc94 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -174,6 +174,7 @@ struct mt_device {
+ 	struct mt_class mtclass;	/* our mt device class */
+ 	struct timer_list release_timer;	/* to release sticky fingers */
+ 	struct hid_haptic_device *haptic;	/* haptic related configuration */
++	int haptic_init_error;
+ 	struct hid_device *hdev;	/* hid_device we're attached to */
+ 	unsigned long mt_io_flags;	/* mt flags (MT_IO_FLAGS_RUNNING) */
+ 	unsigned long *active_slots;	/* bitmap of slots with an active
+@@ -1958,8 +1959,16 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	if (td->is_haptic_touchpad && (td->mtclass.name == MT_CLS_WIN_8 ||
+ 	    td->mtclass.name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
+ 	    td->mtclass.name == MT_CLS_WIN_8_KEEP_LATENCY_ON_CLOSE)) {
+-		if (hid_haptic_input_configured(hdev, td->haptic, hi) == 0)
+-			td->is_haptic_touchpad = false;
++		if (hi->application == HID_DG_TOUCHPAD) {
++			ret = hid_haptic_input_configured(hdev, td->haptic, hi);
++			if (ret < 0) {
++				td->haptic_init_error = ret;
++				td->is_haptic_touchpad = false;
++				return ret;
++			}
++			if (ret == 0)
++				td->is_haptic_touchpad = false;
++		}
+ 	} else {
+ 		td->is_haptic_touchpad = false;
+ 	}
+@@ -2197,6 +2206,11 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+ 	if (ret)
+ 		return ret;
++	if (td->haptic_init_error) {
++		ret = td->haptic_init_error;
++		hid_hw_stop(hdev);
++		return ret;
++	}
+ 
+ 	ret = sysfs_create_group(&hdev->dev.kobj, &mt_attribute_group);
+ 	if (ret)
 -- 
 2.53.0
 

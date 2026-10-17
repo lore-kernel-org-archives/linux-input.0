@@ -1,175 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E12B3451DA
-	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 14:52:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7519E3BE636
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 16:41:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792248755; cv=none; b=K5kOnjPTbt8uvU0yxD8TbetyMlQktBfgp1q6TNTOOpMIaxxnC9UMQ7t+IDEKbl0AbUenjgESeJtCDMxykzZ9vE1g79Joi0Eyqfxyo7mCCOcZ0llS2klUZO+iUaoJLJgBUzCL7xBq/2LPVAUMOORUf6Qg25WLWqUlN6a5FtcfzME=
+	t=1792255311; cv=none; b=jyBXqYeh6cEpTm/fAoLK3xlqTqC4U1w2phTJNrAgc0DKkbQrw15M/1i7vwqLsm1A1soQ9+jOU3uIsDWfxRSrYP1RGhN1a5Dk+Bd3UbaXoowtqUdaoxdNatxIMAUqi6J5ez0/t0W7/u3kbQs40B4+eC9qK4c6/mh+2PtBO1Ksj2k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792248755; c=relaxed/simple;
-	bh=WwkY0OTWRWDNKJMDqozmh60TLgmwlkz6r4oAFjmEsis=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=LrRFZM7Mg52rXaWyg2xT37S26CvuHCgeBLEf57NHBR2Dgc5oreO5GDqoP1WRQU7aZzj/jHshsqnvUKrJasikhisPaYNyhSI4muyYEXN9BDDMvxcyJIe/lHiHUkBw7fm42FatxMZiWrY4LhDoJBFM7hqq0Lo7dpqW285XxSzjFmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KtYstKly; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792255311; c=relaxed/simple;
+	bh=f0oOwJ99ASBwohPnUw6E+rSWJn8E7P22P3UNI/krsOI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mGDWrgCS4786Am6fkc1vFw5W1ykBWj6h2MG0Kb/FAc7AVqSBQNVE+LmOfEQ8DkPV3QwazsZemxmua9KJJ5F2WrrVQ9g6w8ccybP8kelJOLTREbQlH4uyTAcV8WjubuYr9aCdNQkC/zY+2H4aMxK+9nSMoj9FQj4H62ILZCSPrRY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eaqPQQaB; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KtYstKly"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BD271F000C4;
-	Sat, 17 Oct 2026 14:52:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792248753;
-	bh=6AeCjPIpQ+AAnRQmvgeV5MC2XY/Vxo13Ol0Z9IMGkpU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KtYstKlyabD320YZXC45py7xP391XNjJbfh5CUykIq26heXIcCxDtqDjfk9tBI7L4
-	 P75jSQDX61SL0XoTIKN+AEZd/6/Gp4bm6zGET9odBRG10zAQ8YLQnyDSEgT1IZmHfl
-	 Q9zZHA2E0orJw2Czt7oWt3x0xixOsWmv6Gii5wRt/w/Mv9+MOrh0r/+qiwMpGGBCjZ
-	 l6ZuoKBCrmj7WXjt2tVl6g/peIinWPg8EEx/ejpyX1UWYbfbJmJE7gfkSpSOKA12Kd
-	 omq3VReX47wzHfv+cnqoGhuU0QVEMuX+/k3MmAYNp/oamx2AUJx3R0sg18QFBtAKKh
-	 QHQn7a901ZsIg==
-Message-ID: <sashiko-outbox-175569@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 2/2] HID: multitouch: give FF core ownership of
- haptic state
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aldo Ariel Panzardo" <qwe.aldo@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261017143810.1567677-3-qwe.aldo@gmail.com>
-References: <20261017143810.1567677-1-qwe.aldo@gmail.com>
- <20261017143810.1567677-3-qwe.aldo@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 17 Oct 2026 14:52:33 +0000
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eaqPQQaB"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-91b55859245so14384966d6.0
+        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 09:41:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792255308; x=1792860108; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=tJIcl5oLftMCiRZNmyVUnJAZje8wxQdTARXgo+oxa1E=;
+        b=eaqPQQaBtGDG4Hzd2VZQKPEnLDGwTroNn+VSySiQssXijYvMQmXTzNeIgSkJxWK2d3
+         PbDSaNgAagAzegi2jRxPuIHJ4LPUwpA2EA+aMJgZHDQbzi2BpFjz9a9xVPWIR0sW+O3C
+         A+brrb1J15bXvwwugKD+DouyK5VjA6664zHiwsXeeQDygIxntBTwU24M+owZHOe5aQwq
+         nOun5yHsz0zeYJE3sxRQBrGIq5YPOW1vgqX58VKuRevXLH/8hv4b6bFCWHzo/cVR8XDw
+         gXIpsqwoRG6WzSiFrEEhLtZzMFSmEVuN0pbRDM/ReQjKkRm96Sf0z9tPTdVGrV8IK63L
+         nICQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792255308; x=1792860108;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=tJIcl5oLftMCiRZNmyVUnJAZje8wxQdTARXgo+oxa1E=;
+        b=qbJZmS1efohtIFKVyzg/KIgvcgRQlTV1QsfvRIlk/xMD/IaF/Zn+mXR/3IpVtmiALG
+         KYoGQfS1wNWr4Sy6PZHvdaUFCwjA6AV+Am+zhtc+0VQf24XQ9CPilY8LyD2Mb+StfO49
+         PoUrsZFgepIFEE/IaEVJUjnvi0Wmdkg9v3UVvVKDQsb5cq0PfQsQ9GKNkHeZLBK1N+tp
+         y+P0BZSpkWAwkW+t56dx5Z2k1DPeDuIOc3/8x6tFRDr/aovglTA3tWVxJD6kEuEFCAnO
+         WXLrJps03XGBIR+j5IpYhgFBYl4JNWO5fJi+jW/UheEPlEZ/b7T5zvSV8S4NSgG7YQhA
+         P9LA==
+X-Forwarded-Encrypted: i=1; AKwUvBwPPIgYZGIppEFwZtpndk6pBaULEn4FBrSDsJpaJKA9Khnlwygd/DphJ1ze286dZt83loj2Xk9jkVZyHg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKzJwsqieJ8RjuotISdyg/EvWxve+zAw4mVXivU4Di4ZMr0poYH
+	k3JT9vWPfQ4fJBWLorx5zRmVYUkg8zMAoApMsE8hAvSBM6J1GKCdt3/u
+X-Gm-Gg: AYBFou3yKSYpeD8wWlTXlUM5LZXyvW6m3JFgtOc9LhYVNHoJnaznPdO5XRfs0/S/2E9
+	K1Hc5cx15FQxOq9cg2Y18NF9aX8GGMZmAIL5afMKMZBpRGTEdYBS4608zGh0qcNQRRkDIqJTXx7
+	6z5ITGu4ZtSumwAcNwAHUQk994KW42Y/WOvdnWPt58IFzmQVGYhnib1Q4d781/twDpUlZDVz7n9
+	7ERnSp7XzYwxr8HijelGqs+Z24uu86u+fJi6Isi6mhHaCSTTaFFzY45VuX3Pw91RfrSfKaj+Toa
+	jB++LRXZCWVmdTg9x83oRrb9BAVxdUrKk6l8PlIU+aBC2Z5o9hYXExyOBwJoGn4GAKSoxTPqDPu
+	NCbhPTN15bBTQWv2RtpVh7ZOxmKMBQOHpWkSzju/0QORs+bXpIkyE4DqidYTDzLpkXRbP+wLO+r
+	KdKkL/i7jgaIjjd1RHkpygxurI1xIxy+WgnXE13JqctgDAoZrav+Z88e89mtCHL9zY
+X-Received: by 2002:a05:6214:3b89:b0:90c:4422:84d1 with SMTP id 6a1803df08f44-91bdf17e317mr60816536d6.30.1792255308456;
+        Sat, 17 Oct 2026 09:41:48 -0700 (PDT)
+Received: from beelink ([187.15.140.245])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-91bcb8c4adasm51061296d6.1.2026.10.17.09.41.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 17 Oct 2026 09:41:48 -0700 (PDT)
+From: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Subject: [PATCH v11 0/2] HID: multitouch: fix haptic lifetime on delayed input release
+Date: Sat, 17 Oct 2026 13:41:37 -0300
+Message-ID: <20261017164139.1791033-1-qwe.aldo@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] HID: multitouch: mt_input_configured() validates is_haptic_touch=
-pad too late
---
+v10 review found that the multitouch slot setup ran before validating
+the haptic class and selecting the input that owns FF. This could set
+INPUT_MT_TOTAL_FORCE on an input without haptics. If no multitouch
+touchpad input was found, haptic mode could remain enabled.
 
-commit a6c433e1de88f40d35d53fd68c994b47885232f5
-Author: Aldo Ariel Panzardo <qwe.aldo@gmail.com>
+Patch 2 now validates the class and attaches FF before setting up MT
+slots. It selects the input where multitouch touchpad pressure was
+mapped with gram or newton units, so an earlier multitouch report
+without haptic pressure cannot take the sole FF instance. Only that
+input gets pointer emulation, total force and haptic pressure
+accounting. Haptic mode is disabled if no input receives FF. Patch 1
+is unchanged from v10.
 
-HID: multitouch: give FF core ownership of haptic state
+Tested on x86_64 with W=1. The HID multitouch module compiled, and
+QEMU/KVM with KASAN completed 10 virtual UHID haptic cycles and 10
+multi-input cycles with a non-multitouch report before the multitouch
+report. The tests checked FF_HAPTIC, effect upload and playback, HID
+removal with an open evdev fd, and final release. Two negative fixtures
+had gram pressure but either no haptic reports or no touchpad report.
+With two contacts, v10 summed ABS_PRESSURE to 30 in both cases; v11
+reported the oldest contact's pressure of 10. A split-report fixture
+placed a multitouch report without pressure before the pressure-bearing
+one; FF, INPUT_PROP_POINTER and ABS_PRESSURE were on the latter input.
+No KASAN report was emitted. Physical hardware was not tested.
 
-This commit clones the mapped haptic state in hid_haptic_init() and
-transfers ownership to ff->private so the input core frees it on final
-input device release. It also restricts FF initialization to the first
-input device containing a multitouch touchpad report.
+Base: 58161ead29e50d70a317ea26b472e0c7508e69da
+v9: https://lore.kernel.org/linux-input/20261017140332.1480375-1-qwe.aldo@gmail.com/
 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 154dc948b156e..e53389e28ad53 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -1954,25 +1954,9 @@ static int mt_input_configured(struct hid_device *=
-hdev, struct hid_input *hi)
->  	struct mt_report_data *rdata;
->  	struct mt_application *mt_application =3D NULL;
->  	struct hid_report *report;
-> +	bool has_mt_touchpad =3D false;
->  	int ret;
-> =20
-> -	if (td->is_haptic_touchpad && (td->mtclass.name =3D=3D MT_CLS_WIN_8 ||
-> -	    td->mtclass.name =3D=3D MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
-> -	    td->mtclass.name =3D=3D MT_CLS_WIN_8_KEEP_LATENCY_ON_CLOSE)) {
-> -		if (hi->application =3D=3D HID_DG_TOUCHPAD) {
-> -			ret =3D hid_haptic_input_configured(hdev, td->haptic, hi);
-> -			if (ret < 0) {
-> -				td->haptic_init_error =3D ret;
-> -				td->is_haptic_touchpad =3D false;
-> -				return ret;
-> -			}
-> -			if (ret =3D=3D 0)
-> -				td->is_haptic_touchpad =3D false;
-> -		}
-> -	} else {
-> -		td->is_haptic_touchpad =3D false;
-> -	}
-> -
->  	list_for_each_entry(report, &hi->reports, hidinput_list) {
->  		rdata =3D mt_find_report_data(td, report);
->  		if (!rdata) {
-> @@ -1987,9 +1971,29 @@ static int mt_input_configured(struct hid_device *=
-hdev, struct hid_input *hi)
->  							mt_application);
->  			if (ret)
->  				return ret;
-> +			if (hi->application =3D=3D HID_DG_TOUCHPAD)
-> +				has_mt_touchpad =3D true;
->  		}
->  	}
-> =20
-> +	if (td->is_haptic_touchpad &&
-> +	    (td->mtclass.name =3D=3D MT_CLS_WIN_8 ||
-> +	     td->mtclass.name =3D=3D MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
-> +	     td->mtclass.name =3D=3D MT_CLS_WIN_8_KEEP_LATENCY_ON_CLOSE)) {
-> +		if (has_mt_touchpad) {
-> +			ret =3D hid_haptic_input_configured(hdev, td->haptic, hi);
-> +			if (ret < 0) {
-> +				td->haptic_init_error =3D ret;
-> +				td->is_haptic_touchpad =3D false;
-> +				return ret;
-> +			}
-> +			if (ret =3D=3D 0)
-> +				td->is_haptic_touchpad =3D false;
-> +		}
-> +	} else {
-> +		td->is_haptic_touchpad =3D false;
-> +	}
+Aldo Ariel Panzardo (2):
+  HID: haptic: make FF creation the last fallible init step
+  HID: multitouch: give FF core ownership of haptic state
 
-[Severity: Medium]
-Does moving the td->is_haptic_touchpad validation after the hi->reports loop
-cause mt_touch_input_configured() to observe an unvalidated
-td->is_haptic_touchpad state?
+ drivers/hid/hid-haptic.c     | 161 +++++++++++++++++------------------
+ drivers/hid/hid-haptic.h     |   6 +-
+ drivers/hid/hid-multitouch.c |  59 ++++++++++---
+ 3 files changed, 125 insertions(+), 101 deletions(-)
 
-During descriptor mapping, mt_touch_input_mapping() sets
-td->is_haptic_touchpad =3D true whenever hid_haptic_check_pressure_unit() s=
-ees
-a HID_DG_TIPPRESSURE field with gram or newton units, without checking
-td->mtclass.name or whether Simple Haptic Controller trigger reports exist:
+-- 
+2.53.0
 
-drivers/hid/hid-multitouch.c:mt_touch_input_mapping()
-	case HID_DG_TIPPRESSURE:
-		set_abs(hi->input, ABS_MT_PRESSURE, field,
-			cls->sn_pressure);
-		td->is_haptic_touchpad =3D
-			hid_haptic_check_pressure_unit(td->haptic,
-						       hi, field);
-
-Inside the hi->reports loop, mt_touch_input_configured() checks
-td->is_haptic_touchpad and passes INPUT_MT_TOTAL_FORCE to
-input_mt_init_slots():
-
-drivers/hid/hid-multitouch.c:mt_touch_input_configured()
-	if (td->is_haptic_touchpad)
-		app->mt_flags |=3D INPUT_MT_TOTAL_FORCE;
-	...
-	ret =3D input_mt_init_slots(input, td->maxcontacts, app->mt_flags);
-
-Because this now runs before mt_input_configured() checks td->mtclass.name
-or calls hid_haptic_input_configured(), INPUT_MT_TOTAL_FORCE is already set=
- in
-input->mt->flags even if td->is_haptic_touchpad is cleared to false right
-after the loop (or on non-haptic MT inputs of a multi-input device), causing
-input_mt_report_pointer_emulation() to sum ABS_MT_PRESSURE across contacts.
-
-Also, if a Win8-class device sets td->is_haptic_touchpad on a non-touchpad
-MT collection and has no HID_DG_TOUCHPAD MT collection, has_mt_touchpad will
-be false for all inputs, leaving td->is_haptic_touchpad true so mt_probe()
-keeps td->haptic and mt_process_slot() / mt_sync_frame() update
-td->haptic->pressure_sum on every frame.
-
-> =20
->  	switch (hi->application) {
->  	case HID_GD_KEYBOARD:
->  	case HID_GD_KEYPAD:
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261017143810.1567=
-677-1-qwe.aldo@gmail.com?part=3D2

@@ -1,291 +1,280 @@
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25D7B4B3C86
-	for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 22:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792190536; cv=none; b=FjBAoh503FXls+rpEV2VQE9ojeukq2EqOuKmsfqI2yfUumeVb7bKjmUWT8MRSsw69RLV8+HZ3yelrHYL0ZqIL26eimXcyLHDegF+XBBaWrI1BLad4OV37sFv1EdpXAIJnfDSML+lVI0GJNE/q0FC0BcKsAYh4liTfpVC1VjPbE0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792190536; c=relaxed/simple;
-	bh=Rw9aV4le86GVAEmQTP31OJXRV0V+qY5c0x7bP9ImTYs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ujzlX9viwemPERIQo9nhtu411WwAOpCoSPn+Ifggvwhgt3tA41gi4el2mR2X/V4Nb/igKAjswiFSHeX0pRBNeXTWZftbrAsT54Mqkcy95ZQINxhQLLdE4UuGTPam62Nk8olbcgGrZoWQDkWOqg5xt2fzez115V2pnKcCsLOyPRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kU7RV4dH; arc=none smtp.client-ip=74.125.82.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9FFA29408
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 00:05:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792195548; cv=pass; b=Zz0x1NtDjzG+HkazoMP2CwmgNPXbsEMthGrUsXLUPrdT2d3iPdGm/lQv0ROBCZi04fDWEnyUHyLXsVs1jTN+aePRZkPyTu2kv0tFAqhXyG0Sa+Ku2S9sEk9JiIFJzE/7dTlJKBVAc3tQNxQsvKaq1W+smvkgx9hKSagGok+EN3w=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792195548; c=relaxed/simple;
+	bh=S40D/Gz31yR1IxJSEtQjuAutwyujVq9V+T6kqJG3/sk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lnoFwgptx2AYY6myUxP63T7X13CfDOMVOd9f6/fgS30G5HCULVADTq3pl+ixarDw632MXSAO9P2naJSIz/DjG17p2KG1JOWwiabyKXYuRcHsx3q6sKZsPTSFSYD37nRFHt0azygrcZOvwZCpV71dtfjGMVNLYlKSRaWpGHVieRg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rNYHzpex; arc=pass smtp.client-ip=209.85.222.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kU7RV4dH"
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-35829219da8so1608127eec.0
-        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 15:42:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rNYHzpex"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-93e503815adso31576585a.1
+        for <linux-input@vger.kernel.org>; Fri, 16 Oct 2026 17:05:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792195545; cv=none;
+        d=google.com; s=arc-20260327;
+        b=oc/Y053l4aimCLS8voouHwcF2f6Xyl/OEykZm6UbFmZ3JQ1ljQvm1TNOl8+RaUOopf
+         RJ25+f9+kJEmpWlKFNwQsFKMRtdHX1QEiRriCY0ZjojoHUyeepRJn/33YBDnAq3zfSeB
+         HmnAYmSEbhaBzuqeee8Fp68xLAXHkK9htlNMyU7EHm/W3hrunkxyTq7BoW0tSPIGJC4U
+         sQj8HATtRzPeUd6EkbTmJTt4OLAE/LdSCF21pTeOGL/Z6Q7qz/wkz9wwNavhGZm/n12+
+         +CGV6KXrcnTDHBv0+NaqOfYlPgDecvlFmTNngsakUdpcxJSiPyu+Qzsh799qybag0qgx
+         fgMA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Ue4G/M1eI5fPXNxAGUZc1tMSOgb+LD+5F1p9lIf/rP8=;
+        fh=mkiydeMpxeCeHlhtwU6wnK1tqOxCOmsGc0HwR3x9BUo=;
+        b=bdMAxDfFCogzg4WsVY7vS8haYndUD3s+oD16XvBYiOZ1rMlKYJCYZsMDUn18b51WQP
+         U2GvoDRiHB39DwWzf8lmyiK+BQ+rl9V99dflB+F996pnXyrL/KFk3XB1ftmHwx1wu4+o
+         H4ADVe26Le1FMgtqlrzMYe7sngxt8wzf6+yEmnyHevXrRuET7IQryjdXLOwSqNo6V09O
+         AA4oesEr87dJQ/YVizFmnyMi/O6gkz/MQJizeTkPAehZlz81rqMHptV7Mekifj8EPSuC
+         zs8T/pmuOWgRdHv6oZdPnm4/l2uG3jl25GhYzZhxS8k4//trA8nYgZ0m6zMJ3ShZpGtF
+         FFlA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792190534; x=1792795334; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=IjuLIsLQ3Bd+lun4kkKhpyxvOHsckr/v5FH4N+lOssM=;
-        b=kU7RV4dH7TS6qo2U6eYb8Wz4VdQwzF0sh7iO+dI7KULziRBbge7am/jinDfi+eBn+j
-         3NcYQUO9m0g5tuybHYNNGP4thwZMChqIrlJmGz/5CUdMpZO8ut4qgaAGFjd/ixQEB1LT
-         2wa0S8rVhhaFwTbrnwJfHTXhvacwMjXIpgTnm7gpkGjZs492qwk/6wUuKcyOpMY7kKNX
-         QLKXMRrpjxWzbMxZiPGkKkyv1LYqhNxBO/lwD1aTc2Ihb1bcPq1hC9FKvURKQvmolca7
-         DAyin/ll6/BdM3O2AgwFy+eYT9PUiaHSiD2d36FxPgfxgYCVv9AZ10VhI5+O3stxR2zJ
-         gnlw==
+        d=gmail.com; s=20251104; t=1792195545; x=1792800345; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Ue4G/M1eI5fPXNxAGUZc1tMSOgb+LD+5F1p9lIf/rP8=;
+        b=rNYHzpexChQwCe+C1Pc+S5MIOs0rhp051bQRNbA/04DOZSYWjeSEz0Xck4/hIB7pwT
+         wo/+bDg0ysu5TO+1jxbgeq7VHXvfVO0Ts0QOUZCadDRIPovjcQOC9RGatec2ZOBG6F1p
+         rnekmEvblmCaNkJKBtvOr4xnyNBx9gUWvBDEbc02zjH/ZS7aI+5hP4+IJYigUj09ZI1l
+         igpKtJhT/Jszz9OjpxZKJz6HXwZByzXT8IIckx0ivYCu1HRFAe8oFWKu1LGFjl8cu0uh
+         nVpWAGR+Vsp4GQtAYXObviA0QFiE0C0kQ/oulowW3wFPC571M4bUZYNuaQAhLIgclh4w
+         85Gg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792190534; x=1792795334;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
+        d=1e100.net; s=20260707; t=1792195545; x=1792800345;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=IjuLIsLQ3Bd+lun4kkKhpyxvOHsckr/v5FH4N+lOssM=;
-        b=WHDAighWTLwFreNwTcTn99Cqx6RVJi/MsCYoHHa1aWabdXBiH8yawdmjBddYq+zA/H
-         3uNaPLXdjSfV4eaNcbs2D85GBVkoR+0GKUH3P6bbldnS63dvh/jaV4XJi1jMlCSe2i4a
-         jsVw0L25nukYkpn8mH8ou7ekgrhmDHvFGRSZurmP3qqhU9KrkNdsOR4V7P5KHwPqhSyh
-         kJ+C7xpcgSfqrQyDSaAAXzPP8m+AdUo4uHVpc3EOS1mvDXiOB0bY3FrYUyH36AEg46Lv
-         KNjt1febOqh+EKYMym3sBRZM/jit78EIj+zPz5+t8T2yR/V4qLxS/7hecQ90azJEQcek
-         geQA==
-X-Forwarded-Encrypted: i=1; AKwUvBxX2dNQv/HtailqD0COC1pznRoPgpuX8DHsMvIJtc4sf5AvPwPRRdkm+DAdqEG8NBaIXWGaLISzoeuBeg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKfIxSWSJd+MXnqFTxVuhHcu6cvrLqxs/ltW9x99E+KtCpETWU5
-	uqOtykefi7J780VHhuL0kHchqzLwrdX1LMHveRUA7aLGy/UT9bhEUOZv
-X-Gm-Gg: AYBFou3VxveaEWNpeKci3edulMFxq9EL9wzaa9lBTK54cPZkN/keD5mHTYBy+3exNJD
-	aTp7fQEyaXemoGUjNJRowRf6HYMnWuJ4Y7F9lyIW0mnD+JxAsOs1rJfSAyFt7+Tn8FLMUzwkukV
-	LdicR+EyWE155FWIF3ELt2hko0XD++8TEdZRxDuIytG6v3e6OfZkLxMh/zUx147shdKuO+zDGqB
-	YWPf64tTOYx+1urIlKfbkXlT4i4DCU339eVzGe7GfkiIynxWnZW84iBw3owV5nv32L/j0zfN6Fy
-	h8GlcKeVBJrJ/dmbFFM4VkRGvcp87n2eBipY1qfGNUPQ3pACibR/tge7M3SGPiwPmh6qKQIDsU+
-	xJ3uHc0NmfNM9n8/RU1k/f6ry8B2InMKjHZgdyK58/8I0j2jwhkqrBkbIKztZ7cINCwW0rOGZZv
-	CI5ku8vCWi1csOae+W3ZJnGnBqapan91pa8XbG08nGwXnkHB08zyGHPhunZEZyg0NBkTLiJVEbm
-	pA4JKyMBN2jdLqvLY9wbbkllW1mlLvmCzI6l3ntliModHDXawnJJduK/8RIwSg=
-X-Received: by 2002:a05:7022:1407:b0:183:840:1dad with SMTP id a92af1059eb24-18308402161mr4345887c88.14.1792190533933;
-        Fri, 16 Oct 2026 15:42:13 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:34f0:f27d:9a5d:56e0])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1831c4d4675sm8252348c88.21.2026.10.16.15.42.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Oct 2026 15:42:12 -0700 (PDT)
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date: Fri, 16 Oct 2026 15:41:52 -0700
-Subject: [PATCH v2 5/5] HID: hidraw: Make hidraw.h private to HID subsystem
+        bh=Ue4G/M1eI5fPXNxAGUZc1tMSOgb+LD+5F1p9lIf/rP8=;
+        b=f950mM5Re7S2EOx0XnZdTM9GoWd7ULxlUZPFeddQHGwauhGP/i1GA4GZR16xGOQiHT
+         wleZMp2hSphVFrD8bwqLUsjQbuDVnHTLKBDp+fhYu2EDQQyTmIPjEv8r0NtusLsPE3/D
+         OZLz+7XaVHp1/0nj7e6obAjYbWOV9mJdmklyTDzF8e4aRLQp5beichDM19zuC4khytjs
+         n8IQLl+791hCK7mJRzVhv6+OSpWUn6auOSP9sKMHodKg1gHB2M+tagCPkWM+hSxQ/FZM
+         JVNxCymJ7r0jKrNHN8FP8grgh0iqodqB1LqLzWJ5JZ90yXGweW2dXMpY8iy3BCeUhA0H
+         mj0g==
+X-Forwarded-Encrypted: i=1; AKwUvByHvHbOSav/TflhrPpb65Lyw4LXu5scOPvalxjpyqEWzmzvYGDfZcytxbx62bvptqbQ6FhPbTq4cCPaIQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLtM0A8Lg7VcFWWKXwVor7/rpmWRWw0PI+Xp33kzRhCpLMUhGeb
+	qnzoKDGkkgB/mavlrESzYpl/IiaufnYN/a1ea0pTQle89Un5fqwZZiDMa0L5uesiFkWqk82nNaD
+	lrT8s5vGMbwqJa1v1nrfq0xZeHmQjH/k=
+X-Gm-Gg: AYBFou0WSADK8ObF08kbpu48x9I/Erzc5iqS+QQLBZwwo/NdHEoaB/qXRQbYaDiQ62L
+	P0nnyM7R2cuehQ7gAhsF93UPH5GxvoUmhYgMAi27dwtNqOgy/yBAS1MlDApcyf9yusMS4V0ed7s
+	68d0ToYFUFW7ZpIqUdZO2SQC/T9VPnHo6G4b7WPDkzQDdnVBWWQ+EeR8nst2+C9nxTBxiUTMj9+
+	a+SUKOzDrcSiJPVjU4+ieM3EgTP6uelFX10TXpRB6r9CXfwWpDHzLXeCe6sjoOCZ+t4OGHcKRqa
+	BzoEudrDZEiavQWE1J4CTB7xdWrZPGI1SE4T0sYlsZSwDYcLMVLNu8g=
+X-Received: by 2002:a05:620a:2314:10b0:93f:2b23:4820 with SMTP id
+ af79cd13be357-93f2b2369c4mr102446085a.48.1792195544563; Fri, 16 Oct 2026
+ 17:05:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261016-test-hidraw-base-v2-5-153f67a20cad@gmail.com>
-References: <20261016-test-hidraw-base-v2-0-153f67a20cad@gmail.com>
-In-Reply-To: <20261016-test-hidraw-base-v2-0-153f67a20cad@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: Marcel Holtmann <marcel@holtmann.org>, 
- Luiz Augusto von Dentz <luiz.dentz@gmail.com>, 
- Michael Zaidman <michael.zaidman@gmail.com>, Rishi Gupta <gupt21@gmail.com>, 
- Heiner Kallweit <hkallweit1@gmail.com>, Andrej Shadura <andrew@shadura.me>, 
- Johannes Roith <johannes@gnu-linux.rocks>, linux-input@vger.kernel.org, 
- linux-bluetooth@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: b4 0.17-dev-e56a4
+References: <579o8so3-09o3-o312-4sq0-0qp6n672q46p@xreary.bet> <20260927041138.4112920-1-jinmo44.yang@gmail.com>
+In-Reply-To: <20260927041138.4112920-1-jinmo44.yang@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Fri, 16 Oct 2026 17:05:32 -0700
+X-Gm-Features: AclHuK-SADDPY5PP6EjKcN38xFI4Wf84MYQgZLb9v6sKQSXZdgOO2mVDmoKZCOo
+Message-ID: <CANRwn3RrB0O152idsVP56zCauXfjjbyFArNAv2e8yfbXskju8w@mail.gmail.com>
+Subject: Re: [PATCH 0/5] HID: wacom: check input devices in the report handlers
+To: Jinmo Yang <jinmo44.yang@gmail.com>
+Cc: ping.cheng@wacom.com, jason.gerecke@wacom.com, jikos@kernel.org, 
+	bentiss@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-With all external consumers converted to use the hidraw instance helper,
-hidraw.h no longer needs to be exposed in include/linux.
+On Sat, Sep 26, 2026 at 9:11=E2=80=AFPM Jinmo Yang <jinmo44.yang@gmail.com>=
+ wrote:
+>
+> This is the extended version Jiri asked for in
+> <579o8so3-09o3-o312-4sq0-0qp6n672q46p@xreary.bet>, after Dmitry's
+> observation that "there are many more places in the driver where it used
+> wacom->pad_input without verifying that it exists".
+>
+> The audit turned out broader than pad_input. Of the 155 lines in
+> wacom_wac.c that reference pen_input, touch_input or pad_input, three
+> places already test the pointer first:
+>
+>   wacom_wac.c:1807/1815  wacom_tpc_irq                 pen, touch
+>   wacom_wac.c:1210       wacom_intuos_bt_process_data  pad
+>   wacom_wac.c:2192       wacom_wac_pad_event           (HID_GENERIC)
+>
+> so the inconsistency is inside the legacy dispatch rather than between it
+> and the HID_GENERIC path. The clearest illustration is two adjacent lines
+> in wacom_intuos_bt_process_data(), one checked and one not:
+>
+>         input_sync(wacom->pen_input);           /* :1209 */
+>         if (wacom->pad_input)                   /* :1210 */
+>                 input_sync(wacom->pad_input);
+>
+> Why the pointers can be NULL on a *successful* probe
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D
+> For a non-HID_GENERIC device the report handler is selected by
+> features.type, which comes from the id table (wacom_sys.c:2945), while th=
+e
+> three input devices are allocated from what the report descriptor declare=
+s.
+> When wacom_setup_{pen,touch,pad}_input_capabilities() returns -ENODEV,
+> wacom_setup_inputs() frees that input device, sets the pointer to NULL an=
+d
+> still returns 0 (wacom_sys.c:2172-2196) - the "no pen in use on this
+> interface" case. wacom_wac_irq() then still routes reports to a handler
+> that dereferences it.
+>
+> No error injection is needed. A descriptor declaring only touch usages
+> leaves pen_input and pad_input NULL; one declaring only pen usages leaves
+> touch_input and pad_input NULL.
+>
+> What the series fixes
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> 15 locations, each reproduced as a KASAN NULL-pointer dereference from on=
+e
+> /dev/uhid device plus a single UHID_INPUT2 write, with no privilege beyon=
+d
+> access to /dev/uhid:
+>
+>   patch  file:line          function                       pointer
+>   1      wacom_wac.c:4229   wacom_report_numbered_buttons  pad
+>   2      wacom_wac.c:137    wacom_penpartner_irq           pen
+>   2      wacom_wac.c:227    wacom_pl_irq                   pen
+>   2      wacom_wac.c:244    wacom_ptu_irq                  pen
+>   2      wacom_wac.c:303    wacom_dtus_irq                 pad
+>   2      wacom_wac.c:326    wacom_dtus_irq                 pen
+>   2      wacom_wac.c:391    wacom_graphire_irq             pen
+>   2      wacom_wac.c:444    wacom_graphire_irq             pad
+>   3      wacom_wac.c:594    wacom_intuos_pad               pad
+>   4      wacom_wac.c:1209   wacom_intuos_bt_process_data   pen
+>   4      wacom_wac.c:1232   wacom_intuos_bt_irq            pen
+>          (both covered by one check at wacom_intuos_bt_irq() entry)
+>   5      wacom_wac.c:3100   wacom_bpt_touch                touch
+>   5      wacom_wac.c:3117   wacom_bpt_touch                pad
+>   5      wacom_wac.c:3130   wacom_bpt3_touch_msg           touch
+>   5      wacom_wac.c:3178   wacom_bpt3_button_msg          pad
+>
+> Patch 1 also guards wacom_wac_finger_count_touches(), and patch 2 also
+> guards wacom_dtu_irq(); both are reachable with a NULL pointer but their
+> only dereference is in a dev_dbg(), so they do not fault with
+> CONFIG_DYNAMIC_DEBUG=3Dn.
+>
+> Dereferences that are reached only through dev_dbg() are otherwise out of
+> scope here. A few remain, on unknown-report paths in wacom_dtus_irq(),
+> wacom_graphire_irq() and wacom_intuos_irq(); guarding those needs a
+> separate look at what a pen-only or pad-only interface should still
+> report, so I have left them for a follow-up rather than mixing them in.
+>
+There are a large class of devices in the legacy codepath for which a
+pen-only interface is not valid. There are exceptions (e.g. GRAPHIRE
+is a pen-only interface), but in many cases (see
+wacom_setup_device_quirks) interfaces which have a pen interface will
+also have a pad. I'm not aware of *any* Wacom device which has a
+pad-only interface (though I could be wrong; I can try to dig up old
+spec documents or original commits that would shed light about any
+cases where there is doubt).
 
-Move the header into drivers/hid, keep private buffer and list
-structures internal to hidraw.c, and drop unneeded symbol exports
-since hidraw and hid-core are built into the same module.
+> Approach
+> =3D=3D=3D=3D=3D=3D=3D=3D
+> A check where each pointer is taken, which is what wacom_tpc_irq() alread=
+y
+> does. Where a handler serves both pen and pad reports - wacom_dtus_irq(),
+> wacom_graphire_irq(), wacom_bpt_touch() - the checks are per branch rathe=
+r
+> than at function entry, so an interface that has a pad but no pen keeps
+> delivering pad events.
+>
+> A per-features.type table of required input devices would be one place
+> instead of 15, but a handler's needs vary by report id, so such a mask
+> would have to demand every input the handler might touch and would then
+> reject reports that work today on a partial interface. I am happy to buil=
+d
+> that instead if you would rather have it.
+>
+> Testing
+> =3D=3D=3D=3D=3D=3D=3D
+> linux-next 20260925 (7.3.0-rc4-next-20260925-gf5f84daefcd9), x86_64,
+> CONFIG_KASAN_GENERIC=3Dy, CONFIG_DYNAMIC_DEBUG=3Dn. 27 uhid reproducer ca=
+ses
+> covering the sites above plus the dev_dbg-only ones, one fresh VM per cas=
+e
+> because the oops leaves driver_input_lock held:
+>
+>                               before    after
+>     KASAN faults                  17        0
+>     probe failures                 0        0
+>     hidraw nodes created          26       26
+>     input devices registered      25       25
+>
+> and the set of input devices registered is identical in all 27 cases, so
+> the checks remove the faults without changing what a device exposes. The
+> one case that creates no device is a product whose table entry sets
+> .check_for_hid_type, which uhid cannot satisfy; it behaves the same befor=
+e
+> and after.
+>
+> Each patch builds standalone with no new warnings, and checkpatch --stric=
+t
+> reports 0 errors, 0 warnings and 0 checks for all five.
+>
+> Not in this series
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> Jason, your review of "HID: wacom: add report length validation in irq
+> handlers" (17 May) asked for the length checks to move into the
+> sub-functions with len passed in, plus WACOM_PKGLEN_* names. Eight
+> handlers already take len and eight do not, and six of those eight are
+> also on the list above, so that work overlaps this series closely. I have
+> kept it out here because I have only reproduced and verified the
+> input-device faults; I would rather send the length revision once it has
+> the same evidence behind it, on top of this series.
 
-Assisted-by: LLM
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This is understandable. I will note, however, that while evidence of
+misbehavior is appreciated, it is not required. Consistently
+performing various precondition checks across similar functions, even
+if they are not *strictly* necessary at this time, can still encourage
+good habits for future code.
+
+>
+> Jinmo Yang (5):
+>   HID: wacom: check the input device in the shared report helpers
+>   HID: wacom: check the input devices in the legacy irq handlers
+>   HID: wacom: check the input device in wacom_intuos_pad()
+>   HID: wacom: check the input device in wacom_intuos_bt_irq()
+>   HID: wacom: check the input devices in the Bamboo handlers
+>
+I do somewhat question the decision to split this series into five
+pieces. I feel that most could be combined, especially after I have
+checked that the few per-branch checks in this series can be
+simplified to per-function checks. Combining the patches is not a hard
+request, however.
+
+Jason (she/they)
 ---
- drivers/hid/hid-core.c                  |  2 +-
- drivers/hid/hid-cp2112.c                |  2 +-
- drivers/hid/hid-led.c                   |  2 +-
- drivers/hid/hid-u2fzero.c               |  2 +-
- drivers/hid/hidraw.c                    | 33 +++++++++++++++++++++++++++++----
- {include/linux => drivers/hid}/hidraw.h | 29 +----------------------------
- 6 files changed, 34 insertions(+), 36 deletions(-)
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 85433f64bda1..8ee3be98811a 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -31,10 +31,10 @@
- #include <linux/hid.h>
- #include <linux/hiddev.h>
- #include <linux/hid-debug.h>
--#include <linux/hidraw.h>
- 
- #include "hid-core.h"
- #include "hid-ids.h"
-+#include "hidraw.h"
- 
- /*
-  * Version Information
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 148946b04bff..0f65ce44e677 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -20,7 +20,6 @@
- #include <linux/cleanup.h>
- #include <linux/gpio/driver.h>
- #include <linux/hid.h>
--#include <linux/hidraw.h>
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-@@ -28,6 +27,7 @@
- #include <linux/string_choices.h>
- #include <linux/usb/ch9.h>
- #include "hid-ids.h"
-+#include "hidraw.h"
- 
- /**
-  * enum cp2112_child_acpi_cell_addrs - Child ACPI addresses for CP2112 sub-functions
-diff --git a/drivers/hid/hid-led.c b/drivers/hid/hid-led.c
-index 63fd723d9e69..f5a798c7979e 100644
---- a/drivers/hid/hid-led.c
-+++ b/drivers/hid/hid-led.c
-@@ -8,12 +8,12 @@
-  */
- 
- #include <linux/hid.h>
--#include <linux/hidraw.h>
- #include <linux/leds.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
- 
- #include "hid-ids.h"
-+#include "hidraw.h"
- 
- enum hidled_report_type {
- 	RAW_REQUEST,
-diff --git a/drivers/hid/hid-u2fzero.c b/drivers/hid/hid-u2fzero.c
-index 83e223c12cd6..4b9271b4e45e 100644
---- a/drivers/hid/hid-u2fzero.c
-+++ b/drivers/hid/hid-u2fzero.c
-@@ -12,7 +12,6 @@
-  */
- 
- #include <linux/hid.h>
--#include <linux/hidraw.h>
- #include <linux/hw_random.h>
- #include <linux/leds.h>
- #include <linux/module.h>
-@@ -21,6 +20,7 @@
- 
- #include "usbhid/usbhid.h"
- #include "hid-ids.h"
-+#include "hidraw.h"
- 
- #define DRIVER_SHORT		"u2fzero"
- 
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 949e7546339f..9d0df711ed5d 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -27,8 +27,36 @@
- #include <linux/mutex.h>
- #include <linux/sched/signal.h>
- #include <linux/string.h>
-+#include <uapi/linux/hidraw.h>
-+
-+#include "hidraw.h"
-+
-+struct hidraw {
-+	unsigned int minor;
-+	int exist;
-+	int open;
-+	wait_queue_head_t wait;
-+	struct hid_device *hid;
-+	struct device *dev;
-+	spinlock_t list_lock;
-+	struct list_head list;
-+};
-+
-+struct hidraw_report {
-+	__u8 *value;
-+	int len;
-+};
- 
--#include <linux/hidraw.h>
-+struct hidraw_list {
-+	struct hidraw_report buffer[HIDRAW_BUFFER_SIZE];
-+	int head;
-+	int tail;
-+	struct fasync_struct *fasync;
-+	struct hidraw *hidraw;
-+	struct list_head node;
-+	struct mutex read_mutex;
-+	bool revoked;
-+};
- 
- static int hidraw_major;
- static struct cdev hidraw_cdev;
-@@ -594,7 +622,6 @@ int hidraw_report_event(struct hid_device *hid, u8 *data, int len)
- 	wake_up_interruptible(&dev->wait);
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(hidraw_report_event);
- 
- int hidraw_connect(struct hid_device *hid)
- {
-@@ -651,7 +678,6 @@ int hidraw_connect(struct hid_device *hid)
- 	return result;
- 
- }
--EXPORT_SYMBOL_GPL(hidraw_connect);
- 
- void hidraw_disconnect(struct hid_device *hid)
- {
-@@ -663,7 +689,6 @@ void hidraw_disconnect(struct hid_device *hid)
- 
- 	up_write(&minors_rwsem);
- }
--EXPORT_SYMBOL_GPL(hidraw_disconnect);
- 
- /**
-  * hidraw_instance - get hidraw instance minor number for a HID device
-diff --git a/include/linux/hidraw.h b/drivers/hid/hidraw.h
-similarity index 63%
-rename from include/linux/hidraw.h
-rename to drivers/hid/hidraw.h
-index 3021454ba513..a822007ce5f8 100644
---- a/include/linux/hidraw.h
-+++ b/drivers/hid/hidraw.h
-@@ -6,35 +6,8 @@
- #define _HIDRAW_H
- 
- #include <linux/errno.h>
--#include <uapi/linux/hidraw.h>
- 
--
--struct hidraw {
--	unsigned int minor;
--	int exist;
--	int open;
--	wait_queue_head_t wait;
--	struct hid_device *hid;
--	struct device *dev;
--	spinlock_t list_lock;
--	struct list_head list;
--};
--
--struct hidraw_report {
--	__u8 *value;
--	int len;
--};
--
--struct hidraw_list {
--	struct hidraw_report buffer[HIDRAW_BUFFER_SIZE];
--	int head;
--	int tail;
--	struct fasync_struct *fasync;
--	struct hidraw *hidraw;
--	struct list_head node;
--	struct mutex read_mutex;
--	bool revoked;
--};
-+struct hid_device;
- 
- #ifdef CONFIG_HIDRAW
- int hidraw_init(void);
 
--- 
-2.56.0.176.g3575e65682-goog
-
+>  drivers/hid/wacom_wac.c | 97 +++++++++++++++++++++++++++++------------
+>  1 file changed, 70 insertions(+), 27 deletions(-)
+>
+>
+> base-commit: f5f84daefcd92d7a630066635ecea1433ed5eac7
+> --
+> 2.53.0
+>
+>

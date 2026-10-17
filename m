@@ -1,355 +1,374 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.w13.tutanota.de (mail.w13.tutanota.de [185.205.69.213])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80FED3148D8
-	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 02:23:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D916413B293
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 03:09:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.205.69.213
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792203797; cv=none; b=YeZIzJjtEMq6uWK+/LyOLNhaoLMeGnY649gC+jza2lEKkv7oZkL4LUnIMymxE2gBUZOxIQK1vqJJIuwg0l5N/5/aTI46HMT12pgAzaDCXy0/oazXySRiJedFaY9DRrKlbwLDULm30jfqcVyLm6m5fClTqaY2NY3kE7sppbVEQcM=
+	t=1792206582; cv=none; b=Jyf3xFR7Z+1LY8cV2vxGbanil8A5fvfXJy+UJJBKe6kx8pe+BDHMPKwkrHZP0fDNzD/6RMJLMH69EtlLnGts2w4IxIVxmdwpM/0/o3eVhByrSYxmdraOW9VwqXWfPZICuclB42AqlO76835OT43Hxn/jTY610QahWrQLp9TlxsE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792203797; c=relaxed/simple;
-	bh=Mg+ykhciEw+eBssK/z3A42goDLYcgBsPVFbSXrkYIs4=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=Z+pSW7qGcelvRJWOIX56F9uarU2GQE6Y7sZ4yBsXqA5xqnBMTnsjWKVDLOGUoABu0z+xk0Gv1MnvDpK7P0yJwi6TbR2dWHt4EFDA7gkGzE4G1ZZaqY0yZ6q0aITsM/Hj82u+Wcc+fO+gPhboup1iWOHmE1oqv3Vt2ZkIRSTca3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f29znrdq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792206582; c=relaxed/simple;
+	bh=AkFl35Ivj2VucTmkCJOLM5EthwvGJLAzlc/I7g4a1Lc=;
+	h=Date:From:To:Message-ID:Subject:MIME-Version:Content-Type; b=OIMuIC46Riign4d0LoMq5VLwLGkI1SImZvwHD2SSqYnsrAnOMr2sdcD6col2rKZZVlfCMCqyPfYirU7vNcQ5zKL4pe+i0xzWNBaio/3Dt5AOpFVux+Du+QCDDAqPP9ZWttAGZL8RNqJvMniVgD+JwNrrI1sj/SP+6BnLypof8HE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tutamail.com; spf=pass smtp.mailfrom=tutamail.com; dkim=pass (2048-bit key) header.d=tutamail.com header.i=@tutamail.com header.b=EnMh2GP/; arc=none smtp.client-ip=185.205.69.213
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tutamail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tutamail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f29znrdq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78C11F000C4;
-	Sat, 17 Oct 2026 02:23:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792203796;
-	bh=6cf1FDQh9j0mV2aNEL9CuvPregLIB1VyP8FjFMcbYFE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=f29znrdqQPeHpsjSyaTLlRPJPpVywOBxZIC+43RivLwCnW/M2ueHqbmz5ajQwxCFf
-	 KUL1Ukcx0XbcldfauXct7LN4IvZuayIKRnLXop4BkINNLsBrqw6SlUBdAvdsNCleGn
-	 iV8PBrp+1IXvUZQCFnQRgSjYF3RtTANB5+8sD1MkNO03snFeKvvufqYieBCotRn9yd
-	 n95R16O6KFk5npyx7FLpLWIhUv64NPF12PoeHbZu1b5b41qfjquCEDbIQyTSd7mcRa
-	 F69m8j5rDLfqwvjWNqHGh56ZgCWJU/buMziaXs8C3PmjV3HTccO1Or8M7mnvUlt81m
-	 3LPJwShTkN6tA==
-Message-ID: <sashiko-outbox-175204@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 10/11] HID: hid-lenovo-go-s: Use devm_kzalloc for
- drvdata
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Derek J. Clark" <derekjohn.clark@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261017013956.2440130-11-derekjohn.clark@gmail.com>
-References: <20261017013956.2440130-1-derekjohn.clark@gmail.com>
- <20261017013956.2440130-11-derekjohn.clark@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 17 Oct 2026 02:23:15 +0000
+	dkim=pass (2048-bit key) header.d=tutamail.com header.i=@tutamail.com header.b="EnMh2GP/"
+Received: from tutadb.w10.tutanota.de (w10.api.tuta.com [IPv6:fd:ac::d:10])
+	by mail.w13.tutanota.de (Postfix) with ESMTP id D9F311936B715
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 05:02:06 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1792206126;
+	s=s1; d=tutamail.com;
+	h=From:From:To:To:Subject:Subject:Content-Description:Content-ID:Content-Type:Content-Type:Content-Transfer-Encoding:Cc:Date:Date:In-Reply-To:MIME-Version:MIME-Version:Message-ID:Message-ID:Reply-To:References:Sender;
+	bh=juaSIMcIPfMXts2CaNzsq1iv/uCf0Ji+XTy02pNAJ3w=;
+	b=EnMh2GP//UhpG760fOYJYDCGEXWTFtWy+pZDnq7ndiTGwoPsH9T2NbyIchPB/cHT
+	jhd+5WeS2+JcKBKLdQm+jES9WZVw1EvkctX232/cFKBBSSTa7UXpunfr6Cv1n3kxtDi
+	5eu7KKZrHc2SEtPA5ND7xAELHyHGCmEn/7JxoUEriD1xE5KxF/aUkWLpw2YPDU6o61t
+	7TVbHSKrs+hYgagJBiRsqCGP2GpIJvII1LgSnlM83J27GpyTsDh1PTQUFoJbtn/5ZkJ
+	j7aXbKHUrmb0FD6CfLu0AMjgxhbake+w9g9vDTNEIpiqBN1Um7ImWIgg2nY7+Tn3fCy
+	jb9AfNPvSg==
+Date: Sat, 17 Oct 2026 05:02:06 +0200 (CEST)
+From: willowswaving@tutamail.com
+To: Linux Input <linux-input@vger.kernel.org>
+Message-ID: <P46njqS--N-9@tutamail.com>
+Subject: [RFC] HID: uclogic: Add support for Xencelabs Pen Display
+ (28bd:520d) and request for switch-to-vendor-mode sequence
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_406316_1321745885.1792206126886"
+Feedback-ID: 015fe4ab774a31809b4b05b8c610ead356bcc03e5c866e6007fd3e8866c7c0a22bb5af78b76e2b2d682867fe72df3c2e2eae226386f9c0a8fc7fe2cb63b896dd32:TurnOnPrivacy!:tutamail
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] HID: hid-lenovo-go-s: sleeping in atomic context in hid_gos_bright=
-ness_set()
-- [Medium] HID: hid-lenovo-go-s: missing resume callback leaves gos_cfg_set=
-up cancelled
-- [Medium] HID: hid-lenovo-go-s: rgb_registered not cleared in hid_gos_cfg_=
-remove()
-- [Low] HID: hid-lenovo-go-s: clear rgb_registered before unregister in cfg=
-_setup()
---
+------=_Part_406316_1321745885.1792206126886
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_406317_706363494.1792206126886"
 
-commit dee5a3ea54364a99dd4973105a8bc5e0a649f8ce
-Author: Derek J. Clark <derekjohn.clark@gmail.com>
+------=_Part_406317_706363494.1792206126886
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-HID: hid-lenovo-go-s: Use devm_kzalloc for drvdata
+Hello,
 
-This commit converts drvdata in hid-lenovo-go-s from a static global
-structure to a per-device devm-allocated structure and updates the
-setup work function name in barrier comments.
+I would like to report a missing device support in the hid-uclogic
+driver, and ask for guidance on how to properly add it.
 
-> diff --git a/drivers/hid/hid-lenovo-go-s.c b/drivers/hid/hid-lenovo-go-s.c
-> index 2e938dd5e77c5..1a2b28e1bed1b 100644
-> --- a/drivers/hid/hid-lenovo-go-s.c
-> +++ b/drivers/hid/hid-lenovo-go-s.c
+Device information
+------------------
+=C2=A0 Name:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Xencelabs Pen Display
+=C2=A0 Vendor ID:=C2=A0 0x28bd (Hanvon Ugee / XP-Pen)
+=C2=A0 Product ID: 0x520d
+=C2=A0 Firmware:=C2=A0=C2=A0 20250121(230322)
+=C2=A0 Model:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 UG902_LPH2412_P10
 
-[ ... ]
+Problem
+-------
+The device is not handled by hid-uclogic. With hid-generic, the device
+is registered only as a mouse and no pen events (ABS_X, ABS_Y,
+ABS_PRESSURE, ABS_TILT) are reported to userspace.
 
-> @@ -1189,13 +1261,14 @@ static ssize_t rgb_profile_range_show(struct devi=
-ce *dev,
->  static void hid_gos_brightness_set(struct led_classdev *led_cdev,
->  				   enum led_brightness brightness)
->  {
-> -	struct led_classdev_mc *led_mc =3D &drvdata.led_mc;
-> +	struct led_classdev_mc *led_mc =3D lcdev_to_mccdev(led_cdev);
-> +	struct gos_cfg_drvdata *drvdata =3D container_of(led_mc, struct gos_cfg=
-_drvdata, led_mc);
->  	enum rgb_config_index index;
->  	bool rgb_registered;
->  	int ret;
-> =20
-> -	/* Pairs with smp_store_release from gos_cfg_setup */
-> -	rgb_registered =3D smp_load_acquire(&drvdata.rgb_registered);
-> +	/* Pairs with smp_store_release from cfg_setup */
-> +	rgb_registered =3D smp_load_acquire(&drvdata->rgb_registered);
->  	if (!rgb_registered)
->  		return;
-> =20
-> @@ -1204,15 +1277,15 @@ static void hid_gos_brightness_set(struct led_cla=
-ssdev *led_cdev,
->  		return;
->  	}
-> =20
-> -	index =3D drvdata.rgb_profile + 2;
-> -	u8 rgb_profile[6] =3D { drvdata.rgb_effect,
-> +	index =3D drvdata->rgb_profile + 2;
-> +	u8 rgb_profile[6] =3D { drvdata->rgb_effect,
->  			      led_mc->subled_info[0].intensity,
->  			      led_mc->subled_info[1].intensity,
->  			      led_mc->subled_info[2].intensity,
->  			      brightness,
-> -			      drvdata.rgb_speed };
-> +			      drvdata->rgb_speed };
-> =20
-> -	ret =3D rgb_cfg_call(drvdata.hdev, SET_RGB_CFG, index, rgb_profile, 6);
-> +	ret =3D rgb_cfg_call(drvdata->hdev, SET_RGB_CFG, index, rgb_profile, 6);
+When I add the device ID to hid-uclogic-core.c, the driver binds, but
+the resulting interface is still a mouse. evtest shows no pen events.
+This suggests the device is still in "firmware mode" and never gets
+switched into the vendor reporting mode that exposes the pen interface.
 
-[Severity: High]
-Can hid_gos_brightness_set() sleep in atomic context here?
+Key observations from testing
+-----------------------------
+1. lsusb reports only one interface (bNumInterfaces =3D 1, interface 0,
+=C2=A0=C2=A0 HID class, mouse). It has only two interrupt endpoints:
+=C2=A0=C2=A0=C2=A0=C2=A0 - 0x81 (IN, 64 bytes)
+=C2=A0=C2=A0=C2=A0=C2=A0 - 0x01 (OUT, 64 bytes)
+=C2=A0=C2=A0 Note: There is NO endpoint 0x03, which is the endpoint used by
+=C2=A0=C2=A0 uclogic_ugee_v2_probe_endpoint in hid-uclogic-params.c. Any at=
+tempt
+=C2=A0=C2=A0 to send magic bytes to 0x03 fails with "Invalid endpoint addre=
+ss".
 
-In hid_gos_cfg_probe(), hid_gos_brightness_set() is wired to
-drvdata->led_mc.led_cdev.brightness_set rather than brightness_set_blocking.
-In the LED core, setting brightness_set tells led_set_brightness_nopm() that
-the callback does not sleep, so __led_set_brightness() invokes it directly =
-in
-the caller's context without deferring to set_brightness_work.
+2. Reading the string descriptor at index 0x64 under LANGID 0x0409
+=C2=A0=C2=A0 successfully returns a 14-byte binary blob (13 bytes of conten=
+t).
+=C2=A0=C2=A0 Raw HEX: 0e03289a78e60300ff1fd8130100
+=C2=A0=C2=A0 (Other indexes return normal strings like the serial number an=
+d
+=C2=A0=C2=A0 "hanvon ugee Tech"). Reading index 0x64 does NOT switch the de=
+vice.
 
-When software blinking (via led_timer_function() in timer softirq context) =
-or
-an atomic LED trigger calls led_set_brightness_nosleep(), the call chain is:
+3. Sending the UGEE v2 magic bytes (02 b0 04 00 00 00 00 00 00 00)
+=C2=A0=C2=A0 via SET_REPORT (Feature 0x02, Output 0x02, Feature 0x03) retur=
+ns
+=C2=A0=C2=A0 success, but the device never re-enumerates.
 
-  hid_gos_brightness_set()
-    rgb_cfg_call()
-      mcu_property_out()
+4. A vendor-specific control request (bRequest 0xb0, wValue 0x0402)
+=C2=A0=C2=A0 times out.
 
-Inside mcu_property_out(), the code acquires a sleeping mutex
-(drvdata->cfg_mutex), allocates memory with GFP_KERNEL, and blocks on
-wait_for_completion_timeout() and wait_for_completion_interruptible_timeout=
-().
-Should this use brightness_set_blocking instead?
+5. Note: Sending unexpected control transfers to this device can cause
+=C2=A0=C2=A0 the USB HID interface to hang. It requires a complete power cy=
+cle
+=C2=A0=C2=A0 (unplugging USB and power) to recover.
 
-[ ... ]
+Request
+-------
+Could someone with access to the Xencelabs USB documentation, or
+someone who has reverse-engineered the 520d, share the correct
+sequence to switch this device into vendor mode?
 
-> @@ -1536,67 +1610,75 @@ static void cfg_setup(struct work_struct *work)
->  		}
->  	}
-> =20
-> -	if (!drvdata.rgb_registered) {
-> -		/* Pairs with smp_load_acquire in attribute show/store functions */
-> -		smp_store_release(&drvdata.rgb_registered, true);
-> +	if (!drvdata->rgb_registered) {
-> +		/* Pairs with smp_load_acquire in attribute show/store */
-> +		smp_store_release(&drvdata->rgb_registered, true);
->  		rgb_registered =3D true;
-> =20
-> -		ret =3D led_classdev_multicolor_register(&drvdata.hdev->dev,
-> -						       &drvdata.led_mc);
-> +		ret =3D led_classdev_multicolor_register(&drvdata->hdev->dev,
-> +						       &drvdata->led_mc);
->  		if (ret) {
-> -			dev_err(&drvdata.hdev->dev, "Failed to create RGB device: %i\n",
-> +			dev_err(&drvdata->hdev->dev, "Failed to create RGB device: %i\n",
->  				ret);
-> =20
-> -			/* Pairs with smp_load_acquire in attribute show/store functions */
-> -			smp_store_release(&drvdata.rgb_registered, false);
-> +			/* Pairs with smp_load_acquire in attribute show/store */
-> +			smp_store_release(&drvdata->rgb_registered, false);
->  			rgb_registered =3D false;
->  		} else {
-> -			ret =3D devm_device_add_group(drvdata.led_mc.led_cdev.dev,
-> +			ret =3D devm_device_add_group(drvdata->led_mc.led_cdev.dev,
->  						    &rgb_attr_group);
->  			if (ret) {
-> -				dev_err(&drvdata.hdev->dev,
-> +				dev_err(&drvdata->hdev->dev,
->  					"Failed to create RGB configuration attributes: %i\n",
->  					ret);
-> =20
-> -				led_classdev_multicolor_unregister(&drvdata.led_mc);
-> +				led_classdev_multicolor_unregister(&drvdata->led_mc);
-> =20
-> -				/* Pairs with smp_load_acquire in attribute show/store functions */
-> -				smp_store_release(&drvdata.rgb_registered, false);
-> +				/* Pairs with smp_load_acquire in attribute show/store */
-> +				smp_store_release(&drvdata->rgb_registered, false);
->  				rgb_registered =3D false;
->  			}
->  		}
->  	}
+Specifically:
+=C2=A0 - Is the 0x64 string descriptor read the right trigger, or is a
+=C2=A0=C2=A0=C2=A0 specific control transfer required?
+=C2=A0 - If a control transfer is needed, what is the correct bRequest,
+=C2=A0=C2=A0=C2=A0 wValue, wIndex, and endpoint?
+=C2=A0 - Are there known quirks for this device?
 
-[Severity: Low]
-In cfg_setup(), if devm_device_add_group() fails, should
-drvdata->rgb_registered be set to false before calling
-led_classdev_multicolor_unregister(&drvdata->led_mc)?
+If a capture from the Windows driver is needed, I can provide one.
+If you have any hints, I will be happy to prepare a proper patch
+with hid-uclogic-params.c changes and re-test.
 
-Because LED_RETAIN_AT_SHUTDOWN is not set on drvdata->led_mc.led_cdev.flags,
-led_classdev_unregister() calls led_set_brightness(led_cdev, LED_OFF), which
-synchronously invokes hid_gos_brightness_set(). Since drvdata->rgb_register=
-ed
-is still true at that point and drvdata->rgb_profile is still 0,
-hid_gos_brightness_set() sends an unintended SET_RGB_CFG command with index
-LIGHT_PROFILE_SEL (0 + 2) and a 6-byte payload to the MCU during error
-rollback.
+I am attaching the text files with:
+=C2=A0 - lsusb -v output for 28bd:520d
+=C2=A0 - the raw HID report descriptor (usbhid-dump)
+=C2=A0 - the string descriptor enumeration (showing 0x64)
+=C2=A0 - dmesg logs showing the binding behavior.
 
-[ ... ]
+Thank you very much for your time.
 
-> @@ -1607,15 +1691,19 @@ static int hid_gos_cfg_probe(struct hid_device *h=
-dev,
-> =20
->  static void hid_gos_cfg_remove(struct hid_device *hdev)
->  {
-> +	struct gos_cfg_drvdata *drvdata =3D hid_get_drvdata(hdev);
->  	bool rgb_registered;
-> =20
-> -	disable_delayed_work_sync(&drvdata.gos_cfg_setup);
-> +	if (!drvdata)
-> +		return;
-> +
-> +	disable_delayed_work_sync(&drvdata->gos_cfg_setup);
->  	sysfs_remove_groups(&hdev->dev.kobj, top_level_attr_groups);
-> =20
-> -	/* Pairs with smp_store_release in cfg_setup */
-> -	rgb_registered =3D smp_load_acquire(&drvdata.rgb_registered);
-> +	/* Pairs with smp_store_release from cfg_setup */
-> +	rgb_registered =3D smp_load_acquire(&drvdata->rgb_registered);
->  	if (rgb_registered)
-> -		led_classdev_multicolor_unregister(&drvdata.led_mc);
-> +		led_classdev_multicolor_unregister(&drvdata->led_mc);
-> =20
->  	hid_hw_close(hdev);
->  	hid_hw_stop(hdev);
-
-[Severity: Medium]
-Does calling led_classdev_multicolor_unregister(&drvdata->led_mc) in
-hid_gos_cfg_remove() without clearing drvdata->rgb_registered first cause a
-timeout and error log on every driver unbind or module unload?
-
-When hid_device_remove() runs, it holds hdev->driver_input_lock, causing
-__hid_input_report() to drop any incoming HID reports. In
-hid_gos_cfg_remove(), led_classdev_multicolor_unregister() is called while
-drvdata->rgb_registered is still true and before hid_hw_stop():
-
-  hid_device_remove()
-    hid_gos_remove()
-      hid_gos_cfg_remove()
-        led_classdev_multicolor_unregister()
-          led_classdev_unregister()
-            led_set_brightness(led_cdev, LED_OFF)
-              hid_gos_brightness_set()
-                rgb_cfg_call()
-                  mcu_property_out()
-
-Because drvdata->rgb_registered is still true and hid_hw_stop() has not been
-called yet, mcu_property_out() sends SET_RGB_CFG to the MCU and blocks in
-wait_for_completion_interruptible_timeout(). Since driver_input_lock blocks
-hid_gos_raw_event(), the wait always times out with -EBUSY and logs
-dev_err("Failed to write RGB profile: -16").
-
-> @@ -1624,16 +1712,21 @@ static void hid_gos_cfg_remove(struct hid_device =
-*hdev)
-> =20
->  static int hid_gos_cfg_reset_resume(struct hid_device *hdev)
->  {
-> +	struct gos_cfg_drvdata *drvdata =3D hid_get_drvdata(hdev);
->  	bool gp_registered, rgb_registered;
-> -	u8 os_mode =3D drvdata.os_mode;
-> +	u8 os_mode;
->  	int ret;
-> =20
-> -	/* Pairs with smp_store_release from gos_cfg_setup */
-> -	gp_registered =3D smp_load_acquire(&drvdata.gp_registered);
-> -	/* Pairs with smp_store_release from gos_cfg_setup */
-> -	rgb_registered =3D smp_load_acquire(&drvdata.rgb_registered);
-> +	if (!drvdata)
-> +		return -ENODEV;
-> +
-> +	os_mode =3D drvdata->os_mode;
-> +	/* Pairs with smp_store_release from cfg_setup */
-> +	gp_registered =3D smp_load_acquire(&drvdata->gp_registered);
-> +	/* Pairs with smp_store_release from cfg_setup */
-> +	rgb_registered =3D smp_load_acquire(&drvdata->rgb_registered);
->  	if (!gp_registered || !rgb_registered) {
-> -		ret =3D schedule_delayed_work(&drvdata.gos_cfg_setup, msecs_to_jiffies=
-(2));
-> +		ret =3D schedule_delayed_work(&drvdata->gos_cfg_setup, msecs_to_jiffie=
-s(2));
->  		if (!ret) {
->  			dev_err(&hdev->dev, "Failed to schedule startup delayed work\n");
->  			return -ENODEV;
-
-[ ... ]
-
-> @@ -1730,9 +1823,14 @@ static int hid_gos_reset_resume(struct hid_device =
-*hdev)
->  	return 0;
->  }
-> =20
-> -static int hid_gos_cfg_suspend(void)
-> +static int hid_gos_cfg_suspend(struct hid_device *hdev)
->  {
-> -	cancel_delayed_work_sync(&drvdata.gos_cfg_setup);
-> +	struct gos_cfg_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> +
-> +	if (!drvdata)
-> +		return -ENODEV;
-> +
-> +	cancel_delayed_work_sync(&drvdata->gos_cfg_setup);
-> =20
->  	return 0;
->  }
-> @@ -1749,7 +1847,7 @@ static int hid_gos_suspend(struct hid_device *hdev,=
- pm_message_t msg)
-> =20
->  	ep =3D ret;
->  	if (ep =3D=3D GO_S_CFG_INTF_IN)
-> -		return hid_gos_cfg_suspend();
-> +		return hid_gos_cfg_suspend(hdev);
-> =20
->  	return 0;
->  }
-
-[Severity: Medium]
-What happens if the device suspends before drvdata->gos_cfg_setup completes
-and then resumes without a USB reset?
-
-In hid_gos_cfg_probe(), drvdata->gos_cfg_setup is scheduled with a 2ms delay
-and retries up to 5 times at 50ms intervals in cfg_setup(). On any suspend
-(such as s2idle or runtime autosuspend), hid_gos_suspend() calls
-hid_gos_cfg_suspend(), which cancels drvdata->gos_cfg_setup via
-cancel_delayed_work_sync().
-
-However, struct hid_driver hid_lenovo_go_s only defines .reset_resume and
-omits .resume:
-
-  static struct hid_driver hid_lenovo_go_s =3D {
-          .name =3D "hid-lenovo-go-s",
-          .id_table =3D hid_gos_devices,
-          .probe =3D hid_gos_probe,
-          .remove =3D hid_gos_remove,
-          .raw_event =3D hid_gos_raw_event,
-          .reset_resume =3D pm_ptr(hid_gos_reset_resume),
-          .suspend =3D pm_ptr(hid_gos_suspend),
-  };
-
-When usbhid resumes without a port reset, hid_driver_resume() checks
-hdev->driver->resume and does not fall back to .reset_resume. Without a
-.resume callback to reschedule drvdata->gos_cfg_setup when !gp_registered ||
-!rgb_registered, won't the gamepad sysfs groups and RGB LED device remain
-permanently unregistered?
-
-I hope this is helpful.
-
-Lawall-Bot
+Best regards,
+Willows
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261017013956.2440=
-130-1-derekjohn.clark@gmail.com?part=3D10
+=C2=A0https://tuta.com/free-email
+------=_Part_406317_706363494.1792206126886
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+  <head>
+    <meta http-equiv=3D"content-type" content=3D"text/html; charset=3DUTF-8=
+">
+  </head>
+  <body>
+<div dir=3D"auto">Hello,<br></div><div dir=3D"auto"><br></div><div dir=3D"a=
+uto">I would like to report a missing device support in the hid-uclogic<br>=
+</div><div dir=3D"auto">driver, and ask for guidance on how to properly add=
+ it.<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">Device informat=
+ion<br></div><div dir=3D"auto">------------------<br></div><div dir=3D"auto=
+">&nbsp; Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Xencelabs Pen Display<br=
+></div><div dir=3D"auto">&nbsp; Vendor ID:&nbsp; 0x28bd (Hanvon Ugee / XP-P=
+en)<br></div><div dir=3D"auto">&nbsp; Product ID: 0x520d<br></div><div dir=
+=3D"auto">&nbsp; Firmware:&nbsp;&nbsp; 20250121(230322)<br></div><div dir=
+=3D"auto">&nbsp; Model:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UG902_LPH2412_P10<br>=
+</div><div dir=3D"auto"><br></div><div dir=3D"auto">Problem<br></div><div d=
+ir=3D"auto">-------<br></div><div dir=3D"auto">The device is not handled by=
+ hid-uclogic. With hid-generic, the device<br></div><div dir=3D"auto">is re=
+gistered only as a mouse and no pen events (ABS_X, ABS_Y,<br></div><div dir=
+=3D"auto">ABS_PRESSURE, ABS_TILT) are reported to userspace.<br></div><div =
+dir=3D"auto"><br></div><div dir=3D"auto">When I add the device ID to hid-uc=
+logic-core.c, the driver binds, but<br></div><div dir=3D"auto">the resultin=
+g interface is still a mouse. evtest shows no pen events.<br></div><div dir=
+=3D"auto">This suggests the device is still in "firmware mode" and never ge=
+ts<br></div><div dir=3D"auto">switched into the vendor reporting mode that =
+exposes the pen interface.<br></div><div dir=3D"auto"><br></div><div dir=3D=
+"auto">Key observations from testing<br></div><div dir=3D"auto">-----------=
+------------------<br></div><div dir=3D"auto">1. lsusb reports only one int=
+erface (bNumInterfaces =3D 1, interface 0,<br></div><div dir=3D"auto">&nbsp=
+;&nbsp; HID class, mouse). It has only two interrupt endpoints:<br></div><d=
+iv dir=3D"auto">&nbsp;&nbsp;&nbsp;&nbsp; - 0x81 (IN, 64 bytes)<br></div><di=
+v dir=3D"auto">&nbsp;&nbsp;&nbsp;&nbsp; - 0x01 (OUT, 64 bytes)<br></div><di=
+v dir=3D"auto">&nbsp;&nbsp; Note: There is NO endpoint 0x03, which is the e=
+ndpoint used by<br></div><div dir=3D"auto">&nbsp;&nbsp; uclogic_ugee_v2_pro=
+be_endpoint in hid-uclogic-params.c. Any attempt<br></div><div dir=3D"auto"=
+>&nbsp;&nbsp; to send magic bytes to 0x03 fails with "Invalid endpoint addr=
+ess".<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">2. Reading the=
+ string descriptor at index 0x64 under LANGID 0x0409<br></div><div dir=3D"a=
+uto">&nbsp;&nbsp; successfully returns a 14-byte binary blob (13 bytes of c=
+ontent).<br></div><div dir=3D"auto">&nbsp;&nbsp; Raw HEX: 0e03289a78e60300f=
+f1fd8130100<br></div><div dir=3D"auto">&nbsp;&nbsp; (Other indexes return n=
+ormal strings like the serial number and<br></div><div dir=3D"auto">&nbsp;&=
+nbsp; "hanvon ugee Tech"). Reading index 0x64 does NOT switch the device.<b=
+r></div><div dir=3D"auto"><br></div><div dir=3D"auto">3. Sending the UGEE v=
+2 magic bytes (02 b0 04 00 00 00 00 00 00 00)<br></div><div dir=3D"auto">&n=
+bsp;&nbsp; via SET_REPORT (Feature 0x02, Output 0x02, Feature 0x03) returns=
+<br></div><div dir=3D"auto">&nbsp;&nbsp; success, but the device never re-e=
+numerates.<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">4. A vend=
+or-specific control request (bRequest 0xb0, wValue 0x0402)<br></div><div di=
+r=3D"auto">&nbsp;&nbsp; times out.<br></div><div dir=3D"auto"><br></div><di=
+v dir=3D"auto">5. Note: Sending unexpected control transfers to this device=
+ can cause<br></div><div dir=3D"auto">&nbsp;&nbsp; the USB HID interface to=
+ hang. It requires a complete power cycle<br></div><div dir=3D"auto">&nbsp;=
+&nbsp; (unplugging USB and power) to recover.<br></div><div dir=3D"auto"><b=
+r></div><div dir=3D"auto">Request<br></div><div dir=3D"auto">-------<br></d=
+iv><div dir=3D"auto">Could someone with access to the Xencelabs USB documen=
+tation, or<br></div><div dir=3D"auto">someone who has reverse-engineered th=
+e 520d, share the correct<br></div><div dir=3D"auto">sequence to switch thi=
+s device into vendor mode?<br></div><div dir=3D"auto"><br></div><div dir=3D=
+"auto">Specifically:<br></div><div dir=3D"auto">&nbsp; - Is the 0x64 string=
+ descriptor read the right trigger, or is a<br></div><div dir=3D"auto">&nbs=
+p;&nbsp;&nbsp; specific control transfer required?<br></div><div dir=3D"aut=
+o">&nbsp; - If a control transfer is needed, what is the correct bRequest,<=
+br></div><div dir=3D"auto">&nbsp;&nbsp;&nbsp; wValue, wIndex, and endpoint?=
+<br></div><div dir=3D"auto">&nbsp; - Are there known quirks for this device=
+?<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">If a capture from =
+the Windows driver is needed, I can provide one.<br></div><div dir=3D"auto"=
+>If you have any hints, I will be happy to prepare a proper patch<br></div>=
+<div dir=3D"auto">with hid-uclogic-params.c changes and re-test.<br></div><=
+div dir=3D"auto"><br></div><div dir=3D"auto">I am attaching the text files =
+with:<br></div><div dir=3D"auto">&nbsp; - lsusb -v output for 28bd:520d<br>=
+</div><div dir=3D"auto">&nbsp; - the raw HID report descriptor (usbhid-dump=
+)<br></div><div dir=3D"auto">&nbsp; - the string descriptor enumeration (sh=
+owing 0x64)<br></div><div dir=3D"auto">&nbsp; - dmesg logs showing the bind=
+ing behavior.<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">Thank =
+you very much for your time.<br></div><div dir=3D"auto"><br></div><div dir=
+=3D"auto">Best regards,<br></div><div dir=3D"auto">Willows<br></div><div di=
+r=3D"auto"><br></div><div dir=3D"auto">-- <br></div><div dir=3D"auto">&nbsp=
+;<a href=3D"https://tuta.com/free-email" rel=3D"noopener noreferrer" target=
+=3D"_blank">https://tuta.com/free-email</a></div>  </body>
+</html>
+
+------=_Part_406317_706363494.1792206126886--
+
+------=_Part_406316_1321745885.1792206126886
+Content-Type: text/plain; charset=us-ascii; name=lsusb-v-520d.txt
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=lsusb-v-520d.txt
+
+
+Bus 004 Device 013: ID 28bd:520d XP-Pen Xencelabs Pen Display
+Negotiated speed: Full Speed (12Mbps)
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 [unknown]
+  bDeviceSubClass         0 [unknown]
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x28bd XP-Pen
+  idProduct          0x520d Xencelabs Pen Display
+  bcdDevice            0.00
+  iManufacturer           1 hanvon ugee
+  iProduct                2 Xencelabs Pen Display
+  iSerial                 3 XP317BV1003174
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0029
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 [unknown]
+      bInterfaceProtocol      0 
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.00
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     143
+          Report Descriptors: 
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval              10
+Device Status:     0x0000
+  (Bus Powered)
+
+------=_Part_406316_1321745885.1792206126886
+Content-Type: text/plain; charset=UTF-8; name=string-descriptors.txt
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename=string-descriptors.txt
+
+Found device: Bus 4 Device 13
+Supported LANGIDs: ['0x409']
+
+--- LANGID 0x0409 ---
+  Index 0x00 (4 bytes): '=D0=89'
+  Index 0x01 (24 bytes): 'hanvon ugee'
+  Index 0x02 (44 bytes): 'Xencelabs Pen Display'
+  Index 0x03 (38 bytes): 'XP317BV1003174'
+  Index 0x04 (36 bytes): 'UG902_LPH2412_P10'
+  Index 0x05 (34 bytes): '20250121(230322)'
+  Index 0x64 (14 bytes): '=E9=A8=A8\ue678\x03\u1fff=E1=8F=98\x01'
+    RAW HEX: 0e03289a78e60300ff1fd8130100
+  Index 0x66 (34 bytes): 'hanvon ugee Tech'
+    RAW HEX: 2203680061006e0076006f006e002000750067006500650020005400650063=
+006800
+  Index 0x67 (8 bytes): '=E9=9A=B1=E3=90=B3=E3=90=B0'
+    RAW HEX: 0803b19633343034
+  Index 0x68 (6 bytes): '=C4=82!'
+  Index 0x69 (4 bytes): '\x02'
+  Index 0x6e (10 bytes): '\u3000\x00\x00=E4=90=83'
+  Index 0x83 (6 bytes): '=D0=81\u2000'
+
+------=_Part_406316_1321745885.1792206126886
+Content-Type: text/plain; charset=us-ascii; name=usbhid-dump-descriptor.txt
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=usbhid-dump-descriptor.txt
+
+004:013:000:DESCRIPTOR         1792205225.769689
+ 06 0A FF 09 01 A1 01 85 02 09 02 75 08 95 1F 15
+ 00 26 FF 00 81 02 09 03 75 08 95 20 15 00 26 FF
+ 00 91 02 C0 05 0D 09 02 A1 01 85 07 09 20 A1 00
+ 09 42 09 44 09 45 09 46 09 3C 15 00 25 01 75 01
+ 95 05 81 02 09 32 95 01 81 02 95 02 81 03 75 10
+ 95 01 35 00 A4 05 01 09 30 65 13 55 0D 46 64 CC
+ 26 50 57 81 02 09 31 46 A0 73 26 92 36 81 02 B4
+ 09 30 45 00 26 FF 1F 81 42 09 3D 15 81 25 7F 75
+ 08 95 01 81 02 09 3E 15 81 25 7F 81 02 C0 C0
+
+
+------=_Part_406316_1321745885.1792206126886
+Content-Type: text/plain; charset=us-ascii; name=dmesg-binding.txt
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=dmesg-binding.txt
+
+[    2.723183] hid-generic 0003:09DA:6406.0001: input,hidraw0: USB HID v1.11 Keyboard [A4tech A4tech KB] on usb-0000:00:14.0-3/input0
+[    2.778037] hid-generic 0003:09DA:6406.0002: input,hiddev96,hidraw1: USB HID v1.11 Device [A4tech A4tech KB] on usb-0000:00:14.0-3/input1
+[    3.016559] hid-generic 0003:23E5:A2F9.0003: hiddev97,hidraw2: USB HID v1.11 Device [Antelope Audio Zen Quadro SC] on usb-0000:00:14.0-4/input3
+[    3.030171] hid-generic 0003:2022:0522.0004: hiddev98,hidraw3: USB HID v1.10 Device [DINK_HID_DEVICE DINK_HID_DEVICE] on usb-0000:00:1a.0-1.2/input0
+[    3.408966] hid-generic 0003:0403:6030.0005: hidraw4: USB HID v1.11 Device [FTDI FT260] on usb-0000:00:1d.0-1.7.1/input0
+[    3.411009] hid-generic 0003:0403:6030.0006: hidraw5: USB HID v1.11 Device [FTDI FT260] on usb-0000:00:1d.0-1.7.1/input1
+[  671.015347] hid-generic 0005:046D:B036.0007: input,hidraw4: BLUETOOTH HID v0.06 Mouse [Pebble M350s] on ec:ed:04:94:96:15
+[ 1662.091759] usb 4-1.8.3: New USB device found, idVendor=28bd, idProduct=520d, bcdDevice= 0.00
+[ 1662.093419] input: hanvon ugee Xencelabs Pen Display as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000A/input/input21
+[ 1662.093514] input: hanvon ugee Xencelabs Pen Display Stylus as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000A/input/input22
+[ 1662.093729] hid-generic 0003:28BD:520D.000A: input,hiddev99,hidraw5: USB HID v1.00 Device [hanvon ugee Xencelabs Pen Display] on usb-0000:00:1d.0-1.8.3/input0
+[ 1662.164066] input: hanvon ugee Xencelabs Pen Display Mouse as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000A/input/input23
+[ 1662.164270] uclogic 0003:28BD:520D.000A: input,hidraw5: USB HID v1.00 Mouse [hanvon ugee Xencelabs Pen Display] on usb-0000:00:1d.0-1.8.3/input0
+[ 1965.125557] input: hanvon ugee Xencelabs Pen Display Mouse as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000B/input/input24
+[ 1965.125803] uclogic 0003:28BD:520D.000B: input,hidraw5: USB HID v1.00 Mouse [hanvon ugee Xencelabs Pen Display] on usb-0000:00:1d.0-1.8.3/input0
+
+------=_Part_406316_1321745885.1792206126886--

@@ -1,131 +1,226 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38A3D4CF47D
-	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 21:16:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67BE043DEAC
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 22:11:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792271771; cv=none; b=kqnTxOAlvx45/766ZwOkYcDnczDNSd2e4+6i9WH+WoRqCvBsFd0nif82q+pqhM3GqjvCkTLzAKq2A7HB8Z7y++4CGzJb+PbaNNzyMzIeDixe91rIgo0SiNr2MyXuey7TQxuo99E6p6F4CjOUCigb7XSq9Otv7IvJupy9b5Pg3tA=
+	t=1792275083; cv=none; b=pTA9FLSIoxiin0/quSZun/U7vlRwfw3JwQMBdP8PJ6r+Jzat4nZn8AAFbAR9gNazEU1t+Kkxcob+fiAhsm7noPgXvJYiz8u18y1DbYd6T91CNq77k1mD68PC/MGuWuy6XqON/gTvgmyB/dd/VBtUgDOWsJgVA1HzZLp0xhnt73k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792271771; c=relaxed/simple;
-	bh=EkmDemNJ8l1H8fKNZd8fu3H+wWrAkFE66ZKT1U2Dzcw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JU1axA+POXjMMJ8HaHsvYfkHjrD2r6SDmiuz/TeGLXc7o8jJ6mRetPWNSP3u+TOMJDA2KAVhWJtfhk0+ANQx6yuhcbYnIqpR0IvMsqR6O3zUt+0490Ag7NsBzrrEIoWE9eoEeSpa+00aRQEiP4+I5sU89YppmRzOEwyMLD0lLWs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ClM8WFZH; arc=none smtp.client-ip=209.85.128.51
+	s=arc-20240116; t=1792275083; c=relaxed/simple;
+	bh=/Yrw2Pxsodgd+C7rMdJqMEaeHAtdLqPPZnmeOO2Plxs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=j8SmOprRYliXhOc+KiG2D/QZ651sIFbL3MaUUk+TBM+O89joOQDMN+Tc7kmaHcdUnUee/+c8zNA7zxnJAUK6d4FDXd8ddjtypAt+KhOJUWWu19ApsCJyrN6TRzyFBrtzDngE5SCuk1U9o1iE5Xm795g068I/ct0uctJZDkEwqX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hhSOTpKo; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ClM8WFZH"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a1b07c3c5fso10682645e9.1
-        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 14:16:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hhSOTpKo"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a0286c981dso11127275e9.2
+        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 15:11:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792271768; x=1792876568; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792275080; x=1792879880; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=+Mn+Xv+NMWWWgWW67ZqfSX065alOyQzlTNf7PF/ZeP0=;
-        b=ClM8WFZHNDxxPtvcTBVN6DaukK72VbdWSQMvDZ4ETEomt+kAJWB5brc/Ot97bfX5aj
-         A7/KhdmOcF9WjS/Eya+xcrxPOpPG7kVwTIAKU+O4TG82RyMDKG38rUpofPAFjQFwmaZA
-         fgXrMytTmEGho6BogG7rsF53p5iEUSCpvtb5FQDNXEQMaeCypRqv5YAChbJsn5jC9q7y
-         gYNUFGNvVMgqjfRanzEtKXk9mhtOG36XkuwJwr5oMsCxHGh0tqxLJ1Qft89svflzN2Cf
-         +sW99d4bdOPHflawOGjGZ9cFcZJVLzagdMrGIJ6yEDnJwyf1vcmlPcW4av1UmAX2l7Xm
-         jSig==
+        bh=O7eqTqZMZBSun91Qk6DX1ShYcBC+PEVqt3fz0F4KCmo=;
+        b=hhSOTpKoLgi5E96f2PmfVbxhH5xdEjLl7PNhoHfHp8o2H8hQuKgMr8P3G4a9ozBG4R
+         qWu98tmA7KrEf+qU+pxyfANAev4bUxCuA4wC/umPHLiaMLJAbEnw/VRMBDYR4Ryv607z
+         EeifzfpYuZti1RluM9mNnFsqTx9Cxz7mElUnrqeUPvH33q55LQmQbfdi8BPZ4gSl9dAZ
+         3AkGmMzFaqgIL5Kovxbppqh2g8vcxa4rOjHUrXmhHBX2u2wqNPZebIms9kIS9Yo4U6iI
+         LUPYYaSHWX4/gFwGqtPFtQrQi0jO7Jy+0QQzRyzT9+H+jjy9TN/KfZRK9dPuF52OfjzL
+         wiMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792271768; x=1792876568;
+        d=1e100.net; s=20260707; t=1792275080; x=1792879880;
         h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+Mn+Xv+NMWWWgWW67ZqfSX065alOyQzlTNf7PF/ZeP0=;
-        b=ZZ9EYf5Qyd3IDAFy3sut2bAgVlGa8YutCeVdvBRnF/26HSpM2cs+mLqYEbu8XsLUfa
-         wgEhuH+SLn+1w7VA9Byn5+ei2O9Gle88/DdkDcQOu7tqLVv3rMvnDp1oU3DNCwOMC5Pg
-         SWT8RRpSlJxcUmVkNu3E+S3oGDPpFMY30lvdJ8PkhtOQ7lxVT56iraOYolh0Xo0Kkshz
-         Fx3WayuENvw4/9YvuOaSgWqiLodT9PUOd8MQB//4u1B4PdSrAu2RDgH0RSgHaFfHezRS
-         S07Lo55iwg/oHLfkFXNtHnyY/QmBpXdLrOfKoI9Fo3CcGQufhY0mT4HsC6Sw/O3eXqVz
-         5Tjw==
-X-Gm-Message-State: AFq9FYLm2v9+cH6XlY/EnHC95Sv+yoly3dO7M+HmufxEEC5AT92Bpi4W
-	Ok5qMv57xJq0DLLdmJMP8JPMb71zzRiXY62aUTAY+hH586I6N7U2AILt
-X-Gm-Gg: AYBFou1S1+DdlmadWuXB77PuOiW9pux5R1B6UAXSDJNAo9lodDMrtDc4lmDoBCvOYwU
-	rBWVy/9Dn1fJD2tryhz8zzHNupdH4MtW7r05Wykg2mVu+2GgJkSsyZ39N4Fsd2uEHeY6LWMXTTL
-	oGD+I8rGW5JGTkOjbIUhGZc2VCYauRZsigq3LJZNJPyjIjI6rWcLuE7RhLcXfzDlp3FTairPz2m
-	boLQyOuZa2Js/hEQ0QfR5l6urdMo2Q/DqVNnkOkyB7EWtzvEatjKT4Il5tJnSbse2DntCyUTiPX
-	AMJgadolAXD60L4xSQRbh5ebkDfsmI1Vg+NI8EFL6BiWdjrCeOr48hwvaa1UlogMRkG6IQU5+we
-	FI57jgmMxTrlA9vVqmrxpgiylk3a1rY0IImRJvM7mWML8JnnLZ3NJJp81wNGxNrr63U9giLR4FS
-	n2WJiuIuwlOhWedEXxrUvuZK4dyAOxNqnZ5aMOpBi9r6rsIdTTlwcq0p/zCxy45JkLOM3zT1OCM
-	ky5l67bEKqKLIdNztBtfkzK56clN7ZfPRHIKVA2dJ27qA==
-X-Received: by 2002:a05:600c:5250:b0:4a0:1c0e:b136 with SMTP id 5b1f17b1804b1-4a1d7616bfdmr72498685e9.29.1792271768170;
-        Sat, 17 Oct 2026 14:16:08 -0700 (PDT)
-Received: from ryzen.home.mikecouturier.com ([196.75.90.166])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd9b8ebdsm280781965e9.10.2026.10.17.14.16.05
+        bh=O7eqTqZMZBSun91Qk6DX1ShYcBC+PEVqt3fz0F4KCmo=;
+        b=0oScWr/8ofICh9AiRdTxy3McaaLMG5v01cA/398TqxlPcZ4GVX41uwdq5IqT6OIOza
+         OTlTeixOSWoQ4T8x7xkiMS5E1KeeIqGRnamJpDavKpkxejdJBzBbGqQhN1fpwtRTW9d2
+         zTpU5ZxyZmNIZBQVs4uRE3P8L8yn6iFAB5J4mEC17aXJA0MyGdquLSdFrgEn3+CWl1Ee
+         JqzQwGe/1ivbMHeB7amEnXu89H59QgGYHRy10dYxeXqNC5rmA8vdxoele89Bod/kWKWh
+         dGpBMwfc2neoVRq0RPxISxoNpVldyP1Ab3NosdDKXam297Stjz8PcrCZSHe0gSOMMoK8
+         F/tQ==
+X-Gm-Message-State: AFq9FYKFFDOfizyVGEo5h71xYJwYPosO9BMbm93+jCneXIXgTiFpJ9Ec
+	nCSjBUg5H47XPhPg2bBbFQWe//lP7q++rXG7xaivVQHiPWtb81FoMI+V
+X-Gm-Gg: AYBFou2G2TVrVpWpfn609vrsVKwfLZVAw6hmE46Hb4NfrfuQ+4JSeuYjplpBfLrVDHo
+	wO7vPtYzLsPUE5u/nKSk6105Xlsen10iiof7kC35EgGRDhUiKsPfeym3r3kHWUBJTFV6h4R43Gn
+	jeh5kxo+d5un297qlyONPb7OM9EAbxrWvKjb4gkgMGKtHnb3VepHE4nqyozL+BDiXSrn3YMVzPB
+	6MKcQRcd2sI47AI4lp5eZ5CgxL/mRJJQDSzxlF9sSEKt1TCohH5pYKa7p+q6RzL0DSDNRMg9QM6
+	odzi8Jug2rR3gk5OkuFQBSJbZTFLxsb0ymVJz8hmhFQyb3rzqcapMYOYeOhKLLcsCu5dffTpZBG
+	yNwTt0+hOAXSRd91rzrXJvSzarJpCw/zu6XBQJikmREsLvLmaeN3+O7IlXUu1KRH0B4RelNhc2q
+	yZN/I4FKfprMuHV/KzG9k6TCSlklv4/JpcOjHrLiqzpdsv/3pBBoS+vt1cx9E4ipo7SH4Twqsc9
+	1DdW8PS4vNySZBcrzjex4mbHmsu2bKFggY=
+X-Received: by 2002:a05:600c:820a:b0:4a0:eae0:769a with SMTP id 5b1f17b1804b1-4a1d7616cfemr66857645e9.28.1792275079547;
+        Sat, 17 Oct 2026 15:11:19 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1dc8ee409sm104834715e9.13.2026.10.17.15.11.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Oct 2026 14:16:06 -0700 (PDT)
-From: Mike Gleason jr Couturier <mikegleasonjr@gmail.com>
-X-Google-Original-From: Mike Gleason jr Couturier <mikegleasonjr@users.noreply.github.com>
-To: basti@thomae-home.info
-Cc: linux-input@vger.kernel.org,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Subject: =?UTF-8?q?Re=3A=20Logitech=20G502=20X=20=28046d=3Ac099=29=3A=20REL=5FWHEEL=5FHI=5FRES=20always=20reports=20=C2=B1120?=
-Date: Sat, 17 Oct 2026 21:15:57 +0000
-Message-ID: <20261017211557.64095-1-mikegleasonjr@users.noreply.github.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <504f3ea7-fd23-428b-873b-12ed8bbce3ca@thomae-home.info>
-References: <504f3ea7-fd23-428b-873b-12ed8bbce3ca@thomae-home.info>
+        Sat, 17 Oct 2026 15:11:19 -0700 (PDT)
+Date: Sat, 17 Oct 2026 23:11:18 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Shihuang Liu <shlomojune6@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-hardening@vger.kernel.org, Marcus
+ Folkesson <marcus.folkesson@gmail.com>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Ville Syrjala <syrjala@sci.fi>, Henk Vergonet
+ <Henk.Vergonet@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/5] Input: tablet - replace strlcat() with strscpy()
+Message-ID: <20261017231118.2b440e44@pumpkin>
+In-Reply-To: <20261016170411.51025-5-shlomojune6@gmail.com>
+References: <20261016170411.51025-1-shlomojune6@gmail.com>
+	<20261016170411.51025-5-shlomojune6@gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On Sat, 17 Oct 2026 01:04:10 +0800
+Shihuang Liu <shlomojune6@gmail.com> wrote:
 
-I see the same behavior with a wired G502 X (046d:c099) and tried
-binding hid-logitech-hidpp to it, which nobody had reported yet.
+> The acecad, aiptek, hanwang, kbtab and pegasus_notetaker drivers
+> build the physical path by appending a constant "/input0" suffix
+> with strlcat() after usb_make_path().
+> 
+> In preparation for removing the deprecated strlcat() API[1],
+> replace it with strnlen() followed by strscpy() into the remainder
+> of the buffer, as commit 34b228b739f5 ("HID: usbhid: replace
+> strlcat with better alternatives") did for the usbhid drivers.
+> 
+> Link: https://github.com/KSPP/linux/issues/370 [1]
+> Signed-off-by: Shihuang Liu <shlomojune6@gmail.com>
+> ---
+>  drivers/input/tablet/acecad.c            | 4 +++-
+>  drivers/input/tablet/aiptek.c            | 7 +++++--
+>  drivers/input/tablet/hanwang.c           | 4 +++-
+>  drivers/input/tablet/kbtab.c             | 4 +++-
+>  drivers/input/tablet/pegasus_notetaker.c | 4 +++-
+>  5 files changed, 17 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/input/tablet/acecad.c b/drivers/input/tablet/acecad.c
+> index ba79dff21aac8..8fec79c46d4b0 100644
+> --- a/drivers/input/tablet/acecad.c
+> +++ b/drivers/input/tablet/acecad.c
+> @@ -117,6 +117,7 @@ static int usb_acecad_probe(struct usb_interface *intf, const struct usb_device_
+>  	struct input_dev *input_dev;
+>  	int pipe, maxp;
+>  	int err;
+> +	size_t len;
+>  
+>  	if (interface->desc.bNumEndpoints != 1)
+>  		return -ENODEV;
+> @@ -161,7 +162,8 @@ static int usb_acecad_probe(struct usb_interface *intf, const struct usb_device_
+>  	}
+>  
+>  	usb_make_path(dev, acecad->phys, sizeof(acecad->phys));
+> -	strlcat(acecad->phys, "/input0", sizeof(acecad->phys));
+> +	len = strnlen(acecad->phys, sizeof(acecad->phys));
+> +	strscpy(acecad->phys + len, "/input0", sizeof(acecad->phys) - len);
 
-Environment:
-  Fedora 44, kernel 7.2.10-200.fc44.x86_64
-  libinput 1.31.3, Solaar 1.1.20, GNOME on Wayland
+There is no point replacing strcat() with strlen() + strcpy()
+(any variants of the functions).
 
-By default both interfaces bind to hid-generic and every wheel event
-is REL_WHEEL ±1 / REL_WHEEL_HI_RES ±120, one per detent.
+David
 
-I then forced hid-logitech-hidpp onto the device:
+>  
+>  	input_dev->name = acecad->name;
+>  	input_dev->phys = acecad->phys;
+> diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
+> index 0c1acb9e6b437..e868d0bac771d 100644
+> --- a/drivers/input/tablet/aiptek.c
+> +++ b/drivers/input/tablet/aiptek.c
+> @@ -1637,6 +1637,7 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+>  		AIPTEK_PROGRAMMABLE_DELAY_300
+>  	};
+>  	int err = -ENOMEM;
+> +	size_t len;
+>  
+>  	/* programmableDelay is where the command-line specified
+>  	 * delay is kept. We make it the first element of speeds[],
+> @@ -1707,8 +1708,10 @@ aiptek_probe(struct usb_interface *intf, const struct usb_device_id *id)
+>  	 */
+>  	usb_make_path(usbdev, aiptek->features.usbPath,
+>  			sizeof(aiptek->features.usbPath));
+> -	strlcat(aiptek->features.usbPath, "/input0",
+> -		sizeof(aiptek->features.usbPath));
+> +	len = strnlen(aiptek->features.usbPath,
+> +		      sizeof(aiptek->features.usbPath));
+> +	strscpy(aiptek->features.usbPath + len, "/input0",
+> +		sizeof(aiptek->features.usbPath) - len);
+>  
+>  	/* Set up client data, pointers to open and close routines
+>  	 * for the input device.
+> diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
+> index fd5a7e761dcc4..a75d10dd2fc7d 100644
+> --- a/drivers/input/tablet/hanwang.c
+> +++ b/drivers/input/tablet/hanwang.c
+> @@ -318,6 +318,7 @@ static int hanwang_probe(struct usb_interface *intf, const struct usb_device_id
+>  	struct input_dev *input_dev;
+>  	int error;
+>  	int i;
+> +	size_t len;
+>  
+>  	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
+>  		return -ENODEV;
+> @@ -351,7 +352,8 @@ static int hanwang_probe(struct usb_interface *intf, const struct usb_device_id
+>  	hanwang->dev = input_dev;
+>  
+>  	usb_make_path(dev, hanwang->phys, sizeof(hanwang->phys));
+> -	strlcat(hanwang->phys, "/input0", sizeof(hanwang->phys));
+> +	len = strnlen(hanwang->phys, sizeof(hanwang->phys));
+> +	strscpy(hanwang->phys + len, "/input0", sizeof(hanwang->phys) - len);
+>  
+>  	strscpy(hanwang->name, hanwang->features->name, sizeof(hanwang->name));
+>  	input_dev->name = hanwang->name;
+> diff --git a/drivers/input/tablet/kbtab.c b/drivers/input/tablet/kbtab.c
+> index 6ce70c8e2d7cc..79a5e217654b6 100644
+> --- a/drivers/input/tablet/kbtab.c
+> +++ b/drivers/input/tablet/kbtab.c
+> @@ -113,6 +113,7 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
+>  	struct kbtab *kbtab;
+>  	struct input_dev *input_dev;
+>  	int error = -ENOMEM;
+> +	size_t len;
+>  
+>  	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
+>  		return -ENODEV;
+> @@ -138,7 +139,8 @@ static int kbtab_probe(struct usb_interface *intf, const struct usb_device_id *i
+>  	kbtab->dev = input_dev;
+>  
+>  	usb_make_path(dev, kbtab->phys, sizeof(kbtab->phys));
+> -	strlcat(kbtab->phys, "/input0", sizeof(kbtab->phys));
+> +	len = strnlen(kbtab->phys, sizeof(kbtab->phys));
+> +	strscpy(kbtab->phys + len, "/input0", sizeof(kbtab->phys) - len);
+>  
+>  	input_dev->name = "KB Gear Tablet";
+>  	input_dev->phys = kbtab->phys;
+> diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
+> index 85390ae423076..679600bd214e4 100644
+> --- a/drivers/input/tablet/pegasus_notetaker.c
+> +++ b/drivers/input/tablet/pegasus_notetaker.c
+> @@ -277,6 +277,7 @@ static int pegasus_probe(struct usb_interface *intf,
+>  	struct input_dev *input_dev;
+>  	int error;
+>  	int pipe;
+> +	size_t len;
+>  
+>  	/* We control interface 0 */
+>  	if (intf->cur_altsetting->desc.bInterfaceNumber >= 1)
+> @@ -355,7 +356,8 @@ static int pegasus_probe(struct usb_interface *intf,
+>  			 le16_to_cpu(dev->descriptor.idProduct));
+>  
+>  	usb_make_path(dev, pegasus->phys, sizeof(pegasus->phys));
+> -	strlcat(pegasus->phys, "/input0", sizeof(pegasus->phys));
+> +	len = strnlen(pegasus->phys, sizeof(pegasus->phys));
+> +	strscpy(pegasus->phys + len, "/input0", sizeof(pegasus->phys) - len);
+>  
+>  	INIT_WORK(&pegasus->init, pegasus_init);
+>  
 
-  modprobe hid-logitech-hidpp
-  echo "0003 046d c099" > /sys/bus/hid/drivers/logitech-hidpp-device/new_id
-  (replug)
-
-Both interfaces bind to logitech-hidpp-device:
-
-  logitech-hidpp-device 0003:046D:C099.0013: input,hidraw0: USB HID v1.11 Mouse [Logitech G502 X] on usb-0000:10:00.4-1/input0
-  logitech-hidpp-device 0003:046D:C099.0014: input,hiddev96,hidraw1: USB HID v1.11 Keyboard [Logitech G502 X] on usb-0000:10:00.4-1/input1
-  logitech-hidpp-device 0003:046D:C099.0014: HID++ 4.2 device connected.
-
-Only the second interface (input1) reports HID++. Solaar shows the
-device has feature 0x2121 (HIRES WHEEL v1), and I set it to high
-resolution mode (Onboard Profiles disabled).
-
-With high resolution mode on, libinput still sees 15.00/120 per
-event, but there are now roughly 8 events per detent:
-
-  POINTER_SCROLL_WHEEL  +22.240s  vert 15.00/120.0* horiz 0.00/0.0 (wheel)
-  POINTER_SCROLL_WHEEL  +22.310s  vert 15.00/120.0* horiz 0.00/0.0 (wheel)
-  POINTER_SCROLL_WHEEL  +22.339s  vert 15.00/120.0* horiz 0.00/0.0 (wheel)
-  POINTER_SCROLL_WHEEL  +22.405s  vert 15.00/120.0* horiz 0.00/0.0 (wheel)
-  ...
-
-So the device does send high-resolution deltas once 0x2121 is in
-high resolution mode, but they come in through the mouse interface
-(input0), which does not apply the resolution multiplier. The
-interface that negotiates HID++ (input1) is not the one that
-generates the wheel events.
-
-It looks like the G502 X needs a proper entry in hidpp_devices[] that
-handles the split interfaces, not just its ID added. I'm happy to
-test patches on this hardware.
-
-Thanks,
-Mike

@@ -1,252 +1,230 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272193D88EC;
-	Sat, 17 Oct 2026 11:49:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBA9736B91C
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 13:12:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792237794; cv=none; b=ZfYnq8zt/xsm80QvzSwqq3KnBipb/lG0djSFSmBWGeCJAs4DZ9MGwAxe26yDq2couMPP3/K3w6YZRE8onp/WDIj2W9Pv4V4n+SKc1j0g6yna4BZTkmHRUbtC6AqXGouUE1CP9wSglnHPKoDkLM5FbuNcSM2tejw5NLA6ZQX5dAg=
+	t=1792242772; cv=none; b=kbqpJuhNwPv2DWHbCA3Wvd8yQH5g57Vzz8l5PHT3o/gGsmdsfRIZHoNp/GielEj+weMAWmpbF3senC1m8UyOOymODT/1z2jBWcqvwcrnEHJLqoNXTKYd+lxDi/w/vrX0XpakisVeEQnzq+8pJdMiD5NEdDCuYtrZ1vaSHffoZlo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792237794; c=relaxed/simple;
-	bh=5r8DhMUEXiJMNzo8LlN+IFnNnzi6OOcogK/IJR29yEU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=un/wt3TMyQDZLwAFSorQp456+SrFzCjvWRpBSilieRequEk7Fzqvd+u0HoGUHct4swiP+4sfuHFV6vrf0vvNsHCWCjJz1NK9f2+SSc9vvPiYANWI3Prh/D8pQu5l4u0b7LxCjWnO9aI27HqjS5GBzVmt46vAREFmn7o3UoAOx24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AIA8YB2k; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1792242772; c=relaxed/simple;
+	bh=b2DbzjEv1ycRQ4BtIbfzVMb7og/98ShD10DRQlMt6tU=;
+	h=Date:To:Cc:Subject:From:References:In-Reply-To:Message-Id:
+	 MIME-Version:Content-Type; b=m4vYnPtrBTNZcKOzV2qgsxSPx8nIkqYc0FunOlqSR+sUOjqmPu0Cca4ADImCSqs4D0IDw8o/eBa3uGOlpx0pKb1VimytUtkDKWX/qTjPtpCsoMw7+8T21eyuDoqqxeMvtCuJQRViqUgnC9CwRfoWf9W4MqgM6gFj32ChZTMz1Jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c0k+tcrb; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AIA8YB2k"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792237792; x=1823773792;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=5r8DhMUEXiJMNzo8LlN+IFnNnzi6OOcogK/IJR29yEU=;
-  b=AIA8YB2kKmw2Gz2C9VbuBZDIvZjapL7MkeRdp+x/KVBSAkIBjeJ9+/Vz
-   mOOF+WQvJDpyyHzR5O6agJzvHOcq9TLkbLE4kpWBP3oKpF3MtQz+1N0qA
-   FaHKK0Ltp+MwIahJGHUQlmws9QZqM/1zrjzvQ3Vb+r1VWqffe52Rl+sXV
-   7ua4Z/raEuEbGWT5vGn1wP2hHR4nAxYEcqT0mdADpltYONoflrdnQ4TlZ
-   yA6wK4S936ynt3FVfSIGmFhbrhT8owGI0F/De6FzHN+2pqrTbRSFFZEAA
-   Zuau6KgCd+hxLw08OIdbub8S7Vx/VGlsFhMPJzGO3mlOvo1t9/tH0Ro+F
-   Q==;
-X-CSE-ConnectionGUID: B7XO/CfVQoqwSy0YvWYedA==
-X-CSE-MsgGUID: GQHlpxYiRa+I72KT6HtM3g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11937"; a="882117"
-X-IronPort-AV: E=Sophos;i="6.27,163,1787036400"; 
-   d="scan'208";a="882117"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Oct 2026 04:49:47 -0700
-X-CSE-ConnectionGUID: JL7iG/n4R2yB/erk1a0gIg==
-X-CSE-MsgGUID: DIoY6lTxTfOQR7eFfiTQWQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,163,1787036400"; 
-   d="scan'208";a="2032296"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by orviesa008.jf.intel.com with ESMTP; 17 Oct 2026 04:49:44 -0700
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xI2v0-00000000JL6-2sj7;
-	Sat, 17 Oct 2026 11:49:42 +0000
-Date: Sat, 17 Oct 2026 19:49:17 +0800
-From: kernel test robot <lkp@intel.com>
-To: Aldo Ariel Panzardo <qwe.aldo@gmail.com>, jikos@kernel.org,
-	bentiss@kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, dmitry.torokhov@gmail.com,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org, Aldo Ariel Panzardo <qwe.aldo@gmail.com>
-Subject: Re: [PATCH v8 1/2] HID: haptic: reorder try_module_get/get_device
- before input_ff_create
-Message-ID: <202610171937.9UEsJzAu-lkp@intel.com>
-References: <20261016173056.3397211-2-qwe.aldo@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c0k+tcrb"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-49fbb2acc90so8642625e9.2
+        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 06:12:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792242769; x=1792847569; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:user-agent
+         :message-id:in-reply-to:references:from:subject:cc:to:date:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=vVJoU2SfFWooil8mYswD7FtsdjdV0OLch5TOCYNKlq8=;
+        b=c0k+tcrb+etztWzjk9ssGQT2kxzkvLKUMKviJpeO5Pj+occ0/PXvT9P1jltTsMAS7/
+         QYGZ9B+78nsf25Oynowd2U98i7R4bYuv0H7K9/f1RDQgXz4o7T2dSEWPTpyyV6gI3xmm
+         Aq9yjLZfkMU0l69pKNPA1LzuPFSLw13he4oRKlmM97Ge70AH+jTekANgWL9Khlv/A8H/
+         PX4UyBl12TCuwxnhVwiavjNUrsykoT0eqjqBSWwgcAv6oSNa77vL9A9e8cpdqr19XoZ2
+         4Fwkqh7idY4oyHi2/WVLtNfHnmGiqze0iZDu+L4jV4nT3TZLTbdnxzKcqImT/CAfixH2
+         aToQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792242769; x=1792847569;
+        h=content-transfer-encoding:content-type:mime-version:user-agent
+         :message-id:in-reply-to:references:from:subject:cc:to:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=vVJoU2SfFWooil8mYswD7FtsdjdV0OLch5TOCYNKlq8=;
+        b=0XBmAxYC3JcTN5z/czbnKFeSplPS1XMmw3TuRayqhvU4l0C1ZLJS2DNFSriDHIDDUX
+         9lemXP/NG/soXvbcR6jqmsBgzFUTBZuGMG/ogP3qihKi7PEpaR68Ku2BHH6uLiUmz/de
+         J7pohDyBZitC1Kne5nZoMPtybZsdg92opYmsLO2Pnaas6r2BdWYsS76MmQU3K/qnmtO5
+         85qYlNsZWoJNl228CpKFDewqXVTQZiEJEFco/LcpKhHnZDT2RvpCRQACLnaJEa1tcLDc
+         ERYWOXIHTDEHg3VEFVn0lv76w+TvZH8D6phrpDfbNWAoFYmF9sYinGh1dGEiDi0tT9PD
+         pz9Q==
+X-Forwarded-Encrypted: i=1; AKwUvBx0lptvedmyX+sOgEcQMZEWij9tn+bSj9eEjhzxvzsVBmDyfgD+1xL77EQbaqaOCLDdONOTnqV9rBNrAA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYISHp8lUzdpBO+EIjHNhsRuqxtwj2pIesTVO4QD+RRCF12dM11B
+	sWbZMMy9QN8VTJSB8Y/H349pH/IkTdCmARERclFedhCt6eiVRiUCDphjZfa7vQ==
+X-Gm-Gg: AYBFou1NRvjl7SoqGggRmX2ZhaBjIPsREzc79/ioOm4fU4e6GY9WekMhfVNSjAIu9o6
+	JG1qyGLEBLgKef2AbKiHIDHfeMvTxxPo2ujOjR6PhUC6WQI1NiiwCX2s0UIbCrJnhpQz6d2zdJF
+	Q64/NlTk/+zt68wndkbMeJFm4U/VMH324R+8cIPz4WDjM0hJyYSX1abxlpBHAt78Ie4C0QW5S4s
+	1DVSVGBWHaN3ZvzmrDaKHE1pIrt2JzDzcxoy27BXfD/SrJtUyPVXEvdeypUkk1CK9Y1tpL9G6fa
+	Zz3Qoi3WkDwXSFTvY78wnsL3zvaimS08eDemTFH7iwTqNP3W138fXpiMddpyVvkYsSYkMW9DAGa
+	B47U13s+lRQ6pwKlta1AXRV0qXKkEKVeKwHyBjMnZ/0Q1V4KBxbgOFm6DK3xpjc8wUUx2/BBblA
+	88q+m1GtNE2pUA5gOwG7YenV/EJsEbi9iatcl/lZQa+vz5fvDYqHKzFk4iABJd753RHboj8L2Uk
+	BtlJsXbnT4N
+X-Received: by 2002:a05:600c:1389:b0:4a1:ad27:e797 with SMTP id 5b1f17b1804b1-4a1d76074c6mr57411265e9.6.1792242768851;
+        Sat, 17 Oct 2026 06:12:48 -0700 (PDT)
+Received: from localhost ([2a02:169:1e9:0:8f4d:9ee2:cc35:c67b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd9b8ebdsm256948975e9.10.2026.10.17.06.12.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 17 Oct 2026 06:12:48 -0700 (PDT)
+Date: Sat, 17 Oct 2026 15:12:47 +0200
+To: kernel test robot <lkp@intel.com>
+Cc: Vicki Pfau <vi@endrift.com>, oe-kbuild-all@lists.linux.dev,
+ linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
+Subject: Re: [hid:for-7.4/nintendo 2/5]
+ drivers/hid/hid-nintendo.c:3993:undefined reference to `hid_is_usb'
+From: "Silvan Jegen" <s.jegen@gmail.com>
+References: <202610171559.gZ0QBMFv-lkp@intel.com>
+In-Reply-To: <202610171559.gZ0QBMFv-lkp@intel.com>
+Message-Id: <3HN3VLNWTGRM8.2HVANQO7V2MPM@homearch.localdomain>
+User-Agent: mblaze/1.4-3-ga04b747 (2026-07-03)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261016173056.3397211-2-qwe.aldo@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi Aldo,
+Heyhey!
 
-kernel test robot noticed the following build warnings:
+kernel test robot <lkp@intel.com> wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-7=
+.4/nintendo
+> head:   77c7155e2707ba5b1d56f3dc1acead48cf17f98d
+> commit: 9417132df63e5cd7230433af05198538e759f3ae [2/5] HID: nintendo: Add=
+ preliminary Switch 2 controller driver
+> config: i386-randconfig-1001-20261016 (https://download.01.org/0day-ci/ar=
+chive/20261017/202610171559.gZ0QBMFv-lkp@intel.com/config)
+> compiler: gcc-13 (Debian 13.3.0-16) 13.3.0
+> reproduce (this is a W=3D1 build): (https://download.01.org/0day-ci/archi=
+ve/20261017/202610171559.gZ0QBMFv-lkp@intel.com/reproduce)
+>=20
+> If you fix the issue in a separate patch/commit (i.e. not just a new vers=
+ion of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202610171559.gZ0QBMFv-lkp=
+@intel.com/
+>=20
+> All errors (new ones prefixed by >>):
+>=20
+>    ld: drivers/hid/hid-nintendo.o: in function `switch2_probe':
+> >> drivers/hid/hid-nintendo.c:3993:(.text+0x6cd7): undefined reference to=
+ `hid_is_usb'
 
-[auto build test WARNING on hid/for-next]
-[also build test WARNING on linus/master v7.3-rc7 next-20261016]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+I might be doing something wrong but I have checked out "for-7.4/nintendo"
+from the https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git
+remote and my build finished without errors ...
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Aldo-Ariel-Panzardo/HID-multitouch-fix-use-after-free-of-haptic-data-on-delayed-input-release/20261016-143056
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-patch link:    https://lore.kernel.org/r/20261016173056.3397211-2-qwe.aldo%40gmail.com
-patch subject: [PATCH v8 1/2] HID: haptic: reorder try_module_get/get_device before input_ff_create
-config: arc-randconfig-1001-20261017 (https://download.01.org/0day-ci/archive/20261017/202610171937.9UEsJzAu-lkp@intel.com/config)
-compiler: arc-linux-gcc (GCC) 10.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261017/202610171937.9UEsJzAu-lkp@intel.com/reproduce)
+So I'm not able to reproduce this issue locally.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202610171937.9UEsJzAu-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   drivers/hid/hid-haptic.c: In function 'hid_haptic_init':
->> drivers/hid/hid-haptic.c:533:1: warning: label 'stop_buffer_free' defined but not used [-Wunused-label]
-     533 | stop_buffer_free:
-         | ^~~~~~~~~~~~~~~~
+Cheers,
+Silvan
 
 
-vim +/stop_buffer_free +533 drivers/hid/hid-haptic.c
+>=20
+>=20
+> vim +3993 drivers/hid/hid-nintendo.c
+>=20
+>   3985=09
+>   3986	static int switch2_probe(struct hid_device *hdev, const struct hid=
+_device_id *id)
+>   3987	{
+>   3988		struct switch2_controller *ns2;
+>   3989		struct usb_device *udev;
+>   3990		char phys[64];
+>   3991		int ret;
+>   3992=09
+> > 3993		if (!hid_is_usb(hdev))
+>   3994			return -ENODEV;
+>   3995=09
+>   3996		udev =3D hid_to_usb_dev(hdev);
+>   3997		if (usb_make_path(udev, phys, sizeof(phys)) < 0)
+>   3998			return -EINVAL;
+>   3999=09
+>   4000		ret =3D hid_parse(hdev);
+>   4001		if (ret) {
+>   4002			hid_err(hdev, "parse failed %d\n", ret);
+>   4003			return ret;
+>   4004		}
+>   4005=09
+>   4006		ns2 =3D switch2_get_controller(phys);
+>   4007		if (IS_ERR(ns2))
+>   4008			return PTR_ERR(ns2);
+>   4009=09
+>   4010		mutex_lock(&ns2->lock);
+>   4011		if (ns2->hdev) {
+>   4012			mutex_unlock(&ns2->lock);
+>   4013			hid_err(hdev,
+>   4014				"Second hdev tried to claim same controller, first=3D%p vs seco=
+nd=3D%p\n",
+>   4015				ns2->hdev, hdev);
+>   4016			kref_put(&ns2->refcount, switch2_kref_put);
+>   4017			return -EBUSY;
+>   4018		}
+>   4019		ns2->hdev =3D hdev;
+>   4020		hid_set_drvdata(hdev, ns2);
+>   4021=09
+>   4022		switch (hdev->product | (hdev->vendor << 16)) {
+>   4023		default:
+>   4024			strscpy(ns2->name, hdev->name, sizeof(ns2->name));
+>   4025			break;
+>   4026		/* Some controllers have slightly wrong names so we override them=
+ */
+>   4027		case USB_DEVICE_ID_NINTENDO_NS2_JOYCONR | (USB_VENDOR_ID_NINTENDO=
+ << 16):
+>   4028			/* Missing the "2" in the name */
+>   4029			strscpy(ns2->name, "Nintendo Joy-Con 2 (R)", sizeof(ns2->name));=
 
-344ff358495706a Angela Czubak       2025-08-18  410  
-344ff358495706a Angela Czubak       2025-08-18  411  int hid_haptic_init(struct hid_device *hdev,
-7939f787f450d93 Dmitry Torokhov     2026-08-03  412  		    struct hid_haptic_device *haptic,
-7939f787f450d93 Dmitry Torokhov     2026-08-03  413  		    struct input_dev *dev)
-344ff358495706a Angela Czubak       2025-08-18  414  {
-344ff358495706a Angela Czubak       2025-08-18  415  	struct ff_device *ff;
-344ff358495706a Angela Czubak       2025-08-18  416  	int ret = 0, r;
-344ff358495706a Angela Czubak       2025-08-18  417  	struct ff_haptic_effect stop_effect = {
-344ff358495706a Angela Czubak       2025-08-18  418  		.hid_usage = HID_HP_WAVEFORMSTOP & HID_USAGE,
-344ff358495706a Angela Czubak       2025-08-18  419  	};
-344ff358495706a Angela Czubak       2025-08-18  420  	const char *prefix = "hid-haptic";
-344ff358495706a Angela Czubak       2025-08-18  421  	char *name;
-344ff358495706a Angela Czubak       2025-08-18  422  
-344ff358495706a Angela Czubak       2025-08-18  423  	haptic->hdev = hdev;
-344ff358495706a Angela Czubak       2025-08-18  424  	haptic->max_waveform_id = max(2u, haptic->max_waveform_id);
-344ff358495706a Angela Czubak       2025-08-18  425  	haptic->max_duration_id = max(2u, haptic->max_duration_id);
-344ff358495706a Angela Czubak       2025-08-18  426  
-344ff358495706a Angela Czubak       2025-08-18  427  	haptic->hid_usage_map = kcalloc(haptic->max_waveform_id + 1,
-344ff358495706a Angela Czubak       2025-08-18  428  					sizeof(u16), GFP_KERNEL);
-344ff358495706a Angela Czubak       2025-08-18  429  	if (!haptic->hid_usage_map) {
-344ff358495706a Angela Czubak       2025-08-18  430  		ret = -ENOMEM;
-344ff358495706a Angela Czubak       2025-08-18  431  		goto exit;
-344ff358495706a Angela Czubak       2025-08-18  432  	}
-344ff358495706a Angela Czubak       2025-08-18  433  	haptic->duration_map = kcalloc(haptic->max_duration_id + 1,
-344ff358495706a Angela Czubak       2025-08-18  434  				       sizeof(u32), GFP_KERNEL);
-344ff358495706a Angela Czubak       2025-08-18  435  	if (!haptic->duration_map) {
-344ff358495706a Angela Czubak       2025-08-18  436  		ret = -ENOMEM;
-344ff358495706a Angela Czubak       2025-08-18  437  		goto usage_map;
-344ff358495706a Angela Czubak       2025-08-18  438  	}
-344ff358495706a Angela Czubak       2025-08-18  439  
-344ff358495706a Angela Czubak       2025-08-18  440  	if (haptic->max_waveform_id != haptic->max_duration_id)
-344ff358495706a Angela Czubak       2025-08-18  441  		dev_warn(&hdev->dev,
-344ff358495706a Angela Czubak       2025-08-18  442  			 "Haptic duration and waveform lists have different max id (%u and %u).\n",
-344ff358495706a Angela Czubak       2025-08-18  443  			 haptic->max_duration_id, haptic->max_waveform_id);
-344ff358495706a Angela Czubak       2025-08-18  444  
-344ff358495706a Angela Czubak       2025-08-18  445  	haptic->hid_usage_map[HID_HAPTIC_ORDINAL_WAVEFORMNONE] =
-344ff358495706a Angela Czubak       2025-08-18  446  		HID_HP_WAVEFORMNONE & HID_USAGE;
-344ff358495706a Angela Czubak       2025-08-18  447  	haptic->hid_usage_map[HID_HAPTIC_ORDINAL_WAVEFORMSTOP] =
-344ff358495706a Angela Czubak       2025-08-18  448  		HID_HP_WAVEFORMSTOP & HID_USAGE;
-344ff358495706a Angela Czubak       2025-08-18  449  
-ff66b8eebbab371 Angela Czubak       2025-08-18  450  	mutex_init(&haptic->auto_trigger_mutex);
-344ff358495706a Angela Czubak       2025-08-18  451  	for (r = 0; r < haptic->auto_trigger_report->maxfield; r++)
-344ff358495706a Angela Czubak       2025-08-18  452  		parse_auto_trigger_field(haptic, haptic->auto_trigger_report->field[r]);
-344ff358495706a Angela Czubak       2025-08-18  453  
-344ff358495706a Angela Czubak       2025-08-18  454  	haptic->input_dev = dev;
-344ff358495706a Angela Czubak       2025-08-18  455  	haptic->manual_trigger_report_len =
-344ff358495706a Angela Czubak       2025-08-18  456  		hid_report_len(haptic->manual_trigger_report);
-344ff358495706a Angela Czubak       2025-08-18  457  	mutex_init(&haptic->manual_trigger_mutex);
-344ff358495706a Angela Czubak       2025-08-18  458  	name = kmalloc(strlen(prefix) + strlen(hdev->name) + 2, GFP_KERNEL);
-344ff358495706a Angela Czubak       2025-08-18  459  	if (name) {
-344ff358495706a Angela Czubak       2025-08-18  460  		sprintf(name, "%s %s", prefix, hdev->name);
-344ff358495706a Angela Czubak       2025-08-18  461  		haptic->wq = create_singlethread_workqueue(name);
-344ff358495706a Angela Czubak       2025-08-18  462  		kfree(name);
-344ff358495706a Angela Czubak       2025-08-18  463  	}
-344ff358495706a Angela Czubak       2025-08-18  464  	if (!haptic->wq) {
-344ff358495706a Angela Czubak       2025-08-18  465  		ret = -ENOMEM;
-344ff358495706a Angela Czubak       2025-08-18  466  		goto duration_map;
-344ff358495706a Angela Czubak       2025-08-18  467  	}
-32a92f8c8932698 Linus Torvalds      2026-02-21  468  	haptic->effect = kzalloc_objs(struct hid_haptic_effect, FF_MAX_EFFECTS);
-344ff358495706a Angela Czubak       2025-08-18  469  	if (!haptic->effect) {
-344ff358495706a Angela Czubak       2025-08-18  470  		ret = -ENOMEM;
-344ff358495706a Angela Czubak       2025-08-18  471  		goto output_queue;
-344ff358495706a Angela Czubak       2025-08-18  472  	}
-344ff358495706a Angela Czubak       2025-08-18  473  	for (r = 0; r < FF_MAX_EFFECTS; r++) {
-344ff358495706a Angela Czubak       2025-08-18  474  		haptic->effect[r].report_buf =
-344ff358495706a Angela Czubak       2025-08-18  475  			hid_alloc_report_buf(haptic->manual_trigger_report,
-344ff358495706a Angela Czubak       2025-08-18  476  					     GFP_KERNEL);
-344ff358495706a Angela Czubak       2025-08-18  477  		if (!haptic->effect[r].report_buf) {
-344ff358495706a Angela Czubak       2025-08-18  478  			dev_err(&hdev->dev,
-344ff358495706a Angela Czubak       2025-08-18  479  				"Failed to allocate a buffer for an effect.\n");
-344ff358495706a Angela Czubak       2025-08-18  480  			ret = -ENOMEM;
-344ff358495706a Angela Czubak       2025-08-18  481  			goto buffer_free;
-344ff358495706a Angela Czubak       2025-08-18  482  		}
-344ff358495706a Angela Czubak       2025-08-18  483  		haptic->effect[r].input_dev = dev;
-344ff358495706a Angela Czubak       2025-08-18  484  		INIT_WORK(&haptic->effect[r].work, haptic_work_handler);
-344ff358495706a Angela Czubak       2025-08-18  485  	}
-344ff358495706a Angela Czubak       2025-08-18  486  	haptic->stop_effect.report_buf =
-344ff358495706a Angela Czubak       2025-08-18  487  		hid_alloc_report_buf(haptic->manual_trigger_report,
-344ff358495706a Angela Czubak       2025-08-18  488  				     GFP_KERNEL);
-344ff358495706a Angela Czubak       2025-08-18  489  	if (!haptic->stop_effect.report_buf) {
-344ff358495706a Angela Czubak       2025-08-18  490  		dev_err(&hdev->dev,
-344ff358495706a Angela Czubak       2025-08-18  491  			"Failed to allocate a buffer for stop effect.\n");
-344ff358495706a Angela Czubak       2025-08-18  492  		ret = -ENOMEM;
-344ff358495706a Angela Czubak       2025-08-18  493  		goto buffer_free;
-344ff358495706a Angela Czubak       2025-08-18  494  	}
-344ff358495706a Angela Czubak       2025-08-18  495  	haptic->stop_effect.input_dev = dev;
-344ff358495706a Angela Czubak       2025-08-18  496  	INIT_WORK(&haptic->stop_effect.work, haptic_work_handler);
-344ff358495706a Angela Czubak       2025-08-18  497  	fill_effect_buf(haptic, &stop_effect, &haptic->stop_effect,
-344ff358495706a Angela Czubak       2025-08-18  498  			HID_HAPTIC_ORDINAL_WAVEFORMSTOP);
-344ff358495706a Angela Czubak       2025-08-18  499  
-344ff358495706a Angela Czubak       2025-08-18  500  	input_set_capability(dev, EV_FF, FF_HAPTIC);
-344ff358495706a Angela Czubak       2025-08-18  501  
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  502  	if (!try_module_get(THIS_MODULE)) {
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  503  		dev_err(&hdev->dev, "Failed to increase module count.\n");
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  504  		ret = -ENODEV;
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  505  		goto ff_cap_clear;
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  506  	}
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  507  	if (!get_device(&hdev->dev)) {
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  508  		dev_err(&hdev->dev, "Failed to get hdev device.\n");
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  509  		ret = -ENODEV;
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  510  		module_put(THIS_MODULE);
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  511  		goto ff_cap_clear;
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  512  	}
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  513  
-344ff358495706a Angela Czubak       2025-08-18  514  	ret = input_ff_create(dev, FF_MAX_EFFECTS);
-344ff358495706a Angela Czubak       2025-08-18  515  	if (ret) {
-344ff358495706a Angela Czubak       2025-08-18  516  		dev_err(&hdev->dev, "Failed to create ff device.\n");
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  517  		put_device(&hdev->dev);
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  518  		module_put(THIS_MODULE);
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  519  		goto ff_cap_clear;
-344ff358495706a Angela Czubak       2025-08-18  520  	}
-344ff358495706a Angela Czubak       2025-08-18  521  
-344ff358495706a Angela Czubak       2025-08-18  522  	ff = dev->ff;
-344ff358495706a Angela Czubak       2025-08-18  523  	ff->private = haptic;
-344ff358495706a Angela Czubak       2025-08-18  524  	ff->upload = hid_haptic_upload_effect;
-344ff358495706a Angela Czubak       2025-08-18  525  	ff->playback = hid_haptic_playback;
-344ff358495706a Angela Czubak       2025-08-18  526  	ff->erase = hid_haptic_erase;
-344ff358495706a Angela Czubak       2025-08-18  527  	ff->destroy = hid_haptic_destroy;
-344ff358495706a Angela Czubak       2025-08-18  528  	return 0;
-344ff358495706a Angela Czubak       2025-08-18  529  
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  530  ff_cap_clear:
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  531  	__clear_bit(FF_HAPTIC, dev->ffbit);
-7668dc668064c7a Aldo Ariel Panzardo 2026-10-16  532  	__clear_bit(EV_FF, dev->evbit);
-344ff358495706a Angela Czubak       2025-08-18 @533  stop_buffer_free:
-344ff358495706a Angela Czubak       2025-08-18  534  	kfree(haptic->stop_effect.report_buf);
-344ff358495706a Angela Czubak       2025-08-18  535  	haptic->stop_effect.report_buf = NULL;
-344ff358495706a Angela Czubak       2025-08-18  536  buffer_free:
-344ff358495706a Angela Czubak       2025-08-18  537  	while (--r >= 0)
-344ff358495706a Angela Czubak       2025-08-18  538  		kfree(haptic->effect[r].report_buf);
-344ff358495706a Angela Czubak       2025-08-18  539  	kfree(haptic->effect);
-344ff358495706a Angela Czubak       2025-08-18  540  	haptic->effect = NULL;
-344ff358495706a Angela Czubak       2025-08-18  541  output_queue:
-344ff358495706a Angela Czubak       2025-08-18  542  	destroy_workqueue(haptic->wq);
-344ff358495706a Angela Czubak       2025-08-18  543  	haptic->wq = NULL;
-344ff358495706a Angela Czubak       2025-08-18  544  duration_map:
-344ff358495706a Angela Czubak       2025-08-18  545  	kfree(haptic->duration_map);
-344ff358495706a Angela Czubak       2025-08-18  546  	haptic->duration_map = NULL;
-344ff358495706a Angela Czubak       2025-08-18  547  usage_map:
-344ff358495706a Angela Czubak       2025-08-18  548  	kfree(haptic->hid_usage_map);
-344ff358495706a Angela Czubak       2025-08-18  549  	haptic->hid_usage_map = NULL;
-344ff358495706a Angela Czubak       2025-08-18  550  exit:
-344ff358495706a Angela Czubak       2025-08-18  551  	return ret;
-344ff358495706a Angela Czubak       2025-08-18  552  }
-344ff358495706a Angela Czubak       2025-08-18  553  EXPORT_SYMBOL_GPL(hid_haptic_init);
-a77efca3aa85e38 Angela Czubak       2025-08-18  554  
+>   4030			break;
+>   4031		case USB_DEVICE_ID_NINTENDO_NS2_GCCON | (USB_VENDOR_ID_NINTENDO <=
+< 16):
+>   4032			/* Has "Nintendo" in the name twice */
+>   4033			strscpy(ns2->name, "Nintendo GameCube Controller", sizeof(ns2->n=
+ame));
+>   4034			break;
+>   4035		}
+>   4036=09
+>   4037		ns2->player_id =3D U32_MAX;
+>   4038		ret =3D ida_alloc(&nintendo_player_id_allocator, GFP_KERNEL);
+>   4039		if (ret < 0)
+>   4040			hid_warn(hdev, "Failed to allocate player ID, skipping; ret=3D%d=
+\n", ret);
+>   4041		else
+>   4042			ns2->player_id =3D ret;
+>   4043=09
+>   4044		ret =3D hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+>   4045		if (ret) {
+>   4046			hid_err(hdev, "hw_start failed %d\n", ret);
+>   4047			goto err_cleanup;
+>   4048		}
+>   4049=09
+>   4050		ret =3D hid_hw_open(hdev);
+>   4051		if (ret) {
+>   4052			hid_err(hdev, "hw_open failed %d\n", ret);
+>   4053			goto err_stop;
+>   4054		}
+>   4055=09
+>   4056		ret =3D 0;
+>   4057		if (ns2->cfg)
+>   4058			ret =3D switch2_init_controller(ns2);
+>   4059=09
+>   4060		if (!ret) {
+>   4061			mutex_unlock(&ns2->lock);
+>   4062			return 0;
+>   4063		}
+>   4064=09
+>   4065		hid_hw_close(hdev);
+>   4066	err_stop:
+>   4067		hid_hw_stop(hdev);
+>   4068	err_cleanup:
+>   4069		ida_free(&nintendo_player_id_allocator, ns2->player_id);
+>   4070		ns2->hdev =3D NULL;
+>   4071		mutex_unlock(&ns2->lock);
+>   4072		switch2_controller_put(ns2);
+>   4073		kref_put(&ns2->refcount, switch2_kref_put);
+>   4074=09
+>   4075		return ret;
+>   4076	}
+>   4077=09
+>=20
+> --
+> 0-DAY CI Kernel Test Service
+> https://github.com/intel/lkp-tests/wiki
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+

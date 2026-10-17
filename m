@@ -1,192 +1,366 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta0.migadu.com (out-202.mta0.migadu.com [91.218.175.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE9803CB2FD;
-	Sat, 17 Oct 2026 18:01:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E43843BB690
+	for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 18:15:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792260110; cv=none; b=m2uL+8Xs3ooDU0QqhPWoFBYW6e0A5UKZRUTRgajl7xwE+HWYOEMyPOShRHUQFcSSIRR1z6oyrw+/eAybOAkUi6QQ7m+/g91FLEMlefekfXguBMVf7CyjO2kICZVG4nbvHC8AaQBM3QlAy/njri1WHC1HFFtXtGB+K8JC4sdPUbY=
+	t=1792260952; cv=none; b=cKZ0avqZLVW47mxBEETShMkqDpsTq/t+6lVlltZL4481HGNq5wJi3fOvSh9lTWHeCKag2RZHYKzYYT91z4z171heWZKe7xwP1wApq3xiyS43RxxQoFGAFPPPzYwWraWq7ApRVvAXntrIBIxmcxNMA4MzbLSsRW0iBk0z867h4AY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792260110; c=relaxed/simple;
-	bh=ovdzQPg0KZPJpC8SYBiXxj7Ho0A3Jt0PGcwGBLWGek4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I2kVbBqcMWWVqUVzaOwQzUgXD3N9AcIEDKAYYtNV6EaXQdgg81uZISzn/ZgxMBpreatfwkPaAIud8Wo4nYAjKrpMhWG4ghLRarhoqINEJVVNKCAipZFKeqsnzB04A8UecOC2Cx/W50sz8hCWBxwBo9ZYmKKOOie8ktNMoIpfp6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Egin5z6d; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792260952; c=relaxed/simple;
+	bh=v/zl+E2lqKMG3aEl40e2Uo0QUoC/6f0BefQIapVOzyc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QbUhXnO4zMLofzaIsZvfdnn205aJDEb678feUvdKZ+zeadQUuN0y2qvh4hORDLnE9936J3fpCapWVC1qLsTmJDfIESbfLSRgnJmv3fn8PUWVY3hxeKDZ7a9uGbC7I6TCjm8RFtABrB2X0rqUqexMsTn8XERqO9vSMTzRENL376M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=gAZrcnMK; arc=none smtp.client-ip=91.218.175.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Egin5z6d"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06CD61F000CB;
-	Sat, 17 Oct 2026 18:01:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792260108;
-	bh=97pYc+O+9TdLZnqQyCCZ9T422NQvkmilLyx9fsARpLE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Egin5z6dkjHv1KedYstFBAZHvUksI1EM2N6isPAi1MDylAHSnKGudPp51CDLFKbJi
-	 lNy36BIcpcpUJonBEzGkeDeAiRigrZP/h107Drhlypz7104HdZuliDVSlw7Dmcjxjn
-	 Qs6yy5h4tRETSpAKQePve/i8SJw6DBZlEDU/aO4wkJbe8kcaoXQKuqC8bdOsrgnoHq
-	 uM3BCLSF7ZQB/UpJIOKn7OY7EJueO6xBKeRkuzdEzbwTG0qrhsVxIdc09YbIX7gGb8
-	 f2TdFzcav3rhMaLrNECz7yfojNACcEQCQ4J4eeA8XR956P8EKntSpvtP+z5bHJ3r8A
-	 M8rdmBjC2wIXg==
-Date: Sat, 17 Oct 2026 20:01:45 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: wyibo6109@gmail.com
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	linux-input@vger.kernel.org, Rob Herring <robh@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 1/2] dt-bindings: input: add OnePlus pogo-pin keyboard
-Message-ID: <20261017-literate-prudent-walrus-dc6dad@quoll>
-References: <20261016163859.1070138-1-wyibo6109@gmail.com>
- <20261016163859.1070138-2-wyibo6109@gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="gAZrcnMK"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=v/zl+E2lqKMG3aEl40e2Uo0QUoC/6f0BefQIapVOzyc=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1792260946; v=1; x=1792865746;
+ b=gAZrcnMKkPDv57Zs3LXwB8tNbAZKNyh13u66pqCvXKgtBziCGJEeItMoQjrN/FTTXV63VZSH
+ x7SWJL0zg1jmAxWw0Sw8W29vj138GeuuKzzcrqIDFRYbwKYdm8isabPItZ7y5LeRswExQdUQcsq
+ MK7GLjfXYQjmuTCdBHd6NzVw=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 4b82e8fb5123fd2d;
+	Sat, 17 Oct 2026 18:15:30 +0000
+X-Mizu-Trace-ID: 4b82e8fb5123fd2d
+X-Migadu-Flow: FLOW_OUT
+From: Denis Benato <denis.benato@linux.dev>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org,
+	kernel@lists.opengamingcollective.org,
+	"Benjamin Tissoires" <bentiss@kernel.org>,
+	"Jiri Kosina" <jikos@kernel.org>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	"Mateusz Schyboll" <dragonn@op.pl>,
+	"Denis Benato" <benato.denis96@gmail.com>,
+	Denis Benato <denis.benato@linux.dev>
+Subject: [PATCH v10 00/11] HID: asus: add support for ROG Ally handhelds
+Date: Sat, 17 Oct 2026 18:15:09 +0000
+Message-ID: <20261017181520.70206-1-denis.benato@linux.dev>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261016163859.1070138-2-wyibo6109@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Fri, Oct 16, 2026 at 11:38:58AM -0500, wyibo6109@gmail.com wrote:
-> From: Yibo Wang <wyibo6109@gmail.com>
-> 
-> Binding for the OnePlus Pad 3 Pro / Pad 4 and OPPO Pad 5 Pro pogo-pin
-> smart keyboards, built around a Tinno keyboard MCU and attached to a
-> tablet UART.  Describes the supply, TX-gate and wake GPIOs, with a
-> MAINTAINERS entry.
-> 
-> The compatible names the tablet project the pogo port belongs to
-> (caihong, erhai or iceland), which pins the keyboard generation and
-> with it the protocol extensions the host may use: the 0x3A general
-> sub-commands grew over time, from the caihong (sm8650 era) keyboards
-> with neither wake notification nor backlight, through erhai (sm8750
-> era, wake notification) to iceland (sm8850 era, keyboard backlight).
-> 
-> The keyboard is a fixed physical device, so the touchpad geometry and
-> the product names are per-project constants and live in the driver;
-> the common touchscreen properties (touchscreen-size-x/y,
-> touchscreen-x-mm/y-mm) remain as an optional override if a variant
-> ever needs one.
-> 
-> The binding documentation was prepared with the assistance of an AI
-> language model; the technical content was reviewed, adjusted and
-> validated by the author.
-> 
-> Assisted-by: Z.ai:GLM-5.3
+Hi all,
 
-LLM
+This patch series adds support for ROG Ally handhelds in the HID driver for ASUS devices.
 
-> Signed-off-by: Yibo Wang <wyibo6109@gmail.com>
-> ---
->  .../bindings/input/oneplus,pogo-keyboard.yaml | 76 +++++++++++++++++++
->  MAINTAINERS                                   |  6 ++
->  2 files changed, 82 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml b/Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
-> new file mode 100644
-> index 000000000..78d398912
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
-> @@ -0,0 +1,76 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +# Copyright (c) 2026 Yibo Wang <wyibo6109@gmail.com>
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/oneplus,pogo-keyboard.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: OnePlus / OPPO Pad pogo-pin smart keyboard
-> +
-> +maintainers:
-> +  - Yibo Wang <wyibo6109@gmail.com>
-> +
-> +description:
-> +  The OnePlus Pad 3 Pro / Pad 4 and OPPO Pad 5 Pro pogo-pin smart
-> +  keyboards, built around a Tinno keyboard MCU.  The keyboard is
-> +  attached to a tablet UART and speaks a framed half-duplex protocol
-> +  over a shared single wire; host transmission is gated onto the wire
-> +  by a PMIC GPIO for the duration of a frame.  It provides a keyboard
-> +  matrix, a touchpad and a keyboard backlight.
-> +
-> +allOf:
-> +  - $ref: /schemas/serial/serial-peripheral-props.yaml#
-> +  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    description: |
-> +      Names the tablet project the pogo port belongs to, which pins the
-> +      keyboard generation and the protocol extensions the host may
-> +      use: caihong (sm8650 era) supports neither the wake notification
-> +      nor a backlight, erhai (sm8750 era) adds the wake notification,
-> +      iceland (sm8850 era) adds the keyboard backlight.
-> +    enum:
-> +      - oneplus,caihong-pogo-keyboard
-> +      - oneplus,erhai-pogo-keyboard
-> +      - oneplus,iceland-pogo-keyboard
-> +
-> +  power-gpios:
-> +    description:
-> +      GPIO enabling the keyboard supply, held high while attached.
-> +    maxItems: 1
-> +
-> +  tx-enable-gpios:
-> +    description: GPIO gating host TX onto the shared one-wire bus.
-> +    maxItems: 1
-> +
-> +  wake-gpios:
-> +    description: GPIO signalling attach/detach, also used as the wake line.
-> +    maxItems: 1
-> +
-> +  touchscreen-size-x: true
-> +  touchscreen-size-y: true
-> +  touchscreen-x-mm: true
-> +  touchscreen-y-mm: true
+The changes include reinitialization of the device after exiting a sleep state,
+gamepad configuration, vibration strength configuration, joysticks and triggers
+range configuration, anti-deadzone configuration, response curve support,
+force feedback support, gamepad mode support, turbo buttons support,
+and button remapping support.
 
-We agreed to drop all these.
+This driver is based on the original Luke's work, which was a great starting point
+and I have reworked it to be upstreamable, while keeping the original functionality
+intact and extending hid-asus to avoid regressions in functionality such as the
+backlight control.
 
+The ally support has been a surprisingly long task, spanning multiple years and
+being used in Steam OS and well as other distributions for quite a while,
+and I am happy to finally be submitting it.
 
-> +
-> +required:
-> +  - compatible
-> +  - power-gpios
-> +  - tx-enable-gpios
-> +  - wake-gpios
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/gpio/gpio.h>
-> +
-> +    serial {
-> +        keyboard {
-> +            compatible = "oneplus,iceland-pogo-keyboard";
-> +            power-gpios = <&pmic_gpios 12 GPIO_ACTIVE_HIGH>;
-> +            tx-enable-gpios = <&pmic2_gpios 6 GPIO_ACTIVE_HIGH>;
-> +            wake-gpios = <&tlmm 151 GPIO_ACTIVE_LOW>;
-> +        };
-> +    };
-> +...
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 8014b9f82..9c29eb961 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -20156,6 +20156,12 @@ S:	Maintained
->  F:	Documentation/ABI/testing/sysfs-bus-platform-onboard-usb-dev
->  F:	drivers/usb/misc/onboard_usb_dev.c
->  
-> +ONEPLUS POGO-PIN KEYBOARD DRIVER
+At this time LEDs are not part of the patch series as I have work in progress to
+unify LEDs handling across all ASUS devices, and I will submit that in a separate
+patch series when the userspace interface will be ready to express capabilities
+of these devices, but that will take some more time.
 
-P > N
-
-> +M:	Yibo Wang <wyibo6109@gmail.com>
-> +L:	linux-input@vger.kernel.org
-> +S:	Maintained
-> +F:	Documentation/devicetree/bindings/input/oneplus,pogo-keyboard.yaml
-> +
->  ONENAND FLASH DRIVER
+This driver is the culmination of a lot of work, from many different people,
+and I want to thank Luke for his original work, as well as the many people that have
+helped me test and provide feedback on the driver: Khamunetri, Jonathan, Derek,
+Matthew and others that have helped during these years.
 
 Best regards,
-Krzysztof
+Denis Benato
+
+Link v1: https://lore.kernel.org/all/20260813144736.2477941-1-denis.benato@linux.dev/
+Link v2: https://lore.kernel.org/all/20260819195835.1649657-1-denis.benato@linux.dev/
+Link v3: https://lore.kernel.org/all/20260823185849.2478673-2-denis.benato@linux.dev/
+Link v4: https://lore.kernel.org/all/20260830234320.114356-1-denis.benato@linux.dev/
+Link v5: https://lore.kernel.org/all/20260904145845.184887-1-denis.benato@linux.dev/
+Link v6: https://lore.kernel.org/all/20260908174433.74260-1-denis.benato@linux.dev/
+Link v7: https://lore.kernel.org/all/20260915201314.28279-1-denis.benato@linux.dev/
+Link v8: https://lore.kernel.org/all/20260922230205.6847-1-denis.benato@linux.dev/
+Link v9: https://lore.kernel.org/all/20261009122820.7603-1-denis.benato@linux.dev/
+
+Version v10 drops a patch already merged as part of XG mobile and applies the
+patchset on top of for-next/7.4.
+
+With v8 the driver does sysfs_notify after successfully changing configuration
+attributes so that userspace can be notified of the changes immediately.
+
+With v7 the series is rebased on top of the asus tree: the first patch of v6
+has been applied upstream as 8099f9da59f1 ("HID: asus: do not send keyboard
+init reports to touchpads"), so this series is now 12 patches.
+
+The probe paths of the ally interfaces now reserve the interface role while
+their initialization is running, the configuration attributes work from the
+moment their files exist and a failed initialization rolls the configuration
+back instead of leaving the created sysfs groups behind. The response curve
+is no longer configured entry by entry: a single attribute per joystick now
+takes the whole curve in one validated write, and a companion index file
+documents what each value is.
+
+With v5 I returned to the original manual management of memory and sysfs groups
+as going devm did not play well with the general "plugin" architecture of the
+ally portion of the driver and has caused more bugs than it solved: sashiko-bot
+will have to come to terms with hand-managed memory this time.
+
+Changelog:
+
+-v2
+  - HID: asus: add support for ROG Ally handhelds
+   - release all vendor buttons on resume
+   - align arguments of hid_asus_ally_raw_event()
+  - HID: asus: add gamepad configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add vibration strength configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add joysticks inner and outer range configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add triggers inner and outer range configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add joysticks anti-deadzone configuration
+   - clean up comments and kernel-doc
+  - HID: asus: add support for response curve
+   - normalize kernel-doc comment
+  - HID: asus: add support to force feedback
+   - remove a stale comment
+  - HID: asus: add support for gamepad mode
+   - remove a stale comment, normalize kernel-doc
+  - HID: asus: add support for turbo buttons
+   - remove stale comments, normalize kernel-doc
+  - HID: asus: add support for btn remapping
+   - convert function comments to kernel-doc
+
+-v3
+  - HID: asus: add support for ROG Ally handhelds
+   - take references on input devices to avoid use-after-free on unbind
+   - reject probes from USB devices other than the recorded controller
+   - add open/close callbacks to the gamepad input device
+   - keyboard_input is populated after hid_hw_start(): issue does not apply
+  - HID: asus: add gamepad configuration
+   - restore cached Xbox controller mode after an MCU reset
+   - convert remaining scoped_guard() users to guard()
+   - avoid printing "(null)" for unnamed sysfs groups
+  - HID: asus: add vibration strength configuration
+   - send MCU commands through ally_gamepad_send_packet()
+  - HID: asus: add joysticks inner and outer range configuration
+   - send MCU commands through ally_gamepad_send_packet()
+   - gate sysfs groups and callbacks on capabilities
+  - HID: asus: add triggers inner and outer range configuration
+   - send MCU commands through ally_gamepad_send_packet()
+   - gate sysfs groups and callbacks on capabilities
+  - HID: asus: add joysticks anti-deadzone configuration
+   - send MCU commands through ally_gamepad_send_packet()
+   - gate sysfs groups and callbacks on capabilities
+  - HID: asus: add support for response curve
+   - send MCU commands through ally_gamepad_send_packet()
+   - check resp_curve_support in show callbacks too
+  - HID: asus: add support to force feedback
+   - read ally_x_hdev under ally_data_lock and take a reference on it
+   - publish ally_x_hdev before registering the input device
+  - HID: asus: add support for gamepad mode
+   - convert remaining scoped_guard() users to guard()
+  - HID: asus: add support for turbo buttons
+   - pass the config pointer directly to ally_config_remove()
+   - run ally_config_remove() outside ally_data_lock
+   - restore cached values when the hardware rejects an update
+   - check turbo_support in show callbacks too
+   - reported scoped_guard warning verified as false positive
+  - HID: asus: add support for btn remapping
+   - look up default mappings by name instead of array index
+   - resend the old mapping when a sequential update fails midway
+   - allow macros regardless of the gamepad mode
+   - rename PAD_* codes to proper input event names
+   - convert remaining scoped_guard() users to guard()
+
+- v4
+  - HID: asus: do not send keyboard init reports to touchpads
+    - Added to avoid regressting touchpads and as guidance for maintainers
+  - HID: asus: reinitialize the device after exiting a sleep state
+    - Follow the modified logic of the previous patch
+  - Addressed issues of sashiko-bot albeit one was a false positive
+  - Rework patches: I made some disasters rebasing in v3
+
+- v5
+  - HID: asus: add support for ROG Ally handhelds
+    - Fix UAF due to inverted input device ownership in hid_asus_ally_remove()
+    - Reject probes claiming an interface role that is already owned
+  - HID: asus: add gamepad configuration
+    - Keep the configuration allocated until module removal instead of
+      devm-managing it: the sysfs callbacks must be able to outlive probe
+    - Undo sysfs group creation manually on the error path and in
+      ally_config_remove(): creation and removal are now symmetric
+    - Add payloads size check in ally_alloc_cmd()
+  - HID: asus: add vibration strength configuration
+    - Restore the cached vibration intensity after an MCU reset
+  - HID: asus: add joysticks inner and outer range configuration
+    - Restore the cached joystick thresholds after an MCU reset
+    - Remove the calibration sysfs groups manually like the other ones
+  - HID: asus: add triggers inner and outer range configuration
+    - Restore the cached trigger ranges after an MCU reset
+  - HID: asus: add joysticks anti-deadzone configuration
+    - Restore the cached anti-deadzone values after an MCU reset
+  - HID: asus: add support for response curve
+    - Restore the cached response curves after an MCU reset
+    - Keep holding config_mutex until the curve packet has been sent
+  - HID: asus: add support to force feedback
+    - Serialize the cross-interface force-feedback sends with the gamepad
+      interface removal by holding intf_mutex in the callers
+  - HID: asus: add support for gamepad mode
+    - Restore the recorded gamepad mode after an MCU reset
+  - HID: asus: add support for turbo buttons
+    - Fix UAF allocating the turbo button entries with kcalloc
+    - Restore the cached turbo parameters after an MCU reset
+  - HID: asus: add support for btn remapping
+    - Keep the button mappings outside of the controller lifetime, so
+      that the recorded configuration survives a re-probe
+    - Re-apply the recorded mappings after an MCU reset
+    - Fetch the configuration through ally_get_config()
+
+- v6
+  - HID: asus: add support for ROG Ally handhelds
+    - Add a maximum size check in ally_alloc_cmd()
+    - Drop the dead x_hdev snapshot taken in hid_asus_ally_raw_event()
+    - Drop the unused hdev parameter of handle_ctrl_alt_del()
+    - Drop the unused hdev/report parameters of ally_x_raw_event()
+    - Turn the "// F20;" comment into a proper "/* F20 */"
+  - HID: asus: add gamepad configuration
+    - Publish the configuration (ally->config under ally_data_lock)
+      before the sysfs groups are created and withdraw it on the error
+      path: attributes could become visible while ally_get_config()
+      still returned NULL and the restore path silently did nothing
+    - Record the Xbox controller mode in the first-setup defaults and
+      apply the recorded value from hid_asus_ally_init()
+    - properly rebase ally_alloc_cmd(): make it no change from previous patch
+  - HID: asus: add joysticks inner and outer range configuration
+    - Drop the unused cfg parameter of ally_set_joystick_thresholds()
+  - HID: asus: add triggers inner and outer range configuration
+    - Drop the unused cfg parameter of ally_set_trigger_ranges()
+    - Fix a commit message typo: "sensitivity"
+  - HID: asus: add support for response curve
+    - Add ally_resp_curve_is_valid() and use it in the init/resume
+      restore path exactly like the apply path does
+    - Drop the unused struct device * parameter of the four
+      response-curve helpers
+  - HID: asus: add support to force feedback
+    - Drop the unused pointers from ally_x_send_ff_report() and ally_x_send_ff_off()
+  - HID: asus: add support for gamepad mode
+    - Apply the mode exactly once from hid_asus_ally_init()
+  - HID: asus: add support for turbo buttons
+    - Remove the calibration groups created before a sysfs failure
+  - HID: asus: add support for btn remapping
+    - Do not gate remapping by turbo
+    - Reject NULL remap/macro pointers in ally_set_button_mapping()
+    - Carry the ally pointer in struct button_remap_attr
+    - Fix the "hypen" comment typo
+
+- v7
+  - The "HID: asus: do not send keyboard init reports to touchpads" patch
+    is not part of this series anymore: it has been applied upstream as
+    8099f9da59f1 and the series is rebased on top of it
+  - HID: asus: add support for ROG Ally handhelds
+    - Reserve the probed interface role for the whole duration of its
+      sleeping initialization: a concurrent probe of the same role could
+      pass the singleton checks before the first one published its pointer
+  - HID: asus: add gamepad configuration
+    - Publish drvdata->rog_ally before the configuration attributes are
+      created: the callbacks fetched it before asus_probe() published it
+      and returned -ENODEV in the meantime
+    - Roll the configuration back with ally_config_remove() when
+      hid_asus_ally_init() fails, instead of leaking the created sysfs
+      groups and the button entries
+  - HID: asus: add support for response curve
+    - Replace response_curve_pct_1..4, response_curve_move_1..4 and the
+      apply attributes with one response_curve attribute per joystick that
+      takes the whole curve in a single validated all-or-nothing write:
+      staged partial edits reaching the MCU on resume cannot happen anymore
+    - Add a read-only response_curve_index attribute documenting the
+      meaning of each value
+    - Restore both curves unconditionally on init/resume: only validated
+      curves are recorded now
+  - HID: asus: add support for btn remapping
+    - Drop the stale cfg->turbo_support gate in ally_config_create():
+      remapping attributes are created for every device with button
+      directories, not only turbo-capable ones
+
+- v8
+  - HID: asus: add support for ROG Ally handhelds
+    - Release the probe reservation when the interface pointer is
+      published: the flags were only cleared on failure, leaving them
+      stuck set after the first bind and rejecting every later probe
+      of that role
+    - Reserve the keyboard interface role too: its check and its
+      publication were two separate locked sections, so concurrent
+      probes of the same role could both publish
+    - Keep the recorded USB device while any probe is still in flight
+  - HID: asus: add gamepad configuration
+    - Report the missing Xbox controller capability with -EOPNOTSUPP
+  - HID: asus: add vibration strength configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add joysticks inner and outer range configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add triggers inner and outer range configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add joysticks anti-deadzone configuration
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add support for response curve
+    - Wake pollers with sysfs_notify() after a successful curve write
+  - HID: asus: add support to force feedback
+    - Clear the rumble update latch on setup so a fresh interface
+      cannot inherit one left over from a teardown race
+  - HID: asus: add support for gamepad mode
+    - Return -EIO for invalid gamepad modes stored in the device
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add support for turbo buttons
+    - Wake pollers with sysfs_notify() after a successful write
+  - HID: asus: add support for btn remapping
+    - Return -EIO if a mapping is ever found unset instead of
+      dereferencing it
+    - Wake pollers with sysfs_notify() after remap and macro writes,
+      and after a mode switch re-defaults the mappings
+
+- v9
+  - HID: asus: add support to force feedback
+    - Hold intf_mutex while unpublishing the gamepad interface in the
+      setup error path, like hid_asus_ally_remove() does
+    - Improve gamepad interface device lock around the initialization
+      force-feedback send
+  - HID: asus: add support for btn remapping
+    - Unpublish button_entries under config_mutex before removing the
+      attributes and freeing the array
+
+- v10
+  - HID: asus: reinitialize the device after exiting a sleep state
+    - Dropped as already merged in XG Mobile patchset
+
+Denis Benato (11):
+  HID: asus: add support for ROG Ally handhelds
+  HID: asus: add gamepad configuration
+  HID: asus: add vibration strength configuration
+  HID: asus: add joysticks inner and outer range configuration
+  HID: asus: add triggers inner and outer range configuration
+  HID: asus: add joysticks anti-deadzone configuration
+  HID: asus: add support for response curve
+  HID: asus: add support to force feedback
+  HID: asus: add support for gamepad mode
+  HID: asus: add support for turbo buttons
+  HID: asus: add support for btn remapping
+
+ drivers/hid/Kconfig    |    1 +
+ drivers/hid/hid-asus.c | 5155 ++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 4998 insertions(+), 158 deletions(-)
+
+-- 
+2.47.3
 

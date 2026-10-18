@@ -1,102 +1,110 @@
-Received: from mta0.migadu.com (out-159.mta0.migadu.com [91.218.175.159])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4339C3DB632
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 17:52:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.159
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ED3A242D62
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 19:18:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792345961; cv=none; b=EtW+1DZfPKuW/Fd3mdFMceHh+a1We0Rt4n4b2pHeBWxfctwcxn5/GQHv3OPdaPIMQLwzEyLRQnc47GadJqLTZp70YgGgjgJ46FLej4Pm08gSMmuGDtGpZSi3nLu60FT+F1AUkWuiZRipHJefGx1gBQSOEJjRb9fd6v4NV++GVKI=
+	t=1792351116; cv=none; b=fHNNJXMqr3a1UVyn9eZcoJoHcGrdJW9Mc25FBL/xwZkG6XGFQ3oTevuS53j8pKpjnJaZtQvlpbCEtvCcSUgWdE+UIITGrF+s+N1rLlpxrp2qDlxtQipEQac8aMN6ik+Tnp7/uQHVE1ABnRRBIFedrglHIjAhQiZwHEtc9vp/vRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792345961; c=relaxed/simple;
-	bh=/yCtvJCYYZsJdgWykSebGCqCeeamJn7VHphtGEEsuG8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bKYGtbT2XhNfufd1UpxXyEoluRSPJXuYIdZ37mMxD4ZRNxW3r6Fa7J5dARaZpjJKKbvD7Jvn1qlFZPF1tcqSMONi+e1Z7TnTCYkL3xh/Jq2bEVHPGmS2c3UY8TtnhYRy5zSBnrTNJd57/vQdrwVEWVzVN0hZ/7G5ifU/P0IPqN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=kOrCkr4A; arc=none smtp.client-ip=91.218.175.159
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1792351116; c=relaxed/simple;
+	bh=deDSQN5X7htnNnQdP5vUq1dHxLSrjUUk8SJC+9hzfTM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=fWB6tA823p8Mc466LUFAF7NMcNx6Ro7qejj7bj1BiK31tyNO0AcwpW0v4kE+pQYp14PIgpkAWxOAtqjtwRemeMXJWOGV0lFZrCa5vnbGDDt1tb48R2n+ILWiJZQBD7CwOFoAohsObUSw613LYl+jpTvbv9U4M3ysmM2Ox1Xc+50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=FB6FhrFp; arc=none smtp.client-ip=185.67.36.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="kOrCkr4A"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=/yCtvJCYYZsJdgWykSebGCqCeeamJn7VHphtGEEsuG8=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792345957; v=1; x=1792950757;
- b=kOrCkr4A8NyEgO1daBZdkdeG2Exmn3GSIto3NgBeaalIv2AhtL6gI4SBxIM6BZc51i6aLab6
- elesrPEn19JiOmZ1DNQR71IFYAJIn0Hjyk4RGXjgxu2CsW2LNBwT5jgMG5pG5plbySsYODmQja1
- HxbFlhyUrYn8dFPZjGyzXj8I=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 6fd0374458e534e6;
-	Sun, 18 Oct 2026 17:52:37 +0000
-X-Mizu-Trace-ID: 6fd0374458e534e6
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <e7326f97-6326-4f63-bcf1-fb728f41b381@linux.dev>
-Date: Sun, 18 Oct 2026 19:52:35 +0200
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="FB6FhrFp"
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout02.posteo.de (Postfix) with ESMTPS id 1CAEC240104
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 21:18:33 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
+	s=1984.8680eb; t=1792351113;
+	bh=gNaqpXcYk1sW2dIQNDaq37foF4xP6KPL3OfDqoRrjKM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:From;
+	b=FB6FhrFptSDcZpZ1pijzjsYyxqWJZgErMErxGW+x6e+8mR/0efmx4hjxcx672DGpy
+	 7wgXFlqG+GybWVMZGI/rWf5cgCf4LY79cvpwCZ7s1DrRAx18p7nBkS/xdTHOV0ZIE/
+	 UgiKFg6LYiasX6XLnNBOEBfHL58uwCo68DWkS+hanb1Kj/HlD4KdsAHiH2PQt4giWT
+	 QJERcOxtGmilkS7MSNJqXPQAghyGCw0fy2AzoeNH8HmRbmsl42ERqoRY3LZEEYhmMn
+	 m4mvfaabnd6uiWCjatyFYKFFuPrgSlKu6cgJoYhZ2VkNL/RTbSqlWlWw+rKL48UMF4
+	 l/+zejdsHKlpQ==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4j77kb4ffrz9rxB;
+	Sun, 18 Oct 2026 21:18:31 +0200 (CEST)
+From: =?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>
+To: Denis Benato <denis.benato@linux.dev>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Luke Jones <luke@ljones.dev>,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	Ivan Levchenko <me@livan.pro>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Paolo Pisati <p.pisati@gmail.com>
+Subject: Re: [PATCH v3 7/7] HID: asus: Re-send the Zenbook Duo keyboard handshake after probe
+Date: Sun, 18 Oct 2026 19:18:32 +0000
+Message-ID: <20261018191823.22123-1-rebecca.mara@posteo.de>
+In-Reply-To: <4bf9e6b0-4f6e-4faf-a2b6-a57143ef3f23@linux.dev>
+References: <4bf9e6b0-4f6e-4faf-a2b6-a57143ef3f23@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/7] HID: asus: Fix up Zenbook Duo report descriptors
-To: =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Luke Jones <luke@ljones.dev>,
- Joshua Leivenzon <hacker1024@users.sourceforge.net>,
- Ivan Levchenko <me@livan.pro>, Nathan Chancellor <nathan@kernel.org>,
- Paolo Pisati <p.pisati@gmail.com>
-References: <b22a521d-ec6e-4ac8-9aaa-d34e67ba898f@linux.dev>
- <20261018161826.1738483-1-rebecca.mara@posteo.de>
-Content-Language: en-US
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20261018161826.1738483-1-rebecca.mara@posteo.de>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+On Sun, Oct 18, 2026 at 07:10:57PM +0200, Denis Benato wrote:
+> So this patch is based on an arbitrary wait that is based on the
+> assumption that some other device gets initialized...
+>
+> Can you try making this deterministic?
 
-On 10/18/26 18:18, Rebecca Mara Müller wrote:
-> On Sun, Oct 18, 2026 at 05:50:08PM +0200, Denis Benato wrote:
->> Does the zenbook duo really needs fixing the report descriptor? I think you can avoid this
->> altogether on this hardware.
-> Welcome back, Denis. I tested exactly that on my UX8407AA today, docked
-> over USB: v3 built as an out-of-tree module against a 7.0.11-based
-> distribution kernel, once as posted and once with only the Zenbook Duo
-> fixup disabled (QUIRK_ZENBOOK_DUO_KEYBOARD removed from the fixup
-> condition, nothing else changed), my userspace workaround stopped.
+Since this part came from my patch, I went back and measured it on my
+UX8407AA before trying to make it deterministic. The result: there is
+nothing to fix, so please drop 7/7.
 
-Thank you Rebecca!
+I built v3 as an out-of-tree module against a 7.0.11-based distribution
+kernel, with only the schedule_delayed_work() call of 7/7 removed and my
+userspace workaround stopped, and checked whether the keyboard stays in
+hotkey mode (keyboard backlight key changing asus::kbd_backlight, plus
+usbmon on the keyboard's bus for part of the runs):
 
-> Without the fixup, the hotkey interface gets no input device at all:
->
->   asus 0003:0B05:1CD7.000A: hiddev2,hidraw8: USB HID v1.11 Device [...] on usb-0000:00:14.0-6/input4
->
-> With the fixup:
->
->   asus 0003:0B05:1CD7.000A: Fixing up Zenbook Duo keyb report descriptor
->   asus 0003:0B05:1CD7.000A: input,hiddev2,hidraw8: USB HID v1.11 Device [...] on usb-0000:00:14.0-6/input4
->
-> Without the fixup, volume up/down and mute still work, as they come from
-> another interface, but screen brightness, keyboard backlight, mic mute
-> and Fn+F profile cycling are dead (checked with an evdev reader and
-> /sys/firmware/acpi/platform_profile). With the fixup all of them work.
-> So yes, as far as I can tell this keyboard needs it.
+- docking: 10 of 10
+- loading the module with the keyboard attached: 2 of 2
+- rebinding only the touchpad to hid-multitouch while docked: 4 of 4
+- s2idle suspend and resume: 3 of 3
+- reboot with the module loaded after hid-multitouch (rootfs only):
+  2 reboots, 1 cold boot, all fine
+- reboot with the module in the initramfs: 3 reboots, 1 cold boot,
+  all fine
 
-Okay... Noted. Is the forcing of a name required too? It has caused a debate
-in the past, we used to rename all input devices on hid-asus and now we
-don't anymore so if can be avoided it would be great to follow the now
-preferred way.
+usbmon shows hid-asus sending the 0x5a handshake on interface 4 and
+hid-multitouch sending feature reports 0x07, 0x03 and 0x05 to the
+touchpad on interface 5 some 10-20 ms later, and the hotkeys keep
+arriving as 0x5a reports on interface 4 afterwards. The same happens
+when hid-multitouch reconfigures the touchpad on resume or on a rebind.
 
-> On the Assisted-by format: my original patch (7/7) was written with
-> Claude Code using claude-fable-5, so following
-> Documentation/process/coding-assistants.rst that would be
->
-> Assisted-by: Claude:claude-fable-5
->
-> Paolo, feel free to use that above my Signed-off-by in a respin.
->
-> Thanks,
-> Rebecca
+I also went back through my notes from August to see why I believed
+otherwise. The conclusion came from a test where I rebound the touchpad
+and the brightness keys then did nothing. At that point my test module
+had neither the descriptor fixup nor the forced hid-input binding yet,
+so the hotkey interface had no input device at all and the keys could
+not have worked in either mode; my userspace workaround was stopped.
+All later tests that day already included the re-send, so they showed
+that the whole patch works, but never whether the re-send is needed.
 
-Thanks for your time and effort,
-Denis
+I am really sorry for the extra work this caused, Paolo, for carrying
+and adapting the patch, and Denis and everyone else for reviewing it.
+This was my first time this deep into a driver, and I should have
+tested the re-send on its own before sending it.
+
+Unrelated, in case it is useful: with the series applied, the keyboard
+backlight stays on while the laptop is in s2idle suspend.
+
+Thanks,
+Rebecca

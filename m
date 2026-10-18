@@ -1,36 +1,36 @@
-Received: from mta0.migadu.com (out-159.mta0.migadu.com [91.218.175.159])
+Received: from mta1.migadu.com (out-25.mta1.migadu.com [95.215.58.25])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86DEE3D6690
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 16:52:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.159
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EF533DB300
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 16:57:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792342346; cv=none; b=qDyv2km2KgB2vtOrSHEwwGuDcoYSr5XlhT0c+14L1Qvi+SNO8fa218LLQQdwXi3aJ2zxkWc3y+guPeW4z8rrpiS1RnvSXigKjKdgrB4GUeqInH/fBJEZdfdUxiFxyu1jI7t3nYbOG5eDobZzrQxrMGXCqxPZtr4UaRH1gCf5Sok=
+	t=1792342643; cv=none; b=ncR/9Lv8ML3GOvKe8VFtFk9pfzEiDJPbOPv4wYHB4vlUQ6VYdepwWWYEoeM8hIIYaQ/XXQLpoGA9QFBLA+SkVhC1aso5gvL37Yi76M47qyUX2IskoCgJg43Sf+kqw2PdFgqUV15nmSRk0bwjEzGeTowx8r4gdVOW6fzvf0I0sDo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792342346; c=relaxed/simple;
-	bh=ENqyqEBfdywXRtbS9JtuOKLrGgK8CSPXheNFfg2Nmjw=;
+	s=arc-20240116; t=1792342643; c=relaxed/simple;
+	bh=O4MbYrdad66SorgorHSE57MaSNqfUI2Gvbh0mmAJiX8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=or1YP7gGleBdxplcBHvurtw8sf4fSuA7gzQYYA/hctZ5ohJH2bjmyRWGm8OXq1i8GdFqrrely1Hc8bfTYFFfLgnIvpOncBUFeXbu20nSvbaoaYBboMYj26g1l6yK6kne1cvkUGOLk0MIx7ppV2gYomkHOaXTLjEoritVcHjQHOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=NyH6MFp6; arc=none smtp.client-ip=91.218.175.159
+	 In-Reply-To:Content-Type; b=MxWNSCOP8eh6CbO9wNPTWAGm2OE7h/iYj3DtwRtijxyvKIcO55wtJAsI7d7sTJQ25vaLU0qH+bzwBomgFT2QzNR0+XrhgRMDoiJluLOXvKlH9XjvnbpcM8d9yfL+2MJnNrX2YTSGnWKnUZlZdhmZgnAQn04IE1h9ZTJZLBINalE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Odx+GV9r; arc=none smtp.client-ip=95.215.58.25
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="NyH6MFp6"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Odx+GV9r"
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=ENqyqEBfdywXRtbS9JtuOKLrGgK8CSPXheNFfg2Nmjw=;
+DKIM-Signature: a=rsa-sha256; bh=O4MbYrdad66SorgorHSE57MaSNqfUI2Gvbh0mmAJiX8=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792342340; v=1; x=1792947140;
- b=NyH6MFp60fiW7hugFf2woQaq4Txw45X7Urt7x+69r1kFIhymTAwIsOeUazWpZ4/uC87jwTX7
- hQg/r+SrI5z3U4OKdRiiRM8Z/V+QyRVZnMs3gk4sk7gW7LRfq0/OlBLrVkQTdNVLqjcm9eKyBwz
- gMLPc6KIzwax/mU/xeO9Sl9w=
+ t=1792342639; v=1; x=1792947439;
+ b=Odx+GV9rjwFzkqBDCf5NLXW3NrzuVEG48G1/T4f6suGe7elJZeEW52kCIsZExliPZWNnARPR
+ ckoW7eNjkXyQshxHgvmAa6vdEyRTR9O2TXLS4iq/lNZ2YGod77+VbyEbi14fA60s9WwtrnG7hdp
+ Ex9WFYF4WaJAkdM8r2J+bP68=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 93bb4c237c13c911;
-	Sun, 18 Oct 2026 16:52:20 +0000
-X-Mizu-Trace-ID: 93bb4c237c13c911
+Received: by smtp.migadu.com with ESMTPS id facac7dfeedf9400;
+	Sun, 18 Oct 2026 16:57:19 +0000
+X-Mizu-Trace-ID: facac7dfeedf9400
 X-Migadu-Flow: FLOW_OUT
-Message-ID: <8d47efcf-003d-40ea-a79c-20df738d02fc@linux.dev>
-Date: Sun, 18 Oct 2026 18:52:17 +0200
+Message-ID: <42cfc8c8-869f-41e2-a58c-0d6c5ce4a6ba@linux.dev>
+Date: Sun, 18 Oct 2026 18:57:16 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -38,92 +38,123 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 5/7] HID: asus: Do not send feature reports larger than
- declared
+Subject: Re: [PATCH v3 6/7] HID: asus: add prod-id, quirk for Zenbook Duo
+ keyboard
 To: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
  Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Luke Jones <luke@ljones.dev>,
+Cc: Luke Jones <luke@ljones.dev>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
  Joshua Leivenzon <hacker1024@users.sourceforge.net>,
  Ivan Levchenko <me@livan.pro>, =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?=
  <rebecca.mara@posteo.de>, Nathan Chancellor <nathan@kernel.org>
 References: <20261013104033.36079-1-p.pisati@gmail.com>
- <20261013104033.36079-6-p.pisati@gmail.com>
+ <20261013104033.36079-7-p.pisati@gmail.com>
 Content-Language: en-US
 From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20261013104033.36079-6-p.pisati@gmail.com>
+In-Reply-To: <20261013104033.36079-7-p.pisati@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 
 On 10/13/26 12:40, Paolo Pisati wrote:
-> The keyboard backlight and Fn-lock commands are sent as 64 byte
-> feature reports, the size of report 0x5a on the ROG keyboards. The
-> Zenbook Duo keyboards declare feature report 0x5a with 15 data bytes,
-> 16 with the report ID, and do not answer writes larger than that: the
-> control transfer times out over USB and fails with -EIO over
-> Bluetooth, so the backlight cannot be set, while the 16 byte handshake
-> goes through.
+> From: Luke Jones <luke@ljones.dev>
+
+A piece of mail header opening a commit? Never seen this.
+
+I'd say remove this: that this comes from Luke can be deducted
+in the Signed-off-by.
+
+My question is why has this not been accepted before? Did I miss
+this while we transitioned maintainer? If so apologies.
+
+> The 2024/2025/2026 ASUS Zenbook Duo has a similar keyboard setup as
+> many of the ROG range of laptops, with the same init sequence and
+> control for backlight. Enable the keyboard control and backlight by:
+> - adding the product ID for 2024/2025/2026 Zenbook Duo keyboard MCU
+> - adding the Bluetooth Zenbook Duo keyboard IDs
 >
-> Cap feature report writes at the length the device declares for the
-> report, when it declares it. hid_report_len() counts the report ID, so
-> the handshake and the other commands up to that size are sent as they
-> are.
-
-This has been a huge pain in the past months for me so than you for
-taking care of this.
-
+> Intended for the UX8406-style product line with the fully removable
+> keyboard.
+>
+> The keyboard also exposes its touchpad as a separate HID device with
+> the same IDs, an interface of the USB device and a second device over
+> Bluetooth, so bind the IDs to the HID_GROUP_GENERIC group only, like
+> the ROG Z13 Folio, and leave the touchpad to hid-multitouch.
+>
+> Fn-lock is left out for now: with QUIRK_HID_FN_LOCK the Fn-lock report
+> is sent to every interface of the device, before the handshake, and on
+> the UX8407AA that stalled the hotkey interface for good. It can be
+> added back once the driver only sends it where and when it belongs.
+>
+> Signed-off-by: Luke Jones <luke@ljones.dev>
+> Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
+> Signed-off-by: Ivan Levchenko <me@livan.pro>
+> [pisati: bind the IDs to HID_GROUP_GENERIC only, drop
+>  QUIRK_HID_FN_LOCK]
 > Assisted-by: LLM
 
-As the others.
+Same as all others regarding Assisted-by.
 
-With comments extended (see below):
+When you have removed the weird start:
 
 Reviewed-by: Denis Benato <denis.benato@linux.dev>
-
-If you decide to help me and unify packets alloc between devices
-you can do it on a separate patch after this one and preserve my reviewed-by.
 
 > Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
 > Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
 > ---
->  drivers/hid/hid-asus.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
+>  drivers/hid/hid-asus.c | 24 ++++++++++++++++++++++++
+>  drivers/hid/hid-ids.h  |  6 ++++++
+>  2 files changed, 30 insertions(+)
 >
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index b127f5c38f60..7b17553e94b6 100644
+> index 7b17553e94b6..503396963eeb 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-> @@ -632,6 +632,18 @@ static int asus_raw_event(struct hid_device *hdev,
->  
->  static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t buf_size)
->  {
-> +	struct hid_report *report;
-> +
+> @@ -1849,6 +1849,30 @@ static const struct hid_device_id asus_devices[] = {
+>  	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ROG_NKEY_KEYBOARD },
+>  	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+>  		USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T101HA_KEYBOARD) },
 > +	/*
-> +	 * Do not send more than the declared size of the report, report ID
-> +	 * included: the Zenbook Duo keyboards declare 15 data bytes for
-> +	 * report 0x5a, 16 on the wire like the handshake, and do not answer
-> +	 * the 64 byte writes sized for the ROG keyboards.
+> +	 * Zenbook Duo detachable keyboards. The touchpad shows up as a
+> +	 * separate HID device with the same IDs, over USB and Bluetooth:
+> +	 * bind to the HID_GROUP_GENERIC group only, like the ROG Z13 Folio,
+> +	 * so that hid-multitouch keeps handling it.
 > +	 */
-
-Maybe also mentions the majority of ROG laptops uses 64 bytes, xgm 300 bytes
-and touchpads also 16 bytes as the duo.
-
-> +	report = hdev->report_enum[HID_FEATURE_REPORT].report_id_hash[buf[0]];
-> +	if (report)
-> +		buf_size = min_t(size_t, buf_size, hid_report_len(report));
-> +
-
-I think that it's worth doing this for every supported devices: rog ally,
-laptops, touchpads and so on, my only question is if this code is robust
-enough to handle all cases, but it's worth a try.
-
-It's also worth adding another patch to unify all devices to use this code.
-
-I can test on a rog xg mobile: obscure hardware that uses 300 bytes and
-see if it still works.
-
->  	u8 *dmabuf __free(kfree) = kmemdup(buf, buf_size, GFP_KERNEL);
->  	if (!dmabuf)
->  		return -ENOMEM;
+> +	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+> +	{ HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_GENERIC, USB_VENDOR_ID_ASUSTEK,
+> +	    BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD),
+> +	  QUIRK_USE_KBD_BACKLIGHT | QUIRK_ZENBOOK_DUO_KEYBOARD },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, asus_devices);
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index b3aca5aa9176..59f44204d738 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -228,6 +228,12 @@
+>  #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD	0x1866
+>  #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_KEYBOARD2	0x19b6
+>  #define USB_DEVICE_ID_ASUSTEK_ROG_Z13_FOLIO		0x1a30
+> +#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD	0x1b2c
+> +#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406MA_KEYBOARD	0x1b2d
+> +#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD	0x1bf2
+> +#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8406CA_KEYBOARD	0x1bf3
+> +#define USB_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD	0x1cd7
+> +#define BT_DEVICE_ID_ASUSTEK_ZENBOOK_DUO_UX8407AA_KEYBOARD	0x1cd8
+>  #define USB_DEVICE_ID_ASUSTEK_ROG_Z13_LIGHTBAR		0x18c6
+>  #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY		0x1abe
+>  #define USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X		0x1b4c

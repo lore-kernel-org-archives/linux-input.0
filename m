@@ -1,185 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FAA4286A5
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 23:03:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 425AA3E3C5F
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 23:27:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792364582; cv=none; b=licc+hfj361GyId0m8VST/ts4w8mkV2OHo6aPt8dXFITPsPTNdmQQBPf644+Q7dX8KVWFUjroWXySPqj5/ufiuktrLPPDYfVtmp0C4haLGNSEFQEkKb1mIYWue8xxw2HPk8rqMz4hTJNyNXpio36ZXbR8YgtojVSTb7ouHRdhbY=
+	t=1792366031; cv=none; b=pUBWQYIHkqsDiVUFfFJrw5DaNH53PCNUlfu0ptCqDFnMgy317EOzopWoTXrFGKFDNOnJBkBYm0BLmBHCNN90G1P0oyIGxcVx2pQDKaZ4PoVPgr/+BNvFmW6EzVWGwAyx9rH8X0qRq7OhOoZHorzxzJD1NCRsjMUKRc5FP7pdyxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792364582; c=relaxed/simple;
-	bh=xvd5U3NeyB3WO1WRn0Ax8ZM6tWFzVFIgL6wDYtEa+AA=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=eDzLs7rBfqlTiUhlqirBt079EybkNIpORkBbkol59Ljm8e53e1oezEV7op/LTH7o1PpgznKbj3AzWEct9G2dCx7OFrGYYgcK8Vt2FcacmQkUVZ0KPHJOqpQEOQ0cVqqUx17BTTy/sfIq/08h9Dvy031MgWt4kG1gXGhAU8rpjNs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GnRNB8Xn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792366031; c=relaxed/simple;
+	bh=2KCYfLt5qJEmI2+WklOncv4iJAcjrI56HEp0rR9tV7Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Og0LqozYs99d6hhX2rGQdIRB8TXDjCZPN1SxYia1m7IHyA/VJRnGR0qJ7hPopBlklvFe/JgYyWKtf8N00Ld/SuQYJHJ+hIwFwV7+T2r0/hQOIN9jGMR3HwSX6F8HpRERM3+1ACY4aX2nutrJ7iJxxBgs4gndinfsAvawyGAmYWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KgZaHz+D; arc=none smtp.client-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GnRNB8Xn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809861F000C4;
-	Sun, 18 Oct 2026 23:03:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792364580;
-	bh=wdI6cpInVo1U5hVGAj/v3fIdQlaQZsHXYl75ljaiqnc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GnRNB8XnRigyKA64kDRM1/TSDBv5OmEyU4hSa3VAz5shlUMt1oD8IYUfx2WqJTPu3
-	 Oe7qvnjDiKdkL7tVoVn3a0dMZPYSdrF0ePvKIJsVqiyQgbMFCMr5J6+ws58ojB5QHv
-	 CJNeeNcMpG1GAaDyYuUZVtWzI5NbnDEnV3+pVmhhysQQw5i+P/cs3ZevMdl41Mp+Ds
-	 mcPyVz0kvzbd/nLy94b31NXVVphVKNJHLddfU+bucmq+gLVzqaJbRCmIlS8UQ/6uaI
-	 W0R/nP4iIp4l1dIItu0gV3zWYcyvIZbdUqB7FRHmGZveyiRR83J2M4nc3yQeE/Ntti
-	 F6YR0wc4s6uMw==
-Message-ID: <sashiko-outbox-176440@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: logitech-dj: Re-announce connected devices on
- reset-resume
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mark Pariente" <markpariente@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KgZaHz+D"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-35ef6b49813so2964029eec.0
+        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 16:27:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792366029; x=1792970829; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=J5TdL2Y2ZbBg8GY/uY0EyJ065wBCuX4tK3r2mB1aNq4=;
+        b=KgZaHz+D08IdWnVzWH67c1oxo2wjsiCe5c+KnxaH15G1S2lzu6sHAk2GHeB/riBYUU
+         ucTNFFgwCYr658NWacdCcQ9yP13+47qQ4t6maG0G4kufpH3Z0IQ3epki1945+PBqeHQP
+         Dbk751bWYhw+2HMMUctj+nPuv8VcooZkf81TSQNsqHcxUYQaG5T6IikOn8On+KfDtfyZ
+         fD3O80CHF6+wfrFNapUwtWr+GIQyoAqqkZeq5dcQVixBmPXG9LpKwIpdYFdEa6DbAvj/
+         89BLAXDfRkN9FSUBwhiHvJx7xL8L64a8dY3oKL5eAqr9ckIiEGl6VUIsD6cV/EduHaK4
+         Jh6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792366029; x=1792970829;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=J5TdL2Y2ZbBg8GY/uY0EyJ065wBCuX4tK3r2mB1aNq4=;
+        b=OLHdxpKG4YHXVhK3qM0bsQlsajGiMAuyxEM6VtZ8ZNfBbVuWZzeL7rVF3rffbeJtwr
+         FfoeyXz85ALhmMPl3AT0dq82ru8vLX1G47BozVdR41FvIFR9cGX1+iYRNWH8bQnKQzLX
+         5SQRC0pJFaN3StVPp2rzcKaEUVz84oIeQlsezIftj50X2NmAsprCjzU9+3IepJvTXaHG
+         eJ4AjTLE4/E+tyt4OL2q3PJvabeCeglIJt+ulJYuIILVgjbep2I1WYLn6SzSGx9kEzFA
+         4HRfp90hHydWhRLPtjv1Aq3DIontHkT9Z4XYM8Fv8UOi8hBgEhm3DDxlgPz474SzRzSM
+         OZyw==
+X-Forwarded-Encrypted: i=1; AKwUvByvwEhc5i/ZEl6b52BgfJdYSjhlflUy4QPGMc/yM05nBNE19KKsSJ/QYrm/uBegfKSO7+Q9WNn7Mfz5dA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJ8tSYBslv3/i/Oh+Idp2yweuD4IdvFhA3bbWyCLBoB17w5GP6l
+	0IgSzapRfmO3WgzqfZANUwDDXGwiCC55Y2y98Z3+LbeB+tfqaLBwlG1M
+X-Gm-Gg: AYBFou2ViAXle/rmX9e2Vfdygban9al0R9fLhlLb81ZbdjQnc8tmaNUVkgOYxkida6g
+	hNTbkvd2K3pxJrx+Daai1MaANkCh0t7/wHLI/hBQIDQjXfmeAu5jbgmswar+VBuNYVOEce6OI0B
+	6JZisnPOMPLoT6IxLPP8ZIFIDgO4OLyEJJyA3J12iiDmOhuOa75BOcFlZVaGXnzGek4upFhvuSH
+	8Ap5MZ6jjKy7BfLck4VBpZGoGRYzjY64TEgiN2mBtlvLyCbGgxoRfVJQNs0h+v5WYtFtIprYqLH
+	q6fdsSNIlLY9cqdbzFHiPFNBrmo6RoINBjyVYa9kpiuvThb0AZI1Xg8D/I5UGVmy+4iHdMRfUQP
+	EWXi7Ds4kn16JJTs5v1PJX0j89nu2h2HY6PVCsQTUmNk+menaGQfQLf4GTDUIiUwL0FB5+ui/PC
+	Hm2YB2MXPNvxw0OAC4sG1C9C+qiJqN22NDFp0BoxmaMumPrCJbhEoXa1qV1JpHWD0h+M4cZWxVx
+	qa7l/oEPkb+hBYM7h1tQ/2exTEItlPMuUEfjPeqXNA=
+X-Received: by 2002:a05:693c:884f:b0:35f:2858:aa4b with SMTP id 5a478bee46e88-361a2c36e5fmr8217730eec.30.1792366029272;
+        Sun, 18 Oct 2026 16:27:09 -0700 (PDT)
+Received: from siegeengine2 (c-73-158-156-210.hsd1.ca.comcast.net. [73.158.156.210])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-360813b6ca5sm25571908eec.9.2026.10.18.16.27.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Oct 2026 16:27:08 -0700 (PDT)
+From: Mark Pariente <markpariente@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Mark Pariente <markpariente@gmail.com>
+Subject: [PATCH v2 0/2] HID: logitech-dj: Restore device configuration after reset-resume
+Date: Sun, 18 Oct 2026 16:26:52 -0700
+Message-ID: <20261018232654.70571-1-markpariente@gmail.com>
+X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261018224627.60328-1-markpariente@gmail.com>
 References: <20261018224627.60328-1-markpariente@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 18 Oct 2026 23:02:59 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] HID: logitech-dj: broken Unifying device enumeration in logi_dj_=
-reset_resume()
---
+When a Unifying receiver is reset on resume, for example because a USB
+KVM switch moved it to another host while the system was suspended,
+devices that reconnected in the meantime lose their configuration. The
+most visible case is HID++ hi-res scrolling, which leaves the wheel
+about 15x slower. Patch 2 has the receiver re-announce its connected
+devices on reset-resume so that hidpp reconfigures them.
 
-commit 00da9ba908cab58b8ccc5713c8e413562664314d
-Author: Mark Pariente <markpariente@gmail.com>
+Sashiko pointed out that on Unifying receivers the re-announce can also
+hit slots without a known device, and that HID++ connect notifications
+then add those devices with an incomplete report descriptor. That can
+already happen today, e.g. when Solaar sends the same request on
+startup, so patch 1 fixes it separately: on Unifying receivers, unknown
+slots are enumerated through DJ notifications instead.
 
-HID: logitech-dj: Re-announce connected devices on reset-resume
+Changes in v2:
+- New patch 1/2: don't add devices from HID++ connect notifications on
+  Unifying receivers (reported by Sashiko).
+- Patch 2/2: code unchanged; the commit message notes the dependency
+  on 1/2.
+- v1: https://lore.kernel.org/linux-input/20261018224627.60328-1-markpariente@gmail.com/
 
-This commit sends a HID++ fake device arrival request in
-logi_dj_reset_resume() after switching the receiver back to DJ mode so
-that connected devices are re-announced and reconfigured by their child
-drivers after a USB reset on resume.
+Testing:
+- Both patches applied to the v7.2 driver and loaded as an out-of-tree
+  module on Fedora's 7.2.11 kernel, with an MX Master 3 on a Unifying
+  receiver (046d:c52b) behind a USB KVM switch. Devices enumerate
+  normally, and hi-res scrolling is restored after the reset-resume
+  reproducer described in patch 2.
+- The unknown-slot case fixed by patch 1 could not be reproduced here,
+  because this KVM switch fully disconnects the receiver, so it was
+  verified by code inspection only.
+- Lightspeed, Nano and 27 MHz receivers were not tested; patch 1 does
+  not change their behaviour, and patch 2 sends them the request
+  logi_dj_recv_query_paired_devices() already uses for them.
+- The investigation, patches and changelogs were drafted with an LLM
+  coding assistant, then reviewed and tested by me.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D203421
-Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/528
+Mark Pariente (2):
+  HID: logitech-dj: Don't add Unifying devices from HID++ notifications
+  HID: logitech-dj: Re-announce connected devices on reset-resume
 
-> diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-> index 6e8db01d27ec0..cdb20fdc7b21e 100644
-> --- a/drivers/hid/hid-logitech-dj.c
-> +++ b/drivers/hid/hid-logitech-dj.c
-> @@ -2010,6 +2010,16 @@ static int logi_dj_reset_resume(struct hid_device =
-*hdev)
->  		return 0;
-> =20
->  	logi_dj_recv_switch_to_dj_mode(djrcv_dev, 0);
-> +
-> +	/*
-> +	 * Paired devices may have reconnected and lost their configuration
-> +	 * (e.g. hi-res scrolling) while the receiver was unpowered or switched
-> +	 * away by a KVM. Have the receiver re-announce connected devices so
-> +	 * the child drivers run their connect handling again.
-> +	 */
-> +	if (djrcv_dev->dj_mode && logi_dj_recv_query_hidpp_devices(djrcv_dev))
-> +		hid_err(hdev, "%s: failed to query connected devices\n", __func__);
+ drivers/hid/hid-logitech-dj.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-[Severity: Medium]
-Can calling logi_dj_recv_query_hidpp_devices() unconditionally here break
-Unifying (recvr_type_dj) device enumeration when a slot in
-djrcv_dev->paired_dj_devices[] is still NULL during logi_dj_reset_resume()?
 
-For example, if logi_dj_probe() ran while a KVM switch was focused on
-another host (where commit 36dcfa46852533 leaves dj_mode false and
-paired_dj_devices[] unpopulated), or if a new device was paired while
-switched away during suspend, paired_dj_devices[device_index] is NULL when
-logi_dj_reset_resume() runs.
+base-commit: ae6927c533a4454570950125ca8ba909c45f20f9
+-- 
+2.56.0
 
-Normally, logi_dj_recv_query_paired_devices() enumerates recvr_type_dj
-receivers using REPORT_TYPE_CMD_GET_PAIRED_DEVICES so that devices are
-created from DJ REPORT_TYPE_NOTIF_DEVICE_PAIRED notifications containing
-the full 32-bit reports_supported bitmask:
-
-drivers/hid/hid-logitech-dj.c:logi_dj_recv_query_paired_devices() {
-	if (djrcv_dev->type !=3D recvr_type_dj) {
-		retval =3D logi_dj_recv_query_hidpp_devices(djrcv_dev);
-		goto out;
-	}
-
-	dj_report =3D kzalloc_obj(struct dj_report);
-	if (!dj_report)
-		return -ENOMEM;
-	dj_report->report_id =3D REPORT_ID_DJ_SHORT;
-	dj_report->device_index =3D HIDPP_RECEIVER_INDEX;
-	dj_report->report_type =3D REPORT_TYPE_CMD_GET_PAIRED_DEVICES;
-	...
-}
-
-When logi_dj_recv_query_hidpp_devices() sends HIDPP_FAKE_DEVICE_ARRIVAL to
-a Unifying receiver instead, the receiver replies with a HID++
-REPORT_TYPE_NOTIF_DEVICE_CONNECTED (0x41) notification with protocol type
-0x04 (eQUAD step 4 DJ). Because dj_dev is NULL, logi_dj_hidpp_event()
-routes this to logi_hidpp_recv_queue_notif() rather than queuing unknown
-work to run logi_dj_recv_query_paired_devices():
-
-drivers/hid/hid-logitech-dj.c:logi_dj_hidpp_event() {
-	if (dj_dev) {
-		logi_dj_recv_forward_report(dj_dev, data, size);
-	} else {
-		if (hidpp_report->sub_id =3D=3D REPORT_TYPE_NOTIF_DEVICE_CONNECTED)
-			logi_hidpp_recv_queue_notif(hdev, hidpp_report);
-		else
-			logi_dj_recv_queue_unknown_work(djrcv_dev);
-	}
-}
-
-That schedules delayedwork_callback() -> logi_hidpp_dev_conn_notif_equad()
--> logi_dj_recv_add_djhid_device():
-
-drivers/hid/hid-logitech-dj.c:logi_hidpp_dev_conn_notif_equad() {
-	workitem->type =3D WORKITEM_TYPE_PAIRED;
-	workitem->device_type =3D hidpp_report->params[HIDPP_PARAM_DEVICE_INFO] &
-				HIDPP_DEVICE_TYPE_MASK;
-	...
-	switch (workitem->device_type) {
-	case REPORT_TYPE_KEYBOARD:
-		workitem->reports_supported |=3D STD_KEYBOARD | MULTIMEDIA |
-					       POWER_KEYS | MEDIA_CENTER |
-					       HIDPP;
-		...
-		break;
-	case REPORT_TYPE_MOUSE:
-		workitem->reports_supported |=3D STD_MOUSE | HIDPP | MULTIMEDIA;
-		break;
-	}
-}
-
-Because logi_hidpp_dev_conn_notif_equad() only populates reports_supported
-for REPORT_TYPE_KEYBOARD and REPORT_TYPE_MOUSE, Unifying Trackballs,
-Touchpads, Numpads, Presenters, and Remote Controls end up with
-reports_supported =3D=3D 0, causing logi_dj_ll_parse() to pass a 0-byte rep=
-ort
-descriptor that hid_parse_collections() rejects with -EINVAL, while
-Unifying keyboard+touchpad combos such as the K400 lose STD_MOUSE and
-KBD_LEDS.
-
-Furthermore, because paired_dj_devices[device_index] is then populated,
-logi_dj_recv_add_djhid_device() will ignore any subsequent DJ
-REPORT_TYPE_NOTIF_DEVICE_PAIRED notification for that slot until the
-receiver is unplugged:
-
-drivers/hid/hid-logitech-dj.c:logi_dj_recv_add_djhid_device() {
-	if (djrcv_dev->paired_dj_devices[device_index]) {
-		/* The device is already known. No need to reallocate it. */
-		dbg_hid("%s: device is already known\n", __func__);
-		return;
-	}
-	...
-}
-
-> +
->  	return 0;
->  }
->
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261018224627.6032=
-8-1-markpariente@gmail.com?part=3D1

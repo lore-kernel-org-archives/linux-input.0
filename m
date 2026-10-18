@@ -1,77 +1,76 @@
-Received: from mta1.migadu.com (out-181.mta1.migadu.com [95.215.58.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5A3C49AA4B
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 21:39:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6CA34DE72A;
+	Sun, 18 Oct 2026 21:43:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792359590; cv=none; b=alW8SYAGPGaNdhUjankhzaYp3PiLaYxGV7bHjDhQ5aG9BN9CduhNmWFvn+UJyVsgtCaPMDoAKGMyIx9UXAVtnEzUAJEjl9fnfnk2vuvGDCBYHIo/du/Wsl4Ngd7SQvoaD5oJlm0uYjB/PvXZVBe/IzsR4dv7q/ZKeCyCKpecGJg=
+	t=1792359812; cv=none; b=su20MwyFj6matb0QNn58cLcvx3Ry05yFIr4MUZ5eR8hdW05fXY5rfwrD7lhj6S93Ai+wGv+G9ZWMxvtMPn4BqVwuI3Xslj1Hj6CX4PaOuOMe1l0T5Z4hnhz3BFg4T1ag44Awz8CYX7ybJ3ocb1XuUjFTMgGnNukpcjuXc1CS+dc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792359590; c=relaxed/simple;
-	bh=eRXseqzFpIiATiZ9Ys+vyx+W6hIJyTRBGpGUgucU82g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TSqV7sOSSXjRFprP9Qza+ckrPBMPT6q+XOByTw3GH42XhqAAQO3xbjcUnDqp5wEJF/PDdJLVjNh53yYQ7ynM/I59GnIrbR0jxC1TGqLzZJEjt+v5VAkRbSDshinHZBFSQ3W/ainAmxeAuHW/k+CUzl+dC0yL8nkEo0eY9RNbVkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=euTIzkjb; arc=none smtp.client-ip=95.215.58.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1792359812; c=relaxed/simple;
+	bh=CKmMBP+Iiyl3NMSzjUE9in6Sd3cWri0MchnEzkS2ohU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cgZzzcBv4cGJ5mU5KG2MPzDNYr2nhC6qTgG+VWJXI11QTypvJW/a3jp7ANUzU0MjTlwynO5JlnSdIuBBlRGxzbYWul3NUwUUNxcxb5LDMDaiy5HYF0DglLHe48Ym1aSDRhxFv9fFasD9gqshufTEbnbc1y8peCganLzHfp/QkZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IXzcMMMW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="euTIzkjb"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=eRXseqzFpIiATiZ9Ys+vyx+W6hIJyTRBGpGUgucU82g=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792359585; v=1; x=1792964385;
- b=euTIzkjb3w+2mdL81ytDG8jqb3F68vutN1m8Kuf8KgjWxKMTBvaQRyvOb+g1VXb38/B9SvrK
- jyxYopsGuDcPLgy4w/Ra/rOM9QEJFsa8KhyBiTxQ9exyhYU9jDsmpumAGUf+idKHhfI8O4DUw4i
- Qmi++IOus7FalObnul86r5mc=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 37702aebe84989f8;
-	Sun, 18 Oct 2026 21:39:45 +0000
-X-Mizu-Trace-ID: 37702aebe84989f8
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <a357e58c-f072-4287-88a5-b7121e8ec92e@linux.dev>
-Date: Sun, 18 Oct 2026 23:39:43 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IXzcMMMW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 460061F000C4;
+	Sun, 18 Oct 2026 21:43:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792359811;
+	bh=CwAZRqep0Rd/T38v2mnhngdWbyW6rIM0+7tGymfYlNo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=IXzcMMMWeDuaX53FijgKtoheN9iKXxKh5AbvoNGET59ppVkzK2nx2dv+7n5mEJaip
+	 CiTqAu1o9TV5fUG9Fv0h9NjbSBgzbBYgtu4b6WqU3cBZLpW5xeORfKJgLqKXxghoEW
+	 gNS0O5fOBF2gOWzsTsAJLzON59Ba0okmsoqBCqZk5DWjJEdO7lb0epDnCwUapduEnx
+	 D2owoJwNXsYrD2c8vLw9nvHIDRqnRgaeXZugn+6Fg1gryLNrhLUAtBhsWlpsHZNRaE
+	 At9Kr9juxVUR9GGcZRxpcU9zk1R6H+GxPfLZtVd7Nx39OTt47uaSlI+QaVuWvodOun
+	 jexWLK3DzwlZw==
+Date: Sun, 18 Oct 2026 14:43:26 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Denis Benato <denis.benato@linux.dev>
+Cc: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Luke Jones <luke@ljones.dev>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	Ivan Levchenko <me@livan.pro>,
+	Rebecca Mara =?iso-8859-1?Q?M=FCller?= <rebecca.mara@posteo.de>
+Subject: Re: [PATCH v3 6/7] HID: asus: add prod-id, quirk for Zenbook Duo
+ keyboard
+Message-ID: <20261018214326.GC4068315@ax162>
+References: <20261013104033.36079-1-p.pisati@gmail.com>
+ <20261013104033.36079-7-p.pisati@gmail.com>
+ <42cfc8c8-869f-41e2-a58c-0d6c5ce4a6ba@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/7] HID: asus: Add missing Zenbook Duo hotkeys
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>,
- Joshua Leivenzon <hacker1024@users.sourceforge.net>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Luke Jones <luke@ljones.dev>, Ivan Levchenko <me@livan.pro>,
- =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>
-References: <20261013104033.36079-1-p.pisati@gmail.com>
- <20261013104033.36079-3-p.pisati@gmail.com>
- <7dfed94a-f7f9-417d-ba0d-09f199047b70@linux.dev>
- <20261018213809.GB4068315@ax162>
-Content-Language: en-US
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20261018213809.GB4068315@ax162>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42cfc8c8-869f-41e2-a58c-0d6c5ce4a6ba@linux.dev>
 
+On Sun, Oct 18, 2026 at 06:57:16PM +0200, Denis Benato wrote:
+> 
+> On 10/13/26 12:40, Paolo Pisati wrote:
+> > From: Luke Jones <luke@ljones.dev>
+> 
+> A piece of mail header opening a commit? Never seen this.
+> 
+> I'd say remove this: that this comes from Luke can be deducted
+> in the Signed-off-by.
+> 
+> My question is why has this not been accepted before? Did I miss
+> this while we transitioned maintainer? If so apologies.
 
-On 10/18/26 23:38, Nathan Chancellor wrote:
-> On Sun, Oct 18, 2026 at 05:55:02PM +0200, Denis Benato wrote:
->> On 10/13/26 12:39, Paolo Pisati wrote:
->>> Assisted-by: LLM
->> Assisted-by tags have harness:model like this:
->>
->> Assisted-by: opencode:deepseek-v4.1-flash
-> Just an FYI, Assisted-by: was adjusted to Paolo's current format in
->
->   816d9992d9ed ("coding-assistants: simplify attribution")
->
-> in 7.3 and it is being removed altogether in 7.4 with
->
->   1e035297ffda ("docs: remove Assisted-by references")
->
-> currently sitting in -next.
->
-Oh I fell behind current rulings. Apologies.
+This is standard git send-email behavior to signify that Luke should be
+the author in git when this patch is applied via 'git am' but Paolo is
+the one sending it. If Luke originally authored this patch, then he
+should proabably be the author in git history, especially since the
+signoff chain would make no sense otherwise.
+
+-- 
+Cheers,
+Nathan

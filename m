@@ -1,62 +1,62 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AB82495527
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 22:03:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2C0B4DEC16
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 22:03:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792361029; cv=none; b=FNzwc+P43j8TeV7FMNIuqAdt/M7ng7m685UQFO0BH6xpOeW1/OxeFTyZg4lTJf0R0b5IxkKHKHK0wQ8kEK9zC1Y45poTufmSebb2/JsYOmQOrFhZCFMU1b6A4BaZ47SXZ2Cd1meQXQp7TkZpZ6uuz3OX1TnYFEpjOO477Th6tSM=
+	t=1792361031; cv=none; b=tG1PtdHiq7xjpK+n+Q5dxfOgl5Qd7AUUVCE90bScvIW7faAPxTTz3UhHI6J+cclza9SSePNPzXUcIDz0xB3ZvMrNZ/ZeBM3evjjma+3JGW29gUXR8RAWyKkhyogWs/OyXtkjH8c9dJjnQp+jCSRaMveH2xg6/zjnKKcv1eStkAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792361029; c=relaxed/simple;
-	bh=fLPb8kE775oBdl47IoHKogj9ZqIRFUWk55lG7MgAYNU=;
+	s=arc-20240116; t=1792361031; c=relaxed/simple;
+	bh=dW6xBILNqkpo8zXCsLaeG8JRBTf2Q4GSQgKmqSah7q0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ohgzbrG+qL0rSFBskV7SropZnelGZRfgOaFPqdIQq2C8NiqkBBn+nzTQf5WO2uCuo4r4+5yToY0UWg9RvWGEVM2+ZJELMYUzlI9tFtJWYol/BN9zapn0de+tY/xbKqd5BjCMHXq4J7vl1fZOgdRoaD11bMFV+M2YKrCGy4x+lIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L6fcgFk4; arc=none smtp.client-ip=209.85.128.42
+	 MIME-Version; b=Wytqn7oS9pYDppsWlkMJ2lskjk8xlOFYURN46xK1GU4JFwL+Pw/1NnZpLSWIpxxLoePFCbWlpGLdM95M57twsTpIEnkdfMj8HsmoPr4CjrB/1GvZyCJy2T0A/8nF4s7KftDvea9rLCrbVZr+HjA1KcBdzm1vRu18eyYBdy+29aw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CXAorKUE; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L6fcgFk4"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4a1e477fe16so3329825e9.1
-        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 15:03:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CXAorKUE"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a16c1608faso17638295e9.0
+        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 15:03:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792361027; x=1792965827; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792361028; x=1792965828; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=f/Q05qxdTDTmhGuswkD33MZaClxV6rlgBVgFFN3G8GI=;
-        b=L6fcgFk4wFCecUOMrMRbgJ327e++InffjP308Uf4fLiP+B/9TFmILR9ax9IONtOpOe
-         uHSEX5CzSeta/XoYpw8qeBLbz4i2a6x0viIXZzIE8rEYhqmX7yL3rawazThIxJk1EET2
-         TEQgZ8D9vQEbSTO3tHJsIBebtQa+7H1mx/RUzeYHFTAPmqpTKoAgOpEDeA/uSCUBG08v
-         C1TgtrcVT6W4fzhb9He9KYA3J/dCNVfLxZ43aQpdQ0mEjCR7Skb3LtwKfz1bZjBwFKc6
-         mlpZflnUEZog8dx0PpfQ8IRnoMfci+SgOp6TocWix+PupxT41PjRCe9blFmMgh6cV51X
-         Fr9Q==
+        bh=m2fR+1b4kJibeyl2fj356rb4lE4NTLbBxglsbLkbIJM=;
+        b=CXAorKUExN1WON/xj0LqHpukowZDd/kNzYnqnkkxW/oygDxygKDPTLCHaAeuRcql6E
+         DlwWL3ABD6D5xxu+VcuhCBATBzMsRggbHHWp+klp3lAi2uLcIhQTJnoZ1LMuVddzg+lG
+         eJwE5qy2aatWySaOW50ZQpA3LUiYZjTtYi0w4Z5NSbSUYyaTu6qwMo5j4LY/zie8rYNG
+         ONw2Q44RYK6+cASQs0YrqTCXSCMb/Y9QDAfcFrc0n0ZpZept+QXX/TOph5noplgPhWZX
+         tFvFPK82EnLskv1MW7BBHI/q31moqVfV6l4G+QxqBO3Z5YOTLrqYWHA9JydPs4NgZJYI
+         UtjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792361027; x=1792965827;
+        d=1e100.net; s=20260707; t=1792361028; x=1792965828;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=f/Q05qxdTDTmhGuswkD33MZaClxV6rlgBVgFFN3G8GI=;
-        b=QMAJPbPl/lm8BqfwEWZhcNeoalWyKl7RoqZO0qq3BiKifJf32CYNr/jrrEq88xDlZX
-         1hwrOjCoYnpIZgF+AlDjOZ/Hiwlr7paJ0ePzzekyuYhiPH9oYQ8LwhuUTWYW/lsfXkWi
-         8ptOfkDMzotqH8HwHbkYAMps1IttMN+j6H2b1smOpn/LFoZAeUpyOQlOEGIZLSyyhvdE
-         mnJ8LL9acY1b2rYdav7/H8sqgF3E5kBVxPg0KIJeBpMNlR+51ruJnNyfCuWN30N4yfNq
-         gGtv8U4t8pDpqoUzN9YpGFwgikuB4szbcdcUkO4mfcsysCgxCsJYrb7etFA1aosWaqg5
-         3ckw==
-X-Gm-Message-State: AFq9FYK1cnXBkaEVyxEGiLy+fD0WeMNIF5D/6Sslbzqh9TWRKohsP4hE
-	nWARMTmK4ACuuAfpX+JNBBqppGqNTAl/cTqOun0Z6w7TKkTDBndISaQ=
-X-Gm-Gg: AYBFou3PKFpN0U2Tt9xeKJ+YX7P/JEmSRJLdnikCVtDR59R+sbuiGBlzhlFt034eKPc
-	oipdzTSHXhAGAcLJUgORzEweOrB5qyjzulB5DLBeilgVSR71+Bfd0rOkRoqz63K1oNR4d35pdXn
-	aacwquU/D8U4j+ssJyM9c7wTNauL1pWHGgpux3goQa7L09/xCLAsvI3M8O3iec7pt+JBVl/Y8ql
-	8WKMd45AaCa6ENypttUxBUDmjwc0P6fEzXukHy8JikSPnpROHI4h+6YohcxxgrosFVW0WeMwwVo
-	+vs0d8jWywjux1jpB7P78od88/gyamcJB0SlB8+HsQPS0KhuXQ6D1D9B7XjNT0dyZu13M497j6w
-	Ej6kNCGu00UTz2r0gHzOwzCdpuiyswV1w67SfMxT/7r4G3HZucsAL3MvDflZNCNc7/mrxgEJoXL
-	2pI7QSBoB5Jx78oZDTNU4sFm/Oz+W7KuoOpbbribo=
-X-Received: by 2002:a05:600c:1c0f:b0:4a1:e489:f89f with SMTP id 5b1f17b1804b1-4a1e489fa4bmr56224815e9.14.1792361026632;
-        Sun, 18 Oct 2026 15:03:46 -0700 (PDT)
+        bh=m2fR+1b4kJibeyl2fj356rb4lE4NTLbBxglsbLkbIJM=;
+        b=X5+1GsHlmh+XlYkeaqom1+pWnhtb3oSWe9FYfnT4gNvOPJjjvU1PMQJLZOoC0tsN/o
+         iDGMYL+PGL31wtjQtKXUHL3Sji8UgZxaPTAa1gKNMuxre3JvFj7XXb4RFmxIKQ30pBuE
+         KPgHOdmS+/zN/AUlrYrn6OsY36Tl+VnvCUuTAZXghQEM8wmCw00ihUSMHg4qg0aIxmQF
+         6g20lnDzHZQ0jOzhojFY3m3O9/5QcY2XaBNqrN2rUhXPfkX6cz+q9nJZHNzv63THDUdu
+         6DBbsbDHx1tPmguX0deXs1fRku7LiAjoNwYwDYzkwvFVuybYVqmCz5KUPvV3CP34Gmmj
+         no7g==
+X-Gm-Message-State: AFq9FYIyrMNxXRfQlf+ibg+CI6OVtOQ14F5tm3FnJUW0EEEiEq6vY9Cs
+	Qsvke0FN51nMlkIrrLsC4ZGYw0NlVw5+/zEEWZHGSkoB2a3BNn5CHiY=
+X-Gm-Gg: AYBFou3ETQO7BIU4ufRJPN0Dl/O04DmK9sihumDNdgs+mnUkr0WUz3MsUGQsd7MBZbq
+	jhn+/IC6KK7wOyGpTs0HuLlw4zsi7b09h1aQKE9jNIAujn1vwE5idOqlvcknO0T5egy8S17L4Js
+	CWhghombI/lQXrIao606CzB91yRxqa+zW5ZgxcV5fleyYg9QfLP0vkMupMSksEB7rDCMkFGpBCG
+	5tmwfthEizK5dbYg4mHilO0nI8DO98ejhc9zlgCPxLExxpfal++PNwmKbZ1X12xRhh+Jx+u1gke
+	Yvzq/HUE73JkUPaFmWV/i3aCB94tRb3emkFGIOKX3cThDIsJTa2+AVf3RfhtEtXFHyOPZfwuUk/
+	LES9j4027+4K+3yXeF6df+LXSTXZT2yYorPNK3RoCDLRQmze5xd7oJCOHMqbAh7O8hak1Wwqf0G
+	jG2+fLXLhkoL5WPjS2669V81LDaDKEuWmRRw9Sd8E=
+X-Received: by 2002:a05:600c:3484:b0:4a0:34a:588c with SMTP id 5b1f17b1804b1-4a1d7605e04mr127158785e9.14.1792361027726;
+        Sun, 18 Oct 2026 15:03:47 -0700 (PDT)
 Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd91c55bsm278731975e9.0.2026.10.18.15.03.45
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd91c55bsm278731975e9.0.2026.10.18.15.03.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2026 15:03:45 -0700 (PDT)
+        Sun, 18 Oct 2026 15:03:46 -0700 (PDT)
 From: Tristan Madani <tristmd@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -66,9 +66,9 @@ Cc: linux-input@vger.kernel.org,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Tristan Madani <tristan@talencesecurity.com>,
 	stable@vger.kernel.org
-Subject: [PATCH v2 1/8] HID: pxrc: validate report size in raw_event callback
-Date: Sun, 18 Oct 2026 22:03:37 +0000
-Message-ID: <20261018220344.1987142-2-tristmd@gmail.com>
+Subject: [PATCH v2 2/8] HID: alps: validate report size in raw_event callbacks
+Date: Sun, 18 Oct 2026 22:03:38 +0000
+Message-ID: <20261018220344.1987142-3-tristmd@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261018220344.1987142-1-tristmd@gmail.com>
 References: <20261018220344.1987142-1-tristmd@gmail.com>
@@ -82,35 +82,72 @@ Content-Transfer-Encoding: 8bit
 
 From: Tristan Madani <tristan@talencesecurity.com>
 
-pxrc_raw_event() reads and writes data[1] and data[7] without
-checking that the report buffer is large enough. A device sending a
-short report could cause out-of-bounds memory access because
-hid-core invokes raw_event before it validates the report length in
-hid_report_raw_event().
+t4_raw_event() and u1_raw_event() access report data at various
+offsets and cast the buffer to struct t4_input_report without
+verifying that the buffer is large enough. Since hid-core invokes
+raw_event before validating the report length in
+hid_report_raw_event(), each driver callback must check the size
+itself.
 
-Add a size check at the start of the function.
+Add size validation:
+ - t4_raw_event: require sizeof(struct t4_input_report)
+ - u1_raw_event: require at least 2 bytes before the switch
+ - U1_ABSOLUTE_REPORT_ID: require max_fingers * 5 + 3 for the
+   per-finger contact array (last byte accessed is contact[7] at
+   data[max_fingers * 5 + 2])
+ - U1_SP_ABSOLUTE_REPORT_ID: require 6 bytes for the coordinates
 
-Fixes: acc3e34613da ("HID: Add driver for PhoenixRC Flight Controller")
+Fixes: 2562756dde55 ("HID: add Alps I2C HID Touchpad-Stick support")
 Cc: stable@vger.kernel.org
 Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 ---
- drivers/hid/hid-pxrc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-alps.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/hid/hid-pxrc.c b/drivers/hid/hid-pxrc.c
-index 71fe0c06ddcdf..e3755d8b85c22 100644
---- a/drivers/hid/hid-pxrc.c
-+++ b/drivers/hid/hid-pxrc.c
-@@ -55,6 +55,9 @@ static int pxrc_raw_event(struct hid_device *hdev, struct hid_report *report,
- {
- 	struct pxrc_priv *priv = hid_get_drvdata(hdev);
+diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+index 0556cb5645ebb..d984100093f6e 100644
+--- a/drivers/hid/hid-alps.c
++++ b/drivers/hid/hid-alps.c
+@@ -324,6 +324,10 @@ static int t4_raw_event(struct alps_dev *hdata, u8 *data, int size)
  
-+	if (size < 8)
+ 	if (!data)
+ 		return 0;
++
++	if (size < sizeof(struct t4_input_report))
 +		return 0;
 +
- 	if (priv->alternate)
- 		priv->slider = data[7];
- 	else
+ 	for (i = 0; i < hdata->max_fingers; i++) {
+ 		x = p_report->contact[i].x_hi << 8 | p_report->contact[i].x_lo;
+ 		y = p_report->contact[i].y_hi << 8 | p_report->contact[i].y_lo;
+@@ -363,6 +367,10 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
+ 
+ 	if (!data)
+ 		return 0;
++
++	if (size < 2)
++		return 0;
++
+ 	switch (data[0]) {
+ 	case U1_MOUSE_REPORT_ID:
+ 		break;
+@@ -370,6 +378,8 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
+ 		break;
+ 	case U1_ABSOLUTE_REPORT_ID:
+ 	case U1_ABSOLUTE_REPORT_ID_SECD:
++		if (size < hdata->max_fingers * 5 + 3)
++			return 0;
+ 		for (i = 0; i < hdata->max_fingers; i++) {
+ 			u8 *contact = &data[i * 5];
+ 
+@@ -407,6 +417,8 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *data, int size)
+ 		return 1;
+ 
+ 	case U1_SP_ABSOLUTE_REPORT_ID:
++		if (size < 6)
++			return 0;
+ 		if (!hdata->input2)
+ 			return 0;
+ 		sp_x = get_unaligned_le16(data+2);
 -- 
 2.47.3
 

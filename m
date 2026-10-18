@@ -1,62 +1,62 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 893374C9001
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 22:03:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB702394EB0
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 22:03:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792361034; cv=none; b=gZN6xrjQY05jXpnmr35tdVE27PONDek2qyF+aYtckIYP28o+KD+8Awf1sbep2QLgDmnPkYLsRBwdzS4X/vdw0ZYGz8NvRbwbPJlqgjRjg6L3Anc/KrZTJkTSQb77OcyHGcK4dxfXIvXUhX3Y0uPnWCiaYswOPAvSNYGSTYbswOE=
+	t=1792361037; cv=none; b=RnGecMa+DjocSUpiz/GpkX5QgzxNcIdRQJ7Z18SQEBUu+dDJX2YK3YZ/KszJNDwwjelkDjwxt01QgFQvGP1xRIa+wkjnZ51AZ4+FHQ0LAAhCqpRQqbC0upLCG2wq0G7/2Qf671X8dOY4QoOIyVm4hGEV5w+trusHk5phd9tZaZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792361034; c=relaxed/simple;
-	bh=aUzjK8ol795HHRbJphJgtTRR/M0uYgvtIthrbMPir8A=;
+	s=arc-20240116; t=1792361037; c=relaxed/simple;
+	bh=mDZyU+7/YB0JlQIRAEywPgCEGsycCredHJmQMQnsn4E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=J0v45TxrohS5/BHoeHsybamJYtZwZwNeTw86tRUK8m9OkUm8iEr1KU60CZf2j+V0anahEfdNpMuG1760pDTkAUcDK9uDlpUOMMjWdw6IG5RPkJeqYvbrWy8jXFQtn1f2fGjzi6vX59uwCHD4mwCBBRL8yqYASpYPfe2US7VWxMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q8Sh5Uvg; arc=none smtp.client-ip=209.85.128.54
+	 MIME-Version; b=pt7uFMh+kT4n3Gq/z2aZFPawdEsZjujsw1aO/oiNX3qMs7+WNzSWVglYfHRNZ1rvDIohEcRAq/Wt7hkvc9HUdsN9hgLxh/JpiWtUJNaMShACDbrtTHuEBbK5JfhTxwDy67i7BlijLKnhl2FWBwRxNEpWGCK193IP2clX9mmgpz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fNWczaNW; arc=none smtp.client-ip=209.85.128.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q8Sh5Uvg"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4a1e1dade31so4246985e9.3
-        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 15:03:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fNWczaNW"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a140e7405dso12666005e9.3
+        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 15:03:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792361032; x=1792965832; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792361034; x=1792965834; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=qXhRvFfpFMAeLGmziHDEZsV8hAj7bw06PcLUuNh1ghY=;
-        b=Q8Sh5UvgvP4HRrHOAx0ND5VXeQOPGy990Z0B1Ea/1GNOaTjbrO/AEZvI/8STswJjDi
-         QrcXdQIdUlCHuRh8zXiKOuTi9NluUCwRpX0xtzOnyEEcV6PVuLMd5UuOmEJkhRiNlkuj
-         LkQbRXMknDeo493qrDRBoAh5s7BBRSbBIduMK5bA+c6yndEL51Z1vQmVSi2OsdNYOrws
-         KSIDsDp4XOYvxTkikKaEBImKGQrLOBGhy+6HoTyT+n/pmuzyL6gNUmD072EZAHyBMcoB
-         sjX6s1iJH3Mu7ncqjhxBNoNgw3xqSqeVLFD9pldlzwgJjKECuu5q3chCDZdpVvTP3CkW
-         3hBA==
+        bh=hgux2BSkdpCe0yAd96caJdE5ThN2ey9owMjfge1g0T0=;
+        b=fNWczaNWPq+wspNxMiQh0BTjpibMILCgj9S6CWAa1IaHiiqzIfk4RZ5+EHAqvEN1C1
+         JAqb6bXB0wLlbrQwHuTk3LKdw5YXcj+Pbdei40/lvT2tTuv6+wddaSEn+L4CEFxq37hq
+         pMqWOFkRZfPhWDem4WsZN/VvFS5aoGNex0IVTf1o2mV1S8cZdTT6jmlyaLJsSaDnSXli
+         oewAbLDV315L3TIULGe1peAdPM7xH8gLKU2/lWaPNdvP6T3fcMYVh38aTC4HxKe1oDpK
+         4G2tq+SUl/hufG00GjXExm81xxBaPFCpCeP35p1t85ZNS3gN4ewoUtLzzrDhDPpYLp9o
+         Ab0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792361032; x=1792965832;
+        d=1e100.net; s=20260707; t=1792361034; x=1792965834;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=qXhRvFfpFMAeLGmziHDEZsV8hAj7bw06PcLUuNh1ghY=;
-        b=2d9OprcCSQ/We8A5gweP32rsUzVscLvCH3K0E/rYqYUhbs1y1DiLvOnUWFgmFFZzJ+
-         rGZDS3Bvs/yosPGeHRA22TwdIk7lxnc15Y7UyeZ1Jt5oOlnBLZOyrhOz3L0zgCbV//XE
-         XnB0ANwPl/Rnfi5/E5TvRAMYr48dPSE2bQqDRxQXA5GkCedxMRCTLy+GdzH8q+guUhpr
-         5thGg+adbVN5NsCoh01KozLaburdalPpWK21vI8wVp9L9zUqYRImzAGoWPh2DvX8L/6w
-         byeswrc3zTrB7roJPXNKOe8jQPYRoKiR6l5BzXs0uTdYqxRymSca0Yeq+fScUdX+GH15
-         BaHw==
-X-Gm-Message-State: AFq9FYJyu2nyqSC82+tAUyQdJx+C7dLAIs9dougjgEuSNkKecvZIv0RP
-	3iJMQl17+SblFyhf5qgi3EvOfx2gERpiTDOvvFr1fRnMKpm7DjFeXTs=
-X-Gm-Gg: AYBFou1yLYaFSELpNrFtz5yN8UUQN6ehMO+u9X1t+2OjkPH3Dbvtv0HSgvMZY+hZGxV
-	Y5uaJ4wINpAGW+5jJItIryLiMJjpMqywP/SHEvvC/tIPJ4OeqQ9Tt7KT3GEks8G2TeOiWEkBN8I
-	O5IBo7fqKnQ3y048lm4pjgzgguwT/BWUTc1XgapBLveQ/zOX92Mjf0LX+rFQpiRlJ85eRyLvxdm
-	QqabCS43RKqKIu1gSJLiehdb3o/fIxbkBlLlFQozIc27kMv8sUNwYfLTedUi8xUarTgUJ/QMrLX
-	bSGnBF4Mx5siDKX6RjedJ9rf8Pii8WDFTHNP8jRPtvxtf1+6wGd5ejy4P0Ve2M3lLy69K1yOPXB
-	KGRLTFbMAphBZ1Dp+LIsDyNgqb+jCdlBs5UpZys6Uyv1i83mEi9JWDjclLpgam+XJttV/RpMYtF
-	eLeJTK5Sak2YpfELdiDZSBVeUZQwx6FCQoBxaovJBp5zA66QwZKQ==
-X-Received: by 2002:a05:600c:638e:b0:4a1:e489:f8a1 with SMTP id 5b1f17b1804b1-4a1e489fa67mr42945455e9.2.1792361031771;
-        Sun, 18 Oct 2026 15:03:51 -0700 (PDT)
+        bh=hgux2BSkdpCe0yAd96caJdE5ThN2ey9owMjfge1g0T0=;
+        b=Cp45+Cb5DhVxMaHtiCqBLEVgv5hmDMyc6pylkKkdVO0WlwXK69kHTi06tJTZ0NpYks
+         NjTMLTrTEZnGg4DIPsKDBi+REDpuxAZKtdFBuNT36yBNJbp4QjS2LUMzhXfXCj2QZeZM
+         gcGfw/e0mOfTvTPUZ9VODJ7f9XkGgnj4hpuf+CyJ2/kq7u/P139iUueGxE/4FcyhCGMe
+         OS9wSjYUiYhAXB3VAStcYBUY7kZg4pQ6gOBTq7H3xne0fWgkRRk9KDhGLgxrJSgH7/QL
+         Ec+7wUFx5nTn/SQJFCuW6NOi2eOjaZ5dlOAltF4kF3ibuotmM9CsjeEX9AQcU9U5r5U5
+         gyQw==
+X-Gm-Message-State: AFq9FYLwXXljZ+3lloO7ECcXJvRHI81NPRhGUuGW/Hf1pUTiPo6SRCb1
+	pbavwywTWeZzwAN+19zlgmFVSaSFANvyaM6Q84YESA3iUgqya8Z+CmQ=
+X-Gm-Gg: AYBFou0YyMwI4kBjQcxstiCSgHxX5nkAYbYwsjDP3fyBTjAtqA2UEf0kDAmnYqe8A+b
+	cs19MoVPeZ4eDn3NQzh4TcHCGHBD4IVbWZSWDFl8nwbGNO+OKVQCIno5PIrY9YkHsyZkjFJwnd+
+	rlfoK8c3uhTetdnADpp8nTwcVuSrbZ/PX786daS1MuGfQ1sH+JZE0TZnhNkSlfMg/aLiuoQK+FV
+	ivXqeqi2mg7nL+za0LOlzQ6VCZg8EGeabVGIgRvO0ndPdKgbOhv5dAnD9/0rB0X6+a29gUhCIOA
+	IQlWWJDKGVMiExO/zTRR2GrniVu2IshT3TN6WjFdXZpbcPT4JCmLMSNHeoGwkuCF1AJCGkrRwSo
+	9pjDTrOoo4z6lwbGo9LJpADA6mnmkjANcxz2dWNYjnKJ309WEEXBcBUKNQkOhgVHLzpJjOIUidX
+	cpbATnotzD3CVXCathmPnuje2he/nyQ1e6AbLXda4=
+X-Received: by 2002:a05:600c:a085:b0:49f:c1a1:5222 with SMTP id 5b1f17b1804b1-4a1d762ba65mr117228185e9.33.1792361033877;
+        Sun, 18 Oct 2026 15:03:53 -0700 (PDT)
 Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd91c55bsm278731975e9.0.2026.10.18.15.03.50
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd91c55bsm278731975e9.0.2026.10.18.15.03.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2026 15:03:51 -0700 (PDT)
+        Sun, 18 Oct 2026 15:03:52 -0700 (PDT)
 From: Tristan Madani <tristmd@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -66,9 +66,9 @@ Cc: linux-input@vger.kernel.org,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Tristan Madani <tristan@talencesecurity.com>,
 	stable@vger.kernel.org
-Subject: [PATCH v2 6/8] HID: oxp: validate report size in raw_event callbacks
-Date: Sun, 18 Oct 2026 22:03:42 +0000
-Message-ID: <20261018220344.1987142-7-tristmd@gmail.com>
+Subject: [PATCH v2 7/8] HID: cp2112: validate report size in raw_event callback
+Date: Sun, 18 Oct 2026 22:03:43 +0000
+Message-ID: <20261018220344.1987142-8-tristmd@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261018220344.1987142-1-tristmd@gmail.com>
 References: <20261018220344.1987142-1-tristmd@gmail.com>
@@ -82,47 +82,64 @@ Content-Transfer-Encoding: 8bit
 
 From: Tristan Madani <tristan@talencesecurity.com>
 
-oxp_hid_raw_event_gen_1() and oxp_hid_raw_event_gen_2() cast the
-report data to struct oxp_gen_1_rgb_report (11 bytes) and struct
-oxp_gen_2_rgb_report (16 bytes) respectively, and access fields at
-various offsets without checking the buffer size. A device sending a
-short report could cause out-of-bounds memory access because hid-core
-invokes raw_event before it validates the report length in
-hid_report_raw_event().
+cp2112_raw_event() processes incoming HID reports without validating
+the report size against the data it accesses. Since hid-core calls the
+driver's raw_event callback before it validates the report size in
+hid_report_raw_event(), the driver must perform its own bounds checking.
 
-Add size checks before the struct casts.
+For CP2112_TRANSFER_STATUS_RESPONSE, the code casts data to struct
+cp2112_xfer_status_report (7 bytes) and accesses fields at offsets 1-6.
 
-Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
+For CP2112_DATA_READ_RESPONSE, the code reads data[1], data[2], and
+then copies data[2] bytes (capped to 61) starting from data[3]. If the
+report is shorter than 3 + read_length bytes, the memcpy reads beyond
+the buffer boundary.
+
+Add size validation for both report types:
+ - Transfer status: require sizeof(struct cp2112_xfer_status_report)
+ - Data read: require at least 3 bytes for the header, then cap the
+   copy length to what is actually available in the buffer
+
+Fixes: e932d817866770d4 ("HID: add hid-cp2112 driver")
 Cc: stable@vger.kernel.org
 Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 ---
- drivers/hid/hid-oxp.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-cp2112.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
-index 1e691ebc1199e..af9f60d45bf29 100644
---- a/drivers/hid/hid-oxp.c
-+++ b/drivers/hid/hid-oxp.c
-@@ -318,6 +318,9 @@ static int oxp_hid_raw_event_gen_1(struct hid_device *hdev,
- 	struct led_classdev_mc *led_mc = drvdata.led_mc;
- 	struct oxp_gen_1_rgb_report *rgb_rep;
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 04379db93571b..2508c8ea8b693 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1430,6 +1430,10 @@ static int cp2112_raw_event(struct hid_device *hdev, struct hid_report *report,
  
-+	if (size < sizeof(struct oxp_gen_1_rgb_report))
-+		return 0;
-+
- 	if (data[1] != OXP_FID_GEN1_RGB_REPLY)
- 		return 0;
+ 	switch (data[0]) {
+ 	case CP2112_TRANSFER_STATUS_RESPONSE:
++		if (size < sizeof(struct cp2112_xfer_status_report)) {
++			hid_err(hdev, "short transfer status report\n");
++			return 0;
++		}
+ 		hid_dbg(hdev, "xfer status: %02x %02x %04x %04x\n",
+ 			xfer->status0, xfer->status1,
+ 			be16_to_cpu(xfer->retries), be16_to_cpu(xfer->length));
+@@ -1463,11 +1467,17 @@ static int cp2112_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		atomic_set(&dev->xfer_avail, 1);
+ 		break;
+ 	case CP2112_DATA_READ_RESPONSE:
++		if (size < 3) {
++			hid_err(hdev, "short data read response\n");
++			return 0;
++		}
+ 		hid_dbg(hdev, "read response: %02x %02x\n", data[1], data[2]);
  
-@@ -391,6 +394,9 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
- 	struct led_classdev_mc *led_mc = drvdata.led_mc;
- 	struct oxp_gen_2_rgb_report *rgb_rep;
+ 		dev->read_length = data[2];
+ 		if (dev->read_length > sizeof(dev->read_data))
+ 			dev->read_length = sizeof(dev->read_data);
++		if (dev->read_length > size - 3)
++			dev->read_length = size - 3;
  
-+	if (size < sizeof(struct oxp_gen_2_rgb_report))
-+		return 0;
-+
- 	if (data[0] != OXP_FID_GEN2_STATUS_EVENT)
- 		return 0;
- 
+ 		memcpy(dev->read_data, &data[3], dev->read_length);
+ 		atomic_set(&dev->read_avail, 1);
 -- 
 2.47.3
 

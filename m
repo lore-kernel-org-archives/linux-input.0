@@ -1,76 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6CA34DE72A;
-	Sun, 18 Oct 2026 21:43:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F402C41A547
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 21:44:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792359812; cv=none; b=su20MwyFj6matb0QNn58cLcvx3Ry05yFIr4MUZ5eR8hdW05fXY5rfwrD7lhj6S93Ai+wGv+G9ZWMxvtMPn4BqVwuI3Xslj1Hj6CX4PaOuOMe1l0T5Z4hnhz3BFg4T1ag44Awz8CYX7ybJ3ocb1XuUjFTMgGnNukpcjuXc1CS+dc=
+	t=1792359853; cv=none; b=dodc0EZ+mURV9EeVnTJL2xr6T3Cuo03zKzZAtRBvyG+Eh48AkyzLuBw+ybam1UTsncqrD7XHgVYwmMlUkR08Wor2rR6rEkBEViB+Xr/Y6TKryIDUPWf2L9MxM8JEOfiNQdCYU02Hbug46QQR6OjJe67CnvovKBL1jTw6WN5HHg8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792359812; c=relaxed/simple;
-	bh=CKmMBP+Iiyl3NMSzjUE9in6Sd3cWri0MchnEzkS2ohU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cgZzzcBv4cGJ5mU5KG2MPzDNYr2nhC6qTgG+VWJXI11QTypvJW/a3jp7ANUzU0MjTlwynO5JlnSdIuBBlRGxzbYWul3NUwUUNxcxb5LDMDaiy5HYF0DglLHe48Ym1aSDRhxFv9fFasD9gqshufTEbnbc1y8peCganLzHfp/QkZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IXzcMMMW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792359853; c=relaxed/simple;
+	bh=tWxng+OpI6vtcpYIZrzY5hW0zPHSrVOv8yMttwg9nPI=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=Zekw4eN2FmVcy35sBqpcdw0+RFSyK8A2kZ+TjOl1CvSQS+FqHQFJwZrGAf27R4s6jOuLHQ5MlekJsbPspKbCcgGmy+db2Pl/zkOACCNJP73E5SyIOCssn+Jet5Dy3QB5PInOTKE7xnfiFWa9a/IxH9bvo+tCrKQdykq3RyntSfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cW4QovWV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IXzcMMMW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 460061F000C4;
-	Sun, 18 Oct 2026 21:43:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cW4QovWV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4DAE1F000C4;
+	Sun, 18 Oct 2026 21:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792359811;
-	bh=CwAZRqep0Rd/T38v2mnhngdWbyW6rIM0+7tGymfYlNo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=IXzcMMMWeDuaX53FijgKtoheN9iKXxKh5AbvoNGET59ppVkzK2nx2dv+7n5mEJaip
-	 CiTqAu1o9TV5fUG9Fv0h9NjbSBgzbBYgtu4b6WqU3cBZLpW5xeORfKJgLqKXxghoEW
-	 gNS0O5fOBF2gOWzsTsAJLzON59Ba0okmsoqBCqZk5DWjJEdO7lb0epDnCwUapduEnx
-	 D2owoJwNXsYrD2c8vLw9nvHIDRqnRgaeXZugn+6Fg1gryLNrhLUAtBhsWlpsHZNRaE
-	 At9Kr9juxVUR9GGcZRxpcU9zk1R6H+GxPfLZtVd7Nx39OTt47uaSlI+QaVuWvodOun
-	 jexWLK3DzwlZw==
-Date: Sun, 18 Oct 2026 14:43:26 -0700
-From: Nathan Chancellor <nathan@kernel.org>
-To: Denis Benato <denis.benato@linux.dev>
-Cc: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Luke Jones <luke@ljones.dev>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
-	Ivan Levchenko <me@livan.pro>,
-	Rebecca Mara =?iso-8859-1?Q?M=FCller?= <rebecca.mara@posteo.de>
-Subject: Re: [PATCH v3 6/7] HID: asus: add prod-id, quirk for Zenbook Duo
- keyboard
-Message-ID: <20261018214326.GC4068315@ax162>
-References: <20261013104033.36079-1-p.pisati@gmail.com>
- <20261013104033.36079-7-p.pisati@gmail.com>
- <42cfc8c8-869f-41e2-a58c-0d6c5ce4a6ba@linux.dev>
+	s=k20260515; t=1792359851;
+	bh=bK1O/8Kst/rgAs1aNWqjWoPELvkG2XkW6IVMYb417k8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=cW4QovWVgg1D9kSxACD5teD0R7E8ntSgDKdBt8V7GqMqRV1YRAxCh6AYf8qN3VgMp
+	 4V19oULHEtID6L45RgxLy21j+7cxDZL9UHs4LrG1AbqxY6MPl9Utc7/sSQoOZf6wJD
+	 jvdIH6znxAQHLc/A77CTa67n9dxWjxS7aNvwVwcTiLHYQ9ERwtMmMtKdubU/C1xAfC
+	 sV3q0x/tRSDllTPc7cjPadOY3Grup9bbSyzRvvQkWD22yeWJbZRBvYnmLGEDpnxmCS
+	 CO9a3v+GJdnU7N9zpRULDjdDSomQvKNLry5NBD3aKOqFHkf/5BDSUw+amUlob6pxkn
+	 ucUJ3+oNvLusg==
+Message-ID: <sashiko-outbox-176410@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 8/8] HID: prodikeys: validate report size in raw_event
+ callback
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Tristan Madani" <tristmd@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261018213754.1951187-9-tristmd@gmail.com>
+References: <20261018213754.1951187-1-tristmd@gmail.com>
+ <20261018213754.1951187-9-tristmd@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 18 Oct 2026 21:44:11 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42cfc8c8-869f-41e2-a58c-0d6c5ce4a6ba@linux.dev>
 
-On Sun, Oct 18, 2026 at 06:57:16PM +0200, Denis Benato wrote:
-> 
-> On 10/13/26 12:40, Paolo Pisati wrote:
-> > From: Luke Jones <luke@ljones.dev>
-> 
-> A piece of mail header opening a commit? Never seen this.
-> 
-> I'd say remove this: that this comes from Luke can be deducted
-> in the Signed-off-by.
-> 
-> My question is why has this not been accepted before? Did I miss
-> this while we transitioned maintainer? If so apologies.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] HID: prodikeys: pk_raw_event() drops 3-byte report 0x03 MIDI pac=
+kets
+--
 
-This is standard git send-email behavior to signify that Luke should be
-the author in git when this patch is applied via 'git am' but Paolo is
-the one sending it. If Luke originally authored this patch, then he
-should proabably be the author in git history, especially since the
-signoff chain would make no sense otherwise.
+commit 2a171eaec1ee7f4c5cfc52b5bb2b8e59c517ae46
+Author: Tristan Madani <tristan@talencesecurity.com>
 
--- 
-Cheers,
-Nathan
+HID: prodikeys: validate report size in raw_event callback
+
+This patch adds a minimum report size check at the beginning of
+pk_raw_event() to prevent out-of-bounds reads on short reports.
+
+> diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
+> index fba01e4fcab1c..c1419e6703777 100644
+> --- a/drivers/hid/hid-prodikeys.c
+> +++ b/drivers/hid/hid-prodikeys.c
+> @@ -768,6 +768,9 @@ static int pk_raw_event(struct hid_device *hdev, stru=
+ct hid_report *report,
+>  	struct pcmidi_snd *pm =3D hid_get_drvdata(hdev);
+>  	int ret =3D 0;
+> =20
+> +	if (size < 4)
+> +		return 0;
+> +
+>  	if (1 =3D=3D pm->ifnum) {
+>  		if (report->id =3D=3D data[0])
+>  			switch (report->id) {
+
+[Severity: Medium]
+Could checking size < 4 before inspecting report->id drop valid 3-byte
+packets for report 0x03?
+
+In drivers/hid/hid-prodikeys.c, pk_raw_event() calls pcmidi_handle_report(),
+which dispatches three report IDs:
+
+	switch (report_id) {
+	case 0x01: /* midi keys (qwerty)*/
+		ret =3D pcmidi_handle_report1(pm, data);
+		break;
+	case 0x03: /* midi keyboard (musical)*/
+		ret =3D pcmidi_handle_report3(pm, data, size);
+		break;
+	case 0x04: /* multimedia/midi keys (qwerty)*/
+		ret =3D pcmidi_handle_report4(pm, data);
+		break;
+	}
+
+While pcmidi_handle_report1() and pcmidi_handle_report4() unconditionally
+read a 24-bit bitmask from data[1..3] and require size >=3D 4,
+pcmidi_handle_report3() computes the number of note/velocity pairs from
+size:
+
+	unsigned num_notes =3D (size-1)/2;
+	for (j =3D 0; j < num_notes; j++)	{
+		note =3D data[j*2+1];
+		velocity =3D data[j*2+2];
+
+A single-note report 0x03 has a 1-byte report ID followed by one 2-byte
+note/velocity pair (size =3D=3D 3), which pcmidi_handle_report3() already b=
+ounds
+checks via num_notes.
+
+Should the size < 4 check be restricted to reports 0x01 and 0x04 so that
+3-byte report 0x03 MIDI events are not lost?
+
+>
+>
+>
+
+[]=E2=96=B7
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261018213754.1951=
+187-1-tristmd@gmail.com?part=3D8

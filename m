@@ -1,95 +1,214 @@
-Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-252.mta1.migadu.com [95.215.58.252])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37B8F4CA76C
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 16:18:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 884104D6C5E
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 16:27:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.252
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792340330; cv=none; b=Hv6CBTsx5m689RGoBD8dz9ueuRnfwEPiHMDOWY9p9fiSa0hPtExNaqW+knZFdxDV3byZ5EyXuycw0Ux8iqXCYWqx3vdTFdnWiaAaGjgQ7LTPAB/jd2irId4VyFH12coSgaLewYjDYLvpH2x4WZ3nLechwVfJoiVPL+lZgqKGgX8=
+	t=1792340840; cv=none; b=kURYy7p+LIXLHutKmvqdVDGg05NFD9tw8MsbO4hCmzxGnju1Af1zSmC6oYVZ0Mv9mzem2d1+7n21OFUHNFEGDw5qDusiXctgI5DscVPq6EfdAWal8OH9DbPR4GVYTD5EutOs8JM1vBl720NZFPdVCHUE2Tp0R8Yrk76jlB5f1UE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792340330; c=relaxed/simple;
-	bh=Hsk3v6bBlP3rnGd1UNuclmvuHaubgTokW56qgJjEmO4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GhFd+2gl3KXbfxiSCxqZS21Swtzr9j0uA6ij8U8gDooPcJx9q0YvoCuNSsKdK1PiBaLCI8TUelDbKVGKn9xLXHsPZ2enotZaoZm1iYv5OqxYm/72VuOyHxQL6C79JgsmmJPeSRbL25XQYq+MNvgPuIJ9VwgxHPWbsL4jQIQXs10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=lUoPSZCY; arc=none smtp.client-ip=185.67.36.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
+	s=arc-20240116; t=1792340840; c=relaxed/simple;
+	bh=fSqrzaDICGEJ0LU/VHMQJYPwzZ2/9uo5D+VsIbLo8uk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QdOGAW5yH3R8c8wbJ16Z2AlLRJltZEv5jlMe5/NIRP+aWcxvBWBNDPGtrHsAiZQwbGw/n5nZapXhHJnezMwlCzMpJvVAo9mGWFoB085PdeaJlkQiOSf37vG0Jjaeo3el5J9YQzLAtE1XcQgOoO51iI/TmaiiEv8dvZmzeGoHkAI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uLA5eNX2; arc=none smtp.client-ip=95.215.58.252
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="lUoPSZCY"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id CD02E240106
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 18:18:40 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1792340320;
-	bh=wcDWCHzbP+KBFs/W4yJa9PnuNeRFlQGJLSt918RZE5E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:From;
-	b=lUoPSZCYhUt6CYdBeqZTP3BSFyH2m4Hkxiaf+Aj6yihVEBBYLWXHQ2Ub49Jj/+JXm
-	 y+nn+iIAmCYsZ2vPib5jOe8iz3Fr5Va8uYgEqTgTkvlrZ9INKi5TD9UkWSkCk7olv7
-	 6jftqwCoJP5yjFf6dA7k4mNQ/EsJyDeulQOVQ7yc1eFoNig8LnlLjbWk6D1ZT+TD+/
-	 NYExPC6sUlLd6Gmo+Yyu8e+dgcTT6hVAXCxdjnO3d3nN+v+bphqGD3ZNt1Xx646HN7
-	 B3bekKcozA1U2cVZ2pI7uHNsgcLQTK2x44FplqTAGUCTH8eU0BP/zwEFpc+OVhtKKy
-	 uXD2WVZGlH7ZQ==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4j73l30ynNz9rxP;
-	Sun, 18 Oct 2026 18:18:39 +0200 (CEST)
-From: =?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>
-To: Denis Benato <denis.benato@linux.dev>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Luke Jones <luke@ljones.dev>,
-	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
-	Ivan Levchenko <me@livan.pro>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Paolo Pisati <p.pisati@gmail.com>
-Subject: Re: [PATCH v3 1/7] HID: asus: Fix up Zenbook Duo report descriptors
-Date: Sun, 18 Oct 2026 16:18:40 +0000
-Message-ID: <20261018161826.1738483-1-rebecca.mara@posteo.de>
-In-Reply-To: <b22a521d-ec6e-4ac8-9aaa-d34e67ba898f@linux.dev>
-References: <b22a521d-ec6e-4ac8-9aaa-d34e67ba898f@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uLA5eNX2"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=fSqrzaDICGEJ0LU/VHMQJYPwzZ2/9uo5D+VsIbLo8uk=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1792340834; v=1; x=1792945634;
+ b=uLA5eNX2PZY0qczyYm6Dw3AIwWnKtIsgcIQiVfCD4zeG6NHuacSMTy3RjQ1wC4CR9tAMoUJt
+ GU0pVn/dVETdD7aNa8Hq/q/GufuH+aXWFhS/s28+CxPIzMtXz35S15rc48fp5AhRV8+A5VSONpa
+ ZdB3kBfl9nGd1tjYWzTqBoGk=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id eec9daf701e69fdf;
+	Sun, 18 Oct 2026 16:27:14 +0000
+X-Mizu-Trace-ID: eec9daf701e69fdf
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <cc579458-5817-47d3-bf80-781e2e68595f@linux.dev>
+Date: Sun, 18 Oct 2026 18:27:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 4/7] HID: asus: Cycle the platform profile from the
+ Zenbook Duo profile key
+To: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>
+Cc: Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Luke Jones <luke@ljones.dev>, Ivan Levchenko <me@livan.pro>,
+ =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>,
+ Nathan Chancellor <nathan@kernel.org>
+References: <20261013104033.36079-1-p.pisati@gmail.com>
+ <20261013104033.36079-5-p.pisati@gmail.com>
+Content-Language: en-US
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <20261013104033.36079-5-p.pisati@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Sun, Oct 18, 2026 at 05:50:08PM +0200, Denis Benato wrote:
-> Does the zenbook duo really needs fixing the report descriptor? I think you can avoid this
-> altogether on this hardware.
 
-Welcome back, Denis. I tested exactly that on my UX8407AA today, docked
-over USB: v3 built as an out-of-tree module against a 7.0.11-based
-distribution kernel, once as posted and once with only the Zenbook Duo
-fixup disabled (QUIRK_ZENBOOK_DUO_KEYBOARD removed from the fixup
-condition, nothing else changed), my userspace workaround stopped.
+On 10/13/26 12:40, Paolo Pisati wrote:
+> From: Joshua Leivenzon <hacker1024@users.sourceforge.net>
+>
+> The Zenbook Duo keyboard reports Fn+F, the performance mode key, as
+> vendor usage 0x9d. On the built-in keyboards of other ASUS laptops the
+> same key arrives through asus-wmi, which cycles the platform profile
+> in response. Do the same here so the key works on the detachable
+> keyboard too.
+>
+> asus_event() runs from the HID input path, which for USB is the URB
+> completion handler, while platform_profile_cycle() takes a mutex, so run
+> it from the driver's worker like the Fn-lock toggle, and consume the
+> event. Queue at most one cycle at a time, so that a device repeating the
+> key cannot grow the worker's list. Only call it when the platform
+> profile class is reachable: it is not built on architectures without
+> ACPI, where HID_ASUS still is, and it may be a module while HID_ASUS is
+> built in.
+>
+> Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
+> [pisati: defer platform_profile_cycle() to the worker and queue at
+>  most one cycle, return 1 from asus_event() instead of propagating
+>  its return value, and guard the call with
+>  IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE)]
+> Assisted-by: LLM
+> Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
+> Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
+> ---
+>  drivers/hid/hid-asus.c | 67 ++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 65 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index d69431615c27..b127f5c38f60 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -29,6 +29,7 @@
+>  #include <linux/input/mt.h>
+>  #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
+>  #include <linux/power_supply.h>
+> +#include <linux/platform_profile.h>
+>  #include <linux/leds.h>
+>  
+>  #include "hid-ids.h"
+> @@ -115,6 +116,7 @@ enum asus_work_action_type {
+>  	FN_LOCK_SYNC,
+>  	BRIGHTNESS_SET,
+>  	WMI_FAN,
+> +	PLATFORM_PROFILE_CYCLE,
+>  };
+>  
+>  struct hid_raw_event_data {
+> @@ -423,6 +425,42 @@ static int asus_kbd_fn_lock_set(struct asus_drvdata *drvdata, bool enabled)
+>  	return 0;
+>  }
+>  
+> +static int asus_platform_profile_cycle(struct asus_drvdata *drvdata)
+> +{
+> +	struct asus_worker *worker = drvdata->worker;
+> +	struct asus_work_action *action, *pending;
+> +	unsigned long flags;
+> +	int ret = 0;
+> +
+> +	if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
+> +		return 0;
+> +
+Isn't IS_REACHABLE a macro? Why not using #if and/or #else ?
+> +	spin_lock_irqsave(&worker->lock, flags);
+> +
+> +	/*
+> +	 * One pending cycle is enough: a key press cannot outrun the
+> +	 * worker, and a device repeating the key must not grow the list.
+> +	 */
+> +	list_for_each_entry(pending, &worker->actions, node) {
+> +		if (pending->type == PLATFORM_PROFILE_CYCLE)
+> +			goto unlock;
+> +	}
+> +
+> +	action = kzalloc_obj(struct asus_work_action, GFP_ATOMIC);
+> +	if (!action) {
+> +		ret = -ENOMEM;
+> +		goto unlock;
+> +	}
+> +
+> +	action->type = PLATFORM_PROFILE_CYCLE;
+> +	INIT_LIST_HEAD(&action->node);
+> +	asus_worker_schedule(worker, action);
+> +
+> +unlock:
 
-Without the fixup, the hotkey interface gets no input device at all:
+asus_platform_profile_cycle_unlock please because label names
+are unique, not per-function
 
-  asus 0003:0B05:1CD7.000A: hiddev2,hidraw8: USB HID v1.11 Device [...] on usb-0000:00:14.0-6/input4
+> +	spin_unlock_irqrestore(&worker->lock, flags);
+> +	return ret;
+> +}
+> +
+>  static int asus_kbd_wmi_fan_send(struct asus_drvdata *drvdata, u8 *report_data,
+>  				 size_t report_size)
+>  {
+> @@ -459,8 +497,25 @@ static int asus_event(struct hid_device *hdev, struct hid_field *field,
+>  	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR &&
+>  	    (usage->hid & HID_USAGE) != 0x00 &&
+>  	    (usage->hid & HID_USAGE) != 0xff && !usage->type) {
+> -		hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
+> -			 usage->hid & HID_USAGE);
+> +		/*
+> +		 * Some vendor usages do not map to a key and need special
+> +		 * handling.
+> +		 */
+> +		switch (usage->hid & HID_USAGE) {
+> +		case 0x9d: /* Zenbook Duo Fn+F: cycle the platform profile */
+> +			if (value) {
+> +				ret = asus_platform_profile_cycle(drvdata);
+> +				if (ret) {
+> +					hid_err(hdev, "Failed to cycle the platform profile: %d\n",
+> +						ret);
+> +					return ret;
+> +				}
+> +			}
+> +			return 1;
+> +		default:
+> +			hid_warn(hdev, "Unmapped Asus vendor usagepage code 0x%02x\n",
+> +				 usage->hid & HID_USAGE);
+> +		}
 
-With the fixup:
+If asus recycles 0x9d to make something else is nome other hardware it will end up
+doing something else... It's acceptable I think but perhaps a guard may be better?
+After all there is a warn about that already...
 
-  asus 0003:0B05:1CD7.000A: Fixing up Zenbook Duo keyb report descriptor
-  asus 0003:0B05:1CD7.000A: input,hiddev2,hidraw8: USB HID v1.11 Device [...] on usb-0000:00:14.0-6/input4
+>  	}
+>  
+>  	if (usage->type == EV_KEY && value) {
+> @@ -765,6 +820,7 @@ static void asus_work(struct work_struct *work)
+>  	struct asus_worker *worker = container_of(work, struct asus_worker, work);
+>  	struct asus_work_action *action = NULL;
+>  	unsigned long flags;
+> +	int ret;
+>  
+>  	/* Save the action to be performed and clear the flag */
+>  	spin_lock_irqsave(&worker->lock, flags);
+> @@ -788,6 +844,13 @@ static void asus_work(struct work_struct *work)
+>  	case WMI_FAN:
+>  		asus_kbd_wmi_fan(worker->hdev, &action->data.fan_hid_data);
+>  		break;
+> +	case PLATFORM_PROFILE_CYCLE:
+> +		if (!IS_REACHABLE(CONFIG_ACPI_PLATFORM_PROFILE))
+> +			break;
 
-Without the fixup, volume up/down and mute still work, as they come from
-another interface, but screen brightness, keyboard backlight, mic mute
-and Fn+F profile cycling are dead (checked with an evdev reader and
-/sys/firmware/acpi/platform_profile). With the fixup all of them work.
-So yes, as far as I can tell this keyboard needs it.
+As before: #if !IS_REACHABLE(...)
 
-On the Assisted-by format: my original patch (7/7) was written with
-Claude Code using claude-fable-5, so following
-Documentation/process/coding-assistants.rst that would be
-
-Assisted-by: Claude:claude-fable-5
-
-Paolo, feel free to use that above my Signed-off-by in a respin.
-
-Thanks,
-Rebecca
+> +		ret = platform_profile_cycle();
+> +		if (ret)
+> +			hid_dbg(worker->hdev, "Failed to cycle the platform profile: %d\n", ret);
+> +		break;
+>  	default:
+>  		hid_err(worker->hdev, "Invalid action type: %d\n", action->type);
+>  		break;

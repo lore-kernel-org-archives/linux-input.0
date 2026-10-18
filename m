@@ -1,60 +1,60 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D6444E0B7A
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 22:03:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DD174E01E5
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 22:03:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792361032; cv=none; b=IGPEL3rTOJ4eh9O4J4xRWMWuUe/OS4Lr54in/nepcpX7N/a9k1HqI7qKJ/L/hfxaI9F/dPdAEmMCN7vxp22aCMF4X/yyTVCDsLuj6gqI6uZ22MCaV6OPadsiL+Pg3ADDZKFdHFMHIOo267WWIPq92w85n8K4xMZR0CinnKEqVh8=
+	t=1792361033; cv=none; b=dKgb46z1ynvxEoPggKWyzgaQ5QO1VmdQHWDIuXbrkCo0KOsjeu08joxEWrPfLH07O2u9aRanjKUp6lFvRM3QC66ePhU8dvoFSKU3+0XaSaCGq3bRE34qWolBvJ+RPgv5LRZlSkLZK1kAcHUzkFCanjQz34NxOrBIlCWIv12X8yQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792361032; c=relaxed/simple;
-	bh=C5OeVmVc9RUqWQx2xLWOpeX88Xt1ishh/7V1x3S2xhA=;
+	s=arc-20240116; t=1792361033; c=relaxed/simple;
+	bh=TEReWKhHAWlGInl30NA0QerMBstlNh4jb6eCUhA0BqE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ji/t2dr2mT1R+H2jt7qpIqO2XVkiVythMlqrKbb26c2EKBIxTTFNjcNXFYLRnxPm20wIDxMuCdTMc8R7iMr/bAn8b1qJbejUxJdj0/D55zEEbjY7qb/JS7zFMYGr7Ts1+PU60mzMGjqzKEwaDjG5dfvSGqiuoRg08NXkdezOLus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jobjO/+G; arc=none smtp.client-ip=209.85.221.53
+	 MIME-Version; b=EAfxOU0WtIHXUfc3C35UXRxJdISEgPdCpPNACsXV5Zw9ursiFYfuZ7md+4JvVDbbf+WdBDUzBciEKNNzH4XwZaXeOjmaKrDmPpTT7VA5QQfyTm4ctYAUbGCKDqKkjQsq4f+WrafTtSQn32kyxnjaBXlcNAkGLhMnKRcMsl05/NY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gn9szMRb; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jobjO/+G"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-48e0d1c095dso627185f8f.1
-        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 15:03:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gn9szMRb"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a1d484b4a9so20565795e9.0
+        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 15:03:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792361030; x=1792965830; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792361031; x=1792965831; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=s+77y3oo4X91iER6HxasZRzsFWRhDOryP02cl98gD8s=;
-        b=jobjO/+G0IsfkTz7BTmRQy3Mn76CrBUEAMTfRjBe2ar0213cAzo3p406ByaHDbVP+/
-         x6IzTssWYk+2fRy1pSQVxK1j9896FNtvVvLGeisODhIPL3ILz2+VXWiAdvMguRGzCGeM
-         Bd6F7+uLzO9KYrR/C6LmoLnhrLQHg5yZ8nlGXSGCGNJBU3d75jra430a4V4icrROL1Ns
-         Bptr8JJimpjddVkO2jb+fsrHHABsS4YcFWDqcQ14cgQaCItTtbim1sxUH5cpwO/M2+yd
-         ZWDZoyDtQdBGiD0SaKGg2MhOSNAONY+aFaIGt/waD/X1OORkKKbANCI+LnoJuDOXDAMh
-         fnvA==
+        bh=J8n79Due07oqax9zNrI4fLW7LZxFciWP3oxVoKoGx80=;
+        b=gn9szMRb/S4M1M5s2qrpD4Tkbl5LGY4VIUBFUxy5Ou3ONsFUGgnmTBHvgUv/Gtth0p
+         n0GRIAthiopYBxO92SOWt7PPBzuJdLpasB6MOC7S9pXMspJgIgNdGcr+KpscJOYOBCba
+         oZYNGkNuB+kZm4xPBR7KKHNMN+T/0tOby1mTG7ICqsaRRJZLTDlXFS7WeqAs5+u94t3Y
+         OklqOMSz/7pEegAJJmdggJ9SN28hfaYLghiU/EC3qZeG7LO81YyF+ikti7vxbmTc8dKp
+         vmk6eEcV+/dyrbP8OhLFxLiJhB0iQjZqZA8Mi7z10kMg3LMLteiOU9hISM3h7r0dY+9l
+         +dAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792361030; x=1792965830;
+        d=1e100.net; s=20260707; t=1792361031; x=1792965831;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=s+77y3oo4X91iER6HxasZRzsFWRhDOryP02cl98gD8s=;
-        b=vpPWT6kT6sFDe2jmtCz0nl44B6e8JACB0F9SgOoNj5cPhM/qQ7ft3l8dsLwX3Ab2SX
-         Nq7KfZQbSYEkc1zdU4A8wVDlyNO+TPmRxBOsy2BiCkPH8DSY2HCZGQCKMcy0GjWUIJUG
-         4onjlRGCALiYKqLwFsxt6dod1cGH7yDHIOWDPi8emIrp2OQwMp+PZ1p4qiWarqnIw7Vl
-         epXa01baCkLCRWH1wZmHIz3/OSB9/aUwofR0rqLmKsuJpGC5G7PNe74XPHpxyDczmRgt
-         ZdFp44+sX5xdPre8xvdOeaDQCBVYqWIojRIm7g1Dr3+yvicrKMS1g/rRBMMMSP2zfZnG
-         187A==
-X-Gm-Message-State: AFq9FYKy3vj/+5c1c2vgWAljVFuEgkzjUheHpcpMRvRRwEy8YzVz3vyg
-	vDeS5Glvxj2kAholt64wfLd02QxlJxMvUYj5aVQim4bp+93KeNe2aqw=
-X-Gm-Gg: AYBFou3z8U//IJngO3BTNraIZU/UIaqQvNEfe8e76FtKyG4l0P2nBML4jHYA/CpLycG
-	TTUV1zgSKPUFqkllWa4cd0ie7HvLilrG3ynZbJnuuZTGHQ2dABSS1xN29tb6/CaHpndQi1RQx4x
-	0lAhEhpDeaaInhsHhq6LAhDZr9Lg3pFX9MuwK9lrcrOYB9MaODpXyHkw/BYO0BLRF8BHLcxqHUM
-	3SG0raUsG2OAtnYsD0ltfF1oiCPx5CojBG5OFl425AOjNowW5UCcf/PLR310M+30cUMPZ2+3AzI
-	OdRVowiTfKzr2J9NykjKg5r2q6PG7NKFZQ9EcdoULIe59mVho3V1YRNERoY3uQQzIi9OquP+3Y8
-	vLbHgv+MoRy3cseSufw36ri2tAByJdgllxoj61SjxgRjeRJ9AxnAnoQ5B/S4F79VuZKXZ85NLiz
-	cOevgBEl79tdTCWIT9vljykW1hwo78eArJRBBU+eU=
-X-Received: by 2002:a05:600c:3b17:b0:49f:dd9f:6038 with SMTP id 5b1f17b1804b1-4a1d7612c55mr121664535e9.25.1792361029581;
-        Sun, 18 Oct 2026 15:03:49 -0700 (PDT)
+        bh=J8n79Due07oqax9zNrI4fLW7LZxFciWP3oxVoKoGx80=;
+        b=t+xlMONrCMEvIru8AM+mXf9ni/238ECGIwvlEhS9JpN87YG5FDF/Mwp45UqJeoHR7k
+         zEKmO65bebmcwjFJzBLW7PLU1GqLr9YwEhVGX3V0HqXmEKVXqSRpaFzfFAX6rwP2sVMo
+         CE5fTRog2fAfHi/W4kT8dHt0KBHefY7XOrXXEn8ACmDxFPQtC/nruhodSRUj894qnGGr
+         mjRoPZRjt2RB2AGd1bl9eUwGKJn+2j78CvsADXr9QWMOCXb6J4y6NETtmRA9KaHHnODE
+         SjRb4NwyV2BXITDBGEkFF+chWPQt/DPUyDj92NANO05Hgk+KB7qwUQyTfX0e1E5lBxdT
+         YvDg==
+X-Gm-Message-State: AFq9FYJ2f8tFafj1g3rkJmhczS3k+uWwyXN7VxYr+L6zZCwIcQjlvMxh
+	oThPye56TPDptCsS6r/+YZkKl7QIZGHnd/UVyG86YMNG44HJk5SsLNU=
+X-Gm-Gg: AYBFou1nJ23NwkFMUBehedW2aSAL7GXEt00WMwZvusihB0xXYZxKEi/MU9hMuXKP4qG
+	HprRgxKh6P79+5y4ia0uAVTXvpEUpxjksvrzAiBFuZniJ8J2h1Uc3JhOXaqL57RdY0XH1XOT5OH
+	gRLLbZhrcgBOlzYpj+KLm/EPQBZ+J2gv1m0eg5VZJwakW+xJoWXbiANrSFqCfOktDBdJAAEIDK6
+	DiCiN+k2CHatWRrCdES0b25vJeHacuGuNXxvsVojzWKw/WAit/i/Alr92NhTMAVEIKaAg3zLirH
+	3KoMx06ePrRtqdjeW8whAt4XqE2PacaHvAULHK5F5+/k1V1ONfu9+dyOKq2miKHmKjsK6cWvwvk
+	hUig50x3sYgS2JjDkEks3ieRsQvTMXLCdNGd0sZqFNttYUcm+xS02DCHozvbeZhme4iS+M/r9J0
+	778b6WzaIUlh3GcjfmosVHEUtQhgq4SM5reAad61Y=
+X-Received: by 2002:a05:600c:6215:b0:4a1:d41b:5060 with SMTP id 5b1f17b1804b1-4a1d762b705mr105690375e9.22.1792361030661;
+        Sun, 18 Oct 2026 15:03:50 -0700 (PDT)
 Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd91c55bsm278731975e9.0.2026.10.18.15.03.48
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1bd91c55bsm278731975e9.0.2026.10.18.15.03.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Sun, 18 Oct 2026 15:03:49 -0700 (PDT)
 From: Tristan Madani <tristmd@gmail.com>
@@ -66,9 +66,9 @@ Cc: linux-input@vger.kernel.org,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Tristan Madani <tristan@talencesecurity.com>,
 	stable@vger.kernel.org
-Subject: [PATCH v2 4/8] HID: cougar: validate report size in raw_event callback
-Date: Sun, 18 Oct 2026 22:03:40 +0000
-Message-ID: <20261018220344.1987142-5-tristmd@gmail.com>
+Subject: [PATCH v2 5/8] HID: zydacron: validate report size in raw_event callback
+Date: Sun, 18 Oct 2026 22:03:41 +0000
+Message-ID: <20261018220344.1987142-6-tristmd@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261018220344.1987142-1-tristmd@gmail.com>
 References: <20261018220344.1987142-1-tristmd@gmail.com>
@@ -82,35 +82,34 @@ Content-Transfer-Encoding: 8bit
 
 From: Tristan Madani <tristan@talencesecurity.com>
 
-cougar_raw_event() accesses data[COUGAR_FIELD_CODE] (offset 1) and
-data[COUGAR_FIELD_ACTION] (offset 2) without checking the report
-size. A device sending a short report could cause out-of-bounds memory
+zc_raw_event() accesses data[1] without checking the report size.
+A device sending a single-byte report could cause out-of-bounds memory
 access because hid-core invokes raw_event before it validates the
 report length in hid_report_raw_event().
 
-Add a size check at the start of the function.
+Add a size check before accessing data[1].
 
-Fixes: b8e759b8f6da ("HID: cougar: Add support for the Cougar 500k Gaming Keyboard")
+Fixes: d0742abaa1c3 ("HID: add omitted hid-zydacron.c file")
 Cc: stable@vger.kernel.org
 Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 ---
- drivers/hid/hid-cougar.c | 3 +++
+ drivers/hid/hid-zydacron.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-cougar.c b/drivers/hid/hid-cougar.c
-index ad027c45f1628..2dc135d0fd123 100644
---- a/drivers/hid/hid-cougar.c
-+++ b/drivers/hid/hid-cougar.c
-@@ -267,6 +267,9 @@ static int cougar_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	if (!cougar->special_intf || !shared)
- 		return 0;
+diff --git a/drivers/hid/hid-zydacron.c b/drivers/hid/hid-zydacron.c
+index 1aae80f848f50..203457398780c 100644
+--- a/drivers/hid/hid-zydacron.c
++++ b/drivers/hid/hid-zydacron.c
+@@ -116,6 +116,9 @@ static int zc_raw_event(struct hid_device *hdev, struct hid_report *report,
  
-+	if (size < 3)
-+		return 0;
+ 	if (report->id == data[0] && (hdev->claimed & HID_CLAIMED_INPUT)) {
+ 
++		if (size < 2)
++			return 0;
 +
- 	if (!shared->enabled || !shared->input)
- 		return -EPERM;
- 
+ 		/* break keys */
+ 		for (index = 0; index < 4; index++) {
+ 			key = zc->last_key[index];
 -- 
 2.47.3
 

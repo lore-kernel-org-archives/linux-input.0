@@ -1,280 +1,399 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from mail.w13.tutanota.de (mail.w13.tutanota.de [185.205.69.213])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCFE7440A25
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 07:52:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A121A44F54D
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 09:13:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.205.69.213
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792309962; cv=none; b=mRn10rfSieVx3QDvK/bFmNfsAKmoODasQnd0EXVp7Oc4fafaOGYvzIcRPGsBDahw4qdy233n5+kOfBQyr5K1JMSuF3TJ0ixMGPgGCsj8xjKqWJZxNrKXyWaaGoUVpox0r41uF61szuX59GqhFVP9P8CdcUKkCaioLeonfsyfnQk=
+	t=1792314828; cv=none; b=o+bDjbwe1YdLJI/WVXBfB+7CsRhoaMf38Wyc5/x3lkHMPzTrD5Lhhoou6/cBuyrEaWPTeSpXGMZjrCvWGx6JDc0yqz82Ho/kjcUciJm3tVatKEe6jmVeQByxXxYPsyyBzqMlE1tQk9sdMC7ZdsuNEQ6mU6EfEQM13AIb5/S09xw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792309962; c=relaxed/simple;
-	bh=aq+tMqX4EUSiOX5q84UcsPqiezJpPRbByiXS1jJ7lLU=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=XaUIEvyHj8qjzZ3b0za4Fr/qO16eBWcZTKYt2ymhCXJENPeYfC50qqKD9U337ayqvrKIH/H+hx5nb6sOfFYcSuxXFbmiznwRAxGSoEGhu6e/QUsZntj0LDuVpBnKOzFiiP0ebxWioeATko0lQu39/pQY8QH3pWYvWwkG9eW/Fx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DvYntrKg; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1792314828; c=relaxed/simple;
+	bh=s4Kn4SN4wfnbEYVaRjPSS85XwAMkY30h72dShwkKDIo=;
+	h=Date:From:To:Cc:Message-ID:References:Subject:MIME-Version:
+	 Content-Type; b=Yk1tNkUpFKQf4l1gtPcgnc0KFgtkrpg9kloiB4FN9Rmxz50XOOuDs0Y+HLWazVfGhCTV7jAME7RfO+bAj6qdausreIJItQuskXiajfFpElKWYFwHsX/CnKk/UKJOI5HOxEYEYmyDPufgIkIvF+zRgqxSTxT5+Y3llwkrWZDJBHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tutamail.com; spf=pass smtp.mailfrom=tutamail.com; dkim=pass (2048-bit key) header.d=tutamail.com header.i=@tutamail.com header.b=QqKvPRfC; arc=none smtp.client-ip=185.205.69.213
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tutamail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tutamail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DvYntrKg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792309960; x=1823845960;
-  h=date:from:to:cc:subject:message-id;
-  bh=aq+tMqX4EUSiOX5q84UcsPqiezJpPRbByiXS1jJ7lLU=;
-  b=DvYntrKg4P/zxARrl3jia/5afyIsfIxO6+qzHa4QwOovDr7bXjKj33xc
-   tSzq2WtbgKenNI1o8NhQDKXak25PaS+gNVkUKW0EZujNVOagBD/mp+Tl0
-   /L2+y4KSNK2qqjPwC5Y/vasM4EjrpcjHb4Nv1r32Jchos5BYsHyxND0G+
-   kisazjLE2Iy99QiXYLTS3Rwqm9ikbSsRcmGx+tKcA/P8QMUoCHxjk1SAS
-   IQYG571TDNtP3jiU5ehw4t7nFCnX7y0hzsl1CQRB+48cxRQ0Ok6u0CC7U
-   zYpu2yk8Wc7OBSJ9rPQLYlggdjV37vzr5rLrw46Rn2t+xhkrEXqfOi3+m
-   w==;
-X-CSE-ConnectionGUID: nfPz/LkdTmSspt1sY2wBZw==
-X-CSE-MsgGUID: Ya+5tcOTT56WVDKIyOPqSA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11938"; a="916682"
-X-IronPort-AV: E=Sophos;i="6.27,165,1787036400"; 
-   d="scan'208";a="916682"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2026 00:52:39 -0700
-X-CSE-ConnectionGUID: UuR6G7KuS52YB4iPfdpUgw==
-X-CSE-MsgGUID: ZhDUdKqCQZa4nwBLQj1qYA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,165,1787036400"; 
-   d="scan'208";a="2340800"
-Received: from igk-lkp-server01.igk.intel.com (HELO 3c253b998be3) ([10.211.93.152])
-  by orviesa006.jf.intel.com with ESMTP; 18 Oct 2026 00:52:34 -0700
-Received: from kbuild by 3c253b998be3 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xILh1-000000004w1-44Er;
-	Sun, 18 Oct 2026 07:52:31 +0000
-Date: Sun, 18 Oct 2026 09:49:23 +0200
-From: kernel test robot <lkp@intel.com>
-To: Ping Cheng <ping.cheng@wacom.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
- Jiri Kosina <jikos@kernel.org>, Lee Jones <lee@kernel.org>
-Subject: [hid:for-7.4/wacom 8/8] drivers/hid/wacom_wac.c:4430:71:
- sparse: sparse: incorrect type in argument 1 (different address spaces)
-Message-ID: <202610180015.KsRqmoTE-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=tutamail.com header.i=@tutamail.com header.b="QqKvPRfC"
+Received: from tutadb.w10.tutanota.de (w10.api.tuta.com [IPv6:fd:ac::d:10])
+	by mail.w13.tutanota.de (Postfix) with ESMTP id 255F8193F3750
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 11:13:39 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1792314819;
+	s=s1; d=tutamail.com;
+	h=From:From:To:To:Subject:Subject:Content-Description:Content-ID:Content-Type:Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:In-Reply-To:MIME-Version:MIME-Version:Message-ID:Message-ID:Reply-To:References:References:Sender;
+	bh=3Dm0jMVazmmo9bQulkGdxbMWyv0IOUddbUPNy26mxwY=;
+	b=QqKvPRfCIYOP/zLGe5torJVsKum5eM25bjdbYNFh0fRW6gRMcSauQ3gyhXEJ0GPA
+	peL9ii+CDnaAPY5FIMl1vgYvPhzq4dJH3hf/WgWN2rKhUZLCn6YYbDNX62zCzHc0wdH
+	5A5CZ/BC8baJ9aChbBBm4rMtUauVoFKOe8DENiKHh5HAJoWdzDvVIqUBLhKe1juSB9m
+	Km8HLYyGl4CPr/GnC55slk5AX1xjtnWoMsIlpGw7Xs7Fa33TL8MPp+jkEDlc0T3m/VA
+	JvW4RwN0e9D2VpuVJimBGyNqWs+s95/dSzX12S9Vc2J5wOr452wHeqv1crBoKh04a2b
+	qzrEw2J+Sg==
+Date: Sun, 18 Oct 2026 11:13:39 +0200 (CEST)
+From: willowswaving@tutamail.com
+To: Linux Input <linux-input@vger.kernel.org>
+Cc: Jikos <jikos@kernel.org>, Bentiss <bentiss@kernel.org>
+Message-ID: <P4DHMrF--F-9@tutamail.com>
+References: <P46njqS--N-9@tutamail.com>
+Subject: FWD: [RFC] HID: uclogic: Add support for Xencelabs Pen Display
+ (28bd:520d) and request for switch-to-vendor-mode sequence
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_8613_1402475429.1792314819145"
+Feedback-ID: 015fe4ab774a31809b4b05b8c610ead356bcc03e5c866e6007fd3e8866c7c0a22bb5af78b76e2b2d682867fe72df3c2e2eae226386f9c0a8fc7fe2cb63b896dd32:TurnOnPrivacy!:tutamail
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-7.4/wacom
-head:   97ce491bcef2d231b8d51cee8e579183319a5ba4
-commit: 97ce491bcef2d231b8d51cee8e579183319a5ba4 [8/8] HID: wacom: Setup SW_MUTE_DEVICE according to the order of input registration
-config: arm64-randconfig-r2300-20261017 (https://download.01.org/0day-ci/archive/20261018/202610180015.KsRqmoTE-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 8a679464f19c426ef76aad9f4587b703dd3e584d)
-rustc: rustc 1.96.0 (ac68faa20 2026-05-25)
-sparse: v0.6.5-rc1
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261018/202610180015.KsRqmoTE-lkp@intel.com/reproduce)
+------=_Part_8613_1402475429.1792314819145
+Content-Type: multipart/alternative; 
+	boundary="----=_Part_8614_1153692763.1792314819145"
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202610180015.KsRqmoTE-lkp@intel.com/
+------=_Part_8614_1153692763.1792314819145
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-sparse warnings: (new ones prefixed by >>)
->> drivers/hid/wacom_wac.c:4430:71: sparse: sparse: incorrect type in argument 1 (different address spaces) @@     expected struct input_dev *dev @@     got struct input_dev [noderef] __rcu *touch_input @@
-   drivers/hid/wacom_wac.c:4430:71: sparse:     expected struct input_dev *dev
-   drivers/hid/wacom_wac.c:4430:71: sparse:     got struct input_dev [noderef] __rcu *touch_input
 
-vim +4430 drivers/hid/wacom_wac.c
+fyi
+=E6=97=A5=E6=9C=9F: 2026/10/17 11:02
+=E5=8F=91=E4=BB=B6=E4=BA=BA: willowswaving@tutamail.com
+=E5=8F=91=E9=80=81=E8=87=B3: linux-input@vger.kernel.org
+=E4=B8=BB=E9=A2=98: [RFC] HID: uclogic: Add support for Xencelabs Pen Displ=
+ay (28bd:520d) and request for switch-to-vendor-mode sequence
 
-  4250	
-  4251	int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
-  4252					   struct wacom_wac *wacom_wac)
-  4253	{
-  4254		struct wacom_features *features = &wacom_wac->features;
-  4255	
-  4256		if ((features->type == HID_GENERIC) && features->numbered_buttons > 0)
-  4257			features->device_type |= WACOM_DEVICETYPE_PAD;
-  4258	
-  4259		if (!(features->device_type & WACOM_DEVICETYPE_PAD))
-  4260			return -ENODEV;
-  4261	
-  4262		if (features->type == REMOTE && input_dev == wacom_wac->pad_input)
-  4263			return -ENODEV;
-  4264	
-  4265		input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-  4266	
-  4267		/* kept for making legacy xf86-input-wacom working with the wheels */
-  4268		__set_bit(ABS_MISC, input_dev->absbit);
-  4269	
-  4270		/* kept for making legacy xf86-input-wacom accepting the pad */
-  4271		if (!(input_dev->absinfo && (input_dev->absinfo[ABS_X].minimum ||
-  4272		      input_dev->absinfo[ABS_X].maximum)))
-  4273			input_set_abs_params(input_dev, ABS_X, 0, 1, 0, 0);
-  4274		if (!(input_dev->absinfo && (input_dev->absinfo[ABS_Y].minimum ||
-  4275		      input_dev->absinfo[ABS_Y].maximum)))
-  4276			input_set_abs_params(input_dev, ABS_Y, 0, 1, 0, 0);
-  4277	
-  4278		/* kept for making udev and libwacom accepting the pad */
-  4279		__set_bit(BTN_STYLUS, input_dev->keybit);
-  4280	
-  4281		wacom_setup_numbered_buttons(input_dev, features->numbered_buttons);
-  4282	
-  4283		switch (features->type) {
-  4284	
-  4285		case CINTIQ_HYBRID:
-  4286		case CINTIQ_COMPANION_2:
-  4287		case DTK:
-  4288		case DTUS:
-  4289		case GRAPHIRE_BT:
-  4290			break;
-  4291	
-  4292		case WACOM_MO:
-  4293			__set_bit(BTN_BACK, input_dev->keybit);
-  4294			__set_bit(BTN_LEFT, input_dev->keybit);
-  4295			__set_bit(BTN_FORWARD, input_dev->keybit);
-  4296			__set_bit(BTN_RIGHT, input_dev->keybit);
-  4297			input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-  4298			break;
-  4299	
-  4300		case WACOM_G4:
-  4301			__set_bit(BTN_BACK, input_dev->keybit);
-  4302			__set_bit(BTN_FORWARD, input_dev->keybit);
-  4303			input_set_capability(input_dev, EV_REL, REL_WHEEL);
-  4304			break;
-  4305	
-  4306		case WACOM_24HD:
-  4307			__set_bit(KEY_PROG1, input_dev->keybit);
-  4308			__set_bit(KEY_PROG2, input_dev->keybit);
-  4309			__set_bit(KEY_PROG3, input_dev->keybit);
-  4310	
-  4311			__set_bit(KEY_ONSCREEN_KEYBOARD, input_dev->keybit);
-  4312			__set_bit(KEY_INFO, input_dev->keybit);
-  4313	
-  4314			if (!features->oPid)
-  4315				__set_bit(KEY_BUTTONCONFIG, input_dev->keybit);
-  4316	
-  4317			input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-  4318			input_set_abs_params(input_dev, ABS_THROTTLE, 0, 71, 0, 0);
-  4319			break;
-  4320	
-  4321		case WACOM_27QHD:
-  4322			__set_bit(KEY_PROG1, input_dev->keybit);
-  4323			__set_bit(KEY_PROG2, input_dev->keybit);
-  4324			__set_bit(KEY_PROG3, input_dev->keybit);
-  4325	
-  4326			__set_bit(KEY_ONSCREEN_KEYBOARD, input_dev->keybit);
-  4327			__set_bit(KEY_BUTTONCONFIG, input_dev->keybit);
-  4328	
-  4329			if (!features->oPid)
-  4330				__set_bit(KEY_CONTROLPANEL, input_dev->keybit);
-  4331			input_set_abs_params(input_dev, ABS_X, -2048, 2048, 0, 0);
-  4332			input_abs_set_res(input_dev, ABS_X, 1024); /* points/g */
-  4333			input_set_abs_params(input_dev, ABS_Y, -2048, 2048, 0, 0);
-  4334			input_abs_set_res(input_dev, ABS_Y, 1024);
-  4335			input_set_abs_params(input_dev, ABS_Z, -2048, 2048, 0, 0);
-  4336			input_abs_set_res(input_dev, ABS_Z, 1024);
-  4337			__set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
-  4338			break;
-  4339	
-  4340		case WACOM_22HD:
-  4341			__set_bit(KEY_PROG1, input_dev->keybit);
-  4342			__set_bit(KEY_PROG2, input_dev->keybit);
-  4343			__set_bit(KEY_PROG3, input_dev->keybit);
-  4344	
-  4345			__set_bit(KEY_BUTTONCONFIG, input_dev->keybit);
-  4346			__set_bit(KEY_INFO, input_dev->keybit);
-  4347			fallthrough;
-  4348	
-  4349		case WACOM_21UX2:
-  4350		case WACOM_BEE:
-  4351		case CINTIQ:
-  4352			input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
-  4353			input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
-  4354			break;
-  4355	
-  4356		case WACOM_13HD:
-  4357			input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-  4358			break;
-  4359	
-  4360		case INTUOS3:
-  4361		case INTUOS3L:
-  4362			input_set_abs_params(input_dev, ABS_RY, 0, 4096, 0, 0);
-  4363			fallthrough;
-  4364	
-  4365		case INTUOS3S:
-  4366			input_set_abs_params(input_dev, ABS_RX, 0, 4096, 0, 0);
-  4367			break;
-  4368	
-  4369		case INTUOS5:
-  4370		case INTUOS5L:
-  4371		case INTUOSPM:
-  4372		case INTUOSPL:
-  4373		case INTUOS5S:
-  4374		case INTUOSPS:
-  4375		case INTUOSP2_BT:
-  4376		case INTUOSP2S_BT:
-  4377			input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-  4378			break;
-  4379	
-  4380		case INTUOS4WL:
-  4381			/*
-  4382			 * For Bluetooth devices, the udev rule does not work correctly
-  4383			 * for pads unless we add a stylus capability, which forces
-  4384			 * ID_INPUT_TABLET to be set.
-  4385			 */
-  4386			__set_bit(BTN_STYLUS, input_dev->keybit);
-  4387			fallthrough;
-  4388	
-  4389		case INTUOS4:
-  4390		case INTUOS4L:
-  4391		case INTUOS4S:
-  4392			input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-  4393			break;
-  4394	
-  4395		case INTUOSHT:
-  4396		case BAMBOO_PT:
-  4397		case BAMBOO_TOUCH:
-  4398		case INTUOSHT2:
-  4399			__clear_bit(ABS_MISC, input_dev->absbit);
-  4400	
-  4401			__set_bit(BTN_LEFT, input_dev->keybit);
-  4402			__set_bit(BTN_FORWARD, input_dev->keybit);
-  4403			__set_bit(BTN_BACK, input_dev->keybit);
-  4404			__set_bit(BTN_RIGHT, input_dev->keybit);
-  4405	
-  4406			break;
-  4407	
-  4408		case REMOTE:
-  4409			input_set_capability(input_dev, EV_MSC, MSC_SERIAL);
-  4410			input_set_abs_params(input_dev, ABS_WHEEL, 0, 71, 0, 0);
-  4411			break;
-  4412	
-  4413		case INTUOSHT3_BT:
-  4414			break;
-  4415	
-  4416		case HID_GENERIC:
-  4417			if (wacom_wac->shared) {
-  4418				/*
-  4419				 * The setup of touch switch capability can only be done
-  4420				 * here for those devices, such as Cintiq Pro 13 and 16,
-  4421				 * that have touch input registered before stylus and pad
-  4422				 * inputs.
-  4423				 *
-  4424				 * There are two ways of reporting inputs from firmware:
-  4425				 * stylus first or touch first. This path covers the touch
-  4426				 * input first case.
-  4427				 */
-  4428				if (wacom_wac->has_mute_touch_switch &&
-  4429				    wacom_wac->shared->touch_input) {
-> 4430					input_set_capability(wacom_wac->shared->touch_input,
-  4431					    EV_SW, SW_MUTE_DEVICE);
-  4432				}
-  4433			}
-  4434			break;
-  4435	
-  4436		default:
-  4437			/* no pad supported */
-  4438			return -ENODEV;
-  4439		}
-  4440		return 0;
-  4441	}
-  4442	
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+> Hello,
+>
+> I would like to report a missing device support in the hid-uclogic
+> driver, and ask for guidance on how to properly add it.
+>
+> Device information
+> ------------------
+> =C2=A0 Name:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Xencelabs Pen Display
+> =C2=A0 Vendor ID:=C2=A0 0x28bd (Hanvon Ugee / XP-Pen)
+> =C2=A0 Product ID: 0x520d
+> =C2=A0 Firmware:=C2=A0=C2=A0 20250121(230322)
+> =C2=A0 Model:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 UG902_LPH2412_P10
+>
+> Problem
+> -------
+> The device is not handled by hid-uclogic. With hid-generic, the device
+> is registered only as a mouse and no pen events (ABS_X, ABS_Y,
+> ABS_PRESSURE, ABS_TILT) are reported to userspace.
+>
+> When I add the device ID to hid-uclogic-core.c, the driver binds, but
+> the resulting interface is still a mouse. evtest shows no pen events.
+> This suggests the device is still in "firmware mode" and never gets
+> switched into the vendor reporting mode that exposes the pen interface.
+>
+> Key observations from testing
+> -----------------------------
+> 1. lsusb reports only one interface (bNumInterfaces =3D 1, interface 0,
+> =C2=A0=C2=A0 HID class, mouse). It has only two interrupt endpoints:
+> =C2=A0=C2=A0=C2=A0=C2=A0 - 0x81 (IN, 64 bytes)
+> =C2=A0=C2=A0=C2=A0=C2=A0 - 0x01 (OUT, 64 bytes)
+> =C2=A0=C2=A0 Note: There is NO endpoint 0x03, which is the endpoint used =
+by
+> =C2=A0=C2=A0 uclogic_ugee_v2_probe_endpoint in hid-uclogic-params.c. Any =
+attempt
+> =C2=A0=C2=A0 to send magic bytes to 0x03 fails with "Invalid endpoint add=
+ress".
+>
+> 2. Reading the string descriptor at index 0x64 under LANGID 0x0409
+> =C2=A0=C2=A0 successfully returns a 14-byte binary blob (13 bytes of cont=
+ent).
+> =C2=A0=C2=A0 Raw HEX: 0e03289a78e60300ff1fd8130100
+> =C2=A0=C2=A0 (Other indexes return normal strings like the serial number =
+and
+> =C2=A0=C2=A0 "hanvon ugee Tech"). Reading index 0x64 does NOT switch the =
+device.
+>
+> 3. Sending the UGEE v2 magic bytes (02 b0 04 00 00 00 00 00 00 00)
+> =C2=A0=C2=A0 via SET_REPORT (Feature 0x02, Output 0x02, Feature 0x03) ret=
+urns
+> =C2=A0=C2=A0 success, but the device never re-enumerates.
+>
+> 4. A vendor-specific control request (bRequest 0xb0, wValue 0x0402)
+> =C2=A0=C2=A0 times out.
+>
+> 5. Note: Sending unexpected control transfers to this device can cause
+> =C2=A0=C2=A0 the USB HID interface to hang. It requires a complete power =
+cycle
+> =C2=A0=C2=A0 (unplugging USB and power) to recover.
+>
+> Request
+> -------
+> Could someone with access to the Xencelabs USB documentation, or
+> someone who has reverse-engineered the 520d, share the correct
+> sequence to switch this device into vendor mode?
+>
+> Specifically:
+> =C2=A0 - Is the 0x64 string descriptor read the right trigger, or is a
+> =C2=A0=C2=A0=C2=A0 specific control transfer required?
+> =C2=A0 - If a control transfer is needed, what is the correct bRequest,
+> =C2=A0=C2=A0=C2=A0 wValue, wIndex, and endpoint?
+> =C2=A0 - Are there known quirks for this device?
+>
+> If a capture from the Windows driver is needed, I can provide one.
+> If you have any hints, I will be happy to prepare a proper patch
+> with hid-uclogic-params.c changes and re-test.
+>
+> I am attaching the text files with:
+> =C2=A0 - lsusb -v output for 28bd:520d
+> =C2=A0 - the raw HID report descriptor (usbhid-dump)
+> =C2=A0 - the string descriptor enumeration (showing 0x64)
+> =C2=A0 - dmesg logs showing the binding behavior.
+>
+> Thank you very much for your time.
+>
+> Best regards,
+> Willows
+>
+> --
+> =C2=A0> https://tuta.com/free-email
+>
+
+
+------=_Part_8614_1153692763.1792314819145
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+  <head>
+    <meta http-equiv=3D"content-type" content=3D"text/html; charset=3DUTF-8=
+">
+  </head>
+  <body>
+<div dir=3D"auto"><br></div><div dir=3D"auto">fyi</div><div dir=3D"auto"><b=
+r></div><div dir=3D"auto">=E6=97=A5=E6=9C=9F: 2026/10/17 11:02<br></div><di=
+v dir=3D"auto">=E5=8F=91=E4=BB=B6=E4=BA=BA: willowswaving@tutamail.com<br><=
+/div><div dir=3D"auto">=E5=8F=91=E9=80=81=E8=87=B3: linux-input@vger.kernel=
+.org<br></div><div dir=3D"auto">=E4=B8=BB=E9=A2=98: [RFC] HID: uclogic: Add=
+ support for Xencelabs Pen Display (28bd:520d) and request for switch-to-ve=
+ndor-mode sequence<br></div><div dir=3D"auto"><br></div><blockquote class=
+=3D"tutanota_quote" style=3D"border-left: 1px solid #93A3B8; padding-left: =
+10px; margin-left: 5px;"><div dir=3D"auto">Hello,<br></div><div dir=3D"auto=
+"><br></div><div dir=3D"auto">I would like to report a missing device suppo=
+rt in the hid-uclogic<br></div><div dir=3D"auto">driver, and ask for guidan=
+ce on how to properly add it.<br></div><div dir=3D"auto"><br></div><div dir=
+=3D"auto">Device information<br></div><div dir=3D"auto">------------------<=
+br></div><div dir=3D"auto">&nbsp; Name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+ Xencelabs Pen Display<br></div><div dir=3D"auto">&nbsp; Vendor ID:&nbsp; 0=
+x28bd (Hanvon Ugee / XP-Pen)<br></div><div dir=3D"auto">&nbsp; Product ID: =
+0x520d<br></div><div dir=3D"auto">&nbsp; Firmware:&nbsp;&nbsp; 20250121(230=
+322)<br></div><div dir=3D"auto">&nbsp; Model:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+ UG902_LPH2412_P10<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">P=
+roblem<br></div><div dir=3D"auto">-------<br></div><div dir=3D"auto">The de=
+vice is not handled by hid-uclogic. With hid-generic, the device<br></div><=
+div dir=3D"auto">is registered only as a mouse and no pen events (ABS_X, AB=
+S_Y,<br></div><div dir=3D"auto">ABS_PRESSURE, ABS_TILT) are reported to use=
+rspace.<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">When I add t=
+he device ID to hid-uclogic-core.c, the driver binds, but<br></div><div dir=
+=3D"auto">the resulting interface is still a mouse. evtest shows no pen eve=
+nts.<br></div><div dir=3D"auto">This suggests the device is still in "firmw=
+are mode" and never gets<br></div><div dir=3D"auto">switched into the vendo=
+r reporting mode that exposes the pen interface.<br></div><div dir=3D"auto"=
+><br></div><div dir=3D"auto">Key observations from testing<br></div><div di=
+r=3D"auto">-----------------------------<br></div><div dir=3D"auto">1. lsus=
+b reports only one interface (bNumInterfaces =3D 1, interface 0,<br></div><=
+div dir=3D"auto">&nbsp;&nbsp; HID class, mouse). It has only two interrupt =
+endpoints:<br></div><div dir=3D"auto">&nbsp;&nbsp;&nbsp;&nbsp; - 0x81 (IN, =
+64 bytes)<br></div><div dir=3D"auto">&nbsp;&nbsp;&nbsp;&nbsp; - 0x01 (OUT, =
+64 bytes)<br></div><div dir=3D"auto">&nbsp;&nbsp; Note: There is NO endpoin=
+t 0x03, which is the endpoint used by<br></div><div dir=3D"auto">&nbsp;&nbs=
+p; uclogic_ugee_v2_probe_endpoint in hid-uclogic-params.c. Any attempt<br><=
+/div><div dir=3D"auto">&nbsp;&nbsp; to send magic bytes to 0x03 fails with =
+"Invalid endpoint address".<br></div><div dir=3D"auto"><br></div><div dir=
+=3D"auto">2. Reading the string descriptor at index 0x64 under LANGID 0x040=
+9<br></div><div dir=3D"auto">&nbsp;&nbsp; successfully returns a 14-byte bi=
+nary blob (13 bytes of content).<br></div><div dir=3D"auto">&nbsp;&nbsp; Ra=
+w HEX: 0e03289a78e60300ff1fd8130100<br></div><div dir=3D"auto">&nbsp;&nbsp;=
+ (Other indexes return normal strings like the serial number and<br></div><=
+div dir=3D"auto">&nbsp;&nbsp; "hanvon ugee Tech"). Reading index 0x64 does =
+NOT switch the device.<br></div><div dir=3D"auto"><br></div><div dir=3D"aut=
+o">3. Sending the UGEE v2 magic bytes (02 b0 04 00 00 00 00 00 00 00)<br></=
+div><div dir=3D"auto">&nbsp;&nbsp; via SET_REPORT (Feature 0x02, Output 0x0=
+2, Feature 0x03) returns<br></div><div dir=3D"auto">&nbsp;&nbsp; success, b=
+ut the device never re-enumerates.<br></div><div dir=3D"auto"><br></div><di=
+v dir=3D"auto">4. A vendor-specific control request (bRequest 0xb0, wValue =
+0x0402)<br></div><div dir=3D"auto">&nbsp;&nbsp; times out.<br></div><div di=
+r=3D"auto"><br></div><div dir=3D"auto">5. Note: Sending unexpected control =
+transfers to this device can cause<br></div><div dir=3D"auto">&nbsp;&nbsp; =
+the USB HID interface to hang. It requires a complete power cycle<br></div>=
+<div dir=3D"auto">&nbsp;&nbsp; (unplugging USB and power) to recover.<br></=
+div><div dir=3D"auto"><br></div><div dir=3D"auto">Request<br></div><div dir=
+=3D"auto">-------<br></div><div dir=3D"auto">Could someone with access to t=
+he Xencelabs USB documentation, or<br></div><div dir=3D"auto">someone who h=
+as reverse-engineered the 520d, share the correct<br></div><div dir=3D"auto=
+">sequence to switch this device into vendor mode?<br></div><div dir=3D"aut=
+o"><br></div><div dir=3D"auto">Specifically:<br></div><div dir=3D"auto">&nb=
+sp; - Is the 0x64 string descriptor read the right trigger, or is a<br></di=
+v><div dir=3D"auto">&nbsp;&nbsp;&nbsp; specific control transfer required?<=
+br></div><div dir=3D"auto">&nbsp; - If a control transfer is needed, what i=
+s the correct bRequest,<br></div><div dir=3D"auto">&nbsp;&nbsp;&nbsp; wValu=
+e, wIndex, and endpoint?<br></div><div dir=3D"auto">&nbsp; - Are there know=
+n quirks for this device?<br></div><div dir=3D"auto"><br></div><div dir=3D"=
+auto">If a capture from the Windows driver is needed, I can provide one.<br=
+></div><div dir=3D"auto">If you have any hints, I will be happy to prepare =
+a proper patch<br></div><div dir=3D"auto">with hid-uclogic-params.c changes=
+ and re-test.<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">I am a=
+ttaching the text files with:<br></div><div dir=3D"auto">&nbsp; - lsusb -v =
+output for 28bd:520d<br></div><div dir=3D"auto">&nbsp; - the raw HID report=
+ descriptor (usbhid-dump)<br></div><div dir=3D"auto">&nbsp; - the string de=
+scriptor enumeration (showing 0x64)<br></div><div dir=3D"auto">&nbsp; - dme=
+sg logs showing the binding behavior.<br></div><div dir=3D"auto"><br></div>=
+<div dir=3D"auto">Thank you very much for your time.<br></div><div dir=3D"a=
+uto"><br></div><div dir=3D"auto">Best regards,<br></div><div dir=3D"auto">W=
+illows<br></div><div dir=3D"auto"><br></div><div dir=3D"auto">--<br></div><=
+div dir=3D"auto">&nbsp;<a href=3D"https://tuta.com/free-email" rel=3D"noope=
+ner noreferrer" target=3D"_blank">https://tuta.com/free-email</a><br></div>=
+</blockquote><div dir=3D"auto"><br></div>  </body>
+</html>
+
+------=_Part_8614_1153692763.1792314819145--
+
+------=_Part_8613_1402475429.1792314819145
+Content-Type: text/plain; charset=us-ascii; name=lsusb-v-520d.txt
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=lsusb-v-520d.txt
+
+
+Bus 004 Device 013: ID 28bd:520d XP-Pen Xencelabs Pen Display
+Negotiated speed: Full Speed (12Mbps)
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 [unknown]
+  bDeviceSubClass         0 [unknown]
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x28bd XP-Pen
+  idProduct          0x520d Xencelabs Pen Display
+  bcdDevice            0.00
+  iManufacturer           1 hanvon ugee
+  iProduct                2 Xencelabs Pen Display
+  iSerial                 3 XP317BV1003174
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0029
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 [unknown]
+      bInterfaceProtocol      0 
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.00
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     143
+          Report Descriptors: 
+            ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval              10
+Device Status:     0x0000
+  (Bus Powered)
+
+------=_Part_8613_1402475429.1792314819145
+Content-Type: text/plain; charset=UTF-8; name=string-descriptors.txt
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment; filename=string-descriptors.txt
+
+Found device: Bus 4 Device 13
+Supported LANGIDs: ['0x409']
+
+--- LANGID 0x0409 ---
+  Index 0x00 (4 bytes): '=D0=89'
+  Index 0x01 (24 bytes): 'hanvon ugee'
+  Index 0x02 (44 bytes): 'Xencelabs Pen Display'
+  Index 0x03 (38 bytes): 'XP317BV1003174'
+  Index 0x04 (36 bytes): 'UG902_LPH2412_P10'
+  Index 0x05 (34 bytes): '20250121(230322)'
+  Index 0x64 (14 bytes): '=E9=A8=A8\ue678\x03\u1fff=E1=8F=98\x01'
+    RAW HEX: 0e03289a78e60300ff1fd8130100
+  Index 0x66 (34 bytes): 'hanvon ugee Tech'
+    RAW HEX: 2203680061006e0076006f006e002000750067006500650020005400650063=
+006800
+  Index 0x67 (8 bytes): '=E9=9A=B1=E3=90=B3=E3=90=B0'
+    RAW HEX: 0803b19633343034
+  Index 0x68 (6 bytes): '=C4=82!'
+  Index 0x69 (4 bytes): '\x02'
+  Index 0x6e (10 bytes): '\u3000\x00\x00=E4=90=83'
+  Index 0x83 (6 bytes): '=D0=81\u2000'
+
+------=_Part_8613_1402475429.1792314819145
+Content-Type: text/plain; charset=us-ascii; name=usbhid-dump-descriptor.txt
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=usbhid-dump-descriptor.txt
+
+004:013:000:DESCRIPTOR         1792205225.769689
+ 06 0A FF 09 01 A1 01 85 02 09 02 75 08 95 1F 15
+ 00 26 FF 00 81 02 09 03 75 08 95 20 15 00 26 FF
+ 00 91 02 C0 05 0D 09 02 A1 01 85 07 09 20 A1 00
+ 09 42 09 44 09 45 09 46 09 3C 15 00 25 01 75 01
+ 95 05 81 02 09 32 95 01 81 02 95 02 81 03 75 10
+ 95 01 35 00 A4 05 01 09 30 65 13 55 0D 46 64 CC
+ 26 50 57 81 02 09 31 46 A0 73 26 92 36 81 02 B4
+ 09 30 45 00 26 FF 1F 81 42 09 3D 15 81 25 7F 75
+ 08 95 01 81 02 09 3E 15 81 25 7F 81 02 C0 C0
+
+
+------=_Part_8613_1402475429.1792314819145
+Content-Type: text/plain; charset=us-ascii; name=dmesg-binding.txt
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=dmesg-binding.txt
+
+[    2.723183] hid-generic 0003:09DA:6406.0001: input,hidraw0: USB HID v1.11 Keyboard [A4tech A4tech KB] on usb-0000:00:14.0-3/input0
+[    2.778037] hid-generic 0003:09DA:6406.0002: input,hiddev96,hidraw1: USB HID v1.11 Device [A4tech A4tech KB] on usb-0000:00:14.0-3/input1
+[    3.016559] hid-generic 0003:23E5:A2F9.0003: hiddev97,hidraw2: USB HID v1.11 Device [Antelope Audio Zen Quadro SC] on usb-0000:00:14.0-4/input3
+[    3.030171] hid-generic 0003:2022:0522.0004: hiddev98,hidraw3: USB HID v1.10 Device [DINK_HID_DEVICE DINK_HID_DEVICE] on usb-0000:00:1a.0-1.2/input0
+[    3.408966] hid-generic 0003:0403:6030.0005: hidraw4: USB HID v1.11 Device [FTDI FT260] on usb-0000:00:1d.0-1.7.1/input0
+[    3.411009] hid-generic 0003:0403:6030.0006: hidraw5: USB HID v1.11 Device [FTDI FT260] on usb-0000:00:1d.0-1.7.1/input1
+[  671.015347] hid-generic 0005:046D:B036.0007: input,hidraw4: BLUETOOTH HID v0.06 Mouse [Pebble M350s] on ec:ed:04:94:96:15
+[ 1662.091759] usb 4-1.8.3: New USB device found, idVendor=28bd, idProduct=520d, bcdDevice= 0.00
+[ 1662.093419] input: hanvon ugee Xencelabs Pen Display as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000A/input/input21
+[ 1662.093514] input: hanvon ugee Xencelabs Pen Display Stylus as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000A/input/input22
+[ 1662.093729] hid-generic 0003:28BD:520D.000A: input,hiddev99,hidraw5: USB HID v1.00 Device [hanvon ugee Xencelabs Pen Display] on usb-0000:00:1d.0-1.8.3/input0
+[ 1662.164066] input: hanvon ugee Xencelabs Pen Display Mouse as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000A/input/input23
+[ 1662.164270] uclogic 0003:28BD:520D.000A: input,hidraw5: USB HID v1.00 Mouse [hanvon ugee Xencelabs Pen Display] on usb-0000:00:1d.0-1.8.3/input0
+[ 1965.125557] input: hanvon ugee Xencelabs Pen Display Mouse as /devices/pci0000:00/0000:00:1d.0/usb4/4-1/4-1.8/4-1.8.3/4-1.8.3:1.0/0003:28BD:520D.000B/input/input24
+[ 1965.125803] uclogic 0003:28BD:520D.000B: input,hidraw5: USB HID v1.00 Mouse [hanvon ugee Xencelabs Pen Display] on usb-0000:00:1d.0-1.8.3/input0
+
+------=_Part_8613_1402475429.1792314819145--

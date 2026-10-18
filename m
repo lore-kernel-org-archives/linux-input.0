@@ -1,125 +1,135 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-85.mta1.migadu.com [95.215.58.85])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E16DB411FB3;
-	Sun, 18 Oct 2026 19:34:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FB3D3D5227
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 19:48:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.85
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792352088; cv=none; b=ZtBVUVTRCeydwGWOuOXz67v8g+E4Ca51Gc+d8HnbQ8vdNnnmbWBqveeksqOrTJiGg4Lcd+13SX2rRN+F/Bf9vv8nr8JqX+2tzoBLvpwUFBmYiOhOXmZ6aaTVj/2GyMFzBovJnMSszlgHIA82NAL/DzL6TPgJi4xE8Exu7iq7cGw=
+	t=1792352907; cv=none; b=h22SVhoj/nxBlAEZOOPi7VHsmuDfCCLEcO0xQquxj9C82uJIAa5a9eFCAdyRXo2bqke2zgccMkWA0jOZTPbUo1nrkDHD1vY5V0LR+CDNO90EKFwXOSjff+J/s++4TJNBnmCB2e4kcOL2bQQNktvXgunBTuQdUptSpSDBsDLC6tc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792352088; c=relaxed/simple;
-	bh=joVsEekgxWY1deJp/UVdnIJj0mkrVRGDrmJ4u4rDTIU=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=tJUigza8C9GCAmnX9qubeCaFwygLg9fhG4J4f8v8agZKGvGkU4NKXut4dLe6Ov/V0ktTNKE1eBeLEBG4rWBODo2Hs3dmmiTvy4WD2nmEnS9+rC2eenNaRGcfZzRXucuvlZWrof18pc2/ZjXc8Z15zHO4D3UiiH8Vxc4N0j88HgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lDsxCyBB; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792352907; c=relaxed/simple;
+	bh=/yIF3n4oT72GD7bhZKBGyWKTRaTdZ2UypHatGQorBfQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UOBZDuAz4+K1QA0espDODbrZPpgFEgjDFtTC/vNzY9T6IIB97N0tv3ZL1vaAZ8VXQGQAhR6SMPq9bpnD1Bau0SIf6S5j5FEA/KYTSgFZ9hxkCPYAH8QUiTPH++uoFwDVa5FYjFiID6FsOQ3cu60HdbAA8XNMqIrDt7eMDi1aVLs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=v1uHodZb; arc=none smtp.client-ip=95.215.58.85
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lDsxCyBB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C7581F000C4;
-	Sun, 18 Oct 2026 19:34:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792352087;
-	bh=7hWgfUJX0ue4is68wn7v2s40Yl3GSfkyn05gclLtDvo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=lDsxCyBBjbt+2ZdGlnG/DGkT00cwM5F1DDLBPQGRW11zP5CbiC2Zk4WG93c9qEtXx
-	 3RhH1JLyGO1FoBZdWRgt3yE1yXn7019bCpBRl16HDMYYZwZoaqIFv8rYX1IIUCSP04
-	 G+k46gpUumrlwThLogXXk1VofDTjnSvfAr9E6/QVntIuvg5fUtFG42OGFDngSvY95a
-	 Q7banIO5DY7Qj7GacZgXdoF41gtWzINKbI6fhw9K9QuS7WaZUIH6Aouncu0fbMlqO1
-	 c0/AcQfpXBcBmswTPTuzwaybI+jg80hLhMHxvytZ+fl+4YJN/BRk49rKB2T5+RkHtx
-	 onOP9P89QPMng==
-Date: Sun, 18 Oct 2026 20:34:39 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Christopher Hoover <ch@murgatroid.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, David Lechner
- <dlechner@baylibre.com>, nuno.sa@analog.com, Andy Shevchenko
- <andy@kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] iio: humidity: hid-sensor-humidity: Use
- per-instance callbacks
-Message-ID: <20261018203439.26c4a98c@jic23-hlaptop>
-In-Reply-To: <20261007184423.622445-4-ch@murgatroid.com>
-References: <20261007072329.27806-1-ch@murgatroid.com>
-	<20261007184423.622445-1-ch@murgatroid.com>
-	<20261007184423.622445-4-ch@murgatroid.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="v1uHodZb"
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=/yIF3n4oT72GD7bhZKBGyWKTRaTdZ2UypHatGQorBfQ=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1792352903; v=1; x=1792957703;
+ b=v1uHodZb87zwlKYen1ckw/Ssrvu49BHfqdxKcMm/BB16hMrdeQYCKGC5PkK77ocFgR2ZCykp
+ +GXQPhbG5QvBXy2N7gmXPldGGiFpvg9rTchMpYmOx/ZaeV11jyPWXi3wSE96PVT3wsY/dMaygZk
+ QLJ5GSmBU5VmkXAeSWhktd+Q=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id f3608eb7e4297639;
+	Sun, 18 Oct 2026 19:48:23 +0000
+X-Mizu-Trace-ID: f3608eb7e4297639
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <23dcbde2-26c3-4288-aa71-3bb3107e3f45@linux.dev>
+Date: Sun, 18 Oct 2026 21:48:21 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 7/7] HID: asus: Re-send the Zenbook Duo keyboard
+ handshake after probe
+To: =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Luke Jones <luke@ljones.dev>,
+ Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+ Ivan Levchenko <me@livan.pro>, Nathan Chancellor <nathan@kernel.org>,
+ Paolo Pisati <p.pisati@gmail.com>
+References: <4bf9e6b0-4f6e-4faf-a2b6-a57143ef3f23@linux.dev>
+ <20261018191823.22123-1-rebecca.mara@posteo.de>
+Content-Language: en-US
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <20261018191823.22123-1-rebecca.mara@posteo.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed,  7 Oct 2026 11:44:23 -0700
-Christopher Hoover <ch@murgatroid.com> wrote:
 
-> hid-sensor-humidity keeps a single static struct
-> hid_sensor_hub_callbacks for all instances and overwrites its pdev in
-> every probe, so with two humidity sensors, input reports for one are
-> delivered with the other's platform device, and a NULL dereference
-> follows once that device is removed.  The same bug was found in
-> hid-sensor-temperature, which shares this code.
-> 
-> Keep the callbacks in struct hid_humidity_state, as the other HID
-> sensor drivers (accel, gyro, als, ...) do.
-> 
-> Fixes: d7ed89d5aadf ("iio: hid: Add humidity sensor support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christopher Hoover <ch@murgatroid.com>
-Hi Christopher,
+On 10/18/26 21:18, Rebecca Mara Müller wrote:
+> On Sun, Oct 18, 2026 at 07:10:57PM +0200, Denis Benato wrote:
+>> So this patch is based on an arbitrary wait that is based on the
+>> assumption that some other device gets initialized...
+>>
+>> Can you try making this deterministic?
+> Since this part came from my patch, I went back and measured it on my
+> UX8407AA before trying to make it deterministic. The result: there is
+> nothing to fix, so please drop 7/7.
 
-Same suggestion as I made on patch 2 applies here.
+That's good! The probe function is unfortunately a bit chaotic as it
+is already... After all this driver must handle many different wildly
+different devices so keeping it simpler benefits the addition of new
+devices.
 
-Otherwise LGTM.  This one seems less likely to be a problem in
-practice than the previous just because I can't imagine we have
-devices out there with multiple humidity sensors! Still good to
-fix in case they ever show up.
+> I built v3 as an out-of-tree module against a 7.0.11-based distribution
+> kernel, with only the schedule_delayed_work() call of 7/7 removed and my
+> userspace workaround stopped, and checked whether the keyboard stays in
+> hotkey mode (keyboard backlight key changing asus::kbd_backlight, plus
+> usbmon on the keyboard's bus for part of the runs):
+>
+> - docking: 10 of 10
+> - loading the module with the keyboard attached: 2 of 2
+> - rebinding only the touchpad to hid-multitouch while docked: 4 of 4
+> - s2idle suspend and resume: 3 of 3
+> - reboot with the module loaded after hid-multitouch (rootfs only):
+>   2 reboots, 1 cold boot, all fine
+> - reboot with the module in the initramfs: 3 reboots, 1 cold boot,
+>   all fine
+>
+> usbmon shows hid-asus sending the 0x5a handshake on interface 4 and
+> hid-multitouch sending feature reports 0x07, 0x03 and 0x05 to the
+> touchpad on interface 5 some 10-20 ms later, and the hotkeys keep
+> arriving as 0x5a reports on interface 4 afterwards. The same happens
+> when hid-multitouch reconfigures the touchpad on resume or on a rebind.
+>
+> I also went back through my notes from August to see why I believed
+> otherwise. The conclusion came from a test where I rebound the touchpad
+> and the brightness keys then did nothing. At that point my test module
+> had neither the descriptor fixup nor the forced hid-input binding yet,
+> so the hotkey interface had no input device at all and the keys could
+> not have worked in either mode; my userspace workaround was stopped.
+> All later tests that day already included the re-send, so they showed
+> that the whole patch works, but never whether the re-send is needed.
+>
+> I am really sorry for the extra work this caused, Paolo, for carrying
+> and adapting the patch, and Denis and everyone else for reviewing it.
+> This was my first time this deep into a driver, and I should have
+> tested the re-send on its own before sending it.
 
-thanks,
+Well you know how this things go... Only who does nothing can claim
+to have made no mistakes. There's no problem for me, in fact it happened
+to me too to do work based on assumptions that ended up being false...
+It just happens and is nobody's fault!
 
-Jonathan
+I actually like reading these things so I know what was done and tested
+and what to look for in case I find myself in similar situations (and what
+to look for when bringing up new hardware in the fastest way possible).
 
-> ---
->  drivers/iio/humidity/hid-sensor-humidity.c | 12 +++++-------
->  1 file changed, 5 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-> index 7cec81ff5685..95ee1d71c1a7 100644
-> --- a/drivers/iio/humidity/hid-sensor-humidity.c
-> +++ b/drivers/iio/humidity/hid-sensor-humidity.c
-> @@ -14,6 +14,7 @@
->  
->  struct hid_humidity_state {
->  	struct hid_sensor_common common_attributes;
-> +	struct hid_sensor_hub_callbacks callbacks;
->  	struct hid_sensor_hub_attribute_info humidity_attr;
->  	struct {
->  		s32 humidity_data;
-> @@ -184,11 +185,6 @@ static int humidity_parse_report(struct platform_device *pdev,
->  	return ret;
->  }
->  
-> -static struct hid_sensor_hub_callbacks humidity_callbacks = {
-> -	.send_event = &humidity_proc_event,
-> -	.capture_sample = &humidity_capture_sample,
-> -};
-> -
->  /* Function to initialize the processing for usage id */
->  static int hid_humidity_probe(struct platform_device *pdev)
->  {
-> @@ -240,9 +236,11 @@ static int hid_humidity_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, indio_dev);
->  
-> -	humidity_callbacks.pdev = pdev;
-> +	humid_st->callbacks.send_event = humidity_proc_event;
-> +	humid_st->callbacks.capture_sample = humidity_capture_sample;
-> +	humid_st->callbacks.pdev = pdev;
->  	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
-> -					   &humidity_callbacks);
-> +					   &humid_st->callbacks);
->  	if (ret)
->  		goto error_remove_trigger;
->  
+> Unrelated, in case it is useful: with the series applied, the keyboard
+> backlight stays on while the laptop is in s2idle suspend.
 
+I haven't looked much at these models beside the wmi side so I don't
+know if they are like ROGs/TUFs but ROGs and TUFs have the keyboard
+backlight that can be configured in s2idle and/or hibernation, but even
+if powered on usually the pattern changes... So I am concerned that
+hardware isn't entering s2idle properly... Are you sure it is?
+
+You can use the amd-s2idle tool even if the CPU is an intel one to check
+that.
+
+I don't want to speculate too much, but if it really is sleeping then we are
+either missing a way to configure backlight enablement on power states
+or a command to send while suspending.
+
+> Thanks,
+> Rebecca

@@ -1,118 +1,203 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 047FC37701A
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 02:56:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F8F53F328D
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 06:12:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792292217; cv=none; b=LPWyyKMlHtSzTmbNL3W0n78VLoP+WQoK08w9e8FlBLKX84I2uhD6MRSI/R8g+8pYwYcyY8geFvoc3T6aKqHLWfMYlTTbbr4J3ktaJL4+vsTda8R98Txdw/pszAJut1ehllXsVnFe/7e9Na5QWfwktfJac4rsn7oD81/+TCi8i48=
+	t=1792303936; cv=none; b=I9gqyacudRWeVxL8Lzs8aJwgHdl5PeL+0AECX35MqlKKmAbrO6dL1jQJJ9/YyyCplqqL/nTmGs8cWckZ6F9hsChguRivCd2mcNfTANrhMUoS7C1mSEGczVWDbqh1vXDKouEvecKJpNppcuwhKvZImzztGjvQMOjXqdTXIzwzQeA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792292217; c=relaxed/simple;
-	bh=UbdV8dkOdR9vPuOfO9gFCEr2A0/7OA8pXSL2w/2FWYc=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=nW1C6CG8xbIEcSZpdlFzl3aIKMrB8OlYswD+JvJGrKJB6Zy7CDqCrNmKKHpEjYR1ldbDNe6eboXeiWTWhMLLVODPJTn6+V0rpYfRJdQ3kltMkbdNCNTGep0dE97+HpTBHxjXxe0plXnFwZUUIRGc6wJFWw1wKQ/JEBuN/HrR0vw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wwc4TSOg; arc=none smtp.client-ip=209.85.222.182
+	s=arc-20240116; t=1792303936; c=relaxed/simple;
+	bh=WbMfdK/eyZJynE1W/XkPmTttiyGMyXB1NhVqTfoICG4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=JnknzX+NQwv5q8N3alMNLxMQBCltVr+6tYu+h3nLEAwYrb/+JeJIGBxTIeNi5O2awsxyCy9BTjcl6SmbPzTKFS9rvg+Ao+bzDAVsDs1xTea7UyRKku8Hz6Jj04Zi6hJuTsZz/XAcEepBAg/2HZU+FV/74c8mTSieH+WKViB0kZc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T5SSu68H; arc=none smtp.client-ip=74.125.82.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wwc4TSOg"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-93efc0452b5so69307185a.0
-        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 19:56:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T5SSu68H"
+Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-35aa0cf7c40so2221897eec.1
+        for <linux-input@vger.kernel.org>; Sat, 17 Oct 2026 23:12:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792292213; x=1792897013; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:content-type:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+        d=gmail.com; s=20251104; t=1792303934; x=1792908734; darn=vger.kernel.org;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=1Rs959E2LcbDEDwb+XDadmIuU6nNMzUxfauxEwFd3lE=;
-        b=Wwc4TSOgVHs49rPWe999nXYaetiLXAx1UGMiw4WcKBmsmrISz91kEZbN63A/9RfaW3
-         5IlrtMdsmJ35Y84nXBrVeQWw3lSTTnxULKM+PWx4v1jemIDGQCW6QAFkiIWc6S6k+2Kc
-         Zq97FN3RJuGvEcup/ey3H8WYtJdna23UEWMGqTafSNhx2ASCi7R0pmJ1IGiB1QXUwuPj
-         Tr9s/QNduCFjU8VOJokqN7xsPTE4NB0JqjQm8z2NXJjBkPWx0OzQ9hwAf6kIWIn8s32s
-         Y3znqdRdO6/9YDsbTVFTW0hzkDhrGoNaeUvDKptHqgMLIvD2QDolSez6aurn4BjpDZAG
-         aUlg==
+        bh=SNEBAbWY/CxdBni1bXmXRsfCsUtcrtBZszExfd59OMk=;
+        b=T5SSu68HKT+8WxmMFITdF7S59LrLtc+BU4LGG+EFKMZ0t75hcRwYMu5e4Oy481sZdN
+         52S/swBruKKvWwOSOhsDBFG/j0qohph0ZGBDPymr46fWBs496PQp6TeczJcRdAnZGgha
+         BXGjBXHelh7BjMiKEfYetll+MrHw8sEsE+xeoj8r8zdxZZtVBo+avirIR5rUgNKXL8rt
+         VpRWmKDMhUTqx8AWxHbLiyqUHlHjWEs+eeivbFA6B6uSbrHdEY4HIqmQq/b4B+ePyFoI
+         iZk60Zmjfpo/jaL7soYYgjvIhHScqXpXlhJfTGqWwJge8FwcsxIRW+CA9BVejumg+BOx
+         lzzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792292213; x=1792897013;
-        h=content-transfer-encoding:mime-version:content-type:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=1Rs959E2LcbDEDwb+XDadmIuU6nNMzUxfauxEwFd3lE=;
-        b=yK5i0j6Vr/VdDPLM6kb4RsbKirLcyXwi8Os7nH9SmCIQ9duQmQG5logPZysARkIpdm
-         0iRATV/SVYEusWQVmlqNFG7/BDBosgse94mQJmatEZPNOoeg+xZAIjZh/vIaA8y+Qaq7
-         62+OjpTMAxdigDMBccENJ4hdWhKOtjV3Qa55/huvH2APT4z5CSbvKPWHJsos4fc80ve/
-         6HDIBHQU985O1ypElZJHdwG/0ey5A3+uKdM91dz7OU7N6/QN6cLCKMR01V+wsUmnAHbE
-         2Hbd2hNk9fCkkOmeof+jAnyjxYZaX8T4vwY5MTsxdhcHddyCbyM6wEAzpMtMBb4Tq8J/
-         O6zw==
-X-Gm-Message-State: AFq9FYIk0dhhXvgRLlP/Kdc985pdKKeuxaoqI4rHEyTANhIdAlcnB7Mo
-	V2uQ2rGzKHG1lNSMthfB6hoiTvx1/i8C7h5cAHEkWJ9QI0byyuQ9u0A=
-X-Gm-Gg: AYBFou0PaMpj/0yOakmIJQhVnWSaFuXN2c9kpqLy9pGMPDbapLrNwcPEa5hLJZPj6Ii
-	4JSFAE/WS9jqdAGPVpJzctE6j4KfEzO+3sKsz5epNONM/8q7ZKd17rX3qEAdv4/9mt2+94Ox/BV
-	kBqtDNuaQLJTH9eHydecp1tJlj0f7pj8gMOQgw48DwT/0Lgizbk1WPgDjSJ+s7/rKLVBKHtJAPg
-	TtCFspo+gXmpt+cMi+bbM9Pd9lS312yh4NegvBOf29nuyr7RRVFJi4EQsMY/UsP2Dcw6YGvgQbT
-	Njinda+jYfuE5fh0NoZm/P4zV3v462gkXiOy+lrT86Q2ZZfQ2YHjzPj1DiNY0WDmN4ekZltYRta
-	fS4DlyxEOAVdYz6jj8L6COX2uZaWV2aCq9gTQ4nXOvV+rBtiKu6EGwkavMSXEbciC3LJ9D+YQUq
-	RQZuW4cywAIPFvk8Wc0qBz5FYGLBfxgn0z6CyKxCa41b8aBKXFrlsv1jpSyU4YlZm0VHcOLaAPi
-	reCiZVMhWn4194q82T9WSienap4CNSSThu7Av8HQogI9A0uBMEs6mytSaKY/rfgvy/dPqflIX2D
-	f0WA4OlK/2SGy15TDn6iXjJYs2xK
-X-Received: by 2002:a05:620a:26a4:b0:93b:bce3:5499 with SMTP id af79cd13be357-93f29b80618mr714198785a.6.1792292213458;
-        Sat, 17 Oct 2026 19:56:53 -0700 (PDT)
-Received: from i4-gl-tmk5904-1.ad.psu.edu ([130.203.156.90])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93f1a1850cbsm597676985a.24.2026.10.17.19.56.51
+        d=1e100.net; s=20260707; t=1792303934; x=1792908734;
+        h=content-disposition:content-type:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=SNEBAbWY/CxdBni1bXmXRsfCsUtcrtBZszExfd59OMk=;
+        b=sJ7LBByIqT9NACayDFhUR0mOhsEg2EycbNi9HlBNIj9aom4lPNjqOMM6PWdp5ckfSC
+         N0wfNz4XGJfLGgvppi28e0TNrjhnOgPPpgKwiWFtSYb7y+bEA0JbM/0l4ovNO1bz4aRT
+         hF/jVo2XhUephVvya7hJs6u7jWqxoiO3dC6Of5mLGkkRkmf99ILlT62Wbf+KmxhTpBDL
+         Tx49kEFwRarXPhEhXzLwjnSzYQU7/JLRaTNPxw5AJdgUIRPRukC2Z0UwUAQUW6FzkzYd
+         wX0Gpc+N0+GefXeuLAY6AQsJ428uf5WaL21iArZ0z+hfgddDhjkEF7cp+oqqbF9fFDqM
+         EYIg==
+X-Forwarded-Encrypted: i=1; AKwUvBwoHcpKd2EJmayyjWnuIM0XWTch4T2rTV7tyC3+yo4DAJ59z2a2vCTEQP4oxc9FNcuNuuWFWEgpiCuVGw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYICDRDg/f9BoA238IqbDjWnfS8MWw+WtCrst0OQxU92OewWq50z
+	BNgN5Fj0WCUVAQk0oHKdxtx8Mjq4s1STSVDQC5XbyPzr/dEXsrwVyW845qOXxA==
+X-Gm-Gg: AYBFou0Hl4WST/62Y5s+R7kBbQXp2Kw3c3WwcbkRETZ/p0E4UpLQCEMz1Ld/fze5q4L
+	caUxKL5vZKHDxoQRMB4p82Wk+ELUUt5g4Man1zSs6YYo6c8wKoG17Bd4vSErFeRiVzaJqwqJtGG
+	5iyeCQynaf9oA44G+mqnF6iC5hlL1fd0VvysI6ICIyTS8VKvrm73zkv1EWUsms7MorQzdlxQesp
+	s9nywsn09Qna1GMLX8+0zeh36rcHelmsoY/dbnmAaL2c122oYLo85D9ATKMmKSyEir3G+i5iPun
+	1lHnMvsIsfzD4ms44epC9vtPhbVPGwG50yMTYgbdrly2dSGXQOuAAqoupX9yNH9KiRjXeAUJJEY
+	LUkERRFyaavhAPzmTpiWP5VJQHgVVH+pP/AQU4Th1+4Q3IMsQsOayiEFT5GrriiikepJe+g/6Mk
+	z6OfsNFcOmEE18SBssfvavxZOS4iU2xEprOxhLkOS/TyEtpbQipaOsz05rRNwS+FJRqbSlWxD8F
+	TdCotbd8Oapb/DbC0sWY4TGgyuLXTxs2MjkgsbbdhWLQ7SIpw==
+X-Received: by 2002:a05:7301:470e:b0:358:8bd2:fda1 with SMTP id 5a478bee46e88-361a2649752mr6073652eec.30.1792303934037;
+        Sat, 17 Oct 2026 23:12:14 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:297c:6f48:9e5:4e5b])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-360813b684dsm20989445eec.10.2026.10.17.23.12.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Oct 2026 19:56:52 -0700 (PDT)
-From: Myeonghun Pak <mhun512@gmail.com>
-To: Support Opensource <support.opensource@diasemi.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Ijae Kim <ae878000@gmail.com>
-Subject: [PATCH] Input: da9055_onkey - free the requested IRQ on removal
-Date: Sat, 17 Oct 2026 22:56:50 -0400
-Message-ID: <179229215687.3924264.8583597004889642167.da9055-onkey@gmail.com>
-X-Mailer: git-send-email 2.53.0
-Content-Type: text/plain; charset="utf-8"
+        Sat, 17 Oct 2026 23:12:13 -0700 (PDT)
+Date: Sat, 17 Oct 2026 23:12:10 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Support Opensource <support.opensource@diasemi.com>
+Cc: Myeonghun Pak <mhun512@gmail.com>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: da9055_onkey - switch to using managed resources
+Message-ID: <atRjCWI0PXs840rl@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-platform_get_irq_byname() returns the Linux IRQ number already
-translated by the MFD core. The probe path requests this IRQ directly,
-but remove passes it through regmap_irq_get_virq() again as a chip-local
-index.
+Switch the driver to use devm_input_allocate_device(),
+devm_delayed_work_autocancel(), and devm_request_threaded_irq() to
+simplify error handling in probe and drop the remove() callback (which
+also had a leftover broken regmap_irq_get_virq() call on an already
+mapped virtual IRQ). Also use input_set_capability() to advertise
+KEY_POWER support and drop unneeded error messages.
 
-This can access beyond the chip IRQ table or yield a different IRQ, so
-the requested ONKEY interrupt is not released. An interrupt after the
-work cancellation can then access the unregistered input device or queue
-work referencing the freed onkey state.
-
-Remove the second translation so free_irq() stops the same producer that
-probe installed before the delayed work and input device are torn down.
-
-This issue was identified as part of our ongoing research while
-reviewing kernel code.
-
-Fixes: 06491e84f0f9 ("Input: da9055_onkey - remove use of regmap_irq_get_virq()")
-Assisted-by: LLM
-Co-developed-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Ijae Kim <ae878000@gmail.com>
-Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
-
+Reported-by: Myeonghun Pak <mhun512@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
-Compile-tested with Clang, W=1. No hardware runtime testing.
-
-Based on mainline 0fcb05b72344f40806cbe810de8872f1698bf053.
+ drivers/input/misc/da9055_onkey.c | 59 ++++++++-----------------------
+ 1 file changed, 15 insertions(+), 44 deletions(-)
 
 diff --git a/drivers/input/misc/da9055_onkey.c b/drivers/input/misc/da9055_onkey.c
-index 3e4fc2f..20ee79a 100644
+index 3e4fc2f01011..25845106b920 100644
 --- a/drivers/input/misc/da9055_onkey.c
 +++ b/drivers/input/misc/da9055_onkey.c
-@@ -137,7 +137,6 @@ static void da9055_onkey_remove(struct platform_device *pdev)
- 	struct da9055_onkey *onkey = platform_get_drvdata(pdev);
- 	int irq = platform_get_irq_byname(pdev, "ONKEY");
+@@ -7,6 +7,7 @@
+  * Author: David Dajun Chen <dchen@diasemi.com>
+  */
  
++#include <linux/devm-helpers.h>
+ #include <linux/input.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+@@ -45,7 +46,6 @@ static void da9055_onkey_query(struct da9055_onkey *onkey)
+ 	 */
+ 	if (key_stat)
+ 		schedule_delayed_work(&onkey->work, msecs_to_jiffies(10));
+-
+ }
+ 
+ static void da9055_onkey_work(struct work_struct *work)
+@@ -80,72 +80,43 @@ static int da9055_onkey_probe(struct platform_device *pdev)
+ 		return -EINVAL;
+ 
+ 	onkey = devm_kzalloc(&pdev->dev, sizeof(*onkey), GFP_KERNEL);
+-	if (!onkey) {
+-		dev_err(&pdev->dev, "Failed to allocate memory\n");
++	if (!onkey)
+ 		return -ENOMEM;
+-	}
+ 
+-	input_dev = input_allocate_device();
+-	if (!input_dev) {
+-		dev_err(&pdev->dev, "Failed to allocate memory\n");
++	input_dev = devm_input_allocate_device(&pdev->dev);
++	if (!input_dev)
+ 		return -ENOMEM;
+-	}
+ 
+ 	onkey->input = input_dev;
+ 	onkey->da9055 = da9055;
+ 	input_dev->name = "da9055-onkey";
+ 	input_dev->phys = "da9055-onkey/input0";
+-	input_dev->dev.parent = &pdev->dev;
+ 
+-	input_dev->evbit[0] = BIT_MASK(EV_KEY);
+-	__set_bit(KEY_POWER, input_dev->keybit);
++	input_set_capability(input_dev, EV_KEY, KEY_POWER);
+ 
+-	INIT_DELAYED_WORK(&onkey->work, da9055_onkey_work);
++	err = devm_delayed_work_autocancel(&pdev->dev, &onkey->work,
++					   da9055_onkey_work);
++	if (err)
++		return err;
+ 
+-	err = request_threaded_irq(irq, NULL, da9055_onkey_irq,
+-				   IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
+-				   "ONKEY", onkey);
+-	if (err < 0) {
+-		dev_err(&pdev->dev,
+-			"Failed to register ONKEY IRQ %d, error = %d\n",
+-			irq, err);
+-		goto err_free_input;
+-	}
++	err = devm_request_threaded_irq(&pdev->dev, irq, NULL, da9055_onkey_irq,
++					IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
++					"ONKEY", onkey);
++	if (err)
++		return err;
+ 
+ 	err = input_register_device(input_dev);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "Unable to register input device, %d\n",
+ 			err);
+-		goto err_free_irq;
++		return err;
+ 	}
+ 
+-	platform_set_drvdata(pdev, onkey);
+-
+ 	return 0;
+-
+-err_free_irq:
+-	free_irq(irq, onkey);
+-	cancel_delayed_work_sync(&onkey->work);
+-err_free_input:
+-	input_free_device(input_dev);
+-
+-	return err;
+-}
+-
+-static void da9055_onkey_remove(struct platform_device *pdev)
+-{
+-	struct da9055_onkey *onkey = platform_get_drvdata(pdev);
+-	int irq = platform_get_irq_byname(pdev, "ONKEY");
+-
 -	irq = regmap_irq_get_virq(onkey->da9055->irq_data, irq);
- 	free_irq(irq, onkey);
- 	cancel_delayed_work_sync(&onkey->work);
- 	input_unregister_device(onkey->input);
+-	free_irq(irq, onkey);
+-	cancel_delayed_work_sync(&onkey->work);
+-	input_unregister_device(onkey->input);
+ }
+ 
+ static struct platform_driver da9055_onkey_driver = {
+ 	.probe	= da9055_onkey_probe,
+-	.remove	= da9055_onkey_remove,
+ 	.driver	= {
+ 		.name	= "da9055-onkey",
+ 	},
+-- 
+2.56.0.176.g3575e65682-goog
+
+
+-- 
+Dmitry

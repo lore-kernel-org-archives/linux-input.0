@@ -1,62 +1,62 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BD324DEC38
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 21:38:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4154C1502
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 21:38:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792359502; cv=none; b=QJ7swSfPEEfMxTwiPu4YdONtwVNS+peHfqx+ZOe1SxJgzjh25DzitKZR1tkaSapmvA5cgMtPhxRGLmCJXPszUbg0VZ5MUVQmVHbyrFwqrljlDSogLHDUXzWauF+gck3rVNl/Av9IBVNV2tWyAt8rg6b+xDbOPOOhPvus0s0/MAQ=
+	t=1792359505; cv=none; b=Z9c/RI3AmfnILQ3uzgQWJIUL68DpMvlIVIvS+Pf0FQ0JMM5RqR8m99jPvHUJX3CAaMwhMjZmzv+s9xShsy4TE6VYmWyMq4SIe9lzABak0T/BOzeun7nu6SnY+X2cemOl0z6Wb1ZlP89bG9svFPaYrtwxxxrWhAyfaRBnZjDZDR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792359502; c=relaxed/simple;
-	bh=TEReWKhHAWlGInl30NA0QerMBstlNh4jb6eCUhA0BqE=;
+	s=arc-20240116; t=1792359505; c=relaxed/simple;
+	bh=aUzjK8ol795HHRbJphJgtTRR/M0uYgvtIthrbMPir8A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XvpGXOLxVr/71rBTkMOzJD5PiY0HqUEkThtpQ6g/buZKIf+0sSeu/BGnwLOteNXT9ZdkrUfNeyCzyJCTswxzOZv5EOd6sXcorxD2XspYg5wM3SvSibSL0HeFfm2/0TsADpZIBFUg386MPc+yesvrWRucpTGUVJ7YrAd0V5rvImQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rPodl2sv; arc=none smtp.client-ip=209.85.221.50
+	 MIME-Version; b=APwzuzGGy37hSe6mDDdBK4LQBWBkSpALjfCBe6Phi7VBOwO06u1SJKrlaixw+2mFXciiiNWFsKG6enHt790Zr9xOZ4qzI5new8BhsomAWB2UyeYidEjkKf+5QhMvix4jsDODbvdwopa91NXUWIv8re7CwuzlQHZSYZFQGYsZy6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mJQ2Wn7m; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rPodl2sv"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-48dee593f18so1012267f8f.3
-        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 14:38:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mJQ2Wn7m"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a018792ab3so10578315e9.0
+        for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 14:38:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792359499; x=1792964299; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792359502; x=1792964302; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=J8n79Due07oqax9zNrI4fLW7LZxFciWP3oxVoKoGx80=;
-        b=rPodl2svA+RFJUrA8ecxSA01BT5m0uOQu1uVrHUNOsHOFmV9LwzSdXAK0ufgwMClJe
-         MNjf/zrm66e7HXlh2uVcYGoEoAKQyF0t+JeRMiS/xKLL3R5sz7hg6Blt/H1D5gukL9Md
-         gwc/Qx+WrMhBsqlSm9cm31/d5gSD2Hdkpol5alR1QvHJFaZhMMYvLDmA7jOYoWrgBM+H
-         aBHxsdEDhIWG0E8XkHWqmWOW7qh9LZrI1gjYW8CHNLihM3zvGD0X9TaVdTBTosKzZeec
-         Zu0Glj8moFANMqvwPq/40ebO2xcqA4UTZZA090dWeMq/iqSpiISDMsTkfYvGmG+KYQC5
-         FlKg==
+        bh=qXhRvFfpFMAeLGmziHDEZsV8hAj7bw06PcLUuNh1ghY=;
+        b=mJQ2Wn7m7bxUaBJu6GJ3NQiYjnIfxuxiiD0/SrTZVF8xffy5pvsEJmjNnMirj1jdLH
+         qsMaiTtx4uGOlRtK22gtS4Rb8Q8L61m9aHfG856rf45PXmf14NDChgAlA26FZBTo5nLp
+         Uo7l0pF3wHjE4MuwbfdDKhtEHbu9rh0KYmgbT7zyd8CgBjkwzOE65h0HF/A67lNYY3i2
+         5z5Bc6OFDab3oGnEpgcZU4829bQxU8Iy9RMY/4KWR2cLgxrWO5gYpo7OCbW3gZUvQKzh
+         6L8YUgqEVUKou60Vr7a5urf5er8lhUStOxZXoPgzT/tAFvSD/NduZqD9VZ3woolpuqM7
+         5MEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792359499; x=1792964299;
+        d=1e100.net; s=20260707; t=1792359502; x=1792964302;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=J8n79Due07oqax9zNrI4fLW7LZxFciWP3oxVoKoGx80=;
-        b=YyDf/BRG2IiMN1KEitNtLxuC0i5jjZKq4y3oWDbKGZ6KikqJVxoestchrrxBcRKjJv
-         zR5bhRr8C3vcJoiXeNis8ZThuhGXokceEANDZNd6L7hQPFp1ZElAtVJRa8ZEoDDDm8du
-         5oCQSNvKn/073ZDw94O/Av/H9S2dbt2x4nQZb/yo2IGRokuZaigKCaXIgPvfxUnz6DQ6
-         s22EYJYTsuP4VOTeMGksCPoXY1k2Hf+jtH4ORXsKUYzrjftpR8uJH9d6ZJUDpNOVxT7G
-         MOd4Z47b84F8GoI0dhkoN/S3lhvGKXeujJr9zzpvfuGYeXA4ZwkXHek+xKiuCe/Lgbkw
-         CXfw==
-X-Gm-Message-State: AFq9FYIEJehoRx6oKeHjWvxQTbR8eTB4KnjV7vk5RfJKS6Cf6X2jIPZD
-	68ti9OXCpJJEA3ioiRUpGQSV24ihb3jiFEZcjnhYHOqLCSMK3BtQ9r0=
-X-Gm-Gg: AYBFou032HjD2f5fPn+hGOjv8G6eSJ7K0gzhwFR4SJKWgdyiVn6OrkWKhQ7OxtCI2aD
-	waBeuNG2qQNq8E6NXFVWhlpi3L5FCx3g40k+nDIx2QfN6psphhb71YTGa2R8ZCVuclEQEDPjGb4
-	pbq6CvNYNeU6rmlSaB/07CnqZb1+57PiPUa/ezzhU98UXTyJBiI/4lYmbZsjNUHfCJatlSOh/fi
-	ao7O47Da+dvdbDXVKz+sMzGmyfFPhEcuhjdb0sPCvUL3VJmMPYtlSmANsin+eJwd0ewEE4GLFa/
-	xuqavBvddpZ49mQ4PhPGOCtheuBc7Ff8//aF47GR7W6IB4GK2sFR/cfA2Ep0iJG5yRwHqGx4c6/
-	BpmNzN3kcPsXMKkQz7pewMFFBFz0IqAjl6124DyJ9JImzNuWqQC9eF+nUEoYUjrpvn/7DpkNVBn
-	iOI9TjbC4XC2LRQJ7fkEMLWdJt/+dW2XS4vuZyIBcI
-X-Received: by 2002:a05:6000:4021:b0:48e:cd3:b3ec with SMTP id ffacd0b85a97d-48e0cd3b575mr9075304f8f.28.1792359498543;
-        Sun, 18 Oct 2026 14:38:18 -0700 (PDT)
+        bh=qXhRvFfpFMAeLGmziHDEZsV8hAj7bw06PcLUuNh1ghY=;
+        b=1dj4cBsxKUBo+6ZDbjJjSCdnB29hj+yWd0BcWL01SKBx3/khUbvnES3EMre7CQ6Gqo
+         CkiK24WmF69eU+np6q/spw8bL4eY0XOfCJ3PGG+m8yJ2rDhJ0VU1/5Ul1/sX9WTlaIEa
+         RTfD+PrkedIWAK8veBC32pem632PFpVizTk4myzt1bWgKg6ae/evieOn/m/IBXWgAdxU
+         Dwb9CrdUzpU4CeTmdRk9kzTsew6RZl6kyVkNqgJuwdhA+vGXOMwsBHuaiGynSK+9H+uV
+         R0h5aFTabAIeoy5oeMvh+WM+dnOCwzhjnjZDRTnUV9iRz8slrHgQzvMBxtnDAvPQpGEj
+         pNJA==
+X-Gm-Message-State: AFq9FYL7vHAqGINKP6+BC86lu60qASQsqxAhI3oHJbx5nwDD6cnAgEGl
+	FHvAZCRDWsfC+AsO4XAMMLHe0XOYrxOQO2245OmUqpYlRLAcU2kzRls=
+X-Gm-Gg: AYBFou23cjELOuvn7KEMk9p+Gk/12CzEQUd7T+3CsX2IXkTB+gOWW4wdo4nL8uXujje
+	3BDOJqsNQahoCCvHkzAZlVXjPY498p9eVs7JXVSOf3Jzoijyj/n/BaA4k3/AJKokvg19nq+iHeu
+	mG/vt0KEqtEUlPw9KXHrBJ71XOS0+tiQZ5AuLpSDPDMuQGdKjslCoHacfIpg1kPleSIshCPLjgG
+	QxsJdTa8duA4xgMjy1dlfxnrCttS0KCnTcRK1hxoHmYR1ICORTmFVysUR59AnP1Csn8G/ERcfpM
+	R+f2z6MPXQT99nH85BYuaZI+cLR+2pfirs9L/bk9SUeA9cjW7+KBrwIhO0NK0tMlSiEmhNRdepP
+	YSK+J+6MxtXnIdU0jd8zJcQB+PCiwCZ6TPdvS9DgXGP7ZR0GZQBxqlrYDgGH6/EVP1EkhTjXG0f
+	WA3QjFgRv8fHyafrkU3q/eSc4ZHKiWMRA1uq5XO+o=
+X-Received: by 2002:a05:600c:8b22:b0:4a0:1c17:4fb2 with SMTP id 5b1f17b1804b1-4a1d760d9fcmr129006215e9.31.1792359502191;
+        Sun, 18 Oct 2026 14:38:22 -0700 (PDT)
 Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dfd500e75sm18597841f8f.42.2026.10.18.14.38.13
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48dfd500e75sm18597841f8f.42.2026.10.18.14.38.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Oct 2026 14:38:16 -0700 (PDT)
+        Sun, 18 Oct 2026 14:38:20 -0700 (PDT)
 From: Tristan Madani <tristmd@gmail.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Benjamin Tissoires <bentiss@kernel.org>
@@ -73,9 +73,9 @@ Cc: linux-input@vger.kernel.org,
 	Clemens Ladisch <clemens@ladisch.de>,
 	Tristan Madani <tristan@talencesecurity.com>,
 	stable@vger.kernel.org
-Subject: [PATCH 5/8] HID: zydacron: validate report size in raw_event callback
-Date: Sun, 18 Oct 2026 21:37:50 +0000
-Message-ID: <20261018213754.1951187-6-tristmd@gmail.com>
+Subject: [PATCH 6/8] HID: oxp: validate report size in raw_event callbacks
+Date: Sun, 18 Oct 2026 21:37:51 +0000
+Message-ID: <20261018213754.1951187-7-tristmd@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261018213754.1951187-1-tristmd@gmail.com>
 References: <20261018213754.1951187-1-tristmd@gmail.com>
@@ -89,34 +89,47 @@ Content-Transfer-Encoding: 8bit
 
 From: Tristan Madani <tristan@talencesecurity.com>
 
-zc_raw_event() accesses data[1] without checking the report size.
-A device sending a single-byte report could cause out-of-bounds memory
-access because hid-core invokes raw_event before it validates the
-report length in hid_report_raw_event().
+oxp_hid_raw_event_gen_1() and oxp_hid_raw_event_gen_2() cast the
+report data to struct oxp_gen_1_rgb_report (11 bytes) and struct
+oxp_gen_2_rgb_report (16 bytes) respectively, and access fields at
+various offsets without checking the buffer size. A device sending a
+short report could cause out-of-bounds memory access because hid-core
+invokes raw_event before it validates the report length in
+hid_report_raw_event().
 
-Add a size check before accessing data[1].
+Add size checks before the struct casts.
 
-Fixes: d0742abaa1c3 ("HID: add omitted hid-zydacron.c file")
+Fixes: 84910c459d65 ("HID: hid-oxp: Add OneXPlayer configuration driver")
 Cc: stable@vger.kernel.org
 Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
 ---
- drivers/hid/hid-zydacron.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-oxp.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-zydacron.c b/drivers/hid/hid-zydacron.c
-index 1aae80f848f50..203457398780c 100644
---- a/drivers/hid/hid-zydacron.c
-+++ b/drivers/hid/hid-zydacron.c
-@@ -116,6 +116,9 @@ static int zc_raw_event(struct hid_device *hdev, struct hid_report *report,
+diff --git a/drivers/hid/hid-oxp.c b/drivers/hid/hid-oxp.c
+index 1e691ebc1199e..af9f60d45bf29 100644
+--- a/drivers/hid/hid-oxp.c
++++ b/drivers/hid/hid-oxp.c
+@@ -318,6 +318,9 @@ static int oxp_hid_raw_event_gen_1(struct hid_device *hdev,
+ 	struct led_classdev_mc *led_mc = drvdata.led_mc;
+ 	struct oxp_gen_1_rgb_report *rgb_rep;
  
- 	if (report->id == data[0] && (hdev->claimed & HID_CLAIMED_INPUT)) {
- 
-+		if (size < 2)
-+			return 0;
++	if (size < sizeof(struct oxp_gen_1_rgb_report))
++		return 0;
 +
- 		/* break keys */
- 		for (index = 0; index < 4; index++) {
- 			key = zc->last_key[index];
+ 	if (data[1] != OXP_FID_GEN1_RGB_REPLY)
+ 		return 0;
+ 
+@@ -391,6 +394,9 @@ static int oxp_hid_raw_event_gen_2(struct hid_device *hdev,
+ 	struct led_classdev_mc *led_mc = drvdata.led_mc;
+ 	struct oxp_gen_2_rgb_report *rgb_rep;
+ 
++	if (size < sizeof(struct oxp_gen_2_rgb_report))
++		return 0;
++
+ 	if (data[0] != OXP_FID_GEN2_STATUS_EVENT)
+ 		return 0;
+ 
 -- 
 2.47.3
 

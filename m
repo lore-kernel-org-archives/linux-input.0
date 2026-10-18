@@ -1,274 +1,105 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA5944AF167
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 13:10:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8B8E4B3C93
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 13:13:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792329003; cv=none; b=DadkXHg3dVMgPWAY76+eJxw/bP9Tn6WMc0LpGFUY8FFppVzipUK4Uwy9Uij5CL/hGI1ryvCpyqpgNjpeMYlHd8EKBUXdQym8OlTB5E5Fw/NH6uO9JMRN8S4CtV92o+BTIPApxrg1bIdtRUh+kSTMB2YaBJ4mFZJdrgh5abAaR7Q=
+	t=1792329184; cv=none; b=ddaQx6EV2NqKqmim7paY6FNMJyBbWEzmqGgm2+FK0gtMcU3+nELf+XnSg+x3DN7GBKphxckg2ZQz5Z0rmMWOrQz5w0fN7ZXyIQfayVmrzdZ+gKCQKGco1CgL140x7yiIsF6Bow99NkUjf+de2WzTcZ6Gbr9n5qyYmR/BcLH381A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792329003; c=relaxed/simple;
-	bh=S6lcb+IkXyE9OkIZZ64ESDBu5I3oxPxPfav6N3qIA6s=;
+	s=arc-20240116; t=1792329184; c=relaxed/simple;
+	bh=6V6ts08Su23WRol9BYAXPfKeFdX8PvLWl/LUFWr8sL8=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=t1ZrKQdxiJc013IIedScMWoL3xHk95SaoiKokhYLvsPIJAQ6vL70GmlTzK5qhUe3/97EoTG/gysACRQmOGYelNCjscIhHXopwGfcqTMsmdJ308K57VXxM0OGj86fHlQqgK6oUiB97X7dLqv/nvAb4IeHVmDNf4Y2LYCnG+yOaYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HRU5nx+5; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=E0W3nEKljEmxchQHFm6x+CEhZ+OVOqEYyuZtSue01G034/sQT3uIpykVtsXtrEdUruWWkTya4K8iOZD5UjUwu1QpaPN5vImvwyGOpuUKfa+CHi7wes4OScY17zA12BcfaDqGdjssIB+NEzOMhbBuQel4IZjN/KRvgEJa7jb81zM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FLHQey9n; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HRU5nx+5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64DB51F000C4;
-	Sun, 18 Oct 2026 13:10:01 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FLHQey9n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A399B1F000C5;
+	Sun, 18 Oct 2026 13:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792329001;
-	bh=5k52EYaVxmAVaMRh9tyLqeK/t50G8KWxc4cjw6bMLWc=;
+	s=k20260515; t=1792329183;
+	bh=bfsYzgcjmM8MhUnSy2Zr2bV5qkVzCJ1elbJ2No4Y+PU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HRU5nx+58UylItZsUl8VxI2849sIjO4LRymizaDpdX2kZnr9cN9QsPvz04wh0GMGF
-	 P1urfMcrqjHtqt0oP68g4I3hUQgiEKl80TAeoaKcM53ovVv3qCPA9aYMnae7eXpBPl
-	 eSg5CmSmLPq8CfW4x6r5p0kMIEJ8CzkCbSDNNQBscL8u42PchwB/T1LnxCBlDkikqY
-	 SmN9nSeraBQao45LPwhRIvt3UxcJ4DN+Nuq0B4+tIqM+66WddW91mG/wKtUrMagF2X
-	 O5trYSbWA2OBlIiVWYq6NYqcUQGt9HFGah53QVjscfSqIToHXdExRIg7uNQml2xsVc
-	 cRi6e7ZZDdcXg==
-Message-ID: <sashiko-outbox-176148@kernel.org>
+	b=FLHQey9nk4hZoNPGig7JCQCosTamKoUAHtLrE5q0uMUfi0lA/b1P2hdTfA3Ot2O3n
+	 eYGtQtN5aqX4lQF7VFQq04bQ5NaGbRvWYQbkoImyUb1hIPGLkGGzRNytD0Bd7TZDwU
+	 8Dz4NXr3l0xienjKJuLpYP1Ke7PMOMJiXTyOM7YQmzI5ehYNwK5KFUxsrjeMhxd5y2
+	 bDi4haeC4xmnPNn/SfDa3rdEQa0AjENxzxfbAm2Jct2PLqs2jpj0lAY4J1SAKqR5kz
+	 WQQSqbjNFi4mXXB5HQhHAGRit4whEEU6M1XQdSJ3LyThAAFOA0EGdn+XH+b7cp3WNs
+	 fOHINM+vL3Iog==
+Message-ID: <sashiko-outbox-176149@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 5/8] HID: topping: report the M62's battery level
+Subject: Re: [PATCH v9 1/8] HID: topping: transport for the M62's vendor
+ controls
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mikhail Gavrilov" <mikhail.v.gavrilov@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261018124838.129349-6-mikhail.v.gavrilov@gmail.com>
+In-Reply-To: <20261018124838.129349-2-mikhail.v.gavrilov@gmail.com>
 References: <20261018124838.129349-1-mikhail.v.gavrilov@gmail.com>
- <20261018124838.129349-6-mikhail.v.gavrilov@gmail.com>
+ <20261018124838.129349-2-mikhail.v.gavrilov@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 18 Oct 2026 13:10:00 +0000
+Date: Sun, 18 Oct 2026 13:13:03 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] HID: topping: devres group race in topping_battery_work() causes U=
-AF
-- [Medium] HID: topping: missing runtime PM get in topping_bind() breaks se=
-ssion open
+- [Low] HID: topping: missing pm_ptr() on topping_driver PM callbacks
 --
 
-commit 6adaaec1c5316acae80d87f07a530efd9db3ae46
+commit cefe32a6b81c6b7ed6128d273a5c5c6a50f7896a
 Author: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
 
-HID: topping: report the M62's battery level
+HID: topping: transport for the M62's vendor controls
 
-This patch adds support for reporting the Topping M62's battery level via
-a device-scoped power supply registered once the first battery report
-arrives. It also sends a session handshake (0x11/0x01) and waits for the
-device's reply at bind and resume so that the M62 announces its state in
-Mobile Mode.
+This commit adds a HID transport driver for the Topping M62 USB audio
+interface's vendor control protocol, connecting to snd-usb-audio via the
+component framework.
 
 > diff --git a/drivers/hid/hid-topping.c b/drivers/hid/hid-topping.c
-> index 7b46c4cc41745..f9e05ceafad1f 100644
-> --- a/drivers/hid/hid-topping.c
+> new file mode 100644
+> index 0000000000000..a8854b2d15306
+> --- /dev/null
 > +++ b/drivers/hid/hid-topping.c
+> @@ -0,0 +1,498 @@
 
 [ ... ]
 
-> @@ -237,6 +279,25 @@ static int topping_raw_event(struct hid_device *hdev,
->  	if (get_unaligned_be16(data + 11) !=3D crc16(0xffff, data + 2, 9))
->  		return 0;
-> =20
-> +	if (data[5] =3D=3D TOPPING_TT_DEVICE && data[6] =3D=3D TOPPING_PP_HANDS=
-HAKE)
-> +		complete(&th->answered);
-> +
-> +	if (th->has_battery && data[5] =3D=3D TOPPING_TT_DEVICE &&
-> +	    data[6] =3D=3D TOPPING_PP_BATTERY) {
-> +		int charge =3D clamp_t(s32, get_unaligned_be32(data + 7), 0, 100);
-> +		/* pairs with the release in topping_battery_work() */
-> +		struct power_supply *psy =3D smp_load_acquire(&th->psy);
-> +
-> +		/* the card repeats an unchanged level now and then */
-> +		if (charge !=3D th->battery) {
-> +			WRITE_ONCE(th->battery, charge);
-> +			if (psy)
-> +				power_supply_changed(psy);
-> +			else
-> +				schedule_work(&th->battery_work);
-> +		}
-> +	}
+> +static struct hid_driver topping_driver =3D {
+> +	.name		=3D "topping",
+> +	.id_table	=3D topping_devices,
+> +	.probe		=3D topping_probe,
+> +	.remove		=3D topping_remove,
+> +	.raw_event	=3D topping_raw_event,
+> +	.suspend	=3D topping_suspend,
+> +	.resume		=3D topping_resume,
+> +	.reset_resume	=3D topping_resume,
+> +};
+> +module_hid_driver(topping_driver);
 
-[ ... ]
+[Severity: Low]
+In drivers/hid/hid-core.c, hid_driver_suspend(), hid_driver_resume(), and
+hid_driver_reset_resume() are only built when CONFIG_PM is enabled:
 
-> @@ -263,6 +341,89 @@ static void topping_keepalive(struct work_struct *wo=
-rk)
->  			      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
->  }
-> =20
-> +/* ------------------------------------------------------------------ */
-> +/* battery								*/
-> +/* ------------------------------------------------------------------ */
+drivers/hid/hid-core.c:
+#ifdef CONFIG_PM
+int hid_driver_suspend(struct hid_device *hdev, pm_message_t state)
+{
+	if (hdev->driver && hdev->driver->suspend)
+		return hdev->driver->suspend(hdev, state);
 
-[ ... ]
-
-> +static void topping_battery_work(struct work_struct *work)
-> +{
-> +	struct topping_hid *th =3D container_of(work, struct topping_hid,
-> +					      battery_work);
-> +	struct hid_device *hdev =3D th->hdev;
-> +	struct power_supply_config cfg =3D { .drv_data =3D th };
-> +	struct power_supply *psy;
-> +	int err;
-> +
-> +	if (th->psy)
-> +		return;
-> +
-> +	th->psy_desc.name =3D devm_kasprintf(&hdev->dev, GFP_KERNEL,
-> +					   "hid-%s-battery",
-> +					   dev_name(&hdev->dev));
-> +	if (!th->psy_desc.name)
-> +		return;
-> +	th->psy_desc.type =3D POWER_SUPPLY_TYPE_BATTERY;
-> +	th->psy_desc.properties =3D topping_battery_props;
-> +	th->psy_desc.num_properties =3D ARRAY_SIZE(topping_battery_props);
-> +	th->psy_desc.get_property =3D topping_battery_get;
-> +
-> +	/*
-> +	 * devm on the HID device: released after .remove(), which has
-> +	 * stopped .raw_event() and this work by then.
-> +	 */
-> +	psy =3D devm_power_supply_register(&hdev->dev, &th->psy_desc, &cfg);
-> +	if (IS_ERR(psy)) {
-> +		hid_err(hdev, "battery: %ld\n", PTR_ERR(psy));
-> +		return;
-> +	}
-> +	err =3D power_supply_powers(psy, &hdev->dev);
-> +	if (err)
-> +		hid_warn(hdev, "battery: powers link: %d\n", err);
-> +
-> +	/* a supply seen by .raw_event() is a registered one */
-> +	smp_store_release(&th->psy, psy);
-> +}
-
-[Severity: High]
-Can calling devm_kasprintf() and devm_power_supply_register() on &hdev->dev
-from topping_battery_work() race with component_bind() and cause a
-use-after-free on th->psy or th->psy_desc.name?
-
-When the aggregate device binds, component_bind() wraps the call to
-topping_bind() in a devres group on component->dev (&hdev->dev):
-
-drivers/base/component.c:component_bind() {
-	if (!devres_open_group(component->dev, component, GFP_KERNEL)) {
-		...
-	}
-	ret =3D component->ops->bind(component->dev, adev->parent, data);
-	if (!ret) {
-		component->bound =3D true;
-		devres_close_group(component->dev, NULL);
-		...
-	}
+	return 0;
 }
 
-Inside topping_bind(), topping_open_session() sends TOPPING_PP_HANDSHAKE,
-waits up to 3.5 seconds, and then sends TOPPING_PP_SUBSCRIBE and
-TOPPING_PP_ANNOUNCE while incoming reports are already enabled via
-hid_device_io_start().
-
-If a battery report (0x11/0x18) arrives in topping_raw_event() before
-component_bind() reaches devres_close_group(&hdev->dev, NULL) (either
-after TOPPING_PP_SUBSCRIBE while TOPPING_PP_ANNOUNCE is still in flight, or
-during wait_for_completion_timeout() if the card's 2-second subscription
-was still active from a prior bind), topping_raw_event() schedules
-th->battery_work.
-
-If topping_battery_work() executes while the component's devres group is
-still open on &hdev->dev, devm_kasprintf() and devm_power_supply_register()
-are captured into the component's devres group instead of the HID driver's
-probe group.
-
-Doesn't that cause two problems on unbind or removal?
-
-1. If the audio master unbinds (for example, snd-usb-audio is unbound or
-   topping_master_bind() fails), component_unbind() calls
-   devres_release_group(&hdev->dev, component), which unregisters and frees
-   th->psy (and/or th->psy_desc.name) while hid-topping remains bound and
-   th->psy remains non-NULL. Subsequent battery frames in
-   topping_raw_event() will then pass the freed th->psy pointer to
-   power_supply_changed(psy).
-
-2. In topping_remove(), component_del() runs before hid_hw_close(),
-   hid_hw_stop(), and cancel_work_sync(&th->battery_work), which would
-   release the captured power supply while topping_raw_event() or
-   topping_battery_work() can still be running.
-
-> @@ -286,15 +447,16 @@ static int topping_bind(struct device *dev, struct =
-device *master,
->  		th->comp =3D comp;
-> =20
->  	/*
-> -	 * Subscribe and ask for the state HERE rather than at probe:
-> -	 * before this point there is nobody to pass the answer to.  The
-> -	 * card answers in two waves -- the jacks at once, the gain of a
-> -	 * connected input about 5 s later -- so nothing here waits for
-> -	 * them: each value arrives through .raw_event() on its own.
-> +	 * Open the session and ask for the state HERE rather than at
-> +	 * probe: before this point there is nobody to pass the answer to.
-> +	 * The card answers in two waves -- the jacks at once, the gain of
-> +	 * a connected input about 5 s later -- so nothing here waits for
-> +	 * them: each value arrives through .raw_event() on its own.  Only
-> +	 * the answer to the handshake is waited for, inside
-> +	 * topping_open_session(), before the audio side writes anything.
->  	 */
->  	if (th->subscribe) {
-> -		topping_send(th, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
-> -		topping_send(th, TOPPING_TT_DEVICE, TOPPING_PP_ANNOUNCE, 1);
-> +		topping_open_session(th);
->  		schedule_delayed_work(&th->keepalive,
->  				      msecs_to_jiffies(TOPPING_KEEPALIVE_MS));
->  	}
-
-[Severity: Medium]
-Should topping_bind() hold a runtime PM reference via
-usb_autopm_get_interface(th->intf) across topping_open_session()?
-
-In topping_probe(), hid_hw_open() calls usbhid_open(), which starts the IN
-URB and drops its autopm reference before returning, leaving th->intf's
-runtime PM usage count at 0. As noted in the comment above topping_send(),
-waking the interface is the caller's responsibility (which topping_write()
-does with usb_autopm_get_interface(th->intf)).
-
-Because topping_bind() does not call usb_autopm_get_interface(th->intf):
-
-1. If th->intf has already runtime-suspended before topping_bind() runs
-   (for instance, if hid-topping probed before snd-usb-audio and
-   autosuspended because no reports arrive before subscription, or if the
-   audio driver is unbound and rebound), usbhid->urbin has been stopped by
-   hid_suspend(). When topping_open_session() sends TOPPING_PP_HANDSHAKE
-   and waits in wait_for_completion_timeout(&th->answered, ...), the reply
-   cannot be received on the stopped IN URB, causing a 3.5-second timeout
-   and dropped session frames.
-
-2. Even if th->intf is active when topping_bind() starts, waiting up to
-   3500 ms in topping_open_session() exceeds the default 2000 ms USB
-   autosuspend delay. If th->intf runtime-suspends during the wait,
-   topping_suspend() runs before topping_bind() calls
-   schedule_delayed_work(&th->keepalive, ...), leaving th->keepalive
-   scheduled on a suspended interface; if th->intf then resumes before
-   topping_open_session() finishes, topping_resume() sees th->comp !=3D NULL
-   and calls topping_open_session() concurrently on the shared
-   th->answered completion.
-
-[ ... ]
-
-> @@ -466,8 +636,7 @@ static int topping_resume(struct hid_device *hdev)
->  	 */
->  	if (th->subscribe) {
->  		noio =3D memalloc_noio_save();
-> -		topping_send(th, TOPPING_TT_DEVICE, TOPPING_PP_SUBSCRIBE, 1);
-> -		topping_send(th, TOPPING_TT_DEVICE, TOPPING_PP_ANNOUNCE, 1);
-> +		topping_open_session(th);
->  		memalloc_noio_restore(noio);
->  	}
+Should .suspend, .resume, and .reset_resume in topping_driver be wrapped
+with pm_ptr() so that topping_suspend() and topping_resume() can be
+eliminated by the compiler when CONFIG_PM is disabled?
 
 [ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261018124838.1293=
-49-1-mikhail.v.gavrilov@gmail.com?part=3D5
+49-1-mikhail.v.gavrilov@gmail.com?part=3D1

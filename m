@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F402C41A547
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 21:44:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA9F0455631
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 21:45:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792359853; cv=none; b=dodc0EZ+mURV9EeVnTJL2xr6T3Cuo03zKzZAtRBvyG+Eh48AkyzLuBw+ybam1UTsncqrD7XHgVYwmMlUkR08Wor2rR6rEkBEViB+Xr/Y6TKryIDUPWf2L9MxM8JEOfiNQdCYU02Hbug46QQR6OjJe67CnvovKBL1jTw6WN5HHg8=
+	t=1792359923; cv=none; b=hPQidzhm3Ceg07FOISAsdns7U1WMjtkCCIcDQ4YV/BT63+5zhiz4fbotgWzfU/c/TYSeG4Ab5ABq6umuVLFUFDwzwKwmtIOeKCKa3uUVxbpz2B1ZoR34l9hc0r8t0wD7lGrdggp+ZALve3MC8O25Up3k831taEJBdqu38zdyEnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792359853; c=relaxed/simple;
-	bh=tWxng+OpI6vtcpYIZrzY5hW0zPHSrVOv8yMttwg9nPI=;
+	s=arc-20240116; t=1792359923; c=relaxed/simple;
+	bh=nR/UqZIVkClgG5xPLBRLa9t0lmUSTCTn2ry30l3+m6g=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=Zekw4eN2FmVcy35sBqpcdw0+RFSyK8A2kZ+TjOl1CvSQS+FqHQFJwZrGAf27R4s6jOuLHQ5MlekJsbPspKbCcgGmy+db2Pl/zkOACCNJP73E5SyIOCssn+Jet5Dy3QB5PInOTKE7xnfiFWa9a/IxH9bvo+tCrKQdykq3RyntSfM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cW4QovWV; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=RyAryAUVt96DTHQDsjY6EXRpFAUbBave7INDbC9WtRU5LLw2Og/asThR/tDTd35gFatNdCSTD49xWRgKvgC73ifC3qrq0Bfaaj3NP7DS5ti/XADtSgbabCxcjcbMbXkYIv9ef6RUyEDRbh7ZTo5l0Dqx6lDo/wBWH9PlKV99Z2Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KFM48MKL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cW4QovWV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4DAE1F000C4;
-	Sun, 18 Oct 2026 21:44:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KFM48MKL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DE7A1F000C4;
+	Sun, 18 Oct 2026 21:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792359851;
-	bh=bK1O/8Kst/rgAs1aNWqjWoPELvkG2XkW6IVMYb417k8=;
+	s=k20260515; t=1792359922;
+	bh=ETDOQemPd6ssJwsavPtLmVe+eu6xZx3ohkYSYvHaTKM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=cW4QovWVgg1D9kSxACD5teD0R7E8ntSgDKdBt8V7GqMqRV1YRAxCh6AYf8qN3VgMp
-	 4V19oULHEtID6L45RgxLy21j+7cxDZL9UHs4LrG1AbqxY6MPl9Utc7/sSQoOZf6wJD
-	 jvdIH6znxAQHLc/A77CTa67n9dxWjxS7aNvwVwcTiLHYQ9ERwtMmMtKdubU/C1xAfC
-	 sV3q0x/tRSDllTPc7cjPadOY3Grup9bbSyzRvvQkWD22yeWJbZRBvYnmLGEDpnxmCS
-	 CO9a3v+GJdnU7N9zpRULDjdDSomQvKNLry5NBD3aKOqFHkf/5BDSUw+amUlob6pxkn
-	 ucUJ3+oNvLusg==
-Message-ID: <sashiko-outbox-176410@kernel.org>
+	b=KFM48MKLYNk5/yBxG5x6T5ba6/VwpcJGEbmYSHhAoq/J3RC4XYKPEbzhLAmjBFMRb
+	 vp72YS0K7LgTF37fnklZZ/x2IdT9b++DBcLZOQ/epcqZQWJ8r9jofhC16U+FIdzobs
+	 wCFeExdWvfUzBcgCngha7jXAQR5IT0WoJNc1eUo95Slqs01ZdeVWFPVTAGi6JWLLKL
+	 p+oyAKxA43iIjdET+BLHKqh0JtoMl7goSsQcWOJ78u/8XLcZEkeNDvnEG/5kUTaFx4
+	 VaOzMUEAQJ435xFvMUw6AZ9HMi44PMYDQlfkbF6sYX2IILfvZ7Hjd5Cq4iexF+Utgf
+	 jcGv4uWDsMjUA==
+Message-ID: <sashiko-outbox-176412@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 8/8] HID: prodikeys: validate report size in raw_event
- callback
+Subject: Re: [PATCH 2/8] HID: alps: validate report size in raw_event
+ callbacks
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Tristan Madani" <tristmd@gmail.com>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261018213754.1951187-9-tristmd@gmail.com>
+In-Reply-To: <20261018213754.1951187-3-tristmd@gmail.com>
 References: <20261018213754.1951187-1-tristmd@gmail.com>
- <20261018213754.1951187-9-tristmd@gmail.com>
+ <20261018213754.1951187-3-tristmd@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 18 Oct 2026 21:44:11 +0000
+Date: Sun, 18 Oct 2026 21:45:22 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,77 +47,62 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] HID: prodikeys: pk_raw_event() drops 3-byte report 0x03 MIDI pac=
-kets
+- [Medium] HID: alps: off-by-two report size check in u1_raw_event()
 --
 
-commit 2a171eaec1ee7f4c5cfc52b5bb2b8e59c517ae46
+commit 5284d6e143901f92388237eea63f898c2ce83a7f
 Author: Tristan Madani <tristan@talencesecurity.com>
 
-HID: prodikeys: validate report size in raw_event callback
+HID: alps: validate report size in raw_event callbacks
 
-This patch adds a minimum report size check at the beginning of
-pk_raw_event() to prevent out-of-bounds reads on short reports.
+This commit adds report buffer size validation to t4_raw_event() and
+u1_raw_event() before accessing report fields.
 
-> diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-> index fba01e4fcab1c..c1419e6703777 100644
-> --- a/drivers/hid/hid-prodikeys.c
-> +++ b/drivers/hid/hid-prodikeys.c
-> @@ -768,6 +768,9 @@ static int pk_raw_event(struct hid_device *hdev, stru=
-ct hid_report *report,
->  	struct pcmidi_snd *pm =3D hid_get_drvdata(hdev);
->  	int ret =3D 0;
-> =20
-> +	if (size < 4)
-> +		return 0;
-> +
->  	if (1 =3D=3D pm->ifnum) {
->  		if (report->id =3D=3D data[0])
->  			switch (report->id) {
+> diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
+> index 0556cb5645ebb..dee7d44d6f912 100644
+> --- a/drivers/hid/hid-alps.c
+> +++ b/drivers/hid/hid-alps.c
+[ ... ]
+> @@ -370,6 +378,8 @@ static int u1_raw_event(struct alps_dev *hdata, u8 *d=
+ata, int size)
+>  		break;
+>  	case U1_ABSOLUTE_REPORT_ID:
+>  	case U1_ABSOLUTE_REPORT_ID_SECD:
+> +		if (size < hdata->max_fingers * 5 + 5)
+> +			return 0;
+>  		for (i =3D 0; i < hdata->max_fingers; i++) {
+>  			u8 *contact =3D &data[i * 5];
 
 [Severity: Medium]
-Could checking size < 4 before inspecting report->id drop valid 3-byte
-packets for report 0x03?
+Does this check in u1_raw_event() reject valid 28-byte 5-finger touchpad
+reports when receiving U1_ABSOLUTE_REPORT_ID or U1_ABSOLUTE_REPORT_ID_SECD?
 
-In drivers/hid/hid-prodikeys.c, pk_raw_event() calls pcmidi_handle_report(),
-which dispatches three report IDs:
+Inside the loop, contact is set to &data[i * 5] and the code reads:
 
-	switch (report_id) {
-	case 0x01: /* midi keys (qwerty)*/
-		ret =3D pcmidi_handle_report1(pm, data);
-		break;
-	case 0x03: /* midi keyboard (musical)*/
-		ret =3D pcmidi_handle_report3(pm, data, size);
-		break;
-	case 0x04: /* multimedia/midi keys (qwerty)*/
-		ret =3D pcmidi_handle_report4(pm, data);
-		break;
-	}
+	for (i =3D 0; i < hdata->max_fingers; i++) {
+		u8 *contact =3D &data[i * 5];
 
-While pcmidi_handle_report1() and pcmidi_handle_report4() unconditionally
-read a 24-bit bitmask from data[1..3] and require size >=3D 4,
-pcmidi_handle_report3() computes the number of note/velocity pairs from
-size:
+		x =3D get_unaligned_le16(contact + 3);
+		y =3D get_unaligned_le16(contact + 5);
+		z =3D contact[7] & 0x7F;
 
-	unsigned num_notes =3D (size-1)/2;
-	for (j =3D 0; j < num_notes; j++)	{
-		note =3D data[j*2+1];
-		velocity =3D data[j*2+2];
+The report has a 3-byte header (data[0] report ID, data[1] buttons, data[2]
+finger count) followed by hdata->max_fingers 5-byte contact entries starting
+at data[3]. On the final iteration (i =3D hdata->max_fingers - 1), the last
+byte accessed is contact[7], which is at index:
 
-A single-note report 0x03 has a 1-byte report ID followed by one 2-byte
-note/velocity pair (size =3D=3D 3), which pcmidi_handle_report3() already b=
-ounds
-checks via num_notes.
+	(hdata->max_fingers - 1) * 5 + 7 =3D hdata->max_fingers * 5 + 2
 
-Should the size < 4 check be restricted to reports 0x01 and 0x04 so that
-3-byte report 0x03 MIDI events are not lost?
+For a 5-finger touchpad (hdata->max_fingers =3D=3D 5), the last byte is dat=
+a[27]
+(matching the Packet Format table in Documentation/hid/hid-alps.rst), so the
+report is 28 bytes long. Requiring hdata->max_fingers * 5 + 5 demands 30
+bytes. Should the bound be hdata->max_fingers * 5 + 3 instead?
+
+[ ... ]
 
 >
->
->
-
-[]=E2=96=B7
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261018213754.1951=
-187-1-tristmd@gmail.com?part=3D8
+187-1-tristmd@gmail.com?part=3D2

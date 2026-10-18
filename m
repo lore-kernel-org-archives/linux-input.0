@@ -1,124 +1,95 @@
-Received: from mta1.migadu.com (out-193.mta1.migadu.com [95.215.58.193])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716213AC0C0
-	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 16:06:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.193
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37B8F4CA76C
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 16:18:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.66
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792339604; cv=none; b=poCy5+kmLMngfr/nFFFisBxeS2ez0i54GHCzWbSefp00nDODiz5q6jH9PirgdwYX+elH/kHk+3dHmef3TgX1+8IhA1WklrraELIkqro3fJnj3VibjOfweI9lv7eOHO6Mr44GxB7EGSpFJ5wSPWRQjFBfbz9kkixmfthilBSPFQ8=
+	t=1792340330; cv=none; b=Hv6CBTsx5m689RGoBD8dz9ueuRnfwEPiHMDOWY9p9fiSa0hPtExNaqW+knZFdxDV3byZ5EyXuycw0Ux8iqXCYWqx3vdTFdnWiaAaGjgQ7LTPAB/jd2irId4VyFH12coSgaLewYjDYLvpH2x4WZ3nLechwVfJoiVPL+lZgqKGgX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792339604; c=relaxed/simple;
-	bh=dcNnH3lRSCWAyb/2RllcUja1jqWu6vySIBB1hJ6Yt5w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nPdtX5xgoUaNxu5CIzt4icXYnB1YL1/+2tGF4WuH6QQ9hyXjUDZNo88dsQ7s4eBJHmvSEVaoDGt64mqaAQyhcrsqcwPe/aeYiew7jk8WT3n/I1OkpE6UqIv4CI70gZN34QDaKYfz+kFu00UPlGj3Wi/zIN2E4Cte2fkNSDhfJRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=IyG63zEl; arc=none smtp.client-ip=95.215.58.193
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1792340330; c=relaxed/simple;
+	bh=Hsk3v6bBlP3rnGd1UNuclmvuHaubgTokW56qgJjEmO4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=GhFd+2gl3KXbfxiSCxqZS21Swtzr9j0uA6ij8U8gDooPcJx9q0YvoCuNSsKdK1PiBaLCI8TUelDbKVGKn9xLXHsPZ2enotZaoZm1iYv5OqxYm/72VuOyHxQL6C79JgsmmJPeSRbL25XQYq+MNvgPuIJ9VwgxHPWbsL4jQIQXs10=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=lUoPSZCY; arc=none smtp.client-ip=185.67.36.66
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="IyG63zEl"
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=dcNnH3lRSCWAyb/2RllcUja1jqWu6vySIBB1hJ6Yt5w=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792339598; v=1; x=1792944398;
- b=IyG63zEl6iinucKyZB6w6S6srtdxW2lQU2+nyInHCpuivDmJgh4SoydzzvOevv7IAe76fVdP
- xDIZZk5+iMm32HAklwqP/+swJdq8kGCO17jTS09t1C9ud0uMU4d3YzR53rNIdrHYYja9i+xOD40
- zNsGyeaK6Sb41MOAo3ZueK2Q=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 0e1932ff56a47880;
-	Sun, 18 Oct 2026 16:06:37 +0000
-X-Mizu-Trace-ID: 0e1932ff56a47880
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <f93c315e-db6f-4322-9081-e192da12e58f@linux.dev>
-Date: Sun, 18 Oct 2026 18:06:36 +0200
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="lUoPSZCY"
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout02.posteo.de (Postfix) with ESMTPS id CD02E240106
+	for <linux-input@vger.kernel.org>; Sun, 18 Oct 2026 18:18:40 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
+	s=1984.8680eb; t=1792340320;
+	bh=wcDWCHzbP+KBFs/W4yJa9PnuNeRFlQGJLSt918RZE5E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:From;
+	b=lUoPSZCYhUt6CYdBeqZTP3BSFyH2m4Hkxiaf+Aj6yihVEBBYLWXHQ2Ub49Jj/+JXm
+	 y+nn+iIAmCYsZ2vPib5jOe8iz3Fr5Va8uYgEqTgTkvlrZ9INKi5TD9UkWSkCk7olv7
+	 6jftqwCoJP5yjFf6dA7k4mNQ/EsJyDeulQOVQ7yc1eFoNig8LnlLjbWk6D1ZT+TD+/
+	 NYExPC6sUlLd6Gmo+Yyu8e+dgcTT6hVAXCxdjnO3d3nN+v+bphqGD3ZNt1Xx646HN7
+	 B3bekKcozA1U2cVZ2pI7uHNsgcLQTK2x44FplqTAGUCTH8eU0BP/zwEFpc+OVhtKKy
+	 uXD2WVZGlH7ZQ==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4j73l30ynNz9rxP;
+	Sun, 18 Oct 2026 18:18:39 +0200 (CEST)
+From: =?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>
+To: Denis Benato <denis.benato@linux.dev>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Luke Jones <luke@ljones.dev>,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	Ivan Levchenko <me@livan.pro>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Paolo Pisati <p.pisati@gmail.com>
+Subject: Re: [PATCH v3 1/7] HID: asus: Fix up Zenbook Duo report descriptors
+Date: Sun, 18 Oct 2026 16:18:40 +0000
+Message-ID: <20261018161826.1738483-1-rebecca.mara@posteo.de>
+In-Reply-To: <b22a521d-ec6e-4ac8-9aaa-d34e67ba898f@linux.dev>
+References: <b22a521d-ec6e-4ac8-9aaa-d34e67ba898f@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/7] HID: asus: Force hid-input to bind to the Zenbook
- Duo hotkey interface
-To: Paolo Pisati <p.pisati@gmail.com>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: Joshua Leivenzon <hacker1024@users.sourceforge.net>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Luke Jones <luke@ljones.dev>, Ivan Levchenko <me@livan.pro>,
- =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>,
- Nathan Chancellor <nathan@kernel.org>
-References: <20261013104033.36079-1-p.pisati@gmail.com>
- <20261013104033.36079-4-p.pisati@gmail.com>
-Content-Language: en-US
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20261013104033.36079-4-p.pisati@gmail.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+On Sun, Oct 18, 2026 at 05:50:08PM +0200, Denis Benato wrote:
+> Does the zenbook duo really needs fixing the report descriptor? I think you can avoid this
+> altogether on this hardware.
 
-On 10/13/26 12:40, Paolo Pisati wrote:
-> From: Joshua Leivenzon <hacker1024@users.sourceforge.net>
->
-> The Zenbook Duo USB keyboard reports its hotkeys on a dedicated
-> interface, separate from the keyboard and consumer control ones, that
-> only contains ASUS vendor usage collections. hid-input does not
-> consider those an input application and never binds to the interface,
-> so the hotkeys are never mapped.
->
-> Pass HID_CONNECT_HIDINPUT_FORCE for the interface of Zenbook Duo
-> keyboards that carries the ASUS vendor collection, which skips that
-> check, so the vendor usages go through asus_input_mapping() like on
-> any other ASUS keyboard. The other interfaces either have a proper
-> input application or nothing worth an input device.
->
-> Signed-off-by: Joshua Leivenzon <hacker1024@users.sourceforge.net>
-> [pisati: use HID_CONNECT_HIDINPUT_FORCE on the vendor interface instead
->  of injecting a fake keyboard collection into its report descriptor]
-> Assisted-by: LLM
+Welcome back, Denis. I tested exactly that on my UX8407AA today, docked
+over USB: v3 built as an out-of-tree module against a 7.0.11-based
+distribution kernel, once as posted and once with only the Zenbook Duo
+fixup disabled (QUIRK_ZENBOOK_DUO_KEYBOARD removed from the fixup
+condition, nothing else changed), my userspace workaround stopped.
 
-Same as the other one, Assisted-by isn't right like this... About the rest:
+Without the fixup, the hotkey interface gets no input device at all:
 
-Reviewed-by: Denis Benato <denis.benato@linux.dev>
+  asus 0003:0B05:1CD7.000A: hiddev2,hidraw8: USB HID v1.11 Device [...] on usb-0000:00:14.0-6/input4
 
-> Signed-off-by: Paolo Pisati <p.pisati@gmail.com>
-> Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
-> ---
->  drivers/hid/hid-asus.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 242e273e4cb3..d69431615c27 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-> @@ -1405,6 +1405,7 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	struct asus_drvdata *drvdata;
->  	struct hid_report *rep;
->  	bool is_vendor = false;
-> +	unsigned int connect_mask;
->  	int ret;
->  
->  	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
-> @@ -1500,7 +1501,18 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  		return ret;
->  	}
->  
-> -	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	/*
-> +	 * The Zenbook Duo keyboard reports its hotkeys on a dedicated USB
-> +	 * interface that only has vendor usage collections, which hid-input
-> +	 * does not consider an input application. Make it bind to the
-> +	 * interface carrying the ASUS vendor collection anyway so the
-> +	 * hotkeys get mapped.
-> +	 */
+With the fixup:
 
-I would shorten this comment, but I'm not good in this and the code is okay so
-I gave reviewed-by regardless: do what you wish with my suggestion.
+  asus 0003:0B05:1CD7.000A: Fixing up Zenbook Duo keyb report descriptor
+  asus 0003:0B05:1CD7.000A: input,hiddev2,hidraw8: USB HID v1.11 Device [...] on usb-0000:00:14.0-6/input4
 
-> +	connect_mask = HID_CONNECT_DEFAULT;
-> +	if ((drvdata->quirks & QUIRK_ZENBOOK_DUO_KEYBOARD) && is_vendor)
-> +		connect_mask |= HID_CONNECT_HIDINPUT_FORCE;
-> +
-> +	ret = hid_hw_start(hdev, connect_mask);
->  	if (ret) {
->  		asus_worker_stop(drvdata->worker);
->  		hid_err(hdev, "Asus hw start failed: %d\n", ret);
+Without the fixup, volume up/down and mute still work, as they come from
+another interface, but screen brightness, keyboard backlight, mic mute
+and Fn+F profile cycling are dead (checked with an evdev reader and
+/sys/firmware/acpi/platform_profile). With the fixup all of them work.
+So yes, as far as I can tell this keyboard needs it.
+
+On the Assisted-by format: my original patch (7/7) was written with
+Claude Code using claude-fable-5, so following
+Documentation/process/coding-assistants.rst that would be
+
+Assisted-by: Claude:claude-fable-5
+
+Paolo, feel free to use that above my Signed-off-by in a respin.
+
+Thanks,
+Rebecca

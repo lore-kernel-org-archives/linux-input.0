@@ -1,43 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2177F59F505;
-	Mon, 19 Oct 2026 13:59:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8F29562603;
+	Mon, 19 Oct 2026 13:59:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418369; cv=none; b=pq/EsL8MPmqeIyifLt5biSEX0U/3O++cu4M5/i87f8o755GhQalCAOqIe1olhPH5NtTmtP+5weYeFc/09w3xQmdUErH9qBJec+6XBwjCUxKcwCpXiSyVnoR0871ric1DW4EUzA6fctEEVgEd65V9LdIuEs9i56LSRjGhUm8Nz84=
+	t=1792418383; cv=none; b=apKpi5Q2aQ0kg2eFeupQ4BxgUNzr6zXKJnoOCmq3iDPpXaT+ExRVeMK3KZMB8dWn4QYhtEoQwjn/TNbjZBGlPcTGMuAWOKxg9lIGqcrmSjw2AG8laMqIIuLtDj9lAYDKQ4YQTbbfjqpfHIlddX2opyLre1pjnuCB03cMN8s0gZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418369; c=relaxed/simple;
-	bh=ExYcZ8dZAChh5V332irJFI9S2Xph4L0+n07BZFddPaA=;
+	s=arc-20240116; t=1792418383; c=relaxed/simple;
+	bh=ZgQ6IG3/9L98G0Gm0xaMLLQ6yNfAtV+hIlmhy7XoHaw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GpSDuaHN5S39rvWmKVqehg3WRiMgwqAgPr0KvzKKHxFUwhp2h+4bFBj4CyF8btLb58PKAJ5JjZq/C+JltCKjHwjy0OId0po+sQstcDh3EMg2PnJh83fh9cIvTnY/5vVSBrdJrmKDCbL9OjU5Ddq/+xrs9VntVmbNzDwO/omJJQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WdlbZCoL; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=gkcsqntlpE9gq9MP5bk076BKWAGIz02yFtWTZFYe2LF3tPZWGdp8w4Aa+BXvQm4D+xyg8fDL99hhp9+be533MQ23rq8TbODv+o8HqT0+Nnoeen6yN6z3/BER0l3fBwSte8Lk5B1wXI5MEv1Yho7YylUs/gsYX7a3sATIztgSULg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NjTjxpRZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WdlbZCoL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C22E1F000CA;
-	Mon, 19 Oct 2026 13:59:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NjTjxpRZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B643B1F000C9;
+	Mon, 19 Oct 2026 13:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418367;
-	bh=lSXl3nuPvzEeeN2IWyab7W2XdCu637yuh10cyLL3DjA=;
+	s=k20260515; t=1792418379;
+	bh=rD2KxmotcfM8IGAGm9A/rw+ymS4q5qqa6HG40p80LfY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=WdlbZCoLT6QaUnOiXtOimZFglCkB1XmhcFM2AD2mjTGFOq+8H7QkNv1Mr55yWu54N
-	 n0nIitNuKUjz8WwE+UJ3cigvJjlffg9wzIbnCQ9RxHUtdQyqIsFGIX8M0NdlCnua70
-	 hPJq7HBxTOYvGTTgp1/fmOKyIfPw/u1nvZRBI/e5W3rdqbXK6P3NiT02Eb2uC9i8N+
-	 9jCIwK0WHFXt28AyAl+w9INXwsmwWRcUZJlN5IVCayEyI+aGBM7jVnMGzInZ6n0XS9
-	 dYmjGqkd1ojBO1LMt7ByCEcC6QyUOkyzGRSQ71nL+XZzGPXbu8PnejO8N+41ozKCug
-	 bhxORQGNjkwBg==
+	b=NjTjxpRZAKJYnNK3NxzDhK+2p9TBlF+7TxB4xqa8+7PQrTxXXnumLRQ8GIOz+Wjtm
+	 8ZSsGt2mt6nKi9W+PrnWBDx1hWC8dEmybttW3yODDtLmW7oQNer8CmRhYnngO3bERR
+	 EuMQHXB6cVFeoTw0P5ctGiakPjRXgeG0e82D35GshDa6SgiczSpTyG5t3qf0NYMXXM
+	 hWcDCFMkGtFEWsKu01+G3KXePBOo8sMa51QpQ6CpkBVtXwVRCgrDtHNanvqvgOj9LA
+	 CM5JR0HOiLKi9mq4HuGhla59iM6gwL3JuTmCWyQoxGAzk9YxDipA8a0uXrwtVPdQQB
+	 Oct7WEXQXj80w==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Dave Carey <carvsdriver@gmail.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
+Cc: Berke Durak <berke.durak@gmail.com>,
+	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
+	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] HID: multitouch: Fix stale MT slots when contact count drops to zero
-Date: Mon, 19 Oct 2026 09:48:08 -0400
-Message-ID: <20261019135441.1420968-197-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18] HID: elecom: Add support for ELECOM M-XT4DRBK (018E)
+Date: Mon, 19 Oct 2026 09:48:18 -0400
+Message-ID: <20261019135441.1420968-207-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -47,536 +48,469 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.18.57
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Dave Carey <carvsdriver@gmail.com>
+From: Berke Durak <berke.durak@gmail.com>
 
-[ Upstream commit e8e60b6439eed340a611e9d7a5b9bcbd0ef62725 ]
+[ Upstream commit f3c2b266b8fd7cf816d36168d19f67e716f2c080 ]
 
-The INGENIC 17EF:6161 touchscreen (Lenovo Yoga Book 9 14IAH10) reports
-HID_DG_CONTACTCOUNT=0 in the frame immediately following the last finger
-lift rather than omitting the frame entirely.  In mt_touch_report() the
-existing code only updates num_expected when contact_count is non-zero,
-so a zero contact count on the first packet of a new frame leaves
-num_expected at its previous value (e.g. 2 for a two-finger gesture).
-The sync check "num_received >= num_expected" then evaluates "0 >= 2"
-and never fires, preventing INPUT_MT_DROP_UNUSED from releasing the
-stale slots.  Those slots remain active in the kernel MT layer until the
-next touch, at which point they are released in a batch alongside the
-new contact — causing the userspace event consumer to miss the
-intervening finger-up sequence and corrupt its gesture session state.
+The 2025 revision of the left-handed EX-G wireless trackball
+(M-XT4DRBK-G) reports USB ID 056e:018e instead of 056e:00fd. Its report
+descriptor declares an 8-bit button field (Report Count 8) but only five
+usages (Usage Maximum 5), so the sixth (Fn) button ends up as a
+duplicate of button 5 and is unusable.
 
-Fix by resetting num_expected to 0 when contact_count is zero and
-num_received is still 0 (i.e., this is the first and only packet of the
-frame, not a continuation packet in a multi-packet sequence).  With
-num_expected=0 the sync check "0 >= 0" fires immediately, calling
-input_mt_sync_frame() which drops the stale slots via
-INPUT_MT_DROP_UNUSED.
+The report descriptor has the same layout as the M-XT3DRBK 018C
+(button usage maximum at offset 16, button report count at 22, button
+report size at 24, padding report size at 30), so reuse that fixup.
 
-The num_received==0 guard is critical: continuation packets in a
-multi-packet frame arrive after at least one contact has already been
-processed (num_received>0), so they are correctly excluded from this
-path and the existing multi-packet logic is unaffected.
+Rename the existing M_XT4DRBK define to M_XT4DRBK_00FD to match the
+convention used for the other EX-G revisions.
 
-Signed-off-by: Dave Carey <carvsdriver@gmail.com>
-Tested-by: Dave Carey <carvsdriver@gmail.com>
-Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+Tested on a Raspberry Pi 5 with the same fixup in an
+out-of-tree module on 6.12 (6.12.96+rpt-rpi-2712);
+all six buttons are reported after the fix, and they
+work (tested with xev as well).
+
+Report descriptor as sent by the device, pre-fix (056e:018e,
+215 bytes):
+
+ 05 01 09 02 A1 01 09 01 A1 00 85 01 05 09 19 01
+ 29 05 15 00 25 01 95 08 75 01 81 02 95 01 75 00
+ 81 01 05 01 09 30 09 31 16 00 80 26 FF 7F 75 10
+ 95 02 81 06 C0 A1 00 05 01 09 38 15 81 25 7F 75
+ 08 95 01 81 06 C0 A1 00 05 0C 0A 38 02 95 01 75
+ 08 15 81 25 7F 81 06 C0 C0 06 01 FF 09 00 A1 01
+ 85 02 09 00 15 00 26 FF 00 75 08 95 07 81 02 C0
+ 05 0C 09 01 A1 01 85 05 15 00 26 3C 02 19 00 2A
+ 3C 02 75 10 95 01 81 00 C0 05 01 09 80 A1 01 85
+ 03 19 81 29 83 15 00 25 01 95 03 75 01 81 02 95
+ 01 75 05 81 01 C0 06 BC FF 09 88 A1 01 85 04 95
+ 01 75 08 15 00 26 FF 00 19 00 2A FF 00 81 00 C0
+ 06 02 FF 09 02 A1 01 85 06 09 02 15 00 26 FF 00
+ 75 08 95 07 B1 02 C0
+
+Assisted-by: LLM
+Signed-off-by: Berke Durak <berke.durak@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-I have enough to decide: the buggy `num_expected` path is in this 6.12
-tree, the Yoga Book 9 prerequisites are already here, and the patch
-applies cleanly.
+The local tree is **6.18.57** (`v6.18.57-155-gcdf239ca885b2`). The
+question is whether this HID/elecom USB-ID + report-descriptor fixup
+should be backported here. The driver, the existing
+`mouse_button_fixup()` helper, and the sibling 018C fixup are all
+already present in 6.18.57.
 
----
+===============================================================
+PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
+**Step 1.1: PARSE THE SUBJECT LINE**
+Record: `[HID / elecom] [Add support] [USB ID 056e:018e for the 2025
+M-XT4DRBK-G trackball, plus the existing button report-descriptor
+fixup]`
 
-### Step 1.1: PARSE THE SUBJECT LINE
-Record: **[HID: multitouch:] [Fix] [stale MT slots when a zero
-ContactCount sentinel frame never syncs, so unused slots are not
-dropped]**
-
-### Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
+**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
 Record:
-- **Fixes:** none (expected for this review)
-- **Reported-by:** none
-- **Tested-by:** Dave Carey \<carvsdriver@gmail.com\> (author tested on
-  the affected laptop)
-- **Reviewed-by:** none in the commit; HID maintainer Benjamin Tissoires
-  reviewed on-list and applied it
-- **Acked-by:** none
-- **Link:** none in the commit
-- **Cc: stable:** none (expected)
-- **Signed-off-by:** Dave Carey (author); Benjamin Tissoires (HID
-  maintainer)
-- Ignore pipeline-added Sasha Levin SOB / `[Upstream commit ...]` if
-  present
+- No `Fixes:` tag (expected for this review)
+- No `Reported-by:` / `Tested-by:` / `Reviewed-by:` / `Acked-by:`
+- No `Link:`
+- No `Cc: stable@vger.kernel.org` (expected; not a negative)
+- `Assisted-by: LLM`
+- `Signed-off-by: Berke Durak <berke.durak@gmail.com>` (author)
+- `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID maintainer)
+- Ignore pipeline `Signed-off-by: Sasha Levin` and `[Upstream commit
+  ...]`
 
-### Step 1.3: ANALYZE THE COMMIT BODY TEXT
+**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
 Record:
-- **Bug:** INGENIC 17EF:6161 (Lenovo Yoga Book 9 14IAH10) sends
-  `HID_DG_CONTACTCOUNT=0` on the frame after the last finger lift.
-  `mt_touch_report()` only updates `num_expected` when `contact_count`
-  is non-zero, so a first packet with count 0 leaves `num_expected` at
-  the previous value (e.g. 2).
-- **Symptom / failure mode:** `num_received >= num_expected` becomes `0
-  >= 2` and never fires. `INPUT_MT_DROP_UNUSED` does not run. Slots stay
-  active until the next touch, then are released together with the new
-  contact. Userspace misses the finger-up sequence and corrupts gesture
-  state (stuck touch).
-- **Version info:** none in the message. Logic has been in hid-
-  multitouch since 2017; this hardware/class is recent.
-- **Root cause:** zero ContactCount on the first packet of a new frame
-  is treated as a multi-packet continuation instead of “no contacts.”
+- Bug: 2025 left-handed EX-G wireless trackball (M-XT4DRBK-G) uses USB
+  ID `056e:018e` instead of the old `056e:00fd`.
+- Descriptor claims an 8-bit button field (`Report Count 8`) but only
+  five usages (`Usage Maximum 5`), so the sixth (Fn) button is a
+  duplicate of button 5 and is unusable.
+- Root cause: same broken descriptor layout as M-XT3DRBK 018C (offsets
+  16/22/24/30).
+- Symptom: extra button does not work; mouse otherwise enumerates.
+- Author tested on Raspberry Pi 5, 6.12 (`6.12.96+rpt-rpi-2712`), via an
+  out-of-tree module; all six buttons work (`xev`).
+- Full 215-byte pre-fix descriptor is included.
 
-### Step 1.4: DETECT HIDDEN BUG FIXES
-Record: **Not a hidden fix.** Subject and body describe a real input-
-correctness bug and the exact `num_expected` mechanism.
+**Step 1.4: DETECT HIDDEN BUG FIXES**
+Record: Not a disguised cleanup. It is a device-ID addition plus an
+existing HID report-descriptor quirk. The rename `M_XT4DRBK` →
+`M_XT4DRBK_00FD` is local naming only.
 
----
+===============================================================
+PHASE 2: DIFF ANALYSIS - LINE BY LINE
+===============================================================
 
-## PHASE 2: DIFF ANALYSIS
-
-### Step 2.1: INVENTORY THE CHANGES
+**Step 2.1: INVENTORY THE CHANGES**
 Record:
-- **File:** `drivers/hid/hid-multitouch.c` — one hunk in
-  `mt_touch_report()` (~8 insertions / ~11 deletions, net −3)
-- **Scope:** single-file surgical logic change in the ContactCount
-  handling block
+- `drivers/hid/hid-ids.h`: +1 ID (`0x018e`), rename existing `0x00fd`
+  define
+- `drivers/hid/hid-elecom.c`: +1 case in `elecom_report_fixup()`, +1
+  `elecom_devices[]` entry, rename 00FD references
+- `drivers/hid/hid-quirks.c`: +1 `hid_have_special_driver[]` entry,
+  rename 00FD
+- Scope: 8 insertions, 4 deletions across 3 files. Surgical, existing
+  driver only.
 
-### Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
-Current code in this tree (`drivers/hid/hid-multitouch.c`):
+**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
+Record:
+- Before: `056e:018e` is not in hid-elecom, so hid-generic binds and the
+  stock descriptor is used (Usage Maximum 5 / Count 8). Old `056e:00fd`
+  still uses the 6-button fixup via `USB_DEVICE_ID_ELECOM_M_XT4DRBK`.
+- After: `018e` is claimed by hid-elecom and runs
+  `mouse_button_fixup(..., 22, 30, 24, 16, 6)` (same as 018C). Old 00FD
+  device still hits the same 6-button fixup through the renamed define.
+  `hid_have_special_driver` keeps hid-generic from binding 018E.
 
-```1254:1269:drivers/hid/hid-multitouch.c
-        if (contact_count >= 0) {
-                /*
-   - For Win8 PTPs the first packet (td->num_received == 0) may
-   - have a contactcount of 0 if there only is a button event.
-   - ...
-                 */
-                if ((app->quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
-                    app->num_received == 0 &&
-                    app->prev_scantime != scantime)
-                        app->num_expected = contact_count;
-                /* A non 0 contact count always indicates a first packet
-*/
-                else if (contact_count)
-                        app->num_expected = contact_count;
-        }
+**Step 2.3: IDENTIFY THE BUG MECHANISM**
+Record: `[Hardware workaround / device ID + HID descriptor quirk]`
+- Broken HID report descriptor: Usage Maximum 5 vs Report Count 8.
+- Fix reuses the proven 018C path: set count and usage max to 6, padding
+  to 2.
+
+Verified against the included descriptor (first 32 bytes):
 ```
+offset 16: 29 05  Usage Maximum (5)
+offset 22: 95 08  Report Count (8)
+offset 24: 75 01  Report Size (1)
+offset 30: 75 00  padding Report Size (0)
+```
+Those match `mouse_button_fixup(hdev, rdesc, *rsize, 22, 30, 24, 16,
+6)`. The helper then writes count=6, usage max=6, padding=2. The 018C
+commit in this tree used the identical dump.
 
+**Step 2.4: ASSESS THE FIX QUALITY**
 Record:
-- **Before:** `contact_count > 0` → set `num_expected`. `contact_count
-  == 0` on a new first packet → set `num_expected = 0` **only** if
-  `MT_QUIRK_WIN8_PTP_BUTTONS`. Otherwise leave the previous
-  `num_expected`. Continuation packets with count 0 are left unchanged.
-- **After:** `contact_count > 0` → set `num_expected`. Else if
-  `num_received == 0` and scantime changed → `num_expected = 0` for
-  **all** devices. Continuation packets still skipped (`num_received >
-  0` or same scantime).
-- **Path:** HID report processing for every hid-multitouch device that
-  reports ContactCount; not an error/init-only path.
+- Obviously correct: new ID, existing helper, offsets match the dump.
+- Minimal: no new APIs, no new helper, no behavior change for 00FD.
+- Rename is kernel-internal (`hid-ids.h`); grep shows no leftover
+  `USB_DEVICE_ID_ELECOM_M_XT4DRBK` users.
+- Regression risk is low: `mouse_button_fixup()` bails out unless the
+  expected HID items are at those offsets, so a mismatched 018E
+  descriptor would be left unchanged.
+- `hid-quirks.c` update is required so hid-generic does not steal the
+  device (`HID_QUIRK_HAVE_SPECIAL_DRIVER`).
 
-### Step 2.3: IDENTIFY THE BUG MECHANISM
-Record: **[Logic / correctness] + [hardware firmware workaround]**
+===============================================================
+PHASE 3: GIT HISTORY INVESTIGATION
+===============================================================
 
-When ContactCount is 0 on a new frame, `num_expected` is not reset, so
-`mt_sync_frame()` / `input_mt_sync_frame()` never run and
-`INPUT_MT_DROP_UNUSED` cannot release slots.
-
-This tree already has `MT_QUIRK_CONTACT_CNT_ACCURATE` on Yoga Book 9
-(`4dfad42f0610f`). With a stale `num_expected` of N, a 0-count frame can
-still process N ghost slots (`ALWAYS_VALID` skips tip-state validity),
-then sync those ghosts as live contacts. Resetting `num_expected` to 0
-makes the accurate-count guard skip every slot (`0 >= 0`) and then drop
-unused slots.
-
-### Step 2.4: ASSESS THE FIX QUALITY
+**Step 3.1: BLAME THE CHANGED LINES**
 Record:
-- **Quality:** Minimal rewrite of one conditional. Continuation packets
-  still guarded. Win8 PTP button-only frames (`contact_count == 0`,
-  first packet, scantime changed) keep working, without requiring the
-  quirk.
-- **Regression risk:** Low–medium: the `WIN8_PTP_BUTTONS` gate is
-  removed, so any hid-multitouch device that reports ContactCount and a
-  new-frame scantime can now treat a 0-count first packet as “all up.”
-  HID maintainer and hid-tools tests accepted that. Dropping the outer
-  `contact_count >= 0` wrapper means `contact_count == -1` (no
-  ContactCount field) can take the else-if; maintainer later called that
-  semantically misleading but harmless because `num_expected` stays 0.
+- Original M-XT4DRBK 00FD support: `fbb77e88f08ce` (2018, Tomasz
+  Kramkowski), already in 6.18.57.
+- Parameterized `mouse_button_fixup()`: `68d09380a6278` (2020), already
+  in 6.18.57.
+- 018C sibling layout this patch reuses: `da1880c7b6b83` (Arnoud
+  Willemsen), already in 6.18.57 (`git merge-base --is-ancestor`
+  returned 0).
 
----
+**Step 3.2: FOLLOW THE FIXES: TAG**
+Record: No `Fixes:` tag. Not a regression in previously working 018E
+support; 018E was never in this tree. The bug is the device’s
+descriptor, same class as 00FD/018C.
 
-## PHASE 3: GIT HISTORY INVESTIGATION
+**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
+Record: Recent `hid-elecom.c` history is the same pattern of “new USB ID
++ existing fixup”:
+- `cdcbb8e8d10f6` M-XT3URBK 018F (in 6.18.57)
+- `da1880c7b6b83` M-XT3DRBK 018C (in 6.18.57)
+- `a36e053b16804` HUGE Plus M-HT1MRBK (in 6.18.57)
+Standalone; not patch X/Y.
 
-### Step 3.1: BLAME THE CHANGED LINES
+**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
+Record: Berke Durak has only this hid-elecom commit here. Jiri Kosina
+(HID maintainer) signed off and applied it.
+
+**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
+Record: Needs `mouse_button_fixup()` and the 018C case. Both exist at
+v6.18.57. No new functions. Can apply standalone. `patch --dry-run` of
+this diff onto the v6.18.57 copies of the three files succeeded.
+
+===============================================================
+PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+===============================================================
+
+**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
 Record:
-- Multi-packet “zero contactcount” comment: `c2517f62dac608` (Benjamin
-  Tissoires, 2013)
-- Win8 PTP 0-touch handling: **`af8dc4d094909` (“HID: multitouch:
-  Properly deal with Win8 PTP reports with 0 touches”, Hans de Goede,
-  2017-11-22)**
-- Application-level `num_expected`: `f146d1c4d7eafd` / `01eaac7e57134`
-  (2018)
-- `git merge-base --is-ancestor af8dc4d094909 HEAD` → **yes** (exit 0).
-  Buggy pattern is old and present here.
+- `b4 dig -c a6dbbf8a1601a`:
+  https://patch.msgid.link/20260907184719.25042-1-berke.durak@gmail.com
+- `b4 dig -a`: single revision (v1 only), 2026-09-07
+- lore.kernel.org fetches returned 403; discussion confirmed via patchew
+  and openwall mirrors
+- Jiri Kosina: “Applied, thanks.” No NAK, no requested respin, no
+  stable-risk comments
 
-### Step 3.2: FOLLOW THE FIXES: TAG
-Record: **No Fixes: tag.** Introduced behavior is the 2017 Win8 PTP
-special case that never treated a generic 0-count sentinel as end-of-
-frame.
+**Step 4.2: CHECK WHO REVIEWED THE PATCH**
+Record (`b4 dig -w`): To/Cc Jiri Kosina, Benjamin Tissoires, linux-
+input, linux-kernel. HID maintainer applied it.
 
-### Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
-Record (this tree, `drivers/hid/hid-multitouch.c`):
-- `bdaabb4cf6603` — Yoga Book 9i quirks / `MT_CLS_YOGABOOK9I`
-- `a7359de3c246b` — Yoga Book 9 14IAH10 misclassification; adds
-  `MT_QUIRK_NOT_SEEN_MEANS_UP` (`INPUT_MT_DROP_UNUSED`)
-- `4dfad42f0610f` — Honor ContactCount ghost-contact suppression
-  (`MT_QUIRK_CONTACT_CNT_ACCURATE`)
-- This candidate is the remaining Yoga Book 9 hid-multitouch fix (author
-  said so on-list)
+**Step 4.3: SEARCH FOR THE BUG REPORT**
+Record: No bugzilla/syzbot link. The author is the reporter and tester,
+with a full descriptor dump and xev confirmation. Same failure mode as
+018C, which is already in this tree.
 
-Standalone: yes. v1 cover letter: independent of the ghost-contacts
-patch; both sit on the misclassification commit. That misclassification
-**is already in this tree.**
+**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
+Record: Standalone v1. Closely related 018C/018F/HUGE Plus ID+fixup
+patches are already in 6.18.57.
 
-### Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
-Record: Dave Carey is the Yoga Book 9 hid-multitouch contributor, not
-the subsystem maintainer. Same-file commits here: `a7359de3c246b`,
-`4dfad42f0610f`. Maintainer Benjamin Tissoires applied this one to
-hid.git `for-7.3/upstream-fixes`.
+**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
+Record: UNVERIFIED. `lore.kernel.org/stable/?q=M-XT4DRBK` returned 403.
+No evidence of a prior rejection. Does not change the technical verdict.
 
-### Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
+===============================================================
+PHASE 5: CODE SEMANTIC ANALYSIS
+===============================================================
+
+**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
+Record: `elecom_report_fixup()` (switch cases / id table);
+`mouse_button_fixup()` called but not modified; ID tables in `hid-
+elecom.c` and `hid_have_special_driver[]`.
+
+**Step 5.2: TRACE CALLERS**
 Record:
-- Needs existing `mt_touch_report()` ContactCount / scantime /
-  `num_expected` logic — present since 2017–2018.
-- For Yoga Book 9 specifically, `MT_QUIRK_NOT_SEEN_MEANS_UP` (so
-  `INPUT_MT_DROP_UNUSED` is set) is already here via `a7359de3c246b`.
-- `git merge-base --is-ancestor e8e60b6439eed HEAD` → **no** (not in
-  this tree).
-- Applies standalone; `git apply --check` succeeded (hunk offset −70
-  lines).
+- `elecom_report_fixup` ← `elecom_driver.report_fixup` ← `hid-core.c`
+  `hid_open_report()` (`device->driver->report_fixup(...)` at line 1305)
+- `hid_have_special_driver` match ← `hid_gets_squirk()` sets
+  `HID_QUIRK_HAVE_SPECIAL_DRIVER` ← `hid_generic_match()` returns false
+  so hid-generic does not bind
 
----
+**Step 5.3: TRACE CALLEES**
+Record: `mouse_button_fixup()` only mutates three descriptor bytes after
+pattern checks; `hid_info()` log. No allocation, locking, or I/O.
 
-## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+**Step 5.4: FOLLOW THE CALL CHAIN**
+Record: Plug USB receiver → usbhid → hid parse → `report_fixup` → input
+events. Userspace-reachable on plug. Unprivileged users then use the
+extra button via evdev. Not a security bug; it is a functional hardware
+bug.
 
-### Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
+**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
+Record: Same pattern already used for 018C, 018F, DT2, HUGE, etc. in
+this file. This is the left-handed 2025 wireless counterpart of 018C.
+
+===============================================================
+PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+===============================================================
+
+**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
+Record: Yes. v6.18.57 has hid-elecom, `mouse_button_fixup()`, and 018C’s
+layout, but **not** ID `0x018e`. Without this patch, 018E is a generic
+HID mouse with a broken sixth button. The 00FD model is already quirked.
+
+**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
+Record: Clean apply onto v6.18.57 (`patch --dry-run` rc 0). Parent vs
+v6.18.57 differs only by an unrelated ITE keyboard ID later in `hid-
+ids.h`.
+
+**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
+Record: No 018E fix in v6.18.57. 018C/018F/HUGE Plus ID+fixup patches
+**are** already in 6.18.57, which is the same stable-accepted class of
+change.
+
+===============================================================
+PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+===============================================================
+
+**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
+Record: `[drivers/hid/hid-elecom.c] [PERIPHERAL / driver-specific]`,
+gated by `CONFIG_HID_ELECOM`. Important for owners of this trackball;
+not core MM/VFS.
+
+**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
+Record: Mature driver (2010–); recent work is additional ELECOM IDs and
+descriptor fixups, several of which already landed in 6.18.y.
+
+===============================================================
+PHASE 8: IMPACT AND RISK ASSESSMENT
+===============================================================
+
+**Step 8.1: DETERMINE WHO IS AFFECTED**
+Record: Driver-specific / config-specific: users of ELECOM M-XT4DRBK-G
+2025 (`056e:018e`) with `CONFIG_HID_ELECOM`. 00FD users are unchanged.
+
+**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
+Record: Every plug-in of that dongle. Not a race. Unprivileged users see
+a missing/duplicated Fn button.
+
+**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
+Record: `[Broken extra mouse button on specific hardware] [MEDIUM
+functional / hardware-quirk]`. Not a crash, UAF, or corruption issue.
+This is the documented stable exception for USB IDs and hardware quirks.
+
+**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
 Record:
-- `b4 dig -c e8e60b6439eed`:
-  https://patch.msgid.link/20260730124336.637339-1-carvsdriver@gmail.com
-- **v1** (2026-05-15):
-  https://patch.msgid.link/20260515175253.873796-1-carvsdriver@gmail.com
-  — added an `else if (num_received == 0)` branch
-- **v2** (2026-05-22): sent as `[PATCH 2/5]` in reply to v1; maintainers
-  did not treat it as a proper respin
-- **v3** (2026-07-30): same code as v2; standalone subject. Applied
-  2026-08-25
-- lore.kernel.org WebFetch returned 403; thread recovered via `b4 dig
-  -m` and `b4 mbox`
+- Benefit: 2025 left-handed EX-G trackball gets a working sixth button
+  on 6.18.y, matching what 018C already got.
+- Risk: very low (8/4 line change, existing helper, pattern-gated,
+  maintainer-applied, tested).
+- Ratio: high benefit for affected hardware, negligible regression risk.
 
-Key review:
-- Benjamin on v1: hid-tools testsuite still happy; asked to flatten the
-  if/else and add `prev_scantime != scantime`
-- Benjamin on v3: `contact_count == -1` path is misleading but harmless;
-  negative ContactCount would be clamped to 0 (improvement)
-- Applied to hid.git `for-7.3/upstream-fixes` as `e8e60b6439ee`
-- No NAK. AI review noted an unrelated pre-existing sticky-finger timer
-  UAF in `mt_remove()`, not introduced here
-- No reviewer `Cc: stable`
+===============================================================
+PHASE 9: FINAL SYNTHESIS
+===============================================================
 
-### Step 4.2: CHECK WHO REVIEWED THE PATCH
-Record (`b4 dig -w`): To/Cc `linux-input@vger.kernel.org`, Jiri Kosina
-(`jikos@kernel.org`), Benjamin Tissoires (`bentiss@kernel.org`). HID
-maintainer reviewed and merged.
+**Step 9.1: COMPILE THE EVIDENCE**
 
-### Step 4.3: SEARCH FOR THE BUG REPORT
-Record: No syzbot/bugzilla. Author described HID capture behavior and
-tested on Yoga Book 9 14IAH10 (83KJ). Same author as the two Yoga Book 9
-commits already in this tree.
+FOR:
+- USB ID + existing HID quirk on an existing driver (stable exceptions 1
+  and 2)
+- Real user-visible bug: sixth button unusable; author tested the fix
+- Descriptor offsets verified against the dump and against 018C already
+  in this tree
+- Small, obviously correct, no new APIs
+- HID maintainer applied v1 with no objections
+- Same class of patch (018C/018F/HUGE Plus) already in 6.18.57
+- Applies cleanly to this tree
 
-### Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
-Record: Intended as the last of three Yoga Book 9 hid-multitouch fixes.
-The other two are already in this 6.12 tree. v2’s “2/5” was a mistaken
-subject, not a hard series dependency. No later same-file follow-up on
-origin/master besides an unrelated ASUS ROG Z13 quirk.
+AGAINST:
+- Not a crash/security/corruption fix
+- Affects one consumer trackball model
+- Author is not a regular HID contributor; patch notes `Assisted-by:
+  LLM` (mitigated by maintainer apply + dump + test)
 
-### Step 4.5: CHECK STABLE MAILING LIST HISTORY
-Record: No stable@ discussion found. Commit has no Cc: stable. Not a
-negative signal.
+UNRESOLVED:
+- Could not fetch lore.kernel.org (403) or search stable@ archives
+  directly; discussion recovered from b4/patchew/openwall
 
----
-
-## PHASE 5: CODE SEMANTIC ANALYSIS
-
-### Step 5.1: IDENTIFY KEY FUNCTIONS
-Record: **`mt_touch_report()`** only. Nearby: `mt_sync_frame()`,
-`mt_process_slot()`, `mt_touch_input_configured()`.
-
-### Step 5.2: TRACE CALLERS
-Record: Only caller is `mt_report()` when `rdata->is_mt_collection`.
-That is the HID `.report` callback for incoming device reports.
-Interrupt/HID-completion context, not a syscall. Triggered by touching
-the panel. `CONFIG_HID_MULTITOUCH` (`drivers/hid/Kconfig`).
-
-### Step 5.3: TRACE CALLEES
-Record: Reads `app->raw_cc` / `app->scantime`; walks slots via
-`mt_process_slot()`; then `if (num_received >= num_expected)
-mt_sync_frame()` → `input_mt_sync_frame()` + `input_sync()`. Yoga Book 9
-sets `INPUT_MT_DROP_UNUSED` from `MT_QUIRK_NOT_SEEN_MEANS_UP` in
-`mt_touch_input_configured()`.
-
-### Step 5.4: FOLLOW THE CALL CHAIN
-Record: USB/I2C HID report → `mt_report()` → `mt_touch_report()`.
-Userspace-visible via evdev. Unprivileged user touching the screen can
-trigger it.
-
-### Step 5.5: SEARCH FOR SIMILAR PATTERNS
-Record: Same 0-count first-packet case already existed for
-`MT_QUIRK_WIN8_PTP_BUTTONS` (`af8dc4d094909`). This generalizes that
-handling. No duplicate fix already in this tree (`git log --grep` for
-“stale MT” / “contact count drops” on the file: empty).
-
-semcode MCP: not available; used grep/read.
-
----
-
-## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-
-### Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
-Record:
-- `git describe HEAD` → **`p-6.12-3-gc504cf0baa3d8`**
-- `make kernelversion` → **6.12.111**
-- Branch: **pending-6.12**
-- Buggy block is at `drivers/hid/hid-multitouch.c:1254-1268`
-- Yoga Book 9 class with `NOT_SEEN_MEANS_UP | ALWAYS_VALID |
-  CONTACT_CNT_ACCURATE` is at lines 411–421
-- Introduced in generic form in **v4.15-era (2017)**; this device class
-  is already backported here
-
-### Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
-Record: **`git apply --check` succeeded** (hunk at line 1251, offset
-−70). Surrounding `mt_touch_report()` matches mainline. **Clean apply /
-trivial offset.**
-
-### Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
-Record: Misclassification + ContactCount-accurate quirks are here. They
-do **not** reset `num_expected` on a 0-count sentinel. No equivalent of
-`e8e60b6439eed` is in this tree.
-
----
-
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-
-### Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
-Record: **HID multitouch input driver** (`drivers/hid/hid-
-multitouch.c`). **IMPORTANT** (laptop touchscreens/touchpads), not core
-mm/fs. Affects all hid-multitouch devices for the ContactCount=0 path;
-the reported user is Yoga Book 9, already enabled here.
-
-### Step 7.2: ASSESS SUBSYSTEM ACTIVITY
-Record: Active (device IDs, quirks, Yoga Book 9, OOB fixes). This is a
-late correctness fix on long-standing frame-sync logic, not a refactor
-of new code.
-
----
-
-## PHASE 8: IMPACT AND RISK ASSESSMENT
-
-### Step 8.1: DETERMINE WHO IS AFFECTED
-Record: **Driver-specific / hardware-specific** for the reported failure
-(Yoga Book 9 14IAH10, USB 17EF:6161). The code path is generic hid-
-multitouch. Users of this 6.12 tree already have the rest of that
-device’s support, so they can hit the leftover stuck-touch bug.
-
-### Step 8.2: DETERMINE THE TRIGGER CONDITIONS
-Record: Lift all fingers; firmware sends ContactCount=0 instead of
-omitting the frame. Common on this device (author: “immediately
-following the last finger lift”). Unprivileged physical touch. Timing:
-every lift, not a rare race.
-
-UNVERIFIED: firmware HID descriptor was not dumped here to prove
-`HID_DG_SCANTIME` exists. v3 includes the scantime-change guard and
-carries `Tested-by` on this hardware, so scantime almost certainly
-changes; the Yoga Book 9 report-descriptor fixup does not strip usage
-0x56 (`HID_DG_SCANTIME`).
-
-### Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
-Record: **Stuck/stale multitouch slots; missed finger-up; userspace
-gesture state corruption.** Not a kernel oops. **HIGH** for that
-hardware (touch becomes wrong after lift). Fits stable-rules “hardware
-quirk” / “oh, that's not good.”
-
-### Step 8.4: CALCULATE RISK-BENEFIT RATIO
-Record:
-- **Benefit:** Completes already-backported Yoga Book 9 support; stops
-  stuck fingers and ghost slots on 0-count frames. Also helps any
-  similar sentinel-frame firmware.
-- **Risk:** Low. ~19-line logic change, continuation path preserved,
-  hid-tools passed, maintainer reviewed the `-1` ContactCount case.
-- **Ratio:** Benefit outweighs risk on this tree.
-
----
-
-## PHASE 9: FINAL SYNTHESIS
-
-### Step 9.1: COMPILE THE EVIDENCE
-
-**FOR backporting:**
-- Real user-visible bug on shipping hardware (Lenovo Yoga Book 9
-  14IAH10)
-- This 6.12 tree already has the two prior Yoga Book 9 hid-multitouch
-  fixes; without this, 0-count frames still leave slots active and can
-  even feed `CONTACT_CNT_ACCURATE` with a stale expected count
-- Small, obviously targeted change; applies cleanly
-- Tested by the author; HID maintainer reviewed (v1 testsuite + v3
-  semantic check) and merged
-- Matches stable rules’ hardware-quirk / input-correctness category
-- Continuation / multi-packet path explicitly preserved
-
-**AGAINST backporting:**
-- Not a crash, UAF, or security issue
-- Widens 0-count handling beyond `MT_QUIRK_WIN8_PTP_BUTTONS`
-- No Fixes:/Cc: stable (not a negative by itself)
-- Niche dual-screen laptop as the reporter
-
-**UNRESOLVED:**
-- No independent HID dump confirming scantime on this firmware
-  (mitigated by Tested-by on v3)
-- No distribution-kernel bugzilla
-
-### Step 9.2: APPLY THE STABLE RULES CHECKLIST
-1. Obviously correct and tested? **PASS** — maintainer + hid-tools +
-   author Tested-by
-2. Fixes a real bug that affects users? **PASS** — missed finger-up /
-   stuck slots on a supported laptop
-3. Important issue? **PASS** — hardware input correctness / firmware
-   quirk, not theoretical
-4. Small and contained? **PASS** — one function, ~19 lines
-5. No new features or APIs? **PASS**
-6. Can apply to the local tree? **PASS** — `git apply --check` clean;
+**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
+1. Obviously correct and tested? **PASS** — offsets match; author
+   tested; maintainer applied
+2. Fixes a real bug that affects users? **PASS** — Fn button unusable
+   without the quirk
+3. Important issue? **PASS** under the hardware-quirk / new-ID exception
+   (severity MEDIUM, not CRITICAL)
+4. Small and contained? **PASS** — 8 insertions / 4 deletions, 3 files
+5. No new features or APIs? **PASS** — ID + existing fixup only
+6. Can apply to the local tree? **PASS** — clean apply to v6.18.57;
    prerequisites present
 
-### Step 9.3: CHECK FOR EXCEPTION CATEGORIES
-Record: Not a device-ID/DT/build/docs exception. Closest: **hardware
-firmware workaround** in an existing driver, which stable explicitly
-allows.
+**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
+Record: **Device ID addition to existing driver** and **hardware
+quirk/workaround**. Both qualify for stable.
 
-### Step 9.4: MAKE YOUR DECISION
-This 6.12 tree already enables the Yoga Book 9 touchscreen and the
-ContactCount-accurate / DROP_UNUSED quirks. The remaining bug is that a
-firmware 0-count sentinel never completes the frame, so slots are not
-released. The fix is small, reviewed, tested, and applies here. Backport
-it.
+**Step 9.4: MAKE YOUR DECISION**
+YES. This is the same HID-elecom USB-ID + report-descriptor quirk 6.18.y
+has already taken for 018C. It does not add a driver or API; it makes a
+current ELECOM trackball’s sixth button work.
 
----
+What the commit solves: the 2025 M-XT4DRBK-G (`056e:018e`) ships a
+descriptor that only declares five button usages, so Linux reports the
+Fn button as a duplicate of button 5. The fix binds that ID to hid-
+elecom and reuses the 018C `mouse_button_fixup()`.
 
-### What the commit solves for stable users
-On kernels that already have Yoga Book 9 hid-multitouch support (this
-tree does), lifting fingers can leave MT slots active because
-ContactCount=0 does not reset `num_expected`. Userspace then misses the
-up events. The patch forces a frame sync on a new 0-count packet so
-`INPUT_MT_DROP_UNUSED` runs.
+Risk vs benefit: benefit is a working extra button on real hardware;
+risk is a few table entries and a pattern-checked 3-byte descriptor
+edit. 00FD behavior is unchanged.
 
-### Stable rules / risk vs benefit
-Meets the written rules: real bug, small, no new API, applies cleanly.
-Risk is a slightly broader 0-count interpretation; that was reviewed and
-is the same condition Win8 PTP already used for button-only frames.
-
-### Concerns
-No crash/CVE; generic path rather than a Yoga-Book-only quirk table
-entry. Still appropriate because the buggy code and the device class are
-both in this checkout.
-
----
+No extra prerequisites; 018C’s helper and case are already in this tree.
 
 Verification:
-- [Phase 1] Parsed tags: Tested-by Dave Carey; SOB Dave Carey + Benjamin
-  Tissoires; no Fixes/Reported-by/Cc: stable/Link
-- [Phase 2] Diff: one hunk in `mt_touch_report()`; 0-count new frames
-  set `num_expected=0`; Win8 PTP quirk gate removed
-- [Phase 2] Local code at `drivers/hid/hid-multitouch.c:1254-1268`
-  matches pre-patch logic
-- [Phase 2] Yoga Book 9 class at 411–421 has `NOT_SEEN_MEANS_UP |
-  ALWAYS_VALID | CONTACT_CNT_ACCURATE`
-- [Phase 3] `git describe HEAD` = p-6.12-3-gc504cf0baa3d8; `make
-  kernelversion` = 6.12.111
-- [Phase 3] blame: Win8 0-touch logic from `af8dc4d094909` (2017);
-  ancestor of HEAD
-- [Phase 3] `git merge-base --is-ancestor e8e60b6439eed HEAD` = not
-  present
-- [Phase 3] Related commits in this tree: `a7359de3c246b`,
-  `4dfad42f0610f`, `bdaabb4cf6603`
-- [Phase 3] Author’s other hid-multitouch commits: those two Yoga Book 9
-  fixes
-- [Phase 4] `b4 dig -c e8e60b6439eed`: v3 at
-  patch.msgid.link/20260730124336.637339-1-carvsdriver@gmail.com
-- [Phase 4] `b4 dig -a`: v1 2026-05-15, v3 2026-07-30 (v2 mistagged 2/5)
-- [Phase 4] `b4 dig -w`: linux-input, jikos, bentiss
-- [Phase 4] mbox: Benjamin hid-tools OK on v1; requested scantime guard;
-  v3 applied for-7.3/upstream-fixes; -1 contact_count called harmless
-- [Phase 4] lore WebFetch 403; used b4 mbox instead
-- [Phase 5] `mt_touch_report` only called from `mt_report()` on MT
-  collections
-- [Phase 5] `INPUT_MT_DROP_UNUSED` set from `MT_QUIRK_NOT_SEEN_MEANS_UP`
-  in `mt_touch_input_configured()`
-- [Phase 6] `git apply --check` of `e8e60b6439eed` succeeded at offset
-  −70
-- [Phase 6] no local equivalent fix (`git log --grep` on the file empty
-  for this bug)
-- [Phase 7] CONFIG_HID_MULTITOUCH in `drivers/hid/Kconfig`
-- [Phase 8] Failure mode: stale MT slots / missed finger-up / gesture
-  corruption, severity HIGH for that hardware
-- UNVERIFIED: no firmware HID dump confirming scantime on 17EF:6161
-  (Tested-by on v3 is the evidence)
-- UNVERIFIED: no stable@ thread (search not useful; lore fetch blocked)
+- [Phase 1] Parsed tags: author + Jiri Kosina SOB; no Fixes/Cc
+  stable/Reported-by; LLM-assisted
+- [Phase 1] Body: 056e:018e, Usage Maximum 5 vs Count 8, sixth button
+  unusable; tested on Pi 5 / 6.12
+- [Phase 2] Diff: +8/-4 in hid-elecom.c, hid-ids.h, hid-quirks.c; rename
+  00FD define; add 018E to 018C fixup
+- [Phase 2] Descriptor offsets 16/22/24/30 verified against the dump
+- [Phase 3] `git describe HEAD` / Makefile: local tree is 6.18.57
+- [Phase 3] `git merge-base --is-ancestor a6dbbf8a1601a v6.18.57` → not
+  in v6.18.57 (exit 1)
+- [Phase 3] 00FD support `fbb77e88f08ce` and 018C `da1880c7b6b83` are
+  ancestors of v6.18.57
+- [Phase 3] v6.18.57 still uses `USB_DEVICE_ID_ELECOM_M_XT4DRBK` only;
+  no 018E
+- [Phase 3] Author has no other hid-elecom commits here
+- [Phase 4] `b4 dig -c`: msgid
+  20260907184719.25042-1-berke.durak@gmail.com; v1 only
+- [Phase 4] `b4 dig -w`: Kosina + Tissoires + linux-input; Kosina
+  applied
+- [Phase 4] lore.kernel.org 403; patchew/openwall used instead
+- [Phase 4] UNVERIFIED: stable@ archive search (403)
+- [Phase 5] Callers: hid-core `report_fixup` on probe; hid-generic skips
+  via `HID_QUIRK_HAVE_SPECIAL_DRIVER`
+- [Phase 6] `patch --dry-run` onto v6.18.57 files: success
+- [Phase 6] Related 018C/018F/HUGE Plus ID patches already in 6.18.57
+- [Phase 8] Failure mode: extra button unusable, not a kernel crash
+- UNVERIFIED: original lore HTML (403); does not affect the decision
 
 **YES**
 
- drivers/hid/hid-multitouch.c | 19 ++++++++-----------
- 1 file changed, 8 insertions(+), 11 deletions(-)
+ drivers/hid/hid-elecom.c | 6 ++++--
+ drivers/hid/hid-ids.h    | 3 ++-
+ drivers/hid/hid-quirks.c | 3 ++-
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 2461d84eb0e98..8dd69c6e7edf8 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1332,21 +1332,18 @@ static void mt_touch_report(struct hid_device *hid,
- 	 * Includes multi-packet support where subsequent
- 	 * packets are sent with zero contactcount.
- 	 */
--	if (contact_count >= 0) {
-+	if (contact_count > 0)
-+		app->num_expected = contact_count;
-+	else if (app->num_received == 0 && app->prev_scantime != scantime) {
+diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
+index 37d88ce57f671..d21ead40bb076 100644
+--- a/drivers/hid/hid-elecom.c
++++ b/drivers/hid/hid-elecom.c
+@@ -79,7 +79,7 @@ static const __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	case USB_DEVICE_ID_ELECOM_M_XT3URBK_00FB:
+ 	case USB_DEVICE_ID_ELECOM_M_XT3URBK_018F:
+ 	case USB_DEVICE_ID_ELECOM_M_XT3DRBK_00FC:
+-	case USB_DEVICE_ID_ELECOM_M_XT4DRBK:
++	case USB_DEVICE_ID_ELECOM_M_XT4DRBK_00FD:
  		/*
-+		 * New multi-report frame:
-+		 *
- 		 * For Win8 PTPs the first packet (td->num_received == 0) may
- 		 * have a contactcount of 0 if there only is a button event.
--		 * We double check that this is not a continuation packet
--		 * of a possible multi-packet frame be checking that the
--		 * timestamp has changed.
-+		 *
-+		 * Some other devices use a sentinel frame with 0 to release all contacts
- 		 */
--		if ((app->quirks & MT_QUIRK_WIN8_PTP_BUTTONS) &&
--		    app->num_received == 0 &&
--		    app->prev_scantime != scantime)
--			app->num_expected = contact_count;
--		/* A non 0 contact count always indicates a first packet */
--		else if (contact_count)
--			app->num_expected = contact_count;
-+		app->num_expected = 0;
- 	}
- 	app->prev_scantime = scantime;
- 
+ 		 * Report descriptor format:
+ 		 * 12: button bit count
+@@ -104,6 +104,7 @@ static const __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		mouse_button_fixup(hdev, rdesc, *rsize, 12, 30, 14, 20, 8);
+ 		break;
+ 	case USB_DEVICE_ID_ELECOM_M_XT3DRBK_018C:
++	case USB_DEVICE_ID_ELECOM_M_XT4DRBK_018E:
+ 		/*
+ 		 * Report descriptor format:
+ 		 * 22: button bit count
+@@ -148,7 +149,8 @@ static const struct hid_device_id elecom_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3URBK_018F) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3DRBK_00FC) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3DRBK_018C) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT4DRBK) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT4DRBK_00FD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT4DRBK_018E) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1URBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1DRBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT2DRBK) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index a10b4ae0e3d8e..ca5c62f29aebe 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -466,7 +466,8 @@
+ #define USB_DEVICE_ID_ELECOM_M_XT3URBK_018F	0x018f
+ #define USB_DEVICE_ID_ELECOM_M_XT3DRBK_00FC	0x00fc
+ #define USB_DEVICE_ID_ELECOM_M_XT3DRBK_018C	0x018c
+-#define USB_DEVICE_ID_ELECOM_M_XT4DRBK	0x00fd
++#define USB_DEVICE_ID_ELECOM_M_XT4DRBK_00FD	0x00fd
++#define USB_DEVICE_ID_ELECOM_M_XT4DRBK_018E	0x018e
+ #define USB_DEVICE_ID_ELECOM_M_DT1URBK	0x00fe
+ #define USB_DEVICE_ID_ELECOM_M_DT1DRBK	0x00ff
+ #define USB_DEVICE_ID_ELECOM_M_DT2DRBK	0x018d
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 8d2ac32c5ac12..debd00ed9062a 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -431,7 +431,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3URBK_018F) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3DRBK_00FC) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT3DRBK_018C) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT4DRBK) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT4DRBK_00FD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_XT4DRBK_018E) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1URBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1DRBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT2DRBK) },
 -- 
 2.53.0
 

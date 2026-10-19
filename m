@@ -1,179 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8178C4C225E;
-	Mon, 19 Oct 2026 10:22:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 483C33E3DA4;
+	Mon, 19 Oct 2026 10:57:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792405325; cv=none; b=AaSdPOLM5bEhd4sZ3xUYmYtEqCoRiXBlt3vZRUxcZNmSs2NVCHsU0hpQY7dcmy4jMgbNvPeIwoiJTdMXoVYmN3HHPS4ecxXoQ1RFFT/M5zq+vdKg4Zx0v7WrYucAeImd+aWauOqZe5ZCia0WS3lndCXdap766izH4tlSaYM+3R4=
+	t=1792407464; cv=none; b=SS2XNZRiCrsY9UkLZN7DcE1HcHs1Jc/JM32yYUG0pG8X0RQ0UDNM2wXmBgpTKJyJcaYP6FfuQKHyYQhDYdLsCa8XF1FXUujIfAATMEvUkadlBKyU28FzymQv1mpZyfWIaVQdf+hwYLSfV3t8W3joEGINTRsxRWA+Jea4GerGiM8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792405325; c=relaxed/simple;
-	bh=d8Bj4vzObU/jRIwHnyVsu4EjR9LZ3fZZc+NYrJEJoEY=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=J0NkuRzRV1d+52AK/I1ppYMbi71MzOVQkLw3jPXRoUmMmQ4GygVrisCn66smnQn4sr5RTyfJ8FZwSOSDlizTBhKzEKLFmD4svYmVV0xeiacq4/+r1fGLuqQuc2Qmzah156WnOR8On4NDJ0aCI+08GsJ38zekCI0SaXDj2arNz24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SUGiEgar; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792407464; c=relaxed/simple;
+	bh=q80m4nE2uwVii8/kh82DSr3qQf5x8VbtGu88HSiCsUk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gq6j7htF23qCisnweUw7SaiZ9iszzNYdPZk3Fr9bUgg58tQBOhs0CFkEum6xQB6knm7MAVW2185qrEpG9zjbfWrjMQqWHz4eaYRUmFkkWpW2MPZUe1AldgdGdglu3bprw1nZGgX/FnIfrXSRcnO21gaMaROvIJn3Oa3FZFRX/10=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IJWjK8NW; arc=none smtp.client-ip=198.175.65.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SUGiEgar"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1BAB1F000C4;
-	Mon, 19 Oct 2026 10:22:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792405324;
-	bh=p8cCog9OtPuO8i1Zg+6ar7IAkRn0H6P47rVBxkYuGQY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=SUGiEgar4hfSFzwPhNYHQnhzusIIJaNO1bQEeR26pu08jH2NsDqOxhLS+VtDy+uXA
-	 9MPoZNXzvkcQaNfurstnTym9nH84L1StkJ2B0acU9iWEnpaALTCUGJWZkRSthdgVCt
-	 CAqFw8iZCXtqg3HxxzcTfkEoqWDBHxpVKpSTu5De15nNgtPz5BlXrqHMfTEm/0imM3
-	 GhVsKRR+3DEgBnU4MDIubIkMZ9T1ZovQl7RyIvKC0rcL8zxje67KuPEVvFAuOACwqF
-	 ET+mDpfvho/9MeeskFJbi1lmDZM1oU2F/ZnVFl5wgzAFdDFHYG66HOrksdp5MvdZzu
-	 GHbFPcC3iowpg==
-Message-ID: <sashiko-outbox-176977@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 3/7] input: serio: Add driver for ASUS Transformer
- dock keyboard and touchpad
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20261019100406.103687-4-clamor95@gmail.com>
-References: <20261019100406.103687-1-clamor95@gmail.com>
- <20261019100406.103687-4-clamor95@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 19 Oct 2026 10:22:03 +0000
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IJWjK8NW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1792407463; x=1823943463;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=q80m4nE2uwVii8/kh82DSr3qQf5x8VbtGu88HSiCsUk=;
+  b=IJWjK8NWMzkJBFL+BzAST3kae+uz6R5Wj9YAH4NZ+6xFY/oPz5P0wCeF
+   PtKIVya0xkV1x21iwT/YzT5/JPR9pWmRkfRETT/BceUqS+nWEDwfYhXea
+   fIafNThq5DkVJLU7T9LQjlacx1Xp21C8AfPsnE0cjaa1TmBLEFZYTJi+7
+   onO5VB8uK3rW3d35rmKyLQY8OO42r+YTrmd//zz53WlV3ZfgW3ZyEID6W
+   PA2HT6ZUyySJ6wUTaQPDuyr4yL5BfwABuiON4TDkhUNc5yHGf2cFL6VnR
+   yaLXjzhHW8KKUdvl8lhARP+v0lBAi0GiQM8VGxm28mBe59unnI3yN2a/T
+   A==;
+X-CSE-ConnectionGUID: mZwZR/SpRBO7PI8GGrAOiQ==
+X-CSE-MsgGUID: gN/lXSGnQNyDYlOgQjxpHA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11939"; a="1096226"
+X-IronPort-AV: E=Sophos;i="6.27,167,1787036400"; 
+   d="scan'208";a="1096226"
+Received: from fmviesa011.fm.intel.com ([10.60.135.151])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2026 03:57:42 -0700
+X-CSE-ConnectionGUID: cgU4XWHtSeGdFFotcM6G9Q==
+X-CSE-MsgGUID: dvyKMqqJTwOgbaEcd+AYXQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,167,1787036400"; 
+   d="scan'208";a="4347318"
+Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.209])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Oct 2026 03:57:40 -0700
+Date: Mon, 19 Oct 2026 13:57:37 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Christopher Hoover <ch@murgatroid.com>
+Cc: Jonathan Cameron <jic23@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Lixu Zhang <lixu.zhang@intel.com>,
+	Joshua Crofts <joshua.crofts1@gmail.com>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>, linux-iio@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v3 2/3] iio: temperature: hid-sensor-temperature: Use
+ per-instance callbacks
+Message-ID: <atX3ocWrOi1l8N_U@ashevche-desk.local>
+References: <20261019023420.83976-1-ch@murgatroid.com>
+ <20261019023420.83976-3-ch@murgatroid.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261019023420.83976-3-ch@murgatroid.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] input: serio: serio ports registered before notifier in asus_ec_=
-kbc_probe()
---
+On Sun, Oct 18, 2026 at 07:34:19PM -0700, Christopher Hoover wrote:
+> hid-sensor-temperature keeps a single static struct
+> hid_sensor_hub_callbacks for all instances and overwrites its pdev in
+> every probe.  With two temperature sensors, input reports for one are
+> delivered with the other's platform device; once that device is
+> removed, platform_get_drvdata() returns NULL and
+> temperature_capture_sample() dereferences it:
+> 
+>   BUG: kernel NULL pointer dereference, address: 00000000000003a8
+>   RIP: 0010:temperature_capture_sample+0xd/0x50 [hid_sensor_temperature]
+> 
+> The oops happens in sensor_hub_raw_event() with the hub's spinlock
+> held, so the hub's removal then hangs.  It reproduces with two uhid
+> devices that each declare a temperature sensor, one destroyed while
+> the other still sends input reports.
+> 
+> Keep the callbacks in struct temperature_state, as the other HID
+> sensor drivers (accel, gyro, als, ...) do.
 
-commit 03f99aa77c8833478d88304ecd5af6dc8d7131c2
-Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+...
 
-input: serio: Add driver for ASUS Transformer dock keyboard and touchpad
+>  struct temperature_state {
+>  	struct hid_sensor_common common_attributes;
+> +	struct hid_sensor_hub_callbacks callbacks;
+>  	struct hid_sensor_hub_attribute_info temperature_attr;
 
-This commit adds a serio driver for the ASUS Transformer dock keyboard and
-touchpad controller, forwarding EC notifications to serio ports and
-remapping several non-standard keycodes.
+To me sounds like this new member is misplaced. The _attributes and _attr
+current members kinda tighten to each other, while callbacks is separate from
+this "group".
 
-> diff --git a/drivers/input/serio/asus-transformer-ec-kbc.c b/drivers/inpu=
-t/serio/asus-transformer-ec-kbc.c
-> new file mode 100644
-> index 0000000000000..fa7f7c3f037db
-> --- /dev/null
-> +++ b/drivers/input/serio/asus-transformer-ec-kbc.c
-> @@ -0,0 +1,264 @@
+>  	struct {
+>  		s32 temperature_data;
 
-[ ... ]
+No need to resend just for this, I hope Jonathan will tweak this whilst
+applying.
 
-> +static int asus_ec_register_serio(struct platform_device *pdev, int idx,
-> +				  const char *name, int cmd)
-> +{
-> +	struct asus_ec_kbc_data *priv =3D platform_get_drvdata(pdev);
-> +	struct i2c_client *parent =3D priv->parent;
-> +	struct serio *port =3D kzalloc_obj(*port);
-> +
-> +	if (!port)
-> +		return -ENOMEM;
-> +
-> +	priv->sdev[idx] =3D port;
-> +	port->dev.parent =3D &pdev->dev;
-> +	port->id.type =3D SERIO_8042;
-> +	port->id.extra =3D cmd & 0xFF;
-> +	port->write =3D asus_ec_serio_write;
-> +	port->port_data =3D (void *)priv;
-> +	snprintf(port->name, sizeof(port->name), "%s %s",
-> +		 priv->ec->model, name);
-> +	snprintf(port->phys, sizeof(port->phys), "i2c-%u-%04x/serio%d",
-> +		 i2c_adapter_id(parent->adapter), parent->addr, idx);
-> +
-> +	serio_register_port(port);
-> +
-> +	return devm_add_action_or_reset(&pdev->dev, asus_ec_serio_remove, port);
-> +}
-> +
-> +static void asus_ec_notifier_chain_unregister(void *data)
-> +{
-> +	struct asus_ec_kbc_data *priv =3D data;
-> +	struct asusec_core *ec =3D priv->ec;
-> +
-> +	blocking_notifier_chain_unregister(&ec->notify_list, &priv->nb);
-> +}
-> +
-> +static int asus_ec_kbc_probe(struct platform_device *pdev)
-> +{
-> +	struct asusec_core *ec =3D dev_get_drvdata(pdev->dev.parent);
-> +	struct asus_ec_kbc_data *priv;
-> +	int error;
-> +
-> +	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, priv);
-> +
-> +	priv->ec =3D ec;
-> +	priv->parent =3D to_i2c_client(pdev->dev.parent);
-> +
-> +	error =3D asus_ec_register_serio(pdev, 0, "Keyboard", 0);
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D asus_ec_register_serio(pdev, 1, "Touchpad", I8042_CMD_AUX_SEN=
-D);
-> +	if (error)
-> +		return error;
-> +
-> +	priv->nb.notifier_call =3D asus_ec_kbc_notify;
-> +
-> +	error =3D blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
-> +	if (error)
-> +		return dev_err_probe(&pdev->dev, error,
-> +				     "failed to register blocking notifier chain");
-> +
-> +	error =3D devm_add_action_or_reset(&pdev->dev,
-> +					 asus_ec_notifier_chain_unregister,
-> +					 priv);
+-- 
+With Best Regards,
+Andy Shevchenko
 
-[Severity: Medium]
-Can registering the serio ports before registering the notifier in
-asus_ec_kbc_probe() cause a race with serio driver probing?
 
-Inside asus_ec_register_serio(), serio_register_port() immediately queues
-SERIO_REGISTER_PORT onto system_long_wq (serio_event_work). If
-serio_event_work runs on another CPU before
-blocking_notifier_chain_register() completes, serio_add_port() will bind
-atkbd or psmouse, which immediately send PS/2 reset and identification
-commands via asus_ec_serio_write() and wait for responses via
-serio_interrupt().
-
-Since the parent MFD driver has already enabled its IRQ handler
-asus_ec_interrupt(), the EC response will be read from ASUSEC_READ_BUF and
-passed to blocking_notifier_call_chain(&ddata->ec.notify_list, ...) before
-priv->nb is on the list, dropping the response bytes and causing
-ps2_command() timeouts.
-
-Similarly, on driver unbind, devm will run
-asus_ec_notifier_chain_unregister() before asus_ec_serio_remove() calls
-serio_unregister_port(), disconnecting the receive path while the serio
-ports and their drivers are still active.
-
-Should the notifier be registered (or gated via serio open/close or
-start/stop callbacks with priv->sdev[] initialized beforehand) so that the
-receive path is active whenever the serio ports are registered?
-
-> +	if (error)
-> +		return error;
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019100406.1036=
-87-1-clamor95@gmail.com?part=3D3

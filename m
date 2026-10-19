@@ -1,120 +1,189 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-b4-smtp.messagingengine.com (fhigh-b4-smtp.messagingengine.com [202.12.124.155])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4B4D48CD4B
-	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 08:07:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.173
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792397226; cv=pass; b=cC/4PmeZla84Oq7zsmFjWDNnC147dIIdGOSc80MA+Arl7U1/0MCKTqvnP5fIvl63uEBcfwrri50vo6sj1wF4LOW3eoxhP3ycptTOzIYJ0yeH++hAzTRH6mPEfgKg/g9kWVf5Hfl1I2FAj7PAnYhd2niJfHpL+V+kS3Zfv1+M27o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792397226; c=relaxed/simple;
-	bh=ojWZsLxBf/E+oTlWaEvpu7l9Gy8FFWSO9+FSkAQyrOA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Unhfafh6+1cJ5dJggK+7CSEMoToGiWJuWJNcvu+a5s1HOI6iIHlfVVPP7wjXYb6JkSUdF3g8hdUo+jtWV186kLynd23IJRQTZzC26MfMMgwCWMNN6QYTG/9swmCBGUJUjQLt2OXAZzlyz0nXSVqA8zddyEZiXq/wO8rKTbtFD1Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TkQOSc2K; arc=pass smtp.client-ip=209.85.210.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7295496D3E
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 08:44:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.155
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792399468; cv=none; b=pSDspXvXzhoBn6IXb1a25SXUxYKvpr9YVV9r/t6NVXYWzy3Ncakn4WuJf0Tp/Ht0teDVJ3osj5JD72KmgozqZ34NXiHJlR89Mwx0kUJDa1EeYyNUn9SjkFzrYDr8IzNQiO/oxjltH+NZXjZUds6NOziLfInhWWV/KDYprNpx1kM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792399468; c=relaxed/simple;
+	bh=Lf2ltc92yGw13+ZIQaEnX84MOqtAvkx0Yz6xmwkEBM0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MRiObpwNfw7vY9Ww5EM1Nn/pdEy7BFn4vTWRrq/ymfd1qvbk07IWWY/Ll/OffYZBxp03v9C69MNvRi10m42YlxXRvjTsLqbCF7uNhtp1d04RzE+mffp6njYneBCS3PDK4dSu2gxWffJcIUqtT9VaX8QvABhK1gY5h0VOo0gt7fA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com; spf=pass smtp.mailfrom=kroah.com; dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b=noTZ1tM/; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=LQ/PsV/Q; arc=none smtp.client-ip=202.12.124.155
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kroah.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kroah.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TkQOSc2K"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-8a05effaf8dso489161b3a.2
-        for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 01:07:05 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792397225; cv=none;
-        d=google.com; s=arc-20260327;
-        b=pts7/CbGzAOKdlLhjCatEGIdl+ledL1ttTW94WYiA0XRrswY2YqX05pYX9DtKhSBAB
-         dsJCo1SYulHD4tSN4bnHD6qnXw5eBPaMxQOo2TaQ3c52AcvtZoYZLx9ULrPRCtVbpxaY
-         Z4pU8Sx72RA/83M2PiMMfNfxQKS02Jca0FIcd0mVfhjF+P8b62glZEWmpgZppZLQwSAc
-         0NUc1vdGNZG1w+if/uwqSriuk+fUvXoLYYE9c+I9OuNntozUoNB4s4RAPQFUA9me8kTR
-         TwREpTE3H5kw6i/9B7mMRkFHEiYu04oHj3mEMouf/3GzNm9chJjTROHmlIJ2yveDOS0U
-         vU/g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=OapHBRcO/exbGoTSwjHoSV037nGR79dQye9OkHt9RRs=;
-        fh=a989laamQPHkWHENUTo27lyEMkB+j1yGMCZD0NbSnHQ=;
-        b=j9hOWNZ1mqzyeNJzK4M3WOsdoE3ZQzuzP74jr4qg5dwiHd4/wMuT6DOzvuFmkPmMzh
-         MqdC6SkdQwmlqKxiTEjFPXit9ndD9syZ+MC9KIvyvqWA6zMCZOdHAoMhL0t+zvS2wLD+
-         XkGBim/tg49F6oG8hya37emS770T9YnolspK2co1D6yxAHrzG9krk4avf/j7A9Vx+Sz1
-         A1OkeTGDicrvj2QnzHpj9QhkwghQMLP1kItZ0akglJWlVyJyMysSvj6YqduiCLG/ECmx
-         T5eNkNuG0FswCbYJCwkTkE5WXCOiGVbYBgyu/95AzKt6n6LsxsCo975c7ydbngfz18e2
-         eVpA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792397225; x=1793002025; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=OapHBRcO/exbGoTSwjHoSV037nGR79dQye9OkHt9RRs=;
-        b=TkQOSc2KalxknOqVU+eistxoosuP7UMGLTMlh/iZ5K0ItpGMd7YJRzim/mcJwb2XPF
-         /hTOtLNK1z3VQCDr9KAqkcofQa6mQ1Vg074rjAHkT/ZsNgxykaDt4xjoRC9N2TdeR8Cx
-         AiHl5wDlHzJDdY3SzlWpZrD6qZUj7oKf5wIG05EO1ax/LM2uv3p5XEt2EZuJWihikIhw
-         4xXiEehxbpV6y1VIO20PmiHGpZ8N9b7bMN8y/Otw+oQQ+B86MW5sW+nBb5WRIbk1Sdeh
-         /A3kH5OX7qB4ghgcBagPE0njtCFzgAvtADwGsUzAkk4EL2u0LUhpS2+pyM/fW3bk6bdE
-         gLoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792397225; x=1793002025;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=OapHBRcO/exbGoTSwjHoSV037nGR79dQye9OkHt9RRs=;
-        b=OxalLujD7g/kJQvXHGFPGN+xKXxdpznunXBYDWtV7sVqRgiYm0rZLDu1b7m+P45xH1
-         Hi8mro6wBgXd4ZRXCAs2QHHY5LNrj+pDDSXRX9ZWjQch/8Ua70JMODf+JrlHdRWvi8eK
-         YYVT8OsCvCcd/FTwxzlt8VnCSxDzIDxtUKgBJI2uZ+5Qw+IhHNX5KgG2LIsHnN0DA63q
-         laPG6eU6jAm3vyfx3TnJrzOGwUL7+OQru5WYtd5tZu8uXFujOJ82R4P/uILD/rcmW5yL
-         MDPGxUBLLjzIWBp8MtTiQLDcagbYuM9nRGoSCMnd/UucBHcvJCy1aNG62PTFXefEuGrc
-         6HNA==
-X-Forwarded-Encrypted: i=1; AKwUvByq87U5dW6RbKLUkRGl0iKFiHCZ1jsArc9JinrP8/QhZaab3yvjSyrkPKP0iL7Mk9OFom7eaU24ZdpExg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJmOYouIdHXa+K3V35qp8GEr9Sijh5n97jy4xZeHZol3eUF5Xpn
-	x10CIW9Nm8F7Otgh8jALwYxn58eZ/pFBs7k1T1BRZ7yx/8Ff0FMsZpcQ06PXj4MEmVp0Pl0xMNP
-	s4OJCx5m4qm/Tj48PFHfj8DYgXbddPnY=
-X-Gm-Gg: AYBFou3Cb+V4ttLzdj+F6/Ruwx+lCSWGlH4c+fHDcslLe91ZDD13B9WTLdk8lnaqIWn
-	6zOf3M0FrWlIRLSPtFvYIOEVB6itLlLan9ttzY+sfay4hBm5HJiix7mcQJltmrJxqJsVbHZJ/nQ
-	ZHviBUT3rwXPJ5EZbhtX3UtsyljGEUco95HHjPF6vvHg1nYaYKoP2Iqh9kwICG7xWdoF7Qr2+am
-	2WW8245DhcOvPNU2os5Knfb/poelMMJinowLfDjAGdOCVkqfa3h7eQ0CR4AerthurJ5fDroVDSy
-	FFSUpwkwllkjNfWYCjrdNrrQBxGMCsSvQ9Uo7/emjqA65+tVLX0PmOlsZXsGem19NqthKELvUhp
-	98uBUFngJkX93RHIEdbntE96tNKmsJJfLyVACCT06droQ4mIFgCmpHQBD0pr5gHlLt0VCwv+BPu
-	MHpWLNJw==
-X-Received: by 2002:a05:6a00:1f12:b0:880:973d:597a with SMTP id
- d2e1a72fcca58-8a04d04e513mr5511453b3a.53.1792397224811; Mon, 19 Oct 2026
- 01:07:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kroah.com header.i=@kroah.com header.b="noTZ1tM/";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="LQ/PsV/Q"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id B71447A00B0
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 04:44:25 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-05.internal (MEProxy); Mon, 19 Oct 2026 04:44:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1792399465; x=1792485865; bh=YsVloFkfqa
+	hKMtvRLfn5FRI51AxlMq8II2uKnESwYRE=; b=noTZ1tM/7HS+qU1bxdyPoTZNYw
+	OKcz4gOUnjn9zSYgCTvuo8oDoeuqnMJp+A1xB0yQdCZXYVhNrWzB/N9MJVJKu4EP
+	RV+RoY7Vr3i8wjdbRAoFFIZ8clgL27K/G5TsUEcXkXw+S5jygpg0XZjC55iB34en
+	NhDl1ibGxrb2lGja0OJb2aMhyYPThIMXZcKNYvsmndkPsF6OViQydU7i/IOJxpaU
+	Fzg2vbRIP3eZlVS49L9B80UHdLqa2CgQjobg8BUlAdTxtAnM2e56pRdA7yrenUU2
+	jKBGVc9sFQbm1Vye7mqZqeJ3o5OaapYtN87VLBHbjvxQu+L/M6SnNcoUbLvA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1792399465; x=1792485865; bh=YsVloFkfqahKMtvRLfn5FRI51AxlMq8II2u
+	KnESwYRE=; b=LQ/PsV/QTAfh3KP+93KNf5QP/EOQ1nWDt3yFzjOm/yMlto70Cp/
+	WncQeGPYP1+jVbTnTm4SfugdmWCWfj7s8GXLnhg07gbxnbYVSJ6/jGmX/ZQSrF+m
+	unNviohg8rQUvuUdPnhKa3f6Q3RO9tdcA3ev87v0j2tzyeDb9D1H4MZcL6GVtgX+
+	XLrPIXIsEJqjC43Ef5aM65Foq4EqZBp741uN5AKd0fXRCYMv4QmI0fLzSXtvONgA
+	yxGJZAGvyPkraMZyKXbxzFrgaRGybkXS5kNG7/Pq0l/Zv21qT5X5C7HC5xHHjoEB
+	Uo4VKm9O/CjNh34ULbR1hAoI2vPBuV94EoA==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-10-08; sw=lmtpprox;
+	action=sign d=kroah.com a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1792399465; d=kroah.com;
+	mf=PGdyZWdAa3JvYWguY29tPg==;
+	rt=PGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZz4=;
+	s=fm2:rsa-sha256:JCWhNpCS+Tlj/A23WUjLht6FQMKl485D2VR7SSTdnHBqi9d
+	3QsgE7euV8RKLU3Q9+5l89ERn5OYxKjIsZvKtuxpsRWE4T/ZrJwKTcprS3M+kAM8
+	JngRoXSvtfEoEXU0Nt2tqcbDI6FqoqMuQ4nv0LuprBD7zHqXhnHzUiYTdUhaWMMM
+	zQtr9XDQYK82hKbTeYt5VhHGQB4eIvernsbF5TL/IyiurCkiStORT/kgdXjGUx6e
+	ysfeDL3LCV0OkFGlTaqK+YPGjgKjvubbiqMALDHMWLWXwq6ck7BjafAykupL6NNs
+	7rvv3VKZSRwONP8H6JC+RS7E220YhN44pCV0SZw==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-10-08; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-disposition,content-type,date,feedback-id,from,
+	in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:KM/onkGzTVQhZk+S7ywKdZWa6dBSaTub2Eq20P4k5bU=:Lf2ltc92yGw13+ZIQaEnX84MOqtAvkx0Yz6xmwkEBM0=;
+X-ME-Sender: <xms:aNjVajBodmQidyYcVjqk-3nuiSn9S05B2ArSZWRWByrvnsrTuf6JRw>
+    <xme:aNjVagkToZQ8iytXAoS31ooMBXBAZ4SDkgB71-U9nrZU03_El0zL3nOw9XoAhts91
+    obe5ypkkt6gXsXe041bWNUY6EXPyXj3zWjq8XXaLxgNoiuM3fo>
+X-ME-Received: <xmr:aNjVamRSxWO7d6fxHZvdczTYWoQqZQuA81EBtnsVAFT1e_NUTQTGmWsQItXg2dcha7jT-1coSBbX-uL3JnA>
+X-ME-Proxy-Cause: dmFkZTEkBrlER9gv1SSiXl3a5G+9YMsw4jDITFGP2VBd+KvdxqHmoUbVDlMyOPmA+6YbLb
+    0TQ53Qc1KawKKjfxM19/nJmt8C5YdRXKEDMOsa7stBFWSOZiGfci6SuTJdTNTLxFG7TwI+
+    d09Tel9027sqnDVtSf3YnmIaai4NVI62lI8EJCQ6MseyJe9eGeWOrZ989o6D0LJAQJqmya
+    prcWIneOaj40wF+INA1IxSiRDFraAIsQVKuN5aL95KVjFuUKIzv1Zs383ed8GamX0+30rB
+    N8bTQ/OQJb/qf/+BG/+X6BumpkN8GmCNWnq4vjEN53bH4SQdejHYVZyehbfHlSzP4NV8OI
+    69yC6Ny0YcCzPAMPxzd/tPLZo6TC57hDdwL23Kj/cPiTKvIiqdXYza+sGaq+7KZHuoz7OD
+    43+LUfFta7CuW20pCFO1UM5+slvWOqTxIROp/bu926sNzJz9mbHRQEZD1LC+Iu7gIoV9+t
+    HT8lyq12i16qeUCqODq2mYhqngbkSFSFkSFlwH645zBWUzSSJ82KvztJAsSE98oU8ArhdL
+    ecZaTbV8TF/1MIcwWMUhk2bSOHBWEQfxXDgFwApos7s4U4huugfXd0epOh3NqY2Jepv05a
+    MxNP6whmRP7XNpdGp5MPgaIy36EeFZ7R8hmHkQzmo+SWSAQ7gDL2IrM9IIWw
+X-ME-Proxy: <xmx:aNjVasKgSDl0xtHcf-vZVYJ0tAwvZb1cZVxFDsiyzgDouQlduNF5RA>
+    <xmx:aNjVak_M7JGnEHf-OKpeH-mkVgkfHEbYNPw3tFhkMR18TXFvTOG5AA>
+    <xmx:aNjVauCoB1q_sxiHEsiPQCoi_ETCkonCrikBB9x9L1oQB7HtpzukbA>
+    <xmx:aNjVauorq8Bc89AOgqRtGniLdTiV5LNSBR8d4XnHjKfiYbL5XXQkQA>
+    <xmx:adjVapC80_U4tq3E3U1QIX_FJ1QjdboWTlX_VJDBdnTGRr9tZuitd2FU>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 19 Oct 2026 04:44:24 -0400 (EDT)
+Date: Mon, 19 Oct 2026 10:44:22 +0200
+From: Greg KH <greg@kroah.com>
+To: Alejandro Colomar <alx+linux-hardening@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Shihuang Liu <shlomojune6@gmail.com>, linux-input@vger.kernel.org,
+	linux-hardening@vger.kernel.org,
+	Marcus Folkesson <marcus.folkesson@gmail.com>,
+	Ville Syrjala <syrjala@sci.fi>,
+	Henk Vergonet <Henk.Vergonet@gmail.com>,
+	Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] Input: joystick - replace strlcat() with strscpy()
+Message-ID: <2026101951-undusted-laziness-d40f@gregkh>
+References: <20261016170411.51025-1-shlomojune6@gmail.com>
+ <20261016170411.51025-2-shlomojune6@gmail.com>
+ <30bc6e07072076b0591fd416f50f4fc3@gmail.com>
+ <2026101727-ebay-five-72f8@gregkh>
+ <atXLrTZYBazVZVHr@debian>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20261017140827.290666-1-lukapanio@gmail.com> <20261017140827.290666-6-lukapanio@gmail.com>
- <20261019-free-groovy-grebe-7e50d3@quoll>
-In-Reply-To: <20261019-free-groovy-grebe-7e50d3@quoll>
-From: Luka Panio <lukapanio@gmail.com>
-Date: Mon, 19 Oct 2026 10:06:53 +0200
-X-Gm-Features: AclHuK9kTiQI2FRvtYDoJKATe8CTCBUQkubjvei0NZuQDDdDmbhaB9xhCb4qNvE
-Message-ID: <CACi=Ov7D503Ug-D2xmKvRP-LceQpEWOrktXTy5Srdc-MZO=02Q@mail.gmail.com>
-Subject: Re: [PATCH 5/7] dt-bindings: input: touchscreen: edt-ft5x06: Add
- FocalTech FT8722
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Henrik Rydberg <rydberg@bitmath.org>, Douglas Anderson <dianders@chromium.org>, linux-input@vger.kernel.org, 
-	devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <atXLrTZYBazVZVHr@debian>
 
-Hi Krzysztof,
+On Mon, Oct 19, 2026 at 09:51:37AM +0200, Alejandro Colomar wrote:
+> Hi Greg,
+> 
+> > Date: 2026-10-17 10:19:59+0200
+> > From: Greg KH <greg@kroah.com>
+> >
+> > On Fri, Oct 16, 2026 at 12:17:05PM -0700, Dmitry Torokhov wrote:
+> > > Hi Shihuang,
+> > > 
+> > > On Sat, Oct 17, 2026 at 01:04:07AM +0800, Shihuang Liu wrote:
+> > > > The pxrc and xpad drivers build the physical path by appending a
+> > > > constant "/input0" suffix with strlcat() after usb_make_path().
+> > > >
+> > > > In preparation for removing the deprecated strlcat() API[1],
+> > > > replace it with strnlen() followed by strscpy() into the remainder
+> > > > of the buffer, as commit 34b228b739f5 ("HID: usbhid: replace
+> > > > strlcat with better alternatives") did for the usbhid drivers.
+> > > ...
+> > > >  	usb_make_path(udev, pxrc->phys, sizeof(pxrc->phys));
+> > > > -	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
+> > > > +	len = strnlen(pxrc->phys, sizeof(pxrc->phys));
+> > > > +	strscpy(pxrc->phys + len, "/input0", sizeof(pxrc->phys) - len);
+> > > 
+> > > I really dislike this conversion pattern, and I do not want to see it
+> > > open-coded across 18 drivers in this series.
+> > > 
+> > > usb_make_path() is just a trivial wrapper around snprintf() that already
+> > > returns the length of the formatted string. Calling usb_make_path(),
+> > > ignoring its return value, rescanning the buffer with strnlen(), and
+> > > then open-coding pointer and size arithmetic for strscpy() (along with
+> > > an extra local variable in every probe function) makes the code much
+> > > uglier and harder to read than what we had before.
+> > > 
+> > > All of these USB input drivers already include <linux/usb/input.h>, and
+> > > drivers across other subsystems (drivers/hid/usbhid/, drivers/media/rc/,
+> > > drivers/media/usb/, sound/usb/caiaq/, drivers/usb/storage/onetouch.c)
+> > > all use the exact same usb_make_path() + suffix pattern ("/input0",
+> > > "/input%d", "/ir0", "/button", etc.).
+> > > 
+> > > If we want to get rid of strlcat() here, please introduce a generic
+> > > helper in include/linux/usb.h (or a USB input helper in
+> > > include/linux/usb/input.h) that formats the USB path together with the
+> > > subpath in a single pass, for example:
+> > > 
+> > > __printf(4, 5)
+> > > int usb_make_subpath(struct usb_device *dev, char *buf, size_t size,
+> > > 		     const char *fmt, ...);
+> > > 
+> > > (or a simple const char *suffix variant if formatting is not needed).
+> > > Then each driver can do:
+> > > 
+> > > 	usb_make_subpath(udev, pxrc->phys, sizeof(pxrc->phys), "input0");
+> > > 
+> > > and even drivers/hid/usbhid/hid-core.c can simply do:
+> > > 
+> > > 	usb_make_subpath(dev, hid->phys, sizeof(hid->phys),
+> > > 			 "input%d", intf->altsetting[0].desc.bInterfaceNumber);
+> > > 
+> > > instead of repeating this strnlen() + strscpy() boilerplate everywhere.
+> > 
+> > I'm all for that too, and putting it in the USB core for everyone to use
+> > would be great.
+> 
+> You might be interested in <https://lore.kernel.org/linux-hardening/cover.1751747518.git.alx@kernel.org/>.
+> I was working on something like that, but actually much simpler.
+> It is meant to replace strscpy()/snprintf() by versions more similar to
+> Plan9's strecpy(2)/seprint(2), but without some important flaw that the
+> Plan9 APIs have (about handling NULL).
 
+Look at the patches from Kees on the hardening list for the seqbuf
+stuff, that ideally will replace these types of string functions
+entirely over time.
 
-The FT8722 is a TDDI: a single chip that includes both display AND
-touchscreen controllers.
-But seems like other  cases like this handle it differently:
-focaltech,ft8719 is the touch side, while the display side is
-documented as ebbg,ft8719. I=E2=80=99ll follow that in v2 and use
-focaltech,ft8722 for the touch controller, with the display getting a
-compatible for the panel module including panel manufacturer name, or
-something like that.
+thanks,
 
-Agreed on the properties as well. The supplies are shared with the
-display and described on the panel node, and there is no wake GPIO, so
-v2 will disallow vcc-supply, iovcc-supply and wake-gpios for the
-FT8722 and keep reset-gpios required.
+greg k-h

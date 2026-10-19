@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99FEF54BC3D;
-	Mon, 19 Oct 2026 13:56:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBA63565E40;
+	Mon, 19 Oct 2026 13:57:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418204; cv=none; b=bsP37zFyOl+0UsaXC7Za5/e2ho/FIVEwspUfGhCk9m2WcB9QgwqAKHxvmY+nILnico/gFiQVB7qjt8aJEU+W0l1X/SGSs0C5kYmTaB1djIbreFoq323c+IY5PEfbiP0Q5S0tLJP7uKh8HGMMkKtlhVbTerh63WiWieuzpe81NTM=
+	t=1792418258; cv=none; b=Y3kmtWowbKHgp0oGo7aZOtiVMntj+RSMuR2uhjxp7+TW7gBj1jgEzQYehy1d71rX3fsgmq5dDKaDP2dY05tVnDwznuaQRVUoKgohrAxzn8XJpc7Rukl1xw2F0lPXfW9vcbx5HBHZKTOVpaOpIyb5fdbbKY1bZmm1RIyS5SoAr2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418204; c=relaxed/simple;
-	bh=z4NsKVfjx8HGMVWk/IIhqNa/gJbtYgpUP5zTBFfc35A=;
+	s=arc-20240116; t=1792418258; c=relaxed/simple;
+	bh=M5XM9HaoQiGM9BZJH+jPgXy2su8hIgg6upvggy9PP5k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VikyGUAyGyH+Ec7JcadcD0b3X1xeVGoyU5vtGGK66r21S0lmUt9J9gv2tLjT5pE19w9y/vD/z2/SojQvxAJ/+zN8pH5TPB3Sza2he2M+90DefcrbUe+Q6V4+fVa55/Kn57p+M7Dfs0ZdRqoCQIMOjwskp+8Ke/oIXnPbK+YDqf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FI47pChF; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=cQzUvCYw1cZeH8foTYqylV2fA5/twwelOFDL/q15OPe3N7cOVKFO+oqUWGBqqr7nW0scVKATRl0COBwZlUJW+e/IV8hKnU5Cl5npQQzzi3t8+oc93M9poWdIijH0HH8qBPOiUUzLipI6c9EpeQBAJa7oIArrJESMvwOswtIYrUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VDoNx92P; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FI47pChF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 828A11F000C5;
-	Mon, 19 Oct 2026 13:56:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VDoNx92P"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D69FB1F000C8;
+	Mon, 19 Oct 2026 13:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418200;
-	bh=eJSdATW2Qr1HPFuivwkn3fyU6QISohvpr1nA2CpokCU=;
+	s=k20260515; t=1792418255;
+	bh=aMcfynlMOHxkyjhDuUZ8R9aOY86TSgCExMN0NKpOhlE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=FI47pChF7k71f/Mi9+4T6VHhT5r0zXhXyZcqhHEEo8Ol0K12f3C/9inaJQ3jrchqS
-	 pQwCWlgxWgQJKOjNeBJVm3y/UgGNMXPEj6JS7nvPIIJ5SnpG2oiNKtDIz9dAjgx5yw
-	 XfjEJxgSaSTe04fRz8ho+5j5Gy5TqPXXwWUg3av9q2jdfHvmNFs5euL5DEK/MoeCpW
-	 TX4yRjb5k+XJX4DIM0vEY59qG2Enf2Pa7ALja7JFYwZgYTEZMbwz/z10wpdo4OEYBQ
-	 rX/2PsoI2dKsPgf69LUXdVk1yXfSKhqMzQ8F0P+LIlz7q1GKV+hr4YXH+tDwQv3dF9
-	 FJhz9CqWMUwhw==
+	b=VDoNx92PDxyJlMtJaAEtWyx0DQcNk8BOPisLn1zZ91DLR9j8d4hvW77xqFRnxHdur
+	 Van+w9MJF8QEhTz/4IK/K32IJNUeh12/TeHVvzG34Y1wJt5Cq1KdnIwG9mPXK3E5Fv
+	 sHyb2iWG4+0l/CySFVwgzApXtcGW8XLPlKwBD1Moj9T43aPnDRBt2f0cJXQxqlwvD4
+	 kZ+IcJ+2Huxu00zFDjdG/p8RdGuCagZY4Y9UN2MUkKe86mzxoOPDmd9xzEENFwdiXT
+	 AygALZyLbMyRGNzqHoW2r8p07N04uzZdp5GVI2EcLtvnLQqgKrhj4qX+GfwkgRHtm6
+	 oCBvaY5dhL1Fg==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>,
+Cc: Even Xu <even.xu@intel.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
+	xinpeng.sun@intel.com,
 	jikos@kernel.org,
 	bentiss@kernel.org,
-	oleg@makarenk.ooo,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18] HID: universal-pidff: Add support for Turtle Beach VelocityOne Race
-Date: Mon, 19 Oct 2026 09:46:14 -0400
-Message-ID: <20261019135441.1420968-83-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18] HID: Intel-thc-hid: Intel-quicki2c: Fix buffer overflow
+Date: Mon, 19 Oct 2026 09:46:54 -0400
+Message-ID: <20261019135441.1420968-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -49,387 +49,401 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.18.57
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+From: Even Xu <even.xu@intel.com>
 
-[ Upstream commit 53f7f7955a684e820bdd6bd6792c45c4b434f637 ]
+[ Upstream commit 5e5c3b9db1c5910d6a9175c97b76a95566e4dc32 ]
 
-Add usb VID and device PID to hid-ids.h
+The input and output buffers are used to store complete HID-over-I2C
+packets, including their protocol headers. However, their sizes are
+currently calculated from the payload length only.
 
-Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
+Allocate enough space for both the payload and the packet header to
+prevent a buffer overflow when the payload reaches its maximum size.
+
+Signed-off-by: Even Xu <even.xu@intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Phase 1: Commit message forensics
+This is a two-line allocation-size fix for a real HID-over-I2C buffer
+overflow in a driver that already exists on this 6.18.y tree. It should
+be backported.
 
-**Step 1.1 — Subject**
-- Record: `[HID / universal-pidff] [Add] USB VID/PID so Turtle Beach
-  VelocityOne Race binds to the existing hid-universal-pidff driver`
+## PHASE 1: COMMIT MESSAGE FORENSICS
 
-**Step 1.2 — Tags**
+**Step 1.1: PARSE THE SUBJECT LINE**
+- Record: **[HID / Intel-thc-hid / Intel-quicki2c] [Fix] [buffer
+  overflow]**
+- Subsystem prefix: `HID: Intel-thc-hid: Intel-quicki2c`
+- Action verb: **Fix**
+- Claimed intent: prevent overflow of HID-over-I2C input/output buffers
+
+**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
 - Record:
-  - `Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>`
-    (author; co-author of this driver)
+  - `Signed-off-by: Even Xu <even.xu@intel.com>` (author; listed
+    maintainer of INTEL THC)
   - `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID maintainer)
-  - `[Upstream commit 53f7f7955a684e820bdd6bd6792c45c4b434f637]` and
-    `Signed-off-by: Sasha Levin` ignored as pipeline markers
   - No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-
-    by:`, `Link:`, or `Cc: stable` (absence of the last two is expected)
+    by:`, `Link:`, or `Cc: stable` (absence of those tags is expected
+    for this review)
+  - Pipeline-only tags ignored per instructions
 
-**Step 1.3 — Body**
-- Record: Body is one sentence: “Add usb VID and device PID to hid-
-  ids.h”. No crash, leak, or corruption described. The claimed intent is
-  hardware enablement for one USB HID device. No version range given.
-  Root cause as stated: the IDs were missing from the existing driver’s
-  table.
-
-**Step 1.4 — Hidden bug fix?**
-- Record: Not a disguised leak/race/UAF. It is a USB ID addition to an
-  existing driver (stable exception category 1).
-
----
-
-## Phase 2: Diff analysis
-
-**Step 2.1 — Inventory**
+**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
 - Record:
-  - `drivers/hid/hid-ids.h`: +3 (two `#define`s plus a blank line)
-  - `drivers/hid/hid-universal-pidff.c`: +1 in
-    `universal_pidff_devices[]`
-  - Net +4 lines, two files, one table plus ID macros
-  - Classification: single-purpose, surgical device-ID add
+  - **Bug:** `input_buf` and `report_buf` hold complete HID-over-I2C
+    packets (`__le16 len` + payload), but they are allocated from
+    payload length only (`max_input_len` / `max_output_len`, floored at
+    4K).
+  - **Symptom/failure mode:** buffer overflow when the payload reaches
+    that maximum (2 bytes past the end: `HIDI2C_LENGTH_LEN ==
+    sizeof(__le16)`).
+  - **Version info:** none in the message.
+  - **Root cause:** allocation size omitted the 2-byte HID-over-I2C
+    length header.
 
-**Step 2.2 — Code flow**
+**Step 1.4: DETECT HIDDEN BUG FIXES**
+- Record: Not a hidden fix. The subject and body state a buffer overflow
+  and the diff matches that claim.
+
+## PHASE 2: DIFF ANALYSIS - LINE BY LINE
+
+**Step 2.1: INVENTORY THE CHANGES**
 - Record:
-  - Before: `0x10f5:0x7077` is unmatched by this driver and falls
-    through to generic HID.
-  - After: HID core matches `HID_USB_DEVICE(USB_VENDOR_ID_TURTLE_BEACH,
-    USB_DEVICE_ID_TB_VELOCITYONE_RACE)` and calls
-    `universal_pidff_probe()`.
-  - Path: device enumeration / probe, not an error path. No
-    `driver_data` quirks.
+  - File: `drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c` (+4
+    / −2; net +2)
+  - Function: `quicki2c_alloc_report_buf()`
+  - Scope: **single-file surgical fix**
 
-**Step 2.3 — Bug mechanism**
-- Record: `[Hardware enablement / USB device ID]` — the driver already
-  implements PID force-feedback wrapping; this only lists one more
-  VID/PID. Not UAF, leak, race, overflow, or init-bug.
+**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
+- Record:
+  - **Hunk 1 (input_buf):** `devm_kzalloc(..., max_report_len)` →
+    `devm_kzalloc(..., HIDI2C_PACKET_LEN(max_report_len))`
+  - **Hunk 2 (report_buf):** same change
+  - Path: probe-time allocation (`quicki2c_probe` →
+    `quicki2c_alloc_report_buf`). Runtime use of those buffers is
+    unchanged.
 
-**Step 2.4 — Fix quality**
-- Record: Obviously correct as an ID table add. Insertion sits
-  alphabetically between TURBOX and TWINHAN. Vendor `0x10f5` already
-  identifies Turtle Beach elsewhere (`drivers/input/joystick/xpad.c`
-  uses `0x10f5` with other PIDs `0x7005`/`0x7008`/`0x7073`). PID
-  `0x7077` does not collide with those. No public API change. Regression
-  risk is low: only this VID:PID binds; probe returns 0 even if the PID
-  usage page is absent.
+**Step 2.3: IDENTIFY THE BUG MECHANISM**
+- Record:
+  - **Category:** memory safety / buffer overflow (out-of-bounds write)
+  - **Mechanism:** packets are `struct hidi2c_report_packet { __le16
+    len; u8 data[]; }`. `HIDI2C_PACKET_LEN(data_len)` is `(data_len) +
+    HIDI2C_LENGTH_LEN`. Allocation used payload size only.
+  - Verified consumers:
+    - `handle_input_report()` DMA-copies into `input_buf` via
+      `thc_rxdma_read()` → `sg_copy_to_buffer(..., read_buff, mes_len)`
+      with **no destination-size argument**.
+    - `quicki2c_get_report()` SWDMA-reads into `input_buf`.
+    - `quicki2c_init_write_buf()` / `write_cmd_to_txdma()` build framed
+      packets in `report_buf` (length field + payload, plus command
+      bytes).
+  - This is **not** a lock/refcount/init/API change.
 
----
+**Step 2.4: ASSESS THE FIX QUALITY**
+- Record:
+  - **Quality:** obviously correct. Uses an existing macro from
+    `include/linux/hid-over-i2c.h` that this tree already has.
+  - **Minimal:** two allocation sizes in one function.
+  - **Regression risk:** very low. Extra 2 bytes per buffer; no API,
+    locking, or control-flow change.
+  - **Caveat (not a reason to reject):** `qcdev->report_len` is still
+    set to `max_report_len`, not `HIDI2C_PACKET_LEN(max_report_len)`.
+    The write-side bound check (`if (buf_len > write_buf_len) return
+    -EINVAL`) can still reject a max-sized SET_REPORT. That is fail-safe
+    (no overflow), pre-existing, and not a regression. Command framing
+    can need more than +2 bytes; this commit only claims the 2-byte
+    packet length header, which is what `HIDI2C_PACKET_LEN` adds.
 
-## Phase 3: Git history
+## PHASE 3: GIT HISTORY INVESTIGATION
 
-**Step 3.1 — Blame**
-- Record: New lines; they did not exist before this commit. Surrounding
-  `hid-ids.h` TURBOX/TWINHAN macros date to 2008–2017. The device table
-  terminator was last touched by `5b9cae8c6472e` (clang-format, 2025).
-  The driver itself was added in `f06bf8d94fffb` (“HID: Add hid-
-  universal-pidff driver and supported device ids”, 2025-02-03; `git
-  describe` of that commit is `v6.13-4738-gf06bf8d94fffb`).
+**Step 3.1: BLAME THE CHANGED LINES**
+- Record: buggy allocations introduced by `66b59bfce6d93` (“HID: intel-
+  thc-hid: intel-quicki2c: Complete THC QuickI2C driver”, Even Xu,
+  2025-01-06). Present since the driver became functional. Driver
+  skeleton: `61bb2714dc3a1`. First appeared around **v6.13**, so it is
+  in this 6.18 tree.
 
-**Step 3.2 — Fixes: tag**
-- Record: No `Fixes:` tag. Not applicable.
+**Step 3.2: FOLLOW THE FIXES: TAG**
+- Record: no `Fixes:` tag. Not applicable. The introducing commit is in
+  this tree (`git merge-base --is-ancestor 66b59bfce6d93 v6.18.57`
+  succeeded).
 
-**Step 3.3 — File history**
-- Record: Recent related commits on this driver: Asetek ID adds
-  (`c385f61108d40`), spelling/format nits, and `01d9874e84d3a` (stop
-  device on FF init failure). No prerequisite refactor is required for
-  this ID. Standalone; not “patch X/Y”. No later follow-up on these
-  files after this commit.
+**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
+- Record: recent work on this file is driver completion, ACPI, PM,
+  device IDs, WOT. Related but distinct: `d08a1049659aa` (ACPI u16
+  truncation, not this overflow). Sibling series patch: `HID: Intel-thc-
+  hid: Intel-quickspi: Fix buffer overflow` (different file). This
+  commit is **standalone**; it does not need the QuickSPI patch.
 
-**Step 3.4 — Author**
-- Record: Tomasz Pakuła is a listed `MODULE_AUTHOR` of `hid-universal-
-  pidff.c` and a frequent hid-pidff contributor (overflow, NPD,
-  playback, Asetek IDs). This is the subsystem’s own device-table
-  maintainer, not a drive-by.
+**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
+- Record: Even Xu is listed in MAINTAINERS as maintainer of `INTEL TOUCH
+  HOST CONTROLLER (THC) DRIVER` (`drivers/hid/intel-thc-hid/`). This is
+  a maintainer fix, not drive-by.
 
-**Step 3.5 — Dependencies**
-- Record: Needs `hid-universal-pidff.c`, `USB_VENDOR_ID_*` macros, and
-  `hid_pidff_init_with_quirks`. All are in this tree. `git merge-base
-  --is-ancestor f06bf8d94fffb HEAD` succeeds; `git merge-base --is-
-  ancestor f06bf8d94fffb v6.18` also succeeds. Can apply standalone.
+**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
+- Record: `HIDI2C_PACKET_LEN` was added in `6fc761385bcf6` (“Add HIDI2C
+  protocol implementation”) and is present on **v6.18.57** in
+  `include/linux/hid-over-i2c.h`. No missing helpers. Patch applies
+  cleanly to the v6.18.57 blob (`patch --dry-run` exit 0).
 
----
+## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
 
-## Phase 4: Mailing list / external research
+**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
+- Record:
+  - `b4 dig -c 5e5c3b9db1c5910d6a9175c97b76a95566e4dc32` →
+    https://patch.msgid.link/20260922024638.932865-2-even.xu@intel.com
+  - Cover: `[PATCH 0/2] HID: Intel-thc-hid: Fix potential buffer
+    overflow` (`20260922024638.932865-1`)
+  - `b4 dig -a`: **v1 only** (no v2/v3). Applied as submitted.
+  - Jiri Kosina (2026-09-23): “Applied to hid.git#for-7.3/upstream-
+    fixes, thanks.” No NAK.
+  - No human reviewer asked for `Cc: stable`. An automated review noted
+    `report_len` not updated and SET_REPORT framing possibly needing
+    more than 2 bytes. HID maintainer applied the series as-is.
 
-**Step 4.1 — Original discussion**
-- Record: `b4 dig -c 53f7f7955a684e820bdd6bd6792c45c4b434f637` → https:/
-  /patch.msgid.link/20260922131758.1242755-1-
-  tomasz.pakula.oficjalny@gmail.com
-- `b4 dig -a`: single v1 series only; no v2/v3.
-- LKML: https://lkml.iu.edu/2609.2/17309.html (submission),
-  https://lkml.iu.edu/2609.2/21230.html (Jiri Kosina: “Applied,
-  thanks.”)
-- No NAK, no requested changes, no stable nomination in review.
-  lore.kernel.org fetch returned 403; discussion confirmed via `b4 dig`
-  + LKML/Patchew mirrors.
+**Step 4.2: CHECK WHO REVIEWED THE PATCH**
+- Record (`b4 dig -w`): To/Cc `bentiss@kernel.org`, `jikos@kernel.org`,
+  `srinivas.pandruvada@linux.intel.com`, `linux-input@vger.kernel.org`.
+  HID maintainers were on the original mail. Jiri applied it.
 
-**Step 4.2 — Recipients (`b4 dig -w`)**
-- Record: `jikos@kernel.org` (HID maintainer), `oleg@makarenk.ooo` (co-
-  author), `linux-input@vger.kernel.org`, `linux-
-  kernel@vger.kernel.org`. Right lists and maintainer were on Cc; Kosina
-  applied it.
+**Step 4.3: SEARCH FOR THE BUG REPORT**
+- Record: no `Reported-by` / syzbot / bugzilla. Author-found from code
+  inspection (“potential buffer overflow”). No user crash log in the
+  thread.
 
-**Step 4.3 — Bug report**
-- Record: No `Reported-by` / syzbot / bugzilla. Phoronix (secondary, not
-  a kernel bug tracker) notes basic HID input already worked and this
-  listing improves FF for the VelocityOne Race. That is consistent with
-  an ID add, not a crash fix.
+**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
+- Record: 2/2 is the QuickSPI analogue (`HIDSPI_INPUT_BODY_SIZE`).
+  Independent file; this I2C patch does not depend on it.
 
-**Step 4.4 — Series context**
-- Record: Standalone one-patch series. Same pattern as earlier Asetek ID
-  adds in this driver.
+**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
+- Record: lore.kernel.org HTTP fetch returned 403. **UNVERIFIED**
+  whether linux-stable discussed this SHA. Decision does not rely on
+  that.
 
-**Step 4.5 — Stable list**
-- Record: `WebFetch` of `https://lore.kernel.org/stable/?q=VelocityOne`
-  returned 403. Web search did not show a stable-list thread about this
-  patch. UNVERIFIED that nobody discussed it on stable@; no evidence of
-  a NAK there either.
+## PHASE 5: CODE SEMANTIC ANALYSIS
 
----
+**Step 5.1: IDENTIFY KEY FUNCTIONS**
+- Record: `quicki2c_alloc_report_buf()` only.
 
-## Phase 5: Code semantic analysis
+**Step 5.2: TRACE CALLERS**
+- Record: single caller, `quicki2c_probe()` (after reading the HID-
+  over-I2C device descriptor). Probe of Intel THC I2C-port PCI devices
+  (Lunar Lake, Panther Lake, Wildcat Lake IDs in `quicki2c_pci_tbl`).
+  Not a hot path, but every successful probe allocates these buffers,
+  then IRQ/DMA/HID traffic uses them.
 
-**Step 5.1 — Functions**
-- Record: No function body changed. Data only:
-  `universal_pidff_devices[]` plus two macros. Probe path that becomes
-  reachable: `universal_pidff_probe` → `universal_pidff_input_mapping` /
-  `universal_pidff_input_configured`.
+**Step 5.3: TRACE CALLEES**
+- Record: `devm_kzalloc()`, `le16_to_cpu()`, `HIDI2C_PACKET_LEN()`. No
+  new callees.
 
-**Step 5.2 — Callers**
-- Record: `universal_pidff_probe` is only the `.probe` of `struct
-  hid_driver universal_pidff`, registered via `module_hid_driver`.
-  Invoked by HID/USB enumeration when VID:PID matches. Not IRQ, not a
-  syscall hot path.
+**Step 5.4: FOLLOW THE CALL CHAIN**
+- Record: PCI probe → descriptor read → alloc → DMA init → HID
+  registration → `handle_input_report()` on IRQ. Reachable on machines
+  with Intel THC + HID-over-I2C touch. Unprivileged HID input does not
+  size the kernel buffer; overflow is on kernel DMA/copy into an
+  undersized `input_buf` when the device sends a max-sized packet.
 
-**Step 5.3 — Callees**
-- Record: `hid_parse`, `hid_hw_start`, `hid_pidff_init_with_quirks`,
-  `hid_hw_stop`. Existing, already used by every other ID in the table.
+**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
+- Record: same author applied the same header-vs-payload fix to
+  QuickSPI. Confirms a systematic off-by-header bug, not a one-off typo.
 
-**Step 5.4 — Reachability**
-- Record: Reachable when a user plugs in `10f5:7077` and
-  `CONFIG_HID_UNIVERSAL_PIDFF` is enabled (`depends on USB_HID &&
-  HID_PID`). Userspace cannot trigger it without that hardware.
+## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
 
-**Step 5.5 — Similar patterns**
-- Record: Same table already lists Moza, Cammus, VRS, FFBeast, Lite
-  Star/PXN, Asetek. This is the established way this driver gains
-  devices. Turtle Beach VID `0x10f5` is already used in `xpad.c` for
-  other products; PID `0x7077` is unique.
+**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
+- Record: **Yes.** Local tree is **6.18.57** (`git describe HEAD` →
+  `v6.18.57-155-gcdf239ca885b2`; Makefile `VERSION=6 PATCHLEVEL=18
+  SUBLEVEL=57`).
+- On **v6.18.57** (this series’ base), `quicki2c_alloc_report_buf()`
+  still does:
+  - `input_buf = devm_kzalloc(..., max_report_len)`
+  - `report_buf = devm_kzalloc(..., max_report_len)`
+- `HIDI2C_PACKET_LEN` already exists in this tree’s header. Driver is
+  `CONFIG_INTEL_QUICKI2C` under `INTEL_THC_HID` (`X86_64 && PCI &&
+  ACPI`).
 
----
+**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
+- Record: **clean apply** on the v6.18.57 file. Surrounding function
+  matches the patch. No refactor in the way.
 
-## Phase 6: Local tree (this checkout)
+**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
+- Record: no other commit on this file in 6.18.y enlarges these two
+  allocations. The 4K floor (`max(..., SZ_4K)`) is a workaround for
+  devices that under-declare max length; it does **not** add the 2-byte
+  header. When `max_input_len`/`max_output_len` is ≥ 4K (HID max buffer
+  is 16K), that floor provides no slack.
 
-**Step 6.1 — Does the code exist here?**
-- Record: Local tree is **6.18.57** (`make kernelversion`; `git describe
-  HEAD` = `v6.18.57-155-gcdf239ca885b2`). `hid-universal-pidff.c`
-  exists. Driver intro `f06bf8d94fffb` is an ancestor of both `HEAD` and
-  `v6.18`. Parent of this candidate still has the Asetek rows and the
-  empty terminator; the ID macros were absent (`git grep
-  USB_VENDOR_ID_TURTLE` on the parent was empty). The hardware and
-  driver this listing targets are in this tree.
+## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 
-**Step 6.2 — Backport difficulty**
-- Record: Clean apply. Parent context matches the provided diff (TURBOX
-  block, then TWINHAN; Asetek entries then `{}`). No refactor gap.
+**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
+- Record: **HID Intel THC QuickI2C** (`drivers/hid/intel-thc-hid/`).
+  **IMPORTANT** for Intel laptops/tablets with THC touch (LNL/PTL/WCL),
+  not core mm/VFS. Still production input hardware.
 
-**Step 6.3 — Related fixes already here?**
-- Record: No other VelocityOne Race HID listing. No alternate fix for
-  `10f5:7077` in HID. `xpad.c` does not claim PID `0x7077`.
+**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
+- Record: actively maintained through 6.18 (device IDs, WOT, ACPI
+  advanced features). Bug is in original 2025 driver completion, not
+  brand-new 7.x-only code.
 
----
+## PHASE 8: IMPACT AND RISK ASSESSMENT
 
-## Phase 7: Subsystem context
+**Step 8.1: DETERMINE WHO IS AFFECTED**
+- Record: **driver-specific / config-specific:** `CONFIG_INTEL_QUICKI2C`
+  on x86_64 with Intel THC HID-over-I2C devices.
 
-**Step 7.1**
-- Record: `[HID USB force-feedback helper] [IMPORTANT for owners of
-  listed wheels; PERIPHERAL vs core kernel]`. Not mm/fs/net core.
-  Optional `CONFIG_HID_UNIVERSAL_PIDFF`.
+**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
+- Record: HID-over-I2C input/feature/output packet whose payload equals
+  the allocated max (`max(declared max, 4K)`). Typical small touch
+  reports may not hit it; max-sized reports and devices that declare
+  large `wMaxInputLength` can. Not a userspace-crafted syscall overflow;
+  it is device-facing DMA/copy. Still a kernel memory-safety bug on a
+  standard probe/IRQ path.
 
-**Step 7.2**
-- Record: Actively maintained in 2025–2026 (quirks, Asetek IDs, pidff
-  correctness fixes). Mature enough that ID adds are the normal
-  extension mechanism.
+**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
+- Record: **buffer overflow (2 bytes) into heap** via
+  `sg_copy_to_buffer` / packet construction. **HIGH** (memory
+  corruption; crash or worse). Not a panic on every boot, but it is a
+  real overflow, not a warning.
 
----
+**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
+- Record:
+  - **Benefit:** high for THC HID-over-I2C users — closes a heap
+    overflow the driver author and HID maintainer treated as real.
+  - **Risk:** very low — +2 bytes on two `devm_kzalloc`s, existing
+    macro, no behavior change except not writing past the buffer.
+  - **Ratio:** strongly favors backport.
 
-## Phase 8: Impact and risk
+## PHASE 9: FINAL SYNTHESIS
 
-**Step 8.1 — Who is affected**
-- Record: Driver-specific / config-specific: users who own a Turtle
-  Beach VelocityOne Race and enable this HID driver. Everyone else is
-  unchanged.
+**Step 9.1: COMPILE THE EVIDENCE**
 
-**Step 8.2 — Trigger**
-- Record: Plug in that USB wheel. Not a race. Unprivileged user can plug
-  hardware; no syscall exploit surface beyond normal HID.
+FOR:
+- Real buffer overflow: complete HID-over-I2C packets stored in buffers
+  sized from payload only
+- DMA copy into `input_buf` has no dest-size check
+- Small, obviously correct (+2 bytes via existing `HIDI2C_PACKET_LEN`)
+- Driver and macro exist in this 6.18.57 tree; introducing commit is in
+  this tree
+- Applies cleanly
+- Written by the THC maintainer; applied by HID maintainer
+- Same class of bug independently fixed in QuickSPI
 
-**Step 8.3 — Failure mode without the patch**
-- Record: Device stays on hid-generic: basic input, missing this
-  driver’s PID FF init and button-range mapping. Not
-  oops/deadlock/corruption. Severity for those users: functional
-  hardware gap (FF), **MEDIUM** as a bug, but it is the documented
-  device-ID exception.
+AGAINST:
+- No public reproducer / syzbot report (author-found “potential”)
+- 4K floor hides the overflow for devices with small `max_input_len`
+- `report_len` not updated; write path may still `-EINVAL` at max size
+  (fail-safe, not a new bug)
+- Affects only Intel THC QuickI2C, not all machines
 
-**Step 8.4 — Risk vs benefit**
-- Record: Benefit: FF/PID support for this wheel on 6.18.y without a
-  full kernel upgrade. Risk: very low (4 lines, match is VID+PID, no
-  quirk, probe already tolerates missing PID page). Ratio: favorable for
-  a device-ID add.
+UNRESOLVED:
+- Could not query lore.kernel.org/stable (HTTP 403)
 
----
+**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
+1. Obviously correct and tested? **PASS** — two allocation sizes; HID
+   maintainer applied v1; macro already in tree
+2. Fixes a real bug that affects users? **PASS** — overflow on max-sized
+   HID-over-I2C packets in a shipping Intel touch driver
+3. Important issue? **PASS** — heap buffer overflow / memory corruption
+   (**HIGH**)
+4. Small and contained? **PASS** — one function, two sites, ~4 lines
+5. No new features or APIs? **PASS**
+6. Can apply to the local tree? **PASS** — clean on v6.18.57;
+   `HIDI2C_PACKET_LEN` already present
 
-## Phase 9: Synthesis
+**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
+- Record: none needed. This is a normal memory-safety bug fix, not a
+  device-ID/quirk/DT/build/docs exception.
 
-**Step 9.1 — Evidence**
+**Step 9.4: MAKE YOUR DECISION**
+Backport. The bug is in this 6.18.y driver, the fix is surgical, and
+leaving a 2-byte heap overflow in a HID DMA path is worse than adding
+two bytes to the buffers.
 
-For:
-- USB ID add to a driver that already exists in this 6.18 tree (stable
-  exception 1).
-- +4 lines, no new APIs, no new driver, no new sysfs/module params.
-- HID maintainer applied v1 with no objections.
-- Author maintains this driver.
-- VID `0x10f5` is already Turtle Beach in-tree; PID does not clash with
-  xpad entries.
-- Applies cleanly here.
+## What the commit solves for this tree
 
-Against:
-- Not a crash/security/corruption fix.
-- Short commit message; no `Reported-by`.
-- Niche ~$650 sim-racing hardware.
-- Improves FF rather than repairing a generic HID oops.
+On 6.18.57, QuickI2C still allocates `input_buf`/`report_buf` as
+`max(payload, 4K)` and then stores HID-over-I2C packets that include a
+2-byte length header. When the payload is that maximum,
+`thc_rxdma_read()` / SWDMA copies past the end of the kmalloc buffer.
+The fix allocates `HIDI2C_PACKET_LEN(max_report_len)` instead.
 
-Unresolved:
-- lore.kernel.org HTTP 403; stable@ thread not confirmed.
-- No in-tree test that this exact PID speaks USB PID FF (same as other
-  IDs in this table).
+That matches stable rules: real overflow, tiny diff, no new API, applies
+cleanly, no missing prerequisites.
 
-**Step 9.2 — Stable rules**
-1. Obviously correct and tested? **PASS** — mechanical ID add;
-   maintainer applied it. No in-tree Tested-by, but the change is the
-   same class as prior IDs in this file.
-2. Real issue affecting users? **PASS** — without the ID, this wheel
-   does not get the existing PID FF path.
-3. Important (crash/security/deadlock) **or** listed exception? **PASS**
-   — USB device ID on an existing driver.
-4. Small and contained? **PASS** — 4 lines, two files.
-5. No new features/APIs? **PASS** — no new driver, ioctl, or userspace
-   ABI; only an ID in an existing table.
-6. Applies to this tree? **PASS** — driver and insertion point are
-   present on 6.18.57.
+Risk vs benefit: +2 bytes of allocation vs heap corruption on Intel THC
+HID-over-I2C devices (Lunar Lake / Panther Lake / Wildcat Lake). Benefit
+dominates. The unfixed `report_len` bound is conservative, not a
+regression.
 
-**Step 9.3 — Exception**
-- Record: **NEW DEVICE ID** (USB VID/PID) on existing `hid-universal-
-  pidff`.
-
-**Step 9.4 — Decision**
-This is exactly the device-ID class stable trees take. The driver is in
-6.18; the patch is tiny and isolated to `10f5:7077`. Benefit is real for
-owners of that wheel; risk to everyone else is negligible.
-
----
-
-### What the commit does for this tree
-It lists Turtle Beach VelocityOne Race (`USB 10f5:7077`) in `hid-
-universal-pidff` so 6.18 systems can use the PID force-feedback path
-already in this kernel, instead of generic HID only.
-
-### Stable-rules fit
-Meets the device-ID exception: existing driver, IDs only, clean apply,
-no new API.
-
-### Risk vs benefit
-Very low risk, localized hardware enablement. No locking or error-path
-change.
-
-### Concerns
-None that block backport. No extra quirks or follow-up commits required
-in this tree. Stable-list discussion could not be fetched (403).
-
----
-
-Verification:
-- [Phase 1] Parsed tags: author SOB + Jiri Kosina SOB; no
-  Fixes/Reported-by/Cc:stable
-- [Phase 1] Body is a one-line ID add, not a crash write-up
-- [Phase 2] Diff: +3 `hid-ids.h`, +1 table row; no function logic change
-- [Phase 2] No `driver_data` quirk on the new entry
-- [Phase 3] `git blame` on new macros → this commit; surrounding IDs
-  from 2008–2017
-- [Phase 3] Driver intro `f06bf8d94fffb` (`v6.13-4738-gf06bf8d94fffb`);
-  ancestor of HEAD and of `v6.18`
-- [Phase 3] `git log --oneline --author="Tomasz Pakuła" --
-  drivers/hid/`: driver co-maintainer, many pidff commits
-- [Phase 3] No later commits on these files after this ID add
-- [Phase 4] `b4 dig -c 53f7f7955a684e820bdd6bd6792c45c4b434f637`: lore
-  msgid `20260922131758.1242755-1-tomasz.pakula.oficjalny@gmail.com`
-- [Phase 4] `b4 dig -a`: v1 only
-- [Phase 4] `b4 dig -w`: jikos@kernel.org, linux-input, co-author Oleg
-- [Phase 4] LKML: Kosina “Applied, thanks.”
-  (https://lkml.iu.edu/2609.2/21230.html)
-- [Phase 4] lore.kernel.org WebFetch: 403; used LKML/Patchew/`b4`
-  instead
-- [Phase 5] Probe only via `module_hid_driver`; callees
-  `hid_parse`/`hid_hw_start`/`hid_pidff_init_with_quirks` exist here
-- [Phase 5] `0x10f5` in `xpad.c` for other PIDs; `0x7077` not used there
-- [Phase 6] `make kernelversion` → 6.18.57; `git describe HEAD` →
-  `v6.18.57-155-gcdf239ca885b2`
-- [Phase 6] Parent of candidate: no `USB_VENDOR_ID_TURTLE`; Asetek rows
-  present; apply context matches
-- [Phase 8] Failure mode: missing FF/mapping for one USB wheel, not oops
-- UNVERIFIED: stable@ archive (HTTP 403); no in-kernel confirmation the
-  device implements USB PID (same as other table IDs)
+## Verification
+- [Phase 1] Parsed subject/body/tags: overflow fix; Even Xu + Jiri
+  Kosina SOBs; no Fixes/Reported-by
+- [Phase 2] Diff: two `devm_kzalloc` sizes in
+  `quicki2c_alloc_report_buf()` wrap `HIDI2C_PACKET_LEN`
+- [Phase 2] `include/linux/hid-over-i2c.h`: `HIDI2C_PACKET_LEN(data_len)
+  = data_len + sizeof(__le16)`
+- [Phase 2] `handle_input_report()` / `read_dma_buffer()`:
+  `sg_copy_to_buffer` into `input_buf` without dest capacity
+- [Phase 3] `git blame` on v6.18.57: allocations from `66b59bfce6d93`
+  (2025-01, driver completion)
+- [Phase 3] `git merge-base --is-ancestor 66b59bfce6d93 v6.18.57`:
+  introducing commit is in this tree
+- [Phase 3] `HIDI2C_PACKET_LEN` added in `6fc761385bcf6`; present on
+  v6.18.57
+- [Phase 3] Author Even Xu is MAINTAINERS owner of `drivers/hid/intel-
+  thc-hid/`
+- [Phase 4] `b4 dig -c 5e5c3b9db1c5910d6a9175c97b76a95566e4dc32`: lore
+  thread found; v1 only
+- [Phase 4] mbox: Jiri Kosina applied to hid.git#for-7.3/upstream-fixes;
+  no NAK
+- [Phase 4] `b4 dig -w`: HID maintainers on original To/Cc
+- [Phase 4] UNVERIFIED: lore.kernel.org/stable HTTP 403
+- [Phase 5] Single caller `quicki2c_probe()`; PCI IDs LNL/PTL/WCL THC
+  I2C ports
+- [Phase 6] `git describe HEAD` / `make kernelversion`: 6.18.57
+- [Phase 6] `git show v6.18.57:drivers/hid/intel-thc-hid/intel-
+  quicki2c/pci-quicki2c.c`: buggy sizes still present
+- [Phase 6] `patch --dry-run` of this commit onto the v6.18.57 file:
+  exit 0
+- [Phase 8] Failure mode: 2-byte heap overflow on max-sized HID-over-I2C
+  packets; severity HIGH
 
 **YES**
 
- drivers/hid/hid-ids.h             | 3 +++
- drivers/hid/hid-universal-pidff.c | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index ca5c62f29aebe..69b1b0f98c99d 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1415,6 +1415,9 @@
- #define USB_DEVICE_ID_ASUS_MD_5110	0x5110
- #define USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART	0x7100
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+index c6ba6886072ad..4588c55cf255d 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+@@ -586,7 +586,8 @@ static int quicki2c_alloc_report_buf(struct quicki2c_device *qcdev)
+ 	 */
+ 	max_report_len = max(le16_to_cpu(qcdev->dev_desc.max_input_len), SZ_4K);
  
-+#define USB_VENDOR_ID_TURTLE_BEACH	0x10f5
-+#define USB_DEVICE_ID_TB_VELOCITYONE_RACE	0x7077
-+
- #define USB_VENDOR_ID_TWINHAN		0x6253
- #define USB_DEVICE_ID_TWINHAN_IR_REMOTE	0x0100
+-	qcdev->input_buf = devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNEL);
++	qcdev->input_buf = devm_kzalloc(qcdev->dev,
++					HIDI2C_PACKET_LEN(max_report_len), GFP_KERNEL);
+ 	if (!qcdev->input_buf)
+ 		return -ENOMEM;
  
-diff --git a/drivers/hid/hid-universal-pidff.c b/drivers/hid/hid-universal-pidff.c
-index 60180467a0bfd..f1854cfe42d0d 100644
---- a/drivers/hid/hid-universal-pidff.c
-+++ b/drivers/hid/hid-universal-pidff.c
-@@ -187,6 +187,7 @@ static const struct hid_device_id universal_pidff_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASETEK, USB_DEVICE_ID_ASETEK_FORTE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASETEK, USB_DEVICE_ID_ASETEK_LA_PRIMA) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASETEK, USB_DEVICE_ID_ASETEK_TONY_KANAAN) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_TURTLE_BEACH, USB_DEVICE_ID_TB_VELOCITYONE_RACE)},
- 	{}
- };
- MODULE_DEVICE_TABLE(hid, universal_pidff_devices);
+@@ -596,7 +597,8 @@ static int quicki2c_alloc_report_buf(struct quicki2c_device *qcdev)
+ 	max_report_len = max(le16_to_cpu(qcdev->dev_desc.max_output_len),
+ 			     max_report_len);
+ 
+-	qcdev->report_buf = devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNEL);
++	qcdev->report_buf = devm_kzalloc(qcdev->dev,
++					 HIDI2C_PACKET_LEN(max_report_len), GFP_KERNEL);
+ 	if (!qcdev->report_buf)
+ 		return -ENOMEM;
+ 
 -- 
 2.53.0
 

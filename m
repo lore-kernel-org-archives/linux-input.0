@@ -1,44 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD80575080;
-	Mon, 19 Oct 2026 13:58:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D0EF57DF21;
+	Mon, 19 Oct 2026 13:58:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418308; cv=none; b=BWe7a6ZWXBKauts0nzkZBWHFIKQYjc3IXgUe/TH84rH36tz51cE2ONLafDMAqbLMCn93IOsexgxTI0CF1DrCep642C4q6YeMyDML1USopYrKv8p3EAdB7X5431hvacbOMrRzQfXvksZXUaOda3QXctbEHk8+FajxIt0abIf8X0w=
+	t=1792418315; cv=none; b=i3BnyGdAytSTbbgEoR8TQ0fk7USPmVTerfeIpBLvW22LKeaAPBCgA4BeINAi0dHkeWnajqXhZ9EB7OsWszGxXnwE2MVVimMa4+v1hWt+4yA1vQ+XTKfHCVONZXe3VZNXgUkR36Oag8fb6yHDujrYG07hSVrdc55ecLTwgaEBf1M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418308; c=relaxed/simple;
-	bh=Nz6HJQ+nBd1R73vfaXE+9CxwjrqZEV3OSc7DiEB8xpM=;
+	s=arc-20240116; t=1792418315; c=relaxed/simple;
+	bh=9QLd1uN4lvICOAEyZAuQE98IxEjKpgPfzCaCXlVCil8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EhFiLebtY8YaCg9V/r2+x/9EXSI7Rl2G94EamGwwoci3d1AfogcF63IntLObytX8CFyQwV8u709vKQHWrjENC/SSbXlqFO+2uUz5lou0+OoWqUa65WXA/BkX9LVkhcKITCIHOjfsXYQXsVpF9XNB+kSaWlCGkUSxUkza/O4FwZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RCiSpc3b; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=NzpLNxLp5ZQZ8zWjxQ9eAXx7Rc8CC1926UjzfXUyMiAjTddAebQLgT88O7c7FF3+P4nv7J3cluxWAtChKwJ0UnaA7UO76TsNC2Op8FdiCFmhjkmQiEQoK1BaQrtzChCLYXmcg25vZ9bItRBCEYijgTV/ecar2YAo9yjgTcbtc4A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LyMewUeH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RCiSpc3b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A291F000C6;
-	Mon, 19 Oct 2026 13:58:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LyMewUeH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CD41F000C4;
+	Mon, 19 Oct 2026 13:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418305;
-	bh=AA4mSu76ubMZwQ39NWRyKOU7FoyWXCVaIhfpSX8lguI=;
+	s=k20260515; t=1792418311;
+	bh=E26p/SctKIE+fAVdFun4DeWsksla8dRXiJgCb7P+uNo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=RCiSpc3bk4AYcFB9h/WcJWFW567LrAkc4uMD3Y/dEeKAhIGgmU/3+fGXcpnMaLFw9
-	 Q2QlO7aWUlVgNjc2DrGTlRq6Fn2CRrrdgXKIa9rW01j4nKYPypUkIh9MS6xkZiJ3OO
-	 icXuieg4j6Nx1p/DSsDu52HMfsWpWusYcvz/7ndhM6WtaHDJe+9wkre9kwZi9hho+J
-	 nHCC36i1yHi3L8ZgMzIcPhUxPY6f6lFzgmWJ16P0vb5XBe3ecr8Nne/X6duj37wA5r
-	 lV1P9gFVHsQlPP50qTZgsiDJ2N9XRFf0x6MsZSgr9DBDjxr+ok68z7DHjLoDwQV5na
-	 Vr3iAEjoCHaiw==
+	b=LyMewUeHZOOu26oVnfIMBBFTieugB7oGEtezQ3IUM/UeinthLyPIqZdPPPVW7kLaQ
+	 QxMvHchqHfmPknG0DFccK+fla3ObJe1vDLJwctyR2IQihnhhI9x0MSWKMcIJiWO5Xk
+	 HLRq50neQZtmxHfIi0hMOxF3YM8FptF6r/9Jz5ieBo4WxfqOsvVtpGc7brpcvvuAvg
+	 WeJATM86Dt/KSA6qlgd5IW4fjhZoa1EtXbrvsYzZPrDIzsdGgs0y6a5KdNyKFfHeFy
+	 XMfN6QPNp5n7kcdtfCd5J/4oeNUsXwQHLW+3XCuLLPzVkcDSeTnfI4uUw0ADJ8y9PE
+	 xz9E9Fi/FqIdQ==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Yuxiang Lin <mclyxfdw@gmail.com>,
-	Jiri Kosina <jkosina@suse.com>,
+Cc: Vadim Klishko <vadim@cirque.corp-partner.google.com>,
+	Vadim Klishko <vadim@cirque.com>,
+	Benjamin Tissoires <bentiss@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
-	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-6.1] HID: quirks: add ALWAYS_POLL quirk for AULA Mini 60 HE Pro Dongle
-Date: Mon, 19 Oct 2026 09:47:24 -0400
-Message-ID: <20261019135441.1420968-153-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-6.6] HID: i2c-hid: Add a quirk for a Cirque I2C device.
+Date: Mon, 19 Oct 2026 09:47:29 -0400
+Message-ID: <20261019135441.1420968-158-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -54,426 +54,507 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Yuxiang Lin <mclyxfdw@gmail.com>
+From: Vadim Klishko <vadim@cirque.corp-partner.google.com>
 
-[ Upstream commit 2884e21b18613708f050ec75330b265dd07ecc03 ]
+[ Upstream commit 1c942462c3969b287a86ab6dbb143324289d564e ]
 
-The AULA Mini 60 HE Pro wireless keyboard dongle (USB ID
-0c45:fefe) becomes unresponsive after roughly one minute of idle.
-No error appears in dmesg; the only recovery is physically
-replugging the dongle.
+Cirque touchpads with PID D0C1 generate an error when probed
+by the I2C HID driver, resulting in no hidraw device created.
+Adding I2C_HID_QUIRK_NO_IRQ_AFTER_RESET fixes the issue.
 
-This has been reproduced across kernels 6.8, 6.14 and 7.1.3.
-
-Testing shows HID_QUIRK_ALWAYS_POLL alone resolves the issue,
-verified via usbhid.quirks=0x0c45:0xfefe:0x400.
-
-Signed-off-by: Yuxiang Lin <mclyxfdw@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
+Signed-off-by: Vadim Klishko <vadim@cirque.com>
+Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-This is a hardware-quirk addition for a wireless keyboard dongle that
-stops responding after idle. The local tree is **5.15.221**
-(`pending-5.15`, `git describe`: `p-5.15-2-g9a29d9b0f9507`). Upstream
-commit is `2884e21b18613` (`HID: quirks: add ALWAYS_POLL quirk for AULA
-Mini 60 HE Pro Dongle`); `git merge-base --is-ancestor` confirms it is
-**not** in this tree.
-
-===============================================================
-PHASE 1: COMMIT MESSAGE FORENSICS
-===============================================================
+## PHASE 1: COMMIT MESSAGE FORENSICS
 
 **Step 1.1: PARSE THE SUBJECT LINE**
-Record: **[HID]** **[add]** **ALWAYS_POLL quirk for AULA Mini 60 HE Pro
-wireless dongle (USB 0c45:fefe)**
+- Subsystem: `HID: i2c-hid`
+- Action verb: `Add` (a quirk)
+- Claimed intent: add `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` for Cirque I2C
+  touchpad PID D0C1
+
+Record: `[HID/i2c-hid] [add] [hardware quirk so Cirque D0C1 touchpads
+probe successfully]`
 
 **Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-Record:
-- **Fixes:** none (expected)
-- **Reported-by:** none
-- **Tested-by:** none (author describes own testing in the body)
-- **Reviewed-by:** none
-- **Acked-by:** none
-- **Link:** none in the commit; mailing-list Message-ID
-  `20260722175602.22773-1-mclyxfdw@gmail.com`
-- **Cc: stable:** none (expected)
-- **Signed-off-by:** Yuxiang Lin \<mclyxfdw@gmail.com\> (author); Jiri
-  Kosina \<jkosina@suse.com\> (HID maintainer). Ignore any pipeline SOB.
+- `Signed-off-by: Vadim Klishko <vadim@cirque.com>` (author; Cirque, the
+  device vendor)
+- `Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>` (HID
+  maintainer; applied the patch)
+- No `Fixes:` tag (expected)
+- No `Cc: stable@vger.kernel.org` (expected)
+- No `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-by:`, or
+  `Link:` tags in the committed message
+- v1/v2/v3 changelog (from mailing list, not the commit body): v2 added
+  subsystem prefix and expanded the explanation; v3 was a Patchwork
+  resend. No code changes across revisions.
+
+Record: Author is the hardware vendor; HID maintainer SOB. No
+syzbot/stable tags.
 
 **Step 1.3: ANALYZE THE COMMIT BODY TEXT**
+Cirque touchpads with product ID D0C1 error during I2C-HID probe, so no
+hidraw node is created. Applying the existing
+`I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` workaround fixes it.
+
 Record:
-- **Bug:** AULA Mini 60 HE Pro wireless dongle `0c45:fefe` becomes
-  unresponsive after ~1 minute idle.
-- **Symptom:** No dmesg error; only recovery is physically replugging
-  the dongle. Keyboard is dead until then.
-- **Versions tested by author:** 6.8, 6.14, 7.1.3 (not 5.15
-  specifically).
-- **Root cause (author):** device needs continuous interrupt polling;
-  `HID_QUIRK_ALWAYS_POLL` alone fixes it, verified with
-  `usbhid.quirks=0x0c45:0xfefe:0x400`.
+- Bug: Cirque D0C1 fails I2C-HID probe
+- Symptom: no hidraw device (touchpad unusable)
+- Root cause (author): device needs the established “no IRQ after reset”
+  quirk
+- Version info: none in the message; submitted Jul 2026, applied to hid
+  `for-7.3/upstream-fixes`
 
 **Step 1.4: DETECT HIDDEN BUG FIXES**
-Record: Not a disguised cleanup. It is an explicit hardware quirk for a
-device that stops working. Matches the documented HID ALWAYS_POLL
-pattern (devices that hang when the host stops polling the interrupt
-endpoint).
+Not disguised. It is an explicit hardware quirk, which the stable rules
+treat as a real-world device fix.
 
-===============================================================
-PHASE 2: DIFF ANALYSIS - LINE BY LINE
-===============================================================
+Record: Not a hidden bug fix; it is a straightforward hardware quirk.
+
+---
+
+## PHASE 2: DIFF ANALYSIS - LINE BY LINE
 
 **Step 2.1: INVENTORY THE CHANGES**
-Record:
-- `drivers/hid/hid-ids.h`: **+1** (`USB_DEVICE_ID_AULA_MINI_60_HE_PRO
-  0xfefe` under existing `USB_VENDOR_ID_JESS 0x0c45`)
-- `drivers/hid/hid-quirks.c`: **+2** (one `hid_quirks[]` entry:
-  `HID_QUIRK_ALWAYS_POLL`)
-- Total: **3 insertions**, 0 deletions, 2 files
-- Functions: none modified; static ID table only
-- Scope: **single-purpose surgical quirk addition**
+- `drivers/hid/hid-ids.h`: +1 (`#define I2C_PRODUCT_ID_CIRQUE_D0C1
+  0xD0C1`) next to existing `I2C_VENDOR_ID_CIRQUE` /
+  `I2C_PRODUCT_ID_CIRQUE_1063`
+- `drivers/hid/i2c-hid/i2c-hid-core.c`: +2 (quirk table entry)
+- Functions modified: none. Data only: ID macro + `i2c_hid_quirks[]`
+  entry
+- Scope: single-file-class surgical (2 files, 3 lines). No new quirk
+  flag; reuses `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` (`BIT(0)`), already
+  used for Hantick 5288, ITE Voyo Winpad A15, and Raydium 3118 in this
+  tree.
+
+Record: `[+3 lines, 2 files] [no functions] [surgical hardware quirk]`
 
 **Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
-Record:
-- **Before:** dongle `0c45:fefe` is a generic USB HID device. usbhid
-  starts interrupt polling on open and may stop it on close / when not
-  `ALWAYS_POLL`. After ~1 minute idle the firmware/hardware stops
-  responding; unplug/replug required.
-- **After:** `hid_gets_squirk()` / `hid_lookup_quirk()` matches this
-  VID/PID and sets `HID_QUIRK_ALWAYS_POLL` (`BIT(10)` = `0x400`).
-  `usbhid_start()` starts the IN URB at probe and keeps `HID_IN_POLLING`
-  set across close (`usbhid_open`/`usbhid_close`/`usbhid_stop` in this
-  tree).
-- Path: HID probe / usbhid start-stop, **not** an error path.
+Before: D0C1 (`vendor 0x0488`, `product 0xD0C1`) has quirks `0`.
+`i2c_hid_parse()` → `i2c_hid_finish_hwreset()` waits up to 1000 ms for a
+reset-ACK IRQ.
+After: lookup returns `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`.
+`i2c_hid_finish_hwreset()` sleeps 100 ms and clears
+`I2C_HID_RESET_PENDING` instead of waiting for the IRQ.
+Path: device probe / HID parse (and resume only if `RESET_ON_RESUME` is
+also set; this entry does not set that).
+
+Record: `[probe reset-wait → 100 ms sleep, skip IRQ wait, for VID 0x0488
+/ PID 0xD0C1 only]`
 
 **Step 2.3: IDENTIFY THE BUG MECHANISM**
-Record: **(h) Hardware workaround** — HID quirk table + device ID. Same
-class as USB/HID quirks that are routinely taken into stable. Not UAF,
-leak, race, etc.
+Category: **(h) Hardware workaround** (device ID + quirk table).
+
+Mechanism: some I2C-HID devices never send the reset-complete interrupt.
+The same quirk is already documented for Hantick (`402946a8ef71eb`: bind
+fails with `"failed to reset device"`), ITE (`fc6a31b007393`: `"can't
+add hid device: -61"`), and Raydium (`0c8432236dea2`). Hans de Goede
+later made a missing ACK a warning rather than `-ENODATA`
+(`7bcf9ebb50f2a`, in this tree), but a device that emits a bogus IRQ
+during the wait can still break the following report-descriptor read
+(`i2c_hid_parse` logs `"reading report descriptor failed"` and
+`hid_add_device` fails → no hidraw). The vendor says this quirk fixes
+that on D0C1.
+
+Record: `[hardware quirk] [skip reset-ACK IRQ wait for Cirque D0C1]`
 
 **Step 2.4: ASSESS THE FIX QUALITY**
-Record:
-- Obviously correct: one ID + one table entry using an existing, well-
-  tested quirk bit.
-- Author empirically confirmed `ALWAYS_POLL` alone is sufficient.
-- Regression risk is **low and device-scoped**: only `0c45:fefe`. Cost
-  is extra interrupt polling (power) on that dongle only.
-- No API, locking, or data-structure changes.
+Obviously correct: additive, ID-matched, uses a long-standing quirk.
+Risk is confined to 0x0488:0xD0C1. No API, locking, or allocator
+changes. Same 3-line shape as prior stable-worthy i2c-hid quirks.
 
-===============================================================
-PHASE 3: GIT HISTORY INVESTIGATION
-===============================================================
+Record: `[high quality, minimal] [regression risk very low, ID-scoped]`
+
+---
+
+## PHASE 3: GIT HISTORY INVESTIGATION
 
 **Step 3.1: BLAME THE CHANGED LINES**
-Record:
-- `USB_VENDOR_ID_JESS 0x0c45` / `USB_DEVICE_ID_JESS_YUREX`:
-  `6bc235a2e24a5` (Tomoki Sekiyama, 2010). Present in this tree at
-  `drivers/hid/hid-ids.h:695-698`.
-- Insertion point in `hid_quirks[]` (after INNOMEDIA, before KYE): table
-  from `d5d3e202753cc0` (Benjamin Tissoires, 2017).
-- `HID_QUIRK_ALWAYS_POLL` introduced in `0b750b3baa2d6` (“HID: usbhid:
-  add always-poll quirk”, Johan Hovold, 2014-09-08). `git merge-base
-  --is-ancestor 0b750b3baa2d6 HEAD` **succeeds**. Defined here as
-  `BIT(10)` in `include/linux/hid.h:373`.
-- The AULA ID itself is **new**; the bug is hardware/firmware plus long-
-  standing usbhid idle/poll behavior, not a recent regression.
+- Cirque 1063 ID + `NO_SLEEP_ON_SUSPEND`: `26dd6a5667f500` (Kai-Heng
+  Feng, 2024-01-23) — already in this tree
+- `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` handling in
+  `i2c_hid_finish_hwreset()`: present (lines 500–502)
+- Quirk table terminator `{ 0, 0 }` from original table
+  (`71af01a8c85ad8`, 2016)
+
+The “buggy” behavior is the generic reset-ACK wait vs this panel’s
+firmware, not a recent regression. D0C1 is a new product ID of an
+existing vendor.
+
+Record: `[generic reset-ACK wait vs D0C1 firmware] [quirk infra since
+~2017; Cirque vendor ID since 2024 / v6.8]`
 
 **Step 3.2: FOLLOW THE FIXES: TAG**
-Record: No `Fixes:` tag. N/A. Bug is device firmware vs existing usbhid
-poll-on-open behavior, not a specific introducing commit.
+No `Fixes:` tag. Not applicable.
 
 **Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-Record: This 5.15 tree already carries the same class of backports,
-e.g.:
-- `f9ad98cff302c` HID: quirks: add HID_QUIRK_ALWAYS_POLL for 8BitDo Pro
-  3
-- `16c2ca35257ed` HID: Apply quirk HID_QUIRK_ALWAYS_POLL to Edifier QR30
-- `5c46ec760d3be` HID: quirks: Add ADATA XPG alpha wireless mouse
-  support
-- `9f093e15faee6` HID: add ALWAYS_POLL quirk for Apple kb
-Standalone; not patch N/M.
+Recent `i2c-hid-core.c` work in this tree is unrelated (report-
+descriptor error text, Dell S4, buffer overflow). Not part of a numbered
+series.
+
+Record: `[standalone] [no prerequisites beyond existing quirk flag +
+Cirque vendor define, both present]`
 
 **Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-Record: `git log --author="Yuxiang Lin"` on `drivers/hid/` in this tree:
-**empty**. One-off device owner report. Weight comes from HID maintainer
-Jiri Kosina applying it, not from the author being a maintainer.
+`git log --author="Vadim Klishko"` / `"Klishko"` in this tree: no
+commits. First-time contributor; affiliation is the touchpad vendor
+(`vadim@cirque.com`, Google corp-partner address on the list). HID
+maintainer Benjamin Tissoires applied it (`for-7.3/upstream-fixes`, SHA
+`1c942462c396`).
+
+Record: `[vendor patch, maintainer-applied] [no other related commits in
+this tree]`
 
 **Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-Record: Needs only `HID_QUIRK_ALWAYS_POLL`, `hid_quirks[]`,
-`USB_VENDOR_ID_JESS`, and usbhid ALWAYS_POLL handling — all present
-since well before 5.15. **Standalone.**
+Mainline context after the new entry mentions
+QTEC/`I2C_HID_QUIRK_RE_POWER_ON` and BLTP; those IDs are **not** in
+6.12. The added lines do not use them. Required pieces in this tree:
+- `I2C_VENDOR_ID_CIRQUE` (yes)
+- `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` and its `i2c_hid_finish_hwreset()`
+  handling (yes)
+- `i2c_hid_lookup_quirk()` (yes)
 
-===============================================================
-PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-===============================================================
+Record: `[standalone on 6.12] [QTEC/BLTP are context-only, not
+dependencies]`
+
+---
+
+## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
 
 **Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
-Record:
-- `b4 dig -c 2884e21b18613` matched lore by patch-id:
-  https://patch.msgid.link/20260722175602.22773-1-mclyxfdw@gmail.com
-- `b4 dig -a`: **v1 only** (2026-07-23). No v2/v3.
-- Thread: submit → Jiri Kosina “Applied, thanks.” (2026-08-03). No NAK,
-  no requested changes, no stable discussion in-thread.
-- lore.kernel.org HTTP fetch returned 403; discussion recovered via `b4
-  dig -m` mbox and LKML mirrors.
+`b4 dig -c 1c942462c396` matched patch-id
+`d0e1a0779d3e935e26ea6a8cb93b1b9f683a32a4`.
+
+Revisions:
+- v1: https://patch.msgid.link/20260703144726.14808-1-vadim@cirque.com
+  (subject lacked `HID: i2c-hid:`)
+- v2: https://patch.msgid.link/20260708003108.20288-1-vadim@cirque.com
+  (subject + explanation; **no code change**)
+- v3: https://patch.msgid.link/20260728041718.32954-1-vadim@cirque.com
+  (Patchwork resend; **no code change**)
+- Applied: Benjamin Tissoires, 2026-08-25, hid.git `for-7.3/upstream-
+  fixes` (`1c942462c396`)
+
+No NAKs in v1/v2/v3 archives (openwall/patchew). No reviewer-requested
+code changes. No explicit `Cc: stable` on the list.
+
+Record: `[lore/msgid as above] [v1→v3, code unchanged] [applied by HID
+maintainer] [no NAKs]`
 
 **Step 4.2: CHECK WHO REVIEWED THE PATCH**
-Record (`b4 dig -w`): To `jikos@kernel.org`; Cc Benjamin Tissoires,
-linux-input, linux-kernel. HID maintainers were on the original mail.
-Applied by Jiri Kosina.
+`b4 dig -w` original recipients: `vadim@cirque.com`, `jikos@kernel.org`,
+`linux-input@vger.kernel.org`, `linux-kernel@vger.kernel.org`. v3 also
+CCd Benjamin Tissoires and Hans de Goede (i2c-hid quirk author). Apply
+mail CCd `hansg@kernel.org`. No written `Reviewed-by`, but the
+maintainer applied it.
+
+Record: `[HID maintainers Kosina/Tissoires; de Goede CCd; applied by
+Tissoires]`
 
 **Step 4.3: SEARCH FOR THE BUG REPORT**
-Record: No bugzilla/syzbot. The report **is** the patch: author
-reproduced hang on 6.8/6.14/7.1.3 and verified the quirk via module
-parameter. Single reporter; concrete hardware + recovery path.
+No bugzilla/syzbot link. Evidence is the vendor’s report: probe error,
+no hidraw, quirk fixes it. Author is Cirque.
+
+Record: `[vendor-reported probe failure] [severity: device does not
+enumerate] [user count unverified beyond vendor]`
 
 **Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
-Record: Standalone 1/1. Nearby mainline ALWAYS_POLL quirks (Beitong,
-SIGMACHIP, SDINNOVATION) are separate devices, not prerequisites.
+Standalone 1/1. Not a multi-patch series.
+
+Record: `[standalone]`
 
 **Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-Record: lore.kernel.org/stable search returned 403. No evidence in the
-linux-input thread of a stable NAK. UNVERIFIED: whether someone already
-requested this on stable@ (does not change the technical case).
+Web search of lore.kernel.org/stable for Cirque D0C1 i2c-hid did not
+turn up discussion of this patch (results were unrelated historical
+stable traffic).
 
-===============================================================
-PHASE 5: CODE SEMANTIC ANALYSIS
-===============================================================
+Record: `[no stable-list discussion found]`
+
+---
+
+## PHASE 5: CODE SEMANTIC ANALYSIS
 
 **Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
-Record: No function bodies edited. New consumers of `hid_gets_squirk()`
-→ `hid_lookup_quirk()`. Runtime effect is in usbhid: `usbhid_open`,
-`usbhid_close`, `usbhid_start`, `usbhid_stop`.
+No function bodies changed. The new table entry is consumed by
+`i2c_hid_lookup_quirk()`, which feeds `ihid->quirks`, consumed by
+`i2c_hid_finish_hwreset()`.
+
+Record: `[i2c_hid_quirks[] data; consumers: i2c_hid_lookup_quirk,
+i2c_hid_finish_hwreset]`
 
 **Step 5.2: TRACE CALLERS**
-Record (this tree):
-- `hid_lookup_quirk()`: `drivers/hid/hid-core.c` (device add / quirk
-  refresh), `drivers/hid/usbhid/hid-core.c:992` (usbhid probe).
-- ALWAYS_POLL consumers: `usbhid_open` (skip start-on-open),
-  `usbhid_close` (keep polling), `usbhid_start` (start IN URB at probe),
-  `usbhid_stop` (clear polling).
-- Context: USB HID probe and open/close — **device enumeration /
-  input**, not IRQ-unsafe new locking.
+- `i2c_hid_lookup_quirk()`: only from `__i2c_hid_core_probe()` after
+  reading the HID descriptor vendor/product — so the quirk is installed
+  before `hid_add_device()` / parse.
+- `i2c_hid_finish_hwreset()`: from `i2c_hid_parse()` (probe) and
+  `i2c_hid_core_resume()` (only if `I2C_HID_QUIRK_RESET_ON_RESUME`; this
+  ID does not set that).
+
+Record: `[probe path via hid_add_device → i2c_hid_parse] [resume reset
+path not used for this ID]`
 
 **Step 5.3: TRACE CALLEES**
-Record: Table match only. ALWAYS_POLL path already calls
-`usb_autopm_get_interface`, `hid_start_in`, `usb_kill_urb` in this tree.
+With the quirk, `i2c_hid_finish_hwreset()` calls `msleep(100)` and
+`clear_bit(I2C_HID_RESET_PENDING)`. Then, unless
+`NO_WAKEUP_AFTER_RESET`, `i2c_hid_set_power(PWR_ON)`.
+
+Record: `[msleep + clear reset-pending; then existing PWR_ON]`
 
 **Step 5.4: FOLLOW THE CALL CHAIN**
-Record: Plug dongle → usbhid probe → `hid_lookup_quirk` → generic HID
-input. Userspace (evdev) uses the keyboard. **Reachable from plugging
-the device;** unprivileged user of that keyboard hits the hang after
-idle. Not a syscall fuzzer path; real HID hardware path.
+ACPI/OF I2C-HID probe → `__i2c_hid_core_probe` (descriptor + quirk
+lookup) → `i2c_hid_core_register_hid` → `hid_add_device` →
+`i2c_hid_parse` → hwreset → read report descriptor → hidraw/input.
+
+Reachable on boot for machines with this touchpad; not a syscall fuzz
+path, but a normal laptop input device.
+
+Record: `[boot/probe of Cirque D0C1 I2C touchpad] [userspace-visible:
+hidraw/input missing without quirk]`
 
 **Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-Record: Dozens of `HID_QUIRK_ALWAYS_POLL` entries already in this tree’s
-`hid_quirks[]` (HP/Pixart mice, Corsair, Logitech, Lenovo, 8BitDo,
-Edifier, ADATA XPG, …). Same fix, new VID/PID. No `0xfefe` HID ID
-already present (grep of `drivers/hid` empty).
+Same quirk already in this tree for Hantick, ITE Voyo, Raydium 3118.
+This is the same pattern, new ID.
 
-===============================================================
-PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-===============================================================
+Record: `[three existing NO_IRQ_AFTER_RESET entries; this is a fourth
+ID]`
+
+---
+
+## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
 
 **Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-Record: **Yes.** usbhid ALWAYS_POLL vs poll-on-open logic is in
-`drivers/hid/usbhid/hid-core.c` (e.g. 687, 750, 754, 1183, 1232). Vendor
-ID `USB_VENDOR_ID_JESS 0x0c45` exists; product `0xfefe` is **not**
-quirked. The hang is firmware + this poll behavior; it is not a 6.x-only
-bug. Author listed 6.8+ because those are what they ran; 5.15 has the
-same usbhid mechanism (ALWAYS_POLL since 2014).
+Local tree: `pending-6.12`, `make kernelversion` = **6.12.111**, `git
+describe HEAD` = `p-6.12-3-gc504cf0baa3d8`.
+
+- `I2C_PRODUCT_ID_CIRQUE_D0C1` is **absent** (`git grep` no matches)
+- `git merge-base --is-ancestor 1c942462c396 HEAD` → not an ancestor
+  (exit 1)
+- Driver, quirk flag, lookup, and Cirque vendor ID **are** present
+- Without the table entry, D0C1 takes the generic reset-ACK wait that
+  the vendor says fails probe
+
+Record: `[yes, buggy generic path exists; D0C1 quirk not yet applied]
+[bug is device firmware vs long-standing reset wait]`
 
 **Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-Record:
-- `hid-ids.h`: `git apply --check` **clean**
-  (`USB_DEVICE_ID_REDRAGON_ASURA` context matches).
-- `hid-quirks.c`: **context mismatch** — 5.15 has extra KYE entries
-  immediately after INNOMEDIA (`KYE_EASYPEN_M610X` …) vs mainline’s
-  `KYE` PIXART mouse first. `git apply --check` fails on `hid-
-  quirks.c:113`; 3-way reports a conflict there. Fix is insert the two
-  JESS lines after the INNOMEDIA entry (alphabetically correct). **Minor
-  backport, not a rework.**
+`hid-ids.h` context around `CIRQUE_1063` matches; should apply cleanly.
+`i2c-hid-core.c`: insertion after the 1063 entry matches; following
+context in mainline is QTEC (not in 6.12; here it is the ELAN comment).
+At most fuzz/trivial context adjust. No refactor of the quirk table.
+
+Record: `[clean or trivial fuzz] [no rework of logic]`
 
 **Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-Record: No AULA / `0xfefe` HID quirk. No alternate fix for this dongle.
+No D0C1 ID. Cirque 1063 has a *different* quirk (`NO_SLEEP_ON_SUSPEND`).
+`7bcf9ebb50f2a` only demotes missing ACK to a warning; vendor still
+needed this ID-specific quirk.
 
-===============================================================
-PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-===============================================================
+Record: `[no existing D0C1 fix; 1063 quirk is unrelated]`
+
+---
+
+## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 
 **Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-Record: **HID / usbhid** (`drivers/hid/`). Criticality: **IMPORTANT**
-(common input stack), impact **driver-specific / device-specific**. Not
-core mm/net, but keyboards are user-visible and this tree already
-backports HID quirks.
+`drivers/hid/i2c-hid/` — laptop/Chromebook I2C HID touchpads. Not
+mm/core, but a common input path.
+
+Record: `[HID i2c-hid] [IMPORTANT / driver-specific]`
 
 **Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-Record: Mature. `hid-quirks.c` still gets device-ID/quirk backports on
-5.15. This is not a new subsystem.
+Mature driver (2012+). Quirk table still gets ID additions; that is
+normal, not a rewrite.
 
-===============================================================
-PHASE 8: IMPACT AND RISK ASSESSMENT
-===============================================================
+Record: `[mature; ID/quirk additions are the usual change]`
+
+---
+
+## PHASE 8: IMPACT AND RISK ASSESSMENT
 
 **Step 8.1: DETERMINE WHO IS AFFECTED**
-Record: **Driver-specific / device-specific** — owners of AULA Mini 60
-HE Pro wireless dongle `0c45:fefe`. No effect on other HID devices.
-`CONFIG_USB_HID` (standard desktop/laptop configs).
+Only I2C-HID devices with HID descriptor VID/PID `0488:D0C1`. Everyone
+else unchanged.
+
+Record: `[driver/hardware-specific: Cirque D0C1 touchpads]`
 
 **Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-Record: Plug dongle, leave idle ~1 minute. Common for a wireless
-keyboard. Unprivileged user of the keyboard is affected. Not a timing
-race; firmware/idle-poll issue. Author reproduced on three kernel
-versions.
+Every probe of that touchpad (boot). Not a race. Unprivileged users
+cannot trigger it beyond having the hardware.
+
+Record: `[every boot on affected machines] [common for those users] [not
+a syscall exploit path]`
 
 **Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-Record: Input device **permanently unresponsive** until physical replug;
-no oops. **HIGH** for those users (keyboard dead; no software recovery).
-Not panic/corruption/CVE.
+Probe fails → no hidraw/input → touchpad dead. Not a panic. Matches
+ITE’s historic `"can't add hid device"` failure.
+
+Record: `[device fails to enumerate] [severity: HIGH for affected
+hardware, none otherwise]`
 
 **Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-Record:
-- **Benefit:** restores a wireless keyboard on 5.15 LTS without a
-  module-param workaround.
-- **Risk:** 3 lines, one VID/PID, existing quirk bit. Possible extra USB
-  polling/power on that dongle only. Context-hunk tweak in `hid-
-  quirks.c`.
-- **Ratio:** high benefit for affected hardware, very low regression
-  risk.
+Benefit: touchpad works on 6.12 LTS (ChromeOS/enterprise/Ubuntu-class
+kernels still on 6.12).
+Risk: 3 lines, existing quirk, ID-gated.
 
-===============================================================
-PHASE 9: FINAL SYNTHESIS
-===============================================================
+Record: `[benefit high for D0C1 users] [risk very low] [favorable]`
+
+---
+
+## PHASE 9: FINAL SYNTHESIS
 
 **Step 9.1: COMPILE THE EVIDENCE**
 
 FOR:
-- Real, reproduced hang: dongle dies after idle; only unplug recovers.
-- Standard **HID hardware quirk** (`HID_QUIRK_ALWAYS_POLL`), the stable-
-  rules exception for quirks/device IDs.
-- 3 lines; no new APIs; no refactor.
-- Infrastructure present in 5.15 since 2014; same quirk class already
-  backported here.
-- Empirically verified (`usbhid.quirks=…:0x400` matches `BIT(10)`).
-- HID maintainer applied v1 with no objections.
-- Scoped to `0c45:fefe`; no HID collision on `0xfefe` in this tree.
+- Explicit hardware quirk; stable rules call these YES
+- Real user-visible bug: probe error, no hidraw (vendor-confirmed)
+- 3 lines, existing `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`
+- Same shape as Hantick/ITE/Raydium quirks already in this tree
+- HID maintainer applied it; author is Cirque
+- Driver, quirk flag, and Cirque vendor ID exist in 6.12.111
+- No new API/feature flag
 
 AGAINST:
-- Author did not list 5.15 among tested versions (tested 6.8+).
-  Mechanism is the same.
-- `hid-quirks.c` needs a tiny context adjustment.
-- Single reporter; not a crash/security bug.
-- Relatively new keyboard on an old LTS — still the usual reason HID
-  ID/quirk backports exist.
+- No `Fixes:` / `Cc: stable` (not a negative per instructions)
+- No public repro logs beyond the commit text
+- `7bcf9ebb50f2a` tried to reduce new `NO_IRQ_AFTER_RESET` quirks; this
+  device still needed one
+- Mainline hunk context (QTEC) differs; trivial apply fuzz only
+- Affects one product ID, not all machines
 
 UNRESOLVED:
-- stable@ archive search (HTTP 403). Does not change the technical
-  verdict.
+- Exact errno/log line on D0C1 was not posted (only “error” / no hidraw)
+- How many shipping systems use D0C1 is unverified
+- lore.kernel.org WebFetch returned 403; discussion recovered via b4 dig
+  + openwall/patchew
 
 **Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — 3-line table add; author
-   tested; maintainer applied.
-2. Fixes a real bug that affects users? **PASS** — keyboard dies until
-   replug.
-3. Important issue? **PASS** — device unusable after idle (quirk
-   exception; not a panic, but production-relevant for that hardware).
-4. Small and contained? **PASS** — 3 lines, two HID files.
-5. No new features or APIs? **PASS** — existing quirk bit + ID.
-6. Can apply to the local tree? **PASS** — `hid-ids.h` clean; `hid-
-   quirks.c` one-hunk context fix.
+1. Obviously correct and tested? **PASS** — 3-line ID quirk; vendor-
+   tested; maintainer applied
+2. Fixes a real bug that affects users? **PASS** — probe failure, no
+   hidraw
+3. Important issue? **PASS** — input device does not work (hardware bug,
+   not a panic)
+4. Small and contained? **PASS** — +3 lines, two files
+5. No new features or APIs? **PASS** — existing quirk + new device ID
+6. Can apply to the local tree? **PASS** — logic applies; at most
+   context fuzz around QTEC vs ELAN
 
 **Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-Record: **Hardware quirk / device ID on an existing driver** (HID
-usbhid). Automatic YES class.
+Yes: **hardware quirk** and **device ID addition to an existing
+driver**.
 
 **Step 9.4: DECISION**
-Backport. The bug exists on this tree’s usbhid, the quirk bit exists,
-and this is the same pattern already used for 8BitDo/Edifier/ADATA on
-5.15.
+This is a textbook stable backport: a 3-line i2c-hid quirk so a Cirque
+D0C1 touchpad enumerates. The 6.12 tree already has the driver and quirk
+machinery; only the ID is missing. Benefit is restoring input on
+affected machines; regression risk is limited to that PID.
 
-### What it solves for 5.15 users
-Without ALWAYS_POLL, usbhid may stop interrupt polling; this Sonix-based
-dongle then wedges until replugged. Adding the ID makes 5.15 keep
-polling from probe, matching the module-param workaround.
+---
 
-### Risk vs benefit
-Benefit is a working keyboard for that VID/PID. Risk is extra polling on
-that device only. `hid-quirks.c` needs the JESS line inserted after the
-INNOMEDIA entry because KYE rows differ from mainline.
+## What this solves for 6.12 users
 
-### Concerns
-None that block a YES: no missing prerequisites; not a new driver; apply
-conflict is mechanical.
+Cirque D0C1 I2C touchpads fail I2C-HID probe, so hidraw/input never
+appear. The quirk skips waiting for a reset-ACK IRQ (100 ms sleep
+instead), which is the established workaround. On 6.12 that path still
+exists; without the ID, those panels stay dead.
+
+## Risk vs benefit
+
+Benefit is a working touchpad on affected laptops/Chromebooks still on
+6.12. Risk is a 3-line, VID/PID-gated table addition using a quirk
+already used by three other devices in this tree.
+
+## Concerns
+
+Apply may need trivial context adjustment because 6.12’s quirk table
+does not yet have the later QTEC/BLTP entries. No functional
+dependencies. Exact probe errno was not published; the vendor statement
+plus matching historical quirks is enough.
+
+---
 
 Verification:
-- [Phase 1] Tags: author + Jiri Kosina SOB; no Fixes/stable/Reported-by.
-- [Phase 1] Body: idle hang, replug recovery, tested 6.8/6.14/7.1.3,
-  `usbhid.quirks=0x0c45:0xfefe:0x400`.
-- [Phase 2] Diff: +1 hid-ids.h, +2 hid-quirks.c; ALWAYS_POLL table
-  entry.
-- [Phase 2] `HID_QUIRK_ALWAYS_POLL` is `BIT(10)` = `0x400` in
-  `include/linux/hid.h:373`.
-- [Phase 3] `git describe HEAD` → `p-5.15-2-g9a29d9b0f9507`; `make
-  kernelversion` → 5.15.221.
-- [Phase 3] ALWAYS_POLL intro `0b750b3baa2d6` (2014) is ancestor of
-  HEAD.
-- [Phase 3] `USB_VENDOR_ID_JESS` blame `6bc235a2e24a5` (2010); lines
-  695-698 in this tree.
-- [Phase 3] No AULA/0xfefe in `drivers/hid`; author has no HID commits
-  here.
-- [Phase 3] Similar 5.15 backports: `f9ad98cff302c`, `16c2ca35257ed`,
-  `5c46ec760d3be`.
-- [Phase 3] Upstream SHA `2884e21b18613708f050ec75330b265dd07ecc03`; not
-  ancestor of HEAD (exit 1).
-- [Phase 4] `b4 dig -c 2884e21b18613`: lore match; To jikos, Cc
-  bentiss/linux-input.
-- [Phase 4] `b4 dig -a`: v1 only. Mbox: Jiri “Applied, thanks.” No NAK.
-- [Phase 4] lore.kernel.org WebFetch 403; used b4 mbox + LKML/openwall
-  mirrors.
-- [Phase 5] `hid_lookup_quirk` used from hid-core.c and usbhid/hid-
-  core.c:992.
-- [Phase 5] ALWAYS_POLL in usbhid open/close/start/stop in this tree.
-- [Phase 6] `git apply --check`: hid-ids.h clean; hid-quirks.c fails at
-  line 113 (KYE order). 3-way conflict on quirks only.
-- [Phase 7] HID usbhid; quirk table still receiving 5.15 backports.
-- [Phase 8] Failure: keyboard dead until replug; severity HIGH for that
-  device; risk very low.
-- UNVERIFIED: stable@ mailing-list archive (403). Not used as a NO
-  reason.
+- [Phase 1] Parsed subject/tags/body: vendor SOB Vadim Klishko;
+  maintainer SOB Benjamin Tissoires; no Fixes/stable/syzbot tags
+- [Phase 2] Diff: +1 hid-ids.h define `I2C_PRODUCT_ID_CIRQUE_D0C1
+  0xD0C1`; +2 `i2c_hid_quirks[]` with `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`
+- [Phase 2] Read `i2c_hid_finish_hwreset()`: quirk does `msleep(100)` vs
+  1000 ms `wait_event_timeout`
+- [Phase 2] Confirmed `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` is `BIT(0)` at
+  line 47
+- [Phase 3] `git describe HEAD` / `make kernelversion`: pending-6.12,
+  6.12.111
+- [Phase 3] `git merge-base --is-ancestor 1c942462c396 HEAD`: not in
+  tree (exit 1)
+- [Phase 3] `git grep I2C_PRODUCT_ID_CIRQUE_D0C1`: no matches
+- [Phase 3] `git blame` hid-ids Cirque lines: `26dd6a5667f500` (2024, in
+  tree)
+- [Phase 3] `git blame` quirk table: Hantick/ITE/Raydium already have
+  the same quirk
+- [Phase 3] `git log --author=Klishko`: no commits in this tree
+- [Phase 3] QTEC/BLTP/`I2C_HID_QUIRK_RE_POWER_ON`: absent; not required
+  by this patch
+- [Phase 3] Compared prior quirks: `0c8432236dea2` (Raydium),
+  `fc6a31b007393` (ITE), `402946a8ef71eb` (Hantick) — same 2-file
+  +3-line pattern
+- [Phase 3] `7bcf9ebb50f2a` in tree: missing ACK is a warning, not
+  `-ENODATA`; vendor still needed the quirk
+- [Phase 4] `b4 dig -c 1c942462c396`: patch-id match; v1/v2/v3 msgids
+  listed above
+- [Phase 4] `b4 dig -a`: v2 listed as series; v3 applied with no code
+  changes from v1
+- [Phase 4] `b4 dig -w`: To/Cc Jiri Kosina, linux-input, linux-kernel
+- [Phase 4] Openwall/patchew: Tissoires applied to hid.git
+  `for-7.3/upstream-fixes`; no NAKs
+- [Phase 4] lore.kernel.org WebFetch: 403; used b4 + openwall/patchew
+  instead
+- [Phase 4] Stable-list search: no discussion of this patch found
+- [Phase 5] Callers: `i2c_hid_lookup_quirk` from `__i2c_hid_core_probe`;
+  `i2c_hid_finish_hwreset` from `i2c_hid_parse` and resume-with-
+  RESET_ON_RESUME
+- [Phase 5] Parse path: reset then `i2c_hid_read_register` of report
+  descriptor; failure → no hid_add_device/hidraw
+- [Phase 6] Local files match needed APIs; D0C1 ID missing
+- [Phase 8] Failure mode: probe/enumeration failure for one touchpad
+  PID, not a panic
+- UNVERIFIED: exact dmesg/errno on D0C1; number of shipping units; live
+  lore.kernel.org HTML (403)
 
 **YES**
 
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 2 ++
+ drivers/hid/hid-ids.h              | 1 +
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
  2 files changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c1a7f5558ccd1..5169713539bc3 100644
+index 5169713539bc3..11f120a5d1b90 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -748,6 +748,7 @@
- #define USB_DEVICE_ID_JESS_YUREX	0x1010
- #define USB_DEVICE_ID_ASUS_MD_5112	0x5112
- #define USB_DEVICE_ID_REDRAGON_ASURA	0x760b
-+#define USB_DEVICE_ID_AULA_MINI_60_HE_PRO 0xfefe
+@@ -333,6 +333,7 @@
  
- #define USB_VENDOR_ID_JESS2		0x0f30
- #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 3de594ee25c38..8d2ac32c5ac12 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -113,6 +113,8 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_1f4a), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IDEACOM, USB_DEVICE_ID_IDEACOM_IDC6680), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI), HID_QUIRK_MULTI_INPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_AULA_MINI_60_HE_PRO),
-+		HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M506), HID_QUIRK_MULTI_INPUT },
+ #define I2C_VENDOR_ID_CIRQUE           0x0488
+ #define I2C_PRODUCT_ID_CIRQUE_1063     0x1063
++#define I2C_PRODUCT_ID_CIRQUE_D0C1     0xD0C1
+ 
+ #define USB_VENDOR_ID_CJTOUCH		0x24b8
+ #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 6d407cbed1886..29c4f624f3c5c 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -136,6 +136,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
+ 	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_1063,
+ 		I2C_HID_QUIRK_NO_SLEEP_ON_SUSPEND },
++	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_D0C1,
++		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+ 	/*
+ 	 * Without additional power on command, at least some QTEC devices send garbage
+ 	 */
 -- 
 2.53.0
 

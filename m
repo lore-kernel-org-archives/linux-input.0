@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D880B470858;
-	Mon, 19 Oct 2026 14:02:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8612B603197;
+	Mon, 19 Oct 2026 14:03:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418550; cv=none; b=OqKRIa9zFEGF2i7LI7z910gt8suOK51qR1MrzpMNJiF0oJARSg9lHNC6v5UUJz5pUkMxqWd1Upl4I0C44gxckJMIdW09FeD5wu5XKBMaYSn7fZby5L/QQHT3whXiEaT7+w+cbHwjLkXA0BA/xL16KYbT2WSrBjUQRA7NT2ZkO68=
+	t=1792418588; cv=none; b=mutmkbc8FfyCdmufC2rLdXbyKRxY5XkR7Gj6B/cC6OQwcZ0oUK49+zVBGNXLbbkcdPDKagp6qAx8W3TFBvt3kiS2XLjAE+X3SzCEgISYb5xaOcUdLSHzRZtNfdIcFnbwYuF8uDozoFcNvtZVOw/iaSfbucTV7ypA09U+Ac4gPNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418550; c=relaxed/simple;
-	bh=CGw/LoqxySi4y3ucj0pSd1ASJG726CFLpKjg3irJQuo=;
+	s=arc-20240116; t=1792418588; c=relaxed/simple;
+	bh=xxlunni3DMwezGpQqKTgp+KjgidZpLvetC50maIy4ec=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=twnh+5SQPIoydFABN5Wn2DHeNbbyCJ9LgOyEnisag/jMRjcPgeFKmGzY6luuM0d8/oxW9QrBxH0537T924cRKild9Msd93eJkjkOadmJYJf3Fwq7BOP34G/Y7L5pqGeP13mMclTV2eDN6bUFtc5ePbZvNPdu2DOf5KPyQ1yaXZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kGb48cUI; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=dSsONAXJVkdhXOeTlH1f7DNoWdlmem7p/kIWlkbebkz0lMr54TliIR+LRwFkeBDdn1imqTalDbdZAM0oKSmTNVzlg6VgMIwo0RoYSyNzqYMEwUGIcS40Y+3JkCmXp8oH4RGdndVRu8lFKux6Ah45ewgJOKPVngeIo/rDf5V7TXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YLp7O0v0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kGb48cUI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA2011F000C9;
-	Mon, 19 Oct 2026 14:02:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YLp7O0v0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77A981F000C7;
+	Mon, 19 Oct 2026 14:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418547;
-	bh=yVfznEcOE2PnCJM60afoSwR6xdh678dLhjRPRccI0NM=;
+	s=k20260515; t=1792418585;
+	bh=CQXt+PrM4dVfrDIYoHTVJU2WR3oWzAhxRf+Yr29VXJ8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=kGb48cUIJGdKBRrPoHydKYKwYQcYO74XpSukoQj0B9N1VOvEViLHHBi+e6gKMthxF
-	 KYjMwf14+Og0yXQcu1kqqaKT7q0gApvj0P5WJWAP0lBYB6yde5/6+LbnK1ZAYg3aAE
-	 APVsl0ayBDCzjyC2HkOren0JgMC5Ewk8wmh/wwkHWeScaXNN8KAe/pBsYiD89Xg5iR
-	 WEGgLUC9wm/3uGG6V2P9aqrEr3NQG1ReBfcgQw5tm4YosbZc2es5g8OuKD1DW5S6v7
-	 AS+OEhvv6zjBuXpDmyhm43hEsfqGQayQ4SxsDO+mzxCJ94jSq0QAAeGxAsHs0M8IX9
-	 vNqQKcbXsProA==
+	b=YLp7O0v04nN6DtL1KmMonOzRDZSemgDJMKRyTlttJSOiC2iiMgF8DZp+9QSGCEUGJ
+	 UL4MOPM26ZLAsB/BeWS66XoYkfL2um5O/yndx98NWHRTpPjHpWi7w9NWLOVF+wa2Xo
+	 H94eVXD9vfiynIj88jaNt2YGLrLUFFQy2+D+5+QikuN5KJfy5FAhRLPIEBs3qEcH3+
+	 d5SZJ3N3tuSHT0e8dFNHixtrhaHCgI3dIbo2O38Cu11lQyqGD0ou83/aTXk/3g11sT
+	 ISAD0k+cN2pBWLvBlhrObrRASVNsfkyZegR/wYt+HR/aCOVibFAbBLShol3KLdzPq6
+	 uDUEnaP5h46SA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Even Xu <even.xu@intel.com>,
+Cc: Aaron Ma <mapengyu@gmail.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
-	xinpeng.sun@intel.com,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18] HID: Intel-thc-hid: Intel-quickspi: Fix buffer overflow
-Date: Mon, 19 Oct 2026 09:50:17 -0400
-Message-ID: <20261019135441.1420968-326-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] HID: quirks: Add ALWAYS_POLL quirk for Beitong BTP-KP20D dongle
+Date: Mon, 19 Oct 2026 09:50:43 -0400
+Message-ID: <20261019135441.1420968-352-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -55,388 +54,414 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Even Xu <even.xu@intel.com>
+From: Aaron Ma <mapengyu@gmail.com>
 
-[ Upstream commit a1cdd72371270640bd357bd3e3b2ec0be17c9536 ]
+[ Upstream commit bfff246b3a31cb45ec297ca5e2a77c1410b207ac ]
 
-The input buffers are used to store complete HID-over-SPI packets,
-including their protocol headers. However, their sizes are
-currently calculated from the payload length only.
+The BTP-KP20D dongle in Direct/HID mode (20dd:5159) re-enumerates every
+few seconds because usbhid never submits its interrupt-IN URB: no HID
+driver binds to the vendor-specific report descriptor, so the device is
+never opened, and the firmware treats the idle endpoint as a lost link.
 
-Allocate enough space for both the payload and the packet header to
-prevent a buffer overflow when the payload reaches its maximum size.
+Add HID_QUIRK_ALWAYS_POLL to keep the interrupt-IN URB submitted from
+probe time.
 
-Signed-off-by: Even Xu <even.xu@intel.com>
+Signed-off-by: Aaron Ma <mapengyu@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-This is a real heap overflow in Intel QuickSPI HID input, and the local
-6.18.57 tree still has the undersized `input_buf` allocation, so it
-should be backported.
+This is a device-specific HID quirk for a gamepad dongle that constantly
+re-enumerates. The local tree is **5.15.221** (`pending-5.15`);
+`HID_QUIRK_ALWAYS_POLL` and the quirk table already exist here.
 
-Local tree: **v6.18.57** (`6.18.57`, HEAD `cdf239ca885b2`). The buggy
-allocation is present at `v6.18.57`; `HIDSPI_INPUT_BODY_SIZE` already
-exists here. The patch applies cleanly.
+===============================================================
+PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
 
----
+Step 1.1: PARSE THE SUBJECT LINE
+Record: [HID] [Add] Add ALWAYS_POLL quirk for Beitong BTP-KP20D dongle
+(20dd:5159)
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
-
-**Step 1.1: PARSE THE SUBJECT LINE**
-Record: `[HID/intel-thc-hid/intel-quickspi] [fix] [prevent input_buf
-overflow by including HIDSPI packet header in allocation]`
-
-**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
+Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
 Record:
-- `Signed-off-by: Even Xu <even.xu@intel.com>` (author; INTEL THC
-  maintainer)
-- `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID maintainer)
-- No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-
-  by:`, `Link:`, or `Cc: stable` (absence is expected)
-- Pipeline-only markers ignored: `[Upstream commit
-  a1cdd72371270640bd357bd3e3b2ec0be17c9536]`, `Signed-off-by: Sasha
-  Levin`
+- Signed-off-by: Aaron Ma <mapengyu@gmail.com> (author)
+- Signed-off-by: Jiri Kosina <jkosina@suse.com> (HID maintainer)
+- No Fixes:, Reported-by:, Tested-by:, Reviewed-by:, Acked-by:, Link:,
+  or Cc: stable
+- Absence of Fixes:/Cc: stable is expected for this review pipeline and
+  is not a negative signal
+- Ignore any pipeline-added Sasha Levin SOB / Upstream commit markers
 
-**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
+Step 1.3: ANALYZE THE COMMIT BODY TEXT
 Record:
-- Bug: `input_buf` is sized from HID payload length only, but stores a
-  full HID-over-SPI packet (header + payload).
-- Symptom: buffer overflow when the payload is at its maximum size.
-- Root cause: size uses `max_input_len` / `rep_desc_len` and omits
-  `HIDSPI_INPUT_BODY_HEADER_SIZE` (4 bytes).
-- No stack traces, versions, or syzbot IDs.
+- Bug: BTP-KP20D in Direct/HID mode (20dd:5159) re-enumerates every few
+  seconds
+- Symptom: USB disconnect/reconnect loop; the dongle is unusable
+- Root cause: usbhid does not submit the interrupt-IN URB until the HID
+  device is opened. Vendor-specific report descriptors do not produce a
+  bound/opened input client, so the firmware treats the idle endpoint as
+  a lost link
+- Fix: HID_QUIRK_ALWAYS_POLL so the interrupt-IN URB is submitted from
+  probe/start time
+- No kernel-version range stated; this is hardware firmware behavior,
+  not a regression in a specific kernel commit
 
-**Step 1.4: DETECT HIDDEN BUG FIXES**
-Record: Not hidden. Subject and body state a buffer overflow. The one-
-line change matches that claim.
+Step 1.4: DETECT HIDDEN BUG FIXES
+Record: Not a disguised cleanup. It is an explicit hardware quirk. The
+word “Add” is the normal form for quirk/ID table entries that still fix
+real devices.
 
----
+===============================================================
+PHASE 2: DIFF ANALYSIS - LINE BY LINE
+===============================================================
 
-## PHASE 2: DIFF ANALYSIS
-
-**Step 2.1: INVENTORY THE CHANGES**
+Step 2.1: INVENTORY THE CHANGES
 Record:
-- File: `drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c`
-  (+2/-1)
-- Function: `quickspi_alloc_report_buf()`
-- Scope: single-file surgical fix
+- drivers/hid/hid-ids.h: +3 (USB_VENDOR_ID_BEITONG 0x20dd,
+  USB_DEVICE_ID_BEITONG_KP20D 0x5159)
+- drivers/hid/hid-quirks.c: +1 (hid_quirks[] entry with
+  HID_QUIRK_ALWAYS_POLL)
+- Functions: none; data-table only
+- Scope: single-purpose, two-file, 4-line surgical addition
 
-**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
+Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
 Record:
-- Before (`v6.18.57`): `qsdev->input_buf = devm_kzalloc(...,
-  max_input_len, ...)` where `max_input_len = max(rep_desc_len,
-  max_input_len)`.
-- After: allocate `HIDSPI_INPUT_BODY_SIZE(max_input_len)` = payload +
-  `sizeof(struct input_report_body_header)` (packed 4 bytes).
-- Path: probe-time allocation; used later on every RX DMA completion.
+- Before: 20dd:5159 is a generic USB HID device with no special quirk.
+  usbhid_start() does not submit urbin unless a client opens the device
+  (usbhid_open)
+- After: hid_lookup_quirk() returns HID_QUIRK_ALWAYS_POLL.
+  usbhid_start() (called from hid_hw_start() during hid-generic probe)
+  calls hid_start_in() immediately and leaves HID_IN_POLLING set so
+  usbhid_close() does not kill the URB
+- Path: probe/start of this one VID:PID, not a global HID change
 
-**Step 2.3: IDENTIFY THE BUG MECHANISM**
-Record: `[BUFFER OVERFLOW / OUT-OF-BOUNDS]`
-Mechanism verified in this tree:
-1. IRQ thread `quickspi_irq_thread_handler()` calls `thc_rxdma_read(...,
-   qsdev->input_buf, &input_len, ...)`.
-2. `read_dma_buffer()` does `sg_copy_to_buffer(sg, nent, read_buff,
-   mes_len)` with **no check against `input_buf` allocation size**.
-3. The only bound is `mes_len > read_config->max_packet_size`, and
-   `max_packet_size` is `ALIGN(max_input_len, SZ_4K)`, so a packet of
-   `max_input_len + 4` is allowed for typical HID sizes.
-4. `quickspi_handle_input_data()` treats `input_buf` as `struct
-   input_report_body` (4-byte header + content).
-5. Output path already accounts for the header via
-   `HIDSPI_OUTPUT_REPORT_SIZE` (from `6fcefe71aeb52`, already in
-   `v6.18.57`). Input was left inconsistent.
+Step 2.3: IDENTIFY THE BUG MECHANISM
+Record: Hardware workaround. Category (h). Firmware requires interrupt-
+IN polling to keep the USB link; the kernel only polls after open.
+ALWAYS_POLL is the existing mechanism for that class of devices
+(mice/keyboards/dongles that disconnect if not polled).
 
-**Step 2.4: ASSESS THE FIX QUALITY**
-Record: Obviously correct. Uses an existing macro. 4 extra
-`devm_kzalloc` bytes. No locking, API, or ABI change. Regression risk is
-very low (slightly larger probe allocation).
+Step 2.4: ASSESS THE FIX QUALITY
+Record: Obviously correct. Same pattern as many ALWAYS_POLL entries
+already in this tree (8BitDo Pro 3, Edifier QR30, Cooler Master MM712,
+ADATA XPG, PixArt mice, etc.). Regression risk is limited to VID 0x20dd
+/ PID 0x5159: extra interrupt polling and remote-wakeup flag. That is
+the intended tradeoff and is cheaper than a reconnect loop. No API,
+locking, or structural change.
 
----
+===============================================================
+PHASE 3: GIT HISTORY INVESTIGATION
+===============================================================
 
-## PHASE 3: GIT HISTORY INVESTIGATION
-
-**Step 3.1: BLAME THE CHANGED LINES**
-Record: Buggy alloc introduced in `4138f21115aec` ("HID: intel-thc-hid:
-intel-quickspi: Complete THC QuickSPI driver", Xinpeng Sun, 2025-01-06).
-Present since at least **v6.15**. Present in this 6.18.y tree.
-
-**Step 3.2: FOLLOW THE FIXES: TAG**
-Record: No `Fixes:` tag. Introducer is `4138f21115aec`, which **is** an
-ancestor of `v6.18.57`.
-
-**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-Record (on this tree, limited to the file):
-- `6fcefe71aeb52` — already in `v6.18.57`; sized **output** `report_buf`
-  with `HIDSPI_OUTPUT_REPORT_SIZE` and added a copy bound. That made the
-  remaining input undersize obvious.
-- `b2301bdb4b3ed`, `c2854af5774b0`, device-ID commits — unrelated.
-- Sibling `4bda3254e7b4f` (QuickI2C overflow) is a parallel independent
-  fix, not a prerequisite.
-
-**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-Record: Even Xu is listed in MAINTAINERS as `INTEL TOUCH HOST CONTROLLER
-(THC) DRIVER` co-maintainer. Related work in-tree includes DMA safety
-checks and device IDs. This is a maintainer-authored fix.
-
-**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-Record: Standalone. Needs only `HIDSPI_INPUT_BODY_SIZE` in
-`include/linux/hid-over-spi.h`, present at `v6.18.57:91`. Series is
-`[PATCH 2/2]` with QuickI2C; the two files do not depend on each other.
-
----
-
-## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-
-**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
+Step 3.1: BLAME THE CHANGED LINES
 Record:
-- `b4 dig -c a1cdd72371270640bd357bd3e3b2ec0be17c9536` →
-  https://patch.msgid.link/20260922024638.932865-3-even.xu@intel.com
-- Cover: `[PATCH 0/2] HID: Intel-thc-hid: Fix potential buffer overflow`
-  (`20260922024638.932865-1`)
-- `b4 dig -a`: **v1 only** (no later revisions)
-- Thread saved via `b4 dig -m`; lore.kernel.org HTTP fetch returned
-  **403**
-- Jiri Kosina: “Applied to hid.git#for-7.3/upstream-fixes, thanks.” No
-  NAK, no requested changes on the SPI patch.
+- Insertion in hid-ids.h is between BAANTO (9ed326951806c4, 2012) and
+  BELKIN (a11b3fab94d4fb, 2010)
+- Insertion in hid-quirks.c is between ATEN_UC100KM and
+  CHICONY_MULTI_TOUCH (d5d3e202753cc0, 2017)
+- HID_QUIRK_ALWAYS_POLL is BIT(10) in include/linux/hid.h, present since
+  0b750b3baa2d6 (“HID: usbhid: add always-poll quirk”, 2014-09-08)
+- usbhid_start()/usbhid_open()/usbhid_close() already implement
+  ALWAYS_POLL in this checkout
 
-**Step 4.2: CHECK WHO REVIEWED THE PATCH**
-Record (`b4 dig -w`): To/Cc `bentiss@kernel.org` (Benjamin Tissoires),
-`jikos@kernel.org` (Jiri Kosina), `srinivas.pandruvada@linux.intel.com`,
-`linux-input@vger.kernel.org`. HID maintainers were on the original
-mail. Kosina applied it.
+Step 3.2: FOLLOW THE FIXES: TAG
+Record: No Fixes: tag. Not a regression in a specific commit; the
+device’s firmware misbehaves on the long-standing “poll only when
+opened” policy. The policy itself dates to 2014 and is in this 5.15
+tree.
 
-**Step 4.3: SEARCH FOR THE BUG REPORT**
-Record: No `Reported-by` / syzbot / bugzilla. Found by the subsystem
-maintainer as a size mismatch. Cover letter calls it a **potential**
-overflow; the DMA copy path confirms it is reachable, not theoretical.
+Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
+Record: This tree already contains many ALWAYS_POLL quirk backports,
+including:
+- f9ad98cff302c HID: quirks: add HID_QUIRK_ALWAYS_POLL for 8BitDo Pro 3
+  (identical 4-line pattern)
+- 16c2ca35257ed Edifier QR30
+- 9727b5dc98c33 Cooler Master MM712 dongle
+- 5c46ec760d3be ADATA XPG wireless mouse
+No Beitong/BTP-KP20D/20dd:5159 history. Standalone, not patch N/M.
 
-**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
-Record: Independent 2-patch set (QuickI2C + QuickSPI). Sashiko AI
-comment was about the **I2C** patch (`report_len` vs
-`HIDI2C_PACKET_LEN`), not this SPI change. SPI `report_buf` is already
-header-sized in this tree.
+Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
+Record: Aaron Ma has prior HID work in this tree (i2c-hid Raydium
+resume/IRQ, hid_report_len, LG MELF0410). HID maintainer Jiri Kosina
+applied the patch. Not a drive-by unknown-subsystem change.
 
-**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-Record: `curl` to lore.kernel.org/stable also returned 403. UNVERIFIED
-whether stable@ discussed this specifically. No local evidence it was
-rejected.
+Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
+Record: Depends only on HID_QUIRK_ALWAYS_POLL, hid_quirks[],
+hid_lookup_quirk(), and usbhid ALWAYS_POLL handling — all present. Can
+apply standalone.
 
----
+===============================================================
+PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+===============================================================
 
-## PHASE 5: CODE SEMANTIC ANALYSIS
+Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
+Record:
+- Message-ID: 20260803053932.5897-1-mapengyu@gmail.com
+- b4 mbox retrieved a 2-message thread (lore.kernel.org HTTP 403, so b4
+  was used instead of WebFetch)
+- v1 only; no v2/v3
+- Recipients: Jiri Kosina, Benjamin Tissoires, linux-input, linux-kernel
+- Jiri Kosina: “Applied, thanks.” (2026-08-03). No NAK, no requested
+  changes, no stable discussion in-thread
 
-**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
-Record: `quickspi_alloc_report_buf()`
+Step 4.2: CHECK WHO REVIEWED THE PATCH
+Record: Sent to both HID maintainers (Jiri Kosina, Benjamin Tissoires).
+Applied by Jiri Kosina. No extra Reviewed-by tags; maintainer apply is
+the review signal.
 
-**Step 5.2: TRACE CALLERS**
-Record: Only `quickspi_probe()` at `pci-quickspi.c:660`, after
-`reset_tic()`, before `quickspi_dma_init()` /
-`quickspi_get_report_descriptor()` / `quickspi_hid_probe()`. Standard
-PCI probe. `input_buf` is then written from the IRQ thread on
-`THC_RXDMA2_INT` (touch input).
+Step 4.3: SEARCH FOR THE BUG REPORT
+Record: No syzbot/bugzilla link. Description is a concrete hardware
+failure (re-enumerate every few seconds). No public multi-user bugzilla
+thread found.
 
-**Step 5.3: TRACE CALLEES**
-Record: `devm_kzalloc()` only. Consumers: `thc_rxdma_read()` →
-`sg_copy_to_buffer()`; `quickspi_handle_input_data()`.
+Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
+Record: Standalone [PATCH], not part of a series. No other Beitong HID
+patches in this tree.
 
-**Step 5.4: FOLLOW THE CALL CHAIN**
-Record: `quickspi_probe` → IRQ `THC_RXDMA2_INT` →
-`thc_rxdma_read(input_buf)` → `quickspi_handle_input_data`. Reachable
-whenever an Intel THC HID-over-SPI touch device delivers a max-sized
-input or report-descriptor packet. Not a userspace-crafted syscall
-overflow; it is device-driven heap overflow on a common input path.
+Step 4.5: CHECK STABLE MAILING LIST HISTORY
+Record: lore.kernel.org/stable WebFetch returned 403. Web search found
+no stable-list discussion of this patch. That is consistent with a newly
+applied mainline quirk awaiting stable evaluation.
 
-**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-Record: Same class of bug in QuickI2C (`HIDI2C_PACKET_LEN`). Output SPI
-buffer already fixed by `6fcefe71aeb52`. No other `input_buf` alloc in
-this driver.
+===============================================================
+PHASE 5: CODE SEMANTIC ANALYSIS
+===============================================================
 
----
+Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF
+Record: No functions modified. Data consumed by hid_gets_squirk() /
+hid_lookup_quirk().
 
-## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+Step 5.2: TRACE CALLERS
+Record:
+- hid_lookup_quirk() is called from usbhid_parse() and
+  hid_device_probe()
+- hid-generic matches HID_ANY_ID and hid_generic_probe() calls
+  hid_hw_start()
+- hid_hw_start() -> usbhid_start() -> if ALWAYS_POLL: hid_start_in()
+- usbhid_open()/usbhid_close() skip starting/stopping the in-URB when
+  ALWAYS_POLL is set
+- Context: USB device enumeration / HID probe, not a hot syscall path
+  for other devices
 
-**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-Record: Yes, at `v6.18.57`:
+Step 5.3: TRACE CALLEES
+Record: The new table entry does not call anything. ALWAYS_POLL path
+uses usb_autopm_get_interface, hid_start_in, and sets
+needs_remote_wakeup — existing usbhid code.
 
-```
-qsdev->input_buf = devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL);
-```
+Step 5.4: FOLLOW THE CALL CHAIN
+Record: Plugging in 20dd:5159 -> usbhid_probe -> hid_add_device -> hid-
+generic probe -> hid_hw_start -> usbhid_start. Userspace-reachable by
+inserting the dongle. Without the quirk the device resets every few
+seconds even if nothing opens it.
 
-Driver exists from v6.15 through this 6.18.y tree. Bug introduced with
-the completed driver (`4138f21115aec`).
+Note: the commit text says “no HID driver binds.” hid-generic still
+matches HID_ANY_ID; the precise failure is that the device is never
+opened, so urbin is never submitted. ALWAYS_POLL is still the correct
+existing fix for that.
 
-**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-Record: **Clean apply**. `patch -p1 --dry-run` against the `v6.18.57`
-file succeeded. Surrounding function matches. Macro already present.
+Step 5.5: SEARCH FOR SIMILAR PATTERNS
+Record: Dozens of HID_QUIRK_ALWAYS_POLL entries already in
+drivers/hid/hid-quirks.c in this tree. Same bug class (dongle/mouse
+disconnects if interrupt-IN is idle).
 
-**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-Record: Output-side header sizing (`6fcefe71aeb52`) is already in
-`v6.18.57`. Input-side overflow is **not** fixed at `v6.18.57`. No
-alternate input_buf fix found.
+===============================================================
+PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+===============================================================
 
----
+Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
+Record: Yes. usbhid still starts interrupt-IN only on open unless
+ALWAYS_POLL is set. 20dd:5159 is not in hid-ids.h or hid-quirks.c. USB
+vendor 0x20dd is not used as a HID ID here (only unrelated 0x20dd hits
+in qla2xxx debug ids, ralink USB product 0x0471:0x20dd, GPU register
+offsets). The firmware bug is independent of kernel version; 5.15 users
+with this dongle hit it.
 
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
+Record: Clean apply. Local hid-ids.h has BAANTO then BELKIN; local hid-
+quirks.c has ATEN_UC100KM then CHICONY_MULTI_TOUCH. No BEITONG symbols
+to conflict with. Expected difficulty: clean apply.
 
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-Record: `[HID / Intel THC QuickSPI]` `[IMPORTANT]` — not core mm/net,
-but the HID-over-SPI path for Intel touch on MTL/LNL/PTL/ARL/WCL/NVL.
-Crash/overflow there takes down input on those machines.
+Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
+Record: No Beitong fix present. Generic ALWAYS_POLL infrastructure is
+present. No alternate workaround for 20dd:5159.
 
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-Record: Actively maintained (device IDs, PM, DMA bounds). Still a small,
-contained driver, not a refactoring minefield.
+===============================================================
+PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+===============================================================
 
----
+Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
+Record: HID / USB HID (drivers/hid). IMPORTANT for users of this
+controller; PERIPHERAL in the sense that only one VID:PID is affected.
+Not staging.
 
-## PHASE 8: IMPACT AND RISK ASSESSMENT
+Step 7.2: ASSESS SUBSYSTEM ACTIVITY
+Record: Mature and actively backported here (recent HID race/overflow
+fixes, plus ongoing quirk-ID additions). HID CORE maintainers: Jiri
+Kosina, Benjamin Tissoires.
 
-**Step 8.1: DETERMINE WHO IS AFFECTED**
-Record: Driver-specific / config-specific (`CONFIG_INTEL_QUICKSPI`,
-`X86_64 && PCI && ACPI`). Users of Intel THC HID-over-SPI touch (Meteor
-Lake through Nova Lake PCI IDs in this tree).
+===============================================================
+PHASE 8: IMPACT AND RISK ASSESSMENT
+===============================================================
 
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-Record: Device sends a HID-over-SPI body whose content length equals
-`max_input_len` or `rep_desc_len`. That is a normal max-size touch
-report / report-descriptor response, not an exotic error path.
-Unprivileged userspace cannot directly size the DMA packet; a
-malicious/buggy touch controller can. Trigger likelihood: **realistic on
-real hardware**.
+Step 8.1: DETERMINE WHO IS AFFECTED
+Record: Driver-specific / device-specific. Only USB 20dd:5159 (Beitong
+BTP-KP20D Direct/HID mode). No effect on other HID devices.
 
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-Record: Heap buffer overflow via `sg_copy_to_buffer` into `devm_kzalloc`
-memory. Typical overrun is 4 bytes; DMA `max_packet_size` is 4K-aligned,
-so a larger `mes_len` could copy more. Failure mode: heap corruption →
-oops/panic or memory corruption. Severity: **HIGH** (not a WARN-only
-issue).
+Step 8.2: DETERMINE THE TRIGGER CONDITIONS
+Record: Trigger is plugging in the dongle in Direct/HID mode. Common for
+owners of that hardware; not a rare race. Unprivileged user can trigger
+it by using the device. Happens every few seconds until unplugged.
 
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-Record: Benefit **high** (stops heap overflow on touch RX). Risk **very
-low** (2 lines, +4 bytes, existing macro). Ratio strongly favors
-backport.
+Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
+Record: Repeated USB re-enumeration; device unusable; USB reconnect
+noise. Not a kernel oops/UAF. Severity MEDIUM-HIGH for affected users
+(hardware does not work), LOW blast radius.
 
----
+Step 8.4: CALCULATE RISK-BENEFIT RATIO
+Record:
+- Benefit: makes this dongle usable on 5.15; same class of quirks
+  already shipped in this tree
+- Risk: very low (4 lines, one VID:PID, existing quirk bit)
+- Ratio: strongly favorable
 
-## PHASE 9: FINAL SYNTHESIS
+===============================================================
+PHASE 9: FINAL SYNTHESIS
+===============================================================
 
-**Step 9.1: COMPILE THE EVIDENCE**
-
+Step 9.1: COMPILE THE EVIDENCE
 FOR:
-- Real heap overflow: DMA copies header+payload into a payload-only
-  buffer.
-- Bug exists in this 6.18.57 tree; driver has been in-tree since v6.15.
-- Important: kernel memory corruption / crash on a production Intel
-  touch path.
-- Tiny, obviously correct, uses `HIDSPI_INPUT_BODY_SIZE` already in this
-  tree.
-- Output buffer already got the analogous header sizing here; this
-  completes the same invariant.
-- Author is THC maintainer; HID maintainer applied v1 with no
-  objections.
-- Applies cleanly; no prerequisites missing.
+- Real hardware failure: reconnect loop every few seconds
+- Established HID_QUIRK_ALWAYS_POLL mechanism, present since 2014 in
+  this tree
+- Textbook stable exception: hardware quirk / device ID on an existing
+  driver
+- 4-line table addition, no APIs, no refactor
+- Applies cleanly to 5.15.221
+- HID maintainer applied it
+- Identical ALWAYS_POLL ID additions (e.g. 8BitDo Pro 3) already live in
+  this tree
 
 AGAINST:
-- No public crash report / syzbot (maintainer-found “potential”
-  overflow).
-- Affects only Intel THC QuickSPI, not all machines.
-- Cover letter wording is “potential”; DMA copy confirms it is real.
+- Affects one gamepad dongle, not a core crash
+- No syzbot/CVE/multi-user bugzilla trail
+- Commit message slightly overstates “no HID driver binds”
 
 UNRESOLVED:
-- lore.kernel.org HTTP 403; discussion recovered via `b4 dig -m`.
-- Stable list search unverified for the same 403 reason.
+- Could not HTTP-fetch lore.kernel.org (403); thread recovered via b4
+  mbox
+- Could not query lore.kernel.org/stable (403); no evidence of an
+  explicit stable NAK
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — 4-byte header included via
-   existing macro; applied by HID maintainer.
-2. Fixes a real bug that affects users? **PASS** — undersized
-   `input_buf` vs DMA copy of full packets.
-3. Important issue? **PASS** — heap overflow / memory corruption, HIGH.
-4. Small and contained? **PASS** — +2/-1, one function, one file.
-5. No new features or APIs? **PASS**.
-6. Can apply to the local tree? **PASS** — clean apply to `v6.18.57`;
-   macro present.
+Step 9.2: APPLY THE STABLE RULES CHECKLIST
+1. Obviously correct and tested? PASS — table entry using existing
+   quirk; maintainer applied
+2. Fixes a real bug that affects users? PASS — dongle re-enumerates and
+   is unusable
+3. Important issue? PASS — hardware-unusable reconnect loop (quirk
+   exception; not a kernel panic)
+4. Small and contained? PASS — 4 lines, two files
+5. No new features or APIs? PASS — no new Kconfig, sysfs, or userspace
+   ABI; quirk bit already exists
+6. Can apply to the local tree? PASS — insertion context present;
+   ALWAYS_POLL implemented
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-Record: Not an ID/quirk/DT/build/docs exception. It is a normal memory-
-safety fix.
+Step 9.3: CHECK FOR EXCEPTION CATEGORIES
+Record: Hardware quirk/workaround plus device ID addition to an existing
+driver. Both are automatic-qualify exceptions in the stable rules given
+above.
 
-**Step 9.4: MAKE YOUR DECISION**
-Backport. The bug is in this tree, the fix is surgical, and the failure
-mode is heap overflow on the Intel QuickSPI input path.
+Step 9.4: MAKE YOUR DECISION
+Backport. The local 5.15 tree already has the ALWAYS_POLL machinery and
+routinely takes this exact class of HID quirk. The patch is the minimal,
+device-scoped fix for a dongle that otherwise cannot stay on the bus.
 
----
+===============================================================
+What the commit solves for stable users
+===============================================================
 
-## What the commit solves for this tree
+On 5.15, usbhid still submits the interrupt-IN URB only when a HID
+client opens the device. The BTP-KP20D firmware treats an idle interrupt
+endpoint as a lost link and resets, so Direct/HID mode never stays
+enumerated. HID_QUIRK_ALWAYS_POLL already starts that URB in
+usbhid_start(); this commit only names 20dd:5159 so that path runs. That
+is the same fix already used here for 8BitDo, Edifier, Cooler Master,
+and many PixArt mice.
 
-On 6.18.57, `quickspi_alloc_report_buf()` sizes `input_buf` to the HID
-payload only. RX DMA later copies a full HIDSPI body (`struct
-input_report_body_header` + content) into that buffer. At max payload
-(or max report descriptor), that is at least a 4-byte heap overflow, and
-the DMA length check cannot catch it because hardware buffers are
-4K-aligned. Touch IRQ handling is a normal path on Intel THC HID-over-
-SPI laptops.
+Risk vs benefit: benefit is a working controller for anyone on this LTS
+tree with that dongle; risk is polling one extra interrupt endpoint on
+that VID:PID only.
 
-The change allocates `HIDSPI_INPUT_BODY_SIZE(max_input_len)` instead.
-That matches how this tree already sizes the output buffer. No new API,
-no extra locking, no missing prerequisites.
+Concerns: none material. No missing prerequisites. No backport rewrite
+needed.
 
-Risk vs benefit: four extra bytes at probe vs heap corruption on input.
-Benefit dominates.
-
----
-
-## Verification
-- [Phase 1] Tags: Even Xu + Jiri Kosina SOBs; no Fixes/Reported-by/Cc:
-  stable (expected).
-- [Phase 2] Diff: `quickspi_alloc_report_buf()` switches `devm_kzalloc`
-  from `max_input_len` to `HIDSPI_INPUT_BODY_SIZE(max_input_len)`
-  (+2/-1).
-- [Phase 2] `include/linux/hid-over-spi.h`: `HIDSPI_INPUT_BODY_SIZE` =
-  content + packed 4-byte header.
-- [Phase 2] `read_dma_buffer()` copies `mes_len` into `input_buf` with
-  only `max_packet_size` (`ALIGN(..., SZ_4K)`) as a cap.
-- [Phase 3] `git blame` at v6.18.57: alloc from `4138f21115aec`
-  (v6.15+); still payload-only.
-- [Phase 3] `git merge-base --is-ancestor 4138f21115aec v6.18.57` → yes;
-  `6fcefe71aeb52` already in v6.18.57 (output only).
-- [Phase 3] Author Even Xu is MAINTAINERS THC driver maintainer.
-- [Phase 4] `b4 dig -c a1cdd72371270640bd357bd3e3b2ec0be17c9536`: v1
-  series; Kosina applied to hid.git#for-7.3/upstream-fixes.
-- [Phase 4] `b4 dig -w`: jikos, bentiss, linux-input CCd.
-- [Phase 4] UNVERIFIED: live lore.kernel.org pages (HTTP 403); thread
-  recovered from mbox.
-- [Phase 5] Caller: `quickspi_probe()` → IRQ RXDMA2 →
-  `thc_rxdma_read(input_buf)`.
-- [Phase 6] `git describe HEAD` / Makefile: **6.18.57**. Buggy line
-  present at v6.18.57; `HIDSPI_INPUT_BODY_SIZE` present; `patch --dry-
-  run` clean.
-- [Phase 8] Failure mode: heap overflow on max-size HID-over-SPI input,
-  severity HIGH.
-- UNVERIFIED: whether this was already discussed on stable@ (lore 403).
+===============================================================
+Verification
+===============================================================
+- [Phase 1] Parsed subject/tags: Add ALWAYS_POLL; SOBs Aaron Ma + Jiri
+  Kosina; no Fixes/Reported-by/Cc: stable
+- [Phase 2] Diff: +3 hid-ids.h, +1 hid-quirks.c; no function bodies
+- [Phase 2] Local usbhid_start() at hid-core.c:1183 already implements
+  ALWAYS_POLL via hid_start_in()
+- [Phase 3] git describe HEAD / make kernelversion:
+  p-5.15-2-g9a29d9b0f9507, 5.15.221, branch pending-5.15
+- [Phase 3] git blame include/linux/hid.h:373: HID_QUIRK_ALWAYS_POLL
+  BIT(10) present
+- [Phase 3] git log -S HID_QUIRK_ALWAYS_POLL -- drivers/hid/usbhid/hid-
+  core.c include/linux/hid.h: introduced by 0b750b3baa2d6 (2014)
+- [Phase 3] git grep USB_VENDOR_ID_BEITONG / BTP-KP20D: absent in this
+  tree
+- [Phase 3] git grep 0x20dd: no HID vendor collision
+- [Phase 3] Precedent already in this tree: f9ad98cff302c (8BitDo
+  ALWAYS_POLL, same 4-line shape)
+- [Phase 4] b4 mbox 20260803053932.5897-1-mapengyu@gmail.com: 2
+  messages, v1 only, Jiri “Applied, thanks.”
+- [Phase 4] WebFetch lore.kernel.org: 403; used b4 instead
+- [Phase 5] Call chain: hid_lookup_quirk -> hid-generic_probe ->
+  hid_hw_start -> usbhid_start
+- [Phase 6] Insertion points exist: hid-ids.h BAANTO then BELKIN; hid-
+  quirks.c ATEN_UC100KM then CHICONY_MULTI_TOUCH
+- [Phase 7] MAINTAINERS: HID CORE LAYER, Jiri Kosina / Benjamin
+  Tissoires
+- [Phase 8] Failure mode: USB re-enumeration loop, device-specific,
+  severity MEDIUM-HIGH for that hardware
+- UNVERIFIED: stable@ mailing-list archive (lore 403); no evidence this
+  was rejected for stable
 
 **YES**
 
- drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-index 1c96d1d85845c..48387a7341604 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-@@ -549,7 +549,8 @@ static int quickspi_alloc_report_buf(struct quickspi_device *qsdev)
- 	max_input_len = max(le16_to_cpu(qsdev->dev_desc.rep_desc_len),
- 			    le16_to_cpu(qsdev->dev_desc.max_input_len));
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index a9db2b30be9bd..c1a7f5558ccd1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -262,6 +262,9 @@
+ #define USB_VENDOR_ID_BAANTO		0x2453
+ #define USB_DEVICE_ID_BAANTO_MT_190W2	0x0100
  
--	qsdev->input_buf = devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL);
-+	qsdev->input_buf = devm_kzalloc(qsdev->dev,
-+					HIDSPI_INPUT_BODY_SIZE(max_input_len), GFP_KERNEL);
- 	if (!qsdev->input_buf)
- 		return -ENOMEM;
++#define USB_VENDOR_ID_BEITONG		0x20dd
++#define USB_DEVICE_ID_BEITONG_KP20D	0x5159
++
+ #define USB_VENDOR_ID_BELKIN		0x050d
+ #define USB_DEVICE_ID_FLIP_KVM		0x3201
  
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 9d18b962e0ea6..3de594ee25c38 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -45,6 +45,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_CS682), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_CS692), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_BEITONG, USB_DEVICE_ID_BEITONG_KP20D), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_MULTI_TOUCH), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_PIXART_USB_OPTICAL_MOUSE2), HID_QUIRK_ALWAYS_POLL },
 -- 
 2.53.0
 

@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D0EF57DF21;
-	Mon, 19 Oct 2026 13:58:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B2F596E98;
+	Mon, 19 Oct 2026 13:59:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418315; cv=none; b=i3BnyGdAytSTbbgEoR8TQ0fk7USPmVTerfeIpBLvW22LKeaAPBCgA4BeINAi0dHkeWnajqXhZ9EB7OsWszGxXnwE2MVVimMa4+v1hWt+4yA1vQ+XTKfHCVONZXe3VZNXgUkR36Oag8fb6yHDujrYG07hSVrdc55ecLTwgaEBf1M=
+	t=1792418354; cv=none; b=Lnc0eBEIJgYQnNpcr5vovPOe1Qwy39lBEKcevmPqng2flxqjmqNCg533BDNIuHHgyoYkKc/F1HEFwf1ob2+o5W/fzzOB41tb17RXw6p4BNE6gC1GKvmnBb2z9ljAtDMW01n1DF3CvGKxSWIp4uNC3bHLx2Ga6Qi1IoewhPoOJnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418315; c=relaxed/simple;
-	bh=9QLd1uN4lvICOAEyZAuQE98IxEjKpgPfzCaCXlVCil8=;
+	s=arc-20240116; t=1792418354; c=relaxed/simple;
+	bh=o605FMvXndwHEREVMBPg3HwAA0lcourAG5txsOaZZJk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NzpLNxLp5ZQZ8zWjxQ9eAXx7Rc8CC1926UjzfXUyMiAjTddAebQLgT88O7c7FF3+P4nv7J3cluxWAtChKwJ0UnaA7UO76TsNC2Op8FdiCFmhjkmQiEQoK1BaQrtzChCLYXmcg25vZ9bItRBCEYijgTV/ecar2YAo9yjgTcbtc4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LyMewUeH; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=uSdNaDcVadTSPIghQJFQEL0gl+nHIS1XawMzsi+zUHVRP7Lu7XQsKfHhq2OyPBFRACl8dez8Kf0NVoeAkhiYXz9MAHfOmrEHhEhbEj3BL/CPAPfVtfIOvxvKdYbLoZfJSoBU0+5nNWbwLcp24OiBdefhf6BndUZdOwzWUbRD8h0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eCRsKisO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LyMewUeH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CD41F000C4;
-	Mon, 19 Oct 2026 13:58:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eCRsKisO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C922E1F000C7;
+	Mon, 19 Oct 2026 13:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418311;
-	bh=E26p/SctKIE+fAVdFun4DeWsksla8dRXiJgCb7P+uNo=;
+	s=k20260515; t=1792418351;
+	bh=sUW48Z87ALzhTOhiTFMjpUbWtbdV6iudAstjZ6av5P0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=LyMewUeHZOOu26oVnfIMBBFTieugB7oGEtezQ3IUM/UeinthLyPIqZdPPPVW7kLaQ
-	 QxMvHchqHfmPknG0DFccK+fla3ObJe1vDLJwctyR2IQihnhhI9x0MSWKMcIJiWO5Xk
-	 HLRq50neQZtmxHfIi0hMOxF3YM8FptF6r/9Jz5ieBo4WxfqOsvVtpGc7brpcvvuAvg
-	 WeJATM86Dt/KSA6qlgd5IW4fjhZoa1EtXbrvsYzZPrDIzsdGgs0y6a5KdNyKFfHeFy
-	 XMfN6QPNp5n7kcdtfCd5J/4oeNUsXwQHLW+3XCuLLPzVkcDSeTnfI4uUw0ADJ8y9PE
-	 xz9E9Fi/FqIdQ==
+	b=eCRsKisOhVYu+D8OyBmJsqGLmuvFjraHn7mUmxpoYgWpQ+z4cLXmJjMMHLZmzghnw
+	 BPeOPuCTLyualK1AZ28zxY+3tad1URzJ4IXOmd+Gfbz7gew3Iu+BndMm1edWDIFeEX
+	 fdgeT0+J06hFHIAPE8mVIAFbDQtktfKUUGXBZQhqAash7Ygyvma93BusImca7FtQGF
+	 yvjiUUZqCG9QJzWnOnuC0/6co3kxpvEcxLBu8LIjMzhPy4AANgSHQf9IZ+uWpC4vqF
+	 EMnFAFl9Lo3B3kLSdhbyTlp0Ar6vKrQeQ3IoQFpsC55Ymq50VFhlILsWuAfCyxQqcG
+	 hatyTEGyjgpGA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Vadim Klishko <vadim@cirque.corp-partner.google.com>,
-	Vadim Klishko <vadim@cirque.com>,
-	Benjamin Tissoires <bentiss@kernel.org>,
+Cc: Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
+	basavaraj.natikar@amd.com,
 	jikos@kernel.org,
+	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-6.6] HID: i2c-hid: Add a quirk for a Cirque I2C device.
-Date: Mon, 19 Oct 2026 09:47:29 -0400
-Message-ID: <20261019135441.1420968-158-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-6.12] HID: amd_sfh: Serialize access to the shared emp2 pointer
+Date: Mon, 19 Oct 2026 09:47:57 -0400
+Message-ID: <20261019135441.1420968-186-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -54,507 +55,427 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Vadim Klishko <vadim@cirque.corp-partner.google.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit 1c942462c3969b287a86ab6dbb143324289d564e ]
+[ Upstream commit c57016bcf6d0b57cda5579e5d6856bd9bbe52a77 ]
 
-Cirque touchpads with PID D0C1 generate an error when probed
-by the I2C HID driver, resulting in no hidraw device created.
-Adding I2C_HID_QUIRK_NO_IRQ_AFTER_RESET fixes the issue.
+The SFH accessors reach the device through a file-global emp2 pointer
+that is published at probe and cleared on remove. amd_get_sfh_info() is
+exported and called from other modules on unrelated threads, so a reader
+can observe a non-NULL emp2 and then race a concurrent unbind that clears
+it and frees the device.
 
-Signed-off-by: Vadim Klishko <vadim@cirque.com>
-Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
+Serialize the emp2 publish/clear and all readers under a mutex, so a
+reader either sees a live device for the whole access or sees NULL.
+
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
+The local tree is **6.12.111**. The buggy global `emp2` pointer and
+exported `amd_get_sfh_info()` are in this checkout; the 6-line mutex fix
+applies here.
 
-**Step 1.1: PARSE THE SUBJECT LINE**
-- Subsystem: `HID: i2c-hid`
-- Action verb: `Add` (a quirk)
-- Claimed intent: add `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` for Cirque I2C
-  touchpad PID D0C1
+===============================================================
+PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
 
-Record: `[HID/i2c-hid] [add] [hardware quirk so Cirque D0C1 touchpads
-probe successfully]`
+Step 1.1: PARSE THE SUBJECT LINE
+Record: **[HID: amd_sfh]** **[Serialize]** Serialize access to the
+shared `emp2` pointer used by exported SFH accessors.
 
-**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-- `Signed-off-by: Vadim Klishko <vadim@cirque.com>` (author; Cirque, the
-  device vendor)
-- `Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>` (HID
-  maintainer; applied the patch)
-- No `Fixes:` tag (expected)
-- No `Cc: stable@vger.kernel.org` (expected)
-- No `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-by:`, or
-  `Link:` tags in the committed message
-- v1/v2/v3 changelog (from mailing list, not the commit body): v2 added
-  subsystem prefix and expanded the explanation; v3 was a Patchwork
-  resend. No code changes across revisions.
-
-Record: Author is the hardware vendor; HID maintainer SOB. No
-syzbot/stable tags.
-
-**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
-Cirque touchpads with product ID D0C1 error during I2C-HID probe, so no
-hidraw node is created. Applying the existing
-`I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` workaround fixes it.
-
+Step 1.2: PARSE ALL COMMIT MESSAGE TAGS
 Record:
-- Bug: Cirque D0C1 fails I2C-HID probe
-- Symptom: no hidraw device (touchpad unusable)
-- Root cause (author): device needs the established “no IRQ after reset”
-  quirk
-- Version info: none in the message; submitted Jul 2026, applied to hid
-  `for-7.3/upstream-fixes`
+- Signed-off-by: Basavaraj Natikar (author; AMD SFH maintainer)
+- Signed-off-by: Jiri Kosina (HID maintainer; applied the patch)
+- No Fixes, Reported-by, Tested-by, Reviewed-by, Acked-by, Link, or Cc:
+  stable on the committed message (absence of Fixes/Cc:stable is
+  expected for this review)
 
-**Step 1.4: DETECT HIDDEN BUG FIXES**
-Not disguised. It is an explicit hardware quirk, which the stable rules
-treat as a real-world device fix.
+Step 1.3: ANALYZE THE COMMIT BODY TEXT
+Record:
+- **Bug:** File-global `emp2` is published at probe
+  (`sfh_interface_init`) and cleared on remove (`sfh_deinit_emp2`).
+  `amd_get_sfh_info()` is `EXPORT_SYMBOL_GPL` and is called from other
+  modules on other threads.
+- **Symptom/failure mode:** A reader can see a non-NULL `emp2`, then a
+  concurrent unbind NULLs it and frees the device → use-after-free /
+  MMIO against freed `amd_mp2_dev`.
+- **Version info:** None in the message. Introduced with HPD export in
+  v6.8 (`b5b0774d53bb81`). Present in this 6.12 tree.
+- **Root cause (author):** Missing serialization between publish/clear
+  and all readers.
 
-Record: Not a hidden bug fix; it is a straightforward hardware quirk.
+Step 1.4: DETECT HIDDEN BUG FIXES
+Record: Not disguised. It is an explicit race/UAF fix. Cover letter for
+the v3 series also calls patches 1–2 “preparation” for SW_TABLET_MODE,
+but the mutex independently closes an existing unbind-vs-reader UAF. It
+is not a pure refactor with no standalone value.
 
----
+===============================================================
+PHASE 2: DIFF ANALYSIS - LINE BY LINE
+===============================================================
 
-## PHASE 2: DIFF ANALYSIS - LINE BY LINE
+Step 2.1: INVENTORY THE CHANGES
+Record:
+- File: `drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c` (+6 / −0)
+- Functions: file-scope `emp2_lock`; `sfh_deinit_emp2`;
+  `sfh_interface_init`; `amd_get_sfh_info`
+- Scope: single-file surgical fix
 
-**Step 2.1: INVENTORY THE CHANGES**
-- `drivers/hid/hid-ids.h`: +1 (`#define I2C_PRODUCT_ID_CIRQUE_D0C1
-  0xD0C1`) next to existing `I2C_VENDOR_ID_CIRQUE` /
-  `I2C_PRODUCT_ID_CIRQUE_1063`
-- `drivers/hid/i2c-hid/i2c-hid-core.c`: +2 (quirk table entry)
-- Functions modified: none. Data only: ID macro + `i2c_hid_quirks[]`
-  entry
-- Scope: single-file-class surgical (2 files, 3 lines). No new quirk
-  flag; reuses `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` (`BIT(0)`), already
-  used for Hantick 5288, ITE Voyo Winpad A15, and Raydium 3118 in this
-  tree.
+Step 2.2: UNDERSTAND THE CODE FLOW CHANGE
+Record:
+- Before: `emp2 = mp2` / `emp2 = NULL` with no lock.
+  `amd_get_sfh_info()` checks `emp2` then dereferences `emp2->mmio` /
+  `emp2->vsbase` unlocked.
+- After: `DEFINE_MUTEX(emp2_lock)`; `guard(mutex)(&emp2_lock)` around
+  publish, clear, and the whole reader. A reader either keeps a live
+  device for the full access or sees NULL.
+- Paths: probe/init, remove/error-deinit, and the exported reader
+  (normal path from AMD PMF work).
 
-Record: `[+3 lines, 2 files] [no functions] [surgical hardware quirk]`
+Step 2.3: IDENTIFY THE BUG MECHANISM
+Record: **Race / UAF (check-then-use on a global device pointer).**
+Writers and the exported reader were unsynchronized. Mutex makes
+publish/clear and MMIO mutually exclusive. Helpers `amd_sfh_hpd_info` /
+`amd_sfh_als_info` stay unlocked internally but are static and only
+called from `amd_get_sfh_info()` while that lock is held.
 
-**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
-Before: D0C1 (`vendor 0x0488`, `product 0xD0C1`) has quirks `0`.
-`i2c_hid_parse()` → `i2c_hid_finish_hwreset()` waits up to 1000 ms for a
-reset-ACK IRQ.
-After: lookup returns `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`.
-`i2c_hid_finish_hwreset()` sleeps 100 ms and clears
-`I2C_HID_RESET_PENDING` instead of waiting for the IRQ.
-Path: device probe / HID parse (and resume only if `RESET_ON_RESUME` is
-also set; this entry does not set that).
+Step 2.4: ASSESS THE FIX QUALITY
+Record:
+- Obviously correct for this TOCTOU.
+- Minimal; no API or structure change.
+- Regression risk low: mutex is not nested; readers run in PMF delayed
+  work (sleepable); remove already sleeps (`flush_work`). Holding the
+  lock across `readl`/`memcpy_fromio` can delay unbind slightly; that is
+  the intended tradeoff vs UAF.
+- `linux/cleanup.h` + `guard(mutex)` exist in 6.12; `mutex.h` is already
+  pulled in via `amd_sfh_common.h`.
 
-Record: `[probe reset-wait → 100 ms sleep, skip IRQ wait, for VID 0x0488
-/ PID 0xD0C1 only]`
+===============================================================
+PHASE 3: GIT HISTORY INVESTIGATION
+===============================================================
 
-**Step 2.3: IDENTIFY THE BUG MECHANISM**
-Category: **(h) Hardware workaround** (device ID + quirk table).
+Step 3.1: BLAME THE CHANGED LINES
+Record: `emp2`, `sfh_deinit_emp2`, `amd_get_sfh_info`, and
+`EXPORT_SYMBOL_GPL` come from **b5b0774d53bb81** (“HID: amd_sfh: Add a
+new interface for exporting HPD data”, 2023-12-20). ALS reader added in
+**584f35a3647d42**. Both are in v6.8 and in this tree. The race is old
+relative to 6.12, not new mainline-only code.
 
-Mechanism: some I2C-HID devices never send the reset-complete interrupt.
-The same quirk is already documented for Hantick (`402946a8ef71eb`: bind
-fails with `"failed to reset device"`), ITE (`fc6a31b007393`: `"can't
-add hid device: -61"`), and Raydium (`0c8432236dea2`). Hans de Goede
-later made a missing ACK a warning rather than `-ENODATA`
-(`7bcf9ebb50f2a`, in this tree), but a device that emits a bogus IRQ
-during the wait can still break the following report-descriptor read
-(`i2c_hid_parse` logs `"reading report descriptor failed"` and
-`hid_add_device` fails → no hidraw). The vendor says this quirk fixes
-that on D0C1.
+Step 3.2: FOLLOW THE FIXES: TAG
+Record: No Fixes tag. Buggy pattern is the unlocked global from
+b5b0774d53bb81, which **is** an ancestor of HEAD.
 
-Record: `[hardware quirk] [skip reset-ACK IRQ wait for Cirque D0C1]`
+Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES
+Record: Recent 6.12 history on this file is register-access helpers
+(`7902ec988a9a6`, `6296562f30b1c`), not locking. Origin/master later
+added MT_SRA / tablet-mode around this commit; those features are
+**not** in this tree. No existing emp2 lock here.
 
-**Step 2.4: ASSESS THE FIX QUALITY**
-Obviously correct: additive, ID-matched, uses a long-standing quirk.
-Risk is confined to 0x0488:0xD0C1. No API, locking, or allocator
-changes. Same 3-line shape as prior stable-worthy i2c-hid quirks.
+Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS
+Record: Basavaraj Natikar is listed in MAINTAINERS for AMD SENSOR FUSION
+HUB. Same author added the export and later SFH1.1 work. Series v3 was
+applied by Jiri Kosina.
 
-Record: `[high quality, minimal] [regression risk very low, ID-scoped]`
+Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS
+Record: Committed as **[PATCH v3 2/5]** in “Add SW_TABLET_MODE support”.
+- 1/5 “Track MP2 version explicitly” (`1a73a4e7673f57`) is **not** in
+  HEAD and is **not** required for this mutex (different files/fields).
+- 3–5 add operating-mode accessor, aux device, and a new input driver —
+  features, not needed for this fix.
+- This patch is self-contained. `git apply --check` of c57016bcf6d0b on
+  this tree **succeeds** (hunk 3 offset −35: no
+  `amd_sfh_mode_info`/`MT_SRA` in 6.12).
 
----
+===============================================================
+PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+===============================================================
 
-## PHASE 3: GIT HISTORY INVESTIGATION
+Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION
+Record:
+- Lore/msgid: https://patch.msgid.link/20260803175230.3839752-3-
+  Basavaraj.Natikar@amd.com
+- Series: v1 (operating-mode only) → v2 0/5 → **v3 2/5** (applied).
+- Cover letter (v3 0/5): patches 1–2 are preparation; v2 notes from
+  Sashiko review: serialize emp2 so concurrent unbind cannot free the
+  device while a reader dereferences it.
+- Jiri Kosina queued the series in hid.git#for-7.3/amd-sfh. No NAK. No
+  Cc: stable in review.
 
-**Step 3.1: BLAME THE CHANGED LINES**
-- Cirque 1063 ID + `NO_SLEEP_ON_SUSPEND`: `26dd6a5667f500` (Kai-Heng
-  Feng, 2024-01-23) — already in this tree
-- `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` handling in
-  `i2c_hid_finish_hwreset()`: present (lines 500–502)
-- Quirk table terminator `{ 0, 0 }` from original table
-  (`71af01a8c85ad8`, 2016)
+Step 4.2: CHECK WHO REVIEWED THE PATCH
+Record: To/Cc: jikos@kernel.org, bentiss@kernel.org,
+dmitry.torokhov@gmail.com, linux-input@. HID maintainers were on the
+series. Dmitry Acked-by is on 5/5 (input driver), not this patch.
+Applied by Jiri Kosina.
 
-The “buggy” behavior is the generic reset-ACK wait vs this panel’s
-firmware, not a recent regression. D0C1 is a new product ID of an
-existing vendor.
+Step 4.3: SEARCH FOR THE BUG REPORT
+Record: No syzbot/bugzilla. Race found in review of the tablet-mode
+series, not a user crash report. The existing PMF caller was already
+racy.
 
-Record: `[generic reset-ACK wait vs D0C1 firmware] [quirk infra since
-~2017; Cirque vendor ID since 2024 / v6.8]`
+Step 4.4: CHECK FOR RELATED PATCHES AND SERIES
+Record: 2/5 is the UAF serialization. 3/5 also adds `sfh_set_emp2()` and
+uses `emp2_lock`; that is extra feature plumbing, not required to lock
+the 6.12 HPD/ALS paths.
 
-**Step 3.2: FOLLOW THE FIXES: TAG**
-No `Fixes:` tag. Not applicable.
+Step 4.5: CHECK STABLE MAILING LIST HISTORY
+Record: lore.kernel.org/stable search returned HTTP 403. UNVERIFIED
+whether stable@ discussed this. No evidence in the input thread of a
+stable nomination or a rejection.
 
-**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-Recent `i2c-hid-core.c` work in this tree is unrelated (report-
-descriptor error text, Dell S4, buffer overflow). Not part of a numbered
+===============================================================
+PHASE 5: CODE SEMANTIC ANALYSIS
+===============================================================
+
+Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF
+Record: `sfh_deinit_emp2`, `sfh_interface_init`, `amd_get_sfh_info`; new
+`emp2_lock`.
+
+Step 5.2: TRACE CALLERS
+Record:
+- `sfh_interface_init`: `amd_sfh_set_ops()` ← `amd_sfh1_1_init()`
+  (SFH1.1 probe work).
+- `sfh_deinit_emp2`: `amd_mp2_pci_remove` (unbind) and error paths in
+  `amd_sfh1_1_init` after publish.
+- `amd_get_sfh_info`: `amd_pmf_get_sensor_info()` in
+  `drivers/platform/x86/amd/pmf/spc.c` (MT_ALS, MT_HPD) ←
+  `amd_pmf_populate_ta_inputs` ← `amd_pmf_invoke_cmd_enact` ← delayed
+  work `amd_pmf_invoke_cmd` every `pb_actions_ms` (default **1000 ms**).
+
+Step 5.3: TRACE CALLEES
+Record: Readers do `readl` / `memcpy_fromio` on `emp2->mmio` /
+`emp2->vsbase`. Remove then `amd_sfh_hid_client_deinit`, `stop_all`, PCI
+intx/intr clear. `mp2` is `devm_kzalloc`; mapping is `pcim_iomap` —
+freed after PCI remove.
+
+Step 5.4: FOLLOW THE CALL CHAIN
+Record: Reachable without the new tablet driver: AMD PMF policy work
+(typical on AMD laptops with PMF) vs SFH1.1 unbind (`amd_sfh_remove` →
+`mp2_ops->remove`). Not a syscall hot path; unbind is admin/module/PCI.
+Still a real concurrent path: 1 Hz reader vs remove.
+
+Step 5.5: SEARCH FOR SIMILAR PATTERNS
+Record: Only this file holds `emp2`. No sibling unlocked copy in 6.12.
+Later mainline adds more readers (MT_OP_MODE at 200 ms); those are not
+in this tree.
+
+===============================================================
+PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+===============================================================
+
+Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?
+Record: Yes. `drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c`:
+unlocked `static struct amd_mp2_dev *emp2`, `sfh_deinit_emp2` sets NULL,
+`amd_get_sfh_info` is exported. Introduced v6.8; this tree is 6.12.111.
+`git merge-base --is-ancestor c57016bcf6d0b HEAD` → **not present**.
+
+Step 6.2: CHECK FOR BACKPORT COMPLICATIONS
+Record: **Clean apply** (`git apply --check` succeeded; one hunk
+offset). 6.12 lacks `amd_sfh_mode_info`/`MT_SRA`; that is context only.
+`guard(mutex)` and `DEFINE_MUTEX` are available.
+
+Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE
+Record: `edeae8be4d263` syncs SFH work functions — different bug. No
+emp2 mutex. d1c444b47100d / 01601fdd40ecf not in HEAD (and not
+required).
+
+===============================================================
+PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+===============================================================
+
+Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY
+Record: HID / AMD SFH (`drivers/hid/amd-sfh-hid/`), plus AMD PMF
+consumer. **IMPORTANT** for AMD Ryzen laptops with SFH1.1 (HPD/ALS) and
+PMF; not core mm/VFS. Config: `CONFIG_AMD_SFH_HID`.
+
+Step 7.2: ASSESS SUBSYSTEM ACTIVITY
+Record: Mature driver (since ~5.11), still receiving fixes. Export of
+`emp2` is from 6.8; the unlocked design lasted until the 7.3 tablet-mode
 series.
 
-Record: `[standalone] [no prerequisites beyond existing quirk flag +
-Cirque vendor define, both present]`
+===============================================================
+PHASE 8: IMPACT AND RISK ASSESSMENT
+===============================================================
 
-**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-`git log --author="Vadim Klishko"` / `"Klishko"` in this tree: no
-commits. First-time contributor; affiliation is the touchpad vendor
-(`vadim@cirque.com`, Google corp-partner address on the list). HID
-maintainer Benjamin Tissoires applied it (`for-7.3/upstream-fixes`, SHA
-`1c942462c396`).
+Step 8.1: DETERMINE WHO IS AFFECTED
+Record: Driver-specific: AMD SFH1.1 (PCI ID MP2 1.1) **and** AMD PMF
+loaded. Typical modern AMD notebooks, not all machines.
 
-Record: `[vendor patch, maintainer-applied] [no other related commits in
-this tree]`
+Step 8.2: DETERMINE THE TRIGGER CONDITIONS
+Record: Concurrent `amd_get_sfh_info` (PMF delayed work, default 1 s)
+with `sfh_deinit_emp2` (unbind, rmmod, or probe error after publish).
+Unprivileged users cannot normally unbind. Window is small but standard
+check-then-use. New 200 ms tablet poll is **not** in this tree, so
+trigger rate here is lower than mainline after 7.3.
 
-**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-Mainline context after the new entry mentions
-QTEC/`I2C_HID_QUIRK_RE_POWER_ON` and BLTP; those IDs are **not** in
-6.12. The added lines do not use them. Required pieces in this tree:
-- `I2C_VENDOR_ID_CIRQUE` (yes)
-- `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` and its `i2c_hid_finish_hwreset()`
-  handling (yes)
-- `i2c_hid_lookup_quirk()` (yes)
+Step 8.3: DETERMINE THE FAILURE MODE SEVERITY
+Record: Use-after-free of `amd_mp2_dev` / MMIO after `devm` teardown →
+oops/panic, possibly memory corruption. **HIGH**. Not a guaranteed panic
+on every boot.
 
-Record: `[standalone on 6.12] [QTEC/BLTP are context-only, not
-dependencies]`
+Step 8.4: CALCULATE RISK-BENEFIT RATIO
+Record:
+- Benefit: closes a real UAF on a supported unbind path for SFH1.1+PMF
+  systems.
+- Risk: 6 lines, existing mutex helpers, no ABI change; apply is clean.
+- Ratio: favorable. Preparation-for-feature context does not make the
+  existing race fictional.
 
----
+===============================================================
+PHASE 9: FINAL SYNTHESIS
+===============================================================
 
-## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-
-**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
-`b4 dig -c 1c942462c396` matched patch-id
-`d0e1a0779d3e935e26ea6a8cb93b1b9f683a32a4`.
-
-Revisions:
-- v1: https://patch.msgid.link/20260703144726.14808-1-vadim@cirque.com
-  (subject lacked `HID: i2c-hid:`)
-- v2: https://patch.msgid.link/20260708003108.20288-1-vadim@cirque.com
-  (subject + explanation; **no code change**)
-- v3: https://patch.msgid.link/20260728041718.32954-1-vadim@cirque.com
-  (Patchwork resend; **no code change**)
-- Applied: Benjamin Tissoires, 2026-08-25, hid.git `for-7.3/upstream-
-  fixes` (`1c942462c396`)
-
-No NAKs in v1/v2/v3 archives (openwall/patchew). No reviewer-requested
-code changes. No explicit `Cc: stable` on the list.
-
-Record: `[lore/msgid as above] [v1→v3, code unchanged] [applied by HID
-maintainer] [no NAKs]`
-
-**Step 4.2: CHECK WHO REVIEWED THE PATCH**
-`b4 dig -w` original recipients: `vadim@cirque.com`, `jikos@kernel.org`,
-`linux-input@vger.kernel.org`, `linux-kernel@vger.kernel.org`. v3 also
-CCd Benjamin Tissoires and Hans de Goede (i2c-hid quirk author). Apply
-mail CCd `hansg@kernel.org`. No written `Reviewed-by`, but the
-maintainer applied it.
-
-Record: `[HID maintainers Kosina/Tissoires; de Goede CCd; applied by
-Tissoires]`
-
-**Step 4.3: SEARCH FOR THE BUG REPORT**
-No bugzilla/syzbot link. Evidence is the vendor’s report: probe error,
-no hidraw, quirk fixes it. Author is Cirque.
-
-Record: `[vendor-reported probe failure] [severity: device does not
-enumerate] [user count unverified beyond vendor]`
-
-**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
-Standalone 1/1. Not a multi-patch series.
-
-Record: `[standalone]`
-
-**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-Web search of lore.kernel.org/stable for Cirque D0C1 i2c-hid did not
-turn up discussion of this patch (results were unrelated historical
-stable traffic).
-
-Record: `[no stable-list discussion found]`
-
----
-
-## PHASE 5: CODE SEMANTIC ANALYSIS
-
-**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
-No function bodies changed. The new table entry is consumed by
-`i2c_hid_lookup_quirk()`, which feeds `ihid->quirks`, consumed by
-`i2c_hid_finish_hwreset()`.
-
-Record: `[i2c_hid_quirks[] data; consumers: i2c_hid_lookup_quirk,
-i2c_hid_finish_hwreset]`
-
-**Step 5.2: TRACE CALLERS**
-- `i2c_hid_lookup_quirk()`: only from `__i2c_hid_core_probe()` after
-  reading the HID descriptor vendor/product — so the quirk is installed
-  before `hid_add_device()` / parse.
-- `i2c_hid_finish_hwreset()`: from `i2c_hid_parse()` (probe) and
-  `i2c_hid_core_resume()` (only if `I2C_HID_QUIRK_RESET_ON_RESUME`; this
-  ID does not set that).
-
-Record: `[probe path via hid_add_device → i2c_hid_parse] [resume reset
-path not used for this ID]`
-
-**Step 5.3: TRACE CALLEES**
-With the quirk, `i2c_hid_finish_hwreset()` calls `msleep(100)` and
-`clear_bit(I2C_HID_RESET_PENDING)`. Then, unless
-`NO_WAKEUP_AFTER_RESET`, `i2c_hid_set_power(PWR_ON)`.
-
-Record: `[msleep + clear reset-pending; then existing PWR_ON]`
-
-**Step 5.4: FOLLOW THE CALL CHAIN**
-ACPI/OF I2C-HID probe → `__i2c_hid_core_probe` (descriptor + quirk
-lookup) → `i2c_hid_core_register_hid` → `hid_add_device` →
-`i2c_hid_parse` → hwreset → read report descriptor → hidraw/input.
-
-Reachable on boot for machines with this touchpad; not a syscall fuzz
-path, but a normal laptop input device.
-
-Record: `[boot/probe of Cirque D0C1 I2C touchpad] [userspace-visible:
-hidraw/input missing without quirk]`
-
-**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-Same quirk already in this tree for Hantick, ITE Voyo, Raydium 3118.
-This is the same pattern, new ID.
-
-Record: `[three existing NO_IRQ_AFTER_RESET entries; this is a fourth
-ID]`
-
----
-
-## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-
-**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-Local tree: `pending-6.12`, `make kernelversion` = **6.12.111**, `git
-describe HEAD` = `p-6.12-3-gc504cf0baa3d8`.
-
-- `I2C_PRODUCT_ID_CIRQUE_D0C1` is **absent** (`git grep` no matches)
-- `git merge-base --is-ancestor 1c942462c396 HEAD` → not an ancestor
-  (exit 1)
-- Driver, quirk flag, lookup, and Cirque vendor ID **are** present
-- Without the table entry, D0C1 takes the generic reset-ACK wait that
-  the vendor says fails probe
-
-Record: `[yes, buggy generic path exists; D0C1 quirk not yet applied]
-[bug is device firmware vs long-standing reset wait]`
-
-**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-`hid-ids.h` context around `CIRQUE_1063` matches; should apply cleanly.
-`i2c-hid-core.c`: insertion after the 1063 entry matches; following
-context in mainline is QTEC (not in 6.12; here it is the ELAN comment).
-At most fuzz/trivial context adjust. No refactor of the quirk table.
-
-Record: `[clean or trivial fuzz] [no rework of logic]`
-
-**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-No D0C1 ID. Cirque 1063 has a *different* quirk (`NO_SLEEP_ON_SUSPEND`).
-`7bcf9ebb50f2a` only demotes missing ACK to a warning; vendor still
-needed this ID-specific quirk.
-
-Record: `[no existing D0C1 fix; 1063 quirk is unrelated]`
-
----
-
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-`drivers/hid/i2c-hid/` — laptop/Chromebook I2C HID touchpads. Not
-mm/core, but a common input path.
-
-Record: `[HID i2c-hid] [IMPORTANT / driver-specific]`
-
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-Mature driver (2012+). Quirk table still gets ID additions; that is
-normal, not a rewrite.
-
-Record: `[mature; ID/quirk additions are the usual change]`
-
----
-
-## PHASE 8: IMPACT AND RISK ASSESSMENT
-
-**Step 8.1: DETERMINE WHO IS AFFECTED**
-Only I2C-HID devices with HID descriptor VID/PID `0488:D0C1`. Everyone
-else unchanged.
-
-Record: `[driver/hardware-specific: Cirque D0C1 touchpads]`
-
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-Every probe of that touchpad (boot). Not a race. Unprivileged users
-cannot trigger it beyond having the hardware.
-
-Record: `[every boot on affected machines] [common for those users] [not
-a syscall exploit path]`
-
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-Probe fails → no hidraw/input → touchpad dead. Not a panic. Matches
-ITE’s historic `"can't add hid device"` failure.
-
-Record: `[device fails to enumerate] [severity: HIGH for affected
-hardware, none otherwise]`
-
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-Benefit: touchpad works on 6.12 LTS (ChromeOS/enterprise/Ubuntu-class
-kernels still on 6.12).
-Risk: 3 lines, existing quirk, ID-gated.
-
-Record: `[benefit high for D0C1 users] [risk very low] [favorable]`
-
----
-
-## PHASE 9: FINAL SYNTHESIS
-
-**Step 9.1: COMPILE THE EVIDENCE**
-
+Step 9.1: COMPILE THE EVIDENCE
 FOR:
-- Explicit hardware quirk; stable rules call these YES
-- Real user-visible bug: probe error, no hidraw (vendor-confirmed)
-- 3 lines, existing `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`
-- Same shape as Hantick/ITE/Raydium quirks already in this tree
-- HID maintainer applied it; author is Cirque
-- Driver, quirk flag, and Cirque vendor ID exist in 6.12.111
-- No new API/feature flag
+- Real UAF race on a global pointer vs exported cross-module reader
+  (verified call path: PMF work → `amd_get_sfh_info` vs
+  `amd_mp2_pci_remove`).
+- Buggy code in this 6.12 tree since v6.8.
+- 6-line, obviously correct mutex; maintainer-authored; HID maintainer
+  applied.
+- Applies cleanly here.
+- `guard(mutex)` already used elsewhere in 6.12.
 
 AGAINST:
-- No `Fixes:` / `Cc: stable` (not a negative per instructions)
-- No public repro logs beyond the commit text
-- `7bcf9ebb50f2a` tried to reduce new `NO_IRQ_AFTER_RESET` quirks; this
-  device still needed one
-- Mainline hunk context (QTEC) differs; trivial apply fuzz only
-- Affects one product ID, not all machines
+- Sent as 2/5 “preparation” for SW_TABLET_MODE, not as a standalone
+  stable fix.
+- No user/syzbot report; narrow unbind window; no Cc: stable (not a
+  negative per rules).
+- Later series patches must **not** come along (new feature).
 
 UNRESOLVED:
-- Exact errno/log line on D0C1 was not posted (only “error” / no hidraw)
-- How many shipping systems use D0C1 is unverified
-- lore.kernel.org WebFetch returned 403; discussion recovered via b4 dig
-  + openwall/patchew
+- Stable list discussion (lore/stable 403).
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — 3-line ID quirk; vendor-
-   tested; maintainer applied
-2. Fixes a real bug that affects users? **PASS** — probe failure, no
-   hidraw
-3. Important issue? **PASS** — input device does not work (hardware bug,
-   not a panic)
-4. Small and contained? **PASS** — +3 lines, two files
-5. No new features or APIs? **PASS** — existing quirk + new device ID
-6. Can apply to the local tree? **PASS** — logic applies; at most
-   context fuzz around QTEC vs ELAN
+Step 9.2: APPLY THE STABLE RULES CHECKLIST
+1. Obviously correct and tested? **PASS** — mutex around the only
+   publisher/clearer and the only exported reader; merged to hid.git
+   after review.
+2. Fixes a real bug that affects users? **PASS** — UAF if SFH1.1 unbinds
+   while PMF polls.
+3. Important issue? **PASS** — UAF / crash / possible memory corruption
+   (HIGH).
+4. Small and contained? **PASS** — +6 lines, one file.
+5. No new features or APIs? **PASS** — locking only. (3–5 of the series
+   would FAIL this; they are out of scope.)
+6. Can apply to the local tree? **PASS** — `git apply --check`
+   succeeded.
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-Yes: **hardware quirk** and **device ID addition to an existing
-driver**.
+Step 9.3: CHECK FOR EXCEPTION CATEGORIES
+Record: None (not a device ID / quirk / DT / build / doc exception).
+Qualifies as a normal race/UAF bugfix.
 
-**Step 9.4: DECISION**
-This is a textbook stable backport: a 3-line i2c-hid quirk so a Cirque
-D0C1 touchpad enumerates. The 6.12 tree already has the driver and quirk
-machinery; only the ID is missing. Benefit is restoring input on
-affected machines; regression risk is limited to that PID.
+Step 9.4: MAKE YOUR DECISION
+This tree has the unlocked `emp2` export and the PMF reader. The patch
+does not need MP2 version tracking or tablet-mode. It should be
+backported here.
 
----
+------------------------------------------------
+What problem it solves for stable users
+------------------------------------------------
+On 6.12, AMD PMF’s delayed work calls `amd_get_sfh_info()` about once a
+second. That function tests the file-global `emp2` and then uses
+`emp2->mmio` / `emp2->vsbase`. Remove (`amd_sfh_remove` →
+`amd_mp2_pci_remove`) sets `emp2 = NULL` and then tears down a
+`devm_kzalloc`’d `amd_mp2_dev`. Without a lock, a reader can keep using
+a pointer to already-freed device/MMIO. The mutex makes that impossible.
 
-## What this solves for 6.12 users
+Why it meets stable rules
+Small, correct, no new API, applies here, fixes a real UAF. Being patch
+2/5 of a feature series is not a dependency: 1/5 and 3–5 are unrelated
+or features.
 
-Cirque D0C1 I2C touchpads fail I2C-HID probe, so hidraw/input never
-appear. The quirk skips waiting for a reset-ACK IRQ (100 ms sleep
-instead), which is the established workaround. On 6.12 that path still
-exists; without the ID, those panels stay dead.
+Risk vs benefit
+Low risk, meaningful benefit on AMD SFH1.1 + PMF systems. Do not pull
+the rest of the tablet-mode series.
 
-## Risk vs benefit
-
-Benefit is a working touchpad on affected laptops/Chromebooks still on
-6.12. Risk is a 3-line, VID/PID-gated table addition using a quirk
-already used by three other devices in this tree.
-
-## Concerns
-
-Apply may need trivial context adjustment because 6.12’s quirk table
-does not yet have the later QTEC/BLTP entries. No functional
-dependencies. Exact probe errno was not published; the vendor statement
-plus matching historical quirks is enough.
-
----
+Concerns
+Backport only this commit. Context offset on `amd_get_sfh_info` (no
+MT_SRA) is already handled by a clean apply.
 
 Verification:
-- [Phase 1] Parsed subject/tags/body: vendor SOB Vadim Klishko;
-  maintainer SOB Benjamin Tissoires; no Fixes/stable/syzbot tags
-- [Phase 2] Diff: +1 hid-ids.h define `I2C_PRODUCT_ID_CIRQUE_D0C1
-  0xD0C1`; +2 `i2c_hid_quirks[]` with `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET`
-- [Phase 2] Read `i2c_hid_finish_hwreset()`: quirk does `msleep(100)` vs
-  1000 ms `wait_event_timeout`
-- [Phase 2] Confirmed `I2C_HID_QUIRK_NO_IRQ_AFTER_RESET` is `BIT(0)` at
-  line 47
-- [Phase 3] `git describe HEAD` / `make kernelversion`: pending-6.12,
-  6.12.111
-- [Phase 3] `git merge-base --is-ancestor 1c942462c396 HEAD`: not in
-  tree (exit 1)
-- [Phase 3] `git grep I2C_PRODUCT_ID_CIRQUE_D0C1`: no matches
-- [Phase 3] `git blame` hid-ids Cirque lines: `26dd6a5667f500` (2024, in
-  tree)
-- [Phase 3] `git blame` quirk table: Hantick/ITE/Raydium already have
-  the same quirk
-- [Phase 3] `git log --author=Klishko`: no commits in this tree
-- [Phase 3] QTEC/BLTP/`I2C_HID_QUIRK_RE_POWER_ON`: absent; not required
-  by this patch
-- [Phase 3] Compared prior quirks: `0c8432236dea2` (Raydium),
-  `fc6a31b007393` (ITE), `402946a8ef71eb` (Hantick) — same 2-file
-  +3-line pattern
-- [Phase 3] `7bcf9ebb50f2a` in tree: missing ACK is a warning, not
-  `-ENODATA`; vendor still needed the quirk
-- [Phase 4] `b4 dig -c 1c942462c396`: patch-id match; v1/v2/v3 msgids
-  listed above
-- [Phase 4] `b4 dig -a`: v2 listed as series; v3 applied with no code
-  changes from v1
-- [Phase 4] `b4 dig -w`: To/Cc Jiri Kosina, linux-input, linux-kernel
-- [Phase 4] Openwall/patchew: Tissoires applied to hid.git
-  `for-7.3/upstream-fixes`; no NAKs
-- [Phase 4] lore.kernel.org WebFetch: 403; used b4 + openwall/patchew
-  instead
-- [Phase 4] Stable-list search: no discussion of this patch found
-- [Phase 5] Callers: `i2c_hid_lookup_quirk` from `__i2c_hid_core_probe`;
-  `i2c_hid_finish_hwreset` from `i2c_hid_parse` and resume-with-
-  RESET_ON_RESUME
-- [Phase 5] Parse path: reset then `i2c_hid_read_register` of report
-  descriptor; failure → no hid_add_device/hidraw
-- [Phase 6] Local files match needed APIs; D0C1 ID missing
-- [Phase 8] Failure mode: probe/enumeration failure for one touchpad
-  PID, not a panic
-- UNVERIFIED: exact dmesg/errno on D0C1; number of shipping units; live
-  lore.kernel.org HTML (403)
+- [Phase 1] Parsed tags: only two SOBs (Natikar, Kosina); no
+  Fixes/Reported-by/Cc:stable
+- [Phase 1] Cover letter (mbox): “Patches 1 and 2 are preparation”; v2
+  changelog describes the unbind UAF
+- [Phase 2] Diff: +6 lines, mutex + three `guard(mutex)` sites in one
+  file
+- [Phase 3] git describe HEAD / Makefile: **p-6.12-3-gc504cf0baa3d8**,
+  version **6.12.111**
+- [Phase 3] git blame: emp2/export from b5b0774d53bb81; `git merge-base
+  --is-ancestor b5b0774d53bb81 HEAD` → yes; in v6.8
+- [Phase 3] git merge-base --is-ancestor c57016bcf6d0b HEAD → **no**
+  (candidate not in this tree)
+- [Phase 3] Parent 1a73a4e7673f57 “Track MP2 version” not in HEAD; not
+  required by this diff
+- [Phase 4] b4 dig -c c57016bcf6d0b: https://patch.msgid.link/2026080317
+  5230.3839752-3-Basavaraj.Natikar@amd.com
+- [Phase 4] b4 dig -a: v1 → v2 0/5 → v3 2/5 applied
+- [Phase 4] b4 dig -w: linux-input, jikos, bentiss, dmitry.torokhov
+- [Phase 4] mbox: Jiri queued for-7.3/amd-sfh; no NAK; no stable
+  nomination
+- [Phase 4] lore.kernel.org WebFetch: 403; stable@ search UNVERIFIED
+- [Phase 5] Callers: amd_pmf_get_sensor_info → delayed work default 1000
+  ms; deinit from amd_mp2_pci_remove and probe error paths
+- [Phase 6] Current file still has unlocked emp2; apply --check of
+  c57016bcf6d0b succeeded (hunk 3 offset −35)
+- [Phase 6] include/linux/cleanup.h and DEFINE_GUARD(mutex) in
+  include/linux/mutex.h present; mutex.h included via amd_sfh_common.h
+- [Phase 8] Failure mode: UAF of amd_mp2_dev/MMIO on unbind vs PMF
+  reader; severity HIGH
+- UNVERIFIED: whether anyone asked for this on stable@ (HTTP 403)
 
 **YES**
 
- drivers/hid/hid-ids.h              | 1 +
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5169713539bc3..11f120a5d1b90 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -333,6 +333,7 @@
+diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+index 837d59e7a6610..dd2720bae65c3 100644
+--- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
++++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_interface.c
+@@ -8,12 +8,14 @@
+  * Author: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+  */
+ #include <linux/amd-pmf-io.h>
++#include <linux/cleanup.h>
+ #include <linux/io-64-nonatomic-lo-hi.h>
+ #include <linux/iopoll.h>
  
- #define I2C_VENDOR_ID_CIRQUE           0x0488
- #define I2C_PRODUCT_ID_CIRQUE_1063     0x1063
-+#define I2C_PRODUCT_ID_CIRQUE_D0C1     0xD0C1
+ #include "amd_sfh_interface.h"
  
- #define USB_VENDOR_ID_CJTOUCH		0x24b8
- #define USB_DEVICE_ID_CJTOUCH_MULTI_TOUCH_0020	0x0020
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 6d407cbed1886..29c4f624f3c5c 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -136,6 +136,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
- 	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_1063,
- 		I2C_HID_QUIRK_NO_SLEEP_ON_SUSPEND },
-+	{ I2C_VENDOR_ID_CIRQUE, I2C_PRODUCT_ID_CIRQUE_D0C1,
-+		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	/*
- 	 * Without additional power on command, at least some QTEC devices send garbage
- 	 */
+ static struct amd_mp2_dev *emp2;
++static DEFINE_MUTEX(emp2_lock);
+ 
+ static int amd_sfh_wait_response(struct amd_mp2_dev *mp2, u8 sid, u32 cmd_id)
+ {
+@@ -78,12 +80,14 @@ static struct amd_mp2_ops amd_sfh_ops = {
+ 
+ void sfh_deinit_emp2(void)
+ {
++	guard(mutex)(&emp2_lock);
+ 	emp2 = NULL;
+ }
+ 
+ void sfh_interface_init(struct amd_mp2_dev *mp2)
+ {
+ 	mp2->mp2_ops = &amd_sfh_ops;
++	guard(mutex)(&emp2_lock);
+ 	emp2 = mp2;
+ }
+ 
+@@ -160,6 +164,8 @@ static int amd_sfh_als_info(u32 *ambient_light)
+ 
+ int amd_get_sfh_info(struct amd_sfh_info *sfh_info, enum sfh_message_type op)
+ {
++	guard(mutex)(&emp2_lock);
++
+ 	if (sfh_info) {
+ 		switch (op) {
+ 		case MT_HPD:
 -- 
 2.53.0
 

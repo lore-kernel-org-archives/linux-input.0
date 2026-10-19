@@ -1,61 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=93.77.172.69
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792428065;
-	b=dwPeUYfL4D86GZOi/le1GqM+OFNF6gEq44EBKKfRCuDi/Qj4F5WLNhiphBN8a/D4dy6O
-	 HFfxpg4Zp0clFYDCVpOBfUKEqs5fgLZQ7U1f7mNCwKXY8EOxsFpCmODYqHHQb9XDeG6wX
-	 yEl3XMDD4QCnHtUEBbNtCNutA5LQNFuC2xH834rfOWRTlecgm+o8h3eIVXPpVMneVwbtW
-	 tlKDV9A4XCHCUDJj2IWmMITiZmLjkR+VRji8Bi5lav8W1S8bpFQbAxswL489opuYoouqw
-	 n7jrUePny7qV6E0QI7RNov2SLDUCWIg96FIz4tyiC8THRE9BAYNcx4ot2MS6oH++dNA==
+	t=1792428786;
+	b=mNkhWojpt0ryb6SJ85YuRz90MqLuR0BMMRjr41l3RWyDGZGaQXqBLdcJKUqVOb/do3+S
+	 /DYcNcCXOQoaHn73it3g5eccUSl0DvGZVrM80hxpLuaX3oueFF0VPI3VOTBh12rimw+5W
+	 97DvEDaAH2S0FEQ8f5EkjnF3AiI7eA65xL3AwGfdFliTDWW0ZfKFCelhE9gWI9CElbD6e
+	 2y2kV6aDg4wzpuxdAn0tvOG2ToX0LugxJf42ACYLlamZJ9bkOp+1aLxCyP7A6fyJLG4ta
+	 /bswgAMniK2OGwQpokzG78mS7kH0dR4cTTcMDR2oTkxp6asHxPoVDqAaTKjW72fB4DQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792428065;
-	h=Received:DKIM-Signature:Date:From:To:List-Id:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=EqbCX2PynKZyYQvAfIZnP+Bps9+5fzXRpmCYaTVr/Aw=;
-	b=AYam10Ck/8IWXFlg5wuv4a9J74PR7w/cFKiBBe73yqO4vTkLA0bB2RgL8tftMpfZQUjk
-	 FS2UiHn0oLQCl4qdoUhwcw+jgEZooCF/+ORxMRuY63RGF+ocbmYNWoIu+eLr0Xm/uei9N
-	 sVtLpx67NB9b80eBRuAfILYSK20t2A21NSjhMOm/LW0ekhFSwcj/1lHNDZIlU+udEdlje
-	 bXAcxHSfUNbLfiGGqoPlRS3uUfj4UbU2Al9ZMzLn3MYc+OvlMdeKmPbRiYJAtt6dNvIYb
-	 7+9/SBN4EY9DgPp8gob+5RdRGQbOPBC4fB+DuXgGQuu5GK3NLLH4a4eh2ArTe6UwRjg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792428786;
+	h=DMARC-Filter:Received:Received:X-Yandex-Fwd:DKIM-Signature:From:To:
+	 Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=icYiQufFlFnwN7j8jnq63YjvaBmukRNUjlMklqEAarw=;
+	b=bP1HbhgRzsBGHdGFMDEQuYZwi30daoNWcVrcg91ZMZWKUqiIN4p72TEV2nS+WQh2+U4j
+	 9Zi+NaxT8h/ivvDPIoCQadWhEWqwW2TaQOkrtZe16rGOdQa0toYx7ELLE/oIzIWhsyEvG
+	 AT20emp4vTrl7D+Fp/7hS1v9uJY7Wzx4pQ0FSnwGlnL6O+cIceieVu2mzcX3qjf0nkDp6
+	 35ftCYdmTzh/xX3w4IC+ptmhpp53Um816gkKn2nHZQfIdnosHT2edOHgjiOB3di2n5j7P
+	 AxU0VqoIgvXzEicrv5BhWS1LCzuiNbrgD8vlFvcEEiI7IQnTK8EzolLMhn8FveHDCRQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aTgwfAom;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=yandex.ru;
+	spf=pass smtp.mailfrom=yandex.ru;
+	dkim=pass header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=jja1x1tl;
+	arc=none smtp.remote-ip=93.77.172.69
+Received: from forward105e.mail.yandex.net (forward105e.mail.yandex.net [93.77.172.69])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCB48606A322;
-	Mon, 19 Oct 2026 16:41:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7F0D606A31B
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 16:53:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A7F0D606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aTgwfAom
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C4661F000C4;
-	Mon, 19 Oct 2026 16:40:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792428064;
-	bh=EqbCX2PynKZyYQvAfIZnP+Bps9+5fzXRpmCYaTVr/Aw=;
-	h=Date:From:To:List-Id:Cc:Subject:References:In-Reply-To;
-	b=aTgwfAomzzrJqfJ2uCrHsP8//DjnKY6R19/351ZhtXCkDXo5DID+LQckjQMbbv7DV
-	 xNu7LzhJqUXT62lsc/bymwx3McY68SlY2xPvQOGAbQv+lmmRRricO6ysoKiKLqxtUm
-	 qKDtP5xQGYSrdRhvaTFgiRlEfzccecMd8iHmcJaRwjRFUr2mhBYK6n5XZde1Bu2UjB
-	 dTGZq6/H3byDKYkMdZtBylL2rLtIcr4NieqRs4ITGF+Fv72nnpTV8zS1cYNByRDpp4
-	 xLBlBx9/bR3geXed54YB3p0rKeorj4/mbgQiu3RY7SKDtTWD6ydYi5vkSWQrEi1Lrj
-	 mRxXS0pcqnOTA==
-Date: Mon, 19 Oct 2026 18:40:56 +0200
-From: Alejandro Colomar <alx@kernel.org>
-To: Greg KH <greg@kroah.com>
-Cc: Alejandro Colomar <alx+linux-hardening@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Shihuang Liu <shlomojune6@gmail.com>, 
-	linux-input@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	Marcus Folkesson <marcus.folkesson@gmail.com>, Ville Syrjala <syrjala@sci.fi>, 
-	Henk Vergonet <Henk.Vergonet@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Input: joystick - replace strlcat() with strscpy()
-Message-ID: <atZHH60l9JAkLl2D@debian>
-References: <20261016170411.51025-1-shlomojune6@gmail.com>
- <20261016170411.51025-2-shlomojune6@gmail.com>
- <30bc6e07072076b0591fd416f50f4fc3@gmail.com>
- <2026101727-ebay-five-72f8@gregkh>
- <atXLrTZYBazVZVHr@debian>
- <2026101951-undusted-laziness-d40f@gregkh>
+	dkim=pass (1024-bit key, unprotected) header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=jja1x1tl
+Received: from mail-nwsmtp-smtp-production-main-65.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-65.yp-c.yandex.net)
+	by forward105e.mail.yandex.net (postfix) with ESMTPS id B70CBC002C;
+	Mon, 19 Oct 2026 19:52:54 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-65 with ESMTPSA id qqcpN4YihSw0-LWgo0YYU;
+	Mon, 19 Oct 2026 19:52:54 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
+	t=1792428774; bh=icYiQufFlFnwN7j8jnq63YjvaBmukRNUjlMklqEAarw=;
+	h=Message-ID:Date:In-Reply-To:Cc:Subject:References:To:From;
+	b=jja1x1tlsklYZxTkDG59UBn3Lqgh8Ujd7cE4AqaaRJ5AbD22mPoJKPC9hKqtRGxH3
+	 EqxMQzVUFryb1kXLcWsJZL8Pc72bkIXU9f/iz2zw2y+HmjuRLhvED2Kw39G6vU/wp/
+	 AAQ/5dqLA6N5hWTSz+U8NlwoEKKnrX4mBHwdfGvM=
+Authentication-Results: mail-nwsmtp-smtp-production-main-65; dkim=pass header.i=@yandex.ru
+From: Dmitry Antipov <dmantipov@yandex.ru>
+To: Benjamin Tissoires <bentiss@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	linux-input@vger.kernel.org,
+	lvc-project@linuxtesting.org,
+	Dmitry Antipov <dmantipov@yandex.ru>
+Subject: [PATCH v7 1/3] HID: roccat: use atomic_t for device status flag
+Date: Mon, 19 Oct 2026 19:52:49 +0300
+Message-ID: <20261019165251.280027-2-dmantipov@yandex.ru>
+X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261019165251.280027-1-dmantipov@yandex.ru>
+References: <20261019165251.280027-1-dmantipov@yandex.ru>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -65,99 +67,98 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="duwbzjxdrzhdpi4y"
-Content-Disposition: inline
-In-Reply-To: <2026101951-undusted-laziness-d40f@gregkh>
+Content-Transfer-Encoding: 8bit
 
+In roccat_disconnect(), per-device 'exist' status flag is cleared
+with 'devices_lock' locked but both roccat_read() and roccat_poll()
+checks this flag unlocked. To avoid data races, convert the flag
+to atomic_t and introduce the convenient roccat_device_available()
+wrapper.
 
---duwbzjxdrzhdpi4y
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx@kernel.org>
-To: Greg KH <greg@kroah.com>
-List-Id: <linux-hardening.lore.kernel.org>
-Cc: Alejandro Colomar <alx+linux-hardening@kernel.org>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Shihuang Liu <shlomojune6@gmail.com>, 
-	linux-input@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	Marcus Folkesson <marcus.folkesson@gmail.com>, Ville Syrjala <syrjala@sci.fi>, 
-	Henk Vergonet <Henk.Vergonet@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Input: joystick - replace strlcat() with strscpy()
-Message-ID: <atZHH60l9JAkLl2D@debian>
-References: <20261016170411.51025-1-shlomojune6@gmail.com>
- <20261016170411.51025-2-shlomojune6@gmail.com>
- <30bc6e07072076b0591fd416f50f4fc3@gmail.com>
- <2026101727-ebay-five-72f8@gregkh>
- <atXLrTZYBazVZVHr@debian>
- <2026101951-undusted-laziness-d40f@gregkh>
-MIME-Version: 1.0
-In-Reply-To: <2026101951-undusted-laziness-d40f@gregkh>
+Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
+---
+v7: step back to explicit flag of atomic_t type
+v6: adjusted to match for-7.4/roccat branch of
+    https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git,
+    switch to xchg()/smp_load_acquire() and fix possible
+    race due to wrong logic in roccat_disconnect()
+v5: adjusted to match 7.3-rc5
+v4: use READ_ONCE() and WRITE_ONCE() for device access
+v3: initial version to join the series
+---
+ drivers/hid/hid-roccat.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-Hi Greg,
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index b3e69c79c4b4..c76929c0456e 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -40,7 +40,7 @@ struct roccat_device {
+ 	unsigned int minor;
+ 	int report_size;
+ 	int open;
+-	int exist;
++	atomic_t exist;
+ 	wait_queue_head_t wait;
+ 	struct device *dev;
+ 	struct hid_device *hid;
+@@ -70,6 +70,11 @@ static struct roccat_device *devices[ROCCAT_MAX_DEVICES];
+ /* protects modifications of devices array */
+ static DEFINE_MUTEX(devices_lock);
+ 
++static bool roccat_device_available(struct roccat_device *device)
++{
++	return atomic_read(&device->exist);
++}
++
+ static void roccat_free_device(struct roccat_device *device)
+ {
+ 	int i;
+@@ -105,7 +110,7 @@ static ssize_t roccat_read(struct file *file, char __user *buffer,
+ 				retval = -ERESTARTSYS;
+ 				break;
+ 			}
+-			if (!device->exist) {
++			if (!roccat_device_available(device)) {
+ 				retval = -EIO;
+ 				break;
+ 			}
+@@ -149,7 +154,7 @@ static __poll_t roccat_poll(struct file *file, poll_table *wait)
+ 	poll_wait(file, &reader->device->wait, wait);
+ 	if (reader->cbuf_start != reader->device->cbuf_end)
+ 		return EPOLLIN | EPOLLRDNORM;
+-	if (!reader->device->exist)
++	if (!roccat_device_available(reader->device))
+ 		return EPOLLERR | EPOLLHUP;
+ 	return 0;
+ }
+@@ -226,7 +231,7 @@ static int roccat_release(struct inode *inode, struct file *file)
+ 
+ 	if (!--device->open) {
+ 		/* removing last reader */
+-		if (device->exist) {
++		if (roccat_device_available(device)) {
+ 			hid_hw_power(device->hid, PM_HINT_NORMAL);
+ 			hid_hw_close(device->hid);
+ 		} else {
+@@ -345,7 +350,7 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
+ 	mutex_init(&device->cbuf_lock);
+ 	device->minor = minor;
+ 	device->hid = hid;
+-	device->exist = 1;
++	atomic_set(&device->exist, 1);
+ 	device->cbuf_end = 0;
+ 	device->report_size = report_size;
+ 
+@@ -364,7 +369,7 @@ void roccat_disconnect(int minor)
+ 	mutex_lock(&devices_lock);
+ 	device = devices[minor];
+ 
+-	device->exist = 0; /* TODO exist maybe not needed */
++	atomic_set(&device->exist, 0);
+ 
+ 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
+ 
+-- 
+2.56.0
 
-> Date: 2026-10-19 10:44:22+0200
-> From: Greg KH <greg@kroah.com>
->
-[...]
-> > > I'm all for that too, and putting it in the USB core for everyone to =
-use
-> > > would be great.
-> >=20
-> > You might be interested in <https://lore.kernel.org/linux-hardening/cov=
-er.1751747518.git.alx@kernel.org/>.
-> > I was working on something like that, but actually much simpler.
-> > It is meant to replace strscpy()/snprintf() by versions more similar to
-> > Plan9's strecpy(2)/seprint(2), but without some important flaw that the
-> > Plan9 APIs have (about handling NULL).
->=20
-> Look at the patches from Kees on the hardening list for the seqbuf
-> stuff, that ideally will replace these types of string functions
-> entirely over time.
-
-I have looked at them.  I personally think some of them are a bit
-unnecessarily complex, by being designed around lengths instead of
-offset pointers.
-
-Essentially, his API is a wrapper around the usual strscpy()/snprintf(3)
-operations, but because those fundamental operations are themselves
-flawed, their wrapper is inherently flawed too.  stpecpy()/seprintf()
-are the same, but are simpler to use raw, and by being simpler to use,
-their wrappers would naturally because also simpler.
-
-I'm trying to convince Kees of this.  :-)
-
-
-Have a lovely night!
-Alex
-
->=20
-> thanks,
->=20
-> greg k-h
-
---=20
-<https://www.alejandro-colomar.es>
-
---duwbzjxdrzhdpi4y
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEES7Jt9u9GbmlWADAi64mZXMKQwqkFAmrWSBcACgkQ64mZXMKQ
-wql9cQ/7B9c56V5Rts0YPbBCQLxAJpaXvjSVThCP4Pi9CFv8Ong56WsmD+E//dnf
-F9QSMqye8QGaloWRCcrxGejEkAQHFBu3qik1sWyRpQfUoh6b/TaYRXxA3fRzTp1u
-wdPIYv1Rps0B/OBBXujUrnqyrbZiKndMKy1FIqFXiJIN8fsUiDfsTinV8W4aYn5v
-g0W1dVfhfvOhMRHOAylEW00wVxcDpe99/ro7U47M2csc70RNDtcb43GWqa4AqzBR
-ZBl2wFvfg9Viufu6ojzsWmIEevSv55RDJkfsTMsj/Xcs+cV9GtRMMey8anu/tQKi
-QlDOsowEIkE9St6v8WjBYYbQFcuA1mXR2kecP2UitS0JLX64feponTU3YANFfXVw
-VgKjOey6cQMfe2or6B3e2zkomuDnHG08e8KpqOaN0DtpMyngAJVvC4S9BbjqMWIi
-bGdDTIgdqFEJyh9oP0oSlCsgx/ev3r45D2rmrf2v0BL+Gml19AHgcunL8f5YQ32j
-AYMjcI2EbAZkeRuP5bf/TLukwkhNRV/WzV/DezCrznzt0CAEHkpMbvZDDSm+hW4H
-oQIn1xfiLs69wB9TOeiPkj6KiJ+YwqhdaO9g/Z9OKqADx3me/3mIcg4AXrteSk+r
-yPdjDKysxSDhAfUZQyL+azM9e5IqtPfpDm9Oqn66McZOLqKDsfs=
-=gsYD
------END PGP SIGNATURE-----
-
---duwbzjxdrzhdpi4y--

@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F5D5D8C9E;
-	Mon, 19 Oct 2026 14:01:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D880B470858;
+	Mon, 19 Oct 2026 14:02:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418520; cv=none; b=JX2K+b1HUMeEBvT6xhVfghpWtczqYOW2uMGkgpXrLgrugR6ngoAGs+S8wCZyuuBJ1m8NLaSEhFYsJyUr3o860NACHHuk4IsZeFaaDSU1v00CBoh7GBdxi9sA3gcQJTI9xi6+TjTGwHUMAFz20heq0H7moKfJAq1Fu4BIZXjAD+0=
+	t=1792418550; cv=none; b=OqKRIa9zFEGF2i7LI7z910gt8suOK51qR1MrzpMNJiF0oJARSg9lHNC6v5UUJz5pUkMxqWd1Upl4I0C44gxckJMIdW09FeD5wu5XKBMaYSn7fZby5L/QQHT3whXiEaT7+w+cbHwjLkXA0BA/xL16KYbT2WSrBjUQRA7NT2ZkO68=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418520; c=relaxed/simple;
-	bh=xVlrQCCPLvlPZUtYZiBSos6lm5xTuVXPSafdoKMfSy4=;
+	s=arc-20240116; t=1792418550; c=relaxed/simple;
+	bh=CGw/LoqxySi4y3ucj0pSd1ASJG726CFLpKjg3irJQuo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=h33s08AexxHuffw4ZXZ5Hz0ejf9fqX4LWr8a9hCfjoF7RC7zIW2hwtmn2qICypTK0gX3aUQnX1xP7UshQNtQil5eo5rf29NpvJcoyD7l4TP9eXbdvRPLh+MSi098J2/V/bq2ZnWpV9iDbaWmoDkW0nbuGQgsdR0k6khfreQZkSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YRuxaJ/H; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=twnh+5SQPIoydFABN5Wn2DHeNbbyCJ9LgOyEnisag/jMRjcPgeFKmGzY6luuM0d8/oxW9QrBxH0537T924cRKild9Msd93eJkjkOadmJYJf3Fwq7BOP34G/Y7L5pqGeP13mMclTV2eDN6bUFtc5ePbZvNPdu2DOf5KPyQ1yaXZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kGb48cUI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YRuxaJ/H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57D141F000C6;
-	Mon, 19 Oct 2026 14:01:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kGb48cUI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA2011F000C9;
+	Mon, 19 Oct 2026 14:02:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418517;
-	bh=b26spbF1Vl1IOpw5XyJd8gERKkVg0lpaGkI8sA3Ix9Y=;
+	s=k20260515; t=1792418547;
+	bh=yVfznEcOE2PnCJM60afoSwR6xdh678dLhjRPRccI0NM=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=YRuxaJ/HxlRZIri8yE2fd9ppP239FyjJNlcRw7MMtG70aFl/N1GtmQWjDo0UMGI+w
-	 QyNSm7B8DWhww8wGn6QVWNhLVsAVxvgV7spdiOaCyiAaogyzQAxD6YI3hN7KDY9c5e
-	 MmypHKQO/oMl4EZXe2icRtetK2QYo/GdJ90R9gj9/UdXb35YUsg9FnfRHCWuFqWv35
-	 jzkjRGveyk5xoIECOWYhsw1kEnmCE7RQhqQirCqEjAPnIYkOKvw0AXYlB0OKgjgvO+
-	 mIDr9s3ZLCVOZ6qYOS4HPpzk0YmYNZYhkTaYGdKeYj1IXBCGDXxaNSksfo3Yo+cGBz
-	 dgafh57RG8ZPg==
+	b=kGb48cUIJGdKBRrPoHydKYKwYQcYO74XpSukoQj0B9N1VOvEViLHHBi+e6gKMthxF
+	 KYjMwf14+Og0yXQcu1kqqaKT7q0gApvj0P5WJWAP0lBYB6yde5/6+LbnK1ZAYg3aAE
+	 APVsl0ayBDCzjyC2HkOren0JgMC5Ewk8wmh/wwkHWeScaXNN8KAe/pBsYiD89Xg5iR
+	 WEGgLUC9wm/3uGG6V2P9aqrEr3NQG1ReBfcgQw5tm4YosbZc2es5g8OuKD1DW5S6v7
+	 AS+OEhvv6zjBuXpDmyhm43hEsfqGQayQ4SxsDO+mzxCJ94jSq0QAAeGxAsHs0M8IX9
+	 vNqQKcbXsProA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Dmitry Antipov <dmantipov@yandex.ru>,
+Cc: Even Xu <even.xu@intel.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
-	erazor_de@users.sourceforge.net,
+	xinpeng.sun@intel.com,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] HID: roccat: fix locking in roccat_connect() and roccat_disconnect()
-Date: Mon, 19 Oct 2026 09:49:55 -0400
-Message-ID: <20261019135441.1420968-304-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18] HID: Intel-thc-hid: Intel-quickspi: Fix buffer overflow
+Date: Mon, 19 Oct 2026 09:50:17 -0400
+Message-ID: <20261019135441.1420968-326-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -55,481 +55,387 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Dmitry Antipov <dmantipov@yandex.ru>
+From: Even Xu <even.xu@intel.com>
 
-[ Upstream commit d76994443eed0af297cb82bd038ae9d76327ef90 ]
+[ Upstream commit a1cdd72371270640bd357bd3e3b2ec0be17c9536 ]
 
-Extend critical section in roccat_connect() to ensure that partially
-initialized 'struct roccat_device' is never exposed in 'devices' list,
-and do the same in roccat_disconnect() to avoid racy 'devices' access
-against roccat_release().
+The input buffers are used to store complete HID-over-SPI packets,
+including their protocol headers. However, their sizes are
+currently calculated from the payload length only.
 
-Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
+Allocate enough space for both the payload and the packet header to
+prevent a buffer overflow when the payload reaches its maximum size.
+
+Signed-off-by: Even Xu <even.xu@intel.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The local tree is **6.18.57** (`v6.18.57-155-gcdf239ca885b2`). The buggy
-locking is present at `v6.18.57`; this commit is not an ancestor of that
-tag.
+This is a real heap overflow in Intel QuickSPI HID input, and the local
+6.18.57 tree still has the undersized `input_buf` allocation, so it
+should be backported.
+
+Local tree: **v6.18.57** (`6.18.57`, HEAD `cdf239ca885b2`). The buggy
+allocation is present at `v6.18.57`; `HIDSPI_INPUT_BODY_SIZE` already
+exists here. The patch applies cleanly.
 
 ---
 
 ## PHASE 1: COMMIT MESSAGE FORENSICS
 
 **Step 1.1: PARSE THE SUBJECT LINE**
-- Subsystem: `HID: roccat`
-- Action verb: **fix**
-- Claimed intent: correct locking around `roccat_connect()` /
-  `roccat_disconnect()` so a half-initialized device is not published
-  and disconnect cannot race with `roccat_release()`.
-- Record: `[HID/roccat] [fix] [locking around connect/disconnect vs
-  devices[] publication]`
+Record: `[HID/intel-thc-hid/intel-quickspi] [fix] [prevent input_buf
+overflow by including HIDSPI packet header in allocation]`
 
 **Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-Upstream `d76994443eed0af297cb82bd038ae9d76327ef90`:
-- Signed-off-by: Dmitry Antipov `<dmantipov@yandex.ru>` (author)
-- Signed-off-by: Jiri Kosina `<jkosina@suse.com>` (HID maintainer)
-- No Fixes:, Reported-by:, Tested-by:, Link:, or Cc: stable (expected
-  for this review)
-- Ignore pipeline `[Upstream commit ...]` and `Signed-off-by: Sasha
+Record:
+- `Signed-off-by: Even Xu <even.xu@intel.com>` (author; INTEL THC
+  maintainer)
+- `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID maintainer)
+- No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-
+  by:`, `Link:`, or `Cc: stable` (absence is expected)
+- Pipeline-only markers ignored: `[Upstream commit
+  a1cdd72371270640bd357bd3e3b2ec0be17c9536]`, `Signed-off-by: Sasha
   Levin`
 
-The series cover letter for patch 2/2 (not this commit) had:
-- Reported-by: syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com
-- Closes: https://syzkaller.appspot.com/bug?extid=d632e93ffcd1452bc61e
-
-A competing same-week patch for the same races (Deepanshu Kartikey) had:
-- Reported-by: syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
-- Tested-by: syzbot
-- Closes: https://syzkaller.appspot.com/bug?extid=c492a9e154f81127551f
-  Title: **KASAN: slab-use-after-free Read in roccat_disconnect**
-
-Record: No tags on this commit itself; the same UAF is a documented
-syzbot KASAN crash.
-
 **Step 1.3: ANALYZE THE COMMIT BODY TEXT**
-- Bug: `devices[minor]` is published, then `devices_lock` is dropped
-  before `struct roccat_device` is fully initialized. Disconnect also
-  drops the lock between lookup and teardown, racing `roccat_release()`.
-- Symptom: concurrent open/ioctl/release vs probe/remove can use an
-  uninitialized mutex or free the object while disconnect still reads
-  `device->open`.
-- Version: none stated. Blame shows the pattern since 2010
-  (`206f5f2fcb5ff`).
-- Root cause (author): critical section too short.
-
-Record: `[UAF / uninitialized-mutex race] [KASAN UAF in disconnect;
-possible lock on uninit mutex in open] [present since 2010] [lock
-dropped too early]`
+Record:
+- Bug: `input_buf` is sized from HID payload length only, but stores a
+  full HID-over-SPI packet (header + payload).
+- Symptom: buffer overflow when the payload is at its maximum size.
+- Root cause: size uses `max_input_len` / `rep_desc_len` and omits
+  `HIDSPI_INPUT_BODY_HEADER_SIZE` (4 bytes).
+- No stack traces, versions, or syzbot IDs.
 
 **Step 1.4: DETECT HIDDEN BUG FIXES**
-Not disguised. Record: `[Not a hidden fix; explicit locking/race fix]`
+Record: Not hidden. Subject and body state a buffer overflow. The one-
+line change matches that claim.
 
 ---
 
 ## PHASE 2: DIFF ANALYSIS
 
-**Step 2.1: INVENTORY**
-- File: `drivers/hid/hid-roccat.c` — 3 insertions, 5 deletions (net −2)
-- Functions: `roccat_connect()`, `roccat_disconnect()`
-- Record: `[1 file, +3/-5] [roccat_connect, roccat_disconnect] [single-
-  file surgical]`
+**Step 2.1: INVENTORY THE CHANGES**
+Record:
+- File: `drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c`
+  (+2/-1)
+- Function: `quickspi_alloc_report_buf()`
+- Scope: single-file surgical fix
 
-**Step 2.2: CODE FLOW CHANGE**
+**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
+Record:
+- Before (`v6.18.57`): `qsdev->input_buf = devm_kzalloc(...,
+  max_input_len, ...)` where `max_input_len = max(rep_desc_len,
+  max_input_len)`.
+- After: allocate `HIDSPI_INPUT_BODY_SIZE(max_input_len)` = payload +
+  `sizeof(struct input_report_body_header)` (packed 4 bytes).
+- Path: probe-time allocation; used later on every RX DMA completion.
 
-Hunk 1 — `roccat_connect()` at v6.18.57:
-- Before: under `devices_lock`, slot `devices[minor]`,
-  `device_create()`, **unlock**, then `init_waitqueue_head`,
-  `mutex_init(readers_lock/cbuf_lock)`, set `hid`, `exist`,
-  `report_size`.
-- After: same work, but unlock only after those initializers.
-- Path: probe / `roccat_connect()` from hid-roccat-* drivers.
+**Step 2.3: IDENTIFY THE BUG MECHANISM**
+Record: `[BUFFER OVERFLOW / OUT-OF-BOUNDS]`
+Mechanism verified in this tree:
+1. IRQ thread `quickspi_irq_thread_handler()` calls `thc_rxdma_read(...,
+   qsdev->input_buf, &input_len, ...)`.
+2. `read_dma_buffer()` does `sg_copy_to_buffer(sg, nent, read_buff,
+   mes_len)` with **no check against `input_buf` allocation size**.
+3. The only bound is `mes_len > read_config->max_packet_size`, and
+   `max_packet_size` is `ALIGN(max_input_len, SZ_4K)`, so a packet of
+   `max_input_len + 4` is allowed for typical HID sizes.
+4. `quickspi_handle_input_data()` treats `input_buf` as `struct
+   input_report_body` (4-byte header + content).
+5. Output path already accounts for the header via
+   `HIDSPI_OUTPUT_REPORT_SIZE` (from `6fcefe71aeb52`, already in
+   `v6.18.57`). Input was left inconsistent.
 
-Hunk 2 — `roccat_disconnect()`:
-- Before: lock, load `devices[minor]`, **unlock**; `exist=0`;
-  `device_destroy()`; lock, `devices[minor]=NULL`, unlock; then read
-  `device->open` and either `hid_hw_close`+wakeup or
-  `roccat_free_device()`.
-- After: one critical section covering lookup, `exist=0`, destroy, NULL
-  slot, free-or-keep.
-- Path: USB unplug / driver remove (`savu_remove`, `kone_remove`, etc.).
-
-**Step 2.3: BUG MECHANISM**
-Category: **race / UAF** plus **uninitialized mutex**.
-
-Verified against v6.18.57:
-
-1. Connect publishes `devices[minor]` then drops the lock before
-   `mutex_init(&device->readers_lock)`. `roccat_open()` takes
-   `devices_lock`, then `mutex_lock(&device->readers_lock)`. That is a
-   lock on an uninitialized mutex if open wins the race after
-   `device_create()`.
-
-2. Disconnect reads `device` and drops the lock. `roccat_release()`
-   (also under `devices_lock`) can see `exist==0` and `open==0` and call
-   `roccat_free_device()`. Disconnect then reads `device->open` at old
-   line 382 — **KASAN slab-use-after-free**. Syzbot’s stack matches:
-   freed in `roccat_release`, use in `roccat_disconnect`.
-
-Record: `[race/UAF + uninit mutex] [extend devices_lock so publication
-and teardown are atomic vs open/release]`
-
-**Step 2.4: FIX QUALITY**
-- Correct for the reported UAF: release and disconnect both need
-  `devices_lock` for the whole free-or-keep decision. After this, they
-  cannot interleave.
-- Correct for the uninit-mutex race: open/ioctl wait on `devices_lock`
-  until mutexes exist.
-- Minimal; no API change.
-- Residual issues (pre-existing, not introduced):
-  - If files are still open, disconnect NULLs `devices[minor]` and does
-    not free. `roccat_release()` then sees NULL and returns `-ENODEV`
-    without `roccat_free_device()` — **leak on unplug-while-open**. That
-    was already the non-racy outcome of the old NULL-then-close
-    sequence; the racy outcome was UAF. UAF → leak is an improvement.
-  - Patch 2/2 (`kref`) was meant to finish lifetime handling; Jiri
-    Kosina did **not** apply it (kref accounting bugs).
-  - `roccat_report_event()` still loads `devices[minor]` without the
-    lock (pre-existing).
-- Regression risk: disconnect now holds `devices_lock` across
-  `device_destroy()` and `hid_hw_close()`. `roccat_release()` already
-  held that lock across `hid_hw_close()`. `device_create()` was already
-  inside the lock. hidraw uses the same “hold table lock for the whole
-  connect/disconnect” pattern.
-
-Record: `[obviously correct for the UAF; residual leak is pre-existing
-common path] [low regression risk]`
+**Step 2.4: ASSESS THE FIX QUALITY**
+Record: Obviously correct. Uses an existing macro. 4 extra
+`devm_kzalloc` bytes. No locking, API, or ABI change. Regression risk is
+very low (slightly larger probe allocation).
 
 ---
 
 ## PHASE 3: GIT HISTORY INVESTIGATION
 
-**Step 3.1: BLAME**
-- Buggy unlock-before-init in connect: `206f5f2fcb5ff` (Stefan Achatz,
-  2010-05-19), v2.6.35-era.
-- Disconnect split lock / `devices[minor]=NULL`: `e6fa47af5542d`
-  (2011-01-30).
-- Record: `[206f5f2fcb5ff / e6fa47af5542d] [present since ~2010,
-  including 6.18.y]`
+**Step 3.1: BLAME THE CHANGED LINES**
+Record: Buggy alloc introduced in `4138f21115aec` ("HID: intel-thc-hid:
+intel-quickspi: Complete THC QuickSPI driver", Xinpeng Sun, 2025-01-06).
+Present since at least **v6.15**. Present in this 6.18.y tree.
 
-**Step 3.2: FIXES TAG**
-None. Introducer is `206f5f2fcb5ff`, which **is** in this tree.
+**Step 3.2: FOLLOW THE FIXES: TAG**
+Record: No `Fixes:` tag. Introducer is `4138f21115aec`, which **is** an
+ancestor of `v6.18.57`.
 
-**Step 3.3: FILE HISTORY**
-At v6.18.57:
-- `da00eac19feef` HID: roccat: free buffered reports when destroying
-  device (already in 6.18.57; this patch only moves the existing
-  `roccat_free_device()` call)
-- `36bb2d0b91501` HID: roccat: fix use-after-free in roccat_report_event
-  (CVE-2026-43111, already in 6.18.24+)
+**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
+Record (on this tree, limited to the file):
+- `6fcefe71aeb52` — already in `v6.18.57`; sized **output** `report_buf`
+  with `HIDSPI_OUTPUT_REPORT_SIZE` and added a copy bound. That made the
+  remaining input undersize obvious.
+- `b2301bdb4b3ed`, `c2854af5774b0`, device-ID commits — unrelated.
+- Sibling `4bda3254e7b4f` (QuickI2C overflow) is a parallel independent
+  fix, not a prerequisite.
 
-No later commit on this file after the candidate. Standalone 1/2; 2/2
-not merged.
+**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
+Record: Even Xu is listed in MAINTAINERS as `INTEL TOUCH HOST CONTROLLER
+(THC) DRIVER` co-maintainer. Related work in-tree includes DMA safety
+checks and device IDs. This is a maintainer-authored fix.
 
-**Step 3.4: AUTHOR**
-Dmitry Antipov — not the original driver author; HID maintainer Jiri
-Kosina applied 1/2. No other Antipov hid-roccat commits in this tree
-besides this one.
-
-**Step 3.5: DEPENDENCIES**
-- Uses existing `devices_lock` and `roccat_free_device()` (the latter
-  from `da00eac19feef`, already in 6.18.57).
-- Patch 2/2 is **not** required: maintainer applied 1/2 alone.
-- Record: `[standalone; applies on 6.18.57]`
+**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
+Record: Standalone. Needs only `HIDSPI_INPUT_BODY_SIZE` in
+`include/linux/hid-over-spi.h`, present at `v6.18.57:91`. Series is
+`[PATCH 2/2]` with QuickI2C; the two files do not depend on each other.
 
 ---
 
 ## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
 
-**Step 4.1: ORIGINAL DISCUSSION**
-`b4 dig -c d76994443eed0af297cb82bd038ae9d76327ef90`:
-- https://patch.msgid.link/20260902094551.200587-1-dmantipov@yandex.ru
-- Series: **v1 only**, `[PATCH 1/2]` + `[PATCH 2/2] HID: roccat: use
-  kref to manage device instances`
+**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
+Record:
+- `b4 dig -c a1cdd72371270640bd357bd3e3b2ec0be17c9536` →
+  https://patch.msgid.link/20260922024638.932865-3-even.xu@intel.com
+- Cover: `[PATCH 0/2] HID: Intel-thc-hid: Fix potential buffer overflow`
+  (`20260922024638.932865-1`)
+- `b4 dig -a`: **v1 only** (no later revisions)
+- Thread saved via `b4 dig -m`; lore.kernel.org HTTP fetch returned
+  **403**
+- Jiri Kosina: “Applied to hid.git#for-7.3/upstream-fixes, thanks.” No
+  NAK, no requested changes on the SPI patch.
 
-Jiri Kosina (11 Sep 2026): **applied 1/2**. On 2/2: “the issues that
-Sashiko pointed out with 2/2 are real, so please fix them and resubmit
-separately.”
+**Step 4.2: CHECK WHO REVIEWED THE PATCH**
+Record (`b4 dig -w`): To/Cc `bentiss@kernel.org` (Benjamin Tissoires),
+`jikos@kernel.org` (Jiri Kosina), `srinivas.pandruvada@linux.intel.com`,
+`linux-input@vger.kernel.org`. HID maintainers were on the original
+mail. Kosina applied it.
 
-Syzbot bug still listed, but Oct 8 upstream retests reported **no
-crash**; later Oct 16 tests are extra lifetime patches in `hid.git
-for-7.4/roccat`, not a revert of 1/2.
+**Step 4.3: SEARCH FOR THE BUG REPORT**
+Record: No `Reported-by` / syzbot / bugzilla. Found by the subsystem
+maintainer as a size mismatch. Cover letter calls it a **potential**
+overflow; the DMA copy path confirms it is reachable, not theoretical.
 
-**Step 4.2: RECIPIENTS (`b4 dig -w`)**
-Dmitry Antipov, Jiri Kosina, Benjamin Tissoires, linux-input@, lvc-
-project@. HID maintainers were on the To/Cc list.
+**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
+Record: Independent 2-patch set (QuickI2C + QuickSPI). Sashiko AI
+comment was about the **I2C** patch (`report_len` vs
+`HIDI2C_PACKET_LEN`), not this SPI change. SPI `report_buf` is already
+header-sized in this tree.
 
-**Step 4.3: BUG REPORT**
-https://syzkaller.appspot.com/bug?extid=c492a9e154f81127551f
-- KASAN slab-use-after-free Read in `roccat_disconnect`
-- C repro, 20 crashes, prio:high
-- Freed in `roccat_release`, used at `if (device->open)` in disconnect
-- Trigger: USB disconnect vs close of the roccat char dev (syzbot USB
-  gadget)
-- Security assessment on the dashboard: DoS exploitable, peripheral
-  trigger
-
-**Step 4.4: RELATED SERIES**
-- 2/2 kref: not applied (broken accounting / dangling `devices[]`
-  pointer).
-- Competing Kartikey patch: same disconnect lock extension; also inits
-  the device **before** publishing. Maintainer took Antipov’s smaller
-  1/2 instead. Disconnect half is equivalent.
-
-**Step 4.5: STABLE LIST**
-No prior stable-thread rejection found (lore.kernel.org/stable search
-did not return a relevant hit). Absence of Cc: stable is expected.
-
-Record: `[lore thread via b4; 1/2 applied, 2/2 rejected; syzbot KASAN
-UAF with C repro]`
+**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
+Record: `curl` to lore.kernel.org/stable also returned 403. UNVERIFIED
+whether stable@ discussed this specifically. No local evidence it was
+rejected.
 
 ---
 
 ## PHASE 5: CODE SEMANTIC ANALYSIS
 
-**Step 5.1: FUNCTIONS**
-`roccat_connect()`, `roccat_disconnect()`.
+**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
+Record: `quickspi_alloc_report_buf()`
 
-**Step 5.2: CALLERS**
-`roccat_connect` / `roccat_disconnect` from probe/remove of:
-- hid-roccat-pyra, ryos, savu, arvo, isku, kone, koneplus, konepure,
-  kovaplus
+**Step 5.2: TRACE CALLERS**
+Record: Only `quickspi_probe()` at `pci-quickspi.c:660`, after
+`reset_tic()`, before `quickspi_dma_init()` /
+`quickspi_get_report_descriptor()` / `quickspi_hid_probe()`. Standard
+PCI probe. `input_buf` is then written from the IRQ thread on
+`THC_RXDMA2_INT` (touch input).
 
-Syzbot crash: `savu_remove` → `roccat_disconnect` on USB disconnect
-workqueue vs `roccat_release` from `__fput`.
+**Step 5.3: TRACE CALLEES**
+Record: `devm_kzalloc()` only. Consumers: `thc_rxdma_read()` →
+`sg_copy_to_buffer()`; `quickspi_handle_input_data()`.
 
-`devices_lock` also used by `roccat_open`, `roccat_release`,
-`roccat_ioctl` — those are the racing syscalls.
+**Step 5.4: FOLLOW THE CALL CHAIN**
+Record: `quickspi_probe` → IRQ `THC_RXDMA2_INT` →
+`thc_rxdma_read(input_buf)` → `quickspi_handle_input_data`. Reachable
+whenever an Intel THC HID-over-SPI touch device delivers a max-sized
+input or report-descriptor packet. Not a userspace-crafted syscall
+overflow; it is device-driven heap overflow on a common input path.
 
-**Step 5.3: CALLEES**
-`device_create` / `device_destroy`, `hid_hw_close`,
-`wake_up_interruptible`, `roccat_free_device`.
-
-**Step 5.4: REACHABILITY**
-Yes. Unprivileged USB gadget / physical unplug plus close of
-`/dev/roccat*`. Syzbot has a C repro.
-
-**Step 5.5: SIMILAR PATTERNS**
-hidraw holds `minors_rwsem` for the whole `hidraw_connect()` /
-`hidraw_disconnect()`. Same idea.
-
-Record: `[USB remove vs fput; userspace-reachable; HID-roccat family]`
+**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
+Record: Same class of bug in QuickI2C (`HIDI2C_PACKET_LEN`). Output SPI
+buffer already fixed by `6fcefe71aeb52`. No other `input_buf` alloc in
+this driver.
 
 ---
 
-## PHASE 6: CROSS-REFERENCING AGAINST THIS TREE
+## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
 
-**Step 6.1: BUGGY CODE IN THIS TREE?**
-Yes, at `v6.18.57:drivers/hid/hid-roccat.c` `roccat_connect()` unlocks
-at old line 347 before init; `roccat_disconnect()` unlocks at old line
-372 then later reads `device->open`.
+**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
+Record: Yes, at `v6.18.57`:
 
-`git merge-base --is-ancestor 7e1d29620273b v6.18.57` → not an ancestor.
-`git merge-base --is-ancestor d76994443eed v6.18.57` → not an ancestor.
+```
+qsdev->input_buf = devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL);
+```
 
-**Step 6.2: BACKPORT DIFFICULTY**
-`patch --dry-run -p1` of the upstream diff against
-`v6.18.57:drivers/hid/hid-roccat.c` → **clean apply**.
+Driver exists from v6.15 through this 6.18.y tree. Bug introduced with
+the completed driver (`4138f21115aec`).
 
-**Step 6.3: RELATED FIXES ALREADY HERE**
-- `36bb2d0b91501` — different UAF (readers list in
-  `roccat_report_event`), already in 6.18.y.
-- `da00eac19feef` — leak of cbuf reports, already in 6.18.y.
-- This disconnect/open race is **not** fixed in 6.18.57.
+**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
+Record: **Clean apply**. `patch -p1 --dry-run` against the `v6.18.57`
+file succeeded. Surrounding function matches. Macro already present.
 
-Record: `[bug present; clean apply; no substitute fix]`
+**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
+Record: Output-side header sizing (`6fcefe71aeb52`) is already in
+`v6.18.57`. Input-side overflow is **not** fixed at `v6.18.57`. No
+alternate input_buf fix found.
 
 ---
 
 ## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
 
-**Step 7.1:** `drivers/hid/hid-roccat.c` — HID char device for Roccat
-mice/keyboards (`CONFIG_HID_ROCCAT`, depends on `USB_HID`). Criticality:
-**PERIPHERAL**, but the UAF is real for those devices and for syzbot USB
-emulation.
+**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
+Record: `[HID / Intel THC QuickSPI]` `[IMPORTANT]` — not core mm/net,
+but the HID-over-SPI path for Intel touch on MTL/LNL/PTL/ARL/WCL/NVL.
+Crash/overflow there takes down input on those machines.
 
-**Step 7.2:** Driver is old (2010) and low-churn except recent UAF/leak
-fixes. Mature code with a long-standing race, not a new subsystem.
-
-Record: `[HID/roccat] [PERIPHERAL] [mature, recent UAF fixes]`
+**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
+Record: Actively maintained (device IDs, PM, DMA bounds). Still a small,
+contained driver, not a refactoring minefield.
 
 ---
 
-## PHASE 8: IMPACT AND RISK
+## PHASE 8: IMPACT AND RISK ASSESSMENT
 
-**Step 8.1:** Users of Roccat HID devices with `CONFIG_HID_ROCCAT`; also
-fuzzers/USB gadget. Not universal.
+**Step 8.1: DETERMINE WHO IS AFFECTED**
+Record: Driver-specific / config-specific (`CONFIG_INTEL_QUICKSPI`,
+`X86_64 && PCI && ACPI`). Users of Intel THC HID-over-SPI touch (Meteor
+Lake through Nova Lake PCI IDs in this tree).
 
-**Step 8.2:** Trigger: unplug (or driver unbind) while userspace has the
-char device open/closing. Timing-dependent but **reproduced** (syzbot C
-repro). Not a normal unprivileged syscall-only path without USB, but USB
-remove is a normal user action.
+**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
+Record: Device sends a HID-over-SPI body whose content length equals
+`max_input_len` or `rep_desc_len`. That is a normal max-size touch
+report / report-descriptor response, not an exotic error path.
+Unprivileged userspace cannot directly size the DMA packet; a
+malicious/buggy touch controller can. Trigger likelihood: **realistic on
+real hardware**.
 
-**Step 8.3:** Failure: KASAN UAF in `roccat_disconnect` on `usb_hub_wq`
-→ kernel oops / memory corruption. Severity: **HIGH** (crash, potential
-memory-safety issue).
+**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
+Record: Heap buffer overflow via `sg_copy_to_buffer` into `devm_kzalloc`
+memory. Typical overrun is 4 bytes; DMA `max_packet_size` is 4K-aligned,
+so a larger `mes_len` could copy more. Failure mode: heap corruption →
+oops/panic or memory corruption. Severity: **HIGH** (not a WARN-only
+issue).
 
-**Step 8.4:**
-- Benefit: high for affected hardware / USB remove-vs-close; closes a
-  confirmed UAF.
-- Risk: low (8-line lock-scope change, same lock already used around
-  `hid_hw_close` in release).
-- Ratio: **benefit >> risk**. Residual leak on unplug-while-open is
-  worse than nothing but far better than UAF.
+**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
+Record: Benefit **high** (stops heap overflow on touch RX). Risk **very
+low** (2 lines, +4 bytes, existing macro). Ratio strongly favors
+backport.
 
 ---
 
 ## PHASE 9: FINAL SYNTHESIS
 
-**Step 9.1: EVIDENCE**
+**Step 9.1: COMPILE THE EVIDENCE**
 
-For:
-- Confirmed KASAN UAF, syzbot C repro, crash on USB disconnect vs
-  `roccat_release`
-- Second race: open can lock uninitialized `readers_lock`
-- Code in 6.18.57 matches the buggy version
-- 8-line lock-scope change, clean apply
-- HID maintainer applied 1/2 as a standalone fix
-- No new API; not a feature
-- Same class of fix already accepted for this file (CVE-2026-43111)
+FOR:
+- Real heap overflow: DMA copies header+payload into a payload-only
+  buffer.
+- Bug exists in this 6.18.57 tree; driver has been in-tree since v6.15.
+- Important: kernel memory corruption / crash on a production Intel
+  touch path.
+- Tiny, obviously correct, uses `HIDSPI_INPUT_BODY_SIZE` already in this
+  tree.
+- Output buffer already got the analogous header sizing here; this
+  completes the same invariant.
+- Author is THC maintainer; HID maintainer applied v1 with no
+  objections.
+- Applies cleanly; no prerequisites missing.
 
-Against:
-- Niche HID driver
-- Incomplete lifetime (leak if unplug while fds remain); 2/2 kref not
-  merged
-- `roccat_report_event()` still lockless on `devices[]` (pre-existing)
-- Connect still publishes the pointer before init, but now under the
-  lock so open waits
+AGAINST:
+- No public crash report / syzbot (maintainer-found “potential”
+  overflow).
+- Affects only Intel THC QuickSPI, not all machines.
+- Cover letter wording is “potential”; DMA copy confirms it is real.
 
-Unresolved:
-- Whether a later hid.git for-7.4 kref series will replace this; that
-  does not make 1/2 unsafe for 6.18.y.
+UNRESOLVED:
+- lore.kernel.org HTTP 403; discussion recovered via `b4 dig -m`.
+- Stable list search unverified for the same 403 reason.
 
-**Step 9.2: STABLE RULES**
-1. Obviously correct and tested? **PASS** — lock covers the UAF window;
-   syzbot repro exists; maintainer applied it.
-2. Real bug affecting users? **PASS** — KASAN UAF on unplug vs close.
-3. Important (crash/security/corruption)? **PASS** — UAF/oops, HIGH.
-4. Small and contained? **PASS** — +3/−5, one file.
-5. No new features/APIs? **PASS**.
-6. Applies to local tree? **PASS** — clean on v6.18.57.
+**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
+1. Obviously correct and tested? **PASS** — 4-byte header included via
+   existing macro; applied by HID maintainer.
+2. Fixes a real bug that affects users? **PASS** — undersized
+   `input_buf` vs DMA copy of full packets.
+3. Important issue? **PASS** — heap overflow / memory corruption, HIGH.
+4. Small and contained? **PASS** — +2/-1, one function, one file.
+5. No new features or APIs? **PASS**.
+6. Can apply to the local tree? **PASS** — clean apply to `v6.18.57`;
+   macro present.
 
-**Step 9.3: EXCEPTIONS**
-Not an ID/quirk/DT/build/docs exception. It is a normal race/UAF fix.
+**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
+Record: Not an ID/quirk/DT/build/docs exception. It is a normal memory-
+safety fix.
 
-**Step 9.4: DECISION**
-Backport to this 6.18.y tree. The bug is here, the fix is small, and it
-addresses a real UAF, not a refactor.
-
----
-
-### What the commit solves for 6.18.y users
-
-On 6.18.57, `roccat_disconnect()` drops `devices_lock` and then reads
-`device->open`. Concurrent `roccat_release()` can free that object.
-Syzbot hits that as **KASAN slab-use-after-free in
-`roccat_disconnect`**. Connect also exposes the object before mutex
-init. Extending the existing `devices_lock` critical sections closes
-both windows. Remaining leak-if-still-open is the old non-racy path, not
-a new regression.
-
-Risk vs benefit: a few lines of lock-scope change vs a demonstrated UAF.
-Patch 2/2 is not a prerequisite.
+**Step 9.4: MAKE YOUR DECISION**
+Backport. The bug is in this tree, the fix is surgical, and the failure
+mode is heap overflow on the Intel QuickSPI input path.
 
 ---
 
-Verification:
-- [Phase 1] Parsed upstream `d76994443eed`; tags: author SOB + Jiri
-  Kosina SOB only
-- [Phase 1] Series 2/2 has syzbot `d632e93ffcd1452bc61e`; competing
-  patch has syzbot `c492a9e154f81127551f`
-- [Phase 2] Diff +3/−5 in `roccat_connect`/`roccat_disconnect`; compared
-  to `v6.18.57:drivers/hid/hid-roccat.c`
-- [Phase 2] Confirmed open takes `readers_lock` after `devices_lock`;
-  connect used to init that mutex after unlock
-- [Phase 2] Confirmed disconnect old line 382 is `if (device->open)` —
-  matches KASAN “Read of size 4”
-- [Phase 3] `git blame -L 309,387 v6.18.57 -- drivers/hid/hid-roccat.c`:
-  2010/2011 introducers
-- [Phase 3] `git merge-base --is-ancestor 7e1d29620273b v6.18.57` →
-  false; not in 6.18.57
-- [Phase 3] `da00eac19feef` / `36bb2d0b91501` already in 6.18.57;
-  different bugs
-- [Phase 4] `b4 dig -c d76994443eed` → msgid
-  `20260902094551.200587-1-dmantipov@yandex.ru`
-- [Phase 4] `b4 mbox` thread: Jiri applied 1/2, rejected 2/2
-- [Phase 4] `b4 dig -w`: Kosina, Tissoires, linux-input
-- [Phase 4] WebFetch syzbot: KASAN UAF, C repro, 20 crashes; Oct 8
-  upstream retest no crash
-- [Phase 5] grep callers: nine hid-roccat-* probe/remove paths; syzbot
-  used savu
-- [Phase 6] `git describe HEAD` → `v6.18.57-155-gcdf239ca885b2`; `make
-  kernelversion` → 6.18.57
-- [Phase 6] `patch --dry-run -p1` of upstream diff on v6.18.57 file →
-  success
-- [Phase 7] Kconfig `HID_ROCCAT` depends on `USB_HID`
-- [Phase 8] Failure mode verified from syzbot report, not inferred
-- UNVERIFIED: later hid.git for-7.4 kref work (not in this tree; 2/2 was
-  rejected from mainline)
-- UNVERIFIED: lore.kernel.org HTTP fetch (403); used `b4` +
-  openwall/syzkaller instead
+## What the commit solves for this tree
 
-The patch is a small, correct UAF/race fix that applies cleanly to this
-6.18.57 tree.
+On 6.18.57, `quickspi_alloc_report_buf()` sizes `input_buf` to the HID
+payload only. RX DMA later copies a full HIDSPI body (`struct
+input_report_body_header` + content) into that buffer. At max payload
+(or max report descriptor), that is at least a 4-byte heap overflow, and
+the DMA length check cannot catch it because hardware buffers are
+4K-aligned. Touch IRQ handling is a normal path on Intel THC HID-over-
+SPI laptops.
+
+The change allocates `HIDSPI_INPUT_BODY_SIZE(max_input_len)` instead.
+That matches how this tree already sizes the output buffer. No new API,
+no extra locking, no missing prerequisites.
+
+Risk vs benefit: four extra bytes at probe vs heap corruption on input.
+Benefit dominates.
+
+---
+
+## Verification
+- [Phase 1] Tags: Even Xu + Jiri Kosina SOBs; no Fixes/Reported-by/Cc:
+  stable (expected).
+- [Phase 2] Diff: `quickspi_alloc_report_buf()` switches `devm_kzalloc`
+  from `max_input_len` to `HIDSPI_INPUT_BODY_SIZE(max_input_len)`
+  (+2/-1).
+- [Phase 2] `include/linux/hid-over-spi.h`: `HIDSPI_INPUT_BODY_SIZE` =
+  content + packed 4-byte header.
+- [Phase 2] `read_dma_buffer()` copies `mes_len` into `input_buf` with
+  only `max_packet_size` (`ALIGN(..., SZ_4K)`) as a cap.
+- [Phase 3] `git blame` at v6.18.57: alloc from `4138f21115aec`
+  (v6.15+); still payload-only.
+- [Phase 3] `git merge-base --is-ancestor 4138f21115aec v6.18.57` → yes;
+  `6fcefe71aeb52` already in v6.18.57 (output only).
+- [Phase 3] Author Even Xu is MAINTAINERS THC driver maintainer.
+- [Phase 4] `b4 dig -c a1cdd72371270640bd357bd3e3b2ec0be17c9536`: v1
+  series; Kosina applied to hid.git#for-7.3/upstream-fixes.
+- [Phase 4] `b4 dig -w`: jikos, bentiss, linux-input CCd.
+- [Phase 4] UNVERIFIED: live lore.kernel.org pages (HTTP 403); thread
+  recovered from mbox.
+- [Phase 5] Caller: `quickspi_probe()` → IRQ RXDMA2 →
+  `thc_rxdma_read(input_buf)`.
+- [Phase 6] `git describe HEAD` / Makefile: **6.18.57**. Buggy line
+  present at v6.18.57; `HIDSPI_INPUT_BODY_SIZE` present; `patch --dry-
+  run` clean.
+- [Phase 8] Failure mode: heap overflow on max-size HID-over-SPI input,
+  severity HIGH.
+- UNVERIFIED: whether this was already discussed on stable@ (lore 403).
 
 **YES**
 
- drivers/hid/hid-roccat.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index e54b6a8a92ef7..77042c7edf765 100644
---- a/drivers/hid/hid-roccat.c
-+++ b/drivers/hid/hid-roccat.c
-@@ -344,8 +344,6 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
- 		return temp;
- 	}
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+index 1c96d1d85845c..48387a7341604 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+@@ -549,7 +549,8 @@ static int quickspi_alloc_report_buf(struct quickspi_device *qsdev)
+ 	max_input_len = max(le16_to_cpu(qsdev->dev_desc.rep_desc_len),
+ 			    le16_to_cpu(qsdev->dev_desc.max_input_len));
  
--	mutex_unlock(&devices_lock);
--
- 	init_waitqueue_head(&device->wait);
- 	INIT_LIST_HEAD(&device->readers);
- 	mutex_init(&device->readers_lock);
-@@ -356,6 +354,7 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
- 	device->cbuf_end = 0;
- 	device->report_size = report_size;
- 
-+	mutex_unlock(&devices_lock);
- 	return minor;
- }
- EXPORT_SYMBOL_GPL(roccat_connect);
-@@ -369,15 +368,12 @@ void roccat_disconnect(int minor)
- 
- 	mutex_lock(&devices_lock);
- 	device = devices[minor];
--	mutex_unlock(&devices_lock);
- 
- 	device->exist = 0; /* TODO exist maybe not needed */
- 
- 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
- 
--	mutex_lock(&devices_lock);
- 	devices[minor] = NULL;
--	mutex_unlock(&devices_lock);
- 
- 	if (device->open) {
- 		hid_hw_close(device->hid);
-@@ -385,6 +381,8 @@ void roccat_disconnect(int minor)
- 	} else {
- 		roccat_free_device(device);
- 	}
-+
-+	mutex_unlock(&devices_lock);
- }
- EXPORT_SYMBOL_GPL(roccat_disconnect);
+-	qsdev->input_buf = devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL);
++	qsdev->input_buf = devm_kzalloc(qsdev->dev,
++					HIDSPI_INPUT_BODY_SIZE(max_input_len), GFP_KERNEL);
+ 	if (!qsdev->input_buf)
+ 		return -ENOMEM;
  
 -- 
 2.53.0

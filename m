@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792422299;
-	b=ojXTj/TuiR3KNql5iVZxzF2vNjA/aeuA90cInvK9HfyrjIshx4P+Tbapq8k4GweS8z5M
-	 Z95o6CdfulAEDfll3xVwXaYmzPzLmurv4Wcc0mgkcXZjLi+RnmlecdDLlMsC9oehAs4BP
-	 xTvJY5lBGmgPtwuVS1noi4OKwr3XooiWvHuA16c88XDbo7i316K7typC0XqVIB/2bKkYo
-	 b7FwoAy/H7syUSerN6sV4hbe/Lm3TUl8FIgEWVaZBoZAm/e9FQJR5jpVzQcsBJBjGk32v
-	 fvERkY9Kk83rSytos9BzDZpdFAxVUp+uj4BjMarp4z2MMRhSAG3NN2SpuuCUM5PW30Q==
+	t=1792422467;
+	b=nRdtiblIpsoYEzZAZqtIdYqpUNAZF3dNjKY3DCuDkGEoHkIKroaOeL8QqXs7OoODG/+/
+	 S0vEXcJisksk+BLJtysYKvuxC9T8LuCM6GLMgMxJod5IdSkrCBSHYj9d9nGZm7JbBo2Rx
+	 VcLkxxC+6h7T3p7CB73/2X7ES7n4OSTAp9Kc4pkXKO9ypp7Uq1/LiQ9qaKupfR3LeAXqm
+	 Hrq7MZ6J3qbsRcjhmjoy6MC1kCA/DTLt3zqilzgIVggm33v2fPScf61V0S8Udsb07lwAp
+	 5FfoBay01Bt8+/WiuOyd08pJf1+sZIS0CR5U2B9l4FcxYt3z/gDB+qLdPjPNXjhREZg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792422299;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792422467;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ad6v0L0F27TU6Te9QyxMaMLCYtKuYDKg5ncBirPOnb0=;
-	b=3GEaOSv6XGc68kkiVPFYe94NRxQAJEoLp8XrTV4c5jASL9e/ogWKMMsjmqm3CPw7NamR
-	 j84r+vteVeTCcsU62OwUtdmA0M31ANAvd8/UjMK8AaZPf9ANW9IfVa5InRy2SlDfLYJZJ
-	 oj3BRejSDESvhxUZ4ztIelcFuD9iJojRyHMG7+Zf/dDiKJo9N2PGABy/iudwVDGyndMV1
-	 jMkE0a8LFwH1PuM0J/cTgQvNwpyiz9lr6Z9NdeL15LJ0hIy/x1KHHzZExgrGvpAwl68zE
-	 ryMpdWZsnEWKGC+JRqglyeFXhJfLBeNb7gMRZkWlhH4tV90d4lm58WPjl8WTV4MZ8Kw==
+	bh=pDSQjlnKteASJ3B7IRTs/AnP6+4VRRni8091d6C1nhA=;
+	b=cbHEPvCwTcFkGdEzilE07sCHlPc3VNxqHqDp7dkl89W/ZYhnqoDHwdNXgPHVetD3Av+A
+	 XXcvQNmdhtIa/RA4RTs2FAk3hd5epPBSJ9elDUJvSBDUCL7TU/+QmZGc24I0med9LyFx/
+	 Qm7MXlMhklsE1B7x0KPkNj75S8sL1i2SshjJgDMd6hSSf5wxfANyAW4TyMbxWJzcuNUJ3
+	 jC/s7XPfk7ozGnwiYWVaQGPyAj31GSMfSLlRF2CBqRSpsRStXBod5b2hnaK7BQSffRYtD
+	 LYHRiEs3iYs7bCey/PFfqblTFJ5ShqmaZaSt9ujzMGfx9CheDYvqQkq2kYgl587/Rig==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M8lnMjer;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fFA9QboZ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1124607F4B5
-	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 15:04:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A5176084857
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 15:07:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M8lnMjer
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45CD71F000C4;
-	Mon, 19 Oct 2026 15:04:58 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=fFA9QboZ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4B971F000C4;
+	Mon, 19 Oct 2026 15:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792422298;
-	bh=ad6v0L0F27TU6Te9QyxMaMLCYtKuYDKg5ncBirPOnb0=;
+	s=k20260515; t=1792422467;
+	bh=pDSQjlnKteASJ3B7IRTs/AnP6+4VRRni8091d6C1nhA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=M8lnMjer8Tp8eCRqE4qVTgSX2feLugmU8bDU2qzFdjUSMAdRBoVdNhHR9OuWs2Doa
-	 CZxmcYJZ+56sjKoSuhFG40SN2zeBGrOlaEU1J5/xSiarK+XGST+rEyWoml/wmxdKm/
-	 7f/urVmDv+mVM4b7e+CQkhE+t1F+RmLX5Y2vdmT2IYX6nf3Sf/7JE7CANnBAHlKpiW
-	 DtqDK9dTDNuTGHaIUwKr87TsJL4a3PNf3ctadVrELNpHKoNpXA3iLpGwPdx/y3jiAX
-	 Kadrh1Q1Hm8drYNQ2mPuBYr3ZHZ8HvU5tYdO/dMuVxgS5fMWAvUYYRg3JNrMT0nZpL
-	 3eequlLk5ooiw==
-Message-ID: <sashiko-outbox-177602@kernel.org>
+	b=fFA9QboZmp51kenFxuP8B7yp/9Nc9Pg4s2IrFIwNiOLd4CaDtsinebAinLCYhYjAN
+	 4D6xw6KUiX5uisjxs5NQqYZgJJp/q8WlGViRU0UAhy7CN8rrvnRlfwXTfb5J0UnscJ
+	 f9b8e454w4rEaVArB7tzstVviMtfW4g788f/+NsZ3olhf+F+9nrhrXwQF0lQc1pgFU
+	 LdU6Ypf1T6ghTyOHoTqFQSjJ1oU4NnI78He7s6J7GiKMf/JUAujYoK2Lva3b2jb9ST
+	 1s7V2eq5ABJOtSIKUCIUgIKncZXVnN0EZDHzPdt/AZbWGm9ekuUkMw9AQhNJJoWQGZ
+	 oblzDNDuCjbrA==
+Message-ID: <sashiko-outbox-177617@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH AUTOSEL 6.18] HID: Intel-thc-hid: Intel-quickspi: Fix
- buffer overflow
+Subject: Re: [PATCH AUTOSEL 6.18] HID: wacom: avoid copying Bluetooth input
+ reports
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Sasha Levin" <sashal@kernel.org>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261019135441.1420968-326-sashal@kernel.org>
+In-Reply-To: <20261019135441.1420968-386-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
- <20261019135441.1420968-326-sashal@kernel.org>
+ <20261019135441.1420968-386-sashal@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 19 Oct 2026 15:04:57 +0000
+Date: Mon, 19 Oct 2026 15:07:46 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,128 +61,93 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] HID: quickspi: quickspi_alloc_report_buf() under-sizes input_buf f=
-or RXDMA
-- [Medium] HID: intel-quickspi: quickspi_dma_init() omits header and rep_de=
-sc_len in DMA sizes
+- [Medium] HID: wacom: unaligned 16-bit reads in wacom_intuos_general() on =
+BT reports
 --
 
-commit 525db4dc56bd312030200280ce09472abe29a406
-Author: Even Xu <even.xu@intel.com>
+commit c4e8a30b627ffd270cacd2aea99e17a24a724562
+Author: Ruoyu Wang <ruoyuw560@gmail.com>
 
-HID: Intel-thc-hid: Intel-quickspi: Fix buffer overflow
+HID: wacom: avoid copying Bluetooth input reports
 
-This commit expands the allocation of qsdev->input_buf in
-quickspi_alloc_report_buf() using HIDSPI_INPUT_BODY_SIZE() so that it accou=
-nts
-for the 4-byte HID-over-SPI input body header in addition to the maximum
-payload length.
+This commit avoids duplicating Bluetooth reports with kmemdup() in
+wacom_intuos_bt_irq() by temporarily updating wacom->data to point at each
+10-byte payload slice in wacom_intuos_bt_process_data() before calling
+wacom_intuos_irq().
 
-> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/dr=
-ivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> index 1c96d1d85845c..48387a7341604 100644
-> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-> @@ -549,7 +549,8 @@ static int quickspi_alloc_report_buf(struct quickspi_=
-device *qsdev)
->  	max_input_len =3D max(le16_to_cpu(qsdev->dev_desc.rep_desc_len),
->  			    le16_to_cpu(qsdev->dev_desc.max_input_len));
-> =20
-> -	qsdev->input_buf =3D devm_kzalloc(qsdev->dev, max_input_len, GFP_KERNEL=
-);
-> +	qsdev->input_buf =3D devm_kzalloc(qsdev->dev,
-> +					HIDSPI_INPUT_BODY_SIZE(max_input_len), GFP_KERNEL);
-
-[Severity: High]
-Can qsdev->input_buf still be overflowed during RXDMA reads in
-thc_rxdma_read() -> read_dma_buffer()?
-
-In quickspi_irq_thread_handler(), qsdev->input_buf is passed to
-thc_rxdma_read() before quickspi_handle_input_data() validates the packet:
-
-drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:quickspi_irq_thread=
-_handler() {
-	...
-	ret =3D thc_rxdma_read(qsdev->thc_hw, THC_RXDMA2, qsdev->input_buf,
-			     &input_len, &read_finished);
-	if (ret) {
-		err_recover =3D 1;
-		goto end;
-	}
-
-	quickspi_handle_input_data(qsdev, input_len);
-	...
-}
-
-However, dma_set_max_packet_size() rounds read_config->max_packet_size up to
-SZ_4K, and read_dma_buffer() only checks mes_len against
-read_config->max_packet_size before copying into read_buff (qsdev->input_bu=
-f):
-
-drivers/hid/intel-thc-hid/intel-thc/intel-thc-dma.c:read_dma_buffer() {
-	...
-	prd_tbl =3D &read_config->prd_tbls[prd_table_index];
-	mes_len =3D calc_message_len(prd_tbl, &nent);
-	if (mes_len > read_config->max_packet_size) {
-		dev_err(dev->dev,
-			"Message length %zu is bigger than buffer length %lu\n",
-			mes_len, read_config->max_packet_size);
-		return -EMSGSIZE;
-	}
-
-	sg =3D read_config->sgls[prd_table_index];
-	ret =3D sg_copy_to_buffer(sg, nent, read_buff, mes_len);
-	...
-}
-
-Because the HIDSPI input report header encodes input_report_len in 4-byte
-units (HIDSPI_INPUT_HEADER_REPORT_LEN with THC_UNIT_MICROFRAME_SIZE =3D 2),=
- even
-a compliant device sending a report descriptor or maximum-sized input report
-whose length is not a multiple of 4 bytes produces a 4-byte-aligned DMA
-transfer that exceeds HIDSPI_INPUT_BODY_SIZE(max_input_len) by 1 to 3 bytes.
-Furthermore, any incoming SPI frame with mes_len between
-HIDSPI_INPUT_BODY_SIZE(max_input_len) and read_config->max_packet_size will=
- be
-copied past the end of qsdev->input_buf before quickspi_handle_input_data()
-runs.
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index af76e49fd0f25..8feb8027be95e 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1192,8 +1192,11 @@ static int int_dist(int x1, int y1, int x2, int y2)
+>  static void wacom_intuos_bt_process_data(struct wacom_wac *wacom,
+>  		unsigned char *data)
+>  {
+> -	memcpy(wacom->data, data, 10);
+> +	u8 *saved_data =3D wacom->data;
+> +
+> +	wacom->data =3D data;
+>  	wacom_intuos_irq(wacom);
+> +	wacom->data =3D saved_data;
 
 [Severity: Medium]
-Also, should quickspi_dma_init() be updated to match the buffer sizes compu=
-ted
-here in quickspi_alloc_report_buf()?
+Could pointing wacom->data directly at the payload slice introduce unaligned
+16-bit memory accesses in wacom_intuos_general()?
 
-Right now, quickspi_dma_init() passes the raw max_input_len and max_output_=
-len
-from dev_desc to thc_dma_set_max_packet_sizes():
+When an Intuos4 Wireless report 0x03 or 0x04 arrives in wacom_intuos_bt_irq=
+(),
+it calls wacom_intuos_bt_process_data(wacom, data + i) with odd byte offsets
+(i =3D 1, 11, and 21):
 
-drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:quickspi_dma_init()=
- {
+drivers/hid/wacom_wac.c:wacom_intuos_bt_irq() {
 	...
-	ret =3D thc_dma_set_max_packet_sizes(qsdev->thc_hw, 0,
-					   le16_to_cpu(qsdev->dev_desc.max_input_len),
-					   le16_to_cpu(qsdev->dev_desc.max_output_len),
-					   0);
+	switch (data[0]) {
+	case 0x04:
+		...
+		wacom_intuos_bt_process_data(wacom, data + i);
+		i +=3D 10;
+		fallthrough;
+	case 0x03:
+		...
+		wacom_intuos_bt_process_data(wacom, data + i);
+		i +=3D 10;
+		wacom_intuos_bt_process_data(wacom, data + i);
+		i +=3D 10;
 	...
 }
 
-Since QuickSPI receives both report descriptor responses and input reports
-over THC_RXDMA2, if HIDSPI_INPUT_BODY_SIZE(max(rep_desc_len, max_input_len))
-exceeds ALIGN(max_input_len, SZ_4K) (for example, when max_input_len is at =
-or
-within 3 bytes of a 4K boundary so adding the 4-byte header crosses into the
-next 4K page, or when rep_desc_len + 4 > ALIGN(max_input_len, SZ_4K)), won't
-the RXDMA2 scatterlist and max_packet_size be too small for the transfer?
-Similarly, THC_TXDMA omits HIDSPI_OUTPUT_REPORT_HEADER_SIZE and max_input_l=
-en
-(used for SET_FEATURE reports in qsdev->report_buf).
+Previously, memcpy(wacom->data, data, 10) copied each 10-byte payload to the
+start of the aligned wacom->data buffer. By setting wacom->data to data + 1,
+data + 11, or data + 21 directly, the call chain
+wacom_intuos_bt_process_data() -> wacom_intuos_irq() ->
+wacom_intuos_general() will dereference &data[2] and &data[4] at odd byte
+offsets (3, 5, 13, 15, 23, and 25) via be16_to_cpup():
 
->  	if (!qsdev->input_buf)
->  		return -ENOMEM;
+drivers/hid/wacom_wac.c:wacom_intuos_general() {
+	...
+	x =3D (be16_to_cpup((__be16 *)&data[2]) << 1) | ((data[9] >> 1) & 1);
+	y =3D (be16_to_cpup((__be16 *)&data[4]) << 1) | (data[9] & 1);
+	...
+}
+
+Since be16_to_cpup() expects natural 16-bit alignment, won't this trigger
+UBSAN alignment splats or alignment faults on strict-alignment architectures
+unless get_unaligned_be16() is used?
+
+> =20
+>  	input_sync(wacom->pen_input);
+>  	if (wacom->pad_input)
+
+[ ... ]
+
 >
+>
+>
+
+[]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019135441.1420=
-968-326-sashal@kernel.org?part=3D1
+968-386-sashal@kernel.org?part=3D1

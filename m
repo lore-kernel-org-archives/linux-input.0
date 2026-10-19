@@ -1,45 +1,47 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBA63565E40;
-	Mon, 19 Oct 2026 13:57:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EDDE51DAE6;
+	Mon, 19 Oct 2026 13:58:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418258; cv=none; b=Y3kmtWowbKHgp0oGo7aZOtiVMntj+RSMuR2uhjxp7+TW7gBj1jgEzQYehy1d71rX3fsgmq5dDKaDP2dY05tVnDwznuaQRVUoKgohrAxzn8XJpc7Rukl1xw2F0lPXfW9vcbx5HBHZKTOVpaOpIyb5fdbbKY1bZmm1RIyS5SoAr2I=
+	t=1792418285; cv=none; b=nH66x190PT4JVxVQKahXuDWdEnQ1pyHdV7iDyHuPrfsiw5Kmrh4RHzQD8T4xnyn/7+5mQmM6lI/ArGtJeaZ26uQ5BWVuMzhaptFyRSivO+ax98Wj+RB5r+sZC3E8E+xZw1H7+cAMFgOzdqpLVrCUoPodhhvCjDVjEUjbUyufkzI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418258; c=relaxed/simple;
-	bh=M5XM9HaoQiGM9BZJH+jPgXy2su8hIgg6upvggy9PP5k=;
+	s=arc-20240116; t=1792418285; c=relaxed/simple;
+	bh=Gv6k1C/39ggz7wO/3bNh8gJiH5NU5JV0k6IW8N9JWMo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cQzUvCYw1cZeH8foTYqylV2fA5/twwelOFDL/q15OPe3N7cOVKFO+oqUWGBqqr7nW0scVKATRl0COBwZlUJW+e/IV8hKnU5Cl5npQQzzi3t8+oc93M9poWdIijH0HH8qBPOiUUzLipI6c9EpeQBAJa7oIArrJESMvwOswtIYrUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VDoNx92P; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=CGJ2jBhon/c8bLlOFYTPHGFgB+9twBoR8JVW5tTSo28SxsfeaRH6n6Ov76AHpAFYtZcNvGKa1yU7vOEfHun3yILZaQNnrEf3j+imxD5pGSqgatnBccIm8J5p3DpkfPhcyaqFY2gVRnJT15CWNRt1eEv3NIe9Vh/qwR4K5lc7cK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=am+o/k7+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VDoNx92P"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D69FB1F000C8;
-	Mon, 19 Oct 2026 13:57:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="am+o/k7+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 421FA1F000C8;
+	Mon, 19 Oct 2026 13:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418255;
-	bh=aMcfynlMOHxkyjhDuUZ8R9aOY86TSgCExMN0NKpOhlE=;
+	s=k20260515; t=1792418282;
+	bh=cUgDBXxJlx6W2o3Tcn+WyqZtO/tJR3ZczkJTDItOmjQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=VDoNx92PDxyJlMtJaAEtWyx0DQcNk8BOPisLn1zZ91DLR9j8d4hvW77xqFRnxHdur
-	 Van+w9MJF8QEhTz/4IK/K32IJNUeh12/TeHVvzG34Y1wJt5Cq1KdnIwG9mPXK3E5Fv
-	 sHyb2iWG4+0l/CySFVwgzApXtcGW8XLPlKwBD1Moj9T43aPnDRBt2f0cJXQxqlwvD4
-	 kZ+IcJ+2Huxu00zFDjdG/p8RdGuCagZY4Y9UN2MUkKe86mzxoOPDmd9xzEENFwdiXT
-	 AygALZyLbMyRGNzqHoW2r8p07N04uzZdp5GVI2EcLtvnLQqgKrhj4qX+GfwkgRHtm6
-	 oCBvaY5dhL1Fg==
+	b=am+o/k7+BFnkfbe/shplaYggAYQOJpBR1LQY9GUwvjSw5ILaxTfBEwrV8STf8Nzc+
+	 oZaTom7BqvI9RU0XqIkhYzh8pSBw6YQ3Q7DZd7p+u+41YT8eHrVv3+3f3OuByUgnz0
+	 vgEPwabuTvlO8h/1vbYFLfxmQYzVjkXafWXzz5dRDTu51TSdioYvdaS+q9Wm7KEuJb
+	 gda/8JYIg6g76yHCCUPhDuMRDV/yYENXnQrCWHVLEPTQQ9P4ibiwIszwuj5ynJHrrl
+	 PD6sVyadESvJe0eQ2G1ul29RQUteKZD9MUzQZaktltyVxv/O2cHvS2NfS5b7lgpEs5
+	 a4kWMRGmIWUGA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Even Xu <even.xu@intel.com>,
-	Jiri Kosina <jkosina@suse.com>,
+Cc: Daniel Schaefer <dhs@frame.work>,
+	=?UTF-8?q?Sven=20Vaink=C3=BCla?= <sven@xn--vainkla-r2a.ee>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>,
 	Sasha Levin <sashal@kernel.org>,
-	xinpeng.sun@intel.com,
 	jikos@kernel.org,
-	bentiss@kernel.org,
+	jic23@kernel.org,
 	linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18] HID: Intel-thc-hid: Intel-quicki2c: Fix buffer overflow
-Date: Mon, 19 Oct 2026 09:46:54 -0400
-Message-ID: <20261019135441.1420968-123-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-6.12] iio: hid-sensor: als: scale each channel individually
+Date: Mon, 19 Oct 2026 09:47:08 -0400
+Message-ID: <20261019135441.1420968-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -49,400 +51,516 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.18.57
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Even Xu <even.xu@intel.com>
+From: Daniel Schaefer <dhs@frame.work>
 
-[ Upstream commit 5e5c3b9db1c5910d6a9175c97b76a95566e4dc32 ]
+[ Upstream commit cad928dad9a4c26aa56b4223dc2a29bca517fb5f ]
 
-The input and output buffers are used to store complete HID-over-I2C
-packets, including their protocol headers. However, their sizes are
-currently calculated from the payload length only.
+Some sensors have multiple channels (not just brightness but color ALS
+sensors) with different scaling factors.
 
-Allocate enough space for both the payload and the packet header to
-prevent a buffer overflow when the payload reaches its maximum size.
-
-Signed-off-by: Even Xu <even.xu@intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
+Signed-off-by: Daniel Schaefer <dhs@frame.work>
+Link: https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/merge_requests/413
+Tested-by: Sven Vainküla <sven@xn--vainkla-r2a.ee> #Asus ProArt PX13 laptop.
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-This is a two-line allocation-size fix for a real HID-over-I2C buffer
-overflow in a driver that already exists on this 6.18.y tree. It should
-be backported.
+The local tree is **Linux 7.3-rc4** (mainline). Color ALS channels exist
+here (since v6.9), and this is a small per-channel IIO scale correctness
+fix with a real user report. Full phase walkthrough follows.
 
-## PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
+PHASE 1: COMMIT MESSAGE FORENSICS
+===============================================================
 
 **Step 1.1: PARSE THE SUBJECT LINE**
-- Record: **[HID / Intel-thc-hid / Intel-quicki2c] [Fix] [buffer
-  overflow]**
-- Subsystem prefix: `HID: Intel-thc-hid: Intel-quicki2c`
-- Action verb: **Fix**
-- Claimed intent: prevent overflow of HID-over-I2C input/output buffers
+
+Record: **[iio/hid-sensor-als] [scale] scale each ALS channel
+individually rather than using one illuminance scale for every channel**
+
+- Subsystem: `iio: hid-sensor: als`
+- Verb: “scale” (correctness of IIO `in_*_scale`, not a refactor)
+- Claimed intent: color ALS sensors have per-channel scaling factors;
+  the driver used a single shared scale
 
 **Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-- Record:
-  - `Signed-off-by: Even Xu <even.xu@intel.com>` (author; listed
-    maintainer of INTEL THC)
-  - `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID maintainer)
-  - No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-
-    by:`, `Link:`, or `Cc: stable` (absence of those tags is expected
-    for this review)
-  - Pipeline-only tags ignored per instructions
+
+Record: tags (ignoring pipeline `Signed-off-by: Sasha Levin` /
+`[Upstream commit …]`):
+- **Signed-off-by:** Daniel Schaefer `<dhs@frame.work>` (author,
+  Framework)
+- **Link:** `https://gitlab.freedesktop.org/hadess/iio-sensor-
+  proxy/-/merge_requests/413`
+- **Tested-by:** Sven Vainküla (Asus ProArt PX13)
+- **Acked-by:** Srinivas Pandruvada (HID sensor hub maintainer)
+- **Signed-off-by:** Jonathan Cameron (IIO maintainer)
+- **No Fixes:** (expected for this review)
+- **No Cc: stable:** (expected)
+- **No Reported-by / syzbot / KASAN**
+
+Notable: real hardware Tested-by, userspace (iio-sensor-proxy) link,
+maintainer Ack.
 
 **Step 1.3: ANALYZE THE COMMIT BODY TEXT**
-- Record:
-  - **Bug:** `input_buf` and `report_buf` hold complete HID-over-I2C
-    packets (`__le16 len` + payload), but they are allocated from
-    payload length only (`max_input_len` / `max_output_len`, floored at
-    4K).
-  - **Symptom/failure mode:** buffer overflow when the payload reaches
-    that maximum (2 bytes past the end: `HIDI2C_LENGTH_LEN ==
-    sizeof(__le16)`).
-  - **Version info:** none in the message.
-  - **Root cause:** allocation size omitted the 2-byte HID-over-I2C
-    length header.
+
+Record:
+- **Bug:** some HID ALS devices are color ALS (illuminance + color
+  temperature + chromaticity), not brightness-only, and those extra
+  channels have different HID unit/exponent than illuminance.
+- **Symptom:** userspace (iio-sensor-proxy, compositors) applies the
+  illuminance scale to color-temp/chromaticity raw values → wrong
+  physical units (night light / color management broken or nonsense).
+- **Version info:** none in the message. Color/chromaticity channels
+  themselves landed in v6.9.
+- **Root cause:** `hid_sensor_format_scale()` was called only on
+  `als[CHANNEL_SCAN_INDEX_INTENSITY]` and that one scale was returned
+  for every channel.
 
 **Step 1.4: DETECT HIDDEN BUG FIXES**
-- Record: Not a hidden fix. The subject and body state a buffer overflow
-  and the diff matches that claim.
 
-## PHASE 2: DIFF ANALYSIS - LINE BY LINE
+Record: **Not a hidden cleanup.** It is an explicit correctness fix:
+wrong IIO SCALE sysfs values for extra ALS channels. Same class as
+`8b518cdb03f5f` (“iio: hid-sensor-prox: support multi-channel SCALE
+calculation”), which had `Cc: stable` and `Fixes:`.
+
+===============================================================
+PHASE 2: DIFF ANALYSIS - LINE BY LINE
+===============================================================
 
 **Step 2.1: INVENTORY THE CHANGES**
-- Record:
-  - File: `drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c` (+4
-    / −2; net +2)
-  - Function: `quicki2c_alloc_report_buf()`
-  - Scope: **single-file surgical fix**
+
+Record:
+- **File:** `drivers/iio/light/hid-sensor-als.c` only
+- **Size:** 12 insertions, 10 deletions (net +2)
+- **Functions:** `struct als_state`, `als_read_raw()`,
+  `als_parse_report()`
+- **Scope:** single-file surgical driver fix
 
 **Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
-- Record:
-  - **Hunk 1 (input_buf):** `devm_kzalloc(..., max_report_len)` →
-    `devm_kzalloc(..., HIDI2C_PACKET_LEN(max_report_len))`
-  - **Hunk 2 (report_buf):** same change
-  - Path: probe-time allocation (`quicki2c_probe` →
-    `quicki2c_alloc_report_buf`). Runtime use of those buffers is
-    unchanged.
+
+Record:
+1. **State:** `scale_pre_decml` / `scale_post_decml` / `scale_precision`
+   become arrays of `CHANNEL_SCAN_INDEX_MAX`.
+2. **`als_read_raw` IIO_CHAN_INFO_SCALE:** used to return the one
+   illuminance scale for any channel; now indexes by `chan->scan_index`,
+   with a bounds check.
+3. **`als_parse_report`:** scale is computed **inside** the per-usage
+   loop with `st->als[i]` (that channel’s units/exponent), instead of
+   once afterward from intensity only.
 
 **Step 2.3: IDENTIFY THE BUG MECHANISM**
-- Record:
-  - **Category:** memory safety / buffer overflow (out-of-bounds write)
-  - **Mechanism:** packets are `struct hidi2c_report_packet { __le16
-    len; u8 data[]; }`. `HIDI2C_PACKET_LEN(data_len)` is `(data_len) +
-    HIDI2C_LENGTH_LEN`. Allocation used payload size only.
-  - Verified consumers:
-    - `handle_input_report()` DMA-copies into `input_buf` via
-      `thc_rxdma_read()` → `sg_copy_to_buffer(..., read_buff, mes_len)`
-      with **no destination-size argument**.
-    - `quicki2c_get_report()` SWDMA-reads into `input_buf`.
-    - `quicki2c_init_write_buf()` / `write_cmd_to_txdma()` build framed
-      packets in `report_buf` (length field + payload, plus command
-      bytes).
-  - This is **not** a lock/refcount/init/API change.
+
+Record: **[Logic / correctness]** IIO SCALE ABI wrong for color ALS.
+
+`hid_sensor_format_scale()` (verified in `hid-sensor-attributes.c`)
+matches `usage_id` (still the ALS sensor usage `0x200041`) **and**
+`attr_info->units`, then applies `attr_info->unit_expo`. The per-channel
+difference is those HID attribute fields. Intensity/illuminance share
+`HID_USAGE_SENSOR_LIGHT_ILLUM`; color-temp and chromaticity have
+different attributes, so they must not reuse intensity’s exponent.
+
+Classic brightness-only ALS is unchanged: both intensity and illum still
+use the same HID usage and therefore the same scale.
 
 **Step 2.4: ASSESS THE FIX QUALITY**
-- Record:
-  - **Quality:** obviously correct. Uses an existing macro from
-    `include/linux/hid-over-i2c.h` that this tree already has.
-  - **Minimal:** two allocation sizes in one function.
-  - **Regression risk:** very low. Extra 2 bytes per buffer; no API,
-    locking, or control-flow change.
-  - **Caveat (not a reason to reject):** `qcdev->report_len` is still
-    set to `max_report_len`, not `HIDI2C_PACKET_LEN(max_report_len)`.
-    The write-side bound check (`if (buf_len > write_buf_len) return
-    -EINVAL`) can still reject a max-sized SET_REPORT. That is fail-safe
-    (no overflow), pre-existing, and not a regression. Command framing
-    can need more than +2 bytes; this commit only claims the 2-byte
-    packet length header, which is what `HIDI2C_PACKET_LEN` adds.
 
-## PHASE 3: GIT HISTORY INVESTIGATION
+Record:
+- **Quality:** obviously correct; same pattern as hid-sensor-prox
+  (`scale_pre_decml[index]` + format_scale in the parse loop).
+- **Minimal:** no unrelated edits.
+- **Regression risk:** low. Traditional ALS behavior is preserved.
+  Color-temp/chromaticity SCALE sysfs values change from wrong to
+  correct (intended).
+- **Known limitation (discussed on-list, not a NAK):**
+  `IIO_CHAN_INFO_SCALE` stays `info_mask_shared_by_type`, so
+  chromaticity X and Y share one sysfs scale. Jonathan Cameron: that
+  only matters if X and Y scales differ; the reported bug is illuminance
+  vs color-temp. Author: “in practice it's probably not needed and the
+  patch works as is.” No v2 was required; v1 was applied.
+
+===============================================================
+PHASE 3: GIT HISTORY INVESTIGATION
+===============================================================
 
 **Step 3.1: BLAME THE CHANGED LINES**
-- Record: buggy allocations introduced by `66b59bfce6d93` (“HID: intel-
-  thc-hid: intel-quicki2c: Complete THC QuickI2C driver”, Even Xu,
-  2025-01-06). Present since the driver became functional. Driver
-  skeleton: `61bb2714dc3a1`. First appeared around **v6.13**, so it is
-  in this 6.18 tree.
+
+Record:
+- Shared scale fields date to **`36783d09f1a5c`** (“iio: hid-sensors:
+  ALS: adjust scale and offset”, 2014) — correct when there was only
+  illuminance.
+- Extra channels: **`3765d426fe864`** color temperature,
+  **`2ec17b1950bb8`** chromaticity, both **v6.9-rc1**. That is when one
+  scale became wrong.
+- Dynamic channel assignment: **`f2a71ebdf2312`** (v6.9).
 
 **Step 3.2: FOLLOW THE FIXES: TAG**
-- Record: no `Fixes:` tag. Not applicable. The introducing commit is in
-  this tree (`git merge-base --is-ancestor 66b59bfce6d93 v6.18.57`
-  succeeded).
+
+Record: **No Fixes: tag.** Closest introduction of the bug is the v6.9
+color-temp/chromaticity additions. Those commits **are** ancestors of
+this 7.3-rc4 tree (`git merge-base --is-ancestor` not required for each;
+`git describe --contains` shows `v6.9-rc1`).
 
 **Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-- Record: recent work on this file is driver completion, ACPI, PM,
-  device IDs, WOT. Related but distinct: `d08a1049659aa` (ACPI u16
-  truncation, not this overflow). Sibling series patch: `HID: Intel-thc-
-  hid: Intel-quickspi: Fix buffer overflow` (different file). This
-  commit is **standalone**; it does not need the QuickSPI patch.
+
+Record: recent ALS history includes channel init refactor, timestamp
+alignment, probe race fix. **No prerequisite series** for this patch
+(standalone v1). **No follow-ups** on this file after `cad928dad9a4c`.
 
 **Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-- Record: Even Xu is listed in MAINTAINERS as maintainer of `INTEL TOUCH
-  HOST CONTROLLER (THC) DRIVER` (`drivers/hid/intel-thc-hid/`). This is
-  a maintainer fix, not drive-by.
+
+Record: Daniel Schaefer has this single IIO commit in-tree. Not the
+subsystem maintainer. Weight comes from **Acked-by Srinivas Pandruvada**
+and **SOB Jonathan Cameron**.
 
 **Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-- Record: `HIDI2C_PACKET_LEN` was added in `6fc761385bcf6` (“Add HIDI2C
-  protocol implementation”) and is present on **v6.18.57** in
-  `include/linux/hid-over-i2c.h`. No missing helpers. Patch applies
-  cleanly to the v6.18.57 blob (`patch --dry-run` exit 0).
 
-## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+Record: needs existing `als[]` per-channel attribute array,
+`CHANNEL_SCAN_INDEX_*`, and `hid_sensor_format_scale()` — all present
+here since v6.9 / much earlier. **Applies standalone.** Prox analog
+`8b518cdb03f5f` is a sibling pattern, not a dependency.
+
+===============================================================
+PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+===============================================================
 
 **Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
-- Record:
-  - `b4 dig -c 5e5c3b9db1c5910d6a9175c97b76a95566e4dc32` →
-    https://patch.msgid.link/20260922024638.932865-2-even.xu@intel.com
-  - Cover: `[PATCH 0/2] HID: Intel-thc-hid: Fix potential buffer
-    overflow` (`20260922024638.932865-1`)
-  - `b4 dig -a`: **v1 only** (no v2/v3). Applied as submitted.
-  - Jiri Kosina (2026-09-23): “Applied to hid.git#for-7.3/upstream-
-    fixes, thanks.” No NAK.
-  - No human reviewer asked for `Cc: stable`. An automated review noted
-    `report_len` not updated and SET_REPORT framing possibly needing
-    more than 2 bytes. HID maintainer applied the series as-is.
+
+Record:
+- **b4 dig:** https://patch.msgid.link/20260723-chromaticity-v1-1-
+  5ef5746ace2a@frame.work
+- **Series:** v1 only (no v2/v3 despite author briefly offering a v2 for
+  `info_mask_separate`)
+- **Jonathan Cameron (2026-07-26):** SCALE shared-by-type is OK unless
+  chromaticity X/Y differ; “the change here looks fine”; queued on
+  iio.git testing.
+- **Srinivas Pandruvada:** Acked-by.
+- **David Lechner:** explained testing-branch means accepted/applied.
+- **No NAK.** No reviewer asked for Cc: stable.
+- **Sashiko bot:** flagged shared-by-type (addressed in discussion) and
+  a **pre-existing** buffer-layout concern, not introduced by this
+  patch.
 
 **Step 4.2: CHECK WHO REVIEWED THE PATCH**
-- Record (`b4 dig -w`): To/Cc `bentiss@kernel.org`, `jikos@kernel.org`,
-  `srinivas.pandruvada@linux.intel.com`, `linux-input@vger.kernel.org`.
-  HID maintainers were on the original mail. Jiri applied it.
+
+Record: To/Cc included Jonathan Cameron, Srinivas Pandruvada, David
+Lechner, Nuno Sá, Andy Shevchenko, linux-iio, linux-input. Right
+maintainers were in the loop.
 
 **Step 4.3: SEARCH FOR THE BUG REPORT**
-- Record: no `Reported-by` / syzbot / bugzilla. Author-found from code
-  inspection (“potential buffer overflow”). No user crash log in the
-  thread.
+
+Record: GitLab iio-sensor-proxy MR 413 returned **HTTP 403** (UNVERIFIED
+beyond the Link tag). Hardware evidence that **is** verified: Tested-by
+on Asus ProArt PX13; Framework author; iio-sensor-proxy is the standard
+userspace for laptop ALS.
 
 **Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
-- Record: 2/2 is the QuickSPI analogue (`HIDSPI_INPUT_BODY_SIZE`).
-  Independent file; this I2C patch does not depend on it.
+
+Record: standalone, not N/M. Prox multi-channel SCALE (`8b518cdb03f5f`,
+v6.15-rc6) is the same bug class and **was** `Cc: stable`.
 
 **Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-- Record: lore.kernel.org HTTP fetch returned 403. **UNVERIFIED**
-  whether linux-stable discussed this SHA. Decision does not rely on
-  that.
 
-## PHASE 5: CODE SEMANTIC ANALYSIS
+Record: no “stable” in the lore mbox. UNVERIFIED whether linux-stable@
+discussed it separately (no lore.kernel.org/stable hit via b4 thread).
+
+===============================================================
+PHASE 5: CODE SEMANTIC ANALYSIS
+===============================================================
 
 **Step 5.1: IDENTIFY KEY FUNCTIONS**
-- Record: `quicki2c_alloc_report_buf()` only.
+
+Record: `als_read_raw`, `als_parse_report`; struct `als_state`. Probe
+path: `hid_als_probe` → `als_parse_report`. Sysfs/read path: IIO core →
+`als_info.read_raw` → `als_read_raw`.
 
 **Step 5.2: TRACE CALLERS**
-- Record: single caller, `quicki2c_probe()` (after reading the HID-
-  over-I2C device descriptor). Probe of Intel THC I2C-port PCI devices
-  (Lunar Lake, Panther Lake, Wildcat Lake IDs in `quicki2c_pci_tbl`).
-  Not a hot path, but every successful probe allocates these buffers,
-  then IRQ/DMA/HID traffic uses them.
+
+Record:
+- `als_parse_report`: only from `hid_als_probe` (HID-SENSOR-200041 /
+  LISS-0041 platform devices).
+- `als_read_raw`: IIO `read_raw` for sysfs (`in_illuminance_scale`,
+  `in_colortemp_scale`, `in_chromaticity_x_scale`, etc.) and buffered
+  metadata. **Userspace-reachable**, not IRQ-hot.
 
 **Step 5.3: TRACE CALLEES**
-- Record: `devm_kzalloc()`, `le16_to_cpu()`, `HIDI2C_PACKET_LEN()`. No
-  new callees.
+
+Record: `hid_sensor_format_scale()` → unit table +
+`adjust_exponent_nano()`; `sensor_hub_input_get_attribute_info()` fills
+per-channel `units`/`unit_expo`.
 
 **Step 5.4: FOLLOW THE CALL CHAIN**
-- Record: PCI probe → descriptor read → alloc → DMA init → HID
-  registration → `handle_input_report()` on IRQ. Reachable on machines
-  with Intel THC + HID-over-I2C touch. Unprivileged HID input does not
-  size the kernel buffer; overflow is on kernel DMA/copy into an
-  undersized `input_buf` when the device sends a max-sized packet.
+
+Record: unprivileged users can read IIO sysfs on a system with this HID
+ALS. Color ALS on recent AMD/laptop HID sensor hubs (v6.9+ channels).
+**Reachable from userspace.**
 
 **Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-- Record: same author applied the same header-vs-payload fix to
-  QuickSPI. Confirms a systematic off-by-header bug, not a one-off typo.
 
-## PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+Record: hid-sensor-prox already uses per-channel scale arrays. Other
+hid-sensor drivers (accel, gyro, press, temp) still use a single scale
+because they are not mixed-unit multi-channel in the same way. ALS was
+the leftover mismatch after v6.9 extra channels.
+
+===============================================================
+PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
+===============================================================
 
 **Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-- Record: **Yes.** Local tree is **6.18.57** (`git describe HEAD` →
-  `v6.18.57-155-gcdf239ca885b2`; Makefile `VERSION=6 PATCHLEVEL=18
-  SUBLEVEL=57`).
-- On **v6.18.57** (this series’ base), `quicki2c_alloc_report_buf()`
-  still does:
-  - `input_buf = devm_kzalloc(..., max_report_len)`
-  - `report_buf = devm_kzalloc(..., max_report_len)`
-- `HIDI2C_PACKET_LEN` already exists in this tree’s header. Driver is
-  `CONFIG_INTEL_QUICKI2C` under `INTEL_THC_HID` (`X86_64 && PCI &&
-  ACPI`).
+
+Record:
+- **Tree:** `git describe HEAD` = `v7.3-rc4-27-gf0100363d8c37`; `make
+  kernelversion` = **7.3.0-rc4** (Linus mainline, not an LTS branch).
+- Color ALS channels **are** in `hid-sensor-als.c`.
+- Commit **`cad928dad9a4c` is already an ancestor of HEAD** (working
+  tree already has per-channel arrays). That is the mainline landing of
+  this fix during 7.3, **not** a reason to reject it on technical merit
+  (pipeline “already selected” markers ignored).
+- Bug introduced **v6.9** (2024), long before this tree.
 
 **Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-- Record: **clean apply** on the v6.18.57 file. Surrounding function
-  matches the patch. No refactor in the way.
+
+Record: against **this** 7.3 tree the change is already applied / would
+apply cleanly. Context in the submitted v1 still used
+`als_adjust_channel_bit_mask`; this tree uses `iio_scan_type`
+initializer (`cded217233845`). For **this** checkout that is already
+resolved. No extra commits required for the logic of the fix.
 
 **Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-- Record: no other commit on this file in 6.18.y enlarges these two
-  allocations. The 4K floor (`max(..., SZ_4K)`) is a workaround for
-  devices that under-declare max length; it does **not** add the 2-byte
-  header. When `max_input_len`/`max_output_len` is ≥ 4K (HID max buffer
-  is 16K), that floor provides no slack.
 
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+Record: this exact commit is in HEAD. No later revert or competing fix.
+No other ALS scale fix in `git log cad928dad9a4c..HEAD --
+drivers/iio/light/hid-sensor-als.c`.
+
+===============================================================
+PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+===============================================================
 
 **Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-- Record: **HID Intel THC QuickI2C** (`drivers/hid/intel-thc-hid/`).
-  **IMPORTANT** for Intel laptops/tablets with THC touch (LNL/PTL/WCL),
-  not core mm/VFS. Still production input hardware.
+
+Record: **IIO light / HID sensor hub ALS** — **PERIPHERAL to IMPORTANT**
+depending on hardware. Laptop ambient/color light (Framework, Asus
+ProArt, HID sensor hubs). Not mm/net/fs core, but commonly used on
+notebooks via iio-sensor-proxy.
 
 **Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-- Record: actively maintained through 6.18 (device IDs, WOT, ACPI
-  advanced features). Bug is in original 2025 driver completion, not
-  brand-new 7.x-only code.
 
-## PHASE 8: IMPACT AND RISK ASSESSMENT
+Record: mature driver (2012), still getting channel and race fixes.
+Color ALS is several years old (v6.9), not brand-new staging code.
+
+===============================================================
+PHASE 8: IMPACT AND RISK ASSESSMENT
+===============================================================
 
 **Step 8.1: DETERMINE WHO IS AFFECTED**
-- Record: **driver-specific / config-specific:** `CONFIG_INTEL_QUICKI2C`
-  on x86_64 with Intel THC HID-over-I2C devices.
+
+Record: **driver-specific / config-specific** (`CONFIG_HID_SENSOR_ALS`).
+Users of HID color ALS (not every illuminance-only ALS). Confirmed: Asus
+ProArt PX13; likely other color-ALS HID laptops.
 
 **Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-- Record: HID-over-I2C input/feature/output packet whose payload equals
-  the allocated max (`max(declared max, 4K)`). Typical small touch
-  reports may not hit it; max-sized reports and devices that declare
-  large `wMaxInputLength` can. Not a userspace-crafted syscall overflow;
-  it is device-facing DMA/copy. Still a kernel memory-safety bug on a
-  standard probe/IRQ path.
+
+Record: **Every read of IIO SCALE** for color-temp/chromaticity, and
+every userspace conversion of those raw values. Not a race. Unprivileged
+users with IIO device node/sysfs access can observe it. Common on
+affected laptops at session start (iio-sensor-proxy).
 
 **Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-- Record: **buffer overflow (2 bytes) into heap** via
-  `sg_copy_to_buffer` / packet construction. **HIGH** (memory
-  corruption; crash or worse). Not a panic on every boot, but it is a
-  real overflow, not a warning.
+
+Record: **Wrong sensor physical values** (color temperature /
+chromaticity), not oops/UAF/deadlock. Userspace brightness for classic
+ALS is unaffected (same HID usage). Compositor color/night-light using
+color ALS can be wrong. **Severity: MEDIUM** — real, user-visible, “oh
+that’s not good,” not CRITICAL.
 
 **Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-- Record:
-  - **Benefit:** high for THC HID-over-I2C users — closes a heap
-    overflow the driver author and HID maintainer treated as real.
-  - **Risk:** very low — +2 bytes on two `devm_kzalloc`s, existing
-    macro, no behavior change except not writing past the buffer.
-  - **Ratio:** strongly favors backport.
 
-## PHASE 9: FINAL SYNTHESIS
+Record:
+- **Benefit:** correct IIO scale on color ALS; unbreaks iio-sensor-
+  proxy/hardware that already exists in this lineage.
+- **Risk:** very low (≈20-line, one file, no locking/API).
+- **Ratio:** favorable. Same class already taken for stable in prox.
+
+===============================================================
+PHASE 9: FINAL SYNTHESIS
+===============================================================
 
 **Step 9.1: COMPILE THE EVIDENCE**
 
-FOR:
-- Real buffer overflow: complete HID-over-I2C packets stored in buffers
-  sized from payload only
-- DMA copy into `input_buf` has no dest-size check
-- Small, obviously correct (+2 bytes via existing `HIDI2C_PACKET_LEN`)
-- Driver and macro exist in this 6.18.57 tree; introducing commit is in
-  this tree
-- Applies cleanly
-- Written by the THC maintainer; applied by HID maintainer
-- Same class of bug independently fixed in QuickSPI
+**FOR backporting**
+- Real userspace-visible bug: mixed-unit color ALS channels reused
+  illuminance scale.
+- Hit on real hardware (Asus ProArt PX13 Tested-by); iio-sensor-proxy MR
+  linked.
+- Small, obviously correct, acked by HID-sensor maintainer, applied by
+  IIO maintainer.
+- Identical prox bug was explicitly `Cc: stable`.
+- This tree **has** the v6.9 color/chromaticity channels, so the bug
+  class exists in this lineage.
+- Traditional ALS unchanged; only extra channels’ SCALE change.
+- Fits documented stable bar: “real bug that bothers people” / “oh,
+  that’s not good.”
 
-AGAINST:
-- No public reproducer / syzbot report (author-found “potential”)
-- 4K floor hides the overflow for devices with small `max_input_len`
-- `report_len` not updated; write path may still `-EINVAL` at max size
-  (fail-safe, not a new bug)
-- Affects only Intel THC QuickI2C, not all machines
+**AGAINST**
+- Not a crash, UAF, deadlock, or security issue.
+- No Fixes:/Cc: stable (not a negative per review rules).
+- SCALE still shared-by-type for chromaticity X/Y (accepted by
+  maintainer as OK for the reported bug).
+- Peripheral driver, not core kernel.
+- GitLab MR body UNVERIFIED (403).
 
-UNRESOLVED:
-- Could not query lore.kernel.org/stable (HTTP 403)
+**UNRESOLVED**
+- Exact HID unit/exponent values on the PX13 (not in-tree).
+- Whether chromaticity X vs Y ever differ on some firmware (maintainers
+  assumed no).
 
 **Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — two allocation sizes; HID
-   maintainer applied v1; macro already in tree
-2. Fixes a real bug that affects users? **PASS** — overflow on max-sized
-   HID-over-I2C packets in a shipping Intel touch driver
-3. Important issue? **PASS** — heap buffer overflow / memory corruption
-   (**HIGH**)
-4. Small and contained? **PASS** — one function, two sites, ~4 lines
-5. No new features or APIs? **PASS**
-6. Can apply to the local tree? **PASS** — clean on v6.18.57;
-   `HIDI2C_PACKET_LEN` already present
+
+1. Obviously correct and tested? **PASS** — Tested-by, Acked-by, IIO
+   maintainer queued v1.
+2. Fixes a real bug that affects users? **PASS** — wrong IIO scale on
+   color ALS; userspace conversion broken.
+3. Important issue? **PASS** (medium “oh that’s not good,” not CRITICAL
+   crash) — wrong physical units for sensors userspace actually uses.
+4. Small and contained? **PASS** — one file, +12/−10.
+5. No new features or APIs? **PASS** — corrects SCALE for channels that
+   already exist; no new sysfs ABI.
+6. Can apply to the local tree? **PASS** — affected code is in 7.3-rc4;
+   change is already the current code here.
 
 **Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-- Record: none needed. This is a normal memory-safety bug fix, not a
-  device-ID/quirk/DT/build/docs exception.
+
+Record: not a device-ID/quirk/DT/build/docs exception. Ordinary driver
+correctness fix.
 
 **Step 9.4: MAKE YOUR DECISION**
-Backport. The bug is in this 6.18.y driver, the fix is surgical, and
-leaving a 2-byte heap overflow in a HID DMA path is worse than adding
-two bytes to the buffers.
 
-## What the commit solves for this tree
+This tree’s ALS driver includes color-temperature and chromaticity
+channels added in v6.9 but, until this change, advertised a single
+illuminance-derived IIO scale for all of them. That is a real, tested
+userspace bug (wrong color ALS readings via iio-sensor-proxy), not a
+feature or cleanup. The patch is small, matches the already-stable-
+worthy prox multi-channel SCALE fix, and does not change classic
+illuminance ALS. Benefit outweighs the low regression risk.
 
-On 6.18.57, QuickI2C still allocates `input_buf`/`report_buf` as
-`max(payload, 4K)` and then stores HID-over-I2C packets that include a
-2-byte length header. When the payload is that maximum,
-`thc_rxdma_read()` / SWDMA copies past the end of the kmalloc buffer.
-The fix allocates `HIDI2C_PACKET_LEN(max_report_len)` instead.
+### What the commit solves and why it matters here
 
-That matches stable rules: real overflow, tiny diff, no new API, applies
-cleanly, no missing prerequisites.
+Color HID ALS devices expose extra channels with different HID
+units/exponents. The driver formatted scale only from the intensity
+attribute, so `in_colortemp_scale` / chromaticity scale were wrong. On
+this 7.3-rc4 tree those channels exist, so the fix is applicable and is
+the right stable-style correctness change for that hardware.
 
-Risk vs benefit: +2 bytes of allocation vs heap corruption on Intel THC
-HID-over-I2C devices (Lunar Lake / Panther Lake / Wildcat Lake). Benefit
-dominates. The unfixed `report_len` bound is conservative, not a
-regression.
+### Risk vs benefit
 
-## Verification
-- [Phase 1] Parsed subject/body/tags: overflow fix; Even Xu + Jiri
-  Kosina SOBs; no Fixes/Reported-by
-- [Phase 2] Diff: two `devm_kzalloc` sizes in
-  `quicki2c_alloc_report_buf()` wrap `HIDI2C_PACKET_LEN`
-- [Phase 2] `include/linux/hid-over-i2c.h`: `HIDI2C_PACKET_LEN(data_len)
-  = data_len + sizeof(__le16)`
-- [Phase 2] `handle_input_report()` / `read_dma_buffer()`:
-  `sg_copy_to_buffer` into `input_buf` without dest capacity
-- [Phase 3] `git blame` on v6.18.57: allocations from `66b59bfce6d93`
-  (2025-01, driver completion)
-- [Phase 3] `git merge-base --is-ancestor 66b59bfce6d93 v6.18.57`:
-  introducing commit is in this tree
-- [Phase 3] `HIDI2C_PACKET_LEN` added in `6fc761385bcf6`; present on
-  v6.18.57
-- [Phase 3] Author Even Xu is MAINTAINERS owner of `drivers/hid/intel-
-  thc-hid/`
-- [Phase 4] `b4 dig -c 5e5c3b9db1c5910d6a9175c97b76a95566e4dc32`: lore
-  thread found; v1 only
-- [Phase 4] mbox: Jiri Kosina applied to hid.git#for-7.3/upstream-fixes;
-  no NAK
-- [Phase 4] `b4 dig -w`: HID maintainers on original To/Cc
-- [Phase 4] UNVERIFIED: lore.kernel.org/stable HTTP 403
-- [Phase 5] Single caller `quicki2c_probe()`; PCI IDs LNL/PTL/WCL THC
-  I2C ports
-- [Phase 6] `git describe HEAD` / `make kernelversion`: 6.18.57
-- [Phase 6] `git show v6.18.57:drivers/hid/intel-thc-hid/intel-
-  quicki2c/pci-quicki2c.c`: buggy sizes still present
-- [Phase 6] `patch --dry-run` of this commit onto the v6.18.57 file:
-  exit 0
-- [Phase 8] Failure mode: 2-byte heap overflow on max-sized HID-over-I2C
-  packets; severity HIGH
+Benefit: correct sensor units for color ALS on laptops that already use
+this driver. Risk: a few array/index changes on the sysfs read path;
+illuminance-only devices keep the same scale.
+
+### Concerns
+
+No crash-level severity; chromaticity X/Y still share type-wide scale
+(explicitly accepted). Neither blocks backport of this contained fix.
+
+Verification:
+- [Phase 1] Parsed tags: Tested-by Sven Vainküla (Asus ProArt PX13);
+  Acked-by Srinivas Pandruvada; SOB Jonathan Cameron; Link to iio-
+  sensor-proxy MR 413; no Fixes/Cc:stable
+- [Phase 2] Diff: 12+/10- in hid-sensor-als.c; scalar scale → per-
+  scan_index arrays; format_scale moved into parse loop over
+  `st->als[i]`
+- [Phase 2] Verified `hid_sensor_format_scale()` uses `attr_info->units`
+  and `unit_expo`; ALS unit table only has ALS+0 and ALS+LUX
+- [Phase 3] `git describe HEAD` = v7.3-rc4-27-gf0100363d8c37;
+  kernelversion 7.3.0-rc4
+- [Phase 3] `git merge-base --is-ancestor cad928dad9a4c HEAD` → already
+  in this tree (mainline landing)
+- [Phase 3] Color temp `3765d426fe864` and chromaticity `2ec17b1950bb8`
+  contained in v6.9-rc1
+- [Phase 3] Prox analog `8b518cdb03f5f` had Cc: stable + Fixes
+- [Phase 3] No follow-up commits on hid-sensor-als.c after cad928dad9a4c
+- [Phase 4] `b4 dig -c cad928dad9a4c`: lore https://patch.msgid.link/202
+  60723-chromaticity-v1-1-5ef5746ace2a@frame.work
+- [Phase 4] `b4 dig -a`: v1 only
+- [Phase 4] `b4 dig -w`: IIO + HID-sensor maintainers on To/Cc
+- [Phase 4] mbox: Jonathan OK with shared-by-type; Srinivas Ack; no NAK;
+  no stable nomination in thread
+- [Phase 4] GitLab MR fetch: 403, body UNVERIFIED
+- [Phase 5] semcode: not available; grep shows als_read_raw only from
+  als_info; hid_als_probe only caller of als_parse_report
+- [Phase 6] Working tree already has per-channel scale arrays at lines
+  36–38 and 332–334
+- [Phase 8] Failure mode: wrong IIO SCALE for color ALS → incorrect
+  userspace conversion; severity MEDIUM
+- UNVERIFIED: exact PX13 HID unit/exponent values; linux-stable@
+  discussion outside this thread
 
 **YES**
 
- drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/light/hid-sensor-als.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-index c6ba6886072ad..4588c55cf255d 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-@@ -586,7 +586,8 @@ static int quicki2c_alloc_report_buf(struct quicki2c_device *qcdev)
- 	 */
- 	max_report_len = max(le16_to_cpu(qcdev->dev_desc.max_input_len), SZ_4K);
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index 384572844162c..232cb58e0a9ff 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -33,9 +33,9 @@ struct als_state {
+ 		u32 illum[CHANNEL_SCAN_INDEX_MAX];
+ 		aligned_s64 timestamp;
+ 	} scan;
+-	int scale_pre_decml;
+-	int scale_post_decml;
+-	int scale_precision;
++	int scale_pre_decml[CHANNEL_SCAN_INDEX_MAX];
++	int scale_post_decml[CHANNEL_SCAN_INDEX_MAX];
++	int scale_precision[CHANNEL_SCAN_INDEX_MAX];
+ 	int value_offset;
+ 	int num_channels;
+ 	s64 timestamp;
+@@ -186,9 +186,11 @@ static int als_read_raw(struct iio_dev *indio_dev,
+ 		ret_type = IIO_VAL_INT;
+ 		break;
+ 	case IIO_CHAN_INFO_SCALE:
+-		*val = als_state->scale_pre_decml;
+-		*val2 = als_state->scale_post_decml;
+-		ret_type = als_state->scale_precision;
++		if (chan->scan_index >= CHANNEL_SCAN_INDEX_MAX)
++			return -EINVAL;
++		*val = als_state->scale_pre_decml[chan->scan_index];
++		*val2 = als_state->scale_post_decml[chan->scan_index];
++		ret_type = als_state->scale_precision[chan->scan_index];
+ 		break;
+ 	case IIO_CHAN_INFO_OFFSET:
+ 		*val = als_state->value_offset;
+@@ -338,6 +340,10 @@ static int als_parse_report(struct platform_device *pdev,
+ 		als_adjust_channel_bit_mask(channels, index, st->als[i].size);
+ 		++index;
  
--	qcdev->input_buf = devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNEL);
-+	qcdev->input_buf = devm_kzalloc(qcdev->dev,
-+					HIDI2C_PACKET_LEN(max_report_len), GFP_KERNEL);
- 	if (!qcdev->input_buf)
- 		return -ENOMEM;
++		st->scale_precision[i] = hid_sensor_format_scale(usage_id,
++					&st->als[i], &st->scale_pre_decml[i],
++					&st->scale_post_decml[i]);
++
+ 		dev_dbg(&pdev->dev, "als %x:%x\n", st->als[i].index,
+ 			st->als[i].report_id);
+ 	}
+@@ -347,10 +353,6 @@ static int als_parse_report(struct platform_device *pdev,
+ 	if (index)
+ 		ret = 0;
  
-@@ -596,7 +597,8 @@ static int quicki2c_alloc_report_buf(struct quicki2c_device *qcdev)
- 	max_report_len = max(le16_to_cpu(qcdev->dev_desc.max_output_len),
- 			     max_report_len);
- 
--	qcdev->report_buf = devm_kzalloc(qcdev->dev, max_report_len, GFP_KERNEL);
-+	qcdev->report_buf = devm_kzalloc(qcdev->dev,
-+					 HIDI2C_PACKET_LEN(max_report_len), GFP_KERNEL);
- 	if (!qcdev->report_buf)
- 		return -ENOMEM;
+-	st->scale_precision = hid_sensor_format_scale(usage_id,
+-				&st->als[CHANNEL_SCAN_INDEX_INTENSITY],
+-				&st->scale_pre_decml, &st->scale_post_decml);
+-
+ 	return ret;
+ }
  
 -- 
 2.53.0

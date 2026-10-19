@@ -1,46 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D8E5AE45A;
-	Mon, 19 Oct 2026 14:00:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F5D5D8C9E;
+	Mon, 19 Oct 2026 14:01:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418421; cv=none; b=X0rTkc4YknWxQXd88gY1kJoyb8W7wb0Oxm911rv2zyPM3QBKhE/gII4GGbwaoVV8F4puOgljspGYDgdzwbv8dx89eyB9o6yJ++LaLEtSSeOjY6c6hOsO/mJudOWZwUjhU5UvqUOy14vboQWj6vLcyOyxUdtoQ/IQjB07ex/EO5U=
+	t=1792418520; cv=none; b=JX2K+b1HUMeEBvT6xhVfghpWtczqYOW2uMGkgpXrLgrugR6ngoAGs+S8wCZyuuBJ1m8NLaSEhFYsJyUr3o860NACHHuk4IsZeFaaDSU1v00CBoh7GBdxi9sA3gcQJTI9xi6+TjTGwHUMAFz20heq0H7moKfJAq1Fu4BIZXjAD+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418421; c=relaxed/simple;
-	bh=ohiKVwGBW/HgW6cAQ5hSeVvxlF41FUTYLFZTrr4qzts=;
+	s=arc-20240116; t=1792418520; c=relaxed/simple;
+	bh=xVlrQCCPLvlPZUtYZiBSos6lm5xTuVXPSafdoKMfSy4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dBFhESr164TFQxDoG4Dvwretr2emx/xQqekaHwMOeK8Crt6Alj2faxBGfs5qa1ZzoUZbmcXfzLm7oMXH+1z6+uVa+ojuUdhq5CE5WTdDvx9crZ5oIVLO6+Dtbu0mglXEqy3Rq3w3/o7WirIWepN4D+b+eAL/zBYBmj88q2fj/pI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L9qzc92O; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=h33s08AexxHuffw4ZXZ5Hz0ejf9fqX4LWr8a9hCfjoF7RC7zIW2hwtmn2qICypTK0gX3aUQnX1xP7UshQNtQil5eo5rf29NpvJcoyD7l4TP9eXbdvRPLh+MSi098J2/V/bq2ZnWpV9iDbaWmoDkW0nbuGQgsdR0k6khfreQZkSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YRuxaJ/H; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L9qzc92O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 764E01F000C8;
-	Mon, 19 Oct 2026 14:00:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YRuxaJ/H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57D141F000C6;
+	Mon, 19 Oct 2026 14:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418418;
-	bh=h2Hvcgw2hUlCTkHyOGDzv+fTQQzBzyg8RgPkqOcqH0w=;
+	s=k20260515; t=1792418517;
+	bh=b26spbF1Vl1IOpw5XyJd8gERKkVg0lpaGkI8sA3Ix9Y=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=L9qzc92OcHPAzDvoOtczAiin1vXpArIROmusk4KyHgmApiCQHIsDsZLuGsDZJf+Jw
-	 8oTZyvJMe32gGoq+z1HEWk1l0C+F8Z1GEWEjJPwQYTZcUJNjjP2OfxQSlb6iFAyKnk
-	 t+2fiyciV1YFHokjLUT82ykJIfP1vxO1XvvrlzkqdQeboa4n2LmLwpMy7xARDSClwX
-	 UYkLSNYrSo8BTax7t4Q86nTUvdfQ7KqLQWyx/a6eOPBosUxnM2Uu+gPB7nCH+lTofA
-	 +/prvhreMdIKk0MKbrAMoQCY36aUJ88m8QnHJPsh9g+lFfNr2kmXQjFIQv6qCVK56j
-	 TQrKAOGQJazqQ==
+	b=YRuxaJ/HxlRZIri8yE2fd9ppP239FyjJNlcRw7MMtG70aFl/N1GtmQWjDo0UMGI+w
+	 QyNSm7B8DWhww8wGn6QVWNhLVsAVxvgV7spdiOaCyiAaogyzQAxD6YI3hN7KDY9c5e
+	 MmypHKQO/oMl4EZXe2icRtetK2QYo/GdJ90R9gj9/UdXb35YUsg9FnfRHCWuFqWv35
+	 jzkjRGveyk5xoIECOWYhsw1kEnmCE7RQhqQirCqEjAPnIYkOKvw0AXYlB0OKgjgvO+
+	 mIDr9s3ZLCVOZ6qYOS4HPpzk0YmYNZYhkTaYGdKeYj1IXBCGDXxaNSksfo3Yo+cGBz
+	 dgafh57RG8ZPg==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Wahid Khan <wahidzk0091@gmail.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Zhang Lixu <lixu.zhang@intel.com>,
+Cc: Dmitry Antipov <dmantipov@yandex.ru>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
+	erazor_de@users.sourceforge.net,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] HID: intel-ish-hid: ignore post-init ENUM_DEVICES from firmware
-Date: Mon, 19 Oct 2026 09:48:46 -0400
-Message-ID: <20261019135441.1420968-235-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18-5.10] HID: roccat: fix locking in roccat_connect() and roccat_disconnect()
+Date: Mon, 19 Oct 2026 09:49:55 -0400
+Message-ID: <20261019135441.1420968-304-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -56,421 +55,482 @@ X-stable-base: Linux 6.18.57
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Wahid Khan <wahidzk0091@gmail.com>
+From: Dmitry Antipov <dmantipov@yandex.ru>
 
-[ Upstream commit f3f3f6df05226dfa220c4e603310dae94595060a ]
+[ Upstream commit d76994443eed0af297cb82bd038ae9d76327ef90 ]
 
-Some ISH firmware versions (observed on Tiger Lake LP, 8086:a0fc,
-GUID {33AECD58-B679-4E54-9BD9-A04D34F0C226}) periodically re-send an
-unsolicited HOSTIF_DM_ENUM_DEVICES response roughly every 79 seconds.
+Extend critical section in roccat_connect() to ensure that partially
+initialized 'struct roccat_device' is never exposed in 'devices' list,
+and do the same in roccat_disconnect() to avoid racy 'devices' access
+against roccat_release().
 
-The current guard collapses two distinct cases into one condition:
-
-  if (!(response_flag) || init_done)  ->  bad packet + ish_hw_reset
-
-This incorrectly treats a valid post-init firmware announcement as a
-corrupted packet, triggering an ISH soft-reset and a full ISHTP
-re-initialisation cycle on each occurrence (~1100 times per day on
-affected hardware).
-
-Split the check: reject messages with no response flag as before, but
-simply discard valid ENUM_DEVICES messages that arrive after init is
-complete.
-
-Signed-off-by: Wahid Khan <wahidzk0091@gmail.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Tested-by: Zhang Lixu <lixu.zhang@intel.com>
+Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The local tree is **5.15.221** (`pending-5.15`,
-`p-5.15-2-g9a29d9b0f9507`). The buggy `HOSTIF_DM_ENUM_DEVICES` /
-`init_done` reset guard is present here and matches the patch, so this
-is a decision for this tree only.
+The local tree is **6.18.57** (`v6.18.57-155-gcdf239ca885b2`). The buggy
+locking is present at `v6.18.57`; this commit is not an ancestor of that
+tag.
 
-===============================================================
-PHASE 1: COMMIT MESSAGE FORENSICS
-===============================================================
+---
+
+## PHASE 1: COMMIT MESSAGE FORENSICS
 
 **Step 1.1: PARSE THE SUBJECT LINE**
-Record: **[HID/intel-ish-hid] [ignore] discard post-init ENUM_DEVICES
-from firmware instead of treating them as bad packets**
+- Subsystem: `HID: roccat`
+- Action verb: **fix**
+- Claimed intent: correct locking around `roccat_connect()` /
+  `roccat_disconnect()` so a half-initialized device is not published
+  and disconnect cannot race with `roccat_release()`.
+- Record: `[HID/roccat] [fix] [locking around connect/disconnect vs
+  devices[] publication]`
 
 **Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-Record:
-- Fixes: **none** (expected for this review pipeline)
-- Reported-by: **none**
-- Tested-by: Zhang Lixu \<lixu.zhang@intel.com\> (Intel; independent of
-  the author)
-- Acked-by: Srinivas Pandruvada \<srinivas.pandruvada@linux.intel.com\>
-  (ISH maintainer)
-- Reviewed-by: **none**
-- Link: **none**
-- Cc: stable: **none** (expected)
-- Signed-off-by: Wahid Khan (author); Jiri Kosina (HID maintainer,
-  applied the patch)
-- Ignore: any Sasha Levin SOB / `[Upstream commit ...]` (pipeline)
+Upstream `d76994443eed0af297cb82bd038ae9d76327ef90`:
+- Signed-off-by: Dmitry Antipov `<dmantipov@yandex.ru>` (author)
+- Signed-off-by: Jiri Kosina `<jkosina@suse.com>` (HID maintainer)
+- No Fixes:, Reported-by:, Tested-by:, Link:, or Cc: stable (expected
+  for this review)
+- Ignore pipeline `[Upstream commit ...]` and `Signed-off-by: Sasha
+  Levin`
 
-Notable: maintainer Ack + Intel Tested-by + HID maintainer SOB.
+The series cover letter for patch 2/2 (not this commit) had:
+- Reported-by: syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com
+- Closes: https://syzkaller.appspot.com/bug?extid=d632e93ffcd1452bc61e
+
+A competing same-week patch for the same races (Deepanshu Kartikey) had:
+- Reported-by: syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
+- Tested-by: syzbot
+- Closes: https://syzkaller.appspot.com/bug?extid=c492a9e154f81127551f
+  Title: **KASAN: slab-use-after-free Read in roccat_disconnect**
+
+Record: No tags on this commit itself; the same UAF is a documented
+syzbot KASAN crash.
 
 **Step 1.3: ANALYZE THE COMMIT BODY TEXT**
-Record:
-- **Bug:** Some ISH firmware (Tiger Lake LP, PCI `8086:a0fc`, HID GUID
-  `{33AECD58-B679-4E54-9BD9-A04D34F0C226}`) periodically resends a valid
-  `HOSTIF_DM_ENUM_DEVICES` **response** about every 79 seconds after
-  init.
-- **Symptom:** The driver treats that as a bad packet, calls
-  `ish_hw_reset()`, and fully re-inits ISHTP. About **1100 times per
-  day**.
-- **Root cause:** One condition folds “no response flag” and `init_done`
-  together:
-  `if (!(response_flag) || init_done) -> bad packet + ish_hw_reset`
-- **Fix:** Keep rejecting messages with no response flag; drop valid
-  post-init ENUM_DEVICES.
-- **Versions:** Observed on TGL LP; no kernel-version bound in the
-  message.
+- Bug: `devices[minor]` is published, then `devices_lock` is dropped
+  before `struct roccat_device` is fully initialized. Disconnect also
+  drops the lock between lookup and teardown, racing `roccat_release()`.
+- Symptom: concurrent open/ioctl/release vs probe/remove can use an
+  uninitialized mutex or free the object while disconnect still reads
+  `device->open`.
+- Version: none stated. Blame shows the pattern since 2010
+  (`206f5f2fcb5ff`).
+- Root cause (author): critical section too short.
+
+Record: `[UAF / uninitialized-mutex race] [KASAN UAF in disconnect;
+possible lock on uninit mutex in open] [present since 2010] [lock
+dropped too early]`
 
 **Step 1.4: DETECT HIDDEN BUG FIXES**
-Record: **Not a hidden fix.** Explicit firmware-quirk / incorrect-error-
-handling fix. “Ignore” here is the workaround, not cleanup.
+Not disguised. Record: `[Not a hidden fix; explicit locking/race fix]`
 
-===============================================================
-PHASE 2: DIFF ANALYSIS - LINE BY LINE
-===============================================================
+---
 
-**Step 2.1: INVENTORY THE CHANGES**
-Record:
-- File: `drivers/hid/intel-ish-hid/ishtp-hid-client.c` only
-- Scope: **+3 / -2** in `process_recv()`, `HOSTIF_DM_ENUM_DEVICES` case
-- Classification: **single-file surgical fix**
+## PHASE 2: DIFF ANALYSIS
 
-**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
-Record:
-- **Before:** Any ENUM_DEVICES with no response bit **or**
-  `client_data->init_done` increments `bad_recv_cnt`, logs via
-  `report_bad_packet()`, and calls `ish_hw_reset()`.
-- **After:** No response bit still resets. If the response bit is set
-  and `init_done` is true, the handler `break`s (discard). Pre-init
-  responses still enumerate devices.
-- Path: receive path after probe succeeds (`init_done = 1` at the end of
-  `hid_ishtp_cl_init()`).
+**Step 2.1: INVENTORY**
+- File: `drivers/hid/hid-roccat.c` — 3 insertions, 5 deletions (net −2)
+- Functions: `roccat_connect()`, `roccat_disconnect()`
+- Record: `[1 file, +3/-5] [roccat_connect, roccat_disconnect] [single-
+  file surgical]`
 
-**Step 2.3: IDENTIFY THE BUG MECHANISM**
-Record:
-- **Category:** hardware/firmware workaround + logic/correctness
-- **Mechanism:** Firmware sends a valid post-init ENUM_DEVICES
-  **response**. The driver wrongly classifies it as corruption and
-  resets the ISH PCI function.
-- Header check: `CMD_MASK` is `0x7F`, `IS_RESPONSE` is `0x80`.
-  `!(recv_msg->hdr.command & ~CMD_MASK)` means “bit 7 not set” (request,
-  not response). That part is unchanged.
+**Step 2.2: CODE FLOW CHANGE**
 
-**Step 2.4: ASSESS THE FIX QUALITY**
-Record:
-- Obviously correct relative to the described firmware behavior: stop
-  resetting on a valid response after init.
-- Minimal; no API/data-structure change.
-- Regression risk: **low**. Post-init ENUM_DEVICES were never processed
-  as enumeration; they only caused reset+reinit. Discarding them avoids
-  the reset storm. Genuine hotplug would use `HOSTIF_DM_ADD_DEVICE`
-  (command 34), which this patch does not touch.
-- GET_HID_DESCRIPTOR / GET_REPORT_DESCRIPTOR still use the old
-  `init_done` reset. That is out of scope; the commit only claims
-  ENUM_DEVICES is resent.
+Hunk 1 — `roccat_connect()` at v6.18.57:
+- Before: under `devices_lock`, slot `devices[minor]`,
+  `device_create()`, **unlock**, then `init_waitqueue_head`,
+  `mutex_init(readers_lock/cbuf_lock)`, set `hid`, `exist`,
+  `report_size`.
+- After: same work, but unlock only after those initializers.
+- Path: probe / `roccat_connect()` from hid-roccat-* drivers.
 
-===============================================================
-PHASE 3: GIT HISTORY INVESTIGATION
-===============================================================
+Hunk 2 — `roccat_disconnect()`:
+- Before: lock, load `devices[minor]`, **unlock**; `exist=0`;
+  `device_destroy()`; lock, `devices[minor]=NULL`, unlock; then read
+  `device->open` and either `hid_hw_close`+wakeup or
+  `roccat_free_device()`.
+- After: one critical section covering lookup, `exist=0`, destroy, NULL
+  slot, free-or-keep.
+- Path: USB unplug / driver remove (`savu_remove`, `kone_remove`, etc.).
 
-**Step 3.1: BLAME THE CHANGED LINES**
-Record:
-- Combined guard introduced in `0b28cb4bcb17dc` (2016-08-17) **HID:
-  intel-ish-hid: ISH HID client driver** — original driver.
-- `ish_hw_reset()` in that path: `29b06d12ba796a` (2019) **Use the new
-  interface functions in HID ish client**.
-- Present in this tree from the beginning of intel-ish-hid. Not a recent
-  mainline-only bug.
+**Step 2.3: BUG MECHANISM**
+Category: **race / UAF** plus **uninitialized mutex**.
 
-**Step 3.2: FOLLOW THE FIXES: TAG**
-Record: **No Fixes: tag.** Bug is in original 2016 client driver, which
-**is** an ancestor of HEAD (`git merge-base --is-ancestor 0b28cb4bcb17dc
-HEAD`).
+Verified against v6.18.57:
 
-**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-Record:
-- `d21497331b967` already in this tree: **Reset enum_devices_done before
-  enumeration**. Same failure mode (`init_done` + ENUM_DEVICES →
-  `ish_hw_reset`) on S3/S4 when there are 0 sensors. Different trigger
-  (stale `enum_devices_done`), complementary, **not** a substitute for
-  this patch.
-- Not a numbered series (`X/Y`). Standalone.
+1. Connect publishes `devices[minor]` then drops the lock before
+   `mutex_init(&device->readers_lock)`. `roccat_open()` takes
+   `devices_lock`, then `mutex_lock(&device->readers_lock)`. That is a
+   lock on an uninitialized mutex if open wins the race after
+   `device_create()`.
 
-**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-Record: Wahid Khan has **no** prior commits in this tree under
-`drivers/hid/`. Weight comes from Srinivas Ack, Zhang Tested-by, Jiri
-Kosina SOB. Srinivas is listed in MAINTAINERS for INTEL INTEGRATED
-SENSOR HUB DRIVER.
+2. Disconnect reads `device` and drops the lock. `roccat_release()`
+   (also under `devices_lock`) can see `exist==0` and `open==0` and call
+   `roccat_free_device()`. Disconnect then reads `device->open` at old
+   line 382 — **KASAN slab-use-after-free**. Syzbot’s stack matches:
+   freed in `roccat_release`, use in `roccat_disconnect`.
 
-**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-Record: **None.** Touches existing `process_recv` / `init_done` /
-`CMD_MASK`. No new helpers. A later “clamp HID device count” patch
-(openwall, 2026-07-30) is independent and not required.
+Record: `[race/UAF + uninit mutex] [extend devices_lock so publication
+and teardown are atomic vs open/release]`
 
-===============================================================
-PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-===============================================================
+**Step 2.4: FIX QUALITY**
+- Correct for the reported UAF: release and disconnect both need
+  `devices_lock` for the whole free-or-keep decision. After this, they
+  cannot interleave.
+- Correct for the uninit-mutex race: open/ioctl wait on `devices_lock`
+  until mutexes exist.
+- Minimal; no API change.
+- Residual issues (pre-existing, not introduced):
+  - If files are still open, disconnect NULLs `devices[minor]` and does
+    not free. `roccat_release()` then sees NULL and returns `-ENODEV`
+    without `roccat_free_device()` — **leak on unplug-while-open**. That
+    was already the non-racy outcome of the old NULL-then-close
+    sequence; the racy outcome was UAF. UAF → leak is an improvement.
+  - Patch 2/2 (`kref`) was meant to finish lifetime handling; Jiri
+    Kosina did **not** apply it (kref accounting bugs).
+  - `roccat_report_event()` still loads `devices[minor]` without the
+    lock (pre-existing).
+- Regression risk: disconnect now holds `devices_lock` across
+  `device_destroy()` and `hid_hw_close()`. `roccat_release()` already
+  held that lock across `hid_hw_close()`. `device_create()` was already
+  inside the lock. hidraw uses the same “hold table lock for the whole
+  connect/disconnect” pattern.
 
-**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
-Record:
-- v1: 2026-06-27, https://ratatoskr.run/linux-input/2026/06/17183853 —
-  same diff; SOB was `Wahid` (incomplete).
-- v2: 2026-07-20, https://ratatoskr.run/linux-input/2026/07/17285763 —
-  changelog: “added proper sign off”. **No code change.**
-- Thread listing also shows Srinivas replies on 2026-06-29.
-- `b4 dig -c 13054abbaa4f...` was the wrong SHA (hid.git SID from a
-  search snippet); lore is behind Anubis (403/PoW). **UNVERIFIED:** full
-  text of Srinivas’s replies.
-- Committed version is v2 plus Acked-by / Tested-by / Jiri Kosina SOB.
+Record: `[obviously correct for the UAF; residual leak is pre-existing
+common path] [low regression risk]`
 
-**Step 4.2: CHECK WHO REVIEWED THE PATCH**
-Record: Recipients/maintainers for this subsystem are Srinivas
-Pandruvada, Jiri Kosina, Benjamin Tissoires, linux-input. Ack is from
-the ISH maintainer; apply from HID maintainer. **UNVERIFIED:** `b4 dig
--w` recipient list (lore blocked).
+---
 
-**Step 4.3: SEARCH FOR THE BUG REPORT**
-Record: No syzbot/bugzilla Link. Hardware observation is in the commit:
-TGL LP `8086:a0fc`, ~79s period. Tested-by from Intel’s Zhang Lixu (same
-tester as the related `enum_devices_done` stable fix).
+## PHASE 3: GIT HISTORY INVESTIGATION
 
-**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
-Record: Standalone. Not part of Shen Yongchao’s later process_recv
-bounds-check series. Related `enum_devices_done` fix is already here.
+**Step 3.1: BLAME**
+- Buggy unlock-before-init in connect: `206f5f2fcb5ff` (Stefan Achatz,
+  2010-05-19), v2.6.35-era.
+- Disconnect split lock / `devices[minor]=NULL`: `e6fa47af5542d`
+  (2011-01-30).
+- Record: `[206f5f2fcb5ff / e6fa47af5542d] [present since ~2010,
+  including 6.18.y]`
 
-**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-Record: Searches hit AUTOSEL for **Reset enum_devices_done**, not this
-subject. **UNVERIFIED:** whether this exact patch was already discussed
-on stable@. That is ignored as circular anyway.
+**Step 3.2: FIXES TAG**
+None. Introducer is `206f5f2fcb5ff`, which **is** in this tree.
 
-===============================================================
-PHASE 5: CODE SEMANTIC ANALYSIS
-===============================================================
+**Step 3.3: FILE HISTORY**
+At v6.18.57:
+- `da00eac19feef` HID: roccat: free buffered reports when destroying
+  device (already in 6.18.57; this patch only moves the existing
+  `roccat_free_device()` call)
+- `36bb2d0b91501` HID: roccat: fix use-after-free in roccat_report_event
+  (CVE-2026-43111, already in 6.18.24+)
 
-**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
-Record: `process_recv()` only.
+No later commit on this file after the candidate. Standalone 1/2; 2/2
+not merged.
 
-**Step 5.2: TRACE CALLERS**
-Record:
-- `ish_cl_event_cb()` → `process_recv()`
-- Registered in `hid_ishtp_cl_init()` via `ishtp_register_event_cb()`
-- `ishtp_cl_bus_rx_event()` `schedule_work(&device->event_work)` →
-  `ishtp_bus_event_work()` → `event_cb`
-- Workqueue RX path, not a syscall; triggered by ISH firmware messages
-  on systems with `CONFIG_INTEL_ISH_HID`.
+**Step 3.4: AUTHOR**
+Dmitry Antipov — not the original driver author; HID maintainer Jiri
+Kosina applied 1/2. No other Antipov hid-roccat commits in this tree
+besides this one.
 
-**Step 5.3: TRACE CALLEES**
-Record: On the bad path: `report_bad_packet()`, `ish_hw_reset()` →
-`_ish_hw_reset()` → `pci_reset_function()`. After reset,
-`hid_ishtp_cl_reset()` schedules `hid_ishtp_cl_reset_handler()`, which
-deinits and calls `hid_ishtp_cl_init(..., 1)` up to 3 times.
+**Step 3.5: DEPENDENCIES**
+- Uses existing `devices_lock` and `roccat_free_device()` (the latter
+  from `da00eac19feef`, already in 6.18.57).
+- Patch 2/2 is **not** required: maintainer applied 1/2 alone.
+- Record: `[standalone; applies on 6.18.57]`
 
-**Step 5.4: FOLLOW THE CALL CHAIN**
-Record: Userspace does not send ENUM_DEVICES; firmware does. Reachable
-on every TGL-LP (and similar) ISH laptop after HID client init. High
-impact for those machines: periodic PCI reset of the sensor hub.
+---
 
-**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-Record: Same `!(command & ~CMD_MASK) || init_done` reset in
-`HOSTIF_GET_HID_DESCRIPTOR` and `HOSTIF_GET_REPORT_DESCRIPTOR`. Commit
-only changes ENUM_DEVICES, matching the firmware that resends that
-command.
+## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
 
-===============================================================
-PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-===============================================================
+**Step 4.1: ORIGINAL DISCUSSION**
+`b4 dig -c d76994443eed0af297cb82bd038ae9d76327ef90`:
+- https://patch.msgid.link/20260902094551.200587-1-dmantipov@yandex.ru
+- Series: **v1 only**, `[PATCH 1/2]` + `[PATCH 2/2] HID: roccat: use
+  kref to manage device instances`
 
-**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-Record: **Yes.** `ishtp-hid-client.c` lines 112–121 are identical to the
-pre-patch code. TGL LP ID `0xA0FC` is in `ipc/hw-ish.h` / `pci-ish.c`
-(`1479a82d82df6`, 2019). HID GUID in this file matches the commit. Bug
-introduced with the original driver (`0b28cb4bcb17`, 2016).
+Jiri Kosina (11 Sep 2026): **applied 1/2**. On 2/2: “the issues that
+Sashiko pointed out with 2/2 are real, so please fix them and resubmit
+separately.”
 
-**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-Record: **Clean apply.** Exact hunk context matches this file
-(verified). No refactor of `process_recv` between the patch parent and
-this 5.15 tree.
+Syzbot bug still listed, but Oct 8 upstream retests reported **no
+crash**; later Oct 16 tests are extra lifetime patches in `hid.git
+for-7.4/roccat`, not a revert of 1/2.
 
-**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-Record: `d21497331b967` is here and does **not** ignore post-init
-ENUM_DEVICES; it only clears `enum_devices_done` before sending the
-command. The periodic-resend bug remains.
+**Step 4.2: RECIPIENTS (`b4 dig -w`)**
+Dmitry Antipov, Jiri Kosina, Benjamin Tissoires, linux-input@, lvc-
+project@. HID maintainers were on the To/Cc list.
 
-===============================================================
-PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-===============================================================
+**Step 4.3: BUG REPORT**
+https://syzkaller.appspot.com/bug?extid=c492a9e154f81127551f
+- KASAN slab-use-after-free Read in `roccat_disconnect`
+- C repro, 20 crashes, prio:high
+- Freed in `roccat_release`, used at `if (device->open)` in disconnect
+- Trigger: USB disconnect vs close of the roccat char dev (syzbot USB
+  gadget)
+- Security assessment on the dashboard: DoS exploitable, peripheral
+  trigger
 
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-Record: **HID / Intel ISH** (`drivers/hid/intel-ish-hid/`).
-**IMPORTANT** for Intel laptops/tablets (accelerometer, gyro, ALS,
-etc.), not core mm/VFS. Not staging.
+**Step 4.4: RELATED SERIES**
+- 2/2 kref: not applied (broken accounting / dangling `devices[]`
+  pointer).
+- Competing Kartikey patch: same disconnect lock extension; also inits
+  the device **before** publishing. Maintainer took Antipov’s smaller
+  1/2 instead. Disconnect half is equivalent.
 
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-Record: Mature since 2016. This tree still receives ISH fixes (e.g.
-`enum_devices_done`). Platform IDs through Tiger Lake are present.
+**Step 4.5: STABLE LIST**
+No prior stable-thread rejection found (lore.kernel.org/stable search
+did not return a relevant hit). Absence of Cc: stable is expected.
 
-===============================================================
-PHASE 8: IMPACT AND RISK ASSESSMENT
-===============================================================
+Record: `[lore thread via b4; 1/2 applied, 2/2 rejected; syzbot KASAN
+UAF with C repro]`
 
-**Step 8.1: DETERMINE WHO IS AFFECTED**
-Record: **Driver-specific / platform-specific:** `CONFIG_INTEL_ISH_HID`
-on x86 with ISH firmware that resends ENUM_DEVICES. Confirmed example:
-TGL LP `8086:a0fc`, a common 11th-gen laptop platform. Same HID client
-GUID is used across ISH generations, so other firmware versions could
-hit it too.
+---
 
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-Record: After successful ISH HID init, firmware timer ~79s. No userspace
-trigger; unprivileged users do not need to do anything. Very likely on
-affected hardware (every ~79s forever).
+## PHASE 5: CODE SEMANTIC ANALYSIS
 
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-Record:
-- Failure: `pci_reset_function()` on ISH + full ISHTP reinit, plus `BAD
-  packet` `dev_err` flood.
-- Sensors drop and come back ~1100 times/day; possible gaps in
-  input/IIO; extra PCI reset load.
-- Severity: **HIGH** (stability / availability of ISH; not a KASAN UAF,
-  not silent FS corruption).
+**Step 5.1: FUNCTIONS**
+`roccat_connect()`, `roccat_disconnect()`.
 
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-Record:
-- **Benefit:** high for TGL-class ISH machines still on 5.15 LTS
-  (Android/ChromeOS/enterprise).
-- **Risk:** very low (5 lines, post-init discard only; malformed packets
-  still reset).
-- **Ratio:** strongly favors backport.
+**Step 5.2: CALLERS**
+`roccat_connect` / `roccat_disconnect` from probe/remove of:
+- hid-roccat-pyra, ryos, savu, arvo, isku, kone, koneplus, konepure,
+  kovaplus
 
-===============================================================
-PHASE 9: FINAL SYNTHESIS
-===============================================================
+Syzbot crash: `savu_remove` → `roccat_disconnect` on USB disconnect
+workqueue vs `roccat_release` from `__fput`.
 
-**Step 9.1: COMPILE THE EVIDENCE**
+`devices_lock` also used by `roccat_open`, `roccat_release`,
+`roccat_ioctl` — those are the racing syscalls.
 
-FOR:
-- Real firmware misbehavior on shipping Intel ISH (TGL LP `8086:a0fc` in
-  this tree).
-- User-visible: PCI reset + ISHTP reinit ~1100/day, error log flood,
-  sensor disruption.
-- Buggy guard present here since original 2016 driver.
-- 5-line, obviously correct split of two cases.
-- Applies cleanly.
-- ISH maintainer Ack, Intel Tested-by, HID maintainer applied it.
-- Same `init_done` + ENUM_DEVICES + `ish_hw_reset` class of bug already
-  accepted into this tree (`d21497331b967`).
-- Fits the **hardware quirk/workaround** stable exception.
+**Step 5.3: CALLEES**
+`device_create` / `device_destroy`, `hid_hw_close`,
+`wake_up_interruptible`, `roccat_free_device`.
 
-AGAINST:
-- Not a panic/UAF/CVE; driver-specific.
-- Silently ignoring post-init ENUM_DEVICES will not pick up a device
-  list change via that command (old code did that only via a brutal
-  reset).
-- Full Srinivas review text not retrieved (lore Anubis).
+**Step 5.4: REACHABILITY**
+Yes. Unprivileged USB gadget / physical unplug plus close of
+`/dev/roccat*`. Syzbot has a C repro.
 
-UNRESOLVED:
-- Exact lore body of 2026-06-29 replies.
-- How many ISH firmware versions besides TGL LP resend ENUM_DEVICES.
+**Step 5.5: SIMILAR PATTERNS**
+hidraw holds `minors_rwsem` for the whole `hidraw_connect()` /
+`hidraw_disconnect()`. Same idea.
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — Tested-by Intel; Acked by
-   ISH maintainer; logic is a 2-way split of an existing if.
-2. Fixes a real bug that affects users? **PASS** — observed on TGL LP;
-   periodic ISH reset.
-3. Important issue (crash, security, corruption, deadlock)? **PASS** —
-   repeated PCI function reset and full client reinit is a serious
-   stability issue, not cosmetic.
-4. Small and contained? **PASS** — one file, 5 lines.
-5. No new features or APIs? **PASS**
-6. Can apply to the local tree? **PASS** — exact context in 5.15.221.
+Record: `[USB remove vs fput; userspace-reachable; HID-roccat family]`
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-Record: **Hardware quirk/workaround** for non-compliant/buggy ISH
-firmware. Also a logic fix for misclassifying a valid response.
+---
 
-**Step 9.4: MAKE YOUR DECISION**
+## PHASE 6: CROSS-REFERENCING AGAINST THIS TREE
 
-This should be backported to **this** 5.15 tree. The bug exists here,
-the hardware ID exists here, the fix is tiny and applies cleanly, and
-the current behavior is a reset storm on common Intel ISH laptops.
+**Step 6.1: BUGGY CODE IN THIS TREE?**
+Yes, at `v6.18.57:drivers/hid/hid-roccat.c` `roccat_connect()` unlocks
+at old line 347 before init; `roccat_disconnect()` unlocks at old line
+372 then later reads `device->open`.
 
-===============================================================
-Verification
-===============================================================
-- [Phase 1] Tags: Tested-by Zhang Lixu; Acked-by Srinivas Pandruvada;
-  SOB Jiri Kosina; no Fixes/Cc:stable/Reported-by.
-- [Phase 2] Diff: `process_recv` ENUM_DEVICES only; split `!response ||
-  init_done` into reject-without-flag vs discard-if-init_done.
-- [Phase 2] `CMD_MASK`/`IS_RESPONSE` in `ishtp-hid.h` confirmed
-  (`0x7F`/`0x80`).
-- [Phase 3] blame: guard from `0b28cb4bcb17dc` (2016); ancestor of HEAD.
-- [Phase 3] related: `d21497331b967` already in tree; does not fix
-  periodic resend.
-- [Phase 3] author: no prior Wahid Khan commits in this hid tree.
-- [Phase 4] ratatoskr v1 2026-06-27, v2 2026-07-20 (“proper sign off”
-  only); Srinivas replies listed 2026-06-29.
-- [Phase 4] lore.kernel.org 403/Anubis; `b4 dig` on a mistaken hid.git
-  SHA failed. UNVERIFIED: full review email text.
-- [Phase 5] callers: workqueue `ishtp_bus_event_work` →
-  `ish_cl_event_cb` → `process_recv`.
-- [Phase 5] reset: `_ish_hw_reset` uses `pci_reset_function`;
-  `hid_ishtp_cl_reset_handler` re-runs `hid_ishtp_cl_init`.
-- [Phase 6] `git describe HEAD` = `p-5.15-2-g9a29d9b0f9507`; `make
-  kernelversion` = 5.15.221.
-- [Phase 6] buggy if at lines 113–114 present; exact patch context
-  matches.
-- [Phase 6] TGL `0xA0FC` in tree (`1479a82d82df6`); GUID matches commit.
-- [Phase 7] MAINTAINERS: INTEL INTEGRATED SENSOR HUB DRIVER → Srinivas +
-  Jiri.
-- [Phase 8] failure mode: periodic ISH PCI reset, HIGH; not a kernel
-  oops.
-- UNVERIFIED: exact Srinivas reply text; whether other FW besides TGL LP
-  hits this.
+`git merge-base --is-ancestor 7e1d29620273b v6.18.57` → not an ancestor.
+`git merge-base --is-ancestor d76994443eed v6.18.57` → not an ancestor.
 
-The problem is a firmware quirk that this 5.15 driver turns into an ISH
-reset loop. The fix is small, reviewed, tested, and already matches the
-local source.
+**Step 6.2: BACKPORT DIFFICULTY**
+`patch --dry-run -p1` of the upstream diff against
+`v6.18.57:drivers/hid/hid-roccat.c` → **clean apply**.
+
+**Step 6.3: RELATED FIXES ALREADY HERE**
+- `36bb2d0b91501` — different UAF (readers list in
+  `roccat_report_event`), already in 6.18.y.
+- `da00eac19feef` — leak of cbuf reports, already in 6.18.y.
+- This disconnect/open race is **not** fixed in 6.18.57.
+
+Record: `[bug present; clean apply; no substitute fix]`
+
+---
+
+## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
+
+**Step 7.1:** `drivers/hid/hid-roccat.c` — HID char device for Roccat
+mice/keyboards (`CONFIG_HID_ROCCAT`, depends on `USB_HID`). Criticality:
+**PERIPHERAL**, but the UAF is real for those devices and for syzbot USB
+emulation.
+
+**Step 7.2:** Driver is old (2010) and low-churn except recent UAF/leak
+fixes. Mature code with a long-standing race, not a new subsystem.
+
+Record: `[HID/roccat] [PERIPHERAL] [mature, recent UAF fixes]`
+
+---
+
+## PHASE 8: IMPACT AND RISK
+
+**Step 8.1:** Users of Roccat HID devices with `CONFIG_HID_ROCCAT`; also
+fuzzers/USB gadget. Not universal.
+
+**Step 8.2:** Trigger: unplug (or driver unbind) while userspace has the
+char device open/closing. Timing-dependent but **reproduced** (syzbot C
+repro). Not a normal unprivileged syscall-only path without USB, but USB
+remove is a normal user action.
+
+**Step 8.3:** Failure: KASAN UAF in `roccat_disconnect` on `usb_hub_wq`
+→ kernel oops / memory corruption. Severity: **HIGH** (crash, potential
+memory-safety issue).
+
+**Step 8.4:**
+- Benefit: high for affected hardware / USB remove-vs-close; closes a
+  confirmed UAF.
+- Risk: low (8-line lock-scope change, same lock already used around
+  `hid_hw_close` in release).
+- Ratio: **benefit >> risk**. Residual leak on unplug-while-open is
+  worse than nothing but far better than UAF.
+
+---
+
+## PHASE 9: FINAL SYNTHESIS
+
+**Step 9.1: EVIDENCE**
+
+For:
+- Confirmed KASAN UAF, syzbot C repro, crash on USB disconnect vs
+  `roccat_release`
+- Second race: open can lock uninitialized `readers_lock`
+- Code in 6.18.57 matches the buggy version
+- 8-line lock-scope change, clean apply
+- HID maintainer applied 1/2 as a standalone fix
+- No new API; not a feature
+- Same class of fix already accepted for this file (CVE-2026-43111)
+
+Against:
+- Niche HID driver
+- Incomplete lifetime (leak if unplug while fds remain); 2/2 kref not
+  merged
+- `roccat_report_event()` still lockless on `devices[]` (pre-existing)
+- Connect still publishes the pointer before init, but now under the
+  lock so open waits
+
+Unresolved:
+- Whether a later hid.git for-7.4 kref series will replace this; that
+  does not make 1/2 unsafe for 6.18.y.
+
+**Step 9.2: STABLE RULES**
+1. Obviously correct and tested? **PASS** — lock covers the UAF window;
+   syzbot repro exists; maintainer applied it.
+2. Real bug affecting users? **PASS** — KASAN UAF on unplug vs close.
+3. Important (crash/security/corruption)? **PASS** — UAF/oops, HIGH.
+4. Small and contained? **PASS** — +3/−5, one file.
+5. No new features/APIs? **PASS**.
+6. Applies to local tree? **PASS** — clean on v6.18.57.
+
+**Step 9.3: EXCEPTIONS**
+Not an ID/quirk/DT/build/docs exception. It is a normal race/UAF fix.
+
+**Step 9.4: DECISION**
+Backport to this 6.18.y tree. The bug is here, the fix is small, and it
+addresses a real UAF, not a refactor.
+
+---
+
+### What the commit solves for 6.18.y users
+
+On 6.18.57, `roccat_disconnect()` drops `devices_lock` and then reads
+`device->open`. Concurrent `roccat_release()` can free that object.
+Syzbot hits that as **KASAN slab-use-after-free in
+`roccat_disconnect`**. Connect also exposes the object before mutex
+init. Extending the existing `devices_lock` critical sections closes
+both windows. Remaining leak-if-still-open is the old non-racy path, not
+a new regression.
+
+Risk vs benefit: a few lines of lock-scope change vs a demonstrated UAF.
+Patch 2/2 is not a prerequisite.
+
+---
+
+Verification:
+- [Phase 1] Parsed upstream `d76994443eed`; tags: author SOB + Jiri
+  Kosina SOB only
+- [Phase 1] Series 2/2 has syzbot `d632e93ffcd1452bc61e`; competing
+  patch has syzbot `c492a9e154f81127551f`
+- [Phase 2] Diff +3/−5 in `roccat_connect`/`roccat_disconnect`; compared
+  to `v6.18.57:drivers/hid/hid-roccat.c`
+- [Phase 2] Confirmed open takes `readers_lock` after `devices_lock`;
+  connect used to init that mutex after unlock
+- [Phase 2] Confirmed disconnect old line 382 is `if (device->open)` —
+  matches KASAN “Read of size 4”
+- [Phase 3] `git blame -L 309,387 v6.18.57 -- drivers/hid/hid-roccat.c`:
+  2010/2011 introducers
+- [Phase 3] `git merge-base --is-ancestor 7e1d29620273b v6.18.57` →
+  false; not in 6.18.57
+- [Phase 3] `da00eac19feef` / `36bb2d0b91501` already in 6.18.57;
+  different bugs
+- [Phase 4] `b4 dig -c d76994443eed` → msgid
+  `20260902094551.200587-1-dmantipov@yandex.ru`
+- [Phase 4] `b4 mbox` thread: Jiri applied 1/2, rejected 2/2
+- [Phase 4] `b4 dig -w`: Kosina, Tissoires, linux-input
+- [Phase 4] WebFetch syzbot: KASAN UAF, C repro, 20 crashes; Oct 8
+  upstream retest no crash
+- [Phase 5] grep callers: nine hid-roccat-* probe/remove paths; syzbot
+  used savu
+- [Phase 6] `git describe HEAD` → `v6.18.57-155-gcdf239ca885b2`; `make
+  kernelversion` → 6.18.57
+- [Phase 6] `patch --dry-run -p1` of upstream diff on v6.18.57 file →
+  success
+- [Phase 7] Kconfig `HID_ROCCAT` depends on `USB_HID`
+- [Phase 8] Failure mode verified from syzbot report, not inferred
+- UNVERIFIED: later hid.git for-7.4 kref work (not in this tree; 2/2 was
+  rejected from mainline)
+- UNVERIFIED: lore.kernel.org HTTP fetch (403); used `b4` +
+  openwall/syzkaller instead
+
+The patch is a small, correct UAF/race fix that applies cleanly to this
+6.18.57 tree.
 
 **YES**
 
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hid/hid-roccat.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 12a43c64e8156..085313ae354ab 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -113,8 +113,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
+index e54b6a8a92ef7..77042c7edf765 100644
+--- a/drivers/hid/hid-roccat.c
++++ b/drivers/hid/hid-roccat.c
+@@ -344,8 +344,6 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
+ 		return temp;
+ 	}
  
- 		switch (recv_msg->hdr.command & CMD_MASK) {
- 		case HOSTIF_DM_ENUM_DEVICES:
--			if ((!(recv_msg->hdr.command & ~CMD_MASK) ||
--					client_data->init_done)) {
-+			if (!(recv_msg->hdr.command & ~CMD_MASK)) {
- 				++client_data->bad_recv_cnt;
- 				report_bad_packet(hid_ishtp_cl, recv_msg,
- 						  cur_pos,
-@@ -122,6 +121,8 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 				ish_hw_reset(ishtp_get_ishtp_device(hid_ishtp_cl));
- 				break;
- 			}
-+			if (client_data->init_done)
-+				break;
- 			client_data->hid_dev_count = (unsigned int)*payload;
- 			if (!client_data->hid_devices)
- 				client_data->hid_devices = devm_kcalloc(
+-	mutex_unlock(&devices_lock);
+-
+ 	init_waitqueue_head(&device->wait);
+ 	INIT_LIST_HEAD(&device->readers);
+ 	mutex_init(&device->readers_lock);
+@@ -356,6 +354,7 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
+ 	device->cbuf_end = 0;
+ 	device->report_size = report_size;
+ 
++	mutex_unlock(&devices_lock);
+ 	return minor;
+ }
+ EXPORT_SYMBOL_GPL(roccat_connect);
+@@ -369,15 +368,12 @@ void roccat_disconnect(int minor)
+ 
+ 	mutex_lock(&devices_lock);
+ 	device = devices[minor];
+-	mutex_unlock(&devices_lock);
+ 
+ 	device->exist = 0; /* TODO exist maybe not needed */
+ 
+ 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
+ 
+-	mutex_lock(&devices_lock);
+ 	devices[minor] = NULL;
+-	mutex_unlock(&devices_lock);
+ 
+ 	if (device->open) {
+ 		hid_hw_close(device->hid);
+@@ -385,6 +381,8 @@ void roccat_disconnect(int minor)
+ 	} else {
+ 		roccat_free_device(device);
+ 	}
++
++	mutex_unlock(&devices_lock);
+ }
+ EXPORT_SYMBOL_GPL(roccat_disconnect);
+ 
 -- 
 2.53.0
 

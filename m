@@ -1,177 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43490492E35;
-	Mon, 19 Oct 2026 07:51:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792396307; cv=none; b=e0ojkkW2rVFJtSyMFKLz3yASA+PC8EAGq7hXX7vCgo9QmpuiZRlaHKclRVUgeTKV1FAtQoVtTtxMGz+2N8Jm9MXrhN2MqVkGMAicZ1KSpmTGzSWO0I4EcZ+cNY9+K3J9jtzbHfWuOxh9qRDJr/np0/yBQo060IPFx2WobHpqhx4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792396307; c=relaxed/simple;
-	bh=nyzG3DSCIgMnSVvjCn/cHONmNHOrIuy+WPOmWmahXmo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eBmskWXygrlnQGaFLTW6lFGqPjbLWyfput++c8c6TS8qfQYrWDoCx25YQ0CYFzZHwMcsC8j1pvrm3Zlh3DO5eARbnVx1cVmD3iLrbpkf2Kc8hR9DiKBeJS1aoye2ad3JWK0nBRDIyDJww9pbNv4Tjv48IpUFrgGmn3xpXEqeW9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RyzRQbgY; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37FA93DA5AA
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 07:52:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792396339; cv=pass; b=QkGYx/An22fcYZPbnV1LkDitOKi64NRg/H64q1hB182tkm+rkGe2Y3AnD+PTNuR7TmoMw84PDS25IuUhrI4wb+plN5dfpeQElaltW40l7TPdjYc6Cq4Yh+dzA0tG34I3nCIPx3TZGPizNotJuNZXT94jJRLcPTffBuohy6yZxAM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792396339; c=relaxed/simple;
+	bh=XZJueuc5j06DV+OJMym7OlAemDED0L3fnLmcjtir0Is=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=XjfIfUKcc4AXQYQnmJ8c3k8Cdp7oWtN9tZgTfcoKhNG0n+eXxmiPN7Ckc96QKhvIUo17fwZ7zQ7yTo/2DAdAndupD3kTctbSt4BhubpjtL8ZObdRHm+FNcD+aQoFJRqtvbx3wN6lNPoXGrqUpd5lpkBY33f8CFx+hP2K3RHYm5Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nblb2Sz9; arc=pass smtp.client-ip=209.85.208.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RyzRQbgY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71C981F000C4;
-	Mon, 19 Oct 2026 07:51:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792396303;
-	bh=eYnMRGF8TuI5STDGB+wlCsyAe+nkAlu3mdXDyuFpuk4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=RyzRQbgYNt0moEuymsAbJQ74FSKfldDdUjns+Wtac+ec3B8VLiq5/icDLsA2bZS6B
-	 8tqhcG+LoGeGS2V/kjXXp/5Fgl9ZszmxfrgpNVnxO2XJmXBnBK+YGhLkwfBS9P9d6R
-	 Hmd9ZEPCstZ02dQprTELvhT5GNn4ZPKFBqFbxh7GinLTR4bkJXyL9XcY/nCwQ3EJtw
-	 mea2Yh3SKRfaKd5Xe3KQrIbunUJqFTVn7QNbwgylML9M+KtuqEBjvCThV67Nqy4r36
-	 NUXvyQLELTeSxVXiMQ0ZJXR/kMklcJMLHO35tO7Ums5Pw+PuKglS7f6qaYEcrd1sCj
-	 6cslZRM6GO2Qw==
-Date: Mon, 19 Oct 2026 09:51:37 +0200
-From: Alejandro Colomar <alx+linux-hardening@kernel.org>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Shihuang Liu <shlomojune6@gmail.com>, linux-input@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	Marcus Folkesson <marcus.folkesson@gmail.com>, Ville Syrjala <syrjala@sci.fi>, 
-	Henk Vergonet <Henk.Vergonet@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Input: joystick - replace strlcat() with strscpy()
-Message-ID: <atXLrTZYBazVZVHr@debian>
-References: <20261016170411.51025-1-shlomojune6@gmail.com>
- <20261016170411.51025-2-shlomojune6@gmail.com>
- <30bc6e07072076b0591fd416f50f4fc3@gmail.com>
- <2026101727-ebay-five-72f8@gregkh>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nblb2Sz9"
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6b1dae0febeso2044540a12.2
+        for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 00:52:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792396336; cv=none;
+        d=google.com; s=arc-20260327;
+        b=W2TL63Azk7ZXW+2NZ16zZru0D9yhAi/HNyry8cNxUR7nmvccqqXPi6CxINfiK9/No2
+         13N+UMKt7G2QqPTXZa9VzRd30XxFKxz8HxKbG3qcZbrFCubrlEw1hZZjBbc0PW05ux0r
+         zj7bCvN0nPdHitJnwK3Rq0GgsEDH1tawhPfmf5JwgMc23O93nZOOOVSSjbGV2TbO6xgP
+         IzVEHHb9r5cctnvkvFyicaBb8SjkbS3mxmSfBOWcwd+SrKC4+6Fffp+ru8b7Nc1HhpOa
+         q0yodA+tMGNtO6EiHKhHuGWo+24EiNUiXLvNExCSzTIc6uhvynDsG77pnirSljKvFBVZ
+         qL+A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=d0YF84RbBDtM8CfYcy71f8ct2VM8PtglEnPjSuG0VFU=;
+        fh=OLBnQV1N9ZJNuvjxgnwLOnxNUv9Ed2wf7UcsqG5mRpE=;
+        b=djOSq+zwpTN4Ks5/jFGvh3syPq4OaZRm1f42vLHqloZ0/I3NPllLUn77OkN57VVgF8
+         Nv815wSgGPzieBB81DRkEa+6aR6t3Yg7l6Kawfh/BYqOAa5VfovwoS8ZravFGBboFnvB
+         nY9HkmlHyn9yI1aWfgU2FDoE9g9p1C21AQuHHddsDnVzfP54tOlyDgyXCFQhmvrfoTQR
+         d13x7VcZsTxM7Icf6+Wuqq5tK/HSTQuwKChc6xoRhBrKpc9AY7FO9WskluN8PU42guOv
+         MCjXTsARX13FU3N4+ALvcx9YX12cOGUi7GMpdEuys6JM6zGY8Pk0qVq+3nYmD1aFWFiV
+         62qA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792396336; x=1793001136; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=d0YF84RbBDtM8CfYcy71f8ct2VM8PtglEnPjSuG0VFU=;
+        b=nblb2Sz9TYwIwkqxStruxmjTKlBdPbirI72ItKMhRKcgocaNOWApZ5ALfQXj12e4B9
+         wKsHzZGPDC+3h4d1RiV1RlTwYzDEg3bRoTfuoukf6S48HKgMEPXxeN36L008APeUePKd
+         ojTcz5+t2CscHENcqJBjUev/4W8VL9x+/LUDCKagcTvjY4wAiGbgNLwouEI5YrZ00ff5
+         cJNeAN2pjKzsBfM57qcQCr6pOsekyovSy50omTG/J86OeuKVwu8Oks6owf+GPMCDbi7u
+         gqvHS9elL3uifj4bf6pGRHOgRuzBYIN3BA2CG5DosR0MTvPY5czZFcoLQMR0Nj5sL6lF
+         139A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792396336; x=1793001136;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=d0YF84RbBDtM8CfYcy71f8ct2VM8PtglEnPjSuG0VFU=;
+        b=Tn8rnI1RR4bbyZ2S274CllkpsWZR2LM8Ks8pUzq2gGZI8cFj5AzT5ryy33dYr+dm/W
+         /ET3TnZtbXw4sAKDDdZ1L1Xorlsc19bFhFTNMr2rm8ByiCj6NBxvBdXXa0R46kfSsUoF
+         +/pPwNbkfj/MfzjN2o2yxRExnLq1/T+qodjCr1de1YF/gFIuDcx/0VffCmlTWkc+cM36
+         W7AjOwCEy254cNYppfJ+MBntSZryjcLKM5jK4oyAx5ndgMO2UV6PYGMEJ8sTqyn46qd5
+         jZWZ/vRkdqzVeyrc+veWRD6aYarGNg7KcJpEWUv13o02x9Q7nrgopnPLWfSfpsTv2yxf
+         WH9g==
+X-Gm-Message-State: AFq9FYKJUOKCRKNxyMMhj2HbycJBm2lLetSuvuAfKNwwwA/YYbxkk56L
+	asBhisfogfjJtP63R5AZ91M9m4paDWdELYTLa5e4i0kAToiKwxw6/tXVxdXTKmIaqLevgoB6f/l
+	hqsbpnlHosdG1IJFatRBe9IS56S3ONfkr6kHzNLeScA==
+X-Gm-Gg: AYBFou2mqpwKOzLfMECtd0pX5mbHg3QcP1NXlWK2TyvIUuBQXHJ3VJIsb6GC7Xrx/J0
+	3qU+hcDNorfmFXy6N5VA2IMScALSxpTxCBCsy255EjZP4s9zs47UwUSOe1eOSj/WUaB7FG92Scp
+	YLGcD3cUrzjYW4VFBSrQygLspSFu5hA6XTBxnYMct7BbOSBFifXk8wPrgYSEKeqaH41li2HMZnW
+	fArI6g4ZXgeBMrNL0fYsuIrGqnYL4oLBRF8x2M4WarwC1IAa4eg/6hjio39W6jCKqgXXd2aTZ9K
+	ARIgUUD0ovMlrkNLmdjpXP1Ko4azF1GpSxGAsbiW2jnmfWjoEQ4rm9EJh2QMfuqIhRrUUpK7h5r
+	1
+X-Received: by 2002:a05:6402:190e:b0:6ac:b9b5:8e8b with SMTP id
+ 4fb4d7f45d1cf-6b3a8176960mr4361763a12.15.1792396336146; Mon, 19 Oct 2026
+ 00:52:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="x3pamjgcf2saoemn"
-Content-Disposition: inline
-In-Reply-To: <2026101727-ebay-five-72f8@gregkh>
+From: Indrath <indrathftw@gmail.com>
+Date: Mon, 19 Oct 2026 13:22:03 +0530
+X-Gm-Features: AclHuK_Uv-Xi8XsEvnx9gS2aD8EzCF3zYcHTItqX8kGHhGaLdcX8aA8RZReUXNA
+Message-ID: <CAGFfo9K1+WJjuKsSgx+ezLnzcZ+gPFXDBQmZ8W6dDC-oHbd-iA@mail.gmail.com>
+Subject: HID: wacom: avoid NULL dereference for incomplete wireless receiver configurations
+To: ping.cheng@wacom.com, jason.gerecke@wacom.com
+Cc: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
+Hello,
 
---x3pamjgcf2saoemn
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx+linux-hardening@kernel.org>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Shihuang Liu <shlomojune6@gmail.com>, linux-input@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	Marcus Folkesson <marcus.folkesson@gmail.com>, Ville Syrjala <syrjala@sci.fi>, 
-	Henk Vergonet <Henk.Vergonet@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Input: joystick - replace strlcat() with strscpy()
-Message-ID: <atXLrTZYBazVZVHr@debian>
-References: <20261016170411.51025-1-shlomojune6@gmail.com>
- <20261016170411.51025-2-shlomojune6@gmail.com>
- <30bc6e07072076b0591fd416f50f4fc3@gmail.com>
- <2026101727-ebay-five-72f8@gregkh>
-MIME-Version: 1.0
-In-Reply-To: <2026101727-ebay-five-72f8@gregkh>
+I found a NULL-pointer dereference in the Wacom wireless receiver path.
 
-Hi Greg,
+I verified that the vulnerable source remains present in upstream
+Linux v7.3-rc7 (commit 32c52ec87d6245ee2d12ed5dd509e40062939b50).
 
-> Date: 2026-10-17 10:19:59+0200
-> From: Greg KH <greg@kroah.com>
->
-> On Fri, Oct 16, 2026 at 12:17:05PM -0700, Dmitry Torokhov wrote:
-> > Hi Shihuang,
-> >=20
-> > On Sat, Oct 17, 2026 at 01:04:07AM +0800, Shihuang Liu wrote:
-> > > The pxrc and xpad drivers build the physical path by appending a
-> > > constant "/input0" suffix with strlcat() after usb_make_path().
-> > >
-> > > In preparation for removing the deprecated strlcat() API[1],
-> > > replace it with strnlen() followed by strscpy() into the remainder
-> > > of the buffer, as commit 34b228b739f5 ("HID: usbhid: replace
-> > > strlcat with better alternatives") did for the usbhid drivers.
-> > ...
-> > >  	usb_make_path(udev, pxrc->phys, sizeof(pxrc->phys));
-> > > -	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
-> > > +	len =3D strnlen(pxrc->phys, sizeof(pxrc->phys));
-> > > +	strscpy(pxrc->phys + len, "/input0", sizeof(pxrc->phys) - len);
-> >=20
-> > I really dislike this conversion pattern, and I do not want to see it
-> > open-coded across 18 drivers in this series.
-> >=20
-> > usb_make_path() is just a trivial wrapper around snprintf() that already
-> > returns the length of the formatted string. Calling usb_make_path(),
-> > ignoring its return value, rescanning the buffer with strnlen(), and
-> > then open-coding pointer and size arithmetic for strscpy() (along with
-> > an extra local variable in every probe function) makes the code much
-> > uglier and harder to read than what we had before.
-> >=20
-> > All of these USB input drivers already include <linux/usb/input.h>, and
-> > drivers across other subsystems (drivers/hid/usbhid/, drivers/media/rc/,
-> > drivers/media/usb/, sound/usb/caiaq/, drivers/usb/storage/onetouch.c)
-> > all use the exact same usb_make_path() + suffix pattern ("/input0",
-> > "/input%d", "/ir0", "/button", etc.).
-> >=20
-> > If we want to get rid of strlcat() here, please introduce a generic
-> > helper in include/linux/usb.h (or a USB input helper in
-> > include/linux/usb/input.h) that formats the USB path together with the
-> > subpath in a single pass, for example:
-> >=20
-> > __printf(4, 5)
-> > int usb_make_subpath(struct usb_device *dev, char *buf, size_t size,
-> > 		     const char *fmt, ...);
-> >=20
-> > (or a simple const char *suffix variant if formatting is not needed).
-> > Then each driver can do:
-> >=20
-> > 	usb_make_subpath(udev, pxrc->phys, sizeof(pxrc->phys), "input0");
-> >=20
-> > and even drivers/hid/usbhid/hid-core.c can simply do:
-> >=20
-> > 	usb_make_subpath(dev, hid->phys, sizeof(hid->phys),
-> > 			 "input%d", intf->altsetting[0].desc.bInterfaceNumber);
-> >=20
-> > instead of repeating this strnlen() + strscpy() boilerplate everywhere.
->=20
-> I'm all for that too, and putting it in the USB core for everyone to use
-> would be great.
+I dynamically reproduced the crash on Debian 6.12.113+deb13-amd64
+using dummy_hcd and a configfs HID gadget. The gadget exposes
+056a:0084 with one interface, binds to wacom, and sends the wireless
+status report. This triggers:
 
-You might be interested in <https://lore.kernel.org/linux-hardening/cover.1=
-751747518.git.alx@kernel.org/>.
-I was working on something like that, but actually much simpler.
-It is meant to replace strscpy()/snprintf() by versions more similar to
-Plan9's strecpy(2)/seprint(2), but without some important flaw that the
-Plan9 APIs have (about handling NULL).
+  BUG: kernel NULL pointer dereference, address: 00000000000000c8
+  Workqueue: events wacom_wireless_work [wacom]
+  RIP: wacom_wireless_work+0x61/0x164 [wacom]
 
+In drivers/hid/wacom_sys.c, wacom_wireless_work() unconditionally accesses:
 
-Have a lovely day!
-Alex
+  usbdev->config->interface[1]
+  usbdev->config->interface[2]
 
->=20
-> thanks,
->=20
-> greg k-h
->=20
+For a configuration with bNumInterfaces == 1, those entries are NULL.
+When the device supplies the wireless status report that schedules
+this work, the first access to interface[1] dereferences an absent
+sibling interface.
 
---=20
-<https://www.alejandro-colomar.es>
+Expected behavior: the driver should safely reject or ignore a
+wireless receiver configuration that lacks the sibling USB interfaces
+required by wacom_wireless_work().
 
---x3pamjgcf2saoemn
-Content-Type: application/pgp-signature; name="signature.asc"
+I have the reproducer, full dmesg, and test logs available on request.
 
------BEGIN PGP SIGNATURE-----
+AI assistance was used for the initial static source analysis and
+editorial review. I independently performed the reproducer execution,
+crash validation, and upstream source verification.
 
-iQIzBAABCgAdFiEES7Jt9u9GbmlWADAi64mZXMKQwqkFAmrVzAkACgkQ64mZXMKQ
-wqm76g/8DRaE82CIGwL1o1hZWQio54x8XDvjkp0kODsmO4NU+4UkW7s3el/ob0GC
-7ypBNH2/cRqg9avVT6/meR8k+IeYJlPUYG7m3ptS4kRHh0s2h4/l33RbaSvDTWRy
-4v4BoCLlh7l1XH4FVOvEGE/C7OsbY9SzvrIrt2A2VijFpOpmVrGYn/fc8O5SS6yj
-GSOCZaMPLe3Ix9aNvxz+JoOvMqdlsUR+Z5jXHfgeCoXZBw3DhjYZNEmzGyQF/y1o
-TkbANzmBjw4ioP0qRF9zKsL4z57ekYrB50fPsx9XhswDORFofKj5kmv+9MaOWuC2
-fPPQtOaWtQiKQvdm+M036wSA4nixjdiBeafgwQM52Eu1rKpmwQqi53fxg8QtvbBv
-097Xv5luCjzPB0qVTQgqTWbccvepaC0ve2p0QVpg8KKXGCjwXQckZw6e75xfPGKg
-+wbrtjl+N4GIieHuavsb7EV8VE8qk0MmM0C6tD6V+ZrBW/ut3VeXsbb6k6+q69jG
-DoBhcvsjBL7us6Xa//5HbKv/nckUNGp2Yi+SYfca4Xu/e4jZFwy7aJDkHJtGY+BE
-+4iqQJm9Voo5kiDBdAj3ZlDGiTPFbZsCFQ1eFNTyMqASk4TyRa8ljXygVzH0T22m
-UeTRyyoHkccrrZ3zlJfHtdW8uCG/dUYLkLnvF9CU4B8voUV7O14=
-=ex7/
------END PGP SIGNATURE-----
-
---x3pamjgcf2saoemn--
+I have previously sent the same email  but was rejected due to it not
+being plain text
+Thanks,
+Indrath

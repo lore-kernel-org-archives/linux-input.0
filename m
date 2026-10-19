@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE1C353AEAE;
-	Mon, 19 Oct 2026 13:56:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99FEF54BC3D;
+	Mon, 19 Oct 2026 13:56:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418179; cv=none; b=ZfoxEg+TDmczzAImdFFtIfs4BLdZHJTYGNJFcSg7dL2SJdwobznve9t1QqGhzzzcIoSi2qRyqvPFj3pBF719rf274L0pyNmZpEslfAkZgr6nk/ifYGhVpZUZ2EYqH0xk2C15erjMtgzbstNzN48Mhb4Gw9pB5dXDhBB4gP0PfAM=
+	t=1792418204; cv=none; b=bsP37zFyOl+0UsaXC7Za5/e2ho/FIVEwspUfGhCk9m2WcB9QgwqAKHxvmY+nILnico/gFiQVB7qjt8aJEU+W0l1X/SGSs0C5kYmTaB1djIbreFoq323c+IY5PEfbiP0Q5S0tLJP7uKh8HGMMkKtlhVbTerh63WiWieuzpe81NTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418179; c=relaxed/simple;
-	bh=I2TXrsw0dwPSGyIu9U7do2aj1JyZTXoV56b9WsmD+r8=;
+	s=arc-20240116; t=1792418204; c=relaxed/simple;
+	bh=z4NsKVfjx8HGMVWk/IIhqNa/gJbtYgpUP5zTBFfc35A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=POGE0lo69a2TqMcN+tEYAYSOcks91rGwcHagVfWt5z2CZ8rQwPYOnSoQEAtgU1Y6SA2wsD70szEH/CsWXkYsxRBB/M9rDgfjq1g56XdSjoRpUuZezQT0jc1370CgW2Kw9Ei0CN8ms/bEXdjsykR20PP22AA6gRvoSD+VIyPqeY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f/UJYnUX; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=VikyGUAyGyH+Ec7JcadcD0b3X1xeVGoyU5vtGGK66r21S0lmUt9J9gv2tLjT5pE19w9y/vD/z2/SojQvxAJ/+zN8pH5TPB3Sza2he2M+90DefcrbUe+Q6V4+fVa55/Kn57p+M7Dfs0ZdRqoCQIMOjwskp+8Ke/oIXnPbK+YDqf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FI47pChF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f/UJYnUX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBFD21F000C4;
-	Mon, 19 Oct 2026 13:56:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FI47pChF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 828A11F000C5;
+	Mon, 19 Oct 2026 13:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418175;
-	bh=++C4Wsz8QikOVQXgFYChxoV4NuDK+ohvb+u2XY/cVT0=;
+	s=k20260515; t=1792418200;
+	bh=eJSdATW2Qr1HPFuivwkn3fyU6QISohvpr1nA2CpokCU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=f/UJYnUXXuXQM2k7DSJHtaYguc3SzGP84gXGYKhF1rYSCcEiUpHTJ1zs6BR0C17xW
-	 QFFC9mmUqsN59z7cAd837VqHx3t9QYevjWOnrc2EKpZR/CpOQSbvYOkT3crKKwSka0
-	 d7h0F1fsvgtYF26fP30zUg2Giy0CNwTKcIpV4zSuLMKesIoKOka5u9qid8ET9Cr78L
-	 duApeSLfQpMlWQeTtXhVcJxhMBIkyr4k2tYzh6D0ld6QAh/8IubRaYhcx8ExQUSD/t
-	 WLJR3Jntx1Td63IqwecvGMvhBNDlPISbWp2IkdiwzGjXnk5t30K9aIbsQFkTBeqYAG
-	 wBfmavr5E5+Kw==
+	b=FI47pChF7k71f/Mi9+4T6VHhT5r0zXhXyZcqhHEEo8Ol0K12f3C/9inaJQ3jrchqS
+	 pQwCWlgxWgQJKOjNeBJVm3y/UgGNMXPEj6JS7nvPIIJ5SnpG2oiNKtDIz9dAjgx5yw
+	 XfjEJxgSaSTe04fRz8ho+5j5Gy5TqPXXwWUg3av9q2jdfHvmNFs5euL5DEK/MoeCpW
+	 TX4yRjb5k+XJX4DIM0vEY59qG2Enf2Pa7ALja7JFYwZgYTEZMbwz/z10wpdo4OEYBQ
+	 rX/2PsoI2dKsPgf69LUXdVk1yXfSKhqMzQ8F0P+LIlz7q1GKV+hr4YXH+tDwQv3dF9
+	 FJhz9CqWMUwhw==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Pengpeng Hou <pengpeng@iscas.ac.cn>,
+Cc: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
 	jikos@kernel.org,
 	bentiss@kernel.org,
+	oleg@makarenk.ooo,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18-5.10] HID: rmi: check report length before trimming sentinel bytes
-Date: Mon, 19 Oct 2026 09:45:57 -0400
-Message-ID: <20261019135441.1420968-66-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18] HID: universal-pidff: Add support for Turtle Beach VelocityOne Race
+Date: Mon, 19 Oct 2026 09:46:14 -0400
+Message-ID: <20261019135441.1420968-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -48,369 +49,387 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 6.18.57
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+From: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 
-[ Upstream commit 28a3e326fad2451bdb66b747dd1f7ccbb900eed6 ]
+[ Upstream commit 53f7f7955a684e820bdd6bd6792c45c4b434f637 ]
 
-rmi_check_sanity() trims trailing 0xff sentinel bytes, but its loop
-reads data[valid_size - 1] before checking that valid_size is non-zero.
+Add usb VID and device PID to hid-ids.h
 
-Reverse the condition so the length is proved before the last byte is
-inspected.
-
-Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-The local tree is **pending-6.12** (`6.12.111`). The buggy
-`rmi_check_sanity()` loop is still present, the one-line short-circuit
-reorder is not an ancestor of HEAD, and the patch applies here with only
-a line-number offset.
+## Phase 1: Commit message forensics
 
-===============================================================
-PHASE 1: COMMIT MESSAGE FORENSICS
-===============================================================
+**Step 1.1 — Subject**
+- Record: `[HID / universal-pidff] [Add] USB VID/PID so Turtle Beach
+  VelocityOne Race binds to the existing hid-universal-pidff driver`
 
-**Step 1.1: PARSE THE SUBJECT LINE**
-Record: **[HID: rmi]** **[check]** check report length before trimming
-sentinel bytes. Same class of wording as other HID length-check fixes:
-the length must be proved before `data[valid_size - 1]` is read.
+**Step 1.2 — Tags**
+- Record:
+  - `Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>`
+    (author; co-author of this driver)
+  - `Signed-off-by: Jiri Kosina <jkosina@suse.com>` (HID maintainer)
+  - `[Upstream commit 53f7f7955a684e820bdd6bd6792c45c4b434f637]` and
+    `Signed-off-by: Sasha Levin` ignored as pipeline markers
+  - No `Fixes:`, `Reported-by:`, `Tested-by:`, `Reviewed-by:`, `Acked-
+    by:`, `Link:`, or `Cc: stable` (absence of the last two is expected)
 
-**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-Record:
-- Signed-off-by: Pengpeng Hou \<pengpeng@iscas.ac.cn\> (author)
-- Signed-off-by: Jiri Kosina \<jkosina@suse.com\> (HID maintainer)
-- No Fixes:, Reported-by, Tested-by, Reviewed-by, Acked-by, Link:, or
-  Cc: stable (absence is expected for this review pipeline)
-- Ignore any pipeline “Upstream commit” / Sasha Levin SOB markers
+**Step 1.3 — Body**
+- Record: Body is one sentence: “Add usb VID and device PID to hid-
+  ids.h”. No crash, leak, or corruption described. The claimed intent is
+  hardware enablement for one USB HID device. No version range given.
+  Root cause as stated: the IDs were missing from the existing driver’s
+  table.
 
-**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
-Record:
-- Bug: `rmi_check_sanity()` trims trailing `0xff` sentinels but
-  evaluates `data[valid_size - 1]` before `valid_size > 0`.
-- Symptom: one-byte out-of-bounds read when the loop has already trimmed
-  the buffer to length 0.
-- Root cause: C `&&` is left-to-right; the original order does the index
-  first.
-- No stack traces, syzbot IDs, or version list in the message.
-- Introducer (from git, not the message): `5b65c2a029664` (“HID: rmi:
-  check sanity of the incoming report”, 2014-09-10), first tagged
-  `v3.18-rc1`.
+**Step 1.4 — Hidden bug fix?**
+- Record: Not a disguised leak/race/UAF. It is a USB ID addition to an
+  existing driver (stable exception category 1).
 
-**Step 1.4: DETECT HIDDEN BUG FIXES**
-Record: Not a disguised cleanup. It is an explicit short-circuit-order
-OOB fix. The `valid_size > 0` test was already there; it was just on the
-wrong side of `&&`.
+---
 
-===============================================================
-PHASE 2: DIFF ANALYSIS - LINE BY LINE
-===============================================================
+## Phase 2: Diff analysis
 
-**Step 2.1: INVENTORY THE CHANGES**
-Record:
-- File: `drivers/hid/hid-rmi.c` (1 insertion, 1 deletion)
-- Function: `rmi_check_sanity()`
-- Scope: single-file, one-line surgical fix
+**Step 2.1 — Inventory**
+- Record:
+  - `drivers/hid/hid-ids.h`: +3 (two `#define`s plus a blank line)
+  - `drivers/hid/hid-universal-pidff.c`: +1 in
+    `universal_pidff_devices[]`
+  - Net +4 lines, two files, one table plus ID macros
+  - Classification: single-purpose, surgical device-ID add
 
-**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
-Record:
-- Before: `while ((data[valid_size - 1] == 0xff) && valid_size > 0)` —
-  when `valid_size` is 0, `data[-1]` is still read.
-- After: `while (valid_size > 0 && data[valid_size - 1] == 0xff)` — the
-  subscript is not evaluated on an empty buffer.
-- Path: runtime HID `raw_event` input, not probe/error-only.
+**Step 2.2 — Code flow**
+- Record:
+  - Before: `0x10f5:0x7077` is unmatched by this driver and falls
+    through to generic HID.
+  - After: HID core matches `HID_USB_DEVICE(USB_VENDOR_ID_TURTLE_BEACH,
+    USB_DEVICE_ID_TB_VELOCITYONE_RACE)` and calls
+    `universal_pidff_probe()`.
+  - Path: device enumeration / probe, not an error path. No
+    `driver_data` quirks.
 
-**Step 2.3: IDENTIFY THE BUG MECHANISM**
-Record: **Memory safety / OOB read.** HID core rejects a zero-length
-report (`hid_input_report()` returns if `!size`), so the realistic
-trigger is trimming an all-`0xff` (or fully trailing-`0xff`) report down
-to 0, then doing one more iteration. That is the exact Dell XPS 13 9333
-bus-sentinel case this helper was written for. One OOB byte is compared
-to `0xff` and discarded; it is not copied to userspace, so this is not
-an info leak, but it is still undefined-behavior / KASAN-class.
+**Step 2.3 — Bug mechanism**
+- Record: `[Hardware enablement / USB device ID]` — the driver already
+  implements PID force-feedback wrapping; this only lists one more
+  VID/PID. Not UAF, leak, race, overflow, or init-bug.
 
-**Step 2.4: ASSESS THE FIX QUALITY**
-Record: Obviously correct C short-circuit reorder. No API, locking, or
-control-flow change beyond skipping the illegal index. Regression risk
-is negligible. `rmi_raw_event()` already drops `size < 2` after this
-call.
+**Step 2.4 — Fix quality**
+- Record: Obviously correct as an ID table add. Insertion sits
+  alphabetically between TURBOX and TWINHAN. Vendor `0x10f5` already
+  identifies Turtle Beach elsewhere (`drivers/input/joystick/xpad.c`
+  uses `0x10f5` with other PIDs `0x7005`/`0x7008`/`0x7073`). PID
+  `0x7077` does not collide with those. No public API change. Regression
+  risk is low: only this VID:PID binds; probe returns 0 even if the PID
+  usage page is absent.
 
-===============================================================
-PHASE 3: GIT HISTORY INVESTIGATION
-===============================================================
+---
 
-**Step 3.1: BLAME THE CHANGED LINES**
-Record: Line 389 blamed to `5b65c2a029664` (Benjamin Tissoires,
-2014-09-10). Present since **v3.18-rc1**. Long-lived in this 6.12 tree.
+## Phase 3: Git history
 
-**Step 3.2: FOLLOW THE FIXES: TAG**
-Record: No Fixes: tag. Introducer confirmed via blame: `5b65c2a029664`
-is an ancestor of HEAD.
+**Step 3.1 — Blame**
+- Record: New lines; they did not exist before this commit. Surrounding
+  `hid-ids.h` TURBOX/TWINHAN macros date to 2008–2017. The device table
+  terminator was last touched by `5b9cae8c6472e` (clang-format, 2025).
+  The driver itself was added in `f06bf8d94fffb` (“HID: Add hid-
+  universal-pidff driver and supported device ids”, 2025-02-03; `git
+  describe` of that commit is `v6.13-4738-gf06bf8d94fffb`).
 
-**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-Record:
-- Candidate SHA on master: `28a3e326fad2451bdb66b747dd1f7ccbb900eed6`
-  (author date 2026-06-30, committer 2026-08-03). `git merge-base --is-
-  ancestor` vs HEAD: **not in this tree**.
-- Related later commit already here: `ab2958e0c94ed` / upstream
-  `183da103022ec` “HID: rmi: fix OOB access with undersized RMI reports”
-  — probe-time report-size clamps and copy bounds. **Does not change
-  this loop.**
-- Standalone one-line patch, not “X/Y”.
+**Step 3.2 — Fixes: tag**
+- Record: No `Fixes:` tag. Not applicable.
 
-**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-Record: Pengpeng Hou is not the HID maintainer. Jiri Kosina applied it.
-No other hid-rmi commits from this author in this checkout.
+**Step 3.3 — File history**
+- Record: Recent related commits on this driver: Asetek ID adds
+  (`c385f61108d40`), spelling/format nits, and `01d9874e84d3a` (stop
+  device on FF init failure). No prerequisite refactor is required for
+  this ID. Standalone; not “patch X/Y”. No later follow-up on these
+  files after this commit.
 
-**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-Record: None. Same `while` line exists here. `git apply --check` of
-`28a3e326fad24` succeeded (hunk offset 21 from the later OOB patch).
+**Step 3.4 — Author**
+- Record: Tomasz Pakuła is a listed `MODULE_AUTHOR` of `hid-universal-
+  pidff.c` and a frequent hid-pidff contributor (overflow, NPD,
+  playback, Asetek IDs). This is the subsystem’s own device-table
+  maintainer, not a drive-by.
 
-===============================================================
-PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
-===============================================================
+**Step 3.5 — Dependencies**
+- Record: Needs `hid-universal-pidff.c`, `USB_VENDOR_ID_*` macros, and
+  `hid_pidff_init_with_quirks`. All are in this tree. `git merge-base
+  --is-ancestor f06bf8d94fffb HEAD` succeeds; `git merge-base --is-
+  ancestor f06bf8d94fffb v6.18` also succeeds. Can apply standalone.
 
-**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
-Record:
-- `b4 dig -c 28a3e326fad24`:
-  https://patch.msgid.link/2026063007016439.1-ccfa108-0006-HID-rmi-
-  check-report-length-pengpeng@iscas.ac.cn
-- `b4 dig -a`: **v1 only** (2026-06-30).
-- Thread (3 messages): submission; Sashiko bot flagging **unrelated pre-
-  existing** read/write OOB in `rmi_hid_{read,write}_block` (later the
-  undersized-report patch already in this tree); Jiri Kosina “Applied,
-  thanks.” (2026-08-03).
-- No NAK. No reviewer asked for Cc: stable.
+---
 
-**Step 4.2: CHECK WHO REVIEWED THE PATCH**
-Record (`b4 dig -w`): To Jiri Kosina and Benjamin Tissoires; Cc linux-
-input and linux-kernel. HID maintainers were on the original To: line.
+## Phase 4: Mailing list / external research
 
-**Step 4.3: SEARCH FOR THE BUG REPORT**
-Record: No syzbot/bugzilla link on this patch. The sentinel behavior
-itself is documented in-tree and in `5b65c2a029664` (Red Hat bugzilla
-1123584 for Dell XPS 13 9333). That is the hardware path that can fill a
-report with `0xff` and drive this loop to length 0.
+**Step 4.1 — Original discussion**
+- Record: `b4 dig -c 53f7f7955a684e820bdd6bd6792c45c4b434f637` → https:/
+  /patch.msgid.link/20260922131758.1242755-1-
+  tomasz.pakula.oficjalny@gmail.com
+- `b4 dig -a`: single v1 series only; no v2/v3.
+- LKML: https://lkml.iu.edu/2609.2/17309.html (submission),
+  https://lkml.iu.edu/2609.2/21230.html (Jiri Kosina: “Applied,
+  thanks.”)
+- No NAK, no requested changes, no stable nomination in review.
+  lore.kernel.org fetch returned 403; discussion confirmed via `b4 dig`
+  + LKML/Patchew mirrors.
 
-**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
-Record: Standalone. Sibling OOB work (`HID: rmi: fix OOB access with
-undersized RMI reports`) is already on pending-6.12 and does not subsume
-this change.
+**Step 4.2 — Recipients (`b4 dig -w`)**
+- Record: `jikos@kernel.org` (HID maintainer), `oleg@makarenk.ooo` (co-
+  author), `linux-input@vger.kernel.org`, `linux-
+  kernel@vger.kernel.org`. Right lists and maintainer were on Cc; Kosina
+  applied it.
 
-**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-Record: **UNVERIFIED** — `lore.kernel.org/stable/?q=...` returned HTTP
-403. No evidence in the linux-input thread that stable was discussed or
-rejected.
+**Step 4.3 — Bug report**
+- Record: No `Reported-by` / syzbot / bugzilla. Phoronix (secondary, not
+  a kernel bug tracker) notes basic HID input already worked and this
+  listing improves FF for the VelocityOne Race. That is consistent with
+  an ID add, not a crash fix.
 
-===============================================================
-PHASE 5: CODE SEMANTIC ANALYSIS
-===============================================================
+**Step 4.4 — Series context**
+- Record: Standalone one-patch series. Same pattern as earlier Asetek ID
+  adds in this driver.
 
-**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
-Record: `rmi_check_sanity()` only.
+**Step 4.5 — Stable list**
+- Record: `WebFetch` of `https://lore.kernel.org/stable/?q=VelocityOne`
+  returned 403. Web search did not show a stable-list thread about this
+  patch. UNVERIFIED that nobody discussed it on stable@; no evidence of
+  a NAK there either.
 
-**Step 5.2: TRACE CALLERS**
-Record: Sole caller is `rmi_raw_event()` (`drivers/hid/hid-rmi.c`),
-registered as `.raw_event`. HID core `hid_input_report()`
-(`drivers/hid/hid-core.c`) calls it after rejecting empty reports and
-resolving a valid `hid_report`. hid-rmi has no `report_table`, so
-`hid_match_report()` matches all reports. `rmi_raw_event()` then
-requires `RMI_DEVICE` (set after probe validates RMI report IDs).
+---
 
-**Step 5.3: TRACE CALLEES**
-Record: The function only indexes `data[]` and decrements `valid_size`.
-No alloc/lock/I/O.
+## Phase 5: Code semantic analysis
 
-**Step 5.4: FOLLOW THE CALL CHAIN**
-Record: USB/i2c HID interrupt → `hid_input_report()` → `rmi_raw_event()`
-→ `rmi_check_sanity()`. Reachable from Synaptics RMI touchpads
-(`HID_GROUP_RMI` in `hid_scan_report()`, plus specific USB IDs: Razer
-Blade, Lenovo X1 cover, Primax, Acer Switch). Unprivileged USB can also
-feed HID reports. Userspace-reachable: **yes** (device I/O, not a
-syscall that crafts the buffer directly).
+**Step 5.1 — Functions**
+- Record: No function body changed. Data only:
+  `universal_pidff_devices[]` plus two macros. Probe path that becomes
+  reachable: `universal_pidff_probe` → `universal_pidff_input_mapping` /
+  `universal_pidff_input_configured`.
 
-**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-Record: Only this loop in hid-rmi. Same-tree HID length checks already
-backported include `HID: lg4ff: validate report length before fixed
-offsets` and `HID: wacom: validate report length in
-wacom_intuos_pro2_bt_irq`.
+**Step 5.2 — Callers**
+- Record: `universal_pidff_probe` is only the `.probe` of `struct
+  hid_driver universal_pidff`, registered via `module_hid_driver`.
+  Invoked by HID/USB enumeration when VID:PID matches. Not IRQ, not a
+  syscall hot path.
 
-===============================================================
-PHASE 6: CROSS-REFERENCING AGAINST THE LOCAL TREE
-===============================================================
+**Step 5.3 — Callees**
+- Record: `hid_parse`, `hid_hw_start`, `hid_pidff_init_with_quirks`,
+  `hid_hw_stop`. Existing, already used by every other ID in the table.
 
-**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-Record: **Yes.** `drivers/hid/hid-rmi.c` lines 389–390:
-`while ((data[valid_size - 1] == 0xff) && valid_size > 0)`. Introduced
-v3.18, still here on 6.12.111. Candidate `28a3e326fad24` is **not** an
-ancestor of HEAD.
+**Step 5.4 — Reachability**
+- Record: Reachable when a user plugs in `10f5:7077` and
+  `CONFIG_HID_UNIVERSAL_PIDFF` is enabled (`depends on USB_HID &&
+  HID_PID`). Userspace cannot trigger it without that hardware.
 
-**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-Record: Clean apply with +21 line offset. No refactor of this helper.
+**Step 5.5 — Similar patterns**
+- Record: Same table already lists Moza, Cammus, VRS, FFBeast, Lite
+  Star/PXN, Asetek. This is the established way this driver gains
+  devices. Turtle Beach VID `0x10f5` is already used in `xpad.c` for
+  other products; PID `0x7077` is unique.
 
-**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-Record: `ab2958e0c94ed` is a different OOB (report descriptor / copy
-length). It does not reorder this condition. No earlier equivalent of
-this one-liner.
+---
 
-===============================================================
-PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-===============================================================
+## Phase 6: Local tree (this checkout)
 
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-Record: **HID / hid-rmi** (Synaptics RMI4 over i2c-hid/usbhid).
-**IMPORTANT** for laptops with Synaptics HID touchpads; not mm/VFS core,
-but not staging/obscure either.
+**Step 6.1 — Does the code exist here?**
+- Record: Local tree is **6.18.57** (`make kernelversion`; `git describe
+  HEAD` = `v6.18.57-155-gcdf239ca885b2`). `hid-universal-pidff.c`
+  exists. Driver intro `f06bf8d94fffb` is an ancestor of both `HEAD` and
+  `v6.18`. Parent of this candidate still has the Asetek rows and the
+  empty terminator; the ID macros were absent (`git grep
+  USB_VENDOR_ID_TURTLE` on the parent was empty). The hardware and
+  driver this listing targets are in this tree.
 
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-Record: hid-rmi is mature (2014+). Recent churn is security-style OOB
-hardening, not a rewrite of this path.
+**Step 6.2 — Backport difficulty**
+- Record: Clean apply. Parent context matches the provided diff (TURBOX
+  block, then TWINHAN; Asetek entries then `{}`). No refactor gap.
 
-===============================================================
-PHASE 8: IMPACT AND RISK ASSESSMENT
-===============================================================
+**Step 6.3 — Related fixes already here?**
+- Record: No other VelocityOne Race HID listing. No alternate fix for
+  `10f5:7077` in HID. `xpad.c` does not claim PID `0x7077`.
 
-**Step 8.1: DETERMINE WHO IS AFFECTED**
-Record: Driver-specific: CONFIG_HID_RMI / Synaptics RMI HID devices
-(common on some Dell/Lenovo/Acer laptops). Also any malicious HID gadget
-bound as hid-rmi.
+---
 
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-Record: A report whose remaining bytes are all `0xff` (documented XPS 13
-9333 bus glitch, or a device sending that pattern). After the last
-decrement, `valid_size == 0` and the next condition still reads
-`data[-1]`. Not every report; it is the sentinel path this function
-exists to handle. Physical HID access required; not a random
-unprivileged syscall.
+## Phase 7: Subsystem context
 
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-Record: One-byte heap underflow read. Typical result: KASAN report;
-crash only if that byte is unmapped (uncommon for kmalloc). Not data
-corruption. **Severity: HIGH** for memory safety / HID attack surface,
-not a guaranteed panic.
+**Step 7.1**
+- Record: `[HID USB force-feedback helper] [IMPORTANT for owners of
+  listed wheels; PERIPHERAL vs core kernel]`. Not mm/fs/net core.
+  Optional `CONFIG_HID_UNIVERSAL_PIDFF`.
 
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-Record:
-- Benefit: stops a real OOB on a long-lived, hardware-motivated path; 1
-  line.
-- Risk: very low (boolean operand swap).
-- Ratio: strongly in favor of backport.
+**Step 7.2**
+- Record: Actively maintained in 2025–2026 (quirks, Asetek IDs, pidff
+  correctness fixes). Mature enough that ID adds are the normal
+  extension mechanism.
 
-===============================================================
-PHASE 9: FINAL SYNTHESIS
-===============================================================
+---
 
-**Step 9.1: COMPILE THE EVIDENCE**
+## Phase 8: Impact and risk
 
-FOR:
-- Real OOB; the `> 0` check was present but evaluated too late.
-- Trigger matches the in-tree Dell XPS sentinel comment, not a
-  hypothetical size=0 from HID core.
-- Code has been in this tree since v3.18.
-- 1-line, obviously correct; HID maintainer applied v1 as-is.
-- Applies cleanly; no prerequisites.
-- Same class as other HID length-check stable backports already on this
-  branch.
+**Step 8.1 — Who is affected**
+- Record: Driver-specific / config-specific: users who own a Turtle
+  Beach VelocityOne Race and enable this HID driver. Everyone else is
+  unchanged.
 
-AGAINST:
-- No Fixes:/Cc: stable/syzbot (not a negative under these rules).
-- Single-byte read, not a demonstrated oops or leak.
-- Affects hid-rmi users, not every machine.
+**Step 8.2 — Trigger**
+- Record: Plug in that USB wheel. Not a race. Unprivileged user can plug
+  hardware; no syscall exploit surface beyond normal HID.
 
-UNRESOLVED:
-- Could not search lore.kernel.org/stable (HTTP 403).
+**Step 8.3 — Failure mode without the patch**
+- Record: Device stays on hid-generic: basic input, missing this
+  driver’s PID FF init and button-range mapping. Not
+  oops/deadlock/corruption. Severity for those users: functional
+  hardware gap (FF), **MEDIUM** as a bug, but it is the documented
+  device-ID exception.
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — C short-circuit; applied by
-   Jiri Kosina.
-2. Fixes a real bug that affects users? **PASS** — OOB on the sentinel-
-   trim path this driver documents.
-3. Important issue? **PASS** — memory-safety OOB on HID input (HIGH, not
-   a guaranteed panic).
-4. Small and contained? **PASS** — 1 line, one function.
-5. No new features or APIs? **PASS**.
-6. Can apply to the local tree? **PASS** — buggy line present; `git
-   apply --check` succeeded.
+**Step 8.4 — Risk vs benefit**
+- Record: Benefit: FF/PID support for this wheel on 6.18.y without a
+  full kernel upgrade. Risk: very low (4 lines, match is VID+PID, no
+  quirk, probe already tolerates missing PID page). Ratio: favorable for
+  a device-ID add.
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-Record: None. Ordinary small bugfix.
+---
 
-**Step 9.4: MAKE YOUR DECISION**
-This belongs on **this** 6.12 tree: the bug exists here, the later
-undersized-report patch does not fix it, and the change is a one-line
-operand swap with no API or locking impact.
+## Phase 9: Synthesis
 
-===============================================================
-What the commit solves for stable users
-===============================================================
-`rmi_check_sanity()` is supposed to strip trailing `0xff` filler from
-Synaptics HID reports. Because `&&` evaluates left-to-right, an all-
-sentinel report is trimmed to length 0 and then still reads `data[-1]`.
-Laptop touchpads that hit that bus glitch, and USB HID devices that send
-the same pattern, can fire a KASAN OOB on every such report. Reordering
-the condition makes the existing length check actually protect the
-index.
+**Step 9.1 — Evidence**
 
-Risk vs benefit: benefit is a real memory-safety hole on a driver
-already receiving other OOB backports; risk is a one-line boolean
-reorder. No dependencies beyond code that has been here since v3.18.
+For:
+- USB ID add to a driver that already exists in this 6.18 tree (stable
+  exception 1).
+- +4 lines, no new APIs, no new driver, no new sysfs/module params.
+- HID maintainer applied v1 with no objections.
+- Author maintains this driver.
+- VID `0x10f5` is already Turtle Beach in-tree; PID does not clash with
+  xpad entries.
+- Applies cleanly here.
 
-===============================================================
-Verification
-===============================================================
-- [Phase 1] Parsed subject/body/tags: no Fixes/Reported-by/Cc: stable;
-  SOBs Hou + Kosina.
-- [Phase 2] Diff: 1 line in `rmi_check_sanity()`; operand order only.
-- [Phase 3] `git describe HEAD` / Makefile: **pending-6.12, 6.12.111**.
-- [Phase 3] `git blame -L 379,410 -- drivers/hid/hid-rmi.c`: introducer
-  `5b65c2a029664` (v3.18-rc1).
-- [Phase 3] `git merge-base --is-ancestor 5b65c2a029664 HEAD`: yes;
-  `28a3e326fad24`: **no**.
-- [Phase 3] Current file still has `while ((data[valid_size - 1] ==
-  0xff) && valid_size > 0)`.
-- [Phase 3] Related `ab2958e0c94ed` already in tree; does not touch this
-  loop.
-- [Phase 3] `git show 28a3e326fad24 | git apply --check`: hunk succeeded
-  at offset 21.
-- [Phase 4] `b4 dig -c 28a3e326fad24`: lore msgid
-  `2026063007016439.1-ccfa108-...`; To: Kosina + Tissoires.
-- [Phase 4] `b4 dig -a`: v1 only; Kosina “Applied, thanks.”
-- [Phase 4] Mbox: Sashiko comments are about other pre-existing OOBs,
-  not this line.
-- [Phase 5] Callers: `rmi_raw_event` ← `hid_input_report`; empty `size`
-  rejected at hid-core.c:2111–2115.
-- [Phase 6] Bug present; apply clean; no duplicate fix.
-- [Phase 8] Failure mode: 1-byte OOB read on all-`0xff` reports; HID
-  input path.
-- UNVERIFIED: stable@ lore search (HTTP 403).
+Against:
+- Not a crash/security/corruption fix.
+- Short commit message; no `Reported-by`.
+- Niche ~$650 sim-racing hardware.
+- Improves FF rather than repairing a generic HID oops.
+
+Unresolved:
+- lore.kernel.org HTTP 403; stable@ thread not confirmed.
+- No in-tree test that this exact PID speaks USB PID FF (same as other
+  IDs in this table).
+
+**Step 9.2 — Stable rules**
+1. Obviously correct and tested? **PASS** — mechanical ID add;
+   maintainer applied it. No in-tree Tested-by, but the change is the
+   same class as prior IDs in this file.
+2. Real issue affecting users? **PASS** — without the ID, this wheel
+   does not get the existing PID FF path.
+3. Important (crash/security/deadlock) **or** listed exception? **PASS**
+   — USB device ID on an existing driver.
+4. Small and contained? **PASS** — 4 lines, two files.
+5. No new features/APIs? **PASS** — no new driver, ioctl, or userspace
+   ABI; only an ID in an existing table.
+6. Applies to this tree? **PASS** — driver and insertion point are
+   present on 6.18.57.
+
+**Step 9.3 — Exception**
+- Record: **NEW DEVICE ID** (USB VID/PID) on existing `hid-universal-
+  pidff`.
+
+**Step 9.4 — Decision**
+This is exactly the device-ID class stable trees take. The driver is in
+6.18; the patch is tiny and isolated to `10f5:7077`. Benefit is real for
+owners of that wheel; risk to everyone else is negligible.
+
+---
+
+### What the commit does for this tree
+It lists Turtle Beach VelocityOne Race (`USB 10f5:7077`) in `hid-
+universal-pidff` so 6.18 systems can use the PID force-feedback path
+already in this kernel, instead of generic HID only.
+
+### Stable-rules fit
+Meets the device-ID exception: existing driver, IDs only, clean apply,
+no new API.
+
+### Risk vs benefit
+Very low risk, localized hardware enablement. No locking or error-path
+change.
+
+### Concerns
+None that block backport. No extra quirks or follow-up commits required
+in this tree. Stable-list discussion could not be fetched (403).
+
+---
+
+Verification:
+- [Phase 1] Parsed tags: author SOB + Jiri Kosina SOB; no
+  Fixes/Reported-by/Cc:stable
+- [Phase 1] Body is a one-line ID add, not a crash write-up
+- [Phase 2] Diff: +3 `hid-ids.h`, +1 table row; no function logic change
+- [Phase 2] No `driver_data` quirk on the new entry
+- [Phase 3] `git blame` on new macros → this commit; surrounding IDs
+  from 2008–2017
+- [Phase 3] Driver intro `f06bf8d94fffb` (`v6.13-4738-gf06bf8d94fffb`);
+  ancestor of HEAD and of `v6.18`
+- [Phase 3] `git log --oneline --author="Tomasz Pakuła" --
+  drivers/hid/`: driver co-maintainer, many pidff commits
+- [Phase 3] No later commits on these files after this ID add
+- [Phase 4] `b4 dig -c 53f7f7955a684e820bdd6bd6792c45c4b434f637`: lore
+  msgid `20260922131758.1242755-1-tomasz.pakula.oficjalny@gmail.com`
+- [Phase 4] `b4 dig -a`: v1 only
+- [Phase 4] `b4 dig -w`: jikos@kernel.org, linux-input, co-author Oleg
+- [Phase 4] LKML: Kosina “Applied, thanks.”
+  (https://lkml.iu.edu/2609.2/21230.html)
+- [Phase 4] lore.kernel.org WebFetch: 403; used LKML/Patchew/`b4`
+  instead
+- [Phase 5] Probe only via `module_hid_driver`; callees
+  `hid_parse`/`hid_hw_start`/`hid_pidff_init_with_quirks` exist here
+- [Phase 5] `0x10f5` in `xpad.c` for other PIDs; `0x7077` not used there
+- [Phase 6] `make kernelversion` → 6.18.57; `git describe HEAD` →
+  `v6.18.57-155-gcdf239ca885b2`
+- [Phase 6] Parent of candidate: no `USB_VENDOR_ID_TURTLE`; Asetek rows
+  present; apply context matches
+- [Phase 8] Failure mode: missing FF/mapping for one USB wheel, not oops
+- UNVERIFIED: stable@ archive (HTTP 403); no in-kernel confirmation the
+  device implements USB PID (same as other table IDs)
 
 **YES**
 
- drivers/hid/hid-rmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h             | 3 +++
+ drivers/hid/hid-universal-pidff.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index d55a0388895fb..ecc19387f6b05 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -386,7 +386,7 @@ static int rmi_check_sanity(struct hid_device *hdev, u8 *data, int size)
- 	 * such reports here.
- 	 */
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ca5c62f29aebe..69b1b0f98c99d 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1415,6 +1415,9 @@
+ #define USB_DEVICE_ID_ASUS_MD_5110	0x5110
+ #define USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART	0x7100
  
--	while ((data[valid_size - 1] == 0xff) && valid_size > 0)
-+	while (valid_size > 0 && data[valid_size - 1] == 0xff)
- 		valid_size--;
++#define USB_VENDOR_ID_TURTLE_BEACH	0x10f5
++#define USB_DEVICE_ID_TB_VELOCITYONE_RACE	0x7077
++
+ #define USB_VENDOR_ID_TWINHAN		0x6253
+ #define USB_DEVICE_ID_TWINHAN_IR_REMOTE	0x0100
  
- 	return valid_size;
+diff --git a/drivers/hid/hid-universal-pidff.c b/drivers/hid/hid-universal-pidff.c
+index 60180467a0bfd..f1854cfe42d0d 100644
+--- a/drivers/hid/hid-universal-pidff.c
++++ b/drivers/hid/hid-universal-pidff.c
+@@ -187,6 +187,7 @@ static const struct hid_device_id universal_pidff_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASETEK, USB_DEVICE_ID_ASETEK_FORTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASETEK, USB_DEVICE_ID_ASETEK_LA_PRIMA) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASETEK, USB_DEVICE_ID_ASETEK_TONY_KANAAN) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_TURTLE_BEACH, USB_DEVICE_ID_TB_VELOCITYONE_RACE)},
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(hid, universal_pidff_devices);
 -- 
 2.53.0
 

@@ -1,86 +1,99 @@
-Received: from mail11.truemail.it (mail11.truemail.it [217.194.8.81])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C19D4E3EEF;
-	Mon, 19 Oct 2026 12:59:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.194.8.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 268B94C6520
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 13:36:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792414797; cv=none; b=ukm+XRpGx1c31oyOHZy441Ct4hRfBT9o0gnV8MQIPfhMkA0lCHa+vDMqDLNubeM3GO0/2WmQLGvm/x7dDgQWA/cHveGPCV/3rPDKHnOexC7d31G+h1eumIEPMLP7FJVNcPLx5iMf+cq+OpDnLlD6ltAHHoAVo+YbHtx6asgkWZ0=
+	t=1792416970; cv=none; b=MLAeoa8yq4AVMualC+J+8S25Qw6/dtn32I767JXDMtiuA3vr4mMjCt69DfKr++68r+y+Fj8aokyce27ON5K4n1wfM+oE9peJAqfXJ+XrmfPUnHOoDLk24gTsKZjI2MdlM554BZurkITTKVfUv84CUVW5uwaLgYwujKhKeEuEaP4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792414797; c=relaxed/simple;
-	bh=wJQe/RHMCwpliomwiNGW7DEjkmZi/G6TXWBu2c8yoxM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=W6R9DyeJBZD5trj6NLX73n3a+XN3RYm8ExzbC46iJ385oqxP6juGn3MRB9enrYOVTw0F2ZlBUBgGOJAVsgY2MuyG4TZu12sXEx1kKEyixKg7N+nS71pv1ew0oOsLi6AKQIwwFLJdlWf7b7daAKDxGO3ejGjFcEjJ4YxtwDU2SIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dolcini.it; spf=pass smtp.mailfrom=dolcini.it; dkim=pass (2048-bit key) header.d=dolcini.it header.i=@dolcini.it header.b=OwtqiSn/; arc=none smtp.client-ip=217.194.8.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=dolcini.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dolcini.it
+	s=arc-20240116; t=1792416970; c=relaxed/simple;
+	bh=Ps7Go3xP5HMjfsfq7Eq3Svlmz9WqBPCZvkB2NJg83GE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=G6u+TR6U4yKzUBBgZtssVM8KYDhwkchhZnSiXh/WUV2ANQ0jK/WMTtbd/x87v2rmrVPhn6ttq7q/Bg/6W+noxutVI41762hUXLx1Le0O48BIouXrqRdNXMJ++aynBxmXk8sWUNRSSIb3UtuxZLP2zFFdX+bwP8wupwEpsu2dhcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de; spf=pass smtp.mailfrom=posteo.de; dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b=U/HU94tg; arc=none smtp.client-ip=185.67.36.65
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=dolcini.it header.i=@dolcini.it header.b="OwtqiSn/"
-Received: from francesco-nb (248.201.173.83.static.wline.lns.sme.cust.swisscom.ch [83.173.201.248])
-	by mail11.truemail.it (Postfix) with ESMTPA id 1A4171FB78;
-	Mon, 19 Oct 2026 14:59:44 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dolcini.it;
-	s=default; t=1792414784;
-	bh=eqw1GXGCRAW1PgP9DMPctNibwOSw+urfwmSp78HtwzA=; h=From:To:Subject;
-	b=OwtqiSn/XhoR2HA4ujVyBsokug4TuRkkpktuPpRhVXM9lTnfxp+1bWYL39vXxzO09
-	 XvZm1BPZIPVJKv1YaKGq7fUMdYQXGjxMOM8kMLPAs9Fb5evb7smyvzoVaKivgvIgDX
-	 gZ+5rQyya33N7C+mnWCQ8BQG4CbVic7jAHYmiJ+j34WS3R0MjjH1RgPKOPzvANWTiC
-	 h85U4vYAWHGvbRlqOjdhy1aWT42ZrLbpi8EOPegmogg5WRNMdqpynDz1mUc5ODzdxO
-	 8UZQx2LdMenvJwUn0RpoFpKjWPzuhFaMQqXUnKZelBey5aA+t6rskJ/bw9xGQkLTbo
-	 g/H8HISqOSqZQ==
-Date: Mon, 19 Oct 2026 14:59:40 +0200
-From: Francesco Dolcini <francesco@dolcini.it>
-To: Kendall Willis <k-willis@ti.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, msp@baylibre.com,
-	s-kochidanadu@ti.com, a-kaur@ti.com, s-tripathi1@ti.com,
-	vishalm@ti.com, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v4 0/2] Input: gpio-keys - support wakeup pinctrl state
-Message-ID: <20261019125925.GA149024@francesco-nb>
-References: <20261005-upstream-gpio-wakeup-v4-0-96f092de4690@ti.com>
+	dkim=pass (2048-bit key) header.d=posteo.de header.i=@posteo.de header.b="U/HU94tg"
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout01.posteo.de (Postfix) with ESMTPS id EA070240027
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 15:36:06 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
+	s=1984.8680eb; t=1792416966;
+	bh=hNbyYL6sFBG2U8Y87Q4AqsX6THkGWQP8zQyGjqptp6I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:From;
+	b=U/HU94tg1PC5ajDmaIXcp6DW0Z9cmGkaSlNKH+OZn9roOk8+nBlhOcoJu9IqWC67U
+	 DhaA1PMb7xBFf0mOCzMkd/cjI0UYGY1WyPJnDGbSKHze6UI1ZoqSb38EhklZIk9cbu
+	 YKaJ2KH22y/eWxmVgHb625pL39X+HW+gTSRIe7VWrOJs2cjFDbb0jFg9qsznab+d4M
+	 sFBOrrrZKBtVQZqzPe7KBSDpqHWU6CwQRuTXqruV9xEZvoSIQUs9gLfuxD5HFwfS6k
+	 /17DJLgNvxFFGKV2iPRugAI5i5TLxwj9THEIM2MI2WQ8z7GjkkEmq2PazQXMEsoUzH
+	 f5czHQBqqWG8A==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4j7c512T7gz6txf;
+	Mon, 19 Oct 2026 15:36:05 +0200 (CEST)
+From: =?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>
+To: Denis Benato <denis.benato@linux.dev>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Luke Jones <luke@ljones.dev>,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	Ivan Levchenko <me@livan.pro>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Paolo Pisati <p.pisati@gmail.com>
+Subject: Re: [PATCH v3 7/7] HID: asus: Re-send the Zenbook Duo keyboard handshake after probe
+Date: Mon, 19 Oct 2026 13:36:06 +0000
+Message-ID: <20261019133557.14092-1-rebecca.mara@posteo.de>
+In-Reply-To: <07076668-3291-4eb6-888b-0e6c518ef21b@linux.dev>
+References: <07076668-3291-4eb6-888b-0e6c518ef21b@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261005-upstream-gpio-wakeup-v4-0-96f092de4690@ti.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hello Kendall,
+On Mon, Oct 19, 2026 at 01:03:34PM +0200, Denis Benato wrote:
+> Very good to see it sleeps just fine. So yeah a command is missing...
 
-On Mon, Oct 05, 2026 at 03:47:03PM -0500, Kendall Willis wrote:
-> Add 'wakeup' pinctrl state to support separate pin wakeup
-> configurations for GPIO. Upon suspend the 'wakeup' pinctrl state is
-> chosen if it exists. On resume the 'default' pinctrl state is selected.
-> The 'wakeup' pinctrl state allows wakeup from low-power states if a
-> specific pin configuration is needed.
-> 
-> On TI K3 AM62 family of devices, the GPIO controller is turned off in
-> suspend to RAM states, so no interrupt can be received by the
-> controller. This prevents system wakeup from low-power states.
-> Alternatively, the pins can wakeup the system if a wakeup flag is set on
-> the pin by using pinctrl.
-> 
-> A corresponding device tree patch using the 'wakeup' pinctrl state can
-> be found under "arm64: dts: ti: k3-am62l3-evm: add wakeup-source for GPIO
-> button" [1].
-> 
-> Tested GPIO wakeup from suspend on AM62L EVM and AM62P EVM.
-> 
-> [1] https://lore.kernel.org/all/20260912-upstream-gpio-wakeup-dts-v1-1-2057d76c63aa@ti.com/
-> 
-> Signed-off-by: Kendall Willis <k-willis@ti.com>
+Thank you for the roadmap, I went through it on the UX8407AA with
+BIOS UX8407AA.308. I have since updated to 310, the latest one; its
+ACPI tables only differ from 308 in relocated memory regions, so the
+findings below should hold for both:
 
-What's the plan/status on this? I see rob reviewed the bindings patch
-(in v3), but the tag is lost here.
+- asus-nb-wmi only exposes the basics here (kbd_backlight 0-3,
+  throttle_thermal_policy, charge_mode, screenpad); no TUF/ROG lighting
+  or power-state attributes.
+- In the decompiled DSDT, WMNB answers 75 device IDs. None of the
+  TUF LED power IDs is among them, so it is not a firmware that claims
+  "unsupported" and accepts the write anyway. The kbd backlight ID
+  0x00050021 goes to the EC (SLKB), which does not reach the detachable
+  keyboard, a separate USB/BT device.
+- The LPS0 _DSM in PEPD only notifies the EC (MS entry/exit 0x9a/0x9b,
+  display off/on 0xb7/0xb8, entry/exit 0xae/0xaf). With
+  pm_debug_messages on, Linux calls all of them on s2idle (screen off,
+  lps0 ms entry, lps0 entry, and the exits), so nothing is skipped on
+  our side.
+- With dynamic debug on usbcore, the keyboard does go to USB suspend
+  ("usb 3-6: usb suspend, wakeup 1", and "wakeup 0" with wakeup
+  disabled), and the backlight stays on in both cases.
+- The backlight only goes off when the keyboard loses the connection:
+  lifting it off the dock during s2idle turns it off immediately.
 
-We would benefit for having this merged, Toradex Verdin AM62 needs this
-feature.
+So the keyboard simply keeps its backlight while it is connected, and
+I guess Windows either cuts the port power in Modern Standby or MyASUS
+turns the light off. I have no Windows on this machine at the moment
+to check which.
 
-Francesco
+Following your advice I did it in userspace: a systemd-sleep hook that
+saves asus::kbd_backlight and writes 0 on "pre", and restores it on
+"post". With v3 loaded the light now goes off just before the screen
+and comes back on resume. If it is useful to anyone else I can post it.
 
+Thanks,
+Rebecca

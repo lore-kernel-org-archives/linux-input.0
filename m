@@ -1,102 +1,156 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6368048BD5B
-	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 07:57:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792396663; cv=pass; b=SO4gIL8B3mk+AvRkRMeItHVDQ2bsmdvZuYCcJcuQRW2dTZ2kpWqpjdn88l0aLJVyEeWg5YckOXU6uk+mBIrdKdwohyCHJGS5k4VRapi84Bv3Ql62pxhHadIWFaJ+ZaBj79oxO7yjqAYFN4OPNWMeIU7/9yTh5Ooa7DjN3m4JFx0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792396663; c=relaxed/simple;
-	bh=MPcEmjZPn0U1HR0YqbRJlGEJNlJcmuvq9yIqrqLbn/k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=p+0z3faj5KzBSq2Wdx30+N2c6ko3/VLIzLpW2tdZMCW2kMJgY54+s/Tg7b+2hq7hcyc2lABGeG6B9z/J60kBrsMRn7zomCM3mG/wxtxgGUgfvtkqB07V80lIgMjSEgaqGxvvfRRCEOQkTgImsUYtTxigkULS/Sj7ldpC8sAchzE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JTuflbtj; arc=pass smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEBBB48488F
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 08:01:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1792396862; cv=none; b=OFCyo0tKuhA+Iy5ZvK7DNd+slFsvlsFLEiQvcfsNNh7fwKzmKiGGWKjqmeAmlP1wdwEAn3tBtJ9u3C+fKjjZJKUoi5NDP1ZQhZ45uf4g8mghW0jVx4f5sAMUWrloFgdzsBsXH94O2tfsio0QcanpelVB+QEcuvgD6boO14MO4ak=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1792396862; c=relaxed/simple;
+	bh=v1DdUPCVUmOFI/TIUBIHp6cItFNA8BFk10P0B9BsNgo=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=iGAmjJGydspEubuDBQjo8r924WKoZGwoBuQAlj4oIkbn98anFOcpacdXbR4lVqBH6JuAf9Xiihgh1zbo5sb/5OA0rFU055hSGdG6vl8UsG2vk0rKuUlR90SSpLYiCjxENOquv6BykxSnBbSRuonX5B5oyg2xmuEWfZToEZW9eh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X7MicdCk; arc=none smtp.client-ip=209.85.208.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JTuflbtj"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-8a06c60065fso365426b3a.1
-        for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 00:57:42 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792396662; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VEX/e2mOwHiC8Ja3PouUfpCI6qmvgPWKmlBRhXAqg6i5ofqhOq0ivEtDZ/5bwIUCsI
-         PUZXFVCuFq1qPCekZIvVcrl4WnkVym6XaAI5EK7Ynz1iTMMfMq1n/Qvp1Ys1IY7+tBXW
-         64FfdmGdfF+AB2oQxApZ69FgMqD5+lIUJIzufISK8fRSnmm0HWVAazMGHKmasS+fFqWZ
-         uvj7lz2b88FsvwRYte68qTj+146qbkyMqO/+Zpv5rJmKekA46dyrnFSfN/7mgndLgESi
-         Iq+hVQQgWf7Cqqi43FexpEzMxkPFuiflrGsjlQUCtwsz7gfP1pgzPN4IH13AEdhb1HM6
-         VH4g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=MPcEmjZPn0U1HR0YqbRJlGEJNlJcmuvq9yIqrqLbn/k=;
-        fh=+RzxpZ4u5ZYTGyO+MvL8xnpVagPmv3VjikXCb76CCkw=;
-        b=Ma7/6py4IYPrwNPEPlm/GTAWUXFiLkOimmDBFAanvn1iz/fmCmWlSmEgKgaUYNWDeY
-         x69KyGBVBjb2lC0llFThmhb1flSsws59tkPyVg8fXpOJFAIyuQuyDR87SpIpiw5p1d2C
-         /ciwdMjaU39luNR3+JvdKrXmNZkzkculmtKTd+ULdm19siO5vEm0B32BqsQcpbtSjaCk
-         foK0GM55H+Va7+XktOsk0BQYMOz7xfc07ai2kd784bzxVBgwRWhSzSVCXwhHvZ3zI/K9
-         GFmK1S8hwvmcawKyig4CzINPxSyjOXw4ksJ5IoIm7LZN9W0oKK/8zV+6Sp5tINSnAqct
-         2dmQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X7MicdCk"
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-6aa9164072cso2308566a12.2
+        for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 01:01:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792396662; x=1793001462; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=MPcEmjZPn0U1HR0YqbRJlGEJNlJcmuvq9yIqrqLbn/k=;
-        b=JTuflbtjqRg0kNyO3t8Scwuwio0mdIoM/hFSJxzrmOl7mrVni/ryJ1Jpf1H16IaAH7
-         EMJ8J1Hr/wyJumDoouhgMsbMBLETo3OdNpvvgwVVbpYYAvW4SidOU6agPx17dlPDPTzU
-         ydh6yghiottVbZPC0+mCFnc23HpgJ4wh3xeyUf99hmxvMnDndGsh/vW7DPLmuAa1lyDf
-         O71+3GHpcpSJzsFT4nGZzuFH8G3AXcmnwkgChAY89+qziSHkEnLVafHdAVleIc3KL8Rg
-         kmYQeKLq+fN+7DcpJKDIemtjp4g7WJ8FerVImtT6nsyMJ0oM+qSTTFjhWgkdlDpv5qEd
-         QLIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792396662; x=1793001462;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+        d=gmail.com; s=20251104; t=1792396859; x=1793001659; darn=vger.kernel.org;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:content-type:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=MPcEmjZPn0U1HR0YqbRJlGEJNlJcmuvq9yIqrqLbn/k=;
-        b=KXxq0G8XZRmBkX5i4AQ0rYByihnD5BYq0OxdhmM9HtHPwL/QZYvYaXV2vZfYHbZF+t
-         5sh1C3RreGXuUL3PGyX143baJwArI4+WnGYZLzJeEpxnX8eiut5t3bVlBiRUd9/t/lVi
-         KFnt2xLo081y/q13LGwQ9Rxs75AEf3dpuCvKucHGJ/ZvOU0K0Txf1dAuAgmoya+RBLro
-         dPR+G8aR85XMYJe63bTV0uBskpjKU7gNkViR5M582oHSOX7bkmZ5GAd5YABYWmWIPFiK
-         Bmjz6eTLRI1RGhjmn8Jz7Peb6LlgSYpZKj0/QLbdE3bMcPrssFYyfB2092cmyeI2vJca
-         WU8A==
-X-Forwarded-Encrypted: i=1; AKwUvBx50JXBM0e86VegBghWTTx/YlMj+Q/aT5vMLhvmaAC53t+8VouT39FjznhJ/bdqtoatNkIVcJivISsEew==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJBkaMdDD+eo0SepqxMwYZ/3zYNGkdSLxj5SYHogSDK+pu3W/IK
-	WteZYcPir267cNErZWKMIYpK40v/V9IjcGVPhfXFIO54zMgGv1T5ytWJbQjQruDAL1qoG/hiyde
-	4w3L5jeg9XSgrzRjjk4QZCtnr5VAUWcw=
-X-Gm-Gg: AYBFou1pv7nTx7g8y9kRHMN1OQBeUkdoFjKJtbEZekL1MXRfTIY/fioCBm9puSn3WDd
-	KItHrSuAooZeb8TI4q7TGqUoOrJMFqcX1W79q3udeXMCwNDEDjBuaOcwV9J+nHPGpi7rYuZYsz5
-	t7ILQvv8SrkEriLie11ZJyvy8dcxGb3E9qDTeE0m6UH7cauMUuPgdsVzMxnX189kECSB236M+ew
-	C+n4zrymMinO6KiZAWG4XL6/XSgbNnHsdaG4RI0FZGxKEoJDYo9CWycVH9xMsA4xVHj1dEKMbYV
-	xscq8olIVcyki09vuY8BzcxQeYCDophwAp53k9+DLwbcUMcQdkBf2GHUsb7uOF1jJjvD9gdwCZY
-	V54a6HH7eCdyjl+ZWOZcegLwnp+OzjVGOkEQM//rW2UW4HIG1ovT0l0KN3b2cV4J8PtiOcikWzs
-	wjInOctw==
-X-Received: by 2002:a05:6a00:f8c:b0:874:705d:f64e with SMTP id
- d2e1a72fcca58-8a04ba30be6mr5022138b3a.28.1792396661246; Mon, 19 Oct 2026
- 00:57:41 -0700 (PDT)
+        bh=J19aiaw61ESfpZhpHesVzTPqjjzjeVttorDaRwN+W08=;
+        b=X7MicdCki6f2c9ThLW8NGIGjLMZyt1hmOsz+MwWY3oV8E5bNM3xdVb43/FVHywz55I
+         PHf5gnnvFh4SxFejO3czQZ0tW0WxmVqIk+p5JED9+QxiNRrs1JY6towTH0nvikLA1mIG
+         tspdAOUmriusjIxOaOjU+UOAtsho05nD3Y0JmyjPI7v7YlNc0W12kQUo/q6QsLhuEs2+
+         qHIgTvNLXsGgncKwqEMrO5f5XLhPhxl1a//DUzenXQoOEQVaTKjxjBDTPAWlL3t/R0rS
+         Yxt3ERFgW4QARYQUjfbMGgo7DSsOhxju0fbaqqQffUPR8zPxssw8r0FbM3u2sso6Nbe8
+         8sPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792396859; x=1793001659;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:content-type:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=J19aiaw61ESfpZhpHesVzTPqjjzjeVttorDaRwN+W08=;
+        b=Xkl4KfEj82QAUzA8Xn7YTy3Ov7/36rKK+j8RM9mx1JE+mfpxWEO22/8SlRuNwwUUw/
+         qGAjx5dtasoNE1EZne2jxhy+qipwi+IiFWs8qUHKJPIo3DNQjvtXZLabXCZ2OwF9xEiF
+         nuBGcUj7dMg3rFj5Zplxz6+tnKDUD2qK5MdmCQg0H5RquZMv89UomwBwhPCS2/OjnIC6
+         1rMwGIXI6aj/gyU6Qo43u/iZU+vew9+m7HAM/oNdQqIwPZt/UQ1TvioCUy/D15MgBQL9
+         vmCUPR4bPnVCKydez+c5aU7he1xV6A5S1ao/MFSw1Zbfaxk9fDHkRjk6dXaO4+qZn9QS
+         LAlg==
+X-Gm-Message-State: AFq9FYLrkzPLTu0PPqnWY0gJSP0SRUWbbZcMEnT7JtD8sDN/tykwmkOv
+	sABTqhofZB8m8JMxaKs3Ms9bzILACo8OhCC1HRw/aa4WZYOHU+n+yC2jaFRbpAlJ
+X-Gm-Gg: AYBFou0b+6aA7KPIjGvYAxBUzAUELLC/iEnVyrUWEVgQsIzEpt+btueH2RqDXyLNH8S
+	mEcmO3pT5zLiPg6eKOVDj3/UTVdWo2S1ibdJg/7WTyWswJ/AxzEBH5imB39cmUa6zKQ9UgnfnHG
+	aaeEX5cTR/TDwXpBFfMaf2pej9+jEg9mjWlM0qMZ5Q+ND5jeKMD2UQsUBHXHR+O/Z1+rcDnpR2/
+	T4tqK8K8VNmqOgSq5Wn6ylMZ3SebyEQW52ijpMY9GIKvp7ccWXm7gTZm76jH96WEBM0b4Qje+un
+	fNyC+/Qq/RDD3thu5hGFSPOg9wpBVygDGusu3NxoxXu4GkF9ItaX0leOBW0XucqFCT0FiNzhMiO
+	EdKN0a6I9bXZRS4dItfTllRU2FtnG/m4Gja/OsoxfFzz4djAode4VkVn3qt4vx5uabykutjP+t3
+	4qa/opOpZWl0AuxFKh3spO31tz+fmbVK8RIqUODWU+mQnMYK66W/rqhhlxXvd14DUg7pL5CWEfK
+	dk=
+X-Received: by 2002:a17:907:9623:b0:c26:2eee:ffc7 with SMTP id a640c23a62f3a-c419f709628mr476872766b.35.1792396858464;
+        Mon, 19 Oct 2026 01:00:58 -0700 (PDT)
+Received: from smtpclient.apple ([62.171.228.246])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4091fab836sm331499066b.83.2026.10.19.01.00.56
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 19 Oct 2026 01:00:57 -0700 (PDT)
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20261017140827.290666-1-lukapanio@gmail.com> <20261017140827.290666-7-lukapanio@gmail.com>
- <atW_DkB9H0oV6U8v@monoceros>
-In-Reply-To: <atW_DkB9H0oV6U8v@monoceros>
-From: Luka Panio <lukapanio@gmail.com>
-Date: Mon, 19 Oct 2026 09:57:28 +0200
-X-Gm-Features: AclHuK-MehupUeh6pNNKQQ7CplFtLMUS6VR_BXN9elAOlhRnJMBhoDSEjrXhQXI
-Message-ID: <CACi=Ov77_J3N=5UoY8A9XRuQgcprojpV=KahGQ9e3gZz_yErqA@mail.gmail.com>
-Subject: Re: [PATCH 6/7] Input: edt-ft5x06 - add SPI transport and FT8722 support
-To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Henrik Rydberg <rydberg@bitmath.org>, Douglas Anderson <dianders@chromium.org>, linux-input@vger.kernel.org, 
-	devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.700.51.1.3\))
+Subject: Re: [PATCH] Revert "Input: matrix_keypad - force switch rows to input
+ mode"
+From: Alexander Kochetkov <al.kochet@gmail.com>
+In-Reply-To: <20261002100935.449473-1-al.kochet@gmail.com>
+Date: Mon, 19 Oct 2026 11:00:43 +0300
+Cc: linux-kernel@vger.kernel.org,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Siarhei Volkau <lis8215@gmail.com>,
+ Paul Cercueil <paul@crapouillou.net>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <36834AAE-F2DD-4974-A5A9-60B30F29DCF4@gmail.com>
+References: <20261002100935.449473-1-al.kochet@gmail.com>
+To: linux-input@vger.kernel.org
+X-Mailer: Apple Mail (2.3864.700.51.1.3)
 
-Thanks Uwe, both make sense, will fix in v2.
+Hi Dmitry,
+
+Gentle ping. This is a regression fix for matrix_keypad with Acked-by
+from Siarhei (author of the reverted commit) and Paul (Ingenic
+maintainer); it still applies to your next branch. Is there anything
+else you need from me?
+
+Thanks,
+Alexander
+
+> 2 =D0=BE=D0=BA=D1=82. 2026=E2=80=AF=D0=B3., =D0=B2 13:09, Alexander =
+Kochetkov <al.kochet@gmail.com> =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BB=
+(=D0=B0):
+>=20
+> This reverts commit 01c84b03d80aab9f04c4e3e1f9085f4202ff7c29.
+>=20
+> The commit makes every scan call gpiod_direction_input() on the row
+> GPIOs. On pin controllers where GPIO input and interrupt are separate
+> pinmux functions this switches the row pins out of interrupt mode, and
+> enable_row_irqs() does not switch them back: it only unmasks the
+> interrupts. Row interrupts then never arrive and the keypad stops
+> working. Seen with a matrix keypad on an Allwinner A64 board (PINE
+> A64-LTS); it works again with the commit reverted.
+>=20
+> The workaround is not needed on Ingenic either: the author of the
+> reverted commit re-tested all available JZ47xx SoCs and they all =
+report
+> the live pin state in interrupt mode, see the thread in Link.
+>=20
+> Fixes: 01c84b03d80a ("Input: matrix_keypad - force switch rows to =
+input mode")
+> Link: =
+https://lore.kernel.org/all/4130C026-2A83-408B-836A-ECA044491C47@gmail.com=
+/
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Alexander Kochetkov <al.kochet@gmail.com>
+> ---
+> The same three-line removal has been in use on Allwinner A64 hardware =
+on
+> top of v6.12.33; this version is rebased onto v7.3-rc5 and =
+build-tested
+> (arm64, CONFIG_KEYBOARD_MATRIX=3Dm).
+>=20
+> Siarhei, Paul: you both agreed to the revert in the thread above, =
+please
+> reply with your Acked-by/Tested-by if you would like it recorded.
+>=20
+> drivers/input/keyboard/matrix_keypad.c | 3 ---
+> 1 file changed, 3 deletions(-)
+>=20
+> diff --git a/drivers/input/keyboard/matrix_keypad.c =
+b/drivers/input/keyboard/matrix_keypad.c
+> index 8863b741d1a3..cda2888b2e56 100644
+> --- a/drivers/input/keyboard/matrix_keypad.c
+> +++ b/drivers/input/keyboard/matrix_keypad.c
+> @@ -134,9 +134,6 @@ static void matrix_keypad_scan(struct work_struct =
+*work)
+>=20
+> 	memset(new_state, 0, sizeof(new_state));
+>=20
+> -	for (row =3D 0; row < keypad->num_row_gpios; row++)
+> -		gpiod_direction_input(keypad->row_gpios[row]);
+> -
+> 	/* assert each column and read the row status out */
+> 	for (col =3D 0; col < keypad->num_col_gpios; col++) {
+>=20
+>=20
+> base-commit: 72d3fcf802c45d00b300f25b848a93c3a2bd7c7e
+> --=20
+> 2.43.0
+>=20
+

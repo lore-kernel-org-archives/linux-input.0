@@ -1,51 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792442303;
-	b=RBOUhTw1QdiDGdBmP9Rs1j8lXxsG+5GXFcLcYZWPCrDxTpuOdm6hH31DaBbvA46RU5Xy
-	 MCClR9LRb6+qDbC6KWW+0GSW91Bvo+hhxTAUDBmFVuA89HWLqtP9eMQxoYZit6ary7GEl
-	 essoaf2IXqo7HYIgiVYW/v3E7DRxSn7nr1qCyHJL3TXvZ7w53SNYKEF+6z1T1BvUubAX9
-	 ZYG6GSSnk44E6NivAgnnjrrW8a23H31+3W6K/1rE0GTvMO1SMiuWRyh2gGZSat2jV3D8e
-	 9lbsWDLsDg6t49SfXkk0SYX9ZJ92VukPSYePqW4HtsCawBW83EVGkNjqjrfvz5Dya2Q==
+	t=1792445528;
+	b=lIJ4Y6aycP5xag02OHPsaBOSP7WDeZZPphMkXevbpY+fv4CNJcM3se8bMf9qyUhNSiyK
+	 rxHmTMeFCpNXD77+GxnklvYTZLfGjyCPahjLBgaby+9nVbn76/rBfq12dMN8Cq0rTEZC1
+	 PpifVSGVTHHCXNlw66WKGTncpeNmKO6O/zQQPaLdrBjSg2RaT287m4vkHQ/y3ujNVKCia
+	 FkYIWKS77gRifxb3oPXio2hC8S8/dU3+4a8IxjP9dH73H+6WNTLpyyegT8yUg7l+SA/xF
+	 qt+YOVpgMCA/UoAOi2bKsZBhQvb74u9PgUSKWtOqDQsSTXKkWK/l+4q7iZrYdi5s56Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792442303;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=HicBhdq3FFz5Zw997fRIFryI1pXSgad+sCXMpVwuGsc=;
-	b=02sKQVs1z8F9X7T2Mq75yxoZjo2rHR9woSwjEfvacn9zj5qjLs0SRWBZ1JyC1Vjbc7Ks
-	 ER+oKB+TPHrVJaywhutqu1XCGatYaJDK0t6UZZS1wybQXGA2Tt+fx6QNiFHeQ9N+5rwK8
-	 IDWpf+jD3peKZjwtY89CZc4jYmstdD8FQ5OfSE+h6KKG+TyEFVNWb+Y+AZ6Tnc4yLfNDp
-	 cZoS5VErTw63WpZBxWD++H4u80YxGeiwOzpN3VmZpAUbxttfkVSQgwhG60XpeBze6jO8J
-	 vYu8PKweQQa1g4FgKXw4eMq6F84hzk4ZkL7gxpEyixn6pGWxeqoeR8kwjrGehPOPspw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792445528;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=TuVHoTWOLcCyB9PSRvxtA5wjt2JdJw+LyuZbMuRvoqU=;
+	b=w/qdsRDbyTnz62SditVJm+cIlkgEYA443DKgmKlrDeVQUoltsQAE6GlUt9uXc6YZGWX1
+	 2jJt7Vc+GLTph9LMtLE+INfBRPopOBXLBu/wiGmHZ6S7ODS58FPb4h17bGnYV0b1n+50R
+	 LSvlLqzx+NT6yoA7LhoL+RlkiPCs/lAGrGcdHDWwj+zO2r19ZapcB1HHcKJfdXrdEd60z
+	 joA2nuOXfUPa3H3hmpr05e+Rk+hT/My3/30gpO/a35n4Z+GyEnHuAF62Kgp/hgA0rF4yK
+	 KXPoqnPY+K8AdXksNvu+bmNfm46Pa6alIqfvdR/EXMhdCW1RBbxKtuQY7wgXK03VIwQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	arc=none smtp.remote-ip=95.215.58.4
-Received: from mta1.migadu.com (out-4.mta1.migadu.com [95.215.58.4])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=sB0vLkAE;
+	arc=none smtp.remote-ip=74.125.82.175
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22A2D606A320
-	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 20:38:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 22A2D606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=pDuLM45vvYweqsInlLjAFK3/ehNdWBWqOomWqBmuzHc=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792442292; v=1; x=1793047092;
- b=i0gwiP6vCdLbQD0caS7VpHtuQM+R6xWc5H1MLicWXr97xhLECrTNuB1fOUYCFAnvMVgIiJ9g
- QflQkcNZ4w107dv4xUUI2WI9rIXl6S5gZwE9/4j1o56Hzu3te6vs5XesVUta2Urtvqy5bvfUGgX
- AciMqmUeZyFAbVSJg9IZBYYM=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id f830ea09c65c2622;
-	Mon, 19 Oct 2026 20:38:11 +0000
-X-Mizu-Trace-ID: f830ea09c65c2622
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <5e44ab55-09e3-4043-a369-05b792b5e0d3@linux.dev>
-Date: Mon, 19 Oct 2026 22:38:11 +0200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F9B7606A325
+	for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 21:32:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0F9B7606A325
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=sB0vLkAE
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-35cd4e8bdbdso6290364eec.1
+        for <linux-input@vger.kernel.org>; Mon, 19 Oct 2026 14:32:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792445527; x=1793050327; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=TuVHoTWOLcCyB9PSRvxtA5wjt2JdJw+LyuZbMuRvoqU=;
+        b=sB0vLkAEH+wKhJ8Cxe/5ZMP162nPvlE5GdfkvBekaDyBFLX0p/o/PJGYJ3m5YN3CQQ
+         rE89zT5uCaC49tspBnG8VEmCCJazzuLMfdmqU77AYNC0IN3+CRUM7ufo/V2ry+fwvyTF
+         5bYx67SjVPyM5xZL9GakJ9GcWKHEH+Wkgjkj0cQN40K2z4LXR65r6ShUPPfNzzyK/A2E
+         UXUmfrHJ8Hj4MLHs8sNiLM9ScEayvARU4cHzABtX2K3eULznPMq25pkjXuBjrbpNLV/M
+         Mu8fYVIX14Q/24xaNeJQV6G6lp/fKKlBp/AuY3x1nx7+fezvo/wOsXPwDvxl9okBAeTK
+         X4Sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792445527; x=1793050327;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=TuVHoTWOLcCyB9PSRvxtA5wjt2JdJw+LyuZbMuRvoqU=;
+        b=F8CmnnufpxbiWND7s/dQENWtwpZbwsjEOp5HoWCryd+v0M/d9+z+T8IvJRfkHyvF5C
+         FQH4xNu6M3HjNBAgnO1ZZojdLfhMqT3/2mQMcsKBlffLygLhKslC+r7dqOPqc8q9pTlp
+         qoCem4hIb23S5ixzNLrdKHgag9KGcSXG9XV56GGt5EgT7Kyzz6tKKot2thjjfrRhw32s
+         UI5vAfUKzJSu1yL1GHeWtPzrzgCrBVDJkZdeYxz6iDbet+KjGmlylAodhsjKPAkt3xzH
+         /vCf5jifx9Lo0GHA9btYvZhpjR3pemPBy3phnT/b4cykwxbyya92LPurlldpKRP2S6Qr
+         XObw==
+X-Forwarded-Encrypted: i=1; AKwUvByvk5i6aR/S2B0D68VldoRD2mTXMqPlfp2RDAVGRVzVbrwbTbnOhEjeYXgbi1+5cxeXF9TkrhozkpqQOw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJipnzm02qbRStgVaerndV8/ljzBlc50aDpgADAZklIGYRViia4
+	C2cwMQl0VzDvFkF6b7XP8V9JKJkmfunDXfIoSSIxsmGUvMntU4LkYB+1
+X-Gm-Gg: AYBFou2/dWvjXQcySw47XkUHTvrHnvaYWTyh+5RxxR4XAdNjHYbmBN0chVkKHKehqkO
+	fBX5AiZKfnlZxNcogv268iIK4gLaaaRx9x8ntelaz4wkF7z2G7PKJ4VxSJqo5aVWNu/uxpgFSN/
+	V4IKoWao/uyhHnMskakZMBmBdRxNNFl7nieGbh2/SPomMh24fTKjRRFs1L1nLa6xEfTABMfd7zT
+	ElojBQ02NvkK7tI15lL+uArtQ4J1x00Q2NMtPyFVbd5Ld7guG6JTE7agw4uhHRehMbvb5c5hMTy
+	B62SvM6Vr3wI1gjo1NWc78oh0HdkZqAmfAI8RbDQtkAh/aNfvMR8hgnw0ZGGpDHvPHPBXIxwHl+
+	ebH5AvNJow2sXoETllz2LOrDSo8YmPXUPK9qggU8feixH3dt02b2bg8DzjmsVHm7W7+lISuGDVt
+	wzTcIAxe5W1hCbzeemIApPvx3nT6DIG92eFGGuWLVIU9CNrTedjnT5QB5a09kNaP3XFGp1/IGMY
+	IX0HeQvzfZpIqtV8c4RwPBtQVUIPB3HPAUTOx1a
+X-Received: by 2002:a05:693c:87d9:20b0:365:b147:b458 with SMTP id 5a478bee46e88-365b147b492mr1344116eec.3.1792445527063;
+        Mon, 19 Oct 2026 14:32:07 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:7c21:7991:4e59:de42])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36082a7b33bsm63920435eec.24.2026.10.19.14.32.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Oct 2026 14:32:05 -0700 (PDT)
+Date: Mon, 19 Oct 2026 14:32:02 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Frank.Li@oss.nxp.com
+Cc: Support Opensource <support.opensource@diasemi.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Biju Das <biju.das.jz@bp.renesas.com>, 
+	"open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, 
+	"open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, imx@lists.linux.dev, 
+	Frank Li <Frank.Li@nxp.com>
+Subject: Re: [PATCH v2 1/1] dt-bindings: input: dlg,da9062-onkey: Allow
+ wakeup-source property
+Message-ID: <ataMRZc7a0y6IUnG@google.com>
+References: <20261012210054.2848389-1-Frank.Li@oss.nxp.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -55,92 +100,20 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 7/7] HID: asus: Re-send the Zenbook Duo keyboard
- handshake after probe
-To: =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- Luke Jones <luke@ljones.dev>,
- Joshua Leivenzon <hacker1024@users.sourceforge.net>,
- Ivan Levchenko <me@livan.pro>, Nathan Chancellor <nathan@kernel.org>,
- Paolo Pisati <p.pisati@gmail.com>
-References: <07076668-3291-4eb6-888b-0e6c518ef21b@linux.dev>
- <20261019133557.14092-1-rebecca.mara@posteo.de>
-Content-Language: en-US
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20261019133557.14092-1-rebecca.mara@posteo.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261012210054.2848389-1-Frank.Li@oss.nxp.com>
 
+On Mon, Oct 12, 2026 at 05:00:53PM -0400, Frank.Li@oss.nxp.com wrote:
+> From: Frank Li <Frank.Li@nxp.com>
+> 
+> Allow wakeup-source property to fix below CHECK_DTBS warnings:
+>   arch/arm/boot/dts/nxp/imx/imx6dl-emcon-avari.dtb: onkey (dlg,da9063-onkey): 'wakeup-source' does not match any of the regexes: 'pinctrl-[0-9]+'
+> 
+> Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> Signed-off-by: Frank Li <Frank.Li@nxp.com>
 
-On 10/19/26 15:36, Rebecca Mara Müller wrote:
-> On Mon, Oct 19, 2026 at 01:03:34PM +0200, Denis Benato wrote:
->> Very good to see it sleeps just fine. So yeah a command is missing...
-> Thank you for the roadmap, I went through it on the UX8407AA with
-> BIOS UX8407AA.308. I have since updated to 310, the latest one; its
-> ACPI tables only differ from 308 in relocated memory regions, so the
-> findings below should hold for both:
+Applied, thank you.
 
-Most findings will hold for multiple models across different years
-as asus reuses a lot of code for the same lineup. Thankfully!
-
-> - asus-nb-wmi only exposes the basics here (kbd_backlight 0-3,
->   throttle_thermal_policy, charge_mode, screenpad); no TUF/ROG lighting
->   or power-state attributes.
-
-Fair enough.
-
-> - In the decompiled DSDT, WMNB answers 75 device IDs. None of the
->   TUF LED power IDs is among them, so it is not a firmware that claims
->   "unsupported" and accepts the write anyway. The kbd backlight ID
->   0x00050021 goes to the EC (SLKB), which does not reach the detachable
->   keyboard, a separate USB/BT device.
-
-Does this laptop have other lights? I wonder what that is changing...
-
-> - The LPS0 _DSM in PEPD only notifies the EC (MS entry/exit 0x9a/0x9b,
->   display off/on 0xb7/0xb8, entry/exit 0xae/0xaf). With
->   pm_debug_messages on, Linux calls all of them on s2idle (screen off,
->   lps0 ms entry, lps0 entry, and the exits), so nothing is skipped on
->   our side.
-
-I have a cursed TUF that does the same and looks correct and yet it
-doesn't sleep in linux... Someday I will understand what's going on
-with that. Thankfully it's not the case here as the sleep residency
-is high for you.
-
-> - With dynamic debug on usbcore, the keyboard does go to USB suspend
->   ("usb 3-6: usb suspend, wakeup 1", and "wakeup 0" with wakeup
->   disabled), and the backlight stays on in both cases.
-
-Wow... okay... so it was actually designed this way. 
-
-> - The backlight only goes off when the keyboard loses the connection:
->   lifting it off the dock during s2idle turns it off immediately.
-
-Probably because the idea is that "keyboard lit" = "ready to go"/"press a key to resume".
-
-> So the keyboard simply keeps its backlight while it is connected, and
-> I guess Windows either cuts the port power in Modern Standby or MyASUS
-> turns the light off. I have no Windows on this machine at the moment
-> to check which.
-
-Could be that they simply leave it on as said above.
-
-Doesn't look like something to be investigated further, perhaps try to see
-if there is some unknown devid in wmi that does something cool.
-
-> Following your advice I did it in userspace: a systemd-sleep hook that
-> saves asus::kbd_backlight and writes 0 on "pre", and restores it on
-> "post". With v3 loaded the light now goes off just before the screen
-> and comes back on resume. If it is useful to anyone else I can post it.
-
-in the OGC discord (ex asus-linux discord, you find it on our website) people
-are planning a GUI redesign, perhaps if you have spare time you can add an option
-to asusd to shutdown leds when entering sleep to have a GUI on a widely used tool
-but I think this is time consuming enough that is probably not worth unless you find
-it funny to do.
-
-> Thanks,
-> Rebecca
+-- 
+Dmitry

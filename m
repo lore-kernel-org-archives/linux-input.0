@@ -1,99 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.45
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792523051;
-	b=UPSHkcGaQnxl2Z0qNn8e6qWtDBbSPMChrqLl7ceh8BPk9ioILJqYxkM3mdc6K7HV3t8z
-	 qNrCayfIP2VxTkN91ahHCBBP7O4ucMr2bYSpB5XFJ74UVYBgbGf7M4aGs1X2+KlD1MKJs
-	 qc8Jl5MsnKgAL+kE6QSgauvfre+11Y88P+AvXMrc7XJ+KMROsvhBFdtJL4TgBnBj5/gxG
-	 Lfe5PmwYEkSLFYtR5cYLy9U47Mmhc0t4N0GT95/q8d4W4RTRWoF5YH2t+kmpajW9lEOcH
-	 o4baJ8tFQXtUeCvonfSXs1kIXzAinKPo2Tx/2wXPTKeHnOUe85HmauYX0T5B/p76/Qw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792523051;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:Content-Transfer-Encoding:
-	 In-Reply-To;
-	bh=7NqznRIlKLn/pELhTMEco0REzkh4v7wlCaqZptITogI=;
-	b=FkKAx3QAqfoqNoyvlL2nuEtTTj3oAewCV6QOWRc46J3D2X/wqN5wQd0WsRB06CLiO7Fu
-	 pFkEXpmjI/qyJdO/C4ABu9gxLUX3S3+MgLBJzzEXceIEelKCqu3kLqTLPLRdOK+t38Rj8
-	 zx24tOaDsyYxtN15nL8gelBQlKT341LLP4WOPsVu944T5kBx65f2tjHACZEJLN+7AI7oR
-	 r7PqLk2JGaixKS9iT1sSHPrACaTXHxU69YkYL7Aq7yNMqZCdOS7ZB+udZn+hyH3l+YzDf
-	 JBkH/oGJFHfXWkkaSta25dJFgJhsuXBMwtqHG3Pf5KxO4GWsqBL+GlmMqVUWM/TDCDQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hLr4Pt+J;
-	arc=none smtp.remote-ip=74.125.82.45
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.52.16
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792534165;
+	b=JMu4WXwekS8oolD07LWuIZGVbZRxHpi/xpFo9iirw3YLQaa8yOmHj8PaQutzlfg3cMmj
+	 0mqAy1aRI4dTR3lK6k/UDcMa8XtvjAkmuzZuuXpxgAHr9GB42sbpYIO7NB1kcSm8jZtku
+	 RPofkgEYvJhS2SSuwaTKJ63v8JGn+FuUJkdZyH57IXfXWFFACHyozgxODJ4qjnNBYzZHp
+	 DB5oW3JWxRXzAGPcFvm3GH6YlGaHHrkQig7fl1dgdpUVNlEJ/Hw07h/iU1AAHK3H8ceZL
+	 OLObSsar3KbysP8PyI0QAy9WHShoOJRgI1ba6CHhEfKLR/J3gLTL25TJnmpLNX1a2dw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792534165;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:Content-Transfer-Encoding:Content-Type:
+	 X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
+	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
+	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
+	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
+	 X-Forefront-Antispam-Report:
+	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
+	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
+	 X-MS-Exchange-CrossTenant-FromEntityHeader:
+	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
+	 X-MS-Exchange-CrossTenant-UserPrincipalName:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
+	bh=Zo6yFst62W65naiSSqmRo6JXEdZESlqlCXYpRfBFUPA=;
+	b=LpsnZG3FDUgdSnitGyQTYl/iaaI2cRawRJQ1dVH9C9r5iLPq8idNxTNcR2u5pANMTig1
+	 AQ0i6I6oCo5SfBGYpxYZsZKciIxvRAaddx/AUpHerCgI2f+M37Lx7uQ1N4IvWUFWbVeg5
+	 8svU3P6Vbp+hMBAJ5G8o92WRWCn+5f+uJFn5HwxKYG4P/Z2UuWUrck4MDmdW3YoSU99m7
+	 pY0oZ0PGr+3Ib/ukDPhYnEa/JfCxk3+hSWfREYDYSgErDL01F/ExvIUhi/EJ+JUfouev2
+	 49Jxy3oTpOaj+Z/poMGdBJzac/t4PmBDgaX6AJOlGgOlALEyHr0J0RnQA/vfd+SokpA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=nvidia.com;
+	spf=fail smtp.mailfrom=nvidia.com;
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=AJ3xEjlw;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.52.16
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011016.outbound.protection.outlook.com [52.101.52.16])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EC75606A31A
-	for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 19:04:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2EC75606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47A31606A319;
+	Tue, 20 Oct 2026 22:09:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 47A31606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hLr4Pt+J
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-17bc533fda3so4292656c88.1
-        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 12:04:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792523050; x=1793127850; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7NqznRIlKLn/pELhTMEco0REzkh4v7wlCaqZptITogI=;
-        b=hLr4Pt+JNnJwfVdSIiwSzVwN2M1EdektMGoj8qGvTIg2MHi43g6P3LOjqDktLIrXJc
-         /LbjGbnm0fv1Cio5pJKxGcmBKzdvQ1Bf8jSuV8V5JJip79CY3ECKV2x7PotCCn1kvzCQ
-         4YaZ8G9IpdE+7Ow3oYO6+adNmYfrSPrPRZiHksLbJk7N1fryAL33UOp5jSq6Nup2ngpH
-         wOl0+Aik0n+dpNKqrXJHKnb8BU2rkXjhhP8rhu7nQdn7ktiO6XlCo5a1Jmr294bKdHsr
-         TPkfN5DqX8YEfDV0yTlKP0LpctSqRfqyj58P+bLiOitnTlcAmXRX4sdFHQMGgmS5yS9g
-         opWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792523050; x=1793127850;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=7NqznRIlKLn/pELhTMEco0REzkh4v7wlCaqZptITogI=;
-        b=Rk83x9o5vAAQ2FQVKaWrP0aACvKz4bpusMq2VbfKjtJvp0RspaNZfx9C4i6LqU2H1y
-         zFs3WhY2hHh95UTuaJnJwalQWYFbJRbjBXTMoZfbc/Fo9ZuPtkwl/O4WG9gPIy4H202n
-         XmOpmksaAoDdPAyGwuPORpckS+4lCNcQvyPAYm0y5HqblxYKidPcCLFepoNBsVEW9FN+
-         QC/qiJs4zD7er3deiMdJe0afonPlJwWrg4UJWldcwZOZLxHZYdBftPyzpgmRaIWQiMd7
-         MisgtiRGNKi9lx8OPQ92SDB328Q0RbqY/0/OyUPP4524neeuWT5plW2xMWAlteFMBD4g
-         PGnA==
-X-Forwarded-Encrypted: i=1; AKwUvBxPS7sJSZRL3b9VXylwmvuEPs8Zb0WLzfVMiNaO+1SQNqSbOcFeVHRU4aWCHWb4l4ADj/w0LTJ+XhBiRQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJbMHSehGsB4zMVMHoCeJ9fnaAxM67FcMarcJOu1sac6uFQ1AAK
-	Fibmm8cO276keR8UzqgTA2cVp+bxUnKk5FD/2Sx+DTuIPkM7vgHLO7FqTq34aw==
-X-Gm-Gg: AYBFou0ZaEuRK9ftTw1cGZyYlOllRJpZ7S86tUYHyDmCG9r/5ym4EQcCpn9I4/sjjqX
-	6LLWDxpeJ2v1FiVf/rdAymwoLiWkyvwAo2p4yBepFEL4/Prs9MppxfTt5WneIjKcDS4z+Yqjhr0
-	MGLXJ84S4ohGbfATRiP3TMLpECOiooaqQhYd/+WeG7ITVDm/BDOrBfA//2tTaUYkxJK0T8NRewA
-	A0z6peZN3qefZnKZd99c201V5efkooKixBtLMFXXft53A/U9HeAgOUQQiGovuLy90TQ7iY5rNuQ
-	RS0o5EY3QpsZj3JhxXF4pD7X4nK3YG7rOoOodE3+2tQcYEMdeLtgdZMlsxXU1BVrugSK+06oEQX
-	MaHxpfBVDj5xalUDV03HvpDQCoyZERRysZuXifN8A5A1Z6hbfkPbZJdnybX4ecCTEMCh4ptChfY
-	9LpCKAJ2/UDEGizMutUfLm9nOJnyOTwFXpVGRn9CPzTbnFmF1u/xZdivM0dwVeDGvM1CTYFt2Dg
-	KITrXwx1CqTAQfNhXLPbkNju2rs58yWZ0xT92e29dJkMO2z3PY=
-X-Received: by 2002:a05:7022:e804:b0:13b:3132:6e99 with SMTP id a92af1059eb24-18512c38164mr17695167c88.20.1792523049985;
-        Tue, 20 Oct 2026 12:04:09 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:92d1:8038:c4e7:1f0c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903aefe90asm552320c88.9.2026.10.20.12.04.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Oct 2026 12:04:09 -0700 (PDT)
-Date: Tue, 20 Oct 2026 12:04:05 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>, 
-	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, 
-	Ion Agorria <ion@agorria.com>, =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	Florian Krischer <florian.krischer@fkr.dev>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org, 
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v12 3/7] input: serio: Add driver for ASUS Transformer
- dock keyboard and touchpad
-Message-ID: <ate5K6ZdrSoBUI08@google.com>
-References: <20261019100406.103687-1-clamor95@gmail.com>
- <20261019100406.103687-4-clamor95@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=AJ3xEjlw
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=kH2BEg5ygAMDYZm1h14aZUq+U4jgecC0xMA5lC7TdHyO/MY/HXim0KUwmJAa2BdSsISpE9oPyNcreCRpw4Y/BhYkCz18c3xVlnELEltK9n8HbagKg7sscRTrolOPkJ6iMlFW9/6fAOsuy8UxOY6IzuHOo4cWu2twvqSIfEEvCS+QYN8pnVzU+9YcnH+wguNYQKQw8VTL8ME7xX7sow7TM9GHgHOOX07zr+Ln2Ow7WYb1RYDHVm3FDvHYtiMD+qfXL8rxwnPcSVqiEflzotTC7N5Qo8Tzquj4r4nkBlk0Y691Z3CyIo0x9ATgy6CCdM2XZW/t5oEc2BfGstIRUcehIw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Zo6yFst62W65naiSSqmRo6JXEdZESlqlCXYpRfBFUPA=;
+ b=qg/iek2qvtMSdcFbO8qoSp7PCST03mWWmuq731UxgC3syD6PuA5UzJKXU/dO+jMf76CR0f46nt7reqQqPZAk68QniYlbZaHkAvkgBxc5qlE0d15mMBnj0xhigtzTq02jAlT3k8fVppCp/9CMiJg9QJzwRpHs5KRh2y8NqjMsfyiJniSpixIF11c7KpkFdoZKr42f+ooQDc1CgTf5ZWWfTNMXBbptbqAs1ZT8ygdv9vFCRJz9vJKa7wV+ErVESUxj9uHtWz4iLmmyjTppxJLnb7VFx5kgVDsJvLMiqMGVoZE50Bma8ggzQqrHhvN1d4LjJml7OKAEOBa/WhAmvv+PxA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Zo6yFst62W65naiSSqmRo6JXEdZESlqlCXYpRfBFUPA=;
+ b=AJ3xEjlwCi5eToi+xJCW+GRDGFRJB5jlxN0wotPIqaxRS+q4Tlfia6xWLNIZM2vhQZrTbgi57qkmPQZM0HrgCMJyvkf+pUC67clNe/cnuwjVqhc9UP0EKT3JclCiTnohEGVve8614sz4ZN2NkapE+1JQiFdo9gZjSPkrb8RLmKPhLzuPBqvfdri1RaQiJ7xRTfRFbm1CioVmIP0CfGPZmBqgZCsmiJ2XmaP4NKBEDZbRrpg0kb+01IncB5dfmSoEEkSSrA9Dn+H89I4PlF71jLmf6NM2ER6tWECBShU8yG9ODsioUEBJUDusFg+4zHdBgKoWKUVPrgkzzvtE67jiow==
+Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DM4PR12MB5102.namprd12.prod.outlook.com (2603:10b6:5:391::21)
+ by PH8PR12MB7373.namprd12.prod.outlook.com (2603:10b6:510:217::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.522.19; Tue, 20 Oct
+ 2026 22:09:21 +0000
+Received: from DM4PR12MB5102.namprd12.prod.outlook.com
+ ([fe80::36e8:500b:ecc:e0f4]) by DM4PR12MB5102.namprd12.prod.outlook.com
+ ([fe80::36e8:500b:ecc:e0f4%7]) with mapi id 15.21.0522.017; Tue, 20 Oct 2026
+ 22:09:21 +0000
+From: David Cemin <dcemin@nvidia.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-tegra@vger.kernel.org
+Subject: [PATCH] HID: asus: map Consumer brightness usages on I2C keyboards
+Date: Tue, 20 Oct 2026 15:09:19 -0700
+Message-ID: <20261020220919.611287-1-dcemin@nvidia.com>
+X-Mailer: git-send-email 2.55.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BY5PR04CA0005.namprd04.prod.outlook.com
+ (2603:10b6:a03:1d0::15) To DM4PR12MB5102.namprd12.prod.outlook.com
+ (2603:10b6:5:391::21)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,65 +97,102 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20261019100406.103687-4-clamor95@gmail.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5102:EE_|PH8PR12MB7373:EE_
+X-MS-Office365-Filtering-Correlation-Id: 981b9d4c-b5f1-4f85-8ea1-08df2ef6cb28
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|366016|376014|1800799024|18002099003|11063799006|261009223027099003|10067099003|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	by88Lqr9CUcvn2Z9zoxwGsmCsXvr9jMwLCGMF6/JGoLNAse4JSJ3kxlCu68DZSuDc1kxoLZYA8T/qZhUGPteTV5wT57hw1uiY4N+nlcdHHwWfxNeOY8Cs44AHca6BnZuTWwEu4TmerZ74C5vZEjp6lFIPDc17kWgvy+adTwrhNhOjjjSNncTiV0GogLj2YlzaWDwiAv8UVNfKrLITDJqN/VAx30CpQKWPxmXeA6GO/bkV7ftAWCjIsoEBoVVlmO+kwVT8JiRuw+0xAB+heUVDbFRkkNULjQlsBBNX6zhOEu3ffliEHeVgnttoDlD7YLtzlW2gtF7+oxHDbr0wRVQ9/5x7ZOPHJnuYE6lOQ+PEUB53rWlPUqJZBOAPi8+Hs1GCyyv6s78XyXAlkVD7lYwtyusdLHSOR9yvCKYZI9Dapv9L7CFg3hZMnvOzOSCMfshos4d8pcNR0NSmDSycLqtJlZW25mHNHQKmjc1jGNKounyMFsg/s773y3jakoVrQ+q2ed7rUYtg249HlJXJwk+BPbtQCop0nck8aM93CuoOQEz2fcVSR4TiIAXPzEPqTH2/WCf/9LLjT9Q3DbJghSOz2Igb6wPj91UPOUb43QsCcfKATgYLAdUnvosj7ToWLass+F4E9Kiz/a8NTv8bkasLmsFwksdjfgo1of8t2CvGn8=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5102.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(376014)(1800799024)(18002099003)(11063799006)(261009223027099003)(10067099003)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?WI8RJLgZ0D1ShcQqLFd96p9KIRLmjv3D1Gzzk380yuifBBgvt/oDzEr2XrPJ?=
+ =?us-ascii?Q?9NUIUlLR+4MBJreDzb/x9L+U8V52bCCd+zLZ7l2CWPCG/hZ+qhJE5IgO7wUy?=
+ =?us-ascii?Q?F4JkBlOXvr67AmPA+PHLFsRvd3TnjreaVJ7nqyTGW/OqujHSAXGD332ps0Bw?=
+ =?us-ascii?Q?kBKSxUEmQDjnP2drB9338fq9hqJrkBwQZIRgLafWHf3jtRKk00zm/z37edJT?=
+ =?us-ascii?Q?KkDeREKV4gtuBDbAMJPSFvwm2Tkxdng30+fpFwPNuFT/XThCm5aNi50EYwsI?=
+ =?us-ascii?Q?G38WtF/A8c3ZAN/5JXWhcRNxzuSRY6RfBnMCx8SHVceq6dA5vH/P5Ib7dE3U?=
+ =?us-ascii?Q?2JXVgIIpb+D0XK8yRbZA8ZqDKvyzPN+3+kPpZbqMy9wL0OdE0XQaDoSeEjWh?=
+ =?us-ascii?Q?+DqcyruR7voplTZHxxQRyxs5Ylc8OJvsiI0dSfUFNVlpZdTR47vuO2xvfb74?=
+ =?us-ascii?Q?Jb25Qwd5JT5iMSzmWhAsXVRV0VGAO1FrX22oW+iiwHxQPU8ZFSNWZ+2NR/9u?=
+ =?us-ascii?Q?xjzaSrXaoN1x3uDPOftISlndEoxHYMXnmrcQmUKpwhB+0UKpi+jZYgc3kHyK?=
+ =?us-ascii?Q?gfQYax+WaIPHWhKmRpk+/FUBVZeKanDUsZHygoQTZw1DLQp/WsHlktS0VdG0?=
+ =?us-ascii?Q?koUdsDDTUUeFbux1LsuRweSRylP4LzJHTAKWi4svIHjQZ7TbTzNDtTwvYRau?=
+ =?us-ascii?Q?LWpOh9OoUEiv7eI0VaNJ5GlxocA9EjNGg7jjdrmVvK8wIA/Jm2CdTK92wZQr?=
+ =?us-ascii?Q?NlPCKz2JdhIWwu+xjJ/oe8LNsB5mHUokrQvaTaHl0/2AF0VxOv69cjLvOEUr?=
+ =?us-ascii?Q?vso3MUk5y6fnDFmpH6UDcZcg9V8B01QEMGREUmfqi2bk9uSzsVvOXcjNDVxq?=
+ =?us-ascii?Q?4OJpnDMqO3mVwY+whdHnM6dxiHn1XUFs6QSb50rDcaKaDiShZQyMy30mXzPk?=
+ =?us-ascii?Q?GmWmdbwcjzPxunZx5CUPLbjVq06PYxlP6M/k9wLCY5yycBZIHfrjz0g1xyyt?=
+ =?us-ascii?Q?JqczIi+5wZuP2kPERwPV0/RuYxsXRWroEvgidE/2A2amRkGH5vjsjOp3TV9n?=
+ =?us-ascii?Q?CaRnwNpkAzOZzaX66KTHbuV4D693x5CPPUN3+/z+DxRA0aRdK2gTgopmW0VP?=
+ =?us-ascii?Q?tvySAn/oTAdiVrRiUASg8wHzVTa/WQ2lw4LJOwou7dNo8HLwjkj6gQjAYtuH?=
+ =?us-ascii?Q?rLz8WIU9Cxp9rIISzNKI12HBukI6TlMtxGSs5d5pgzVSQNy9OxSo9q95SoxR?=
+ =?us-ascii?Q?H9BUz135rEcoTIVqoXn9IvNd9HGIX6HmuJKWccqXk91By2cF0+XygN9W0zsz?=
+ =?us-ascii?Q?uzLkD3wUYIv/SDIpEgoBDTKt3GJ+Aq6WAdu0TPXg9Dj/uB+fwk8+8oD8EwYL?=
+ =?us-ascii?Q?JKcr20Mc7+Y783jgmFQiZyWK2PKvHZBvAhTlNviC/f8eFSsuhcdBpYkMY83P?=
+ =?us-ascii?Q?WC39JfJhtm3X/RJeVS3XD2jTDxPSCqqz1zn7g5jSdbpViMTx4M2m4QZabqcY?=
+ =?us-ascii?Q?TwpOPrpIhJoPurH3kMRPgq9Ek3L5NMBGXArPGPWk99i0q/g2CMOmuan/ID3C?=
+ =?us-ascii?Q?du++PZfNnMHcoBIQvZT+0yqf+uYsPSRVF5FX1GEiRWZZ6EzWGOw/ZN3wa2vB?=
+ =?us-ascii?Q?rPhzKsWXB9o4s8ExTPyTntQ43/Qq8gpvQlMqxSEUex6mZ5MvD2Ue2DOEb9us?=
+ =?us-ascii?Q?v56i25mtEQWDP9wxAvjSJTl1JgOiIKmA+loeOCIJZLWkfeJqgeHDaJfkrh7y?=
+ =?us-ascii?Q?o0ayg/aSsQ=3D=3D?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 981b9d4c-b5f1-4f85-8ea1-08df2ef6cb28
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5102.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Oct 2026 22:09:21.6058
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: d2fsPNZMzm6gH/0Yjq/Xo8pZMxVjPl8Why2WldtN6gNgyRwV6+nzi2bRG1GqZzuev6MYnES4C95ZsBk9s4b0+w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB7373
 
-On Mon, Oct 19, 2026 at 01:04:02PM +0300, Svyatoslav Ryhel wrote:
-> From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> 
-> Add input driver for ASUS Transformer dock keyboard and touchpad.
-> 
-> Some keys in ASUS Dock report keycodes that don't make sense according to
-> their position, this patch modifies the incoming data that is sent to
-> serio to send proper scancodes.
-> 
-> Co-developed-by: Ion Agorria <ion@agorria.com>
-> Signed-off-by: Ion Agorria <ion@agorria.com>
-> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+Several ASUS laptops carry their keyboard on an I2C-HID device with ID
+0B05:4B42, the same ID as the Zenbook A16 (UX3607OA), so they bind to
+hid-asus with I2C_KEYBOARD_QUIRKS since
+commit 206107536018 ("HID: asus: support the Zenbook A16 (UX3607OA) keyboard").
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Unlike the A16, which reports its brightness hotkeys on the ASUS vendor
+page, these keyboards report them as the standard Consumer usages
+Display Brightness Decrement (0x70) and Display Brightness Increment
+(0x6f) on report 3. I2C_KEYBOARD_QUIRKS includes QUIRK_NO_CONSUMER_USAGES,
+whose input mapping ignores every Consumer usage except mute and volume,
+so the brightness keys never produce input events. The keys work when
+the keyboard happens to be bound to hid-generic, which maps those usages
+by default, and stop working as soon as hid-asus claims the device.
 
-> +static int asus_ec_kbc_probe(struct platform_device *pdev)
-> +{
-> +	struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
-> +	struct asus_ec_kbc_data *priv;
-> +	int error;
-> +
-> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, priv);
-> +
-> +	priv->ec = ec;
-> +	priv->parent = to_i2c_client(pdev->dev.parent);
-> +
-> +	error = asus_ec_register_serio(pdev, 0, "Keyboard", 0);
-> +	if (error)
-> +		return error;
-> +
-> +	error = asus_ec_register_serio(pdev, 1, "Touchpad", I8042_CMD_AUX_SEND);
-> +	if (error)
-> +		return error;
-> +
-> +	priv->nb.notifier_call = asus_ec_kbc_notify;
-> +
-> +	error = blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
-> +	if (error)
-> +		return dev_err_probe(&pdev->dev, error,
-> +				     "failed to register blocking notifier chain");
+Let the two display brightness usages through the filter so hid-input
+maps them to KEY_BRIGHTNESSUP and KEY_BRIGHTNESSDOWN. Keyboards that do
+not report them are unaffected.
 
-I think sashiko is right that we need to register the notifier first,
-and in it check if serio ports are ready/registered or not. For that we
-probably need a lock and set pointers or flags in serio's start()/stop()
-or open()/close() methods.
+Tested on two ASUS laptop models with this keyboard: with the keyboard
+bound to hid-asus, the brightness keys now adjust the panel brightness.
 
-This can be done as a followup I think.
+Signed-off-by: David Cemin <dcemin@nvidia.com>
+---
+ drivers/hid/hid-asus.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Thanks.
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index c38a2b3b33d9..cf21eee68419 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1311,6 +1311,8 @@ static int asus_input_mapping(struct hid_device *hdev,
+ 		case 0xe2: /* Mute */
+ 		case 0xe9: /* Volume up */
+ 		case 0xea: /* Volume down */
++		case 0x6f: /* Display brightness increment */
++		case 0x70: /* Display brightness decrement */
+ 			return 0;
+ 		default:
+ 			/* Ignore dummy Consumer usages which make the
 
+base-commit: f47d223627f80cb7a1eb14c585fe6cb35de5e984
 -- 
-Dmitry
+2.55.0
+

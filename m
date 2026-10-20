@@ -1,84 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792517847;
-	b=abIoRkTj6D7yLNdTzN6xMYdWvzC5iVu70BetFH7nvi9Z3x0Xg+h3XU+3l0QcYY46N+TE
-	 9o8EjPgM5Y2Cp7KdPxEsG32ZW+lYymk700Iv8hiUNzJwlpC6PIDNlWyO3bmYQ4k80vYsG
-	 pal+7fkDsPXd6c5lLI9sAHCJd/Df0MHYxhd/VaSaRYJydQ/R77nPGjH3yAG4uxrvyL7yO
-	 0Be5NBwcGfngvB3wF2cull2Q5n8bQRDZ4mW4mjzyolYOob/sVpsEKLhbqaFx0ujgPoJGR
-	 BvRzWLCWB+QYlWCDgZAwQUxcTPkhGHlu1uhRc0KFShsk37wx7s/Xnn9rgljQoL6VvMQ==
+	t=1792517860;
+	b=Q6GaT3Qwehw4xqILkUB8vJEA+xVeOqaI+IVqr639SBDITHS9X2/4774ZBtZEYh9FmrtY
+	 iVqTGRuniuWIDt0Oxs3p3QVh81lcmTQrcs2Q9ODDOHHroL8qKfPN3yx7J+ajylo9vTvTB
+	 b3/vNPLvY6uMrRHc1IvAIf21ZGT9HFmvOL3O0tGBetf4pNxyknfVZbQfyY4Am2oCpwZcf
+	 WW1kx0Km2FsXt4tA8ed+NYJM8Bq7IvdTLtM0y+vF5xpimJxcygEHLzG+/VLp2IVOaTyhT
+	 qIs9wWUwthBWdmJBp8gHl5smfH7C/qgUvnAm5gWJRyuAmtxQajivSNGWhXNrWVg3mXA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792517847;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792517860;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=khjjDBK0J2xOtnMH1muymGK2fwTqPXy0k/z60K/0+xY=;
-	b=rXLFffi+tmlQUhBIr7N6BNSgUK1Yir9BzsBTWnG/CnSTPBkDIW8JCjOT4Pq7Z1qg7I4k
-	 7vMsHZpAweKedXguqxdx3VLBfHEKwZstdFta/9WRomgJG5zFiUR8H5RMAHd+KPR2ZSWiJ
-	 BzH7FOeZsIfa1RHRdzojzdlzzVy0UNjq5g5C+7qW8fWqn5dJrShfQ/CBrV3233oY7Kcud
-	 yyElz62OLBhoiXzi4cz+6w6bezHO3Pz0zJjz+ulG8Ssh8GfYPe6Ma6WCXez6F7js949vM
-	 xzUya6BmY7CJpCvXSTb3tKfKGwAfNH5Yd1Si/Ub3z3k+06X+GiMCQcX19jCwSGvQXAA==
+	bh=GffJN5JyYV0TTM6AKNNUhe1QOkeaPbigHvRhyHMvKFo=;
+	b=h0ZwJiZbqUpKqUGODkc/eSzV1wEe7USBKYUD+RxpXj39GbS2EgaYAxnme7mR83Q07107
+	 0P/i4nmwyubduofvDl25ly8uNjowHtNkbCPgEyoDH6/7NW5Ey35u5sz5dlIDrSNvpHjfd
+	 ToJV3MdB9KplO93CPb/wedQ/mSVyMBVRWa7LIVSa7Jc1cUuHvPmkmsbNDjWs7muxr5GO9
+	 xzCs8PNZRwC9BukbzJ32az6D07ESOUIWaVL6TcC5UdF4reM77Y5gB/nPP2WVuZRuS4YnM
+	 JDqFbENZ4coXZy+hVNM3w85djz6f9pdb4LBu4QRFmQ56EgDKquvyAkQvjIetkgC4ozg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=izFxMg2B;
-	arc=none smtp.remote-ip=209.85.128.42
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=oG+EM+MN;
+	arc=none smtp.remote-ip=209.85.128.41
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BC61606A323
-	for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 17:37:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0BC61606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 610B760A3812
+	for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 17:37:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 610B760A3812
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=izFxMg2B
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4a1d293b293so20178325e9.2
-        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 10:37:26 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=oG+EM+MN
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-4a018792ab3so27151435e9.0
+        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 10:37:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792517845; x=1793122645; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792517858; x=1793122658; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=khjjDBK0J2xOtnMH1muymGK2fwTqPXy0k/z60K/0+xY=;
-        b=izFxMg2B2XO2JkZDfcRB4TTlaDp/uiTNWBhiLPKzLei5PlxZZV1t0TIJWAsH2spM/j
-         JHfwecKkFcVjgb8vxgalah7s2TnwsreeIDS3MZLksAoyrymukpOKuID/lfxfkAsVtXol
-         ueEm/r2NU1jZD9oDPPGV6nrjIMtNs1wfkKToqHjoPko8BXO1+KSRmhGeXa3zjFFx/eYn
-         KcmxuwbmDvFllNK8f+pFGbLjNmUBxJTOTW3fK9B3PHJViggEXOIjjqy5G/9aQEat6S8F
-         ARG2azyWDZd+Ku85bFUmn7DdD4BmA4eUmE6oHYo9GTkUjvYI17zIxMI/fM6UpqaPY9p9
-         8xgA==
+        bh=GffJN5JyYV0TTM6AKNNUhe1QOkeaPbigHvRhyHMvKFo=;
+        b=oG+EM+MNtXGg4bD6q8dCetqE4558bF4+EODA9JtUKr5QvG9nsfUlz7vNH2Ma3oObym
+         htY+zyBfyiv6M2lsRD3ZeGhB6ApFC6Rz4n8c76LK+SMUtnPsnwqU51dpSM+pXx0i7j+L
+         CRP6rLf4DLjVCWFUW2NK9y2YmNm8qGIc88u6sVvez1It9rI82mGtxEvJ0QkRiLp+fSAI
+         5lsy7soSi8/2dv2b7R5a8fvElS6s1s3kA5gStMli/7+y1eHRM4EVjDhT1VXNOtOGLFco
+         OTGTnJEoHYgSpIZj5lM/4ZzoGDRPsOmds1fz7vac3spFspVtlKe1xr/jbxda9+g2y7BE
+         r/rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792517845; x=1793122645;
+        d=1e100.net; s=20260707; t=1792517858; x=1793122658;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=khjjDBK0J2xOtnMH1muymGK2fwTqPXy0k/z60K/0+xY=;
-        b=iS0yqDMQBZ1+evh2kB1ReMCJJIukcg0nS+Qws1tjmrulGCpZyQayneQ/NrnqyyXrFQ
-         v63ar+DapYny+/2UuqFSZZ/UcihqvozY+6b6CcMq2313PYH1BHTWnhpMVKMzfdTGS1m0
-         XxssQ6zrmo3Na1YLiJkXcp++lBvePfaP0H/LbqoCAyWfQAUXIC/0qSI6a4ONwLSIrg3+
-         IEAFTXt6S1JmPK9tYqHRDr1ON9GbmCP4AzQcmD/m9KqTeddOyhuUjphniDPNdzWy9Lf+
-         sam4RIoEFx0FNCydohLp8zWab3K+xZm43pQvLMbIAQuX/grLuUIqXnm69loIrdsa0p2l
-         2ImA==
-X-Forwarded-Encrypted: i=1; AKwUvBxIiSsWIzt/83zRRQODRhnLjaKefMg+a7kAxQ9IeAcgfrgs3fHdWcUDnhNk2d4mZ1PWYx9qPqJvgPzQ9g==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKYVn7z+Ld6ESk1USNjgoQlgaGtoezte83O8czF5kPY11M2ZuXz
-	mN2mD3X5beRWO/iq/uoaw3kY5U61GFOzXvEdTBAIxx2DXac0/ntqNfnM
-X-Gm-Gg: AYBFou32zB2WJjNNDdeK/yFAmQQAdiei8dyLInDKW3WxMRgpvuioMIN9aCCtGkxLNn2
-	Dz1wjMN65PsHlemmWcft47VXZDkxyAXp8tGnGqrN3fGCetOv8THkgO4BEeyevsybT1pw0pMR5pR
-	jHPj8gS/lJc7VYcNORusiUfaSzFO3S7LjZQ5vvrJIcJqkruJoF2dYhXBQsvaNribJZozDNs5ij0
-	HB9KYUgIzewPTs19gNRz5F31rb9nYJrZTRntPHxid7EB1XmufxblPCndXTMaGxvXGJqrYOolAPj
-	yq/68fdPPFqgAs+GZhTKUIjcKjlU6r7qQl9Xi8JUJt584HOVyRYh7nE6h/tknE3h5qsgJh+wFi0
-	Di0BF0USysmubti7lv2mKmmZPUWzTXA7gJgq/40a/LSx6W4XAk+bwDs/z8PeVF/yeMAGagSjcge
-	a9mkaMlf3oIktzqqu+BRZeMdYOC9QC7jQxc2onQuwpw45/T/xn3CH6GgwVrrXzqsh1pg==
-X-Received: by 2002:a05:600c:34c2:b0:4a1:a45a:88f with SMTP id 5b1f17b1804b1-4a1d76039d7mr227410065e9.20.1792517845273;
-        Tue, 20 Oct 2026 10:37:25 -0700 (PDT)
+        bh=GffJN5JyYV0TTM6AKNNUhe1QOkeaPbigHvRhyHMvKFo=;
+        b=1FxfVt+PGHMw9oQisHNtLarHZ/eDdIjYHZUTU5/jS133KI0trViqZpayp1FMUMh3oe
+         MoCz3MY5RUw97DawgJlNix5fyEGhCgZC4ZQL6nE9OT3LH/YjIv96nVGxR1+C/wDQKrLk
+         4hPLdX6iG7agxWVHBukGsxf3Wpj/m+1Z+2GaS9wfz5Hh0+JYHSXDMRozqUds7bUzkgPL
+         3UK5CIt31xHAOrZOGgGKjuwhF3A7FhO0R6BPRBfbf5Rx0hwmcK2qtooknLsZP2uIG+uj
+         Tt++nbo2LVd09yyfyDBpQRUVI45fDIO4aXApnOdqfrX4VW4WTE4Ijbe/XwjISrQv4Vbt
+         5lFg==
+X-Forwarded-Encrypted: i=1; AKwUvBzGy+BXA7Ag5z0PoO//ZKkQH7/4/zP76NaDPwvS0Q/mQvRg1sNy2txCYfDiYRnG9uOcluE7sG0v1xwvpw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLeG3CyMfjjPS721JT4mMxM4ejsDiJyJQiBG2h8lUIUXrMvbyx2
+	RPGhIQTUW1f6Bwwx/jDSxcE/3VKy88E1E48EmhZ6/4pfbgdss6L9vXG8
+X-Gm-Gg: AYBFou28N2zpXZhmK6D0nnGxHbkp5lHJAUR967tcxztox8ih4cKgq8SURE+HJwfRdz+
+	BGdtZ/bHvfRrA7h3xn96K1fHPvxQeLyXGpXfBjaO/5sGCw6V0unVitZ1sBFCzzV9GksJFE2q4lX
+	874IwgTBjadaKb8qW2axGKITny46uRG2lDLci5xYglSdL8XS0j16ShuubRrdO6nzLMjh/GVaY1q
+	OW/QbvNv0vYh8m93jUa0IzJGfz3skFv2ygwsKVepb3kg/8YRDzCiseAx/K9FIOqm32QsbZ4lis6
+	N1+gYIXh7JFV+7IwQq/WQoSneq76lgINOnx6+y27Qc3vp6nUaLWIMHP3J2crf2Flxf6mi0dQy6b
+	r8SiY7UPnuumcqEPSN7UlYy72BXB2qf6/EVzmfWqCevLYhjwGe+fka/bl3H6VDQvFcK6KEULbh+
+	bG1l8eF1Qdq0/GDQZPdgwFrDaTNDtTkDlEyzDxCObw+Gbec+9zKwV7EurL5Cy7UY0KJA==
+X-Received: by 2002:a05:600c:8709:b0:4a1:ac85:9696 with SMTP id 5b1f17b1804b1-4a1d75f926cmr211296345e9.17.1792517857552;
+        Tue, 20 Oct 2026 10:37:37 -0700 (PDT)
 Received: from luca-vm.lan ([154.61.61.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1f8016c93sm52505235e9.5.2026.10.20.10.37.23
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1f8016c93sm52505235e9.5.2026.10.20.10.37.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Oct 2026 10:37:24 -0700 (PDT)
+        Tue, 20 Oct 2026 10:37:37 -0700 (PDT)
 From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 To: linux-mediatek@lists.infradead.org
-Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
+Cc: Fabien Parent <parent.f@gmail.com>,
+	Val Packett <val@packett.cool>,
+	Luca Leonardo Scorcia <l.scorcia@gmail.com>,
 	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -92,8 +94,6 @@ Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
 	Liam Girdwood <lgirdwood@gmail.com>,
 	Mark Brown <broonie@kernel.org>,
 	Linus Walleij <linusw@kernel.org>,
-	Val Packett <val@packett.cool>,
-	Fabien Parent <parent.f@gmail.com>,
 	Akari Tsuyukusa <akkun11.open@gmail.com>,
 	Chen Zhong <chen.zhong@mediatek.com>,
 	linux-input@vger.kernel.org,
@@ -103,9 +103,9 @@ Cc: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
 	mfd@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
 	linux-gpio@vger.kernel.org
-Subject: [PATCH RESEND v10 4/9] mfd: mt6397: Use MFD_CELL_* to describe sub-devices
-Date: Tue, 20 Oct 2026 19:33:25 +0200
-Message-ID: <20261020173556.632798-5-l.scorcia@gmail.com>
+Subject: [PATCH RESEND v10 5/9] mfd: mt6397: Add support for MT6392 PMIC
+Date: Tue, 20 Oct 2026 19:33:26 +0200
+Message-ID: <20261020173556.632798-6-l.scorcia@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261020173556.632798-1-l.scorcia@gmail.com>
 References: <20261020173556.632798-1-l.scorcia@gmail.com>
@@ -120,251 +120,786 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use the MFD_CELL_* macros to describe sub-devices. No functional changes.
+From: Fabien Parent <parent.f@gmail.com>
 
+Align the MT6397 PMIC driver to other MFD drivers by passing only an
+identifier through mt6397_of_match[*].data and add support for the MT6392
+PMIC and its regulator, RTC, keys and pinctrl devices.
+
+The keys device manages two buttons named PWRKEY and FCHR_ENB, the latter
+is identified as "Force charging disable" in the data sheet but it also
+says "Merge with HOMEKEY", so call it "Home" for consistency.
+
+Signed-off-by: Fabien Parent <parent.f@gmail.com>
+Signed-off-by: Val Packett <val@packett.cool>
 Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- drivers/mfd/mt6397-core.c | 207 ++++++++++++--------------------------
- 1 file changed, 67 insertions(+), 140 deletions(-)
+ drivers/mfd/mt6397-core.c            | 100 ++++--
+ drivers/mfd/mt6397-irq.c             |   8 +
+ include/linux/mfd/mt6392/core.h      |  43 +++
+ include/linux/mfd/mt6392/registers.h | 488 +++++++++++++++++++++++++++
+ include/linux/mfd/mt6397/core.h      |   1 +
+ 5 files changed, 614 insertions(+), 26 deletions(-)
+ create mode 100644 include/linux/mfd/mt6392/core.h
+ create mode 100644 include/linux/mfd/mt6392/registers.h
 
 diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 9ec951996588..3e08179002fa 100644
+index 3e08179002fa..f284d3885ae1 100644
 --- a/drivers/mfd/mt6397-core.c
 +++ b/drivers/mfd/mt6397-core.c
-@@ -124,165 +124,92 @@ static const struct resource mt6323_pwrc_resources[] = {
+@@ -18,6 +18,7 @@
+ #include <linux/mfd/mt6357/core.h>
+ #include <linux/mfd/mt6358/core.h>
+ #include <linux/mfd/mt6359/core.h>
++#include <linux/mfd/mt6392/core.h>
+ #include <linux/mfd/mt6397/core.h>
+ #include <linux/mfd/mt6323/registers.h>
+ #include <linux/mfd/mt6328/registers.h>
+@@ -25,6 +26,7 @@
+ #include <linux/mfd/mt6357/registers.h>
+ #include <linux/mfd/mt6358/registers.h>
+ #include <linux/mfd/mt6359/registers.h>
++#include <linux/mfd/mt6392/registers.h>
+ #include <linux/mfd/mt6397/registers.h>
+ 
+ #define MT6323_RTC_BASE		0x8000
+@@ -39,6 +41,9 @@
+ #define MT6358_RTC_BASE		0x0588
+ #define MT6358_RTC_SIZE		0x3c
+ 
++#define MT6392_RTC_BASE		0x8000
++#define MT6392_RTC_SIZE		0x3e
++
+ #define MT6397_RTC_BASE		0xe000
+ #define MT6397_RTC_SIZE		0x3e
+ 
+@@ -65,6 +70,11 @@ static const struct resource mt6358_rtc_resources[] = {
+ 	DEFINE_RES_IRQ(MT6358_IRQ_RTC),
  };
  
- static const struct mfd_cell mt6323_devs[] = {
--	{
--		.name = "mt6323-auxadc",
--		.of_compatible = "mediatek,mt6323-auxadc",
--	}, {
--		.name = "mt6323-efuse",
--		.of_compatible = "mediatek,mt6323-efuse",
--	}, {
--		.name = "mt6323-rtc",
--		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
--		.resources = mt6323_rtc_resources,
--		.of_compatible = "mediatek,mt6323-rtc",
--	}, {
--		.name = "mt6323-regulator",
--		.of_compatible = "mediatek,mt6323-regulator"
--	}, {
--		.name = "mt6323-led",
--		.of_compatible = "mediatek,mt6323-led"
--	}, {
--		.name = "mt6323-keys",
--		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
--		.resources = mt6323_keys_resources,
--		.of_compatible = "mediatek,mt6323-keys"
--	}, {
--		.name = "mt6323-pwrc",
--		.num_resources = ARRAY_SIZE(mt6323_pwrc_resources),
--		.resources = mt6323_pwrc_resources,
--		.of_compatible = "mediatek,mt6323-pwrc"
--	},
-+	MFD_CELL_OF("mt6323-auxadc", NULL, NULL, 0, 0,
-+		    "mediatek,mt6323-auxadc"),
-+	MFD_CELL_OF("mt6323-efuse", NULL, NULL, 0, 0,
-+		    "mediatek,mt6323-efuse"),
-+	MFD_CELL_OF("mt6323-rtc", mt6323_rtc_resources, NULL, 0, 0,
-+		    "mediatek,mt6323-rtc"),
-+	MFD_CELL_OF("mt6323-regulator", NULL, NULL, 0, 0,
-+		    "mediatek,mt6323-regulator"),
-+	MFD_CELL_OF("mt6323-led", NULL, NULL, 0, 0,
-+		    "mediatek,mt6323-led"),
-+	MFD_CELL_OF("mt6323-keys", mt6323_keys_resources, NULL, 0, 0,
-+		    "mediatek,mt6323-keys"),
-+	MFD_CELL_OF("mt6323-pwrc", mt6323_pwrc_resources, NULL, 0, 0,
-+		    "mediatek,mt6323-pwrc"),
++static const struct resource mt6392_rtc_resources[] = {
++	DEFINE_RES_MEM(MT6392_RTC_BASE, MT6392_RTC_SIZE),
++	DEFINE_RES_IRQ(MT6392_IRQ_RTC),
++};
++
+ static const struct resource mt6397_rtc_resources[] = {
+ 	DEFINE_RES_MEM(MT6397_RTC_BASE, MT6397_RTC_SIZE),
+ 	DEFINE_RES_IRQ(MT6397_IRQ_RTC),
+@@ -114,6 +124,13 @@ static const struct resource mt6331_keys_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(MT6331_IRQ_STATUS_HOMEKEY, "homekey"),
  };
  
- static const struct mfd_cell mt6328_devs[] = {
--	{
--		.name = "mt6328-regulator",
--		.of_compatible = "mediatek,mt6328-regulator"
--	}, {
--		.name = "mt6328-keys",
--		.num_resources = ARRAY_SIZE(mt6328_keys_resources),
--		.resources = mt6328_keys_resources,
--		.of_compatible = "mediatek,mt6328-keys"
--	},
-+	MFD_CELL_OF("mt6328-regulator", NULL, NULL, 0, 0,
-+		    "mediatek,mt6328-regulator"),
-+	MFD_CELL_OF("mt6328-keys", mt6328_keys_resources, NULL, 0, 0,
-+		    "mediatek,mt6328-keys"),
++static const struct resource mt6392_keys_resources[] = {
++	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_PWRKEY, "powerkey"),
++	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_FCHRKEY, "homekey"),
++	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_RELEASE_PWRKEY, "powerkey_r"),
++	DEFINE_RES_IRQ_NAMED(MT6392_IRQ_RELEASE_FCHRKEY, "homekey_r"),
++};
++
+ static const struct resource mt6397_keys_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_PWRKEY, "powerkey"),
+ 	DEFINE_RES_IRQ_NAMED(MT6397_IRQ_HOMEKEY, "homekey"),
+@@ -197,6 +214,16 @@ static const struct mfd_cell mt6359_devs[] = {
+ 		    "mediatek,mt6359-accdet"),
  };
  
- static const struct mfd_cell mt6357_devs[] = {
--	{
--		.name = "mt6359-auxadc",
--		.of_compatible = "mediatek,mt6357-auxadc"
--	}, {
--		.name = "mt6357-regulator",
--	}, {
--		.name = "mt6357-rtc",
--		.num_resources = ARRAY_SIZE(mt6357_rtc_resources),
--		.resources = mt6357_rtc_resources,
--		.of_compatible = "mediatek,mt6357-rtc",
--	}, {
--		.name = "mt6357-sound",
--		.of_compatible = "mediatek,mt6357-sound"
--	}, {
--		.name = "mt6357-keys",
--		.num_resources = ARRAY_SIZE(mt6357_keys_resources),
--		.resources = mt6357_keys_resources,
--		.of_compatible = "mediatek,mt6357-keys"
--	},
-+	MFD_CELL_OF("mt6359-auxadc", NULL, NULL, 0, 0,
-+		    "mediatek,mt6357-auxadc"),
-+	MFD_CELL_NAME("mt6357-regulator"),
-+	MFD_CELL_OF("mt6357-rtc", mt6357_rtc_resources, NULL, 0, 0,
-+		    "mediatek,mt6357-rtc"),
-+	MFD_CELL_OF("mt6357-sound", NULL, NULL, 0, 0,
-+		    "mediatek,mt6357-sound"),
-+	MFD_CELL_OF("mt6357-keys", mt6357_keys_resources, NULL, 0, 0,
-+		    "mediatek,mt6357-keys"),
- };
- 
- /* MT6331 is always used in combination with MT6332 */
- static const struct mfd_cell mt6331_mt6332_devs[] = {
--	{
--		.name = "mt6331-rtc",
--		.num_resources = ARRAY_SIZE(mt6331_rtc_resources),
--		.resources = mt6331_rtc_resources,
--		.of_compatible = "mediatek,mt6331-rtc",
--	}, {
--		.name = "mt6331-regulator",
--		.of_compatible = "mediatek,mt6331-regulator"
--	}, {
--		.name = "mt6332-regulator",
--		.of_compatible = "mediatek,mt6332-regulator"
--	}, {
--		.name = "mt6331-keys",
--		.num_resources = ARRAY_SIZE(mt6331_keys_resources),
--		.resources = mt6331_keys_resources,
--		.of_compatible = "mediatek,mt6331-keys"
--	},
-+	MFD_CELL_OF("mt6331-rtc", mt6331_rtc_resources, NULL, 0, 0,
-+		    "mediatek,mt6331-rtc"),
-+	MFD_CELL_OF("mt6331-regulator", NULL, NULL, 0, 0,
-+		    "mediatek,mt6331-regulator"),
-+	MFD_CELL_OF("mt6332-regulator", NULL, NULL, 0, 0,
-+		    "mediatek,mt6332-regulator"),
-+	MFD_CELL_OF("mt6331-keys", mt6331_keys_resources, NULL, 0, 0,
-+		    "mediatek,mt6331-keys"),
- };
- 
- static const struct mfd_cell mt6358_devs[] = {
--	{
--		.name = "mt6359-auxadc",
--		.of_compatible = "mediatek,mt6358-auxadc"
--	}, {
--		.name = "mt6358-regulator",
--		.of_compatible = "mediatek,mt6358-regulator"
--	}, {
--		.name = "mt6358-rtc",
--		.num_resources = ARRAY_SIZE(mt6358_rtc_resources),
--		.resources = mt6358_rtc_resources,
--		.of_compatible = "mediatek,mt6358-rtc",
--	}, {
--		.name = "mt6358-sound",
--		.of_compatible = "mediatek,mt6358-sound"
--	}, {
--		.name = "mt6358-keys",
--		.num_resources = ARRAY_SIZE(mt6358_keys_resources),
--		.resources = mt6358_keys_resources,
--		.of_compatible = "mediatek,mt6358-keys"
--	},
-+	MFD_CELL_OF("mt6359-auxadc", NULL, NULL, 0, 0,
-+		    "mediatek,mt6358-auxadc"),
-+	MFD_CELL_OF("mt6358-regulator", NULL, NULL, 0, 0,
-+		    "mediatek,mt6358-regulator"),
-+	MFD_CELL_OF("mt6358-rtc", mt6358_rtc_resources, NULL, 0, 0,
-+		    "mediatek,mt6358-rtc"),
-+	MFD_CELL_OF("mt6358-sound", NULL, NULL, 0, 0,
-+		    "mediatek,mt6358-sound"),
-+	MFD_CELL_OF("mt6358-keys", mt6358_keys_resources, NULL, 0, 0,
-+		    "mediatek,mt6358-keys"),
- };
- 
- static const struct mfd_cell mt6359_devs[] = {
--	{
--		.name = "mt6359-auxadc",
--		.of_compatible = "mediatek,mt6359-auxadc"
--	},
--	{ .name = "mt6359-regulator", },
--	{
--		.name = "mt6359-rtc",
--		.num_resources = ARRAY_SIZE(mt6358_rtc_resources),
--		.resources = mt6358_rtc_resources,
--		.of_compatible = "mediatek,mt6358-rtc",
--	},
--	{ .name = "mt6359-sound", },
--	{
--		.name = "mt6359-keys",
--		.num_resources = ARRAY_SIZE(mt6359_keys_resources),
--		.resources = mt6359_keys_resources,
--		.of_compatible = "mediatek,mt6359-keys"
--	},
--	{
--		.name = "mt6359-accdet",
--		.of_compatible = "mediatek,mt6359-accdet",
--		.num_resources = ARRAY_SIZE(mt6359_accdet_resources),
--		.resources = mt6359_accdet_resources,
--	},
-+	MFD_CELL_OF("mt6359-auxadc", NULL, NULL, 0, 0,
-+		    "mediatek,mt6359-auxadc"),
-+	MFD_CELL_NAME("mt6359-regulator"),
-+	MFD_CELL_OF("mt6359-rtc", mt6358_rtc_resources, NULL, 0, 0,
-+		    "mediatek,mt6358-rtc"),
-+	MFD_CELL_NAME("mt6359-sound"),
-+	MFD_CELL_OF("mt6359-keys", mt6359_keys_resources, NULL, 0, 0,
-+		    "mediatek,mt6359-keys"),
-+	MFD_CELL_OF("mt6359-accdet", mt6359_accdet_resources, NULL, 0, 0,
-+		    "mediatek,mt6359-accdet"),
- };
- 
++static const struct mfd_cell mt6392_devs[] = {
++	MFD_CELL_OF("mt6392-keys", mt6392_keys_resources, NULL, 0, 0,
++		    "mediatek,mt6392-keys"),
++	MFD_CELL_OF("mt6392-pinctrl", NULL, NULL, 0, 0,
++		    "mediatek,mt6392-pinctrl"),
++	MFD_CELL_NAME("mt6392-regulator"),
++	MFD_CELL_OF("mt6392-rtc", mt6392_rtc_resources, NULL, 0, 0,
++		    "mediatek,mt6392-rtc"),
++};
++
  static const struct mfd_cell mt6397_devs[] = {
--	{
--		.name = "mt6397-rtc",
--		.num_resources = ARRAY_SIZE(mt6397_rtc_resources),
--		.resources = mt6397_rtc_resources,
--		.of_compatible = "mediatek,mt6397-rtc",
--	}, {
--		.name = "mt6397-regulator",
--		.of_compatible = "mediatek,mt6397-regulator",
--	}, {
--		.name = "mt6397-codec",
--		.of_compatible = "mediatek,mt6397-codec",
--	}, {
--		.name = "mt6397-clk",
--		.of_compatible = "mediatek,mt6397-clk",
--	}, {
--		.name = "mt6397-pinctrl",
--		.of_compatible = "mediatek,mt6397-pinctrl",
--	}, {
--		.name = "mt6397-keys",
--		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
--		.resources = mt6397_keys_resources,
--		.of_compatible = "mediatek,mt6397-keys"
--	}
-+	MFD_CELL_OF("mt6397-rtc", mt6397_rtc_resources, NULL, 0, 0,
-+		    "mediatek,mt6397-rtc"),
-+	MFD_CELL_OF("mt6397-regulator", NULL, NULL, 0, 0,
-+		    "mediatek,mt6397-regulator"),
-+	MFD_CELL_OF("mt6397-codec", NULL, NULL, 0, 0,
-+		    "mediatek,mt6397-codec"),
-+	MFD_CELL_OF("mt6397-clk", NULL, NULL, 0, 0,
-+		    "mediatek,mt6397-clk"),
-+	MFD_CELL_OF("mt6397-pinctrl", NULL, NULL, 0, 0,
-+		    "mediatek,mt6397-pinctrl"),
-+	MFD_CELL_OF("mt6397-keys", mt6397_keys_resources, NULL, 0, 0,
-+		    "mediatek,mt6397-keys"),
+ 	MFD_CELL_OF("mt6397-rtc", mt6397_rtc_resources, NULL, 0, 0,
+ 		    "mediatek,mt6397-rtc"),
+@@ -268,6 +295,14 @@ static const struct chip_data mt6359_core = {
+ 	.irq_init = mt6358_irq_init,
  };
  
- struct chip_data {
++static const struct chip_data mt6392_core = {
++	.cid_addr = MT6392_CID,
++	.cid_shift = 0,
++	.cells = mt6392_devs,
++	.cell_size = ARRAY_SIZE(mt6392_devs),
++	.irq_init = mt6397_irq_init,
++};
++
+ static const struct chip_data mt6397_core = {
+ 	.cid_addr = MT6397_CID,
+ 	.cid_shift = 0,
+@@ -282,6 +317,7 @@ static int mt6397_probe(struct platform_device *pdev)
+ 	unsigned int id = 0;
+ 	struct mt6397_chip *pmic;
+ 	const struct chip_data *pmic_core;
++	int chip_variant;
+ 
+ 	pmic = devm_kzalloc(&pdev->dev, sizeof(*pmic), GFP_KERNEL);
+ 	if (!pmic)
+@@ -297,9 +333,36 @@ static int mt6397_probe(struct platform_device *pdev)
+ 	if (!pmic->regmap)
+ 		return -ENODEV;
+ 
+-	pmic_core = of_device_get_match_data(&pdev->dev);
+-	if (!pmic_core)
++	chip_variant = (unsigned int)(uintptr_t)device_get_match_data(&pdev->dev);
++	switch (chip_variant) {
++	case MT6323_CHIP_ID:
++		pmic_core = &mt6323_core;
++		break;
++	case MT6328_CHIP_ID:
++		pmic_core = &mt6328_core;
++		break;
++	case MT6331_CHIP_ID:
++		pmic_core = &mt6331_mt6332_core;
++		break;
++	case MT6357_CHIP_ID:
++		pmic_core = &mt6357_core;
++		break;
++	case MT6358_CHIP_ID:
++		pmic_core = &mt6358_core;
++		break;
++	case MT6359_CHIP_ID:
++		pmic_core = &mt6359_core;
++		break;
++	case MT6392_CHIP_ID:
++		pmic_core = &mt6392_core;
++		break;
++	case MT6397_CHIP_ID:
++		pmic_core = &mt6397_core;
++		break;
++	default:
++		dev_err(&pdev->dev, "Device not supported\n");
+ 		return -ENODEV;
++	}
+ 
+ 	ret = regmap_read(pmic->regmap, pmic_core->cid_addr, &id);
+ 	if (ret) {
+@@ -331,30 +394,15 @@ static int mt6397_probe(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id mt6397_of_match[] = {
+-	{
+-		.compatible = "mediatek,mt6323",
+-		.data = &mt6323_core,
+-	}, {
+-		.compatible = "mediatek,mt6328",
+-		.data = &mt6328_core,
+-	}, {
+-		.compatible = "mediatek,mt6331",
+-		.data = &mt6331_mt6332_core,
+-	}, {
+-		.compatible = "mediatek,mt6357",
+-		.data = &mt6357_core,
+-	}, {
+-		.compatible = "mediatek,mt6358",
+-		.data = &mt6358_core,
+-	}, {
+-		.compatible = "mediatek,mt6359",
+-		.data = &mt6359_core,
+-	}, {
+-		.compatible = "mediatek,mt6397",
+-		.data = &mt6397_core,
+-	}, {
+-		/* sentinel */
+-	}
++	{ .compatible = "mediatek,mt6323", .data = (void *)MT6323_CHIP_ID, },
++	{ .compatible = "mediatek,mt6328", .data = (void *)MT6328_CHIP_ID, },
++	{ .compatible = "mediatek,mt6331", .data = (void *)MT6331_CHIP_ID, },
++	{ .compatible = "mediatek,mt6357", .data = (void *)MT6357_CHIP_ID, },
++	{ .compatible = "mediatek,mt6358", .data = (void *)MT6358_CHIP_ID, },
++	{ .compatible = "mediatek,mt6359", .data = (void *)MT6359_CHIP_ID, },
++	{ .compatible = "mediatek,mt6392", .data = (void *)MT6392_CHIP_ID, },
++	{ .compatible = "mediatek,mt6397", .data = (void *)MT6397_CHIP_ID, },
++	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, mt6397_of_match);
+ 
+diff --git a/drivers/mfd/mt6397-irq.c b/drivers/mfd/mt6397-irq.c
+index 5d2e5459f744..80ea5b92d232 100644
+--- a/drivers/mfd/mt6397-irq.c
++++ b/drivers/mfd/mt6397-irq.c
+@@ -15,6 +15,8 @@
+ #include <linux/mfd/mt6328/registers.h>
+ #include <linux/mfd/mt6331/core.h>
+ #include <linux/mfd/mt6331/registers.h>
++#include <linux/mfd/mt6392/core.h>
++#include <linux/mfd/mt6392/registers.h>
+ #include <linux/mfd/mt6397/core.h>
+ #include <linux/mfd/mt6397/registers.h>
+ 
+@@ -203,6 +205,12 @@ int mt6397_irq_init(struct mt6397_chip *chip)
+ 		chip->int_status[0] = MT6397_INT_STATUS0;
+ 		chip->int_status[1] = MT6397_INT_STATUS1;
+ 		break;
++	case MT6392_CHIP_ID:
++		chip->int_con[0] = MT6392_INT_CON0;
++		chip->int_con[1] = MT6392_INT_CON1;
++		chip->int_status[0] = MT6392_INT_STATUS0;
++		chip->int_status[1] = MT6392_INT_STATUS1;
++		break;
+ 
+ 	default:
+ 		dev_err(chip->dev, "unsupported chip: 0x%x\n", chip->chip_id);
+diff --git a/include/linux/mfd/mt6392/core.h b/include/linux/mfd/mt6392/core.h
+new file mode 100644
+index 000000000000..8777b3abf929
+--- /dev/null
++++ b/include/linux/mfd/mt6392/core.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (c) 2020 MediaTek Inc.
++ * Copyright (c) 2026 Luca Leonardo Scorcia <l.scorcia@gmail.com>
++ * Author: Chen Zhong <chen.zhong@mediatek.com>
++ */
++
++#ifndef __MFD_MT6392_CORE_H__
++#define __MFD_MT6392_CORE_H__
++
++enum mt6392_irq_numbers {
++	MT6392_IRQ_SPKL_AB = 0,
++	MT6392_IRQ_SPKL,
++	MT6392_IRQ_BAT_L,
++	MT6392_IRQ_BAT_H,
++	MT6392_IRQ_WATCHDOG,
++	MT6392_IRQ_PWRKEY,
++	MT6392_IRQ_THR_L,
++	MT6392_IRQ_THR_H,
++	MT6392_IRQ_VBATON_UNDET,
++	MT6392_IRQ_BVALID_DET,
++	MT6392_IRQ_CHRDET,
++	MT6392_IRQ_OV,
++	MT6392_IRQ_LDO = 16,
++	MT6392_IRQ_FCHRKEY,
++	MT6392_IRQ_RELEASE_PWRKEY,
++	MT6392_IRQ_RELEASE_FCHRKEY,
++	MT6392_IRQ_RTC,
++	MT6392_IRQ_VPROC,
++	MT6392_IRQ_VSYS,
++	MT6392_IRQ_VCORE,
++	MT6392_IRQ_TYPE_C_CC,
++	MT6392_IRQ_TYPEC_H_MAX,
++	MT6392_IRQ_TYPEC_H_MIN,
++	MT6392_IRQ_TYPEC_L_MAX,
++	MT6392_IRQ_TYPEC_L_MIN,
++	MT6392_IRQ_THR_MAX,
++	MT6392_IRQ_THR_MIN,
++	MT6392_IRQ_NAG_C_DLTV,
++	MT6392_IRQ_NR,
++};
++
++#endif /* __MFD_MT6392_CORE_H__ */
+diff --git a/include/linux/mfd/mt6392/registers.h b/include/linux/mfd/mt6392/registers.h
+new file mode 100644
+index 000000000000..68fe9af448f5
+--- /dev/null
++++ b/include/linux/mfd/mt6392/registers.h
+@@ -0,0 +1,488 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (c) 2020 MediaTek Inc.
++ * Copyright (c) 2026 Luca Leonardo Scorcia <l.scorcia@gmail.com>
++ * Author: Chen Zhong <chen.zhong@mediatek.com>
++ */
++
++#ifndef __MFD_MT6392_REGISTERS_H__
++#define __MFD_MT6392_REGISTERS_H__
++
++/* PMIC Registers */
++#define MT6392_CHR_CON0                         0x0000
++#define MT6392_CHR_CON1                         0x0002
++#define MT6392_CHR_CON2                         0x0004
++#define MT6392_CHR_CON3                         0x0006
++#define MT6392_CHR_CON4                         0x0008
++#define MT6392_CHR_CON5                         0x000A
++#define MT6392_CHR_CON6                         0x000C
++#define MT6392_CHR_CON7                         0x000E
++#define MT6392_CHR_CON8                         0x0010
++#define MT6392_CHR_CON9                         0x0012
++#define MT6392_CHR_CON10                        0x0014
++#define MT6392_CHR_CON11                        0x0016
++#define MT6392_CHR_CON12                        0x0018
++#define MT6392_CHR_CON13                        0x001A
++#define MT6392_CHR_CON14                        0x001C
++#define MT6392_CHR_CON15                        0x001E
++#define MT6392_CHR_CON16                        0x0020
++#define MT6392_CHR_CON17                        0x0022
++#define MT6392_CHR_CON18                        0x0024
++#define MT6392_CHR_CON19                        0x0026
++#define MT6392_CHR_CON20                        0x0028
++#define MT6392_CHR_CON21                        0x002A
++#define MT6392_CHR_CON22                        0x002C
++#define MT6392_CHR_CON23                        0x002E
++#define MT6392_CHR_CON24                        0x0030
++#define MT6392_CHR_CON25                        0x0032
++#define MT6392_CHR_CON26                        0x0034
++#define MT6392_CHR_CON27                        0x0036
++#define MT6392_CHR_CON28                        0x0038
++#define MT6392_CHR_CON29                        0x003A
++#define MT6392_STRUP_CON0                       0x003C
++#define MT6392_STRUP_CON2                       0x003E
++#define MT6392_STRUP_CON3                       0x0040
++#define MT6392_STRUP_CON4                       0x0042
++#define MT6392_STRUP_CON5                       0x0044
++#define MT6392_STRUP_CON6                       0x0046
++#define MT6392_STRUP_CON7                       0x0048
++#define MT6392_STRUP_CON8                       0x004A
++#define MT6392_STRUP_CON9                       0x004C
++#define MT6392_STRUP_CON10                      0x004E
++#define MT6392_STRUP_CON11                      0x0050
++#define MT6392_SPK_CON0                         0x0052
++#define MT6392_SPK_CON1                         0x0054
++#define MT6392_SPK_CON2                         0x0056
++#define MT6392_SPK_CON6                         0x005E
++#define MT6392_SPK_CON7                         0x0060
++#define MT6392_SPK_CON8                         0x0062
++#define MT6392_SPK_CON9                         0x0064
++#define MT6392_SPK_CON10                        0x0066
++#define MT6392_SPK_CON11                        0x0068
++#define MT6392_SPK_CON12                        0x006A
++#define MT6392_STRUP_CON12                      0x006E
++#define MT6392_STRUP_CON13                      0x0070
++#define MT6392_STRUP_CON14                      0x0072
++#define MT6392_STRUP_CON15                      0x0074
++#define MT6392_STRUP_CON16                      0x0076
++#define MT6392_STRUP_CON17                      0x0078
++#define MT6392_STRUP_CON18                      0x007A
++#define MT6392_STRUP_CON19                      0x007C
++#define MT6392_STRUP_CON20                      0x007E
++#define MT6392_CID                              0x0100
++#define MT6392_TOP_CKPDN0                       0x0102
++#define MT6392_TOP_CKPDN0_SET                   0x0104
++#define MT6392_TOP_CKPDN0_CLR                   0x0106
++#define MT6392_TOP_CKPDN1                       0x0108
++#define MT6392_TOP_CKPDN1_SET                   0x010A
++#define MT6392_TOP_CKPDN1_CLR                   0x010C
++#define MT6392_TOP_CKPDN2                       0x010E
++#define MT6392_TOP_CKPDN2_SET                   0x0110
++#define MT6392_TOP_CKPDN2_CLR                   0x0112
++#define MT6392_TOP_RST_CON                      0x0114
++#define MT6392_TOP_RST_CON_SET                  0x0116
++#define MT6392_TOP_RST_CON_CLR                  0x0118
++#define MT6392_TOP_RST_MISC                     0x011A
++#define MT6392_TOP_RST_MISC_SET                 0x011C
++#define MT6392_TOP_RST_MISC_CLR                 0x011E
++#define MT6392_TOP_CKCON0                       0x0120
++#define MT6392_TOP_CKCON0_SET                   0x0122
++#define MT6392_TOP_CKCON0_CLR                   0x0124
++#define MT6392_TOP_CKCON1                       0x0126
++#define MT6392_TOP_CKCON1_SET                   0x0128
++#define MT6392_TOP_CKCON1_CLR                   0x012A
++#define MT6392_TOP_CKTST0                       0x012C
++#define MT6392_TOP_CKTST1                       0x012E
++#define MT6392_TOP_CKTST2                       0x0130
++#define MT6392_TEST_OUT                         0x0132
++#define MT6392_TEST_CON0                        0x0134
++#define MT6392_TEST_CON1                        0x0136
++#define MT6392_EN_STATUS0                       0x0138
++#define MT6392_EN_STATUS1                       0x013A
++#define MT6392_OCSTATUS0                        0x013C
++#define MT6392_OCSTATUS1                        0x013E
++#define MT6392_PGSTATUS                         0x0140
++#define MT6392_CHRSTATUS                        0x0142
++#define MT6392_TDSEL_CON                        0x0144
++#define MT6392_RDSEL_CON                        0x0146
++#define MT6392_SMT_CON0                         0x0148
++#define MT6392_SMT_CON1                         0x014A
++#define MT6392_DRV_CON0                         0x0152
++#define MT6392_DRV_CON1                         0x0154
++#define MT6392_INT_CON0                         0x0160
++#define MT6392_INT_CON0_SET                     0x0162
++#define MT6392_INT_CON0_CLR                     0x0164
++#define MT6392_INT_CON1                         0x0166
++#define MT6392_INT_CON1_SET                     0x0168
++#define MT6392_INT_CON1_CLR                     0x016A
++#define MT6392_INT_MISC_CON                     0x016C
++#define MT6392_INT_MISC_CON_SET                 0x016E
++#define MT6392_INT_MISC_CON_CLR                 0x0170
++#define MT6392_INT_STATUS0                      0x0172
++#define MT6392_INT_STATUS1                      0x0174
++#define MT6392_OC_GEAR_0                        0x0176
++#define MT6392_OC_GEAR_1                        0x0178
++#define MT6392_OC_GEAR_2                        0x017A
++#define MT6392_OC_CTL_VPROC                     0x017C
++#define MT6392_OC_CTL_VSYS                      0x017E
++#define MT6392_OC_CTL_VCORE                     0x0180
++#define MT6392_FQMTR_CON0                       0x0182
++#define MT6392_FQMTR_CON1                       0x0184
++#define MT6392_FQMTR_CON2                       0x0186
++#define MT6392_RG_SPI_CON                       0x0188
++#define MT6392_DEW_DIO_EN                       0x018A
++#define MT6392_DEW_READ_TEST                    0x018C
++#define MT6392_DEW_WRITE_TEST                   0x018E
++#define MT6392_DEW_CRC_SWRST                    0x0190
++#define MT6392_DEW_CRC_EN                       0x0192
++#define MT6392_DEW_CRC_VAL                      0x0194
++#define MT6392_DEW_DBG_MON_SEL                  0x0196
++#define MT6392_DEW_CIPHER_KEY_SEL               0x0198
++#define MT6392_DEW_CIPHER_IV_SEL                0x019A
++#define MT6392_DEW_CIPHER_EN                    0x019C
++#define MT6392_DEW_CIPHER_RDY                   0x019E
++#define MT6392_DEW_CIPHER_MODE                  0x01A0
++#define MT6392_DEW_CIPHER_SWRST                 0x01A2
++#define MT6392_DEW_RDDMY_NO                     0x01A4
++#define MT6392_DEW_RDATA_DLY_SEL                0x01A6
++#define MT6392_CLK_TRIM_CON0                    0x01A8
++#define MT6392_BUCK_CON0                        0x0200
++#define MT6392_BUCK_CON1                        0x0202
++#define MT6392_BUCK_CON2                        0x0204
++#define MT6392_BUCK_CON3                        0x0206
++#define MT6392_BUCK_CON4                        0x0208
++#define MT6392_BUCK_CON5                        0x020A
++#define MT6392_VPROC_CON0                       0x020C
++#define MT6392_VPROC_CON1                       0x020E
++#define MT6392_VPROC_CON2                       0x0210
++#define MT6392_VPROC_CON3                       0x0212
++#define MT6392_VPROC_CON4                       0x0214
++#define MT6392_VPROC_CON5                       0x0216
++#define MT6392_VPROC_CON7                       0x021A
++#define MT6392_VPROC_CON8                       0x021C
++#define MT6392_VPROC_CON9                       0x021E
++#define MT6392_VPROC_CON10                      0x0220
++#define MT6392_VPROC_CON11                      0x0222
++#define MT6392_VPROC_CON12                      0x0224
++#define MT6392_VPROC_CON13                      0x0226
++#define MT6392_VPROC_CON14                      0x0228
++#define MT6392_VPROC_CON15                      0x022A
++#define MT6392_VPROC_CON18                      0x0230
++#define MT6392_VSYS_CON0                        0x0232
++#define MT6392_VSYS_CON1                        0x0234
++#define MT6392_VSYS_CON2                        0x0236
++#define MT6392_VSYS_CON3                        0x0238
++#define MT6392_VSYS_CON4                        0x023A
++#define MT6392_VSYS_CON5                        0x023C
++#define MT6392_VSYS_CON7                        0x0240
++#define MT6392_VSYS_CON8                        0x0242
++#define MT6392_VSYS_CON9                        0x0244
++#define MT6392_VSYS_CON10                       0x0246
++#define MT6392_VSYS_CON11                       0x0248
++#define MT6392_VSYS_CON12                       0x024A
++#define MT6392_VSYS_CON13                       0x024C
++#define MT6392_VSYS_CON14                       0x024E
++#define MT6392_VSYS_CON15                       0x0250
++#define MT6392_VSYS_CON18                       0x0256
++#define MT6392_BUCK_OC_CON0                     0x0258
++#define MT6392_BUCK_OC_CON1                     0x025A
++#define MT6392_BUCK_OC_CON2                     0x025C
++#define MT6392_BUCK_OC_CON3                     0x025E
++#define MT6392_BUCK_OC_CON4                     0x0260
++#define MT6392_BUCK_OC_VPROC_CON0               0x0262
++#define MT6392_BUCK_OC_VCORE_CON0               0x0264
++#define MT6392_BUCK_OC_VSYS_CON0                0x0266
++#define MT6392_BUCK_ANA_MON_CON0                0x0268
++#define MT6392_BUCK_EFUSE_OC_CON0               0x026A
++#define MT6392_VCORE_CON0                       0x0300
++#define MT6392_VCORE_CON1                       0x0302
++#define MT6392_VCORE_CON2                       0x0304
++#define MT6392_VCORE_CON3                       0x0306
++#define MT6392_VCORE_CON4                       0x0308
++#define MT6392_VCORE_CON5                       0x030A
++#define MT6392_VCORE_CON7                       0x030E
++#define MT6392_VCORE_CON8                       0x0310
++#define MT6392_VCORE_CON9                       0x0312
++#define MT6392_VCORE_CON10                      0x0314
++#define MT6392_VCORE_CON11                      0x0316
++#define MT6392_VCORE_CON12                      0x0318
++#define MT6392_VCORE_CON13                      0x031A
++#define MT6392_VCORE_CON14                      0x031C
++#define MT6392_VCORE_CON15                      0x031E
++#define MT6392_VCORE_CON18                      0x0324
++#define MT6392_BUCK_K_CON0                      0x032A
++#define MT6392_BUCK_K_CON1                      0x032C
++#define MT6392_BUCK_K_CON2                      0x032E
++#define MT6392_ANALDO_CON0                      0x0400
++#define MT6392_ANALDO_CON1                      0x0402
++#define MT6392_ANALDO_CON2                      0x0404
++#define MT6392_ANALDO_CON3                      0x0406
++#define MT6392_ANALDO_CON4                      0x0408
++#define MT6392_ANALDO_CON6                      0x040C
++#define MT6392_ANALDO_CON7                      0x040E
++#define MT6392_ANALDO_CON8                      0x0410
++#define MT6392_ANALDO_CON10                     0x0412
++#define MT6392_ANALDO_CON15                     0x0414
++#define MT6392_ANALDO_CON16                     0x0416
++#define MT6392_ANALDO_CON17                     0x0418
++#define MT6392_ANALDO_CON21                     0x0420
++#define MT6392_ANALDO_CON22                     0x0422
++#define MT6392_ANALDO_CON23                     0x0424
++#define MT6392_ANALDO_CON24                     0x0426
++#define MT6392_ANALDO_CON25                     0x0428
++#define MT6392_ANALDO_CON26                     0x042A
++#define MT6392_ANALDO_CON27                     0x042C
++#define MT6392_ANALDO_CON28                     0x042E
++#define MT6392_ANALDO_CON29                     0x0430
++#define MT6392_DIGLDO_CON0                      0x0500
++#define MT6392_DIGLDO_CON2                      0x0502
++#define MT6392_DIGLDO_CON3                      0x0504
++#define MT6392_DIGLDO_CON5                      0x0506
++#define MT6392_DIGLDO_CON6                      0x0508
++#define MT6392_DIGLDO_CON7                      0x050A
++#define MT6392_DIGLDO_CON8                      0x050C
++#define MT6392_DIGLDO_CON10                     0x0510
++#define MT6392_DIGLDO_CON11                     0x0512
++#define MT6392_DIGLDO_CON12                     0x0514
++#define MT6392_DIGLDO_CON15                     0x051A
++#define MT6392_DIGLDO_CON20                     0x0524
++#define MT6392_DIGLDO_CON21                     0x0526
++#define MT6392_DIGLDO_CON23                     0x0528
++#define MT6392_DIGLDO_CON24                     0x052A
++#define MT6392_DIGLDO_CON26                     0x052C
++#define MT6392_DIGLDO_CON27                     0x052E
++#define MT6392_DIGLDO_CON28                     0x0530
++#define MT6392_DIGLDO_CON29                     0x0532
++#define MT6392_DIGLDO_CON30                     0x0534
++#define MT6392_DIGLDO_CON31                     0x0536
++#define MT6392_DIGLDO_CON32                     0x0538
++#define MT6392_DIGLDO_CON33                     0x053A
++#define MT6392_DIGLDO_CON36                     0x0540
++#define MT6392_DIGLDO_CON41                     0x0546
++#define MT6392_DIGLDO_CON44                     0x054C
++#define MT6392_DIGLDO_CON47                     0x0552
++#define MT6392_DIGLDO_CON48                     0x0554
++#define MT6392_DIGLDO_CON49                     0x0556
++#define MT6392_DIGLDO_CON50                     0x0558
++#define MT6392_DIGLDO_CON51                     0x055A
++#define MT6392_DIGLDO_CON52                     0x055C
++#define MT6392_DIGLDO_CON53                     0x055E
++#define MT6392_DIGLDO_CON54                     0x0560
++#define MT6392_DIGLDO_CON55                     0x0562
++#define MT6392_DIGLDO_CON56                     0x0564
++#define MT6392_DIGLDO_CON57                     0x0566
++#define MT6392_DIGLDO_CON58                     0x0568
++#define MT6392_DIGLDO_CON59                     0x056A
++#define MT6392_DIGLDO_CON60                     0x056C
++#define MT6392_DIGLDO_CON61                     0x056E
++#define MT6392_DIGLDO_CON62                     0x0570
++#define MT6392_DIGLDO_CON63                     0x0572
++#define MT6392_EFUSE_CON0                       0x0600
++#define MT6392_EFUSE_CON1                       0x0602
++#define MT6392_EFUSE_CON2                       0x0604
++#define MT6392_EFUSE_CON3                       0x0606
++#define MT6392_EFUSE_CON4                       0x0608
++#define MT6392_EFUSE_CON5                       0x060A
++#define MT6392_EFUSE_CON6                       0x060C
++#define MT6392_EFUSE_VAL_0_15                   0x060E
++#define MT6392_EFUSE_VAL_16_31                  0x0610
++#define MT6392_EFUSE_VAL_32_47                  0x0612
++#define MT6392_EFUSE_VAL_48_63                  0x0614
++#define MT6392_EFUSE_VAL_64_79                  0x0616
++#define MT6392_EFUSE_VAL_80_95                  0x0618
++#define MT6392_EFUSE_VAL_96_111                 0x061A
++#define MT6392_EFUSE_VAL_112_127                0x061C
++#define MT6392_EFUSE_VAL_128_143                0x061E
++#define MT6392_EFUSE_VAL_144_159                0x0620
++#define MT6392_EFUSE_VAL_160_175                0x0622
++#define MT6392_EFUSE_VAL_176_191                0x0624
++#define MT6392_EFUSE_VAL_192_207                0x0626
++#define MT6392_EFUSE_VAL_208_223                0x0628
++#define MT6392_EFUSE_VAL_224_239                0x062A
++#define MT6392_EFUSE_VAL_240_255                0x062C
++#define MT6392_EFUSE_VAL_256_271                0x062E
++#define MT6392_EFUSE_VAL_272_287                0x0630
++#define MT6392_EFUSE_VAL_288_303                0x0632
++#define MT6392_EFUSE_VAL_304_319                0x0634
++#define MT6392_EFUSE_VAL_320_335                0x0636
++#define MT6392_EFUSE_VAL_336_351                0x0638
++#define MT6392_EFUSE_VAL_352_367                0x063A
++#define MT6392_EFUSE_VAL_368_383                0x063C
++#define MT6392_EFUSE_VAL_384_399                0x063E
++#define MT6392_EFUSE_VAL_400_415                0x0640
++#define MT6392_EFUSE_VAL_416_431                0x0642
++#define MT6392_RTC_MIX_CON0                     0x0644
++#define MT6392_RTC_MIX_CON1                     0x0646
++#define MT6392_EFUSE_VAL_432_447                0x0648
++#define MT6392_EFUSE_VAL_448_463                0x064A
++#define MT6392_EFUSE_VAL_464_479                0x064C
++#define MT6392_EFUSE_VAL_480_495                0x064E
++#define MT6392_EFUSE_VAL_496_511                0x0650
++#define MT6392_EFUSE_DOUT_0_15                  0x0652
++#define MT6392_EFUSE_DOUT_16_31                 0x0654
++#define MT6392_EFUSE_DOUT_32_47                 0x0656
++#define MT6392_EFUSE_DOUT_48_63                 0x0658
++#define MT6392_EFUSE_DOUT_64_79                 0x065A
++#define MT6392_EFUSE_DOUT_80_95                 0x065C
++#define MT6392_EFUSE_DOUT_96_111                0x065E
++#define MT6392_EFUSE_DOUT_112_127               0x0660
++#define MT6392_EFUSE_DOUT_128_143               0x0662
++#define MT6392_EFUSE_DOUT_144_159               0x0664
++#define MT6392_EFUSE_DOUT_160_175               0x0666
++#define MT6392_EFUSE_DOUT_176_191               0x0668
++#define MT6392_EFUSE_DOUT_192_207               0x066A
++#define MT6392_EFUSE_DOUT_208_223               0x066C
++#define MT6392_EFUSE_DOUT_224_239               0x066E
++#define MT6392_EFUSE_DOUT_240_255               0x0670
++#define MT6392_EFUSE_DOUT_256_271               0x0672
++#define MT6392_EFUSE_DOUT_272_287               0x0674
++#define MT6392_EFUSE_DOUT_288_303               0x0676
++#define MT6392_EFUSE_DOUT_304_319               0x0678
++#define MT6392_EFUSE_DOUT_320_335               0x067A
++#define MT6392_EFUSE_DOUT_336_351               0x067C
++#define MT6392_EFUSE_DOUT_352_367               0x067E
++#define MT6392_EFUSE_DOUT_368_383               0x0680
++#define MT6392_EFUSE_DOUT_384_399               0x0682
++#define MT6392_EFUSE_DOUT_400_415               0x0684
++#define MT6392_EFUSE_DOUT_416_431               0x0686
++#define MT6392_EFUSE_DOUT_432_447               0x0688
++#define MT6392_EFUSE_DOUT_448_463               0x068A
++#define MT6392_EFUSE_DOUT_464_479               0x068C
++#define MT6392_EFUSE_DOUT_480_495               0x068E
++#define MT6392_EFUSE_DOUT_496_511               0x0690
++#define MT6392_EFUSE_CON7                       0x0692
++#define MT6392_EFUSE_CON8                       0x0694
++#define MT6392_EFUSE_CON9                       0x0696
++#define MT6392_AUXADC_ADC0                      0x0700
++#define MT6392_AUXADC_ADC1                      0x0702
++#define MT6392_AUXADC_ADC2                      0x0704
++#define MT6392_AUXADC_ADC3                      0x0706
++#define MT6392_AUXADC_ADC4                      0x0708
++#define MT6392_AUXADC_ADC5                      0x070A
++#define MT6392_AUXADC_ADC6                      0x070C
++#define MT6392_AUXADC_ADC7                      0x070E
++#define MT6392_AUXADC_ADC8                      0x0710
++#define MT6392_AUXADC_ADC9                      0x0712
++#define MT6392_AUXADC_ADC10                     0x0714
++#define MT6392_AUXADC_ADC11                     0x0716
++#define MT6392_AUXADC_ADC12                     0x0718
++#define MT6392_AUXADC_ADC13                     0x071A
++#define MT6392_AUXADC_ADC14                     0x071C
++#define MT6392_AUXADC_ADC15                     0x071E
++#define MT6392_AUXADC_ADC16                     0x0720
++#define MT6392_AUXADC_ADC17                     0x0722
++#define MT6392_AUXADC_ADC18                     0x0724
++#define MT6392_AUXADC_ADC19                     0x0726
++#define MT6392_AUXADC_ADC20                     0x0728
++#define MT6392_AUXADC_ADC21                     0x072A
++#define MT6392_AUXADC_ADC22                     0x072C
++#define MT6392_AUXADC_STA0                      0x072E
++#define MT6392_AUXADC_STA1                      0x0730
++#define MT6392_AUXADC_RQST0                     0x0732
++#define MT6392_AUXADC_RQST0_SET                 0x0734
++#define MT6392_AUXADC_RQST0_CLR                 0x0736
++#define MT6392_AUXADC_CON0                      0x0738
++#define MT6392_AUXADC_CON0_SET                  0x073A
++#define MT6392_AUXADC_CON0_CLR                  0x073C
++#define MT6392_AUXADC_CON1                      0x073E
++#define MT6392_AUXADC_CON2                      0x0740
++#define MT6392_AUXADC_CON3                      0x0742
++#define MT6392_AUXADC_CON4                      0x0744
++#define MT6392_AUXADC_CON5                      0x0746
++#define MT6392_AUXADC_CON6                      0x0748
++#define MT6392_AUXADC_CON7                      0x074A
++#define MT6392_AUXADC_CON8                      0x074C
++#define MT6392_AUXADC_CON9                      0x074E
++#define MT6392_AUXADC_CON10                     0x0750
++#define MT6392_AUXADC_CON11                     0x0752
++#define MT6392_AUXADC_CON12                     0x0754
++#define MT6392_AUXADC_CON13                     0x0756
++#define MT6392_AUXADC_CON14                     0x0758
++#define MT6392_AUXADC_CON15                     0x075A
++#define MT6392_AUXADC_CON16                     0x075C
++#define MT6392_AUXADC_AUTORPT0                  0x075E
++#define MT6392_AUXADC_LBAT0                     0x0760
++#define MT6392_AUXADC_LBAT1                     0x0762
++#define MT6392_AUXADC_LBAT2                     0x0764
++#define MT6392_AUXADC_LBAT3                     0x0766
++#define MT6392_AUXADC_LBAT4                     0x0768
++#define MT6392_AUXADC_LBAT5                     0x076A
++#define MT6392_AUXADC_LBAT6                     0x076C
++#define MT6392_AUXADC_THR0                      0x076E
++#define MT6392_AUXADC_THR1                      0x0770
++#define MT6392_AUXADC_THR2                      0x0772
++#define MT6392_AUXADC_THR3                      0x0774
++#define MT6392_AUXADC_THR4                      0x0776
++#define MT6392_AUXADC_THR5                      0x0778
++#define MT6392_AUXADC_THR6                      0x077A
++#define MT6392_AUXADC_EFUSE0                    0x077C
++#define MT6392_AUXADC_EFUSE1                    0x077E
++#define MT6392_AUXADC_EFUSE2                    0x0780
++#define MT6392_AUXADC_EFUSE3                    0x0782
++#define MT6392_AUXADC_EFUSE4                    0x0784
++#define MT6392_AUXADC_EFUSE5                    0x0786
++#define MT6392_AUXADC_NAG_0                     0x0788
++#define MT6392_AUXADC_NAG_1                     0x078A
++#define MT6392_AUXADC_NAG_2                     0x078C
++#define MT6392_AUXADC_NAG_3                     0x078E
++#define MT6392_AUXADC_NAG_4                     0x0790
++#define MT6392_AUXADC_NAG_5                     0x0792
++#define MT6392_AUXADC_NAG_6                     0x0794
++#define MT6392_AUXADC_NAG_7                     0x0796
++#define MT6392_AUXADC_NAG_8                     0x0798
++#define MT6392_AUXADC_TYPEC_H_1                 0x079A
++#define MT6392_AUXADC_TYPEC_H_2                 0x079C
++#define MT6392_AUXADC_TYPEC_H_3                 0x079E
++#define MT6392_AUXADC_TYPEC_H_4                 0x07A0
++#define MT6392_AUXADC_TYPEC_H_5                 0x07A2
++#define MT6392_AUXADC_TYPEC_H_6                 0x07A4
++#define MT6392_AUXADC_TYPEC_H_7                 0x07A6
++#define MT6392_AUXADC_TYPEC_L_1                 0x07A8
++#define MT6392_AUXADC_TYPEC_L_2                 0x07AA
++#define MT6392_AUXADC_TYPEC_L_3                 0x07AC
++#define MT6392_AUXADC_TYPEC_L_4                 0x07AE
++#define MT6392_AUXADC_TYPEC_L_5                 0x07B0
++#define MT6392_AUXADC_TYPEC_L_6                 0x07B2
++#define MT6392_AUXADC_TYPEC_L_7                 0x07B4
++#define MT6392_AUXADC_NAG_9                     0x07B6
++#define MT6392_TYPE_C_PHY_RG_0                  0x0800
++#define MT6392_TYPE_C_PHY_RG_CC_RESERVE_CSR     0x0802
++#define MT6392_TYPE_C_VCMP_CTRL                 0x0804
++#define MT6392_TYPE_C_CTRL                      0x0806
++#define MT6392_TYPE_C_CC_SW_CTRL                0x080a
++#define MT6392_TYPE_C_CC_VOL_PERIODIC_MEAS_VAL  0x080c
++#define MT6392_TYPE_C_CC_VOL_DEBOUNCE_CNT_VAL   0x080e
++#define MT6392_TYPE_C_DRP_SRC_CNT_VAL_0         0x0810
++#define MT6392_TYPE_C_DRP_SNK_CNT_VAL_0         0x0814
++#define MT6392_TYPE_C_DRP_TRY_CNT_VAL_0         0x0818
++#define MT6392_TYPE_C_CC_SRC_DEFAULT_DAC_VAL    0x0820
++#define MT6392_TYPE_C_CC_SRC_15_DAC_VAL         0x0822
++#define MT6392_TYPE_C_CC_SRC_30_DAC_VAL         0x0824
++#define MT6392_TYPE_C_CC_SNK_DAC_VAL_0          0x0828
++#define MT6392_TYPE_C_CC_SNK_DAC_VAL_1          0x082a
++#define MT6392_TYPE_C_INTR_EN_0                 0x0830
++#define MT6392_TYPE_C_INTR_EN_2                 0x0834
++#define MT6392_TYPE_C_INTR_0                    0x0838
++#define MT6392_TYPE_C_INTR_2                    0x083C
++#define MT6392_TYPE_C_CC_STATUS                 0x0840
++#define MT6392_TYPE_C_PWR_STATUS                0x0842
++#define MT6392_TYPE_C_PHY_RG_CC1_RESISTENCE_0   0x0844
++#define MT6392_TYPE_C_PHY_RG_CC1_RESISTENCE_1   0x0846
++#define MT6392_TYPE_C_PHY_RG_CC2_RESISTENCE_0   0x0848
++#define MT6392_TYPE_C_PHY_RG_CC2_RESISTENCE_1   0x084a
++#define MT6392_TYPE_C_CC_SW_FORCE_MODE_ENABLE_0 0x0860
++#define MT6392_TYPE_C_CC_SW_FORCE_MODE_VAL_0    0x0864
++#define MT6392_TYPE_C_CC_SW_FORCE_MODE_VAL_1    0x0866
++#define MT6392_TYPE_C_CC_SW_FORCE_MODE_ENABLE_1 0x0868
++#define MT6392_TYPE_C_CC_SW_FORCE_MODE_VAL_2    0x086c
++#define MT6392_TYPE_C_CC_DAC_CALI_CTRL          0x0870
++#define MT6392_TYPE_C_CC_DAC_CALI_RESULT        0x0872
++#define MT6392_TYPE_C_DEBUG_PORT_SELECT_0       0x0880
++#define MT6392_TYPE_C_DEBUG_PORT_SELECT_1       0x0882
++#define MT6392_TYPE_C_DEBUG_MODE_SELECT         0x0884
++#define MT6392_TYPE_C_DEBUG_OUT_READ_0          0x0888
++#define MT6392_TYPE_C_DEBUG_OUT_READ_1          0x088a
++#define MT6392_TYPE_C_SW_DEBUG_PORT_0           0x088c
++#define MT6392_TYPE_C_SW_DEBUG_PORT_1           0x088e
++
++#endif /* __MFD_MT6392_REGISTERS_H__ */
+diff --git a/include/linux/mfd/mt6397/core.h b/include/linux/mfd/mt6397/core.h
+index 340fc72e22aa..3729a6856c13 100644
+--- a/include/linux/mfd/mt6397/core.h
++++ b/include/linux/mfd/mt6397/core.h
+@@ -20,6 +20,7 @@ enum chip_id {
+ 	MT6359_CHIP_ID = 0x59,
+ 	MT6366_CHIP_ID = 0x66,
+ 	MT6391_CHIP_ID = 0x91,
++	MT6392_CHIP_ID = 0x92,
+ 	MT6397_CHIP_ID = 0x97,
+ };
+ 
 -- 
 2.43.0
 

@@ -1,100 +1,71 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.180
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792481250;
-	b=NHFOPR337nbnznSnu+QlIJT1PAJYskiX8XWpSuAgO1xItjkszmtrQth8vPpJVEPuFmOo
-	 2N86ZzF22D7pQpjyNmhbjaTBbSYAgKce9BbzQLsYUtPrdBd9efFIlGlz9vhlD6Z71jlKi
-	 u6f7MDQPw+ZVwodLska1yenVhkDeJrytRzMwNIyu3PlL8yKF3jrMYTE9bp/BId8Hrag2+
-	 6i9JkM5czxbEtR5rlmkCQRA1mK7Coi7mI+do/KhdWRpUF5k9lo2ZSXpx6y9/Nl1jbUrIr
-	 fGYxlvOOeW0mIM7RnTulYEeQ/9M1br96BeLRh5LrchpPIslJBCBlF+bpEAXHmubpS7w==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792481250;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=oreBUFr7UOwcag4Lyp3MhlrEMw46izSqLjbflLZfF9M=;
-	b=ud8ZKUFW0oDsmot/OgGfNXWhacmPrBsZ57wbgZCbcEBLbOWKYXmpP6DYhtySvbtcqfO6
-	 Dw8ZOniyjJJMnEvkaS3WPI6EPU41Xa4qra5kdJLkGjyF330rikHxJaEx39oviUeFG5vk8
-	 sVAwvmiSOK2CgyMc9yIew2pSx2xsG7/6R2PNr93csExFjwR7zLzbJCclc0Zc+2p7m0FzL
-	 n07qPYSu5kzxhZio9xc9j23UtAYdudd+v6Ua7+gk/FW76S1+pOVxfFKTadsO26zlAVXvj
-	 TVWMRUx3ppMu7Bn1j7ugZiA5+g0FakEt0wT70xeEpFEyoD7q2A2MyQIYep/9RCU3t5A==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BSkiROCn;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.82.180
-Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.67.36.66
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792482164;
+	b=N2rP+ssHcfxctEwcp9G/JiILe6SqBDGyxTNDA7Vl2R3oYHRvK3BMeB5V8p3prigxiSce
+	 IfTMVDUBwCAa0KeW7sa2kPBFWRCbjJcY+nILABWkIf7qj0S6nnGZg8UCh15fKVrWeQAWE
+	 xbHnM5HkUqQSFVgxuqvT92epMxTP5TRHpkNzHJ8MQj4+I7vEfg+eF83F+vRfI2qgSGDgE
+	 nORbz3jWS7dq8OOFqNCZpK3AbVIpuL08HElS6BBu0S6G3qfAL8CTMFoOS+tB23Bj8UuJD
+	 i0aSKNOk/ByTd5E5eSLzFUq2PAncW0VseYD/g7un2SLaC7Gxsfw77OtAoDFXyCeSXfw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792482164;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:From:To:Cc:Subject:
+	 Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=uQn5jwdKnyxjdpmupOfZSkyFXY4EXkXtWnBHY24EzDs=;
+	b=BNeuHHWsNCF9sR/PYASBqyZT2mmugVFnynclgb28CBZ0WZj3RIQ/TN0G92qI7IWRLSML
+	 5S0V8W0YCj8+3xIP04iImEtqNd2TTHrN5WloHj7S5CcboOS4PUR+i/8I948rXMiEb4oj1
+	 fXXKfd0mPfMkgujwT0t5Fa+2qYPuWn+2LNaGcoGHCeaj7bp5SvMs229f60pTGFG3o+g/4
+	 KC3rVewKck2RpuP/5dIseYtdyRHHvmcJk8RidVqnpm46c9LCSgKK1gkrywKMpVESVke+M
+	 xckOEWcrX1R/5HSRJUZoHnQf8faSVkCUR9I5o5lRDd9MdiJ/xbUzBACjWfE52t344TA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=posteo.de;
+	spf=pass smtp.mailfrom=posteo.de;
+	dkim=pass header.d=posteo.de header.i=@posteo.de header.a=rsa-sha256 header.s=1984.8680eb header.b=E27ooAHO;
+	arc=none smtp.remote-ip=185.67.36.66
+Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD469606A319
-	for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 07:27:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD469606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 732CF606A31B
+	for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 07:42:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 732CF606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BSkiROCn
-Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-353804b591eso5572031eec.0
-        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 00:27:29 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792481249; cv=none;
-        d=google.com; s=arc-20260327;
-        b=k5uK3Mwh8YaQpA/5yO9bUZkXFIVutwhyhTquqtRpGEmbg4AMxtXlrGbWK98bPil95s
-         /GpPW9AfCU0pv/EEPQqhNQ6ePYp2j1kPqGxqzvC1wGtjwEkwwSfpj9reS1K893r4XzMe
-         4SWTDLXYgDK4xHvemFHSBC3oSdCEXkFPsQ3uoFtyj1Y5+pgkNB0zOkkwgWRbriecsStK
-         +tBrjgXpENVaZB3puD6VNpkObZHMM/xk1I10UyU7Ibh/FYN5mcKCtpuBaWCOQLi+Or+s
-         W+5+RnDvvJlj57Y+EK025qihUU7+/vq/Zvj/DhgN/MCDqQjfIaJxl3fD9XWtsW8jUXiI
-         sxjw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=oreBUFr7UOwcag4Lyp3MhlrEMw46izSqLjbflLZfF9M=;
-        fh=UG2pOFgrnn21kQjLB8WZ49zOE0vPaywovzI3cM3zHBc=;
-        b=AZr/RFkNz/RXCQuYMXqrYaoY/fmPphfZSDUdlNVvGbY/rIYPAtqfyLXZgjfpcllsJ6
-         9R1hYZkvKJoonZAfea6TMHZdCg9mTvXjm7DO/WgHYuGVaeT/JpdOxp66r6FMIRaE+aaW
-         tBXz8RpGtvXWk8QHREPXW4iVNgKZy1zed+NuPvSsZdAGRscnhhrzTcahv0SNLn5SQ9c+
-         xYiLBBYWtzq90jzflho1I+v7evx4LV30E54CgaqSrD+Ie1Dc/KA8XcqfCX8cTYeQoEkv
-         vi117RemqUJpP3rG0E27cvZ/JOkCovWLeyUwA7jheGDXHHRuECHKTL/lBeaS5b19sWyl
-         ajGQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792481249; x=1793086049; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=oreBUFr7UOwcag4Lyp3MhlrEMw46izSqLjbflLZfF9M=;
-        b=BSkiROCnNX58runhrTm481OeUe6TigS9vHK/+OpJrzISryqv6gzY1meZWXeXBK1TM5
-         AC7OWBag1lIVxMOnonE9yViTuJFz8+NjIchY6oIM0Ms7rn26hIQRvp5350SzaxDi2Nr+
-         AYxvqSFKAaVltVGTHYxUVSgKHGctsooVeSkzQUa0cEPLuxd6S8zkBcNqsYmZYludnRO7
-         27/rpaV5jOvsgxXEYRNJPK06HDStg5yCj8K1nDSd7nR4jNMl2inCuFYB6qSlTIsDKgQX
-         d4bolP76Dhzke2KFbwjisP6mXoxnu/0jLFvoOr3aGirCtZJLBN99e1IkjMwfT0FPYvyA
-         qhWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792481249; x=1793086049;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=oreBUFr7UOwcag4Lyp3MhlrEMw46izSqLjbflLZfF9M=;
-        b=GWouR2/EUF8eBi509XuJhHwuTF7t2UQ/DhNRtfRWV/+zIHioAlua6mA0quXujdioId
-         RNZBbz7s8TQrpiEc+UFg3npmvzXlCXiULIaJUGbx6HvJ1n9S4/fRDH+AGWTMLnzZQr0C
-         x5RWjmr/2wMwhlB6YprjOBCe8TTeyAUPCH91P9jUe4P0sqlvN+QWBZJMc3eZLnuB0SoC
-         62+q7jvw2MhenyMiHf7HyH3Yo/RW+E/feFqfw+EupRYm1DcsxReVEv/cBrcwpFMVzced
-         rE2Ds7s0QzFUKRDdeb1YrjMQDafcjqnryJGgxCwmGtuNNtsfHd6YLt/B7d3eQ5sXTYO5
-         blqw==
-X-Forwarded-Encrypted: i=1; AKwUvByiuPX3AXbDU3kGXFvbavnL1gD4lfYAHOUpMr2WyjNOcbxCADYFm+ASx0DrWNdIs0X+xL+JGVDAxLYteg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJgv4xWtFTW99lNSRdJVcwbeHkbeXyoRrk65CmE7Xqe7R7qUT2U
-	zGjqrxrS7C3j0rToY0OmlbsKRQRC3p1mj0oRKN7rivjRxzEA/6W2/f5PELNziaIJHJyZdKcEqro
-	kIk3KJ0zG5In8vOUdmlCBSaFQxuRvYPs=
-X-Gm-Gg: AYBFou3uUVdWo5LlVrzGsQf+S6c+7pnNXAxblzhlvWN2p6nkqOm1L9DP1RhpkOcMeoB
-	wKE2t37o0L6bzpdh+Po3XrZ5p4bSHEOZxEiTbQAsYRvfN9VkZ68qTuQhL+WHVcMAbnqdo9nXb2m
-	6EKrVxHt7CLKbhmsmLsRFW7xOEpwa8zulaH0BjR7coLbj1w/GDwG/pA6UIdXyWtu1OpIPGype6I
-	E+fpW0C+qjz2gY1VkmDLMCOaOnRWd7eiZdOSAZvX+Dqv02jvSC7Xg3CGeFHL6EsIWroroKdRf0f
-	wOpzU0vmvPrhr13a/NiPFzcx4EayIV8SS9O19HDzIrxzf9UZgZbkkByo8FQGzqcNoOAKnTtYkNB
-	Le4UxO/QPEXdq
-X-Received: by 2002:a05:7301:140c:b0:34e:67d0:bbb4 with SMTP id
- 5a478bee46e88-361a0e85fdcmr14132186eec.10.1792481248787; Tue, 20 Oct 2026
- 00:27:28 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=posteo.de header.i=@posteo.de header.a=rsa-sha256 header.s=1984.8680eb header.b=E27ooAHO
+Received: from submission (posteo.de [185.67.36.169]) 
+	by mout02.posteo.de (Postfix) with ESMTPS id 9EBC6240104
+	for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 09:42:35 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
+	s=1984.8680eb; t=1792482155;
+	bh=uQn5jwdKnyxjdpmupOfZSkyFXY4EXkXtWnBHY24EzDs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:From;
+	b=E27ooAHOrkt7YF8DAJfe5tjUTxClZkAixVvC5y3r5tIkpu3eGTOQXZfnAXECYGBXj
+	 +K3Z+m4jaXf6KLEdpGixXaTHE4k04ZG+TqtRW+WEEd3uO/PjepLRiSTM17eWVRymy+
+	 k2UkiheljpvPCZttGF7hCVkNz3aAkifrXxOMohULbjLkxI6KMG7Onhrp24TVKU3BVE
+	 BIZP/vx15+A9JHS69W1LbtGoqD881jxNny3YRagyBNRPRkywV5SDEBpWTt1GC6vWw2
+	 f6FbKQ65C7eQFkeaDjayiM4QCkcfxetxYszHrP1q5lMnydRdQ6M+cRx07vscb1PFdG
+	 sJhVs7R36W8kQ==
+Received: from customer (localhost [127.0.0.1])
+	by submission (posteo.de) with ESMTPSA id 4j84Bd4M3xz9rxD;
+	Tue, 20 Oct 2026 09:42:33 +0200 (CEST)
+From: =?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>
+To: Denis Benato <denis.benato@linux.dev>
+Cc: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Luke Jones <luke@ljones.dev>,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	Ivan Levchenko <me@livan.pro>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Paolo Pisati <p.pisati@gmail.com>
+Subject: Re: [PATCH v3 7/7] HID: asus: Re-send the Zenbook Duo keyboard handshake after probe
+Date: Tue, 20 Oct 2026 07:42:35 +0000
+Message-ID: <20261020074226.30277-1-rebecca.mara@posteo.de>
+In-Reply-To: <5e44ab55-09e3-4043-a369-05b792b5e0d3@linux.dev>
+References: <5e44ab55-09e3-4043-a369-05b792b5e0d3@linux.dev>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,35 +75,92 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261019100406.103687-1-clamor95@gmail.com> <70f4c4d7f6263385d29ed8baa2106769@fkr.dev>
-In-Reply-To: <70f4c4d7f6263385d29ed8baa2106769@fkr.dev>
-From: Svyatoslav Ryhel <clamor95@gmail.com>
-Date: Tue, 20 Oct 2026 10:27:16 +0300
-X-Gm-Features: AclHuK9h-tQcbXrVM0viwwPsC9zuaQ4jRTMIV3P7VlE38_D0lFsuAg_ZHkgq7SA
-Message-ID: <CAPVz0n0Oiok9vx1xmTPPpv8+iHCfL4XTE+D3jBMc1rUUHAftMg@mail.gmail.com>
-Subject: Re: [PATCH v12 0/7] mfd: Add support for Asus Transformer embedded controller
-To: Florian Krischer <florian.krischer@fkr.dev>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>, 
-	Ion Agorria <ion@agorria.com>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org, 
-	linux-pm@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-=D0=B2=D1=82, 20 =D0=B6=D0=BE=D0=B2=D1=82. 2026=E2=80=AF=D1=80. =D0=BE 03:5=
-7 Florian Krischer <florian.krischer@fkr.dev> =D0=BF=D0=B8=D1=88=D0=B5:
->
-> I tested the v12 series on an ASUS Eee Pad Slider SL101 running Debian 13
-> with the 7.0.1 postmarketOS Grate kernel.
->
-> The system booted successfully. The EC identified as ASUS-EP102-DOCK,
-> firmware SL101-0202. I verified keyboard key events from the EC keyboard
-> and touchscreen contact and coordinate events from the tablet's maXTouch
-> device.
->
-> Tested-by: Florian Krischer <florian.krischer@fkr.dev>
+On Mon, Oct 19, 2026 at 10:38:11PM +0200, Denis Benato wrote:
+> Does this laptop have other lights? I wonder what that is changing...
 
-Thank you, Florian! Your feedback is quite valuable.
+Three, none of them obviously software controlled:
+
+- the LED in the power button: white while running, orange while off
+  and charging;
+- an LED on the left side of the keyboard, white while the machine is
+  running, off otherwise;
+- a small LED in the F11 (Bluetooth) key that lights up white for a few
+  seconds when the keyboard is lifted off.
+
+I saw no LED change during the tests below. The firmware's own LED
+table agrees: GALE() checks a LEDS variable that is hard-coded to 0.
+
+I also tried the IDs directly through asus-nb-wmi debugfs:
+
+- 0x00050021: DSTS returns 0xFFFFFFFE, but DEVS still calls SLKB and
+  writes the EC. Writing 0x83, 0x00, 0x81 and 0x82 made no visible
+  difference anywhere on the machine.
+- 0x00050031/0x00050032 (ScreenPad): DSTS reports them as present, so
+  asus-wmi registers an asus_screenpad backlight. Writing bl_power and
+  brightness changes nothing on either panel. Harmless, but the
+  device should not be there on this model.
+
+That fits your point about code reuse. Two more fingerprints: 0x00060024
+returns a package containing 0x9D2F8086, the PCI ID of the Skylake-era
+Sunrise Point-LP xHCI controller, and 0x00050035 has unreachable code
+after a Return that writes the same EC registers as the ScreenPad IDs.
+
+> Doesn't look like something to be investigated further, perhaps try to see
+> if there is some unknown devid in wmi that does something cool.
+
+I read through the 45 IDs that WMNB answers but asus-wmi.h does not
+know. About half return constants. The one I find cool is 0x0006006C:
+it is set-only (no DSTS, so Linux treats it as absent) and takes
+0..3, which it stores as 0/7/9/8 in the DTT variable ODV3 before
+notifying IETM. The DTT data vault (INT3400 data_vault, apct/apat)
+names what that means:
+
+  ODV3  targets (PL2/PL1 in W)
+  0     Whisper 35/30, Standard 55/42, Performance 64/55
+  7     Stand_Whisper, Stand_Standard, Stand_Performance (same)
+  8     Book2_Whisper 23/20, Book2_Standard 33/30
+  9     Book1_Whisper 23/20, Book1_Standard 33/30
+
+So it is a posture input. In the Book postures the firmware also
+refuses the performance profile in 0x00110019. thermald --adaptive
+applies these tables on Linux (intel-rapl-mmio currently reads 42/55 W,
+i.e. "Standard"), but nothing on Linux ever reports a posture, so the
+machine always runs the laptop table. I did not write the ID myself.
+
+Related: 0x0011001F writes ODV5, and ODV5 = 255 selects a "Check"
+target capped at 20 W, which looks like a factory or service mode.
+
+Two IDs I looked at and left alone: 0x00120061 reads EC 0x2C and would
+return 0x00010002 if it is set. I tried five chargers, down to a
+USB-A 5 V source where the battery was discharging at about 9 W, and it
+always returned 0x00010001. 0x00060059 is a generic pass-through for
+EC read/write commands 0xE0..0xEF.
+
+To report a posture you need the sensors, and those were dead too: the
+ISH rejects the generic intel/ish/ish_ptl.bin ("ISH loader: cmd 2
+failed 10"). ASUS's own SensorHub driver package (5.8.62.0) contains a
+signed image, AsusSign_ishS_SI_CommonPTL_5.8.1.7779_V0018.bin. Placed
+locally as intel/ish/ish_ptl_59b8d9f2_c68ec386.bin (vendor + product
+name CRCs) it loads, and accel_3d, als and hinge show up. s2idle
+hardware residency stays where it was: 27.6 s and 27.9 s out of 30 s
+with the ISH running, against 28.4 s without.
+
+HP, Dell and Lenovo ship their ISH images in linux-firmware, ASUS has
+none. Do you happen to know someone at ASUS who could submit theirs?
+That would give every Zenbook Duo working rotation, ambient light and
+the hinge angle, and with the hinge angle a small service could feed
+0x0006006C as Windows does.
+
+> in the OGC discord (ex asus-linux discord, you find it on our website) people
+> are planning a GUI redesign, perhaps if you have spare time you can add an option
+> to asusd to shutdown leds when entering sleep to have a GUI on a widely used tool
+
+Thank you for the pointer. I am not on Discord, and GUIs are not where
+I am useful. If the sleep option lands on the asusd side (daemon or
+CLI), I would be glad to test it on this machine.
+
+Thanks,
+Rebecca

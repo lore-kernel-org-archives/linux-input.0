@@ -1,91 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=158.120.86.30
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792457840;
-	b=Mg5NR4SI4iOUeEwKGOEZ6gd2eiR/fcXRDL9ljs1FhiYQ4jtD5ZKEmc6Somq2cAnAKGR/
-	 yrVf93Y9xVTFDgWEMEDtxeF763ox4LjyC/FPvIUHITJqqmSl0Z/jQdbqqpAq3/WuJbU1Y
-	 LNuiruGoQz9+fzjQjdI7iUOzzBqR3QkBJoixtWA4dG5miRm2hNg1KTw50gdfD1DJt7kbY
-	 owlEBA3Y3bzWsKj9Z7XAAd+gJmD0te3F0AXTe1/0MMSOr37ygYKjxSTl39DNv7ARcLzIr
-	 hrP+1gnNmhcvgN9JnaXloP9OuoSwHV277zlDymKlZRAJ+RBxx1SXSTEYlS7YSwwzCNg==
+	t=1792476053;
+	b=JEhpPIyMXEYyQ5yOP5/NlQE6Ph6dwhyRWRvmhQ5MZ1aJVmaqOnVfHq+4WhZhh+8Clhr2
+	 QCtVK5tOh+TEwJJw5/98mbqW2eUy54Zhj9XRA2vpEuaOPPUa8Of8mprfjLb3X+EgvDIhZ
+	 VALyNYjTofuBf9N1FJjE0GtBKNkJyVldgqa04MRzCbUShznqHLUNLexk1OmRrQ4wZ3X/J
+	 LJWjE0PjbGoy96Lkq9vrUKLWnnTd9XanzWMANnccQufa+a/s78SGQEDUew23FY3YCyLDo
+	 iqeYPevphEEWilTrCK5l5n/00psZm1R7bUYIryqT8KlT/w/uH5vsLjKMIU7vgQrgH/g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792457840;
-	h=DMARC-Filter:DKIM-Signature:Received:DKIM-Signature:Received:
-	 X-Report-Abuse:Feedback-ID:X-smtpcorp-track:Date:Message-ID:From:To:
-	 Cc:Subject:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=baFTI7feHfHjUs2Z1HfLPGTNQHlNGEUNjb1UhcudQe8=;
-	b=YlG6kVvWC1MLWisz6yVxq/3jBTkgZxiwY8MXcQmavhKjcPN2liJH/xH1gat2RZsm7Mb3
-	 70HWx97j9B8EVYSvREUbESSn+cRfOIog7YVmoNot1fKsSGiLy91rO/tBA9/Ftpu/EMUGn
-	 5BYOsDXp9E1mvn7+FWOdsLGj/LeT0ws3rBQQDBqhfe28rKt1kJMu9+qO3B/vtkzCctov0
-	 YuxB/6+rUmcxRbaNWyxVT7/CIZcy2dh5pjROZGZiESRFGzkZcRhtWYOKP8xwYQM9OmDuA
-	 NzXs0hVBqK415umtXtFlwKzs9O7Eo2idGTCY4q706UsgoWlpKo9nqUmi7NVcdyP+45A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792476053;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=tjahWStJaWAkZdXXLpQF/IAPVZCHaZCufugG+xHQea0=;
+	b=YI3m260eL2eZODOlq+qjvyMta4feLl6zQp8+w+w6tYpWT1UPoRyJJ/UPY6AKv61iumIO
+	 ECLbfLq4k0YBSqR+s27A2GTgEyiNW30TjxndVkNWXACKcfqKQ0Y5gm7pXEZRZTbNB86+2
+	 N9MIxbJNRDsUl8P2FQ2KllSWvqYCDCmc/uKTeRybMmD2Jy6PV3drfFn11Jzz03rrsLIwK
+	 /uE7+Msm2BRKRDKjJuAlEoQkW83mbhVfkrkYI8L9szGWuKrDzCzwKzsVhKaAr2kccQNQM
+	 DaKQi0umO2N3x0FkDss8WwXCOkAVzteokkgCziJL1c0EQSqxc+vrVUyhL0G5BZt5d9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=fkr.dev;
-	spf=pass smtp.mailfrom=em1020969.fkr.dev;
-	dkim=pass header.d=fkr.dev header.i=@fkr.dev header.a=rsa-sha256 header.s=s1020969 header.b="ba/+S45S";
-	dkim=pass header.d=fkr.dev header.i=@fkr.dev header.a=rsa-sha256 header.s=default header.b=X5G4kOiQ;
-	arc=none smtp.remote-ip=158.120.86.30
-Received: from e3i542.smtp2go.com (e3i542.smtp2go.com [158.120.86.30])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wjhl2gV9;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B24CF606A31C
-	for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 00:57:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B24CF606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=fkr.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em1020969.fkr.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FB1D606A319;
+	Tue, 20 Oct 2026 06:00:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=fkr.dev header.i=@fkr.dev header.a=rsa-sha256 header.s=s1020969 header.b=ba/+S45S;
-	dkim=pass (2048-bit key, unprotected) header.d=fkr.dev header.i=@fkr.dev header.a=rsa-sha256 header.s=default header.b=X5G4kOiQ
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fkr.dev;
- i=@fkr.dev; q=dns/txt; s=s1020969; t=1792457833; h=from : subject : to
- : message-id : date : list-unsubscribe : list-unsubscribe-post;
- bh=baFTI7feHfHjUs2Z1HfLPGTNQHlNGEUNjb1UhcudQe8=;
- b=ba/+S45SqzhG+x+TmOQBgQ8sLpirQC6BSrz0FpnjhyqvIUgFoIZGhfcC3nsHjDDrEDasb
- S2d9YqgPMYpnjX9DbPDtLiN+gFaP7na6+qfnEGsuTOEKLH3yOvzvI9Onu9oSOFwqMRxav4Y
- avDVkBNAba7oiVU9G02QHH0+gPbdmJcUXvrmuk/vYek7+XhArxV7h6zFOmfBWTNuUukxnWp
- yM2XuD4c5YV6iaBvvpysLth9O0APoLVbhwqkxf2yOusn3c3udM7Vs+J/MFFPiG+xOHLDmsv
- 4F9olzFSV/UJ8qactRsBwwXfC0VAbXxbRb1B3cEwSUIsP2iVjqTC+mna87Ew==
-Received: from [10.244.246.9] (helo=fkr.dev)
-	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128:X25519)
-	(Exim 4.100.1)
-	(envelope-from <florian.krischer@fkr.dev>)
-	id 1xIyA6-FnQW0hPvgRA-l4b6;
-	Tue, 20 Oct 2026 00:57:06 +0000
-DKIM-Signature: a=rsa-sha256; bh=baFTI7feHfHjUs2Z1HfLPGTNQHlNGEUNjb1UhcudQe8=; c=relaxed/relaxed; d=fkr.dev;
- h=Subject:Subject:Sender:To:To:Cc:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:In-Reply-To:Message-Id:Message-Id:References:References:Autocrypt:Openpgp;
- i=@fkr.dev; s=default; t=1792457824; v=1; x=1792889824;
- b=X5G4kOiQaw0oaWEFVOVcN8ACj5el/tE15KiCmx5ZmF7yp1Y1qajbyAJEPkpol0Zi4Sn4Yqfm
- L2HfKgXtNB5ChfTtM1CH5qd5GYisvgI9OSrkbowFKQeVZ1VJHvbEiFgCl8OqYPTMK+08+sxKgEA
- e7rd/f+ZnnyqRl9kNPUOQ26jr5a6XXaAsqqiirg4B3NzcZzWCau74dg97dlR0vE5cFL7qxZ7Y2U
- PBGn3KJRVR8qMQPV80hFuvk2ijpXtIEQZb4CpbNEptimpTHkU3JcNOgd3bQUjwEoDDcJ1JcU41I
- RQ8crMwUucd7sO249fwKG3ugn+c9wOUG9v+hGmYbCY4lg==
-Received: by fkr.dev (envelope-sender <florian.krischer@fkr.dev>) with
- ESMTPS id 5b88a664; Tue, 20 Oct 2026 00:57:04 +0000
-X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
-Feedback-ID: 1020969m:1020969amTSgpp:1020969sMMvfpqAzu
-X-smtpcorp-track: 1RpAnp-QVQUA.iiFX17iYX0_i.wo7_kg3HW-5
-Date: Tue, 20 Oct 2026 02:57:03 +0200
-Message-ID: <70f4c4d7f6263385d29ed8baa2106769@fkr.dev>
-From: "Florian Krischer" <florian.krischer@fkr.dev>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Lee Jones <lee@kernel.org>,
-	Pavel Machek <pavel@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>,
-	Ion Agorria <ion@agorria.com>,
-	Michał Mirosław <mirq-linux@rere.qmqm.pl>,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	mfd@lists.linux.dev,
-	linux-leds@vger.kernel.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v12 0/7] mfd: Add support for Asus Transformer embedded controller
-In-Reply-To: <20261019100406.103687-1-clamor95@gmail.com>
-References: <20261019100406.103687-1-clamor95@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Wjhl2gV9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62EE11F000C4;
+	Tue, 20 Oct 2026 06:00:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792476053;
+	bh=tjahWStJaWAkZdXXLpQF/IAPVZCHaZCufugG+xHQea0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Wjhl2gV9AJj254FHkZF+7CKdQCdvE20SmL91dGF/QylrOjGMzIG+pH0qGFHABSB9J
+	 pb78GQxC1NtOYNqDXATp+PfYyJ4N8CCZgMk6YPEDCoRgsazvhYQC0D+LtNa4OKNPYg
+	 wu6wGoWnWs/9fymyslDAFWwciUauiHXbyFxpICotOfa1aWeUaYmQ9ldFDyE/kZQ4jf
+	 HysdKsOtcRmJbDPGmoh37DtIJnMdCRV/Iv688KubOM/8N/FpV74m80N5ro0hXZp6m7
+	 4t3jbT+cf9L8lwuzizRyUWUKJsYGv/da/M0qNm9yQR/rzwxclTAoP3H/w7u/dSp8wq
+	 seB5wZccb2NzQ==
+Message-ID: <e43c4831-1a12-45b3-9614-97dbd2bc48d5@kernel.org>
+Date: Tue, 20 Oct 2026 08:00:47 +0200
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,15 +51,109 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/7] dt-bindings: input: touchscreen: samsung,s6sy761: Add
+ S6SY791 and reset GPIO
+To: Lukas Timmermann <linux@timmermann.space>,
+ Lukas Timmermann <foss@timmermann.space>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Peter Griffin <peter.griffin@linaro.org>,
+ =?UTF-8?Q?Andr=C3=A9_Draszik?= <andre.draszik@linaro.org>,
+ Tudor Ambarus <tudor.ambarus@linaro.org>,
+ Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org
+References: <20261011-lat3st-google-raven-touch-upstream-v1-0-2a9f55159b9e@timmermann.space>
+ <20261011-lat3st-google-raven-touch-upstream-v1-1-2a9f55159b9e@timmermann.space>
+ <0a486a08-8d6c-4ca5-8a54-e7499630095c@kernel.org>
+ <atYlyqHToGjAr22T@archstation>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <atYlyqHToGjAr22T@archstation>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-I tested the v12 series on an ASUS Eee Pad Slider SL101 running Debian 13
-with the 7.0.1 postmarketOS Grate kernel.
+On 19/10/2026 16:17, Lukas Timmermann wrote:
+> On Mon, Oct 12, 2026 at 01:30:48PM +0200, Krzysztof Kozlowski wrote:
+>> On 11/10/2026 14:44, Lukas Timmermann wrote:
+>>> S6SY791 is the SPI-based counterpart of S6SY761. The register map and
+>>> commands are identical for the subset the kernel currently implements.
+>>> Therefore add S6SY791 as a related touch controller.
+>>>
+>>> Optionally, the reset line can be controlled on some boards,
+>>> such as the Google Pixel 6 Pro (raven).
+>>>
+>>> Also reference spi-peripheral-props for the SPI bus properties.
+>>>
+>>> Signed-off-by: Lukas Timmermann <foss@timmermann.space>
+>>> ---
+>>>  .../input/touchscreen/samsung,s6sy761.yaml         | 37 +++++++++++++++++++++-
+>>>  1 file changed, 36 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.yaml b/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.yaml
+>>> index 1ffd17af3c53..d24f35038934 100644
+>>> --- a/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.yaml
+>>> +++ b/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.yaml
+>>> @@ -8,13 +8,17 @@ title: Samsung S6SY761 touchscreen controller
+>>>  
+>>>  maintainers:
+>>>    - Andi Shyti <andi.shyti@kernel.org>
+>>> +  - Lukas Timmermann <foss@timmermann.space>
+>>>  
+>>>  allOf:
+>>>    - $ref: touchscreen.yaml#
+>>> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
+> 
+> Should I also hide this behind an if-else?
 
-The system booted successfully. The EC identified as ASUS-EP102-DOCK,
-firmware SL101-0202. I verified keyboard key events from the EC keyboard
-and touchscreen contact and coordinate events from the tablet's maXTouch
-device.
+Only if the other device is not SPI.
 
-Tested-by: Florian Krischer <florian.krischer@fkr.dev>
+
+Best regards,
+Krzysztof

@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=157.90.84.7
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1792489995;
-	b=WkjX7bEVJWxp6PdpxkJmqCNTHs/fDDe3VsmcR5CE2rbKVkc+/slhZsdrV6wXUdtXPQO9
-	 PrkOSErAwBwntmZAyHy25owh4KU+H+1Gj/l7Px26lVwQSsHQhA/WgAvh6LcCbUWZzBrl4
-	 XffIiA0Lz9W5Zrbu/PV9mLmVzEAnS/eKGiv1RHX/rP5AFeMLDGINX4NJk2ev+UdmkhS/D
-	 IUjqCHNHY2vJj89tbdpw5Qbf0XIuq0r2pPmWfna1esY5I69otoOKo5j86dvzrgJXnqJIr
-	 CAT6Dh4Wuu5383Xg5gMmpr+pfkTpK645lTQRFSujHhHWCNvTOhpgDVlZWlw8oWd3mpg==
+	b=gLg49d45uUElf8py22OeHvmdqO9cnXDCFl5epmmpQnKVCemXC9IVk6IV79uh0UxLouPr
+	 kkEAQfelVUHaEWRINkISKAdzWNPOgvLFhCaxg9OeGL0M4CWnSIsrRJR9+LWa8FLYXl9Fm
+	 GT8f7WFzqxfOX/YVdJN9qgiGy3wwrLZAe5vy1KbBZhah+7iQT5H1jfyqRjTtEGM5+TD7b
+	 xyMSapK7E6YSBfPcSo9z5nWDhAGjYbHVIdtLw3LGf2VYT0Li7mTh1d+NKILTvLsZsKopB
+	 owdBazTSVbHbRbDW4WniR5Y81etVwitSbjFRw2DhUs1BIxd1UXlbmrC/LTB52fSyMcQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792489995;
-	h=DMARC-Filter:Received:DKIM-Signature:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer;
-	bh=hjiDGPYB2K+D7Y1vJcaKbb6AEjbcs6XdQq2usn0rk9w=;
-	b=mWyuelkkvc4l9dwYTs6lsyce6/cSt4BS8BaXpj6sClwyIN9fc00vxL2I6kQz3NTNP5hK
-	 KZOXlLcrNLjsA5EHsqUDWtWcZbQ+KCWQFihnvEpllMzLzpkS4Tm1881HwD19XIuGbUEQJ
-	 jOmf0ozLxLGkzD1S8ANWlSUBFhyu2PcSV/7gUkQdPpTrIOM4fJAsHL/njKY9gt/oSlecy
-	 fWSNu5BMHRc0XBgz3evhAd9KOi7SLK4jODbfxcxaaCGWiMUESMJ4whwBbD8F4HSZNkhAQ
-	 zEL9nQEgZ3X4F+RlxZXNVta/2JCH65mt8KDIBlODuxhEHnD+m6jI1bz9xJVefGUwJvg==
+	h=DMARC-Filter:Received:DKIM-Signature:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer;
+	bh=iBm7nKcdxGcP2XmL/BoyALjoY1B+1zyhy13dnFLpCCM=;
+	b=HsitXjFlE3KCsg6RILVxCtd6j+t8qLbE9kNC3fiaha4+jo1s3BpqinGFsRVUXYXcWQEN
+	 1GAhW4aA+pn0yoUL7SOrUJZ4Ltt/uWJGQom+KTWaPownu8TY1+Nyy0xRmzpu0LogDz88l
+	 Kny/DNu0UUaITqi98wlDy2Rmd4dVltAy857sgKRXYIqqXj0GysxK9N7JqDg33OebXWhl/
+	 xGza9SWEzODMGAdGRxUjh5tMJ8G+li37YuvMTWevtDscO2vCkW2Cbi5ebMYofmdDClj+8
+	 Vj7fyNJUm5acVISy5tx1aGMANnDEe31uncX1rZ9YO3prt/7fSzTOPoneAd8v2Fv2/Iw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=tuxedocomputers.com;
 	spf=pass smtp.mailfrom=tuxedocomputers.com;
-	dkim=pass header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.a=rsa-sha256 header.s=default header.b=VxYlYkF7;
+	dkim=pass header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.a=rsa-sha256 header.s=default header.b=q8HDHaCv;
 	arc=none smtp.remote-ip=157.90.84.7
 Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 586CC606A31A;
-	Tue, 20 Oct 2026 09:53:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 586CC606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0340606A31F;
+	Tue, 20 Oct 2026 09:53:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D0340606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.a=rsa-sha256 header.s=default header.b=VxYlYkF7
+	dkim=pass (1024-bit key, unprotected) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.a=rsa-sha256 header.s=default header.b=q8HDHaCv
 Received: from [127.0.1.1] (business-024-134-105-141.24.134.pools.vodafone-ip.de [24.134.105.141])
 	(Authenticated sender: a.erhardt@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id 600812FC0065;
-	Tue, 20 Oct 2026 11:53:06 +0200 (CEST)
+	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id 60AA22FC005D;
+	Tue, 20 Oct 2026 11:53:05 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1792489986;
+	s=default; t=1792489985;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hjiDGPYB2K+D7Y1vJcaKbb6AEjbcs6XdQq2usn0rk9w=;
-	b=VxYlYkF7LjAmxOJb9c3rmdg0kgNg52FYHlsIai9zEbdvFEFZ3W71/xhl2HOqM9aA1omlBa
-	5zAsbxtBg7+1GUyOzF+YnmzsuyWd7ckPb/WIu7oPk5yW7oD7DbGZ4gaKKHzklA/k4CAyuL
-	3fmL6NvCbLKuqpJ9+S/u8UCAIf85gMk=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=iBm7nKcdxGcP2XmL/BoyALjoY1B+1zyhy13dnFLpCCM=;
+	b=q8HDHaCvpSkU3eX4vZF5O5zZcU2Fd/So/mHLsaZ4yfo3tsdH7dNHy35xRXRYzhP/+JWU7K
+	HXyQP9pL2vKLZObsGfEP0PMx/P11zPjb4U6BO9XkpTi9H9emIfLyNH4STzRZI2SGsA80hp
+	gDPmzC4HoRIfACRHzUXgspfrZ0zGAKI=
 Authentication-Results: mail.tuxedocomputers.com;
 	auth=pass smtp.auth=a.erhardt@tuxedocomputers.com smtp.mailfrom=aer@tuxedocomputers.com
 From: Aaron Erhardt <aer@tuxedocomputers.com>
-Date: Tue, 20 Oct 2026 11:51:48 +0200
-Subject: [PATCH v7 2/3] HID: generic: add LampArray support via
+Subject: [PATCH v7 0/3] HID: generic: add LampArray support via
  hid-lamparray helper
+Date: Tue, 20 Oct 2026 11:51:46 +0200
+Message-Id: <20261020-hid-lamparray-v7-0-47418b667b47@tuxedocomputers.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,9 +64,11 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261020-hid-lamparray-v7-2-47418b667b47@tuxedocomputers.com>
-References: <20261020-hid-lamparray-v7-0-47418b667b47@tuxedocomputers.com>
-In-Reply-To: <20261020-hid-lamparray-v7-0-47418b667b47@tuxedocomputers.com>
+X-B4-Tracking: v=1; b=H4sIALI512oC/z3MQQ6CMBCF4auQWTukLbWAK+9hXIwwlSZCyRQMh
+ nB3Gxfu3rd4/w6JJXCCS7GD8DukEKeM+lRAN9D0ZAx9NhhlnFZG4RB6fNE4kwh90Pnakalbzc0
+ D8mcW9mH79W73bC9xxGUQpn9Ftdppa5uqKe3ZmapFjcRyXdaN+9jFcV4XllTmBcfxBZMMLlShA
+ AAA
+X-Change-ID: 20261020-hid-lamparray-6f76a2791e8b
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
 Cc: Cristian Mazzotta <cmmazzo@icloud.com>, 
  Werner Sembach <wse@tuxedocomputers.com>, Armin Wolf <W_Armin@gmx.de>, 
@@ -75,121 +77,94 @@ Cc: Cristian Mazzotta <cmmazzo@icloud.com>,
  Aaron Erhardt <aer@tuxedocomputers.com>
 X-Mailer: b4 0.15.2
 
-The hid-generic driver now checks for LampArray support after
-hid_parse() and optionally registers a lamparray instance. Failures in
-the helper do not abort device probe to keep the device unchanged.
+Add a new hid-lamparray helper module and integrate it with the
+hid-generic driver.
+
+While more complex lamparray handling should be done in userspace via
+hidraw, providing a small module to add basic lamparray support makes it
+possible for userspace software to interact with lamparrays by simply
+using well-known APIs of the LED subsystem. One use-case would be to
+enable desktop environments to support keyboard backlight control out of
+the box for HID lamparray devices without having to implement the whole
+HID protocol themselves.
+
+This patch is based on previous discussions:
+https://lore.kernel.org/all/1fb08a74-62c7-4d0c-ba5d-648e23082dcb@tuxedocomputers.com/
+
+The helper provides basic support for devices exposing a
+Lighting/LampArray application collection (usage page 0x59) and
+registers a single-zone RGB LED representation via the LED subsystem.
+
+hid-generic now checks for LampArray support after hid_parse() and
+optionally registers a lamparray instance. Failures in the helper do not
+abort device probe to keep the driver logic otherwise unchanged.
 
 LampArray resources are released on driver remove.
 
-This patch was successfully tested on the Microsoft MacroPad reference
+This commit was successfully tested on the Microsoft MacroPad reference
 implementation (https://github.com/microsoft/RP2040MacropadHidSample
 1d6c3ad) and in combination with the tuxedo_nb04_wmi driver, albeit only
-functional with a recent fix posted to the LKML.
+fully functional with a recent fix already on
+platform-drivers-x86/for-next
+(https://lore.kernel.org/all/20261007080202.81694-1-aer@tuxedocomputers.com).
 
-Link:
-https://lore.kernel.org/all/20260728115918.125349-2-aer@tuxedocomputers.com
+Others reported the driver to work on the Acer Predator PT14-52T and the
+ASUS Prime B650-Plus, with the former requiring some patches on top of
+v5, which should now be included in v6.
 
-Co-developed-by: Tim Guttzeit <tgu@tuxedocomputers.com>
-Signed-off-by: Tim Guttzeit <tgu@tuxedocomputers.com>
-Signed-off-by: Aaron Erhardt <aer@tuxedocomputers.com>
+v7:
+- Use white with zero brightness as new default
+- Fix measurements in comments and commit message
+v6:
+- Read attribute reports synchronously (by Cristian Mazotta)
+- Raise log level of fatal probe errors (by Cristian Mazotta)
+- Transfer control when use_leds_uapi changes (by Cristian Mazotta)
+- Blank lamps across suspend and restore on resume (by Cristian Mazotta)
+- Add quirk for devices that ignore intensities (reported by Armin Wolf)
+- Better locking, fixing rare races in uapi registration
+- Use scope guards for locking and allocations where possible
+- Remove obsolete calls to led_mc_calc_color_components and
+  hid_device_io_start/stop
+- Updated and slightly improved documentation
+v5:
+- Proper hardware detection (no quirks necessary anymore)
+- Add documentation for new sysfs knob
+- Pass limits of the device to sysfs (intensities & brightness)
+- More flexible Kconfig (use tristate)
+- Improved locking
+- Several memory leak and (de-)initialization fixes
+- Don't read current color values from hardware (the HID spec does not
+  offer this option)
+- Remove redundant report dump functionality
+v4:
+- Restrict CONFIG_HID_LAMPARRAY to built-in configurations only to fix
+  additional randconfig build errors
+v3:
+- Squash V1 and V2 into one patch
+v2:
+- Fix Kconfig to avoid build errors when LEDS_CLASS_MULTICOLOR is
+  disabled
+
 ---
- drivers/hid/Kconfig       |  1 +
- drivers/hid/hid-generic.c | 41 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 42 insertions(+)
+Aaron Erhardt (2):
+      HID: lamparray: add new LampArray helper module
+      HID: generic: add LampArray support via hid-lamparray helper
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 934e502ba5058..919d495090d97 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -82,6 +82,7 @@ config UHID
- 
- config HID_GENERIC
- 	tristate "Generic HID driver"
-+	depends on HID_LAMPARRAY if HID_LAMPARRAY
- 	default HID
- 	help
- 	Support for generic devices on the HID bus. This includes most
-diff --git a/drivers/hid/hid-generic.c b/drivers/hid/hid-generic.c
-index c2de916747dec..fde772c5014bb 100644
---- a/drivers/hid/hid-generic.c
-+++ b/drivers/hid/hid-generic.c
-@@ -20,6 +20,7 @@
- #include <asm/byteorder.h>
- 
- #include <linux/hid.h>
-+#include <linux/hid-lamparray.h>
- 
- static struct hid_driver hid_generic;
- 
-@@ -60,6 +61,7 @@ static int hid_generic_probe(struct hid_device *hdev,
- 			     const struct hid_device_id *id)
- {
- 	int ret;
-+	struct lamparray *la;
- 
- 	hdev->quirks |= HID_QUIRK_INPUT_PER_APP;
- 
-@@ -67,6 +69,34 @@ static int hid_generic_probe(struct hid_device *hdev,
- 	if (ret)
- 		return ret;
- 
-+	/*
-+	 * Optional: attach LampArray support if present.
-+	 * Never fail probe on LampArray errors; keep device functional.
-+	 */
-+	if (IS_ENABLED(CONFIG_HID_LAMPARRAY) && lamparray_is_supported_device(hdev)) {
-+		/*
-+		 * Use HID_CONNECT_DRIVER to make sure requests are
-+		 * processed in hid_report_raw_event. Without this,
-+		 * hid-core will skip parsing for devices that are only
-+		 * claimed by hidraw, thus making it impossible to query
-+		 * the required information.
-+		 * See 7704ac937345 for more information about this flag
-+		 * and why it is necessary.
-+		 */
-+		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT | HID_CONNECT_DRIVER);
-+		if (ret)
-+			return ret;
-+
-+		la = lamparray_register(hdev, NULL);
-+		if (IS_ERR(la)) {
-+			hid_hw_stop(hdev);
-+			hid_warn(hdev, "LampArray init failed: %ld\n", PTR_ERR(la));
-+		} else {
-+			hid_set_drvdata(hdev, la);
-+			return 0;
-+		}
-+	}
-+
- 	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- }
- 
-@@ -78,6 +108,16 @@ static int hid_generic_reset_resume(struct hid_device *hdev)
- 	return 0;
- }
- 
-+static void hid_generic_remove(struct hid_device *hdev)
-+{
-+	struct lamparray *la = hid_get_drvdata(hdev);
-+
-+	if (IS_ENABLED(CONFIG_HID_LAMPARRAY) && la)
-+		lamparray_unregister(la);
-+
-+	hid_hw_stop(hdev);
-+}
-+
- static const struct hid_device_id hid_table[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, HID_ANY_ID, HID_ANY_ID) },
- 	{ }
-@@ -90,6 +130,7 @@ static struct hid_driver hid_generic = {
- 	.match = hid_generic_match,
- 	.probe = hid_generic_probe,
- 	.reset_resume = hid_generic_reset_resume,
-+	.remove = hid_generic_remove,
- };
- module_hid_driver(hid_generic);
- 
+Cristian Mazzotta (1):
+      HID: lamparray: blank lamps across suspend and restore on resume
 
--- 
-2.43.0
+ .../ABI/testing/sysfs-driver-hid-lamparray         |  15 +
+ drivers/hid/Kconfig                                |  18 +
+ drivers/hid/Makefile                               |   2 +
+ drivers/hid/hid-generic.c                          |  70 +-
+ drivers/hid/hid-lamparray.c                        | 912 +++++++++++++++++++++
+ include/linux/hid-lamparray.h                      | 118 +++
+ 6 files changed, 1134 insertions(+), 1 deletion(-)
+---
+base-commit: f47d223627f80cb7a1eb14c585fe6cb35de5e984
+change-id: 20261020-hid-lamparray-6f76a2791e8b
+
+Best regards,
+--  
+Aaron Erhardt <aer@tuxedocomputers.com>
 

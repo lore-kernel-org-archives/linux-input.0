@@ -1,59 +1,61 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.26
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792572192;
-	b=LSlodc8pk1qBCUdACS6+bo+WAQ81Et8Pevmm9KZqriUVbiTcW+Alv5TpBqgdDz3jQxyR
-	 +DaLABRo6ngq+JsrNjgLDFiLz3m6vfCzA9GdZaGIOOt6m6EoxEh1T032hQG2Qg3JaynVM
-	 fVbJjXIT3qGtr+otWIbjkP/PfxylLEiLZ06OPNPXVX0EOyNESwbNGatXLOAqDBRXqMeGw
-	 tEyXrKeKmKXYxXrf1itP9G0zPg2YDwZyWaWVuA177LodU/CW5GZHWehTwxXyioJV6i4lb
-	 T0+u/vD7OsUPw5FOQBxO1XQc4eLxLIYafiMKIzFUXBS5qz5hU0N5hyaalyyvOMifbEQ==
+	t=1792577213;
+	b=N2a+dGtqAgt7v0dnTcTTcms+ryLkanXDdMLNHNIiSnBU/F85V5N+HpMz3RRtxrz8cEmN
+	 Y0rGYkvL5STSl5DE88/QwAahrFcEQJgg3zsWwabQmhCDTjUyVCF1LKt2/AcmfTaK9N2ml
+	 qZ0IF01F65S2Dliv9Dja4rpnowW4B32vEvIo44qfpTLp5rcI6E3k3ZUs7SSnqMxzvwrkW
+	 my8Gy/XXjOCDgDbRG1djbKYjsZgFRVOjctKTzOjMQoXsKId8ABR+yYotPLwh5/HsGhz/b
+	 Ie7ldbwp2pHAOEgoaGdWjYs7F5ENyEYp4pAipJPEDw/ZFq4Cx8HhlDsHsNOqVjkRodQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792572192;
-	h=DMARC-Filter:DKIM-Signature:Date:To:From:Subject:Message-ID:
-	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=6EKlD4dVlbT2HdJAsRzduQ9O4hNi1tgQ8/s9a4JRDLU=;
-	b=EmmTGPfI6PCssZoize4LK9NfIOhb04/rB9aalubFJpDy/2lhrlxkMRMt4xjJDEVmwUS6
-	 ouYPOFeuaILpIa03z3ca/uxvv+CUOmV56FtiZCuy2NSM249B7pQFOP5b18m94/Lk/GRk4
-	 r1qXsb141/7K3EQyFMPryzdjVoGL6BvYbkaVThQcXu8N76p0mPcuAb5N/fspmLds0xrhN
-	 eTtAC3LwsHrfJ5+JVOxN16EmvQpD/p0dfk3Ex1aqH8W+1oyxeZDhKR20b27ddAF0eETGo
-	 q+CVmcHa8X7EePELHmZ/29VgghFn8xiwyhtZoQFGngKUJbU5hnBKZzRUJdDV1aqSXWg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792577213;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:Received:Received:From:In-Reply-To:
+	 MIME-Version:References:Date:X-Gmail-Original-Message-ID:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type;
+	bh=ZIeabLWc8/+X+ra1sWD8SHeL20genn2WdJFRc0Rla+4=;
+	b=1pbOX4lrHnwumn1nUG/vldabh2AodP+Y5ci+poaKjHrTm3HC8IjZWw5UuiZIkwFYus+I
+	 KTGREEi0MMkgWqI7W3oDnjGcojvakA1UbHPx52QozIbr+wOuG/5oj8GTMLC0kbRkNvNJC
+	 AVtqZdigmh5+VdqO2op5LcbbILvXep+a3V5i0fFlWCb1CshjOp1/h+ju4dUdtqIkxAAVg
+	 iqqMRbo8RK/8MkoRGjj0szV/hY47OsJcotzIqPU9ikS46qOvMTaa5eGEYNBZzF27q3olN
+	 e076ogxJDL3iVyiGO1YVJ8w4U0adqzZ1S9o3Aa3cw/UK0gg5TUF5sd+Jy8j2rDravOA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=protonmail.com;
-	spf=pass smtp.mailfrom=protonmail.com;
-	dkim=pass header.d=protonmail.com header.i=@protonmail.com header.a=rsa-sha256 header.s=protonmail3 header.b=uaW3Mys2;
-	arc=none smtp.remote-ip=109.224.244.26
-Received: from mail-24426.protonmail.ch (mail-24426.protonmail.ch [109.224.244.26])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=My+NPPXd;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 724F3606A319
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 08:43:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 724F3606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CACE606A31E
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 10:06:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=protonmail.com header.i=@protonmail.com header.a=rsa-sha256 header.s=protonmail3 header.b=uaW3Mys2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-	s=protonmail3; t=1792572189; x=1792831389;
-	bh=6EKlD4dVlbT2HdJAsRzduQ9O4hNi1tgQ8/s9a4JRDLU=;
-	h=Date:To:From:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=uaW3Mys2ekEOjDIt7OXjEtsptMwuw7HYDMp1w0pNIMcdyqa9bp+OnPSe8uzPjfS+O
-	 qZspwyJb/VSprB+hcwYM/RbaXpSBZNzfpQwKct0Mq4OOAp4LD1XXxgRfRSmrE92L81
-	 yj52Jd6ciwhzWi+JK14/PHcPYHRmjuMqFbyQ4NnbO2NrFSACKJT1nV0uv2rn1zzG4U
-	 I1ePZemlNHowRL852vzDHeyy96pxsj29ZiZLuzFc94WcGpE5IOz30FZ45oSSm2M91v
-	 s7VOFo9DRvCKTMMmPY7aQLANZ54ticyIIPT65DF7dtxaBQr1MduA4xuuoQllYQv5Cj
-	 nZkWFWeTSdvWA==
-Date: Wed, 21 Oct 2026 08:43:07 +0000
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-From: TheDragonWhoAte <TheDragonWhoAte@protonmail.com>
-Subject: Re: [PATCH] HID: add quirk for IBM SK-8845 keyboard
-Message-ID: <TlsUnHwjer5DDeomtgCOzbToB5cb5PFhPbTxfUKPd24ka02o9jnA10pyalLiHPiSMMdwnW5URHnIglbM8rKBcASgaVYdw90z2GOsIlHXxLA=@protonmail.com>
-In-Reply-To: <UL8kz0PEs3tCPPUaukHYg_M3ZVCyfNOrGj8zm1XeTIlX4EQ6Euw3kEa2NHqkqpfY4IiEiCz4ktDRoI-e1AKq-yvSUarSAL3_Af0pbWs-U8o=@protonmail.com>
-References: <UL8kz0PEs3tCPPUaukHYg_M3ZVCyfNOrGj8zm1XeTIlX4EQ6Euw3kEa2NHqkqpfY4IiEiCz4ktDRoI-e1AKq-yvSUarSAL3_Af0pbWs-U8o=@protonmail.com>
-Feedback-ID: 82532079:user:proton
-X-Pm-Message-ID: 540a09fbb9550ce29e387e4f422950379aa73585
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=My+NPPXd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 223341F000D2
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 10:06:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792577212;
+	bh=ZIeabLWc8/+X+ra1sWD8SHeL20genn2WdJFRc0Rla+4=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=My+NPPXdZzilgi8OU5XGXQa2QWI7Agq9xVcLjDqT6xp/zKF547A6W94nmbklZWwjg
+	 rzBYhnKsaVPSSAGbOgdsXGrP5foSTo4jaqPw3swymrzkIYZiq25uiokhyDz+bSCBjB
+	 oUTwulDO68uwZXx2+PsfP3JfvtsBH5J7e3Qk/7/x6eGCTzvO5RWW7yjWnNW8u3O7t0
+	 gEdGgVqZf7yj9QrugZUbIkrJpTESFLpgW3wyTawItnYm3knuCb7X9MqZA/Wx5ICUyB
+	 +WUn/IXuq2OHQFDWydtYc8PPlzEFiYP/iNH7+nlEqBM9ueY5CRR8b66TUuHpOGi8c3
+	 tOZxLwWVHvCkQ==
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5ba35c0df4fso567864e87.0
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 03:06:52 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBxNXQFv6pYt4tNps8wf0al97wO1mPBfgbJ7AbA5w6eW4B7oGD4kmCkWCX6dHQDlzpk+VdyiEWZ8QuOKkg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLzqIaDzXdqYsAeQKIKaRpUuSq/JHaUyWiYeXbGy2fc4vG2oDK/
+	r7c8uipac2M7rGWNZSsHy/6FpfwBOP3NVjkgAHpHUQioOvQn8ZtcgQIp+rRGI34j90hHoxp2r80
+	CTA88vyX+ukT85fB+gnnnkIU3FZs9QbdYEuQcJc/9oA==
+X-Received: by 2002:a05:6512:3d25:b0:5be:54c7:75f5 with SMTP id
+ 2adb3069b0e04-5bfa1be93b6mr617058e87.18.1792577210780; Wed, 21 Oct 2026
+ 03:06:50 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 21 Oct 2026 06:06:49 -0400
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 21 Oct 2026 06:06:49 -0400
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20261021015004.1537738-2-dmitry.torokhov@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,38 +65,26 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+References: <20261021015004.1537738-1-dmitry.torokhov@gmail.com> <20261021015004.1537738-2-dmitry.torokhov@gmail.com>
+Date: Wed, 21 Oct 2026 06:06:49 -0400
+X-Gmail-Original-Message-ID: <CAMRc=McawKQvXKPHzrSsbjxm3nSmiy5gEGEjfeitBwDX=jBDyg@mail.gmail.com>
+X-Gm-Features: AclHuK-DUw-TDKgIDp7kls7bG6fjPSgpfM8RhNNzpQbvwml0tw0TvFN9P4v7edE
+Message-ID: <CAMRc=McawKQvXKPHzrSsbjxm3nSmiy5gEGEjfeitBwDX=jBDyg@mail.gmail.com>
+Subject: Re: [PATCH 2/3] Input: soc_button_array - use __free() cleanup
+ facilities to free memory
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andy@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Hans de Goede <hansg@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Hello, I've sent this patch months ago and I notice it still hasn't gotten =
-any comments nor been merged to my knowledge.
+On Wed, 21 Oct 2026 03:50:00 +0200, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> said:
+> Switch to using __free(kfree) cleanup facilities instead of doing manual
+> cleanup or abusing devm for allocations that are only needed during
+> probing.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
 
-Thanks.
-
-Signed-off-by: Muhammed Ali <TheDragonWhoAte@protonmail.com>
-
-
-
-Sent with Proton Mail secure email.
-
-On Wednesday, June 10th, 2026 at 7:09 AM, TheDragonWhoAte <TheDragonWhoAte@=
-protonmail.com> wrote:
-
-> HID: add quirk for IBM SK-8845 keyboard
->=20
-> The TrackPoint on the IBM SK-8845 (Synaptics 06cb:0009) sends corrupted
-> input events when bound to the synaptics_usb driver. Moving the stick
-> generates random BTN_LEFT/BTN_RIGHT/BTN_MIDDLE events instead of
-> REL_X/REL_Y movement.
->=20
-> Force the device to bind to hid-generic instead by setting
-> HID_QUIRK_IGNORE_SPECIAL_DRIVER.
->=20
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D221624
->=20
-> Note: This quirk disables two-finger scrolling on the touchpad. That's a =
-trade-off, but without it the TrackPoint is completely unusable. The real f=
-ix would be to make synaptics_usb handle this device properly, so both the =
-touchpad gestures and the TrackPoint work. That's beyond this patch.
->=20
-> Signed-off-by: TheDragonWhoAte <TheDragonWhoAte@protonmail.com>
+Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>

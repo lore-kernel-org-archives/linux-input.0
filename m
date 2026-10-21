@@ -1,81 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.227.135
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.227.134
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792585923;
-	b=C/ZDIHKI9cskaiMak83LCXlzjXucx00sNK0/A1dK6v8hLlpLW8gzlq49FmUEFMYbhI6N
-	 WsJuThcyfXJisVa2i5zNv5Wjt33lnJaI20LbN+cW913C0I5r4iAb8ynol5BOM2wf8non1
-	 cnkZSk1gNFLoks/gnO8ghZhLOBbRVJkSR64512rDEicyX600ckBcnUp1UsMbCOUIQcTsG
-	 m2/Itzf7da5CflpYgOesYu7RryQ7FeSwE59idrI5nlgG275tcjzz+zOsJPuJqCZMtREzk
-	 kLrySIaffvHpBJQywWRPsYMoVwQ5CdqLK6NSZQwFCX1XN2xT5wVh7ucdP5x30TYXS8Q==
+	t=1792585927;
+	b=LrSpxu/oq2FVCAZ6cv2g+Ij146CM3CTUQJ7GLfO79uZ9w5g4tlBDZpLbU5ZQzxHT5Jg0
+	 ImfbCR0m0hXru6GfoF5EVlegbsXDW13L7wHWtvM8ZqIzhJQJap7ghcE3rvc9UjQmyni34
+	 zf4KcS4BaHde76S5CLin2hAuYELbQLKrBHn4PThhaqWluGjBs21AE1JobDWhKI9R6666l
+	 Cyt2M3RqQLB9XLhV9n5a4yLIShqk3SrS6GDxlCPdh2XIPn8BGPJwQiL52gRyHnq5FKEap
+	 jMjt+HgWO5+K/CSd7bKCqH4Rqx8amE7qJxAw/I/jtlWkX7GThEIL8dO2Yhd2CNrYB1w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792585923;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792585927;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=sPba+bVamvzTWQLnLCNMaFu8OZtPQlAUYLXZMzIXg3E=;
-	b=qypBWeu9Kx1WWpzYzKiwQgq33jVDlS8XIF/3AbuKJFSoffYlO4GN6P3EpruLY96iu9iR
-	 CLC9kxhRZ76X0D/cUrrgU8PgR4DteaKlr0jb4X/gnS8d1AixdPE1TWNDTcV7D2dS7iz6m
-	 GlpRFR/MGoJ3Ew6kiAjVRuw73DFUmr7fNd0mrjS7LAitEjPyxzVEyR4JXTWso2ngz5G0l
-	 BxjnlI7y0XEq7clj0cjjasyXHI5/PptTFkTFbZLzfATHkKbV88iXfZPV5pRWv3RouzJ/K
-	 La+keSBifNjvBMHSEddxH2EpZrW252DPuGtcst3iH4JNQegL+I3Etjy+FCGzWA9VkLw==
+	bh=R129GmDUt+qvHZFqEN3VKb8rNuaams87GONxeRw6Drs=;
+	b=rIdXzEqcxmB+fZUb8zIYs+hRjbDW1aL2uF5MgoL9nl/MyOoZZ9HnxrMrkKGcYlMxIlsR
+	 2j9zVOHx2d1wTceSI1ihzESQw5SmErsi0EQMVSMBpwiPAGJYfMy8MVcZJUVCzqd7LUnVX
+	 6ZbbAKnFwNYlCO5gV9bPcxOMY6fyf9YW54I7fNRe7BmbUT6vQj4xdz4vH7QvUfMxhcrCY
+	 uDnPvCK1MKHUsslrulhHxjZIbVvuHoipEyoZNFnozI/Q991QUHZ12YjncMy0IoOhV5wX1
+	 TjEEkqd6a2W101g3ea1/zE17qGE577wkBg2EgEFCc9s38gTiKPM7uVSOF/nkjMv+ifw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pyKK+ubN;
-	arc=none smtp.remote-ip=74.125.227.135
-Received: from mail-pj2-f7.google.com (mail-pj2-f7.google.com [74.125.227.135])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=dS6XanIC;
+	arc=none smtp.remote-ip=74.125.227.134
+Received: from mail-pj2-f6.google.com (mail-pj2-f6.google.com [74.125.227.134])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9727A60A2614
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 12:32:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9727A60A2614
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 318EE606A33F
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 12:32:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 318EE606A33F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pyKK+ubN
-Received: by mail-pj2-f7.google.com with SMTP id 98e67ed59e1d1-3ac63aee1ecso195946a91.0
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 05:32:02 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=dS6XanIC
+Received: by mail-pj2-f6.google.com with SMTP id 98e67ed59e1d1-3acc610014eso368579a91.0
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 05:32:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792585922; x=1793190722; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792585926; x=1793190726; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=sPba+bVamvzTWQLnLCNMaFu8OZtPQlAUYLXZMzIXg3E=;
-        b=pyKK+ubNg2ugvEiozcnh0bkIjd7S64/hpGWpkYQm1AAeaOxNzuSx/aQ3gWBSrfKJ7T
-         EWkXp/iFEiDA//sZrdJBHS9mssG66AQbKTkDlJnXepPEbSGHX7hm8gJMbnJdAhflq7Bt
-         lMcqeE4aA3lvQf5W49uv8lNZ5SrH+lE+GWjr1jLwih+H6J3MSLWmh0eIsYnpbOHtGjpF
-         3un1ctZsA0M9chdX6rO3o/dC/1Pmj0E2TVBFHvhH237+1JNCZj8Quj3lcZ/m+r+Fe9lw
-         FKJTAWR0j+NIw/ztyfwqpfQA1OdPRtE5W17l6PSn7Wj/EJVpp36ybi9r8s8hQVxXjf6w
-         ZypA==
+        bh=R129GmDUt+qvHZFqEN3VKb8rNuaams87GONxeRw6Drs=;
+        b=dS6XanICxAcG1TNmiPkCDP2CLwUc/8j9KXXD5drfyueKCkrOYq1BY2HJea2ekENFAU
+         PDcGmH9VRXQC4BnXkyQuc83pxrsu/kYm6BE2f4ME/LYnzp1y25EifzkVf1MbavVmuvEG
+         UZEbwp2qNQ7yKK2ZYd+43L2nkl5ROM8QdEAniDRGk/7Gk21nSiGzJ6ouDqF2/X+CThOd
+         C4acm+q7acwdepGv8DaJ53mVxigcrBPJCn/7dYmCbSioWlBS9CHOh41ZIbsjgS16/TmW
+         x6tBV2oh8xxH4W9W9nKj7BWbUlRUVBALw7c1emP01fd/q30fVT5d7okF2YuoTeCzMhDc
+         JWKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792585922; x=1793190722;
+        d=1e100.net; s=20260707; t=1792585926; x=1793190726;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=sPba+bVamvzTWQLnLCNMaFu8OZtPQlAUYLXZMzIXg3E=;
-        b=TebcthzR9F+DtP112z5KJvURjwr2dp9y6hryXEafGR2JiMkeFzxHE482tU6v/PH+E/
-         WPcljjf5SY+UkZZ8V1zfIj24EMHr+Kq/1SBJXJF57gYWXi5bfaW9Spjq7+8i2Y/UiPJn
-         61YmGvzkxlBIS+EwlGLAvTDaIcVmIpg3e/2F/29A/ELHcWXGYoYMkajqkW11C4B+4/Xs
-         LQyj0pmR2usATPQxJeTC6WUMSHY3oCJOi9AWV+ATRgLjnHE9KoEYohUXYnlDzOGylCC6
-         Zex+e63cdDoI+WVx0zIC0EhXh4tEj+aswhQaREuEUB+4NC/24s/Kyta3jKRqEmY2o9a9
-         CTLA==
-X-Gm-Message-State: AFq9FYL/AMgma7L4nkWJxLqAtn+g2ckIn+E0KqtGZ3vwSUFFDFuEb8sZ
-	XMJG/IUWTGx2lmOgdtfb3dHR+HGizKXxqwEVvSfpGMA+rDdBcoONjUICX6lyDYkL
-X-Gm-Gg: AYBFou0DMGG8LrxjzXmwYeZCGjuWoula+6vygP5UivqPDOz5nd1/it8zNieYqjm4vT9
-	f4OpeHmt2ih/XHzF5hxhz+JHPwrYQ5U7wVV5+OZ2zN4ihSA5UiOngWzbiJTZR1HYmwundDm9EB9
-	4mY4QEk9uWihHtc5ey2RnOFHL+xm5hkLO57eTf02lMeKiFZB3HzALTsy1T+dPnv1bMbRk7d7lE7
-	/UpJo/r7oQ4bCeBEfbbKJ2sGcmd0JAihY+7R32p+6lFXZiZH3/ntqJ21aBNfqLHGIhFZ3wcbjHN
-	xDXKkDgcmzKIOfxTMHqRGb0tMYJPHuGt0a+LRRe1wiynTZsm22GVFl52gsAaaRTG8PAjzgiNbWu
-	D0Z06Mkxv2qljsoDd1r3PfFTxIJahuA+ezkuQc5g6Ic15IyHcy49ZMvjJBrgCqXKKY3QiETHyiX
-	9a6vnnLVJeMUP0bHccV8b7DzHHxEpsV1jSdtKURFMAmPk5lxZSfuj66RztjisrOskSlZEp3kRO4
-	BBBS9qlwvLCG2YtMyFFhR1T4nlxPHmrbYlAdwfjlN9vRawLdGFnxSo1AUIC3qmzdTBo7ywhtg==
-X-Received: by 2002:a17:90b:5547:b0:3ac:80dc:f40b with SMTP id 98e67ed59e1d1-3ad86ed848fmr1597600a91.33.1792585921869;
-        Wed, 21 Oct 2026 05:32:01 -0700 (PDT)
+        bh=R129GmDUt+qvHZFqEN3VKb8rNuaams87GONxeRw6Drs=;
+        b=WdcDbpZwmEPlFSETYhEf3aoflJW5JprgaXb4Dt8OCVL8zHoCRjcsqhfnEgr6NqW+GP
+         L/pU8xoTfCW3MuRBYaGde7lLF6hLSyS8cI4z1PhGmyhAlzmV7g+Qb2onan/Z0uV6D6Oh
+         5flK2xs7cOsl/9nX7auLJpv1PoG/TI+cnnPYDNB68OkxAfC72nuCgOvZUqEPCxCyC7yb
+         VqIFad/eOFBK2YK2RqRwKwKPp+4lXvomG/+8yNDB66TLFisIuvxfvIA0ZLi6024Bai3G
+         ace65V0DrjoxaPxzlWOJCSMxEKpUwkh3pdwWUAOX1jed1cxVvmMwWnb6AQFukLY4x521
+         wQvA==
+X-Gm-Message-State: AFq9FYKv3mSH+d+gveOm5OjyKUgPNjNet5GHuWNhzEmPVe0cECmyETW2
+	9wxuEk5JxK2XM1oiB6pTHV5znvcIdrU+O57a7e7TscDUXqfSkcJxg6tze9lkUnuXy9RDBg==
+X-Gm-Gg: AYBFou0IHIeE395a6Vfr1bS1LZcL5L+nZFt8UUCMLCyysnzwiikUIafPu3+6wva2XBE
+	xEWeVjQDCNCKoegoUlz8di1qdZCzXXPvFbgmaQsBxgleAeV2tdBNr7PD4zWvWW4SRVYrBrSDlNC
+	/iD2RT5aBgLtsqZ25QsNLVeR7+2y1IxekIVl5+pfzOCCjLAET+EtPzGwoqyALtxmU9OKGQCx8nP
+	LqFPl3SqGpfNkVNeoNgmrrEK4yTpKmSEBM744XvEyhwJVR2eLpb/wE3PtH2S4zpa1c662lWAN6W
+	okkcxzV5WUVEYkbqMm7jhTXpBRScokgZKqBAWWaPYolu+JMk/w32Tvb9RBTjm3rKaYnzYKLZ20B
+	KOcmO2u94WIwfXFVMGkGiSelfsSG9rVq5dT/0SoFn5t1k9AQYtkK1NNUJWTsi4bt3HzpPun4/Tq
+	cg9c1jQYHhI28Sl3LU7vD2/1YFcTYanzKpH7yFa4bNGzXfb4Axswq6jyi1GSt0fjajJb44BOaGj
+	HNtKt2G5nXM/HSJQ3Z9nzhgmUtmnA8NXiBY3UrtnXOiND3i4yQfOkDVeisn41XzpkjWHXsJlg==
+X-Received: by 2002:a17:90b:5547:b0:39d:84af:a0b3 with SMTP id 98e67ed59e1d1-3ad86ee2cc9mr1596337a91.18.1792585926342;
+        Wed, 21 Oct 2026 05:32:06 -0700 (PDT)
 Received: from J4f-Laptop.localdomain ([183.36.237.113])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ad813eb9casm4229523a91.15.2026.10.21.05.31.58
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ad813eb9casm4229523a91.15.2026.10.21.05.32.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 05:32:01 -0700 (PDT)
+        Wed, 21 Oct 2026 05:32:05 -0700 (PDT)
 From: Shihuang Liu <shlomojune6@gmail.com>
 To: linux-input@vger.kernel.org,
 	linux-hardening@vger.kernel.org
@@ -86,9 +86,9 @@ Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
 	Henrik Rydberg <rydberg@bitmath.org>,
 	linux-kernel@vger.kernel.org,
 	Shihuang Liu <shlomojune6@gmail.com>
-Subject: [PATCH v2 2/6] Input: joystick - use usb_make_subpath()
-Date: Wed, 21 Oct 2026 20:31:42 +0800
-Message-ID: <20261021123146.17202-3-shlomojune6@gmail.com>
+Subject: [PATCH v2 3/6] Input: misc - use usb_make_subpath()
+Date: Wed, 21 Oct 2026 20:31:43 +0800
+Message-ID: <20261021123146.17202-4-shlomojune6@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261021123146.17202-1-shlomojune6@gmail.com>
 References: <20261021123146.17202-1-shlomojune6@gmail.com>
@@ -103,49 +103,122 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The pxrc and xpad drivers build their input device physical paths
-by appending "/input0" with strlcat() after usb_make_path().
+The ati_remote2, cm109, ims-pcu, keyspan_remote, powermate and yealink
+drivers build their input device physical paths by appending a subpath
+with strlcat() after usb_make_path(). Most use "/input0"; ims-pcu also
+uses "/input1" for its gamepad interface.
 
-In preparation for removing the deprecated strlcat() API [1],
-replace each pair of calls with usb_make_subpath(). The helper
-formats the USB path and the "input0" subpath in one call,
+In preparation for removing the deprecated strlcat() API [1], replace
+these pairs of calls with usb_make_subpath(). Pass "input0" or "input1"
+as appropriate so the helper constructs each physical path in one call,
 avoiding a separate buffer scan and append operation.
 
 Link: https://github.com/KSPP/linux/issues/370 [1]
+
 Signed-off-by: Shihuang Liu <shlomojune6@gmail.com>
 ---
- drivers/input/joystick/pxrc.c | 3 +--
- drivers/input/joystick/xpad.c | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/input/misc/ati_remote2.c    | 3 +--
+ drivers/input/misc/cm109.c          | 3 +--
+ drivers/input/misc/ims-pcu.c        | 6 ++----
+ drivers/input/misc/keyspan_remote.c | 3 +--
+ drivers/input/misc/powermate.c      | 3 +--
+ drivers/input/misc/yealink.c        | 3 +--
+ 6 files changed, 7 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
-index 52d9eab667b7a..1a11e73d7cd04 100644
---- a/drivers/input/joystick/pxrc.c
-+++ b/drivers/input/joystick/pxrc.c
-@@ -169,8 +169,7 @@ static int pxrc_probe(struct usb_interface *intf,
+diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
+index 8db2dca84975c..20cb7b8efcc0b 100644
+--- a/drivers/input/misc/ati_remote2.c
++++ b/drivers/input/misc/ati_remote2.c
+@@ -822,8 +822,7 @@ static int ati_remote2_probe(struct usb_interface *interface, const struct usb_d
+ 	if (r)
+ 		goto fail3;
  
- 	pxrc->input->name = "PXRC Flight Controller Adapter";
+-	usb_make_path(udev, ar2->phys, sizeof(ar2->phys));
+-	strlcat(ar2->phys, "/input0", sizeof(ar2->phys));
++	usb_make_subpath(udev, ar2->phys, sizeof(ar2->phys), "input0");
  
--	usb_make_path(udev, pxrc->phys, sizeof(pxrc->phys));
--	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
-+	usb_make_subpath(udev, pxrc->phys, sizeof(pxrc->phys), "input0");
- 	pxrc->input->phys = pxrc->phys;
+ 	strlcat(ar2->name, "ATI Remote Wonder II", sizeof(ar2->name));
  
- 	usb_to_input_id(udev, &pxrc->input->id);
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index feb8f368f834e..0f7ca5adaeee7 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -2059,8 +2059,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	if (!xpad)
- 		return -ENOMEM;
+diff --git a/drivers/input/misc/cm109.c b/drivers/input/misc/cm109.c
+index 353d3c1d347d5..06d8f0dab4b37 100644
+--- a/drivers/input/misc/cm109.c
++++ b/drivers/input/misc/cm109.c
+@@ -765,8 +765,7 @@ static int cm109_usb_probe(struct usb_interface *intf,
+ 	dev->urb_ctl->dev = udev;
  
--	usb_make_path(udev, xpad->phys, sizeof(xpad->phys));
--	strlcat(xpad->phys, "/input0", sizeof(xpad->phys));
-+	usb_make_subpath(udev, xpad->phys, sizeof(xpad->phys), "input0");
+ 	/* find out the physical bus location */
+-	usb_make_path(udev, dev->phys, sizeof(dev->phys));
+-	strlcat(dev->phys, "/input0", sizeof(dev->phys));
++	usb_make_subpath(udev, dev->phys, sizeof(dev->phys), "input0");
  
- 	xpad->idata = usb_alloc_coherent(udev, XPAD_PKT_LEN,
- 					 GFP_KERNEL, &xpad->idata_dma);
+ 	/* register settings for the input device */
+ 	input_dev->name = nfo->name;
+diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+index b1a0edcc49b4e..e629a327fdd76 100644
+--- a/drivers/input/misc/ims-pcu.c
++++ b/drivers/input/misc/ims-pcu.c
+@@ -215,8 +215,7 @@ static int ims_pcu_setup_buttons(struct ims_pcu *pcu,
+ 	snprintf(buttons->name, sizeof(buttons->name),
+ 		 "IMS PCU#%d Button Interface", pcu->device_no);
+ 
+-	usb_make_path(pcu->udev, buttons->phys, sizeof(buttons->phys));
+-	strlcat(buttons->phys, "/input0", sizeof(buttons->phys));
++	usb_make_subpath(pcu->udev, buttons->phys, sizeof(buttons->phys), "input0");
+ 
+ 	memcpy(buttons->keymap, keymap, sizeof(*keymap) * keymap_len);
+ 
+@@ -301,8 +300,7 @@ static int ims_pcu_setup_gamepad(struct ims_pcu *pcu)
+ 	snprintf(gamepad->name, sizeof(gamepad->name),
+ 		 "IMS PCU#%d Gamepad Interface", pcu->device_no);
+ 
+-	usb_make_path(pcu->udev, gamepad->phys, sizeof(gamepad->phys));
+-	strlcat(gamepad->phys, "/input1", sizeof(gamepad->phys));
++	usb_make_subpath(pcu->udev, gamepad->phys, sizeof(gamepad->phys), "input1");
+ 
+ 	input->name = gamepad->name;
+ 	input->phys = gamepad->phys;
+diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
+index 70cd6586459ef..68c969657806d 100644
+--- a/drivers/input/misc/keyspan_remote.c
++++ b/drivers/input/misc/keyspan_remote.c
+@@ -481,8 +481,7 @@ static int keyspan_probe(struct usb_interface *interface, const struct usb_devic
+ 			 le16_to_cpu(udev->descriptor.idVendor),
+ 			 le16_to_cpu(udev->descriptor.idProduct));
+ 
+-	usb_make_path(udev, remote->phys, sizeof(remote->phys));
+-	strlcat(remote->phys, "/input0", sizeof(remote->phys));
++	usb_make_subpath(udev, remote->phys, sizeof(remote->phys), "input0");
+ 	memcpy(remote->keymap, keyspan_key_table, sizeof(remote->keymap));
+ 
+ 	input_dev->name = remote->name;
+diff --git a/drivers/input/misc/powermate.c b/drivers/input/misc/powermate.c
+index 754379d2625cf..f004cfca795ec 100644
+--- a/drivers/input/misc/powermate.c
++++ b/drivers/input/misc/powermate.c
+@@ -333,8 +333,7 @@ static int powermate_probe(struct usb_interface *intf, const struct usb_device_i
+ 	pm->intf = intf;
+ 	pm->input = input_dev;
+ 
+-	usb_make_path(udev, pm->phys, sizeof(pm->phys));
+-	strlcat(pm->phys, "/input0", sizeof(pm->phys));
++	usb_make_subpath(udev, pm->phys, sizeof(pm->phys), "input0");
+ 
+ 	spin_lock_init(&pm->lock);
+ 
+diff --git a/drivers/input/misc/yealink.c b/drivers/input/misc/yealink.c
+index 560f895a00cda..9a8ee7a586f44 100644
+--- a/drivers/input/misc/yealink.c
++++ b/drivers/input/misc/yealink.c
+@@ -890,8 +890,7 @@ static int usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	yld->urb_ctl->dev = udev;
+ 
+ 	/* find out the physical bus location */
+-	usb_make_path(udev, yld->phys, sizeof(yld->phys));
+-	strlcat(yld->phys,  "/input0", sizeof(yld->phys));
++	usb_make_subpath(udev, yld->phys, sizeof(yld->phys), "input0");
+ 
+ 	/* register settings for the input device */
+ 	input_dev->name = nfo->name;
 -- 
 2.43.0
 

@@ -1,97 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.227.135
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792585939;
-	b=RtN47IaRSl1okwdl6D1kJ8X9V6xTXAjJuUu6HsU1K78Dy/LO0UTVfDi58IWa0U2KecJ1
-	 jaGN5cqOD8iFazOMUs+XsdnO4Q952WW1AKaRnFsgjc/TKdwmaBd8mbLd570+IRcG4lI64
-	 aD0hR9EOLcJdCf89jOggy3L3dEfC+SxOT8w1AEyT5/A1Fdj72Axirdyvj4hi4F0iep8cI
-	 LzNFEAOIx0LAG8cnlCnsc6YDJ3AZDIsvUYwAhrFYUd1vF0RCXz9Kpa5l+u220v+mdlQH6
-	 xtEHeODN8o+I1Hr+t8reGZBRdZgY2ZwHYKbNCZqPZNa2SGMbd0SzA9bd+gnlsvB84sQ==
+	t=1792588685;
+	b=BGKbdxeBVJ6jbFYj5fIVv8P1ObujPCF9Mh+IOB0A3TCQLKWSDyHPMYCU8VbXNhirNBWn
+	 WtuHuQyLjZmi0HgxfHIUCs8hZ0x+pqyb2dN+s4Fg5ldS747XTpgn1j8f9XLacG/LWt3qS
+	 sA0jnljgPd8kZ1ftXAlmZYAgjEyQCRBbp4uAB/Hmbt5eqsxkXkouZ6RrP/roIdkpMba+v
+	 zX5xd/ONC2pIG9iCJhM2ErKn6VwquWH5xDPb5c3CGW9oA0/0hrbIt6jHk05GMtDaMelgx
+	 w1bJ0CC6xXAjKh5GtN6wL4qZvQrGCDAOOBccvrJweJfj01JkZIdq6CLyJrg4ZxZqIsA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792585939;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=UlfXExQXyhG92dzdrPUvVvWcK6W0MmRTGKrmc+yyUUM=;
-	b=YZhj+zzmBXMPxjTcVf41xfEyNXA4VykuJIQru2PY/jWi8F/Ln5I5YhlqTx7v3LdWlyCi
-	 LgbewrwboitQjTsbo8MUUhjYwGhD9Qdh84k7vATN2tjdn8zF9j5ccGDy8U04Obn7niFXt
-	 rNueOPxf7o6x/xzM/nlMesva9tcF09oFWHEefxe8XWCmdoVSO7/CCDFPfAYWtXOHq2tKh
-	 EtPHZjL4Yuy4RThh7HUSfwGvUEsguSGG6yu4Y2+gnVHLbFinJmXG/Y+YGs5W0iNlBd4oM
-	 kieZJ7y43GmR8dn+S/rMeUb1f9DPPJ0vgtmrDZJ0te4MkAp9AKAkLz64D4pkhWN394A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792588685;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=uP6ALv8m4b+dkPS99FBOBMEFTwaHIYfJnx0Qeznp9+Q=;
+	b=C0YtfZHSka54gVmKNCEnAViqkkqjTJii6DGiFqAZETpzXLE4P9CFhjmKEOYCeKqwvs7H
+	 acxuroOZxL+yzUJ8nIdP0xo6/mT2ytxhQxMmvUm2d4EODi/QxiggJAGPyTvRKHxOlKh4h
+	 QTvhxZQdzdGJ+ywqBLpGzSTLwy1bc9AY49gvDPYAvMXKvi2TydizeTwT2Xu8i6YBQ+2L8
+	 3k5DXY+AClNPiVcAy1P2tNt0Cb3PqwB9Hd9i46NTqVNGbcpJWFEDXowYy4JMt3Ne/wmKf
+	 D1yCorm2wZvQriviDot/dDzyu2S5FYS5Oovb3AGGjCLNS6uJ5e4OKY4uZVq6cglOtUw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=aulBXKiD;
-	arc=none smtp.remote-ip=74.125.227.135
-Received: from mail-pj2-f7.google.com (mail-pj2-f7.google.com [74.125.227.135])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HXvp9dE1;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7888160A261C
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 12:32:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7888160A261C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 006F8606A31B;
+	Wed, 21 Oct 2026 13:18:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=aulBXKiD
-Received: by mail-pj2-f7.google.com with SMTP id 98e67ed59e1d1-3ac63aee1ecso196018a91.0
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 05:32:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792585939; x=1793190739; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UlfXExQXyhG92dzdrPUvVvWcK6W0MmRTGKrmc+yyUUM=;
-        b=aulBXKiD6yr4+Lpo4Q4fQnuP3c62bSp5gu1WaPr9X8F9pBH63WOXP/HmOkj4tA/DwI
-         f7c+9Qq6K4JfLf2CYYTlYdL46udovCZHsZWK/oNBh6GLjiX3+rEsqpwMci1cmV5c7Obl
-         sImwte7h80qCmdOB7fys3U8uxsuPplW46JMjCp4eu+qEo8+jawjt2Hw9FeABGniYE8jb
-         D5+ftqdXwL+dUVqZTyIVXoHUT1S4qYwTtZQN0x23TbxP5hxJ9RgWJXXt540R12rQIK8h
-         ZX8ZXNl1Tdw6+kc4Dal9QyGsURqGESjBd2mFgmcBYQE8keRxvJOT6FnKKDAcKZsRsSjv
-         4CUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792585939; x=1793190739;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UlfXExQXyhG92dzdrPUvVvWcK6W0MmRTGKrmc+yyUUM=;
-        b=FHUa4JAGgJD4ZDIR7w9FMy5aoFrc4e+N9J4gi1zwA0mCBPOZSDkXtQdur3qpyjIFCq
-         jt/2Zk/uQTUDuPOioOE33oOqW3Eaby2RB5zVgaIew7YoOvkIQfPzdQoJ0ADhz19+zijf
-         O9hjbgnJMuIwZ5wsOdmaWx8l06/mXmPtVC+vzG1LWPAECSL78rpa4NKP5jmkXIWQ04Lh
-         k00u61FaHNBetwAq/SyGvvGN03DKf0v86IVsEpdzowmwPGbtMLZFrC1IzWsCv/9/vBQ5
-         XONIo5BS3brDSLdZ3gLSUcocewATjR4c9yzMZ7mB7mQFRIPHPWfxhW33odbttgclvGKr
-         r4mw==
-X-Gm-Message-State: AFq9FYJC4w8jy3lT3rK0KHh4d9uPKw7jPzm3URboV1i7zNDtGd75nu5+
-	pSS5RG6VYzqXZcaclCMVpR0BR8Zt6b0jhN/7EVhRx9hOPORzx42eWXoozVeAA3RLcRRLGg==
-X-Gm-Gg: AYBFou37nH1modt+TikOAB6hRibm/MxLkFPJ9zMKJLZZMO8KYZRrLJQ2RqiFNsjconS
-	KBUJ+sPyFIaKUTiU7JuMy5QZ1t9oax1i3A9avf/R0ALcV/n2EP7tDSzdp7y3/FtlNi4+Np6kR+P
-	zx/Q9JCYjhYfKcJdksnyNFeVm1CHK0C26kBdpA64AZVP6H8FI7B1sQoNxtm7fZtB3uEFGGFIPHi
-	8spsnG+DxhhegRPNS+kLUhBoJQ4N0aA7Lx9T4KTX3qRvIBsCzFYJZLWWLqi78CaOdvv4+aB5SeD
-	+RNnNkPqCCRJPBV2c0qgBKI86fzsUKXuLME+/oVhxEMLTcjDI+WHbRcTKjKeofAymmHuKAp4FSE
-	PNL0YEwJcVDVbqk2tNIuSrv1ly28UEfRi+egSoeYvauQuLL8B8dQ0eZ0M7Z9B93xeQs4X34joFG
-	oN+nzzhVQ8Ww5r0gTdPh+P78sUWEMJLj6gvvBMi++CVFtsVVFGXtFdpbXJOoMc6LW1VS2Em9L9h
-	irTxdURK1e+4ntt26On4ZqoWS/W+/fIBdT/czHBtXHFxK2ZPpISWa5WbLLWmuMLUmLaheUAcA==
-X-Received: by 2002:a17:90b:4b03:b0:3ac:80dc:f40c with SMTP id 98e67ed59e1d1-3ad86e9eb76mr1566540a91.14.1792585938937;
-        Wed, 21 Oct 2026 05:32:18 -0700 (PDT)
-Received: from J4f-Laptop.localdomain ([183.36.237.113])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3ad813eb9casm4229523a91.15.2026.10.21.05.32.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 05:32:18 -0700 (PDT)
-From: Shihuang Liu <shlomojune6@gmail.com>
-To: linux-input@vger.kernel.org,
-	linux-hardening@vger.kernel.org
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ville Syrjala <syrjala@sci.fi>,
-	Henk Vergonet <Henk.Vergonet@gmail.com>,
-	Henrik Rydberg <rydberg@bitmath.org>,
-	linux-kernel@vger.kernel.org,
-	Shihuang Liu <shlomojune6@gmail.com>
-Subject: [PATCH v2 6/6] Input: touchscreen - use usb_make_subpath()
-Date: Wed, 21 Oct 2026 20:31:46 +0800
-Message-ID: <20261021123146.17202-7-shlomojune6@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261021123146.17202-1-shlomojune6@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HXvp9dE1
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A28A1F000C5;
+	Wed, 21 Oct 2026 13:17:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792588684;
+	bh=uP6ALv8m4b+dkPS99FBOBMEFTwaHIYfJnx0Qeznp9+Q=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=HXvp9dE1dD9ZY7ekVL6x64HjLGGj8M5yvnCnycv7SLMa3FtEh2skwBKvZLWF1AhS9
+	 5wgMJ9qnoLCHc2Yhoa9Pl0fP4M3zD987YY/vw7DoflPAVghPMSnD2Cewf7yZ1CjnDd
+	 CMBxOY8TRR65xjMZ4TXAMp3jyK2sz9YLssw+aa0c2PxW4dqEuRW9LZLhlt0HDtLwCs
+	 JmtHWovOKrKZTEVKIPPCMJJ1kR2CpaDD/MiNfUpdWm2WEe/ppJDEGGKT6hpz6JTq2w
+	 o5Va29QWBRV2rt6d1+9uyS6L+uDHZTs075BrekpIc0fxMIZQgkU8MTPR7Zpmf8OHpv
+	 VsTdVWcm5Siuw==
+Date: Wed, 21 Oct 2026 15:17:56 +0200
+From: Alejandro Colomar <alx+linux-hardening@kernel.org>
+To: Shihuang Liu <shlomojune6@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	Marcus Folkesson <marcus.folkesson@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Ville Syrjala <syrjala@sci.fi>, Henk Vergonet <Henk.Vergonet@gmail.com>, 
+	Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/6] USB: add usb_make_subpath() for formatted device
+ subpaths
+Message-ID: <ati7RlrVvmzMjzNr@debian>
 References: <20261021123146.17202-1-shlomojune6@gmail.com>
+ <20261021123146.17202-2-shlomojune6@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -101,51 +60,130 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="fpxw4ogerp5lsd5f"
+Content-Disposition: inline
+In-Reply-To: <20261021123146.17202-2-shlomojune6@gmail.com>
 
-The sur40 and usbtouchscreen drivers build their input device physical
-paths by appending "/input0" with strlcat() after usb_make_path().
 
-In preparation for removing the deprecated strlcat() API [1], replace
-each pair of calls with usb_make_subpath(). The helper formats the
-USB path and the "input0" subpath in one call, avoiding a separate
-buffer scan and append operation.
+--fpxw4ogerp5lsd5f
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+From: Alejandro Colomar <alx+linux-hardening@kernel.org>
+To: Shihuang Liu <shlomojune6@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	Marcus Folkesson <marcus.folkesson@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Ville Syrjala <syrjala@sci.fi>, Henk Vergonet <Henk.Vergonet@gmail.com>, 
+	Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/6] USB: add usb_make_subpath() for formatted device
+ subpaths
+Message-ID: <ati7RlrVvmzMjzNr@debian>
+References: <20261021123146.17202-1-shlomojune6@gmail.com>
+ <20261021123146.17202-2-shlomojune6@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <20261021123146.17202-2-shlomojune6@gmail.com>
 
-Link: https://github.com/KSPP/linux/issues/370 [1]
-Signed-off-by: Shihuang Liu <shlomojune6@gmail.com>
----
- drivers/input/touchscreen/sur40.c          | 3 +--
- drivers/input/touchscreen/usbtouchscreen.c | 3 +--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+Hi Shihuang,
 
-diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-index 77ec2c94b91fd..7702eead123e2 100644
---- a/drivers/input/touchscreen/sur40.c
-+++ b/drivers/input/touchscreen/sur40.c
-@@ -690,8 +690,7 @@ static int sur40_probe(struct usb_interface *interface,
- 	/* Set up regular input device structure */
- 	input->name = DRIVER_LONG;
- 	usb_to_input_id(usbdev, &input->id);
--	usb_make_path(usbdev, sur40->phys, sizeof(sur40->phys));
--	strlcat(sur40->phys, "/input0", sizeof(sur40->phys));
-+	usb_make_subpath(usbdev, sur40->phys, sizeof(sur40->phys), "input0");
- 	input->phys = sur40->phys;
- 	input->dev.parent = &interface->dev;
- 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 0bbacb517c286..fd2b896675dee 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -1512,8 +1512,7 @@ static int usbtouch_probe(struct usb_interface *intf,
- 			 le16_to_cpu(udev->descriptor.idVendor),
- 			 le16_to_cpu(udev->descriptor.idProduct));
- 
--	usb_make_path(udev, usbtouch->phys, sizeof(usbtouch->phys));
--	strlcat(usbtouch->phys, "/input0", sizeof(usbtouch->phys));
-+	usb_make_subpath(udev, usbtouch->phys, sizeof(usbtouch->phys), "input0");
- 
- 	input_dev->name = usbtouch->name;
- 	input_dev->phys = usbtouch->phys;
--- 
-2.43.0
+> Date: 2026-10-21 20:31:41+0800
+> From: Shihuang Liu <shlomojune6@gmail.com>
+>
+> USB drivers often build device paths by calling usb_make_path() :and
+> then appending a subpath. Several callers use the deprecated strlcat()
+> API for this.
+>=20
+> In preparation for removing the deprecated strlcat() API[1], add
+> usb_make_subpath() to format the USB device path.
+>=20
+> Link: https://github.com/KSPP/linux/issues/370 [1]
+> Signed-off-by: Shihuang Liu <shlomojune6@gmail.com>
+> ---
+>  include/linux/usb.h | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+>=20
+> diff --git a/include/linux/usb.h b/include/linux/usb.h
+> index 1da4ad1610bca..c90ccea0cdbf6 100644
+> --- a/include/linux/usb.h
+> +++ b/include/linux/usb.h
+> @@ -14,6 +14,7 @@
+>  #include <linux/errno.h>        /* for -ENODEV */
+>  #include <linux/delay.h>	/* for mdelay() */
+>  #include <linux/interrupt.h>	/* for in_interrupt() */
+> +#include <linux/stdarg.h>	/* for va_list */
+>  #include <linux/list.h>		/* for struct list_head */
+>  #include <linux/kref.h>		/* for struct kref */
+>  #include <linux/device.h>	/* for struct device */
+> @@ -987,6 +988,34 @@ static inline int usb_make_path(struct usb_device *d=
+ev, char *buf, size_t size)
+>  	return (actual >=3D (int)size) ? -1 : actual;
+>  }
+> =20
+> +/**
+> + * usb_make_subpath - returns a stable device path and formatted subpath
+> + * @dev: the device whose path is being constructed
+> + * @buf: where to put the string
+> + * @size: how big is "buf"?
+> + * @fmt: format string for the subpath, without the leading slash
+> + * @...: arguments for @fmt
+> + *
+> + * Return: Length of the string (> 0) or negative if size was too small.
+> + */
+> +static inline __printf(4, 5)
+> +int usb_make_subpath(struct usb_device *dev, char *buf, size_t size,
+> +		     const char *fmt, ...)
+> +{
+> +	struct va_format vaf;
+> +	va_list args;
+> +	int actual;
+> +
+> +	va_start(args, fmt);
+> +	vaf.fmt =3D fmt;
+> +	vaf.va =3D &args;
+> +	actual =3D snprintf(buf, size, "usb-%s-%s/%pV", dev->bus->bus_name,
+> +			  dev->devpath, &vaf);
+> +	va_end(args);
+> +
+> +	return (actual >=3D (int)size) ? -1 : actual;
 
+Why are you open-coding usb_make_path() here instead of calling it?
+
+
+Have a lovely day!
+Alex
+
+> +}
+> +
+>  /*----------------------------------------------------------------------=
+---*/
+> =20
+>  #define USB_DEVICE_ID_MATCH_DEVICE \
+> --=20
+> 2.43.0
+>=20
+>=20
+
+--=20
+<https://www.alejandro-colomar.es>
+
+--fpxw4ogerp5lsd5f
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIyBAABCgAdFiEES7Jt9u9GbmlWADAi64mZXMKQwqkFAmrYu4QACgkQ64mZXMKQ
+wqkPNg/3U1a2m9q8Hnb/Yse0fQn7S7KsAc4hL0Nvp6DFn1XH2PNP4+fId7JuAgqL
+GrckdDFKvNdtlNVF8kGKM9Lg1EX2D/sa/2QVhml7golGBGVWJ+OV/DGvxZbSz5iy
+1Lj/E2t8HTzcBXRpT1rBz3P/c2RzwBrcx5+PMBqsCkl2hmaduIPVtNxufnbe3U58
+LBxP64zXQtHN32nzBOqhoWFszNo5GdgzyniqVXRHRu6CVlBcgS/u5aUWzfsh5mY9
+bBxTVToRKvqHKE0vV8QTYDHOgXtdGZcJ9cMPyTREn9UmR0IDu0SCNIKTWDwXj5Yr
+JC8XURzZPYqD6YV4W1UMLvUBT6aMUSFC/HWWEVggM96T6urDge1Fhh9FXCHTSF+k
+kKOzup0kBl1vrRvi8zNx6DMQ4FBt9QYpLNu+oNaNHAMCG1/vH2AW/hlKdZg86e1Y
+RGaYQNU+gOW6z+OVb7DITJbgJ1LSfET/p9rcbxh6OSirWIT4Gwa7D4/e+5OVo1dI
+YfUaoqqENbI3SI7qtO9nrzjwVG2yg4clzEIiNnEun5bsovFBiRwOIGN+1MkUvOqX
+t5ld5R0sUzfHBdQCOUINj6P955tXOGL9r6PYwKe+RZLiqcGs1dgP/4KsABx2iD9V
+OAFkUjlIPCLjeCxZKRDStzz4a77xm+J4VuchipCPRLilQfsJdw==
+=ilT9
+-----END PGP SIGNATURE-----
+
+--fpxw4ogerp5lsd5f--

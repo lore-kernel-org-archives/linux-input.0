@@ -1,82 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792591377;
-	b=mLCDIutiT0FkBNQOFiLYV1xd48qsa72I71n+0cFz8OCIQB5zpyqJCFmRXtiOKGlVhGTy
-	 uOCifFRoZO6AAeQPfgrbby5Kc+/ANRm9cGAvyarBvoAJjacyFQwU2XgacqF1G4qs7T53K
-	 hJnGKY4og8M+MB9gBomFIstRXrrsRFaU2o9kJulEWkMum0gZnA4HO5vcEOr+UCWFqNoN+
-	 YtrvaPR2UcImBy1RF04VfWu5uhI7PwdtFl2pfQupUFs4KKanD/UYI6Xq0wZlZBhf0QUKg
-	 0cN7Cw+ESGALNHGpjqXnH5PmAccazthFfdaYgdnchll+S7Yd+sR5vsUPiVy9JX/sGRg==
+	t=1792596696;
+	b=Ur0g6myQ/0Tg9Ov92xrEdWVpub1DXzT9vROR1UGWq7pT9zjU9XA+jcWaKbVpWeU2RAC1
+	 caQixETX/3W311gr86uVIwk/aw+XqYovNHsxqKee9Vp8X0gmwMVHmbFHEfneYuEnHUwcF
+	 quQB+oyIH/IvjsbP0w1Bco9e70ovLiiyKpVAb5ITIUspGvjM0kcy5JuIHNUDU+RFtukxG
+	 JxQS27iHINbaFDikqfCf7tBv4wf7KWs+c2MTfsR8+HGZQWoSVACHeDdp0Jmzm3zeuOOB4
+	 odhnLhBxFY8VG99+svJLDpoWcNPKQUPxy9fslcCRu6kpyiES3+aLClY0VvLSKH85s3A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792591377;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=fDLM2uSdaow9LokFw0VaDIv/9QOPzVgEmcb//BHgPyM=;
-	b=eC0qQ10fkCB32bojVCO0Ge7Es0zdHEfZyino4JQoaGa8Ea+5VtiYaCqXU0iEkf/GiBoO
-	 bbqIcYYUA+NK9XCU9g6wVwlVYjrx4t/ZHoeOqHOLYXGRnmFx4+jOd/nMXf8Pzl6Lfb7ia
-	 1Nc7rer1zB4pG6AAmaINsEZ0xa3GoMztDxZQgs3ldgxejQAahxQdUXI7+LrBILNQDKaKZ
-	 K3pIqVaVpTN37HhCNJ1CC/lO7eDnuM8frLMvrHR0C4UdGjheuc1Ul9nnSQoH9CcMegi5i
-	 G7DRlxdO2TDEPPOwiFQ6U1UgzZXwpWbXvr90BobeoscGEAirdEjkROuV++TE650BIDA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792596696;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=PbLaUAqi4Qq3J1XvmxKzYE8IzcX5IC1tbOzRiCo+zZ0=;
+	b=suAa6+CBXDzYOSX0JQ4OHQIvQrDZPfl03Qlswv6x74XPe+06Dwbjni0i6AigQH13472Q
+	 9LByXGcu9nTXDHo0/K2iYi2y8HFWoqREHMPtkA3CfHDWQG9EW0109bF+layyf1vbFrqtU
+	 6tvl95i0Gy7tkCMdNhpC6qQ5x+kKdC9oewyW7Ja8e0i+jVVISdV0sHkZLC7iq1TiH/Lj/
+	 +SnlryXpQul53/APnSk5AxHeWKot6ny0RWvymQVYRkjVwVW3+OPZ8lkhI3Ug/4UzUomX2
+	 K3EJPddwEmpXfSfZAxbqdalOAAtaPLn2sS0i8IPtjWbIXVjBH6WjE9sSSmnb3dcOskA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=OUA8VE9V;
-	arc=none smtp.remote-ip=192.198.163.8
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=bQFyhHRv;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98D05606A31D;
-	Wed, 21 Oct 2026 14:02:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 98D05606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E3E606A319;
+	Wed, 21 Oct 2026 15:31:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=OUA8VE9V
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792591374; x=1824127374;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=6TcpUU+U6JP4MXD+j4bO+YP5IabLS7DHZ5gJkyB4Sa4=;
-  b=OUA8VE9VlomzQ9ySAxgQDPJtkfHVZW9TwNJXT9Ywx1oiCdAA8Ecd4Aef
-   EizK+tZE8RVNa+f5eHjVetBF0m1YWo2r8PtLGDE8r9fjngmRGRgx6nJVN
-   uQg90Cn5QIbz60ayEiLGDeTe3VOSGsZKYsvdSPUktNpUoPVY1XOAmdor2
-   f/7N4xQO2p3j1prVfWigHu9rbstQgko/xtsShO0qn0iKYPzWFgTbYfVEJ
-   RJJkcm19w+Bfp5lKh+4+4/VGWkisQvJ72Oqp8qrPiU58zzKwEZOfnTQLF
-   2j98t4c8KmrLk5EFqhEmtsuV5w9hBJS+8OgVAMCktq/Ozfijn0evHAxff
-   w==;
-X-CSE-ConnectionGUID: AAALVXWlRE25Hh/uefcPDQ==
-X-CSE-MsgGUID: R0mSUPKNTpyUmzcktM8aew==
-X-IronPort-AV: E=McAfee;i="6800,10657,11942"; a="1214489"
-X-IronPort-AV: E=Sophos;i="6.27,170,1787036400"; 
-   d="scan'208";a="1214489"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2026 07:02:51 -0700
-X-CSE-ConnectionGUID: JogAVmmJS02mlCCCTu7pTg==
-X-CSE-MsgGUID: iwCDsb9RRXOAkFMEYHMsEw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,170,1787036400"; 
-   d="scan'208";a="3416326"
-Received: from cpetruta-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.24])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2026 07:02:48 -0700
-Date: Wed, 21 Oct 2026 17:02:46 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Lee Jones <lee@kernel.org>
-Cc: Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
+	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=bQFyhHRv
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25811F000C1;
+	Wed, 21 Oct 2026 15:31:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1792596695;
+	bh=PbLaUAqi4Qq3J1XvmxKzYE8IzcX5IC1tbOzRiCo+zZ0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=bQFyhHRvtFr/uBBG+fW6imD15FZ0G0ahkNtOsSM9UoUtBaqRE9vgITc7zf0lhA7FE
+	 R2+DFmqyFhWP1f7uQxE2LFZPxL0sdKt2xWqS2Hzf6kcFoly2LIJWkCTs0ktxMd0Zaz
+	 3p55sQWaZiHD8hM84Q+yyvqO2mlgWhNEkyohdfGQ=
+Date: Wed, 21 Oct 2026 17:20:31 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Shihuang Liu <shlomojune6@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-hardening@vger.kernel.org,
+	Marcus Folkesson <marcus.folkesson@gmail.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Shi Hao <i.shihao.999@gmail.com>, Rachna Patil <rachna@ti.com>,
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, mfd@lists.linux.dev
-Subject: Re: [PATCH 28/28] mfd: ti_am335x_tscadc: Remove redundant
- ti_tscadc_dev_get() helper
-Message-ID: <atjGBg9IAnPPBRmX@ashevche-desk.local>
-References: <20261021121245.3111563-1-lee@kernel.org>
- <20261021121245.3111563-28-lee@kernel.org>
+	Ville Syrjala <syrjala@sci.fi>,
+	Henk Vergonet <Henk.Vergonet@gmail.com>,
+	Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/6] USB: add usb_make_subpath() for formatted device
+ subpaths
+Message-ID: <2026102104-audition-unbraided-05d1@gregkh>
+References: <20261021123146.17202-1-shlomojune6@gmail.com>
+ <20261021123146.17202-2-shlomojune6@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -88,23 +61,21 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261021121245.3111563-28-lee@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20261021123146.17202-2-shlomojune6@gmail.com>
 
-On Wed, Oct 21, 2026 at 12:09:50PM +0000, Lee Jones wrote:
-> Now that ti_tscadc_dev_get() is a single-line wrapper around
-> dev_get_drvdata(p->dev.parent), remove the bespoke helper and retrieve
-> the parent driver data directly in the child ADC and touchscreen
-> drivers.
+On Wed, Oct 21, 2026 at 08:31:41PM +0800, Shihuang Liu wrote:
+> USB drivers often build device paths by calling usb_make_path() :and
+> then appending a subpath. Several callers use the deprecated strlcat()
+> API for this.
+> 
+> In preparation for removing the deprecated strlcat() API[1], add
+> usb_make_subpath() to format the USB device path.
+> 
+> Link: https://github.com/KSPP/linux/issues/370 [1]
+> Signed-off-by: Shihuang Liu <shlomojune6@gmail.com>
+> ---
+>  include/linux/usb.h | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
 
-I don't see more patches Cc'ed to me, so I don't know if this one makes sense
-or not, but OTOH I don't care much, both approaches are fine with me.
-
-Acked-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+Did you forget to use get_maintainer.pl for this?
 

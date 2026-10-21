@@ -1,77 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792602793;
-	b=wPo97eAWLHchx+sk8rMpOpkVBcX7G0se4IN7tEhshqo0kmlHzyh18lbDpc7wriIE0ykd
-	 cL1Vcr0RQ0/SCP25MWnQU4OGPaMUd4WmvZ8uccZaPxxquBZPMj0zAH03psehn+AQNjXX4
-	 lQiZR1u9/UXwWXrZeKyvMC+5T/f1sj0Br2zevo1xsRqxK7RpwtDOmeXcY6nEmsbDe1swF
-	 4YEQwZVCki0rgpocEbVdu6uA/cF5BT220tWRGdWon9Gc+3UFJ+/4tuLvTOUfHYRYYwuXJ
-	 sfySU9+0YDD7CDrZ1T4kwWaZZ305ajt0u37EtCDtBTN+OrQEeTRgKb0fHgW8r9s9x1A==
+	t=1792602948;
+	b=f67lpdNWfSTnhs6YOwjIyNWNIn5LpApe9L2yRO7zGDaNi0R+k8pyPaky3G0h1ggm/IPS
+	 mw/ygRMniEX5UgtlfS7L8TBaLd6RBSqBW9wqthqUjXasOIs9dZxDc9jLjt1yXbQ3mCVDd
+	 ijQsrdXN6ifHPd3tXwBzGWaSZHYFBRXaqZZNsNwmkWe4/9cagNj3nlleWqfX3BAWEQzso
+	 dK4dJBLc+7+o2cM/H9qQtVJHUuW0U2/j2LdTTSB6JDOWPKQJuY7NYfxLCSbCtYZ9ClaDa
+	 8ZC7AZ9tBnvP5zTtGcbqJOjuat1v6FZA/e05AKFnUEwRT0GG3gjbqXjilfgPhMHmQDQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792602793;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:Organization;
-	bh=rkKvJMcNlYtK4WgVFyqLjlbKR7Ee577Xp+OAr33Prtw=;
-	b=oZnN5KiU/keu8/RJ36yvloZjW9n5UQBXZ4ZBxHYnp4VqtpezT+YWm+SasY078uPFZ7sJ
-	 lCsEVvp3JtGXxNvCxNM+Suyq5z64BXqmFtpjsc56tNCfUJgjQyxTCThEBtORNcQi/nNWn
-	 RE7Brp6FuT20gDb4uLmYDZwK8ekxzdMQEdXt9foGHRUKnVQivDdYRMnpq+9lsNXOAmykD
-	 EDrNVeH+wNC7EtpzGYTEZir9qI6ZFQhQNmztoO/+SfvDCq5/raUuwNtA3Otk96MFFEHWT
-	 1Pqv4FMo4OW/w0L08/r/fTp3KPDxuqm4sAGjgfYWDjD7mRENE0kLIHRvVmiCpYKkd2w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792602948;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=p9BvQ0VeluCXAWmqoKdFU0SfBt1q6ntM16zBa5vzFtE=;
+	b=YtZuV3MMaRIRnVIVCHWt5Gh2G0ynFp4yJf02HG+bS0BcDuAdw4SZLJatPiR1lFala7K7
+	 WGqvBhSSmA06ia4q2jEH/MtJkrr+WtNDxQIvgaBYkHnmEUOZ1+NwMzAeysZlmCtZ5/ujW
+	 kLfu71Obtth8DeomVYh4XqK9T0ynXLO93Nq5Er0zGBFHyXs3zeHoR0cvBp8vEWyITUUPj
+	 SbQxT7agH8PHS4hhSCRytlFx7Zq6+FKI4Z7Up3RdK4l3UgXsLUF76Isy307kS1E9htV5H
+	 ALI06w/ixs9xAMeo7O6D81gGzmnBgYBkvKtl5vTM7ndA+22MGK0J4/8db35VpT2gIUg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=DEsxE467;
-	arc=none smtp.remote-ip=198.175.65.13
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Ld2Q6zjM;
+	arc=none smtp.remote-ip=74.125.82.51
+Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE14D606A31A;
-	Wed, 21 Oct 2026 17:13:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DE14D606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05A39606A319
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 17:15:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 05A39606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=DEsxE467
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792602793; x=1824138793;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hoR1fALggNIJg7ge3SbfZZWzt3TtjBehebEjM7ZQRUA=;
-  b=DEsxE467UvLKTS4M5cPysxwqU/CK5V+A+K/314k59tU0t8Sk9RifOW7z
-   q83MeWnt1jiw2Jq0smzj2MAezEF6wKseigBXunUz/vQ5aw1G3taP8zO9l
-   N3OTRvtQnHszM2GqVoboh8UzY/LczMicep8GI1+qleZLkBfaNz7r9THXy
-   EMgIqKO2c8iIdLIGrCGxtIKNGhZyOcNRdQReR/ir/NgmDW/0xXNTMkzJz
-   TGBjxGu2Oea1wUYCnpznPRb1SAiJN04tSThWtHIPfEL/WsRTFComPNA2H
-   DXwefbMCJuTXMv6djdRme7r20l6xJ5R9DWGQLwyD7KPELIdpIsfq5jnxX
-   A==;
-X-CSE-ConnectionGUID: vtSJ4R2zShO/rIs+6Tl0og==
-X-CSE-MsgGUID: slAXG2ifQE6Jf769ncnKrQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11942"; a="1211229"
-X-IronPort-AV: E=Sophos;i="6.27,170,1787036400"; 
-   d="scan'208";a="1211229"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2026 10:13:12 -0700
-X-CSE-ConnectionGUID: C5utkEkyRKWpEVmugHT44Q==
-X-CSE-MsgGUID: k1Fvf6UJTjyGNUPT7isgPA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,170,1787036400"; 
-   d="scan'208";a="3196404"
-Received: from cpetruta-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.24])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2026 10:13:10 -0700
-Date: Wed, 21 Oct 2026 20:13:08 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hansg@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andy@kernel.org>,
-	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] Input: soc_button_array - convert to software nodes
-Message-ID: <atjypFBUGPzWv083@ashevche-desk.local>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Ld2Q6zjM
+Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-15943c9c005so1156878c88.1
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 10:15:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792602947; x=1793207747; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=p9BvQ0VeluCXAWmqoKdFU0SfBt1q6ntM16zBa5vzFtE=;
+        b=Ld2Q6zjM355/jbQmnQs79eZACeQtT9eZSUVIhd5Iysgzp/Nu+p/pKOhTu/WWo+Bi3Y
+         YDzHPb2GMQHGcgieRnH8M0yHs3S9ZbhX1D6HK1y241SRPxSYmYl7PNYV1Q/joCXTVlzd
+         LJLLmhyTdlossdq5uzo44GcuqvolB85SLhiRRzYkSl8SOXAIoSbQtfPnkaQgh4+yERQX
+         CZZxz4E+lpVBHfyGibdgqyKV1xePoLNyaZV2NlQMl3P2WugENL4CG5tyZxDwT9WuCliE
+         gcCMOywWQLjW+cwfz4o5eXweG1or6tmqp92Q5Kjf+ZlvBAxvas1gTdNLK6KgCEECqQk0
+         NAHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792602947; x=1793207747;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=p9BvQ0VeluCXAWmqoKdFU0SfBt1q6ntM16zBa5vzFtE=;
+        b=Jy3wD731fhSrssfGUeKG3Uko96MAvhTkDwZ8Yd27JOV1aWLh2qf7a/iNFI7Ue5j817
+         I3PxhqssXwAio2cAyd+4KdHlf6oaADUcM+vFtYt5WA0CANHDCdlJmxHd07SZYuMG8+vd
+         O1ssdoQ1cF8r6AzpnRgZNMArgT3V9+/05Ya2AsPJ3fFE8vluKM31ezsSRDWO2Xvf2kJl
+         ei/nTL0/eOCsJ+IQvOmQ/Xml6PvgxS+5AotxjbEVKPHzp2Ep2H6XSqQVwMDABTKhD8WS
+         R17y8Y0kTyfmeh/KVqSN2dgl1SdRPGo2JxtsGI6qpuPMly1iN5MAA7pgtDKjYnx0Q8zU
+         5PHA==
+X-Forwarded-Encrypted: i=1; AKwUvBwTNPJDLg8cGH3cInTmWL+3BS4ql7FxYKBw03KDwTIMN2xiCgjNVTDSmw/I1eAwQbvV371tGuC9h5GLSg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJ4H1gaOXUHNpwKfcbBON3KI96WG7gjEo1uF93w6968uN95IFLQ
+	lCLxo5pDVzAQQtZ9G/NYPjFIkgm8Vyqy3APnZYDRrdBSQFjfufZbghot
+X-Gm-Gg: AYBFou2dkEWooDJDwp7CDmeXVBp7HAOtyCBDF9VhJbJ7MB3f2QTEAAR1H1wYbxr7Nak
+	5D8S/+/7cK9DTSrLxENxIZoDxFXnTbjt5Fppmqt6sP4A1TV9ozMTzCccMSaEQ/7P0OtVg8R6mxt
+	XOjMpyIx4xZ2k4mrKtIARG5JSZnnktyw9J1JtdnuKMrBiJBfGs6pDa6xPmRJB5czd087S+KyUGr
+	xdCuV5uAAamLl4xvIWhgHp2KZ9x2cdqf+vmrWYRaUwR3iym/T/xN5Jx+aDVgX1DSUNEHkqkCCON
+	QsHoGvr2KO53yiJMjpKA8b3ecQzlfGHcWDNU2kWiC7byGofFI43llpRT5FoqZKH0CNV3/zfFlSU
+	0O08FrHo5eg6yl//yCUhvImSjTAbLlwJaN5Jz71kLXGf02XNpEcQjqZmVXsVcrzDO4CUVLaR2nq
+	sbOz4BB68pDDfQUZ3olRX1iKcYbKAo7qqpWEToOTYMLgHA0Cchmvvuc1th3RIDEToyFdZlAErvT
+	KbCK1CxflRBcEG39hU/bgDXqyGRev3p5U1vzdTcocXjX1gq7XiiGkkwWwHtSIX5J8qhOhNXr0rT
+	9DsNk3HkqaRLhOf7cUXvkw==
+X-Received: by 2002:a05:701b:2914:b0:18d:96e8:b913 with SMTP id a92af1059eb24-190a9eaab7amr2994159c88.47.1792602946836;
+        Wed, 21 Oct 2026 10:15:46 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:92d1:8038:c4e7:1f0c])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-19035926fe9sm6166666c88.2.2026.10.21.10.15.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Oct 2026 10:15:46 -0700 (PDT)
+Date: Wed, 21 Oct 2026 10:15:43 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: Hans de Goede <hansg@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andy@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] Input: soc_button_array - use __free() cleanup
+ facilities to free memory
+Message-ID: <atjyyqxnlqEvwNxh@google.com>
 References: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
- <20261021015004.1537738-3-dmitry.torokhov@gmail.com>
+ <20261021015004.1537738-2-dmitry.torokhov@gmail.com>
+ <atjw4b-ICVGH3-2a@ashevche-desk.local>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -83,104 +103,25 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261021015004.1537738-3-dmitry.torokhov@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <atjw4b-ICVGH3-2a@ashevche-desk.local>
 
-On Tue, Oct 20, 2026 at 06:50:01PM -0700, Dmitry Torokhov wrote:
-> Convert the driver from using legacy platform data to using software
-> nodes for registering 'gpio-keys' devices. This allows us to
-> transition away from platform data and use generic device properties.
+On Wed, Oct 21, 2026 at 08:05:37PM +0300, Andy Shevchenko wrote:
+> On Tue, Oct 20, 2026 at 06:50:00PM -0700, Dmitry Torokhov wrote:
+> > Switch to using __free(kfree) cleanup facilities instead of doing manual
+> > cleanup or abusing devm for allocations that are only needed during
+> > probing.
+> 
+> ...
+> 
+> > +	const union acpi_object *desc __free(kfree) = buf.pointer;
+> 
+> Rafael added 'acpi_object_free' for __free() (pun wasn't intended :-).
 
-...
+Not sure why it is better... It goes through ACPI_FREE() ->
+acpi_os_free() wrappers which might be nice for ACPICA code, but has
+limited utility in the rest of the kernel code...
 
-> +static void soc_button_remove_swnodes(struct fwnode_handle *parent)
-> +{
-> +	struct fwnode_handle *child;
-
-> +	if (IS_ERR_OR_NULL(parent))
-> +		return;
-
-Isn't this redundant? Because the following has it inside already.
-
-> +	fwnode_for_each_child_node(parent, child)
-> +		fwnode_remove_software_node(child);
-> +
-> +	fwnode_remove_software_node(parent);
-> +}
-
-...
-
->  	const struct soc_button_info *info;
->  	struct platform_device *pd;
-> -	struct gpio_keys_button *gpio_keys;
-> -	struct gpio_keys_platform_data *gpio_keys_pdata;
-> +	struct fwnode_handle *parent_node;
-
-Can it be one line down, so we keep reversed xmas tree order?
-
->  	const struct dmi_system_id *dmi_id;
->  	int invalid_acpi_index = -1;
-> -	int error, gpio, irq = 0;
-> +	int error, irq = 0;
->  	int n_buttons = 0;
-
-...
-
-> +		child_props[prop_idx++] = PROPERTY_ENTRY_U32("linux,code", info->event_code);
-> +		child_props[prop_idx++] = PROPERTY_ENTRY_STRING("label", info->name);
-> +
-> +		if (info->event_type != EV_KEY)
-> +			child_props[prop_idx++] =
-
-> +				PROPERTY_ENTRY_U32("linux,input-type",
-> +						   info->event_type);
-
-Make it a single line, you seem use 100 limit anyway.
-
-> +
-> +		if (info->wakeup)
-> +			child_props[prop_idx++] = PROPERTY_ENTRY_BOOL("wakeup-source");
-> +
-> +		/* These devices often use cheap buttons, use 50 ms debounce */
-> +		child_props[prop_idx++] = PROPERTY_ENTRY_U32("debounce-interval", 50);
-
-...
-
->  static void soc_button_remove(struct platform_device *pdev)
->  {
->  	struct soc_button_data *priv = platform_get_drvdata(pdev);
-> -
-> +	struct platform_device *pd;
-> +	struct fwnode_handle *fwnode;
->  	int i;
->  
-> -	for (i = 0; i < BUTTON_TYPES; i++)
-> -		if (priv->children[i])
-> -			platform_device_unregister(priv->children[i]);
-> +	for (i = 0; i < BUTTON_TYPES; i++) {
-
-At the same time this can be transformed to
-
-	for (int i = 0; i < BUTTON_TYPES; i++) {
-
-> +		pd = priv->children[i];
-> +		if (pd) {
-
-		if (!pd)
-			continue;
-
-?
-
-> +			fwnode = dev_fwnode(&pd->dev);
-> +			platform_device_unregister(pd);
-> +			soc_button_remove_swnodes(fwnode);
-> +		}
-> +	}
->  }
+Thanks.
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+Dmitry

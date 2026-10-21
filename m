@@ -1,60 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792610390;
-	b=OgSFMGsNS55ifX8C/NcxpZjZAmZNRnX4Hzfsk3mx8pLPpWHyAkIunIV6yxqia4RvvnMl
-	 FHFVAYCyh1gdpV3tmQt8QtbK51h7U2krG62N8ZMC+uXQahlnQU62aTlDSu46ZBLfBd+u9
-	 t8xNhQaQGJebFoYRusCY1FtvbQoWJF6pfjblfMXMHioqD0iyBtW8IWC27S3CwWQ5GAys4
-	 nR730cTjKNpaEao2Z1qRdG4XQlZWXcrtYsyVAGx0dAkHiPnkpnL++tny41k5N+uy89OtP
-	 D1Us2q7CkB0z03V5vy3c3lUCNvIcClgsEzd4y86cv4Zx2S8RFNghVFBY1ZYgE+b3hkQ==
+	t=1792611022;
+	b=RiBWit4t/wFFawPGRlQiu1+Z2cWLjoGdVI8pa5WXyoBaWgnQONPX2jgjM1/Y3ER1oK/E
+	 aK5YVmZHW+3jvRMWleR0fgMGNJ8NQ0pH0kp/8CLfAj4y17zXMSjy+cISg+/nF3GQtMtrM
+	 w5XQ5DNrOx76ID49F7Tic/Yx501b1rTpzjq2njUPfJvtw8FATOMHJR8w7H/gt+mKeeQUF
+	 kSWjyGIumYNqvxbwSoD0y/lN1sps25WJ73c1lxTqafBL4KzWTOeVoRpJCfE7wMmkX3wao
+	 qu6kNVl2VrDXpOWfgDHZ3BKhED327MRKI1j/JnPOZURcPf5OpKoDqERRYIAmHv4MPug==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792610390;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 In-Reply-To:References:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=ubD8jlES2r9JS1ilGa+r04b+PuxqIhs9kd1HnDejkPY=;
-	b=sj+mKhOhgH0RIdwqQRwsojsXPMDndU84ggtJJDMng3Gje8ZdDTn0kl4clbtI4V9XPIQz
-	 TPcTez20GZ/OYqgh9mrJT/PAqCI4beHGZ3P8yTOVue5HDgnYGgvhC7CfBuQkCPNqN/J78
-	 QDN1MN6lTg/Y/NcDuBByLz2tEjrxgQz7IF4bfysF6ySyrXKLq7RgpQYukBb+SR20tWzCw
-	 1F2UcQ46eWsTySWOeO2TLuLbwyxlr8gEU3cbACfhyNtYaqDL1avsNsIstrx1LPPvDHwBA
-	 4C2X59+ZmHX2dsD7IPQTYz7nR5ayPtOduKJXjB8pAb7gr+yb54xvD8FjLBdHqpTr/6Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792611022;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=FVem4HDPdj0ylTWviCW9/5t/RL/Ax9AlEndJECBbr54=;
+	b=3lgy1LCGBzVsyVfIuqDnwABDMk0PmLepxp3hRXIa8uYhLXJaD57ZuTVoASmJskZb0Lpb
+	 sBiyVEl2QCHfNGsCj6sX9uwT6rEu9hrwsUgbsd90OU9ZYcNmXl22+mIegPWzJJbbE6kIw
+	 yProLCHE/DkEvImWm0PTYaxSStaQWdIeDgWJ36/w4SiZj3uZGwVSCXZGpbQjf+YdiTzUe
+	 wf3vLo9d2GrXuOtgp8Hmg5+PRY2Wf03gVYZTiILZ4u/kbloa7TPz9YyatJbcDVsoQrCMc
+	 8KPnXevmn52oFgIPex/gAuikDG6cKPluQaMZown5mB1jTxbgPVnvmynWfkDpojl1rqg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BbA0vOuq;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ebe0LduK;
+	arc=none smtp.remote-ip=209.85.222.53
+Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com [209.85.222.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13DDD606A324;
-	Wed, 21 Oct 2026 19:19:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99702606A31A
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 19:30:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 99702606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BbA0vOuq
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A0E71F000C2;
-	Wed, 21 Oct 2026 19:19:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792610389;
-	bh=ubD8jlES2r9JS1ilGa+r04b+PuxqIhs9kd1HnDejkPY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=BbA0vOuq4XksLwfEBfKH0Mg/HesUwrzRg3nbNBByJuoIfwSj//7JtxU8UX2urpuiC
-	 y9CD6iqC8wPLe24M9fSoQ2xx022IoaPUW5IxH0wRyb/NsVbvuEEqiVGyjaKg4Aq1EM
-	 m+qfMkt5WpvQtVgBW9uQoijmRNfqCAhn+CXpUvZrPZ5Inc1nVUO0TWy1yN91bAjvW0
-	 OQw+dWJ9Lvt4fF6XS6kWV8Zu5tvjIVOLZzxYX+GqPmC0lcEfcqZH1HjX1Qwnbb4ouf
-	 P2ZAzQhs7KqMHMkMfeFXIkJFi5pfVYStj779wXkEBjQvkonBRoH+eo2ssWNaDT4UcG
-	 t2cJpPkALSe/g==
-Date: Wed, 21 Oct 2026 20:19:43 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Lee Jones <lee@kernel.org>
-Cc: David Lechner <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?=
- <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>, Shi Hao <i.shihao.999@gmail.com>, Rachna Patil
- <rachna@ti.com>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, mfd@lists.linux.dev
-Subject: Re: [PATCH 28/28] mfd: ti_am335x_tscadc: Remove redundant
- ti_tscadc_dev_get() helper
-Message-ID: <20261021201943.6159ecdf@jic23-hlaptop>
-In-Reply-To: <20261021121245.3111563-28-lee@kernel.org>
-References: <20261021121245.3111563-1-lee@kernel.org>
-	<20261021121245.3111563-28-lee@kernel.org>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=ebe0LduK
+Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-99075306daaso589220241.3
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 12:30:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792611020; x=1793215820; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=FVem4HDPdj0ylTWviCW9/5t/RL/Ax9AlEndJECBbr54=;
+        b=ebe0LduKx5Zxrv4TLRZSOx7scv/d1CtMFA5nivOaBt7J8XXZcGqpOzT/z7Ix+bMIiR
+         aHfYde+pkHxPrPXk3eV5LM1fzf3w8XcfRME5DkrFbB6Q1NeooM5TBdAB0GQNFv5cacoe
+         jTT7PIxjsYi7Ox++xCQpoaX8z8M30QvVxkIje8yPwBnxdFl7gLkfUgUNSc578ceEtgUs
+         17mfRuf0sz5o5q+kbZl9eidhP4HKLZFtEHLU8yb+3Y378mbxUE4PoZ/K40jj4PP8i9gh
+         STxKDvHh/DZMZ005TX0g+wiTGX+MuL2K3XMC8UFwcTsUDqrLM9R26ar+IFHB5t9NNh0H
+         RCzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792611020; x=1793215820;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=FVem4HDPdj0ylTWviCW9/5t/RL/Ax9AlEndJECBbr54=;
+        b=2oshiQUn8/TGoAkpDhT5p4ItD+ZH++ouHA2u+qtGi85DbYK+xlrHhZfLfYXK5VZF20
+         t2QAitJB3PR1uiyLPPDbAuWOt9YYIeCBOqtbLgz64Ey0Ho5K/0mxl/4nBeRoPxbbt2JT
+         TsVGT5nRgonxRax8GWHUJ9+lBpzqx72lXkkM6wqSdffqJGpHJ59WikxIp/CwNkz9so3i
+         q7kkWnyv11/E+GP3YbTrQZ5QMIXrfHzUVpXu4dflhXayKX4sFcZDFcp45PmjnqrN96g/
+         oowJs1egON/cCFfI+LHkXVNPPwhBy1kemqXzn44TySK3WNQjg3Mg1+qiFO7h+fP51mAT
+         s4Bg==
+X-Gm-Message-State: AFq9FYIXQ/+irVZ05u7YYMzV8zCfSadq9/Ivi3KWVdaz03XTMMzoyWTM
+	dh2GHFxeEIdACg7qIIsZaxREXB9RjLW7hIEN/WfSK+6FT9No4+MUifaQ
+X-Gm-Gg: AYBFou0zLi+xs4SAHsNBDc/5BQlu/O31Z26v7pzktJ1jpT2XckenxoUCiZq4k4noARY
+	xGrXLIAaLJ9oT+BfY0xeaJ3TP4+s44vR7yPpOGbc/sdtvATCYNUN1n1uS9f2Xy2dVBuhO+zeMS/
+	i8FVoA9mE6graDSimyVwBNLt2/tndQYv8KtfidCgrlxraEJlqtWeOkQ1uefRESOgVGMRllqQko9
+	LILQw5QcUp87vPx5g6qlIQFOd+X2XO+KMSDbOvHEuRdJPdAs3zJcVGaV6XJWUzj4q58NQxHQOJZ
+	Yu2VjYxuSpBPPzHYgJNPZVOmTMsSDlG0DgPrGGqnmpiA2QxvQsrHs1eIxLVJb2N7P/j/03T/sAL
+	gmfNVXEaCgpWKBxoKhKTA/DOfDglmdyjv9OC1P7vGldNqZsugV928uGWDo14JmTTx0wrlhrBvFh
+	hShnBfCaI+4Gb78Z0zfkZreKyn90iebL71nv7VUrkBDm0EL/oo7R8bwFtzJh2lbD4HF3Phgzp/m
+	+GOjVII4WRPbZARpfYIjLMqD7+Abe1LQDn0lL2SDPbF5ocHQJCoxGUw4EiHkcexkTeU6hfLot7I
+	frfyucOsz6sUUsCZUJyc+G1Uunx5O5rCNxM/YL2x4bHJ6DL1093qOiPsX6Vet0MnxB1ZLhk6kzq
+	lKSaKsZREZEeZXtVq/ZlhGQD7bg+boGOUldgbgWJdMR5uRBWq9oTPMGQxRBs=
+X-Received: by 2002:a05:6102:f81:b0:7cc:80ba:5e5c with SMTP id ada2fe7eead31-7cc926283abmr1384658137.6.1792611020525;
+        Wed, 21 Oct 2026 12:30:20 -0700 (PDT)
+Received: from bruno.localdomain ([168.194.106.37])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-990d11db523sm4136093241.11.2026.10.21.12.30.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Oct 2026 12:30:20 -0700 (PDT)
+From: Edson Bruno <cloudflare.ddos21@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	eballetbo@kernel.org,
+	sebastian.reichel@collabora.com,
+	Edson Bruno <cloudflare.ddos21@gmail.com>
+Subject: [PATCH] Input: exc3000 - zero-initialize vendor response buffers
+Date: Wed, 21 Oct 2026 16:28:02 -0300
+Message-ID: <20261021192803.776-1-cloudflare.ddos21@gmail.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -64,71 +96,74 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Wed, 21 Oct 2026 12:09:50 +0000
-Lee Jones <lee@kernel.org> wrote:
+exc3000_vendor_data_request() copies up to EXC3000_LEN_FRAME - 1 bytes
+of device-supplied data into the caller's buffer and returns the length
+reported by the device. The callers (the fw_version, model and type
+sysfs attributes, and probe) pass uninitialized stack buffers and do
+not check that length.
 
-> Now that ti_tscadc_dev_get() is a single-line wrapper around
-> dev_get_drvdata(p->dev.parent), remove the bespoke helper and retrieve
-> the parent driver data directly in the child ADC and touchscreen
-> drivers.
-> 
-> Signed-off-by: Lee Jones <lee@kernel.org>
-Acked-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
+If the device returns a short reply, fw_version_show() tests and prints
+response[2] and response[3] uninitialized. If the reply is not NUL
+terminated, the "%s" conversions read past the copied data into
+uninitialized stack, which is then exposed via the world-readable
+sysfs attributes.
 
-Seems moderately unlikely we will get a flurry of activity on
-this driver and if we do merge conflicts should be minimal
-so no need for an immutable I think.
+Zero-initialize the buffers. At most EXC3000_LEN_FRAME - 1 bytes are
+ever copied, so the last byte stays zero and the strings are always
+terminated.
 
-J
-> ---
->  drivers/iio/adc/ti_am335x_adc.c           | 2 +-
->  drivers/input/touchscreen/ti_am335x_tsc.c | 2 +-
->  include/linux/mfd/ti_am335x_tscadc.h      | 5 -----
->  3 files changed, 2 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-> index 1516dd332f90..77ea59d6c6b7 100644
-> --- a/drivers/iio/adc/ti_am335x_adc.c
-> +++ b/drivers/iio/adc/ti_am335x_adc.c
-> @@ -636,7 +636,7 @@ static int tiadc_probe(struct platform_device *pdev)
->  
->  	adc_dev = iio_priv(indio_dev);
->  
-> -	adc_dev->mfd_tscadc = ti_tscadc_dev_get(pdev);
-> +	adc_dev->mfd_tscadc = dev_get_drvdata(pdev->dev.parent);
->  	tiadc_parse_dt(pdev, adc_dev);
->  
->  	indio_dev->name = dev_name(&pdev->dev);
-> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> index 623546e80668..40ffdec9d207 100644
-> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> @@ -418,7 +418,7 @@ static int titsc_probe(struct platform_device *pdev)
->  {
->  	struct titsc *ts_dev;
->  	struct input_dev *input_dev;
-> -	struct ti_tscadc_dev *tscadc_dev = ti_tscadc_dev_get(pdev);
-> +	struct ti_tscadc_dev *tscadc_dev = dev_get_drvdata(pdev->dev.parent);
->  	int err;
->  
->  	/* Allocate memory for device */
-> diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-> index 4a048a897cf3..36d365b64fe6 100644
-> --- a/include/linux/mfd/ti_am335x_tscadc.h
-> +++ b/include/linux/mfd/ti_am335x_tscadc.h
-> @@ -175,11 +175,6 @@ struct ti_tscadc_dev {
->  	struct adc_device *adc;
->  };
->  
-> -static inline struct ti_tscadc_dev *ti_tscadc_dev_get(struct platform_device *p)
-> -{
-> -	return dev_get_drvdata(p->dev.parent);
-> -}
-> -
->  static inline bool ti_adc_with_touchscreen(struct ti_tscadc_dev *tscadc)
->  {
->  	return of_device_is_compatible(tscadc->dev->of_node,
+The problem was found while reviewing the driver with an LLM assistant,
+which also helped draft this changelog.
+
+Fixes: d862a3068ea5 ("Input: exc3000 - add support to query model and fw_version")
+Assisted-by: Claude:claude-sonnet-5-5
+Signed-off-by: Edson Bruno <cloudflare.ddos21@gmail.com>
+---
+ drivers/input/touchscreen/exc3000.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+index 037bb35238a3..40d74f6deeb8 100644
+--- a/drivers/input/touchscreen/exc3000.c
++++ b/drivers/input/touchscreen/exc3000.c
+@@ -262,7 +262,7 @@ static ssize_t fw_version_show(struct device *dev,
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct exc3000_data *data = i2c_get_clientdata(client);
+-	u8 response[EXC3000_LEN_FRAME];
++	u8 response[EXC3000_LEN_FRAME] = {};
+ 	int ret;
+ 
+ 	/* query bootloader info */
+@@ -292,7 +292,7 @@ static ssize_t model_show(struct device *dev,
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct exc3000_data *data = i2c_get_clientdata(client);
+-	u8 response[EXC3000_LEN_FRAME];
++	u8 response[EXC3000_LEN_FRAME] = {};
+ 	int ret;
+ 
+ 	ret = exc3000_vendor_data_request(data, (u8[]){'E'}, 1, response, 1);
+@@ -308,7 +308,7 @@ static ssize_t type_show(struct device *dev,
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct exc3000_data *data = i2c_get_clientdata(client);
+-	u8 response[EXC3000_LEN_FRAME];
++	u8 response[EXC3000_LEN_FRAME] = {};
+ 	int ret;
+ 
+ 	ret = exc3000_vendor_data_request(data, (u8[]){'F'}, 1, response, 1);
+@@ -410,7 +410,7 @@ static int exc3000_probe(struct i2c_client *client)
+ 	 * or two touch events anyways).
+ 	 */
+ 	for (retry = 0; retry < 3; retry++) {
+-		u8 response[EXC3000_LEN_FRAME];
++		u8 response[EXC3000_LEN_FRAME] = {};
+ 
+ 		error = exc3000_vendor_data_request(data, (u8[]){'E'}, 1,
+ 						    response, 1);
+-- 
+2.53.0
 

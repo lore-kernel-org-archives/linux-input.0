@@ -1,57 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792623056;
-	b=d4CwzdbZGKfeNfuHlL9aEPdl689SmZ/stz+bm5HUv2qfY6SdDrUDwRCC9AgdQkoPdwDT
-	 oOukKfcn+dTvRGJao+djwC3tBafwMWq+dAQgwfY7pX67LzS17zADixZjcxvjL9H4TfFuR
-	 1RFReeraiIYJN64Y7UYQZPyOIFZ7FFs+508ARhxup77mMvNpM/FxKAoYmOXilYUaWz89+
-	 P/hR8mT2IH8HZzFSK35lNYG5GKCUssKwLugorzq251TNKJBx4HLOfvG8tz/GSkDiPg0ba
-	 ctvCvg9EtrczL9UYPiW4sLLjz+UdvNtSDgSu47739B7+OzWP4p4r4CNleUKoQljNVrg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792623056;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=bS0sle4iqO617BPakUZXfVcB45KF5KpBrJxfvMi2AMM=;
-	b=NdIzZP2Ryuo9ZxfnthVwUABvoEohcY6RiNfZCKuyfZZLHKF/J3KuGnIxWGhB3Z2bFpY3
-	 g2TFkIWrbzSDq3ir5DJh9bjrJ+rN0v7Ke1FqTMhkeewaraDm7H3lE3tVIROuSjoLOciK6
-	 yu9J+JPtDhak6VFfR8o2MG/Ovk7gAUguEHzgAumu/AhwYAWyvAsYRcglYuVFU68TZlBqB
-	 itwM8SD6cHZBQ3CUC2ZtYg2FU1m8/8E+p+C3e8/Y7s5Ii6HlFGuroH8JGAxd2W8iXwP5F
-	 ju0G2RfsBbrPlyr4lE2CL145Tw41VCHHq1hOf+EkQHBt8BnY+A/o9bajKZUilky1XoA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EpUHtXrR;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=209.85.128.173
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
+	t=1792625066;
+	b=ZfZVo9X8p9yB2/L7zC8U1iYbaXwKcXe2+2LrBqC3YR5A9Fyf+5YWmXa9FUHdhqHYgtVg
+	 yKQc9x8kQ0xrNtPZtLvtU4HDROqI2pyulNOIBD7Q7TO/IvTmGstwykd0LJTw3qjJOLZwd
+	 eceHqwPa7FZe2fiG3a5QZPCfswRnHoDpR5ARowjBZ6LfKTFsWUET3ToE1Y93MbJMbJPoY
+	 vYJV9A5BJm5na0MbzQ6xvEsLpzyvXr0Af+OV3s3KfFkgIewfgX0+eIKLKyRlk1LmKT7eY
+	 LSDfJbo2kcfxj9WAbi6UoM+OQvq3ON8WnZ7AXm836GOTQkH6n25FtYZK7Wypx0I3drA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792625066;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=OOnJLMePRidiRd6Zbc0eEriUIlHpT2oioIudJsKLtbo=;
+	b=d5DirEd1dWP7WEf9IhqiDgZk+IDFenGPlvuNpCJSm/TPjAy4/3Dqe6ajckwg2TxlbXPu
+	 GBdtqEm4L+q6KtbhHaIv9quXYCYR3Asb5nDLSPPbhs+oMuzAtHpNDojQZo5mCHKrmJ1Z8
+	 byyVaMuvIeRdrImZqfGGTRWRj6YuDPL3ScfIJ3OgCsuJz4ZkEAEj7bLQBCPihmqLSX57/
+	 bDy4kAxWzErErhHEUkPXPn7awFuwYoeJb4QZgssyblDPIDAh/3DpRYTc4k1QhQfL1XxWM
+	 vKK5rvFI41maudSGu4cSrZEjFPcsl0OjoR+uKACmR4oFHo7mWfHhQa8OZbYxRnyUyfQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=chromium.org;
+	spf=pass smtp.mailfrom=chromium.org;
+	dkim=pass header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=oLi8y7J2;
+	arc=fail smtp.remote-ip=209.85.128.173
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D443606A319
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 22:50:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16CDE606A31B
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 23:24:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 16CDE606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EpUHtXrR
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19E251F000C1;
-	Wed, 21 Oct 2026 22:50:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792623056;
-	bh=bS0sle4iqO617BPakUZXfVcB45KF5KpBrJxfvMi2AMM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EpUHtXrRYT9Nsi+b5u6LKaFrkfwmt4jNY8Lxeq/6faR/MqYtmJpCTfnWg8qWpHkov
-	 z4CTFYhdv2nD605blbI+SOc+Cz9eTZKl3UmhDrENPzo0poH1sKJWR+wj9nWRNcqbeH
-	 y47A962Zflh0E4uZVPRQjvo2ctOkwETZ37RPasuB1PmvgH77cXFKXmySIim+pyF9Et
-	 jALqO43425yjnnh5VDcVPY0QJ85y/FDwPkk5GFdUeo0qZ9kI88hwhjMLzF2vuVziKH
-	 eMx9CBEe+ZHRJItQz1iFPzE0Cxbh682IUUW8id4UYrWSCMSSehZ00Faywom9CHuYhe
-	 Fn0fEITwbTbDA==
-Message-ID: <sashiko-outbox-180744@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10] Input: xpad - overhaul device data for wireless
- devices
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sanjay Govind" <sanjay.govind9@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261021221009.361992-3-sanjay.govind9@gmail.com>
-References: <20261015220126.102766-3-sanjay.govind9@gmail.com>
- <20261021221009.361992-3-sanjay.govind9@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 21 Oct 2026 22:50:55 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=oLi8y7J2
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-8ab43af5e97so4181537b3.1
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 16:24:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792625065; cv=none;
+        d=google.com; s=arc-20260327;
+        b=JTf9Qu+feRNkp/FTdK6OOLC6OnbBFvkgKdktCNU2x0xfrU2Xo9JxHYHWR7xKuJV8Ne
+         kUNwzNCCHcrx18WjI7gHUvcQq2kZwzg3SqUzzZL9qgQcEqu2/MwEBKX1PaecjCKyDBI3
+         8SOIYweEet84SHqdamsVoa0VkN822ulwBkFIr9WuubyIvnBmnWRNyrwGHmk1gmInDoPG
+         ii3rj3fVLUMeadyfPPhJak4Pkd00BOFMUOsqt2Rn44X/yO0i8uVu9ltIRCVsj87e67Z/
+         1OlLkzKn2qSKH5Yg8CXjSx00xRtpU+AAw8RJh3lYUjky82TcV6/8qfSLCyw+k5CJi6Jz
+         qffA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=OOnJLMePRidiRd6Zbc0eEriUIlHpT2oioIudJsKLtbo=;
+        fh=osfj9leewLfc4MqIYaUjfG4KfpRUNqFnByXZRUnRoVs=;
+        b=CV64U+yjr6z7EBvhKfzscqFd1OOV3CXa4A2HrXDtGyHwRyAC/IJ/CF90S1nWpwpM/v
+         WF+ufAFAqjSQCT0/pwg4EvyGJu55Bmvwl9jI9D7ENJmh8TT5bnwZsIDT6GIrGI3x/wTP
+         x+WU1jhfQQVvZQUXI66d+guoA9B9L2nmqaaLG9PTtR6Ty0QRrWxsy8SkqkUfHdutom/j
+         mjn4oYIG/lpuMW7Nxz/jVem0STPyoj6cV7fxj9DuCX8DTD3lcJqsd8rW0F5so6pVUaC6
+         rcAnca7DEoDh66wWqruNF+/IEm0cRv0UNOX3vVAzJouuWcFqj572YUbSgZ+qnB3TjV6u
+         SFog==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1792625065; x=1793229865; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=OOnJLMePRidiRd6Zbc0eEriUIlHpT2oioIudJsKLtbo=;
+        b=oLi8y7J2xgDhdaDp9fFCzXu3oc0F5lPk7JamTcvIw3le8Dw3lMLUBD6Gya+o37DXpE
+         UyBfigPn8dmOyI3/uwfbcVVf7J58WFe+Fgp/s64m8mG4IhYwl7IHHJI92+G6kAxadobP
+         XVMpG7fBQeNJo5ITGawxn7y6Io6uSkHTGov2U=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792625065; x=1793229865;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=OOnJLMePRidiRd6Zbc0eEriUIlHpT2oioIudJsKLtbo=;
+        b=V1ntYh0DPL2/Je/3QWECWmR3+uZcc7HPseyfqlGl5QCDv/n6fpFoWlAFommcW4dyS0
+         z7E3xDzIJ7c10fnQMP01/X/WW09VBuAoWQJISfwwwXU34lkecKzPm3PrLezF45viCvpY
+         xElmv3Y0wQ7OWKSe0sJK/ffRsH3WgJD4oI6IwQW1ZqdmGqCEYbqLR51VZI1jsMZu31wH
+         KLralYD3NSDcNF1QMeSaCLKCVlo36gwulMu72StzDcXQGbcB7oyr0Uvo/6eFZFxB8QtE
+         vxPPe0MfmFi3mU9KIBkW2nnd7l7MNQF/N0UUq3HA/2Mhk1xj+LYtNINIxZXYz4ms3ZlK
+         8pEw==
+X-Gm-Message-State: AFq9FYIjZj4GZJx20KPlca0laBksqtAhBGbdOSkoWCHk/2EUM6SoqoTU
+	8nbza3zwvO7HyOas30avK/xF4626qgr1TwNNfAkt1rMtV6ZXgoeP3ZwfDT6wMVmZ2MQ6a/v3EGS
+	fqehJ6C8YA5Tz0Pkyn/SOLmSUgbAZrTtMyKr2fRmS
+X-Gm-Gg: AYBFou1ronSpa+hxdM/QuvSmPINc9ptVDV33q91TIqtlgH+EH1/hwjQOtK3pkT3g0X4
+	9QWE02LrxdxZarZKRMEuGoHUKRU14VFS1xliO41pMjVpBsd6fviscV+0O+z37dD+USA5I+DkJf3
+	E8C3LcC0j9VQvAjdOp4nYn+U53GDOmIwiQaE0D06b0N8JxPW3u815+e04L8GqbRDb8lWIEqEvrk
+	1kPtdn+9P+89VZD/i7NWJeAuldXo6f9jqy/iGUhagVz6WLzWQ88feI2yHVDPgrHxU0rUOcd6D0N
+	gYrrt+pC6hoZN99oS4T8vIbUs4NxKm2ah6xSzQ+yEkDLs3R+/NTqz7k2X5wjYlnCcBXgORRHXNd
+	qshYzMgPumx0cgA4sxQfjksAydgF61ahO//4OsG2x0OzQM51WN/pBpFp3k40qMSybMsk=
+X-Received: by 2002:a05:690c:2786:b0:8b0:88c7:f184 with SMTP id
+ 00721157ae682-8b14551034emr3963617b3.4.1792625064963; Wed, 21 Oct 2026
+ 16:24:24 -0700 (PDT)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,306 +99,186 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261019-send-upstream-v6-0-cb9ba4b3d6fa@chromium.org>
+ <20261019-send-upstream-v6-4-cb9ba4b3d6fa@chromium.org> <sashiko-outbox-178143@kernel.org>
+In-Reply-To: <sashiko-outbox-178143@kernel.org>
+From: Jingyuan Liang <jingyliang@chromium.org>
+Date: Wed, 21 Oct 2026 16:24:13 -0700
+X-Gm-Features: AclHuK8I92dDi-a24-arJkNbKz40DybvKa54bpvCtfeFFEOTon1M-6c-zRbUBhQ
+Message-ID: <CAEe3GZG3rHcRtHmg=vB5WdfsQ38Fghi_o80dSnsuaog2_xrieQ@mail.gmail.com>
+Subject: Re: [PATCH v6 04/11] HID: spi-hid: add spi-hid driver HID layer
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, 
+	dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] Input: xpad - premature registration in xpad_presence_work() on =
-reconnect
-- [Medium] Input: xpad - stale pad_info state on false-to-true presence and=
- suspend
---
+On Mon, Oct 19, 2026 at 12:26=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
+>
+> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+e(s) to consider:
+> - [Medium] HID: spi-hid: zero-length report descriptor accepted in spi_hi=
+d_ll_parse()
+> --
+>
+> commit 9328ec8c48a0b55cf1019d845ec2c37e89f4cdbb
+> Author: Jingyuan Liang <jingyliang@chromium.org>
+>
+> HID: spi-hid: add spi-hid driver HID layer
+>
+> This commit adds the HID low-level driver callbacks and device creation l=
+ogic
+> for spi-hid, handling report descriptor fetching, buffer allocation, and
+> output/feature report requests.
+>
+> > diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/s=
+pi-hid-core.c
+> > index 02a7608c4b882..fca7a44eeb9f9 100644
+> > --- a/drivers/hid/spi-hid/spi-hid-core.c
+> > +++ b/drivers/hid/spi-hid/spi-hid-core.c
+> [ ... ]
+> > @@ -84,11 +185,484 @@ static const char *spi_hid_power_mode_string(enum=
+ hidspi_power_state power_state
+> [ ... ]
+> > +/*
+> > + * This function returns the length of the report descriptor, or a neg=
+ative
+> > + * error code if something went wrong.
+> > + */
+> > +static int spi_hid_report_descriptor_request(struct spi_hid *shid)
+> > +{
+> > +     struct device *dev =3D &shid->spi->dev;
+> > +     struct spi_hid_output_report report =3D {
+> > +             .report_type =3D REPORT_DESCRIPTOR,
+> > +             .content_length =3D 0,
+> > +             .content_id =3D SPI_HID_OUTPUT_REPORT_CONTENT_ID_DESC_REQ=
+UEST,
+> > +             .content =3D NULL,
+> > +     };
+> > +     int ret;
+> > +
+> > +     ret =3D  spi_hid_sync_request(shid, &report);
+> > +     if (ret) {
+> > +             dev_err(dev,
+> > +                     "Expected report descriptor not received: %d\n", =
+ret);
+> > +             return ret;
+> > +     }
+> > +
+> > +     ret =3D shid->response_length;
+> > +     if (ret !=3D shid->desc.report_descriptor_length) {
+> > +             ret =3D min_t(unsigned int, ret, shid->desc.report_descri=
+ptor_length);
+> > +             dev_err(dev, "Received report descriptor length doesn't m=
+atch device descriptor field, using min of the two: %d\n",
+> > +                     ret);
+> > +     }
+> > +
+> > +     return ret;
+> > +}
+> [ ... ]
+> > +static int spi_hid_ll_parse(struct hid_device *hid)
+> > +{
+> > +     struct spi_device *spi =3D hid->driver_data;
+> > +     struct spi_hid *shid =3D spi_get_drvdata(spi);
+> > +     struct device *dev =3D &spi->dev;
+> > +     unsigned int rsize =3D shid->desc.report_descriptor_length;
+> > +     int error, len;
+> > +
+> > +     if (rsize > HID_MAX_DESCRIPTOR_SIZE) {
+> > +             dev_err(dev,
+> > +                     "Report descriptor size %d is greater than HID_MA=
+X_DESCRIPTOR_SIZE %d\n",
+> > +                     rsize, HID_MAX_DESCRIPTOR_SIZE);
+> > +             return -EINVAL;
+> > +     }
+> > +
+> > +     if (rsize > shid->bufsize) {
+> > +             error =3D spi_hid_alloc_buffers(shid, rsize);
+> > +             if (error)
+> > +                     return error;
+> > +     }
+> > +
+> > +     len =3D spi_hid_report_descriptor_request(shid);
+> > +     if (len < 0) {
+> > +             dev_err(dev, "Report descriptor request failed, %d\n", le=
+n);
+> > +             return len;
+> > +     }
+> > +
+> > +     /*
+> > +      * FIXME: below call returning 0 doesn't mean that the report des=
+criptor
+> > +      * is good. We might be caching a crc32 of a corrupted r. d. or w=
+ho
+> > +      * knows what the FW sent. Need to have a feedback loop about r. =
+d.
+> > +      * being ok and only then cache it.
+> > +      */
+> > +     error =3D hid_parse_report(hid, (u8 *)shid->response->content, le=
+n);
+> > +     if (error) {
+> > +             dev_err(dev, "failed parsing report: %d\n", error);
+> > +             return error;
+> > +     }
+> > +     shid->report_descriptor_crc32 =3D crc32_le(0,
+> > +                                              (unsigned char const *)s=
+hid->response->content,
+> > +                                              len);
+> > +
+> > +     set_bit(SPI_HID_READY, &shid->flags);
+> > +
+> > +     return 0;
+> > +}
+>
+> [Severity: Medium]
+> What happens in spi_hid_ll_parse() if the report descriptor length is 0?
+>
+> In spi_hid_ll_parse(), rsize (shid->desc.report_descriptor_length) is che=
+cked
+> against HID_MAX_DESCRIPTOR_SIZE, but not for zero. Later in the series, t=
+he
+> commit "HID: spi-hid: add HID SPI protocol implementation" validates
+> raw->rep_desc_len !=3D 0 in spi_hid_dev_desc_response(), but if a device =
+returns
+> a REPORT_DESCRIPTOR_RESPONSE with content_length =3D=3D 0 (shid->response=
+_length =3D=3D
+> 0), spi_hid_report_descriptor_request() computes min_t(unsigned int, 0,
+> shid->desc.report_descriptor_length) and returns 0.
+>
+> Both spi_hid_ll_parse() here and spi_hid_refresh_device() in the protocol=
+ patch
+> only check if (len < 0), treating len =3D=3D 0 as success.
+>
+> When len =3D=3D 0 is passed to hid_parse_report():
+>
+> drivers/hid/hid-core.c:hid_parse_report() {
+>         hid->dev_rdesc =3D kmemdup(start, size, GFP_KERNEL);
+>         if (!hid->dev_rdesc)
+>                 return -ENOMEM;
+>         hid->dev_rsize =3D size;
+>         return 0;
+> }
+>
+> kmemdup() returns ZERO_SIZE_PTR (non-NULL), so hid_parse_report() returns=
+ 0.
+> spi_hid_ll_parse() then caches a CRC32 of 0 and sets SPI_HID_READY, and
+> hid_add_device() sees a non-NULL hdev->dev_rdesc and calls device_add(),
+> registering an unusable hid_device while bypassing SPI_HID_ERROR reset
+> recovery.
+>
+> Should spi_hid_report_descriptor_request() or its callers reject a 0-leng=
+th
+> report descriptor (for example, checking !rsize in spi_hid_ll_parse() and
+> returning -EINVAL when shid->response_length =3D=3D 0 or len <=3D 0)?
 
-commit 4f28e1c3111d72b61c99d3360763b2634a4795c8
-Author: Sanjay Govind <sanjay.govind9@gmail.com>
+Will fix this in v7.
 
-Input: xpad - overhaul device data for wireless devices
-
-This commit updates Xbox 360 wireless controller handling to defer input
-device registration until link and capabilities discovery completes or a
-500ms timeout expires, setting controller-specific vendor ID, product ID,
-revision, and device name from the discovery reports. It also adds spinlock
-protection, generation tracking, RCU pointer teardown on disconnect, and
-suspend state reconciliation.
-
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index feb8f368f834e..41348e62fe19f 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-[ ... ]
-> @@ -958,19 +995,20 @@ static void xpad360_process_packet(struct usb_xpad =
-*xpad, struct input_dev *dev,
-> =20
->  static void xpad_presence_work(struct work_struct *work)
->  {
-> -	struct usb_xpad *xpad =3D container_of(work, struct usb_xpad, work);
-> +	struct usb_xpad *xpad =3D container_of(work, struct usb_xpad, work.work=
-);
-> +	struct xpad360w_pad_info info;
->  	int error;
-> =20
-> -	if (xpad->pad_present) {
-> -		error =3D xpad_init_input(xpad);
-> -		if (error) {
-> -			/* complain only, not much else we can do here */
-> -			dev_err(&xpad->dev->dev,
-> -				"unable to init device: %d\n", error);
-> -		} else {
-> -			rcu_assign_pointer(xpad->x360w_dev, xpad->dev);
-> -		}
-> -	} else {
-> +	/*
-> +	 * Take a consistent snapshot, as the reports are processed
-> +	 * concurrently from the irq handler.
-> +	 */
-> +	scoped_guard(spinlock_irqsave, &xpad->x360w_lock) {
-> +		info =3D xpad->pad_info;
-> +	}
-> +
-> +	/* Remove the input device if its controller disconnected or changed. */
-> +	if (xpad->input_created && (!info.present || xpad->input_gen !=3D info.=
-gen)) {
->  		RCU_INIT_POINTER(xpad->x360w_dev, NULL);
->  		synchronize_rcu();
->  		/*
-> @@ -979,6 +1017,26 @@ static void xpad_presence_work(struct work_struct *=
-work)
->  		 */
->  		xpad_deinit_input(xpad);
->  	}
-> +
-> +	if (info.present && !xpad->input_created) {
-> +		error =3D xpad_init_input(xpad, &info);
-> +		if (error) {
-> +			/* complain only, not much else we can do here */
-> +			dev_err(&xpad->intf->dev,
-> +				"unable to init device: %d\n", error);
-> +		} else {
-> +			scoped_guard(spinlock_irqsave, &xpad->x360w_lock) {
-> +				if (xpad->pad_info.present &&
-> +				    xpad->pad_info.gen =3D=3D info.gen) {
-> +					xpad->input_gen =3D info.gen;
-> +					rcu_assign_pointer(xpad->x360w_dev, xpad->dev);
-> +					return;
-> +				}
-> +			}
-> +
-> +			xpad_deinit_input(xpad);
-> +		}
-> +	}
->  }
-> =20
->  /*
-> @@ -995,19 +1053,83 @@ static void xpad_presence_work(struct work_struct =
-*work)
->   * 01.1 - Pad state (Bytes 4+) valid
->   *
->   */
-> -static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsi=
-gned char *data)
-> +static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsi=
-gned char *data, u32 len)
->  {
-> +	struct xpad360w_pad_info *info =3D &xpad->pad_info;
->  	struct input_dev *dev;
->  	bool present;
-> +	u16 parsed_vid;
-> =20
->  	/* Presence change */
->  	if (data[0] & 0x08) {
->  		present =3D (data[1] & 0x80) !=3D 0;
-> =20
-> -		if (xpad->pad_present !=3D present) {
-> -			xpad->pad_present =3D present;
-> -			schedule_work(&xpad->work);
-> +		guard(spinlock_irqsave)(&xpad->x360w_lock);
-> +
-> +		if (info->present !=3D present) {
-> +			if (!present) {
-> +				RCU_INIT_POINTER(xpad->x360w_dev, NULL);
-> +				/* Forget everything we learned about the old pad */
-> +				*info =3D (struct xpad360w_pad_info) { .gen =3D info->gen };
-> +			}
-> +			info->present =3D present;
-> +			if (present) {
-> +				info->gen++;
-> +				/*
-> +				 * Allow discovery to complete; some pads never
-> +				 * send capabilities.
-> +				 */
-> +				mod_delayed_work(system_percpu_wq,
-> +						 &xpad->work, msecs_to_jiffies(500));
-> +			} else {
-> +				mod_delayed_work(system_percpu_wq, &xpad->work, 0);
-> +			}
-> +		}
-> +	}
-> +
-> +	/* Link report */
-> +	if (len >=3D 26 && data[0] =3D=3D 0x00 && data[1] =3D=3D 0x0F) {
-[ ... ]
-> +	/* Capabilities report */
-> +	if (len >=3D 21 && data[0] =3D=3D 0x00 && data[1] =3D=3D 0x05 && data[5=
-] =3D=3D 0x12) {
-> +		guard(spinlock_irqsave)(&xpad->x360w_lock);
-> +
-> +		info->flags |=3D data[20];
-> +		/*
-> +		 * Some vendors encode identification in the stick capabilities.
-> +		 * Only trust it when the VID matches the link report.
-> +		 */
-> +		if (info->vid &&
-> +		    get_unaligned_le16(data + 10) =3D=3D info->vid &&
-> +		    get_unaligned_le16(data + 12)) {
-> +			info->pid =3D get_unaligned_le16(data + 12);
-> +			info->version =3D get_unaligned_le16(data + 14);
-> +		}
-> +
-> +		if (info->present && delayed_work_pending(&xpad->work))
-> +			mod_delayed_work(system_percpu_wq, &xpad->work, 0);
->  	}
-
-[Severity: Medium]
-Can a disconnect followed quickly by a reconnect cause xpad_presence_work()
-to register the new controller prematurely using the fallback receiver
-identity before link and capabilities discovery has completed?
-
-Both immediate disconnect teardown (delay 0) and 500ms deferred discovery
-registration share the single xpad->work delayed_work item:
-
-1. When a controller disconnects (data[0] & 0x08 with present =3D=3D false),
-   xpad360w_process_packet() clears xpad->pad_info, sets
-   info->present =3D false, and queues xpad->work with delay 0.
-
-2. Once a worker thread dequeues xpad->work to run xpad_presence_work(),
-   a reconnect packet (present =3D=3D true) can arrive before
-   xpad_presence_work() acquires xpad->x360w_lock.
-
-3. In xpad360w_process_packet(), the reconnect sets info->present =3D true,
-   increments info->gen, and calls:
-
-       mod_delayed_work(system_percpu_wq, &xpad->work,
-                        msecs_to_jiffies(500));
-
-   Because the running worker already cleared WORK_STRUCT_PENDING_BIT when
-   dequeuing xpad->work, mod_delayed_work() only arms the 500ms timer for a
-   subsequent run and does not delay the already-executing
-   xpad_presence_work().
-
-4. The executing xpad_presence_work() then snapshots xpad->pad_info while
-   info.present is true and info.gen has the new generation, but before the
-   link (00 0F) and capabilities (00 05) reports have arrived, so vid, pid,
-   sub_type, version, and flags are still zero.
-
-5. After tearing down the old input device in synchronize_rcu() and
-   xpad_deinit_input(xpad), xpad->input_created is false. Because
-   xpad_presence_work() does not check delayed_work_pending(&xpad->work) or
-   re-snapshot xpad->pad_info after teardown, it immediately enters:
-
-       if (info.present && !xpad->input_created) {
-               error =3D xpad_init_input(xpad, &info);
-
-   using the unpopulated pre-teardown snapshot.
-
-6. While xpad_deinit_input() and xpad_init_input() run without holding
-   xpad->x360w_lock, incoming link and capabilities reports update
-   xpad->pad_info in place without changing xpad->pad_info.gen. In addition,
-   if a capabilities report (00 05) arrives while info->present is true
-   before a link report has populated info->sub_type,
-   xpad360w_process_packet() expedites xpad->work to delay 0 without
-   checking whether info->sub_type has been set.
-
-7. The post-registration check in xpad_presence_work() only verifies
-   xpad->pad_info.present && xpad->pad_info.gen =3D=3D info.gen, which succ=
-eeds
-   and publishes xpad->x360w_dev with the fallback receiver identity. When
-   the 500ms timer later fires, xpad->input_created is already true and
-   xpad->input_gen =3D=3D info.gen, so the discovered controller identity is
-   never applied. (This also appears to match the transient receiver-name
-   fallback observed during battery-removal/reconnect testing.)
-
-[ ... ]
-> @@ -2263,8 +2471,20 @@ static int xpad_suspend(struct usb_interface *intf=
-, pm_message_t message)
->  		 * Unless explicitly disabled, power them down
->  		 * so they don't just sit there flashing.
->  		 */
-> -		if (auto_poweroff && xpad->pad_present)
-> +		if (auto_poweroff && xpad->pad_info.present)
->  			xpad360w_poweroff_controller(xpad);
-> +
-> +		/* Finish teardown if suspend cancelled work for an old pad. */
-> +		if (xpad->input_created &&
-> +		    (!xpad->pad_info.present ||
-> +		     xpad->input_gen !=3D xpad->pad_info.gen)) {
-> +			RCU_INIT_POINTER(xpad->x360w_dev, NULL);
-> +			synchronize_rcu();
-> +			xpad_deinit_input(xpad);
-> +		}
-> +
-> +		/* A cancelled discovery must be restarted by the resume inquiry. */
-> +		xpad->pad_info.present =3D xpad->input_created;
->  	} else {
->  		guard(mutex)(&input->mutex);
-> =20
-
-[Severity: Medium]
-Could xpad->pad_info retain stale state across presence transitions or
-suspend/resume cycles?
-
-There appear to be three paths where pad_info and presence state can get out
-of sync in drivers/input/joystick/xpad.c:
-
-1. In xpad360w_process_packet(), pad_info is only cleared on a true-to-false
-   presence transition:
-
-       if (info->present !=3D present) {
-               if (!present) {
-                       RCU_INIT_POINTER(xpad->x360w_dev, NULL);
-                       /* Forget everything we learned about the old pad */
-                       *info =3D (struct xpad360w_pad_info) { .gen =3D info=
-->gen };
-               }
-
-   However, the link report (00 0F) and capabilities report (00 05) handlers
-   populate info->sub_type, info->vid, info->pid, info->version, and
-   info->flags without checking info->present. If a late link or capabiliti=
-es
-   packet arrives after a disconnect packet (08 00) has already set
-   info->present =3D false, those fields remain populated across the next
-   false-to-true presence transition and would be used if the next
-   controller falls back to the 500ms timeout.
-
-2. In xpad_suspend(), if discovery work is cancelled by
-   xpad360w_stop_input() before xpad->input_created becomes true (or after
-   tearing down an old generation's input device in xpad_suspend()), settin=
-g:
-
-       xpad->pad_info.present =3D xpad->input_created;
-
-   sets pad_info.present to false without clearing any vid, pid, sub_type,
-   version, or flags already written into pad_info. A subsequent 08 00
-   packet after resume sees info->present =3D=3D false and does not clear
-   pad_info, and the next 08 80 (false-to-true) transition preserves those
-   stale fields.
-
-3. Conversely, when xpad->input_created is true on entry to xpad_suspend(),
-   xpad_suspend() stops input, powers off the controller via
-   xpad360w_poweroff_controller() when auto_poweroff is set, and leaves
-   xpad->pad_info.present =3D true. If xpad_resume() runs without a full re=
-set
-   (for instance, if a later interface fails during usb_suspend_both()
-   rollback) and a different controller is present when
-   xpad_inquiry_pad_presence() runs, the resulting 08 80 presence packet wi=
-ll
-   see info->present =3D=3D true and will not increment info->gen or schedu=
-le
-   xpad->work to replace the old input_dev.
-
-Would it make sense to clear the discovery fields on the false-to-true
-presence transition (and require info->present when processing link and
-capabilities reports), and how should xpad_suspend() handle pad_info when an
-existing controller is powered off on suspend?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021221009.3619=
-92-3-sanjay.govind9@gmail.com?part=3D1
+>
+> [ ... ]
+>
+> --
+> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019-send-ups=
+tream-v6-0-cb9ba4b3d6fa@chromium.org?part=3D4

@@ -1,71 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=185.67.36.66
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792562575;
-	b=XWOxJXwTRF0JhIcl/vaU9XpY0RJ+MK0gayekYQQeflOnJsEqYjgGwDg0Bq72EObm7rQc
-	 S12595LhrV8ZAhN7OVXTmaSpbvE25BQhovLsHrjsy98pBVfuELVbsJfoGoeF8dF3LsDtv
-	 RiegQePHLr1VfEZIIw0OUQiK3LvnAWA+Dfv3fHoejHj+8LgUE+TiTtDScdiF7xrHRUkv8
-	 vyyCM41UDVwERlkS/fdPT8xzaZdAhko5f9SjhRpzVNC1QZNRwiHFewEEDfakktrfep8Lf
-	 9q3wUE8lYah7P3Y9uZfrYJaikFeqdn7FD9D+DZ5tAnC74AQU0ps/bkmuPsouook35xg==
+	t=1792562864;
+	b=1KeYyyOGMh54Y1u+aTRHjJRonT+LKrmrHd7KoG5tCmmviobs+S1eKchP58eCmCEucnJV
+	 UYLcECFzkwsDCJ2OuSQ1bkEtpFph7IcR7uhfoSw5/rc9R5a/6YoUZofo2p17YPe3WPnlt
+	 IwSVCrpt2/auIvztnbNxFgKeqzvqY5zDYaniQMOQH2luAwCE9PLf0HuuJiJm6LtdeIDtk
+	 cWrERnUffM0VSIfOsTRdib+QOlAqaSNXX8PZfDSAJuEpX0v/xY4FCDg0qr58AWdSjTLcP
+	 h5XetYA06rl9vEjy6OhX/0w4z4fWM7csroB25hdFoifCYw9Md5D0Mklh/+1M/1f/eCQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792562575;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:From:To:Cc:Subject:
-	 Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=lglUH/RWXos+BDAnRUkd1kMSmZezdcAJOc0+6EXX0TA=;
-	b=u2JaEPR9N9U+DoumL9WJs65uaXGhberkpjLc/QityaiRtMnwBf5Z+klz2sUA9vSvJahg
-	 pJ9e32gNOdVdPdHFHKVPSZ2NJyVJ29Vx4XEKpNKA2SI3NO67oDyZ6KwncfFjRfbkK5SIm
-	 bWEhm1y51m60Vb8HmGk1n6g17w5LreFa6qbLzmkyBDr5aILbX9nk1xwAnWztjOi/MA6DD
-	 aya9HylyAKeUuB3NfTQzhxx0bYee6k4/LpgX70y7NlQG7oIQT0DZoZdTXgtgE9H4S04Hm
-	 0WSjm/BlimBQ1ZtSsL7jbgUOlgHg2tIUdj2H5AcOvPTbx6az4h/1z3TGWtBDsIt0xsw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792562864;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=Bxouv0kn7Sc9hHczau5510tqW8b3G6JDVUWPALdKHHY=;
+	b=YsjZtcagElTblk/+c04PaX7eOLnjkurBuZL1vO58nWHxBu9Au4jvdheXlp3q76NMCXwV
+	 YNbWo4gS30b0HJkYGMUcIHtrawrjJIfLXAFLI3UfJl1UuJU7/Bjs4kKbdBDkGChwNu19W
+	 ETfxq7IlF3C5oIwWRgPDj59N1F3HfYFwqcw4vuZUTdo9z91TJSr9cTNfPoLPtQzE5pXef
+	 7QoOdn0SkkWpT+cCUyjiAaPLHkdZtmyYo9IcW0lQV2dvqAlB3g0tk8wbDQbNYxbdNq7SP
+	 xUZbuNFDEDBRnDGIn4gZspjcUOb3kT9/5/BxQJYXNyjzGG7/nDKUn/ewntTf0VUstbQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=posteo.de;
-	spf=pass smtp.mailfrom=posteo.de;
-	dkim=pass header.d=posteo.de header.i=@posteo.de header.a=rsa-sha256 header.s=1984.8680eb header.b=mqmdEJb8;
-	arc=none smtp.remote-ip=185.67.36.66
-Received: from mout02.posteo.de (mout02.posteo.de [185.67.36.66])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lAKCu+o+;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79892606A319
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 06:02:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 79892606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25A8F606A32A;
+	Wed, 21 Oct 2026 06:07:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=posteo.de header.i=@posteo.de header.a=rsa-sha256 header.s=1984.8680eb header.b=mqmdEJb8
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout02.posteo.de (Postfix) with ESMTPS id D3960240104
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 08:02:51 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=posteo.de;
-	s=1984.8680eb; t=1792562571;
-	bh=lglUH/RWXos+BDAnRUkd1kMSmZezdcAJOc0+6EXX0TA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:From;
-	b=mqmdEJb8QIPTxo423FpEAYBljceYcvAFMwrsqomhcuLbDOD3/PX1+DOHiN4J9aEGI
-	 yOG+I7zKk56zprmd+jYqUxBZbS+5QGx/+VC2t0PXkmio8Eu3Xj69gbahsdP0yRfXFU
-	 8wZqSPjbc6iCxCe5uqsU79WO0X9zvmtZfQS99eTQO8LKmv53a7VEoQxhgkzncHYpQ4
-	 Zn/2vmtBUtGFUCGjITws9e3Iw8Syw5JiTc312xr1zsNftXRgJ0HbgLDniM9xhqFdRv
-	 UskKNWXfUlIMc6O9eAyxa4hTJtxvQ7MfFegV4UdIE+9Jk3pYwsyNjjpWuV8kdR8aXP
-	 oW/ly+lSbW71w==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4j8dx62sHqz6v18;
-	Wed, 21 Oct 2026 08:02:50 +0200 (CEST)
-From: =?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>
-To: Paolo Pisati <p.pisati@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Denis Benato <denis.benato@linux.dev>,
-	Luke Jones <luke@ljones.dev>,
-	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
-	Ivan Levchenko <me@livan.pro>,
-	Nathan Chancellor <nathan@kernel.org>
-Subject: Re: [PATCH v4 0/7] HID: asus: ASUS Zenbook Duo keyboard support
-Date: Wed, 21 Oct 2026 06:02:51 +0000
-Message-ID: <20261021060243.855484-1-rebecca.mara@posteo.de>
-In-Reply-To: <20261020092423.36380-1-p.pisati@gmail.com>
-References: <20261020092423.36380-1-p.pisati@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lAKCu+o+
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF221F000C9;
+	Wed, 21 Oct 2026 06:07:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792562864;
+	bh=Bxouv0kn7Sc9hHczau5510tqW8b3G6JDVUWPALdKHHY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=lAKCu+o+pALPobQZAUGddKwHbG2VijoTyRwY+eqaavfcyR9AC9fJt0qxzrI8yXjP8
+	 HGCWfJ2+XVVfjt3J4CUTSQNZclicJGWWm4Oph3FvNVAzBOimYdJ9fKwsP5UIofmg93
+	 SkEUYcmKUPdoP0qq7PqfvQcPYvzqd1/anQZR4gg3PO1FO2Xi4F+wkljdplItfxbX1K
+	 xU6HFKBzeA7gESVpLwIpdSE06baOfBpYqF0gj2Tm8Qys+VM0YxXdzGbt0EKFtR7sAJ
+	 Hi6iThLAJ9RVVFU5FLkZv25b9xJbt5geXLip1RTpBRfJZLdA5WJxzZ7fO69qBkUrJ9
+	 a+xsaVawV3iOQ==
+Message-ID: <43b58ad7-5934-4895-b48d-5b5a7b92e253@kernel.org>
+Date: Wed, 21 Oct 2026 08:07:34 +0200
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -75,38 +51,88 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND v10 1/9] dt-bindings: mfd: mt6397: Add MT6392 PMIC
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>,
+ linux-mediatek@lists.infradead.org
+Cc: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+ Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
+ Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Linus Walleij <linusw@kernel.org>, Val Packett <val@packett.cool>,
+ Fabien Parent <parent.f@gmail.com>, Akari Tsuyukusa
+ <akkun11.open@gmail.com>, Chen Zhong <chen.zhong@mediatek.com>,
+ linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, mfd@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+References: <20261020173556.632798-1-l.scorcia@gmail.com>
+ <20261020173556.632798-2-l.scorcia@gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20261020173556.632798-2-l.scorcia@gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On Tue, Oct 20, 2026 at 11:24:10AM +0200, Paolo Pisati wrote:
-> - Drop the delayed handshake re-send: Rebecca measured that the
->   keyboard stays in hotkey mode without it.
+On 20/10/2026 19:33, Luca Leonardo Scorcia wrote:
+> Describe the MT6392 PMIC and its RTC and regulator devices. This device
+> is mostly based on MT6323 with some similarities to MT6397 and is usually
+> found on boards using the MT8516/MT8167 SoC.
+> 
+> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+> ---
 
-Thank you for carrying this, and for the credit.
 
-I tested v4 on the UX8407AA the same way as v3: applied on top of
-e16927855d82 (hid.git for-7.4/asus), the resulting hid-asus.c matches
-the index line of 7/7, built unmodified as an out-of-tree module
-against a 7.0.11-based distribution kernel, with my userspace
-workaround stopped.
+And here you write clear note about dependency, once you fixed
+bisectability.
 
-- Docked (USB, 0b05:1cd7), with the module loaded and then three dock
-  cycles: the five keyboard interfaces bind to hid-asus and the
-  touchpad stays with hid-multitouch. The descriptor fixup is applied
-  to the hotkey interface. The keyboard backlight key and Fn+F
-  (balanced <-> performance) work. An evdev reader sees
-  KEY_BRIGHTNESSDOWN/UP, KEY_VOLUMEDOWN/UP, KEY_MUTE and KEY_MICMUTE.
-- Bluetooth (0b05:1cd8): the keyboard binds to hid-asus and the
-  touchpad to hid-multitouch; backlight and Fn+F work. When the
-  keyboard switches between USB and Bluetooth, the backlight goes off
-  for about a second and comes back at the same level.
-- 7/7: the input devices keep their names, "Primax Electronics Ltd.
-  ASUS Zenbook Duo Keyboard" over USB and "ASUS Zenbook Duo Keyboard"
-  over Bluetooth, the same as with hid-generic.
-
-For the whole series:
-
-Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
-
-Thanks,
-Rebecca
+Best regards,
+Krzysztof

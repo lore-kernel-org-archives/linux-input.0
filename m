@@ -1,115 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792580079;
-	b=2sUkwjNxxcoz0TSwga88UZD+yVz6vqxz1P1YCrh+Th4hTcBtyZgawkT5lyPUBkDDQJ8S
-	 YjnDCgEsIY8TthvIXuTtrVrVT2yUZhWM+2/HBpSggAVIDMHBLXsSgIGNiD2Yfghkko62r
-	 GFzBLwwuEvUsbckIy8IMMujOxaGC4+FYVDO9ZppmI9iR0shqcCJUXbB0UQ9pFbuIYqRGi
-	 K92xTfBHb/Eyxj7m3fUWbxSAV7Ze6H+7U5qrdC/+nlzhqew8rwUZxuphb1UeXgihscKS+
-	 ynU01j4ZtGMax1pl7pAczw4276Kal0FNgCyukNRcXP9Xa3KjzNJd/AZP3SsYB0ZlP3A==
+	t=1792580868;
+	b=3OL10g6LvCXmJBnc9mx5kwm+jHRWzg6RjgWdbockzxanRlFbIOg77jiDBZA7xvKSz+Lu
+	 y9P1xOTu5VPpzmO+btsekEAzu8aMVKAhCce0zv+XVfTjSkg59aizsi9EyS9S098evCGlN
+	 rFL17zAZAvxHn5ympW8sOXpxy2cMSqjbdCmxxsTDGvoQ3EYrtQKEjjSv0LQTjkzK9CTpi
+	 weZyxb9cvOLBPVtibi9BLAheJAyf2wl6D0CotCCWyYdrHSPNBNOHCFYJzBi5AkrlDxrDz
+	 s+ycexje0rrKxApy5rUhPqv1RxKdIArWCuCbkUmfuBF6VURXOwU5J6gmkgQyD4lf/lg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792580079;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=ocwe/ua5bx6fTunJTjbDvG/Rp4d0BH8Fbx4UwIDjj0c=;
-	b=aX9JQEs3GJZvxPSgcsCt0YWZ4O1Mm2WxbBElry2oqsMxMzDzrPqWoNs3Nr7wEsmcgi2O
-	 LvuPTVm1fZfkouPm1dd1nNnEKm8WgRhN3p67CivPkSCveYnaJ6Zwafw4A1/60fw73YQC4
-	 E9hf9l8D2QFp7uW2pCHBfpuGsbwQQRLxqafEdhR8unYLZqzxmwYDpa2rG/fDn784u1cOv
-	 77ZpZLwbYHFmyKCQTl2/XUBm4PI4bfExQ+TQ4+WuYpmuXMQCIrTAm/rlO82vK9zK3arDS
-	 MrRUG6k1irc69/iutK1zJ5wQTHao9w7YBVKmzzlwjo3MlKHcCfRZvpp97TTMwUdTntg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792580868;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=9zQAcmsM+2Tsxdew3yxZz+TMabeVeJCxxpaiKMkdx4g=;
+	b=prSRdW7+b99Q1euQeA4V29Sdh6RQvYS9E+moFdGknvC1YVUe+V8ZJXKyXCK/C15ndX4a
+	 991azWNcu8Eyb3gJSM3IMzjBuWc9+ml/VLyyTJ1G9gUEVCwx6PbnGXXgjBkwZWOh0/xvc
+	 cJvrHlL34seH2C2elw/M7K/XLUCWcArS500XMuOL13ar5nVDMsGRrKXy5uw/X8RM5Gvtm
+	 L9bVAm4srt9FWJOKgoXApF6afyhh8krY00sPM2Cp4iREMw8gOUhy5FF0DA2OXxlQl6Kry
+	 j4Gl5a0XoJ29EetPK9nm4SwgBBpkXuZZaNrD0IqeyMvZ86kya6iB3XYfHmF5pASDt+w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=gfzKp+Jf;
-	arc=none smtp.remote-ip=209.85.128.46
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VL3XAbSn;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5384606A31A
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 10:54:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B5384606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92141606A31B;
+	Wed, 21 Oct 2026 11:07:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=gfzKp+Jf
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4a1f68a9855so3543405e9.1
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 03:54:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792580077; x=1793184877; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ocwe/ua5bx6fTunJTjbDvG/Rp4d0BH8Fbx4UwIDjj0c=;
-        b=gfzKp+Jfn9HGkFwZoxtkVcqi981cZV4VqtEWhYSXm2NmynKbW6dKPR3a8/uUURLl3R
-         vI9yz435S7jU4KQiqljr3ZwskHWkkF13uJcpLJVER1WSrG9P8U8ig6w3yDiIuUP+jHfO
-         oL3+ic7Trpf05BRLN4lJ861emswggMn3PXinsni5/T2RGhHmvDCiZSDqkpeNMxYkUQpF
-         NSpIfWQdi5/agxBX9Is4/5s1mwYAvyy0J/t35aETrsEDr1nNpY5USkXyYW+HkqhUyza4
-         GbUtDbYdCuOjga8YW9VFuP+srgb7925VYCsk8F/Zq0N0U06Euk0RMrrLi2slNppjlkDd
-         Duaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792580077; x=1793184877;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ocwe/ua5bx6fTunJTjbDvG/Rp4d0BH8Fbx4UwIDjj0c=;
-        b=qS9MQ55bQ7esU6H9IZZ2L14dYTC8+GWekY1KQFzgC7oIGfgYR3+/VLZsya+ELxl1YL
-         bs7GNNmszb9T7Fo4G6d6sowCdkgpY2mwRXJtFkmGJLPHBdaHF20cUOqnkxBGfmd46bJ2
-         62waG6m0Nl/BtKs6++23iWcIUEacBFHQsAYGRDwy9VIErbFQuvOdR//ai+kFt3cfYGOV
-         TecYBoWPnt4s2aDbX6wKGwIZSDCbq9tXXFD7IuU8wNzzQEWvCIFDcUeDpUrtwSBP6ebg
-         1zzdOdzJPzOGnrN7bTt8ibt325Jb/fBoq9f52DOHEu67UKGjMTqq8tC5PFwvphbc4jWB
-         BAtQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxwBUDD0D1U54ITD6MS0tz6dkav52R7Fg/2wQDLKqxNihRXEWaNhQ0DrUL87/IkTHxl77esuz0BA3Q2+w==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLnaSYqrAV1ZJsEbC2PrGS+Jm/fuTZCawaQKswNoFIg5ayAdAyY
-	s1rHKworl0dy3voJfkWabFM/4nMHaLCza/63peMhLykBM3gFJIu2KmWN
-X-Gm-Gg: AYBFou2O+RYDEFrRCP4jtcOyFmY6YEapDW9nrrueQRoKJ0EQ8VxPZ3VYPOBAe2vF7mY
-	tOxxWuS/djWcMvNW9iMlrGcBe2os5wghNHRgE2cHKebF9Dwwa8LfLcOwDqQ5q1bYPmHT7irlM7l
-	iV4/3LBQpJjtw/d6o051DXmyr+xPUvvgP3pnHtgyqcWXIGxxXFWefY+NkQXHXowB5jgqh+QoSKW
-	fBo0fl1wAetWt/4l4R4XgdSZg4SlFpp1DR0+HQMDAGTwpYXRWZIhjh5v+hSThrKIJi5KJnor2kP
-	CoIwUiHUlv10/trIMpLehMwQG/GsetJHc+4+f54+cZ+qXpJ1pSNdTc9v3SsUfPLI8bJGGLhONou
-	toFshwB2KojSUeA4h5arbUbd/uCBljHo0lDsit/WsNJmH1fI0i1Qw57ECyVtt83zPRtaPZsHg4h
-	MBCNW50llvShaaFg4w0oJrLxvpmush1VKaO280uMJPJuDwMnnZ8jW2EXsVHZTotuaYlKOKLvkin
-	hagyR5YoXXb01dzh11R3y2v1S5ngrji3YQqUI2ObJ7l1FBhZ8c=
-X-Received: by 2002:a05:600c:3488:b0:4a1:fa33:441a with SMTP id 5b1f17b1804b1-4a1fd8a0560mr37336685e9.2.1792580076920;
-        Wed, 21 Oct 2026 03:54:36 -0700 (PDT)
-Received: from luca-vm.lan ([154.61.61.58])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1f2d6e2dbsm153388305e9.13.2026.10.21.03.54.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 03:54:36 -0700 (PDT)
-From: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-To: linux-mediatek@lists.infradead.org
-Cc: Val Packett <val@packett.cool>,
-	Luca Leonardo Scorcia <l.scorcia@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Sen Chu <sen.chu@mediatek.com>,
-	Sean Wang <sean.wang@mediatek.com>,
-	Macpaul Lin <macpaul.lin@mediatek.com>,
-	Lee Jones <lee@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>,
-	Linus Walleij <linusw@kernel.org>,
-	Fabien Parent <parent.f@gmail.com>,
-	Akari Tsuyukusa <akkun11.open@gmail.com>,
-	Chen Zhong <chen.zhong@mediatek.com>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	mfd@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-gpio@vger.kernel.org
-Subject: [PATCH v11 9/9] arm64: dts: mediatek: Add MediaTek MT6392 PMIC dtsi
-Date: Wed, 21 Oct 2026 12:47:27 +0200
-Message-ID: <20261021105109.199886-10-l.scorcia@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261021105109.199886-1-l.scorcia@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VL3XAbSn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E26A81F000C9;
+	Wed, 21 Oct 2026 11:07:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792580868;
+	bh=9zQAcmsM+2Tsxdew3yxZz+TMabeVeJCxxpaiKMkdx4g=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VL3XAbSnz+NlFeJoPc8/a2ol2tzKc3tgqMTtHFwn0A2RwYdtly54WvXRXm3GTCBpn
+	 74ng2B1F00FKhPrXUOAYYC5Cz2kUlMKhn0DFa7c94TWneT5bsURHuGAK5l0Y2mXwMU
+	 yziuFD3l8DIt3ScXyKC2fNgWcl+G8QyFplOiu1Fg8vUXLPp175SkGFA0pEKOj71VIl
+	 lggABs7ONUuTZux2fFuQ32qhrBsXBNVbZF12p4CPZAZWeJLmxRUIgWdHR4JMdxRRqI
+	 NsGYYE+3YW9h59ktMkpO6BhhpJ5U88Hsq2ykBz5W3Jlyw3tFYpSNvTPub4KvpFplq9
+	 zUR7EbpQWbWPQ==
+Message-ID: <sashiko-outbox-180142@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v11 8/9] regulator: Add MediaTek MT6392 regulator
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Luca Leonardo Scorcia" <l.scorcia@gmail.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, mfd@lists.linux.dev, linux-gpio@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
+In-Reply-To: <20261021105109.199886-9-l.scorcia@gmail.com>
 References: <20261021105109.199886-1-l.scorcia@gmail.com>
+ <20261021105109.199886-9-l.scorcia@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 21 Oct 2026 11:07:47 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -118,201 +59,127 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Val Packett <val@packett.cool>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] regulator: mt6392: OF node leak in mt6392_regulator_probe()
+- [Low] regulator: mt6392: malformed kernel-doc comment on mt6392_regulator=
+_info
+--
 
-Add the dtsi to be included by all boards using the MT6392 PMIC,
-providing support for regulator, keys, pinctrl and RTC.
+commit e3d039af08fd4f6095c705dd23ad9451cd2c1fd1
+Author: Fabien Parent <parent.f@gmail.com>
 
-Import the new file in the shared device tree for the Pumpkin boards.
+regulator: Add MediaTek MT6392 regulator
 
-Signed-off-by: Val Packett <val@packett.cool>
-Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
----
- arch/arm64/boot/dts/mediatek/mt6392.dtsi      | 145 ++++++++++++++++++
- .../boot/dts/mediatek/pumpkin-common.dtsi     |   7 +
- 2 files changed, 152 insertions(+)
- create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+This commit adds a regulator driver for the MediaTek MT6392 power management
+integrated circuit, supporting buck and linear regulators controlled over
+regmap.
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt6392.dtsi b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
-new file mode 100644
-index 000000000000..cc4770d70246
---- /dev/null
-+++ b/arch/arm64/boot/dts/mediatek/mt6392.dtsi
-@@ -0,0 +1,145 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (c) 2019 MediaTek Inc.
-+ * Copyright (c) 2024 Val Packett <val@packett.cool>
-+ * Copyright (c) 2026 Luca Leonardo Scorcia <l.scorcia@gmail.com>
-+ */
-+
-+#include <dt-bindings/input/input.h>
-+#include <dt-bindings/regulator/mediatek,mt6392-regulator.h>
-+
-+&pwrap {
-+	pmic: pmic {
-+		compatible = "mediatek,mt6392";
-+		interrupt-controller;
-+		#interrupt-cells = <2>;
-+
-+		mt6392keys: keys {
-+			compatible = "mediatek,mt6392-keys";
-+
-+			key-power {
-+				linux,keycodes = <KEY_POWER>;
-+				wakeup-source;
-+			};
-+
-+			key-home {
-+				linux,keycodes = <KEY_HOME>;
-+				wakeup-source;
-+			};
-+		};
-+
-+		mt6392pio: pinctrl {
-+			compatible = "mediatek,mt6392-pinctrl";
-+
-+			gpio-controller;
-+			#gpio-cells = <2>;
-+		};
-+
-+		mt6392regulators: regulators {
-+			compatible = "mediatek,mt6392-regulator";
-+
-+			/* Fixed supply defined in the data sheet */
-+			avddldo-supply = <&mt6392_vsys_reg>;
-+
-+			mt6392_vcore_reg: vcore {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_BUCK_MODE_FORCE_PWM>;
-+			};
-+			mt6392_vproc_reg: vproc {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_BUCK_MODE_FORCE_PWM>;
-+			};
-+			mt6392_vsys_reg: vsys {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_BUCK_MODE_FORCE_PWM>;
-+			};
-+			mt6392_vaud28_reg: vaud28 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vxo22_reg: vxo22 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vaud22_reg: vaud22 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vadc18_reg: vadc18 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vcama_reg: vcama { };
-+			mt6392_vcn35_reg: vcn35 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vio28_reg: vio28 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vusb_reg: vusb {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vmc_reg: vmc {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vmch_reg: vmch {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vemc3v3_reg: vemc3v3 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vcamaf_reg: vcamaf {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vgp1_reg: vgp1 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vgp2_reg: vgp2 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vefuse_reg: vefuse {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vm25_reg: vm25 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vdig18_reg: vdig18 { };
-+			mt6392_vm_reg: vm {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vio18_reg: vio18 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vcn18_reg: vcn18 {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vcamd_reg: vcamd {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vcamio_reg: vcamio {
-+				regulator-allowed-modes = <MT6392_REGULATOR_MODE_NORMAL
-+							   MT6392_LDO_MODE_LP>;
-+			};
-+			mt6392_vrtc_reg: vrtc { };
-+		};
-+
-+		mt6392rtc: rtc {
-+			compatible = "mediatek,mt6392-rtc", "mediatek,mt6323-rtc";
-+		};
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-index 805fb82138a8..b19d5792bd89 100644
---- a/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
-@@ -6,6 +6,8 @@
- 
- #include <dt-bindings/gpio/gpio.h>
- 
-+#include "mt6392.dtsi"
-+
- / {
- 	aliases {
- 		serial0 = &uart0;
-@@ -160,6 +162,11 @@ &i2c2 {
- 	status = "okay";
- };
- 
-+&pmic {
-+	interrupt-parent = <&pio>;
-+	interrupts = <28 IRQ_TYPE_LEVEL_HIGH>;
-+};
-+
- &uart0 {
- 	status = "okay";
- };
--- 
-2.43.0
+> diff --git a/drivers/regulator/mt6392-regulator.c b/drivers/regulator/mt6=
+392-regulator.c
+> new file mode 100644
+> index 0000000000000..3db52268363e0
+> --- /dev/null
+> +++ b/drivers/regulator/mt6392-regulator.c
 
+[ ... ]
+
+> +/**
+> + * MT6392 regulators' information
+> + *
+> + * @desc: standard fields of regulator description.
+> + * @qi_status_reg: Register to query enable signal status of regulators
+> + * @qi_status_mask: Mask to query enable signal status of regulators (RO)
+> + * @vselctrl_reg: Vsel control mode selector register
+> + * @vselctrl_mask: Vsel control mode selector mask (RO)
+> + * @vsel_reg_mode_reg: Vsel register when Vsel control mode selector =3D=
+ 0 (Register mode)
+> + * @vsel_reg_mode_mask: Vsel register mask in Register mode (RW)
+> + * @vsel_normal_mode_reg: Vsel register when Vsel control mode selector =
+=3D 1 (Normal mode)
+> + * @vsel_normal_mode_mask: Vsel register mask in Register mode (RW)
+> + * @pwm_modeset_reg: Register to control buck mode (Auto/Force PWM)
+> + * @pwm_modeset_mask: Mask to control buck mode (RW)
+> + * @lp_modeget_reg: Register to get LDO low-power mode
+> + * @lp_modeget_mask: Mask to get LDO low-power mode (RO)
+> + * @lp_modeset_reg: Register to control LDO low-power mode
+> + * @lp_modeset_mask: Mask to control LDO low-power mode (WO)
+> + */
+> +struct mt6392_regulator_info {
+
+[Severity: Low]
+Because this comment above struct mt6392_regulator_info in
+drivers/regulator/mt6392-regulator.c starts with /**, scripts/kernel-doc
+parses it during W=3D1 builds and warns that the opening line does not match
+"struct mt6392_regulator_info - ...".
+
+Also, @vsel_normal_mode_mask is described as "Register mode" rather than
+"Normal mode".
+
+Should the header line be formatted as a kernel-doc struct header and the
+@vsel_normal_mode_mask description updated?
+
+[ ... ]
+
+> +static int mt6392_regulator_probe(struct platform_device *pdev)
+> +{
+> +	struct mt6397_chip *mt6392 =3D dev_get_drvdata(pdev->dev.parent);
+> +	struct regulator_config config =3D {};
+> +	struct regulator_dev *rdev;
+> +	int i;
+> +
+> +	device_set_of_node_from_dev(&pdev->dev, pdev->dev.parent);
+> +
+> +	// Initialize the bucks' vsel_reg and vsel_mask according to current HW=
+ state
+> +	if (mt6392_set_buck_vsel_reg(pdev))
+> +		return -EIO;
+> +
+> +	config.dev =3D mt6392->dev;
+
+[Severity: Medium]
+Does calling device_set_of_node_from_dev(&pdev->dev, pdev->dev.parent) in
+mt6392_regulator_probe() in drivers/regulator/mt6392-regulator.c leak a
+reference to pdev->dev.parent->of_node when the platform device is released
+(for example, if mt6392_set_buck_vsel_reg() or devm_regulator_register()
+fails, or when the parent device is unbound)?
+
+In drivers/mfd/mt6397-core.c, the regulator child is defined with
+MFD_CELL_NAME("mt6392-regulator"), so mfd_add_device() allocates the child
+platform_device with pdev->dev.of_node and pdev->dev.fwnode both set to
+null.
+
+Calling device_set_of_node_from_dev() increments the reference count on
+dev2->of_node and assigns it to pdev->dev.of_node without setting
+pdev->dev.fwnode:
+
+drivers/base/core.c:device_set_of_node_from_dev() {
+	of_node_put(dev->of_node);
+	dev->of_node =3D of_node_get(dev2->of_node);
+	dev_set_of_node_reused(dev);
+}
+
+When the platform device is destroyed, platform_device_release() only drops
+the reference on pa->pdev.dev.fwnode:
+
+drivers/base/platform.c:platform_device_release() {
+	...
+	if (!is_software_node(dev_fwnode(dev)))
+		fwnode_handle_put(pa->pdev.dev.fwnode);
+	...
+}
+
+Because pdev->dev.fwnode is still null, the reference held by
+pdev->dev.of_node is never dropped (unlike
+platform_device_set_of_node_from_dev(), which also assigns
+pdev->dev.fwnode =3D of_fwnode_handle(pdev->dev.of_node)).
+
+Since mt6392_regulator_probe() already sets config.dev =3D mt6392->dev for
+regulator_register() to look up the regulators node and supplies on the
+parent device, should device_set_of_node_from_dev() be removed here (or
+replaced with platform_device_set_of_node_from_dev())?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021105109.1998=
+86-1-l.scorcia@gmail.com?part=3D8

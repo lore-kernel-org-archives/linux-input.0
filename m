@@ -1,76 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.42
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.26
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792567934;
-	b=1YN+K72TEIEq0XJZ//6mctFUE3+0apqWxCOG0aKKNCu82JRiuslFgwqBpFNDaq0aJv5P
-	 QnBgZtskn3eg6EC1IDr3vDSQ9eqsxdZUodvap99rV5YVh91UWw7Jo83NhGUJWqy4kztlx
-	 LTh/TEqD1nspddGkpWIZPZMly0YAyEAXDvS3rAol8wZeAM+swln0NwWvMgfy5XYmR5vFE
-	 r41cV2hXIVDbsXRfnuzP53/l+c9VLsydnhvvCFNNFhtsu20RJSTM7tO33EWdEb6Sop4Gj
-	 HCjehC6cbNgiHmE8jggCMnxrMBrFgWllBfVWaYFHlepA80WzRwAuFSeLuvyU0i92zjw==
+	t=1792572192;
+	b=LSlodc8pk1qBCUdACS6+bo+WAQ81Et8Pevmm9KZqriUVbiTcW+Alv5TpBqgdDz3jQxyR
+	 +DaLABRo6ngq+JsrNjgLDFiLz3m6vfCzA9GdZaGIOOt6m6EoxEh1T032hQG2Qg3JaynVM
+	 fVbJjXIT3qGtr+otWIbjkP/PfxylLEiLZ06OPNPXVX0EOyNESwbNGatXLOAqDBRXqMeGw
+	 tEyXrKeKmKXYxXrf1itP9G0zPg2YDwZyWaWVuA177LodU/CW5GZHWehTwxXyioJV6i4lb
+	 T0+u/vD7OsUPw5FOQBxO1XQc4eLxLIYafiMKIzFUXBS5qz5hU0N5hyaalyyvOMifbEQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792567934;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Received:
-	 X-Forwarded-Encrypted:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type;
-	bh=6QAiK2mo/o5kQv4IXUx/z21UDEdea17cHOw3H4USIDI=;
-	b=0YvFfrSLi1XLDE+tN2NJMt62HqvBkVQAAB46t+WWBENlaaCfzS+3wK+7wE6MREoIFVB2
-	 P49aAFBvgF1U4t68jNIhQ6Vm8YIhmjJGEZGOL9sjVfxjkdb9Doncc24pYhl5x1oKveJWT
-	 0jvlsGO0SIMVAkTQkjnPMiib74gQzBPzGof4zLbGP3u9Iixhvg8Mub+yruyEIuh9NiqPr
-	 SOXpQZNrsDKLOJ0PljHdfeJTqu8mcWXc/utVtsGvJNGhUvyYX5EoYYbCK7HaAKxSE0o+D
-	 9RHXav7JPUsDh7/HVJfSfjm3UoyVMBEnDW2oW04PRuhPnQpsyLVzNQ88LeX7eQVMKQA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792572192;
+	h=DMARC-Filter:DKIM-Signature:Date:To:From:Subject:Message-ID:
+	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=6EKlD4dVlbT2HdJAsRzduQ9O4hNi1tgQ8/s9a4JRDLU=;
+	b=EmmTGPfI6PCssZoize4LK9NfIOhb04/rB9aalubFJpDy/2lhrlxkMRMt4xjJDEVmwUS6
+	 ouYPOFeuaILpIa03z3ca/uxvv+CUOmV56FtiZCuy2NSM249B7pQFOP5b18m94/Lk/GRk4
+	 r1qXsb141/7K3EQyFMPryzdjVoGL6BvYbkaVThQcXu8N76p0mPcuAb5N/fspmLds0xrhN
+	 eTtAC3LwsHrfJ5+JVOxN16EmvQpD/p0dfk3Ex1aqH8W+1oyxeZDhKR20b27ddAF0eETGo
+	 q+CVmcHa8X7EePELHmZ/29VgghFn8xiwyhtZoQFGngKUJbU5hnBKZzRUJdDV1aqSXWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux-m68k.org;
-	spf=pass smtp.mailfrom=gmail.com;
-	arc=none smtp.remote-ip=209.85.217.42
-Received: from mail-vs1-f42.google.com (mail-vs1-f42.google.com [209.85.217.42])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=protonmail.com;
+	spf=pass smtp.mailfrom=protonmail.com;
+	dkim=pass header.d=protonmail.com header.i=@protonmail.com header.a=rsa-sha256 header.s=protonmail3 header.b=uaW3Mys2;
+	arc=none smtp.remote-ip=109.224.244.26
+Received: from mail-24426.protonmail.ch (mail-24426.protonmail.ch [109.224.244.26])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2ED5606A31A
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 07:32:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F2ED5606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f42.google.com with SMTP id ada2fe7eead31-7cc013095d4so116995137.2
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 00:32:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792567933; x=1793172733;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=6QAiK2mo/o5kQv4IXUx/z21UDEdea17cHOw3H4USIDI=;
-        b=0zbxWPP08JBC+knTk/Ea3fCZCCeCaPFcHrdvyNQqVhWECAnmOm9ySuERpcDiNs2J00
-         xgKf6kUhCKg3acmRwgYai20zc28LLd8ngPn0HNUjOWLKR4pUDY4/3vLL84RlC/jcLJ0e
-         W8KlA17g73MeDCj2abzRsQp04hG4faytmD0KB/1P8TdguBPfit7TMisVONEdmfLISeGF
-         NK9go83SdY6FUqMFuhyw3JA2AgHHni72jKvFdsnmf6ewvXQwgu2z+6S19ZqUBFb0Wkfv
-         CRgcEW7YuSkxj5sgZdSNF6WomvrT70CGIHeoxOYS61VpxU69OLTtXrAqhJbHkFZg8+CQ
-         igWQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxj0GBc3AhgJ2AtrOKQsGdb1ULJ7/XpeV109VNqMBZyyGX8ytNarfG2H9dQdgwXDmhn1GnBeUqBpijuNQ==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKxu73bFwYhc0hn0jwiO04B/ANJz6gXMt1gIrisdpeXsiP3xEQo
-	8BLukbDRQeE0ATEDFPRDHMmmaBQI85tvEpkrPSgT/GDC8HJzP8+YlyRU1boijPowGzs=
-X-Gm-Gg: AYBFou3rrl/nx8b+H67Gq9RzBtspC9pszYwwd6nV0LRfBTjaOeR3aFwZplX0tebi2zf
-	G3oWHDvETVFnWVKrUfOXXTw/usQTcx4SHNmfmD37jDnHcmEAsFnyGLwTkkJeSMctoE6ktuqIGNy
-	nWmeQuAl86BTTglQ98frQCCMqBtnbZvLMFDk1jr+hGjliIXgoxea6cIsBIn8rNB2JNdVc8EEbHv
-	oiGV9AhPOt+v4RqjNzGp5OVJytLvV+79QIxwUJq5WFn5JWI+Kv0ZNdwbcuxO7qbm4H8PV9LXEWh
-	h9/HkvT9R/JjosVFBvDAfyM5Kw5xlo4C5xzPxrPSyVvyJgPq3vsTTyrOJMdtvJW4aLj7fSqonC8
-	AcBGQjMzXHy+hiqDu1eLKcr/YtApB5W0BvkLaQnv63E6c9+Y8swvSPHdNhC2SjiTdcc4O+eacrX
-	LOMGFOLXnwTmRgEqlpFrtYN3aCj8cKBb7oAd/BjjlDmDFLcxJyzpsAm/SPdiV5qtl0f3SfrQfaA
-	bzHGfhnsojd3h1F7KK6d1PbGvt7bIjUpwMrFVqfSjRYLIlYTBp+JDV6KfXzAhb1WLJilSTEry4t
-	TdbXOVtsP0QKMU9Tsrpcw48/kUosHu+0QU6aQwM=
-X-Received: by 2002:a05:6102:f9e:b0:7a6:85d6:8ae0 with SMTP id ada2fe7eead31-7cc92466125mr426939137.1.1792567933033;
-        Wed, 21 Oct 2026 00:32:13 -0700 (PDT)
-Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com. [209.85.222.43])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-990d10439absm2152939241.5.2026.10.21.00.32.12
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 21 Oct 2026 00:32:12 -0700 (PDT)
-Received: by mail-ua1-f43.google.com with SMTP id a1e0cc1a2514c-9907a58f14dso129582241.2
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 00:32:12 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBypKk8CBvRWv9ElJPzHq7pNbHc1u71aECj6d7J7vhRuro0nc3kL7ajqMQElE7GoLdVDc3jkRMR875T2Mg==@vger.kernel.org
-X-Received: by 2002:a05:6102:2c8d:b0:7cc:2152:4f95 with SMTP id
- ada2fe7eead31-7cc9246d45amr430597137.3.1792567932012; Wed, 21 Oct 2026
- 00:32:12 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 724F3606A319
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 08:43:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 724F3606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=protonmail.com header.i=@protonmail.com header.a=rsa-sha256 header.s=protonmail3 header.b=uaW3Mys2
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+	s=protonmail3; t=1792572189; x=1792831389;
+	bh=6EKlD4dVlbT2HdJAsRzduQ9O4hNi1tgQ8/s9a4JRDLU=;
+	h=Date:To:From:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=uaW3Mys2ekEOjDIt7OXjEtsptMwuw7HYDMp1w0pNIMcdyqa9bp+OnPSe8uzPjfS+O
+	 qZspwyJb/VSprB+hcwYM/RbaXpSBZNzfpQwKct0Mq4OOAp4LD1XXxgRfRSmrE92L81
+	 yj52Jd6ciwhzWi+JK14/PHcPYHRmjuMqFbyQ4NnbO2NrFSACKJT1nV0uv2rn1zzG4U
+	 I1ePZemlNHowRL852vzDHeyy96pxsj29ZiZLuzFc94WcGpE5IOz30FZ45oSSm2M91v
+	 s7VOFo9DRvCKTMMmPY7aQLANZ54ticyIIPT65DF7dtxaBQr1MduA4xuuoQllYQv5Cj
+	 nZkWFWeTSdvWA==
+Date: Wed, 21 Oct 2026 08:43:07 +0000
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+From: TheDragonWhoAte <TheDragonWhoAte@protonmail.com>
+Subject: Re: [PATCH] HID: add quirk for IBM SK-8845 keyboard
+Message-ID: <TlsUnHwjer5DDeomtgCOzbToB5cb5PFhPbTxfUKPd24ka02o9jnA10pyalLiHPiSMMdwnW5URHnIglbM8rKBcASgaVYdw90z2GOsIlHXxLA=@protonmail.com>
+In-Reply-To: <UL8kz0PEs3tCPPUaukHYg_M3ZVCyfNOrGj8zm1XeTIlX4EQ6Euw3kEa2NHqkqpfY4IiEiCz4ktDRoI-e1AKq-yvSUarSAL3_Af0pbWs-U8o=@protonmail.com>
+References: <UL8kz0PEs3tCPPUaukHYg_M3ZVCyfNOrGj8zm1XeTIlX4EQ6Euw3kEa2NHqkqpfY4IiEiCz4ktDRoI-e1AKq-yvSUarSAL3_Af0pbWs-U8o=@protonmail.com>
+Feedback-ID: 82532079:user:proton
+X-Pm-Message-ID: 540a09fbb9550ce29e387e4f422950379aa73585
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -80,71 +63,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261021000338.2160223-1-miro.kropacek@gmail.com>
- <20261021022336.2232886-1-miro.kropacek@gmail.com> <c77944ee-f170-ce57-9065-d7d49fcfed6e@gmail.com>
-In-Reply-To: <c77944ee-f170-ce57-9065-d7d49fcfed6e@gmail.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 21 Oct 2026 09:32:00 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXWHXjbCNojoukGq4OWvLSibk-goJo4quLdbOj01neOew@mail.gmail.com>
-X-Gm-Features: AclHuK-O5R44UqsZeHR5r5kV3Sh9TQiIGd4qHB-xb-ZK5hAF_St4Y5l-i_lJpFI
-Message-ID: <CAMuHMdXWHXjbCNojoukGq4OWvLSibk-goJo4quLdbOj01neOew@mail.gmail.com>
-Subject: Re: [PATCH v5] m68k: Fix atari mouse movement
-To: Michael Schmitz <schmitzmic@gmail.com>
-Cc: Miro Kropacek <miro.kropacek@gmail.com>, dmitry.torokhov@gmail.com, 
-	linux-m68k@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 21 Oct 2026 at 04:51, Michael Schmitz <schmitzmic@gmail.com> wrote:
-> Am 21.10.2026 um 15:23 schrieb Miro Kropacek:
-> > Kernels are built with -funsigned-char since version 6.2, resulting in
-> > the signed 8-bit position deltas reported by the IKBD being
-> > misinterpreted as unsigned.
-> >
-> > The hook is handed a raw IKBD packet, so take it as a byte stream and
-> > apply the sign to the two displacement values alone.
-> >
-> > Fixes: 3bc753c06dd02a35 ("kbuild: treat char as always unsigned")
-> > Link: https://lists.debian.org/debian-68k/2026/08/msg00000.html
-> > Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Signed-off-by: Miro Kropacek <miro.kropacek@gmail.com>
-> > Cc: linux-input <linux-input@vger.kernel.org>
-> > ---
-> >
-> > Changes in v5:
-> >
-> > - take the packet as u8 * and cast only the two displacement values,
-> >   as suggested; this drops the call-site cast v4 needed, and with it
-> >   the -Wpointer-sign warning
-> > - add the types include atarikb.h now relies on
-> >
-> > The same cast of the two displacement values was tested on an Atari
-> > Falcon030 with CT60 in v1 of this patch; v5 differs from it only in the
-> > type of the hook argument.
-> >
-> > Michael's Reviewed-by from v3 is dropped, as the approach has changed
-> > twice since.
->
-> Dmitry's reasoning makes sense to me, so we're back on v1 with no change
-> in functionality.
+Hello, I've sent this patch months ago and I notice it still hasn't gotten =
+any comments nor been merged to my knowledge.
 
-If it's just a byte stream, one might not bother doing s/char/u8/, as both
-are the same type anyway... and then we're really back at v1.
+Thanks.
 
-> Looks good to me, feel free to add my Reviewed-by if it helps get this
-> merged.
+Signed-off-by: Muhammed Ali <TheDragonWhoAte@protonmail.com>
 
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-for the arch/m68k files:
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Gr{oetje,eeting}s,
 
-                        Geert
+Sent with Proton Mail secure email.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+On Wednesday, June 10th, 2026 at 7:09 AM, TheDragonWhoAte <TheDragonWhoAte@=
+protonmail.com> wrote:
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+> HID: add quirk for IBM SK-8845 keyboard
+>=20
+> The TrackPoint on the IBM SK-8845 (Synaptics 06cb:0009) sends corrupted
+> input events when bound to the synaptics_usb driver. Moving the stick
+> generates random BTN_LEFT/BTN_RIGHT/BTN_MIDDLE events instead of
+> REL_X/REL_Y movement.
+>=20
+> Force the device to bind to hid-generic instead by setting
+> HID_QUIRK_IGNORE_SPECIAL_DRIVER.
+>=20
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D221624
+>=20
+> Note: This quirk disables two-finger scrolling on the touchpad. That's a =
+trade-off, but without it the TrackPoint is completely unusable. The real f=
+ix would be to make synaptics_usb handle this device properly, so both the =
+touchpad gestures and the TrackPoint work. That's beyond this patch.
+>=20
+> Signed-off-by: TheDragonWhoAte <TheDragonWhoAte@protonmail.com>

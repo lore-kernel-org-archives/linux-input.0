@@ -1,95 +1,96 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.171
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792601768;
-	b=I02HzutM8+aT+QOQGWw4vYrpf6LVJHWNUtuhoi6V4DN4sPHphPjhSREi6UtEA5pnclwm
-	 mZufD452eaXc3pspaYheY4vFPe0TDiqAHOBMeu1yyeEQbx83M8Xe4O8hmDQ5KV54PZthK
-	 e5v1MAjnvL4obg/TJUQBdc979cLPoTUgPMlhbgZv0/H9nNX1xSusKVg1fp9P7pjVqCnde
-	 HWa6Bj7iLUjdsdTfbHL2laYj8irp4OmJl/gqye2qHJDJ5pDKC0tyLSHQJKQzhhhqakHKE
-	 jzve6Gi0l6eOxKGSKwcOeXZe33QMDjvRNzqcjgmBntrX+V6moBA9Qb/yslW7uaXLHtQ==
+	t=1792602032;
+	b=D1zMkL3wwAhKpDiBwWyNMK/+4w5RIwvVJT0Fxb0DMjYU9D+LM4ySJeIJe8VnASwnOloV
+	 /8nCHrsV6kMhsbUAElpv2q9hhXdn9pc+MXwS0QEA0wNgxtTwKlEhTn2bz5h3OZNLHhQQJ
+	 SMxdsgCMW5bcb7chA0Z5Uee4HABmjSfci848VUqkahjCnwB8pZG7joHBZKCMOkCSH0T+M
+	 8L7jxP+TF+sitt7Jg6rb0TV3BM9TKeKHYmHKGkPyDu3qyWuR9+nFpoAOkc1KqgvA7eVCb
+	 8oc8vtevsHZnP8Rekeq5TH8I8nkVw80eHFhvvXCfJTzKNmv6311+6DyLkds/QzLL32A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792601768;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792602032;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=BqFxca6gK6ThfbYRhXakalZoTDjV2OaXfqMDjTk93C4=;
-	b=vd4NUpVoAlSuz3+P75CxO7wM+Bd/W7FvAXOSnUD3ysJp4PwjVkekI2u+8dfsYhq/oOhS
-	 vbnWoahOUqSJkzUj0bDw2Lylo2U1V5IenzVVsuQuURBNMAoAtXNwiyfEApceuFAzBShom
-	 703MM73H1umTT82gX922JDa6w+i0NqTE2+YVUx91gZcDQ7vhnx5aKD8SDKfwL09pQJRKi
-	 rkMihcLaj/1V5qmbjIRUqxVPbCFOx6OsC0vhgVAqUuMtncYdTTkveC9xUXx+gV5NqcU9E
-	 4QbxvUUsHCaln1mJvaM5MxX3uMGwKQ09NX8rf5bIwwIzeF1nOW8uPa5zgI1K2SGwl1w==
+	bh=4p+sU87b0SPhlui/+SUmlIQxPYDUposWA1I/eyb2zBo=;
+	b=rf4Rpv1ylcknE4x4fsjbtaA/NQIFbSlngGoPaWN3iK1Fj12j7Oqu/YDaDbEiWD1jmJ4k
+	 ZYcMR1FQ+o/aBy7TCvYaSfA/H0mXoVdg2rvwCt0p4/dNqzEOni+3uMZYtDOpSq4KB7Wj/
+	 Y8AY2wq49fXwpgyj52oQ23ZiJAqa8hGMjZkg1dtnmqKMVAnfV2p2uxU0yKDNhtlI9dv25
+	 BrVT69OJJim91U/cgzgR7tzNSWNO4V07lvkvnLj7+TPwKY0eXSmZ8TI79dEsNO9/zcyb0
+	 6zYX2Cup34ViQ3tEK5ZtONlj3LDDnEW+cb550uJYJOukTqHL+5N96fwyyMgHSMYETgA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="b47HAwz/";
-	arc=none smtp.remote-ip=74.125.82.169
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=SDvSrkSX;
+	arc=none smtp.remote-ip=74.125.82.171
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F65760A2606
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 16:56:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3F65760A2606
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5152E606A327
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 17:00:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5152E606A327
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=b47HAwz/
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-3282db206d3so2158742eec.0
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 09:56:08 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=SDvSrkSX
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-35f1f76ea84so1373696eec.1
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 10:00:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792601767; x=1793206567; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792602031; x=1793206831; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=BqFxca6gK6ThfbYRhXakalZoTDjV2OaXfqMDjTk93C4=;
-        b=b47HAwz/VVcj8i8Dk6rywlLjp4QPLVE9QU/sIDpiX4l5uicFU6+OyIDhEv6/jeqZc3
-         gDnlsX41vd9jS8QBqF5eWd0LEL7ObgKGc+mFe1J17hRYjevyusHa4RG6Bou9yDFMB+7H
-         1ZX2qmpzbQuFCAWRa4FS1QfTA4DnlBvO1ZgiAtM3Z5SowmDDqNG29VsiLXZc/XgUQ5O+
-         iAp/OmcJB+abmkYlNO2Nkk26Eh1FNrHWcRmxaaCR3H2KFKajAHxrDVISqotylsi7Xs3W
-         PysGqH5xjgqIys5FyNfXPc0mTOYqh01SIjH96t/1KQEVQMDj4hztLVadfGy6lOdAAt1j
-         XNbw==
+        bh=4p+sU87b0SPhlui/+SUmlIQxPYDUposWA1I/eyb2zBo=;
+        b=SDvSrkSXRN7b16uvHn0owN7P9wALOR+qF5x8hSgG0gxkjdrQLtuwhv2L5BARh97oX3
+         aS1S90uq9tOtN3LVBcUJNa2t2TXEPT9VhIRziQXWF5/SVExqtLCNRjJOaR/aNcbwTcTb
+         2urftg2aTjo0Ncs1SWWX1xR9l7NrXFdTLhKKnyDfYlOqypf3qKvZ50JkKfSXvX7UOwI/
+         L86Pv04dIDfsNWvcSpXLhdETZ3Jc2t5BuoqjWhKgX7vQ9CyQFsYYkKT4by19rmtOpLKC
+         Kej+lquPMAO/imCte++Zf4948MUu8wD2XHZZanc8LpJbGt7lCjPYGF8TMGUQcJxPSdac
+         yAtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792601767; x=1793206567;
+        d=1e100.net; s=20260707; t=1792602031; x=1793206831;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=BqFxca6gK6ThfbYRhXakalZoTDjV2OaXfqMDjTk93C4=;
-        b=fqDccVfWI2w8g/GtkIHmnBXb/puI4zvuqthnUEB1ESCzdc1lRg6JsxjlhAl33g9/Wb
-         8t/sZnxP8XFUVSiESfcuo7dlfHabSV5H0h5ep86IOx1foW4QtuX3GYTTrmAROq1wduHo
-         NjSxYlPxskE4iuGDgnAhwiJArgi2kIaJ+J1Dlk18AFnMFXZW1vsYTwU1BINdHxB/gfsk
-         3MsahPtIxMJ1WL0Pmp7gN4NBiIVC+HmciWUVzBJoTyk7XlvM0jwr4SK5BAHhOYeSjwfL
-         ezjTrghupdlCjBJ5g9HpXxwpDikmPyNYXYyv/G+hbBGBSl21icAceHfoBSEyuMzRyRvD
-         e2aQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwB1cPwVQ2H0bFPal3GtejdZBRlhdsiH4l/5anks59TOUZaDoKhl9awRue3k3/KLYmCLjfKfU3NRGEevA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLjVLh8kvJpyS77HxjvGUxRCyJH4gQ6dOob1qRE6HUcnj9i4bSi
-	T6xuSTleNWKk/VrJEOaKubl2KcADdA+uiQ2UwpB6getzJUMq/IgN0hw/
-X-Gm-Gg: AYBFou1KM3eHbGVY8pwgHSCEct66cqKu73sTH++uNApPxVMu6QjWqIQs/bkizxmXuLx
-	M/YOtYchgoyjzjeLa4t8tOhktLUySjDkWiC8t2IX+nUus7uVXXDMS8q153ZRhEO7lHkdSNuEDRr
-	xTzJ7PNijgwAUwblmPa12mH76/f29nFD2bGxaBX9mOtn7Kd7nvhz9IwCDCjtejJQkmInRBGWGCT
-	8009QbHTc/GaAh8ojRb3lOyeIFX9FHRvmyQLzQQw/GLysg/QwSoq6OToM07dIX20wFPhpxr4jcC
-	UfpI798d/mdUyBS99U7A1DoNbqW3CmsJB/rEZAQOliJ1mnJd1YlrS01p5InMBIyqtmJU8k4keFP
-	Fo5y/HMjbC/VDuHurJzF9exgzDL5HrCMm4zBOvzNVKNnjsRHHrbmrDIBmG+jOrS/etoqTrJMQTK
-	nszEn1xbByfKVZWVIPQ7mYWh6vJzDQC4inaZE0ZyJqFo18Plvau1o1baUx5P/XqxULLvlQbj/Ot
-	8l/lBOi7m4j5lJRKiIRZyWrATxTsiMXjlenABukXAHLMKuNZRG9PrIp5WrNsv39cgRdScS6e8p7
-	Wo1/bEQ8J3DHmOtSWbKmCQ==
-X-Received: by 2002:a05:7022:1709:b0:13b:4ab5:41d7 with SMTP id a92af1059eb24-190a051ddf3mr2928490c88.3.1792601767120;
-        Wed, 21 Oct 2026 09:56:07 -0700 (PDT)
+        bh=4p+sU87b0SPhlui/+SUmlIQxPYDUposWA1I/eyb2zBo=;
+        b=XA2T+QpIs/hklfPzadglfjHRPKPQF4iBflXc4FbnrmIMalIu3fcnhHIcWKNQK2OJR2
+         4bcqa/02BQkpRe+78VmIgdvCe5YotF0x3+O4vZ1GnzCvtJ12qPJG7VuY7HFpeogD5j2h
+         R5weloksMxqZDH24GgXNS6vcWTOy+qGU7rDVG7uaSqAjPCh5aNtBGlETEckh1ycMhWcV
+         3odnQfs/bvM6zbtHjbdOUMx9fUcxwcqwpXx0r0kcNhv8W2omY7ALkO4U1WKQmSpq4x5u
+         7W0ja0IyS+jGTkm1n7vVZjpYjgDVzTW2DccuUaBKWgu7jNQaTRw0IuBttVeiykFn95Y7
+         iOCw==
+X-Forwarded-Encrypted: i=1; AKwUvBzM0LoNqKk5Bs7bYLIqZmJwUBA26zrgQLHRKdoMdT0o+dsg+UCHuZhLlyhigu2poKhGAx/Ug/ZbA6c5Eg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJ7xbXsVJUxrg1Yc6K75jvQ5KI6nnt5cqV3BEmfLoqFrw2zZeRJ
+	LuQ0Vi8uOv/x/KuuEmGCGND3Jsq4KTrgmIiBHIhmgaMUaO7ZYpB8s7TR
+X-Gm-Gg: AYBFou1dedJ+38w0QdoC+M3uJPe4q4YKjSrMzHp23PE12B5VhFmVDGnZC+QXpx6RQdw
+	TlpoYeXjRbofpRZtcGuosVr9pEoSJQU7GK6P2nhAAfAkDuid5YgCf4bxxDdxZP8GhwxAWdsUh/0
+	zJivG4ZPcUAHBIYk3Yt8GDqzxfTnTTE1z1nR7YXu8nJWEl4bC3CsITnh81X6N2fWGwZ/RjKB78w
+	AUEeA4Flj4a1fqVjET2i6LDbt4/p9nlVQc2u6OfHf72tXQ8QKjeBDh6senRfDHuRGo9oobUOHyp
+	IuoJjk4FUUTU2HfXNL1ghFLrkejtUDDOrsoCTInXAhOXSrxS/M8gepM2azGFTTE/MJPjx1wAs3o
+	9du2nk9Zh7bUJ0Bt6gtQ06Pay432LJJGTK4/aQ/kCYKeYfmv7pNyRDfsHdJIgnP4PUqA8MKCCg6
+	qhp6nouqP+bUGNHESBb9P8Y190wqZ3lkjBW5Hul7twDm+75BzHhRX+7002ahWMc58DPuZQMDKPp
+	1w7p1sCG8INHis630LiXccCEQL/XzvNz8xy09CEJuIlQEmdFaNqjzjYjMwc7Qv8WZK1xypfN94k
+	Gae1Rcr7htxKS++W6e0zXQ==
+X-Received: by 2002:a05:693c:414b:20b0:367:5e31:ce29 with SMTP id 5a478bee46e88-3675e31ce6bmr3904222eec.20.1792602031067;
+        Wed, 21 Oct 2026 10:00:31 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:92d1:8038:c4e7:1f0c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903b3d0530sm7935669c88.11.2026.10.21.09.56.06
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-367405ee5e3sm8459829eec.4.2026.10.21.10.00.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 09:56:06 -0700 (PDT)
-Date: Wed, 21 Oct 2026 09:56:03 -0700
+        Wed, 21 Oct 2026 10:00:29 -0700 (PDT)
+Date: Wed, 21 Oct 2026 10:00:26 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Bartosz Golaszewski <brgl@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andy@kernel.org>, 
-	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Hans de Goede <hansg@kernel.org>
-Subject: Re: [PATCH 3/3] Input: soc_button_array - convert to software nodes
-Message-ID: <atjuDNi0_SXs4y2d@google.com>
-References: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
- <20261021015004.1537738-3-dmitry.torokhov@gmail.com>
- <CAMRc=MfZg36BULXh3n-ce_x_4B_xOn3Jp4Jgo5BN1LsB2FqaTw@mail.gmail.com>
+To: Alejandro Colomar <alx+linux-hardening@kernel.org>
+Cc: Shihuang Liu <shlomojune6@gmail.com>, linux-input@vger.kernel.org, 
+	linux-hardening@vger.kernel.org, Marcus Folkesson <marcus.folkesson@gmail.com>, 
+	Ville Syrjala <syrjala@sci.fi>, Henk Vergonet <Henk.Vergonet@gmail.com>, 
+	Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/6] Input: joystick - use usb_make_subpath()
+Message-ID: <atjvKMOXQY_psYcF@google.com>
+References: <20261021123146.17202-1-shlomojune6@gmail.com>
+ <20261021123146.17202-3-shlomojune6@gmail.com>
+ <ati7yINv0_Z3yPMg@debian>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -101,112 +102,56 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMRc=MfZg36BULXh3n-ce_x_4B_xOn3Jp4Jgo5BN1LsB2FqaTw@mail.gmail.com>
+In-Reply-To: <ati7yINv0_Z3yPMg@debian>
 
-On Wed, Oct 21, 2026 at 05:11:32AM -0500, Bartosz Golaszewski wrote:
-> On Wed, 21 Oct 2026 03:50:01 +0200, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> said:
-> > Convert the driver from using legacy platform data to using software
-> > nodes for registering 'gpio-keys' devices. This allows us to
-> > transition away from platform data and use generic device properties.
+On Wed, Oct 21, 2026 at 03:21:28PM +0200, Alejandro Colomar wrote:
+> Hi Shihuang,
+> 
+> > Date: 2026-10-21 20:31:42+0800
+> > From: Shihuang Liu <shlomojune6@gmail.com>
 > >
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > The pxrc and xpad drivers build their input device physical paths
+> > by appending "/input0" with strlcat() after usb_make_path().
+> > 
+> > In preparation for removing the deprecated strlcat() API [1],
+> > replace each pair of calls with usb_make_subpath(). The helper
+> > formats the USB path and the "input0" subpath in one call,
+> > avoiding a separate buffer scan and append operation.
+> > 
+> > Link: https://github.com/KSPP/linux/issues/370 [1]
+> > Signed-off-by: Shihuang Liu <shlomojune6@gmail.com>
 > > ---
-> >  drivers/input/misc/Kconfig            |   1 -
-> >  drivers/input/misc/soc_button_array.c | 134 ++++++++++++++++++--------
-> >  2 files changed, 92 insertions(+), 43 deletions(-)
-> >
-> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> > index 169768e3d5bb..a2984c1048f3 100644
-> > --- a/drivers/input/misc/Kconfig
-> > +++ b/drivers/input/misc/Kconfig
-> > @@ -906,7 +906,6 @@ config INPUT_SOC_BUTTON_ARRAY
-> >  	depends on KEYBOARD_GPIO && ACPI
-> >  	depends on X86
-> >  	depends on GPIOLIB
-> > -	select GPIOLIB_LEGACY
-> >  	help
-> >  	  Say Y here if you have a SoC-based tablet that originally runs
-> >  	  Windows 8 or a Microsoft Surface Book 2, Pro 5, Laptop 1 or later.
-> > diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-> > index 8d782ef4f78b..aa7838b864c2 100644
-> > --- a/drivers/input/misc/soc_button_array.c
-> > +++ b/drivers/input/misc/soc_button_array.c
-> > @@ -14,9 +14,11 @@
-> >  #include <linux/acpi.h>
-> >  #include <linux/dmi.h>
-> >  #include <linux/gpio/consumer.h>
-> > -#include <linux/gpio_keys.h>
-> > +#include <linux/gpio/driver.h>
-> > +#include <linux/gpio/machine.h>
-> >  #include <linux/platform_data/x86/soc.h>
-> >  #include <linux/platform_device.h>
-> > +#include <linux/property.h>
-> >  #include <linux/slab.h>
-> >
-> >  static bool use_low_level_irq;
-> > @@ -59,10 +61,10 @@ struct soc_button_data {
-> >   * gets called with the lid open (e.g. on boot and on resume), it sets the
-> >   * irq-type to IRQ_TYPE_LEVEL_LOW. Where as the gpio-keys driver programs the
-> >   * type to, and expects it to be, IRQ_TYPE_EDGE_BOTH.
-> > - * To work around this we don't set gpio_keys_button.gpio on these 2-in-1s,
-> > + * To work around this we don't set "gpios" property on these 2-in-1s,
-> >   * instead we get the irq for the GPIO ourselves, configure it as
-> >   * IRQ_TYPE_LEVEL_LOW (to match how the _LID AML code configures it) and pass
-> > - * the irq in gpio_keys_button.irq. Below is a list of affected devices.
-> > + * the irq as a device resource. Below is a list of affected devices.
-> >   */
-> >  static const struct dmi_system_id dmi_use_low_level_irq[] = {
-> >  	{
-> > @@ -131,18 +133,31 @@ static const struct dmi_system_id dmi_invalid_acpi_index[] = {
-> >  };
-> >
-> >  /*
-> > - * Get the Nth GPIO number from the ACPI object.
-> > + * Get the Nth GPIO information from the ACPI object.
-> >   */
-> >  static int soc_button_lookup_gpio(struct device *dev, int acpi_index,
-> > -				  int *gpio_ret, int *irq_ret)
-> > +				  bool active_low,
-> > +				  struct software_node_ref_args *gpio_ref,
-> > +				  int *irq_ret)
-> >  {
-> > +	struct gpio_device *gdev;
-> > +	struct fwnode_handle *fwnode;
-> >  	struct gpio_desc *desc;
-> >
-> >  	desc = gpiod_get_index(dev, NULL, acpi_index, GPIOD_ASIS);
-> >  	if (IS_ERR(desc))
-> >  		return PTR_ERR(desc);
+> >  drivers/input/joystick/pxrc.c | 3 +--
+> >  drivers/input/joystick/xpad.c | 3 +--
+> >  2 files changed, 2 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/input/joystick/pxrc.c b/drivers/input/joystick/pxrc.c
+> > index 52d9eab667b7a..1a11e73d7cd04 100644
+> > --- a/drivers/input/joystick/pxrc.c
+> > +++ b/drivers/input/joystick/pxrc.c
+> > @@ -169,8 +169,7 @@ static int pxrc_probe(struct usb_interface *intf,
+> >  
+> >  	pxrc->input->name = "PXRC Flight Controller Adapter";
+> >  
+> > -	usb_make_path(udev, pxrc->phys, sizeof(pxrc->phys));
+> > -	strlcat(pxrc->phys, "/input0", sizeof(pxrc->phys));
+> > +	usb_make_subpath(udev, pxrc->phys, sizeof(pxrc->phys), "input0");
 > 
-> This GPIO is requested for a short time and then released. Do we run into
-> a risk of the actual target user requesting this pin at the same time and
-> failing? We don't support shared GPIO pins for ACPI yet (though I want to
-> add that eventually).
+> To be honest, I think the composed approach is more readable.  You don't
+> need to learn a new _subpath function with all the details it has.
 > 
-> I know this has always been like this but I'm wondering how it works exactly.
+> Everyone knows what a str*cat() (or str*cpy, FWIW) function does.
+> 
+> I'd rather improve this by adding strscat().  The reason for removing
+> strlcat(3) is that it is vulnerable to DoS, and that it is inefficient,
+> but it is good at producing readable code, and a replacement should not
+> degrade that.
 
-The soc_button_array driver controls instantiation of devices that
-consume these GPIOs, so there is no concern of them being consumed too
-early.
+Well, there is absolutely no performance concerns in this code, so
+another option is to simply leave it as is. I see no benefit here from
+using yet another variant of str*cat().
 
-> 
-> >
-> > -	*gpio_ret = desc_to_gpio(desc);
-> > +	gdev = gpiod_to_gpio_device(desc);
-> > +	fwnode = dev_fwnode(gpio_device_to_device(gdev));
-> > +	if (!fwnode) {
-> > +		gpiod_put(desc);
-> > +		return -ENODEV;
-> > +	}
-> > +
-> > +	*gpio_ref = SOFTWARE_NODE_REFERENCE(fwnode, gpiod_hwgpio(desc),
-> > +					    active_low ? GPIO_ACTIVE_LOW :
-> > +							 GPIO_ACTIVE_HIGH);
-> 
-> Sigh... I hate it and it looks hacky but I also don't have a better idea. :(
-
-Thanks, that is quite common reaction to the code I write ;)
+Thanks.
 
 -- 
 Dmitry

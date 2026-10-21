@@ -1,97 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.169
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792601581;
-	b=5HnPjl4HGLXG26t0nLgL88O1/D1Ehe557+Blan6ud+AfU1mrPCFswoJ6IDKiD8eloeu0
-	 KvH+htIDgpPghor36UWmNuavms2gIHJxZ3Xxf9ghlDaWAhczUJCElrbIn7SuCvevzc7YQ
-	 Rx9pUJWZPJj+ieF8K0lFUMcmqWQYUbR9mm3ygVXHMGKgpzTJz7DSqkX+9xJ2u3BKRLBd1
-	 CkRftbbHv59bhtbkHrVgoWjpYkn3jHnJROgvWk/1KKQK5bl92zqHOzdnbnQviS4EMOsEa
-	 Lx0f9xHiGVB51qVVOE8aZo/BSTgfvMQNL6Q+WWKlchXdJnnJLjWurH4I6/5dbo1cgYg==
+	t=1792601768;
+	b=I02HzutM8+aT+QOQGWw4vYrpf6LVJHWNUtuhoi6V4DN4sPHphPjhSREi6UtEA5pnclwm
+	 mZufD452eaXc3pspaYheY4vFPe0TDiqAHOBMeu1yyeEQbx83M8Xe4O8hmDQ5KV54PZthK
+	 e5v1MAjnvL4obg/TJUQBdc979cLPoTUgPMlhbgZv0/H9nNX1xSusKVg1fp9P7pjVqCnde
+	 HWa6Bj7iLUjdsdTfbHL2laYj8irp4OmJl/gqye2qHJDJ5pDKC0tyLSHQJKQzhhhqakHKE
+	 jzve6Gi0l6eOxKGSKwcOeXZe33QMDjvRNzqcjgmBntrX+V6moBA9Qb/yslW7uaXLHtQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792601581;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792601768;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
 	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=pKVlIvSF3bgj4NKmyst/GQOZtuCqamm6OCIrIl39yS8=;
-	b=eCT8Hm+yIucgTylWRQjBFDrDzuSugf4FNWQVdhF1JN0l9g0ZlfQF/soSjkmNN1zIymKK
-	 HMbuhm9jV7vL3nUK1cCrZ3//fZrp0h2BYDz7Fh5k5OhKyG4127R6rU/RFo0XVTFYrFO7j
-	 lP2NeTQLLnt7ldB+PktYxEIfEPu8cEbmI1EMv1BVkU3ruHCDEqDiSBNjc0jYcqFjk9a/A
-	 T+34ej+gKjyAidOT8TxSHPCYqldn+5M48w2KBjPYulrhI8+XEqzXUkhGmkSTLrjjETYu6
-	 frFSfOuBu/BOwunyqglXzqyvaNqEPrBANVA9gybWVVQdufieJsggyqLqG31HBGvFZmA==
+	bh=BqFxca6gK6ThfbYRhXakalZoTDjV2OaXfqMDjTk93C4=;
+	b=vd4NUpVoAlSuz3+P75CxO7wM+Bd/W7FvAXOSnUD3ysJp4PwjVkekI2u+8dfsYhq/oOhS
+	 vbnWoahOUqSJkzUj0bDw2Lylo2U1V5IenzVVsuQuURBNMAoAtXNwiyfEApceuFAzBShom
+	 703MM73H1umTT82gX922JDa6w+i0NqTE2+YVUx91gZcDQ7vhnx5aKD8SDKfwL09pQJRKi
+	 rkMihcLaj/1V5qmbjIRUqxVPbCFOx6OsC0vhgVAqUuMtncYdTTkveC9xUXx+gV5NqcU9E
+	 4QbxvUUsHCaln1mJvaM5MxX3uMGwKQ09NX8rf5bIwwIzeF1nOW8uPa5zgI1K2SGwl1w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=qmbwvlpD;
-	arc=none smtp.remote-ip=74.125.82.53
-Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="b47HAwz/";
+	arc=none smtp.remote-ip=74.125.82.169
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C45B606A31D
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 16:53:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5C45B606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F65760A2606
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 16:56:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3F65760A2606
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=qmbwvlpD
-Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-156cbe59622so662071c88.0
-        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 09:53:01 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=b47HAwz/
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-3282db206d3so2158742eec.0
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 09:56:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792601580; x=1793206380; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792601767; x=1793206567; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=pKVlIvSF3bgj4NKmyst/GQOZtuCqamm6OCIrIl39yS8=;
-        b=qmbwvlpDjjnvN+ojyDVZMh4S/iXYFHextf/p4m9ZyuKDJw8yp4XS5IVGfxc7T0kIwz
-         HBuaORpQGk3pTdC1lnVV0qHf/leap+KQONIw/DTJpmbK40VFfvr0Pq7U0GS+JIvTgXEG
-         2YquSH2LTMrcpTsI3MreKRpqLGekFDCqH9eVgfchdHPNBQHlWsB+cGebsi/zY+9vSlo8
-         rJJxdvmqHFAk1xm0RwcKaKhslv0n643FcuctDdz9lZgj6/Lu7IZjhMO6EW9HPjdXR7Rg
-         HlFF9KYbxy96QZGw6Mrl1K7YoL5YKGEwyI/Rjfgqu/FynbzUzjspX2rWXDL4KgmmIyac
-         Wx4g==
+        bh=BqFxca6gK6ThfbYRhXakalZoTDjV2OaXfqMDjTk93C4=;
+        b=b47HAwz/VVcj8i8Dk6rywlLjp4QPLVE9QU/sIDpiX4l5uicFU6+OyIDhEv6/jeqZc3
+         gDnlsX41vd9jS8QBqF5eWd0LEL7ObgKGc+mFe1J17hRYjevyusHa4RG6Bou9yDFMB+7H
+         1ZX2qmpzbQuFCAWRa4FS1QfTA4DnlBvO1ZgiAtM3Z5SowmDDqNG29VsiLXZc/XgUQ5O+
+         iAp/OmcJB+abmkYlNO2Nkk26Eh1FNrHWcRmxaaCR3H2KFKajAHxrDVISqotylsi7Xs3W
+         PysGqH5xjgqIys5FyNfXPc0mTOYqh01SIjH96t/1KQEVQMDj4hztLVadfGy6lOdAAt1j
+         XNbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792601580; x=1793206380;
+        d=1e100.net; s=20260707; t=1792601767; x=1793206567;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=pKVlIvSF3bgj4NKmyst/GQOZtuCqamm6OCIrIl39yS8=;
-        b=NencEqiy6UoOaSp/yUytCAiNGCox9N0w4QEToJCxo1Rb3hXvvAexN2iYzA7qSjF+kw
-         3fOVaZWcF9bK4okMADwS+MYUIX1NQ2CJ3qbQqXsojEEthD2Qag3c5AjgDElb0QG1urxN
-         QjLzdawoftY5zeVs5ZP5xt9qoKOTm85IEtiDPoEdfQ0arDEHbYs7mbJJTJlcjgLe2MH7
-         XCoyqs6Qlo7tkD7lkbBkrdx2UQ0qylrjcpU07nz5+/cuBFP4c/uDN0EZvhKwb51n+9un
-         OUiz6cO22qsZqCivIMwW8VuuI9inLa6Ywz5bo0Y6bJck2quhZj+DIkYUpyTIdKD3NmAi
-         X3Uw==
-X-Forwarded-Encrypted: i=1; AKwUvBx9knJp3DGs2jBnq4lpqa7FWAuzy1legQKDXR+r2ZG5rf/wUVqUaZPaThmxmqVQJ69Nxtu3qSu+BsVkDA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ1zoX/I3Mn8qEF3Bsqp53T8RV0GE944zIjI+eC965sfcEB5yU5
-	azi/e7r6/e3ftx9I1lH6qjIAlc7J0PPWFGM7ODQYXpxHua8HABp5ryH3
-X-Gm-Gg: AYBFou0CgvAPqdl9K8nrzo/n33mZE5NXxrciNKg38JLVRL/3UqIGs378JBZYmMU0YNh
-	qff47t1fTStaNNuHeXBXN27pT4djAnf5lqBC1bw4LVWrZoJr4rZTHfsszi8aVVeY8n0z7psHDsV
-	PDNtMqV+y62uYtmBEU+UuMe7r0bJCX81bAkfjQ5SLOPSl3n/LzcUlxQQGQ3Pj1h9jyGTS53McuA
-	ESAkQijAByPowrh2Yw08QkbQOgZ3RCs3xgOolLAEUYJs00GXaC/UD78OZFEOWdva/LYKS7Grijh
-	r0+MAd5a86Hok23HaYm32UlDv1VP5km94VCeJ/AmJY9MrWBOZiDfoSFzRFl7fljoyVnpscc/BBs
-	aVKJvbDQhiBzQzjFjc6kiKo52SeR9BixGmKzrhqjyDKUp0aQXye9L73/m9glCtzGR7gn40nGVTk
-	EqzXsxBnyLlrV/BnILK/UpXeBR644rb7l6D5OJ7MTUIa7EBsmsXIf4u18ZveHntdxHXws3Xo/uf
-	IRBEvz67MyTnNafRY2jLtNIYsWXqirQRGVmu7CHl5hqh/xhxX5TWiT3kcz2W4ixBqtI0oBsAs84
-	EHK8GocNUOQxZNboTy36zg==
-X-Received: by 2002:a05:701b:260c:b0:18a:6c40:1a35 with SMTP id a92af1059eb24-190a4e0f52emr2922497c88.20.1792601580385;
-        Wed, 21 Oct 2026 09:53:00 -0700 (PDT)
+        bh=BqFxca6gK6ThfbYRhXakalZoTDjV2OaXfqMDjTk93C4=;
+        b=fqDccVfWI2w8g/GtkIHmnBXb/puI4zvuqthnUEB1ESCzdc1lRg6JsxjlhAl33g9/Wb
+         8t/sZnxP8XFUVSiESfcuo7dlfHabSV5H0h5ep86IOx1foW4QtuX3GYTTrmAROq1wduHo
+         NjSxYlPxskE4iuGDgnAhwiJArgi2kIaJ+J1Dlk18AFnMFXZW1vsYTwU1BINdHxB/gfsk
+         3MsahPtIxMJ1WL0Pmp7gN4NBiIVC+HmciWUVzBJoTyk7XlvM0jwr4SK5BAHhOYeSjwfL
+         ezjTrghupdlCjBJ5g9HpXxwpDikmPyNYXYyv/G+hbBGBSl21icAceHfoBSEyuMzRyRvD
+         e2aQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwB1cPwVQ2H0bFPal3GtejdZBRlhdsiH4l/5anks59TOUZaDoKhl9awRue3k3/KLYmCLjfKfU3NRGEevA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLjVLh8kvJpyS77HxjvGUxRCyJH4gQ6dOob1qRE6HUcnj9i4bSi
+	T6xuSTleNWKk/VrJEOaKubl2KcADdA+uiQ2UwpB6getzJUMq/IgN0hw/
+X-Gm-Gg: AYBFou1KM3eHbGVY8pwgHSCEct66cqKu73sTH++uNApPxVMu6QjWqIQs/bkizxmXuLx
+	M/YOtYchgoyjzjeLa4t8tOhktLUySjDkWiC8t2IX+nUus7uVXXDMS8q153ZRhEO7lHkdSNuEDRr
+	xTzJ7PNijgwAUwblmPa12mH76/f29nFD2bGxaBX9mOtn7Kd7nvhz9IwCDCjtejJQkmInRBGWGCT
+	8009QbHTc/GaAh8ojRb3lOyeIFX9FHRvmyQLzQQw/GLysg/QwSoq6OToM07dIX20wFPhpxr4jcC
+	UfpI798d/mdUyBS99U7A1DoNbqW3CmsJB/rEZAQOliJ1mnJd1YlrS01p5InMBIyqtmJU8k4keFP
+	Fo5y/HMjbC/VDuHurJzF9exgzDL5HrCMm4zBOvzNVKNnjsRHHrbmrDIBmG+jOrS/etoqTrJMQTK
+	nszEn1xbByfKVZWVIPQ7mYWh6vJzDQC4inaZE0ZyJqFo18Plvau1o1baUx5P/XqxULLvlQbj/Ot
+	8l/lBOi7m4j5lJRKiIRZyWrATxTsiMXjlenABukXAHLMKuNZRG9PrIp5WrNsv39cgRdScS6e8p7
+	Wo1/bEQ8J3DHmOtSWbKmCQ==
+X-Received: by 2002:a05:7022:1709:b0:13b:4ab5:41d7 with SMTP id a92af1059eb24-190a051ddf3mr2928490c88.3.1792601767120;
+        Wed, 21 Oct 2026 09:56:07 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:92d1:8038:c4e7:1f0c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903e02901fsm7779991c88.22.2026.10.21.09.52.58
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903b3d0530sm7935669c88.11.2026.10.21.09.56.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Oct 2026 09:52:59 -0700 (PDT)
-Date: Wed, 21 Oct 2026 09:52:56 -0700
+        Wed, 21 Oct 2026 09:56:06 -0700 (PDT)
+Date: Wed, 21 Oct 2026 09:56:03 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Lee Jones <lee@kernel.org>
-Cc: Jonathan Cameron <jic23@kernel.org>, 
-	David Lechner <dlechner@baylibre.com>, Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Shi Hao <i.shihao.999@gmail.com>, Rachna Patil <rachna@ti.com>, 
-	linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
-	mfd@lists.linux.dev
-Subject: Re: [PATCH 28/28] mfd: ti_am335x_tscadc: Remove redundant
- ti_tscadc_dev_get() helper
-Message-ID: <atjtywLzWKxoddD7@google.com>
-References: <20261021121245.3111563-1-lee@kernel.org>
- <20261021121245.3111563-28-lee@kernel.org>
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andy@kernel.org>, 
+	Linus Walleij <linusw@kernel.org>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Hans de Goede <hansg@kernel.org>
+Subject: Re: [PATCH 3/3] Input: soc_button_array - convert to software nodes
+Message-ID: <atjuDNi0_SXs4y2d@google.com>
+References: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
+ <20261021015004.1537738-3-dmitry.torokhov@gmail.com>
+ <CAMRc=MfZg36BULXh3n-ce_x_4B_xOn3Jp4Jgo5BN1LsB2FqaTw@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,22 +101,112 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261021121245.3111563-28-lee@kernel.org>
+In-Reply-To: <CAMRc=MfZg36BULXh3n-ce_x_4B_xOn3Jp4Jgo5BN1LsB2FqaTw@mail.gmail.com>
 
-On Wed, Oct 21, 2026 at 12:09:50PM +0000, Lee Jones wrote:
-> Now that ti_tscadc_dev_get() is a single-line wrapper around
-> dev_get_drvdata(p->dev.parent), remove the bespoke helper and retrieve
-> the parent driver data directly in the child ADC and touchscreen
-> drivers.
+On Wed, Oct 21, 2026 at 05:11:32AM -0500, Bartosz Golaszewski wrote:
+> On Wed, 21 Oct 2026 03:50:01 +0200, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> said:
+> > Convert the driver from using legacy platform data to using software
+> > nodes for registering 'gpio-keys' devices. This allows us to
+> > transition away from platform data and use generic device properties.
+> >
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/misc/Kconfig            |   1 -
+> >  drivers/input/misc/soc_button_array.c | 134 ++++++++++++++++++--------
+> >  2 files changed, 92 insertions(+), 43 deletions(-)
+> >
+> > diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> > index 169768e3d5bb..a2984c1048f3 100644
+> > --- a/drivers/input/misc/Kconfig
+> > +++ b/drivers/input/misc/Kconfig
+> > @@ -906,7 +906,6 @@ config INPUT_SOC_BUTTON_ARRAY
+> >  	depends on KEYBOARD_GPIO && ACPI
+> >  	depends on X86
+> >  	depends on GPIOLIB
+> > -	select GPIOLIB_LEGACY
+> >  	help
+> >  	  Say Y here if you have a SoC-based tablet that originally runs
+> >  	  Windows 8 or a Microsoft Surface Book 2, Pro 5, Laptop 1 or later.
+> > diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> > index 8d782ef4f78b..aa7838b864c2 100644
+> > --- a/drivers/input/misc/soc_button_array.c
+> > +++ b/drivers/input/misc/soc_button_array.c
+> > @@ -14,9 +14,11 @@
+> >  #include <linux/acpi.h>
+> >  #include <linux/dmi.h>
+> >  #include <linux/gpio/consumer.h>
+> > -#include <linux/gpio_keys.h>
+> > +#include <linux/gpio/driver.h>
+> > +#include <linux/gpio/machine.h>
+> >  #include <linux/platform_data/x86/soc.h>
+> >  #include <linux/platform_device.h>
+> > +#include <linux/property.h>
+> >  #include <linux/slab.h>
+> >
+> >  static bool use_low_level_irq;
+> > @@ -59,10 +61,10 @@ struct soc_button_data {
+> >   * gets called with the lid open (e.g. on boot and on resume), it sets the
+> >   * irq-type to IRQ_TYPE_LEVEL_LOW. Where as the gpio-keys driver programs the
+> >   * type to, and expects it to be, IRQ_TYPE_EDGE_BOTH.
+> > - * To work around this we don't set gpio_keys_button.gpio on these 2-in-1s,
+> > + * To work around this we don't set "gpios" property on these 2-in-1s,
+> >   * instead we get the irq for the GPIO ourselves, configure it as
+> >   * IRQ_TYPE_LEVEL_LOW (to match how the _LID AML code configures it) and pass
+> > - * the irq in gpio_keys_button.irq. Below is a list of affected devices.
+> > + * the irq as a device resource. Below is a list of affected devices.
+> >   */
+> >  static const struct dmi_system_id dmi_use_low_level_irq[] = {
+> >  	{
+> > @@ -131,18 +133,31 @@ static const struct dmi_system_id dmi_invalid_acpi_index[] = {
+> >  };
+> >
+> >  /*
+> > - * Get the Nth GPIO number from the ACPI object.
+> > + * Get the Nth GPIO information from the ACPI object.
+> >   */
+> >  static int soc_button_lookup_gpio(struct device *dev, int acpi_index,
+> > -				  int *gpio_ret, int *irq_ret)
+> > +				  bool active_low,
+> > +				  struct software_node_ref_args *gpio_ref,
+> > +				  int *irq_ret)
+> >  {
+> > +	struct gpio_device *gdev;
+> > +	struct fwnode_handle *fwnode;
+> >  	struct gpio_desc *desc;
+> >
+> >  	desc = gpiod_get_index(dev, NULL, acpi_index, GPIOD_ASIS);
+> >  	if (IS_ERR(desc))
+> >  		return PTR_ERR(desc);
 > 
-> Signed-off-by: Lee Jones <lee@kernel.org>
-> ---
->  drivers/iio/adc/ti_am335x_adc.c           | 2 +-
->  drivers/input/touchscreen/ti_am335x_tsc.c | 2 +-
+> This GPIO is requested for a short time and then released. Do we run into
+> a risk of the actual target user requesting this pin at the same time and
+> failing? We don't support shared GPIO pins for ACPI yet (though I want to
+> add that eventually).
+> 
+> I know this has always been like this but I'm wondering how it works exactly.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
+The soc_button_array driver controls instantiation of devices that
+consume these GPIOs, so there is no concern of them being consumed too
+early.
 
-Thanks.
+> 
+> >
+> > -	*gpio_ret = desc_to_gpio(desc);
+> > +	gdev = gpiod_to_gpio_device(desc);
+> > +	fwnode = dev_fwnode(gpio_device_to_device(gdev));
+> > +	if (!fwnode) {
+> > +		gpiod_put(desc);
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	*gpio_ref = SOFTWARE_NODE_REFERENCE(fwnode, gpiod_hwgpio(desc),
+> > +					    active_low ? GPIO_ACTIVE_LOW :
+> > +							 GPIO_ACTIVE_HIGH);
+> 
+> Sigh... I hate it and it looks hacky but I also don't have a better idea. :(
+
+Thanks, that is quite common reaction to the code I write ;)
 
 -- 
 Dmitry

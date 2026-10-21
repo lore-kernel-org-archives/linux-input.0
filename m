@@ -1,56 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792611623;
-	b=UnbxwFO6jCWogcPXnv7kxr21FQv7Jr2ldayf9i2SHQkPkEMv8/WTEHwQ6WqIpuimeGTK
-	 qEkJmwqmK6oNZtMonX6RP6t7OjnNf1LdQWcPoeYNSH8ZfqAPF9na1dWoy9gL2nQ0jlDy6
-	 D2I/NuVZbabdb226qjgv7l7Q7aCC3kEv9Q+ZO6q4mz/PJBlxWp/uQaJZRHIyR6U86cPlz
-	 gdBaW9cGmiPQH2oft11pozWE9zDbjGK3MkV7q6nBw2slY2tn9JDHMYg6hcYr5dEkM1635
-	 FECsUh7w2emVrxTVVpPeEcxJDiW/5Z/RzIkylbCGDffTivSues0Y2UCHRmwer0rw3HQ==
+	t=1792616877;
+	b=MUa6DCZwALmeQqmqOEpeJCAlARdFBomRia5bJms065oqtYR0wT273WiVvE87XmPYiteX
+	 Gp/px+irJFamAEQ9WfZNm9EcrWrQXu2Ftw7/cCbPd6T+1kmpQTQWvbxuT8CuU5XxESdyX
+	 M3wTNoLmDUUGUuNrhMUZylhbTdTWYBPixR+bQZl4eBIADa1JM5N3lAuj4ZOdRw/WrGouZ
+	 LFUIwRZZseZ/8c6GMewtlYR51+rV9DI5DmfkjqlB88JFMF8zFsl2IUpK0M/aMt5LO8/ch
+	 hxjBs1sNqPJJdlqdxhweU4s/3eLyB6vVpXfRR5PrmHJBLEtAGVPz+APVwieWzHS9sGw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792611623;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=VYX1UhKmAjV9w6jRLSUBXlUX07jQ9A8j9nmXwWdOln0=;
-	b=GMCgee3g6aB1y5LY5jY3Yq8Y9+DjxEJvAKlkWeCpCYLHy5oSZvL40MhWbOclPAFELDEn
-	 W5yHH1Nk6qu8BqFIdFUiLY4HmhLJww++5WAuZN0F1lV+KyuCJI3MuzfvJ7iGLaYOqUcCP
-	 RQLjg5U5kvjxwQysqV0fb+ZGD7/ZJISZygPLVuF7Uf6zdoXCekoW0lfVDB4CxgpXeBxw7
-	 OGXx07+V/oSEN+rlEMLfEJGiV2lBsxpyFPO3nx2peNuxB7SDOXpyZBDQdIyb3Agtyh5/V
-	 At1pquqsEkfjerCRDMU8k/NrKTu0fWx1Ultn+MknU7h5//zjPcWD5/mvLgPG5BqF5/Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792616877;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 Content-Disposition;
+	bh=JLjm6QlrOnf4m+CKqjntQj/9nw44DYlmra61+XkJwSw=;
+	b=FvloZhYr4/0CHtLyvacizf/kGTbLrnHQLbp0OEhaMjJLL1udOaHybD6nMYKjsznJ4EzX
+	 gjxAPOuAoLYqDEIv0gN4mHE6NhL3WEwTzhXj/RWgAUCFd3VDVyh32HSmgYp2/GpqD5Fk0
+	 yRKs4Fv/YX8StktdnVKFd9MNPpktukngtWcEpR23qJtZQdbO7cP3p0+r/gfz7GUSKpap9
+	 H0fzBROybuFHxCmL/O5N/E+8aqaP5FKr+c+zkxoLYGHxmM6FriN/cs5rdLXI/iIe30Y7Y
+	 +JRFs7DMYFLzpEXGC6iD+Q0xzngwEZQeJqeW2FiyCtcnqqQRmaJJ5QBPU9U5z0C6ISA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JL0lqrUG;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=KZ17htV+;
+	arc=none smtp.remote-ip=74.125.82.179
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13C89606A319
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 19:40:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B879606A319
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 21:07:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1B879606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JL0lqrUG
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A7B31F000C1;
-	Wed, 21 Oct 2026 19:40:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792611622;
-	bh=VYX1UhKmAjV9w6jRLSUBXlUX07jQ9A8j9nmXwWdOln0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JL0lqrUGANcZlZLlA1BYh6FnrzKw6hCHPM9uZ/HTO3ceOZXaYSgH9KPq/e//749jY
-	 D8GUjTvxXZhJdx/imitYLXoYnDGcGcjGzyRjDDx9pNSoXnVTU+f4jXLCSmdJPUeP+t
-	 6jM+xHcf2CPhvJoKyUUtpF66ZfqNDi//hMR0U3wAiGhfZl7UvGaUXVTciw6CaWhFCn
-	 8tJ5jq/uqi4dFlgs25/r0djtbvDWYaQE8bbWUIfQXZkwEAbPWzBt3kutzTekXpmNzi
-	 3Utn250Iv661sO1nqv/d0H5EEnry015bo+rqPVnq/A1FvcDvMt+rPTxQbI8CKZ+N8K
-	 A64AYTXOve6HQ==
-Message-ID: <sashiko-outbox-180592@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: exc3000 - zero-initialize vendor response
- buffers
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Edson Bruno" <cloudflare.ddos21@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261021192803.776-1-cloudflare.ddos21@gmail.com>
-References: <20261021192803.776-1-cloudflare.ddos21@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 21 Oct 2026 19:40:20 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=KZ17htV+
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-3550c917fd3so1556286eec.0
+        for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 14:07:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792616876; x=1793221676; darn=vger.kernel.org;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=JLjm6QlrOnf4m+CKqjntQj/9nw44DYlmra61+XkJwSw=;
+        b=KZ17htV+gRuoa27dG300tIMNXOcFuH7miZCa6cugXWEBDC5+pRvSRygf+HK7fFF4Be
+         Uw7iP828Ns7v33Y4ujFt5zHuGP5wSJ2eBc49NsaAJ6qWIrtDRmVAZM7wsK7g3eZnlCBv
+         uDXT4K1Sw8aChcGctks3pStqZG/+0XX899cQecENn7sdL25GnznxHbKZUYaSveI/IeN/
+         89yWhTPe7CP9kjF/non2+pLpa0JS1SxuCg7pt/m3J0h0g99rvViKZQIaSC4MyqiqVDFd
+         DiNxx56SilRE06EG7wDeeLft/6UiquzTkWDcdNck4I1GwaaYz2Z+689U8MhSIOgjbkFw
+         A7UQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792616876; x=1793221676;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=JLjm6QlrOnf4m+CKqjntQj/9nw44DYlmra61+XkJwSw=;
+        b=aMbsMqSGNjXgf4ihxVyMx0fHckii3fKNdlejp01wIg7rU6qHrjtirMTOvsD6OsLKSw
+         ZaQIVA1F3ChQtzRCfYvdTl1tizW/epYS55YVSClyEyRHlkvCjAY1oKD6zyXe1fIIa1jV
+         exPSWjVB3f/9b9Gufkgj7hejTnBMH0ZFOiMFcYCdLzNz9MXjN0BJ65Q4Pg0Z94FNwWJc
+         hNPmHnKIii2lpRJmFiURjRkds06IpezqjLzd0bnpWC79K8UbpXndpLk1umytx43P3sMn
+         uEHul2ut64ABuuPPGyMspRHztmwPkgGESOXlsq/+vLiiX+yiXFxU7PKAlGm/sZxpPzRY
+         ZFUA==
+X-Forwarded-Encrypted: i=1; AKwUvBxFG4qpkJLKHGGudU41bZNwPRtahMlgkv05aQqq3cZsO+5ujTRm3kpGiNhQUGPjPNDfqaoSMt6wTw5sMA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIop7i9H4NO58OT2XQkWCwqsmE3vwSucY1D4qCheFlU7GwwGgQZ
+	XgJRkarVio9Dtt7L81naLdSjTcvc5luPJjagEQ0jT1NmTKXSsKMjjW74
+X-Gm-Gg: AYBFou2a7fZ8ODGBy+RKn8HzTv16vRO6zUw7fn3OubCq1YQRYJ7UqK7pKDcnBiisBuL
+	/U9PDW6aWVoFab1cLqGCKqsux2+UW1WnRp1xBiFSRd8PvjV/1FDs8lGDFGNhdegf6/K/GIEck1L
+	myFvEvN3Vmyzw4HvbiL8YsUCkm8HKqaWAVVFPiSRX/doo6TKY5ASMJ28WIWnpNawOBBFV1tvK9p
+	Fazm7tQJyBuV+n2OWihxcTBIiTY2dteM9ouxW/iArxE5d7zoX+u/rDwWq3Yaq5HUXPNiYsv2DtA
+	edjU4xJJVPkO44z/HC69+5sn6p3twa71Qs1LE9NGeqIv2LIfuF92lQHIqpfv7pe/7vs6+EcmHU1
+	fkadkSkRjTiHa0ELJmWg1heBCRhT62AG8wIC3bIyoH18d8L9aqB23pt7/jmNOxdktETbOR+lY7w
+	pfChmbjm1Wn35fHElY1j6fVI0moM1eaGANu9UdjPM4OsZWGBrn3q5sWa9J1hrZMeIkRpzMuPY/j
+	dHsUepTnUi4Z5pQVwZQ3LiwvDdB9iH1s2TO4OQXYIdj+nPPnSbHmmHhp7+31X95h/prkBeJw4vT
+	4fjP5ViwMfS1PpjBr1hh
+X-Received: by 2002:a05:7301:2411:b0:34c:fb30:3e30 with SMTP id 5a478bee46e88-36858cac5cemr1399501eec.7.1792616876048;
+        Wed, 21 Oct 2026 14:07:56 -0700 (PDT)
+Received: from localhost ([2a00:79e0:2ebe:8:1761:399a:3c8c:31ba])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3673e153519sm10203781eec.3.2026.10.21.14.07.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Oct 2026 14:07:55 -0700 (PDT)
+Date: Wed, 21 Oct 2026 14:07:54 -0700
+Message-ID: <14ba3b960ff6ad152fadb4e77a9b04fd@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Sanjay Govind <sanjay.govind9@gmail.com>
+Cc: Antheas Kapenekakis <lkml@antheas.dev>,
+	Qbeliw Tanaka <q.tanaka@gmx.com>,
+	Kees Cook <kees@kernel.org>,
+	Shengyu Qu <wiagn233@outlook.com>,
+	Kyohei Kadota <lufia@lufia.org>,
+	Elliot Tester <elliotctester@gmail.com>,
+	Dmitriy Zharov <contact@zharov.dev>,
+	Zoltan Illes <zoliviragh@gmail.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v9] xpad: Overhaul device data for wireless devices
+In-Reply-To: <20261015220126.102766-3-sanjay.govind9@gmail.com>
+References: <20261015220126.102766-3-sanjay.govind9@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,257 +105,268 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [High] Input: exc3000: race on data->buf in exc3000_vendor_data_request()
-- [Medium] Input: exc3000 - stale data in fw_version_show() when reusing re=
-sponse buffer
-- [Medium] Input: exc3000: off-by-4 bounds check in exc3000_vendor_data_req=
-uest()
-- [Low] Input: exc3000 - Fixes tag references wrong commit for uninitialize=
-d buffers
---
+Hi Sanjay,
 
-commit 390612be535b37b6ded7e34eebf63dafb87943fe
-Author: Edson Bruno <cloudflare.ddos21@gmail.com>
+On Fri, Oct 16, 2026 at 11:01:28AM +1300, Sanjay Govind wrote:
+> Xbox 360 wireless controllers expose information in the link and
+> capabilities reports.
+>
+> Extract and use the vendor id for wireless controllers, and use
+> the subtype to build a nicer device name and product id.
+>
+> Some xbox 360 controllers put a vid and pid into the stick capability
+> data, so check if this was done, and pull the vid, pid and revision from
+> there.
+>
+> To make sure this information is available when the input device is
+> created, delay creating it until 500ms after the pad is reported as
+> present. Some devices never send a capabilities report, so the
+> timeout ensures they are still initialized.
+...
+> @@ -746,6 +768,8 @@ struct usb_xpad {
+>  
+>  	bool pad_present;
+>  	bool input_created;
+> +	unsigned int pad_gen;		/* bumped every time an x360w pad goes away */
+> +	unsigned int input_gen;		/* pad_gen the input device was created for */
+...
+> +	u8 sub_type;
+> +	u16 flags;
+> +	u16 wireless_vid;
+> +	u16 wireless_pid;
+> +	u16 wireless_version;
 
-Input: exc3000 - zero-initialize vendor response buffers
+I saw your reply to Sashiko about adding a spinlock and snapshotting
+the wireless state for v10. Stepping back and looking at the driver as
+a whole, grouping the wire-level discovery state into a dedicated
+struct protected by a spinlock will also help clean up a few other
+races and edge cases in the current state machine:
 
-This commit zero-initializes the stack-allocated vendor response buffers in
-fw_version_show(), model_show(), type_show(), and exc3000_probe(). This is
-intended to prevent reading uninitialized stack memory when the device retu=
-rns
-a short or non-null-terminated reply to exc3000_vendor_data_request().
+	struct xpad360w_pad_info {
+		bool present;
+		unsigned int gen;
+		u8 sub_type;
+		u8 flags;
+		u16 vid;
+		u16 pid;
+		u16 version;
+	};
 
->     Input: exc3000 - zero-initialize vendor response buffers
->    =20
->     exc3000_vendor_data_request() copies up to EXC3000_LEN_FRAME - 1 bytes
->     of device-supplied data into the caller's buffer and returns the leng=
-th
->     reported by the device. The callers (the fw_version, model and type
->     sysfs attributes, and probe) pass uninitialized stack buffers and do
->     not check that length.
->    =20
->     If the device returns a short reply, fw_version_show() tests and prin=
-ts
->     response[2] and response[3] uninitialized. If the reply is not NUL
->     terminated, the "%s" conversions read past the copied data into
->     uninitialized stack, which is then exposed via the world-readable
->     sysfs attributes.
->    =20
->     Zero-initialize the buffers. At most EXC3000_LEN_FRAME - 1 bytes are
->     ever copied, so the last byte stays zero and the strings are always
->     terminated.
->    =20
->     The problem was found while reviewing the driver with an LLM assistan=
-t,
->     which also helped draft this changelog.
->    =20
->     Fixes: d862a3068ea5 ("Input: exc3000 - add support to query model and=
- fw_version")
->     Assisted-by: Claude:claude-sonnet-5-5
->     Signed-off-by: Edson Bruno <cloudflare.ddos21@gmail.com>
-
-[Severity: Low]
-Does the Fixes tag reference the right commit for the uninitialized stack
-buffers in drivers/input/touchscreen/exc3000.c?
-
-Commit d862a3068ea5 ("Input: exc3000 - add support to query model and
-fw_version") stored model and fw_version in devm_kzalloc()-allocated struct
-exc3000_data fields and populated them via strlcpy(), which guaranteed null
-termination and did not use stack response buffers.
-
-The uninitialized stack buffers and queries touched by this patch were
-introduced across later commits:
-- Commit 102feb1ddfd00d ("Input: exc3000 - factor out vendor data request")
-  removed strlcpy() and introduced exc3000_vendor_data_request() along with
-  the uninitialized u8 response[EXC3000_LEN_FRAME] stack buffers in
-  fw_version_show(), model_show(), and exc3000_probe().
-- Commit c929ac9eb85acf ("Input: exc3000 - fix firmware version query for
-  device in bootloader") added the bootloader query reading response[2] and
-  response[3] in fw_version_show().
-- Commit ad117c558e838f ("Input: exc3000 - add type sysfs attribute") added
-  type_show() with its uninitialized u8 response[EXC3000_LEN_FRAME] stack
-  buffer.
-
-Should the Fixes tags reference those commits instead so stable backport
-tooling does not target kernels down to d862a3068ea5 where the patched code
-does not exist?
-
-> diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscr=
-een/exc3000.c
-> index d1f9b44d9d76b..2530b5935fefe 100644
-> --- a/drivers/input/touchscreen/exc3000.c
-> +++ b/drivers/input/touchscreen/exc3000.c
-> @@ -262,7 +262,7 @@ static ssize_t fw_version_show(struct device *dev,
+> @@ -958,19 +988,16 @@ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
+>  
+>  static void xpad_presence_work(struct work_struct *work)
 >  {
->  	struct i2c_client *client =3D to_i2c_client(dev);
->  	struct exc3000_data *data =3D i2c_get_clientdata(client);
-> -	u8 response[EXC3000_LEN_FRAME];
-> +	u8 response[EXC3000_LEN_FRAME] =3D {};
->  	int ret;
-> =20
->  	/* query bootloader info */
+> -	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work);
+> +	struct usb_xpad *xpad = container_of(work, struct usb_xpad, work.work);
+> +	unsigned int gen;
+>  	int error;
+>  
+> -	if (xpad->pad_present) {
+> -		error = xpad_init_input(xpad);
+> -		if (error) {
+> -			/* complain only, not much else we can do here */
+> -			dev_err(&xpad->dev->dev,
+> -				"unable to init device: %d\n", error);
+> -		} else {
+> -			rcu_assign_pointer(xpad->x360w_dev, xpad->dev);
+> -		}
+> -	} else {
+> +	/*
+> +	 * Tear down the input device if the pad went away, or if it was
+> +	 * replaced by a (possibly different) pad since the device was created.
+> +	 */
+> +	if (xpad->input_created &&
+> +	    (!xpad->pad_present || xpad->input_gen != READ_ONCE(xpad->pad_gen))) {
+>  		RCU_INIT_POINTER(xpad->x360w_dev, NULL);
+>  		synchronize_rcu();
+>  		/*
+> @@ -979,6 +1006,19 @@ static void xpad_presence_work(struct work_struct *work)
+>  		 */
+>  		xpad_deinit_input(xpad);
+>  	}
+> +
+> +	if (xpad->pad_present && !xpad->input_created) {
+> +		gen = READ_ONCE(xpad->pad_gen);
+> +		error = xpad_init_input(xpad);
+> +		if (error) {
+> +			/* complain only, not much else we can do here */
+> +			dev_err(&xpad->intf->dev,
+> +				"unable to init device: %d\n", error);
+> +		} else {
+> +			xpad->input_gen = gen;
+> +			rcu_assign_pointer(xpad->x360w_dev, xpad->dev);
+> +		}
+> +	}
+>  }
 
-[Severity: Medium]
-In drivers/input/touchscreen/exc3000.c, fw_version_show() zero-initializes
-response[EXC3000_LEN_FRAME] once at declaration, but passes response to
-exc3000_vendor_data_request() twice when the device is in application mode:
+There are two issues here with how pad_gen and xpad_init_input()
+interact:
 
-drivers/input/touchscreen/exc3000.c:fw_version_show() {
-	u8 response[EXC3000_LEN_FRAME] =3D {};
-	int ret;
+1. In xpad360w_process_packet(), pad_gen is incremented on disconnect
+before pad_present is set to false, whereas xpad_presence_work() checks
+xpad->pad_present before reading pad_gen. If xpad_presence_work() races
+with a disconnect packet, it can see pad_present == true, read the newly
+incremented pad_gen (along with the zeroed metadata), and set
+input_gen = pad_gen. When a new controller connects later, pad_gen is
+not incremented on connect, so input_gen == pad_gen and the new
+controller will never replace the bogus input device.
 
-	/* query bootloader info */
-	ret =3D exc3000_vendor_data_request(data,
-					  (u8[]){0x39, 0x02}, 2, response, 1);
-	if (ret < 0)
-		return ret;
-...
-	if (response[2] || response[3])
-		return sprintf(buf, "%d.%d\n", response[2], response[3]);
+Bumping gen when a pad connects (or on both connect and disconnect) and
+snapshotting the entire struct xpad360w_pad_info atomically under the
+spinlock at the start of xpad_presence_work() avoids this completely.
 
-	ret =3D exc3000_vendor_data_request(data, (u8[]){'D'}, 1, response, 1);
-	if (ret < 0)
-		return ret;
+2. xpad_init_input() sleeps while registering the input and LED devices.
+If the pad disconnects (or is replaced by another pad, which pushes the
+delayed work timer out by 500ms) while xpad_init_input() is executing,
+xpad_presence_work() will still publish xpad->x360w_dev upon return.
+After xpad_init_input() succeeds, please re-check under the spinlock
+that pad_info.present is still true and pad_info.gen == info.gen before
+setting xpad->input_gen and assigning xpad->x360w_dev; otherwise tear
+the newly created device down via xpad_deinit_input(xpad).
 
-	return sprintf(buf, "%s\n", &response[1]);
-}
-
-In exc3000_vendor_data_request(), memcpy(response, &data->buf[4],
-data->buf[3]) only overwrites the first data->buf[3] bytes of response and
-does not clear or null-terminate the remainder of the buffer:
-
-drivers/input/touchscreen/exc3000.c:exc3000_vendor_data_request() {
-...
-	memcpy(response, &data->buf[4], data->buf[3]);
-	return data->buf[3];
-}
-
-When a user reads the world-readable fw_version sysfs attribute on a device
-in application mode, the first exc3000_vendor_data_request() call populates
-response[0..ret1-1] (such as response[0] =3D 0x39 and response[1] =3D 0x02,=
- with
-response[2] =3D=3D 0 and response[3] =3D=3D 0), and the second call for (u8=
-[]){'D'}
-reuses that dirty response buffer without clearing it.
-
-If the second reply is short (1 byte or less) or shorter than the first rep=
-ly
-and not null-terminated, won't sprintf(buf, "%s\n", &response[1]) read stale
-non-zero bytes left behind by the bootloader query?
-
-> @@ -292,7 +292,7 @@ static ssize_t model_show(struct device *dev,
+> @@ -995,18 +1035,98 @@ static void xpad_presence_work(struct work_struct *work)
+>  static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data, u32 len)
 >  {
->  	struct i2c_client *client =3D to_i2c_client(dev);
->  	struct exc3000_data *data =3D i2c_get_clientdata(client);
-> -	u8 response[EXC3000_LEN_FRAME];
-> +	u8 response[EXC3000_LEN_FRAME] =3D {};
->  	int ret;
-> =20
->  	ret =3D exc3000_vendor_data_request(data, (u8[]){'E'}, 1, response, 1);
+>  	struct input_dev *dev;
+>  	bool present;
+> +	u16 parsed_vid;
+>  
+>  	/* Presence change */
+>  	if (data[0] & 0x08) {
+>  		present = (data[1] & 0x80) != 0;
+>  
+> -		if (xpad->pad_present != present) {
+> +		if (xpad->pad_present && !present) {
+> +			/* Forget everything we learned about the old pad */
+> +			WRITE_ONCE(xpad->pad_gen, xpad->pad_gen + 1);
+> +			xpad->sub_type = 0;
+> +			xpad->flags = 0;
+> +			xpad->wireless_vid = 0;
+> +			xpad->wireless_pid = 0;
+> +			xpad->wireless_version = 0;
+> +		}
+> +
+> +		/*
+> +		 * Also reschedule if the input device does not match the
+> +		 * presence state, e.g. because pending work was cancelled
+> +		 * on suspend.
+> +		 */
+> +		if (xpad->pad_present != present ||
+> +		    xpad->input_created != present) {
+>  			xpad->pad_present = present;
+> -			schedule_work(&xpad->work);
+> +			if (present) {
+> +				/*
+> +				 * Delay marking device as present, so we can make sure
+> +				 * we have received all the information from the capabilities
+> +				 * report. Some devices don't send one, so the delay
+> +				 * guarantees that these devices are still initialized.
+> +				 */
+> +				mod_delayed_work(system_percpu_wq,
+> +						 &xpad->work, msecs_to_jiffies(500));
+> +			} else {
+> +				mod_delayed_work(system_percpu_wq, &xpad->work, 0);
+> +			}
+> +		}
+>  	}
 
-[Severity: Medium]
-The commit message notes that exc3000_vendor_data_request() copies up to
-EXC3000_LEN_FRAME - 1 bytes of device-supplied data into the caller's
-response[] buffer in fw_version_show(), model_show(), type_show(), and
-exc3000_probe().
+Checking xpad->input_created != present here causes a problem during the
+500ms discovery window: while waiting for the timer to expire (or while
+xpad_init_input() is running), pad_present is true and input_created is
+still false. Any status packet (data[0] & 0x08) arriving during that
+window with present == true (for example, headset status bit 01.6
+changing) will see input_created != present and push the 500ms timer
+back again.
 
-However, in drivers/input/touchscreen/exc3000.c, exc3000_interrupt() ->
-exc3000_read_frame() reads only a single EXC3000_LEN_FRAME (66) byte frame
-into data->buf[0..65]:
+The only reason pad_present and input_created can get out of sync across
+suspend is that xpad_suspend() calls xpad360w_stop_input(), which cancels
+any pending delayed work via cancel_delayed_work_sync(&xpad->work).
+Instead of checking input_created in the IRQ handler, you can simply
+reconcile the state in xpad_suspend() after stopping input and sending
+the optional poweroff command:
 
-drivers/input/touchscreen/exc3000.c:exc3000_read_frame() {
-...
-	ret =3D i2c_master_recv(client, buf, EXC3000_LEN_FRAME);
-...
-}
+	if (xpad->xtype == XTYPE_XBOX360W) {
+		xpad360w_stop_input(xpad);
 
-Because the 4-byte vendor frame header occupies data->buf[0..3] and the
-vendor payload starts at &data->buf[4], at most EXC3000_LEN_FRAME - 4 (62)
-bytes of vendor payload exist in that received frame:
+		if (auto_poweroff && xpad->pad_info.present)
+			xpad360w_poweroff_controller(xpad);
 
-drivers/input/touchscreen/exc3000.c:exc3000_vendor_data_request() {
-...
-	if (data->buf[3] >=3D EXC3000_LEN_FRAME)
-		return -ENOSPC;
-
-	memcpy(response, &data->buf[4], data->buf[3]);
-	return data->buf[3];
-}
-
-Since exc3000_vendor_data_request() checks data->buf[3] >=3D EXC3000_LEN_FR=
-AME
-instead of data->buf[3] > EXC3000_LEN_FRAME - 4, if the device reports
-data->buf[3] in 63..65, can memcpy(response, &data->buf[4], data->buf[3])
-read up to 3 bytes past the 66-byte vendor frame into data->buf[66..68] (the
-second frame slot populated by exc3000_handle_mt_event() when more than 5
-touch slots are active) and expose those bytes via the world-readable
-fw_version, model, and type sysfs attributes?
-
-> @@ -308,7 +308,7 @@ static ssize_t type_show(struct device *dev,
->  {
->  	struct i2c_client *client =3D to_i2c_client(dev);
->  	struct exc3000_data *data =3D i2c_get_clientdata(client);
-> -	u8 response[EXC3000_LEN_FRAME];
-> +	u8 response[EXC3000_LEN_FRAME] =3D {};
->  	int ret;
-> =20
->  	ret =3D exc3000_vendor_data_request(data, (u8[]){'F'}, 1, response, 1);
-
-[Severity: High]
-In drivers/input/touchscreen/exc3000.c, zero-initializing
-response[EXC3000_LEN_FRAME] in fw_version_show(), model_show(), type_show(),
-and exc3000_probe() relies on exc3000_vendor_data_request() never copying
-more than EXC3000_LEN_FRAME - 1 bytes into response[].
-
-However, exc3000_interrupt() reads frames into the shared data->buf without
-acquiring data->query_lock, and returns IRQ_HANDLED immediately after calli=
-ng
-complete(&data->wait_event):
-
-drivers/input/touchscreen/exc3000.c:exc3000_interrupt() {
-	ret =3D exc3000_read_frame(data, buf);
-	if (ret) {
-		/* Schedule a timer to release "stuck" contacts */
-		exc3000_schedule_timer(data);
-		goto out;
+		xpad->pad_info.present = xpad->input_created;
 	}
 
-	switch (buf[2]) {
-	case EXC3000_VENDOR_EVENT:
-		complete(&data->wait_event);
-		break;
+Also, when a pad disconnects (xpad->pad_info.present && !present), it
+would be good to do RCU_INIT_POINTER(xpad->x360w_dev, NULL) immediately
+in xpad360w_process_packet() so no further input reports are routed to
+the old input_dev while teardown work is pending (especially if another
+pad connects right away and reschedules the delayed work for +500ms).
+
+> +	/* Capabilities report */
+> +	if (len >= 21 && data[0] == 0x00 && data[1] == 0x05 && data[5] == 0x12) {
+> +		xpad->flags |= data[20];
+> +		/*
+> +		 * A bunch of vendors started putting vids and pids
+> +		 * into capabilities data because they can't be
+> +		 * retrieved by xinput easily.
+> +		 * Not all of them do though, so check the vids match
+> +		 * before extracting that info. A vid of 0 means the link
+> +		 * report did not provide one, so there is nothing to match.
+> +		 */
+> +		if (xpad->wireless_vid &&
+> +		    get_unaligned_le16(data + 10) == xpad->wireless_vid &&
+> +		    get_unaligned_le16(data + 12)) {
+> +			xpad->wireless_pid = get_unaligned_le16(data + 12);
+> +			xpad->wireless_version = get_unaligned_le16(data + 14);
+>  		}
+>  	}
+
+Once the capabilities report arrives, we have all the identification
+data the controller will ever send. If the presence work is currently
+waiting for the 500ms fallback timeout, we can expedite it:
+
+	if (delayed_work_pending(&xpad->work))
+		mod_delayed_work(system_percpu_wq, &xpad->work, 0);
+
+That way controllers that respond to the capabilities inquiry are
+registered (and have their LEDs initialized) immediately without waiting
+the full 500ms, while controllers that do not respond still fall back to
+the 500ms timeout.
+
+> +static int xpad_inquiry_pad_capabilities(struct usb_xpad *xpad)
+> +{
 ...
-}
+> +	return xpad_try_sending_next_out_packet(xpad);
+> +}
 
-Meanwhile, exc3000_vendor_data_request() checks data->buf[3] and copies from
-&data->buf[4] without synchronization against exc3000_interrupt():
+Since the caller ignores the return value, please make
+xpad_inquiry_pad_capabilities() return void (matching
+xpadone_ack_mode_report() and xpad360w_poweroff_controller()).
 
-drivers/input/touchscreen/exc3000.c:exc3000_vendor_data_request() {
+> @@ -1943,8 +2088,60 @@ static int xpad_init_input(struct usb_xpad *xpad)
+>  	usb_to_input_id(xpad->udev, &input_dev->id);
+>  
+>  	if (xpad->xtype == XTYPE_XBOX360W) {
+> -		/* x360w controllers and the receiver have different ids */
+> -		input_dev->id.product = 0x02a1;
+> +		if (xpad->wireless_vid)
+> +			input_dev->id.vendor = xpad->wireless_vid;
 ...
-	if (data->buf[3] >=3D EXC3000_LEN_FRAME)
-		return -ENOSPC;
+> +		case SUBTYPE_PRO_GUITAR:
+> +			input_dev->name = "Xbox 360 Wireless Rock Band Pro Guitar";
+> +			break;
+> +		}
+>  	}
 
-	memcpy(response, &data->buf[4], data->buf[3]);
-	return data->buf[3];
-}
+Please factor this Xbox 360 wireless ID/name setup out into a small
+helper function (taking input_dev and the snapshotted
+const struct xpad360w_pad_info *info) so xpad_init_input() stays
+concise.
 
-Once exc3000_interrupt() returns IRQ_HANDLED and unmasks the interrupt line,
-a subsequent interrupt (such as a touch event EXC3000_MT1_EVENT or
-EXC3000_MT2_EVENT, or another device frame) can invoke
-exc3000_read_frame(data, data->buf) and overwrite data->buf[0..65] via
-i2c_master_recv() while exc3000_vendor_data_request() is concurrently
-evaluating data->buf[3] and copying from &data->buf[4].
+Thanks.
 
-If data->buf[3] is overwritten between the bounds check and the memcpy()
-with a value >=3D EXC3000_LEN_FRAME, could memcpy(response, &data->buf[4],
-data->buf[3]) overflow the caller's 66-byte stack buffer response[] and
-overwrite the trailing null terminator?
-
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021192803.776-=
-1-cloudflare.ddos21@gmail.com?part=3D1
+-- 
+Dmitry

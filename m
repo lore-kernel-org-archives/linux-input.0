@@ -1,56 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792548000;
-	b=WMdOkIWMPOZvRL9IAN1/84X4kj3ZoqjUOof4tZurlTobvFywirWcf0911e9FT2Fbnz8C
-	 iU1A0PPh8A60e14YajaXJvqv7HTygB8V2Ak+ooLnFYiBAj0nGSAOa5t1YgO+UU0atO8EI
-	 aKcppqpgwrD6/wyaNYh1nFdwXmCg6dmCNpNYO1MjDBdPi5nr6YgZuLP4CYYljq3VZF33D
-	 EwL9HhbTrCwtpDzvA/azGOtZNtD4gWKX/AKe/vPoFJdh9ikXlrtOOala/rJRXU5pHj/aY
-	 CQzPtHnqg4pakqsZPOohADNoeUXYjNUpgTUXzOKZ+gAaOFnBjruJncGRzZfJCZ/3b3A==
+	t=1792548893;
+	b=IUoPYLVDvohlLbsnBdytnmxtuD+lTwHKcY7/zqjG6NZ/i30avIUg4xJ6WMR3L1CLmcvr
+	 qANX6DQ5sKXjYZMVu4Lp3Gey4W79WRa7wNlylOIqMYsV04pWy91YfTarnulJeLk6WQEDk
+	 yMdIjDAKZ8k0XvSYJpDCzr2Rc8VdimjB6sbdCJJLeD1VhRo7SmdmbypehnubxOnFwQrF0
+	 Nsz5GTvl9EAhTsqGYcTYsdsYOUxu+jucnnHB4ysNFr+7Hb1Sicl93vTm26rf099IYsPHg
+	 BANbGox+6sFyEROk9Yee19mn0J7rJq+FGO2N2VXdEm/ge6wQHOjsArK2Wx84i2OaNnw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792548000;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=yoGGo77ZNLX3gLb2D4s2EfUeQWCYXc/yhjQDqKkwKpM=;
-	b=ezaVrdEBrC0qXJy816W0XsOUDVVjtNgaSUbMV413MyRVy8yr5SnHVxKTDPLepd5Mbvxn
-	 EcUJZPB+kQL5WVFb5brwyfrxO83Nnff0cW0c6UHyQJHgGnIYaebQbGiTsHOou3NP+dj93
-	 2IjLolchoDnqwEG09EyFDuJI+aGWveWr5laress68I82FXH35I0zHMjjs2gVXjaiWxzoV
-	 tGYEj/Hhk8Dp+MFsfXTnc64Om3VI3NNqn4Joprta7Lh0JXglsRyeEqyK+rTvWtLygMW7D
-	 cFKaQ03Sj/a5uXFbaJPaQ4kdS6jDXbBAPkS3BGcgottP3UR8IoxgCxnFhrGXaPd2U/w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792548893;
+	h=Received:DKIM-Signature:Date:Content-Type:Content-Transfer-Encoding:
+	 MIME-Version:From:Cc:To:In-Reply-To:References:Message-Id:Subject;
+	bh=fbPRryJ8n9XhLJpBCPRDsYKT7tAPTsmQIcGjUBmw0wA=;
+	b=aEp9Zhi3kYXQZBfv7UoTmiINvXjsbkZEPxylhcK5up8DhEFjA0rYxhKISV7V+HHAe0mC
+	 8fWr3ZjjB7IU3wBFyw0w2W/bPeb8JBND9UcbF7W4CdSjhfVnO8j10FQVtG4u1JchhChK1
+	 0ZgTwaCWJYlVc27874ArHXcnF1/E1dLgdCY1hxHNNl135mNBU4ig960PNoDBrazoadfqh
+	 d+0PLjsCX69PygoPvw2wbGsqs5M+0l+v3bUHjMPL31jIRagO4IbW1+fWKnsUwwMgs61qN
+	 3vlCe+/5zb4N8EqEQoHK0INK/vHUOyhsFLIk88HtYAchrEbhyl96kIEs2LE7/UVfqtA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J9jZXjfK;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="AQK54XH/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BBED606A31C;
-	Wed, 21 Oct 2026 02:00:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36A4B606A31C;
+	Wed, 21 Oct 2026 02:14:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=J9jZXjfK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9AB81F000C9;
-	Wed, 21 Oct 2026 01:59:59 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AQK54XH/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29A871F000C9;
+	Wed, 21 Oct 2026 02:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792548000;
-	bh=yoGGo77ZNLX3gLb2D4s2EfUeQWCYXc/yhjQDqKkwKpM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=J9jZXjfK7Wk34ipzzng1U04k8qPwSYJ3S23Mi4P+YDyaYZ/bNpPiyaNI+hscw1G+L
-	 RhlKEZsdieTztS2UuHF0Nf8Ke9Paeh+M44buE16Gvb25lBa1ng/AtYhU+1tOsADSp1
-	 YSqL1VBjjua4FaJk3steqA77jlOatabMIeltOLOpDuaZqtjQJflkoR+GQYYB89dNzh
-	 hgNG1WXSSqR5arI7OW0YgLrI1x02n+bUdRirGeKnTpuyVe7/1btC475xWauSyAZLIZ
-	 emuaYVdTwVdEXS2BbELaa4S/jZgHRdPpO5Hu9zoCnlxyDci5it4PJ+GtwtfBkvYNjP
-	 J6wAl2HEWzQdw==
-Message-ID: <sashiko-outbox-179674@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/3] Input: soc_button_array - use resources to set up
- IRQ info for gpio-keys
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-gpio@vger.kernel.org
-In-Reply-To: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
-References: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 21 Oct 2026 01:59:59 +0000
+	s=k20260515; t=1792548893;
+	bh=fbPRryJ8n9XhLJpBCPRDsYKT7tAPTsmQIcGjUBmw0wA=;
+	h=Date:From:Cc:To:In-Reply-To:References:Subject;
+	b=AQK54XH/NenajOYZnX0q/PdIt7svKjFZwieZ/EtVcj8PC4HrSuE3cZFlw8hW146TF
+	 Pknq2XyUVJ5rFTZ4OD0VNUTe1cqhjGsFUpR4vD0RIlWUYnzehEVj0I72y5dO6Z4jZu
+	 sDniZF6/CZmCTnPzBbtqXlgo5hgB33bTQF8tCnwaEgrFuE19HSrth8aWoVXpF0bNkS
+	 j4SCuHT38hfHqaTXJpJfYvNv5OfKhCgbYJ+YTq9Y+7Yf51NlTc2kmif4O8kTkJ8bv+
+	 Lo2f9sarltbTkplNxd+3C3Tbfh1UoWtPGM60U6qe5AOfOlu95vD9AyDttE1gckwYYd
+	 bmI50RAwkl+nA==
+Date: Tue, 20 Oct 2026 21:14:50 -0500
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,83 +50,72 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+From: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: Macpaul Lin <macpaul.lin@mediatek.com>, 
+ Sean Wang <sean.wang@mediatek.com>, linux-input@vger.kernel.org, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, linux-pm@vger.kernel.org, 
+ Fabien Parent <parent.f@gmail.com>, linux-gpio@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, 
+ Sen Chu <sen.chu@mediatek.com>, Linus Walleij <linusw@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Val Packett <val@packett.cool>, 
+ devicetree@vger.kernel.org, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, 
+ Conor Dooley <conor+dt@kernel.org>, Chen Zhong <chen.zhong@mediatek.com>, 
+ Akari Tsuyukusa <akkun11.open@gmail.com>, Lee Jones <lee@kernel.org>, 
+ linux-kernel@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>, 
+ linux-mediatek@lists.infradead.org, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ mfd@lists.linux.dev
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+In-Reply-To: <20261020173556.632798-2-l.scorcia@gmail.com>
+References: <20261020173556.632798-1-l.scorcia@gmail.com>
+ <20261020173556.632798-2-l.scorcia@gmail.com>
+Message-Id: <179254885010.3549549.1306117296712722010.robh@kernel.org>
+Subject: Re: [PATCH RESEND v10 1/9] dt-bindings: mfd: mt6397: Add MT6392
+ PMIC
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] Input: mix of __free() and goto cleanup in soc_button_device_create=
-()
---
 
-commit 135ab963100f947c993746f76110c2ca70438cec
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Tue, 20 Oct 2026 19:33:22 +0200, Luca Leonardo Scorcia wrote:
+> Describe the MT6392 PMIC and its RTC and regulator devices. This device
+> is mostly based on MT6323 with some similarities to MT6397 and is usually
+> found on boards using the MT8516/MT8167 SoC.
+> 
+> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+> Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+> ---
+>  .../bindings/mfd/mediatek,mt6397.yaml         | 72 +++++++++++++++++++
+>  1 file changed, 72 insertions(+)
+> 
 
-Input: soc_button_array - use resources to set up IRQ info for gpio-keys
+My bot found errors running 'make dt_binding_check' on your patch:
 
-This commit switches soc_button_device_create() to pass IRQ information to
-the gpio-keys platform device via platform device IRQ resources instead of
-platform data, in preparation for converting the driver to static device
-properties.
+yamllint warnings/errors:
 
-> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/s=
-oc_button_array.c
-> index dbf86ea778e67..d4dc4e7116a7d 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-[ ... ]
-> @@ -167,6 +173,15 @@ soc_button_device_create(struct platform_device *pde=
-v,
->  		if (info->autorepeat =3D=3D autorepeat)
->  			n_buttons++;
-> =20
-> +	struct resource *irq_resources __free(kfree) =3D NULL;
-> +	/* See dmi_use_low_level_irq[] comment */
-> +	if (!autorepeat && (use_low_level_irq ||
-> +			    dmi_check_system(dmi_use_low_level_irq))) {
-> +		irq_resources =3D kzalloc_objs(*irq_resources, n_buttons);
-> +		if (!irq_resources)
-> +			return ERR_PTR(-ENOMEM);
-> +	}
-> +
+dtschema/dtc warnings/errors:
+Documentation/devicetree/bindings/mfd/mediatek,mt6397.example.dtb: pmic (mediatek,mt6392): keys:compatible: 'oneOf' conditional failed, one must be fixed:
+	['mediatek,mt6392-keys'] is too short
+	'mediatek,mt6392-keys' is not one of ['mediatek,mt6323-keys', 'mediatek,mt6328-keys', 'mediatek,mt6331-keys', 'mediatek,mt6357-keys', 'mediatek,mt6358-keys', 'mediatek,mt6359-keys', 'mediatek,mt6397-keys']
+	'mediatek,mt6392-keys' is not one of ['mediatek,mt6365-keys']
+	from schema $id: http://devicetree.org/schemas/mfd/mediatek,mt6397.yaml
+Documentation/devicetree/bindings/mfd/mediatek,mt6397.example.dtb: /example-3/pmic/keys: failed to match any schema with compatible: ['mediatek,mt6392-keys']
 
-[Severity: Low]
-In drivers/input/misc/soc_button_array.c, soc_button_device_create()
-introduces irq_resources with __free(kfree) while still using goto-based
-cleanup via err_free_mem to free gpio_keys_pdata on later failure paths:
+doc reference errors (make refcheckdocs):
 
-drivers/input/misc/soc_button_array.c:soc_button_device_create() {
-	...
-	if (n_buttons =3D=3D 0) {
-		error =3D -ENODEV;
-		goto err_free_mem;
-	}
-	...
-	pd =3D platform_device_register_full(&pdevinfo);
-	error =3D PTR_ERR_OR_ZERO(pd);
-	if (error) {
-		dev_err(&pdev->dev,
-			"failed registering gpio-keys: %d\n", error);
-		goto err_free_mem;
-	}
+See https://patchwork.kernel.org/project/devicetree/patch/20261020173556.632798-2-l.scorcia@gmail.com
 
-	return pd;
+The base for the series is generally the latest rc1. A different dependency
+should be noted in *this* patch.
 
-err_free_mem:
-	devm_kfree(&pdev->dev, gpio_keys_pdata);
-	return ERR_PTR(error);
-}
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
 
-Although irq_resources is declared and initialized before all of the
-goto err_free_mem jumps, include/linux/cleanup.h recommends against mixing
-__free() scope-based cleanup and goto cleanup labels within the same
-function. Later in the series (in commit "Input: soc_button_array - convert
-to software nodes"), err_free_mem is replaced by goto err_remove_swnodes
-while keeping irq_resources __free(kfree).
+pip3 install dtschema --upgrade
 
-Should soc_button_device_create() avoid mixing __free(kfree) with goto
-cleanup here?
+Please check and re-submit after running the above command yourself. Note
+that DT_SCHEMA_FILES can be set to your schema file to speed up checking
+your schema. However, it must be unset to test all examples with your schema.
 
-[ ... ]
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021015004.1537=
-738-1-dmitry.torokhov@gmail.com?part=3D1

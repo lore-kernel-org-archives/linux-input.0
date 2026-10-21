@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.179
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792547413;
-	b=1IrQRQ295P4lsHFdWyhKd6f22Tn9o7jKpPokpRkeYfFo/DSilUTidZvZpNMUgrCDhjcJ
-	 IrVhyIudefQ5PdJmZF6+dNyQV2pHYbiXLidqlDH4AGGIYJrS6x6I2J2AV6AFL8qICH2vy
-	 jPKGQvJnAbxfrR7JYwztfust7iHWIDUcjrTOVA6ho1ZVCjo/PzVe9S6YzWP8t3VoyIy8t
-	 qnIvGNMROvDrZrgq7IG3WeWWoBKri7uSN/QM4GNaJzztT9zPdWzsk/3YfUhrp6KQvX2n+
-	 6moLEWymddS0LnqNmISARK3zoQUKlf+5v/k4aN29f0Up0zVwFTxE1SSc7gMPLdVkmpg==
+	t=1792547411;
+	b=hFEsYnhysmGJibf6nsjddElqhB5EOFoxsPI9YgPPrYWUWgz1oMZYyzua17G7sGEMnbOA
+	 vzLhDBn2uKjGRer13OtNEMRU+eRPzMcA4QfjaoOqfqhvftzGJnsfC7n4FOXxiVl7nKqrl
+	 aEPZPp1knjyPZz1E9Ir/Q5qmhajCCk1o+wBgATeZOHdXBrlv9bd3pYAfy57I3XcuVVjKN
+	 ZHgleyxSXWxis+hfxCbzQ9StkeLeX+cr0YVLPln97jSK4u46ScOlZL89myfRQ4CYUHdry
+	 YBPopTHpGbOrlPnTm1+ismvNbm9SfoL7fBkLQB4PiJSKC0UJzjNu10C945Dj3Vk1TuA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792547413;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792547411;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=SbBvyVbLG0tQQ8Qqhoffo4kWq5gHdbGII/4Aa/1W3Dc=;
-	b=4YLwz7yOpCyKqblsOghozaCgV8SQtTba2mlrzw++phqwZ7iBWqR0g5+xRBdRPK4OVwee
-	 OAlMP3eIjjSi5gjHHMDAZbQPRmID+onR9OACWwq0IvDt6MDApBr3Gzrb4/XAntzVDQD+b
-	 n9U2kGLPfrjf4xUhxoMRpbF4O23bbooFPv2c14tJe1MjskQ6dqDadtFeUMl1tkt58i0uf
-	 NVsYYxoI7MYghIv4179zDhRQuBpP11uoU1qpNavwIoO2UmWtWvb4bnNJqi4pKONOlD5Ox
-	 TgOd7ihgoHQ1ylG0/U2IEikxo6ojP6eUlMWwHKBYXUrKI7QVO+E5H9X2p8dT9Ww+/bg==
+	bh=8S8G1iypOEwISrWzMI82hOYxhksLEVMBHWgiqS8i/aU=;
+	b=O9mDyYIiP4SqUZfaMOgqPm4SHIi7yQfb/mfZ+ROPl9rAsvxmhTwKWVT0k1yXTUW8cnQH
+	 IgWMX6c0dZZefv7zMO7s8Pp0WNyl0RUkaAemDhs0Pq4R3Q7rC4Ui/KSwQhhgTY+Gd8cJc
+	 EJMSrk9ZriNz+8W636O4liG78BnPQMbVIy3Df6FQYNMeh5xKKKAO0XbOPhv7RrJwSgOdK
+	 H0fOHipXaiXO4REZuW2my+FWfvMETqIDq4RMxY7H/bj9vWQ6oKZjGUXcnfmAV5T2zOffZ
+	 mXQT1XN4FORO7RTSSGKrOUAlx9Oi/9yfi22NIVmXQBko9q9xdPKVTxtWUqrEAPQBAOA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=XYPIfMer;
-	arc=none smtp.remote-ip=74.125.82.52
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="dG2eif/P";
+	arc=none smtp.remote-ip=74.125.82.179
+Received: from mail-dy1-f179.google.com (mail-dy1-f179.google.com [74.125.82.179])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 998C7606A32D
-	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 01:50:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 998C7606A32D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2348C606A321
+	for <linux-input@vger.kernel.org>; Wed, 21 Oct 2026 01:50:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2348C606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=XYPIfMer
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-15ea896ddc8so299946c88.0
-        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 18:50:12 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=dG2eif/P
+Received: by mail-dy1-f179.google.com with SMTP id 5a478bee46e88-3514b90bb89so499644eec.1
+        for <linux-input@vger.kernel.org>; Tue, 20 Oct 2026 18:50:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792547412; x=1793152212; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1792547410; x=1793152210; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=SbBvyVbLG0tQQ8Qqhoffo4kWq5gHdbGII/4Aa/1W3Dc=;
-        b=XYPIfMerTCp0Xuqp2TRlvKjebAiNU/J6S1+1msPp4lyf22Roc3ic90OjfP4ul7P5GX
-         XMvxugPW68FF/sZwFcA83hfZ42JUUrTewsgbE11+zdl8kGKI/3mFpPfMPaEE0+PvTKNp
-         hsbY6hDNACScwc8kIRviZY8/90fNoD8STug69seyXYWXi9RvzsqT+Y8fhdOhoo48R5uQ
-         f8VM3xTWmGuUbQ81JtQdtwbDzvx9KdAGBjzyT/086ak3gRBVsxL+Ec5YGk+g8Yzb7O7I
-         RKTQxVRW6VN7ro+LB3U7Dw3/RdiYk6Uzfmt/4LmzWTkvcGrwT/uqioFdkk02nLeaqdv+
-         T2jQ==
+        bh=8S8G1iypOEwISrWzMI82hOYxhksLEVMBHWgiqS8i/aU=;
+        b=dG2eif/PE7Ui9zyAOSwP0CDj3gTDChftpWOLIMVBFAHqrylKJJyHltQOFo/8SyoEUj
+         QMdPrFlEMOerAJr9CNjLvczwXC0kX1CMjE9O5vSIEDUVbaKKYnvdUsU/c3WtLzktyWaI
+         /RC4ylzNcpFSy8xwt2ijyFqgn/NXmKHv+VmqKEKuO+wQTbtAhAleZavEc+LCQS6qLaPB
+         BbwkyOt97+Tw8UyVJv8aEwIiq8ZQE4WochqLMFY0PdDnFeNRbsHZADj5OG7zrXoGJLhD
+         Qvz0S+wsJfFL0XzjBzYAM9QW7ExW44IE+LzxMyKdm5yZtiO8tYgYr71t39Ske+rTScAj
+         Uqaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792547412; x=1793152212;
+        d=1e100.net; s=20260707; t=1792547410; x=1793152210;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=SbBvyVbLG0tQQ8Qqhoffo4kWq5gHdbGII/4Aa/1W3Dc=;
-        b=jfT+FA9Dx1wfzFvG8BXHtyL/JWYhNbF4RNNMSbXywE13djOco1tbCSOIol+08CR9hP
-         EljBBmGFYoQqf6rJXsfvHLgZGRGamKjEkK6nB0LekFM4pw3teJ1VR2wdBRb7qg26e3Mh
-         /TvFvDHWkbzw05qo5o7x6aIw3l93qL3sjiADDA0VpFs38OE9HM2w18XLlxwfKbmVZaBC
-         2p612d6lKHUpI5gmg/dM8S8zgMKSWRRjsIi1hYYz8YiB63RoyiHN2AAmUrgy+ZPfTy3l
-         E7/iQQEIm+9d+bUv0UO43lFTGLihyNvNe/yuK+zM70ORDPTQ8TRpEvls3xjFaWl9COQH
-         X2nw==
-X-Forwarded-Encrypted: i=1; AKwUvByY0fqBq0hw32zxyjHn0ipc/MC8le3tnFpgpcWJ0zrwyMF7s1g0pv5qC0P8t6RmVI9YZ3GcWnJvRozdjA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYKKEm+nCoFKyn02u2EMHMtpl/AYblMig4kjoORrd3LJv2/yZLRU
-	15/JgZlNgVbIbWdk5M6EEy6r02dyT4s5Kpq5rrSBweKXg0RFDHfMunB7
-X-Gm-Gg: AYBFou3cN0M7zxzmwUqEGPUEvKb0H0cD5Ec9VCct2taIjXd0PNvdBwT7RVwP2uLwcxn
-	ZyFl80uvdim+Lolcvi6HRPBY7FceYWMHyBrCmB4DWWsFQRfwQrkNYZ4V/SrhVSKrNmfBF131Na4
-	mDelYth22Dj418D/JETg0QSjVHuLEREQ4iLFZUKsTuKMnXJVsks7XM8IRwljGHUF4/2wzkcmdZq
-	EpBeru8FvTndKWJRVVRxnxjxvBSdUW5QmawGUQwrlnJCezB1RjzGIhwmVYG2SBSWtx6UQQ+iaNb
-	ckPgkOqzLsHj0lTIpTvwT4QGEgliEm56/I2y+V3EOhEhLXOIcTtyNJztVPj4WLG27X66/xtgM/9
-	tFv+d/e1Es5291Sker1EPBtuX+Z+ISI7UL4ATDs8APj6F5bwN15/qx5uSEP0YEGyx0Ev9AUqULR
-	j9MwVbU3o7kYlGENa7DH49o6ye/dGnkP5t05od1mTrm6AG930xD41Ungp9wKWwhHnwZABgo4ik6
-	pBZdAr6v9tBA3GwZPD23ksxGlEeG/WmZ3UQSJWqhVJSXbpVhSZwjmPGUZTF5anvw52J5uctHlUS
-	AYk2dYHFSP9hJC8epF/2fsWWhEmc6IG5gnTS7iF7DW3kvi7WR9wsjGPBCphLzz0XHQ==
-X-Received: by 2002:a05:7022:4589:b0:14f:8e70:fad0 with SMTP id a92af1059eb24-190a738157amr1043137c88.33.1792547411541;
-        Tue, 20 Oct 2026 18:50:11 -0700 (PDT)
-Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:92d1:8038:c4e7:1f0c])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903bd6b7ccsm2106839c88.13.2026.10.20.18.50.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        bh=8S8G1iypOEwISrWzMI82hOYxhksLEVMBHWgiqS8i/aU=;
+        b=PmxdvJq0NjfJ1dQVVW+WTjJLsKmEI7k55VaOUBc3M9h1BJOBhwY7QkOyOI8kRhmjCL
+         n5aBU2aJOgsqUPSFMPSis3vHs3Tl1LJlxeOaf+yLkAbKEgoJ2X1BNAdIfJaDG/KvOIMX
+         Ycm4kpxmbTo3O1+h/K0/fy0Tpfh0oTtUgaERkbnQeSz/RwqeewyBftT6SlxqRoSq1mZx
+         0EJzF+IRXHedyxJg8GLDKMGpzVxNahBsnvlcyMlyoSFKG0Zd5BfH4BXXFdeMm6sC6nh8
+         gZGZ0kigVkCsOPxU9QCMtcvaHhkz24NqLhi5EhaJwXt6fLlPVvn/GbXUOcXSHzYzzIZN
+         waig==
+X-Forwarded-Encrypted: i=1; AKwUvByqcKsWV1l80D6SoOe7/ILrNw3oG0pNu8KjImaF2fUwDFMUXu+UGXzRqEMd+K9Ehj/7oCxtNu3vG+R5xA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIv2wmXI7KY1x8L8GrUth56F3nT2HrBXi+rk1AEj2oW0mxs/csP
+	aYne6AabZ2gaxMGQ0IdA+jdE7VWTEmGz6YTW5lkESL/0rYovArIJMHnC7FHumA==
+X-Gm-Gg: AYBFou1yR17JOp2RQwXbjV0W0qgG295zY1dVpJRWqe9Q0pbEVO2VU87HQaEZGMaM0np
+	tNR1mJiNkTqwcMVFdJuVfDjHYW1PPgPg+0wR+ByBnlfSXbTit7h3WUvruAWEsTR0onSkVDUow7I
+	fnduajI/fV2Y98Va3cebYxxfGaqdCOy1yQATgt6IVHWsHyAqMch1EGlYRUs2tPvyyM4cMmcibV3
+	rANiO16iiyRMZdkqd2E1d4eQ+IOKP6mvAIcCJ57HAnzWrHnkmtZot/IS9jr3rQg4zFoi37C8QAO
+	SgTk1uXHGC3f3y4UZ2fHKCCUx2OkWdRS6ojmyYHORiXAQwqc7qWtoJEdY2BElkkofHHZ/sTIFkE
+	W/PWaKdN14WZgcJmmOEtd1bA5l7kDNZC9J+EImpIESWDCxlNxzqaph5fQW2l0erFG3TgZCsFcpl
+	a5Hw/e05B+qn3zeJFMphSRgASUkKUbLSuw7OK5wVdNyijF2/7+bmFx7576S7PvFWiycg8nm+q40
+	t66aRNp/bmtI/Mi9NJET8utrNk4c7a693AetlrZjK3y6TjfPWLQB4/5EQZyNIAlx1uZ6GOtbiVj
+	73TfYs+iVsqd35WekXXm82pE+nwTentjkF6Netj5OXFo
+X-Received: by 2002:a05:701b:4504:10b0:185:b157:f271 with SMTP id a92af1059eb24-190a51e5f49mr758501c88.23.1792547410075;
         Tue, 20 Oct 2026 18:50:10 -0700 (PDT)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:92d1:8038:c4e7:1f0c])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1903bd6b7ccsm2106839c88.13.2026.10.20.18.50.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 18:50:09 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: Hans de Goede <hansg@kernel.org>
 Cc: Bartosz Golaszewski <brgl@kernel.org>,
@@ -87,9 +87,9 @@ Cc: Bartosz Golaszewski <brgl@kernel.org>,
 	linux-input@vger.kernel.org,
 	linux-gpio@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] Input: soc_button_array - convert to software nodes
-Date: Tue, 20 Oct 2026 18:50:01 -0700
-Message-ID: <20261021015004.1537738-3-dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/3] Input: soc_button_array - use __free() cleanup facilities to free memory
+Date: Tue, 20 Oct 2026 18:50:00 -0700
+Message-ID: <20261021015004.1537738-2-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.212.g129ede20d9-goog
 In-Reply-To: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
 References: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
@@ -104,297 +104,131 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert the driver from using legacy platform data to using software
-nodes for registering 'gpio-keys' devices. This allows us to
-transition away from platform data and use generic device properties.
+Switch to using __free(kfree) cleanup facilities instead of doing manual
+cleanup or abusing devm for allocations that are only needed during
+probing.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/Kconfig            |   1 -
- drivers/input/misc/soc_button_array.c | 134 ++++++++++++++++++--------
- 2 files changed, 92 insertions(+), 43 deletions(-)
+ drivers/input/misc/soc_button_array.c | 52 ++++++++++++---------------
+ 1 file changed, 23 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 169768e3d5bb..a2984c1048f3 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -906,7 +906,6 @@ config INPUT_SOC_BUTTON_ARRAY
- 	depends on KEYBOARD_GPIO && ACPI
- 	depends on X86
- 	depends on GPIOLIB
--	select GPIOLIB_LEGACY
- 	help
- 	  Say Y here if you have a SoC-based tablet that originally runs
- 	  Windows 8 or a Microsoft Surface Book 2, Pro 5, Laptop 1 or later.
 diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index 8d782ef4f78b..aa7838b864c2 100644
+index d4dc4e7116a7..8d782ef4f78b 100644
 --- a/drivers/input/misc/soc_button_array.c
 +++ b/drivers/input/misc/soc_button_array.c
-@@ -14,9 +14,11 @@
- #include <linux/acpi.h>
- #include <linux/dmi.h>
- #include <linux/gpio/consumer.h>
--#include <linux/gpio_keys.h>
-+#include <linux/gpio/driver.h>
-+#include <linux/gpio/machine.h>
- #include <linux/platform_data/x86/soc.h>
- #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/slab.h>
- 
- static bool use_low_level_irq;
-@@ -59,10 +61,10 @@ struct soc_button_data {
-  * gets called with the lid open (e.g. on boot and on resume), it sets the
-  * irq-type to IRQ_TYPE_LEVEL_LOW. Where as the gpio-keys driver programs the
-  * type to, and expects it to be, IRQ_TYPE_EDGE_BOTH.
-- * To work around this we don't set gpio_keys_button.gpio on these 2-in-1s,
-+ * To work around this we don't set "gpios" property on these 2-in-1s,
-  * instead we get the irq for the GPIO ourselves, configure it as
-  * IRQ_TYPE_LEVEL_LOW (to match how the _LID AML code configures it) and pass
-- * the irq in gpio_keys_button.irq. Below is a list of affected devices.
-+ * the irq as a device resource. Below is a list of affected devices.
-  */
- static const struct dmi_system_id dmi_use_low_level_irq[] = {
- 	{
-@@ -131,18 +133,31 @@ static const struct dmi_system_id dmi_invalid_acpi_index[] = {
- };
- 
- /*
-- * Get the Nth GPIO number from the ACPI object.
-+ * Get the Nth GPIO information from the ACPI object.
-  */
- static int soc_button_lookup_gpio(struct device *dev, int acpi_index,
--				  int *gpio_ret, int *irq_ret)
-+				  bool active_low,
-+				  struct software_node_ref_args *gpio_ref,
-+				  int *irq_ret)
+@@ -366,10 +366,10 @@ static const u8 btns_desc_uuid[16] = {
+ static struct soc_button_info *soc_button_get_button_info(struct device *dev)
  {
-+	struct gpio_device *gdev;
-+	struct fwnode_handle *fwnode;
- 	struct gpio_desc *desc;
+ 	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER };
+-	const union acpi_object *desc, *el0, *uuid, *btns_desc = NULL;
+-	struct soc_button_info *button_info;
++	const union acpi_object *el0, *uuid, *btns_desc = NULL;
+ 	acpi_status status;
+ 	int i, btn, collection_uid = -1;
++	int error;
  
- 	desc = gpiod_get_index(dev, NULL, acpi_index, GPIOD_ASIS);
- 	if (IS_ERR(desc))
- 		return PTR_ERR(desc);
+ 	status = acpi_evaluate_object_typed(ACPI_HANDLE(dev), "_DSD", NULL,
+ 					    &buf, ACPI_TYPE_PACKAGE);
+@@ -378,8 +378,9 @@ static struct soc_button_info *soc_button_get_button_info(struct device *dev)
+ 		return ERR_PTR(-ENODEV);
+ 	}
  
--	*gpio_ret = desc_to_gpio(desc);
-+	gdev = gpiod_to_gpio_device(desc);
-+	fwnode = dev_fwnode(gpio_device_to_device(gdev));
-+	if (!fwnode) {
-+		gpiod_put(desc);
-+		return -ENODEV;
-+	}
++	const union acpi_object *desc __free(kfree) = buf.pointer;
 +
-+	*gpio_ref = SOFTWARE_NODE_REFERENCE(fwnode, gpiod_hwgpio(desc),
-+					    active_low ? GPIO_ACTIVE_LOW :
-+							 GPIO_ACTIVE_HIGH);
- 	*irq_ret = gpiod_to_irq(desc);
+ 	/* Look for the Button Descriptors UUID */
+-	desc = buf.pointer;
+ 	for (i = 0; (i + 1) < desc->package.count; i += 2) {
+ 		uuid = &desc->package.elements[i];
  
- 	gpiod_put(desc);
-@@ -150,11 +165,28 @@ static int soc_button_lookup_gpio(struct device *dev, int acpi_index,
+@@ -397,8 +398,7 @@ static struct soc_button_info *soc_button_get_button_info(struct device *dev)
+ 
+ 	if (!btns_desc || !btns_desc->package.count) {
+ 		dev_err(dev, "ACPI Button Descriptors not found\n");
+-		button_info = ERR_PTR(-ENODEV);
+-		goto out;
++		return ERR_PTR(-ENODEV);
+ 	}
+ 
+ 	/* The first package describes the collection */
+@@ -414,32 +414,26 @@ static struct soc_button_info *soc_button_get_button_info(struct device *dev)
+ 	}
+ 	if (collection_uid == -1) {
+ 		dev_err(dev, "Invalid Button Collection Descriptor\n");
+-		button_info = ERR_PTR(-ENODEV);
+-		goto out;
++		return ERR_PTR(-ENODEV);
+ 	}
+ 
+ 	/* There are package.count - 1 buttons + 1 terminating empty entry */
+-	button_info = devm_kcalloc(dev, btns_desc->package.count,
+-				   sizeof(*button_info), GFP_KERNEL);
+-	if (!button_info) {
+-		button_info = ERR_PTR(-ENOMEM);
+-		goto out;
+-	}
++	struct soc_button_info *button_info __free(kfree) =
++		kzalloc_objs(*button_info, btns_desc->package.count);
++	if (!button_info)
++		return ERR_PTR(-ENOMEM);
+ 
+ 	/* Parse the button descriptors */
+ 	for (i = 1, btn = 0; i < btns_desc->package.count; i++, btn++) {
+-		if (soc_button_parse_btn_desc(dev,
+-					      &btns_desc->package.elements[i],
+-					      collection_uid,
+-					      &button_info[btn])) {
+-			button_info = ERR_PTR(-ENODEV);
+-			goto out;
+-		}
++		error = soc_button_parse_btn_desc(dev,
++						  &btns_desc->package.elements[i],
++						  collection_uid,
++						  &button_info[btn]);
++		if (error)
++			return ERR_PTR(error);
+ 	}
+ 
+-out:
+-	kfree(buf.pointer);
+-	return button_info;
++	return_ptr(button_info);
+ }
+ 
+ static void soc_button_remove(struct platform_device *pdev)
+@@ -458,6 +452,7 @@ static int soc_button_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	const struct soc_device_data *device_data;
+ 	const struct soc_button_info *button_info;
++	const struct soc_button_info *dynamic_button_info __free(kfree) = NULL;
+ 	struct soc_button_data *priv;
+ 	struct platform_device *pd;
+ 	int i;
+@@ -473,9 +468,11 @@ static int soc_button_probe(struct platform_device *pdev)
+ 	if (device_data && device_data->button_info) {
+ 		button_info = device_data->button_info;
+ 	} else {
+-		button_info = soc_button_get_button_info(dev);
+-		if (IS_ERR(button_info))
+-			return PTR_ERR(button_info);
++		dynamic_button_info = soc_button_get_button_info(dev);
++		if (IS_ERR(dynamic_button_info))
++			return PTR_ERR(dynamic_button_info);
++
++		button_info = dynamic_button_info;
+ 	}
+ 
+ 	error = gpiod_count(dev, NULL);
+@@ -507,9 +504,6 @@ static int soc_button_probe(struct platform_device *pdev)
+ 	if (!priv->children[0] && !priv->children[1])
+ 		return -ENODEV;
+ 
+-	if (!device_data || !device_data->button_info)
+-		devm_kfree(dev, button_info);
+-
  	return 0;
  }
  
-+static void soc_button_remove_swnodes(struct fwnode_handle *parent)
-+{
-+	struct fwnode_handle *child;
-+
-+	if (IS_ERR_OR_NULL(parent))
-+		return;
-+
-+	fwnode_for_each_child_node(parent, child)
-+		fwnode_remove_software_node(child);
-+
-+	fwnode_remove_software_node(parent);
-+}
-+
- static struct platform_device *
- soc_button_device_create(struct platform_device *pdev,
- 			 const struct soc_button_info *button_info,
- 			 bool autorepeat)
- {
-+	const struct property_entry parent_props[] = {
-+		PROPERTY_ENTRY_BOOL("autorepeat"),
-+		{ }
-+	};
- 	struct platform_device_info pdevinfo = {
- 		.parent = &pdev->dev,
- 		.name = "gpio-keys",
-@@ -162,17 +194,19 @@ soc_button_device_create(struct platform_device *pdev,
- 	};
- 	const struct soc_button_info *info;
- 	struct platform_device *pd;
--	struct gpio_keys_button *gpio_keys;
--	struct gpio_keys_platform_data *gpio_keys_pdata;
-+	struct fwnode_handle *parent_node;
- 	const struct dmi_system_id *dmi_id;
- 	int invalid_acpi_index = -1;
--	int error, gpio, irq = 0;
-+	int error, irq = 0;
- 	int n_buttons = 0;
- 
- 	for (info = button_info; info->name; info++)
- 		if (info->autorepeat == autorepeat)
- 			n_buttons++;
- 
-+	if (n_buttons == 0)
-+		return ERR_PTR(-ENODEV);
-+
- 	struct resource *irq_resources __free(kfree) = NULL;
- 	/* See dmi_use_low_level_irq[] comment */
- 	if (!autorepeat && (use_low_level_irq ||
-@@ -182,17 +216,10 @@ soc_button_device_create(struct platform_device *pdev,
- 			return ERR_PTR(-ENOMEM);
- 	}
- 
--	gpio_keys_pdata = devm_kzalloc(&pdev->dev,
--				       sizeof(*gpio_keys_pdata) +
--					sizeof(*gpio_keys) * n_buttons,
--				       GFP_KERNEL);
--	if (!gpio_keys_pdata)
--		return ERR_PTR(-ENOMEM);
--
--	pdevinfo.data = gpio_keys_pdata;
--	pdevinfo.size_data = sizeof(*gpio_keys_pdata);
-+	parent_node = fwnode_create_software_node(autorepeat ? parent_props : NULL, NULL);
-+	if (IS_ERR(parent_node))
-+		return ERR_CAST(parent_node);
- 
--	gpio_keys = (void *)(gpio_keys_pdata + 1);
- 	n_buttons = 0;
- 
- 	dmi_id = dmi_first_match(dmi_invalid_acpi_index);
-@@ -200,13 +227,19 @@ soc_button_device_create(struct platform_device *pdev,
- 		invalid_acpi_index = (long)dmi_id->driver_data;
- 
- 	for (info = button_info; info->name; info++) {
-+		struct software_node_ref_args gpio_ref;
-+		struct property_entry child_props[7] = { };
-+		struct fwnode_handle *child_node;
-+		int prop_idx = 0;
-+
- 		if (info->autorepeat != autorepeat)
- 			continue;
- 
- 		if (info->acpi_index == invalid_acpi_index)
- 			continue;
- 
--		error = soc_button_lookup_gpio(&pdev->dev, info->acpi_index, &gpio, &irq);
-+		error = soc_button_lookup_gpio(&pdev->dev, info->acpi_index,
-+					       info->active_low, &gpio_ref, &irq);
- 		if (error || irq < 0) {
- 			/*
- 			 * Propagate -EPROBE_DEFER, skip button on other errors.
-@@ -223,57 +256,68 @@ soc_button_device_create(struct platform_device *pdev,
- 			if ((error == -EPROBE_DEFER || irq == -EPROBE_DEFER) &&
- 			    !(soc_intel_is_byt() || soc_intel_is_cht())) {
- 				error = -EPROBE_DEFER;
--				goto err_free_mem;
-+				goto err_remove_swnodes;
- 			}
- 
- 			continue;
- 		}
- 
-+		child_props[prop_idx++] = PROPERTY_ENTRY_U32("linux,code", info->event_code);
-+		child_props[prop_idx++] = PROPERTY_ENTRY_STRING("label", info->name);
-+
-+		if (info->event_type != EV_KEY)
-+			child_props[prop_idx++] =
-+				PROPERTY_ENTRY_U32("linux,input-type",
-+						   info->event_type);
-+
-+		if (info->wakeup)
-+			child_props[prop_idx++] = PROPERTY_ENTRY_BOOL("wakeup-source");
-+
-+		/* These devices often use cheap buttons, use 50 ms debounce */
-+		child_props[prop_idx++] = PROPERTY_ENTRY_U32("debounce-interval", 50);
-+
- 		/* See dmi_use_low_level_irq[] comment */
- 		if (irq_resources) {
- 			irq_set_irq_type(irq, IRQ_TYPE_LEVEL_LOW);
- 			irq_resources[n_buttons] = DEFINE_RES_IRQ(irq);
--			gpio_keys[n_buttons].gpio = -ENOENT;
- 		} else {
--			gpio_keys[n_buttons].gpio = gpio;
-+			child_props[prop_idx++] =
-+				PROPERTY_ENTRY_REF("gpios", &gpio_ref);
-+		}
-+
-+		child_node = fwnode_create_software_node(child_props, parent_node);
-+		if (IS_ERR(child_node)) {
-+			error = PTR_ERR(child_node);
-+			goto err_remove_swnodes;
- 		}
- 
--		gpio_keys[n_buttons].type = info->event_type;
--		gpio_keys[n_buttons].code = info->event_code;
--		gpio_keys[n_buttons].active_low = info->active_low;
--		gpio_keys[n_buttons].desc = info->name;
--		gpio_keys[n_buttons].wakeup = info->wakeup;
--		/* These devices often use cheap buttons, use 50 ms debounce */
--		gpio_keys[n_buttons].debounce_interval = 50;
- 		n_buttons++;
- 	}
- 
- 	if (n_buttons == 0) {
- 		error = -ENODEV;
--		goto err_free_mem;
-+		goto err_remove_swnodes;
- 	}
- 
--	gpio_keys_pdata->buttons = gpio_keys;
--	gpio_keys_pdata->nbuttons = n_buttons;
--	gpio_keys_pdata->rep = autorepeat;
--
- 	if (irq_resources) {
- 		pdevinfo.res = irq_resources;
- 		pdevinfo.num_res = n_buttons;
- 	}
- 
-+	pdevinfo.fwnode = parent_node;
-+
- 	pd = platform_device_register_full(&pdevinfo);
- 	error = PTR_ERR_OR_ZERO(pd);
- 	if (error) {
- 		dev_err(&pdev->dev,
- 			"failed registering gpio-keys: %d\n", error);
--		goto err_free_mem;
-+		goto err_remove_swnodes;
- 	}
- 
- 	return pd;
- 
--err_free_mem:
--	devm_kfree(&pdev->dev, gpio_keys_pdata);
-+err_remove_swnodes:
-+	soc_button_remove_swnodes(parent_node);
- 	return ERR_PTR(error);
- }
- 
-@@ -439,12 +483,18 @@ static struct soc_button_info *soc_button_get_button_info(struct device *dev)
- static void soc_button_remove(struct platform_device *pdev)
- {
- 	struct soc_button_data *priv = platform_get_drvdata(pdev);
--
-+	struct platform_device *pd;
-+	struct fwnode_handle *fwnode;
- 	int i;
- 
--	for (i = 0; i < BUTTON_TYPES; i++)
--		if (priv->children[i])
--			platform_device_unregister(priv->children[i]);
-+	for (i = 0; i < BUTTON_TYPES; i++) {
-+		pd = priv->children[i];
-+		if (pd) {
-+			fwnode = dev_fwnode(&pd->dev);
-+			platform_device_unregister(pd);
-+			soc_button_remove_swnodes(fwnode);
-+		}
-+	}
- }
- 
- static int soc_button_probe(struct platform_device *pdev)
 -- 
 2.56.0.212.g129ede20d9-goog
 

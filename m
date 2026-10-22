@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.250.60.160
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.250.60.165
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792647618;
-	b=ElYiZv04riNIpV7SxpTN6mBTPkGSxMnPa4nXhsgWmowWPMK9mmTjGe45KlI0LjU1yOk3
-	 dNHIcd1YIftSD5S0YVTEQ9E9bsZeemeqzMS+MJRpImLWUKPhPX5SycNAYjSUjgWOegDep
-	 TlnptLY1tFV2WWcX6ZxWC166vt1EkSkZ3jV6eYcJxhX4viJMaxthZeIEzdL2ahZi9wkyo
-	 HfZudOI2QkuuZSptPusLXwF5mirPGgvutp7ZP4oUX/G7kKQ1Qw6ZhWvX2avHD9Qjq8Ecx
-	 7zVNL/ir4n7xU3TJQjoyYm5yfhpUz0tkjASEK/XPxD/m9W328jvhobMdkrgeq5e8Y6w==
+	t=1792647906;
+	b=q5b6cPaHJ4oLtBS6gDE+ibMBuur8gC8sv/Lkh0eKpeTmGWT23yMjal+g9qriQ29EgY6I
+	 tBClAJz4CtgCkf3SpLwRgjhUJFNGc7fkdFp+ZkeSGC8gspPSOZVEOURSSAJjGbKKE+D2j
+	 sEgwVaWw74EoZQGzEjVsUaYHb/O0k7GNu0/VBjU4rwtMpGUpXjizrPFtlGA9SjDfypeHG
+	 IhS0+yQyHoGx+z6pzvSm0GYiQwmUKuz/0eHquSd9Byrj4MV/U7/Xzmll8NUQblOPd4+B4
+	 VfVSUCmab74FEVPCw2intrK/+wVQFRQlAn0kpPdEo+96StMRsU3Cu6z6pOjouypV1tA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792647618;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792647906;
 	h=DMARC-Filter:Received:Received:X-Yandex-Fwd:DKIM-Signature:From:To:
 	 Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
 	 Content-Transfer-Encoding;
 	bh=E3EtUTJnA1yBH8Az0JFVRlvEZI46XGk+9TbZBQFWeW0=;
-	b=jP7l5poFCvg+QZH/QFAc1AIRTtWOhmxHIcjhMRP6wNoiDgeVr7RUj4omVWzSFO/xJ6oc
-	 dHJeRgn7d/CCBu4VGt5Ynbk6rVcwyJtu7v/9M6iqgFh6lmSRoAg/rfkOYXV8d2N3gb9zx
-	 nqAL2Thtv5pV8VDVKo7ev5Y4SaCg6ootYxTy344cSAdIDqS7LTEtave80+U1OobordoxF
-	 iq19ap0/zXjrw8XbVWUyxlcTZrgWWDrfcvxzNvo9KyoaL8FeNVlfS4FgOEFsPRsm3ZeoR
-	 zUE4G8ldNcHynTQjAGiKcnWge53sW/HKgLhucteUCi1A86C2OXL/rDvtC/dJxfy6g2w==
+	b=eYa/PdTVs0pAIi1PSzF9jAa1SLaVFDFmtIy4W/prl3UCqsrU8HZAlbBlolZfadyERB6f
+	 714w3rXl0xUZUElx4Ja6Bg/CYsNb4MrXKMXgr7iM1NATPzL+h5316dzrLbCIcwqaIp22N
+	 e1BdywG0FuIqWR8xwUHhg8iALag1iu9mZMef0jEQHfPTA9L3a5p7FgBVUZFNV8W3ux/3z
+	 9tvCf63p+z4XhEznBZdl1p+VOF2N9i+KZbQk7JZgugyTPQ9E7Io/fc6j8jWyYqcBr7EWG
+	 3Ic6DIiHb0cHcjBWE570qolCNlRKaLj8PDF2slvpbeaG3jxmIX+BPI1mDMv2QN/nQqA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=yandex.ru;
 	spf=pass smtp.mailfrom=yandex.ru;
-	dkim=pass header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=h4N0AJpb;
-	arc=none smtp.remote-ip=51.250.60.160
-Received: from forward100d.mail.yandex.net (forward100d.mail.yandex.net [51.250.60.160])
+	dkim=pass header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=CXiaJ2+3;
+	arc=none smtp.remote-ip=51.250.60.165
+Received: from forward105d.mail.yandex.net (forward105d.mail.yandex.net [51.250.60.165])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10BBC606A319
-	for <linux-input@vger.kernel.org>; Thu, 22 Oct 2026 05:40:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 10BBC606A319
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D603606A31D
+	for <linux-input@vger.kernel.org>; Thu, 22 Oct 2026 05:45:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5D603606A31D
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=h4N0AJpb
-Received: from mail-nwsmtp-smtp-production-main-80.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-80.yp-c.yandex.net)
-	by forward100d.mail.yandex.net (postfix) with ESMTPS id 8D7EFC7CC5;
-	Thu, 22 Oct 2026 08:40:07 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-80 with ESMTPSA id 5eUKk1BdFCg0-OsQjV4OU;
-	Thu, 22 Oct 2026 08:40:06 +0300
+	dkim=pass (1024-bit key, unprotected) header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=CXiaJ2+3
+Received: from mail-nwsmtp-smtp-production-main-57.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-57.yp-c.yandex.net)
+	by forward105d.mail.yandex.net (postfix) with ESMTPS id 31F3E100050;
+	Thu, 22 Oct 2026 08:44:57 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-57 with ESMTPSA id tiUiduAiC4Y0-P5xFunqH;
+	Thu, 22 Oct 2026 08:44:56 +0300
 X-Yandex-Fwd: 1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1792647607; bh=E3EtUTJnA1yBH8Az0JFVRlvEZI46XGk+9TbZBQFWeW0=;
+	t=1792647896; bh=E3EtUTJnA1yBH8Az0JFVRlvEZI46XGk+9TbZBQFWeW0=;
 	h=Message-ID:Date:Cc:Subject:To:From;
-	b=h4N0AJpbqNnWwith1+4Tj0hlbMfcc6YIczGNdotlNy7PPcR5VVyS7zMQpFmN3pvCX
-	 06vSAsm+Y5wXpq3wpULhdZ1afxUoTEtqSbQFCmpDmbz8wGfs7JK04pZjwubvt/L96j
-	 fD3Z2kTWAUslgMrXmZoPigWQhXT+7oYlyHVxXy9U=
-Authentication-Results: mail-nwsmtp-smtp-production-main-80; dkim=pass header.i=@yandex.ru
+	b=CXiaJ2+3LKXNO783kQg/g8b4o3wiWGzEiJWVEd7UBDzLSBHHtkTuaVEvCWq5Puv1K
+	 2UNuS2EdSv8D3RqkpCxp5+Z3q8ekei5kT0dMtH8SJecmaPnWrOInjNb60MbjyaP9Fy
+	 4ckIE+KvgNb1UV7G4C29PfchN53dC5ldl/3VxHX4=
+Authentication-Results: mail-nwsmtp-smtp-production-main-57; dkim=pass header.i=@yandex.ru
 From: Dmitry Antipov <dmantipov@yandex.ru>
 To: Benjamin Tissoires <bentiss@kernel.org>
 Cc: Jiri Kosina <jikos@kernel.org>,
@@ -53,8 +53,8 @@ Cc: Jiri Kosina <jikos@kernel.org>,
 	lvc-project@linuxtesting.org,
 	Dmitry Antipov <dmantipov@yandex.ru>
 Subject: [PATCH v8 0/3] Last remaining Roccat HID fixes
-Date: Thu, 22 Oct 2026 08:39:57 +0300
-Message-ID: <20261022054000.227833-1-dmantipov@yandex.ru>
+Date: Thu, 22 Oct 2026 08:44:51 +0300
+Message-ID: <20261022054454.238343-1-dmantipov@yandex.ru>
 X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>

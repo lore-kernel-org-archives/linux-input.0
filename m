@@ -1,86 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792678405;
-	b=dS9t3CRkEq/LhKsNRxCKjpoXQPjSXFxQrKCf3ATXqghkR4AjcF7IgUH40t5hUWQoU+Cc
-	 U8UJon1g8vchEwvmzeO60IgTelgmO0TSk/sNhC8rfsMC10OaXYw2NpMl8m0o3vvSgcWxA
-	 RmTXcbTGd9giWqJCqDqacfBhpI/FJ8eyMtUW71QIQMIjr9MQRCcd5Vv9CXSdTgXtPWMLq
-	 6pwGY7JLiiQUEw43eiJk6pj8iZXTAAClN8nLzDGP0+14QJy/4OvSrtjSTJLUk2g4tD/SX
-	 +/4LUilWKSgsSem27KtPbQCNeWouP4Ftojz5bfQLtxuIgjirCt1pulOXtdG2aTBVkdg==
+	t=1792679259;
+	b=3daL3GzURYUrg9N6wSp6cc7rhNW1TEr83NAZXpBcVm2q0gsO1huQwb7JFgR3nNnaliE7
+	 pMXR30GW3HE09Ku7k+aF5Y05i6PIUZNC2Gw3ywLiv/tB0PdGDkg3+Cx9e6ykMdcnibYAx
+	 j73XQjo3TL5Y6zbjtS7JnwDk0RRLFkU9CpNueVRTXYaN+8vYvXw8gYycVV/sABkSYri1j
+	 ZTF247pSvhAVLbDExwicxEfG909nyDmrrDFd4Wwe32HyqHdcrpocuh/v3Ru9yl8g+SKDE
+	 QErw/pmCV2W0oj+1t78xs0perWdXXNxm9YRUXBBAjhSO/GyjTLLbt4JpN4wbxGdGUMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792678405;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To:
-	 Organization;
-	bh=iwTJzx5OtydxDTgFrFcMNZkgjWKE8i5gpoiUX72tB4o=;
-	b=OV450tezmzW95s1Ul7z1BOtBFmbkjVpBwCm1h3cjj8gfL8QkYm+ajyGteGLxSIHFGITx
-	 XCgJzeINLnLUk+NK9PoKkiqYbtURc77L8rmyFZse0kTNHJhuxVTs4rAS23Lt6qgi6Pd74
-	 02A+PzPc7Pn2sNQ7NmHojCzzIyY7RRmTqdLP6Mnww7fZXtF3QowyFBvycekZsNdvK2Oac
-	 q2TwfuGaKmr6/dF372pnZyEivSzxbml63EKDpFwBUqbFPlcgvVLM0d/QyS9tM0/UD3NH/
-	 8rh3wdfmtV/B4syM/9Ixx7alSrVn8FgIKiITeWx+m17u61BgrQ7mJfU1KiTF429rTsw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792679259;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=1F+WXwIUgn8Z7PfNJIGCLSTej9s0HQVsqZZkzwyzrbY=;
+	b=eHY/nhDr4MvLjIeRhReeiLKF3Tx4qBl0NItPibItt+9R1jcHU8vuORg8++UBBjuKQKnU
+	 Kd/M/JDntus2TUhHJMbSDf2c8BkdFZt1vqzZO1KU1pAB7K5w7iyZan9oDBMMNF64DJ2Uy
+	 EqIWDbxewuwYRe9jhtWaEmv1WV1TMCaa1Ai5OfqPJOJqFmzWIOcXH7S56Krd60z27kbZG
+	 DLwmPRoNNeSDCFFFRQN5SgDB38nxA8WajNkzq6X7V3XpL5fXzJnxUmNBbNYTUZQ1tTAgN
+	 nVVc1Mk7kJZ9InCBt/lTvT88M69IKR6jNvX6stYrGsPof/YYrEyooyiRQwas/rleG3g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=keGuSoB6;
-	arc=none smtp.remote-ip=198.175.65.14
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kDJMfFsl;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8EA8606A31A;
-	Thu, 22 Oct 2026 14:13:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E8EA8606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C741606A319;
+	Thu, 22 Oct 2026 14:27:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=keGuSoB6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792678404; x=1824214404;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=cw4p9aJtCbmwDNZsvzHrhxJH+Bk/E9kyYxxPz/Yv2Z0=;
-  b=keGuSoB6s0RHCVdlDcwaJxTcQ11MFeq6ydkws6OIbDmCxhDu2GuDTp4d
-   64aiLz0dopFPW2YK3r0nFcNUwSVKeOMGTy7zEV+jnyFqyAK2zC1uvY4Ne
-   Sld5LH2HK+pVIJS6pNFsNx0cwAeKhCWu3+AiyNkv0YZNbGyE1hoLtTLSt
-   HUWXpr7x7mYZMHycotOrz9ivPHn1RyvmflA3yFperVgfYbTVWS1OO+EhI
-   t8ZXLtE/mDJSdjc7skV8SzVo11vSaAwzOdm0qASRK9VpgqtVufK3c8yM3
-   YdGM0gvt1AhWo5zFU80RChC5Nofhc+Tid1tVRTIQtQwQqpHB52BvxIyQU
-   Q==;
-X-CSE-ConnectionGUID: LbGFSruTSKKHFkokrYeJVg==
-X-CSE-MsgGUID: HOrAUeUSSbCbNCrhw1nNPw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11942"; a="1301233"
-X-IronPort-AV: E=Sophos;i="6.27,172,1787036400"; 
-   d="scan'208";a="1301233"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2026 07:13:23 -0700
-X-CSE-ConnectionGUID: cqNWCnQLSqygkJJdm1Oujw==
-X-CSE-MsgGUID: 3ZXlAOZ8Rq+hnjNVIkXUfA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,172,1787036400"; 
-   d="scan'208";a="3317105"
-Received: from conormcd-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.189])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Oct 2026 07:13:20 -0700
-Date: Thu, 22 Oct 2026 17:13:17 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Christopher Hoover <ch@murgatroid.com>,
-	Jonathan Cameron <jic23@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Lixu Zhang <lixu.zhang@intel.com>,
-	Joshua Crofts <joshua.crofts1@gmail.com>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>, linux-iio@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3 1/3] HID: hid-sensor-hub: Synchronize callback removal
- with raw events
-Message-ID: <atoZ_bKG7nTdmtXl@ashevche-desk.local>
-References: <20261019023420.83976-1-ch@murgatroid.com>
- <20261019023420.83976-2-ch@murgatroid.com>
- <4470c427937d26035d81b99ee7d06e2a602ee4d7.camel@linux.intel.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kDJMfFsl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DEC11F000C1;
+	Thu, 22 Oct 2026 14:27:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792679258;
+	bh=1F+WXwIUgn8Z7PfNJIGCLSTej9s0HQVsqZZkzwyzrbY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=kDJMfFslI4Qd6ehpqIY0YskwRgML83/hEr+vYNIXCk2WMy77XGUj55irhrLdBL+tQ
+	 lgA6SccW7UrUS7i4uFK9PaWGIMzuPPFojvuAOHtEScWdSixJExzvRRUlBYeHoinc4E
+	 1qZQyH/GIniUaIQxK2J0FBjQ1U4/0tCpjRv1Fa9kBwD7uV8s17oMT2C6+SxZEF6Uat
+	 Hn+NIk3bjJirB7Y2FYpACv6KodQkUlDaRweqgas20Tzf/L1FHtnEogoHVbvwuINwhE
+	 s9lvQbor2far9z64u3YO7nU1h1wzNke5q0xTiVVaHK0woRbN/vpPJ2TPxLyPfs6TUE
+	 KSC1Y/bbadZBw==
+Date: Thu, 22 Oct 2026 09:27:37 -0500
+From: Rob Herring <robh@kernel.org>
+To: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Luca Weiss <luca.weiss@fairphone.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org
+Subject: Re: [PATCH v3 1/4] dt-bindings: input: Add compatibility for Awinic
+ AW8695
+Message-ID: <20261022142737.GA1207636-robh@kernel.org>
+References: <20261022-aw8695_haptic_fp4_driver-v3-0-ac8c14377e82@fairphone.com>
+ <20261022-aw8695_haptic_fp4_driver-v3-1-ac8c14377e82@fairphone.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -90,47 +64,25 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4470c427937d26035d81b99ee7d06e2a602ee4d7.camel@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20261022-aw8695_haptic_fp4_driver-v3-1-ac8c14377e82@fairphone.com>
 
-On Wed, Oct 21, 2026 at 06:21:45PM -0700, Srinivas Pandruvada wrote:
-> On Sun, 2026-10-18 at 19:34 -0700, Christopher Hoover wrote:
-> > sensor_hub_raw_event() holds pdata->lock while it looks a callback up
-> > in dyn_callback_list and calls its capture_sample() and send_event().
-> > sensor_hub_remove_callback() takes only dyn_callback_lock, so it can
-> > unlink a callback and return while another CPU is between the lookup
-> > and the call.  The sensor drivers remove their callback in .remove()
+On Thu, Oct 22, 2026 at 11:19:15AM +0200, Griffin Kroah-Hartman wrote:
+> Add the AW8695 haptic driver to the binding documentation for the
+
+s/driver/device/
+
+Because bindings define h/w devices, not drivers.
+
+> AW86927 and AW86938, as this binding needs the same properties.
 > 
-> Two spaces before "The".
+> They are not compatible though, because the chip identification works
+> differently compared to the 86927/86938
+> 
+> Signed-off-by: Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+> ---
+>  Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 
-Which is not that bad [1], right? It's consistent in the text.
-
-> > and keep the struct hid_sensor_hub_callbacks in memory that devres
-> > frees right after, so a report racing an unbind can call through
-> > freed function pointers.
-> > 
-> > Take pdata->lock in sensor_hub_remove_callback() too, outside
-> > dyn_callback_lock as in sensor_hub_raw_event(), so the removal waits
-> > for a report in flight.  pdata->lock is otherwise only taken in
-> > sensor_hub_raw_event(), and callbacks are removed from process
-> > context.
-
-[1]:
-"Using two spaces after a period is not strictly "wrong," but it is considered
-outdated and contrary to modern typographic standards."
-
-...
-
-Yeah, it's a slippery slope of yet another holy war, but I think this
-kind of a style is a last we should care about (main point is to be
-consistent in a chosen style).
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Acked-by: Rob Herring (Arm) <robh@kernel.org>

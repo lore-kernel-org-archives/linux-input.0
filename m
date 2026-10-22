@@ -1,75 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.71
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792676392;
-	b=cJpjS9MP/LMjVSkKqil52YfE0kDZUmlOwMzMdeCFdJjGYNH0rbc6LvpDThCJSEbAonME
-	 to7XKT53upzkQHHU34WR8LOsPYxMs7QROBLYlM3HVUUO7Q//mSxJnuSJEG2If5RqOSThg
-	 nZY4fw6wkjPojnO5DNQ4w+9ZzEJatksvIvlhRufgLx2ty3Qs6kmkw0GBOkU3O749xnsH8
-	 bpxvcp3VfZGHxKPqJUqVtjL45YO8oILLRu3ugUSB+XNHt92Lf5EL/Akx1Zt+qxzMlxFKP
-	 04TLj9ZE+z0HhnFJ3uoVsbMIFn/KaL9Ogc9qvZmLcdhliKJJAw8V6iXVEoG1DLKHP+w==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792676392;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Received:Date:In-Reply-To:Mime-Version:
-	 References:X-Mailer:Message-ID:Subject:From:To:Cc:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=E7ldbha61mP8s1NIQkWTBtWS7iGHbMi8BBAljC+krWo=;
-	b=pmOoAnoV42pgJ+WLciIiZO0mPYR5vPBiIvppAJa6kPTcG/2SPKVCKeRgF2EPKmQvp970
-	 7RnVgghCUF56CV+EgH5oeCNTaEL7Q3mGv5gVep0wf21ExqBGA6QLJGHR/RiKVSz4JWM3m
-	 RbyqDuvGqbj63YOcS2LoAsUecYw8nK16E8dyQwe37jLYY2euORbYoG2WVN2IAz9iOY+jT
-	 U2oqBZeRo6rfXEcy99wBSV9FeOp0DZft9uUVEpxbpr3CBalFQkz5AHdkKDZObFPxJmR3V
-	 rhMY+7re9LAtCGtL5AdNNPOiguvKvhIV5/nuSPnSxG6+KqhyT5Y755GY1mM4vKumL7A==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=flex--korneld.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=uvCDJ9yQ;
-	arc=none smtp.remote-ip=209.85.218.71
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com [209.85.218.71])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792676710;
+	b=YM6MdpGJvilKNzBriyfZLwD1ZVT2GvpwSBwbT1XbY0oqUnhF6KzQezyXAkNX08IkMCaB
+	 Ct+RWkjtVqTZQ7WXzTtUZ7CmHGwHTHNmyo7ajc1Or/WIzYeHBd6aJD1SsdtXFGWDzK6ZW
+	 O8wTKY99K40UFU9CB147OXhnkD00MKTro6OVn0U1lD3152FZ4TmCqvO1M3/KhPC6At+gt
+	 Sg3lU9KtMlDe+XRCi0OZBhbAjUhRhMoAFh+Lle/V0qmWzX7Hy5rnHM81r4zSA1FKl7rtc
+	 OyH4FOSlFqAsUqdnRLyrlkOS5QcVDLTL0APo6sk5Iy9oZpQIpE9v7Xp3dQlGpRLwmow==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792676710;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=2rgFFb1JouG2mVsaDyOTx/jn6UdyBqBiHcq0IgmVzZE=;
+	b=Z/0I4hUxUnrEtcoqiJT1Xf6XCKKCV65NtlbjJhTroBJ5fjqONZfp5dgyGtakO5Ld1VPe
+	 DE95bEYRDGORUdrHZEq2sq0Zkb/cA1jcilCDLTs/ScN+TGW7JIOYawVI8+O9ZrAcZhsx1
+	 g+BAH/a1wJD+dsnjmAbrUV1FujnvDILv4MRRhKBhjrt0g4Oxv6RIiEuGB1jhlWb3/yPMV
+	 Tw0ANNN8Ma4aCMRJKVoK1WfLFR7asBulimTMWfpb4M1JPEp7zOGF8GaIOyq5acrCs8pql
+	 O5WUMEtbu5m2eKL1AXjy0+DZg/EAOkeEOOWHU6wRKuPQZwVXh5E/0dEMf+yiZnLXitQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=pengutronix.de;
+	spf=pass smtp.mailfrom=pengutronix.de;
+	dkim=pass header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=MnPE1z03;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=185.203.200.13
+Received: from mx1.white.stw.pengutronix.de (mx1.white.stw.pengutronix.de [185.203.200.13])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47194606A31F
-	for <linux-input@vger.kernel.org>; Thu, 22 Oct 2026 13:39:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 47194606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--korneld.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8136760A5BE3;
+	Thu, 22 Oct 2026 13:45:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8136760A5BE3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=uvCDJ9yQ
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-c3a4da6437bso185573466b.1
-        for <linux-input@vger.kernel.org>; Thu, 22 Oct 2026 06:39:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1792676391; x=1793281191; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=E7ldbha61mP8s1NIQkWTBtWS7iGHbMi8BBAljC+krWo=;
-        b=uvCDJ9yQLoNKcbIxMgOplqnLOfad0D6J8m+YUxNVf3H5Mfc9TprbVTHr+jQX2Ar3AE
-         sdaY6nVKaAfWO0UPgVztBH3+vsQi2eWmkRjsw0XJv0MvcB2rgYM0+71yV9PcJqtmXK/0
-         Do5dwnnxBkug7NintG8UB70bbzlmy+MmAm0NTHpeGP5kRZUTI0AEw8npCinudlFUMir9
-         m/gTmku3jR6bi94Cw4RnsQ8mGEFoGL63GvxfFRxN6CMBB8vZYh0rxbGJ6KDKUcsPzG4W
-         tbi/3h0ShbLGt7nQqjw+CWMczXzK/7YE2pmIUV4kfDWAHhKkXop2wQIfwODlkBov0rce
-         pQyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792676391; x=1793281191;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=E7ldbha61mP8s1NIQkWTBtWS7iGHbMi8BBAljC+krWo=;
-        b=qLrW71dOti+wkdjMyRKY8YZVRmVE0m6avqQFV+RArmRNtijgpDbwLpOPH5JglRyWLL
-         fKIyg3cKJK6I/mREoYp9buhAvmBgXk1D9bWA78fd4pjokuldzHwzwpioQEjnXpCzG9hX
-         l34e3H55Gztyfh0wcubdJoAdqFg8TYZJfrhGuJsW4njziCHmnGH6xu64C3+47OvDU3gc
-         wgdLwV2bftonIIvFAPtI5dLDXVT3aUlAIhHcYbeIr3xB9A/f+hcC1Meh4A0r7ffAW+Hb
-         yWgee2f5DDf1YYfBJPy5e/k365TWKYpepaUvkUcsnSQa6NVSfKDkZN1fMx4fSe18hEBF
-         2H4Q==
-X-Gm-Message-State: AFq9FYJLq7ujvyxJd4f0KMX70xNb+Uha/LzMQ3s8mqq9AA8iGtS6oqUX
-	rkTlOxcKXs2kxVWiL7mMB5lF98MTHmgJDxs0A61AtmJ6IV7sM7B9U/FaOcmILzReJgujnIFFvzl
-	TI/WPa0vbYg==
-X-Received: from ejhf27.prod.google.com ([2002:a17:906:2c5b:b0:c3f:eb49:ea45])
- (user=korneld job=prod-delivery.src-stubby-dispatcher) by 2002:a17:907:3da0:b0:c40:6ed9:b961
- with SMTP id a640c23a62f3a-c467917493fmr570354366b.5.1792676390076; Thu, 22
- Oct 2026 06:39:50 -0700 (PDT)
-Date: Thu, 22 Oct 2026 13:39:13 +0000
-In-Reply-To: <20261022-evdev_syndropped_fix-v1-0-b5400740e1f7@google.com>
+	dkim=pass (2048-bit key, unprotected) header.d=pengutronix.de header.i=@pengutronix.de header.a=rsa-sha256 header.s=20260414 header.b=MnPE1z03
+Received: from ptx.office.stw.pengutronix.de (ptx.office.stw.pengutronix.de [IPv6:2a0a:edc0:0:900:1d::109])
+	(Authenticated sender: relay-from-ptx.office.stw.pengutronix.de)
+	by mx1.white.stw.pengutronix.de (Postfix) with ESMTPSA id 75766200BB9;
+	Thu, 22 Oct 2026 15:45:05 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1792676705;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2rgFFb1JouG2mVsaDyOTx/jn6UdyBqBiHcq0IgmVzZE=;
+	b=MnPE1z03dopvyrYVfdrP4gsXe0pRhVtFD0gEJqrH9prFnbjifYvEFTW76V+wi/qZowjJBG
+	ipKobJfPcYyyvfDioYmbvsNJniWJmAzCkQIsuxYzP0AW8kxDwPHiPuZdLZ1OKqLranRZqt
+	Ckyg/0pIo0IIOkFXkUc11nGk2hcb13BDR+cSAOV07NGKRl+/mkKFYgNKW2YedQJMFVPboZ
+	hSL0DDbKmEYdotkOX0oLkwinS6Ycd5pW+WLPzJnP2lHyfMgVhCl7A1RgKemP7uS0eV9ZRb
+	wgP49YDcuZz8bD7bmNG042o8mtwXp2kVoPk87bCGC6NzQMo8zW2FdFsaVoFvhw==
+ARC-Seal: i=1; s=20260414; d=pengutronix.de; t=1792676705; a=rsa-sha256;
+	cv=none;
+	b=CvcShZrpzK3np+yhnis7iQ/a/XoC1dKVxzq+bvcP9Sdvoeei2P3lAJ9VsmTASpQ8SYw42i
+	wxmrm6q9/BOF0J/VJpgTTsBbjvRtcpdTHW0Qhfn3EjWHdkOlU+UqS8kL2q88T7I7ZwYHSv
+	8iTRgYT6iM6gl2jDXNZYSsTX3hTM+5nIcykFx/przvBnCGv1NW/mp9BcZncG0Dw1MnySWv
+	7MNMZ2LEQ+nELItovdQmrqskdetEN6FP3QLlRDpsWpDB1vFvT0KYJaqbadrT1KbNQwFexT
+	+MhZpIO5ihBaVFl47HErxcmVq9tE2Egp1BkjTgF8V0c5KFW7GtXKJoR5b7vRKQ==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=relay-from-ptx.office.stw.pengutronix.de smtp.mailfrom=mfe@pengutronix.de
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=pengutronix.de;
+	s=20260414; t=1792676705;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2rgFFb1JouG2mVsaDyOTx/jn6UdyBqBiHcq0IgmVzZE=;
+	b=ZB6Gma4mmHcVCA6ZoQTj0yA8M6WU+og48KLo66VcN0t/5YexhGBlUPB6oHVWfvJbrBhuoy
+	YvCuGahEdnbIQ+fsygBOLK8WmJqs/57g2YY7OYmcrcPWffOf38NLhWGAMXRsczPJcZ3bie
+	r5bHQ2z/Z/wt5aHgi1XvsJIjaQWtf/c0Pkj3MBvnYggKd5VnXL2QMT2Dx88czAFTC0yp5h
+	fD8cTOzucQKTtehmm1BNrfUDHLwJLr2XWvrhIX9F1GzB0BsgYs+uAfA405+rVTC30obdJB
+	8NIsmlZo0qfRJ0P7+ezPKeNgfZoQBGGI8i9YYGOUlys2e+D8fSPJFnabkONqiw==
+Received: by ptx.office.stw.pengutronix.de (Postfix, from userid 1064)
+	id 551931BFC86; Thu, 22 Oct 2026 15:45:05 +0200 (CEST)
+Date: Thu, 22 Oct 2026 15:45:05 +0200
+From: Marco Felsch <m.felsch@pengutronix.de>
+To: Andrew Thomas <andrew.thomas@touchnetix.com>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, 
+	Russ Weight <russ.weight@linux.dev>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Kamel Bouhara <kamel.bouhara@bootlin.com>, Marco Felsch <kernel@pengutronix.de>, 
+	Henrik Rydberg <rydberg@bitmath.org>, Danilo Krummrich <dakr@kernel.org>, linux-kernel@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-input@vger.kernel.org, 
+	Mamta Shukla <mamta.shukla@leica-geosystems.com>
+Subject: Re: [PATCH v7 4/4] Input: Add TouchNetix aXiom I2C Touchscreen
+ support
+Message-ID: <h6o7st54umxqurpe47nlr4wj5fhm63avntpwl3dohem4szchcf@hic7wxfa6ekc>
+References: <20260703-v6-10-topic-touchscreen-axiom-v7-0-0d2a550a7ee8@pengutronix.de>
+ <20260703-v6-10-topic-touchscreen-axiom-v7-4-0d2a550a7ee8@pengutronix.de>
+ <cf3nlougoxwlenjacl3ij2d5d5iqeqdd2whcrnnpr67qlzg6xj@p6c3bebapu7s>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -78,74 +97,489 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-References: <20261022-evdev_syndropped_fix-v1-0-b5400740e1f7@google.com>
-X-Mailer: b4 0.14.3
-Message-ID: <20261022-evdev_syndropped_fix-v1-2-b5400740e1f7@google.com>
-Subject: [PATCH 2/2] input: evdev: Read clock directly in __evdev_queue_syn_dropped()
-From: "=?utf-8?q?Kornel_Dul=C4=99ba?=" <korneld@google.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"=?utf-8?q?Kornel_Dul=C4=99ba?=" <korneld@google.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cf3nlougoxwlenjacl3ij2d5d5iqeqdd2whcrnnpr67qlzg6xj@p6c3bebapu7s>
 
-Currently, __evdev_queue_syn_dropped() calls input_get_timestamp() on
-the underlying input_dev to obtain the event timestamp. If no timestamp
-is set, input_get_timestamp() caches the current time and returns it;
-otherwise, it returns the cached value.
+On 26-08-20 16:14, Andrew Thomas wrote:
+> Hi Marco,
 
-There are two problems with this approach:
+...
 
-1. Locking. The timestamp is obtained in the same way in
-   evdev_events(), which is called with dev->event_lock held. Calls to
-   __evdev_queue_syn_dropped() are only serialized with
-   client->buffer_lock. This makes both accesses likely racy.
-2. If no timestamp is cached yet, the subsequent hardware event
-   generated after __evdev_queue_syn_dropped() is called will receive
-   the stale cached timestamp.
+> > +What:		/sys/bus/i2c/devices/xxx/fw_status
+> > +Date:		Jan 2026
+> > +Contact:	linux-input@vger.kernel.org
+> > +Description:
+> > +		Reports the firmware status provided by the touchscreen. It may
+> > +		be either "release" or "engineering".
+> 
+> This is right, it is release. However in the driver you refer to "production",
+> which does not match.
 
-Fix this by reading the current time directly based on the value of
-client->clk_type. Open-coding this is not the prettiest solution, but I
-couldn't figure out anything better.
+Sure, I will update the driver!
 
-I initially thought about fixing this by resetting the input timestamp
-in this function instead, similarly to how INPUT_FLUSH handles it.
-However, I decided against it, as that would require non-trivial
-locking changes.
+> > +
+> > +		Access: Read
+> > +
+> 
+> ...
+> 
+> > + * The devices have a 16bit ADC but Touchnetix used the lower two bits for other
+> > + * information.
+> > + */
+> > +#define AXIOM_MAX_XY				(65535 - 3)
+> 
+> This assumes ENABLECOORDINATESCALING is set in u41.
 
-Signed-off-by: Kornel Dul=C4=99ba <korneld@google.com>
----
- drivers/input/evdev.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+Yes, but I would like to keep it this way. Given the fact that we have a
+16-bit value and cut only the lower 2 LSBs
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index c6da2601480f..da7396c19188 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -145,11 +145,18 @@ static void __evdev_flush_queue(struct evdev_client *=
-client, unsigned int type)
-=20
- static void __evdev_queue_syn_dropped(struct evdev_client *client)
- {
--	ktime_t *ev_time =3D input_get_timestamp(client->evdev->handle.dev);
--	struct timespec64 ts =3D ktime_to_timespec64(ev_time[client->clk_type]);
- 	unsigned int buf_mask =3D client->bufsize - 1;
- 	struct input_event ev;
-+	ktime_t time;
-+	struct timespec64 ts;
-+
-+	time =3D client->clk_type =3D=3D INPUT_CLK_REAL ?
-+			ktime_get_real() :
-+			client->clk_type =3D=3D INPUT_CLK_MONO ?
-+				ktime_get() :
-+				ktime_get_boottime();
-=20
-+	ts =3D ktime_to_timespec64(time);
- 	memset(&ev, 0, sizeof(ev));
- 	ev.input_event_sec =3D ts.tv_sec;
- 	ev.input_event_usec =3D ts.tv_nsec / NSEC_PER_USEC;
+> > +#define AXIOM_DEFAULT_POLL_INTERVAL_MS		10
+> > +#define AXIOM_PAGE_BYTE_LEN			256
+> > +#define AXIOM_MAX_XFERLEN			0x7fff
+> > +#define AXIOM_MAX_TOUCHSLOTS			10
+> > +#define AXIOM_MAX_TOUCHSLOTS_MASK		GENMASK(9, 0)
+> > +
+> 
+> ...
+> 
+> > + * same usage to handle different usage revisions.
+> > + *
+> > + * Note:
+> > + * During a th2cfgbin update the driver may use usages not listed here.
+> > + * Therefore the th2cfgbin update compares the current running FW again the
+> > + * th2cfgbin targets FW.
+> > + */
+> > +static const struct axiom_usage_info driver_required_usages[] = {
+> 
+> Is this too strict?
 
---=20
-2.56.0.307.g5fe7bd680c-goog
+The programmer's manual clearly states that the host must validate all
+used usages. I don't see an issue with beeing strict, if you release a
+new firmware with new usage revisions, you can adapt the driver in
+parallel.
 
+> Could you split it into "update" and "required"?
+
+The driver is already very complex (for a touchscreen), just to handle
+the "host must validate all used usages" case. So no, I don't think that
+this makes sense now.
+
+> So a probe succeeds with "update" usages, so you can atleast get touch
+> reports, but a download is blocked without them.
+
+In case a firmware was found, which is currently not supported by the
+driver, the device can still be updated. That being said, this mechanism
+requires that the Touchnetix bootloader protocol is never changed or at
+least changed in a backward compatible way.
+
+> Also should u64 be optional?
+
+Nope, please see above.
+
+> 
+> > +	AXIOM_REPORT_USAGE(AXIOM_U01, 1, axiom_u01_rev1_process_report),
+> > +	AXIOM_REPORT_USAGE(AXIOM_U01, 3, axiom_u01_rev1_process_report),
+> > +	AXIOM_USAGE(AXIOM_U02, 1),
+> > +	AXIOM_USAGE(AXIOM_U02, 2),
+> > +	AXIOM_USAGE(AXIOM_U04, 1),
+> > +	AXIOM_RO_USAGE(AXIOM_U31, 1),
+> > +	AXIOM_RO_USAGE(AXIOM_U33, 2),
+> > +	AXIOM_RO_USAGE(AXIOM_U33, 3),
+> > +	AXIOM_RO_USAGE(AXIOM_U33, 6),
+> 
+> ...
+> 
+> > +
+> > +	return entry->info->rev_num;
+> > +}
+> > +
+> > +static bool axiom_driver_supports_usage(struct axiom_data *ts,
+> > +					unsigned char usage_num)
+> 
+> This is called many times before calling a given usage handler.
+> Could we just check in axiom_u31_device_discover() or axiom_i2c_probe()
+> for all the required usages?
+> Could the "update" usages be checked in axiom_cfg/axfw_fw_prepare()?
+
+I like the actual design:
+
+  usageXX_handling() {
+
+    if (!usage_not_supported())
+        return;
+
+    // Do the actual work
+  }
+
+because it keeps the usage handling and check together else the check is
+done at an arbitrary place. Furthermore looping over a the list of
+supported usages is really fast.
+
+> > +{
+> > +	const struct axiom_usage_info *iter = driver_required_usages;
+> > +	struct device *dev = ts->dev;
+> > +	int rev;
+> > +
+> > +	/*
+> > +	 * Some features depend on the current running firmware. Don't print an
+> > +	 * error if the usage for an optional feature is missing.
+> > +	 */
+> > +	if (!ts->usage_table[usage_num].populated) {
+> > +		dev_dbg(dev, "u%02X is not supported by the current firmware\n",
+> > +			usage_num);
+> > +		return false;
+> > +	}
+> > +
+> > +	rev = axiom_usage_rev(ts, usage_num);
+> > +	if (rev < 0) {
+> > +		dev_warn(dev, "Driver doesn't support u%02X yet\n", usage_num);
+> > +		return false;
+> > +	}
+> > +
+> > +	for (; iter; iter++) {
+> 
+> I assume this is supposed to be:
+> for (; iter->usage_num; iter++) {
+
+Sure, thanks!
+
+> > +		if (iter->usage_num != usage_num)
+> > +			continue;
+> > +
+> > +		if (iter->rev_num == rev)
+> > +			return true;
+> > +	}
+> > +
+> > +	dev_warn(dev, "Driver doesn't support u%02X rev.%d yet\n",
+> > +		 usage_num, rev);
+> > +
+> > +	return false;
+> > +}
+> > +
+> 
+> ...
+> 
+> > +
+> > +	/*
+> > +	 * Downstream axcfg.py waits for 1sec without checking U01 HELLO. Tests
+> > +	 * showed that waiting for the HELLO message isn't enough therefore we
+> > +	 * need to add the additional fsleep(1sec).
+> > +	 * Touchnetix said that the boot can take up to 2sec if all self tests
+> > +	 * are enabled, so wait 2sec for the HELLO message.
+> > +	 */
+> > +	if (!axiom_wait_for_completion_timeout(ts, &ts->boot_complete,
+> > +					       msecs_to_jiffies(2 * MSEC_PER_SEC))) {
+> > +		dev_err(ts->dev, "Error swreset timedout\n");
+> > +		error = -ETIMEDOUT;
+> > +	}
+> 
+> There is no reinit_completion() to go after/before wait_for_completion_timeout() for any of the calls.
+> From my understanding this must be called before starting the new wait for completion.
+> The 2s timeout may have hidden this.
+
+Yes, I've already fixed this locally.
+
+> > +	fsleep(USEC_PER_SEC);
+> > +
+> > +	return error;
+> > +}
+> > +
+> 
+> ...
+> 
+> > +	crc_report = get_unaligned_le16(&buf[len - 2]);
+> > +	crc_calc = crc16(0, buf, (len - 2));
+> > +
+> > +	if (crc_calc != crc_report) {
+> > +		dev_err_ratelimited(dev, "CRC16 mismatch!\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	report_usage = buf[1];
+> > +	payload = &buf[AXIOM_U34_REV1_PREAMBLE_BYTES];
+> > +	len -= AXIOM_U34_REV1_PREAMBLE_BYTES - AXIOM_U34_REV1_POSTAMBLE_BYTES;
+> 
+> Is this right?
+> Should it not be:
+> len -= AXIOM_U34_REV1_PREAMBLE_BYTES;
+> len -= AXIOM_U34_REV1_POSTAMBLE_BYTES;
+
+Yes, already fixed.
+
+> > +
+> > +	switch (report_usage) {
+> > +	case AXIOM_U01:
+> > +	case AXIOM_U41:
+> > +		/*
+> > +		 * axiom_driver_supports_usage() is not required since the
+> > +		 * correct .process_report() hooks are assigned during the
+> > +		 * discovery.
+> > +		 */
+> > +		return axiom_process_report(ts, report_usage, payload, len);
+> > +	default:
+> > +		dev_dbg(dev, "Unsupported report u%02X received\n",
+> > +			report_usage);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> 
+> ...
+> 
+> > +static int axiom_u41_rev2_process_report(struct axiom_data *ts,
+> > +					 const u8 *buf, size_t bufsize)
+> > +{
+> > +	struct input_dev *input = ts->input;
+> > +	unsigned char id;
+> > +	u16 targets;
+> > +
+> > +	/*
+> > +	 * The input registration can be postponed but the touchscreen FW is
+> > +	 * sending u41 reports regardless.
+> > +	 */
+> > +	if (!input)
+> > +		return 0;
+> > +
+> > +	targets = get_unaligned_le16(&buf[AXIOM_U41_REV2_TARGETSTATUS_REG]);
+> > +
+> > +	for_each_set_bit(id, &ts->enabled_slots, AXIOM_MAX_TOUCHSLOTS) {
+> > +		bool present;
+> > +		u16 x, y;
+> > +		s8 z;
+> > +
+> > +		axiom_u41_rev2_decode_target(buf, id, &x, &y, &z);
+> > +
+> > +		present = targets & BIT(id);
+> > +		/* Ignore possible jitters */
+> > +		if (z == AXIOM_PROX_LEVEL)
+> > +			present = false;
+> > +
+> > +		dev_dbg(ts->dev, "id:%u x:%u y:%u z:%d present:%u",
+> > +			id, x, y, z, present);
+> > +
+> > +		input_mt_slot(input, id);
+> 
+> The index in enabled_slots can be greater than num_slots since u42 does not neccesarily
+> therefore this can send an out of range finger.
+
+Sorry but I can't parse this. The slots are assigned during
+axiom_u42_get_touchslots() and sashiko found a possible out-of-bound
+access if the firmware reports a wrong u42 bufsize.
+
+I fixed this out-of-bound access locally already.
+
+> > +		if (input_mt_report_slot_state(input, MT_TOOL_FINGER, present))
+> > +			touchscreen_report_pos(input, &ts->prop, x, y, true);
+> > +
+> > +		if (!present)
+> > +			continue;
+> > +
+> > +		input_report_abs(input, ABS_MT_DISTANCE, z < 0 ? -z : 0);
+> > +		if (ts->cds_enabled)
+> > +			input_report_abs(input, ABS_MT_PRESSURE, z >= 0 ? z : 0);
+> > +	}
+> > +
+> > +	input_sync(input);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int axiom_u01_rev1_process_report(struct axiom_data *ts,
+> > +					 const u8 *buf, size_t bufsize)
+> > +{
+> > +	switch (buf[AXIOM_U01_REV1_REPORTTYPE_REG]) {
+> > +	case AXIOM_U01_REV1_REPORTTYPE_HELLO:
+> > +		dev_dbg(ts->dev, "u01 HELLO received\n");
+> > +		axiom_complete(ts, &ts->boot_complete);
+> > +		return 0;
+> > +	case AXIOM_U01_REV1_REPORTTYPE_HEARTBEAT:
+> > +		dev_dbg_ratelimited(ts->dev, "u01 HEARTBEAT received\n");
+> > +		return 0;
+> > +	case AXIOM_U01_REV1_REPORTTYPE_OPCOMPLETE:
+> > +		dev_dbg(ts->dev, "u01 OPCOMPLETE received\n");
+> > +		axiom_u02_handshakenvm(ts);
+> > +		axiom_complete(ts, &ts->nvm_write);
+> > +		return 0;
+> > +	default:
+> > +		return -EINVAL;
+> > +	}
+> > +}
+> > +
+> 
+> ...
+> 
+> > +
+> > +	/*
+> > +	 * Ensure that the IRQ setup is done only once since the handler belong
+> > +	 * to the i2c-dev whereas the input-poller belong to the input-dev. The
+> > +	 * input-dev can get unregistered during a firmware update to reflect
+> > +	 * the new firmware state. Therefore the input-poller setup must be done
+> > +	 * always.
+> > +	 */
+> > +	if (client->irq) {
+> > +		if (!ts->irq_setup_done) {
+> > +			error = devm_request_threaded_irq(dev, client->irq,
+> > +							  NULL, axiom_irq,
+> > +							  IRQF_ONESHOT,
+> > +							  dev_name(dev), ts);
+> > +			if (error) {
+> > +				dev_err(dev, "Failed to request IRQ\n");
+> 
+> input_free_device() should be called.
+
+Yes, thanks!
+
+> > +				return error;
+> > +			}
+> > +			ts->irq_setup_done = true;
+> > +		}
+> > +	} else {
+> > +		error = input_setup_polling(input, axiom_poll);
+> > +		if (error) {
+> > +			input_free_device(input);
+> > +			dev_err(dev, "Setup polling mode failed\n");
+> > +			return error;
+> > +		}
+> > +
+> > +		input_set_poll_interval(input, ts->poll_interval);
+> > +	}
+> > +
+> > +	input_set_drvdata(input, ts);
+> > +	ts->input = input;
+> > +
+> > +	error = input_register_device(input);
+> > +	if (error) {
+> > +		input_free_device(input);
+> > +		ts->input = NULL;
+> > +		dev_err(dev, "Failed to register input device\n");
+> > +	};
+> > +
+> > +	return error;
+> > +}
+> > +
+> > +static int axiom_update_input_dev(struct axiom_data *ts)
+> > +{
+> > +	axiom_unregister_input_dev(ts);
+> > +
+> > +	return axiom_register_input_dev(ts, true);
+> > +}
+> > +
+> > +static int axiom_parse_firmware(struct axiom_data *ts)
+> > +{
+> > +	struct device *dev = ts->dev;
+> > +	struct gpio_desc *gpio;
+> > +	int error;
+> > +
+> > +	ts->supplies[0].supply = "vddi";
+> > +	ts->supplies[1].supply = "vdda";
+> > +	ts->num_supplies = ARRAY_SIZE(ts->supplies);
+> > +
+> > +	error = devm_regulator_bulk_get(dev, ts->num_supplies, ts->supplies);
+> > +	if (error)
+> > +		return dev_err_probe(dev, error,
+> > +				     "Failed to get power supplies\n");
+> > +
+> > +	gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+> > +	if (IS_ERR(gpio))
+> > +		return dev_err_probe(dev, PTR_ERR(gpio),
+> > +				     "Failed to get reset GPIO\n");
+> > +	ts->reset_gpio = gpio;
+> > +
+> > +	ts->poll_interval = AXIOM_DEFAULT_POLL_INTERVAL_MS;
+> > +	device_property_read_u32(dev, "poll-interval", &ts->poll_interval);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int axiom_power_up_device(struct axiom_data *ts)
+> > +{
+> > +	struct device *dev = ts->dev;
+> > +	int error;
+> > +
+> > +	error = regulator_bulk_enable(ts->num_supplies, ts->supplies);
+> > +	if (error) {
+> > +		dev_err(dev, "Failed to enable power supplies\n");
+> > +		return error;
+> > +	}
+> > +
+> > +	gpiod_set_value_cansleep(ts->reset_gpio, 1);
+> > +	fsleep(2000);
+> > +	gpiod_set_value_cansleep(ts->reset_gpio, 0);
+> > +
+> > +	fsleep(AXIOM_STARTUP_TIME_MS);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> 
+> ...
+> 
+> > +static const struct i2c_device_id axiom_i2c_id_table[] = {
+> > +	{ "ax54a" },
+> > +	{ },
+> > +};
+> > +MODULE_DEVICE_TABLE(i2c, axiom_i2c_id_table);
+> > +
+> > +static const struct of_device_id axiom_of_match[] = {
+> > +	{ .compatible = "touchnetix,ax54a", },
+> > +	{ }
+> > +};
+> > +MODULE_DEVICE_TABLE(of, axiom_of_match);
+> 
+> This also works for ax80a. ax54 and ax80 are the same silicon but with a
+> different pinout. It is up to you if you wish to add this.
+
+If touchnetx want to add the ax80a later on and these devices are
+compatible, they can use the fallback mechanism:
+
+   compatible = "touchnetix,ax80a", "touchnetix,ax54a";
+
+The touchnetix,ax80a needs to be documented in dt-bindings.
+
+> > +
+> > +static struct i2c_driver axiom_i2c_driver = {
+> > +	.driver = {
+> > +		   .name = KBUILD_MODNAME,
+> > +		   .dev_groups = axiom_groups,
+> > +		   .pm = pm_ptr(&axiom_pm_ops),
+> > +		   .of_match_table = axiom_of_match,
+> > +	},
+> > +	.id_table = axiom_i2c_id_table,
+> > +	.probe = axiom_i2c_probe,
+> > +	.remove = axiom_i2c_remove,
+> > +};
+> > +module_i2c_driver(axiom_i2c_driver);
+> > +
+> > +MODULE_DESCRIPTION("TouchNetix aXiom touchscreen I2C bus driver");
+> > +MODULE_LICENSE("GPL");
+> > 
+> > -- 
+> > 2.47.3
+> 
+> Apologies for the delay in review.
+
+No worries :)
+
+> I have tested with ax80a and ax198a and everything works as intended
+> on both of them.
+
+Nice!
+
+> This version looks to be quite reliable for the firmware/config download
+> which is great!
+
+Thanks for testing.
+
+> Tested-by: Andrew Thomas <andrew.thomas@touchnetix.com
+
+I will add your tag for the next version.
+
+> 
+> Regards,
+> Andrew
+> 
+> 
+> 

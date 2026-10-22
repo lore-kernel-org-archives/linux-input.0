@@ -1,62 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.250.60.163
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=51.250.60.164
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1792647910;
-	b=uWqzeEqn2zh7+vcbTj3ZvISE5/YOsuvkMuF2yjOwi25h2mwvKCppHQNzK9q9gBqdIzX8
-	 /VmH0mHDKN7OMRyh6bwPzjhyFiPL5WXaPrOc9k91E4Y+XrKljkAjFRLmMSYl68W2hJ6VQ
-	 zBxCLb7m1bDI1Q/byZiTrR6b2LTvf0yXpj5xhEjdZjnmvHPeLyKHwfLtmj7sU5dYECmnk
-	 blTVjDqfteVqcr+JhE7LaVeeybpypqjr+YDP+SlRnTfflz/zG5gmN93Tl0zYut4ndzs0O
-	 fg3uRGVVSJARsroeR6HiCmgVgQHHxDHfXUox387cnleNHOx9CoyC/KkqE7Qoop4zjJA==
+	b=Ue9yMjlqqcLCRmlvXFgE24SaBX/7P/jmZ1hCljlazbtnxSh+1j06VnYrZePse1UW/suF
+	 chbxCsb5SKN1ogRdKig8d5gkjrw8FYkI19Md1wrpTlM6Fhm1CNvndetv6DqPp2sGYsbT3
+	 gtlgAcnnnuhHs0THCrjtLYdRAaxJotGq4IaAHAKzhMZ/QWz65kjDnYUk7gJ1ecDdFHVCK
+	 Kj3M4pXHYxmoZchckjAL+6FrM0oYTc+Nr9zYjJ78wzSPtoqC8MkPtYrhsm5ZycQbeZWfy
+	 R1DkfWb/Ujogj36DkIGy/sEDN1hxs+DeXeyrz13Au3Hkhdza+CyeFgZBZpQuxelPMPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792647910;
 	h=DMARC-Filter:Received:Received:X-Yandex-Fwd:DKIM-Signature:From:To:
 	 Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=PPtpFfHRcbr30nDpH/2EYpDNB/3sDcwci44VSVWH75I=;
-	b=Lag85u2WQojhKWT0IOGY+PlFdO29XTa6IuTjyB2oI10YaLVz20LGucFsF1azXOu8vWy5
-	 C/5hqpL/umbJrlW/jH4miTBg/doMQSYnqEVG6cZ5d1z7eOpCd8aTI9VAzZBnq+u9KDkvd
-	 UbdKUx2b7dATnpDTCVh0Go2EMNLGCSFruFN2gz811/6EB+Mdm6tY16EQHfV8wZlYd+xPG
-	 ny8K3GOrSxT3JtBzyIrhac7U/MZCSLQMLtbtkXOuy3b4TxT45twmtGHbPZCPbpixzcrfO
-	 ZreKWcL5xbwaX5/F/FunI3s4SLUcOaE6aaSLplmQuElMV/o2USZFPQ7Vh7opYg7esVQ==
+	bh=jK/2qhT+ntvK74+mDsVXNWOYX1lbhg8LnV/R1C9BPp8=;
+	b=Na3IfQ+ymdGJwlJUgRdxQjiSgQ5T69d1paxUPjUopQudSOEelK16rvAowEnnonhGpfVP
+	 byFM0waayqvZZQVfvuMWtWdUYwYDMOwUqWWaUbXZUdze3egNrer/PLP/qlgNHUwuKQA+q
+	 3Z7gixnxo76EoQrOu+xwJMFIIR7IT4l8MaKMAb/tGTgmW5Ogj39PjP1+02uMPr6FU23fP
+	 8fboJ7ume+bKu+eamtp149QjopciKnSnoMa+xhCeCXW2owgDX2XBGqG8F8nj1pSUzLcX6
+	 rKJixRvKEIYoXlWeOY81FunIg3t6PZpyI4STKaJbPYFpf6ytTpY6za6Ct2n2adkeSQQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=yandex.ru;
 	spf=pass smtp.mailfrom=yandex.ru;
-	dkim=pass header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=i7oUSu9Q;
-	arc=none smtp.remote-ip=51.250.60.163
-Received: from forward103d.mail.yandex.net (forward103d.mail.yandex.net [51.250.60.163])
+	dkim=pass header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=T8RUAOYn;
+	arc=none smtp.remote-ip=51.250.60.164
+Received: from forward104d.mail.yandex.net (forward104d.mail.yandex.net [51.250.60.164])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDD19606A319
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75C0A606A31A
 	for <linux-input@vger.kernel.org>; Thu, 22 Oct 2026 05:45:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CDD19606A319
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 75C0A606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=i7oUSu9Q
+	dkim=pass (1024-bit key, unprotected) header.d=yandex.ru header.i=@yandex.ru header.a=rsa-sha256 header.s=mail header.b=T8RUAOYn
 Received: from mail-nwsmtp-smtp-production-main-57.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-57.yp-c.yandex.net)
-	by forward103d.mail.yandex.net (postfix) with ESMTPS id 19741C07D8;
-	Thu, 22 Oct 2026 08:44:59 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-57 with ESMTPSA id tiUiduAiC4Y0-sqo8aqfx;
-	Thu, 22 Oct 2026 08:44:58 +0300
+	by forward104d.mail.yandex.net (postfix) with ESMTPS id D5BC5C0013;
+	Thu, 22 Oct 2026 08:44:57 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-57 with ESMTPSA id tiUiduAiC4Y0-SWscxxsh;
+	Thu, 22 Oct 2026 08:44:57 +0300
 X-Yandex-Fwd: 1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail;
-	t=1792647898; bh=PPtpFfHRcbr30nDpH/2EYpDNB/3sDcwci44VSVWH75I=;
+	t=1792647897; bh=jK/2qhT+ntvK74+mDsVXNWOYX1lbhg8LnV/R1C9BPp8=;
 	h=Message-ID:Date:In-Reply-To:Cc:Subject:References:To:From;
-	b=i7oUSu9QqTNtpQBaWbGwKduBVrN5YhW4FBwALZO8XJZjHwvcbE/4bllM4YaHrA8OO
-	 gA0g64C3RHgOvCJyIBhHHrCCOhYy3SvoomP+PN0k64lHkiPewgOearEOWhiRyaM+tr
-	 VhfNfsVyK/GUl07UmpQbz8AIJ7Rfrp8ABMHTXVKA=
+	b=T8RUAOYnrHYcSv9VJ9BUZZRo6eIYUw+YoNjCS5s6LF5h1g3uOHGNYRTbMd4s2VuJn
+	 UFU0njFPOHyDGJ0A3vAnUnafQmfkJWc+EeXMIun6oCakKGz5Vu7ndkxVDM9wzanbP9
+	 MlvXzDyhosW1gGRy10RXbHYBI1OkFZk5oznWTe2g=
 Authentication-Results: mail-nwsmtp-smtp-production-main-57; dkim=pass header.i=@yandex.ru
 From: Dmitry Antipov <dmantipov@yandex.ru>
 To: Benjamin Tissoires <bentiss@kernel.org>
 Cc: Jiri Kosina <jikos@kernel.org>,
 	linux-input@vger.kernel.org,
 	lvc-project@linuxtesting.org,
-	Dmitry Antipov <dmantipov@yandex.ru>,
-	syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com,
-	syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
-Subject: [PATCH v8 2/3] HID: roccat: use kref to manage device instances
-Date: Thu, 22 Oct 2026 08:44:53 +0300
-Message-ID: <20261022054454.238343-3-dmantipov@yandex.ru>
+	Dmitry Antipov <dmantipov@yandex.ru>
+Subject: [PATCH v8 1/3] HID: roccat: use atomic_t for device status flag
+Date: Thu, 22 Oct 2026 08:44:52 +0300
+Message-ID: <20261022054454.238343-2-dmantipov@yandex.ru>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261022054454.238343-1-dmantipov@yandex.ru>
 References: <20261022054454.238343-1-dmantipov@yandex.ru>
@@ -71,143 +69,97 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use kref to manage 'struct roccat_device' instances and fix both memory
-leaks and UaF-triggering races between roccat_open()/roccat_release()
-and roccat_connect()/roccat_disconnect() pairs. To avoid the scenario
-when opened device is disconnected and its slot indexed by minor number
-is reused by another device, release the slot in roccat_free_device()
-rather than in roccat_disconnect(). This way, there is a time frame when
-disconnected device may still occupy the slot; to reject such a device,
-add extra roccat_device_available() checks to roccat_open() and
-roccat_ioctl(). Add extra WARN_ON() device check to roccat_disconnect()
-and a few debugging quirks to roccat_free_device() as well.
+In roccat_disconnect(), per-device 'exist' status flag is cleared
+with 'devices_lock' locked but both roccat_read() and roccat_poll()
+checks this flag unlocked. To avoid data races, convert the flag
+to atomic_t and introduce the convenient roccat_device_available()
+wrapper.
 
-Reported-by: syzbot+d632e93ffcd1452bc61e@syzkaller.appspotmail.com
-Reported-by: syzbot+c492a9e154f81127551f@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=d632e93ffcd1452bc61e
-Closes: https://syzkaller.appspot.com/bug?extid=c492a9e154f81127551f
-Link: https://sashiko.dev/#/patchset/20260902094551.200587-1-dmantipov@yandex.ru?part=2
 Signed-off-by: Dmitry Antipov <dmantipov@yandex.ru>
 ---
 v8: unchanged since v7
-v7: use restored device status flag again
+v7: step back to explicit flag of atomic_t type
 v6: adjusted to match for-7.4/roccat branch of
-    https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git
+    https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git,
+    switch to xchg()/smp_load_acquire() and fix possible
+    race due to wrong logic in roccat_disconnect()
 v5: adjusted to match 7.3-rc5
-v4: unchanged
-v3: release device slot in roccat_free_device(), add required checks
-    to roccat_open() and roccat_ioctl(), few more debugging quirks
-v2: unconditionally get/put device reference during
-    first open and last close, respectively (Sashiko)
+v4: use READ_ONCE() and WRITE_ONCE() for device access
+v3: initial version to join the series
 ---
- drivers/hid/hid-roccat.c | 32 +++++++++++++++++++++-----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
+ drivers/hid/hid-roccat.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/hid/hid-roccat.c b/drivers/hid/hid-roccat.c
-index c76929c0456e..5cc523635445 100644
+index b3e69c79c4b4..c76929c0456e 100644
 --- a/drivers/hid/hid-roccat.c
 +++ b/drivers/hid/hid-roccat.c
-@@ -40,6 +40,7 @@ struct roccat_device {
+@@ -40,7 +40,7 @@ struct roccat_device {
  	unsigned int minor;
  	int report_size;
  	int open;
-+	struct kref ref;
- 	atomic_t exist;
+-	int exist;
++	atomic_t exist;
  	wait_queue_head_t wait;
  	struct device *dev;
-@@ -75,12 +76,20 @@ static bool roccat_device_available(struct roccat_device *device)
- 	return atomic_read(&device->exist);
- }
+ 	struct hid_device *hid;
+@@ -70,6 +70,11 @@ static struct roccat_device *devices[ROCCAT_MAX_DEVICES];
+ /* protects modifications of devices array */
+ static DEFINE_MUTEX(devices_lock);
  
--static void roccat_free_device(struct roccat_device *device)
-+static void roccat_free_device(struct kref *ref)
++static bool roccat_device_available(struct roccat_device *device)
++{
++	return atomic_read(&device->exist);
++}
++
+ static void roccat_free_device(struct roccat_device *device)
  {
-+	struct roccat_device *device;
  	int i;
- 
-+	WARN_ON(!mutex_is_locked(&devices_lock));
-+
-+	device = container_of(ref, struct roccat_device, ref);
- 	for (i = 0; i < ROCCAT_CBUF_SIZE; i++)
- 		kfree(device->cbuf[i].value);
-+
-+	devices[device->minor] = NULL;
-+	mutex_destroy(&device->readers_lock);
-+	mutex_destroy(&device->cbuf_lock);
- 	kfree(device);
+@@ -105,7 +110,7 @@ static ssize_t roccat_read(struct file *file, char __user *buffer,
+ 				retval = -ERESTARTSYS;
+ 				break;
+ 			}
+-			if (!device->exist) {
++			if (!roccat_device_available(device)) {
+ 				retval = -EIO;
+ 				break;
+ 			}
+@@ -149,7 +154,7 @@ static __poll_t roccat_poll(struct file *file, poll_table *wait)
+ 	poll_wait(file, &reader->device->wait, wait);
+ 	if (reader->cbuf_start != reader->device->cbuf_end)
+ 		return EPOLLIN | EPOLLRDNORM;
+-	if (!reader->device->exist)
++	if (!roccat_device_available(reader->device))
+ 		return EPOLLERR | EPOLLHUP;
+ 	return 0;
  }
+@@ -226,7 +231,7 @@ static int roccat_release(struct inode *inode, struct file *file)
  
-@@ -174,7 +183,7 @@ static int roccat_open(struct inode *inode, struct file *file)
- 
- 	device = devices[minor];
- 
--	if (!device) {
-+	if (!device || !roccat_device_available(device)) {
- 		pr_emerg("roccat device with minor %d doesn't exist\n", minor);
- 		error = -ENODEV;
- 		goto exit_err_devices;
-@@ -196,6 +205,7 @@ static int roccat_open(struct inode *inode, struct file *file)
- 			--device->open;
- 			goto exit_err_readers;
- 		}
-+		kref_get(&device->ref);
- 	}
- 
- 	reader->device = device;
-@@ -234,9 +244,8 @@ static int roccat_release(struct inode *inode, struct file *file)
- 		if (roccat_device_available(device)) {
+ 	if (!--device->open) {
+ 		/* removing last reader */
+-		if (device->exist) {
++		if (roccat_device_available(device)) {
  			hid_hw_power(device->hid, PM_HINT_NORMAL);
  			hid_hw_close(device->hid);
--		} else {
--			roccat_free_device(device);
- 		}
-+		kref_put(&device->ref, roccat_free_device);
- 	}
- 
- 	mutex_unlock(&devices_lock);
-@@ -348,6 +357,7 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
- 	INIT_LIST_HEAD(&device->readers);
- 	mutex_init(&device->readers_lock);
+ 		} else {
+@@ -345,7 +350,7 @@ int roccat_connect(const struct class *klass, struct hid_device *hid, int report
  	mutex_init(&device->cbuf_lock);
-+	kref_init(&device->ref);
  	device->minor = minor;
  	device->hid = hid;
- 	atomic_set(&device->exist, 1);
-@@ -369,19 +379,19 @@ void roccat_disconnect(int minor)
+-	device->exist = 1;
++	atomic_set(&device->exist, 1);
+ 	device->cbuf_end = 0;
+ 	device->report_size = report_size;
+ 
+@@ -364,7 +369,7 @@ void roccat_disconnect(int minor)
  	mutex_lock(&devices_lock);
  	device = devices[minor];
  
--	atomic_set(&device->exist, 0);
--
--	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
-+	if (WARN_ON(!device))
-+		goto out;
+-	device->exist = 0; /* TODO exist maybe not needed */
++	atomic_set(&device->exist, 0);
  
--	devices[minor] = NULL;
-+	if (!WARN_ON(!atomic_cmpxchg(&device->exist, 1, 0)))
-+		device_destroy(device->dev->class, MKDEV(roccat_major, minor));
+ 	device_destroy(device->dev->class, MKDEV(roccat_major, minor));
  
- 	if (device->open) {
- 		hid_hw_close(device->hid);
- 		wake_up_interruptible(&device->wait);
--	} else {
--		roccat_free_device(device);
- 	}
- 
-+	kref_put(&device->ref, roccat_free_device);
-+out:
- 	mutex_unlock(&devices_lock);
- }
- EXPORT_SYMBOL_GPL(roccat_disconnect);
-@@ -396,7 +406,7 @@ static long roccat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 	mutex_lock(&devices_lock);
- 
- 	device = devices[minor];
--	if (!device) {
-+	if (!device || !roccat_device_available(device)) {
- 		retval = -ENODEV;
- 		goto out;
- 	}
 -- 
 2.56.0
 

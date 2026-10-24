@@ -1,95 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.230.69
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792855674;
-	b=MDchpYb6AaEPDBcXlgRHibOEjBKm3JbI2apGV+V62wSP7iF4OYsVnVwHBaKhlFwpRie7
-	 cc7BuM+i+cKXgbBU7jWMfPGv1WssNosdjogUdfyTzEpRy54gcbfZ1MVERNAkJOoF6cJEr
-	 8bdogBzNz683QmpxHxWoribBJybk95a0IkUxsDShLfOnIZICNiukXDJnucwoGaUq1Aj+k
-	 l3DJkF9OdvuU962qOXs4c8U7nDs1JZQ48PdFHK4oZRQfA06ciW7syYRvIsfJ1fvh5Kqkg
-	 krB71QiPwXgzRFkN75nLgeEy9raKQvGgxNgKthgKv4wDmR0IZ10UxC1UgxrCy/HZAgw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792855674;
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.47
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792860061;
+	b=vkMWECJM9YS1TH8/6bNj5iDhgdeBQHnVgICxLW0c4viJCQxwFANpRaL6PzZ42mN2EFmV
+	 M3WlI6W8rpRl516u2yga9GZSediRwMUTURi9F8cW1FLCsDAJdYIGDirsJahou6FfTQT3n
+	 jyVcxZ2bbzz2gOmh7Mu5X7FiHJz1Fzy6gWGGIj4QCoTyvaCgE19VsnkKrC7GC4qUFxj77
+	 1xOPRrtnDwZ/B3sLYJOiYfPG9JWDSaD6VCLeSd6YRV54TRczuuU+8CXK8V1jkItdWYtv9
+	 ZvqRzIrsxp7+4N0jK6JW7ogvwYqbsPVEPcUhTZWtjdMCPebiXgCFbvv2RJdiVcVwFrg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792860061;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type;
-	bh=iS5Zhc+sE4ByxA9kwUHmzNU0QIBxCDiMbckbwoc+qx0=;
-	b=38bb9SN9ahmK5aABeG/Z8M+0h/S2fMN0iwtl0K9iHbOErv8ZaJrzEVBAzkfB1fJTnS6H
-	 mmxfz5tFHqj+0c1TMOlye/ycn2DNKDccu9Dwnb2RDF3aY/uCBa3HKMQCpPtSctzb/VEtQ
-	 WPL8Lqvj9esJe/cTPdeTsP8egIZXnfGlti2ljW7ZPGngrcPhmCV6VzflxcmHfO/RODGj7
-	 pmUMGI2w1bpSCMmSwAgLj2m1Gw/xWqm+o0smseOwQDcUfSILz8ZN5hhvHgArUpEFvzPIi
-	 bYjFPyuRve3FS7Hphus+OSLmOGw62ZT1Akgq12VAhIGpmWH24AyT/HN0ROl+cgYQoow==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:Date:Subject:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:
+	 X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:
+	 X-Developer-Key;
+	bh=4ad2t1zV6rs5pu/uMSIXOceDk/PN6jJRDopGqycYU6c=;
+	b=01r0mXDLsW7pwElHvoCF23mulCjKxf8MayFB5nalNNaNLF0ZmKDHUW2LPzfQwwOIuleQ
+	 46ZeFzaNvRtUrXB8FMmGgcitGAIIf1JIl2v+0o5StSGvO7NnW+UuxpjjnFfzbleiMyzMP
+	 ZIBag5jHVcgKhbJA0ymI5VDvYrONaikCt9WuKc5ul/4JV1MPKLFvhdZz+1jif/myrhLwz
+	 tL8io5YNNqeqXMuQws6ab4Xy+hfl0jkzZlDXbJ11qgqKMNHc/2WOlqJ3H0LFXMtYy/HqN
+	 AZmoMjqZzKFsv8o0aJFzhcR0Ml16TXB1wlyTAPLxOQie8TSbEfZ/s7wae2Z2v7i20ZQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pVR7sNZ9;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=74.125.230.69
-Received: from mail-lr2-f5.google.com (mail-lr2-f5.google.com [74.125.230.69])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=UA3m39+a;
+	arc=none smtp.remote-ip=209.85.218.47
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B7EF606A31D
-	for <linux-input@vger.kernel.org>; Sat, 24 Oct 2026 15:27:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8B7EF606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0016C606A31B
+	for <linux-input@vger.kernel.org>; Sat, 24 Oct 2026 16:41:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0016C606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=pVR7sNZ9
-Received: by mail-lr2-f5.google.com with SMTP id 38308e7fff4ca-3ab2a40750fso9657571fa.1
-        for <linux-input@vger.kernel.org>; Sat, 24 Oct 2026 08:27:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792855672; cv=none;
-        d=google.com; s=arc-20260327;
-        b=HJGcWL0t2vVoeEW9CE9RZmaF83JANqU5a3N5VSvmoP26dTv2+wtraeoduCLpSBUmsH
-         g2/dRP35dB7knIwnif7pV+e9dm5QoOCP9wuEbxj9LFwEd94aMlnAdKWH4oSCZlFRQonG
-         RNo2wYZLMiV803rp10w8GdkGlKU/Sp6IifLd5TBTRMg/xqP+sK1I3CtZmNPsZRhECo3X
-         R/PA2kvLS8DoigXA93/VD1kfeuTvXsxs2U8mnU1YJZ0+IEdf+2WmCN8+9JJd0npSwMgF
-         aULIGKiNb8DuuO4/sDMwP7KX2FFh71mVG+Ezamc3wFQSIoiqjqIkF2gN8hE0dvIwo3wZ
-         fbkg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=iS5Zhc+sE4ByxA9kwUHmzNU0QIBxCDiMbckbwoc+qx0=;
-        fh=n8fEYuoevx8wint4JRVLdZaRBNq9V5jjrPagPkQhSpw=;
-        b=DXoLDTwMA0BvkU8t/318a+9jd4XbDOV6C/h6PkSYycRAGjc0VqyijPTXNlBQC/uUk+
-         THLELZMVRex9fgIjdSANQu8Gr3uvDsrzICHRXWSYkoBKueIvwvkEXu5aRADkpPA3nnxb
-         Du26y7GUK5mZ1gQo8MDtmhFt4LAyo34awSo29MQo5GEuXLuclfDoMoVckMA4HoBlMkcO
-         Vs2BqU5oJ3qCTgN3xYcddVAEihbRO7KD6yq0zY9zGUfvmNlpNK3y3pCi7+dckCUbDmuv
-         S7n0lTaiXmmJq6JCS39a4rm9U1RlFZGEwoXL8WelM/D+YKG2vdjs0uJ5SpG/HsqSRbrg
-         zC8A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=UA3m39+a
+Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-c2acc1e170cso253560766b.1
+        for <linux-input@vger.kernel.org>; Sat, 24 Oct 2026 09:41:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792855672; x=1793460472; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=iS5Zhc+sE4ByxA9kwUHmzNU0QIBxCDiMbckbwoc+qx0=;
-        b=pVR7sNZ9N6WDehhguAyrK91c2UB0tKytAYwmpy7MfNAUKA2sOxyBdPWo1PxpSrRutB
-         uyRaKD1XMcEhoVWuw78Zw8C9LzxsoFGfONR6nDUPwGjj6LJLCj/2ZdjFFGvlhtBvrWUU
-         PIyNw2a46gPfGRQA0zWK6vA2YtJD5szoqp178MUzCwzgv/N61rc6Sde3r64tx/OdgjE6
-         k6O37GSOeVA4tyghAOnafFZy4atT8B+/E0/EbQi9plDA3ceOTUU8lDka7avKJ7KRotgG
-         tiDZWx5uKjUGNX0vmhnURmRdiXMPc32LkWRUpvJf60xn11RQ0j76QXgorsno1EAMFC/y
-         VAQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792855672; x=1793460472;
-        h=content-type:cc:to:subject:message-id:date:from:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=gmail.com; s=20251104; t=1792860059; x=1793464859; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=iS5Zhc+sE4ByxA9kwUHmzNU0QIBxCDiMbckbwoc+qx0=;
-        b=z4GVJGmmHYTUuXpAczSyBjTFV8hxKmKPU1Imx/XhPJgt7y7GUXYX3MGHs/Bp5qsepc
-         ozECltm+CIJ8b1Yp7Mw0vjWbTLYsLBe41as2k+fPgymGdrTPzl9160Yb7XbvDcrHr0G7
-         FASChbJq5nCrk43xZFuUZsRWkMBVHHKs0SJKn54kEm8Ojedgx/Yg/BPLNU0ssOU1oTXj
-         nUUtTrpIFHt55IyZiJBfrVLK9D5vghlThJSSayiDlxFSp8J5AN6SVCAiIESR/WlEyd+e
-         6o3Ah9URNqdECYrE/pn9LwpSslEOk4k7Oxo3H/IDcTjyPHeXY1TTyWOAI9B7Q+xAkhDO
-         N9FQ==
-X-Gm-Message-State: AFq9FYImhWhmS/PQQw+77PotZgcz/GHBgWCaLYp4uFLr3dewQQeeesWy
-	bxWhEoBuYwzqPzUsuclDzD1j1oviAgBdKht5hhSeaT4fwcZXG0/pGVs4A91PGmNMD5pX4RGkBzf
-	bI1BHXTuVB2K96cEcEnwsBz0oeE6rLsg=
-X-Gm-Gg: AYBFou0yo6wIaJltmTU4MqsDaHUaVsviN2bhVw2SjOrS4O/bUTYw3hhWG9G0N6Ycrvh
-	aL3/mFpm4i2HQuAr7deSjjF7O+Uk9RbDKXs2GzP1tBMNIJKadq34TPcPJyEcQjLII23VdzhKI3w
-	9ZCDuK0rK0+yM9AJgqOXOCtCaK+qNjtHt7WXI1s8o23cVTtOVQVwSYj7tOEcNAaV6x3NnlQZ2Ty
-	qOPOg5S4ItDkkHXflwYbw+yW5koEadk3Hlhpyd9YSsP5/jz8XqPxgcukPMdtpwwCLHIKjfC2spG
-	u5zZTt8PvarTEIk3CTr0siuwrvof3J8LmZWr7P7v0nYK72+wUlI19V00ARRAJ3CCOqWzMlUhueZ
-	ewE+nCEDQ0tW/KEZw1PVoro5JQUNPprd5eb1PpQ==
-X-Received: by 2002:a2e:be84:0:b0:3a6:772c:2757 with SMTP id
- 38308e7fff4ca-3ac6fcf0290mr4860011fa.12.1792855671222; Sat, 24 Oct 2026
- 08:27:51 -0700 (PDT)
+        bh=4ad2t1zV6rs5pu/uMSIXOceDk/PN6jJRDopGqycYU6c=;
+        b=UA3m39+aydE487+brVOvdcQ8P5KX5bhUq1nBcEroq+ligZ72r9aPTJJCQZbjjlfmPV
+         +ndiDboTvMc4BrZq7/RyKcWL2DDxXM7hRDPEgk9BaG+WbtTjHgbtcZU3P3o4XVwNE3gX
+         B87a5c5ybMU2RzhmaeZ0wTtoMtNz2WECtnqVOV1+sgB8W/6TR7PYMne7y4RcfXM+GdgP
+         LCArXuyDBjjnz2aS6KosvEj5uzxZZqJ4nC7aGqGFWACNSjQgLDKGq83JnveJWYCalUaH
+         tPjFyOhUUkPWRQBevYDECG5A7svGbU8abcxIwM1pKmxKRynF9KYR2KW2Of6krZ9zdX3z
+         Sl+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792860059; x=1793464859;
+        h=cc:to:message-id:content-transfer-encoding:content-type
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=4ad2t1zV6rs5pu/uMSIXOceDk/PN6jJRDopGqycYU6c=;
+        b=PTbEO95Opjx2XLgOCzEBsh+KF95KEqDlX6k1KSrfIxj4KsMdEsTVeT8yzgUZlJIj6Z
+         w2rIvK5keNzkoMT3XeJjZKwKhJ+OIBAhK6y4WoLYaDGRVHOJoDjD94vyjQ2ijIdxAg4+
+         F307mY14dVmYKl3fs8kmyvv/6MfxTHEXcIr3uIG9R2fajzTfHJMUIY1kpMolnm78awms
+         PpRz4C8ZtX6mwsuUSaCrFEVQoC6gHJ45uLiAdQkqVjWCyRwe6iEKm9z/Zu6OlzqI4IOv
+         GsBsv1nmursFG7HIMCgiVAMoC3zxEqbjlP2u+777vxbUTOcfed37b/EyB2vBTOWdig+H
+         1zMg==
+X-Gm-Message-State: AFq9FYIChZcAOw8TaObfsUlCddaNpuLZIrFSqGV5hLSfYLm3pwNdNEvL
+	s+dlwD+X/GewR57uF/7S32i3O57HsonRN2t73JjZnqkXYjom7Okqo+HV
+X-Gm-Gg: AYBFou28BufaM0LcLOIzoGqsTt4SSvF+Lh4TIG1Om71k/xfKznr6oqrAZiGMXkR4g7H
+	vOrdYXeZr1EZdc2wknJHJE8EwiQjLdqk8scXPM2hkStb+Fil41OnPwDDSiJdC/3tXq6AByx1jHN
+	Si6bekmQ3ylX/7JjAtT9WePjDeTYUpyvPHSuR3LP/jH2INKJdQLkDobkyOxy5JktWv7WhbyiddK
+	KycadpivIfgAy8bilsdJwYwfhw2HmnfSnH4Ld/YksHDgi99mfRFGRDUUZFVx3V90+KdYkLum85w
+	beyw+rJzsTMfareJboXz3BBe8PxCCLaZYS20iGWbz8tVufELnPxBISgUqVI49uJUm7OWUsAm6Ky
+	XNkdatlnRYqP1j5LI0eJ7vr/1fGICqW1bJoqh+daAiExFnzAZAWhpgYyuRFG2ZMjUNa+EWdUPTi
+	EaaOw80oBKbhrBkNaU1gHnoc7FL/S02XRZn661EqpODZyna74HF7HBJrYA2BgOSowZt/a+xL9Md
+	DAEoDdglVTOWEnsnCy+hI4C1VXljGQTDxIGpGIfUtpYtgc+B1JpdqVgnnlbBy85bipj1FVDqjrs
+	ZiN+DwXBkgft+ZoAHjjaTrZt
+X-Received: by 2002:a17:907:3e9d:b0:c29:f5d8:9c78 with SMTP id a640c23a62f3a-c46bde88fafmr273566266b.39.1792860059082;
+        Sat, 24 Oct 2026 09:40:59 -0700 (PDT)
+Received: from [192.168.86.89] (81-224-151-184-no600.tbcn.telia.com. [81.224.151.184])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c46bd524271sm110499666b.35.2026.10.24.09.40.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 24 Oct 2026 09:40:58 -0700 (PDT)
+From: =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>
+Date: Sat, 24 Oct 2026 18:40:23 +0200
+Subject: [PATCH] HID: steelseries: space Arctis 7 status requests
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,265 +90,97 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-From: =?UTF-8?B?6ZOu?= <fengaojigui88@gmail.com>
-Date: Sat, 24 Oct 2026 23:27:38 +0800
-X-Gm-Features: AclHuK_qYRdkUyULxjKJ3869VkCLl0Q0CBw_2CQv5y2-OinBDduVJe0yO0lVoy0
-Message-ID: <CAO-4RZ28RXpMv-o0R9uxiuoSR7mB5OtFCc-_JjBK2UZLYZVWDA@mail.gmail.com>
-Subject: [BUG] HID: uhid: general protection fault in synchronize_srcu on
- device-creation failure
-To: jikos@kernel.org, bentiss@kernel.org
-Cc: linux-input@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20261024-feature-arctis7-v1-1-583951aa6583@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avIrBPMIqOrRAvTsWZjMVYE4t2Tl
+ m/xf4aETJhgEhkYH0p0xIq2EeB2GzeU5KtBKz20SvcyoL1uRmnZXZSM1H4NRnnjsBuhVidjoPc
+ /zkspH1P/X2BhAAAA
+X-Change-ID: 20261024-feature-arctis7-2dbf70d7ce38
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792860057; l=2998;
+ i=erikhakan@gmail.com; s=20260922; h=from:subject:message-id;
+ bh=Xu3sgi6/Q/P6fbXoUGNE8eUPeai1Rp0Tp+TfEJXdUww=;
+ b=bqKh6tUQW8kkunbRfDPZRBhv4k8kUfFiuD9e7LJVXO/DLuFTJ7VJda3GNoKXXgG2x7WRXVXd2
+ xhU1Q/pOYMyDNY1OlHQAD+ZjaVDbyct3NUJAfl32lIXGOONL7JadcRq
+X-Developer-Key: i=erikhakan@gmail.com; a=ed25519;
+ pk=brCZX79/H6Z7mPgiNX6TDY45ZjODPth0eXRDUgh1mNI=
 
-Hi Jiri and Benjamin,
+A user reports that the Arctis 7 (2018) frequently reports a battery
+capacity of 3% before returning the correct value about 30 ms later,
+causing false low-battery notifications. In the reporter's tests, this
+occurs when the receiver is connected through a USB hub, but not when
+connected directly to a root port.
 
-I observed a general protection fault (KASAN null-ptr-deref) in
-synchronize_srcu() while fuzzing HID/uhid with syzkaller. I reproduced it on
-Linux 7.1.3 and on Linux 7.3.0.
+The driver sends connection (0x14) and battery (0x18) requests back to
+back. The spurious battery value, 0x03, matches the connection reply's
+connected value, suggesting that the firmware may return stale buffer
+contents when the requests arrive too close together.
 
-The fault happens on the error path of hid_allocate_device(). With fault
-injection making hid_bpf_device_init() fail (init_srcu_struct() allocation
-failure, failslab), hid_allocate_device() jumps to out_err and calls
-hid_destroy_device() -> hid_bpf_destroy_device(), which unconditionally calls
-synchronize_srcu(&hdev->bpf.srcu) and cleanup_srcu_struct(). SRCU
-initialization failed, but the error path still invokes synchronize_srcu() on
-the unsuccessfully initialized SRCU structure; check_init_srcu_struct() then
-dereferences it and the kernel takes a GPF:
+Add a 10 ms sleep between the requests. Arctis Sound Manager uses the
+same minimum spacing for this device family, citing the behaviour of
+the proprietary SteelSeries GG software in its configuration comments.
 
-  hid_bpf_destroy_device drivers/hid/bpf/hid_bpf_dispatch.c:632
-  hid_destroy_device     drivers/hid/hid-core.c:3085
-  hid_allocate_device    drivers/hid/hid-core.c:3056   (out_err path)
-  uhid_dev_create2       drivers/hid/uhid.c:511
+The reporter tested both versions on CachyOS Linux 7.3.0 with receiver
+1038:12ad behind a USB hub. During separate 60-second runs, the stock
+module produced eight false battery reports of 3%, whereas the patched
+module did not exhibit the issue.
 
-Related patch
--------------
-The following posted patch appears to address this error path:
+Reported and tested by a user who wishes to remain anonymous.
 
-  "[PATCH] HID: core: fix device cleanup on allocation failure"
-  by Tristan Madani (2026-09-04)
-  https://lkml.iu.edu/2609.0/09658.html
+Link: https://github.com/loteran/Arctis-Sound-Manager/blob/342194fb24873b343a4b38336aa14bffabfe6e09/src/arctis_sound_manager/devices/arctis_7.yaml#L2-L3
+Fixes: 7e749a797282 ("HID: steelseries: Add support for Arctis 7 (2018)")
+Signed-off-by: Erik Håkansson <erikhakan@gmail.com>
+Assisted-by: LLM
+---
+Add spacing between the connection and battery requests to prevent
+spurious low-battery reports on the Arctis 7 (2018).
 
-The patch replaces hid_destroy_device() with put_device() in the
-hid_allocate_device() error path; it also carries
-Fixes: 6cd735f0e57a ("HID: bpf: protect HID-BPF prog_list access by a SRCU")
-and Cc: stable.
+The reporter confirmed the fix in an A/B comparison on CachyOS Linux
+7.3.0, with the receiver connected through a USB hub. Their reporting
+and testing contributions are credited anonymously at their request.
 
-The kernels I tested (7.1.3 and 7.3.0) do not include that fix:
-hid_allocate_device() still calls hid_destroy_device() on the
-hid_bpf_device_init() failure path, and the crash reproduces there. Please
-confirm whether the patch has been queued for stable/backporting; I can test
-the backport if useful.
+checkpatch warns that msleep() below 20 ms can sleep for up to 20 ms.
+That is acceptable here: the delay enforces minimum command spacing,
+and status polling repeats approximately every three seconds.
+---
+ drivers/hid/hid-steelseries-arctis.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Environment
------------
-- Kernel A (found and reproduced): 7.1.3-kernsight-kasan #13 SMP
-  PREEMPT_DYNAMIC (2026-10-13), x86_64, KASAN/KCOV,
-  CONFIG_FAULT_INJECTION=y, failslab enabled. No HID source changes.
-- Kernel B (reproduced 2026-10-24): 7.3.0-kernsight-kasan #1 SMP
-  PREEMPT_DYNAMIC (2026-10-20), x86_64. Vanilla 7.3.0 tarball
-  (sha256 87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953),
-  built with KASAN/KCOV and fault injection. No HID source changes.
-- Guest: QEMU 6.2.0, 4 vCPU, 6 GiB, KVM, x86_64. A fresh VM per run.
-- Syzkaller: revision 853b104bb454141a5b0fc0e4218ec78e9f34ffb1+ (2026-09-18).
-  The "+" denotes local KernSight integration changes (seed ordering/state
-  feedback: pkg/kernsight, prog/kernsight_*, syz-manager/kernsight_*,
-  pkg/execbackend, snapshot support in vm/qemu). The executor used is the one
-  built from this tree.
-- Reproduction rate: 7.1.3: syz reproducer verified (no C reproducer was
-  produced). 7.3.0: 1/1 with the stored 68-program sequence; the standalone
-  two-call program did not reproduce in 2 runs. (1/1 does not establish
-  stability.)
-- Kernel command line (7.1.3; 7.3.0 is identical, see repository):
-  root=/dev/sda console=ttyS0 fstab=no rw earlyprintk=serial
-net.ifnames=0 oops=panic panic_on_warn=1 panic=86400 hung_task_panic=1
-softlockup_panic=1 nmi_watchdog=panic
-sysctl.kernel.hung_task_all_cpu_backtrace=1
-sysctl.kernel.panic_on_rcu_stall=1
-sysctl.kernel.max_rcu_stall_to_panic=1 rcupdate.rcu_expedited=1
-rcupdate.rcu_cpu_stall_cputime=1 no_hash_pointers page_owner=on
-sysctl.vm.nr_hugepages=4 sysctl.vm.nr_overcommit_hugepages=4
-secretmem.enable=1 msr.allow_writes=off coredump_filter=0xffff
-vsyscall=native kvm-intel.nested=1 spec_store_bypass_disable=prctl
-nopcid vivid.n_devs=64
-vivid.multiplanar=1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2
-netrom.nr_ndevs=32 rose.rose_ndevs=32 smp.csd_lock_timeout=100000
-watchdog_thresh=55 workqueue.watchdog_thresh=140
-sysctl.net.core.netdev_unregister_timeout_secs=140 dummy_hcd.num=16
-max_loop=32 nbd.nbds_max=32 comedi.comedi_num_legacy_minors=4
-kunit.autorun=0 vcan.echo=1
+diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steelseries-arctis.c
+index df61fa33d4c6..dc5a421e8d76 100644
+--- a/drivers/hid/hid-steelseries-arctis.c
++++ b/drivers/hid/hid-steelseries-arctis.c
+@@ -6,6 +6,7 @@
+  *  Copyright (c) 2026 Sriman Achanta
+  */
+ 
++#include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/kref.h>
+@@ -111,6 +112,12 @@ static int steelseries_arctis_7_2018_request_status(struct hid_device *hdev)
+ 	if (ret)
+ 		return ret;
+ 
++	/*
++	 * Back-to-back requests may cause the device to return stale buffer
++	 * contents, resulting in incorrect battery reports.
++	 */
++	msleep(10);
++
+ 	return steelseries_send_output_report(hdev, battery, sizeof(battery));
+ }
+ 
 
-Reproduction on 7.1.3
----------------------
-Fresh KVM guest, kernel as above, from the guest's /tmp:
-
-  scp syz-execprog syz-executor repro.prog root@guest:/tmp/
-  ssh root@guest
-  cd /tmp && chmod +x syz-execprog syz-executor
-  ./syz-execprog -procs=1 -repeat=1 -disable=swap -executor
-./syz-executor ./repro.prog
-
-Settings: sandbox=none, threaded executor, procs=1, repeat=1, no additional
-syzkaller features; a single program.
-
-The program (2 calls; fail_nth: 5 on the UHID write):
-
-  r0 = openat$uhid(0xffffffffffffff9c, &(0x7f0000000000), 0x2, 0x0)
-  write$UHID_CREATE(r0, &(0x7f0000000140)={0x0, {'syz1\x00',
-'syz0\x00', 'syz0\x00', &(0x7f0000001300)=""/191, 0xbf, 0x24, 0x2,
-0x160e, 0x3, 0xffff8000}}, 0x120) (fail_nth: 5)
-
-No C reproducer was produced for this report.
-
-Reproduction on 7.3.0
----------------------
-Same procedure with the 7.3.0 kernel and the stored execution sequence:
-
-  scp syz-execprog syz-executor repro.kernsight.prog root@guest:/tmp/
-  ssh root@guest
-  cd /tmp && chmod +x syz-execprog syz-executor
-  ./syz-execprog -procs=1 -repeat=1 -disable=swap -executor
-./syz-executor ./repro.kernsight.prog
-
-The sequence contains 68 programs replayed by a single executor process
-(procs=1), one at a time in file order (repeat=1, sandbox=none, threaded
-executor). Note that repro.prog retains the original syzkaller repro options in
-its first line (Threaded:true Repeat:true Procs:6 ...); the manual replays used
-the command above. The host/guest commands and console outputs of all three
-runs are in RUNS.md in the repository. The UHID trigger is program #64
-and appears again inside the final
-program #67. There is no parallel replay, but earlier programs can leave
-kernel-side asynchronous work behind, so their effects may persist.
-
-Materials (programs, full logs, reports, kernel configs, command lines,
-sha256 manifest, and a verify.sh that re-checks the numbers quoted here):
-  https://github.com/Zheng-zheng-codes/hid-uhid-synchronize-srcu-repro
-
-In our runs the sequence log contains exactly one GPF report, first printed at
-t=276.2 s. In the two standalone 7.3.0 runs, syz-execprog exited with status 0
-and neither serial log contains the GPF; the captured output does not include a
-final executed-program count.
-
-Fault injection was enabled for this reproduction
--------------------------------------------------
-The write$UHID_CREATE() call is annotated with fail_nth: 5. During this
-execution the kernel logged:
-
-  FAULT_INJECTION: forcing a failure.
-  name failslab, interval 1, probability 0, space 0, times 0
-
-followed by the GPF report.
-
-GPF report (7.3.0, latest verification)
----------------------------------------
-Oops: general protection fault, probably for non-canonical address
-0xdffffc000000002f: 0000 [#1] SMP KASAN NOPTI
-KASAN: null-ptr-deref in range [0x0000000000000178-0x000000000000017f]
-CPU: 3 UID: 0 PID: 12655 Comm: syz.4.84 Not tainted
-7.3.0-kernsight-kasan #1 PREEMPT(full)
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-RIP: 0010:synchronize_srcu+0x53/0x3b0
-Code: 48 83 ec 08 80 3c 02 00 0f 85 f1 02 00 00 48 b8 00 00 00 00 00
-fc ff df 48 8b 5d 40 48 8d bb 78 01 00 00 48 89 fa 48 c1 ea 03 <80> 3c
-02 00 0f 85 c1 02 00 00 48 8b 83 78 01 00 00 a8 03 74 08 48
-RSP: 0018:ffa000000519fa20 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 000000000000002f RSI: ffffffff88fa6f1c RDI: 0000000000000178
-RBP: ff110001208be198 R08: 0000000000000000 R09: fffffbfff251b453
-R10: ffffffff928da29f R11: 0000000000000001 R12: ff110001208be1d8
-R13: ff110001208bdeb0 R14: ff11000110774098 R15: ff110001107740a0
-FS:  00007fb68b6b0640(0000) GS:ff110001ef83e000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000200000001300 CR3: 000000011c3bd000 CR4: 0000000000753ef0
-PKRU: 00000000
-Call Trace:
- <TASK>
- hid_bpf_destroy_device+0x64/0x80
- hid_destroy_device+0x28/0x240
- hid_allocate_device+0x453/0x520
- uhid_dev_create2+0x16a/0x910
- uhid_dev_create+0x448/0x560
- ? __pfx_uhid_dev_create+0x10/0x10
- ? __might_fault+0xe5/0x190
- uhid_char_write+0xe06/0x1040
- vfs_write+0x2b6/0x1160
- ? __pfx_uhid_char_write+0x10/0x10
- ? __pfx_vfs_write+0x10/0x10
- ? __fget_files+0x1f6/0x3b0
- ? __fget_files+0x200/0x3b0
- ksys_write+0x1f4/0x240
- ? __pfx_ksys_write+0x10/0x10
- do_syscall_64+0x12e/0x7a0
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fb68a7b2b7d
-Code: 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48
-89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d
-01 f0 ff ff 73 01 c3 48 c7 c1 a8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fb68b6aff98 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 00007fb68aa45fa0 RCX: 00007fb68a7b2b7d
-RDX: 0000000000000120 RSI: 0000200000000140 RDI: 0000000000000003
-RBP: 00007fb68b6b0010 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
-R13: 00007fb68aa46038 R14: 00007fb68aa45fa0 R15: 00007fb68b690000
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
-RIP: 0010:synchronize_srcu+0x53/0x3b0
-Code: 48 83 ec 08 80 3c 02 00 0f 85 f1 02 00 00 48 b8 00 00 00 00 00
-fc ff df 48 8b 5d 40 48 8d bb 78 01 00 00 48 89 fa 48 c1 ea 03 <80> 3c
-02 00 0f 85 c1 02 00 00 48 8b 83 78 01 00 00 a8 03 74 08 48
-RSP: 0018:ffa000000519fa20 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 000000000000002f RSI: ffffffff88fa6f1c RDI: 0000000000000178
-RBP: ff110001208be198 R08: 0000000000000000 R09: fffffbfff251b453
-R10: ffffffff928da29f R11: 0000000000000001 R12: ff110001208be1d8
-R13: ff110001208bdeb0 R14: ff11000110774098 R15: ff110001107740a0
-FS:  00007fb68b6b0640(0000) GS:ff110001ef83e000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000200000001300 CR3: 000000011c3bd000 CR4: 0000000000753ef0
-PKRU: 00000000
-Kernel panic - not syncing: Fatal exception
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
-
-The 7.1.3 report is included in the repository (logs/report-7.1.3.txt) and has
-the same path:
-
-  RIP: synchronize_srcu+0x53/0x3b0 kernel/rcu/srcutree.c:1576
-  check_init_srcu_struct ... srcutree.c:441 [inline]
-  hid_bpf_destroy_device+0x64/0x80 drivers/hid/bpf/hid_bpf_dispatch.c:632
-  hid_destroy_device+0x28/0x240 drivers/hid/hid-core.c:3085
-  hid_allocate_device+0x453/0x520 drivers/hid/hid-core.c:3056
-  uhid_dev_create2+0x16a/0x910 drivers/hid/uhid.c:511
-
-Analysis
---------
-hid_allocate_device() initializes the HID-BPF SRCU via hid_bpf_device_init();
-when that fails, the error path calls hid_destroy_device(), whose BPF teardown
-runs synchronize_srcu()/cleanup_srcu_struct() on the unsuccessfully initialized
-SRCU structure. The posted patch proposes to address this by releasing
-the device directly
-with put_device() on the error path, which matches this analysis.
-
-Could you confirm whether this is the issue addressed by the patch above, or
-whether a separate fix is needed for the hid_allocate_device() error path? I am
-happy to test proposed patches.
-
-Attachments / repository contents
----------------------------------
-  repro/repro.prog               syz program, includes fail_nth: 5 (7.1.3)
-  repro/repro.kernsight.prog     68-program execution sequence (7.3.0)
-  logs/report-7.1.3.txt          original 7.1.3 report
-  logs/repro-report-7.1.3.log    7.1.3 reproduction report
-  logs/gpf-7.3.txt               7.3.0 GPF report (also inline)
-  logs/serial-7.3.log            full 7.3.0 console (sequence replay)
-  logs/serial-7.3-minimal1.log   7.3.0 standalone run 1 (no trigger)
-  logs/serial-7.3-minimal2.log   7.3.0 standalone run 2 (no trigger)
-  kernel/kernel-7.1.3.config, kernel/kernel-7.3.config
-  cmdline/cmdline-7.1.3.txt, cmdline/cmdline-7.3.0.txt
-  verify.sh                      re-checks the numbers quoted in this mail
-  scripts/replay-kernsight-prog.sh   the exact run script used for the replays
-  MANIFEST.sha256                sha256 of every file
+---
+base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
+change-id: 20261024-feature-arctis7-2dbf70d7ce38
 
 Best regards,
-Zheng Zheng
+-- 
+Erik Håkansson <erikhakan@gmail.com>
+

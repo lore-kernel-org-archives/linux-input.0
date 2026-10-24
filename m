@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792804431;
-	b=dn0k6O5r2jhfnHM1zZuVUqROT/ZJ4jR6XQ6e21jAu8H+14mLw5cktTLR5qadQfvIkmsQ
-	 IztW53/jN7crn2fkhGB+eHRcJWmWamYFuwuVG2rmJ4YYLZkVIdaFHArD4iY+WxtaTO6ue
-	 pZv5feIl6jDJwYmj5F/TiAfCyW93+K6Ixc4EUgnANBtothXyKZ1PkwSNDk1X29R3H2Bxt
-	 ZCXiPdC7ndloPtkzviDzsYD0DZeCS/MWEAtmLHDlFFgEHzySVpFWF36vHNgnEmO66eNSR
-	 988PhwxJy1n1gU8rjrPmLw4wzUpomF+H6g10UVmxvzVKMXvD1uzhfepujjjNak19uug==
+	t=1792804781;
+	b=kVy61q8imum7BAEownCx9/FMDvNcnWEeUResTefQiJy3bcYiJxckra+RsaEQiJlgsc/s
+	 5Og53q+aWGhXQ4NOlC9+3QSeOh0ZgmYwX6P6lmUZnTJl/vuLreUi46oUNFKxran36PM+L
+	 3sV/twM54DlTNc9g/TSsCV5E5JMf8AXs0DZAOm5Cn7Q6DW5Pm6Lw/iG6+2SqLgb/5XSbG
+	 F/qPhqFUQ0MPqzGiiBeRcLqPHBM5J3qAj6GWdGiQpVad8e70ANf0Cso9s+H8wRhv8eqCT
+	 AIrxbcMjxgtM3ULzuRQ6AFpatIomCrusk8p0/83aakremuH4nBiYZIGWSyGXo0ajIDw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792804431;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792804781;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=lqfmmoYAbACYA70XH3Sq1h4s2eL1PqYm8xkSeSJb0R0=;
-	b=4PFvX5t2uL1c75VSRvpuJ/wHH3Gx2FPJChfsfNuLfQRYGUpLIq02Nho+BMOmzE9ULB3D
-	 boki8hOWB7NnsFVJoDaCwyZ0C6It3T1uuA+GrjrvI2t+d5CCpKSpYzTAuW7Z9oMIFm0yq
-	 c3pBoI1NYOKvSJTGB7GWK1r7pVoI58so3reFalk4itTYdrfklLKktQ2uL1Azi04R8w9K3
-	 PnvyYoLaQoQmwGLV1gZiv0/PIPe1SYjKoFAWiPrWoOGJlxFii1EkQwOMYKDdI4q7JkC3y
-	 ITuOMZCtniHp8tWWPAqKdztd8AizF+l0nEGZBZXR/VX8xoWkprMP1FSrweLTyNBfPSA==
+	bh=RRpIz9YptYeOb9UL4YoX/0KazKBsdDQBORh1PGSCla4=;
+	b=L4FterTiRXEZFRj0OwhJtlB/W9nYKEK9wak7x1CQfXbqYuVuZQO+tC8pfLjdonrVvlsA
+	 usVfAiE5GB3VKDrOZBAyTe3GMELXaxZFu+8xJP7k1gXZncc182+MncCPM9wSE/y1BJ9nF
+	 hzSj+GxstX59HqFGLHNrqy0ycaX9wlCFLKy8f/Q6z7Ufc60tQ3bxoZJPP/Miy67gTvYuZ
+	 5pRt3w7IC+vg43wPVJjmr9yDaApGv55i+5s85IJc6xms2UQNr8iK1frDpqICpgNSzuQ6j
+	 mUUYCd3LgtD54P7gKM9xKiao2wwq5qjEV69uZzz9OgXLXvMlKhOZa5cUl8GZRrukDPA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OBUx+p3r;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BxELPvsA;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0A34606A31A;
-	Sat, 24 Oct 2026 01:13:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE525606A31A;
+	Sat, 24 Oct 2026 01:19:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OBUx+p3r
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05FA71F01825;
-	Sat, 24 Oct 2026 01:13:49 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BxELPvsA
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08AAA1F01825;
+	Sat, 24 Oct 2026 01:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792804430;
-	bh=lqfmmoYAbACYA70XH3Sq1h4s2eL1PqYm8xkSeSJb0R0=;
+	s=k20260515; t=1792804780;
+	bh=RRpIz9YptYeOb9UL4YoX/0KazKBsdDQBORh1PGSCla4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OBUx+p3rT17M43Mt39JguVTvysr1uCBzV9CUZ14k8IK3OvrqX9j1BQI6eip6MMT+b
-	 HmBs8u0Zcs8MLCSSs4SBCx3A3A+NqgwQIQCXQ82i5kS8KWnjGN0Ale5cPKCFm0gLE+
-	 vYxo5bEwcY2VsVaW9vI93YGkX6xgFJn7atoNpnYB87sQN8/aC1neSfG+M3rCedfhYV
-	 zJfexxF27a7upDwGTrm2Xhyq7tDUB3ClMusLpNcs14N6fIoBkYa8ZRFrgT33sZhq6c
-	 xuFxK5OR0Yq/BryxyLRgxB6sgibRwxBGvWLjOo2kUkPsSqIyEYrzt8GFapuNGpjsqw
-	 8lFtvlHa0BJAQ==
-Message-ID: <sashiko-outbox-183485@kernel.org>
+	b=BxELPvsApqPItJje1LxwSVvko/LHe61g6XtRyXxctIfSslsd1dT+6Mf+SPaniJZUc
+	 p2gWNw4FbOpVr785T1UhrrwVvQWR/J6XBPsbAfpliT+Eez7piVGYylLBpdqMvg0iun
+	 A52IjhNN1s59/b8DcfQugVWeDyB8NNbPr/B2eiXLzsCmCNU01VTnrLwrMJv1WZZ6f+
+	 2ozDPhlmKg2akygSM7rIIen1bD4I50yJkOBfo32KwtySMsxVmFtvBAg/Xs7wVUTpV1
+	 SRkJQ+eZllsRkYfbzEtOW30Cw1sOpe5Kl/CGBLYGcMRUFzv440fnw2Ea01ByMXznO+
+	 h/BSevnHnGb6Q==
+Message-ID: <sashiko-outbox-183486@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 05/11] HID: spi-hid: add HID SPI protocol
+Subject: Re: [PATCH v7 10/11] HID: spi-hid: add power management
  implementation
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jingyuan Liang" <jingyliang@chromium.org>
 Cc: linux-input@vger.kernel.org, linux-trace-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261024-send-upstream-v7-5-abad13174b43@chromium.org>
+In-Reply-To: <20261024-send-upstream-v7-10-abad13174b43@chromium.org>
 References: <20261024-send-upstream-v7-0-abad13174b43@chromium.org>
- <20261024-send-upstream-v7-5-abad13174b43@chromium.org>
+ <20261024-send-upstream-v7-10-abad13174b43@chromium.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 24 Oct 2026 01:13:49 +0000
+Date: Sat, 24 Oct 2026 01:19:39 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,217 +61,262 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] HID: spi-hid: spi_hid_reset_work() runs pre-error work before SP=
-I_HID_ERROR
-- [Medium] HID: spi-hid: sync requests not aborted or serialized on reset i=
-n error path
-- [Medium] HID: spi-hid: duplicate reset scheduled on timeout in spi_hid_ge=
-t_request()
+- [High] hid: spi-hid: unhandled deassert_reset() failure in spi_hid_resume=
+()
+- [Medium] HID: spi-hid: race and missed hid_driver_reset_resume() in spi_h=
+id_resume()
 --
 
-commit 921e27cc043191cc71704b14d2cdca05f5da7a1c
+commit 9bd51942caad3c04cffc9fdd14002340e1980586
 Author: Jingyuan Liang <jingyliang@chromium.org>
 
-HID: spi-hid: add HID SPI protocol implementation
+HID: spi-hid: add power management implementation
 
-This commit implements the HID over SPI protocol in spi-hid-core.c,
-adding interrupt handling, input report processing, synchronous output
-request/response tracking, and error recovery via device reset.
+This patch adds system sleep power management callbacks to the HID over SPI
+transport driver, handling device power down, reset synchronization, and wa=
+ke
+IRQ setup across suspend and resume.
 
 > diff --git a/drivers/hid/spi-hid/spi-hid-core.c b/drivers/hid/spi-hid/spi=
 -hid-core.c
-> index 54c278ac8803b..cd4d763840098 100644
+> index 4ff93d22715cd..3b8874ca0e1cc 100644
 > --- a/drivers/hid/spi-hid/spi-hid-core.c
 > +++ b/drivers/hid/spi-hid/spi-hid-core.c
+
 [ ... ]
-> @@ -172,17 +333,96 @@ static const char *spi_hid_power_mode_string(enum h=
+
+> @@ -231,6 +239,147 @@ static const char *spi_hid_power_mode_string(enum h=
 idspi_power_state power_state
-[ ... ]
-> +static void spi_hid_error_handler(struct spi_hid *shid)
+>  	}
+>  }
+> =20
+> +/*
+> + * Wait for the device descriptor response after reset; the device then =
+takes
+> + * requests. Set READY here: the report descriptor check that normally s=
+ets it
+> + * needs power_lock, which callers hold.
+> + */
+> +static int spi_hid_wait_for_reset(struct spi_hid *shid)
 > +{
-> +	struct device *dev =3D &shid->spi->dev;
-> +	int error;
+> +	unsigned long timeout =3D msecs_to_jiffies(SPI_HID_RESET_TIMEOUT +
+> +						 SPI_HID_RESP_TIMEOUT);
 > +
-> +	guard(mutex)(&shid->power_lock);
-> +	if (shid->power_state =3D=3D HIDSPI_OFF)
-> +		return;
-> +
-> +	disable_irq(shid->spi->irq);
-> +
-> +	if (shid->reset_attempts++ >=3D SPI_HID_MAX_RESET_ATTEMPTS) {
-> +		dev_err(dev, "unresponsive device, aborting\n");
-> +		spi_hid_stop_hid(shid);
-> +		shid->ops->assert_reset(shid->ops);
-> +		error =3D shid->ops->power_down(shid->ops);
-> +		if (error)
-> +			dev_err(dev, "failed to disable regulator: %d\n", error);
-> +		shid->power_state =3D HIDSPI_OFF;
-> +		/* Dead device: leave the IRQ permanently disabled. */
-> +		return;
+> +	if (!wait_for_completion_timeout(&shid->reset_done, timeout)) {
+> +		dev_warn(&shid->spi->dev,
+> +			 "Device descriptor not received after reset\n");
+> +		return -ETIMEDOUT;
 > +	}
 > +
-> +	clear_bit(SPI_HID_READY, &shid->flags);
-> +	set_bit(SPI_HID_RESET_PENDING, &shid->flags);
+> +	set_bit(SPI_HID_READY, &shid->flags);
+> +	return 0;
+> +}
 > +
-> +	shid->ops->assert_reset(shid->ops);
-> +
-> +	shid->power_state =3D HIDSPI_OFF;
+> +static int spi_hid_suspend(struct spi_hid *shid)
+> +{
+> +	int error;
+> +	struct device *dev =3D &shid->spi->dev;
 > +
 > +	/*
-> +	 * We want to cancel pending reset work as the device is being reset
-> +	 * to recover from an error. cancel_work_sync will put us in a deadlock
-> +	 * because this function is scheduled in 'reset_work' and we should
-> +	 * avoid waiting for itself.
+> +	 * Stop reset_work until resume; pending steps keep their flags. The
+> +	 * IRQ stays on so a request in flight gets its response.
 > +	 */
-> +	cancel_work(&shid->reset_work);
+> +	disable_work_sync(&shid->reset_work);
 > +
-> +	/* Drop work requested before this reset. */
-> +	clear_bit(SPI_HID_RESET_RESPONSE, &shid->flags);
-> +	clear_bit(SPI_HID_CREATE_DEVICE, &shid->flags);
-> +	clear_bit(SPI_HID_ERROR, &shid->flags);
+> +	/* HID driver suspend may talk to the device; responses need the IRQ. */
+> +	scoped_guard(mutex, &shid->power_lock) {
+> +		if (shid->power_state !=3D HIDSPI_OFF && shid->hid) {
+> +			error =3D hid_driver_suspend(shid->hid, PMSG_SUSPEND);
+> +			if (error) {
+> +				dev_err(dev, "%s failed to suspend hid driver: %d\n",
+> +					__func__, error);
+> +				enable_work(&shid->reset_work);
+> +				/* Redo a schedule_work() dropped while disabled. */
+> +				schedule_work(&shid->reset_work);
+> +				return error;
+> +			}
+> +		}
+> +	}
 > +
-> +	shid->ops->sleep_minimal_reset_delay(shid->ops);
+> +	/* disable_irq() waits for a running IRQ thread. */
+> +	disable_irq(shid->spi->irq);
 > +
-> +	shid->power_state =3D HIDSPI_ON;
+> +	guard(mutex)(&shid->power_lock);
+> +	if (!device_may_wakeup(dev)) {
+> +		if (shid->power_state !=3D HIDSPI_OFF) {
+> +			/* Device is fully reset on resume; drop stale state. */
+> +			clear_bit(SPI_HID_READY, &shid->flags);
+> +			clear_bit(SPI_HID_RESET_RESPONSE, &shid->flags);
+> +			clear_bit(SPI_HID_CREATE_DEVICE, &shid->flags);
+> +			clear_bit(SPI_HID_ERROR, &shid->flags);
+> +			set_bit(SPI_HID_RESET_PENDING, &shid->flags);
 > +
-> +	shid->ops->deassert_reset(shid->ops);
+> +			shid->ops->assert_reset(shid->ops);
+> +
+> +			error =3D shid->ops->power_down(shid->ops);
+> +			if (error)
+> +				dev_err(dev, "%s: could not power down: %d\n", __func__, error);
+> +
+> +			/* Held in reset either way; resume resets it. */
+> +			shid->power_state =3D HIDSPI_OFF;
+> +		}
+> +	}
+> +	return 0;
+> +}
+> +
+> +static int spi_hid_resume(struct spi_hid *shid)
+> +{
+> +	int error;
+> +	struct device *dev =3D &shid->spi->dev;
+> +	bool was_reset =3D false;
+> +
+> +	guard(mutex)(&shid->power_lock);
+> +	enable_work(&shid->reset_work);
+> +	if (test_bit(SPI_HID_DEAD, &shid->flags)) {
+> +		/* Stay off; only balance disable_*() in suspend. */
+> +		enable_irq(shid->spi->irq);
+> +		return 0;
+> +	}
+> +
+> +	if (!device_may_wakeup(dev)) {
+> +		if (shid->power_state =3D=3D HIDSPI_OFF) {
+> +			shid->ops->assert_reset(shid->ops);
+> +
+> +			shid->ops->sleep_minimal_reset_delay(shid->ops);
+> +
+> +			error =3D shid->ops->power_up(shid->ops);
+> +			if (error) {
+> +				dev_err(dev, "%s: could not power up: %d\n", __func__, error);
+> +				/* Suspend runs next even if resume fails. */
+> +				enable_irq(shid->spi->irq);
+> +				return error;
+> +			}
+> +			shid->power_state =3D HIDSPI_ON;
+> +			reinit_completion(&shid->reset_done);
+> +			error =3D shid->ops->deassert_reset(shid->ops);
+> +			if (error)
+> +				dev_err(dev, "%s: failed to deassert reset: %d\n",
+> +					__func__, error);
+> +			else
+> +				was_reset =3D true;
+> +		}
+> +	}
+
+[Severity: High]
+What happens in spi_hid_resume() if shid->ops->deassert_reset(shid->ops)
+fails (or if was_reset is true while shid->hid is still NULL and the reset
+times out)?
+
+When deassert_reset() fails in spi_hid_error_handler(), the driver sets
+SPI_HID_ERROR and schedules shid->reset_work because a device held in reset
+will not assert a reset-response IRQ:
+
+drivers/hid/spi-hid/spi-hid-core.c:spi_hid_error_handler() {
+	...
+	error =3D shid->ops->deassert_reset(shid->ops);
+	if (error) {
+		dev_err(dev, "failed to deassert reset: %d\n", error);
+		set_bit(SPI_HID_ERROR, &shid->flags);
+		schedule_work(&shid->reset_work);
+	}
+}
+
+In spi_hid_resume(), however, a deassert_reset() failure only logs the error
+and leaves was_reset false. Because spi_hid_suspend() cleared SPI_HID_READY,
+SPI_HID_RESET_RESPONSE, SPI_HID_CREATE_DEVICE, and SPI_HID_ERROR before
+powering down, shid->reset_work is not scheduled, spi_hid_wait_for_reset() =
+is
+skipped, and spi_hid_resume() returns 0 when !test_bit(SPI_HID_READY,
+&shid->flags).
+
+Similarly, because spi_hid_wait_for_reset() is gated inside if (shid->hid),=
+ if
+shid->hid was not yet created before suspend and the post-resume reset times
+out, nothing sets SPI_HID_ERROR or schedules shid->reset_work.
+
+Could this leave the device permanently held in reset with its regulator
+enabled in HIDSPI_ON and no recovery work queued?
+
 > +
 > +	enable_irq(shid->spi->irq);
+> +
+> +	/*
+> +	 * For devices that may wake up, process work that was pending while
+> +	 * suspend had reset_work disabled. Otherwise suspend already dropped i=
+t.
+> +	 */
+> +	if (test_bit(SPI_HID_RESET_RESPONSE, &shid->flags) ||
+> +	    test_bit(SPI_HID_CREATE_DEVICE, &shid->flags) ||
+> +	    test_bit(SPI_HID_ERROR, &shid->flags))
+> +		schedule_work(&shid->reset_work);
+> +
+> +	if (shid->hid) {
+> +		if (was_reset && spi_hid_wait_for_reset(shid)) {
+> +			/* No reset response: let recovery retry. */
+> +			set_bit(SPI_HID_ERROR, &shid->flags);
+> +			schedule_work(&shid->reset_work);
+> +			return -ETIMEDOUT;
+> +		}
+> +		/* HID requests would fail while the device is not ready. */
+> +		if (!test_bit(SPI_HID_READY, &shid->flags))
+> +			return 0;
+> +		error =3D hid_driver_reset_resume(shid->hid);
+> +		if (error) {
+> +			dev_err(dev, "%s: failed to reset resume hid driver: %d\n",
+> +				__func__, error);
+> +			return error;
+> +		}
+> +	}
+> +	return 0;
 > +}
 
 [Severity: Medium]
-What happens if a synchronous request is waiting on shid->output_done in
-__spi_hid_sync_request() while an interrupt error in spi_hid_dev_irq() ->
-spi_hid_irq_error() or a spontaneous RESET_RESPONSE in
-spi_hid_process_input_report() triggers a reset?
+On the wakeup path (when device_may_wakeup(dev) is true and was_reset is
+false), how does hid_driver_reset_resume(shid->hid) interact with a pending
+reset_work?
 
-In __spi_hid_sync_request(), the caller holds shid->output_lock while
-waiting in wait_for_completion_timeout(&shid->output_done, ...). However,
-spi_hid_error_handler() only acquires shid->power_lock: it does not
-serialize with shid->output_lock or shid->io_lock, nor does it clear
-shid->expected_response or complete shid->output_done to abort an in-flight
-request.
+When spi_hid_irq_error() sets SPI_HID_ERROR or spi_hid_process_input_report=
+()
+sets SPI_HID_RESET_RESPONSE in the IRQ thread, SPI_HID_READY is not cleared
+immediately. Instead, SPI_HID_READY is cleared later when shid->reset_work
+runs spi_hid_error_handler() (which must first acquire shid->power_lock) or
+spi_hid_reset_response().
 
-Because of this:
-1. A thread in __spi_hid_send_output_report() that already passed the
-   test_bit(SPI_HID_READY, &shid->flags) check before acquiring
-   shid->io_lock can perform spi_hid_output() on the SPI bus while
-   spi_hid_error_handler() has asserted reset and set shid->power_state to
-   HIDSPI_OFF.
-2. When the device finishes resetting and sends RESET_RESPONSE,
-   spi_hid_reset_response() -> spi_hid_sync_request() blocks on
-   shid->output_lock until the pre-reset waiter's 1000 ms timeout expires.
-3. Once wait_for_completion_timeout() in __spi_hid_sync_request() finally
-   times out, the pre-reset caller sets SPI_HID_ERROR and schedules
-   shid->reset_work again, triggering a second hardware reset after the
-   first recovery completes and incrementing shid->reset_attempts a second
-   time.
+Because spi_hid_resume() holds shid->power_lock across the entire function,
+scheduling shid->reset_work and immediately checking test_bit(SPI_HID_READY,
+&shid->flags) means:
 
-Should the error and reset paths abort any in-flight request (or serialize
-with shid->output_lock / shid->io_lock) so that pre-reset waiters do not
-stall recovery and schedule a stale reset on timeout?
+1. If SPI_HID_ERROR or SPI_HID_RESET_RESPONSE was set while SPI_HID_READY is
+still set, spi_hid_resume() sees SPI_HID_READY set and calls
+hid_driver_reset_resume(shid->hid) right before shid->reset_work runs and
+resets the device.
 
-[ ... ]
-> @@ -324,13 +752,206 @@ static int spi_hid_create_device(struct spi_hid *s=
-hid)
-[ ... ]
-> +static void spi_hid_reset_work(struct work_struct *work)
-> +{
-> +	struct spi_hid *shid =3D
-> +		container_of(work, struct spi_hid, reset_work);
-> +	struct device *dev =3D &shid->spi->dev;
-> +	int error =3D 0;
-> +	bool resched =3D false;
-> +
-> +	if (test_and_clear_bit(SPI_HID_RESET_RESPONSE, &shid->flags)) {
-> +		spi_hid_reset_response(shid);
-> +		resched =3D true;
-> +	} else if (test_and_clear_bit(SPI_HID_CREATE_DEVICE, &shid->flags)) {
-> +		guard(mutex)(&shid->power_lock);
-> +		if (shid->power_state !=3D HIDSPI_OFF) {
-> +			if (!shid->hid) {
-> +				error =3D spi_hid_create_device(shid);
-> +				if (error) {
-> +					dev_err(dev, "%s: Failed to create hid device: %d\n",
-> +						__func__, error);
-> +				}
-> +			} else {
-> +				spi_hid_refresh_device(shid);
-> +			}
-> +		} else {
-> +			dev_err(dev, "%s: Powered off, returning\n", __func__);
-> +		}
-> +		resched =3D true;
-> +	} else if (test_and_clear_bit(SPI_HID_ERROR, &shid->flags)) {
-> +		spi_hid_error_handler(shid);
-> +	}
+2. Conversely, if SPI_HID_READY was already cleared (for example, after a s=
+ync
+request timeout or while SPI_HID_CREATE_DEVICE is pending), spi_hid_resume()
+returns 0 early at !test_bit(SPI_HID_READY, &shid->flags). Once
+shid->reset_work later completes in spi_hid_refresh_device():
 
-[Severity: Medium]
-Should spi_hid_reset_work() check SPI_HID_ERROR before
-SPI_HID_RESET_RESPONSE and SPI_HID_CREATE_DEVICE?
+drivers/hid/spi-hid/spi-hid-core.c:spi_hid_refresh_device() {
+	...
+	/* Same report descriptor, so no need to create a new hid device. */
+	if (new_crc32 =3D=3D shid->report_descriptor_crc32) {
+		shid->reset_attempts =3D 0;
+		set_bit(SPI_HID_READY, &shid->flags);
+		return;
+	}
+}
 
-In spi_hid_error_handler(), the code clears SPI_HID_RESET_RESPONSE and
-SPI_HID_CREATE_DEVICE with the comment:
+it sets SPI_HID_READY and returns without calling
+hid_driver_reset_resume(shid->hid), leaving the HID driver in the suspended
+state set by spi_hid_suspend().
 
-	/* Drop work requested before this reset. */
-	clear_bit(SPI_HID_RESET_RESPONSE, &shid->flags);
-	clear_bit(SPI_HID_CREATE_DEVICE, &shid->flags);
-	clear_bit(SPI_HID_ERROR, &shid->flags);
-
-However, because spi_hid_error_handler() is only called from the final
-else-if branch in spi_hid_reset_work(), it cannot run while
-SPI_HID_RESET_RESPONSE or SPI_HID_CREATE_DEVICE is set. If an error sets
-SPI_HID_ERROR while either of those bits is pending (for example, an IRQ
-error in spi_hid_dev_irq() -> spi_hid_irq_error() after
-spi_hid_dev_desc_response() sets SPI_HID_CREATE_DEVICE),
-spi_hid_reset_work() will first execute spi_hid_reset_response() or
-spi_hid_create_device() / spi_hid_refresh_device(), reschedule itself, and
-only then run spi_hid_error_handler() to immediately reset the newly
-created or refreshed HID device.
-
-[ ... ]
-> @@ -355,6 +976,15 @@ static int spi_hid_get_request(struct spi_hid *shid,=
- u8 content_id,
->  		dev_err(dev,
->  			"Expected get request response not received! Error %d\n",
->  			error);
-> +		/*
-> +		 * -ENODEV: the device is not ready (e.g. a reset is in
-> +		 * progress), so the GET_FEATURE request was not sent.
-> +		 * Don't start another reset on top of the one already running.
-> +		 */
-> +		if (error !=3D -ENODEV) {
-> +			set_bit(SPI_HID_ERROR, &shid->flags);
-> +			schedule_work(&shid->reset_work);
-> +		}
->  		return error;
->  	}
-
-[Severity: Medium]
-Won't a timed-out request in spi_hid_get_request() schedule a duplicate
-reset?
-
-When __spi_hid_sync_request() times out waiting on shid->output_done, it
-already sets SPI_HID_ERROR and schedules shid->reset_work before returning
--ETIMEDOUT:
-
-	dev_err(dev, "Response timed out\n");
-	/* The device may still answer later: resync it with a reset. */
-	set_bit(SPI_HID_ERROR, &shid->flags);
-	schedule_work(&shid->reset_work);
-	return -ETIMEDOUT;
-
-Because spi_hid_reset_work() -> spi_hid_error_handler() does not take
-shid->output_lock, the worker thread on another CPU can immediately begin
-running spi_hid_reset_work() and clear SPI_HID_ERROR while
-spi_hid_get_request() (and similarly spi_hid_report_descriptor_request()
-and spi_hid_reset_response()) receives -ETIMEDOUT and sets SPI_HID_ERROR
-and schedules shid->reset_work a second time. This triggers two
-back-to-back hardware resets and increments shid->reset_attempts twice for
-a single timeout.
+Should spi_hid_resume() coordinate with pending reset work on the wakeup pa=
+th
+so hid_driver_reset_resume() runs after the reset completes?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261024-send-upstr=
-eam-v7-0-abad13174b43@chromium.org?part=3D5
+eam-v7-0-abad13174b43@chromium.org?part=3D10

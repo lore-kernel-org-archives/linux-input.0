@@ -1,88 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.177
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792815828;
-	b=IpryNQFjGxK1719z+zObUoeTw4xnDw9zky5saIz5IbDJUGor2bzitUVxUYfToQxJWnLR
-	 CEs9bQ3CGvEgkJagT4M3W7DIjDRWdEYqSCbRpsGUMYu1qTIadSf9W83YI15R0uvO/xBzF
-	 al7UM8TkrY65cOfDv45vffM9EBla7uyGRthZblk+r95+w+c9yr4sIm/7GrcURyhQU0+sV
-	 yr+DPtRrdjEnpgo9C3YNNUWOIdoE64gFCgZWS5wmIE7Bg1C6s73dgMj0jNt3brAZPRTK+
-	 FHsaUbeHnGpHLPrKLS93veiG+QkyKOn2HyPK7cgGUgOf7hB8l9o8i8d6F3fFlYBDrnQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792815828;
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.46
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792851240;
+	b=g5Ody2xaqwD56m5bLkf+XdirbTYbTE2UI121EgIaT58sXPBOiJ1AEdYMT5IwJnC7dRnq
+	 wo8Rbo9yHmlXsd/6izNJGkztU8jXqg+A/s8FcWXM34lhL41tI8yWRvQZ6SUP2XZzUdtQk
+	 88juEPtaG/fKQZdxJrin9ztM2wO1+ucmGrhnRsnFZu1xSfeHdjnSbutOqAhtcBj+zRxfz
+	 P9XACvGsyR6VDDFHcQu+oV4jzwPl4osXS8Q5J/25dBdS3sWynNt+5LbKPRvSB6QSOsie7
+	 YADhmIbeABo+gszVodVx9RlW07K6pmQhT4LSQMEsiekSzXRV2bx0rT2hcslGgOL5oRg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792851240;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer;
-	bh=A7v3iQvYpOI1vlkhEubPLkV9x5gOZiQT5f5VIsmNMyk=;
-	b=mjXT5Vk5TBxYcJub15KeGrOtIPlF+1+TbKELimh+vD3SeNl7pJlGpzRODEe17X9ouTVp
-	 apYOKkZBDSJ2QBPRKkSCBEyRNiANYKrFsOzfN53CIxR8u4EPNkO266Th7d3iXPUahM3HS
-	 eAkjRV3mRyD7Pr5uAWTTzR0HW+uGYjbn1mLHWl0XKTgk3EOPwZ0FEIfdtz8WAYu6nWE6d
-	 YT+d3PbO5kLatFYsF56dDvzCix/kEjzdI3vXBas25nRGXUjH0tuxrayP9tGiXNOcW3BmC
-	 QSOk1VmeMkgpiP9sxMiy6ACmoa1powfS9P1gJZRsxYBJ4Nz9FAkO67tLxmmU0HJ7NgQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type;
+	bh=b97bMXvzGRIjznY7MGqSzwOhOEqCJ6AU/b6pGdoAGpE=;
+	b=miDAgdJLB3/+rrro4MOzwauWsOdt8H+GsusFXb2L7JiI9HkJEsZyUkNrWj0zajCOnt24
+	 UNe81vxyXylFCYrg32RDbuxySX0GtHVzCsSynE9nY56SQTNbnoLvijvRhm2Z+WLJlGYKY
+	 rbpvXXiqguKKwfFMLGulj4MpASlhmfEGW8i66lgyVqGd+MqXt4EMgBPqKXzJPV10+gyaO
+	 DYhIDcHTdcTUaZSWV+PDHEOW0F/3ASgm6VkacqJ65pZtyGRjduGdjFQv8faCg9IbwvdNh
+	 TsGMHrHrhdXeEqzVzOFFEqqY+vqNozCpNAI+JJ9MHzhu4I67jKbEfFuO+xxZF9jbttw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=glD74pUq;
-	arc=none smtp.remote-ip=209.85.167.177
-Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com [209.85.167.177])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Ezdj4S4x;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.46
+Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 427F1606A31D
-	for <linux-input@vger.kernel.org>; Sat, 24 Oct 2026 04:23:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 427F1606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3943B606A31F
+	for <linux-input@vger.kernel.org>; Sat, 24 Oct 2026 14:14:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3943B606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=glD74pUq
-Received: by mail-oi1-f177.google.com with SMTP id 5614622812f47-4af173320f9so904236b6e.2
-        for <linux-input@vger.kernel.org>; Fri, 23 Oct 2026 21:23:48 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Ezdj4S4x
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5be3ed646a5so1366617e87.1
+        for <linux-input@vger.kernel.org>; Sat, 24 Oct 2026 07:13:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1792851238; cv=none;
+        d=google.com; s=arc-20260327;
+        b=q+ONBSNd9WwHgfu8IcivxxgOcRUgi1MN0Fub1bJtnXZYtQjmczDabJBcdOsfTth/Bl
+         3iD/uaT7P/mgI4N4ksT1J5w9BxsjKNc5O2FynUVXXnAG5XdKSkSW5XfzzsnKe+daqkT7
+         5MOsTrllJ599uZWzBGNtzL55l/gUKphHqmSxiYS87KrEVfyB/LQP3cx1n96yy7Kre8//
+         HvR39gwzlm55RrJ0WYG+SVw8PE/MhFqnV9Vxt8NS8wOPnbVq+y3bYpgC9oAErsxOcpk3
+         Y62UQ/tvBOE2/ZjJiEJocfhTRlCZ4TnD22qRjH/K96AdVLcvF/RlHojBrlOwhAVTnLim
+         TwcA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=b97bMXvzGRIjznY7MGqSzwOhOEqCJ6AU/b6pGdoAGpE=;
+        fh=hN+O1604ulQpEmiZLWZ6GnmfBIrdQzxYVvtoSS/bbe0=;
+        b=ckVPf2Kp1JDPI7m6FS7WNhbh78tPxuIT+WmdyrTlbV1qlIvaXTeeL4aQMCvDndhqkJ
+         r/5lZDiz2KYX08ilsFZUQAen/sWp9xTHglznkJdKHEKBAL4ubK+csGMfYdsi7jyE5Iq+
+         5j69E3+MVM6Ee9qxZvZvB2ZoeQ4/X+8hj4bESsr4zNMXnVYcxiRuf1wlnugkNixN36ow
+         Oiq3mLDmjq4q5Z5/9XViw9TGLkXBC/cMdnbLL1oeKLMvkUv2xvND9qJbEQuuyAHEuUYc
+         f/FwsR7Ee3DbMhSCrkNgC17uywqMMGT82ONr7Odr9h503GO9VFlXH4BRBMlEiuP43F2K
+         IVrw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792815827; x=1793420627; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=A7v3iQvYpOI1vlkhEubPLkV9x5gOZiQT5f5VIsmNMyk=;
-        b=glD74pUqbkxWRdZnLCx3z60ZiLGN9SkQ82qloBuEp8QYlM9I7Z4/ghs9839ux9Sim3
-         h0x6oKvoaSA4mG3EEKuJforRNNCa/VCIJRfUg4fip1q/XJjedlIbwt9+O7/v3W6Hx2Fv
-         Xj53HOLbRTTSBbLjHxHRAVakPg/OnQ4nojy3sR3QdukG2RLNbQgZE4Bg5vpB0GXc4Fz0
-         Itjqsu8/z5wrMYZVe8Zw0IrKFrK1EBeBou0i5LOCh0K4OP+tRB8i4BNeqzvOZ8Xe9rNM
-         7w/tXHYufggjje0ugsQLs4fklpm0wiU1/IRjuY1nPvsp9Dx7hYHvrGowt/vmoMwWl9W4
-         mYFg==
+        d=gmail.com; s=20251104; t=1792851238; x=1793456038; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=b97bMXvzGRIjznY7MGqSzwOhOEqCJ6AU/b6pGdoAGpE=;
+        b=Ezdj4S4xEB8h7gxc03c2uOcj/ii601I7+Cd4LQAP+csNZtwqaMJrX7yHnV/QRvc3eh
+         cy5B9dqUS+Oz/fwYJJhrVqldoR3wqQnjxlmUmztY2taoA9FuiP+qznCrX4ahYkiZVZJu
+         +CK4AGKWWOPfbp1ZMEtLRjpXJCu/Oz2kFxxBB2dsvUX6X0yHqRvjodQCXe61EgiHfvYY
+         hMbpHMr9o/zG1nWClTKTYPQD2wyuXpHLbF10wB2AhOCIIO7GJyBE+Z/eYGPJ7wju5eYo
+         fMZQIwZIRn2RVGmTi2WIrciOEUSxYeriB/lDGzOvior6snXECURFiS0d8YdclVa7uPK8
+         4vpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792815827; x=1793420627;
-        h=cc:to:message-id:content-transfer-encoding:content-type
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=A7v3iQvYpOI1vlkhEubPLkV9x5gOZiQT5f5VIsmNMyk=;
-        b=S4QU+Dijkp7ZCUTdzPwFMgo+kVk4DLf8bAOvAYNmab7JNmRyU5vJIjgPgfFKJGd/H2
-         g148JxU3mvkFSxXUcdTKRbdA30ViTX3qcnxfSHv0HghgoaPaPqtzcT13207IcfeM7PUp
-         NBsn5dwP5XP4jX+DqbtuWdrhbIBkMsJQNMwuNu4Y0JI/rb+cI8QQuGW84QduXB8fDIGh
-         pCMWz3GnQt+y1Ip1hLI8f+sJqrrAcTIjqZUOzCTqzKO+7roqG3U1NcVneyDcD8GieNoI
-         aik1oJ1fC5B9CObrvPLDhgALyn1fpt1c2OVxZ3A5kq3B9QlyyAy3mh+3jvWl2bBEDtwG
-         4bgw==
-X-Forwarded-Encrypted: i=1; AKwUvBxIqpzehof0lws0yusXRbNFEcETKnyZbW006QbFYNgC7F0J5VPb29axwZ/NgZyQ9fXjq5dN0LILAy1Fqg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYIrk7ABSz0VPLA6t3fIR+orq1L+XuoTSLvxZV5lJsVaZwQSO3/s
-	y5mGLlF/00Rh+AVC7iVShmZsrwSaxpNt3I3yrilXgNMuuhNBKZr6IIDX
-X-Gm-Gg: AYBFou3oIRQfLzlEyRFR2sXTgA9EIUhq4fVCnC9OveKKzG/MMbEs1cw8r8HVPdwrHNt
-	VRe0r2Sr8PaZgkU7zlzpyypqtuemZSftl/aW/PQMySEde5f/13K6yhG1oD6zEUk3WlQYLzjLmYo
-	5l6qxrR8glBec85HZrwf3OcOBKQNoup7zhIXi5+SkHC+z8WCDpP9PeY4+n6MuJhz57jnYNaS6bC
-	758FR6PAZjyQat1HXuHxnpANe1z5lFGLed+m+1Rd9GrQx1efV+KosROlFo0wntZtReyEqvG2FXK
-	vkRpka6WuUQxSp2NkI5BCArC12IiJiZiaTWC4UbTdbPcb/cDN0iBTjmAd8e0+D4YTH0rHBIcMk7
-	lc0q4NGidgCizuhEsJCimIrhszPI+m7XtCCDsWE683WzgBDiDfrhzhARAq/Ywl2MUTZySFuehb/
-	qmaIn4DD1Yia91X0Td/am+yHOXEUSRJ2r23Ua8mptgOG650qE7c4eMEKdXjtxjM+uQKakn6BEUA
-	UUWUVXjw09DGWoZbgikqm0VNIm65E+6h8OJGjDjJINVd2sLkjmmMDrO0zU9OeqRojPXrmw2jv1r
-	SaV8Y1zdX9gcXnoOAqlys/pfw34h4DNrTUXlbmltPGfn62uQqo4u93fXSoqt2c3TBkUOYJW5PYZ
-	/IzZ8VrAG+yghGoyxuMlpywffGmn3GWGe9c7iWcP/nooauGZJk132eCFAsnB9cXBLfsUieSah2v
-	IYExn0
-X-Received: by 2002:a05:6808:e89:b0:539:a2c2:aba3 with SMTP id 5614622812f47-55c00366527mr677126b6e.52.1792815827190;
-        Fri, 23 Oct 2026 21:23:47 -0700 (PDT)
-Received: from [127.0.1.1] (174-29-1-49.hlrn.qwest.net. [174.29.1.49])
-        by smtp.gmail.com with ESMTPSA id 5614622812f47-55c040806a7sm691649b6e.2.2026.10.23.21.23.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Oct 2026 21:23:46 -0700 (PDT)
-From: James Hilliard <james.hilliard1@gmail.com>
-Date: Fri, 23 Oct 2026 22:23:44 -0600
-Subject: [PATCH] Input: serport - defer write wakeups to a worker
+        d=1e100.net; s=20260707; t=1792851238; x=1793456038;
+        h=content-type:cc:to:subject:message-id:date:from:mime-version
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=b97bMXvzGRIjznY7MGqSzwOhOEqCJ6AU/b6pGdoAGpE=;
+        b=ECzQ017d+YW8qB2/hcZqYQdJ2ezm2xuz7HA3kRAXVn17wUwswJGsXJxi5X8AuekmuI
+         TlAn/CpJroaQFGe5DBJ37JH0mBLKjp513LR85b8fEUIJhPU68zh11qP/55Y9tBTBfXd6
+         wmhlfukzbf8bj/7qDCOy1Tg3dtim3w7GMeL9tCYjICmUcUMv50cqqbhHED2TrTsmBxkc
+         yxbEckix9jjJ2Oc02nfpbhCNaiFx8CpA/eheDruIzD/StTpN5bWrjlKnXE5rqC2xBIh9
+         rS2LvA5tJbqcmWRFz1a7CWHFAdjjyXiw9yo3W5KJ/Q5x30iLI1ol6z6Gg9GKHSV4B9p7
+         rc6Q==
+X-Gm-Message-State: AFq9FYJsLrYLCS7HhxV6HMdDRx9Ljj567R3PC13KDTuQHluLrGpicM1p
+	dC4bALReB4xdJT9+XLBAaakAH4DTcpg/SNGeekP1Hb5hMkWXuD58eAhsxjPkmXj7QTObqLROGl2
+	NNpMV6gZeONERtTfboz+wX8zlRsbJDqDMt7pVl/qM5A==
+X-Gm-Gg: AYBFou15vhHIfqn0Mw8aT20SRJDZBr9NLzLyuc6kNmL6RB1TaBCOwFtjsSPTZglJiZl
+	PB/e3uOOXTXEy6QvWECy5AxNR/1FWxb4zNzSdy0QJRj96t49P+/hagZFeCQiteAdLEhVwxfo4Zf
+	+ZF7JK0qFZKuhIUuWWOvu3dMQa2mTV5f+2jzty2whYGh+lUSZ3uxHvGTXJHYV8eo7xl0NJy8dEn
+	r3gCMr/EzvtqidyzURsqSXqYw8o0LCZTck6Bq7K2MXn007jr9WHf17ThRCYn99qxw9XKx/ImviI
+	tbfOEzJfRX+gwG/dR/68EwzQYBvoAAGPbXixbqBcoIK0T0ZPb7pjAEPUwXahWD/iYUK676WprGW
+	NXMjHVtvifzjGmWVg2ZlM9mnMoj59HsbV7wle9w==
+X-Received: by 2002:a05:6512:a83:b0:5bf:ae8e:ef5f with SMTP id
+ 2adb3069b0e04-5bfb7170240mr682770e87.5.1792851238053; Sat, 24 Oct 2026
+ 07:13:58 -0700 (PDT)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -92,110 +99,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261023-submit-serport-write-wakeup-v1-v1-1-74e7311638a2@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWNSw7DIAxErxJ5XauQSln0KlUXEEzjfggykESKc
- vdCu3yjmTc7JBKmBNduB6GFE8+hgj51ME4mPAjZVYZe9YNW/QVTsR/OWGdxloyrcCZczYtKxEW
- jts5ppQZvvIEqiUKet9/B7f7nanjSmJu1NaxJhFZMGKcWcYgln/0s+OZQEhzHF6qWmPqkAAAA
-X-Change-ID: 20261023-submit-serport-write-wakeup-v1-1bdd1006fafa
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Jiri Slaby <jirislaby@kernel.org>, linux-serial@vger.kernel.org, 
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- James Hilliard <james.hilliard1@gmail.com>
-X-Mailer: b4 0.15.2
+From: Andrea Santin <asantin36@gmail.com>
+Date: Sat, 24 Oct 2026 16:13:46 +0200
+X-Gm-Features: AclHuK8rSSexd6wbySxEH-6RWmgS6VGKifIVY5kw2Vlwh1mO1AHs7PtfFqEvVSg
+Message-ID: <CAG3xgg_10jdDiT3iSSQmm+hHDWmgdaSe8=DW=ddC6cE7rE_MNw@mail.gmail.com>
+Subject: ACPI / HID: Lenovo Yoga 7 14AHP9 wakes immediately from s2idle via
+ GPIO 12 (WACF2200)
+To: linux-input@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-UART drivers can invoke the line discipline's write_wakeup() callback with
-their port lock held. serport forwards the notification directly to the
-serio driver. I-Force's callback can transmit a queued packet through
-serio_write(), which calls back into uart_write() and tries to acquire the
-same port lock. A notification after I-Force queues a packet but before it
-sets IFORCE_XMIT_RUNNING can therefore deadlock.
+Subject: ACPI / HID: Lenovo Yoga 7 14AHP9 wakes immediately from
+s2idle via GPIO 12 (WACF2200)
 
-Defer the serio notification to a work item, as required for transmitting
-from a line discipline's write-wakeup path. Keep the SERPORT_ACTIVE check
-and callback under serport->lock to serialize with serio close. Cancel the
-work before freeing serport in line-discipline close, where the TTY layer
-has already excluded further line-discipline callbacks.
+Hello,
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
----
- drivers/input/serio/serport.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+I would like to report an unexpected wakeup from suspend-to-idle on a
+Lenovo Yoga 7 2-in-1 14AHP9 (machine type 83DK).
 
-diff --git a/drivers/input/serio/serport.c b/drivers/input/serio/serport.c
-index cabe3876c168..24c0d0c0c9aa 100644
---- a/drivers/input/serio/serport.c
-+++ b/drivers/input/serio/serport.c
-@@ -18,6 +18,7 @@
- #include <linux/serio.h>
- #include <linux/tty.h>
- #include <linux/compat.h>
-+#include <linux/workqueue.h>
- 
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Input device TTY line discipline");
-@@ -33,6 +34,7 @@ struct serport {
- 	wait_queue_head_t wait;
- 	struct serio *serio;
- 	struct serio_device_id id;
-+	struct work_struct write_wakeup;
- 	spinlock_t lock;
- 	unsigned long flags;
- };
-@@ -66,6 +68,16 @@ static void serport_serio_close(struct serio *serio)
- 	clear_bit(SERPORT_ACTIVE, &serport->flags);
- }
- 
-+static void serport_write_wakeup(struct work_struct *work)
-+{
-+	struct serport *serport = container_of(work, struct serport, write_wakeup);
-+
-+	guard(spinlock_irqsave)(&serport->lock);
-+
-+	if (test_bit(SERPORT_ACTIVE, &serport->flags))
-+		serio_drv_write_wakeup(serport->serio);
-+}
-+
- /*
-  * serport_ldisc_open() is the routine that is called upon setting our line
-  * discipline on a tty. It prepares the serio struct.
-@@ -85,6 +97,7 @@ static int serport_ldisc_open(struct tty_struct *tty)
- 	serport->tty = tty;
- 	spin_lock_init(&serport->lock);
- 	init_waitqueue_head(&serport->wait);
-+	INIT_WORK(&serport->write_wakeup, serport_write_wakeup);
- 
- 	tty->disc_data = serport;
- 	tty->receive_room = 256;
-@@ -101,6 +114,7 @@ static void serport_ldisc_close(struct tty_struct *tty)
- {
- 	struct serport *serport = tty->disc_data;
- 
-+	cancel_work_sync(&serport->write_wakeup);
- 	kfree(serport);
- }
- 
-@@ -249,10 +263,8 @@ static void serport_ldisc_write_wakeup(struct tty_struct * tty)
- {
- 	struct serport *serport = tty->disc_data;
- 
--	guard(spinlock_irqsave)(&serport->lock);
--
--	if (test_bit(SERPORT_ACTIVE, &serport->flags))
--		serio_drv_write_wakeup(serport->serio);
-+	/* A serio driver may write to the TTY, so defer the callback. */
-+	schedule_work(&serport->write_wakeup);
- }
- 
- /*
+Hardware:
+- Model: LENOVO 83DK / LNVNB161216
+- CPU: AMD Ryzen 5 8640HS
+- BIOS: Lenovo P9CN33WW, version 1.33, dated 2026-03-27
+- Distribution: Arch Linux
+- Kernel: 7.2.11-arch1-1
+- Suspend mode: s2idle
 
----
-base-commit: 2e6f2e5799f328ca0879dad14d7f3709c7f7496b
-change-id: 20261023-submit-serport-write-wakeup-v1-1bdd1006fafa
+Problem:
+When closing the lid, the system enters s2idle but wakes up almost
+immediately. This causes the lid-close suspend behavior to fail
+intermittently.
+
+With the default wakeup configuration, the kernel log contains:
+- "PM: suspend entry (s2idle)"
+- "Setting wake for GPIO 12 to enable"
+- "PM: Triggering wakeup from IRQ 7"
+- "ACPI: PM: Wakeup unrelated to ACPI SCI"
+- Repeated "GPIO 12 is active" messages
+
+IRQ 7 is handled by pinctrl_amd.
+
+ACPI investigation:
+The DSDT declares the device \\_SB.I2CC.TPNL with HID "WACF2200".
+Linux binds it to the i2c_hid_acpi driver. Its ACPI _CRS declares a
+GPIO interrupt on pin 0x000C (GPIO 12), Level, ActiveLow,
+SharedAndWake. The device power/wakeup attribute is enabled by
+default.
+
+Workaround and test results:
+Disabling wakeup for this device with:
+
+  echo disabled | sudo tee /sys/bus/i2c/devices/i2c-WACF2200:00/power/wakeup
+
+prevents the immediate wakeup in my tests, while the touchscreen
+continues to work during normal operation. With this setting, the
+laptop remains suspended until I reopen the lid. In the captured log,
+timekeeping remained suspended for 43.838 seconds; the subsequent
+wakeup was associated with IRQ 9, an ACPI EC GPE, and a notification
+for LID0.
+
+I repeated the test several times with the same result. I also created
+a udev rule to apply the workaround at boot.
+
+Could you advise whether this should be addressed with a
+model-specific wakeup quirk for the Lenovo 83DK, or whether the
+ACPI/GPIO wakeup handling should be fixed more generally? I have not
+established the precise underlying cause, so I would appreciate
+guidance on the appropriate subsystem and possible fix.
+
+I can provide the relevant kernel logs and ACPI table excerpts if needed.
+
+To solve the problem, I used AI during the troubleshooting phase,
+since I don't have the necessary skills to do it myself.
 
 Best regards,
---  
-James Hilliard <james.hilliard1@gmail.com>
-
+Andrea

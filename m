@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.190
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.119
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792972388;
-	b=cgzaWlpFOdoCRW9QdpYVSwsGkoAIculPoJNiK3As5hIE9PZUCqD98IHAzRm3LGP9Ot4z
-	 gdiKapyW0YzSz+u2lCYXBGUqZrdpXWGGP9Tc/Zjtk2Vjbj9CtoWFyhy6NnTkZxR9jUegy
-	 DY/sZoLql0Hh7tm/MCpHZM+fiuomnSXTVMz3hEShe3ZWHGC0mJ+c6sNJphj1ZR9MlvJBu
-	 kMZGUZS4QLG19Vk5iv4IrFq1aNmKX5yznICObUvyHGmoYMLCRnqwRwBRRjBhRRF4/G4LF
-	 tZ5oa7IME/+PC+jA+Cp41DMuAG1yaKaMK1iFH8TUT061xF9xszM5/TZoSy5AqzprqKA==
+	t=1792972390;
+	b=HsraO7KhBuJwKP+iu0fGtk8OehtBEV8mMmZQgKKo3oMeOcDtu0AXYyExdABSLO6kSbok
+	 66p7SHpqMVKBMsMx1T63eAOudvsavXvQiDikGwyPPROR0oT1PveZ2QxZKGv03iw6E51/4
+	 9AXO+69dIxFfXx6tC2jbLXniE/fchH5IXQa0RZbdbAsrr6KSyiMxi9RmYOZ+f9OHpApQX
+	 uIOIKi3qsmAQQoWfspmqjIyu894FAkHWEhfF9JPeZbQBVD+JFBh/nNwTjXMWTjAu88lIL
+	 lo4nepWkzwEspHb+bI1V56u97vlGBxsalNy5dVHZWyMKGNkp06kyat18RkOcIo4Pemg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792972388;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792972390;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=D0NSCnSnHvibQ22wIHusrKeWbf7lWfSwMwU20JuWpHE=;
-	b=n9dMrgOf1276ARXAVWTQDsgKKLPFakeyacHPYqr0aMuen2Qot23dL+DeAVSdIZWk+WyF
-	 rh9b2iWg0uIoRPwijPOxHWxF1x8mIK7F8iZj6d6aQMAqXChM2xw1eZKjy6Yo4g76h9ukf
-	 Qla6c/Tv9v9l0euWA4WIT5TguWVEuwBXuBqP3L7zAaT6TC5/Xe62CKtSgFERp1v/pB3RT
-	 /Wxfha62oF7R+974Ny0Qoh821l3bYDg5yJAuBCd34f5T1GHv4IXCaajw0nKh4BbFvWnCU
-	 YhwAvo9QGL1H2AUH3qpAULGWmNbrfhlbyOoowERkOJi+SwGTwZ7KLdU1aKQ3ANVDiJQ==
+	bh=81aVzsRhIxyvHrijYkBfmYhJCAQ6H9fni/47H/TxpOM=;
+	b=wqCxpwHL4bsa5SFpJoUTCnkNDtQ85swzZ32iHIKGBXUwA92ZSdQCpOpC0UErnvsmBDeA
+	 mpoQPNHL4km4/e1UNSEtQuAYKFo9g9PjJbfOcjXuxqyExNgx9XEPxdUvHjf3hq24ELTQG
+	 L3/pHwLPAnj5VrAHbMQnk9t7HHK6Bo7S2nf+uztBk3LsUENLKhjue2I3ICCz9rm7tStm0
+	 Xn949tJgJhczayn6feMKyKgiocti40pVGaDBS6B9KpYOKRGsbyKEf3XDUHuXX/VzhDzfs
+	 1XIAYZmk5edVBFzfFwehpzhOxl/eVUEGB5UYrILGR6V5sRfcGQygHDDklG8xNzWK1pQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=UsnyeUYt;
-	arc=none smtp.remote-ip=91.218.175.190
-Received: from mta0.migadu.com (out-190.mta0.migadu.com [91.218.175.190])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b="kE/lKOK3";
+	arc=none smtp.remote-ip=95.215.58.119
+Received: from mta1.migadu.com (out-119.mta1.migadu.com [95.215.58.119])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E36E1606A31B
-	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 23:53:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E36E1606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ADF660A5BC2
+	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 23:53:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8ADF660A5BC2
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=UsnyeUYt
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=kE/lKOK3
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=SEK2m6Xjc2HWh6AeZPyBY2z+Q3T3l0R1Tz/h8bAgWuM=;
+DKIM-Signature: a=rsa-sha256; bh=dxlZbiIEkXKFcuOlPf4JXHYhH/NjTKA8GtaFDY2kMA8=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792972386; v=1; x=1793577186;
- b=UsnyeUYthlXyNSz87ciVSPgkhmBdYF9okDeia8UnUPJCbNAeZ3BrM0ZGW6mx6I7oPpxkr65n
- IdWwCe/NJJsaTNTFmuhbdG1apJqVJReaMaoHqq4pvBR997sFiVZhUK0ZvoKKfzeQgeJ3hUPKsk2
- eUqgFCYTWMdE4MBB+6zYJQHw=
+ t=1792972387; v=1; x=1793577187;
+ b=kE/lKOK3/AxhwZXZ2J5QBLdTNXdxwB+KlsJ6yWuXhcaZq1Kn2zXuShxHwHiai7/WBLF7cUuw
+ NtcvtKH8buMBLObNcLP03QnzT4sYSX7zYXW0U00sMTxt6xUBKgtmIkwuKA5NhqXIWsClbkXKe1v
+ ooqwMN+lj/EzOs7XhfPsG8Zk=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 9b8e9d147094b360;
-	Sun, 25 Oct 2026 23:53:06 +0000
-X-Mizu-Trace-ID: 9b8e9d147094b360
+Received: by smtp.migadu.com with ESMTPS id 4bf86ce714a13f90;
+	Sun, 25 Oct 2026 23:53:07 +0000
+X-Mizu-Trace-ID: 4bf86ce714a13f90
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -68,9 +68,9 @@ Cc: platform-driver-x86@vger.kernel.org,
 	"Hans de Goede" <hansg@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v11 14/18] HID: asus: expose XG Mobile identity and firmware information
-Date: Sun, 25 Oct 2026 23:52:27 +0000
-Message-ID: <20261025235232.129945-15-denis.benato@linux.dev>
+Subject: [PATCH v11 15/18] HID: asus: size ally gamepad commands from the HID report descriptor
+Date: Sun, 25 Oct 2026 23:52:28 +0000
+Message-ID: <20261025235232.129945-16-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261025235232.129945-1-denis.benato@linux.dev>
 References: <20261025235232.129945-1-denis.benato@linux.dev>
@@ -85,252 +85,357 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Denis Benato <benato.denis96@gmail.com>
+ally_alloc_cmd() hardcodes ROG_ALLY_REPORT_SIZE both for the command
+buffer allocation and, at every call site, for the transfer length, and
+mcu_request_version() uses it for the size of the MCU version response.
+The gamepad protocol speaks through the 0x5A feature report, whose
+transfer length is declared by the HID report descriptor of the device
+at hand, and the MCU version is read back from the 0x0d feature report
+the same way.
 
-The identity query also reports the mainboard part number, the serial
-number and the part number of the station, and the 0xCE 0x03 query
-answers with an 8-byte binary blob followed by "tag, length, data"
-fields where GEN holds the station generation and VER the firmware
-version.
+Size both from the report descriptor instead:
 
-Collect this information at probe time and expose it read-only on the
-HID device:
-
-  /sys/bus/hid/devices/<bus>:<addr>.<intf>/xgm_model             (PRO)
-  .../xgm_serial                                              (SN)
-  .../xgm_mainboard                                           (MB)
-  .../xgm_part_number                                         (PNUM)
-  .../xgm_firmware_version                                    (VER)
-  .../xgm_generation                                          (GEN)
+- ally_alloc_cmd() takes the HID device, resolves the length of the
+  0x5A feature report through asus_report_len() and returns it to the
+caller;
+- every caller sends and receives with the returned length instead of
+the hardcoded ROG_ALLY_REPORT_SIZE;
+- ally_set_button_mapping() declares the size of its mapping block
+(the length byte at buf[4] plus the four 11-byte entries, up to
+buf[48]) so a descriptor with a short 0x5A report is rejected by the
+fit check instead of being overflowed by the fixed-offset writes;
+- mcu_request_version() sizes the 0x0d response buffer with
+asus_report_len() and gives up when the device does not declare the
+report at all; ROG_ALLY_REPORT_SIZE has no users left and is removed.
 
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- drivers/hid/hid-asus.c | 176 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 174 insertions(+), 2 deletions(-)
+ drivers/hid/hid-asus.c | 103 +++++++++++++++++++++++++++--------------
+ 1 file changed, 69 insertions(+), 34 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index e751bf163434..f438cad13264 100644
+index f438cad13264..e444cad85b32 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -185,6 +185,8 @@ struct asus_xgm_info {
- 	char serial[ASUS_XGM_INFO_LEN];
- 	char model[ASUS_XGM_INFO_LEN];
- 	char part_number[ASUS_XGM_INFO_LEN];
-+	char firmware_version[ASUS_XGM_INFO_LEN];
-+	char generation[ASUS_XGM_INFO_LEN];
- };
+@@ -69,7 +69,6 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define ASUS_XGM_QUERY_VERSION 0x03
+ #define ASUS_XGM_INFO_LEN 32
  
- struct asus_touchpad_info {
-@@ -6204,6 +6206,148 @@ static bool asus_xgm_is_supported_model(const struct asus_xgm_info *info)
- 	return false;
+-#define ROG_ALLY_REPORT_SIZE 64
+ #define ROG_ALLY_X_MIN_MCU 313
+ #define ROG_ALLY_MIN_MCU 319
+ 
+@@ -943,28 +942,33 @@ static int ally_gamepad_send_receive_packet(struct ally_handheld *ally,
+ 
+ /**
+  * ally_alloc_cmd() - Construct a command buffer for the gamepad
++ * @hdev: HID device the command is built for
+  * @cmd: Command code to send
+  * @payload: Optional payload data to include in the command
+  * @payload_size: Size of the payload data
++ * @size: Where to store the length of the allocated buffer
+  *
+- * The constructed buffer is 64 bytes long, and it is the caller
+- * responsibility to free the buffer using kfree().
++ * The buffer is sized after the feature report the device declares for
++ * the gamepad commands, and it is the caller responsibility to free the
++ * buffer using kfree().
+  *
+  * Return: the newly allocated buffer containing the command, or NULL on
+  * allocation failure or if the payload would not fit in the report
+  */
+-static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
++static u8 *ally_alloc_cmd(struct hid_device *hdev, u8 cmd, const u8 *payload,
++			  u8 payload_size, size_t *size)
+ {
++	size_t hw_len = asus_report_len(hdev, HID_ALLY_SET_REPORT_ID);
+ 	u8 *hidbuf;
+ 
+ 	/*
+ 	 * The payload is written after the 4-byte command header:
+ 	 * reject one that would spill past the end of the report.
+ 	 */
+-	if (payload_size > ROG_ALLY_REPORT_SIZE - 4)
++	if (hw_len < 4 || payload_size > hw_len - 4)
+ 		return NULL;
+ 
+-	hidbuf = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
++	hidbuf = kzalloc(hw_len, GFP_KERNEL);
+ 
+ 	if (!hidbuf)
+ 		return NULL;
+@@ -977,6 +981,8 @@ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
+ 	if (payload_size > 0 && payload)
+ 		memcpy(&hidbuf[4], payload, payload_size);
+ 
++	*size = hw_len;
++
+ 	return hidbuf;
  }
  
-+/**
-+ * asus_xgm_tlv_str() - Extract a "tag, length, data" field
-+ * @dst: destination buffer
-+ * @dst_len: size of @dst, including the trailing NUL
-+ * @buf: answer of a version query
-+ * @len: size of @buf
-+ * @tag: three characters tag to look for
-+ *
-+ * The version query answers with an 8-byte binary blob followed by
-+ * "tag, length, data" fields, where GEN holds the station generation and
-+ * VER the firmware version.
-+ *
-+ * Return: 0 on success, -ENOENT if @tag is missing or its data does not
-+ * fit @dst
-+ */
-+static int asus_xgm_tlv_str(char *dst, size_t dst_len, const u8 *buf,
-+			    size_t len, const char *tag)
-+{
-+	size_t i;
-+	u8 n;
-+
-+	for (i = 3; i + 4 <= len; i++) {
-+		if (memcmp(buf + i, tag, 3))
-+			continue;
-+
-+		n = buf[i + 3];
-+		if (i + 4 + n > len || n >= dst_len)
-+			return -ENOENT;
-+
-+		memcpy(dst, buf + i + 4, n);
-+		dst[n] = '\0';
-+
-+		return 0;
-+	}
-+
-+	return -ENOENT;
-+}
-+
-+/**
-+ * asus_xgm_get_version() - Query the firmware version of a station
-+ * @hdev: HID device
-+ * @info: identity structure whose generation and firmware_version fields
-+ * get filled in
-+ *
-+ * Return: 0 on success, negative errno on failure
-+ */
-+static int asus_xgm_get_version(struct hid_device *hdev,
-+				struct asus_xgm_info *info)
-+{
-+	size_t len = asus_report_len(hdev, FEATURE_KBD_LED_REPORT_ID2);
-+	int ret;
-+
-+	if (!len)
+@@ -992,15 +998,17 @@ static bool ally_check_capability(struct hid_device *hdev, struct ally_handheld
+ 				  enum ally_command_codes check_cmd)
+ {
+ 	u8 payload[] = { 0x00 };
++	size_t buf_len;
+ 	int ret;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(check_cmd, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, check_cmd, payload,
++					       sizeof(payload), &buf_len);
+ 	if (!buf) {
+ 		hid_err(hdev, "Failed to allocate buffer for capability check.\n");
+ 		return false;
+ 	}
+ 
+-	ret = ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_receive_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to check capability 0x%02x: %d\n", check_cmd, ret);
+ 		return false;
+@@ -1043,16 +1051,18 @@ static int ally_set_xbox_controller(struct hid_device *hdev,
+ 				    struct ally_config *cfg, bool enabled)
+ {
+ 	u8 payload[] = { enabled ? 0x01 : 0x00 };
++	size_t buf_len;
+ 	int ret;
+ 
+ 	if (!cfg || !cfg->xbox_controller_support)
+ 		return -EOPNOTSUPP;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_XBOX_CONTROLLER, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_XBOX_CONTROLLER,
++					       payload, sizeof(payload), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to set Xbox controller mode: %d\n", ret);
+ 		return ret;
+@@ -1160,6 +1170,7 @@ static DEVICE_ATTR_RW(xbox_controller);
+ static int ally_set_gamepad_mode(struct ally_handheld *ally, struct hid_device *hdev, u8 mode)
+ {
+ 	u8 payload[] = { mode };
++	size_t buf_len;
+ 	int ret;
+ 
+ 	if (mode < ALLY_GAMEPAD_MODE_GAMEPAD ||
+@@ -1168,11 +1179,12 @@ static int ally_set_gamepad_mode(struct ally_handheld *ally, struct hid_device *
+ 		return -EINVAL;
+ 	}
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_GAMEPAD_MODE, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_GAMEPAD_MODE,
++					       payload, sizeof(payload), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to set gamepad mode: %d\n", ret);
+ 		return ret;
+@@ -1609,13 +1621,15 @@ static int ally_set_vibration_intensity(struct ally_handheld *ally,
+ 					struct hid_device *hdev, u8 left, u8 right)
+ {
+ 	const u8 data[] = { left, right };
++	size_t buf_len;
+ 	int ret;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_VIBRATION_INTENSITY, data, sizeof(data));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_VIBRATION_INTENSITY,
++					       data, sizeof(data), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to set vibration intensity: %d\n", ret);
+ 		return ret;
+@@ -1777,13 +1791,15 @@ static int ally_set_joystick_thresholds(struct ally_handheld *ally,
+ 					u8 left_it, u8 left_ot, u8 right_it, u8 right_ot)
+ {
+ 	const u8 payload[] = { left_it, left_ot, right_it, right_ot };
++	size_t buf_len;
+ 	int ret;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_JOYSTICK_DEADZONE, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_JOYSTICK_DEADZONE,
++					       payload, sizeof(payload), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to set joystick ranges: %d\n", ret);
+ 		return ret;
+@@ -2125,6 +2141,7 @@ static int ally_set_anti_deadzone(struct ally_handheld *ally,
+ 				  u8 left_adz, u8 right_adz)
+ {
+ 	const u8 payload[] = { left_adz, right_adz };
++	size_t buf_len;
+ 	int ret;
+ 
+ 	if (!cfg->anti_deadzone_support) {
+@@ -2132,11 +2149,12 @@ static int ally_set_anti_deadzone(struct ally_handheld *ally,
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_ANTI_DEADZONE, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_ANTI_DEADZONE,
++					       payload, sizeof(payload), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to set anti-deadzone values: %d\n", ret);
+ 		return ret;
+@@ -2320,13 +2338,15 @@ static int ally_set_trigger_ranges(struct ally_handheld *ally,
+ 				   u8 left_it, u8 left_ot, u8 right_it, u8 right_ot)
+ {
+ 	const u8 payload[] = { left_it, left_ot, right_it, right_ot };
++	size_t buf_len;
+ 	int ret;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_TRIGGER_RANGE, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_TRIGGER_RANGE,
++					       payload, sizeof(payload), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to set trigger ranges: %d\n", ret);
+ 		return ret;
+@@ -2676,13 +2696,15 @@ static int ally_set_joystick_resp_curve(struct ally_handheld *ally,
+ 		curve->entry_3.move, curve->entry_3.resp,
+ 		curve->entry_4.move, curve->entry_4.resp
+ 	};
++	size_t buf_len;
+ 	int ret;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_RESP_CURVE, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_RESP_CURVE,
++					       payload, sizeof(payload), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -3039,13 +3061,15 @@ static int ally_set_turbo_params(struct ally_handheld *ally,
+ 		turbo->btn_m1.turbo,
+ 		turbo->btn_m1.toggle,
+ 	};
++	size_t buf_len;
+ 	int ret;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_TURBO_PARAMS, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_TURBO_PARAMS,
++					       payload, sizeof(payload), &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	ret = ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Failed to set turbo parameters: %d\n", ret);
+ 		return ret;
+@@ -3318,12 +3342,18 @@ static int ally_set_button_mapping(struct hid_device *hdev, struct ally_handheld
+ 	 */
+ 	u8 macro_bytes[11] = {0};
+ 	u8 btn_bytes[11] = {0};
++	size_t buf_len;
+ 
+ 	if (!mapping || !mapping->first.remap || !mapping->first.macro ||
+ 	    !mapping->second.remap || !mapping->second.macro)
+ 		return -EINVAL;
+ 
+-	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_MAPPING, NULL, 0);
++	/*
++	 * The mapping block spans buf[4]..buf[48]: give ally_alloc_cmd() its
++	 * size so the fit check protects the fixed-offset writes below.
++	 */
++	u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_SET_MAPPING, NULL,
++					       1 + 0x2C, &buf_len);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+@@ -3439,7 +3469,7 @@ static int ally_set_button_mapping(struct hid_device *hdev, struct ally_handheld
+ 		memcpy(&buf[38], macro_bytes, 11);
+ 	}
+ 
+-	return ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++	return ally_gamepad_send_packet(ally, hdev, buf, buf_len);
+ }
+ 
+ /**
+@@ -4156,14 +4186,16 @@ static void ally_config_remove(struct hid_device *hdev, struct ally_config *cfg)
+ static int ally_gamepad_check_ready(struct ally_handheld *ally, struct hid_device *hdev)
+ {
+ 	u8 payload[] = { 0x00 };
++	size_t buf_len;
+ 	int ret;
+ 
+ 	for (int i = 0; i < HID_ALLY_READY_MAX_TRIES; i++) {
+-		u8 *buf __free(kfree) = ally_alloc_cmd(CMD_CHECK_READY, payload, sizeof(payload));
++		u8 *buf __free(kfree) = ally_alloc_cmd(hdev, CMD_CHECK_READY,
++						       payload, sizeof(payload), &buf_len);
+ 		if (!buf)
+ 			return -ENOMEM;
+ 
+-		ret = ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
++		ret = ally_gamepad_send_receive_packet(ally, hdev, buf, buf_len);
+ 		if (ret < 0) {
+ 			hid_dbg(hdev, "ROG Ally check %d/%d failed: %d\n", i,
+ 				HID_ALLY_READY_MAX_TRIES, ret);
+@@ -5796,10 +5828,14 @@ static int mcu_parse_version_string(const u8 *response, size_t response_size)
+ 
+ static int mcu_request_version(struct hid_device *hdev)
+ {
+-	u8 *response __free(kfree) = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
++	size_t hw_len = asus_report_len(hdev, FEATURE_REPORT_ID);
+ 	const u8 request[] = { 0x5a, 0x05, 0x03, 0x31, 0x00, 0x20 };
+ 	int ret;
+ 
++	if (!hw_len)
 +		return -EINVAL;
 +
-+	u8 *buf __free(kfree) = kzalloc(len, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	ret = asus_xgm_query(hdev, ASUS_XGM_QUERY_VERSION, buf, len);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (len < 4 || buf[1] != ASUS_XGM_CMD_QUERY ||
-+	    buf[2] != ASUS_XGM_QUERY_VERSION)
-+		return -ENODEV;
-+
-+	asus_xgm_tlv_str(info->generation, sizeof(info->generation),
-+			 buf, len, "GEN");
-+	asus_xgm_tlv_str(info->firmware_version, sizeof(info->firmware_version),
-+			 buf, len, "VER");
-+
-+	return 0;
-+}
-+
-+/**
-+ * asus_xgm_drvdata() - Get the drvdata behind an XG Mobile attribute
-+ * @dev: HID device the attribute is attached to
-+ *
-+ * Return: the asus_drvdata of @dev
-+ */
-+static struct asus_drvdata *asus_xgm_drvdata(struct device *dev)
-+{
-+	return hid_get_drvdata(to_hid_device(dev));
-+}
-+
-+static ssize_t xgm_model_show(struct device *dev,
-+			      struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->model);
-+}
-+static DEVICE_ATTR_RO(xgm_model);
-+
-+static ssize_t xgm_serial_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->serial);
-+}
-+static DEVICE_ATTR_RO(xgm_serial);
-+
-+static ssize_t xgm_mainboard_show(struct device *dev,
-+				  struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->mainboard);
-+}
-+static DEVICE_ATTR_RO(xgm_mainboard);
-+
-+static ssize_t xgm_part_number_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->part_number);
-+}
-+static DEVICE_ATTR_RO(xgm_part_number);
-+
-+static ssize_t xgm_firmware_version_show(struct device *dev,
-+					 struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->firmware_version);
-+}
-+static DEVICE_ATTR_RO(xgm_firmware_version);
-+
-+static ssize_t xgm_generation_show(struct device *dev,
-+				   struct device_attribute *attr, char *buf)
-+{
-+	return sysfs_emit(buf, "%s\n", asus_xgm_drvdata(dev)->xgm_info->generation);
-+}
-+static DEVICE_ATTR_RO(xgm_generation);
-+
-+static struct attribute *asus_xgm_attrs[] = {
-+	&dev_attr_xgm_model.attr,
-+	&dev_attr_xgm_serial.attr,
-+	&dev_attr_xgm_mainboard.attr,
-+	&dev_attr_xgm_part_number.attr,
-+	&dev_attr_xgm_firmware_version.attr,
-+	&dev_attr_xgm_generation.attr,
-+	NULL
-+};
-+
-+static const struct attribute_group asus_xgm_attr_group = {
-+	.attrs = asus_xgm_attrs,
-+};
-+
- static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
- {
- 	const u8 buf[] = { FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00 };
-@@ -6499,9 +6643,29 @@ static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
++	u8 *response __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
+ 	if (!response)
+ 		return -ENOMEM;
  
- 	drvdata->xgm_info = info;
+@@ -5807,17 +5843,16 @@ static int mcu_request_version(struct hid_device *hdev)
+ 	if (ret < 0)
+ 		return ret;
  
-+	ret = asus_xgm_get_version(hdev, info);
-+	if (ret < 0)
-+		hid_warn(hdev, "Failed to query XG Mobile version: %d\n", ret);
-+	else
-+		hid_info(hdev, "XG Mobile: firmware %s, generation %s\n",
-+			 info->firmware_version, info->generation);
-+
-+	/*
-+	 * The attribute group is not devm-managed: a creation failure is
-+	 * fatal and unwound through asus_xgm_init_err, while on the unbind
-+	 * path the removal is gated on xgm_info exactly like the creation.
-+	 */
-+	ret = sysfs_create_group(&hdev->dev.kobj, &asus_xgm_attr_group);
-+	if (ret) {
-+		hid_err(hdev, "Failed to create XG Mobile attributes: %d\n", ret);
-+		goto asus_xgm_init_err;
-+	}
-+
- 	drvdata->xgm_led = devm_kzalloc(&hdev->dev, sizeof(*drvdata->xgm_led), GFP_KERNEL);
--	if (drvdata->xgm_led == NULL)
--		return -ENOMEM;
-+	if (!drvdata->xgm_led) {
-+		ret = -ENOMEM;
-+		goto asus_xgm_init_err;
-+	}
+-	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response,
+-				ROG_ALLY_REPORT_SIZE, HID_FEATURE_REPORT,
+-				HID_REQ_GET_REPORT);
++	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response, hw_len,
++				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+ 	if (ret < 0)
+ 		return ret;
  
- 	name = devm_kasprintf(&hdev->dev, GFP_KERNEL, "asus:xgm-%s:led",
- 			      info->model);
-@@ -6533,6 +6697,8 @@ static int asus_xgm_init(struct hid_device *hdev, struct asus_drvdata *drvdata)
+-	ret = mcu_parse_version_string(response, ROG_ALLY_REPORT_SIZE);
++	ret = mcu_parse_version_string(response, hw_len);
+ 	if (ret < 0) {
+ 		pr_err("Failed to parse MCU version: %d\n", ret);
+ 		print_hex_dump(KERN_ERR, "MCU: ", DUMP_PREFIX_NONE,
+-			      16, 1, response, ROG_ALLY_REPORT_SIZE, false);
++			       16, 1, response, hw_len, false);
+ 	}
  
- 	return 0;
- asus_xgm_init_err:
-+	sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
-+	drvdata->xgm_info = NULL;
- 	drvdata->xgm_led = NULL;
  	return ret;
- }
-@@ -6750,6 +6916,9 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (drvdata->listener.brightness_set)
- 		asus_hid_unregister_listener(&drvdata->listener);
- 
-+	if (drvdata->xgm_info)
-+		sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
-+
- 	if (drvdata->xgm_led)
- 		devm_led_classdev_unregister(&hdev->dev, &drvdata->xgm_led->cdev);
- 
-@@ -6768,6 +6937,9 @@ static void asus_remove(struct hid_device *hdev)
- 	if (drvdata->listener.brightness_set)
- 		asus_hid_unregister_listener(&drvdata->listener);
- 
-+	if (drvdata->xgm_info)
-+		sysfs_remove_group(&hdev->dev.kobj, &asus_xgm_attr_group);
-+
- 	if (drvdata->xgm_led)
- 		devm_led_classdev_unregister(&hdev->dev, &drvdata->xgm_led->cdev);
- 
 -- 
 2.47.3
 

@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.163
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.83
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792972378;
-	b=S6+3xzwum8oDA3Looh+vOqI9xqGIV5chh658iTEJfqkjZRnAp1DpeTKuRDfM1Xrgb80h
-	 LjI0Ud+uJ0XMhx2mK2CSuC1l6mWMXc9/aO9h3T4RlyBuFEsakEQJKYB71eCt0iLZS4TH2
-	 GnogZCXMJUwrenYUzFH6R2Ig9WUxVxdbDB8hEATUxEhkFW4h9oqr8RCsGCevPMRDqZXvw
-	 z13SDysz836mtPik3nji4ZO8J13ExSwbFFKmFCwJwDfcT+bPjrp+OcBXD7ZsGmzuH8gyw
-	 PzncryT2JEhOODlUpohDuDjRoEpW+2E6bH8aLbyYmDo4myQSIdTIFqE+6gWSk4qFt+w==
+	t=1792972380;
+	b=oTEefma/WZGZ8dDQdeytmXrVmIpG6oWBDgJ8aEaPpYt0R6nUugkFANMB3UN7TUoe+WFZ
+	 WBVNeG7xIWzvb2fUic3gDACkOVAvIWwAADoIAsFrABMZv91asYoL5mM7lQyT0Cwy6Sd5h
+	 o5nps9Cc1m1LzkKy2CcTTus4hoObiqUr6SANq6TjsojmLEbmwuTCpf3IlPQLm8o9kglW2
+	 ysHSkUTshOxqZZKAdKwH4uhvLpcc/GRoGk5B3Q+K564UbIiukC0uieboFrGFjADOe6kOy
+	 CFw2GLev/JjRvkVa0ZuKIRVGc4ExoQvHraYIoJotpHkoUAxmhjvgVoMLq/I75MyqHrg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792972378;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792972380;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=2sQ9RggWB/FTjatjDyMh4VbIMnJ141FdxXeEeGqLh5c=;
-	b=djCkQy9Ti0cDp2NdkNd0hlOlc+COoJLW5kPvdfAJI1ObMfAHBMXk+gIxvLy2ae1WRR0j
-	 MS19ETcANIaNmR3TUfnueIiw0iB4Lw9691XHcxFyBVIAIo6DqLm/tjacQFoWHMnx+s/F6
-	 6dXgfIBSIAEhwoA4CaqgYTvCvGDWKEDZrEA3VA9fRfds1LesUsT3Xv/c+kNDbJUtHAhtO
-	 TwCeXdINDpfTpnazmwriZoFxvXbn7iFnlKU24tsQdpX9WVKXHMbk9UdQjJ0gWjhyebafU
-	 RJ/BY+h9DHWufe3huUPv6hNv26vsysTniV/NT7dGCIbzYER1NL9OUAyHc8ZebaK06Mw==
+	bh=4XcvdXE7iu06lf+EzKfEwW1LLRyCvQ5Rn1hX8VQxLwM=;
+	b=wN72STAxosnz20p3Myve0AyAJDvh0Iy4yIi3rutfVgK2ZpqB1GJb2eL1EsUwtEMSOPNs
+	 Yq7pCmnDi4wMcvWvTpmMIWjWvBOMAXByBsMf8eJu1P4JSJgECnju03M1aUnJf1SclYC/q
+	 narfL1hy8qwq9aHDW019VGGvJKlgfh/Kz0LOu+ocKdO75AInTH6AhETb78rgBlUTanbkC
+	 AFu7DFvFn7R4BXhqo7vcUNf7F/OQixd9Mue+TPxa00qXuiWmpXR6N/gHUThMcfE7lUbPN
+	 4PX+UHYAkwkkTczG2PY0UdqJr+MjFFWktKSrMuJKPOXF8ZGeh97Bm25v7EWjONPCM1Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=OJw80wfJ;
-	arc=none smtp.remote-ip=91.218.175.163
-Received: from mta0.migadu.com (out-163.mta0.migadu.com [91.218.175.163])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=VzLHFwgL;
+	arc=none smtp.remote-ip=95.215.58.83
+Received: from mta1.migadu.com (out-83.mta1.migadu.com [95.215.58.83])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B450460A2623
-	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 23:52:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B450460A2623
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618B360A3810
+	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 23:52:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 618B360A3810
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=OJw80wfJ
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=VzLHFwgL
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=agJX0UORfZ7K87twI6B8Dr10FbZXl+OJkbodJzQIlEo=;
+DKIM-Signature: a=rsa-sha256; bh=yxGeeLhI8coWqq8KUgnwdicWuxUg8DPJ1hLJ6UkbIBk=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792972374; v=1; x=1793577174;
- b=OJw80wfJ/RAhmPnQEhekS1gpQgciFqi7blNHoFLA1mtjOcioJEFMSGL0IOg/sd7qVNtoPo0I
- eAN93l1atCluszawVPgWRsk/0/kVOyeZZIcB5xDXQ9LmaQkhSuB9ytdA4fx3kQBnmYnWnOaeQLP
- 8oxj0q5WPMQ6oZ19M5+baOsM=
+ t=1792972377; v=1; x=1793577177;
+ b=VzLHFwgLzA9AdAiicPgjA655LNZPyYYQx65EtDT9DIA9JuNYQF33T6do3Kwxbj2Fa0/jFwqz
+ ZqMHeS09sSWqMWGM0QX0kLeDi0/b48wV4MdtSQy70X9MzcZaimC4lCh2nwMsVuVytDKaKkk+pQR
+ nycRPqM0A7VsH7NruwZ6434s=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id fea364409dc63dba;
-	Sun, 25 Oct 2026 23:52:54 +0000
-X-Mizu-Trace-ID: fea364409dc63dba
+Received: by smtp.migadu.com with ESMTPS id caf90732ca1a0a7c;
+	Sun, 25 Oct 2026 23:52:57 +0000
+X-Mizu-Trace-ID: caf90732ca1a0a7c
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -68,9 +68,9 @@ Cc: platform-driver-x86@vger.kernel.org,
 	"Hans de Goede" <hansg@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v11 09/18] HID: asus: add support for gamepad mode
-Date: Sun, 25 Oct 2026 23:52:22 +0000
-Message-ID: <20261025235232.129945-10-denis.benato@linux.dev>
+Subject: [PATCH v11 10/18] HID: asus: add support for turbo buttons
+Date: Sun, 25 Oct 2026 23:52:23 +0000
+Message-ID: <20261025235232.129945-11-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261025235232.129945-1-denis.benato@linux.dev>
 References: <20261025235232.129945-1-denis.benato@linux.dev>
@@ -85,221 +85,541 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ROG Ally devices can emulate either a mouse+keyboard (desktop mode)
-or an gamepad device (xbox360 controller in ROG ally and a custom
-DInput device on newer models): add support for switching the current
-controller mode.
+ROG ally devices supports a feature called turbo buttons that allows
+the user to quickly toggle button state by keeping a button pressed,
+therefore allow userspace to configure the feature by exposing
+relevant sysfs attributes.
 
-Signed-off-by: Luke Jones <luke@ljones.dev>
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
+Signed-off-by: Khamunetri Clark <khamunetriclark@gmail.com>
+Signed-off-by: Luke Jones <luke@ljones.dev>
+Signed-off-by: Jonathan LoBue <jlobue10@gmail.com>
 ---
- drivers/hid/hid-asus.c | 158 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 157 insertions(+), 1 deletion(-)
+ drivers/hid/hid-asus.c | 463 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 463 insertions(+)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index a3a21a1493aa..fae5f36a9fa6 100644
+index fae5f36a9fa6..ed95b2cdec81 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -198,6 +198,11 @@ struct ally_joystick_resp_curve {
+@@ -198,6 +198,99 @@ struct ally_joystick_resp_curve {
  	struct ally_joystick_resp_curve_param entry_4;
  } __packed;
  
-+enum ally_gamepad_mode_index {
-+	ALLY_GAMEPAD_MODE_GAMEPAD = 0x01,
-+	ALLY_GAMEPAD_MODE_KEYBOARD = 0x02,
++/* Button identifiers for the turbo attribute system */
++enum ally_button_id {
++	ALLY_BTN_A,
++	ALLY_BTN_B,
++	ALLY_BTN_X,
++	ALLY_BTN_Y,
++	ALLY_BTN_LB,
++	ALLY_BTN_RB,
++	ALLY_BTN_DU,
++	ALLY_BTN_DD,
++	ALLY_BTN_DL,
++	ALLY_BTN_DR,
++	ALLY_BTN_J0B,
++	ALLY_BTN_J1B,
++	ALLY_BTN_MENU,
++	ALLY_BTN_VIEW,
++	ALLY_BTN_M1,
++	ALLY_BTN_M2,
++	ALLY_BTN_MAX
 +};
 +
- struct ally_config {
- 	/* Must be locked if the data is being changed */
- 	struct mutex config_mutex;
-@@ -411,6 +416,15 @@ enum ally_command_codes {
- /* XInput rumble magnitudes use the hardware's 0..100 intensity range. */
- #define ALLY_FF_MAX_INTENSITY 100
++/* Names for the button directories in sysfs */
++static const char *const ally_button_names[ALLY_BTN_MAX] = {
++	[ALLY_BTN_A] = "btn_a",
++	[ALLY_BTN_B] = "btn_b",
++	[ALLY_BTN_X] = "btn_x",
++	[ALLY_BTN_Y] = "btn_y",
++	[ALLY_BTN_LB] = "btn_lb",
++	[ALLY_BTN_RB] = "btn_rb",
++	[ALLY_BTN_DU] = "dpad_up",
++	[ALLY_BTN_DD] = "dpad_down",
++	[ALLY_BTN_DL] = "dpad_left",
++	[ALLY_BTN_DR] = "dpad_right",
++	[ALLY_BTN_J0B] = "btn_l3",
++	[ALLY_BTN_J1B] = "btn_r3",
++	[ALLY_BTN_MENU] = "btn_menu",
++	[ALLY_BTN_VIEW] = "btn_view",
++	[ALLY_BTN_M1] = "btn_m1",
++	[ALLY_BTN_M2] = "btn_m2",
++};
++
++/*
++ * Button turbo parameters structure
++ * Each button can have:
++ * - turbo: Turbo press interval in multiples of 50ms (0 = disabled, 1-20 = 50ms-1000ms)
++ * - toggle: Toggle interval (0 = disabled)
++ */
++struct ally_btn_turbo_params {
++	u8 turbo;
++	u8 toggle;
++} __packed;
++
++#define ALLY_TURBO_PERIOD_MIN 0
++#define ALLY_TURBO_PERIOD_MAX 20
++#define ALLY_TOGGLE_PERIOD_MIN 0
++#define ALLY_TOGGLE_PERIOD_MAX 255
++
++/* Collection of all button turbo settings */
++struct ally_turbo_config {
++	struct ally_btn_turbo_params btn_du;
++	struct ally_btn_turbo_params btn_dd;
++	struct ally_btn_turbo_params btn_dl;
++	struct ally_btn_turbo_params btn_dr;
++	struct ally_btn_turbo_params btn_j0b;
++	struct ally_btn_turbo_params btn_j1b;
++	struct ally_btn_turbo_params btn_lb;
++	struct ally_btn_turbo_params btn_rb;
++	struct ally_btn_turbo_params btn_a;
++	struct ally_btn_turbo_params btn_b;
++	struct ally_btn_turbo_params btn_x;
++	struct ally_btn_turbo_params btn_y;
++	struct ally_btn_turbo_params btn_view;
++	struct ally_btn_turbo_params btn_menu;
++	struct ally_btn_turbo_params btn_m2;
++	struct ally_btn_turbo_params btn_m1;
++};
++
++struct ally_btn_sysfs_entry {
++	struct attribute_group group;
++	struct attribute *attrs[5]; /* turbo_period + toggle_period + ranges + NULL */
++	/*
++	 * The entries are created while hid_asus_ally_probe() is still running,
++	 * before asus_probe() publishes drvdata->rog_ally: carrying the shared
++	 * state pointer here avoids dereferencing that not-yet-assigned field.
++	 */
++	struct ally_handheld *ally;
++	struct ally_config *cfg;
++	struct hid_device *hdev;
++	enum ally_button_id btn;
++	struct device_attribute attr_turbo_period;
++	struct device_attribute attr_toggle_period;
++};
++
+ enum ally_gamepad_mode_index {
+ 	ALLY_GAMEPAD_MODE_GAMEPAD = 0x01,
+ 	ALLY_GAMEPAD_MODE_KEYBOARD = 0x02,
+@@ -236,6 +329,9 @@ struct ally_config {
+ 	u8 vibration_intensity_left;
+ 	u8 vibration_intensity_right;
  
-+static const char *const ally_gamepad_mode_text[] = {
-+	"gamepad", "desktop"
-+};
++	struct ally_turbo_config turbo;
++	struct ally_btn_sysfs_entry *button_entries;
 +
-+static const u8 ally_gamepad_mode[] = {
-+	ALLY_GAMEPAD_MODE_GAMEPAD,
-+	ALLY_GAMEPAD_MODE_KEYBOARD
-+};
-+
- static const u8 ALLY_FORCE_FEEDBACK_OFF[] = {
- 	0x0D, 0x0F, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB
+ 	struct ally_joystick_resp_curve left_curve;
+ 	struct ally_joystick_resp_curve right_curve;
  };
-@@ -930,6 +944,137 @@ static ssize_t xbox_controller_store(struct device *dev,
- 
- static DEVICE_ATTR_RW(xbox_controller);
+@@ -2467,6 +2563,343 @@ static const struct attribute_group *const ally_cal_attr_groups[] = {
+ 	&ally_right_trigger_group,
+ };
  
 +/**
-+ * ally_set_gamepad_mode() - Set the gamepad operating mode
++ * ally_set_turbo_params() - Set turbo parameters for all buttons
 + * @ally: ally handheld structure
 + * @hdev: HID device
-+ * @mode: gamepad mode to set
++ * @cfg: ally config structure
++ *
++ * The payload mirrors the whole per-button turbo configuration, so the
++ * caller must hold cfg->config_mutex: building it locklessly could send a
++ * mix of parameters from concurrent sysfs writes to the hardware.
 + *
 + * Return: 0 on success, negative errno on failure
 + */
-+static int ally_set_gamepad_mode(struct ally_handheld *ally, struct hid_device *hdev, u8 mode)
++static int ally_set_turbo_params(struct ally_handheld *ally,
++				 struct hid_device *hdev,
++				 struct ally_config *cfg)
 +{
-+	u8 payload[] = { mode };
++	struct ally_turbo_config *turbo = &cfg->turbo;
++	const u8 payload[] = {
++		turbo->btn_du.turbo,
++		turbo->btn_du.toggle,
++		turbo->btn_dd.turbo,
++		turbo->btn_dd.toggle,
++		turbo->btn_dl.turbo,
++		turbo->btn_dl.toggle,
++		turbo->btn_dr.turbo,
++		turbo->btn_dr.toggle,
++		turbo->btn_j0b.turbo,
++		turbo->btn_j0b.toggle,
++		turbo->btn_j1b.turbo,
++		turbo->btn_j1b.toggle,
++		turbo->btn_lb.turbo,
++		turbo->btn_lb.toggle,
++		turbo->btn_rb.turbo,
++		turbo->btn_rb.toggle,
++		turbo->btn_a.turbo,
++		turbo->btn_a.toggle,
++		turbo->btn_b.turbo,
++		turbo->btn_b.toggle,
++		turbo->btn_x.turbo,
++		turbo->btn_x.toggle,
++		turbo->btn_y.turbo,
++		turbo->btn_y.toggle,
++		turbo->btn_view.turbo,
++		turbo->btn_view.toggle,
++		turbo->btn_menu.turbo,
++		turbo->btn_menu.toggle,
++		turbo->btn_m2.turbo,
++		turbo->btn_m2.toggle,
++		turbo->btn_m1.turbo,
++		turbo->btn_m1.toggle,
++	};
 +	int ret;
 +
-+	if (mode < ALLY_GAMEPAD_MODE_GAMEPAD ||
-+	    mode > ALLY_GAMEPAD_MODE_KEYBOARD) {
-+		hid_err(hdev, "Invalid gamepad mode: %u\n", mode);
-+		return -EINVAL;
-+	}
-+
-+	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_GAMEPAD_MODE, payload, sizeof(payload));
++	u8 *buf __free(kfree) = ally_alloc_cmd(CMD_SET_TURBO_PARAMS, payload, sizeof(payload));
 +	if (!buf)
 +		return -ENOMEM;
 +
 +	ret = ally_gamepad_send_packet(ally, hdev, buf, ROG_ALLY_REPORT_SIZE);
 +	if (ret < 0) {
-+		hid_err(hdev, "Failed to set gamepad mode: %d\n", ret);
++		hid_err(hdev, "Failed to set turbo parameters: %d\n", ret);
 +		return ret;
 +	}
 +
 +	return 0;
 +}
 +
-+static ssize_t gamepad_mode_show(struct device *dev, struct device_attribute *attr, char *buf)
++static struct ally_btn_turbo_params *ally_btn_get_turbo_params(struct ally_config *cfg,
++							       enum ally_button_id btn)
 +{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
-+	u8 mode_byte;
-+	int i;
-+
-+	if (!ally)
-+		return -ENODEV;
-+
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	mode_byte = cfg->gamepad_mode;
-+
-+	for (i = 0; i < ARRAY_SIZE(ally_gamepad_mode); i++) {
-+		if (ally_gamepad_mode[i] == mode_byte)
-+			return sysfs_emit(buf, "%s\n", ally_gamepad_mode_text[i]);
++	switch (btn) {
++	case ALLY_BTN_DU: return &cfg->turbo.btn_du;
++	case ALLY_BTN_DD: return &cfg->turbo.btn_dd;
++	case ALLY_BTN_DL: return &cfg->turbo.btn_dl;
++	case ALLY_BTN_DR: return &cfg->turbo.btn_dr;
++	case ALLY_BTN_J0B: return &cfg->turbo.btn_j0b;
++	case ALLY_BTN_J1B: return &cfg->turbo.btn_j1b;
++	case ALLY_BTN_LB: return &cfg->turbo.btn_lb;
++	case ALLY_BTN_RB: return &cfg->turbo.btn_rb;
++	case ALLY_BTN_A: return &cfg->turbo.btn_a;
++	case ALLY_BTN_B: return &cfg->turbo.btn_b;
++	case ALLY_BTN_X: return &cfg->turbo.btn_x;
++	case ALLY_BTN_Y: return &cfg->turbo.btn_y;
++	case ALLY_BTN_VIEW: return &cfg->turbo.btn_view;
++	case ALLY_BTN_MENU: return &cfg->turbo.btn_menu;
++	case ALLY_BTN_M2: return &cfg->turbo.btn_m2;
++	case ALLY_BTN_M1: return &cfg->turbo.btn_m1;
++	default: return NULL;
 +	}
-+
-+	/*
-+	 * The recorded mode only comes from the table above: an unknown
-+	 * byte means memory corruption, not a userspace-visible value.
-+	 */
-+	return -EIO;
 +}
 +
-+static ssize_t gamepad_mode_store(struct device *dev, struct device_attribute *attr,
-+				  const char *buf, size_t count)
++static ssize_t btn_turbo_period_show(struct device *dev,
++				     struct device_attribute *attr, char *buf)
 +{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	struct ally_handheld *ally = drvdata->rog_ally;
-+	struct ally_config *cfg;
-+	u8 mode_byte;
-+	int mode;
++	struct ally_btn_sysfs_entry *entry = container_of(attr, struct ally_btn_sysfs_entry,
++							  attr_turbo_period);
++	struct ally_btn_turbo_params *params;
++
++	if (!entry->cfg->turbo_support)
++		return -EOPNOTSUPP;
++
++	params = ally_btn_get_turbo_params(entry->cfg, entry->btn);
++	if (!params)
++		return -ENODEV;
++
++	guard(mutex)(&entry->cfg->config_mutex);
++
++	return sysfs_emit(buf, "%hhu\n", params->turbo);
++}
++
++static ssize_t btn_turbo_period_store(struct device *dev, struct device_attribute *attr,
++				      const char *buf, size_t count)
++{
++	struct ally_btn_sysfs_entry *entry = container_of(attr, struct ally_btn_sysfs_entry,
++							  attr_turbo_period);
++	struct ally_btn_turbo_params *params;
++	u8 old_value, value;
 +	int ret;
 +
-+	if (!ally)
++	if (!entry->cfg->turbo_support)
++		return -EOPNOTSUPP;
++
++	params = ally_btn_get_turbo_params(entry->cfg, entry->btn);
++	if (!params)
 +		return -ENODEV;
 +
-+	cfg = ally_get_config(ally);
-+	if (!cfg)
-+		return -ENODEV;
-+
-+	mode = sysfs_match_string(ally_gamepad_mode_text, buf);
-+	if (mode < 0) {
-+		hid_err(hdev, "Unknown gamepad mode\n");
-+		return mode;
-+	}
-+
-+	/* Convert the index of the text mode array to the byte
-+	 * that will be accepted by the ally MCU.
-+	 */
-+	mode_byte = ally_gamepad_mode[mode];
-+
-+	guard(mutex)(&cfg->config_mutex);
-+
-+	ret = ally_set_gamepad_mode(ally, hdev, mode_byte);
-+	if (ret < 0)
++	ret = kstrtou8(buf, 10, &value);
++	if (ret)
 +		return ret;
 +
-+	cfg->gamepad_mode = mode_byte;
++	if (value < ALLY_TURBO_PERIOD_MIN || value > ALLY_TURBO_PERIOD_MAX)
++		return -EINVAL;
 +
-+	hid_dbg(hdev, "Set gamepad mode to %s\n", ally_gamepad_mode_text[mode]);
++	guard(mutex)(&entry->cfg->config_mutex);
 +
-+	sysfs_notify(&dev->kobj, NULL, "gamepad_mode");
++	old_value = params->turbo;
++	params->turbo = value;
++	ret = ally_set_turbo_params(entry->ally, entry->hdev, entry->cfg);
++	if (ret) {
++		/*
++		 * The hardware rejected the update: restore the old
++		 * value or a later write to another button would
++		 * flush this stale one to the device.
++		 */
++		params->turbo = old_value;
++		return ret;
++	}
++
++		sysfs_notify(&entry->hdev->dev.kobj, entry->group.name, "turbo_period");
 +
 +	return count;
 +}
 +
-+static ssize_t gamepad_mode_index_show(struct device *dev,
-+				       struct device_attribute *attr,
-+				       char *buf)
++static ssize_t btn_toggle_period_show(struct device *dev,
++				      struct device_attribute *attr, char *buf)
 +{
-+	int i;
-+	ssize_t len = 0;
++	struct ally_btn_sysfs_entry *entry = container_of(attr, struct ally_btn_sysfs_entry,
++							  attr_toggle_period);
++	struct ally_btn_turbo_params *params;
 +
-+	for (i = 0; i < ARRAY_SIZE(ally_gamepad_mode_text); i++) {
-+		if (!ally_gamepad_mode_text[i] || ally_gamepad_mode_text[i][0] == '\0')
-+			continue;
-+		len += sysfs_emit_at(buf, len, "%s ", ally_gamepad_mode_text[i]);
-+	}
++	if (!entry->cfg->turbo_support)
++		return -EOPNOTSUPP;
 +
-+	/* Replace the last space with a newline */
-+	if (len > 0)
-+		buf[len - 1] = '\n';
++	params = ally_btn_get_turbo_params(entry->cfg, entry->btn);
++	if (!params)
++		return -ENODEV;
 +
-+	return len;
++	guard(mutex)(&entry->cfg->config_mutex);
++
++	return sysfs_emit(buf, "%hhu\n", params->toggle);
 +}
 +
-+static DEVICE_ATTR_RW(gamepad_mode);
-+static DEVICE_ATTR_RO(gamepad_mode_index);
++static ssize_t btn_toggle_period_store(struct device *dev, struct device_attribute *attr,
++				       const char *buf, size_t count)
++{
++	struct ally_btn_sysfs_entry *entry = container_of(attr, struct ally_btn_sysfs_entry,
++							  attr_toggle_period);
++	struct ally_btn_turbo_params *params;
++	u8 old_value, value;
++	int ret;
++
++	if (!entry->cfg->turbo_support)
++		return -EOPNOTSUPP;
++
++	params = ally_btn_get_turbo_params(entry->cfg, entry->btn);
++	if (!params)
++		return -ENODEV;
++
++	ret = kstrtou8(buf, 10, &value);
++	if (ret)
++		return ret;
++
++	if (value < ALLY_TOGGLE_PERIOD_MIN || value > ALLY_TOGGLE_PERIOD_MAX)
++		return -EINVAL;
++
++	guard(mutex)(&entry->cfg->config_mutex);
++
++	old_value = params->toggle;
++	params->toggle = value;
++	ret = ally_set_turbo_params(entry->ally, entry->hdev, entry->cfg);
++	if (ret) {
++		/*
++		 * The hardware rejected the update: restore the old
++		 * value or a later write to another button would
++		 * flush this stale one to the device.
++		 */
++		params->toggle = old_value;
++		return ret;
++	}
++
++		sysfs_notify(&entry->hdev->dev.kobj, entry->group.name, "toggle_period");
++
++	return count;
++}
++
++static ssize_t btn_turbo_period_range_show(struct device *dev,
++					   struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "0 20\n");
++}
++
++static ssize_t btn_toggle_period_range_show(struct device *dev,
++					    struct device_attribute *attr, char *buf)
++{
++	return sysfs_emit(buf, "0 255\n");
++}
++
++static struct device_attribute dev_attr_btn_turbo_period_range =
++	__ATTR(turbo_period_range, 0444, btn_turbo_period_range_show, NULL);
++
++static struct device_attribute dev_attr_btn_toggle_period_range =
++	__ATTR(toggle_period_range, 0444, btn_toggle_period_range_show, NULL);
++
++static void ally_btn_turbo_init_attrs(struct ally_btn_sysfs_entry *entry)
++{
++	sysfs_attr_init(&entry->attr_turbo_period.attr);
++	entry->attr_turbo_period.attr.name = "turbo_period";
++	entry->attr_turbo_period.attr.mode = 0644;
++	entry->attr_turbo_period.show = btn_turbo_period_show;
++	entry->attr_turbo_period.store = btn_turbo_period_store;
++
++	sysfs_attr_init(&entry->attr_toggle_period.attr);
++	entry->attr_toggle_period.attr.name = "toggle_period";
++	entry->attr_toggle_period.attr.mode = 0644;
++	entry->attr_toggle_period.show = btn_toggle_period_show;
++	entry->attr_toggle_period.store = btn_toggle_period_store;
++	entry->attrs[0] = &entry->attr_turbo_period.attr;
++	entry->attrs[1] = &entry->attr_toggle_period.attr;
++	entry->attrs[2] = &dev_attr_btn_turbo_period_range.attr;
++	entry->attrs[3] = &dev_attr_btn_toggle_period_range.attr;
++	entry->attrs[4] = NULL;
++}
++
++/**
++ * ally_create_button_attributes() - Create turbo button attributes
++ * @hdev: HID device
++ * @ally: ally handheld structure
++ * @cfg: ally config structure
++ *
++ * Return: 0 on success, negative errno on failure
++ */
++static int ally_create_button_attributes(struct hid_device *hdev,
++					 struct ally_handheld *ally,
++					 struct ally_config *cfg)
++{
++	struct ally_btn_sysfs_entry *entries;
++	int i, ret;
++
++	if (!cfg->turbo_support)
++		return 0;
++
++	entries = kcalloc(ALLY_BTN_MAX, sizeof(*entries), GFP_KERNEL);
++	if (!entries)
++		return -ENOMEM;
++
++	cfg->button_entries = entries;
++
++	for (i = 0; i < ALLY_BTN_MAX; i++) {
++		entries[i].ally = ally;
++		entries[i].cfg = cfg;
++		entries[i].hdev = hdev;
++		entries[i].btn = i;
++
++		if (!ally_btn_get_turbo_params(cfg, i)) {
++			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
++			ret = -EINVAL;
++			goto err_cleanup;
++		}
++
++		ally_btn_turbo_init_attrs(&entries[i]);
++
++		entries[i].group.name = ally_button_names[i];
++		entries[i].group.attrs = entries[i].attrs;
++
++		ret = sysfs_create_group(&hdev->dev.kobj, &entries[i].group);
++		if (ret < 0) {
++			hid_err(hdev, "Failed to create sysfs group for %s: %d\n",
++				ally_button_names[i], ret);
++			goto err_cleanup;
++		}
++	}
++
++	return 0;
++
++err_cleanup:
++	while (--i >= 0)
++		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
++
++	kfree(entries);
++
++	cfg->button_entries = NULL;
++
++	return ret;
++}
++
++/**
++ * ally_remove_button_attributes() - Remove turbo button attributes
++ * @hdev: HID device
++ * @cfg: ally config structure
++ */
++static void ally_remove_button_attributes(struct hid_device *hdev, struct ally_config *cfg)
++{
++	struct ally_btn_sysfs_entry *entries;
++	int i;
++
++	if (!cfg || !cfg->button_entries)
++		return;
++
++	entries = cfg->button_entries;
++
++	for (i = 0; i < ALLY_BTN_MAX; i++)
++		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
++
++	kfree(entries);
++
++	cfg->button_entries = NULL;
++}
 +
  /**
-  * ally_set_vibration_intensity() - Set vibration intensity values
-  * @ally: ally handheld structure
-@@ -2217,6 +2362,8 @@ static struct device_attribute dev_attr_right_response_curve_index =
+  * ally_config_create() - Initialize configuration and create sysfs entries
+  * @hdev: HID device
+@@ -2478,6 +2911,7 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
+ {
+ 	struct ally_config *cfg;
+ 	unsigned long flags;
++	int cal_created = 0;
+ 	int ret, sysfs_i;
  
- static struct attribute *ally_config_attrs[] = {
- 	&dev_attr_xbox_controller.attr,
-+	&dev_attr_gamepad_mode.attr,
-+	&dev_attr_gamepad_mode_index.attr,
- 	NULL
- };
- 
-@@ -2356,7 +2503,7 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
+ 	/*
+@@ -2571,12 +3005,30 @@ static struct ally_config *ally_config_create(struct hid_device *hdev, struct al
+ 				goto ally_config_create_sysfs_err;
+ 			}
+ 		}
++
++		/* All the groups exist now: the error path must remove them. */
++		cal_created = ARRAY_SIZE(ally_cal_attr_groups);
++	}
++
++	if (cfg->turbo_support) {
++		ret = ally_create_button_attributes(hdev, ally, cfg);
++		if (ret < 0) {
++			hid_err(hdev, "Failed to create button attributes: %d\n", ret);
++			goto ally_config_create_sysfs_err;
++		}
  	}
  
- 	if (!cfg->initialized) {
--		cfg->gamepad_mode = 0x01;
-+		cfg->gamepad_mode = ALLY_GAMEPAD_MODE_GAMEPAD;
- 		cfg->xbox_controller_enabled = true;
- 		cfg->left_deadzone = 10;
- 		cfg->left_outer_threshold = 90;
-@@ -2926,6 +3073,15 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
+ 	cfg->initialized = true;
+ 
+ 	return cfg;
+ ally_config_create_sysfs_err:
++	if (cfg->button_entries)
++		ally_remove_button_attributes(hdev, cfg);
++
++	while (cal_created-- > 0)
++		sysfs_remove_group(&hdev->dev.kobj,
++				   ally_cal_attr_groups[cal_created]);
++
+ 	spin_lock_irqsave(&ally_data_lock, flags);
+ 	ally->config = NULL;
+ 	spin_unlock_irqrestore(&ally_data_lock, flags);
+@@ -2601,6 +3053,9 @@ static void ally_config_remove(struct hid_device *hdev, struct ally_config *cfg)
+ 	if (!cfg || !cfg->initialized)
+ 		return;
+ 
++	if (cfg->button_entries)
++		ally_remove_button_attributes(hdev, cfg);
++
+ 	for (i = 0; i < ARRAY_SIZE(ally_attr_groups); i++)
+ 		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[i]);
+ 
+@@ -3147,6 +3602,14 @@ static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handheld *all
  				 ret);
  	}
  
-+	/*
-+	 * An MCU reset switches the gamepad mode back to its default:
-+	 * send the recorded one first, so that every other setting
-+	 * restored below is applied on top of the expected mode.
-+	 */
-+	ret = ally_set_gamepad_mode(ally, hdev, cfg->gamepad_mode);
-+	if (ret < 0)
-+		hid_warn(hdev, "Failed to restore gamepad mode: %d\n", ret);
++	if (cfg->turbo_support) {
++		ret = ally_set_turbo_params(ally, hdev, cfg);
++		if (ret < 0)
++			hid_warn(hdev,
++				 "Failed to restore turbo parameters: %d\n",
++				 ret);
++	}
 +
- 	/*
- 	 * The MCU does not keep the vibration intensity across a reset:
- 	 * send the recorded values again, whichever interface probed.
+ 	return 0;
+ }
+ 
 -- 
 2.47.3
 

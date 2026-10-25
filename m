@@ -1,94 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792932432;
-	b=XClNLFyQk8IjVYbOhrDh1y2fFPY+Dm4FoQdXwbuvnfE6FCgW8JRzcYRBXtT0Oqg/GVC7
-	 ui/7ySBzgMIyxdPIUdjPatp35NZkNWh4faBRLg14x2WQvVgAGkGL4+2KdAIrBc0UHr+Ti
-	 uz0CQhFDc6lS3W9oq1wD6qCf2sPe+HvNQnHnuiYDQKRfQwt6faSRpU91+O+BB3YrYY9L+
-	 WEPXdRn3hFhctPghX6BIRkW4c2UccY4EdusLZoPwakZ5gMK6ZnyyzOg4/OYAEidi/6TUC
-	 3U/JzHBnAkpUTA9y4d1f+g4zvvR02dR7j45Yz0zGiiUXoy5FscAuMUVoW5LF7ZqAQ3w==
+	t=1792943270;
+	b=GwHZapagAm1mHp1pJ4QCYdfP6EIm3c16rhhME70w1sRKqgM2Ez8QXLPHLVF/YjcSeFFz
+	 9MXDoVHIP9rqef6v3lKcRxeoaG31LKW3PR14eBDvtwLRM1qxl5AFF7+7OGHupOR3XUwkN
+	 8tqrPSvIkWAwKu2LRWxWLtrIEt5zSoCEwbKQ5LBryvoUFsW1YncAjsIX/NvDEKuIcHUEf
+	 l/GUQey3XQnqW4i/C3A/vlpgcUlCtQZgXZlLck/396GjsR9DOwfFAlOwhywzTh/7maW7g
+	 3Gfz/S28jTtzlEwQe9jKpWwPW2M1LInsp85N8itO8IRBNDMoL8H3eEuchbJyF4O5MMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792932432;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792943270;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:In-Reply-To:References:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=pEQsCWXlGXgVQPk1/fnR4W9Zji/K3/rB8B3LyEk76vk=;
-	b=1hUZTQD4XfALjOoXA8AJsUVSzgLuWCr01eI9w7XnT+IoHYTi2TbAsQfIp4KNnhw0+/d0
-	 ugSYzD5Q1zbqaBRO4383VRawNu0/a/ZBpaCyOn9IhscoICfORc14qAC5nHyxwC6hU6PeQ
-	 zmWkCYlreu3mspcVkYnOyVIEifntM3k3KZurkoNMvr+rQIUzZzWnquMc/qSDCuxNEDcpN
-	 cWR/yTSNG8dtSv6bilXwvvDZdPgQIiVX57kBebQFknxEwhFoidawClldUu2ZqlRHYK56b
-	 maCijl0sKMAANzC4G0YCVDwMdrt6CmANtil5UgDNgdpTbIkYpGkCSOcB3KbzsZB7HNw==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=1PFzcjS9a5ugm6SjW0wqUNsqPHzgzm9GT41d0aNyDjs=;
+	b=cCHH8YCgZmVBaB3AhDO6J3xmsZVYhBGHY8aIbl3sVt1TVM7HZzXTc0dTM9LsT1Fwslyf
+	 GYKA5WMfxKHP36VYD+tYWRQVSDCiuL887I5CilduebAGjgM2+Sm3H2iXl5Ku1QWzsWJMK
+	 h6fim5bP4VWaNHjKHy08gEGc5PQ5zEkYCd3Qg5WLWGF5zDLwNGDLM9Dg5+IX/LS51JkRj
+	 k135IOX6HXSI+I98cKvBQ7KeYYkkSGiZ+fZ9W3OIYoXScU5In7aFcOrozmNw1X4pgIrwt
+	 xf6HIXL66Bv57/KyIkaem9k+ck5X2j4If8dP7l8HNymQvq2GDH2aKBF5XZcX/vpYWsA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=PVkWZEAH;
-	arc=none smtp.remote-ip=209.85.218.53
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Whk9x7ig;
+	arc=none smtp.remote-ip=209.85.128.49
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC3AD606A31A
-	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 12:47:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DC3AD606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9606C606A330
+	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 15:47:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9606C606A330
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=PVkWZEAH
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c315869241fso260241866b.0
-        for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 05:47:11 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=Whk9x7ig
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4a2084d62cdso18118595e9.1
+        for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 08:47:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792932430; x=1793537230; darn=vger.kernel.org;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=pEQsCWXlGXgVQPk1/fnR4W9Zji/K3/rB8B3LyEk76vk=;
-        b=PVkWZEAHc9u7Gm09iIJpHStTuqmRHnPvij+BzKErUJHYipVpXCcBcKTwy4ns9R0F1/
-         U6J/nAZlosXAxcWvpwkfA5Pj5yNFjch1zhuPQyJZnFTGG+T6VRZmTe/d7tOEpN6JowMd
-         eBqDZFjnejr9MlUAzYF4uORewBIGJtmUusw9aUPBV2XIVQMJtbHDK0OMYqHjbnyltD0w
-         sI4gBuOcuUBNauw1Zjib9ayFrBhJRVsiGnbZB3S2Yky1fgEBlcRssGUwQ+YTaJpVSM8J
-         HBwkGkYP4G06cxrnp2EAA61MaKDrWRFy7QaVacIOInWnap5Z2jIt2GC90aPZZvMXb9jr
-         HYdg==
+        d=gmail.com; s=20251104; t=1792943268; x=1793548068; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1PFzcjS9a5ugm6SjW0wqUNsqPHzgzm9GT41d0aNyDjs=;
+        b=Whk9x7igyBJniH9ha6sp9vgTL8bJdcVKHEdSLYlnC5UbrY8iKdodDYcrAKR8hvI4Pe
+         haGFB1VJAFbjKE/5uyJ0OPBPZPxHSx5tTkZpueBWt16lp2jPmOSgcRdvaXAYAud20mMO
+         FPBOqRRJd67zfG9mnVOrTqhQe+upOMsfVh1EPc7IhwM9t4BGNhp25MANVzX6yeabutwQ
+         7ThmRZPrdJYf0Wg22rkHxdfAa/d/xJwp/ftc78+3nODX7+O0/AdpxDxVEoIPz0eWQt2u
+         i/xDp77ARpPzVAmvZpCtFChEo6+/qUlzExqKQ3ebiq1h5ITZ67n4G2rTbWI2owwU0Xmk
+         EgCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792932430; x=1793537230;
-        h=mime-version:content-transfer-encoding:content-type:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=pEQsCWXlGXgVQPk1/fnR4W9Zji/K3/rB8B3LyEk76vk=;
-        b=GPYNg6pFugKqIVcHnPsC69fGU0IDapSwkaZ7/VtbkJ3YRc1Lmnls+GCQB7kXVJBtMk
-         ka3+SwCWpkJXQ8GvQmRbUP6E7wtVV6SXzbLPmklDGPcElE3GFSAhJwDCo5AVdHc1xuU8
-         iV1f3uMpS3KElRve5l8RA+emDZL29TfyMmj+w2dTryMVz4DyeotgkuCQLFi+tscwkyUo
-         REL8aYElKUCJ0iX+fwZsxFkWJOJjvdcUj4si5P2XHDx8y5iIXFkKu95xjxThNcMxSrbV
-         r6MJIREpDunaPAOAv4jWQhVS6QiKQSX65tRl7EUGKLSU0fQNHyxi3z3k03Cyy9tneXKb
-         igcA==
-X-Gm-Message-State: AFq9FYJwaeeaRKz3u3N+ttn2PC2Ez3fCnFma/ij0cvYYos68HsgGItzi
-	qNTOQ4MZcA7kwkuB/NuvVma9s49310FyZ7LS4p4AN1XPxmAxnFOUTcgkcwydb4Zl
-X-Gm-Gg: AYBFou35psKyQ1m0DmQcP0vGhKSRSz7qj1ujEGmWxHMHnaC1RWC0pmgJE8mIJpRxh0I
-	PCgAIKDHdqQ+w91qkY0Qwlg70F6lhpPfg66hPty7RxaXOuubWqNJUL+pxngDevKchWwVQi+H70n
-	4MZ96O94C6C94C1Gra4kJNR/zWShyS0SEZgjVdRiB+k9o46rQGanktNz/0ah1pquUVHgnOfgEKP
-	0aw1SQju0SxxtW2Jo6meTEWmZfp75BapX+oXt8s7jFIeZfrTTbSSrJ5fbgyaAsn2mdUH1JA4v1w
-	XR2+oGNO1QMoXGb38pBPlRt1VRW2YRQHW761M++gmOMjw+hsmkh9c7wuLORJEOT1IGpW55aGYUi
-	3+bql+DYtEWjqSVTPlXNW2Fibuta5TbGFDfLHabineqLjLMUMrnIlQyrb32Y3pfPM0OgRn3qNdo
-	q8bGpWdfxw4/2Yl83gqk6mCHP1SjZFAhGGvWdlkQ9Qx45+pWrk4aEn+eRMdLCjete4Kgx6YNa8D
-	eIKnvror4o9tkBibuR+FkDOhKImj2zuX7UPBZ3ELZ3wucIpOizGVytmgW5KPcfL3QiUH7p7MExL
-	pkbd+e7xbzoJQEoY+H696m9TVk0YV9GwMlWJsdR8GSTjVxximX7rSnn4xZuk
-X-Received: by 2002:a17:906:9f90:b0:c2e:6a4f:a88b with SMTP id a640c23a62f3a-c46bd905ee8mr496684566b.0.1792932430006;
-        Sun, 25 Oct 2026 05:47:10 -0700 (PDT)
-Received: from localhost ([2603:5004:20a0:100a:ecf6:8378:c59c:a85f])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c46bd66c6dbsm199300166b.59.2026.10.25.05.47.08
+        d=1e100.net; s=20260707; t=1792943268; x=1793548068;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1PFzcjS9a5ugm6SjW0wqUNsqPHzgzm9GT41d0aNyDjs=;
+        b=vn8cWExNyEwdZouM8fHVBlxWK/22Y3nYwl7Xc6M5iZpKRRDoiTwHDIqJA45ea9ukEH
+         kRBsnu81fygfry9mcNCmVnDFfaXdyzGQiakSYqkM42ixbzd/gMWZLMBCSIBmT4EILxdB
+         BzsLFea+gCvx/auv9rYjkl+rh5/3+uFGM78m0uLTqvwuuOVa2VA4Afa1EgG/5p8+Fs0J
+         EEJoOL8v6HvAUN5ZC5J1G3aqgb4KzTlO7E4itz94GPGWCNT9AY+u2cdGnYfR5pmld66o
+         Efr12yXeGJo6BCMaHfksngPFDbAiBxLfLpy7SK9E3Mg6TICuLPoQdxAQ7wuGtFaGNrqM
+         fegA==
+X-Forwarded-Encrypted: i=1; AKwUvBy7/6qJ81xTZhmv/ZczCb5IyhdO8U03Cis23QMCu7TcSMc/0NjHXvrzEzlLHVxBoYJrTmXTxecmCte/pA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYK1x8qIykGNHqUqr2+9HlsPYfC5j8j8JbULqLDTvDoxL+C9hdcs
+	8W2I3sa/bmcuZElSnbAwe5Th1Implz4QtMRwzimdTFJOCy70lH2jdQs=
+X-Gm-Gg: AYBFou0PAwuswa/DI8YXYIJGxHprmdz3TVX+ONQaGxAfdM0vm0ZneGhrZ8WekDA0bss
+	34GC2mB2tjUAjliscYy0K2CxI4aIWMemYOMxbsORsFJ/+zFOGiuo4wgoC10ouI9JKcXjWNmZ7Ie
+	lucuVDk0sIjhOs08UDs5hdgRK/eA8rjdnbpFAh4/vZw379pkTvixMX7G18IURkAtcUhB7GZxhyF
+	+ntEwSHlAUAmCIrPxf1HLX6+VKobzRiKK51bD4d9zFz5u2VUALoxcqICpqhqYyOQcWeHSsAO66j
+	yjYUCFfsadFMsfC8TaKhDvTjhIUJ79WDhe9hzPG3WhGRK/uKX2EnMZ73RBb59Y4RdT3F5qMs/bp
+	1ABrfLLqg/Kd35+rNiw1Vr+W3piLsr9u2DAA51Hr4L7MozlwaMnhdBs1uTzNecRo1fy7Z2mLO2X
+	LiU5/tBv780sPs6MTFbf3Kvms2Sb78OYkYwq0u4ZxV66dkH8TNDPfWe3Q2kI2vDfQRIVloyt1aV
+	QGHuvVKo/z6icu4b1C55lVy
+X-Received: by 2002:a05:600c:1c03:b0:4a6:42cc:bf65 with SMTP id 5b1f17b1804b1-4a642ccc7b2mr7207065e9.17.1792943267753;
+        Sun, 25 Oct 2026 08:47:47 -0700 (PDT)
+Received: from debian.. ([2001:41d0:303:db6b::])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a359fc1207sm102382235e9.1.2026.10.25.08.47.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Oct 2026 05:47:09 -0700 (PDT)
-From: Jerome Tollet <jerome.tollet@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org, bentiss@kernel.org, lains@riseup.net
-Subject: Re: [RFC] Radio diagnostics for USB wireless receivers
-Date: Sun, 25 Oct 2026 13:46:43 +0100
-Message-ID:
- <179293240327.19425.16324980057213489509.cu0019-rfc-followup@gmail.com>
-In-Reply-To: <cu0019-rfc-f29e990c-f139-45e7-af04-5f01ac2f4ca8@gmail.com>
-References: <cu0019-rfc-f29e990c-f139-45e7-af04-5f01ac2f4ca8@gmail.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+        Sun, 25 Oct 2026 08:47:46 -0700 (PDT)
+From: Tristan Madani <tristmd@gmail.com>
+To: even.xu@intel.com,
+	xinpeng.sun@intel.com,
+	jikos@kernel.org,
+	bentiss@kernel.org
+Cc: srinivas.pandruvada@linux.intel.com,
+	mpearson-lenovo@squebb.ca,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Tristan Madani <tristan@talencesecurity.com>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] HID: intel-thc-hid: validate ACPI buffer length before memcpy
+Date: Sun, 25 Oct 2026 15:47:45 +0000
+Message-ID: <20261025154745.2734805-1-tristmd@gmail.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20261024205850.4051206-1-tristmd@gmail.com>
+References: 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,27 +103,294 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi,
+From: Tristan Madani <tristan@talencesecurity.com>
 
-Following up on this RFC from October 9. I would appreciate any guidance
-on whether common radio diagnostics for firmware-managed USB wireless
-receivers would be useful.
+The QuickI2C and QuickSPI ACPI helper functions copy firmware-returned
+buffers into caller-provided structures without verifying the buffer
+length. Malformed or short ACPI tables could cause an out-of-bounds
+read from the firmware buffer, and oversized responses could overflow
+the destination struct.
 
-The specific use case that prompted this work is troubleshooting
-suspected interference from nearby USB 3 equipment affecting reception
-on some wireless peripherals. Access to radio metrics could help assess
-the effect of moving a receiver away from USB 3 ports, cables or devices.
+Additionally, quicki2c_acpi_get_dsd_property() does not validate the
+returned ACPI object type before accessing buffer fields, and does not
+free the allocated ACPI buffer on the success path, leaking memory on
+every call.
 
-Before developing this further, I would like to understand whether a
-common kernel interface makes sense, or whether a shared userspace API
-would be preferable. The experimental Logitech C-U0019 module currently
-exposes only a raw RSSI candidate through debugfs:
+Add a buf_size parameter to the ACPI helper functions and reject
+responses larger than the destination buffer. Accept shorter responses
+to handle firmware that returns buffers without struct tail padding
+(e.g. ISUB tables returning 177 or 145 bytes for a 184-byte struct).
+Zero-initialize caller stack structures so fields beyond the firmware
+response length are deterministic. Add the missing type check and
+kfree to the DSD helper.
 
-https://github.com/jtollet/logitech-cu0019-radio
+Fixes: 5282e45ccbfa ("HID: intel-thc-hid: intel-quicki2c: Add THC QuickI2C ACPI interfaces")
+Fixes: 7cb06f08ef13 ("HID: intel-thc-hid: intel-quickspi: Add THC QuickSPI ACPI interfaces")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+---
+Changes in v2:
+- Use overflow-only check (>) instead of exact-match (!=) so firmware
+  returning shorter buffers (e.g. 177 or 145 bytes for 184-byte ISUB
+  struct, or 1 byte for 4-byte SPI opcode) is accepted
+- Zero-initialize caller stack structures for deterministic behavior
+  with short firmware responses
+- Add missing type validation and kfree in DSD helper
+- Add braces per coding style
 
-Are there existing interfaces or discussions I should look at? If another
-mailing list would be more appropriate, please let me know.
+ .../intel-quicki2c/pci-quicki2c.c             | 40 ++++++++++++++-----
+ .../intel-quickspi/pci-quickspi.c             | 36 ++++++++++-------
+ 2 files changed, 51 insertions(+), 25 deletions(-)
 
-Thanks,
-Jerome
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+index 7a913f717efaad..dd21864d16b05b 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+@@ -62,7 +62,8 @@ static const struct acpi_gpio_mapping quicki2c_gpios[] = {
+  * Return: 0 if success or ENODEV on failure.
+  */
+ static int quicki2c_acpi_get_dsm_property(struct acpi_device *adev, const guid_t *guid,
+-					  u64 rev, u64 func, acpi_object_type type, void *prop_buf)
++					  u64 rev, u64 func, acpi_object_type type,
++					  void *prop_buf, size_t buf_size)
+ {
+ 	acpi_handle handle = acpi_device_handle(adev);
+ 	union acpi_object *obj;
+@@ -75,10 +76,15 @@ static int quicki2c_acpi_get_dsm_property(struct acpi_device *adev, const guid_t
+ 		return -ENODEV;
+ 	}
+ 
+-	if (type == ACPI_TYPE_INTEGER)
++	if (type == ACPI_TYPE_INTEGER) {
+ 		*(u32 *)prop_buf = (u32)obj->integer.value;
+-	else if (type == ACPI_TYPE_BUFFER)
++	} else if (type == ACPI_TYPE_BUFFER) {
++		if (buf_size > 0 && obj->buffer.length > buf_size) {
++			ACPI_FREE(obj);
++			return -ENOSPC;
++		}
+ 		memcpy(prop_buf, obj->buffer.pointer, obj->buffer.length);
++	}
+ 
+ 	ACPI_FREE(obj);
+ 
+@@ -97,7 +103,8 @@ static int quicki2c_acpi_get_dsm_property(struct acpi_device *adev, const guid_t
+  * Return: 0 if success or ENODEV on failed.
+  */
+ static int quicki2c_acpi_get_dsd_property(struct acpi_device *adev, acpi_string dsd_method_name,
+-					  acpi_object_type type, void *prop_buf)
++					  acpi_object_type type, void *prop_buf,
++					  size_t buf_size)
+ {
+ 	acpi_handle handle = acpi_device_handle(adev);
+ 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+@@ -113,7 +120,16 @@ static int quicki2c_acpi_get_dsd_property(struct acpi_device *adev, acpi_string
+ 
+ 	ret_obj = buffer.pointer;
+ 
++	if (ret_obj->type != type) {
++		kfree(buffer.pointer);
++		return -EINVAL;
++	}
++	if (buf_size > 0 && ret_obj->buffer.length > buf_size) {
++		kfree(buffer.pointer);
++		return -ENOSPC;
++	}
+ 	memcpy(prop_buf, ret_obj->buffer.pointer, ret_obj->buffer.length);
++	kfree(buffer.pointer);
+ 
+ 	return 0;
+ }
+@@ -129,8 +145,8 @@ static int quicki2c_acpi_get_dsd_property(struct acpi_device *adev, acpi_string
+ static int quicki2c_get_acpi_resources(struct quicki2c_device *qcdev)
+ {
+ 	struct acpi_device *adev = ACPI_COMPANION(qcdev->dev);
+-	struct quicki2c_subip_acpi_parameter i2c_param;
+-	struct quicki2c_subip_acpi_config i2c_config;
++	struct quicki2c_subip_acpi_parameter i2c_param = {};
++	struct quicki2c_subip_acpi_config i2c_config = {};
+ 	u32 hid_desc_addr;
+ 	int ret = -EINVAL;
+ 
+@@ -145,7 +161,7 @@ static int quicki2c_get_acpi_resources(struct quicki2c_device *qcdev)
+ 					     QUICKI2C_ACPI_REVISION_NUM,
+ 					     QUICKI2C_ACPI_FUNC_NUM_HID_DESC_ADDR,
+ 					     ACPI_TYPE_INTEGER,
+-					     &hid_desc_addr);
++					     &hid_desc_addr, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -155,7 +171,7 @@ static int quicki2c_get_acpi_resources(struct quicki2c_device *qcdev)
+ 					     QUICKI2C_ACPI_REVISION_NUM,
+ 					     QUICKI2C_ACPI_FUNC_NUM_ACTIVE_LTR_VAL,
+ 					     ACPI_TYPE_INTEGER,
+-					     &qcdev->active_ltr_val);
++					     &qcdev->active_ltr_val, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -163,12 +179,13 @@ static int quicki2c_get_acpi_resources(struct quicki2c_device *qcdev)
+ 					     QUICKI2C_ACPI_REVISION_NUM,
+ 					     QUICKI2C_ACPI_FUNC_NUM_LP_LTR_VAL,
+ 					     ACPI_TYPE_INTEGER,
+-					     &qcdev->low_power_ltr_val);
++					     &qcdev->low_power_ltr_val, 0);
+ 	if (ret)
+ 		return ret;
+ 
+ 	ret = quicki2c_acpi_get_dsd_property(adev, QUICKI2C_ACPI_METHOD_NAME_ICRS,
+-					     ACPI_TYPE_BUFFER, &i2c_param);
++					     ACPI_TYPE_BUFFER, &i2c_param,
++					     sizeof(i2c_param));
+ 	if (ret)
+ 		return ret;
+ 
+@@ -180,7 +197,8 @@ static int quicki2c_get_acpi_resources(struct quicki2c_device *qcdev)
+ 	qcdev->i2c_config.target_addr = i2c_param.device_address;
+ 
+ 	ret = quicki2c_acpi_get_dsd_property(adev, QUICKI2C_ACPI_METHOD_NAME_ISUB,
+-					     ACPI_TYPE_BUFFER, &i2c_config);
++					     ACPI_TYPE_BUFFER, &i2c_config,
++					     sizeof(i2c_config));
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+index 53023e30cf8d47..e4331ba4e503d9 100644
+--- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
++++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+@@ -81,7 +81,8 @@ static const struct acpi_gpio_mapping quickspi_gpios[] = {
+  * Return: 0 if successful or ENODEV on failed.
+  */
+ static int thc_acpi_get_property(struct acpi_device *adev, const guid_t *guid,
+-				 u64 rev, u64 func, acpi_object_type type, void *prop_buf)
++				 u64 rev, u64 func, acpi_object_type type,
++				 void *prop_buf, size_t buf_size)
+ {
+ 	acpi_handle handle = acpi_device_handle(adev);
+ 	union acpi_object *obj;
+@@ -94,10 +95,15 @@ static int thc_acpi_get_property(struct acpi_device *adev, const guid_t *guid,
+ 		return -ENODEV;
+ 	}
+ 
+-	if (type == ACPI_TYPE_INTEGER)
++	if (type == ACPI_TYPE_INTEGER) {
+ 		*(u32 *)prop_buf = (u32)obj->integer.value;
+-	else if (type == ACPI_TYPE_BUFFER)
++	} else if (type == ACPI_TYPE_BUFFER) {
++		if (buf_size > 0 && obj->buffer.length > buf_size) {
++			ACPI_FREE(obj);
++			return -ENOSPC;
++		}
+ 		memcpy(prop_buf, obj->buffer.pointer, obj->buffer.length);
++	}
+ 
+ 	ACPI_FREE(obj);
+ 
+@@ -129,7 +135,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_INPUT_REP_HDR_ADDR,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->input_report_hdr_addr);
++				    &qsdev->input_report_hdr_addr, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -137,7 +143,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_INPUT_REP_BDY_ADDR,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->input_report_bdy_addr);
++				    &qsdev->input_report_bdy_addr, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -145,7 +151,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_OUTPUT_REP_ADDR,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->output_report_addr);
++				    &qsdev->output_report_addr, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -153,7 +159,8 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_READ_OPCODE,
+ 				    ACPI_TYPE_BUFFER,
+-				    &qsdev->spi_read_opcode);
++				    &qsdev->spi_read_opcode,
++				    sizeof(qsdev->spi_read_opcode));
+ 	if (ret)
+ 		return ret;
+ 
+@@ -161,7 +168,8 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_WRITE_OPCODE,
+ 				    ACPI_TYPE_BUFFER,
+-				    &qsdev->spi_write_opcode);
++				    &qsdev->spi_write_opcode,
++				    sizeof(qsdev->spi_write_opcode));
+ 	if (ret)
+ 		return ret;
+ 
+@@ -169,7 +177,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_IO_MODE,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->spi_read_io_mode);
++				    &qsdev->spi_read_io_mode, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -184,7 +192,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_CONNECTION_SPEED,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->spi_freq_val);
++				    &qsdev->spi_freq_val, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -192,7 +200,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_LIMIT_PACKET_SIZE,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->limit_packet_size);
++				    &qsdev->limit_packet_size, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -205,7 +213,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_PERFORMANCE_LIMIT,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->performance_limit);
++				    &qsdev->performance_limit, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -215,7 +223,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_ACTIVE_LTR,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->active_ltr_val);
++				    &qsdev->active_ltr_val, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -223,7 +231,7 @@ static int quickspi_get_acpi_resources(struct quickspi_device *qsdev)
+ 				    ACPI_QUICKSPI_REVISION_NUM,
+ 				    ACPI_QUICKSPI_FUNC_NUM_LP_LTR,
+ 				    ACPI_TYPE_INTEGER,
+-				    &qsdev->low_power_ltr_val);
++				    &qsdev->low_power_ltr_val, 0);
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.47.3
+

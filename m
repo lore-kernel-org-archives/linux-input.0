@@ -1,83 +1,53 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.9
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.69
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792925395;
-	b=fcMP7L9zDsaTAxO+lrT3so5TyyAOV+VWbEOMNlpBVRa63moFZEeU7bxURd6+AI+l+OdI
-	 r0R8dkORImzdhzVg5HSBYNjzaIyv5KJgBUKmUs1nzHr8sj2kuY2oFTv4lG6ribJvJBnbn
-	 X5U/JfwKTo+DmxgF3xQVn1u7/LSNuGPcd2+7ptzLr2elpXlTGdVZeKEUtEUix5O7C+qAL
-	 eNDbGMi5/VV26B/7Xpev6iejJLWAOe2+zePXhJLZDEbF2fDKURXmCgr8oLLkSpUidhR80
-	 DsUwUIsQMZlt4je9jn1Q72y9T986H7KzNUcpEAFDepUL5F2Y+oRmo4A/X7YppoBgS/Q==
+	t=1792931607;
+	b=udJO0ZJ+ycYbrZwdftN1f8aVhFbwGPYGGYjmfAxYzuwl+6Gbl8b4ulUmNhZ/ZjrV/QU2
+	 rg107wBlIptirV8VSwTpRWWI3SJ9kM1Mz6+IFxC1qzjU1tUody3hvXV0UvCMO52lK88FP
+	 x47KOMG61mHs33z5Mjf7SSZ1JzTlxt6UaGvOVKx6SS5tTu8kyq3UIkLuPzXdtucLfmx2P
+	 /eT9t+VNhV2VSGC3XptWI+NJeN0BXqPXFPVsOIPusfoakV9cnSp2gufw8RuCt2RvKzERo
+	 4wPUDP2PcPMHneBhjLQvNCL+VZj7IVq5Pq7iNuH4KPLRQ7k6sYF+bHXxm6QtjsVU6kA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792925395;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=7JSyZw8IlAUawccxS8oDgVXImKxbTAY0ZCG5l352BOA=;
-	b=YHvgKN9p/QRzuI3RUOOKCgBnSXMIrsyzW/mipiRfYkSGaGTmaFliQZjetx5Dx5eG6+Uj
-	 8qtdDQhkQkDYX49LV+8eqbWwYSABM43P5xekC3DVp6VaffYiE5DrpiTn+BFkrg3W78m6L
-	 Q3DYco6fvmJSLXDQsyT8Ya/XXm5nMAqIHZDMiGLV/Aq9IOU4H7yopH5CFedgh60RRpW4j
-	 Bq1G8auPTXi2o/WpJn8Ysc0JBAtPO+RtDVWLqigjwmpvsOWTAejWIjlrJq2wtbqBWpGEc
-	 yjUcr00FJdQ9lawDgi3O2UTI8cey0C2MXNpMo5wZnXjlBWHV3aBIC8EXS4hk/MuDAfg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792931607;
+	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Gm-Message-State:
+	 MIME-Version:X-Received:Date:X-Google-Appengine-App-Id:
+	 X-Google-Appengine-App-Id-Alias:Message-ID:Subject:From:To:
+	 Content-Type;
+	bh=kVBzGFtNCTUSDocuvH1j5E27S8HzPs9e8Kt49P7lnhQ=;
+	b=IL0B8Hsq3lL4+6rjWa6TzLen+iTciDdmAbi7cDBkk7ALRmAmGxMIw2zP1PY/wjekYQQj
+	 MVX3yDq8gEu+56Q4NBogGXM8iYllPzphkBXkr9AIn+8V2vc8lbLj3Ariq8PiDDdqEQEPN
+	 mzeAE6HSLZZ443wZMFq1i5BfT/U1pMEsxAB/bkPd1OEyR4rwD7Om1Z5eR/thf1UX4ihBU
+	 GqhtN28ZYHrw4qMbfbNr/P7HFonN4sw5NgRVDYDjwxrbPhDawPwpfL5CqDmQ8MED/QPAg
+	 s0JDAhWBdDzVGaFFZQ1QoO/Pz6n64ySWKRHWRXTCVig7Vt0HkWAegovsJe5oY/Aci9A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="ft8/267K";
-	arc=none smtp.remote-ip=192.198.163.9
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=fail header.from=syzkaller.appspotmail.com;
+	spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com;
+	arc=none smtp.remote-ip=209.85.210.69
+Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com [209.85.210.69])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6D8E606A31B;
-	Sun, 25 Oct 2026 10:49:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A6D8E606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ft8/267K
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1792925394; x=1824461394;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Rt5BEY7DwxcNCG/AAfpdZnZc2Khftj/I/zbWxZry5XY=;
-  b=ft8/267KabzBwRNH1iLUrT7DKqfUPTM0zm6oBudj+uoU/29XpNzws9R/
-   RiuHY8t9Xrrr+5HMhGPhNAe/1ZaHBBqNWBd75hk4uKDg+/7Pvq0a6ihoT
-   CYF0ImVdakUBi/OLz48to9ev1QAy2l3XgGs6m3vFQHehlBtYZM3eJenaQ
-   EozcrkWzit94MZ2IdXS2yBQbfv45tY11+2I5cMEGH7hnzIhuVpUEOOxXS
-   9Vok7LF2ghn3LJrFH4Vzhjf/gn3ZMQtxUtdCZ2Zzs+4x3TEYv4WKBBvy6
-   ugEmbz98MvMM3AVWsdVQIHmox9mMv1WqfXQiW26TNxWDVZLbtOOxD0o7F
-   A==;
-X-CSE-ConnectionGUID: dbCem85MT3yuhGf6FW1hNQ==
-X-CSE-MsgGUID: HtmCVHebRDCZ2/URso4QmQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11945"; a="1501274"
-X-IronPort-AV: E=Sophos;i="6.27,177,1787036400"; 
-   d="scan'208";a="1501274"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2026 03:49:53 -0700
-X-CSE-ConnectionGUID: JYgqJlDmQu+LqbHMhBjFnA==
-X-CSE-MsgGUID: URc1XrjISym5V9UmBj1B9g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,177,1787036400"; 
-   d="scan'208";a="4005441"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by orviesa002.jf.intel.com with ESMTP; 25 Oct 2026 03:49:51 -0700
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xKvnQ-00000000UjS-1aE7;
-	Sun, 25 Oct 2026 10:49:48 +0000
-Date: Sun, 25 Oct 2026 18:49:43 +0800
-From: kernel test robot <lkp@intel.com>
-To: Tristan Madani <tristmd@gmail.com>, Even Xu <even.xu@intel.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, Xinpeng Sun <xinpeng.sun@intel.com>,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Tristan Madani <tristan@talencesecurity.com>
-Subject: Re: [PATCH] HID: intel-thc-hid: validate ACPI buffer length before
- use
-Message-ID: <202610251809.9IHSydrI-lkp@intel.com>
-References: <20261024205850.4051206-1-tristmd@gmail.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E90606A31B
+	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 12:33:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D2E90606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-ot1-f69.google.com with SMTP id 46e09a7af769-8255327a28fso2998751a34.0
+        for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 05:33:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792931606; x=1793536406;
+        h=content-type:to:from:subject:message-id:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kVBzGFtNCTUSDocuvH1j5E27S8HzPs9e8Kt49P7lnhQ=;
+        b=Io2ZoqpnVCylUSAevputGXlhCr6+p9UaHYIDbTUMGavoCB97OoV8Eqa1nl+5pk1t/p
+         u9BqJ78v1vRxvU+vfc8QQ/c/8zh1vVPq9T0gaH3FkDxr+taBEdjpHzYzPIZN8DKvPKI0
+         aFW1/UEEkPWI5VRGElP7E68Agj23dVlz6rdsrXojv2azQZcBlBWEYVNAP8qMlu4eKpU8
+         NFylgRyO5IXwnEFQSk66b1wEg5ajhkUtEcbsHZPUY/zuArGA2Ju520rIx5bQHJxusaF1
+         9+/oPnQhWIKq+NKi75cl/aQpuoz941dQKGrr1o0ZXkEquvGIW5yW7YL8G9KyUIzgvlm2
+         XWWw==
+X-Gm-Message-State: AFq9FYJU3eE/jJhy4GJIh3xRhkQSmPFIA3eEg/JAzWjget7k6yDVpMka
+	bn3lWGl0SFJMMadY0MojuZJVTCuSjLBf5nZVXdVXVu9z2pxejW65Ifattd5akN1VzWlqGLQQfL8
+	dbFUnyxr2izFRQr3Pr8lmJqvdKoCbcpeREntRVBJev7GLS4z6LZMHKjd0Nz0=
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -87,43 +57,56 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261024205850.4051206-1-tristmd@gmail.com>
+X-Received: by 2002:a05:6808:4f06:b0:549:572c:fd42 with SMTP id
+ 5614622812f47-55c0031b091mr2010500b6e.47.1792931605841; Sun, 25 Oct 2026
+ 05:33:25 -0700 (PDT)
+Date: Sun, 25 Oct 2026 05:33:25 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6addf715.67317f00.38c4bc.0080.GAE@google.com>
+Subject: [syzbot] Monthly input report (Oct 2026)
+From: syzbot <syzbot+list4c580c10329f11ac634c@syzkaller.appspotmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Tristan,
+Hello input maintainers/developers,
 
-kernel test robot noticed the following build warnings:
+This is a 31-day syzbot report for the input subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/input
 
-[auto build test WARNING on hid/for-next]
-[also build test WARNING on linus/master v7.3 next-20261023]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+During the period, 3 new issues were detected and 3 were fixed.
+In total, 32 issues are still open and 70 have already been fixed.
+There are also 3 low-priority issues.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Tristan-Madani/HID-intel-thc-hid-validate-ACPI-buffer-length-before-use/20261024-205850
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-patch link:    https://lore.kernel.org/r/20261024205850.4051206-1-tristmd%40gmail.com
-patch subject: [PATCH] HID: intel-thc-hid: validate ACPI buffer length before use
-config: x86_64-randconfig-1003-20261025 (https://download.01.org/0day-ci/archive/20261025/202610251809.9IHSydrI-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.4.0-5) 12.4.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261025/202610251809.9IHSydrI-lkp@intel.com/reproduce)
+Some of the still happening issues:
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202610251809.9IHSydrI-lkp@intel.com/
+Ref Crashes Repro Title
+<1> 1516    Yes   KASAN: slab-out-of-bounds Read in mcp2221_raw_event (2)
+                  https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
+<2> 873     Yes   WARNING: ODEBUG bug in corsair_remove
+                  https://syzkaller.appspot.com/bug?extid=0a031a76585d1c7e737d
+<3> 368     Yes   possible deadlock in __kernfs_remove (3)
+                  https://syzkaller.appspot.com/bug?extid=1075f6dc93f398c1857e
+<4> 42      Yes   INFO: task hung in devres_release_group (2)
+                  https://syzkaller.appspot.com/bug?extid=d789904ff97c2f3dac88
+<5> 28      Yes   INFO: task hung in __input_unregister_device (5)
+                  https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
+<6> 12      No    KASAN: slab-use-after-free Read in k90_backlight_work
+                  https://syzkaller.appspot.com/bug?extid=abcedffc9201f2bb66c2
+<7> 2       Yes   memory leak in __usbhid_submit_report (2)
+                  https://syzkaller.appspot.com/bug?extid=e2c057ea576d2644e2be
 
-All warnings (new ones prefixed by >>):
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
->> Warning: drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:66 function parameter 'buf_size' not described in 'quicki2c_acpi_get_dsm_property'
->> Warning: drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:109 function parameter 'buf_size' not described in 'quicki2c_acpi_get_dsd_property'
->> Warning: drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:66 function parameter 'buf_size' not described in 'quicki2c_acpi_get_dsm_property'
->> Warning: drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c:109 function parameter 'buf_size' not described in 'quicki2c_acpi_get_dsd_property'
---
->> Warning: drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:85 function parameter 'buf_size' not described in 'thc_acpi_get_property'
->> Warning: drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c:85 function parameter 'buf_size' not described in 'thc_acpi_get_property'
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.

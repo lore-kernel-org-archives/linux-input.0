@@ -1,92 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.73.12
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793027906;
-	b=HND+TtBF3d9gh411zk9Vs+txGRXof6tcqo3agtwHy6GcAUHWucZSAYFM+V7/DuWGUzfC
-	 dHUlf+FIlsz9OleJNJO437f4vUQF/ebvqTObh7JdaQx0ZY3LiuO2ndWpkPXMvk7vNLhmk
-	 pAwVKAvFa4UM+qGztT1fL1WHeFfpby4wqQVP3CsTeA1fMN/nZZEc3P23C4QFxGyoRqpH8
-	 FMHbcfHvdCeN4hLBkN5iOHD5JLJWC5TbDUWItkZrvMil1zVFDFqj2/nMsW/Fcr7xXvWaK
-	 xO6rm9KYIgCMItV3+r8vxZ7ZTrYtJ+eIxoGAKo7xmejQKr1taTuVPwclzSHwJrtcWyA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793027906;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:Content-Transfer-Encoding:Content-Type:
-	 X-ClientProxiedBy:X-Microsoft-Original-Message-ID:MIME-Version:
-	 X-MS-Exchange-MessageSentRepresentingType:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:
-	 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=VZtah0zu2iPUv2aKxwyhjfeqtcL2Tg9nyuB4RQZF9EE=;
-	b=vD17/r9eWTTqmztqcnkORaAw4XhyZbi7AcdUVNgwBbCPqHC6gja+9rUplmO3m1gnF8Vt
-	 NqVhEu0MR7j0QMiOnC+67HhGfgvmefdOMjnPuejYw3IcCV5jTs0+O+mlTRfPy7DywbMDk
-	 eJXwJKLoj1ous04r3G7uiRNBEmNiB64ElSLn9Gku94X7JyGxSkQyFNi59yD+fuN7n4o5Z
-	 +A1Y7lzKDUG3FwxHk5wmvsCx17QJP4ra3Rwc3MQKj2Vvs63sMH7CgIpOvGSxo7IE1qkqD
-	 mDRzgZpFMSRJ1jUlI7/WfuF956LLqX5CLqBs/7UBSPYbInvx6oxoWRIvpJ0gBhwnWtg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=outlook.com;
-	spf=pass smtp.mailfrom=outlook.com;
-	dkim=pass header.d=outlook.com header.i=@outlook.com header.a=rsa-sha256 header.s=selector1 header.b=bRJV7mDb;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.103.73.12
-Received: from MEUPR01CU001.outbound.protection.outlook.com (mail-australiasoutheastazolkn19010012.outbound.protection.outlook.com [52.103.73.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.8
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793037810;
+	b=210vtbf0qAPIryZLGidZKgk0AsTUrWdyIL5AGph9Dk1ZHoeT2CqC9dpqvh5+rTZmHphi
+	 sR5u6Kr7d49WJHK2zQOudK3HHYreP14BVPUZQhwGAwXDHogn8LT5ohKRdjq/112OQ44T7
+	 0Jx1dzvn/s1Zwy7r4sUTvhgJinSQHfCvYLCjgRvNbMr9nraBXxZW91mN9W+fbkgeMvCbT
+	 eQvrJdhsYJKVoriruuF/cRtpr7KOYYatsdGlUPttY6QSrIMtyQB44NDUCensPreOtDHv9
+	 HXfUZCMPOFhIChBUj0VXCzqtbNAW1BdbmUBV856HhJsk5v+akf0gIVhomDtUdxAN8gg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793037810;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=ZGfhbMJ/Bq8RW33Qn3L2N5puzXq/jauQ20IbTGUD3gA=;
+	b=Jk2uB7YHEcqH45hbWT5w8yAtV/Pn1HvUmiiya3eyXvW9HYNVekmdE3FstqC1BFOMs7xX
+	 Hq6IIu556IxmopALNE56F/0Pcq/KlCZzi94Kn1rg5etqlCQpFREEOq+z7ku7FUTBnZ6x6
+	 UMPNA9tN4Wh1q/Mh9PrmnNt2W/V2OmxracaGGh8QZ4NWPm+gapNYdlEOItrHWMURvXEVK
+	 aTIX8xUj8VzIli3MRM+znFDcOe81EF7/X6y4ucN2uWqcYVuXAOYCYPN/BmdaVDG+iMKdc
+	 vknf8G8bC9iI4Q+0fXv3Ap7zca6cfh8A8jLyWyq4So2IyQFCvJwCBrnwEzizfRprBGw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=qsFyJabm;
+	arc=none smtp.remote-ip=95.215.58.8
+Received: from mta1.migadu.com (out-8.mta1.migadu.com [95.215.58.8])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32330606A31B;
-	Mon, 26 Oct 2026 15:18:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32330606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BCC0606A31F
+	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 18:03:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2BCC0606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=outlook.com header.i=@outlook.com header.a=rsa-sha256 header.s=selector1 header.b=bRJV7mDb
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=wMmsjwv0+IuMn8dINEPyUrIbNhYI7vifS4l2c8TtbOCSJQDln7F/fuxLy+28jzamD9UHem8aDxSCatIxujlRvz1Wnu9No9H26wGPOCzWlHBKvTK3pumeIrwfof8aEk4EqIbpVOGgnViksboTQ5bn6UntyzEFkP+p5i3HA1jf+hoauo/TyrwEAv3fd8qLf5xEow9xEOKCMvD40DDmIRRi+N8fXnyNB7VkJBFr1HNCCc8KMWFl6NfEgjZ8MZNKtQ8ovhREstyi2wFZnEaSi1CcTkHq4PQmBA+7JhEEgPF26+ZD8Yfnig093OtP7CG7al1YxcAgd6v+Tn2V1FuZd8p57g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VZtah0zu2iPUv2aKxwyhjfeqtcL2Tg9nyuB4RQZF9EE=;
- b=dHbLxMWtPGATCErJLKSLyopaV0/YcOp2A98esD8SxmmpbTEjT9ZcbgYCWNIkMISUoYzxrLRu4+TX2bRLzDwPO4RbigOMs2Y551qdFOZEaY/8UwnKtAZdOdQsmhZCSvdWRH75mFp3g9LKzG6w5LUgiNudOPdEFRhkVtcyKwmscIWCXTRtzZlBCXBQ829fizoK4uAsAtguDHdy0ACqvOjBuY6Py+gXbKClUiqg25AzrAZTwLsNS5oyOzH3dsuKD2yhhDEQDpIbywfohMHZIYjTnTodsXfbHGV2KyMXlrqkD+48lV0K+UWrvcNW3wj8ucrJQlDYSin7FFW7lmRYq1DmOQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VZtah0zu2iPUv2aKxwyhjfeqtcL2Tg9nyuB4RQZF9EE=;
- b=bRJV7mDbgd8bFJIAQwTshITlCYefFZxu1b5Dpm+HOpWM9wfGF0mCMPBeZ6Of2dZtgc0cgTXRUw75+Q7ZzFg8747D4USwd3pDiq9Ar5x66vYQoB58VpQQu3/ty03zFV6nCz1rQQdHaRM8ks+h8Fse5x4sM4eYt+XPqgJIaEd1RFZ5e/75wyf6QHySXHy+pFeaZ6VdgzU8wgAZndGUGeo+MBwdpnoNl6zIpatCoSs/f6cAdkGaDoGFYF0ApAJp0rnaeuAKgGIIKjAzH4PB+/boUOXj4ctqonr909DQfATM1nUtFghX9xGda1ARoASvMNlTuErGC1PF6+4k9zBDd7e2PA==
-Received: from SY8PR01MB9299.ausprd01.prod.outlook.com (2603:10c6:10:22e::6)
- by ME3PR01MB5816.ausprd01.prod.outlook.com (2603:10c6:220:e4::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.546.22; Mon, 26 Oct
- 2026 15:18:19 +0000
-Received: from SY8PR01MB9299.ausprd01.prod.outlook.com
- ([fe80::eef8:27e8:2765:92d3]) by SY8PR01MB9299.ausprd01.prod.outlook.com
- ([fe80::eef8:27e8:2765:92d3%4]) with mapi id 15.21.0546.021; Mon, 26 Oct 2026
- 15:18:19 +0000
-From: Du Yijie <nathandu@outlook.com>
-To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
-	linux-input@vger.kernel.org,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Du Yijie <nathandu@outlook.com>,
-	=?UTF-8?q?Barnab=C3=A1s=20P=C5=91cze?= <pobrn@protonmail.com>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: playstation: ignore DualSense Bluetooth microphone reports
-Date: Mon, 26 Oct 2026 23:16:40 +0800
-Message-ID:
- <SY8PR01MB9299F0BA16B832F89BC6A4EDD1612@SY8PR01MB9299.ausprd01.prod.outlook.com>
-X-Mailer: git-send-email 2.56.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SE2P216CA0059.KORP216.PROD.OUTLOOK.COM
- (2603:1096:101:115::10) To SY8PR01MB9299.ausprd01.prod.outlook.com
- (2603:10c6:10:22e::6)
-X-Microsoft-Original-Message-ID: <20261026151640.6744-2-nathandu@outlook.com>
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=qsFyJabm
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=jd+kz/aI9oXvAG5N4SqNBIQGQx9IapU9wZjha2/PjJo=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793037806; v=1; x=1793642606;
+ b=qsFyJabmrGlBuDBOT4UPhZL1iSFFGSRd0kc6d43qICy47BsbTHg3/YYIBU1rvLTMgUsY9bMU
+ 0lzFGx4jgW31XKO3H/jVgZuWMr4sIoFQ+V72EFtTf1Q05I28jbvkPPE0lFAxBXgzLowQxHrKSTB
+ zjbJWa3CV3SKaP97nU6TE898=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id fee45a2cfa3ddcd5;
+	Mon, 26 Oct 2026 18:03:25 +0000
+X-Mizu-Trace-ID: fee45a2cfa3ddcd5
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <5337419b-9421-462e-9e99-30006b4c2b25@linux.dev>
+Date: Mon, 26 Oct 2026 19:03:24 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -96,191 +58,467 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SY8PR01MB9299:EE_|ME3PR01MB5816:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6d6a0393-7029-4a04-35c8-08df33745de4
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|22141099003|41001999006|12121999013|25010399006|260925184616899003|4140399003|19110799012|8060799015|37011999003|5072599009|23021999003|24021099003|15080799012|39105399006|5062599005|40105399003|10035399007|3412199025|440099028|26104999009|1710799026;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?JpUa7VorOZrX0GiLPCuDvUkAgWMVs5NCdMNCBCzdylqha3t29PYe89sgJQHz?=
- =?us-ascii?Q?yx3YWVPmLLddEOz95wZ2dmbzKnP1QBG/hQkrOOh1nuZz5wYzQS+gDMyoWwZO?=
- =?us-ascii?Q?/Xxm4g58UR9ZP+yoIeJH8dW7e7a8miuVMr+Gr8s/pyJXFFXWn0dwMFDYIo7G?=
- =?us-ascii?Q?FKyQi5cSpVwu8untfo1CEshf947h80jaeRwbEhm2cv0QEYiiySZ8cliz6Zoo?=
- =?us-ascii?Q?w+9CjWG/vCD6dMDp5Tsfyd1jyvkU8GcNqnHjxvXHrZFFlUBnPcwU7hF4L8Eg?=
- =?us-ascii?Q?2BqtPm2RjDsf5QFleBKIP4JGsFpyt/mIN4zBLkUp50BzeANi13UWGWgmDiQR?=
- =?us-ascii?Q?SMW5cSj/WkOXoyyQdEECl2+D+SUVo1dJM4/ORDGVVX5mhaU0WQM6tSELnvEE?=
- =?us-ascii?Q?xz6oA426MqexY8Jfttr74sE1HMj3cw4h0iDKYd7BJ8xEl4FqC1hRNswd61jm?=
- =?us-ascii?Q?c2uBfZ/kepMkm0oMA575bAbKHiSXGSRyyhE54fsVuAVxN08OG+NNc27KRDXm?=
- =?us-ascii?Q?AMM2QPKEUQ4hXN3fuhNdfQyNP3yRqkOZ+a9YxaJHqto3VrkP4tQ0hjqogBdD?=
- =?us-ascii?Q?7NwqSLbcPDmoSnjeWBCnBKeBjbJVQHKWMIHlF7Wsixr9CIOvEcaIJnJ+SO1/?=
- =?us-ascii?Q?w5Of+EVGacxYxyBXlWCCwQVU67OYW1xyFuwt6fowlgIeCWWeF0ymOaII+YoG?=
- =?us-ascii?Q?HbdIpH2NEqoLxPXRSFAJVCtTivph5OA8chi/9bdXiHQSsyPAQ/KJs3CP8RQz?=
- =?us-ascii?Q?RTzE+H+jr1OKSJHFPbj20ynC7PykJ9uMhSegBBE5GjLZ/RZsR6IcSUfRLGvz?=
- =?us-ascii?Q?lKKJUXjeeLyS+0PGP0qSf/FXURhobE0SdgF+2DnzGHVRqMe0pZufQqZIxAQU?=
- =?us-ascii?Q?PhFAMJhPFeGbRyD0kBH86ZnRNw75uJ9/F9wUF/fOPC30wPIsDxurInPKiyl7?=
- =?us-ascii?Q?fO12fNPo3D3EH5k5oKoj8nt3GgWo6WmiWgCpNo48Q52owc3uLZLkdbM/a/J1?=
- =?us-ascii?Q?CHVv5vltkXj0il8iByCUJ3XodW97Kx95Fe3uLPv/4vTyc3NPUWHQD7ZAw1LB?=
- =?us-ascii?Q?FU358ptIL25T+mrcItuqD9a7GxXI/pCB6eArLj3vo/s+jicI+SQ=3D?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?sOG/0bAXvS8Enqe02oK9BBS6cQPUPdnAHdPu9NUwqTfSKjElAztHsf4dD5aB?=
- =?us-ascii?Q?zHw3BOkGKTRDTiGJx/CEyO0EVMr6uRZo+nbsuw+Lq5e1Iju45WZT1eNqJXjg?=
- =?us-ascii?Q?qG0rv+CJoKdpaKAmozPeAu6t7a7ZOwF7sOXPodWvutdPVCLYAsnKYtVATdVY?=
- =?us-ascii?Q?kEYBYmcCgQWrEzpbZAsgDWzBYLnO5/Lgdm6PS8tQqYoahycckhA2bZB+sVdO?=
- =?us-ascii?Q?yrlzkXZrPere1ieLJOuaPrMWLr2jTM5QPelejLPf0/sGLji4jmbSD+yf/N3I?=
- =?us-ascii?Q?CkQZXZGclLlW1CuadR46kb52ulk7Tr3r35n6ZBRrwy7BuIdLbTg9gO+6/IKR?=
- =?us-ascii?Q?5HlZUg+qxfXzjI476nO9FWUgnR7YnlbmBOMQtxc0YoPqjNVC7/HdDWrfS2I0?=
- =?us-ascii?Q?bq5X8LrR4yqaCYeUKMUdOSYM56RutUd5EN2gWK1aZDgjz9EZRLwUV+HKkwsx?=
- =?us-ascii?Q?BUHde7zQmpsbb7Bh8xrzTuT7gwV1eGQko1ObbBxxTcxHN2blYuxl17IbbH6G?=
- =?us-ascii?Q?O7BciturXNAqxCABhg0MpiTRX45glWsMvZWIRegK3ffNVibNzz9fj22kl4ap?=
- =?us-ascii?Q?tlET7l6w8oGVSOkh/azHawnYkjxYnOUo3hvRO9rr8GxII/heHnavD7KCpm2C?=
- =?us-ascii?Q?C6IYv1YD8E5KyVxoBgqAxy4EosLY3TeZMi8++sk/TftDJ3GrzuQtzOxoQcw+?=
- =?us-ascii?Q?gd8JmVlH2ukpZAcajLF3puIin0LB8zmG2XwhfOjm5uzT8anlH8kM9jk/kNre?=
- =?us-ascii?Q?W56tz4pEWagHmjEMAJUWkKO3CSS6Y3jzfWXfJeTOPFpdEKu7oJS/YIrItmab?=
- =?us-ascii?Q?wboq+g0tGat3c6TeLxFvU9+xgfu2cNiHNf2J+Gy9+In09atrObUNXIGZE/yn?=
- =?us-ascii?Q?WqCBocW6rpJx+qX8hdqzt2ug/pxKJCqx1u/2R7WjR9j7MV+T6RE6kTSA+g6O?=
- =?us-ascii?Q?8FXZ2G4cOVt71xq/PoJIfk5sBOSci0TLJWE9jk8wezAhtErF273GKfdteW/1?=
- =?us-ascii?Q?+hBawNZLFSvVpW9ccfxOy3ETRVjmFhM2Hpa04MpucyMQnrsUiXag2UNxAmdC?=
- =?us-ascii?Q?sO53S9Tw0ZRV862BptCU7vsHova4ALwYH/qg5Xh4krnet9DxU3s/YYBF94VF?=
- =?us-ascii?Q?NroJioZx6NZzPKQldwbNDeyNK0ZRl8FwEdGbgqbRJcXb3meMw1w5M7JIfwKY?=
- =?us-ascii?Q?fY1Vm5Cl5pABkuFSUwEio63o4sQ0y3ML066vlhfrsW8G9kCr8bV1Z7t77hF7?=
- =?us-ascii?Q?vabLMmNM8ECBQV7PzsOF425QUV/Ohif3oPcSByGG0ajMTAGZSoT/qxG2qIpy?=
- =?us-ascii?Q?6isXlqOrSX3+on6EuUK711oYIN1vpE9NqQWIiONIJBh37dEysdmqAi3LDzgy?=
- =?us-ascii?Q?UR5IV6Cms8TKWidx/xPo5RkOOEi71UPT3BlliZZHN8Q/VZebR1/EDDjzujLW?=
- =?us-ascii?Q?mHjXKpAgy61UJR70TZnF9rcWf5dBY02u?=
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6d6a0393-7029-4a04-35c8-08df33745de4
-X-MS-Exchange-CrossTenant-AuthSource: SY8PR01MB9299.ausprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Oct 2026 15:18:19.6727
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: ME3PR01MB5816
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v11 00/18] HID: asus: add support for ROG Ally handhelds
+To: =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, platform-driver-x86@vger.kernel.org,
+ linux-input@vger.kernel.org, kernel@lists.opengamingcollective.org,
+ Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+ "Luke D . Jones" <luke@ljones.dev>,
+ Mateusz Schwartz <matthew.schwartz@linux.dev>,
+ Denis Benato <benato.denis96@gmail.com>, Jonathan LoBue
+ <jlobue10@gmail.com>, Khamunetri Clark <khamunetriclark@gmail.com>,
+ "Derek J. Clark" <derekjohn.clark@gmail.com>,
+ Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+ Nathan Chancellor <nathan@kernel.org>,
+ =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>,
+ Ivan Levchenko <me@livan.pro>, Corentin Chary <corentin.chary@gmail.com>,
+ Hans de Goede <hansg@kernel.org>
+References: <20261025235232.129945-1-denis.benato@linux.dev>
+ <731baed2-60c3-c7ba-5777-68c49f8ee4db@linux.intel.com>
+Content-Language: en-US
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <731baed2-60c3-c7ba-5777-68c49f8ee4db@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-If userspace enables microphone reports from a DualSense connected
-via Bluetooth, by sending a specific output report through hidraw,
-hid-playstation will misinterpret the microphone data as regular
-input reports, resulting in spurious events.
 
-Check the byte after report ID, which contains information necessary
-to distinguish the typical HID input report from other stuff like mic
-data, before parsing. If the byte indicates anything other than the
-typical HID input report, do not parse it. If the report looks like
-mic data, silently ignore it, otherwise report an error.
+On 10/26/26 15:24, Ilpo Järvinen wrote:
+> On Sun, 25 Oct 2026, Denis Benato wrote:
+>
+>> Hi all,
+>>
+>> This patch series adds support for ROG Ally handhelds in the HID driver 
+>> for ASUS devices. 
+>>
+>> The changes include reinitialization of the device after exiting a sleep state,
+>> gamepad configuration, vibration strength configuration, joysticks and triggers
+>> range configuration, anti-deadzone configuration, response curve support,
+>> force feedback support, gamepad mode support, turbo buttons support,
+>> and button remapping support.
+>>
+>> This driver is based on the original Luke's work, which was a great starting point
+>> and I have reworked it to be upstreamable, while keeping the original functionality
+>> intact and extending hid-asus to avoid regressions in functionality such as the
+>> backlight control.
+>>
+>> The ally support has been a surprisingly long task, spanning multiple years and
+>> being used in Steam OS and well as other distributions for quite a while,
+>> and I am happy to finally be submitting it.
+>>
+>> At this time LEDs are not part of the patch series as I have work in progress to
+>> unify LEDs handling across all ASUS devices, and I will submit that in a separate
+>> patch series when the userspace interface will be ready to express capabilities
+>> of these devices, but that will take some more time.
+>>
+>> This driver is the culmination of a lot of work, from many different people,
+>> and I want to thank Luke for his original work, as well as the many people that have
+>> helped me test and provide feedback on the driver: Khamunetri, Jonathan, Derek,
+>> Matthew and others that have helped during these years.
+> I've not read it mostly through.
+>
+> I'm far from convinced when it comes to the locking. I always find it very 
+> suspicious when a lock is taken just to read/write a variabl, as 
+> immediately after releasing the lock, the protection is lost so the locks 
+> look either overkill (just a barrier would suffice for racing with init) 
+> or unsafe (racing with uninit/remove). My head hurts enough from all the 
+> readong so I don't want go figure out which one it is.
 
-Link: https://bugzilla.redhat.com/attachment.cgi?id=2161437
-Closes: https://bugzilla.redhat.com/show_bug.cgi?id=2554570
-Fixes: 799b2b533a29 ("HID: playstation: add DualSense Bluetooth support.")
-Tested-by: Du Yijie <nathandu@outlook.com>
-Signed-off-by: Du Yijie <nathandu@outlook.com>
----
- drivers/hid/hid-playstation.c | 51 ++++++++++++++++++++++++++++++-----
- 1 file changed, 44 insertions(+), 7 deletions(-)
+Ilpo and Sakari,
 
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index f9dc9378cf77..8bad1a9dae54 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -94,6 +94,13 @@ struct ps_led_info {
- #define DS_FEATURE_REPORT_FIRMWARE_INFO		0x20
- #define DS_FEATURE_REPORT_FIRMWARE_INFO_SIZE	64
- 
-+/* Metadata of Bluetooth input report. */
-+#define DS_INPUT_SEQ_TAG	GENMASK(3, 0)
-+#define DS_INPUT_SEQ_NO		GENMASK(7, 4)
-+
-+#define DS_INPUT_SEQ_TAG_INPUT_REPORT	1
-+#define DS_INPUT_SEQ_TAG_MIC_REPORT	2
-+
- /* Button masks for DualSense input report. */
- #define DS_BUTTONS0_HAT_SWITCH	GENMASK(3, 0)
- #define DS_BUTTONS0_SQUARE	BIT(4)
-@@ -242,7 +249,7 @@ struct dualsense_touch_point {
- static_assert(sizeof(struct dualsense_touch_point) == 4);
- 
- /* Main DualSense input report excluding any BT/USB specific headers. */
--struct dualsense_input_report {
-+struct dualsense_input_report_common {
- 	u8 x, y;
- 	u8 rx, ry;
- 	u8 z, rz;
-@@ -264,7 +271,22 @@ struct dualsense_input_report {
- 	u8 reserved4[8];
- } __packed;
- /* Common input report size shared equals the size of the USB report minus 1 byte for ReportID. */
--static_assert(sizeof(struct dualsense_input_report) == DS_INPUT_REPORT_USB_SIZE - 1);
-+static_assert(sizeof(struct dualsense_input_report_common) == DS_INPUT_REPORT_USB_SIZE - 1);
-+
-+struct dualsense_input_report_usb {
-+	u8 report_id; /* 0x01 */
-+	struct dualsense_input_report_common common;
-+} __packed;
-+static_assert(sizeof(struct dualsense_input_report_usb) == DS_INPUT_REPORT_USB_SIZE);
-+
-+struct dualsense_input_report_bt {
-+	u8 report_id; /* 0x31 */
-+	u8 seq_tag;
-+	struct dualsense_input_report_common common;
-+	u8 reserved[9];
-+	__le32 crc32;
-+} __packed;
-+static_assert(sizeof(struct dualsense_input_report_bt) == DS_INPUT_REPORT_BT_SIZE);
- 
- /* Common data between DualSense BT/USB main output report. */
- struct dualsense_output_report_common {
-@@ -1438,7 +1460,9 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- {
- 	struct hid_device *hdev = ps_dev->hdev;
- 	struct dualsense *ds = container_of(ps_dev, struct dualsense, base);
--	struct dualsense_input_report *ds_report;
-+	struct dualsense_input_report_common *ds_report;
-+	struct dualsense_input_report_bt *ds_report_bt;
-+	struct dualsense_input_report_usb *ds_report_usb;
- 	u8 battery_data, battery_capacity, charging_status, value;
- 	int battery_status;
- 	u32 sensor_timestamp;
-@@ -1452,18 +1476,31 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 	 */
- 	if (hdev->bus == BUS_USB && report->id == DS_INPUT_REPORT_USB &&
- 	    size == DS_INPUT_REPORT_USB_SIZE) {
--		ds_report = (struct dualsense_input_report *)&data[1];
-+		ds_report_usb = (struct dualsense_input_report_usb *)data;
-+		ds_report = &ds_report_usb->common;
- 	} else if (hdev->bus == BUS_BLUETOOTH && report->id == DS_INPUT_REPORT_BT &&
- 		   size == DS_INPUT_REPORT_BT_SIZE) {
--		/* Last 4 bytes of input report contain crc32 */
--		u32 report_crc = get_unaligned_le32(&data[size - 4]);
-+		ds_report_bt = (struct dualsense_input_report_bt *)data;
-+		u32 report_crc = le32_to_cpu(ds_report_bt->crc32);
- 
- 		if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, report_crc)) {
- 			hid_err(hdev, "DualSense input CRC's check failed\n");
- 			return -EILSEQ;
- 		}
- 
--		ds_report = (struct dualsense_input_report *)&data[2];
-+		unsigned int seq_tag = FIELD_GET(DS_INPUT_SEQ_TAG, ds_report_bt->seq_tag);
-+
-+		if (seq_tag == DS_INPUT_SEQ_TAG_MIC_REPORT) {
-+			/* Microphone reports are silently ignored. */
-+			return 0;
-+		}
-+
-+		if (seq_tag != DS_INPUT_SEQ_TAG_INPUT_REPORT) {
-+			hid_err(hdev, "Unknown seq_tag=%d\n", seq_tag);
-+			return -1;
-+		}
-+
-+		ds_report = &ds_report_bt->common;
- 	} else {
- 		hid_err(hdev, "Unhandled reportID=%d\n", report->id);
- 		return -1;
+Thank you very much! It's very good to see an actual review after all this time!
+Well it has been 3-4 months but feels a very long time.
 
-base-commit: 2c2fe95ab19b09bef7391e3e5cdf8146d09792b6
--- 
-2.56.0
+The first version of this was posted in the lkml in 2024 and after that only sashiko-bot
+provided more inputs so I followed that, perhaps too much.
 
+It's very good to see humans!
+
+> Code quality varies a lot, there are some fragments that seem almost 
+> braindead but then some other parts use modern things like cleanup.h 
+> helpers, so it's a mixed bag. My suggestion is would be for you to do a 
+> full self-review of the series so you could catch the bits I missed (I 
+> know it's a lot of lines, but hey, I've read it myself now so I know what 
+> it means to review it through(!)). I know you generally seem able to 
+> provide good review feedback for others and write clean looking patches so 
+> it's probably just some of the code originates from other people and 
+> you've not just looked enough lines to clean it up properly.
+
+Yeah... When I picked up Luke's work I took a lot of time (months) to modernize
+the source as much as possible, then sashiko-bot found problem and either me or glm
+fixed something, both of us reflecting how we woke up that morning, plus back and forth
+with issues and things changed one way and back when I realized the approach was
+going nowhere... And code that worked that was later changed leaving it suboptimal...
+Loads of changes from both humans and LLMs (albeit the main culprit is me hahahah).
+
+The xgm code was put together in two days from captures I ran in windows while
+also fixing the MSI claw...
+
+I'm not surprised this is a mixed bag. Oh well, I'm going to clean it up and make it very cool...
+And I am already having ideas on how to replace the complex probe machinery that prevents
+rogue devices with something more readable (and hopefully less long, because more than
+5k lines of dense hid code is by far the longest modification I have ever attempted to linux).
+
+I will take some days to properly review this and address comments over time!
+Thank you very much again!
+
+Best regards,
+Denis Benato
+
+>
+> --
+>  i.
+>
+>
+>> Best regards,
+>> Denis Benato
+>>
+>> Link v1: https://lore.kernel.org/all/20260813144736.2477941-1-denis.benato@linux.dev/
+>> Link v2: https://lore.kernel.org/all/20260819195835.1649657-1-denis.benato@linux.dev/
+>> Link v3: https://lore.kernel.org/all/20260823185849.2478673-2-denis.benato@linux.dev/
+>> Link v4: https://lore.kernel.org/all/20260830234320.114356-1-denis.benato@linux.dev/
+>> Link v5: https://lore.kernel.org/all/20260904145845.184887-1-denis.benato@linux.dev/
+>> Link v6: https://lore.kernel.org/all/20260908174433.74260-1-denis.benato@linux.dev/
+>> Link v7: https://lore.kernel.org/all/20260915201314.28279-1-denis.benato@linux.dev/
+>> Link v8: https://lore.kernel.org/all/20260922230205.6847-1-denis.benato@linux.dev/
+>> Link v9: https://lore.kernel.org/all/20261009122820.7603-1-denis.benato@linux.dev/
+>> Link v10: https://lore.kernel.org/all/20261017181520.70206-1-denis.benato@linux.dev/
+>>
+>> Version v11 has been more involved and I focused on two main things: extending the
+>> xg mobile (which the ROG ally is one of the few models that supports it) and
+>> properly handling hid packet sizes because it has been a constant source of issues
+>> and fight in the past and I want to put an end to both of those.
+>>
+>> I kindly ask Rebecca and Paolo to try using the new asus_report_len() to see if its
+>> also suitable for theirs Zenbook Duo devices and if so to adopt it in theirs patches
+>> as well.
+>>
+>> Link of a relevant patchset: https://lore.kernel.org/all/20261020092423.36380-1-p.pisati@gmail.com/
+>>
+>> Version v10 drops a patch already merged as part of XG mobile and applies the
+>> patchset on top of for-next/7.4.
+>>
+>> With v8 the driver does sysfs_notify after successfully changing configuration
+>> attributes so that userspace can be notified of the changes immediately.
+>>
+>> With v7 the series is rebased on top of the asus tree: the first patch of v6
+>> has been applied upstream as 8099f9da59f1 ("HID: asus: do not send keyboard
+>> init reports to touchpads"), so this series is now 12 patches.
+>>
+>> The probe paths of the ally interfaces now reserve the interface role while
+>> their initialization is running, the configuration attributes work from the
+>> moment their files exist and a failed initialization rolls the configuration
+>> back instead of leaving the created sysfs groups behind. The response curve
+>> is no longer configured entry by entry: a single attribute per joystick now
+>> takes the whole curve in one validated write, and a companion index file
+>> documents what each value is.
+>>
+>> With v5 I returned to the original manual management of memory and sysfs groups
+>> as going devm did not play well with the general "plugin" architecture of the
+>> ally portion of the driver and has caused more bugs than it solved: sashiko-bot
+>> will have to come to terms with hand-managed memory this time.
+>>
+>> Changelog:
+>>
+>> -v2
+>>   - HID: asus: add support for ROG Ally handhelds
+>>    - release all vendor buttons on resume
+>>    - align arguments of hid_asus_ally_raw_event()
+>>   - HID: asus: add gamepad configuration
+>>    - clean up comments and kernel-doc
+>>   - HID: asus: add vibration strength configuration
+>>    - clean up comments and kernel-doc
+>>   - HID: asus: add joysticks inner and outer range configuration
+>>    - clean up comments and kernel-doc
+>>   - HID: asus: add triggers inner and outer range configuration
+>>    - clean up comments and kernel-doc
+>>   - HID: asus: add joysticks anti-deadzone configuration
+>>    - clean up comments and kernel-doc
+>>   - HID: asus: add support for response curve
+>>    - normalize kernel-doc comment
+>>   - HID: asus: add support to force feedback
+>>    - remove a stale comment
+>>   - HID: asus: add support for gamepad mode
+>>    - remove a stale comment, normalize kernel-doc
+>>   - HID: asus: add support for turbo buttons
+>>    - remove stale comments, normalize kernel-doc
+>>   - HID: asus: add support for btn remapping
+>>    - convert function comments to kernel-doc
+>>
+>> -v3
+>>   - HID: asus: add support for ROG Ally handhelds
+>>    - take references on input devices to avoid use-after-free on unbind
+>>    - reject probes from USB devices other than the recorded controller
+>>    - add open/close callbacks to the gamepad input device
+>>    - keyboard_input is populated after hid_hw_start(): issue does not apply
+>>   - HID: asus: add gamepad configuration
+>>    - restore cached Xbox controller mode after an MCU reset
+>>    - convert remaining scoped_guard() users to guard()
+>>    - avoid printing "(null)" for unnamed sysfs groups
+>>   - HID: asus: add vibration strength configuration
+>>    - send MCU commands through ally_gamepad_send_packet()
+>>   - HID: asus: add joysticks inner and outer range configuration
+>>    - send MCU commands through ally_gamepad_send_packet()
+>>    - gate sysfs groups and callbacks on capabilities
+>>   - HID: asus: add triggers inner and outer range configuration
+>>    - send MCU commands through ally_gamepad_send_packet()
+>>    - gate sysfs groups and callbacks on capabilities
+>>   - HID: asus: add joysticks anti-deadzone configuration
+>>    - send MCU commands through ally_gamepad_send_packet()
+>>    - gate sysfs groups and callbacks on capabilities
+>>   - HID: asus: add support for response curve
+>>    - send MCU commands through ally_gamepad_send_packet()
+>>    - check resp_curve_support in show callbacks too
+>>   - HID: asus: add support to force feedback
+>>    - read ally_x_hdev under ally_data_lock and take a reference on it
+>>    - publish ally_x_hdev before registering the input device
+>>   - HID: asus: add support for gamepad mode
+>>    - convert remaining scoped_guard() users to guard()
+>>   - HID: asus: add support for turbo buttons
+>>    - pass the config pointer directly to ally_config_remove()
+>>    - run ally_config_remove() outside ally_data_lock
+>>    - restore cached values when the hardware rejects an update
+>>    - check turbo_support in show callbacks too
+>>    - reported scoped_guard warning verified as false positive
+>>   - HID: asus: add support for btn remapping
+>>    - look up default mappings by name instead of array index
+>>    - resend the old mapping when a sequential update fails midway
+>>    - allow macros regardless of the gamepad mode
+>>    - rename PAD_* codes to proper input event names
+>>    - convert remaining scoped_guard() users to guard()
+>>
+>> - v4
+>>   - HID: asus: do not send keyboard init reports to touchpads
+>>     - Added to avoid regressting touchpads and as guidance for maintainers
+>>   - HID: asus: reinitialize the device after exiting a sleep state
+>>     - Follow the modified logic of the previous patch
+>>   - Addressed issues of sashiko-bot albeit one was a false positive
+>>   - Rework patches: I made some disasters rebasing in v3
+>>
+>> - v5
+>>   - HID: asus: add support for ROG Ally handhelds
+>>     - Fix UAF due to inverted input device ownership in hid_asus_ally_remove()
+>>     - Reject probes claiming an interface role that is already owned
+>>   - HID: asus: add gamepad configuration
+>>     - Keep the configuration allocated until module removal instead of
+>>       devm-managing it: the sysfs callbacks must be able to outlive probe
+>>     - Undo sysfs group creation manually on the error path and in
+>>       ally_config_remove(): creation and removal are now symmetric
+>>     - Add payloads size check in ally_alloc_cmd()
+>>   - HID: asus: add vibration strength configuration
+>>     - Restore the cached vibration intensity after an MCU reset
+>>   - HID: asus: add joysticks inner and outer range configuration
+>>     - Restore the cached joystick thresholds after an MCU reset
+>>     - Remove the calibration sysfs groups manually like the other ones
+>>   - HID: asus: add triggers inner and outer range configuration
+>>     - Restore the cached trigger ranges after an MCU reset
+>>   - HID: asus: add joysticks anti-deadzone configuration
+>>     - Restore the cached anti-deadzone values after an MCU reset
+>>   - HID: asus: add support for response curve
+>>     - Restore the cached response curves after an MCU reset
+>>     - Keep holding config_mutex until the curve packet has been sent
+>>   - HID: asus: add support to force feedback
+>>     - Serialize the cross-interface force-feedback sends with the gamepad
+>>       interface removal by holding intf_mutex in the callers
+>>   - HID: asus: add support for gamepad mode
+>>     - Restore the recorded gamepad mode after an MCU reset
+>>   - HID: asus: add support for turbo buttons
+>>     - Fix UAF allocating the turbo button entries with kcalloc
+>>     - Restore the cached turbo parameters after an MCU reset
+>>   - HID: asus: add support for btn remapping
+>>     - Keep the button mappings outside of the controller lifetime, so
+>>       that the recorded configuration survives a re-probe
+>>     - Re-apply the recorded mappings after an MCU reset
+>>     - Fetch the configuration through ally_get_config()
+>>
+>> - v6
+>>   - HID: asus: add support for ROG Ally handhelds
+>>     - Add a maximum size check in ally_alloc_cmd()
+>>     - Drop the dead x_hdev snapshot taken in hid_asus_ally_raw_event()
+>>     - Drop the unused hdev parameter of handle_ctrl_alt_del()
+>>     - Drop the unused hdev/report parameters of ally_x_raw_event()
+>>     - Turn the "// F20;" comment into a proper "/* F20 */"
+>>   - HID: asus: add gamepad configuration
+>>     - Publish the configuration (ally->config under ally_data_lock)
+>>       before the sysfs groups are created and withdraw it on the error
+>>       path: attributes could become visible while ally_get_config()
+>>       still returned NULL and the restore path silently did nothing
+>>     - Record the Xbox controller mode in the first-setup defaults and
+>>       apply the recorded value from hid_asus_ally_init()
+>>     - properly rebase ally_alloc_cmd(): make it no change from previous patch
+>>   - HID: asus: add joysticks inner and outer range configuration
+>>     - Drop the unused cfg parameter of ally_set_joystick_thresholds()
+>>   - HID: asus: add triggers inner and outer range configuration
+>>     - Drop the unused cfg parameter of ally_set_trigger_ranges()
+>>     - Fix a commit message typo: "sensitivity"
+>>   - HID: asus: add support for response curve
+>>     - Add ally_resp_curve_is_valid() and use it in the init/resume
+>>       restore path exactly like the apply path does
+>>     - Drop the unused struct device * parameter of the four
+>>       response-curve helpers
+>>   - HID: asus: add support to force feedback
+>>     - Drop the unused pointers from ally_x_send_ff_report() and ally_x_send_ff_off()
+>>   - HID: asus: add support for gamepad mode
+>>     - Apply the mode exactly once from hid_asus_ally_init()
+>>   - HID: asus: add support for turbo buttons
+>>     - Remove the calibration groups created before a sysfs failure
+>>   - HID: asus: add support for btn remapping
+>>     - Do not gate remapping by turbo
+>>     - Reject NULL remap/macro pointers in ally_set_button_mapping()
+>>     - Carry the ally pointer in struct button_remap_attr
+>>     - Fix the "hypen" comment typo
+>>
+>> - v7
+>>   - The "HID: asus: do not send keyboard init reports to touchpads" patch
+>>     is not part of this series anymore: it has been applied upstream as
+>>     8099f9da59f1 and the series is rebased on top of it
+>>   - HID: asus: add support for ROG Ally handhelds
+>>     - Reserve the probed interface role for the whole duration of its
+>>       sleeping initialization: a concurrent probe of the same role could
+>>       pass the singleton checks before the first one published its pointer
+>>   - HID: asus: add gamepad configuration
+>>     - Publish drvdata->rog_ally before the configuration attributes are
+>>       created: the callbacks fetched it before asus_probe() published it
+>>       and returned -ENODEV in the meantime
+>>     - Roll the configuration back with ally_config_remove() when
+>>       hid_asus_ally_init() fails, instead of leaking the created sysfs
+>>       groups and the button entries
+>>   - HID: asus: add support for response curve
+>>     - Replace response_curve_pct_1..4, response_curve_move_1..4 and the
+>>       apply attributes with one response_curve attribute per joystick that
+>>       takes the whole curve in a single validated all-or-nothing write:
+>>       staged partial edits reaching the MCU on resume cannot happen anymore
+>>     - Add a read-only response_curve_index attribute documenting the
+>>       meaning of each value
+>>     - Restore both curves unconditionally on init/resume: only validated
+>>       curves are recorded now
+>>   - HID: asus: add support for btn remapping
+>>     - Drop the stale cfg->turbo_support gate in ally_config_create():
+>>       remapping attributes are created for every device with button
+>>       directories, not only turbo-capable ones
+>>
+>> - v8
+>>   - HID: asus: add support for ROG Ally handhelds
+>>     - Release the probe reservation when the interface pointer is
+>>       published: the flags were only cleared on failure, leaving them
+>>       stuck set after the first bind and rejecting every later probe
+>>       of that role
+>>     - Reserve the keyboard interface role too: its check and its
+>>       publication were two separate locked sections, so concurrent
+>>       probes of the same role could both publish
+>>     - Keep the recorded USB device while any probe is still in flight
+>>   - HID: asus: add gamepad configuration
+>>     - Report the missing Xbox controller capability with -EOPNOTSUPP
+>>   - HID: asus: add vibration strength configuration
+>>     - Wake pollers with sysfs_notify() after a successful write
+>>   - HID: asus: add joysticks inner and outer range configuration
+>>     - Wake pollers with sysfs_notify() after a successful write
+>>   - HID: asus: add triggers inner and outer range configuration
+>>     - Wake pollers with sysfs_notify() after a successful write
+>>   - HID: asus: add joysticks anti-deadzone configuration
+>>     - Wake pollers with sysfs_notify() after a successful write
+>>   - HID: asus: add support for response curve
+>>     - Wake pollers with sysfs_notify() after a successful curve write
+>>   - HID: asus: add support to force feedback
+>>     - Clear the rumble update latch on setup so a fresh interface
+>>       cannot inherit one left over from a teardown race
+>>   - HID: asus: add support for gamepad mode
+>>     - Return -EIO for invalid gamepad modes stored in the device
+>>     - Wake pollers with sysfs_notify() after a successful write
+>>   - HID: asus: add support for turbo buttons
+>>     - Wake pollers with sysfs_notify() after a successful write
+>>   - HID: asus: add support for btn remapping
+>>     - Return -EIO if a mapping is ever found unset instead of
+>>       dereferencing it
+>>     - Wake pollers with sysfs_notify() after remap and macro writes,
+>>       and after a mode switch re-defaults the mappings
+>>
+>> - v9
+>>   - HID: asus: add support to force feedback
+>>     - Hold intf_mutex while unpublishing the gamepad interface in the
+>>       setup error path, like hid_asus_ally_remove() does
+>>     - Improve gamepad interface device lock around the initialization
+>>       force-feedback send
+>>   - HID: asus: add support for btn remapping
+>>     - Unpublish button_entries under config_mutex before removing the
+>>       attributes and freeing the array
+>>
+>> - v10
+>>   - HID: asus: reinitialize the device after exiting a sleep state
+>>     - Dropped as already merged in XG Mobile patchset
+>>
+>> - v11
+>>   - HID: asus: add support for ROG Ally handhelds
+>>     - Split the chained data[1] = data[3] = 0x00 assignment into two
+>>       statements
+>>     - Align the hid_asus_ally_raw_event() continuation line with the
+>>       opening parenthesis
+>>   - HID: asus: add gamepad configuration
+>>     - Add the missing blank line between struct hid_driver and
+>>       asus_init()
+>>   - HID: asus: add joysticks inner and outer range configuration
+>>     - Align the sysfs_remove_group() and hid_warn() continuation lines
+>>       with the opening parenthesis
+>>   - HID: asus: add triggers inner and outer range configuration
+>>     - Align the hid_warn() continuation lines with the opening
+>>       parenthesis
+>>   - HID: asus: add joysticks anti-deadzone configuration
+>>     - Align the hid_warn() continuation lines with the opening
+>>       parenthesis
+>>   - HID: asus: add support for response curve
+>>     - Drop the duplicate blank line before ally_config_attrs[]
+>>   - HID: asus: add support to force feedback
+>>     - Add the missing blank line before the static_assert
+>>     - Align the hid_warn() continuation line with the opening
+>>       parenthesis
+>>   - HID: asus: add support for btn remapping
+>>     - Align the hid_warn() and ally_set_button_mapping() continuation
+>>       lines with the opening parenthesis
+>>   - HID: asus: size feature reports from the HID report descriptor
+>>     - New patch
+>>   - HID: asus: identify XG Mobile stations and bind the LED to the
+>>     reported model
+>>     - New patch
+>>   - HID: asus: expose XG Mobile identity and firmware information
+>>     - New patch
+>>   - HID: asus: size ally gamepad commands from the HID report descriptor
+>>     - New patch
+>>   - platform/x86: asus-armoury: pick the eGPU activation from the
+>>     reported GPU
+>>     - New patch
+>>   - HID: asus: report the XG Mobile GPU vendor to asus-wmi
+>>     - New patch
+>>   - MAINTAINERS: add maintainer for the ASUS HID driver
+>>     - New patch
+>>
+>> Denis Benato (18):
+>>   HID: asus: add support for ROG Ally handhelds
+>>   HID: asus: add gamepad configuration
+>>   HID: asus: add vibration strength configuration
+>>   HID: asus: add joysticks inner and outer range configuration
+>>   HID: asus: add triggers inner and outer range configuration
+>>   HID: asus: add joysticks anti-deadzone configuration
+>>   HID: asus: add support for response curve
+>>   HID: asus: add support to force feedback
+>>   HID: asus: add support for gamepad mode
+>>   HID: asus: add support for turbo buttons
+>>   HID: asus: add support for btn remapping
+>>   HID: asus: size feature reports from the HID report descriptor
+>>   HID: asus: identify XG Mobile stations and bind the LED to the
+>>     reported model
+>>   HID: asus: expose XG Mobile identity and firmware information
+>>   HID: asus: size ally gamepad commands from the HID report descriptor
+>>   platform/x86: asus-armoury: pick the eGPU activation from the reported
+>>     GPU
+>>   HID: asus: report the XG Mobile GPU vendor to asus-wmi
+>>   MAINTAINERS: add maintainer for the ASUS HID driver
+>>
+>>  MAINTAINERS                                |    6 +
+>>  drivers/hid/Kconfig                        |    1 +
+>>  drivers/hid/hid-asus.c                     | 5457 +++++++++++++++++++-
+>>  drivers/platform/x86/asus-armoury.c        |   53 +-
+>>  drivers/platform/x86/asus-wmi.c            |   29 +
+>>  include/linux/platform_data/x86/asus-wmi.h |   11 +
+>>  6 files changed, 5474 insertions(+), 83 deletions(-)
+>>
+>>

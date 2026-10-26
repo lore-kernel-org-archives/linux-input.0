@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792973448;
-	b=VL+BlPEYtsR6bxrAPeARhb4b5Fao1dILftvj9IOAeUYqwFYKQECt/lWMvmm2xzzxBzfz
-	 UcPyecMXa5H31h46zv9SphcimH6gLnxjtrPaeOfi+cJgKSab0xmq8IlJLMIoQTG/h26e1
-	 aHzB+juzXA9106Bzcp1TR6hNnWxdV49syV+XyDMLAD6tYm0P/L7itRRvoejNojGE6fJ+N
-	 PExeA3nW5B8+ZPBl4h4gXHUHRDwn93x1lF0q4u/oqfoeyyQ6NgOfyJ2cU9NWBblYJg/RZ
-	 Z+wiIhYT/dC7hnfJxu84KtxlULZcdYwXrmv0U2yZyGqExFmo/917eyvX8irC1Yfyhtw==
+	t=1792973994;
+	b=sTBLcckTboz1nqS9BocWcEa2zjIzBFgnHbxAjkSeveMZJfWMn8oCSO6HUjuAKrHqUepw
+	 Xykn6j8xXC/+phCgwGFMS6icjbXF8SXgxdX7RdcqkcFk6HCiPYB1aSHy3pVQdOljvtRoq
+	 5hXlhKe3jqr998W1OYwsfqMUhVM0aiDK4XnXto9aMqQGIC+flKvIfQMD6Jek2yEVE86lh
+	 wJtHD3Ki43Szxpi9Y6HioPbYAxh48P5dnNphZTij6kWPYZwBOe5ZaDUnzM1itThBBGlAJ
+	 jB3wpX/djWROzywGysCaq3mz4YvkrS8Ir/q6nl+IZjEUSFgWkn/0tKBE0Susi0kUpRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792973448;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792973994;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=IjGPvKb7XMKmOBdTY6+LLxdaluX8C6B2yi5VZti4Zm8=;
-	b=D+IFhbBvxOGSDkBOBgDwaCzw7/5dcnu9gbu9EcjKVg9t4elVolgP8xBj+KrzUSLm1Q+u
-	 haFgLjGyK8qxYXH7ePEQMONol75BJjF3ctwNvC+9dgUi2XZBL74zScQMnPjmIR5Wi+Ybg
-	 ZG8LMYpdPoHKybJpp55ymKJR4RrMT0J3VGaXCGpkGjh0Y6XnsrDe/NsME64EbWw3cLtCa
-	 07gBProf9kOgLny0HF9Pg/U1q6ghqTX9/YNhz0AxKHZH4qT+2wtiJl/1ZoiVYfcrbZbr6
-	 nlreetixdNlHWTOVf34m4ewnOWr3lvpezldmZ0YyJRydbdMDm+hrvyCRQz3bdW2z6uA==
+	bh=uMO68eIQtC4rnWnbt8ABAVa0AY7XnE607gTAZdQwyaw=;
+	b=4+dtBP+wWSoTD6E4znCAuMUjaZiFFLNjdabb8IoaPzyhYAO+iNNpAG3CO1sWptcRIl/9
+	 y65dOVe/xCBW7cbFKTe+Cjez2+ALF+Idqs+y1ejtiDrELCnT8lVMveL6iBj6t3n3a6TIX
+	 tTq3cJRPFua0Dt2w1cFwSbqJ0aDEaFULaINk/0k61bJC/gELESRosgQACpdEMkJbp5UrZ
+	 C9E6H+I/+JlnN9o5YVLLTSNMqB9UXM4pPzyr+tICQm4joHaip6F5QH6CFOSFn+RYNv3N4
+	 9uAZ2Jf1tltKBdlD5jUaPeA8RLdzB5D+DQnqxmHvQobr5Uph3ETK6hXrHS4k8RTIXRA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCjaRapr;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KEoHmMjl;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A502606A31A
-	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:10:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C6A606A31A
+	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:19:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCjaRapr
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6BF1F01825;
-	Mon, 26 Oct 2026 00:10:47 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KEoHmMjl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7641F01825;
+	Mon, 26 Oct 2026 00:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792973448;
-	bh=IjGPvKb7XMKmOBdTY6+LLxdaluX8C6B2yi5VZti4Zm8=;
+	s=k20260515; t=1792973993;
+	bh=uMO68eIQtC4rnWnbt8ABAVa0AY7XnE607gTAZdQwyaw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WCjaRapr6BHvGP3Gupa6Yyc+pyEJjFlAz8hyBK/2S2WbBcKYLWTSngIZQeVCQ3IVl
-	 D4LEN1XAFz1JpO3f0TsZ5ziHT7QpMy084jTBkWoTU/ASzU0sOr4lTRoSkmgo7ZkREf
-	 hqgxtA/DIN/PlV9sRy9jy0ikfBx8OTRugwqKoreOBJHoV9DyOqswT/41HyCElHI19h
-	 BHqc/GIsRPBqAGF+W/hbcG1mEMBE2O8esEBCWUUjKp3mOZqjpHNyfp6fPl5ou/nN6d
-	 S2JSsqiRQEuo1MuySDbi1zgPlZYTKb/Czxd9tLGhbhpkNn8y92XKmXmTWrpPekWG6r
-	 M+tZvsoQRz9jw==
-Message-ID: <sashiko-outbox-184556@kernel.org>
+	b=KEoHmMjlYYEBoXVSuy73IEWoLcpOTpFeAvPovtUnrM8ZHLu9kw8PqUXc0SIi+GRNh
+	 w99abjGZa7kFqSQ1+9kR1PuVX27PGtrtxx6jKBJMfrN6JkusUmve2FT9opAaSq14g3
+	 1VdgkCVBCo0fe2+POdxdbqvL6gdGteZP1H2nX2Tk4XpIjoefMHQ1/a5w6UsintCqaU
+	 K6Iyav75IXin7KlA5UWYEQEf18kX+nMbiU7fAvy+Iw9XyUoyHnT2evoyERbXYCbNg8
+	 8zYlGzVLwWqcpKqq9HeUnx0MBs+TXCq7S5/97RbTK5l5ynqTfnZJExv+VJkyqH9Qz6
+	 R+GcOSthllG6Q==
+Message-ID: <sashiko-outbox-184559@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 15/18] HID: asus: size ally gamepad commands from
- the HID report descriptor
+Subject: Re: [PATCH v11 08/18] HID: asus: add support to force feedback
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261025235232.129945-16-denis.benato@linux.dev>
+In-Reply-To: <20261025235232.129945-9-denis.benato@linux.dev>
 References: <20261025235232.129945-1-denis.benato@linux.dev>
- <20261025235232.129945-16-denis.benato@linux.dev>
+ <20261025235232.129945-9-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 00:10:47 +0000
+Date: Mon, 26 Oct 2026 00:19:52 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,143 +60,317 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [Medium] HID: asus: ally_dev_get_report() sizes 0x0D read from 0x5A repor=
-t length
+- [Critical] HID: asus: TOCTOU race on ally_x_hdev in hid_asus_ally_init() =
+causes UAF
+- [Medium] HID: asus: FF init race and missing error cleanup in ally_x_setu=
+p_input()
+- [Medium] HID: asus: race in hid_asus_ally_remove() and ally_x_ff_work_fn(=
+) teardown
 --
 
-commit 10b46a2b16e439d019a0b1a24882abca2924c954
+commit aa3d72be03857627e94d5d35f54f6366760f62af
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: size ally gamepad commands from the HID report descriptor
+HID: asus: add support to force feedback
 
-This commit replaces the hardcoded ROG_ALLY_REPORT_SIZE constant with dynam=
-ic
-buffer sizing derived from the HID report descriptor via asus_report_len() =
-for
-ROG Ally gamepad commands and MCU version requests.
+This commit adds force-feedback (FF_RUMBLE) support for the ASUS ROG Ally X
+gamepad interface using input_ff_create_memless() and a workqueue to send
+output reports asynchronously.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index f438cad13264a..e444cad85b32c 100644
+> index e1883ee20413c..a3a21a1493aa8 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-> @@ -69,7 +69,6 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->  #define ASUS_XGM_QUERY_VERSION 0x03
->  #define ASUS_XGM_INFO_LEN 32
+[ ... ]
+> @@ -2674,6 +2812,36 @@ static int ally_x_setup_input(struct hid_device *h=
+dev, struct ally_handheld *all
+>  	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY);
+>  	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
 > =20
-> -#define ROG_ALLY_REPORT_SIZE 64
->  #define ROG_ALLY_X_MIN_MCU 313
->  #define ROG_ALLY_MIN_MCU 319
-> =20
-> @@ -943,28 +942,33 @@ static int ally_gamepad_send_receive_packet(struct =
-ally_handheld *ally,
-> =20
->  /**
->   * ally_alloc_cmd() - Construct a command buffer for the gamepad
-> + * @hdev: HID device the command is built for
->   * @cmd: Command code to send
->   * @payload: Optional payload data to include in the command
->   * @payload_size: Size of the payload data
-> + * @size: Where to store the length of the allocated buffer
->   *
-> - * The constructed buffer is 64 bytes long, and it is the caller
-> - * responsibility to free the buffer using kfree().
-> + * The buffer is sized after the feature report the device declares for
-> + * the gamepad commands, and it is the caller responsibility to free the
-> + * buffer using kfree().
->   *
->   * Return: the newly allocated buffer containing the command, or NULL on
->   * allocation failure or if the payload would not fit in the report
->   */
-> -static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
-> +static u8 *ally_alloc_cmd(struct hid_device *hdev, u8 cmd, const u8 *pay=
-load,
-> +			  u8 payload_size, size_t *size)
->  {
-> +	size_t hw_len =3D asus_report_len(hdev, HID_ALLY_SET_REPORT_ID);
->  	u8 *hidbuf;
-> =20
->  	/*
->  	 * The payload is written after the 4-byte command header:
->  	 * reject one that would spill past the end of the report.
->  	 */
-> -	if (payload_size > ROG_ALLY_REPORT_SIZE - 4)
-> +	if (hw_len < 4 || payload_size > hw_len - 4)
->  		return NULL;
-> =20
-> -	hidbuf =3D kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
-> +	hidbuf =3D kzalloc(hw_len, GFP_KERNEL);
-> =20
->  	if (!hidbuf)
->  		return NULL;
-> @@ -977,6 +981,8 @@ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, =
-u8 payload_size)
->  	if (payload_size > 0 && payload)
->  		memcpy(&hidbuf[4], payload, payload_size);
-> =20
-> +	*size =3D hw_len;
+> +	memcpy(&ally->ff_packet, ALLY_FORCE_FEEDBACK_OFF, sizeof(ally->ff_packe=
+t));
+> +	/*
+> +	 * A play_effect() racing the previous teardown can have left the
+> +	 * update latch set: a fresh interface must not inherit it, or the
+> +	 * first rumble work would send a packet nobody asked for.
+> +	 */
+> +	ally->update_ff =3D false;
+> +	ally->ff_work_initialized =3D true;
 > +
->  	return hidbuf;
+> +	input_set_capability(input, EV_FF, FF_RUMBLE);
+> +
+> +	/*
+> +	 * A registered device advertising FF_RUMBLE without the memless core
+> +	 * behind it would crash input_ff_upload(): fail the whole setup instea=
+d.
+> +	 */
+> +	ret =3D input_ff_create_memless(input, NULL, ally_x_play_effect);
+> +	if (ret) {
+> +		hid_err(hdev, "Failed to create force-feedback: %d\n", ret);
+> +		goto ally_x_setup_input_err;
+> +	}
+> +
+> +	/*
+> +	 * Publish the interface before the input device becomes visible to
+> +	 * userspace: an effect uploaded right after registration would
+> +	 * otherwise find a NULL hdev and get dropped.
+> +	 */
+> +	spin_lock_irqsave(&ally_data_lock, flags);
+> +	ally->ally_x_hdev =3D hdev;
+> +	spin_unlock_irqrestore(&ally_data_lock, flags);
+> +
+>  	ret =3D input_register_device(input);
+>  	if (ret) {
+>  		hid_err(hdev, "Failed to register Ally X gamepad device: %d\n", ret);
+> @@ -2687,20 +2855,61 @@ static int ally_x_setup_input(struct hid_device *=
+hdev, struct ally_handheld *all
+> =20
+>  	return 0;
+>  ally_x_setup_input_err:
+> +	/*
+> +	 * Unpublish like hid_asus_ally_remove() does, intf_mutex held: the
+> +	 * cross-interface senders snapshot ally_x_hdev under ally_data_lock
+> +	 * and send under intf_mutex, so the unpublish must take both in the
+> +	 * same order to keep the handshake meaningful.
+> +	 */
+> +	scoped_guard(mutex, &ally->intf_mutex) {
+> +		spin_lock_irqsave(&ally_data_lock, flags);
+> +		if (ally->ally_x_hdev =3D=3D hdev)
+> +			ally->ally_x_hdev =3D NULL;
+> +		spin_unlock_irqrestore(&ally_data_lock, flags);
+> +	}
+> +
+>  	input_free_device(input);
+>  	return ret;
 >  }
-> =20
-> @@ -992,15 +998,17 @@ static bool ally_check_capability(struct hid_device=
- *hdev, struct ally_handheld
->  				  enum ally_command_codes check_cmd)
->  {
->  	u8 payload[] =3D { 0x00 };
-> +	size_t buf_len;
->  	int ret;
-> =20
-> -	u8 *buf __free(kfree) =3D ally_alloc_cmd(check_cmd, payload, sizeof(pay=
-load));
-> +	u8 *buf __free(kfree) =3D ally_alloc_cmd(hdev, check_cmd, payload,
-> +					       sizeof(payload), &buf_len);
->  	if (!buf) {
->  		hid_err(hdev, "Failed to allocate buffer for capability check.\n");
->  		return false;
->  	}
-> =20
-> -	ret =3D ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPO=
-RT_SIZE);
-> +	ret =3D ally_gamepad_send_receive_packet(ally, hdev, buf, buf_len);
 
 [Severity: Medium]
-Does ally_gamepad_send_receive_packet() end up sizing the 0x0d feature repo=
-rt
-read using the length of the 0x5a feature report?
+In ally_x_setup_input(), ally->ff_packet, ally->update_ff, and
+ally->ff_work_initialized are updated without holding ally->ff_lock. In
+addition, if input_ff_create_memless() or input_register_device() fails and
+jumps to ally_x_setup_input_err, ally->ff_work_initialized remains set to
+true and ally->ff_work is not cancelled, while hid_asus_ally_probe() returns
+an error before setting drvdata->rog_ally (leaving hid_asus_ally_remove() as
+a no-op).
 
-In ally_alloc_cmd(), buf_len is resolved from HID_ALLY_SET_REPORT_ID (0x5a).
-However, when ally_check_capability() and ally_gamepad_check_ready() pass
-buf_len into ally_gamepad_send_receive_packet(), the same length is passed =
-to
-both ally_dev_set_report() and ally_dev_get_report():
+Also, ally_x_setup_input() publishes ally->ally_x_hdev and calls
+input_register_device(input) before hid_asus_ally_probe() sends the initial
+ally_x_send_ff_off(hdev) packet (and hid_asus_ally_probe() then assigns
+ally_drvdata.ally_x_hdev =3D hdev a second time). If userspace opens the new
+input device immediately upon registration and triggers an effect via
+ally_x_play_effect() -> ally_x_ff_work_fn(), can the late
+ally_x_send_ff_off(hdev) call in hid_asus_ally_probe() overwrite and silence
+that active rumble effect?
 
-drivers/hid/hid-asus.c:ally_gamepad_send_receive_packet() {
-	scoped_guard(mutex, &ally->intf_mutex) {
-		ret =3D ally_dev_set_report(hdev, buf, len);
-		if (ret >=3D 0) {
-			memset(buf, 0, len);
-			ret =3D ally_dev_get_report(hdev, buf, len);
-		}
-	}
+Should the initial ally_x_send_ff_off(hdev) happen before registering the
+input device, with ally->ff_packet, ally->update_ff, and
+ally->ff_work_initialized initialized under ally->ff_lock and cleaned up on
+the ally_x_setup_input_err path?
+
+> =20
+>  static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handh=
+eld *ally)
+>  {
+> +	struct hid_device *x_hdev;
+>  	struct ally_config *cfg;
+> +	unsigned long flags;
+>  	int ret;
+> =20
+> -	/* Failure at this point is non-critical */
+> -	ret =3D ally_gamepad_send_packet(ally, hdev, ALLY_FORCE_FEEDBACK_OFF,
+> -				       sizeof(ALLY_FORCE_FEEDBACK_OFF));
+> -	if (ret < 0)
+> -		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
+> +	/*
+> +	 * Snapshot the gamepad interface and send the force-feedback "off"
+> +	 * packet through it. usbhid_stop() frees urbout before NULLing it
+> +	 * while usbhid_output_report() dereferences it unlocked, so a send
+> +	 * overlapping the transport teardown would be a use-after-free: the
+> +	 * device lock is taken around the send because the HID core holds
+> +	 * it across remove() and the hid_hw_stop() that follows, making the
+> +	 * two mutually exclusive. It is taken before intf_mutex, the same
+> +	 * order the core's remove path uses, so no lock inversion exists.
+> +	 */
+> +	spin_lock_irqsave(&ally_data_lock, flags);
+> +	x_hdev =3D ally->ally_x_hdev;
+> +	if (x_hdev)
+> +		get_device(&x_hdev->dev);
+> +	spin_unlock_irqrestore(&ally_data_lock, flags);
+> +
+> +	if (x_hdev) {
+> +		/* Failure at this point is non-critical */
+> +		scoped_guard(mutex, &x_hdev->dev.mutex) {
+> +			scoped_guard(mutex, &ally->intf_mutex) {
+> +				ret =3D ally_x_send_ff_off(x_hdev);
+> +
+> +				if (ret < 0)
+> +					hid_err(hdev,
+> +						"Ally failed to init force-feedback off: %d\n",
+> +						ret);
+> +			}
+> +		}
+> +
+> +		put_device(&x_hdev->dev);
+> +	}
+
+[Severity: Critical]
+Can this sequence in hid_asus_ally_init() race with gamepad interface remov=
+al
+and cause a use-after-free of usbhid (x_hdev->driver_data)?
+
+In hid_asus_ally_init(), x_hdev is snapshotted from ally->ally_x_hdev under
+ally_data_lock before acquiring x_hdev->dev.mutex and ally->intf_mutex, and
+ally->ally_x_hdev =3D=3D x_hdev is not re-checked after the mutexes are acq=
+uired.
+
+If the gamepad interface is concurrently being disconnected or unbound:
+
+CPU 0 (cfg probe or reset_resume)       CPU 1 (gamepad disconnect / unbind)
+---------------------------------       -----------------------------------
+hid_asus_ally_init()
+  spin_lock_irqsave(&ally_data_lock)
+  x_hdev =3D ally->ally_x_hdev;
+  get_device(&x_hdev->dev);
+  spin_unlock_irqrestore(&ally_data_lock)
+                                        usbhid_disconnect()
+                                          hid_destroy_device(x_hdev)
+                                            device_release_driver_internal()
+                                              mutex_lock(&x_hdev->dev.mutex)
+                                              asus_remove()
+                                                hid_asus_ally_remove()
+                                                  ally->ally_x_hdev =3D NUL=
+L;
+                                                hid_hw_stop(x_hdev)
+                                                  usbhid_stop(x_hdev)
+                                              mutex_unlock(&x_hdev->dev.mut=
+ex)
+                                          kfree(usbhid);
+  mutex_lock(&x_hdev->dev.mutex)
+  mutex_lock(&ally->intf_mutex)
+  ally_x_send_ff_off(x_hdev)
+    hid_hw_output_report(x_hdev, ...)
+      usbhid_output_report(x_hdev, ...)
+        usbhid =3D x_hdev->driver_data;
+        if (!usbhid->urbout)  <-- UAF!
+
+Because get_device(&x_hdev->dev) only pins struct hid_device and not
+struct usbhid_device, usbhid_disconnect() frees usbhid as soon as
+hid_destroy_device() releases x_hdev->dev.mutex:
+
+drivers/hid/usbhid/hid-core.c:usbhid_disconnect() {
+    ...
+    hid_destroy_device(hid);
+    kfree(usbhid);
 }
 
-While ally_dev_set_report() sends report 0x5a, ally_dev_get_report() reads
-from HID_ALLY_GET_REPORT_ID (0x0d):
+When hid_asus_ally_init() then acquires x_hdev->dev.mutex and calls
+ally_x_send_ff_off(x_hdev), usbhid_output_report() dereferences the freed
+x_hdev->driver_data (or, on sysfs driver unbind without USB disconnect,
+accesses a stopped transport after hid_hw_stop()).
 
-drivers/hid/hid-asus.c:ally_dev_get_report() {
-	return hid_hw_raw_request(hdev, HID_ALLY_GET_REPORT_ID, out, len,
-		HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-}
+Should hid_asus_ally_init() re-verify that ally->ally_x_hdev =3D=3D x_hdev =
+under
+ally_data_lock after acquiring x_hdev->dev.mutex and ally->intf_mutex before
+calling ally_x_send_ff_off(x_hdev)?
 
-If a device declares different report lengths for feature reports 0x5a and
-0x0d (or omits report 0x0d from its descriptor), ally_dev_get_report() will
-request the wrong transfer size rather than consulting asus_report_len(hdev,
-HID_ALLY_GET_REPORT_ID). Should the receive path in ally_dev_get_report() or
-ally_gamepad_send_receive_packet() also check the length of
-HID_ALLY_GET_REPORT_ID from the report descriptor?
+[ ... ]
+> @@ -3038,31 +3259,81 @@ static void hid_asus_ally_remove(struct hid_devic=
+e *hdev, struct ally_handheld *
+>  	cancel_delayed_work_sync(&ally->resume_work);
+> =20
+>  	spin_lock_irqsave(&ally_data_lock, flags);
+> -	if (ally->ally_x_hdev =3D=3D hdev) {
+> -		x_input =3D ally->ally_x_input;
+> -		ally->ally_x_input =3D NULL;
+> -		ally->ally_x_hdev =3D NULL;
+> +	owns_xpad =3D ally->ally_x_hdev =3D=3D hdev;
+> +	spin_unlock_irqrestore(&ally_data_lock, flags);
+> +
+> +	if (owns_xpad) {
+> +		/*
+> +		 * Stop queueing force-feedback work before the gamepad
+> +		 * pointers are cleared: play_effect() tests the flag under the
+> +		 * same lock, so no work can be queued past the cancel below.
+> +		 */
+> +		scoped_guard(spinlock_irqsave, &ally->ff_lock)
+> +			ally->ff_work_initialized =3D false;
+> +
+> +		/*
+> +		 * cancel_work_sync() may sleep: keep it out of ally_data_lock,
+> +		 * but run it before the pointers are cleared so in-flight work
+> +		 * cannot outlive the interface it sends through.
+> +		 */
+> +		cancel_work_sync(&ally->ff_work);
+> +
+> +		/*
+> +		 * The input core can no longer stop effects through the
+> +		 * disabled work: quiesce any rumble still playing ourselves,
+> +		 * or the device would keep vibrating after being unbound.
+> +		 *
+> +		 * Serialize the packet with the other force-feedback senders:
+> +		 * intf_mutex is taken again below for the pointer
+> +		 * unpublishing, but the two critical sections never nest.
+> +		 */
+> +		scoped_guard(mutex, &ally->intf_mutex) {
+> +			if (ally_x_send_ff_off(hdev) < 0)
+> +				hid_warn(hdev,
+> +					 "Failed to stop force-feedback\n");
+> +		}
+>  	}
+> =20
+>  	/*
+> -	 * The keyboard interface is torn down before the config one, and
+> -	 * its input_dev is freed with it. handle_ally_event() and
+> -	 * ally_resume_work_fn() both report keys through it from the
+> -	 * config endpoint, so drop the references here or they dangle.
+> +	 * Serialize with hid_asus_ally_init(): it sends the force-feedback
+> +	 * "off" packet through the gamepad interface recorded here, whose
+> +	 * transport is stopped by hid_hw_stop() as soon as this function
+> +	 * returns. Holding intf_mutex while the gamepad pointers are
+> +	 * unpublished makes init's snapshot-and-send atomic with the
+> +	 * removal: the packet either reaches a transport that is still
+> +	 * running, or is not sent at all. The lock must be released before
+> +	 * the sysfs teardown below, or an in-flight sysfs store blocked on
+> +	 * it would deadlock against kernfs waiting for the callback.
+>  	 */
+> -	if (ally->keyboard_hdev =3D=3D hdev) {
+> -		ally->keyboard_input =3D NULL;
+> -		ally->keyboard_hdev =3D NULL;
+> -	}
+> +	scoped_guard(mutex, &ally->intf_mutex) {
+> +		spin_lock_irqsave(&ally_data_lock, flags);
+> +		if (owns_xpad) {
+> +			x_input =3D ally->ally_x_input;
+> +			ally->ally_x_input =3D NULL;
+> +			ally->ally_x_hdev =3D NULL;
+> +		}
+
+[Severity: Medium]
+In hid_asus_ally_remove(), ally->ff_work_initialized is cleared,
+ally->ff_work is cancelled, and ally->ally_x_hdev is set to NULL before
+input_unregister_device(x_input) is called further down in the function.
+
+Until input_unregister_device(x_input) disconnects evdev (flushing active
+effects via input_flush_device() -> input_ff_flush() -> erase_effect() ->
+ml_ff_playback()) and stops the ff-memless timer via ml_ff_stop(),
+ally_x_play_effect() can still run on x_input. Because clearing
+ally->ally_x_hdev releases the HID_ALLY_X_INTF_IN role reservation in
+hid_asus_ally_probe(), a concurrent re-probe can enter ally_x_setup_input()
+and re-enable ally->ff_work_initialized while x_input's teardown in
+input_unregister_device(x_input) is still invoking ally_x_play_effect().
+
+Similarly, in ally_x_ff_work_fn(), hdev =3D ally->ally_x_hdev is snapshotted
+under ally_data_lock before acquiring ally->intf_mutex, without re-checking
+that ally->ally_x_hdev =3D=3D hdev once ally->intf_mutex is held (which can=
+ race
+with the ally_x_setup_input_err unpublish path).
+
+Would it be safer to unregister x_input before disabling and cancelling
+ally->ff_work and clearing ally->ally_x_hdev, and to re-check
+ally->ally_x_hdev =3D=3D hdev under ally->intf_mutex in ally_x_ff_work_fn()?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261025235232.1299=
-45-1-denis.benato@linux.dev?part=3D15
+45-1-denis.benato@linux.dev?part=3D8

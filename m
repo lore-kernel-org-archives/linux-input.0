@@ -1,84 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793004736;
-	b=NAQMRNmKPnI5lgtcd6GubG+KEVKRvV7y9wM6d3IZ3DG6R8fWoApnzHz4/0pT8L9+fhSt
-	 4lwqFtomh+CWPyyinzfcKW8eZK/clzVSxLoVjvcnhRxSvvRcPddczY2hVVcG0+zVQ+djD
-	 y58oEJ35mAGwmB2zmdVFDGzp07NS45jPKxWZEJBnOk6eJWeQEYSMTMnriZ268N6Iv4tYU
-	 JoSeEMXnW9Wuok9tMaiYt3L4wEnADSLJPweFTIIe0J5BNN0VqTSn5N+8JRt5Co1H0Qm1p
-	 LeuG0vt6nYyD7gFytM+cxXbRVlLnWYTClS75Z4DCDGB9bTyxHR+WF01yD6PU5o/3Weg==
+	t=1793007083;
+	b=wxkucmB2BJALXYStvgcR11hNzeThqNuPlEMSnLAUXz0qaMxtWJl10Y3jcarLf6EJdb9j
+	 zsXb+qzjWqd/TaRVT2ZJwdEWcyPfQCFIP5eQG5MYkYbKtboMOSxtqV7VB4IsexdSkRagz
+	 FNRorPsWPIiVEdzT0DPuaBCdy5m2eF92r9y2xBYveib+N9LPG4jtRQ49FuE27dOlheggu
+	 4IpfnHqSQvqKHbqLd4jj3kT2CRDcybJfR7Sf4GYDINb59lQOGZNbSzw610IdReVdaXdEQ
+	 w8kfSMavY3ZQ6pClQDJtVVQVYcJEFXpUXVTzvSWJEWzqVUXFt1I0YVm0uTDN4r917zw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793004736;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=pi1B7J06pQAlF24N/BvX+wC7pBbB0wGuY462/UBZEik=;
-	b=J7hOYuWjIKcgyW1W2QY05miOHOumrFB3d8mt3gazeihk36EiU8BScTVB6muTcK7msulF
-	 WxP97yuEG1AliKZ3F+fnovc72ziLixooaL4ZyHGQXaQlHQcUhiXizfLkpC5coYJThF2r/
-	 LEoX5wgMGmEJ/fIuc3p+YkrDCr6jfqWvrtvfus9x5wv0C3Vy04cp2vKC0VVFtHMeQWI9j
-	 M8wd0D4FfvLg91UoSWGwULSpCtwjctq5AwDfbBFFJsWT1ZQivQwJzHrYpw2XczJQm56/4
-	 AhhUYXc+dwMrUCPcgkiJXxxc9FGxC5mWSVABBGQkn8qvdv/WRyrUjJijxO+DDpOJQ5Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793007083;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=inG+eG1nMsX+iByUG8PvEF7bboqnh0n7ThmAeiyUE+U=;
+	b=JKjuj6QOGvIzkuqq5UPG9F81jNTa01SEPcI8kqWIHw2I6VlYN9S9o4xykgT8HWDEw9jI
+	 cRQIK8WiLhMqtLnnSHNVfpKj4w5KrNfP9IAZLGDsb2pkVtCbnv5G3hF/bBD/ZKWkTcUpT
+	 7W+oxd4VgcX0Yf4G3jAHV8RoChae83III5K0N8nahv7NL9RhNiHfBiO7HrkPfUBU1HLLg
+	 fXVWcA10FwGMQSQ4rd6ryo2ltKvfxHnu24VKNvB9GDnF7sQmCQquZnIQRLnVR9f1czI27
+	 dic094NvlQi7yv4wSLD0RwKfFFokknfyXVgi/zdmPoFDjRci/UtGNTyYUvfXViGbtWQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=DO2rrnBA;
-	arc=none smtp.remote-ip=198.175.65.10
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=none header.from=kernelgen.org;
+	spf=none smtp.mailfrom=kernelgen.org;
+	dkim=pass header.d=kernelgen-org.20251104.gappssmtp.com header.i=@kernelgen-org.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=kjgYg7Wr;
+	arc=none smtp.remote-ip=209.85.218.49
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00DF0606A31A;
-	Mon, 26 Oct 2026 08:52:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 00DF0606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED85606A31A
+	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 09:31:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4ED85606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernelgen.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=kernelgen.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=DO2rrnBA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793004735; x=1824540735;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=kjuI/w5QNmHvgwphrr7C9WT/IGfhnOeCTYfvv/oClDo=;
-  b=DO2rrnBAvZE3aAlPveekYRDEfvhuPmJzSakIzAQBQ2nuq9bQEqEebZIn
-   jdrbXJmpR87QauGMiC7gbO8Oyc8Pyca7WQzPZQm/eORkveAfeJcBljSOo
-   xFC4zB1cRSXoQKxTl8B5cMguyD21BQA0jJC1Qe9C8d9ZY80W4RGqFsTPs
-   mKmKjqTtDGcV0R9aIIEU50BGDxgI0RQo1I/Pk/lgluHAOmhTmhOhMuNdv
-   gqsO7atVsTWAV5l2m6tX/ogoBR+RjK+eCuRN13s5FXBw+RBbew3g9++OW
-   gEWagknszPsoRqi+I9QtIXYPFN2V00mllaiLYUKb1lSX1E5/xwewuYMEV
-   A==;
-X-CSE-ConnectionGUID: QLA+SbalQEaNJpv1gn93dg==
-X-CSE-MsgGUID: lNxwds/wRga/GcN8+EZx3w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11946"; a="1553970"
-X-IronPort-AV: E=Sophos;i="6.27,179,1787036400"; 
-   d="scan'208";a="1553970"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2026 01:52:15 -0700
-X-CSE-ConnectionGUID: covuXGiARweDOFTHO1yh/w==
-X-CSE-MsgGUID: SMQ7VNwmRmqKCzwqqqF04A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,179,1787036400"; 
-   d="scan'208";a="4111876"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa007.jf.intel.com with ESMTP; 26 Oct 2026 01:52:11 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id B115D99; Mon, 26 Oct 2026 09:52:10 +0100 (CET)
-Date: Mon, 26 Oct 2026 09:52:10 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernelgen-org.20251104.gappssmtp.com header.i=@kernelgen-org.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=kjgYg7Wr
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-c40aa03a96fso22504666b.1
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 02:31:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelgen-org.20251104.gappssmtp.com; s=20251104; t=1793007081; x=1793611881; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=inG+eG1nMsX+iByUG8PvEF7bboqnh0n7ThmAeiyUE+U=;
+        b=kjgYg7WrGEcBuhpl3CUGzxWJjnIK673xx0heVzn3yFtADaSoYkCqrDOM1sBmZ7r3dD
+         mhM5pT2HIv0M0zyqiPiBGol2bhRNeagZAzbpiyG3tKlY0jS0lV1Pb1tstAHqv/5q/l2u
+         zqjjZH2AaqXWXsaFy+3pz+K7BdenONp+DTYdVl//R4jdKomaNud00OXJBD0sGD8wPnE2
+         fFR6fZ1xtCtmjBUiSnqPsFhKdWq7r6oH3S35sbpGeuz2N2JtFIhCJYGqUOPAjX815ypJ
+         LorZp1dfg0b+rS1iI9Bi+gWnCgDVXBFpeNFrT0AJhPiFvVoRYoVLnS+PWGAj4l8/rWBg
+         oqWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793007081; x=1793611881;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=inG+eG1nMsX+iByUG8PvEF7bboqnh0n7ThmAeiyUE+U=;
+        b=SoRYNPEW2yMYTOJEKnzm1JFE3itG31NCGgKmVQROU5lzhiyobzOHvbr67c3Kam1ThS
+         4Yqm5dvz2cZQP5+yx3j/Lb9br0TybTCnFhZoA3m9BkqKqSKF+9Ny6m4sBbBFxV7idNFL
+         tXJgnyUPISCp4x0VGxX1uRs5q4z6ZnoQpJL+1IM3dW6sgDjTA8XytATDbyGVEaOIJSrT
+         QzIKjKAjmW6cRaLjSoZdslGTSB6wdB7eRIGJq/PRA8d0xlRLDresKqun/aNoBseJ9LsG
+         P3s7c43/jjfkElBQlle9DP8MOy+dc1yktTBStk2e42ZaVIKa/HB9hFerjhdi0pbomehb
+         vwMQ==
+X-Forwarded-Encrypted: i=1; AKwUvBztZx/perEqYB1WWd59dynut8YrJW9DBnu+chcf3JO4wcFZm5AlnBoNIYAkIN0gnLi0rfjSBqAzERklCg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKts2jsE+rNHpZJBqbHp8q1PwtWiWzIODwscOI5xLqyOzfK0BKY
+	nwcuosf0Jk5BaSuobi4IT/mchFHXoIHQRdiGPQjHtbeW48YOYE9G+Gz2VVQPOvk9nqFS222VoJq
+	Q7Mr50L57ww==
+X-Gm-Gg: AYBFou15QB9dv80ex/IQZ+umBBmcNYCSZc3Ajz2w85YgJ40vwuqRmYhWyP5HDz8+yI5
+	JExHjJ2BdYOHiAWi6k5sNOsHx0DrZAO72Kw9+agzRsDMPadfAk01S//LMrigUXvJgz2mcwf94o2
+	NxJAkBmSBK+38tPDq/b8nZGlSY/+DBAprWWM1ha0r1SekB88d87GFfOEhI0fDAMFd26T72SkUNm
+	i+fHSttDsZpXm3KCmKOISRTpWxf41SnkpCm5X7ToDvPzBzDbtXZtcIeLKupyhGtuIXMhPfL/X7g
+	eBw3xKZ2ANN9iLbUIAZyf0L+g1soanAgpbzO309BEnZrLUg4Y0rUc6IB95IAA366v22YGkpcXqG
+	z5DdCMiwTou6N4aufVlLaoQMGi2XpLyxq9S9baxcwfm8MUem0xHgTJ95Dt25pQU4JJrSfmB9kfC
+	H7kiUtwlfem5nU5kLNzLDy+sLZJLkBI1Rrfb3f4xLWM2jC7E27b/7w/cLucn50C5ps6UBhrhbNf
+	wuqwdMS0P2uKAJ1mat5APT08+lOu3ofjVQn2OkzpxDZ3eTiAikQCkrtrhcf4IBAxH5uWmu7MCqt
+	MQVn725uNCi10tVlPZdujBSj/Ms4pNDePl4U/FHq05fGr2kXlQln3R70SDNye1wmib2cSPBu89f
+	Lq+QnfzbvKDWsCczZSE5d
+X-Received: by 2002:a17:906:2886:b0:c46:b5a7:5b29 with SMTP id a640c23a62f3a-c46bddd029fmr713493166b.2.1793007080405;
+        Mon, 26 Oct 2026 02:31:20 -0700 (PDT)
+Received: from kernelgen.org ([2a04:ee41:83:91ea:29ae:67de:9d1a:d368])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3eb8f305sm14217710f8f.3.2026.10.26.02.31.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Oct 2026 02:31:19 -0700 (PDT)
+From: Dmitry Mikushin <dmitry@kernelgen.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mika Westerberg <westeri@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Corey Minyard <corey@minyard.net>, Hans de Goede <hansg@kernel.org>,
-	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
-	Sebastian Reichel <sre@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+Cc: Dmitry Mikushin <dmitry@kernelgen.org>,
 	linux-input@vger.kernel.org,
-	openipmi-developer@lists.sourceforge.net,
-	platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH 1/8] i2c: acpi: use 4-argument i2c_smbus_read_block_data()
-Message-ID: <20261026085210.GD158991@black.igk.intel.com>
-References: <20261024-i2c-smbus-read-block-data-v1-0-19bb97467982@gmail.com>
- <20261024-i2c-smbus-read-block-data-v1-1-19bb97467982@gmail.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] Input: synaptics - enable SMBus for ThinkPad P14s Gen 2i (LEN2072)
+Date: Mon, 26 Oct 2026 10:31:16 +0100
+Message-ID: <20261026093118.2312302-1-dmitry@kernelgen.org>
+X-Mailer: git-send-email 2.56.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -88,14 +97,30 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261024-i2c-smbus-read-block-data-v1-1-19bb97467982@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Sat, Oct 24, 2026 at 07:48:41PM -0700, Dmitry Torokhov wrote:
-> Pass I2C_SMBUS_BLOCK_MAX to i2c_smbus_read_block_data() in
-> i2c_acpi_space_handler().
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The ThinkPad P14s Gen 2i touchpad (Synaptics TM3471-030, LEN2072) is
+not on the SMBus passlist and runs in PS/2 mode. Forcing RMI4 alone
+does not help: the F12 attention handler reads the whole 79-byte data
+packet over SMBus on every frame, which caps the report rate at about
+43 Hz and loses fast swipes.
 
-Acked-by: Mika Westerberg (Intel) <westeri@kernel.org>
+Patch 1 makes F12 read only the object data it consumes, raising the
+report rate to about 65 Hz on this machine. Patch 2 then adds LEN2072
+to smbus_pnp_ids. Patch 2 should not be applied without patch 1.
+
+Both were tested on a ThinkPad P14s Gen 2i (20VX) on 7.2.9, including
+s2idle suspend/resume and the TrackPoint on the RMI4 pass-through port.
+
+Dmitry Mikushin (2):
+  Input: synaptics-rmi4 - f12: read only the object data on attention
+  Input: synaptics - add LEN2072 to smbus_pnp_ids for ThinkPad P14s Gen
+    2i
+
+ drivers/input/mouse/synaptics.c |  1 +
+ drivers/input/rmi4/rmi_f12.c    | 16 +++++++++++++++-
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+-- 
+2.56.0
+

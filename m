@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792973447;
-	b=Hgys+s3RR2xOfeVR/Rv0ovA6waSwXEnRc98ofN2uqrlNwupd4CYlss+di9ERBQVgY1Zw
-	 9C3tKQEZe0YYVBCR2acpXwTw1huxnJEc9LF7uiGO0P2VyW7TwP7MTq9/RXwLp7eybgN2N
-	 ySYWRS1TkE6bj1kqmsCbKH5xYnwAWP9q8eeDS9CvGwJchNPe27JpL4lFfkndg4tZvEwuH
-	 JPxVeSxUCcHB5wkSgc3oUw/oz/BICT7ju8RYi+yCXc2LFfX6c2pn2Bwlc2BXGT8iyHZEi
-	 qgGCV+DP5U+G1y7lB5TI+riHII1Y/lOoUCp0hWniyfR3Fjm0E29wwYBHeEljG8+PCNg==
+	t=1792973448;
+	b=VL+BlPEYtsR6bxrAPeARhb4b5Fao1dILftvj9IOAeUYqwFYKQECt/lWMvmm2xzzxBzfz
+	 UcPyecMXa5H31h46zv9SphcimH6gLnxjtrPaeOfi+cJgKSab0xmq8IlJLMIoQTG/h26e1
+	 aHzB+juzXA9106Bzcp1TR6hNnWxdV49syV+XyDMLAD6tYm0P/L7itRRvoejNojGE6fJ+N
+	 PExeA3nW5B8+ZPBl4h4gXHUHRDwn93x1lF0q4u/oqfoeyyQ6NgOfyJ2cU9NWBblYJg/RZ
+	 Z+wiIhYT/dC7hnfJxu84KtxlULZcdYwXrmv0U2yZyGqExFmo/917eyvX8irC1Yfyhtw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792973447;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792973448;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=rXquamZqs6uNe29GuMFV5jbqBSGwcQvZWC6JzcW9uc4=;
-	b=vHBgMqfHbc66QeQECyMAooNotlWyKAl4iRWGc+oVoJ2J2jCHFEVIEWgA0M3CABp9sfP8
-	 qpv64gkEiOHqNpbH2oiNQ3m2qtq0tkHabaWHSgM1W2UyFUWlZx4PdE6xmq3DlBr1Gs1iq
-	 0CgzoIIltt1mXVBgISB+Z45HB7rmP22QlJ9LGYuGNeOx6095QuFkJ2f9nPBtUVx5xSFcz
-	 MYxjDN30yPB/Mnrtk04VDcMEHr6ppQPgzVnbP8sT34q1a04ahxif9Sqm0vmJtwWClhgd4
-	 ybpDE83kNou+sxksJyoPWfZug9iywJf9wHT4UIyDypMVDRt5UrdZ01TdjJdOrZQfvXQ==
+	bh=IjGPvKb7XMKmOBdTY6+LLxdaluX8C6B2yi5VZti4Zm8=;
+	b=D+IFhbBvxOGSDkBOBgDwaCzw7/5dcnu9gbu9EcjKVg9t4elVolgP8xBj+KrzUSLm1Q+u
+	 haFgLjGyK8qxYXH7ePEQMONol75BJjF3ctwNvC+9dgUi2XZBL74zScQMnPjmIR5Wi+Ybg
+	 ZG8LMYpdPoHKybJpp55ymKJR4RrMT0J3VGaXCGpkGjh0Y6XnsrDe/NsME64EbWw3cLtCa
+	 07gBProf9kOgLny0HF9Pg/U1q6ghqTX9/YNhz0AxKHZH4qT+2wtiJl/1ZoiVYfcrbZbr6
+	 nlreetixdNlHWTOVf34m4ewnOWr3lvpezldmZ0YyJRydbdMDm+hrvyCRQz3bdW2z6uA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="V4xy/Wzo";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCjaRapr;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DDD0606A31A
-	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:10:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A502606A31A
+	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:10:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=V4xy/Wzo
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A9961F01825;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WCjaRapr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6BF1F01825;
 	Mon, 26 Oct 2026 00:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792973447;
-	bh=rXquamZqs6uNe29GuMFV5jbqBSGwcQvZWC6JzcW9uc4=;
+	s=k20260515; t=1792973448;
+	bh=IjGPvKb7XMKmOBdTY6+LLxdaluX8C6B2yi5VZti4Zm8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=V4xy/Wzou/Mm96b6UBF6nSyOm2tdwzN4dXoai+nRvN/hzwOzLK1TqfRi5XoSfAXd3
-	 utrALTCGvt5BwINb+vYB0y3O7CPB7jSMmnMgH18KGreoD8NM0FnA8PpRE4m+Ep/KKW
-	 T9RTUDuHEv+6xcgwMzbWw9twPFoU9n1ryia8zycnFQMu6dCBvRWNqhlKhm6ApP34mJ
-	 8mjEzwsvbTIx6orpl3j1Yaur3naAG18Xvkdd+tr7IJp4bTAzcj5ncNTI6oUoRItwCr
-	 AHiWJcw2gAhtq5bMbLv2XpVOHcImeFzdI/OcIw4FyZJ50tr2gH8bxCUbeQPqJnirwL
-	 fuCGAVeTbdc+A==
-Message-ID: <sashiko-outbox-184555@kernel.org>
+	b=WCjaRapr6BHvGP3Gupa6Yyc+pyEJjFlAz8hyBK/2S2WbBcKYLWTSngIZQeVCQ3IVl
+	 D4LEN1XAFz1JpO3f0TsZ5ziHT7QpMy084jTBkWoTU/ASzU0sOr4lTRoSkmgo7ZkREf
+	 hqgxtA/DIN/PlV9sRy9jy0ikfBx8OTRugwqKoreOBJHoV9DyOqswT/41HyCElHI19h
+	 BHqc/GIsRPBqAGF+W/hbcG1mEMBE2O8esEBCWUUjKp3mOZqjpHNyfp6fPl5ou/nN6d
+	 S2JSsqiRQEuo1MuySDbi1zgPlZYTKb/Czxd9tLGhbhpkNn8y92XKmXmTWrpPekWG6r
+	 M+tZvsoQRz9jw==
+Message-ID: <sashiko-outbox-184556@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 02/18] HID: asus: add gamepad configuration
+Subject: Re: [PATCH v11 15/18] HID: asus: size ally gamepad commands from
+ the HID report descriptor
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261025235232.129945-3-denis.benato@linux.dev>
+In-Reply-To: <20261025235232.129945-16-denis.benato@linux.dev>
 References: <20261025235232.129945-1-denis.benato@linux.dev>
- <20261025235232.129945-3-denis.benato@linux.dev>
+ <20261025235232.129945-16-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 00:10:46 +0000
+Date: Mon, 26 Oct 2026 00:10:47 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,85 +63,141 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] HID: asus: premature cfg_hdev role release in hid_asus_ally_remo=
-ve()
+- [Medium] HID: asus: ally_dev_get_report() sizes 0x0D read from 0x5A repor=
+t length
 --
 
-commit c72354da64cec15cd42189e4692a21643e33def5
+commit 10b46a2b16e439d019a0b1a24882abca2924c954
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add gamepad configuration
+HID: asus: size ally gamepad commands from the HID report descriptor
 
-This commit adds the base configuration structures and sysfs attribute
-groups for ROG Ally gamepad configuration, detects hardware capabilities,
-and initializes the controller into a known state.
+This commit replaces the hardcoded ROG_ALLY_REPORT_SIZE constant with dynam=
+ic
+buffer sizing derived from the HID report descriptor via asus_report_len() =
+for
+ROG Ally gamepad commands and MCU version requests.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 9e6796bbbdcbd..6d1007433daa8 100644
+> index f438cad13264a..e444cad85b32c 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-
-[ ... ]
-
-> @@ -1162,8 +1531,25 @@ static void hid_asus_ally_remove(struct hid_device=
- *hdev, struct ally_handheld *
->  		ally->keyboard_input =3D NULL;
->  		ally->keyboard_hdev =3D NULL;
->  	}
-> +
-> +	owns_cfg =3D ally->cfg_hdev =3D=3D hdev;
-> +	if (owns_cfg) {
-> +		cfg =3D ally->config;
-> +		ally->cfg_hdev =3D NULL;
-> +		ally->config =3D NULL;
-> +	}
-> +
->  	spin_unlock_irqrestore(&ally_data_lock, flags);
+> @@ -69,7 +69,6 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>  #define ASUS_XGM_QUERY_VERSION 0x03
+>  #define ASUS_XGM_INFO_LEN 32
 > =20
-> +	/*
-> +	 * The config teardown removes sysfs groups and takes sleeping locks:
-> +	 * it must not run under ally_data_lock. The config pointer has been
-> +	 * unpublished above, so no new sysfs callback can find it while the
-> +	 * groups are being removed.
-> +	 */
-> +	if (owns_cfg)
-> +		ally_config_remove(hdev, cfg);
+> -#define ROG_ALLY_REPORT_SIZE 64
+>  #define ROG_ALLY_X_MIN_MCU 313
+>  #define ROG_ALLY_MIN_MCU 319
+> =20
+> @@ -943,28 +942,33 @@ static int ally_gamepad_send_receive_packet(struct =
+ally_handheld *ally,
+> =20
+>  /**
+>   * ally_alloc_cmd() - Construct a command buffer for the gamepad
+> + * @hdev: HID device the command is built for
+>   * @cmd: Command code to send
+>   * @payload: Optional payload data to include in the command
+>   * @payload_size: Size of the payload data
+> + * @size: Where to store the length of the allocated buffer
+>   *
+> - * The constructed buffer is 64 bytes long, and it is the caller
+> - * responsibility to free the buffer using kfree().
+> + * The buffer is sized after the feature report the device declares for
+> + * the gamepad commands, and it is the caller responsibility to free the
+> + * buffer using kfree().
+>   *
+>   * Return: the newly allocated buffer containing the command, or NULL on
+>   * allocation failure or if the payload would not fit in the report
+>   */
+> -static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, u8 payload_size)
+> +static u8 *ally_alloc_cmd(struct hid_device *hdev, u8 cmd, const u8 *pay=
+load,
+> +			  u8 payload_size, size_t *size)
+>  {
+> +	size_t hw_len =3D asus_report_len(hdev, HID_ALLY_SET_REPORT_ID);
+>  	u8 *hidbuf;
+> =20
+>  	/*
+>  	 * The payload is written after the 4-byte command header:
+>  	 * reject one that would spill past the end of the report.
+>  	 */
+> -	if (payload_size > ROG_ALLY_REPORT_SIZE - 4)
+> +	if (hw_len < 4 || payload_size > hw_len - 4)
+>  		return NULL;
+> =20
+> -	hidbuf =3D kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
+> +	hidbuf =3D kzalloc(hw_len, GFP_KERNEL);
+> =20
+>  	if (!hidbuf)
+>  		return NULL;
+> @@ -977,6 +981,8 @@ static u8 *ally_alloc_cmd(u8 cmd, const u8 *payload, =
+u8 payload_size)
+>  	if (payload_size > 0 && payload)
+>  		memcpy(&hidbuf[4], payload, payload_size);
+> =20
+> +	*size =3D hw_len;
+> +
+>  	return hidbuf;
+>  }
+> =20
+> @@ -992,15 +998,17 @@ static bool ally_check_capability(struct hid_device=
+ *hdev, struct ally_handheld
+>  				  enum ally_command_codes check_cmd)
+>  {
+>  	u8 payload[] =3D { 0x00 };
+> +	size_t buf_len;
+>  	int ret;
+> =20
+> -	u8 *buf __free(kfree) =3D ally_alloc_cmd(check_cmd, payload, sizeof(pay=
+load));
+> +	u8 *buf __free(kfree) =3D ally_alloc_cmd(hdev, check_cmd, payload,
+> +					       sizeof(payload), &buf_len);
+>  	if (!buf) {
+>  		hid_err(hdev, "Failed to allocate buffer for capability check.\n");
+>  		return false;
+>  	}
+> =20
+> -	ret =3D ally_gamepad_send_receive_packet(ally, hdev, buf, ROG_ALLY_REPO=
+RT_SIZE);
+> +	ret =3D ally_gamepad_send_receive_packet(ally, hdev, buf, buf_len);
 
 [Severity: Medium]
-In hid_asus_ally_remove(), should ally->cfg_hdev be cleared only after
-ally_config_remove(hdev, cfg) completes, rather than before it?
+Does ally_gamepad_send_receive_packet() end up sizing the 0x0d feature repo=
+rt
+read using the length of the 0x5a feature report?
 
-Clearing ally->cfg_hdev before ally_config_remove() releases the
-HID_ALLY_INTF_CFG_IN role while sysfs_remove_group() is still sleeping (for
-example, waiting in kernfs_drain() for an in-flight xbox_controller_store()
-callback). During that window:
+In ally_alloc_cmd(), buf_len is resolved from HID_ALLY_SET_REPORT_ID (0x5a).
+However, when ally_check_capability() and ally_gamepad_check_ready() pass
+buf_len into ally_gamepad_send_receive_packet(), the same length is passed =
+to
+both ally_dev_set_report() and ally_dev_get_report():
 
-1. A concurrent hid_asus_ally_remove() on the last sibling interface sees
-   ally_drvdata.cfg_hdev =3D=3D NULL and ally_drvdata.cfg_probe_in_progress=
- =3D=3D
-   false in ally_put_udev_if_orphaned(), dropping ally_drvdata.udev early.
+drivers/hid/hid-asus.c:ally_gamepad_send_receive_packet() {
+	scoped_guard(mutex, &ally->intf_mutex) {
+		ret =3D ally_dev_set_report(hdev, buf, len);
+		if (ret >=3D 0) {
+			memset(buf, 0, len);
+			ret =3D ally_dev_get_report(hdev, buf, len);
+		}
+	}
+}
 
-2. A concurrent hid_asus_ally_probe() for HID_ALLY_INTF_CFG_IN (from a
-   re-enumerated device or duplicate endpoint) is no longer blocked by the
-   role check:
+While ally_dev_set_report() sends report 0x5a, ally_dev_get_report() reads
+from HID_ALLY_GET_REPORT_ID (0x0d):
 
-	if ((ep =3D=3D HID_ALLY_INTF_CFG_IN &&
-	     (ally_drvdata.cfg_hdev || ally_drvdata.cfg_probe_in_progress)) ||
+drivers/hid/hid-asus.c:ally_dev_get_report() {
+	return hid_hw_raw_request(hdev, HID_ALLY_GET_REPORT_ID, out, len,
+		HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+}
 
-   and can enter ally_config_create() concurrently with ally_config_remove(=
-).
-
-That allows ally_config_create() to mutate the singleton ally_config
-(including cfg->initialized and the capability flags) and re-publish
-ally->config =3D cfg while the old hdev's sysfs groups are still draining,
-which also lets sysfs callbacks on the unbinding hdev see a non-NULL
-ally_get_config() again.
-
-By comparison, the hid_asus_ally_init() error path in hid_asus_ally_probe()
-clears ally_drvdata.config =3D NULL under ally_data_lock, calls
-ally_config_remove(), and only afterwards releases the role via
-ally_probe_release_role(ep) and ally_put_udev_if_orphaned().
+If a device declares different report lengths for feature reports 0x5a and
+0x0d (or omits report 0x0d from its descriptor), ally_dev_get_report() will
+request the wrong transfer size rather than consulting asus_report_len(hdev,
+HID_ALLY_GET_REPORT_ID). Should the receive path in ally_dev_get_report() or
+ally_gamepad_send_receive_packet() also check the length of
+HID_ALLY_GET_REPORT_ID from the report descriptor?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261025235232.1299=
-45-1-denis.benato@linux.dev?part=3D2
+45-1-denis.benato@linux.dev?part=3D15

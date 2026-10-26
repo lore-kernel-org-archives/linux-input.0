@@ -1,56 +1,179 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792973994;
-	b=sTBLcckTboz1nqS9BocWcEa2zjIzBFgnHbxAjkSeveMZJfWMn8oCSO6HUjuAKrHqUepw
-	 Xykn6j8xXC/+phCgwGFMS6icjbXF8SXgxdX7RdcqkcFk6HCiPYB1aSHy3pVQdOljvtRoq
-	 5hXlhKe3jqr998W1OYwsfqMUhVM0aiDK4XnXto9aMqQGIC+flKvIfQMD6Jek2yEVE86lh
-	 wJtHD3Ki43Szxpi9Y6HioPbYAxh48P5dnNphZTij6kWPYZwBOe5ZaDUnzM1itThBBGlAJ
-	 jB3wpX/djWROzywGysCaq3mz4YvkrS8Ir/q6nl+IZjEUSFgWkn/0tKBE0Susi0kUpRw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792973994;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=uMO68eIQtC4rnWnbt8ABAVa0AY7XnE607gTAZdQwyaw=;
-	b=4+dtBP+wWSoTD6E4znCAuMUjaZiFFLNjdabb8IoaPzyhYAO+iNNpAG3CO1sWptcRIl/9
-	 y65dOVe/xCBW7cbFKTe+Cjez2+ALF+Idqs+y1ejtiDrELCnT8lVMveL6iBj6t3n3a6TIX
-	 tTq3cJRPFua0Dt2w1cFwSbqJ0aDEaFULaINk/0k61bJC/gELESRosgQACpdEMkJbp5UrZ
-	 C9E6H+I/+JlnN9o5YVLLTSNMqB9UXM4pPzyr+tICQm4joHaip6F5QH6CFOSFn+RYNv3N4
-	 9uAZ2Jf1tltKBdlD5jUaPeA8RLdzB5D+DQnqxmHvQobr5Uph3ETK6hXrHS4k8RTIXRA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KEoHmMjl;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1792980141;
+	b=KUNSMsg1oL2L8GWjKo4395UecYpxFjW1Yhz6Hs+1kwVZOAzmHBACvUeWBZqnE70rgP6o
+	 +UtpGNO4gVvqYuN7OHkNrEik0fVTl9FFm/MaRVKA7UQStPBgM4DGzTn8yzvgpxHuneHXw
+	 jRGlyoPHbDqXACig4uCn9/V1ChiiHEnL9IiynKE0B+eq/EJ1/8/o+esJQ1fK6s17UkO6l
+	 N9fXn52d6GDzuW/c5DcnDI/8y9+1OYuAr4K05Cxfe84mb0aIzR/3iEnvQpo0oKtvhVhOs
+	 6UokTUxIjx+CckgWS40c9zfmN/m0BirqhmV4ifHO0bwRRFJ/uzM1lSpEPuwOSKwKrdg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792980141;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Received:
+	 Received:Received:Received:From:To:CC:Subject:Thread-Topic:
+	 Thread-Index:Date:Message-ID:References:In-Reply-To:Accept-Language:
+	 Content-Language:X-MS-Has-Attach:X-MS-TNEF-Correlator:
+	 x-ms-publictraffictype:x-ms-traffictypediagnostic:
+	 x-ms-office365-filtering-correlation-id:x-ms-exchange-senderadcheck:
+	 x-ms-exchange-antispam-relay:x-microsoft-antispam:
+	 x-microsoft-antispam-message-info:x-forefront-antispam-report:
+	 x-ms-exchange-antispam-messagedata-chunkcount:
+	 x-ms-exchange-antispam-messagedata-0:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version:
+	 X-Exchange-RoutingPolicyChecked:X-MS-Exchange-CrossTenant-AuthAs:
+	 X-MS-Exchange-CrossTenant-AuthSource:
+	 X-MS-Exchange-CrossTenant-Network-Message-Id:
+	 X-MS-Exchange-CrossTenant-originalarrivaltime:
+	 X-MS-Exchange-CrossTenant-fromentityheader:
+	 X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+	 X-MS-Exchange-CrossTenant-userprincipalname:
+	 X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+	bh=oLHR48GYNhLWdREA8MRQ+oR0tecssRHY9M9ShvcKpMM=;
+	b=oocintHVJvXsw+spbKlSVjNdjpaOaFHETjoGdnU+AOQtGPIS9P0YnBfCLr7ypcybAIzc
+	 ggihLZ2RGyQyfGOE0S40zQpq1Baks5I7hX/XLzi10Zlcq4xGIKoGaVZLNhsa+jEN0N9Tv
+	 Sb9Fxy1L4a3i79MZILC6cWyca+ftXNnv4F8yV6zq1cjmXr9AmPWj9WQTE8AmIfQV2HLVP
+	 omzS6nNxe23ZlYq/iLKE3zea3E6qO9ZCqN28zeJsexDkMBp3gBv975ixDkGgVikjkb34+
+	 1WvKXpwmkGxoEJfOYXM8MKIpk93qIZF+o+PcZSylinYJzB/GGMMGyvMCW50bvw7wFvQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=h3enCglO;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=198.175.65.18
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C6A606A31A
-	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:19:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3948E606A31B;
+	Mon, 26 Oct 2026 02:02:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3948E606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KEoHmMjl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7641F01825;
-	Mon, 26 Oct 2026 00:19:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792973993;
-	bh=uMO68eIQtC4rnWnbt8ABAVa0AY7XnE607gTAZdQwyaw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=KEoHmMjlYYEBoXVSuy73IEWoLcpOTpFeAvPovtUnrM8ZHLu9kw8PqUXc0SIi+GRNh
-	 w99abjGZa7kFqSQ1+9kR1PuVX27PGtrtxx6jKBJMfrN6JkusUmve2FT9opAaSq14g3
-	 1VdgkCVBCo0fe2+POdxdbqvL6gdGteZP1H2nX2Tk4XpIjoefMHQ1/a5w6UsintCqaU
-	 K6Iyav75IXin7KlA5UWYEQEf18kX+nMbiU7fAvy+Iw9XyUoyHnT2evoyERbXYCbNg8
-	 8zYlGzVLwWqcpKqq9HeUnx0MBs+TXCq7S5/97RbTK5l5ynqTfnZJExv+VJkyqH9Qz6
-	 R+GcOSthllG6Q==
-Message-ID: <sashiko-outbox-184559@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 08/18] HID: asus: add support to force feedback
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Denis Benato" <denis.benato@linux.dev>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261025235232.129945-9-denis.benato@linux.dev>
-References: <20261025235232.129945-1-denis.benato@linux.dev>
- <20261025235232.129945-9-denis.benato@linux.dev>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=h3enCglO
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1792980139; x=1824516139;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=kV5bT7CHrPfov1OmyUP23uPog/C7pvhpmwAPw6bi54U=;
+  b=h3enCglORBbl8gjRVFvCJgPB+JWvZlh1KeFrSA5cTaYhoMCRlGCAo683
+   pBUdF6ahbu+CG6FaqFyBC7KCGc6ewSpGo1kOXt3cINcV09gqSH+eE0xIl
+   Dkwm8vwCtpBs63/6XRZ98A93tulnKI152RIOMA+gd11JAnZZPCpukmPQM
+   AY1B9ZkRouTaWb9gppbUTnhGEiFH1mnNAG1dqVR9ysnIj3c8WTmR24k2M
+   j4PHjqkoa0aIf5FqkC6+n2gcv+iAYL7+udFKzlgbQexUIb3P07R7JjyZH
+   21j3pR3hE2VjJsCJAQDPYNW+pkMld110cO77fH0R0ESfTse5+xtNqOxCW
+   Q==;
+X-CSE-ConnectionGUID: mR/vhzjAQIm8yD7J773pbQ==
+X-CSE-MsgGUID: 6QQrQj+tTous99uEt5UA9g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11946"; a="1643202"
+X-IronPort-AV: E=Sophos;i="6.27,178,1787036400"; 
+   d="scan'208";a="1643202"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2026 19:02:19 -0700
+X-CSE-ConnectionGUID: 2vI1DO/yT5GF0/FwR9y1VQ==
+X-CSE-MsgGUID: 5H6ClLmBRH+ebWBlIYRDzQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,178,1787036400"; 
+   d="scan'208";a="4518647"
+Received: from fmsmsx902.amr.corp.intel.com ([10.18.126.91])
+  by fmviesa006.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2026 19:02:18 -0700
+Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49; Sun, 25 Oct 2026 19:02:18 -0700
+Received: from fmsedg901.ED.cps.intel.com (10.1.192.143) by
+ FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49 via Frontend Transport; Sun, 25 Oct 2026 19:02:18 -0700
+Received: from PH0PR06CU001.outbound.protection.outlook.com (40.107.208.37) by
+ edgegateway.intel.com (192.55.55.81) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.49; Sun, 25 Oct 2026 19:02:17 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=eG++XKjPnodRSfw9GyGgKheOh3dKPrtR7Ix2Y1kssPT1XVlQS+2albgyq5pKRrpulnRUlJA37rPVVoCYts5djk/4pjlUido/wzNDVgXb9uGMcuz6UERB4YC2sMHUxgk6zi8KdrUUa5MK6YCpxjI8qArH9wRRxT6YLF0sMSKBuI7mqfYjeAl4x1zlNv/mf3l0LnJovyA5GAtaugwtUq4PxER9CGfsIrLoKG0C4zHs42shHJKkvy0syd8/4Rg254XDgUTWEU1dbIJ/OaPoiOKt0AaOFnhGN8601+Yh6gXQNas7Dv7iydnPmptD75y5cfsdBKICMJPWS7DICllMXp+Xcg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oLHR48GYNhLWdREA8MRQ+oR0tecssRHY9M9ShvcKpMM=;
+ b=a2G2Yk//cpYrwgbJMMfoXkqisQxrL9+A/kVpHVMrfFm5yG1EFPexMnh9xf/Du5t/LcudEnij5lSQNfrUPE/PB4E3iCOfg9qJRyzlYWx0FmZ1mpjpZ9+DfNtls9mDbVdJqI1jSPd43nGIu+XEwQlrt9L+HBFfbg6AtxySiwZw3d3s0Xfsd4o/b0FrKQ++/BYy8fk2HdSSpL+vHHlEUWUoBPiGxkHuPtgiIGPOHWHSEBFTG/utGFDgCYWVy3lyEvFvR+0pxKkIwf8PiZaLgLeCrZkzj0iG1v2HUhief1Uma/uMwoEprA+JOVmj8fdEzkk56BCYJoJcjExZ+EfMHi272w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from SJ0PR11MB7704.namprd11.prod.outlook.com (2603:10b6:a03:4e7::5)
+ by SJ0PR11MB7153.namprd11.prod.outlook.com (2603:10b6:a03:48d::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.546.22; Mon, 26 Oct
+ 2026 02:02:10 +0000
+Received: from SJ0PR11MB7704.namprd11.prod.outlook.com
+ ([fe80::a8b5:7722:c11b:63c5]) by SJ0PR11MB7704.namprd11.prod.outlook.com
+ ([fe80::a8b5:7722:c11b:63c5%4]) with mapi id 15.21.0546.021; Mon, 26 Oct 2026
+ 02:02:09 +0000
+From: "Xu, Even" <even.xu@intel.com>
+To: Tristan Madani <tristmd@gmail.com>, "Sun, Xinpeng"
+	<xinpeng.sun@intel.com>, "jikos@kernel.org" <jikos@kernel.org>,
+	"bentiss@kernel.org" <bentiss@kernel.org>
+CC: "srinivas.pandruvada@linux.intel.com"
+	<srinivas.pandruvada@linux.intel.com>, "mpearson-lenovo@squebb.ca"
+	<mpearson-lenovo@squebb.ca>, "linux-input@vger.kernel.org"
+	<linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, Tristan Madani <tristan@talencesecurity.com>,
+	"stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH v2] HID: intel-thc-hid: validate ACPI buffer length before
+ memcpy
+Thread-Topic: [PATCH v2] HID: intel-thc-hid: validate ACPI buffer length
+ before memcpy
+Thread-Index: AQHdZJg53RfiTa2JCE6wg9/EWrLQgbcPEhgA
+Date: Mon, 26 Oct 2026 02:02:09 +0000
+Message-ID: <SJ0PR11MB7704B237F555C35A667F485CF4612@SJ0PR11MB7704.namprd11.prod.outlook.com>
+References: <20261024205850.4051206-1-tristmd@gmail.com>
+ <20261025154745.2734805-1-tristmd@gmail.com>
+In-Reply-To: <20261025154745.2734805-1-tristmd@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: mx.microsoft.com 1; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SJ0PR11MB7704:EE_|SJ0PR11MB7153:EE_
+x-ms-office365-filtering-correlation-id: 679e4562-0169-482b-06b8-08df330524f2
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|23010399003|366016|1800799024|38070700021|4143699003|11063799006|56012099006|261021123027099003|261021121427099003|261022115727099003|261022105027099003|261022075727099003|261021135927099003|261021133027099003|261021130227099003|261022113327099003|261009223027099003|10067099003|22082099003|18002099003|6133799003|3023799007;
+x-microsoft-antispam-message-info: f8CJFB+EvGICdMhlr8Op2b81CR34K3auLhlyJk/baGJTyedKvbfKxt8I7FllxPAEtLiLFtUDpx3NM+1IIhFwVKjiwAkE1MfGExYamKkv/4xloWmxCtXzU1P6nLsCyhrKTzmr3TQEqUejcqixJ8IMj0PzGRD5c+Cdils5ZnW0KfLd0rURjtcTnIgrcvtqDj9Qj1gMYA5qoQhsAVlRo68qUFu560QzeGCJR3Lz3BsJ8K1YgFtRVnDU3wU690GsKAv3U7qwNwgvIZ85f3F4XeTaU4PwaI0NtKd9LKYisBla0agen+3s5Ldq98XVUxoSllW7lH26PcOKDXg1HelGdZOlLiuSSdVt+lmm78k+BB37b/XfOvF9JO/677LghOjsSFQNmKiCIfZxqGunBbt/iEWkX0REXlGje6NjMzNzlcaJv650SSPEfADdR57SgfF6bGHhFvw4ICJUvH0U44AdcY+gbZQht8Lms+zgI9vOyCaXtIGymlHxHWVb1Eo81IiGQBIejV8Spm/DstU+HeCyC7NA55a2QYtcNevKNjmVQeLLP192sve4WSCjZOgA4rh2OMtxBXrfHKNEsWOrOjSUQpo9eMefGErSKJvWzwvHfsY09O2RaHUOcpYvT4/ZNwRFtZDJwM6Mz8T4jrpaNe9C21ATdYhwilJf6tNoXmS5y/TJZbVUBnplAvFxjoX/b9IDw9OxbMdOoAZpXh11VIRcucQ5kSH4WNNp0WvA5dARGn3Py4Y=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB7704.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(366016)(1800799024)(38070700021)(4143699003)(11063799006)(56012099006)(261021123027099003)(261021121427099003)(261022115727099003)(261022105027099003)(261022075727099003)(261021135927099003)(261021133027099003)(261021130227099003)(261022113327099003)(261009223027099003)(10067099003)(22082099003)(18002099003)(6133799003)(3023799007);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?DlD4k6UUMhgEnW0K3kYl0OPMqErabB6q/0zuYIY4PWmfBVKVbvusEt/kWvYa?=
+ =?us-ascii?Q?rNYXJ/XTaXz5W/4xQlqJYpBU7V2jU04S4xKBk8P+RNNUoGPVx/4WANzx5IAq?=
+ =?us-ascii?Q?liTPYnk6D7Qsb292PU/alYcC+S56WI+S6/1+BJIalKEWFurd6oXH/vRBdPUc?=
+ =?us-ascii?Q?0umrtPytqu7UvKuAc+5oX/eUcbuFpfeq9S5ggGQVRiugCMwtj4eIERnh1BVq?=
+ =?us-ascii?Q?MCWSC8QwdMemARUmPyofCVrpTPmtHs/R0PVtmAVPGwcIWXlbAdrZTPXNwruZ?=
+ =?us-ascii?Q?RfwegdHKl3whZRAHV1AZDcRCyJIc5DDWKHh3pkM+l1y8LtcmqHaYO5z9VmWu?=
+ =?us-ascii?Q?mOikbmCDlxRQCcVkEUU7cqLkfs+/VDs3OdmXGvwZ8EmMpH3We8fNdg01iOBZ?=
+ =?us-ascii?Q?uobmuATB30qRYdma4RR28aZb3ia6+UoR7UpO+B+BDoCK45IO05oOf0i+5bXb?=
+ =?us-ascii?Q?xug3TaLTGeZO/rKXWhmylQPi7HCejMuD9mIhcRlYyB3J9SOo0YfOGBRCV53o?=
+ =?us-ascii?Q?nLYAaqT+PaxDO2j3CZZZDLF3iBuPSYu45Sx+iwwsfMJ96ShxaEvfflZi3oLy?=
+ =?us-ascii?Q?7FhbQqcJBLxMisli4UFE+1EjH02uMLnlSwXvhF4NtZFeRaIXZe35GKdcCKR3?=
+ =?us-ascii?Q?Wd1yuxC/nbjh5eT9JXVq/I37E+/KGs2UTFYDNObrbxAStsHNqignR/36ihpP?=
+ =?us-ascii?Q?bTu8QxoePvforAlnEIrJXKLV+qGR1c9larNkGPggI+X5DRr7/O5cc1tbY0n6?=
+ =?us-ascii?Q?J1YFH5SKCJzZfUWq5TspubDHQgf+JDPGkYDsjQr8BAK4xMpQlNQLKq8Ch+7D?=
+ =?us-ascii?Q?BvyhkXpVC7AylsKw4WHXxOkEg+4ufJVaA6ypv+34ygW2ppnKUolnzIes+1so?=
+ =?us-ascii?Q?9aRuzP96FXqYcGrfc2+k46DdtGK/wA5MD+R1afEdw1q/jITCue7hla345fUg?=
+ =?us-ascii?Q?1QsVBf6/VhI3gzL8UF8rkSsPKcsOBLhhluaqs78EvVr6bEfVlR0o2gy0sK5h?=
+ =?us-ascii?Q?NfJf1RkjGC4WtJCPqszdVGmaDa7glw2e5oyzCCGdwvnZ/qh+nXjEOgTyRn/3?=
+ =?us-ascii?Q?H3JsJ2Y4YKTHxgh9lRKqNEivwK3ibCkoQJPVzAwGbDphN9PvXXs426FOmFOF?=
+ =?us-ascii?Q?PsVRj4xZ/1DfJxjjhw7s9JEju1JFA7wkzkgmWEK18T1sCdMLRN/4o6lEDgeR?=
+ =?us-ascii?Q?0PZs3C3vnwaDwrCkdKEMWrhsV6v1C0jaF3cXIVbyeCxMqCNdoBgKoYb7h3dp?=
+ =?us-ascii?Q?RBBO5byDmvctFjcuhYRL4aqL4LbDcspLlVGvBVQwdvNYJpNiuhKy2GlJxAo5?=
+ =?us-ascii?Q?UgiFU0N+I3rUafIeDannxc+kQ9Ug3LwA/afDfZoSaNQDo9j4ePbwJEWro+D9?=
+ =?us-ascii?Q?h8H5jTSbsARpCjDpFh3Iw1c2/XfpAPTdAXbGBHWj4sx+VbOPkM/l35cEwdcU?=
+ =?us-ascii?Q?i1jJZ7lewWBl3TZkIws8A+OZbITpiaq09MPMaOO1/puJDKa26gXNs4rPDY3m?=
+ =?us-ascii?Q?/cAOzRvPBePqMpmjPccekuVYAA2enmcSQ0iTyH8OjQzvLCTGIlgrz7QGpYMj?=
+ =?us-ascii?Q?KNJmMqH8sF5Xr4EwwO9L5x80yUMOMxulQDqCMj0hMb+Vjh0el06tyuLHm4nT?=
+ =?us-ascii?Q?2/UGlmwu/FXjL9a3z19UUghVI3b+VvpPVazef/3WdbTxaVedLBN3cWNJGbsm?=
+ =?us-ascii?Q?m8BhIqdA+x/xGdqcO9/JkImW6kH9NXKdEy17ewOgPGYH0paz?=
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 00:19:52 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,318 +182,385 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+X-Exchange-RoutingPolicyChecked: o/CXDBrohasWZRqImzErrrarxCnMd31R4r/h5a6ADNkGn5Vu+x5tT1Mis8jaBMZ8FvoTH3Qdeg/1aZbe6Lc8V422UqndtvQtgD4V8tX0MO45e3S1GTftuNPZGjcIM8hjuWA/MvCX3YJRRMUeL/OKr/Cuk1qA2XWUPmjJtlAsqkoZVinkw7+rIU64ccm2Ihni4r89zLn2rQ/aKsVOqaeUVKFdew2Wgqw/RbMjjOVA7UeZiMISPZit3c2VHCbN/Ccp6pngN9WeblhGQoPAjLtfXR18/L3gTSfjGBeW6yx1JH7D2y6yLslLCJkHKkdnEchUomK8PmVhOyoP5zGWhz/zqA==
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB7704.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 679e4562-0169-482b-06b8-08df330524f2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Oct 2026 02:02:09.7053
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: PaEO0OwDajou/1Yaue0tayjADHl+jqPrsOw5iVXLLvxC4UPOUgHQZ31g28yFpaIlwZ1i/qvAq8LtNfoW6jsUyw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR11MB7153
+X-OriginatorOrg: intel.com
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [Critical] HID: asus: TOCTOU race on ally_x_hdev in hid_asus_ally_init() =
-causes UAF
-- [Medium] HID: asus: FF init race and missing error cleanup in ally_x_setu=
-p_input()
-- [Medium] HID: asus: race in hid_asus_ally_remove() and ally_x_ff_work_fn(=
-) teardown
---
 
-commit aa3d72be03857627e94d5d35f54f6366760f62af
-Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support to force feedback
-
-This commit adds force-feedback (FF_RUMBLE) support for the ASUS ROG Ally X
-gamepad interface using input_ff_create_memless() and a workqueue to send
-output reports asynchronously.
-
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index e1883ee20413c..a3a21a1493aa8 100644
-> --- a/drivers/hid/hid-asus.c
-> +++ b/drivers/hid/hid-asus.c
-[ ... ]
-> @@ -2674,6 +2812,36 @@ static int ally_x_setup_input(struct hid_device *h=
-dev, struct ally_handheld *all
->  	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY);
->  	input_set_capability(input, EV_KEY, BTN_TRIGGER_HAPPY1);
-> =20
-> +	memcpy(&ally->ff_packet, ALLY_FORCE_FEEDBACK_OFF, sizeof(ally->ff_packe=
-t));
-> +	/*
-> +	 * A play_effect() racing the previous teardown can have left the
-> +	 * update latch set: a fresh interface must not inherit it, or the
-> +	 * first rumble work would send a packet nobody asked for.
-> +	 */
-> +	ally->update_ff =3D false;
-> +	ally->ff_work_initialized =3D true;
-> +
-> +	input_set_capability(input, EV_FF, FF_RUMBLE);
-> +
-> +	/*
-> +	 * A registered device advertising FF_RUMBLE without the memless core
-> +	 * behind it would crash input_ff_upload(): fail the whole setup instea=
-d.
-> +	 */
-> +	ret =3D input_ff_create_memless(input, NULL, ally_x_play_effect);
-> +	if (ret) {
-> +		hid_err(hdev, "Failed to create force-feedback: %d\n", ret);
-> +		goto ally_x_setup_input_err;
-> +	}
-> +
-> +	/*
-> +	 * Publish the interface before the input device becomes visible to
-> +	 * userspace: an effect uploaded right after registration would
-> +	 * otherwise find a NULL hdev and get dropped.
-> +	 */
-> +	spin_lock_irqsave(&ally_data_lock, flags);
-> +	ally->ally_x_hdev =3D hdev;
-> +	spin_unlock_irqrestore(&ally_data_lock, flags);
-> +
->  	ret =3D input_register_device(input);
->  	if (ret) {
->  		hid_err(hdev, "Failed to register Ally X gamepad device: %d\n", ret);
-> @@ -2687,20 +2855,61 @@ static int ally_x_setup_input(struct hid_device *=
-hdev, struct ally_handheld *all
-> =20
->  	return 0;
->  ally_x_setup_input_err:
-> +	/*
-> +	 * Unpublish like hid_asus_ally_remove() does, intf_mutex held: the
-> +	 * cross-interface senders snapshot ally_x_hdev under ally_data_lock
-> +	 * and send under intf_mutex, so the unpublish must take both in the
-> +	 * same order to keep the handshake meaningful.
-> +	 */
-> +	scoped_guard(mutex, &ally->intf_mutex) {
-> +		spin_lock_irqsave(&ally_data_lock, flags);
-> +		if (ally->ally_x_hdev =3D=3D hdev)
-> +			ally->ally_x_hdev =3D NULL;
-> +		spin_unlock_irqrestore(&ally_data_lock, flags);
-> +	}
-> +
->  	input_free_device(input);
->  	return ret;
->  }
-
-[Severity: Medium]
-In ally_x_setup_input(), ally->ff_packet, ally->update_ff, and
-ally->ff_work_initialized are updated without holding ally->ff_lock. In
-addition, if input_ff_create_memless() or input_register_device() fails and
-jumps to ally_x_setup_input_err, ally->ff_work_initialized remains set to
-true and ally->ff_work is not cancelled, while hid_asus_ally_probe() returns
-an error before setting drvdata->rog_ally (leaving hid_asus_ally_remove() as
-a no-op).
-
-Also, ally_x_setup_input() publishes ally->ally_x_hdev and calls
-input_register_device(input) before hid_asus_ally_probe() sends the initial
-ally_x_send_ff_off(hdev) packet (and hid_asus_ally_probe() then assigns
-ally_drvdata.ally_x_hdev =3D hdev a second time). If userspace opens the new
-input device immediately upon registration and triggers an effect via
-ally_x_play_effect() -> ally_x_ff_work_fn(), can the late
-ally_x_send_ff_off(hdev) call in hid_asus_ally_probe() overwrite and silence
-that active rumble effect?
-
-Should the initial ally_x_send_ff_off(hdev) happen before registering the
-input device, with ally->ff_packet, ally->update_ff, and
-ally->ff_work_initialized initialized under ally->ff_lock and cleaned up on
-the ally_x_setup_input_err path?
-
-> =20
->  static int hid_asus_ally_init(struct hid_device *hdev, struct ally_handh=
-eld *ally)
+> -----Original Message-----
+> From: Tristan Madani <tristmd@gmail.com>
+> Sent: Sunday, October 25, 2026 11:48 PM
+> To: Xu, Even <even.xu@intel.com>; Sun, Xinpeng <xinpeng.sun@intel.com>;
+> jikos@kernel.org; bentiss@kernel.org
+> Cc: srinivas.pandruvada@linux.intel.com; mpearson-lenovo@squebb.ca; linux=
+-
+> input@vger.kernel.org; linux-kernel@vger.kernel.org; Tristan Madani
+> <tristan@talencesecurity.com>; stable@vger.kernel.org
+> Subject: [PATCH v2] HID: intel-thc-hid: validate ACPI buffer length befor=
+e memcpy
+>=20
+> From: Tristan Madani <tristan@talencesecurity.com>
+>=20
+> The QuickI2C and QuickSPI ACPI helper functions copy firmware-returned bu=
+ffers
+> into caller-provided structures without verifying the buffer length. Malf=
+ormed or
+> short ACPI tables could cause an out-of-bounds read from the firmware buf=
+fer,
+> and oversized responses could overflow the destination struct.
+>=20
+> Additionally, quicki2c_acpi_get_dsd_property() does not validate the retu=
+rned
+> ACPI object type before accessing buffer fields, and does not free the al=
+located
+> ACPI buffer on the success path, leaking memory on every call.
+>=20
+> Add a buf_size parameter to the ACPI helper functions and reject response=
+s
+> larger than the destination buffer. Accept shorter responses to handle fi=
+rmware
+> that returns buffers without struct tail padding (e.g. ISUB tables return=
+ing 177 or
+> 145 bytes for a 184-byte struct).
+> Zero-initialize caller stack structures so fields beyond the firmware res=
+ponse
+> length are deterministic. Add the missing type check and kfree to the DSD=
+ helper.
+>=20
+> Fixes: 5282e45ccbfa ("HID: intel-thc-hid: intel-quicki2c: Add THC QuickI2=
+C ACPI
+> interfaces")
+> Fixes: 7cb06f08ef13 ("HID: intel-thc-hid: intel-quickspi: Add THC QuickSP=
+I ACPI
+> interfaces")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+> ---
+> Changes in v2:
+> - Use overflow-only check (>) instead of exact-match (!=3D) so firmware
+>   returning shorter buffers (e.g. 177 or 145 bytes for 184-byte ISUB
+>   struct, or 1 byte for 4-byte SPI opcode) is accepted
+> - Zero-initialize caller stack structures for deterministic behavior
+>   with short firmware responses
+> - Add missing type validation and kfree in DSD helper
+> - Add braces per coding style
+>=20
+>  .../intel-quicki2c/pci-quicki2c.c             | 40 ++++++++++++++-----
+>  .../intel-quickspi/pci-quickspi.c             | 36 ++++++++++-------
+>  2 files changed, 51 insertions(+), 25 deletions(-)
+>=20
+> diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> index 7a913f717efaad..dd21864d16b05b 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
+> @@ -62,7 +62,8 @@ static const struct acpi_gpio_mapping quicki2c_gpios[] =
+=3D {
+>   * Return: 0 if success or ENODEV on failure.
+>   */
+>  static int quicki2c_acpi_get_dsm_property(struct acpi_device *adev, cons=
+t
+> guid_t *guid,
+> -					  u64 rev, u64 func, acpi_object_type
+> type, void *prop_buf)
+> +					  u64 rev, u64 func, acpi_object_type
+> type,
+> +					  void *prop_buf, size_t buf_size)
 >  {
-> +	struct hid_device *x_hdev;
->  	struct ally_config *cfg;
-> +	unsigned long flags;
->  	int ret;
-> =20
-> -	/* Failure at this point is non-critical */
-> -	ret =3D ally_gamepad_send_packet(ally, hdev, ALLY_FORCE_FEEDBACK_OFF,
-> -				       sizeof(ALLY_FORCE_FEEDBACK_OFF));
-> -	if (ret < 0)
-> -		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
-> +	/*
-> +	 * Snapshot the gamepad interface and send the force-feedback "off"
-> +	 * packet through it. usbhid_stop() frees urbout before NULLing it
-> +	 * while usbhid_output_report() dereferences it unlocked, so a send
-> +	 * overlapping the transport teardown would be a use-after-free: the
-> +	 * device lock is taken around the send because the HID core holds
-> +	 * it across remove() and the hid_hw_stop() that follows, making the
-> +	 * two mutually exclusive. It is taken before intf_mutex, the same
-> +	 * order the core's remove path uses, so no lock inversion exists.
-> +	 */
-> +	spin_lock_irqsave(&ally_data_lock, flags);
-> +	x_hdev =3D ally->ally_x_hdev;
-> +	if (x_hdev)
-> +		get_device(&x_hdev->dev);
-> +	spin_unlock_irqrestore(&ally_data_lock, flags);
-> +
-> +	if (x_hdev) {
-> +		/* Failure at this point is non-critical */
-> +		scoped_guard(mutex, &x_hdev->dev.mutex) {
-> +			scoped_guard(mutex, &ally->intf_mutex) {
-> +				ret =3D ally_x_send_ff_off(x_hdev);
-> +
-> +				if (ret < 0)
-> +					hid_err(hdev,
-> +						"Ally failed to init force-feedback off: %d\n",
-> +						ret);
-> +			}
-> +		}
-> +
-> +		put_device(&x_hdev->dev);
-> +	}
-
-[Severity: Critical]
-Can this sequence in hid_asus_ally_init() race with gamepad interface remov=
-al
-and cause a use-after-free of usbhid (x_hdev->driver_data)?
-
-In hid_asus_ally_init(), x_hdev is snapshotted from ally->ally_x_hdev under
-ally_data_lock before acquiring x_hdev->dev.mutex and ally->intf_mutex, and
-ally->ally_x_hdev =3D=3D x_hdev is not re-checked after the mutexes are acq=
-uired.
-
-If the gamepad interface is concurrently being disconnected or unbound:
-
-CPU 0 (cfg probe or reset_resume)       CPU 1 (gamepad disconnect / unbind)
----------------------------------       -----------------------------------
-hid_asus_ally_init()
-  spin_lock_irqsave(&ally_data_lock)
-  x_hdev =3D ally->ally_x_hdev;
-  get_device(&x_hdev->dev);
-  spin_unlock_irqrestore(&ally_data_lock)
-                                        usbhid_disconnect()
-                                          hid_destroy_device(x_hdev)
-                                            device_release_driver_internal()
-                                              mutex_lock(&x_hdev->dev.mutex)
-                                              asus_remove()
-                                                hid_asus_ally_remove()
-                                                  ally->ally_x_hdev =3D NUL=
-L;
-                                                hid_hw_stop(x_hdev)
-                                                  usbhid_stop(x_hdev)
-                                              mutex_unlock(&x_hdev->dev.mut=
-ex)
-                                          kfree(usbhid);
-  mutex_lock(&x_hdev->dev.mutex)
-  mutex_lock(&ally->intf_mutex)
-  ally_x_send_ff_off(x_hdev)
-    hid_hw_output_report(x_hdev, ...)
-      usbhid_output_report(x_hdev, ...)
-        usbhid =3D x_hdev->driver_data;
-        if (!usbhid->urbout)  <-- UAF!
-
-Because get_device(&x_hdev->dev) only pins struct hid_device and not
-struct usbhid_device, usbhid_disconnect() frees usbhid as soon as
-hid_destroy_device() releases x_hdev->dev.mutex:
-
-drivers/hid/usbhid/hid-core.c:usbhid_disconnect() {
-    ...
-    hid_destroy_device(hid);
-    kfree(usbhid);
-}
-
-When hid_asus_ally_init() then acquires x_hdev->dev.mutex and calls
-ally_x_send_ff_off(x_hdev), usbhid_output_report() dereferences the freed
-x_hdev->driver_data (or, on sysfs driver unbind without USB disconnect,
-accesses a stopped transport after hid_hw_stop()).
-
-Should hid_asus_ally_init() re-verify that ally->ally_x_hdev =3D=3D x_hdev =
-under
-ally_data_lock after acquiring x_hdev->dev.mutex and ally->intf_mutex before
-calling ally_x_send_ff_off(x_hdev)?
-
-[ ... ]
-> @@ -3038,31 +3259,81 @@ static void hid_asus_ally_remove(struct hid_devic=
-e *hdev, struct ally_handheld *
->  	cancel_delayed_work_sync(&ally->resume_work);
-> =20
->  	spin_lock_irqsave(&ally_data_lock, flags);
-> -	if (ally->ally_x_hdev =3D=3D hdev) {
-> -		x_input =3D ally->ally_x_input;
-> -		ally->ally_x_input =3D NULL;
-> -		ally->ally_x_hdev =3D NULL;
-> +	owns_xpad =3D ally->ally_x_hdev =3D=3D hdev;
-> +	spin_unlock_irqrestore(&ally_data_lock, flags);
-> +
-> +	if (owns_xpad) {
-> +		/*
-> +		 * Stop queueing force-feedback work before the gamepad
-> +		 * pointers are cleared: play_effect() tests the flag under the
-> +		 * same lock, so no work can be queued past the cancel below.
-> +		 */
-> +		scoped_guard(spinlock_irqsave, &ally->ff_lock)
-> +			ally->ff_work_initialized =3D false;
-> +
-> +		/*
-> +		 * cancel_work_sync() may sleep: keep it out of ally_data_lock,
-> +		 * but run it before the pointers are cleared so in-flight work
-> +		 * cannot outlive the interface it sends through.
-> +		 */
-> +		cancel_work_sync(&ally->ff_work);
-> +
-> +		/*
-> +		 * The input core can no longer stop effects through the
-> +		 * disabled work: quiesce any rumble still playing ourselves,
-> +		 * or the device would keep vibrating after being unbound.
-> +		 *
-> +		 * Serialize the packet with the other force-feedback senders:
-> +		 * intf_mutex is taken again below for the pointer
-> +		 * unpublishing, but the two critical sections never nest.
-> +		 */
-> +		scoped_guard(mutex, &ally->intf_mutex) {
-> +			if (ally_x_send_ff_off(hdev) < 0)
-> +				hid_warn(hdev,
-> +					 "Failed to stop force-feedback\n");
-> +		}
+>  	acpi_handle handle =3D acpi_device_handle(adev);
+>  	union acpi_object *obj;
+> @@ -75,10 +76,15 @@ static int quicki2c_acpi_get_dsm_property(struct
+> acpi_device *adev, const guid_t
+>  		return -ENODEV;
 >  	}
-> =20
->  	/*
-> -	 * The keyboard interface is torn down before the config one, and
-> -	 * its input_dev is freed with it. handle_ally_event() and
-> -	 * ally_resume_work_fn() both report keys through it from the
-> -	 * config endpoint, so drop the references here or they dangle.
-> +	 * Serialize with hid_asus_ally_init(): it sends the force-feedback
-> +	 * "off" packet through the gamepad interface recorded here, whose
-> +	 * transport is stopped by hid_hw_stop() as soon as this function
-> +	 * returns. Holding intf_mutex while the gamepad pointers are
-> +	 * unpublished makes init's snapshot-and-send atomic with the
-> +	 * removal: the packet either reaches a transport that is still
-> +	 * running, or is not sent at all. The lock must be released before
-> +	 * the sysfs teardown below, or an in-flight sysfs store blocked on
-> +	 * it would deadlock against kernfs waiting for the callback.
->  	 */
-> -	if (ally->keyboard_hdev =3D=3D hdev) {
-> -		ally->keyboard_input =3D NULL;
-> -		ally->keyboard_hdev =3D NULL;
-> -	}
-> +	scoped_guard(mutex, &ally->intf_mutex) {
-> +		spin_lock_irqsave(&ally_data_lock, flags);
-> +		if (owns_xpad) {
-> +			x_input =3D ally->ally_x_input;
-> +			ally->ally_x_input =3D NULL;
-> +			ally->ally_x_hdev =3D NULL;
+>=20
+> -	if (type =3D=3D ACPI_TYPE_INTEGER)
+> +	if (type =3D=3D ACPI_TYPE_INTEGER) {
+>  		*(u32 *)prop_buf =3D (u32)obj->integer.value;
+> -	else if (type =3D=3D ACPI_TYPE_BUFFER)
+> +	} else if (type =3D=3D ACPI_TYPE_BUFFER) {
+> +		if (buf_size > 0 && obj->buffer.length > buf_size) {
+> +			ACPI_FREE(obj);
+> +			return -ENOSPC;
 > +		}
+>  		memcpy(prop_buf, obj->buffer.pointer, obj->buffer.length);
+> +	}
+>=20
+>  	ACPI_FREE(obj);
+>=20
+> @@ -97,7 +103,8 @@ static int quicki2c_acpi_get_dsm_property(struct
+> acpi_device *adev, const guid_t
+>   * Return: 0 if success or ENODEV on failed.
+>   */
+>  static int quicki2c_acpi_get_dsd_property(struct acpi_device *adev, acpi=
+_string
+> dsd_method_name,
+> -					  acpi_object_type type, void
+> *prop_buf)
+> +					  acpi_object_type type, void *prop_buf,
+> +					  size_t buf_size)
+>  {
+>  	acpi_handle handle =3D acpi_device_handle(adev);
+>  	struct acpi_buffer buffer =3D { ACPI_ALLOCATE_BUFFER, NULL }; @@ -
+> 113,7 +120,16 @@ static int quicki2c_acpi_get_dsd_property(struct acpi_de=
+vice
+> *adev, acpi_string
+>=20
+>  	ret_obj =3D buffer.pointer;
+>=20
+> +	if (ret_obj->type !=3D type) {
+> +		kfree(buffer.pointer);
+> +		return -EINVAL;
+> +	}
+> +	if (buf_size > 0 && ret_obj->buffer.length > buf_size) {
+> +		kfree(buffer.pointer);
+> +		return -ENOSPC;
+> +	}
+>  	memcpy(prop_buf, ret_obj->buffer.pointer, ret_obj->buffer.length);
+> +	kfree(buffer.pointer);
+>=20
+>  	return 0;
+>  }
+> @@ -129,8 +145,8 @@ static int quicki2c_acpi_get_dsd_property(struct
+> acpi_device *adev, acpi_string  static int quicki2c_get_acpi_resources(st=
+ruct
+> quicki2c_device *qcdev)  {
+>  	struct acpi_device *adev =3D ACPI_COMPANION(qcdev->dev);
+> -	struct quicki2c_subip_acpi_parameter i2c_param;
+> -	struct quicki2c_subip_acpi_config i2c_config;
+> +	struct quicki2c_subip_acpi_parameter i2c_param =3D {};
+> +	struct quicki2c_subip_acpi_config i2c_config =3D {};
+>  	u32 hid_desc_addr;
+>  	int ret =3D -EINVAL;
+>=20
+> @@ -145,7 +161,7 @@ static int quicki2c_get_acpi_resources(struct
+> quicki2c_device *qcdev)
+>  					     QUICKI2C_ACPI_REVISION_NUM,
+>=20
+> QUICKI2C_ACPI_FUNC_NUM_HID_DESC_ADDR,
+>  					     ACPI_TYPE_INTEGER,
+> -					     &hid_desc_addr);
+> +					     &hid_desc_addr, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -155,7 +171,7 @@ static int quicki2c_get_acpi_resources(struct
+> quicki2c_device *qcdev)
+>  					     QUICKI2C_ACPI_REVISION_NUM,
+>=20
+> QUICKI2C_ACPI_FUNC_NUM_ACTIVE_LTR_VAL,
+>  					     ACPI_TYPE_INTEGER,
+> -					     &qcdev->active_ltr_val);
+> +					     &qcdev->active_ltr_val, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -163,12 +179,13 @@ static int quicki2c_get_acpi_resources(struct
+> quicki2c_device *qcdev)
+>  					     QUICKI2C_ACPI_REVISION_NUM,
+>=20
+> QUICKI2C_ACPI_FUNC_NUM_LP_LTR_VAL,
+>  					     ACPI_TYPE_INTEGER,
+> -					     &qcdev->low_power_ltr_val);
+> +					     &qcdev->low_power_ltr_val, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+>  	ret =3D quicki2c_acpi_get_dsd_property(adev,
+> QUICKI2C_ACPI_METHOD_NAME_ICRS,
+> -					     ACPI_TYPE_BUFFER, &i2c_param);
+> +					     ACPI_TYPE_BUFFER, &i2c_param,
+> +					     sizeof(i2c_param));
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -180,7 +197,8 @@ static int quicki2c_get_acpi_resources(struct
+> quicki2c_device *qcdev)
+>  	qcdev->i2c_config.target_addr =3D i2c_param.device_address;
+>=20
+>  	ret =3D quicki2c_acpi_get_dsd_property(adev,
+> QUICKI2C_ACPI_METHOD_NAME_ISUB,
+> -					     ACPI_TYPE_BUFFER, &i2c_config);
+> +					     ACPI_TYPE_BUFFER, &i2c_config,
+> +					     sizeof(i2c_config));
+>  	if (ret)
+>  		return ret;
+>=20
+> diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> index 53023e30cf8d47..e4331ba4e503d9 100644
+> --- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> +++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
+> @@ -81,7 +81,8 @@ static const struct acpi_gpio_mapping quickspi_gpios[] =
+=3D {
+>   * Return: 0 if successful or ENODEV on failed.
+>   */
+>  static int thc_acpi_get_property(struct acpi_device *adev, const guid_t =
+*guid,
+> -				 u64 rev, u64 func, acpi_object_type type, void
+> *prop_buf)
+> +				 u64 rev, u64 func, acpi_object_type type,
+> +				 void *prop_buf, size_t buf_size)
+>  {
+>  	acpi_handle handle =3D acpi_device_handle(adev);
+>  	union acpi_object *obj;
+> @@ -94,10 +95,15 @@ static int thc_acpi_get_property(struct acpi_device
+> *adev, const guid_t *guid,
+>  		return -ENODEV;
+>  	}
+>=20
+> -	if (type =3D=3D ACPI_TYPE_INTEGER)
+> +	if (type =3D=3D ACPI_TYPE_INTEGER) {
+>  		*(u32 *)prop_buf =3D (u32)obj->integer.value;
+> -	else if (type =3D=3D ACPI_TYPE_BUFFER)
+> +	} else if (type =3D=3D ACPI_TYPE_BUFFER) {
+> +		if (buf_size > 0 && obj->buffer.length > buf_size) {
+> +			ACPI_FREE(obj);
+> +			return -ENOSPC;
+> +		}
+>  		memcpy(prop_buf, obj->buffer.pointer, obj->buffer.length);
+> +	}
+>=20
+>  	ACPI_FREE(obj);
+>=20
+> @@ -129,7 +135,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_INPUT_REP_HDR_ADDR,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->input_report_hdr_addr);
+> +				    &qsdev->input_report_hdr_addr, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -137,7 +143,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_INPUT_REP_BDY_ADDR,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->input_report_bdy_addr);
+> +				    &qsdev->input_report_bdy_addr, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -145,7 +151,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_OUTPUT_REP_ADDR,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->output_report_addr);
+> +				    &qsdev->output_report_addr, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -153,7 +159,8 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_READ_OPCODE,
+>  				    ACPI_TYPE_BUFFER,
+> -				    &qsdev->spi_read_opcode);
+> +				    &qsdev->spi_read_opcode,
+> +				    sizeof(qsdev->spi_read_opcode));
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -161,7 +168,8 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_WRITE_OPCODE,
+>  				    ACPI_TYPE_BUFFER,
+> -				    &qsdev->spi_write_opcode);
+> +				    &qsdev->spi_write_opcode,
+> +				    sizeof(qsdev->spi_write_opcode));
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -169,7 +177,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>  				    ACPI_QUICKSPI_FUNC_NUM_IO_MODE,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->spi_read_io_mode);
+> +				    &qsdev->spi_read_io_mode, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -184,7 +192,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_CONNECTION_SPEED,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->spi_freq_val);
+> +				    &qsdev->spi_freq_val, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -192,7 +200,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_LIMIT_PACKET_SIZE,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->limit_packet_size);
+> +				    &qsdev->limit_packet_size, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -205,7 +213,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>=20
+> ACPI_QUICKSPI_FUNC_NUM_PERFORMANCE_LIMIT,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->performance_limit);
+> +				    &qsdev->performance_limit, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -215,7 +223,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>  				    ACPI_QUICKSPI_FUNC_NUM_ACTIVE_LTR,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->active_ltr_val);
+> +				    &qsdev->active_ltr_val, 0);
+>  	if (ret)
+>  		return ret;
+>=20
+> @@ -223,7 +231,7 @@ static int quickspi_get_acpi_resources(struct
+> quickspi_device *qsdev)
+>  				    ACPI_QUICKSPI_REVISION_NUM,
+>  				    ACPI_QUICKSPI_FUNC_NUM_LP_LTR,
+>  				    ACPI_TYPE_INTEGER,
+> -				    &qsdev->low_power_ltr_val);
+> +				    &qsdev->low_power_ltr_val, 0);
+>  	if (ret)
+>  		return ret;
+>=20
 
-[Severity: Medium]
-In hid_asus_ally_remove(), ally->ff_work_initialized is cleared,
-ally->ff_work is cancelled, and ally->ally_x_hdev is set to NULL before
-input_unregister_device(x_input) is called further down in the function.
+Thanks for your patch!
+It will be better if you can split it into two separate patches (One for Qu=
+ickSPI, one for QuickI2C).
 
-Until input_unregister_device(x_input) disconnects evdev (flushing active
-effects via input_flush_device() -> input_ff_flush() -> erase_effect() ->
-ml_ff_playback()) and stops the ff-memless timer via ml_ff_stop(),
-ally_x_play_effect() can still run on x_input. Because clearing
-ally->ally_x_hdev releases the HID_ALLY_X_INTF_IN role reservation in
-hid_asus_ally_probe(), a concurrent re-probe can enter ally_x_setup_input()
-and re-enable ally->ff_work_initialized while x_input's teardown in
-input_unregister_device(x_input) is still invoking ally_x_play_effect().
+Reviewed-by: Even Xu <even.xu@intel.com>
 
-Similarly, in ally_x_ff_work_fn(), hdev =3D ally->ally_x_hdev is snapshotted
-under ally_data_lock before acquiring ally->intf_mutex, without re-checking
-that ally->ally_x_hdev =3D=3D hdev once ally->intf_mutex is held (which can=
- race
-with the ally_x_setup_input_err unpublish path).
+> --
+> 2.47.3
 
-Would it be safer to unregister x_input before disabling and cancelling
-ally->ff_work and clearing ally->ally_x_hdev, and to re-check
-ally->ally_x_hdev =3D=3D hdev under ally->intf_mutex in ally_x_ff_work_fn()?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261025235232.1299=
-45-1-denis.benato@linux.dev?part=3D8

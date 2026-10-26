@@ -1,79 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.208
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792972398;
-	b=lufzrZlsX/lNrNTYcICk6WVuVbZQmmyX941NZn0+TPsBu2zbcm5IpshkGwsw+tXe5Xv2
-	 zSV0ovLhOHgGi4A5rAXys5v8829F6O5iHlTHWqUL+gwsF9dewIB66HjC31JmU38uj+wgq
-	 ciQ6cLcfeAVWnPoPTbVTulZX4nwRJQKoJgNE/GAvSwIABFazzGxzh/LphqDRVaCucCtrJ
-	 uS9gC6vIKMQFg4eDs/+wgxn1GehZWO2L4OgLPNixIS9b69T6aqWhzyryYCzFjAw/YVAJo
-	 oPUwigNVBTeviaCDRDnpiv1J3rWfjDUrQU26LYi69diae5FuAJKoj1H+iJWH2yLWSVA==
+	t=1792973007;
+	b=cn/YqaVLXsoJ4mkEM6P7GQawZICVl6lZyTPhIkKodNGgM/Tc9BxwFX0mIjGvSuk/Cv1i
+	 08LSeFbIqbDBXJklM8sSilshc2lETOm0lLSZN1jGoOyfbKr2I9qTJQ3z64ZO0O1EX43/W
+	 sqI3te5sSG5aDn0WWk8VAfN2Q7niEz43mNMougljtZGg+eEUd4cyeoqNqq8Od8KmuHw1L
+	 tAbazalnUhhTYm8GVZyuSl6k9nrl/EfOlSOxJNeO/D03/FT4SR9KLvhqBg90QBzpwaKph
+	 HEtK/c47l57+jJZETXRHNeW59lXUzn/wwGN24TzTN5Svq83F7Ci6+cMoJh0/O57Y1Ew==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792972398;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=kOShCq2U4JEXiRarVFOrZYdD4vx45blyVPCctjn43nk=;
-	b=DKUiDIRP/3lrVSd/dRXW3dyxFXhijahcusxulP3somXnxW2PvMNreJJE9fD5FQ/5WLuV
-	 +0Nq9hySs4dyKSvlG634SvyQwW/owpupyZNgtL2EFdr+FhH+lBWdwtmRQvlYg/JKyHVJL
-	 2QFigX1kqxl+kUb4zqrljm4CA2PWhxoldsghT3v09R75xIqhmTwsP5+VRLn3imXhMURPp
-	 bvQ4ycH2NYO3EC4xsoWRqsnb/dN5M9d3zIv0CBSL1UYDhgrLRm9o3FIzLMsGbnwsslj70
-	 Ku8+gp/9hy1dqOcNfAqSUXbRj0feJLmvSsc7YNd/l4kVsaNZz023f9KyLRNq9+mfBZg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792973007;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=V6GJX7XzZSooPdNCJxPdibC1I1560YQc804oILU8QXc=;
+	b=KwSnlRhN0tw2tZz2+r3WgOFHf4nBbl838FUXQu4wF0EEffKN4xx4PF7mGqwzECW+9IXi
+	 vUD2/VKEpWWgpxlfsWo6sq+6k9Swvv7bK0nHOq8ZOMhZxelqQoaC8hJu/mek2nODqsfwZ
+	 iNHacN/cb5HDzqYFiFRBwLlNH+YoBFFDkKuJAyRG1gmRg7x37axsXffaggcx+Qa5McqIE
+	 7EHBBcRxRzQd3Mf1IvvQOYaGw1Dw9NLInNggrBVQNmDcEmITuIKHnBzcNOOWBfAt9fA4+
+	 lBWblVHv/xB41tBJ6uvPO5MkxBZ24xY6ied0AawwU7ifJa6jgDlVIOdDZYCXQ9KH0uQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=VB0ui4T4;
-	arc=none smtp.remote-ip=91.218.175.208
-Received: from mta0.migadu.com (out-208.mta0.migadu.com [91.218.175.208])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XQkFHsYc;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3383560A5BE9
-	for <linux-input@vger.kernel.org>; Sun, 25 Oct 2026 23:53:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3383560A5BE9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE62C606A31A
+	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:03:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=VB0ui4T4
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=nn6GkR6sKN00vvch3hLPYNcxKz8wsGc6g8V7oTwW2ns=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1792972396; v=1; x=1793577196;
- b=VB0ui4T4N8GnBrQqNo+cdnUJoDVPGr1N9abN5+a61ZiRK43CsmRGqoPyKN6I9F/xEfyi0+uk
- 9hCHWSd1+JbQ1sRHFNek+bhZDgRTSGArN/Rs9PcQzMzHJE7gFramnOwMgRJ63oUXEzfrvmVQwTe
- KoGrzl8rENnRhx2rf/Ezh5NU=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id a9d5c2c34b647df5;
-	Sun, 25 Oct 2026 23:53:16 +0000
-X-Mizu-Trace-ID: a9d5c2c34b647df5
-X-Migadu-Flow: FLOW_OUT
-From: Denis Benato <denis.benato@linux.dev>
-To: linux-kernel@vger.kernel.org
-Cc: platform-driver-x86@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	kernel@lists.opengamingcollective.org,
-	"Benjamin Tissoires" <bentiss@kernel.org>,
-	"Jiri Kosina" <jikos@kernel.org>,
-	"Luke D . Jones" <luke@ljones.dev>,
-	"Mateusz Schwartz" <matthew.schwartz@linux.dev>,
-	"Denis Benato" <benato.denis96@gmail.com>,
-	"Jonathan LoBue" <jlobue10@gmail.com>,
-	"Khamunetri Clark" <khamunetriclark@gmail.com>,
-	"Derek J. Clark" <derekjohn.clark@gmail.com>,
-	"Joshua Leivenzon" <hacker1024@users.sourceforge.net>,
-	"Nathan Chancellor" <nathan@kernel.org>,
-	=?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>,
-	"Ivan Levchenko" <me@livan.pro>,
-	"Corentin Chary" <corentin.chary@gmail.com>,
-	"Hans de Goede" <hansg@kernel.org>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v11 18/18] MAINTAINERS: add maintainer for the ASUS HID driver
-Date: Sun, 25 Oct 2026 23:52:31 +0000
-Message-ID: <20261025235232.129945-19-denis.benato@linux.dev>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261025235232.129945-1-denis.benato@linux.dev>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XQkFHsYc
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DA801F01825;
+	Mon, 26 Oct 2026 00:03:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792973006;
+	bh=V6GJX7XzZSooPdNCJxPdibC1I1560YQc804oILU8QXc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=XQkFHsYcIt4CTlQ9fW3hmZlNZIflU3OUs6A5DNrXHA5peKQuwQtygC+ivlk0ucNpl
+	 +ey/vCiPUoy6E01pnijJsgg+W4usaN1ePHDKrShrd8M8cUmBSKvGrdYHa7wcYRwqVg
+	 FavbbIZiMTjkzbHL5IqhrzEUZoRTuhAcvsSNL11egNbDjvzx/P0PLG5nQ+pMnFc2QE
+	 eLU1ffyoXBRaBO92zNiIao+e4bwZJbpz1M/TeOMFBzUNFcgSoJBcbmRrUoXw6nponY
+	 WExfBrC2ZsNfwfFR66kHgg8MlWTl9cZFq9m6qVGeitLZwjbXHr2VYNN9/h7cVfaWy6
+	 745S8I0G0c0Mw==
+Message-ID: <sashiko-outbox-184543@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v11 17/18] HID: asus: report the XG Mobile GPU vendor to
+ asus-wmi
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Denis Benato" <denis.benato@linux.dev>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261025235232.129945-18-denis.benato@linux.dev>
 References: <20261025235232.129945-1-denis.benato@linux.dev>
+ <20261025235232.129945-18-denis.benato@linux.dev>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 26 Oct 2026 00:03:25 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,36 +60,89 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-I already maintain the ASUS drivers in platform/x86, know these
-devices well, have contributed in reviewing and bugfixing and have a
-lot more work pending so I volunteer on helping making this driver
-better: give hid-asus.c a dedicated entry and list me as its maintainer.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] HID: asus: u8 gpu_id[4] truncates 16-bit PCI vendor ID in asus_xgm=
+_init()
+--
 
-Signed-off-by: Denis Benato <denis.benato@linux.dev>
----
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
+commit 739505f96f6292806a14e712690bf33782dd803a
+Author: Denis Benato <denis.benato@linux.dev>
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 4a69da715c58..1a3cca5c5f5f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4135,6 +4135,12 @@ L:	linux-hwmon@vger.kernel.org
- S:	Maintained
- F:	drivers/hwmon/asus-ec-sensors.c
- 
-+ASUS HID DRIVER
-+M:	Denis Benato <denis.benato@linux.dev>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/hid/hid-asus.c
-+
- ASUS NOTEBOOKS AND EEEPC ACPI/WMI EXTRAS DRIVERS
- M:	Corentin Chary <corentin.chary@gmail.com>
- M:	Luke D. Jones <luke@ljones.dev>
--- 
-2.47.3
+HID: asus: report the XG Mobile GPU vendor to asus-wmi
 
+This commit parses the 4-part GPU PCI ID from the XG Mobile station version
+query response and reports the GPU vendor ID to asus-wmi on initialization,
+clearing it when the station is unbound.
+
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index e444cad85b32c..244d103fbd4c8 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -186,6 +186,7 @@ struct asus_xgm_info {
+>  	char part_number[ASUS_XGM_INFO_LEN];
+>  	char firmware_version[ASUS_XGM_INFO_LEN];
+>  	char generation[ASUS_XGM_INFO_LEN];
+> +	u8 gpu_id[4];
+>  };
+> =20
+>  struct asus_touchpad_info {
+> @@ -6313,6 +6314,12 @@ static int asus_xgm_get_version(struct hid_device =
+*hdev,
+>  	asus_xgm_tlv_str(info->firmware_version, sizeof(info->firmware_version),
+>  			 buf, len, "VER");
+> =20
+> +	/* the 4-part PCI ID of the GPU installed in the station: buf[3..10] */
+> +	if (len < 11)
+> +		return -ENODATA;
+> +
+> +	memcpy(info->gpu_id, buf + 3, sizeof(info->gpu_id));
+> +
+>  	return 0;
+>  }
+> =20
+> @@ -6685,6 +6692,8 @@ static int asus_xgm_init(struct hid_device *hdev, s=
+truct asus_drvdata *drvdata)
+>  		hid_info(hdev, "XG Mobile: firmware %s, generation %s\n",
+>  			 info->firmware_version, info->generation);
+> =20
+> +	asus_wmi_egpu_set_vendor(info->gpu_id[0]);
+
+[Severity: High]
+Does declaring gpu_id as u8 gpu_id[4] in struct asus_xgm_info truncate the
+16-bit PCI vendor ID to a single byte?
+
+In asus_xgm_get_version(), the comment and length check expect the 4-part
+PCI ID to occupy 8 bytes in buf[3..10] (four 16-bit fields), but
+sizeof(info->gpu_id) is 4, so memcpy() only copies buf[3..6].
+
+When asus_probe() -> asus_xgm_init() calls
+asus_wmi_egpu_set_vendor(info->gpu_id[0]), it passes a single u8 value
+(0x00..0xff) to asus_wmi_egpu_set_vendor(u16 vendor). Downstream in
+drivers/platform/x86/asus-armoury.c:egpu_default_enable_value():
+
+static u32 egpu_default_enable_value(void)
+{
+	switch (asus_wmi_egpu_vendor()) {
+	case PCI_VENDOR_ID_ATI:
+		return 0x0101;
+	case PCI_VENDOR_ID_INTEL:
+		return 0x0201;
+	default:
+		return 0x0001;
+	}
+}
+
+the 8-bit value can never match the 16-bit constants PCI_VENDOR_ID_ATI
+(0x1002) or PCI_VENDOR_ID_INTEL (0x8086), causing egpu_enable to always fall
+back to 0x0001.
+
+Should gpu_id be a 4-element 16-bit array (such as u16 gpu_id[4] or __le16
+gpu_id[4] with the appropriate endianness conversion) so the full 8-byte
+PCI ID is stored and the 16-bit vendor ID is passed to
+asus_wmi_egpu_set_vendor()?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261025235232.1299=
+45-1-denis.benato@linux.dev?part=3D17

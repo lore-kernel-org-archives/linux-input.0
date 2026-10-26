@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792973153;
-	b=2cg55JaTpZ4Gd/TvkzqrBMZ2WZwbguR8pgwCtoAU07U0kb3h0BVRLk4MAMgs4hDktFxG
-	 o4bon+b0uWMGbuSp1NHniWhCLO2VMXAvNSfWa7YcaziZzawoGqVGkhapaOPYWA5PRBd6I
-	 Ue8FA1NdGFNsoM5X5AKFRs/47tEQaQgYSUyGQncK4h9m76lFlP4OflprhqSdK61SEthFR
-	 L+63kwibajK72ds3+M5rCzWFpGR+XyaxaZrMjdswWzjmRbOfFqcE/IX25tqhq8YrPPzkQ
-	 LoK857TYwEsd0dmvOS+IKR1eu2/VXHuEJns4EaIdHtNpuX4GrVMFMtG16CtXNEeHKEA==
+	t=1792973179;
+	b=PZeA7zaJUX6B2zwu8pYMPD+jJwvJPs+K4LLmwgf884pHkEZXvfEnyEP8L77635Itxf4V
+	 tzMtZ9sikUb3jssHbJnl+zw3Wpo5Z9G/IpUQnBOIUFbYmGYadOnLmvV/QZuZXQZ0aZhMm
+	 STChtFuDfBu6lJmGriPE+JVBBIHKYQHf/FaodYQoGpsCIXYer9QcON1XYxab4pnXn4cSU
+	 iIFYDUoOpC9pII7xYKcITjnPz4u452/5pp59XOQfIXUWrWhfB0Pb1mThXWTTTIK+Pm6xo
+	 uVPnfR+99IdChGdv0kV8VY027wLnxNcXjk9e1e/y/8OsGe6AI+hT5ZyVa7l/2O8r48A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792973153;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792973179;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=y6izCSKXKN3cnbdnWYT352CP5MMOkZW2v455mNNo4hE=;
-	b=AuYzAMAX2n8gIlClqtB9YWk1Nqb9FMDZkKvMaQz+xNtFshTYnxR/a5KW2k3HR0uqfZna
-	 Es/8eeUXeIOyy5suvvhLHofDS7NP9UQCAFmbLK8bHf01JGZd37wTXdnDmMbrHH7iEvjJW
-	 jkrVFNfg7dv1Dqb4jL/NpLA+sl4Yc9MvV5zIIjNDKRgN+5wOpoxtfDnL/Ilm/Fa82zuY6
-	 qAyRZQN69DirZgtHN0lHQZOCM56NpTn8pD8MMWtJixmvIj5/Xis+F6nNDwN9YprICIBde
-	 6AHUEVi2aAHk/GcFAQNXZVZcXNgJPCFCE1CMDEzILPuGMocz+63I59cq5XgjiyxoqNQ==
+	bh=D7wI+CKbUnVG9D+j9/AyhRpqUYzvtWxRXZuP4LAQvF4=;
+	b=wcdqzXC7U+3jVMfkZVTDirY65Jqhn+QiSbL10uMo88v3IhV3AOh5rYuB1JeEPxRZ1ULD
+	 dBUsPdRHDJj1+5N+XqaIOwrK4B/+2D6Ik5jEx2BkhyYFWX7zlENzAiiLxpBHHX47t7/k4
+	 0oMLnP4lvnf6baovE76yn/sHLpKD8239Dyq1NNg8HzViqDiu7YW5O9Q12X/YOXoRViOii
+	 t+o9gmmE7JFL2KITiz1CwCJkg3lLUSZGVp5C5gO4Ker/Rz3kPM31Q0guRSqB19wu6et6b
+	 iwnFG9F44Ym68a5/ZQdMPWHkUgYKueO9SSdXXHZ22KgKMjhgrSkeXWjOd4kYoWeYzRQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dfrLgeJ9;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LwxuTIjr;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5940F606A31A
-	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:05:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75891606A31D
+	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 00:06:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dfrLgeJ9
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B96301F01825;
-	Mon, 26 Oct 2026 00:05:52 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LwxuTIjr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5CB81F031E0;
+	Mon, 26 Oct 2026 00:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792973152;
-	bh=y6izCSKXKN3cnbdnWYT352CP5MMOkZW2v455mNNo4hE=;
+	s=k20260515; t=1792973179;
+	bh=D7wI+CKbUnVG9D+j9/AyhRpqUYzvtWxRXZuP4LAQvF4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dfrLgeJ9M85p0j10ZqyugJ2+AW8+WztDvzQro2RVSxLdeA+S4PS7CAciPd8fP0L77
-	 kMKblRcC1EvHfbJFlPIqyxhodlBQUwYlJ3J39vHpm0wbyqVF2xDcR2OXQGX7oK1TP4
-	 MvdzErRTOlYGjd0O+gKf8mT3bs+YXDB9RgXUx125GKHZjbfbsSF1EriU4TtNZJX9Kn
-	 WXKkGnA4IxtSuOl0Zv05YmHKkJm2o9WrHxSO/rk7gpuowcOVzZYD5xABIjtzQjAZiv
-	 3tR7zfTU3yBnhHoVg9jcfz0WMkfYPxbWU588VRo68MuS81KLh7MYvLO0GVjBcS92JC
-	 V7J/8X59pe/ug==
-Message-ID: <sashiko-outbox-184548@kernel.org>
+	b=LwxuTIjrCnT9LMzAN/7YZrkXjUv27CBaP86ojVk7Z4BLBGvtJlqIWgb/+UmzAr8/X
+	 nhORG1EdSc7UQwnrja16ihde0vk6YyaYcU/aONuPoPsQaBWKEtC6Dl2Eew4fKek9PI
+	 Gwdp21ji2A7fDlAHsqvDEdeegGN4YLovzkL7GVCMXSF1dBrEMdTueTNjgPsZ9xj7I3
+	 wgv99nBUY/I4VxolGnaf1IOxBtWtRNJtcVzOT24ZnzKiT/3OUi5TlAQ14dQ2sgKJMf
+	 QVN8Wo+JGRGXvOrOFUsteDpkBnMzIvHGvbJ61um58GZvOcJe0e36xhUvvEk8A4n8Kt
+	 9xsJgzBLyyelA==
+Message-ID: <sashiko-outbox-184550@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 14/18] HID: asus: expose XG Mobile identity and
- firmware information
+Subject: Re: [PATCH v11 12/18] HID: asus: size feature reports from the HID
+ report descriptor
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261025235232.129945-15-denis.benato@linux.dev>
+In-Reply-To: <20261025235232.129945-13-denis.benato@linux.dev>
 References: <20261025235232.129945-1-denis.benato@linux.dev>
- <20261025235232.129945-15-denis.benato@linux.dev>
+ <20261025235232.129945-13-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 00:05:52 +0000
+Date: Mon, 26 Oct 2026 00:06:18 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,140 +63,87 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] HID: asus: unchecked return and unaligned scan in asus_xgm_tlv_s=
-tr()
+- [High] HID: asus: slab out-of-bounds read in asus_kbd_get_functions()
 --
 
-commit a88274a1b2531f51181e1da6036282f6753460c3
+commit c08fc8186d8cfc7d33787c731647d924103580c9
 Author: Denis Benato <benato.denis96@gmail.com>
 
-HID: asus: expose XG Mobile identity and firmware information
+HID: asus: size feature reports from the HID report descriptor
 
-This commit queries the XG Mobile station for its firmware version and
-generation at probe time and exposes the station's identity and firmware
-fields through read-only sysfs attributes on the HID device.
+This commit derives feature report transfer lengths dynamically from the
+device's HID report descriptor instead of using hardcoded sizes. It adds
+asus_report_len() and asus_kbd_get_report(), updates asus_kbd_set_report() =
+to
+zero-pad short payloads to the report length, and converts callers to size
+their buffers per report.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index e751bf1634349..f438cad13264a 100644
+> index ea27495c3df66..fe2a326ccd861 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
+
 [ ... ]
-> @@ -6204,6 +6206,148 @@ static bool asus_xgm_is_supported_model(const str=
-uct asus_xgm_info *info)
->  	return false;
->  }
+
+> @@ -5426,7 +5521,7 @@ static int asus_kbd_get_functions(struct hid_device=
+ *hdev,
+>  				  u8 report_id)
+>  {
+>  	const u8 buf[] =3D { report_id, 0x05, 0x20, 0x31, 0x00, 0x08 };
+> -	u8 *readbuf;
+> +	size_t hw_len =3D asus_report_len(hdev, report_id);
+>  	int ret;
 > =20
-> +/**
-> + * asus_xgm_tlv_str() - Extract a "tag, length, data" field
-> + * @dst: destination buffer
-> + * @dst_len: size of @dst, including the trailing NUL
-> + * @buf: answer of a version query
-> + * @len: size of @buf
-> + * @tag: three characters tag to look for
-> + *
-> + * The version query answers with an 8-byte binary blob followed by
-> + * "tag, length, data" fields, where GEN holds the station generation and
-> + * VER the firmware version.
-> + *
-> + * Return: 0 on success, -ENOENT if @tag is missing or its data does not
-> + * fit @dst
-> + */
-> +static int asus_xgm_tlv_str(char *dst, size_t dst_len, const u8 *buf,
-> +			    size_t len, const char *tag)
-> +{
-> +	size_t i;
-> +	u8 n;
-> +
-> +	for (i =3D 3; i + 4 <=3D len; i++) {
-> +		if (memcmp(buf + i, tag, 3))
-> +			continue;
-> +
-> +		n =3D buf[i + 3];
-> +		if (i + 4 + n > len || n >=3D dst_len)
-> +			return -ENOENT;
-> +
-> +		memcpy(dst, buf + i + 4, n);
-> +		dst[n] =3D '\0';
-> +
-> +		return 0;
-> +	}
-> +
-> +	return -ENOENT;
-> +}
-> +
-> +/**
-> + * asus_xgm_get_version() - Query the firmware version of a station
-> + * @hdev: HID device
-> + * @info: identity structure whose generation and firmware_version fields
-> + * get filled in
-> + *
-> + * Return: 0 on success, negative errno on failure
-> + */
-> +static int asus_xgm_get_version(struct hid_device *hdev,
-> +				struct asus_xgm_info *info)
-> +{
-> +	size_t len =3D asus_report_len(hdev, FEATURE_KBD_LED_REPORT_ID2);
-> +	int ret;
-> +
-> +	if (!len)
+>  	ret =3D asus_kbd_set_report(hdev, buf, sizeof(buf));
+> @@ -5435,23 +5530,22 @@ static int asus_kbd_get_functions(struct hid_devi=
+ce *hdev,
+>  		return ret;
+>  	}
+> =20
+> -	readbuf =3D kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
+> +	if (!hw_len)
 > +		return -EINVAL;
 > +
-> +	u8 *buf __free(kfree) =3D kzalloc(len, GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	ret =3D asus_xgm_query(hdev, ASUS_XGM_QUERY_VERSION, buf, len);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	if (len < 4 || buf[1] !=3D ASUS_XGM_CMD_QUERY ||
-> +	    buf[2] !=3D ASUS_XGM_QUERY_VERSION)
-> +		return -ENODEV;
-> +
-> +	asus_xgm_tlv_str(info->generation, sizeof(info->generation),
-> +			 buf, len, "GEN");
-> +	asus_xgm_tlv_str(info->firmware_version, sizeof(info->firmware_version),
-> +			 buf, len, "VER");
-> +
-> +	return 0;
-> +}
+> +	u8 *readbuf __free(kfree) =3D kzalloc(hw_len, GFP_KERNEL);
+>  	if (!readbuf)
+>  		return -ENOMEM;
+> =20
+> -	ret =3D hid_hw_raw_request(hdev, report_id, readbuf,
+> -				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
+> -				 HID_REQ_GET_REPORT);
+> +	ret =3D asus_kbd_get_report(hdev, report_id, readbuf, hw_len);
+>  	if (ret < 0) {
+>  		hid_err(hdev, "Asus failed to request functions: %d\n", ret);
+> -		kfree(readbuf);
+>  		return ret;
+>  	}
+> =20
+>  	*kbd_func =3D readbuf[6];
 
-[Severity: Medium]
-In drivers/hid/hid-asus.c, asus_xgm_tlv_str() is documented to follow an
-8-byte binary blob after the 3-byte report/command header (buf[0..2]) and
-return -ENOENT when a tag is missing or its length is out of bounds.
+[Severity: High]
+Can this read past the end of readbuf[] when a device descriptor declares a
+6-byte feature report for report_id?
 
-However, in the asus_probe() -> asus_xgm_init() -> asus_xgm_get_version() ->
-asus_xgm_tlv_str() path, two things stand out:
+Previously, asus_kbd_get_functions() in drivers/hid/hid-asus.c allocated
+readbuf with FEATURE_KBD_REPORT_SIZE (64 bytes). With this change, readbuf =
+is
+allocated with size hw_len.
 
-1. asus_xgm_tlv_str() starts scanning at i =3D 3 (inside the 8-byte binary =
-blob
-at buf[3..10]) and increments byte-by-byte (i++) rather than starting at
-offset 11 and advancing across record boundaries by 4 + n. If the binary bl=
-ob
-or an earlier field's payload happens to contain the bytes "GEN" or "VER",
-could asus_xgm_tlv_str() treat the following byte as the length and either
-abort early with -ENOENT or copy unintended bytes into dst?
+In asus_kbd_get_functions(), sizeof(buf) is 6, so asus_kbd_set_report()
+accepts hw_len =3D=3D 6 via:
 
-2. asus_xgm_get_version() ignores the return values of both
-asus_xgm_tlv_str() calls and unconditionally returns 0. When a tag is missi=
-ng
-or truncated, asus_xgm_init() will log empty strings for
-info->firmware_version and info->generation via hid_info() instead of taking
-the ret < 0 warning branch:
+    if (!hw_len || buf_size > hw_len)
+        return -EINVAL;
 
-	ret =3D asus_xgm_get_version(hdev, info);
-	if (ret < 0)
-		hid_warn(hdev, "Failed to query XG Mobile version: %d\n", ret);
-	else
-		hid_info(hdev, "XG Mobile: firmware %s, generation %s\n",
-			 info->firmware_version, info->generation);
+asus_kbd_get_functions() then only checks !hw_len before allocating readbuf=
+ of
+6 bytes and reading readbuf[6] (the 7th byte), resulting in a 1-byte slab
+out-of-bounds read during probe via
+asus_probe()->asus_kbd_register_leds()->asus_kbd_get_functions().
 
-Should asus_xgm_tlv_str() start after the 8-byte binary header (or step by
-TLV record length), and should asus_xgm_get_version() check and propagate t=
-he
-return values of asus_xgm_tlv_str()?
+Should asus_kbd_get_functions() check that hw_len is at least 7 (or
+hw_len <=3D 6) before allocating readbuf and indexing readbuf[6]?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261025235232.1299=
-45-1-denis.benato@linux.dev?part=3D14
+45-1-denis.benato@linux.dev?part=3D12

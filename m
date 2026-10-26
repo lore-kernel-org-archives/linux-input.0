@@ -1,93 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.225.75
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.167.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793024813;
-	b=1YldyFrSZFxcYLtImR18QdclK9AM1F8B2fvq+XRtaYx1zzYc2AtnDOymFlYnK4w4mmCT
-	 yCki2uFa+iw5PxXahq+pZdvjRVip6PvDuT5Z0fd8enIvegEQB4G7t6ElHKq2tzu3kYvlR
-	 0nZLQLgI1O/LCIYp7sC1LRxrzlQ7CymCRWwRwhf+qEyS6xt35oxdLsr2CO/mRc423attu
-	 iWobNsyBW6zvk0YvlKZSaR6HNaVMm1eKWWKtcRG+OV36Qs+kUfrzHBfQVMkCx5EJrSiF5
-	 bYRsHCVb20L4NSuA4KlQt64k+TdgxLc4dm7UBqtcGwNxMQ9VYL4cY6naMjM69GlrDbA==
+	b=iv3FVJ5l1zELP5513r7UpY7+27bMpsZLb3i/8lyACsDLODuNIUQrzOzeLerPoJvZ6upV
+	 IeASFBWBr+ahOU9GnFUUroiUY6V1TZPcElP3abZfGGZWjM9H3SYSOna0x2zeldVP83YPp
+	 CIQd7oiS0oVGcbM/Ui+6Zc/0AZy2nVhdz0XWNlYRQYx5Jh3WqEG9IA/d5zSVG/laT4mUT
+	 pVyMo8NVNylLdh7I4JuW3PYaP/nx1HrlccP/yRAH+vAculZw2nKfFIHaiAudmF9qKhNbE
+	 yIeijN6rWoyq4zCb/EXYo9dRzyVX+iIJ9WQ7dvhWS1g3hLi5lhFjdlZL7a4DyyXBz0g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793024813;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=kPxtDvfkw7gzZMJAYGqqIUZcM0lgL/y+Nw/mPWUHCmE=;
-	b=dbjWu+RDflNDnwR8Xx3DWeVmnoEroXlD5fn4radCoZIYxud7Z8tb7x7eOrJsFAx1Rfls
-	 md9IGrDWB0XTIiEVMwPWm//hlI+F8z0SZeTM6KezcfVdtzv3/CxcZ5icdP+EbugP3rcPc
-	 UHFB2ZX/6TSRyyCo+vPyLsQG8ghKnz6ktRzHKC+56zWyfp5ClhrtDiYcKZiAWEuNTBshZ
-	 cyz+1ZyuEl8T18/551n39hZw8ToXLjR+9obSqyhaOyK/LcVLyZ3KPP35gDRskiPQc6Ggb
-	 F7LJm1D6y/XtHt7svnF2CdgVX0BUAHOYnoaQx4cQVF3b15+54YsMPMbQaSdtfpheQRA==
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=NMA8b2FLsw89EHpRJHOM22y2TeL8WKaQgR/1AzfY5T4=;
+	b=oNbdaChvQFAvgeK1fRiEqoxtinghEQC43MGPqKuWuY/y8VolYFpEs8x5dFu30JQmdHUm
+	 2KX22P1NUXkkoycQgBnYyvozMjdlTKl4XlwFdvDq/ch4+jn/IGk13MOuSTgDShBHyk4ph
+	 AzmztlJQLUZEfrdDTq0IgiDs89agC+chiRrdsSB2ObNvvkCVQ24gR/ibyLWlKghLFUXcA
+	 wLkx/gryqYXwZhQ8+S1fjfksZp8j+YmNju5ALNAFHc1VSKscKQ3FDLDhe+CA4pnCIdiYN
+	 FwlMUlfn51UeTsgIjGfaayds4CG17eq2ZAz8mlMf8vdriMMuPDEw8qUbdi0+SVXJe9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=kernelgen.org;
 	spf=none smtp.mailfrom=kernelgen.org;
-	dkim=pass header.d=kernelgen-org.20251104.gappssmtp.com header.i=@kernelgen-org.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=bGAy0Muu;
-	arc=none smtp.remote-ip=74.125.225.75
-Received: from mail-wr2-f11.google.com (mail-wr2-f11.google.com [74.125.225.75])
+	dkim=pass header.d=kernelgen-org.20251104.gappssmtp.com header.i=@kernelgen-org.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=rttoZkvF;
+	arc=none smtp.remote-ip=209.85.167.41
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 486BA606A31A
-	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 14:26:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 486BA606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7950B606A324
+	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 14:26:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7950B606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernelgen.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=kernelgen.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernelgen-org.20251104.gappssmtp.com header.i=@kernelgen-org.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=bGAy0Muu
-Received: by mail-wr2-f11.google.com with SMTP id ffacd0b85a97d-48b0d20cc81so115808f8f.1
-        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 07:26:52 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=kernelgen-org.20251104.gappssmtp.com header.i=@kernelgen-org.20251104.gappssmtp.com header.a=rsa-sha256 header.s=20251104 header.b=rttoZkvF
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5bb7acc6fa0so447662e87.2
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 07:26:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelgen-org.20251104.gappssmtp.com; s=20251104; t=1793024810; x=1793629610; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=kPxtDvfkw7gzZMJAYGqqIUZcM0lgL/y+Nw/mPWUHCmE=;
-        b=bGAy0MuuMLpX3wD9gYnGXXtWKNJc1pSI9tTxcKuH2vKd069FO90Sy8OjEn3ukfvmX5
-         G5gYFhQBJ2OSrPJAE05TbNNDoEDdKYs9kqxIbDdMPZ4kEpia1tmqbZQa3qnGeC8puJvs
-         N3q/bVNR2w2Cw3pIBJE9q7HM40+4MRJ3lHS05dDYx/Ri4nKX88YhI46H5UdCuRRK3YFE
-         5TfRPhvbetLdEq5pPsGltVt1j/5C44BWN8XvJq4IX+0r25NLSFw87HpPIZMf1EBY54Z6
-         wqdXrGRKeI3z4L6mwaqKbjESDFJCgmYVHJqu3QPn3J9+sjn6fLlpAGhwTNaEketwkonh
-         7bBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793024810; x=1793629610;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=kernelgen-org.20251104.gappssmtp.com; s=20251104; t=1793024812; x=1793629612; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=kPxtDvfkw7gzZMJAYGqqIUZcM0lgL/y+Nw/mPWUHCmE=;
-        b=08IzOMnPMtA1pbhUgGcNahO8q8IqL0v50YGLd0M3s4j5dcYGwPD5xv2dh/2lH6L9Na
-         RRncjwObLoD0BPiv+Vogrl9AD640YilKjhtnB04MIK8CcpFGaA2QGp8JaFhiyGh9ixsT
-         VnWYk/qz+zqHYDNedgui9JXIuQxArwrFXPe8d5dO309Hhkg51xb8CkB4yPzPxwCrJSKg
-         hwUTnHezvldEMkxFzQjdBuFdcTGuUN9Mk/PgosYUvP+Pvm5oBaB2XVUTJ8XGU8sWykLU
-         MqrtsRGDqfMQdbTZXvCdUy07Jd3emqE5KmRGj/exLGhwDoQZKGvLqo2wsbN5z/vdZYDS
-         3OUw==
-X-Forwarded-Encrypted: i=1; AKwUvByJtlDGT+RRQTZQSs/dQe8BRZKetiCW8BBydn/9Iy5yIe3lD7M7tM3PBvc4s+GcIFyYCY9DdWgg7jGCIA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYL06mmiPXU89c6g2auqTcuIAn5+mvCSp5VKfxQIuafkekW3bv29
-	ZlDD3N/o3VPH/uSgGanwmVQZ6hGtXgO6NCCNGOxT/I8muanJDyi862F8Dm/ChImVW1LZVn31P6f
-	VkEq/MLw9Ackr
-X-Gm-Gg: AYBFou3nw9joG/DUShqghHpEQV76xv5u+L73EhU0Ns9Vg4T21nNGEZBIv1xx6Q0w+At
-	1o+Par7fnwjxnSxX1Jv5vsjfnvL6sVUbgeEf1uG26DnvgCc3ft9aWLNO7CO5Ot5sMouGqDtis3U
-	8yrmwurZCbN1P8o7mUNGGelPDNByyZQeDKacBJgI88k/0i1Avsi7iF2Z/DE13fETGHKK1QpqJ+x
-	bQeQ11w8AvLZtsIQcEyKZdPFKGmBmui2uwG7fS6jX6ZREwizm6V8hPaNxgJKLTnS+bfQIioEv9I
-	mHzqug6RlTFLyOx/Koej8ppL+xM+Zx2Y3jmNZ8XdYrs7TmT9KVcgcPdWyIAhsN6MfSXTvwQz3IO
-	oKnTgJPpiUz5YIGaG2Apjfo9jxsQS6zyZhBD19x8TDwSJXuhp2NimWlsTKHv3LguuCZb+2Q2k7x
-	C2VXhfvd0iUAEz0UtguUH64mQIeVP3nV9uiuxcnDNXC3enu1OoI1SYrPjfouhO8dUl8HaJrRr/Z
-	wp7o/BdwNaSkIHXOQa7N7M1z7rK+UxNC2S9PRhkWOR+UqXDxzheW8NHgVYnS5rRzAvr6yPQBE0n
-	1bd1mikES387nTMnF/TuQWP1mkk0a2W1/hb7QCa7KxLZp7A/pB3LF5U6Faf5/zuNdB50VSV2Hg=
+        bh=NMA8b2FLsw89EHpRJHOM22y2TeL8WKaQgR/1AzfY5T4=;
+        b=rttoZkvFyzfEFvSMKW/6ag3jOjMW0V3y6KTZr1jNtBJhLZzaWWgZWLp6wSLZW2+nK/
+         dmYwL2t7hh4HAX3TKw52QFVtE1exjV/0qHknx2qbi4f6+/D/JNCmpsUFgKkqrTcgqWQn
+         lQMbMnLD0ycw4HKMA8i1tOeI4c7Djc81XbNWnMo48k0XKvaNfTDmlByJTmf+1VKE52fE
+         NwuPkvM1xm+hxfiaVkKtPoiNNbJUHKYkASZ3EICfGrEcd5O+/q7fC2ZDGEjzlE4FHm1V
+         u2ev/jxUvqYF4ChHXhJCT73UzQybdT3lYpNwGSCNvTZWrVQsscglxWQq1lAga8PLKLUR
+         6dBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793024812; x=1793629612;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=NMA8b2FLsw89EHpRJHOM22y2TeL8WKaQgR/1AzfY5T4=;
+        b=iwYQGKfSE+yBfgWmeqSCU1hP6MH3PVR/rPy0AqacSCXkYv//qsUO1rfFH38BtBjsQS
+         lCHfm5E4ekA5NvJISKOT24tGhH+hDQ0VacLUeLOuD9nTTMS//F4Lbk+nsuQS/LTRLQ0X
+         q9yq6qHoOxvC8MEl0wimvZjR606ZRruoKznVlCuPcJvSm/oJ5/RKpk8FaFXvmdrjT2hw
+         IlHvav3dJlyXRNA+hkBgXDw6vwFgf3zx/mQAI3HMsAzJe3mU4hdQSKG1xFBbSY8PwdhK
+         0BDaPIEOrMhcJyDrr5kpms5U6LUyg9/mfR4SabncFy72sjPEiUzW8MW++LlsVsK3FHTf
+         sz1A==
+X-Forwarded-Encrypted: i=1; AKwUvBwNFmqBAOV7i8C+OTJwLRj7zSQW+tk20RRfmjq20yAre0eDXjNdbIUKN12T5yMSytZf70n59SQpZ5zAIQ==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIT/dBQpig/s/9q7TPK1g3gB/dxqT7ExNzfk+ImlAEZ0oNDYw6Z
+	S0GRRZZjyJZeV9wn9XYBgc7I+VdHvhD7XyjqbWiNlzs0E4mBONcZoJcqP1I4YwXDGj0=
+X-Gm-Gg: AYBFou3pUJVjQA+yIlNONHyV7qlnhDj/wd1e+yJjE4TPa+GfwafMqjdrBO38H/RBO9+
+	3AB0LdwTiLia63pA+mfPRxfz5JP/FOwG30hBdf12AA+RMRglVWuG82tsNVb/oUtdRtYY97tAchz
+	SAjf0yEgSCI3Wdd+Hp9g0ZEwffuk2KGh++DoD9xpthgqHTgeP7wZ5SO+I7yOszwNFgbZm/zCwjI
+	9TSvjSvyw0mqmfGAEfreyF4g4qBSFxLUHhz1Qfl9eI9UyWL6XcX7eBP2v3c1CcZ3U1u0JC0lJRs
+	ECma7XrIfD0oF/OXv8Vp4MjQRZSeN+ZMS/NCs+ChYY53xJaivDDEQ8r9b6c4/P2ju5MGp5TuCUS
+	VFIxztXAGKpzVV0IQPcPXgN+UXXAK8h6rd8k2Yz9qoHGxn9+HBoLIIYx3GkOlvqHxtX/dFcC3e+
+	PZHyNrMZ+vANXH12lzv0SooKkiu+h0uxB9ZzzsmgiR8d7jfN9XkAGh8MVUSRmQpWLpocc8xYUE9
+	CRit9r4oJt3M0h6sxzFdViN6C2gdr4mECV0QIC+mgRhMXnJgK8eOo00/1ml91rufv//sBYuNSmQ
+	7cUQCZ+m0XYF6ku4T1tGO40wdkwUt43906sca+WHo/alcWJnMy3us/DM+1DGwYe+jeCJc++OMQ=
 	=
-X-Received: by 2002:a05:6000:104b:b0:48d:fb3d:bf28 with SMTP id ffacd0b85a97d-48e3eb6f93emr9742954f8f.3.1793024810341;
-        Mon, 26 Oct 2026 07:26:50 -0700 (PDT)
+X-Received: by 2002:a05:6512:230a:b0:5bf:b9ef:d033 with SMTP id 2adb3069b0e04-5bfb9efd289mr2016966e87.5.1793024811386;
+        Mon, 26 Oct 2026 07:26:51 -0700 (PDT)
 Received: from kernelgen.org ([2a04:ee41:83:91ea:29ae:67de:9d1a:d368])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3eb8f387sm16400703f8f.4.2026.10.26.07.26.49
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3eb8f387sm16400703f8f.4.2026.10.26.07.26.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2026 07:26:49 -0700 (PDT)
+        Mon, 26 Oct 2026 07:26:50 -0700 (PDT)
 From: Dmitry Mikushin <dmitry@kernelgen.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Dmitry Mikushin <dmitry@kernelgen.org>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 0/3] Input: synaptics - enable SMBus for ThinkPad P14s Gen 2i (LEN2072)
-Date: Mon, 26 Oct 2026 15:26:45 +0100
-Message-ID: <20261026142648.2567233-1-dmitry@kernelgen.org>
+Subject: [PATCH v2 1/3] Input: synaptics-rmi4 - f12: pass Data1-relative size to process_objects
+Date: Mon, 26 Oct 2026 15:26:46 +0100
+Message-ID: <20261026142648.2567233-2-dmitry@kernelgen.org>
 X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261026142648.2567233-1-dmitry@kernelgen.org>
+References: <20261026142648.2567233-1-dmitry@kernelgen.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,45 +101,39 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The ThinkPad P14s Gen 2i touchpad (Synaptics TM3471-030, LEN2072) is
-not on the SMBus passlist and runs in PS/2 mode. Forcing RMI4 alone
-does not help: the F12 attention handler reads the whole 79-byte data
-packet over SMBus on every frame, which caps the report rate at about
-43 Hz and loses fast swipes.
+rmi_f12_process_objects() gets a pointer to Data1 and limits the number
+of objects it parses by the size it is given, but rmi_f12_attention()
+passes valid_bytes, which counts from the start of the F12 data packet
+rather than from Data1. When Data1 is not the first data register,
+the bound is too large by data1_offset bytes.
 
-Patch 1 fixes the size passed to rmi_f12_process_objects(), which
-counted from the start of the data packet instead of from Data1.
-Patch 2 makes F12 read only the registers up to and including Data1,
-raising the report rate to about 65 Hz on this machine. Patch 3 then
-adds LEN2072 to smbus_pnp_ids and should not be applied without
-patch 2.
+On the attention data path valid_bytes can be smaller than the full
+packet, so objects may be parsed from beyond the bytes that were
+actually received. Pass the number of valid bytes starting at Data1,
+and skip object processing if Data1 was not received at all.
 
-Tested on a ThinkPad P14s Gen 2i (20VX) on 7.2.9, including s2idle
-suspend/resume and the TrackPoint on the RMI4 pass-through port. On
-this device Data1 is the first data register, so patch 1 does not
-change its behavior.
+Fixes: 6d0dbeae71f0 ("Input: synaptics-rmi4 - handle incomplete input data")
+Signed-off-by: Dmitry Mikushin <dmitry@kernelgen.org>
+---
+ drivers/input/rmi4/rmi_f12.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Changes in v2:
-- New patch 1. Sashiko pointed out that with patch 2 alone, on devices
-  where Data1 is not at offset 0, rmi_f12_process_objects() could parse
-  bytes past the end of what was read. The underlying off-by-
-  data1_offset bound predates this series, so it is fixed separately
-  with a Fixes: tag.
-- No changes to patches 2 and 3.
-
-v1: https://lore.kernel.org/all/20261026093118.2312302-1-dmitry@kernelgen.org/
-
-Dmitry Mikushin (3):
-  Input: synaptics-rmi4 - f12: pass Data1-relative size to
-    process_objects
-  Input: synaptics-rmi4 - f12: read only the object data on attention
-  Input: synaptics - add LEN2072 to smbus_pnp_ids for ThinkPad P14s Gen
-    2i
-
- drivers/input/mouse/synaptics.c |  1 +
- drivers/input/rmi4/rmi_f12.c    | 20 +++++++++++++++++---
- 2 files changed, 18 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
+index 841884d967a3..34f24de34465 100644
+--- a/drivers/input/rmi4/rmi_f12.c
++++ b/drivers/input/rmi4/rmi_f12.c
+@@ -278,9 +278,9 @@ static irqreturn_t rmi_f12_attention(int irq, void *ctx)
+ 		}
+ 	}
+ 
+-	if (f12->data1)
++	if (f12->data1 && valid_bytes > f12->data1_offset)
+ 		rmi_f12_process_objects(f12, &sensor->data_pkt[f12->data1_offset],
+-					valid_bytes);
++					valid_bytes - f12->data1_offset);
+ 
+ 	input_mt_sync_frame(sensor->input);
+ 
 -- 
 2.56.0
 

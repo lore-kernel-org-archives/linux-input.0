@@ -1,87 +1,110 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.14
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793038926;
-	b=3K43j2peuSxlH1F/KU2s9P/WB9QcnaK5hIFOhyxwIwP1nO7iRc9iMxZHwwPpJ515KrpQ
-	 2hP2LCqC3gGAH8kBlWzCL16b9zSL9hwmRf1iVekK3N5jP5mf3RVJvTn2nSvRDIzlboR/6
-	 96Fm9MVU0zQLkETncQNg5faOh3IK2yNKwYdxQSjKcxrcMO1KHNkM1pONP/sm4KMydMYdi
-	 ti1eY/7iMmUtYE4KHI4ZI8DJIraIxMDpPzSN51oAflWNYbngpIBPGOV6s0E5JU69Eww7y
-	 OqmP3G/qnmhtIjxxFILa1TXSbTiMyN8keMsu5O9qFfXOPysKuB//FD+bkgiuL2JZw4Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793038926;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:Date:To:cc:
-	 Subject:In-Reply-To:Message-ID:References:MIME-Version:Content-Type;
-	bh=6XL6YcX8cL37HBNREbXC4Z1+wZEs5Q469sUSJUjSMy4=;
-	b=PyQJozqx+L90zDK3RKyVxTu53Bo59CKJt7lMOXK6Bek3nZdQmYPOSgCaGTUgxvPyO8sC
-	 75zgcTucOz63/mLixAgJI5+uMFXY4jK2q7oVDGmwWssI/mvZK8U4H3zGOS14melGnniB+
-	 fqev5x3tmaBYxcRyvt22jZT+qWaeFWrU4q3RcUODyDIGBZmk2wDaceGxzx5hW6SCJcrHE
-	 ASjaNXoqaHv9bTePfQGXOhl29iOyBDOuzxPLALHJkn7IpuA0yJfIJTu38TwW7moK9eA4D
-	 Y2Sz+/Zs2IqNiiPMS448LyZjbdIxOl8DBZGIv3/Q9Kzrr6T4rrqYlb8yjxbDSzdg+uQ==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="k2/1Iat4";
-	arc=none smtp.remote-ip=192.198.163.14
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=185.185.170.37
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793039276;
+	b=y1QAaJbcbURfK+9uWsB10d/VqAIG9rVx6QDQ3MP2cE0jmcYMqgQyvZhMnOOWOHJpo92l
+	 XtDORSdmoGKHRruO+yaEKs07m6Nl+j3YmFKtlpoBJPeflTJCTlQKUGcuN524nz7SV18JA
+	 v8OcgZMBi5MXZ/Sqsnlfayd6Iv47kQFLngdEN1H91ZiO4qqnaD15PzbuLZHCiPSNWHNdb
+	 fbCXPZ39aqVDlGzZVyb0gYl8UAsi8FecmT1N0Z+dwvd+gmdNWOR2txTUNH0J9fXJ4iIF6
+	 SLLYaiaQoS7epHf+FW7ZLPvutn8cf+5R1qx36W2Xz3wuaqHWx1U8rOneTdx57xbnoDQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793039276;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
+	bh=BBul2vfrhQZO13559zXI+nU0OldkKMALm3TltgUUqyo=;
+	b=iup0Y3wwvcOLY7Z2NQNzD6H53i5d+YmKXzCMDuY6tBjGE+8J0sR76UNjRfLL7JoWr/C4
+	 u0JGTCq9rPPOh9Rh+oOWPWr0aEk4/VFBuEreZreY4e5btyY92HYzVBxip/XgyemjgqdQm
+	 dkgj/dT3MBLm9xbPgN4Wf90CLNmgnjyqEKEiSTS0h3vw8isgIAH84m5dbd6RZZRB4Qoek
+	 TRvm37DtPSq7TRByMRBOk5gtnZj71Hr1hokRg9erh9u1w/CV1PcnxJQrHnwlI3BlVIhvH
+	 Q1a2nzjkrOZrOCjyyL36vBDYJDrl4Y489iubCqX18FztGH9IiQIXg6NvshUa4W4PLZg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=none header.from=iki.fi;
+	spf=pass smtp.mailfrom=iki.fi;
+	dkim=pass header.d=iki.fi header.i=@iki.fi header.a=rsa-sha256 header.s=lahtoruutu header.b=hNoKH0LG;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=185.185.170.37
+Received: from lahtoruutu.iki.fi (lahtoruutu.iki.fi [185.185.170.37])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B699B606A31A;
-	Mon, 26 Oct 2026 18:22:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B699B606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A79606A31F;
+	Mon, 26 Oct 2026 18:27:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52A79606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iki.fi
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iki.fi
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=k2/1Iat4
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793038925; x=1824574925;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=W58r7ddDUpnAk7HTNMuAQzfTn6aAlqEu+z1t7GbR9Og=;
-  b=k2/1Iat450hCLtFFKBx7KtLj7lI/6/nae/U7B/toleZovAJw0XmB6vx6
-   LGnCnulS3JopXhD45Z8gn4L4YiKAavhloWNUFYDfUVOSRgj3KiTi8FLv0
-   BdRMDxLexUNL4hT+wp3RDWIiYB/RWcRgo62qh2Q4rSBYriK2/uUU98zOt
-   fIwJXRaYelE7yn8Y/zHwGlSxVMtvF66S1D5ioPeRI7KVNHFepS8FNCDTz
-   MtJUL8qPCUE63Sg5VWrS+8Ebe5XkWVcOw+qjBZm33Vz8+aUWx1/79ixpL
-   cMR4fnCtEfByJvLZW7DokQxEJOyfnQzeTOZncleqtLFRJ4xh/xZuv8xUg
-   g==;
-X-CSE-ConnectionGUID: FpZQW2TCSqaWM36wOeRrgQ==
-X-CSE-MsgGUID: XGgi/VVnSt2v9GX6+ieMUg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11947"; a="1747053"
-X-IronPort-AV: E=Sophos;i="6.27,179,1787036400"; 
-   d="scan'208";a="1747053"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2026 11:22:03 -0700
-X-CSE-ConnectionGUID: K+l3cBvSSGmXyI6SxfTf8g==
-X-CSE-MsgGUID: pwLIt1CWRyG9WIcAOjS9Tw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,179,1787036400"; 
-   d="scan'208";a="4474684"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.109])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2026 11:21:57 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Mon, 26 Oct 2026 20:21:54 +0200 (EET)
-To: Sakari Ailus <sakari.ailus@iki.fi>
-cc: Denis Benato <denis.benato@linux.dev>, LKML <linux-kernel@vger.kernel.org>, 
-    platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org, 
-    kernel@lists.opengamingcollective.org, 
-    Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-    "Luke D . Jones" <luke@ljones.dev>, 
-    Mateusz Schwartz <matthew.schwartz@linux.dev>, 
-    Denis Benato <benato.denis96@gmail.com>, 
-    Jonathan LoBue <jlobue10@gmail.com>, 
-    Khamunetri Clark <khamunetriclark@gmail.com>, 
-    "Derek J. Clark" <derekjohn.clark@gmail.com>, 
-    Joshua Leivenzon <hacker1024@users.sourceforge.net>, 
-    Nathan Chancellor <nathan@kernel.org>, 
-    =?ISO-8859-15?Q?Rebecca_Mara_M=FCller?= <rebecca.mara@posteo.de>, 
-    Ivan Levchenko <me@livan.pro>, Corentin Chary <corentin.chary@gmail.com>, 
-    Hans de Goede <hansg@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=iki.fi header.i=@iki.fi header.a=rsa-sha256 header.s=lahtoruutu header.b=hNoKH0LG
+Received: from hillosipuli.retiisi.eu (n18ws8cotq5gnfn8-1.v6.elisa-laajakaista.fi [IPv6:2001:99a:0:19f:4ce7:0:938c:d2f4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: sailus)
+	by lahtoruutu.iki.fi (Postfix) with ESMTPSA id 4jD2DM5nSBz49Q3t;
+	Mon, 26 Oct 2026 20:27:47 +0200 (EET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi; s=lahtoruutu;
+	t=1793039268;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BBul2vfrhQZO13559zXI+nU0OldkKMALm3TltgUUqyo=;
+	b=hNoKH0LGisklu5ADzk3bdmXT8nh/v0M1z51mHAq74AE8f2UQFf9wPfAfYo5OE2VWGcbOAY
+	XtiS3VGXm3dhkAErEdW6ZEb9IW56DsaaK7N6Di1+p4H+dH5tk7+a0Jck6hNTsWkLAcnO+4
+	cbxK8tvtSR7R1ASct02uf2X+x3N6IZG4T6Tkiq9cRMxjT6aUhIJQirAhebg4+jZfU2GyXk
+	mDxy4szFf5mwUVB1voCcQyKsm84cTuqSBPSSIQB+ncNODocxcWSrBFGVPsFIJbqNGpv2Jh
+	eyUi+C0b3aFYGsMJqTVR6D5X3V5ye9b3MaN7oZzykkjn+FwfCCdBXh2esK7VvQ==
+ARC-Seal: i=1; a=rsa-sha256; d=iki.fi; s=lahtoruutu; cv=none; t=1793039268;
+	b=C553BT3aWaWWkSVGH0H/rUH6T1Qpw1JeaF7ubmjG9j0focuB7yuZbWYfvQpYu1KJhMkAPo
+	UT1dwfcNzxfjee5znLO6oGfCObzRcqMfcFR1H9JklQMbp0y/HWSDGtUvAZhBUSC5lAGWii
+	r/lX+53+xzhEclc3fKTWgag96SnyVmCNavaMYjax7jjIQRA4mPw6vaYRT8mCIljKSqDH0j
+	eexz6vl6FZNPjJq6VZNae1V+d/5SpMEc59pZrLtAomdB2h6LQNaM+d1OUUOCHx9elIr/x4
+	Ycx+VW9LeRWgU2jrNDBYLMrrY90AShuCuozNmjHRYeJ2hqS5ncNnc12l4bSN6g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=iki.fi;
+	s=lahtoruutu; t=1793039268;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BBul2vfrhQZO13559zXI+nU0OldkKMALm3TltgUUqyo=;
+	b=t12HGNMVoK2iH6571tnm7GOhfH9w0LdKPp9sk/eYbzDigGfWE7yj+2+u8bN1VVLeTU7M6U
+	XoPEx0Gn9ZHFAjRS2m5h0pJuOkdoWMfgUgWq7aubXjRv+XfPszw3i1AxSGuf0kaNiy0RTN
+	MLCxGKT6gGncKVOyEy+0onJRQDEYFYlpUgEcromC+PX/uIx5oJa/iLPEY0y1HDd01+qpB2
+	aKGdKX3vl//HXxBFyKr9fZ7JjbkWpWhbw1sladzQaJ3HFdnNhBJEAMudYpRjMMQ/GcQDkq
+	epZjTYYg5A46FLoc/Ke9vf/FrfGqW0WQ83lIc0Jy6GtUtlwRTgTwGZkMuMl99g==
+ARC-Authentication-Results: i=1;
+	ORIGINATING;
+	auth=pass smtp.auth=sailus smtp.mailfrom=sakari.ailus@iki.fi
+Received: from valkosipuli.retiisi.eu (valkosipuli.local [192.168.4.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange secp256r1 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by hillosipuli.retiisi.eu (Postfix) with ESMTPS id 2C777634C4E;
+	Mon, 26 Oct 2026 20:27:46 +0200 (EET)
+Date: Mon, 26 Oct 2026 20:27:46 +0200
+From: Sakari Ailus <sakari.ailus@iki.fi>
+To: Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: Denis Benato <denis.benato@linux.dev>,
+	LKML <linux-kernel@vger.kernel.org>,
+	platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org,
+	kernel@lists.opengamingcollective.org,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Jiri Kosina <jikos@kernel.org>, "Luke D . Jones" <luke@ljones.dev>,
+	Mateusz Schwartz <matthew.schwartz@linux.dev>,
+	Denis Benato <benato.denis96@gmail.com>,
+	Jonathan LoBue <jlobue10@gmail.com>,
+	Khamunetri Clark <khamunetriclark@gmail.com>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	Joshua Leivenzon <hacker1024@users.sourceforge.net>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Rebecca Mara =?iso-8859-1?Q?M=FCller?= <rebecca.mara@posteo.de>,
+	Ivan Levchenko <me@livan.pro>,
+	Corentin Chary <corentin.chary@gmail.com>,
+	Hans de Goede <hansg@kernel.org>
 Subject: Re: [PATCH v11 08/18] HID: asus: add support to force feedback
-In-Reply-To: <at9JNgMf8EZdCHEh@valkosipuli.retiisi.eu>
-Message-ID: <1c017f49-bc69-fc68-20f8-0c66a2c85719@linux.intel.com>
-References: <20261025235232.129945-1-denis.benato@linux.dev> <20261025235232.129945-9-denis.benato@linux.dev> <at9JNgMf8EZdCHEh@valkosipuli.retiisi.eu>
+Message-ID: <at-bouHWm0fRkA-c@valkosipuli.retiisi.eu>
+References: <20261025235232.129945-1-denis.benato@linux.dev>
+ <20261025235232.129945-9-denis.benato@linux.dev>
+ <at9JNgMf8EZdCHEh@valkosipuli.retiisi.eu>
+ <1c017f49-bc69-fc68-20f8-0c66a2c85719@linux.intel.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -91,182 +114,33 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1c017f49-bc69-fc68-20f8-0c66a2c85719@linux.intel.com>
 
-On Mon, 26 Oct 2026, Sakari Ailus wrote:
+Hi Ilpo,
 
-> Hi Denis,
-> 
-> I tested this on Asus T100TA, it seems to work fine.
-> 
-> Please see my other comments below.
-> 
-> On Sun, Oct 25, 2026 at 11:52:21PM +0000, Denis Benato wrote:
-> > Unlike ROG ally the X version and following ones uses DInput protocol
-> > and the force feedback needs to be implemented as its protocol is
-> > vendor-specific, therefore add support for FF_RUMBLE with magnitude
-> > scaling on a work-queue based approach to avoid using possibly
-> > sleeping calls in atomic context.
+On Mon, Oct 26, 2026 at 08:21:54PM +0200, Ilpo Järvinen wrote:
+> > > +	u8 *dmabuf __free(kfree) = kmemdup(buf, len, GFP_KERNEL);
 > > 
-> > Signed-off-by: Denis Benato <denis.benato@linux.dev>
-> > Signed-off-by: Khamunetri Clark <khamunetriclark@gmail.com>
-> > Signed-off-by: Luke Jones <luke@ljones.dev>
-> > ---
-> >  drivers/hid/Kconfig    |   1 +
-> >  drivers/hid/hid-asus.c | 321 +++++++++++++++++++++++++++++++++++++----
-> >  2 files changed, 297 insertions(+), 25 deletions(-)
-> > 
-> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > index 2481bc01c435..042e3bb0d817 100644
-> > --- a/drivers/hid/Kconfig
-> > +++ b/drivers/hid/Kconfig
-> > @@ -189,6 +189,7 @@ config HID_ASUS
-> >  	depends on USB_HID
-> >  	depends on LEDS_CLASS
-> >  	depends on ASUS_WMI || ASUS_WMI=n
-> > +        select INPUT_FF_MEMLESS
+> > It's not very nice to assign variables and then check for errors. I'd thus
+> > separate the declaration and the assignment.
 > 
-> Tabs, please.
+> I actually thought the same thing first.
 > 
-> >  	select POWER_SUPPLY
-> >  	help
-> >  	Support for Asus notebook built-in keyboard and touchpad via i2c, and
-> > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> > index e1883ee20413..a3a21a1493aa 100644
-> > --- a/drivers/hid/hid-asus.c
-> > +++ b/drivers/hid/hid-asus.c
-> > @@ -244,6 +244,23 @@ struct ally_config {
-> >   */
-> >  static struct ally_config *ally_config;
-> >  
-> > +/* XInput force-feedback report (output report 0x0d, gamepad interface) */
-> > +struct ff_data {
-> > +	u8 enable;
-> > +	u8 magnitude_left;
-> > +	u8 magnitude_right;
-> > +	u8 magnitude_strong;
-> > +	u8 magnitude_weak;
-> > +	u8 pulse_sustain_10ms;
-> > +	u8 pulse_release_10ms;
-> > +	u8 loop_count;
-> > +} __packed;
-> > +
-> > +struct ff_report {
-> > +	u8 report_id;
-> > +	struct ff_data ff;
-> > +} __packed;
-> > +
-> >  struct ally_handheld {
-> >  	/* All read/write to IN interfaces must lock */
-> >  	struct mutex intf_mutex;
-> > @@ -269,6 +286,13 @@ struct ally_handheld {
-> >  	bool ally_x_probe_in_progress;
-> >  	bool keyboard_probe_in_progress;
-> >  
-> > +	struct ff_report ff_packet;
-> > +	struct work_struct ff_work;
-> > +	/* Serializes ff_packet and update_ff between play_effect and ff_work */
-> > +	spinlock_t ff_lock;
-> > +	bool ff_work_initialized;
-> > +	bool update_ff;
+> But then stopped and realized, it's mid-function declaration of a cleanup 
+> variable exactly following the guidelines (the long comment in cleanup.h).
 > 
-> Arranging these with the rest of the bools would save some memory.
-> 
-> > +
-> >  	struct hid_device *keyboard_hdev;
-> >  	struct input_dev *keyboard_input;
-> >  
-> > @@ -384,10 +408,15 @@ enum ally_command_codes {
-> >  	CMD_SET_ANTI_DEADZONE           = 0x18,
-> >  };
-> >  
-> > +/* XInput rumble magnitudes use the hardware's 0..100 intensity range. */
-> > +#define ALLY_FF_MAX_INTENSITY 100
-> > +
-> >  static const u8 ALLY_FORCE_FEEDBACK_OFF[] = {
-> >  	0x0D, 0x0F, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xEB
-> >  };
-> >  
-> > +static_assert(sizeof(struct ff_report) == sizeof(ALLY_FORCE_FEEDBACK_OFF));
-> > +
-> >  /*
-> >   * The ROG Ally device presents multiple USB interfaces (keyboard, mouse, gamepad,
-> >   * and custom configuration interface) that bind to the same module. Since only
-> > @@ -395,6 +424,7 @@ static const u8 ALLY_FORCE_FEEDBACK_OFF[] = {
-> >   * ally_handheld structure to share state across these separate HID interfaces.
-> >   */
-> >  static void ally_resume_work_fn(struct work_struct *work);
-> > +static void ally_x_ff_work_fn(struct work_struct *work);
-> >  
-> >  /*
-> >   * Changes to ally_drvdata must lock: the raw_event callbacks, which may
-> > @@ -410,6 +440,13 @@ static struct ally_handheld ally_drvdata = {
-> >  	 */
-> >  	.resume_work = __DELAYED_WORK_INITIALIZER(ally_drvdata.resume_work,
-> >  						  ally_resume_work_fn, 0),
-> > +	/*
-> > +	 * Initialised statically for the same reason as resume_work: remove()
-> > +	 * drains the work whichever of the interfaces probed or failed to
-> > +	 * probe, so it must be safe to cancel unconditionally.
-> > +	 */
-> > +	.ff_work = __WORK_INITIALIZER(ally_drvdata.ff_work, ally_x_ff_work_fn),
-> > +	.ff_lock = __SPIN_LOCK_UNLOCKED(ally_drvdata.ff_lock),
-> >  };
-> >  
-> >  /*
-> > @@ -2425,7 +2462,8 @@ static void ally_config_remove(struct hid_device *hdev, struct ally_config *cfg)
-> >  	 * create them, so a device without those capabilities does not
-> >  	 * trigger a "not found" warning.
-> >  	 */
-> > -	if (cfg->user_cal_support || cfg->anti_deadzone_support) {
-> > +	if (cfg->user_cal_support || cfg->anti_deadzone_support ||
-> > +	    cfg->resp_curve_support) {
-> >  		for (i = 0; i < ARRAY_SIZE(ally_cal_attr_groups); i++)
-> >  			sysfs_remove_group(&hdev->dev.kobj,
-> >  					   ally_cal_attr_groups[i]);
-> > @@ -2611,6 +2649,106 @@ static void ally_x_input_close(struct input_dev *dev)
-> >  	hid_hw_close(input_get_drvdata(dev));
-> >  }
-> >  
-> > +/**
-> > + * ally_x_send_ff_report() - Send a force-feedback report to the gamepad
-> > + * @hdev: HID device
-> > + * @buf: buffer containing the report to send
-> > + * @len: length of the report
-> > + *
-> > + * The gamepad interface consumes force-feedback packets as output reports,
-> > + * unlike the config interface which expects feature reports: a rumble packet
-> > + * sent as HID_REQ_SET_REPORT would be rejected by the hardware.
-> > + *
-> > + * The caller must hold ally->intf_mutex, so that a send cannot race with
-> > + * the gamepad interface being unbound and its transport being stopped.
-> > + *
-> > + * Return: count of data transferred, negative if error
-> > + */
-> > +static int ally_x_send_ff_report(struct hid_device *hdev,
-> > +				 const u8 *buf, size_t len)
-> > +{
-> > +	u8 *dmabuf __free(kfree) = kmemdup(buf, len, GFP_KERNEL);
-> 
-> It's not very nice to assign variables and then check for errors. I'd thus
-> separate the declaration and the assignment.
+> So this function doesn't really have variable declaration block at all, 
+> making the mid-function variable declaration look like one. I understand 
+> it looks confusing when encountering this for the first time, it was for 
+> me as well.
 
-I actually thought the same thing first.
-
-But then stopped and realized, it's mid-function declaration of a cleanup 
-variable exactly following the guidelines (the long comment in cleanup.h).
-
-So this function doesn't really have variable declaration block at all, 
-making the mid-function variable declaration look like one. I understand 
-it looks confusing when encountering this for the first time, it was for 
-me as well.
-
-> > +	if (!dmabuf)
-> > +		return -ENOMEM;
-> > +
-> > +	return hid_hw_output_report(hdev, dmabuf, len);
-> > +}
+Indeed. I missed __free() there -- one shouldn't review patches too early
+in the morning!
 
 -- 
- i.
+Regards,
 
+Sakari Ailus

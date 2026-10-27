@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793108247;
-	b=4gbvLxkxPw5EJNplHDegDYex3m4BsH8EjVoTo1jo8x0aKLf/xZCrjZCmPMISM8t6AL9/
-	 QXKZEiZD9E5xB3ZsTijmGVB/Gcx+DSeDED1AEGTVlqkit0UkSjfeptlPtx/pekqzIxNxC
-	 tocxXeR2UKu6YU1CKWuCSIeNyukMmG4KNC0uU6g81YwR2HKp7EHyJ7JgfREnoASNq+hx/
-	 hBKHA5bY5DmUnpNFaXbKSIN/BUTQ9fEJ9lyMkmKatLiF8d4jek+Taja3Wqfzx/EcLoysS
-	 sboGx2y/W/4Ay+ul8JBeRN4lvRP5WgFaO6LTPWRG6MqIr9/aSVbQwy83MIxK5xvx5Iw==
+	t=1793109347;
+	b=Rn8a9NqAvtfWT+RDeAgHoZyU3xl84hWKoPPUpzwk8TsVhAdhEG3dzwkLGso5+RRGvnkV
+	 7H/lxF+w2qM6tnzI56WXphXAsvsbJlp0vbJ5IwTlKZSZeZuc9Bgta47WdQ0HaJCjZ43+Z
+	 GRnQ9Q153ZL0VVAMrHH6kTERMQYogG5//5DIKPnbBluN16eAOmCJjLaKQf2IA0CQE3Gsk
+	 E/4PED42CB/X9fRCYDo0ga1uBCAFap/8U4lVN2Y62vUrG1YmVRSBhigJSKsF2Hmto4/mE
+	 OxJHaSBcD3ibnzJTzJqn/M6iBfauNXC2IWMDT1K3EmVsBafynLQRgwSnyQ99ZHX6O3Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793108247;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793109347;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Zno5VvMMG/oF44eLzQpcjMF1qT17JskbbSBTiHkfKOc=;
-	b=U4ky54yAOrcD2dSQZHD/ysfEoF1cJ9ewMUxINroVh3D+9rJ0medfOOX9lgz1FJJ7xJqu
-	 KQpFb7sZmHS+iIjsGedvWVyBfa39Yq4NRo+jNfTIEdamAM/BMsvu0qCQyLZdHdFislAvl
-	 x4dIHTUH1x5liNhlpd86HaE1YIbeWrw9UaHipTcScmZm0dQSmLhOBspQ0V9F63VvMi/B2
-	 dpzmLit1ZdVmDhaO9LhuH4eTq/ABOkB+I+UfBXV3OtNpzMXHpbTuNb+X88peRGd8dU004
-	 PaPAp4Gd/8K4cbIE7CT40GAA561LynJyPVgqxI9YWobLuQIaRgY4V1vMTjvwLBEKPsQ==
+	bh=DggvAPlwsoPiuWK26maVaGY+gu+kk9spfGM1nzTWWzA=;
+	b=IjN8AveyqajO5v/TWdfZn9p17MBHlRGlpWW9GwfisALx5Zy3o8OO0LYqrNaLaJSDiizm
+	 WoWVN0MMMC/w2k/B1g3q7vRxVLxUAEPpcMfD0htwibNcaI7XaYTgz37fBdnynaptgLj6S
+	 ytaJSjjDnaxEkVvPineRnL5ZVXNd0bObnUzDJ1CH+bgYBLABmsC6ivkc+0Xn5YO4r4wV6
+	 DbYl/VF4JviM1EwYP4GpBiJk+onB4ePoOWpFK686VOyt/twpjaS6WNdev7e1hwrFfSyVM
+	 gPBlrqSXKBwPSwX9nTPjTuRD0Dv3OP9oShgjFeW68yuCFvjl+zxRiDHUoe6X0H5DUmQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UrmHozkH;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k7KPaZyC;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4DDB606A31A;
-	Tue, 27 Oct 2026 13:37:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C197D606A321;
+	Tue, 27 Oct 2026 13:55:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UrmHozkH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100771F031E4;
-	Tue, 27 Oct 2026 13:37:26 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k7KPaZyC
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19ABD1F01825;
+	Tue, 27 Oct 2026 13:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793108246;
-	bh=Zno5VvMMG/oF44eLzQpcjMF1qT17JskbbSBTiHkfKOc=;
+	s=k20260515; t=1793109346;
+	bh=DggvAPlwsoPiuWK26maVaGY+gu+kk9spfGM1nzTWWzA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UrmHozkHy7PovB0xG6swk6TdG3uzoqJAqi1RN6ugnc2kCKxVUuUYp6xsxu20JhPuT
-	 SdGXcKU9amNs1dOhgYYRohWOA5XVHlNN0ggE3F1Q3eEOBTh6dql4r9+ZKZqjdT57Ek
-	 NvltvimBqEFWpXAv8XStXJ3yXIp3HjEFsvZImBD3umBX9Sbr2yR/f+hoflN4vZctGA
-	 I5lqhdc2HMWJi+zz9gtLbmE6Qz90Mlfyml9TaW4tFGF5YJjq9eEZDahi2QwJoUqwWm
-	 X1i3l3qwvKLJjb0JCmm2plnaZNbZ2g6qcFqXmIzlyGApm+2x6UDL8W+TjnmUQPMI4d
-	 q4qoH139EBMJA==
-Message-ID: <sashiko-outbox-186657@kernel.org>
+	b=k7KPaZyChka5175S9uZAuEhJyBFOnhNtv3xF80leP5kyiUt8Loo6DnodzSyhaH3vr
+	 VribtFhW4gFJ7YFd9FnhF21iFlcxGcFDuavJQi/AyZNNTgnxQvyGVbh16EGsAoKvwS
+	 23ocS/kP+4lwFdUZG9yhX9xt3rj6fcU8xMQic6T60DXQLboam+QF1wLb3YKJCfJpzs
+	 ZpXj8FGp0luY6pIxuBDvVl3Nd3QobSyM+nyLVur52GLnt7CdcQXQi1g0zeHfpoTxyb
+	 A3w8kgp/6SgHxlQHpeHU1VAHW7qnYCm4bdtdmIPiC/RpncKz6YvkkiicEydwFRRm0F
+	 V9SYzcDBIE71w==
+Message-ID: <sashiko-outbox-186676@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 4/5] Input: aw86927 - handle the AW8693X play and boost
- register layout
+Subject: Re: [PATCH 5/5] Input: aw86927 - stop playback over suspend and on
+ shutdown
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Qianhui Xu" <xiaqinghuan@mail.ustc.edu.cn>, linux-input@vger.kernel.org
 Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261027132929.242158-5-xiaqinghuan@mail.ustc.edu.cn>
+In-Reply-To: <20261027132929.242158-6-xiaqinghuan@mail.ustc.edu.cn>
 References: <20261027132929.242158-1-xiaqinghuan@mail.ustc.edu.cn>
- <20261027132929.242158-5-xiaqinghuan@mail.ustc.edu.cn>
+ <20261027132929.242158-6-xiaqinghuan@mail.ustc.edu.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 13:37:25 +0000
+Date: Tue, 27 Oct 2026 13:55:45 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,63 +63,70 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Input: aw86927 - 1-bit AW86938_PLAYCFG1_BST_MODE_MASK in aw86927=
-_play_mode()
+- [Medium] Input: aw86927: missing devm_add_action_or_reset() for aw86927_r=
+eset()
 --
 
-commit c20411cd705818dd58facc17d48437366131a42a
+commit becd63da0830df31ce436337adc571d6ea9ae15f
 Author: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 
-Input: aw86927 - handle the AW8693X play and boost register layout
+Input: aw86927 - stop playback over suspend and on shutdown
 
-This commit updates the aw86927 driver to handle the play, boost, VBAT,
-and two-step stop register layout differences on AW86937 and AW86938
-devices.
+This commit stops haptic playback, drains pending work, and parks the
+chip in reset on shutdown, while also adding suspend and resume handlers
+to prevent playback across system sleep.
 
 > diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
-> index 42eb531c7e3b3..e8fd880ac1ded 100644
+> index e8fd880ac1ded..6d45c310a73fd 100644
 > --- a/drivers/input/misc/aw86927.c
 > +++ b/drivers/input/misc/aw86927.c
 
 [ ... ]
 
-> @@ -291,9 +299,14 @@ static int aw86927_play_mode(struct aw86927_data *ha=
-ptics, u8 play_mode)
+> @@ -900,6 +909,58 @@ static int aw86927_probe(struct i2c_client *client)
+>  	return 0;
+>  }
 > =20
->  		err =3D regmap_update_bits(haptics->regmap,
->  					 AW86927_PLAYCFG1_REG,
-> -					 AW86927_PLAYCFG1_BST_MODE_MASK,
-> +					 haptics->model =3D=3D AW86927 ?
-> +					 AW86927_PLAYCFG1_BST_MODE_MASK :
-> +					 AW86938_PLAYCFG1_BST_MODE_MASK,
-> +					 haptics->model =3D=3D AW86927 ?
->  					 FIELD_PREP(AW86927_PLAYCFG1_BST_MODE_MASK,
-> -						    AW86927_PLAYCFG1_BST_MODE_BYPASS));
-> +						    AW86927_PLAYCFG1_BST_MODE_BYPASS) :
-> +					 FIELD_PREP(AW86938_PLAYCFG1_BST_MODE_MASK,
-> +						    AW86938_PLAYCFG1_BST_MODE_BYPASS));
->  		if (err)
->  			return err;
+> +static void aw86927_reset(void *data)
+> +{
+> +	struct aw86927_data *haptics =3D data;
+> +
+> +	gpiod_set_value_cansleep(haptics->reset_gpio, 1);
+> +}
+> +
+> +static void aw86927_shutdown(struct i2c_client *client)
+> +{
+> +	struct aw86927_data *haptics =3D i2c_get_clientdata(client);
+> +
+> +	disable_work_sync(&haptics->play_work);
+> +	aw86927_reset(haptics);
+> +}
 
 [Severity: Medium]
-The commit description notes that on AW86937 and AW86938 "the boost mode in
-PLAYCFG1 is a two-bit field at bit 5 instead of bit 7", but
-AW86938_PLAYCFG1_BST_MODE_MASK in drivers/input/misc/aw86927.c is defined as
-a 1-bit mask:
+aw86927_reset() has the void (*)(void *) callback signature for
+devm_add_action_or_reset(), but it is only called from aw86927_shutdown().
 
-#define AW86938_PLAYCFG1_REG			0x06
-#define AW86938_PLAYCFG1_BST_MODE_MASK		GENMASK(5, 5)
-#define AW86938_PLAYCFG1_BST_MODE_BYPASS	0
-#define AW86938_PLAYCFG1_BST_VOUT_VREFSET_MASK	GENMASK(4, 0)
+In aw86927_probe(), reset_gpio is acquired in the asserted state and then
+deasserted by aw86927_hw_reset():
 
-When aw86927_play_sine() -> aw86927_play_mode(haptics, AW86927_RAM_MODE) ru=
-ns
-on AW86937 or AW86938, regmap_update_bits() only updates bit 5 of
-AW86927_PLAYCFG1_REG and leaves bit 6 untouched.
+drivers/input/misc/aw86927.c:aw86927_probe() {
+	...
+	haptics->reset_gpio =3D devm_gpiod_get(haptics->dev, "reset", GPIOD_OUT_HI=
+GH);
+	if (IS_ERR(haptics->reset_gpio))
+		return dev_err_probe(haptics->dev, PTR_ERR(haptics->reset_gpio),
+				     "Failed to get reset gpio\n");
 
-Should AW86938_PLAYCFG1_BST_MODE_MASK be defined as GENMASK(6, 5) so both
-bits of the boost mode field are masked when configuring bypass mode?
+	/* Hardware reset */
+	aw86927_hw_reset(haptics);
+	...
+}
+
+Should aw86927_reset() also be registered with devm_add_action_or_reset()
+after aw86927_hw_reset() in aw86927_probe() so that the chip is placed back
+into hardware reset if a subsequent step in aw86927_probe() fails or when
+the driver is unbound?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027132929.2421=
-58-1-xiaqinghuan@mail.ustc.edu.cn?part=3D4
+58-1-xiaqinghuan@mail.ustc.edu.cn?part=3D5

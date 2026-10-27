@@ -1,91 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.161.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793118878;
-	b=Ae6BYZw7JYapkPK3bsBbA05/kBjWLLCK2Rc5yOiVD9d0IQT2dQbhjS55X1KPOapXoZg7
-	 CJR3QOxTo1jcD7ZZCjLFoCeU2nmigkuYhyYvTD8OoidIW97LuptQ0Cbv+efVKPqU9EF0W
-	 ymty0N6dkDRy6+veYJwDhe4LyQ6YsYLkb+kQcDuHIuYMd/pz6BEf9iyauExlCnOfZ64Pq
-	 pFPT8jpG/K9afTIsIScVWFY4sPfoVAtrXd/z0Cd34UCEVSNkbswK8ndCbe5zij+EmXEPG
-	 nQDg3umlBkBIW0cl0mCRgiA9m2cV9zuxcfMdEzkXfLc1XhkKY2qFaelB6JMDGfvuW9w==
+	t=1793124368;
+	b=ULSYfJ70d/AkHbA89t5GNIoGixdwzVXoAM5C9sOXvmKo0i0YKdrNOTkYnacPCW6fyQm2
+	 S8jP8lbx3W30RnXqJlxzXBGCAWn2wfZbWi86z3CaGdHh51aSZi08Bb532RbEUdjfmSHTH
+	 OIU62GcGZS4VjH8FiOT+L9kf/pMyQtp3rR2qd3sTxkXpemPzfsAY1rSDZU6ZO8DAgNm+o
+	 OguJ3FPB9z/8GpmWuzEIWXAC56RgUFjCaeSJpKLAvCMPPcm1ZsQPf6LufHl1PKJGMIH+e
+	 TokDJLSopFfGV8QsVuuEZhbwEhDjlB9p+av7zRbVgA1XjhkHzPw/+/y9tp07w2B0eaQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793118878;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=q/JKV97sCmcIGpDMr5vMhTnfZ34mZbmaoLGVAAqLDYw=;
-	b=q5Rr7t+HgXJQsYP8uI06Wu7sQrPFbuiVyzMFoUjx42g4IY9limSEWvz5Efq8bIW/v6bf
-	 RBI9qSlqED7iPL7yO509Mpp77zv7w846hTa+JsNNbGnAGAPYAf+Qmhe6OE+PKCjWRQXce
-	 yS2nxuASUL7SN5Jjeo+Gj6Qpo+TjH6p9aRpNl33fgeeZSBDSXw/E90SuPr2t6n5j2wedE
-	 oCqUw8KDYiZ2KouWLyPyxcG4yrEv9i0jGDaQimCK/ScwsNQDQJfvFcruPsR8ImkxqLDZC
-	 u4gJcL4T/vxU0Em8F9H3CbF5+MSdNLs+Gev+7a1b5xYp3j2bFbTan4FfVQVid+yRVIQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793124368;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=E3iUS48yb96hQ3kg763j7x/vZ89c/KGzDgiH8T9fuwo=;
+	b=K3OWQS8E/x2A3KglhfQNwiB+TMZOFPZScjkbY37XL7ZBQT5ngFxD5IaEdby1+ik3hyQT
+	 i2bNe4KwIO+8btTd6PxAAOjWiYykftdN5cEsT4QVUFZ+tr3jxof6ZMrv6DQpiqkIw8uXA
+	 YYfb4pn+r+t0Jf9Jvxj3smJ6aQIVvs7SCV/zbi4bVbMyqEFMhS8u2+YgiqODA0Kmy2KLR
+	 cGDkZIGaa0im2+9pYXKqJiyGAVSzxIP+/F3aFPoOJS0Ws5dKsY1fu8hNSW1BIOtNmfVfa
+	 HhzBrOHwoG/rwuWueOrL6xRuEIU65Ac+7h+8cQqqRkHIljSm9o20/YRUz0cxNBQWnEQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AwDhRhvV;
-	arc=none smtp.remote-ip=209.85.161.46
-Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com [209.85.161.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KBYvcXOl;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D29606A31D
-	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 16:34:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D1D29606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50A52606A31E;
+	Tue, 27 Oct 2026 18:06:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=AwDhRhvV
-Received: by mail-oo1-f46.google.com with SMTP id 006d021491bc7-6b19e291cc6so114927eaf.2
-        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 09:34:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793118877; x=1793723677; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=q/JKV97sCmcIGpDMr5vMhTnfZ34mZbmaoLGVAAqLDYw=;
-        b=AwDhRhvV5x5ruErCYDk68Kmrv5BlFrgSGxdnMXhpubhcZGNxfXEm8SWpmivemxIors
-         iNuvQKiFhUUANF+ea301Ro0AwM9B1+1mqBl5nBvokfPMHqrv3XDcosWuaycDuphQlduD
-         Q5ugg8oIGYj/HSnnbnReplGxRZDbnCg8kiGOW7hcHzYJbZ7EGwed08Hd+cPXkyaa5hQ9
-         khGGFa2F8CE71eXNoms8081rmEPBgWZcb0NoyrTZmtzJunAHiAqposarLZAsqiXocQck
-         rKApQ7hO4BrNMwC7nPBkfHLL2imz0mV00hjLyYXKiDK6CNrERBohWEjpvoSF4WydgKB6
-         3r2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793118877; x=1793723677;
-        h=content-transfer-encoding:content-type:mime-version:message-id:date
-         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=q/JKV97sCmcIGpDMr5vMhTnfZ34mZbmaoLGVAAqLDYw=;
-        b=mjwRq98wSpfjCK7YBUOmprIffxCAoJabIbIVrXSEQLZT5O5xQerGOMKGmBkzb+FBxu
-         ualdtXemI8RtXnk0hGaXAE10sALpKRrTmWP0iA67i9QzRajYVY0gOd0sOhy9m+E4UrEQ
-         DKUYr/kBQL22BMe9Lh/dk2eOz/Vzolf/3i2lgk8Ly9T4vJon+Aq4HMJLQf+hs6uTGh06
-         LKDy6L1bh2/kIJKCrlsEOP+yvQFMR5LUsoFK/rjaJA2V/RHiohSu5xPulzrds3a153C1
-         ps0kH1oS2DOQJtOZvn9XBk2bGsNRGHS+V21qAWK09Yz+oUCoqqRv+1BjKFRnSZIbewzI
-         UXAA==
-X-Gm-Message-State: AFq9FYJgKbOLSwMsTepCFSDEdp9uKJMMyxY2X35DhfkUhIgk6IYAFXLy
-	P/215LGUXPGUDHyhR1ycVjywX+LGaAa1A1Mcy+Syib7oJwEuZsfFlQ3Y
-X-Gm-Gg: AYBFou13hYKTlBo5MZxNr0v22aPDHVbfk4MN7bfQLcAPLfnLUTPz2/BTnQqPATe1OH3
-	SWZPvhsWjaSC4FIA1jt2HKPXYYJjdY5xIDodzHsrJ73K77XBA9Y6UB9IZO2R25P2jk75UTeu9zV
-	JJm8SvQhVoPSA+YFxGSmwCXyxYI/16qNGUNsPWGDDr1Y7DhXeUeyKOOv74co96fvDUTONAnmUjJ
-	DdIaZ7cb8/FQ2e5XSWKirZR6itN9xypewUt71G6kRkCcS3VafsQkL4oIMtYpqsVP41vLX64lqyB
-	eRkklUZsX9+VExdfPXE0G6B0oVU5rad/50ER+4TEoAj7E/p+W8B2YecK2gQ4rMxfuBDBWFupSjF
-	5Xw0sK2D+w6aK6hhHGUCX/SBjQMD02Sq5giZKuguD9zHPvA7fGafp8EDO/uraRUXpnEE21idYhx
-	Zx3wBS7kXHiRyNHWtspCIDviRywMVBkIMbbaAGKlaA81gnvHMDuml+do3dHpXHR/gmCz9u/yGD8
-	BQyKgvC4LYEp1GdgFRBBxruYumjHXKQiGnkFSbnCnVOuWoK5X5MN9yLQ7QGtLnXbDBb6FLpNkxj
-	pZvpgQuRnYg=
-X-Received: by 2002:a05:6871:e805:b0:48f:e3f5:c41a with SMTP id 586e51a60fabf-4a8bb61b399mr19617fac.59.1793118876737;
-        Tue, 27 Oct 2026 09:34:36 -0700 (PDT)
-Received: from fedora (fixed-189-203-106-166.totalplay.net. [189.203.106.166])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-4a8b77ac132sm496503fac.6.2026.10.27.09.34.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2026 09:34:36 -0700 (PDT)
-From: =?UTF-8?q?Jos=C3=A9=20Miguel=20Castellanos=20Valladolid?= <josstamy@gmail.com>
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	=?UTF-8?q?Jos=C3=A9=20Miguel=20Castellanos=20Valladolid?= <josstamy@gmail.com>
-Subject: intel_ish_ipc: ISH loader "cmd 2 failed 10" on HP OmniBook X Flip 14-fm0xxx (Lunar Lake), no sensors
-Date: Tue, 27 Oct 2026 10:34:00 -0600
-Message-ID: <20261027163400.20055-1-josstamy@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KBYvcXOl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09B901F031E1;
+	Tue, 27 Oct 2026 18:06:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793124367;
+	bh=E3iUS48yb96hQ3kg763j7x/vZ89c/KGzDgiH8T9fuwo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=KBYvcXOlU7njxYo/ZpUepcxhAgqhCAzFnXZlps7VlhOPiXlHq3yFXbVC15+hp5yLl
+	 KZGCs3cO+rT2MKPp1Ox8cTU/1hA+PvLxH+OF5AlVq8cuE93sVSvuXQL/sUMF6p8VzU
+	 yljmaVOFmnB7cbP2XUTe+2bChZuJohSgnXDyZh9f56qpnsuaJn+icxVrnVyXBnpRyj
+	 czB0uzGj6pPz2GDDn4ZlQyKvQvUzzdhAcp68qzyE6apDtQL8kV1fZvCUy/tdVZxCa6
+	 tAy/vwbSoS2JfuQdnvZM/In9fvxb1VkRgraFBMnj+nwFrOJk51SseLhD6KbFrpG/U5
+	 3ew5Ru4S33COw==
+Message-ID: <f76d56db-6ea8-45ef-a70e-e53cc70cf508@kernel.org>
+Date: Tue, 27 Oct 2026 19:06:02 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,50 +51,75 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/5] dt-bindings: input: awinic,aw86927: document the
+ AW86937 variant
+To: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>, linux-input@vger.kernel.org,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, linux-kernel@vger.kernel.org
+References: <20261027132929.242158-1-xiaqinghuan@mail.ustc.edu.cn>
+ <20261027132929.242158-3-xiaqinghuan@mail.ustc.edu.cn>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20261027132929.242158-3-xiaqinghuan@mail.ustc.edu.cn>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-Hello,
+On 27/10/2026 14:29, Qianhui Xu wrote:
+> The AW86937 is a sibling of the AW86938 with the same register layout and
+> a distinct CHIPID.  It is described the same way as the AW86938, with the
+> AW86927 compatible as fallback; software tells the parts apart by reading
+> the CHIPID registers.
+> 
+> Signed-off-by: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
+> ---
 
-On an HP OmniBook X Flip Laptop 14-fm0xxx (Lunar Lake, ISH 8086:a845) the ISH
-never starts under Linux, so there is no accelerometer, hinge sensor or
-auto-rotation. The 2-in-1 keyboard/touchpad disable at 180 degrees works, but
-that is handled outside the ISH.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Kernel: 7.2.12 (Fedora 44), linux-firmware 20261019, BIOS Insyde F.20
-(04/27/2026, latest available from the vendor).
-
-DMI:
-  sys_vendor     = HP
-  product_name   = HP OmniBook X Flip Laptop 14-fm0xxx
-  product_family = 103C_5335M8 HP OmniBook X
-  product_sku    = B5UJ1UA#ABA
-
-dmesg:
-  intel_ish_ipc 0000:00:12.0: ISH loader: load firmware: intel/ish/ish_lnlm.bin
-  intel_ish_ipc 0000:00:12.0: ISH loader: cmd 2 failed 10   (three times)
-
-From drivers/hid/intel-ish-hid/ishtp/loader.h, command 2 is LOADER_CMD_START,
-so the query and fragment transfer steps succeed and the bootloader refuses to
-start the image. I have not been able to confirm what status 10 means.
-
-The vendor-specific lookup finds nothing for this machine. The CRC32 values
-are vendor(HP)=12128606, family=604fc7b4, name=e4cc03e5, sku=dc6e7f5f, and
-none of the ish_lnlm_* names built from them exist, so the generic
-ish_lnlm.bin is loaded. linux-firmware does carry an HP file,
-intel/ish/ish_lnlm_12128606_f9751b71.bin (5.8.200.7720_1029), but its second
-CRC matches neither this product name nor this SKU.
-
-A complete power-off (not a reboot) and a BIOS check did not change anything.
-
-Questions:
- 1. Does status 10 mean the bootloader rejected the image (signature or
-    platform mismatch), and is the generic firmware expected to work on
-    OEM-customised ISH platforms at all?
- 2. Is there a known HP firmware for this SKU/family, or is HP expected to
-    submit one to linux-firmware?
-
-I can provide more logs or test patches on this hardware.
-
-Thanks,
-José Miguel Castellanos Valladolid
+Best regards,
+Krzysztof

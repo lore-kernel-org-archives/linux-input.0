@@ -1,72 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.71
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.227.134
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793081622;
-	b=K2vmA10U03vOIqsHMwC774UnqHGAEDcshbcFMHHGuotQ12bVP4F6C0Nih2HOUSw45X8y
-	 0iiuqWQOhj/UH5eAFfbexrs+3BC8rY9AYr7RIvXaf8OopRq2xElZGdyOcJcaf4s2DiRa0
-	 Ofif18axGoSgIp0DBQOwovL0IVBJ/+UN32ekvNDeNS3rH44x9CpGkaobCvDfWEKHgB11b
-	 2bF9jhADlTC+6atP5956+XY8UzuOYp3sHYIa0YUqx59ee5/TeohUFoig64F/3g1070Bb8
-	 3cNJ0wVSvsDGXUPx7FbKkwODIjdY6FfOvRhPjlBYAA0jj8uxVLq4pnrocDFu5ZfhDVw==
+	t=1793089368;
+	b=S0k/WDA9IQLWKOB/cv+wsWnvIefSF9tZr/RFGXibEUVzEWvkXiI74Gy1mhV3s/BRxV/d
+	 KBeift740Q9nXjAZjGe000GBkVVHGDECWrxJ5fbJfOzFbCnD/rYD5GIobefEzQdS1gKbz
+	 uZADiF7yFMbKycygdzr0fCb67n0yjcaz15ifBKU04dUXHIHrhpgSH52svpfV5ResGlSS2
+	 8JDdEgYitsOMKU26V+L/JRq7yf8L559r1Ukc4EtOpKG05f1huKutoQAk6roQ1oZR/W+DR
+	 7Owa0AOdzmgYBqSEPBdInQxlE7HLKdzr+lHQ6d80HskYNIz7yWQXIMYzf7/jXNY/sFg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793081622;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793089368;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Received:Date:Mime-Version:X-Mailer:Message-ID:
-	 Subject:From:To:Cc:Content-Type;
-	bh=f7jaCg8WRne6yjvM4RTZWaJveCSVces6jBOrWR6zygc=;
-	b=4/sNqIAvx1Gyie04UDW+coNZvVpAhodJKr7R/XF+k3ELtzd2rVWw+poKVnFuFOgkOpQF
-	 Z64P1S6ynQI6Tp8UfBpx5aGmeybfguvwP7FWPFbgTE9t6g4fjlV9dyoZeYXdjSNIv+RrL
-	 bYGL28FqAX6TzP2kKRWdKeY541zyeooL9Dm6kEKZZohWdLnqqbtWmmT4xHHNrGqfJ+pXO
-	 G+Y6v1hpneDSsefZplgsX377Fa6nYX/1nTVmC+yheaLvXXPlPjmkMPsp8sNTdSvqXLbFp
-	 klHWV0iAXNwEv5WZf1fAUtFIlHI90LStLCheED56Zv9Zfu7EBlc9BCpJpDOKVAGvv5g==
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Content-Type:Content-Transfer-Encoding:MIME-Version;
+	bh=Oxzp5fPcS3kqgnusg3EHz+ARzLMXQsnr8kyVgVxlMPI=;
+	b=AA7cyqOVhEBcz7c4edcjnIJ7IGDVAYE1wFD8bUJDRK3lGOV2OPulXhHzV1e7HXfbJ93W
+	 U/ulVC+Lusr0HKew1UKuFxOhCz3+LQSc0UMnHKnqvH2MnsWq3AIHFnCHBnH6nm46UqxHP
+	 NjOrFnTgKCO9GtB3eJvlhfk0YPB5mAPQ0NVJP1gHzLqZttEoq2ItCsuCGgoJnKaYm0e8P
+	 GuKNqblxycHpciLMESn9J47gQ0Oiu0iyVJ0tpx0yj1wLBaXUItPTlH9rGA9owyoy4hLuK
+	 jfwG5WAjp4MREaOG44vtMbD7FdAgwqtEowZZHi+79Obcj2ctW9Ong+gjOIybi/01ytw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=flex--apusaka.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=BeBQnwi8;
-	arc=none smtp.remote-ip=209.85.216.71
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com [209.85.216.71])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hayvxmzx;
+	arc=none smtp.remote-ip=74.125.227.134
+Received: from mail-pj2-f6.google.com (mail-pj2-f6.google.com [74.125.227.134])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1F5D606A31B
-	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 06:13:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A1F5D606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--apusaka.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B776606A31B
+	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 08:22:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8B776606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=BeBQnwi8
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-3ad7030e886so4078549a91.0
-        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 23:13:41 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hayvxmzx
+Received: by mail-pj2-f6.google.com with SMTP id 98e67ed59e1d1-3ad211ad92bso921262a91.1
+        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 01:22:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1793081621; x=1793686421; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=f7jaCg8WRne6yjvM4RTZWaJveCSVces6jBOrWR6zygc=;
-        b=BeBQnwi8c+tJ+27RWYlCJUi2uTt5wP+3ns9Petb2hEa1X6PcyEKG23e5Gee+nYXDT4
-         CJOVKqSy8YhSBkdOnHqc0g/8Pw+WpXIGYnVcBbt3QnaXcyODAkKxntrS3FiJGYuNLhkM
-         xHZePZQ2tKzuduGz9+uKPuHuHG/QSk+VH2iSpHO+iaeNahUr9VAO2hkYerhdfUUM8B6z
-         KcfeYeUEa4tOYnBp0ftxEDSy4NVQp0UMi9CifiISpi3Hn++ipyCKHCgHY3z/1yZ/8gx7
-         zhsBF5DdnIWkEUCoMc4udmrONh7AVRRyYwOuNJ2AGb0HBrumDUKu4Z4byveEJTEolxcT
-         ZjcQ==
+        d=gmail.com; s=20251104; t=1793089368; x=1793694168; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Oxzp5fPcS3kqgnusg3EHz+ARzLMXQsnr8kyVgVxlMPI=;
+        b=hayvxmzxWUNkxQZOcUXN0qwsRzCsTin/m622IWJBdtGoONQ4VRwrf3pi7aAL+T1CTG
+         ulsqZAcddvKOYf2/ClMFuj+IlU7bKnnHMc161bYEfz39L6J+qM+J/chect4a4bTzHW/V
+         HUXhN1koSC0WgHZ7jXAZCc1j75ygzTLQcU9Hx5XslNYpwIWNaGusoczP3SJGjTOBFncJ
+         CY/wRMqZAkmBxqJP7YQqazM51ZlXEN66EiyheLaNRXYHJP+GPF2wvrpsBEHYfcKb/Mk3
+         bu2PCc053cEFkIWrPYSX3/yV19Rutmpp47ownwFpzk+EQk0I6B5NDatVwF/S1+wTVU93
+         kJqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793081621; x=1793686421;
-        h=content-type:cc:to:from:subject:message-id:mime-version:date
+        d=1e100.net; s=20260707; t=1793089368; x=1793694168;
+        h=mime-version:content-transfer-encoding:content-type:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=f7jaCg8WRne6yjvM4RTZWaJveCSVces6jBOrWR6zygc=;
-        b=mR0Yz5Anrqk6/V1e8wLO+QD9t82ONCZY+7lOBgLh0mzD5jHuHKJGrlVSMx+LEm0ktF
-         cLS1g7D1qwBDhwO+kT+C2D/GjRfEIuEE2ejMm7JQUDefr4NF/+ph9xzQE3yZ1eKhXBJV
-         csBdgSjzDI/UkGHjZb6AiJMDb9oHtxfNJ2OnG969hReYnH4JNZCiksF8QcbUGJK3nUsN
-         VQnxsjfKxCW5LRz8RAKDASVshXuNQXhiwv0gCdxCAiXgQNxMeEX1qRoU8xqhurZfTsRv
-         Xnu3QjU86mx9KT9wazPU+tC70BfZG2VZYQ32PIzr6yw1ufL9B5vPJfeU6VBIVpN1BRFZ
-         POZw==
-X-Gm-Message-State: AFq9FYLEYLF2ARIUoM9+aoB9YWOPOwzwMtpktPMjY1Y6y8M8JUJT6h4m
-	UdOu/pdk9Mb5PN1140Jxd+Q7g+ONRHjMkzVMYh/UYct4H+4Tv2KhYaW0c89IZmiKjYMm01sHQAu
-	HpC2ZOiLe68pGGBNNnzsrnLhd1kTSPAJD1zPFcwMU2KkGteq9BThJS7cqvRIUj4xMwE4Gs2Oear
-	78PEKCr4LXHsMF7YtDZ4BnAJDE9obievVTMFP1saiA+5J9kDbY
-X-Received: from pjhr18.prod.google.com ([2002:a17:90a:5012:b0:3aa:ee30:1a77])
- (user=apusaka job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:2891:b0:3ab:24b2:9016
- with SMTP id 98e67ed59e1d1-3adead488d1mr7764219a91.25.1793081620686; Mon, 26
- Oct 2026 23:13:40 -0700 (PDT)
-Date: Tue, 27 Oct 2026 06:12:58 +0000
+        bh=Oxzp5fPcS3kqgnusg3EHz+ARzLMXQsnr8kyVgVxlMPI=;
+        b=iiXoF5jeSoc4q/8SuqKGr0gzx4ujggF+KyoYv/JuwkslFW5MIHG7SJeelTJxKQ1dK/
+         KNAmQ7a9+jkVt3jKNXWRYM/jFwOTVFwI4MZsoiz+MPIJlrfx6Z8+dSNv4g/yTpLb9vWl
+         XnCfOqDl3a8fWWRqzbv/YGdSJ/iu1aVx5ojoKqvxb44pNsG9Zhuv/CrzNg3qoArWOAGp
+         3JzE05YWit4b5CWoPRYOSY16zWJPCoSP+oeZNJmtd9Jq41qDa6ukGlQBX3YqWwBF2hYZ
+         OOry0SXqiX4BVKwSXsTT/QVDQ+QQWh41sNuc41AqaFT6niSV6wvk5KPMlimbgN55Z8+D
+         igkQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwdOInFuLwubdQ40srcHNqBTpvICb5vpr1F4m/E9gj/obXg/yM4+ewDRm/YYeiRVPeFlvHoSrvdnkpOyw==@vger.kernel.org
+X-Gm-Message-State: AFq9FYK7vnIEcV+1/T172wRU8xzhbH05V2z1BNbWhVhj+oSQhrh6krGS
+	4cCn8+y9SROAxCf5pSOyzhVjEpZxSrheM7S1VS0Vjx4NaqAdKKs9ascN+LjVUuXbSJh8eg==
+X-Gm-Gg: AYBFou3bVuO4KfbcBQc37a26YYSgbW6p6h3/3Bn0Iglk61DIA/0UpW3kVL1xb9m7GP9
+	eQmcxFaLbfKuVdJhvdhTBDyX4A/izq7UyjrQS0+RNhpfF5CPVun0xLYTBbWimmVJ47yfMKuj4Re
+	lzNvRMQVr3DHcVj7ldaAmXcIJhJYRewfiH5huNX7uxzwDFLxA0zlQ2wlF1mPF3Q7/gOy6kBDjPE
+	Av1mG9wNJtszXEuQ8KJzcJ017KsPnQwrUH5QyPQ0Fh26AHH0ZnaOlMEZNLFa2T4gE2bxW9Qtj29
+	TCyHXOtum5QmAOjQLg5oUE9GFmUy0vj6TvJ0TnQH3tnUNqOLisNCZj9txBx+6E2rcuEDhwqVd0v
+	vgGmHKdANciF5zQqwn4ZdCw7YZPNvV8oi7d1k1BS3GO9SRh4uOjTLXWO5t4+ANg0KEkdm7AexuN
+	J0XnimHd5394Y2raekIVMy0nzY16FOBhF2bamihinBOZN77YeaRJVbeXpnej3zAbZsMMpgOJPEB
+	T/RMiKDfYc+9Hk0qg3XSSf1Lote+tgk91kD19whStYTAwme4VplqTWjNEnpacsMjsNb38r/2QDu
+	JE6pYHW1TGS0SALVY36UEnQiIuTz69CGItMjVUSA4jXdCL1eTc//w3InFIzr
+X-Received: by 2002:a17:90b:314a:b0:3ab:413:49bc with SMTP id 98e67ed59e1d1-3adead4f73bmr6882910a91.37.1793089367740;
+        Tue, 27 Oct 2026 01:22:47 -0700 (PDT)
+Received: from [100.64.227.9] (n106-71-19-159.sun21.vic.optusnet.com.au. [106.71.19.159])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3adeba31797sm8137375a91.1.2026.10.27.01.22.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Oct 2026 01:22:46 -0700 (PDT)
+Date: Tue, 27 Oct 2026 01:22:46 -0700 (PDT)
+From: Aveline Noir <jm5905938@gmail.com>
+To: Helge Deller <deller@gmx.de>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
+ linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
+Subject:
+ Re: [PATCH v2 2/2] HID: picolcd: Avoid framebuffer last-close deadlock
+Message-ID: <179308935900.645289.17780178981863221787@gmail.com>
+In-Reply-To: <76cddcc5-2cf8-40da-9139-e78353975e41@gmx.de>
+References:
+ <CANOyQmGfmBdTRaEamVdGuMBToVLeXGi6qLrnX=xkA9acsL9TSQ@mail.gmail.com>
+ <CANOyQmHF-gjvnLqTGEVBcU6+AWj5ha+7tJhE2E_Cv9aj-gRXdA@mail.gmail.com>
+ <76cddcc5-2cf8-40da-9139-e78353975e41@gmx.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -75,138 +102,25 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.56.0.307.g5fe7bd680c-goog
-Message-ID: <20261027061258.3900768-1-apusaka@google.com>
-Subject: [PATCH] HID: logitech-hidpp: connect Bluetooth devices before HID++ handshake
-From: Archie Pusaka <apusaka@google.com>
-To: linux-input@vger.kernel.org, jikos@kernel.org, bentiss@kernel.org
-Cc: lains@riseup.net, hadess@hadess.net, linux-kernel@vger.kernel.org, 
-	Archie Pusaka <apusaka@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
 
-hidpp_probe() opens the device and runs the HID++ handshake before
-calling hid_connect(), so that the HID++ name can be stored in
-hdev->name before hid-input and hidraw expose it. Opening the device
-tells the transport that I/O may start (for uhid, UHID_OPEN), but any
-non-HID++ input report received before hid_connect() has no consumer
-and is dropped. Over BLE the handshake takes several hundred ms, thus a
-reconnecting keyboard might lose the first keystrokes.
+Hi Helge,
 
-Bluetooth devices already get their name and serial from the transport,
-so connect hid-input and hidraw before opening the device, like
-hid-generic effectively does. hidpp_connect_event() still fetches the
-HID++ name into hidpp->name, so the battery model name is unchanged.
+On Sun, 25 Oct 2026 09:20:36 +0100, Helge Deller wrote:
+> For this patch:
+> Acked-by: Helge Deller <deller@gmx.de> # fbdev
 
-As a consequence, the input and hidraw nodes of Bluetooth devices are
-named after the transport-provided name rather than the "Logitech "-
-prefixed HID++ name. Non-Bluetooth (USB, Unifying/DJ) and DELAYED_INIT
-devices keep the original ordering and naming.
+Thanks for the ack!
 
-Signed-off-by: Archie Pusaka <apusaka@google.com>
----
- drivers/hid/hid-logitech-hidpp.c | 67 ++++++++++++++++++++++----------
- 1 file changed, 47 insertions(+), 20 deletions(-)
+> I'm not sure about how to handle this patch series at all.
+> There is still a review missing for patch #1.
+> Shall I take this patch (#2 of 2) via fbdev git tree?
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 27d83b8bb..b552f31f0 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4673,6 +4673,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	struct hidpp_device *hidpp;
- 	int ret;
- 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
-+	bool early_connect;
- 
- 	/* report_fixup needs drvdata to be set before we call hid_parse */
- 	hidpp = devm_kzalloc(&hdev->dev, sizeof(*hidpp), GFP_KERNEL);
-@@ -4734,12 +4735,31 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			 hdev->name);
- 
- 	/*
--	 * First call hid_hw_start(hdev, 0) to allow IO without connecting any
--	 * hid subdrivers (hid-input, hidraw). This allows retrieving the dev's
--	 * name and serial number and store these in hdev->name and hdev->uniq,
--	 * before the hid-input and hidraw drivers expose these to userspace.
-+	 * hid_hw_open() below tells the transport that I/O may start. However,
-+	 * Any non-HID++ input report (e.g. regular keystrokes) received before
-+	 * hid-input is connected will be dropped, and over BLE the HID++
-+	 * handshake below takes several hundred milliseconds.
-+	 *
-+	 * Bluetooth devices already get their name and serial number from the
-+	 * transport, so for them there is no need to delay exposing the input
-+	 * and hidraw nodes until the handshake is done: connect them right
-+	 * away, like hid-generic does. hidpp_connect_event() still fetches the
-+	 * HID++ name into hidpp->name (used e.g. for the battery model name).
-+	 *
-+	 * DELAYED_INIT devices create their input device from
-+	 * hidpp_connect_event() and keep the original ordering.
- 	 */
--	ret = hid_hw_start(hdev, 0);
-+	early_connect = hdev->bus == BUS_BLUETOOTH &&
-+			!(hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT);
-+
-+	/*
-+	 * Otherwise, first call hid_hw_start(hdev, 0) to allow IO without
-+	 * connecting any hid subdrivers (hid-input, hidraw). This allows
-+	 * retrieving the dev's name and serial number and store these in
-+	 * hdev->name and hdev->uniq, before the hid-input and hidraw drivers
-+	 * expose these to userspace.
-+	 */
-+	ret = hid_hw_start(hdev, early_connect ? connect_mask : 0);
- 	if (ret) {
- 		hid_err(hdev, "hw start failed\n");
- 		goto hid_hw_start_fail;
-@@ -4755,25 +4775,32 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	/* Allow incoming packets */
- 	hid_device_io_start(hdev);
- 
--	/* Get name + serial, store in hdev->name + hdev->uniq */
--	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
--		hidpp_unifying_init(hidpp);
--	else
--		hidpp_non_unifying_init(hidpp);
-+	if (!early_connect) {
-+		/* Get name + serial, store in hdev->name + hdev->uniq */
-+		if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
-+			hidpp_unifying_init(hidpp);
-+		else
-+			hidpp_non_unifying_init(hidpp);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
--		connect_mask &= ~HID_CONNECT_HIDINPUT;
-+		if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
-+			connect_mask &= ~HID_CONNECT_HIDINPUT;
- 
--	/* Now export the actual inputs and hidraw nodes to the world */
--	hid_device_io_stop(hdev);
--	ret = hid_connect(hdev, connect_mask);
--	if (ret) {
--		hid_err(hdev, "%s:hid_connect returned error %d\n", __func__, ret);
--		goto hid_hw_init_fail;
-+		/* Now export the actual inputs and hidraw nodes to the world */
-+		hid_device_io_stop(hdev);
-+		ret = hid_connect(hdev, connect_mask);
-+		if (ret) {
-+			hid_err(hdev, "%s:hid_connect returned error %d\n",
-+				__func__, ret);
-+			goto hid_hw_init_fail;
-+		}
-+
-+		/*
-+		 * Check for connected devices now that incoming packets will
-+		 * not be disabled again
-+		 */
-+		hid_device_io_start(hdev);
- 	}
- 
--	/* Check for connected devices now that incoming packets will not be disabled again */
--	hid_device_io_start(hdev);
- 	schedule_work(&hidpp->work);
- 	flush_work(&hidpp->work);
- 
+Since patch #2 depends on patch #1, I think it would make sense
+to keep both patches together, perhaps through the HID tree.
 
-base-commit: 2c2fe95ab19b09bef7391e3e5cdf8146d09792b6
--- 
-2.56.0.307.g5fe7bd680c-goog
+Jiri, Benjamin, could you take a look at patch #1 and let us
+know how you'd prefer to handle the series?
 
+Thanks,
+Aveline

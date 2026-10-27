@@ -1,65 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793097551;
-	b=gMMogu7SLEbZ2SZdgpufM5867yWg5ZNLieyVXi9z4204wLAH2HJdhyNwjyPVhuvyPQfY
-	 9XNdjmlFCvJiWYw9OyoCdV7UHiktepxbukyJSMlet8A/XyFiWIzgQ1HrVOvFYVPB/8FsG
-	 Py8FtdH34+Q2gN2BEAx+aRN1y3FN2cO9VB8osSNj3GILrZObPyhaQHMQAPixRftpxdp59
-	 qFIJiiCcMjpE2uQQY5eHvvFfvUPhH+EVuhLTLDV1VZQj3sXbGYNHQayrpLeImLINlWV6q
-	 JgLBOZvfq9xBpaKev0gxx86K0B0wAram8zkuepYPMU2FMXKaGmn4OkIwJ7VVerM0T4g==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793097551;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=Hv5cW4qfaMB0IAROadRd9DGB/x9+gfVZMukZPNduBgo=;
-	b=thDCMpoHiIr8q1lAz5DW+Csy2Scgb/HnGvRVzxRm6qk7Ytstyb3sLU6zLGRNkmlqibXd
-	 z9pIl9nJl4Of3EGH4VX218nWnCYlijp8ydYzOY+TFWpQGAY/b2KP4xeAi4ijz+GbwomdU
-	 2rbaYYwHk9/ZnKVVyQ23YrNxFEvpbQF4Ef3LkvaLRfDSsW3uJLIQnCgI5O/tjkf6lvnt3
-	 YxgHFg0M3+IjB8fSmuf20ypVoVCplF1iz0VipADrDugVQVYtHqJ8IUrGyEEccp5R3G4MC
-	 3DFxaTGCjX8Xm8UtmTr+IAlajS3rtjt2AH+vcn47Xi3xiJj5ulFUix+b50Hi1K5Up1w==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CdveWqdH;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793098733;
+	b=fFs81wCMN8ipPqzQ2St5CvJD5OmI5/N1fqWz9smwI5cixduTBNH7c4XEbxiqcsJAEBiK
+	 3+g+GrdNoy9coxNefsOIq8kCZVBY30ClRrnalbo89LvM8h3A8L+Zyzkzdlaw3Dk0EOOGY
+	 jfFWvtV9H3sj65EShUoQK/zobCsmaDzkkVGeywZAtB0vn3hZKpGhJwwqJOWMBg10Nvrd5
+	 LuCgmLKygp6w12lhj3PbWcDB1lBc8DvRP/cZgAeiTyAXuxbEip4Vq9o8DCQgVX8MXhS3+
+	 FurRSp2UfHd6BgZDwLpnbk5DyCaaVwEUjxWukAuuxtLRWN4eHpM5Q7waGsxmftSEPLw==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793098733;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=jRVGSqGb3x/iswrEHVzAMghiqhU4ka2ocVNlaJSUIlo=;
+	b=2unhh6eAGQVh01BCGI2MW1CE9MTpTBe9MBfgqDST0P9WHD09GrEMukOqyL7ZGQbSM59T
+	 wllPDE1+uhkWUTg/959AtN1Re6aYfKNNVRrrqX6Vcl8/49HhWa3GlO57e9MgvhANKYkln
+	 k6yXMLWuMuJnOFL73FcdLycJx1usO+Ru+u7xaIodm24H9VeonoSpaQ31hM3p/N/RM8zQ8
+	 KFRGocVPAuNQXVCBQqYccXt18LNW/mdoLl4gF158eMq3RALwzw5XnYe1GApD/aNZLunDx
+	 ihLLgI9UZmn7ceA1ZJrEy7ERPfhPdFxZIu6KVHFT0g3Zqhkpa+d5bYDj5sK+Nh7281Q==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajljmEdH;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E9FC60A2605;
-	Tue, 27 Oct 2026 10:39:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DAE9606A31B;
+	Tue, 27 Oct 2026 10:58:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CdveWqdH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B2A31F01829;
-	Tue, 27 Oct 2026 10:39:09 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajljmEdH
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793098733;
+	b=XhWekbwv/qD3PeP2dWAYUO2+NMC76MG+CvbGqDyrwH6D9iAo5HkE+Sn0c/GriiQjFrcc
+	 Cea3YdKipyDMCfjTIf2YqZ6BWIKlaneEQ0BXUESj9KvykZ/kLi8i96dgukrgmL0oB2ktW
+	 dTHmm3t2MqqyCIta8SE629wrgfEfDTrmnOYE9GRPqju6+VVabgR2lm+criqYgKtE6CH3l
+	 wmwC4YDeZXRA2P7XSn/Y9Ew+/EDyVk94nawlBUE9+k52e7NPWSPzRZTzMbmKOBFmNIvKh
+	 IKtAGts6ikTyaHihOdnBrkZ7Z6enq46TLD2dy57knE+IOs8M+gH7mYstWXi2A6fRiJg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793098733;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=jRVGSqGb3x/iswrEHVzAMghiqhU4ka2ocVNlaJSUIlo=;
+	b=oymBU4CuUQvHlemp2Lv92Z1A7dNk6tRyQ/bNIa39MBnY6lcvL4cS1a6ts4zRMlRDX4pQ
+	 PJZBab7UkLhrmlUikuse21RXDzlxo8MqbP+eYdUziJ1+VdwnqtXfbP2+IK9FV1srW1XdU
+	 K75Qk+QQuaPkqTFvGXYNCrS+8nWf7FiiWGsmNfutroshJK11zINqv/sR3Ifm+DLKWiz5l
+	 w8vEeHkDpEIc4uBgXB0fE23I4KQGashgKK/t2obE7qbpcUX3rLeOYqF8dhFtfbzubPHV9
+	 QGC4tqjNR7SC9t5gXlRHuKm5rMkWAXxMRaBc0kpKWMH0rNhTDuIwwiqUmi0RCWfcETA==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 7570B1F01825;
+	Tue, 27 Oct 2026 10:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793097551;
-	bh=Hv5cW4qfaMB0IAROadRd9DGB/x9+gfVZMukZPNduBgo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=CdveWqdHx6IvpLnuJoBX5HN37kVBBlLCeiUmCIO7s2F1M2Msi7zU9I95fFcz7rFyu
-	 rtnk4OmBFjfcLkgS5X7vl7mkD9YM81JLsVaZ8Got6A5WASx5VF9DMZgkMVLRXe/+y6
-	 ObvMrXTC65gvB9Iho8e/ERdDJA3kuvMFsI6sJ+ctBymBHuKOua2Ec4Xl9slt6BeMt3
-	 8ZOfPpRqCuTaciU+0Y1oTjx3ucUL7yPEkQehftwLJPptLHrzZ44RLyv100ILz8pWpa
-	 KZnsgsv7H0aAaCAPlb8PWITmllL1qSncyP4EBE+tvfcpLCXI2/Jshtf2fZn8/GuPeC
-	 vvBXehu/vmAug==
-From: Lee Jones <lee@kernel.org>
-To: lee@kernel.org,
-	Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Shi Hao <i.shihao.999@gmail.com>,
-	Rachna Patil <rachna@ti.com>,
-	linux-iio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	mfd@lists.linux.dev
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
-Subject: [PATCH v2 27/27] mfd: ti_am335x_tscadc: Remove redundant ti_tscadc_dev_get() helper
-Date: Tue, 27 Oct 2026 09:30:56 +0000
-Message-ID: <20261027093306.2812695-28-lee@kernel.org>
-X-Mailer: git-send-email 2.56.0.307.g5fe7bd680c-goog
-In-Reply-To: <20261027093306.2812695-1-lee@kernel.org>
-References: <20261027093306.2812695-1-lee@kernel.org>
+	s=k20260515; t=1793098732;
+	bh=jRVGSqGb3x/iswrEHVzAMghiqhU4ka2ocVNlaJSUIlo=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=ajljmEdHmyMGq01Jw9j6/obLNAiTRumm/M9Lg/OiDTa9YVeQSgjOGKc8NRU7wzC97
+	 Of/wIvnwo/iSP0Vb6QuNyYr1I010QYCxrUimzvOvorffOoxTkaKF+FQ42S+LLxIMK1
+	 tiAWzrJ4i4OQonLPV3T7QRljQm7pU0QYVmZzZ/5TPBsjNA6j/v64P7vX6vllH3DlPd
+	 qe8UtAfQ/E9oTyTy1KSYgWr1yIF0mmhez1EAQzMTBqo1fO0qPJDJFPtLH/vaKwdaId
+	 n/g/z3ULY5tgOM3QQlhOKIZrnqdlIXsnRU/pf2H7946AdbBnzN2xjG3CM5qSbl7pSZ
+	 EswBvNT2vuuUg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id CC1264509F;
+	Tue, 27 Oct 2026 10:58:51 +0000 (UTC)
+From: Daniel Schaefer via B4 Relay <devnull+dhs.frame.work@kernel.org>
+Date: Tue, 27 Oct 2026 18:58:39 +0800
+Subject: [PATCH] iio: light: hid-sensor-als: Don't read past the end of
+ short fields
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -69,65 +83,95 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261027-iio-als-overread-v1-1-e47e2706368b@frame.work>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MSwqAMAwA0atI1gZsxe9VxEWoqQaklRREkN7d4
+ vItZl5IrMIJ5uoF5VuSxFBg6grcQWFnlK0YbGN709gBRSLSmTDerMq0oZu4a0dPvfEEJbuUvTz
+ /cllz/gAIkYvKYgAAAA==
+X-Change-ID: 20261027-iio-als-overread-c9e538fa61fa
+To: Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
+ David Lechner <dlechner@baylibre.com>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>, 
+ Andy Shevchenko <andy@kernel.org>
+Cc: srinivas pandruvada <srinivas.pandruvada@intel.com>, 
+ linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Daniel Schaefer <dhs@frame.work>, 
+ =?utf-8?q?Sven_Vaink=C3=BCla?= <sven@xn--vainkla-r2a.ee>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793098731; l=1879;
+ i=dhs@frame.work; s=20260705; h=from:subject:message-id;
+ bh=HbHuBMAJPm4/X1qXGCMYOxlRvxnQ4Q+ym/c/16zMV7Y=;
+ b=hNWK6KU9FNsC+SmMsb+DoSpOCyteg/p4oNS7Z6kAHJRdxscCJyuLk7DJM3oE/Xsd/yq3H+sbb
+ VNQqTddW9FYDRCIKWlZ+Xut5xDwHppXVKYz0tyVIqs32kOpEi5+06sy
+X-Developer-Key: i=dhs@frame.work; a=ed25519;
+ pk=O1zF7VDnmz6EZNc7sEiawR+KK650uRg1XteQ8jHwScw=
+X-Endpoint-Received: by B4 Relay for dhs@frame.work/20260705 with
+ auth_id=852
+X-Original-From: Daniel Schaefer <dhs@frame.work>
+Reply-To: dhs@frame.work
 Content-Transfer-Encoding: 8bit
 
-Now that ti_tscadc_dev_get() is a single-line wrapper around
-dev_get_drvdata(p->dev.parent), remove the bespoke helper and retrieve
-the parent driver data directly in the child ADC and touchscreen
-drivers.
+From: Daniel Schaefer <dhs@frame.work>
 
-Acked-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
-Acked-by: Jonathan Cameron <jonathan.cameron@oss.qualcomm.com>
-Signed-off-by: Lee Jones <lee@kernel.org>
+Reports are not guaranteed to be 4 bytes.
+On color ALS sensors there are fields that can be shorter than 4 bytes:
+16-bit illuminance, color temperature and chromaticity x/y.
+
+I don't have such a sensor right now, but I have emulated one in
+firmware. With this patch, no garbage data is read from the next report:
+
+  before: 05dc02bc 05dc02bc 190005dc 0ce41900 00000ce4
+  after:  000002bc 000002bc 000005dc 00001900 00000ce4
+
+Same fix as commit ad02ca57e44e ("iio: hid-sensor-prox: Add support for
+16-bit report size").
+
+Fixes: ed5514c925a0 ("iio: hid-sensors: Added ALS")
+Signed-off-by: Daniel Schaefer <dhs@frame.work>
 ---
- drivers/iio/adc/ti_am335x_adc.c           | 2 +-
- drivers/input/touchscreen/ti_am335x_tsc.c | 2 +-
- include/linux/mfd/ti_am335x_tscadc.h      | 5 -----
- 3 files changed, 2 insertions(+), 7 deletions(-)
+Tested on an emulated sensor with 2 byte reports that is correctly recognized
+by Windows.
 
-diff --git a/drivers/iio/adc/ti_am335x_adc.c b/drivers/iio/adc/ti_am335x_adc.c
-index 1516dd332f90..77ea59d6c6b7 100644
---- a/drivers/iio/adc/ti_am335x_adc.c
-+++ b/drivers/iio/adc/ti_am335x_adc.c
-@@ -636,7 +636,7 @@ static int tiadc_probe(struct platform_device *pdev)
+Cc: Sven Vainküla <sven@xn--vainkla-r2a.ee>
+---
+ drivers/iio/light/hid-sensor-als.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index 929343e42d83..00dfc2037c19 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -267,7 +267,21 @@ static int als_capture_sample(struct hid_sensor_hub_device *hsdev,
+ 	struct iio_dev *indio_dev = platform_get_drvdata(priv);
+ 	struct als_state *als_state = iio_priv(indio_dev);
+ 	int ret = -EINVAL;
+-	u32 sample_data = *(u32 *)raw_data;
++	u32 sample_data;
++
++	switch (raw_len) {
++	case 1:
++		sample_data = *(u8 *)raw_data;
++		break;
++	case 2:
++		sample_data = *(u16 *)raw_data;
++		break;
++	default:
++		if (raw_len < sizeof(u32))
++			return -EINVAL;
++		sample_data = *(u32 *)raw_data;
++		break;
++	}
  
- 	adc_dev = iio_priv(indio_dev);
- 
--	adc_dev->mfd_tscadc = ti_tscadc_dev_get(pdev);
-+	adc_dev->mfd_tscadc = dev_get_drvdata(pdev->dev.parent);
- 	tiadc_parse_dt(pdev, adc_dev);
- 
- 	indio_dev->name = dev_name(&pdev->dev);
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 623546e80668..40ffdec9d207 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -418,7 +418,7 @@ static int titsc_probe(struct platform_device *pdev)
- {
- 	struct titsc *ts_dev;
- 	struct input_dev *input_dev;
--	struct ti_tscadc_dev *tscadc_dev = ti_tscadc_dev_get(pdev);
-+	struct ti_tscadc_dev *tscadc_dev = dev_get_drvdata(pdev->dev.parent);
- 	int err;
- 
- 	/* Allocate memory for device */
-diff --git a/include/linux/mfd/ti_am335x_tscadc.h b/include/linux/mfd/ti_am335x_tscadc.h
-index 4a048a897cf3..36d365b64fe6 100644
---- a/include/linux/mfd/ti_am335x_tscadc.h
-+++ b/include/linux/mfd/ti_am335x_tscadc.h
-@@ -175,11 +175,6 @@ struct ti_tscadc_dev {
- 	struct adc_device *adc;
- };
- 
--static inline struct ti_tscadc_dev *ti_tscadc_dev_get(struct platform_device *p)
--{
--	return dev_get_drvdata(p->dev.parent);
--}
--
- static inline bool ti_adc_with_touchscreen(struct ti_tscadc_dev *tscadc)
- {
- 	return of_device_is_compatible(tscadc->dev->of_node,
+ 	switch (usage_id) {
+ 	case HID_USAGE_SENSOR_LIGHT_ILLUM:
+
+---
+base-commit: 09f742b49cb2728086d78be2b0b35e4d1d71fc85
+change-id: 20261027-iio-als-overread-c9e538fa61fa
+
+Best regards,
 -- 
-2.56.0.307.g5fe7bd680c-goog
+Daniel Schaefer <dhs@frame.work>
+
 

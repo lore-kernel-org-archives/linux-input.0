@@ -1,92 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.49
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793126463;
-	b=fUCqbFi/gOar6rrORPJjhhgphx1/vPEl1FSLFL684JOI9oREt1BIKyir/XzjvZTZIs6Z
-	 4ZrT794etDv5JCMkVSXu2ePXyQ+83TUl7tPvmDY8wZFrVM+rvjhI1l/xrmnREUiXFsPxd
-	 YqKeG1Z0V1iofNNZh0YE4pM5USy08A8PmZBstCGExEGIN+B7FEiPsOsBw8bfmccjblZrs
-	 4rxMA8MlH2m/vAL+xngTcmFcg5A1Ea266m0VqImnAbC4KJNW3oN71fGl4yxssp+3U0jCe
-	 KxWg9iRM+h+YJQ0wAUcikNrbtcWbXJe546Axe8VTu8j4SpbUneRp6ME/Mxsq35auoyQ==
+	t=1793126489;
+	b=LEBhe9WwiEtTc+3vZs1otMApu8qk59VoLd688mDalxplKjAprEYlB1KTBjN2Axpjtz6j
+	 mY80Xit4MolkRq1KGreCDTvJ9lQVSCgiBl1qAM0mR3UsNbFGxLz9SoQ5tcjG+4n+7rIe9
+	 H3/8nOZvPl9qeZXhfcOpXJ4WNkOW7Jj6w7DZ4BECuPmcYA9vYV/NPVQTF1w8qaYBbqZ0g
+	 TdQJZbvYEZC8Ci3C2VHzT2/8C1UiLy0hmFGgq+ir/WXmhotitHSbJY573gXBXRvVVrDtC
+	 qtj2UiMmL1A6WaXXQ+40m4ACxAOwHcFTp7vgAxLsuzgHh01SSbqnkENPufO2HbmoL0Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793126463;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793126489;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
 	 Subject:Message-ID:References:MIME-Version:Content-Type:
 	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To;
-	bh=MGa+01wbtNyQ/XVL80uNubXFCRJ1XOxsv/KCxmazccc=;
-	b=FUhQQt9YatBlDdYUjrodgnq9EjbDqnZom1BxOAC2DXhWogBvpvis2zjodGSwq6yB19JX
-	 Lau52qQLMeIsEXTh9wpZaec6ceQ5vW/tVnV7sAXLZoZiDCOVs1FYCkmdC2KdswQmohg2E
-	 vYo0s1RDZNVNDkoRPV3y+u5Ejf3pixoN+Y60/ZVMdZgzeuHTadWPMxrgPRUYd21nxdZ2B
-	 3pll0KbiI52Tsc3zSq3vu49VeI3LdPpjZ8xizLD62fgKhIX8khJLeH8Nov7jLG9VYnulL
-	 9inHRon7yZKyZoyLKrkGgW2C+3GsmS+jKu7zQExR5F/QVQ6/iVOod5yoSK6kpKd9kow==
+	bh=Ueqp4ooYCIC0ww/I1nNHHuU8J5a6V0zw1krZPC0NXzI=;
+	b=N1ZCLFQwLRVJKomMge62QFXqlTPXf9u5mbtCuKkBxy+0eXXIzl87qbn4YxGYWXNOI+sC
+	 B2PfwWsQlV273Kdevs+ckkbw/FdG9LUfkkjUE+8R20olVab2FwNTxBGk0eL/yE7ZACI3T
+	 +2tt4bIxCmDzLMXsCLr14Sat5jL3aBCqKYCZ+47Nf7iukNMgFG8BFbMWBfaGZa2yjohPW
+	 tn1vq2TIZnxhk1x4iZgkwM/vMsvusDKp7Pe4GRDvbAioZNWgF+zA9NMm8gYI8mWKm49kW
+	 P9wj3a73OwcZ81dAMNZVDjG+s/n7uF0IzVOGs23xUR1dGYAGKvwwKn3tWBss3FTFKwA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xRwwEtg8;
-	arc=none smtp.remote-ip=74.125.82.48
-Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NMcgWaUI;
+	arc=none smtp.remote-ip=74.125.82.49
+Received: from mail-dl1-f49.google.com (mail-dl1-f49.google.com [74.125.82.49])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A972E606A31A
-	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 18:41:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A972E606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9BDA606A31A
+	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 18:41:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E9BDA606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xRwwEtg8
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-18cdcfc05ffso197967c88.1
-        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 11:41:02 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NMcgWaUI
+Received: by mail-dl1-f49.google.com with SMTP id a92af1059eb24-185fd3a4ca3so159878c88.0
+        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 11:41:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793126462; x=1793731262; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793126488; x=1793731288; darn=vger.kernel.org;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :content-type:mime-version:references:message-id:subject:cc:to:from
          :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=MGa+01wbtNyQ/XVL80uNubXFCRJ1XOxsv/KCxmazccc=;
-        b=xRwwEtg8lVhrxd6fBgm2ijlywYQUnCNmHSjhNeIl098SYXq/KExi1Bdi0xvA5yzn9T
-         Aviojnxm0v0ZDOIE2Jb6PeoYlvoBzI/0q+bnrUsrRYb4Ug/TyDmane9YiFz+2gngytg0
-         pKuzr9l6Qt8AWppgOc7GYx97mjwyyzjgI44qlHc8xpjo2T+6xPwrw+nGHfDpHWuS9UPd
-         leJp9poolLSIrZBCeTRCC0DEu5vYbKSGFHeqmdXksR2KUft9LjSXWNh7clIPNKyxZ53n
-         rvUUktHK18LsmGHj+rahmkhp04vSqCrAoB7KX0NsIPtCymwlf96nRKySygVld62PJZ9i
-         gRWw==
+        bh=Ueqp4ooYCIC0ww/I1nNHHuU8J5a6V0zw1krZPC0NXzI=;
+        b=NMcgWaUIy5IbpYvU1M8ji+8J0udcnMxFTkFc8wRiK/ySQoIVoqU6lUrwAj5UA4fMZx
+         AejLPo8Pxd5VSPvH/ZdUMq8EZhnPPY6tCBnghLR8ZfD2Xowd4ZTrc8aFziGik8BNAECc
+         lkfdF6fMdDFjPo/BheY94D3GweY+Hng/WIKviypsOy0Ytz/CJjslGtzsB11fCWQUKvGH
+         vc3cj2KzbZIox6q5nXhuMav+E/wX9bM4iQgy5I/0MjzPv1DVmf66ZBxfXNUnItaZa6OY
+         EIImIkClQdDHzU8Mv8vGhvcPkLGPu5RvzCX0QLF2XWQnngleEGf6wG6LMgar6wGWmZ8S
+         UhJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793126462; x=1793731262;
+        d=1e100.net; s=20260707; t=1793126488; x=1793731288;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :content-type:mime-version:references:message-id:subject:cc:to:from
          :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to:content-type;
-        bh=MGa+01wbtNyQ/XVL80uNubXFCRJ1XOxsv/KCxmazccc=;
-        b=jOfw6sadeysDa0Foxy5R5Vjj6zF/W4ViJX2M9gzQ4x1wQLNnjfVYZMpqcxvtw3aiun
-         CerUqOaPxMr+uE4PjWY4QahwofAl/80r8PjPAlpAlgqpKUPv0m+eM2WuOX44HHi2uab7
-         pCMClbYvoVTUeZ4e2jHhjWaU91AV7YMMyispt85/s0aPiq/pRM/Wn5t4bjLkUsHLe5Xk
-         ZIio81lUP+hTWm5SxXoHuFlr3RWTHzpH+vaF7wVYhuDnBHSoMLOBZyLhvng4k5m09GbX
-         5k4ovBW4OOVOR9dqzwRbXd/pdNoyfka0kWLb/GDx8v3GdadTFAL09y60beLvRvkJIkk0
-         qwjA==
-X-Gm-Message-State: AFq9FYIKFYUZpoHeuZXVziLjytMz1YGevB2qCXq5UIOl3jGC/qkbP314
-	lCzL22CmdP6TdE5nFGoadADYj2P307l2WQm50+RlP5f8CP7G6nTuVvqmKW61Xg==
-X-Gm-Gg: AYBFou0VmK+Tjmy6ATT5SGzBNCakieExmkYTNipqZl0NznmPAiRJ5umXT6MIF/dkAmh
-	DA+SjgrCWhI5511lu/GP7jH0YJn1MKuR+fz5PJDAz/CM+dMCp6mCZyymiBd7LwTCC8DXXmvYvAN
-	3suDx0Y0NAV9iTWXEtawOCsV7FlRazv18HqzjgE+mzyAW+keIOIO1w7JA46l6ox9N6+UeE2ZNbC
-	kmyOziiXPcwum4Y4tHqJPFei9Z4KalLzIjSpJyhp4PCl7bSwDVpJ1vyum4EqQJbhY1Ne7En8ifM
-	NJKQlgoUTAlArGNFMTMvPtWOL8YBriwtAGNB8ylbZH4yClOjXftKikri961JNYXwWemnYMKA9hy
-	KV5lhnDbNpk8TOBvvmI+l+O6+Jpv5S3z5Qc0v7GdxEmxf42GzBOq5bZeN8bpC8wO1PMpqQEJNsz
-	1+pWq23F0WpL1jZJxt3m+N5pWJbJGlG46HtwMPasKXTVvmkMOn/N4rQZvqwZ3zBxmE07K7w1dfl
-	AOA67wEh0vJ82kJKytZADtmQa7HCMvSriCDlxSDcJjUvrgdwNb4rjw+P+8VIRG4vPTU+27KmRyy
-	oe9sUmnhLW0lD5/uOoA3yHPEKxEFmd8Q0hBmv5t33sY=
-X-Received: by 2002:a05:701b:4203:20b0:160:a80f:3ed2 with SMTP id a92af1059eb24-1a6cbf75033mr124085c88.10.1793126461616;
-        Tue, 27 Oct 2026 11:41:01 -0700 (PDT)
+        bh=Ueqp4ooYCIC0ww/I1nNHHuU8J5a6V0zw1krZPC0NXzI=;
+        b=y0Sldq9eF9NPnkQ+0/9hCP3gmhcFEdynTJitkoxRj/vMbRPoyuJqeDHIbCJqptBiw3
+         sCZQXCEBIY+qcyilfR+CzgiamTe4i6V01j/X1+21+xaxAP8ioa5RYENWQLazpxB/N/B1
+         M+DXZ0T5Wa9Nlt2rIpTBMVOxtUvtuRVlBxd9y1rz8VRcoROmkXTWX6CdF1Ed2IfrCgn4
+         arysiONIzXNFJrvSZi2/+L5aCcGKsZK7qQrxfy5Lmfsf0OD19Pg6PXsxzyFEZPZeQTaJ
+         EyxX49PXgsWxJj51sQcBW/qzEilaEP3QGMpGhVuKdKLq+G/HgfCjZUm2j5fWnI5+uBxK
+         1SEQ==
+X-Gm-Message-State: AFq9FYJcxJG8/jWLI2PBqMgFeZEg2k4HfD9T884RyPOjuH4wOTd16dsR
+	Cmq0a1xufwWK+iZMeAfDoFy+LJv7qVjnaR16wDtZnO8zJvgStBPSPvpC
+X-Gm-Gg: AYBFou3GDmIkCFjpqQKIUHRLyvwENpqMC00uvlghrrqxgEttmEMHCo+B4fSDG7O5RX9
+	nTTX5ncrFUDLTmZZpJ1rIPDxxehANL1W5jyL264cMjzVix5p7ie5soN+FTFruA/HQ7sgTxdF6jA
+	b17lYtN1nc/IlwxLQLlq2fQTdtuUViIsHvqLcUTTM13W1oSwmxgfugPNraMVVI/gKMSjwxA8zqX
+	SW6cg9FMJjuuqPTwfaUDdGGQITPQFK3tx4qSZWyLbibO7c1l2tV5ckdBOZIFaEU0u8AL+uKYr6y
+	PBFAV5xTVgKVIKvuOnIdWw0KlB2XXpP2xgIK/RMk7k2kPm+n+djt8+Yj7plFC7IewDgb7lcqBqr
+	ufSxG4BeDhyADo8X3NA5lBuNIqrinrDd82j6aGMgnQSgEycm3mld+m5DYTlpLPXPdIo35MfP0dt
+	wGyez300UZ0q3wT63MzrVNWfqVD6PNM+3qBAkofiZ1V5hY/w9pLQJgQ6zfAgV9Ty5MQ9CYk8B9c
+	uWT0kyQhxinRhnyIYAfM9RBIOH+I4+UMs+3ZQUINew2/cE5pak5dd5vShyrGKCQ12nJx8InLb6h
+	wY1ZBwfRHjP2DfPxhYDEnHr3jtOOsRWJudpEhAf6izwTlxO3Nd0IPyDGL5Lj3JSsklCL0P0=
+X-Received: by 2002:a05:7301:d185:b0:35d:eafd:5737 with SMTP id 5a478bee46e88-36a20418d01mr392582eec.22.1793126487975;
+        Tue, 27 Oct 2026 11:41:27 -0700 (PDT)
 Received: from google.com ([2a00:79e0:2ebe:8:9958:9525:7799:82b5])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1a6d98c9b00sm46942c88.15.2026.10.27.11.41.00
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-369e8ec9276sm60615854eec.25.2026.10.27.11.41.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2026 11:41:00 -0700 (PDT)
-Date: Tue, 27 Oct 2026 11:40:57 -0700
+        Tue, 27 Oct 2026 11:41:27 -0700 (PDT)
+Date: Tue, 27 Oct 2026 11:41:24 -0700
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: =?utf-8?B?SXbDoW4=?= Ezequiel Rodriguez <ivanrwcm25@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] Input: uinput: return -EINVAL for out-of-range
- UI_ABS_SETUP axis code
-Message-ID: <auDwDT29Y0Ru-iEb@google.com>
+Subject: Re: [PATCH v2 1/2] Input: evdev: propagate EVIOCSFF copy errors
+ correctly
+Message-ID: <auDwT-N9DzZZ9BJo@google.com>
 References: <20260831152156.166514-1-ivanrwcm25@gmail.com>
- <20260831192752.258550-3-ivanrwcm25@gmail.com>
+ <20260831192752.258550-2-ivanrwcm25@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -99,23 +99,15 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260831192752.258550-3-ivanrwcm25@gmail.com>
+In-Reply-To: <20260831192752.258550-2-ivanrwcm25@gmail.com>
 
-Hi Iván,
-
-On Mon, Aug 31, 2026 at 04:27:52PM -0300, Iván Ezequiel Rodriguez wrote:
-> uinput_abs_setup() rejects an axis code above ABS_MAX with -ERANGE, but
-> the UI_ABS_SETUP documentation in include/uapi/linux/uinput.h states the
-> ioctl may only fail with -EINVAL, -ENOMEM or -EFAULT. An out-of-range
-> code is exactly the "incorrect values" case described there, and every
-> other validation failure in this path already returns -EINVAL.
+On Mon, Aug 31, 2026 at 04:27:51PM -0300, Iván Ezequiel Rodriguez wrote:
+> Return the error from input_ff_effect_from_user() instead of always
+> mapping failures to -EFAULT, so wrong buffer sizes surface as -EINVAL.
 > 
-> Return -EINVAL so the code matches its documented uapi contract.
+> Signed-off-by: Iván Ezequiel Rodriguez <ivanrwcm25@gmail.com>
 
-I wonder if it would not be better to update the documentation rather
-than change user-visible behavior.
-
-Thanks.
+Applied, thank you.
 
 -- 
 Dmitry

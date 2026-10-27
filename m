@@ -1,91 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.43
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793060963;
-	b=T9w4Ek/Wgzo6w6F2nifVV2qWOmHFOOlgwk0cWEH8sS07wWqHUmGkn2IfuzRDqu+qadjZ
-	 6GzzBId+vrCX1QTvgmP2m2oLyVlVUT+l89+E+tVtIK3Lklzc9fcDthqSOhkiVGXVTLHaB
-	 GyLJOtYulel2j5JVMQ5dw94eWOxfjn/984icKI5oqD6vS+s129+/MxcO6I6N+ipVy3ig8
-	 eNdnWLAb1dWchViX6fzcf4aYe0G57NB+7apVddcwJ9QH/YZC5ijQLEzdIcNUnA1e8N+AO
-	 YYA3FKzeNbqgIk0N94GUbwzsFGETiKpie6FIzQtl0uhtudVYHH+jqMaXXkfh9TIZDjA==
+	t=1793062586;
+	b=rkYFGINzgVcZ5X+t9ik6//w0gpbXYQcGc1uQRySwhkqx0VTZxf+9AgewoPSxeaggT45/
+	 N1WIpZsnpTSMp2Up5j7Q9fxKXMWEOwvdq4pfEge7yzXRj8MMABglaU9fKFN4Eju/Ga60r
+	 +VE8KKZl+AlgBjuvulX6zCpJ7UhDd8svYehZtfimWid2iOGzRd8SaWHBUOjnTeHWXDySi
+	 6D563EjSKGQ/sOy8tHH21hQbXruXicqcPlGyZ691XeZ39AqXMzoXol73cBq2ZCDSAtCjP
+	 ifoeyhXTyG6VhkuxnLTDSkBQH4ZqJa5zV1IiC1zlFyPXvNh1cKpy79FmDzJWGYMcsMQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793060963;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793062586;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:
-	 X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=oxACkjXTSKzxgM0GX6iNXbhJe3SlZ06HmpJL0C117t0=;
-	b=kHNs/NF36AYkPm4XC6Twm5LBqwA7OV38rwku5Thje5FohXPKJTMr8qvEGVMpGr6kd/lQ
-	 QdfJ3C3NpBD2rCulQpNfGETpRToJMRp7Nch6hWpYpymsfK7p7C0TKf/X8MkfsdWMWNqWT
-	 KId8FgLIXLr023B4C91wH+qh1ITX+2e74nAX9585III3UPIGpxeT6iI2GOaK0kgmst+GT
-	 i+P0scC3nEG78YlrdaRHKqVFmMLmXvX2WUlkSum/78nnPsjIsTXvgpOu7RtCZ7Fwn7nPB
-	 ESyDFnI4TSuboQ9dRl7YQW52XsUTxR1JIuBp1YHT7q/8T9B1s2lkGU9xSuiWyI8Exwg==
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=fvxA4psjvpTikdFCmDiAeEgeeyr+lNEAXNl8+Et9d28=;
+	b=zq826YRc/7Zwky0Nr8hjavjdw4IzHvcs5c0EQx1Cxna0Vw8E6CiPOVUar885Kx1lF6BZ
+	 JNlbfWtrgqomlYddxew3DwPcwkp55h+9MiMRtVwHdzDZfcA0tldlk9G7FYgwdhwZUBPzk
+	 8mnFnBSigdfzwa+z5ZJJKRkJIBZz5C3WZ1LT6KoEjS90391vH2hVkPdCAwkVqTL5EGJU5
+	 o90MttrFxhpBvvkT93uLfrq6Xlx137uQ2w9naUgiQpu1IFmNV9O4PTlkfu4sTYKyjAnaS
+	 3OrxOLS7flPB6clTxKsIENqfeNFE9Q1Vb8nSrn1NpCgn6kK5S/3/tCO5fDl3Z8VSkpg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jTETyL7V;
-	arc=none smtp.remote-ip=209.85.128.51
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hYwrj0gp;
+	arc=none smtp.remote-ip=74.125.82.43
+Received: from mail-dl1-f43.google.com (mail-dl1-f43.google.com [74.125.82.43])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0EDE606A31D
-	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 00:29:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F0EDE606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC267606A31B
+	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 00:56:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CC267606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jTETyL7V
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a3517554f7so24373165e9.2
-        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 17:29:22 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=hYwrj0gp
+Received: by mail-dl1-f43.google.com with SMTP id a92af1059eb24-15ea896ddc8so6189934c88.0
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 17:56:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1793060961; x=1793665761; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=oxACkjXTSKzxgM0GX6iNXbhJe3SlZ06HmpJL0C117t0=;
-        b=jTETyL7VabdKXBRrEOFKN/ABp39W/K4e3YSrvrX9Y98eVsLdhDCj6It754zG1fRdF0
-         lN0YNCGtXd7I3CQF7Z/Ugf3OGrmSMBhBVnZn5+51Lo9NiXlM6nIq2+e2JVSm2thzsF7n
-         Uk7VOumLDxDYHnRdsuIjGTpCR3yRnhlMjndJUa0gRe6KaIZko28EeWLYWhFd30hwNsZe
-         VDlCXhrIbzESnd+u4atAWQQc0K5CIfCAWOc4dTF4U0suvdJPnoceQlddPwpC8i5xiaTy
-         4sEUuL4crUFjqpzu5GQSkdJLaxJMfRsmCLuyoailhFwkwEZhZHGqsmJaSLmO8iy6a1LI
-         DdUg==
+        d=gmail.com; s=20251104; t=1793062585; x=1793667385; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=fvxA4psjvpTikdFCmDiAeEgeeyr+lNEAXNl8+Et9d28=;
+        b=hYwrj0gpir3Tlmc3k3ZI/BsJn8CK4+Bd+IuUXX/AMkRr7RGzR+hSOP5Uq/CCszFr4J
+         /C1ZB+43JLs7Ykk/cCDv2eLVY9WwjQ7sTTKXrd4agciy9z4oSDCb0W6H2rxdmRk6UDCE
+         WEMjb2oyaChE3XTjy6higzg9J6YiUSS5xUNElGzYcFxhDXbUU+E5vuNBJ87ojBZiHu7C
+         wU1B71B5z4kKCHgLQpZn0AYXFH1CR5V/aZpYhgwUF/p5gpZhJ1YU9ErKklbF8RWvFyLo
+         90P178pu8LWHpEKRJcwJxk8uo/d3iLvTvAO2OTuVuWQNNvr7pze0Cunazmtaj0Jc/QVR
+         uMiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793060961; x=1793665761;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=oxACkjXTSKzxgM0GX6iNXbhJe3SlZ06HmpJL0C117t0=;
-        b=hAnlbhAW81CqUfTJAzg0/xSVyqM2pZXw2Iq2dlqjuqQrk839XhfhKqaivYPzvIQH4X
-         7lDXZVFdt/fp3yjJR4hgx+NOWouihwr6X45RS6nYks/Nn8k8KkIuzc/uR3m1rIyByztz
-         bBiUMM1csLbzbAmmsDfkHEuh3mMM9YW6Cr97uEP0nRD3SyfVhXDxIP+ZfVK5ksaBU5en
-         cIzuYQKi1z0VbW4DXNclTy2zzoPT0zCme2fuf9gTIYTn0oC/+oZvDBZYNuc28qLKTm40
-         UU0MrXpVM0M/OMBgeVsWtqeowQSRGxpGycTwKZw/tO/hwsIoZXxT0bEc/nXg0HOS9avM
-         0cKw==
-X-Gm-Message-State: AFq9FYJo5TRn/klUUgBCTB8aJUpY+6QW6frRYu0dROCDH3GYZWFSpaoF
-	vswaqNJhEfZnNq2E5EJu0hYbFUgSt0RRvuZEG5VJu0b8v4D1kjwFsrk=
-X-Gm-Gg: AYBFou2JQyYXoyPz/0d5RYLksahJZlm7JnARyHksKaJUtPbtBSG0bS1Pj++xMmkVsoc
-	y963uUlxUK0qJtj306VlN9E8J/9gK7bSUndkjtYnKqLf+ioilv38FkDc+0sy+zKpilLsLl7WTTo
-	T4zQiZaqXc19dU+QODM32GPhjedavI8v9q0T7aLAQrvIoX9kMznLOo1O8iNdM49fW9+NF8ccz9x
-	XgQTkxgS8Zw7JgN05WqKkvzwsTXNq5stcwSUhLlqp3KSZIxurRvlHPPVD+bGFcR6l8PHOWJtbZD
-	OwdZlPGVQB5lckVn8kvLH1e+iHAwEuGXCbKCFV2u05D5Xn8T8IvMYy07h7GXQGBVf3TrQnqTalJ
-	XZUQ0ql2YPgsZ85gOA2q4od3hOIECYW1ygefR/SPePhy5zQG7s37mtJeffH3pJHFMsBbunS5g1R
-	n/t00ANzThJs3/f+Z1ZEZlNVMbwQrYYC5GwEVxrUr4lG4+TZy0wD8MgEmpMNx6RSBwBrYS5msM5
-	4c/a2kCQJSbdK7s7Xd7DOObbdnUu2//22X6uA==
-X-Received: by 2002:a05:600c:8488:b0:4a1:e0d5:293e with SMTP id 5b1f17b1804b1-4a35aca1366mr145088605e9.21.1793060961143;
-        Mon, 26 Oct 2026 17:29:21 -0700 (PDT)
-Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a5ea0df763sm142804565e9.3.2026.10.26.17.29.20
+        d=1e100.net; s=20260707; t=1793062585; x=1793667385;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=fvxA4psjvpTikdFCmDiAeEgeeyr+lNEAXNl8+Et9d28=;
+        b=Kq7HfEeRlCLKIElX0mdpY4NnOTd5EbYusqA1b3O5uRuFB3uvz5HTxhJWaYoPa0QZHg
+         LV5Vu8130FsBUj4aozThAl8DGGZx2Wzr3rN6ueSH3PFuZJrpxywTR4wiWMy5HC9jrL98
+         Hze+GUgc3QwE96yNfm3vhRB5gmIkfvutWDzGD6iqTSGvsOoo0fmAgIX2yzw5TO/AuQPP
+         M/TO33jSDczln8Xbz0uv3yKg0gHHliaXrE7HrUT4Z9U9PmykTKLLPs83o57wJjpIbDWn
+         2FKjRFfktASnvLk91FrPra/EWQY3uIl+8gviNu5RWabPwVfQuM7eYyVo1pMgu7U4nkkm
+         E+AA==
+X-Gm-Message-State: AFq9FYL1LxLGcJXOeNPLncV/rDjRGu1vxjpS0RhTpxn2PzJnxvTO6brV
+	Pa/AgUc8XIlxqJyqJ9RwF3LcMYQBv8ZFFHj2qqaYImFol91qjakgTLUb
+X-Gm-Gg: AYBFou0/FoG79h0E4L+BuSHLMxbBoRx+ZvwRvS6qBsaYWB5tljYzBA+2L0wUCkMf+hH
+	SsGqFiRamrPQUbHQsighm+eDHMJghw0Oz6n8cY6LlGRYoiTUHhXz5523+jTozCR9PMUK6GCrSHV
+	6FKotaDk+fRwigH3G+6+6pMh+aH/UbigKW/9EaijSRzm6BN3+QRBpKV0fncuHauWJHYg829DjaG
+	YtG9ia7MYabqF1qnmOvWeLhJX68lWjyy/25McppOwGxYTrWKAnOJw/ZJYDbxAyLSWV6wpzGbF19
+	bJnL4KU13PC73hLA8zRLIjLQbM2tVAdyxXiJwHY6jqBV8nfC/PZsdlhLyexeULZWfwrDsi9dg17
+	6/UnPApWv5KUSCwIkzAx7k7tKJbInbs44o945LypiO+J3S/um0KjKe8gvavAu5ZYuliIBqunI3P
+	WKOhsl3NTpF+8oLVm/QuMKcaUWpKiAQX5O6TZVuRcSXXxT4xV6dZqnpnsJ1SECOSohbtY3I/CS6
+	uBfP8O5xnmnzW88zPUoPqXSjZtuLGi2Jmk48fuqqxHzbDpnFm2jA00vP2cl4DVkYm6CdCDU85CA
+	FWChhXTvp1G3T70LB0gURg==
+X-Received: by 2002:a05:7022:3f07:b0:144:fa57:c617 with SMTP id a92af1059eb24-19935dd7f53mr13799364c88.34.1793062584598;
+        Mon, 26 Oct 2026 17:56:24 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:2dc1:2e1d:6b4d:5a9a])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-19894d5a470sm25575440c88.2.2026.10.26.17.56.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Oct 2026 17:29:20 -0700 (PDT)
-From: Tristan Madani <tristmd@gmail.com>
-X-Google-Original-From: Tristan Madani <tristan@talencesecurity.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	tristan@talencesecurity.com
-Subject: [PATCH] Input: applespi - validate ACPI property buffer length
-Date: Tue, 27 Oct 2026 00:29:19 +0000
-Message-ID: <20261027002919.3589149-1-tristan@talencesecurity.com>
-X-Mailer: git-send-email 2.47.3
+        Mon, 26 Oct 2026 17:56:23 -0700 (PDT)
+Date: Mon, 26 Oct 2026 17:56:20 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Peng Fan <peng.fan@nxp.com>
+Subject: Re: [PATCH 0/4] input: use devm_pm_set_wake_irq
+Message-ID: <at_2lPLNBh_CQKOh@google.com>
+References: <20250205-input-cleanup-v1-0-9758898ff8cb@nxp.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,53 +95,26 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250205-input-cleanup-v1-0-9758898ff8cb@nxp.com>
 
-applespi_get_spi_settings() reads three ACPI _DSD properties
-(spiCSDelay, resetA2RUsec, resetRecUsec) as u64 values from their
-buffer pointers without verifying that the buffer is at least 8
-bytes long.  If a firmware implementation provides a shorter buffer,
-the u64 dereference reads beyond the allocated object.
+On Wed, Feb 05, 2025 at 08:45:13AM +0800, Peng Fan (OSS) wrote:
+> This is a pick-up of patch 2-5 from patchset [1]
+> 
+> Since devm_pm_set_wake_irq is in 6.14, so resend the input parts.
+> 
+> [1] https://lore.kernel.org/all/CAJZ5v0jb=0c5m=FeA-W-aG30H4706Ay_xCHTsiC1S-7MuGxqTQ@mail.gmail.com/#r
+> 
+> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> ---
+> Peng Fan (4):
+>       input: keyboard: ep93xx_keypad: Use devm_pm_set_wake_irq
+>       input: keyboard: omap4_keypad: Use devm_pm_set_wake_irq
+>       input: misc: nxp-bbnsm-pwrkey: Use resource managed API to simplify code
+>       input: touchscreen: ti_am335x_tsc: Use resource managed API to simplify code
 
-Add buffer length checks before each u64 dereference.
+Applied with minor changes to patch #4, thank you.
 
-Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
----
- drivers/input/keyboard/applespi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index b5ff71cd5a701..25910786a6c45 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -642,19 +642,22 @@ static int applespi_get_spi_settings(struct applespi_data *applespi)
- 	const union acpi_object *o;
- 	struct spi_settings *settings = &applespi->spi_settings;
- 
--	if (!acpi_dev_get_property(adev, "spiCSDelay", ACPI_TYPE_BUFFER, &o))
-+	if (!acpi_dev_get_property(adev, "spiCSDelay", ACPI_TYPE_BUFFER, &o) &&
-+	    o->buffer.length >= sizeof(u64))
- 		settings->spi_cs_delay = *(u64 *)o->buffer.pointer;
- 	else
- 		dev_warn(&applespi->spi->dev,
- 			 "Property spiCSDelay not found\n");
- 
--	if (!acpi_dev_get_property(adev, "resetA2RUsec", ACPI_TYPE_BUFFER, &o))
-+	if (!acpi_dev_get_property(adev, "resetA2RUsec", ACPI_TYPE_BUFFER, &o) &&
-+	    o->buffer.length >= sizeof(u64))
- 		settings->reset_a2r_usec = *(u64 *)o->buffer.pointer;
- 	else
- 		dev_warn(&applespi->spi->dev,
- 			 "Property resetA2RUsec not found\n");
- 
--	if (!acpi_dev_get_property(adev, "resetRecUsec", ACPI_TYPE_BUFFER, &o))
-+	if (!acpi_dev_get_property(adev, "resetRecUsec", ACPI_TYPE_BUFFER, &o) &&
-+	    o->buffer.length >= sizeof(u64))
- 		settings->reset_rec_usec = *(u64 *)o->buffer.pointer;
- 	else
- 		dev_warn(&applespi->spi->dev,
 -- 
-2.47.3
-
+Dmitry

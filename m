@@ -1,60 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.38.64.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793107783;
-	b=1GXgKW4tF4oVVE9/qqGdatr8Sb0IKdCkIy+5uRp2L1zEUYu4LzjoeRNHOmmbpMYpRPl0
-	 Z6SajVfPNHHbpOIQPdy78q52rxQpO4baNkKNJamvxcYwgLNOviKtHaHWQP1uoIBZHNbmA
-	 wj54ZqpOhYxrOqwW+17pRX4xUbwGjapKYAj5dnIE8GdDR2GnV9FXviRBLpptBeLgJqLB/
-	 7whIpibybic4GkC6wYShradKQGd1W7NVMzDiu0YA7xqZ5kruFUaQcvQa55eqVQQTrTMly
-	 7VEgjQq4WxMRBjt4mwkP0QFXhZeHr+C5/jREPQoY81ERYfqFS4BMeMT4rf2xPRKcZ8A==
+	t=1793108247;
+	b=4gbvLxkxPw5EJNplHDegDYex3m4BsH8EjVoTo1jo8x0aKLf/xZCrjZCmPMISM8t6AL9/
+	 QXKZEiZD9E5xB3ZsTijmGVB/Gcx+DSeDED1AEGTVlqkit0UkSjfeptlPtx/pekqzIxNxC
+	 tocxXeR2UKu6YU1CKWuCSIeNyukMmG4KNC0uU6g81YwR2HKp7EHyJ7JgfREnoASNq+hx/
+	 hBKHA5bY5DmUnpNFaXbKSIN/BUTQ9fEJ9lyMkmKatLiF8d4jek+Taja3Wqfzx/EcLoysS
+	 sboGx2y/W/4Ay+ul8JBeRN4lvRP5WgFaO6LTPWRG6MqIr9/aSVbQwy83MIxK5xvx5Iw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793107783;
-	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
-	 X-CM-SenderInfo;
-	bh=NHCBL/meR3MXjPPg5+OgvFp1eZQNF+dGBfUAsQhoxRE=;
-	b=QPXlokKC6NQTh1IN/jKP8nRGsXOZg/L6izGZslPhszEMKTxxZk0/9HXMaeH2Iusp4PaB
-	 qrp2i8THXA4h3D98XOWUJISDglhzxRi0CyEO4Pm+Q6To9lLcaN5hvy3loJP8XJl4aR+Gs
-	 EZGbszYXU/2dvdZgBwtMYqVJYvgqHAtuk+t3rK8NkAam+a1c9O7qhbyFqsroMnz0b7U10
-	 wPBFQrFgShOhBgoccgHW6z5mi0Y0qm5OpNC3gcEFOxxSW3FxrfBbK9CktkBzRWgMriu0V
-	 iTm9VqGtnphlYMs6BGef+zkFTnjaqb0CGUf+J3b9gKgBsrt1HQBRKtQvTfZRqEr44yA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793108247;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=Zno5VvMMG/oF44eLzQpcjMF1qT17JskbbSBTiHkfKOc=;
+	b=U4ky54yAOrcD2dSQZHD/ysfEoF1cJ9ewMUxINroVh3D+9rJ0medfOOX9lgz1FJJ7xJqu
+	 KQpFb7sZmHS+iIjsGedvWVyBfa39Yq4NRo+jNfTIEdamAM/BMsvu0qCQyLZdHdFislAvl
+	 x4dIHTUH1x5liNhlpd86HaE1YIbeWrw9UaHipTcScmZm0dQSmLhOBspQ0V9F63VvMi/B2
+	 dpzmLit1ZdVmDhaO9LhuH4eTq/ABOkB+I+UfBXV3OtNpzMXHpbTuNb+X88peRGd8dU004
+	 PaPAp4Gd/8K4cbIE7CT40GAA561LynJyPVgqxI9YWobLuQIaRgY4V1vMTjvwLBEKPsQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mail.ustc.edu.cn;
-	spf=pass smtp.mailfrom=mail.ustc.edu.cn;
-	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=pvswCEJE;
-	arc=none smtp.remote-ip=202.38.64.46
-Received: from ustc.edu.cn (smtp.ustc.edu.cn [202.38.64.46])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 641EC606A338;
-	Tue, 27 Oct 2026 13:29:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 641EC606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.ustc.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ustc.edu.cn
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UrmHozkH;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4DDB606A31A;
+	Tue, 27 Oct 2026 13:37:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=pvswCEJE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=mail.ustc.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
-	Message-ID:In-Reply-To:References:MIME-Version:
-	Content-Transfer-Encoding; bh=NHCBL/meR3MXjPPg5+OgvFp1eZQNF+dGBf
-	UAsQhoxRE=; b=pvswCEJEsRYL5x1mi3cuZfYDvb8g7yGClVEC+hsWEDkuLbFzqg
-	KON6T/JgXDxJ3OOcFU9WZ1YkGIsYDtpgzRuTUZRtX8UuVjRZ11C0pXp0zbvYyV6d
-	T+4pOhrxy/x2WiN/i30sM3aTRI4hhCHt5NrVVaNVwoQuLqQMA7AStXles=
-Received: from xuqianhui.ustc.edu.cn (unknown [114.214.177.11])
-	by mailimap2024 (Coremail) with SMTP id 3pYKCgAHhDg5p+BqGGxRAA--.1917S5;
-	Tue, 27 Oct 2026 21:29:31 +0800 (CST)
-From: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
-To: linux-input@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree@vger.kernel.org,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] Input: aw86927 - add support for Awinic AW86937
-Date: Tue, 27 Oct 2026 21:29:27 +0800
-Message-ID: <20261027132929.242158-4-xiaqinghuan@mail.ustc.edu.cn>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261027132929.242158-1-xiaqinghuan@mail.ustc.edu.cn>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UrmHozkH
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100771F031E4;
+	Tue, 27 Oct 2026 13:37:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793108246;
+	bh=Zno5VvMMG/oF44eLzQpcjMF1qT17JskbbSBTiHkfKOc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UrmHozkHy7PovB0xG6swk6TdG3uzoqJAqi1RN6ugnc2kCKxVUuUYp6xsxu20JhPuT
+	 SdGXcKU9amNs1dOhgYYRohWOA5XVHlNN0ggE3F1Q3eEOBTh6dql4r9+ZKZqjdT57Ek
+	 NvltvimBqEFWpXAv8XStXJ3yXIp3HjEFsvZImBD3umBX9Sbr2yR/f+hoflN4vZctGA
+	 I5lqhdc2HMWJi+zz9gtLbmE6Qz90Mlfyml9TaW4tFGF5YJjq9eEZDahi2QwJoUqwWm
+	 X1i3l3qwvKLJjb0JCmm2plnaZNbZ2g6qcFqXmIzlyGApm+2x6UDL8W+TjnmUQPMI4d
+	 q4qoH139EBMJA==
+Message-ID: <sashiko-outbox-186657@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 4/5] Input: aw86927 - handle the AW8693X play and boost
+ register layout
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Qianhui Xu" <xiaqinghuan@mail.ustc.edu.cn>, linux-input@vger.kernel.org
+Cc: devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261027132929.242158-5-xiaqinghuan@mail.ustc.edu.cn>
 References: <20261027132929.242158-1-xiaqinghuan@mail.ustc.edu.cn>
+ <20261027132929.242158-5-xiaqinghuan@mail.ustc.edu.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 27 Oct 2026 13:37:25 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,75 +60,66 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:3pYKCgAHhDg5p+BqGGxRAA--.1917S5
-X-Coremail-Antispam: 1UD129KBjvJXoW7uF4fCF15Zr1kur15KrykKrg_yoW8GFWxpF
-	yDGr4DtFWYqFWUKws7tr1jvFy3C342gFZrKrZI93W2qwnxGw4rKFnYg3yfZFyUKrW5GF4f
-	Ja97JF15uan7Jr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBSb7Iv0xC_Zr1lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
-	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
-	8067AKxVWUWwA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF
-	64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcV
-	CY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv
-	6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c
-	02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE
-	4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxVAaw2AFwI0_JF0_Jw1l42xK82
-	IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC2
-	0s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI48JMI
-	IF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF
-	0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87
-	Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUcD73DUUUU
-X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiARENB2rfqlZqOAAsst
 
-The AW86937 reports CHIPID 0x9370 and is register compatible with the
-AW86938 as far as the boost setup is concerned, so it joins that branch of
-the haptic initialisation.  Detection stays by CHIPID, so the existing
-AW86927 compatible keeps working as fallback.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] Input: aw86927 - 1-bit AW86938_PLAYCFG1_BST_MODE_MASK in aw86927=
+_play_mode()
+--
 
-Signed-off-by: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
----
- drivers/input/misc/aw86927.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+commit c20411cd705818dd58facc17d48437366131a42a
+Author: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
 
-diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
-index 813f3591b..42eb531c7 100644
---- a/drivers/input/misc/aw86927.c
-+++ b/drivers/input/misc/aw86927.c
-@@ -147,6 +147,7 @@
- #define AW86927_CHIPIDH_REG			0x57
- #define AW86927_CHIPIDL_REG			0x58
- #define AW86927_CHIPID				0x9270
-+#define AW86937_CHIPID				0x9370
- #define AW86938_CHIPID				0x9380
- 
- #define AW86927_TMCFG_REG			0x5b
-@@ -183,6 +184,7 @@ enum aw86927_work_mode {
- 
- enum aw86927_model {
- 	AW86927,
-+	AW86937,
- 	AW86938,
- };
- 
-@@ -589,6 +591,7 @@ static int aw86927_haptic_init(struct aw86927_data *haptics)
- 		if (err)
- 			return err;
- 		break;
-+	case AW86937:
- 	case AW86938:
- 		err = regmap_update_bits(haptics->regmap,
- 					 AW86938_PLAYCFG1_REG,
-@@ -751,6 +754,9 @@ static int aw86927_detect(struct aw86927_data *haptics)
- 	case AW86927_CHIPID:
- 		haptics->model = AW86927;
- 		break;
-+	case AW86937_CHIPID:
-+		haptics->model = AW86937;
-+		break;
- 	case AW86938_CHIPID:
- 		haptics->model = AW86938;
- 		break;
--- 
-2.53.0
+Input: aw86927 - handle the AW8693X play and boost register layout
 
+This commit updates the aw86927 driver to handle the play, boost, VBAT,
+and two-step stop register layout differences on AW86937 and AW86938
+devices.
+
+> diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
+> index 42eb531c7e3b3..e8fd880ac1ded 100644
+> --- a/drivers/input/misc/aw86927.c
+> +++ b/drivers/input/misc/aw86927.c
+
+[ ... ]
+
+> @@ -291,9 +299,14 @@ static int aw86927_play_mode(struct aw86927_data *ha=
+ptics, u8 play_mode)
+> =20
+>  		err =3D regmap_update_bits(haptics->regmap,
+>  					 AW86927_PLAYCFG1_REG,
+> -					 AW86927_PLAYCFG1_BST_MODE_MASK,
+> +					 haptics->model =3D=3D AW86927 ?
+> +					 AW86927_PLAYCFG1_BST_MODE_MASK :
+> +					 AW86938_PLAYCFG1_BST_MODE_MASK,
+> +					 haptics->model =3D=3D AW86927 ?
+>  					 FIELD_PREP(AW86927_PLAYCFG1_BST_MODE_MASK,
+> -						    AW86927_PLAYCFG1_BST_MODE_BYPASS));
+> +						    AW86927_PLAYCFG1_BST_MODE_BYPASS) :
+> +					 FIELD_PREP(AW86938_PLAYCFG1_BST_MODE_MASK,
+> +						    AW86938_PLAYCFG1_BST_MODE_BYPASS));
+>  		if (err)
+>  			return err;
+
+[Severity: Medium]
+The commit description notes that on AW86937 and AW86938 "the boost mode in
+PLAYCFG1 is a two-bit field at bit 5 instead of bit 7", but
+AW86938_PLAYCFG1_BST_MODE_MASK in drivers/input/misc/aw86927.c is defined as
+a 1-bit mask:
+
+#define AW86938_PLAYCFG1_REG			0x06
+#define AW86938_PLAYCFG1_BST_MODE_MASK		GENMASK(5, 5)
+#define AW86938_PLAYCFG1_BST_MODE_BYPASS	0
+#define AW86938_PLAYCFG1_BST_VOUT_VREFSET_MASK	GENMASK(4, 0)
+
+When aw86927_play_sine() -> aw86927_play_mode(haptics, AW86927_RAM_MODE) ru=
+ns
+on AW86937 or AW86938, regmap_update_bits() only updates bit 5 of
+AW86927_PLAYCFG1_REG and leaves bit 6 untouched.
+
+Should AW86938_PLAYCFG1_BST_MODE_MASK be defined as GENMASK(6, 5) so both
+bits of the boost mode field are masked when configuring bypass mode?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027132929.2421=
+58-1-xiaqinghuan@mail.ustc.edu.cn?part=3D4

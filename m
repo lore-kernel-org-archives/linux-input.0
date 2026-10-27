@@ -1,79 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.71
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793069873;
-	b=NBHqFaobF9MaaFNxwwQTQ+wBmSZw/ZvLdQRZkqdgr1SNa9Jc4QHTQBeIjwznCT+fAKj1
-	 KniJ3wIhaaZv1HcGbJI6EP6yaeFBtr3CbJuf2RKeVvtCdqiURmCF7D10HhFA1ZRBN6Srr
-	 N2Jm11jC6KCT77TUJIPnD596gUF3ZyX/aYmNGjB+RQWLjfloDj6DVIhpRHIu9n78ANHkn
-	 ilLC+pIC4NVs3ljFO6BZ5gNgD8YqLCyORv+pTHIR+49e2F/dkQJjfV+WSnqhDAY7aqgsC
-	 l5Fp4swBDZ2ppBbWjWgGYX1boQC/M9UfTESjuAr5KpucTp6qzb4V9kwBoDe6idTHyQg==
+	t=1793081622;
+	b=K2vmA10U03vOIqsHMwC774UnqHGAEDcshbcFMHHGuotQ12bVP4F6C0Nih2HOUSw45X8y
+	 0iiuqWQOhj/UH5eAFfbexrs+3BC8rY9AYr7RIvXaf8OopRq2xElZGdyOcJcaf4s2DiRa0
+	 Ofif18axGoSgIp0DBQOwovL0IVBJ/+UN32ekvNDeNS3rH44x9CpGkaobCvDfWEKHgB11b
+	 2bF9jhADlTC+6atP5956+XY8UzuOYp3sHYIa0YUqx59ee5/TeohUFoig64F/3g1070Bb8
+	 3cNJ0wVSvsDGXUPx7FbKkwODIjdY6FfOvRhPjlBYAA0jj8uxVLq4pnrocDFu5ZfhDVw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793069873;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=TTwekm/Gt9bndSKmUoo4bfoXvp6BtM9Qta1TmXnMuEY=;
-	b=2O03/HMOJMospmjuX0ranOa7hzl1D+cW1YAsM/YYU/Flc+IGFcEURhGjm5aOBb6iN5IF
-	 CoZnoM3drkSfJ9ZoU7GqyHazjVvqWKHsn/8XEK/hpnBtyeFQWaM5usaCynKHB09j5ml3y
-	 8mXWHlIjfU20L/sN09POQEn8rGY+WjQpGP+X51TjxMlCUotFPtpz9Zu8SvA6yzy/PMVfM
-	 I5dH3mFFGw0ablkC6Fq412X+zARhFhZI7Nfyq4Rm0b+SeSrLQX/2/CAbRPJyZZ5kY2dvy
-	 nhaxYnEqtXEjIRnB+iDhpjvMFuT2Ozapl5vwSsGU9GK3WtiPI5KfgI0YSaIQ5GgGo9A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793081622;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Received:Date:Mime-Version:X-Mailer:Message-ID:
+	 Subject:From:To:Cc:Content-Type;
+	bh=f7jaCg8WRne6yjvM4RTZWaJveCSVces6jBOrWR6zygc=;
+	b=4/sNqIAvx1Gyie04UDW+coNZvVpAhodJKr7R/XF+k3ELtzd2rVWw+poKVnFuFOgkOpQF
+	 Z64P1S6ynQI6Tp8UfBpx5aGmeybfguvwP7FWPFbgTE9t6g4fjlV9dyoZeYXdjSNIv+RrL
+	 bYGL28FqAX6TzP2kKRWdKeY541zyeooL9Dm6kEKZZohWdLnqqbtWmmT4xHHNrGqfJ+pXO
+	 G+Y6v1hpneDSsefZplgsX377Fa6nYX/1nTVmC+yheaLvXXPlPjmkMPsp8sNTdSvqXLbFp
+	 klHWV0iAXNwEv5WZf1fAUtFIlHI90LStLCheED56Zv9Zfu7EBlc9BCpJpDOKVAGvv5g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=H2AERsOY;
-	arc=none smtp.remote-ip=198.175.65.15
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--apusaka.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=BeBQnwi8;
+	arc=none smtp.remote-ip=209.85.216.71
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com [209.85.216.71])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B842606A31A;
-	Tue, 27 Oct 2026 02:57:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2B842606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1F5D606A31B
+	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 06:13:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A1F5D606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--apusaka.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=H2AERsOY
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793069871; x=1824605871;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=SchimnEHsM3qHihA0tcHF9PFqJCA9ILjKcim1aKJcUc=;
-  b=H2AERsOYJ82c4RuR7oPfuvWM0uRxXNPMatqRtuzGQRWmCpOiW85oK6UY
-   NZdowN2XKoXu7/msKmGdIT9gdEIpRAuB1FuVT2nfEMaNVTPj+D8IOdQe3
-   1NTWc/kozY/6gjueg2PR7Z0aeGwMaTlJHN/6Xuo/7lLHdjzhroOV1a+rU
-   O38xJK85eSu++5GhIG3VkFuBJcQhLL7atwrGT/nldIH7xi5Uq6qHW6GU4
-   D404QG9AM0371tafDMEdaBViGkKvVSujE797iw4/opK1WaFJU7a/iqa5O
-   P9sFMJcPJsNE+QKd/tmlNLIGugtu6Dm7uamehVZgehM4T8vzuOn6uShel
-   A==;
-X-CSE-ConnectionGUID: vNf7IGvRTZ+V+hJWsINxrQ==
-X-CSE-MsgGUID: w46RGhDYRoOy3yIs+uF0ng==
-X-IronPort-AV: E=McAfee;i="6800,10657,11947"; a="1761129"
-X-IronPort-AV: E=Sophos;i="6.27,180,1787036400"; 
-   d="scan'208";a="1761129"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Oct 2026 19:57:51 -0700
-X-CSE-ConnectionGUID: faI6S+BMTEa9liU7ZOXU7Q==
-X-CSE-MsgGUID: 01uCM4FQQ4+NTTAzLBsaEQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,180,1787036400"; 
-   d="scan'208";a="4537589"
-Received: from shsensorbuild.sh.intel.com ([10.239.132.194])
-  by fmviesa002.fm.intel.com with ESMTP; 26 Oct 2026 19:57:48 -0700
-From: Even Xu <even.xu@intel.com>
-To: bentiss@kernel.org,
-	jikos@kernel.org,
-	sammiee5311@gmail.com
-Cc: srinivas.pandruvada@linux.intel.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Even Xu <even.xu@intel.com>,
-	Rui Zhang <rui1.zhang@intel.com>
-Subject: [PATCH v2] HID: intel-thc-hid: intel-quickspi: validate GET REPORT response size
-Date: Tue, 27 Oct 2026 10:58:20 +0800
-Message-ID: <20261027025820.3085067-1-even.xu@intel.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=BeBQnwi8
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-3ad7030e886so4078549a91.0
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 23:13:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1793081621; x=1793686421; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=f7jaCg8WRne6yjvM4RTZWaJveCSVces6jBOrWR6zygc=;
+        b=BeBQnwi8c+tJ+27RWYlCJUi2uTt5wP+3ns9Petb2hEa1X6PcyEKG23e5Gee+nYXDT4
+         CJOVKqSy8YhSBkdOnHqc0g/8Pw+WpXIGYnVcBbt3QnaXcyODAkKxntrS3FiJGYuNLhkM
+         xHZePZQ2tKzuduGz9+uKPuHuHG/QSk+VH2iSpHO+iaeNahUr9VAO2hkYerhdfUUM8B6z
+         KcfeYeUEa4tOYnBp0ftxEDSy4NVQp0UMi9CifiISpi3Hn++ipyCKHCgHY3z/1yZ/8gx7
+         zhsBF5DdnIWkEUCoMc4udmrONh7AVRRyYwOuNJ2AGb0HBrumDUKu4Z4byveEJTEolxcT
+         ZjcQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793081621; x=1793686421;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=f7jaCg8WRne6yjvM4RTZWaJveCSVces6jBOrWR6zygc=;
+        b=mR0Yz5Anrqk6/V1e8wLO+QD9t82ONCZY+7lOBgLh0mzD5jHuHKJGrlVSMx+LEm0ktF
+         cLS1g7D1qwBDhwO+kT+C2D/GjRfEIuEE2ejMm7JQUDefr4NF/+ph9xzQE3yZ1eKhXBJV
+         csBdgSjzDI/UkGHjZb6AiJMDb9oHtxfNJ2OnG969hReYnH4JNZCiksF8QcbUGJK3nUsN
+         VQnxsjfKxCW5LRz8RAKDASVshXuNQXhiwv0gCdxCAiXgQNxMeEX1qRoU8xqhurZfTsRv
+         Xnu3QjU86mx9KT9wazPU+tC70BfZG2VZYQ32PIzr6yw1ufL9B5vPJfeU6VBIVpN1BRFZ
+         POZw==
+X-Gm-Message-State: AFq9FYLEYLF2ARIUoM9+aoB9YWOPOwzwMtpktPMjY1Y6y8M8JUJT6h4m
+	UdOu/pdk9Mb5PN1140Jxd+Q7g+ONRHjMkzVMYh/UYct4H+4Tv2KhYaW0c89IZmiKjYMm01sHQAu
+	HpC2ZOiLe68pGGBNNnzsrnLhd1kTSPAJD1zPFcwMU2KkGteq9BThJS7cqvRIUj4xMwE4Gs2Oear
+	78PEKCr4LXHsMF7YtDZ4BnAJDE9obievVTMFP1saiA+5J9kDbY
+X-Received: from pjhr18.prod.google.com ([2002:a17:90a:5012:b0:3aa:ee30:1a77])
+ (user=apusaka job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:2891:b0:3ab:24b2:9016
+ with SMTP id 98e67ed59e1d1-3adead488d1mr7764219a91.25.1793081620686; Mon, 26
+ Oct 2026 23:13:40 -0700 (PDT)
+Date: Tue, 27 Oct 2026 06:12:58 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -82,119 +75,138 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.56.0.307.g5fe7bd680c-goog
+Message-ID: <20261027061258.3900768-1-apusaka@google.com>
+Subject: [PATCH] HID: logitech-hidpp: connect Bluetooth devices before HID++ handshake
+From: Archie Pusaka <apusaka@google.com>
+To: linux-input@vger.kernel.org, jikos@kernel.org, bentiss@kernel.org
+Cc: lains@riseup.net, hadess@hadess.net, linux-kernel@vger.kernel.org, 
+	Archie Pusaka <apusaka@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-From: HyeongJun An <sammiee5311@gmail.com>
+hidpp_probe() opens the device and runs the HID++ handshake before
+calling hid_connect(), so that the HID++ name can be stored in
+hdev->name before hid-input and hidraw expose it. Opening the device
+tells the transport that I/O may start (for uhid, UHID_OPEN), but any
+non-HID++ input report received before hid_connect() has no consumer
+and is dropped. Over BLE the handshake takes several hundred ms, thus a
+reconnecting keyboard might lose the first keystrokes.
 
-quickspi_handle_input_data() copies GET_FEATURE and
-GET_INPUT_REPORT responses into qsdev->report_buf. The response length
-is derived from data supplied by the controller, but was not checked
-against the destination buffer size.
+Bluetooth devices already get their name and serial from the transport,
+so connect hid-input and hidraw before opening the device, like
+hid-generic effectively does. hidpp_connect_event() still fetches the
+HID++ name into hidpp->name, so the battery model name is unchanged.
 
-Adjust qsdev->report_buf_size to store the data length of report buffer,
-reject responses that exceed it before copying. This prevents an
-oversized response from overflowing report_buf. The rejected response
-does not complete the GET REPORT request, so quickspi_get_report()
-follows its existing timeout path.
+As a consequence, the input and hidraw nodes of Bluetooth devices are
+named after the transport-provided name rather than the "Logitech "-
+prefixed HID++ name. Non-Bluetooth (USB, Unifying/DJ) and DELAYED_INIT
+devices keep the original ordering and naming.
 
-Fixes: 9d8d51735a3a ("HID: intel-thc-hid: intel-quickspi: Add HIDSPI protocol implementation")
-Cc: stable@vger.kernel.org
-Assisted-by: Claude:claude-opus-5
-Signed-off-by: HyeongJun An <sammiee5311@gmail.com>
-Signed-off-by: Even Xu <even.xu@intel.com>
-Tested-by: Rui Zhang <rui1.zhang@intel.com>
+Signed-off-by: Archie Pusaka <apusaka@google.com>
 ---
-Change log:
-V2:
- - Rebased on top of latest mainline kernel
- - Adjust qsdev->report_buf_size to store the data length of report buffer
+ drivers/hid/hid-logitech-hidpp.c | 67 ++++++++++++++++++++++----------
+ 1 file changed, 47 insertions(+), 20 deletions(-)
 
----
- .../intel-thc-hid/intel-quickspi/pci-quickspi.c  | 16 ++++++++--------
- .../intel-thc-hid/intel-quickspi/quickspi-dev.h  |  1 +
- .../intel-quickspi/quickspi-protocol.c           | 12 ++++++++++--
- 3 files changed, 19 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-index 53023e30cf8d..d0aa66a8a4b4 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/pci-quickspi.c
-@@ -562,17 +562,17 @@ static int quickspi_alloc_report_buf(struct quickspi_device *qsdev)
- 	max_report_len = max(le16_to_cpu(qsdev->dev_desc.max_output_len),
- 			     le16_to_cpu(qsdev->dev_desc.max_input_len));
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 27d83b8bb..b552f31f0 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4673,6 +4673,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct hidpp_device *hidpp;
+ 	int ret;
+ 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
++	bool early_connect;
  
--	/*
--	 * write_cmd_to_txdma() writes the output report header ahead of the
--	 * content in this buffer, so it has to hold both.
--	 */
--	qsdev->report_buf_size = HIDSPI_OUTPUT_REPORT_SIZE(max_report_len);
--
--	qsdev->report_buf = devm_kzalloc(qsdev->dev, qsdev->report_buf_size,
--					 GFP_KERNEL);
-+	qsdev->report_buf = devm_kzalloc(qsdev->dev,
-+					 HIDSPI_OUTPUT_REPORT_SIZE(max_report_len), GFP_KERNEL);
- 	if (!qsdev->report_buf)
- 		return -ENOMEM;
+ 	/* report_fixup needs drvdata to be set before we call hid_parse */
+ 	hidpp = devm_kzalloc(&hdev->dev, sizeof(*hidpp), GFP_KERNEL);
+@@ -4734,12 +4735,31 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			 hdev->name);
  
-+	/*
-+	 * Store the max data length of this report buffer, then compare it with output/input
-+	 * packet content when write or read into this report buffer to avoid buffer overflow.
-+	 */
-+	qsdev->report_buf_size = max_report_len;
+ 	/*
+-	 * First call hid_hw_start(hdev, 0) to allow IO without connecting any
+-	 * hid subdrivers (hid-input, hidraw). This allows retrieving the dev's
+-	 * name and serial number and store these in hdev->name and hdev->uniq,
+-	 * before the hid-input and hidraw drivers expose these to userspace.
++	 * hid_hw_open() below tells the transport that I/O may start. However,
++	 * Any non-HID++ input report (e.g. regular keystrokes) received before
++	 * hid-input is connected will be dropped, and over BLE the HID++
++	 * handshake below takes several hundred milliseconds.
++	 *
++	 * Bluetooth devices already get their name and serial number from the
++	 * transport, so for them there is no need to delay exposing the input
++	 * and hidraw nodes until the handshake is done: connect them right
++	 * away, like hid-generic does. hidpp_connect_event() still fetches the
++	 * HID++ name into hidpp->name (used e.g. for the battery model name).
++	 *
++	 * DELAYED_INIT devices create their input device from
++	 * hidpp_connect_event() and keep the original ordering.
+ 	 */
+-	ret = hid_hw_start(hdev, 0);
++	early_connect = hdev->bus == BUS_BLUETOOTH &&
++			!(hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT);
 +
- 	return 0;
- }
++	/*
++	 * Otherwise, first call hid_hw_start(hdev, 0) to allow IO without
++	 * connecting any hid subdrivers (hid-input, hidraw). This allows
++	 * retrieving the dev's name and serial number and store these in
++	 * hdev->name and hdev->uniq, before the hid-input and hidraw drivers
++	 * expose these to userspace.
++	 */
++	ret = hid_hw_start(hdev, early_connect ? connect_mask : 0);
+ 	if (ret) {
+ 		hid_err(hdev, "hw start failed\n");
+ 		goto hid_hw_start_fail;
+@@ -4755,25 +4775,32 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	/* Allow incoming packets */
+ 	hid_device_io_start(hdev);
  
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-index fe51ff51d8c0..4362ac568bda 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-dev.h
-@@ -115,6 +115,7 @@ struct acpi_device;
-  * @input_buf: store a copy of latest input report data
-  * @input_len: the data size of the input report buffer
-  * @report_buf: store a copy of latest input/output report packet from set/get feature
-+ * @report_buf_size: the data size of input/output buffer
-  * @report_len: the length of input/output report packet
-  * @reset_ack_wq: workqueue for waiting reset response from device
-  * @reset_ack: indicate reset response received or not
-diff --git a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-index 0df33c44fbff..5de25c36a1e4 100644
---- a/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-+++ b/drivers/hid/intel-thc-hid/intel-quickspi/quickspi-protocol.c
-@@ -30,7 +30,7 @@ static int write_cmd_to_txdma(struct quickspi_device *qsdev,
+-	/* Get name + serial, store in hdev->name + hdev->uniq */
+-	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
+-		hidpp_unifying_init(hidpp);
+-	else
+-		hidpp_non_unifying_init(hidpp);
++	if (!early_connect) {
++		/* Get name + serial, store in hdev->name + hdev->uniq */
++		if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
++			hidpp_unifying_init(hidpp);
++		else
++			hidpp_non_unifying_init(hidpp);
  
- 	write_buf = (struct output_report *)qsdev->report_buf;
+-	if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
+-		connect_mask &= ~HID_CONNECT_HIDINPUT;
++		if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
++			connect_mask &= ~HID_CONNECT_HIDINPUT;
  
--	if (HIDSPI_OUTPUT_REPORT_SIZE(report_buf_len) > qsdev->report_buf_size)
-+	if (report_buf_len > qsdev->report_buf_size)
- 		return -EINVAL;
- 
- 	write_buf->output_hdr.report_type = report_type;
-@@ -161,6 +161,7 @@ void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_len)
- 	struct input_report_body *input_body;
- 	u8 *input_report;
- 	u32 input_len;
-+	u32 report_len;
- 	int ret = 0;
- 
- 	input_body = (struct input_report_body *)qsdev->input_buf;
-@@ -210,7 +211,14 @@ void quickspi_handle_input_data(struct quickspi_device *qsdev, u32 buf_len)
- 
- 	case GET_FEATURE_RESPONSE:
- 	case GET_INPUT_REPORT_RESPONSE:
--		qsdev->report_len = sizeof(body_hdr->content_id) + input_len;
-+		report_len = sizeof(body_hdr->content_id) + input_len;
-+		if (report_len > qsdev->report_buf_size) {
-+			dev_err_once(qsdev->dev, "Get report response too big: %u\n",
-+				     report_len);
-+			return;
+-	/* Now export the actual inputs and hidraw nodes to the world */
+-	hid_device_io_stop(hdev);
+-	ret = hid_connect(hdev, connect_mask);
+-	if (ret) {
+-		hid_err(hdev, "%s:hid_connect returned error %d\n", __func__, ret);
+-		goto hid_hw_init_fail;
++		/* Now export the actual inputs and hidraw nodes to the world */
++		hid_device_io_stop(hdev);
++		ret = hid_connect(hdev, connect_mask);
++		if (ret) {
++			hid_err(hdev, "%s:hid_connect returned error %d\n",
++				__func__, ret);
++			goto hid_hw_init_fail;
 +		}
 +
-+		qsdev->report_len = report_len;
- 		input_report = input_body->content - sizeof(body_hdr->content_id);
++		/*
++		 * Check for connected devices now that incoming packets will
++		 * not be disabled again
++		 */
++		hid_device_io_start(hdev);
+ 	}
  
- 		memcpy(qsdev->report_buf, input_report, qsdev->report_len);
+-	/* Check for connected devices now that incoming packets will not be disabled again */
+-	hid_device_io_start(hdev);
+ 	schedule_work(&hidpp->work);
+ 	flush_work(&hidpp->work);
+ 
+
+base-commit: 2c2fe95ab19b09bef7391e3e5cdf8146d09792b6
 -- 
-2.43.0
+2.56.0.307.g5fe7bd680c-goog
 

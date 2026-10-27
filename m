@@ -1,53 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=5.75.144.95
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=202.38.64.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793107346;
-	b=GnaRgoXht2wiE3F2o95l96QrJVYqD+bc14BAjy9A+9EVMc0oNkTY+epZm69IzKqTj8OA
-	 TOCfQL6DdsxJxh/u1mEXAZ7mbCObfOWWjJZu+VacQbzy1atTcgCUBteHrArwWmrbC1ACn
-	 1KYoH6JyQdr+0zOGO+ZYgsafVgG9HIpohrJ8hjjNjKE0YaCYCW2GPEvyB8AAj+IREIzEV
-	 qqRxz4k78faNz43hW6cU9bexzqq/PWJfc2d9fhd9lSqFmp2ThwlM+mMw03FIDm87v9lbw
-	 XAx3+X2dcSKKt/ny1gJjiBTeEqVeLohu/2CBunAU0S83qjvE1FfbJRAWkodjFCsFIzQ==
+	t=1793107783;
+	b=TiPeQi9IkAuVnH0s4drTonbvIbqFxJqb6stO+v9YARVZjvQwco0sykIViY7xD3bM5TAu
+	 uBP1qy3JubDYKKDUqvVUSwh9HgX/LS6XZg6x7dbn3kPbP+3Zm1kpYt+RzumGGg/7Z+X8S
+	 WYF+SYhTZCwDi6Hw2+rfYKPsqtT0BzfE8ZA2m9eRae+W/TZ6qXeQeRT+FEeRHP6HNCsSq
+	 HHWiGsKM7hWDvE6vJtL51610+tKiAF0LYDE0nOfVBXX3aTwQAl5HhROkWrHYxZbvaK8Yp
+	 2gKYchubbGaiGGJxUkVKYZUF77H+vFU+XwylSHvHjXRJadyutJV6HTWm/3I9efEEZ8A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793107346;
-	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:Message-ID:Date:
-	 MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	 Content-Language:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-	bh=Xj67NiJh2Z4pdwze/JwyyrlvFS2Frq0bavp1aNAOF+Y=;
-	b=y3ZBdxLsPK2WIywQAKyM1BBTH8l6WLOHB/S9yG7WnQSAkUgb91lvApRy1qq6gplcSa7M
-	 pFs+cqvymC9x+kiJsjcj7hrVBH2i10cpbOgAENpep1GqKmZfjmT/ZB7tZ4VITsrAqFWnK
-	 b9PF7JRPSihjzwCD5m0v9+Nrr3UmViKTxcVvfUJ2nlVeP4rwcobxqrQMRPvHeNu4YSf5/
-	 V7a6iy45DJcdWXvph4Liy2ZDlHE7WyjAVuxdWlfPmp9zyDbUdpTe1W2tR8dUoIhtQ00yo
-	 +OVrut1YcfWJJgzAo5A8GeN4FMFYeDmsIqUv5J6kPN1kW/s+5dApWrL2LAAl4gRThpw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793107783;
+	h=DMARC-Filter:DKIM-Signature:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-CM-TRANSID:X-Coremail-Antispam:
+	 X-CM-SenderInfo;
+	bh=RtEZumq84tfgOZrC4zqNgHbM7KQQtMKJQtTzuFT1MKA=;
+	b=DyWC1GvL6dGVRbT2jm9q5FPpm65jW2OT+buvdOxwuac85HZ8wztfdSBbIRq3kBTkJHcm
+	 ibrEk49S8aZL7h4wnmYJnHJq4aRzdNERtfv36JNhXIxsHsEmlXtlgph0Y2mDkb4esBA9t
+	 KO1Voo0fEDhLpXpGThZFT9V4x2udxjUF06UFtCZCdrvYjhaorDHBs7CzAV1rFCnX8F6eC
+	 o50/SXYwOfdmbJ1q89UDr8AA2+wbbTuZ2oVMFk+e/n27gxqbKjxVLg/YfSAJ7G6kxGNK3
+	 HpB1O7FnbQWrnFdD6/F05U6NghEoCtDTqyAe6XewW7HkA7JnFHUsRFUe/dwAQrH7qfA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=mainlining.org;
-	spf=pass smtp.mailfrom=mainlining.org;
-	dkim=pass header.d=mainlining.org header.i=@mainlining.org header.a=rsa-sha256 header.s=202507r header.b=mxxbttXc;
-	dkim=pass header.d=mainlining.org header.i=@mainlining.org header.a=ed25519-sha256 header.s=202507e header.b=eTsWZ5U5;
-	arc=none smtp.remote-ip=5.75.144.95
-Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B08B606A31D;
-	Tue, 27 Oct 2026 13:22:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9B08B606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mainlining.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mainlining.org
+	dmarc=pass header.from=mail.ustc.edu.cn;
+	spf=pass smtp.mailfrom=mail.ustc.edu.cn;
+	dkim=pass header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b="yHBgdCN/";
+	arc=none smtp.remote-ip=202.38.64.46
+Received: from ustc.edu.cn (smtp.ustc.edu.cn [202.38.64.46])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 42FE0606A9D8;
+	Tue, 27 Oct 2026 13:29:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 42FE0606A9D8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mail.ustc.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.ustc.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=mainlining.org header.i=@mainlining.org header.a=rsa-sha256 header.s=202507r header.b=mxxbttXc;
-	dkim=pass header.d=mainlining.org header.i=@mainlining.org header.a=ed25519-sha256 header.s=202507e header.b=eTsWZ5U5
-DKIM-Signature: v=1; a=rsa-sha256; s=202507r; d=mainlining.org; c=relaxed/relaxed;
-	h=From:To:Subject:Date:Message-ID; t=1793107318; bh=Xj67NiJh2Z4pdwze/Jwyyrl
-	vFS2Frq0bavp1aNAOF+Y=; b=mxxbttXc1kwRAw4uFr6Joln+wd89lpfwXB3f0rPAO4vYimMZh7
-	jvVbJ/fWa2pt91BX37u4bOR1QAyWdKL/UBi9irf9pvF6r1GsNgAAdAOBCggwJdYbYd8MGYbKBcb
-	IC8a5slECJdOA/6e+GRAJupr0Z3LlxDEoRrOPQqYt5QNtKh2g2rNfHOjHC4IEgG6U7P4aDgRLxE
-	4FrXQHIR1FTK9819rifvTRK2ku6pUXnTGP6noUTAxhSXGTmAep0w/Uo888MdzxZza7w9yo98LAC
-	w5cleacP1J8MXMNn+7DtOuZMy7sgE7iZVCS3leZn1nar8BkA2KG1+SoegpudNixb3pg==;
-DKIM-Signature: v=1; a=ed25519-sha256; s=202507e; d=mainlining.org; c=relaxed/relaxed;
-	h=From:To:Subject:Date:Message-ID; t=1793107318; bh=Xj67NiJh2Z4pdwze/Jwyyrl
-	vFS2Frq0bavp1aNAOF+Y=; b=eTsWZ5U5a1kSPxUaMDFdlMnVdcfluYbi3UyR/neQ+3HarpYrgO
-	xKOLXAksCoxT2sfC1Nn2S6fCPflmtLkTAiCw==;
-Message-ID: <524ccb0f-8880-4552-8549-88a9d68e3faa@mainlining.org>
-Date: Tue, 27 Oct 2026 16:21:55 +0300
+	dkim=pass (1024-bit key, unprotected) header.d=mail.ustc.edu.cn header.i=@mail.ustc.edu.cn header.a=rsa-sha256 header.s=dkim header.b=yHBgdCN/
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=mail.ustc.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
+	Message-ID:In-Reply-To:References:MIME-Version:
+	Content-Transfer-Encoding; bh=RtEZumq84tfgOZrC4zqNgHbM7KQQtMKJQt
+	TzuFT1MKA=; b=yHBgdCN/g8KIjDl5BN8q3if6Qd6F8yStQGXbWnGvOgCNsLDPu/
+	EmiIeZZMeQMkfInulr36Aa+zqSiEPv24kWIRzTJbQzzuczvqTGKrdVZwX7R0cW1E
+	AvKnq8Kcs/5rEOFB5SfcGcTUOVCPt93skTlRIf/w5aswTDGze+Wd1NNE8=
+Received: from xuqianhui.ustc.edu.cn (unknown [114.214.177.11])
+	by mailimap2024 (Coremail) with SMTP id 3pYKCgAHhDg5p+BqGGxRAA--.1917S6;
+	Tue, 27 Oct 2026 21:29:32 +0800 (CST)
+From: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
+To: linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 4/5] Input: aw86927 - handle the AW8693X play and boost register layout
+Date: Tue, 27 Oct 2026 21:29:28 +0800
+Message-ID: <20261027132929.242158-5-xiaqinghuan@mail.ustc.edu.cn>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261027132929.242158-1-xiaqinghuan@mail.ustc.edu.cn>
+References: <20261027132929.242158-1-xiaqinghuan@mail.ustc.edu.cn>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -57,221 +64,165 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 5/7] arm64: dts: qcom: Add initial support for MSM8952
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, "Joerg Roedel (AMD)" <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
- Konrad Dybcio <konradybcio@kernel.org>, Amit Kucheria <amitk@kernel.org>,
- Thara Gopinath <thara.gopinath@gmail.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Bjorn Andersson <andersson@kernel.org>,
- Abel Vesa <abelvesa@kernel.org>, Kees Cook <kees@kernel.org>,
- Tony Luck <tony.luck@intel.com>, "Guilherme G. Piccoli"
- <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, iommu@lists.linux.dev,
- linux-pm@vger.kernel.org, linux-input@vger.kernel.org
-References: <20261011-msm8952-initial-support-v5-0-1857074992ec@mainlining.org>
- <20261011-msm8952-initial-support-v5-5-1857074992ec@mainlining.org>
- <cf9aa65d-5603-425e-b09e-0a5ae86fa551@oss.qualcomm.com>
-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Content-Language: en-US
-In-Reply-To: <cf9aa65d-5603-425e-b09e-0a5ae86fa551@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:3pYKCgAHhDg5p+BqGGxRAA--.1917S6
+X-Coremail-Antispam: 1UD129KBjvJXoWxZrW5Cr18CF1UWFy8uFWkXrb_yoWrKw4kpF
+	15CFyUtrW2grWIg3WvyF1vvF1furnIgF42qr9Fg343J3W7Xw48KFn7tw40yFyjyFyUKw15
+	Ja1vvFyq9rsrWFUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBmb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
+	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
+	8067AKxVWUAVCq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28C
+	jxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI
+	8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E
+	87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64
+	kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm
+	72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxVAaw2AFwI0_JF0_Jw1l42
+	xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWU
+	GwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMIIYrxkI7VAKI4
+	8JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4U
+	MIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I
+	8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUgT7NUUUUU
+X-CM-SenderInfo: 50ld1x5qjk3t3q6ptxnoox23vfohv3gofq/1tbiARENB2rfqlZqOAAtss
 
-Hi Konrad,
+AW86937 and AW86938 keep the same register map as the AW86927 but move
+two bits and invert the stop handshake:
 
-Thanks a lot for review,
+  - auto boost lives in bit 2 of PLAYCFG3 instead of bit 4, and the boost
+    mode in PLAYCFG1 is a two-bit field at bit 5 instead of bit 7;
+  - the VBAT mode bit taps the battery voltage instead of the software
+    tracked value;
+  - stopping is a two-step sequence: select PLAY_MODE_STOP in PLAYCFG3 and
+    then issue GO in PLAYCFG4, as the dedicated STOP bit does not exist
+    for these parts.  A standby timeout after that is a real failure, so
+    return it instead of forcing the state machine.
 
-On Mon, 26 Oct 2026 16:01:49 +0100, Konrad Dybcio wrote:
-> On 10/11/26 6:51 PM, Muzaffer Kadir via B4 Relay wrote:
->> From: Muzaffer Kadir <muzafferkadir@mainlining.org>
->>
->> Add initial support for MSM8952 SoC.
->>
->> AI help is used for calculating qfprom nodes.
->>
->> Downstream reference for port is [1] which is very lightly modified
->> version of [2].
-> 
-> Generally this looks good, couple more comments
-> 
-> [...]
-> 
->> +	soc: soc@0 {
->> +		compatible = "simple-bus";
->> +		ranges = <0 0 0 0xffffffff>;
-> 
-> this is equal to `ranges;`
+Signed-off-by: Qianhui Xu <xiaqinghuan@mail.ustc.edu.cn>
+---
+ drivers/input/misc/aw86927.c | 65 +++++++++++++++++++++++++++---------
+ 1 file changed, 49 insertions(+), 16 deletions(-)
 
-Changing this to empty ranges would make ranges property
-to expect parent and child size-cells and address-cells to
-be equal but root size-cells and address-cells are 2 and soc
-size-cells and address-cells are 1.
+diff --git a/drivers/input/misc/aw86927.c b/drivers/input/misc/aw86927.c
+index 42eb531c7..e8fd880ac 100644
+--- a/drivers/input/misc/aw86927.c
++++ b/drivers/input/misc/aw86927.c
+@@ -50,6 +50,14 @@
+ #define AW86938_PLAYCFG1_BST_VOUT_VREFSET_MASK	GENMASK(4, 0)
+ #define AW86938_PLAYCFG1_BST_7000MV		0x09
+ 
++/*
++ * The AW8693x parts move auto-boost to bit 2 of PLAYCFG3 and stop playback
++ * by selecting the dedicated stop mode and then issuing a GO, unlike the
++ * AW86927 which has an explicit STOP bit in PLAYCFG4.
++ */
++#define AW8693X_PLAYCFG3_AUTO_BST_MASK		BIT(2)
++#define AW8693X_PLAYCFG3_PLAY_MODE_STOP		3
++
+ #define AW86927_PLAYCFG2_REG			0x07
+ 
+ #define AW86927_PLAYCFG3_REG			0x08
+@@ -291,9 +299,14 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
+ 
+ 		err = regmap_update_bits(haptics->regmap,
+ 					 AW86927_PLAYCFG1_REG,
+-					 AW86927_PLAYCFG1_BST_MODE_MASK,
++					 haptics->model == AW86927 ?
++					 AW86927_PLAYCFG1_BST_MODE_MASK :
++					 AW86938_PLAYCFG1_BST_MODE_MASK,
++					 haptics->model == AW86927 ?
+ 					 FIELD_PREP(AW86927_PLAYCFG1_BST_MODE_MASK,
+-						    AW86927_PLAYCFG1_BST_MODE_BYPASS));
++						    AW86927_PLAYCFG1_BST_MODE_BYPASS) :
++					 FIELD_PREP(AW86938_PLAYCFG1_BST_MODE_MASK,
++						    AW86938_PLAYCFG1_BST_MODE_BYPASS));
+ 		if (err)
+ 			return err;
+ 
+@@ -301,7 +314,8 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
+ 					 AW86927_VBATCTRL_REG,
+ 					 AW86927_VBATCTRL_VBAT_MODE_MASK,
+ 					 FIELD_PREP(AW86927_VBATCTRL_VBAT_MODE_MASK,
+-						    AW86927_VBATCTRL_VBAT_MODE_SW));
++						    haptics->model == AW86927 ?
++						    AW86927_VBATCTRL_VBAT_MODE_SW : 1));
+ 		if (err)
+ 			return err;
+ 
+@@ -313,23 +327,38 @@ static int aw86927_play_mode(struct aw86927_data *haptics, u8 play_mode)
+ 
+ static int aw86927_stop(struct aw86927_data *haptics)
+ {
++	bool aw8693x = haptics->model != AW86927;
+ 	int err;
+ 
+-	err = regmap_write(haptics->regmap, AW86927_PLAYCFG4_REG, AW86927_PLAYCFG4_STOP);
++	if (aw8693x) {
++		err = regmap_update_bits(haptics->regmap, AW86927_PLAYCFG3_REG,
++					 AW86927_PLAYCFG3_PLAY_MODE_MASK,
++					 AW8693X_PLAYCFG3_PLAY_MODE_STOP);
++		if (err)
++			return err;
++	}
++
++	err = regmap_write(haptics->regmap, AW86927_PLAYCFG4_REG,
++			   aw8693x ? AW86927_PLAYCFG4_GO : AW86927_PLAYCFG4_STOP);
+ 	if (err) {
+ 		dev_err(haptics->dev, "Failed to stop playback: %d\n", err);
+ 		return err;
+ 	}
+ 
+ 	err = aw86927_wait_enter_standby(haptics);
+-	if (err) {
+-		dev_err(haptics->dev, "Failed to enter standby, trying to force it\n");
+-		err = aw86927_play_mode(haptics, AW86927_STANDBY_MODE);
+-		if (err)
+-			return err;
+-	}
++	if (!err)
++		return 0;
+ 
+-	return 0;
++	/*
++	 * The AW8693x reliably reaches standby through the stop mode above, so a
++	 * timeout there is fatal; the AW86927 sometimes needs the nudge.
++	 */
++	if (aw8693x)
++		return err;
++
++	dev_err(haptics->dev, "Failed to enter standby, trying to force it\n");
++
++	return aw86927_play_mode(haptics, AW86927_STANDBY_MODE);
+ }
+ 
+ static int aw86927_haptics_play(struct input_dev *dev, void *data, struct ff_effect *effect)
+@@ -365,9 +394,13 @@ static int aw86927_play_sine(struct aw86927_data *haptics)
+ 		return err;
+ 
+ 	err = regmap_update_bits(haptics->regmap, AW86927_PLAYCFG3_REG,
+-				 AW86927_PLAYCFG3_AUTO_BST_MASK,
++				 haptics->model == AW86927 ?
++				 AW86927_PLAYCFG3_AUTO_BST_MASK :
++				 AW8693X_PLAYCFG3_AUTO_BST_MASK,
++				 haptics->model == AW86927 ?
+ 				 FIELD_PREP(AW86927_PLAYCFG3_AUTO_BST_MASK,
+-					    AW86927_PLAYCFG3_AUTO_BST_ENABLE));
++					    AW86927_PLAYCFG3_AUTO_BST_ENABLE) :
++				 AW8693X_PLAYCFG3_AUTO_BST_MASK);
+ 	if (err)
+ 		return err;
+ 
+@@ -605,9 +638,9 @@ static int aw86927_haptic_init(struct aw86927_data *haptics)
+ 
+ 	err = regmap_update_bits(haptics->regmap,
+ 				 AW86927_PLAYCFG3_REG,
+-				 AW86927_PLAYCFG3_AUTO_BST_MASK,
+-				 FIELD_PREP(AW86927_PLAYCFG3_AUTO_BST_MASK,
+-					    AW86927_PLAYCFG3_AUTO_BST_DISABLE));
++				 haptics->model == AW86927 ?
++				 AW86927_PLAYCFG3_AUTO_BST_MASK :
++				 AW8693X_PLAYCFG3_AUTO_BST_MASK, 0);
+ 	if (err)
+ 		return err;
+ 
+-- 
+2.53.0
 
-The Devicetree Specification describes an empty ranges as:
-"If the property is defined with an <empty> value, it
-specifies that the parent and child address space is identical,
-and no address translation is required."
-(Devicetree Specification v0.4, section 2.3.8)
-
-So this change creates these warnings:
-/soc@0:ranges: empty "ranges" property but its #address-cells (1) differs from / (2)
-/soc@0:ranges: empty "ranges" property but its #size-cells (1) differs from / (2)
-
-I will keep this unchanged.
-
-> 
-> [...]
-> 
-> 
->> +		sdhc_1: mmc@7824900 {
->> +			compatible = "qcom,msm8952-sdhci", "qcom,sdhci-msm-v4";
->> +			reg = <0x07824900 0x500>, <0x07824000 0x800>, <0x7824e00 0x200>;
->> +			reg-names = "hc", "core", "cqhci";
-> 
-> Please break up these into one-per-line (also for properties below)
-> the last reg entry needs a leading zero
-> 
-> (in general one-per-line is cool)
-> 
-> [...]
-> 
-> 
->> +		usb: usb@78db000 {
->> +			compatible = "qcom,ci-hdrc";
->> +			reg = <0x078db000 0x200>,
->> +			      <0x078db200 0x200>;
->> +			interrupts-extended = <&mpm 58 IRQ_TYPE_LEVEL_HIGH>,
->> +					      <&mpm 49 IRQ_TYPE_LEVEL_HIGH>;
->> +			clocks = <&gcc GCC_USB_HS_AHB_CLK>,
->> +				 <&gcc GCC_USB_HS_SYSTEM_CLK>;
->> +			clock-names = "iface",
->> +				      "core";
->> +			assigned-clocks = <&gcc GCC_USB_HS_SYSTEM_CLK>;
->> +			assigned-clock-rates = <80000000>;
->> +			resets = <&gcc GCC_USB_HS_BCR>;
->> +			reset-names = "core";
->> +			hnp-disable;
->> +			srp-disable;
->> +			adp-disable;
->> +			ahb-burst-config = <0>;
->> +			dr_mode = "otg";
-> 
-> dr_mode = otg is default - you can drop it
-> 
-> [...]
-> 
->> +			pll_opp_table_c1: opp-table {
->> +				compatible = "operating-points-v2";
->> +
->> +				opp-499200000 {
->> +					opp-hz = /bits/ 64 <499200000>;
->> +				};
->> +
->> +				opp-806400000 {
->> +					opp-hz = /bits/ 64 <806400000>;
->> +				};
->> +
->> +				opp-960000000 {
->> +					opp-hz = /bits/ 64 <960000000>;
->> +				};
->> +
->> +				opp-1094400000 {
->> +					opp-hz = /bits/ 64 <1094400000>;
->> +				};
->> +
->> +				opp-1344000000 {
->> +					opp-hz = /bits/ 64 <1344000000>;
->> +				};
->> +
->> +				opp-1440000000 {
->> +					opp-hz = /bits/ 64 <1440000000>;
->> +				};
->> +
->> +				opp-1516800000 {
->> +					opp-hz = /bits/ 64 <1516800000>;
->> +				};
->> +
->> +				opp-1651200000 {
->> +					opp-hz = /bits/ 64 <1651200000>;
->> +				};
-> 
-> Drop the last entry for the same reasons you explained
-> 
-> [...]
-> 
-> 
->> +		a53pll_cci: clock@b1d0000 {
->> +			compatible = "qcom,msm8939-a53pll";
-> 
-> This needs a 8952-specific compatible (bindings-only fallback
-> is fine)
-> 
->> +			reg = <0x0b1d0000 0x40>;
->> +			clocks = <&xo_board>;
->> +			clock-names = "xo";
->> +			#clock-cells = <0>;
->> +		};
->> +
->> +		apcs2: mailbox@b1d1000 {
->> +			compatible = "qcom,msm8939-apcs-kpss-global", "syscon";
-> 
-> Likewise
->> +			reg = <0x0b1d1000 0x1000>;
->> +			clocks = <&a53pll_cci>,
->> +				 <&gcc GPLL0_VOTE>,
->> +				 <&rpmcc RPM_SMD_XO_CLK_SRC>;
->> +			clock-names = "pll",
->> +				      "aux",
->> +				      "ref";
->> +			#clock-cells = <0>;
->> +			#mbox-cells = <1>;
->> +		};
->> +
->> +		adsp: remoteproc@c200000 {
->> +			compatible = "qcom,msm8996-adsp-pil";
-> 
-> And likewise
-> 
-> also IMEM, DSI, RPMPD, RPMCC
-> 
-> [...]
-> 
->> +	thermal-zones {
->> +		aoss0-thermal {
->> +			polling-delay-passive = <250>;
-> 
-> TSENS sensors are interrupt-driven so you don't need polling
-> 
-> AOSS is surely the wrong name - that hw didn't come until years
-> later than 8952 was released. I can't find a mapping of the
-> sensors for this SoC right now, so either drop these or give them
-> some generic names
-
-Understood, I will change these to generic names
-(excluding known ones from downstream)
-
-> 
-> [...]
-> 
->> +	timer {
->> +		compatible = "arm,armv8-timer";
->> +		interrupts = <GIC_PPI 2 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>,
->> +			     <GIC_PPI 3 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>,
->> +			     <GIC_PPI 4 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>,
->> +			     <GIC_PPI 1 (GIC_CPU_MASK_SIMPLE(8) | IRQ_TYPE_LEVEL_LOW)>;
->> +		clock-frequency = <19200000>;
-> 
-> Drop this property, it's only needed for very broken FWs
-
-For other parts I will change them as requested.
-
-Best Regards,
-Muzaffer Kadir

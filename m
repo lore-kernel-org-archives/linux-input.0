@@ -1,54 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.61
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793043510;
-	b=j5AX4eb7iBrT9Iydvw6raxolQBegwn4W3RsK3llbmL26l1QJwjLOOruekQ9uviPQSNjv
-	 65GoLpQY4DmnYyOSYO3jmcjH2WlI3yssfgBoQ+lGihXFXC3pylc2ORskrmiX14FUqgWH/
-	 J1L1HHaPYiFl8tWQtcLvC5LcwmAsmbGmLq8/PLg/ukrhI+/cEUu+MOLoB02T/P8c+GMRh
-	 W/hyKNCku2Eo73YmAG5oHU1+5hGW+urwc6KpBCgPfRgbGkqfubHve/VV3aQGvBSSXtemI
-	 Enm8OghjY7WVFB7hsgaM18TejmS2qGBhu6ft4hrUEWED02rhzHQ+QPmo4OKcQP6cenQ==
+	t=1793060963;
+	b=T9w4Ek/Wgzo6w6F2nifVV2qWOmHFOOlgwk0cWEH8sS07wWqHUmGkn2IfuzRDqu+qadjZ
+	 6GzzBId+vrCX1QTvgmP2m2oLyVlVUT+l89+E+tVtIK3Lklzc9fcDthqSOhkiVGXVTLHaB
+	 GyLJOtYulel2j5JVMQ5dw94eWOxfjn/984icKI5oqD6vS+s129+/MxcO6I6N+ipVy3ig8
+	 eNdnWLAb1dWchViX6fzcf4aYe0G57NB+7apVddcwJ9QH/YZC5ijQLEzdIcNUnA1e8N+AO
+	 YYA3FKzeNbqgIk0N94GUbwzsFGETiKpie6FIzQtl0uhtudVYHH+jqMaXXkfh9TIZDjA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793043510;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=dSxMcvCi50FStr9NIPYVVCpZkXKm+Vd8EruufX/uBTA=;
-	b=4QVDxWqI2c1J2fqskZ/AaKAtVyvJpEgCrUb7oJItbusfjR5ruT+pF68ec6Irovc5mimu
-	 DEOhx52sQ2iJ9/i1ux5aaa415CTetjWwuRb9rkdFAp/c/xTBy0FmByeY0iUO1NUi8aCi3
-	 FCVR5RjjaZjKpXcqnI8qapdP5qHoUQorcBxugmvexycXNLqSrI11jO6vXe1ta9fThfuol
-	 KINu9HWD8/mUa9Rapq4sgTGi28RKIcf9LiR8uFEfV8fv3QY/sXL2oU+JlBjZjG6qmyFBt
-	 HW4HheS0NeKYDN0naYknkh7nWXVhNx87WkBmfs4ySxib0eMnNz8Q6Vaha+DYxq/NbOA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793060963;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:
+	 X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=oxACkjXTSKzxgM0GX6iNXbhJe3SlZ06HmpJL0C117t0=;
+	b=kHNs/NF36AYkPm4XC6Twm5LBqwA7OV38rwku5Thje5FohXPKJTMr8qvEGVMpGr6kd/lQ
+	 QdfJ3C3NpBD2rCulQpNfGETpRToJMRp7Nch6hWpYpymsfK7p7C0TKf/X8MkfsdWMWNqWT
+	 KId8FgLIXLr023B4C91wH+qh1ITX+2e74nAX9585III3UPIGpxeT6iI2GOaK0kgmst+GT
+	 i+P0scC3nEG78YlrdaRHKqVFmMLmXvX2WUlkSum/78nnPsjIsTXvgpOu7RtCZ7Fwn7nPB
+	 ESyDFnI4TSuboQ9dRl7YQW52XsUTxR1JIuBp1YHT7q/8T9B1s2lkGU9xSuiWyI8Exwg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=vofSMuHZ;
-	arc=none smtp.remote-ip=91.218.175.61
-Received: from mta0.migadu.com (out-61.mta0.migadu.com [91.218.175.61])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jTETyL7V;
+	arc=none smtp.remote-ip=209.85.128.51
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 326C8606A31D
-	for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 19:38:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 326C8606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0EDE606A31D
+	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 00:29:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F0EDE606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=vofSMuHZ
-X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=526XwKCaV8g60Tmvkvy/WpLSza7NhvA7cZDq6upGYME=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793043502; v=1; x=1793648302;
- b=vofSMuHZLbjx9qTH9SNM1w2Zab5XIucse9pgKZemcKrgdkKtpBKUyJrgG6ieWP3uTxRkqN0b
- NGQpNVcTfIu3emPnDje2GiN8sAuTUVYJWJigmEVgDuxscBQOYipPE2POBcth1JHdvawHAlnY+ly
- WHp93Rd19ELTrYSoPJyl3GsQ=
-X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id f858b6db7119bcd9;
-	Mon, 26 Oct 2026 19:38:22 +0000
-X-Mizu-Trace-ID: f858b6db7119bcd9
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <ca5e15e8-5ef4-431e-91bb-198a00d6942f@linux.dev>
-Date: Mon, 26 Oct 2026 20:38:20 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=jTETyL7V
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a3517554f7so24373165e9.2
+        for <linux-input@vger.kernel.org>; Mon, 26 Oct 2026 17:29:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1793060961; x=1793665761; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=oxACkjXTSKzxgM0GX6iNXbhJe3SlZ06HmpJL0C117t0=;
+        b=jTETyL7VabdKXBRrEOFKN/ABp39W/K4e3YSrvrX9Y98eVsLdhDCj6It754zG1fRdF0
+         lN0YNCGtXd7I3CQF7Z/Ugf3OGrmSMBhBVnZn5+51Lo9NiXlM6nIq2+e2JVSm2thzsF7n
+         Uk7VOumLDxDYHnRdsuIjGTpCR3yRnhlMjndJUa0gRe6KaIZko28EeWLYWhFd30hwNsZe
+         VDlCXhrIbzESnd+u4atAWQQc0K5CIfCAWOc4dTF4U0suvdJPnoceQlddPwpC8i5xiaTy
+         4sEUuL4crUFjqpzu5GQSkdJLaxJMfRsmCLuyoailhFwkwEZhZHGqsmJaSLmO8iy6a1LI
+         DdUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793060961; x=1793665761;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=oxACkjXTSKzxgM0GX6iNXbhJe3SlZ06HmpJL0C117t0=;
+        b=hAnlbhAW81CqUfTJAzg0/xSVyqM2pZXw2Iq2dlqjuqQrk839XhfhKqaivYPzvIQH4X
+         7lDXZVFdt/fp3yjJR4hgx+NOWouihwr6X45RS6nYks/Nn8k8KkIuzc/uR3m1rIyByztz
+         bBiUMM1csLbzbAmmsDfkHEuh3mMM9YW6Cr97uEP0nRD3SyfVhXDxIP+ZfVK5ksaBU5en
+         cIzuYQKi1z0VbW4DXNclTy2zzoPT0zCme2fuf9gTIYTn0oC/+oZvDBZYNuc28qLKTm40
+         UU0MrXpVM0M/OMBgeVsWtqeowQSRGxpGycTwKZw/tO/hwsIoZXxT0bEc/nXg0HOS9avM
+         0cKw==
+X-Gm-Message-State: AFq9FYJo5TRn/klUUgBCTB8aJUpY+6QW6frRYu0dROCDH3GYZWFSpaoF
+	vswaqNJhEfZnNq2E5EJu0hYbFUgSt0RRvuZEG5VJu0b8v4D1kjwFsrk=
+X-Gm-Gg: AYBFou2JQyYXoyPz/0d5RYLksahJZlm7JnARyHksKaJUtPbtBSG0bS1Pj++xMmkVsoc
+	y963uUlxUK0qJtj306VlN9E8J/9gK7bSUndkjtYnKqLf+ioilv38FkDc+0sy+zKpilLsLl7WTTo
+	T4zQiZaqXc19dU+QODM32GPhjedavI8v9q0T7aLAQrvIoX9kMznLOo1O8iNdM49fW9+NF8ccz9x
+	XgQTkxgS8Zw7JgN05WqKkvzwsTXNq5stcwSUhLlqp3KSZIxurRvlHPPVD+bGFcR6l8PHOWJtbZD
+	OwdZlPGVQB5lckVn8kvLH1e+iHAwEuGXCbKCFV2u05D5Xn8T8IvMYy07h7GXQGBVf3TrQnqTalJ
+	XZUQ0ql2YPgsZ85gOA2q4od3hOIECYW1ygefR/SPePhy5zQG7s37mtJeffH3pJHFMsBbunS5g1R
+	n/t00ANzThJs3/f+Z1ZEZlNVMbwQrYYC5GwEVxrUr4lG4+TZy0wD8MgEmpMNx6RSBwBrYS5msM5
+	4c/a2kCQJSbdK7s7Xd7DOObbdnUu2//22X6uA==
+X-Received: by 2002:a05:600c:8488:b0:4a1:e0d5:293e with SMTP id 5b1f17b1804b1-4a35aca1366mr145088605e9.21.1793060961143;
+        Mon, 26 Oct 2026 17:29:21 -0700 (PDT)
+Received: from debian.. ([2001:41d0:303:db6b::])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a5ea0df763sm142804565e9.3.2026.10.26.17.29.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Oct 2026 17:29:20 -0700 (PDT)
+From: Tristan Madani <tristmd@gmail.com>
+X-Google-Original-From: Tristan Madani <tristan@talencesecurity.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	tristan@talencesecurity.com
+Subject: [PATCH] Input: applespi - validate ACPI property buffer length
+Date: Tue, 27 Oct 2026 00:29:19 +0000
+Message-ID: <20261027002919.3589149-1-tristan@talencesecurity.com>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,83 +95,53 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 12/18] HID: asus: size feature reports from the HID
- report descriptor
-To: =?UTF-8?Q?Rebecca_Mara_M=C3=BCller?= <rebecca.mara@posteo.de>
-Cc: Paolo Pisati <p.pisati@gmail.com>, linux-kernel@vger.kernel.org,
- linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
- kernel@lists.opengamingcollective.org,
- Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>,
- "Luke D . Jones" <luke@ljones.dev>,
- Mateusz Schwartz <matthew.schwartz@linux.dev>,
- Denis Benato <benato.denis96@gmail.com>, Jonathan LoBue
- <jlobue10@gmail.com>, Khamunetri Clark <khamunetriclark@gmail.com>,
- "Derek J . Clark" <derekjohn.clark@gmail.com>,
- Joshua Leivenzon <hacker1024@users.sourceforge.net>,
- Nathan Chancellor <nathan@kernel.org>, Ivan Levchenko <me@livan.pro>,
- Corentin Chary <corentin.chary@gmail.com>, Hans de Goede <hansg@kernel.org>,
- =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-References: <20261025235232.129945-13-denis.benato@linux.dev>
- <20261026130606.212382-1-rebecca.mara@posteo.de>
-Content-Language: en-US
-From: Denis Benato <denis.benato@linux.dev>
-In-Reply-To: <20261026130606.212382-1-rebecca.mara@posteo.de>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+applespi_get_spi_settings() reads three ACPI _DSD properties
+(spiCSDelay, resetA2RUsec, resetRecUsec) as u64 values from their
+buffer pointers without verifying that the buffer is at least 8
+bytes long.  If a firmware implementation provides a shorter buffer,
+the u64 dereference reads beyond the allocated object.
 
-On 10/26/26 14:06, Rebecca Mara Müller wrote:
-> Hi Denis,
->
-> in the cover letter you asked Paolo and me to try asus_report_len() on
-> the Zenbook Duo. It works there, and it covers what Paolo's v4 5/7
-> ("Do not send feature reports larger than declared") was written for.
+Add buffer length checks before each u64 dereference.
 
-Hi Rebecca,
+Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+---
+ drivers/input/keyboard/applespi.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Yeah I felt like putting an end about that whole class of bugs
-while also unifying some core code across devices was the right
-move.
+diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+index b5ff71cd5a701..25910786a6c45 100644
+--- a/drivers/input/keyboard/applespi.c
++++ b/drivers/input/keyboard/applespi.c
+@@ -642,19 +642,22 @@ static int applespi_get_spi_settings(struct applespi_data *applespi)
+ 	const union acpi_object *o;
+ 	struct spi_settings *settings = &applespi->spi_settings;
+ 
+-	if (!acpi_dev_get_property(adev, "spiCSDelay", ACPI_TYPE_BUFFER, &o))
++	if (!acpi_dev_get_property(adev, "spiCSDelay", ACPI_TYPE_BUFFER, &o) &&
++	    o->buffer.length >= sizeof(u64))
+ 		settings->spi_cs_delay = *(u64 *)o->buffer.pointer;
+ 	else
+ 		dev_warn(&applespi->spi->dev,
+ 			 "Property spiCSDelay not found\n");
+ 
+-	if (!acpi_dev_get_property(adev, "resetA2RUsec", ACPI_TYPE_BUFFER, &o))
++	if (!acpi_dev_get_property(adev, "resetA2RUsec", ACPI_TYPE_BUFFER, &o) &&
++	    o->buffer.length >= sizeof(u64))
+ 		settings->reset_a2r_usec = *(u64 *)o->buffer.pointer;
+ 	else
+ 		dev_warn(&applespi->spi->dev,
+ 			 "Property resetA2RUsec not found\n");
+ 
+-	if (!acpi_dev_get_property(adev, "resetRecUsec", ACPI_TYPE_BUFFER, &o))
++	if (!acpi_dev_get_property(adev, "resetRecUsec", ACPI_TYPE_BUFFER, &o) &&
++	    o->buffer.length >= sizeof(u64))
+ 		settings->reset_rec_usec = *(u64 *)o->buffer.pointer;
+ 	else
+ 		dev_warn(&applespi->spi->dev,
+-- 
+2.47.3
 
-I apologize for making things a bit more complicated (and perhaps
-adding delay) but I feel like this is the right thing to do for everyone.
-
-> Setup: hid.git for-next (hid-asus.c f6aa1be09ad5, the base of your
-> 01/18), your patches 01-12, then Paolo's v4 1-4 and 6-7, leaving out
-> 5/7. I stopped at 12 because 16/17 change asus-wmi and asus-armoury,
-> which I cannot swap on this kernel. Paolo's 4/7 needed a trivial
-> manual fixup (include context and the enum hunk); 6/7 and 7/7 applied
-> cleanly. Built out-of-tree against a 7.2.6-based distribution kernel,
-> UX8407AA, with my userspace workaround stopped.
-
-Those asus-wmi changes are for the old non-thunderbolt XG mobile:
-you don't have that hardware connector anyway and no more laptops
-will be made with it so not a problem, I have this hardware and can
-confirm it kept working (albeit sashiko-bot spotted an issue that I couldn't
-with just my nvidia).
-
-> - Docked (USB, 0b05:1cd7), captured with usbmon while reloading the
->   module and pressing the backlight key: every feature report goes to
->   interface 4 as report 0x5a with wLength 16, zero-padded. That is the
->   handshake SET and its GET read-back, the 0x05 function query and its
->   GET, the initial brightness, and two brightness changes. All
->   transfers completed with status 0. The backlight key and Fn+F
->   (platform profile) work.
-> - Bluetooth (0b05:1cd8): the backlight key and Fn+F work, no errors
->   in the log. This is where, as described in 5/7, the 64 byte writes
->   used to fail with -EIO.
-> - After docking again: backlight and Fn+F still work, and the input
->   devices keep their hid-generic names.
->
-> So from my side 5/7 can be dropped in favour of this patch, and Paolo
-> can rebase the remaining Zenbook Duo patches on top of it.
->
-> Tested-by: Rebecca Mara Müller <rebecca.mara@posteo.de> # UX8407AA
-
-Splendid! Thank you very much! With this tested, a ROG ally, an
-ASUS touchpad and a 2022 TUF tested this should improve the
-driver for at least 90% of supported devices!
-
-> Thanks,
-> Rebecca

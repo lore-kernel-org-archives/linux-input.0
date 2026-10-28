@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.44
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793218127;
-	b=wf6tGuSIhamb7bE16KR+b36Vdqrxu3RApfzxAPBjgzoWvcXL5wCCmDP0qJJaYi6aM9nf
-	 7VT16O8u+8uMyzhm/y1xzTlnqKjxZ9NQZfsYE4NJHSaeFAkXVtDOSaKvzzsoAWYKaJiu2
-	 oObCGnC/Bb0PLD/tkuCTf04ifNFMpNdxdiBh2lbmkgTGiW4TSGq6eqeP2wBFkfEYtB1/X
-	 SNPhhNAJF3QwzLuTgkXnBtzmMmbzk35mq21jO4IjOtffFpnaYoAaEBJXTlTdh+hPZHpSe
-	 /1F6WdZ79NJzWtygtsPd4dL3XfyG1hSaNMU24Fb9psm6qt+ldVMTZQOj+0/9HWwUhSA==
+	t=1793218128;
+	b=3RNHAw6w9hXUExJoBo0/MOqXqx39lEmY6kMM9bP0jpjfOXe7gj+ZPG87hvu/mtEkuCRd
+	 keg6McxwhGqeaj+nOgJQoKl05kr/fAjX61ex4OpeG8AR6Ex8SpEWrSg//9jXwUuIo+OtQ
+	 xRW99kVbzIof5Y+lQcFlwNfr4yJxl1p41txaj21XfCWISDTve7D/XJZkxkiMNB3u778L7
+	 JsuyOGvDH8D3F2yw7/pg0iYu4DeXVRqHXrc2Lxh0ZPGeXpVsrspeVdLALWEcW+fgjV2kB
+	 4c0PkGJAPXufWDXtM123mET6tAN4oBOuEjC5Jk57uRA7CZHIFzQvzR6VzAacM/F30Sw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793218127;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793218128;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=whgz2xp+Qof9xdVTPW28769GBAl4IHLoKq0HlwY7cKs=;
-	b=wYY48vqOhhDKHM81vZYcnTaW/p8JTGkPMmmez2FW5k3JTaQEhBYHpD6V8/8P5IFnlPrR
-	 MUMDa2iJF/vF+O0kriiGt5F4jOnejJ+5h61fpnU9L4hh8Ak8JPQymsPWtAAB7+gagcAuN
-	 RD8OTIb2TFeueR8/TJ498SxEdUzbtnxYwBa6JDYH1khxBrnQYRYQZDT7DyzhKjVfux0sc
-	 Bapbm1PtOMvDbVJ3dYRrzDS0ER9P+G50uAvDqAusWg6MxI1iAmgiGCZ9ZJUwxOqYW4sbM
-	 jspvsjjPqXBQugTjHDuEINCqaigdCfAWiT34dnd+5dwWsNJCerui3Px6HdVOER8r84w==
+	bh=1Z0YQafCG/ds8K4nf8XstMQMpN2YG0GXfEJKDLgVft4=;
+	b=cMJ3E6un0e2zVq1ihH3PPDeiEWKkTDNY8Hj9ET/+b22JOUy62Th78Bzi9RfUtr9MKWr9
+	 Dl9Aft8A4+gmR1xPCihMHKIWBHMkDdgD+U+G9d4pIKeb3d1VgXLzoUA2R+KKGXW+fZ8sW
+	 0zThqXCYcykuzUzvOXMPkMekr7Ngcv1px0EKCUT7C4H7pDf09NYvD+ivhToug45LpoUQf
+	 0o/7iR5ob/CZHZazQKCY52MP/dor5PSEkA0KWpx/RN3IvMP4gKCERdXeCviGiCGW4LYre
+	 mI/Zk6CFNIP7LjBkGnheFBSdZTIs0ux+H5bTBwnVRNXvJ3FhW+pBOeSZBec+NuKblwA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xORv2qdf;
-	arc=none smtp.remote-ip=209.85.128.43
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oqqflOg4;
+	arc=none smtp.remote-ip=209.85.128.44
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 320F4606A333
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 20:08:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 320F4606A333
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64A6C60A2602
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 20:08:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 64A6C60A2602
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=xORv2qdf
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4a4d7ae1ae9so12914605e9.1
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 13:08:47 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=oqqflOg4
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a5087a5348so13727755e9.0
+        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 13:08:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793218126; x=1793822926; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793218127; x=1793822927; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=whgz2xp+Qof9xdVTPW28769GBAl4IHLoKq0HlwY7cKs=;
-        b=xORv2qdff9ONSS3gk/vFQEAVExQiBOVC34Yt8gjGgWCu782oFeqi2xESe2mXz2ixYl
-         h1VYq4254ut/hY36SsW721Dd5O5a2VFmKJzL4XNhwIuHfcXpiosIJd2Y0MNway87Yh5P
-         xfVY4HPd0MAradlpYlGfj9szHpR4i9NnegHXTSpqWGPjyZdkQVXuQ0wrH7pdwDhL0r5e
-         m2XDQ0j55FjNuo/9CM6Ku4m2/Oezs25Bx84Y4lrigvnCoMn4nygoY2P70YEdJpYrrl46
-         1BmXvXKd2fVoDML3FkM11jrHKYbb3Uu++cq1WoGrcA+bs+ngNSvAD72pbARjQ9b244YE
-         ey0Q==
+        bh=1Z0YQafCG/ds8K4nf8XstMQMpN2YG0GXfEJKDLgVft4=;
+        b=oqqflOg4/vH1hCedy0ab+pYyVSsCyDf6kfCImm2ZNIfpuufIYMyu4qqV4z6BQUP2B7
+         l19YN+fUGZkvtdD1IqOi97B/VPOn4WIZdb+iOWdVU8zZzyu0i2EDqY8Ft8/c+qN714ld
+         i7ZFSgNbVG6twyWRBpqcKEUAkEUEin6n0+rCIT/VyC50vmFyJlO/BjdwYiVVIZUtCOFH
+         VhT+L3VizqSK70fjyDl5UdtH0PkouEmQL/z94EcDBF8LjSw2tGTCjiu9hEQpEfNgFReg
+         e6TvyGRTFEqi7qAf6WEjtdAyH2JCb7ky9AYFZ27IZ1pBeR611JBmmHQva5TQakQY6m+p
+         mKJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793218126; x=1793822926;
+        d=1e100.net; s=20260707; t=1793218127; x=1793822927;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=whgz2xp+Qof9xdVTPW28769GBAl4IHLoKq0HlwY7cKs=;
-        b=DSnDkJEq3emQHBlPODqDjTzXBHUPxEU8KPEuW/pmQOp84ATHDuAiok8MnmQopd3KUF
-         4q6rCbpQQKS3g2NMs6n75OwysTPqTHoM7PXTXwpA66GzGve4O4BYkgrdsMkA9Xb6tQSj
-         IBGYGlzdI44Avm3M+DNtFtDmK7JDASq9FJzBtg2CUHFCufG2P7qQKUCkV/kO4Qe4amtA
-         Llj6EyoejPKCh1ucUpNgIQnkt137HgUuPXxIpGr5KPZBFKIXg41XZEcuzTs42PVw+P9Z
-         7iHA8Jp59kY//Bg5WFH0h4iL82U9B0i/Lu1by+DpfA0o1n1eE+cvrHWIfSkbDjLj40BJ
-         uMEw==
-X-Forwarded-Encrypted: i=1; AKwUvByFsMayoD4zj2thdF4cxrvjaHL0hxjlDaRuaDlglteZ4tmL0Ujt8K6TJqhb6462t4uYQo4JTzUIBj/E1w==@vger.kernel.org
-X-Gm-Message-State: AFq9FYIpV4c8aePdznW8tcrLpiog5fv0HbNI5xdErNJh6CLbEAvpQj8S
-	bQLU7GdID1OyEV6SlZpZYSb9sp2nUrzksNpA/qK7GS/ZtAMDa/TFbn+aJuCCSA==
-X-Gm-Gg: AYBFou1zlFICyMgBfAFPiWrARK6fZQnlD+9uz04l5k6zLxFAh4leUDUZHSF11ySZiJ/
-	DvE8757lAVcl6PnKnu5yzm8kGRSHiUoEpSIafX8SaOce80ZvIP97+mo4gyZPQTgnycyH89H+fuj
-	71FUojz4Wb0vQRJvko8UBXd5ABCrO5j3sY95+0LhVZ9nQePHIRiAHSxnOTg4MmjIWlKA57NZ6XE
-	KfgVMLOOlFwBrxFm9UKJKkOfW921cmWWjJ8rInBo9vmrjJhxZXxrqBBj3f7oa4RUvtAhehsbJA0
-	s7txtvWXBkGGsCY4HZb3Uh6AGVPmDez5CtB+tw8wNGViN+8Ms2R+ZiJS0JYSuLmeoFCTQZq4J+s
-	CIZh2p4MrrvsOLml+BuGwvrsfu5p4Z0DbmlXGbIZFBfvZIsO8VJYpenYQYVy5yd36BTABa4H2Ye
-	UyMM/ADAAnte9NefxDMAnYSCi9fKhS4j8mfnkRIJNJ7hHfDPhPVsMVUgJIjnRUHLiiknbjJ6Py7
-	9czRa/a/gQnOMdEZdAS5950XPAZU5xr/OqK2LVr3CHk1mRxVDNwFuDTYs8RdXrG5+66p5EiV/hR
-	0A0nFOWoCHcL1aQKyA==
-X-Received: by 2002:a05:600c:810c:b0:4a2:392:9de2 with SMTP id 5b1f17b1804b1-4a967e8d6e2mr76409945e9.28.1793218125585;
-        Wed, 28 Oct 2026 13:08:45 -0700 (PDT)
+        bh=1Z0YQafCG/ds8K4nf8XstMQMpN2YG0GXfEJKDLgVft4=;
+        b=w75dxMrVw07/lT1JVHyD0I0g4ZUwiI4S8QSpuVB4lji4McAutld9AuvrGeVeBRLxnD
+         ig578Df4XF8YS4B4geDqsEnTa/UaG1JWT4tE0ADDG5YfljhSLtNx9IsqIAb0LEiHUoJg
+         GkPOt0rbVWzP89Z5p1+AwCaJSKVzFc1gCVgMkqoDoiNUxYKmlvxV6ajzC5j0cfwkFmR+
+         Nf8HY5ANKatS3wppb4m1PGtL/ZNKeLJBRIFnnAkYuCKt89xlivKNS4a9m/uxK5h1XoDk
+         KY1OuNoADIVeTDoPH8AQ9Ym1rMgEOgGMINYyKUWmlky3BwPsP/sp1KEsCi4s0yFlLaUx
+         mRpg==
+X-Forwarded-Encrypted: i=1; AKwUvBy6PUj2HQZXc062hLXWi43QLDVf4Q+k8wou+bOAzOIOnYyNA63wJukBLf+xWFsFCqnh704H6LKAB82pxA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYJtwJ7Yk6e53NhJ+KlmMGyPWqfkISv+r8Gn4vha+64F2hfRG0rA
+	bNIdl1nEsX9T7WW+gmCCT9USq0ik6Lhq+N4YtTks7VXi79GKFyyqqLMs
+X-Gm-Gg: AYBFou0CxqXoC1eziltaNb2lGCTeIh16Il3BrFK+cocvtV/31AF79D2tAPD2sTuvoYy
+	oh9e16w4h14K2+EeZzGGfM15A+EJ+wrV2TKcIDbDDgOQselA1Rc9hjM2yrG1JEzGzbDet5FFjL0
+	QXBi9NVwpbOcRClBQG+gOb8huN0umKI8tsiRZ0j4vYrYmrCuNtN7qTHkj6GMlq3eNVA8yR1Rs3H
+	wOeg3LsEAVcRjBapHBJr0fJtGxK3pGLi5N5GV0LZNyHyKEMfEqATpiHzF/zkwg7ZXwMNqV7h8pk
+	L2QG1EzdmsJEMQbgSFGGcZ6DOtZzNAi6xwv3AvE8cGcBIp0TJfWvbddOXQ036JHHK0K8m5+pwiz
+	+KkFZWGAAu5lvUlByKRVLhTxvUtdCfnjBV8cSTkasD3zA7isgwDqbIButjhXJ/Mfnr5P3b3VJ3r
+	ub+0WDEYFObVtvWf+k3+FqAF0QQLt8EanQlL5WIM+n3ByQFwq+1iFYEXyhMdy3hydFGH/nBDikn
+	uT/oXxY4mgi4eivgIIcSDQ2m/hfkH4c1g0pq9RDhSl1xxgLX4Spi5uLZrr61e2Ct5h3J+PryEHn
+	V4nNWvTtyd7WzYeTjg==
+X-Received: by 2002:a05:6000:29cf:b0:487:1575:ebef with SMTP id ffacd0b85a97d-48e5d311eb9mr5672419f8f.47.1793218126745;
+        Wed, 28 Oct 2026 13:08:46 -0700 (PDT)
 Received: from fedora ([2a02:587:85d1:a500:5135:1deb:a9ab:fb3f])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3eb8f387sm30134320f8f.4.2026.10.28.13.08.44
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e3eb8f387sm30134320f8f.4.2026.10.28.13.08.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 13:08:45 -0700 (PDT)
+        Wed, 28 Oct 2026 13:08:46 -0700 (PDT)
 From: George Karagounis <taterraster@gmail.com>
 X-Google-Original-From: George Karagounis <mail@taterr.org>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -87,9 +87,9 @@ Cc: =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	mail@taterr.org
-Subject: [PATCH v2 2/3] HID: elo: Replace create_singlethread_workqueue with alloc_ordered_workqueue
-Date: Wed, 28 Oct 2026 22:08:38 +0200
-Message-ID: <20261028200839.202670-3-mail@taterr.org>
+Subject: [PATCH v2 3/3] HID: logitech-hidpp: Replace create_singlethread_workqueue with alloc_ordered_workqueue
+Date: Wed, 28 Oct 2026 22:08:39 +0200
+Message-ID: <20261028200839.202670-4-mail@taterr.org>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261028200839.202670-1-mail@taterr.org>
 References: <20261028200839.202670-1-mail@taterr.org>
@@ -106,34 +106,32 @@ Content-Transfer-Encoding: 8bit
 
 create_singlethread_workqueue() is deprecated. Replace it with
 
-alloc_ordered_workqueue() for the elousb workqueue.
+alloc_ordered_workqueue() for the force feedback sendqueue.
 
-Use flags=0 as this workqueue only transmits outgoing output reports
+Use flags=0 as this workqueue only queues outgoing force-feedback
 
-and is not depended upon during memory reclaim. Using WQ_MEM_RECLAIM
+commands and relies on GFP_KERNEL allocations, meaning it is not
 
-would unnecessarily spawn a rescuer thread and trigger
-
-check_flush_dependency() warnings.
+depended upon during memory reclaim.
 
 Signed-off-by: George Karagounis <mail@taterr.org>
 ---
- drivers/hid/hid-elo.c | 2 +-
+ drivers/hid/hid-logitech-hidpp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-elo.c b/drivers/hid/hid-elo.c
-index 86e8729e1975..8a96c0f7d5b0 100644
---- a/drivers/hid/hid-elo.c
-+++ b/drivers/hid/hid-elo.c
-@@ -296,7 +296,7 @@ static int __init elo_driver_init(void)
- {
- 	int ret;
- 
--	wq = create_singlethread_workqueue("elousb");
-+	wq = alloc_ordered_workqueue("elousb", 0);
- 	if (!wq)
- 		return -ENOMEM;
- 
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 27d83b8bbaaf..c4c578c42182 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -2875,7 +2875,7 @@ static int hidpp_ff_init(struct hidpp_device *hidpp,
+ 		error = -ENOMEM;
+ 		goto err_free_data;
+ 	}
+-	data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
++	data->wq = alloc_ordered_workqueue("hidpp-ff-sendqueue", 0);
+ 	if (!data->wq) {
+ 		error = -ENOMEM;
+ 		goto err_free_effect_ids;
 -- 
 2.56.0
 

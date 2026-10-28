@@ -1,83 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.229.138
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.229.6
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793193972;
-	b=BZ+Y4sr7pbMGITM/Nl/uKuwrzJcBcyYhaD3uB62ea7rvSksb7AlA2f7RTWLD5aUzpJyS
-	 W399ZOJwpv1t+/dKgLJIHD1ZmK4xiNIABC9razHDWJw3v2F8CzWoEEZt5tbXaPgWK1ODd
-	 CJB8I25RZODNIgoG3JBtHrWwpEDzRXelro2HumXtjNKmQ0v1GCrs0pZxjG+Ql2GFIJKxD
-	 auWZqmReJLlxBVpYsNKNI//k44fPD/J4To/oWLdT8QO36mI1JYuUoqWbYGBnvvVwjA+EQ
-	 3i9BIbvgseqU6wyxJtZZdHoQ/FvjNXu9xfg9JYI1ELEgUliv2cGTe/r+PMJMKYmMoKw==
+	t=1793193974;
+	b=lG3TuSglFsQREPrOrIFO5LgHED7WRohnJcBb3EYyAr14UNIIV75zZvqpyPJ15Ypi430T
+	 D+5EGXHF++2iYEQFzDiuMMu3SxBk0HtzonYLwiAAiYZOip4e9Gx+x+Nr4QAAhm+twdBJ+
+	 H6fXXjqxNB8mfgzuXAAMZKIEWsZtNGxQBAvCpK/vR0i/8VGJrlPWiKjURm6MHZnkZDd2b
+	 42CeQVjIaUDFRX26w1OlDzrnXz3us4hTZhI0dwNbPdj+omFPgs5KWRuA3rP2YaRfiJ3AC
+	 XZ7dBIpBksinObYGBYNhU6fhhj+JFAMNqaen17a39MhM5hOt1oyyuW4rrzibJ1Vh7Tg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793193972;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793193974;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=J5kskPYEzVbZTmug890A+LF3utkapqU/C4c+xhUhSgg=;
-	b=NU7/G+oAbbXMA3OijvhOqT96mi0awa2Apf+BHJMyCgld7lsbAuz34Ot09+KdGzrVzxSk
-	 8I8HnTATkpU0w3rWwsDpQdNcE7shSDPGaMG8etARLB87MSX2rHJSSZJaRJH26EmvMvhbD
-	 63uuQG99TvF3D7ynjMeNKo7IyuYs/J1qM3Ss03nos6xfbPoPjFO6Y+wLYFjVtL3CvJzVL
-	 nFOwAHuomg01jjbSqBUU3G/ufYYaM9CUIxvVdoW7US3peVFQ+aPK8zwA4sUww/WeMbF33
-	 ajtqjZo4KYb6ztlF4my6ti9QcY92H6ov/ckHp30ixyjEmQs8Nh7VyAcuO4k4ZXV9lWA==
+	bh=8lGk7ecJbJY8uCu7oKsWi906u8BzDPDWd5oQV0tOkG0=;
+	b=GcS/kC4YXi4czop+Nugi3rbxK5OBRmAfTVXV4xRc01ialdV0Y4aMp4UXeRv8HwqLg3gy
+	 HX/MFWqw6Tgd3ECsxzrbA43ydDgtiH5yV3Kuj8fE/g6bbtfWnJylzJG/BgHUNpVBICZiF
+	 +wHQRyyf+ruiwITcHf30H5mLuPHQwQbQKnn3zYAp5PgWJg65D/UG2nH9ubuI3FetPNj2s
+	 y0JdRBSsx6GVUwqcnY1ng4Efe75+RBfOPD48Ub7oKR0NDiW6S9+NZbkLr8AbU2xchTptF
+	 StUihU+llwHLa/54wEPdJ1ZkgLN1xZGmQN6tLJjYi2PJnkacTYgUh1Qp3j0cIDb10CQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=r6WsFWEa;
-	arc=none smtp.remote-ip=74.125.229.138
-Received: from mail-dl2-f10.google.com (mail-dl2-f10.google.com [74.125.229.138])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FvmOyktS;
+	arc=none smtp.remote-ip=74.125.229.6
+Received: from mail-dy2-f6.google.com (mail-dy2-f6.google.com [74.125.229.6])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE345606A31E
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 13:26:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CE345606A31E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90AA5606A326
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 13:26:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 90AA5606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=r6WsFWEa
-Received: by mail-dl2-f10.google.com with SMTP id a92af1059eb24-175ec8c4efeso34635c88.0
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 06:26:11 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FvmOyktS
+Received: by mail-dy2-f6.google.com with SMTP id 5a478bee46e88-35adc681e1aso1710767eec.0
+        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 06:26:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793193971; x=1793798771; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793193974; x=1793798774; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=J5kskPYEzVbZTmug890A+LF3utkapqU/C4c+xhUhSgg=;
-        b=r6WsFWEa2G8zV5addLX27W0ggvP8OAREh4En0WMu1Mny/uaMb20H1l+KBki0mG07XY
-         W6ef0N97f+Pm1z3EkxukkPYXzYItnqgz5ZeJse+ZfeFokS6P9YmYavxlzMjMGg1r9ILj
-         vMXlCDtBPUk4o1xpDpxwPJmDI0KXJ8w83+AA182PNbpv77cH3/BWLQjIXi7FaogOjr6b
-         TiskIs/ER1qxSLBQygcbLN3LgVxlH4VMNzvMWyY0w6LG5rFs97O0n4qgtOINVgPu/G+C
-         FDvRtglAKReGnm+hzn8/eZ8Il/3bUMuaNzgaYQ9zO4fQo2dCM3xV6Or6yqBA3wCi6km8
-         gcFg==
+        bh=8lGk7ecJbJY8uCu7oKsWi906u8BzDPDWd5oQV0tOkG0=;
+        b=FvmOyktS1q29kBO0PSFzhCQQ4fSCh+73Qzo8DDROfe2c39OvqnCOjD7C3prM2DQ+Uj
+         AOhGfDjXapl2DoNUNBVSCaRHpOabol6kRewnRg3X6OzvvYaE1U+L39lJdQnR6P8iAGN2
+         gLW94k0E/yGLh0LnSKLbpzfLMZQ/Cxx3zqOUbhvFUFriFc/UBA4oK+MEpOBvbjEZOc7M
+         e9N7OlaUrwan+0v+33gj9srblm9CaNaX+hvSFwQYp6hwsNkUKPfBqaJuIWomu1cMERzc
+         6pc+6eDvnFCK9NQbtsinuXYSEq6DYmnjI8uayP5DM8vpzxn7KMDRciU6m7RmKGwyCh3L
+         vmOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793193971; x=1793798771;
+        d=1e100.net; s=20260707; t=1793193974; x=1793798774;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=J5kskPYEzVbZTmug890A+LF3utkapqU/C4c+xhUhSgg=;
-        b=sj//yBrxZfxfWjL+U0NY7cUxxq6C/Z7iZKXlBgQEUz9uJJYN6xW/Lv4Rzmv6wgOT9+
-         DTUa24cjp4LgesOQqOQBjkhGgBGUDLzm2/eWq7qxtBh3J/Vst2Emt/qMLPd83nTZCSGg
-         KdgdzUcDf59bF2JWgUw2EPHNl4HoH7X6LDpgSiFmSzR0acYNOvcMVXjnRgJWPdsuIqQX
-         G0B5WoT7hBA6BZFRHMIG62ydTNGTJtdpkiXEDM05tlPKoOczyZd3iWCDEaX/ZofIYnV3
-         frxtqxZ5VxqVMpfWv+ssta/zP7HAcKhzTExJzJeQsXGP7wUxNKyKZIhf7ySWA2jqGJuD
-         h//A==
-X-Forwarded-Encrypted: i=1; AKwUvBw4W4Oqgj+ZmvD/velAvYckJ9XKqYpSv70RZ4aUqeoTRgyVorf8hJ6+yMIiRFCjm4Kxo1OAnzw2TQkOQA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYI3i3MWWDnu0RytiKqD7j3B23e6ks+Ci/jVRVlNJ9jRuYZFOhWb
-	k1fLIVL8k+iMbO56tODnjnDQQXW+Flcv4JjlQsKLEvK+IBBPQPlrfCKp
-X-Gm-Gg: AYBFou1pvqqS8zy6rC/i8+8OIFHn/Q3Hdf6P4Mb6CwZ0atGHm3C1GMPtLrdIdTDCaX7
-	R9ODY92c6iu3g6jMRoR+D7NeXV1pLdSOtRPBAyv0FRT94Bju9GbsQEyj6O0SwvCB5v6efi913/R
-	HPs3tmFu+xc0QD0LY5pt4PPdrhPOshtAFzq89Vh1N+Lws9l5faIFfDv+01+kVLzPbNV1recztyN
-	u6mdHgM/lBzHYLEIMrkwK3wzh/X/j1+eHDZZo+XNYdVTlpKDub5PfFGd2Y1t1jmPJeNC7niprow
-	YGrWjhaAdC4Rn6Ol6YlIvQYduA0buIjYNNG4v8MjBWIpOQ3j/Aow0UP2CAoTQDkiZtvOY8b2SJp
-	9WWNeMycPOFDCAtQUUQeTKJKBxeDs3zCSwL1+/lA6YL8CdjZ4hJ0N0lrY6nsjLWrDliDcU9YI0e
-	ruFTVKp2KY/J/fxShn079AVnEqaN6fiNgp2OX8no7TWb9ileNk2fEttZziTLYQdYzAzEHWy+Bce
-	bkA9VjmCVIqTgNDgx6H/i5zLlw6FCb+s9NDFfR8EuDAe59YwHX9RQAcdlRWRX8dFPhZaiLxy0Q9
-	iPKZ9feSx+k2q9obnEgxHFUeh5/L1pNQjCBC3PjlTFOHjqFHEBk7m8g=
-X-Received: by 2002:a05:7022:e883:b0:1a7:2ce7:ad10 with SMTP id a92af1059eb24-1a72ce7aeefmr2980468c88.44.1793193970280;
-        Wed, 28 Oct 2026 06:26:10 -0700 (PDT)
+        bh=8lGk7ecJbJY8uCu7oKsWi906u8BzDPDWd5oQV0tOkG0=;
+        b=uhp7ftFvOAGci7CZRrpLxfhFtdNIzkjeIFJB5clkjOsMKDZQ0rIeFi8O5DpdH5UmgG
+         iReI7mby3+OS4vOqiABor/emQgFb4U3gMghDZXfViHZxJoQ20Ef+wF+SZqmn+gEA1cMR
+         I1De6aRX1F7wNbE+BIi49zCEG2aPL4WhrRMa4wVYMW6bSlc97Ud7oH4zkaj1EnYsL4xG
+         T5C3K65cBhvvCLac5vrEJn7UM3ahuNFfQrFFg0D1CLQZYB8KmBXegzEwOF7LGyAebflB
+         U8Cfp3Q3qF6vaZdwOXPRbD0lCOToQv95CPfwtGpFyU0vWpMRdm/OjRH/Wcj5ivImVzuP
+         81tw==
+X-Forwarded-Encrypted: i=1; AKwUvBx2waqCbZ9BBVnUGZ5AJYDlNOmR/JUz7DE9Ag/i4zpZa5EXEvEMmgeaDn4I0Z3LUVbFYFl0LylGLvrL/Q==@vger.kernel.org
+X-Gm-Message-State: AFq9FYKOCmhhWipnFz9xQ7qy6WPHI7BttOg5BurqK/978voCFVzu5htK
+	jP98DXqoVfs3rOZPEChyJrD61rOti1bexKBfH1iM5Zi33riFm2lymqEm
+X-Gm-Gg: AYBFou11bz1OD8Sqo5NIuB/X/g0NAkz+Ou4fQ2/PDLoMCxDJ0V1YyKHTt/QWln15oPb
+	Q1r+dVIAD9AHsyT+UQlNfpF9ZlYNVc1CMqhC/P/ik4pUB8yHbeFxqgi7LDmZfcMakNoDXF49TzU
+	1tTIKrI1zJDT7sb3D3xRwiCsaxznFdKe/wxrkQJyBd6RBUkMa+8377AAI2k76ZI4fgrxOBfEYLy
+	gQSlGeLCogkfW5gbTlxdfhG90ZtnGg5vb1ToKfnedEw9DQ8xaRACp+MnXButTHpcRFp45IlrkDl
+	teXkIzhKNBS9aAf9+ckFI7LpjhXluzDNv2dMRTHz/KVaF1P6qEjLipYyFVe7ADKzz4NFCGj79GP
+	45P+30oMzkhslk3YAcLayksARqRV1PcowRQahL1wYT8EDL5/lJDD04AYj17jgYy7haDeDmP7o5r
+	Vdr7awPacFQJ6HMlIJPjQFajyldIcWKHk/s/WQPatZkUsJw8FX92r7oz2Fq7lHl/hGK3PZV06k9
+	XYSYEpgcW70XbmYbXEZsa7TMziTOgjpxVTBNocbJkDlxFuriCGkMMXJTg2uibANbwhwifn5dnA+
+	ePCYpWQV4lpVrSmoizTcvdxcmhvNHgPtICkyjNLjJ0PetI6FLqt6o1MnbHyUJQCHwTeX
+X-Received: by 2002:a05:701b:4546:20b0:190:f24b:9491 with SMTP id a92af1059eb24-1a6cbe7ddb9mr3384162c88.12.1793193973628;
+        Wed, 28 Oct 2026 06:26:13 -0700 (PDT)
 Received: from toolbx (2607-8700-5500-3d9a-0000-0000-0000-0003.16clouds.com. [2607:8700:5500:3d9a::3])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1a75c814aa1sm10708639c88.7.2026.10.28.06.26.07
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1a75c814aa1sm10708639c88.7.2026.10.28.06.26.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 06:26:10 -0700 (PDT)
+        Wed, 28 Oct 2026 06:26:13 -0700 (PDT)
 From: ZiAo Wang <ziaowang2007@gmail.com>
 To: dri-devel@lists.freedesktop.org
 Cc: maarten.lankhorst@linux.intel.com,
@@ -91,9 +91,9 @@ Cc: maarten.lankhorst@linux.intel.com,
 	linux-kernel@vger.kernel.org,
 	Ho Jie Feng <hjf3108@gmail.com>,
 	ZiAo Wang <ziaowang2007@gmail.com>
-Subject: [PATCH 1/3] drm/format-helper: Add XRGB8888 to UYVY conversion
-Date: Wed, 28 Oct 2026 21:25:34 +0800
-Message-ID: <20261028132536.375927-2-ziaowang2007@gmail.com>
+Subject: [PATCH 2/3] HID: quirks: Ignore Valkyrie USB LCD devices
+Date: Wed, 28 Oct 2026 21:25:35 +0800
+Message-ID: <20261028132536.375927-3-ziaowang2007@gmail.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261028132536.375927-1-ziaowang2007@gmail.com>
 References: <20261028132536.375927-1-ziaowang2007@gmail.com>
@@ -108,145 +108,46 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Ho Jie Feng <hjf3108@gmail.com>
+Valkyrie USB LCD devices (0x345f:0x9132) expose a HID interface
+for vendor-specific display control commands and a separate USB
+interface for bulk framebuffer transfers.
 
-Add a helper for devices that use packed UYVY but accept XRGB8888
-framebuffers.
+The HID interface is not intended for input and should be managed
+by the dedicated USB display driver instead of the HID subsystem.
 
-Signed-off-by: Ho Jie Feng <hjf3108@gmail.com>
+Add the device to the HID quirk table with HID_QUIRK_IGNORE to
+prevent the HID driver from binding to it.
+
 Signed-off-by: ZiAo Wang <ziaowang2007@gmail.com>
 ---
- drivers/gpu/drm/drm_format_helper.c   | 73 +++++++++++++++++++++++++++
- drivers/gpu/drm/drm_format_internal.h | 21 ++++++++
- include/drm/drm_format_helper.h       |  4 ++
- 3 files changed, 98 insertions(+)
+ drivers/hid/hid-ids.h    | 3 +++
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
-index 6cddf05c49..606733ca43 100644
---- a/drivers/gpu/drm/drm_format_helper.c
-+++ b/drivers/gpu/drm/drm_format_helper.c
-@@ -1379,3 +1379,76 @@ void drm_fb_xrgb8888_to_gray2(struct iosys_map *dst, const unsigned int *dst_pit
- }
- EXPORT_SYMBOL(drm_fb_xrgb8888_to_gray2);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 91319aa651..d135ea8f06 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1704,4 +1704,7 @@
+ #define USB_VENDOR_ID_HUAWEI			0x12d1
+ #define USB_DEVICE_ID_HUAWEI_CD30KBD		0x109b
  
-+static void drm_fb_xrgb8888_to_uyvy_line(void *dbuf, const void *sbuf, unsigned int width)
-+{
-+	u8 *transfer_buffer = dbuf;
-+	const __le32 *temp_buffer = sbuf;
-+	unsigned int i, dst_offset = 0;
-+	unsigned int pixel1, pixel2;
-+	unsigned int r1, g1, b1, r2, g2, b2;
-+	unsigned int r, g, b;
-+	unsigned int v, y1, u, y2;
++#define USB_VENDOR_ID_VALKYRIE			0x345f
++#define USB_PRODUCT_ID_VALKYRIE_LCD		0x9132
 +
-+	for (i = 0; i < width; i += 2) {
-+		pixel1 = le32_to_cpup(&temp_buffer[i]);
-+		pixel2 = le32_to_cpup(&temp_buffer[i + 1]);
-+
-+		r1 = (pixel1 & 0x00ff0000) >> 16;
-+		g1 = (pixel1 & 0x0000ff00) >> 8;
-+		b1 =  pixel1 & 0x000000ff;
-+		r2 = (pixel2 & 0x00ff0000) >> 16;
-+		g2 = (pixel2 & 0x0000ff00) >> 8;
-+		b2 =  pixel2 & 0x000000ff;
-+
-+		y1 = drm_pixel_rgb_to_y_bt601(r1, g1, b1);
-+		y2 = drm_pixel_rgb_to_y_bt601(r2, g2, b2);
-+
-+		r = r1 + r2;
-+		g = g1 + g2;
-+		b = b1 + b2;
-+
-+		v = drm_pixel_rgb2_to_v_bt601(r, g, b);
-+		u = drm_pixel_rgb2_to_u_bt601(r, g, b);
-+
-+		transfer_buffer[dst_offset++] = u;
-+		transfer_buffer[dst_offset++] = y1;
-+		transfer_buffer[dst_offset++] = v;
-+		transfer_buffer[dst_offset++] = y2;
-+	}
-+}
-+
-+/**
-+ * drm_fb_xrgb8888_to_uyvy - Convert XRGB8888 to UYVY clip buffer
-+ * @dst: Array of UYVY destination buffers
-+ * @dst_pitch: Array of numbers of bytes between the start of two consecutive scanlines
-+ *             within @dst; can be NULL if scanlines are stored next to each other.
-+ * @src: Array of XRGB8888 source buffers
-+ * @fb: DRM framebuffer
-+ * @clip: Clip rectangle area to copy; x1 and x2 must be even
-+ * @state: Transform and conversion state
-+ *
-+ * This function copies parts of a framebuffer to display memory and converts the
-+ * color format during the process. The parameters @dst, @dst_pitch and @src refer
-+ * to arrays. Each array must have at least as many entries as there are planes in
-+ * @fb's format. Each entry stores the value for the format's respective color plane
-+ * at the same index.
-+ *
-+ * This function does not apply clipping on @dst (i.e. the destination is at the
-+ * top-left corner).
-+ *
-+ * Drivers can use this function for UYVY devices that don't support XRGB8888
-+ * natively. ITU BT.601 is being used for the RGB -> YUV conversion.
-+ */
-+void drm_fb_xrgb8888_to_uyvy(struct iosys_map *dst, const unsigned int *dst_pitch,
-+			     const struct iosys_map *src, const struct drm_framebuffer *fb,
-+			     const struct drm_rect *clip, struct drm_format_conv_state *state)
-+{
-+	static const u8 dst_pixsize[DRM_FORMAT_MAX_PLANES] = {
-+		2,
-+	};
-+
-+	drm_fb_xfrm(dst, dst_pitch, dst_pixsize, src, fb, clip, false, state,
-+		    drm_fb_xrgb8888_to_uyvy_line);
-+}
-+EXPORT_SYMBOL(drm_fb_xrgb8888_to_uyvy);
-+
-diff --git a/drivers/gpu/drm/drm_format_internal.h b/drivers/gpu/drm/drm_format_internal.h
-index ce29dd05bc..7a4cfb0d18 100644
---- a/drivers/gpu/drm/drm_format_internal.h
-+++ b/drivers/gpu/drm/drm_format_internal.h
-@@ -159,6 +159,27 @@ static inline u32 drm_pixel_xrgb8888_to_abgr2101010(u32 pix)
- 	       drm_pixel_xrgb8888_to_xbgr2101010(pix);
- }
+ #endif
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 793db001a6..70ada7320c 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -226,6 +226,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_YJXCHIP, USB_DEVICE_ID_YJXCHIP_MOUSE),
+ 		HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_GROUP_AUDIO), HID_QUIRK_NOGET },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_VALKYRIE, USB_PRODUCT_ID_VALKYRIE_LCD), HID_QUIRK_IGNORE },
  
-+static inline u32 drm_pixel_rgb_to_y_bt601(u32 r, u32 g, u32 b)
-+{
-+	const u32 luma = (16U << 16) + 16829 * r + 33039 * g + 6416 * b + 32768;
-+
-+	return luma >> 16;
-+}
-+
-+static inline u32 drm_pixel_rgb2_to_u_bt601(u32 r2, u32 g2, u32 b2)
-+{
-+	const u32 u = (128U << 17) - 9714 * r2 - 19071 * g2 + 28784 * b2 + 65536;
-+
-+	return u >> 17;
-+}
-+
-+static inline u32 drm_pixel_rgb2_to_v_bt601(u32 r2, u32 g2, u32 b2)
-+{
-+	const u32 v = (128U << 17) + 28784 * r2 - 24103 * g2 - 4681 * b2 + 65536;
-+
-+	return v >> 17;
-+}
-+
- /*
-  * Conversion from ARGB8888
-  */
-diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
-index 2b5c1aef80..e50f96e074 100644
---- a/include/drm/drm_format_helper.h
-+++ b/include/drm/drm_format_helper.h
-@@ -136,4 +136,8 @@ void drm_fb_xrgb8888_to_gray2(struct iosys_map *dst, const unsigned int *dst_pit
- 			      const struct iosys_map *src, const struct drm_framebuffer *fb,
- 			      const struct drm_rect *clip, struct drm_format_conv_state *state);
- 
-+void drm_fb_xrgb8888_to_uyvy(struct iosys_map *dst, const unsigned int *dst_pitch,
-+			     const struct iosys_map *src, const struct drm_framebuffer *fb,
-+			     const struct drm_rect *clip, struct drm_format_conv_state *state);
-+
- #endif /* __LINUX_DRM_FORMAT_HELPER_H */
+ 	{ 0 }
+ };
 -- 
 2.56.0
 

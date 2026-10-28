@@ -1,93 +1,52 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=71.18.227.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793199847;
-	b=R1r1dX6sO+I7Vdkbp4Mt8lFhoxeVph/B1dN61pvhRCsNabxOuPspuFo+Uli7Hh/aMB53
-	 slWRl1TsviRUPynhGap+t/ZPEN3hzW+x85dcQBUEaAxYGNIc+dGSd6EgGtrvBhT+N1aLi
-	 84/aBl/pQoCQ8OXtn9aeRQH1w+gQLSzslf9h6XTXQp3YqYQJCfaDkikHzF9MHzq0uqSz7
-	 IOugsLwWEgft6APePNyeHYll1lQ7enSbwMryXZzJ5SlokRMg8mmyGFjrgicBjWpvNr88J
-	 vcD6rgn3A9Nc++uWZIo/1wVVgTKiHkhUd+fJNN5CVcoHzva5M1X52Bm+b46g1VJPDgA==
+	t=1793203475;
+	b=NVd6TGXac9+WmVf/WFCUP1D7rfIh2KyMR3C1SoiYR4qHcx8VdKsCMMvvQ/eDiH1GMmqW
+	 B1Q/uGcK77aPaU4xRzVcsHZetUmIR/yw1QvwbD2rGZGO9uw0qEq9wV8HyFqFUOtLN+uWL
+	 fY++sSSSQa7dPyfiCcWkBW6oYRrHghg3LMexqMAdykaFE9U+WbN5mrU6omb9Xar5zQQg2
+	 3qtVpnlUKd1pQQjw0QCqIu2DGFi/znLzcv53C4dkHn5kFanbebeJn+SwH6xnPDIv6hgzT
+	 BhXm0FzwkJF84dGw28zYv5iXekysV3yKjLIGN+eaIEAhmZ3b2Bx/s7VNiZcue+QyQ5A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793199847;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=4kjgCSLosXq/SLvCwDVJ+pxPOiRFESJ6Fwr6qQ2Iw0U=;
-	b=UuMT0v7tqwxfvb7jXgVkzEh8XfT+DDi5GOfBh6SZ3a48+qLfZnx04+Vyv3qX4YGfo1dc
-	 75m15puVh4HdWUOA/ZM4KIJaH8Wh3LBaOz36mrcA1VDRr3xGOwp0+Qy6EQ8I+G28Emqx7
-	 t2vTHKLOUQWMnoygwk5shQAiasa8nXwPhuxLvvuA3PvcyZJ2pVk0wwxTE1O1yh5N0AOQi
-	 2bE91vS0EpbIXUtJD7Wry7mJKlyY3ZMu+4JclVrxg0Bp5s48BU7U+jzLNH0DljSGKo+H4
-	 ifSHf2KDilRJoBEgxtcVoHY05bfa4VgMGQJwA0AZBrzJUrI871r7Wo33f4sjUiqYYhg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793203475;
+	h=DMARC-Filter:DKIM-Signature:X-B4-Tracking:Content-Type:Received:
+	 X-Change-Id:Mime-Version:X-Original-From:From:Subject:Date:Message-Id:
+	 X-Mailer:X-Lms-Return-Path:To:Cc:Content-Transfer-Encoding;
+	bh=vXNF6Bzv4Y//zIOSrBv1uEGQDZqbWWmh+iIAzb9peio=;
+	b=yor0D8tkqze7eqb1iQktlECebS46KbKA9x+1iCJa3YxC2gZd8dctATokPhZsH5r9JQAg
+	 20MNtJ/eiQjpig41NHZ/4uxZb1Zw9tb1te4q88KQa9bQhPfJrTN+ofP5MRtE5V9dc9Fq6
+	 mqRpfwwHbNXKwgp/Y3wO6npSNZ1v9bCJ3sJicdez6EJMdkbGgd+htQUCgm0RDXpM91Lzf
+	 hXabo0X3E3b5sO29yxD0Lx9mxB/EqJEKfhfkusONCb2Y2o47BJUyejqIESJ7L2mS2MnHo
+	 OTSXdd6sPftSWDOWK9LTBp4k8DLjvESy3vpbM2b+6AueYifjh+BUQdQrQbW7GqfswDg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bXbwKFNt;
-	arc=none smtp.remote-ip=209.85.128.44
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	dmarc=pass header.from=cherr.cc;
+	spf=pass smtp.mailfrom=cherr.cc;
+	dkim=pass header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=k+XjCVTZ;
+	arc=none smtp.remote-ip=71.18.227.4
+Received: from sg-2-4.ptr.blmpb.com (sg-2-4.ptr.blmpb.com [71.18.227.4])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A9F3606A322
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 15:04:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3A9F3606A322
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0463B606A320
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 16:04:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0463B606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=bXbwKFNt
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4a1b07c3c5fso9881805e9.1
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 08:04:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793199845; x=1793804645; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=4kjgCSLosXq/SLvCwDVJ+pxPOiRFESJ6Fwr6qQ2Iw0U=;
-        b=bXbwKFNt+U6tJ6iAZmYjP4JiGxbGg+dtYAdC3ZStzFIwyNbrd2NALJBOPl6EEJF66X
-         bQzB7kUc+hZY8ChlVQNhwoFkLUgq1XW0SFu+/jUfsmCreAp9oY59Kul+1rXuO8OpKcRG
-         o2jYK9sWVAeI2rCZmkwpsqtjsBv6tRq1CsKqc5s0jzNWZ2PHj9wIvQ2DSCkgumFmK/mU
-         NbExgyJSIFcZ5RpjoVgW4qMcarhn8H8Oa7QcEOEfxgu0GCAcnJiA1/qyEd0Q/xW9/OBV
-         vhRwRHGAYJ9Pb3v8sgB5tXkHr7eIBMlFMfin2vgd9LtrsaOcYzETk9sM5WUMKBQSH/Yp
-         O2Zg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793199845; x=1793804645;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4kjgCSLosXq/SLvCwDVJ+pxPOiRFESJ6Fwr6qQ2Iw0U=;
-        b=IotkcGZnAuYof+/OX4UnlE4GojlMJcg0IciTU6XJlowWVwe9ydNFyaRBaZcA3Z1FtC
-         nFucza3aAu32RFmnMWnaTQuCSg7seEmMWl0Y0gfhxOctjMZ9eDNGwETESasXVJQc+vcN
-         h2Lq0SvMyqbT8jegMxHjJ9uT+atkr8jwWOv2o4k2uSKDzrEWU3MUSmUwLmRzJZ7xANif
-         uGe8jMytyGgjKIMNg5eQSiWRvgZVYBxlqGbSQaSymo1cXtDj+YCcDFh/edOxcrk3T0VW
-         Gao8gnblCdX1ylmSnv9tH35KnrXijlW/iHlP59of38krh8qu33NXLhMrxSpjbOZD3q29
-         j5Fw==
-X-Gm-Message-State: AFq9FYKY/2yEj9CavjL/jaPreOOOkla6x9vT88gKiYkAgGFm/DUEBoXu
-	bue2qSTAUOvOA6m43bAr9cuVTyHOlgD0DrChskjrnSgl85GPq/aMsfgVKd92e2RkG3w=
-X-Gm-Gg: AYBFou3wQB/Klt/zY33xae1Tmx1nvJYSJc3O5i/LL62+djY1QIAaUgSEUrajM4LtWyc
-	DmZ8ts4xcYZM9Sid9X7gyE49uVKzZ/bxmAKH8jAxexxaPR3Tim6kIGmqLHUIuBrBTvhJYoB+ZQl
-	Aw3g+jX9CA4RWSRs37ufrWgyZpyVCd/cUGfT241ebBM4z4nRatK5tSaNr9ErG8Tuw6HIbxEURkc
-	fr7cTlCMk6+KTPOwt5tEPebtmtJtm0IScvObhbX0o7sZFijp4dF8ca6L4xrGrhaQsrjsAreuvWh
-	7F24ywuG47ykqXyzEF3Wn/kOO/1IXVUAFpXa5DZaIFs7elm56jQ5+wEmFlzSTH6x+fZVLOWtOzU
-	hMrF61UCqnzTDzryZ6WYj1K9KRcJCwd/0ZL+nHE+DKvwa3oDP0/NvsZ6njlWl9AXOBwsEJE9bGr
-	WCbcbkNXnFUrlfWfyEP5fmfCaK2CNHced503sfXaHi/di/DN/gbLWePrWlgS2tF/aoZ/MEPZYZW
-	I2KdXgQwmC2HxweUof4f6+YEZRtqERKyPNMiKyGnMdrCf5nco7awFBLXnoqrKAHPVaVldfqDuZR
-	I/jNQYltid33d0Sr/rjj0/TBlpzPhJkB31wvW+JnUECaauJZM5MBQZvVLY5pU9nY7A==
-X-Received: by 2002:a05:600c:354a:b0:4a2:74f:46c1 with SMTP id 5b1f17b1804b1-4a96667c86dmr56028895e9.8.1793199845349;
-        Wed, 28 Oct 2026 08:04:05 -0700 (PDT)
-Received: from unix.. (244.red-81-44-253.staticip.rima-tde.net. [81.44.253.244])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a94f5311bdsm62547865e9.5.2026.10.28.08.03.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 08:04:01 -0700 (PDT)
-From: =?UTF-8?q?Iv=C3=A1n=20Ezequiel=20Rodriguez?= <ivanrwcm25@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: uinput: document -ERANGE for UI_ABS_SETUP axis codes
-Date: Wed, 28 Oct 2026 12:03:46 -0300
-Message-ID: <97e5c71542aa8074c6db4d4146d9aab53f0ce04f.1793199818.git.ivanrwcm25@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260831192752.258550-3-ivanrwcm25@gmail.com>
-References: <20260831192752.258550-3-ivanrwcm25@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=k+XjCVTZ
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=feishu2604220257; d=cherr.cc; t=1793203456; h=from:subject:
+ mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
+ mime-version:in-reply-to:message-id;
+ bh=vXNF6Bzv4Y//zIOSrBv1uEGQDZqbWWmh+iIAzb9peio=;
+ b=k+XjCVTZMsD65B7ZTc0HCmk2D832CnzhnQcnl/1q+07jnBdiNUbxeG4paFJVLu1C+XBgqs
+ u6ICnoOdAMYkmyV0f+NzSMLkm8FLRBTHvxMsTvOg3lXBIvKNYsCacaZqV8WJaw5r10dXk4
+ t2V4S8sI3GvbXN2k7P5luFCzshlyty0XppRaYMlAQFkhI6AcuFmuFTDfFAKntT/BIbcn2f
+ MBeqs/6xHwajvdV8Y3kMgKI64rivY4YDsqL7bogdf98pI9jygF8SdDQLUY4A7XedXYTFUG
+ aeo0LAdGvo1kGjKUOeA24jrIsovMtgbLZPe+tc1wIv6jbPAxRvVhBKC6ayjnUg==
+X-B4-Tracking: v=1; b=H4sIAPoc4moC/yXMQQqDMBBG4avIrDtggor0KqULk/xpp5QYMloE8 e6N7fJbvLeTogiUrs1OBR9RmVOFuTTkn1N6gCVUk23tYFo7sus4S4iRC9RPbzC2PCekhU3ofQd rRgyBap8Lomy/9+3+t67uBb+cQzqOL89qKll9AAAA
+Content-Type: text/plain; charset=UTF-8
+Received: from [127.0.1.1] ([111.42.148.29]) by smtp.feishu.cn with ESMTPS; Thu, 29 Oct 2026 00:04:14 +0800
+X-Change-Id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -96,38 +55,63 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Original-From: Shengzhuo Wei <me@cherr.cc>
+From: "Shengzhuo Wei" <me@cherr.cc>
+Subject: [PATCH] HID: pidff: bound the unit exponent rescaling loop
+Date: Thu, 29 Oct 2026 00:04:11 +0800
+Message-Id: <20261029-b4-pidff-rescale-exponent-v1-1-3ba54accf767@cherr.cc>
+X-Mailer: b4 0.16.0
+X-Lms-Return-Path: <lba+26ae21cff+6dea84+vger.kernel.org+me@cherr.cc>
+To: =?utf-8?q?Tomasz_Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>, 
+	"Oleg Makarenko" <oleg@makarenk.ooo>, "Jiri Kosina" <jikos@kernel.org>, 
+	"Benjamin Tissoires" <bentiss@kernel.org>, 
+	=?utf-8?q?Micha=C5=82_Kope=C4=87?= <michal@nozomi.space>, 
+	"Paul Dino Jones" <paul@spacefreak18.xyz>
+Cc: <linux-input@vger.kernel.org>, <linux-usb@vger.kernel.org>, 
+	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>, 
+	"Shengzhuo Wei" <me@cherr.cc>
+Content-Transfer-Encoding: 7bit
 
-uinput_abs_setup() returns -ERANGE when the axis code is greater than
-ABS_MAX. The UI_ABS_SETUP kernel-doc only listed -EINVAL, -ENOMEM and
--EFAULT, which led to a mistaken attempt to change the errno.
+pidff_rescale_time() walks the device-provided unit exponent one step
+at a time, allowing extreme values to cause billions of iterations
+while ff->mutex is held. In a UHID test with an INT_MIN exponent,
+EVIOCSFF took 3.1 to 4.3 seconds to upload a finite-duration effect.
 
-Document -ERANGE instead of changing the long-standing user-visible
-return value.
+Stop rescaling once scaled_time becomes zero, since further
+multiplication or division by 10 cannot change the result. The u32
+value becomes zero within 32 multiplications by 10, and the u16
+input within 5 divisions. This bounds the loops while preserving
+their results for all exponents, including wraparound.
 
-Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Link: https://lore.kernel.org/linux-input/20260831192752.258550-3-ivanrwcm25@gmail.com/
-Signed-off-by: Iván Ezequiel Rodriguez <ivanrwcm25@gmail.com>
+Fixes: 8713107221a8 ("HID: pidff: Rescale time values to match field units")
+Cc: stable@vger.kernel.org
+Signed-off-by: Shengzhuo Wei <me@cherr.cc>
 ---
- include/uapi/linux/uinput.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/usbhid/hid-pidff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/uinput.h b/include/uapi/linux/uinput.h
-index c9e677e3af1d..4bbb9db1dbad 100644
---- a/include/uapi/linux/uinput.h
-+++ b/include/uapi/linux/uinput.h
-@@ -127,7 +127,8 @@ struct uinput_abs_setup {
-  * old kernel that does not support this ioctl.
-  *
-  * This ioctl may fail with -EINVAL if it is not supported or if you passed
-- * incorrect values, -ENOMEM if the kernel runs out of memory or -EFAULT if the
-+ * incorrect values, -ERANGE if the axis code is greater than ABS_MAX,
-+ * -ENOMEM if the kernel runs out of memory or -EFAULT if the
-  * passed uinput_setup object cannot be read/written.
-  * If this call fails, partial data may have already been applied to the
-  * internal device.
--- 
-2.43.0
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 22951b7ecd17..1a2fffcf204e 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -354,9 +354,9 @@ static u32 pidff_rescale_time(u16 time, struct hid_field *field)
+ 	int exponent = field->unit_exponent;
+ 
+ 	pr_debug("time field exponent: %d\n", exponent);
+-	for (; exponent < FF_TIME_EXPONENT; exponent++)
++	for (; scaled_time && exponent < FF_TIME_EXPONENT; exponent++)
+ 		scaled_time *= 10;
+-	for (; exponent > FF_TIME_EXPONENT; exponent--)
++	for (; scaled_time && exponent > FF_TIME_EXPONENT; exponent--)
+ 		scaled_time /= 10;
+ 
+ 	pr_debug("time calculated from %d to %d\n", time, scaled_time);
 
+---
+base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
+change-id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
+
+Best regards,
+--  
+Shengzhuo Wei <me@cherr.cc>

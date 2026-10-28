@@ -1,52 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=71.18.227.4
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.171
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793203475;
-	b=NVd6TGXac9+WmVf/WFCUP1D7rfIh2KyMR3C1SoiYR4qHcx8VdKsCMMvvQ/eDiH1GMmqW
-	 B1Q/uGcK77aPaU4xRzVcsHZetUmIR/yw1QvwbD2rGZGO9uw0qEq9wV8HyFqFUOtLN+uWL
-	 fY++sSSSQa7dPyfiCcWkBW6oYRrHghg3LMexqMAdykaFE9U+WbN5mrU6omb9Xar5zQQg2
-	 3qtVpnlUKd1pQQjw0QCqIu2DGFi/znLzcv53C4dkHn5kFanbebeJn+SwH6xnPDIv6hgzT
-	 BhXm0FzwkJF84dGw28zYv5iXekysV3yKjLIGN+eaIEAhmZ3b2Bx/s7VNiZcue+QyQ5A==
+	t=1793207404;
+	b=vtx30fNgqDM+MmPQWjfWrhWk7G/WPf2a+FxQXiRxn7worAe/ugwcZzmf719Rb5voihzh
+	 tE+Vje3KLWXVu0exfmO06qMxjBGUDzNxjNPTrSVbROP8MibS8T7wGOYy0jGg1Cw32NWBD
+	 GydogV6/4hSxvMAGOOoLiHOrSKbdMVOkMIimFsiDdoE+3pjgkea5RlqM1mR2+WWnMV4Yp
+	 MNFkPpXmoXWtlZ9A2BBSGT0Luv/p2fT8ZGIP9RQCVfljRrfTt/sCSYI8kkAMydSC+AqPx
+	 iZkHcs85nGtrWn1mH52lt82Kul3YT+gjZfjmdkVDfJVDVpoewBj2DLnRQEOEyc963/A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793203475;
-	h=DMARC-Filter:DKIM-Signature:X-B4-Tracking:Content-Type:Received:
-	 X-Change-Id:Mime-Version:X-Original-From:From:Subject:Date:Message-Id:
-	 X-Mailer:X-Lms-Return-Path:To:Cc:Content-Transfer-Encoding;
-	bh=vXNF6Bzv4Y//zIOSrBv1uEGQDZqbWWmh+iIAzb9peio=;
-	b=yor0D8tkqze7eqb1iQktlECebS46KbKA9x+1iCJa3YxC2gZd8dctATokPhZsH5r9JQAg
-	 20MNtJ/eiQjpig41NHZ/4uxZb1Zw9tb1te4q88KQa9bQhPfJrTN+ofP5MRtE5V9dc9Fq6
-	 mqRpfwwHbNXKwgp/Y3wO6npSNZ1v9bCJ3sJicdez6EJMdkbGgd+htQUCgm0RDXpM91Lzf
-	 hXabo0X3E3b5sO29yxD0Lx9mxB/EqJEKfhfkusONCb2Y2o47BJUyejqIESJ7L2mS2MnHo
-	 OTSXdd6sPftSWDOWK9LTBp4k8DLjvESy3vpbM2b+6AueYifjh+BUQdQrQbW7GqfswDg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793207404;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To;
+	bh=SzNNzVDXWgiSV1/YGhcZlrCyI10PMQDXKdaQ8ngsDPE=;
+	b=ZAET7qXBqUwjSXde3cQIjH4UotZ4eRpn3FbsSLGXwowAZDO2LF3ahNrAaPXSWHPJR0md
+	 0fABQ+ghNPnjNa6XXnxq83J+lCxCZ1sVAt98rlApS2pH2aDlc+XCC7qupaTPn88P/v3L8
+	 CTXJtM5lwbmwSjrFmZ5+jQD0sFOW/Qc0+NLFDqOZ3Z6z4HX4PekawILj5Z/7RMSik0v/T
+	 GrS3Z4kJ21UWayCvMZn7oNcYnfJdBCkow7mfORZK1/kMdEkTlUdWb17labkfAuQi+AXrd
+	 3PJ5vZOdZSiMa9ETQwdE2N5WS7NLLh7YPgwPQobajd8PRgDwYqVQlfnGXQvlRqJw3iQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cherr.cc;
-	spf=pass smtp.mailfrom=cherr.cc;
-	dkim=pass header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=k+XjCVTZ;
-	arc=none smtp.remote-ip=71.18.227.4
-Received: from sg-2-4.ptr.blmpb.com (sg-2-4.ptr.blmpb.com [71.18.227.4])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Y2+CUOiK;
+	arc=none smtp.remote-ip=74.125.82.171
+Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0463B606A320
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 16:04:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0463B606A320
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4580E606A321
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 17:10:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4580E606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=k+XjCVTZ
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=feishu2604220257; d=cherr.cc; t=1793203456; h=from:subject:
- mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
- mime-version:in-reply-to:message-id;
- bh=vXNF6Bzv4Y//zIOSrBv1uEGQDZqbWWmh+iIAzb9peio=;
- b=k+XjCVTZMsD65B7ZTc0HCmk2D832CnzhnQcnl/1q+07jnBdiNUbxeG4paFJVLu1C+XBgqs
- u6ICnoOdAMYkmyV0f+NzSMLkm8FLRBTHvxMsTvOg3lXBIvKNYsCacaZqV8WJaw5r10dXk4
- t2V4S8sI3GvbXN2k7P5luFCzshlyty0XppRaYMlAQFkhI6AcuFmuFTDfFAKntT/BIbcn2f
- MBeqs/6xHwajvdV8Y3kMgKI64rivY4YDsqL7bogdf98pI9jygF8SdDQLUY4A7XedXYTFUG
- aeo0LAdGvo1kGjKUOeA24jrIsovMtgbLZPe+tc1wIv6jbPAxRvVhBKC6ayjnUg==
-X-B4-Tracking: v=1; b=H4sIAPoc4moC/yXMQQqDMBBG4avIrDtggor0KqULk/xpp5QYMloE8 e6N7fJbvLeTogiUrs1OBR9RmVOFuTTkn1N6gCVUk23tYFo7sus4S4iRC9RPbzC2PCekhU3ofQd rRgyBap8Lomy/9+3+t67uBb+cQzqOL89qKll9AAAA
-Content-Type: text/plain; charset=UTF-8
-Received: from [127.0.1.1] ([111.42.148.29]) by smtp.feishu.cn with ESMTPS; Thu, 29 Oct 2026 00:04:14 +0800
-X-Change-Id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Y2+CUOiK
+Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-3535a54bed9so1771918eec.1
+        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 10:10:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793207403; x=1793812203; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=SzNNzVDXWgiSV1/YGhcZlrCyI10PMQDXKdaQ8ngsDPE=;
+        b=Y2+CUOiK+rdCHsUnimafxxE1iYgLSjGd7A0Bzh16RaF+HJWB7N+oQ1579sakDOI8A9
+         RA0RA0HmXAK5PFAp721QH8n7yyLReE9WgWZwNEloKPS016ZZ9zqDgQHhVWp0Ow8WdCIJ
+         bKandakugFBx4lNGYX96JfJaXdm/2MLToFJ1I3GCTY7MuPySCg9WXFbuYYsPRuxVMxdb
+         nfnFMy5ErGAyAIGG4s6VQUk4pb3Z9VagqaGYuANDVPH/KJ95uAjn0kv6TMdCv5oVl1fm
+         2LHV9/I5uAESzr7/HfnyiNJcfUfWWLWfJfKQWM94GoPzh+rtCOWeDAq6eSdFu9Tg7cqp
+         eJYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793207403; x=1793812203;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=SzNNzVDXWgiSV1/YGhcZlrCyI10PMQDXKdaQ8ngsDPE=;
+        b=rDNV2T9z9tQSwASoebKHgY+s7W/HgvWREPw1/A9C62XflF0DYLuAiq2zzTYu0W8NUK
+         mUEjhqkPfkKzZNEnGiL4RAa+R3iX1kzYgSINex5B3SKq5e6yfBhs6hQDQqQ+dkLeDDYW
+         p5M2m/v7JTD7se+MZ7cVj/vjdryZe5tpnbV5Bfb4L05DvcxF6Zz6t+vOWOpXtIR0qPXY
+         IMRSEPCt0DQaOIJdxah8mdngLfX6uBIx44d137t8OJ3HitpgzgXFbqPFq3RRwsd9pc0t
+         85UbB479cNNt9mQKRD4Mn58fTe4Mdy5U+tczrINHrQfr7s5DjqligdqDvGOp6qFjovQp
+         yiaw==
+X-Forwarded-Encrypted: i=1; AKwUvBzkfgEeDBjR+pUl/s7AtYyHop3pqQfTKvBirOfjCTPIRsCnTYmgttCGXu7UyEKFdkixipQl0yV9N8Xiwg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYL1cH5te1Xjejn/YMqNQbfzOig1LEa+QHoY3XF33bs9mCjGMkyL
+	tyC4EsXsSo7lGKNcajh3kEakDNjMl/lM+0cby2OWRTE5waXpIIkFA8/jsB22FA==
+X-Gm-Gg: AYBFou2GG2+UkT8qxZYF/tiu4CDRzvzgz0cf12UTrGNm8b+TnKkZJWZ0/SBU4z3oSyy
+	siHe0Gz6LxZH9PeqKOKl9c8wUWZDluQ2lmkLQcmNpeBAE0IzAzEx3bqzemiKnH9jJ55jI3x/GO7
+	YMPmJhrfs6B8GcBHsu+pCAJJX1G3jPRJvGM7RUJSAl5vPETE9bk/dEN2OfaMnAdagiEWzTxE+s6
+	GEOhNfR+vK2YWHXHr3v9tyPRj5+wiVt6vfAMdlnlCnnMWFBrL/BNaOy6Xy9Oqn9vFNzfSQmYHja
+	hAeRW0E/XFUEroS0NMHqBkHQhFTepuZEed0vWyenlt7jAjVmX26cOCisAWZBG6+/XH/qh63G2dL
+	Re20WUTiciywaRZpdnTFcQqGUWjrms45XM26YoUl4BwcbYLP/whHbGkLgOXJTRAzHbdcuY+1Gna
+	mnxM/ZapF8BnrazNmEbHIikagIiFrQ35CejVOVIz51mU4//OvNHYDxt8bbfinZDcm1XqZXfQeom
+	v9odjJnslY0ECuK7GF/M18XbudjOU0JoklUjdnAyczQtGwXQ9UQ1opN4ubx80UHTlmc4Zmlt3YC
+	o++UerAiyt7cVQZ4j2fhoJguQ1aHJbVoGYsemnbS+ngbXfp9Dd79D2WcDBsveHL6yeaYH24=
+X-Received: by 2002:a05:7300:e9c4:20b0:36a:13e1:c889 with SMTP id 5a478bee46e88-36a20427d57mr4718660eec.36.1793207402170;
+        Wed, 28 Oct 2026 10:10:02 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:9958:9525:7799:82b5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a239644efsm12474280eec.23.2026.10.28.10.10.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Oct 2026 10:10:01 -0700 (PDT)
+Date: Wed, 28 Oct 2026 10:09:57 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: James Hilliard <james.hilliard1@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Jiri Slaby <jirislaby@kernel.org>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] Input: serport - defer write wakeups to a worker
+Message-ID: <auIsPu4hA0f1SpRX@google.com>
+References: <20261028-submit-serport-write-wakeup-v1-v2-1-c05d96259985@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -55,63 +96,30 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-X-Original-From: Shengzhuo Wei <me@cherr.cc>
-From: "Shengzhuo Wei" <me@cherr.cc>
-Subject: [PATCH] HID: pidff: bound the unit exponent rescaling loop
-Date: Thu, 29 Oct 2026 00:04:11 +0800
-Message-Id: <20261029-b4-pidff-rescale-exponent-v1-1-3ba54accf767@cherr.cc>
-X-Mailer: b4 0.16.0
-X-Lms-Return-Path: <lba+26ae21cff+6dea84+vger.kernel.org+me@cherr.cc>
-To: =?utf-8?q?Tomasz_Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>, 
-	"Oleg Makarenko" <oleg@makarenk.ooo>, "Jiri Kosina" <jikos@kernel.org>, 
-	"Benjamin Tissoires" <bentiss@kernel.org>, 
-	=?utf-8?q?Micha=C5=82_Kope=C4=87?= <michal@nozomi.space>, 
-	"Paul Dino Jones" <paul@spacefreak18.xyz>
-Cc: <linux-input@vger.kernel.org>, <linux-usb@vger.kernel.org>, 
-	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>, 
-	"Shengzhuo Wei" <me@cherr.cc>
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261028-submit-serport-write-wakeup-v1-v2-1-c05d96259985@gmail.com>
 
-pidff_rescale_time() walks the device-provided unit exponent one step
-at a time, allowing extreme values to cause billions of iterations
-while ff->mutex is held. In a UHID test with an INT_MIN exponent,
-EVIOCSFF took 3.1 to 4.3 seconds to upload a finite-duration effect.
+Hi James,
 
-Stop rescaling once scaled_time becomes zero, since further
-multiplication or division by 10 cannot change the result. The u32
-value becomes zero within 32 multiplications by 10, and the u16
-input within 5 divisions. This bounds the loops while preserving
-their results for all exponents, including wraparound.
+On Wed, Oct 28, 2026 at 01:14:19AM -0600, James Hilliard wrote:
+> @@ -54,6 +56,11 @@ static int serport_serio_open(struct serio *serio)
+>  	guard(spinlock_irqsave)(&serport->lock);
 
-Fixes: 8713107221a8 ("HID: pidff: Rescale time values to match field units")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shengzhuo Wei <me@cherr.cc>
----
- drivers/hid/usbhid/hid-pidff.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I changed this to scoped_guard() and applied.
 
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 22951b7ecd17..1a2fffcf204e 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -354,9 +354,9 @@ static u32 pidff_rescale_time(u16 time, struct hid_field *field)
- 	int exponent = field->unit_exponent;
- 
- 	pr_debug("time field exponent: %d\n", exponent);
--	for (; exponent < FF_TIME_EXPONENT; exponent++)
-+	for (; scaled_time && exponent < FF_TIME_EXPONENT; exponent++)
- 		scaled_time *= 10;
--	for (; exponent > FF_TIME_EXPONENT; exponent--)
-+	for (; scaled_time && exponent > FF_TIME_EXPONENT; exponent--)
- 		scaled_time /= 10;
- 
- 	pr_debug("time calculated from %d to %d\n", time, scaled_time);
+>  	set_bit(SERPORT_ACTIVE, &serport->flags);
+>  
+> +	if (serio->drv->write_wakeup) {
+> +		enable_work(&serport->write_wakeup);
+> +		set_bit(TTY_DO_WRITE_WAKEUP, &serport->tty->flags);
+> +	}
+> +
+>  	return 0;
+>  }
 
----
-base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
-change-id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
+Thanks.
 
-Best regards,
---  
-Shengzhuo Wei <me@cherr.cc>
+-- 
+Dmitry

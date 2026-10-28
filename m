@@ -1,58 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=71.18.227.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793184508;
-	b=Tr7hC6a6uB4wvrHzDdtOkzFTalSIxVLw84oBeOBgfP08t4y0TxIXooOJz+3dKez9hy63
-	 UTc2f56kEn1nXV9/KIZpee6CfYS6jByxUoFN81iZFy/LnCtHfDA3sILq1qa44PyQnuLaA
-	 dfX7JveICd31hTHIPpTszbP7YR2U9o8UitNs9M3mGxbS8hzdgwgDW4CZpc9cP/5TFYoJD
-	 wUUWej1qDZUQ2EBjlQgOWzZuOP9KZzDBnlINzvTNKjHbcXE2NjCf/kEgEod+OJnQ9/Y7D
-	 INQbGmVHmRLqfIq+pPaxpj4A0WK3RI2Q0VsGdjNuoT3/jN/ushqJj6eXw4PvJP1vCYA==
+	t=1793184924;
+	b=pWkk8iCFsFsdaOEh6IS03Ul9wxJxLXfm3BpdpI7UA1XJXUohkYoRZxOQF0sn1bZ3/PR1
+	 ++YYXPTV0dZV9mHIZp2/3khzWLcR/kiJlMrruxZ9DKrexVatE6JJYclytxvGNqXX7VZQH
+	 Ik8G+iiYDNBX+P4p5o5LFNki0kIGLcVqKERDM1Dunt5tBpujT4wJbUnW9Sb2w8PhqqVq4
+	 mQC07FcZgbDO7w2BONbA6Hxy+ws6lXJDN6QilTtM8uoVdZG7jnPfoKNR2509+8MWfEtBy
+	 8o57c3wxkPaPD2btVolWzhppuknRHlrLrWtehXus8czyv9cJPJJBtbox4LM5E4MiFRg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793184508;
-	h=Received:DKIM-Signature:From:To:Cc:In-Reply-To:References:Subject:
-	 Message-Id:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=yWizwnsGbwsuOkjEDRHWMpES7V4gBVsTHQnzHXzFRAs=;
-	b=Ehl5KovneF39tY5BVBYynCN13F0Q7QekE+gLXjS30BYWVQlA8lIS0+Irz0BVRsvB70om
-	 S0LnklwermagaZzCnXAE8g/l+YnIJSamUkRXvR85Xi8nLRrsYMcIvlEeMi3O6u3blpZ3v
-	 AUkaXnIJo+LsNVT6gyCYlm1bedYmbYpOl9mJte7uZxgIGTKuQtSrbCAenOUFu4mv1xooR
-	 ngh3ZlvsnyOAsuinRuXdkfG1scByNZAQmirOB94MKj00YtoIeL6z4tGYEQ7Lidv9MvtdK
-	 m4WfypiQBHTJyLi9qb+m4zQj5ccdvB1CTMQZ+PEa4Q5ETJKwNJ7DoAtVIrjB/nsB2/g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793184924;
+	h=DMARC-Filter:DKIM-Signature:Content-Type:Content-Transfer-Encoding:
+	 X-Change-Id:X-Original-From:Received:X-Lms-Return-Path:To:From:
+	 Subject:X-Mailer:X-B4-Tracking:Cc:Date:Message-Id:Mime-Version;
+	bh=xk/LGmqAVOIr9rJ8TkRSY178UNjfbyNnpVZUhnBPxj8=;
+	b=N8SjiAGNTAgeGH2luZ8JElOh9cLnJt1Yvv7X3QATpUz+xv2JxSGzCQe48XLpWmtQi0+a
+	 GlR2jI4q7r3S5hJO1M/VXXqJh401KX0Z3LpdMAYDFKZBvBLpo4iAXOVdccGIg2cKSKf1I
+	 cPrpeffb5KuEFWrVl22DG5MAabyPw65CXhbSPEgPPhNa6EVyH5EFnfuCufUAJdx58jyLR
+	 IyEyik7OmcSLRk2yhuyE/WU4YaBcMu1clni73cwIOeTdPXVOXEf0Uo8pL5UzPOWVEdNJb
+	 kZ+0n8/HR1Lmim7Dn6CFSMuaB5oo5ac+sQ/3oRtqIy56zYfpBmF3muoJiCLm6q2ch3A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z3ZmjM3V;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=cherr.cc;
+	spf=pass smtp.mailfrom=cherr.cc;
+	dkim=pass header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=y33nZB4j;
+	arc=none smtp.remote-ip=71.18.227.1
+Received: from sg-2-1.ptr.blmpb.com (sg-2-1.ptr.blmpb.com [71.18.227.1])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B7EE606A31A;
-	Wed, 28 Oct 2026 10:48:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4A77606A31C
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 10:55:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B4A77606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z3ZmjM3V
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417F21F01828;
-	Wed, 28 Oct 2026 10:48:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793184507;
-	bh=yWizwnsGbwsuOkjEDRHWMpES7V4gBVsTHQnzHXzFRAs=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=Z3ZmjM3VY1gUIrj8iDAep4/LntWSHRLbHmZHt1MTTVxkSBJcRYisYqiYgKhVYzEKn
-	 nGcVvLJikJleemBsO7a8o2TQyY9q/kbWHsUs9F1XLSHUDqnaQiv5mpt2LqZlQJAwEe
-	 JYEhv9BgK1nWyvQbKkVZwIEOhmTJtxuhwWqAheSlts0unEyRl2QOBOhVE9PzPoswjJ
-	 U6GQcSohtkoqH0B5mhOEpaPchzFxms3haeSa8zW+ougsKZE5uL4WStNF321NzFczBl
-	 BPpAI4MpALXYAh/Y+6ol8Wohmw9pTyVIlKdqm/Pvci23IRErvBTf8B/1bDiSUkK7y7
-	 6l8wUAyS3XPuw==
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Zhengping Jiang <jiangzp@google.com>
-Cc: Sean O'Brien <seobrien@chromium.org>, 
- Shashikirana H K <shashikiranah@chromium.org>, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org
-In-Reply-To: <20261015064223.1939367-1-jiangzp@google.com>
-References: <20261015064223.1939367-1-jiangzp@google.com>
-Subject: Re: [PATCH v4] HID: vivaldi: avoid redundant feature report reads
- per usage
-Message-Id: <179318450157.1921288.15901444886154893550.b4-ty@b4>
-Date: Wed, 28 Oct 2026 11:48:21 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=y33nZB4j
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=feishu2604220257; d=cherr.cc; t=1793184912; h=from:subject:
+ mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
+ mime-version:in-reply-to:message-id;
+ bh=xk/LGmqAVOIr9rJ8TkRSY178UNjfbyNnpVZUhnBPxj8=;
+ b=y33nZB4j75a1Z+47KFsLP3yOAEcqAul7Q7z6QXbzm7npLLDNd0mBzD6cqnoAvECSmCUCh9
+ mwkf5j9dBZuX1zbRFGYly/iTvG1uble6BdniNBwM+rYYPzSfU1MYzFeGx6sjtyc7yTJVjc
+ pghjk3JsKEI4yrWSEM6RYB1sOANGswe+7kzB+0exhOayc3aPVA5AIF1A4KBnvkPksKDczP
+ pCxqgLvGHEdjABp+w62KoZ9HHqjTGpxinOZSY0p6e49bc4qGSRKLlzsJqJnUiOR6DzEdiB
+ juMTf49GpXeF3Cf/Vq/K1VdyQAAjcINhjxIMAlb65oZejusKLr/XG9KJ17g7qg==
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Change-Id: 20261028-b4-pidff-duration-shift-8df4f6451448
+X-Original-From: Shengzhuo Wei <me@cherr.cc>
+Received: from [127.0.1.1] ([111.42.148.12]) by smtp.feishu.cn with ESMTPS; Wed, 28 Oct 2026 18:55:09 +0800
+X-Lms-Return-Path: <lba+26ae1d48e+516177+vger.kernel.org+me@cherr.cc>
+To: =?utf-8?q?Tomasz_Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>, 
+	"Oleg Makarenko" <oleg@makarenk.ooo>, "Jiri Kosina" <jikos@kernel.org>, 
+	"Benjamin Tissoires" <bentiss@kernel.org>
+From: "Shengzhuo Wei" <me@cherr.cc>
+Subject: [PATCH] HID: pidff: fix undefined shift for infinite duration
+X-Mailer: b4 0.16.0
+X-B4-Tracking: v=1; b=H4sIAIXU4WoC/yXMQQqDQAyF4atI1g04QyqDVyldqJNoXFiZjKUg3 t2xLj9479/BOCkbtNUOib9q+lkK3KOCYeqWkVFjMfjaN672AXvCVaMIxi11uazRJpWMIQpJQ09 HFKC818Siv3/59b5tWz/zkK8cHMcJBidogHsAAAA=
+Cc: <linux-input@vger.kernel.org>, <linux-usb@vger.kernel.org>, 
+	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>, 
+	"Shengzhuo Wei" <me@cherr.cc>
+Date: Wed, 28 Oct 2026 18:55:02 +0800
+Message-Id: <20261028-b4-pidff-duration-shift-v1-1-65028c6b4a37@cherr.cc>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,27 +69,49 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793184505; l=412;
- i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
- bh=wW3xJUX8XtcJ1Xaw0FroTZBIl1esD2+LjiG/2rKQrDY=;
- b=60dWcalUYKDQZVAWNfWk8MDxlFj0LljX3/aiOZjACohuTdJA/NVEDNkppjkcK9Q9kp1vXNJ2f
- np2RwpBshmmCgM0/weL/nU6FGgCoVt0wCoVSpfIQKJU+0jF5wbiU9I+
-X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
- pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
+Mime-Version: 1.0
 
-On Thu, 15 Oct 2026 06:42:23 +0000, Zhengping Jiang wrote:
-> HID: vivaldi: avoid redundant feature report reads per usage
+pidff_set_duration() computes the infinite duration as
+(1U << report_size) - 1, but report_size comes from the device's
+report descriptor and can be 32 or greater. This causes an undefined
+shift. A UHID test on x86-64 triggers UBSAN and programs a 32-bit
+duration field as zero instead of 0xffffffff.
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.4/upstream-fixes), thanks!
+For report sizes of 32 or more, store -1 in the s32 field value to
+set all 32 bits without shifting. Keep the existing calculation for
+smaller fields.
 
-[1/1] HID: vivaldi: avoid redundant feature report reads per usage
-      https://git.kernel.org/hid/hid/c/720806515cb6
+Fixes: 1a575044d516 ("HID: pidff: Compute INFINITE value instead of using hardcoded 0xffff")
+Cc: stable@vger.kernel.org
+Signed-off-by: Shengzhuo Wei <me@cherr.cc>
+---
+HID: pidff: fix undefined shift for infinite duration
+---
+ drivers/hid/usbhid/hid-pidff.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Cheers,
--- 
-Benjamin Tissoires <bentiss@kernel.org>
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 22951b7ecd17..25b82e7d0b9e 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -394,7 +394,11 @@ static void pidff_set_duration(struct pidff_usage *usage, u16 duration)
+ {
+ 	/* PID defines INFINITE as the max possible value for duration field */
+ 	if (pidff_is_duration_infinite(duration)) {
+-		usage->value[0] = (1U << usage->field->report_size) - 1;
++		if (usage->field->report_size >= 32)
++			usage->value[0] = -1;
++		else
++			usage->value[0] =
++				(1U << usage->field->report_size) - 1;
+ 		return;
+ 	}
+ 
 
+---
+base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
+change-id: 20261028-b4-pidff-duration-shift-8df4f6451448
+
+Best regards,
+--  
+Shengzhuo Wei <me@cherr.cc>

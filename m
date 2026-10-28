@@ -1,22 +1,22 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.85.9.111
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793219882;
-	b=FllxpfH7MgqXkZjNuscvcuvB+4MgkYRZWjjQs9gui7+U2Bx2eBBBpFGLTbRLWbuk3Jat
-	 KE+/irvVzp49yZdl+xf/b16LJGzXx1+mkdaB3raxqnk7FZAVdJ+gtJCk1TOJnUJFp2i5r
-	 8V7uGA0QVUOgfDYW1GRhbdoJN22aoVywBnl7CgzOdZ8+ViNSlddUjnsAoRLaQgAjFOYtG
-	 SmJaUOgP9+OBZUfvXfbFnbHAHhniaa06CZXs75C2LY8MKDfDjnM5sVqlOc1yklPcL+SCj
-	 J+7PZT3jv9csfiF+ddjhQXHGDBYwzgtJJ/2dIIeYNvwtDKSsdot1JIMbC9XMMMpn1ig==
+	t=1793219883;
+	b=boZl1pohxFfkQo/SeL0rwGixRnT3jX9c4Z9G0zWuDugasI4EuhrfJbTg8TdYuDQTgCHa
+	 ODeLd1U4kahLg8EX4zfj7eGHQaL+oZ5JogGGjANM3an4y3ir6lGif+HT7tfySeZ1MxviH
+	 g5VrMUMy2caySofDZWPD/V5fEEcxdfzBdoS5Yz4bbJYnQyY6tcmSYjyd6cQ3Pmlmx3SO1
+	 9pIPT/GOf8NwJQ8uR1YCQYRO32vUifCnoXli73IhAm/dPh+gTGwA68iv8fMNrmruFgQZW
+	 9qOJPLHdsvyeOXW7MOnZYAfkzAkmwr1ja0PGgE69IaTKMJoYVHfwnqG2N9z8XLRYATw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793219882;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793219883;
 	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
 	 In-Reply-To:References:Mime-Version:Content-Type:
 	 Content-Transfer-Encoding:X-Mime-Autoconverted;
-	bh=slysvFuqVbB8Lo+ysOwdrN7Z4iVI5B0BG5CGxwHLlCA=;
-	b=uy1tpMFkSyQfCCGfKjC0poQto99V1Is2ms8caSM6qy3K7j7xDlBm5yXhBIDGRADXJTjD
-	 ASXC9xKb1CjZNh13LjExhXfKhCxergM8lGZsAPXW7jE9MHVxTJC8WslhRfj3LbAZN9nmt
-	 hD0P9D6DNxdPQIZ2MuifSiPBgAevENSrQr51j4EVYPgKOdONmu81mtq5r85iILuuklgNd
-	 q+LLG98X23eACKVITNz3fifrR6o2EsNRpu+SGtJBLI8Ds4SbWTRslOqxzPitkx3OW0CQN
-	 hgliP6AI5W7e9ZSfLeGL+qMjPMu+isYtFcoxiUsHVk5P1Acg+UuZq4M3ABQ4B16v8Cg==
+	bh=KOdleQj/JopQCM5YO/WJ2/AzNTtXs3EqIAMQNw5IwkU=;
+	b=1qpenUfUrfoTlG1jUOy+MGvdF2SAh0+E3k0lTSmn6KzdG3wmv+D1+FQk+PGpQ9xUqqrg
+	 +ZSz4MZCZnexjdAV1yMmvAc2L/TpwjGuZw0qao7Wq3+LKZfY8parwe6MB9b65TbzkCda0
+	 NE9mpYnFNquCuR5SMS3fE6+2XKNS8VdZvAvxILZ7AnwMTfClRtWBz0tx7iKMpAIEpeIUK
+	 FMNbuogrfeumhiCV1Xnoqdh9hROVOti4qPByolEVFfQR0e97Eg5vbDhjQlZwvsmD5LzpG
+	 YAXBE/2W9SbFCSZkssM4dFNIMrUgb59D0B4o8qv9XaUkY6a7/mGDihzk94raYP1+t3w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=irl.hu;
 	spf=pass smtp.mailfrom=irl.hu;
@@ -25,15 +25,15 @@ Received: from irl.hu (irl.hu [95.85.9.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 9C59D606A31F;
-	Wed, 28 Oct 2026 20:38:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C59D606A31F
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id CA5EA606A338;
+	Wed, 28 Oct 2026 20:38:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA5EA606A338
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=irl.hu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=irl.hu
 Received: from fedori.lan (51b68114.dsl.pool.telekom.hu [::ffff:81.182.129.20])
   (AUTH: PLAIN soyer@irl.hu, SSL: TLS1.3,256bits,ECDHE_RSA_AES_256_GCM_SHA384)
   by irl.hu with ESMTPSA
-  id 0000000000080903.000000006AE25D27.000329B8; Wed, 28 Oct 2026 21:37:59 +0100
+  id 0000000000080918.000000006AE25D28.000329D2; Wed, 28 Oct 2026 21:38:00 +0100
 From: Gergo Koteles <soyer@irl.hu>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
   Rob Herring <robh@kernel.org>,
@@ -46,9 +46,9 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
   linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
   phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-Subject: [PATCH v2 1/3] dt-bindings: input: Add compatibility for Awinic AW86224
-Date: Wed, 28 Oct 2026 21:37:36 +0100
-Message-ID: <ceec2d2a29dd6cdfd984b964ad3a91601490a76e.1793218514.git.soyer@irl.hu>
+Subject: [PATCH v2 3/3] arm64: dts: qcom: sm7325-motorola-dubai: Add vibrator support
+Date: Wed, 28 Oct 2026 21:37:38 +0100
+Message-ID: <89f7e6e9988c8744be37093777b0bc065a0e2ab8.1793218514.git.soyer@irl.hu>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <cover.1793218514.git.soyer@irl.hu>
 References: <cover.1793218514.git.soyer@irl.hu>
@@ -65,36 +65,40 @@ Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 X-Mime-Autoconverted: from 8bit to 7bit by courier 1.0
 
-Add the AW86224 haptic device to the binding documentation for the
-AW86927 and AW86938, as this binding needs the same properties.
-
-They are not compatible though, because the chip identification works
-differently compared to the 86927/86938
+Add the required node for haptic playback (Awinic AW86224).
 
 Signed-off-by: Gergo Koteles <soyer@irl.hu>
 ---
 Changes in v2:
- - add only the new element (Krzysztof)
+ - rebased on mainline (Krzysztof)
+ - order by address (Konrad)
 
 ---
- Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../boot/dts/qcom/sm7325-motorola-dubai-common.dtsi   | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-index bd74b81488f6..264c4c8f7a65 100644
---- a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-+++ b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-@@ -12,7 +12,9 @@ maintainers:
- properties:
-   compatible:
-     oneOf:
--      - const: awinic,aw86927
-+      - enum:
-+          - awinic,aw86224
-+          - awinic,aw86927
-       - items:
-           - enum:
-               - awinic,aw86938
+diff --git a/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi b/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
+index 3860ab8508a0..df2cb58e95d0 100644
+--- a/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
+@@ -721,6 +721,17 @@ fsa4480_sbu_mux: endpoint {
+ 			};
+ 		};
+ 	};
++
++	vibrator@58 {
++		compatible = "awinic,aw86224";
++		reg = <0x58>;
++
++		interrupts-extended = <&tlmm 47 IRQ_TYPE_EDGE_FALLING>;
++		reset-gpios = <&tlmm 46 GPIO_ACTIVE_LOW>;
++
++		pinctrl-0 = <&aw86224_int_default>;
++		pinctrl-names = "default";
++	};
+ };
+ 
+ &ipa {
 -- 
 2.56.0
 

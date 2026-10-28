@@ -1,99 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.53
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793194923;
-	b=o3e3N1wY0iLE9y7/SEl9ajU5x9Ib3S7+/ZMglbFqaQhdo6fbtPguz7RlhiAPmrHVbctC
-	 uYetS5lWlnGRd269QqtoqBPl6yKlqS/Dfd2sQXvCFHZAw8+5VS5oLW9zxUQhTBDkAhV31
-	 EbuAAePyDP4zFKPZUgiztCdctDs0xM/w1pDC4NTOkbIYjfrecj8FGvF5bvxZXPBRMJ03f
-	 YqydVl1wr5+2m8207OBg9vKOxuMLwKslZ4X5nIf8qe2kEbIZdmFI+yYplsxtHiADK7gJ+
-	 U9Rv5eg+IhNkSQaXKD2AkmnnhD6U0qVcCQLTAWMJmLITEmD91DjU6W70ZKNnVaxIbnA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793194923;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=HWavZ6/zSVisPj33wFjAW+QGbNYpScdop0n6pN4rj5w=;
-	b=pRgLVCnqRl0F3JXdRSp3Qxp6X7pNB80Mwvv6uQ33+sO7FgDDgW9LnxMgKtGcAdOg1L2U
-	 WrdKS7S56UwEXx5OfcjDa9hNCXqGTg3IcM2NDsKd9EDSElmwbOD28nEu3n44dNTVlL/no
-	 n89e95fwsaOIwxT59eeTX1X2zwRNwjT/WqjJ6lq819MOTrDPMqj3sQR3Ud/pcwyzcrQbi
-	 3QXGRsGUiSD7SUwh/HajkJU4rV890xdnO5MO42z94Z27frE/9qMsesJfsSIpVi0t0bZp6
-	 MxBUl7NfE86lDcqnydABF1v0ai1HT+9Ny9AGfm/chmybXic9OwSUPf7tOCSAt411SUA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=pNVGOqae;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.53
-Received: from mail-oa1-f53.google.com (mail-oa1-f53.google.com [209.85.160.53])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793196130;
+	b=Rj5jkeDdrp+XvIVSQzg0nH2y9+yLSfRGLwHw2FdSvyUcwZuG5WtddACHlzidgdLiJTYt
+	 rL7AofQXRIMgwbmQ9xWj4PmKIQUJ2k/fpB1U/SET/Ug9P26Mu4entxJLxwzTw9dMScIa0
+	 QzzAQJj+Q0eNTWOqO3/fqjj+VaLiU01rOjyOw9uoco+UFxGNBRKFxdLHwfPDeo179HCs0
+	 YDcQkxkc58Ccn13fAdItYKwRQ2WSkToAcNTp5rJvY1nH1+abarj+S8QFi0HzgxvEAQ8aU
+	 AsKVeA+sxxEgvzxaiECnOyfGsT39EUTMktIWGiM6wfxIk4TAacpvvn/mRiG9FCHZ+kA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793196130;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=3H8BI2LFf6f0BdxDXU8zUV0CwMCvi64uAcJ3leq5mmw=;
+	b=dI3BaNtAPF/kbYz9Z/G08Kmh/UgFL1pk/2NPKb6KRc1iJwbhVnQWu4mYBx/MwFTQilo7
+	 006v3lX5bBauFqbcn0o1bg1mOg13Mk9ECnEcVbJSKdy0C1HKSHZbvpO5n1VUCpuYcAPyy
+	 Zh6ggI0DQ/g4o1uYDtIqbh8Va7vI8XMnx7kwoiIEbHN7S57OIwf5Mw3zd5psfRsS6Wplg
+	 aoHyG60wcmBt17F8W0BWGGU9b4oUH7NQRN6VgA7oC3HCoigB4wqHZWNXwD7x09GmVRfYb
+	 TjIlaqMr0F3YNLF3ekep7VjCuJhupzZBg6GSe2GHE9epJRRrJCsviPZV5pHuIrLKVQA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IJSe+mjL;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEF84606A325
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 13:42:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AEF84606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04184606A31A
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 14:02:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=pNVGOqae
-Received: by mail-oa1-f53.google.com with SMTP id 586e51a60fabf-4a755bbe158so539986fac.0
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 06:42:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793194921; cv=none;
-        d=google.com; s=arc-20260327;
-        b=EHmouxkAe4IX31KyU8dxzDWgRhb78/UKGGOHY4QVp/hoVqLD0vGDN9NEsaEMmbdqPq
-         Gj4hjFXzfGZeE5O2uHpMx0dO6RzshwcoTbCs1/LoHcmbasLRiABzp+eHXinqGUaiEuMp
-         ae9f1hLvG+JYFZqu2VAVFPcnUn12jHUAMXFN4fDgOd9neD/TKtpdm3GFpfMCds9Oflt5
-         byMTSUCh4LRDm6F9BfbTiJ3lrSBXYaOCMxVmDOKx4M+dnWgos0S4zHRNPr3d9AGRRgvT
-         G0AB8BHB9OCvK6isou4MLxoY0No8TTqhz0aYB/fnMDK21lZUKKj4Ucn3Qovkf8Jd5xOq
-         i2tg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=HWavZ6/zSVisPj33wFjAW+QGbNYpScdop0n6pN4rj5w=;
-        fh=Z8GCLh+xJvAv6VJVzvsi1aQaCyefwE1GVZ/55uuHblk=;
-        b=kpb/nnGesgRT5Aekpqcfbum0mtT9NFbQGdRVy16Iaybg6WXlMMZoPyiEZaqXe0/zKe
-         2gqFSFWANeJPxqKmmKxrMvSmmzOVQKl68lHpWBjQfKlE2dgYgsU+sWs1VhyJe3yFDzpJ
-         eMXIiQvB8ImUNBk7PMZyevx5021f6Dky18JCSzdwoSSegdjZBdHFZy65fUMKIKTPyR/l
-         JvDSAyDZ0B6mMa96+5TwuQhvN8ICyqVfhieBtaYrOf7Ecm8VRksg3IJdZucrF8thqAPK
-         RbkMBkBJXLGmfxC17jAaRt9qyuFWr3W0PfOGWZ5bPJe8VDMSe8HUN7+TtMrVEUBpaQca
-         TOEw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793194921; x=1793799721; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=HWavZ6/zSVisPj33wFjAW+QGbNYpScdop0n6pN4rj5w=;
-        b=pNVGOqaeKAtj8aHOhd6hnqx48NNmdU4C26vXEIldW1SIz6scAQK1yO8g3LVWASQasc
-         q7CD4KqCrCmAwq5jscXXokg99hdiAOe77ctP/mBrjC2Vy2SSW+N8GfbaiR/BNq4vufEm
-         69lqPJSco4TKJNcx0FtvevRZgZWtSARqZHnZUWRquB3O19K+pN90fCnlBzTWn2xOLq37
-         cJQOOuJenLSfSGCYChUpYKeQU9SPd4kHwjXI28bQnTfnHpK77T2MOuOMI1/SNhIykSli
-         hJSXsWuT7ZV5l2RvIVTf4yzaOmGhV/uTtT7+gx/OkA7Am4i1388Dsl9Mii7ZaJ2bcISV
-         QWGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793194921; x=1793799721;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=HWavZ6/zSVisPj33wFjAW+QGbNYpScdop0n6pN4rj5w=;
-        b=0m6xM57rsEocvX5dlBo1qSDom2b8le2DI6bYk+PW/RXCYX45cQR0cNbMdo8lcxpRXy
-         6IDNcnxIGhqLPk6S8uqsbBO+zO4VxdszJ2lUCcSlZpNvXT8sS5QmNq1+CAhjlOPxtr78
-         gr7kgaq+UK7pGg2P1y4ECtdyYX0Kg2wWfWQqmftwymKm04NlXMXiCsWvTaJ5lM887dkn
-         v2rJ4Dn5lf8oN96oVykHxA2e89NdhZrSFY5sUhQ6x6xmAYp9oovlq6UN05AKpD0lu1Nn
-         /e8sIf6zTLSdX0sqTHSHDPuCM6O/t7P2eSw/hftqGh9OITk1v4aSgBGVthZmM9IC7R3R
-         DaQQ==
-X-Forwarded-Encrypted: i=1; AKwUvByeTW0yJ5E4+CiWWIn8eVzlA5QNAXLLlbu9zSGjSdbNFR2wQBuQzwWf8aM4cXmbWXcSUdAvxRXfTGeGIA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYIhAghtxQY/MvlzP6jCZGypnceWnvVEBW0zNKYnq66BYdhaxEhM
-	dTvlKVpm1Ze5Z6sVlwCAjgyhsFsAw2L8HkgHbmY5PBTOdDySiilBErsuvBqsfrtqDh+9SknShTE
-	+ryMpCtEaqq76CTib5sB1/HFmljUBI/Cs5+3wjXmWxA==
-X-Gm-Gg: AYBFou2i22G8UNscYN2MzdU0GyXbjcf2mPGHJzr4YeT1qIE+jzrunIJOrSp28DY3dWp
-	2Vsk++eHWckFOKEYtPIwe/A/asA1wFvA4YSF0oigu5gnsKvoGLyDjbgX3dOzgR+xhYfA0oBrq/w
-	LhFZr5IYz8YUg7Eg04vkxor85+3arZXWWIU3rSqDBbvWjk0B1G1DC3aFExRlWDAivKxZ3XhTNE2
-	eiRcj6bPc9LdyMrcyBHD0E5o81emsbrcwVzIuJd6URvuPL8cMJY8QhReg0zGR9lZuPnZqC5SfQr
-	G6o3v1iGtGE9rdefTsG08XdOXBchkSgptiob/K43UDz4RsYrsGOJSfMNYURE94cY09LQ4G8S000
-	TtC6Ih6gYTuAfvgC2hHNfiv2kHB/O7O0u6LD/WgiRowxwC6SUK+0/aXjtlhCErB7reF9E8C7+
-X-Received: by 2002:a05:6870:f202:b0:49e:cbe:9968 with SMTP id
- 586e51a60fabf-4a89b867a92mr3003622fac.28.1793194921538; Wed, 28 Oct 2026
- 06:42:01 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IJSe+mjL
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F60F1F01825;
+	Wed, 28 Oct 2026 14:02:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793196129;
+	bh=3H8BI2LFf6f0BdxDXU8zUV0CwMCvi64uAcJ3leq5mmw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=IJSe+mjL0BOxaNdc8HWlBJRXpeQRsmCQF6nfViCI4lfTa74HStSCmRAHMAPJlZdSl
+	 a+fxtYY4wRFN60OGKskcM4FX4Fyj5qHArocPFTRvDj1E5hV2v21F5XAHQ4jOuGbOUS
+	 YzygMNGQQri2BWU+7SsctLSskm8xgENBB8+/JeqU9UzGhrxUGDJ1/MH7zAq56gLObM
+	 F8li+xKYGx/dTzjlxFY+ejTI2DoP2JqwRl8x5xow/y3D9Mo72zWpVVfUcDQqSYKarb
+	 BoAYy7dzf09P7t/zt7jkpSbtZgGKeb6t06rThE+0NnvJTiNhXKGExsAcZRvVOdrZlH
+	 V2Tl4i6assyeA==
+Message-ID: <sashiko-outbox-187952@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 3/3] drm/tiny: add driver for Valkyrie USB LCD displays
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "ZiAo Wang" <ziaowang2007@gmail.com>, dri-devel@lists.freedesktop.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261028132536.375927-4-ziaowang2007@gmail.com>
+References: <20261028132536.375927-1-ziaowang2007@gmail.com>
+ <20261028132536.375927-4-ziaowang2007@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 28 Oct 2026 14:02:08 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,68 +59,327 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20261028132536.375927-1-ziaowang2007@gmail.com> <20261028132536.375927-3-ziaowang2007@gmail.com>
-In-Reply-To: <20261028132536.375927-3-ziaowang2007@gmail.com>
-From: Jie Feng <hjf3108@gmail.com>
-Date: Wed, 28 Oct 2026 21:41:24 +0800
-X-Gm-Features: AclHuK_zqJxUnPCaNFg8MbtA5PoBLjeNjF1hMKIEkWPTHAkMWku6PNDEB4ByHCM
-Message-ID: <CABOQOSUsZ6C324EXJgVKeshpQ3druMU331n9Gp-bOC18FimQXQ@mail.gmail.com>
-Subject: Re: [PATCH 2/3] HID: quirks: Ignore Valkyrie USB LCD devices
-To: ZiAo Wang <ziaowang2007@gmail.com>
-Cc: dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, 
-	mripard@kernel.org, tzimmermann@suse.de, airlied@gmail.com, simona@ffwll.ch, 
-	jikos@kernel.org, bentiss@kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-On Wed, 28 Oct 2026 at 21:26, ZiAo Wang <ziaowang2007@gmail.com> wrote:
->
-> Valkyrie USB LCD devices (0x345f:0x9132) expose a HID interface
-> for vendor-specific display control commands and a separate USB
-> interface for bulk framebuffer transfers.
->
-> The HID interface is not intended for input and should be managed
-> by the dedicated USB display driver instead of the HID subsystem.
->
-> Add the device to the HID quirk table with HID_QUIRK_IGNORE to
-> prevent the HID driver from binding to it.
->
-> Signed-off-by: ZiAo Wang <ziaowang2007@gmail.com>
-> ---
->  drivers/hid/hid-ids.h    | 3 +++
->  drivers/hid/hid-quirks.c | 1 +
->  2 files changed, 4 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 91319aa651..d135ea8f06 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -1704,4 +1704,7 @@
->  #define USB_VENDOR_ID_HUAWEI                   0x12d1
->  #define USB_DEVICE_ID_HUAWEI_CD30KBD           0x109b
->
-> +#define USB_VENDOR_ID_VALKYRIE                 0x345f
-> +#define USB_PRODUCT_ID_VALKYRIE_LCD            0x9132
-This VID and PID pair is used by all macrosilicon usb display adapters,
-so it wouldn't just affect this product.
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
+- [High] drm/tiny: missing drm_atomic_helper_shutdown() in vk_disconnect()
+- [Medium] drm/tiny: missing drm_dev_set_dma_dev() in vk_probe()
+- [Medium] drm/tiny: vk_crtc_atomic_check() skips validation when CRTC is i=
+nactive
+- [Medium] drm/tiny: vk_device_enable_pre() leaves device_state true on fai=
+lure
+- [Medium] drm/tiny: valkyrie-lcd: broken resume recovery when drm suspend =
+fails
+--
 
-It also doesn't seem to negatively affect the device and is
-useful for debugging, so I wouldn't recommend ignoring it.
+commit 172f750ba1a198c982441dc0256107aec140e020
+Author: ZiAo Wang <ziaowang2007@gmail.com>
 
->  #endif
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 793db001a6..70ada7320c 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -226,6 +226,7 @@ static const struct hid_device_id hid_quirks[] = {
->         { HID_USB_DEVICE(USB_VENDOR_ID_YJXCHIP, USB_DEVICE_ID_YJXCHIP_MOUSE),
->                 HID_QUIRK_ALWAYS_POLL },
->         { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_GROUP_AUDIO), HID_QUIRK_NOGET },
-> +       { HID_USB_DEVICE(USB_VENDOR_ID_VALKYRIE, USB_PRODUCT_ID_VALKYRIE_LCD), HID_QUIRK_IGNORE },
->
->         { 0 }
->  };
-> --
-> 2.56.0
->
+drm/tiny: add driver for Valkyrie USB LCD displays
+
+This commit adds a DRM/KMS driver for Valkyrie USB LCD displays (320x240 and
+360x960 variants) using GEM shmem buffers, atomic modesetting, USB control
+transfers for panel initialization, and bulk OUT transfers for UYVY frame
+streaming.
+
+> diff --git a/drivers/gpu/drm/tiny/valkyrie-lcd.c b/drivers/gpu/drm/tiny/v=
+alkyrie-lcd.c
+> new file mode 100644
+> index 0000000000000..6478e9246263b
+> --- /dev/null
+> +++ b/drivers/gpu/drm/tiny/valkyrie-lcd.c
+[ ... ]
+> +static int vk_plane_atomic_check(struct drm_plane *plane,
+> +				 struct drm_atomic_commit *state)
+> +{
+> +	struct drm_plane_state *new_plane_state =3D
+> +		drm_atomic_get_new_plane_state(state, plane);
+> +	struct drm_crtc_state *new_crtc_state;
+> +	int ret;
+> +
+> +	if (!new_plane_state->fb)
+> +		return 0;
+> +
+> +	if (!new_plane_state->crtc)
+> +		return -EINVAL;
+> +	new_crtc_state =3D
+> +		drm_atomic_get_new_crtc_state(state, new_plane_state->crtc);
+> +	if (!new_crtc_state)
+> +		return -EINVAL;
+> +
+> +	ret =3D drm_atomic_helper_check_plane_state(new_plane_state,
+> +						  new_crtc_state,
+> +						  DRM_PLANE_NO_SCALING,
+> +						  DRM_PLANE_NO_SCALING, false,
+> +						  false);
+> +	if (ret)
+> +		return ret;
+> +
+> +	if (new_plane_state->rotation !=3D DRM_MODE_ROTATE_0) {
+> +		drm_dbg_kms(plane->dev, "Unsupported plane rotation %#x\n",
+> +			    new_plane_state->rotation);
+> +		return -EINVAL;
+> +	}
+> +	return 0;
+> +}
+[ ... ]
+> +static int vk_crtc_atomic_check(struct drm_crtc *crtc,
+> +				struct drm_atomic_commit *state)
+> +{
+> +	struct vk_driver *drv =3D container_of(crtc->dev, struct vk_driver, drm=
+);
+> +	struct drm_crtc_state *new_crtc_state =3D
+> +		drm_atomic_get_new_crtc_state(state, crtc);
+> +	struct drm_plane *plane =3D &drv->plane;
+> +	struct vk_connector_driver *connector_drv =3D drv->connector;
+> +	struct drm_plane_state *new_plane_state;
+> +
+> +	if (!new_crtc_state->enable || !new_crtc_state->active)
+> +		return 0;
+> +
+> +	if (new_crtc_state->plane_mask !=3D drm_plane_mask(plane) ||
+> +	    new_crtc_state->connector_mask !=3D
+> +		    drm_connector_mask(&connector_drv->connector)) {
+> +		drm_dbg_kms(crtc->dev,
+> +			    "Active CRTC requires the primary plane and USB connector\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	new_plane_state =3D drm_atomic_get_new_plane_state(state, plane);
+> +	if (!new_plane_state)
+> +		new_plane_state =3D plane->state;
+> +	if (!new_plane_state || new_plane_state->crtc !=3D crtc ||
+> +	    !new_plane_state->fb) {
+> +		drm_dbg_kms(crtc->dev,
+> +			    "Active CRTC has no framebuffer on its primary plane\n");
+> +		return -EINVAL;
+> +	}
+
+[Severity: Medium]
+Should vk_crtc_atomic_check() only return early when !new_crtc_state->enabl=
+e,
+rather than also skipping validation when !new_crtc_state->active?
+
+According to the struct drm_crtc_state documentation, drivers must not cons=
+ult
+new_crtc_state->active in atomic_check to decide whether shared resources a=
+re
+required because userspace expects a subsequent DPMS ON transition to succe=
+ed.
+
+When the CRTC is enabled but inactive (enable is true, active is false),
+returning early here allows userspace (for example via DRM_IOCTL_MODE_RMFB =
+or
+DRM_IOCTL_MODE_SETPLANE) to detach the primary plane and its framebuffer wh=
+ile
+leaving the CRTC enabled with plane_mask =3D=3D 0. Any subsequent commit se=
+tting
+active back to true will then fail in vk_crtc_atomic_check() with -EINVAL.
+
+Also, in vk_plane_atomic_check(), returning 0 before calling
+drm_atomic_helper_check_plane_state() when !new_plane_state->fb skips clear=
+ing
+new_plane_state->visible to false when disabling the plane.
+
+[ ... ]
+> +	if (!new_enable) {
+> +		if (drv->device_state)
+> +			ret =3D vk_device_disable(drv);
+> +	} else {
+> +		bool enabling =3D !drv->device_state;
+> +
+> +		/* Testing found a ~10-second timeout; refresh every 3 seconds. */
+> +		mod_delayed_work(system_dfl_wq, &crtc_drv->timeout_flush,
+> +				 msecs_to_jiffies(VK_TIMEOUT_FLUSH_INTERVAL_MS));
+> +		if (enabling)
+> +			ret =3D vk_device_enable_pre(drv);
+> +		ret2 =3D vk_scan_frame(crtc_drv, connector_drv,
+> +				     to_drm_shadow_plane_state(new_plane_state));
+> +		ret =3D ret ? ret : ret2;
+> +		if (enabling) {
+> +			ret2 =3D vk_device_enable_post(drv);
+> +			ret =3D ret ? ret : ret2;
+> +		}
+> +	}
+
+[Severity: Medium]
+What happens in vk_crtc_atomic_flush() if vk_device_enable_pre(),
+vk_scan_frame(), or vk_device_enable_post() fails when enabling is true?
+
+In vk_device_enable_pre():
+
+	drv->device_state =3D true;
+	return vk_a604_switch(drv, true);
+
+drv->device_state is unconditionally set to true before vk_a604_switch() and
+the rest of the enable sequence succeed. If a transient USB error or poll
+timeout occurs during vk_device_enable_pre(), vk_crtc_atomic_flush() still
+proceeds to call vk_scan_frame() and vk_device_enable_post(), and leaves
+drv->device_state set to true. Because drv->device_state stays true,
+subsequent page flips and 3-second timeout_flush refreshes will see enabling
+as false and will never retry the enable sequence.
+
+Similarly, in vk_device_reset(), vk_device_enable_pre() is called
+unconditionally even when vk_device_bootstrap() returns an error.
+
+[ ... ]
+> +static int vk_probe(struct usb_interface *intf, const struct usb_device_=
+id *id)
+> +{
+> +	struct vk_driver *drv =3D devm_drm_dev_alloc(&intf->dev, &vk_drm_driver,
+> +						   struct vk_driver, drm);
+> +	int ret;
+> +
+> +	if (IS_ERR(drv))
+> +		return dev_err_probe(&intf->dev, PTR_ERR(drv),
+> +				     "Failed to allocate DRM device\n");
+> +	mutex_init(&drv->io_lock);
+> +
+> +	ret =3D vk_init_usb(drv, intf);
+> +	if (ret)
+> +		goto fail;
+
+[Severity: Medium]
+Does vk_probe() need to configure the DMA device on drv->drm via
+usb_intf_get_dma_device(intf) and drm_dev_set_dma_dev()?
+
+vk_drm_driver uses DRM_GEM_SHMEM_DRIVER_OPS, which wires up PRIME DMA-BUF
+import via drm_gem_prime_import() -> drm_gem_prime_import_dev(dev, dma_buf,
+drm_dev_dma_dev(dev)). Because drv->drm is allocated with &intf->dev as its
+parent and a struct usb_interface device has no dma_mask, importing a DMA-B=
+UF
+via DRM_IOCTL_PRIME_FD_TO_HANDLE will pass &intf->dev to
+dma_buf_map_attachment(), triggering a WARN_ON_ONCE(!dev->dma_mask) and
+failing with -EINVAL.
+
+[ ... ]
+> +static void vk_disconnect(struct usb_interface *intf)
+> +{
+> +	struct vk_driver *drv =3D usb_get_intfdata(intf);
+> +	int ret;
+> +
+> +	drm_dbg_driver(&drv->drm, "Disconnecting display\n");
+> +
+> +	drm_dev_get(&drv->drm);
+> +	drm_dev_unplug(&drv->drm);
+> +
+> +	mutex_lock(&drv->io_lock);
+> +	drv->io_blocking =3D true;
+> +	mutex_unlock(&drv->io_lock);
+> +
+> +	cancel_delayed_work_sync(&drv->crtc->timeout_flush);
+> +
+> +	if (drv->drm.mode_config.suspend_state) {
+> +		drm_atomic_commit_put(drv->drm.mode_config.suspend_state);
+> +		drv->drm.mode_config.suspend_state =3D NULL;
+> +	}
+> +
+> +	drm_dev_put(&drv->drm);
+
+[Severity: High]
+Can skipping drm_atomic_helper_shutdown(&drv->drm) in vk_disconnect() leak =
+the
+active shadow-plane vmap and pinned shmem pages on unplug?
+
+When the display is active, drm_gem_begin_shadow_fb_access() vmaps the
+framebuffer (incrementing shmem->vmap_use_count, shmem->pages_pin_count, and
+shmem->pages_use_count), and vk_crtc_atomic_enable() enables the CRTC vblank
+timer. The shadow-plane vmap is only released by drm_gem_end_shadow_fb_acce=
+ss()
+when a subsequent atomic commit disables or replaces the plane state.
+
+Because vk_disconnect() never calls drm_atomic_helper_shutdown(&drv->drm), =
+if
+the active framebuffer is not explicitly removed by drm_mode_rmfb() before =
+the
+final drm_dev_put() (for example when a compositor has called
+DRM_IOCTL_MODE_CLOSEFB on its frontbuffer, or when fbdev emulation is not
+enabled), drm_mode_config_cleanup() destroys the active shadow_plane_state =
+via
+drm_gem_destroy_shadow_plane_state() without calling
+drm_gem_end_shadow_fb_access(). When the framebuffer is freed,
+drm_gem_shmem_release() hits drm_WARN_ONs for non-zero vmap_use_count,
+pages_use_count, and pages_pin_count, leaking the kernel vmap and backing
+pages, and drm_vblank_init_release() also warns that vblank->enabled is sti=
+ll
+set.
+
+In addition, if vk_timeout_atomic_submit() queued a non-blocking atomic com=
+mit
+just before cancel_delayed_work_sync(&drv->crtc->timeout_flush), its
+commit_work is not drained without drm_atomic_helper_shutdown() before
+vk_device_reset() and teardown run.
+
+[ ... ]
+> +static int __vk_resume_device(struct usb_interface *intf, bool rebootstr=
+ap,
+> +			      bool reidentify)
+> +{
+> +	struct vk_driver *drv =3D usb_get_intfdata(intf);
+> +	int ret =3D 0;
+[ ... ]
+> +	drv->io_blocking =3D false;
+> +	mutex_unlock(&drv->io_lock);
+> +
+> +	if (drv->drm_suspended) {
+> +		ret =3D drm_mode_config_helper_resume(&drv->drm);
+> +		drv->drm_suspended =3D false;
+> +		if (ret)
+> +			drm_err(&drv->drm, "Failed to restore DRM state: %d\n",
+> +				ret);
+> +	} else {
+> +		drm_dbg_driver(&drv->drm,
+> +			       "No saved DRM state; scheduling an immediate refresh\n");
+> +		schedule_delayed_work(&drv->crtc->timeout_flush, 0);
+> +	}
+[ ... ]
+> +static int __vk_suspend_device(struct usb_interface *intf, bool force)
+> +{
+> +	struct vk_driver *drv =3D usb_get_intfdata(intf);
+> +	int ret =3D 0;
+> +
+> +	drm_dbg_driver(&drv->drm,
+> +		       "Suspending display (force=3D%d, DRM suspended=3D%d)\n",
+> +		       force, drv->drm_suspended);
+> +
+> +	if (!drv->drm_suspended) {
+> +		ret =3D drm_mode_config_helper_suspend(&drv->drm);
+> +		if (ret)
+> +			drm_err(&drv->drm, "Failed to suspend DRM state: %d\n",
+> +				ret);
+> +		if (ret && !force)
+> +			return ret;
+> +		if (!ret)
+> +			drv->drm_suspended =3D true;
+> +	}
+> +
+> +	mutex_lock(&drv->io_lock);
+> +	drv->io_blocking =3D true;
+> +	mutex_unlock(&drv->io_lock);
+> +	cancel_delayed_work_sync(&drv->crtc->timeout_flush);
+> +	drm_dbg_driver(&drv->drm, "Display I/O suspended\n");
+> +	return ret;
+> +}
+
+[Severity: Medium]
+In __vk_suspend_device(), if force is true (from vk_suspend()) and
+drm_mode_config_helper_suspend() fails while the display is active, can the
+display recover on vk_resume()?
+
+When drm_mode_config_helper_suspend() fails, vk_device_disable() is not
+called, so the panel remains enabled with drv->device_state =3D=3D true and
+drv->drm_suspended =3D=3D false while timeout_flush is cancelled across sus=
+pend.
+Once the panel's ~10-second hardware watchdog expires during suspend and
+resets the device, vk_resume() calls __vk_resume_device(intf, false, false)
+and takes the !drv->drm_suspended fallback branch to schedule timeout_flush.
+However, when timeout_flush runs vk_crtc_atomic_flush(), drv->device_state =
+is
+still true, so enabling (!drv->device_state) is false and neither
+vk_device_bootstrap() nor vk_device_enable_pre() / vk_device_enable_post() =
+is
+executed.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028132536.3759=
+27-1-ziaowang2007@gmail.com?part=3D3

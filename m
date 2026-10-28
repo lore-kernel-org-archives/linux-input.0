@@ -1,66 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=71.18.227.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793184924;
-	b=pWkk8iCFsFsdaOEh6IS03Ul9wxJxLXfm3BpdpI7UA1XJXUohkYoRZxOQF0sn1bZ3/PR1
-	 ++YYXPTV0dZV9mHIZp2/3khzWLcR/kiJlMrruxZ9DKrexVatE6JJYclytxvGNqXX7VZQH
-	 Ik8G+iiYDNBX+P4p5o5LFNki0kIGLcVqKERDM1Dunt5tBpujT4wJbUnW9Sb2w8PhqqVq4
-	 mQC07FcZgbDO7w2BONbA6Hxy+ws6lXJDN6QilTtM8uoVdZG7jnPfoKNR2509+8MWfEtBy
-	 8o57c3wxkPaPD2btVolWzhppuknRHlrLrWtehXus8czyv9cJPJJBtbox4LM5E4MiFRg==
+	t=1793185622;
+	b=Pg7B9aKu++459C2xb7vV43ekqokmLtkk8/drvziOFa2qrXg8DEMo2+3Ckgqz3Gd97Egm
+	 Qiwl8Ag4pF0LZFLWFlL3n/t21iSaBIJI4y2ZeCfBcKoc3g1qYOG5mpfw7CiXVNvG7HWPr
+	 SK1dTuBH1pXQRVOGTAJG4lVi+//vXnGDOCTkjkYMLZmgAJDmtJJUBheEGexjMoAuxMotB
+	 LTSSh7qJjrL5yLe3rKVgkIlLn7a0HQOfexVg7fzsDbF2sRxSM6uSfo/AwdDkCl8kOkD5y
+	 2nGijO/0qNy/4zDkRF0HvkgPRdydO7cPVO1TOVDPh5cx6Ht6dndf4QXsyyTs9rQUg0w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793184924;
-	h=DMARC-Filter:DKIM-Signature:Content-Type:Content-Transfer-Encoding:
-	 X-Change-Id:X-Original-From:Received:X-Lms-Return-Path:To:From:
-	 Subject:X-Mailer:X-B4-Tracking:Cc:Date:Message-Id:Mime-Version;
-	bh=xk/LGmqAVOIr9rJ8TkRSY178UNjfbyNnpVZUhnBPxj8=;
-	b=N8SjiAGNTAgeGH2luZ8JElOh9cLnJt1Yvv7X3QATpUz+xv2JxSGzCQe48XLpWmtQi0+a
-	 GlR2jI4q7r3S5hJO1M/VXXqJh401KX0Z3LpdMAYDFKZBvBLpo4iAXOVdccGIg2cKSKf1I
-	 cPrpeffb5KuEFWrVl22DG5MAabyPw65CXhbSPEgPPhNa6EVyH5EFnfuCufUAJdx58jyLR
-	 IyEyik7OmcSLRk2yhuyE/WU4YaBcMu1clni73cwIOeTdPXVOXEf0Uo8pL5UzPOWVEdNJb
-	 kZ+0n8/HR1Lmim7Dn6CFSMuaB5oo5ac+sQ/3oRtqIy56zYfpBmF3muoJiCLm6q2ch3A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793185622;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=P9LDLNCB5t+kwgP7wUKvPaKDbXLjGj1S4WxN5boBzXw=;
+	b=qRk/zrCxEXaTXE3VN6G4iwbEgGCINk373vxmIbUpZWe3Ve7olhJ9ubOhs/ESF/EdSzBB
+	 5Ozc1ivtKX2zjIUgDJW3TCaQ3WCt/AWtGqOqvd0BoycjfMnk8idyPvZys7zSFZuSYajpa
+	 096kq6iWdxyJbr2U9ULMOOCbwUIPhTo3FCcVnXGHnEAV38ljQ3PYHjB2Lgk5UJ8IY7z2h
+	 hqjzNEplGfmFNaFZcTYQsDvFhxrU0kKV16m1YD4WFVJjEiVAq+6jMdl8FzRrLTN2Mkg4E
+	 OOL6TYE7Y9D/OFHb32Ay0Juu2tgJpVEWAxxxxKAi0TKFUOkKBVprx5DzXQb+RTlbMSQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cherr.cc;
-	spf=pass smtp.mailfrom=cherr.cc;
-	dkim=pass header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=y33nZB4j;
-	arc=none smtp.remote-ip=71.18.227.1
-Received: from sg-2-1.ptr.blmpb.com (sg-2-1.ptr.blmpb.com [71.18.227.1])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="C6TwMIc/";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4A77606A31C
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 10:55:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B4A77606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 731E9606A31A;
+	Wed, 28 Oct 2026 11:07:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=y33nZB4j
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- s=feishu2604220257; d=cherr.cc; t=1793184912; h=from:subject:
- mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
- mime-version:in-reply-to:message-id;
- bh=xk/LGmqAVOIr9rJ8TkRSY178UNjfbyNnpVZUhnBPxj8=;
- b=y33nZB4j75a1Z+47KFsLP3yOAEcqAul7Q7z6QXbzm7npLLDNd0mBzD6cqnoAvECSmCUCh9
- mwkf5j9dBZuX1zbRFGYly/iTvG1uble6BdniNBwM+rYYPzSfU1MYzFeGx6sjtyc7yTJVjc
- pghjk3JsKEI4yrWSEM6RYB1sOANGswe+7kzB+0exhOayc3aPVA5AIF1A4KBnvkPksKDczP
- pCxqgLvGHEdjABp+w62KoZ9HHqjTGpxinOZSY0p6e49bc4qGSRKLlzsJqJnUiOR6DzEdiB
- juMTf49GpXeF3Cf/Vq/K1VdyQAAjcINhjxIMAlb65oZejusKLr/XG9KJ17g7qg==
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Change-Id: 20261028-b4-pidff-duration-shift-8df4f6451448
-X-Original-From: Shengzhuo Wei <me@cherr.cc>
-Received: from [127.0.1.1] ([111.42.148.12]) by smtp.feishu.cn with ESMTPS; Wed, 28 Oct 2026 18:55:09 +0800
-X-Lms-Return-Path: <lba+26ae1d48e+516177+vger.kernel.org+me@cherr.cc>
-To: =?utf-8?q?Tomasz_Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>, 
-	"Oleg Makarenko" <oleg@makarenk.ooo>, "Jiri Kosina" <jikos@kernel.org>, 
-	"Benjamin Tissoires" <bentiss@kernel.org>
-From: "Shengzhuo Wei" <me@cherr.cc>
-Subject: [PATCH] HID: pidff: fix undefined shift for infinite duration
-X-Mailer: b4 0.16.0
-X-B4-Tracking: v=1; b=H4sIAIXU4WoC/yXMQQqDQAyF4atI1g04QyqDVyldqJNoXFiZjKUg3 t2xLj9479/BOCkbtNUOib9q+lkK3KOCYeqWkVFjMfjaN672AXvCVaMIxi11uazRJpWMIQpJQ09 HFKC818Siv3/59b5tWz/zkK8cHMcJBidogHsAAAA=
-Cc: <linux-input@vger.kernel.org>, <linux-usb@vger.kernel.org>, 
-	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>, 
-	"Shengzhuo Wei" <me@cherr.cc>
-Date: Wed, 28 Oct 2026 18:55:02 +0800
-Message-Id: <20261028-b4-pidff-duration-shift-v1-1-65028c6b4a37@cherr.cc>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=C6TwMIc/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 086DC1F01825;
+	Wed, 28 Oct 2026 11:07:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793185622;
+	bh=P9LDLNCB5t+kwgP7wUKvPaKDbXLjGj1S4WxN5boBzXw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=C6TwMIc/JDKleZQDR8HnI3FQaQHUZdd9qp/ekF0tDsEpURnLjcz/F0m0TnqVuLQTs
+	 O0HIYXZIW3yJf7IbLgBCoeyX+1RtNAUiOoOLgYbZvncsIbxCDP8abPRJO/CCGGQwwY
+	 3I5ijDvIeUiBTxaG6II189ErftHl8SYB6qZfIF/BOReGRsPqCbu6CziddyCntPESwv
+	 crHgU1Y+GRsRPi8tz8bV+7h5Dhz4TRf+oUf/sx8f2J8prXKdCW54NbTQToQht6DI3j
+	 vphD2hIU/ramvbyyjtjbrR6ts2OrwsA/BRiesnL7FfuUQ66PcqiVCiL8isekG8xY7g
+	 ga9NPBpimTetw==
+Date: Wed, 28 Oct 2026 12:06:57 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Gergo Koteles <soyer@irl.hu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
+	Griffin Kroah-Hartman <griffin.kroah@fairphone.com>, Enrico Cic <enrico@privacyrequired.com>, 
+	linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org, 
+	~postmarketos/upstreaming@lists.sr.ht
+Subject: Re: [PATCH 1/3] dt-bindings: input: Add compatibility for Awinic
+ AW86224
+Message-ID: <20261028-invisible-malachite-agouti-99fcf6@quoll>
+References: <cover.1793135056.git.soyer@irl.hu>
+ <353fe3fa68e74c46b88df51b303a7d23235d5ea7.1793135056.git.soyer@irl.hu>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -69,49 +63,44 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <353fe3fa68e74c46b88df51b303a7d23235d5ea7.1793135056.git.soyer@irl.hu>
 
-pidff_set_duration() computes the infinite duration as
-(1U << report_size) - 1, but report_size comes from the device's
-report descriptor and can be 32 or greater. This causes an undefined
-shift. A UHID test on x86-64 triggers UBSAN and programs a 32-bit
-duration field as zero instead of 0xffffffff.
+On Tue, Oct 27, 2026 at 11:01:23PM +0100, Gergo Koteles wrote:
+> Add the AW86224 haptic driver to the binding documentation for the
+> AW86927 and AW86938, as this binding needs the same properties.
+> 
+> They are not compatible though, because the chip identification works
+> differently compared to the 86927/86938
+> 
+> Signed-off-by: Gergo Koteles <soyer@irl.hu>
+> ---
+>  Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+> index bd74b81488f6..655633527c01 100644
+> --- a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+> +++ b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
+> @@ -12,11 +12,9 @@ maintainers:
+>  properties:
+>    compatible:
+>      oneOf:
+> +      - const: awinic,aw86224
+>        - const: awinic,aw86927
+> -      - items:
+> -          - enum:
+> -              - awinic,aw86938
+> -          - const: awinic,aw86927
+> +      - const: awinic,aw86938
 
-For report sizes of 32 or more, store -1 in the s32 field value to
-set all 32 bits without shifting. Keep the existing calculation for
-smaller fields.
-
-Fixes: 1a575044d516 ("HID: pidff: Compute INFINITE value instead of using hardcoded 0xffff")
-Cc: stable@vger.kernel.org
-Signed-off-by: Shengzhuo Wei <me@cherr.cc>
----
-HID: pidff: fix undefined shift for infinite duration
----
- drivers/hid/usbhid/hid-pidff.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index 22951b7ecd17..25b82e7d0b9e 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -394,7 +394,11 @@ static void pidff_set_duration(struct pidff_usage *usage, u16 duration)
- {
- 	/* PID defines INFINITE as the max possible value for duration field */
- 	if (pidff_is_duration_infinite(duration)) {
--		usage->value[0] = (1U << usage->field->report_size) - 1;
-+		if (usage->field->report_size >= 32)
-+			usage->value[0] = -1;
-+		else
-+			usage->value[0] =
-+				(1U << usage->field->report_size) - 1;
- 		return;
- 	}
- 
-
----
-base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
-change-id: 20261028-b4-pidff-duration-shift-8df4f6451448
+I do not understand why you are changing this and commit msg is not
+explaining that. You only say that new device is not compatible, but how
+is that relevant for existing binding? Anyway, separate commits with
+separate reasoning.
 
 Best regards,
---  
-Shengzhuo Wei <me@cherr.cc>
+Krzysztof
+

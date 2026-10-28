@@ -1,91 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793139195;
-	b=oHk1osvWawrIIOE6aVXEE5cYpeg85RIJ2McgS2vtCLBOq3W4lYhjk6Cswf7q1chkE5K3
-	 y3WJYImMtYBsaX/8B3GEgUscqTMFnKgpsbWFWtIITtt8jSMVl4wRn1+KhLaHywn3NY2dW
-	 DwCO52GhbcxoFnT9380oaERhcSRbwwgNqSw5QlV403HK4ZDqTiPdBfofvL//YVcT1RiAm
-	 D2wmnTSo+P+enJPPKbai/5dMQaBc1GORJZCdDTbJb6aL1LP6eDQySJzlZY5PibTN+gAkQ
-	 4GhYaUPQkAvTqeIERZmKQAnpbJIWksiv37TMHgxmqwYv+a5xj7YPHozkcTg0xq0tMWA==
+	t=1793147755;
+	b=j1QAE5aeayY8SlGVApP6HlU1MjjxJRbrLI2bCQsgRer/WxeQasEx/t1S8GYzm6OZYlgE
+	 4WMAAs1b2Rvh8YhAcYYAFDt/PjNRcpe8Bdpct6YRwdFTdtOyJsW8EsO4pLYpLNGsVCXpl
+	 rwbGcNWFNp7QVL1Tx616BI317ZOW7IrFMubVdZEJ6Mj8MjAyKze5oYrW2eCLIbhVp31dK
+	 cMAFggJPLcZzf/mSjbSYAC7Ws0dSUJHdTmz/D4wcmzhGWWNPg3bqEBI8ezj4dGDeKdx3O
+	 MXjAkh16ZdFzlQOh/pSCZtBuBRFcl/ZignnYTrpoCboEQ/kEd5cIAKl3viDg76rk/NA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793139195;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=SF/2BCZg0521GRG2+QySkfLq2PA18MozDs+RfXA8UmI=;
-	b=o3HpCip/kyPUrkAhG6Qd2J3WebUpq6LKtl0Hw73sZ8dYJxnlj6dhHP5bBkqKEC4uleoR
-	 jNLfMZDfPSxocoAqsBcJpgdPsMvK0ep8+hfCCwtb7UPLJ5mUDZ/Ou4F2+Q3P2GxSfq+Zc
-	 k1LebGTSS+KJQkgh4pJKKjZ5lROR8rtCWyljwGGRvBFehP5nsCGbOGGU4Z0Ox97D2HJI2
-	 GikPq236oRXZXSOyt2ZEz2uqCsDs3L+4CHLouehNtfy5WJCp6y47EWVPwTRWpN7kBBdyn
-	 /IL8hLHuNP4pqn48L4h2TvCA8xTN+0AUzPwHO31/yjOz+27zOQPtWwkCbRfmka3zo6Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793147755;
+	h=DMARC-Filter:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer;
+	bh=cag5nXIwM3E+6Pw08u6YEdxlW7mBvpMjszv78kEPRWs=;
+	b=Ets7kG8+9NWMnEsIFWjXyZscLfLqmRB8RBvK693lyvDmcSmZqXZS0aIF/B43o+Fh6lsg
+	 YIskaThenWa+s8qOJ3NGTzqRYWzV/7v5fXTFa79KcKlYmmV/+8//2RLLT9kaADKXwOp5W
+	 rCfC/Q5zFlQlunAezfzGDJA91CyN8+Urj1479aF7YR7hB702vyULt8SZ8wYjWZNSsWAP1
+	 fTzdg/mT7ace3RfqD4h1FCEuiRGoZHx8z8DRiFYF8RyvfAN9yM+G72ybEq8IbO8oofz6/
+	 GuXjhYhvvv4wKuaapgqqZyVN7SL7osxn9GTVsJi2lvt3lZR+MIvx3V+VqXb1sz1uxWQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0szYlizp;
-	arc=none smtp.remote-ip=209.85.208.178
-Received: from mail-lj1-f178.google.com (mail-lj1-f178.google.com [209.85.208.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=igalia.com;
+	spf=pass smtp.mailfrom=igalia.com;
+	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=oMkuALfG;
+	arc=none smtp.remote-ip=213.97.179.56
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F749606A327
-	for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 22:13:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8F749606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42D9B606A31A;
+	Wed, 28 Oct 2026 00:35:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 42D9B606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=0szYlizp
-Received: by mail-lj1-f178.google.com with SMTP id 38308e7fff4ca-3a9e87ba696so2246971fa.0
-        for <linux-input@vger.kernel.org>; Tue, 27 Oct 2026 15:13:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793139193; x=1793743993; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=SF/2BCZg0521GRG2+QySkfLq2PA18MozDs+RfXA8UmI=;
-        b=0szYlizpuqRBOChI8ZqX81upTdzV1Ljy6famKg5P0YB8f7/En7yQYA665tspTNTqMx
-         Dh+GL+hrzs+mXZNSNHl+MbYnrPy9uoZPkNmC6cMYtsYD5hyd7MsOkFM94K1efULYpVFk
-         1mhsKXBN7p4fTy0d2irwNQLwltMB8cnF/sNYo9O0/dPEBwz0wXO4XI/mjvYpz6rX72H2
-         lb554H3rV2uSGnCQcYXYkPMhYOZJMQ9fprlryA171FgXyGybSh+8bPXA+MiEHwc+R7+A
-         /y9wHKIpzGiqoV9GyoQRA+ZNqOuQyz3vM2dnKMdrDlCnNnVYstL9aFxyv/XNNuU6Gk5l
-         XB7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793139193; x=1793743993;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=SF/2BCZg0521GRG2+QySkfLq2PA18MozDs+RfXA8UmI=;
-        b=KHpFr3sw6PJO0NO3+Yj9wLCy//juB82gkZ4gy4mws8vrnWdAyzdeJX7yGlU4m2wrnn
-         D7xVH0SlJlDyQF4G1l1SKT3jAjklP8jGVX4d1Ylu2Dz2kl7NUZFqCq+DcWBNiUIGFTeR
-         yaLXT2GpdxMcHYoumwsX96RUrKuuxHkdXUtqTdxwWYj6SpatrQsmBWCGeJG0kYnNETqh
-         AckRiMt4T3jWgJsQxhltavAuBvk4LVk5hd7C7SdI0KY8rlmdSFU47BWVUq1LGT3Kqs8e
-         vcT0adjrWTByFLIccg/IwE+43pK+q2qFqGfPS0y5SFv14wnjj9ShbWAtMP0gzNreId9U
-         5ggg==
-X-Gm-Message-State: AFq9FYJoHU/IwAdM7ytz2H12iKB9Gbbc79y6oC4AMIce3ZUSs1TA6Psu
-	R8J9jwHP5kaYgWQ0I9G2qZ81X7NGTihrvEkT4ZfygY/AIOm39dQth4wMHHNJzfxXc477hA==
-X-Gm-Gg: AYBFou0fkvosAywrB4oHBvhdQogEXXv5qDLb9m14pvMZPQl0J1DY/sU8LTi3A4damWd
-	iFPHWk3CIoG7v+VtTD7gMqio18nRUIwZKEllOCVkJ5fIAoMkye9FYCVVgMi60AVgQ6AmpVcpNRU
-	ZTRl8sDxMFRxNAqtHgYX5F/22UoaD83hKarxOzqJ9eb+vYV5qUuYKB4JkOLpgeKu83J+GYI01hR
-	NdNIJdrbyL9UTumYJcE/FYQEcJi0G3Cz0yxd8923QfsMfMa8ZARj6gwi+gD2mgHIBXCQYn5cste
-	pcMYlsE0ehrDzGwftZpZL5iQjYt08eDrJs/5AZPCYvL8G3s77g1d31+li8wsc+soOb5L0JVfhC3
-	7ehUmxtqaFF8KFrhBc73yKwQICZqXddoqtvFhN/0Tux5+svZTdbg48F95/CUP4KMiX0hBUaTi46
-	JIvi53bLcy9AQpBk5qmB4WtklXwc92p8dEBjlpmtPhbPBqBJJBaLPqIthlfC3sq8CehsU88aTBg
-	zlRtTYD7GimoWhjQFBWqPjYHzibFonb3bkIlPBcyFFwOhC99IhzymIv6a4CsPbXg/2Wpk+FlZn6
-	lJG50JWAXdCi55mxhEDSQjLEEOZ+ncBUhTv3Hb0Nnbyt0bQT6lff
-X-Received: by 2002:a05:6512:39d1:b0:5b7:f75a:ea68 with SMTP id 2adb3069b0e04-5bfcadc7276mr209189e87.35.1793139192453;
-        Tue, 27 Oct 2026 15:13:12 -0700 (PDT)
-Received: from localhost ([178.214.243.78])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3ac70993a57sm27289281fa.12.2026.10.27.15.13.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Oct 2026 15:13:10 -0700 (PDT)
-From: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	asahi@lists.linux.dev,
-	Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Subject: [PATCH] HID: apple: Map Fn+Esc to SysRq
-Date: Wed, 28 Oct 2026 03:13:01 +0500
-Message-ID: <20261027221301.296198-1-mikhail.v.gavrilov@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key, unprotected) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=oMkuALfG
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Subject:Date:From:From:Reply-To;
+	bh=cag5nXIwM3E+6Pw08u6YEdxlW7mBvpMjszv78kEPRWs=; b=oMkuALfGXj2DGZ83Vxhmntw3fN
+	YdA1BTq6dkMElpqRvc2fS0D5m3hb5JIumXNTDnxWJ4sYyL7+/jxCNTI5prsW85sB5YHgWTIyJ9GLH
+	K1Ihb2ZZDHuEuZg+qHTb5omyPbhTx0Vb4CmJ+ZAORrCMyOKO88P/RngfRyYYBWfy91Rv1TrBqFElB
+	rQaUzAAHoCgKjsYWj7+24g8vI2haVaDSy6xUFayEoYEFXtxiA7BUqhiNEZA5klA3bgoD8L6oacPYV
+	08xQfYIOoh3tAFBUFECjzZ2kjSjQgxkssS51hEuC6L4UFDiwDYLAa4lNyswp1efJhz2oXxuivvrVQ
+	tngftWoQ==;
+Received: from 186-249-144-144.shared.desktop.com.br ([186.249.144.144] helo=[127.0.1.1])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1xLrdu-00CLTP-5q; Wed, 28 Oct 2026 01:35:50 +0100
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+Date: Tue, 27 Oct 2026 21:36:56 -0300
+Subject: [PATCH] HID: playstation: ratelimit input CRC check failed
+ messages
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,83 +59,112 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261027-hid-playstation-ratelimit-input-crc-error-v1-1-68812542f898@igalia.com>
+X-B4-Tracking: v=1; b=H4sIAKdD4WoC/x2NQQqDMBAAvyJ7dsHsQVu/UnoIyaYuaAybtbSIf
+ 2/ocWCYOaGyCleYuxOU31Jlzw1c30FYfH4xSmwMNNDoBppwkYhl9d9q3pqL6o1X2cRQcjkMgwZ
+ k1V2RxnSbXHLhHglarygn+fxfj+d1/QAqktRBewAAAA==
+X-Change-ID: 20261027-hid-playstation-ratelimit-input-crc-error-26f871f1c9d2
+To: Roderick Colenbrander <roderick.colenbrander@sony.com>, 
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: kernel-dev@igalia.com, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Mauricio Faria de Oliveira <mfo@igalia.com>
+X-Mailer: b4 0.14.2
 
-Apple keyboards have no SysRq/Print Screen key, so nothing on them
-reports KEY_SYSRQ and the magic SysRq key cannot be used from them
-without a keymap change.
+The kernel log of a Steam Deck was mostly filled with CRC check errors
+from what is apparently a bogus controller, with 8174 messages in <200
+seconds, averaging ~43 messages/second:
 
-The documented way for keyboards without SysRq is to remap another key
-to KEY_SYSRQ through the keymap (setkeycodes, EVIOCSKEYCODE, a udev
-hwdb entry). Compact Apple keyboards have no unused key for that, so
-the remap gives up a key. The free combinations are in the Fn layer,
-which the keymap cannot reach: it is indexed by scancode, and Fn does
-not change the scancode of the key pressed with it. Esc reports usage
-0x70029 with and without Fn, so a keymap entry cannot tell Fn+Esc from
-Esc.
+    $ cat dmesg-pstore.202610250608-0 \
+      | grep -c "input CRC's check failed"
+    8174
 
-hid-apple already implements the Fn layer and uses it to provide PC
-keys that Apple keyboards lack: Fn+Backspace is Delete, Fn+Enter is
-Insert, and Fn+arrow keys are Page Up, Page Down, Home and End. Add
-SysRq to it as Fn+Esc, in the table used by the Magic Keyboard 2021 and
-2024 models. No table in hid-apple translates Esc, so today Fn+Esc is
-just a second Esc key.
+    $ cat dmesg-pstore.202610250608-0 \
+      | grep -m1 "input CRC's check failed"
+    <3>[    8.715455] playstation 0005:054C:05C4.0006:
+                      DualShock4 input CRC's check failed
 
-The new entry has no flags, so like Fn+Enter it is translated only
-while Fn is held, whether the top row defaults to media keys or to
-function keys. Fn+Esc then reports KEY_SYSRQ, and the magic SysRq key
-is Alt + Fn+Esc + command key.
+    $ tac dmesg-pstore.202610250608-0 \
+      | grep -m1 "input CRC's check failed"
+    <3>[  196.187459] playstation 0005:054C:05C4.0006:
+                      DualShock4 input CRC's check failed
 
-Signed-off-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+    $ echo $((8174 / (196-8)))
+    43
+
+Let's ratelimit the input CRC check failed messages for the exceptional,
+high-frequency error case, which doesn't impact the occasional, low-freq
+error case (as ratelimiting does not trigger) or the non-error case.
+
+CRC check failed messages for driver-initiated requests are kept as is.
+
+Testing with a UHID driver to synthetically reproduce input CRC check
+errors (generated by an LLM) shows that it reduces the duplicate lines
+and still provides useful information (number of errors/same message).
+
+For example, triggering such error every 25ms (40 times/second), prints
+10 messages and silently counts another 187 in 5 seconds, ie, 197 / 5 =
+39.4 times/second (aligned with the synthetic reproducer's rate):
+
+    [    9.554184] playstation ...: Registered DualShock4 controller ...
+    [   10.053936] playstation ...: DualShock4 input CRC's check failed
+    [   10.078162] playstation ...: DualShock4 input CRC's check failed
+    [   10.103447] playstation ...: DualShock4 input CRC's check failed
+    [   10.128739] playstation ...: DualShock4 input CRC's check failed
+    [   10.154016] playstation ...: DualShock4 input CRC's check failed
+    [   10.179198] playstation ...: DualShock4 input CRC's check failed
+    [   10.204474] playstation ...: DualShock4 input CRC's check failed
+    [   10.229762] playstation ...: DualShock4 input CRC's check failed
+    [   10.254904] playstation ...: DualShock4 input CRC's check failed
+    [   10.280441] playstation ...: DualShock4 input CRC's check failed
+    [   15.070695] dualshock4_parse_report: 187 callbacks suppressed
+    ...
+
+This reduces the space consumed in the kernel log during 5 seconds from
+~200 lines to only 11 lines (5.5%).
+
+Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
 ---
-Tested on the internal keyboard of a MacBook Pro 16" (M1 Max) with the
-Fedora Asahi Remix 7.1.13 kernel, where hid-apple handles that keyboard
-with the same magic_keyboard_2021_and_2024_fn_keys table; the table is
-identical to the one in mainline. In evtest, Esc alone still reports
-KEY_ESC, and Fn+Esc reports KEY_SYSRQ on press and release, with the
-Esc scancode 0x70029. Alt + Fn+Esc + H prints the SysRq help to the
-kernel log. In mainline this table serves the Magic Keyboard 2021 and
-2024 models over USB and Bluetooth; that path has not been tested on
-hardware.
+ drivers/hid/hid-playstation.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Background: this came up on linux-input in 2007 for an Apple USB
-keyboard. A configurable SysRq keycode was proposed, and the advice was
-to remap a key of that keyboard to KEY_SYSRQ instead, so that SysRq
-keeps working with other keyboards [1]; that keyboard had a spare F13.
-A generic alternative SysRq key was proposed again in 2021 and was not
-merged; the objection was to adding a new SysRq key regardless of the
-keyboard [2]. This patch leaves the sysrq code alone and makes the
-keyboard itself report KEY_SYSRQ, on a Fn combination that has no other
-function; Apple's list of macOS Fn shortcuts has none with Esc either
-[3].
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index f9dc9378cf777d33aab3cdb87302c6e48f406d2f..b053037a3f0b95b6986c7e53e787e005676ed565 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -824,6 +824,7 @@ static int ps_get_report(struct hid_device *hdev, u8 report_id, u8 *buf,
+ 		u32 report_crc = get_unaligned_le32(&buf[crc_offset]);
+ 
+ 		if (!ps_check_crc32(PS_FEATURE_CRC32_SEED, buf, crc_offset, report_crc)) {
++			/* hid_err_ratelimited() not used on driver-initiated requests */
+ 			hid_err(hdev, "CRC check failed for reportID=%d\n", report_id);
+ 			return -EILSEQ;
+ 		}
+@@ -1459,7 +1460,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
+ 		u32 report_crc = get_unaligned_le32(&data[size - 4]);
+ 
+ 		if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, report_crc)) {
+-			hid_err(hdev, "DualSense input CRC's check failed\n");
++			hid_err_ratelimited(hdev, "DualSense input CRC's check failed\n");
+ 			return -EILSEQ;
+ 		}
+ 
+@@ -2425,7 +2426,7 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
+ 
+ 		/* Last 4 bytes of input report contains CRC. */
+ 		if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, report_crc)) {
+-			hid_err(hdev, "DualShock4 input CRC's check failed\n");
++			hid_err_ratelimited(hdev, "DualShock4 input CRC's check failed\n");
+ 			return -EILSEQ;
+ 		}
+ 
 
-The same entry could also go into the other Apple tables for keyboards
-with a physical Esc, for example older Magic Keyboards and the T2
-MacBook Pro models with a dedicated Esc key. I kept this patch to the
-table I could test.
+---
+base-commit: 83f32c773255720a661aa45d83e36278135f23f5
+change-id: 20261027-hid-playstation-ratelimit-input-crc-error-26f871f1c9d2
 
-If this is accepted, I will follow up with a line in
-Documentation/admin-guide/sysrq.rst describing the combination.
-
-[1] https://lore.kernel.org/linux-input/d120d5000707160541k64c40d0dgf661226806fd98c8@mail.gmail.com/
-[2] https://lore.kernel.org/lkml/YYUxNaDG0DquQvke@kroah.com/T/
-[3] https://support.apple.com/en-us/102650
-
- drivers/hid/hid-apple.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 5b32fb8c77f3..b37964451a43 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -173,6 +173,7 @@ static const struct apple_key_translation magic_keyboard_2015_fn_keys[] = {
- static const struct apple_key_translation magic_keyboard_2021_and_2024_fn_keys[] = {
- 	{ KEY_BACKSPACE, KEY_DELETE },
- 	{ KEY_ENTER,	KEY_INSERT },
-+	{ KEY_ESC,	KEY_SYSRQ },
- 	{ KEY_F1,	KEY_BRIGHTNESSDOWN, APPLE_FLAG_FKEY },
- 	{ KEY_F2,	KEY_BRIGHTNESSUP,   APPLE_FLAG_FKEY },
- 	{ KEY_F3,	KEY_SCALE,          APPLE_FLAG_FKEY },
+Best regards,
 -- 
-2.56.0
+Mauricio Faria de Oliveira <mfo@igalia.com>
 

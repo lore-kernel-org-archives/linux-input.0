@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793186357;
-	b=4qzxqShE3qmCdTuu9uv5t8Ec8X2yayI4GoUdW5lkwURfpWDjhe415xwEV9Nt5AJ1MmTA
-	 ZJl+bFHipirLfSNKimZr+hAkV1CSJUgFUt8xUkOSgDeMji8WIPWYA3wgc9Zg0khJd9cF1
-	 Z66JXTONwqA+95OLwXdPFGp/W+I5/XbpWFVxUr0zUr0T1V0vkw0Nu0/EVf31O3Owj5oAL
-	 hSAygzT3PFwJjbAp+SyFo9fY17GvTT6gktkrlkLsThosO5Gw7y7c0ptBRsdpmPJZRY3zb
-	 +zEjuusYXu+miUESBjRpkOhuxTE2k6WKJ97D+VVjUuA0lLfbAx5E9NJl2BRL6y6PReg==
+	t=1793186358;
+	b=GMlmlv6DzdamdZne6do4VBHnii5ZhQVrAxUfF63FDWk8z+MO2XhQ7JCOblxY+M+WgDew
+	 gTMG4jgg+6W0MwdVk0s4xmgjMqc/abEhmHpgqggpeZ3P3idNMMzeNUSh9CqydJh+h/aRx
+	 C66jGf5GKsq8PZKOhj7tYPR9TK1m5TjOfGKvwQ2mRfuBLgYlmInOLkbcHrWKfEeOecm4y
+	 wB6OrdsWaMI0upIXnDx1BIU1r4XOGtyO5dNkkq82Tteu3fq2/dqAOcwkQERQdPjJsvIuQ
+	 mwcYU9/2zQjYaDA8rL2C0uZwKv94H6arJLpg5dPmcXCQW0Wq/RCkWG5rYKabYr124BA==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793186357;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793186358;
 	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=w41sq28x/ASq4lXyo8/BhZ5wcP8Nly9VwoK1OLW/Pp8=;
-	b=ld/iz65uIN8LqjKhxw6gkcF3QLRHuX2KKUjXPIm2UlS5nfsyRaDal2f/BjV2eKqgblO5
-	 ejhRJ7Em18mHXqIV7Vx56k9QqPa5ecZXOxUUtx1TTaK1NuxGuQwYXaYmSDpPyYclDOBlN
-	 Pj4lYqUlaHoda0GeR11sbAKwe6d6VTtcxQ1nV22H8q7DxLhfR6PVyu+kZArpyo3PGZMRz
-	 eSVKi7bMtjyTH6EnxA17ib+P4StbswJ+ZSPVrOBG4EkB2lvPN4hHW8Yh4vtIC7u0RHNsx
-	 6SIrqBraoZgLhKrNXl5Vorp0nXK7/y7hayKtyEOZfjHmDRp6mFxiEunWI4atPN70ozA==
+	bh=IPWzbbLFd1MF+kAqg0triUYuJ1n8ZPZZ8fn+y0vvgpc=;
+	b=GtPqs11Oxe/7cPFCG4PN3+LN/rl0pRgacOg/mTeBYGlfrOSZRJG9M4rDe1DfZEOjpq+d
+	 SsNJZFhu/GmIXEp4iyRKetlnWvXcwlxUrdIZqbvykEBglvjVBxhSO5vvW2ZDNiGymt1m/
+	 XD6V6LGK4gDz8aA1Q89j3SRC/e43pmN/1pL9H5YV0/Spsr8bnC/i/AzK91s8GxZmldyOx
+	 /FsHLxvf+2DpYy8sG4bkN43KSSaJY/rtPxg6DC5rTYxFSbnioHMuOUbYyORV/tUwQmz4J
+	 1NXePBgfd+RI043k/SUTo7ui1eYU76kT0oXeQbRxAZ0sK+KQfL4deuSDuu5kIrzMCxA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b2qzZ8cu;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RyvXa8fs;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22FE060A2621;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A115060A3803;
 	Wed, 28 Oct 2026 11:19:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=b2qzZ8cu
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RyvXa8fs
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793186356;
-	b=H/OLYwJi+D1RgtG4l79kTwvAvQOGGegwh0YXvGlj/U+d8Koj5iDcwZXhBcDS9ezdKcu8
-	 UVbwoor0I/H8wd2yc1bSMVcMaoMh2fNyY+8lnXJSPl5DmLIhSD92RrSJv3LQZXg+Pc+Gt
-	 L1uAJip1lg1MHkxOxI/DVGkOlUZQTYE8jq3vfmIg5W0lQt7jHoYsNBI1KJv+wpBUXQEHE
-	 w9VTctwQmz6pOfbWUKSuoBvOaFocTs/hB5ob1yL6EsrLYo1mQYBAUKL++IqGRhyqSHL2Y
-	 GzTW4xb4iewEQd8t5F4CsV/MS4c7VDFC8elS6OsHAHMup2HOTQjzmxxoXyKQgd0hViQ==
+	t=1793186357;
+	b=01ezFLSxGug7/bVuJBTJ8m+F/B8Vy0vifs24gi+rj8dKzlEd1xq+3mvuQY+MmjGnMmGN
+	 1D7O8ihYyr0zFD+HBmciPwZgy2emaUaqe7R2tRrEroDFMjZHBOhj1UITagyoup3cn1PWj
+	 9RroYy1yTlr3KEIIo8mBgy6TrxJ4WCkYDtm9lkR9feCST14vBhwcCJMY2h7RUsT+nD+0W
+	 VOtxtrlk8YU7twNtWZBZQ+GtmpV3ShdkCEvQRqTPqjIcqjG8wmg4YtscO/kMUUKsPiH8p
+	 K58+2CIf9A0f57vm9r4ZejNsGSW32gdrfBOw8Ecaq6wNnRU/WhXrXCp9LChpPqG9Giw==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793186356;
+	c=relaxed/relaxed; t=1793186357;
 	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
 	 X-Original-From:Reply-To:Content-Transfer-Encoding;
-	bh=w41sq28x/ASq4lXyo8/BhZ5wcP8Nly9VwoK1OLW/Pp8=;
-	b=3LUT88M7uNSef3Y/dbnEqFsbgVAcziNEDCLlfwjSkpMUxz0jKTYa+zS4eSdAa62pyz3f
-	 RSRRhhKEQZYetwcdvz/uuNxr29XGbZ3cAfQoyZN0kvc1McBPlnPRSeHdIB3wh3lf0GZyx
-	 CpyzfRLKV5g2pUPDSLJRCXyzaxSxMAzu80NcuRWTa4XV0EDbuKr190K6qMMydtLgxRgC2
-	 QntCOln4efdOY6V53vSBw4F4oKVaBabTmG0d1tymXE01KJ0haBtfrEbna/oqnAD0TJMqP
-	 BeD0etbm11Hs+NWuHDSkfXl4iYWLIqm0fGltfvnxtDDi/OUfklsZgqhzmEReQZ2lw8Q==
+	bh=IPWzbbLFd1MF+kAqg0triUYuJ1n8ZPZZ8fn+y0vvgpc=;
+	b=GdOaDAGSwcOxvgjM2cC79wz1rkwfZ5uPhcDS7rlwgiEWRmtgnutqBjR9DXsXBUkm27K9
+	 aEfdJ7GMe3S9EfAjthdIectyVM7t5TZ/aAocMbiFefZpDOMsFjE2hxR1N7gJ/wxVvSNpW
+	 epI7hvC3O/ve9ecue5oBkt+tizly5Zte+DmX+yHhBRDcfeAZilm3WckAKVPA9CofQiroO
+	 GQD81QW4PqsvMxzxFfB8nvy2UfKvyFqM044WSUKwmzp5ZBh1d5devAkZoetT9zvCTJjR2
+	 TrU71KTC3vg2/KCKtTNsx0kCjhzHSm/0/mYuPBh5+YeoLopU6BATMzQIY049e/vcQ6A==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 1C2FE1F01340;
+	by smtp.kernel.org (Postfix) with ESMTPS id 520101F01357;
 	Wed, 28 Oct 2026 11:19:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793186356;
-	bh=w41sq28x/ASq4lXyo8/BhZ5wcP8Nly9VwoK1OLW/Pp8=;
+	s=k20260515; t=1793186357;
+	bh=IPWzbbLFd1MF+kAqg0triUYuJ1n8ZPZZ8fn+y0vvgpc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
-	b=b2qzZ8cu4aVJvtP4q5wNdcchc/woej4B7IVRs46PjGeArSY6aVnjvK+e9mY5sxrG3
-	 GnPWHEd2O+2M5oLxbhOIlGtz8lVQD9Mm4h/u/oGcPMqVurpudyM5oYfkJWZtyr82Ac
-	 wvO1Yazvwp4SJI18O4yxLQyry0GFwexFhLQAU66gLaDBhRqOQNDqygHYojnnEfyXMo
-	 RC//XSYD40rkUAnJ+8oN74JjRbEEXNWVHAw5Sg+3jp4y5DEEwO/6lVRx6po23Zpwdx
-	 4IycHcU+lKCamwGlD/Cc1UDdClgGyDg31Y8E0Os04Bn3AxOy/NNcdfQToaTXRIAdxq
-	 lPdlCmVayCumw==
+	b=RyvXa8fsm9hBk+KWJw/946jnxOLunO20xw7Od25H2y0va4U8HesMaS2vU84hsiAyy
+	 mKxkGLl0K9yYauDm0X8i0F2P3cclhGeKU+dZb2s8EmkB6jFZlCrNnTa5lmKMRHJRoV
+	 BJWiyqGn8KNcIxtIdXT5XiKhqva5QM1Px2ICd4E0uvdzIbyVPRKLPX6K4egvaFSVpn
+	 HZNhKXkjyQUPrGtjiTwQhrDupun13ZjZHGXt80d0ysKSUb+/NhLQ7eELE00l+LZYr7
+	 0EUARn95INy9AsihWDmmmQ2QJsz6w/w8laQsCj2bsi/iWnZ1ea/Z8PLGNdcxOhGpK2
+	 TAqW9d6Am5E5Q==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 1C58445437;
+	by lkml.kernel.org (Postfix) with ESMTP id 27F294543B;
 	Wed, 28 Oct 2026 11:19:13 +0000 (UTC)
 From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
-Date: Wed, 28 Oct 2026 14:17:29 +0300
-Subject: [PATCH v6 10/11] dt-bindings: input: touchscreen: goodix: Add
- binding for GT970
+Date: Wed, 28 Oct 2026 14:17:30 +0300
+Subject: [PATCH v6 11/11] arm64: dts: qcom: generalmobile-shamrock: new
+ device
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,7 +84,7 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Message-Id: <20261028-msm8952-initial-support-v6-10-e07ddd8bcf4c@mainlining.org>
+Message-Id: <20261028-msm8952-initial-support-v6-11-e07ddd8bcf4c@mainlining.org>
 References: <20261028-msm8952-initial-support-v6-0-e07ddd8bcf4c@mainlining.org>
 In-Reply-To: <20261028-msm8952-initial-support-v6-0-e07ddd8bcf4c@mainlining.org>
 To: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -119,14 +119,13 @@ Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
  linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, 
  dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, 
  linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org, 
- Muzaffer Kadir <muzafferkadir@mainlining.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+ Muzaffer Kadir <muzafferkadir@mainlining.org>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793186351; l=1656;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793186351; l=11294;
  i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
- bh=WcI6NF2jH7/1jsgO/qq/6GfopHH27DV/LBlXLYlg2yo=;
- b=bH46ezpINOJGaqTGuv8ax4EGvA3DWxV2Yq930+Quu+D70OJ6ZNJtsQ+ibnaxx8zH6mpZtRUen
- U3OY+akPQPeCF3YGHWmBgTadJbP4fCH5vhc+r4fJpFndxqMGKAc6x9n
+ bh=YIFXP+Yr3gRnCbqttSKM6HZNQLiFNVcpf6YH4yp9/Io=;
+ b=iAABa/pflPnS9y7ZdskKs0AHrVdYjYN59APRyCytGgCra4D7F4S8Wnn07iP327ZoPnrh833Ox
+ sqNLLeJowreC5AaMLBMQ5RmOyFpI3P1PMs+WKl04ZoxsUQXbsLDtjSO
 X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
  pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
 X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
@@ -137,61 +136,474 @@ Content-Transfer-Encoding: 7bit
 
 From: Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-GT970 works with GT911 driver, document it to be
-used with GT911 compatible.
+Add General Mobile Shamrock (GM 5 Plus). Shamrock is designed
+similar to L9300. Downstream reference is [1].
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+[1] https://github.com/Asderdd/android_kernel_generalmobile_shamrock/blob/cm-14.1/arch/arm/boot/dts/qcom/msm8952-l9300.dtsi
+
 Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 ---
- .../bindings/input/touchscreen/goodix.yaml         | 35 ++++++++++++----------
- 1 file changed, 20 insertions(+), 15 deletions(-)
+ arch/arm64/boot/dts/qcom/Makefile                  |   1 +
+ .../dts/qcom/msm8952-generalmobile-shamrock.dts    | 439 +++++++++++++++++++++
+ 2 files changed, 440 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-index a26a54d63a1c..4be2c137abd7 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-@@ -14,21 +14,26 @@ allOf:
- 
- properties:
-   compatible:
--    enum:
--      - goodix,gt1151
--      - goodix,gt1158
--      - goodix,gt5663
--      - goodix,gt5688
--      - goodix,gt911
--      - goodix,gt9110
--      - goodix,gt912
--      - goodix,gt9147
--      - goodix,gt917s
--      - goodix,gt927
--      - goodix,gt9271
--      - goodix,gt928
--      - goodix,gt9286
--      - goodix,gt967
-+    oneOf:
-+      - enum:
-+          - goodix,gt1151
-+          - goodix,gt1158
-+          - goodix,gt5663
-+          - goodix,gt5688
-+          - goodix,gt911
-+          - goodix,gt9110
-+          - goodix,gt912
-+          - goodix,gt9147
-+          - goodix,gt917s
-+          - goodix,gt927
-+          - goodix,gt9271
-+          - goodix,gt928
-+          - goodix,gt9286
-+          - goodix,gt967
-+      - items:
-+          - enum:
-+              - goodix,gt970
-+          - const: goodix,gt911
- 
-   reg:
-     enum: [ 0x5d, 0x14 ]
+diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
+index 88230c4e00ea..898df8754657 100644
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -130,6 +130,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8939-samsung-a7.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8939-sony-xperia-kanuti-tulip.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8939-wingtech-wt82918.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8939-wingtech-wt82918hd.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= msm8952-generalmobile-shamrock.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-flipkart-rimob.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-motorola-deen.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8953-motorola-potter.dtb
+diff --git a/arch/arm64/boot/dts/qcom/msm8952-generalmobile-shamrock.dts b/arch/arm64/boot/dts/qcom/msm8952-generalmobile-shamrock.dts
+new file mode 100644
+index 000000000000..26a269f0f769
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/msm8952-generalmobile-shamrock.dts
+@@ -0,0 +1,439 @@
++// SPDX-License-Identifier: GPL-2.0-only
++
++/dts-v1/;
++
++#include "msm8952.dtsi"
++#include "pm8950.dtsi"
++#include "pmi8950.dtsi"
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/leds/common.h>
++
++/ {
++	model = "General Mobile GM 5 Plus";
++	compatible = "generalmobile,shamrock", "qcom,msm8952";
++	chassis-type = "handset";
++	qcom,msm-id = <QCOM_ID_MSM8952 0x0>;
++	qcom,board-id = <QCOM_BOARD_ID_QRD 1>;
++
++	aliases {
++		mmc0 = &sdhc_1; /* SDC1 eMMC slot */
++		mmc1 = &sdhc_2; /* SDC2 SD card slot */
++		serial0 = &blsp1_uart2;
++	};
++
++	battery: battery {
++		compatible = "simple-battery";
++
++		charge-term-current-microamp = <100000>;
++		charge-full-design-microamp-hours = <3100000>;
++		constant-charge-current-max-microamp = <3000000>;
++		constant-charge-voltage-max-microvolt = <4400000>;
++		voltage-min-design-microvolt = <3400000>;
++		voltage-max-design-microvolt = <4400000>;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++
++		framebuffer {
++			compatible = "simple-framebuffer";
++			memory-region = <&cont_splash_mem>;
++
++			width = <1080>;
++			height = <1920>;
++			stride = <(1080 * 3)>;
++			format = "r8g8b8";
++
++			power-domains = <&gcc MDSS_GDSC>;
++
++			clocks = <&gcc GCC_MDSS_AHB_CLK>,
++				 <&gcc GCC_MDSS_AXI_CLK>,
++				 <&gcc GCC_MDSS_VSYNC_CLK>,
++				 <&gcc GCC_MDSS_MDP_CLK>,
++				 <&gcc GCC_MDSS_BYTE0_CLK>,
++				 <&gcc GCC_MDSS_PCLK0_CLK>,
++				 <&gcc GCC_MDSS_ESC0_CLK>;
++		};
++	};
++
++	/* Front Flash */
++	flash-led-controller {
++		compatible = "sgmicro,sgm3140";
++
++		enable-gpios = <&tlmm 33 GPIO_ACTIVE_HIGH>;
++		flash-gpios = <&tlmm 128 GPIO_ACTIVE_HIGH>;
++
++		pinctrl-0 = <&front_flash_default>;
++		pinctrl-names = "default";
++
++		front_flash_led: led {
++			function = LED_FUNCTION_FLASH;
++			color = <LED_COLOR_ID_WHITE>;
++			flash-max-microamp = <1000000>;
++			led-max-microamp = <625000>;
++			flash-max-timeout-us = <1280000>;
++		};
++	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++
++		pinctrl-0 = <&gpio_hall_sensor_default>, <&gpio_keys_default>;
++		pinctrl-names = "default";
++
++		button-volume-up {
++			label = "Volume Up";
++			gpios = <&tlmm 85 GPIO_ACTIVE_LOW>;
++			debounce-interval = <15>;
++			wakeup-source;
++			linux,code = <KEY_VOLUMEUP>;
++		};
++
++		event-hall-sensor {
++			label = "Hall Effect Sensor";
++			gpios = <&tlmm 46 GPIO_ACTIVE_LOW>;
++			wakeup-source;
++			linux,input-type = <EV_SW>;
++			linux,code = <SW_LID>;
++			linux,can-disable;
++		};
++	};
++
++	multi-led {
++		compatible = "leds-group-multicolor";
++		color = <LED_COLOR_ID_RGB>;
++		function = LED_FUNCTION_INDICATOR;
++		leds = <&red_status>, <&green_status>, <&blue_status>;
++	};
++
++	reserved-memory {
++		cont_splash_mem: cont-splash@83200000 {
++			reg = <0x0 0x83200000 0x0 (1080 * 1920 * 3)>;
++			no-map;
++		};
++	};
++
++	vph_pwr: regulator-vph-pwr {
++		compatible = "regulator-fixed";
++		regulator-name = "vph-pwr";
++		regulator-always-on;
++		regulator-boot-on;
++	};
++};
++
++&adsp {
++	status = "okay";
++};
++
++&blsp1_i2c2 {
++	status = "okay";
++	/* SMB1351 @1d charger */
++	/* wsa881x-i2c @e @44 @f @45 audio amplifier */
++};
++
++&blsp1_i2c3 {
++	status = "okay";
++
++	/* himax,852x@48 Touchscreen */
++
++	touchscreen@5d {
++		compatible = "goodix,gt970", "goodix,gt911";
++		reg = <0x5d>;
++		interrupts-extended = <&tlmm 65 IRQ_TYPE_EDGE_FALLING>;
++		irq-gpios = <&tlmm 65 GPIO_ACTIVE_HIGH>;
++		reset-gpios = <&tlmm 64 GPIO_ACTIVE_HIGH>;
++		AVDD28-supply = <&pm8950_l10>;
++		VDDIO-supply = <&pm8950_l6>;
++
++		pinctrl-0 = <&touchscreen_default>;
++		pinctrl-names = "default";
++
++		touchscreen-size-x = <1080>;
++		touchscreen-size-y = <1920>;
++	};
++};
++
++&blsp1_uart2 {
++	status = "okay";
++};
++
++&blsp2_i2c1 {
++	status = "okay";
++
++	/* FUSB301 @25 USB-C Controller */
++
++	tpa6130a2: audio-controller@60 {
++		compatible = "ti,tpa6130a2";
++		reg = <0x60>;
++		pinctrl-0 = <&tpa6130a2_default>;
++		pinctrl-names = "default";
++		power-gpio = <&tlmm 61 GPIO_ACTIVE_HIGH>;
++		Vdd-supply = <&pm8950_l22>;
++	};
++
++	tusb320: usb@67 {
++		compatible = "ti,tusb320";
++		reg = <0x67>;
++		interrupts-extended = <&tlmm 45 IRQ_TYPE_EDGE_FALLING>;
++	};
++
++	led-controller@68 {
++		compatible = "si-en,sn3193";
++		reg = <0x68>;
++
++		shutdown-gpios = <&tlmm 68 GPIO_ACTIVE_HIGH>;
++
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		red_status: led@1 {
++			reg = <1>;
++			label = "red:status";
++			led-max-microamp = <17500>;
++		};
++
++		green_status: led@2 {
++			reg = <2>;
++			label = "green:status";
++			led-max-microamp = <17500>;
++		};
++
++		blue_status: led@3 {
++			reg = <3>;
++			label = "blue:status";
++			led-max-microamp = <17500>;
++		};
++	};
++};
++
++&pm8950_spmi_regulators {
++	/* PM8950 S5 + S6 = VDD_APC supply */
++	pm8950_s5: s5 {
++		regulator-min-microvolt = <1050000>;
++		regulator-max-microvolt = <1350000>;
++		regulator-always-on;
++		regulator-boot-on;
++	};
++};
++
++&pm8950_resin {
++	linux,code = <KEY_VOLUMEDOWN>;
++
++	status = "okay";
++};
++
++&pmi8950_wled {
++	qcom,enabled-strings = <0 1>;
++	qcom,current-limit-microamp = <30000>;
++	qcom,ovp-millivolt = <29500>;
++	qcom,external-pfet;
++
++	status = "okay";
++};
++
++&ramoops_mem {
++	status = "okay";
++};
++
++&rpm_requests {
++	pm8950_rpm_regulators: regulators {
++		compatible = "qcom,rpm-pm8950-regulators";
++		vdd_s1-supply = <&vph_pwr>;
++		vdd_s2-supply = <&vph_pwr>;
++		vdd_s3-supply = <&vph_pwr>;
++		vdd_s4-supply = <&vph_pwr>;
++		vdd_s6-supply = <&vph_pwr>;
++		vdd_l1_l19-supply = <&pm8950_s3>;
++		vdd_l2_l23-supply = <&pm8950_s3>;
++		vdd_l3-supply = <&pm8950_s3>;
++		vdd_l5_l6_l7_l16-supply = <&pm8950_s4>;
++		vdd_l8_l11_l12_l17_l22-supply = <&vph_pwr>;
++		vdd_l9_l10_l13_l14_l15_l18-supply = <&vph_pwr>;
++
++		pm8950_s1: s1 {
++			regulator-min-microvolt = <1000000>;
++			regulator-max-microvolt = <1225000>;
++		};
++
++		pm8950_s3: s3 {
++			regulator-min-microvolt = <1300000>;
++			regulator-max-microvolt = <1300000>;
++		};
++
++		pm8950_s4: s4 {
++			regulator-min-microvolt = <2050000>;
++			regulator-max-microvolt = <2050000>;
++		};
++
++		pm8950_l2: l2 {
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++			regulator-always-on;
++			regulator-boot-on;
++		};
++
++		/* pm8950_l3 is managed by rpmpd (RPMPD_VDDMX) */
++
++		pm8950_l5: l5 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++		};
++
++		pm8950_l6: l6 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++		};
++
++		pm8950_l7: l7 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++		};
++
++		pm8950_l8: l8 {
++			regulator-min-microvolt = <2850000>;
++			regulator-max-microvolt = <2900000>;
++		};
++
++		pm8950_l9: l9 {
++			regulator-min-microvolt = <3000000>;
++			regulator-max-microvolt = <3300000>;
++		};
++
++		pm8950_l10: l10 {
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <2800000>;
++		};
++
++		pm8950_l11: l11 {
++			regulator-min-microvolt = <2950000>;
++			regulator-max-microvolt = <2950000>;
++			regulator-allow-set-load;
++			regulator-system-load = <200000>;
++		};
++
++		pm8950_l12: l12 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <2950000>;
++		};
++
++		pm8950_l13: l13 {
++			regulator-min-microvolt = <3075000>;
++			regulator-max-microvolt = <3075000>;
++		};
++
++		pm8950_l14: l14 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
++		};
++
++		pm8950_l15: l15 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <3300000>;
++		};
++
++		pm8950_l16: l16 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++		};
++
++		pm8950_l17: l17 {
++			regulator-min-microvolt = <2850000>;
++			regulator-max-microvolt = <2850000>;
++		};
++
++		pm8950_l19: l19 {
++			regulator-min-microvolt = <1225000>;
++			regulator-max-microvolt = <1350000>;
++		};
++
++		pm8950_l22: l22 {
++			regulator-min-microvolt = <2800000>;
++			regulator-max-microvolt = <2800000>;
++		};
++
++		pm8950_l23: l23 {
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++		};
++	};
++};
++
++&sdhc_1 {
++	vmmc-supply = <&pm8950_l8>;
++	vqmmc-supply = <&pm8950_l5>;
++
++	status = "okay";
++};
++
++&sdhc_2 {
++	cd-gpios = <&tlmm 67 GPIO_ACTIVE_HIGH>;
++	vmmc-supply = <&pm8950_l11>;
++	vqmmc-supply = <&pm8950_l12>;
++
++	status = "okay";
++};
++
++&sleep_clk {
++	clock-frequency = <32768>;
++};
++
++&tlmm {
++	gpio-reserved-ranges = <20 4>; /* Unknown, TZ Protected */
++
++	gpio_hall_sensor_default: gpio-hall-sensor-default-state {
++		pins = "gpio46";
++		function = "gpio";
++		drive-strength = <6>;
++		bias-pull-up;
++	};
++
++	tpa6130a2_default: tpa6130a2-default-state {
++		pins = "gpio61";
++		function = "gpio";
++		drive-strength = <8>;
++		bias-pull-down;
++	};
++
++	touchscreen_default: touchscreen-default-state {
++		reset-pins {
++			pins = "gpio64";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-disable;
++		};
++
++		irq-pins {
++			pins = "gpio65";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-disable;
++		};
++	};
++
++	gpio_keys_default: gpio-keys-default-state {
++		pins = "gpio85";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-up;
++	};
++
++	front_flash_default: front-flash-default-state {
++		enable-pins {
++			pins = "gpio33";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-pull-down;
++		};
++
++		flash-pins {
++			pins = "gpio128";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-pull-down;
++		};
++	};
++};
++
++&xo_board {
++	clock-frequency = <19200000>;
++};
 
 -- 
 2.55.0

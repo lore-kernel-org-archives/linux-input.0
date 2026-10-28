@@ -1,93 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.171
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793207404;
-	b=vtx30fNgqDM+MmPQWjfWrhWk7G/WPf2a+FxQXiRxn7worAe/ugwcZzmf719Rb5voihzh
-	 tE+Vje3KLWXVu0exfmO06qMxjBGUDzNxjNPTrSVbROP8MibS8T7wGOYy0jGg1Cw32NWBD
-	 GydogV6/4hSxvMAGOOoLiHOrSKbdMVOkMIimFsiDdoE+3pjgkea5RlqM1mR2+WWnMV4Yp
-	 MNFkPpXmoXWtlZ9A2BBSGT0Luv/p2fT8ZGIP9RQCVfljRrfTt/sCSYI8kkAMydSC+AqPx
-	 iZkHcs85nGtrWn1mH52lt82Kul3YT+gjZfjmdkVDfJVDVpoewBj2DLnRQEOEyc963/A==
+	t=1793210316;
+	b=r4XqMFScPwy6WuSlC7hbfSZnC8BKq1Xpze0i2TKMAOwtMSQwVq1iFbnyiRi0Qoc9Sm6B
+	 1gHGatexLLo/DgamH+fAF8hpfGnacLAb3wdS0PcYn3whRMlZvFZ5DD2JLHPjTInBZNYsq
+	 reWCyhhbNUzOo9q/YRspc9fdnrTi391W2f9MlYyC79pitkeqfliWAa90JXPdM5Pd0aOAW
+	 MCBnSC3sVlGaVnS8IXPMM8Piuz43qb4nZNiRPgov/Ihd+pl78u2AKbiAdQGUtDtZwDnrK
+	 0qwJAkya/4/tq3lLpN/hnN7ztYiAC3JVRpl9VACePMKln6Hc8Ce3joa0vh+kTb05cYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793207404;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=SzNNzVDXWgiSV1/YGhcZlrCyI10PMQDXKdaQ8ngsDPE=;
-	b=ZAET7qXBqUwjSXde3cQIjH4UotZ4eRpn3FbsSLGXwowAZDO2LF3ahNrAaPXSWHPJR0md
-	 0fABQ+ghNPnjNa6XXnxq83J+lCxCZ1sVAt98rlApS2pH2aDlc+XCC7qupaTPn88P/v3L8
-	 CTXJtM5lwbmwSjrFmZ5+jQD0sFOW/Qc0+NLFDqOZ3Z6z4HX4PekawILj5Z/7RMSik0v/T
-	 GrS3Z4kJ21UWayCvMZn7oNcYnfJdBCkow7mfORZK1/kMdEkTlUdWb17labkfAuQi+AXrd
-	 3PJ5vZOdZSiMa9ETQwdE2N5WS7NLLh7YPgwPQobajd8PRgDwYqVQlfnGXQvlRqJw3iQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793210316;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=aTi7FDhFISZO7kWpmimT2aO+ec4D8z/GbW3BUuiE/d0=;
+	b=g6E5G78AX0bmnINznLOxJcXoLaPUAXksvwaWDIESgQNhAZ9AHpx3UWbqsW/pwE4TdEWX
+	 3Q+IZ6D3219NkvQMfQVe4RQPuTfH253HnurzqUqXLIXqe6y6Hnybal644HtaFV1TUctYi
+	 UiTstS5iUFAJ6h702nF5McJ+959C2ZwWiRiHQEfQe1+Ovq9SW5QprmMZ7uxNYaQUsrsk/
+	 FUOwUG93c5Nh+JDJbR3B94euCfInWSym8dzkwfuNMyJ1i57kz6w+VHevs7X6J7Ou32m9P
+	 pUCUrw2Qd5yFlvV2txssH3Ig+ANhVF7l8ruUQgYQ/BlWS6i6Kxsnm0xP82q4BdtN20A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Y2+CUOiK;
-	arc=none smtp.remote-ip=74.125.82.171
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PKAxA7FP;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4580E606A321
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 17:10:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4580E606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEE70606A321;
+	Wed, 28 Oct 2026 17:58:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Y2+CUOiK
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-3535a54bed9so1771918eec.1
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 10:10:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793207403; x=1793812203; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=SzNNzVDXWgiSV1/YGhcZlrCyI10PMQDXKdaQ8ngsDPE=;
-        b=Y2+CUOiK+rdCHsUnimafxxE1iYgLSjGd7A0Bzh16RaF+HJWB7N+oQ1579sakDOI8A9
-         RA0RA0HmXAK5PFAp721QH8n7yyLReE9WgWZwNEloKPS016ZZ9zqDgQHhVWp0Ow8WdCIJ
-         bKandakugFBx4lNGYX96JfJaXdm/2MLToFJ1I3GCTY7MuPySCg9WXFbuYYsPRuxVMxdb
-         nfnFMy5ErGAyAIGG4s6VQUk4pb3Z9VagqaGYuANDVPH/KJ95uAjn0kv6TMdCv5oVl1fm
-         2LHV9/I5uAESzr7/HfnyiNJcfUfWWLWfJfKQWM94GoPzh+rtCOWeDAq6eSdFu9Tg7cqp
-         eJYA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793207403; x=1793812203;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=SzNNzVDXWgiSV1/YGhcZlrCyI10PMQDXKdaQ8ngsDPE=;
-        b=rDNV2T9z9tQSwASoebKHgY+s7W/HgvWREPw1/A9C62XflF0DYLuAiq2zzTYu0W8NUK
-         mUEjhqkPfkKzZNEnGiL4RAa+R3iX1kzYgSINex5B3SKq5e6yfBhs6hQDQqQ+dkLeDDYW
-         p5M2m/v7JTD7se+MZ7cVj/vjdryZe5tpnbV5Bfb4L05DvcxF6Zz6t+vOWOpXtIR0qPXY
-         IMRSEPCt0DQaOIJdxah8mdngLfX6uBIx44d137t8OJ3HitpgzgXFbqPFq3RRwsd9pc0t
-         85UbB479cNNt9mQKRD4Mn58fTe4Mdy5U+tczrINHrQfr7s5DjqligdqDvGOp6qFjovQp
-         yiaw==
-X-Forwarded-Encrypted: i=1; AKwUvBzkfgEeDBjR+pUl/s7AtYyHop3pqQfTKvBirOfjCTPIRsCnTYmgttCGXu7UyEKFdkixipQl0yV9N8Xiwg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYL1cH5te1Xjejn/YMqNQbfzOig1LEa+QHoY3XF33bs9mCjGMkyL
-	tyC4EsXsSo7lGKNcajh3kEakDNjMl/lM+0cby2OWRTE5waXpIIkFA8/jsB22FA==
-X-Gm-Gg: AYBFou2GG2+UkT8qxZYF/tiu4CDRzvzgz0cf12UTrGNm8b+TnKkZJWZ0/SBU4z3oSyy
-	siHe0Gz6LxZH9PeqKOKl9c8wUWZDluQ2lmkLQcmNpeBAE0IzAzEx3bqzemiKnH9jJ55jI3x/GO7
-	YMPmJhrfs6B8GcBHsu+pCAJJX1G3jPRJvGM7RUJSAl5vPETE9bk/dEN2OfaMnAdagiEWzTxE+s6
-	GEOhNfR+vK2YWHXHr3v9tyPRj5+wiVt6vfAMdlnlCnnMWFBrL/BNaOy6Xy9Oqn9vFNzfSQmYHja
-	hAeRW0E/XFUEroS0NMHqBkHQhFTepuZEed0vWyenlt7jAjVmX26cOCisAWZBG6+/XH/qh63G2dL
-	Re20WUTiciywaRZpdnTFcQqGUWjrms45XM26YoUl4BwcbYLP/whHbGkLgOXJTRAzHbdcuY+1Gna
-	mnxM/ZapF8BnrazNmEbHIikagIiFrQ35CejVOVIz51mU4//OvNHYDxt8bbfinZDcm1XqZXfQeom
-	v9odjJnslY0ECuK7GF/M18XbudjOU0JoklUjdnAyczQtGwXQ9UQ1opN4ubx80UHTlmc4Zmlt3YC
-	o++UerAiyt7cVQZ4j2fhoJguQ1aHJbVoGYsemnbS+ngbXfp9Dd79D2WcDBsveHL6yeaYH24=
-X-Received: by 2002:a05:7300:e9c4:20b0:36a:13e1:c889 with SMTP id 5a478bee46e88-36a20427d57mr4718660eec.36.1793207402170;
-        Wed, 28 Oct 2026 10:10:02 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:9958:9525:7799:82b5])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a239644efsm12474280eec.23.2026.10.28.10.10.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 10:10:01 -0700 (PDT)
-Date: Wed, 28 Oct 2026 10:09:57 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: James Hilliard <james.hilliard1@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Jiri Slaby <jirislaby@kernel.org>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] Input: serport - defer write wakeups to a worker
-Message-ID: <auIsPu4hA0f1SpRX@google.com>
-References: <20261028-submit-serport-write-wakeup-v1-v2-1-c05d96259985@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PKAxA7FP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF3BE1F01828;
+	Wed, 28 Oct 2026 17:58:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793210315;
+	bh=aTi7FDhFISZO7kWpmimT2aO+ec4D8z/GbW3BUuiE/d0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=PKAxA7FP/bS9zHJa7Nuo3TsAvflHkO0kcRDdTUa08+ni+bekxF2nqRW42OAE1ui/l
+	 uGmJ6p5+tGIrVNkDjg4AKy165bpFXEg+nRW249Ay3w1e6NmS3wHqoemXmAFbFco2jH
+	 KhAwFYUa7yhuGAPA+wBQmSfUmkCOCmyInDEL7vaU4dEtaFsJfezypQ79JJck/paM0c
+	 H9t46lptF3NUA3ZTsaMjo7kvshK3oX6KcYcjA5sLFt4LHKRgVKUSRSfgG06MMF5+Pa
+	 XX/IecWnMpshy3zMs1Z79uMFye+c+eeXb5VZnT4ceN6ug4KZeB20hSbXIqUoBIK2Zw
+	 18GfyGUuukSZw==
+Date: Wed, 28 Oct 2026 17:58:30 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Jizhou Tong <fqwqf@fqwqf.xyz>
+Cc: Jingyuan Liang <jingyliang@chromium.org>, jikos@kernel.org,
+	bentiss@kernel.org, dmitry.torokhov@gmail.com,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	daleyo@gmail.com, broonie@kernel.org, u.kleine-koenig@baylibre.com,
+	linux-spi@vger.kernel.org, devicetree@vger.kernel.org,
+	robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org
+Subject: Re: [RFC PATCH v2 4/6] dt-bindings: input: describe the Romulus13
+ QSPI touchpad
+Message-ID: <20261028-punctured-flagpole-c7ec4cfc4609@spud>
+References: <010601a1334094a9-1f793e14-c414-4780-98ff-f5acdac353a2-000000@ap-northeast-1.amazonses.com>
+ <010601a1334e2298-73816c42-ca83-40fe-9c7a-e771c466a4e6-000000@ap-northeast-1.amazonses.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -97,29 +62,154 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="cgu1zTNp/hBa/EJJ"
+Content-Disposition: inline
+In-Reply-To: <010601a1334e2298-73816c42-ca83-40fe-9c7a-e771c466a4e6-000000@ap-northeast-1.amazonses.com>
+
+--cgu1zTNp/hBa/EJJ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261028-submit-serport-write-wakeup-v1-v2-1-c05d96259985@gmail.com>
+Content-Transfer-Encoding: quoted-printable
 
-Hi James,
+On Tue, Oct 13, 2026 at 03:28:41AM +0000, Jizhou Tong wrote:
+> Describe the fixed-address HID-over-SPI touchpad on Surface Laptop 7
+> 13.8-inch, with quad address/data transfers, an active-low reset and a 5
+> V supply.
+>=20
+> Signed-off-by: Jizhou Tong <fqwqf@fqwqf.xyz>
 
-On Wed, Oct 28, 2026 at 01:14:19AM -0600, James Hilliard wrote:
-> @@ -54,6 +56,11 @@ static int serport_serio_open(struct serio *serio)
->  	guard(spinlock_irqsave)(&serport->lock);
+With the changes to the hid-over-spi series that this is based on, can
+this device now go into hid-over-spi.yaml?
 
-I changed this to scoped_guard() and applied.
-
->  	set_bit(SERPORT_ACTIVE, &serport->flags);
->  
-> +	if (serio->drv->write_wakeup) {
-> +		enable_work(&serport->write_wakeup);
-> +		set_bit(TTY_DO_WRITE_WAKEUP, &serport->tty->flags);
-> +	}
+> ---
+>  .../input/microsoft,romulus13-touchpad.yaml   | 86 +++++++++++++++++++
+>  1 file changed, 86 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/microsoft,rom=
+ulus13-touchpad.yaml
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/microsoft,romulus13-=
+touchpad.yaml b/Documentation/devicetree/bindings/input/microsoft,romulus13=
+-touchpad.yaml
+> new file mode 100644
+> index 0000000000000000000000000000000000000000..88e4664c56e7fb1c3f9f5949a=
+3ded2f9d7070604
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/microsoft,romulus13-touchpa=
+d.yaml
+> @@ -0,0 +1,86 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/input/microsoft,romulus13-touchpad.ya=
+ml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
 > +
->  	return 0;
->  }
+> +title: Microsoft Surface Laptop 7 13.8-inch QSPI touchpad
+> +
+> +maintainers:
+> +  - Jizhou Tong <fqwqf@fqwqf.xyz>
+> +
+> +description:
+> +  The touchpad on the 13.8-inch Surface Laptop 7 uses the HID SPI v3
+> +  protocol over a quad SPI connection. Its supply and board reset states
+> +  must be controlled during initialization and recovery.
+> +
+> +allOf:
+> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: microsoft,romulus13-touchpad
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  vdd-supply:
+> +    description: Touchpad 5 V supply.
+> +
+> +  spi-max-frequency:
+> +    maximum: 20000000
+> +
+> +  spi-rx-bus-width:
+> +    items:
+> +      - const: 4
+> +
+> +  spi-tx-bus-width:
+> +    items:
+> +      - const: 4
+> +
+> +  reset-gpios:
+> +    maxItems: 1
+> +    description: Active-low touchpad reset.
+> +
 
-Thanks.
+> +  pinctrl-0: true
+> +
+> +  pinctrl-names:
+> +    items:
+> +      - const: default
 
--- 
-Dmitry
+Are these even something that needs to be added? I am pretty sure pinctrl
+stuff is allowed in all nodes without being cited explicitly.
+
+Looks okay to me other than these two things.
+
+pw-bot: changes-requested
+
+Thanks,
+Conor.
+
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - vdd-supply
+> +  - spi-rx-bus-width
+> +  - spi-tx-bus-width
+> +  - reset-gpios
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/interrupt-controller/irq.h>
+> +    #include <dt-bindings/gpio/gpio.h>
+> +
+> +    spi {
+> +        #address-cells =3D <1>;
+> +        #size-cells =3D <0>;
+> +
+> +        touchpad@0 {
+> +            compatible =3D "microsoft,romulus13-touchpad";
+> +            reg =3D <0>;
+> +            spi-max-frequency =3D <20000000>;
+> +            spi-rx-bus-width =3D <4>;
+> +            spi-tx-bus-width =3D <4>;
+> +            interrupts-extended =3D <&tlmm 3 IRQ_TYPE_LEVEL_LOW>;
+> +            vdd-supply =3D <&vreg_ts_5p0>;
+> +            reset-gpios =3D <&tlmm 120 GPIO_ACTIVE_LOW>;
+> +            pinctrl-0 =3D <&touchpad_reset>;
+> +            pinctrl-names =3D "default";
+> +        };
+> +    };
+> --=20
+> 2.53.0
+>=20
+
+--cgu1zTNp/hBa/EJJ
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCauI3xgAKCRB4tDGHoIJi
+0htEAQCI6Uy3blZKIhslyzl+1gFTR66W5gqqsXBEaG9nFxFuyQD/a4SHdavDd6H7
+W/++p34eqViyZ+CmO4dV2R3tbHOxOgs=
+=cS+N
+-----END PGP SIGNATURE-----
+
+--cgu1zTNp/hBa/EJJ--

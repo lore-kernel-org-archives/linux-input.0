@@ -1,22 +1,22 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.85.9.111
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793219518;
-	b=hDbgO5HWjIGgXxjngSDDjwx2kgLsNkFkELJreIOOTK1OBS0Q4ZV3j1u+ooSxhhscUgSi
-	 M2cgmtMyduiJOr7B/pr95CdAZVVz/yyiyJ0RHK806LZQDCm0P0XL2FEL4UPTrE0+xffvQ
-	 arbFVfr3fiEbyOZwDT66umetL9f5Vp1JfQGFS8nUp/GzRpdzq1GjQDu+qKWOHtOri5GhN
-	 gO0Wdxi8C0qi17E0F10UWZJHp3Jv8fjsmU3a+xkr1/dstBK1ChCw8WNG9iLri8o+HsLNm
-	 2VaaW7+B8fSVNU9MK7G6LQRZr0RglePL1S2WLGE3q0iUfItohUsmNQhbxzfL2VsuN4w==
+	t=1793219535;
+	b=FXKQc86yLahkVk1V1+z5o4kRbfQyd+1nHs5hjKpas3Z9tiq1PvQDQW0if79rjSFXZ4ZK
+	 49rqwV29yqo5NOQPjuGBct0O7RHwuqP4YZE7dkaOobsc8jJR/ACmN8bXibsD+9t8LTBuh
+	 Mz4SuO9vbbuolV+1hhoJflwQWnUE/ycECNbOGIiIqpGtxPPiLaioMv6awp3icIOFh4vt5
+	 pXTZkqXKf9INVYHF4ac8Ev18Wqsg0tyx+Sb+4aqdUcyYBlvmz58qO/qtwFIbQ7THEEpkk
+	 cNi8s+DHmP1HY51c3GVxo+UpIs3tfZ+k5fWU+zL1pjO8DfvDU1kCLCnLha8HryB2JlA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793219518;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793219535;
 	h=DMARC-Filter:Received:Message-ID:Subject:From:To:Cc:Date:In-Reply-To:
 	 References:Content-Type:Content-Transfer-Encoding:User-Agent:
 	 MIME-Version;
-	bh=na0Oh3TAI0ex8L400Yz+9rIyulgdb+s9SFwVhlKcmfo=;
-	b=yearv3I3y7/r1Pe6iIgKkFRoFJd9QwZJ/3RuxOUkYkIKZrPuXgIVNuOYekNDD/zrAwJn
-	 mIqCBuXmZPzE39hYfLeDQhPck57SZz956MDCp6+R+KmQvlwzOjL/1PnBQit9k9XTVZjvz
-	 tNMbdmCbzGyJgn/wnHGOINILWJIZpZCGtSEzdhUFRpLnxw7qh08DLqHaiUBqSz7YGOCV0
-	 qAENkCAxSDm0xpSRj+aUt9zeGyohwx88dcMdIPMkUoxPr4y/kIpyAptO51j1cy7O2QS7A
-	 OewHkVIjO5itb2sNR+xSqvz9BsJu/FkjGaKHkGUIZi8T11JcAQiLYnA1ULt2yf10+LQ==
+	bh=zMC+H5tUF3kscmU7zp4hWDIYHBRoykJp+CuX0oMkOkM=;
+	b=E1zmOm4QWBu210CVWNHK1CK2rRxcwaQKyP+wb1ogw9+W07aK3UUVMVO8aOiptw95j7fI
+	 oT3E2+Ond+wCUuZoTZpRixuAFClNhYsorAwwfYYgfwY3QHQ12VTTpmAIw7XueDiQ63fM9
+	 OUYkfPrg0jOBpNKVTPvgDP5tUULwnq6AqvAy1H6CSyroPYkDdL9d/Dyno2bPHMsa/7ByA
+	 VdCbR/aa3Sjm+INDshv/DSeeKKoH0yHV6VOb+JVRlrn6/oo72mogTHcXwZlrqZd5qL/06
+	 J5D3pGDwpn/C6Z8GTMs9GUgfhDWxqOZkO5sWZkLk3tE/UQd7d5na1SFhIrrBDzzu/Ww==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=irl.hu;
 	spf=pass smtp.mailfrom=irl.hu;
@@ -25,20 +25,21 @@ Received: from irl.hu (irl.hu [95.85.9.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 4644E606A31C;
-	Wed, 28 Oct 2026 20:31:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4644E606A31C
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 1E258606A31A;
+	Wed, 28 Oct 2026 20:32:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1E258606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=irl.hu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=irl.hu
 Received: from [192.168.2.4] (51b68114.dsl.pool.telekom.hu [::ffff:81.182.129.20])
   (AUTH: CRAM-MD5 soyer@irl.hu, SSL: TLS1.3,256bits,ECDHE_RSA_AES_256_GCM_SHA384)
   by irl.hu with ESMTPSA
-  id 00000000000808F8.000000006AE25BBA.0003295D; Wed, 28 Oct 2026 21:31:54 +0100
-Message-ID: <7b293547b11817297f54ac36d3a441aa26e2eec3.camel@irl.hu>
-Subject: Re: [PATCH 1/3] dt-bindings: input: Add compatibility for Awinic
- AW86224
+  id 00000000000808F8.000000006AE25BCE.0003297B; Wed, 28 Oct 2026 21:32:14 +0100
+Message-ID: <102801f29dbb60d977aabd191a680ab0c3677c22.camel@irl.hu>
+Subject: Re: [PATCH 3/3] arm64: dts: qcom: sm7325-motorola-dubai: Add
+ vibrator support
 From: Gergo Koteles <soyer@irl.hu>
-To: Krzysztof Kozlowski <krzk@kernel.org>
+To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+  Krzysztof Kozlowski <krzk@kernel.org>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
   Rob Herring <robh@kernel.org>,
   Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -51,11 +52,12 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
   devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
   linux-arm-msm@vger.kernel.org, phone-devel@vger.kernel.org,
   ~postmarketos/upstreaming@lists.sr.ht
-Date: Wed, 28 Oct 2026 21:31:46 +0100
-In-Reply-To: <20261028-invisible-malachite-agouti-99fcf6@quoll>
+Date: Wed, 28 Oct 2026 21:32:05 +0100
+In-Reply-To: <96405224-72e6-4786-b13e-d73134b58ca2@oss.qualcomm.com>
 References: <cover.1793135056.git.soyer@irl.hu>
-	 <353fe3fa68e74c46b88df51b303a7d23235d5ea7.1793135056.git.soyer@irl.hu>
-	 <20261028-invisible-malachite-agouti-99fcf6@quoll>
+	 <8717c3739be282747cbef611d242acfc5a40656b.1793135056.git.soyer@irl.hu>
+	 <20261028-thick-gainful-pegasus-e1b430@quoll>
+	 <96405224-72e6-4786-b13e-d73134b58ca2@oss.qualcomm.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
@@ -69,49 +71,52 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 
-Hi Krzysztof,
+Hi Konrad,
 
-On Wed, 2026-10-28 at 12:06 +0100, Krzysztof Kozlowski wrote:
-> On Tue, Oct 27, 2026 at 11:01:23PM +0100, Gergo Koteles wrote:
-> > Add the AW86224 haptic driver to the binding documentation for the
-> > AW86927 and AW86938, as this binding needs the same properties.
+On Wed, 2026-10-28 at 13:04 +0100, Konrad Dybcio wrote:
+> On 10/28/26 12:08 PM, Krzysztof Kozlowski wrote:
+> > On Tue, Oct 27, 2026 at 11:01:25PM +0100, Gergo Koteles wrote:
+> > > Add the required node for haptic playback (Awinic AW86224).
+> > >=20
+> > > Signed-off-by: Gergo Koteles <soyer@irl.hu>
+> > > ---
+> > >  .../boot/dts/qcom/sm7325-motorola-dubai-common.dtsi   | 11 +++++++++=
+++
+> > >  1 file changed, 11 insertions(+)
+> > >=20
+> > > diff --git a/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dt=
+si b/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
+> > > index ef91986a1fb9..434846be51d9 100644
+> > > --- a/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
+> > > +++ b/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
+> > > @@ -924,6 +924,17 @@ &i2c4 {
+> > > =20
+> > >  	status =3D "okay";
+> > > =20
+> > > +	vibrator@58 {
+> > > +		compatible =3D "awinic,aw86224";
+> > > +		reg =3D <0x58>;
+> > > +
+> > > +		interrupts-extended =3D <&tlmm 47 IRQ_TYPE_EDGE_FALLING>;
+> > > +		reset-gpios =3D <&tlmm 46 GPIO_ACTIVE_LOW>;
+> > > +
+> > > +		pinctrl-0 =3D <&aw86224_int_default>;
+> > > +		pinctrl-names =3D "default";
+> > > +	};
+> > > +
+> > >  	wl2864c@29 {
 > >=20
-> > They are not compatible though, because the chip identification works
-> > differently compared to the 86927/86938
+> > There is no such code.
 > >=20
-> > Signed-off-by: Gergo Koteles <soyer@irl.hu>
-> > ---
-> >  Documentation/devicetree/bindings/input/awinic,aw86927.yaml | 6 ++----
-> >  1 file changed, 2 insertions(+), 4 deletions(-)
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/input/awinic,aw86927.yam=
-l b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-> > index bd74b81488f6..655633527c01 100644
-> > --- a/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-> > +++ b/Documentation/devicetree/bindings/input/awinic,aw86927.yaml
-> > @@ -12,11 +12,9 @@ maintainers:
-> >  properties:
-> >    compatible:
-> >      oneOf:
-> > +      - const: awinic,aw86224
-> >        - const: awinic,aw86927
-> > -      - items:
-> > -          - enum:
-> > -              - awinic,aw86938
-> > -          - const: awinic,aw86927
-> > +      - const: awinic,aw86938
+> > Please work on mainline, not some fork.
 >=20
-> I do not understand why you are changing this and commit msg is not
-> explaining that. You only say that new device is not compatible, but how
-> is that relevant for existing binding? Anyway, separate commits with
-> separate reasoning.
+> + please keep the entries sorted
 >=20
+> Konrad
 
 Thanks for the review.
 
-There was some confusion regarding this in my head, but I now
-understand that it validates the entire compatible array.
-I will add it accordingly in v2.
+I will sort it by address in the v2.
 
 Best regards,
 Gergo

@@ -1,47 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=45.254.49.198
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=101.71.155.101
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793174622;
-	b=eYnD0cXCz+3aXHRe9yJ4auSMOKfi9SQHmE6y73beVTUuMDkWs62gkqfjmJdVB1tK/JMR
-	 WrANf8GTztJlk9UAn0MwA8kiDr/37+e9a574Fhi/8De60vGmV1gWC2Y7WIKRIoxf/fyU9
-	 zd8J9vrfUTT/eGrOsuYzWlsdb2fsuk7mOtJGS5EDE/eOlDnnag4/DyXMZTPixtk40sm6j
-	 TjBMk/4oqqJICxKuDHHpkmMykmxDzTm8ER+wyGoo8Z2txH0kqSYG5J2qostXDemSAZMIj
-	 sxe5EKmr8eGtACgpITkoiWJby1PV7MNx+MvU4jN/l+gGf7c3GDuvxLjvngqm6qM5k/g==
+	t=1793174626;
+	b=BcCbSNUkwx4c+gT/nULw7nUif0kzUOR2zcn+2XimNLHhgUWPVRgZYKizeDlTJpsH1I1l
+	 6Ryty7WpKqJSjjFeJ83FYeZ/TBp5ROX4LHCSiOL57TJr0X8AM8X0vIh8IUU7gQJBJF+wF
+	 n7BN3RKPPi5i9vruC2OgO0ag4uJjASSkGQSSw4BXps1DQrH7+9sTOyjJeQRX2tGoIUpAo
+	 xbBb5dWBiKKdCBGG5sZvbxyOURrXHjeV6I2yTjyknYWPwj/tXIJPYGZgUnhHgcbdBTSYJ
+	 W26QSkyVVSQlJZ9sspAnZvTQ+mQpCYoX2y4W/+OywrchPq6az3UC7AV9LzLTvJMECtQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793174622;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793174626;
 	h=DMARC-Filter:Received:From:Date:Message-ID:To:Cc:Subject:
 	 MIME-Version:Content-Type:X-HM-Tid:X-HM-MType:X-HM-Spam-Status:
 	 DKIM-Signature;
-	bh=pPsugiRJ26LlVEXqFkrn+ap4oVJCtNDPv4IdltsFvlQ=;
-	b=fgVsZbSjC/PbdPTaV+BJyG+v0PL5TTM9ZpZNPlx638jrwb2/IkGT0bPK8amv4D1ePw2G
-	 0AkCgKbTEOTYjqE1oQ1UdmM4o5vc55TkzLz80/7r7lC01eFEZvImDDvl/bryhfMByvlC8
-	 NqAAj6aRf3/uVlDVK53D11utp3Ny37raM6LKyZgzuyUEHbHj0X96KRHJo4qvA19E5MxhF
-	 vmcOdHyires4MmL5+jUO0R/mRV6HmLfjMLn7lfN5t5TqYdvOr1pPmBi68mqKfQRWGe1Co
-	 oUTijqXmfkGhUdDbgCbW4q2Mk3+3lBX/pl323fs9aYrhD3RuYD9GUhjIAulFy0YJwqg==
+	bh=vzB+DD8KMW9g2kq0KQiASONEIBLhDBNuNRsihFaNhBc=;
+	b=hvkWImDQEYnTxgt+SCkJY7F8blNk2HksZqH4ZdR986TpDy/D4b/SsCtMcH4g9aDJm4WG
+	 hHG/oKqrrbALGVnPQ48NF4bLMxa7jpFCS6O+tnbNn18ESZys1duSbqtlAy0GYwZmAAEUZ
+	 Ec//tNvx/4vs7/aPZalB87Z24+VrCVHCISjecW1wrVfasDHzSAM72gAGAGb2S3ljM5HHd
+	 oJfV2xZ+efD7LX4hXZvFK8sNfDzdx3wS+aWSaHQCBpQ+iKz+mL42rAZqDc0+j4buVj/cD
+	 6xxKPZzgaOWHl/pj/soRyHdDOiP0wTqEJAULMG8TJdPO/mjtyvDJfmfXiK4ZVVvP8hw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=stu.pku.edu.cn;
 	spf=pass smtp.mailfrom=stu.pku.edu.cn;
-	dkim=pass header.d=stu.pku.edu.cn header.i=@stu.pku.edu.cn header.a=rsa-sha256 header.s=default header.b=dEVAOWzS;
-	arc=none smtp.remote-ip=45.254.49.198
-Received: from mail-m49198.qiye.163.com (mail-m49198.qiye.163.com [45.254.49.198])
+	dkim=pass header.d=stu.pku.edu.cn header.i=@stu.pku.edu.cn header.a=rsa-sha256 header.s=default header.b=QLAZqZ5Y;
+	arc=none smtp.remote-ip=101.71.155.101
+Received: from mail-m155101.qiye.163.com (mail-m155101.qiye.163.com [101.71.155.101])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C056C606A31D
-	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 08:03:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C056C606A31D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56E79606A31F
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 08:03:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56E79606A31F
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.pku.edu.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.pku.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=stu.pku.edu.cn header.i=@stu.pku.edu.cn header.a=rsa-sha256 header.s=default header.b=dEVAOWzS
+	dkim=pass (1024-bit key, unprotected) header.d=stu.pku.edu.cn header.i=@stu.pku.edu.cn header.a=rsa-sha256 header.s=default header.b=QLAZqZ5Y
 Received: from 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa (unknown [61.37.18.60])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 52a2336ae;
-	Wed, 28 Oct 2026 16:03:26 +0800 (GMT+08:00)
+	by smtp.qiye.163.com (Hmail) with ESMTP id 52a2336b4;
+	Wed, 28 Oct 2026 16:03:31 +0800 (GMT+08:00)
 From: Yifan Zhang <yfzhang23@stu.pku.edu.cn>
-Date: Wed, 28 Oct 2026 16:03:24 +0800
-Message-ID: <179317460423.87432.1451672332362541157@stu.pku.edu.cn>
+Date: Wed, 28 Oct 2026 16:03:29 +0800
+Message-ID: <179317460937.87455.1799017093083467190@stu.pku.edu.cn>
 To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org, bentiss@kernel.org, david@readahead.eu
-Subject: [BUG] HID: uhid: report waiter can outlive struct uhid_device
+Cc: jikos@kernel.org, bentiss@kernel.org
+Subject: [BUG] HID: bpf: registration can race device SRCU destruction
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -51,46 +51,48 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3021330199713570928=="
-X-HM-Tid: 0aa1818911d403a2kunm97c0d41b1c15e2
+Content-Type: multipart/mixed; boundary="===============7656143336698147709=="
+X-HM-Tid: 0aa1818924c103a2kunmad097aed1c15f6
 X-HM-MType: 10
 X-HM-Spam-Status: e1kfGhgUHx5ZQUtXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaQ08ZVh0aTk0fQ0kZTUMZSFYeHw
+	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaH0xJVklIHUNKSENLH0tCHVYeHw
 	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlNSlVITFVKQ1VNS1lXWRYaDxIVHRRZQVlLVUtVS1VLWQY+
 DKIM-Signature: a=rsa-sha256;
-	b=dEVAOWzSbUpm5s3DMBsSExJQpW6oo7D5xVGSYigSg9qJHYfZshUlevFlPFfg45la4esN+583BE88pqfKXkWPC7Jg87M1vmwtW0jrQQ7av8gYcZUE4s7AIvvVHEdBkO0lPpm89YiC4olIoy6gwOmAhAAckIOS5LPf9cE36fYLeys=; c=relaxed/relaxed; s=default; d=stu.pku.edu.cn; v=1;
-	bh=pPsugiRJ26LlVEXqFkrn+ap4oVJCtNDPv4IdltsFvlQ=;
+	b=QLAZqZ5YFCpZP4WR6fCPXoSIulQFuEfe4YRNGweEL+kMEyswr3iRcSl/KKO1LBLOipOKB9/FhmT/yhkcmzWR5+RMaFq85MhSfGL5Fn51JiUnJp/85n9OMy9aprL/p6tSh5z+Vx9rdJ/ur60HrTf8nNZ2m/QXUcz0afPqfyyap8A=; c=relaxed/relaxed; s=default; d=stu.pku.edu.cn; v=1;
+	bh=vzB+DD8KMW9g2kq0KQiASONEIBLhDBNuNRsihFaNhBc=;
 	h=date:mime-version:subject:message-id:from;
 
---===============3021330199713570928==
+--===============7656143336698147709==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
 Hello,
 
-I found a use-after-free in the UHID report-wait path that is reachable
-through a HID-BPF syscall program. I reproduced it on two independent boots
-of an unmodified Linux v7.3 KASAN kernel. One run reported:
+I found a use-after-free between HID-BPF struct-ops registration and UHID
+device destruction. I reproduced it on two independent boots of an
+unmodified Linux v7.3 KASAN kernel. The report begins:
 
-  BUG: KASAN: use-after-free in __uhid_report_queue_and_wait+0x577/0x5d0
-  Read of size 1 by task hid_race
-  uhid_hid_raw_request
-  __hid_hw_raw_request
-  hid_bpf_hw_request
-  bpf_prog_test_run_syscall
+  BUG: KASAN: slab-use-after-free in check_init_srcu_struct+0x10d/0x150
+  Read of size 8 by task reg_destroy
+  check_init_srcu_struct
+  synchronize_srcu
+  hid_bpf_reg
+  bpf_struct_ops_link_create
 
-The HID-BPF request takes a reference to struct hid_device and then sleeps in
-__uhid_report_queue_and_wait() while holding uhid->report_lock. A concurrent
-close of /dev/uhid runs uhid_dev_destroy(), wakes the report waiter, and then
-uhid_char_release() frees the separate struct uhid_device without waiting for
-that waiter to finish. The hid_device reference does not keep the uhid
-allocation alive. The awakened waiter then reads and writes freed uhid state
-and eventually unlocks the freed mutex.
+UHID_DESTROY reaches hid_bpf_destroy_device(), marks the HID-BPF device as
+destroyed, and frees its SRCU state. A concurrent hid_bpf_reg() can still find
+the device and append a new struct-ops entry because the registration path
+does not reject the destroyed state while holding prog_list_lock. It then
+calls synchronize_srcu() on the already-cleaned SRCU state.
 
-The attached reproducer creates a UHID feature report, starts one
-hid_bpf_hw_request(), waits for UHID_GET_REPORT, and closes the UHID fd on the
-same CPU at SCHED_FIFO priority. It requires root, /dev/uhid, CAP_BPF, and
-CAP_SYS_NICE. Build it with:
+The reproducer places a perf hardware breakpoint immediately after
+cleanup_srcu_struct() frees srcu_sup. While teardown is paused there, another
+thread attaches the BPF struct-ops program. It requires root, /dev/uhid, perf
+hardware breakpoints, SCHED_FIFO, two CPUs, nokaslr, and CONFIG_HID_BPF. The
+AFTER_KFREE_SUP offset in repro.c is build-specific and must be adjusted if
+cleanup_srcu_struct() is rebuilt.
+
+Build the BPF and host parts with:
 
   bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
   clang -O2 -g -target bpf -D__TARGET_ARCH_x86 \
@@ -98,221 +100,281 @@ CAP_SYS_NICE. Build it with:
   cc -O2 -g -pthread repro.c -o repro -lbpf -lelf -lz
   ./repro repro.bpf.o
 
-Both runs used the default syzkaller ext4 image. The race hit 26 times in 100
-FIFO-priority trials.
+Both runs used the default syzkaller ext4 image.
 
-CVE-2025-38016 concerns HID-BPF SRCU access from LED work, and CVE-2026-90001
-concerns a hid_device registration-reference double put. Neither covers the
-UHID report waiter outliving struct uhid_device.
+CVE-2025-38016 concerns LED-work SRCU access after destruction, while
+CVE-2026-90001 concerns a hid_device registration-reference double put.
+Neither covers hid_bpf_reg() racing with SRCU cleanup.
 
-uhid_char_release() must not free struct uhid_device until the report waiter
-has left.
+The destroyed transition and registration should be serialized under
+prog_list_lock so that no new struct-ops entry can be published after SRCU
+cleanup begins.
 
 Attached are the reproducer sources, KASAN report, and kernel config.
 
 Regards,
 Yifan Zhang
 
---===============3021330199713570928==
+--===============7656143336698147709==
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment; filename="repro.c"
 MIME-Version: 1.0
 
 #define _GNU_SOURCE
-#include <bpf/bpf.h>
 #include <bpf/libbpf.h>
-#include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <glob.h>
+#include <linux/hw_breakpoint.h>
 #include <linux/input.h>
+#include <linux/perf_event.h>
 #include <linux/uhid.h>
 #include <poll.h>
 #include <pthread.h>
 #include <sched.h>
+#include <signal.h>
+#include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/resource.h>
-#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/syscall.h>
+#include <time.h>
 #include <unistd.h>
-#include <fcntl.h>
 
-struct race_args {
-	unsigned int hid_id;
-	int retval;
+/* build-hidbpf-race/vmlinux: immediately after kfree(srcu_sup). */
+#define AFTER_KFREE_SUP 0x7daUL
+
+static atomic_int breakpoint_hit;
+static atomic_int release_destroy;
+static atomic_int attach_done;
+static pid_t helper_tid;
+static struct bpf_map *ops_map;
+static struct bpf_link *ops_link;
+static long attach_error;
+
+static const unsigned char rdesc[] =3D {
+    0x06, 0x00, 0xff, 0x09, 0x01, 0xa1, 0x01, 0x85, 0x01,
+    0x09, 0x01, 0x15, 0x00, 0x26, 0xff, 0x00, 0x75, 0x08,
+    0x95, 0x01, 0xb1, 0x02, 0xc0,
 };
 
-struct run_ctx {
-	int prog_fd;
-	struct race_args args;
-	int run_ret;
-	int saved_errno;
-};
-
-static const unsigned char rdesc[] = {
-	0x06, 0x00, 0xff, /* Usage Page (Vendor) */
-	0x09, 0x01,       /* Usage 1 */
-	0xa1, 0x01,       /* Application Collection */
-	0x85, 0x01,       /* Report ID 1 */
-	0x09, 0x01,       /* Usage 1 */
-	0x15, 0x00,       /* Logical Minimum 0 */
-	0x26, 0xff, 0x00, /* Logical Maximum 255 */
-	0x75, 0x08,       /* Report Size 8 */
-	0x95, 0x01,       /* Report Count 1 */
-	0xb1, 0x02,       /* Feature (Data, Variable, Absolute) */
-	0xc0,
-};
-
-static void on_cpu_zero(void)
+static void pin_cpu(int cpu)
 {
-	cpu_set_t set;
-	CPU_ZERO(&set);
-	CPU_SET(0, &set);
-	if (sched_setaffinity(0, sizeof(set), &set))
-		perror("sched_setaffinity");
+    cpu_set_t set;
+    CPU_ZERO(&set);
+    CPU_SET(cpu, &set);
+    if (sched_setaffinity(0, sizeof(set), &set))
+        perror("sched_setaffinity");
 }
 
-static int wait_uhid_event(int fd, unsigned int wanted, int seconds)
+static unsigned long kernel_symbol(const char *name)
 {
-	struct uhid_event ev;
-	struct pollfd pfd = { .fd = fd, .events = POLLIN };
-	int n;
+    FILE *f =3D fopen("/proc/kallsyms", "r");
+    char line[512], symbol[256], kind;
+    unsigned long address;
+    if (!f)
+        return 0;
+    while (fgets(line, sizeof(line), f)) {
+        if (sscanf(line, "%lx %c %255s", &address, &kind, symbol) =3D=3D 3 &&
+            !strcmp(symbol, name)) {
+            fclose(f);
+            return address;
+        }
+    }
+    fclose(f);
+    return 0;
+}
 
-	for (;;) {
-		n = poll(&pfd, 1, seconds * 1000);
-		if (n <= 0)
-			return n ? -errno : -ETIMEDOUT;
-		n = read(fd, &ev, sizeof(ev));
-		if (n < 0)
-			return -errno;
-		fprintf(stderr, "UHID event %u\n", ev.type);
-		if (ev.type == wanted)
-			return 0;
-	}
+static int wait_for_start(int fd)
+{
+    struct pollfd pfd =3D { .fd =3D fd, .events =3D POLLIN };
+    struct uhid_event ev;
+    for (;;) {
+        int n =3D poll(&pfd, 1, 10000);
+        if (n <=3D 0)
+            return n ? -errno : -ETIMEDOUT;
+        n =3D read(fd, &ev, sizeof(ev));
+        if (n < 0)
+            return -errno;
+        if (ev.type =3D=3D UHID_START)
+            return 0;
+    }
 }
 
 static int find_hid_id(void)
 {
-	glob_t found = {};
-	const char *base;
-	const char *dot;
-	int id = -1;
-
-	if (glob("/sys/bus/hid/devices/0006:1234:9ABC.*", 0, NULL, &found))
-		return -1;
-	base = strrchr(found.gl_pathv[0], '/');
-	base = base ? base + 1 : found.gl_pathv[0];
-	dot = strrchr(base, '.');
-	if (dot)
-		id = strtol(dot + 1, NULL, 16);
-	globfree(&found);
-	return id;
+    glob_t found =3D {};
+    const char *base, *dot;
+    int id =3D -1;
+    if (glob("/sys/bus/hid/devices/0006:4321:ABCD.*", 0, NULL, &found))
+        return -1;
+    base =3D strrchr(found.gl_pathv[0], '/');
+    base =3D base ? base + 1 : found.gl_pathv[0];
+    dot =3D strrchr(base, '.');
+    if (dot)
+        id =3D strtol(dot + 1, NULL, 16);
+    globfree(&found);
+    return id;
 }
 
-static void *run_bpf(void *opaque)
+static void signal_handler(int signal)
 {
-	struct run_ctx *ctx = opaque;
-	LIBBPF_OPTS(bpf_test_run_opts, opts,
-		.ctx_in = &ctx->args,
-		.ctx_size_in = sizeof(ctx->args));
+    struct timespec start, now;
+    (void)signal;
+    atomic_store(&breakpoint_hit, 1);
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    do {
+        if (atomic_load(&release_destroy))
+            break;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+    } while ((now.tv_sec - start.tv_sec) * 1000000000LL +
+             now.tv_nsec - start.tv_nsec < 3000000000LL);
+}
 
-	on_cpu_zero();
-	ctx->run_ret = bpf_prog_test_run_opts(ctx->prog_fd, &opts);
-	ctx->saved_errno = errno;
-	return NULL;
+static void *helper_main(void *unused)
+{
+    struct sigaction sa =3D { .sa_handler =3D signal_handler };
+    struct sched_param priority =3D { .sched_priority =3D 99 };
+    (void)unused;
+    pin_cpu(1);
+    if (sched_setscheduler(0, SCHED_FIFO, &priority))
+        perror("sched_setscheduler");
+    helper_tid =3D syscall(SYS_gettid);
+    sigemptyset(&sa.sa_mask);
+    sigaction(SIGUSR1, &sa, NULL);
+    while (!atomic_load(&breakpoint_hit))
+        pause();
+    return NULL;
+}
+
+static void *attach_main(void *unused)
+{
+    (void)unused;
+    pin_cpu(0);
+    while (!atomic_load(&breakpoint_hit))
+        sched_yield();
+    fprintf(stderr, "attach starts while SRCU sup has been freed\n");
+    ops_link =3D bpf_map__attach_struct_ops(ops_map);
+    attach_error =3D libbpf_get_error(ops_link);
+    fprintf(stderr, "attach result %ld\n", attach_error);
+    atomic_store(&attach_done, 1);
+    atomic_store(&release_destroy, 1);
+    return NULL;
+}
+
+static int perf_breakpoint(unsigned long address)
+{
+    struct perf_event_attr attr =3D {};
+    struct f_owner_ex owner =3D { .type =3D F_OWNER_TID, .pid =3D helper_tid =
+};
+    int fd, flags;
+    attr.type =3D PERF_TYPE_BREAKPOINT;
+    attr.size =3D sizeof(attr);
+    attr.bp_type =3D HW_BREAKPOINT_X;
+    attr.bp_addr =3D address;
+    attr.bp_len =3D sizeof(long);
+    attr.sample_period =3D 1;
+    attr.wakeup_events =3D 1;
+    attr.disabled =3D 1;
+    attr.exclude_user =3D 1;
+    fd =3D syscall(SYS_perf_event_open, &attr, syscall(SYS_gettid), -1, -1, 0=
+);
+    if (fd < 0)
+        return -1;
+    if (fcntl(fd, F_SETOWN_EX, &owner) || fcntl(fd, F_SETSIG, SIGUSR1))
+        goto fail;
+    flags =3D fcntl(fd, F_GETFL);
+    if (flags < 0 || fcntl(fd, F_SETFL, flags | O_ASYNC | O_NONBLOCK))
+        goto fail;
+    return fd;
+fail:
+    close(fd);
+    return -1;
 }
 
 int main(int argc, char **argv)
 {
-	struct bpf_object *obj;
-	struct bpf_program *prog;
-	struct uhid_event ev = {};
-	struct run_ctx run = {};
-	struct sched_param fifo = { .sched_priority = 99 };
-	struct sched_param normal = { .sched_priority = 0 };
-	pthread_t thread;
-	int uhid_fd, hid_id, ret;
+    struct bpf_object *obj =3D NULL;
+    struct uhid_event ev =3D {};
+    pthread_t helper, attach;
+    unsigned long sym;
+    int uhid_fd, hid_id, perf_fd, ret;
 
-	if (argc != 2) {
-		fprintf(stderr, "usage: %s hid_race.bpf.o\n", argv[0]);
-		return 2;
-	}
-	on_cpu_zero();
-	uhid_fd = open("/dev/uhid", O_RDWR | O_CLOEXEC);
-	if (uhid_fd < 0) {
-		perror("open /dev/uhid");
-		return 1;
-	}
+    if (argc !=3D 2) {
+        fprintf(stderr, "usage: %s reg_destroy.bpf.o\n", argv[0]);
+        return 2;
+    }
+    setbuf(stderr, NULL);
+    pin_cpu(1);
+    uhid_fd =3D open("/dev/uhid", O_RDWR | O_CLOEXEC);
+    if (uhid_fd < 0) {
+        perror("open uhid");
+        return 1;
+    }
+    ev.type =3D UHID_CREATE2;
+    strcpy((char *)ev.u.create2.name, "hid-bpf-reg-destroy");
+    ev.u.create2.rd_size =3D sizeof(rdesc);
+    memcpy(ev.u.create2.rd_data, rdesc, sizeof(rdesc));
+    ev.u.create2.bus =3D BUS_VIRTUAL;
+    ev.u.create2.vendor =3D 0x4321;
+    ev.u.create2.product =3D 0xabcd;
+    if (write(uhid_fd, &ev, sizeof(ev)) !=3D sizeof(ev) ||
+        (ret =3D wait_for_start(uhid_fd))) {
+        fprintf(stderr, "UHID create failed: %d errno=3D%d\n", ret, errno);
+        return 1;
+    }
+    hid_id =3D find_hid_id();
+    fprintf(stderr, "HID id %d\n", hid_id);
+    if (hid_id < 0)
+        return 1;
 
-	ev.type = UHID_CREATE2;
-	strcpy((char *)ev.u.create2.name, "hid-bpf-race");
-	ev.u.create2.rd_size = sizeof(rdesc);
-	memcpy(ev.u.create2.rd_data, rdesc, sizeof(rdesc));
-	ev.u.create2.bus = BUS_VIRTUAL;
-	ev.u.create2.vendor = 0x1234;
-	ev.u.create2.product = 0x9abc;
-	if (write(uhid_fd, &ev, sizeof(ev)) != sizeof(ev)) {
-		perror("UHID_CREATE2");
-		return 1;
-	}
-	ret = wait_uhid_event(uhid_fd, UHID_START, 10);
-	if (ret) {
-		fprintf(stderr, "UHID_START failed: %d\n", ret);
-		return 1;
-	}
-	hid_id = find_hid_id();
-	if (hid_id < 0) {
-		fprintf(stderr, "HID sysfs entry not found\n");
-		return 1;
-	}
-	fprintf(stderr, "HID id %d\n", hid_id);
-
-	obj = bpf_object__open_file(argv[1], NULL);
-	if (libbpf_get_error(obj)) {
-		fprintf(stderr, "BPF open failed: %ld\n", libbpf_get_error(obj));
-		return 1;
-	}
-	ret = bpf_object__load(obj);
-	if (ret) {
-		fprintf(stderr, "BPF load failed: %d\n", ret);
-		return 1;
-	}
-	prog = bpf_object__find_program_by_name(obj, "trigger");
-	if (!prog) {
-		fprintf(stderr, "BPF trigger program not found\n");
-		return 1;
-	}
-	run.prog_fd = bpf_program__fd(prog);
-	run.args.hid_id = hid_id;
-	if (pthread_create(&thread, NULL, run_bpf, &run)) {
-		perror("pthread_create");
-		return 1;
-	}
-
-	ret = wait_uhid_event(uhid_fd, UHID_GET_REPORT, 10);
-	if (ret) {
-		fprintf(stderr, "UHID_GET_REPORT failed: %d\n", ret);
-		return 1;
-	}
-
-	/* Both threads run on CPU 0; the closer runs until uhid is freed. */
-	if (!getenv("HID_RACE_NO_FIFO") &&
-	    sched_setscheduler(0, SCHED_FIFO, &fifo))
-		perror("sched_setscheduler(SCHED_FIFO)");
-	close(uhid_fd);
-	if (!getenv("HID_RACE_NO_FIFO") &&
-	    sched_setscheduler(0, SCHED_OTHER, &normal))
-		perror("sched_setscheduler(SCHED_OTHER)");
-	pthread_join(thread, NULL);
-	fprintf(stderr, "BPF test run: %d, errno: %d, request result: %d\n",
-		run.run_ret, run.saved_errno, run.args.retval);
-	bpf_object__close(obj);
-	return 0;
+    obj =3D bpf_object__open_file(argv[1], NULL);
+    if (libbpf_get_error(obj)) {
+        fprintf(stderr, "BPF open: %ld\n", libbpf_get_error(obj));
+        return 1;
+    }
+    ops_map =3D bpf_object__find_map_by_name(obj, "race_ops");
+    if (!ops_map) {
+        fprintf(stderr, "No struct_ops map\n");
+        return 1;
+    }
+    *(int *)bpf_map__initial_value(ops_map, NULL) =3D hid_id;
+    if ((ret =3D bpf_object__load(obj))) {
+        fprintf(stderr, "BPF load: %d\n", ret);
+        return 1;
+    }
+    sym =3D kernel_symbol("cleanup_srcu_struct");
+    fprintf(stderr, "cleanup_srcu_struct=3D%lx breakpoint=3D%lx\n",
+            sym, sym + AFTER_KFREE_SUP);
+    if (!sym)
+        return 1;
+    pthread_create(&helper, NULL, helper_main, NULL);
+    while (!helper_tid)
+        sched_yield();
+    pthread_create(&attach, NULL, attach_main, NULL);
+    perf_fd =3D perf_breakpoint(sym + AFTER_KFREE_SUP);
+    if (perf_fd < 0 || ioctl(perf_fd, PERF_EVENT_IOC_ENABLE, 0)) {
+        perror("perf breakpoint");
+        return 1;
+    }
+    ev.type =3D UHID_DESTROY;
+    fprintf(stderr, "UHID_DESTROY starts\n");
+    ret =3D write(uhid_fd, &ev, sizeof(ev));
+    fprintf(stderr, "UHID_DESTROY returned %d, breakpoint=3D%d attach_done=3D=
+%d\n",
+            ret, atomic_load(&breakpoint_hit), atomic_load(&attach_done));
+    atomic_store(&release_destroy, 1);
+    pthread_join(attach, NULL);
+    pthread_join(helper, NULL);
+    close(perf_fd);
+    close(uhid_fd);
+    _exit(0);
 }
 
---===============3021330199713570928==
+--===============7656143336698147709==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment; filename="repro.bpf.c"
@@ -320,135 +382,182 @@ MIME-Version: 1.0
 
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
+#include <bpf/bpf_tracing.h>
 
-extern struct hid_bpf_ctx *hid_bpf_allocate_context(unsigned int hid_id) __ks=
-ym;
-extern void hid_bpf_release_context(struct hid_bpf_ctx *ctx) __ksym;
-extern int hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf,
-			      size_t size, enum hid_report_type rtype,
-			      enum hid_class_request reqtype) __ksym;
-
-struct race_args {
-	unsigned int hid_id;
-	int retval;
-};
-
-SEC("syscall")
-int trigger(struct race_args *args)
+SEC("struct_ops/hid_device_event")
+int BPF_PROG(noop_event, struct hid_bpf_ctx *hid_ctx, enum hid_report_type ty=
+pe,
+             __u64 source)
 {
-	struct hid_bpf_ctx *ctx;
-	__u8 report[2] =3D { 1, 0 };
-
-	ctx =3D hid_bpf_allocate_context(args->hid_id);
-	if (!ctx)
-		return -1;
-
-	args->retval =3D hid_bpf_hw_request(ctx, report, sizeof(report),
-					HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-	hid_bpf_release_context(ctx);
-	return 0;
+    return 0;
 }
+
+SEC(".struct_ops.link")
+struct hid_bpf_ops race_ops =3D {
+    .hid_device_event =3D (void *)noop_event,
+    .hid_id =3D 2,
+};
 
 char LICENSE[] SEC("license") =3D "GPL";
 
---===============3021330199713570928==
+--===============7656143336698147709==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment; filename="kasan.txt"
 MIME-Version: 1.0
 
-[   92.176672] BUG: KASAN: use-after-free in __uhid_report_queue_and_wait+0x5=
-77/0x5d0
-[   92.176727] Read of size 1 at addr ff110001014652a8 by task hid_race/407
-[   92.176737]=20
-[   92.176747] CPU: 0 UID: 0 PID: 407 Comm: hid_race Not tainted 7.3.0 #8 PRE=
-EMPT(lazy)=20
-[   92.176765] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_ca=
+[   76.243179] BUG: KASAN: slab-use-after-free in check_init_srcu_struct+0x10=
+d/0x150
+[   76.243209] Read of size 8 at addr ff11000018740468 by task reg_destroy/416
+[   76.243220]=20
+[   76.243229] CPU: 0 UID: 0 PID: 416 Comm: reg_destroy Not tainted 7.3.0 #8 =
+PREEMPT(lazy)=20
+[   76.243245] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_ca=
 ps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-[   92.176775] Call Trace:
-[   92.176784]  <TASK>
-[   92.176789]  dump_stack_lvl+0x7b/0xa0
-[   92.176828]  print_report+0xd0/0x630
-[   92.176865]  ? __pfx__raw_spin_lock_irqsave+0x10/0x10
-[   92.176897]  ? __uhid_report_queue_and_wait+0x577/0x5d0
-[   92.176916]  kasan_report+0xce/0x100
-[   92.176931]  ? __uhid_report_queue_and_wait+0x577/0x5d0
-[   92.176953]  __uhid_report_queue_and_wait+0x577/0x5d0
-[   92.176973]  ? __pfx___uhid_report_queue_and_wait+0x10/0x10
-[   92.176993]  ? __pfx_autoremove_wake_function+0x10/0x10
-[   92.177020]  ? mutex_lock_interruptible+0x86/0xe0
-[   92.177034]  ? __pfx_mutex_lock_interruptible+0x10/0x10
-[   92.177050]  uhid_hid_raw_request+0x3f6/0x5f0
-[   92.177070]  __hid_hw_raw_request+0x153/0x1b0
-[   92.177089]  ? __pfx___hid_hw_raw_request+0x10/0x10
-[   92.177110]  hid_bpf_hw_request+0x1a2/0x280
-[   92.177127]  ? __pfx_hid_bpf_hw_request+0x10/0x10
-[   92.177143]  ? srso_alias_return_thunk+0x5/0xfbef5
-[   92.177169]  ? bpf_prog_test_run_syscall+0x26f/0x910
-[   92.177208]  bpf_prog_35e5d27547fe17f4_trigger+0x5e/0x74
-[   92.177220]  bpf_prog_test_run_syscall+0x446/0x910
-[   92.177243]  ? __pfx_bpf_prog_test_run_syscall+0x10/0x10
-[   92.177265]  ? srso_alias_return_thunk+0x5/0xfbef5
-[   92.177280]  ? fput+0x4f/0xc0
-[   92.177303]  ? srso_alias_return_thunk+0x5/0xfbef5
-[   92.177319]  ? __pfx_bpf_prog_test_run_syscall+0x10/0x10
-[   92.177341]  __sys_bpf+0x175f/0x5470
-[   92.177370]  ? __pfx___sys_bpf+0x10/0x10
-[   92.177394]  ? srso_alias_return_thunk+0x5/0xfbef5
-[   92.177410]  ? kasan_save_track+0x14/0x30
-[   92.177422]  ? srso_alias_return_thunk+0x5/0xfbef5
-[   92.177439]  ? srso_alias_return_thunk+0x5/0xfbef5
-[   92.177455]  ? kfree+0x18b/0x430
-[   92.177485]  ? __x64_sys_bpf+0xd0/0x140
-[   92.177497]  ? srso_alias_return_thunk+0x5/0xfbef5
-[   92.177513]  __x64_sys_bpf+0xd0/0x140
-[   92.177527]  do_syscall_64+0xdd/0x4a0
-[   92.177549]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-[   92.177562] RIP: 0033:0x7f86466777b9
-[   92.177572] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89=
+[   76.243258] Call Trace:
+[   76.243263]  <TASK>
+[   76.243268]  dump_stack_lvl+0x7b/0xa0
+[   76.243289]  print_report+0xd0/0x630
+[   76.243307]  ? __pfx__raw_spin_lock_irqsave+0x10/0x10
+[   76.243332]  ? check_init_srcu_struct+0x10d/0x150
+[   76.243353]  kasan_report+0xce/0x100
+[   76.243369]  ? check_init_srcu_struct+0x10d/0x150
+[   76.243394]  check_init_srcu_struct+0x10d/0x150
+[   76.243416]  synchronize_srcu+0x1b/0x260
+[   76.243437]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243455]  hid_bpf_reg+0x3b2/0x5e0
+[   76.243476]  bpf_struct_ops_link_create+0x314/0x410
+[   76.243496]  ? __pfx_bpf_struct_ops_link_create+0x10/0x10
+[   76.243513]  ? bpf_check_uarg_tail_zero+0x108/0x180
+[   76.243535]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243550]  ? selinux_bpf+0xc5/0x130
+[   76.243565]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243580]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243597]  __sys_bpf+0x34ad/0x5470
+[   76.243614]  ? __pfx___sys_bpf+0x10/0x10
+[   76.243628]  ? __pfx_do_anonymous_page+0x10/0x10
+[   76.243647]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243665]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243680]  ? __handle_mm_fault+0x631/0x18c0
+[   76.243697]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243720]  ? do_mprotect_pkey+0x3a2/0xd50
+[   76.243738]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243756]  ? __pfx___handle_mm_fault+0x10/0x10
+[   76.243774]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243789]  ? __css_rstat_updated+0x16b/0x410
+[   76.243806]  ? __pfx___css_rstat_updated+0x10/0x10
+[   76.243828]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243843]  ? handle_mm_fault+0x1d7/0x5c0
+[   76.243862]  ? __x64_sys_bpf+0xd0/0x140
+[   76.243875]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243890]  __x64_sys_bpf+0xd0/0x140
+[   76.243902]  ? srso_alias_return_thunk+0x5/0xfbef5
+[   76.243920]  do_syscall_64+0xdd/0x4a0
+[   76.243937]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   76.243951] RIP: 0033:0x7fa0895777b9
+[   76.243965] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89=
  f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d=
  01 f0 ff ff 73 01 c3 48 8b 0d 27 66 0d 00 f7 d8 64 89 01 48
-[   92.177593] RSP: 002b:00007f864645acf8 EFLAGS: 00000246 ORIG_RAX: 00000000=
+[   76.243979] RSP: 002b:00007fa088b59cd8 EFLAGS: 00000246 ORIG_RAX: 00000000=
 00000141
-[   92.177613] RAX: ffffffffffffffda RBX: 00007f864645adb0 RCX: 00007f8646677=
+[   76.243992] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fa089577=
 7b9
-[   92.177622] RDX: 0000000000000050 RSI: 00007f864645ad00 RDI: 0000000000000=
-00a
-[   92.177631] RBP: ffffffffffffff00 R08: 00007f864645b6c0 R09: 0000000000000=
-005
-[   92.177639] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000=
-021
-[   92.177647] R13: 000000000000005f R14: 00007ffc2ffcfcf0 R15: 00007f8645c5b=
+[   76.244001] RDX: 0000000000000040 RSI: 00007fa088b59cf0 RDI: 0000000000000=
+01c
+[   76.244009] RBP: 0000000000000005 R08: 0000000000000005 R09: 0000000000021=
 000
-[   92.177662]  </TASK>
-[   92.177666]=20
-[   92.177669] The buggy address belongs to the physical page:
-[   92.177675] page: refcount:0 mapcount:0 mapping:0000000000000000 index:0x0=
- pfn:0x101465
-[   92.177689] flags: 0x200000000000000(node=3D0|zone=3D2)
-[   92.177707] raw: 0200000000000000 0000000000000000 00000000ffffffff 000000=
+[   76.244017] R10: 0000000000000001 R11: 0000000000000246 R12: 0000000000000=
+02c
+[   76.244025] R13: 000000000000005f R14: 00007ffe0c705300 R15: 00007fa08835a=
+000
+[   76.244040]  </TASK>
+[   76.244045]=20
+[   76.244047] Allocated by task 412:
+[   76.244054]  kasan_save_stack+0x33/0x60
+[   76.244066]  kasan_save_track+0x14/0x30
+[   76.244077]  __kasan_kmalloc+0x8f/0xa0
+[   76.244088]  __kmalloc_cache_noprof+0x19f/0x3f0
+[   76.244105]  init_srcu_struct_fields+0x923/0xe40
+[   76.244125]  hid_allocate_device+0x28e/0x360
+[   76.244144]  uhid_dev_create2+0x14d/0x780
+[   76.244161]  uhid_char_write+0x243/0xe80
+[   76.244176]  vfs_write+0x26c/0xd00
+[   76.244196]  ksys_write+0x1b7/0x200
+[   76.244214]  do_syscall_64+0xdd/0x4a0
+[   76.244227]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   76.244239]=20
+[   76.244242] Freed by task 412:
+[   76.244247]  kasan_save_stack+0x33/0x60
+[   76.244258]  kasan_save_track+0x14/0x30
+[   76.244270]  kasan_save_free_info+0x3b/0x60
+[   76.244287]  __kasan_slab_free+0x43/0x70
+[   76.244299]  kfree+0x18b/0x430
+[   76.244313]  cleanup_srcu_struct+0x7da/0xb50
+[   76.244333]  hid_bpf_destroy_device+0x6c/0x80
+[   76.244354]  hid_destroy_device+0x28/0x230
+[   76.244373]  uhid_char_write+0xa74/0xe80
+[   76.244389]  vfs_write+0x26c/0xd00
+[   76.244407]  ksys_write+0x1b7/0x200
+[   76.244425]  do_syscall_64+0xdd/0x4a0
+[   76.244438]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   76.244450]=20
+[   76.244453] Last potentially related work creation:
+[   76.244457]  kasan_save_stack+0x33/0x60
+[   76.244468]  kasan_record_aux_stack+0x8c/0xa0
+[   76.244485]  insert_work+0x2e/0x250
+[   76.244499]  __queue_work+0x707/0xf50
+[   76.244512]  __queue_delayed_work+0x2c9/0x3c0
+[   76.244527]  queue_delayed_work_on+0x8f/0xa0
+[   76.244545]  irq_work_single+0xc8/0x160
+[   76.244565]  irq_work_run_list+0x82/0xb0
+[   76.244585]  irq_work_run+0x1d/0x40
+[   76.244607]  __sysvec_irq_work+0x28/0x220
+[   76.244621]  sysvec_irq_work+0x66/0x80
+[   76.244639]  asm_sysvec_irq_work+0x1a/0x20
+[   76.244652]=20
+[   76.244655] The buggy address belongs to the object at ff11000018740400
+[   76.244655]  which belongs to the cache kmalloc-512 of size 512
+[   76.244664] The buggy address is located 104 bytes inside of
+[   76.244664]  freed 512-byte region [ff11000018740400, ff11000018740600)
+[   76.244676]=20
+[   76.244679] The buggy address belongs to the physical page:
+[   76.244684] page: refcount:0 mapcount:0 mapping:0000000000000000 index:0xf=
+f11000018741000 pfn:0x18740
+[   76.244696] head: order:2 mapcount:0 entire_mapcount:0 nr_pages_mapped:0 p=
+incount:0
+[   76.244705] flags: 0x100000000000240(workingset|head|node=3D0|zone=3D1)
+[   76.244727] page_type: f5(slab)
+[   76.244740] raw: 0100000000000240 ff1100000a033c80 ffd40000005bbd10 ff1100=
+000a032510
+[   76.244754] raw: ff11000018741000 0000000000100004 00000000f5000000 000000=
 0000000000
-[   92.177720] raw: 0000000000000000 0000000000000000 00000000ffffffff 000000=
-0000000000
-[   92.177727] page dumped because: kasan: bad access detected
-[   92.177732]=20
-[   92.177735] Memory state around the buggy address:
-[   92.177744]  ff11000101465180: ff ff ff ff ff ff ff ff ff ff ff ff ff ff f=
-f ff
-[   92.177753]  ff11000101465200: ff ff ff ff ff ff ff ff ff ff ff ff ff ff f=
-f ff
-[   92.177762] >ff11000101465280: ff ff ff ff ff ff ff ff ff ff ff ff ff ff f=
-f ff
-[   92.177769]                                   ^
-[   92.177776]  ff11000101465300: ff ff ff ff ff ff ff ff ff ff ff ff ff ff f=
-f ff
-[   92.177785]  ff11000101465380: ff ff ff ff ff ff ff ff ff ff ff ff ff ff f=
-f ff
-[   92.177792] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+[   76.244767] head: 0100000000000240 ff1100000a033c80 ffd40000005bbd10 ff110=
+0000a032510
+[   76.244780] head: ff11000018741000 0000000000100004 00000000f5000000 00000=
+00000000000
+[   76.244792] head: 0100000000000002 ffffffffffffff01 00000000ffffffff 00000=
+000ffffffff
+[   76.244805] head: 0000000000000000 0000000000000000 00000000ffffffff 00000=
+00000000004
+[   76.244813] page dumped because: kasan: bad access detected
+[   76.244818]=20
+[   76.244821] Memory state around the buggy address:
+[   76.244827]  ff11000018740300: fc fc fc fc fc fc fc fc fc fc fc fc fc fc f=
+c fc
+[   76.244837]  ff11000018740380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc f=
+c fc
+[   76.244846] >ff11000018740400: fa fb fb fb fb fb fb fb fb fb fb fb fb fb f=
+b fb
+[   76.244853]                                                           ^
+[   76.244860]  ff11000018740480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb f=
+b fb
+[   76.244869]  ff11000018740500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb f=
+b fb
+[   76.244876] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
---===============3021330199713570928==
+--===============7656143336698147709==
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment; filename="config"
@@ -6319,4 +6428,4 @@ CONFIG_IO_URING_ZCRX=3Dy
 CONFIG_IO_URING_BPF=3Dy
 CONFIG_IO_URING_BPF_OPS=3Dy
 
---===============3021330199713570928==--
+--===============7656143336698147709==--

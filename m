@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793184498;
-	b=pLCHSUiNur91VwaIC30ARAP+t1EcG1aq9opL43etNkC1Xp/ReVYwaogp89WaAdGkHx+X
-	 +hiDpk9pF7Yy5uJdDKcCYaPfwZsCf7mGZl1dUHBMjr5r9hjqHhKhF6H9Cz5sjZF/cZHbd
-	 qlnbhFuvWRlrHW5OSpdyUKWMmlyYJzqRPaWWpeDClwyo8a53769xrFp2roRas5Eu98fhV
-	 dQdwAXnBQPDU8sSjiXKgmQU8FggKkVp0J9HsTisJEFiQpYrUpX2fb9oMfYDPO/gwtlRFa
-	 IMCCcXREuSfHqIoYwEj8aWPV9wgCY4TH1NztoC+/vUJiQXXkb0p5F94/OyXc4+XErGA==
+	t=1793184508;
+	b=Tr7hC6a6uB4wvrHzDdtOkzFTalSIxVLw84oBeOBgfP08t4y0TxIXooOJz+3dKez9hy63
+	 UTc2f56kEn1nXV9/KIZpee6CfYS6jByxUoFN81iZFy/LnCtHfDA3sILq1qa44PyQnuLaA
+	 dfX7JveICd31hTHIPpTszbP7YR2U9o8UitNs9M3mGxbS8hzdgwgDW4CZpc9cP/5TFYoJD
+	 wUUWej1qDZUQ2EBjlQgOWzZuOP9KZzDBnlINzvTNKjHbcXE2NjCf/kEgEod+OJnQ9/Y7D
+	 INQbGmVHmRLqfIq+pPaxpj4A0WK3RI2Q0VsGdjNuoT3/jN/ushqJj6eXw4PvJP1vCYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793184498;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793184508;
 	h=Received:DKIM-Signature:From:To:Cc:In-Reply-To:References:Subject:
 	 Message-Id:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=jtbsYXE9pi8nNVitcFPDgpxB5EkBqeu4XL7i4LvtL9Y=;
-	b=pu10x1z4/U9wkgWCANcU40z3/l96hEEaaCf79+IXbWCJPMCFSaO/w/StQpLVdocQIu2Q
-	 hhEpDy7izeWvPCiUEQeHxb67ERJ5cvP3XvtInSdnwov/9Pq7F8R0nwetFf2toIDga4aD1
-	 auUVm4bhYKsU5jcNhcVvpkzbLYqMzYzlMcvE76EirFheX1GQx4N85VOSdvXRNoY4i9UVQ
-	 R2ri0YYef0LhAoNWL2dzsfR1Qz14n8dYFnv1dpNsZTtkn3ujqZoqFwLaE7eMj9GZEvNRC
-	 r2WAIm7k9pj3/FGpiGZae0e6LafFRJ4oVwb0gjCDIjvbH9MqbWjuTCNm1wXmkWT/L+A==
+	bh=yWizwnsGbwsuOkjEDRHWMpES7V4gBVsTHQnzHXzFRAs=;
+	b=Ehl5KovneF39tY5BVBYynCN13F0Q7QekE+gLXjS30BYWVQlA8lIS0+Irz0BVRsvB70om
+	 S0LnklwermagaZzCnXAE8g/l+YnIJSamUkRXvR85Xi8nLRrsYMcIvlEeMi3O6u3blpZ3v
+	 AUkaXnIJo+LsNVT6gyCYlm1bedYmbYpOl9mJte7uZxgIGTKuQtSrbCAenOUFu4mv1xooR
+	 ngh3ZlvsnyOAsuinRuXdkfG1scByNZAQmirOB94MKj00YtoIeL6z4tGYEQ7Lidv9MvtdK
+	 m4WfypiQBHTJyLi9qb+m4zQj5ccdvB1CTMQZ+PEa4Q5ETJKwNJ7DoAtVIrjB/nsB2/g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iXIbPk1C;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z3ZmjM3V;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19240606A324;
-	Wed, 28 Oct 2026 10:48:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B7EE606A31A;
+	Wed, 28 Oct 2026 10:48:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iXIbPk1C
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 299BB1F01825;
-	Wed, 28 Oct 2026 10:48:15 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Z3ZmjM3V
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417F21F01828;
+	Wed, 28 Oct 2026 10:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793184497;
-	bh=jtbsYXE9pi8nNVitcFPDgpxB5EkBqeu4XL7i4LvtL9Y=;
+	s=k20260515; t=1793184507;
+	bh=yWizwnsGbwsuOkjEDRHWMpES7V4gBVsTHQnzHXzFRAs=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Date;
-	b=iXIbPk1CHnz9B98EGJcvdjTSRmUArBwBHRQ3NdHKSKjaAKf53295sriEqnMqrhVMd
-	 5gy5/2O0tQCEqH4KDRP5NzKV/wSIni8filrgpcxXhtI6POgM3UWUDErGRCixmnoMSo
-	 xhthmj4lUbozKlrFpzm2CSf7zM904DsGcWvXo+T9Zt8foYoNSAhT1z2JadQjHPtRGf
-	 XA50Q2Ongcnvp45ZkWzI2F5a4vXwPmu7KcuI+CGko6xj1nnGBgn3rey+RBbwvmKn0k
-	 LOtJWNbGr/pVXmFytJb4hYkY6bhwsLsEjXM1n7UFGg0hIf1p02bxVE5zsPekbNy59X
-	 h+XtRLsTOUl+w==
+	b=Z3ZmjM3VY1gUIrj8iDAep4/LntWSHRLbHmZHt1MTTVxkSBJcRYisYqiYgKhVYzEKn
+	 nGcVvLJikJleemBsO7a8o2TQyY9q/kbWHsUs9F1XLSHUDqnaQiv5mpt2LqZlQJAwEe
+	 JYEhv9BgK1nWyvQbKkVZwIEOhmTJtxuhwWqAheSlts0unEyRl2QOBOhVE9PzPoswjJ
+	 U6GQcSohtkoqH0B5mhOEpaPchzFxms3haeSa8zW+ougsKZE5uL4WStNF321NzFczBl
+	 BPpAI4MpALXYAh/Y+6ol8Wohmw9pTyVIlKdqm/Pvci23IRErvBTf8B/1bDiSUkK7y7
+	 6l8wUAyS3XPuw==
 From: Benjamin Tissoires <bentiss@kernel.org>
 To: Jiri Kosina <jikos@kernel.org>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Stephen Boyd <swboyd@chromium.org>, 
- Shashikirana H K <shashikiranah@chromium.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Tzung-Bi Shih <tzungbi@chromium.org>, Sean O'Brien <seobrien@chromium.org>
-In-Reply-To: <20261013-upstream-vivaldi-fix-v2-1-ecc20329d24c@chromium.org>
-References: <20261013-upstream-vivaldi-fix-v2-1-ecc20329d24c@chromium.org>
-Subject: Re: [PATCH v2] HID: vivaldi: Extract feature report value directly
- in vivaldi_feature_mapping()
-Message-Id: <179318448985.1921288.5630625275501815196.b4-ty@b4>
-Date: Wed, 28 Oct 2026 11:48:09 +0100
+ Zhengping Jiang <jiangzp@google.com>
+Cc: Sean O'Brien <seobrien@chromium.org>, 
+ Shashikirana H K <shashikiranah@chromium.org>, linux-input@vger.kernel.org, 
+ linux-kernel@vger.kernel.org
+In-Reply-To: <20261015064223.1939367-1-jiangzp@google.com>
+References: <20261015064223.1939367-1-jiangzp@google.com>
+Subject: Re: [PATCH v4] HID: vivaldi: avoid redundant feature report reads
+ per usage
+Message-Id: <179318450157.1921288.15901444886154893550.b4-ty@b4>
+Date: Wed, 28 Oct 2026 11:48:21 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -65,21 +65,21 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793184495; l=453;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793184505; l=412;
  i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
- bh=ssC2BEqqeJsgFahgFghAg4DBFN8kzDswfNZJJeY8UoE=;
- b=B5TrjKDWlobmsAifxRvzpucosReoWiQGyxBzylh7/UScpCoHksHC1zm7+5rd3Arnl+4XfOgGC
- y6LaKobIfjKAoggcFexz293/1B245kHKWQj2MUyABGidiXhyPWv+HrJ
+ bh=wW3xJUX8XtcJ1Xaw0FroTZBIl1esD2+LjiG/2rKQrDY=;
+ b=60dWcalUYKDQZVAWNfWk8MDxlFj0LljX3/aiOZjACohuTdJA/NVEDNkppjkcK9Q9kp1vXNJ2f
+ np2RwpBshmmCgM0/weL/nU6FGgCoVt0wCoVSpfIQKJU+0jF5wbiU9I+
 X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
  pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 
-On Tue, 13 Oct 2026 06:46:32 +0000, Shashikirana H K wrote:
-> HID: vivaldi: Extract feature report value directly in vivaldi_feature_mapping()
+On Thu, 15 Oct 2026 06:42:23 +0000, Zhengping Jiang wrote:
+> HID: vivaldi: avoid redundant feature report reads per usage
 
 Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-7.4/upstream-fixes), thanks!
 
-[1/1] HID: vivaldi: Extract feature report value directly in vivaldi_feature_mapping()
-      https://git.kernel.org/hid/hid/c/8dbf66b01113
+[1/1] HID: vivaldi: avoid redundant feature report reads per usage
+      https://git.kernel.org/hid/hid/c/720806515cb6
 
 Cheers,
 -- 

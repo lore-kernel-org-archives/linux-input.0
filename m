@@ -1,55 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793147755;
-	b=j1QAE5aeayY8SlGVApP6HlU1MjjxJRbrLI2bCQsgRer/WxeQasEx/t1S8GYzm6OZYlgE
-	 4WMAAs1b2Rvh8YhAcYYAFDt/PjNRcpe8Bdpct6YRwdFTdtOyJsW8EsO4pLYpLNGsVCXpl
-	 rwbGcNWFNp7QVL1Tx616BI317ZOW7IrFMubVdZEJ6Mj8MjAyKze5oYrW2eCLIbhVp31dK
-	 cMAFggJPLcZzf/mSjbSYAC7Ws0dSUJHdTmz/D4wcmzhGWWNPg3bqEBI8ezj4dGDeKdx3O
-	 MXjAkh16ZdFzlQOh/pSCZtBuBRFcl/ZignnYTrpoCboEQ/kEd5cIAKl3viDg76rk/NA==
+	t=1793161569;
+	b=uynbFshr7tg8scRLvR/2a+vS6MUAf0LISjCTAT+wiS+hjTnCO8QK+2vAokFbexXqFb3M
+	 FuqQeyx5z6kugxvYaQhJ6aUVjG/tkEZe9or0+qOeNCs2InmfpOqe2N6Esywxv9goi40rN
+	 gjbKxKQmeav2EtX8c5MzjwMIi6pzfPvGBLtbDCGPV2xpx6kLxWa8MQZZMB+MEsjh5ihNj
+	 A0gb5KsCPw91WEXFk2o0BOTZ1OhDG/W2x0OHv0mmJXhIKPHNOFad8/5qLJu1EN9ZPsiQr
+	 BCN7ska42R7VcDQObzj9TBaPvc/cqjS9bxPJx0tnetP4E6tP30Vh08LRxy/h2B8a+NA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793147755;
-	h=DMARC-Filter:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer;
-	bh=cag5nXIwM3E+6Pw08u6YEdxlW7mBvpMjszv78kEPRWs=;
-	b=Ets7kG8+9NWMnEsIFWjXyZscLfLqmRB8RBvK693lyvDmcSmZqXZS0aIF/B43o+Fh6lsg
-	 YIskaThenWa+s8qOJ3NGTzqRYWzV/7v5fXTFa79KcKlYmmV/+8//2RLLT9kaADKXwOp5W
-	 rCfC/Q5zFlQlunAezfzGDJA91CyN8+Urj1479aF7YR7hB702vyULt8SZ8wYjWZNSsWAP1
-	 fTzdg/mT7ace3RfqD4h1FCEuiRGoZHx8z8DRiFYF8RyvfAN9yM+G72ybEq8IbO8oofz6/
-	 GuXjhYhvvv4wKuaapgqqZyVN7SL7osxn9GTVsJi2lvt3lZR+MIvx3V+VqXb1sz1uxWQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793161569;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
+	 Cc:Subject:Message-ID:User-Agent;
+	bh=+a/3/XS3YgFOJ1rTHNOmW/SE0M3omw2CzcOMMWmkU0M=;
+	b=4R+oyO418Xq8ERLguSAKqQmFHElrotzIwjpog63HSpDNlZPAYVta64ohtqm6xaDNdIrY
+	 go9fcqNEzF1fwAD2OnupIu3zOFC6p33m03OsJ+V2QDxXQsN0tuXkXOHqbZY7N854Wu/xI
+	 GaJ1/M6uNls/9tzJj/pwgIo7TWC61iVw57LlHbKojbHUxEEq71PHbU/Bu7BkmmHi1RNky
+	 lTULxJmKEnfYasN9C0RXxyz9UWwk6r3jqTKrCAaa26FuThoBuN9h/CZG9lhQ1Z3TLTnLw
+	 OhM1gKn2u5jpmE+5q0ZZMcdWWuZZqGtBNAWcXan5K9C8mIq4/gGzBtHJdZfLHBM+6gw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=igalia.com;
-	spf=pass smtp.mailfrom=igalia.com;
-	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=oMkuALfG;
-	arc=none smtp.remote-ip=213.97.179.56
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=KO6u1rRK;
+	arc=none smtp.remote-ip=192.198.163.18
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42D9B606A31A;
-	Wed, 28 Oct 2026 00:35:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 42D9B606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B1A5606A31E
+	for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 04:26:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9B1A5606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=oMkuALfG
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Subject:Date:From:From:Reply-To;
-	bh=cag5nXIwM3E+6Pw08u6YEdxlW7mBvpMjszv78kEPRWs=; b=oMkuALfGXj2DGZ83Vxhmntw3fN
-	YdA1BTq6dkMElpqRvc2fS0D5m3hb5JIumXNTDnxWJ4sYyL7+/jxCNTI5prsW85sB5YHgWTIyJ9GLH
-	K1Ihb2ZZDHuEuZg+qHTb5omyPbhTx0Vb4CmJ+ZAORrCMyOKO88P/RngfRyYYBWfy91Rv1TrBqFElB
-	rQaUzAAHoCgKjsYWj7+24g8vI2haVaDSy6xUFayEoYEFXtxiA7BUqhiNEZA5klA3bgoD8L6oacPYV
-	08xQfYIOoh3tAFBUFECjzZ2kjSjQgxkssS51hEuC6L4UFDiwDYLAa4lNyswp1efJhz2oXxuivvrVQ
-	tngftWoQ==;
-Received: from 186-249-144-144.shared.desktop.com.br ([186.249.144.144] helo=[127.0.1.1])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1xLrdu-00CLTP-5q; Wed, 28 Oct 2026 01:35:50 +0100
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-Date: Tue, 27 Oct 2026 21:36:56 -0300
-Subject: [PATCH] HID: playstation: ratelimit input CRC check failed
- messages
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=KO6u1rRK
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793161568; x=1824697568;
+  h=date:from:to:cc:subject:message-id;
+  bh=1dyGBnpihsCjOq2wvtsDQh8oAyC8AbFUuRMK3ZUUWC0=;
+  b=KO6u1rRKfI+k7k/RysGnllUWg57FOTHZB5kBLmWQkGCHPQcJpq/2ZHij
+   MkY4XttkYzLoVaDEQ4yxJ1761ghWeEXlBQDNVOewVbVOhmz2QkgAIx6qp
+   0ilDtw0TvF7E3Mav1hzk0CRCxkfFhZKsCPT9QQqeMiKaqfA5XaE1ssEXy
+   aCfYVntWnKxiB5TcPuNOUFyQoOZF9lYs3j6ESacJIqfRQvssWVKlbD29J
+   /0B4L4mnEF7uZTio1+EQ4VMwgGfhw0ZQpQkGdRD5dn2RXbnAMsCdL3rr+
+   wRWzlCxl2QDR1Kfi3h7Oc1u1RG73J+pSNWn3bo8MLturKusB+G0/sRjol
+   w==;
+X-CSE-ConnectionGUID: +8eiNCdMQGin226OdVclFQ==
+X-CSE-MsgGUID: DS8DnvmqSY6KnRuZ8wqnDg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11948"; a="1904405"
+X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
+   d="scan'208";a="1904405"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2026 21:26:08 -0700
+X-CSE-ConnectionGUID: 6uWpKVS8Qo6aYflrZ1UTEg==
+X-CSE-MsgGUID: k5t07ICOQOiDf0mfVooHBQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,182,1787036400"; 
+   d="scan'208";a="4593921"
+Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 27 Oct 2026 21:26:07 -0700
+Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1xLvEi-00000000YAu-1NpQ;
+	Wed, 28 Oct 2026 04:26:04 +0000
+Date: Wed, 28 Oct 2026 12:25:44 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:master] BUILD SUCCESS
+ d0886ec2b6cffae3c1eaa24bd0bcc5bd03fe5610
+Message-ID: <202610281240.HqPu2GIK-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,113 +79,428 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261027-hid-playstation-ratelimit-input-crc-error-v1-1-68812542f898@igalia.com>
-X-B4-Tracking: v=1; b=H4sIAKdD4WoC/x2NQQqDMBAAvyJ7dsHsQVu/UnoIyaYuaAybtbSIf
- 2/ocWCYOaGyCleYuxOU31Jlzw1c30FYfH4xSmwMNNDoBppwkYhl9d9q3pqL6o1X2cRQcjkMgwZ
- k1V2RxnSbXHLhHglarygn+fxfj+d1/QAqktRBewAAAA==
-X-Change-ID: 20261027-hid-playstation-ratelimit-input-crc-error-26f871f1c9d2
-To: Roderick Colenbrander <roderick.colenbrander@sony.com>, 
- Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: kernel-dev@igalia.com, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Mauricio Faria de Oliveira <mfo@igalia.com>
-X-Mailer: b4 0.14.2
 
-The kernel log of a Steam Deck was mostly filled with CRC check errors
-from what is apparently a bogus controller, with 8174 messages in <200
-seconds, averaging ~43 messages/second:
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git master
+branch HEAD: d0886ec2b6cffae3c1eaa24bd0bcc5bd03fe5610  Input: drv260x - switch to using fsleep()
 
-    $ cat dmesg-pstore.202610250608-0 \
-      | grep -c "input CRC's check failed"
-    8174
+elapsed time: 3202m
 
-    $ cat dmesg-pstore.202610250608-0 \
-      | grep -m1 "input CRC's check failed"
-    <3>[    8.715455] playstation 0005:054C:05C4.0006:
-                      DualShock4 input CRC's check failed
+configs tested: 408
+configs skipped: 16
 
-    $ tac dmesg-pstore.202610250608-0 \
-      | grep -m1 "input CRC's check failed"
-    <3>[  196.187459] playstation 0005:054C:05C4.0006:
-                      DualShock4 input CRC's check failed
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-    $ echo $((8174 / (196-8)))
-    43
+tested configs:
+alpha                              allnoconfig    gcc-16.2.0
+alpha                             allyesconfig    gcc-16.2.0
+alpha                                defconfig    clang-24
+alpha                                defconfig    gcc-16.2.0
+arc                               allmodconfig    clang-24
+arc                               allmodconfig    gcc-16.2.0
+arc                                allnoconfig    gcc-16.2.0
+arc                               allyesconfig    clang-24
+arc                               allyesconfig    gcc-16.2.0
+arc                           axs101_defconfig    gcc-16.2.0
+arc                       axs103_smp_defconfig    clang-17
+arc                                  defconfig    gcc-16.2.0
+arc                   randconfig-1000-20261026    clang-24
+arc                   randconfig-1000-20261027    gcc-10.5.0
+arc                   randconfig-1000-20261028    gcc-8.5.0
+arc                   randconfig-1001-20261026    clang-24
+arc                   randconfig-1001-20261027    gcc-10.5.0
+arc                   randconfig-1001-20261028    gcc-8.5.0
+arm                                allnoconfig    gcc-16.2.0
+arm                               allyesconfig    clang-24
+arm                      am200epdkit_defconfig    gcc-16.2.0
+arm                          assabet_defconfig    clang-24
+arm                                  defconfig    gcc-16.2.0
+arm                             hisi_defconfig    gcc-16.2.0
+arm                        imx_v4_v5_defconfig    clang-24
+arm                            imxrt_defconfig    clang-17
+arm                    milbeaut_m10v_defconfig    gcc-16.2.0
+arm                             mmp2_defconfig    clang-24
+arm                              mxs_defconfig    clang-17
+arm                            omap1_defconfig    clang-24
+arm                          orion5x_defconfig    clang-17
+arm                   randconfig-1000-20261026    clang-24
+arm                   randconfig-1000-20261027    gcc-10.5.0
+arm                   randconfig-1000-20261028    gcc-8.5.0
+arm                   randconfig-1001-20261026    clang-24
+arm                   randconfig-1001-20261027    gcc-10.5.0
+arm                   randconfig-1001-20261028    gcc-8.5.0
+arm                   randconfig-1002-20261026    clang-24
+arm                   randconfig-1002-20261027    gcc-10.5.0
+arm                   randconfig-1002-20261028    gcc-8.5.0
+arm                   randconfig-1003-20261026    clang-24
+arm                   randconfig-1003-20261027    gcc-10.5.0
+arm                   randconfig-1003-20261028    gcc-8.5.0
+arm                          s5pv210_defconfig    clang-24
+arm                            sama7_defconfig    clang-24
+arm                        versatile_defconfig    gcc-16.2.0
+arm                     vt8500_v6_v7_defconfig    gcc-16.2.0
+arm64                             allmodconfig    clang-24
+arm64                              allnoconfig    gcc-16.2.0
+arm64                                defconfig    gcc-16.2.0
+arm64                 randconfig-1000-20261026    clang-24
+arm64                 randconfig-1000-20261027    gcc-8.5.0
+arm64                 randconfig-1000-20261028    clang-22
+arm64                 randconfig-1001-20261026    clang-24
+arm64                 randconfig-1001-20261027    gcc-8.5.0
+arm64                 randconfig-1001-20261028    clang-22
+arm64                 randconfig-1002-20261026    clang-24
+arm64                 randconfig-1002-20261027    gcc-8.5.0
+arm64                 randconfig-1002-20261028    clang-22
+arm64                 randconfig-1003-20261026    clang-24
+arm64                 randconfig-1003-20261027    gcc-8.5.0
+arm64                 randconfig-1003-20261028    clang-22
+csky                              allmodconfig    gcc-16.2.0
+csky                               allnoconfig    gcc-16.2.0
+csky                                 defconfig    gcc-16.2.0
+csky                  randconfig-1000-20261026    clang-24
+csky                  randconfig-1000-20261027    gcc-8.5.0
+csky                  randconfig-1000-20261028    clang-22
+csky                  randconfig-1001-20261026    clang-24
+csky                  randconfig-1001-20261027    gcc-8.5.0
+csky                  randconfig-1001-20261028    clang-22
+hexagon                           alldefconfig    clang-17
+hexagon                           allmodconfig    gcc-16.2.0
+hexagon                            allnoconfig    gcc-16.2.0
+hexagon                              defconfig    gcc-16.2.0
+hexagon               randconfig-1000-20261026    clang-24
+hexagon               randconfig-1000-20261027    clang-24
+hexagon               randconfig-1000-20261028    clang-17
+hexagon               randconfig-1001-20261026    clang-24
+hexagon               randconfig-1001-20261027    clang-24
+hexagon               randconfig-1001-20261028    clang-17
+i386                              alldefconfig    clang-24
+i386                              allmodconfig    clang-22
+i386                               allnoconfig    gcc-16.2.0
+i386                              allyesconfig    clang-22
+i386        buildonly-randconfig-1000-20261026    clang-22
+i386        buildonly-randconfig-1000-20261027    clang-22
+i386        buildonly-randconfig-1000-20261028    clang-22
+i386        buildonly-randconfig-1001-20261026    clang-22
+i386        buildonly-randconfig-1001-20261027    clang-22
+i386        buildonly-randconfig-1001-20261028    clang-22
+i386        buildonly-randconfig-1002-20261026    clang-22
+i386        buildonly-randconfig-1002-20261027    clang-22
+i386        buildonly-randconfig-1002-20261028    clang-22
+i386        buildonly-randconfig-1003-20261026    clang-22
+i386        buildonly-randconfig-1003-20261027    clang-22
+i386        buildonly-randconfig-1003-20261028    clang-22
+i386        buildonly-randconfig-1004-20261026    clang-22
+i386        buildonly-randconfig-1004-20261027    clang-22
+i386        buildonly-randconfig-1004-20261028    clang-22
+i386        buildonly-randconfig-1005-20261026    clang-22
+i386        buildonly-randconfig-1005-20261027    clang-22
+i386        buildonly-randconfig-1005-20261028    clang-22
+i386                                 defconfig    gcc-16.2.0
+i386                  randconfig-1000-20261026    gcc-14
+i386                  randconfig-1000-20261027    gcc-14
+i386                  randconfig-1001-20261026    gcc-14
+i386                  randconfig-1001-20261027    gcc-14
+i386                  randconfig-1002-20261026    gcc-14
+i386                  randconfig-1002-20261027    gcc-14
+i386                  randconfig-1003-20261026    gcc-14
+i386                  randconfig-1003-20261027    gcc-14
+i386                  randconfig-1004-20261026    gcc-14
+i386                  randconfig-1004-20261027    gcc-14
+i386                  randconfig-1005-20261026    gcc-14
+i386                  randconfig-1005-20261027    gcc-14
+i386                  randconfig-1006-20261026    gcc-14
+i386                  randconfig-1006-20261027    gcc-14
+i386                  randconfig-1007-20261026    clang-22
+i386                  randconfig-1007-20261027    gcc-14
+i386                  randconfig-1008-20261026    clang-22
+i386                  randconfig-1008-20261027    gcc-14
+i386                  randconfig-1009-20261026    clang-22
+i386                  randconfig-1009-20261027    gcc-14
+i386                  randconfig-1010-20261026    clang-22
+i386                  randconfig-1010-20261027    gcc-14
+i386                  randconfig-1011-20261026    clang-22
+i386                  randconfig-1011-20261027    gcc-14
+i386                  randconfig-1012-20261026    clang-22
+i386                  randconfig-1012-20261027    gcc-14
+i386                  randconfig-1013-20261026    clang-22
+i386                  randconfig-1013-20261027    gcc-14
+loongarch                         allmodconfig    clang-24
+loongarch                          allnoconfig    gcc-16.2.0
+loongarch                            defconfig    clang-24
+loongarch             randconfig-1000-20261026    clang-24
+loongarch             randconfig-1000-20261027    clang-24
+loongarch             randconfig-1000-20261028    clang-17
+loongarch             randconfig-1001-20261026    clang-24
+loongarch             randconfig-1001-20261027    clang-24
+loongarch             randconfig-1001-20261028    clang-17
+m68k                              allmodconfig    gcc-16.2.0
+m68k                               allnoconfig    gcc-16.2.0
+m68k                              allyesconfig    clang-24
+m68k                              allyesconfig    gcc-16.2.0
+m68k                           amiga_defconfig    clang-17
+m68k                          apollo_defconfig    clang-17
+m68k                          apollo_defconfig    clang-24
+m68k                                 defconfig    clang-24
+m68k                        m5275evb_defconfig    clang-17
+m68k                        m5329evb_defconfig    clang-17
+m68k                        m5329evb_defconfig    gcc-16.2.0
+m68k                        m5475evb_defconfig    clang-24
+m68k                         mvme147_defconfig    clang-17
+m68k                          nettel_defconfig    gcc-16.2.0
+m68k                            sun3_defconfig    clang-24
+microblaze                        alldefconfig    gcc-16.2.0
+microblaze                         allnoconfig    gcc-16.2.0
+microblaze                        allyesconfig    gcc-16.2.0
+microblaze                           defconfig    clang-24
+mips                              allmodconfig    gcc-16.2.0
+mips                               allnoconfig    gcc-16.2.0
+mips                              allyesconfig    gcc-16.2.0
+mips                         bcm47xx_defconfig    clang-17
+mips                          bigsur_defconfig    clang-24
+mips                       bmips_stb_defconfig    clang-17
+mips                       loongson1_defconfig    gcc-16.2.0
+mips                       maltaaprp_defconfig    clang-17
+mips                     maltaup_xpa_defconfig    gcc-16.2.0
+mips                            mtx1_defconfig    gcc-16.2.0
+mips                         qi_lb60_defconfig    clang-17
+mips                           rb532_defconfig    clang-24
+mips                    sb1250_swarm_defconfig    gcc-16.2.0
+nios2                          3c120_defconfig    clang-24
+nios2                             allmodconfig    clang-20
+nios2                             allmodconfig    gcc-11.5.0
+nios2                              allnoconfig    clang-24
+nios2                                defconfig    clang-24
+nios2                 randconfig-1000-20261026    clang-24
+nios2                 randconfig-1000-20261027    clang-24
+nios2                 randconfig-1000-20261028    clang-17
+nios2                 randconfig-1001-20261026    clang-24
+nios2                 randconfig-1001-20261027    clang-24
+nios2                 randconfig-1001-20261028    clang-17
+openrisc                          allmodconfig    clang-20
+openrisc                          allmodconfig    gcc-11.5.0
+openrisc                           allnoconfig    clang-24
+openrisc                             defconfig    gcc-16.2.0
+openrisc                        virt_defconfig    clang-24
+parisc                            allmodconfig    gcc-16.2.0
+parisc                             allnoconfig    clang-24
+parisc                            allyesconfig    clang-17
+parisc                               defconfig    gcc-16.2.0
+parisc                randconfig-1000-20261026    gcc-14.4.0
+parisc                randconfig-1000-20261027    clang-22
+parisc                randconfig-1000-20261028    clang-19
+parisc                randconfig-1001-20261026    gcc-14.4.0
+parisc                randconfig-1001-20261027    clang-22
+parisc                randconfig-1001-20261028    clang-19
+parisc64                             defconfig    clang-24
+powerpc                           allmodconfig    gcc-16.2.0
+powerpc                            allnoconfig    clang-24
+powerpc                     amigaone_defconfig    gcc-16.2.0
+powerpc                      asp8347_defconfig    clang-24
+powerpc                       bamboo_defconfig    clang-17
+powerpc                       bamboo_defconfig    clang-24
+powerpc                       bamboo_defconfig    gcc-16.2.0
+powerpc                    currituck_defconfig    clang-17
+powerpc                    currituck_defconfig    gcc-16.2.0
+powerpc                        eiger_defconfig    clang-24
+powerpc                      ep8248e_defconfig    gcc-16.2.0
+powerpc                     ge_imp3a_defconfig    gcc-16.2.0
+powerpc                        holly_defconfig    clang-24
+powerpc                  linkstation_defconfig    clang-17
+powerpc                    microwatt_defconfig    clang-24
+powerpc                    microwatt_defconfig    gcc-16.2.0
+powerpc                      mpc5200_defconfig    clang-24
+powerpc                  mpc8313_rdb_defconfig    clang-24
+powerpc                  mpc8315_rdb_defconfig    clang-17
+powerpc                     mvme5100_defconfig    clang-24
+powerpc                      powernv_defconfig    gcc-16.2.0
+powerpc                       ppc64e_defconfig    gcc-16.2.0
+powerpc               randconfig-1000-20261026    gcc-14.4.0
+powerpc               randconfig-1000-20261027    clang-22
+powerpc               randconfig-1000-20261028    clang-19
+powerpc               randconfig-1001-20261026    gcc-14.4.0
+powerpc               randconfig-1001-20261027    clang-22
+powerpc               randconfig-1001-20261028    clang-19
+powerpc                     sam440ep_defconfig    clang-17
+powerpc                      skiroot_defconfig    clang-24
+powerpc                      stx_gp3_defconfig    clang-17
+powerpc                      tqm8540_defconfig    clang-24
+powerpc                      tqm8548_defconfig    gcc-16.2.0
+powerpc                      tqm8555_defconfig    clang-24
+powerpc                      tqm8560_defconfig    clang-17
+powerpc64             randconfig-1000-20261026    gcc-14.4.0
+powerpc64             randconfig-1000-20261027    clang-22
+powerpc64             randconfig-1000-20261028    clang-19
+powerpc64             randconfig-1001-20261026    gcc-14.4.0
+powerpc64             randconfig-1001-20261027    clang-22
+powerpc64             randconfig-1001-20261028    clang-19
+riscv                             allmodconfig    clang-24
+riscv                              allnoconfig    clang-24
+riscv                             allyesconfig    clang-24
+riscv                                defconfig    gcc-16.2.0
+riscv                 randconfig-1000-20261026    gcc-13.5.0
+riscv                 randconfig-1000-20261027    gcc-16.2.0
+riscv                 randconfig-1000-20261028    gcc-11.5.0
+riscv                 randconfig-1001-20261026    gcc-13.5.0
+riscv                 randconfig-1001-20261027    gcc-16.2.0
+riscv                 randconfig-1001-20261028    gcc-11.5.0
+s390                              allmodconfig    clang-17
+s390                               allnoconfig    clang-24
+s390                              allyesconfig    gcc-16.2.0
+s390                                 defconfig    gcc-16.2.0
+s390                  randconfig-1000-20261026    gcc-13.5.0
+s390                  randconfig-1000-20261027    gcc-16.2.0
+s390                  randconfig-1000-20261028    gcc-11.5.0
+s390                  randconfig-1001-20261026    gcc-13.5.0
+s390                  randconfig-1001-20261027    gcc-16.2.0
+s390                  randconfig-1001-20261028    gcc-11.5.0
+sh                                allmodconfig    gcc-16.2.0
+sh                                 allnoconfig    clang-24
+sh                                allyesconfig    clang-17
+sh                         apsh4ad0a_defconfig    gcc-16.2.0
+sh                                   defconfig    gcc-14
+sh                         dreamcast_defconfig    gcc-16.2.0
+sh                           r7780mp_defconfig    clang-24
+sh                    randconfig-1000-20261026    gcc-13.5.0
+sh                    randconfig-1000-20261027    gcc-16.2.0
+sh                    randconfig-1000-20261028    gcc-11.5.0
+sh                    randconfig-1001-20261026    gcc-13.5.0
+sh                    randconfig-1001-20261027    gcc-16.2.0
+sh                    randconfig-1001-20261028    gcc-11.5.0
+sh                           rsk7201_defconfig    gcc-16.2.0
+sh                           sdk7786_defconfig    gcc-16.2.0
+sh                            se7705_defconfig    clang-24
+sh                            se7712_defconfig    gcc-16.2.0
+sh                            se7780_defconfig    clang-24
+sh                            se7780_defconfig    gcc-16.2.0
+sh                    secureedge5410_defconfig    clang-24
+sh                            sh2007_defconfig    clang-17
+sh                    sh7770_generic_defconfig    clang-17
+sh                         sh7785lcr_defconfig    gcc-16.2.0
+sparc                              allnoconfig    clang-24
+sparc                                defconfig    gcc-16.2.0
+sparc                 randconfig-1000-20261026    gcc-14
+sparc                 randconfig-1000-20261027    clang-20
+sparc                 randconfig-1000-20261028    gcc-12
+sparc                 randconfig-1001-20261026    gcc-14
+sparc                 randconfig-1001-20261027    clang-20
+sparc                 randconfig-1001-20261028    gcc-12
+sparc64                           allmodconfig    clang-20
+sparc64                              defconfig    gcc-14
+sparc64               randconfig-1000-20261026    gcc-14
+sparc64               randconfig-1000-20261027    clang-20
+sparc64               randconfig-1000-20261028    gcc-12
+sparc64               randconfig-1001-20261026    gcc-14
+sparc64               randconfig-1001-20261027    clang-20
+sparc64               randconfig-1001-20261028    gcc-12
+um                                allmodconfig    clang-17
+um                                 allnoconfig    clang-24
+um                                allyesconfig    gcc-16.2.0
+um                                   defconfig    gcc-14
+um                              i386_defconfig    gcc-14
+um                    randconfig-1000-20261026    gcc-14
+um                    randconfig-1000-20261027    clang-20
+um                    randconfig-1000-20261028    gcc-12
+um                    randconfig-1001-20261026    gcc-14
+um                    randconfig-1001-20261027    clang-20
+um                    randconfig-1001-20261028    gcc-12
+um                            x86_64_defconfig    gcc-14
+x86_64                            allmodconfig    clang-22
+x86_64                             allnoconfig    clang-24
+x86_64                            allyesconfig    clang-22
+x86_64      buildonly-randconfig-1000-20261026    clang-22
+x86_64      buildonly-randconfig-1000-20261027    gcc-14
+x86_64      buildonly-randconfig-1000-20261028    clang-22
+x86_64      buildonly-randconfig-1001-20261026    clang-22
+x86_64      buildonly-randconfig-1001-20261027    gcc-14
+x86_64      buildonly-randconfig-1001-20261028    clang-22
+x86_64      buildonly-randconfig-1002-20261026    clang-22
+x86_64      buildonly-randconfig-1002-20261027    gcc-14
+x86_64      buildonly-randconfig-1002-20261028    clang-22
+x86_64      buildonly-randconfig-1003-20261026    clang-22
+x86_64      buildonly-randconfig-1003-20261027    gcc-14
+x86_64      buildonly-randconfig-1003-20261028    clang-22
+x86_64      buildonly-randconfig-1004-20261026    clang-22
+x86_64      buildonly-randconfig-1004-20261027    gcc-14
+x86_64      buildonly-randconfig-1004-20261028    clang-22
+x86_64      buildonly-randconfig-1005-20261026    clang-22
+x86_64      buildonly-randconfig-1005-20261027    gcc-14
+x86_64      buildonly-randconfig-1005-20261028    clang-22
+x86_64                               defconfig    gcc-14
+x86_64                                   kexec    clang-22
+x86_64                randconfig-1000-20261026    clang-22
+x86_64                randconfig-1000-20261027    gcc-14
+x86_64                randconfig-1000-20261028    clang-22
+x86_64                randconfig-1001-20261026    clang-22
+x86_64                randconfig-1001-20261027    gcc-14
+x86_64                randconfig-1001-20261028    clang-22
+x86_64                randconfig-1002-20261026    clang-22
+x86_64                randconfig-1002-20261027    gcc-14
+x86_64                randconfig-1002-20261028    clang-22
+x86_64                randconfig-1003-20261026    clang-22
+x86_64                randconfig-1003-20261027    gcc-14
+x86_64                randconfig-1003-20261028    clang-22
+x86_64                randconfig-1004-20261026    clang-22
+x86_64                randconfig-1004-20261027    gcc-14
+x86_64                randconfig-1004-20261028    clang-22
+x86_64                randconfig-1005-20261026    clang-22
+x86_64                randconfig-1005-20261027    gcc-14
+x86_64                randconfig-1005-20261028    clang-22
+x86_64                randconfig-1006-20261026    gcc-14
+x86_64                randconfig-1006-20261027    clang-22
+x86_64                randconfig-1006-20261028    gcc-14
+x86_64                randconfig-1007-20261026    gcc-14
+x86_64                randconfig-1007-20261027    clang-22
+x86_64                randconfig-1007-20261028    gcc-14
+x86_64                randconfig-1008-20261026    gcc-14
+x86_64                randconfig-1008-20261027    clang-22
+x86_64                randconfig-1008-20261028    gcc-14
+x86_64                randconfig-1009-20261026    gcc-14
+x86_64                randconfig-1009-20261027    clang-22
+x86_64                randconfig-1009-20261028    gcc-14
+x86_64                randconfig-1010-20261026    gcc-14
+x86_64                randconfig-1010-20261027    clang-22
+x86_64                randconfig-1010-20261028    gcc-14
+x86_64                randconfig-1011-20261026    gcc-14
+x86_64                randconfig-1011-20261027    clang-22
+x86_64                randconfig-1011-20261028    gcc-14
+x86_64                randconfig-1012-20261026    gcc-14
+x86_64                randconfig-1012-20261027    clang-22
+x86_64                randconfig-1012-20261028    gcc-12
+x86_64                randconfig-1013-20261026    gcc-14
+x86_64                randconfig-1013-20261027    clang-22
+x86_64                randconfig-1013-20261028    gcc-12
+x86_64                randconfig-1014-20261026    gcc-14
+x86_64                randconfig-1014-20261027    clang-22
+x86_64                randconfig-1014-20261028    gcc-12
+x86_64                randconfig-1015-20261026    gcc-14
+x86_64                randconfig-1015-20261027    clang-22
+x86_64                randconfig-1015-20261028    gcc-12
+x86_64                randconfig-1016-20261026    gcc-14
+x86_64                randconfig-1016-20261027    clang-22
+x86_64                randconfig-1016-20261028    gcc-12
+x86_64                randconfig-1017-20261026    gcc-14
+x86_64                randconfig-1017-20261027    clang-22
+x86_64                randconfig-1017-20261028    gcc-12
+x86_64                                rhel-9.4    clang-22
+x86_64                            rhel-9.4-bpf    gcc-14
+x86_64                           rhel-9.4-func    clang-22
+x86_64                     rhel-9.4-kselftests    clang-22
+x86_64                          rhel-9.4-kunit    gcc-14
+x86_64                            rhel-9.4-ltp    gcc-14
+x86_64                           rhel-9.4-rust    clang-22
+xtensa                             allnoconfig    clang-24
+xtensa                            allyesconfig    clang-20
+xtensa                   audio_kc705_defconfig    gcc-16.2.0
+xtensa                 generic_kc705_defconfig    gcc-16.2.0
+xtensa                   nommu_kc705_defconfig    clang-24
+xtensa                randconfig-1000-20261026    gcc-14
+xtensa                randconfig-1000-20261027    clang-20
+xtensa                randconfig-1000-20261028    gcc-12
+xtensa                randconfig-1001-20261026    gcc-14
+xtensa                randconfig-1001-20261027    clang-20
+xtensa                randconfig-1001-20261028    gcc-12
+xtensa                     xip_kc705_defconfig    gcc-16.2.0
 
-Let's ratelimit the input CRC check failed messages for the exceptional,
-high-frequency error case, which doesn't impact the occasional, low-freq
-error case (as ratelimiting does not trigger) or the non-error case.
-
-CRC check failed messages for driver-initiated requests are kept as is.
-
-Testing with a UHID driver to synthetically reproduce input CRC check
-errors (generated by an LLM) shows that it reduces the duplicate lines
-and still provides useful information (number of errors/same message).
-
-For example, triggering such error every 25ms (40 times/second), prints
-10 messages and silently counts another 187 in 5 seconds, ie, 197 / 5 =
-39.4 times/second (aligned with the synthetic reproducer's rate):
-
-    [    9.554184] playstation ...: Registered DualShock4 controller ...
-    [   10.053936] playstation ...: DualShock4 input CRC's check failed
-    [   10.078162] playstation ...: DualShock4 input CRC's check failed
-    [   10.103447] playstation ...: DualShock4 input CRC's check failed
-    [   10.128739] playstation ...: DualShock4 input CRC's check failed
-    [   10.154016] playstation ...: DualShock4 input CRC's check failed
-    [   10.179198] playstation ...: DualShock4 input CRC's check failed
-    [   10.204474] playstation ...: DualShock4 input CRC's check failed
-    [   10.229762] playstation ...: DualShock4 input CRC's check failed
-    [   10.254904] playstation ...: DualShock4 input CRC's check failed
-    [   10.280441] playstation ...: DualShock4 input CRC's check failed
-    [   15.070695] dualshock4_parse_report: 187 callbacks suppressed
-    ...
-
-This reduces the space consumed in the kernel log during 5 seconds from
-~200 lines to only 11 lines (5.5%).
-
-Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
----
- drivers/hid/hid-playstation.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index f9dc9378cf777d33aab3cdb87302c6e48f406d2f..b053037a3f0b95b6986c7e53e787e005676ed565 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -824,6 +824,7 @@ static int ps_get_report(struct hid_device *hdev, u8 report_id, u8 *buf,
- 		u32 report_crc = get_unaligned_le32(&buf[crc_offset]);
- 
- 		if (!ps_check_crc32(PS_FEATURE_CRC32_SEED, buf, crc_offset, report_crc)) {
-+			/* hid_err_ratelimited() not used on driver-initiated requests */
- 			hid_err(hdev, "CRC check failed for reportID=%d\n", report_id);
- 			return -EILSEQ;
- 		}
-@@ -1459,7 +1460,7 @@ static int dualsense_parse_report(struct ps_device *ps_dev, struct hid_report *r
- 		u32 report_crc = get_unaligned_le32(&data[size - 4]);
- 
- 		if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, report_crc)) {
--			hid_err(hdev, "DualSense input CRC's check failed\n");
-+			hid_err_ratelimited(hdev, "DualSense input CRC's check failed\n");
- 			return -EILSEQ;
- 		}
- 
-@@ -2425,7 +2426,7 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
- 
- 		/* Last 4 bytes of input report contains CRC. */
- 		if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, report_crc)) {
--			hid_err(hdev, "DualShock4 input CRC's check failed\n");
-+			hid_err_ratelimited(hdev, "DualShock4 input CRC's check failed\n");
- 			return -EILSEQ;
- 		}
- 
-
----
-base-commit: 83f32c773255720a661aa45d83e36278135f23f5
-change-id: 20261027-hid-playstation-ratelimit-input-crc-error-26f871f1c9d2
-
-Best regards,
--- 
-Mauricio Faria de Oliveira <mfo@igalia.com>
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

@@ -1,102 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.83.56
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793302309;
-	b=tdzobf/vmWZKciJl+nJuP9vJM79XvGc86vC+xiIhdeWPbDpXHnC+px5zo+ENThRj+ABh
-	 YyGy7e81UumArEdb4oEvS7y2f4zg51WtQskU2dwP66Nn08K0FtwjpNQLtv5yWTivZOPIa
-	 3aaKaJPCOdrorf15VUYc+NsnjZ8NP+MotFuPnPyzrdhmBCMX2CrOGWfEKdfI+gyicUTwC
-	 d8WC1Xk3WkRpcX/NMT3tK911ufg33TtGCMpnwxadiy4NDo2Rjj3KBJx+WpgLBlzJN4p2/
-	 2ntA20MvedvzuE0ElB00x3/QMd3GxOEK/QCtiuf8LuVCM+VUBxcHpEWnM1GOGBdvwPw==
+	t=1793307760;
+	b=Ukp7KCUSbUNXtv7K9tElK0GDqGbUCPqUrOA6QFzgOKG6SyVkxjstxs9KtI7KxxlL2dZD
+	 nEyA+M2wV4EA0a7dKOhAalpcVM7P/bENwT3CZtU4t9Lpy3AT+68QQEfSdulIpLUTiu/c1
+	 JcaOMcgMqxiuXyBmitpe4JQnXNgE3KQK1Yj3AOc8YRsFJTC7mLc1auvjqiyk2/MMTvyQx
+	 7h2C0BueKf/OjrLvQC9hiWSW8U8oJtquAQEKOEFjZ4DEZ05lvMLXZ61YxY6JrbWo2VFW9
+	 9XpYLMteeHTjPOtJy7SseEO2psEp7TG4zwwLie/gRW17Bk7p4QtC6cb/w/05biZ2LHQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793302309;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Message-ID:Date:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-ClientProxiedBy:MIME-Version:
-	 X-MS-PublicTrafficType:X-MS-TrafficTypeDiagnostic:
-	 X-MS-Office365-Filtering-Correlation-Id:X-MS-Exchange-SenderADCheck:
-	 X-MS-Exchange-AntiSpam-Relay:X-Microsoft-Antispam:
-	 X-Microsoft-Antispam-Message-Info:X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:
-	 X-MS-Exchange-AntiSpam-MessageData-1:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=rXHdJ/PRgQ0OXwcLegs87BCYF8A2eLw0cDlzJtMRi14=;
-	b=I2eNmyeI2Niyx4/Wla5NO8XrddHbd5pK9aiOs8LbBGytmade+0/8ZDwalLXvus68W3fN
-	 FtAnbtAlh2YO9c5oasw+iHiW3JEbvCPJ3laf6hoUykdCTbsC5G5Q0a5V3bV3YxibFzsZO
-	 nmj/Ql5ScL4KtlTQunlPWOvtxHeReh+3NwsvOA8vBOCiUXs3rFHZNg2vstI/yUT97FrgH
-	 aW7xrqPusOGzUmPgf9Fpr1LeQAw+iSvLakaao9EW6Oc77w+VCwYXGZYkXJK2NN41jpSHd
-	 7/L7Qe0i5N3erGsgUFQNR+U8c1fwgKsZuzriAzs+/cDETCCd4LxW0F8J9ELjzjMZi1Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793307760;
+	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-Endpoint-Received:X-Original-From:Reply-To;
+	bh=1CclvyY7a4SQr1rtPgZZW2/WqyIddkLtoJ9emFTdPsk=;
+	b=JLAqPefu4TZnL94Exp+JE/sraTUAnDequNR+a94RCEQjsXmA8u6X/86r8NTYHJKSknBM
+	 jgfOi1bmqkgwOEdQP71Q6jB/6J1h5rmR0WXeS3dZ6SdBRsuimXtDOX+CBvAo32hER9CYA
+	 lEvSRUJEyz+QfkovOUD/4azWF/PHOjXDyqRe9Makm1yrQ4JUOkmV6mum3Y5p6rKPdGZSw
+	 WmkaYIxorgvW9SFhF5fUBEU5bxQpLkLYdatWuxkG/aMnnZ/wBGee+q0p4Y9sP55E8DmTY
+	 SmDS7dO88XuyHwjJNSV0qFhVD7qE9PQxqfwfroBK4840pKT+pN4+cqFbImZW6/eYhuA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cherry.de;
-	spf=pass smtp.mailfrom=cherry.de;
-	dkim=pass header.d=cherry.de header.i=@cherry.de header.a=rsa-sha256 header.s=selector1 header.b=KsnkjUjp;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.83.56
-Received: from GVXPR05CU001.outbound.protection.outlook.com (mail-swedencentralazon11013056.outbound.protection.outlook.com [52.101.83.56])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g8JWXz0l;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B030E606A31F;
-	Thu, 29 Oct 2026 19:31:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B030E606A31F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cherry.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherry.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CF31606A33D;
+	Thu, 29 Oct 2026 21:02:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=cherry.de header.i=@cherry.de header.a=rsa-sha256 header.s=selector1 header.b=KsnkjUjp
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ysnhl9WH+P2y3qf89fe9lbioq6Nc2Yn/NnJFG7zRHHDBUCpD8JgvfDraYfewq47VzWelcwwwkWPkOFLDd8s8du4/78/izutq9+qaTYcxJP7r5lt1OOTrAKCOpBzrTNL6eGjL4I8p6LBQPsnafLZXghGQE9mWtIPFVkbmlO23XdyGhMf/ju64ppUb22OCgI5BGPdz0bzJ14SU8X7FRTpEdXV4hyaasS8gAl4/loh611Ve1H9lb1tiSi6S3I6LnpbNDxT/ROe138QEdvNBkoo0L7qO2SaP0ERVx7blXcOLxWs6xT1bsCffk9vU1yAbMNr+mmlFkvjdxTNlkA6h/VuM5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rXHdJ/PRgQ0OXwcLegs87BCYF8A2eLw0cDlzJtMRi14=;
- b=DBQkfSLI9uXkZhMCG+8RjxB4gNrGJb8GoG4OKnIXz2UhpaqsyVnmIXato5SRhQueEA1Cr+/0iWBpx4IJ0CdmixCNa1113PXY/9+TNtBFo0kzsYcjQslha0AG03b8x8dhjLGERTD7aRmrABeitl/G/iXE9fy+2ylEmB8lv9Wj4eT5DLF+I5QvOKje/oNB1IbR1o8m/QMdGcPhReM1b4HaHv3N+TnfxS9ohH2P713osIfeYLTS9zOq42IKOBM2Wn9g2nlsfqBEMsf95QSrH9ENKBI9g8gHwUXylOImxjqM9FALAZfr8MCPCf74NvCmA36+vVOVqnnnpFcQOmDhlQp1gQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cherry.de; dmarc=pass action=none header.from=cherry.de;
- dkim=pass header.d=cherry.de; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cherry.de;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rXHdJ/PRgQ0OXwcLegs87BCYF8A2eLw0cDlzJtMRi14=;
- b=KsnkjUjp3tSv0ZX5+rYg7NE1PPRE6f90XNPqHHteDQf7h2avltMLwwi+oZ6gomy/vrPYFtuq9j81uCfsETR7KSChwTK8YhvCZz7fFI4JL17ENo1zSd3PTc3xcDAygVpsasOIa3uzdqaTzbY8lGJjf2T4H0g1jfVRcf5o+kshr8A=
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=cherry.de;
-Received: from PA3PR04MB11153.eurprd04.prod.outlook.com (2603:10a6:102:4ab::7)
- by MA9PR04MB991951.eurprd04.prod.outlook.com (2603:10a6:250:102::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.8; Thu, 29 Oct
- 2026 19:31:36 +0000
-Received: from PA3PR04MB11153.eurprd04.prod.outlook.com
- ([fe80::6b02:c0eb:95a4:3c3d]) by PA3PR04MB11153.eurprd04.prod.outlook.com
- ([fe80::6b02:c0eb:95a4:3c3d%5]) with mapi id 15.21.0569.008; Thu, 29 Oct 2026
- 19:31:36 +0000
-Message-ID: <a220ebd0-a28d-44cc-9a80-62382018348c@cherry.de>
-Date: Thu, 29 Oct 2026 20:31:34 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] Suspend-to-RAM fixes for RK3588 + SPI-connected RK806
- PMIC, enable PMIC sleep on RK3588 Tiger
-To: Jakob Unterwurzacher <jakobunt@gmail.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Joseph Chen <chenjh@rock-chips.com>, Lee Jones <lee@kernel.org>,
- Sebastian Reichel <sebastian.reichel@collabora.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
- mfd@lists.linux.dev, devicetree@vger.kernel.org,
- Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
-References: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
-Content-Language: en-US
-From: Quentin Schulz <quentin.schulz@cherry.de>
-In-Reply-To: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: VIUP296CA0151.AUTP296.PROD.OUTLOOK.COM
- (2603:10a6:800:34c::15) To PA3PR04MB11153.eurprd04.prod.outlook.com
- (2603:10a6:102:4ab::7)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g8JWXz0l
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793307760;
+	b=iTL/SI5b7mJ3cA3U6+NdytbvWJWOY+nur2qOg+TBBJBS2K03GrOierCcGBOHdGirXMd2
+	 9whHsgEUqJ9tC6sXTR6MLZNGyh660ZxkKpPZMn7kh8x8mc5Paw8KPsZY6kFjWajF7pz4C
+	 DDi9Amb72nU29R/zjWTtgUvw/ELnXN1T0d5Kdj2c6aSZBa5e3KP60tel/+t6AsOrOMUFL
+	 aIeN6ZQiBFMpT5P4y8IvQEezEgRQlpHJIUTl4ix/g5HOfPB19pnwRJHuUTBQNGNO1KyBA
+	 Svu49/NjldhxloV4m1r8R21Haoj5wlybroEWFA1SdrRrMXhIMUH8FaK0s86vDBs5lRg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793307760;
+	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To;
+	bh=1CclvyY7a4SQr1rtPgZZW2/WqyIddkLtoJ9emFTdPsk=;
+	b=bmU4OiDFLC4iyGg9hsNnSPZ+isqIw0FTQDlYuaSDqe0hmrK1FeJX8TpJcNUsHwPIA2dd
+	 vM6pZIELRzppSgF1Zuoe8CfVHC4uC62mkG2OakKmQ6CG9QmDjEHoPSZSj9ZNyyhyJV/I0
+	 pksuH4rgRV5D7JbdptV9YrcUYofO9ItFm/X/fE6v8a7fTZphh7BTOP3tz1zb5Rs9VLPCY
+	 r0uA/96MP7WxsCPZUgLH+0VTI0/wQQAWcOwD7rrAGuE4Jr02l5L7nxfwaBpGi4OTcrqvj
+	 +Ss8XNA/jSNgWNh3KQcQAod+SKbk4sIvPWl+DBorJL6s9PJCZZbaX9q8YG2N+/T6D9w==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 347841F01824;
+	Thu, 29 Oct 2026 21:02:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793307759;
+	bh=1CclvyY7a4SQr1rtPgZZW2/WqyIddkLtoJ9emFTdPsk=;
+	h=From:Subject:Date:To:Cc:Reply-To;
+	b=g8JWXz0lbFaX6JosPGDIHwF8gW69RO27/C28eXWJKqAOsMlIMuOFPBrZ5fbIK0PCW
+	 WW5N9Jis/tfhmjDmeau/8anTIwq/sbSvmq/SMIGfJ4GntiLhc7KJEkztLwt1YM3txo
+	 62TT1ocCsLM2URrcWOdTAcSkzDvpKbQNuVeBA1FjfjsrPvYBLRV8HKZ9eZ3c9hgC0U
+	 UtjkVLjlmRNRM+IQPjseZ1SfisF9rDdFubytJXB7eRiD8ayg0QzqnupOj1Nb01IHpH
+	 qFlg1RZJZSqX7hvMtf5Tb7ydZAJEwAucMbcPmX6gAJkSwBMnkHAmGbtL0yrVRgtW6f
+	 D+xWjOZzzaP6A==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 7EDF6459BA;
+	Thu, 29 Oct 2026 21:02:37 +0000 (UTC)
+From: Muzaffer Kadir via B4 Relay <devnull+muzafferkadir.mainlining.org@kernel.org>
+Subject: [PATCH v7 00/11] Add Initial Support For MSM8952, Add General
+ Mobile Shamrock
+Date: Fri, 30 Oct 2026 00:02:31 +0300
+Message-Id: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -106,181 +84,180 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PA3PR04MB11153:EE_|MA9PR04MB991951:EE_
-X-MS-Office365-Filtering-Correlation-Id: 464ac9f0-6005-4aad-6eb8-08df35f33f19
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|23010399003|10070799003|376014|7416014|261028144727099003|11063799006|56012099006|261009223027099003|261026121527099003|261026140227099003|261022105027099003|261022075727099003|10067099003|261021135927099003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	KYxlVY3KYvCKikhfcoLuaQXeHJkRAodEnwAqEKlGkx0LMzgEYZvv9fWPSq7mJxj3SU2mj3DcfOEs1b8QH99oBYgfYldQW7Y5c74iCqN6+BK4YcE/1qZiOEykxEQPaxj1MkyG6V3QhbqcXe2kr9HNnbZbuTP16KHB7L94+4UkgoOINxyU0dwhWmSH6gisJZals0vxZ0QW7/X5JSqtNxJb0pXEsUGQbGqAjjczB9wQT6g9NMRLtsHGSUyWOzC8JDfDICLu4Z2wi/pG6zNSP4DkxeVCsATxx1FPmu7//v1Nq1OYQhCxsPWhQOouwc7e5OQDJEvl851V4VHYDVb1q+PeuvcPkTdrUhKUdd6SPrSUfw+iV8wwcEDTvSi57gPtVOG2Ze5FSoTvuUyx1qjAqBqixYI3Z54Hsc6Oabx3w3NiqMbu+s211bPYABfaW7BYKUtX3AeusuTziLgqFxjH0ZlGISM86CSA2AEtT7r59isfuQCxVJg2iUXEQE81wWcMrXXhI58A2lTCz09eaopdVacMSPD9l4m8XExGVSJZyjWvn1jN2LOjVX9wewsDgYbt6jYExliAxUV9n5ch6jRkYvdr3UWmKogoNQ5wLz11YYFlIFqhLKMn/Tzny7r+BGXb5U2p
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PA3PR04MB11153.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(10070799003)(376014)(7416014)(261028144727099003)(11063799006)(56012099006)(261009223027099003)(261026121527099003)(261026140227099003)(261022105027099003)(261022075727099003)(10067099003)(261021135927099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?TmUyQTNBSTc2bkV4UTdManl3SHZBU2ZwTUJGMUhtdUxEMnd0VXRyS2w2NTNw?=
- =?utf-8?B?TkMyV1pjeVp5TWVzWHZpUkVpVTE3R05DNW9RMDZpZURZVWYzZFdLQzZ1Zk9o?=
- =?utf-8?B?bnA0QVg4K1gyaEdNK1dYajE3cllEQ0dBQlNNQTVqREg0cXp2b2VxYUQ0SXhR?=
- =?utf-8?B?T1AvQlhXYXhHKzllUzVVclVYVW40bTMxNWpkamsxaW9hbENVeXRFK2J1ZDhC?=
- =?utf-8?B?V04reXZ0U1c3d3plYXJDRTQ2TjdzZDFSVkJ5MTdTQWlodmhSbk9ZOFltVFVn?=
- =?utf-8?B?RURLUnFNaWJjUFZ6YUJ0azJ1amFFMW94aHFJdWNhQ3NTdnNpWHp5cGRONzQz?=
- =?utf-8?B?ZWszNEd5bVJZVGhqZnZEdkFFU2xGeVR5YUwwWi9jUWlxRlg3N1RvSXE3UVUz?=
- =?utf-8?B?c1BRdUJIbTF0MERFL3QzVlUxb3U5WTB3S21kYjVFRzJBb0dBWThiUmFXTzhK?=
- =?utf-8?B?ZHhKLy9keXZESVR6L3cwc3pEZis4REZhNENVbHhpSU0xcGIvS2h6ZkhZRUdM?=
- =?utf-8?B?ZWdHSkhVYU53ZnVkZWVtUFdlb2VxU1BVc3JmaFVISDV2SExRcFlkaDFFMWcw?=
- =?utf-8?B?RUloTjlKNk9qalVkNFZrTHQxdWtiamJZQk8yVGJXSjF6UlVpS05KdTV3SHN5?=
- =?utf-8?B?Y1pRcWxhaldRa29CNE1ySldpNGQzcWZmblhoRDNJWU5PUTFOQVF5WWNmSlZo?=
- =?utf-8?B?bWxaa2VlaVBKeTI0ZzQ0N0grQTU4ZXljVGxkcGQrL2FGU2RBRUd4ek9nUnZ5?=
- =?utf-8?B?UnJuS2NCb1RxcnB2L2paeXdKMUkxUmdZUnNxbjBLa3Eya2sxcGhkTWQ4MTlm?=
- =?utf-8?B?ejAxQUtQdysvdkxORVNDenhyZVhtS1RjaWxTVzJ3SVJSQkx3NDVyeU8xOStz?=
- =?utf-8?B?Z3cxU2RHTXVsQVZkQys5cE1oamR4bkgrSHpkS1ZUVlRPelRWM0NHMzRIRzdp?=
- =?utf-8?B?VDd2YzlxVkM3MG9IYWFlYjdwOHc5bVpOQlRvc0ZMMFVIMGdnN0k3UkpKVGw2?=
- =?utf-8?B?c3hNKzYrb0NBMEd3VWNYcmcwcjNyOW1CU1ptMVdud3pMdHNGWUhtQmJ6VHEy?=
- =?utf-8?B?QnVMc1ZIakdvNFJTUHhzcGtnakNSbkRCdjd4K1NRRmtieEFVNklnWG5SOENy?=
- =?utf-8?B?TE5ZUkxjVExPZWk2YlRxSWJHRSt3RVR3Wm0yZnN1cDdjQUVHUkE0RFdqK0dk?=
- =?utf-8?B?V29VMUkvZmhRenNSZnlacitBWlJ4ZU1oVVZpM2tOZ1cwSEE4YWNta1FZYUxs?=
- =?utf-8?B?NDVOMjNnNHRGd3hYTGlFS3hUN210dnF3Y0ZpVDFJRlF4T2NaMnVDcktRVWdx?=
- =?utf-8?B?SkdFbC9wOFVvMTNPYXhpYWwwbUxqZHhOSEFmSS80V2lEdlQ2bHBKMjZNbGN3?=
- =?utf-8?B?MndaZXVoZXJ4ZDF2Zk1sekpUSzdjMnpySndqVDZmSm1SZWtpVmEzQnJvRXlR?=
- =?utf-8?B?a0pRZWszVG1tSlZBWG94S3VES1NVUTMyT1hkZjBGYmpwNkpBQ2d4NjJUQmlo?=
- =?utf-8?B?bnI0a1VLNVlWdVdWSXVONS9FVXpNdG1SellHaFREWkdRRTlDSlpKbkoydnN4?=
- =?utf-8?B?Z0svTUt0MWcybkFBNmdKSXdBUnU1VElZOGlmSUgvNmVXRVJjUE55NCthVFZF?=
- =?utf-8?B?RzZsdDhvdnorODVCcUtKK3NGd1IreVZKZXVXM0Z6eUdnMVMzUUs5anU5Sjl6?=
- =?utf-8?B?SWs3U0FFMlZobVUyOVZRRloxV3RHeFlXU2twZk5YSUQwcnFNOWxaQTRlaEto?=
- =?utf-8?B?VXovaVFwT0VuR1U2YktIK2QzbXZmS2dHaEh4YjR5Rm4wSnVzeStETmtSY2hV?=
- =?utf-8?B?aGZFN09CWmc4eUs0Q2R2NExyK2pqdmttVG9LRDBrSzZUWjIrckZwR0xFY0Rv?=
- =?utf-8?B?RlJnM0oreDRoVnVWKzEzSU1odE43L0wrcTZCODU4c1ZFWVdNMU1qRllUZDl1?=
- =?utf-8?B?TEVmcVZCbUlQQWhJOXFGNE10VEo0Z2tPMzBranJjUS80akRRNkkybVEwZGlh?=
- =?utf-8?B?Z1lReG1odHYySHZRd3FUaVpvNDNzTGx4T21UVm5hMndSMFNTdGkvWC9yY2dG?=
- =?utf-8?B?clVnWWdUQzVCOEJtN0FaeStnOWs0empHVVh6RkJpTTNpZkQraDlxR00xSGlO?=
- =?utf-8?B?eWljdGhKd0lSdWYxMVhnS0NmYkg0dTJYT3BPQStaRS9iL0dmL25vOU5yM2Qx?=
- =?utf-8?B?U2FZWnZ6U3RyQkE5RHdoV3l3UlFMRVk1T29oNUo3d2pmRDBPak9JNEk0Nm9H?=
- =?utf-8?B?UnlFS083UURUSnZ5SFltQmlXTE5WcTJjSE5hTFg2cGM4clllM2dwTEQ2SjRT?=
- =?utf-8?B?YUVEZE9XUWFROTV1Nng5ZmV2U0JBdmZvZFdGekhPdm13Z2cwQUlPSVU4WnhJ?=
- =?utf-8?Q?/Ljc7TUuLLR3hdZxzxEWFefKLBq1mnCsPPqQZp32QrUry?=
-X-MS-Exchange-AntiSpam-MessageData-1: N7eENv+o8uC0XnsHL/dJcMUMCrXeai2+7F4=
-X-OriginatorOrg: cherry.de
-X-MS-Exchange-CrossTenant-Network-Message-Id: 464ac9f0-6005-4aad-6eb8-08df35f33f19
-X-MS-Exchange-CrossTenant-AuthSource: PA3PR04MB11153.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Oct 2026 19:31:36.3225
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 5e0e1b52-21b5-4e7b-83bb-514ec460677e
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: idYDF89jTOXDiP5vL7hnzt4LaOz8VBj+yOH8u+tV7I9kstu28uJM/J2BUuVJNg8+PwFjxGjjDPtBVGN1rUbZPdDLVvfc/9/52p7Zu1S2jGs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MA9PR04MB991951
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/33OTWrDMBAF4KsErasyGus3q96jdGFLY0eQ2EZyT
+ Uvw3SuHUgy1s3zDzDfvzjKlSJmdT3eWaI45Dn0J5uXE/KXuO+IxlMwQUIMDx2/5Zp1CHvs4xfr
+ K8+c4DmniGmpQziMJRaxcj4na+PWQ3z9KvsQ8Den78WgW6/TXFHhozoIDBzISlbGNQvl2q2N/L
+ Wt99zqkjq3wjFtMH2NYMOOsL3sYAoldrNpgKI6xqmCN022oWkJnm11M/mEC4EkzWTDywXtRe43
+ gdzG1wcSTZqpgwioDRjqHtI/pDYb2GNNrMzAhBNv4Vv7HlmX5AShATUJEAgAA
+X-Change-ID: 20260909-msm8952-initial-support-60a059c2e15e
+To: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, "Joerg Roedel (AMD)" <joro@8bytes.org>, 
+ Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
+ Konrad Dybcio <konradybcio@kernel.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, 
+ Rajendra Nayak <quic_rjendra@quicinc.com>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Jassi Brar <jassisinghbrar@gmail.com>, Abel Vesa <abelvesa@kernel.org>, 
+ Stephen Boyd <sboyd@kernel.org>, Brian Masney <bmasney+clk@redhat.com>, 
+ Jerome Brunet <jbrunet+clk@baylibre.com>, 
+ Rob Clark <robin.clark@oss.qualcomm.com>, 
+ Dmitry Baryshkov <lumag@kernel.org>, 
+ Abhinav Kumar <abhinav.kumar@linux.dev>, 
+ Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
+ Marijn Suijten <marijn.suijten@somainline.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+ Krishna Manikandan <quic_mkrishn@quicinc.com>, 
+ Mathieu Poirier <mathieu.poirier@linaro.org>, 
+ Manivannan Sadhasivam <mani@kernel.org>, Kees Cook <kees@kernel.org>, 
+ Tony Luck <tony.luck@intel.com>, 
+ "Guilherme G. Piccoli" <gpiccoli@igalia.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org, 
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
+ linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, 
+ linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org, 
+ Muzaffer Kadir <muzafferkadir@mainlining.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793307755; l=5600;
+ i=muzafferkadir@mainlining.org; s=20260816; h=from:subject:message-id;
+ bh=f/710DMBCeH1DaZcIhMQg0VmZNSOMZTfOUmb7qsdEJE=;
+ b=MgPS4pbxlSjUhNTk+Az7Fn1LktMh5NrC7Wgi+tYZ9+LQQbW6OH6O0BQHHK6uSn+bFIuW6jzlx
+ /RC7jpA4POJCye1AG7tabe/zFHyzPhFH5ghXiOuXXiJraVHh+pFTVPU
+X-Developer-Key: i=muzafferkadir@mainlining.org; a=ed25519;
+ pk=4zkv4suQ3cYcO4Z7CrV8JSSjEGLBGepUtvQCFjgnYIU=
+X-Endpoint-Received: by B4 Relay for muzafferkadir@mainlining.org/20260816
+ with auth_id=954
+X-Original-From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Reply-To: muzafferkadir@mainlining.org
 
-Hi Jakob,
+MSM8952 is a SoC with 8 core cpu and Adreno 405 gpu.
 
-On 10/29/26 11:06 AM, Jakob Unterwurzacher wrote:
-> This series, together with a few out-of-tree patches (see below), makes
-> suspend-to-RAM on RK3588-Tiger work, down to a power consumption of
-> about 0.4 W. Patches 1-3 apply to all boards with an RK806 PMIC
-> connected via SPI, which includes most RK3588 boards.
-> 
-> Patch 1 ("Input: rk805-pwrkey - enable the wakeup interrupt during system suspend")
-> arms the power key interrupt as a wakeup source, so that the
-> power key can wake up the system. This is done in the regular suspend
-> phase, because the SPI bus to the PMIC can no longer be used in the
-> noirq phase.
-> 
-> Patch 2 ("mfd: rk8xx-core: keep the PMIC interrupt disabled during system suspend")
-> keeps the PMIC interrupt disabled across system suspend, so that its
-> handler does not run before the bus to the PMIC has resumed.
-> 
-> Patch 3 ("mfd: rk8xx-spi: add system sleep PM ops")
-> hooks up the existing rk8xx suspend/resume callbacks for the SPI
-> variant, which so far lacked them.
-> 
-> Patch 4 ("arm64: dts: rockchip: put the PMIC into sleep mode in suspend on RK3588 Tiger")
-> configures the RK806 PWRCTRL1 pin on RK3588 Tiger for its sleep
-> function, so that the regulator suspend states take effect. This lowers
-> the module's power consumption in suspend-to-RAM from 1.09 W to 0.43 W.
-> 
-> The patches do not depend on each other and can be applied through
-> their respective trees.
-> 
+Ported without uart connection. ramoops and usb
+mainly used to debug.
+USB is not enabled in this series because it
+depends on the not yet upstreamed (and not developed by me)
+pmi8950_smbcharger.
 
-Then have them in separate series. Series should be as small as 
-possible, down to a single commit if possible.
+General Mobile shamrock display panel driver
+is generated using MSM8916's mdss dsi panel
+driver generator and tested with it. I didn't
+include it.
 
-> Testing
-> -------
-> 
-> Tested on RK3588-Tiger on the Haikou baseboard, on top of the v7.4 merge
-> window (a8530b69fc4dd): 30 consecutive suspend-to-RAM cycles, each woken
-> up by the PMIC power key, all resumed without errors in the kernel log.
-> USB devices (a SuperSpeed hub with an Ethernet adapter, and its
-> High-Speed part) stayed connected across suspend.
-> 
-> Out-of-tree patches
-> -------------------
-> 
-> To test this series, out-of-tree patches were needed and used:
-> 
-> 1) Upstream TF-A does not complete suspend-to-RAM on this board yet, so the
-> tests used Rockchip's BL31 (rkbin v1.47), configured through a small
-> out-of-tree driver. The plan is to get suspend working in TF-A instead.
-> 
+Pinctrl driver was submitted and merged here:
+https://lore.kernel.org/all/20260907-msm8952-pinctrl-v5-0-9a2d8d72ffdb@mainlining.org/
 
-I'm guessing you(r LLM) meant upstream TF-A here? Or what is it that you 
-mean?
+Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
+---
+Changes in v7:
+- Dropped the tsens sensors which was renamed at v6 and l2 sensor.
+- Wired mdss mpm (sashiko).
+- Changed size of master_stats addresses that exist on rpm_msg_ram from
+  0x14 to 0x50 (sashiko).
+- Renamed crypto_dma and usb_dma to cryptobam and usbbam.
+- Changed device dts, si-en led label property to color and function
+  properties and replaced multi-led function from indicator to status.
+- Fixed hexagon_smsm interrupt, also added adsp_smsm.
+- Added opp-tables to sdhci_1 and sdhci_2.
+- Link to v6: https://patch.msgid.link/20261028-msm8952-initial-support-v6-0-e07ddd8bcf4c@mainlining.org
 
-> 2) The inno-usb2 PHY has to be resumed when its 480 MHz clock is enabled,
-> otherwise EHCI/OHCI resume hangs. This is addressed by Sebastian
-> Reichel's inno-usb2 series [1].
-> 
+Changes in v6:
+- Use one-per-line in SoC dtsi as Konrad requested.
+- Drop unneeded dr_mode in usb as Konrad requested.
+- Drop 1651200000 from pll_opp_table_c1 as Konrad requested.
+- Added new patches for more msm8952 specific compatibles as Konrad
+  requested.
+- Renamed 'aoss0', 'modem', 'camera' sensors to generic names as Konrad
+  requested.
+- Drop clock-frequency from timer as Konrad requested.
+- Switched passive and hot of cpu0-3-thermal trip types
+- Link to v5: https://patch.msgid.link/20261011-msm8952-initial-support-v5-0-1857074992ec@mainlining.org
 
-Having access to your downstream branch, you have a patch generated by 
-your LLM and not Sebastian's patch series. Either use what Sebastian 
-posted, or be more careful in your choice of words as I read the above 
-as implying you used his series.
+Changes in v5:
+- Added opp table for spi and uart.
+- Wired all i2c and spi power-domains
+- Dropped default slope from thermal driver.
+- Link to v4: https://patch.msgid.link/20261006-msm8952-initial-support-v4-0-ecdcc1ac620c@mainlining.org
 
-> 3) The GPU and NPU domain supplies were kept always-on. genpd powers
-> these domains on in the noirq resume phase, when their regulators (on
-> I2C/SPI) cannot be reached yet. I'm not sure what to do here, yet.
-> 
-> [1] https://lore.kernel.org/linux-phy/20261001-phy-rockchip-inno-usb2-clock-fix-v2-4-e01bf509359e@collabora.com/
-> 
-> Known issues
-> ------------
-> 
-> PCIe devices do not survive resume; this depends on system PM
-> support in pcie-dw-rockchip [2].
-> 
-> [2] https://lore.kernel.org/r/20260316-rockchip-pcie-system-suspend-v5-0-5bb5ad37d643@collabora.com
-> 
+Changes in v4:
+- Dropped 1651200000 freq on cluster 1 because it depends on speedbin 3
+  and speedbin is not included in this patch series
+- Dropped applied patches
+- Changed mdss_dsi0 power-domain to MDSS_GDSC
+- Reformatted SoC dtsi file
+- Added the remaining reserved-memory entries for not added parts
+- Rename adsp_mem to adsp_fw_mem
+- Drop the "ts-" prefix of touchscreen pinctrl in device dts.
+- Link to v3: https://patch.msgid.link/20260921-msm8952-initial-support-v3-0-b96fd3fe298b@mainlining.org
 
-There already is a v6 from almost two months ago. Did you actually test 
-with the v5 or are you just hinting at what could be helping resume PCIe 
-devices?
+Changes in v3:
+- Improved GCC driver, also rewrote resets part
+- Rewrote the dt-binding side of gcc
+- Reformatted Device tree files with dt-check-style tool
+- Added reset to sdhci1 and sdhci2
+- Added cx regulator to gcc
+- Added gcc commit messages that it is a derived driver
+- Dropped adsp_mem, renamed lpass_mem to adsp_mem
+- Changed tusb320 interrupt from rising to falling as downstream uses
+- Link to v2: https://patch.msgid.link/20260916-msm8952-initial-support-v2-0-798c2602dde1@mainlining.org
 
-I'm sure Sebastian would be happy to receive a nice Tested-by tag if you 
-did indeed test that. Link to v6: 
-https://lore.kernel.org/all/20260908-rockchip-pcie-system-suspend-v6-0-fbabcca9921b@collabora.com/
+Changes in v2:
+- Changed device dts file as David's and Konrad's suggestions
+- Removed accidental duplicated clock assigments and fixed wrong gcc gp1,gp2
+  and gp3 parent_maps
+- Updated commit messages to make it wrapped at 72 character.
+- Fixed spi1 tlmm node naming
+- Added remaining spi and i2c nodes
+- Wired up mpm
+- Add mmio-sram to rpm_msg_ram
+- Reformatted msm8952.dtsi
+- Removed rpmcc-msm8952 driver entry and replaced it with rpmcc-msm8976
+- Merged sdhci tlmm pins to single nodes, now it is similar to existing SoCs
+- Rebased to latest linux-next, now storage works
+- Removed polling-delay properties from tsens
+- Link to v1: https://lore.kernel.org/r/20260912-msm8952-initial-support-v1-0-0e742578b524@mainlining.org
 
-> Tool use
-> --------
-> 
-> These patches were developed with an LLM-based coding assistant (Claude
-> Code). It ran the suspend/resume tests on the hardware, analysed the
-> kernel logs to find the causes of the failures, and drafted the code
-> changes and commit messages. I reviewed all changes and tested them as
-> described above.
-> 
+---
+Muzaffer Kadir (11):
+      dt-bindings: nvmem: Add compatible for MSM8952
+      dt-bindings: iommu: qcom,iommu: Add MSM8952 IOMMU to SMMUv2 compatibles
+      dt-bindings: watchdog: qcom-wdt: Document MSM8952 watchdog
+      dt-bindings: sram: qcom,imem: Document MSM8952 compatible
+      dt-bindings: mailbox: qcom: Add MSM8952 APCS compatible
+      dt-bindings: clock: qcom,a53pll: Add MSM8952 compatible
+      dt-bindings: display: msm: dsi-controller-main: Add MSM8952 compatible
+      dt-bindings: remoteproc: qcom: adsp: Add MSM8952 ADSP compatible
+      arm64: dts: qcom: Add initial support for MSM8952
+      dt-bindings: input: touchscreen: goodix: Add binding for GT970
+      arm64: dts: qcom: generalmobile-shamrock: new device
 
-All your patches are missing the Signed-off-by, required to signify 
-DCO[1]. LLMs are forbidden to add it, so I guess you missed that when 
-reviewing the patches before sending. Please triple check that you agree 
-to all criteria listed in the documentation before adding the SoB to 
-patches generated by LLMs[2].
+ .../devicetree/bindings/clock/qcom,a53pll.yaml     |   25 +-
+ .../bindings/display/msm/dsi-controller-main.yaml  |    2 +
+ .../bindings/input/touchscreen/goodix.yaml         |   35 +-
+ .../devicetree/bindings/iommu/qcom,iommu.yaml      |    1 +
+ .../bindings/mailbox/qcom,apcs-kpss-global.yaml    |    5 +
+ .../devicetree/bindings/nvmem/qcom,qfprom.yaml     |    1 +
+ .../devicetree/bindings/remoteproc/qcom,adsp.yaml  |   31 +-
+ .../devicetree/bindings/sram/qcom,imem.yaml        |    1 +
+ .../devicetree/bindings/watchdog/qcom-wdt.yaml     |    1 +
+ arch/arm64/boot/dts/qcom/Makefile                  |    1 +
+ .../dts/qcom/msm8952-generalmobile-shamrock.dts    |  442 +++
+ arch/arm64/boot/dts/qcom/msm8952.dtsi              | 2909 ++++++++++++++++++++
+ 12 files changed, 3416 insertions(+), 38 deletions(-)
+---
+base-commit: 151a134a4e6ec66f69db8750c66006f5207f7a9d
+change-id: 20260909-msm8952-initial-support-60a059c2e15e
 
-[1] 
-https://www.kernel.org/doc/html/latest/process/submitting-patches.html#sign-your-work-the-developer-s-certificate-of-origin
-[2] 
-https://docs.kernel.org/process/coding-assistants.html#signed-off-by-and-developer-certificate-of-origin
+Best regards,
+--  
+Muzaffer Kadir <muzafferkadir@mainlining.org>
 
-Cheers,
-Quentin
+

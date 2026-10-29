@@ -1,90 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793268424;
-	b=OPJa8eI2P6Ncj0rp/n0u9UXrECH3/3oOj+lC5SbSgd3ujQxC13LhPbuD3aLKH09iVgmP
-	 GcHrhakU4854iBeDzvAUG7ipNK/eTn++7/r+HihfCFG4MZ4ZksgSY0d76AuS9oVqLYniS
-	 ul5TEJ5xu5z5xW2yVpuO7+8nyLBLV6AHvz1RhfWUGz+9RED6PTRqN7/LbxpV+k5DmACBh
-	 ovpmfHUUSo4YGPHbZaZshcQmSZ6zDXPzXRvsRK1AmpaHFgIXMBI3vU/ntzIBgar6TWe0R
-	 ecWMCe2cbIZSeALz+w0/SjHBo0tQgYwxnl2Y6DlDOxfW6zdCKaiEcMdva6wmb5nCAtQ==
+	t=1793269283;
+	b=GFFlUG8fPcWF5zeoIHsmBu059yIIOuLuE0Y4BVPxqXNc11d5XHcSQJRRE3Hf/B4WgCT5
+	 ojhrPrrU3trB1g1EgHuy2WgZkX3A4olHB1N1z0mjJw4V+5WrQouzvFisviJ6i8Minh13V
+	 wo/4hS+ei65bU4t0gee3z6+AbY9dTDN2g+tanxPPX4a8YrZs3gKjm/d9Ei7PH+UNJhmHB
+	 JPp7lzkdQ7luTc+lNbbV9eYag9B7izXspY+z/SqGpzhtwB9aOT0Ml7RwqSDyNXOPWyoRe
+	 S7bD/a8zYIpC/LXLLcx6qjxsdcnPMsxct6hIU1+jyIeafxta+GSbe4BuRsc/ZMvoQqQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793268424;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key;
-	bh=0SbZPVThhtjU5v2CJr4ClagjjvnIt2bp8J9XxZctWA4=;
-	b=TCHaTeip/4Ok4ScERiT1xXmYZCXGu+2qS4T5bEaq1cer9pKTDo3bBa+fShcBzeYXC0TV
-	 jxjeSaa58jFp8Ao3N4i2RjcqNN9fJ1aM9PI02kFb5a7SmNr3oMfxzq8HRCdB2kZR7E5RN
-	 P3bZH4H4YzKF7QqhR5WxGVli4TWKWh8RmAezPEE3lJdw2bpZ94zsxlq059megTWBkqftM
-	 D7w/dRCBcW3qm5GNPzcu0ke0akWI/4mXA1o9Jkte5e6JaiTe4ApkLOaAA+GXl7RQXiPEb
-	 0Ph4ONSQ7V9Xp7QPXyCcJZ+BArEQrdC1picKStvPkj+FDDDt3HQofUgWj0UHFykhJRQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793269283;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=5YOfeKqsJ6UIlUZa8Twb8YE/HvF3w/5fU5ttJFp47WM=;
+	b=L24BrlBsZo0mXAG+tMKmx/vM3bBkevH2BeQb24BK96V1dNkD4gc/26HDvqLNoke6tTXN
+	 0ivQVHBgrIFuClyTe7pk3AuTfHhb6wVD4xoDGPuKAljd/DBGZnETKncfr/5l4DHmuOX03
+	 SgdffqOypP+5wXNMHD+/E/77BWv7vDI4IoTpsh01psgAobYOG4sV6TwB9pcSc8mBpURie
+	 eEXh6cRvX1WBPNJ7AXkGDQS1r7sVXpe6NEA+eP7kyFVwFnQ2I8pU4BplpsSOTqgAkyg4D
+	 efA9V2rsxiqroHg5HJCWcn2w/78g/Hw3Hf+rXJMG3GAcTIHrbUaBpWnog59EKvQbg5w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lAFFjDnK;
-	arc=none smtp.remote-ip=209.85.128.48
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n0u4s8L1;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09BDC606A31C
-	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 10:06:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 09BDC606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55D38606A31D;
+	Thu, 29 Oct 2026 10:21:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lAFFjDnK
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a210470b49so15545395e9.2
-        for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 03:06:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793268412; x=1793873212; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=0SbZPVThhtjU5v2CJr4ClagjjvnIt2bp8J9XxZctWA4=;
-        b=lAFFjDnKXk3yH9RHcKlULdwN/XxVDGn0oMA8mXORaKO4pb2jDfGpEFQuvU2GdRYBrp
-         odpaKHZhwiUMxt/EhkksTRDQKBX23YlXeGuXC0spnbFsv4oV/poSijzq+2qP/JhgEc/d
-         kU8NIECqSVobeduQxcoT20A1EpeYj4nSO/JzjAojX4gqStiVhWoMojgLLiSH2fpGShX+
-         K3p3JmvcAFy+T7yFWuGZT4Gj5Xow/XlQl/KVGMKiReFsU0RZOR2bCKv7Pki2IukrhFwv
-         2paWFfgdWETuDBSmNXXM/GNoRDbiJtDQ8mQXuUJ9ku/CPcKcrrg1Cdb/NOBB0OYvmTVA
-         Y5uA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793268412; x=1793873212;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=0SbZPVThhtjU5v2CJr4ClagjjvnIt2bp8J9XxZctWA4=;
-        b=iZBNsU5cHOilAiVthzbZ+uPVYougYpTejeYHDvcr60tQdVnRIvWER0DC1/DCDtyMWe
-         SAHp9hyzEUq/7QFbygAKFAIFICtM7mFGHmYB3whFEbJY/8Dy/lZkJ7POMZveGDGCghvr
-         DrpnG7IEPo+gc3K3ce2qZj0eghcT2PtR1wpvMktg6N6YNOTXzx7NYrO9ujL+MKYOFP7g
-         Srla6QWNYyb/XNesqtJ0GAYOBc9L023GlyvQhUntKCakWjF4/Ae48ONWehujz39ANd1+
-         jpwVd/kmJgDBItDCCGwi1GCD2a9IEA+k3SLAMRTwa6ZWipdi1GmyW3tvPRquKP4GaDRO
-         0fvA==
-X-Forwarded-Encrypted: i=1; AKwUvBzpBo3w80EsAoFDf9n/LuAi0KOahRWNOc0st8jNeaxyrP0Fu+9KSKCA2lkii780TqFtOSbdlv6f7NNYrA==@vger.kernel.org
-X-Gm-Message-State: AFq9FYK+Wb4QBu2lSyHJM/n7mZoQhaO5CqLHhafomY3i7ph0GPMGnF/D
-	JVZxROqPox7TZ0iKntU6Ucn+0GFwP2kF/1zW/hALrWx1RrK+NTgTSQgK
-X-Gm-Gg: AYBFou253VPqzm2ojhn/jzEL97ymfx73x/TcSRk7ND23YaVADlm+Ty/8cRM5C1c6Jfu
-	cfLTWtjexnVeL2UC1EtcdLvdsciPvGAq0ckFLaTAtqL1u2+mlabfFe2fBQOBay/tWwCwO9omD48
-	UPIvxsilGIrEgqh7Gl0LMClB+SpaqyAhEs2iC0RjNGYpUBc4B6eAslpnSt/yFlJ4e/YyvqVmX0i
-	CAJ9tb+kSzbhHKPcsji55HdbQxVixXoD6ikbrkPB8oGLUbcWMksL+uEF0F4/fmt8u4fcO50gsNV
-	gIBChBZBuZ8Km2ogCWNzvq2/7BBouLP8OwH4z35G8lpTUKN/2c0GnzOOX4lgWjW62nzruAWslby
-	YWARVTorMrqDAcrsmku8xFb5uRvv8yUzIVMv857pLm8wsgdQFG6hBxQrwFS1v5JIBZVun7sN0gv
-	Ub3e5cVoGj0I9XERXYnpQ+0+PIUuZ1bsSucCLEAjWHhl4qOlpDecrspzYzaMgrJ5qnDeNQSjC3i
-	xeOKloI0QQG5sMLku+CzUJdHpmPy4hUTleYAfoke7piujKJbxuzTRycCngk4RmxWMm5m2VX8JeO
-	vvPvUpci+7GnxIOCLjzNhV82TTlJkfjJx+YdYIfLX4ztdC+6q8OMkZMOsXb1vO1Ak1+pNWK4rMo
-	/dV6uTaTf
-X-Received: by 2002:a05:600c:4ec7:b0:4a2:a9:ed5a with SMTP id 5b1f17b1804b1-4a9660b5041mr117976975e9.8.1793268412452;
-        Thu, 29 Oct 2026 03:06:52 -0700 (PDT)
-Received: from [127.0.1.1] (ip092042140082.rev.nessus.at. [92.42.140.82])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4aa7fdb7691sm53082825e9.11.2026.10.29.03.06.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2026 03:06:51 -0700 (PDT)
-From: Jakob Unterwurzacher <jakobunt@gmail.com>
-Date: Thu, 29 Oct 2026 11:06:26 +0100
-Subject: [PATCH 4/4] arm64: dts: rockchip: put the PMIC into sleep mode in
- suspend on RK3588 Tiger
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n0u4s8L1
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 905161F031E1;
+	Thu, 29 Oct 2026 10:21:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793269282;
+	bh=5YOfeKqsJ6UIlUZa8Twb8YE/HvF3w/5fU5ttJFp47WM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=n0u4s8L16SC1PjNUFpJnMxDjH+6Sh39L1ogHY5kH350k35lmuJstRncWI/ZmveCnJ
+	 EbrcjaSnC0hFZODjmHTtNEPaXVN8LOrOlCTUkS2JOoXdXzHTe16/5cA8MsFFBleVJq
+	 bUQVMpU9x7AzUxseOsaCeSSehpT5RsS+XFAhAgRI0pv2Mhr0zSIc1BcV6P/ooWo23Z
+	 lrYtDR7kmAXV8NR//c8mw3JIPV2azRP0MaRTRFXm6VIsL5j9AY1Xl7IteIwinzvc6v
+	 5Pjrhei3bwedCY1Sq27V+r+rRM9BgDZwSGigIMZnfDyU6GkReoJgHOvZpm1q+buI4B
+	 ZvZMWQ6RVYU8g==
+Message-ID: <sashiko-outbox-189114@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/4] mfd: rk8xx-core: keep the PMIC interrupt disabled
+ during system suspend
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jakob Unterwurzacher" <jakobunt@gmail.com>
+Cc: linux-input@vger.kernel.org, mfd@lists.linux.dev, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
+In-Reply-To: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-2-cb12621c1fb4@cherry.de>
+References: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
+ <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-2-cb12621c1fb4@cherry.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 29 Oct 2026 10:21:22 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -93,77 +60,107 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-4-cb12621c1fb4@cherry.de>
-References: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
-In-Reply-To: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Joseph Chen <chenjh@rock-chips.com>, Lee Jones <lee@kernel.org>, 
- Sebastian Reichel <sebastian.reichel@collabora.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>
-Cc: linux-arm-kernel@lists.infradead.org, 
- linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, mfd@lists.linux.dev, 
- devicetree@vger.kernel.org, 
- Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793268406; l=1641;
- i=jakob.unterwurzacher@cherry.de; s=20261029; h=from:subject:message-id;
- bh=SDfGdhdTbDViPNWR7gWVkSFVjA2d78IFMYAVeDi6pgc=;
- b=+lV6mFqZezu/+F0xruZF+cG3BHg9hNr6TFfbzH6ls2C4+aEQv2qB9TmeiX4sbnF59e3EHmvUT
- spRbBmKPD3LBiX00XMbFZ9MHPNkvGrR2KGQSbwdMr2iUT+IH87yeXEr
-X-Developer-Key: i=jakob.unterwurzacher@cherry.de; a=ed25519;
- pk=0v1L7pjG4d7PcaYPMOmzP4SjaRtnB+8bMzZLZCRzB8I=
 
-From: Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] mfd: rk8xx-core: disable_irq() in rk8xx_suspend() breaks s2idle wa=
+keup
+--
 
-The RK806's PWRCTRL1 pin is connected to the SoC's pmic_sleep1 output,
-which the firmware (TF-A) asserts when the SoC enters suspend-to-ram.
-It is configured for no function, though, so the PMIC ignores it: all
-regulators stay on in suspend and the regulator-state-mem settings have
-no effect.
+commit 1642fdff105aee2817fbf318588a972d4d3d49a4
+Author: Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
 
-Configure the pin for the sleep function instead, like other RK806
-boards do.
+mfd: rk8xx-core: keep the PMIC interrupt disabled during system suspend
 
-Measured on RK3588 Tiger on Haikou, suspend-to-ram with the logic
-domain powered off by the firmware, module supply current (5 V):
+This commit disables the PMIC interrupt at the end of rk8xx_suspend() and
+re-enables it at the start of rk8xx_resume() so that wakeup interrupts are
+not handled before the parent bus controller has resumed.
 
-  PMIC pin with no function: 0.218 A (1.09 W)
-  PMIC pin with sleep function: 0.086 A (0.43 W)
----
- arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> diff --git a/drivers/mfd/rk8xx-core.c b/drivers/mfd/rk8xx-core.c
+> index 3dcf6abfda74f..3a68a7974ed06 100644
+> --- a/drivers/mfd/rk8xx-core.c
+> +++ b/drivers/mfd/rk8xx-core.c
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi b/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi
-index 161c89c62bcda..592a2d11b36b9 100644
---- a/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi
-@@ -471,7 +471,7 @@ pmic@0 {
- 		gpio-controller;
- 		#gpio-cells = <2>;
- 		pinctrl-names = "default";
--		pinctrl-0 = <&pmic_pins>, <&rk806_dvs1_null>,
-+		pinctrl-0 = <&pmic_pins>, <&rk806_dvs1_slp>,
- 			    <&rk806_dvs2_null>, <&rk806_dvs3_null>;
- 		spi-max-frequency = <1000000>;
- 		system-power-controller;
-@@ -492,9 +492,9 @@ pmic@0 {
- 		vcca-supply = <&vcc5v0_sys>;
- 		rockchip,reset-mode = <RK806_RESTART>;
- 
--		rk806_dvs1_null: dvs1-null-pins {
-+		rk806_dvs1_slp: dvs1-slp-pins {
- 			pins = "gpio_pwrctrl1";
--			function = "pin_fun0";
-+			function = "pin_fun1";
- 		};
- 
- 		rk806_dvs2_null: dvs2-null-pins {
+[ ... ]
 
--- 
-2.47.3
+> @@ -929,7 +931,20 @@ int rk8xx_suspend(struct device *dev)
+>  		break;
+>  	}
+> =20
+> -	return ret;
+> +	if (ret)
+> +		return ret;
+> +
+> +	/*
+> +	 * Keep the interrupt disabled while the bus to the PMIC may be
+> +	 * suspended: otherwise a wakeup event (e.g. the power key) is handled
+> +	 * as soon as interrupts are re-enabled on resume, before the bus has
+> +	 * resumed, and reading/acking the interrupt status fails. If the
+> +	 * interrupt is a wakeup source, it stays armed, and the pending event
+> +	 * is replayed by enable_irq() on resume.
+> +	 */
+> +	disable_irq(rk808->irq);
 
+[Severity: High]
+Does calling disable_irq(rk808->irq) in rk8xx_suspend() break wakeup from
+suspend-to-idle (s2idle) on Rockchip platforms?
+
+On Rockchip SoCs, the PMIC interrupt parent is the Rockchip GPIO irqchip in
+drivers/gpio/gpio-rockchip.c, which implements rockchip_irq_disable() to ma=
+sk
+the pin in hardware and does not set the irqchip wakeup-on-suspend flag:
+
+drivers/gpio/gpio-rockchip.c:rockchip_irq_disable() {
+	irq_gc_mask_set_bit(d);
+}
+
+When disable_irq(rk808->irq) runs during dpm_suspend() -> rk8xx_suspend(),
+it invokes __disable_irq() -> irq_disable() -> __irq_disable() ->
+rockchip_irq_disable(), masking the interrupt line in the GPIO int_mask
+register and marking the descriptor disabled.
+
+Later in dpm_suspend_noirq() -> suspend_device_irqs(),
+kernel/irq/pm.c:suspend_device_irq() only re-enables a disabled wakeup
+interrupt in the irqchip if that flag is set on the chip:
+
+kernel/irq/pm.c:suspend_device_irq() {
+	if (irqd_is_wakeup_set(irqd)) {
+		irqd_set(irqd, IRQD_WAKEUP_ARMED);
+
+		if ((chipflags & IRQCHIP_ENABLE_WAKEUP_ON_SUSPEND) &&
+		     irqd_irq_disabled(irqd)) {
+			__enable_irq(desc);
+			irqd_set(irqd, IRQD_IRQ_ENABLED_ON_SUSPEND);
+		}
+}
+
+During suspend-to-RAM, syscore_suspend() subsequently runs irq_gc_suspend()=
+ ->
+rockchip_irq_suspend(), which writes ~gc->wake_active to int_mask:
+
+drivers/gpio/gpio-rockchip.c:rockchip_irq_suspend() {
+	struct irq_chip_generic *gc =3D irq_data_get_irq_chip_data(d);
+	struct rockchip_pin_bank *bank =3D gc->private;
+
+	bank->saved_masks =3D irq_reg_readl(gc, bank->gpio_regs->int_mask);
+	irq_reg_writel(gc, ~gc->wake_active, bank->gpio_regs->int_mask);
+}
+
+However, during suspend-to-idle, kernel/power/suspend.c:suspend_enter() ent=
+ers
+s2idle_loop() and jumps to Platform_wake without calling syscore_suspend():
+
+kernel/power/suspend.c:suspend_enter() {
+	if (state =3D=3D PM_SUSPEND_TO_IDLE) {
+		s2idle_loop();
+		goto Platform_wake;
+	}
+}
+
+Wouldn't that leave rk808->irq masked in the GPIO hardware throughout
+s2idle_loop(), preventing the PMIC power key or RTC alarm from waking the
+system from s2idle?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029-dev-tiger-=
+v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de?part=3D2

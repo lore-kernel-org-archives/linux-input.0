@@ -1,109 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.45
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793261194;
-	b=0kzlkKISMA5MDlLukLuecqPDB4drGe6lOZAu1cEBKJ6AR9+SCjfwdveEENtNV3SQc0zJ
-	 fSDPfUjMqqyV5TWeEQ2m72bmy9l0/QpRMV9qallZul2/Y6JdiuZeoMZWBvP+KlnXkCoB5
-	 SgrPAQFdBXgjdt+Gg88v/NXBUv/Qm7cRDFvV0DvvrknN4OMdN9l2mSX3wB0AwResJ5sCm
-	 lfxKweVGNpddP6/vlg9XdUxfyHKkW/ZP0zqd9QXmASQU98of8A4iZzkpMnhOUpkb8PRYW
-	 DN0gbzwA09h1WTbmcB+wbjJumimSFQCD3fcuQhcnjt6IQzRcFuhl/nP8sD7Sopy5bHw==
+	t=1793268409;
+	b=foP96UHWgQFy0SZU8QBhKlJfLiJuY4Df6pVxkislM7jBVP9L2s6qy+ElhOmjIqj9lVal
+	 GZ4KyuSqw48Yw/JGL97iM3SO+ICoTuRIt69EpDe3idK2/VenK29i7u6ROg4t9A+U8FyzO
+	 YN0Gy2lu4JvyQvw65j/b3moXGC0UVNMrwe4PTtkMLhF8uLYtPpaAZ24VbHpeh6TKhf+MK
+	 A2vlx0V72RYpOG7FJqi1zmIdDCjU5qdFmPZuWVfM377i+TvnQXpjG9HurosKxXlO2MAmP
+	 SXrLJcHvgg6YcNYWisPN/VfJMm3w1BiUC09bhH9/4MsAA2ZakWjg/ujGKj68R3GnDpw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793261194;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:
-	 DKIM-Signature:X-Google-DKIM-Signature:X-Gm-Message-State:X-Gm-Gg:
-	 X-Received:X-Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=m8DFKSCsdHugXNIGpAF5J7g+hIg6cjluBUQHPY3ZgJA=;
-	b=OePb01atODQQR6wHJM7Y6+jN+pNje7JzzS/HYZTUXP8qtPuIiJQBi9ON7fPOUR8VGYXY
-	 9pvHlvifqi66abceWzPe121PTYN3agGdKKasGvTkVU1tzR462/1GgxVpgeoRFRofXrByM
-	 rpsXJzzTIc+yG5UtHkcni30UDFsnZLfFiwfFoz/WGA5PnSzLziKNn38QiSJOcrXoPkyZX
-	 1Is9Nu1oyZ+S0OIJvZint7jG0mzdZQqoWBajto/bwFHRnmCEV6pJR6mM41MBlzQo7HE3Z
-	 E8o/QCqhwxX/63fZxFKUQaLYakKXhqe6jrC/CzcCOYqLmt4ouwDns1H8adKco/vqiTQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793268409;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key;
+	bh=qOF7wYrSiLyxDI9TfUlCsobhSuSMPq8w6f3swfnWMZk=;
+	b=EyB6eviDALlmRO76r3VCLJgrf1NT3vrLCWx292fkXUD3EkooXwkVrFB89uDh0A+SQrzB
+	 KBTisS26tvQ2qfwyDx4pO7sJHwhnO9MBGXiyatNLGhn2W+v2dI0PwydHWbsn44TISbyGT
+	 Y3e7A+swQcMr59g5zZEcebiA4nwH1GnZmR8asyw8Xuu6fhR6EOBAdDzHN7LjXzO7lejM4
+	 +Mwp+HhTLPcsjrKg16u1Yd8Sf01Yz4j1S2+qcgK+HG7ZKOJzi8UEQ5am865FfT4AEQF8F
+	 QJGeoXkcloNqhxs1jUjmLAEwlXmJiCIvIhrQ7SZY888I5bR96PyP/uW6imOmLypj/9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=oss.qualcomm.com;
-	spf=pass smtp.mailfrom=oss.qualcomm.com;
-	dkim=pass header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=oHi105vQ;
-	dkim=pass header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=QhDuiqLS;
-	arc=none smtp.remote-ip=205.220.180.131
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Pszdm4fP;
+	arc=none smtp.remote-ip=209.85.128.45
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEBEC606A326
-	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 08:06:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EEBEC606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40020606A321
+	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 10:06:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 40020606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=qualcomm.com header.i=@qualcomm.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=oHi105vQ;
-	dkim=pass (2048-bit key, unprotected) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.a=rsa-sha256 header.s=google header.b=QhDuiqLS
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69T5Gvdt2974015
-	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 08:06:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	m8DFKSCsdHugXNIGpAF5J7g+hIg6cjluBUQHPY3ZgJA=; b=oHi105vQq5+kupfu
-	nkq7DiBxKhWo3JDmC2j8eL7/8U+tz4p8Zw9W+sxL0IuzjHJ/0jZaAfZnKFTQ+B/c
-	mZFBVpuxaKh8LVZaKjauwNrJyHs1sZG/VactDeU+xFAytxJOAOc19F5Ey17V4psq
-	NEdcnixVx3y+XrZOhZnb3WhEO++31f/W+7h8rty2tzbQFPFWIv2cQUbOf6XiPPia
-	4fJjCIsHFx1lfPOqqcnaFEycKMMkr4cp3S8ZWuSXvvCg+Mm18UAqA6WAXcuPawUO
-	F/CIry2q5OWq12oAS5gHui+W3WMTONQIIQ86q0krZ0dFRtcb13sFE2YBSvUmqR5D
-	xF6dow==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4hknkpaubt-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 08:06:32 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-93f1f1f2ecfso42230085a.3
-        for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 01:06:32 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=Pszdm4fP
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4a3517554f7so17153645e9.2
+        for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 03:06:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1793261192; x=1793865992; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=m8DFKSCsdHugXNIGpAF5J7g+hIg6cjluBUQHPY3ZgJA=;
-        b=QhDuiqLSfXhXHNRwQhFoxjcmAPzJqb0vMmDNNFHdxCLXdJ4kR1mJi9roZo5ii1rJgh
-         3rKAiCFZh8TVM/bID49J4pOLZCBjq/LvqxkThAS9/3el75Scc4TFtj1NdvKWoC0uJ1yv
-         mkblcpoVwSs44fDG/6oBTGCnM0PnJ/N7AO52MowL0n6jeFQ1dD6LmuvXTZwMgM+SKVmq
-         phvEmRHa0CqVKQIddING31lOy74Nr4jUckYNj0jhUqfRraF9ehCRAD8SRvKTvjr3KSa7
-         h6WhrF06eq4JiAljJMC2pL4gj+AyOyBc0rcQ+uB2r1RGXYncsI1BYloOC8mNzqXA6Asf
-         Aj+A==
+        d=gmail.com; s=20260707; t=1793268408; x=1793873208; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=qOF7wYrSiLyxDI9TfUlCsobhSuSMPq8w6f3swfnWMZk=;
+        b=Pszdm4fPwGA6z3/h856xxp3nG0CoeMLpKCnNm93Kve5JOa0nPOeF74RJv2oYNtcNZR
+         ozCESFFGve7AzGRPZXZEEQOxAwZBxiDlwTZCe/iFU9yMsVG5eQexLV+2KElgyEoheCZr
+         y8BTz61Yv8RzXisIss7+bk/o3LkX7T5WlIIDxt9l86L0f+iz3YN0I+m7c94q6EaXd1+6
+         k1aZlxk4jv0oW6dgJIvT+nljT4xqCnPWvPs+3DvuAQLKYJc3j7q2mtlVi4yYW0KtgSUs
+         ysZMk5hbO2SlhHBgjNdGJ7j/5IciDZQthP6Dm/Lzt+L065agamsUS6wtRefn/NXfrQp1
+         ECqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793261192; x=1793865992;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=m8DFKSCsdHugXNIGpAF5J7g+hIg6cjluBUQHPY3ZgJA=;
-        b=kOofsKZjWdtYRT+exzrJ8S0XlvaqLK60u3E8EgB8sG8GCBLwVd26HHFbpSCDxZRM/m
-         J3eXHi/at7VOQq+0Ip/+gR9lzCuXECRwfYOn/491GHm5xqQTqPRPkc+qcecUPxx4Eg/k
-         N+E7UcViqU2blxRr0zIxLGmo2sfQp8Pi9m8BLcmIDRH9hhvQ5TD6isuXlWruGXhk3rPP
-         qPxkaQLJFLZco6xodAlYMWZwxjWFb0/KKuWH59af+QCnfa0ejoVWyp/iMUvgk00h/RZ4
-         zGxwwKG/bRo0m0n2kJN00yU6bBT0Lrbn600kOl7i5RiFSpBjisUu8+OgKtmeGyDBvJdI
-         P/hw==
-X-Gm-Message-State: AFq9FYJWupg36ucGluCx/3axQFdnyWtYm5b3pbMZ8Czfqus4BdwNIozT
-	XrmOY7TVy+mydjSc/FfhEMFfvo7TwCCoNzoYgHrbXZOPa4tkWgdxYB5wPdCM8zrzN4iZu8zsLD+
-	zcRwzYbGsnlyACL6WMqY68azCHv9pJW+1vWkIrI5X5KEdvGSOBQdEliflStsOvMPVqA==
-X-Gm-Gg: AYBFou29Sb5uiflgEsEZsG44MYhGHR4znnMGyku5hCx1rd3niueuFZ4TgRtF+NaZg18
-	yuIU2LQWyRdt0LA2Tb7zYtLSsQDSbWhvRUYnA+0O8+/MNK9WB4Xws/7tihT+hedliiTw0anA4ko
-	h+gB+kWVoO4CV0JhUenCTI43fxXZE5u22QgT5ylViMlKjDU9KpfS4UcRW0krs7cWFsu9vbu2IrT
-	5Z1hiqH2EVnqkS9RpI3zdP2KMogeBUjotur7sF6ld9Hn5AF/njeJetHK9Uwf9bahmZlkjDuS+Kv
-	ChiJKbGal2oo51WzaIq9Wku6KfuuHo39EC5PAJxqI5tJ/T71dnjXP/XIWc73Mf7nucfPdOEgbpQ
-	vffn71E6tmPsiw1nWgHd2+uTdx+PZ3l1uYgppPUliPukjqSzEUJqaHsnVJ/I0fHMiNUFx3E0=
-X-Received: by 2002:a05:620a:3bc9:b0:93a:ec4:e5f2 with SMTP id af79cd13be357-94408d42cd1mr784406585a.6.1793261192143;
-        Thu, 29 Oct 2026 01:06:32 -0700 (PDT)
-X-Received: by 2002:a05:620a:3bc9:b0:93a:ec4:e5f2 with SMTP id af79cd13be357-94408d42cd1mr784402285a.6.1793261191683;
-        Thu, 29 Oct 2026 01:06:31 -0700 (PDT)
-Received: from [192.168.226.64] ([178.235.128.140])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b49644e029sm2428460a12.35.2026.10.29.01.06.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Oct 2026 01:06:30 -0700 (PDT)
-Message-ID: <ca9f3883-247f-4cdd-a30d-847b0c3f5433@oss.qualcomm.com>
-Date: Thu, 29 Oct 2026 09:06:27 +0100
+        d=1e100.net; s=20260707; t=1793268408; x=1793873208;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=qOF7wYrSiLyxDI9TfUlCsobhSuSMPq8w6f3swfnWMZk=;
+        b=ylbXzg9F+nOSAob896uufMTwDIZX1j88LmKeVf3aEnOhSdDyTlzYhECanw1c8HMBzv
+         QxvIxlJZBxRCqaAbCuiizzT7wmOuGLRNVzUzf6PFfyQtfvB44Pom7m/VygSfZRBiNCdV
+         +km/rTtdLsAez6zLnaCulHCn7694NqP4hcTQM/Wk/0+Vym6sqBsvR4LscSbuxqXlcRJ/
+         yzAjFlw6M44ocn/3MlIu7QGu96bjQJlTg4SAxsLLUtETnqSL0rUZBCQIbZX4VF+Xd+YT
+         G2PJURxW9WdMn/eo+LW05sRlgTWAM1/OjU5/f7oOC5LyC0unIE8FGjd3IBllBg24iJjW
+         bP1g==
+X-Forwarded-Encrypted: i=1; AKwUvBwsAlDH1IRBEhiSNCKpPTMNIgxu3FF64XoD+uclVUP6gJtEHQh7p95+XDlZYhq55C7EpSiZUasNtnKsBg==@vger.kernel.org
+X-Gm-Message-State: AFq9FYLdUrJkb6gBtKUA3RKd2HBK7rhsJsJ9SSMMqNcJzGi5cx4gXFOZ
+	dY4aQQ8Wb7WBY22EyKJjPOmRnecmWyZdk4NKEBBkplwhj9hwF0R/jsvg
+X-Gm-Gg: AYBFou20uN7HuWMU78oW3efIj72I36A2tC2KSNXf/c2D63TkbAprow4kbG4T7ytWkgv
+	UjxjPt2MXPrY7YXMX0V8I5jn4uOFYxLVOJvylHDtSHvYrNTWfTytu37Aa9iONPLqzU70WdV6L0p
+	B2hvHFE2zi/Dg8eAl1gHcgtC9R0hYIfaR1BxHPQ2h+ldvtAp5T7+LtyGlANCK+aJcRZyp7/DsGS
+	YEN8973EH9caLshysGJXbQXlwPOZAMmbpg9tkmN1Fd7NcjptVAE8i9XpBuCAfojKqgAuMl77AbU
+	Vo1WIMOYr6kccvz/y/Hz1pp29wSQ8EGs/m14JbsbRipEqKbZysS6ZXo5tqYLzq5bkJQBtzmYbDK
+	3bP7OPwsIWxZCZ4j9zymHJZsH431ZOiMjyrZEgFZ0w1UPjKrOXAKf3Nnfi4DzLZaNF2g6ugySg3
+	LJS2JzAyGJoLuNgilKiBsm4QCQ33s0ZTr+jUexc+DF9rdFcSVUI8xqG/Bg4PlANf6x1g92/4L8f
+	P8AMaPNyNHNf/xEiaw6ECor+9Z2sHhZu2Z+FRhVo0IvmudRh56xmuBiPEWdH9Uyn/2pbyRdgxDW
+	JXtEb7zjLGDG3BxUCH+MNxjJ38/zTPxK+L2cbRQOVsIxOWXUmylwlMfMCSwUZ11PjS9rbhA65mx
+	1iZPhOYqV
+X-Received: by 2002:a05:600c:354f:b0:4a3:2f35:38b4 with SMTP id 5b1f17b1804b1-4a965ec95f6mr117257515e9.10.1793268407430;
+        Thu, 29 Oct 2026 03:06:47 -0700 (PDT)
+Received: from [127.0.1.1] (ip092042140082.rev.nessus.at. [92.42.140.82])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4aa7fdb7691sm53082825e9.11.2026.10.29.03.06.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 29 Oct 2026 03:06:46 -0700 (PDT)
+From: Jakob Unterwurzacher <jakobunt@gmail.com>
+Subject: [PATCH 0/4] Suspend-to-RAM fixes for RK3588 + SPI-connected RK806
+ PMIC, enable PMIC sleep on RK3588 Tiger
+Date: Thu, 29 Oct 2026 11:06:22 +0100
+Message-Id: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -113,68 +94,122 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/3] arm64: dts: qcom: sm7325-motorola-dubai: Add
- vibrator support
-To: Gergo Koteles <soyer@irl.hu>, Dmitry Torokhov
- <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-References: <cover.1793218514.git.soyer@irl.hu>
- <89f7e6e9988c8744be37093777b0bc065a0e2ab8.1793218514.git.soyer@irl.hu>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <89f7e6e9988c8744be37093777b0bc065a0e2ab8.1793218514.git.soyer@irl.hu>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=Ju9kP84C c=1 sm=1 tr=0 ts=6ae2fe88 cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
- a=EUspDBNiAAAA:8 a=6KvQjkKwYJz4M-1xzI4A:9 a=QEXdDO2ut3YA:10
- a=NFOGd7dJGGMPyQGDc5-O:22
-X-Proofpoint-ORIG-GUID: A3RRlxOGGn7N5otTcemxwz7gKvE1dXdg
-X-Proofpoint-GUID: A3RRlxOGGn7N5otTcemxwz7gKvE1dXdg
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI5MDAzMSBTYWx0ZWRfXxk2QQI+szp/4
- NbXHLCGcJfmMdptv1R5GOQSSze/4jBMQR42PVS0tv/aQGf0yHwxa+5OGLHO4dl9alO0af2t8FW8
- NUn5KSp6ixgCBUtuxquFVzWR1qWAUGY=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI5MDAzMSBTYWx0ZWRfX9Mp1S/O3ryo0
- NiiDOyGK5pYV8VzdHCh92sCEHgjvXGyZNitBKNyMuUHujTTwcgOwKZwhLfbAwmn/PVTPK12+qUh
- bI/soDPh+3Z4gRK3nGGnP4f/YT2ohLtObrmUDUZwmEfPeW6uAHnaUbPQTJNeZOqdL85cVvxGFBW
- cELvd4yHiiGIPMN1g7wEgZ6221iML1zpfeNp/DyGGx+NOUrlx1KMHtk7nGubHbOhn+PRbOYzXxp
- jXrveIyXoUwCYZuMVHNleW4QWmapVFuaWgdARfePnREFOFzgE73DKhe48sIbPEM2pv+MkIDOY6d
- 6JTYRTZUEVsghPo0hPP4lmf/kmxfpZerLzSo9cJQtiorU1xdpEVYT/DZCTWEZO5vM2VNaV5F6By
- i3vJXwHuMVrZ2t1aZ35NBXsusOwY2gj/jZJKE2Cl+P0cIAwCF88aXYButST6OIDx7E+E/eucmgq
- anX30B0XdgYpEaCRCoA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-29_02,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 phishscore=0 adultscore=0 bulkscore=0 clxscore=1015
- suspectscore=0 spamscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
- definitions=main-2610290031
+X-B4-Tracking: v=1; b=H4sIAKAa42oC/z2NQQrCMBREr1L+2oEk1lq8iriwyVj/JpZ8DULp3
+ Q0KLt/MY2YVY1GanLpVCquaPnIDv+sk3q95JjQ1luDC4F0YkVjx1JkF9YgeSyH+3S+3ly3MCVM
+ Pv58GRjemEA/SJpt90/f37nzZtg9J1T2zfgAAAA==
+X-Change-ID: 20261028-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-13b6ec08d2c5
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Joseph Chen <chenjh@rock-chips.com>, Lee Jones <lee@kernel.org>, 
+ Sebastian Reichel <sebastian.reichel@collabora.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>
+Cc: linux-arm-kernel@lists.infradead.org, 
+ linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ linux-input@vger.kernel.org, mfd@lists.linux.dev, 
+ devicetree@vger.kernel.org, 
+ Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793268406; l=4078;
+ i=jakob.unterwurzacher@cherry.de; s=20261029; h=from:subject:message-id;
+ bh=whpYEratljGVTl7QjkhsaCvIr2bv7FesbGf4wTNyJws=;
+ b=Yjo1Vrkco613l9dyLnzMqeGxox5caUTel5ElHqC2L6eZEKaikGN7q43RGAGZwNloLUj1zWdDJ
+ d8fDrN+nWEGBzxgvmtwK4wP6dL1VSzL/h4dTP33hHfLhLImeky8gg6B
+X-Developer-Key: i=jakob.unterwurzacher@cherry.de; a=ed25519;
+ pk=0v1L7pjG4d7PcaYPMOmzP4SjaRtnB+8bMzZLZCRzB8I=
 
-On 10/28/26 9:37 PM, Gergo Koteles wrote:
-> Add the required node for haptic playback (Awinic AW86224).
-> 
-> Signed-off-by: Gergo Koteles <soyer@irl.hu>
-> ---
-> Changes in v2:
->  - rebased on mainline (Krzysztof)
->  - order by address (Konrad)
-> 
-> ---
+This series, together with a few out-of-tree patches (see below), makes
+suspend-to-RAM on RK3588-Tiger work, down to a power consumption of
+about 0.4 W. Patches 1-3 apply to all boards with an RK806 PMIC
+connected via SPI, which includes most RK3588 boards.
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Patch 1 ("Input: rk805-pwrkey - enable the wakeup interrupt during system suspend")
+arms the power key interrupt as a wakeup source, so that the
+power key can wake up the system. This is done in the regular suspend
+phase, because the SPI bus to the PMIC can no longer be used in the
+noirq phase.
 
-Konrad
+Patch 2 ("mfd: rk8xx-core: keep the PMIC interrupt disabled during system suspend")
+keeps the PMIC interrupt disabled across system suspend, so that its
+handler does not run before the bus to the PMIC has resumed.
+
+Patch 3 ("mfd: rk8xx-spi: add system sleep PM ops")
+hooks up the existing rk8xx suspend/resume callbacks for the SPI
+variant, which so far lacked them.
+
+Patch 4 ("arm64: dts: rockchip: put the PMIC into sleep mode in suspend on RK3588 Tiger")
+configures the RK806 PWRCTRL1 pin on RK3588 Tiger for its sleep
+function, so that the regulator suspend states take effect. This lowers
+the module's power consumption in suspend-to-RAM from 1.09 W to 0.43 W.
+
+The patches do not depend on each other and can be applied through
+their respective trees.
+
+Testing
+-------
+
+Tested on RK3588-Tiger on the Haikou baseboard, on top of the v7.4 merge
+window (a8530b69fc4dd): 30 consecutive suspend-to-RAM cycles, each woken
+up by the PMIC power key, all resumed without errors in the kernel log.
+USB devices (a SuperSpeed hub with an Ethernet adapter, and its
+High-Speed part) stayed connected across suspend.
+
+Out-of-tree patches
+-------------------
+
+To test this series, out-of-tree patches were needed and used:
+
+1) Upstream TF-A does not complete suspend-to-RAM on this board yet, so the
+tests used Rockchip's BL31 (rkbin v1.47), configured through a small
+out-of-tree driver. The plan is to get suspend working in TF-A instead.
+
+2) The inno-usb2 PHY has to be resumed when its 480 MHz clock is enabled,
+otherwise EHCI/OHCI resume hangs. This is addressed by Sebastian
+Reichel's inno-usb2 series [1].
+
+3) The GPU and NPU domain supplies were kept always-on. genpd powers
+these domains on in the noirq resume phase, when their regulators (on
+I2C/SPI) cannot be reached yet. I'm not sure what to do here, yet.
+
+[1] https://lore.kernel.org/linux-phy/20261001-phy-rockchip-inno-usb2-clock-fix-v2-4-e01bf509359e@collabora.com/
+
+Known issues
+------------
+
+PCIe devices do not survive resume; this depends on system PM
+support in pcie-dw-rockchip [2].
+
+[2] https://lore.kernel.org/r/20260316-rockchip-pcie-system-suspend-v5-0-5bb5ad37d643@collabora.com
+
+Tool use
+--------
+
+These patches were developed with an LLM-based coding assistant (Claude
+Code). It ran the suspend/resume tests on the hardware, analysed the
+kernel logs to find the causes of the failures, and drafted the code
+changes and commit messages. I reviewed all changes and tested them as
+described above.
+
+Signed-off-by: Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
+---
+Jakob Unterwurzacher (4):
+      Input: rk805-pwrkey - enable the wakeup interrupt during system suspend
+      mfd: rk8xx-core: keep the PMIC interrupt disabled during system suspend
+      mfd: rk8xx-spi: add system sleep PM ops
+      arm64: dts: rockchip: put the PMIC into sleep mode in suspend on RK3588 Tiger
+
+ arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi |  6 ++--
+ drivers/input/misc/rk805-pwrkey.c              | 42 +++++++++++++++++++++++++-
+ drivers/mfd/rk8xx-core.c                       | 19 +++++++++++-
+ drivers/mfd/rk8xx-spi.c                        |  3 ++
+ include/linux/mfd/rk808.h                      |  1 +
+ 5 files changed, 66 insertions(+), 5 deletions(-)
+---
+base-commit: 8f6620b65ae2458c36cbc9569a26fc2d777593a3
+change-id: 20261028-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-13b6ec08d2c5
+
+Best regards,
+--  
+Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
+

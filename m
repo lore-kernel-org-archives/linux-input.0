@@ -1,88 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793233351;
-	b=0GASgYWV/xtcMB/ovA4UTKsA+Qfehh600PCQNrH64AbsUPl9SbXQ2a77t7MFCuUxyB1l
-	 l4Kxu6rSo1qpOMG8/3YF4Y7YYHKeiwt71g99OMgfpgM1d9a9MiwyLgFLj7ZWlKmbpueEc
-	 7wnhYXIc+DzdFLjhBCGh2UVHua5QtFuRiPDUXU/f8zIv+vbfqUut4gG3xyjcd9LEX9bZo
-	 9B4UpgDWBzglXB+OSTXKpCt+1gvgnCmlY///MiEMQNZUBCzGIBIx2Kq9Fq7Wm4y7VV9Es
-	 8/5OHsjANL5A98rra3BKdSYmSLIHfK5b7u5qGtU5i4eVVPELgRsWtYf36fxGXzA+nhg==
+	t=1793258011;
+	b=ZWRB9RZ4acVzg17LzEeBLAPfHGYOt49scmMXt08o6RBQt0agU6COJKtOBjv8PaMEvutT
+	 pro0qVOzFUd/1MEkJGwVcPU0dhd4MhXxnZ45bTkjGIy86i4o9kn75YDu5g6fMEi5zTN7L
+	 IRT9/EnEOe0b4vXS90Fnu0vmW7w6ojzbyIJZNBgnzdJKYAptfsN3VYqYPUIJOkxS/lk6Z
+	 xwVrqN0phCnB2RdYRZ03heo4vtrLJOSKVXjP0dDTt5SLlZ4Zu4cUr8+eg6pE03Kpp6aE+
+	 11cuZXgsAhhcwY/1iMPOP6/RQ1Z7DI1F/Ie0VW+IruYIwNWSD4JfWt37bGJ670Af5Gg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793233351;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding;
-	bh=dfPBfDLUwvq86AdWInBVQftIi/RMxzYxDIMnjvA3HSU=;
-	b=N0lLc0KK0juylURiaA32a9/+mB5lBCX0XPNgG2IjHxQhud68JcDyzJ0fV+9UHvyhNfzt
-	 QYCP/vV0yVWzRmh5++mStolTanRWnoU++JRFjgoZTJU5ac/z6hSWdkcd/JF2QYlwGBmhK
-	 sP96lHk9pMlBj/Af/Zx81nN148Nzm41DLtQHIQ1zDMKExco4Gbeeyky7CqJUA9gZ/d7Gy
-	 nExAIFj+mCPY8MHvVN24vuJQtWDsQgtWZVXh6f5Z0E7yX86w/9CMrSDB7dzmeDPTK5hz8
-	 7afD4H7jLmLVWj1DES9rBGOy2Y+JxjFKWLUQGu+B28/d6/mgTd1sXV8jG852P9CUcpg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793258011;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=3r0sTD4xXYngNyBjXhJZ1mZP/HPOUsWQVKUXF5NmqT4=;
+	b=By3jlvbmqtAAaRamc2c3CPE5jWAegAvglQfs36TVpmzGSYjl+yGel8KUTRH5qnhjKfgc
+	 hDhb7LWRymTSxZAm11WmRnIRqXIXaXLz2TcbZEUUqBcJjMBPHS6sCT1jiBNDxh0CVG//2
+	 vFm24B1AmPxxKysCOH019rnfPHE2z6ufrgnzJSLjuhvAuzeca4svv1Ewi/Yg5czHWledW
+	 R3Q+17xfaxJlQlgOsv2qki4FLkpwzwd6WOUn8UzoR8haj4vzpD31ow3E0wb83WVrzWFWT
+	 V0gPwnIholx0a390onfFG38Dari665zXsnNo841kGjWWfbMG+tenHeEe8WmTnhqxIkQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=E60gA0Fa;
-	arc=none smtp.remote-ip=209.85.128.46
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="BkUZqu/4";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0AA7606A31C
-	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 00:22:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B0AA7606A31C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 104EF606A326;
+	Thu, 29 Oct 2026 07:13:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=E60gA0Fa
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4a2167bd087so15650345e9.3
-        for <linux-input@vger.kernel.org>; Wed, 28 Oct 2026 17:22:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793233349; x=1793838149; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=dfPBfDLUwvq86AdWInBVQftIi/RMxzYxDIMnjvA3HSU=;
-        b=E60gA0FaHq71TzjUeWv1owrj0oRTiw01yC8Spwnc1J372yDy7q2ydrsBAQXSvzynlT
-         kgXXXJ+RprS0ii9mxM4yXZbGnlocAFuyhGBwx72dk9MYgBD6O8KLLSyejs+pR6/saEjS
-         +XiZl4QM17DIXROSwFOxY4Nlh8qGDWqngjQUC5h6urtKJt27ycL0ON9nIMxAuTt3Bcz8
-         1gY4m6LKv8Y0eO2huShG8novUmrET+NKMKBPFF/5cydW6Te10cR5ALpmRWxnhiiACaAw
-         knC4tXwKUMLxmA7wUgSTtbVgj1nvxC0gFu1yKeFcClnvcUcXfSQgrSR3vYeTDU3LWfPZ
-         vDDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793233349; x=1793838149;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=dfPBfDLUwvq86AdWInBVQftIi/RMxzYxDIMnjvA3HSU=;
-        b=lXIUEGg9ERDMW41tgCLDZfaFQ+uMvsddTRZIXgRs/p8Wsyx5gZvYKumT7r9Exfc85B
-         xt9rbaZ+4m5e4SCRY+RLhkG9q5LUtCOs4TrLm297YXIDJv60X+29wN3nW9Fi+nKogiss
-         5iGcH2GrwYsIonDgFlO1Mj7NsNym1lEAzuaQaRZnzxmCzst8qYBNdrb8+Kt/REyp/HX6
-         eEOzXS+Zzd6VjG2tLfLB0eUeEFERGZx2ANg3Bz0ivCI4iDJYQYh0i4x6j0BL3IZS17Tm
-         lFfAeDR5V6Wqx34VQ2YS134Mx7evPoWBQG195sBloS7PJIxTGB+zoGPm+MVdMSavLZrm
-         /s+A==
-X-Gm-Message-State: AFq9FYK2UyCYZZ6xql3YwCm6TpTMmVShPcU8aNHsJeZD7V2rsfg8BfS4
-	9BNy3LJQelVM/LDXx3lHQjk6uON7U8qDM69cRyQnKFHDZKS6LPjcE+s=
-X-Gm-Gg: AYBFou39nj3cVUBy54dilrP59128cq489s1K3ks8svdH6TtvzbJZKTe9eWHCKhukkjg
-	1KsvkTK+P9nKpBLT1/t50Gx04fht+M/OmuvlrGquttCXKn4tB4LIv2SW+t1unorNmoGrPK6bXWM
-	57cRWurEgax64MT1Lee8cw7KHiYxkJ95LjecWAwCGYsqrmULgf6Nxv3769WHc5PCXshdxhg5HKs
-	mofbhjvPLqLT4o/a6+fBgFI5CHGYxt2+wqYneiWM3C/gbgWeSyx5Uwa+foaTpp2BuqlnMNyt12T
-	4pXbO7wb1wqQJk/Lq0wATleRwh7ZRYiT6pZ4uO4w3isq2cvQwLdktxl2SO4moxFCTLLHwY2Hsdx
-	vUXWFNg6Fh22gwmXyDpzvBn566XL18ejSC3hSsAzTusGlTKbc/oDPE+uD2RT6Slnvrur5CW+4JY
-	sIf3lRiMLBrFPP6aZKLfukYSWzlZ1eu7DCyuYpBYRE9N+4H7261qOeKMoegqoSGj7UzqHjFO3kH
-	xAV9eEsA+1imX0XD2R70Df5huZs27mm3JM5u4YCrIJHGi5EDpiocEkYnVk5Ap9Tvv4M2ocsQA==
-X-Received: by 2002:a05:600c:198e:b0:4a0:4a8:d444 with SMTP id 5b1f17b1804b1-4a967ba8856mr82938905e9.33.1793233348875;
-        Wed, 28 Oct 2026 17:22:28 -0700 (PDT)
-Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a92e103d91sm43014535e9.0.2026.10.28.17.22.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Oct 2026 17:22:28 -0700 (PDT)
-From: Tristan Madani <tristmd@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Tristan Madani <tristan@talencesecurity.com>
-Subject: [PATCH v3] Input: applespi - validate ACPI property buffer length
-Date: Thu, 29 Oct 2026 00:22:27 +0000
-Message-ID: <20261029002227.2002174-1-tristmd@gmail.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BkUZqu/4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C340E1F01825;
+	Thu, 29 Oct 2026 07:13:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793258010;
+	bh=3r0sTD4xXYngNyBjXhJZ1mZP/HPOUsWQVKUXF5NmqT4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=BkUZqu/4qyv3PhSpJPbyDYUwXttuWiMHwuFTs2ij3f18xiCfSj4SIamwfgfnbL1fj
+	 nt+dz6tTabGffT8UNvGnSs+PRQyjY72B8PClwU6A7DWqqv/KMA7Wh/q7LG1KnqJpbN
+	 DSQOzq26B5ioS4Ya5FEk1s57RQXuAAcHhDljbH2HWIzR9OahiOmPYy4vmbj4C6qGjq
+	 FeTR1O4VkNa4I/Uua3GNS8sN+cBGky9yhfve/xUPD25xaMTlzjQLpnXiXZIBix++dW
+	 s9Ot43C1j0CxrW9nd+WA1MPw0G80D+gqz1nUqYFM0umIpCmOMTBPowWDQioVdRr3A0
+	 bcnVtKBh+udHQ==
+Message-ID: <b317d102-0075-4531-847d-f5eff25ce5e9@kernel.org>
+Date: Thu, 29 Oct 2026 08:13:23 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -92,61 +51,79 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/3] dt-bindings: input: Add compatibility for Awinic
+ AW86224
+To: Gergo Koteles <soyer@irl.hu>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+ Konrad Dybcio <konradybcio@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
+References: <cover.1793218514.git.soyer@irl.hu>
+ <ceec2d2a29dd6cdfd984b964ad3a91601490a76e.1793218514.git.soyer@irl.hu>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <ceec2d2a29dd6cdfd984b964ad3a91601490a76e.1793218514.git.soyer@irl.hu>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Tristan Madani <tristan@talencesecurity.com>
+On 28/10/2026 21:37, Gergo Koteles wrote:
+> Add the AW86224 haptic device to the binding documentation for the
+> AW86927 and AW86938, as this binding needs the same properties.
+> 
+> They are not compatible though, because the chip identification works
+> differently compared to the 86927/86938
+> 
+> Signed-off-by: Gergo Koteles <soyer@irl.hu>
 
-applespi_get_spi_settings() reads three ACPI _DSD properties
-(spiCSDelay, resetA2RUsec, resetRecUsec) as u64 values from their
-buffer pointers without verifying that the buffer is at least 8
-bytes long.  If a firmware implementation provides a shorter buffer,
-the u64 dereference reads beyond the allocated object.
+Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-Add buffer length checks before each u64 dereference.
-
-Fixes: 038b1a05eae6 ("Input: add Apple SPI keyboard and trackpad driver")
-Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
----
-Changes in v3:
-- Drop Cc: stable since this is hardening rather than a fix for a
-  specific regression, per Dmitry Torokhov
-
-Changes in v2:
-- Fix alignment of continued condition lines
-
- drivers/input/keyboard/applespi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
-index cf25177b48301..db8947b5cf11c 100644
---- a/drivers/input/keyboard/applespi.c
-+++ b/drivers/input/keyboard/applespi.c
-@@ -642,19 +642,22 @@ static int applespi_get_spi_settings(struct applespi_data *applespi)
- 	const union acpi_object *o;
- 	struct spi_settings *settings = &applespi->spi_settings;
- 
--	if (!acpi_dev_get_property(adev, "spiCSDelay", ACPI_TYPE_BUFFER, &o))
-+	if (!acpi_dev_get_property(adev, "spiCSDelay", ACPI_TYPE_BUFFER, &o) &&
-+	    o->buffer.length >= sizeof(u64))
- 		settings->spi_cs_delay = *(u64 *)o->buffer.pointer;
- 	else
- 		dev_warn(&applespi->spi->dev,
- 			 "Property spiCSDelay not found\n");
- 
--	if (!acpi_dev_get_property(adev, "resetA2RUsec", ACPI_TYPE_BUFFER, &o))
-+	if (!acpi_dev_get_property(adev, "resetA2RUsec", ACPI_TYPE_BUFFER, &o) &&
-+	    o->buffer.length >= sizeof(u64))
- 		settings->reset_a2r_usec = *(u64 *)o->buffer.pointer;
- 	else
- 		dev_warn(&applespi->spi->dev,
- 			 "Property resetA2RUsec not found\n");
- 
--	if (!acpi_dev_get_property(adev, "resetRecUsec", ACPI_TYPE_BUFFER, &o))
-+	if (!acpi_dev_get_property(adev, "resetRecUsec", ACPI_TYPE_BUFFER, &o) &&
-+	    o->buffer.length >= sizeof(u64))
- 		settings->reset_rec_usec = *(u64 *)o->buffer.pointer;
- 	else
- 		dev_warn(&applespi->spi->dev,
--- 
-2.47.3
-
+Best regards,
+Krzysztof

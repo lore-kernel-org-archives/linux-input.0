@@ -1,57 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.85.9.111
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793310404;
-	b=PSgtkGvCyLq5hjopSokZOcEqK3hhnd6Rh4/DtBIEFr+4e+36NE6qqC1dZf9Dh23hUnL+
-	 QXUteiJJ30A4mJHlAUAhSyP9L/5hd6s3XJvQUtG3onrsaOQu6LoDGawvpfxr6AjJKYoQi
-	 mQIG7U/kDVL5JmRaIOPh0lGWiZklchvZKQAfbC1GxoKoYBk3+JRrI0Cc4dbusfxBQNemt
-	 +mmHLjP/aikWCi8LjNNO9B9dEpVL0WvN5CbnQzUQBrc6ObNNiROXqJVZPE46gkqE/dLsA
-	 hS7xTplN2jXdOVH1xgZ7uL/XrUNMqH/rHkc1mE2RmUHE1hM0MeW/L9rYKPAQZtIN5yQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793310404;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:Mime-Version:Content-Type:
-	 Content-Transfer-Encoding:X-Mime-Autoconverted;
-	bh=nokvmFdO/lMAIkL8CGtuOjag9qyiXJpuOJ3k1GovAAg=;
-	b=vDHjLEiXDCFYjUNAkHDa8CsauMqn9+PD2GLP6pMMlX1kJpJguUJpRh7ZQtuPufrGyOXf
-	 hw6B3MLPJbK8WZbV1JC9VAe6Jzenm4AuICnGV+uNj8+C525eHaLVP4vC2+8d24gHFOCmP
-	 iduk5Zxn9/nS3wPeXZmkc3FSobg7nNeaaKr38wpZZaFXFWBSAmpgQLZM7R8j3BMt4ipUf
-	 mwx/AFQNH3sYnp4K3bCboQ+2Md2OxNEoaFDyAXkjaieOsNq1KRISah46G+QqmGt8F7lch
-	 igCuGKKSh1/HbYFdPF9pOtkakzXGrFwGz54NhWSNVXFUD/l0SHD//+XnCaNf1Q7KP/g==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=irl.hu;
-	spf=pass smtp.mailfrom=irl.hu;
-	arc=none smtp.remote-ip=95.85.9.111
-Received: from irl.hu (irl.hu [95.85.9.111])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793310415;
+	b=NiCWsuMsIK+wABH/N6bnvvaAt7xll5SMYWzYrhNSRU3xBQFeZmEylKXDDKySYAnPvE42
+	 /R2ZQbiCJL5mM8pCSecZ9y6UH2jQRBRxAZO+fRsywuhxKeyV31Tag6m5tve3RrwBqrfot
+	 zWoV1/5AkgZxyJarukweG9yy9hw61tb6s68EPE9v3nwLEh+fEXGW0V9/me9UbUG3NL3tT
+	 bEF6nJN9h8YO22QELmjlEgGQpsulowGThSAIMoJvzbYWiqZtstMpuBL9n0LHlQO/PYsr0
+	 dn5lgGEf1PMeXbDMJkerEUqaPVW9EtaF6WRNR1B0DF42R3cXEEKbLVcS9d4D3ZEyKmg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793310415;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Z4bDspAEzdn+31JU27j2MwnaiogsQuuzrecE2D1vRnM=;
+	b=EBXAkyyeL4GcZxAmpOMhVgN4zPdNm7fTcBFoNxHpgG11Qx2cgA1AHsGd90MQvu8BS9d4
+	 bzmJEMeshOvHD5qnSRJ7UwKnyq73Yb3Hbd8ZWagVYz3Fxc5HMJzq8IboXoe2mpEhE5YqS
+	 lBPc+Iyjfq8PYme2ocljJ01BtDM08Cl4Ip31jTxoda8D7T8/tCM3RlFj6Uf9HUUIT3h2S
+	 MQSq2I19RbCWXKccIqRFr9G+nQMOtP9/UVJ4i4Hoac280BcyCEdWmfCMzOWpvPaq7+8pT
+	 PgVkE6gzxqOs/xS9jqcAt9l28Ng9EEndNF1Ole5OgiMD/LafVxv1C1nVIo9b50YP8iA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=durx6xMO;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 38E03606A31A;
-	Thu, 29 Oct 2026 21:46:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 38E03606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=irl.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=irl.hu
-Received: from fedori.lan (51b69268.dsl.pool.telekom.hu [::ffff:81.182.146.104])
-  (AUTH: PLAIN soyer@irl.hu, SSL: TLS1.3,256bits,ECDHE_RSA_AES_256_GCM_SHA384)
-  by irl.hu with ESMTPSA
-  id 0000000000080988.000000006AE3BEC3.000368A5; Thu, 29 Oct 2026 22:46:37 +0100
-From: Gergo Koteles <soyer@irl.hu>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-  Rob Herring <robh@kernel.org>,
-  Krzysztof Kozlowski <krzk+dt@kernel.org>,
-  Conor Dooley <conor+dt@kernel.org>,
-  Bjorn Andersson <andersson@kernel.org>,
-  Konrad Dybcio <konradybcio@kernel.org>,
-  Arnd Bergmann <arnd@arndb.de>, Gergo Koteles <soyer@irl.hu>,
-  Griffin Kroah-Hartman <griffin.kroah@fairphone.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-  linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-  phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-Subject: [PATCH v3 3/3] arm64: dts: qcom: sm7325-motorola-dubai: Add vibrator support
-Date: Thu, 29 Oct 2026 22:46:10 +0100
-Message-ID: <ca2fd61b3b0fdf6551cdf6900dd9115a8c31a0fd.1793308351.git.soyer@irl.hu>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <cover.1793308351.git.soyer@irl.hu>
-References: <cover.1793308351.git.soyer@irl.hu>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0A48606A31A;
+	Thu, 29 Oct 2026 21:46:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=durx6xMO
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793310414;
+	b=ow7OCHFnCyH4fUKTd+Iox4fZVvMwT6ooSnsc3ZtJoXwc2Om9XwAzVOsRQM4QQRgZr/RI
+	 XpQpwRY4jkDfLzuEqUAEfpGuULA/ft7Yfu2rKaaMDRf7xu1nh7C5m9fKpWtuhvdSovAMZ
+	 WbS/41Kp0fh0JV1hZAWnwPMtmqmH1S58AasNjdi08U9VPQWIiE728oGNfWFz8p9IwapUt
+	 NtyLWTUZ+bSIczXwcP2YfANGUXos9oUF8k3ovPHJ9hVVGdeSgiH4B5DLjOwllNAuHaePC
+	 Yr0v29jciGBY4x0u+rG6Fu5dk+6FfLs7noeZJl7HDiAPhWwcitBipgaej6XVYdFMpXQ==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793310414;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=Z4bDspAEzdn+31JU27j2MwnaiogsQuuzrecE2D1vRnM=;
+	b=ka2LBBuQW5//di5JP8ITzSnq4P9mNWvHDpjKqRztxUfpMwHlsl4FyCfWNic7Nws/Lql5
+	 mhRa+qnybfomd6ZOiBU/MiA0tanAX6v7TiN8s/ZiSVYYAV524FQZ0hmCr0xIUxNj99Y7X
+	 fusuZvYenYmajWGGerrHKw79qfL/TZKkaLIi3rGQw6pLhRznnXSse6SDmUTKOLWQ52Bo9
+	 D17Dst6VZUU00piN3N0VAxRcgxuju6VTifoDBcfnF+G9E7/f4263WtKCngEJDaUfHLY1Q
+	 /2T4GDz8zSNXnPd62m3Y3XGlCy5lSRkkJWgHJkrg9jfiNxrSTx6CkXQFwbYfC5jvl9w==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 168861F01816;
+	Thu, 29 Oct 2026 21:46:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793310414;
+	bh=Z4bDspAEzdn+31JU27j2MwnaiogsQuuzrecE2D1vRnM=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=durx6xMOo5khDP78gymXPF2U6o9wgn11c0WrOBPH6UEZzwRySibI5uJv8Lw3XNoYd
+	 V2fXJbrdSO3jFsqzxpgetjaKTEWXXkohWYlTEL3kXVr0mN9m+mQE0cAdFJpUNqFf+k
+	 DMWNR0G85M+uk8y9aH//6WvYP4IGjJxssfTFA0T06RyLFtZXAnyOLE7HPdDxcJyMKE
+	 m/mYb9uEufiRkgBM/w3e2DBXXp5w85e1HlUw8nsljT9pNzbNFS6a+3BUyXDLGmXTxW
+	 EMZdluP6tfDqtE3g12A0JXZ+mrOdFvwdkHr4Tb1eljynO3D0x2xsgoCpvyMO5e27uP
+	 Jod65aNi81R7w==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 98C3A459EE;
+	Thu, 29 Oct 2026 21:46:53 +0000 (UTC)
+From: Martin Oberleiter via B4 Relay <devnull+martin.oberleiter.netixx.it@kernel.org>
+Date: Thu, 29 Oct 2026 22:46:42 +0100
+Subject: [PATCH] HID: steelseries: Fix Arctis 7 battery reading 3% on
+ overlapping requests
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,49 +82,165 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261029-arctis7-battery-v1-1-599a4554af30@netixx.it>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ6CMBBG4auQWduEDkajVzEuSvkL4wLNTCEQw
+ t2puvwW721kUIHRvdpIMYvJeyzwp4riEMYeTrpi4povvuabCxqz2NW1IWfo6nzDnM5NQhdBpfo
+ okiy/4+P5t03tCzF/N7TvB0UfgiBzAAAA
+X-Change-ID: 20261029-arctis7-battery-1322f43fedce
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>, 
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Martin Oberleiter <martin.oberleiter@netixx.it>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793310413; l=5120;
+ i=martin.oberleiter@netixx.it; s=20261029; h=from:subject:message-id;
+ bh=f7Tg+XBPNU6f8wKLfB2LtxfWrgE/PmYwsye7R+ocH1s=;
+ b=UbVzVbt/UaEIJtZ7U/Jtf4ITZajrHHkN6aIHudVpGSYVk01gH9cIKRhWzT/bohS0o5lyi5Pvd
+ VyxGkMl4MrwDOeNrBQxyhHE0iP8emJY+xwwo6QqyQoa4vNmeG4WDB8H
+X-Developer-Key: i=martin.oberleiter@netixx.it; a=ed25519;
+ pk=yZvkAuAsIiJ76LEGGTR3TI7+Xjw7lGN1dK6jcv72XZo=
+X-Endpoint-Received: by B4 Relay for martin.oberleiter@netixx.it/20261029
+ with auth_id=1358
+X-Original-From: Martin Oberleiter <martin.oberleiter@netixx.it>
+Reply-To: martin.oberleiter@netixx.it
 Content-Transfer-Encoding: 7bit
-X-Mime-Autoconverted: from 8bit to 7bit by courier 1.0
 
-Add the required node for haptic playback (Awinic AW86224).
+From: Martin Oberleiter <martin.oberleiter@netixx.it>
 
-Signed-off-by: Gergo Koteles <soyer@irl.hu>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+The Arctis 7 (2018) status poll sends the connection (0x14) and battery
+(0x18) requests back to back. The transmitter answers the connection
+request within about a millisecond, but if the battery request arrives
+before that answer has gone out, it sends the connection reply relabeled
+with the 0x18 command byte. The "connected" status byte (0x03) is then
+parsed as a battery level of 3%, followed some 30 ms later by the real
+battery reply:
+
+  req 06 14
+  req 06 18
+  rx  06 18 03 19 01 ...   <- connection reply, relabeled
+  rx  06 18 4b 00 c8 ...   <- real battery reply (75%)
+
+On a 1038:12ad transmitter this happened on roughly every third poll, so
+the reported capacity flipped between 3% and the real value every few
+seconds and the desktop kept raising low battery notifications.
+
+Wait for the connection reply before sending the battery request, and
+only send it if that reply says the headset is connected. The driver's
+battery request then no longer overlaps its connection request, and it
+is not sent once the transmitter has reported the headset as off (the
+transmitter answers it with 0 in that state). If no connection reply
+arrives within 100 ms, skip the battery request for this poll. Waiting
+for the reply rather than sleeping for a fixed time avoids guessing how
+long the transmitter takes to answer.
+
+Userspace talking to the transmitter through hidraw at the same time
+(e.g. HeadsetControl) can still overlap with the driver's requests;
+that is not addressed here.
+
+Tested on a 1038:12ad transmitter: the capacity stays stable while the
+headset is on, keeps its last value when it is switched off, and shows
+the real value right after it is switched back on.
+
+The issue was diagnosed and the fix and this changelog were written
+with the help of an AI coding assistant (Claude Code), from kernel logs
+and instrumented builds of the driver on the affected hardware.
+
+Fixes: 7e749a797282 ("HID: steelseries: Add support for Arctis 7 (2018)")
+Signed-off-by: Martin Oberleiter <martin.oberleiter@netixx.it>
 ---
-Changes in v3:
- - add &aw86224_reset_default to pinctrl-0 (sashiko)
+ drivers/hid/hid-steelseries-arctis.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-Changes in v2:
- - rebased on mainline (Krzysztof)
- - order by address (Konrad)
-
----
- .../boot/dts/qcom/sm7325-motorola-dubai-common.dtsi   | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi b/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
-index 3860ab8508a0..a90407a40451 100644
---- a/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm7325-motorola-dubai-common.dtsi
-@@ -721,6 +721,17 @@ fsa4480_sbu_mux: endpoint {
- 			};
- 		};
- 	};
-+
-+	vibrator@58 {
-+		compatible = "awinic,aw86224";
-+		reg = <0x58>;
-+
-+		interrupts-extended = <&tlmm 47 IRQ_TYPE_EDGE_FALLING>;
-+		reset-gpios = <&tlmm 46 GPIO_ACTIVE_LOW>;
-+
-+		pinctrl-0 = <&aw86224_int_default>, <&aw86224_reset_default>;
-+		pinctrl-names = "default";
-+	};
+diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steelseries-arctis.c
+index df61fa33d..7b83ff8a3 100644
+--- a/drivers/hid/hid-steelseries-arctis.c
++++ b/drivers/hid/hid-steelseries-arctis.c
+@@ -6,6 +6,7 @@
+  *  Copyright (c) 2026 Sriman Achanta
+  */
+ 
++#include <linux/completion.h>
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/kref.h>
+@@ -47,6 +48,7 @@ struct steelseries_device {
+ 	bool battery_charging;
+ 
+ 	spinlock_t lock;
++	struct completion connection_reply;
+ 	bool removed;
  };
  
- &ipa {
--- 
-2.56.0
+@@ -101,16 +103,44 @@ static int steelseries_arctis_1_request_status(struct hid_device *hdev)
+ 	return steelseries_send_output_report(hdev, data, sizeof(data));
+ }
+ 
++#define STEELSERIES_ARCTIS_7_REPLY_TIMEOUT_MS	100
++
+ static int steelseries_arctis_7_2018_request_status(struct hid_device *hdev)
+ {
++	struct steelseries_device *sd = hid_get_drvdata(hdev);
+ 	const u8 connection[] = { 0x06, 0x14 };
+ 	const u8 battery[] = { 0x06, 0x18 };
++	unsigned long flags;
++	bool connected;
+ 	int ret;
+ 
++	reinit_completion(&sd->connection_reply);
++
+ 	ret = steelseries_send_output_report(hdev, connection, sizeof(connection));
+ 	if (ret)
+ 		return ret;
+ 
++	/*
++	 * A request that reaches the transmitter before it has answered the
++	 * previous one is answered with that stale reply relabeled with the
++	 * new command byte, so a "connected" (0x03) reply to 0x14 would read
++	 * as 3% battery. With the headset off, the battery reply is 0. Only
++	 * ask for the battery once the connection reply is in and says the
++	 * headset is connected.
++	 */
++	if (!wait_for_completion_timeout(&sd->connection_reply,
++					 msecs_to_jiffies(STEELSERIES_ARCTIS_7_REPLY_TIMEOUT_MS))) {
++		hid_dbg(hdev, "No connection status reply, skipping battery request\n");
++		return -ETIMEDOUT;
++	}
++
++	spin_lock_irqsave(&sd->lock, flags);
++	connected = sd->headset_connected;
++	spin_unlock_irqrestore(&sd->lock, flags);
++
++	if (!connected)
++		return 0;
++
+ 	return steelseries_send_output_report(hdev, battery, sizeof(battery));
+ }
+ 
+@@ -175,6 +205,7 @@ static void steelseries_arctis_7_2018_parse_status(struct steelseries_device *sd
+ 	case 0x14:
+ 		/* 0x03 means that the headset is connected to the transmitter. */
+ 		sd->headset_connected = data[2] == 0x03;
++		complete(&sd->connection_reply);
+ 		break;
+ 	case 0x18:
+ 		if (!sd->headset_connected)
+@@ -518,6 +549,7 @@ static int steelseries_arctis_probe(struct hid_device *hdev,
+ 		sd->hdev = hdev;
+ 		sd->info = info;
+ 		spin_lock_init(&sd->lock);
++		init_completion(&sd->connection_reply);
+ 		INIT_DELAYED_WORK(&sd->status_work, steelseries_status_timer_work_handler);
+ 
+ 		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+
+---
+base-commit: 720806515cb6921ab05caaa6f470f7054b56385e
+change-id: 20261029-arctis7-battery-1322f43fedce
+
+Best regards,
+--  
+Martin Oberleiter <martin.oberleiter@netixx.it>
+
 

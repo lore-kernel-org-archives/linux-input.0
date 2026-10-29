@@ -1,90 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.48
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793268411;
-	b=wkpAw5TIqiwTEj3hdZOJvxyFJxg2VZLORIsic3d0ihIuR0j3/J3+wY0QeuFrcWs/qhcq
-	 AXlSfLYWRFW6yq+mWZLmOrGpBRbozELy/8BSJZSU5UbpnSyzJVaBBfBUbsQXjcqxdywiW
-	 uj4S8TG1dsqX19Xt0ohfzxP9sa38EVCSv5Jy6W7gdgStNNuQwGp2oyCPiuLYdx8HGJ+o2
-	 9BO84u73+LrzkFIb8KXaLUqtNU0AnjUG8skXVhY8UuMCvEd+AQG8Zt5NU0/OUhr65QsPV
-	 YgIyOmSywllrzq1dtZQObOaXm6H04TvZV1L1mzg596VZXCna1sSrOdy94owvDYR09Dw==
+	t=1793268424;
+	b=OPJa8eI2P6Ncj0rp/n0u9UXrECH3/3oOj+lC5SbSgd3ujQxC13LhPbuD3aLKH09iVgmP
+	 GcHrhakU4854iBeDzvAUG7ipNK/eTn++7/r+HihfCFG4MZ4ZksgSY0d76AuS9oVqLYniS
+	 ul5TEJ5xu5z5xW2yVpuO7+8nyLBLV6AHvz1RhfWUGz+9RED6PTRqN7/LbxpV+k5DmACBh
+	 ovpmfHUUSo4YGPHbZaZshcQmSZ6zDXPzXRvsRK1AmpaHFgIXMBI3vU/ntzIBgar6TWe0R
+	 ecWMCe2cbIZSeALz+w0/SjHBo0tQgYwxnl2Y6DlDOxfW6zdCKaiEcMdva6wmb5nCAtQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793268411;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793268424;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:Date:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:
 	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key;
-	bh=C716tLFOYukgv8vVV1xiU5crvYZUQVn0gaj4X2Zv6Ao=;
-	b=WwVp6KlcdrBfyvF7SdjB7P7ranNad2pANTC9kMoZJyFL3t9tC7jgI3ZTmqKxG4/URO+J
-	 3M/7LD9VkiqV5aAfp4E/n0qwsG1a+joeQZs85F9VP/vd9Xszsu3i3OzHlnWXGGKLjICgo
-	 mz81bCQ6+jF84NVl6BzPaKqN64JVAFsC4sIKeSUA4s2kISKZKNP0sfw6kMouE2K4cNOGd
-	 nlloXTzluk6m4jib/ZV2ibn6RbjcTQAJIFkNm1q2Z4ykRLP7P6ooVuleySz7uIyPxia3w
-	 ZqPFVDPdbR5NQhkz3yjSvsLEabdNAUKz0v7QTaDGoQ+7rjDswwdRjcLle8hgIlwaUhQ==
+	bh=0SbZPVThhtjU5v2CJr4ClagjjvnIt2bp8J9XxZctWA4=;
+	b=TCHaTeip/4Ok4ScERiT1xXmYZCXGu+2qS4T5bEaq1cer9pKTDo3bBa+fShcBzeYXC0TV
+	 jxjeSaa58jFp8Ao3N4i2RjcqNN9fJ1aM9PI02kFb5a7SmNr3oMfxzq8HRCdB2kZR7E5RN
+	 P3bZH4H4YzKF7QqhR5WxGVli4TWKWh8RmAezPEE3lJdw2bpZ94zsxlq059megTWBkqftM
+	 D7w/dRCBcW3qm5GNPzcu0ke0akWI/4mXA1o9Jkte5e6JaiTe4ApkLOaAA+GXl7RQXiPEb
+	 0Ph4ONSQ7V9Xp7QPXyCcJZ+BArEQrdC1picKStvPkj+FDDDt3HQofUgWj0UHFykhJRQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=szocTkCB;
-	arc=none smtp.remote-ip=209.85.128.51
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lAFFjDnK;
+	arc=none smtp.remote-ip=209.85.128.48
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9362E606A32E
-	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 10:06:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9362E606A32E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09BDC606A31C
+	for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 10:06:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 09BDC606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=szocTkCB
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a35d5d4a20so21107855e9.2
-        for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 03:06:50 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=lAFFjDnK
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4a210470b49so15545395e9.2
+        for <linux-input@vger.kernel.org>; Thu, 29 Oct 2026 03:06:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793268409; x=1793873209; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793268412; x=1793873212; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=C716tLFOYukgv8vVV1xiU5crvYZUQVn0gaj4X2Zv6Ao=;
-        b=szocTkCBE7oOYlOgAnfB9taJGXNBjNX9zcXzpd0wS/9gRFlbmIQAsiPN9Okg54uQDG
-         llCfgrEqY/JVWpzkz++b9QrLHfS25kOn09NJ1KGtKeY1KA1KFO23/3V2tGleKePIhNeX
-         kE/SvLJei/zv/V7i73ARnuETTVDiHtgVudnm2epwrDUfeQtWM/Z2zmHVlIw6p8IS85mF
-         46pFBrtjXtKyhz1vQz/YFJCYxeJbCo6QCH9h7QA4nCinUykNgFxZVtjsQw7bFTwa4dKR
-         WadBPTwajaGI8BAIPVOA15AZ8rth4IWRCl11KxIFbnDAS4e+vAQxNKDropxb3yz6cAe3
-         zPMw==
+        bh=0SbZPVThhtjU5v2CJr4ClagjjvnIt2bp8J9XxZctWA4=;
+        b=lAFFjDnKXk3yH9RHcKlULdwN/XxVDGn0oMA8mXORaKO4pb2jDfGpEFQuvU2GdRYBrp
+         odpaKHZhwiUMxt/EhkksTRDQKBX23YlXeGuXC0spnbFsv4oV/poSijzq+2qP/JhgEc/d
+         kU8NIECqSVobeduQxcoT20A1EpeYj4nSO/JzjAojX4gqStiVhWoMojgLLiSH2fpGShX+
+         K3p3JmvcAFy+T7yFWuGZT4Gj5Xow/XlQl/KVGMKiReFsU0RZOR2bCKv7Pki2IukrhFwv
+         2paWFfgdWETuDBSmNXXM/GNoRDbiJtDQ8mQXuUJ9ku/CPcKcrrg1Cdb/NOBB0OYvmTVA
+         Y5uA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793268409; x=1793873209;
+        d=1e100.net; s=20260707; t=1793268412; x=1793873212;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :content-type:mime-version:subject:date:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=C716tLFOYukgv8vVV1xiU5crvYZUQVn0gaj4X2Zv6Ao=;
-        b=wQ+1Qns/nT2QmNC8RxhAThBv+ebGclSkXmpvAFnsYV8aCgn0bwflt9lHNVfZ+kv2tj
-         5dGzjIZ9MhRU3QtcLL90iRlkG9865HR78nXEmwxaT/rhVoZn08QQmERTEL+PxkHUGPHw
-         b/w39D3tj18WcwVP83FwE/8X2ilEdL9LnkAWNokD5lIsn6/4JGOfUFXL2SRm+RS8FVti
-         m9pznP5SLDO/4oEKjAZuPngD/RGapB/tEb4rpdCCtVTRMG0NpEgaecadqVWcadCSteC1
-         /AmkS8t3AK3pjNYHrymV1vbjFvHMbpg/CfUTCNL3UDvuCH0hnMmFnprZMVaP2XxoduQm
-         RHKg==
-X-Forwarded-Encrypted: i=1; AKwUvBwvKvsv0FwZHJk45XNncFj73R4rlidHafE8pE8p+rylccGEa30QH5zfLudGOjtP9PvFSLqQG4ZYxeGhZg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ0/dELedPeJqlosZ0LTYXYV5hR53lhmUT8ayras6wR2i+4A+dd
-	Z/Vf0LNdBcVcP22vyKgo9FSyTgdL0/8liSykCY3jCkX4QIENxcpQ+K09x+cgiAz0
-X-Gm-Gg: AYBFou3vPn+Tu9QSxSkem9w2+eSGHRvgsCKDV97ow7wVGYo1esFvfcKU8iL1gOZgP+7
-	5Mewb9es3dnur1Yl9CKMC3NyDMtelO9Jh27uB3tk9kdM7CfW6Qa84sAOsKETt01znEigIH6a1yZ
-	pRvP+eNIUnpXFobGkMO4um2D9mubDOzwpeOPlJ754Jzyw0j3RNdoErqLAqN8MyEUY7ST+tdum1i
-	7SjaVyrVw4B6gJV02Zx4SisCpx0YTMYCAuc8hwCucWTURMInCD5q/KJSZETX/E/XCKtrSD6JG8Q
-	cGhMvJx35GVz560CYKNO51isDpfZfyhRfb6BXqQoAYw38vcvqd5UuKpBMWlpcgvSdQ6k69FTCml
-	hoUMRD6Xzl26U+tdFJ2yZrbBGjgQgcJsC76jQm8DjzURPz36S0ODA7JM9iX+Kn1PyF+V/aBqNt3
-	3cVUgs180cg9mN2trSRHhqxndCJcEthzRw6gRbXYCxbb35mj57S/1nree8RgHPh1GoEtrUt/SlN
-	8MFeQg47O0nW+ZHASCWZjr9Nc1iZDWMbcUm/yFRulm2VVQBk08LkEbGLm3cys+oK04Y3G/BygiV
-	k7sNGki3F66zQeCJXbGcHZVD0Z/f5wE9VNyGrpwiH7pd42HblLweGhu6QlNOpkRk8OTtnydDt3S
-	X/4kig5aS
-X-Received: by 2002:a05:600c:5246:b0:4a2:14af:1ead with SMTP id 5b1f17b1804b1-4a9676d1514mr113081845e9.25.1793268408743;
-        Thu, 29 Oct 2026 03:06:48 -0700 (PDT)
+        bh=0SbZPVThhtjU5v2CJr4ClagjjvnIt2bp8J9XxZctWA4=;
+        b=iZBNsU5cHOilAiVthzbZ+uPVYougYpTejeYHDvcr60tQdVnRIvWER0DC1/DCDtyMWe
+         SAHp9hyzEUq/7QFbygAKFAIFICtM7mFGHmYB3whFEbJY/8Dy/lZkJ7POMZveGDGCghvr
+         DrpnG7IEPo+gc3K3ce2qZj0eghcT2PtR1wpvMktg6N6YNOTXzx7NYrO9ujL+MKYOFP7g
+         Srla6QWNYyb/XNesqtJ0GAYOBc9L023GlyvQhUntKCakWjF4/Ae48ONWehujz39ANd1+
+         jpwVd/kmJgDBItDCCGwi1GCD2a9IEA+k3SLAMRTwa6ZWipdi1GmyW3tvPRquKP4GaDRO
+         0fvA==
+X-Forwarded-Encrypted: i=1; AKwUvBzpBo3w80EsAoFDf9n/LuAi0KOahRWNOc0st8jNeaxyrP0Fu+9KSKCA2lkii780TqFtOSbdlv6f7NNYrA==@vger.kernel.org
+X-Gm-Message-State: AFq9FYK+Wb4QBu2lSyHJM/n7mZoQhaO5CqLHhafomY3i7ph0GPMGnF/D
+	JVZxROqPox7TZ0iKntU6Ucn+0GFwP2kF/1zW/hALrWx1RrK+NTgTSQgK
+X-Gm-Gg: AYBFou253VPqzm2ojhn/jzEL97ymfx73x/TcSRk7ND23YaVADlm+Ty/8cRM5C1c6Jfu
+	cfLTWtjexnVeL2UC1EtcdLvdsciPvGAq0ckFLaTAtqL1u2+mlabfFe2fBQOBay/tWwCwO9omD48
+	UPIvxsilGIrEgqh7Gl0LMClB+SpaqyAhEs2iC0RjNGYpUBc4B6eAslpnSt/yFlJ4e/YyvqVmX0i
+	CAJ9tb+kSzbhHKPcsji55HdbQxVixXoD6ikbrkPB8oGLUbcWMksL+uEF0F4/fmt8u4fcO50gsNV
+	gIBChBZBuZ8Km2ogCWNzvq2/7BBouLP8OwH4z35G8lpTUKN/2c0GnzOOX4lgWjW62nzruAWslby
+	YWARVTorMrqDAcrsmku8xFb5uRvv8yUzIVMv857pLm8wsgdQFG6hBxQrwFS1v5JIBZVun7sN0gv
+	Ub3e5cVoGj0I9XERXYnpQ+0+PIUuZ1bsSucCLEAjWHhl4qOlpDecrspzYzaMgrJ5qnDeNQSjC3i
+	xeOKloI0QQG5sMLku+CzUJdHpmPy4hUTleYAfoke7piujKJbxuzTRycCngk4RmxWMm5m2VX8JeO
+	vvPvUpci+7GnxIOCLjzNhV82TTlJkfjJx+YdYIfLX4ztdC+6q8OMkZMOsXb1vO1Ak1+pNWK4rMo
+	/dV6uTaTf
+X-Received: by 2002:a05:600c:4ec7:b0:4a2:a9:ed5a with SMTP id 5b1f17b1804b1-4a9660b5041mr117976975e9.8.1793268412452;
+        Thu, 29 Oct 2026 03:06:52 -0700 (PDT)
 Received: from [127.0.1.1] (ip092042140082.rev.nessus.at. [92.42.140.82])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4aa7fdb7691sm53082825e9.11.2026.10.29.03.06.47
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4aa7fdb7691sm53082825e9.11.2026.10.29.03.06.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 29 Oct 2026 03:06:48 -0700 (PDT)
+        Thu, 29 Oct 2026 03:06:51 -0700 (PDT)
 From: Jakob Unterwurzacher <jakobunt@gmail.com>
-Date: Thu, 29 Oct 2026 11:06:23 +0100
-Subject: [PATCH 1/4] Input: rk805-pwrkey - enable the wakeup interrupt
- during system suspend
+Date: Thu, 29 Oct 2026 11:06:26 +0100
+Subject: [PATCH 4/4] arm64: dts: rockchip: put the PMIC into sleep mode in
+ suspend on RK3588 Tiger
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -96,7 +96,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-1-cb12621c1fb4@cherry.de>
+Message-Id: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-4-cb12621c1fb4@cherry.de>
 References: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
 In-Reply-To: <20261029-dev-tiger-v7-4-pre-20261028-tiger-suspend-b4-v1-0-cb12621c1fb4@cherry.de>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -110,117 +110,59 @@ Cc: linux-arm-kernel@lists.infradead.org,
  devicetree@vger.kernel.org, 
  Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793268406; l=3230;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793268406; l=1641;
  i=jakob.unterwurzacher@cherry.de; s=20261029; h=from:subject:message-id;
- bh=3qBapWKlE9gnNc1OkRIJoQ7rj2z5kJO1plv4vMvRaIE=;
- b=Gax9ATA7YcEykEZRoU8HuTbsJxxf2tMvfTF8fzq4d1vXJVAPuOzgirPI7o+V26V3EhSkl5nP5
- acS+c8VRtbJBrDNorA6RDsnaahLsnJ730MdZY7glDerfZxdequzJfBG
+ bh=SDfGdhdTbDViPNWR7gWVkSFVjA2d78IFMYAVeDi6pgc=;
+ b=+lV6mFqZezu/+F0xruZF+cG3BHg9hNr6TFfbzH6ls2C4+aEQv2qB9TmeiX4sbnF59e3EHmvUT
+ spRbBmKPD3LBiX00XMbFZ9MHPNkvGrR2KGQSbwdMr2iUT+IH87yeXEr
 X-Developer-Key: i=jakob.unterwurzacher@cherry.de; a=ed25519;
  pk=0v1L7pjG4d7PcaYPMOmzP4SjaRtnB+8bMzZLZCRzB8I=
 
 From: Jakob Unterwurzacher <jakob.unterwurzacher@cherry.de>
 
-The driver marks the device as wakeup capable, but never enables the
-power key interrupt as a wakeup interrupt. As a consequence, the PMIC
-interrupt line is masked during system suspend and the power key cannot
-wake up the system, e.g. from suspend-to-ram on RK3588 with an RK806.
+The RK806's PWRCTRL1 pin is connected to the SoC's pmic_sleep1 output,
+which the firmware (TF-A) asserts when the SoC enters suspend-to-ram.
+It is configured for no function, though, so the PMIC ignores it: all
+regulators stay on in suspend and the regulator-state-mem settings have
+no effect.
 
-Enable the interrupt as wakeup interrupt in the suspend callback if the
-device may wake up the system, and disable it again on resume.
+Configure the pin for the sleep function instead, like other RK806
+boards do.
 
-This is done in the regular suspend phase on purpose, rather than with
-dev_pm_set_wake_irq(), which arms the wakeup in the noirq phase: there,
-enabling it updates the PMIC's interrupt registers through regmap-irq,
-which fails when the PMIC is connected via SPI:
+Measured on RK3588 Tiger on Haikou, suspend-to-ram with the logic
+domain powered off by the firmware, module supply current (5 V):
 
-  spi_master spi2: Failed to power device: -13
-  rk8xx-spi spi2.0: Failed to sync masks in 7a
-
-Fixes: 5a35b85c2d92 ("Input: add power key driver for Rockchip RK805 PMIC")
+  PMIC pin with no function: 0.218 A (1.09 W)
+  PMIC pin with sleep function: 0.086 A (0.43 W)
 ---
- drivers/input/misc/rk805-pwrkey.c | 42 ++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/rk805-pwrkey.c b/drivers/input/misc/rk805-pwrkey.c
-index 76873aa005b41..9b64ec7463c62 100644
---- a/drivers/input/misc/rk805-pwrkey.c
-+++ b/drivers/input/misc/rk805-pwrkey.c
-@@ -15,6 +15,10 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
+diff --git a/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi b/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi
+index 161c89c62bcda..592a2d11b36b9 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3588-tiger.dtsi
+@@ -471,7 +471,7 @@ pmic@0 {
+ 		gpio-controller;
+ 		#gpio-cells = <2>;
+ 		pinctrl-names = "default";
+-		pinctrl-0 = <&pmic_pins>, <&rk806_dvs1_null>,
++		pinctrl-0 = <&pmic_pins>, <&rk806_dvs1_slp>,
+ 			    <&rk806_dvs2_null>, <&rk806_dvs3_null>;
+ 		spi-max-frequency = <1000000>;
+ 		system-power-controller;
+@@ -492,9 +492,9 @@ pmic@0 {
+ 		vcca-supply = <&vcc5v0_sys>;
+ 		rockchip,reset-mode = <RK806_RESTART>;
  
-+struct rk805_pwrkey {
-+	int irq;
-+};
-+
- static irqreturn_t pwrkey_fall_irq(int irq, void *_pwr)
- {
- 	struct input_dev *pwr = _pwr;
-@@ -37,10 +41,15 @@ static irqreturn_t pwrkey_rise_irq(int irq, void *_pwr)
+-		rk806_dvs1_null: dvs1-null-pins {
++		rk806_dvs1_slp: dvs1-slp-pins {
+ 			pins = "gpio_pwrctrl1";
+-			function = "pin_fun0";
++			function = "pin_fun1";
+ 		};
  
- static int rk805_pwrkey_probe(struct platform_device *pdev)
- {
-+	struct rk805_pwrkey *priv;
- 	struct input_dev *pwr;
- 	int fall_irq, rise_irq;
- 	int err;
- 
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
- 	pwr = devm_input_allocate_device(&pdev->dev);
- 	if (!pwr) {
- 		dev_err(&pdev->dev, "Can't allocate power button\n");
-@@ -84,16 +93,47 @@ static int rk805_pwrkey_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
--	platform_set_drvdata(pdev, pwr);
-+	priv->irq = fall_irq;
-+	platform_set_drvdata(pdev, priv);
- 	device_init_wakeup(&pdev->dev, true);
- 
- 	return 0;
- }
- 
-+/*
-+ * Arm the wakeup in the regular suspend phase rather than with
-+ * dev_pm_set_wake_irq(), which does it in the noirq phase: enabling the
-+ * wakeup updates the PMIC's interrupt registers, which is no longer
-+ * possible once the bus to the PMIC (e.g. SPI on RK806) is suspended.
-+ */
-+static int rk805_pwrkey_suspend(struct device *dev)
-+{
-+	struct rk805_pwrkey *priv = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		enable_irq_wake(priv->irq);
-+
-+	return 0;
-+}
-+
-+static int rk805_pwrkey_resume(struct device *dev)
-+{
-+	struct rk805_pwrkey *priv = dev_get_drvdata(dev);
-+
-+	if (device_may_wakeup(dev))
-+		disable_irq_wake(priv->irq);
-+
-+	return 0;
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(rk805_pwrkey_pm_ops, rk805_pwrkey_suspend,
-+				rk805_pwrkey_resume);
-+
- static struct platform_driver rk805_pwrkey_driver = {
- 	.probe	= rk805_pwrkey_probe,
- 	.driver	= {
- 		.name = "rk805-pwrkey",
-+		.pm = pm_sleep_ptr(&rk805_pwrkey_pm_ops),
- 	},
- };
- module_platform_driver(rk805_pwrkey_driver);
+ 		rk806_dvs2_null: dvs2-null-pins {
 
 -- 
 2.47.3

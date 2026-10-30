@@ -1,73 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793348339;
-	b=vWARb85smxwlSnP3RkjeqZ++7SLkxrFlL+eN/q+ggc/L5Q+QUd9W/dq517hcJgwkoAty
-	 Fco2LZ1ykVmZk+FHZY7v1XVEWbFRXotWbaVLuY2/lnxa3nUsiuctec1JxhpZ8FAE4ajUk
-	 5NtqDsPCN6AF3XfmSzEHQ3+F5FXc3ivXEXEPLWonuI7udLYBkmMRR01TnIB+KaV9vXfai
-	 bSfeVBfU6aZIEKv14pUPR6FXi9ud0w0kvDyS1L6O0hFet6WnLeQVFUnqZw7kEbD2DXNCw
-	 P8SD1LTZbe1HxlfqKcIDRxzZR5kmTvzB8VYK1XwuBKbXn5PdIlzV7no6YP5R5JUzZhg==
+	t=1793349225;
+	b=AZdTDRgYiRCb2jGnF7aOdOUtfUHDi++9qCvZ0LdXd+cEKrxqrWvET1IEuo9BeRYoDphh
+	 8Dn+E+QzLS4zKnY8HCL7pYR8w9+RCSXXd1dndzZ1CwYENgsL4LpqwrCiWxBsNmcFpq+4N
+	 fsEXWsXGTd7zzyGO6H8PYXbRTms+7N1jF0uEBHB+BOUjDJkT69YOjrXZFZvaVMhLAoVDo
+	 +quAIcsQirtxx/dV8JoGb1bQi5YINJhqfFO8OkJNQ0Fz6MHzMguyLzvG/qvfYUWZeX8XN
+	 5hHgxMDUKQpcDXA0ayZu0nVWFFHYHF3RWoGrwm/DkwbPvgisA6fWTHkvRbboGwMoxyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793348339;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793349225;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=Mb9nK7C88AA0XX7+dkq9DLF84KPAyUNf2hmpuTFCm7A=;
-	b=wTR2UaW2wQQigE1RsMhiREjrW31u3f9Ef0Y/u6urDt+OiDxOhhMtIeSn9M3ilsAilmzo
-	 XWk4GSHL4QYE897dULFiazTydWOZlpGmlSi2EfcPpO9faNStybrabG6fzIt7Zr2KrjWyt
-	 xBEH7aVnmJ72ZF9S5RDctKwb/DxsNEG/t6XVUYVGWraRUFmG/xY6l8bWvgpQp2SkDaA7g
-	 53LjvHu4r3OLgrQ30npwHZACFC5p8tJ6b8yUrSLPw1Q3lwMtEyhKlhqd8HjEMgG2KccFg
-	 52FMXqX1RLL5yiH/Esl8KNb3pZR476S68MB4y/fWBTndueDWAyqQakP2fOJVyM8tnWw==
+	bh=+c4jsLL0T595PoLzh/BXjFRLEK6XmKiSGFk7aEqBpRg=;
+	b=vmV74LhU4c+RFo+JvY+bHw0utMtUv5zEqVcnwdi5JSlPpHonvsacHwptfFrSqgZ4VRHM
+	 yh8FMpe3FIyRQ4Y4c7Q4e1VuFuON8QIT3TwoyumsViy3DK3h5sAOd0AY/kWbadOQb9DJn
+	 dhCA55LJISIOPnr60qVyQRcuoFvxklq79BvcLBH9+glszwDf6ikOhNhmxhJpOcipXqbbT
+	 CSfsGtFVWfSZ4129wqJGTuKvLZhlXC2Fk3Vnrf1jspT6oTafE+ckVpSiX0D7DXlb8u5OJ
+	 xwZYb2bET4ofmwHA+rSDMFLO/qq+4ToaGJ72aJ2zc45MciAIv+Sm7xAIYz5LIs8TX/Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aGi+krf7;
+	dkim=pass header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=seqOCzUw;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 888C7606A31A;
-	Fri, 30 Oct 2026 08:18:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1290606A31C;
+	Fri, 30 Oct 2026 08:33:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aGi+krf7
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDAB71F000C1;
-	Fri, 30 Oct 2026 08:18:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793348339;
-	bh=Mb9nK7C88AA0XX7+dkq9DLF84KPAyUNf2hmpuTFCm7A=;
+	dkim=pass (1024-bit key, unprotected) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=seqOCzUw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD67C1F000C1;
+	Fri, 30 Oct 2026 08:33:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1793349224;
+	bh=+c4jsLL0T595PoLzh/BXjFRLEK6XmKiSGFk7aEqBpRg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=aGi+krf7xcDXjZG+aCrcGgkyMEdP0I3fr312ylcIHL5Et2iKMPq8Fw7kIY64ar+uR
-	 KoIYVG7NZPLH+o7p19hommRYKC4Nz90DVmSr4bGhrvD1k+njk7BD0EIemrLvqkAcl6
-	 dAAKbGpEfLhQF/63qbcJv/CnWcp6jdJcxYnCaI4SFLeDS/x5YEhEXxkDoEeCRgxvD0
-	 cy/G3LljTTFpRAKYc36ayAwb6RKh15aYm8qnKjwC+juFRSnioV2XLb6CUnDtLnVtQB
-	 ZhXHPJdE63+YBhHN6LHdXdnLnK5stfFGsL5S94nkKjGosdRlpyVVTGSkHfj0NDhViZ
-	 KmZQI/iHYHJ9A==
-Date: Fri, 30 Oct 2026 09:18:55 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Muzaffer Kadir <muzafferkadir@mainlining.org>
-Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	"Joerg Roedel (AMD)" <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
-	Robin Murphy <robin.murphy@arm.com>, Konrad Dybcio <konradybcio@kernel.org>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Rajendra Nayak <quic_rjendra@quicinc.com>, Bjorn Andersson <andersson@kernel.org>, 
-	Jassi Brar <jassisinghbrar@gmail.com>, Abel Vesa <abelvesa@kernel.org>, Stephen Boyd <sboyd@kernel.org>, 
-	Brian Masney <bmasney+clk@redhat.com>, Jerome Brunet <jbrunet+clk@baylibre.com>, 
-	Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov <lumag@kernel.org>, 
-	Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, 
-	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Krishna Manikandan <quic_mkrishn@quicinc.com>, 
-	Mathieu Poirier <mathieu.poirier@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
-	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>, 
-	"Guilherme G. Piccoli" <gpiccoli@igalia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
-	linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	freedreno@lists.freedesktop.org, linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v7 03/11] dt-bindings: watchdog: qcom-wdt: Document
- MSM8952 watchdog
-Message-ID: <20261030-encouraging-diligent-kudu-dbd1a7@quoll>
-References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
- <20261030-msm8952-initial-support-v7-3-ad748ace375d@mainlining.org>
+	b=seqOCzUw6nQu9IivIDK5wwe5nGK49tanah9k49jhHwVtng8UZP2M4QsnMoblQqLAv
+	 M79qycDsU052vMzbH88/wSbSc4w1VNTZ0MkgW1jW0gF45CPewTDYSXoSOFRq7dqBhJ
+	 OKJ7dCxOO/MBg/PX5PD/ZuBBQCbIoDjV1cNbsk3U=
+Date: Fri, 30 Oct 2026 09:33:41 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Zhan Xusheng <zhanxusheng1024@gmail.com>
+Cc: jirislaby@kernel.org, dmitry.torokhov@gmail.com,
+	mathieu.poirier@linaro.org, linux-serial@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+	zhanxusheng@xiaomi.com
+Subject: Re: [PATCH v4 1/2] tty: sysrq: don't expose a partially written
+ reset_seq
+Message-ID: <2026103043-tributary-partake-aefd@gregkh>
+References: <2026103014-sketch-headed-2fd1@gregkh>
+ <20261030075820.207049-1-zhanxusheng1024@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -77,20 +57,50 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261030-msm8952-initial-support-v7-3-ad748ace375d@mainlining.org>
+In-Reply-To: <20261030075820.207049-1-zhanxusheng1024@gmail.com>
 
-On Fri, Oct 30, 2026 at 12:02:34AM +0300, Muzaffer Kadir wrote:
-> Document the watchdog found on MSM8952.
+On Fri, Oct 30, 2026 at 03:58:20PM +0800, Zhan Xusheng wrote:
+> Hi Greg,
 > 
-> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
-> ---
->  Documentation/devicetree/bindings/watchdog/qcom-wdt.yaml | 1 +
->  1 file changed, 1 insertion(+)
+> On Fri, Oct 30, 2026 at 08:02:30AM +0100, Greg KH wrote:
+> > I still don't understand what the root problem is here, sorry.
+> 
+> Each keyboard keeps its own copy of reset_seq.  It rebuilds the copy on
+> the first key press after the parameter changes, and it rebuilds it
+> wrong in two ways.
+> 
+> 1) It adds the new keys to the old copy instead of replacing it (2/2):
+> 
+>   echo 56,29,111 > /sys/module/sysrq/parameters/reset_seq # Alt+Ctrl+Del
+>   (press any key)
+>   echo 59,60 > /sys/module/sysrq/parameters/reset_seq     # F1+F2
+> 
+> Now F1+F2 does nothing.  Only holding all five keys resets.  So setting
+> reset_seq once works, but changing it later does not.
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+So this feature has never worked?  Or it is just "one change only"?  So
+your change is an addition to the feature, not a bugfix?
 
-Best regards,
-Krzysztof
+> 2) It can rebuild the copy while the write is half done (1/2).  The
+> write stores the keys one at a time, and the keyboard may read the list
+> in between:
+> 
+>   echo 59,60 > reset_seq
+>     store 59
+>                       <- F1 pressed: keyboard reads "59" as the sequence
+>     store 60
+> 
+> On a keyboard that has not used a reset sequence before, or on any
+> keyboard once 2/2 is applied, that F1 press completes the one-key
+> sequence and reboots the machine.  The window is microseconds; I only
+> hit it with an added delay.
 
+So this isn't a "real" issue?  If you are modifying the key sequence,
+how can you press the key at the same time?  Doing "major" rework for
+that might just not be worth it.
+
+thanks,
+
+greg k-h

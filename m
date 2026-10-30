@@ -1,80 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
 	t=1793342249;
-	b=u5fd4XcbAPNRwtW9jWqooZJT9zdkNtMwLFXROmqgmW9dI50FDIXT5bHHwZkrbKquNsFP
-	 rzQN6EUrMwF+cMXlW1qb+trQPZJMvtClPCZABoAb6ngBG+nsDhIcQ2vwV23zM3GLqCraZ
-	 K9FBhyQ+UcD55vl28IeiZGuXt6tqWiFsy/3UIyEYKsatNru+D7zy/sqGJqImNX4WpdxJv
-	 quj7DmP84rwDM3TSPe6BxsvkdacryH8ZFCzbuTwMyfGHzYOBrC7eVFWi9SutRxQWwSXX1
-	 bJF9LUlvdsgUT9/vlxuwRliJbjIp3e973FrwLPZHu0aqebdjQ5R2ecint7+8yL5po4g==
+	b=kwQ2CihDgEpTkhEkLDa+Zgg/Y4vjgpj35/M+uYDJYeUNfPg/DqZfnL88mk4r2YyhvmnA
+	 TNBAxSxglnDsWWlzDHfSPOLkALomfbj7CL2R0cZQsR1O9wSOOna9dq36rvgAYZgb+/h4r
+	 6YZ5ii+MaiBANn/E7totoXF4s1A5YnAFgL6xrqx4daJBAV7gdZhmUAx4ExPVFw2LVURdE
+	 2SROHlTekzp/NX2OIIRDM9hltBjfLEpGX5JvLcm1pGN+kl8Jc0dC/veHFtAHKpahPN7CU
+	 REFKey1zPRFMIdvf1s0hWnOg3lSdk+Sgp6I36dj9az7U7QxP9VVLcfJrL3h48up5heQ==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793342249;
-	h=Received:DKIM-Signature:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To;
-	bh=6B7+vvKJCEkJFZi/VjVcB7bwHCaemhj5enwrXgYutYg=;
-	b=1H5j3FqD8yDqvN4c6JfxjQEXLa4WIVBoFOP6PMbaJQ6WVviS5aTGcypx9TGr5omflWS8
-	 sGstLhm8VkVzkFs1ve4X/xyULMWzv58DfCkuXXYtO+8UU0BIpvOEcF+WTc1nP4TVBldfW
-	 35vOZdkQAau71vDRzYf/z82bgk7Dhh0BMsc2tYQhmjtuUXhdixkkFUhCTqkLIRQSKWeVQ
-	 GoYaVJ7TOFY4oyP0vvp2lhcJUkO430GWRvzIQlEeYiPYhxulqCjfZxNdzJFaflwwTsh5c
-	 /kTec3+a5wPmyHKD8N16/PHEn99Gx21d1zbSGa4aCdDV4YeDOEJcRa/7Ei8Ps4XxlSA==
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=s9tqv1PJrbPa5uxaAMuHXSLbue/u/Fa8owOwc84kj/o=;
+	b=digf1nLR7jeLHdtOXxJfIjEoeDcQkIzPskRXlDPzJH5RAwaNHJhWurefCXYb+YI+ajzA
+	 /HMwOfYS3mJXi4z8XTTQjoKncGFIOKeb9WXMaoQm7nUYOmDS0uhByYrtZ1qwyuR4L7a2o
+	 BC96fFTWhN6+s+bSRsDDEbyEINFbdN8PXfX9G56e8x8ytKKnysPzB08ELGzvDxGX3vxvt
+	 is/1+axxDdT0gfDd/a/KQFMG+EMICwT8E5VsFLgXsv69sSMxX7jjdpvAeNnVGIJJ6tfKL
+	 C7HTGXg5wI6fpJh6LUOiVMdrjUdw87IZRc2pxTT2sLG25GZKlIm2u2Z04/eky/mMhlg==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aJJLfBS5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gsj9vcM2;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 195A8606A31A;
-	Fri, 30 Oct 2026 06:37:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DFEF606A31C;
+	Fri, 30 Oct 2026 06:37:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aJJLfBS5
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gsj9vcM2
 Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
 ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
-	t=1793342248;
-	b=DeghXK7ZNtJpWZj1drRAxUDlQWyJwnXy4sj4R/hIFGH95M0nnaCrvrxgdgaRFyLe6bor
-	 EBXM2cNGf/1lSsBiYqUpvC1dznQiBGye9sYnBtd+2J3ye2tyv4Pici62XOd+oTZ2S8UJP
-	 Ibn2rOVerEMc+Yh2jXOVZup9vrQSnS3OYx7UU/QGrbOgWaftfE1xwch8hqR3xZqFi2RSp
-	 17ybghD6kExkWTuRRuGjOoOI9XPrEPOVFcfViQZm8uSDjcTMNIBWTP9S/DrHrzZQWIMvU
-	 lailUbwkXZ54z62FpKWe20Z1O2i8v/Mt6kzmsw8FQDUhWn/GxdrWYz7CtWkoGwC6moQ==
+	t=1793342249;
+	b=QMEBPtKY8dmKpsSlYyFxipbBQoB/b98qxpkFznZRJboDSwORbNDNstRcI97KTipwUJHJ
+	 Dz4PDYcr31jqNyW2lWvDrYCvOFH4ZdJN5GeQ4uuo4nCyG+FAWtnwwtABFrDZ9ms2K4lji
+	 WdTjOAEH0F2zWrbONEnBLBT4B+cYnx8Me9H+Xcq+Pc50rb6YatsB3bf8T1JPQcFX70Dtf
+	 Ot0ZjQHMlwRWg8AHkCbhLzbsN7PMmdxE7XkZdgxwOZCqioiUy1FjJWIn2TvtifvcL6cLZ
+	 MHJnrWG8oWBtmm4kgX7v9FUtXMNxAzRx5JwKtTa2ypyWtZWSpTZC32i+0DnRhKj5mzw==
 ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
-	c=relaxed/relaxed; t=1793342248;
-	h=DKIM-Signature:Received:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
-	 X-Original-From:Reply-To;
-	bh=6B7+vvKJCEkJFZi/VjVcB7bwHCaemhj5enwrXgYutYg=;
-	b=y/UH6AjG4pkuU6ZVkVnZMu8FjF1kJl7daKK9qXa3/MlZoUv1qfCExUS7n1kimxE+uF1+
-	 Snmj/z32PWfOCR5mu6f6Dr1HeZl0mfVKXTvdXOmwd07j/flWnIU+xPt78XAsc5+GUnrIO
-	 vr9RhhjwspO0JczZHYprB8CycROPaG1nuougXFNezupBOks7UZU05rd0ulSqT5qsWri6w
-	 int5cNBoSUefZ2nUutnGTKQoRq5ChM/7TWfYKUSSW0PO7dIlSEHClHbspqcUMKkouA011
-	 2toCfXEwbFAxFt1NpPvtqvgI+s27PAL7XTgtw4F/mOL0qa/tlH7fUM97SgnBpmINQeg==
+	c=relaxed/relaxed; t=1793342249;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=s9tqv1PJrbPa5uxaAMuHXSLbue/u/Fa8owOwc84kj/o=;
+	b=SDI4cz0pH8hVbBRAT+Hsty7GUFxjrJ43oAR6+R+M1jCQPBgjLXQphqIMCc/HsniTeFrF
+	 ZDN4aUySKzHOS1GC7Igekh4lp5IneNrce927TSTN0Dga3BwQi++1xMMJlzX05JIEatmAU
+	 XaE+/kDEJq2Vc1ehZEEmA6Z0IxRKsBZ9B0uKj0iXAjIbVxlm6eghJsMySyoJLNNf80Gho
+	 aIQsxEeshxAmmMr1GkN1QlViEx7AhIWJoEaAmOJECNJXbR9ZmyYoWsNujxCouiF7dv+vx
+	 iFDjsBav9K80Q66EL25OqTW2OEI3c65/BSMnIiDZAWkrDduJs4tBrZhzSqbB20XJZQQ==
 ARC-Authentication-Results: i=1; smtp.kernel.org; 
 	arc=none smtp.remote-ip=100.80.115.77
 Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.kernel.org (Postfix) with ESMTPS id 2411B1F00A02;
+	by smtp.kernel.org (Postfix) with ESMTPS id 23EA61F0093A;
 	Fri, 30 Oct 2026 06:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793342248;
-	bh=6B7+vvKJCEkJFZi/VjVcB7bwHCaemhj5enwrXgYutYg=;
-	h=From:Subject:Date:To:Cc:Reply-To;
-	b=aJJLfBS5JtnvTkBSjwiAfdX63JK8QG78bN4w+RWfU3e6nm5gjde1M3lpoSbOa6Vw2
-	 E6e/2vBXNdGnYRQi6xAi6tRVvewzZLxweVSP6vDYa/Gm2lqcKkZn1/Zuu9rCWs7N8Q
-	 IDqUgtZw6Am0hxaBD2nbAIm3ooootAa3nybcFv46OiimtFwt4LODqM6zT63zrGZEBQ
-	 FconEwnVDZA/qFBOBxmDbSUgbPzD6K3LejlHAk20NgyXIzYmtSGkGiQPoyLPBDiqA8
-	 4v261euL8DL/Gc3hkqri6Q1XSsmCw1AG67IP9BQhiQjOPDVb78t1dYvNatK+HWL0Gv
-	 QAv9uw90ZfRxw==
+	s=k20260515; t=1793342249;
+	bh=s9tqv1PJrbPa5uxaAMuHXSLbue/u/Fa8owOwc84kj/o=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=gsj9vcM2UfF5t/5UbSarxoW1SicowCkeWDCsfcqLxpZ6Tn5s7iG7SEz9gqyghP1e2
+	 y99DKvzBqm2nEn8B1cyTRmGceipB2puJbG3TP2MshbsdxvHQ2MPm+H6T9cBTnRk3CP
+	 ZcA+BqavXT0J4OJyCcl3XvMK1wYOPiX/rhBE23OvpMZSGLZFSt3ZlW5ZHZHp74qtEW
+	 GDjsX0mAAxYe1s8azu5F/KYS6JmAT6uJfk4Wp8i9BAFfRER6nxqDa+NXKSC1gk4QUK
+	 40GyCfkhI5nsOeCulbbgrj1d06Wqbk+gL+NiKdB56DuoIJ3F2B/9rseCCElxe/nh/L
+	 c18+MpkcGrVSw==
 Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
-	by lkml.kernel.org (Postfix) with ESMTP id 74B3843692;
+	by lkml.kernel.org (Postfix) with ESMTP id 813B34365F;
 	Fri, 30 Oct 2026 06:37:27 +0000 (UTC)
 From: Martin Oberleiter via B4 Relay <devnull+martin.oberleiter.netixx.it@kernel.org>
-Subject: [PATCH 0/2] HID: steelseries: Add Rival 3 Wireless battery
- reporting
-Date: Fri, 30 Oct 2026 07:37:23 +0100
-Message-Id: <20261030-rival3-battery-v1-0-6b1feeaf1f52@netixx.it>
+Date: Fri, 30 Oct 2026 07:37:24 +0100
+Subject: [PATCH 1/2] HID: steelseries: Select POWER_SUPPLY
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -85,60 +83,54 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQrCMBBA0auUWRvIJNBaryIu0mSqI6XKTAxKy
- d1NdfkW/2+gJEwKp24DocLKj7UBDx3EW1ivZDg1g7OuR+utES5h8WYKOZN8TEg4xIQjoTtCi55
- CM79/w/Plb31Nd4p5v0CtX8z5dMRyAAAA
-X-Change-ID: 20261030-rival3-battery-ad17cd19e128
+Message-Id: <20261030-rival3-battery-v1-1-6b1feeaf1f52@netixx.it>
+References: <20261030-rival3-battery-v1-0-6b1feeaf1f52@netixx.it>
+In-Reply-To: <20261030-rival3-battery-v1-0-6b1feeaf1f52@netixx.it>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  Martin Oberleiter <martin.oberleiter@netixx.it>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1793342246; l=1381;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793342246; l=945;
  i=martin.oberleiter@netixx.it; s=20261029; h=from:subject:message-id;
- bh=w2YXVZYcFQtYvcPZlkSrEitR77JlEJPlKV28pnvKM1w=;
- b=r9SKXG0CoTMTJNm2t90BHjbWdY9eaJvXd7sy9opMAHC8ojVWVEuBYTGFyjBtDbjN5GLn9PrmU
- TmNPZa+jKb/AFLQcg4OLDEC5+J5InHrxjCth8frB9mF7woPUA/53odh
+ bh=mD34hfkgljPtL0ztTPCZwhP7a85OFYLVEn7tOj4h2oE=;
+ b=yiFVCIo61O3xYrYicW6dd217F11YOIYGxEqo+4RVAoRFxPVQWvhFSMLj4XvWRGo1Ut6/2keSD
+ xEypVyi/rnqDKE/zRcgl7ky9sw+eQhx0HzQgLGy/jE/XQG+4Q4WWryM
 X-Developer-Key: i=martin.oberleiter@netixx.it; a=ed25519;
  pk=yZvkAuAsIiJ76LEGGTR3TI7+Xjw7lGN1dK6jcv72XZo=
 X-Endpoint-Received: by B4 Relay for martin.oberleiter@netixx.it/20261029
  with auth_id=1358
 X-Original-From: Martin Oberleiter <martin.oberleiter@netixx.it>
 Reply-To: martin.oberleiter@netixx.it
+Content-Transfer-Encoding: 7bit
 
-The SteelSeries Rival 3 Wireless mouse reports its battery level on
-request through its 2.4 GHz receiver, using the protocol rivalcfg
-implements. This series exposes it as a power supply.
+From: Martin Oberleiter <martin.oberleiter@netixx.it>
 
-Patch 1 makes HID_STEELSERIES select POWER_SUPPLY, which the Arctis
-headset support already needs and which patch 2 relies on as well.
+The Arctis headset support registers a power supply for the headset
+battery, but HID_STEELSERIES does not select POWER_SUPPLY, and
+power_supply_register() has no stub, so a build with POWER_SUPPLY=n
+fails to link. Select it, like the other HID drivers that report a
+battery.
 
-Patch 2 adds the battery reporting. Desktops currently show the mouse's
-battery with a keyboard icon: upower picks the kind from the sibling
-input devices and prefers the mouse's auxiliary keyboard interface. That
-is a upower heuristic and will be reported there separately.
-
-Tested on a Rival 3 Wireless (receiver 1038:1830) over a night with the
-mouse switched off and on again.
-
-The series was written with the help of an AI coding assistant (Claude
-Code); details are in the changelog of patch 2.
-
+Fixes: a0c76896c3fb ("HID: steelseries: Add support for Arctis 1 XBox")
+Signed-off-by: Martin Oberleiter <martin.oberleiter@netixx.it>
 ---
-Martin Oberleiter (2):
-      HID: steelseries: Select POWER_SUPPLY
-      HID: steelseries: Add Rival 3 Wireless battery reporting
+ drivers/hid/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/hid/Kconfig           |   5 +-
- drivers/hid/hid-ids.h         |   1 +
- drivers/hid/hid-steelseries.c | 277 +++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 277 insertions(+), 6 deletions(-)
----
-base-commit: 720806515cb6921ab05caaa6f470f7054b56385e
-change-id: 20261030-rival3-battery-ad17cd19e128
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 2481bc01c..4d48da4f5 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1214,6 +1214,7 @@ config STEAM_FF
+ config HID_STEELSERIES
+ 	tristate "Steelseries devices support"
+ 	depends on USB_HID
++	select POWER_SUPPLY
+ 	help
+ 	Support for Steelseries SRW-S1 steering wheel, and the Steelseries
+ 	Arctis 1 Wireless for XBox, Arctis 7 (2018), Arctis 9, and Arctis
 
-Best regards,
---  
-Martin Oberleiter <martin.oberleiter@netixx.it>
+-- 
+2.56.0
 
 

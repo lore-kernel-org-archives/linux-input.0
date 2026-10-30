@@ -1,55 +1,112 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=44.202.169.39
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793382353;
-	b=E9cQ2Khs7pkplRv7tiY8yl2UKeI/j9sA2iDEUNCnTIz9uU3xOcXqCUjCixYrtX6A93ER
-	 TdbfWS4lW3Huam1ILIXQXANAOkzndiOrxMz38dNAuEiQYmW5qVtepYEO76EQN93Cnv6B8
-	 Z8mssKue6zhPahIOgMgRg9XcLeAp2w7I/RnGYdZdqFPvoy87+gbXvuObS2HErQnUjw8Fo
-	 6bG/+6hQXx5j/cEm2h1hLFCnOn/+SwDyPipfSMf7tDLpiq5wY/PUa0qgtd5M/4OEUvy0d
-	 T/Tvqb0SV0hSLNY6FKT2qArMWPC50c0oaWfyyKTYvpH7arbCmpXIvLLsmYDEqcbg2KQ==
+	t=1793389743;
+	b=xikUtqAhx+bW1//TX37gJoBdwZ0oy2mttDCT5jLOCel+et4Y65wP9GeAUNP6p1aDGjFU
+	 ljqgSnQL2S72pEpNcxyUP4lu4Bj1Q/BN/6/T0SigkUJw/9tP2R3Wvz/Oe/uoswvURqsC3
+	 jLGPcXklIm+AQNNmTDPdNnkm6iDNjZnD74YnXstpISXRvWn+yG6qFOFDUsUCyLa6sDfod
+	 r0CiV/AWSUOAOtqVyGjWUVtacVDd1oiChDzuYU1QjpiHsNu+ARqSJQ6GwbPQQFi9TikQ+
+	 l7INmms5PDxY5d7SinYPf76VQYaEkPEmVWPRxcTsCvZ8ZO1WRQs0yCRan2ad3GDgySA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793382353;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=mNy9bDCNuzspDANUkWYgxQ/VoVFlpXf7iLlWyxfPhWQ=;
-	b=20BwExvFENhHvswCiw/vC2EG3fz8RsKsiyHnnymH4g1+HAFwAApPp8vKCwY6sgYZLo7Z
-	 XWj80b3Sh4ZBf8M22KpFMSzZF54lc6wwyeE7z/86iMg27+A6v35z1rStqmFwdumDFEh+9
-	 Y3m7+GnJcFfcL1sQO3gElNxwL2S88Tmp5xQJBpAMSDnGFPe69kCKQUCRXGODxXq4yR64F
-	 o0d8nohiq2NFKp1OilSrE3td3NrFa25rlPnEw7EnaGkz1ikbdGn/S+TRSppV39YZGba3A
-	 Xn1sH5dsXA2hjIJ+J/KVP25MFh3ePfGe03Bs+qOwRd+kmKYLA2nGwUWeL/nIz8zqi8w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793389743;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
+	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
+	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
+	 X-Local-Domain:X-CMAE-Envelope;
+	bh=Z8g4xiibKWQuuJs7EMwmXcAQgq7/Z7zwBqVvlgwyNzc=;
+	b=WVJIVRRYjFYRyzC0GV3vDa10KlDxunDR1c+il6lmgbZJb9rBdI/IQSxYPIfjkb/ZQMtJ
+	 4n90Pt1UFbUf9RS04ODZcfo7cayoMzZVDRZPL/0fk5v9UM/WF4FpGVqFTY0UVOLDhkFYo
+	 pYHuRAxq3PHPDbHbuiX8ONO+4NiiOgPfY/TEYp62+2HPivSQQZEiDm5ceo9S7U4J9oYZl
+	 9Xy4gh3ffuDymE0nQ3djj+2IAZca7T2W7cPABVF1PUQTFWNWzVkLN/OQqtUmRy52LV8hP
+	 nCBRUighEOp+5bBfXmoOqa1X8Ij4lY6D5dOEwdeMWVtdi79yRwfNOk08HLEABcwukNQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gErHz2GG;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=yPk7oTaK;
+	arc=none smtp.remote-ip=44.202.169.39
+Received: from omta040.useast.a.cloudfilter.net (omta040.useast.a.cloudfilter.net [44.202.169.39])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 864E3606A31F
-	for <linux-input@vger.kernel.org>; Fri, 30 Oct 2026 17:45:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618EC606A31C
+	for <linux-input@vger.kernel.org>; Fri, 30 Oct 2026 19:49:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 618EC606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gErHz2GG
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F26C61F00A18;
-	Fri, 30 Oct 2026 17:45:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793382353;
-	bh=mNy9bDCNuzspDANUkWYgxQ/VoVFlpXf7iLlWyxfPhWQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gErHz2GG+9gG424mP5rbP93xZPgMyemP8UlFbhhbbqqYLysFExXJUDVAZXbnv6MwT
-	 K2cOMEEL3+gEu3xu2F20cCr782jAm3dC1jF2mBndKqpdkR+uou8pcFG75EfKWP37Py
-	 OTikHIzy7+AfTphmk5QAWfDtw5klKU/NWs19YH39DY7NgCPCbcTGUUXtVCstJss5ed
-	 i/NYW11K7MbRMtFQrERaBAh1+lRzzccsZp6VxmUoD74mw+vMA1Kz+WbM25dNy7BwaI
-	 ahvno9kMIZahyKsy6OFL57aiMDP76RBcqmgt4Kt87k3eNnRCN8Oaah25t711H4fuTI
-	 Uh4G/8Y08nJTQ==
-Message-ID: <sashiko-outbox-191355@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: wacom: Prevent NULL dereference in wireless work
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Devarjya Purkayastha" <unseentactician27062006@gmail.com>, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <20261030173108.45408-1-unseentactician27062006@gmail.com>
-References: <20261030173108.45408-1-unseentactician27062006@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 30 Oct 2026 17:45:52 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=yPk7oTaK
+Received: from eig-obgw-5003b.ext.cloudfilter.net ([10.0.29.155])
+	by cmsmtp with ESMTPS
+	id MriBxGjihMylkMsb0xiGO7; Fri, 30 Oct 2026 19:49:02 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id Msb0xcANIbxHHMsb0x2XkL; Fri, 30 Oct 2026 19:49:02 +0000
+X-Authority-Analysis: v=2.4 cv=QK5oRhLL c=1 sm=1 tr=0 ts=6ae4f4ae
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=OuZLqq7tAAAA:8
+ a=EUspDBNiAAAA:8 a=3OfnbWqpRXkE7MXKp-4A:9 a=CjuIK1q_8ugA:10
+ a=AKGiAy9iJ-JzxKVHQNES:22 a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
+	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
+	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=Z8g4xiibKWQuuJs7EMwmXcAQgq7/Z7zwBqVvlgwyNzc=; b=yPk7oTaK9jPnNUqNMPC6twzpsT
+	nytbZs7aIA1qfH8e9yM5XmhTrSl/cYbIZ9RliN0XK6PH+8fH6iMHI1gCwt/eOdzUc49xyR7pm2jYG
+	R9wLgSVekO9zz7XW1C3SjWJ2jdanQoPmO4H3xTNiPdbDJTuDCzQpc8aBllvgvys8U4au70SjQAcVr
+	9kcENVpW6s4Z+c++LnSDgqh02SbHMxe8Bio+xFCpQVb4Mg/zNG/QunFRcwYu/SoYh8Aehzm3qPknX
+	EZ4s/wFn4ZXU94FbWoY7yOx8zm4QD7ylqGwONkzT2WrVTWpzZjoPkVFtX5kt1BNNAWsdLe/GcdbYI
+	A7exSNtw==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:44054 helo=server.roeck-us.net)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xMsat-00000003tHT-0RvI;
+	Sat, 31 Oct 2026 01:18:55 +0530
+Date: Fri, 30 Oct 2026 12:48:52 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Muzaffer Kadir <muzafferkadir@mainlining.org>
+Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	"Joerg Roedel (AMD)" <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Rajendra Nayak <quic_rjendra@quicinc.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Jassi Brar <jassisinghbrar@gmail.com>,
+	Abel Vesa <abelvesa@kernel.org>, Stephen Boyd <sboyd@kernel.org>,
+	Brian Masney <bmasney+clk@redhat.com>,
+	Jerome Brunet <jbrunet+clk@baylibre.com>,
+	Rob Clark <robin.clark@oss.qualcomm.com>,
+	Dmitry Baryshkov <lumag@kernel.org>,
+	Abhinav Kumar <abhinav.kumar@linux.dev>,
+	Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
+	Marijn Suijten <marijn.suijten@somainline.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Krishna Manikandan <quic_mkrishn@quicinc.com>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Manivannan Sadhasivam <mani@kernel.org>,
+	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>,
+	"Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	David Heidelberg <david@ixit.cz>, phone-devel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, iommu@lists.linux.dev,
+	linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
+	linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v7 03/11] dt-bindings: watchdog: qcom-wdt: Document
+ MSM8952 watchdog
+Message-ID: <7ba73247-d832-423b-8020-21cc135cd02b@roeck-us.net>
+References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
+ <20261030-msm8952-initial-support-v7-3-ad748ace375d@mainlining.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,89 +115,40 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261030-msm8952-initial-support-v7-3-ad748ace375d@mainlining.org>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xMsat-00000003tHT-0RvI
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:44054
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 1
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfFHuAeJe2rhObuVVgJw5Bhy94oebXxWqG6NdngFwgktItz8ngMQlXWWfPAV7tD8vhz0bl+KilXbfplHZSc/k2pj6O1ecGDlYYjPOS4nS1M3SKr46+yMv
+ e+fLPM4DyTQrG+LhTqXwf1KeZF2UpdPtJU4PcrhR4x2ExP9a4KyQ6LoVVPRHIUqwBwQRc+4UVXKiUsSG0eORNymzP3P5W9cvjrzuHKvGXWz8fNZ8M9SMx0i/
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] HID: wacom: incomplete NULL and binding checks in wacom_wireless_w=
-ork()
---
+On Fri, Oct 30, 2026 at 12:02:34AM +0300, Muzaffer Kadir wrote:
+> From: Muzaffer Kadir <muzafferkadir@mainlining.org>
+> 
+> Document the watchdog found on MSM8952.
+> 
+> Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
+> Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-commit 53aa61197952eeb0781af2deacd78d22c186ee96
-Author: Devarjya Purkayastha <unseentactician27062006@gmail.com>
+Applied.
 
-HID: wacom: Prevent NULL dereference in wireless work
-
-This commit checks that usbdev->config->desc.bNumInterfaces is at least 3 in
-wacom_wireless_work() before accessing interface[1] and interface[2].
-
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 628372ab818a2..dcf2811a5c483 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -2619,7 +2619,7 @@ static void wacom_wireless_work(struct work_struct =
-*work)
-> =20
->  	wacom_destroy_battery(wacom);
-> =20
-> -	if (!usbdev)
-> +	if (!usbdev || usbdev->config->desc.bNumInterfaces < 3)
->  		return;
-
-[Severity: High]
-Is checking usbdev->config->desc.bNumInterfaces < 3 sufficient to prevent a
-NULL pointer dereference in wacom_wireless_work()?
-
-First, the commit message states that this checks the active USB
-configuration, but usbdev->config points to the array of all configurations
-(&usbdev->config[0]), whereas usbdev->actconfig points to the currently
-active configuration populated by usb_set_configuration(). On a malformed
-multi-configuration device where config[0] has bNumInterfaces >=3D 3 while a
-different configuration is active in usbdev->actconfig,
-usbdev->config->interface[1] and usbdev->config->interface[2] will be NULL,
-causing usb_get_intfdata() to dereference a NULL pointer:
-
-	/* Stylus interface */
-	hdev1 =3D usb_get_intfdata(usbdev->config->interface[1]);
-	wacom1 =3D hid_get_drvdata(hdev1);
-	wacom_wac1 =3D &(wacom1->wacom_wac);
-	wacom_release_resources(wacom1);
-
-Second, even when interface[1] and interface[2] are non-NULL, can hdev1 or
-hdev2 be NULL? During usb_set_configuration(), interfaces are probed
-sequentially. When interface[0] is probed, wacom_parse_and_register() opens
-the HID device and starts interrupt URB reception before interface[1] and
-interface[2] have been probed:
-
-	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR) {
-		error =3D hid_hw_open(hdev);
-		if (error) {
-			hid_err(hdev, "hw open failed\n");
-			goto fail_hw_stop;
-		}
-	}
-
-In addition, on a malformed USB device where interface[1] or interface[2]
-fails usbhid_probe() (for example, due to missing an interrupt-IN endpoint)
-or is unbound, usb_get_intfdata() returns NULL for hdev1 or hdev2, and
-hid_get_drvdata() will dereference a NULL pointer.
-
-Third, even if usbhid_probe() succeeds so hdev1 and hdev2 are non-NULL,
-wacom_probe() can fail on interface[1] or interface[2] (for example, if the
-HID report descriptor is malformed), or the wacom driver can be unbound from
-those interfaces. In that case hid_get_drvdata() returns NULL for wacom1 or
-wacom2, and wacom_release_resources() immediately dereferences it:
-
-static void wacom_release_resources(struct wacom *wacom)
-{
-	struct hid_device *hdev =3D wacom->hdev;
-
-	if (!wacom->resources)
-		return;
-
-Should wacom_wireless_work() check usbdev->actconfig as well as verify that
-the sibling interfaces and their hdev and wacom driver data pointers are
-valid and bound before dereferencing them?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261030173108.4540=
-8-1-unseentactician27062006@gmail.com?part=3D1
+Thanks,
+Guenter

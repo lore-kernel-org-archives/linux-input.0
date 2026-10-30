@@ -1,56 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793345055;
-	b=Shn+7WykyjsxTlb5QfgbA6gpOjsgVnWQp1N2F6/BScGXhW4d3qJkHIgepWxmu2UqEpdb
-	 mIKNRjVIndHBXqMmM/AMGO7L3WkRuI1v9MA0TJ9IbSKR2t6sfpR2pa+tNIqHYDTTGK9sM
-	 6gtFjf/HtzjISZn9ce04BdVJhjPlitCQgWyV8TY6Zfgi7TdjldSW7lAFjC6khvY1+krS7
-	 x9zhdDhPuiFwoo1gvB1xDAk3AbJiMZ2Dorz6O+TeqScX+5TqbPKIes1944Phtat8rrPKt
-	 vZoRN73QAHucAeeKMp/QGBvLZAaRYdBGNOS4OpcBDBYWhRi7ax8fVpUy00eO/PYHMNA==
+	t=1793347107;
+	b=HWqfUUxkKFxYb9zPkPvOGhDiOA35xqzqWWRa9mKxZrI577SV5rqXPAc2fqXB0jmVe0hb
+	 ssW8M+24lDHeKEjOeOxET//LlvbmFdfFpRPFafGqDio/sA2saAJHYPaebJ8q/tXZ0Mm8w
+	 y8JgdZTmDTyMPzUdyJy+5eq81pVmXUfrIiIa3mI8rE0ao/cZQdCiBiCRAiY639yCgNK0m
+	 pRSH+5Vo9tpQw8XpHLox0EyBMe2tp4qVdXqorjXED/QLoX7OSATuwuA5w2dl21ZkQlAex
+	 iH/TdVyCeu8caDt++YI4gX3jPeLH/lsr1yqw1aetLWbGYfDnJUzzNLD2LEuIm0QfuBw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793345055;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=FOlOEH6lcaLyAyCHL97CFFUL6Imr3VtVGlnu9puCQ7c=;
-	b=XkdWlGL98o5PK/lD3VOlvdeHd0h2uqlJ4vNjZzINKavE0HEIsqfaLIpFitlx8O7dvwbh
-	 1eAwZ+G6FbPqRUs82akfcKWbsQR073F0iZq4oxWwiJsHtCUqw7B9bva3EUsXqnWlYS06S
-	 utwP8nVScCq1pF7py9Oi0z4v6PlFXWIJwI71OWZHG2iFGE4N2Lqmyeq6BREYtp4riHzVZ
-	 jV+x8k2/vri27syXSf+R3ZH7B98fxu3XLvWR2xid7I68fMs4Ryz8ei2upfXIhaPVt8qT9
-	 2j4Ro6a1sLSmkpnKQuqUIOoXFTixd3aEJjxW3aWwtt3DDpHwHZJW28Jc7JPjOvek/ag==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793347107;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
+	 MIME-Version:Content-Transfer-Encoding;
+	bh=4oAI5pxrIzXlsyWd5vlHzyNWwBTG6cTZg/AYjzhaORc=;
+	b=310rQneRHHNlBgzC43FKQafk/ehl0fTE2d3vVXz+/R6FLuSBQgco1LzMyy8F6R7msoM/
+	 NQWBHyD6L5+7dkPI2j9FRV+coVBmgKrGANcX+zGLM/c8abim8q6UDxjlymriRIzxXU5fi
+	 mpEHcxvne9eP0s1pGXffISdaifMBJlJEg9cE3aHswT3xcAJtDm2Y1cuOQq9wz7uqrvRoz
+	 AmD/WT804k/vkldP4RJ+SwnuH5/5OWaqkDLe6SDZ6KMU5bMCwZHf6PZHEFgCgVN8ptwed
+	 4tUJY0A2IO5XUM7QxWY796nzHg7mxwS40vw2ZhEJh5RMcqQIM5cieABM0paCqtwlyYA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Oc4yYqTY;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GGG9vEBq;
+	arc=none smtp.remote-ip=74.125.82.53
+Received: from mail-dl1-f53.google.com (mail-dl1-f53.google.com [74.125.82.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA6B0606A31C
-	for <linux-input@vger.kernel.org>; Fri, 30 Oct 2026 07:24:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5991B606A31C
+	for <linux-input@vger.kernel.org>; Fri, 30 Oct 2026 07:58:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5991B606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Oc4yYqTY
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDDF1F000C1;
-	Fri, 30 Oct 2026 07:24:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793345054;
-	bh=FOlOEH6lcaLyAyCHL97CFFUL6Imr3VtVGlnu9puCQ7c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Oc4yYqTY6YZEBdpDIXvK8gMuT0CSUBH+OOzf6QoNRIJ+FYDMYXwwrrC1Q6jjpWrG+
-	 j1RvwHEPu57kBXLjW+u3cEH59+Uxau7P74gGNymMP7qyKktMJrLEBXwrzfILZjhgmN
-	 zq15dm5L52VO0jELjxY9MO7cie8BX1bIZVMzVA3k8xN5kj9Gk+as0e9cOGBc6ITiIh
-	 qKvZTe4awM7ESV1w5bi52KqcvSzMtMhm7xZ6nBnwVQBpR6xEZDjN868KGUr0MvcGY9
-	 70XYLJyanL7TlQlUqE6idB74SAprj20uDQ8gfLcu/a3r82o419K6bOgmgfkvbFnCyu
-	 MtPjCKpJwaK6A==
-Message-ID: <sashiko-outbox-190638@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: synaptics - support the touchpad LED on RMI
- function $30
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "ahmad baghereslami" <ahmad.b1995@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261030070821.1716595-1-ahmad.b1995@gmail.com>
-References: <20261030070821.1716595-1-ahmad.b1995@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 30 Oct 2026 07:24:13 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=GGG9vEBq
+Received: by mail-dl1-f53.google.com with SMTP id a92af1059eb24-170135e43c7so584136c88.0
+        for <linux-input@vger.kernel.org>; Fri, 30 Oct 2026 00:58:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793347106; x=1793951906; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=4oAI5pxrIzXlsyWd5vlHzyNWwBTG6cTZg/AYjzhaORc=;
+        b=GGG9vEBqs0KOdgWpmiKWSIt5WiVXa1uTTSIYJDfkXZTot6gliH6IsN1uuFr/2jrYSe
+         U7gllHE3EA+ogniCMpvqYCrZN9iykitU4bK2wKXp4ARtTJbW4ms7vkhdADyORj/ycI4H
+         G3KACOujmEYbJHeu0gTiGhwGYcg2b9X5IqEJNEM4MxjkgfcZchN3kL1bz+lINiJNWIzF
+         zGgqY6RUWYac/JAXO9F5JJ5jYRt0FVaae8UP7FlSjNNhD9m+UFZLz733RHavNFzFPDPQ
+         dueoDefL4Rlbv0MJcoOBr6BADn6WW6jesglLMWLzYPkxnwbyC7onuwK313uY5FSCt3SH
+         SFbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793347106; x=1793951906;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=4oAI5pxrIzXlsyWd5vlHzyNWwBTG6cTZg/AYjzhaORc=;
+        b=m6S/ipN4nL3V62LJ7DUm63NeRZw0HxCIjE+E5pZhVZ02OvQhRPIfpkFQVIysj+onqe
+         yxSdU3RiIqPolb8p/bXvg3IeZY3gz4llsgDvzi8t4xvvEWEq8ZnBGFYnD0+akaGWoIag
+         rOKS0aoKphCN/ckl9mR5i9scyWo46wzvp5EweUd0iXJ8VZ0wI6KyqpFRKz0voMnU4ZJv
+         NOhXMMMxQNZIuiKTiRPIQVsFTcZ3C5B3sLJfuwpzr+ZBPOkNpGpZnd0HQZzWrsjFboAX
+         ZUJ4xwQ/dMSa/MSCe05Fm8awT+w45w1KPWdT42XpB8ZFjgFFcCoklgpNv1TNQTMX7sdm
+         IC0Q==
+X-Forwarded-Encrypted: i=1; AKwUvBwbW5x2On/D5ArEIWOlInqi8nPXEqN6Thi2UYhJ1/w59G0Mtpi/CqY8KjaGgxyfSN2i84AdTlQ/olly6w==@vger.kernel.org
+X-Gm-Message-State: AFq9FYIJSk1CSgfr5JV/O7lbACitOHaFLmrD9satXyRX5PWxmjP03Hwp
+	cWaE5ECEOpg8aAg/qFfP1MG3BqLZsKSKeVnFATFhUD0QGd+Tv9zdXGxb
+X-Gm-Gg: AYBFou2WgXXcu1wZmQAsIECHnxGmLZ4qSgXUBq23Jr9XEE/tOBBjr5pzax8xHgcVlRE
+	GQkhRocltcLL8cK7ZgRYRSy1rWHNqVsKlN4hAwqqk4pcqDhkBGtwpuWOJAQz4UckphgbCtFdj3A
+	8GuurUNLdaO5ZtsSWLEgP1qjYl3G1vP9h4aZVpjhGX36amM6ZfHPCoVx2Y1V/LVBQ/EpL4FKV1L
+	k75FiEFljLFV9JHqZNZ3jqXb2yRMIvSg8XV91mcDaUcd5Neh20sqhKVw3/8NdWT4IXWFxjVofif
+	LuJsGQNeWmaA8FGsSIu2lZjGZSCHReSwewsTQx/WpRiZOAGOFT1VPNtci3wVyU8G7B954mnlNdy
+	OUCuCtfGwq0k+MrVJwY6q6/S+qhQCNt0xoCFA3gKF4boYdvliYeN0tqZmK7s1HlxxP3RlfqGGhZ
+	cwxVyHhOtcuiAe6V9q/9+LK+ux2CLNwC1UlNwT13H8fOGGyb/GnqjGlQuc5E0uQ8KiZIzJlWhto
+	ZdBKYy1MYZFq2TxUcEf3AVdXR2HbqQXAejvMlpV8MAxLyKoeVvuusbdssRG+qWg39TOlv8H/tbW
+	dVUi9Bjm78sP+6WaB1615Jc963zmlGZxqMwpFVktqdTZ/KV+WPJXL4lGZUZwdxzjjo8=
+X-Received: by 2002:a05:7023:d0b:b0:1a7:216d:157c with SMTP id a92af1059eb24-1ac5de5380emr2405354c88.34.1793347106204;
+        Fri, 30 Oct 2026 00:58:26 -0700 (PDT)
+Received: from osman.mioffice.cn ([43.224.245.178])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1ac19c6b969sm4741054c88.14.2026.10.30.00.58.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Oct 2026 00:58:25 -0700 (PDT)
+From: Zhan Xusheng <zhanxusheng1024@gmail.com>
+To: gregkh@linuxfoundation.org
+Cc: jirislaby@kernel.org,
+	dmitry.torokhov@gmail.com,
+	mathieu.poirier@linaro.org,
+	linux-serial@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	zhanxusheng@xiaomi.com
+Subject: Re: [PATCH v4 1/2] tty: sysrq: don't expose a partially written reset_seq
+Date: Fri, 30 Oct 2026 15:58:20 +0800
+Message-ID: <20261030075820.207049-1-zhanxusheng1024@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <2026103014-sketch-headed-2fd1@gregkh>
+References: <2026103014-sketch-headed-2fd1@gregkh>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,237 +101,44 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [Medium] Input: synaptics: LED unregister in synaptics_disconnect() fails=
- with -EBUSY
-- [Medium] Input: synaptics: missing psmouse_mutex locking in synaptics_rmi=
-_led_set()
-- [Medium] Input: synaptics: synaptics_rmi_led_set() clears SYN_BIT_FOUR_BY=
-TE_CLIENT
-- [Low] Input: synaptics: link failure when CONFIG_LEDS_CLASS is not reacha=
-ble
---
+Hi Greg,
 
-commit 2ccb85e9eccb48086da73fe8acd02267ab779ff1
-Author: ahmad baghereslami <ahmad.b1995@gmail.com>
+On Fri, Oct 30, 2026 at 08:02:30AM +0100, Greg KH wrote:
+> I still don't understand what the root problem is here, sorry.
 
-Input: synaptics - support the touchpad LED on RMI function $30
+Each keyboard keeps its own copy of reset_seq.  It rebuilds the copy on
+the first key press after the parameter changes, and it rebuilds it
+wrong in two ways.
 
-This commit adds support for the touchpad disabled LED wired to RMI function
-$30 on certain HP laptops (such as the HP ZBook 17 G3) by accessing RMI
-registers over PS/2 using mode byte 0x7f. It probes F30 during PS/2
-initialization, registers an LED class device, and restores the LED state on
-reconnect.
+1) It adds the new keys to the old copy instead of replacing it (2/2):
 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synapt=
-ics.c
-> index b007e642ea765..bf1c6c738295c 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
+  echo 56,29,111 > /sys/module/sysrq/parameters/reset_seq # Alt+Ctrl+Del
+  (press any key)
+  echo 59,60 > /sys/module/sysrq/parameters/reset_seq     # F1+F2
 
-[ ... ]
+Now F1+F2 does nothing.  Only holding all five keys resets.  So setting
+reset_seq once works, but changing it later does not.
 
-> +static int synaptics_rmi_led_set(struct led_classdev *led,
-> +				 enum led_brightness value)
-> +{
-> +	struct synaptics_data *priv =3D container_of(led, struct synaptics_data=
-, rmi_led);
-> +	struct psmouse *psmouse =3D priv->psmouse;
-> +	int error, ret;
-> +
-> +	guard(mutex)(&priv->rmi_led_lock);
-> +
-> +	if (psmouse->state !=3D PSMOUSE_ACTIVATED)
-> +		return -EBUSY;
-> +
-> +	error =3D psmouse_deactivate(psmouse);
-> +	if (error)
-> +		return error;
-> +
-> +	ret =3D __synaptics_rmi_led_set(psmouse, value !=3D LED_OFF);
+2) It can rebuild the copy while the write is half done (1/2).  The
+write stores the keys one at a time, and the keyboard may read the list
+in between:
 
-[Severity: Medium]
-Should synaptics_rmi_led_set() synchronize with psmouse_mutex rather than a
-private rmi_led_lock?
+  echo 59,60 > reset_seq
+    store 59
+                      <- F1 pressed: keyboard reads "59" as the sequence
+    store 60
 
-In drivers/input/mouse/psmouse-base.c, psmouse_mutex serializes all paths
-that inspect or transition psmouse->state, activate or deactivate a device =
-or
-pass-through parent port, or run multi-command PS/2 sequences (such as
-psmouse_reconnect(), psmouse_resync(), psmouse_cleanup(),
-psmouse_disconnect(), and psmouse_attr_set_helper()). Meanwhile,
-ps2_command() only holds ps2dev->cmd_mutex for one PS/2 command at a time,
-and nothing else in synaptics.c (including synaptics_reconnect()) or
-psmouse-base.c takes priv->rmi_led_lock.
+On a keyboard that has not used a reset sequence before, or on any
+keyboard once 2/2 is applied, that F1 press completes the one-key
+sequence and reboots the machine.  The window is microseconds; I only
+hit it with an added delay.
 
-When synaptics_rmi_led_set() runs asynchronously from set_brightness_work
-without holding psmouse_mutex:
+If you want this fixed, I'll send a v5 with a much smaller 1/2, plain
+changelogs, and the Assisted-by: tag I should have added from the
+start.  Otherwise please drop it.
 
-1. While __synaptics_rmi_led_set() has the touchpad in mode 0x7f across
-   multiple SetScale 2:1, SetRate, and GetInfo commands, concurrent PS/2
-   commands from reconnect, resync, sysfs attribute writes (such as
-   synaptics_set_rate() or synaptics_set_disable_gesture()), or pass-through
-   port operations can interleave and corrupt both the RMI register sequence
-   and the concurrent operation.
-
-2. At the end of synaptics_rmi_led_set(), psmouse_activate(psmouse)
-   unconditionally sends the enable command and sets psmouse->state to
-   activated, even if a concurrent thread holding psmouse_mutex (such as
-   pass-through child probing, reconnect, cleanup, or disconnect) has
-   deactivated the touchpad and expects it to stay in command or
-   initializing mode.
-
-3. If set_brightness_work runs while a sysfs write or pass-through operation
-   temporarily places psmouse->state into command mode, or right after
-   synaptics_rmi_led_register() before psmouse_connect() activates the
-   device, synaptics_rmi_led_set() immediately returns -EBUSY instead of
-   waiting for the state transition to finish.
-
-> +
-> +	/* Setting the mode byte again leaves RMI access */
-> +	error =3D synaptics_set_mode(psmouse);
-> +	if (!ret)
-> +		ret =3D error;
-> +
-> +	error =3D psmouse_activate(psmouse);
-> +	return ret ?: error;
-> +}
-
-[Severity: Medium]
-Will calling synaptics_set_mode() here clobber the 4-byte client bit in
-priv->mode when a pass-through guest device is attached?
-
-When a 4-byte protocol child is activated on the pass-through port,
-synaptics_pt_activate() updates priv->mode:
-
-drivers/input/mouse/synaptics.c:synaptics_pt_activate() {
-	...
-	if (child) {
-		if (child->pktsize =3D=3D 4)
-			priv->mode |=3D SYN_BIT_FOUR_BYTE_CLIENT;
-		else
-			priv->mode &=3D ~SYN_BIT_FOUR_BYTE_CLIENT;
-
-		if (synaptics_mode_cmd(psmouse, priv->mode))
-			psmouse_warn(psmouse,
-				     "failed to switch guest protocol\n");
-	}
-}
-
-Other runtime mode updates such as synaptics_set_rate() and
-synaptics_set_disable_gesture() modify priv->mode in place and call
-synaptics_mode_cmd(psmouse, priv->mode). By contrast, synaptics_set_mode()
-resets priv->mode =3D 0 and rebuilds it without SYN_BIT_FOUR_BYTE_CLIENT,
-which will clear that bit in hardware whenever the LED brightness is change=
-d.
-
-> +
-> +static void synaptics_rmi_led_init(struct psmouse *psmouse)
-> +{
-> +	struct synaptics_data *priv =3D psmouse->private;
-> +
-> +	if (!IS_REACHABLE(CONFIG_LEDS_CLASS) ||
-> +	    !psmouse_matches_pnp_id(psmouse, rmi_led_pnp_ids))
-> +		return;
-> +
-> +	if (synaptics_rmi_led_probe(psmouse))
-> +		return;
-> +
-> +	psmouse_info(psmouse, "touchpad LED on RMI F30 (page %u, ctrl %#x, mask=
- %#x)\n",
-> +		     priv->rmi_led_page, priv->rmi_led_ctrl, priv->rmi_led_mask);
-> +	__synaptics_rmi_led_set(psmouse, false);
-> +	priv->has_rmi_led =3D true;
-> +}
-> +
-> +static void synaptics_rmi_led_register(struct psmouse *psmouse)
-> +{
-> +	struct synaptics_data *priv =3D psmouse->private;
-> +	int error;
-> +
-> +	if (!priv->has_rmi_led)
-> +		return;
-> +
-> +	mutex_init(&priv->rmi_led_lock);
-> +	priv->psmouse =3D psmouse;
-> +	priv->rmi_led.name =3D "synaptics::touchpad_disabled";
-> +	priv->rmi_led.max_brightness =3D 1;
-> +	priv->rmi_led.brightness_set_blocking =3D synaptics_rmi_led_set;
-> +	error =3D led_classdev_register(&psmouse->ps2dev.serio->dev, &priv->rmi=
-_led);
-> +	if (error) {
-> +		psmouse_warn(psmouse, "failed to register touchpad LED: %d\n", error);
-> +		priv->has_rmi_led =3D false;
-> +	}
-> +}
-
-[Severity: Low]
-Can this cause a link failure when CONFIG_LEDS_CLASS is disabled, or when
-psmouse is built-in and CONFIG_LEDS_CLASS=3Dm?
-
-In drivers/input/mouse/Kconfig, MOUSE_PS2_SYNAPTICS does not depend on or
-select LEDS_CLASS, and include/linux/leds.h declares
-led_classdev_register_ext() and led_classdev_unregister() unconditionally
-without inline stubs when CONFIG_LEDS_CLASS is not enabled.
-
-Because synaptics_rmi_led_init() checks IS_REACHABLE(CONFIG_LEDS_CLASS),
-whereas synaptics_rmi_led_register() and synaptics_disconnect() only check
-the runtime struct field priv->has_rmi_led after priv is loaded from
-psmouse->private across function calls, the compiler cannot fold
-priv->has_rmi_led to a compile-time constant false and eliminate the calls
-to led_classdev_register() and led_classdev_unregister().
-
-> +
->  static int synaptics_set_mode(struct psmouse *psmouse)
->  {
->  	struct synaptics_data *priv =3D psmouse->private;
-> @@ -1444,6 +1674,9 @@ static void synaptics_disconnect(struct psmouse *ps=
-mouse)
->  {
->  	struct synaptics_data *priv =3D psmouse->private;
-> =20
-> +	if (priv->has_rmi_led)
-> +		led_classdev_unregister(&priv->rmi_led);
-
-[Severity: Medium]
-When synaptics_disconnect() calls led_classdev_unregister(&priv->rmi_led),
-will the shutdown brightness update always fail with -EBUSY?
-
-Every caller of psmouse->disconnect(psmouse) in
-drivers/input/mouse/psmouse-base.c transitions psmouse->state to command mo=
-de
-before invoking the disconnect callback:
-
-drivers/input/mouse/psmouse-base.c:psmouse_disconnect() {
-	...
-	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
-	...
-	if (psmouse->disconnect)
-		psmouse->disconnect(psmouse);
-}
-
-Because LED_RETAIN_AT_SHUTDOWN is not set on priv->rmi_led.flags,
-led_classdev_unregister() calls led_set_brightness(&priv->rmi_led, LED_OFF)
-and flushes set_brightness_work:
-
-led_classdev_unregister()
-  -> led_set_brightness(&priv->rmi_led, LED_OFF)
-  -> flush_work(&priv->rmi_led.set_brightness_work)
-       -> set_brightness_delayed()
-            -> synaptics_rmi_led_set()
-
-Inside synaptics_rmi_led_set(), the check:
-
-	if (psmouse->state !=3D PSMOUSE_ACTIVATED)
-		return -EBUSY;
-
-sees PSMOUSE_CMD_MODE and returns -EBUSY, causing
-set_brightness_delayed_set_brightness() to log a kernel error and leaving t=
-he
-hardware LED lit if it was on before disconnect.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261030070821.1716=
-595-1-ahmad.b1995@gmail.com?part=3D1
+Thanks,
+Zhan Xusheng

@@ -1,57 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793401197;
-	b=cSj9DH80ahuvNaJhp/JB9dbleogZXL2l512tHDj+Mi825rZWZ9A9BRe+4O9upHoZxpRr
-	 mfwMHTncRAQC6JPn9LqD1yd2j+LdxDZI36IEXCRTuewKRLnlk9PrU6J+bWDsNW4TPnfog
-	 t1zHeUeMTSQKIs66tbnmTJH22iolHmK3M8RQvSDl18KNTvnijIQ5q1vrLnB3auVVBUd4A
-	 k0f2umRzcFSxgg3ReVSWekIpoJL2+/qlhf8twprmr0b5XPiaaQocjnXxEO4FVA2ZG3VB6
-	 qn6BXQMKyPPgzSCpdxj8n3Q+aBEbPz/ExVPXiLNC2xnH851z8iWLxB3Ap+lSN1aYFUQ==
+	t=1793401223;
+	b=hko/4d3X5tGZatLPwfJPCaQ6+1hCoTt6KlZjGa2kDEMq74rXRYKCD9kwdjxiqQFpwqzE
+	 DN4JvZcDFfo7btrqKTaUZpIhcibD0zX2G8mrGlI4EdNUcwZjjkFIvZ3iaZNsjJ9Yoay8+
+	 XIIbtmzkTuKXDHsGO+kuHTFEiyKuh5lTvhxj5qsy0/xDmTNTB1kL3YsmmpgNDMZ4ZA9T+
+	 hrlf/vEyK3WByIFxoWrsnTsNjZ1zNCTJrSYM+wVZLYnYBp4CU7G5ghZ9aY0g9Bgt/shRX
+	 Tvj3EbaI/6PbtTjOc+TAeEf3hoMGJ/WqjiECifbzRwmU2EolXQvcvpDiGkboCq0S73w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793401197;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793401223;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=PgZ+9Qt2QbNTt/+Nqt/K0H9j0xEk5jXp4WJtgKzNahM=;
-	b=aRNVat9Lh/Q4igQcXzibzPlgK8KntEmbBZ81DWvdKD1OkbUzjjSzAvyDV8Bpawe1PQKS
-	 8trOs3Iy/rAHSKmPXFoW5nxiy2GHV20WqF04TcNbX0Pi00RewpuRBPpy9Px9aV1AK4gBK
-	 Fsg+gp6HKutC0K7WBKf/f4eGr8S49yu+N1FUub233i5Pp8AvvF98RXTUMEzVwOli0MO2D
-	 30YC+EMQc2z6r27nXYCTUqRzCBuC5bgAsc2F/ep2YJbzTdNIy+v0wiqKlnvcTJXwSxg8l
-	 mmzt87ntrfTj3GWphKjT0fipblHCAxzwxUm18srCnurO7e35ar+WM4J7JSF4WjY+wDQ==
+	bh=5jIcfC6i5IDlFmKO8MPaxHrkwq1ePYWBHajN0TY2iqg=;
+	b=fT3MhH6Exz7aQV/HLQpfyG87W0pSnUDA+1WLDcQrqdm+Bivk/DvAC9d65l2psGOwXFEn
+	 wWfVMKqraEMfxJhPIWreWWIZs8ipTnns4BcHAYIP4pgJjaVGTbDihpYbqp1OOiAmFnwV3
+	 fPoH72iKOe20Y9cliOQLxCt/R1ElaMTvBuktzmGgNyrqLdQIAvHDzR/BR6eZfRLBwsc6F
+	 uGSALnk9/NI65wMXRg1Vf39EFnT5Stwxj5nsiJ/Wp2BTPp61gYlob6f5i2zQzGoUHn8f2
+	 ZFVG6T2KQ/0YiZbN3iohAUN5xrnwg4CkhmEwWNQHT7P2zblcd7QBOXtEO6KsXR2Sxfw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MbBzwA8k;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BvGvZYSj;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ED86606A31A;
-	Fri, 30 Oct 2026 22:59:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B95FA606A31C;
+	Fri, 30 Oct 2026 23:00:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MbBzwA8k
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A366B1F000C1;
-	Fri, 30 Oct 2026 22:59:56 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BvGvZYSj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EED91F000C1;
+	Fri, 30 Oct 2026 23:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793401196;
-	bh=PgZ+9Qt2QbNTt/+Nqt/K0H9j0xEk5jXp4WJtgKzNahM=;
+	s=k20260515; t=1793401222;
+	bh=5jIcfC6i5IDlFmKO8MPaxHrkwq1ePYWBHajN0TY2iqg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MbBzwA8k461orMv1EOA/67IIO9UNBR2z70aKQLDo6rLlEmtRajkKzqiJWg+nXXqpp
-	 i2cAPkLDRhHz8XX7mvwBCYNgJfGlPwogBJSzstIyU87Y9uTtOzqY0HzNDPuRn/L9CY
-	 p5ofOzoWoxGlMg1DkD50fGFSl5VTa0FlMV63TIVGCQ4xltLZf3hHfOkLhjsYmOyXhx
-	 9th3R0bJ7MQs/NYiclpZNgMe4KU5PWAk6mMjHQy3FTXPouF5huhuJPMbLhTO71b3MB
-	 nH/274k1/UwGdXtztnhxI+CFV5OtrTldaP7USDuLtK3AlOg6eM8n86mx578wrFUdcn
-	 2Rj6F/EtQ+RTA==
-Message-ID: <sashiko-outbox-191610@kernel.org>
+	b=BvGvZYSjgZd6slhgnjSodai4L5GvO64eINMdE0OIM4xfvDq3EwW0UGHHx6WREsWB0
+	 3PEqY0FExiYEE5/Gc/RiQGwkCndcYebqFWCP13xt0EaxG+moXsuOfKFS6PAJcHTqSb
+	 7kwXzXbWigbb4R5DSShFVl+HSbx9HeEKIWWslyrfCa3sjapPrjyLu05wXVLnMR7sWi
+	 kbHWqSFuCGITEodKVSfC46gnF7Ex1sLdQZdL6RoYdqFzFAXqkyICwFU9C8gtIue+8x
+	 LE9dn9aDsnsS2t1i9cf49eEJxZ/VSIf9pCwV4se2kDCGi3FWQRAKiTcyj/IjggYKeI
+	 rKMSB9hl9ns9A==
+Message-ID: <sashiko-outbox-191611@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 11/15] HID: ft260: workaround for TN_189 errata
- endpoint STALL after enumeration
+Subject: Re: [PATCH v2 01/15] HID: ft260: add serial driver
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Michael Zaidman" <michael.zaidman@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-serial@vger.kernel.org, linux-gpio@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261030223637.86907-12-michael.zaidman@gmail.com>
+In-Reply-To: <20261030223637.86907-2-michael.zaidman@gmail.com>
 References: <20261030223637.86907-1-michael.zaidman@gmail.com>
- <20261030223637.86907-12-michael.zaidman@gmail.com>
+ <20261030223637.86907-2-michael.zaidman@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 30 Oct 2026 22:59:56 +0000
+Date: Fri, 30 Oct 2026 23:00:22 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,272 +60,540 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 7 potential issue(=
 s) to consider:
-- [High] HID: ft260: duplicate per-interface resets in ft260_schedule_reset=
-()
-- [Medium] HID: ft260: race between ft260_reset_and_rebind() and sibling ft=
-260_probe()
-- [Low] HID: ft260: ft260_check_dev_responsive() masks -ENOMEM as -ENODEV
+- [High] HID: ft260: broken minor index allocation and bounds check in ft26=
+0_uart_add_port()
+- [High] HID: ft260: use-after-free of hdev and xmit_fifo across ft260_remo=
+ve()
+- [High] HID: ft260: unsynchronized transmit loop and infinite loop in ft26=
+0_uart_transmit_chars()
+- [High] HID: ft260: use-after-free and double free in ft260_probe() on FT2=
+60_IFACE_NONE
+- [High] HID: ft260: unguarded UART report in ft260_raw_event() on I2C inte=
+rface
+- [High] HID: ft260: sleeping in atomic context in ft260_uart_write()
+- [Medium] HID: ft260: race in ft260_uart_probe() registering tty before hw=
+ config
 --
 
-commit d1a110e7b9317417bd055dbbded2a9eda4b1e754
-Author: Michael Zaidman <michael.zaidman@gmail.com>
+commit bd086b64065aa177dfdec81fc03e141758ca2307
+Author: Christina Quast <contact@christina-quast.de>
 
-HID: ft260: workaround for TN_189 errata endpoint STALL after enumeration
+HID: ft260: add serial driver
 
-This patch adds an in-driver workaround for FTDI errata TN_189 where the
-FT260's USB interrupt endpoints are occasionally halted after enumeration.
-During probe, the driver checks interrupt endpoint health and device
-responsiveness, and on failure schedules deferred work on an ordered
-workqueue to reset the USB device and rebind all of its interfaces.
-
-Link: https://ftdichip.com/wp-content/uploads/2026/05/TN_189-FT260-Errata-T=
-echnical-Note.pdf
+This commit adds a TTY serial driver (/dev/ttyFTx) for the UART interface
+of FTDI FT260 USB HID devices, supporting termios configuration and serial
+data transfers alongside the existing I2C interface support.
 
 > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> index 65835e13fa2ad..923ce6ee9dcfd 100644
+> index 64c9c940db46e..982e2ca7a2de6 100644
 > --- a/drivers/hid/hid-ft260.c
 > +++ b/drivers/hid/hid-ft260.c
 
 [ ... ]
 
-> @@ -2396,15 +2397,229 @@ static int ft260_uart_probe(struct ft260_device =
-*dev,
->  	return ret;
->  }
+> @@ -1001,51 +1101,478 @@ static const struct attribute_group ft260_attr_g=
+roup =3D {
+>  	}
+>  };
 > =20
-> +/*
-> + * FT260 errata TN_189 Section 2.1: the USB interrupt endpoints are
-> + * occasionally halted right after enumeration. When this happens:
-> + *  - Standard Clear-Feature ENDPOINT_HALT does not recover the endpoint
-> + *  - Subsequent communication with the device is dead
-> + *  - The only known recovery is a USB device reset
-> + *
-> + * A separate finding from FTDI engineering (confirmed by USB analyzer
-> + * trace while testing this workaround) is that the FT260 does NOT
-> + * honestly report the halt state via USB_REQ_GET_STATUS: it returns 0
-> + * even when the endpoint is STALLed. Detection must therefore observe
-> + * the STALL handshake at the host controller level rather than ask
-> + * the device.
-> + *
-> + * Recovery is performed by a deferred work item that resets the USB
-> + * device and unbinds/rebinds all interfaces to force usbhid to
-> + * destroy stale HID devices and create fresh ones, which triggers a
-> + * new ft260_probe() that succeeds.
-> + *
-> + * https://ftdichip.com/wp-content/uploads/2026/05/TN_189-FT260-Errata-T=
-echnical-Note.pdf
+> -static int ft260_probe(struct hid_device *hdev, const struct hid_device_=
+id *id)
+> +/***
+> + * START Serial dev part
 > + */
-> +struct ft260_reset_work {
-> +	struct work_struct work;
-> +	struct usb_interface *usbif;
-> +};
+> +static DEFINE_MUTEX(ft260_uart_list_lock);
+> +static LIST_HEAD(ft260_uart_device_list);
 > +
-> +static struct workqueue_struct *ft260_reset_wq;
-> +
-> +static void ft260_reset_and_rebind(struct work_struct *ws)
+> +static struct ft260_device *ft260_dev_by_index(int index)
 > +{
-> +	struct ft260_reset_work *rw =3D
-> +		container_of(ws, struct ft260_reset_work, work);
-> +	struct usb_interface *usbif =3D rw->usbif;
-> +	struct usb_device *usbdev =3D interface_to_usbdev(usbif);
-> +	struct usb_host_config *actconfig;
-> +	int ret, i, attempt;
+> +	struct ft260_device *port;
 > +
-> +	/*
-> +	 * Retry the device lock for up to ~10 seconds. The lock is held
-> +	 * by hub_event for the duration of device enumeration; with the
-> +	 * fast-fail responsiveness check in probe, both interfaces should
-> +	 * abort within ~1-2 seconds, after which the lock becomes free.
-> +	 * Each usb_lock_device_for_reset() attempt already polls for up to
-> +	 * one second internally.
-> +	 */
-> +	for (attempt =3D 0; attempt < 10; attempt++) {
-> +		ret =3D usb_lock_device_for_reset(usbdev, NULL);
-> +		if (ret >=3D 0)
-> +			break;
-
-[Severity: Medium]
-Can ft260_reset_and_rebind() race with a concurrent ft260_probe() on the
-sibling HID interface when the driver is loaded after USB enumeration has
-already finished?
-
-When an FT260 device in the TN_189 errata state is enumerated before
-hid-ft260 is loaded, usbhid_probe() registers both hid_device instances and
-hub_event releases usb_lock_device(usbdev). When udev later loads hid-ft260
-(or the driver is bound via sysfs), __hid_register_driver() probes the HID
-devices sequentially on hid_bus_type without holding usb_lock_device(usbdev=
-).
-
-When interface 0 fails ft260_check_intr_ep_health() or
-ft260_check_dev_responsive() in ft260_probe(), it queues
-ft260_reset_and_rebind() on ft260_reset_wq and returns -ENODEV. While the
-module init thread moves on to probe interface 1, the worker thread on
-another CPU can immediately acquire usb_lock_device_for_reset(usbdev, NULL)
-and run usb_reset_device(usbdev) and device_release_driver(&intf->dev)
-concurrently with interface 1 running usbhid_start(), USB transfers, and
-usbhid_stop() in ft260_probe().
-
-In particular, usb_reset_device() invokes hid_pre_reset() -> hid_cease_io()
--> usb_kill_urb() without holding usbhid->mutex while interface 1's error
-path in ft260_probe() -> hid_hw_stop() -> usbhid_stop() calls usb_free_urb(=
-),
-and interface 1's failing probe will also queue a redundant reset work item.
-
-> +		if (ret =3D=3D -ENODEV || ret =3D=3D -EHOSTUNREACH) {
-> +			dev_dbg(&usbif->dev,
-> +				"device gone before reset (%d), abort\n", ret);
-> +			goto out;
-> +		}
-> +		/* -EBUSY: someone else holds the lock; retry. */
+> +	list_for_each_entry(port, &ft260_uart_device_list, device_list) {
+> +		if (index =3D=3D port->index)
+> +			return port;
 > +	}
-> +	if (ret < 0) {
-> +		dev_err(&usbif->dev,
-> +			"failed to acquire USB device lock for reset after %d attempts: %d\n",
-> +			attempt, ret);
-> +		goto out;
-> +	}
-> +
-> +	ret =3D usb_reset_device(usbdev);
-> +	if (ret < 0) {
-> +		dev_err(&usbif->dev, "USB reset failed: %d\n", ret);
-> +		usb_unlock_device(usbdev);
-> +		goto out;
-> +	}
-> +
-> +	/*
-> +	 * usb_reset_device() keeps usbhid bound (its pre_reset/post_reset
-> +	 * both return 0) and does not re-trigger HID-level driver probing.
-> +	 * Unbind and rebind all USB interfaces to force usbhid to destroy
-> +	 * stale HID devices and create new ones, which triggers fresh
-> +	 * ft260_probe() calls.
-> +	 */
-> +	actconfig =3D usbdev->actconfig;
-> +	for (i =3D 0; actconfig && i < actconfig->desc.bNumInterfaces; i++) {
-> +		struct usb_interface *intf =3D actconfig->interface[i];
-> +
-> +		if (intf && intf->dev.driver)
-> +			device_release_driver(&intf->dev);
-> +	}
-> +	for (i =3D 0; actconfig && i < actconfig->desc.bNumInterfaces; i++) {
-> +		struct usb_interface *intf =3D actconfig->interface[i];
-> +
-> +		if (!intf)
-> +			continue;
-> +		ret =3D device_attach(&intf->dev);
-> +		if (ret < 0)
-> +			dev_err(&intf->dev,
-> +				"failed to rebind USB interface: %d\n", ret);
-> +	}
-> +
-> +	usb_unlock_device(usbdev);
-> +out:
-> +	usb_put_intf(usbif);
-> +	kfree(rw);
+> +	return NULL;
 > +}
 > +
-> +static int ft260_schedule_reset(struct usb_interface *usbif)
-> +{
-> +	struct ft260_reset_work *rw;
+> +static int ft260_uart_add_port(struct ft260_device *port)
+>  {
+> +	int index =3D 0, ret =3D 0;
+>  	struct ft260_device *dev;
+> -	struct ft260_get_chip_version_report version;
 > +
-> +	rw =3D kmalloc_obj(*rw, GFP_KERNEL);
-> +	if (!rw)
+> +	spin_lock_init(&port->write_lock);
+> +	if (kfifo_alloc(&port->xmit_fifo, FIFO_SIZE, GFP_KERNEL))
 > +		return -ENOMEM;
 > +
-> +	usb_get_intf(usbif);
-> +	rw->usbif =3D usbif;
-> +	INIT_WORK(&rw->work, ft260_reset_and_rebind);
-> +	queue_work(ft260_reset_wq, &rw->work);
+> +	mutex_lock(&ft260_uart_list_lock);
+> +	list_for_each_entry(dev, &ft260_uart_device_list, device_list) {
+> +		if (dev->index !=3D index)
+> +			break;
+> +		index++;
+> +	}
 > +
-> +	return 0;
+> +	port->index =3D index;
+> +	list_add_tail(&port->device_list, &ft260_uart_device_list);
+> +	mutex_unlock(&ft260_uart_list_lock);
+> +
+> +	return ret;
 > +}
 
 [Severity: High]
-As reported by Sashiko on v1 [1], since the FT260 in composite modes
-(FT260_MODE_ALL and FT260_MODE_BOTH) exposes two USB HID interfaces on the
-same struct usb_device, won't scheduling an independent ft260_reset_work
-item per failing interface cause a redundant reset that tears down the
-already-recovered device and multiply pending work items on repeated
-failures?
+As reported by Sashiko on v1 [1], can ft260_uart_add_port() in
+drivers/hid/hid-ft260.c assign duplicate minor indices or exceed
+UART_COUNT_MAX?
 
-During enumeration under hub_event, usb_set_configuration() probes both
-interface 0 and interface 1 while holding the USB device lock. When the
-chip hits the TN_189 state, ft260_probe() fails on both interfaces and calls
-ft260_schedule_reset(usbif) twice, queueing two ft260_reset_work items on
-ft260_reset_wq for the same usb_device.
+The loop in ft260_uart_add_port() searches for the lowest unused index by
+breaking as soon as dev->index !=3D index, which assumes ft260_uart_device_=
+list
+is kept sorted in ascending order of index. However, the new port is always
+appended at the end of the list with list_add_tail(&port->device_list,
+&ft260_uart_device_list) instead of being inserted before dev
+(&dev->device_list).
 
-Once hub_event releases the USB device lock:
+If port 0 and port 1 are probed (list: [0, 1]), port 0 is removed (list:
+[1]), and a third UART device is probed, it gets index 0 and is appended to
+the tail (list: [1, 0]). When a fourth UART device is probed, the loop sees
+dev->index =3D=3D 1 !=3D 0 on the first entry, breaks immediately, and assi=
+gns a
+duplicate index 0.
 
-1. The first work item runs ft260_reset_and_rebind(), calls
-   usb_reset_device(usbdev), and loops over all interfaces in
-   actconfig->desc.bNumInterfaces calling device_release_driver(&intf->dev)
-   and device_attach(&intf->dev). When the first reset recovers the chip,
-   device_attach() synchronously runs usbhid_probe() and ft260_probe() on
-   both interfaces, registering the live I2C adapter, GPIO chip, and
-   /dev/ttyFT* port.
+In ft260_uart_probe(), tty_port_register_device_attr() then calls
+tty_port_link_device(), which overwrites ft260_tty_driver->ports[0] with the
+new port before device_register() fails with -EEXIST. The error path in
+ft260_probe() frees the new port via tty_port_put(&dev->port), leaving
+ft260_tty_driver->ports[0] as a dangling pointer to freed memory while the
+first /dev/ttyFT0 remains registered.
 
-2. Immediately after the first work item unlocks usbdev, the second work
-   item queued during initial enumeration runs ft260_reset_and_rebind().
-   Because ft260_schedule_reset() does not deduplicate per usb_device and
-   ft260_reset_and_rebind() does not check whether the interfaces are
-   already bound and healthy, it unconditionally resets the healthy USB
-   device a second time and calls device_release_driver(&intf->dev) on all
-   interfaces, invoking ft260_remove() to tear down the active I2C adapter,
-   GPIO chip, and TTY device that were just registered.
+In addition, ft260_uart_add_port() does not check whether index >=3D
+UART_COUNT_MAX (4), so probing a fifth UART device passes index =3D=3D 4 to
+tty_port_register_device_attr() -> tty_port_link_device() and triggers
+WARN_ON(index >=3D driver->num).
 
-3. If a reset does not recover the device on the first attempt (or the
-   device is persistently unresponsive), each execution of
-   ft260_reset_and_rebind() consumes one work item from ft260_reset_wq
-   while its device_attach() loop synchronously triggers failing
-   ft260_probe() calls on both interfaces that queue two new
-   ft260_reset_work items, causing the workqueue backlog to grow on every
-   reset cycle.
+> +
+> +static void ft260_uart_port_put(struct ft260_device *port)
+> +{
+> +	tty_port_put(&port->port);
+> +}
+> +
+> +static void ft260_uart_port_remove(struct ft260_device *port)
+> +{
+> +	timer_delete_sync(&port->wakeup_timer);
+> +
+> +	mutex_lock(&ft260_uart_list_lock);
+> +	list_del(&port->device_list);
+> +	mutex_unlock(&ft260_uart_list_lock);
+> +
+> +	tty_port_tty_vhangup(&port->port);
+> +
+> +	spin_lock(&port->write_lock);
+> +	kfifo_free(&port->xmit_fifo);
+> +	spin_unlock(&port->write_lock);
+> +}
+
+[Severity: High]
+As reported by Sashiko on v1 [2], does freeing port->xmit_fifo in
+ft260_uart_port_remove() and stopping port->hdev in ft260_remove() cause a
+use-after-free when TTY operations race with or follow device removal?
+
+Although struct ft260_device lives until ft260_uart_port_destroy(),
+ft260_uart_port_remove() frees port->xmit_fifo during ft260_remove(), and t=
+he
+HID core frees port->hdev once ft260_remove() returns:
+
+drivers/hid/hid-ft260.c:ft260_remove() {
+	if (dev->ft260_is_serial) {
+		timer_delete_sync(&dev->wakeup_timer);
+		cancel_work_sync(&dev->wakeup_work);
+		tty_port_unregister_device(&dev->port, ft260_tty_driver,
+					   dev->index);
+		ft260_uart_port_remove(dev);
+	}
+	...
+	hid_hw_close(hdev);
+	hid_hw_stop(hdev);
+}
+
+If tty_open() has completed ft260_uart_install() (obtaining a port reference
+from ft260_uart_device_list and dropping tty_mutex) before
+ft260_uart_port_remove() runs, but has not yet reached tty_port_tty_set() in
+tty_port_open(), port->port.tty is still NULL when tty_port_tty_vhangup() is
+called. When tty_open() continues into ft260_uart_open() -> tty_port_open()
+-> ft260_uart_activate():
+
+drivers/hid/hid-ft260.c:ft260_uart_activate() {
+	...
+	spin_lock(&port->write_lock);
+	kfifo_reset(&port->xmit_fifo);
+	spin_unlock(&port->write_lock);
+
+	ft260_uart_change_speed(port, &tty->termios, NULL);
+	clear_bit(TTY_IO_ERROR, &tty->flags);
+}
+
+it resets the freed xmit_fifo, calls ft260_uart_change_speed() on the
+stopped/freed port->hdev, ignores the error return, clears TTY_IO_ERROR, and
+lets subsequent writes and termios changes proceed on a disconnected device.
+
+Even for an already-opened TTY, concurrent or subsequent calls to
+ft260_uart_set_termios() (which does not check tty_io_error()) or in-flight
+ft260_uart_write() / ft260_uart_transmit_chars() calls can dereference the
+freed port->hdev and port->xmit_fifo without any disconnect check or
+synchronization against ft260_remove(). Because __kfifo_free() sets
+fifo->data =3D NULL and fifo->mask =3D 0, kfifo_unused() evaluates to 1 when
+in =3D=3D out, causing a racing kfifo_in_locked() in ft260_uart_write() to
+memcpy() into a NULL fifo->data pointer.
+
+Should kfifo_free(&port->xmit_fifo) be deferred to ft260_uart_port_destroy(=
+),
+with a disconnect flag and lock protecting all port->hdev accesses in the
+TTY callbacks?
 
 [ ... ]
 
-> +static int ft260_check_dev_responsive(struct hid_device *hdev)
+> +static int ft260_uart_transmit_chars(struct ft260_device *port)
 > +{
-> +	struct usb_interface *usbif =3D to_usb_interface(hdev->dev.parent);
-> +	struct usb_device *usbdev =3D interface_to_usbdev(usbif);
-> +	__le16 *status;
+> +	struct hid_device *hdev =3D port->hdev;
+> +	struct kfifo *xmit =3D &port->xmit_fifo;
+> +	struct tty_struct *tty;
+> +	struct ft260_uart_write_request_report *rep;
+> +	int len, data_len, ret =3D 0;
+> +
+> +	tty =3D tty_port_tty_get(&port->port);
+> +
+> +	data_len =3D kfifo_len(xmit);
+> +	if (!tty || !data_len) {
+> +		ret =3D -EINVAL;
+> +		goto tty_out;
+> +	}
+> +
+> +	rep =3D (struct ft260_uart_write_request_report *)port->write_buf;
+> +
+> +	do {
+> +		len =3D min(data_len, FT260_WR_DATA_MAX);
+> +
+> +		rep->report =3D FT260_UART_DATA_REPORT_ID(len);
+> +		rep->length =3D len;
+> +
+> +		len =3D kfifo_out_locked(xmit, rep->data, len, &port->write_lock);
+> +
+> +		ret =3D ft260_hid_output_report(hdev, (u8 *)rep, len + sizeof(*rep));
+> +		if (ret < 0) {
+> +			hid_err(hdev, "Failed to start transfer, ret %d\n", ret);
+> +			goto tty_out;
+> +		}
+> +
+> +		data_len -=3D len;
+> +		port->icount.tx +=3D len;
+> +	} while (data_len > 0);
+
+[Severity: High]
+As reported by Sashiko on v1 [3], what happens in ft260_uart_transmit_chars=
+()
+if two threads transmit concurrently, or if xmit_fifo is drained or reset
+while ft260_hid_output_report() is blocking?
+
+First, port->write_buf is shared across the port without any lock protecting
+it across the blocking ft260_hid_output_report() call, so concurrent callers
+(for example, normal write vs line discipline echo) will corrupt rep->repor=
+t,
+rep->length, and rep->data.
+
+Second, rep->report and rep->length are computed from data_len before
+kfifo_out_locked() dequeues the data. If another thread consumes bytes from
+xmit_fifo (or ft260_uart_activate() resets the fifo, or
+ft260_uart_port_remove() frees it), kfifo_out_locked() can return fewer byt=
+es
+than rep->length, including 0.
+
+When kfifo_out_locked() returns len =3D=3D 0:
+1. rep->length still holds the stale non-zero length, violating the
+   __counted_by(length) annotation on rep->data and sending a malformed
+   2-byte report header with a non-zero length field.
+2. If ft260_hid_output_report() succeeds, data_len -=3D 0 leaves data_len
+   greater than 0, causing the do-while (data_len > 0) loop to spin
+   indefinitely.
+
+Also, if ft260_hid_output_report() fails mid-loop, the chunk already removed
+by kfifo_out_locked() is lost and any remaining bytes stay in xmit_fifo
+while ft260_uart_write() still returns the full queued count. Note that whi=
+le
+a subsequent patch in the series separates i2c_wr_buf and uart_wr_buf, the
+unlocked uart_wr_buf use, pre-dequeue rep->length assignment, and infinite
+loop when kfifo_out_spinlocked() returns 0 remain present.
+
+[ ... ]
+
+> +static ssize_t ft260_uart_write(struct tty_struct *tty, const u8 *buf,
+> +				 size_t count)
+> +{
+> +	struct ft260_device *port =3D tty->driver_data;
+> +	struct hid_device *hdev =3D port->hdev;
+> +	int len, ret;
+> +
+> +	len =3D kfifo_in_locked(&port->xmit_fifo, buf, count, &port->write_lock=
+);
+> +	ft260_dbg("count: %zu, len: %d", count, len);
+> +
+> +	ret =3D ft260_uart_transmit_chars(port);
+> +	if (ret < 0)
+> +		hid_dbg(hdev, "Failed to transmit chars: %d\n", ret);
+> +
+> +	return len;
+> +}
+
+[Severity: High]
+Can ft260_uart_write() sleep in atomic context here?
+
+The struct tty_operations write() callback contract in
+include/linux/tty_driver.h specifies that write() may not sleep, and standa=
+rd
+line disciplines (such as N_PPP, N_SLIP, N_GSM0710, N_SLCAN, and N_MCTP)
+invoke tty->ops->write() while holding spinlocks or running in softirq
+context.
+
+However, ft260_uart_write() synchronously calls:
+
+ft260_uart_transmit_chars()
+  -> ft260_hid_output_report()
+       -> kmemdup(..., GFP_KERNEL)
+       -> hid_hw_output_report()
+
+which performs a GFP_KERNEL allocation and blocks waiting for synchronous U=
+SB
+URB completion. Should transmission from xmit_fifo be deferred to a
+workqueue item instead of running synchronously in ft260_uart_write()?
+
+[ ... ]
+
+> +static int ft260_uart_probe(struct hid_device *hdev, struct ft260_device=
+ *dev)
+> +{
+> +	struct ft260_configure_uart_request req;
+> +	int ret;
+> +	struct device *devt;
+> +
+> +	INIT_WORK(&dev->wakeup_work, ft260_uart_do_wakeup);
+> +	// FIXME: Do I need that if I have cancel_work_sync?
+> +	// FIXME: are all kfifo access secured by lock? with irq or not?
+> +	dev->reschedule_work =3D false;
+> +	/* Work not started at this point */
+> +	timer_setup(&dev->wakeup_timer, ft260_uart_start_wakeup, 0);
+> +
+> +	tty_port_init(&dev->port);
+> +	dev->port.ops =3D &ft260_uart_port_ops;
+> +
+> +	ret =3D ft260_uart_add_port(dev);
+> +	if (ret) {
+> +		hid_err(hdev, "failed to add port\n");
+> +		goto err_port;
+> +	}
+> +	devt =3D tty_port_register_device_attr(&dev->port,
+> +					     ft260_tty_driver,
+> +					     dev->index, &hdev->dev,
+> +					     dev, NULL);
+> +	if (IS_ERR(devt)) {
+> +		hid_err(hdev, "failed to register tty port\n");
+> +		ret =3D PTR_ERR(devt);
+> +		goto err_register_tty;
+> +	}
+> +	hid_info(hdev, "Registering device /dev/%s%d\n",
+> +		ft260_tty_driver->name, dev->index);
+> +
+> +	/* Send Feature Report to Configure FT260 as UART 9600-8-N-1 */
+> +	req.report	=3D FT260_SYSTEM_SETTINGS;
+> +	req.request	=3D FT260_SET_UART_CONFIG;
+> +	req.flow_ctrl	=3D FT260_UART_CFG_FLOW_CTRL_NONE;
+> +	put_unaligned_le32(9600, &req.baudrate);
+> +	req.data_bit	=3D FT260_UART_CFG_DATA_BITS_8;
+> +	req.parity	=3D FT260_UART_CFG_PAR_NO;
+> +	req.stop_bit	=3D FT260_UART_CFG_STOP_ONE_BIT;
+> +	req.breaking	=3D FT260_UART_CFG_BREAKING_NO;
+> +
+> +	ret =3D ft260_hid_feature_report_set(hdev, (u8 *)&req, sizeof(req));
+
+[Severity: Medium]
+In ft260_uart_probe(), the port is added to ft260_uart_device_list and
+registered via tty_port_register_device_attr() before the initial 9600-8-N-1
+FT260_SET_UART_CONFIG feature report is sent to the hardware.
+
+If userspace (such as udev or ModemManager reacting to the KOBJ_ADD uevent)
+opens /dev/ttyFTx and configures termios before ft260_hid_feature_report_se=
+t()
+runs here, won't ft260_uart_probe() overwrite the userspace UART settings in
+hardware with 9600-8-N-1? Should the initial hardware configuration happen
+before publishing and registering the TTY device?
+
+> +	if (ret < 0) {
+> +		hid_err(hdev, "ft260_hid_feature_report_set failed: %d\n",
+> +			ret);
+> +		goto err_hid_report;
+> +	}
+> +
+> +	return 0;
+> +
+> +err_hid_report:
+> +	tty_port_unregister_device(&dev->port, ft260_tty_driver, dev->index);
+> +err_register_tty:
+> +	ft260_uart_port_remove(dev);
+> +err_port:
+> +	timer_delete_sync(&dev->wakeup_timer);
+> +	return ret;
+> +}
+> +
+> +static int ft260_probe(struct hid_device *hdev, const struct hid_device_=
+id *id)
+> +{
+> +	struct ft260_device *dev;
+> +	struct ft260_get_chip_version_report version;
 > +	int ret;
 > +
-> +	status =3D kmalloc_obj(*status, GFP_KERNEL);
-> +	if (!status)
-> +		return -ENOMEM;
+> +	if (!hid_is_usb(hdev))
+> +		return -EINVAL;
 > +
-> +	ret =3D usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
-> +			      USB_REQ_GET_STATUS,
-> +			      USB_DIR_IN | USB_RECIP_DEVICE,
-> +			      0, 0, status, sizeof(*status), 500);
-> +	kfree(status);
-> +
-> +	if (ret < 0) {
-> +		hid_warn(hdev,
-> +			 "device unresponsive to GET_STATUS (%d), suspected TN_189 errata, sc=
-heduling USB reset and rebind\n",
-> +			 ret);
-> +		return -ENODEV;
+> +	/* We cannot used devm_kzalloc here, because port has to survive until
+> +	 * destroy function call
+> +	 */
+> +	dev =3D kzalloc_obj(*dev, GFP_KERNEL);
+> +	if (!dev) {
+> +		ret =3D -ENOMEM;
+> +		goto alloc_fail;
 > +	}
+> +	hid_set_drvdata(hdev, dev);
+> +	mutex_init(&dev->lock);
+> +	spin_lock_init(&dev->read_lock);
+> +	init_completion(&dev->wait);
+> +
+> +	ret =3D hid_parse(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "failed to parse HID\n");
+> +		goto hid_fail;
+> +	}
+> +
+> +	ret =3D hid_hw_start(hdev, 0);
+> +	if (ret) {
+> +		hid_err(hdev, "failed to start HID HW\n");
+> +		goto hid_fail;
+> +	}
+> +
+> +	ret =3D hid_hw_open(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "failed to open HID HW\n");
+> +		goto err_hid_stop;
+> +	}
+> +
+> +	ret =3D ft260_hid_feature_report_get(hdev, FT260_CHIP_VERSION,
+> +					   (u8 *)&version, sizeof(version));
+> +	if (ret < 0) {
+> +		hid_err(hdev, "failed to retrieve chip version\n");
+> +		goto err_hid_close;
+> +	}
+> +
+> +	hid_info(hdev, "chip code: %02x%02x %02x%02x\n",
+> +		 version.chip_code[0], version.chip_code[1],
+> +		 version.chip_code[2], version.chip_code[3]);
+> +
+> +	ret =3D ft260_get_interface_type(hdev, dev);
+> +	if (ret <=3D FT260_IFACE_NONE)
+> +		goto err_hid_close;
 
-[Severity: Low]
-In ft260_check_dev_responsive(), usb_control_msg() allocates a struct
-usb_ctrlrequest and a struct urb (via usb_internal_control_msg() ->
-usb_alloc_urb()) with GFP_NOIO and returns -ENOMEM if either allocation
-fails.
+[Severity: High]
+What happens in ft260_probe() if ft260_get_interface_type() returns
+FT260_IFACE_NONE (0)?
 
-Because the check afterward converts any negative return value (ret < 0) to
--ENODEV, an -ENOMEM failure inside usb_control_msg() will log the TN_189
-warning and return -ENODEV to ft260_probe(), which then calls
-ft260_schedule_reset(usbif). Should ft260_check_dev_responsive() propagate
-ret directly when ret =3D=3D -ENOMEM before converting other negative error=
-s to
--ENODEV?
+In ft260_get_interface_type(), ret is initialized to the return value of
+ft260_get_system_config(hdev, &cfg), which is 0 on success:
 
-[1] https://lore.kernel.org/r/20260822213941.98882-13-michael.zaidman@gmail=
-.com
+drivers/hid/hid-ft260.c:ft260_get_interface_type() {
+	...
+	ret =3D ft260_get_system_config(hdev, &cfg);
+	if (ret < 0)
+		return ret;
+	...
+	switch (cfg.chip_mode) {
+	case FT260_MODE_ALL:
+	case FT260_MODE_BOTH:
+		...
+		break;
+	case FT260_MODE_UART:
+		...
+		break;
+	case FT260_MODE_I2C:
+		...
+		break;
+	}
+
+	return ret;
+}
+
+If cfg.chip_mode does not match any of the switch cases,
+ft260_get_interface_type() returns 0 (FT260_IFACE_NONE). In ft260_probe(),
+the check if (ret <=3D FT260_IFACE_NONE) jumps to err_hid_close with ret =
+=3D=3D 0:
+
+err_hid_close:
+	hid_hw_close(hdev);
+err_hid_stop:
+	hid_hw_stop(hdev);
+hid_fail:
+	kfree(dev);
+alloc_fail:
+	return ret;
+
+This frees dev while leaving hdev drvdata pointing to it, and returns 0
+(probe success) to the HID core. When ft260_remove() is later called on
+device unbind or disconnect, it retrieves the dangling dev pointer from
+hid_get_drvdata(hdev), accesses freed memory, and calls kfree(dev) a second
+time.
+
+[ ... ]
+
+> @@ -1157,9 +1835,17 @@ static int ft260_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+>  		if (complete_read)
+>  			complete(&dev->wait);
+> =20
+> -	} else {
+> -		hid_err(hdev, "unhandled report %#02x\n", xfer->report);
+> +		return 0;
+> +
+> +	} else if (xfer->length > FT260_RD_DATA_MAX) {
+> +		hid_err(hdev, "received data too long (%d)\n", xfer->length);
+> +		return -EBADR;
+> +	} else if (xfer->report >=3D FT260_UART_REPORT_MIN &&
+> +		   xfer->report <=3D FT260_UART_REPORT_MAX) {
+> +		return ft260_uart_receive_chars(dev, xfer->data, xfer->length);
+>  	}
+
+[Severity: High]
+Can ft260_raw_event() dereference a NULL pointer if a UART report (ID
+0xF0..0xFE) arrives on an I2C interface?
+
+When an interface is probed as I2C (dev->ft260_is_serial is false),
+ft260_uart_probe() is not called, so tty_port_init(&dev->port) never runs
+and dev->port.buf.tail remains NULL. However, ft260_raw_event() dispatches
+reports in FT260_UART_REPORT_MIN..FT260_UART_REPORT_MAX to
+ft260_uart_receive_chars() without checking dev->ft260_is_serial:
+
+ft260_raw_event()
+  -> ft260_uart_receive_chars()
+       -> tty_insert_flip_string(&port->port, data, length)
+            -> __tty_insert_flip_string_flags()
+                 -> __tty_buffer_request_room()
+
+If a malformed or malicious USB device (or HID-BPF program) sends a UART
+input report on the I2C interface, __tty_buffer_request_room() will
+dereference NULL port->buf.tail. Should ft260_raw_event() verify
+dev->ft260_is_serial before calling ft260_uart_receive_chars()?
+
+[1] https://lore.kernel.org/r/20260822213941.98882-2-michael.zaidman@gmail.=
+com
+[2] https://lore.kernel.org/r/20260822215615.2D8541F000E9@smtp.kernel.org
+[3] https://lore.kernel.org/r/20260822215615.2D8541F000E9@smtp.kernel.org
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261030223637.8690=
-7-1-michael.zaidman@gmail.com?part=3D11
+7-1-michael.zaidman@gmail.com?part=3D1

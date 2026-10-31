@@ -1,72 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.206
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793458834;
-	b=GPiaQzMOrfZAwvzD36SguMPMiIYkKj4q5o6YCjsbXk7bsgvCQXhlTuYQQQO8GW6CaEVn
-	 STSBcBUqZS3Lw8ad3E5AJ7l8hEewhaTWtlymBV5GE1f0jmnIB6qVDJ/FAIX5/M8DF009v
-	 lfK2vOke01t40T+5F4ncXPEog00YehoxLkdtb1GfLYnzCRZArxifwzl3sL2lD0oQ4BeXR
-	 u/J01yI2PkAFI7RjIY5TDIOEYElTI95cz+RQgUH7UJh9XyvLoLSzA5TnaXNIG5n9nYB3r
-	 8l98/6cvnwvZTXXa5LTe1PoqV5msYKXHZwz5hbFFwM/+A0rZ/JgqtsRSpDNsFFHU8/g==
+	t=1793468508;
+	b=q06c6ZE3Qql7/Tu+K5LOCo7W+2yOA0d6IO8hqYtR+U+PM6HxaVHj/ZCFQS7jXe4rKIN7
+	 nfnUwfmza0trwRlor2OB5aZ9CCHYFDeLtMgpMrTvda7J15fGa823FvnpfdlfaH4J6nzFZ
+	 zGMdNVkji+Ad8RV1K/r20Xc8DV0jPzkkY6quTAAQYO+h+NUoHJgu5SzQjBOpruGDLRooY
+	 OhiZ3lTJ6ufqOaIgOf5bXOrHlBIM67DE3vnSohn4xRn2QyRQl8PChkOo1HIZvyCILdu9S
+	 UVJ7FWXYGgu3As+2kAEDf9ZRCGvjNJmnbvwLWvCpJts0h+NfLPwqfNeFZ6cKfxPYL5A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793458834;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
-	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
-	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
-	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=DZ2qKisAfd6kBS7Hb4eXyimER2yim80WvZ1kMTNmmOw=;
-	b=hmmB/fzKhr96uIUtG/u/Nmx41BqcW5fqAnPicaTguTZ8S5n2fmx+E7uDQRenmqnhQt26
-	 OTMuOdXOoj8krlpobb6ClENhB7jtnGQlm+x2W9VgRsz/QIQ5ioSf732Lcvr0oE8oaJCd8
-	 gMDD89GkuYsKcEBXn0cFACSA4ZpoUbJFaVdtPiU6b4hg7HQjPOJh66hUzjW6sdyLtevV6
-	 kv2ZJus06gky5OUlcZoFORfvDlO7TRPALPLMHFz7hEE9cwsuwXgPrSyh5DR2/8CHdLMA/
-	 k5bL8tcKdsWSuLR4CUCumhUSMWJR6ciZln8MWPWnMq4bdgSkBVUKaQLQl8feDf1Hb1w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793468508;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=I3UZJ3L1ak+nmQ3tyWMOKIJKjOry9ohd8puRYx8w0l4=;
+	b=E9wrnaadLxZ5KLwu2lurkwngK5EAu6IoBPyjl8OrckmCPW8YmPLkkcggOu3XF3+9Fn55
+	 hmvhyjOjhU5glqRRrUCPJjkeTSS4FcKdNvEDDIuqHkQhA3aSruWZbqVcd3D6W+SJ4boWK
+	 /zmd2rzgZSGDfaRQAsFVnuPVcFMpMRSygdt6YN2ZoBPnW9IEWMK6zPQ2LPzPsyZ/bDen5
+	 nVYKtyI104sMikcsllD560fQS0/pH58B+8VXagiJ9AdaX3bAteze7qTtw4fi29v2OknAj
+	 D9dVDtKiJIj79drvcChELDxeEHPv23kGjUSrk7QwG86nyGbvSPxc93uN4n1hUZMqtLw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=QOQUSlmD;
-	arc=none smtp.remote-ip=35.89.44.35
-Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=L+dfl7Fy;
+	arc=none smtp.remote-ip=91.218.175.206
+Received: from mta0.migadu.com (out-206.mta0.migadu.com [91.218.175.206])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C01CC606A322
-	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 15:00:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C01CC606A322
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 171E4606A32D
+	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 17:41:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 171E4606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=QOQUSlmD
-Received: from eig-obgw-6004b.ext.cloudfilter.net ([10.0.30.210])
-	by cmsmtp with ESMTPS
-	id N62Dx5t10usRSNAZMxdxCy; Sat, 31 Oct 2026 15:00:32 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id NAZLx8Osae0duNAZLxho25; Sat, 31 Oct 2026 15:00:31 +0000
-X-Authority-Analysis: v=2.4 cv=KINaDEFo c=1 sm=1 tr=0 ts=6ae6028f
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
- a=pGLkceISAAAA:8 a=ubgQwD8-HD7IqQ9JEJoA:9 a=QEXdDO2ut3YA:10
- a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=DZ2qKisAfd6kBS7Hb4eXyimER2yim80WvZ1kMTNmmOw=; b=QOQUSlmDaHGq
-	aDl8l6Ng5kL3zJtnaH4xfCpkg0LoVep7eYZo7YC9vvSyEg5QbdjEJ3xj4yRUm9R7JsHgEdDBv+kNs
-	fGwGmlwOBrPCK1K3tTYVx+E8NeyzKTgBRoiyyyWpXOHmrbCBcMyWUKxd7jIwduVI0kvC1yQaDfkiz
-	/YIVgFA59q2FYIM2R6wYJOE85SwR9ZWNo2/yoK63cCCrtGRxtM2HhBs9MOXZ96iDG5ceiPZ5KJnGL
-	7t4DCbBr41DhLVKHZRLKKtSDj+u9G2+g0ifi35Vuo/hLLzwdNVysJBDo+vXv3yQGRM3NDWBYOC6Oz
-	I/zrcn36/z3b1qVlVbJ1ng==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:52366)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xNAZL-00000001Rtl-0sj1;
-	Sat, 31 Oct 2026 20:30:31 +0530
-Message-ID: <388aa474-3606-4c7f-b073-224d5e0880fd@roeck-us.net>
-Date: Sat, 31 Oct 2026 08:00:29 -0700
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=L+dfl7Fy
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=ecX9rxzXA0sPYZxiJguCPNC0+T/IdahHe5TV6oBUwM0=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793468505; v=1; x=1794073305;
+ b=L+dfl7FykrondKYvf4Aymf7TFBX2yLzHYGLvSQWqG07tPrrlqKYVnUbTKIZGMkrFo8YgqEiE
+ TIQaW30ot92EQHr6zdukGH5DBDkwv5CG47CzLowQK4KNppYGe7a+zeISxuVCTTgWhHBh1j91RLQ
+ TBlcj3VfbVzyrcHR1JRX+K4g=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 905222eb31d8b1c9;
+	Sat, 31 Oct 2026 17:41:45 +0000
+X-Mizu-Trace-ID: 905222eb31d8b1c9
+X-Migadu-Flow: FLOW_OUT
+From: Denis Benato <denis.benato@linux.dev>
+To: linux-kernel@vger.kernel.org
+Cc: platform-driver-x86@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	kernel@lists.opengamingcollective.org,
+	"Benjamin Tissoires" <bentiss@kernel.org>,
+	"Jiri Kosina" <jikos@kernel.org>,
+	"Luke D . Jones" <luke@ljones.dev>,
+	"Mateusz Schwartz" <matthew.schwartz@linux.dev>,
+	"Denis Benato" <benato.denis96@gmail.com>,
+	"Jonathan LoBue" <jlobue10@gmail.com>,
+	"Khamunetri Clark" <khamunetriclark@gmail.com>,
+	"Derek J. Clark" <derekjohn.clark@gmail.com>,
+	"Joshua Leivenzon" <hacker1024@users.sourceforge.net>,
+	"Nathan Chancellor" <nathan@kernel.org>,
+	=?UTF-8?q?Rebecca=20Mara=20M=C3=BCller?= <rebecca.mara@posteo.de>,
+	"Ivan Levchenko" <me@livan.pro>,
+	"Corentin Chary" <corentin.chary@gmail.com>,
+	"Hans de Goede" <hansg@kernel.org>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Denis Benato <denis.benato@linux.dev>
+Subject: [PATCH v12 01/17] HID: asus: size feature reports from the HID report descriptor
+Date: Sat, 31 Oct 2026 17:41:14 +0000
+Message-ID: <20261031174130.208240-2-denis.benato@linux.dev>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20261031174130.208240-1-denis.benato@linux.dev>
+References: <20261031174130.208240-1-denis.benato@linux.dev>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -76,159 +83,370 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] hwmon: (acer-aspire14-ec) Add driver for Acer Aspire
- 14 52MT and 52M fan
-To: sashiko-reviews@lists.linux.dev, Ethan Jimmy <duhxu0@gmail.com>,
- linux-hwmon@vger.kernel.org
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-References: <0dee51d4-c153-457a-a3aa-ebf1177df045@roeck-us.net>
- <20261030210037.921646-1-duhxu0@gmail.com> <sashiko-outbox-191513@kernel.org>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <sashiko-outbox-191513@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xNAZL-00000001Rtl-0sj1
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:52366
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 2
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfFyKdP/vupChYZQ77uQzWclZyFu5evttPBlS9oye5Nq5IHzXbJYsJaZSyONiVY1d8M5uB0zZVkzw0EhQKnm8oUs3xu69ECexqM1089YBqconWFzKKdHO
- 45LOurPZvYqsNI41oPZrirb1iae4dg+UsrMbWVILsmvfONLnQx5IODGfxn6KmM0EfVHI1pehX/uca0gLaWFHNlJUJyd1WgKwHy6BVrNZSsNnCva4LQcoeBKV
+Content-Transfer-Encoding: 8bit
 
-Ethan,
+The ASUS vendor protocol uses the same feature report IDs across very
+different devices: on N-KEY keyboards and ROG Ally report 0x5A/0x5E are
+64-byte reports, while on XG Mobile stations report 0x5E is a 300-byte
+report. The driver currently hardcodes transfer lengths (16 bytes for
+the handshake, FEATURE_KBD_REPORT_SIZE for reads, ROG_XGM_REPORT_SIZE
+for the XG Mobile LED, ROG_ALLY_REPORT_SIZE for the MCU version read),
+which mismatches what the hardware expects and would break if a new
+device used yet another size for the same report ID.
 
-On 10/30/26 14:09, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [High] hwmon: (acer-aspire14-ec) module_init() fails when driver is built-in
-> --
-> 
-> commit 7f4ea74f303f12662cc63822a17eaf3d1e0e84bf
-> Author: Ethan Jimmy <duhxu0@gmail.com>
-> 
-> hwmon: (acer-aspire14-ec) Add driver for Acer Aspire 14 52MT and 52M fan
-> 
-> This commit adds a hwmon driver for the Acer Aspire 14 AI (A14-52M and
-> A14-52MT) fan sensor, which is exposed via an I2C HID embedded controller.
-> 
->> diff --git a/drivers/hwmon/acer-aspire14-ec.c b/drivers/hwmon/acer-aspire14-ec.c
->> new file mode 100644
->> index 0000000000000..939b048165c5a
->> --- /dev/null
->> +++ b/drivers/hwmon/acer-aspire14-ec.c
-> 
-> [ ... ]
-> 
->> +static int __init acer_aspire14_init(void)
->> +{
->> +	if (!dmi_check_system(acer_aspire14_dmi_table))
->> +		return -ENODEV;
->> +
->> +	return hid_register_driver(&acer_aspire14_driver);
->> +}
->> +
->> +static void __exit acer_aspire14_exit(void)
->> +{
->> +	hid_unregister_driver(&acer_aspire14_driver);
->> +}
->> +
->> +module_init(acer_aspire14_init);
->> +module_exit(acer_aspire14_exit);
-> 
-> [Severity: High]
-> Does acer_aspire14_init() fail when CONFIG_SENSORS_ACER_ASPIRE14_EC=y and
-> CONFIG_HID=y are built into the kernel?
-> 
-> In drivers/Makefile, drivers/hwmon/ is linked before drivers/hid/:
-> 
->    obj-$(CONFIG_HWMON)		+= hwmon/
->    ...
->    obj-$(CONFIG_HID_SUPPORT)	+= hid/
-> 
-> Because both acer_aspire14_init() and hid_init() in drivers/hid/hid-core.c
-> use module_init() (which expands to device_initcall() when built-in),
-> acer_aspire14_init() runs before hid_init() registers hid_bus_type.
-> 
-> On matching DMI systems, the registration call chain:
-> 
->    acer_aspire14_init()
->      hid_register_driver(&acer_aspire14_driver)
->        __hid_register_driver()
->          driver_register()
-> 
-> reaches driver_register() in drivers/base/driver.c before the HID bus is
-> initialized:
-> 
-> 	if (!bus_is_registered(drv->bus)) {
-> 		pr_err("Driver '%s' was unable to register with bus_type '%s' because the bus was not initialized.\n",
-> 			   drv->name, drv->bus->name);
-> 		return -EINVAL;
-> 	}
-> 
-> Should this use late_initcall(acer_aspire14_init) like the other HID drivers
-> in drivers/hwmon/ (such as corsair-psu.c, corsair-cpro.c, and nzxt-kraken2.c)
-> so that driver registration happens after hid_init()?
-> 
+Derive the transfer length of every feature report from the HID report
+descriptor of the device at hand:
 
-That seems to be a real problem. Please fix, or explain why it is a false positive.
+- add asus_report_len(), which resolves a report ID to its struct
+  hid_report and returns hid_report_len();
+- asus_kbd_set_report() now zero-pads short payloads to the exact
+  report size and rejects payloads that do not fit the report;
+- add asus_kbd_get_report() and use it from asus_kbd_init() and
+  asus_kbd_get_functions() so reads are sized per report as well;
+- asus_xgm_led_set() sends a minimal payload and checks the transfer
+  result against the descriptor length instead of the hardcoded
+  ROG_XGM_REPORT_SIZE, which is removed along with the fixed-size
+  buffers in asus_kbd_set_fn_lock() and asus_kbd_set_brightness();
+- mcu_request_version() sizes the 0x0d response from the descriptor
+  and names the keyboard feature report FEATURE_KBD_REPORT_ID.
+  ROG_ALLY_REPORT_SIZE has no remaining user and is removed.
 
-Thanks,
-Guenter
+Captured USB traffic of the same commands issued by Windows shows they
+are always written at the full report length, which this change now
+matches.
+
+Signed-off-by: Denis Benato <denis.benato@linux.dev>
+---
+ drivers/hid/hid-asus.c | 181 ++++++++++++++++++++++++++++++-----------
+ 1 file changed, 135 insertions(+), 46 deletions(-)
+
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index f6aa1be09ad5..327bb4ab1a0d 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -22,6 +22,7 @@
+ 
+ #include <linux/acpi.h>
+ #include <linux/cleanup.h>
++#include <linux/container_of.h>
+ #include <linux/dmi.h>
+ #include <linux/hid.h>
+ #include <linux/module.h>
+@@ -30,6 +31,7 @@
+ #include <linux/usb.h> /* For to_usb_interface for T100 touchpad intf check */
+ #include <linux/power_supply.h>
+ #include <linux/leds.h>
++#include <linux/types.h>
+ 
+ #include "hid-ids.h"
+ 
+@@ -51,9 +53,6 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define FEATURE_KBD_LED_REPORT_ID1 0x5d
+ #define FEATURE_KBD_LED_REPORT_ID2 0x5e
+ 
+-#define ROG_XGM_REPORT_SIZE 300
+-
+-#define ROG_ALLY_REPORT_SIZE 64
+ #define ROG_ALLY_X_MIN_MCU 313
+ #define ROG_ALLY_MIN_MCU 319
+ 
+@@ -582,20 +581,104 @@ static int asus_raw_event(struct hid_device *hdev,
+ 	return 0;
+ }
+ 
++/**
++ * asus_find_report() - Find a report of the given type by its ID
++ * @hdev: HID device
++ * @type: report type (HID_INPUT_REPORT, HID_OUTPUT_REPORT or
++ * HID_FEATURE_REPORT)
++ * @report_id: report ID to look for
++ *
++ * Return: the report with the given ID, or NULL if the device does not
++ * declare such a report.
++ */
++static struct hid_report *asus_find_report(struct hid_device *hdev,
++					   unsigned int type, u8 report_id)
++{
++	return hdev->report_enum[type].report_id_hash[report_id];
++}
++
++/**
++ * asus_report_len() - Length of a feature report for the device
++ * @hdev: HID device
++ * @report_id: report ID of the feature report
++ *
++ * The same ASUS report ID can have different sizes depending on the device:
++ * report 0x5E is a 64-byte report on laptops but a 300-byte report on XG
++ * Mobile stations. Always size transfers from the report descriptor of the
++ * device at hand instead of hardcoding lengths.
++ *
++ * Return: the length of the feature report in bytes, or 0 if the device
++ * does not declare the report.
++ */
++static size_t asus_report_len(struct hid_device *hdev, u8 report_id)
++{
++	struct hid_report *report;
++
++	report = asus_find_report(hdev, HID_FEATURE_REPORT, report_id);
++
++	return report ? hid_report_len(report) : 0;
++}
++
+ static int asus_kbd_set_report(struct hid_device *hdev, const u8 *buf, size_t buf_size)
+ {
+-	u8 *dmabuf __free(kfree) = kmemdup(buf, buf_size, GFP_KERNEL);
++	size_t hw_len = asus_report_len(hdev, buf[0]);
++
++	/* The payload (including the report ID) must fit the device report. */
++	if (!hw_len || buf_size > hw_len)
++		return -EINVAL;
++
++	u8 *dmabuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
+ 	if (!dmabuf)
+ 		return -ENOMEM;
+ 
++	memcpy(dmabuf, buf, buf_size);
++
+ 	/*
+-	 * The report ID should be set from the incoming buffer due to LED and key
+-	 * interfaces having different pages
++	 * The report ID should be set from the incoming buffer due to LED and
++	 * key interfaces having different pages. Short payloads are zero-padded
++	 * to the exact report size the hardware expects for this report ID.
+ 	 */
+-	return hid_hw_raw_request(hdev, buf[0], dmabuf, buf_size, HID_FEATURE_REPORT,
++	return hid_hw_raw_request(hdev, buf[0], dmabuf, hw_len, HID_FEATURE_REPORT,
+ 				  HID_REQ_SET_REPORT);
+ }
+ 
++/**
++ * asus_kbd_get_report() - Read a report sized from the descriptor
++ * @hdev: HID device
++ * @report_id: report ID to read
++ * @buf: buffer to store the report in
++ * @buf_size: size of @buf
++ *
++ * The transfer is performed at the exact report size the device declares
++ * for @report_id. The device may answer with a short read, and only the
++ * bytes that fit in @buf are copied into it.
++ *
++ * Return: 0 on success, negative errno on failure.
++ */
++static int asus_kbd_get_report(struct hid_device *hdev, u8 report_id,
++			       u8 *buf, size_t buf_size)
++{
++	size_t hw_len = asus_report_len(hdev, report_id);
++	int ret;
++
++	if (!hw_len)
++		return -EINVAL;
++
++	u8 *dmabuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
++	if (!dmabuf)
++		return -ENOMEM;
++
++	ret = hid_hw_raw_request(hdev, report_id, dmabuf, hw_len,
++				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
++	if (ret < 0)
++		return ret;
++
++	/* The device may return less than requested (short read). */
++	memcpy(buf, dmabuf, min(buf_size, hw_len));
++
++	return 0;
++}
++
+ static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
+ {
+ 	/*
+@@ -604,8 +687,13 @@ static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
+ 	 */
+ 	const u8 buf[] = { report_id, 0x41, 0x53, 0x55, 0x53, 0x20, 0x54,
+ 		     0x65, 0x63, 0x68, 0x2e, 0x49, 0x6e, 0x63, 0x2e, 0x00 };
++	size_t hw_len = asus_report_len(hdev, report_id);
++	size_t cmp_len;
+ 	int ret;
+ 
++	if (!hw_len)
++		return -EINVAL;
++
+ 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Asus handshake %02x failed to send: %d\n",
+@@ -613,19 +701,20 @@ static int asus_kbd_init(struct hid_device *hdev, u8 report_id)
+ 		return ret;
+ 	}
+ 
+-	u8 *readbuf __free(kfree) = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
++	u8 *readbuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
+ 	if (!readbuf)
+ 		return -ENOMEM;
+ 
+-	ret = hid_hw_raw_request(hdev, report_id, readbuf,
+-				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
+-				 HID_REQ_GET_REPORT);
++	ret = asus_kbd_get_report(hdev, report_id, readbuf, hw_len);
+ 	if (ret < 0) {
+ 		hid_warn(hdev, "Asus handshake %02x failed to receive ack: %d\n",
+ 			 report_id, ret);
+-	} else if (memcmp(readbuf, buf, sizeof(buf)) != 0) {
+-		hid_warn(hdev, "Asus handshake %02x returned invalid response: %*ph\n",
+-			 report_id, FEATURE_KBD_REPORT_SIZE, readbuf);
++	} else {
++		cmp_len = min_t(size_t, sizeof(buf), hw_len);
++		if (memcmp(readbuf, buf, cmp_len) != 0) {
++			hid_warn(hdev, "Asus handshake %02x returned invalid response: %*ph\n",
++				 report_id, (int)cmp_len, readbuf);
++		}
+ 	}
+ 
+ 	/*
+@@ -640,32 +729,35 @@ static int asus_kbd_get_functions(struct hid_device *hdev,
+ 				  u8 report_id)
+ {
+ 	const u8 buf[] = { report_id, 0x05, 0x20, 0x31, 0x00, 0x08 };
+-	u8 *readbuf;
++	size_t hw_len = asus_report_len(hdev, report_id);
+ 	int ret;
+ 
++	/*
++	 * Function flags are at byte 6. A shorter report does not
++	 * contain that byte.
++	 */
++	if (hw_len < 7)
++		return -EINVAL;
++
+ 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Asus failed to send configuration command: %d\n", ret);
+ 		return ret;
+ 	}
+ 
+-	readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
++	u8 *readbuf __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
+ 	if (!readbuf)
+ 		return -ENOMEM;
+ 
+-	ret = hid_hw_raw_request(hdev, report_id, readbuf,
+-				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
+-				 HID_REQ_GET_REPORT);
++	ret = asus_kbd_get_report(hdev, report_id, readbuf, hw_len);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "Asus failed to request functions: %d\n", ret);
+-		kfree(readbuf);
+ 		return ret;
+ 	}
+ 
+ 	*kbd_func = readbuf[6];
+ 
+-	kfree(readbuf);
+-	return ret;
++	return 0;
+ }
+ 
+ static int asus_kbd_disable_oobe(struct hid_device *hdev)
+@@ -690,7 +782,7 @@ static int asus_kbd_disable_oobe(struct hid_device *hdev)
+ 
+ static void asus_kbd_set_fn_lock(struct hid_device *hdev, bool enabled)
+ {
+-	const u8 buf[FEATURE_KBD_REPORT_SIZE] = { FEATURE_KBD_REPORT_ID, 0xd0, 0x4e, !!enabled };
++	const u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xd0, 0x4e, !!enabled };
+ 	int ret;
+ 
+ 	ret = asus_kbd_set_report(hdev, buf, sizeof(buf));
+@@ -700,7 +792,7 @@ static void asus_kbd_set_fn_lock(struct hid_device *hdev, bool enabled)
+ 
+ static void asus_kbd_set_brightness(struct hid_device *hdev, u8 brightness)
+ {
+-	const u8 buf[FEATURE_KBD_REPORT_SIZE] = {
++	const u8 buf[] = {
+ 		FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, brightness
+ 	};
+ 	int ret;
+@@ -900,10 +992,15 @@ static int mcu_parse_version_string(const u8 *response, size_t response_size)
+ 
+ static int mcu_request_version(struct hid_device *hdev)
+ {
+-	u8 *response __free(kfree) = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
+-	const u8 request[] = { 0x5a, 0x05, 0x03, 0x31, 0x00, 0x20 };
++	size_t hw_len = asus_report_len(hdev, FEATURE_REPORT_ID);
++	const u8 request[] = { FEATURE_KBD_REPORT_ID, 0x05, 0x03, 0x31, 0x00, 0x20 };
+ 	int ret;
+ 
++	if (!hw_len)
++		return -EINVAL;
++
++	u8 *response __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
++
+ 	if (!response)
+ 		return -ENOMEM;
+ 
+@@ -911,17 +1008,16 @@ static int mcu_request_version(struct hid_device *hdev)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response,
+-				ROG_ALLY_REPORT_SIZE, HID_FEATURE_REPORT,
+-				HID_REQ_GET_REPORT);
++	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response, hw_len,
++				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = mcu_parse_version_string(response, ROG_ALLY_REPORT_SIZE);
++	ret = mcu_parse_version_string(response, hw_len);
+ 	if (ret < 0) {
+ 		pr_err("Failed to parse MCU version: %d\n", ret);
+ 		print_hex_dump(KERN_ERR, "MCU: ", DUMP_PREFIX_NONE,
+-			      16, 1, response, ROG_ALLY_REPORT_SIZE, false);
++			       16, 1, response, hw_len, false);
+ 	}
+ 
+ 	return ret;
+@@ -958,17 +1054,12 @@ static void validate_mcu_fw_version(struct hid_device *hdev, int idProduct)
+ 
+ static bool asus_has_report_id(struct hid_device *hdev, u16 report_id)
+ {
+-	struct hid_report *report;
+-	int t;
++	if (report_id >= HID_MAX_IDS)
++		return false;
+ 
+-	for (t = HID_INPUT_REPORT; t <= HID_FEATURE_REPORT; t++) {
+-		list_for_each_entry(report, &hdev->report_enum[t].report_list, list) {
+-			if (report->id == report_id)
+-				return true;
+-		}
+-	}
+-
+-	return false;
++	return asus_find_report(hdev, HID_INPUT_REPORT, report_id) ||
++	       asus_find_report(hdev, HID_OUTPUT_REPORT, report_id) ||
++	       asus_find_report(hdev, HID_FEATURE_REPORT, report_id);
+ }
+ 
+ static int asus_kbd_register_leds(struct hid_device *hdev)
+@@ -1171,17 +1262,15 @@ static int asus_battery_probe(struct hid_device *hdev)
+ 
+ static int asus_xgm_led_set(struct led_classdev *led_cdev, enum led_brightness value)
+ {
+-	const u8 buf[ROG_XGM_REPORT_SIZE] = {
+-		FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00
+-	};
++	const u8 buf[] = { FEATURE_KBD_LED_REPORT_ID2, 0xC5, (value) ? 0x50 : 0x00 };
+ 	struct asus_xgm_led *xgm = container_of(led_cdev, struct asus_xgm_led, cdev);
+ 	int ret;
+ 
+-	ret = asus_kbd_set_report(xgm->hdev, buf, ROG_XGM_REPORT_SIZE);
++	ret = asus_kbd_set_report(xgm->hdev, buf, sizeof(buf));
+ 	if (ret < 0) {
+ 		hid_err(xgm->hdev, "Unable to set XG mobile led state: %d\n", ret);
+ 		return ret;
+-	} else if (ret != ROG_XGM_REPORT_SIZE) {
++	} else if (ret != (int)asus_report_len(xgm->hdev, FEATURE_KBD_LED_REPORT_ID2)) {
+ 		hid_err(xgm->hdev, "Unexpected partial transfer to XG mobile: %d\n", ret);
+ 		return -EIO;
+ 	}
+-- 
+2.47.3
 

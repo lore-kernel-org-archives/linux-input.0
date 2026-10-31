@@ -1,79 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.37
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.166
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793469921;
-	b=x43cW2qDQv5k7iiKK0TZAg2VcTe51mermeSLKX40c1jGhqVcXNDzA5Qa/rfjtEXun7+g
-	 k7yzoxctpxWqveTRMpxhDeRUt1XUlvISiRshd4M8kxlRnDRyauKVYjKP+vVy/r4a6OqqF
-	 n8/zifbnE++rSEb5gNMaD1OzUWhcokXGd/No4a209YzSmaoTK+sd87TrnwUQLqtIyAEuw
-	 HHIc01f+M6eFtGNiQvGAtD82iNLGzn48mv6FAQnCFMEY3P+Vn2IP1VRlOLIHQ07tJvOgo
-	 F2X2yeRLLMoVCJSw4xDAHQ9cvjZb1iXEPMQXZTScW3HCwWL+ehQU8U+LDvb5iXLL2dg==
+	t=1793470113;
+	b=HbI8Rb3hz1s7XE+euQI2eZggNgwl1wprVPVwxyxLtYvMv02UeXRbiN+uHfAJYDZzJQMS
+	 8h+P7uN+artnGQB9BnzVyAgrs1hh2MXPiDIMLEYT3kwzQ15JGBNY+NQKU0v3QN1/jVGYZ
+	 QibRtFnvxovdpwcZmEW3bqcXJElumyEytoC1VbplLPUcEvNnkjMCCg826u6mtn/QyjsY9
+	 3bVMbR7oPRRjWAIxYQKyMIPfFUUx//OPfn825mLwVbF4BfycGC1Z/bStBtyHcPFg/g46Q
+	 ZoN5ktlXbnXiQ4zTnwDPD1hsOHck9uzxtU15VFTL8tvIeUGfBYT7DTCpXiC/KUm/cqg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793469921;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:
-	 X-Source-L:X-Exim-ID:X-Source:X-Source-Args:X-Source-Dir:
-	 X-Source-Sender:X-Source-Auth:X-Email-Count:X-Org:X-Source-Cap:
-	 X-Local-Domain:X-CMAE-Envelope;
-	bh=XH4PbSUddZVZXZtjZ75jfe0i+WJ14qbL21Dy3aZUb14=;
-	b=K3LBeeE7kz56KkM6a5IOtFw1hf/0cD9VeMaRhbc+AoQXM8NcFXB8c7OmxbZI6x8yhJ9N
-	 xJktbGZX9ESfX6vl8i81LaEmNdyBWaACJY9mcsf1ieY44GdwcYwZsKGK6OYG8FqFVw2Ie
-	 4dQbVzq4bCnxobk/FYHXJaK4w1saNpY+CmbINcLViDp19c7ryH8yWXpVysXJLDJPZ0JHA
-	 lVbHxNm6sHm3AfnNXnvAa/jFeoaijFq2FcdSdic0yed2WOg8QK1oez9eKm5T+Rh1M27Qm
-	 yw3mPgrDGF1r3tsiViHmyqwFJ9q+JYKrohvpKsIX9+76pQxlOW/AsNLxd5tQtc+9wNg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793470113;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=XgZCG9R/Akmn0OUJuILA/AypALbRAk1//GmFGR97Xco=;
+	b=Aw+HLW/KXXzOugJqTvwvIv0R2F6SbgK4zcJUIFsqGQned82E71oSdkzJdRatt+j3KzqB
+	 n5QL3y/OrZPMEjO7DJs4u4bpl711YbFuQGMZeaoUiLEnbtOdqbKyzxeLdYI00PfBV7mA6
+	 f/x2QkL1bO5hIY01G7kS3Sc0zfciS/fEbkSC3xUVMV37e+vWihmoB8nrrPCYFRapSCZIA
+	 QRSIb+c5AXdnjlTwUY6SxnP/dCuMGaThJaKyXUpMzHBq9UhjYy9m2J8+IQL9zSrha5AzB
+	 c539PnZ6vFYKpsarSF1JiKQi7670ZNA1zFbtY59l9gph8lltLoUArGOqC9fAe0M3E0w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ySZx4w7x;
-	arc=none smtp.remote-ip=35.89.44.37
-Received: from omta38.uswest2.a.cloudfilter.net (omta38.uswest2.a.cloudfilter.net [35.89.44.37])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=jlMU2n2c;
+	arc=none smtp.remote-ip=91.218.175.166
+Received: from mta0.migadu.com (out-166.mta0.migadu.com [91.218.175.166])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D217606A31A
-	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 18:05:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3D217606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91817606A31C
+	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 18:08:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91817606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=ySZx4w7x
-Received: from eig-obgw-6007b.ext.cloudfilter.net ([10.0.30.166])
-	by cmsmtp with ESMTPS
-	id N7khxG1Qhv0ndNDS7xxI2V; Sat, 31 Oct 2026 18:05:15 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id NDS6xINnokE4RNDS6xvDLv; Sat, 31 Oct 2026 18:05:14 +0000
-X-Authority-Analysis: v=2.4 cv=LuaSymdc c=1 sm=1 tr=0 ts=6ae62dda
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=pGLkceISAAAA:8
- a=PR8N35F6eJWpYSb-7tQA:9 a=CjuIK1q_8ugA:10 a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=In-Reply-To:Content-Type:MIME-Version:References
-	:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding
-	:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=XH4PbSUddZVZXZtjZ75jfe0i+WJ14qbL21Dy3aZUb14=; b=ySZx4w7xmJA7U4Ymz/fdAkBCSj
-	vgac4IRO30r0dfM9itNmp04EudBOnmAS80NMyDN16duvBJG59nF1WLOPfmbtQqqjdYYRurqpNWXT4
-	EF8Gwu160dfK+6Qe/5kLn2SDEFL52pew52cXlrpwnBy4I5JA3WUsRNryJ2Gng5uTeOt7WjC1oWbiy
-	H1kj+hB30xh/74vwkK3Df7OLS+wnSwxtqxD1DFVoadO/J/16VjzMRSZT7VuJEaX7giWvEn3vIg+2c
-	KteZxtgZ3iZwLr3ddtfMhjhh+h/6YPMyls07HawUz6xwMYqvqGdMOaMw8jEyPphx0t9M/CwgHvEbg
-	cXqr0tBg==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:36812 helo=server.roeck-us.net)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xNDS6-00000003Rms-1L1i;
-	Sat, 31 Oct 2026 23:35:14 +0530
-Date: Sat, 31 Oct 2026 11:05:13 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Ethan Jimmy <duhxu0@gmail.com>
-Cc: linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] hwmon: (acer-aspire14-ec) Add driver for Acer Aspire
- 14 52MT and 52M fan
-Message-ID: <985bd253-a9da-4b72-9348-956094625a3e@roeck-us.net>
-References: <388aa474-3606-4c7f-b073-224d5e0880fd@roeck-us.net>
- <20261031174651.856627-1-duhxu0@gmail.com>
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=jlMU2n2c
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=cfafcgkRWi6LPhiG/hGliy6F6QzjtvjOdMcdctWhOqs=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793470108; v=1; x=1794074908;
+ b=jlMU2n2c71FRjQfuqcooS4ZJMeDQxH7Zsi5jVV712SOSTgp+vAI7miupyJ00uq/ZjFsML2Jj
+ oZ8PsZxOxsVOsNUqEj4wyX0wjaO4Z8k8xe59rjgdPZKNYA1XLzaY0pCJEuHSCY4w3Jbbvl4gJJj
+ f0o4+Vfk/Hc5vj/15rJxcVns=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 9bd23348b99aefe4;
+	Sat, 31 Oct 2026 18:08:28 +0000
+X-Mizu-Trace-ID: 9bd23348b99aefe4
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <ce55d8f6-ff34-4ef6-9ee5-59c411fad3fc@linux.dev>
+Date: Sat, 31 Oct 2026 19:08:28 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -83,39 +58,104 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261031174651.856627-1-duhxu0@gmail.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xNDS6-00000003Rms-1L1i
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net (server.roeck-us.net) [108.223.40.66]:36812
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 2
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfLrPuWpuZEy4YGsEGGza/nwX/fST7pIaCTWeskbzykOVhWqr2dRL6WA39mPlhBJ5aLgnTdOleq6BG3AMX3UP/fBKuaTSfZzMl49l6/DBP4XXhsbOq5lY
- XXgH4a8q3uE9vhm6+o2Rg3icrkDkAB9Si0xFIMF9+WIvwf3HG+iP3UzA8XI4EBU/0RcyDioKw0MzFbw/D86A1PpBoshbPmx5aIXe+s5NbDdbVrWhbbPx/Chg
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v12 01/17] HID: asus: size feature reports from the HID
+ report descriptor
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+References: <20261031174130.208240-1-denis.benato@linux.dev>
+ <20261031174130.208240-2-denis.benato@linux.dev>
+ <sashiko-outbox-192088@kernel.org>
+Content-Language: en-US
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <sashiko-outbox-192088@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Sat, Oct 31, 2026 at 10:46:51AM -0700, Ethan Jimmy wrote:
-> The Aspire A14-52M and A14-52MT expose fan speed through an I2C HID
-> embedded controller that also serves the keyboard. The same product id
-> is used by other Acer keyboards, so the driver binds only when DMI
-> matches these two models.
-> 
-> Signed-off-by: Ethan Jimmy <duhxu0@gmail.com>
 
-Applied.
+On 10/31/26 19:04, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [High] HID: asus: wrong report ID in mcu_request_version() breaks MCU check
+> --
+>
+> commit 95aa403a07769e0a4dbd2dee41abe2766cd2fe36
+> Author: Denis Benato <denis.benato@linux.dev>
+>
+> HID: asus: size feature reports from the HID report descriptor
+>
+> This commit derives feature report transfer lengths from the HID report
+> descriptor via asus_report_len() instead of using hardcoded sizes across
+> asus_kbd_set_report(), asus_kbd_get_report(), mcu_request_version(), and
+> asus_xgm_led_set().
+>
+>> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+>> index f6aa1be09ad53..327bb4ab1a0d6 100644
+>> --- a/drivers/hid/hid-asus.c
+>> +++ b/drivers/hid/hid-asus.c
+> [ ... ]
+>> @@ -900,10 +992,15 @@ static int mcu_parse_version_string(const u8 *response, size_t response_size)
+>>  
+>>  static int mcu_request_version(struct hid_device *hdev)
+>>  {
+>> -	u8 *response __free(kfree) = kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL);
+>> -	const u8 request[] = { 0x5a, 0x05, 0x03, 0x31, 0x00, 0x20 };
+>> +	size_t hw_len = asus_report_len(hdev, FEATURE_REPORT_ID);
+>> +	const u8 request[] = { FEATURE_KBD_REPORT_ID, 0x05, 0x03, 0x31, 0x00, 0x20 };
+>>  	int ret;
+>>  
+>> +	if (!hw_len)
+>> +		return -EINVAL;
+>> +
+>> +	u8 *response __free(kfree) = kzalloc(hw_len, GFP_KERNEL);
+>> +
+>>  	if (!response)
+>>  		return -ENOMEM;
+>>  
+>> @@ -911,17 +1008,16 @@ static int mcu_request_version(struct hid_device *hdev)
+>>  	if (ret < 0)
+>>  		return ret;
+>>  
+>> -	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response,
+>> -				ROG_ALLY_REPORT_SIZE, HID_FEATURE_REPORT,
+>> -				HID_REQ_GET_REPORT);
+>> +	ret = hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response, hw_len,
+>> +				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+>>  	if (ret < 0)
+>>  		return ret;
+> [Severity: High]
+> Does asus_report_len(hdev, FEATURE_REPORT_ID) return 0 here on ROG Ally and
+> ROG Ally X devices?
+>
+> In drivers/hid/hid-asus.c, FEATURE_REPORT_ID (0x0d) is the I2C touchpad
+> multitouch report ID used by asus_start_multitouch(), whereas the ROG Ally
+> N-Key vendor HID interface declares feature report 0x5a
+> (FEATURE_KBD_REPORT_ID) in its HID report descriptor (and as documented above
+> mcu_parse_version_string(), the MCU response payload starts with "5a 05 03 31
+> 00 1a 13").
+>
+> Previously, mcu_request_version() passed a hardcoded ROG_ALLY_REPORT_SIZE (64)
+> to hid_hw_raw_request(), which succeeded because usbhid_get_raw_report() does
+> not look up the report ID in hdev->report_enum[HID_FEATURE_REPORT].
+>
+> With this change, when probing USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY or
+> USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X via:
+>
+>   asus_probe()
+>     -> asus_kbd_register_leds()
+>       -> validate_mcu_fw_version()
+>         -> mcu_request_version()
+>
+> looking up FEATURE_REPORT_ID (0x0d) in hdev->report_enum[HID_FEATURE_REPORT]
+> via asus_report_len() will not find a report and will return 0, causing
+> mcu_request_version() to return -EINVAL. validate_mcu_fw_version() then
+> silently aborts without checking the MCU version or configuring MCU powersave:
+>
+>   version = mcu_request_version(hdev);
+>   if (version < 0)
+>           return;
+>
+> Should mcu_request_version() look up FEATURE_KBD_REPORT_ID instead of
+> FEATURE_REPORT_ID when sizing the buffer with asus_report_len()?
+No, this was reported by my sashiko-bot too and attempting to follow the suggestion
+has lead to driver failing and I had to use what's in there now.
 
-Thanks,
-Guenter

@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793469647;
-	b=MQH07jX7JSAw6sF07j1JFYxTrNA2viAYCIvyn2pU2n/1fopXvyvfY+7u3jw9G9ibtBQR
-	 uNeh3hKe+AMJfhLNHca9jm2K5E1s5GoXWYW/w0qyVlRIRi1cDDlm4wSAQF/03ZOi7B/nH
-	 N3naBsD3PWf3vOb73eatOnyakXA3Y/wmUb3+JKcG/qarU53sVxMBU/UPZ/dpAHv4w/ymd
-	 mBRzZt+vKDLcpqtlpXDWyZu3jXggvz4HmGlPqcx592hDrSpZPN6V0l2d4glt/mFUooFtv
-	 sjeqN6ok+JW6m8zPCXRIe9nBJoarsoKdW3MnxYBjH2aG0LKQz0uSIplm+XlbGoxAhPQ==
+	t=1793469889;
+	b=vmkHgUPA8MEYVhQvE7dq6Ebq2QnfIfHTqw5/kFHiTqSmnrl49Eek8I7Pib7i/amC0BIc
+	 Sun+k3DHEBon76wS+rJ9w5O0YN1nxSksRwsa+3zv0/lajWQuc5GO/Y+C08JeGl7Epa8IK
+	 0ovEGkBjNEXXHpJzQyHs6c7enNrmefhZmRtERUCevBAlkJpBp72FdUsfuSvCVghu0rt7n
+	 RZtxWnTpm5QUsu5NYjeUe/prwoM32OhJSmkOhNKE5LiuwmDiQBOoxcZd6fXWuUX8Qgcz0
+	 uBqb1N2d+7CLX1gZAX4LTMVdRrO7sS9hsr82G17bRdVh36VgXLT7AbyZCo/5fyd5EHg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793469647;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793469889;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=o9FrlUlxGdSci9V43Grjt+ICmuMfuKLN1dVhL35gBjk=;
-	b=T7lOgLa8F1TJd7ae/Jz00sv8YKf9ob9N+UUp8WhIkpBd53szZEP9ZtvnWUBRglEFK8qC
-	 clkE9K9iZXOe3+lb9nQK8YL7h5IpOGsIAB9LgX/EYqutTaRuIHfdwnXA4117nke0enWXS
-	 vd3yCJ4l90tEuEVorjdKD1HKTcbeXsqxSNwo0uijSqam8HRt5CiMxYkGb67jQ4P7rD3XS
-	 LTXFFGrH8Cn9G3yZrm8ZN3w/0QCHTjwdJUX93415lwFI0PQl2kVim6YJI3QJ5VlJBkn/+
-	 YP0TZZ8Fr21Ea8qJnC94HODeGTTjiuSQThtFPh8wgd/GhMzVRtqrL6y4mSMNjBxtXAA==
+	bh=yt7HpmiySSVXx+PJnecjQbdEdMDehnD/uSyV58XtdEs=;
+	b=wMnR6a921rBYc7u29SwVYrClhr/q0u6CQaCUrKF0zbX1Jmz8TVhChHLZ6d+JwIXCmOsn
+	 Ea5ZEV8yPdUhWx1B6G3q1Hd2pgoFS/bjjjRHnwWXJwwtlCOjp82N/uROVOb0qk0BnVi9y
+	 uiAmrYtqYNBUa1NR/VXNbB/XTWTWdzwH4nGZnr8W7seoET6kZopBU889ehEWFf8erVFJX
+	 vJW8B6dyJe5F/6hBqmO8KPKDKxOePYMVEpVrqSb+6j/oT8XOiE+pvH3Xc+wMHK7Ruau5x
+	 X9HjvXt4OhlZ3c+7fBoxh08BuqNtbSxLx7r5fcQee7+qIzMxBQMh0FH+caHawo9w3ig==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bxQUE9F8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kjdwzCqq;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA8A1606A31A
-	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 18:00:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7894606A31A
+	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 18:04:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bxQUE9F8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 426491F000C1;
-	Sat, 31 Oct 2026 18:00:46 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kjdwzCqq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26D6E1F000C1;
+	Sat, 31 Oct 2026 18:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793469646;
-	bh=o9FrlUlxGdSci9V43Grjt+ICmuMfuKLN1dVhL35gBjk=;
+	s=k20260515; t=1793469888;
+	bh=yt7HpmiySSVXx+PJnecjQbdEdMDehnD/uSyV58XtdEs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=bxQUE9F8/w8oLnRBRTsrM/8iSo1+H5ouRF91CuxwAKRl4CIvuxUUaq7hUopsa8Yud
-	 lA+60ib7yOfmJZMuj+1GSlGK1dFH/tihVwF1ST6+gkJNmV25aNan9IxsqiFnkTs9sK
-	 cv9wcXC5hGfWgPVmNZCfNuJDN8CU8JAVjnB0fEMG0tzEkxTNybAoOG6NTu/DYnXE3H
-	 aCRRuzbvWTJMdDseUn4AO1gA9cVNOOynF0pN6Zg9V2XO0HY0yBxT16cQr/n4vge1h/
-	 7Wv4BVDA5o5fajt/Q7qQZg6odp+Oh97WIfLkhlkqDtgE8PwNaXse1QJpr2k/LeeXkO
-	 Z1pfPzlNiiSHg==
-Message-ID: <sashiko-outbox-192087@kernel.org>
+	b=kjdwzCqqGLaFirDgsLTzZsC+GpdCuyfh+mJ1Nen4zSBWII046BFwB8LpDXFeI1ne8
+	 SjGhJmJXs3a49gCatoMZNQpu2UERqpuerffurmnjo3WmPKOqXdvnP1+reI1DjYzCn9
+	 XgK0RKCN8Yw8VrqIpo7nRW9Plj+CJpIlXKj/KGfq1PnuyCVGl+EA/tknP4e60QBKmn
+	 02xnutyHH9WipvHYZWNOkYGwO7IJ3mdSoGDrrrtm+NAhpo406JQlClycueIo828ZFH
+	 r4fxQQZ3Nfbc+iuGnNTjqP6VUCfIWSNeoZFEWLATmyb3eRUarH9gowFQ8X2VROuqkI
+	 UsLO5BPmv4zgQ==
+Message-ID: <sashiko-outbox-192088@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 12/17] HID: asus: add support for btn remapping
+Subject: Re: [PATCH v12 01/17] HID: asus: size feature reports from the HID
+ report descriptor
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261031174130.208240-13-denis.benato@linux.dev>
+In-Reply-To: <20261031174130.208240-2-denis.benato@linux.dev>
 References: <20261031174130.208240-1-denis.benato@linux.dev>
- <20261031174130.208240-13-denis.benato@linux.dev>
+ <20261031174130.208240-2-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sat, 31 Oct 2026 18:00:45 +0000
+Date: Sat, 31 Oct 2026 18:04:47 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,301 +61,101 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] HID: asus: ABBA deadlock between ally_prefs.lock and sysfs active =
-refs
-- [Low] HID: asus: mixed cleanup helpers and goto in button_remap_store()
-- [Low] HID: asus: commit message refers to remap_index instead of remap_av=
-ailable
+- [High] HID: asus: wrong report ID in mcu_request_version() breaks MCU che=
+ck
 --
 
-commit eab19113fde5452095dfc729f53ab98ff0fc3365
+commit 95aa403a07769e0a4dbd2dee41abe2766cd2fe36
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support for btn remapping
+HID: asus: size feature reports from the HID report descriptor
 
-This commit adds button and macro remapping support for ASUS ROG Ally
-devices via per-button sysfs attributes (remap, macro, and
-remap_available), validating mappings against the active gamepad mode and
-restoring or refreshing the cached mappings across mode switches and MCU
-resets.
-
->     HID: asus: add support for btn remapping
->    =20
->     Add support for buttons remapping: the ability to assign different
->     button events to each one of the physical button on the device.
->    =20
->     Each button exposes a remap_index sysfs attribute listing the valid
->     remap target names for the current gamepad mode: M1 and M2 can be
->     remapped to anything at any time, while other buttons may only be
->     remapped to gamepad codes in gamepad mode and keyboard/mouse/media
->     codes in desktop mode.
->    =20
->     When the gamepad mode is changed the firmware automatically restores
->     its internal defaults, so the software cache is refreshed to reflect
->     the hardware state.
->    =20
->     Co-developed-by: Luke Jones <luke@ljones.dev>
->     Signed-off-by: Luke Jones <luke@ljones.dev>
->     Signed-off-by: Denis Benato <denis.benato@linux.dev>
->     Signed-off-by: Jonathan LoBue <jlobue10@gmail.com>
-
-[Severity: Low]
-This isn't a bug, but the commit message refers to a remap_index sysfs
-attribute, whereas ally_create_button_attributes() in drivers/hid/hid-asus.c
-registers this attribute as remap_available alongside the remap and macro
-attributes created in button_remap_attr_create(). Should the commit message
-be updated to mention remap, macro, and remap_available instead of
-remap_index?
+This commit derives feature report transfer lengths from the HID report
+descriptor via asus_report_len() instead of using hardcoded sizes across
+asus_kbd_set_report(), asus_kbd_get_report(), mcu_request_version(), and
+asus_xgm_led_set().
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index d20e433af5740..b94cb8c50b28b 100644
+> index f6aa1be09ad53..327bb4ab1a0d6 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
-
 [ ... ]
-
-> +static ssize_t button_remap_store(struct device *dev,
-> +				  struct device_attribute *attr,
-> +				  const char *buf, size_t count)
-> +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct button_remap_attr *btn_attr =3D to_button_remap_attr(attr);
-> +	enum ally_button_id button_id =3D btn_attr->button_id;
-> +	struct ally_button_mapping *mode_map;
-> +	const struct btn_code_map *code;
-> +	const struct btn_code_map *old_code;
-> +	enum btn_pair_index pair_idx;
-> +	struct button_pair_map *pair;
-> +	struct button_map *btn_map;
-> +	char btn_name[32];
-> +	bool is_first;
-> +	int ret, i;
-> +
-> +	if (sscanf(buf, "%31s", btn_name) !=3D 1)
-> +		return -EINVAL;
-> +
-> +	code =3D find_button_by_name(btn_name);
-> +	if (!code)
-> +		return -EINVAL;
-> +
-> +	ret =3D get_button_pair_info(button_id, &pair_idx, &is_first);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	guard(mutex)(&ally_prefs.lock);
-> +
-> +	/*
-> +	 * Validate the remap target while holding the lock: the
-> +	 * gamepad mode can change concurrently, and the check must
-> +	 * be done against the very mode the mapping is written to.
-> +	 */
-> +	if (!ally_remap_code_valid(button_id, ally_prefs.gamepad_mode, code,
-> +				   btn_attr->is_macro))
-> +		return -EINVAL;
-> +
-> +	/* Access the mapping for current gamepad mode */
-> +	pair =3D &ally_prefs.button_mappings.button_pairs[pair_idx - 1];
-> +	btn_map =3D is_first ? &pair->first : &pair->second;
-> +
-> +	if (btn_attr->is_macro) {
-> +		old_code =3D btn_map->macro;
-> +		btn_map->macro =3D code;
-> +	} else {
-> +		old_code =3D btn_map->remap;
-> +		btn_map->remap =3D code;
-> +	}
-> +
-> +	/* Update pair index */
-> +	pair->pair_index =3D pair_idx;
-> +
-> +	/*
-> +	 * Send mapping to device with the caveat that first
-> +	 * generation devices require individual button pair updates.
-> +	 */
-> +	if (ally_prefs.is_ally_x) {
-> +		ret =3D ally_set_button_mapping(hdev, pair);
-> +		if (ret < 0)
-> +			goto err_restore;
-> +	} else {
-> +		mode_map =3D &ally_prefs.button_mappings;
-> +		for (i =3D 0; i < ARRAY_SIZE(mode_map->button_pairs); i++) {
-> +			mode_map->button_pairs[i].pair_index =3D i + 1;
-> +			ret =3D ally_set_button_mapping(hdev,
-> +						      &mode_map->button_pairs[i]);
-> +			if (ret < 0) {
-> +				/*
-> +				 * Pairs are pushed one at a time. This pair
-> +				 * already reached the hardware when a later
-> +				 * pair is the one that failed.
-> +				 */
-> +				if (i > pair_idx - 1)
-> +					goto err_restore_hw;
-> +				goto err_restore;
-> +			}
-> +		}
-> +	}
-> +	sysfs_notify(&dev->kobj, ally_button_names[btn_attr->button_id],
-> +		     btn_attr->is_macro ? "macro" : "remap");
-> +	return count;
-> +
-> +err_restore_hw:
-> +	if (btn_attr->is_macro)
-> +		btn_map->macro =3D old_code;
-> +	else
-> +		btn_map->remap =3D old_code;
-> +
-> +	/* Try to recover the mapping presented to the user. */
-> +	ally_set_button_mapping(hdev, pair);
-> +	goto err_out;
-> +
-> +err_restore:
-> +	if (btn_attr->is_macro)
-> +		btn_map->macro =3D old_code;
-> +	else
-> +		btn_map->remap =3D old_code;
-> +
-> +err_out:
-> +	hid_err(hdev, "Failed to set button mapping: %d\n", ret);
-> +	return ret;
-> +}
-
-[Severity: Low]
-This isn't a bug, but button_remap_store() in drivers/hid/hid-asus.c mixes
-scope-based cleanup via guard(mutex)(&ally_prefs.lock) with goto-based error
-labels (err_restore_hw, err_restore, and err_out), and
-ally_create_button_attributes() similarly mixes __free(kfree) on entries
-with goto ally_btn_err_cleanup. Could these functions avoid mixing cleanup
-helpers and goto error paths in the same routine?
-
-[ ... ]
-
-> @@ -2429,11 +3248,9 @@ static void ally_btn_turbo_init_attrs(struct ally_=
-btn_sysfs_entry *entry)
+> @@ -900,10 +992,15 @@ static int mcu_parse_version_string(const u8 *respo=
+nse, size_t response_size)
 > =20
->  static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct=
- hid_device *hdev)
+>  static int mcu_request_version(struct hid_device *hdev)
 >  {
-> +	const size_t entries_attr_index =3D ally_prefs.turbo_support ? 4 : 0;
->  	int i, ret;
+> -	u8 *response __free(kfree) =3D kzalloc(ROG_ALLY_REPORT_SIZE, GFP_KERNEL=
+);
+> -	const u8 request[] =3D { 0x5a, 0x05, 0x03, 0x31, 0x00, 0x20 };
+> +	size_t hw_len =3D asus_report_len(hdev, FEATURE_REPORT_ID);
+> +	const u8 request[] =3D { FEATURE_KBD_REPORT_ID, 0x05, 0x03, 0x31, 0x00,=
+ 0x20 };
+>  	int ret;
 > =20
-> -	if (!ally_prefs.turbo_support)
-> -		return NULL;
-> -
->  	struct ally_btn_sysfs_entry *entries __free(kfree) =3D kzalloc_objs(*en=
-tries, ALLY_BTN_MAX);
->  	if (!entries)
->  		return ERR_PTR(-ENOMEM);
-> @@ -2441,13 +3258,33 @@ static struct ally_btn_sysfs_entry *ally_create_b=
-utton_attributes(struct hid_dev
->  	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
->  		entries[i].btn =3D i;
-> =20
-> -		if (!ally_btn_param(i)) {
-> -			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-> -			ret =3D -EINVAL;
-> +		if (ally_prefs.turbo_support) {
-> +			if (!ally_btn_param(i)) {
-> +				hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-> +				ret =3D -EINVAL;
-> +				goto ally_btn_err_cleanup;
-> +			}
+> +	if (!hw_len)
+> +		return -EINVAL;
 > +
-> +			ally_btn_turbo_init_attrs(&entries[i]);
-> +		}
+> +	u8 *response __free(kfree) =3D kzalloc(hw_len, GFP_KERNEL);
 > +
-> +		entries[i].remap_attr =3D button_remap_attr_create(i, false);
-> +		entries[i].macro_attr =3D button_remap_attr_create(i, true);
-> +		if (!entries[i].remap_attr || !entries[i].macro_attr) {
-> +			ret =3D -ENOMEM;
->  			goto ally_btn_err_cleanup;
->  		}
+>  	if (!response)
+>  		return -ENOMEM;
 > =20
-> -		ally_btn_turbo_init_attrs(&entries[i]);
-> +		sysfs_attr_init(&entries[i].attr_remap_available.attr);
-> +		entries[i].attr_remap_available.attr.name =3D "remap_available";
-> +		entries[i].attr_remap_available.attr.mode =3D 0444;
-> +		entries[i].attr_remap_available.show =3D btn_remap_available_show;
-> +
-> +		entries[i].attrs[entries_attr_index + 0] =3D &entries[i].remap_attr->d=
-ev_attr.attr;
-> +		entries[i].attrs[entries_attr_index + 1] =3D &entries[i].macro_attr->d=
-ev_attr.attr;
-> +		entries[i].attrs[entries_attr_index + 2] =3D &entries[i].attr_remap_av=
-ailable.attr;
-> +		entries[i].attrs[entries_attr_index + 3] =3D NULL;
-> +
->  		entries[i].group.name =3D ally_button_names[i];
->  		entries[i].group.attrs =3D entries[i].attrs;
+> @@ -911,17 +1008,16 @@ static int mcu_request_version(struct hid_device *=
+hdev)
+>  	if (ret < 0)
+>  		return ret;
 > =20
-> @@ -2465,6 +3302,11 @@ static struct ally_btn_sysfs_entry *ally_create_bu=
-tton_attributes(struct hid_dev
->  	while (i--)
->  		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-> =20
-> +	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
-> +		kfree(entries[i].remap_attr);
-> +		kfree(entries[i].macro_attr);
-> +	}
-> +
->  	return ERR_PTR(ret);
->  }
-> =20
-> @@ -2477,11 +3319,19 @@ static void ally_remove_button_attributes(struct =
-hid_device *hdev)
->  	if (!entries)
->  		return;
-> =20
-> -	for (i =3D 0; i < ALLY_BTN_MAX; i++)
-> +	/*
-> +	 * Unpublish first. A mode-store notify holds the prefs lock and must
-> +	 * see either the live array or NULL.
-> +	 */
-> +	ally_prefs.button_entries =3D NULL;
-> +
-> +	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
->  		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-> +		kfree(entries[i].remap_attr);
-> +		kfree(entries[i].macro_attr);
-> +	}
-> =20
->  	kfree(entries);
-> -	ally_prefs.button_entries =3D NULL;
->  }
+> -	ret =3D hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response,
+> -				ROG_ALLY_REPORT_SIZE, HID_FEATURE_REPORT,
+> -				HID_REQ_GET_REPORT);
+> +	ret =3D hid_hw_raw_request(hdev, FEATURE_REPORT_ID, response, hw_len,
+> +				 HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+>  	if (ret < 0)
+>  		return ret;
 
 [Severity: High]
-Can this cause a lock ordering inversion and deadlock between
-ally_prefs.lock and the sysfs kernfs active references on the button and
-gamepad_mode attributes?
+Does asus_report_len(hdev, FEATURE_REPORT_ID) return 0 here on ROG Ally and
+ROG Ally X devices?
 
-When userspace reads or writes the remap, macro, remap_available, or
-gamepad_mode sysfs attributes, kernfs acquires an active reference on the
-kernfs node before invoking button_remap_show(), button_remap_store(),
-btn_remap_available_show(), or gamepad_mode_store(), which then acquire
-ally_prefs.lock:
+In drivers/hid/hid-asus.c, FEATURE_REPORT_ID (0x0d) is the I2C touchpad
+multitouch report ID used by asus_start_multitouch(), whereas the ROG Ally
+N-Key vendor HID interface declares feature report 0x5a
+(FEATURE_KBD_REPORT_ID) in its HID report descriptor (and as documented abo=
+ve
+mcu_parse_version_string(), the MCU response payload starts with "5a 05 03 =
+31
+00 1a 13").
 
-  kernfs_fop_read_iter() / kernfs_fop_write_iter()
-    kernfs_get_active()                 /* acquires kn->active */
-    button_remap_show() / button_remap_store() /
-    btn_remap_available_show() / gamepad_mode_store()
-      guard(mutex)(&ally_prefs.lock);   /* acquires ally_prefs.lock */
+Previously, mcu_request_version() passed a hardcoded ROG_ALLY_REPORT_SIZE (=
+64)
+to hid_hw_raw_request(), which succeeded because usbhid_get_raw_report() do=
+es
+not look up the report ID in hdev->report_enum[HID_FEATURE_REPORT].
 
-In the opposite direction, during device removal or error rollback in
-ally_prefs_setup(), ally_prefs.lock is held while calling
-sysfs_remove_group(), which drains active kernfs references:
+With this change, when probing USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY or
+USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X via:
 
-  ally_sysfs_remove() / ally_prefs_setup()
-    guard(mutex)(&ally_prefs.lock);     /* acquires ally_prefs.lock */
-    ally_remove_button_attributes() / ally_create_button_attributes()
-      sysfs_remove_group()
-        __kernfs_remove()
-          kernfs_drain()                /* waits for kn->active */
+  asus_probe()
+    -> asus_kbd_register_leds()
+      -> validate_mcu_fw_version()
+        -> mcu_request_version()
 
-If a sysfs read or write is waiting to acquire ally_prefs.lock while
-ally_sysfs_remove() or ally_prefs_setup() holds ally_prefs.lock and enters
-kernfs_drain(), won't both threads block on each other?
+looking up FEATURE_REPORT_ID (0x0d) in hdev->report_enum[HID_FEATURE_REPORT]
+via asus_report_len() will not find a report and will return 0, causing
+mcu_request_version() to return -EINVAL. validate_mcu_fw_version() then
+silently aborts without checking the MCU version or configuring MCU powersa=
+ve:
+
+  version =3D mcu_request_version(hdev);
+  if (version < 0)
+          return;
+
+Should mcu_request_version() look up FEATURE_KBD_REPORT_ID instead of
+FEATURE_REPORT_ID when sizing the buffer with asus_report_len()?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261031174130.2082=
-40-1-denis.benato@linux.dev?part=3D12
+40-1-denis.benato@linux.dev?part=3D1

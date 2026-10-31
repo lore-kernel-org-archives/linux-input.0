@@ -1,98 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.51
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793472480;
-	b=mliqCAChHzSH2ATKX1JUkF4blpMrW+f/9RbZ/eA5OjhPzP5DnOfake8tuclCLsS6aoMB
-	 8XmjjwbxlyN8+yOxEWUy5aXAaHcqu0E7UnHj4JizrIVpcTPVIhJkMbQwjDnpVCS6eFVVk
-	 436VvZrUT1wDiO0waRc9wdtmYtDtYIQM4074XFgXK5vUwqdYhGgg12efoaU4uZdA9iKhy
-	 O/3iQm/5FcTRCKj/fWJ9lTKmpIIgCtk3BdB1UPZ5x09CkrmKXNn9WbngnKRJBRS/ZN88b
-	 OtcHiL9UthQq6TTQrwMtZNz8bY3049xpJto23TP4hpmIzUwRdq44taHwq9mOwF6kQBg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793472480;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:From:Date:
-	 X-Gm-Features:Message-ID:Subject:To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=OsAJufUwx/rly65UeH7Yxg2hRFLBDQv8W6ubwyY/8R4=;
-	b=ohJLEiiLxEiUaP4Llsb4tzST8jASVfUFahj0YvuaC9NPMkFtCiKqRTxvlLFoJIgfMb1i
-	 2mQtLIjuPd4xo4XRwRcW5DnFwlzqDf5RapacBblb1yVUIZvNAYSnyYRhYhNU2gNFg2xoK
-	 nk47vbQ0ubP58naYtAc+FtZUblTyVa5tCyVEW2gML7qIykPZbUMYMI+KrCIMjcZtTj9Kt
-	 5kt0n+goKdl49tYyjXnWMvtoqhK5TbfCHsUyK9t1qsEvvM7QJ05lk7Y+kHelUxXQxd5zL
-	 Z88Ibaiv7BttO1yLbndk6aKe6HnPk/QOCGu9RmUGNnAe2Nx6ucMM1P5Wfvb7tYqYUCw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=googlemail.com;
-	spf=pass smtp.mailfrom=googlemail.com;
-	dkim=pass header.d=googlemail.com header.i=@googlemail.com header.a=rsa-sha256 header.s=20260707 header.b=M3lg3PN5;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.51
-Received: from mail-oa1-f51.google.com (mail-oa1-f51.google.com [209.85.160.51])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.128
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793473600;
+	b=FRXUZKKWUmLuElEN7DlbrSgxJH1ywyOREXTfyrcwSO0KQ4SRS018LYSvEtvzk9wMfHPH
+	 s6pZjoNmNNhkNbd32zhBYP1zjqrL4SseQOLc3BCdFgOj/UVUC37R6Wlsf6T29paSnQnhu
+	 Bh3u9KM8iy84+SeELNbbdCKNSFr+iHspFVj/0Zmx0lCPXXkPlSnbCXJgREVQyhxptzpsG
+	 H4SfG//u3wTl4waAGwRrw9h+bUhzflcLHiOTZiZz+hoUyNA6UFRl0Dm03USTOhZO0bEhs
+	 ploxG9dk0kGRZ5H+bBHCgQK6qzmoBuNK9HXrAbZv+KwMEqWrZAZ6eh057LyAgO2hWkg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793473600;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=YH8QT86/3LEwYMWvaQz1fNb+ZhsxJmSbAJxTawg7hrI=;
+	b=ATs7Z0VPMSXbToz0t0uC0hCVvcHNQPwA5bUE/RlGkgNzO3cXHUVDe+UaEqlxzUFiSRdM
+	 M5GxCZXlZQdZhXnogQiTwGdcYEXUSOdQt0qV5SnE8fdwSqoURHyPfH+nnliSVjZn3TnmH
+	 TuFCAOc5hM+4wE1LleRTWGqw6nTQahSUZqt/pMxXw5puMUh/jghjj8mBS1K03v681CzCc
+	 SVc7+oevYEuie//UTbt04pGPrIWcCNeZUkYFUniMH4054H7SO+xtVyxhYUnvdb1OvsGhq
+	 wOnm30OI6tikBE//ohryL/CXvMrviXN24FSX3W2EcCv5FTOQZomL2Cw47og95ytci3w==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b="TLayKH/i";
+	arc=none smtp.remote-ip=91.218.175.128
+Received: from mta0.migadu.com (out-128.mta0.migadu.com [91.218.175.128])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EE5D606A31A
-	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 18:48:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5EE5D606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA9DC606A31C
+	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 19:06:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA9DC606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=googlemail.com header.i=@googlemail.com header.a=rsa-sha256 header.s=20260707 header.b=M3lg3PN5
-Received: by mail-oa1-f51.google.com with SMTP id 586e51a60fabf-4a85c656c58so1148071fac.3
-        for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 11:48:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793472479; cv=none;
-        d=google.com; s=arc-20260327;
-        b=oTzNfA/fFCPT5qBdPsHwVsOMj2L9YYeDYQQM3KCXk6bGG1hVGuXkqBCXEdvVTI+1yd
-         AqKG3s1owFAr9inGOzQGmW5mbYUPUtPiHoO6SY/KFCA7gsHm6FfhlvLWo7Ws8vMjah/v
-         WbpA+Mi4aT34svwUnwJZt7pf4qcDiH2TLZLz4lKEsHAl/bMTNbcFE7sK1KaakZcPjG6N
-         2PuaoX9mj3o4/QpyvDZNzWIT6ym48a3IcIeJdBhE9OIlZeGS2AHKnoyLkaTIQ5K50wfS
-         9y5CW0bnKck2HzoEkW+Dio8vj+jzZ2GH3p5vk4MZC5XLUIRdarSKzNxbu0wMNFcnwAOL
-         Dc7A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:dkim-signature;
-        bh=OsAJufUwx/rly65UeH7Yxg2hRFLBDQv8W6ubwyY/8R4=;
-        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
-        b=QFXg8CAJB9x3TLGcrg3rl5EcPP5S/OHNWLA3g7iJqZFoyJiUwz1AUus6F1KmU6azTC
-         gLfIl/AFOwpRznAAR1vbaJ7J1gRsLVqefbE2FS7I8XAxokY7EuGRWGs4LJ7oAitCj2Oc
-         sIQ+QnXP9SqRHBJASfSPKLenzgt0pYUxTN3WRNU4PyuSEOMtlk2ol8rXAunLh1k0YgJX
-         EhJU4NYUCvH4The9dSVlK0zSaWGk+WWumF2ARrt5sURpcA9YoYy2CY2P5MPpJeZZ1mxS
-         HhGvdv7SRKuB8do2NkM1dpT73EkerqtxoAxqwnCf4ux2CoVWX/q8rr3q/miiAwgbt6Ty
-         qzWQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20260707; t=1793472479; x=1794077279; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=OsAJufUwx/rly65UeH7Yxg2hRFLBDQv8W6ubwyY/8R4=;
-        b=M3lg3PN5isKn/7ZiwS0qJ0/6XksyuzadAl6LP4JHHjUQKzHWlKbCkq1rBxdTFVgDTF
-         U6/P0/XCNXHec4txO+o8Bf0WYAm1yrEaS5TcIdFHCSApvAMJWPE5B3y/IIKBvyHw8cIO
-         fvv6Hb3kDIk/c0AuwWSZik+QiggutCsL/G4v+hwTyXVCAZR2GZwNu5uOIAsWdmGIt2Tl
-         yCOMCvCZiV/PIX3LlCdzPW4FzbtOU80C8gPigxU9eZYnhps1xv9EKwyNFYpBNCPkcLJp
-         NzderIXUOCCQuNFoNQvqbDQwHvQ6t5qjT9fedNL8nomuTHoniWLdKT6Ez6bl12zsO+sE
-         5+1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793472479; x=1794077279;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=OsAJufUwx/rly65UeH7Yxg2hRFLBDQv8W6ubwyY/8R4=;
-        b=TCGVEu72f0k7DFA/8Q3Q52uimVJJpXVMmIDZe+stS46MFA5G6SH+GTCM3GVOO1pz/b
-         fP04Tl0L1nBV4iCiw+/G6+EqF9EgGygVxtFIwU0LhqzN5e1x2LZREz8gib5MmyZZ6Xbj
-         TUbzBJgs7cIS0dHoPZq5elZXAmhG+I73F94zz+DQJuIB/KcIX1boXRhBI6pIi9wizzX0
-         aD8chJp1vTMTi3+45DuZZ4LNh4e+fwmDDgeOrnCV7tBs4Kxf5+EQAxSz/SfBhrFDwtiW
-         tTezWkLkUw5fHckpNkzCZYtWputFu04VM/Fs9Ow/3W4Tm10aG1STOjzlfAi4EZqmSUE7
-         drGQ==
-X-Gm-Message-State: AFq9FYKCI4BPFZ08JIqKOutRcUHeAVrnujPIq46BlAMKxTt3QyexvjZc
-	Dh6AMxnMoSdyYWODSxTcWJRL5dQbx8e5vIqyhf8xPcGDMHREW52Fj03u0Iafui7sZ0ZeAanJZVu
-	E1uusRZHwAo2doUpv4h+H6oyA7u+5cEYL1YPG
-X-Gm-Gg: AYBFou3CXziWw79MMOmwE4/S7JDnbgYcexGBB1Ug/wZefD/hwcREx9YuhxYXYQutjDq
-	fG5t+dcFsh6mRWdSWKSuyEA7xm/1fKkt+KhZIqAkAAte9utkpxCnVvBOULXuftwjuxQVHy+hRBW
-	ucOt7wZxrXSPMN55/rQbLXy1/mgyR4IQdx+0mXMkFwy5v4IDHWpFfcq1TfCarRboyG/5Cc7L6ud
-	kNqTx9I7cJ06m4jn+9OhNbJxaOgEGIZ0TmDM2n9/nxQdgt817n1KM/2ChuWnIqIExFatXx63+JV
-	zmYdJiAE+N7GrYpWdM9qBG4ZpIYtWRdXbRFELd1+vooBY37sMoJV4sH0g99ebs70VdvLbTDRpJJ
-	86kIK7i2nmLApfP7h6lSTTAKXvbZzE5zyo78fnGjmrbrj77IXksHnMaJPivNSw+Qiv8rKjTg=
-X-Received: by 2002:a05:6870:de10:b0:4a7:5256:4643 with SMTP id
- 586e51a60fabf-4a9072cd014mr3523253fac.3.1793472478982; Sat, 31 Oct 2026
- 11:47:58 -0700 (PDT)
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=TLayKH/i
+X-Envelope-To: linux-input@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=//J0klpCP1jGcPxrQI924zaQVPktO/SmhlzT2RxA1MU=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793473597; v=1; x=1794078397;
+ b=TLayKH/iZNGDWlGtzy5FtvC2M+g3EGMpJtd9YXC/1qgcHLnp/1G95UwKeaosBLhMp7MYPUAX
+ IMIVE0q8SStVDFMeG6vsMM3ErP8uBei5aUUuisnpISy+k9UDzbV3iWFCTJOI1ZlgW6nAd8y2GZs
+ V5t9P+57To4u62N8ZB+RQ89o=
+X-Envelope-To: linux-input@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id ba58de2dfaf3ceff;
+	Sat, 31 Oct 2026 19:06:37 +0000
+X-Mizu-Trace-ID: ba58de2dfaf3ceff
+X-Migadu-Flow: FLOW_OUT
+Message-ID: <121eb60f-a78b-49d0-ad8d-88c5f0b6087b@linux.dev>
+Date: Sat, 31 Oct 2026 20:06:36 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -102,74 +58,299 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-From: Jannis Haesihus <ador43@googlemail.com>
-Date: Sat, 31 Oct 2026 19:47:48 +0100
-X-Gm-Features: AclHuK--mVydONffoOxCQ5JSQ6Mm-A9DabOw9tQt81v-Cs3JSzqmRI2XZm_Uz6A
-Message-ID: <CAKW8xf_AE4do5yBnHsfnPiXVAkJifPB4=Gt6Q4T0ZmddUN0Sqw@mail.gmail.com>
-Subject: [BUG] HID: steelseries: Arctis 7 receiver disconnects since 7.3
-To: linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v12 12/17] HID: asus: add support for btn remapping
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+References: <20261031174130.208240-1-denis.benato@linux.dev>
+ <20261031174130.208240-13-denis.benato@linux.dev>
+ <sashiko-outbox-192087@kernel.org>
+Content-Language: en-US
+From: Denis Benato <denis.benato@linux.dev>
+In-Reply-To: <sashiko-outbox-192087@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi there,
 
-I noticed following bug:
+On 10/31/26 19:00, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
+> - [High] HID: asus: ABBA deadlock between ally_prefs.lock and sysfs active refs
+> - [Low] HID: asus: mixed cleanup helpers and goto in button_remap_store()
+> - [Low] HID: asus: commit message refers to remap_index instead of remap_available
+> --
+>
+> commit eab19113fde5452095dfc729f53ab98ff0fc3365
+> Author: Denis Benato <denis.benato@linux.dev>
+>
+> HID: asus: add support for btn remapping
+>
+> This commit adds button and macro remapping support for ASUS ROG Ally
+> devices via per-button sysfs attributes (remap, macro, and
+> remap_available), validating mappings against the active gamepad mode and
+> restoring or refreshing the cached mappings across mode switches and MCU
+> resets.
+>
+>>     HID: asus: add support for btn remapping
+>>     
+>>     Add support for buttons remapping: the ability to assign different
+>>     button events to each one of the physical button on the device.
+>>     
+>>     Each button exposes a remap_index sysfs attribute listing the valid
+>>     remap target names for the current gamepad mode: M1 and M2 can be
+>>     remapped to anything at any time, while other buttons may only be
+>>     remapped to gamepad codes in gamepad mode and keyboard/mouse/media
+>>     codes in desktop mode.
+>>     
+>>     When the gamepad mode is changed the firmware automatically restores
+>>     its internal defaults, so the software cache is refreshed to reflect
+>>     the hardware state.
+>>     
+>>     Co-developed-by: Luke Jones <luke@ljones.dev>
+>>     Signed-off-by: Luke Jones <luke@ljones.dev>
+>>     Signed-off-by: Denis Benato <denis.benato@linux.dev>
+>>     Signed-off-by: Jonathan LoBue <jlobue10@gmail.com>
+> [Severity: Low]
+> This isn't a bug, but the commit message refers to a remap_index sysfs
+> attribute, whereas ally_create_button_attributes() in drivers/hid/hid-asus.c
+> registers this attribute as remap_available alongside the remap and macro
+> attributes created in button_remap_attr_create(). Should the commit message
+> be updated to mention remap, macro, and remap_available instead of
+> remap_index?
 
-System
+Not good. And now that I think about it I also forgot the documentation entry.
 
-    Distro: CachyOS, KDE Plasma
-    Kernel: 7.3.0-4-cachyos (updated from 7.2.9-2 on 2026-10-24)
-    Device: SteelSeries Arctis 7 wireless headset, USB receiver
-1038:12ad (bcdDevice 1.19)
-
-Behavior
-Since the update to kernel 7.3, the USB receiver of my Arctis 7 keeps
-disconnecting even though it stays plugged in (its LED stays on). KDE
-shows =E2=80=9CUSB Device Removed=E2=80=9D notifications. It only happens w=
-hile the
-headset is switched off. As long as the headset is on and connected to
-the receiver, it stays stable. Replugging the receiver several times
-sometimes makes it stay connected for a while. The problem did not
-occur on kernel 7.2.
-
-Kernel log
-
-kernel: hid-steelseries-arctis 0003:1038:12AD.0009:
-input,hiddev99,hidraw5: USB HID v1.11 Device [SteelSeries  Steelseries
-Arctis 7] on usb-0000:00:14.0-10/input5
-kernel: usb usb1-port10: disabled by hub (EMI?), re-enabling...
-kernel: usb 1-10: USB disconnect, device number 22
-kernel: usb 1-10: new full-speed USB device number 23 using xhci_hcd
-kernel: usb 1-10: device descriptor read/64, error -110
-
-What I ruled out
-
-    USB autosuspend: Disabled via udev rule, and power/control is on
-for the device. The problem persisted.
-    USB port / hardware: The problem also occurred on a rear motherboard po=
-rt.
-    Receiver defect: The receiver works stably on a Windows laptop.
-    Interference from the Xbox wireless adapter plugged into the same
-PC: With the driver blacklisted and the adapter plugged back in, there
-are no disconnects.
-
-Finding / workaround
-Blacklisting the new driver fixes the issue completely:
-
-echo 'blacklist hid-steelseries-arctis' > /etc/modprobe.d/no-arctis.conf
-
-With the module not loaded, the receiver stays connected even with the
-headset switched off for an extended time. Audio works normally via
-snd-usb-audio. Only the battery reporting is lost.
-
-Suspected cause
-Kernel 7.3 newly binds hid-steelseries-arctis to the Arctis 7
-(previously only Arctis 1/9 were handled). The driver=E2=80=99s status/batt=
-ery
-polling seems to make the receiver stop responding when no headset is
-connected. The result is a timeout (-110), and the hub disables and
-resets the port.
-
-Best regards,
-
-Jannis
+>> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+>> index d20e433af5740..b94cb8c50b28b 100644
+>> --- a/drivers/hid/hid-asus.c
+>> +++ b/drivers/hid/hid-asus.c
+> [ ... ]
+>
+>> +static ssize_t button_remap_store(struct device *dev,
+>> +				  struct device_attribute *attr,
+>> +				  const char *buf, size_t count)
+>> +{
+>> +	struct hid_device *hdev = to_hid_device(dev);
+>> +	struct button_remap_attr *btn_attr = to_button_remap_attr(attr);
+>> +	enum ally_button_id button_id = btn_attr->button_id;
+>> +	struct ally_button_mapping *mode_map;
+>> +	const struct btn_code_map *code;
+>> +	const struct btn_code_map *old_code;
+>> +	enum btn_pair_index pair_idx;
+>> +	struct button_pair_map *pair;
+>> +	struct button_map *btn_map;
+>> +	char btn_name[32];
+>> +	bool is_first;
+>> +	int ret, i;
+>> +
+>> +	if (sscanf(buf, "%31s", btn_name) != 1)
+>> +		return -EINVAL;
+>> +
+>> +	code = find_button_by_name(btn_name);
+>> +	if (!code)
+>> +		return -EINVAL;
+>> +
+>> +	ret = get_button_pair_info(button_id, &pair_idx, &is_first);
+>> +	if (ret < 0)
+>> +		return ret;
+>> +
+>> +	guard(mutex)(&ally_prefs.lock);
+>> +
+>> +	/*
+>> +	 * Validate the remap target while holding the lock: the
+>> +	 * gamepad mode can change concurrently, and the check must
+>> +	 * be done against the very mode the mapping is written to.
+>> +	 */
+>> +	if (!ally_remap_code_valid(button_id, ally_prefs.gamepad_mode, code,
+>> +				   btn_attr->is_macro))
+>> +		return -EINVAL;
+>> +
+>> +	/* Access the mapping for current gamepad mode */
+>> +	pair = &ally_prefs.button_mappings.button_pairs[pair_idx - 1];
+>> +	btn_map = is_first ? &pair->first : &pair->second;
+>> +
+>> +	if (btn_attr->is_macro) {
+>> +		old_code = btn_map->macro;
+>> +		btn_map->macro = code;
+>> +	} else {
+>> +		old_code = btn_map->remap;
+>> +		btn_map->remap = code;
+>> +	}
+>> +
+>> +	/* Update pair index */
+>> +	pair->pair_index = pair_idx;
+>> +
+>> +	/*
+>> +	 * Send mapping to device with the caveat that first
+>> +	 * generation devices require individual button pair updates.
+>> +	 */
+>> +	if (ally_prefs.is_ally_x) {
+>> +		ret = ally_set_button_mapping(hdev, pair);
+>> +		if (ret < 0)
+>> +			goto err_restore;
+>> +	} else {
+>> +		mode_map = &ally_prefs.button_mappings;
+>> +		for (i = 0; i < ARRAY_SIZE(mode_map->button_pairs); i++) {
+>> +			mode_map->button_pairs[i].pair_index = i + 1;
+>> +			ret = ally_set_button_mapping(hdev,
+>> +						      &mode_map->button_pairs[i]);
+>> +			if (ret < 0) {
+>> +				/*
+>> +				 * Pairs are pushed one at a time. This pair
+>> +				 * already reached the hardware when a later
+>> +				 * pair is the one that failed.
+>> +				 */
+>> +				if (i > pair_idx - 1)
+>> +					goto err_restore_hw;
+>> +				goto err_restore;
+>> +			}
+>> +		}
+>> +	}
+>> +	sysfs_notify(&dev->kobj, ally_button_names[btn_attr->button_id],
+>> +		     btn_attr->is_macro ? "macro" : "remap");
+>> +	return count;
+>> +
+>> +err_restore_hw:
+>> +	if (btn_attr->is_macro)
+>> +		btn_map->macro = old_code;
+>> +	else
+>> +		btn_map->remap = old_code;
+>> +
+>> +	/* Try to recover the mapping presented to the user. */
+>> +	ally_set_button_mapping(hdev, pair);
+>> +	goto err_out;
+>> +
+>> +err_restore:
+>> +	if (btn_attr->is_macro)
+>> +		btn_map->macro = old_code;
+>> +	else
+>> +		btn_map->remap = old_code;
+>> +
+>> +err_out:
+>> +	hid_err(hdev, "Failed to set button mapping: %d\n", ret);
+>> +	return ret;
+>> +}
+> [Severity: Low]
+> This isn't a bug, but button_remap_store() in drivers/hid/hid-asus.c mixes
+> scope-based cleanup via guard(mutex)(&ally_prefs.lock) with goto-based error
+> labels (err_restore_hw, err_restore, and err_out), and
+> ally_create_button_attributes() similarly mixes __free(kfree) on entries
+> with goto ally_btn_err_cleanup. Could these functions avoid mixing cleanup
+> helpers and goto error paths in the same routine?
+>
+> [ ... ]
+>
+>> @@ -2429,11 +3248,9 @@ static void ally_btn_turbo_init_attrs(struct ally_btn_sysfs_entry *entry)
+>>  
+>>  static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct hid_device *hdev)
+>>  {
+>> +	const size_t entries_attr_index = ally_prefs.turbo_support ? 4 : 0;
+>>  	int i, ret;
+>>  
+>> -	if (!ally_prefs.turbo_support)
+>> -		return NULL;
+>> -
+>>  	struct ally_btn_sysfs_entry *entries __free(kfree) = kzalloc_objs(*entries, ALLY_BTN_MAX);
+>>  	if (!entries)
+>>  		return ERR_PTR(-ENOMEM);
+>> @@ -2441,13 +3258,33 @@ static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct hid_dev
+>>  	for (i = 0; i < ALLY_BTN_MAX; i++) {
+>>  		entries[i].btn = i;
+>>  
+>> -		if (!ally_btn_param(i)) {
+>> -			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
+>> -			ret = -EINVAL;
+>> +		if (ally_prefs.turbo_support) {
+>> +			if (!ally_btn_param(i)) {
+>> +				hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
+>> +				ret = -EINVAL;
+>> +				goto ally_btn_err_cleanup;
+>> +			}
+>> +
+>> +			ally_btn_turbo_init_attrs(&entries[i]);
+>> +		}
+>> +
+>> +		entries[i].remap_attr = button_remap_attr_create(i, false);
+>> +		entries[i].macro_attr = button_remap_attr_create(i, true);
+>> +		if (!entries[i].remap_attr || !entries[i].macro_attr) {
+>> +			ret = -ENOMEM;
+>>  			goto ally_btn_err_cleanup;
+>>  		}
+>>  
+>> -		ally_btn_turbo_init_attrs(&entries[i]);
+>> +		sysfs_attr_init(&entries[i].attr_remap_available.attr);
+>> +		entries[i].attr_remap_available.attr.name = "remap_available";
+>> +		entries[i].attr_remap_available.attr.mode = 0444;
+>> +		entries[i].attr_remap_available.show = btn_remap_available_show;
+>> +
+>> +		entries[i].attrs[entries_attr_index + 0] = &entries[i].remap_attr->dev_attr.attr;
+>> +		entries[i].attrs[entries_attr_index + 1] = &entries[i].macro_attr->dev_attr.attr;
+>> +		entries[i].attrs[entries_attr_index + 2] = &entries[i].attr_remap_available.attr;
+>> +		entries[i].attrs[entries_attr_index + 3] = NULL;
+>> +
+>>  		entries[i].group.name = ally_button_names[i];
+>>  		entries[i].group.attrs = entries[i].attrs;
+>>  
+>> @@ -2465,6 +3302,11 @@ static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct hid_dev
+>>  	while (i--)
+>>  		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
+>>  
+>> +	for (i = 0; i < ALLY_BTN_MAX; i++) {
+>> +		kfree(entries[i].remap_attr);
+>> +		kfree(entries[i].macro_attr);
+>> +	}
+>> +
+>>  	return ERR_PTR(ret);
+>>  }
+>>  
+>> @@ -2477,11 +3319,19 @@ static void ally_remove_button_attributes(struct hid_device *hdev)
+>>  	if (!entries)
+>>  		return;
+>>  
+>> -	for (i = 0; i < ALLY_BTN_MAX; i++)
+>> +	/*
+>> +	 * Unpublish first. A mode-store notify holds the prefs lock and must
+>> +	 * see either the live array or NULL.
+>> +	 */
+>> +	ally_prefs.button_entries = NULL;
+>> +
+>> +	for (i = 0; i < ALLY_BTN_MAX; i++) {
+>>  		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
+>> +		kfree(entries[i].remap_attr);
+>> +		kfree(entries[i].macro_attr);
+>> +	}
+>>  
+>>  	kfree(entries);
+>> -	ally_prefs.button_entries = NULL;
+>>  }
+> [Severity: High]
+> Can this cause a lock ordering inversion and deadlock between
+> ally_prefs.lock and the sysfs kernfs active references on the button and
+> gamepad_mode attributes?
+>
+> When userspace reads or writes the remap, macro, remap_available, or
+> gamepad_mode sysfs attributes, kernfs acquires an active reference on the
+> kernfs node before invoking button_remap_show(), button_remap_store(),
+> btn_remap_available_show(), or gamepad_mode_store(), which then acquire
+> ally_prefs.lock:
+>
+>   kernfs_fop_read_iter() / kernfs_fop_write_iter()
+>     kernfs_get_active()                 /* acquires kn->active */
+>     button_remap_show() / button_remap_store() /
+>     btn_remap_available_show() / gamepad_mode_store()
+>       guard(mutex)(&ally_prefs.lock);   /* acquires ally_prefs.lock */
+>
+> In the opposite direction, during device removal or error rollback in
+> ally_prefs_setup(), ally_prefs.lock is held while calling
+> sysfs_remove_group(), which drains active kernfs references:
+>
+>   ally_sysfs_remove() / ally_prefs_setup()
+>     guard(mutex)(&ally_prefs.lock);     /* acquires ally_prefs.lock */
+>     ally_remove_button_attributes() / ally_create_button_attributes()
+>       sysfs_remove_group()
+>         __kernfs_remove()
+>           kernfs_drain()                /* waits for kn->active */
+>
+> If a sysfs read or write is waiting to acquire ally_prefs.lock while
+> ally_sysfs_remove() or ally_prefs_setup() holds ally_prefs.lock and enters
+> kernfs_drain(), won't both threads block on each other?
+>

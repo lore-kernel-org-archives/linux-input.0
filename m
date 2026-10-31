@@ -1,72 +1,95 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.39
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793476071;
-	b=3yDR/py1aVCpy3MTHIpXdnXHvXVb8g4Nub4TYC16SWVESLs56sd0WeuiYYDaQEn6o3iS
-	 2f3l/mNIt0gzwSTmD4A31gRFl0oEnIeWfq7snmZDfoCin6gE2iOG+DX5o6bgxsTc3YjhH
-	 J8yAPmUjkTEzku5swXRYioxmy+sStLys3SP9tOvkhY6hF6MPm4MhO8dB5va9PIkCAWg0R
-	 zliCznKu/+9lYWmmXxxIeIiS41XHjrxHmp0qNsz9bGA4qivDMdQBlQlYiFIKPbdYLm0Ge
-	 XmInOPqIxyCINSk2PEBkhmneQ7Hsj8XQAmi2Q997TnD7C1YdMykSFIoOSHQKa59aMhA==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793476071;
-	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
-	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
-	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
-	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
-	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
-	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
-	bh=OhwUmbRQtnx4j/x0VQjKx2T7r8wqay7H8kI7w/8Q+qI=;
-	b=cq/1bJs9tFyQP43m706GLc9Hvv5XUOGaI04d9CuZwYjWtLQX/GKsWLoPBIB5U1E/uwvM
-	 sIkneNMYjaClqBuJCGOO6c4QIG4e4BS/AbitzfqUtnx3Xwp9s4z8vn/1/WrRqFN2AkNKq
-	 v1lay9gdPJSsoakSgIGAMKCswJl4Gw20LblLjDUitekRSCekk6q+5Bexco9WwNG9zII6e
-	 1jHQ8tBWtZLQrfPa+bqMHVoX9uH3dvKI+oDxauRKk87dTtQArlRwm7tao1sRXqW0eOczA
-	 4fVlHP77Q3kLHpNgkKnQ7UvAT9Hhkcu//5oY5MiC1m5TEWsFWryltwgrLBRTSf4zC0Q==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=roeck-us.net;
-	spf=fail smtp.mailfrom=roeck-us.net;
-	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=aQ1Wx0YU;
-	arc=none smtp.remote-ip=35.89.44.39
-Received: from omta40.uswest2.a.cloudfilter.net (omta40.uswest2.a.cloudfilter.net [35.89.44.39])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.178
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793482610;
+	b=OKO+SqznTz/5aP7/gObJGEvqkbzoQSPkoXEaeOa+vzYS7GCP1I5+NoViJglmmRqV2Kt8
+	 AHqEJ/Wdz4saMvxj0N9rGMf2vHpo4f+6Tvp1BpooNj/4gud27ro5KszUCr+bxCiz/OKZo
+	 NjxRC6Jtpt3Y4qsNFSypEaaEg6MgZZvdAL/jliuZ6eIY7D36CYqT+S3D+vcJgqskcklbB
+	 XeuWfIiyqHh3PIrUxSano9dgPY1T/R+F6V0MHJljvB33rKTnRY3tz8tmFCigANbj4B6f3
+	 XIECniv9wrQqpe6NFUBeqavBgdcQC9vyu+Zpwi+l8R7P8T9zdaaMIchPxifrlAPwa8Q==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793482610;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Content-Type;
+	bh=+DJfERSDYa5qSRqnsSIj/9fxpY7NzP5ypoF6//szyFw=;
+	b=f/TlCVEqOcIgJaToK257JeZt86BLfo7sivCni4KDFw4fPoOflw/Oouh7iyRimPhw+fiZ
+	 HXtzU4Inw0fFzGMuMCTYGCv0BwNxZo1tXx9PXIeA9X59SZffywM/MbosiGjOpISzvA+cL
+	 R9Rrto5HaUhQb44AwL/QGh1MhkAVAfko8GkWv5OojOSEYjMaW8xDFyt1oOR2e/35eL2hR
+	 j5kk94YVhXXsaijLrcOZdA/5ThMzaBa5BbueLZqSYjMjayk3HdLN13NxJ0ID5XS4yy29l
+	 sPeEj6cqusWDD8p1QyL+atwN4em2WoWKKuop8lNUNWSabELXh1V74djpPZjQHDo92Hg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b="FtX/k3Qa";
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.178
+Received: from mail-oi1-f178.google.com (mail-oi1-f178.google.com [209.85.167.178])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC1C3606A31A
-	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 19:47:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CC1C3606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB88C606A31A
+	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 21:36:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BB88C606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=aQ1Wx0YU
-Received: from eig-obgw-6002b.ext.cloudfilter.net ([10.0.30.203])
-	by cmsmtp with ESMTPS
-	id NAKDxZ0gTc3XsNF3OxK08b; Sat, 31 Oct 2026 19:47:50 +0000
-Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
-	by cmsmtp with ESMTPS
-	id NF3NxxCgO63hBNF3NxSlLx; Sat, 31 Oct 2026 19:47:50 +0000
-X-Authority-Analysis: v=2.4 cv=CYsI5Krl c=1 sm=1 tr=0 ts=6ae645e6
- a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=M0FbrtG7MMAA:10
- a=9-mYwotj93D_UCNkWmMA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=KPbNTLLc3YvdawN95zVk:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
-	List-Archive; bh=OhwUmbRQtnx4j/x0VQjKx2T7r8wqay7H8kI7w/8Q+qI=; b=aQ1Wx0YUYtqR
-	Gj4fIHFtapSUHNm76aVkCNXmwFdGCKaL/XuukHuIHnvObFCHyjQVjNK/OjGR3y8CxzFTt1KEWSbiL
-	MTGBLo30WOoLdijOW3jEyz3GZPdyriMNm+p/c3NB/8lQNrQc/1w1USqM72SsXtT2gfmDrYJZrElcb
-	81ei9ztEQLDu1x7PnmwnCLHtNTaW8kpr3yVh0PjZMIGkdxL0WoWpK53S+QkrdkbLRVGbTrCWxTR6U
-	HzZUsu283yKy2zyYcG2LjYnhTbYNEKoVKQ6oYzha0EVqzWRs7a5Hr1Kvt4k4C6CR+w7AH9SjdgQO1
-	NUciOIqOHx4IAoATgq2fOw==;
-Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:33928)
-	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.100.1)
-	(envelope-from <linux@roeck-us.net>)
-	id 1xNF3N-000000001Bs-1oDF;
-	Sun, 01 Nov 2026 01:17:49 +0530
-Message-ID: <e7ded3a0-ac50-484e-8559-c2b9e897c73a@roeck-us.net>
-Date: Sat, 31 Oct 2026 12:47:48 -0700
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=FtX/k3Qa
+Received: by mail-oi1-f178.google.com with SMTP id 5614622812f47-53ec9237600so1075268b6e.3
+        for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 14:36:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793482608; cv=none;
+        d=google.com; s=arc-20260327;
+        b=De1It0ZDgHVowfnPV4K/PFrFbtFnSO9mX7momUuxDz4/aYT3GHXnlzdA8YS6MHshYI
+         kArWVWRoNGhVrppigPmsizeV2FHyHZPOU/MqX59kvy+9zCqUWxDH79eY/OzGM/I8nq9R
+         MeibNH6lPrWyz381EIVRjOeqXhnnIhbFUuMq3I6OAXLaHx4CNjeVoW+gkQhKWWfkRCoe
+         JVmFnn9MeKR1qDUUU1kMUkxP6O8DtLGN4InbQF32jKFK1lWQspnjlvzsGOJxrjV5hNsS
+         Ijwx8vHHWwEbyIpO93aianHrMGcfXPUOYhrsMtTVqg3hlIWz06UkyAGI+cbJrHV+AfAu
+         VAwQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=+DJfERSDYa5qSRqnsSIj/9fxpY7NzP5ypoF6//szyFw=;
+        fh=QBRj4p4k3geAuvF2WSiVLGKXZmHqCuQAf/1wieg5t1c=;
+        b=dXm3Z/wsOsCD8YP0RxNWYw84FZjikJK18YXh+FQ9HU3rUPgcOiNL3t5bMRyf+1224L
+         YW3Eni7u88MkE870djXOqMTIjZK5BSpaJwfLw+uEFhsSe36T81B8ASj/qGAenhhG13Ye
+         gVQ/prnYUoEcv6nDgOhNY7IGxs3/wV7HXbylhhc6PK9RD+HTd0XzJdorRicefm2k4tpD
+         NGOEPRtidg4xyMplJD8UANyp9jP9j1hAKX6LWA2tUyWh1Kr+VENuZuThjVoCMcVWoh0S
+         1ijFuuA4I3YJ0xKExtt85oYBvwaolQnR1hr0X02j4bNQEsKLa6PuB+wmTBDgPRlXH9Oi
+         RaNA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793482608; x=1794087408; darn=vger.kernel.org;
+        h=content-type:to:subject:message-id:date:from:mime-version:from:to
+         :cc:subject:date:message-id:reply-to:content-type;
+        bh=+DJfERSDYa5qSRqnsSIj/9fxpY7NzP5ypoF6//szyFw=;
+        b=FtX/k3QaIIwsef+bgBbhbg9qiAx9QSs2BM2vosC7h1SIxneGWamTS5l4TjkblxkI8L
+         PXaKGMTa7N3V2FWOEvVX78RV0gobPffxPFbRRRe0/Mn4dWoupkPL3bGCHJkPPrk3YKwR
+         5FtAlJHBRZaZdMFOUJTUH6Bv4eX4fn2edBvhz8GxFe8oa8R65UFw5lqE14ejKPrPyLl6
+         2Ge4vzRdMXzuJ4eGzuIW9dXTrejqF2qw2/arz1+Eypa7z7RW2BGK3OkfCH9aSNozojFH
+         0IQs6vsbLR6nog69n37x0qUMMrO78wOYFvBxs+765aC5QjSsLRP/W1571N1aJQD/mJrg
+         BYfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793482608; x=1794087408;
+        h=content-type:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=+DJfERSDYa5qSRqnsSIj/9fxpY7NzP5ypoF6//szyFw=;
+        b=QxTcSt7Gna8z1YYBzKdOS2m0CKr5lknu2ekFRs14IMzgzKMih0ScpPn2rPyQ4JpdXu
+         V7Y5BIoQy8XsPB8spr4XI17PDdiZsfdttYVHbdFvmX7Z6hhJZ7xW+BlN/x5W8RxiJmxx
+         PxqTNE7RWxi6uKBIePmLIJQ/noOMXRzHA4LBW+kB/SSHr95njDQi/Jr00Od4Pa1iVbgS
+         hFL/eB/vk2ywv/2aB9Y++JbZKCylspk7M1yHA3Z5poCcYlvuVcZkgM4r548OTMjs507z
+         qU5HryRXXxnNN8jjU5H4YbZiwRtoZqXaLL5M4JrxAzJ2Ksea4IyQk6pjq0Ljq3RWGUzJ
+         Fh4A==
+X-Gm-Message-State: AFq9FYIr3A8vstCRNgyvcX3kOb8aWq/bEDA9ReofLsizsJYMpZjiTD+K
+	UuwyM3n+C2pWwaVRRRA9KEHp7bGmVEYL4yPlgBt1Cidyr8aqAluPk7XRJGO10qzBpt9zQjnsAv4
+	kYX6/MCqzaYvCfekav8nfqPByy8GAK2PFq2PA
+X-Gm-Gg: AYBFou2gRT3VhsLILjWGsbcEsS48g+xO3HgOXjF8Hi7Uf8o8M6MV40zAY4i7XnPvYDw
+	NpR8p3+IxUmdpJtRLrC6qJR0meyygRHtgT5exyF8QBDtJc4GxbhdEig2uv4cGykEGqkXfsJz4fl
+	DA/wZNXwNzU/nYt6Wm22fY2jYpESEFejxfLqTfjDjolZj/Kt+2wayB38iv+PB+vu/ajyuUNjC+G
+	WsmGFKqq6x0Sj5w+Tl/ihsslFvXiCFLjnZhcPpjcCWBb7O9QPZSMBO0gawiS05A1MoqqfSgQnms
+	caOmxV/j2WUdwaZzDeoERG0EoGKg/LXiK1D/VZIk9kX228EpZEYWZEof2Zzl60brKrv5Ao/NjGa
+	Nv2aDq0V5gIK6/NF5wJL2GPfRj9Z/wwyE
+X-Received: by 2002:a05:6808:2209:b0:4dd:18c7:544d with SMTP id
+ 5614622812f47-5640df42463mr3985980b6e.31.1793482608646; Sat, 31 Oct 2026
+ 14:36:48 -0700 (PDT)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -76,91 +99,71 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] hwmon: (acer-aspire14-ec) Add driver for Acer Aspire
- 14 52MT and 52M fan
-To: Ethan Jimmy <duhxu0@gmail.com>
-Cc: linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <388aa474-3606-4c7f-b073-224d5e0880fd@roeck-us.net>
- <20261031174651.856627-1-duhxu0@gmail.com>
- <985bd253-a9da-4b72-9348-956094625a3e@roeck-us.net>
- <CAOS5+2Gd1Sn1Wd9GY=ghzWmpWViXiz6hLaZChAYJYNs6E+hyrw@mail.gmail.com>
-Content-Language: en-US
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
-In-Reply-To: <CAOS5+2Gd1Sn1Wd9GY=ghzWmpWViXiz6hLaZChAYJYNs6E+hyrw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - roeck-us.net
-X-BWhitelist: no
-X-Source-IP: 108.223.40.66
-X-Source-L: No
-X-Exim-ID: 1xNF3N-000000001Bs-1oDF
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:33928
-X-Source-Auth: guenter@roeck-us.net
-X-Email-Count: 2
-X-Org: HG=direseller_whb_net_legacy;ORG=directi;
-X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfE4gjJjRzWp3ZBzZj7ZIq857UVC99r2eZsUxcnc5AfOolvZ73eGYG8wkWB2l5FpxYzSevp5H+XY9ywlXY/yh7ExQtkHdHUIkNZsVGbuuM7Ouu9P6IcAm
- vV+HN3jIZ9hDVVJvgZOIFBp3ozwVj4cYsc+pHScqWTssCEfgJTmhp9RPC4EJlz2ozKJs6PHdpw+XoLZ8X3iT855eOzpIWM8XD/kULkyiONH8Tsop4NxjsDE6
+From: =?UTF-8?Q?Juan_Parrado_Garc=C3=ADa?= <jparrado.1817@gmail.com>
+Date: Sat, 31 Oct 2026 22:36:37 +0100
+X-Gm-Features: AclHuK8n-WxwDLeEM1gnyN6x4RI00YlqcL9SoRy0TqbHkLkSn96yQeo2HV8fmj8
+Message-ID: <CAFkAFXpOOSEiGEMqGjJp2yTf82LSRkUykYg9Uit3Q0fO0R4Tfg@mail.gmail.com>
+Subject: [PATCH] HID-DR.C: fix button count and report descriptor for PID 0x0011
+To: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 10/31/26 11:13, Ethan Jimmy wrote:
-> Hi Guenter,
-> 
-> Thanks!  Is this headed for 7.5 or 7.4?
-> 
-7.5
+From bf8c43a670eb83e94c2e7b69b504126b6679fdd5 Mon Sep 17 00:00:00 2001
+From: Juan Parrado <jparrado1817@gmail.com> Date: Sat, 31 Oct 2026
+21:08:56 +0100
+Subject: [PATCH] HID-DR.C: fix button count and report descriptor for
+ PID 0x0011
 
-Guenter
+Some variants of DragonRise Inc. gamepads (PID 0x0011) report 12 buttons
+instead of the restricted 10 defined in the static fixup descriptor,
+causing physical buttons mapped to bits 6 and 7 of byte 6 to be ignored
+by the kernel.
 
+Expand the button Report Count and Usage Maximum to 0x0C (12) and adjust
+the trailing constant padding accordingly so all physical buttons
+are correctly reported to input/evtest.
+
+Signed-off-by: Juan Parrado <jparrado1817@gmail.com>
+Assisted-by: Gemini
+---
+ drivers/hid/hid-dr.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-dr.c b/drivers/hid/hid-dr.c
+index a1e10ee8d..e30b7fd94 100644
+--- a/drivers/hid/hid-dr.c
++++ b/drivers/hid/hid-dr.c
+@@ -196,7 +196,13 @@ static inline int dr_input_configured(struct
+hid_device *hid,
+ /* Size of the original descriptor of the PID 0x0011 joystick */
+ #define PID0011_RDESC_ORIG_SIZE 101
+
+-/* Fixed report descriptor for PID 0x011 joystick */
++/* Fixed report descriptor for PID 0x011 joystick
++ * Addition:
++ * Some DragonRise PID 0x0011 variants (such as the Retro-bit Legacy16
++ * and similar controllers) feature 12 physical buttons instead of the
++ * restricted 10. Expand button report count and maximum usage to 12 (0x0C)
++ * and adjust trailing constant padding accordingly.
++ */
+ static const __u8 pid0011_rdesc_fixed[] = {
+  0x05, 0x01,         /*  Usage Page (Desktop),           */
+  0x09, 0x04,         /*  Usage (Joystick),               */
+@@ -215,12 +221,12 @@ static const __u8 pid0011_rdesc_fixed[] = {
+  0x95, 0x04,         /*          Report Count (4),       */
+  0x81, 0x01,         /*          Input (Constant),       */
+  0x25, 0x01,         /*          Logical Maximum (1),    */
+- 0x95, 0x0A,         /*          Report Count (10),      */
++ 0x95, 0x0C,         /*          Report Count (12),      */
+  0x05, 0x09,         /*          Usage Page (Button),    */
+  0x19, 0x01,         /*          Usage Minimum (01h),    */
+- 0x29, 0x0A,         /*          Usage Maximum (0Ah),    */
++ 0x29, 0x0C,         /*          Usage Maximum (0Ch),    */
+  0x81, 0x02,         /*          Input (Variable),       */
+- 0x95, 0x0A,         /*          Report Count (10),      */
++ 0x95, 0x08,         /*          Report Count (8),       */
+  0x81, 0x01,         /*          Input (Constant),       */
+  0xC0,               /*      End Collection,             */
+  0xC0                /*  End Collection                  */
+
+--
+2.56.0

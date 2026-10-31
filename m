@@ -1,96 +1,72 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=35.89.44.35
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793440511;
-	b=DwP874jMRHdr/u3jJUuHgLegP+jqoNjE4OuuDmpjwpNEJNeTW/bWII3G4fGWyoGl3fjS
-	 eAzvmQN7iu9lsUk/A2p7eSDThFhwmofI4iGm1GTSo/GPvkaQNp4NAbOW2N5TcZPwXhhr4
-	 mJDELLz99B0UuTcYyqfKxHhoUkfcILCOzkdSELy8VwsaDeFEO44snmH2Z/04PjzObNNm6
-	 KE7XnAvE7Q7Dwn4cd6cVWpF8hChdOzfIELOFjPItyfGfiwZ87CwKwE9H9fLzOJKFLDITU
-	 3M6xLJzmA6MaCF/PGjsi8Jx7v3D2qK1UyyAiwjchuV80Z4JLpwLnLHoUqylwTZWJ2cA==
+	t=1793458834;
+	b=GPiaQzMOrfZAwvzD36SguMPMiIYkKj4q5o6YCjsbXk7bsgvCQXhlTuYQQQO8GW6CaEVn
+	 STSBcBUqZS3Lw8ad3E5AJ7l8hEewhaTWtlymBV5GE1f0jmnIB6qVDJ/FAIX5/M8DF009v
+	 lfK2vOke01t40T+5F4ncXPEog00YehoxLkdtb1GfLYnzCRZArxifwzl3sL2lD0oQ4BeXR
+	 u/J01yI2PkAFI7RjIY5TDIOEYElTI95cz+RQgUH7UJh9XyvLoLSzA5TnaXNIG5n9nYB3r
+	 8l98/6cvnwvZTXXa5LTe1PoqV5msYKXHZwz5hbFFwM/+A0rZ/JgqtsRSpDNsFFHU8/g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793440511;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=ZRdXRrWaH3GXnj/xf+WF4Od3Gq+lG/ySQbyFtokDobQ=;
-	b=ACJOLRHjUzUX9fB6ywJfDUpFLa059YOShsfrzZaImokjI2Bo4bqLj204SopPjh8O91v+
-	 g8odF8JCIWNqgJZCFbEcbOXSAJUCyKJQnPtxKV3lLUD9RszPTtyLqe4/iETRERlWZieLl
-	 1qhN8sMzq+MtV3sl4EX7e5qH6OP4tV1+bygqy8BCCsM3quLb2c5lNaPCCmr+LCtY/8CDD
-	 kxmpk/MFRg2p+5uiUSDmrX/CPXkocDUaIRpsEmBpsSjt7bz79jmtBTAevy9Qs0/UkCC+o
-	 Pvkg3eEaINyv8/qXqgnJgYPB7f1M9GbM7XwpXqq+T2aRpLd076LSLYgNMFregUP+KOg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793458834;
+	h=DMARC-Filter:Received:Received:X-Authority-Analysis:DKIM-Signature:
+	 Received:Message-ID:Date:MIME-Version:User-Agent:Subject:To:Cc:
+	 References:Content-Language:From:Autocrypt:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:X-AntiAbuse:X-AntiAbuse:X-AntiAbuse:
+	 X-AntiAbuse:X-AntiAbuse:X-BWhitelist:X-Source-IP:X-Source-L:X-Exim-ID:
+	 X-Source:X-Source-Args:X-Source-Dir:X-Source-Sender:X-Source-Auth:
+	 X-Email-Count:X-Org:X-Source-Cap:X-Local-Domain:X-CMAE-Envelope;
+	bh=DZ2qKisAfd6kBS7Hb4eXyimER2yim80WvZ1kMTNmmOw=;
+	b=hmmB/fzKhr96uIUtG/u/Nmx41BqcW5fqAnPicaTguTZ8S5n2fmx+E7uDQRenmqnhQt26
+	 OTMuOdXOoj8krlpobb6ClENhB7jtnGQlm+x2W9VgRsz/QIQ5ioSf732Lcvr0oE8oaJCd8
+	 gMDD89GkuYsKcEBXn0cFACSA4ZpoUbJFaVdtPiU6b4hg7HQjPOJh66hUzjW6sdyLtevV6
+	 kv2ZJus06gky5OUlcZoFORfvDlO7TRPALPLMHFz7hEE9cwsuwXgPrSyh5DR2/8CHdLMA/
+	 k5bL8tcKdsWSuLR4CUCumhUSMWJR6ciZln8MWPWnMq4bdgSkBVUKaQLQl8feDf1Hb1w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=A2Qh507H;
-	arc=none smtp.remote-ip=209.85.128.49
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=none header.from=roeck-us.net;
+	spf=fail smtp.mailfrom=roeck-us.net;
+	dkim=pass header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=QOQUSlmD;
+	arc=none smtp.remote-ip=35.89.44.35
+Received: from omta36.uswest2.a.cloudfilter.net (omta36.uswest2.a.cloudfilter.net [35.89.44.35])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD28B606A31A
-	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 09:55:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DD28B606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C01CC606A322
+	for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 15:00:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C01CC606A322
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=A2Qh507H
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4a4dc547987so7870205e9.0
-        for <linux-input@vger.kernel.org>; Sat, 31 Oct 2026 02:55:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793440509; x=1794045309; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZRdXRrWaH3GXnj/xf+WF4Od3Gq+lG/ySQbyFtokDobQ=;
-        b=A2Qh507HjQmeA+P5m9XKhryYbdN17f8lKZGAWxv+nA+hICvwXHyi0LcTij2wosUvp9
-         4T65S+6TaCqcUcWn5ZHncrl2EgOPVXsrxszLH3BT+nWa9T9s3U+uhdm8xtaJNmag0Hxk
-         X9MIg4QnRZ82ONsxf+wgvsWa0D16q+cPDPkRZHGuDnEEXmkrf9UCXjZ3/758k38PLH6N
-         QEolL4+/5vBJiHSpZPmG8GPzEAuQOp+cQfwjjZVO6jS9Hwzzf71bEx2GHHyiDMh199f9
-         T6YXT0njlhFl5YkocjUKdhtqvluDoCaRLRtoHAZj6/KKwjubfvlSbvjENsT/TJ2NzC6O
-         6GPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793440509; x=1794045309;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ZRdXRrWaH3GXnj/xf+WF4Od3Gq+lG/ySQbyFtokDobQ=;
-        b=D1fRTRhtUkx9bOxAzcgRul+qQWNy9Z+NaX5LpfVc25ktIQfo/drse2i09SWKDZrRYl
-         1dxlS4sNp09D4T2Hh5TsaZkdsKFXuFlSr161mHC3CFcVvCqXjTh9x+/UJlUg2mwUhyQ3
-         Fl2d73DxspGKXVllkTgCeLvfh0YVYeEXcPkwaVsayN6tIxIp7cvSsqpsb6ZT22wp3M1f
-         UiDfvUUkgjAaa89nbm4dMuJhb7M//8BWB2JX+3EkHYONysPrlZapTW7X/VE5aaos4kFW
-         M6Edpcyt81OAgKGPnhjie8QsSXTvHly6P6mQnn8rmyV1W9QnoA6/g+qPuL40yUAptPs9
-         hixQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzbW2zK7uK1nQV9UmsojudXp0NWOfERqDAIgBHehSoNYMb0hebOJdAPzZ+0ndGfWC+udcv4Cs3skOL1Hg==@vger.kernel.org
-X-Gm-Message-State: AFq9FYLHzXc/psOZxRco4rmstQTiR2tHMhaLBhPx1p2/wRtXOEBp+6nK
-	PQb9aqUgH1qMUaPV2ovPiu+kAgyGbxqC4CBPMlkLkkCwlTx59ePAQ7ux
-X-Gm-Gg: AYBFou1yTgeUYg2BkLPn58ewx0T+tIIhG8vN7dTwT8WBimGoC2kr20oJQzidWks6Ewg
-	eFu3/2R4nBR9kTk0js/yYOpBJAPDhd+Ah0aBNHXl2iUJwBLXqDJ7wZZM3VC4p9VS7X0kOl/V+zK
-	NAuqr2h/W+9tCh4XLLedAUAnZvTX4FSHDSoe5khAocyCyP9aSbEvptpfdD3RM6iOecpmfLUqnJI
-	PztBLC7qJtFtn/A36xua4djAn1npBGPhr5hi2vr38ec8ZsAKxrq19QXGGem9TBLSnxzMnwTyCOR
-	5JxhQfz3/GanSUQzWAfIuUPNs+NdoSWC2CzocKXcJSynLVhXjqeF80sk+ijmjscXsaNP64Yc7E2
-	tmLBx2q/wQ3uKqQJm2Uw77p98IzxNzovWzyTTlLHJsLl9SRgpHfDHFwHPdKlndT8FOS5YDWXB4o
-	Fwi4/T2D198+PceUC/UzNeR8y9m+jKDuriSJCCchxurkr6bfdxB/O424s2yatEZdirvDg6Ryz+Y
-	t6ez/W2wGedEEyGv0H2ojuJwK3VTCy6HELz0p16sQhy63uC7nnsKi0g/zvMVKqrzi4oKSjUy10k
-	RYzC4u+FqnJjoBXoRPd4c9S7uFyHgbbakviAog+gOaBr7MFp0qRMF4SBlACrji+aHygbWfa1jj/
-	kRGUW/Wm3od9peJhLw+F/W/wAcT3Jp8keagcIFPbI8NqgqMULzQRbodvmVOTR8V3oPqc=
-X-Received: by 2002:a05:600c:4752:b0:4a1:9661:14b5 with SMTP id 5b1f17b1804b1-4ac18e5d4d0mr113107915e9.29.1793440509125;
-        Sat, 31 Oct 2026 02:55:09 -0700 (PDT)
-Received: from archlinux.tailbe3ea7.ts.net ([95.173.233.214])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e71b78a6bsm7869505f8f.27.2026.10.31.02.55.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 31 Oct 2026 02:55:08 -0700 (PDT)
-From: Ismail Tarim <ismailtarim7@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: James Ogletree <jogletre@opensource.cirrus.com>,
-	Fred Treven <fred.treven@cirrus.com>,
-	Ben Bright <ben.bright@cirrus.com>,
-	patches@opensource.cirrus.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH 1/2] Input: cs40l50 - fix OWT upload length
-Date: Sat, 31 Oct 2026 12:54:34 +0300
-Message-ID: <20261031095438.3070451-1-ismailtarim7@gmail.com>
-X-Mailer: git-send-email 2.56.0
+	dkim=pass (2048-bit key, unprotected) header.d=roeck-us.net header.i=@roeck-us.net header.a=rsa-sha256 header.s=default header.b=QOQUSlmD
+Received: from eig-obgw-6004b.ext.cloudfilter.net ([10.0.30.210])
+	by cmsmtp with ESMTPS
+	id N62Dx5t10usRSNAZMxdxCy; Sat, 31 Oct 2026 15:00:32 +0000
+Received: from 162-215-252-36.unifiedlayer.com ([208.91.199.152])
+	by cmsmtp with ESMTPS
+	id NAZLx8Osae0duNAZLxho25; Sat, 31 Oct 2026 15:00:31 +0000
+X-Authority-Analysis: v=2.4 cv=KINaDEFo c=1 sm=1 tr=0 ts=6ae6028f
+ a=QNED+QcLUkoL9qulTODnwA==:117 a=2cfIYNtKkjgZNaOwnGXpGw==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=M0FbrtG7MMAA:10 a=VwQbUJbxAAAA:8
+ a=pGLkceISAAAA:8 a=ubgQwD8-HD7IqQ9JEJoA:9 a=QEXdDO2ut3YA:10
+ a=KPbNTLLc3YvdawN95zVk:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=roeck-us.net; s=default; h=Content-Transfer-Encoding:Content-Type:
+	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Unsubscribe-Post:List-Subscribe:List-Post:List-Owner:
+	List-Archive; bh=DZ2qKisAfd6kBS7Hb4eXyimER2yim80WvZ1kMTNmmOw=; b=QOQUSlmDaHGq
+	aDl8l6Ng5kL3zJtnaH4xfCpkg0LoVep7eYZo7YC9vvSyEg5QbdjEJ3xj4yRUm9R7JsHgEdDBv+kNs
+	fGwGmlwOBrPCK1K3tTYVx+E8NeyzKTgBRoiyyyWpXOHmrbCBcMyWUKxd7jIwduVI0kvC1yQaDfkiz
+	/YIVgFA59q2FYIM2R6wYJOE85SwR9ZWNo2/yoK63cCCrtGRxtM2HhBs9MOXZ96iDG5ceiPZ5KJnGL
+	7t4DCbBr41DhLVKHZRLKKtSDj+u9G2+g0ifi35Vuo/hLLzwdNVysJBDo+vXv3yQGRM3NDWBYOC6Oz
+	I/zrcn36/z3b1qVlVbJ1ng==;
+Received: from 108-223-40-66.lightspeed.sntcca.sbcglobal.net ([108.223.40.66]:52366)
+	by bh-25.webhostbox.net with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.100.1)
+	(envelope-from <linux@roeck-us.net>)
+	id 1xNAZL-00000001Rtl-0sj1;
+	Sat, 31 Oct 2026 20:30:31 +0530
+Message-ID: <388aa474-3606-4c7f-b073-224d5e0880fd@roeck-us.net>
+Date: Sat, 31 Oct 2026 08:00:29 -0700
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -100,46 +76,159 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] hwmon: (acer-aspire14-ec) Add driver for Acer Aspire
+ 14 52MT and 52M fan
+To: sashiko-reviews@lists.linux.dev, Ethan Jimmy <duhxu0@gmail.com>,
+ linux-hwmon@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+References: <0dee51d4-c153-457a-a3aa-ebf1177df045@roeck-us.net>
+ <20261030210037.921646-1-duhxu0@gmail.com> <sashiko-outbox-191513@kernel.org>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <sashiko-outbox-191513@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - bh-25.webhostbox.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - roeck-us.net
+X-BWhitelist: no
+X-Source-IP: 108.223.40.66
+X-Source-L: No
+X-Exim-ID: 1xNAZL-00000001Rtl-0sj1
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: 108-223-40-66.lightspeed.sntcca.sbcglobal.net [108.223.40.66]:52366
+X-Source-Auth: guenter@roeck-us.net
+X-Email-Count: 2
+X-Org: HG=direseller_whb_net_legacy;ORG=directi;
+X-Source-Cap: cm9lY2s7YWN0aXZzdG07YmgtMjUud2ViaG9zdGJveC5uZXQ=
+X-Local-Domain: yes
+X-CMAE-Envelope: MS4xfFyKdP/vupChYZQ77uQzWclZyFu5evttPBlS9oye5Nq5IHzXbJYsJaZSyONiVY1d8M5uB0zZVkzw0EhQKnm8oUs3xu69ECexqM1089YBqconWFzKKdHO
+ 45LOurPZvYqsNI41oPZrirb1iae4dg+UsrMbWVILsmvfONLnQx5IODGfxn6KmM0EfVHI1pehX/uca0gLaWFHNlJUJyd1WgKwHy6BVrNZSsNnCva4LQcoeBKV
 
-cs40l50_upload_owt() passes the size of the effect in bytes as the
-val_count argument of regmap_bulk_write(). The cs40l50 regmap uses
-32-bit registers, so val_count is a number of registers and the call
-covers four times the intended length.
+Ethan,
 
-regmap_bulk_write() copies val_count * val_bytes bytes from the source
-buffer, so this reads past the end of new_owt_effect_data, which is
-only sizeof(header) + len bytes long, and writes the extra data to the
-DSP beyond the end of the uploaded effect. The free space check above
-only covers the real size of the effect, so the write can also go past
-the space reported as available in the open wavetable.
+On 10/30/26 14:09, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [High] hwmon: (acer-aspire14-ec) module_init() fails when driver is built-in
+> --
+> 
+> commit 7f4ea74f303f12662cc63822a17eaf3d1e0e84bf
+> Author: Ethan Jimmy <duhxu0@gmail.com>
+> 
+> hwmon: (acer-aspire14-ec) Add driver for Acer Aspire 14 52MT and 52M fan
+> 
+> This commit adds a hwmon driver for the Acer Aspire 14 AI (A14-52M and
+> A14-52MT) fan sensor, which is exposed via an I2C HID embedded controller.
+> 
+>> diff --git a/drivers/hwmon/acer-aspire14-ec.c b/drivers/hwmon/acer-aspire14-ec.c
+>> new file mode 100644
+>> index 0000000000000..939b048165c5a
+>> --- /dev/null
+>> +++ b/drivers/hwmon/acer-aspire14-ec.c
+> 
+> [ ... ]
+> 
+>> +static int __init acer_aspire14_init(void)
+>> +{
+>> +	if (!dmi_check_system(acer_aspire14_dmi_table))
+>> +		return -ENODEV;
+>> +
+>> +	return hid_register_driver(&acer_aspire14_driver);
+>> +}
+>> +
+>> +static void __exit acer_aspire14_exit(void)
+>> +{
+>> +	hid_unregister_driver(&acer_aspire14_driver);
+>> +}
+>> +
+>> +module_init(acer_aspire14_init);
+>> +module_exit(acer_aspire14_exit);
+> 
+> [Severity: High]
+> Does acer_aspire14_init() fail when CONFIG_SENSORS_ACER_ASPIRE14_EC=y and
+> CONFIG_HID=y are built into the kernel?
+> 
+> In drivers/Makefile, drivers/hwmon/ is linked before drivers/hid/:
+> 
+>    obj-$(CONFIG_HWMON)		+= hwmon/
+>    ...
+>    obj-$(CONFIG_HID_SUPPORT)	+= hid/
+> 
+> Because both acer_aspire14_init() and hid_init() in drivers/hid/hid-core.c
+> use module_init() (which expands to device_initcall() when built-in),
+> acer_aspire14_init() runs before hid_init() registers hid_bus_type.
+> 
+> On matching DMI systems, the registration call chain:
+> 
+>    acer_aspire14_init()
+>      hid_register_driver(&acer_aspire14_driver)
+>        __hid_register_driver()
+>          driver_register()
+> 
+> reaches driver_register() in drivers/base/driver.c before the HID bus is
+> initialized:
+> 
+> 	if (!bus_is_registered(drv->bus)) {
+> 		pr_err("Driver '%s' was unable to register with bus_type '%s' because the bus was not initialized.\n",
+> 			   drv->name, drv->bus->name);
+> 		return -EINVAL;
+> 	}
+> 
+> Should this use late_initcall(acer_aspire14_init) like the other HID drivers
+> in drivers/hwmon/ (such as corsair-psu.c, corsair-cpro.c, and nzxt-kraken2.c)
+> so that driver registration happens after hid_init()?
+> 
 
-Pass the length in 32-bit words, matching header.data_words.
+That seems to be a real problem. Please fix, or explain why it is a false positive.
 
-Fixes: c38fe1bb5d21 ("Input: cs40l50 - Add support for the CS40L50 haptic driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ismail Tarim <ismailtarim7@gmail.com>
----
-Build-tested only (W=1, x86_64 defconfig with the CS40L50 drivers as
-modules). I do not have CS40L50 hardware, so this was not runtime
-tested.
-
- drivers/input/misc/cs40l50-vibra.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/misc/cs40l50-vibra.c b/drivers/input/misc/cs40l50-vibra.c
-index 7ef4534fe..68f0c40ef 100644
---- a/drivers/input/misc/cs40l50-vibra.c
-+++ b/drivers/input/misc/cs40l50-vibra.c
-@@ -250,7 +250,7 @@ static int cs40l50_upload_owt(struct cs40l50_work *work_data)
- 
- 	error = regmap_bulk_write(vib->regmap, vib->dsp.owt_base_reg +
- 				  (offset * sizeof(u32)), new_owt_effect_data,
--				  sizeof(header) + len);
-+				  (sizeof(header) + len) / sizeof(u32));
- 	if (error)
- 		return error;
- 
--- 
-2.56.0
+Thanks,
+Guenter
 

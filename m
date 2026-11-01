@@ -1,55 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.108
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793554970;
-	b=z8cIb2ULpgsyk5vHyyWUV88mtEmHrKsgLIOV5Mx/0naAsEDmWOxYhNFY7izGY1yAzAXZ
-	 90zhDBrcOGrfD/IwugQCXXcyO4GNc8sasLHghn6uNfY1rpjxN+ZIR/g+ZQeAJn0BBxdZT
-	 Dng+yb/ZdD4Y0R6z3F8He5NRm6ozOtX1qXIQ+g+sXSZCgGpuAtPvy23nxiHO0vEfAD234
-	 JNdeUkGORY9f5LZfJuLMSHVouBHQmxTqBwamR1pZbsvNTDMzXuRF9pQ8trZmUCHO4KWLy
-	 EiHgPNNiblt2tMg955P7hvRWoawZd93okeT3rHi+JbwEag+dQImZa1+0TrSUSG81J7A==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793554970;
-	h=DMARC-Filter:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-ZohoMailClient;
-	bh=3Z0oePM/NYjKIN6WmhUxB5eRDhUIibp/qbMUl/KTSkI=;
-	b=AjU5Qvh1NQyM/GuQo64QWWpSrkDTRj+qmRrqdzJUJnfZnGAvfy5eDxe/dCTmXovRrHbv
-	 nrMtOJjqUz3MxeEhKKtfblhSKfhbV2RG/O47oNd+TgOO52/j+eSHb//rBDQqONPMcHLke
-	 Y6w2WR6MmKuPbxXf5obC9U2S/b6zDL7dn8Bm2iDEfy6XsGeeAirdMbOlrc+sA0YbDG8Zf
-	 mkRf0XxO1oeUfYwNThXbKfxL81uOScMPw2mpfKzW2/vxnG4/dC1tuWvzeDm1ue5g7xfpb
-	 HgGxj5Dvg08dNPRS1b2+m8Ddr5/dm65Pptjm3yRKka2aE/Vf2eU8B0uDhJcmoJOKZsA==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=rong.moe;
-	spf=pass smtp.mailfrom=rong.moe;
-	dkim=pass header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=WNjbKp5T;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=165.173.180.108
-Received: from sender6-pp-e108.zoho.com (sender6-pp-e108.zoho.com [165.173.180.108])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793555870;
+	b=fsvsLJnAaE3ab6Gmh++03Tjk41AOq9k0hsq2dh6UsMkM5anzpaDqotfgwPEkuCt6rXtQ
+	 o5u0Pyusgl8xaaVv0tVVE4trE9HWISN2VuI0YrWFKnCqO1klmKYZdrNbh5pgW6xuH4NG9
+	 b0q4BGBSkNERNZzWC5JLopYu8ujim4tdpwBdz9Of97nUNVYSs/rGYDfvOziH0XSOtNY4g
+	 2tsfTggPGlZ4u7UbdmiYlrjvRFTjplX0NE/BjiT3gFT4RQPL0K2mmd3mnpbhYa6tsrR/o
+	 j8cyBDiaa8fjEY133nlyALpCNun7hMT1vHewQ3qVoabBUe8bGIe6Yc+MbURAyi9c66Q==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793555870;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=j3OwE8I0DytBxOWXG+MgWq4TxKsNSQsLs97fV4hHlBs=;
+	b=UzVOTt5WQfTEbhwViyKrXjVCLw2aeJOQ1NnZafP6bvVCTTHYfsGGI3YiftcauOG8PkWp
+	 3w6slZkQEkMtmbqi7o8UriEhSUXxBIAKao3pSE5Z/N4zkRwEAUYQF6BFnvK37seuP+Rf7
+	 cpq2k5Z36zArQwlnqSpumxFoHfD6oNFWTcYxKR/k/jVFEz6sI2+hfl/TGAu66DceUNjcy
+	 54zxBjI8j1CgoQ2MAvaLs2/GHEWTIG+9P50Ase3PS3FZ2Ykb6Xq7NzRPpFGE9bVz1gCNH
+	 GcuIHVnqKiy+ojpVGlKHLwHy2fvOyJE/Onjb1erGglgTHVhSoViJDjrraI02uRlqd8Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TDdK8rOb;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA79B606A325;
-	Sun,  1 Nov 2026 17:42:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BA79B606A325
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rong.moe
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rong.moe
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36C00606A324
+	for <linux-input@vger.kernel.org>; Sun,  1 Nov 2026 17:57:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rong.moe header.i=@rong.moe header.a=rsa-sha256 header.s=zmail2048 header.b=WNjbKp5T
-ARC-Seal: i=1; a=rsa-sha256; t=1793554911; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=etcHy1OMQOQQ1YLHCfWTV27HHPyqHVnm7MPbh4VEjMlCRFmFtLdkF0+/w4BlaobSQhi2BkDMEzHp8gRwEn0rM/3tKRKWZhvfz+6KY1J/nUvAvzjx31+O8aqQwYAY/TRcsD6KcuF9AqMwbZLQlABRxyqAZ1S06lojfei5jwn87sU=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1793554911; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=3Z0oePM/NYjKIN6WmhUxB5eRDhUIibp/qbMUl/KTSkI=; 
-	b=bNZbPNXkMSJVfpUxa7beMdGoiQKt0vezBgiAjXudRupBsfPCdwp3z7XNBBzjpOXoAy3MaAbyAq4KsFaW/cGEoSwTnUB57hORR2m1oRPJnsemfE3UV/uDneJmIYsgCUfy7x4n4SQbMSObmzPuIiwoIKhNEDJpUCa6pdUJ75MqSNI=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=rong.moe;
-	spf=pass  smtp.mailfrom=i@rong.moe;
-	dmarc=pass header.from=<i@rong.moe>
-DKIM-Signature: a=rsa-sha256; b=WNjbKp5T9JxXLVN2XXZzhp+e8PVuueUDvrDVZglmsXjM2il8wUeZ58Bx6z0cXCD7yNr6p1mgrErVrRZOTAmVKkExsK7h/lcLV2h6Sc01mqmC/JoS9wUJfeGdErR0KGGJNPurrcfOgAH2/PUFHNG5lTDEPhCyjhVFM/ipdWRXtJZ2eekTytDF+uDCC8bgdErJxYPLBruPclyPCF/w3CK+TAcw8iB542VkqmDtK3CExv2RqrKgKKPTy0W1Zj0Y4y+pvqNbZGuoBAgPhowZlELLXQ6THKDNHctesihNrGq/XmwZchhsJAKGwhk081lHwE4Oz8vgwwyZjiJGXvG1EU19aA==; c=relaxed/relaxed; s=zmail2048; d=rong.moe; v=1; bh=3Z0oePM/NYjKIN6WmhUxB5eRDhUIibp/qbMUl/KTSkI=; h=Content-Description:Content-ID:Content-Type:Content-Transfer-Encoding:Cc:Date:From:In-Reply-To:List-Subscribe:List-Post:List-Owner:List-Id:List-Archive:List-Help:List-Unsubscribe:MIME-Version:Message-ID:Resent-Sender:Resent-Cc:Resent-Date:Resent-To:Reply-To:Resent-Message-ID:Resent-From:Sender:Subject:To:Date:From:Message-Id:Reply-To:Subject:To:Cc;
-Received: by smtp.zohomail.com with SMTPS id 1793554909116889.4038146434671;
-	Sun, 1 Nov 2026 09:41:49 -0800 (PST)
-From: Rong Zhang <i@rong.moe>
-Date: Mon, 02 Nov 2026 01:41:25 +0800
-Subject: [PATCH 8/9] HID: haptic: Convert into a loadable plugin
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TDdK8rOb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DECDD1F000C1;
+	Sun,  1 Nov 2026 17:57:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793555870;
+	bh=j3OwE8I0DytBxOWXG+MgWq4TxKsNSQsLs97fV4hHlBs=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TDdK8rObzaKv7WrTC/SINO1VOhDZjOm7UVI5lNQxuP0sbJLgYJp+y21TtuKhqrA70
+	 S4DpJ+mtONBkpjyt3w/B+WrHjLA9jLk46hgh++3Hbn5v7hQktF1wW9qtL68IcTv7cZ
+	 aXkQ7x790xz9ERKbkhUr+bXU/psM5dRf+uO4X50VVjeJDsPx5+d0iTOoqOQ4flOoJQ
+	 GGDfVkoyURytesfB4UYAdRMocoBB2CjqyGDQGQfJ5E5n35y1x2j5/SolpzKyNEw8/A
+	 wndwSqcSYlsDNjt05caGKY09xcImejOXkD8IJaC8FaFA7tBvRwA3xQp8A5D8GSD4ZS
+	 PKutdS1K/49Sw==
+Message-ID: <sashiko-outbox-192550@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 3/9] HID: haptic, multitouch: Check haptic prerequisite
+ properly
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Rong Zhang" <i@rong.moe>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261102-hid-haptic-kmod-v1-3-a3de5626dade@rong.moe>
+References: <20261102-hid-haptic-kmod-v1-0-a3de5626dade@rong.moe>
+ <20261102-hid-haptic-kmod-v1-3-a3de5626dade@rong.moe>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sun, 01 Nov 2026 17:57:49 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,242 +60,184 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-hid-haptic-kmod-v1-8-a3de5626dade@rong.moe>
-References: <20261102-hid-haptic-kmod-v1-0-a3de5626dade@rong.moe>
-In-Reply-To: <20261102-hid-haptic-kmod-v1-0-a3de5626dade@rong.moe>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- Jonathan Denose <jdenose@google.com>, Angela Czubak <aczubak@google.com>, 
- Henrik Rydberg <rydberg@bitmath.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Rong Zhang <i@rong.moe>
-X-Mailer: b4 0.17-dev-6be7c
-X-ZohoMailClient: External
 
-Commit 083a4f3f3cc7 ("HID: Kconfig: Fix build error from
-CONFIG_HID_HAPTIC") built hid-haptic into vmlinux or hid.ko. This is not
-optimal for generic kernel images, as a platform with no multitouch
-device doesn't need it anyway. It's also a bit harsh for enabling it in
-distribution kernels.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] HID: haptic: hid_haptic_check_pressure_unit() misses non-force u=
+nit mismatch
+- [Medium] HID: multitouch: one-way is_haptic_touchpad leaks state to other=
+ MT inputs
+--
 
-With the new hid-plugin framework, hid-haptic can be easily converted
-into a loadable plugin module, so that hid-multitouch only requests it
-on demand.
+commit 8758bcd8ba263569bfbee87a3d749e9ff7ea4489
+Author: Rong Zhang <i@rong.moe>
 
-The redaundent `default n' statement is also removed for tidiness since
-we are anyway touching its context.
+HID: haptic, multitouch: Check haptic prerequisite properly
 
-Suggested-by: Benjamin Tissoires <bentiss@kernel.org>
-Link: https://lore.kernel.org/linux-input/auypydfkhx2eg7vp764way4batdilzc35inqda3exwzs3tk3ff@oagat6g46zto/
-Signed-off-by: Rong Zhang <i@rong.moe>
----
- MAINTAINERS              |  1 +
- drivers/hid/Kconfig      |  7 +++++--
- drivers/hid/Makefile     |  2 +-
- drivers/hid/hid-haptic.c | 28 ++++++++++++++++++----------
- drivers/hid/hid-haptic.h | 29 +++++++++++++++++++++++++++--
- drivers/hid/hid-plugin.c |  3 +++
- drivers/hid/hid-plugin.h |  6 ++++++
- 7 files changed, 61 insertions(+), 15 deletions(-)
+This commit stores the HID_DG_TOUCHPAD input device and validates pressure
+unit annotations across usages in hid_haptic_check_pressure_unit(), ensuring
+hid_haptic_input_configured() only initializes haptics for the matching inp=
+ut
+device. It also converts td->is_haptic_touchpad into a one-way flag and gua=
+rds
+probe-time hid_haptic_*() calls with td->haptic.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index fdec2f6b640d..a7d4953c3844 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11906,6 +11906,7 @@ HID PLUGINS
- M:	Rong Zhang <i@rong.moe>
- L:	linux-input@vger.kernel.org
- S:	Maintained
-+F:	drivers/hid/hid-haptic.*
- F:	drivers/hid/hid-plugin.*
- 
- HID PULSAR DRIVER
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 604683b4a4a9..97cb4caf9d7e 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -106,9 +106,10 @@ menuconfig HID_PLUGIN
- 
- 	If unsure, say N.
- 
-+if HID_PLUGIN
-+
- config HID_HAPTIC
--	bool "Haptic touchpad support"
--	default n
-+	tristate "Haptic touchpad support"
- 	help
- 	Support for touchpads with force sensors and haptic actuators instead of a
- 	traditional button.
-@@ -117,6 +118,8 @@ config HID_HAPTIC
- 
- 	If unsure, say N.
- 
-+endif # HID_PLUGIN
-+
- menu "Special HID drivers"
- 
- config HID_A4TECH
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index b41aa3f52a94..3360347c1cb8 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -6,7 +6,7 @@ hid-y			:= hid-core.o hid-input.o hid-quirks.o
- hid-$(CONFIG_DEBUG_FS)		+= hid-debug.o
- hid-$(CONFIG_HID_PLUGIN)	+= hid-plugin.o
- 
--hid-$(CONFIG_HID_HAPTIC)	+= hid-haptic.o
-+obj-$(CONFIG_HID_HAPTIC)	+= hid-haptic.o
- 
- obj-$(CONFIG_HID_BPF)		+= bpf/
- 
-diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
-index dcecb89e8fd5..d5e33b470e36 100644
---- a/drivers/hid/hid-haptic.c
-+++ b/drivers/hid/hid-haptic.c
-@@ -315,12 +315,11 @@ static void hid_haptic_destroy(struct ff_device *ff)
- 	if (hdev)
- 		put_device(&hdev->dev);
- 
--	module_put(THIS_MODULE);
-+	hid_plugin_put(HID_PLUGIN_HAPTIC, &haptic->self_plugin->hp);
- }
- 
--int hid_haptic_init(struct hid_device *hdev,
--		    struct hid_haptic_device *haptic,
--		    struct input_dev *dev)
-+static int __hid_haptic_init(struct hid_device *hdev, struct hid_haptic_device *haptic,
-+			     struct input_dev *dev)
- {
- 	struct ff_device *ff;
- 	int ret = 0, r;
-@@ -328,10 +327,6 @@ int hid_haptic_init(struct hid_device *hdev,
- 		.hid_usage = HID_HP_WAVEFORMSTOP & HID_USAGE,
- 	};
- 
--	if (!try_module_get(THIS_MODULE)) {
--		dev_err(&hdev->dev, "Failed to increase module count.\n");
--		return -ENXIO;
--	}
- 	if (!get_device(&hdev->dev)) {
- 		dev_err(&hdev->dev, "Failed to get hdev device.\n");
- 		ret = -ENXIO;
-@@ -456,7 +451,20 @@ int hid_haptic_init(struct hid_device *hdev,
- 	put_device(&hdev->dev);
- exit:
- 	dev_warn(&hdev->dev, "Cannot allocate haptic for %s: %d\n", hdev->name, ret);
--	module_put(THIS_MODULE);
-+	hid_plugin_put(HID_PLUGIN_HAPTIC, &haptic->self_plugin->hp);
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(hid_haptic_init);
-+
-+static struct hid_plugin_haptic hid_plugin_haptic = {
-+	.hp = {
-+		.owner = THIS_MODULE,
-+	},
-+	.init = __hid_haptic_init,
-+};
-+module_hid_plugin(haptic, HID_PLUGIN_HAPTIC, &hid_plugin_haptic.hp);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Angela Czubak <aczubak@google.com>");
-+MODULE_AUTHOR("Jonathan Denose <jdenose@google.com>");
-+MODULE_AUTHOR("Rong Zhang <i@rong.moe>");
-+MODULE_DESCRIPTION("HID helpers for Haptics Page");
-diff --git a/drivers/hid/hid-haptic.h b/drivers/hid/hid-haptic.h
-index d09068689a5e..d3e8fb9aa3b4 100644
---- a/drivers/hid/hid-haptic.h
-+++ b/drivers/hid/hid-haptic.h
-@@ -5,10 +5,13 @@
-  *  Copyright (c) 2021 Angela Czubak <acz@semihalf.com>
-  */
- 
-+#include <linux/container_of.h>
- #include <linux/err.h>
- #include <linux/hid.h>
- #include <linux/slab.h>
- 
-+#include "hid-plugin.h"
-+
- #define HID_HAPTIC_ORDINAL_WAVEFORMNONE 1
- #define HID_HAPTIC_ORDINAL_WAVEFORMSTOP 2
- 
-@@ -53,6 +56,14 @@ struct hid_haptic_device {
- 	u16 release_ordinal;
- 	struct hid_haptic_effect *effect;
- 	struct hid_haptic_effect stop_effect;
-+
-+	struct hid_plugin_haptic *self_plugin;
-+};
-+
-+struct hid_plugin_haptic {
-+	struct hid_plugin hp;
-+	int (*init)(struct hid_device *hdev, struct hid_haptic_device *haptic,
-+		    struct input_dev *dev);
- };
- 
- #if IS_ENABLED(CONFIG_HID_HAPTIC)
-@@ -147,8 +158,22 @@ static inline int hid_haptic_input_mapping(struct hid_device *hdev,
- 	return 0;
- }
- 
--int hid_haptic_init(struct hid_device *hdev, struct hid_haptic_device *haptic,
--		    struct input_dev *dev);
-+static inline int hid_haptic_init(struct hid_device *hdev, struct hid_haptic_device *haptic,
-+				  struct input_dev *dev)
-+{
-+	struct hid_plugin_haptic *self_plugin;
-+	struct hid_plugin *plugin;
-+
-+	plugin = hid_plugin_get(HID_PLUGIN_HAPTIC);
-+	if (IS_ERR(plugin))
-+		return PTR_ERR(plugin);
-+
-+	self_plugin = container_of(plugin, struct hid_plugin_haptic, hp);
-+
-+	haptic->self_plugin = self_plugin;
-+
-+	return self_plugin->init(hdev, haptic, dev);
-+}
- 
- static inline bool hid_haptic_input_configured(struct hid_device *hdev,
- 					       struct hid_haptic_device *haptic,
-diff --git a/drivers/hid/hid-plugin.c b/drivers/hid/hid-plugin.c
-index a83275df038c..7357f81c3aac 100644
---- a/drivers/hid/hid-plugin.c
-+++ b/drivers/hid/hid-plugin.c
-@@ -18,6 +18,9 @@
- #include "hid-plugin.h"
- 
- static const char * const hid_plugin_mod_names[NR_HID_PLUGINS] = {
-+#if IS_MODULE(CONFIG_HID_HAPTIC)
-+	[HID_PLUGIN_HAPTIC] = "hid-haptic",
-+#endif
- };
- 
- static struct hid_plugin __rcu *hid_plugins[NR_HID_PLUGINS];
-diff --git a/drivers/hid/hid-plugin.h b/drivers/hid/hid-plugin.h
-index 4038325c51a0..20d1b80a98c8 100644
---- a/drivers/hid/hid-plugin.h
-+++ b/drivers/hid/hid-plugin.h
-@@ -19,6 +19,12 @@
- enum hid_plugin_id {
- 	HID_PLUGIN_DISABLED	= -1,
- 
-+#if IS_ENABLED(CONFIG_HID_HAPTIC)
-+	HID_PLUGIN_HAPTIC,
-+#else
-+#define HID_PLUGIN_HAPTIC	HID_PLUGIN_DISABLED
-+#endif
-+
- 	NR_HID_PLUGINS,
- };
- 
+> diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
+> index 9cbacc827dc9c..27cc8a2d9b595 100644
+> --- a/drivers/hid/hid-haptic.c
+> +++ b/drivers/hid/hid-haptic.c
+> @@ -48,17 +48,40 @@ void hid_haptic_feature_mapping(struct hid_device *hd=
+ev,
+>  }
+>  EXPORT_SYMBOL_GPL(hid_haptic_feature_mapping);
+> =20
+> -bool hid_haptic_check_pressure_unit(struct hid_haptic_device *haptic,
+> +void hid_haptic_check_pressure_unit(struct hid_haptic_device *haptic,
+>  				    struct hid_input *hi, struct hid_field *field)
+>  {
+> -	if (field->unit =3D=3D HID_UNIT_GRAM || field->unit =3D=3D HID_UNIT_NEW=
+TON) {
+> -		haptic->force_logical_minimum =3D field->logical_minimum;
+> -		haptic->force_physical_minimum =3D field->physical_minimum;
+> -		haptic->force_resolution =3D input_abs_get_res(hi->input,
+> -							     ABS_MT_PRESSURE);
+> -		return true;
+> +	if (hi->application !=3D HID_DG_TOUCHPAD)
+> +		return;
+> +
+> +	/* Don't care about input devices with no pressure sensor. */
+> +	if (field->unit !=3D HID_UNIT_GRAM && field->unit !=3D HID_UNIT_NEWTON)
+> +		return;
+> +
+> +	if (IS_ERR(haptic->input_dev))
+> +		return;
+> +
+> +	if (!haptic->input_dev) {
+> +		haptic->input_dev =3D hi->input;
+> +		haptic->pressure_field =3D field;
+> +		haptic->force_resolution =3D input_abs_get_res(hi->input, ABS_MT_PRESS=
+URE);
+> +		return;
+>  	}
+> -	return false;
+> +
+> +	if (haptic->input_dev =3D=3D hi->input &&
+> +	    haptic->pressure_field->unit =3D=3D field->unit &&
+> +	    haptic->pressure_field->logical_minimum =3D=3D field->logical_minim=
+um &&
+> +	    haptic->pressure_field->physical_minimum =3D=3D field->physical_min=
+imum &&
+> +	    haptic->force_resolution =3D=3D input_abs_get_res(hi->input, ABS_MT=
+_PRESSURE))
+> +		return;
+> +
+> +	/*
+> +	 * Reject if:
+> +	 * - there are multiple input devices with pressure sensors
+> +	 * - the pressure annotation mismatches
+> +	 */
+> +	haptic->input_dev =3D ERR_PTR(-EPROTO);
+> +	return;
+>  }
 
--- 
-2.55.0
+[Severity: Medium]
+What happens if a HID_DG_TOUCHPAD input device has multiple
+HID_DG_TIPPRESSURE usages where some specify HID_UNIT_GRAM or HID_UNIT_NEWT=
+ON
+and others have a non-force unit (such as 0)?
 
+In mt_input_mapping() -> mt_touch_input_mapping():
+
+	case HID_DG_TIPPRESSURE:
+		set_abs(hi->input, ABS_MT_PRESSURE, field,
+			cls->sn_pressure);
+		if (td->haptic)
+			hid_haptic_check_pressure_unit(td->haptic, hi, field);
+
+Because hid_haptic_check_pressure_unit() returns early when field->unit is
+neither HID_UNIT_GRAM nor HID_UNIT_NEWTON before checking haptic->input_dev:
+
+1. If an earlier HID_DG_TIPPRESSURE usage on hi->input has a valid force un=
+it
+and a later usage on the same hi->input has unit 0, set_abs() overwrites
+ABS_MT_PRESSURE parameters and resets its resolution to 0 on hi->input, whi=
+le
+hid_haptic_check_pressure_unit() returns early instead of setting
+haptic->input_dev =3D ERR_PTR(-EPROTO).
+
+2. Conversely, if the first HID_DG_TIPPRESSURE usage on hi->input has unit 0
+and a subsequent usage has HID_UNIT_GRAM or HID_UNIT_NEWTON, the first usage
+is ignored and the subsequent usage sees !haptic->input_dev and accepts the
+device despite the mismatched annotations across usages.
+
+Should hid_haptic_check_pressure_unit() reject the device when a non-force
+unit is encountered on the same hi->input as a force unit?
+
+[ ... ]
+
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 4e19a0c4d2381..d744ccc3e0b0b 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+
+[ ... ]
+
+> @@ -1955,14 +1956,11 @@ static int mt_input_configured(struct hid_device =
+*hdev, struct hid_input *hi)
+>  	struct hid_report *report;
+>  	int ret;
+> =20
+> -	if (td->is_haptic_touchpad && (td->mtclass.name =3D=3D MT_CLS_WIN_8 ||
+> -	    td->mtclass.name =3D=3D MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
+> -	    td->mtclass.name =3D=3D MT_CLS_WIN_8_KEEP_LATENCY_ON_CLOSE)) {
+> -		if (hid_haptic_input_configured(hdev, td->haptic, hi) =3D=3D 0)
+> -			td->is_haptic_touchpad =3D false;
+> -	} else {
+> -		td->is_haptic_touchpad =3D false;
+> -	}
+> +	if (td->haptic && !td->is_haptic_touchpad &&
+> +	    (td->mtclass.name =3D=3D MT_CLS_WIN_8 ||
+> +	     td->mtclass.name =3D=3D MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
+> +	     td->mtclass.name =3D=3D MT_CLS_WIN_8_KEEP_LATENCY_ON_CLOSE))
+> +		td->is_haptic_touchpad =3D hid_haptic_input_configured(hdev, td->hapti=
+c, hi);
+> =20
+>  	list_for_each_entry(report, &hi->reports, hidinput_list) {
+>  		rdata =3D mt_find_report_data(td, report);
+
+[Severity: Medium]
+When a composite HID device has a haptic HID_DG_TOUCHPAD collection alongsi=
+de
+another multitouch application collection (such as a HID_DG_TOUCHSCREEN or a
+second non-haptic HID_DG_TOUCHPAD without a pressure sensor), does latching
+td->is_haptic_touchpad to true here affect the other multitouch inputs on t=
+he
+same hid_device?
+
+Once mt_input_configured() configures the haptic touchpad hid_input and sets
+td->is_haptic_touchpad =3D true, any subsequent hid_input processed by
+mt_input_configured() -> mt_touch_input_configured() will see:
+
+	if (td->is_haptic_touchpad)
+		app->mt_flags |=3D INPUT_MT_TOTAL_FORCE;
+
+and set INPUT_MT_TOTAL_FORCE on that non-haptic application as well.
+
+Similarly, at runtime, mt_process_slot() and mt_sync_frame() only check
+td->is_haptic_touchpad rather than verifying whether input matches
+td->haptic->input_dev:
+
+	if (td->is_haptic_touchpad)
+		hid_haptic_pressure_increase(td->haptic, *slot->p);
+
+and:
+
+	if (td->is_haptic_touchpad)
+		hid_haptic_pressure_reset(td->haptic);
+
+Could touches on a non-haptic multitouch input on the same HID device feed
+into and reset td->haptic->pressure_sum?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102-hid-haptic=
+-kmod-v1-0-a3de5626dade@rong.moe?part=3D3

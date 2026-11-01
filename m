@@ -1,55 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793545466;
-	b=dVi2g0+VS6U7Y/btXaCFlmNyCru88tquvQgwHaiBlOX9A1Uuo8tO3p3Jqn7h64Lu3d4q
-	 AJkCZn+/MoyZQRuE+tanuxTEhbIoTWnR5vMYGWxHnwkdf2299JwO/NQlTkbjawYGBcilz
-	 Dk4wpjkGZuc0s5OP2tD8ONE9ATOVk8gm0UpWk4PyP2rGuyCNltXoiCuH1xMqzjLoP6vIt
-	 5rcfH0gd9r5VG49rF8K4NiSLr9ZLfUWC95y9KthMvgNBltzWujp6LG2G+cA0rBMQNJUIC
-	 yLOHKgjctDD7La0yWm5XhAKTl9hYzkebkUES1W5Eg8YIxoQpk6SPyg/dxQIJeQcDc9w==
+	t=1793545756;
+	b=HQBta+8i1lQ1YOHr3uH5jYp66Hl/ZPqC4d6T9YoiMTnz2Pdmbt515b+7P/MG4OtqvGGX
+	 KKK4KNewSmw7WC7eX710GYOGR/FWH36vN2NbWrbTqy4BFiIYq02+eFMijVxlDMavhUHEh
+	 eRcDc25bvARcAoiAkxfovtxLcBicYEAglCTCZUDcvdrhWivQvf+FODl41z+4xOHzGTEWx
+	 +OmUc7zYk4swHnpyJMh/tV7lTnvuCALV59Al8KvVFAd9l8WxMOn0wTpL3wKhmmr5jQFI5
+	 aDGeXs/N42RxOLF+oLqmrJE3F10Na+UwIL9HA7aeb9BmUaxt/L9Z8a0T16vMhDBwIwQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793545466;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=C34lsMg6LfbPsaTK6Ab7N6eeppX3dOfhDIbDBh1uGFw=;
-	b=HFGOCroMVDRsq5BlTNUo0I4rY/lhOnKABB26IlrpY1HiCKLH3a9gGoADtfuVFpZ/4FOn
-	 gcEi0UBJCZ77W+zia5xfXPFNxlQjP2YfzrMlfHPell34OCSMlbxOGTNSjZ9I56xYhdL1F
-	 vMoFjh6yHAPS0NMCM9NfF5/ruABFgOvb9A8rV3zR755Y7zpTV1qVVV2WXLe9A9WH48F5P
-	 Pg9OQo7/prdQ6dtrSr3AOwftlrmpIRGX6EZfJpEhGVvXRbOnJZ2S6+K6eXKE0gxBDTgb4
-	 g6PaYU+iKtd4cckfhaNNGXROalmW9GNCf9D1KeaaTIAslVchqwcGeNnRZN7RdypQ4mQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793545756;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:From:Date:
+	 Subject:To:Cc;
+	bh=r7sqR2vKS8k46feKmXGRK3DyHQiJEHIGx7m70vFc/3o=;
+	b=DvQwJouxK452vhIVx6yq5D/H5qwWFGR/bn2gpUvooJbrzBAD5zu4FYUaYBQ8Urjkr0HQ
+	 WLpYxNdNblYA9SW7umU2ZAwhStWxJy7nuBfMtfbXIfsOoErzT17ekNyHPsLQGIGcuAcCT
+	 0AOFhp6DF/OnOgFcg33UlgsVqxDEcT2PDPRireXNT+w0JCGQDD3UHbECR7fkmaoakgaKW
+	 BBhr5qGzn791Va54AtNfmdbtnOCDDVRtwxkdqmqeEeI92iUnKjuOOIIrKKgKogl7zHQP7
+	 uMrFLi5Ana5iDpGWtsECC8ez6fIMVNlDYU0laeROVfGSkFRDlgSq/DR3q3IScjpFRFg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jdbwVlpN;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=V9Xx2hTh;
+	arc=none smtp.remote-ip=209.85.214.172
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF89D606A324
-	for <linux-input@vger.kernel.org>; Sun,  1 Nov 2026 15:04:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88E74606A324
+	for <linux-input@vger.kernel.org>; Sun,  1 Nov 2026 15:09:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 88E74606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jdbwVlpN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19F661F000C1;
-	Sun,  1 Nov 2026 15:04:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793545465;
-	bh=C34lsMg6LfbPsaTK6Ab7N6eeppX3dOfhDIbDBh1uGFw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jdbwVlpNPvn7ehD/6D8wlyAWVmmR145i/PnpdUQRoiIhai7/l2ReM4SVNLjDHMWwq
-	 UkmS3XKmycT0XOQxTe4RDT3pF7sk2J53a5wue0QzXMpjuzQb+WY+xf2zm4f2WDJCdr
-	 vsCr3atcoP2iXx3Flll+j9W0dSaUgnu7S2Ux163dbM0DUAPdUfLiIBU7ep8NP2GsBc
-	 EFOMPFPqh0BOlmRF+kCjO8vG62WcBC7u1crA+5TXGSWj+9lKlxR7drGz8rtgZfg8sP
-	 CDdLtW7GSmMR+8Fm94k879Fm0W0/5T65hCJ7662aFAqGL35XCUYOPAl+SK0uFQArrN
-	 GQxJc8WAxW0aQ==
-Message-ID: <sashiko-outbox-192464@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] HID: add driver for EWEADN G5 mice
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Liang Haowen" <nbg2974@gmail.com>, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
-In-Reply-To: <6ae7529d.10abdf86.7545b.3e9a@mx.google.com>
-References: <6ae7529d.10abdf86.7545b.3e9a@mx.google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 01 Nov 2026 15:04:24 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=V9Xx2hTh
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2e8246b13cbso18495295ad.2
+        for <linux-input@vger.kernel.org>; Sun, 01 Nov 2026 07:09:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793545755; x=1794150555; darn=vger.kernel.org;
+        h=cc:to:subject:date:from:message-id:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=r7sqR2vKS8k46feKmXGRK3DyHQiJEHIGx7m70vFc/3o=;
+        b=V9Xx2hThdKxFw9nADiYlhHfmk3u14emJP/DqNa743jFAxL4IO/2Zx+VtJA1/V4ZKpY
+         kp0pASv7rNJWBXPW1vwq3M5hF0qJQQMaPZ+HcSYtivquFrTqDx5xpLQV3FtNMnxq/ieD
+         4nEmEd49br5WtlCOf2EKtIBcsmk+3t1LtdH/3OAEsKVpG6gViGd9I1MYRRTg7GV5Y3EN
+         TYES+eFfTJrySSEZkf53we70A/vqAgUR1ixY4DIH/BHOl7n9WsjtbBReE3NRbO4q6bop
+         dRHn46psXuz+On/gJDNcYnJNnNcH9GgcOpb+6lft7TYdmtW/cBa/jHLQgN96vRIR9IlP
+         1rtQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793545755; x=1794150555;
+        h=cc:to:subject:date:from:message-id:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=r7sqR2vKS8k46feKmXGRK3DyHQiJEHIGx7m70vFc/3o=;
+        b=CQyyUNB7jcjoHiIEDoel/MQoNvmtZtB73t6yUuOb0sooqNyYgcp/yRjLM6NiNF6c7e
+         7ZzOqqz2hxpbOqntJuQ07Wi5HtqLev4/FbH81CDtA4PAq9JNR1ZZSDrL9V05nSZ1KcRw
+         w/tsHGX58kZr9wrijowJ48S0xIzHE51EGs3OIJg+9r8LavhN7d3GeWmD4EAkYhU6gYFs
+         wptKapdHxUznpi+ElD9H/KntN1TlKOvT2dtSRZWlawmMVnCWh2oRFb6vxRATMHXhCtXS
+         4OIkI5sfbbGPaOXCNxSIzZ+wGutfvqb6rbOs4V593p32+aVfpv+P2pPUDmLZgJRhHgmm
+         bumQ==
+X-Gm-Message-State: APuU4Z8oUKw05RSkK1s1+E63ihLQzV2i0Yojf3B4zU3TUbZ9Za3eJ/QG
+	DgvmrA0Rh+R/I7dOwSQKxOM65mi5IhXPG7fbr9y5zYw3g2wM9Eido9+vy3P/HvsH
+X-Gm-Gg: AYBFou0UCHRgtSg1mVnJgI1C5sn+vPa8B+IfKl8dPeh4vZWGdNmj4fVVub23dyrDCPW
+	/dEj9tqCC8eIQkE6PxBh5NZR4LrsrtMHDSHnP1NMlxDt+W3MHAAj0YFeJUJddvqRudLy+Vn07HZ
+	w4SpalGRqCmZqiM9niTu/vm68K9WuAHzIxR4LXiyYRVarbj9hHrYUdzGMGWQU2BtIYlNh1/a7wJ
+	UwsHPCTJPlxii2wCqal6S7zhKowi35zLHxmaFvv4esdPijmkipTWM4yCpsu4Av5cIrZW1W5wlE4
+	sgoFp16YI7zjavasL1HmAX7dbfGzSfyFWnJGx11yw2v0OvAef9oHu/R/feVlAjvdAqyepx4Q7PT
+	5X8K1dtg3ajS8lTE2pjuK/3r/40DrsOs37/IuzQcEjYnV9pKD7xM/3Bq0Au08xXCI6lBAygTDso
+	0MZJTbA801VJoUXQCUUZCv6ursi6lzocQs3t21gGf+vSRG6Ft1unmmJO5IRVWFuuCIvqbhGvbor
+	u6DxqkhvLyu2cyrRHM/S0uPf/thvsGfRG+APrRYsDN/4IQr3kYG2Y4FPbzNd2q+uEOtEQ0xkQ/C
+	G9NRSATFnY+MYj0octRgl2zNOkA=
+X-Received: by 2002:a17:903:1b4c:b0:2e4:b37a:d583 with SMTP id d9443c01a7336-2eb3651554emr70954765ad.61.1793545754372;
+        Sun, 01 Nov 2026 07:09:14 -0800 (PST)
+Received: from [127.0.1.1] ([240e:b8f:977f:f400:ec2a:b15e:fef8:70a])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2eb39266b84sm18746045ad.43.2026.11.01.07.09.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 01 Nov 2026 07:09:12 -0800 (PST)
+Message-ID: <6ae75618.320b261f.106342.b1ef@mx.google.com>
+From: Liang Haowen <nbg2974@gmail.com>
+Date: Sun, 1 Nov 2026 20:45:00 +0800
+Subject: [PATCH] HID: add ALWAYS_POLL quirk for YJX-CHIP EWEADN a8a4 units
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-kernel@vger.kernel.org
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,136 +89,50 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] HID: hid-eweadn: returning -ENODEV in eweadn_probe() unbinds sibli=
-ng interfaces
-- [High] HID: hid-eweadn: unchecked to_usb_interface() cast in eweadn_probe=
-()
-- [Low] HID: hid-eweadn: hardcoded USB IDs instead of hid-ids.h macros in e=
-weadn_devices
---
+Replacement receivers with VID 0xa8a4 first appeared here in
+October 2026, and the mice themselves use the same VID when
+connected by USB cable. The interface layout and endpoint match
+the original 0xa8a5 units, and the endpoint carries the same
+9-byte report 0x02 payload, so extend the quirk to keep those
+pointers alive on boot and replug too.
 
-commit d81d5f8f2cf2bc9851adb951ad34ae0654a99eee
-Author: Liang Haowen <nbg2974@gmail.com>
+Link: https://lore.kernel.org/r/20261012154240.33221-1-nbg2974@gmail.com
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Liang Haowen <nbg2974@gmail.com>
+---
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-HID: add driver for EWEADN G5 mice
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 91319aa..1fc77cb 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1654,6 +1654,7 @@
+ 
+ #define USB_VENDOR_ID_YJXCHIP		0xa8a5
+ #define USB_DEVICE_ID_YJXCHIP_MOUSE	0x2255
++#define USB_VENDOR_ID_YJXCHIP2		0xa8a4
+ 
+ #define USB_VENDOR_ID_ZEROPLUS		0x0c12
+ 
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 793db00..362768b 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -225,6 +225,8 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_YJXCHIP, USB_DEVICE_ID_YJXCHIP_MOUSE),
+ 		HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_YJXCHIP2, USB_DEVICE_ID_YJXCHIP_MOUSE),
++		HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_GROUP_AUDIO), HID_QUIRK_NOGET },
+ 
+ 	{ 0 }
+-- 
+2.55.0
 
-This patch adds a HID driver for EWEADN G5 mice (0xa8a5:2255 and
-0xa8a4:2255) that replaces the broken report descriptor on USB interface 0
-with a standard mouse report descriptor so hid-core can parse motion and
-button events.
 
-> diff --git a/drivers/hid/hid-eweadn.c b/drivers/hid/hid-eweadn.c
-> new file mode 100644
-> index 0000000000000..6aacfc5dbe8ac
-> --- /dev/null
-> +++ b/drivers/hid/hid-eweadn.c
-> @@ -0,0 +1,120 @@
-
-[ ... ]
-
-> +static const __u8 *eweadn_report_fixup(struct hid_device *hdev, __u8 *rd=
-esc,
-> +				       unsigned int *rsize)
-> +{
-> +	hid_info(hdev, "fixing up EWEADN G5 mouse report descriptor\n");
-> +	*rsize =3D sizeof(eweadn_rdesc);
-> +	return eweadn_rdesc;
-> +}
-> +
-> +static int eweadn_probe(struct hid_device *hdev,
-> +			const struct hid_device_id *id)
-> +{
-> +	struct usb_interface *intf;
-> +	int ret;
-> +
-> +	intf =3D to_usb_interface(hdev->dev.parent);
-
-[Severity: High]
-Can to_usb_interface(hdev->dev.parent) be called here without first
-checking hid_is_usb(hdev)?
-
-Although eweadn_devices uses HID_USB_DEVICE(), that only matches
-hdev->bus =3D=3D BUS_USB, hdev->vendor, and hdev->product (or a device can =
-be
-bound via sysfs). A virtual HID device created via /dev/uhid in
-uhid_dev_create2() (drivers/hid/uhid.c) can specify bus =3D BUS_USB and
-matching vendor/product IDs while setting hdev->dev.parent to
-uhid_misc.this_device rather than a struct usb_interface.
-
-Without a hid_is_usb(hdev) check, container_of_const() on hdev->dev.parent
-and dereferencing intf->cur_altsetting->desc.bInterfaceNumber will read out
-of bounds and dereference an invalid pointer.
-
-> +	if (intf->cur_altsetting->desc.bInterfaceNumber !=3D 0)
-> +		return -ENODEV;	/* keyboard and config stay on hid-generic */
-
-[Severity: High]
-Does returning -ENODEV in eweadn_probe() actually allow interfaces 1 and 2
-to stay on hid-generic, or does it leave them completely unbound?
-
-Each USB interface of the composite device creates a separate struct
-hid_device with identical bus, vendor, and product IDs, so
-hid_match_device(hdev, &eweadn_driver) matches eweadn_devices for all three
-interfaces.
-
-In drivers/hid/hid-generic.c, hid_generic_match() checks whether any other
-registered HID driver's id_table matches the device:
-
-drivers/hid/hid-generic.c:hid_generic_match() {
-	...
-	if (bus_for_each_drv(&hid_bus_type, NULL, hdev, __check_hid_generic))
-		return false;
-	return true;
-}
-
-where __check_hid_generic() returns 1 whenever hid_match_device(hdev, hdrv)
-is non-NULL, regardless of whether hdrv->probe() later returns -ENODEV. In
-addition, when eweadn_driver is registered, __hid_register_driver() calls
-__hid_bus_reprobe_drivers(), which sees !hid_generic_match() and calls
-device_reprobe(), detaching hid-generic from interfaces 1 and 2. Because
-eweadn_probe() then returns -ENODEV for bInterfaceNumber !=3D 0, interfaces=
- 1
-and 2 are left with no bound driver at all.
-
-Instead of rejecting non-zero interfaces in a custom .probe callback,
-should the bInterfaceNumber =3D=3D 0 check (guarded by hid_is_usb(hdev)) be
-done inside eweadn_report_fixup() so non-zero interfaces keep their
-original report descriptor while binding normally?
-
-> +
-> +	ret =3D hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "parse failed: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	if (ret) {
-> +		hid_err(hdev, "hw start failed: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id eweadn_devices[] =3D {
-> +	{ HID_USB_DEVICE(0xa8a5, 0x2255) },		/* original receiver */
-> +	{ HID_USB_DEVICE(0xa8a4, 0x2255) },		/* replacement unit, wired mouse */
-> +	{ }
-> +};
-
-[Severity: Low]
-This isn't a bug, but drivers/hid/hid-ids.h already defines:
-
-#define USB_VENDOR_ID_YJXCHIP		0xa8a5
-#define USB_DEVICE_ID_YJXCHIP_MOUSE	0x2255
-
-Should hid-eweadn.c include "hid-ids.h" and use those macros (adding a
-corresponding macro for 0xa8a4) instead of raw hex constants, and mark
-eweadn_rdesc[] as const?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/6ae7529d.10abdf86.7=
-545b.3e9a@mx.google.com?part=3D1

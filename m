@@ -1,57 +1,98 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.173
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793621751;
-	b=oNo8DlOrpUguPTYW26RyMpb+0aHu2hb0N2NbqhiKXE9hvVB+jE368GlJt4/3rgjqkTBT
-	 CY7NHKqZValEEZS/Bdc/PdmrrUpuax0BqR9gR6PTmTzUJ16wr9RcCLnjwczg2B8gHnBjU
-	 4qrnzFeVld5x26JQfNIPQ9+LQxYHqAE2EMFPP/WAB+0T+MN4BX9DxDC0WfG0fPjcryl/w
-	 X649GR6/3bgzcJ6vW9QdUkyOGaIMlT1dDUw499QhIZyaNcaM0RBj2A15tVYiVPjJPPFel
-	 Uao01E7FuxvKa6oMY1+vzihoZ3UypUaNAILwnNiB0Akx9nAUghdR7DZXIlqqMGBz86w==
+	t=1793622969;
+	b=5SOe5s4Oe/eu0SwWOzgIPOC/LXdKDCkFUQr7d5WsEx6ikQF7V5IlH8DVEg6+30d9Vg8v
+	 9sqteR+Ni7FFmCybamWUubjfDlZuRLDvw5OSBLcSfII7fwX10LOdxRe5lDm5AWgChzJYs
+	 4TxmJSHT+jwEEO0IIsluxfKNqEhA4Y9WuHnpxblcHk2NJ23i9jCQwg/jpDCdnGxF4Mppf
+	 SkNcC46COUYM3vU/R5HTFN40fA+f4XK+P5FD0K2WfTfOVMB1AH2UTCYw2SZzveK9c4czM
+	 zpAJTjjmF8W1kUHrCGaFacf3xZAjWWYSb1t6p/yqjq+NRihNHKNvR7KyUnDoyBAseEA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793621751;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=pFChq7RWoPOYXNpRIbOmM3CPFuf/lb1BveblQyxDSPI=;
-	b=TRQBB8bezClcSzyF4CK0mQe43k8yjeK0uZcPY4q3adCvtzxWqWBI0uD41roqoc5RZljo
-	 UHfKa8wVvRlWlcp5ThrKaCAoZ/JxF4MX0aqHZC4inWVzEIDVJOSvUFyWD0WF4WI08+cTb
-	 W0zBr0ydVmkr4Ci6iBMw9KXPRqSPcYcjTWiRtAOQqhBQjMVCiwRTudo2MafHK2NvkcYyv
-	 Mg7JqaJ9j+3vyzGR+sAbsPuxj1CXwmnY3gmJluGfBwizSTI1l/xW2XjAUYITKyTvE0wNT
-	 tz6XSHvWxIkT26j6u7s0pITtfoad2AXAkvplPDyh4xnGApeNiTfdNtdDLD4mb3XxpTQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793622969;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Disposition-Notification-To:
+	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=M322gxN17KH2FpLbwEqFxfIE1eUVU6+ZQO7JUqapB7A=;
+	b=3wtD7NhO+8iea/VDyqTTEV79jDHuJpk5f+dbJDdApHZRRsYC/xVhjHf4uz/7eqslUSIe
+	 1zjP+KTHSoPdxx7GK0Sqn9RTMaXr9iLjPzMdWdEKt78Jy//LohFrr/scNeZQQgUWgAQcy
+	 RCFhurrEoYZH/KktU19hadDv0i+C1unrRVwnwiRDP1gj8i4p7QoucLjqt/pwDnqtlRoZv
+	 iKVoEN33wjZ5rcOvvLMC3uL5GMumuCmFBCSwAynNdXRSSccKhKrzjjNu2+Mb3B71DMqqS
+	 sVA5BmOn/iw1TZ1Ui/C5ds8UdVXg8uBQngLRvPMQ3Ur2+rBfYiFhNy2WxI23YDCIuCA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbPQIdpe;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=c5CiVmW6;
+	arc=none smtp.remote-ip=209.85.208.173
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AAEA60A381D;
-	Mon,  2 Nov 2026 12:15:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA063606A32F
+	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 12:36:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CA063606A32F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbPQIdpe
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76C0C1F0157D;
-	Mon,  2 Nov 2026 12:15:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793621750;
-	bh=pFChq7RWoPOYXNpRIbOmM3CPFuf/lb1BveblQyxDSPI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WbPQIdpe/7N/9bSUxnF6NcBoPX8UUoIjM/Jbfx6xbwvEcSbIN+ym6eRvPHioWxZ2X
-	 MdLfBtr+f3plu2NVXss1QzKlJ6bRdwQ3NQSEVCOVslMtAloz08paUNwBCac6JjlZUC
-	 t/23JLiBVUZfYAGk/mP42uSOLRUFofLGjRtOwjlEUs5/WSFIvz5bx/CnwRXrsIunHp
-	 Trayr0c6g+4Fy8UCRGZvJgbG+kwtV29f9u6A2lmaWn3BeSUcyZO3Hp38MlQPRV++3F
-	 9Xe1CmmHQzKsMoKJ8BacbhCjvzK4t8z/VR3TuGy6GImdKAZJU8OJcSQrP2VddtZt4D
-	 F8vSeFx17hKiA==
-Message-ID: <sashiko-outbox-193383@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 1/2] HID: bpf: serialize hardware operations with device
- destruction
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Yifan Zhang" <yfzhang23@stu.pku.edu.cn>, linux-input@vger.kernel.org
-Cc: bpf@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <179362071770.29269.481376767482231629@stu.pku.edu.cn>
-References: <179362071770.29269.16022650793604369465@stu.pku.edu.cn>
- <179362071770.29269.481376767482231629@stu.pku.edu.cn>
-Content-Type: text/plain; charset=utf-8
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=c5CiVmW6
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-3ab3c0e7298so6058201fa.2
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 04:36:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793622966; x=1794227766; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=M322gxN17KH2FpLbwEqFxfIE1eUVU6+ZQO7JUqapB7A=;
+        b=c5CiVmW6TC6wzhilCy2vRAOjt377rQOFvnTggK30VMkmy3zHL8cjaFj3kEfM20B7V8
+         S6MqGtKCdWYPj+71NvS719/pZjRnNbji4M40tk9LAAqL9+2GNQrhs5ef8hvWzRxpKF0R
+         Ypu7f+N2BzXigxVRJEM2xymxy4BYBu7CATH1NeSvlsJBu6Gqe2OobIDH/CUAcysBRDS2
+         DUGfWArThmDBRC5zzEMfJ+4/MY0b7CT86GFT2eAfVaEL5ZE+oaIb5H1FO3wC/43PUVVC
+         6FsrVSrr3GGlULr7XBfLYmaD8AJHuw20cBeP61bZj96ONnDPk0mdhObdLXnCjbxGcGVl
+         IgrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793622966; x=1794227766;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=M322gxN17KH2FpLbwEqFxfIE1eUVU6+ZQO7JUqapB7A=;
+        b=RbjAxXN3WoXb19IqPLz/bWwyCdcfgchePIkOn/PYvZRGrCnLFrlL+5lbq6zA1wnQXX
+         FFJ8E9yucmX+pQVJQazqSXLLH22jEtYVRuGyJiQu1sqOe700FVMLmDIInfSZ5lSXssTm
+         8DYcNLRTQ7ewxRC/Wa9RBGPU3pXOSkJc5SxQ9pIpVActoFvVo8M+NlO8YI9+LXrNnSWt
+         32yv72FyyMJ1Cq1ToTnCPaGasTquhq/xXliXc+Izk8F3vg87K31THFZ300au/6nbFYes
+         gg+GbndjLpiYSGvsmf/LPsKbTjNFB3CMuhQivwooD41KMwBwhhU7mLeWiSmnZ8K2uYPi
+         uYQg==
+X-Gm-Message-State: APuU4Z9nIvWiUG9i5qltHbPzOJKZejHBa8IAKL8Pa9g7dRuV5GXmnqxL
+	wcahJnPeZ9Jj6LwlX+ahr+nx2YwJxAzwS+wDNMXNZ7yV+S+MeygnyQQdd+hShw==
+X-Gm-Gg: AYBFou2LJVN2FkSuOit44z8rK0VilkcSVlWMBY40ixfouXZbPexDuxgezSbkjtxXBu5
+	ArMz0fD1tlrATjiexzAy9CmUWVfl7PrTE3vwoPXp4Z6JeNXHseWvVRIL9r/1bAyaBSdPRRzfUZ3
+	lsyCarihd+dMrn0RaPP37/xtK4ApEGC9wUPPxTLbJ7/+/xUVa5wMnrCQBctb74QC6kLJIPHjcp7
+	3Vcd2h29iV7A0E0XJEhrF+telMhK0oSWORdNkqYt328ZRZyQSjhLSspqgOGuxLLZylWeQoO+y+U
+	ziawy+qpACczSyUXOMV12SVY3lC0fxKvFXSJdMC7ffvbezfi9x2ZHCA3qtBDaUjfz9dH3eBjq2U
+	3eUb4kRvYUY+zQCL+yE92SMdiF0hD9n+t/0WnOj65sF9zKUuFo0YOmbpItl1vdPLzZLQvpI7p7H
+	4fTWHAvC/nn5GXmqCXCdE+f7NBROnxDmKILZE4S7gey7AyNlKFoMNYxTRlJ3z5EHM0yB0GyCHDa
+	kKr45a/1y+71Be3H6Uy1oEQWZjwi4ZsAslXiu8Avc8JUJFwWIdi6cbRLKQThxtLXmuEucCGZeds
+	0tku8SaTiavb6O8PseAROIMwV4usbx978vgQXQfmmvj54MBplhOLnktg6XmtKGgZDTl9qOr2sDh
+	qeEkGq1cZLrpXJw==
+X-Received: by 2002:a05:6512:159d:b0:5bf:ba43:fa67 with SMTP id 2adb3069b0e04-5bfd95989a1mr4171090e87.6.1793622965865;
+        Mon, 02 Nov 2026 04:36:05 -0800 (PST)
+Received: from [192.168.1.239] (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5bfe07551e2sm1599770e87.84.2026.11.02.04.36.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2026 04:36:05 -0800 (PST)
+Message-ID: <b27645a5948ec37836a9186f0eb4699b6d6fd87a.camel@gmail.com>
+Subject: Re: [PATCH] HID: pidff: fix undefined shift for infinite duration
+From: Tomasz =?UTF-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: Shengzhuo Wei <me@cherr.cc>, Oleg Makarenko <oleg@makarenk.ooo>, Jiri
+ Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date: Mon, 02 Nov 2026 13:36:02 +0100
+In-Reply-To: <20261028-b4-pidff-duration-shift-v1-1-65028c6b4a37@cherr.cc>
+References: <20261028-b4-pidff-duration-shift-v1-1-65028c6b4a37@cherr.cc>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 12:15:50 +0000
+User-Agent: Evolution 3.62.1 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,282 +101,65 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [Critical] HID: bpf: report UAF in __hid_bpf_hw_check_params() during dev=
-ice teardown
-- [High] HID: bpf: ABBA deadlock between prog_list_lock and srcu in hw requ=
-est kfuncs
-- [High] HID: bpf: recursive prog_list_lock deadlock in hid_bpf_hw_request()
-- [High] HID: bpf: lock inversion between prog_list_lock and driver_input_l=
-ock
---
+On Wed, 2026-10-28 at 18:55 +0800, Shengzhuo Wei wrote:
+> pidff_set_duration() computes the infinite duration as
+> (1U << report_size) - 1, but report_size comes from the device's
+> report descriptor and can be 32 or greater. This causes an undefined
+> shift. A UHID test on x86-64 triggers UBSAN and programs a 32-bit
+> duration field as zero instead of 0xffffffff.
+>=20
+> For report sizes of 32 or more, store -1 in the s32 field value to
+> set all 32 bits without shifting. Keep the existing calculation for
+> smaller fields.
 
-commit 49a737ce63da80cb915d4530a8a28ce52af759cc
-Author: Yifan Zhang <yfzhang23@stu.pku.edu.cn>
+Yeah, that's a good idea even though finding a real device that would
+trigger this would be quite difficult.
 
-HID: bpf: serialize hardware operations with device destruction
+>=20
+> Fixes: 1a575044d516 ("HID: pidff: Compute INFINITE value instead of using=
+ hardcoded 0xffff")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Shengzhuo Wei <me@cherr.cc>
+> ---
+> HID: pidff: fix undefined shift for infinite duration
+> ---
+>  drivers/hid/usbhid/hid-pidff.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidf=
+f.c
+> index 22951b7ecd17..25b82e7d0b9e 100644
+> --- a/drivers/hid/usbhid/hid-pidff.c
+> +++ b/drivers/hid/usbhid/hid-pidff.c
+> @@ -394,7 +394,11 @@ static void pidff_set_duration(struct pidff_usage *u=
+sage, u16 duration)
+>  {
+>  =09/* PID defines INFINITE as the max possible value for duration field =
+*/
+>  =09if (pidff_is_duration_infinite(duration)) {
+> -=09=09usage->value[0] =3D (1U << usage->field->report_size) - 1;
+> +=09=09if (usage->field->report_size >=3D 32)
+> +=09=09=09usage->value[0] =3D -1;
+> +=09=09else
+> +=09=09=09usage->value[0] =3D
+> +=09=09=09=09(1U << usage->field->report_size) - 1;
 
-This commit serializes HID-BPF hardware requests and output reports with
-device destruction by holding prog_list_lock and checking the destroyed
-flag across low-level driver calls in hid_bpf_hw_request() and
-hid_bpf_hw_output_report().
+I prefer default operations instead of if/else. Just a style preference.
+Would you mind changing this to unguarded
+`usage->value[0] =3D -1;`
+and then the previous calculation behind
+`if (usage->field->report_size < 32)` ?
 
-> diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
-_dispatch.c
-> index 6b467c74601cb..4fea42dd2f392 100644
-> --- a/drivers/hid/bpf/hid_bpf_dispatch.c
-> +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-> @@ -444,14 +444,20 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *b=
-uf, size_t buf__sz,
->  	if (!dma_data)
->  		return -ENOMEM;
+>  =09=09return;
+>  =09}
 > =20
-> -	ret =3D hid_ops->hid_hw_raw_request(ctx->hid,
-> -					      dma_data[0],
-> -					      dma_data,
-> -					      size,
-> -					      rtype,
-> -					      reqtype,
-> -					      (u64)(long)ctx,
-> -					      true); /* prevent infinite recursions */
-> +	mutex_lock(&ctx->hid->bpf.prog_list_lock);
-> +	if (READ_ONCE(ctx->hid->bpf.destroyed)) {
-> +		ret =3D -ENODEV;
-> +	} else {
-> +		ret =3D hid_ops->hid_hw_raw_request(ctx->hid,
-> +						  dma_data[0],
-> +						  dma_data,
-> +						  size,
-> +						  rtype,
-> +						  reqtype,
-> +						  (u64)(long)ctx,
-> +						  true); /* prevent infinite recursions */
-> +	}
-> +	mutex_unlock(&ctx->hid->bpf.prog_list_lock);
-
-[Severity: High]
-Can acquiring ctx->hid->bpf.prog_list_lock here in hid_bpf_hw_request()
-(and below in hid_bpf_hw_output_report()) in
-drivers/hid/bpf/hid_bpf_dispatch.c cause an ABBA deadlock with
-hdev->bpf.srcu?
-
-In drivers/hid/bpf/hid_bpf_struct_ops.c, both hid_bpf_reg() and
-hid_bpf_unreg() hold prog_list_lock while waiting on synchronize_srcu():
-
-drivers/hid/bpf/hid_bpf_struct_ops.c:hid_bpf_unreg() {
-	...
-	mutex_lock(&hdev->bpf.prog_list_lock);
-	...
-	list_del_rcu(&ops->list);
-	synchronize_srcu(&hdev->bpf.srcu);
-	...
-	mutex_unlock(&hdev->bpf.prog_list_lock);
-}
-
-When hid_bpf_hw_request() or hid_bpf_hw_output_report() is invoked from a
-syscall BPF program, it also takes prog_list_lock and then calls
-__hid_hw_raw_request() or __hid_hw_output_report(), which enters
-dispatch_hid_bpf_raw_requests() or dispatch_hid_bpf_output_report() and
-takes srcu_read_lock(&hdev->bpf.srcu). Both paths establish the lock order
-prog_list_lock -> hdev->bpf.srcu.
-
-However, hid_bpf_hw_request() and hid_bpf_hw_output_report() are also
-registered in hid_bpf_kfunc_ids for BPF_PROG_TYPE_STRUCT_OPS, so sleepable
-struct_ops callbacks (e->hid_hw_request and e->hid_hw_output_report) can
-call them directly. When a non-BPF caller such as hidraw invokes
-__hid_hw_raw_request(..., from_bpf=3Dfalse) or
-__hid_hw_output_report(..., from_bpf=3Dfalse),
-dispatch_hid_bpf_raw_requests() or dispatch_hid_bpf_output_report() holds
-srcu_read_lock(&hdev->bpf.srcu) across the callback:
-
-drivers/hid/bpf/hid_bpf_dispatch.c:dispatch_hid_bpf_raw_requests() {
-	...
-	idx =3D srcu_read_lock(&hdev->bpf.srcu);
-	list_for_each_entry_srcu(e, &hdev->bpf.prog_list, list,
-				 srcu_read_lock_held(&hdev->bpf.srcu)) {
-		if (!e->hid_hw_request)
-			continue;
-
-		ret =3D e->hid_hw_request(&ctx_kern.ctx, reportnum, rtype, reqtype, sourc=
-e);
-		if (ret)
-			goto out;
-	}
-	ret =3D 0;
-
-out:
-	srcu_read_unlock(&hdev->bpf.srcu, idx);
-	return ret;
-}
-
-When that struct_ops callback calls hid_bpf_hw_request() or
-hid_bpf_hw_output_report(), it acquires prog_list_lock while holding
-srcu_read_lock(&hdev->bpf.srcu), inverting the lock order to
-hdev->bpf.srcu -> prog_list_lock and deadlocking if another thread is in
-hid_bpf_reg() or hid_bpf_unreg().
-
-[Severity: High]
-Could holding ctx->hid->bpf.prog_list_lock across
-hid_ops->hid_hw_raw_request() in hid_bpf_hw_request() (and across
-hid_ops->hid_hw_output_report() in hid_bpf_hw_output_report()) also lead
-to a recursive mutex self-deadlock on the same task?
-
-When hid_ops->hid_hw_raw_request(..., true) or
-hid_ops->hid_hw_output_report(..., true) runs with prog_list_lock held,
-__hid_hw_raw_request() and __hid_hw_output_report() still invoke
-dispatch_hid_bpf_raw_requests() and dispatch_hid_bpf_output_report(),
-which call any attached sleepable struct_ops e->hid_hw_request or
-e->hid_hw_output_report programs on that hid_device.
-
-The recursion check at the start of hid_bpf_hw_request() and
-hid_bpf_hw_output_report() only inspects ctx_kern->from_bpf on the passed
-context:
-
-drivers/hid/bpf/hid_bpf_dispatch.c:hid_bpf_hw_request() {
-	ctx_kern =3D container_of(ctx, struct hid_bpf_ctx_kern, ctx);
-
-	if (ctx_kern->from_bpf)
-		return -EDEADLOCK;
-	...
-}
-
-Because hid_bpf_allocate_context() is exposed in hid_bpf_kfunc_ids to
-sleepable struct_ops programs and returns a fresh context with
-from_bpf =3D=3D false, wouldn't a struct_ops program that calls
-hid_bpf_allocate_context(hctx->hid->id) and passes the new context to
-hid_bpf_hw_request() or hid_bpf_hw_output_report() bypass the
-ctx_kern->from_bpf check and try to lock ctx->hid->bpf.prog_list_lock a
-second time?
-
-[Severity: High]
-Does holding ctx->hid->bpf.prog_list_lock across
-hid_ops->hid_hw_raw_request() and hid_ops->hid_hw_output_report() in
-drivers/hid/bpf/hid_bpf_dispatch.c introduce a lock inversion with
-hdev->driver_input_lock?
-
-In drivers/hid/hid-core.c, hid_device_probe() and hid_device_remove()
-acquire hdev->driver_input_lock before calling __hid_device_probe() (which
-runs call_hid_bpf_rdesc_fixup() and hdrv->probe()) and hdrv->remove(). If
-a sleepable struct_ops callback (such as hid_rdesc_fixup, hid_hw_request,
-or hid_hw_output_report) invoked under driver_input_lock calls
-hid_bpf_hw_request() or hid_bpf_hw_output_report(), it acquires
-prog_list_lock while holding driver_input_lock
-(driver_input_lock -> prog_list_lock).
-
-Conversely, while hid_bpf_hw_request() or hid_bpf_hw_output_report() holds
-prog_list_lock across hid_ops->hid_hw_raw_request() or
-hid_ops->hid_hw_output_report(), an attached sleepable struct_ops callback
-e->hid_hw_request or e->hid_hw_output_report can call
-hid_bpf_input_report(), which is exposed in hid_bpf_kfunc_ids and acquires
-driver_input_lock before checking ctx_kern->from_bpf:
-
-drivers/hid/bpf/hid_bpf_dispatch.c:hid_bpf_input_report() {
-	...
-	ret =3D down_interruptible(&ctx->hid->driver_input_lock);
-	if (ret)
-		return ret;
-	...
-}
-
-Wouldn't that establish the reverse ordering
-prog_list_lock -> driver_input_lock?
-
-> =20
->  	if (ret > (ssize_t)size)
->  		ret =3D size;
-> @@ -492,7 +498,13 @@ hid_bpf_hw_output_report(struct hid_bpf_ctx *ctx, __=
-u8 *buf, size_t buf__sz)
->  	if (!dma_data)
->  		return -ENOMEM;
-> =20
-> -	ret =3D hid_ops->hid_hw_output_report(ctx->hid, dma_data, size, (u64)(l=
-ong)ctx, true);
-> +	mutex_lock(&ctx->hid->bpf.prog_list_lock);
-> +	if (READ_ONCE(ctx->hid->bpf.destroyed))
-> +		ret =3D -ENODEV;
-> +	else
-> +		ret =3D hid_ops->hid_hw_output_report(ctx->hid, dma_data, size,
-> +						    (u64)(long)ctx, true);
-> +	mutex_unlock(&ctx->hid->bpf.prog_list_lock);
-> =20
->  	kfree(dma_data);
->  	return ret;
-> @@ -641,8 +653,10 @@ void hid_bpf_destroy_device(struct hid_device *hdev)
->  	if (!hdev)
->  		return;
-> =20
-> -	/* mark the device as destroyed in bpf so we don't reattach it */
-> -	hdev->bpf.destroyed =3D true;
-> +	/* Block new BPF hardware operations before transport teardown. */
-> +	mutex_lock(&hdev->bpf.prog_list_lock);
-> +	WRITE_ONCE(hdev->bpf.destroyed, true);
-> +	mutex_unlock(&hdev->bpf.prog_list_lock);
-
-[Severity: Critical]
-Is checking ctx->hid->bpf.destroyed after __hid_bpf_hw_check_params() in
-hid_bpf_hw_request() and hid_bpf_hw_output_report() sufficient to prevent
-a use-after-free on struct hid_report during device teardown?
-
-In drivers/hid/bpf/hid_bpf_dispatch.c, both hid_bpf_hw_request() and
-hid_bpf_hw_output_report() call __hid_bpf_hw_check_params() before
-acquiring ctx->hid->bpf.prog_list_lock and before checking
-ctx->hid->bpf.destroyed:
-
-drivers/hid/bpf/hid_bpf_dispatch.c:hid_bpf_hw_request() {
-	...
-	/* check arguments */
-	ret =3D __hid_bpf_hw_check_params(ctx, buf, &size, rtype, true);
-	if (ret)
-		return ret;
-	...
-	mutex_lock(&ctx->hid->bpf.prog_list_lock);
-	if (READ_ONCE(ctx->hid->bpf.destroyed)) {
-	...
-}
-
-__hid_bpf_hw_check_params() looks up and dereferences struct hid_report
-from ctx->hid->report_enum:
-
-drivers/hid/bpf/hid_bpf_dispatch.c:__hid_bpf_hw_check_params() {
-	...
-	report_enum =3D ctx->hid->report_enum + rtype;
-	report =3D hid_ops->hid_get_report(report_enum, buf);
-	if (!report)
-		return -EINVAL;
-
-	report_len =3D hid_report_len(report);
-	...
-}
-
-During hid_destroy_device() in drivers/hid/hid-core.c,
-hid_bpf_destroy_device() sets hdev->bpf.destroyed =3D true and unlocks
-prog_list_lock, and then hid_remove_device() -> device_del() ->
-hid_device_remove() -> hid_close_report() frees each report in
-report_enum->report_id_hash[] before zeroing report_enum:
-
-drivers/hid/hid-core.c:hid_close_report() {
-	...
-	for (i =3D 0; i < HID_REPORT_TYPES; i++) {
-		struct hid_report_enum *report_enum =3D device->report_enum + i;
-
-		for (j =3D 0; j < HID_MAX_IDS; j++) {
-			struct hid_report *report =3D report_enum->report_id_hash[j];
-			if (report)
-				hid_free_report(report);
-		}
-		memset(report_enum, 0, sizeof(*report_enum));
-	}
-}
-
-Because a syscall BPF context allocated by hid_bpf_allocate_context()
-only pins struct hid_device via get_device(&hdev->dev), can a concurrent
-call to hid_bpf_hw_request() or hid_bpf_hw_output_report() race with
-hid_close_report() inside __hid_bpf_hw_check_params() and dereference a
-freed struct hid_report before reaching the prog_list_lock and destroyed
-check?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/179362071770.29269.=
-16022650793604369465@stu.pku.edu.cn?part=3D1
+>=20
+> ---
+> base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
+> change-id: 20261028-b4-pidff-duration-shift-8df4f6451448
+>=20
+> Best regards,
+> -- =20
+> Shengzhuo Wei <me@cherr.cc>

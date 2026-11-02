@@ -1,100 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.43
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793623474;
-	b=oSxhPP+5VwWokXjr200Jbkp/jE/+3u/rJw1qyHbOH/GMs0SqoJNaB5Jg7/mntYu4W6xD
-	 1Wmyn2Qtmq2S7UYMkhy7tfUXiIrwTswQtYRuTU9+gsp1P3jGYOVu/xFfZv2V1WgOA8g3e
-	 LYkTuI8eNmRg1u3A24AMTH8qjXEdEn1C4xjwNZdxF67l8NKiTGpYbvCjw5rG9Jhfdonkb
-	 8C+OBCxu7wOtC+HNPd8NMdp7IRCRf2Fm0CN++KLLl+8D4Vth7LPQD3nuWxwVQg7LLAQZj
-	 C6OqS0+nWDpmqKOTL1NyhB48CYKTTYzYOpjGGuIDUlphoOvHbKqbzq8f0CH51gzzkhg==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793623474;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Subject:
-	 From:To:Cc:Date:In-Reply-To:References:Disposition-Notification-To:
-	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
-	bh=dYanbEJ7ydWKIVlseZIgyCbLcRNjwGo/7gUCZwqpJKs=;
-	b=4AkZd1hpYEg9DQ3+/ZNxzPus9aeQ3dlnY3mLMW47B8gu+3/tOK0duhEM9RYTHhGaHu31
-	 FoGf5/zWUMHr655MktvId63B2qUNCYDZdfB6LCuA0XUYUMVKAgnxCsVy47I8cD2/MCFgR
-	 fdEvQ+14PrrKKh76e1CzJv6k7FKZU/vj1CXRWtsu/8zMQnLfnRJnU0Rw9s41wGQ4YFIpJ
-	 b2jZ7b6mLkp6VeHuSU+PFKtXnUn/2hsY84JOpbDBavD9LjS3WaKjYctxzqu5dUPBV4fR9
-	 Eif7o4ArVaN7ATXRhteeBADiQRhKEWXkM7WjkC4vW3HaIgFMh3I1wnT1fsMZbWocfyg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ipripHyn;
-	arc=none smtp.remote-ip=209.85.208.43
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=212.227.122.201
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793624851;
+	b=aaMr2zxp+0OB7D58IZqNRTFH3Ap2qPoIcYryPhRrUqJm5l95btVN/oJRW/wRCVy3hCbs
+	 bdvelr6zdqCnEz8+0I+htbyTG0MPjXoJ4+bFqnodLWpTsUwdM+HZJ7T1xHW/2FNV0l6LZ
+	 pQuqk2vFeCla10RzoD2Rb/NpRp9auooVTbJbu2q1k5Pfh+iZ8rw2dcmhU8xxWlojLVZ7W
+	 Nbkr/hCKUTqyFmR6wO/lXVaLqtWouOtS/M/tooKV8GVtRd4mC4xag0KoEfu4oQhVEEAzv
+	 gfTl0qHhd5kgur8uFRcsnLwQlkv7TmojoAoM3SVwt97Ty9D80YaqBCECt2btmaCfnug==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793624851;
+	h=DMARC-Filter:X-RZG-CLASS-ID:DKIM-Signature:DKIM-Signature:Received:
+	 X-RZG-AUTH:Received:Message-ID:Date:MIME-Version:User-Agent:From:
+	 Content-Language:To:Subject:Content-Type:Content-Transfer-Encoding;
+	bh=tlEeRbuREoaMkWVy+GMqAlZARaT7V8NUC9+oG+jQN+c=;
+	b=KxySoAuYcaZIl5bWw9OAlc0NkoEj5zzQkAqM/lL95SciZgsGAoNMWrGFq5Xs6c38Ijz+
+	 vnMWccC5HkHnO1s/PoKnZcP5pl5XGLctvbN5CXmnVvT9OZ3XbhU5ZGqeXHxuy8eWhgdpr
+	 qL5nQIzFdz+Fn9VHiv/yrqeVpCf/ntokXPbRpq94Zz3HeziIbLX8Xo4WE35l2aHMvUmjj
+	 1F8rBiI3DzElfbCXLmMyvCzBX84ICqjRMzEcTK3/lfUYtZ8V7dIPUzToLkLhZrk5B8Hds
+	 lOedOm1S3DGZdVdDUeIXX4/gBb8TibLpbnpdSIRA6Bx/iwbQ0S6b6fLcuGB0Vl8DaFg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=graspcomputing.co.uk;
+	spf=pass smtp.mailfrom=graspcomputing.co.uk;
+	dkim=pass header.d=graspcomputing.co.uk header.i=@graspcomputing.co.uk header.a=rsa-sha256 header.s=livemail1 header.b=fWe1ORHP;
+	dkim=pass header.d=graspcomputing.co.uk header.i=@graspcomputing.co.uk header.a=ed25519-sha256 header.s=livemail3 header.b=pu+UXzMo;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=212.227.122.201
+Received: from t1-mo4-p00.gem.livemail.co.uk (t1-mo4-p00.gem.livemail.co.uk [212.227.122.201])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D387660A3838
-	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 12:44:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D387660A3838
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9214F606A331
+	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 13:07:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9214F606A331
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=graspcomputing.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=graspcomputing.co.uk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ipripHyn
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6ae14ee2d0bso789402a12.2
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 04:44:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793623472; x=1794228272; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:content-type
-         :disposition-notification-to:references:in-reply-to:date:cc:to:from
-         :subject:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=dYanbEJ7ydWKIVlseZIgyCbLcRNjwGo/7gUCZwqpJKs=;
-        b=ipripHynXFhBUZYO3ONkgpAkySdmoxAaDbs93kVcEyX1tuR6xSxgQMnbjh+OfX4ozK
-         3ROdQxJdv3Vh/6K70Ycd/gX7I1HGc+HbdWgEcCn281ZdUL5H66Hb2hfk1oIwK8OyZGCV
-         YqFq0wo6Z48sEqRXQJVBxDPjcHuXWpPtINRmOjaKecvPs6TuwLfdDiPm6RuhX6UabD6J
-         3PWpz/tm8vagnQFLxPv/SqjZySmGtt8OdhXGJhHWx0svC6YSsK4K/BHln98i0VrJwGQB
-         +yYMwH2I5/K64IWYRaWxD1RnvziHZPS0ZDU2Yv7bxaUKh4hD44bxeluaiDP3p5/RpAKz
-         ERqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793623472; x=1794228272;
-        h=mime-version:user-agent:content-transfer-encoding:content-type
-         :disposition-notification-to:references:in-reply-to:date:cc:to:from
-         :subject:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=dYanbEJ7ydWKIVlseZIgyCbLcRNjwGo/7gUCZwqpJKs=;
-        b=ABOLV9WU+AhVnxbTu8Zs5KGj4bbXQJdbd7hj9be68/pFb8OF0UW+mG44fFPY185lHC
-         93n4WaInW2CseyAHhvQ9tGYoDoGQaKyV7IzgBixdcoYw+0w0RwF0QIzq3SaWQsvCliQs
-         7bfNHx/Tua5aRFP51P60hIcESWUZClT/RgOUzHoP9JRsOIFF4zhW7qfyo28Eg8ITJ3In
-         MM2aleUqTghTbOCFbyG/8vrY7udtKkSnyAHJPiRFZIi4//4leuEsYJuJTcbDDz5j6eeD
-         Yyx3NQureq/IUofdWP/lA1vyIh2DUJ/in01GMQSkgHUD9PcqMxMxm16Og9OB8Rk7513c
-         EO4Q==
-X-Gm-Message-State: APuU4Z+0UbgJuLzwMLlW3IQ+3ikpVCCfdRIKaa6MQr4NwtXMvxmULLzL
-	PAmy2qKQfi5Tk+/2UD1YeJqUJgoNjQ/6yyFvfHcebZsDcV4EgzTMWyMu
-X-Gm-Gg: AYBFou2qoGPXiAr3KBky7/nxq03+TZTXq0TXrGFGVlhn9s9797/PebuPbzdDMdB5Pf8
-	LLMw9G8zTKdWkA4b6Gzc9fNmvS5H0ewjvZf0EP/lqqYlhUYIFzUmW94c3v0LhCAVGntP47blrX3
-	dbhgsoQY2YLMvuhTSYxPZffwOpr+bqRnRU6IpYxMJYhGSa4WPtG/gNY1h51qNoHcZ2GeCCsWXEl
-	w7xepsyuWMGqX6vuYkhmL1CaPDZM6dlMQprJLCGasnGkO2zVpQLYeQ6Wos0xZ2mMkI4R0xzWrrk
-	hUDlp9vWOZ42zaTl6g6kysLkvUOkf5oPF85GKwom/Zj+WGsL3iQoJ4Pz6+kb94GJoDpVZkJr6aZ
-	NFHUzYT14dJZuacLrO5cGHfjZwEXabiC0nEuqd6sZjL4SJ9asTWGXhlW2lfGN3MGDqJVfy4AdXx
-	x7ov5K2JfOmvNYCQtoRbGCgk8TDN7EcbqG9QmIpSkJXV1e054A9QbhLxJLam0+sMjfiXPJE/X99
-	z9nJzs8JXxVM1yZCcKj3ULg2EdXjEjYwyigE/o5ojBJOYh5PvpM4Eu83/KPF9TUmu7SiG0jpXHy
-	u9rLJ8wYtj6SO98ZaXGO0kcgCWEHTWIN5cx7XhMaAZTxhDD0C+gNJ3OHZ/5mbk0ub/N4j2hgAZd
-	IrbXT0nIVvGe18iB5u49lXuZgxICsKqrkTFI=
-X-Received: by 2002:a17:906:178e:b0:c46:b5a7:5b29 with SMTP id a640c23a62f3a-c4ca7a50798mr780727266b.2.1793623472076;
-        Mon, 02 Nov 2026 04:44:32 -0800 (PST)
-Received: from [192.168.1.239] (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b4eca214fdsm3152504a12.36.2026.11.02.04.44.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2026 04:44:31 -0800 (PST)
-Message-ID: <bbd1ec87a9fff50b189f74cbd21e1d5bddf41136.camel@gmail.com>
-Subject: Re: [PATCH] HID: pidff: bound the unit exponent rescaling loop
-From: Tomasz =?UTF-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
-To: Shengzhuo Wei <me@cherr.cc>, Oleg Makarenko <oleg@makarenk.ooo>, Jiri
- Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- =?UTF-8?Q?Micha=C5=82_Kope=C4=87?=
-	 <michal@nozomi.space>, Paul Dino Jones <paul@spacefreak18.xyz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Date: Mon, 02 Nov 2026 13:44:28 +0100
-In-Reply-To: <20261029-b4-pidff-rescale-exponent-v1-1-3ba54accf767@cherr.cc>
-References: <20261029-b4-pidff-rescale-exponent-v1-1-3ba54accf767@cherr.cc>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.62.1 
+	dkim=pass (2048-bit key, unprotected) header.d=graspcomputing.co.uk header.i=@graspcomputing.co.uk header.a=rsa-sha256 header.s=livemail1 header.b=fWe1ORHP;
+	dkim=pass header.d=graspcomputing.co.uk header.i=@graspcomputing.co.uk header.a=ed25519-sha256 header.s=livemail3 header.b=pu+UXzMo
+ARC-Seal: i=1; a=rsa-sha256; t=1793624843; cv=none;
+    d=arc.gem.livemail.co.uk; s=arc-0001;
+    b=V7p0oBZWHuszYw6KgiGmEP6Wf+Cfl5mw3xxRDRCdtw3O2dO5eAy9WmGON0pQFW3Sht
+    Y8DrMA8qfCQo7WaUkz9lF1HLJPfSBQ3sdHqGR1m7Wn9P4zYytqw4NAaI+P+wW402zeEr
+    426sMYeDITcx/kZAnhC+qrGWz12GSi65FkzC2lznx5BL42bzop1gGmUomUioGW2wdEUA
+    +MWExZzAmLr1KekhJdb7iIic20xJIdjQ9KhWzhINeT0Q0g39u5yz4Vf7Ti2n3oNaGJsP
+    CPtjWWV4T4LrTu6jukcgkRXaZ3jlQv+2s56IrS0dN++nlck/8g2fuUJ7uVD+7DE+9z7p
+    IDBg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1793624843;
+    s=arc-0001; d=arc.gem.livemail.co.uk;
+    h=Subject:To:From:Date:Message-ID:Cc:Date:From:Subject:Sender;
+    bh=tlEeRbuREoaMkWVy+GMqAlZARaT7V8NUC9+oG+jQN+c=;
+    b=c6BjGnrfM9ZJDwg1NHZJWz0DevD+vr4LkhWxHX5UwBPPstyE4IgKuiHPaU2EyXNmnU
+    ElcV9iMKXXT2Q9VN+9r5Vz2yZSr1PoLM+O+nDFPaFnJV2Lhrr4ixLBnWCjbYBYlvKmij
+    A455yooUzrC3lB8WBXb3CBEehXmwHRU7o3ooHdxQXqig3rfbcjmoczG28OHWbXVQr6kZ
+    Nb5P4r2nWlRk5ASmpsMCOcf3DTpIKWby89Ve2hCj9V6hJVnqPCQX4OrMZOc5teO6grtP
+    NoYbMRM6U8F+GroyYVYor0rRFhgwz48dxeKIjbnBCIxTl2mESfriuO9qj61MAkbdggwL
+    feHw==
+ARC-Authentication-Results: i=1; arc.gem.livemail.co.uk;
+    arc=none;
+    dkim=none
+X-RZG-CLASS-ID: mo00
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1793624843;
+    s=livemail1; d=graspcomputing.co.uk;
+    h=Subject:To:From:Date:Message-ID:Cc:Date:From:Subject:Sender;
+    bh=tlEeRbuREoaMkWVy+GMqAlZARaT7V8NUC9+oG+jQN+c=;
+    b=fWe1ORHPelEo33jGCtg7gHiA3qSJCyPMGrIsHbiIVyeSDE8kCkaLOThogJ0e/8xlge
+    4cpqGPY6g1a3vf26WN8V1LeqKTQ+MFlrff9MKXe199GepLEIbxYnp6Bqsq8gdrNDdw33
+    VPJ9CcQtsHtBnb5T4k5ySaaJPfB9QxdT0c650Ys8etJITu6Dn29N8zhNB/CoA9HwkGSC
+    plGRF0BzKIbBaIEj/XeR68XWDjWhXliVTzo8WxBljtnekOcM3qLRvRRXRazpITKNKjqa
+    muWCu8zHwuG2aQ+m2D7UNxwI3er2wwN2AiE+GHSUtzCzclUlFFw0vKkTMN9UMrLDf5m7
+    6aYA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1793624843;
+    s=livemail3; d=graspcomputing.co.uk;
+    h=Subject:To:From:Date:Message-ID:Cc:Date:From:Subject:Sender;
+    bh=tlEeRbuREoaMkWVy+GMqAlZARaT7V8NUC9+oG+jQN+c=;
+    b=pu+UXzMo1mQ9kDfC9nQmzvsw5++F/wPzL5HyT+ZR8u/LnChIzPx7rzjBmbwX5nVHMO
+    ebu03VnaOul7Q+I8UsDg==
+Received: from smtp.livemail.co.uk ([127.0.0.1])
+    by smtp.livemail.co.uk (RZmta 55.6.4 n,-,???,???,??- am=0)
+    with ESMTPSA id Q000602A2D7N01t
+    for <linux-input@vger.kernel.org>;
+    Mon, 2 Nov 2026 13:07:23 +0000 (UTC)
+X-RZG-AUTH: ":LWAFe2Cvaf6AJrOqOUYmoWLzYqR0D4hrgYZ9YT8a83S7x76YuFHbMQEJh5iRl3fLNi5vFRKQJw=="
+Received: from [192.168.1.116]
+    by smtp.livemail.co.uk (RZmta 55.6.4 AUTH)
+    with ESMTPSA id Q000602A2D7N01t
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+	(Client did not present a certificate)
+    for <linux-input@vger.kernel.org>;
+    Mon, 2 Nov 2026 13:07:23 +0000 (UTC)
+Message-ID: <0f994e8e-4378-4031-9292-ed4edcb3b24b@graspcomputing.co.uk>
+Date: Mon, 2 Nov 2026 13:07:22 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,60 +97,76 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Betterbird (Linux)
+From: Alan Aspland <alan@graspcomputing.co.uk>
+Content-Language: en-GB
+To: linux-input@vger.kernel.org
+Subject: psmouse: synaptics probe silently skipped on 7.0 (Sony SVE1513A4E,
+ PS/2 Synaptics)
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Thu, 2026-10-29 at 00:04 +0800, Shengzhuo Wei wrote:
-> pidff_rescale_time() walks the device-provided unit exponent one step
-> at a time, allowing extreme values to cause billions of iterations
-> while ff->mutex is held. In a UHID test with an INT_MIN exponent,
-> EVIOCSFF took 3.1 to 4.3 seconds to upload a finite-duration effect.
->=20
-> Stop rescaling once scaled_time becomes zero, since further
-> multiplication or division by 10 cannot change the result. The u32
-> value becomes zero within 32 multiplications by 10, and the u16
-> input within 5 divisions. This bounds the loops while preserving
-> their results for all exponents, including wraparound.
->=20
-> Fixes: 8713107221a8 ("HID: pidff: Rescale time values to match field unit=
-s")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Shengzhuo Wei <me@cherr.cc>
-> ---
->  drivers/hid/usbhid/hid-pidff.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidf=
-f.c
-> index 22951b7ecd17..1a2fffcf204e 100644
-> --- a/drivers/hid/usbhid/hid-pidff.c
-> +++ b/drivers/hid/usbhid/hid-pidff.c
-> @@ -354,9 +354,9 @@ static u32 pidff_rescale_time(u16 time, struct hid_fi=
-eld *field)
->  =09int exponent =3D field->unit_exponent;
-> =20
->  =09pr_debug("time field exponent: %d\n", exponent);
-> -=09for (; exponent < FF_TIME_EXPONENT; exponent++)
-> +=09for (; scaled_time && exponent < FF_TIME_EXPONENT; exponent++)
->  =09=09scaled_time *=3D 10;
-> -=09for (; exponent > FF_TIME_EXPONENT; exponent--)
-> +=09for (; scaled_time && exponent > FF_TIME_EXPONENT; exponent--)
->  =09=09scaled_time /=3D 10;
-> =20
->  =09pr_debug("time calculated from %d to %d\n", time, scaled_time);
->=20
-> ---
-> base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
-> change-id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
->=20
-> Best regards,
-> -- =20
-> Shengzhuo Wei <me@cherr.cc>
+To: linux-input@vger.kernel.org
+Subject: psmouse: synaptics probe silently skipped on 7.0 (Sony 
+SVE1513A4E, PS/2 Synaptics)
 
-Tested this locally and works nice.
+Hello,
 
-Should we maybe add a warning to the driver that the time exponent might
-be out of a sane range? Sane range being, say, 10 to 0? This of course
-would have to happen during init stage not to spam dmesg.
+I'm reporting a regression in the psmouse synaptics subdriver on kernel 
+7.0.0-42-generic (Zorin OS 24.04 / Ubuntu 24.04 HWE).
 
-Regardless of that:
---=20
-Reviewed-by: Tomasz Paku=C5=82a <tomasz.pakula.oficjalny@gmail.com>
+Hardware: Sony Vaio SVE1513A4E, PS/2 Synaptics TouchPad (ACPI ID 
+SNY9008, PNP ID PS2M)
+
+Symptom: On 7.0, the touchpad is registered as "PS/2 Synaptics TouchPad" 
+with only "Capabilities: pointer". The synaptics extended protocol is 
+never negotiated. There are zero "psmouse serio1: synaptics:" log lines 
+in dmesg - not even a failure message - indicating the probe is being 
+skipped entirely.
+
+On kernel 6.8.0-147-generic, the same hardware negotiates successfully:
+     psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, 
+caps: 0xd00123/0x840300/0x127c00/0x0, board id: 1999, fw id: 1106483
+     input: SynPS/2 Synaptics TouchPad
+
+Kernel command line (both kernels):
+     i8042.nomux=1 i8042.reset=1 i8042.nopnp=1 i8042.noloop=1 
+psmouse.synaptics_intertouch=1
+
+dmesg on 7.0 (relevant lines only):
+     [    0.330668] i8042: PNP: PS/2 Controller 
+[PNP030b:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+     [    0.339382] serio: i8042 KBD port at 0x60,0x64 irq 1
+     [    0.339393] serio: i8042 AUX port at 0x60,0x64 irq 12
+     [    1.589259] input: PS/2 Synaptics TouchPad as 
+/devices/platform/i8042/serio1/input/input5
+
+libinput on 7.0:
+     Device:           PS/2 Synaptics TouchPad
+     Capabilities:     pointer
+     Tap-to-click:     n/a
+     Scroll methods:   *button
+     Click methods:    none
+
+libinput on 6.8 (working):
+     Device:           SynPS/2 Synaptics TouchPad
+     Size:             96x52mm
+     Capabilities:     pointer gesture
+     Scroll methods:   *two-finger edge
+     Click methods:    *button-areas clickfinger
+
+Notes:
+- No SMBus companion (PNP ID is PS2M, not a Synaptics SMBus ID)
+- rmi4_i2c is not present in the 6.8 modules dir; no I2C touchpad detected
+- The issue is intermittent on 6.8 (cold boot sometimes fails, manual 
+"modprobe -r psmouse && modprobe psmouse" fixes it) - suggesting a 
+timing/race issue that 7.0 made worse or eliminated entirely
+- No BIOS SMBus access messages in dmesg
+
+I'd appreciate any pointers on where the probe might be getting skipped 
+in 7.0. Happy to provide further logs or test patches.
+
+Thanks,
+Alan
+EOF
+

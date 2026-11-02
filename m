@@ -1,73 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793654102;
-	b=Vl0jbq1YddNvBA8YmyzyA2STUSMZ4etYWnNi7jt1lpUo7xCEFcYuJjmDrQZuARKh/2tb
-	 Bgb3q01PgDlIKi2a11DWy4HSgXq222cHQTcgZSPQDzvxV2q5CZ8+VricdF3am1uwHQcwv
-	 H4Oc2AVCGsV/TjGKtRfW5WM654xKLKyc4rKw6C6TkA9JqHTCBC4J5v+LbGz3ZbjfZF3Ru
-	 uJ+1TwPV6/OrKDvv2uYKrfE4ZhSuKbnVIuB+FpQ/fE25Cg1hd6qzm5r0eecIbGkudbCer
-	 DZQnE3kFQ+aJXeXlCTdkGhXBvnSCqB7jNJVF2FiwkFGDpYlhMjwUwOB2Iuu0M+f739Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793654102;
-	h=Received:DKIM-Signature:Received:Received:X-ME-Sender:
-	 X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=IboT5prE1F2zgLUjN3M8JJkwTsSKYt9w9Q1ZY5Lm5jE=;
-	b=hLYDz3PA19h9Y9dZiVnP5KwgeXd7vQh2nzZMMsKtGA4/+GXfXVeGyjgmnJBnNTyKGs7J
-	 CHvEMMxiBaFEd6reHxQ0goHYWX4Kz5PPYb7te+xj5lQLdKORtElHXzr6T3uCZXsLK8P8C
-	 b8praB0HyoY1n34SYZZcwGOSC+x7lsTk2gBBo5m3IZLJfwUQmMl81Q87wbeXNlba92r3/
-	 7oVKzyXOCAt/nuDAXFsp3JHi60/Jxt71HS33yRdxmND3M3hbuMLJD4OglFZZE+Nsl6xD+
-	 m4CbrgSgL+Au+9CGoMp4d3X/ZuUC5+OYZm/nOBkbkHjF3GPqz7Dczif4TUKQT7iZRAA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="i4XS/+Qp";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.219.42
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793655151;
+	b=yJVUZ5jK8DhgH8VqASSvRzNb4+UZz5pLaGAF0lKc6lSNRuaFjf+DJHpBthVPb6hM2nI+
+	 a3AtXHp9rOKOrD4Gt2n0O3ZCzEhqLe71oYT+sQHciPXl7mOGsM63nfFaDPN9/cznuPlEL
+	 gLogO3fVrZRrxUXevHM3L3C5yk9zLm8EfdSU4fjtMrtdumPM58uqSlksmhqNoj3Xv9C5L
+	 y/fYwSEKWAvbs2bY0CX/BbXo7k4zeFTqsVThNdpze17GOPcB/ap5nsCO1joOCiQRhMqEs
+	 NBVar8ShsN806QOhToegzCzYM1RbD6+hjGSW+pYnrUtnyFaGsGRU+DbdQ+n83sPkw3g==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793655151;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=Dy/3+y6cTy46fWlcbVMD558vn7aro/Q74xHtkgWN7Dg=;
+	b=qp+SAY4BZNbwJ6vyXGd+k0SjByj5MfQcu1oOAipS61wDWkJhOLmvvttwfweSjEKsVU95
+	 nFwynuKMppBFOmysbEQxfBpRzsCs4I2JJ9t9YX92LAUwZZMJZSsgCGksx7+rYuxXqZstD
+	 OvNdZQB4wNg+0DE9IYcRPC4v+WaG8A8J6cqUSKsu4WAe14Ap4+WqcyBpDvc8+IXCGOxDW
+	 NHr/zTBFFlgddKOg+2+3vbK0oeDVi//sOeJTleuKLa7PInBwFlD3QJEJb5Hy7V4M0g6CF
+	 bO7ySO2GUta42vXhXPENwRkJGQBtpV4zp8lyoOej4bWgvhb04EZTOEHY7Hjp1cafQlw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OJBl9LUk;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.219.42
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC7B8606D834;
-	Mon,  2 Nov 2026 21:15:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6FC0606A329
+	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 21:32:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A6FC0606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i4XS/+Qp
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 405B91F00A1C;
-	Mon,  2 Nov 2026 21:14:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793654101;
-	bh=IboT5prE1F2zgLUjN3M8JJkwTsSKYt9w9Q1ZY5Lm5jE=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=i4XS/+Qp/XJpkpHyhLatkkxrTnb76H0AyrbluP9UrYsSjjvFvYed65zWeP+n5bDMR
-	 T4jrppxwRxmsiUoLJtpEDBZOQUgSEb2I7JAqNJICoUtmRZqGDSr+AkbMY5KraB9hcp
-	 LJSetra0CCoguNvIXys8kMbF38qG79C7rZIljzi9OxsucTBr2qJtAKy2hNxphivV7X
-	 SqR7z4TvF6OS2jxQo3eWdNU0GD2TA876qUhcb25obxs7Qa0hq+gMR1c2AKZ0TYfXxl
-	 /PRnwvUkfYbroZLwoik/xUkslivJlp+q60cSPVqp80BDXlYt0jmnPbIlU0+2JbsucT
-	 rjIixFbj3/TrQ==
-Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 3FB84F4006B;
-	Mon,  2 Nov 2026 16:14:59 -0500 (EST)
-Received: from phl-imap-15 ([10.202.2.104])
-  by phl-compute-10.internal (MEProxy); Mon, 02 Nov 2026 16:14:59 -0500
-X-ME-Sender: <xms:U_3oagUAPKL0KahIhejOYJwKEPfYb6twqYG_HHugM7_eLn8Er-TgPg>
-    <xme:U_3oavZTuzGHMfK0qXbinG0nc7CYskrIhJQ5eHOz_Ha7XvQtwnXU_T7hJPsGo9qg4
-    BhXiwA3Pdzj3QiIOE4JzHYJnc55BkwZtZcinLkFBcrDsA6sylLxQvo7>
-X-ME-Proxy-Cause: dmFkZTGSCWblgfsMhzNjEIN00ph1bmXztXGhYrK6FQCSJysx8m5mqsCTJHkCuZD0tpZuBG
-    pYnx6qST1krVMCyjpYhoMBo2TltjSYVP2LKGOkZnOBb4t//k/nGoJ/SIXKKJyIATQl84il
-    BuXRlRV3aPeB88TAd/llIDq/9PMZ1EzorVjUV4ox06mXS/IOKUqdbOTFcr2gFtJFq3Gx7F
-    Zq0nEujwlkDiPcDOX28riG6oQW7iLTgD6BaMnfnV9H0ADvTknFe8adm4EFa+o6I1mSuG3K
-    LJ3epAVfTBg3DuzNRu88aZuYWYeuI7KoVJah/eioVIkx6sAoHZjqyTVRvcNhYqHYgvNdOh
-    F7RoapMXPpPy7fnRDGp1EnOzRafp7mYLbQvUWevKonPpL0zVugnrni/xwOB0ZUdq15K6LL
-    U4eIWAyGEDjfaCYO/Dppo1HoBBuP1Ugp4Zki+kXZHcTkA1gjEQVaV70KrwrPcut26vPd/h
-    q5yJSVyn3x/Ch0xklWbVCXPbWoaIS17brwWPL/guaVzJxizQ0P/jgX0plm53NXTsLd+70V
-    110yVl467ZsRMKGBWdC4JnWQHbcxAMHjeZkhkyAsfOuCVSLebxwzvInrQKLcoImyb5UwHY
-    pO0Oc+d4/j2oJCRnrCOkOe51eLIclfMVgyBLq7y/6qqZiV8XA97NvuTzr1lg
-X-ME-Proxy: <xmx:U_3oatxqYhX0hWpcSGJgdTO64UmbQLn1zkSvkgmn2QN3P9YNu5WJ0w>
-    <xmx:U_3oav5HgW2k6KeJbHXAdQUNPTjXcBKAkESvLUwa5JME7gNZc5c0tQ>
-    <xmx:U_3oasSgNqIt2BaGeBZ12VcERyFoy0lpk1cdl0eiT57vWKlvWpphXg>
-    <xmx:U_3oaifZ0cTDaYHT72Jch7KjTqrgvVpyqwgckwFzCeMt7Uwl9HyKaw>
-    <xmx:U_3oapwU7EvPML2sBaImLYgTk9SsDSGibfYemkcHEOBIYG1GVrkdWT-b>
-Feedback-ID: ifa6e4810:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 181AE78273B; Mon,  2 Nov 2026 16:14:59 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OJBl9LUk
+Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-91befbcad6dso61939866d6.3
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 13:32:30 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1793655149; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Fg/+UAhAmnHsDziPB1itl6XWxinAbChIh2nwBz8ju6eGvRnFjCwIf2lQ/tjodWIxdz
+         o82XXEG20HfB4MqBNINnGVsnw0uzGz/Mmwy+MpfULE/a1yaY5y9FcjYoPoBghA10FdZu
+         u8bhKBT5lHUWnKwNTeqLwcNeXjHT+I3HEuQczr7EfHS4mRlVyIF7WvyKd46iy6LEwl5O
+         vsx6u2mXa5ZL8ZOk07UZ0gii2QGdkAifRlngkBDf3dZo9zHyLT8M/hS4hiyBEfPn8kR3
+         cZ9woy5c08EN9Y9P0tvSkU3FTXemvoRxplGDufcqKw9i4GIvlQGvq95D4b3TtddhSefR
+         2imw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=Dy/3+y6cTy46fWlcbVMD558vn7aro/Q74xHtkgWN7Dg=;
+        fh=SRmO4pO8VF+uL8FvoYqQiO4TG92QyOdmQmzeKm+zFfU=;
+        b=qgYCGWSYPKXW0voMOWzrPzqVbUf+zQ2HuFkRzF5cKp4Vam5e+0uUQ4ICcha9mladvK
+         6hTuEK5okcNbnHdg67SFkmFrvg9A4KcSO7KqFP0hk9BFiFkiACgL7eWP94SBCnG/XRL4
+         RrxOWKNRoXdal9lXdQM7D0b7BgWJ276OZt8viRJ/KwOV6BLdDIkA+97gr4ZD/+9FkiDc
+         6JRjvssox3xcHD3hbIBp4U20Ga8OnM2mpKm/ODPcOZv8kDnO93QqNTtpa5v3QMzXyU2J
+         00AtujJTKtsH+jIP0KBjIsDUYuEiC5B5WOEBqlo9jxZzh610dW9jB1LaRans5+CKS9Y7
+         U/Mg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793655149; x=1794259949; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Dy/3+y6cTy46fWlcbVMD558vn7aro/Q74xHtkgWN7Dg=;
+        b=OJBl9LUki163v7WEot8KNBkz+ZyHxB3U3PZWOzUQnqU1C9gwNWqMqo4ep2zJTiF76E
+         H27U0U2Y2xU1edkWPvCXKNlTdh7FHNvP6iPCbdbi4N485mFhvwTigF1MWvhKjB3dtraS
+         rVPVpUnl8PFkyNlD5j8BF8pdDkAdWyttJ0cI7ax1saMKaIKfFduWLBkxscuo7Xjswgmk
+         KWgTFFt3DNYb1YENzHWh81+7DLhh4cD15nS0R0RZswSSg1fEUniAiObyXCdPXUw4E70b
+         LdyxMtqanpWwzAvoE/TOYetmETdsu/uLnQujF+lPJWE/HBU7sdTJaZxo3v+UlCUj6GfD
+         Y9kw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793655149; x=1794259949;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Dy/3+y6cTy46fWlcbVMD558vn7aro/Q74xHtkgWN7Dg=;
+        b=wky3dl4crKDAyD6wJa5exKkYVjpPfjiPWO1Pr4VWXyPHfzZUxhhDYTFpgE7Ds0FYp6
+         wfZbhf23IOO4JBl9Lk7uiwtFObmDUBSKV0eVHLKZHgIK374BmCPNW9kRCEAAwcH0DhTU
+         NYiYv0MjGy5sOJ/rZKiZylTBHCMB6drux/Q80IgG5zivHSxCCor0+VrKnlyRUKsajuTV
+         5fL3IMz0/ConspH5VkYwKR9LeGfWMdjeCeS0+3riHpYCKwT1KihNSIpdF3qMcIhw7+j/
+         zgmzt7e8d6XEibuX0pfJUQMIa+nn5c3KEE46ktJWhPGDZ6ZTcdQJ+dJlTaBsmbosGnMs
+         fFFg==
+X-Forwarded-Encrypted: i=1; AKwUvBwXXiL3hEZ9af7wUjXhDp9udXaVOwBJxR7UMR4FLPwFBz7KwUUwc3Jwdna23Fq+BNuf+GwTffwTCUWMGQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+3L+2I+0vOWmtT7yaXhSj+ZVH8fix1SNARKoED6ioQFW02qdaY
+	n58d7lGvF3UpoRBjj0wIhOJePOXQp0rNodgNHIjIHzkcmdIHMB13hyNPy0rpKgn6rDnGHxSTUUs
+	VsADpjhF0r2sv4GZ+SgvTdh8qD2uDG4Y=
+X-Gm-Gg: AYBFou0iuiqtIbKufJv1DV0uSNsFiAjFt1oJLfff2l5uffgvghSekhMckfi049uHkFH
+	ALAgyq+tIfbLoGDPLT5rNsKfUmictkooBwOF1hl4mMOfRbscYYXmSIsLz4tOviGOlwrB4xLoV0R
+	lbB/Ia8kLf9EfcdTvyHKb6W7k6FxxlAhNB7sPcCpszoIjeg7K48dZ7Ui9rw0/e6nNNxYIHVp3+y
+	3un4+t06Gjqmi71aZjosENucmWe7WtjtgMLgZuhjkblXiRhGb/TV/ynE5y9y1LqGT4Qt5ZfhwXh
+	DInLQABGGMh+FJT9XwanF+vhdYZFu5uEcKM5EIOlwKDS0A4h46JsYSmkhGII06hisUAX1Ylf1cL
+	zYrDdouzXPxPpZYGs5LMmDsohC6gP3T36PrzquWi0wwOjvZ72xK+uGShluQ==
+X-Received: by 2002:a05:6214:2403:b0:91c:a2b0:dd0d with SMTP id
+ 6a1803df08f44-91ca4ae1111mr177407566d6.17.1793655149330; Mon, 02 Nov 2026
+ 13:32:29 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -77,61 +104,83 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AlKaHQIBeldV
-Date: Mon, 02 Nov 2026 16:14:38 -0500
-From: "Chuck Lever" <cel@kernel.org>
-To: "Christian Brauner" <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: "Linus Torvalds" <torvalds@linux-foundation.org>,
- "Jann Horn" <jannh@google.com>, "Josef Bacik" <josef@toxicpanda.com>,
- "Chris Mason" <mason@kernel.org>, "Jeff Layton" <jlayton@kernel.org>,
- NeilBrown <neil@brown.name>, "Eric Dumazet" <edumazet@kernel.org>,
- "Thomas Gleixner" <tglx@kernel.org>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Jonathan Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>,
- "Greg Kroah-Hartman" <gregkh@suse.de>,
- "Joel Granados" <joel.granados@kernel.org>, "Kees Cook" <kees@kernel.org>,
- "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>,
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-s390@vger.kernel.org,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org,
- "Linuxppc Dev" <linuxppc-dev@lists.ozlabs.org>, netdev@vger.kernel.org,
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org,
- coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org,
- linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net,
- jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org,
- linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org,
- linux-sh@vger.kernel.org, linux-usb@vger.kernel.org,
- samba-technical@lists.samba.org, sparclinux@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
- "Takashi Iwai" <tiwai@suse.de>, linux-input@vger.kernel.org,
- linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org
-Message-Id: <961e7e3d-2117-48ee-8a7e-a7a851ec8ef8@app.fastmail.com>
-In-Reply-To: <20261102-work-procfs-fs-v1-6-d09a996317b3@kernel.org>
-References: <20261102-work-procfs-fs-v1-0-d09a996317b3@kernel.org>
- <20261102-work-procfs-fs-v1-6-d09a996317b3@kernel.org>
-Subject: Re: [PATCH RFC 06/27] nfsd: let procfs own the seq_file of
- /proc/fs/nfs/exports
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+References: <20260927041138.4112920-1-jinmo44.yang@gmail.com> <20261024033040.316652-1-jinmo44.yang@gmail.com>
+In-Reply-To: <20261024033040.316652-1-jinmo44.yang@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Date: Mon, 2 Nov 2026 13:32:17 -0800
+X-Gm-Features: AclHuK_Ep6UP7A60iM8FcMVyZcPHYDAlQGKDcoV_PVYPLMetFNaYY3L4D27BGc0
+Message-ID: <CANRwn3TaYNa-i-c-1AOdPb4HVS8otBhFUkFbMFPnwzeKKwHcBg@mail.gmail.com>
+Subject: Re: [PATCH v4 0/6] HID: wacom: guard against NULL input devices on
+ successful probe
+To: Jinmo Yang <jinmo44.yang@gmail.com>
+Cc: ping.cheng@wacom.com, jason.gerecke@wacom.com, jikos@kernel.org, 
+	bentiss@kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-
-On Mon, Nov 2, 2026, at 10:07 AM, Christian Brauner wrote:
-> Declare the seq_operations and let procfs open and free the seq_file.
-> ->proc_open() and ->proc_release() only set up ->private and take and
-> drop the reference to the network namespace now. Reading the file then
-> no longer holds up its removal.
+On Fri, Oct 23, 2026 at 8:31=E2=80=AFPM Jinmo Yang <jinmo44.yang@gmail.com>=
+ wrote:
 >
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+> When wacom_setup_{pen,touch,pad}_input_capabilities() returns -ENODEV,
+> the corresponding input pointer is set to NULL but probe still succeeds.
+> Subsequent irq handlers dereference those pointers unconditionally,
+> causing NULL-pointer dereferences reachable from a spoofed HID device.
+>
+> This series adds per-function NULL guards across all affected handlers.
+>
+> Changes in v4:
+>   - wacom_intuos_pad() now returns 2 for the normal path, 1 for the
+>     NULL-guard path; wacom_intuos_irq() applies "result - 1" uniformly,
+>     suppressing the spurious input_sync() the old "return 1" would
+>     trigger (Jason).
+>   - Added pen_input NULL guard at the top of wacom_intuos_irq() to
+>     protect its helpers wacom_intuos_inout() and
+>     wacom_intuos_general() (Jason).
+>   - Added pen_input NULL guard to wacom_bpt_pen() (Jason).
+>
+> Changes in v3:
+>   - Fixed wacom_dtus_irq(): DTUSX is pen-only, so do not require
+>     pad_input for it (sashiko-bot).
+>   - Added patch 6: touch_input guards for wacom_intuos_pro2_bt_touch(),
+>     wacom_24hdt_irq(), and wacom_bamboo_pad_touch_event().
+>
+> Changes in v2:
+>   - Restructured per Jason's review: per-function checks for dtus_irq,
+>     graphire_irq, and the Bamboo handlers.
+>   - wacom_intuos_pad() returns non-zero when pad_input is NULL so the
+>     report does not fall through to wacom_intuos_inout() (sashiko-bot).
+>   - wacom_intuos_bt_irq() guards both pen_input and pad_input (Jason).
+>   - Added dev_warn_once at every guard (Jason).
+>   - Dropped the cp2112 patch (Benjamin prefers Dmitry's series).
+>
+> Jinmo Yang (6):
+>   HID: wacom: check the input device in the shared report helpers
+>   HID: wacom: check the input devices in the legacy irq handlers
+>   HID: wacom: add NULL input guards to wacom_intuos_irq() and its
+>     helpers
+>   HID: wacom: add NULL input guards to wacom_intuos_bt_irq()
+>   HID: wacom: add NULL input guards to Bamboo handlers
+>   HID: wacom: add NULL touch_input guards to remaining touch handlers
+>
+>  drivers/hid/wacom_wac.c | 127 ++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 122 insertions(+), 5 deletions(-)
+>
+> --
+> 2.53.0
+>
+>
 
-Acked-by: Chuck Lever <cel@kernel.org>
+Apologies for the delay in reviewing and responding. I'm happy with
+the series in its current state.
 
+For the set:
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
--- 
-Chuck Lever (Come to NFS bake-a-thon! https://nfsv4bat.org)
+Jason (she/they)
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....

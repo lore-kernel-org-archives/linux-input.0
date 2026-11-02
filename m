@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793605537;
-	b=Y7248MXOzoZko3zQeAo2mnkQYaosQRydxUSFJ01QBbXx5hBzgG7El/BKydUWMipapsX1
-	 YuTyy0MxxsJywefkGFPIW8y7+7VrZuyPJfeOMzer5G8dhEhXP6aWPxXQX8pLcsluzm2LL
-	 xZ51z3/lw0QirVcVTDPGPbrC5/neRvmZETKSMgEbwy9ZIJMmux7tzr/IWzqUqgfEPuBWo
-	 cKTtVrVu2KfoTXVYgmPN1oL1K0vUM+mwJT7tXJRiHkcZnCq1FK2LtjFEMZIVLF9G0ZI1P
-	 AjF30xViWQYup9mpoupRf4sKHG11ng/u4wUe0Oa9y6o+tBxvfQNrgMcqmSfh55G35RQ==
+	t=1793605716;
+	b=JET6WWxU6rDYomU3/bTRCgT7rVxYNe7wScb59ygu0fHSc5CYNs1uuhnZWObRHmeaWa3e
+	 fJa6E81YWzceSRg5tH8iRYhNJr1C1Syf3sAhn1IYVez2malBuW5ElpMXjgYdGzjEJwdqD
+	 gw3eKhbCshe/N90iMZdRf5KOCbr8aGvyUkduSSc5k8vj5iBOJSE/HEk/l8UyJcqIvA8tW
+	 IMM/eSZOZkW70+tllR74BefMTdx0xHyO5RVAXmO3+rMsQAHQRtWWlvWqyYpbsuEGr2+c1
+	 T0piAuDw8nOThWSPdnJC94V47fvYArQjBUeYeCoJI57EgHSgx0qR/egsAXyI6GzqgIg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793605537;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793605716;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
 	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=rNLFtKEPB1Fui1lARc25zwjBP1SgCWoDsJiIweYWhk0=;
-	b=o63LeK1XsZki05lwvKZhgC2+4RGNR22TTJAiwNF8XYmlLV/v3W7ihQUtW/aS2JnMqIpT
-	 YOEstgcUxFghh1GKDRF6TevCdwyiL3FK7Ytz0fxLxfyCr+stLl5cIj85VhOLm4hutf55N
-	 m2S9rnJnvybRafzQFFRrn+0tqKYPNCZ/an1JN/iPBawVam1omKfY0UpL3C/ZHE668wWcp
-	 fcYK5u1IqWT+Ouyp7zA+8MrOhgwXiPbVxFNhVtiCWbT+/W5G3kcZxP/032/DgjHpadY0D
-	 yLMMRNeLV5/Z8k16N6xC7FeXLNT59oSwnbfAnErpCJb40o6xDO1ZYvTLWL9dQ1UfwNw==
+	bh=nVQ8uQ8EBtB66FVkdkeahhd5McyzCUW6GqWt7KinKNs=;
+	b=Sg/WBaHlCsPEHvtXfLmJ+U3Ku469wfO+03y2DZzD4CtjAeRR9SCU3/MpCzgaN3EO6SKJ
+	 e9Ur2kQcrO/2CmwccKnZQBB+bLtIlbTT7EAIiiCoAPj+hNTt352/XGNZMDIKH7q3R3Z1x
+	 wKXrRyKSVhhoxIX+BwlL1y7ytXzxUyInsM9pRMYjy2Q6gJpUuE2PA+v+3+GXc1oBoKYD2
+	 IZBlMeKZY06tLYSl1bTnfMND5Pt9bxgz+kQTc0pEqfEzMY3AE3a9xKsYACc74mEUtZbFa
+	 YCm3xsWArv5LAc3jt/msxok3k8KsCyyAsI5yWbqBIwwCSnzRusd/D0Q8zgPeQGH4Hog==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PKmJRlxh;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Pklyxlag;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE55606A329;
-	Mon,  2 Nov 2026 07:45:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79251606A326;
+	Mon,  2 Nov 2026 07:48:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PKmJRlxh
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 058221F000C1;
-	Mon,  2 Nov 2026 07:45:36 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Pklyxlag
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 619C51F00A17;
+	Mon,  2 Nov 2026 07:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793605537;
-	bh=rNLFtKEPB1Fui1lARc25zwjBP1SgCWoDsJiIweYWhk0=;
+	s=k20260515; t=1793605715;
+	bh=nVQ8uQ8EBtB66FVkdkeahhd5McyzCUW6GqWt7KinKNs=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=PKmJRlxhjUN4+FXCVR+nLcRzXVYMPh6XmvvOmLkQl507NH3pJ9igSl/sxu1zt0Mba
-	 FFsjLF2cdMR0iIfR8r2jb03qvEPkLVBBnBzQAd1o2pCmXz0/w8YwsszUEamdQCKfid
-	 GBpTcaXvGjw82jA3x+MRFJNQ43IMou1i41rcpLWMlN5E6pSZIb2N+ylgICw1B6LinY
-	 1ezU1IO1svD8akn6RObmGfkY+UQMDTUJMPWGZ5ruOz92LaU9ABSDWLYsjmzsFJfUzo
-	 8mzOFHnNaCL5HXkRqPHwrysDQwRCYPMUeiHVk23R1EsUu5AKR2jEAFOLzvhD7PZ1ZB
-	 Sxo6QVLotPbWA==
-Date: Mon, 2 Nov 2026 08:45:33 +0100
+	b=PklyxlagO6tQm2cVGswU8nU4eOuTBHos/OweD9u3f/ca41Lm4iCyJbL9U0qxRikrv
+	 yWIzLO0cmC0d3VFz7QKkFx/ZpZyze+NuakSCqqTiQncEkJzAYycdkwXah3+Ak6jbLn
+	 ydjJSC/rhs+gzXiXIlcAT2zsnnqDq5A6KF54Bzm1Yjt5j7Z3I4Gh0vwikrkrcafJ+m
+	 vGIV+APXdN+V5kbITNlGnC2StM2e37BY/UJ1Hv3oC2jCUQJgnIr3tsubFPEdwx9kYi
+	 THAeVc7SUobHqUdx9NYyAUxKfaMB31YgcEPaxZxODLGkzafDxC82RdKtEwT8Sw3lzs
+	 B8rW6g7YgU4Og==
+Date: Mon, 2 Nov 2026 08:48:31 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Muzaffer Kadir <muzafferkadir@mainlining.org>
 Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -63,11 +63,11 @@ Cc: Srinivas Kandagatla <srini@kernel.org>, Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, iommu@lists.linux.dev, 
 	linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org, 
 	freedreno@lists.freedesktop.org, linux-remoteproc@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH v7 08/11] dt-bindings: remoteproc: qcom: adsp: Add
- MSM8952 ADSP compatible
-Message-ID: <20261102-first-ambrosial-urchin-3a4bcb@quoll>
+Subject: Re: [PATCH v7 07/11] dt-bindings: display: msm: dsi-controller-main:
+ Add MSM8952 compatible
+Message-ID: <20261102-blazing-tortoise-of-vitality-6f92cf@quoll>
 References: <20261030-msm8952-initial-support-v7-0-ad748ace375d@mainlining.org>
- <20261030-msm8952-initial-support-v7-8-ad748ace375d@mainlining.org>
+ <20261030-msm8952-initial-support-v7-7-ad748ace375d@mainlining.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -79,15 +79,15 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20261030-msm8952-initial-support-v7-8-ad748ace375d@mainlining.org>
+In-Reply-To: <20261030-msm8952-initial-support-v7-7-ad748ace375d@mainlining.org>
 
-On Fri, Oct 30, 2026 at 12:02:39AM +0300, Muzaffer Kadir wrote:
-> Document the ADSP remoteproc found on the MSM8952.
+On Fri, Oct 30, 2026 at 12:02:38AM +0300, Muzaffer Kadir wrote:
+> Document the DSI Controller found on the MSM8952.
 > 
 > Signed-off-by: Muzaffer Kadir <muzafferkadir@mainlining.org>
 > ---
->  .../devicetree/bindings/remoteproc/qcom,adsp.yaml  | 31 +++++++++++++---------
->  1 file changed, 18 insertions(+), 13 deletions(-)
+>  Documentation/devicetree/bindings/display/msm/dsi-controller-main.yaml | 2 ++
+>  1 file changed, 2 insertions(+)
 
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 

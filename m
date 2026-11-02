@@ -1,49 +1,105 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.218.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793630838;
-	b=VFAwIfkApgRiSs6NFKFS8lrdH7jOaHFWekZouMDMCfe/UhNSkg5ml0izoeqh1xbLLZo1
-	 JY1wxfXyiXD8PEvLGBOg0TYjqpCObbW5S9loQqe0i4VlO7e7SF6In+MglsjW19gotElew
-	 Ic7gaPl5KtsXf26+AHswPLOsexMAXXrWJC8SSht2erBDrzBhML03uOyrBEvcoKUxi9PF4
-	 J2cqNobH8dRr1Ae18ws8SD4wcxreFvTPDWAfhMKHYTF23EDXVEysENWusXqrBvRpioUCr
-	 cl5XKzfoaMlw2poQbNk7Depqk6DqsKPe6znS6cIEdMDrIRuEnKvmcZAWbpmIsaDbPAA==
+	t=1793630857;
+	b=3qkog7jQDGsRROPY/ANWC6DfdjiKCDwst3Nf/09RO/ngrQ3LnX6WIKW0udQ0xUtkpF11
+	 9hcLbFJTBGQ4ZU4ViWBr7Z1PVQ9DfIRpjU3mdkDyKbPWvV1Yn3JYGFF8Ey2VfOFH/H2mF
+	 fPbxzQwBL39GtxfSxSDSb6v3rr+kaGZ8LTG0ycKm8pvQeunxX7B8A8OKH3iADH27QNGV+
+	 YFVTtXv6jBBsxpbicRWODBZc4UirZ4ahHIQS+nj2456qPCF96vvEn+42jRaHKuAC8u3YW
+	 0ryepsdrjMgLk2Djt5hztJMwFUlIQXHUyt2cQYXZGDaZMBKWjhVK26ouJB7Uux1zoWA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793630838;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer;
-	bh=HVagn+HE6BgGgxgbr+5XC5Y5Qcbb33m4Jb7EnpZPFUg=;
-	b=OOrX+5RutX2ZUn/YCZrMWgNIS0lOl6SM/TyDyGz2Dz0dWKU8sLZpgoHrptH+UlHTnyRr
-	 LZjay4Lt11J6CyFxAOPRBh9Xtc8amh5FTqB99zYy7mZPoPvo4otOt6UXxFI2DXPIYq4cE
-	 vehG4VkxjGdeMi1I1l+ulnYQFgY5/RcUG9pVZ90z7Qqy8YluakNZhTSFfNeu9hyEMO7tI
-	 sZzoDgVGw8UhK1GCHSllPQSBl1LNN0mY7w71Ok0E/FoOUUrQvV71egAiB0ygNXfExrRlB
-	 ni/qgu3/eE+nnBcAjMm/Q/fEj1NVXznLf/IOkgmNt0+xRm894m4eifFskwXz7wapfOA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793630857;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Disposition-Notification-To:Content-Type:Content-Transfer-Encoding:
+	 User-Agent:MIME-Version;
+	bh=gFxWaAr4e8pvWdps+x1ea8YchRLnBYcg9irtyuiJvGM=;
+	b=OazpXlyXQX05DXXp4c8tydhXUZUBJHetftDbojvgH7p+YDK6Q7JU+n+VfWV5HH6jyTRe
+	 Gc2KjLka86dcoQr94YnQrdrWrLSk+IDUyx1AyuiTXPka0gRk9GSiDFaDrZ1VAFduZF3EZ
+	 UlKdexAnA4d7dqGNVMLKIpfqsc36PdHPS4TA8hdYFu+2WYbh1siT6AzxJh9763HCOhJjZ
+	 8+ECUIQhRO1fJI2zF6nexuOQZrK4o7KQ5T2EDI3I4FHR/+h6va06m6FrZVAgkA3krel4Z
+	 oubEhJ56kquUNbMGmIApN8tBkeYe6mZioJN+o0+7Rjd9BbsYcWUGFl6p08kX9zjf/Hw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ZfP/Kahw";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=vOOwiHKI;
+	arc=none smtp.remote-ip=209.85.218.53
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F39186070CA8;
-	Mon,  2 Nov 2026 14:47:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A7D8608361C
+	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 14:47:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3A7D8608361C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZfP/Kahw
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26EE81F00A1A;
-	Mon,  2 Nov 2026 14:46:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793630833;
-	bh=HVagn+HE6BgGgxgbr+5XC5Y5Qcbb33m4Jb7EnpZPFUg=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ZfP/KahwDm10wm2TSGrtLVkg7xDUNnpz+rBBaInyM45cZNagos2iYqnrDed5HxIBA
-	 K+//mFWxDsWpOWe9Buj12+quSzkpcQzj2ngYZ9ZsEW0oSIiCRi7l1s6PLMfANxGQPz
-	 ES6j9Tp68ZCoex9QLLCdMUr2RP+/gA7nMafoF8zKWkoSoj6HU61hIGfIek8HtzVsMz
-	 WP7zxeoWb2ywthOOE6hEK8rHNlm6c5T599z/Oyvz7z8nNJFpq2Xxjua62S/Ez/3caV
-	 aKvdxGOQzTpkPCeB1AmIzk8MgvSvtRVAT8gs8GThhJQslYhMWBFvphDQuEoGKj/fJB
-	 b5NG8uh8YTrhw==
-From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 02 Nov 2026 15:43:29 +0100
-Subject: [PATCH RFC 38/38] selftests/proc: check that a faulting readlink()
- doesn't hold up removal
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=vOOwiHKI
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c2af2ae1258so63533566b.0
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 06:47:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793630856; x=1794235656; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=gFxWaAr4e8pvWdps+x1ea8YchRLnBYcg9irtyuiJvGM=;
+        b=vOOwiHKIig3GV4B3RMpyXaNnJvZaW5WHqMXuZALmn7YyIgw0aneM5TYWVq80XIixV8
+         u6RJ5fNn41M/8veQNr5jwps5Ukj8gbzp+KDPFKohS+eLwVXBvdV2KgVdB2NE/Xr6mMEv
+         IOSwnRj0EH2SiqK6YOcEsUKaKvoP7KgasR2XVmt47RJox7gaPctJublgkpgb5eWGZPFa
+         VxRmjb/10Ns7IOqFCEZg4nXBN9kF+/fZ6DDi/FlUD74LsAHY6q4rm+kUcYUeVDdcDGKv
+         KALPkMWB5q0tNLogDjZHsJVT4/wzvBadCiJKYDJhkt9pDx/aS29KY4Pwl1MNLVnUh65X
+         o0Jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793630856; x=1794235656;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=gFxWaAr4e8pvWdps+x1ea8YchRLnBYcg9irtyuiJvGM=;
+        b=H9o7KMY8uDznYKWiU1Tb+MKIVZPh5rZhn7wbzAuwZINvD2qgOeN+wxWeICIE+wbD+U
+         rOQNFLgIn36VScLvLlK6h4W6PV3YfNhilnNbJKJGrpWwXhARHkraZQXv5XEHaTgufwBt
+         QXn2X4Lo1gQyVXBpAr7KtqD6REQ2FMMGcL8SKDAvbg5lOQ00TJV0R4T76kCWnj/dHjg2
+         53qHzhvyPNciiwCSQo18xAfDsbSonqq4SZn3B6Y9Aggq6pWvUU/i5j1YM9HLqJk6nLOB
+         9o3Y80iwhczD4AHOyxeuVWxY0HA49iMEQsx62/x1beVKLcDUMiwHWVDVpAhj+e1fG+6V
+         O9ew==
+X-Forwarded-Encrypted: i=1; AKwUvBwtDrdL1JtS7dYBCjv4oaHOZ96TobV0kzGFQ+Iq89U6ZjAjTN6MIusD2PqqqbbAKniowmuoT05LXBNt2A==@vger.kernel.org
+X-Gm-Message-State: APuU4Z++hBcFL0jgpKtD660zooyC4bFeFQLYf0vMYUWTaIP3SaMofuF7
+	MMCYLgJa0O7GRLP8+n6ID6T4NnR2fbZOPVC159rh9edd1kloht8FzwuK
+X-Gm-Gg: AYBFou2YUNxQJl7S4YNLNYw68hrJQEpr3dHnUlKVCWkJJTOv7pIYe7tG0vhCtMkYiys
+	TtZG1NeBGTn2PTdO1W/ci5uQzAFik6KiUegtlt45MU+WV3aVOFsSkveiTW9qLx5s37gpd29oEjZ
+	dH4jIHYYw1d2enGn3+JgKKp2EmWdpgCf0bKJh4s4LBTfXwxDCl2BZjzO55UUWQluNVQgYxpkVtF
+	Sz8YZcPovl9IFO4EyqHWg8rpk3kFUFdBMq6+OLAa/u8OlRhQf+MTE2QSlWK3WdoVmU/t0IG7q2o
+	rZC4jrt1bizndMSSn74nFlLSZXwWxmSHLxp5nK3TaE9lSD2D4bsFLfQr0Vci6eMRQ69jjJwqOgy
+	1vO31nyZnsyL0aZVNwP2dA8HkxeRO8QbOHesFLKryv5bZzB7OyaInNegpV1453ght+st5lU3pRx
+	fGBuTVAcm9SiIPB7VE+meuTE1VGxOYQp0yYyFW0BhTC3kvHelGMW/W3QiPg3rPmbweiJGzLPPEL
+	c2A4Wwz6EKtad10V3yWrrOh6ZYDr2mgHq0drkY5tllBJvvf4qmge123OYTDjq4hdj+nU5wGbrcu
+	D6GGuisGtVPshPSNYlvbZtp38RPNwH+iLDpJGFl4QMXoC1WClcB45n2PUAHVsr02JmSG7Wyp8rj
+	KaysPnj8cuD5VOQ==
+X-Received: by 2002:a17:906:6a88:b0:c2e:3698:dbba with SMTP id a640c23a62f3a-c4ca7a72e75mr879925866b.4.1793630855489;
+        Mon, 02 Nov 2026 06:47:35 -0800 (PST)
+Received: from [192.168.1.239] (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4cabe4a9a1sm400030766b.58.2026.11.02.06.47.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2026 06:47:35 -0800 (PST)
+Message-ID: <bb43e80f92a82e1a27077a45606a9c7f2678ddcf.camel@gmail.com>
+Subject: Re: [PATCH] HID: pidff: bound the unit exponent rescaling loop
+From: Tomasz =?UTF-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: Shengzhuo Wei <me@cherr.cc>
+Cc: Oleg Makarenko <oleg@makarenk.ooo>, Jiri Kosina <jikos@kernel.org>, 
+ Benjamin Tissoires	 <bentiss@kernel.org>,
+ =?UTF-8?Q?Micha=C5=82_Kope=C4=87?= <michal@nozomi.space>,  Paul Dino Jones
+ <paul@spacefreak18.xyz>, linux-input@vger.kernel.org,
+ linux-usb@vger.kernel.org, 	linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Date: Mon, 02 Nov 2026 15:47:31 +0100
+In-Reply-To: <auig8ARnvkEoAagA@kernel>
+References: <20261029-b4-pidff-rescale-exponent-v1-1-3ba54accf767@cherr.cc>
+	 <bbd1ec87a9fff50b189f74cbd21e1d5bddf41136.camel@gmail.com>
+	 <auig8ARnvkEoAagA@kernel>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.62.1 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -53,299 +109,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-work-procfs-bugfixes-v1-38-59422ed3e465@kernel.org>
-References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
-In-Reply-To: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
- Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
- Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
- NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
- Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
- Greg Kroah-Hartman <gregkh@suse.de>, 
- Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
- Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
- coreteam@netfilter.org, kexec@lists.infradead.org, 
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
- netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
- linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
- linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
- sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
- linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
- linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
- linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
- linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
- linux-debuggers@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Chuck Lever <cel@kernel.org>
-X-Mailer: b4 0.17-dev
 
-Add the symlink case:
+On Mon, 2026-11-02 at 22:40 +0800, Shengzhuo Wei wrote:
+> Hi Tomasz,
+>=20
+> Thanks for testing and reviewing the patch.
+>=20
+> > Should we maybe add a warning to the driver that the time exponent migh=
+t
+> > be out of a sane range? Sane range being, say, 10 to 0? This of course
+> > would have to happen during init stage not to spam dmesg.
+>=20
+> For the initialization-time warning, would -8 to 0 be a reasonable
+> exponent range?
 
-- readlink() /proc/asound/<id> of a dummy card into a buffer backed by
-  userfaultfd
+Yes, I meant to say -10 (not positive 10 obviously) but -8 seems like a
+better fit here.
 
-- change the card's id through sysfs while the reader faults, which
-  removes the symlink with snd_card_mutex and info_mutex held
+> - -8 is the lowest exponent in the commonly used signed 4-bit HID
+>   encoding.
+> - 0 allows a time unit of one second.
+> - Positive exponents 1 through 7 would give time units of ten seconds
+>   or more, which seem unusually coarse for force-feedback effects.
+>=20
+> This would only be a warning threshold: the driver would still accept
+> the device and leave the rescaling behavior unchanged.
+>=20
+> Does that match what you had in mind, or would you prefer a different
+> range?
 
-- expect that to finish without waiting for the reader
+Yup, that range is great.
 
-Skipped without snd-dummy.
-
-Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
----
- tools/testing/selftests/proc/.gitignore            |   2 +
- tools/testing/selftests/proc/Makefile              |   2 +
- tools/testing/selftests/proc/config                |   3 +
- .../selftests/proc/proc-remove-slow-readlink.c     | 191 +++++++++++++++++++++
- 4 files changed, 198 insertions(+)
-
-diff --git a/tools/testing/selftests/proc/.gitignore b/tools/testing/selftests/proc/.gitignore
-index 7b8133492782..e2566cc0ae07 100644
---- a/tools/testing/selftests/proc/.gitignore
-+++ b/tools/testing/selftests/proc/.gitignore
-@@ -22,6 +22,8 @@
- /proc-uptime-002
- /proc-pidns
- /proc-remove-slow-sysctl
-+/proc-remove-slow-reader
-+/proc-remove-slow-readlink
- /read
- /self
- /setns-dcache
-diff --git a/tools/testing/selftests/proc/Makefile b/tools/testing/selftests/proc/Makefile
-index bce6beca7274..6a9bdc999f54 100644
---- a/tools/testing/selftests/proc/Makefile
-+++ b/tools/testing/selftests/proc/Makefile
-@@ -33,5 +33,7 @@ TEST_GEN_PROGS += proc-fsconfig-hidepid
- TEST_GEN_PROGS += proc-sysctl-readdir-churn
- TEST_GEN_PROGS += proc-pidns
- TEST_GEN_PROGS += proc-remove-slow-sysctl
-+TEST_GEN_PROGS += proc-remove-slow-reader
-+TEST_GEN_PROGS += proc-remove-slow-readlink
- 
- include ../lib.mk
-diff --git a/tools/testing/selftests/proc/config b/tools/testing/selftests/proc/config
-index 3edd3c437fe4..7b0e1d9be1a2 100644
---- a/tools/testing/selftests/proc/config
-+++ b/tools/testing/selftests/proc/config
-@@ -2,3 +2,6 @@ CONFIG_PROC_FS=y
- CONFIG_IPV6=y
- CONFIG_TUN=y
- CONFIG_USERFAULTFD=y
-+CONFIG_SOUND=y
-+CONFIG_SND=y
-+CONFIG_SND_DUMMY=m
-diff --git a/tools/testing/selftests/proc/proc-remove-slow-readlink.c b/tools/testing/selftests/proc/proc-remove-slow-readlink.c
-new file mode 100644
-index 000000000000..3290225daecd
---- /dev/null
-+++ b/tools/testing/selftests/proc/proc-remove-slow-readlink.c
-@@ -0,0 +1,191 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * A readlink() that faults while copying out the link must not hold up
-+ * removal of the /proc symlink. Changing a sound card's id removes
-+ * /proc/asound/<id> with snd_card_mutex and info_mutex held.
-+ */
-+#define _GNU_SOURCE
-+#include <dirent.h>
-+#include <errno.h>
-+#include <fcntl.h>
-+#include <limits.h>
-+#include <linux/userfaultfd.h>
-+#include <poll.h>
-+#include <pthread.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/ioctl.h>
-+#include <sys/mman.h>
-+#include <sys/syscall.h>
-+#include <unistd.h>
-+
-+#include "../kselftest_harness.h"
-+
-+#define CARD_ID		"Dummy"
-+#define NEW_ID		"procslow"
-+#define LINK_PATH	"/proc/asound/" CARD_ID
-+#define TIMEOUT_MS	5000
-+
-+struct reader {
-+	char *buf;
-+	size_t len;
-+	ssize_t ret;
-+};
-+
-+struct renamer {
-+	const char *id_path;
-+	const char *id;
-+	int done;
-+	int ret;
-+};
-+
-+static void *readlink_thread(void *arg)
-+{
-+	struct reader *r = arg;
-+
-+	r->ret = readlink(LINK_PATH, r->buf, r->len);
-+	return NULL;
-+}
-+
-+/* a new id removes the card's old /proc/asound/<id> link */
-+static int set_id(const char *id_path, const char *id)
-+{
-+	int fd, ret;
-+
-+	fd = open(id_path, O_WRONLY | O_CLOEXEC);
-+	if (fd < 0)
-+		return -errno;
-+	ret = write(fd, id, strlen(id)) < 0 ? -errno : 0;
-+	close(fd);
-+	return ret;
-+}
-+
-+static void *rename_thread(void *arg)
-+{
-+	struct renamer *r = arg;
-+	ssize_t ret;
-+
-+	r->ret = set_id(r->id_path, r->id);
-+	ret = write(r->done, "x", 1);
-+	return (void *)ret;
-+}
-+
-+/* the sysfs id file of the card with @id */
-+static int find_card(const char *id, char *id_path, size_t size)
-+{
-+	struct dirent *d;
-+	int ret = -1;
-+	DIR *dir;
-+
-+	dir = opendir("/sys/class/sound");
-+	if (!dir)
-+		return -1;
-+	while (ret && (d = readdir(dir))) {
-+		char cur[32];
-+		FILE *f;
-+
-+		if (strncmp(d->d_name, "card", 4))
-+			continue;
-+		snprintf(id_path, size, "/sys/class/sound/%s/id", d->d_name);
-+		f = fopen(id_path, "r");
-+		if (!f)
-+			continue;
-+		if (fgets(cur, sizeof(cur), f)) {
-+			cur[strcspn(cur, "\n")] = '\0';
-+			if (!strcmp(cur, id))
-+				ret = 0;
-+		}
-+		fclose(f);
-+	}
-+	closedir(dir);
-+	return ret;
-+}
-+
-+FIXTURE(dummy) {
-+	char id_path[PATH_MAX];
-+	bool renamed;
-+};
-+
-+FIXTURE_SETUP(dummy)
-+{
-+	self->renamed = false;
-+	if (access(LINK_PATH, F_OK) && system("modprobe -q snd-dummy"))
-+		SKIP(return, "no snd-dummy");
-+	if (access(LINK_PATH, F_OK))
-+		SKIP(return, LINK_PATH ": %s", strerror(errno));
-+	if (find_card(CARD_ID, self->id_path, sizeof(self->id_path)))
-+		SKIP(return, "no sysfs id file for " CARD_ID);
-+	if (access(self->id_path, W_OK))
-+		SKIP(return, "%s: %s", self->id_path, strerror(errno));
-+}
-+
-+FIXTURE_TEARDOWN(dummy)
-+{
-+	if (self->renamed && set_id(self->id_path, CARD_ID))
-+		TH_LOG("couldn't name the card " CARD_ID " again");
-+}
-+
-+TEST_F(dummy, remove_while_readlink_faults)
-+{
-+	struct uffdio_api api = { .api = UFFD_API };
-+	struct uffdio_register reg = {};
-+	struct uffdio_zeropage zero = {};
-+	long psz = sysconf(_SC_PAGESIZE);
-+	struct renamer rn = {};
-+	struct reader r = {};
-+	struct uffd_msg msg;
-+	struct pollfd pfd;
-+	pthread_t rt, nt;
-+	int uffd, done[2];
-+	char *buf;
-+
-+	uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-+	if (uffd < 0)
-+		SKIP(return, "userfaultfd: %s", strerror(errno));
-+	ASSERT_EQ(ioctl(uffd, UFFDIO_API, &api), 0);
-+
-+	buf = mmap(NULL, psz, PROT_READ | PROT_WRITE,
-+		   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-+	ASSERT_NE(buf, MAP_FAILED);
-+	reg.range.start = (unsigned long)buf;
-+	reg.range.len = psz;
-+	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
-+	ASSERT_EQ(ioctl(uffd, UFFDIO_REGISTER, &reg), 0);
-+
-+	r.buf = buf;
-+	r.len = psz;
-+	ASSERT_EQ(pthread_create(&rt, NULL, readlink_thread, &r), 0);
-+
-+	/* The reader now sleeps in the copy of the link to userspace. */
-+	pfd = (struct pollfd){ .fd = uffd, .events = POLLIN };
-+	ASSERT_EQ(poll(&pfd, 1, TIMEOUT_MS), 1);
-+	ASSERT_EQ(read(uffd, &msg, sizeof(msg)), sizeof(msg));
-+	ASSERT_EQ(msg.event, UFFD_EVENT_PAGEFAULT);
-+
-+	/* Renaming the card removes the link that is being read. */
-+	ASSERT_EQ(pipe2(done, O_CLOEXEC), 0);
-+	rn.id_path = self->id_path;
-+	rn.id = NEW_ID;
-+	rn.done = done[1];
-+	self->renamed = true;
-+	ASSERT_EQ(pthread_create(&nt, NULL, rename_thread, &rn), 0);
-+	pfd = (struct pollfd){ .fd = done[0], .events = POLLIN };
-+	EXPECT_EQ(poll(&pfd, 1, TIMEOUT_MS), 1) {
-+		TH_LOG("removing " LINK_PATH " waited for the reader");
-+	}
-+
-+	zero.range.start = (unsigned long)buf;
-+	zero.range.len = psz;
-+	ASSERT_EQ(ioctl(uffd, UFFDIO_ZEROPAGE, &zero), 0);
-+	ASSERT_EQ(pthread_join(rt, NULL), 0);
-+	ASSERT_EQ(pthread_join(nt, NULL), 0);
-+	EXPECT_EQ(rn.ret, 0);
-+
-+	/* The link was read before it went away. */
-+	EXPECT_GT(r.ret, 0);
-+	EXPECT_EQ(readlink(LINK_PATH, buf, psz), -1);
-+	EXPECT_EQ(errno, ENOENT);
-+}
-+
-+TEST_HARNESS_MAIN
-
--- 
-2.53.0
-
+>=20
+> Thanks,
+> Shengzhuo

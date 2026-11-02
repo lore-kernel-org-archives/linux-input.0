@@ -1,100 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=209.85.219.41
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
-	t=1793629383;
-	b=RcEsPBel36OupLUoSvwK0J/nEzD4S8at9imDspMiGKjxA85Ciflnl4ytLUJdOpW09Bhp
-	 k8omgPOAyTQ1Shrh+/iQi3hrykNvwBqKQzC2Lxcd6IBCAVeE+GeHhhMjgBCKdufuggRkb
-	 HycwEGSQ1z3Q3bXawDAIcU7gl6spEgbjTTnb5igvXfJOAEwxsfP7KbjpsjUHrtbNOd9U6
-	 +mQW2fzrJl05piIpJt5pAduK832d0FgKoITUnVhD2GjrvOdmo8b864oTXvzf2lyOV9/gJ
-	 MWlVUsMTacE7jwcfItqVAEn/YTQ/voPo+ZL2v2cedbNGXFEBfYK/atT7H5CyeBAVSyw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793629383;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=2eoSP0yEoTlChnuRvtczHJcCT/7hM/Jtun8ZUxsvjQg=;
-	b=RbMiQ0eoi/6PXWENaHEayONR2QQYSQ5pKTKe2Ry85Ohi1vhEiUIA+NlAy5hmwtcftO4I
-	 zh0aAv1LUrN8wI/qEa4K8cpnjE0uivL+WA8LZBBkA7LAZ1Q3pxMGHIiVVK+2TsJHR+OZh
-	 jgdLlBEZUoKctt5qG5GzV1arvvW19SsCOz5/yaWVDUKFzpE58vyHvwalncxBR/MWt2rXw
-	 LCKtuGWOEVQVb6iefQ42m3ArO2sDca5RZ7D1eGwITyz9uXNHToPp5/F2NLMa0FLIVTuEf
-	 cC/3Zw+duqm3oVpibP1RBS4SfFjlUjhLAly+WRoKCaKIRy72+9Q10kTB9KSUo/AA26w==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=I5x7qIGW;
-	arc=fail smtp.remote-ip=209.85.219.41
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793629392;
+	b=NxKfQ9lb6SaXb/XofOlaDplD5tN+QpsxmyJcIttBEw8X4L90pVVwHOxnP8TY9PWlcMcM
+	 p/q550TDaGnuAgiMDCD8P+38lbSznFDLz+waMZrNqjWq2ziOdS3f1+HdKFFDsL5KhRgHG
+	 1uYUWwkt1ccfWKsyt83Alu9qccFyqpHPMULJmaFEl/e2WMDEfuGSWsTXztNGJwNa/kCoR
+	 SCa8Jd0hulAHqH6Tkp+8esqpXzbUHlva9i9Kq1sPpvW+41To9bs3HqEelsbIrJ8XrDUDD
+	 IHvwowQldi6wwVxgz1V+E1tPwPZonglJ1c7lSWigWZmsfQcluCCv+XV0rQGF4U0jhjQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793629392;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=MVs7ALsfOLkn53l0kYUUme/SDUyhPHOVCY6QDFUmXzg=;
+	b=KU6E5GJ+OjHqRRAZGa4APRK3qyYL+fgLIpIrVe4fbrtksijl8f+ufA3B/00S0P/QEb13
+	 b//BtRZlZUYxa64ln3L9cD3qj25acbSVv1KnbVbN8bJ/LY1XT2W+NyZgxvN4uoMjyaoTb
+	 nF24H5RuUCAPoshMCslv6p+xCF38vLBJCErbE56tbHapHoBpL5Gmjo54kYtWi9dOcdVMN
+	 GothnBLTJXdlHlNdBfnCuXnbzI5QDLJ/fa9e0n3EbLnkY32cU3VFPiSt2j42diZAs6PKE
+	 0v/uyqe+9Tk9I3y4zonP2Udc7ZbW3eibkEvJ4tofUMYIL1SAQnH26PYr/hz//4C3cJw==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FLfR5DFe;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDACA60A2613
-	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 14:23:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CDACA60A2613
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8592606B1D9;
+	Mon,  2 Nov 2026 14:23:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=I5x7qIGW
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-91c79a9a739so49724806d6.1
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 06:23:02 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793629382; cv=none;
-        d=google.com; s=arc-20260327;
-        b=XUXHdcLkH/TE4RK/fpN3izRRfTeYYoik7TFA+YXQqP5zIa+u/ZV9LIgVe8T8EB5q0W
-         4HIOHdrGkCq7DaKbp9C90aEu6R29e5fxRMjkscRQWNk7URdlBDF0Lmw5UityOjZ13yiB
-         mdfCo3eA2xy7wzrCdgPXp2D5PfAqOZwXhG8w/0LrQEQQT28uH6gHEQaMuZAI2XVE/zNY
-         E3Wr6ATDO9/2Mru0DK8aWkzPpUBpcuu4Ep2VcHVCgynUVwsFTGUthch/CEETxp1HW0z3
-         4RR/ijV2pgazbsZvn/dpF6OJERdOyKq7P2XEf+KPh1aSvSMwA17fvxZLKIRcipgKkTRN
-         bw1w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=2eoSP0yEoTlChnuRvtczHJcCT/7hM/Jtun8ZUxsvjQg=;
-        fh=Zg5xBUu3IzU4WrZEmJ47kt/w+c6GGGI5UPKSApixvUw=;
-        b=mKfKsQi0bZsBk4LVtXqMxu+gOKQfeMPUsu+8DSzpa0i8kcJRHcrSw0ZxDubIv1R1XF
-         wNLab3IeliMuUXCmMN/KOs4l0ziZuhvDXrVb1f2F9vwjVfDKUW0ZUZnnrZwsOzXUmauQ
-         iPTZBi4I9IB2027ftOL799UX7dI13cG5Fk5DbAUwKq7AC7QuMIzgpFpHpNRfRW7ZTuQY
-         +UCyhfp2eMXw8tii793MnWPyE6wTVbD5FLdo+B5wUgR2A9lAqF7YhUbH68cQMEPD9g+M
-         2YW9kq9HI72lCdtFDbJzIV7AqQRxDA3lGpy9s1um40GBgO5aOHFjWXvm2GGQ3iro0IU0
-         Sg2A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793629382; x=1794234182; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=2eoSP0yEoTlChnuRvtczHJcCT/7hM/Jtun8ZUxsvjQg=;
-        b=I5x7qIGWTsAsfBWf71taDZbRlUUaYCG2iAGsyK7dWndyX8PF0VEktAOe3+XdQMCNnn
-         TBZ3rZmTyRKlBo8mXiaPVVz2takyoI4yGmsQNCJDi0waYa6MRwyO0xsSXwTVHPpcLHrQ
-         EuF+Z5O316PvlCsze993jBk6PNZ752f4/PHaiYLawgqLEUCIcOxRmSmWKtO1gycmyzBn
-         oWjstQPbA8hAo9iAh8ZoQFDFflZp+sobMnmGafMi45kKM8djdRbnhuTD1rltWlU7wajg
-         pBBV5sSGs1bGdhsHE0xQn6zYU3qRBgkrKAiAruouuTLmMJZud4rfXYd8JP4Af18wYrhP
-         Kh/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793629382; x=1794234182;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=2eoSP0yEoTlChnuRvtczHJcCT/7hM/Jtun8ZUxsvjQg=;
-        b=lyqeM2k07YRYdCvv0uoFHm7soEydMBtKqdO2SaoOpud4C7J9kPHBq/j8XpCYnoeMGP
-         zJSZWfpfwfOGmLHK79AVXjZ8+BIQy45j86qv0fxVeGjMHidum0veNDDSFZIx3gEMX9Tc
-         FCFy2J2v6117EpUUrTVxy8G3BOZqnU5st7rIE9wd7WH0zBCbkoCIxFDU8/S6KnIkaRvc
-         qEx1KIEj3KYNVg1pnK2kw0l7qwEllHZxbUcOSXR/7cwAEopgXhiBGyOs9RjNVjSAOmj6
-         mNQaUv0ffF/aLRhxzUrh6YVpIwHOxx82u06cYUkT6BwLp2LGVbVac0fi7w1Wuxo2f/mR
-         1tmg==
-X-Forwarded-Encrypted: i=1; AKwUvBzn4Ci6JpKxiMj6PvnYL2IIw3x4HIXxyMhjd4JTkSE5t7sfc6CVz/shCr16ah1l/HQHdIFVVXgA/qmZ5g==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9MhbXiHQ5wl+OxqBKy4cBNovBDjE4DXc9FK1yn7HZwJlXMUZWO
-	oMAYN9lcLzTgp5TQ7X4nrHnTFhmT3z1OHGBguhFUa5Bc0ftKSry9oNs+1c/zxAVQ8P7WuIG059+
-	tfIXomYB5VJf3Kk3OzaNkQRdIOtgpR6s=
-X-Gm-Gg: AYBFou1si2KEeZoNrizJjmI/Xe0t5qkxxOJVE4amEVRIiEt7y2pSmtMlauO7vWnEzRT
-	WrAKEDXO/3bDFgogD288oNciTLUR7jRkSANHZdIjH/cWmEyeXHpoZQfsuHlf+QqNSgXf1CpZ7UY
-	j9zQa80w71GzUAWkcI7hzcY+RjdBv0cSHFPr+CGN0kovxqoLKXPYFMzZnFjSXI+U+0OypdKfu/0
-	5/Tj26VQSbZqevQVN/k2/TtmdIEj3mQfyzdd2lOJ60wPnjAWZLfjVTza2Ul5OGMhkrzRiopgPNW
-	F+/K0sek+rOS9KVwZHXzQDAAE/Lw+RNpFTTdDabdG0TALSFA+fToLbhQtGZWq+bEYoJqFG8dJE1
-	c5uj6RxYAwLz3MgaROtDr62hB5CmyGl/iosSqrQ==
-X-Received: by 2002:a05:6214:1252:b0:917:7d92:6486 with SMTP id
- 6a1803df08f44-91ca4a0c511mr173181156d6.6.1793629381607; Mon, 02 Nov 2026
- 06:23:01 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FLfR5DFe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38CDA1F00A16;
+	Mon,  2 Nov 2026 14:22:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793629391;
+	bh=MVs7ALsfOLkn53l0kYUUme/SDUyhPHOVCY6QDFUmXzg=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=FLfR5DFeQsSly/cabaQC7e9iY2bQ9zaa9/+MREBD4BU88eN1Xx3KqTRtm3qYQYpfl
+	 kCDavrMTvPYKs/rYn9gptjjElebcf4yPuRmKH7HVcqjqazHfqUR/Htiq7M6QYbzt4U
+	 zWa4rzDSZK1q8pK7OQVMGrLrU+xIoyILoyQv+YpF94q5kGFQx5QO63A+aw0aYwigp7
+	 8QwH/5quUO5K2fuIJpTTFlJf5GF8Ltsg0OQYaZW1HbdncmCkutEph8u81EsuVQiORQ
+	 PSv2MLOMncLKFj4vxCZCl4sIAOggQ39Y2OGr1AHxp6406Vqv9fSst95zy3PsIJt0ea
+	 Hqf1VPSexzNvw==
+From: Christian Brauner <brauner@kernel.org>
+Date: Mon, 02 Nov 2026 15:21:21 +0100
+Subject: [PATCH RFC 06/38] xtensa: simdisk: don't read the file name
+ without the lock
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,79 +53,105 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20260824184019.432703-1-max@enpas.org>
-In-Reply-To: <20260824184019.432703-1-max@enpas.org>
-From: Roderick Colenbrander <thunderbird2k@gmail.com>
-Date: Mon, 2 Nov 2026 06:22:50 -0800
-X-Gm-Features: AclHuK-al9_fk_gWf3tmNtTa80C7h_iFVOnR-naeSMTklj7rwoY_cjC4_EB5wQY
-Message-ID: <CAEc3jaD8W0CZ+V06c=S2V8oR+UwFVKd8KGbtNhzBm7Gv5XnM8w@mail.gmail.com>
-Subject: Re: [PATCH v1 RESEND] Input: joydev: Don't expose DualSense motion
- sensors as jsX
-To: Max Staudt <max@enpas.org>
-Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261102-work-procfs-bugfixes-v1-6-59422ed3e465@kernel.org>
+References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
+ Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
+ Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
+ NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+ Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+ Greg Kroah-Hartman <gregkh@suse.de>, 
+ Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
+ Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+ linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
+ ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+ coreteam@netfilter.org, kexec@lists.infradead.org, 
+ linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+ netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+ linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+ linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
+ linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+ sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+ linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
+ linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
+ linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+ linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+ linux-debuggers@vger.kernel.org, 
+ "Christian Brauner (Amutable)" <brauner@kernel.org>, 
+ Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
+X-Mailer: b4 0.17-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1811; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=VTDmn8Fj5UlymIH+0OFfDD9d3Id2xocQBgXcavnnib4=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9mJP1/VRcytoDLK0ufy3WLzr3+sXFE+dzGyTVYqofd
+ O+7u3tWckcpC4MYF4OsmCKLQ7tJuNxynorNRpkaMHNYmUCGMHBxCsBEUkQZ/rs27hJY5+amu8Rq
+ WoJCkbXlpumL4jqiOpe4HNF66TkndBkjwwvt4L3fvCaeXKnVx7hb7eIq/dqmQN78dydXJQe4lqT
+ uZgEA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Hi Max,
+proc_read_simdisk() looks at dev->filename without holding dev->lock. A
+write to the same file detaches the disk and frees the name under the
+lock, so a concurrent reader can copy out freed memory. Copy the name
+with the lock held.
 
-This looks good to me. It was an oversight from when hid-playstation
-was added to not add the filter to joydev.
+Fixes: b6c7e873daf7 ("xtensa: ISS: add host file-based simulated disk")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+---
+ arch/xtensa/platforms/iss/simdisk.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-Signed-off-by: roderick.colenbrander@sony.com
+diff --git a/arch/xtensa/platforms/iss/simdisk.c b/arch/xtensa/platforms/iss/simdisk.c
+index a2ddb49c269d..7b115e023de9 100644
+--- a/arch/xtensa/platforms/iss/simdisk.c
++++ b/arch/xtensa/platforms/iss/simdisk.c
+@@ -238,22 +238,21 @@ static ssize_t proc_read_simdisk(struct file *file, char __user *buf,
+ 			size_t size, loff_t *ppos)
+ {
+ 	struct simdisk *dev = pde_data(file_inode(file));
+-	const char *s = dev->filename;
+-	if (s) {
+-		ssize_t len = strlen(s);
+-		char *temp = kmalloc(len + 2, GFP_KERNEL);
++	ssize_t len;
++	char *temp;
+ 
+-		if (!temp)
+-			return -ENOMEM;
++	/* a write sets at most a page, see proc_write_simdisk() */
++	temp = kmalloc(PAGE_SIZE + 2, GFP_KERNEL);
++	if (!temp)
++		return -ENOMEM;
+ 
+-		len = scnprintf(temp, len + 2, "%s\n", s);
+-		len = simple_read_from_buffer(buf, size, ppos,
+-					      temp, len);
++	spin_lock(&dev->lock);
++	len = scnprintf(temp, PAGE_SIZE + 2, "%s\n", dev->filename ?: "");
++	spin_unlock(&dev->lock);
+ 
+-		kfree(temp);
+-		return len;
+-	}
+-	return simple_read_from_buffer(buf, size, ppos, "\n", 1);
++	len = simple_read_from_buffer(buf, size, ppos, temp, len);
++	kfree(temp);
++	return len;
+ }
+ 
+ static ssize_t proc_write_simdisk(struct file *file, const char __user *buf,
 
-Thanks,
-Roderick Colenbrander
+-- 
+2.53.0
 
-On Mon, Aug 24, 2026 at 11:43=E2=80=AFAM Max Staudt <max@enpas.org> wrote:
->
-> Without this, DualSense (PS5) gamepads are allocated a second jsX
-> device for their gyroscope/accelerometer, confusing programs such as
-> /lib/udev/js-set-enum-leds which look at jsX device numbers to
-> determine the player number. Ideally, we should have only one jsX
-> device per gamepad.
->
-> This follows the schema started by:
->   commit 20ac95d52a28 ("Input: joydev - blacklist ds3/ds4/udraw motion se=
-nsors")
->
-> Fixes: 402987c5d98a ("HID: playstation: add DualSense accelerometer and g=
-yroscope support.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Max Staudt <max@enpas.org>
-> ---
->  drivers/input/joydev.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index 32459fd8a7c1..f49dd10782f0 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -753,6 +753,8 @@ static void joydev_cleanup(struct joydev *joydev)
->  #define USB_DEVICE_ID_SONY_PS4_CONTROLLER              0x05c4
->  #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2            0x09cc
->  #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE       0x0ba0
-> +#define USB_DEVICE_ID_SONY_PS5_CONTROLLER              0x0ce6
-> +#define USB_DEVICE_ID_SONY_PS5_CONTROLLER_2            0x0df2
->
->  #define USB_VENDOR_ID_THQ                      0x20d6
->  #define USB_DEVICE_ID_THQ_PS3_UDRAW                    0xcb17
-> @@ -793,6 +795,8 @@ static const struct input_device_id joydev_blacklist[=
-] =3D {
->         ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
->         ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2=
-),
->         ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_D=
-ONGLE),
-> +       ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER),
-> +       ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2=
-),
->         ACCEL_DEV(USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW),
->         ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_PROCON),
->         ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_CHRGGRIP=
-),
-> --
-> 2.47.3
->
->

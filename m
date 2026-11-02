@@ -1,100 +1,109 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.177
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793629102;
-	b=ygMCmBdAh9WBzfVc/HbbWLO1j46kUTHroBqoL2avruNYNyWWghYj0EbLgyrIT2hH3cjK
-	 1ZpLcpcN8N7PMuH3ywO3fGSL5by81CPssOiuwPdnSWqTnvFoJtL0AYHQx1BhZVW/Yv/c2
-	 W+Vg3utSRqLVmpwIiuk2XuaihoaEhBv+RZpxI6scLRtoMALRg+uJK4xVblw/1YvEPy7aN
-	 o4pMjG+rUrtyzwWnL1u3KIi5iX20Ht9GJ1kmxrB2fBvQsyKYmt7E3xNZkYUe8mFhMJGj1
-	 Kar6sm8Yb7AkOxcvH3yPrsfnLYpwZ679fcm9fcR+DA1ih+wq0OTupooT6EGgRwr/bAA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793629102;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=1RjcRhzwmQTEwl1HX0Rcpr8H7X1jrpm5LzpMX36K/ho=;
-	b=e45yrC7W7WQF7D6RoBa39CGw1WvDffH8xAGh1X32tVs7MZa1cb44d8/hfIrdfw6xXvVg
-	 7FYo3U6Zzt/NwHSHWVGDtBUloWNWtObX/rALJPCo1Sq5Oj5aMhPG3WGtzvUMur1fwtxZo
-	 pWbTKFt0T0Va+GdhYHsDbLiEQDP2+Rn9bPQGxgKJoMencMRIeh6WNVi/qrpiypKQa8Z1u
-	 tqSUy8Vo6bUZHqxZt5uF74gWvWVPptSXeVerD5McDTPHixvVnYpXknDNTmDNhnBdfl9AP
-	 bs5NxJ0fSZopBtSLR1inbGfHdjj4ZPDB+0eYBwJeTKIARb8gqTQBsk4Lsc4/Yv2OhtQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OWxyEISk;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.177
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793629260;
+	b=pCpHSVZDMMdk6s2/SWjI0YYQxt3cLXCpszddhZgCLrD+zL+P1nSYoDjGmWwEsPGQRuoS
+	 cAF+bgvb4//kt5Wwy5h30dajrh4j4Oyu4lOfrLg9hYjc+HhlN9WcTQLOx97AxD9fJDKmY
+	 GImIjoJ0o5r6bMWBreBX3aZy2fGlhnYDKn1wJzqL6Wxaav6MS4KzJC9Z5/1wzOzE8CLt9
+	 t9NIHnDkbziEWw6zFMPilZPTpBAKhNswWQpO6JtBnrRLy7fpM3gm/E/DWhUO8j+IB6HnY
+	 wm503hZLiIrM4tF2OY8MYwnk+JmVUbqFEciduIYQE6lhvx0uU1BUyMmhHg3uQqZ/32g==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793629260;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
+	 Content-Transfer-Encoding;
+	bh=AMQhAUoLjC1OsRhPIF0X/aZZvhoGLtnfpHmE2nV4Wn8=;
+	b=w0iUuu25LcgkA3xGhaCiKMEKC4+WEmJvuCSsM7a4JcQzbZkbzH95lmjyghuNDSZ636lM
+	 zDqlTkdA53RBUQ/pfPUtP35lwyf23hoIVTza23nSQ/mxH15ctyh9mOtI68HNAhD4vZQq2
+	 H1pAwc8FT0JABLkWPADeSKIfS3K0Si2FdjU7nGK5JKm78OPZr0ETnE6cVeYr9JSM8ejlT
+	 qSV26qfr4m9ADzs0JeKUvRhT3WqpTt1yNreGV/9s3Zy1LwstRqheSzSloj1kmuJYwmew3
+	 hQf23VzxVy8e0WCjv8ctXarDx8UwmqgUEp8H2W9zOkRKd4ZYX1BHGBPLKByfm8j/6Qg==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i0H9lG0B;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02216606A327
-	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 14:18:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 02216606A327
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 821D9606A327;
+	Mon,  2 Nov 2026 14:21:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=OWxyEISk
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-53bb57f1310so41173591cf.2
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 06:18:21 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793629101; cv=none;
-        d=google.com; s=arc-20260327;
-        b=hPV+avcQQ+RImPKKIHy/+ZgICDy2lQ+hD10eAGlZdpkTvJqsxB14Y5VzCbZBZK+R/D
-         7tIxsgqB0nhLMx8dhHrhpaH+PDLMHgUByNx5VS8m9cGxVnlVXqWfaw1WkHfG5ptkdlZ0
-         cZMR5F2sDEZDlsmdtLSzkQkL5hhq2ZWV4R0WEFVeikSXjRvhojKniSI94C4t3hkD5qmu
-         j2ovpaDvaHA2FQMnGb+h1qa/rlOMdEUv5bjDwjczlEM/Ej1iKCzR/DmkV+JyX1UxgCEf
-         KPMP2ZTvcadan2wmrjxEwHGVoR5tQT7uJlzSJle5KWzmN56J4/nKBmLqn1XX4cq9fj/L
-         JCbw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=1RjcRhzwmQTEwl1HX0Rcpr8H7X1jrpm5LzpMX36K/ho=;
-        fh=le9SwmY6Lfmjl49PB1bANri77HfmBL/4mMrGxEAeFl4=;
-        b=KYtJhyHYMiSmXVq2V6u2sP9s1bte2Ia6I/IR21so0DsWGHlls6VzRIH1+q3sxl+6hG
-         XNjurXyX/ObiA4NAOYg5VY/etxXjLnV7Xy7lrXbYAUfgQcVZv8OhFe31AKpAZwUAW3it
-         nNrpQO1nJLdzNL3VZaiPhaVITegB3eYTKToTW6rLWAD1Ywh3qG0WB8NXhxAPUl6/g4fr
-         FsMZJZrv5Kc64/gUB4yd89Bt2UbKi3KWdU940pBETAW5vOBBc+gH211If5dqByZCGFwm
-         xz+4kvv+2HlEzOE+RysKe3XG9XAO1y+uu2Slw4rF6AQSfOF9+E3SQbQ/dAKpa1/zBxzH
-         z9ww==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793629101; x=1794233901; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=1RjcRhzwmQTEwl1HX0Rcpr8H7X1jrpm5LzpMX36K/ho=;
-        b=OWxyEISkGGtfxeddi5bhegsKbmqfILIic23rjXA16NDYVauktW4u/bsxb9JaNmb9Jf
-         yG2cHsYjrX4MpbmK5upzaL49koyQMTlDM7/5QfKLbBCAwbAfil8MYtMLrvQv0yBuvm/t
-         RyQr2KAG10UhN9M6I3yJd/bHqPyvD/jLWNqCzIqA1mRTnEYH8SH4zt8BF8zJsF43xs3+
-         yBXarDQBiBZcLn6A+P29AcAyJQkw2yA2Wted1rB3rijiIWyk9yxSw8o9qCH4eQ3xuIIn
-         tYi5xoXwdXAcab/+16nyCNUjwNfLsT6C+jQPtXsycf+UuWx4/K5sFIr7vxeym46ExfF2
-         36NQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793629101; x=1794233901;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1RjcRhzwmQTEwl1HX0Rcpr8H7X1jrpm5LzpMX36K/ho=;
-        b=R2IYyKMKjA+/NruIa6exP4aE35i1NhC9087Lrb/BYq4sbMxATQpKsIfsoBu+/OGNTH
-         R7P0BwoZpbQ4+hqUH2uqVLl1YKRXFWemrTF0hunmvOsmhYferQy50RRXbNMx5RCG/ojc
-         6Zd+QVVrgd4YSvlkB2wAuYcrJOkaR2smyJIpb56eNPvlo7rQIU6WVT0xGbmIjVRlqDFM
-         mu9i8hJ4A6J53kznql2ux/EczxCkSsFgVYMtI60ZMVtHIEZ5hqXpJC4P+MtYhd/+GpsM
-         saJ2dFLep+Na1wGDGmabrDx2YAcY8/cwMWtFyIqJGVjZdWXmGr9gQLVSxzs605zuiYTn
-         mNng==
-X-Forwarded-Encrypted: i=1; AKwUvBzVcnososXoYuy+snntm3/Sc18yHM9EbIWWfA3Gk0r/27k3Qw/RgnIYmPuPS4Hnq3FwcUE8sUEUdoSJzA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z912zBDLVGwprsZ0wug8l0Bf9S7QEv3knWOl9yfFydPhMqtf9ni
-	IsgmmDJM58Jwh4NFnHrS1DtYQKt3VgTmZ+vkFVGeg5137avPDBgYefD0bRzhCOnZIWPujsMp9pU
-	pD1ZlQdnbYT7BZuCnq7JMeDtDjLICer4=
-X-Gm-Gg: AYBFou2dc58YQm2HI0oXtJmKHHInu3FWTiPtkap2qCn00exODCXlVg3GC0bi25AnliF
-	CSUQqpCUinUoPaHwj68yIGufaE6Gvm4lso12XytEbWNlUEGWn6xP3eQxXpKDHFfjUC9t2kYlO4x
-	mFW/lzyiqay2XYdWOAxQKZggW/jY/DVUuP3hyc3ocCCmVaqN4WSn7PbUtKa/golES5nn5j6bppj
-	PUwD4CXOKvAU015P9dYnsW2ABPKgvdCNH7lSzRuC1C/ov5L/5jOTRUnvT8VXvR0k6P2DQkdwSTp
-	dhGfXD6XQYNb1FwGjgQa8/FBHw77lu1jkvXFrMK9EBLHjkHx8/w7n/acwWUdtkq6Cs6pfEt69fo
-	aA8sYjzLJtevf/hxIV7Fa2GXdUktgWrFkzLpC4A==
-X-Received: by 2002:ac8:5708:0:b0:536:6378:c80d with SMTP id
- d75a77b69052e-542b6f50532mr162652461cf.32.1793629100726; Mon, 02 Nov 2026
- 06:18:20 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i0H9lG0B
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED4A1F00A24;
+	Mon,  2 Nov 2026 14:20:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793629260;
+	bh=AMQhAUoLjC1OsRhPIF0X/aZZvhoGLtnfpHmE2nV4Wn8=;
+	h=From:To:Cc:Subject:Date;
+	b=i0H9lG0Be05TEfu/3sSSx1mNu2tXsbt81HU4VhWr1YaNjWqP1nbmV2PU6N9fCZNuw
+	 nivi01r4yhBVK5q6ZZ/2sNWNfeS1/SVvtod3GB/cMk9XHlaJxrROzU9uNyaCbwueWN
+	 AE/rw/aIukHRd/bUpfVF3u6Oo+d1/1nWu8xicACG8hfScuBzUWJR1oSKGUI3TT1yza
+	 I6qw7gNhliBS+HPnhAgAxa3M/VUpvB8uzbr6ovyo5O6M56NbveIxMw0j6pJhZqxruk
+	 pALxbTScur8TNXplk3A0Y4Q0gW4y8sE5l288k+10HrKs8+OO7WmnOZctFatwni3om7
+	 HzOPbsKYJ2AYQ==
+From: Christian Brauner <brauner@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Christian Brauner <brauner@kernel.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Jann Horn <jannh@google.com>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Chris Mason <mason@kernel.org>,
+	Jeff Layton <jlayton@kernel.org>,
+	NeilBrown <neil@brown.name>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Al Viro <viro@zeniv.linux.org.uk>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Christoph Hellwig <hch@lst.de>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Joel Granados <joel.granados@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Jan Kara <jack@suse.com>,
+	linux-kernel@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-wireless@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev,
+	platform-driver-x86@vger.kernel.org,
+	coreteam@netfilter.org,
+	kexec@lists.infradead.org,
+	linux-pci@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	ibm-acpi-devel@lists.sourceforge.net,
+	jfs-discussion@lists.sourceforge.net,
+	linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-cifs@vger.kernel.org,
+	linux-fbdev@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-sh@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	samba-technical@lists.samba.org,
+	sparclinux@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-doc@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	linux-input@vger.kernel.org,
+	linux-raid@vger.kernel.org,
+	linux-ext4@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-debuggers@vger.kernel.org
+Subject: [PATCH RFC 0/7] proc: move procfs to what kernfs does
+Date: Mon,  2 Nov 2026 15:19:15 +0100
+Message-ID: <20261102-defizit-jobaussicht-kurios-7016c6e67442@brauner>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,142 +113,129 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261027-hid-playstation-ratelimit-input-crc-error-v1-1-68812542f898@igalia.com>
-In-Reply-To: <20261027-hid-playstation-ratelimit-input-crc-error-v1-1-68812542f898@igalia.com>
-From: Roderick Colenbrander <thunderbird2k@gmail.com>
-Date: Mon, 2 Nov 2026 06:18:09 -0800
-X-Gm-Features: AclHuK-Aber4nLkeUJuI-VHoMCJBO8DQ3A0k5lW5zzgYbYlbxJNc2hnEU0K54f8
-Message-ID: <CAEc3jaA_DhowgjeEBJGsUd2-SSWeDkvLbjFJsMeSSWgEqGc04g@mail.gmail.com>
-Subject: Re: [PATCH] HID: playstation: ratelimit input CRC check failed messages
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, kernel-dev@igalia.com, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6321; i=brauner@kernel.org; h=from:subject:message-id; bh=DeFgfcqlv/TY20j7H/EH1gPUF0B7m3TaniK1kcChAz8=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9mGNqL7pz+vPzk4KWfT6wfNmBh/f/+az2dnquniC7r OfbdVtpkY5SFgYxLgZZMUUWh3aTcLnlPBWbjTI1YOawMoEMYeDiFICJLNFkZJi9z+Wc51MV9sWG KyZ0i3EcLl3135Rh1V/p2TenWEnnPCln+F99gMWOyX62xk4Du399RQ9XTQsXMmEy4ArfuSn16RK 3R1wA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 
-Hi Mauricio,
+Ok, as mentioned off-list I have an RFC version of getting rid of page
+fault induced stalls in procfs when removing entry which plagues
+networking devices among others.
 
-This looks reasonable to reduce log spam.
-Signed-off-by: roderick.colenbrander@sony.com
+There was a hackish very narrow AI solution to a part of this bug class
+that was floated off-list. It used a second buffering mechanism on top
+of seqfiles which was really nasty. Plus, it didn't fix the whole bug
+class, it only eliminated a small portion. If we want to get rid of the
+whole page fault issue we need a bigger hammer. So I tried to work
+through that over the last couple of weeks. The series in a shape where
+it's not totally insane to have someone else look at it. So here it is.
 
-Thanks,
-Roderick Colenbrander
+I understand it's big but I thought it's probably nicer to look at the
+end result than just making a promise of what it might end up looking
+like.
 
+It's not super polished yet and I haven't gotten into sorting out all
+the warts as there were some really gnarly bugs in there like the whole
+readdir mess that repeated entries or terminated early. I think we could
+go a lot further there if we wanted to but I think that blows this out
+of proportion and at some point it becomes difficult to grasp the scope.
+So I'd rather delay that until I have a sense of how acceptable this all
+is.
 
+remove_proc_entry() waits until every call into the entry has returned,
+and most of those calls copy to or from userspace with the entry pinned.
 
-On Tue, Oct 27, 2026 at 5:36=E2=80=AFPM Mauricio Faria de Oliveira
-<mfo@igalia.com> wrote:
->
-> The kernel log of a Steam Deck was mostly filled with CRC check errors
-> from what is apparently a bogus controller, with 8174 messages in <200
-> seconds, averaging ~43 messages/second:
->
->     $ cat dmesg-pstore.202610250608-0 \
->       | grep -c "input CRC's check failed"
->     8174
->
->     $ cat dmesg-pstore.202610250608-0 \
->       | grep -m1 "input CRC's check failed"
->     <3>[    8.715455] playstation 0005:054C:05C4.0006:
->                       DualShock4 input CRC's check failed
->
->     $ tac dmesg-pstore.202610250608-0 \
->       | grep -m1 "input CRC's check failed"
->     <3>[  196.187459] playstation 0005:054C:05C4.0006:
->                       DualShock4 input CRC's check failed
->
->     $ echo $((8174 / (196-8)))
->     43
->
-> Let's ratelimit the input CRC check failed messages for the exceptional,
-> high-frequency error case, which doesn't impact the occasional, low-freq
-> error case (as ratelimiting does not trigger) or the non-error case.
->
-> CRC check failed messages for driver-initiated requests are kept as is.
->
-> Testing with a UHID driver to synthetically reproduce input CRC check
-> errors (generated by an LLM) shows that it reduces the duplicate lines
-> and still provides useful information (number of errors/same message).
->
-> For example, triggering such error every 25ms (40 times/second), prints
-> 10 messages and silently counts another 187 in 5 seconds, ie, 197 / 5 =3D
-> 39.4 times/second (aligned with the synthetic reproducer's rate):
->
->     [    9.554184] playstation ...: Registered DualShock4 controller ...
->     [   10.053936] playstation ...: DualShock4 input CRC's check failed
->     [   10.078162] playstation ...: DualShock4 input CRC's check failed
->     [   10.103447] playstation ...: DualShock4 input CRC's check failed
->     [   10.128739] playstation ...: DualShock4 input CRC's check failed
->     [   10.154016] playstation ...: DualShock4 input CRC's check failed
->     [   10.179198] playstation ...: DualShock4 input CRC's check failed
->     [   10.204474] playstation ...: DualShock4 input CRC's check failed
->     [   10.229762] playstation ...: DualShock4 input CRC's check failed
->     [   10.254904] playstation ...: DualShock4 input CRC's check failed
->     [   10.280441] playstation ...: DualShock4 input CRC's check failed
->     [   15.070695] dualshock4_parse_report: 187 callbacks suppressed
->     ...
->
-> This reduces the space consumed in the kernel log during 5 seconds from
-> ~200 lines to only 11 lines (5.5%).
->
-> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
-> ---
->  drivers/hid/hid-playstation.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.=
-c
-> index f9dc9378cf777d33aab3cdb87302c6e48f406d2f..b053037a3f0b95b6986c7e53e=
-787e005676ed565 100644
-> --- a/drivers/hid/hid-playstation.c
-> +++ b/drivers/hid/hid-playstation.c
-> @@ -824,6 +824,7 @@ static int ps_get_report(struct hid_device *hdev, u8 =
-report_id, u8 *buf,
->                 u32 report_crc =3D get_unaligned_le32(&buf[crc_offset]);
->
->                 if (!ps_check_crc32(PS_FEATURE_CRC32_SEED, buf, crc_offse=
-t, report_crc)) {
-> +                       /* hid_err_ratelimited() not used on driver-initi=
-ated requests */
->                         hid_err(hdev, "CRC check failed for reportID=3D%d=
-\n", report_id);
->                         return -EILSEQ;
->                 }
-> @@ -1459,7 +1460,7 @@ static int dualsense_parse_report(struct ps_device =
-*ps_dev, struct hid_report *r
->                 u32 report_crc =3D get_unaligned_le32(&data[size - 4]);
->
->                 if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, =
-report_crc)) {
-> -                       hid_err(hdev, "DualSense input CRC's check failed=
-\n");
-> +                       hid_err_ratelimited(hdev, "DualSense input CRC's =
-check failed\n");
->                         return -EILSEQ;
->                 }
->
-> @@ -2425,7 +2426,7 @@ static int dualshock4_parse_report(struct ps_device=
- *ps_dev, struct hid_report *
->
->                 /* Last 4 bytes of input report contains CRC. */
->                 if (!ps_check_crc32(PS_INPUT_CRC32_SEED, data, size - 4, =
-report_crc)) {
-> -                       hid_err(hdev, "DualShock4 input CRC's check faile=
-d\n");
-> +                       hid_err_ratelimited(hdev, "DualShock4 input CRC's=
- check failed\n");
->                         return -EILSEQ;
->                 }
->
->
-> ---
-> base-commit: 83f32c773255720a661aa45d83e36278135f23f5
-> change-id: 20261027-hid-playstation-ratelimit-input-crc-error-26f871f1c9d=
-2
->
-> Best regards,
-> --
-> Mauricio Faria de Oliveira <mfo@igalia.com>
->
->
+A reader or writer can make a page fault in that copy take as long as
+it wants, with userfaultfd or by punching holes into a memfd over and
+over. And the callers of remove_proc_entry() like to hold locks while
+they wait. addrconf holds RTNL when it removes /proc/net/dev_snmp6/<dev>
+and xt_hashlimit holds a mutex that all network namespaces share.
+
+Every network device with IPv6 gets a /proc/net/dev_snmp6/<dev> that
+everyone can read, and addrconf_ifdown() removes it with RTNL held. So
+any local user can keep RTNL for as long as their read stays stalled.
+Until then no device can be registered, removed or renamed and no
+network namespace can be created or torn down.
+
+Without privileges a FUSE mount in a user namespace whose daemon never
+answers is enough to stall the copy. Killing the reader ends it, but
+until then whoever removes the file sits in D state.
+
+xt_hashlimit removes the proc file of a table with hashlimit_mutex
+held. Every rule insert in every network namespace takes that mutex and
+so does network namespace cleanup. cleanup_net() runs on a single
+workqueue with pernet_ops_rwsem held, so a stalled reader also stops
+every later network namespace teardown and every module load that
+registers pernet operations. xt_recent does the same with recent_mutex.
+
+And it's not specific to networking. remove_proc_entry(), proc_remove()
+and remove_proc_subtree() have over 200 callers and plenty of them hold
+locks. A stalled reader of /proc/fs/ext4/<dev>/options holds up the
+unmount of that filesystem with s_umount held, and every sync(2) with
+it. The same goes for PCI hot-removal, for freeing IRQ descriptors,
+which CPU bring-up waits on, and for unplugging a USB sound card.
+syzbot has hit removal under locks before (cf. [1]), and the xt_recent
+deadlock fixed in (1) below is another one.
+
+Stalling the kernel in a copy to or from userspace is a well-known
+exploitation primitive. It's why unprivileged userfaultfd can't do it
+by default anymore since v5.11 (d0d4730ac2e4), and FUSE has been used
+the same way.
+
+kernfs doesn't have that problem. The code of a kernfs file only ever
+runs with the node pinned and never touches userspace memory, kernfs
+copies in and out itself. This moves procfs over to the same scheme.
+
+sysfs has only held its active reference around ->show() and ->store()
+since v2.6.23, the same release that made remove_proc_entry() wait for
+the entry's callers. A copy to userspace couldn't be stalled for long
+back then. userfaultfd only came in v4.3 and FUSE in user namespaces in
+v4.18. configfs moved its copies out of its active reference in v5.3
+and DRM copies ioctl arguments in and out around the driver's handler
+the same way. debugfs still holds its reference across the copies,
+ran into a deadlock with wifi drivers because of it and grew an API to
+cancel operations instead (cf. [2]).
+
+That touches just about every ->proc_read(), ->proc_write() and
+->proc_ioctl() in the tree, so I've split it up into seven series. They
+go out as replies to this mail:
+
+(1) proc: fix a few old bugs in /proc handlers (38 patches)
+
+    Bugs in the handlers and in procfs itself that are a lot older than
+    the conversion and that reviewing it turned up. Most of them are for
+    stable. They come first so they can go there on their own and the
+    conversion doesn't have to bother with that crap.
+
+(2) proc: let procfs own the data path (16 patches)
+
+    The procfs side. procfs owns the seq_file of an entry, copies in
+    writes, copies out reads and copies ioctl arguments in and out, and
+    only calls into an entry with it pinned. proc_create_seq() and
+    friends and the plain seq_file users are switched over here too.
+
+(3) proc: convert the arch and platform entries (22 patches)
+(4) proc: convert the driver entries (23 patches)
+(5) proc: convert the fs, kernel and mm entries (27 patches)
+(6) proc: convert the net entries and the kfifo samples (11 patches)
+
+(7) proc: drop the __user methods (5 patches)
+
+    Drops the old methods for every entry that can be removed and gives
+    the new ones the names kernfs uses, ->proc_read(), ->proc_write()
+    and ->proc_ioctl(). This needs all four conversion series.
+
+The series should all indicate cleanly what dependencies they have so b4
+should be able to pull it for review. But I could be wrong.
+
+With all of it on a KASAN and lockdep kernel the removal selftests of
+every part pass, the proc, pktgen and allocinfo selftests behave like
+without it and the bugs from (1) that reproduce in a VM are gone. Every
+patch builds on its own on x86_64 and i386, and with W=1 on the
+architectures it touches.
+
+[1]: https://lore.kernel.org/r/000000000000f24f4705b6988f3e@google.com
+[2]: https://lore.kernel.org/r/20231109212251.213873-7-johannes@sipsolutions.net
+
+-- 
+Christian Brauner <brauner@kernel.org>

@@ -1,49 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=23.251.234.60
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793629351;
-	b=5QKuOFdxjLB82IBxc7uGVO4nCo5FsqXmYDvLQxTMptXHWHEWdrLKjtKSNV3tDOxoXA0V
-	 CxLJkt3fTAfXDV7fNIsT3SeLVM2Ond8QCObgmHXGTP9QATnjqY7Uh20qq73OmiMIkz5gG
-	 b8OSc1+LOLJVAFZTEA+YKF+XY8QY5Ul29gMKEceOACPnOMyyGy2/DHGAnq3cfhEHyG8pm
-	 aMOTOxfiRzO85wNnoXoZ7CoZ3mbASvuqg2EHioIfRUK+nMtDvy5s0C5w+76IfC9Jk7jEB
-	 WU7E1z9XCFMbVO/wNNUs7TEtgU2pm9Xnr+danKXfBQaJ5v7JtL790gAoa5JmrBsGnLg==
+	t=1793629349;
+	b=jtAwQuPJDM+ji18t1gmxLPSlP23HbjxZyYd1scCzLDewk/o3j5rTlnVuP7HrAnmVrTx9
+	 T4+E4BrCzSnAzPgHVfzt2e41v/yNrsVRi9BQlYa5Jpq9OaGENpHdlCgSyaPQfwGVR8o01
+	 9Bs8QV57Vl0iNmD4L0bb1Rhw1jJWC7EkSluth6PFCqO0lv+TXL3ogF0VP8A5tf57/3IJs
+	 HAAthxc1Koue8RM7J9brAHsEVZzxIlk8eOno8bMq8F1eJPkP+iSPG8xJ222xuRqlDvUOh
+	 SpuhtXsIRS7fqCFlNXaAKawj7TSca4bnjmLj8OTygoBClcnYhnQc+F4U/hCAIpWsWLw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793629351;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=PBbW9vd5orssW5wPAFhy4fJ1NNWUPnjkdaOH9xfStLQ=;
-	b=StbTFIA2ExcFqHomnQ5PTxJ12uTpYEdMp3KG+5ux+3GgOTQcBFiW4TT81ijzMLDtaW77
-	 eFN3T4N4ODzlQ8gvemr4gh3IjmKubyfxf5j5vs0ciqtgo2D2aNMYFD0AqH6SBDkpW4MhC
-	 56X4N81O+O0G4WCvh6jnG+HjHya7Zw7rnzuQ92bIsBNDY466E1rGOMZhI+ttv6Ly8c+zU
-	 QbgDY6FRO+4MWgANbmpyK9qATaNQiTstEtfIofKK3Fdej462n22IKfs6r3ShjAQYCVBcO
-	 jnNa2Rib7bGMfgDr3aOsgy9aSlD6Ta0+W7gLRbDU6/k8T65NNYjAda8cxFfWFO9oKrw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793629349;
+	h=DMARC-Filter:DKIM-Signature:DKIM-Signature:Read-Receipt-To:
+	 X-Confirm-Reading-To:X-Correlation-ID:From:To:Cc:Subject:Message-ID:
+	 Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID:
+	 X-SES-Outgoing;
+	bh=/DnZ3oSTwAvlrsrGpdGsJBnFUEZg4c4com/5I2PFMy0=;
+	b=QN2tLFWtAZTx6mVOOIdLrJMlQpOCd1s3BLBuSAZzbBQniXsQwgpmk71AxFxP8fwpEDlj
+	 6oIajQyX23JdJEIOYenBenrzbAidgAD5FJ11/7/t+fzUKxiFt+eu0248Ab7gsxTKqkp6F
+	 0TNdvMUKvHJRBhh1cw8/fQfNnXHRjymqh8kPg6rZc3Ock3C3iqSbvP1CxdNwfIRE+xYpQ
+	 wKQP1V8HlMjDFYa4gONcEWvUv9n2RR1usCSpOrb9/GqlwFckGL41G1gtC1Mg2O17SGQ7v
+	 v+CmR9fN3lL8dsQXcubBDJFKlHnKfcqaAuUdAF+3wmuAqlbYuIq4Je0QRHg3VdR8tdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nzlwkTf1;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=rokokol.art;
+	spf=pass smtp.mailfrom=send.rokokol.art;
+	dkim=pass header.d=rokokol.art header.i=@rokokol.art header.a=rsa-sha256 header.s=resend header.b=ZiYTdwjw;
+	dkim=pass header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b="b/XWXoES";
+	arc=none smtp.remote-ip=23.251.234.60
+Received: from e234-60.smtp-out.ap-northeast-1.amazonses.com (e234-60.smtp-out.ap-northeast-1.amazonses.com [23.251.234.60])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57C8C606A32E;
-	Mon,  2 Nov 2026 14:22:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C11CD60A383E;
+	Mon,  2 Nov 2026 14:22:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C11CD60A383E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rokokol.art
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=send.rokokol.art
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nzlwkTf1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D95AB1F00A16;
-	Mon,  2 Nov 2026 14:22:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793629351;
-	bh=PBbW9vd5orssW5wPAFhy4fJ1NNWUPnjkdaOH9xfStLQ=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=nzlwkTf15kz/wAHmBv8TBSldFi6uEzRKAH35yysNrDb/8c4TQ0GCZP0ASoI6HN4b+
-	 ehOxeihtKt2HTRVjPCKuuAHd7Yek+ODFrF9sc7qm/JijqtRdS5y2myAabKFf6nxaRY
-	 9Pas0GKbkNwOm8LlfgjzjeZcMkMcrZUeHJnggcdEQMEsZzosFpVfMgmLvRZKouwlv7
-	 JAi2ZqGrZot0jagbs1UODwU5a1zpC6WH70gNu4gGQL2YE+NPG7eToPVeRi3etVDvtY
-	 UcK5AZNwgPpnQ1ESM5OY+AU4XnwA5+oNTxzQWf3Lr2JUxoYKEPM809nyjile28GSz9
-	 DmBqBJEb70aSw==
-From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 02 Nov 2026 15:21:18 +0100
-Subject: [PATCH RFC 03/38] netfilter: xt_recent: don't remove the proc
- entries under a spinlock
+	dkim=pass (1024-bit key, unprotected) header.d=rokokol.art header.i=@rokokol.art header.a=rsa-sha256 header.s=resend header.b=ZiYTdwjw;
+	dkim=pass (1024-bit key, unprotected) header.d=amazonses.com header.i=@amazonses.com header.a=rsa-sha256 header.s=zh4gjftm6etwoq6afzugpky45synznly header.b=b/XWXoES
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple; s=resend;
+	d=rokokol.art; t=1793629347;
+	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type;
+	bh=X1y+4EfaPE2UAnaR/qUwVOgNS/yM2KKVP2rweeHr9yk=;
+	b=ZiYTdwjwaGw6tZXOwkYJ7xlxh0ZuWLCcoq5PPSyBdQM4lYKI42zALAzUUFIzXlDh
+	/Cu8/iI97zBQ8lZednjyjrS4MyWFYWSXtPUFuPmSXOOXYoUpb28eK+eR6ASTRMwGkT/
+	p8XJISNbLjfVSqpM3wYmGXl2zGM95gXl2BLkw6Pc=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=zh4gjftm6etwoq6afzugpky45synznly; d=amazonses.com; t=1793629347;
+	h=From:To:Cc:Subject:Message-ID:Content-Transfer-Encoding:Date:MIME-Version:Content-Type:Feedback-ID;
+	bh=X1y+4EfaPE2UAnaR/qUwVOgNS/yM2KKVP2rweeHr9yk=;
+	b=b/XWXoES3NQhmafaBEi7gc8HXfmdYPqb4uJ5dtvkXIfznyCM+0s8ZSZQMi32BC6u
+	9tZd6Z2OCFLMaMJx+hYJKFvnW4PsWqSQLJ+1mqpdMH+OeDYNKRHIuwqRwxTgQ5TJWuC
+	nF2KRwFjeNALlagLOyGEAKf/iYUZu8OcFTMm2Mto=
+Read-Receipt-To: work@rokokol.art
+X-Correlation-ID: <cb331d33-3adf-4e5c-9ad4-bc75d89363ce@rokokol.art>
+From: work <work@rokokol.art>
+To: linux-acpi@vger.kernel.org
+Cc: linux-input@vger.kernel.org
+Subject: [REGRESSION] ACPI: button: lid switch emits no SW_LID events after
+ the move to the platform bus
+Message-ID: <010601a19ca3de07-739bccf6-3a29-486f-b31e-1c928fe27e10-000000@ap-northeast-1.amazonses.com>
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 2 Nov 2026 14:22:27 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -53,118 +69,363 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-work-procfs-bugfixes-v1-3-59422ed3e465@kernel.org>
-References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
-In-Reply-To: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
- Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
- Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
- NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
- Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
- Greg Kroah-Hartman <gregkh@suse.de>, 
- Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
- Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
- coreteam@netfilter.org, kexec@lists.infradead.org, 
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
- netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
- linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
- linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
- sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
- linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
- linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
- linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
- linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
- linux-debuggers@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
-X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2627; i=brauner@kernel.org;
- h=from:subject:message-id; bh=boUkBs9MzJMgPbYDfsAEaTT4QAw3bhdvazLBbZuX36o=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9mJP1dtcCf06Gp9u3x217c+fnxNyHHy8FLGAsr+cWj
- t0U+GBRZEcpC4MYF4OsmCKLQ7tJuNxynorNRpkaMHNYmUCGMHBxCsBFXBgZOrZozFPorf+h0Kmk
- 8bQ8/Jz+9tqixhUCbka+M1baPWjgZ/grk3zOPFaz+iTnzmKxIH+uEl0pWY3mLRIpLJ96Q+YuEGU
- BAA==
-X-Developer-Key: i=brauner@kernel.org; a=openpgp;
- fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Type: text/plain; charset=utf-8
+Feedback-ID: :1.ap-northeast-1.J1Qr5JqhopftNTv8mDH0t+znTOPY6sk8CO0Y9ds1Y5Cth3IhzujyB8QbxM6EH4Osify1nw21MPpeiTEcUSGfyfKZJsHqoQdtR65LA6WPpV32pqvJWprNzOeiKWx4W8V3uXIXQllynhV8LIFUhwLXeD3SYMr1gBw24SwqBu29Fk+ISIkUjDFiLLSonTfootFH:1.ap-northeast-1.DTXDV/V9GPBWozcllKo8innbNB2qs2O/3F8XZSzd9ZM=:AmazonSES
+X-SES-Outgoing: 2026.11.02-23.251.234.60
 
-recent_proc_net_exit() removes the proc entries of all tables with
-recent_lock held. remove_proc_entry() waits until nobody calls into the
-entry anymore, and reading one of them takes recent_lock in
-recent_seq_start() while procfs has the entry pinned. So when a reader
-gets there while the network namespace goes away, the exit path sleeps
-with a spinlock held and bh disabled, waiting for a reader that spins
-on that very lock:
 
-  BUG: sleeping function called from invalid context at kernel/sched/completion.c:116
-  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 12, name: kworker/u16:0
-  locks held by kworker/u16:0/12: 4, last CPU#2:
-   #2: (pernet_ops_rwsem){++++}-{4:4}, at: cleanup_net+0xbf/0x860
-   #3: (recent_lock){+...}-{3:3}, at: recent_net_exit+0x3d/0x170 [xt_recent]
-  Workqueue: netns cleanup_net
-  Call Trace:
-   wait_for_completion+0x8e/0x400
-   proc_entry_rundown+0x1ab/0x1f0
-   remove_proc_entry+0x1ab/0x530
-   recent_net_exit+0x9f/0x170 [xt_recent]
-   ops_undo_list+0x271/0x8d0
-   cleanup_net+0x3f3/0x860
-   process_one_work+0x946/0x1820
-  BUG: scheduling while atomic: kworker/u16:0/12/0x00000202
+   Hi,
+  =20
 
-  watchdog: BUG: soft lockup - CPU#0 stuck for 26s! [rloop:252]
-  Call Trace:
-   _raw_spin_lock_bh+0x7a/0x80
-   recent_seq_start+0x86/0x1e0 [xt_recent]
-   seq_read_iter+0x26d/0x1230
-   seq_read+0x2a9/0x560
-   proc_reg_read+0x1c2/0x3c0
-   vfs_read+0x176/0xb40
-   __x64_sys_pread64+0x191/0x250
+  =20
 
-Tables are added and removed with recent_mutex held and that's also
-what recent_mt_destroy() looks at ->xt_recent under. Nothing that runs
-with a proc entry pinned takes it. So take recent_mutex instead.
+   the lid switch on this laptop stopped producing =
+SW_LID events after the
+  =20
 
-Fixes: 665e205c16c1 ("netfilter: xt_recent: fix namespace destroy path")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
----
- net/netfilter/xt_recent.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+   acpi_button driver moved from =
+acpi_bus_register_driver() to
+  =20
 
-diff --git a/net/netfilter/xt_recent.c b/net/netfilter/xt_recent.c
-index 55f1f2d89952..11acb9a50d4b 100644
---- a/net/netfilter/xt_recent.c
-+++ b/net/netfilter/xt_recent.c
-@@ -652,12 +652,12 @@ static void __net_exit recent_proc_net_exit(struct net *net)
- 	 * that the parent xt_recent proc entry is empty before trying to
- 	 * remove it.
- 	 */
--	spin_lock_bh(&recent_lock);
-+	mutex_lock(&recent_mutex);
- 	list_for_each_entry(t, &recent_net->tables, list)
- 	        remove_proc_entry(t->name, recent_net->xt_recent);
- 
- 	recent_net->xt_recent = NULL;
--	spin_unlock_bh(&recent_lock);
-+	mutex_unlock(&recent_mutex);
- 
- 	remove_proc_entry("xt_recent", net->proc_net);
- }
+   platform_driver_register(). 6.18.55=
+ works, 6.18.58 and 6.18.59 do not,
+  =20
 
--- 
-2.53.0
+   6.12.114 works. The device =
+stays bound, the input node exists and
+  =20
 
+   advertises SW_LID, the =
+firmware still reports the lid state through _LID,
+  =20
+
+   and the power button on the same module keeps working.
+  =20
+
+  =20
+
+   Machine: FUJITSU CLIENT COMPUTING LIMITED LIFEBOOK T939/FJNB2CD
+  =20
+
+   BIOS: version 2.17, 12/07/2022
+  =20
+
+   Distribution: NixOS unstable. =
+nixpkgs applies three patches to the kernel
+  =20
+
+   =
+(randstruct-provide-seed-5.19, request-key-helper, bridge-stp-helper);
+  =20
+
+   none of them touches ACPI, so the driver code is the vanilla one.
+  =20
+
+   CONFIG_ACPI_BUTTON=3Dm, and /proc/cmdline carries no button.* =
+parameter, so
+  =20
+
+   the module defaults apply: lid_init_state=3Dmethod,=
+ lid_report_interval=3D500.
+  =20
+
+   Userspace is systemd 262, where =
+logind subscribes to the lid device
+  =20
+
+   through libudev.
+  =20
+
+  =20
+
+   Works: 6.18.55, 6.12.114
+  =20
+
+   Fails: 6.18.58, 6.18.59
+  =20
+
+  =20
+
+   Problem:
+  =20
+
+  =20
+
+   On 6.18.58 and 6.18.59 the kernel emits no =
+SW_LID event when the lid
+  =20
+
+   moves, so systemd-logind never logs =
+"Lid closed." and the machine does
+  =20
+
+   not suspend. The compositor =
+receives no switch event either. The power
+  =20
+
+   button handled by the =
+same driver keeps working.
+  =20
+
+  =20
+
+   Steps to reproduce:
+  =20
+
+  =20
+
+   =C2=A0 1. Boot 6.18.58 or 6.18.59, with lid_init_state=3Dmethod =
+and
+  =20
+
+   =C2=A0=C2=A0=C2=A0=C2=A0 lid_report_interval=3D500
+  =20
+
+   =C2=A0 2. Find the lid node:
+  =20
+
+   =C2=A0=C2=A0=C2=A0=C2=A0 ls -l =
+/dev/input/by-path/platform-PNP0C0D:00-event
+  =20
+
+   =C2=A0 3. Run evtest on that node
+  =20
+
+   =C2=A0 4. Close the lid, =
+then open it
+  =20
+
+   =C2=A0 5. Read /proc/acpi/button/lid/LID/state at =
+the same time
+  =20
+
+  =20
+
+   Result:
+  =20
+
+  =20
+
+   /proc/acpi/button/lid/LID/state turns open -> closed -> open. That file
+  =20
+
+   evaluates _LID on each read, so the firmware still reports the =
+lid state.
+  =20
+
+   evtest prints nothing, and logind logs nothing.
+  =20
+
+  =20
+
+   Expected:
+  =20
+
+  =20
+
+   evtest prints SW_LID with value 1 on =
+the close and 0 on the open.
+  =20
+
+   logind logs "Lid closed." and =
+suspends.
+  =20
+
+  =20
+
+   What I ruled out:
+  =20
+
+  =20
+
+   =C2=A0 - Firmware: the state file flips on a real lid close, so the BIOS=
+ and
+  =20
+
+   =C2=A0=C2=A0=C2=A0 the EC still evaluate _LID correctly
+  =20
+
+   =C2=A0 - The input device: "Lid Switch" exists and advertises =
+SW_LID
+  =20
+
+   =C2=A0=C2=A0=C2=A0 (EV=3D21 SW=3D1)
+  =20
+
+   =C2=A0 - logind: it opens the device at boot and says so ("Watching =
+system
+  =20
+
+   =C2=A0=C2=A0=C2=A0 buttons on /dev/input/eventX (Lid =
+Switch)"). It still receives the
+  =20
+
+   =C2=A0=C2=A0=C2=A0 power button =
+from the same module, so its event loop is healthy
+  =20
+
+   =C2=A0 - Event stealing: no process holds EVIOCGRAB on the lid node. A =
+test
+  =20
+
+   =C2=A0=C2=A0=C2=A0 program acquires the grab successfully, =
+so another reader is not
+  =20
+
+   =C2=A0=C2=A0=C2=A0 taking the events
+  =20
+
+   =C2=A0 - Node identity: the failing kernel creates exactly one =
+device with
+  =20
+
+   =C2=A0=C2=A0=C2=A0 SW_LID set (EV=3D21 SW=3D1 on "Lid=
+ Switch"). The other switch node,
+  =20
+
+   =C2=A0=C2=A0=C2=A0 Intel =
+Virtual Switches, carries SW=3D2 only, so it cannot report the
+  =20
+
+   =C2=A0=C2=A0=C2=A0 lid
+  =20
+
+  =20
+
+   The driver difference:
+  =20
+
+  =20
+
+   The input device changed its parent between the working and the =
+failing
+  =20
+
+   kernel:
+  =20
+
+  =20
+
+   =C2=A0 6.18.55:=C2=A0 input: Lid=
+ Switch as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0D:00/input/input9
+  =20
+
+   =C2=A0 6.18.58:=C2=A0 input: Lid Switch as /devices/platform/PNP0C0D:00/=
+input/input7
+  =20
+
+   =C2=A0 6.18.59:=C2=A0 input: Lid Switch as =
+/devices/platform/PNP0C0D:00/input/input9
+  =20
+
+   =C2=A0 6.12.114: input:=
+ Lid Switch as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0D:00/input/input8
+  =20
+
+  =20
+
+   The working and the failing modules carry the same strings=
+, the same DMI
+  =20
+
+   quirks and the same parameters. Both install a =
+notify handler. Only the
+  =20
+
+   driver model differs:
+  =20
+
+  =20
+
+   =C2=A0 6.18.55 and 6.12.114: __acpi_bus_register_driver, acpi_button_add=
+,
+  =20
+
+   =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 acpi_button_notify, acpi_button_notify_run
+  =20
+
+   =C2=A0 6.18.59:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0 __platform_driver_register, acpi_button_probe,
+  =20
+
+   =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0 acpi_button_notify, acpi_button_notify_run
+  =20
+
+  =20
+
+   Suspected cause:
+  =20
+
+  =20
+
+   acpi_button_probe may install the =
+notify handler on a handle the firmware
+  =20
+
+   never notifies, or the =
+ACPI companion lookup on the platform device
+  =20
+
+   resolves to a different object. Either would leave the driver silent
+  =20
+
+   while it is bound and the input device exists.
+  =20
+
+  =20
+
+   Not measured yet:
+  =20
+
+  =20
+
+   =C2=A0 - Whether the notification =
+reaches the driver at all. The ACPI GPE
+  =20
+
+   =C2=A0=C2=A0=C2=A0 =
+counters do rise during a lid change, but the background rate is
+  =20
+
+   =C2=A0=C2=A0=C2=A0 about 1.9 events a second, so the burst needs a =
+per-second sample to
+  =20
+
+   =C2=A0=C2=A0=C2=A0 be attributed to the lid
+  =20
+
+   =C2=A0 - A reader watching every evdev node. It ran on the =
+failing kernel, but
+  =20
+
+   =C2=A0=C2=A0=C2=A0 the lid did not move =
+inside its window, so its result is pending
+  =20
+
+  =20
+
+   I can attach a button.ko symbol dump for 6.18.55, 6.18.58, 6.18.59 and
+  =20
+
+   6.12.114, and the output of a test program that samples
+  =20
+
+   /proc/acpi/button/lid/LID/state, the SW events of every evdev node and
+  =20
+
+   the per-second ACPI GPE counters.
+  =20
+
+  =20
+
+   --
+  =20
+
+   Ilya Leshenko
+  =20
+
+ =20

@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793621592;
-	b=AgNCG/PyjZB3LU3RmfOWoyqiQIofxMwE7scfd1QM6oEa6SIc13dy4tOBhs+WCZHGvVlM
-	 tVY+xE+Bd0K1L2Fm6es4Jc45W/5UQ0zklLlNbivhSECEwLbmtVtWWm0e7sf1Lo67dWDra
-	 D+aq3KV75YoPY6VuvQHwA9lPtxG6IGHXsOD+mqpX+m60+RPpzflvkmZNurM/PI10d/Ccm
-	 uLAZDYu6GgNzt290uAjfXeYEGXaP6jky3jvHddzFCQ4eFNym6zqoBkR2bttIIeYiXOPj0
-	 wIEuBjpAGHrukbmDIjQHQyv7hU6h+H6hpIizaUNIwbHCIs61ALbgWsNgB08tcIlqKDw==
+	t=1793621751;
+	b=oNo8DlOrpUguPTYW26RyMpb+0aHu2hb0N2NbqhiKXE9hvVB+jE368GlJt4/3rgjqkTBT
+	 CY7NHKqZValEEZS/Bdc/PdmrrUpuax0BqR9gR6PTmTzUJ16wr9RcCLnjwczg2B8gHnBjU
+	 4qrnzFeVld5x26JQfNIPQ9+LQxYHqAE2EMFPP/WAB+0T+MN4BX9DxDC0WfG0fPjcryl/w
+	 X649GR6/3bgzcJ6vW9QdUkyOGaIMlT1dDUw499QhIZyaNcaM0RBj2A15tVYiVPjJPPFel
+	 Uao01E7FuxvKa6oMY1+vzihoZ3UypUaNAILwnNiB0Akx9nAUghdR7DZXIlqqMGBz86w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793621592;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793621751;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=w16SL+kWg6jfT8JKO9pwhGzPmHVD9dHRs+8Matajy4k=;
-	b=RthqVdYLjvuWQuig9aal2330PhoiDMKnShwtm4W1senGcmQnlic+VpU7ONNYbWrUARXv
-	 liGV4yeAJr3phcLhy3dTudbe4tAhaVF8ALeG9OFao/XAkEzw5EkU4bWL/niWhOXD2klAl
-	 jb0wOPbtBbjnS30h22wLYvmNFEhp/BrmULpgwLLse5cwDg9Io2sXOEPbvJ2qqZhbukQr6
-	 ZBq5ofqBBokqW/qhJRYk9G1RhXklNuHpOO1u7q/n3rA+Lm8030e6KBp4YtwiTuyzyje8p
-	 B/bGrdppjvGnCLKCGMW1HMvxvmKheS+iKSIyAC3LYr1948fqWhtRuwSr60T9U2lcQoA==
+	bh=pFChq7RWoPOYXNpRIbOmM3CPFuf/lb1BveblQyxDSPI=;
+	b=TRQBB8bezClcSzyF4CK0mQe43k8yjeK0uZcPY4q3adCvtzxWqWBI0uD41roqoc5RZljo
+	 UHfKa8wVvRlWlcp5ThrKaCAoZ/JxF4MX0aqHZC4inWVzEIDVJOSvUFyWD0WF4WI08+cTb
+	 W0zBr0ydVmkr4Ci6iBMw9KXPRqSPcYcjTWiRtAOQqhBQjMVCiwRTudo2MafHK2NvkcYyv
+	 Mg7JqaJ9j+3vyzGR+sAbsPuxj1CXwmnY3gmJluGfBwizSTI1l/xW2XjAUYITKyTvE0wNT
+	 tz6XSHvWxIkT26j6u7s0pITtfoad2AXAkvplPDyh4xnGApeNiTfdNtdDLD4mb3XxpTQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IwsmmSKR;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbPQIdpe;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86B70606A326;
-	Mon,  2 Nov 2026 12:13:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AAEA60A381D;
+	Mon,  2 Nov 2026 12:15:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IwsmmSKR
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEF091F00A17;
-	Mon,  2 Nov 2026 12:13:11 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WbPQIdpe
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76C0C1F0157D;
+	Mon,  2 Nov 2026 12:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793621592;
-	bh=w16SL+kWg6jfT8JKO9pwhGzPmHVD9dHRs+8Matajy4k=;
+	s=k20260515; t=1793621750;
+	bh=pFChq7RWoPOYXNpRIbOmM3CPFuf/lb1BveblQyxDSPI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IwsmmSKRpzmwdCMQq7JxfyKwuyaDoJR2QRucJUTPr8q+z/nyGmZiU4Lmbl0pzlbp6
-	 3O7z0dnonQqy9tPGWn8zv96a/urPHfQdmJULQe/M++1uszl1Y26gqpFxvSQb6wVEcS
-	 owthYuASj05zUQrk9qV4tYAwMBPVi31OFx6iyh+jW4egKVpDu5pZdRm7cbDn2ALXl0
-	 y4ibRnXG7aMCRdpTvuDCYbqF9Y0sfj6kdh2JW88j9WbaYbIBASOA52r44b5A4E9Ppy
-	 JQ/vJtSGfJ5b8eQzNhDginSHN9l23/es6pzAe68a1++qWRCuXMDapnYvBOlVhO7Ilr
-	 kZYlgfuLD3X3g==
-Message-ID: <sashiko-outbox-193378@kernel.org>
+	b=WbPQIdpe/7N/9bSUxnF6NcBoPX8UUoIjM/Jbfx6xbwvEcSbIN+ym6eRvPHioWxZ2X
+	 MdLfBtr+f3plu2NVXss1QzKlJ6bRdwQ3NQSEVCOVslMtAloz08paUNwBCac6JjlZUC
+	 t/23JLiBVUZfYAGk/mP42uSOLRUFofLGjRtOwjlEUs5/WSFIvz5bx/CnwRXrsIunHp
+	 Trayr0c6g+4Fy8UCRGZvJgbG+kwtV29f9u6A2lmaWn3BeSUcyZO3Hp38MlQPRV++3F
+	 9Xe1CmmHQzKsMoKJ8BacbhCjvzK4t8z/VR3TuGy6GImdKAZJU8OJcSQrP2VddtZt4D
+	 F8vSeFx17hKiA==
+Message-ID: <sashiko-outbox-193383@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] HID: bpf: reject struct_ops registration during
- device destruction
+Subject: Re: [PATCH 1/2] HID: bpf: serialize hardware operations with device
+ destruction
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Yifan Zhang" <yfzhang23@stu.pku.edu.cn>, linux-input@vger.kernel.org
 Cc: bpf@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <179362071771.29269.9450789504034226345@stu.pku.edu.cn>
+In-Reply-To: <179362071770.29269.481376767482231629@stu.pku.edu.cn>
 References: <179362071770.29269.16022650793604369465@stu.pku.edu.cn>
- <179362071771.29269.9450789504034226345@stu.pku.edu.cn>
+ <179362071770.29269.481376767482231629@stu.pku.edu.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 12:13:11 +0000
+Date: Mon, 02 Nov 2026 12:15:50 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,22 +61,26 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [Critical] HID: bpf: dangling ops->hdev pointer on error path in hid_bpf_=
-reg()
-- [High] HID: bpf: deadlock on prog_list_lock and srcu in hid_bpf_hw_reques=
-t()
+- [Critical] HID: bpf: report UAF in __hid_bpf_hw_check_params() during dev=
+ice teardown
+- [High] HID: bpf: ABBA deadlock between prog_list_lock and srcu in hw requ=
+est kfuncs
+- [High] HID: bpf: recursive prog_list_lock deadlock in hid_bpf_hw_request()
+- [High] HID: bpf: lock inversion between prog_list_lock and driver_input_l=
+ock
 --
 
-commit 318c71f825ad280448e4c11859ac62903f968c18
+commit 49a737ce63da80cb915d4530a8a28ce52af759cc
 Author: Yifan Zhang <yfzhang23@stu.pku.edu.cn>
 
-HID: bpf: reject struct_ops registration during device destruction
+HID: bpf: serialize hardware operations with device destruction
 
-This series serializes HID-BPF hardware requests and output reports against
-device teardown using prog_list_lock and the destroyed flag, and rejects new
-struct_ops registrations once device destruction has started.
+This commit serializes HID-BPF hardware requests and output reports with
+device destruction by holding prog_list_lock and checking the destroyed
+flag across low-level driver calls in hid_bpf_hw_request() and
+hid_bpf_hw_output_report().
 
 > diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf=
 _dispatch.c
@@ -110,6 +114,134 @@ uf, size_t buf__sz,
 > +						  true); /* prevent infinite recursions */
 > +	}
 > +	mutex_unlock(&ctx->hid->bpf.prog_list_lock);
+
+[Severity: High]
+Can acquiring ctx->hid->bpf.prog_list_lock here in hid_bpf_hw_request()
+(and below in hid_bpf_hw_output_report()) in
+drivers/hid/bpf/hid_bpf_dispatch.c cause an ABBA deadlock with
+hdev->bpf.srcu?
+
+In drivers/hid/bpf/hid_bpf_struct_ops.c, both hid_bpf_reg() and
+hid_bpf_unreg() hold prog_list_lock while waiting on synchronize_srcu():
+
+drivers/hid/bpf/hid_bpf_struct_ops.c:hid_bpf_unreg() {
+	...
+	mutex_lock(&hdev->bpf.prog_list_lock);
+	...
+	list_del_rcu(&ops->list);
+	synchronize_srcu(&hdev->bpf.srcu);
+	...
+	mutex_unlock(&hdev->bpf.prog_list_lock);
+}
+
+When hid_bpf_hw_request() or hid_bpf_hw_output_report() is invoked from a
+syscall BPF program, it also takes prog_list_lock and then calls
+__hid_hw_raw_request() or __hid_hw_output_report(), which enters
+dispatch_hid_bpf_raw_requests() or dispatch_hid_bpf_output_report() and
+takes srcu_read_lock(&hdev->bpf.srcu). Both paths establish the lock order
+prog_list_lock -> hdev->bpf.srcu.
+
+However, hid_bpf_hw_request() and hid_bpf_hw_output_report() are also
+registered in hid_bpf_kfunc_ids for BPF_PROG_TYPE_STRUCT_OPS, so sleepable
+struct_ops callbacks (e->hid_hw_request and e->hid_hw_output_report) can
+call them directly. When a non-BPF caller such as hidraw invokes
+__hid_hw_raw_request(..., from_bpf=3Dfalse) or
+__hid_hw_output_report(..., from_bpf=3Dfalse),
+dispatch_hid_bpf_raw_requests() or dispatch_hid_bpf_output_report() holds
+srcu_read_lock(&hdev->bpf.srcu) across the callback:
+
+drivers/hid/bpf/hid_bpf_dispatch.c:dispatch_hid_bpf_raw_requests() {
+	...
+	idx =3D srcu_read_lock(&hdev->bpf.srcu);
+	list_for_each_entry_srcu(e, &hdev->bpf.prog_list, list,
+				 srcu_read_lock_held(&hdev->bpf.srcu)) {
+		if (!e->hid_hw_request)
+			continue;
+
+		ret =3D e->hid_hw_request(&ctx_kern.ctx, reportnum, rtype, reqtype, sourc=
+e);
+		if (ret)
+			goto out;
+	}
+	ret =3D 0;
+
+out:
+	srcu_read_unlock(&hdev->bpf.srcu, idx);
+	return ret;
+}
+
+When that struct_ops callback calls hid_bpf_hw_request() or
+hid_bpf_hw_output_report(), it acquires prog_list_lock while holding
+srcu_read_lock(&hdev->bpf.srcu), inverting the lock order to
+hdev->bpf.srcu -> prog_list_lock and deadlocking if another thread is in
+hid_bpf_reg() or hid_bpf_unreg().
+
+[Severity: High]
+Could holding ctx->hid->bpf.prog_list_lock across
+hid_ops->hid_hw_raw_request() in hid_bpf_hw_request() (and across
+hid_ops->hid_hw_output_report() in hid_bpf_hw_output_report()) also lead
+to a recursive mutex self-deadlock on the same task?
+
+When hid_ops->hid_hw_raw_request(..., true) or
+hid_ops->hid_hw_output_report(..., true) runs with prog_list_lock held,
+__hid_hw_raw_request() and __hid_hw_output_report() still invoke
+dispatch_hid_bpf_raw_requests() and dispatch_hid_bpf_output_report(),
+which call any attached sleepable struct_ops e->hid_hw_request or
+e->hid_hw_output_report programs on that hid_device.
+
+The recursion check at the start of hid_bpf_hw_request() and
+hid_bpf_hw_output_report() only inspects ctx_kern->from_bpf on the passed
+context:
+
+drivers/hid/bpf/hid_bpf_dispatch.c:hid_bpf_hw_request() {
+	ctx_kern =3D container_of(ctx, struct hid_bpf_ctx_kern, ctx);
+
+	if (ctx_kern->from_bpf)
+		return -EDEADLOCK;
+	...
+}
+
+Because hid_bpf_allocate_context() is exposed in hid_bpf_kfunc_ids to
+sleepable struct_ops programs and returns a fresh context with
+from_bpf =3D=3D false, wouldn't a struct_ops program that calls
+hid_bpf_allocate_context(hctx->hid->id) and passes the new context to
+hid_bpf_hw_request() or hid_bpf_hw_output_report() bypass the
+ctx_kern->from_bpf check and try to lock ctx->hid->bpf.prog_list_lock a
+second time?
+
+[Severity: High]
+Does holding ctx->hid->bpf.prog_list_lock across
+hid_ops->hid_hw_raw_request() and hid_ops->hid_hw_output_report() in
+drivers/hid/bpf/hid_bpf_dispatch.c introduce a lock inversion with
+hdev->driver_input_lock?
+
+In drivers/hid/hid-core.c, hid_device_probe() and hid_device_remove()
+acquire hdev->driver_input_lock before calling __hid_device_probe() (which
+runs call_hid_bpf_rdesc_fixup() and hdrv->probe()) and hdrv->remove(). If
+a sleepable struct_ops callback (such as hid_rdesc_fixup, hid_hw_request,
+or hid_hw_output_report) invoked under driver_input_lock calls
+hid_bpf_hw_request() or hid_bpf_hw_output_report(), it acquires
+prog_list_lock while holding driver_input_lock
+(driver_input_lock -> prog_list_lock).
+
+Conversely, while hid_bpf_hw_request() or hid_bpf_hw_output_report() holds
+prog_list_lock across hid_ops->hid_hw_raw_request() or
+hid_ops->hid_hw_output_report(), an attached sleepable struct_ops callback
+e->hid_hw_request or e->hid_hw_output_report can call
+hid_bpf_input_report(), which is exposed in hid_bpf_kfunc_ids and acquires
+driver_input_lock before checking ctx_kern->from_bpf:
+
+drivers/hid/bpf/hid_bpf_dispatch.c:hid_bpf_input_report() {
+	...
+	ret =3D down_interruptible(&ctx->hid->driver_input_lock);
+	if (ret)
+		return ret;
+	...
+}
+
+Wouldn't that establish the reverse ordering
+prog_list_lock -> driver_input_lock?
+
 > =20
 >  	if (ret > (ssize_t)size)
 >  		ret =3D size;
@@ -127,138 +259,83 @@ ong)ctx, true);
 > +		ret =3D hid_ops->hid_hw_output_report(ctx->hid, dma_data, size,
 > +						    (u64)(long)ctx, true);
 > +	mutex_unlock(&ctx->hid->bpf.prog_list_lock);
-
-[Severity: High]
-Can taking prog_list_lock in hid_bpf_hw_request() and
-hid_bpf_hw_output_report() deadlock against hdev->bpf.srcu or against itsel=
-f?
-
-In drivers/hid/bpf/hid_bpf_struct_ops.c, hid_bpf_reg() and hid_bpf_unreg()
-acquire prog_list_lock and then wait in synchronize_srcu():
-
-drivers/hid/bpf/hid_bpf_struct_ops.c:hid_bpf_reg() {
-	mutex_lock(&hdev->bpf.prog_list_lock);
-	...
-	synchronize_srcu(&hdev->bpf.srcu);
-}
-
-Meanwhile, in drivers/hid/bpf/hid_bpf_dispatch.c,
-dispatch_hid_bpf_raw_requests() and dispatch_hid_bpf_output_report() hold
-srcu_read_lock(&hdev->bpf.srcu) while invoking sleepable struct_ops programs
-(e->hid_hw_request and e->hid_hw_output_report):
-
-drivers/hid/bpf/hid_bpf_dispatch.c:dispatch_hid_bpf_raw_requests() {
-	idx =3D srcu_read_lock(&hdev->bpf.srcu);
-	list_for_each_entry_srcu(e, &hdev->bpf.prog_list, list,
-				 srcu_read_lock_held(&hdev->bpf.srcu)) {
-		if (!e->hid_hw_request)
-			continue;
-
-		ret =3D e->hid_hw_request(&ctx_kern.ctx, reportnum, rtype, reqtype, sourc=
-e);
-		...
-	}
-	srcu_read_unlock(&hdev->bpf.srcu, idx);
-}
-
-Those sleepable callbacks are permitted to call the kfuncs
-hid_bpf_hw_request() and hid_bpf_hw_output_report() (as done in
-tools/testing/selftests/hid/progs/hid.c). With prog_list_lock taken inside
-those kfuncs, a task running in dispatch_hid_bpf_raw_requests() or
-dispatch_hid_bpf_output_report() will lock srcu -> prog_list_lock, while a
-concurrent hid_bpf_reg() or hid_bpf_unreg() locks prog_list_lock -> srcu,
-causing an ABBA deadlock.
-
-Additionally, because prog_list_lock is held across
-hid_ops->hid_hw_raw_request() and hid_ops->hid_hw_output_report(), which in=
-voke
-dispatch_hid_bpf_raw_requests() and dispatch_hid_bpf_output_report() on the
-same task, if an attached sleepable struct_ops program allocates a fresh
-context via hid_bpf_allocate_context() (where from_bpf is false) and calls
-hid_bpf_hw_request() or hid_bpf_hw_output_report() on the same device, the =
-task
-will attempt to acquire prog_list_lock a second time and self-deadlock.
-
-[ ... ]
-
-> diff --git a/drivers/hid/bpf/hid_bpf_struct_ops.c b/drivers/hid/bpf/hid_b=
-pf_struct_ops.c
-> index c90b68956cb3b..4c433f419c85e 100644
-> --- a/drivers/hid/bpf/hid_bpf_struct_ops.c
-> +++ b/drivers/hid/bpf/hid_bpf_struct_ops.c
-> @@ -201,6 +201,11 @@ static int hid_bpf_reg(void *kdata, struct bpf_link =
-*link)
 > =20
->  	mutex_lock(&hdev->bpf.prog_list_lock);
+>  	kfree(dma_data);
+>  	return ret;
+> @@ -641,8 +653,10 @@ void hid_bpf_destroy_device(struct hid_device *hdev)
+>  	if (!hdev)
+>  		return;
 > =20
-> +	if (READ_ONCE(hdev->bpf.destroyed)) {
-> +		err =3D -ENODEV;
-> +		goto out_unlock;
-> +	}
+> -	/* mark the device as destroyed in bpf so we don't reattach it */
+> -	hdev->bpf.destroyed =3D true;
+> +	/* Block new BPF hardware operations before transport teardown. */
+> +	mutex_lock(&hdev->bpf.prog_list_lock);
+> +	WRITE_ONCE(hdev->bpf.destroyed, true);
+> +	mutex_unlock(&hdev->bpf.prog_list_lock);
 
 [Severity: Critical]
-Does jumping to out_unlock on error in hid_bpf_reg() leave a dangling point=
-er
-in ops->hdev after hid_put_device(hdev) is called?
+Is checking ctx->hid->bpf.destroyed after __hid_bpf_hw_check_params() in
+hid_bpf_hw_request() and hid_bpf_hw_output_report() sufficient to prevent
+a use-after-free on struct hid_report during device teardown?
 
-In drivers/hid/bpf/hid_bpf_struct_ops.c, hid_bpf_reg() assigns ops->hdev =
-=3D hdev
-before acquiring prog_list_lock, and the error path under out_unlock drops =
-the
-hdev reference without clearing ops->hdev:
+In drivers/hid/bpf/hid_bpf_dispatch.c, both hid_bpf_hw_request() and
+hid_bpf_hw_output_report() call __hid_bpf_hw_check_params() before
+acquiring ctx->hid->bpf.prog_list_lock and before checking
+ctx->hid->bpf.destroyed:
 
-drivers/hid/bpf/hid_bpf_struct_ops.c:hid_bpf_reg() {
-	hdev =3D hid_get_device(ops->hid_id);
-	if (IS_ERR(hdev))
-		return PTR_ERR(hdev);
-
-	ops->hdev =3D hdev;
-
-	mutex_lock(&hdev->bpf.prog_list_lock);
-
-	if (READ_ONCE(hdev->bpf.destroyed)) {
-		err =3D -ENODEV;
-		goto out_unlock;
-	}
+drivers/hid/bpf/hid_bpf_dispatch.c:hid_bpf_hw_request() {
 	...
-out_unlock:
-	mutex_unlock(&hdev->bpf.prog_list_lock);
+	/* check arguments */
+	ret =3D __hid_bpf_hw_check_params(ctx, buf, &size, rtype, true);
+	if (ret)
+		return ret;
+	...
+	mutex_lock(&ctx->hid->bpf.prog_list_lock);
+	if (READ_ONCE(ctx->hid->bpf.destroyed)) {
+	...
+}
 
-	if (err) {
-		if (hdev->bpf.rdesc_ops =3D=3D ops)
-			hdev->bpf.rdesc_ops =3D NULL;
-		hid_put_device(hdev);
+__hid_bpf_hw_check_params() looks up and dereferences struct hid_report
+from ctx->hid->report_enum:
+
+drivers/hid/bpf/hid_bpf_dispatch.c:__hid_bpf_hw_check_params() {
+	...
+	report_enum =3D ctx->hid->report_enum + rtype;
+	report =3D hid_ops->hid_get_report(report_enum, buf);
+	if (!report)
+		return -EINVAL;
+
+	report_len =3D hid_report_len(report);
+	...
+}
+
+During hid_destroy_device() in drivers/hid/hid-core.c,
+hid_bpf_destroy_device() sets hdev->bpf.destroyed =3D true and unlocks
+prog_list_lock, and then hid_remove_device() -> device_del() ->
+hid_device_remove() -> hid_close_report() frees each report in
+report_enum->report_id_hash[] before zeroing report_enum:
+
+drivers/hid/hid-core.c:hid_close_report() {
+	...
+	for (i =3D 0; i < HID_REPORT_TYPES; i++) {
+		struct hid_report_enum *report_enum =3D device->report_enum + i;
+
+		for (j =3D 0; j < HID_MAX_IDS; j++) {
+			struct hid_report *report =3D report_enum->report_id_hash[j];
+			if (report)
+				hid_free_report(report);
+		}
+		memset(report_enum, 0, sizeof(*report_enum));
 	}
 }
 
-When bpf_struct_ops_link_create() fails in st_ops->reg(), the struct_ops ma=
-p's
-kdata is not reset, so leaving ops->hdev non-NULL causes any subsequent att=
-ach
-attempt on the map to fail at if (ops->hdev) return -EINVAL.
-
-More importantly, if the map is already attached via an active bpf_link whi=
-le
-hid_destroy_device(hdev) runs, hid_bpf_destroy_device() calls
-__hid_bpf_ops_destroy_device(hdev) (which clears ops->hdev =3D NULL and dro=
-ps the
-active link's hdev reference) before hid_remove_device(hdev) removes the de=
-vice
-from hid_bus_type. If a second bpf_struct_ops_link_create() on the same map
-races in this window, it passes if (ops->hdev), gets a temporary reference =
-via
-hid_get_device(), sets ops->hdev =3D hdev, hits the new hdev->bpf.destroyed
-check, and drops the temporary reference via hid_put_device(hdev) while lea=
-ving
-ops->hdev pointing to hdev. Once hid_destroy_device() frees hdev, closing t=
-he
-first bpf_link calls hid_bpf_unreg(), which sees ops->hdev !=3D NULL and
-dereferences the freed hdev.
-
-Should ops->hdev be cleared in the if (err) block (or assigned only after t=
-he
-error checks succeed)?
+Because a syscall BPF context allocated by hid_bpf_allocate_context()
+only pins struct hid_device via get_device(&hdev->dev), can a concurrent
+call to hid_bpf_hw_request() or hid_bpf_hw_output_report() race with
+hid_close_report() inside __hid_bpf_hw_check_params() and dereference a
+freed struct hid_report before reaching the prog_list_lock and destroyed
+check?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/179362071770.29269.=
-16022650793604369465@stu.pku.edu.cn?part=3D2
+16022650793604369465@stu.pku.edu.cn?part=3D1

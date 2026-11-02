@@ -1,85 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.178
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793640079;
-	b=eAA9zSD7gO0w7+YbiuFeic5YVti618u58GOHeSv6RZ5wYt757UbHc5SNOY/sParUxb5d
-	 p3mcxeLH8BIbKsQIDKyBRo5EEOtEQnzpOzjp6dSS2fT5l2QWk3r3l/ccrlx3HIZgYgI9R
-	 Dk368SSHheuHdS2GJcWuQMeoMHKFb+SWaLa/vxlV+JlPTWH75zPuLq/NiPtMAalNWDE9A
-	 NvuhLzSw3mOyE6ekgjBJtW0m9s34MHudqrPOsC1eUx7/93QChog53PGneDMYFgV5smXck
-	 xhafK/+4pdC/9eCeBjyj01W1K3v9dc49FMPMiJVCAhlGkGSUBsszFSk80k1hgh74jiA==
+	t=1793641041;
+	b=124Aa2Itr/SALWRSBsQxBo8HTwTsNkPgTWvNT4XJjHvyGJNIZqgMRGzc7j4FWXcImYFr
+	 VPJa3vpablS3oG+BdrUd88Uh9HZAo/KZwev8D5AVq+zS4GZTqCAQGzzIRg1CtDkfroOHD
+	 7BkTb2g3CI4uP2M5AqkXSojyxdcQtZzM4z9o2aRBgwCrLK87mUwFJSG/i800MXJIfa/G4
+	 WSCQQLUm25KJu9C2P4lssu2gehaTT2IsTl5vsdQsa9zhDgL2nf/IqptSuYBOPG20sZPED
+	 yFGaYQNRqHrzsruU88Moski9gi19irluIKvXALmrhiqx48pGoHymBdjocwKZWAAAQIg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793640079;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Subject:
-	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
-	 Content-Transfer-Encoding:User-Agent:MIME-Version;
-	bh=RgFx2yB/Hk83xGx4rKbycFXzztA6pnGEYqpH3zOrJt4=;
-	b=437ngVHSi0JNbZwC2h6jIpguvnE4Aj5ftmn0cAa5Na2Xa978A7+YwmQWoaH2Tti757dr
-	 dyiRCz1NRVaPV80ICin+xCS/UMWca81sHJ2AU5SFTApqtR7B2ytkDEDuYCrqBvDa6+64q
-	 GyBi7WHU5LcnceSET6YawVt8ca7NOLCF3RaMbefhtlvRaOg02K4fzwouIHL4OgJh23Vkl
-	 O6bsBoYiZyo5FcX5jR0Y6c4F12CAS5bMOktI7fYTLHvuTvGDKtIcPZeOQwa67SvGp+J83
-	 /QoUVrr7Q1gbb9DoOGNElndhqU+8aBM+d/JdcvKeFp3wm2xm5PrrLHJk/xfxJTBIjHQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793641041;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:Message-ID:From:
+	 To:Cc:Subject:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Content-Disposition;
+	bh=wrj6sTKkJM7jrWxrV5P1DmJmPuQKxsBc3+FZTk/V1J4=;
+	b=5CwT/z2rKQpQeuZ3GqgrzRKqrJO1f+615q5Vascxs5uEn2XTdIPLgDc2X9dgPF2bev+C
+	 k61Abxqqa+I5Z35bgg+4X2p8gkCiC557dut1No3ZbOp86RAd44W60RnNn2JcAGpufdywc
+	 ZPB/Tnbco2XDNkAXsKayRhS96qK88vF4c0jKyopAfpuSeptBtmjAqfp0X06SSc4DcwLHo
+	 3s3DajK0bQk4ObZx7u7qQOqDQq911FPmZg5vYiGzDNnRwPupAU4/tpo12aT5GudxTwjxi
+	 TOOb7voUxEW8+cOcVGfNl3pNaMtoO3+laRqC833iUjSg60ufz++QHcNRQvO5gnwzy4Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.intel.com;
-	spf=pass smtp.mailfrom=linux.intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=KgbRNkAH;
-	arc=none smtp.remote-ip=192.198.163.15
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jfyBO+Uo;
+	arc=none smtp.remote-ip=74.125.82.178
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D72E460A3827;
-	Mon,  2 Nov 2026 17:21:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D72E460A3827
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AE9C606A906
+	for <linux-input@vger.kernel.org>; Mon,  2 Nov 2026 17:37:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0AE9C606A906
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=KgbRNkAH
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793640079; x=1825176079;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:content-transfer-encoding:mime-version;
-  bh=jEzzLxaG7Elthrsvf/EaYA9KeJdgkDS8dXEt3tMRxh8=;
-  b=KgbRNkAH1RfkCr7a5RTH4bp0DuuzvIerNin6Vnv4semC2M45Gf29oUYW
-   170CU7Ymvs9/ntqB2KVlQliY86SHg8WXV6kKjhFu89Qoz+y1Vk5GDPy1J
-   yxP4cAvQMs1ayr0H36v3hGTCwckwboLdZ1YyHN2guEQAaoTz+SlQkBOyN
-   +Y4KNpeQtqwVf9Hj9zVzcI1TA+fXlMD7LUHgtXzd9aX3sMl8IuRF6huRc
-   /vk2IrhF6kC8fiNMbxE/rWFc2+q74ODT/wdpaIrr6B4EbxZRNvPOektYE
-   5KNpM1RfNBv/eRsqXFj3rmkUib7f878WZnvb240Gh8o2NGXiTLLJE/aDl
-   w==;
-X-CSE-ConnectionGUID: Y3HBvE8kR0COrGyJupDM9A==
-X-CSE-MsgGUID: r+oeGlH/RHCkCYED6Z/Ncw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11954"; a="2346732"
-X-IronPort-AV: E=Sophos;i="6.27,191,1787036400"; 
-   d="scan'208";a="2346732"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Nov 2026 09:21:19 -0800
-X-CSE-ConnectionGUID: HSHacl66S7OYsKw1yBQgOA==
-X-CSE-MsgGUID: y3guCy38SnytuZLmYHeL1w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,191,1787036400"; 
-   d="scan'208";a="6007577"
-Received: from spandruv-desk2.jf.intel.com ([10.24.80.14])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Nov 2026 09:21:18 -0800
-Message-ID: <29fc637d4056b9cc43cec3966570a278bf72b6c3.camel@linux.intel.com>
-Subject: Re: [PATCH v3 3/3] iio: humidity: hid-sensor-humidity: Use
- per-instance callbacks
-From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To: Christopher Hoover <ch@murgatroid.com>, Jonathan Cameron
- <jic23@kernel.org>,  Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
- <bentiss@kernel.org>
-Cc: Lixu Zhang <lixu.zhang@intel.com>, Joshua Crofts
- <joshua.crofts1@gmail.com>,  David Lechner <dlechner@baylibre.com>, Nuno
- =?ISO-8859-1?Q?S=E1?= <nuno.sa@analog.com>, Andy Shevchenko	
- <andy@kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Date: Mon, 02 Nov 2026 09:21:18 -0800
-In-Reply-To: <20261019023420.83976-4-ch@murgatroid.com>
-References: <20261019023420.83976-1-ch@murgatroid.com>
-	 <20261019023420.83976-4-ch@murgatroid.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jfyBO+Uo
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-36a17a332ecso5157969eec.1
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 09:37:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793641040; x=1794245840; darn=vger.kernel.org;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=wrj6sTKkJM7jrWxrV5P1DmJmPuQKxsBc3+FZTk/V1J4=;
+        b=jfyBO+UoERP1OS7aLFfpDk9BCf7OJFgIR+uFJGAx3ofI+CEG+gsdDCrYkWJeMG84gj
+         zJ6oo7NGS5qxT25MQ0IrHoa9tPSnggd5aLj8TBCRyjcKCnCgqFcCZf9Il6aIq1W1bbgH
+         aIqAlFK7ZMRhO3bOE9jn5F6uB5lVodPgsZCA3iyFuRkffI47f8m52/9toRIPA1uEriTS
+         dUtTTjR3mky8HOKNd98ga7sbxXWUzi782xnqNaaO8EkW4+JPfjzjOXIgFM/z7sU58P4K
+         ObIabiLtSIRrbq6zXIfRwit7lsZhidG3r1FZA0Qh2d24gJEEKCC2Ws6gxF2rQ7P65eDb
+         3G+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793641040; x=1794245840;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=wrj6sTKkJM7jrWxrV5P1DmJmPuQKxsBc3+FZTk/V1J4=;
+        b=Lhq+0LPLo4XdlQdMjP2uJA/QqAsN/Xz97EmsiZlGY8tZ4XLtDrQAvWtWBU5dIKuDOj
+         0zlzBYp6BItkVFsESAdz10SnIDCQkLBwJ4AD1H4RpAyOX7BBngOPKxtq2cbaD08YwVwA
+         wqtVcE08itebVC1afhUNbKaiPAYcdp5SKm7m494BmpPsjlKJw+bFHpZWcx65xWg5Kec0
+         f4b4SifcfSfn5bWu/ndeh5txU2bePlVB/g7KR/pE/1XvMl4e/Lh2y9J/p8eBWWER71fR
+         3zDFsM5uKim6HHmbM0gpB8Y9lhZ68e5Fs9pHGDUIfr/JkFGZ4qS7MJRoQaa9b4l4ydzz
+         o3Xg==
+X-Gm-Message-State: AFq9FYI9Q7Ft/ne5HFYLemG2/fFD2tzZooApOROXTFoxxjBFpJqWUnGQ
+	UdnAfSBpEHf9OnVk+Uftdv1ZZeEdS4+wHVNQttRg7Gz8361fBqBF8Uug
+X-Gm-Gg: AYBFou3OrXLSN4RxinisTIfmEPTIG4vBWDndzuGvNf+wBPJMUKAaAdYetkTQ3KVCtor
+	eYz/vRmdTQm+95Sfk/7YB/wtdmwTmPEt7IneU3YXCxNnpab2o53PEaJcFrmPJkmxvxS0B3u9kbt
+	6f1x0dQAVLP3S4ivX1dvXfG/gvBs/FpsN5T1fAvGX259DWwwVaQV8Lu2Kh81SZ+gT+mK2d8uxke
+	wQ56zAewj8JR6UsBSGj0rpid33ftCfScEFEVVrNr5Yi4ymKivSFNFVOmwQwVkn6O4WbJE/T7taP
+	IU9aqsEA8O/kcjTofgGk60Q1VzjTR69drtLeFZER60ezQPfm2c1Fi3XYP2LlfSrNiBnItzImdrn
+	d+X2PCBxYcHBP+TK/fN2SFl7B5fJ2iHSzQ89qm47jEsgiX1CB2sItrDeyvaiExxpuUtyuILmrti
+	7ZFXSlOMnrdhggqJ2P+PaNFlNoorC9X9ODGnAAZGyeYtpyjgeDZwXJ1PpzTEPQR348dfghBGNix
+	c7D946ZQf+CKIPankO1L4EXOLIox8E1q0Doe16gpWwuG2mwaeqvOioPpc+4bw7EbV2wk2orVvRH
+	4/60TnfUQrVsscDJzMZ+IdhYWyEITF3SjT1RKIJx7tVPS8py2dubNkj/ebMNTGBqa8HtKVMds2M
+	fD/IjWWygKpdOdQ==
+X-Received: by 2002:a05:693c:69d5:b0:369:7c:bfce with SMTP id 5a478bee46e88-36a423c6223mr16995824eec.14.1793641040040;
+        Mon, 02 Nov 2026 09:37:20 -0800 (PST)
+Received: from localhost ([2a00:79e0:2ebe:8:98f:6bcd:858b:7a64])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a42669128sm41930021eec.3.2026.11.02.09.37.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Nov 2026 09:37:18 -0800 (PST)
+Date: Mon, 02 Nov 2026 09:37:17 -0800
+Message-ID: <f37327374f65a93439c6cf0c6287a820@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Gideon Heinz <gideonheinz02@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	jkosina@suse.com,
+	bentiss@kernel.org
+Subject: Re: HID: logitech-hidpp: G920 FF init fails with -110 since "move FF initialization to .input_configured()"
+In-Reply-To: <CAPb1+K1-pirdLGZ1wTUw26G6pvhg7rGP3QZ172ys5DB7rNCf5w@mail.gmail.com>
+References: <CAPb1+K1-pirdLGZ1wTUw26G6pvhg7rGP3QZ172ys5DB7rNCf5w@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -89,70 +98,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Sun, 2026-10-18 at 19:34 -0700, Christopher Hoover wrote:
-> hid-sensor-humidity keeps a single static struct
-> hid_sensor_hub_callbacks for all instances and overwrites its pdev in
-> every probe, so with two humidity sensors, input reports for one are
-> delivered with the other's platform device, and a NULL dereference
-> follows once that device is removed.=C2=A0 The same bug was found in
-> hid-sensor-temperature, which shares this code.
->=20
-> Keep the callbacks in struct hid_humidity_state, as the other HID
-> sensor drivers (accel, gyro, als, ...) do.
->=20
-> Fixes: d7ed89d5aadf ("iio: hid: Add humidity sensor support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christopher Hoover <ch@murgatroid.com>
-> Reviewed-by: Joshua Crofts <joshua.crofts1@gmail.com>
+Hi Gideon,
 
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+On Mon, Nov 02, 2026 at 02:23:18PM +0100, Gideon Heinz wrote:
+> This looks like a regression from commit
+> 544315e401727364f7ce3ba771a36f7dc24ba6c4 ("HID:
+> logitech-hidpp: move FF initialization to .input_configured()",
+> 2026-08-14). It moves g920_get_config()/hidpp_ff_init() from
+> hidpp_probe(), where they ran after schedule_work()/flush_work() of the
+> connect event, into hidpp_input_configured(), which is called from
+> hid_hw_start() before that work runs. That matches the capture: the
+> wheel answers the 0x8123 lookup normally, the driver doesn't act on the
+> reply and gives up after 3 tries with -ETIMEDOUT. I haven't tested a
+> revert. Happy to test patches.
 
-> ---
-> =C2=A0drivers/iio/humidity/hid-sensor-humidity.c | 14 +++++++-------
-> =C2=A01 file changed, 7 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/iio/humidity/hid-sensor-humidity.c
-> b/drivers/iio/humidity/hid-sensor-humidity.c
-> index 7cec81ff5685..644c82719447 100644
-> --- a/drivers/iio/humidity/hid-sensor-humidity.c
-> +++ b/drivers/iio/humidity/hid-sensor-humidity.c
-> @@ -14,6 +14,7 @@
-> =C2=A0
-> =C2=A0struct hid_humidity_state {
-> =C2=A0	struct hid_sensor_common common_attributes;
-> +	struct hid_sensor_hub_callbacks callbacks;
-> =C2=A0	struct hid_sensor_hub_attribute_info humidity_attr;
-> =C2=A0	struct {
-> =C2=A0		s32 humidity_data;
-> @@ -184,11 +185,6 @@ static int humidity_parse_report(struct
-> platform_device *pdev,
-> =C2=A0	return ret;
-> =C2=A0}
-> =C2=A0
-> -static struct hid_sensor_hub_callbacks humidity_callbacks =3D {
-> -	.send_event =3D &humidity_proc_event,
-> -	.capture_sample =3D &humidity_capture_sample,
-> -};
-> -
-> =C2=A0/* Function to initialize the processing for usage id */
-> =C2=A0static int hid_humidity_probe(struct platform_device *pdev)
-> =C2=A0{
-> @@ -240,9 +236,13 @@ static int hid_humidity_probe(struct
-> platform_device *pdev)
-> =C2=A0
-> =C2=A0	platform_set_drvdata(pdev, indio_dev);
-> =C2=A0
-> -	humidity_callbacks.pdev =3D pdev;
-> +	humid_st->callbacks =3D (struct hid_sensor_hub_callbacks) {
-> +		.send_event =3D humidity_proc_event,
-> +		.capture_sample =3D humidity_capture_sample,
-> +		.pdev =3D pdev,
-> +	};
-> =C2=A0	ret =3D sensor_hub_register_callback(hsdev,
-> HID_USAGE_SENSOR_HUMIDITY,
-> -					=C2=A0=C2=A0 &humidity_callbacks);
-> +					=C2=A0=C2=A0 &humid_st->callbacks);
-> =C2=A0	if (ret)
-> =C2=A0		goto error_remove_trigger;
-> =C2=A0
+Thank you for the report and the usbmon captures.
+
+The issue is that hidpp_probe() calls hid_device_io_stop() right before
+hid_connect(), so incoming HID reports are dropped with -EBUSY while
+hidpp_input_configured() runs g920_get_config(). Re-enabling I/O around
+g920_get_config() (matching what hid-pidff and hid-haptic do during
+hid_connect()) should fix it.
+
+Could you please give the patch below a try and let me know if it
+resolves the issue?
+
+Thanks.
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 9646380febac..6b1f55483385 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4098,7 +4098,9 @@ static int hidpp_input_configured(struct hid_device *hdev, struct hid_input *hid
+ 		if (!list_is_first(&hidinput->list, &hdev->inputs))
+ 			return 0;
+ 
++		hid_device_io_start(hdev);
+ 		ret = g920_get_config(hidpp, &data);
++		hid_device_io_stop(hdev);
+ 		if (!ret)
+ 			ret = hidpp_ff_init(hidpp, &data);
+ 
+
+-- 
+Dmitry

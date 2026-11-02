@@ -1,49 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793631250;
-	b=H7YJg/ftyPHTKzsN4tfdXhVD+3qg+kc1/GejYgXj6zz2wgopJ6oYepDABjzVdFIcsFui
-	 ksENVNE8Z8Geu8FAhXbDEEWOZW2WCvrxkEyLEy6OsKCk9kTuZePnFeKV13vFAAOMMgMsx
-	 9BWfSVqIcKyUg7txJPA3BNzb3xhhH4FBhPw6oouIc2yhep3ipm8wV+4WqTRG3PhZ+4AkF
-	 L5AVBCJKUIO+PtE2gfBQFeFOzXDG+SfxTJ5ieIkl+aeBlg3/Ut8Ur9ts0DCkAXkXdaVXp
-	 YEF03Zg8kRw6NI1Kvvz885rwcE+Jwz5POPEwUVmTiiNjcr+IF5uNvQVUR6lIuZ1eqIw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793631250;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer;
-	bh=6D+rhj9AMzsL4ZxAMbTTFRqO6BNcfNzlOGN8XoIy1BQ=;
-	b=2GCg/mc9/6AUTHT2gRIauO6of0bto0JieH9xVZq+7ShAP2AyxpUCe1cLOujqQFeXZDoE
-	 lNnERBN4VAxxKmxWs3nP90zWNPhV2ep7m5Ko+hlWn/6Liwg08aCg8ZrqV4rQqJLYXuCTm
-	 YzLcedmIJl+9BK8SO9PrG/KCgj9uL7KcckVuo/GfNTWuoBabia6Ph9hcLQSqPdEoz+Z2O
-	 BlW4Mwe72mCqf4NshKd/QDrIo0nFfPclNlohqlzWHOKU7e5+jbBeNo5FKfgX7d8aN+lkF
-	 cZhyd+aCs/Hyf42OwbC2Hbj3Aikmyr1CilUUWxqPNPj9Pr01RX64TiYQAb+w7Gqo/+g==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KxNpZEKk;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793631565;
+	b=eSMQzJID5KacTzcySMQf3Vt6G85qNhFnUJi29zFmtIGix4sEQRIF5pcHL9HbmXGjNfl7
+	 kefm+qhDS5C8tyD4Jqm6QyTZO1pNdbxNkx9Q0Qy2G7IzStAJyUzuYV+7DzwvnGNrm/1vG
+	 czsopMQvHMQZPPWe8hahI7YFVzwYVxxy5WbisaEPTzrTw656p6IJypjZv6DDTHhLen9OL
+	 z+IfqNs4C9gzR8BmklYsSdFB6Rgshk6Ozx/HQjxtrp1JgeXhXV8/0H23kqLtlC0Lh3pvH
+	 0XQQAadl6CdNX0tgq9ydDxgOGd8Wa+4ZBI5QXWyE79/Jy0VouLaPg15FWTus3E4zqDA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793631565;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=1KEkRA6BdIYkRC6y2WkEk/iPN+rgR8737tOGIPi/KQg=;
+	b=MiCz2Jr4VDqIOAt6kqXWnvtAwJgktfPTOAJcw3zdpEWO/iJlxrOn7Z25mAnueb4cUSDQ
+	 P6DJMmppxuXrrMyusY9CKkr8WD0V67HKgkhYgg9JCeqEMhIUzW9qRVhvjOEyByn/wwzCC
+	 7eXelxvfWnFStiyGEz/CBFCsZPeWfTHFaXL5e2A6CSi2Clsox/EZkqPQZ+1fibX0ltvRF
+	 nlqVAxtij6KqPEvMibv/Rj3tgcpkkVJG+9QLtUr1B1clRVAbKgnzj6pGzZ8Yile95m2kB
+	 BFtHAxXbLUZOqQmZx4DBFLDAcEHsQOo4bMDckFvoYEvfyFoyM85BkrO7smxZdfhM0AA==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ocQt029N;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E90BA607905F;
-	Mon,  2 Nov 2026 14:54:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEF63606C3F2;
+	Mon,  2 Nov 2026 14:59:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KxNpZEKk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 292341F00A16;
-	Mon,  2 Nov 2026 14:53:44 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ocQt029N
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793631564;
+	b=vOnrsNCKXh93EdDE9Oy1MhKnRhLTxQbtUqw/yDxdKFji5IycZDJV3eLt8VMnASoYfYJG
+	 hsBypDeoTlqoWOqNyK/+R1Y605gV8FiIjUxis1tBuoLoztnoNl4RpWgYnX+nt5M7ZVFh3
+	 Dg03nDP58UM3FlhqLosyypWHTMVAi8LVPMxWF80aYTxbjggQYW8ZY1V0YxHRCCsm9Hfdl
+	 AwviY2yBExxoMYcriFpD2/J4KZmj85mHi0yv0BPymmPtwCRoxWMUDfWv/SrJQlNN6hYcy
+	 D9BbDdc/VaXDTUEETuApYRvjuC3MspCeQv04WkwJyi6zP2fcoVH9ERUhwBAm4Q8pibg==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793631564;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=1KEkRA6BdIYkRC6y2WkEk/iPN+rgR8737tOGIPi/KQg=;
+	b=ghX9W7hMUcIhGRfLBTSyoFI+LYXBlopbNZjt77cbckJ08yf9VkDf2uJ73MVTEJbRpMDm
+	 LUaQ1ryGlJtATSnTwvoWmt0M5LukHUPJKwC/DcANpTLJVZL2IbdXMjbsn54Gbrah0LOXi
+	 fA9EIvo58TFvj8YFPNzfMUVEXqL0sTxC2Hj/7aAxxjydh9BWYINQBKoDyoR7q8VZdLb64
+	 YZx6Z1bHkT9IUaT9FoC/tmKhMRGDQEIKmv8cwRGICjIOhGMExFNMT46x+k5slim24S3ra
+	 lS5T1fhDIu9Qk1QhOZ/QFPg79eiI/F/WyQkKX5yRmmUc7oGlb8hWhRPpVOd/Y0m72vw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 39A151F00A29;
+	Mon,  2 Nov 2026 14:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793631249;
-	bh=6D+rhj9AMzsL4ZxAMbTTFRqO6BNcfNzlOGN8XoIy1BQ=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=KxNpZEKkyph0s1VFnWYugNb2QhC01F2/bH2mO62CWQZ+LGZOjH8D13WJhEvaEvssq
-	 ll1kDcMtrg3ROkFYJi4p7/Ri4zQ67sgTvcwZMysRa8udyqg9CDy7DJ1FOKzlD3OUC5
-	 hck0+uoaMFl0apM+ydUoJxSpyX1BiEd45EYN5ZcmyZZdhFNON3LUDyLw+HmFRG6kWj
-	 hKJyb7cb24m5nGVzK7xwTb/BfbuX6mn66mIH+I2qikOKVjpdkTR++4BkGvLnpQYbfU
-	 N42B37TnDt/oZhvY4ym1lTPmywWw6rqu+aAeSl/T4Fq53VdxKX+t4v7df9GH9Jeepm
-	 bu9oR3VWn5S8Q==
-From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 02 Nov 2026 15:48:53 +0100
-Subject: [PATCH RFC 13/16] proc: let procfs copy out reads that don't go
- through seq_file
+	s=k20260515; t=1793631564;
+	bh=1KEkRA6BdIYkRC6y2WkEk/iPN+rgR8737tOGIPi/KQg=;
+	h=From:Date:Subject:To:Cc:Reply-To;
+	b=ocQt029NhiaoQCi0uSVC7D8ZkfHQ81rVXNGeDvPLUMDjpKmuLAHEw/evY+SZQNv9n
+	 uU2R+CQqTOqVPuDG4bfldIuYBL12roPoi0wPZ90NQsD6h7GgSXq7ZMal0t6EdrfWrj
+	 5PCUdpQOEi3dTYvy6oz3vX5QAEYhMWtPpSsDmeTP1b+6WOwq9hLrDbOv+MLKybKfJY
+	 OOX4GNH2cvElWx4EGGW3jj/VJ9RHer8qmLrQkcg94UajaIfjdqkns2hv3BjGBHkCDP
+	 qnzA55vF5dz7y6rjJ3P16At751XA9jtZ+Fz+9LJN92cUNYbpiWSuAdY93E5D5c3RGO
+	 0VFR3Vp0NnkAw==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id 8BFD846557;
+	Mon,  2 Nov 2026 14:59:21 +0000 (UTC)
+From: Jaret Varn via B4 Relay <devnull+jav26122.gmail.com@kernel.org>
+Date: Mon, 02 Nov 2026 09:59:20 -0500
+Subject: [PATCH] HID: steelseries: Add support for Arctis Pro Wireless
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -54,264 +83,231 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261102-hid-arctis-pro-wireless-v1-1-109500e36f5b@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAEel6GoC/x3MQQqDQAxG4atI1gacmSK0VxEXQ+ZvDRSVRFQQ7
+ 96hy2/x3kUOUzi9mosMu7ouc0VoG5Ipzx+wlmqKXexDFxNPWjibbOq82sKHGr5w5yce0qeQkwi
+ o1qvhref/PIz3/QM7mcF0aQAAAA==
+X-Change-ID: 20261023-hid-arctis-pro-wireless-9e4c631a3cce
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Sriman Achanta <srimanachanta@gmail.com>, 
+ =?utf-8?q?Erik_H=C3=A5kansson?= <erikhakan@gmail.com>, 
+ Martin Oberleiter <martin.oberleiter@netixx.it>, 
+ Jaret Varn <jav26122@gmail.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1793631561; l=8406;
+ i=jav26122@gmail.com; s=20261023; h=from:subject:message-id;
+ bh=P8hw5Np1I1fi36O38WKLtuWMlqRxVnApPqW0aD40h3U=;
+ b=9xfBRSpU6RpfbJYb9vQcHniAfpd1vRG2opmRGWad04JcNtBzJlrKFlieIq8yYRIwTtYoIAGWO
+ u//mtApWnQZDFzpZ5L5jxJe+QlOOzc1kHi1l3XvU+MTiTvXSo0mXbre
+X-Developer-Key: i=jav26122@gmail.com; a=ed25519;
+ pk=WqYyslVFlvCd2E/8Og9Rh5VHXXB8A5a1ZhHaqIDzgFE=
+X-Endpoint-Received: by B4 Relay for jav26122@gmail.com/20261023 with
+ auth_id=1300
+X-Original-From: Jaret Varn <jav26122@gmail.com>
+Reply-To: jav26122@gmail.com
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-work-procfs-core-v1-13-75df35e4f8b8@kernel.org>
-References: <20261102-work-procfs-core-v1-0-75df35e4f8b8@kernel.org>
-In-Reply-To: <20261102-work-procfs-core-v1-0-75df35e4f8b8@kernel.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
- Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
- Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
- NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
- Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
- Greg Kroah-Hartman <gregkh@suse.de>, 
- Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
- Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
- coreteam@netfilter.org, kexec@lists.infradead.org, 
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
- netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
- linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
- linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
- sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
- linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
- linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
- linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
- linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
- linux-debuggers@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Chuck Lever <cel@kernel.org>
-X-Mailer: b4 0.17-dev
 
-proc_reg_read() and proc_reg_read_iter() pin the entry and call
-->proc_read() or ->proc_read_iter() which copy to userspace
-themselves. Like for seq_file reads and for writes, a reader can make
-a page fault in that copy take as long as it wants and
-remove_proc_entry() waits for it.
+From: Jaret Varn <jav26122@gmail.com>
 
-So do what kernfs does for these reads as well. An entry that implements
-->proc_read_buf() fills a kernel buffer of at most ->proc_read_size
-bytes, a page if the entry doesn't care, and procfs copies it to
-userspace after unpinning the entry. The entry moves the position like
-it did for ->proc_read() but that only sticks if the copy to userspace
-worked, like in kernfs_file_read_iter(). If the copy fails halfway the
-read fails with -EFAULT and the position stays, where
-simple_read_from_buffer() returned what it had copied until then.
-procfs remembers ->proc_read_size in the entry like ->proc_write_size.
+The Arctis Pro Wireless base station (USB ID 1038:1290) answers status
+queries on HID interface 0, but the driver does not know the device, so
+the headset battery is not reported to userspace.
 
-Larger reads come up short, like with kernfs. An entry whose readers
-want all of a large file in one read asks for PROC_ENTRY_FULL_READS and
-procfs fills the read in pieces of ->proc_read_size, unpinning the entry
-in between. A piece whose copy fails ends the read with what the pieces
-before it returned. kexec-tools treats any short read of /proc/vmcore
-as fatal for example (cf. [1]).
+Sending 0x41 0xaa returns the connection state in the first byte: 0x04
+when the headset is connected and 0x02 when it is switched off. Sending
+0x40 0xaa returns the battery level on a 0-4 scale. The replies do not
+echo the request. The second byte was 0x02 in every connection reply
+and 0x00 in every battery reply, including while swapping the headset
+battery and the spare battery in the base station, so use it to tell
+the two replies apart.
 
-These entries are read through ->read_iter() so readv(), splice(), aio,
-the RWF flags, kernel_read() and io_uring work for them like for the
-->proc_read_iter() ones. io_uring's nonblocking attempt gets -EAGAIN
-though, like loop_rw_iter() gave it for ->proc_read() entries. Neither
-the allocation nor the entry can honor IOCB_NOWAIT, and io_uring would
-take a short read of a record file for an unfinished one and glue the
-next record to it. So it retries from a worker like before.
+The base station keeps reporting the last battery level after the
+headset is switched off, and reports 0 if it powered up with the
+headset off, so only update the level while the headset is connected.
+No unsolicited reports were seen on either HID interface, so rely on
+the existing periodic status polling.
 
-An entry that implements ->proc_read_buf() and also declares a seq_file
-or one of the other read methods fails to register.
+The base station drops a query that arrives while it is still
+answering the previous one: sending the two queries back to back left
+most polls unanswered, and the base station then stopped answering at
+all until it was reset. Wait 100 ms between them. The connection reply
+arrives within 3 ms, and a 50 ms gap was already reliable in testing.
 
-No users yet.
+Add USB ID 1038:1290 to the driver's device tables.
 
-[1]: https://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git/tree/util_lib/elf_info.c
-
-Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+Signed-off-by: Jaret Varn <jav26122@gmail.com>
 ---
- fs/proc/generic.c       |  9 ++++++++
- fs/proc/inode.c         | 60 ++++++++++++++++++++++++++++++++++++++++++++++++-
- fs/proc/internal.h      | 11 +++++++++
- include/linux/proc_fs.h | 16 +++++++++++++
- 4 files changed, 95 insertions(+), 1 deletion(-)
+Tested on an Arctis Pro Wireless in a QEMU VM with the base station
+passed through: connection state, battery level and wireless_status
+are reported, and switching the headset off and on is picked up within
+one poll. Battery levels 4/4 and 3/4 were reported as 100% and 75%,
+matching the base station's own display. The base station's volume
+knob and spare battery charging indicator kept working while the
+driver polled. Builds cleanly with CONFIG_HID_STEELSERIES=y, =m and
+=n, and sparse reports nothing. Suspend and resume were not tested.
 
-diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index 83d273778a60..fc4d10c92d7c 100644
---- a/fs/proc/generic.c
-+++ b/fs/proc/generic.c
-@@ -476,6 +476,15 @@ static int pde_set_flags(struct proc_dir_entry *pde)
- 		if (proc_ops->proc_flags & PROC_ENTRY_SHORT_WRITES)
- 			pde->flags |= PROC_ENTRY_SHORT_WRITES;
- 	}
-+	if (proc_ops->proc_read_buf) {
-+		if (WARN_ON_ONCE(pde_is_seq_file(pde) || proc_ops->proc_read ||
-+				 proc_ops->proc_read_iter))
-+			return -EINVAL;
-+		pde->flags |= PROC_ENTRY_proc_read_buf;
-+		pde->read_size = proc_ops->proc_read_size ?: PAGE_SIZE;
-+		if (proc_ops->proc_flags & PROC_ENTRY_FULL_READS)
-+			pde->flags |= PROC_ENTRY_FULL_READS;
-+	}
- 	return 0;
+The code and changelog were drafted with an AI coding assistant
+(Claude), modelled on the Arctis 7 (2018) support. The protocol bytes
+come from HeadsetControl's documentation of this model and were
+checked on my headset through hidraw. I reviewed and tested the patch.
+
+This touches the same lines as patches still on the list: the Rival 3
+Wireless series [1] (Kconfig help text and hid-ids.h), and the two
+Arctis 7 (2018) request-spacing fixes [2][3]. I'm happy to rebase on
+whichever lands first. If the wait-for-reply approach in [3] is
+preferred over a fixed delay, I can switch this device to it as well.
+
+[1] https://lore.kernel.org/r/20261030-rival3-battery-v1-1-6b1feeaf1f52@netixx.it
+[2] https://lore.kernel.org/r/20261024-feature-arctis7-v1-1-583951aa6583@gmail.com
+[3] https://lore.kernel.org/r/20261029-arctis7-battery-v1-1-599a4554af30@netixx.it
+---
+ drivers/hid/Kconfig                  |  4 +--
+ drivers/hid/hid-ids.h                |  1 +
+ drivers/hid/hid-quirks.c             |  1 +
+ drivers/hid/hid-steelseries-arctis.c | 55 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 59 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 2481bc01c435b1305aa6666a6f94471635a8f6a0..16d95f948fe8f70ada1c89836b472aef9a40d139 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1216,8 +1216,8 @@ config HID_STEELSERIES
+ 	depends on USB_HID
+ 	help
+ 	Support for Steelseries SRW-S1 steering wheel, and the Steelseries
+-	Arctis 1 Wireless for XBox, Arctis 7 (2018), Arctis 9, and Arctis
+-	Nova headsets.
++	Arctis 1 Wireless for XBox, Arctis 7 (2018), Arctis 9, Arctis Pro
++	Wireless, and Arctis Nova headsets.
+ 
+ config HID_SUNPLUS
+ 	tristate "Sunplus wireless desktop"
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 91319aa6516dae89a6d1ace1b2ff089254fb93ae..ae09333566893c5934a09f7a58c0b5b924ad7c6c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1435,6 +1435,7 @@
+ #define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2	0x2258
+ #define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_2	0x229e
+ #define USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_3	0x22ad
++#define USB_DEVICE_ID_STEELSERIES_ARCTIS_PRO_WIRELESS	0x1290
+ #define USB_DEVICE_ID_STEELSERIES_MSI_KLC   0x1122
+ #define USB_DEVICE_ID_STEELSERIES_MSI_ALC   0x1161
+ 
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 793db001a62b7ba4ef2da67759a75334750be489..1097fd268bb6b2adc1fbaec3ba0f388931e7eefe 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -772,6 +772,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_3) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_ARCTIS_PRO_WIRELESS) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_SUNPLUS)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
+diff --git a/drivers/hid/hid-steelseries-arctis.c b/drivers/hid/hid-steelseries-arctis.c
+index df61fa33d4c6876d23c33ec3348d99b169feccb2..aa512342782eccf9062237b2174209dbd4b9b989 100644
+--- a/drivers/hid/hid-steelseries-arctis.c
++++ b/drivers/hid/hid-steelseries-arctis.c
+@@ -6,6 +6,7 @@
+  *  Copyright (c) 2026 Sriman Achanta
+  */
+ 
++#include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/hid.h>
+ #include <linux/kref.h>
+@@ -128,6 +129,25 @@ static int steelseries_arctis_nova_request_status(struct hid_device *hdev)
+ 	return steelseries_send_output_report(hdev, data, sizeof(data));
  }
  
-diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-index c0bb40e7ff96..3f29a1663d26 100644
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -23,6 +23,8 @@
- #include <linux/sysctl.h>
- #include <linux/seq_file.h>
- #include <linux/slab.h>
-+#include <linux/sched/signal.h>
-+#include <linux/uio.h>
- #include <linux/mount.h>
- #include <linux/bug.h>
- 
-@@ -400,11 +402,67 @@ static loff_t proc_reg_llseek(struct file *file, loff_t offset, int whence)
- 	return rv;
- }
- 
-+/*
-+ * The entry fills a kernel buffer and procfs copies that to userspace after
-+ * unpinning the entry. A reader that faults on its buffer then doesn't hold
-+ * up remove_proc_entry().
-+ */
-+static ssize_t pde_read_buf(struct proc_dir_entry *pde, struct kiocb *iocb,
-+			    struct iov_iter *iter)
++static int steelseries_arctis_pro_wireless_request_status(struct hid_device *hdev)
 +{
-+	struct file *file = iocb->ki_filp;
-+	char *buf __free(kvfree) = NULL;
-+	ssize_t rv, done = 0;
-+	size_t len, count;
-+	loff_t pos;
++	const u8 connection[] = { 0x00, 0x41, 0xaa };
++	const u8 battery[] = { 0x00, 0x40, 0xaa };
++	int ret;
 +
-+	if (!iov_iter_count(iter))
-+		return 0;
-+	/* neither the allocation nor the entry can honor IOCB_NOWAIT */
-+	if ((iocb->ki_flags & IOCB_NOWAIT) && !(file->f_flags & O_NONBLOCK))
-+		return -EAGAIN;
-+	len = min_t(size_t, iov_iter_count(iter), pde->read_size);
-+	buf = kvmalloc(len, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	/* PROC_ENTRY_FULL_READS fills the read in pieces */
-+	do {
-+		count = min_t(size_t, iov_iter_count(iter), len);
-+		pos = iocb->ki_pos;
-+		if (!pde_pin(pde)) {
-+			rv = -EIO;
-+			break;
-+		}
-+		rv = pde->proc_ops->proc_read_buf(file, buf, count, &pos);
-+		pde_unpin(pde);
-+		if (rv <= 0)
-+			break;
-+		if (WARN_ON_ONCE(rv > count)) {
-+			rv = -EIO;
-+			break;
-+		}
-+		if (copy_to_iter(buf, rv, iter) != rv) {
-+			rv = -EFAULT;
-+			break;
-+		}
-+		iocb->ki_pos = pos;
-+		done += rv;
-+		if (!pde_has_full_reads(pde) || rv < count)
-+			break;
-+		cond_resched();
-+	} while (iov_iter_count(iter) && !fatal_signal_pending(current));
-+
-+	return done ?: rv;
-+}
-+
- static ssize_t proc_reg_read_iter(struct kiocb *iocb, struct iov_iter *iter)
- {
- 	struct proc_dir_entry *pde = PDE(file_inode(iocb->ki_filp));
- 	ssize_t ret;
- 
-+	if (pde_has_proc_read_buf(pde))
-+		return pde_read_buf(pde, iocb, iter);
- 	if (!pde_pin(pde))
- 		return -EIO;
- 	ret = pde->proc_ops->proc_read_iter(iocb, iter);
-@@ -814,7 +872,7 @@ struct inode *proc_get_inode(struct super_block *sb, struct proc_dir_entry *de)
- 		inode->i_op = de->proc_iops;
- 		if (pde_is_seq_file(de))
- 			inode->i_fop = &proc_seq_file_ops;
--		else if (pde_has_proc_read_iter(de))
-+		else if (pde_has_proc_read_iter(de) || pde_has_proc_read_buf(de))
- 			inode->i_fop = &proc_iter_file_ops;
- 		else
- 			inode->i_fop = &proc_reg_file_ops;
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index ed22c6dfb0bf..11bd3fa07705 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -52,6 +52,7 @@ struct proc_dir_entry {
- 	void *data;
- 	unsigned int state_size;
- 	unsigned int write_size;
-+	unsigned int read_size;
- 	unsigned int low_ino;
- 	nlink_t nlink;
- 	kuid_t uid;
-@@ -118,6 +119,16 @@ static inline bool pde_has_short_writes(const struct proc_dir_entry *pde)
- 	return pde->flags & PROC_ENTRY_SHORT_WRITES;
- }
- 
-+static inline bool pde_has_proc_read_buf(const struct proc_dir_entry *pde)
-+{
-+	return pde->flags & PROC_ENTRY_proc_read_buf;
-+}
-+
-+static inline bool pde_has_full_reads(const struct proc_dir_entry *pde)
-+{
-+	return pde->flags & PROC_ENTRY_FULL_READS;
-+}
-+
- /* procfs owns the seq_file, see pde_seq_ops */
- static inline bool pde_is_seq_file(const struct proc_dir_entry *pde)
- {
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index c81c93325044..0f0997898ba3 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -38,6 +38,13 @@ enum {
- 	 * failing with -EINVAL.
- 	 */
- 	PROC_ENTRY_SHORT_WRITES		= 1U << 9,
-+	PROC_ENTRY_proc_read_buf	= 1U << 10,
++	ret = steelseries_send_output_report(hdev, connection, sizeof(connection));
++	if (ret)
++		return ret;
 +
 +	/*
-+	 * Reads larger than ->proc_read_size are filled in pieces instead of
-+	 * coming up short.
++	 * The base station drops a query that arrives while it is still
++	 * answering the previous one, and may then stop answering at all.
 +	 */
-+	PROC_ENTRY_FULL_READS		= 1U << 11,
++	msleep(100);
++
++	return steelseries_send_output_report(hdev, battery, sizeof(battery));
++}
++
+ /*
+  * Headset battery helpers
+  */
+@@ -255,6 +275,31 @@ static void steelseries_arctis_nova_7_parse_status(struct steelseries_device *sd
+ 	}
+ }
+ 
++static void steelseries_arctis_pro_wireless_parse_status(struct steelseries_device *sd,
++							 u8 *data, int size)
++{
++	if (size < 2)
++		return;
++
++	/*
++	 * Replies do not echo the request. The second byte tells them apart:
++	 * 0x02 for the connection status reply, 0x00 for the battery reply.
++	 */
++	switch (data[1]) {
++	case 0x02:
++		/* 0x04 means that the headset is connected to the base station. */
++		sd->headset_connected = data[0] == 0x04;
++		break;
++	case 0x00:
++		/* The base station reports a stale level while disconnected. */
++		if (!sd->headset_connected)
++			break;
++
++		sd->battery_capacity = steelseries_map_capacity(data[0], 0, 4);
++		break;
++	}
++}
++
+ /*
+  * Device info definitions
+  */
+@@ -296,6 +341,13 @@ static const struct steelseries_device_info arctis_nova_7_info = {
+ 	.parse_status = steelseries_arctis_nova_7_parse_status,
  };
  
- struct proc_ops {
-@@ -84,6 +91,15 @@ struct proc_ops {
- 	 */
- 	ssize_t	(*proc_write_buf)(struct file *, char *, size_t, loff_t *);
- 	unsigned int proc_write_size;
-+	/*
-+	 * procfs calls ->proc_read_buf() to fill a kernel buffer of at most
-+	 * ->proc_read_size bytes, PAGE_SIZE if that's 0, and copies it to
-+	 * userspace afterwards. Larger reads come up short unless the entry
-+	 * asks for PROC_ENTRY_FULL_READS. The position the entry moves to only
-+	 * sticks if the copy works.
-+	 */
-+	ssize_t	(*proc_read_buf)(struct file *, char *, size_t, loff_t *);
-+	unsigned int proc_read_size;
- } __randomize_layout;
- 
- /* definitions for hide_pid field */
++static const struct steelseries_device_info arctis_pro_wireless_info = {
++	.sync_interface = 0,
++	.capabilities = SS_CAP_BATTERY,
++	.request_status = steelseries_arctis_pro_wireless_request_status,
++	.parse_status = steelseries_arctis_pro_wireless_parse_status,
++};
++
+ /*
+  * Headset wireless status and battery infrastructure
+  */
+@@ -742,6 +794,9 @@ static const struct hid_device_id steelseries_arctis_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
+ 			 USB_DEVICE_ID_STEELSERIES_ARCTIS_NOVA_7_X_GEN2_3),
+ 	  .driver_data = (unsigned long)&arctis_nova_info },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES,
++			 USB_DEVICE_ID_STEELSERIES_ARCTIS_PRO_WIRELESS),
++	  .driver_data = (unsigned long)&arctis_pro_wireless_info },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(hid, steelseries_arctis_devices);
 
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261023-hid-arctis-pro-wireless-9e4c631a3cce
+
+Best regards,
 -- 
-2.53.0
+Jaret Varn <jav26122@gmail.com>
+
 

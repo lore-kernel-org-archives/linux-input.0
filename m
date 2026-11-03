@@ -1,105 +1,103 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793680700;
-	b=SMjHLIn69uBnhkOxFcDFFtIcH7A6WPcfch5ESpUZnD7/R9LQLCpC6DuceNi9d704xA72
-	 7wcn2K/EkLZP+vsqzqRhj4MWy1cs1qyAEtQyyZGqVho4CGZh1o0E9E+I105toly4dVmG2
-	 uwVSN4Ny2nKTnizwJkFuU70xtubdpTuuT5NuqlnSwuu6VPOmm+i/KH7mjXPIp8Kim96zC
-	 3L8/aebbW6+iePnJZxfAsHrslaV6RfCA8s+sK4MOEI9VwlWZiJlfFlnCA4Q4Mx5f9w/1R
-	 7GSB5OjkKrx+eiJcB0+6UCU4rpXxUIbUQn4HmGxfSYNxq2zVKNbBz25ayAl1f/UxH0Q==
+	t=1793681236;
+	b=jxe2szh7fXNfXFh6Q+4Hgy3jopLEp38Bi7JU8P0vqUK/LWBxdQIQbCQ7YOCb4d0nnRba
+	 ius9rWqkowSFtHAGV7UV0vLHzrkqzWC74PBVAx5qkH0W6AQrWns0ZHCqNVF3M4crR0j5I
+	 Uwhi1FApgUH8KZL6cLtFfJTFtNfMP//BMnjGzy/26FE9ttqghjGVC3zI4ioBJpQH744eH
+	 qXiP2DHFsShF3Qfygis4I25dkMG1vkVB5D86QyUjqbczx6ctJtbsZtcu6jxvs0/e/RywI
+	 bxsozCSu3Ks54GP9DPvM73X7m/HXx+Z1WMmh6Nq70IdAnhKLKAfgxKtE8qTgYVzlnEA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793680700;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793681236;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Transfer-Encoding;
-	bh=wOgLDWMrbGue3Y3ijnkKX9LYoTRtoFaZwaUPNmihNOI=;
-	b=zHyLDQ6IMzILFaZdn2I9SOqHxxxwCoKV/15lV7EBe/g7859Gr+rqCh9WHbSFV+pi6a/G
-	 x1U0YheTJ/WALoBmioz4n/L4s3Gur+HTyourqWBLCwNjHiyCTcu8i3bBMdxIjP+tknb16
-	 qasIMmpxSfi9MuKPxL3OgxtLTBs9/PLrO7twMJkAQ7K9xIQVEwLVurJUCDOjdyZqp2XQ6
-	 fo8+/AiKVBQaxZ16mSUL+yPcgxw8Ln2SLOdKh9PKwpMHznxBUcb7vKBjDp8fxXfD/AO6k
-	 ocgg044bnep/ICjW29Ucu34WfNc+69XvGK3+upTnNFPpVt+KRbOU+hmrXZJtOK7o7tg==
+	bh=NHDV0dfETVzr0Td0ndrjnRkd4XpFGPgc0UC2tibzLAw=;
+	b=ekm9Omq4RnYIlhUaIjSi9U/Non7vPUGXa7078/Oe9q1DiajLg+DkCHSAk17sF6XFa4Fn
+	 YAl0IcbLpAxPExmdarnIIw3x+QDVUekpyYSZlRIeVfEbERz7LOKnsi+fBSzh8IfmmiusY
+	 3TwrXRGwaHcUh7uT+0Mj9+SsLVV0owO2dLhmm5+cXaHopGa08aRfHYdH1fVjzyodsFAJM
+	 igpdn8RNCWu2k2OFYkN01G0vLpjO3MVrUaNEaV0lRM/M2ECDpIjmjqEKi21QcPcrZSVtK
+	 3mBPUD6OnD0CWJ216WGCldTd3oNEHRER37C5VoinXlgxDaiymKtmNVlWHRMILQY91LQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chromium.org;
-	spf=pass smtp.mailfrom=chromium.org;
-	dkim=pass header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=XElVPPXI;
-	arc=none smtp.remote-ip=209.85.216.53
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PrsakT07;
+	arc=none smtp.remote-ip=74.125.82.175
+Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92AA606A32E
-	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 04:38:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B92AA606A32E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3715606A334
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 04:47:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A3715606A334
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=XElVPPXI
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3ae691283ecso143263a91.0
-        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 20:38:19 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=PrsakT07
+Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-3514b90bb89so7794402eec.1
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 20:47:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1793680699; x=1794285499; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793681235; x=1794286035; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=wOgLDWMrbGue3Y3ijnkKX9LYoTRtoFaZwaUPNmihNOI=;
-        b=XElVPPXIpP6fosW6+7K3jVrmtXYfBRPTpzAlgEI6/7G5HJ+9KEJPQ3UoWAaex8SJ47
-         n5pY1ZRXvWc8XMYoR0maYVkdsXoSj0uwAHnNUnJyH3KKaMRiAFJdNbx6yD/d+aqssFad
-         NSUa4WrlOGyXMenr619P4qq1AQplaGBT6NfEY=
+        bh=NHDV0dfETVzr0Td0ndrjnRkd4XpFGPgc0UC2tibzLAw=;
+        b=PrsakT07XcYgmLFxgW01fAQjPwC0fknJKdLkeToBwVQiuuCE4te9rRxrVQz5S3Ey4+
+         zkrmSbMw1y6FCRHhc2bgrAJ0gNeDshcue0ODdQpXedr7bgrXfkOGMSOVmXEyZ+cME1gp
+         69knzzcR3eSvx2gKpwGi7uoi1bOpzHf3TpGADNTlS8ge/LcaXZEFQ8nMskDGmmnZkjEA
+         jx2TzXRBZ1F93q5zbpFZUjdmSCnJfNybOZFQFW4sU622sccZawxdux0Rxng2si5viPFu
+         JsTa+pnI7XfF/qqZl3IJX0PU/IobWMGXOxPCpMxoVlf0WVaJnktdKiW0NMM3fY0Tx8fu
+         UVPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793680699; x=1794285499;
+        d=1e100.net; s=20260707; t=1793681235; x=1794286035;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=wOgLDWMrbGue3Y3ijnkKX9LYoTRtoFaZwaUPNmihNOI=;
-        b=V6slfVT7wyFy7ZNmLvXuoF+o6U+9qckmnZyUWcOzI3uJHzZ18Imqm3zEEJBE++3WBu
-         4k0CeCtje34AaCfDIt4AFIg+RMBEi7VZYhH80OtIAy/D/0jfhwr0kExjIkubhDEFdu8/
-         MbcuuoY6AEzJEjk9KjMuU+5str4xuX5EfJ4LMttheQ6hu4Ht+tD+gtdRF8B5lZCO8iFg
-         ENuF+5su3LfV3yOdAu5KhgpC0/T7JyqQkLfufLFrMHh0TOCZwK1+CSgk4ZRhzqnWjRB3
-         BV8fycYaAx7e8rURGGK77MG1xJuHd4BA+c/84/Lic2YRrc8ZwxtndYrC3a9K4RsI8Moc
-         itwA==
-X-Forwarded-Encrypted: i=1; AKwUvBzKrtCtonQbgSatIJ75pawhgeDYU/m7e78AJCZ7M6dNwxsX2yJLN2g0WcJrTPcsN6FWZ+yNGmvF+ezJHw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z/g3U7URsXaR1jwcd3lRQDXYbH96f81WRaaec3FuHy5bPcB0eu0
-	LiKN1fsVY8fYfhtHoHL+N4aGK0HSLa4uDi6THla7fMwQl4ysDGQpkYwB3pHgPW17nQ==
-X-Gm-Gg: AYBFou2rQwc1DebGSeYF2SXoYJbusR4UybCrFzPEQAf0m60dMCyNSYr+GPqDJUItZO+
-	2Ck7SWJFkkJUSS34RgOkA54xr85tSPqoScqu6Nb91hFDjQu0GF3y7X6FA3i6lF04pwGKR0AC/wl
-	0CS1Jrjfrg1H6lVCmkfayMA9ZANN9m634GgqusdJkc0mBCFpnyTCdnVdQiIT1sa2emPEyDsZytB
-	NjMxDtaJp1b3aV9VzDCOTUBwCTp74y7MnAFA62ZdGrBx3Bk01ofxaC5SBnu1XxB9KOvaZK0MzAm
-	wHtxSQVJkV70n81KtCag4vCXEljEft4m9jtlCdgjXcv7gVmDfC3n10JhmPrsZ217zUs5fyXIKfw
-	AKT6TAwhEFXuTyF3TPSwXDsj4rsX4Rco9VsMS9mqSBjWS5mI2X4QVasJLuMx8Avcp4pEYbbs7sL
-	eqkOWpGOWUaY9Bk6eSavjg3Ft0qp67LDkMdqWVjQ/deBLpc5T7R1vrUoGOOG62jMGEGWj1Bi0rk
-	+i/NzlSZ0tBtEf6oWV5XbCpo245ycuF4VaFWbxtqwf482eybC5sUrF/wF8bkBgK95WTFcXX/B9X
-	3G6ii4BwUjBd2J/qyKKv58f4CFif1jUhX3+YL5moUdRxfH9rvHYNvIW6IiMmdKcLzegWziZpjuH
-	YLJ2ybIlU6bLGrxD4oLrISMCTe58TTQm/Kg==
-X-Received: by 2002:a17:90b:280c:b0:3a7:a3c8:8f4a with SMTP id 98e67ed59e1d1-3ae8972a6d2mr6631601a91.18.1793680698982;
-        Mon, 02 Nov 2026 20:38:18 -0800 (PST)
-Received: from wenst-7875.tpe.corp.google.com ([2a00:79e0:203d:7:dea6:6326:4502:bb8b])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b07c71c253sm2072761a91.16.2026.11.02.20.38.14
+        bh=NHDV0dfETVzr0Td0ndrjnRkd4XpFGPgc0UC2tibzLAw=;
+        b=zPIb5wbvwB1tI3dm3yil9SkAjrohhNUYdqyjCbTsNlDhljpPshpB154ZT5Lu3QQibN
+         e+77HVHFHYxdnzLtVAuRHVHui/wg7AQScPM+vl3GT1En4vmRSpC/25YmdQYK30LdgQLT
+         PUpsbwB/cMHhp2UBLEYqhqRNCoEcEsHRnMRX4kOPX/8sPtad1p3BhBHBkMcLfhrKATtC
+         nUvDm2bsJ9dxAxce3tnJImaVsxY+4NZZykGXE4uG9DV6WPZHJHhuskvt1n8/LiVr7YYS
+         jrH8vwBwDvZHmCpkQih7fo/r4gb7aieHgW9talk+59y7ifHTAQRo6PWWjizpYVeh6097
+         viUA==
+X-Forwarded-Encrypted: i=1; AKwUvBz3MMdWJsOPU/rZwx2i1n0z9qqjbQ79cNj/lSqTM/VzA9knD5jyX/+y90hBfNnH8+3bYv1pQHNQYPSEoA==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9Do8tbpPXo3hyHX/fgYp9YD25U4FsKh+VjAlLtGsyY3eqSqIDW
+	q4W9f6MHmLvrz9umfoD4nK8fYTRY2u8K4Ledhu86334oZxP6u9wQmv7r
+X-Gm-Gg: AYBFou3u8vtOtw/K10KsUOjqr8FP0Z20g7LJrdLIUlhRJWMEKQKuWW0Tf/Gnogm2kwO
+	05UwSdF1p4DzqaKMNNewa4oDHH2ntEOukznyAq+8CKA4F44nTEOZGhTPiQq78AUIJyfQU7EUGpG
+	ppkqWtQAejt7wJArDi26LbU41fJXCiYO0E8aMZ5Ez6gvSyDYxiM6w8ociFY5N/x+Pg36W1kJX5p
+	JUzLOzA1j3MkUuA8pQgpgkbFeqAnPwH5KcxN+2/K3kXIONoW/zlTt4OYadVRo2t9ZBRkglaQFSV
+	w6nRXPsas+pKDV81D3xuyQh98NO72oEOgfExG51BNDCNyCtPFgLGD6B+kemS8DcR1uBk6ZaI/NL
+	WsB91E46vLERRgrmIbtnndlRxYkxVk0JmWjO7bkmcK4oZ/DA2i3DhyopNN/XX7Pq/cyUybusQtI
+	E4seoQJ3s6dNGLOP+tV1L3CK2zJlxX9zN52r5d1W5hObpoaKjZ9i3NVdf9GkHPSS5bvWDW47YGH
+	iVP64j7mfvSuVjZcCQ6qS8LVsAiA0lQt/YioQm985GVPVOyTixuFwwORaqFezrs4STpCEg219JW
+	hGJ1uxa/W2HgPiBo15l94ZmbejosS4PzeF/+YeEc8aEtiawla+CuMJbJ2KRVLzrf6IiS7FxkES6
+	Q+q68OTYN3sOI9e1R
+X-Received: by 2002:a05:7300:c730:b0:36a:43d9:f2a5 with SMTP id 5a478bee46e88-36a43da454emr17661523eec.32.1793681234531;
+        Mon, 02 Nov 2026 20:47:14 -0800 (PST)
+Received: from dtor-ws.sjc.corp.google.com ([2a00:79e0:2ebe:8:98f:6bcd:858b:7a64])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a42902649sm48385807eec.11.2026.11.02.20.47.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Nov 2026 20:38:18 -0800 (PST)
-From: Chen-Yu Tsai <wenst@chromium.org>
-To: Mark Brown <broonie@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Chen-Yu Tsai <wenst@chromium.org>,
-	Benson Leung <bleung@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	linux-mediatek@lists.infradead.org,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	chrome-platform@lists.linux.dev,
+        Mon, 02 Nov 2026 20:47:13 -0800 (PST)
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Hans de Goede <hansg@kernel.org>,
+	David Heidelberg <david@ixit.cz>
+Cc: Neil Armstrong <neil.armstrong@linaro.org>,
+	Val Packett <val@packett.cool>,
+	Hendrik Noack <hendrik-noack@gmx.de>,
+	Ferass El Hafidi <funderscore@postmarketos.org>,
+	Sasha Finkelstein <fnkl.kernel@gmail.com>,
+	Jeff LaBundy <jeff@labundy.com>,
 	linux-input@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable+noautosel@kernel.org
-Subject: [PATCH v7 8/8] arm64: dts: mediatek: mt8192-asurada-spherion: Add Synaptics trackpad's supply
-Date: Tue,  3 Nov 2026 12:37:32 +0800
-Message-ID: <20261103043734.2179858-9-wenst@chromium.org>
+	asahi@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] Input: touchscreen - parse touchscreen-x-mm and touchscreen-y-mm
+Date: Mon,  2 Nov 2026 20:47:04 -0800
+Message-ID: <20261103044708.2461481-2-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.56.0.385.gac671c819a-goog
-In-Reply-To: <20261103043734.2179858-1-wenst@chromium.org>
-References: <20261103043734.2179858-1-wenst@chromium.org>
+In-Reply-To: <20261103044708.2461481-1-dmitry.torokhov@gmail.com>
+References: <20261103044708.2461481-1-dmitry.torokhov@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -111,39 +109,328 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Synaptics trackpad, like the Elan trackpad option, is fed from the
-system 3.3V power rail. Add it to the trackpad device node.
+The touchscreen device tree bindings define common touchscreen-x-mm and
+touchscreen-y-mm properties specifying the physical dimensions of the
+touchscreen in millimeters. However, touchscreen_parse_properties() does
+not parse these properties, forcing individual drivers to parse them
+manually or fall back to arbitrary resolution values.
 
-Also add the correct post-power-on delay, even though in practice it is
-not required. The Synaptics trackpad requires 100ms after power-on (or
-deasserting the reset, whichever comes later) to fully initialize. The
-power is always on and the reset pin is not routed out, so the
-implementation could try skipping the delay.
+Parse touchscreen-x-mm and touchscreen-y-mm in
+touchscreen_parse_properties() and calculate axis resolution in units
+per millimeter as the coordinate count (maximum - minimum + 1) divided
+by the physical dimension, rounded to the nearest integer. Guard against
+zero physical size or invalid axis ranges, and preserve pre-existing
+resolution settings when the properties are omitted. Apply resolution
+before early exit so callers passing a NULL properties pointer still
+get axes configured and so coordinate inversion and axis swapping
+continue to work seamlessly. Also add KUnit test coverage for resolution
+calculation.
 
-Cc: <stable+noautosel@kernel.org> # Without driver changes only lengthens probe time
-Fixes: 925ebc0cd55c ("arm64: dts: mt8192-asurada-spherion: Add Synaptics trackpad support")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
-I think this shouldn't be backported, as backporting it without the
-driver enhancements just delays the trackpad probing with no real
-gains.
----
- arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/tests/Makefile           |   1 +
+ drivers/input/tests/touchscreen_test.c | 209 +++++++++++++++++++++++++
+ drivers/input/touchscreen.c            |  18 ++-
+ 3 files changed, 223 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/input/tests/touchscreen_test.c
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts b/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts
-index 68caf4c58cfe..8adbfc307fca 100644
---- a/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts
-+++ b/arch/arm64/boot/dts/mediatek/mt8192-asurada-spherion-r0.dts
-@@ -94,6 +94,8 @@ trackpad@2c {
- 		hid-descr-addr = <0x20>;
- 		interrupts-extended = <&pio 15 IRQ_TYPE_LEVEL_LOW>;
- 		wakeup-source;
-+		vdd-supply = <&pp3300_u>;
-+		post-power-on-delay-ms = <100>;
- 		status = "fail-needs-probe";
- 	};
- };
+diff --git a/drivers/input/tests/Makefile b/drivers/input/tests/Makefile
+index 90cf954181bc..b5e769d9f8cc 100644
+--- a/drivers/input/tests/Makefile
++++ b/drivers/input/tests/Makefile
+@@ -1,3 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+ obj-$(CONFIG_INPUT_KUNIT_TEST) += input_test.o
++obj-$(CONFIG_INPUT_KUNIT_TEST) += touchscreen_test.o
+diff --git a/drivers/input/tests/touchscreen_test.c b/drivers/input/tests/touchscreen_test.c
+new file mode 100644
+index 000000000000..f8661c349fcc
+--- /dev/null
++++ b/drivers/input/tests/touchscreen_test.c
+@@ -0,0 +1,209 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * KUnit test for touchscreen property parsing.
++ */
++
++#include <linux/input.h>
++#include <linux/input/touchscreen.h>
++#include <linux/property.h>
++
++#include <kunit/device.h>
++#include <kunit/test.h>
++
++static struct input_dev *
++touchscreen_test_create_device(struct kunit *test,
++			       const struct property_entry *props)
++{
++	struct input_dev *input_dev;
++	struct device *dev;
++
++	dev = kunit_device_register(test, "touchscreen-test-dev");
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, dev);
++
++	if (props)
++		KUNIT_ASSERT_EQ(test,
++				device_create_managed_software_node(dev, props, NULL),
++				0);
++
++	input_dev = devm_input_allocate_device(dev);
++	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, input_dev);
++
++	return input_dev;
++}
++
++static void touchscreen_test_resolution_single(struct kunit *test)
++{
++	const struct property_entry props[] = {
++		PROPERTY_ENTRY_U32("touchscreen-x-mm", 100),
++		PROPERTY_ENTRY_U32("touchscreen-y-mm", 200),
++		{ }
++	};
++	struct touchscreen_properties prop;
++	struct input_dev *input_dev;
++
++	input_dev = touchscreen_test_create_device(test, props);
++
++	/* Driver-supplied ranges: 0..999 (1000 units), 0..1999 (2000 units) */
++	input_set_abs_params(input_dev, ABS_X, 0, 999, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, 1999, 0, 0);
++
++	touchscreen_parse_properties(input_dev, false, &prop);
++
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_X), 10);
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_Y), 10);
++}
++
++static void touchscreen_test_resolution_multitouch(struct kunit *test)
++{
++	const struct property_entry props[] = {
++		PROPERTY_ENTRY_U32("touchscreen-min-x", 10),
++		PROPERTY_ENTRY_U32("touchscreen-size-x", 1010),
++		PROPERTY_ENTRY_U32("touchscreen-x-mm", 50),
++		PROPERTY_ENTRY_U32("touchscreen-min-y", 20),
++		PROPERTY_ENTRY_U32("touchscreen-size-y", 2020),
++		PROPERTY_ENTRY_U32("touchscreen-y-mm", 100),
++		{ }
++	};
++	struct touchscreen_properties prop;
++	struct input_dev *input_dev;
++
++	input_dev = touchscreen_test_create_device(test, props);
++
++	/* Multitouch axes setup */
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 1, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, 1, 0, 0);
++
++	touchscreen_parse_properties(input_dev, true, &prop);
++
++	/* min=10, max=1009, count=1000, 1000 / 50 = 20 */
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_X), 20);
++	/* min=20, max=2019, count=2000, 2000 / 100 = 20 */
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_Y), 20);
++}
++
++static void touchscreen_test_resolution_rounding(struct kunit *test)
++{
++	const struct property_entry props[] = {
++		/* 1951 / 100 = 19.51 -> rounds to 20 */
++		PROPERTY_ENTRY_U32("touchscreen-size-x", 1951),
++		PROPERTY_ENTRY_U32("touchscreen-x-mm", 100),
++		/* 1949 / 100 = 19.49 -> rounds to 19 */
++		PROPERTY_ENTRY_U32("touchscreen-size-y", 1949),
++		PROPERTY_ENTRY_U32("touchscreen-y-mm", 100),
++		{ }
++	};
++	struct touchscreen_properties prop;
++	struct input_dev *input_dev;
++
++	input_dev = touchscreen_test_create_device(test, props);
++
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 1, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, 1, 0, 0);
++
++	touchscreen_parse_properties(input_dev, true, &prop);
++
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_X), 20);
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_Y), 19);
++}
++
++static void touchscreen_test_resolution_swap_invert(struct kunit *test)
++{
++	const struct property_entry props[] = {
++		PROPERTY_ENTRY_U32("touchscreen-x-mm", 50),
++		PROPERTY_ENTRY_U32("touchscreen-y-mm", 200),
++		PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
++		PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++		{ }
++	};
++	struct touchscreen_properties prop;
++	struct input_dev *input_dev;
++
++	input_dev = touchscreen_test_create_device(test, props);
++
++	/* X count = 1000, Y count = 2000 */
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 999, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, 1999, 0, 0);
++
++	touchscreen_parse_properties(input_dev, true, &prop);
++
++	/*
++	 * Before swap: X res = 1000/50 = 20, Y res = 2000/200 = 10.
++	 * After swap: X absinfo receives Y absinfo, Y absinfo receives X absinfo.
++	 */
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_X), 10);
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_Y), 20);
++	KUNIT_EXPECT_TRUE(test, prop.invert_x);
++	KUNIT_EXPECT_TRUE(test, prop.swap_x_y);
++}
++
++static void touchscreen_test_resolution_edge_cases(struct kunit *test)
++{
++	const struct property_entry props[] = {
++		/* Zero x-mm */
++		PROPERTY_ENTRY_U32("touchscreen-x-mm", 0),
++		/* y-mm omitted */
++		{ }
++	};
++	struct touchscreen_properties prop;
++	struct input_dev *input_dev;
++
++	input_dev = touchscreen_test_create_device(test, props);
++
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 999, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, 1999, 0, 0);
++
++	/* Pre-configure resolutions */
++	input_abs_set_res(input_dev, ABS_MT_POSITION_X, 15);
++	input_abs_set_res(input_dev, ABS_MT_POSITION_Y, 25);
++
++	touchscreen_parse_properties(input_dev, true, &prop);
++
++	/* Zero size and omitted property must preserve pre-existing resolutions */
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_X), 15);
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_Y), 25);
++}
++
++static void touchscreen_test_resolution_invalid_range_and_null_prop(struct kunit *test)
++{
++	const struct property_entry props[] = {
++		PROPERTY_ENTRY_U32("touchscreen-x-mm", 50),
++		PROPERTY_ENTRY_U32("touchscreen-y-mm", 50),
++		{ }
++	};
++	struct input_dev *input_dev;
++
++	input_dev = touchscreen_test_create_device(test, props);
++
++	/* X has valid range 0..999 (1000 units), Y has invalid range 500..500 */
++	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, 999, 0, 0);
++	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 500, 500, 0, 0);
++	input_abs_set_res(input_dev, ABS_MT_POSITION_Y, 42);
++
++	/* NULL prop pointer */
++	touchscreen_parse_properties(input_dev, true, NULL);
++
++	/* Valid X gets resolution computed even with prop == NULL */
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_X), 20);
++	/* Invalid Y range (max <= min) preserves pre-configured resolution */
++	KUNIT_EXPECT_EQ(test, input_abs_get_res(input_dev, ABS_MT_POSITION_Y), 42);
++}
++
++static struct kunit_case touchscreen_tests[] = {
++	KUNIT_CASE(touchscreen_test_resolution_single),
++	KUNIT_CASE(touchscreen_test_resolution_multitouch),
++	KUNIT_CASE(touchscreen_test_resolution_rounding),
++	KUNIT_CASE(touchscreen_test_resolution_swap_invert),
++	KUNIT_CASE(touchscreen_test_resolution_edge_cases),
++	KUNIT_CASE(touchscreen_test_resolution_invalid_range_and_null_prop),
++	{ /* sentinel */ }
++};
++
++static struct kunit_suite touchscreen_test_suite = {
++	.name = "touchscreen",
++	.test_cases = touchscreen_tests,
++};
++
++kunit_test_suite(touchscreen_test_suite);
++
++MODULE_DESCRIPTION("KUnit test for touchscreen property parsing");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen.c b/drivers/input/touchscreen.c
+index d699b24bb548..05ddb2ea7c66 100644
+--- a/drivers/input/touchscreen.c
++++ b/drivers/input/touchscreen.c
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <linux/export.h>
++#include <linux/math.h>
+ #include <linux/property.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
+@@ -33,7 +34,8 @@ static bool touchscreen_get_prop_u32(struct device *dev,
+ 
+ static void touchscreen_set_params(struct input_dev *dev,
+ 				   unsigned long axis,
+-				   int min, int max, int fuzz)
++				   int min, int max, int fuzz,
++				   unsigned int size_mm)
+ {
+ 	struct input_absinfo *absinfo;
+ 
+@@ -48,6 +50,8 @@ static void touchscreen_set_params(struct input_dev *dev,
+ 	absinfo->minimum = min;
+ 	absinfo->maximum = max;
+ 	absinfo->fuzz = fuzz;
++	if (size_mm && min >= 0 && max > min)
++		absinfo->resolution = DIV_ROUND_CLOSEST(max - min + 1, size_mm);
+ }
+ 
+ /**
+@@ -69,7 +73,7 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	struct device *dev = input->dev.parent;
+ 	struct input_absinfo *absinfo;
+ 	unsigned int axis, axis_x, axis_y;
+-	unsigned int minimum, maximum, fuzz;
++	unsigned int minimum, maximum, fuzz, size_mm;
+ 	bool data_present;
+ 
+ 	input_alloc_absinfo(input);
+@@ -89,8 +93,10 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
+ 						 input_abs_get_fuzz(input, axis_x),
+ 						 &fuzz);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-x-mm", 0,
++						 &size_mm);
+ 	if (data_present)
+-		touchscreen_set_params(input, axis_x, minimum, maximum - 1, fuzz);
++		touchscreen_set_params(input, axis_x, minimum, maximum - 1, fuzz, size_mm);
+ 
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-y",
+ 						input_abs_get_min(input, axis_y),
+@@ -102,8 +108,10 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
+ 						 input_abs_get_fuzz(input, axis_y),
+ 						 &fuzz);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-y-mm", 0,
++						 &size_mm);
+ 	if (data_present)
+-		touchscreen_set_params(input, axis_y, minimum, maximum - 1, fuzz);
++		touchscreen_set_params(input, axis_y, minimum, maximum - 1, fuzz, size_mm);
+ 
+ 	axis = multitouch ? ABS_MT_PRESSURE : ABS_PRESSURE;
+ 	data_present = touchscreen_get_prop_u32(dev,
+@@ -115,7 +123,7 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 						 input_abs_get_fuzz(input, axis),
+ 						 &fuzz);
+ 	if (data_present)
+-		touchscreen_set_params(input, axis, 0, maximum, fuzz);
++		touchscreen_set_params(input, axis, 0, maximum, fuzz, 0);
+ 
+ 	if (!prop)
+ 		return;
 -- 
 2.56.0.385.gac671c819a-goog
 

@@ -1,55 +1,99 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=45.254.49.197
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.41
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793673927;
-	b=F4MJWEOutSS/zeaXqpNSUpDf+yg6c1KC81jEdIpogHEk1hgEsNpaN/SZl0FZcxDCNQQQ
-	 VrClGDd+coUt1pK8n8Juwb8hBc5OJF/37fTJ4IWHMT2t47IufZkPTJANkYKC+5esHyp6I
-	 vg/HGmELL9mJysOevLkV0sREcDyUxMAbd5IRG6XRtfn2dRmNecuy8I/Zb7WF/X3TLclA8
-	 9nInF12s/mzfLbG90q/Azgr758k/CPi4QvzIxgJxt1BFwJVl9mhxCTsFGXwB3FC3eiMgL
-	 HqludwyephJdUCsrGG8ek3ViSCaqWpYeCT7z+dRe2pYRELlEdtvitbrB1aANgyz087Q==
+	t=1793674809;
+	b=uu+8sxm50wiUC14Y4N8xadeeu/MvVjZb08X0sQRRCvzj3aK406A0xIba6oaejojlyJy+
+	 uJXEtdmcm9GJmVsCunWi36SM+jCODfHXaYwpqyL2NpsSD4gH8QXfa/48+Da/Tm1XSYUJx
+	 VnuLj7OxquvgaMvNKQKkYVjGV5/oY7UasuWvzf3uvFJ1s45eLbx7TXtktua5L6dv3JTeh
+	 BDhl6kuNLHG6BMnZyMaMBM3FyvMLUJ1VXEAufwAEsxz3Tx/6/te+VQ7G4BEyQtBhzQIJj
+	 LfDUX1JAKGnltQtJCnpPHbDkjMs3a/nmWJU3wpwG/gB9lCbWCSP0vs6AqJOhGPvGJiQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793673927;
-	h=DMARC-Filter:Received:From:To:Cc:Date:Message-ID:Subject:In-Reply-To:
-	 References:Content-Type:Content-Transfer-Encoding:MIME-Version:
-	 X-HM-Tid:X-HM-MType:X-HM-Spam-Status:DKIM-Signature;
-	bh=Z1b4LdluQD3phylo9nFQqJDe0PHo57hXdTtNXDTMnCw=;
-	b=KOgYR0+We73RFU4NpTlrc7qgKcX05ktyUPoDPakHhFJi9jWCMY4Soso9Ydxp2yGQswJu
-	 PE+c3IQZ4TdYyn5VOlUAsuwc4QTOMvgZh+gtqw61391JJZiFKnPqcwFbw/7cx2ox5/4F5
-	 F2mAoAd2Zuy+vWsfQwge+II5eKGA/xR1kIG7VagqBUDaS8gOhohPARrK9grkVQUDwf6if
-	 jyqIdI3ubLGe7fl+fPeao9scNDXIHPwqtVwlSWJ95TN75sXfDqV2FVccKajhQXD45vJij
-	 9bRw3go/VDC0tJqnXKlAqJxuWs+uB+tjD4MPmviPdHxpRqT4m6j9tFgUS1Qgi4GcoDQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793674809;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Content-Type:Date:Message-Id:From:To:Cc:Subject:In-Reply-To:
+	 References:Content-Transfer-Encoding:MIME-Version;
+	bh=yVOQ1L8O+8jKxtIQtsjnk6fzaZoe6ThQio4f1IPG6QM=;
+	b=Qy4NX1lBxTH8t2fBHey+bTnnxZywMppTRY6fQjNShQOR8Aflvw28OFwKjINaEs6cpddS
+	 C/Y90rU4Ngn/nLBdjvkC1+PjEHnelORy3GKT3PFOyG79IdxABdoiKbS+PqWUamgFiznV0
+	 5VeGgNcwEITxVcdyMORm+kO1GcUh7Z5Mnp1p2SwfGbH3MONVq1G66IpjJKU43hya5i4pS
+	 W1OzXUnh3zuCorbNM51ckREK1fQgJGe+GTSBd6PdGXkF9Fyx0HKzrKFm09p8RiSbvM3Js
+	 KaEXcthEK1S/1L2u38qV2chIdqWueQUfvJf6SLzwkHVCfxEZYyl5LJw8JOsXdpzJjGA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=stu.pku.edu.cn;
-	spf=pass smtp.mailfrom=stu.pku.edu.cn;
-	dkim=pass header.d=stu.pku.edu.cn header.i=@stu.pku.edu.cn header.a=rsa-sha256 header.s=default header.b=QHPeeCiN;
-	arc=none smtp.remote-ip=45.254.49.197
-Received: from mail-m49197.qiye.163.com (mail-m49197.qiye.163.com [45.254.49.197])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IWKww995;
+	arc=none smtp.remote-ip=209.85.216.41
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31944606A332;
-	Tue,  3 Nov 2026 02:45:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 31944606A332
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.pku.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.pku.edu.cn
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19155606A32E
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 03:00:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 19155606A32E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=stu.pku.edu.cn header.i=@stu.pku.edu.cn header.a=rsa-sha256 header.s=default header.b=QHPeeCiN
-Received: from 1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa (unknown [IPV6:2409:8a00:3c11:dbc0:2581:8e:ca0f:59ab])
-	by smtp.qiye.163.com (Hmail) with ESMTP id 534316a37;
-	Tue, 3 Nov 2026 10:45:20 +0800 (GMT+08:00)
-From: Yifan Zhang <yfzhang23@stu.pku.edu.cn>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- linux-input@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Alexei Starovoitov <ast@kernel.org>, bpf@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Date: Tue, 03 Nov 2026 10:45:19 +0800
-Message-ID: <179367391951.8187.17327354719079930667@stu.pku.edu.cn>
-Subject: [PATCH v2 1/2] HID: bpf: synchronize hardware operations with device
- destruction
-In-Reply-To: <179367391951.8187.14164894863012056170@stu.pku.edu.cn>
-References: <179367391951.8187.14164894863012056170@stu.pku.edu.cn>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IWKww995
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-3acdcfa2bd3so2877834a91.3
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 19:00:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793674808; x=1794279608; darn=vger.kernel.org;
+        h=mime-version:content-transfer-encoding:references:in-reply-to
+         :subject:cc:to:from:message-id:date:content-type:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=yVOQ1L8O+8jKxtIQtsjnk6fzaZoe6ThQio4f1IPG6QM=;
+        b=IWKww995EvtZZoHiYy/wXjTGbmZog9wtq5/Jc+an6R2jG84GS2Eu2YsnzdYVWofwPs
+         bUsKacRZmhscQLX7lCKMlB1X35QGKhrzLjgI0T1/jdPT6t8PiY5S4UqsU75X5nzusTAi
+         x+TZLy+OUgvncCeMHBiNtzX6Lrq3PFus696BRDfhNOTyaPbV62l6MbtvOIweI3UjeTto
+         NyGBxB1mjUU9xbF/bV2+kogfkJKfWhjLgB1t8K3KcHpwx00x7lZ+sCOo0l46m9i9NE5/
+         F+ZdWWPD5/2ErfBXCvZPeYWK32peHv24HTt0AJgMm/ZDr4ouChLdJ4tD9nP/JKIecR+a
+         St4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793674808; x=1794279608;
+        h=mime-version:content-transfer-encoding:references:in-reply-to
+         :subject:cc:to:from:message-id:date:content-type:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=yVOQ1L8O+8jKxtIQtsjnk6fzaZoe6ThQio4f1IPG6QM=;
+        b=TyeOPPq8deILNlGPbSH2uF/tUFKsl1ayM1pYXjaRA11e2nHuZZC3P3fLhOKJze3LwF
+         aSN8pv6op1O6Ko6o530itUqfJdU5Vf9xjP3cpFnNLtB29xiXy3R/1NymJaLKwi3WCads
+         AK0F2otYDuW5DQHIaQrEbSmtooYFGSKJe5ukH8sS15uIeRnZ10jMO8l6FK8RvX711eWZ
+         KtEFNMKMZGcowZi+Gmdjf5yH2xdLQgD7u+Vb9N0Al9xddM7xVXHqhvAUles1QYfQcR20
+         AQ8USet49bN+wZLs+mw4G7dg/RwdEzTzvgauPHt1+/TXv6m/PsnLKxXkCWIa1MmNlQVK
+         bcDQ==
+X-Forwarded-Encrypted: i=1; AKwUvBy7IXLXAUcBRXAWe39bC0wyOfJbp68SfKxaKHCL2fsDX2Nb1WqpO0PXp4w2CJjF/W0A3Isj5NKxkIaTSg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z+/9FL1nYnftbZlQopX+YXA7UYThp7uiPxijXz+ZciKX4X+JS8L
+	bhOU1KjzrdisZ9rROzBM+wRTn7YXRsTBNm2o71owVCst/zSQXiM+WtYX
+X-Gm-Gg: AYBFou1CqI0jzZVJFjOa5KKpqlasTPiR46zwDTWl/4vFwXWXq700ustA2P5YhE0266k
+	YN0yBZHRiGS5fHaXp0TSVKApCFInD+Cj8q6aCISyeOdyGA/aVQ8xxRm4KflDqz9L87dsOo+Xe/j
+	z8S5twk9FyWHakyCVGDU7vDYc+mAPx0ZR8EG6dy5pV/4FEm9HKvKuYiUPRjWnFMf9nERbNLCwRy
+	rV8aM0c4uEH2DFJZQDJNZdw/ZzzQE++Lo1AuVw3pb9ZUc3RpYNKmePL+pK2yFSjapsdQH9flQia
+	soCgqdlHhyp/hLyvJwZ5UYbXsyuiziOoZRM4WzOtFmmHCgBqK5FKY9xgaPooFzgeAVU4vC3baJb
+	8blz0aswBKkS3wp+Cc364kOr+qV88WOzlOd/j6pHQPA5Ty39j4E9h1swYnhglKrx/Ju1/ByE+ay
+	PfcDPLnWna8VQ+EZnsVXhI4D9aiPVc0f8iaVr0nPO1qhsqm64a2jXZdan0tkraaGmMJd7EbiVLR
+	okKvoKifE+rBQz5DqGacFN+MbrLfXDcbapmCAVyNwDoTmI8A6pUZo2nb9jsT9bkR2BcKOsuRnMd
+	3lQmvfmdONP9t+gPmUFMR4EIETqb5THGBI9LAi6DCq95B6NN2ZZ+4HXzV9KTJ/4qP2WgwmByMYh
+	lkEbgZrGg/XZTOAvOUb+iqoXkqV/l+J+VHw==
+X-Received: by 2002:a17:90b:1d03:b0:3a8:49f2:8ddb with SMTP id 98e67ed59e1d1-3ae8984de33mr10126233a91.60.1793674808172;
+        Mon, 02 Nov 2026 19:00:08 -0800 (PST)
+Received: from localhost ([153.61.198.249])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b07c5adc33sm1790498a91.1.2026.11.02.19.00.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Nov 2026 19:00:07 -0800 (PST)
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 03 Nov 2026 03:00:07 +0000
+Message-Id: <DML8NIYTERIZ.1GLZ1R1VJPLUG@gmail.com>
+From: "Alexei Starovoitov" <alexei.starovoitov@gmail.com>
+To: "Yifan Zhang" <yfzhang23@stu.pku.edu.cn>, "Jiri Kosina"
+ <jikos@kernel.org>, "Benjamin Tissoires" <bentiss@kernel.org>,
+ <linux-input@vger.kernel.org>
+Cc: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ <bpf@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 1/2] HID: bpf: synchronize hardware operations with
+ device destruction
+In-Reply-To: <179367391951.8187.17327354719079930667@stu.pku.edu.cn>
+References: <179367391951.8187.14164894863012056170@stu.pku.edu.cn> <179367391951.8187.17327354719079930667@stu.pku.edu.cn>
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,214 +103,200 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-HM-Tid: 0aa19f4c01ca03a2kunm153cdd6b10a853
-X-HM-MType: 10
-X-HM-Spam-Status: e1kfGhgUHx5ZQUpXWQgPGg8OCBgUHx5ZQUlOS1dZFg8aDwILHllBWSg2Ly
-	tZV1koWUFITzdXWRgWCB1ZQUpXWS1ZQUlXWQ8JGhUIEh9ZQVkaGRlJVkpKTR4ZHkkZQh5PTFYeHw
-	5VEwETFhoSFyQUDg9ZV1kYEgtZQVlJT0tCQUMaS0tBSBhKSkEfGRhLQUlOQ0pBQx5BGBpLHUFOQh
-	oZWVdZFhoPEhUdFFlBWU9LSFVKS0lITkNDVUpLS1VLWQY+
-DKIM-Signature: a=rsa-sha256;
-	b=QHPeeCiNP0eZkZknfB+fE+K9W/zHPcLepa9Gkxhi5Y6bLYVaO1W+iVKfojDPc5n6fpf4pfhA36rYPccytUrvcX4hhf8QH5hb5tMazeHS2rP9CMJvm55pa5wTiRPVovt9yb9S8hPvr1B/Ui5jlMXA1+njvM/yqX8f/EI+hMHgokY=; s=default; c=relaxed/relaxed; d=stu.pku.edu.cn; v=1;
-	bh=Z1b4LdluQD3phylo9nFQqJDe0PHo57hXdTtNXDTMnCw=;
-	h=date:mime-version:subject:message-id:from;
 
-A HID-BPF syscall context pins struct hid_device, but it does not pin the
-transport-private data referenced by the low-level driver.  A hardware
-request can therefore sleep in the UHID report-wait path while closing the
-UHID file destroys the HID device, wakes the waiter, and frees struct
-uhid_device.  The awakened request then accesses the freed object.
+On Mon, Nov 02, 2026 at 06:45 PM Yifan Zhang <yfzhang23@stu.pku.edu.cn> wrote:
+> Add a lifetime lock that serializes admission of HID-BPF hardware
+> operations with device destruction.  Take an SRCU read lock while holding
+> the lifetime lock before accessing the report tables or the low-level
+> driver.  Destruction marks the device destroyed under the same lock and
+> waits for the SRCU readers before cleaning up the SRCU state.
 
-KASAN reports:
+The lifetime lock is needed only because hid_bpf_destroy_device() calls
+cleanup_srcu_struct(). After that a reference to hid_device is not
+enough to call srcu_read_lock().
+The splat in patch 2 has the same cause. So does
+commit 578e1b96fad7 ("HID: bpf: abort dispatch if device destroyed").
 
-  BUG: KASAN: use-after-free in __uhid_report_queue_and_wait
-  Read of size 1
-  uhid_hid_raw_request
-  __hid_hw_raw_request
-  hid_bpf_hw_request
-  bpf_prog_test_run_syscall
+Lets keep hdev->bpf.srcu valid until hiddev_free().
+Then the check of 'destroyed' goes inside the SRCU section.
+No need for the 2nd mutex.
 
-Add a lifetime lock that serializes admission of HID-BPF hardware
-operations with device destruction.  Take an SRCU read lock while holding
-the lifetime lock before accessing the report tables or the low-level
-driver.  Destruction marks the device destroyed under the same lock and
-waits for the SRCU readers before cleaning up the SRCU state.
+The dispatchers have the same race and this patch leaves it.
+hid_bpf_destroy_device() runs before hidraw_disconnect():
 
-The lifetime lock is released before calling the low-level driver.  This
-avoids reacquiring the same mutex through a reentrant low-level path and
-does not introduce a lock dependency on driver_input_lock.
+  hidraw ioctl                        hid_destroy_device()
+  dispatch_hid_bpf_raw_requests()
+    destroyed == false
+                                      destroyed = true
+                                      synchronize_srcu()
+                                      cleanup_srcu_struct()
+    srcu_read_lock()   <- use after free
 
-Fixes: 91a7f802d185 ("HID: bpf: introduce hid_hw_request()")
-Closes: https://lore.kernel.org/linux-input/179317460423.87432.1451672332362541157@stu.pku.edu.cn/
-Signed-off-by: Yifan Zhang <yfzhang23@stu.pku.edu.cn>
----
- drivers/hid/bpf/hid_bpf_dispatch.c | 73 ++++++++++++++++++++++--------
- include/linux/hid_bpf.h            |  1 +
- 2 files changed, 55 insertions(+), 19 deletions(-)
+hid_close_report() also runs on unbind and on device_reprobe().
+SRCU doesn't cover that. Neither this patch nor the diff below fixes it.
+
+Instead of patches 1 and 2:
+
+and Pls wait for Benjamin before sending v3.
 
 diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
-index 6b467c74601cb..0c0c8e9939f05 100644
+index 6b467c7..6c2b136 100644
 --- a/drivers/hid/bpf/hid_bpf_dispatch.c
 +++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-@@ -398,6 +398,18 @@ __hid_bpf_hw_check_params(struct hid_bpf_ctx *ctx, __u8 *buf, size_t *buf__sz,
- 	return 0;
- }
- 
-+static int hid_bpf_hw_operation_lock(struct hid_device *hdev)
-+{
-+	int idx = -ENODEV;
+@@ -99,13 +99,15 @@ int dispatch_hid_bpf_raw_requests(struct hid_device *hdev,
+ 	struct hid_bpf_ops *e;
+ 	int ret, idx;
+
+-	if (unlikely(hdev->bpf.destroyed))
+-		return -ENODEV;
+-
+ 	if (rtype >= HID_REPORT_TYPES)
+ 		return -EINVAL;
+
+ 	idx = srcu_read_lock(&hdev->bpf.srcu);
++	if (unlikely(hdev->bpf.destroyed)) {
++		ret = -ENODEV;
++		goto out;
++	}
 +
-+	mutex_lock(&hdev->bpf.lifetime_lock);
-+	if (!READ_ONCE(hdev->bpf.destroyed))
-+		idx = srcu_read_lock(&hdev->bpf.srcu);
-+	mutex_unlock(&hdev->bpf.lifetime_lock);
+ 	list_for_each_entry_srcu(e, &hdev->bpf.prog_list, list,
+ 				 srcu_read_lock_held(&hdev->bpf.srcu)) {
+ 		if (!e->hid_hw_request)
+@@ -139,10 +141,12 @@ int dispatch_hid_bpf_output_report(struct hid_device *hdev,
+ 	struct hid_bpf_ops *e;
+ 	int ret, idx;
+
+-	if (unlikely(hdev->bpf.destroyed))
+-		return -ENODEV;
+-
+ 	idx = srcu_read_lock(&hdev->bpf.srcu);
++	if (unlikely(hdev->bpf.destroyed)) {
++		ret = -ENODEV;
++		goto out;
++	}
 +
-+	return idx;
-+}
-+
- /**
-  * hid_bpf_hw_request - Communicate with a HID device
-  *
-@@ -416,17 +428,21 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
- 	struct hid_bpf_ctx_kern *ctx_kern;
- 	size_t size = buf__sz;
- 	u8 *dma_data;
--	int ret;
-+	int idx, ret;
- 
- 	ctx_kern = container_of(ctx, struct hid_bpf_ctx_kern, ctx);
- 
+ 	list_for_each_entry_srcu(e, &hdev->bpf.prog_list, list,
+ 				 srcu_read_lock_held(&hdev->bpf.srcu)) {
+ 		if (!e->hid_hw_output_report)
+@@ -423,6 +427,11 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
  	if (ctx_kern->from_bpf)
  		return -EDEADLOCK;
- 
-+	idx = hid_bpf_hw_operation_lock(ctx->hid);
-+	if (idx < 0)
-+		return idx;
+
++	/* hid_bpf_destroy_device() waits for us before the transport goes away */
++	guard(srcu)(&ctx->hid->bpf.srcu);
++	if (ctx->hid->bpf.destroyed)
++		return -ENODEV;
 +
  	/* check arguments */
  	ret = __hid_bpf_hw_check_params(ctx, buf, &size, rtype, true);
  	if (ret)
--		return ret;
-+		goto out_unlock;
- 
- 	switch (reqtype) {
- 	case HID_REQ_GET_REPORT:
-@@ -437,21 +453,24 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
- 	case HID_REQ_SET_PROTOCOL:
- 		break;
- 	default:
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out_unlock;
- 	}
- 
- 	dma_data = kmemdup(buf, size, GFP_KERNEL);
--	if (!dma_data)
--		return -ENOMEM;
-+	if (!dma_data) {
-+		ret = -ENOMEM;
-+		goto out_unlock;
-+	}
- 
- 	ret = hid_ops->hid_hw_raw_request(ctx->hid,
--					      dma_data[0],
--					      dma_data,
--					      size,
--					      rtype,
--					      reqtype,
--					      (u64)(long)ctx,
--					      true); /* prevent infinite recursions */
-+					  dma_data[0],
-+					  dma_data,
-+					  size,
-+					  rtype,
-+					  reqtype,
-+					  (u64)(long)ctx,
-+					  true); /* prevent infinite recursions */
- 
- 	if (ret > (ssize_t)size)
- 		ret = size;
-@@ -459,6 +478,8 @@ hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
- 		memcpy(buf, dma_data, ret);
- 
- 	kfree(dma_data);
-+out_unlock:
-+	srcu_read_unlock(&ctx->hid->bpf.srcu, idx);
- 	return ret;
- }
- 
-@@ -477,24 +498,33 @@ hid_bpf_hw_output_report(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz)
- 	struct hid_bpf_ctx_kern *ctx_kern;
- 	size_t size = buf__sz;
- 	u8 *dma_data;
--	int ret;
-+	int idx, ret;
- 
- 	ctx_kern = container_of(ctx, struct hid_bpf_ctx_kern, ctx);
+@@ -483,6 +492,10 @@ hid_bpf_hw_output_report(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz)
  	if (ctx_kern->from_bpf)
  		return -EDEADLOCK;
- 
-+	idx = hid_bpf_hw_operation_lock(ctx->hid);
-+	if (idx < 0)
-+		return idx;
+
++	guard(srcu)(&ctx->hid->bpf.srcu);
++	if (ctx->hid->bpf.destroyed)
++		return -ENODEV;
 +
  	/* check arguments */
  	ret = __hid_bpf_hw_check_params(ctx, buf, &size, HID_OUTPUT_REPORT, true);
  	if (ret)
--		return ret;
-+		goto out_unlock;
- 
- 	dma_data = kmemdup(buf, size, GFP_KERNEL);
--	if (!dma_data)
--		return -ENOMEM;
-+	if (!dma_data) {
-+		ret = -ENOMEM;
-+		goto out_unlock;
-+	}
- 
--	ret = hid_ops->hid_hw_output_report(ctx->hid, dma_data, size, (u64)(long)ctx, true);
-+	ret = hid_ops->hid_hw_output_report(ctx->hid, dma_data, size,
-+					    (u64)(long)ctx, true);
- 
- 	kfree(dma_data);
-+out_unlock:
-+	srcu_read_unlock(&ctx->hid->bpf.srcu, idx);
- 	return ret;
- }
- 
-@@ -641,8 +671,12 @@ void hid_bpf_destroy_device(struct hid_device *hdev)
+@@ -641,13 +654,9 @@ void hid_bpf_destroy_device(struct hid_device *hdev)
  	if (!hdev)
  		return;
- 
+
 -	/* mark the device as destroyed in bpf so we don't reattach it */
 -	hdev->bpf.destroyed = true;
-+	/* Block new BPF hardware operations before transport teardown. */
-+	mutex_lock(&hdev->bpf.prog_list_lock);
-+	mutex_lock(&hdev->bpf.lifetime_lock);
-+	WRITE_ONCE(hdev->bpf.destroyed, true);
-+	mutex_unlock(&hdev->bpf.lifetime_lock);
-+	mutex_unlock(&hdev->bpf.prog_list_lock);
- 
+-
  	__hid_bpf_ops_destroy_device(hdev);
- 
-@@ -655,6 +689,7 @@ int hid_bpf_device_init(struct hid_device *hdev)
- {
- 	INIT_LIST_HEAD(&hdev->bpf.prog_list);
- 	mutex_init(&hdev->bpf.prog_list_lock);
-+	mutex_init(&hdev->bpf.lifetime_lock);
- 	return init_srcu_struct(&hdev->bpf.srcu);
+
+ 	synchronize_srcu(&hdev->bpf.srcu);
+-	cleanup_srcu_struct(&hdev->bpf.srcu);
+ }
+ EXPORT_SYMBOL_GPL(hid_bpf_destroy_device);
+
+@@ -659,6 +668,13 @@ int hid_bpf_device_init(struct hid_device *hdev)
  }
  EXPORT_SYMBOL_GPL(hid_bpf_device_init);
+
++/* A reference to hdev is enough to use hdev->bpf.srcu */
++void hid_bpf_device_free(struct hid_device *hdev)
++{
++	cleanup_srcu_struct(&hdev->bpf.srcu);
++}
++EXPORT_SYMBOL_GPL(hid_bpf_device_free);
++
+ static int __init hid_bpf_init(void)
+ {
+ 	int err;
+diff --git a/drivers/hid/bpf/hid_bpf_struct_ops.c b/drivers/hid/bpf/hid_bpf_struct_ops.c
+index c90b689..f3bbe11 100644
+--- a/drivers/hid/bpf/hid_bpf_struct_ops.c
++++ b/drivers/hid/bpf/hid_bpf_struct_ops.c
+@@ -197,10 +197,13 @@ static int hid_bpf_reg(void *kdata, struct bpf_link *link)
+ 	if (IS_ERR(hdev))
+ 		return PTR_ERR(hdev);
+
+-	ops->hdev = hdev;
+-
+ 	mutex_lock(&hdev->bpf.prog_list_lock);
+
++	if (hdev->bpf.destroyed) {
++		err = -ENODEV;
++		goto out_unlock;
++	}
++
+ 	count = list_count_nodes(&hdev->bpf.prog_list);
+ 	if (count >= HID_BPF_MAX_PROGS_PER_DEV) {
+ 		err = -E2BIG;
+@@ -222,6 +225,7 @@ static int hid_bpf_reg(void *kdata, struct bpf_link *link)
+ 			goto out_unlock;
+ 	}
+
++	ops->hdev = hdev;
+ 	if (ops->flags & BPF_F_BEFORE)
+ 		list_add_rcu(&ops->list, &hdev->bpf.prog_list);
+ 	else
+@@ -324,6 +328,8 @@ void __hid_bpf_ops_destroy_device(struct hid_device *hdev)
+ 	int count = 0;
+
+ 	mutex_lock(&hdev->bpf.prog_list_lock);
++	/* mark the device as destroyed in bpf so we don't reattach it */
++	hdev->bpf.destroyed = true;
+ 	list_for_each_entry(e, &hdev->bpf.prog_list, list) {
+ 		e->hdev = NULL;
+ 		count++;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index b4fd482..827a0ee 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -768,6 +768,7 @@ void hiddev_free(struct kref *ref)
+
+ 	hid_close_report(hid);
+ 	hid_free_bpf_rdesc(hid);
++	hid_bpf_device_free(hid);
+ 	kfree(hid->dev_rdesc);
+ 	kfree(hid);
+ }
 diff --git a/include/linux/hid_bpf.h b/include/linux/hid_bpf.h
-index 19fffa4574a47..3624937d340b3 100644
+index 19fffa4..0db7f67 100644
 --- a/include/linux/hid_bpf.h
 +++ b/include/linux/hid_bpf.h
-@@ -195,6 +195,7 @@ struct hid_bpf {
- 	struct hid_bpf_ops *rdesc_ops;
- 	struct list_head prog_list;
- 	struct mutex prog_list_lock;	/* protects prog_list update */
-+	struct mutex lifetime_lock;	/* protects destroyed and SRCU admission */
- 	struct srcu_struct srcu;	/* protects prog_list read-only access */
- };
- 
--- 
-2.39.5 (Apple Git-154)
+@@ -213,6 +213,7 @@ int hid_bpf_connect_device(struct hid_device *hdev);
+ void hid_bpf_disconnect_device(struct hid_device *hdev);
+ void hid_bpf_destroy_device(struct hid_device *hid);
+ int hid_bpf_device_init(struct hid_device *hid);
++void hid_bpf_device_free(struct hid_device *hid);
+ const u8 *call_hid_bpf_rdesc_fixup(struct hid_device *hdev, const u8 *rdesc, unsigned int *size);
+ #else /* CONFIG_HID_BPF */
+ static inline u8 *dispatch_hid_bpf_device_event(struct hid_device *hid, enum hid_report_type type,
+@@ -232,6 +233,7 @@ static inline int hid_bpf_connect_device(struct hid_device *hdev) { return 0; }
+ static inline void hid_bpf_disconnect_device(struct hid_device *hdev) {}
+ static inline void hid_bpf_destroy_device(struct hid_device *hid) {}
+ static inline int hid_bpf_device_init(struct hid_device *hid) { return 0; }
++static inline void hid_bpf_device_free(struct hid_device *hid) {}
+ static inline const u8 *call_hid_bpf_rdesc_fixup(struct hid_device *hdev, const u8 *rdesc,
+ 						 unsigned int *size) { return rdesc; }
+
+
+pw-bot: cr

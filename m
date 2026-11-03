@@ -1,93 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.177
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793714527;
-	b=J3/VnqINwqNLHQnUoysNh2idQDRaIj8T5zB1/URuyrP+HUUqa5dWLs5Hgl0OXIPgvgMG
-	 nW0sjOMfB4cRA6/tKu70a7j1skCrAXk5o8O/2jN+XzRxeA/pCnPNxml6TUhEWGZa41SL0
-	 5uElki2JyWdKggBRzatIqdENVCxtUdFfNAnMZDKxuQOsdlEZRJWCmljQ8NAIHIyspQZVh
-	 pm7VKD+NMZOK/1sbY8GC5bwU7+Xx9Kj74mUb6aTKtbZbyMVO8Pvb//fQWemtY5aC8oep7
-	 PI5RcAIbltLReFIMdqvCKvTeR5qew3OdfG6nrLHWF4spgztV4gE+B31ZDjqk9ED/RbQ==
+	t=1793714613;
+	b=BpZui9FuCPwbF6fDgg8RD6yRg1ScGfORXaGHfDoWe+BUwks5UBw0rz4Nv1wxzCe5WQiS
+	 MTQGF3ZJXRtFc9BFNQhfvEl3116n7LacKETS8VW6yHIhQjnTjxaoBrw/JWTKDNRZcH/Kn
+	 Fd6IgfyrHx5q5RqMS1VwqIDOZQ0OZlBHRj1m1U9LJ8G2Ezt1C8ibcFJoiBiSEhUesJstg
+	 U/ViaE8D0P/4EqYzfKtUs7KVqr/XpoZtFCbFXJTdqj0c4NnP7eu0K8dMI39QrkImSiwPp
+	 cvrZw8e7bPpLkKo7Jm5QzujYCUYb9GKZQwuiSzxnS8j/rB801X+uiQEMNiKDjQNTFuA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793714527;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
-	 Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=3lqUuofFF+sym+aHyb1Hp/3ru9p7QB07qliBrnkjVYA=;
-	b=yGr2hseOMj1sRDICzJfUS0X9emkyIsx30AoZqzBHJ2xOZ7ExD3t7jxl9GC/H9viW1H7X
-	 wOmEG3JIj+xtPCEV5T6G8cHjBh2XhW669IRNeOqNRoqJHLG46x4uAFm1OwpmfR4NDKs41
-	 ra7L6vFKrIUKQXMSnj0NrvHqhnF83t+uXCKd5Z7c0NCyaRV5Gz1jZlIzk9xfiGwZcXCFe
-	 nV+djD9zCTsEijYU3GI1ubPjE8hikAqfkjVqfZLWWG2aqeCbi3OYm2E5Q3Q9+PyjCNjpz
-	 DLHC8XZ+TNVRroFymq/mdgH280BCYlz5bZeBcD1mRNT0ZPjpSgMK10cWMxYsTXOAK1A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793714613;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To:X-AI-Review-Draft;
+	bh=3HJX18ykscvO3Ox8qDgd1rJ1bwooSHpiMGqMiZwMMMg=;
+	b=PnmCGQKNBS46peh4x0USb+IWd9yVaz9MIT9QyIYi+Jlun3IVpw5XVMUTTMVw6T+7O8Ae
+	 +rxyISGVvpUQLcLTfUmVWskpYOlYBNuEtHrvXikQKlTUXV+ApoOojSbXKcljvLdapLIk4
+	 RZg2cS0wATglNXTXNXiAqv/8GlVcMw/RsuF9Ss+OFp484djegvJStjeUet/YQcC3C4r1B
+	 YzW2iSAMnhcwXg0ew4baJmUWeQCj/trd9mtNO4Pe8SqMnAYYyG7YJ7Utd/b5zlqpYsZBi
+	 lmfVAprbqK7wJV0+tSdYb5oJR87wZ+FMdYrZrnMLCEhDxSTXM4ZGesmvkVsoyL+fIoA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BmmEzL2S;
-	arc=none smtp.remote-ip=74.125.82.177
-Received: from mail-dy1-f177.google.com (mail-dy1-f177.google.com [74.125.82.177])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H+25HXE5;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4877606D809
-	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 14:02:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E4877606D809
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0933D60A5BC5;
+	Tue,  3 Nov 2026 14:03:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=BmmEzL2S
-Received: by mail-dy1-f177.google.com with SMTP id 5a478bee46e88-36a0eecf73fso714762eec.3
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 06:02:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793714526; x=1794319326; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=3lqUuofFF+sym+aHyb1Hp/3ru9p7QB07qliBrnkjVYA=;
-        b=BmmEzL2SrMRSIITUPNL02a2fjqbMbKWDfbVDBqRMq5nSmXxRJN+YCeWyFbQGel5AEH
-         FME01N7UEjxRGaXMpYdN6ylls1GdHaVU1TD9CjIOxzab8891tFyYbK9ZrCKPULAfbm9k
-         pGXO/q2g9oKi4P38obZ9EkjU17DsD0nT1Z1gI/95OvFfMsQyPXDHDuyGYF183/H2mUW5
-         l/5BE4t6REAcdx5ApRk2yle9atvK2hqP4c5iusWEaZ+nHxBUjR3kRMLOpy6cgca7Z9ev
-         sPSKyzKuwkA1PlU+E+vVHtZixAxYfaorzaqNpDBPu+WpIbBiGuhCOvSN0AWQpnSBqnjf
-         XRpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793714526; x=1794319326;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=3lqUuofFF+sym+aHyb1Hp/3ru9p7QB07qliBrnkjVYA=;
-        b=H3CH7ihS88d2OI8pRDiWoMoJ35Gd7CI7DKOPthK9k330VKMQnNk+W/rxxrU07bpzCT
-         RlN/5aEVuxadw9g1WecPA5+QEJX9KNkxw9gXFal4Y+qk4rEXcPJCCvYrq/0Yyewic1xU
-         l5mCO/akO84dmGFD1xuijuDbL8XfGXsZzXR05SplYZYn8cA/RpNkZljCuKGG3kf4uqQ7
-         Zr5VX1XnRYbZd+fMYqMpHkElh73WpfR7dAKCIDqDPDi1jj4zDLPeuvo/NsBkCVcbP2ga
-         j+jv3IORvC4kEXhadyUbbC5Xu4MAS3BR69XB1iqY2PmalLJ9x6bTFaaeizJhTtqw5k8C
-         PNrQ==
-X-Gm-Message-State: APuU4Z8iQhe54+6qPuidpgBrrYeslDNUhPZOX+kXO4oahoUhh+fdPz7J
-	Q9xoodEJj/1vIz2s/vZeohtFCOT3FZhwfsTkwT9zJ3HrVki8OJrJnwt++JyIDFuzeyU=
-X-Gm-Gg: AYBFou1LAPVHFbs9NGTRK08LyWV+fsoFM1jXm5KFRihjb/KX9YEVFUOAXyijECVOYo0
-	sEJOTRXS18LYngBJDECiXi9h8x+RfK90inCrKYCI7h7lKWQ/Izz4mJNx6Thm4X7+GGAnqkinPos
-	UDhNTknlLeOFZ4YxIb+K1X9KCXuKYYrdeRJuDudCDqq9Px5Abn0wzCXS2q2LXFS+t2X+D9uBkjt
-	Wej3HgGLcw6KFz+jnwQ4/M8jPnIEUOagJjJD7aL6D0LPICXa0MnHYLeQ51x5hPuFZG40oqylCF0
-	W+EUjFtbNpJtaoKgdIhU7cvM7JT8Hlj6GSgVK4++Z1k8kuaBjzSHMnxfkWxCogtf6MCL3qe+U90
-	R6GMXRLjZzC/2tlOaXKHuRk0yLgBbDSVJLaqrOnA+UDR7A9abO6ryKXAyIy+yYUmnC3mJ4v2neY
-	6S7dz6I39sZIG4Xmt6cKPFuMC+zEQwBeYCF7IslolQuhaP3wGNPcH9SoeaAVjQ26gxFN3W1nt5n
-	4a7PSMWIiF3FmN/Mjl/oCZ8qvt21RKcL5WvHidUwAGQtF7+weJRXyK4C2R2UaqgMR/s1ui+Ok+4
-	RWWiPykmH1n4l9jM2+F5F10dueTs4TF8kAzjgwSfwA==
-X-Received: by 2002:a05:693c:6304:b0:368:1f8c:5f23 with SMTP id 5a478bee46e88-36a4205b0bfmr29800396eec.0.1793714525925;
-        Tue, 03 Nov 2026 06:02:05 -0800 (PST)
-Received: from CRASHEDROM.localdomain ([142.249.36.161])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a42a6f7f9sm56343226eec.25.2026.11.03.06.02.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 06:02:05 -0800 (PST)
-From: Chengyu Liu <lui2012qwq@gmail.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	Chengyu Liu <lui2012qwq@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH v2 2/2] Input: cyapa - clamp SMBus block reads to the caller's buffer size
-Date: Tue,  3 Nov 2026 22:00:06 +0800
-Message-Id: <20261103140006.1587143-3-lui2012qwq@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20261103140006.1587143-1-lui2012qwq@gmail.com>
-References: <20261103140006.1587143-1-lui2012qwq@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H+25HXE5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A1231F000C1;
+	Tue,  3 Nov 2026 14:03:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793714612;
+	bh=3HJX18ykscvO3Ox8qDgd1rJ1bwooSHpiMGqMiZwMMMg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=H+25HXE5bQpX4SO6gYb6lfNqegbOjuTEPRjDTsov3P5/8PY3O6+yCpLEnoRuWG2cM
+	 R3F3IONKnEja1N07TiEc6wZb4sxxfAXv3QJOyoahBKWyL8AT1B0J4aluBdr55LSvRH
+	 xJt10MUkc/KbiXXgzOc6meqOQUJ/Q8e8yza3gfKJKcK01aeuKZdv5AzBl0LDpqJia+
+	 uMy57b7+9YkgVs4PG20ToXl7VRPeRxdXFeXLJyV2nCgAmoAc3AEn0OBDLhfRvh+QuO
+	 rzrDuT1Q/ok87SlSTgdOHGi/J3hEIU1SJDIZf3NaxSJJmJrje95+ccNgkVzajP3lA7
+	 06lV6qUKJ+t1g==
+Date: Tue, 3 Nov 2026 14:03:26 +0000
+From: Lee Jones <lee@kernel.org>
+To: Svyatoslav Ryhel <clamor95@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>,
+	Ion Agorria <ion@agorria.com>,
+	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
+	Florian Krischer <florian.krischer@fkr.dev>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, mfd@lists.linux.dev,
+	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
+Subject: Re: [PATCH v12 5/7] leds: Add driver for ASUS Transformer LEDs
+Message-ID: <179249575817.1833288.1089755405582445022@kernel.org>
+References: <20261019100406.103687-1-clamor95@gmail.com>
+ <20261019100406.103687-6-clamor95@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -97,82 +66,220 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20261019100406.103687-6-clamor95@gmail.com>
+X-AI-Review-Draft: <20261019100406.103687-6-clamor95@gmail.com>
 
-cyapa_smbus_read_block() passes the caller's buffer straight to
-i2c_smbus_read_block_data() without passing the buffer size; the i2c
-core then copies the device-provided count, and any count <= 32 passes
-the adapters' range checks.  Both the group-read branch and the indexed
-loop (on its final partial chunk) can therefore write past the caller's
-buffer.
+On Mon, 19 Oct 2026, Svyatoslav Ryhel wrote:
+> From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+>
+> ASUS Transformer tablets have a green and an amber LED on both the Pad
+> and the Dock. If both LEDs are enabled simultaneously, the emitted light
+> will be yellow.
+>
+> Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
+> Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+> ---
+>  drivers/leds/Kconfig                    |  11 +++
+>  drivers/leds/Makefile                   |   1 +
+>  drivers/leds/leds-asus-transformer-ec.c | 125 ++++++++++++++++++++++++
+>  3 files changed, 137 insertions(+)
+>  create mode 100644 drivers/leds/leds-asus-transformer-ec.c
+>
+> diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+> index 7ec2c8d785426..788e689fe875c 100644
+> --- a/drivers/leds/Kconfig
+> +++ b/drivers/leds/Kconfig
+> @@ -120,6 +120,17 @@ config LEDS_OSRAM_AMS_AS3668
+>  	  To compile this driver as a module, choose M here: the module
+>  	  will be called leds-as3668.
+>
+> +config LEDS_ASUS_TRANSFORMER_EC
+> +	tristate "LED Support for Asus Transformer charging LED"
+> +	depends on LEDS_CLASS
+> +	depends on MFD_ASUS_TRANSFORMER_EC
+> +	help
+> +	  This option enables support for charging indicator on
+> +	  Asus Transformer's Pad and its Dock.
+> +
+> +	  To compile this driver as a module, choose M here: the module
+> +	  will be called leds-asus-transformer-ec.
+> +
+>  config LEDS_AW200XX
+>  	tristate "LED support for Awinic AW20036/AW20054/AW20072/AW20108"
+>  	depends on LEDS_CLASS
+> diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+> index 4d4b089156e24..3da746279bb81 100644
+> --- a/drivers/leds/Makefile
+> +++ b/drivers/leds/Makefile
+> @@ -15,6 +15,7 @@ obj-$(CONFIG_LEDS_ADP5520)		+= leds-adp5520.o
+>  obj-$(CONFIG_LEDS_AN30259A)		+= leds-an30259a.o
+>  obj-$(CONFIG_LEDS_APU)			+= leds-apu.o
+>  obj-$(CONFIG_LEDS_ARIEL)		+= leds-ariel.o
+> +obj-$(CONFIG_LEDS_ASUS_TRANSFORMER_EC)	+= leds-asus-transformer-ec.o
+>  obj-$(CONFIG_LEDS_OSRAM_AMS_AS3668)	+= leds-as3668.o
+>  obj-$(CONFIG_LEDS_AW200XX)		+= leds-aw200xx.o
+>  obj-$(CONFIG_LEDS_AW2013)		+= leds-aw2013.o
+> diff --git a/drivers/leds/leds-asus-transformer-ec.c b/drivers/leds/leds-asus-transformer-ec.c
+> new file mode 100644
+> index 0000000000000..1b129247ea6c6
+> --- /dev/null
+> +++ b/drivers/leds/leds-asus-transformer-ec.c
+> @@ -0,0 +1,125 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +
+> +#include <linux/err.h>
+> +#include <linux/leds.h>
+> +#include <linux/mfd/asus-transformer-ec.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +
+> +enum {
+> +	ASUSEC_LED_AMBER,
+> +	ASUSEC_LED_GREEN,
+> +	ASUSEC_LED_MAX
+> +};
+> +
+> +struct asus_ec_led_config {
+> +	const char *name;
+> +	unsigned int color;
+> +	u64 ctrl_bit;
+> +};
+> +
+> +struct asus_ec_led {
+> +	struct asus_ec_leds_data *ddata;
 
-The affected callers use 27-byte stack objects:
-cyapa_gen3_irq_handler() (struct cyapa_reg_data, on every touch
-interrupt) and cyapa_gen3_get_query_data() (at probe).  A device
-reporting a count of 32 overruns them by 5 bytes, with contents
-controlled by the device, in interrupt context.
 
-Also make short reads an error: the "ret > 0 ? len : ret" convention
-otherwise masks them, and the callers' full-read checks would pass with
-stack garbage in the unread part of the buffer.
+Why do we need 'struct asus_ec_leds_data' at all?
 
-Bounce through a full-size I2C_SMBUS_BLOCK_MAX buffer and clamp the
-copy to the requested length in both branches.
+If we put 'const struct asusec_core *ec;' directly into 'struct
+asus_ec_led', we can drop the outer wrapper struct and the back-pointer
+completely.
 
-Found by static analysis.
+> +	struct led_classdev cdev;
+> +	u64 ctrl_bit;
+> +};
+> +
+> +struct asus_ec_leds_data {
+> +	const struct asusec_core *ec;
+> +	struct asus_ec_led leds[ASUSEC_LED_MAX];
+> +};
+> +
+> +static const struct asus_ec_led_config asus_ec_leds[] = {
+> +	[ASUSEC_LED_AMBER] = {
+> +		.name = "amber",
+> +		.color = LED_COLOR_ID_AMBER,
+> +		.ctrl_bit = ASUSEC_CTL_LED_AMBER,
+> +	},
+> +	[ASUSEC_LED_GREEN] = {
+> +		.name = "green",
+> +		.color = LED_COLOR_ID_GREEN,
+> +		.ctrl_bit = ASUSEC_CTL_LED_GREEN,
+> +	},
+> +};
+> +
+> +static enum led_brightness asus_ec_led_get_brightness(struct led_classdev *cdev)
+> +{
+> +	struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
+> +	const struct asusec_core *ec = led->ddata->ec;
+> +	u64 ctl;
+> +	int ret;
+> +
+> +	ret = asus_dockram_access_ctl(ec->dockram, &ctl, 0, 0);
 
-Fixes: 9f1cd857518f ("Input: cyapa - re-design driver to support multi-trackpad in one driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Chengyu Liu <lui2012qwq@gmail.com>
----
- drivers/input/mouse/cyapa_gen3.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+As requested on v6 and v8, why are we still using this bespoke accessor instead
+of Regmap?
 
-diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-index fc3fb95452..730ac925a6 100644
---- a/drivers/input/mouse/cyapa_gen3.c
-+++ b/drivers/input/mouse/cyapa_gen3.c
-@@ -254,20 +254,38 @@ ssize_t cyapa_smbus_read_block(struct cyapa *cyapa, u8 cmd, size_t len,
- 		return -EINVAL;
- 
- 	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
-+		u8 tmp[I2C_SMBUS_BLOCK_MAX];
-+
- 		/* read specific block registers command. */
- 		smbus_cmd = SMBUS_ENCODE_RW(cmd, SMBUS_READ);
--		ret = i2c_smbus_read_block_data(client, smbus_cmd, values);
-+		ret = i2c_smbus_read_block_data(client, smbus_cmd, tmp);
-+		if (ret >= 0 && ret < len) {
-+			ret = -EIO;
-+			goto out;
-+		}
-+		if (ret > 0)
-+			/* never trust the device-provided count */
-+			memcpy(values, tmp, min_t(size_t, ret, len));
- 		goto out;
- 	}
- 
- 	ret = 0;
- 	for (index = 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
-+		u8 tmp[I2C_SMBUS_BLOCK_MAX];
-+		size_t chunk = min_t(size_t, len - index * I2C_SMBUS_BLOCK_MAX,
-+				     I2C_SMBUS_BLOCK_MAX);
-+
- 		smbus_cmd = SMBUS_ENCODE_IDX(cmd, index);
- 		smbus_cmd = SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
- 		buf = values + I2C_SMBUS_BLOCK_MAX * index;
--		ret = i2c_smbus_read_block_data(client, smbus_cmd, buf);
-+		ret = i2c_smbus_read_block_data(client, smbus_cmd, tmp);
- 		if (ret < 0)
- 			goto out;
-+		if (ret < chunk) {
-+			ret = -EIO;
-+			goto out;
-+		}
-+		memcpy(buf, tmp, chunk);
- 	}
- 
- out:
+> +	if (ret)
+> +		return LED_OFF;
+> +
+> +	return ctl & led->ctrl_bit ? LED_ON : LED_OFF;
+> +}
+> +
+> +static int asus_ec_led_set_brightness(struct led_classdev *cdev,
+> +				      enum led_brightness brightness)
+> +{
+> +	struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
+> +	const struct asusec_core *ec = led->ddata->ec;
+> +
+> +	if (brightness)
+> +		return asus_dockram_access_ctl(ec->dockram, NULL,
+> +					       led->ctrl_bit, led->ctrl_bit);
+
+Use 100-chars throughout to prevent early wrapping.
+
+> +	return asus_dockram_access_ctl(ec->dockram, NULL, led->ctrl_bit, 0);
+> +}
+> +
+> +static int asus_ec_led_probe(struct platform_device *pdev)
+> +{
+> +	const struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
+> +	struct asus_ec_leds_data *ddata;
+> +	struct device *dev = &pdev->dev;
+> +	int ret;
+> +
+> +	ddata = devm_kzalloc(dev, sizeof(*ddata), GFP_KERNEL);
+> +	if (!ddata)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, ddata);
+
+What consumes this?
+
+> +	ddata->ec = ec;
+> +
+> +	for (int i = 0; i < ASUSEC_LED_MAX; i++) {
+
+`i` isn't just a random iterator here - maybe call it `led`?
+
+> +		const struct asus_ec_led_config *cfg = &asus_ec_leds[i];
+> +		struct asus_ec_led *led = &ddata->leds[i];
+> +
+> +		led->cdev.name = devm_kasprintf(dev, GFP_KERNEL, "%s:%s",
+> +						ddata->ec->name, cfg->name);
+> +		if (!led->cdev.name)
+> +			return -ENOMEM;
+> +
+> +		led->cdev.max_brightness = 1;
+> +		led->cdev.color = cfg->color;
+> +		led->cdev.flags = LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
+> +		led->cdev.brightness_get = asus_ec_led_get_brightness;
+> +		led->cdev.brightness_set_blocking = asus_ec_led_set_brightness;
+> +
+> +		led->ddata = ddata;
+> +		led->ctrl_bit = cfg->ctrl_bit;
+> +
+> +		ret = devm_led_classdev_register(dev, &led->cdev);
+> +		if (ret)
+> +			return dev_err_probe(dev, ret,
+> +					     "Failed to register %s LED\n",
+> +					     cfg->name);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver asus_ec_led_driver = {
+> +	.driver.name = "asus-transformer-ec-led",
+
+Clever!  But, I'd prefer we still to the usual format to be honest.
+
+> +	.probe = asus_ec_led_probe,
+> +};
+> +module_platform_driver(asus_ec_led_driver);
+> +
+> +MODULE_ALIAS("platform:asus-transformer-ec-led");
+> +MODULE_AUTHOR("Michał Mirosław <mirq-linux@rere.qmqm.pl>");
+> +MODULE_AUTHOR("Svyatoslav Ryhel <clamor95@gmail.com>");
+> +MODULE_DESCRIPTION("ASUS Transformer's charging LED driver");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 2.53.0
+>
+
 -- 
-2.25.1
-
+Lee Jones

@@ -1,47 +1,87 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.42
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793688876;
-	b=hzgqnxm3zgzuf0aUiAo+TwbFOHepCXmvsaus4+O16k1bbnO3tlMmS7GNAK/SQbdP73Wx
-	 xzOwuyw17pzLskYehOZKR01L4HyqMkAwrhloAtnQYaLWRgX5Rs/yrtIHrweYslhVn6IcK
-	 5eqreAaTkJs7AG6hEGnM44Bx1G2OzTfXuk+OMdgcjYlJEbhMEwrN+GEiyDeuvQrQThuPC
-	 Ouk0Qu8+orBy7D4vdsbuDAohgoazM3TDZGQOq89zItMIirS0tNttMsfXc/Dh5VDgdO4mg
-	 13lD5Y/t/jfmnd6XcL+jeZEx6/Imiv0ZTsk8HzaRaTu+LUKiTj28eRMK++TurW7lIWQ==
+	t=1793690512;
+	b=VB06sIPznEEaq7gYDvoaLNRiuUiezC1DBBcKSTiFZaUlgzaxtfRwn7T/uYe8lzqrCn9Q
+	 HT/Pq+Wn3TAxdByDDKOdrFXFJqwDHFpXtGwFkrx7YVf2fvTyqKWDfORsDN3h2gP3Kj3KY
+	 8HlvIn0AskjKMiXzi4rRNm+K8XWyJKBjp7iewE2DVjCVAaiCeWdUbV/wnkkLWx8ZLxjMd
+	 MgQsTCj/6FivO13CKBpqOzNfQfyZRtz40DohgQ635uOfv2f8tDuF4KDcCGAvzCKDp/xJF
+	 nQg7Jj2/ZWv8P9lRLeZ3YwRSeiXJgvxkwucSBm4NTcX+bh7BleYhyM1XmZj4UsMU+bw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793688876;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=pI+R0vssS3+rBEwGlEmrhAJtAWwC+K6R2fL7Q2wxluc=;
-	b=kHpHcYPZNySrVpcXOaZLKz7xVjV1Av85dZ82VFATW6ctQdNLvHkXM8xPm8vTEwpgtxuC
-	 PzvUVZcMmuK4xW9wuQUrRhISAEDM/i2eLIbmqaHah1ydPBfvqtdCLKxILkTz/bClasLEb
-	 02/LAN95Mz+aVP9ZIR9IYM7nDdFt7t1Zl+JJIuoupoibtIcnfINE5AVg7WrJGidH1jGI4
-	 829cycOww4c4If2fp9RJAZeSjSVW50H8YBv7rAHGwNexqAYmGBxmtJ1E4ZwXseO87faFy
-	 jrFAKpILH896Zgxs8XETeVpx2YPPDQbndp4cA+JCgBmecLIy2XG4qj3v57PsvEJEw6g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793690512;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Date:
+	 MIME-Version:User-Agent:Subject:To:Cc:References:Content-Language:
+	 From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=qxNaHg0QwAKV8JFvr9izfGFpZQV2tly781er29vLsvA=;
+	b=xkBmqraJBh7f7frJsxkfKX1C7spc/qF8z4nGtJ5/+NVEajF4og4zlRoLKbLlcODaeOVC
+	 Rzk07JhT+2zvaZqSNEtal7nUMDnrPAu/i0YnUNkN7KlBkMlVrN0QNID1yJvx9u1KnXmIO
+	 J3U/IXYxusVJyVjWrUWygOh+HR1BkBVJMxTNbJCp00f1EMsqbWCeARzFjdGoka7Eum/BG
+	 cuTpVZdpmFOqGePh+N4wDx9WrriQn/98y6RhN5LeKZoLC78q8zivqyp4bsUE9sTbu/GzU
+	 192xaETqTUYUxbTTThpJRlyAQCIwzGzz7Hss73bzzkiYJG20dx9sH2pKBxrOYSXt1tA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HVwwGpgK;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ybY5HE2t;
+	arc=none smtp.remote-ip=209.85.128.42
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3EAD606A334;
-	Tue,  3 Nov 2026 06:54:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBDF4606A339
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 07:21:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BBDF4606A339
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HVwwGpgK
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57D471F000C1;
-	Tue,  3 Nov 2026 06:54:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793688875;
-	bh=pI+R0vssS3+rBEwGlEmrhAJtAWwC+K6R2fL7Q2wxluc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=HVwwGpgKph2PTCR3kNBpzgeJl9Fiv96ILTSVlqr7otzEN5KOe+3Oq36TZyy3FWiTn
-	 B5JC9rU3ADl82tq64bDRGFlV2NLyjhAO9fPnLejhbwzeG1Z9dc6ee0GVq9fDWJMr9G
-	 uEn9b1MhNhFVniqfmxfA0bqOs/QBhcC6kPjZ8hJFtdA34IHlyTNGGcCj68Y62ICtjk
-	 Ouq+kpEpWGx9PHR9MkFKZswgqiZXimSJHDR7+eldSuTYGotHgFLXgZCx0dKYEpIAcw
-	 6pYXyTE/pVVs21IvMkWqyQ4k+6ZNZ7Rqbrs3FA5NB7/Klj97W0Huza14rR1CDkHC3E
-	 tLDaFtIRr3wRA==
-Message-ID: <a0736b1b-707e-4f24-8249-c7363c673a43@kernel.org>
-Date: Tue, 3 Nov 2026 07:54:21 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ybY5HE2t
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4a60f9474c4so38865295e9.0
+        for <linux-input@vger.kernel.org>; Mon, 02 Nov 2026 23:21:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793690510; x=1794295310; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=qxNaHg0QwAKV8JFvr9izfGFpZQV2tly781er29vLsvA=;
+        b=ybY5HE2t5kZnS14uxoTv3e2uQeumA1UZ/ccTKbO3vU8azOvBBnDg5yloy4Yei86IaW
+         tfofRUm1ZvD9UV5WgpUc7tonFFzfrxJB45s1ZskF8/N+Xdupj62uuf5GOuXHWzy6afn9
+         bPeYMILWtthTb1oXNm6SVJNSJ7f5i/bLcXql4uaxfhg5US1lI7SnD7tqmZJc6j5+xxsP
+         HI+JBgEV9w91onxX8fncHzOCiysfDMECiEX7xDUNeLZBg7wDCuhaYEfvHUQkSoCrZA0I
+         v4V9SqTPrbyxELmyjIW57rCJVjM6ZtGrRnfo73C8vOtGdfhnida1wzpZTPGUsZEHB8Ag
+         TyyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793690510; x=1794295310;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=qxNaHg0QwAKV8JFvr9izfGFpZQV2tly781er29vLsvA=;
+        b=aokPTt0ulomusI0OKZTwpgQ88n569NmXJG2/nQcL3lVik6tKnN5p1Tyi0clpiKP71Q
+         CHjxojpuEEVGA82ZMZpGY/EIA9JAeC5H4D4jOOVSY6o44zMdz1bFpNagPgjjjDOwPrcI
+         2x5tDygFw3+IAml4+fLGHZmLQUa/I42fmCrnHCa5kxv7Ua2HOWslbpijL2VJBTqvi8s0
+         9dS9iiN8yszUzj9IkqODiP8Qycx1UzZKLPlyh0hlfNRiqLsbAL3RBsZYMaJfU/cbjqg7
+         ravRmCj8f8IQOupAAt0TIggLKrrAyZY4tuprz/XsXqt11C9JWNyZR5u06o07prPksoeM
+         2XGg==
+X-Gm-Message-State: APuU4Z/efw1gFoUfFzjYinDIpIH+nRhmGN7/Hc9K/61h2lMCc5x/KnM0
+	7T4QTZVNYtzLe7yELbdMzIFdnEtroAzr0QZ+dD7LiHMYugKL9uumxtUe
+X-Gm-Gg: AYBFou34SQ9AHPsWvhh+Bd5EmLdl+OFLn+GbpSL8prwXxO+LYDVAslTlQLchdpkMO1I
+	RReAOd7QCN2vWzvx+M9IMN8EpjXrjxRnkNsT176dChcz7R2XL1ICsgsnsN27gPset3nIaqUv4K7
+	b0p3tPzTS7OxBKId9zAWzpFwv/tdFeEJeEgntqLqZ2z7e3L0LPIaQeh4d0aD7okSbmeOFKIZOQG
+	JRC9Lp0AAjZHW98Z8ODUZPbAd/uXtZtG/npHaLrE88u1PPuaX/CYcs/fJt6eql8L9lih0rZnGhD
+	KmpnMLRnLU98Bi7g4mj4GQXJq0xnirCV/4+KkgGdLasFZ62wEMrcJ4RY/1jApacjYjWmNeN+1sd
+	Ia+Rp+JyX1qlIzhh1BdZwgFdB5ODYGojS5KmdL+s6Ff1tuITANcOy0Y7j+S5eE2rUdyCoI5pTDH
+	/GLp3e63uEpqU2yLIArXPdjZJMSlc29cp/ReBXpnOFlRSUmHdlAbXXMOhXUF8dy4XACYDIzMSm5
+	nOHQLn8dXatJUR3qeHmRGjdLIlp6qMs+sD9jHb+PXT5cG2/6B+eP/exBlaG6F/3U/e3P+CKELNZ
+	MIkMpM1CZSWWGir3xtfeo6EqLdzrhBMQQTjVOOyzlrn1xo72ZmsIcptGN+FMu8PNHCnlcGktRdF
+	WUQkW510Sle6lL9ifkCQEJSzLp0WSF0sTnbyWF69WKywNNeYeTbtKkc3ytw==
+X-Received: by 2002:a05:600c:698d:b0:4a2:994:575c with SMTP id 5b1f17b1804b1-4ac185bcc4emr280845615e9.34.1793690509954;
+        Mon, 02 Nov 2026 23:21:49 -0800 (PST)
+Received: from [10.77.100.5] (ipservice-092-209-215-046.092.209.pools.vodafone-ip.de. [92.209.215.46])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b2a80e0fe6sm43172275e9.1.2026.11.02.23.21.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Nov 2026 23:21:49 -0800 (PST)
+Message-ID: <06ca6c0e-ba61-4ac7-900d-8f4d588ab4d6@gmail.com>
+Date: Tue, 3 Nov 2026 08:21:25 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -52,139 +92,230 @@ List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 19/23] tty: sysrq: let procfs copy in writes to
- /proc/sysrq-trigger
-To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
- Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>,
- Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>,
- NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>,
- Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
- Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>,
- Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados
- <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>,
- Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>,
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org,
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org,
- coreteam@netfilter.org, kexec@lists.infradead.org,
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
- netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org,
- linux-usb@vger.kernel.org, samba-technical@lists.samba.org,
- sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-doc@vger.kernel.org, linux-serial@vger.kernel.org,
- linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>,
- linux-input@vger.kernel.org, linux-raid@vger.kernel.org,
- linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org,
- linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>
-References: <20261102-work-procfs-drivers-v1-0-a994bd4d3b1a@kernel.org>
- <20261102-work-procfs-drivers-v1-19-a994bd4d3b1a@kernel.org>
+Subject: Re: [PATCH] HID: surface-hid: support keyboard backlight on Surface
+ Pro Keyboard (045E:09AE)
+To: =?UTF-8?B?UmFtw7NuIEplc8O6cyBNaXJhbmRh?= <ramonjesusmiranda@gmail.com>,
+ Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20261023173213.6219-1-ramonjesusmiranda@gmail.com>
 Content-Language: en-US
-From: Jiri Slaby <jirislaby@kernel.org>
-Autocrypt: addr=jirislaby@kernel.org; keydata=
- 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
-In-Reply-To: <20261102-work-procfs-drivers-v1-19-a994bd4d3b1a@kernel.org>
+From: Maximilian Luz <luzmaximilian@gmail.com>
+In-Reply-To: <20261023173213.6219-1-ramonjesusmiranda@gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 02. 11. 26, 16:07, Christian Brauner wrote:
-> Implement ->proc_write_buf() so procfs copies in what is written before
-> it pins the entry, and handle the keys from that copy. Writes larger
-> than PAGE_SIZE - 1 bytes fail with -EINVAL now. They used to trigger the
-> first key, or all of them in bulk mode. procfs allocates the copy, which
-> is as small as the write, opening the file allocated as much already.
+Am 23.10.2026 um 19:32 schrieb Ramón Jesús Miranda:
+> The Surface Pro Keyboard / Flex Keyboard (VID 045E, PID 09AE) attached to
+> the Microsoft Surface Pro 11 (Snapdragon X Elite / X1E80100) exposes its
+> keyboard backlight through the HID Consumer Control collection (Usage Page
+> 0x0c, Usage 0x07) rather than through the legacy Surface Aggregator Module
+> (SAM) TC/KBD category:
 > 
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+> - Feature Report 0xd5 (Usage 0x0517, unit Candela) advertises the 4
+>    supported discrete brightness levels: [0x00, 0x03, 0x06, 0x0c].
+> - Feature Report 0xd6 (Usage 0x007b) returns the current brightness level
+>    (0, 3, 6, or 12).
+> - Output Report 0xd5 ([0xd5, level]) sets the brightness level.
+> - Input Report 0xd5 (Usage 0x0515, Keyboard Brightness Next) fires
+>    [0xd5, 0x01] whenever the hardware backlight key (F5) is pressed and the
+>    embedded controller cycles the brightness in hardware.
+> 
+> Register a LED class device named "surface::kbd_backlight" (max_brightness
+> = 3, flags = LED_BRIGHT_HW_CHANGED) when the HID device matches VID 045E /
+> PID 09AE, mapping steps 0..3 to hardware values {0, 3, 6, 12}. Also hook
+> raw_event to read back Feature Report 0xd6 and notify userspace via
+> led_classdev_notify_brightness_hw_changed() when Input Report 0xd5 arrives
+> from the F5 key, and restore the saved brightness level on resume.
 
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Should this whole thing not be an HID driver? I don't like the idea of
+hard-coding report parsing here.
 
+Best,
+Max
+
+> 
+> Tested on a Microsoft Surface Pro 11 OLED (X1E80100) with UPower and KDE
+> PowerDevil.
+> 
+> Assisted-by: Antigravity:gemini-2.5-pro
+> Signed-off-by: Ramón Jesús Miranda <ramonjesusmiranda@gmail.com>
 > ---
->   drivers/tty/sysrq.c | 9 +++------
->   1 file changed, 3 insertions(+), 6 deletions(-)
+>   drivers/hid/surface-hid/surface_hid.c      |   4 +
+>   drivers/hid/surface-hid/surface_hid_core.c | 104 ++++++++++++++++++++-
+>   drivers/hid/surface-hid/surface_hid_core.h |   8 ++
+>   3 files changed, 114 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-> index f4571d05b496..99363e1b59ed 100644
-> --- a/drivers/tty/sysrq.c
-> +++ b/drivers/tty/sysrq.c
-> @@ -1200,17 +1200,14 @@ EXPORT_SYMBOL(unregister_sysrq_key);
->    * However, if the first character is an underscore,
->    * all characters are processed.
->    */
-> -static ssize_t write_sysrq_trigger(struct file *file, const char __user *buf,
-> +static ssize_t write_sysrq_trigger(struct file *file, char *buf,
->   				   size_t count, loff_t *ppos)
->   {
->   	bool bulk = false;
->   	size_t i;
+> diff --git a/drivers/hid/surface-hid/surface_hid.c b/drivers/hid/surface-hid/surface_hid.c
+> index eae47e0..0f81732 100644
+> --- a/drivers/hid/surface-hid/surface_hid.c
+> +++ b/drivers/hid/surface-hid/surface_hid.c
+> @@ -161,6 +161,10 @@ static u32 ssam_hid_event_fn(struct ssam_event_notifier *nf, const struct ssam_e
+>   	if (event->command_id != 0x00)
+>   		return 0;
 >   
->   	for (i = 0; i < count; i++) {
-> -		char c;
-> -
-> -		if (get_user(c, buf + i))
-> -			return -EFAULT;
-> +		char c = buf[i];
->   
->   		if (c == '_')
->   			bulk = true;
-> @@ -1225,7 +1222,7 @@ static ssize_t write_sysrq_trigger(struct file *file, const char __user *buf,
+> +	if (shid->has_kbd_bl && event->length >= 2 &&
+> +	    event->data[0] == 0xd5 && (event->data[1] & 0x01))
+> +		schedule_work(&shid->kbd_bl_work);
+> +
+>   	hid_input_report(shid->hid, HID_INPUT_REPORT, (u8 *)&event->data[0], event->length, 0);
+>   	return SSAM_NOTIF_HANDLED;
 >   }
->   
->   static const struct proc_ops sysrq_trigger_proc_ops = {
-> -	.proc_write	= write_sysrq_trigger,
-> +	.proc_write_buf	= write_sysrq_trigger,
->   	.proc_lseek	= noop_llseek,
+> diff --git a/drivers/hid/surface-hid/surface_hid_core.c b/drivers/hid/surface-hid/surface_hid_core.c
+> index 6690c24..afee61f 100644
+> --- a/drivers/hid/surface-hid/surface_hid_core.c
+> +++ b/drivers/hid/surface-hid/surface_hid_core.c
+> @@ -184,6 +184,98 @@ static const struct hid_ll_driver surface_hid_ll_driver = {
 >   };
 >   
-> 
+>   
+> +/* -- Keyboard backlight (Surface Pro Flex / Type Cover 045E:09AE). --------- */
+> +
+> +static u8 surface_kbd_bl_raw_to_idx(struct surface_hid_device *shid, u8 raw)
+> +{
+> +	u8 i;
+> +
+> +	for (i = 0; i < 4; i++) {
+> +		if (shid->kbd_bl_levels[i] >= raw)
+> +			return i;
+> +	}
+> +	return 3;
+> +}
+> +
+> +static enum led_brightness surface_kbd_bl_get(struct led_classdev *cdev)
+> +{
+> +	struct surface_hid_device *shid =
+> +		container_of(cdev, struct surface_hid_device, kbd_bl_led);
+> +	u8 buf[2] = { 0xd6, 0 };
+> +
+> +	if (surface_hid_is_hot_removed(shid))
+> +		return shid->kbd_bl_cur;
+> +
+> +	if (shid->ops.get_feature_report(shid, 0xd6, buf, sizeof(buf)) < 0)
+> +		return shid->kbd_bl_cur;
+> +
+> +	shid->kbd_bl_cur = surface_kbd_bl_raw_to_idx(shid, buf[1]);
+> +	return shid->kbd_bl_cur;
+> +}
+> +
+> +static int surface_kbd_bl_set(struct led_classdev *cdev, enum led_brightness value)
+> +{
+> +	struct surface_hid_device *shid =
+> +		container_of(cdev, struct surface_hid_device, kbd_bl_led);
+> +	u8 idx = clamp_t(u8, value, 0, 3);
+> +	u8 buf[2] = { 0xd5, shid->kbd_bl_levels[idx] };
+> +	int ret;
+> +
+> +	if (surface_hid_is_hot_removed(shid))
+> +		return -ENODEV;
+> +
+> +	ret = shid->ops.output_report(shid, 0xd5, buf, sizeof(buf));
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	shid->kbd_bl_cur = idx;
+> +	return 0;
+> +}
+> +
+> +static void surface_kbd_bl_work_fn(struct work_struct *work)
+> +{
+> +	struct surface_hid_device *shid =
+> +		container_of(work, struct surface_hid_device, kbd_bl_work);
+> +	u8 prev = shid->kbd_bl_cur;
+> +	u8 hw_idx = surface_kbd_bl_get(&shid->kbd_bl_led);
+> +
+> +	if (hw_idx == prev) {
+> +		u8 next = (prev + 1) % 4;
+> +
+> +		surface_kbd_bl_set(&shid->kbd_bl_led, next);
+> +	}
+> +
+> +	led_classdev_notify_brightness_hw_changed(&shid->kbd_bl_led, shid->kbd_bl_cur);
+> +}
+> +
+> +static void surface_hid_kbd_bl_init(struct surface_hid_device *shid)
+> +{
+> +	u8 feat[5] = { 0xd5, 0 };
+> +	u8 cur[2] = { 0xd6, 0 };
+> +
+> +	if (shid->hid->vendor != 0x045e || shid->hid->product != 0x09ae)
+> +		return;
+> +
+> +	if (shid->ops.get_feature_report(shid, 0xd5, feat, sizeof(feat)) < 0 ||
+> +	    feat[4] == 0)
+> +		return;
+> +
+> +	memcpy(shid->kbd_bl_levels, &feat[1], 4);
+> +	if (shid->ops.get_feature_report(shid, 0xd6, cur, sizeof(cur)) >= 0)
+> +		shid->kbd_bl_cur = surface_kbd_bl_raw_to_idx(shid, cur[1]);
+> +
+> +	INIT_WORK(&shid->kbd_bl_work, surface_kbd_bl_work_fn);
+> +	shid->kbd_bl_led.name = "surface::kbd_backlight";
+> +	shid->kbd_bl_led.max_brightness = 3;
+> +	shid->kbd_bl_led.flags = LED_BRIGHT_HW_CHANGED;
+> +	shid->kbd_bl_led.brightness_set_blocking = surface_kbd_bl_set;
+> +	shid->kbd_bl_led.brightness_get = surface_kbd_bl_get;
+> +	shid->kbd_bl_led.brightness = shid->kbd_bl_cur;
+> +
+> +	if (led_classdev_register(shid->dev, &shid->kbd_bl_led) == 0)
+> +		shid->has_kbd_bl = true;
+> +}
+> +
+>   /* -- Common device setup. -------------------------------------------------- */
+>   
+>   int surface_hid_device_add(struct surface_hid_device *shid)
+> @@ -218,15 +310,23 @@ int surface_hid_device_add(struct surface_hid_device *shid)
+>   	shid->hid->ll_driver = &surface_hid_ll_driver;
+>   
+>   	status = hid_add_device(shid->hid);
+> -	if (status)
+> +	if (status) {
+>   		hid_destroy_device(shid->hid);
+> +		return status;
+> +	}
+>   
+> -	return status;
+> +	surface_hid_kbd_bl_init(shid);
+> +	return 0;
+>   }
+>   EXPORT_SYMBOL_GPL(surface_hid_device_add);
+>   
+>   void surface_hid_device_destroy(struct surface_hid_device *shid)
+>   {
+> +	if (shid->has_kbd_bl) {
+> +		cancel_work_sync(&shid->kbd_bl_work);
+> +		led_classdev_unregister(&shid->kbd_bl_led);
+> +		shid->has_kbd_bl = false;
+> +	}
+>   	hid_destroy_device(shid->hid);
+>   }
+>   EXPORT_SYMBOL_GPL(surface_hid_device_destroy);
+> diff --git a/drivers/hid/surface-hid/surface_hid_core.h b/drivers/hid/surface-hid/surface_hid_core.h
+> index 4b1a7b5..c874489 100644
+> --- a/drivers/hid/surface-hid/surface_hid_core.h
+> +++ b/drivers/hid/surface-hid/surface_hid_core.h
+> @@ -11,8 +11,10 @@
+>   #define SURFACE_HID_CORE_H
+>   
+>   #include <linux/hid.h>
+> +#include <linux/leds.h>
+>   #include <linux/pm.h>
+>   #include <linux/types.h>
+> +#include <linux/workqueue.h>
+>   
+>   #include <linux/surface_aggregator/controller.h>
+>   #include <linux/surface_aggregator/device.h>
+> @@ -67,6 +69,12 @@ struct surface_hid_device {
+>   	struct hid_device *hid;
+>   
+>   	struct surface_hid_device_ops ops;
+> +
+> +	struct led_classdev kbd_bl_led;
+> +	struct work_struct kbd_bl_work;
+> +	u8 kbd_bl_levels[4];
+> +	u8 kbd_bl_cur;
+> +	bool has_kbd_bl;
+>   };
+>   
+>   int surface_hid_device_add(struct surface_hid_device *shid);
 
-
--- 
-js
-suse labs

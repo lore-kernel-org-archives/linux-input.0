@@ -1,56 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793696153;
-	b=yJKq77oVikkm54IEpfBPem0UVFMqKINN/kF3jEnHekmslHhT5WAaCEPe8ZzLpeV3JmIx
-	 81p8fd6V7h8n6dRE/5cwJaFSbebDRU7c/sc6/CwRa+ZXO6bAd/cvpVNPtGLYIlmM1V/0I
-	 8fO2T0F6QcH19dStUsYIywp4b3yF0cJ7YK8SVWTaTuEagaXapSnaySHvi1is2Uu5TmLsx
-	 SXwVhsrBk5rBcZcg4ZqCaNMYAqgDevZQP48AWGdh2zrnsf8uj9S94RmJeqgWGRwKiE73p
-	 Bqx5jecM2faFRQp68hjl9c2aMdHlzmIxqwgwaUQyfMgTFdQFfsosjuqmH84bGOHytBg==
+	t=1793696285;
+	b=W4srJuXk7EVJRRxmTaPorRiKzf94eLLcU57eij/5prhfQJvbQ8LBWQqyM8gD0LFrR/qB
+	 MamBSNHBpaAP8tCgCQxzWbZWlV4Qsi0L4JZRcmoXbE1tK/+vuA569RVWffqE+TvdMmkKn
+	 kpf+yzw5Uq+gMbU1yTwMkpaReW/8AkFWAWOKFRdGkog5ElNjsMVzn/YfJ+FFyMx3nExrT
+	 UuMQwwHYj5wUL3e1fs4EOqgWeTSMD5FQ94xBiQU6gs8DR8fb1yamn+J1dzvh9QVwu2fPY
+	 mMg7ZUoSGSXeZ3pUzpdFv3sLSxuwQZMPr14K7IQSbj9M35vPnuvwPxAqNQRU9WTuvBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793696153;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=63BcEqnlg295LDv2aeqv9MpAVGdLbkxykMRhbCGq7To=;
-	b=xNp3Gn0HoZOwX+/2j9Cn+6RxyQmtdWiuTCgKaGfYUrciXdTOQSEzt9/TAxb1KB1+4b74
-	 JtGpHTh7KwpDQxOlVg5uXZlKd+uuSiN/TWl7Cg6CJbpwQfvqf2F3BLCuPS6F/pYdwgaOX
-	 qf5N11vVv6o9suADlr5oX8RoX1u7aAAWMEYsYNsWDHOMrWSFUhnuQA+6XxYUtTQcnwR3z
-	 VNIYlC4fI88fkKVUTgJzo28Sjvuct3igtoq2YwctVQihkZjHrff3d7U/1oko12bJ8BWwU
-	 ijwWKlY3K1VTVgg+PBis5Y2dAR5KsBBSm5+gNA3nktv/meBNpblYjWsV5HGwTwPE6PA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793696285;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=AUgj7ybzOrbdmhNXXkJnAoh6ZouzAZL90keqraEO3nw=;
+	b=jJu8R0Af9AOFjtSzx0ihLSEUh6tKNgmO4uSRfG4fjjJXSmXgeHxKLhu0ZII4Bhi6zfEp
+	 fH3K0dRgo71vLE030vuKgTu6ntWxiMjdEeGqMW04W8lTKNTVmV1wG8IWk0BqIls53zqef
+	 DQX0Yl3NQQ8tqyb3R+mXCgwPN83h+OtzD401cSHglEv2nZKSbdncaUFPMm502pFGZn8x4
+	 pj2QUfvovBrdMu+LPyfMjxWoShMlNIrv7eLPbSWuekW792n3EVLTep6b1PhOvkPaIsrts
+	 Q3+8a/Inh2lMC79HpKjBSigDJIA9DQZV7D/xHJcBqlqBWHhHVmLhsoD0X8sgzhLx/IA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E+W4tSFF;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JKH6l+Xc;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BECA0606A326
-	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 08:55:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE8B1606A33C
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 08:58:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=E+W4tSFF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 248161F00919;
-	Tue,  3 Nov 2026 08:55:52 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JKH6l+Xc
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97B101F00A2E
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 08:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793696152;
-	bh=63BcEqnlg295LDv2aeqv9MpAVGdLbkxykMRhbCGq7To=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=E+W4tSFF6kTXQJpQsX+rSWXxrw+Wmz+bG2OuUQxtqE0TS5fUbWfcbmTsSGMvsuE88
-	 eaiqCI793tplOZ4IkrhLBrUvwD0ixGmFg93svofcYrk/guM5XTm7r7ivJhRBO4ef93
-	 Xq8eo9E/YmwAXwBPU/5WZu0WiRbGyiV2giAjK+1fDxu+416biwANrE2Golqplo5L69
-	 6TxMmK2nZn5DID2Y2tHMXRc0OvcqiXzgmesPzhT19pyh8MK5Ys7Cm0RDNQuRSVIkdh
-	 STxX6xWSPjb6D3wqB+XtLBWB4vtQ7nue/ysDGtEydjVbX5OWyAiNtxrpIOZ63/JMdz
-	 uK3UT6qLdPHVg==
-Message-ID: <sashiko-outbox-194899@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] Input: adi - bound the two-stream packet merge
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Guanglei Zhu" <zhugl3@xiaopeng.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261103084135.426629-3-zhugl3@xiaopeng.com>
-References: <20261103084135.426629-1-zhugl3@xiaopeng.com>
- <20261103084135.426629-3-zhugl3@xiaopeng.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 08:55:51 +0000
+	s=k20260515; t=1793696284;
+	bh=AUgj7ybzOrbdmhNXXkJnAoh6ZouzAZL90keqraEO3nw=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=JKH6l+Xc19miNOkvdh6fwXKmZ/peo1JLSx8CpwB7AijrPFwQ5nMrSkiCTWGvwxYnV
+	 hmZms6pQ7UWI+F4lN0IqndsfmhgVlMBSc8TdwaDl8EmL3ndRDomC00sTJnD5ZPU3Fx
+	 CpI7jvnpjWuPFi1lqaZ3xY/95vrPjNcicxGk5InxLjv0XvTn3x1DPFYlEN/tpT9bVy
+	 HHXOI1+z4niVB+11bzLb/GPbjtm5Z8gExi689a+FQqGsFDyszprbcR9DXFG4T0eEPa
+	 aFQEmKpZSbWRCkVwkQgHv6wy6f2XGzk3YWJBctaYRCMrImJ+A9CCR+rH8d1FwSvjVp
+	 8qwcOpfV6jG/Q==
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-3aca0bf7fd0so32102891fa.0
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 00:58:04 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvBxxZOYmUVtwqEUPno5JXj6+VNNPcusE5Rko4pPGZTNaRmXQ7YH+FuXQdpkAg9DC0u3uMkrF94+hl4wchQ==@vger.kernel.org
+X-Gm-Message-State: APuU4Z9BfFRFMBxPQryD+lbtmpSGwWmPM49pbKJNkUjxTcncI+IE7kCr
+	UPPKf103q+zP+4wKKEPGfhrnOr8kDrcrfqlziQajik85iU3V+04RbhWw7oU4W6T6iLxcdfdQFjw
+	3MLSz2BFMCHls6pGGXV49UiIJwAf+Xzo=
+X-Received: by 2002:a05:6512:b84:b0:5bf:dc30:93a5 with SMTP id
+ 2adb3069b0e04-5bfdc3094a3mr4560521e87.4.1793696282130; Tue, 03 Nov 2026
+ 00:58:02 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,64 +58,73 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261102135330.2493332-1-robh@kernel.org>
+In-Reply-To: <20261102135330.2493332-1-robh@kernel.org>
+From: Linus Walleij <linusw@kernel.org>
+Date: Tue, 3 Nov 2026 09:57:48 +0100
+X-Gmail-Original-Message-ID: <CAD++jL=DvHOGWpYYudhG-EhxTk3iUhtfz7OBS0mFgurvnCmb3g@mail.gmail.com>
+X-Gm-Features: AclHuK-LEcFutZHI-ID3nCMC-9st3AveCqqRSTzeXkI5ke3GTM3j4j9Kq1OFBKw
+Message-ID: <CAD++jL=DvHOGWpYYudhG-EhxTk3iUhtfz7OBS0mFgurvnCmb3g@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
+To: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
+	Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, Jiri Pirko <jiri@resnulli.us>, 
+	Ivan Vecera <ivecera@redhat.com>, Benson Leung <bleung@chromium.org>, 
+	Guenter Roeck <groeck@chromium.org>, Bartosz Golaszewski <brgl@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Jonathan Cameron <jic23@kernel.org>, 
+	David Lechner <dlechner@baylibre.com>, =?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
+	Andy Shevchenko <andy@kernel.org>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+	Alexandre Torgue <alexandre.torgue@foss.st.com>, Olivier Moysan <olivier.moysan@foss.st.com>, 
+	Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+	Thierry Reding <thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Fabrice Gasnier <fabrice.gasnier@foss.st.com>, Lee Jones <lee@kernel.org>, 
+	Srinivas Kandagatla <srini@kernel.org>, Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, 
+	Ulf Hansson <ulfh@kernel.org>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Manivannan Sadhasivam <mani@kernel.org>, Ray Jui <rjui@broadcom.com>, 
+	Scott Branden <sbranden@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
+	Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	Chunyan Zhang <zhang.lyra@gmail.com>, Paul Kocialkowski <paul.kocialkowski@bootlin.com>, 
+	Shawn Guo <shawnguo@kernel.org>, Chanh Nguyen <chanh@os.amperecomputing.com>, 
+	Alistair Francis <alistair@alistair23.me>, Julius Werner <jwerner@chromium.org>, 
+	Paul Cercueil <paul@crapouillou.net>, Dmitry Osipenko <digetx@gmail.com>, 
+	Florian Fainelli <f.fainelli@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, 
+	Ray Jui <ray.jui@broadcom.com>, Scott Branden <scott.branden@broadcom.com>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, dri-devel@lists.freedesktop.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, chrome-platform@lists.linux.dev, 
+	linux-gpio@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org, 
+	linux-iio@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-sound@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-tegra@vger.kernel.org, mfd@lists.linux.dev, 
+	linux-arm-msm@vger.kernel.org, linux-mmc@vger.kernel.org, 
+	linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] Input: adi: off-by-one check and uninvalidated streams in adi_mo=
-ve_bits()
---
+On Mon, Nov 2, 2026 at 2:53=E2=80=AFPM Rob Herring (Arm) <robh@kernel.org> =
+wrote:
 
-commit 72de23854de8740c131cf08cbda4e0025c231b6c
-Author: Guanglei Zhu <zhugl3@xiaopeng.com>
+> Unit-addresses by default (and most commonly) are hexadecimal. There's a
+> number of cases using decimal patterns. Fix all of them, limiting the
+> pattern to match the 'reg' limits if there are any.
+>
+> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
 
-Input: adi - bound the two-stream packet merge
+Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-This commit adds bounds checks in adi_move_bits() before merging the
-second ADI stream into adi[0].data to prevent out-of-bounds reads and
-writes when the packet length is oversized.
-
-> diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
-> index e07b71978509b..03535e58d6a60 100644
-> --- a/drivers/input/joystick/adi.c
-> +++ b/drivers/input/joystick/adi.c
-> @@ -168,6 +168,9 @@ static void adi_move_bits(struct adi_port *port, int =
-length)
-> =20
->  	if (adi[0].ret <=3D 0 || adi[1].ret <=3D 0) return;
->  	if (adi[0].data[0] & 0x20 || ~adi[1].data[0] & 0x20) return;
-> +	if (adi[0].ret + adi[1].ret > ADI_MAX_LENGTH ||
-> +	    ((length - 1) >> 1) + adi[1].ret + 1 >=3D ADI_MAX_LENGTH)
-> +		return;
-
-[Severity: Medium]
-Should the first check here use >=3D ADI_MAX_LENGTH instead of > ADI_MAX_LE=
-NGTH,
-and should adi[0].ret and adi[1].ret be invalidated before returning?
-
-In struct adi, data is declared as unsigned char data[ADI_MAX_LENGTH], with
-index 0 storing the start bit and payload bits stored at 1-based indices
-1..ret. In adi_get_bits(), the index is incremented before checking against
-adi->ret:
-
-	if ((adi->idx +=3D count) > adi->ret) return 0;
-	for (i =3D 0; i < count; i++)
-		bits |=3D ((adi->data[adi->idx - i] >> 5) & 1) << i;
-
-Because adi[0].ret + adi[1].ret > ADI_MAX_LENGTH allows adi[0].ret to reach
-ADI_MAX_LENGTH (256), if adi_decode() consumes 256 bits, adi_get_bits() will
-reach adi->idx =3D=3D adi->ret =3D=3D 256 and read adi[0].data[256] one byt=
-e past the
-end of adi[0].data[].
-
-In addition, once adi_move_bits() has verified that the packet is in 2-stre=
-am
-mode (!(adi[0].data[0] & 0x20) && (adi[1].data[0] & 0x20)), returning early
-without setting adi[0].ret =3D adi[1].ret =3D -1 leaves both unmerged half-=
-streams
-marked valid (ret > 0). Wouldn't that cause adi_connect() and adi_read() to
-decode the unmerged half-streams in adi[0] and adi[1] as if they were valid
-standalone packets instead of rejecting the malformed 2-stream read?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103084135.4266=
-29-3-zhugl3@xiaopeng.com?part=3D1
+Yours,
+Linus Walleij

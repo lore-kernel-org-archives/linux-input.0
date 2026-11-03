@@ -1,57 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.176
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793712152;
-	b=hXmoqLZKn+0JOaJoUqivyMVted01X5kFtpT32M133Ovb6KIqJjoI7Mou3hQdYO9CrBtw
-	 rbkS+e1K3fg1LWhXPyw4ir0N/2ycCSokX2HuEf3wbm/ul22GRMroPsYc/m1CW62uOf6fM
-	 xZodwOEat+2Tf+3d2pgNzJVuY77j3JZ34JZFV0nPORhpooiRuPKDTVmQ3Sph1+K/ZVFLm
-	 hz9jJYSVAWTURFY6clida/Xxm+7BSzRYTaW1/b4GUdUw4fK5XZiMoN2wI4MnahS4K+MWo
-	 q+KhvkZbbapFfL0ILG3P4U5mrBu4zMG0GDvx1liWRvuxx5jY9rh4MtjFQPBbAx/ZcIA==
+	t=1793714514;
+	b=rBcPadvR4Pxdip65FQ+E8NKxNJb/budJxTALPMtQ+HVhPfK2htT+SK7pKNdnX1R+tR2h
+	 3fEwrT+Kahvn+O+zNA5fGaIjlFJx5CHyIoC5Xmjl6L9GxmYLkcAIIUYYrVc/Tr0vO+Bav
+	 fClPI2/aLcjkFiITt+voUQ27MU0wwYCpEq5fliNsdYG9FYIuQxYrL9YJpuXx4Oz6lxIy6
+	 JJf7XPyuQaMiYmOuxYYTcJ8WMylm9l7Y2HHYdtjt8Rf0OtfUA36VAkILuhOraiS7/Joe6
+	 DP1O1N1ALz3W0kM6CwMDTSVM0nvx7J/zkJIDvdLcUbFJfkb7m9d32Ofkox+hgVm3rfw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793712152;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=gMf+AtUldoyW3tHPRM7JpABigXmTMzzHnH1X/Q4LW78=;
-	b=WsG8nDsEkv2PJbT7OuoyxlXR/Pe/Ep78ZdM7D6Hx0oclhGLrTeWbQfllBn/d3wND5AKv
-	 Sb5COLdBEhJEMDYBHo/4ZyEiQrU2KMkOYH0E0kJfBsrRp2FimXNtV83yzMnXyptJ30rpv
-	 FdnGvflKn41cMvcj49tox8iR6AD2KOrUHfkKMQUyhau7ZcGzgQvvMBvSpK+NE8quOU4rO
-	 ASyLGLoU/N6do+cHYe2Fujj4p470wtRLce/ApAmNNq2U7LBjPMFYSIC+qzqEGgt6zs8Vu
-	 eOEGccMz82qwBli7TBAB2STJSLjBb6XBepdg9IGBKUpGQ+xMTD9wez4rTLxD0MCFPpg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793714514;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:From:To:Cc:Subject:
+	 Date:Message-Id:X-Mailer:MIME-Version:Content-Transfer-Encoding;
+	bh=mGD1UhFryBGIkU8P1W+kRlX6z8gqLCh30+YdQnadjr4=;
+	b=qyZDihbZn+gGbuqUaX00eOVy9a3YV+qkzBVMgm6dDUaXaoR9alUQCQjkWa3uVP0XkPUs
+	 jELh4ogWRLOi9u66nIs3nB8GAzn1+3oq5BTMalv7iYl0hWkRHiRLoW5cq9q5MjeG4mL26
+	 r11d1kOaHkTo9tza0CkAM/kf/2LXi85B2BtwmbkXc/tPL763cH+oOwyeYxtvVQ6huXsq3
+	 NmBp4+SXCsjP5q+dd5DZNm6l+A3yyuawU81W6xdavId7HrD59hUXSLAz3y2em1vy4OfSK
+	 nJ5gZNZ1DD8pgpTeiOpcV5IVA1ItJfmh6cx+gK6c3bXZ/rhehYKz5KbS4Miw2j7Q/Fw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ESlgbpws;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EdXSG3fK;
+	arc=none smtp.remote-ip=74.125.82.176
+Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75ECD606A328
-	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 13:22:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D46BF6082BE5
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 14:01:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D46BF6082BE5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ESlgbpws
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2869D1F000C1;
-	Tue,  3 Nov 2026 13:22:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793712152;
-	bh=gMf+AtUldoyW3tHPRM7JpABigXmTMzzHnH1X/Q4LW78=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ESlgbpws7tdarv5n+JremzAGqW+1b0qeEndD/ffd8fh6wk6UudOb2E3NIleMkHoHj
-	 4mAbvTOjiBrssUgeO2DTFurwNlvX6P73dJul607MUNFypmTNRyitSUf/iVz1kzWO/S
-	 d0JDEiWGRCsfKaeB/p4hh7Pr2GBEk5St07ucMFMiqmGbtbkiFdEe2SqyEe18UMlsBw
-	 tq+4DJrapt1vlo4jLQoqVb0wLyW0grDrM1WEaOHwtCiN0s+OZy4VJ0rB24QMLqyLFk
-	 WOzs+AgJDNXxKI03AlncizQr7Oy9Wxc1+znyzVQD0tv36+Xx/typhNucb/AcCpKEME
-	 JFYFIXh7DiIpQ==
-Message-ID: <sashiko-outbox-195329@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] Input: cyapa - clamp SMBus block reads to the
- caller's buffer
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Chengyu Liu" <lui2012qwq@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261103131127.1585884-3-lui2012qwq@gmail.com>
-References: <20261103131127.1585884-1-lui2012qwq@gmail.com>
- <20261103131127.1585884-3-lui2012qwq@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 13:22:31 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=EdXSG3fK
+Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-36a1467ca93so389243eec.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 06:01:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793714513; x=1794319313; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=mGD1UhFryBGIkU8P1W+kRlX6z8gqLCh30+YdQnadjr4=;
+        b=EdXSG3fKhnynSqNwL+5CzOEiseDt8hCYU6zbPYSLOLKhEj+bkjvMxtQhmE5ozUP7pw
+         CARz/f6GQL6+s2QIB99+FMLjZIdeKHgr0BnR3lgCUBYYAuJOUXphZoxLRDBYr6ToKG0c
+         gAac0KwpeKQiqch8xT01i2BWZK4VjcWvlz4MBlEm5ZjKSw9NGgnMOHRg1cuRi7h3YZ5H
+         ys/wXhPLiR42hUxhjN0pjs79Xv3+WH4nZW4XMp0pRMKNjy1gnN6xFHkWZuLL1OdGCwam
+         iQAxKaTMyRyg3833Z+FkceLAOVmLRHiQncD/qX2NbGg6L3ezVHGBZ5jhOFpUp9glzOYe
+         WFzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793714513; x=1794319313;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=mGD1UhFryBGIkU8P1W+kRlX6z8gqLCh30+YdQnadjr4=;
+        b=gJAjkqK/YDUnjHNM/YErxbQnGpejXTHPZ5oWbHIJi4bbMS0JWlVm999H3Bh4tlov9s
+         Jzl/zvm+j9ObO2it+WCBXmeHLwLUiK5NGTNYg38xjGdsF2i/g9uoxzPpmAw8a27OvkF9
+         UkxtLkxZSBJhiiO6EVqlHvEkoGUl0EgKTG1UUgRqkyRCyKbCwMx5tQFp1+Lb6pbbfhtl
+         2FKB0mphuwrccBgp5K5mn3GngBCBgonvcAQZlJx5EI6c28fpy9w7IRawtAmO9G1XIZkQ
+         XbXZMj9oZskOGurrnz1LrWq5WUw3JGK6yFtlVjiYf9bu0ilFikfV/n2RhdCL1KSlNr6+
+         UaXg==
+X-Gm-Message-State: APuU4Z+gowOOlkfbUS+BVRVWY/PD1chw/tS1A5VIdviLiqjKzIdeQ8yx
+	D7KXgQHEjfIubyAot6v+CJb7Doxz6+WdfxQPeR6xXb4MXY9rpGuXzdry
+X-Gm-Gg: AYBFou2FOsVUkb1Z1dqui4XqugBuNM+w/SeccX+KxtIq09+CXRtu74CcRYYeo331UX2
+	8L9xJsudcb0xfg1WmRDmELbQsMtZrEhP1PEx2d+kDv1OpBnwo6BD3xIwLtQayWMdpyXuybjIXVi
+	yvhoOjq5zQRxqvibNX0gazemk+WjcbnSZO6DVI7xeGY8Xsp8GJtpDlD62mIrdxaZOSlELjvoQ7t
+	iqZIzA2HAb9rSZEsY9XqqDkV7Hgwu1h/F1pOi2t+iy1SSrZxxWlpkptAdIakWDKAFwHXqrXrS/m
+	FbSKVR6JNdPS+SXUETkrsAV+Rvs9uMV7/ur2dF0Z5q28wqIjMkOgsENb0R7MSWCPuoGYZyQgtYF
+	NYj/XF+GKfqhvj/QBzreXwHGbe4QuG/BgFIgI/UJlsjc435r4u41m6eTxQsQQdU2M1RBHjnghb8
+	SVBJEddoTcllGbzGGKm95DKhdUuUIHcGdx42z5oqaFEfLwtZL7yCVNqp4M0xbLpADRfUyPjhV2C
+	eIKuwb5V0kN/2IDGv77arfhlKJ2Up2CVa7qXqY8xrnRngnQAnBEG7W1xVfKWiXrHty8l02rpwQo
+	764yDfIbNv6vuGzwrxjqtG376pJev8OHVRMESA8tbw==
+X-Received: by 2002:a05:693c:6304:b0:368:1f8c:5f23 with SMTP id 5a478bee46e88-36a4205b0bfmr29799141eec.0.1793714512436;
+        Tue, 03 Nov 2026 06:01:52 -0800 (PST)
+Received: from CRASHEDROM.localdomain ([142.249.36.161])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36a42a6f7f9sm56343226eec.25.2026.11.03.06.01.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 06:01:52 -0800 (PST)
+From: Chengyu Liu <lui2012qwq@gmail.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	Chengyu Liu <lui2012qwq@gmail.com>
+Subject: [PATCH v2 0/2] Input: clamp SMBus block reads to the caller's buffer
+Date: Tue,  3 Nov 2026 22:00:04 +0800
+Message-Id: <20261103140006.1587143-1-lui2012qwq@gmail.com>
+X-Mailer: git-send-email 2.25.1
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,112 +91,48 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Input: cyapa - cyapa_smbus_read_block() returns full len on short =
-block reads
---
+i2c_smbus_read_block_data() has no length parameter: it copies the
+device-reported byte count (clamped to I2C_SMBUS_BLOCK_MAX by the
+core) into the caller's buffer, so callers must pass a full-size
+buffer.  An audit of all call sites found two input drivers passing
+smaller stack buffers:
 
-commit 17f2cef41b86752525f835330272cc728242a63c
-Author: Chengyu Liu <lui2012qwq@gmail.com>
+ - rmi4: rmi_read_pdt_entry() reads PDT entries into a 6-byte stack
+   buffer during PDT scanning at probe time; a device reporting a
+   count of 32 overruns it by 26 bytes.
 
-Input: cyapa - clamp SMBus block reads to the caller's buffer
+ - cyapa: cyapa_gen3_irq_handler() reads into a 27-byte struct
+   cyapa_reg_data on every touch interrupt; a count of 32 overruns it
+   by 5 bytes, in interrupt context.
 
-This commit bounces SMBus block reads in cyapa_smbus_read_block() through
-a temporary I2C_SMBUS_BLOCK_MAX buffer and clamps the copy size to the
-caller's requested length to prevent buffer overruns.
+In both cases the contents are controlled by the device.  Bounce the
+reads through a full-size buffer and clamp the copy to the requested
+length.
 
-> diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa=
-_gen3.c
-> index fc3fb954523b7..cd80ae51f4e52 100644
-> --- a/drivers/input/mouse/cyapa_gen3.c
-> +++ b/drivers/input/mouse/cyapa_gen3.c
-> @@ -254,20 +254,30 @@ ssize_t cyapa_smbus_read_block(struct cyapa *cyapa,=
- u8 cmd, size_t len,
->  		return -EINVAL;
-> =20
->  	if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
-> +		u8 tmp[I2C_SMBUS_BLOCK_MAX];
-> +
->  		/* read specific block registers command. */
->  		smbus_cmd =3D SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-> -		ret =3D i2c_smbus_read_block_data(client, smbus_cmd, values);
-> +		ret =3D i2c_smbus_read_block_data(client, smbus_cmd, tmp);
-> +		if (ret > 0)
-> +			/* never trust the device-provided count */
-> +			memcpy(values, tmp, min_t(size_t, ret, len));
->  		goto out;
->  	}
-> =20
->  	ret =3D 0;
->  	for (index =3D 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
-> +		u8 tmp[I2C_SMBUS_BLOCK_MAX];
-> +		size_t chunk =3D min_t(size_t, len - index * I2C_SMBUS_BLOCK_MAX,
-> +				     I2C_SMBUS_BLOCK_MAX);
-> +
->  		smbus_cmd =3D SMBUS_ENCODE_IDX(cmd, index);
->  		smbus_cmd =3D SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
->  		buf =3D values + I2C_SMBUS_BLOCK_MAX * index;
-> -		ret =3D i2c_smbus_read_block_data(client, smbus_cmd, buf);
-> +		ret =3D i2c_smbus_read_block_data(client, smbus_cmd, tmp);
->  		if (ret < 0)
->  			goto out;
-> +		memcpy(buf, tmp, min_t(size_t, ret, chunk));
->  	}
+Found by static analysis (audit of i2c_smbus_read_block_data()
+callers).
 
-[Severity: High]
-What happens in cyapa_smbus_read_block() if the device returns a short block
-count where 0 < ret < len (or 0 <=3D ret < chunk in the indexed loop)?
+---
+v2: cyapa: also fail short reads with -EIO (Sashiko AI review of v1):
+    the "ret > 0 ? len : ret" convention masked them, so callers'
+    full-read checks passed with uninitialized stack contents in the
+    unread tail (and leaked it via the product_id sysfs attribute).
+    rmi4 is unchanged; its read path pre-zeroes the caller's buffer.
+v1: https://lore.kernel.org/linux-input/20261103131127.1585884-1-lui2012qwq@gmail.com/
 
-Both branches copy only ret bytes into values or buf, leaving the remainder
-of the caller's buffer untouched, and then jump to out:
+Signed-off-by: Chengyu Liu <lui2012qwq@gmail.com>
+---
 
-drivers/input/mouse/cyapa_gen3.c:cyapa_smbus_read_block() {
-	...
-out:
-	return ret > 0 ? len : ret;
-}
+Chengyu Liu (2):
+  Input: rmi4 - clamp SMBus block reads to the requested length
+  Input: cyapa - clamp SMBus block reads to the caller's buffer size
 
-Because cyapa_smbus_read_block() still returns the full requested len whene=
-ver
-the last i2c_smbus_read_block_data() call returned a positive count, callers
-that pass uninitialized stack buffers and check for a full read cannot dete=
-ct
-the short read:
+ drivers/input/mouse/cyapa_gen3.c | 22 ++++++++++++++++++++--
+ drivers/input/rmi4/rmi_smbus.c   | 17 ++++++++++++++++-
+ 2 files changed, 36 insertions(+), 3 deletions(-)
 
-drivers/input/mouse/cyapa_gen3.c:cyapa_gen3_get_query_data() {
-	u8 query_data[QUERY_DATA_SIZE];
-	int ret;
-
-	/* query dataabda has 27 bytes */
-	ret =3D cyapa_read_block(cyapa, CYAPA_CMD_GROUP_QUERY, query_data);
-	if (ret !=3D QUERY_DATA_SIZE)
-		return (ret < 0) ? ret : -EIO;
-	...
-}
-
-drivers/input/mouse/cyapa_gen3.c:cyapa_gen3_irq_handler() {
-	struct cyapa_reg_data data;
-	int ret;
-
-	ret =3D cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data);
-	if (ret !=3D sizeof(data)) {
-		dev_err(dev, "failed to read report data, (%d)\n", ret);
-		return -EINVAL;
-	}
-	...
-}
-
-Wouldn't a device returning fewer bytes than requested cause
-cyapa_gen3_get_query_data(), cyapa_gen3_irq_handler(),
-cyapa_gen3_try_poll_handler(), and cyapa_get_state() to consume uninitializ=
-ed
-stack memory in query_data, data, and status (and expose uninitialized bytes
-from query_data via the product_id and firmware_version sysfs attributes)?
-Should cyapa_smbus_read_block() return an error such as -EIO when ret < len
-in the group-read branch or ret < chunk in the indexed loop?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103131127.1585=
-884-1-lui2012qwq@gmail.com?part=3D2
+-- 
+2.25.1

@@ -1,89 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793699905;
-	b=Evbe40oydmxZzz0bsuYLZkpO6RvFEDMAXK9+LLqBLjrAe4lHynDqxXhpWbWLOtCVmrB/
-	 vUvUMHrn/c6TjqySPCyHc96w1NFQ5IXuONfMQ0psFpJTnNCcHS/H6QiuDW4sSPAg4COfF
-	 J8OnNU10BVzNhp6lnnrGtw6Rw6AfeQrPiCKYfOcvUomqWGEyLytNGvVjGfUV4CIeaNpqL
-	 LpK4pYUbf+oGmJ0OMCVB1KYSxidbhDAKQqumJytFIdGjBUzkwu116XjXYCfJb5BXu3S5x
-	 QAshEnwarVQzk5SXlmCmPjRVJ0WBCDNzzDl/I9b92G40PDZ/BdPiqsP2yJ5uY8uFbgA==
+	t=1793702063;
+	b=khnUuRohD4M0V6/pqaA4fS8x9KBw5cPCR9kL0ABkH4Xmq0BBQ8MaQOnk1DtkoHY36WY+
+	 Sn51AJCNarwJ9i9qlUuLkxwK2x+9OARXuhE4fdUSfxybbpSEMcY309T6/RyfhN8MSvWNO
+	 QLIPomtjqBZMweo7s4eEKbARB3HH3AH/msNv4bfraUePcZ3+1XKWgC0HDuIpRPjiuskMw
+	 Uh+2rAlLQ/u/ordi3/ehkktMrsEnSj6MOIoPXziIhMOYxC/Dve7+PrF9Vi4IxT9sd9FDO
+	 JCO4/WNpVuv9wgvH9Wlc/27ScnQqWK32z2QI3OusKn8RHYhSU8rFVA5Bm1yDAGigvRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793699905;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Message-ID:Date:MIME-Version:User-Agent:From:Reply-To:Subject:To:Cc:
-	 References:Content-Language:Autocrypt:Organization:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=o1l0ybp/wLFt/F4zJKLBbBtJhS+ZACVIUqUnoSjbmw8=;
-	b=nbs0YEvt/bI48TeVEoWOfpjbkr/eVFaA56HTHYadd/nLYVXsVuSbTv2++WGUZA6pmKOb
-	 P3NXynk2wtd0uQnqNrWgdmO1mNa225eHK/yc+LecF2Cp4TdxGXQTQaZkjCviRI2YQPwFH
-	 KWmQ125vLrBR46tY+zGGC/PLnirV7gjP3REtY9EKjmxxa4Kf/ynxGjNsq9Xwdtm+x+vU0
-	 OaDohYz0VprHcQzuqmEY4dtKS9QS37VEPiX1PK1XlKor/UPIUW3YLxPTe+5zbhdfwZU3K
-	 TlsZyKD4QxxBf6+RNOhkEqlIu+x0i21+z51Q7cTgvs/b26J5JcCXhiSfF2/G+dbkfbg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793702063;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=GSqdOUTAGBHqvRwhBajLTqyzAy7NJSRaodL2JaKq0Eg=;
+	b=kmryV12EUSr6u8ghjkhA+TPtl9PWc8xL9FrVdDRVFDZ0pAQ2otjh/LuahmPhzdy9LuOP
+	 c7mpQ+Z4wy+/xAv8R4XqW96jx81Wc0A+7IopbVnLMSGhhDps2wJhsFHIsipebBfGlEduQ
+	 Wd7xn+bJqe/kGZ4Ldxd8dzG2frnk0jIOCJ1jbUMhvX56GbpFM7PkvzsArF8GgIrGNN7nZ
+	 r5KlgBTY339JOuSUmVxq7y8FuL3E9gWXuaqR7J3C1fbTcprGR2zQj17SOoN/hvBo5JFjS
+	 mSr/sMZsi/WH2b8v1TAbYLKr7Yj4BbLuYQUSZHBjTi10fEQQsW8O0DpSH45pq96OYeA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linaro.org;
-	spf=pass smtp.mailfrom=linaro.org;
-	dkim=pass header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=VI2fSFNd;
-	arc=none smtp.remote-ip=209.85.221.44
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=apqUghqM;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39CA3606D81D
-	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 09:58:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 39CA3606D81D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BDBA60850AF;
+	Tue,  3 Nov 2026 10:34:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=VI2fSFNd
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-48df8fe8513so3414184f8f.0
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 01:58:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1793699904; x=1794304704; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:organization
-         :autocrypt:content-language:references:cc:to:subject:reply-to:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=o1l0ybp/wLFt/F4zJKLBbBtJhS+ZACVIUqUnoSjbmw8=;
-        b=VI2fSFNdPLaiNCoh32ApnOMV5kcLYHDY45DogC5AJ05Rtj0rSY3Uw8zvJo89rXS3Vc
-         5SoEgxKwOQn8g/Q1Fk4rFPp0CD6qVnTAALVzhibTy9PdWXsxUgKp9K0TglK5Zbn5nQ+S
-         MMk6iPJLXztz1yjrLLsdUR4JFrCiRTyqAJWMMJZzqKn0+0yNka44ct2pN2Tefnw3w94n
-         AToW6lSO6OgkcnxsuMU6QKMHDrSJHe5J3rjiFZ4QXQwDMSizA7fQt/+amy8Ro4WIBjhN
-         AIoXy1lLpyFtQhT1gklVCLIXQ0fclRFbHdq/MhECJMlwVAOEdjrj/A9BuBGR1bL9E06d
-         yQJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793699904; x=1794304704;
-        h=content-transfer-encoding:content-type:in-reply-to:organization
-         :autocrypt:content-language:references:cc:to:subject:reply-to:from
-         :user-agent:mime-version:date:message-id:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=o1l0ybp/wLFt/F4zJKLBbBtJhS+ZACVIUqUnoSjbmw8=;
-        b=sl3CmxBX8zcZQd12cz1Q9v+u853BuA9VxhX5IEKOBtDIFOs/K+q86m/IpTuN/bvNGp
-         4GkLoq/WUby10WVkoZzu65n1z0l9Lta0swiY0riip6MMgb+1bOclWCALQHdvnrZKFd2i
-         ZRaS8Vd0R/Jo0M38qPRilb+u3VTNWriAgDil8rozzVWxqSFJVCs2lW6NrN4QRfuqdfBH
-         8BJ7XBYtXcJTZlkEOzO1DbdxilDB8wrgnhy/lJM6vugRG8YQ0k02wrKbwfxfOAPsSqar
-         qAK2cK4n58RtlBjB3L5IUv3sIDD7RZYOeLJ2gHM/3Z1eJ9wQKNHSEv6cHICNwM/pL8BH
-         YdaA==
-X-Forwarded-Encrypted: i=1; AKwUvByxl3mQzvFh6AxfdaSLWcjSt3WBcz42eGisZXKgfLrDlC5o0VdAoyHNagrsFgf+I984OnaDkoGHW2xA7A==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9yXt6NNy046w1MmPjR7dSr0wLxN4G0K3TuoOs//ZqqsUsNgbUf
-	zAGwch55i2VbxICAtWkJFL7FbsK3qxAyakmKuHvaqyV+cteY6ra4q5hWsQi3IN/wI4g=
-X-Gm-Gg: AYBFou2RM+Xj5hT/TRmDUnr1jyyKH3hzJ5W0hIu5kjY3Qj0ZEHzyeE3QtY7xevoe+ri
-	WXJK9D0mTxEfES5AGOOU5sUCEyDTTDBdGRNPms+ZthWtyExmgQGuLItqGLBrcSjeTe0qJpQvZqO
-	QS9l3wDF7HxLB6XsgJqAPmwyEELZThVf/ShFb1bVFKL7vVjeTQCe/tGb9J79O4trUcOGIq/PqKi
-	ex1wzM6BmoxFAS/UMHY25EAKtk5GJC38ZyRUhiTOzVHlj3CMreHyUNIRoD3aIbbeRoKcGA3byVC
-	hjzirpN+qG+Qrdc6n+6f3+X2YqW9T9t6ZHci3/TpBJsRryJKJ6j3pw7bF4H4XG7gWdNs7WWe5vE
-	rU+C27/U850mjzVW0ZlAhk6d3AvWsDmvlRsW4pfJK/lptmogyCoHIYjRcvrYnENHELN3WkVCROC
-	enw+hihINwF430j3igwPDKPbytabgntZEMl2HpPsa+3t7jQs8GyVjMqqvctP+yWh3sfnkk6HZZz
-	KT9NpqGCNaZc5HElE0/PratcBeGrZUScLuKrdnoIMbo9uwxQVULhAG6PxUarsMAt3b5oVtB40g8
-	4g4AEcPlsKNewBI3M2FZFcD/jAiuix3qKSAcjoC9ffY22n/fQ9u7hfqIsArOtXH2mYm9lyNdKeW
-	TKir+ALA=
-X-Received: by 2002:a05:6000:2b0e:b0:48d:eae3:b9df with SMTP id ffacd0b85a97d-48e6e50c88bmr21777860f8f.35.1793699903396;
-        Tue, 03 Nov 2026 01:58:23 -0800 (PST)
-Received: from ?IPV6:2a01:e0a:106d:1080:95a2:4869:9f46:45f0? ([2a01:e0a:106d:1080:95a2:4869:9f46:45f0])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48e71b723bfsm22710550f8f.15.2026.11.03.01.58.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Nov 2026 01:58:22 -0800 (PST)
-Message-ID: <cf6437a4-b7ee-4b4b-acd2-bac3ea3f14fa@linaro.org>
-Date: Tue, 3 Nov 2026 10:58:22 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=apqUghqM
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 547A81F00919;
+	Tue,  3 Nov 2026 10:34:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793702063;
+	bh=GSqdOUTAGBHqvRwhBajLTqyzAy7NJSRaodL2JaKq0Eg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=apqUghqMhsHN4Trpoky2ktzmBWOFMhBOIk800IfwMCUvM+YfUWZXmYmUIfWw0Ny8q
+	 M4rGo1Ztuy1Z+7b2SlYoFKvB8WsLBl7xem30ZQqpKKJG+npgYcG6UN0FEGIE7saLzO
+	 w49oM1hEO+mtzHrUuXqu/NBMwXxgmHscEggqPEEqRXWaZcpKAY0YSDmsSLAqn6j15Y
+	 Q+Sth//qr0f+bdqlGX/3j2FZdUUv7toc1V4V/dbIwjMRF+7XVt3f+0Gnu6DwiRIwxo
+	 h0mdUIafykms+4IIO7psb9WuQxayavIhgMhanT99pe5O25qzj973a6Dvw0pf74CbOo
+	 mYCN0dAg2vwAA==
+Date: Tue, 3 Nov 2026 11:34:20 +0100
+From: Thierry Reding <thierry.reding@kernel.org>
+To: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>, Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, 
+	Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>, 
+	Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, 
+	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
+	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
+	Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
+	Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Olivier Moysan <olivier.moysan@foss.st.com>, Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Fabrice Gasnier <fabrice.gasnier@foss.st.com>, Lee Jones <lee@kernel.org>, 
+	Srinivas Kandagatla <srini@kernel.org>, Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, 
+	Ulf Hansson <ulfh@kernel.org>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Vinod Koul <vkoul@kernel.org>, 
+	Neil Armstrong <neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
+	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+	Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+	Lukasz Luba <lukasz.luba@arm.com>, Orson Zhai <orsonzhai@gmail.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
+	Paul Kocialkowski <paul.kocialkowski@bootlin.com>, Shawn Guo <shawnguo@kernel.org>, 
+	Chanh Nguyen <chanh@os.amperecomputing.com>, Alistair Francis <alistair@alistair23.me>, 
+	Julius Werner <jwerner@chromium.org>, Paul Cercueil <paul@crapouillou.net>, 
+	Dmitry Osipenko <digetx@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, 
+	Thierry Reding <thierry.reding@gmail.com>, Ray Jui <ray.jui@broadcom.com>, 
+	Scott Branden <scott.branden@broadcom.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	netdev@vger.kernel.org, chrome-platform@lists.linux.dev, linux-gpio@vger.kernel.org, 
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-stm32@st-md-mailman.stormreply.com, linux-sound@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-tegra@vger.kernel.org, mfd@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
+	linux-mmc@vger.kernel.org, linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
+Message-ID: <aum4oV6N8g32lr--@orome>
+References: <20261102135330.2493332-1-robh@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -93,91 +96,71 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Neil Armstrong <neil.armstrong@linaro.org>
-Reply-To: Neil Armstrong <neil.armstrong@linaro.org>
-Subject: Re: [PATCH 3/4] Input: goodix-berlin - set default resolution before
- parsing properties
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Hans de Goede <hansg@kernel.org>, David Heidelberg <david@ixit.cz>
-Cc: Val Packett <val@packett.cool>, Hendrik Noack <hendrik-noack@gmx.de>,
- Ferass El Hafidi <funderscore@postmarketos.org>,
- Sasha Finkelstein <fnkl.kernel@gmail.com>, Jeff LaBundy <jeff@labundy.com>,
- linux-input@vger.kernel.org, asahi@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20261103044708.2461481-1-dmitry.torokhov@gmail.com>
- <20261103044708.2461481-4-dmitry.torokhov@gmail.com>
-Content-Language: en-US, fr
-Autocrypt: addr=neil.armstrong@linaro.org; keydata=
- xsBNBE1ZBs8BCAD78xVLsXPwV/2qQx2FaO/7mhWL0Qodw8UcQJnkrWmgTFRobtTWxuRx8WWP
- GTjuhvbleoQ5Cxjr+v+1ARGCH46MxFP5DwauzPekwJUD5QKZlaw/bURTLmS2id5wWi3lqVH4
- BVF2WzvGyyeV1o4RTCYDnZ9VLLylJ9bneEaIs/7cjCEbipGGFlfIML3sfqnIvMAxIMZrvcl9
- qPV2k+KQ7q+aXavU5W+yLNn7QtXUB530Zlk/d2ETgzQ5FLYYnUDAaRl+8JUTjc0CNOTpCeik
- 80TZcE6f8M76Xa6yU8VcNko94Ck7iB4vj70q76P/J7kt98hklrr85/3NU3oti3nrIHmHABEB
- AAHNKk5laWwgQXJtc3Ryb25nIDxuZWlsLmFybXN0cm9uZ0BsaW5hcm8ub3JnPsLAkQQTAQoA
- OwIbIwULCQgHAwUVCgkICwUWAgMBAAIeAQIXgBYhBInsPQWERiF0UPIoSBaat7Gkz/iuBQJk
- Q5wSAhkBAAoJEBaat7Gkz/iuyhMIANiD94qDtUTJRfEW6GwXmtKWwl/mvqQtaTtZID2dos04
- YqBbshiJbejgVJjy+HODcNUIKBB3PSLaln4ltdsV73SBcwUNdzebfKspAQunCM22Mn6FBIxQ
- GizsMLcP/0FX4en9NaKGfK6ZdKK6kN1GR9YffMJd2P08EO8mHowmSRe/ExAODhAs9W7XXExw
- UNCY4pVJyRPpEhv373vvff60bHxc1k/FF9WaPscMt7hlkbFLUs85kHtQAmr8pV5Hy9ezsSRa
- GzJmiVclkPc2BY592IGBXRDQ38urXeM4nfhhvqA50b/nAEXc6FzqgXqDkEIwR66/Gbp0t3+r
- yQzpKRyQif3OwE0ETVkGzwEIALyKDN/OGURaHBVzwjgYq+ZtifvekdrSNl8TIDH8g1xicBYp
- QTbPn6bbSZbdvfeQPNCcD4/EhXZuhQXMcoJsQQQnO4vwVULmPGgtGf8PVc7dxKOeta+qUh6+
- SRh3vIcAUFHDT3f/Zdspz+e2E0hPV2hiSvICLk11qO6cyJE13zeNFoeY3ggrKY+IzbFomIZY
- 4yG6xI99NIPEVE9lNBXBKIlewIyVlkOaYvJWSV+p5gdJXOvScNN1epm5YHmf9aE2ZjnqZGoM
- Mtsyw18YoX9BqMFInxqYQQ3j/HpVgTSvmo5ea5qQDDUaCsaTf8UeDcwYOtgI8iL4oHcsGtUX
- oUk33HEAEQEAAcLAXwQYAQIACQUCTVkGzwIbDAAKCRAWmrexpM/4rrXiB/sGbkQ6itMrAIfn
- M7IbRuiSZS1unlySUVYu3SD6YBYnNi3G5EpbwfBNuT3H8//rVvtOFK4OD8cRYkxXRQmTvqa3
- 3eDIHu/zr1HMKErm+2SD6PO9umRef8V82o2oaCLvf4WeIssFjwB0b6a12opuRP7yo3E3gTCS
- KmbUuLv1CtxKQF+fUV1cVaTPMyT25Od+RC1K+iOR0F54oUJvJeq7fUzbn/KdlhA8XPGzwGRy
- 4zcsPWvwnXgfe5tk680fEKZVwOZKIEuJC3v+/yZpQzDvGYJvbyix0lHnrCzq43WefRHI5XTT
- QbM0WUIBIcGmq38+OgUsMYu4NzLu7uZFAcmp6h8g
-Organization: Linaro
-In-Reply-To: <20261103044708.2461481-4-dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="trphfeiv2dppwi7j"
+Content-Disposition: inline
+In-Reply-To: <20261102135330.2493332-1-robh@kernel.org>
 
-On 11/3/26 05:47, Dmitry Torokhov wrote:
-> goodix_berlin_input_dev_config() currently configures the default
-> 10 units/mm resolution on ABS_MT_POSITION_X and ABS_MT_POSITION_Y after
-> calling touchscreen_parse_properties(). This unconditionally overwrites
-> any axis resolution calculated by touchscreen_parse_properties() from
-> touchscreen-x-mm and touchscreen-y-mm device properties.
-> 
-> Set the default resolution before calling touchscreen_parse_properties()
-> so the default resolution remains in place when physical dimensions are
-> not specified, while allowing touchscreen-x-mm and touchscreen-y-mm to
-> override it when present.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+--trphfeiv2dppwi7j
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
+MIME-Version: 1.0
+
+On Mon, Nov 02, 2026 at 07:53:22AM -0600, Rob Herring (Arm) wrote:
+> Unit-addresses by default (and most commonly) are hexadecimal. There's a
+> number of cases using decimal patterns. Fix all of them, limiting the
+> pattern to match the 'reg' limits if there are any.
+>=20
+> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
 > ---
->   drivers/input/touchscreen/goodix_berlin_core.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/goodix_berlin_core.c b/drivers/input/touchscreen/goodix_berlin_core.c
-> index b0938a4f3fec..5cf453427eeb 100644
-> --- a/drivers/input/touchscreen/goodix_berlin_core.c
-> +++ b/drivers/input/touchscreen/goodix_berlin_core.c
-> @@ -626,8 +626,6 @@ static int goodix_berlin_input_dev_config(struct goodix_berlin_core *cd,
->   			     0, SZ_64K - 1, 0, 0);
->   	input_set_abs_params(cd->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
->   
-> -	touchscreen_parse_properties(cd->input_dev, true, &cd->props);
-> -
->   	/*
->   	 * The resolution of these touchscreens is about 10 units/mm, the actual
->   	 * resolution does not matter much since we set INPUT_PROP_DIRECT.
-> @@ -636,6 +634,8 @@ static int goodix_berlin_input_dev_config(struct goodix_berlin_core *cd,
->   	input_abs_set_res(cd->input_dev, ABS_MT_POSITION_X, 10);
->   	input_abs_set_res(cd->input_dev, ABS_MT_POSITION_Y, 10);
->   
-> +	touchscreen_parse_properties(cd->input_dev, true, &cd->props);
-> +
->   	error = input_mt_init_slots(cd->input_dev, GOODIX_BERLIN_MAX_TOUCH,
->   				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
->   	if (error)
+>  .../bindings/display/xylon,logicvc-display.yaml      |  2 +-
+>  .../devicetree/bindings/dpll/dpll-device.yaml        |  2 +-
+>  .../bindings/embedded-controller/google,cros-ec.yaml |  4 ++--
+>  .../intel,ixp4xx-network-processing-engine.yaml      |  2 +-
+>  Documentation/devicetree/bindings/gpio/gpio-mxs.yaml |  4 ++--
+>  .../devicetree/bindings/hwmon/maxim,max31790.yaml    |  2 +-
+>  .../devicetree/bindings/iio/adc/st,stm32-adc.yaml    |  2 +-
+>  .../bindings/iio/adc/st,stm32-dfsdm-adc.yaml         |  6 +++---
+>  .../bindings/input/touchscreen/cypress,tt21000.yaml  |  2 +-
+>  .../memory-controllers/ddr/jedec,sdram-channel.yaml  | 12 ++++++------
+>  .../bindings/memory-controllers/ingenic,nemc.yaml    |  2 +-
+>  .../memory-controllers/nvidia,tegra20-emc.yaml       |  4 ++--
+>  .../devicetree/bindings/mfd/st,stm32-lptimer.yaml    |  2 +-
+>  .../devicetree/bindings/mfd/st,stm32-timers.yaml     |  2 +-
+>  .../devicetree/bindings/misc/qcom,fastrpc.yaml       |  2 +-
+>  .../bindings/mmc/mmc-controller-common.yaml          |  2 +-
+>  .../bindings/net/cortina,gemini-ethernet.yaml        |  2 +-
+>  .../bindings/phy/brcm,cygnus-pcie-phy.yaml           |  2 +-
+>  .../devicetree/bindings/phy/brcm,sata-phy.yaml       |  2 +-
+>  .../bindings/phy/socionext,uniphier-usb2-phy.yaml    |  2 +-
+>  .../devicetree/bindings/sound/qcom,q6asm-dais.yaml   |  2 +-
+>  .../bindings/sound/qcom,q6dsp-lpass-ports.yaml       |  2 +-
+>  .../devicetree/bindings/thermal/sprd-thermal.yaml    |  2 +-
+>  23 files changed, 33 insertions(+), 33 deletions(-)
 
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Acked-by: Thierry Reding <treding@nvidia.com>
 
-Thanks,
-Neil
+--trphfeiv2dppwi7j
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmrpuKwACgkQ3SOs138+
+s6GdNA/+IZX8Lk6Z0c9f09SsgYk1VvnUVRFPU0WGT4gY2GcvOdD9A5ow9mPdHAAc
+EtBw40T/7BL3Fhk7+uhlr+V7FyVZUy0G5N/4tfMdekpeSl0hmPk6eNUZ3T6URtgO
+dU6lC8r8USCEW3cN8XYrzm82EiRcUX6Pb+RLX4p4C1WruvonZi8XvwZFIKyD920z
+XLF+bH/tVACkaHRY8G7btnFl/DKx31gutQbBPn1RuwO5CjpL0XqWowIgev7f7eRd
+lOK1XJ3GITOI5t++ITd75skGT8DQvmJIbLnN1AIrdaTvua0qsbwIe7isv8fhkiwL
+WcqzIJlLXxItYk3WIqMVtdis5wfA0rWHX0kCOYSDQhuuDx1cgxE5qy/S6UJwc22z
+SlMtdhaJ2gotTfdWL/3/wHgf5dVcYCCGZToG3/JzMfZDxjC/bmL7YEJ4Os/Ywm2R
+mG8PqJy88keVzu5pXohMH1tUyBS7AYXTLIOG9tKRGv37w8l2qILJAExv0GrT2bzd
+bV3fMenc2qrgvCvgHxlE19oMzk/6BVP6Tw6jDKD5n5++y6qdZk/y0jadd3Aa79HZ
+erpcvYYDqZpLqZNGgsqNjq+7LDIsiUnUJyXeWutYkkfejvToDBVoNfiwTpcIC9RF
+z1tGodjD4b8kT4/zSnZ/wB4D8GV5H0Ep57UeyMjnWGLftrC1CzE=
+=oYMU
+-----END PGP SIGNATURE-----
+
+--trphfeiv2dppwi7j--

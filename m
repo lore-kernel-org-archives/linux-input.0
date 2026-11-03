@@ -1,55 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.123
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793691925;
-	b=fk5Sqq5zmXen3xHLgHgf5z9Anqh6/TzC1YREN3lZiQUYaHTSezFSIf6AsCr2D3VdzcCj
-	 J1ZA5lpAL5FHcktdvDJ275yKQNAmkYySgC8zydf6BPA1zm2Bs5Ar00iPVvRIDETLrj0D0
-	 48rXViNw9vdwHKZxpSQZW5zoQBBTZtc8PMqfOlTVPUGS9z2ePlUCkabs62VeZgk4prkjI
-	 fQu8cqNbiUvet2Pfctx9chBoXXAEPtQCXIoBSe5FjEcHjfQU2Ms1/LApaST59PgV65MxM
-	 OnF0zCOsvKBFp69ac8kj5W2Pr8P8J2bWNqde8cYOcsELvvT8GQgfro4thXAqm2sTviw==
+	t=1793695308;
+	b=LjjTx6QdT16f/pax255VcnLyZMBcx44fVWUwdWYlUCZ3fC5S86jpM177dRUCVEUiR0bR
+	 lAOmB+oEtqcrxci07uMXFQv6naqG2F82MGhuoQfRyL4L7Kf0tyPw3H0SQMCZh+jkKRgu6
+	 /RG6Czl8ooYEwo+21FJzqpCJceSA7dLsgd1Wk24XYDa7o8TneqhlwaWLIE4J8TNFnkFfq
+	 K0m4oQqOhky1lGBLt9RJ+BolP4Ou70YUCmoeP5AWqedhjKkB3xstqMcweYX0bvsKFJNfc
+	 Y8rGlEQdYL6pipsXlXv3SaZXcQNpQhe8Va6TWkM8bgCs1RVewvN4y4pYVZlu1ZUELNg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793691925;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=R3lCFY/iPDgq9qRZrX8FpWfJn4XT1JIuiVLYHFf8MCU=;
-	b=AwB4dK5olMHUXkW0s8UJhsya2kClpaYH508cIwM/nNpJTCVhtC8V1/n0UukHD2hpEL0P
-	 z0u/A0WeBhM+tYM2RUatekz3zDYLXYGWXn+yppH138PEzvCKeDldtawpcCccdKh1NVypk
-	 Ci2/FQ39ILI4idvfZSQpdvGRSx1lcIuyH77C3rhVipnVGJP8LkH0GUsYYvLdQkKyKGv5A
-	 1OzWBTqvWPtJNh6xs8e/2lj4p4oqt9qEZeXBVPINXa4HdIIHrjfOd0p/CacJtowwv4Q5K
-	 zWmmfZ9N5rz4TKSumnXFPKi8vXOkrCIgzSDXAAhUIQyMNyXP+o4ydO3uUnsz7+L4DFQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793695308;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
+	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=GpC/kN1NBBm4imp5gYshw5jTke0NsIykdXIGbZBqn+k=;
+	b=U+a3xpc3BrVClW2JPt5fu6MGY2cu38lf+3wBCIBgrtr99DN2Ffe6rEoYyZo2W/VJsJSn
+	 7gpN/JeoHVAXOkBn7JMxNaKuaQ1Bnp06mCbmlN8ehTAx1Yxh239+pvGCvIFNLYYAq1vnb
+	 f/KNgJ4rr/p+pS7BRlOHG3yvxSNM3haz/B3zGYZPnYYWNQYUB3SKntyhQVdK9PUNN5a4S
+	 t0guGAVEL0HPKcnKYrZsSBLGnwA8suybnhFcRSyxOzBymtWtR2hSW0F7l9QeUiMGsZWf5
+	 3gMXsAR31goUutqF1a/0cFyp26i/SqadgtpCRpERdSUiXxxnmEeS1eAfCbJYFsFv7mg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EK6wzxH8;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=xiaopeng.com;
+	spf=pass smtp.mailfrom=xiaopeng.com;
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b="iKvyD38/";
+	arc=none smtp.remote-ip=115.124.28.123
+Received: from out28-123.mail.aliyun.com (out28-123.mail.aliyun.com [115.124.28.123])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F074E606A329;
-	Tue,  3 Nov 2026 07:45:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B85C8606A33F;
+	Tue,  3 Nov 2026 08:41:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B85C8606A33F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EK6wzxH8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAEB71F000C1;
-	Tue,  3 Nov 2026 07:45:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793691924;
-	bh=R3lCFY/iPDgq9qRZrX8FpWfJn4XT1JIuiVLYHFf8MCU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=EK6wzxH8W0nn9XhVdMzuFfCLYlNzRXNl0sF6/lLjjvFku1wYeRCWHH13soaKxpoBv
-	 QQ6dsEv1Gvi4nKyGYQGTncreWEYDaTRPg1uMStLGhTpVfCUdcfj2C9toqmj1dMh5Z3
-	 h5zsOmKdOMD+eHxl/TR5s+lNgRyqVDX3Go6c934tcHq3QaxV7FqgsePvF2w0w28u3R
-	 HdokyHeDHZkbXk0PvZ+ZYF9i5esRSzCYVn6MNF82Zqj8xuvIYuoL0riAVIacBUMrG4
-	 PHZkPKlvPQabbs9xWbJoH4toRR4E9ahm/lEyqBXfs+k8oZBKRcyH+PndG1q/Hu9CP0
-	 KOw9Vn98KR8nQ==
-Date: Tue, 3 Nov 2026 08:45:19 +0100
-From: Joshua Crofts <crofts@kernel.org>
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: jikos@kernel.org, jic23@kernel.org, bentiss@kernel.org, 
-	linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	simeon@maryasin.name
-Subject: Re: [PATCH] HID: sensor-custom: Synchronize misc-device teardown
- with file lifetime
-Message-ID: <e3qod6tmwqgabf7wixmwtmcz36fgk22zxstdwjzeimngz36hrk@7ma27oycfeur>
-References: <20261103015734.578613-1-srinivas.pandruvada@linux.intel.com>
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=iKvyD38/
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=xiaopeng.com; s=default;
+	t=1793695297; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=GpC/kN1NBBm4imp5gYshw5jTke0NsIykdXIGbZBqn+k=;
+	b=iKvyD38/A7wSZtR/zecIfrkiv025+wqN+Tz0DGWdZKi7XEkw/3u26lLLWO7/HzSXYaxdPGfdmRVlSiH9efu/6WqZAtSjHHAKNw++U4d+izIX1bfa0KPFEuuhtQYHDA6HyWyAuQ3y0hYEWZg2L1HHaB0C09nUtpjf8IIYB4i5OlU=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.4832416|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00521408-0.000768213-0.994018;FP=10174869151215584561|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033025068124;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jvUy9D2_1793695296;
+Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jvUy9D2_1793695296 cluster:ay29)
+          by smtp.aliyun-inc.com;
+          Tue, 03 Nov 2026 16:41:36 +0800
+From: Guanglei Zhu <zhugl3@xiaopeng.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	liuc63@xiaopeng.com,
+	stable@vger.kernel.org
+Subject: [PATCH] Input: adi - bound the two-stream packet merge
+Date: Tue,  3 Nov 2026 16:41:30 +0800
+Message-ID: <20261103084135.426629-3-zhugl3@xiaopeng.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20261103084135.426629-1-zhugl3@xiaopeng.com>
+References: <20261103084135.426629-1-zhugl3@xiaopeng.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -59,34 +63,48 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20261103015734.578613-1-srinivas.pandruvada@linux.intel.com>
 
-On 2026-11-02 17:57, Srinivas Pandruvada wrote:
-> The HID sensor custom misc device frees its per-sensor state in
-> remove() while userspace may still hold an open file descriptor. A
-> reader blocked in read() can remain queued on sensor_inst->wait after the
-> object has been freed, and a later wakeup races with teardown and
-> touches stale memory.
-> 
-> Synchronize the misc-device teardown with file lifetime before freeing
-> the per-sensor state. Set a removal flag, reject new opens, wake
-> blocked waiters, and wait for the last open file to close before
-> deregistering the misc device and freeing the FIFO. Fail in-flight read()
-> and poll() operations cleanly once removal is in progress so userspace
-> cannot access freed memory after the device disappears.
-> 
-> This avoids use-after-free on read(), poll(), release(), and open()
-> after the HID sensor custom character device has been removed
-> 
-> Reported-by: Семён Марьясин <simeon@maryasin.name>
+When a second device shares the wire, adi_move_bits() appends the
+second packet to the first one at an offset taken from the
+10-bit length field of the ID packet:
 
-Closes tag?
+	for (i = 1; i <= adi[1].ret; i++)
+		adi[0].data[((length - 1) >> 1) + i + 1] = adi[1].data[i];
 
-> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+	adi[0].ret += adi[1].ret;
 
+Nothing compares the merged packet against the size of the buffer:
+adi[0].data is the last member of struct adi, and struct adi_port
+holds two of them back to back, so an oversized length field makes
+the loop write over the second struct adi - its device pointer, its
+length and its packet - and the inflated ret later walks the reads
+past the buffer as well. The connect path also calls
+adi_move_bits() before the length has been validated at all.
+
+Reject a merge that does not fit in the buffer.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
+---
+ drivers/input/joystick/adi.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
+index e07b71978509..03535e58d6a6 100644
+--- a/drivers/input/joystick/adi.c
++++ b/drivers/input/joystick/adi.c
+@@ -168,6 +168,9 @@ static void adi_move_bits(struct adi_port *port, int length)
+ 
+ 	if (adi[0].ret <= 0 || adi[1].ret <= 0) return;
+ 	if (adi[0].data[0] & 0x20 || ~adi[1].data[0] & 0x20) return;
++	if (adi[0].ret + adi[1].ret > ADI_MAX_LENGTH ||
++	    ((length - 1) >> 1) + adi[1].ret + 1 >= ADI_MAX_LENGTH)
++		return;
+ 
+ 	for (i = 1; i <= adi[1].ret; i++)
+ 		adi[0].data[((length - 1) >> 1) + i + 1] = adi[1].data[i];
 -- 
-Kind regards,
-Joshua Crofts
+2.50.1
+

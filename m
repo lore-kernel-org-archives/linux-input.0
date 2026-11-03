@@ -1,59 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.98
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793695308;
-	b=QKgim3Wk8uIJ5oZX8/gvU+3kJXm+nwT6brrumDaqzBUpoqgWKkwO1+PZGwJk8ZGfzawv
-	 I5L3FjsTBag1IGemFLXstZEYFhrh5xRu1EAxU8x4MJ3IzcafWGwtMqMXXpMFpKELdhZbr
-	 IvnS1BQRzPAm69cr3YYhEI0i+wvbyU4ovAs7lkN+KnqV2JgA/SeDzCeWPXPpVgHS4FL9+
-	 H6N4RbjhS0zqu7oF+PNz+66MvUbB/IdzmBBE9SNMcDW+6pu4H25H34D09zX3ZEy+ZvZeY
-	 puo/93gZ4mBZEiE1HDZH/VJGwbfAJ3/cPMg2GiMSswopZ1iTQc+XUNBHo52+RrZNVaQ==
+	t=1793695723;
+	b=m7WDjqOlSTdtiu6+LfQw5vZhPd83LjKtyPYfrjVHMnC/FMWqd6Ex0qL/L7fGyWbIdsID
+	 eF3BG4tS8Kypv3ALKK+pW6pqoxBJq734fCMtzBrBpJbaGoYBFzpwI7qtzSmly3UR9ZIvv
+	 OdEKetxI/JCmKQdnBvz9hnoHGnaU6CwNyad9t5BLak0no+Z3wVE5c/MqtgNwHhNykKlLK
+	 ZxkqbuYcqYRWk3mp7gh/b6HkYDqluVdvQCp8IdN7KHPnktN3Bsd01fq6BmqdEJmTstlE4
+	 itJB5CPDi0fcOJX0/z0MGtco4ryER94VDpkDsJ3DPUxUW8FXkS4j048ECaBqpIarGIw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793695308;
-	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=XjrwwACPOWikmoSkaur5bgUuCzi6GVUqjuufwN1HYUQ=;
-	b=jtA7PIW2cvMwCqn001X+4boXvGKjQ3y4lvLri1/2vYUMaGorzJLZqzgQNZj4/uiMp7e2
-	 v4UxtEqOpzvDfNOcHXCN4fhELKDlSCbSmxS4sojAH0U2L4jav63TyZcuqjBpT4EYkXU5w
-	 NJ84tVTgCqaqLWLQidzXXPTA3lNPokQeuWktoFF0+8ZG5AFh4FUE/LMx83j04vEvthrwf
-	 Qx0Bd71qelMBer8DzliqoRzDOGeCCkEIG2EeYSSmVlGR06hqHpq5bdJDA4pwm7IOobQmf
-	 13Q1MNF3CfMPGZeHY5khWLU2QgfAlb2MCLXiWRrXZ/zcqORucH2pTgao7Qdo7vfAtKA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793695723;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=uhCvOoxtCeAdKm3WB8IgSXc0b1+4DiB9XnYag5mIGwI=;
+	b=S0eKlDVpBHa5LrcNI60uAyqAX2NlUgwTCiMm5GPS6jw8X6dqSAlz3WEO1VcEhrI8m1yC
+	 mLeSuzHcifqARo01WMJoik88g4AbXo3kH/Kh+9eZiI3YK36TAQKAXq69TzRn6vRPsLLRi
+	 2BDTz3H8cb8tjQg566mnnXuIuUufKNCxuA7thiX2GTKakvBxjRYNOSkeIvFh4NGdJx05C
+	 VSiGhNel1cH5YgCH56ISeg16a++kgYbazBBSLRYr0h/IpCj5VoHpuac+bIC6q7oaKRxzH
+	 t0RFYkWhxAC+egl9xTLsSfsTG2zyI9Dgc7SdyzxFnFRquTKNaW2JeYdnrcUsBcsXWDg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=xiaopeng.com;
-	spf=pass smtp.mailfrom=xiaopeng.com;
-	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=T3nyVCSy;
-	arc=none smtp.remote-ip=115.124.28.98
-Received: from out28-98.mail.aliyun.com (out28-98.mail.aliyun.com [115.124.28.98])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k1ywzaDZ;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68669606A940;
-	Tue,  3 Nov 2026 08:41:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 68669606A940
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ACA6606A326
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 08:48:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=T3nyVCSy
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=xiaopeng.com; s=default;
-	t=1793695296; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=XjrwwACPOWikmoSkaur5bgUuCzi6GVUqjuufwN1HYUQ=;
-	b=T3nyVCSyhFIm7LeqXFxOCFY8llBJLwZF6lvshxtLAUgl9KjInRR8QKkqEiteyUfg1BZSa0i3HM6dXzwzInmIJytNd3fif2AVRL09cAUcZT2M4CSX5XvU+07Hmunne6uwnrZiPuD0crjSGPl9j6mqkdzg591Bc2KHloZHi/wOalg=
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.1329135|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.00421968-0.000429425-0.995351;FP=7885207108989459540|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037034020;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jvUy9Ci_1793695295;
-Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jvUy9Ci_1793695295 cluster:ay29)
-          by smtp.aliyun-inc.com;
-          Tue, 03 Nov 2026 16:41:36 +0800
-From: Guanglei Zhu <zhugl3@xiaopeng.com>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	liuc63@xiaopeng.com,
-	stable@vger.kernel.org
-Subject: [PATCH] Input: joydev - avoid signed overflow in the broken-axis correction
-Date: Tue,  3 Nov 2026 16:41:29 +0800
-Message-ID: <20261103084135.426629-2-zhugl3@xiaopeng.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261103084135.426629-1-zhugl3@xiaopeng.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=k1ywzaDZ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E7B71F000C1;
+	Tue,  3 Nov 2026 08:48:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793695723;
+	bh=uhCvOoxtCeAdKm3WB8IgSXc0b1+4DiB9XnYag5mIGwI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=k1ywzaDZ3eisNUuVmVX1qXzFDuCeOM247w5wNBAcwjX7OUKeCbXtQRAQZxxmUJU9O
+	 aCT4nq4nkuSU2n6PYv90cGd9GzZfmWQzx4SHXzxqR6XYBFRdOOuXTlibPrwUm+htu6
+	 G8bH3y26H544avkPRIQp3IVEGLJyqIEyDpTSAVnLaUUih94oYzOrgj5bovzEvIORwC
+	 Exa/tf+HwuoMHLwGjtpCC43tRBCVhGVuobzA5jPd7A9kQjhQk+GzOIF6AnOkRidghn
+	 SZuVbDt22gsvjE1z3gUPVDD1io0vxc1mDszUhehPJCqpE3I6fbUMdUkGPEHGrhoecb
+	 0aOrtx+5nGSUQ==
+Message-ID: <sashiko-outbox-194881@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] Input: joydev - avoid signed overflow in the
+ broken-axis correction
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Guanglei Zhu" <zhugl3@xiaopeng.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261103084135.426629-2-zhugl3@xiaopeng.com>
 References: <20261103084135.426629-1-zhugl3@xiaopeng.com>
+ <20261103084135.426629-2-zhugl3@xiaopeng.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 03 Nov 2026 08:48:42 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,46 +60,88 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The JS_CORR_BROKEN correction multiplies two user-controlled 32-bit
-values before shifting and clamping the result:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] Input: joydev - 32-bit overflow in joydev_correct() subtraction
+- [Medium] Input: joydev - s64 truncation before clamp() in joydev_correct()
+--
 
-	value = value > corr->coef[0] ? (value < corr->coef[1] ? 0 :
-			((corr->coef[3] * (value - corr->coef[1])) >> 14)) :
-			((corr->coef[2] * (value - corr->coef[0])) >> 14);
+commit 1426ece8bea8b467a9629c0559c54b6693b90b43
+Author: Guanglei Zhu <zhugl3@xiaopeng.com>
 
-The coefficients come from JSIOCSCORR without any range check, so
-the product can overflow the type, which is undefined behavior: the
-compiler is allowed to assume it does not happen and optimize
-accordingly.
+Input: joydev - avoid signed overflow in the broken-axis correction
 
-Do the multiplication in 64 bits, which is bit-identical for every
-in-range product.
+This commit casts the coefficient operands in the JS_CORR_BROKEN calculation
+in joydev_correct() to s64 to avoid 32-bit signed integer overflow during
+multiplication when user-controlled coefficients are set via JSIOCSCORR.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
----
- drivers/input/joydev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index 32459fd8a7c18..947d7671a59f6 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -74,8 +74,8 @@ static int joydev_correct(int value, struct js_corr *co=
+rr)
+> =20
+>  	case JS_CORR_BROKEN:
+>  		value =3D value > corr->coef[0] ? (value < corr->coef[1] ? 0 :
+> -			((corr->coef[3] * (value - corr->coef[1])) >> 14)) :
+> -			((corr->coef[2] * (value - corr->coef[0])) >> 14);
+> +			(((s64)corr->coef[3] * (value - corr->coef[1])) >> 14)) :
+> +			(((s64)corr->coef[2] * (value - corr->coef[0])) >> 14);
 
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index 32459fd8a7c1..947d7671a59f 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -74,8 +74,8 @@ static int joydev_correct(int value, struct js_corr *corr)
- 
- 	case JS_CORR_BROKEN:
- 		value = value > corr->coef[0] ? (value < corr->coef[1] ? 0 :
--			((corr->coef[3] * (value - corr->coef[1])) >> 14)) :
--			((corr->coef[2] * (value - corr->coef[0])) >> 14);
-+			(((s64)corr->coef[3] * (value - corr->coef[1])) >> 14)) :
-+			(((s64)corr->coef[2] * (value - corr->coef[0])) >> 14);
- 		break;
- 
- 	default:
--- 
-2.50.1
+[Severity: Medium]
+Can the parenthesized subtractions (value - corr->coef[1]) and
+(value - corr->coef[0]) in joydev_correct() in drivers/input/joydev.c still
+overflow 32-bit signed arithmetic before being promoted to s64 for the
+multiplication?
 
+When joydev_ioctl_common() processes JSIOCSCORR or joydev_event() handles an
+EV_ABS event and calls joydev_correct(), both value (int) and corr->coef[i]
+(__s32) are 32-bit signed integers. In the first branch, where
+value > corr->coef[0] and value >=3D corr->coef[1], if value >=3D 0 and
+corr->coef[0] and corr->coef[1] are large negative values such as INT_MIN,
+evaluating value - corr->coef[1] overflows a 32-bit signed int before
+promoting to s64. Likewise, in the second branch where value <=3D corr->coe=
+f[0],
+if value < 0 and corr->coef[0] is a large positive value such as INT_MAX,
+value - corr->coef[0] underflows a 32-bit signed int.
+
+Would casting value to s64 inside the subtraction, such as
+(s64)value - corr->coef[1] and (s64)value - corr->coef[0], avoid this
+overflow as well?
+
+[Severity: Medium]
+What happens in joydev_correct() in drivers/input/joydev.c when the shifted
+64-bit product exceeds the 32-bit signed int range before reaching clamp()?
+
+Because two 32-bit signed values multiplied in s64 can have a magnitude up =
+to
+roughly 2^62, the result after >> 14 can still have a magnitude up to rough=
+ly
+2^48. Assigning that s64 expression back into the 32-bit int variable value:
+
+drivers/input/joydev.c:joydev_correct() {
+	...
+	case JS_CORR_BROKEN:
+		value =3D value > corr->coef[0] ? (value < corr->coef[1] ? 0 :
+			(((s64)corr->coef[3] * (value - corr->coef[1])) >> 14)) :
+			(((s64)corr->coef[2] * (value - corr->coef[0])) >> 14);
+		break;
+
+	default:
+		return 0;
+	}
+
+	return clamp(value, -32767, 32767);
+}
+
+truncates the upper bits before clamp(value, -32767, 32767) is evaluated,
+causing large positive or negative results to wrap around rather than satur=
+ate
+to 32767 or -32767. Should value or the intermediate result be kept as s64
+until clamp_val() or clamp_t(s64, ...) is applied?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103084135.4266=
+29-2-zhugl3@xiaopeng.com?part=3D1

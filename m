@@ -1,56 +1,56 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.74
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.77
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793695308;
-	b=EOqVQfFJOeJJhJZFB6SVOkQFvszX/XL8pEwrci3K8gn5QPjHwrdpJEUdmx5q9as2rQOz
-	 c8zP6TLfV2Ldkxs09ZXbZr0z877KU7PKa39pnX6Pf0761wjmYlDy4Cr8NfMb+4HqWo77q
-	 Pl3Q0fdLV0yKlfQXc/uKp3Fz/rX60OL/eulkuUIzt+VffbjuTtWnTIOHmO2BjAi0dEOYE
-	 tneLYkD6IwlFyBUbX7xHgZW9ETccYMlqS4F5FdoMPK0vQqIoKMQoE3LDxuqouAl+on7lg
-	 FcvirsUCcJcmZy+I0vINHdXRTom3FwuSfCm3jrCvvj5j+WGfIi/xmssVlzTb5stXKMw==
+	t=1793695309;
+	b=4ZI9OnzZ5p5qmTbN+toyQ9mGvdoEYakXbkTPdrxQzpxBaJT1MRl3DQuRlWhg2Xf0dzdX
+	 wJ3uHrwXUPuqQxmHMncK+oGKThXqtmURwkB/mozd/cS27ZRVKZv5fqttUE5Y9Ql0Gkzpc
+	 +1uzYcb/rvqxNr9zQT2K46WH8qm8usa7ICBb3Rhce6oiAVEtXVXsm1HeXP7gKXpEUqKN+
+	 MemOv/lJIb3sZeAx+93rsOsTRu1qyX9+AynAwnpuK+CkXZ53GNf12NZfWHl7vn5f7jb2B
+	 YmXLZurpHielpkwCcD56kJTPduAJj84QohshMewmu14ob7jGs7bVJ+82SP78tOJVjGQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793695308;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793695309;
 	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
 	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=5vyfnd47uwZqspbq4knftFHy6Kp+DJLcSlxq3/tWFaA=;
-	b=XkXJKshNSq/GsCuFKKnvdItwQJa0pGbhf/kMlZUe8Oay+2eOtV8tr/AMQm6oseIvQ2qv
-	 poFE6Yme3+2sazjQAQ2WfWv1DTJNuAB8wH5ZoO8B0D1mMz9iAUbdd5bsWPljbFn/pTlck
-	 JK/Dz5ECopn+XNuU6bWp+X2RdmE56dSVMeqwwAXich+p2cKJQLL3MsYrWCoKdTPqthQkU
-	 mzrU70mFt0XuJfbzmzIJ781KNyczDqwY7MkuyWG1i4QVe3oOKmk9IsOlB+PH8ccFRyZ8e
-	 w9b1zRZTRdhNDsFfc5HnhlUwGTd0PbDQ+2C1aLVP0XbHQVbRtMoZw8ThMCAJ7HX61yQ==
+	bh=wnOygQfSWno4QPM14hpop/ZAWYYTiXmnGCUHEc3ZDDc=;
+	b=D8BspUEGczHcViTTJyYGttkMlZsbWNJw/eJ2PKMt4XFmEdynvob0FtI2RELu5sdmokba
+	 CTHVSgf84LO+DBkQlgYiAFFTsz5LQNcFBMnOp6g6l43RImJI3q1+Fn7VkpMZIoOgRGSMQ
+	 Lil3kcoZ5TY1CNnc+XUIIYqyOhsyp7pKIa00Rwe88A70q1yJvbXmToyCsr1u0M+qUiedY
+	 /hgPHX4Z1Sl2K1PcOgrCpzXHb6UMmKklRJZzF4roIwRSD9zRMY0OKXYgGUVn+0fHGqSL4
+	 3MKYwwWx2U/Wy4UZaDJJsl1hcUVWlTQj9VWqkshQrVBTLF1LN/XJrOsGtuZeB1plABw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=xiaopeng.com;
 	spf=pass smtp.mailfrom=xiaopeng.com;
-	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=LHvdR1zo;
-	arc=none smtp.remote-ip=115.124.28.74
-Received: from out28-74.mail.aliyun.com (out28-74.mail.aliyun.com [115.124.28.74])
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b="cvP/kpPv";
+	arc=none smtp.remote-ip=115.124.28.77
+Received: from out28-77.mail.aliyun.com (out28-77.mail.aliyun.com [115.124.28.77])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6210E606A943;
-	Tue,  3 Nov 2026 08:41:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6210E606A943
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5E8D606A947;
+	Tue,  3 Nov 2026 08:41:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C5E8D606A947
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=LHvdR1zo
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=cvP/kpPv
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=xiaopeng.com; s=default;
-	t=1793695297; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=5vyfnd47uwZqspbq4knftFHy6Kp+DJLcSlxq3/tWFaA=;
-	b=LHvdR1zoVWzugXqXNicymP3YF9nyqevFYL+5USwGAHLM7l5cPLK5rD79ZlQpWQ1pxcPASWMy4zdRnXUk56aybcJmjR5v/yQQ+LE7muk+M6Cd6pgAMs6yjB9T3TTgJLw7owrdBtI637wnQOTe5pChovj0/HcFguslu4Cw2+cmhd4=
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.1426679|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.000769656-0.000153283-0.999077;FP=8582228276987769954|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033045038069;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jvUy9E9_1793695297;
-Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jvUy9E9_1793695297 cluster:ay29)
+	t=1793695299; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=wnOygQfSWno4QPM14hpop/ZAWYYTiXmnGCUHEc3ZDDc=;
+	b=cvP/kpPvUOmT2i9udi0kPf/0liRk2cH5HQ4BMPvcQ+ZX8y6Cf8f6aoCpI00D9TfTuN4OJ+ujzoykGP4in42WSkW+lfcRCNDV5tIUSNosf5LanjoANz7ZhI5G/SxXIXnA+iOT0ozmOlioyQTbxZYfnmfslnaKCMK4e1ACXaqi0mo=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.2593157|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.00933782-0.00124026-0.989422;FP=18250523093982794882|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037034138;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jvUy9Fw_1793695298;
+Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jvUy9Fw_1793695298 cluster:ay29)
           by smtp.aliyun-inc.com;
-          Tue, 03 Nov 2026 16:41:37 +0800
+          Tue, 03 Nov 2026 16:41:38 +0800
 From: Guanglei Zhu <zhugl3@xiaopeng.com>
 To: dmitry.torokhov@gmail.com
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	liuc63@xiaopeng.com,
 	stable@vger.kernel.org
-Subject: [PATCH] Input: lpc32xx-keys - reject matrices bigger than the hardware has
-Date: Tue,  3 Nov 2026 16:41:32 +0800
-Message-ID: <20261103084135.426629-5-zhugl3@xiaopeng.com>
+Subject: [PATCH] Input: cyapa_gen3 - clamp the reported finger count to the array
+Date: Tue,  3 Nov 2026 16:41:35 +0800
+Message-ID: <20261103084135.426629-8-zhugl3@xiaopeng.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261103084135.426629-1-zhugl3@xiaopeng.com>
 References: <20261103084135.426629-1-zhugl3@xiaopeng.com>
@@ -65,46 +65,41 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The scanner state array holds the last state of eight matrix
-columns, and the interrupt handler walks the matrix size that the
-device tree declared:
+The finger count is taken from the top nibble of a status byte the
+trackpad firmware fills in, and used to walk the touch array:
 
-	u8 lastkeystates[8];
-	...
-	for (i = 0; i < kscandat->matrix_sz; i++)
-		lpc32xx_mod_states(kscandat, i);
+	num_fingers = (data->finger_btn >> 4) & 0x0f;
+	for (i = 0; i < num_fingers; i++) {
+		const struct cyapa_touch *touch = &data->touches[i];
 
-The probe path only checks that rows and columns match; the
-hardware supports square matrices from 1x1 up to 8x8, but nothing
-stops a device tree from declaring more, which makes the state
-array index run past the field into the rest of the driver data -
-including the keymap pointer the same code dereferences.
+The nibble allows up to fifteen fingers, but the array holds the
+five touches the chip is documented to report, so a firmware that
+counts beyond that makes the driver report coordinates read from
+the stack past the register block.
 
-Reject matrices larger than the hardware supports.
+Clamp the finger count to the size of the array.
 
-Fixes: 69690bec400e ("Input: add support for key scan interface of the LPC32xx SoC")
+Fixes: 9f1cd857518f ("Input: cyapa - re-design driver to support multi-trackpad in one driver")
 Cc: stable@vger.kernel.org
 Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
 ---
- drivers/input/keyboard/lpc32xx-keys.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/mouse/cyapa_gen3.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
-index 285d5c32fe70..1d0b082e7881 100644
---- a/drivers/input/keyboard/lpc32xx-keys.c
-+++ b/drivers/input/keyboard/lpc32xx-keys.c
-@@ -142,6 +142,11 @@ static int lpc32xx_parse_dt(struct device *dev,
- 		return -EINVAL;
- 	}
+diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
+index fc3fb954523b..fda807a4c141 100644
+--- a/drivers/input/mouse/cyapa_gen3.c
++++ b/drivers/input/mouse/cyapa_gen3.c
+@@ -1149,7 +1149,8 @@ static int cyapa_gen3_event_process(struct cyapa *cyapa,
+ 	int num_fingers;
+ 	int i;
  
-+	if (rows > 8) {
-+		dev_err(dev, "rows and columns must be at most 8!\n");
-+		return -EINVAL;
-+	}
-+
- 	kscandat->matrix_sz = rows;
- 	kscandat->row_shift = get_count_order(columns);
- 
+-	num_fingers = (data->finger_btn >> 4) & 0x0f;
++	num_fingers = min((data->finger_btn >> 4) & 0x0f,
++			  ARRAY_SIZE(data->touches));
+ 	for (i = 0; i < num_fingers; i++) {
+ 		const struct cyapa_touch *touch = &data->touches[i];
+ 		/* Note: touch->id range is 1 to 15; slots are 0 to 14. */
 -- 
 2.50.1
 

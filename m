@@ -1,45 +1,45 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.220
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.74
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793695308;
-	b=0l9thvvBP2p9lD8L8brHvLOdm5WMrQN8IP0sVirXZVPbBRPpY8hQ4a9TATjc9HXqW1aP
-	 5RcdVfmcHTCy0dNIidMNjbrq3cvULgF4ARaq+jfIXLIZMnnHsbALEMAEwSmhqjysimNof
-	 xKYhafekDLtW8x1fIMbwnyil7ktRBfXvncJMqxX7s2UJDZC05RpMBBnnNbIP6EW3ipi5a
-	 Hqurm9NbZpMUG5k+jnozcSOCUNVnGeB+t80ra7OncOIYhqflDRCGV6V3CSwzXIkQseiJ4
-	 2H7yCOj7yPbTmnHgGNiOd88Y/3Jm+yuz+rwq6y0G9AKhkplWoL+EXX36QDRxrx8XjWg==
+	b=EOqVQfFJOeJJhJZFB6SVOkQFvszX/XL8pEwrci3K8gn5QPjHwrdpJEUdmx5q9as2rQOz
+	 c8zP6TLfV2Ldkxs09ZXbZr0z877KU7PKa39pnX6Pf0761wjmYlDy4Cr8NfMb+4HqWo77q
+	 Pl3Q0fdLV0yKlfQXc/uKp3Fz/rX60OL/eulkuUIzt+VffbjuTtWnTIOHmO2BjAi0dEOYE
+	 tneLYkD6IwlFyBUbX7xHgZW9ETccYMlqS4F5FdoMPK0vQqIoKMQoE3LDxuqouAl+on7lg
+	 FcvirsUCcJcmZy+I0vINHdXRTom3FwuSfCm3jrCvvj5j+WGfIi/xmssVlzTb5stXKMw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793695308;
 	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
 	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=s2o2jqr0EGM36gGMYl7to7xFg0YvJBqNItTaIIIY64A=;
-	b=e39yEqdOHpNSOxqsYzuIgcZNsJjVpCe5ticrQRjWZXPAGlQqq7c+uCBmEZPI3Pw8G1KO
-	 3irg/KzAIBcC9Xzi9Bqklp2HYiUflQevt8JomP2X3wbSYK47Urgl/V9Gs4WEsl5dVzBrY
-	 77eYIHdcfW45tca93rlZ+5CT7waOl23fyPxhh4kcUJPlEG9tRACaHyWK00dvv7ZDa+YM1
-	 7EwNm1WCQpBZ/zbn7SFcuJftXpblVODJmkKNCHj6dXwVKxKoOb7/14N6B0VRf0oaEVk7A
-	 YtzMEcIsPEboVkTJABCcZmQq3xg5fPuIkKedqpWYyNKzrhTWeMo1ukPyoOXvAOOIDmg==
+	bh=5vyfnd47uwZqspbq4knftFHy6Kp+DJLcSlxq3/tWFaA=;
+	b=XkXJKshNSq/GsCuFKKnvdItwQJa0pGbhf/kMlZUe8Oay+2eOtV8tr/AMQm6oseIvQ2qv
+	 poFE6Yme3+2sazjQAQ2WfWv1DTJNuAB8wH5ZoO8B0D1mMz9iAUbdd5bsWPljbFn/pTlck
+	 JK/Dz5ECopn+XNuU6bWp+X2RdmE56dSVMeqwwAXich+p2cKJQLL3MsYrWCoKdTPqthQkU
+	 mzrU70mFt0XuJfbzmzIJ781KNyczDqwY7MkuyWG1i4QVe3oOKmk9IsOlB+PH8ccFRyZ8e
+	 w9b1zRZTRdhNDsFfc5HnhlUwGTd0PbDQ+2C1aLVP0XbHQVbRtMoZw8ThMCAJ7HX61yQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=none header.from=xiaopeng.com;
 	spf=pass smtp.mailfrom=xiaopeng.com;
-	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=pjPR3ejs;
-	arc=none smtp.remote-ip=115.124.28.220
-Received: from out28-220.mail.aliyun.com (out28-220.mail.aliyun.com [115.124.28.220])
+	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=LHvdR1zo;
+	arc=none smtp.remote-ip=115.124.28.74
+Received: from out28-74.mail.aliyun.com (out28-74.mail.aliyun.com [115.124.28.74])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4447C606A942;
-	Tue,  3 Nov 2026 08:41:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4447C606A942
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6210E606A943;
+	Tue,  3 Nov 2026 08:41:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6210E606A943
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=pjPR3ejs
+	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=LHvdR1zo
 DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
 	d=xiaopeng.com; s=default;
-	t=1793695298; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=s2o2jqr0EGM36gGMYl7to7xFg0YvJBqNItTaIIIY64A=;
-	b=pjPR3ejsPzg1iIPsFBf8In7sSeX5iD5XvZALMntrMokdUBTAD99/FmSTOTDla4vUHbVQhQi5A+ef5aWyesZ+mjnvB22ObAGeq4sdZnbVmAlWHzYGNxK35wQYRYz2PhW6CdtAEq8ino3q4esrF6jpQWwJh6RuNERZgrbK//itq5g=
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.08976552|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.00572124-0.00184533-0.992433;FP=3555928415803192499|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037034020;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jvUy9Ee_1793695297;
-Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jvUy9Ee_1793695297 cluster:ay29)
+	t=1793695297; h=From:To:Subject:Date:Message-ID:MIME-Version;
+	bh=5vyfnd47uwZqspbq4knftFHy6Kp+DJLcSlxq3/tWFaA=;
+	b=LHvdR1zoVWzugXqXNicymP3YF9nyqevFYL+5USwGAHLM7l5cPLK5rD79ZlQpWQ1pxcPASWMy4zdRnXUk56aybcJmjR5v/yQQ+LE7muk+M6Cd6pgAMs6yjB9T3TTgJLw7owrdBtI637wnQOTe5pChovj0/HcFguslu4Cw2+cmhd4=
+X-Alimail-AntiSpam:AC=CONTINUE;BC=0.1426679|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_regular_dialog|0.000769656-0.000153283-0.999077;FP=8582228276987769954|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033045038069;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=5;RT=5;SR=0;TI=SMTPD_---.jvUy9E9_1793695297;
+Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jvUy9E9_1793695297 cluster:ay29)
           by smtp.aliyun-inc.com;
           Tue, 03 Nov 2026 16:41:37 +0800
 From: Guanglei Zhu <zhugl3@xiaopeng.com>
@@ -48,9 +48,9 @@ Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	liuc63@xiaopeng.com,
 	stable@vger.kernel.org
-Subject: [PATCH] Input: mt6779-keypad - check the reported row and column
-Date: Tue,  3 Nov 2026 16:41:33 +0800
-Message-ID: <20261103084135.426629-6-zhugl3@xiaopeng.com>
+Subject: [PATCH] Input: lpc32xx-keys - reject matrices bigger than the hardware has
+Date: Tue,  3 Nov 2026 16:41:32 +0800
+Message-ID: <20261103084135.426629-5-zhugl3@xiaopeng.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20261103084135.426629-1-zhugl3@xiaopeng.com>
 References: <20261103084135.426629-1-zhugl3@xiaopeng.com>
@@ -65,44 +65,46 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The interrupt handler turns register bits into a matrix position
-and indexes the keycode array with it:
+The scanner state array holds the last state of eight matrix
+columns, and the interrupt handler walks the matrix size that the
+device tree declared:
 
-		keypad->calc_row_col(key, &row, &col);
+	u8 lastkeystates[8];
+	...
+	for (i = 0; i < kscandat->matrix_sz; i++)
+		lpc32xx_mod_states(kscandat, i);
 
-		scancode = MATRIX_SCAN_CODE(row, col, row_shift);
-		...
-		input_report_key(keypad->input_dev, keycode[scancode], pressed);
+The probe path only checks that rows and columns match; the
+hardware supports square matrices from 1x1 up to 8x8, but nothing
+stops a device tree from declaring more, which makes the state
+array index run past the field into the rest of the driver data -
+including the keymap pointer the same code dereferences.
 
-The keycode array is sized after the rows and columns the device
-tree declared, but neither the probe nor the handler checks that a
-reported position actually fits those dimensions. A register glitch
-or a matrix smaller than the hardware's fixed layout indexes past
-the array and reports whatever sits there as a key code.
+Reject matrices larger than the hardware supports.
 
-Skip positions outside the declared matrix.
-
-Fixes: f28af984e771 ("Input: mt6779-keypad - add MediaTek keypad driver")
+Fixes: 69690bec400e ("Input: add support for key scan interface of the LPC32xx SoC")
 Cc: stable@vger.kernel.org
 Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
 ---
- drivers/input/keyboard/mt6779-keypad.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/keyboard/lpc32xx-keys.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/keyboard/mt6779-keypad.c b/drivers/input/keyboard/mt6779-keypad.c
-index e5eb025c5e99..effd154f5bf9 100644
---- a/drivers/input/keyboard/mt6779-keypad.c
-+++ b/drivers/input/keyboard/mt6779-keypad.c
-@@ -73,6 +73,9 @@ static irqreturn_t mt6779_keypad_irq_handler(int irq, void *dev_id)
- 		key = bit_nr / 32 * 16 + bit_nr % 32;
- 		keypad->calc_row_col(key, &row, &col);
+diff --git a/drivers/input/keyboard/lpc32xx-keys.c b/drivers/input/keyboard/lpc32xx-keys.c
+index 285d5c32fe70..1d0b082e7881 100644
+--- a/drivers/input/keyboard/lpc32xx-keys.c
++++ b/drivers/input/keyboard/lpc32xx-keys.c
+@@ -142,6 +142,11 @@ static int lpc32xx_parse_dt(struct device *dev,
+ 		return -EINVAL;
+ 	}
  
-+		if (row >= keypad->n_rows || col >= keypad->n_cols)
-+			continue;
++	if (rows > 8) {
++		dev_err(dev, "rows and columns must be at most 8!\n");
++		return -EINVAL;
++	}
 +
- 		scancode = MATRIX_SCAN_CODE(row, col, row_shift);
- 		/* 1: not pressed, 0: pressed */
- 		pressed = !test_bit(bit_nr, new_state);
+ 	kscandat->matrix_sz = rows;
+ 	kscandat->row_shift = get_count_order(columns);
+ 
 -- 
 2.50.1
 

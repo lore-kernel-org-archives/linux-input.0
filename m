@@ -1,132 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=71.18.227.4
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793732348;
-	b=xemad55dDxzklyvBnw/HJZhpF+AmJCYGuAK8ikqpp7V4WxeQXgPX56LCRed2MYlsv1BY
-	 cyWJ0b5nyJ8BOgiatr+6N/hc0f5Jv7wHUKvGQFexQeL7EKpew63x+pAWy0xrT+KZreVub
-	 3ahnTFlc8cG9mx0CZgSS/EW6MrydIgg6f/u8rJVkg9m7dIo+8FkRF3WJ4J1IDu7xBRadf
-	 9xUnkySfrmiR1BWa9q0FZhSNtbDYm2pQwUo3uBU9tBcAZKaXy+hLfnSoDvMtYG7e6uX4Y
-	 2kh8EfYIebFc4b43G3p2kg9W2EXRpRNGYJVtAfRzU5VgEry0kbCoWIzym99m9+HFgrw==
+	t=1793735080;
+	b=k1M2B5IofzECg9pqS0AoLX+vOt76iJoJX8+h2LAKNP24JxktH6xxzWh+B09L95ZRjjh+
+	 4mrK1V9ABJPZyRNsf30CYW47gZL4Kfjp/qjGfnNbUG1uYVoIpUi8+17JqLZXpphKRCFIG
+	 j/yGQikumOG2Jqaf9VUjvMmiJ9OW/Uz7SD6RZgNjkPkU+cP9TbkQ5OskeGVc0BQjNwxJc
+	 WdU1EsVzs7Xp/CM4rG5C1TBT/D3KSPepA9pmFtYBZt+JH8zf4lRCkIthA5bQfSvJO7HeA
+	 z3OAdlZ0Vo0eO3iqLHlyYmADng7h6uXFIVXC8zVr04IIcNA35df4JBjQxj/tnyqsMVw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793732348;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To;
-	bh=J7X+N3b/Iozr8Iw7Q9vLqcq+wqZH/CWnHiKVeMbKEmo=;
-	b=DOwpJbeDYJrlmtXj3jyo9kf2D+va3sKn5adP/DsiSgc4vZR2QkWVPz6CY/jbzDgO9q7Q
-	 1ykdhnbMFSKuCYwJh+u/8hIlQeOebmN4hixRG8rflpGL8SjPXl8h+nHBoIlpVdL7v3A5O
-	 PsY+wwnlaf8SJMqRm9qD0cT7l3HRQfEQ+ZieQK4c2PXmB0wwH6dcB8fxqGMkVGBn1HZlW
-	 blZ0eyRMAzr4gwYM8xuWv18j20V0MiWEiBAIPeeBE+4FnrwgEVu8Wg95zvslL7Y9EFj8d
-	 1hrSDyDEiOkgCTxMm5RpOzVCHK2+rLuel7qEsU1KpEenLTf0J9Q0XN8P199DBEdtC1A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793735080;
+	h=DMARC-Filter:DKIM-Signature:To:Mime-Version:X-B4-Tracking:
+	 Content-Type:Cc:Subject:Message-Id:X-Change-Id:X-Mailer:From:
+	 X-Lms-Return-Path:Received:Content-Transfer-Encoding:Date:
+	 X-Original-From;
+	bh=vcnq1DeugB7564b1ifNJtZSg+TFpvqDt2FpNBOnwADo=;
+	b=0E610/GQ03uXbk8OFNmEXG83UxvaKbMRVGoerbsLNkRw8x4X6l9vRlxwp/GnsZcRX9XQ
+	 Fn8jwivgKDeGQzbEQJFQSPD9hRoccAmXMR5QFRjuA1Uj0SIyiRnOma2ZyOmXVzMWugSRX
+	 WEg9hiMrADg/ROKgkpaPNYECIPaBWNnYaquV7zs7axdtjqbZKeZorq6gorITrp/txkfFn
+	 SUp36l/lT90+liyM0jH5qjotq44jMoB0dgvR+KigSYK/0RdtT4pYgpBB7QZ1S112roIxI
+	 jfWfb/zBQYU3xCX6B7++WGG7L1f8ZUqXcxiCjelMy/t4iW10T0HVQWccCJmpnCkaSWw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MUGv2Kdq;
-	arc=none smtp.remote-ip=74.125.82.175
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
+	dmarc=pass header.from=cherr.cc;
+	spf=pass smtp.mailfrom=cherr.cc;
+	dkim=pass header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=LPBLVSQt;
+	arc=none smtp.remote-ip=71.18.227.4
+Received: from sg-2-4.ptr.blmpb.com (sg-2-4.ptr.blmpb.com [71.18.227.4])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 061C4606A329
-	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 18:59:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 061C4606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88B8606A32D
+	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 19:44:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A88B8606A32D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cherr.cc
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cherr.cc
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MUGv2Kdq
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-36a17a332ecso6821953eec.1
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 10:59:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793732347; x=1794337147; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=J7X+N3b/Iozr8Iw7Q9vLqcq+wqZH/CWnHiKVeMbKEmo=;
-        b=MUGv2KdqugwUjwtDn+5TEs87XsBH6SLTKU2VnuO7MeKo6hr4G5WH4O55wxRf43JXjq
-         s4GLbtJziYvCL8aJeaRkPvbVSJRuYcD79RqLOhm3K8WcuWsYcB6Ziudrzsv1CrC07u0F
-         eeK0IGODbK1MBN0NyElMx/axzRgFDpbY/f4N1s0bQx8OzhaCbM4C77eijEtz2tK6avwd
-         jIuK+W4ysYUA0fCY/zhjI3sP/rkF9QL4GSrBo5192CeRPPyJlisVudQsAqBsfuVbx201
-         8WfWRhga3xBSMnG6+AMLIpCzka4/V3h3bqBZnqQBBngmWmeWgvYnwglc9N9f6vswPPA4
-         4s2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793732347; x=1794337147;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=J7X+N3b/Iozr8Iw7Q9vLqcq+wqZH/CWnHiKVeMbKEmo=;
-        b=jOQ2FZbO+tyKud/7QPqf39g5mz/E8fIPEaGVG4iSUly+lqxkue7R/NRiOIPlKyW5u7
-         JDfmDbJUHCZaCERUELaaOrX0qyuxhafBfYTkwkw6O/07z9Z3eQNLQA8NQd/f+ylcfc5y
-         yCEu4pgdWclYwfSGArKAOWeMk4/oBrWhGEpfTwQX2bI3MsuSTOedotEikx4cR0Zvv4M8
-         VS33El0HeL75YPcLGAxk0HXVIAalAxoQwPEOvecxMlGqva//CvL06PdmpCDOMQkiIhlY
-         MUGupf7AzAgMUYY9DIejAHLhr17KNVc0uJDVlsOcE8KpvvFoaQFLjiy5s1LdAs1wIohy
-         9iUA==
-X-Forwarded-Encrypted: i=1; AKwUvBziioKnJKkwLsp8PYfqHccqxmyRRKIKy2MOPAsGCTwfoj9Xl/NfUZ3Wla+TRvveHkWVLjFaWfKllsOzdA==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+B7Z552+yGWdof0HesuyTePEhalTZMqhx1RP2TdD5GyQovAnis
-	uZlCIwN09EqbqyR7ccnioScT2tiA87CVH6I10uBj8ykkdg8DDnRaap3t
-X-Gm-Gg: AYBFou109R6mI4mf7BNziqFd4NtZn3ef00OtsppeloGjsoSD5qXcJvPIqYEaBRX3i4E
-	2Lkyitrl5VFtsYxslFw+EXVn6TWVH7FXlZuCzAEPP165i9CrT8y12xFaS8d7P1dYmX0+94MZs8g
-	TIJ1G+oDUIkzZmeSfdlmhMAXL+IOzjKd482ZawjHs1USX3QHwe7RtOISD6tQ77CnwH5bIkOBeFs
-	dMmww7ZCxnoDIMVFu/KVEbPCQqgKsBB+AjN1xWuDGQKfxzf89rDPdXGwbLv8qpv63jpkQAfG2zW
-	oKAbEgWRzjDLwK12/ZeCnT/GOZf/+fN4WkJt+jOKkOMO2Y2PYb03M05w7FOTnFb7QZA1mKSBURO
-	tjhF2K8bnbjmEvP0iXjpt+9QNHNWBbiPMmvEqUftONaGUAjIP3f4LQ0xhXXyCA/Tf1klE45w41U
-	Yc0mX1imvOv32HXP68BUiN/2bxOkqsSe+8MPb3+e1PdSVZ2SzmQGZreOZYGkjYlQWyC+0BntBD4
-	QFU9XtSGTkFKuCclPoniY6kx7RzJvg9pVTKnh88V0VWTOxEtIf5RAHlipoBBAbaqmSgFO4LNeLS
-	H1h8EthOPhKSaHPMMkP0ZMNXfZDxPkqzhOjHtvjjo6eq9WGoB+9z4vKnckQ/z38ZzWvz
-X-Received: by 2002:a05:7300:7b81:b0:351:7ec1:a92c with SMTP id 5a478bee46e88-36a42431768mr30787340eec.28.1793732346941;
-        Tue, 03 Nov 2026 10:59:06 -0800 (PST)
-Received: from google.com ([2a00:79e0:2ebe:8:88b4:22ec:d621:c1b])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36ca39b3b7esm49159eec.28.2026.11.03.10.59.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 10:59:06 -0800 (PST)
-Date: Tue, 3 Nov 2026 10:58:59 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>, Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, 
-	Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>, 
-	Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, 
-	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
-	Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Olivier Moysan <olivier.moysan@foss.st.com>, Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>, 
-	Thierry Reding <thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	Fabrice Gasnier <fabrice.gasnier@foss.st.com>, Lee Jones <lee@kernel.org>, 
-	Srinivas Kandagatla <srini@kernel.org>, Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, 
-	Ulf Hansson <ulfh@kernel.org>, Hans Ulli Kroll <ulli.kroll@googlemail.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Vinod Koul <vkoul@kernel.org>, 
-	Neil Armstrong <neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
-	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
-	Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
-	Lukasz Luba <lukasz.luba@arm.com>, Orson Zhai <orsonzhai@gmail.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
-	Paul Kocialkowski <paul.kocialkowski@bootlin.com>, Shawn Guo <shawnguo@kernel.org>, 
-	Chanh Nguyen <chanh@os.amperecomputing.com>, Alistair Francis <alistair@alistair23.me>, 
-	Julius Werner <jwerner@chromium.org>, Paul Cercueil <paul@crapouillou.net>, 
-	Dmitry Osipenko <digetx@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, Ray Jui <ray.jui@broadcom.com>, 
-	Scott Branden <scott.branden@broadcom.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
-	dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	netdev@vger.kernel.org, chrome-platform@lists.linux.dev, linux-gpio@vger.kernel.org, 
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-stm32@st-md-mailman.stormreply.com, linux-sound@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-tegra@vger.kernel.org, mfd@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-mmc@vger.kernel.org, linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
-Message-ID: <auou2CBiiR6zA0G0@google.com>
-References: <20261102135330.2493332-1-robh@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=cherr.cc header.i=@cherr.cc header.a=rsa-sha256 header.s=feishu2604220257 header.b=LPBLVSQt
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=feishu2604220257; d=cherr.cc; t=1793735068; h=from:subject:
+ mime-version:from:date:message-id:subject:to:cc:reply-to:content-type:
+ mime-version:in-reply-to:message-id;
+ bh=vcnq1DeugB7564b1ifNJtZSg+TFpvqDt2FpNBOnwADo=;
+ b=LPBLVSQtQ6b50vGVU4UXRLyUg0wWUEJX5+D+RDbZcGXi1b+UhOTaQHoybwtijPC1UBbG/C
+ h1gtlzRmJ6y9KjJnYq4OwDyeWXK3QEif+kAt+yUG5aTFT9wzVfxfrv99aKgYRrAGJnixBW
+ rnXKFVmGTxbnNq/nbiYIeWhIDBNN4/ZBFVWMrRLBbIfFwGiqKWYEEbdJzWHfchhDonRLxv
+ xSj9rw0ANCUze98DFfb1Pz5zoLni2lhV0NcqCDIuKPV24nDNp5TKM/7pW+vSNZv0EO8xOl
+ Eo61W9wibQ2dLheNfUUVxlXVAEggfZYc0cBUyN0xvJq35AHWqsxqqOWvhqFavA==
+To: =?utf-8?q?Tomasz_Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>, 
+	"Oleg Makarenko" <oleg@makarenk.ooo>, "Jiri Kosina" <jikos@kernel.org>, 
+	"Benjamin Tissoires" <bentiss@kernel.org>, 
+	=?utf-8?q?Micha=C5=82_Kope=C4=87?= <michal@nozomi.space>, 
+	"Paul Dino Jones" <paul@spacefreak18.xyz>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -135,31 +57,95 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261102135330.2493332-1-robh@kernel.org>
+Mime-Version: 1.0
+X-B4-Tracking: v=1; b=H4sIAJU56moC/32NQQ6CMBBFr0K6dgytgMSV9zAsynQqY0whUyQYw t0tsHf5kv/fW1QkYYrqli1KaOLIfUhwOWUKOxueBOwSK5ObSuemhraAgZ33IBTRvgloHvpAYQT tSizI6Joqp9J/EPI87+5Hc3D8tC/CcRNui47j2Mt3j09m2x2dFPrTmQxosNeyRbRV6V1+x45Ez oiqWdf1ByPLW57TAAAA
+Content-Type: text/plain; charset=UTF-8
+Cc: <linux-input@vger.kernel.org>, <linux-usb@vger.kernel.org>, 
+	<linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>, 
+	"Shengzhuo Wei" <me@cherr.cc>
+Subject: [PATCH v3] HID: pidff: bound the unit exponent rescaling loop
+Message-Id: <20261104-b4-pidff-rescale-exponent-v3-1-f45e64cf488c@cherr.cc>
+X-Change-Id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
+X-Mailer: b4 0.16.0
+From: "Shengzhuo Wei" <me@cherr.cc>
+X-Lms-Return-Path: <lba+26aea399a+0699dc+vger.kernel.org+me@cherr.cc>
+Received: from [127.0.1.1] ([111.42.148.145]) by smtp.feishu.cn with ESMTPS; Wed, 04 Nov 2026 03:44:25 +0800
+Content-Transfer-Encoding: 7bit
+Date: Wed, 04 Nov 2026 03:44:22 +0800
+X-Original-From: Shengzhuo Wei <me@cherr.cc>
 
-On Mon, Nov 02, 2026 at 07:53:22AM -0600, Rob Herring (Arm) wrote:
-> Unit-addresses by default (and most commonly) are hexadecimal. There's a
-> number of cases using decimal patterns. Fix all of them, limiting the
-> pattern to match the 'reg' limits if there are any.
-> 
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
->  .../bindings/display/xylon,logicvc-display.yaml      |  2 +-
->  .../devicetree/bindings/dpll/dpll-device.yaml        |  2 +-
->  .../bindings/embedded-controller/google,cros-ec.yaml |  4 ++--
->  .../intel,ixp4xx-network-processing-engine.yaml      |  2 +-
->  Documentation/devicetree/bindings/gpio/gpio-mxs.yaml |  4 ++--
->  .../devicetree/bindings/hwmon/maxim,max31790.yaml    |  2 +-
->  .../devicetree/bindings/iio/adc/st,stm32-adc.yaml    |  2 +-
->  .../bindings/iio/adc/st,stm32-dfsdm-adc.yaml         |  6 +++---
->  .../bindings/input/touchscreen/cypress,tt21000.yaml  |  2 +-
+pidff_rescale_time() walks the device-provided unit exponent one step
+at a time, allowing extreme values to cause billions of iterations
+while ff->mutex is held. In a UHID test with an INT_MIN exponent,
+EVIOCSFF took 3.1 to 4.3 seconds to upload a finite-duration effect.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com> # for input
+Stop rescaling once scaled_time becomes zero, since further
+multiplication or division by 10 cannot change the result. The u32
+value becomes zero within 32 multiplications by 10, and the u16
+input within 5 divisions. This bounds the loops while preserving
+their results for all exponents, including wraparound.
 
-Thanks.
+Also warn during initialization if the duration field's unit exponent
+is outside the range -8 to 0. This helps identify unusual device
+descriptors without logging on every effect upload or changing the
+rescaling result.
 
--- 
-Dmitry
+Fixes: 8713107221a8 ("HID: pidff: Rescale time values to match field units")
+Cc: stable@vger.kernel.org
+Signed-off-by: Shengzhuo Wei <me@cherr.cc>
+---
+Changes in v3:
+- Declare and initialize exp at its point of use, as requested by
+  Tomasz.
+- Remove Tomasz's Reviewed-by at his request, since his v1 review
+  does not apply to the updated patch.
+
+Changes in v2:
+- Following Tomasz's suggestion, warn during initialization when
+  the duration field's unit exponent is outside -8..0.
+- Add Tomasz's Reviewed-by.
+
+v2: https://lore.kernel.org/r/20261102-b4-pidff-rescale-exponent-v2-1-a75bcca65fd0@cherr.cc
+v1: https://lore.kernel.org/r/20261029-b4-pidff-rescale-exponent-v1-1-3ba54accf767@cherr.cc
+---
+ drivers/hid/usbhid/hid-pidff.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 22951b7ecd17..7827b366fa5f 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -354,9 +354,9 @@ static u32 pidff_rescale_time(u16 time, struct hid_field *field)
+ 	int exponent = field->unit_exponent;
+ 
+ 	pr_debug("time field exponent: %d\n", exponent);
+-	for (; exponent < FF_TIME_EXPONENT; exponent++)
++	for (; scaled_time && exponent < FF_TIME_EXPONENT; exponent++)
+ 		scaled_time *= 10;
+-	for (; exponent > FF_TIME_EXPONENT; exponent--)
++	for (; scaled_time && exponent > FF_TIME_EXPONENT; exponent--)
+ 		scaled_time /= 10;
+ 
+ 	pr_debug("time calculated from %d to %d\n", time, scaled_time);
+@@ -1433,6 +1433,13 @@ static int pidff_init_fields(struct pidff_device *pidff, struct input_dev *dev)
+ 		return -ENODEV;
+ 	}
+ 
++	int exp = pidff->set_effect[PID_DURATION].field->unit_exponent;
++
++	if (exp < -8 || exp > 0)
++		hid_warn(pidff->hid,
++			 "duration field has unusual time unit exponent %d\n",
++			 exp);
++
+ 	PIDFF_FIND_FIELDS(block_load, PID_BLOCK_LOAD, 0);
+ 	if (!pidff->block_load[PID_EFFECT_BLOCK_INDEX].value) {
+ 		hid_err(pidff->hid, "unknown pid_block_load report layout\n");
+
+---
+base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
+change-id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
+
+Best regards,
+--  
+Shengzhuo Wei <me@cherr.cc>

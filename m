@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793718069;
-	b=dpfB8oklmoTH0RV5K0uReR6Ukg5AcHhGMGbLLI+XAts0frMuOadwrxfK7uHAdEgcQN38
-	 J1Iy+G7Kg7htKzvmvuqkUPbs7mzenN4TJhq2xPbyoKb04YTXs1xRfqeOvNMQttIEemN1V
-	 9mWIGscG3vU5ZeOwfCg+m8wJHUI0LHkzdQ9WYCMQMoXbRKFhaLO+Un6tPickD9pm81sEZ
-	 jlSfoIXS25A+uGqW4fVHVlHC7SDHWoefUkDlsoz16XjKbsAiMtQDgZwINZVMlKYVnr50J
-	 RBYhEH7j7AaQbxTTqrh8uaWa4HbIUckkz0DJzcAg4QCWpgncD5R7AUP2ehhYL+GF/tA==
+	t=1793718094;
+	b=Db4z39v0pRfxKpo36lpECKMeQli/NhSHfsV4FAYcm/ri7b7N78MFbBGkoMeBVLU/SZIt
+	 Ugyq5G3szM+ACfU+a4ipd/GONiUUqLd6jzV0JzuyXvVnLQVSEG8wMYPrzMLbfzO6zVadS
+	 KNoyi5NDXZjcBZS8LNEtfDPRrCFsKed9PzmgH1UtRVU+MyxqMzeLGTm+AnoE740V+Bekc
+	 kQ95aM0CtzctaQN8tZZTb53NkVXYV93fpqHbD+yZjpyO4rfIem4tSqSJRfouE+pnl/W2d
+	 TafO+H5u+/vR6LVP9wLcTIggcCo9VckH124BqNmU/ltCyPaJBF2jPMoGyVwF4R0LTUw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793718069;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793718094;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=BEajqQ35phGWaUcr3y1eTDvwsu33+Nn0Y7Ck4F/8MEY=;
-	b=JsYWg+Mbx1aNUxYec+NHv0hgOO8q2Te7ZSJ50rp08ulRqtF0In4w8LUhCEvyANOaGdtn
-	 Phwpv88bgnubAFGOdAlH04fF62vCBEb+gO5z7RrER2+d45C3phGwmTTMF9JtQz4DNOfVw
-	 0zNlRgr9LfDZt34Jsp/bIXQfuAoIsKQz42qdKalNkexkpaccnD1WJMbxY7kuiUWqmYrvA
-	 zItIqZXMGth/iio7B6aPmIZsBmmpyyyrQUhbYvg23+UQ7OycPHI/EO4BYh3/1fQaLQ47E
-	 4WbV5XhejVym64IUzvrUmXj65AVaGV4IQ1qmArq8sCWtV5wGGKCx+NzUS2ZyresByjA==
+	bh=r9QXWEwcwVsmD+gtjv1V0GbX1OqeCi9C0moHpPKkhRQ=;
+	b=MggeAuUpx2dlXj3d11Hq3gnPLT5xZDKd35cYtBQ/XCBEutq4lRZ+d8aomfpLyxhoB/Rl
+	 pSiqf2hxJUBrh/PzQ3XTapiksBIC2n/+OuVw9/X0g61bOF8mKBiBOTxVMO+upoUJV1Md8
+	 drAr6/dLwYJJkvra9prlr7lC+cO1xDmjHHQV6qzRytlyWoDWY15+/IhGY9DZ/qI9nv1yE
+	 VNg5Y9ORaA7TVKHEiRoQMOM/R2KDjTobFHDT/E9Q9v8F8Ihml1BU6AThKhUBRn7Un/xaK
+	 PkPe5zithHbt6adPD3VVX1tjyKNCXQacX5x3MdSjXKFy3LCMkaPxGyQqDADsXh1kjkg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VEcq0ggu;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gp4zIMJh;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FA2F606D836;
-	Tue,  3 Nov 2026 15:01:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB2B960A5BC1;
+	Tue,  3 Nov 2026 15:01:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VEcq0ggu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFD2F1F000C1;
-	Tue,  3 Nov 2026 15:01:06 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Gp4zIMJh
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F351F00A17;
+	Tue,  3 Nov 2026 15:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793718068;
-	bh=BEajqQ35phGWaUcr3y1eTDvwsu33+Nn0Y7Ck4F/8MEY=;
+	s=k20260515; t=1793718093;
+	bh=r9QXWEwcwVsmD+gtjv1V0GbX1OqeCi9C0moHpPKkhRQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=VEcq0gguO6/NoWa+wL6fwqCLqkldJUUFWXaU48FgopqIQWVInov4USQPNMlWECfku
-	 tjmmYgoSxJFwLb8AMyTRkOEe9RIAgKCTxUsnF6zQuC56KDIfRvxTZM6B4OGZ+0RxLb
-	 mh81fLroJS4nyQyOkcaBszjAOxkYEOtX3GkPZMu84uutLjUi79KxQ0Ta6LswLb4aME
-	 +9R/WJkvVhkvygnNcEPN9DxaCT6J3JtUHgSP8vKYwTs6rh6No+CNqGd39rP3s8vdpa
-	 CSPispydKapyfU9yanW1YMZNTbAP3BOy5UszvDaukMX2hst4qdOs00Vyn/j4PbSImA
-	 6uri+styQIxoQ==
-Message-ID: <sashiko-outbox-195531@kernel.org>
+	b=Gp4zIMJhOwNqzm61c0h9XNd9e0AwMrFelEXQHKRAAlQ2LDeEpeF5m7tBEoFMtPFtY
+	 uS4RsfPUfBZ2hRlArgVukP7X27SDUoJHgd88tPlb4o1OnQzVSaWgr3kNiGA9hxIq/E
+	 7mb+cQIMUcKjUtjkRzdgBHMuNsu5EauysVoMaNwzoPfPD0sP32Kk9v3DT6vIUEgTNp
+	 cOzOKQMESWOupzjY/ff38B2v3OsIMhrG6ZdWGYcCgTBgg6ho7OLcY+ImD//T211CBM
+	 0ZuQsQcQMsjbrmcE+Eu/aRaJ5b+O1TMZX8eMsi4Ysf8/HRob1Y5+l5qFso1ia6iabK
+	 z49HG1oD9fXRg==
+Message-ID: <sashiko-outbox-195540@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 04/16] proc: let procfs own the seq_file of seq_file
- entries
+Subject: Re: [PATCH RFC 13/16] proc: let procfs copy out reads that don't go
+ through seq_file
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -57,12 +57,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102-work-procfs-core-v1-4-75df35e4f8b8@kernel.org>
+In-Reply-To: <20261102-work-procfs-core-v1-13-75df35e4f8b8@kernel.org>
 References: <20261102-work-procfs-core-v1-0-75df35e4f8b8@kernel.org>
- <20261102-work-procfs-core-v1-4-75df35e4f8b8@kernel.org>
+ <20261102-work-procfs-core-v1-13-75df35e4f8b8@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 15:01:06 +0000
+Date: Tue, 03 Nov 2026 15:01:30 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -74,95 +74,64 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] proc: unpinned dereference of pde->seq_ops->next in pde_seq_next()
+- [Low] proc: define and initialize __free(kvfree) variable buf in one stat=
+ement in pde_read_buf()
 --
 
-commit ae41131fe28a1e7fcf9c3b743e2a30697e315fe9
+commit f2c1eb05c1e48ef170c932c3f77db0e09db3d058
 Author: Christian Brauner <brauner@kernel.org>
 
-proc: let procfs own the seq_file of seq_file entries
+proc: let procfs copy out reads that don't go through seq_file
 
-This commit allows procfs to own the seq_file for seq_file and single-show
-entries by wrapping their seq_operations and pinning the proc_dir_entry
-only around start, next, show, and stop callbacks rather than across
-userspace copies in seq_read_iter().
+This commit adds a proc_read_buf callback to struct proc_ops so procfs
+entries can fill a kernel buffer while pinned and let procfs copy the
+buffer to userspace after unpinning the entry.
 
 > diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-> index 66a3688757dd7..8425465aae5d7 100644
+> index c0bb40e7ff964..3f29a1663d266 100644
 > --- a/fs/proc/inode.c
 > +++ b/fs/proc/inode.c
-> @@ -218,6 +218,110 @@ static void pde_unpin(struct proc_dir_entry *pde)
->  		unuse_pde(pde);
+[ ... ]
+> @@ -400,11 +402,67 @@ static loff_t proc_reg_llseek(struct file *file, lo=
+ff_t offset, int whence)
+>  	return rv;
 >  }
 > =20
-
-[ ... ]
-
-> +static void pde_seq_stop_pinned(struct seq_file *m, void *v)
+> +/*
+> + * The entry fills a kernel buffer and procfs copies that to userspace a=
+fter
+> + * unpinning the entry. A reader that faults on its buffer then doesn't =
+hold
+> + * up remove_proc_entry().
+> + */
+> +static ssize_t pde_read_buf(struct proc_dir_entry *pde, struct kiocb *io=
+cb,
+> +			    struct iov_iter *iter)
 > +{
-> +	struct proc_dir_entry *pde =3D seq_pde(m);
+> +	struct file *file =3D iocb->ki_filp;
+> +	char *buf __free(kvfree) =3D NULL;
+> +	ssize_t rv, done =3D 0;
+> +	size_t len, count;
+> +	loff_t pos;
 > +
-> +	if (pde_has_proc_seq_ops(pde))
-> +		pde->seq_ops->stop(m, v);
-> +	pde_unpin(pde);
-> +}
-> +
-> +static void *pde_seq_start(struct seq_file *m, loff_t *pos)
-> +{
-> +	struct proc_dir_entry *pde =3D seq_pde(m);
-> +	void *v;
-> +
-> +	if (!pde_pin(pde))
-> +		return ERR_PTR(-EIO);
-> +	if (!pde_has_proc_seq_ops(pde))
-> +		return single_start(m, pos);
-> +	v =3D pde->seq_ops->start(m, pos);
-> +	if (v =3D=3D ERR_PTR(-EIO))
-> +		pde_seq_stop_pinned(m, v);
-> +	return v;
-> +}
-> +
-> +static void *pde_seq_next(struct seq_file *m, void *v, loff_t *pos)
-> +{
-> +	struct proc_dir_entry *pde =3D seq_pde(m);
-> +	loff_t old =3D *pos;
-> +
-> +	if (!pde_has_proc_seq_ops(pde)) {
-> +		++*pos;
-> +		return NULL;
-> +	}
-> +	v =3D pde->seq_ops->next(m, v, pos);
-> +	if (v =3D=3D ERR_PTR(-EIO))
-> +		pde_seq_stop_pinned(m, v);
-> +	/* seq_file would blame these seq_operations, blame the entry's */
-> +	if (*pos =3D=3D old) {
-> +		pr_info_ratelimited("buggy .next function %ps did not update position =
-index\n",
-> +				    pde->seq_ops->next);
-> +		++*pos;
-> +	}
-> +	return v;
-> +}
+> +	if (!iov_iter_count(iter))
+> +		return 0;
+> +	/* neither the allocation nor the entry can honor IOCB_NOWAIT */
+> +	if ((iocb->ki_flags & IOCB_NOWAIT) && !(file->f_flags & O_NONBLOCK))
+> +		return -EAGAIN;
+> +	len =3D min_t(size_t, iov_iter_count(iter), pde->read_size);
+> +	buf =3D kvmalloc(len, GFP_KERNEL);
 
-[Severity: High]
-In pde_seq_next(), if pde->seq_ops->next(m, v, pos) returns ERR_PTR(-EIO)
-without advancing *pos, pde_seq_stop_pinned(m, v) is called before the
-if (*pos =3D=3D old) check.
+[Severity: Low]
+This isn't a bug, but in pde_read_buf(), buf is declared with
+__free(kvfree) =3D NULL at the top of the function before the early return
+checks for !iov_iter_count(iter) and IOCB_NOWAIT, and then assigned
+separately via kvmalloc().
 
-Since pde_seq_stop_pinned() calls pde_unpin(pde), which decrements
-pde->in_use and can complete pde->pde_unload_completion, a concurrent
-remove_proc_entry() waiting in proc_entry_rundown() can finish and allow a
-module to unload or free the memory backing pde->seq_ops before
-pr_info_ratelimited() dereferences pde->seq_ops->next and formats it with
-%ps. In addition, pde->seq_ops->stop(m, v) in pde_seq_stop_pinned() will
-observe the unincremented *pos value.
-
-Could the if (*pos =3D=3D old) check be moved ahead of the
-if (v =3D=3D ERR_PTR(-EIO)) check so that pde->seq_ops->next is only access=
-ed
-while the entry is still pinned and *pos is updated before ->stop() is
-called?
+Could buf be defined and initialized in a single statement at the
+allocation site (char *buf __free(kvfree) =3D kvmalloc(len, GFP_KERNEL);)
+to follow the cleanup.h conventions?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102-work-procf=
-s-core-v1-0-75df35e4f8b8@kernel.org?part=3D4
+s-core-v1-0-75df35e4f8b8@kernel.org?part=3D13

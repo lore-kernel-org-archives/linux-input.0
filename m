@@ -1,68 +1,70 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793718099;
-	b=YpIV9DPMIuPyHcjwGM1udC+7w6hcqZ9DZrCUHnCcZyWw3MR/OhXCoSGSHwdlT8BxmeDw
-	 LaR+1+Jyz57viHTtPGwaU21RGPuR08AHgXM20Z/wkwN1ibc3EzW07y2+GCMOjQaRAPIIi
-	 PsnRVmbltsLLNs4RXiwCfrswNmLCk2p368GaqZKdY9IkokTyafSu+CB3IK3cTXiTZk68e
-	 8aZ8hZ1SMyRpt3/ZB2bc27cJVVe3FuTTsNF/D0dAwpZljrvIuf6HaJ+abqsCjDvsRGpw7
-	 xeQiFaQQ/t6LY7v+ewAs+/E6rIDhl8xVuuYZyBC7QX9LeVvKstogc/2WLYlEg6cN1rA==
+	t=1793718556;
+	b=A6d84S4d8rGyFD5xW0EmnHHxQC7hXVjMcWG3lvRkOyxYQngZtHUqUNb2i3jS3JwhfG1u
+	 cNVqTMhgarH6KPxbg9Q/gzAZWwxfoGZllTA/TUyUQ/G6Vi402ESs5+IoQBXWEARdsIkIS
+	 HEfPKCDbYyO+lRa1BBRIgkXeMmZuQE3iQXnkU1PAeVdFeXylNBt4MqXoE7jddJVInPT1Y
+	 eAfb37sJfexGRFtkZaQGiWA4t8KZgzvUGcgqVnkl6QfrmN128m2gW4+4EwF2PLAyDwpTU
+	 p9Jcb0nzksCWjUnVrpZHGoDyJDOC70s4h7HYriPPP83FUHZDQ5FK7GyA0wXRZlLQClA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793718099;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=H4Y/D8MHsuJxIcgQs16JMa9LVQhoWAXgdYCn9GW8dZE=;
-	b=dF9n0jiQ0pARZ0a8pWXyvHoJp4aeATDT0ZMqspbCZB1Evg2sjGHKkakHlMrmudtAtFpO
-	 OYAGYUxlgZsmstpGPNwqae9+a8VvtB6CHjTCwJq85dbCUoX6ilRIOA8WWO1So69ZPpC/0
-	 o86rhH8U+Dyc+Mzz5nCXE9K8MkimX2ArAeuPDRPWpmnkViHWR0l0SpiJtlAsgC2kpD+we
-	 sKp65LNCvmTfoySb1TGl+Brq2MZqMvrSgQvxL998Fp4wwfjesx5vEVqjUrHBN7DbWOGfa
-	 yKVxapLURPO/XKwYRGUsOhEbYJ6uc3sEIw5GrYU4j5M/CRRACC3bfhSMVZ/KTM4VKfw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793718556;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:
+	 X-AI-Review-Draft;
+	bh=04sRIO3MjeYbz6CJp5GZCOCBS65b5l82fPhVgQ5j8Ig=;
+	b=V21CmhC2D5EL1JcCpLToV0V4oQB5pb6Gcjmv1hwR8wN0XFS0+Kw1WkJ+Hg1pz7hiNWM/
+	 EXMJABwjcyikgiMmsizundS4nJMzwoqVB63dKnx8VM6Id0rAeoRfbgInNYoFNL/xZisT8
+	 74gFaICbKCgbaK0B0Lq9O8Ak21XrbbjnV6zpviLqh6gisFrF+kSc6eikMliB3gtmQxgNe
+	 GSJH4xZaPZGmiRRIkrqMF4n2/Hzr0HCpdUawa2OIG3FkQt1fxarfTr1tjAFqahs1PFHPJ
+	 mq9MXrn+HGkZh2mYy7p62FyxCi9kXyx93AlwfM/VEccwy1nBx6C+hwedaNnhylejL8Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iPOrW1sZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ka8mU0zm;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA68E60A6F71;
-	Tue,  3 Nov 2026 15:01:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6186606B277;
+	Tue,  3 Nov 2026 15:09:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iPOrW1sZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 664741F0093A;
-	Tue,  3 Nov 2026 15:01:36 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Ka8mU0zm
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 351961F000C1;
+	Tue,  3 Nov 2026 15:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793718098;
-	bh=H4Y/D8MHsuJxIcgQs16JMa9LVQhoWAXgdYCn9GW8dZE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iPOrW1sZYpx/JoZZqS9qV1GcjvdBuAyBkHMbgeIvuF9N8xnYtd/uAH/lu/jAlLzKf
-	 Nq5vM4zhxl93ARwt5IDAUvoCbIWrHeNs/6trXeNMyLqwoaSZliHN1Lmdtd6F1TrRM+
-	 E8t3nn11OR2O0yTsAAjfZ0JhJXAcI/KIsNGJZleh6tn4/huZCrKzH0zz2IUXdKnzkK
-	 6W9TGbxhz+i9CE9TQ8pBES4DkH/dBUxXGqSsH1jdznxKqWRCNHZxYwypnamo4/Cqy5
-	 fIsF/ocsyOzXijxNmThFmUaDNsK0S2Y+yjWibAtCyfn78+Zol7hiv1kIJFamvcET5T
-	 yE9Ruio9sbg7Q==
-Message-ID: <sashiko-outbox-195542@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 15/16] proc: let procfs copy ioctl arguments in and
- out
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Brauner" <brauner@kernel.org>
-Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
- Bacik" <josef@toxicpanda.com>, "Chris Mason" <mason@kernel.org>, "Jeff
- Layton" <jlayton@kernel.org>, NeilBrown <neil@brown.name>, "Eric Dumazet" <edumazet@kernel.org>, "Thomas
- Gleixner" <tglx@kernel.org>, "Al Viro" <viro@zeniv.linux.org.uk>, "Jonathan
- Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>, "Greg
- Kroah-Hartman" <gregkh@suse.de>, "Joel Granados" <joel.granados@kernel.org>, "Kees
- Cook" <kees@kernel.org>, "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-serial@vger.kernel.org, "Takashi
- Iwai" <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, "Chuck
- Lever" <cel@kernel.org>, tytso@mit.edu, dmitry.torokhov@gmail.com, "Petr
- Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102-work-procfs-core-v1-15-75df35e4f8b8@kernel.org>
-References: <20261102-work-procfs-core-v1-0-75df35e4f8b8@kernel.org>
- <20261102-work-procfs-core-v1-15-75df35e4f8b8@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 15:01:36 +0000
+	s=k20260515; t=1793718555;
+	bh=04sRIO3MjeYbz6CJp5GZCOCBS65b5l82fPhVgQ5j8Ig=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Ka8mU0zmAxKLwL2fFpD9CSalT3tGxn8R2vJaJEvx62sO5knzmnr8o+jvl3A4PXUYQ
+	 Dxf4yVxdNUJRaSMFUbZXUszVhxd0knfdDWS6zjzIFpMB5n4bUVioUR8MiiThYK+RXG
+	 oLntR6Y938oN1l2HEEGZwVORgG5aTsGwv/MxrYlWW+xz+HzsxFHbe8bsiksmJN+Eeg
+	 st24vgn2YKrHIvg0UlZHV1ThyeHHuIY6Xm64crEiMYg8cxKwttwDLZNXlk3pCT3Gzq
+	 wy9AdFSWAhMox5u4djhZqr3O3sxbk/vCdfLhvYIRh52/cce/Q/j73nK2lIrQ1r3h0O
+	 ape4Kv2DAzHkg==
+Date: Tue, 3 Nov 2026 15:09:07 +0000
+From: Lee Jones <lee@kernel.org>
+To: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+Cc: linux-mediatek@lists.infradead.org,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+	Sean Wang <sean.wang@mediatek.com>,
+	Macpaul Lin <macpaul.lin@mediatek.com>,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, Linus Walleij <linusw@kernel.org>,
+	Val Packett <val@packett.cool>, Fabien Parent <parent.f@gmail.com>,
+	Akari Tsuyukusa <akkun11.open@gmail.com>,
+	Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-pm@vger.kernel.org, mfd@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org
+Subject: Re: [PATCH v11 4/9] mfd: mt6397: Use MFD_CELL_* to describe
+ sub-devices
+Message-ID: <179310028255.2808517.13933580516140278450@kernel.org>
+References: <20261021105109.199886-1-l.scorcia@gmail.com>
+ <20261021105109.199886-5-l.scorcia@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -71,116 +73,267 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261021105109.199886-5-l.scorcia@gmail.com>
+X-AI-Review-Draft: <20261021105109.199886-5-l.scorcia@gmail.com>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] proc: unguarded zero-length user copies in pde_ioctl_buf()
-- [Low] proc: split declaration and initialization of __free() variable in =
-pde_ioctl_buf()
---
+On Wed, 21 Oct 2026, Luca Leonardo Scorcia wrote:
 
-commit 468d1faef733a0559be5a05e125e1ce20ec69e4e
-Author: Christian Brauner <brauner@kernel.org>
+> Use the MFD_CELL_* macros to describe sub-devices. No functional changes.
+>
+> Signed-off-by: Luca Leonardo Scorcia <l.scorcia@gmail.com>
+> Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+> ---
+>  drivers/mfd/mt6397-core.c | 207 ++++++++++++--------------------------
+>  1 file changed, 67 insertions(+), 140 deletions(-)
+>
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index 9ec951996588..3e08179002fa 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
+> @@ -124,165 +124,92 @@ static const struct resource mt6323_pwrc_resources[] = {
+>  };
+>
+>  static const struct mfd_cell mt6323_devs[] = {
+> -	{
+> -		.name = "mt6323-auxadc",
+> -		.of_compatible = "mediatek,mt6323-auxadc",
+> -	}, {
+> -		.name = "mt6323-efuse",
+> -		.of_compatible = "mediatek,mt6323-efuse",
+> -	}, {
+> -		.name = "mt6323-rtc",
+> -		.num_resources = ARRAY_SIZE(mt6323_rtc_resources),
+> -		.resources = mt6323_rtc_resources,
+> -		.of_compatible = "mediatek,mt6323-rtc",
+> -	}, {
+> -		.name = "mt6323-regulator",
+> -		.of_compatible = "mediatek,mt6323-regulator"
+> -	}, {
+> -		.name = "mt6323-led",
+> -		.of_compatible = "mediatek,mt6323-led"
+> -	}, {
+> -		.name = "mt6323-keys",
+> -		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
+> -		.resources = mt6323_keys_resources,
+> -		.of_compatible = "mediatek,mt6323-keys"
+> -	}, {
+> -		.name = "mt6323-pwrc",
+> -		.num_resources = ARRAY_SIZE(mt6323_pwrc_resources),
+> -		.resources = mt6323_pwrc_resources,
+> -		.of_compatible = "mediatek,mt6323-pwrc"
+> -	},
+> +	MFD_CELL_OF("mt6323-auxadc", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6323-auxadc"),
+> +	MFD_CELL_OF("mt6323-efuse", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6323-efuse"),
+> +	MFD_CELL_OF("mt6323-rtc", mt6323_rtc_resources, NULL, 0, 0,
+> +		    "mediatek,mt6323-rtc"),
+> +	MFD_CELL_OF("mt6323-regulator", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6323-regulator"),
+> +	MFD_CELL_OF("mt6323-led", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6323-led"),
+> +	MFD_CELL_OF("mt6323-keys", mt6323_keys_resources, NULL, 0, 0,
+> +		    "mediatek,mt6323-keys"),
+> +	MFD_CELL_OF("mt6323-pwrc", mt6323_pwrc_resources, NULL, 0, 0,
 
-proc: let procfs copy ioctl arguments in and out
+Nit: This is non-blocking, but if you have to respin, please use the
+100-char limit to keep these on single lines where possible. Same for
+all the others below.
 
-This commit introduces ->proc_ioctl_buf() and ->proc_ioctl_args to allow
-procfs to copy ioctl arguments from and to userspace outside of pinning the
-proc_dir_entry, preventing page faults during user copies from blocking
-remove_proc_entry().
+> +		    "mediatek,mt6323-pwrc"),
+>  };
+>
+>  static const struct mfd_cell mt6328_devs[] = {
+> -	{
+> -		.name = "mt6328-regulator",
+> -		.of_compatible = "mediatek,mt6328-regulator"
+> -	}, {
+> -		.name = "mt6328-keys",
+> -		.num_resources = ARRAY_SIZE(mt6328_keys_resources),
+> -		.resources = mt6328_keys_resources,
+> -		.of_compatible = "mediatek,mt6328-keys"
+> -	},
+> +	MFD_CELL_OF("mt6328-regulator", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6328-regulator"),
+> +	MFD_CELL_OF("mt6328-keys", mt6328_keys_resources, NULL, 0, 0,
+> +		    "mediatek,mt6328-keys"),
+>  };
+>
+>  static const struct mfd_cell mt6357_devs[] = {
+> -	{
+> -		.name = "mt6359-auxadc",
+> -		.of_compatible = "mediatek,mt6357-auxadc"
+> -	}, {
+> -		.name = "mt6357-regulator",
+> -	}, {
+> -		.name = "mt6357-rtc",
+> -		.num_resources = ARRAY_SIZE(mt6357_rtc_resources),
+> -		.resources = mt6357_rtc_resources,
+> -		.of_compatible = "mediatek,mt6357-rtc",
+> -	}, {
+> -		.name = "mt6357-sound",
+> -		.of_compatible = "mediatek,mt6357-sound"
+> -	}, {
+> -		.name = "mt6357-keys",
+> -		.num_resources = ARRAY_SIZE(mt6357_keys_resources),
+> -		.resources = mt6357_keys_resources,
+> -		.of_compatible = "mediatek,mt6357-keys"
+> -	},
+> +	MFD_CELL_OF("mt6359-auxadc", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6357-auxadc"),
+> +	MFD_CELL_NAME("mt6357-regulator"),
+> +	MFD_CELL_OF("mt6357-rtc", mt6357_rtc_resources, NULL, 0, 0,
+> +		    "mediatek,mt6357-rtc"),
+> +	MFD_CELL_OF("mt6357-sound", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6357-sound"),
+> +	MFD_CELL_OF("mt6357-keys", mt6357_keys_resources, NULL, 0, 0,
+> +		    "mediatek,mt6357-keys"),
+>  };
+>
+>  /* MT6331 is always used in combination with MT6332 */
+>  static const struct mfd_cell mt6331_mt6332_devs[] = {
+> -	{
+> -		.name = "mt6331-rtc",
+> -		.num_resources = ARRAY_SIZE(mt6331_rtc_resources),
+> -		.resources = mt6331_rtc_resources,
+> -		.of_compatible = "mediatek,mt6331-rtc",
+> -	}, {
+> -		.name = "mt6331-regulator",
+> -		.of_compatible = "mediatek,mt6331-regulator"
+> -	}, {
+> -		.name = "mt6332-regulator",
+> -		.of_compatible = "mediatek,mt6332-regulator"
+> -	}, {
+> -		.name = "mt6331-keys",
+> -		.num_resources = ARRAY_SIZE(mt6331_keys_resources),
+> -		.resources = mt6331_keys_resources,
+> -		.of_compatible = "mediatek,mt6331-keys"
+> -	},
+> +	MFD_CELL_OF("mt6331-rtc", mt6331_rtc_resources, NULL, 0, 0,
+> +		    "mediatek,mt6331-rtc"),
+> +	MFD_CELL_OF("mt6331-regulator", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6331-regulator"),
+> +	MFD_CELL_OF("mt6332-regulator", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6332-regulator"),
+> +	MFD_CELL_OF("mt6331-keys", mt6331_keys_resources, NULL, 0, 0,
+> +		    "mediatek,mt6331-keys"),
+>  };
+>
+>  static const struct mfd_cell mt6358_devs[] = {
+> -	{
+> -		.name = "mt6359-auxadc",
+> -		.of_compatible = "mediatek,mt6358-auxadc"
+> -	}, {
+> -		.name = "mt6358-regulator",
+> -		.of_compatible = "mediatek,mt6358-regulator"
+> -	}, {
+> -		.name = "mt6358-rtc",
+> -		.num_resources = ARRAY_SIZE(mt6358_rtc_resources),
+> -		.resources = mt6358_rtc_resources,
+> -		.of_compatible = "mediatek,mt6358-rtc",
+> -	}, {
+> -		.name = "mt6358-sound",
+> -		.of_compatible = "mediatek,mt6358-sound"
+> -	}, {
+> -		.name = "mt6358-keys",
+> -		.num_resources = ARRAY_SIZE(mt6358_keys_resources),
+> -		.resources = mt6358_keys_resources,
+> -		.of_compatible = "mediatek,mt6358-keys"
+> -	},
+> +	MFD_CELL_OF("mt6359-auxadc", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6358-auxadc"),
+> +	MFD_CELL_OF("mt6358-regulator", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6358-regulator"),
+> +	MFD_CELL_OF("mt6358-rtc", mt6358_rtc_resources, NULL, 0, 0,
+> +		    "mediatek,mt6358-rtc"),
+> +	MFD_CELL_OF("mt6358-sound", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6358-sound"),
+> +	MFD_CELL_OF("mt6358-keys", mt6358_keys_resources, NULL, 0, 0,
+> +		    "mediatek,mt6358-keys"),
+>  };
+>
+>  static const struct mfd_cell mt6359_devs[] = {
+> -	{
+> -		.name = "mt6359-auxadc",
+> -		.of_compatible = "mediatek,mt6359-auxadc"
+> -	},
+> -	{ .name = "mt6359-regulator", },
+> -	{
+> -		.name = "mt6359-rtc",
+> -		.num_resources = ARRAY_SIZE(mt6358_rtc_resources),
+> -		.resources = mt6358_rtc_resources,
+> -		.of_compatible = "mediatek,mt6358-rtc",
+> -	},
+> -	{ .name = "mt6359-sound", },
+> -	{
+> -		.name = "mt6359-keys",
+> -		.num_resources = ARRAY_SIZE(mt6359_keys_resources),
+> -		.resources = mt6359_keys_resources,
+> -		.of_compatible = "mediatek,mt6359-keys"
+> -	},
+> -	{
+> -		.name = "mt6359-accdet",
+> -		.of_compatible = "mediatek,mt6359-accdet",
+> -		.num_resources = ARRAY_SIZE(mt6359_accdet_resources),
+> -		.resources = mt6359_accdet_resources,
+> -	},
+> +	MFD_CELL_OF("mt6359-auxadc", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6359-auxadc"),
+> +	MFD_CELL_NAME("mt6359-regulator"),
+> +	MFD_CELL_OF("mt6359-rtc", mt6358_rtc_resources, NULL, 0, 0,
+> +		    "mediatek,mt6358-rtc"),
+> +	MFD_CELL_NAME("mt6359-sound"),
+> +	MFD_CELL_OF("mt6359-keys", mt6359_keys_resources, NULL, 0, 0,
+> +		    "mediatek,mt6359-keys"),
+> +	MFD_CELL_OF("mt6359-accdet", mt6359_accdet_resources, NULL, 0, 0,
+> +		    "mediatek,mt6359-accdet"),
+>  };
+>
+>  static const struct mfd_cell mt6397_devs[] = {
+> -	{
+> -		.name = "mt6397-rtc",
+> -		.num_resources = ARRAY_SIZE(mt6397_rtc_resources),
+> -		.resources = mt6397_rtc_resources,
+> -		.of_compatible = "mediatek,mt6397-rtc",
+> -	}, {
+> -		.name = "mt6397-regulator",
+> -		.of_compatible = "mediatek,mt6397-regulator",
+> -	}, {
+> -		.name = "mt6397-codec",
+> -		.of_compatible = "mediatek,mt6397-codec",
+> -	}, {
+> -		.name = "mt6397-clk",
+> -		.of_compatible = "mediatek,mt6397-clk",
+> -	}, {
+> -		.name = "mt6397-pinctrl",
+> -		.of_compatible = "mediatek,mt6397-pinctrl",
+> -	}, {
+> -		.name = "mt6397-keys",
+> -		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
+> -		.resources = mt6397_keys_resources,
+> -		.of_compatible = "mediatek,mt6397-keys"
+> -	}
+> +	MFD_CELL_OF("mt6397-rtc", mt6397_rtc_resources, NULL, 0, 0,
+> +		    "mediatek,mt6397-rtc"),
+> +	MFD_CELL_OF("mt6397-regulator", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6397-regulator"),
+> +	MFD_CELL_OF("mt6397-codec", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6397-codec"),
+> +	MFD_CELL_OF("mt6397-clk", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6397-clk"),
+> +	MFD_CELL_OF("mt6397-pinctrl", NULL, NULL, 0, 0,
+> +		    "mediatek,mt6397-pinctrl"),
+> +	MFD_CELL_OF("mt6397-keys", mt6397_keys_resources, NULL, 0, 0,
+> +		    "mediatek,mt6397-keys"),
+>  };
+>
+>  struct chip_data {
+> -- 
+> 2.43.0
+>
 
-> diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-> index 3f29a1663d266..7e4ca5751abb5 100644
-> --- a/fs/proc/inode.c
-> +++ b/fs/proc/inode.c
-[ ... ]
-> @@ -571,11 +572,66 @@ static long pde_ioctl(struct proc_dir_entry *pde, s=
-truct file *file, unsigned in
-[ ... ]
-> +static long pde_ioctl_buf(struct proc_dir_entry *pde, struct file *file,
-> +			  unsigned int cmd, void __user *uarg, unsigned long arg)
-> +{
-> +	void *buf __free(kvfree) =3D NULL;
-> +	struct proc_ioctl_arg a;
-> +	size_t size;
-> +	long rv;
-> +
-> +	if (!pde_ioctl_arg(pde, cmd, &a))
-> +		return -ENOTTY;
-> +	size =3D max(a.in, a.out);
-> +	if (size) {
-> +		buf =3D kvzalloc(size, GFP_KERNEL);
-
-[Severity: Low]
-This isn't a bug, but in pde_ioctl_buf() in fs/proc/inode.c, buf is declared
-with __free(kvfree) =3D NULL at the top of the function and assigned later =
-when
-size is non-zero. Per the cleanup.h guidelines, could buf be defined and
-initialized in a single statement once size is known (for example,
-void *buf __free(kvfree) =3D size ? kvzalloc(size, GFP_KERNEL) : NULL;)?
-
-> +		if (!buf)
-> +			return -ENOMEM;
-> +		if (copy_from_user(buf, uarg, a.in))
-> +			return -EFAULT;
-> +	}
-> +
-> +	if (!pde_pin(pde))
-> +		return -ENOTTY;
-> +	rv =3D pde->proc_ops->proc_ioctl_buf(file, cmd, buf ?: (void *)arg);
-> +	pde_unpin(pde);
-> +	if (rv >=3D 0 && copy_to_user(uarg, buf, a.out))
-> +		return -EFAULT;
-
-[Severity: Medium]
-Should copy_from_user() and copy_to_user() in pde_ioctl_buf() in
-fs/proc/inode.c be guarded by checking a.in and a.out respectively?
-
-Because a.in and a.out are runtime values loaded from
-proc_ops->proc_ioctl_args, check_copy_size() and _inline_copy_from_user() /
-_inline_copy_to_user() do not short-circuit when the length is 0 and still
-invoke raw_copy_from_user() / raw_copy_to_user().
-
-When a command has a.out =3D=3D 0 (such as an _IOW or _IO command) and user=
-space
-passes arg =3D=3D 0, calling copy_to_user(NULL, buf, 0) fails with -EFAULT =
-on
-C-SKY after ->proc_ioctl_buf() has already succeeded, because C-SKY checks =
-the
-destination pointer for NULL before checking whether the length is 0:
-
-arch/csky/lib/usercopy.c:raw_copy_to_user() {
-	...
-	"0:     cmpnei  %1, 0           \n"
-	"       bf      8f              \n"
-	...
-}
-
-On UML, calling copy_from_user() with a.in =3D=3D 0 or copy_to_user() with
-a.out =3D=3D 0 still enters buffer_op() -> do_op_one_page() -> maybe_map() =
-->
-handle_page_fault() on uarg before checking if remain =3D=3D 0:
-
-arch/um/kernel/skas/uaccess.c:buffer_op() {
-	...
-	size =3D min(PAGE_ALIGN(addr) - addr, (unsigned long) len);
-	remain =3D len;
-
-	n =3D do_op_one_page(addr, size, is_write, op, arg);
-	if (n !=3D 0)
-		return (n < 0 ? remain : 0);
-	...
-}
-
-Additionally, when both a.in =3D=3D 0 and a.out =3D=3D 0, size is 0 and buf=
- remains
-NULL, so copy_to_user(uarg, NULL, 0) passes a NULL source pointer into
-raw_copy_to_user() (and memcpy() on CONFIG_UACCESS_MEMCPY or UML builds).
-
-Would it make sense to check if (a.in && copy_from_user(buf, uarg, a.in)) a=
-nd
-if (rv >=3D 0 && a.out && copy_to_user(uarg, buf, a.out))?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102-work-procf=
-s-core-v1-0-75df35e4f8b8@kernel.org?part=3D15
+-- 
+Lee Jones

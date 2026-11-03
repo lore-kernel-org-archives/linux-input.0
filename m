@@ -1,99 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.214.170
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793715041;
-	b=Qr5aLOrZP6UbrgCB3z1tKJvZi5wdPn/IW2boI0ccSts2BjS0aYTy5xoimuTZ2FlfPug5
-	 LMTnYgS93/kYYOcoADCuAFUMORw7/CdLlADFpB50qiDmXIEsTbCS6j0zHIrLi55XFvuL4
-	 JHxmxOP7grkstjoQunQ7cZcTGpye50m8ta9WbDwV7GKQ6I9hAle7iEsOEIeZM6UguDu5d
-	 nPC17Den4uFi5nZQldjC++dwYIQQwS9/l6NH2zhbE1qnkLwwNcXMAmoEO85pD22NqgYSl
-	 6uATp39I/GO4xy/l4FT2QOs7+UJcVLdJCtd4Th005lIxUQtMqRcOL+SINyzaMTtzXMg==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793715041;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=uPtZiAuMvsQ4xj67j+wg/mIOE4N8PxgJKIgehU/HgNU=;
-	b=Vo+S/+DeO6U8mF0tyMOJb2hRYzjMZgTpdtDVlfdBKCPRzHi7oViJKc354WUJnmXS/9u5
-	 Xj1m3lb1ZuGz/s2kDqW1nrNgfBKDoKYVw+z/O97K/2Vmq2bVN3gytyl1G8CeL4+Sgs6dX
-	 UHNbBpoqFvIas0ivBA4iMz4dbKH0AxzunSgP5ZfUL3I0ptjRKwZLGrge9qqlHsWVPg5bS
-	 SNVOqZde2vxr+GPC8Lla+uGZ1XVAFY/TGW2HhBH3Av09cmKdTPgtcFWCAV1YyJv06myvU
-	 t2YJ+GkquIDeY63Kic3KWjttX72j28CCs9xQuKjmJ2gn/X6jwlrj3JGNumt8cQrhKJg==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NhbLGUia;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.214.170
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.17
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793715176;
+	b=FFB1bLGJovF3xqVbh8pD2A5pLHMXDXJA2uN0MCWwTk9g+Mj98FJxlVAikIy9vti4Ma6s
+	 YkndxPnS5cNRtkM3W4mczJwngxxDzU4/ABNS8XxBCiOifMgTv/YN7IH3Qzk+n9y6z5U9R
+	 yHHpmx78y/RTBQZ6oaOp+awhkeM7wqjlxtqLw+2FEMCXQYHFjYf3SoVPe9mLCSGhuBrpR
+	 a39+ZYadED72+Jrc7lk5jJ7cKvda8Qi86sEP80Aj2ViBwH06WCTvqpG0yHQjkrGr4t7a+
+	 Z8nYvwVXhxphBChYo+hc0fYBxagIo/kuFf8FYDiD8VTDNtGDmRmydXnezgGp2sbSOpA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793715176;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=VJiYm7UJux9idX0JQ7Nj/k1JSHluv9DMg/+XlxnNVXM=;
+	b=XL+sRzvLgOm+KxlDrj1OYfS4madjdBc1RMdTuHU69QG7yp6Db94LYnWCnbD0cAVKN/g0
+	 IUF8VDeomECbikm/xl0UNA/yJKOyDMuh2gMZU8dAixo/WEIQSuaQtAGIeo1TFikX71+pj
+	 HWOUtnbtUAnW3ooEiIlz+3R3GBPT9dFJ7qyz0z2eKe+omEdg2JgbgEevV6ZW6K+Hh/uDd
+	 FtsvLOlDy31JOcwGS/XScIL3uffRuwl28kyW/cxFjQla3Hrp1zTULvmkHCxs/v1VlZz2c
+	 TktH5kYRB/Og925/BnwYfgzvUCroCyarpT2al436SK4q1qGgtK+iS4bCZa3hFk5+6TQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="G/MDCWAJ";
+	arc=none smtp.remote-ip=198.175.65.17
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C698606A324
-	for <linux-input@vger.kernel.org>; Tue,  3 Nov 2026 14:10:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2C698606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2F79606A324;
+	Tue,  3 Nov 2026 14:12:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F2F79606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=NhbLGUia
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2e83d2cc8a2so8961405ad.0
-        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 06:10:41 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793715040; cv=none;
-        d=google.com; s=arc-20260327;
-        b=G174+6yetjHgYqN0CR3yV2/GJv6/ykCyRKDxAxKqkY52u/w3Gzh+tTZ2/LTKc5VFVl
-         kL7rCbuva427YMtKhaY8fmH9T8DT9eMpyZuKw8JID8tzPxIdvQb8ALuM96REM37zmRg8
-         JSbC3sUR1iuolbAuIB3s8SC17oAWoRslnNbgjtBt5+475gf8mOtUOv05Z82FI2qaEgCd
-         4jItwKpBiKfygyiw8o5SnWu4HuzdygGR7C1PJeatwKZWb6i2qirJv5QPWfe5Iro9uinX
-         N2tQqm359bKk0iZTehv1XizFiBi5naNXs+yBhq/cRQE+kVRH3y6UdcLL6d2Jl5O1Er9Y
-         GdpA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=uPtZiAuMvsQ4xj67j+wg/mIOE4N8PxgJKIgehU/HgNU=;
-        fh=dfvPRi+t5KvUF1qpgNVmacxvd83mvku6fE8K+/2kbH8=;
-        b=nb1k1Q/Sor8gNVKKyR+X/A9pTYfI3CHscpqCG8uiuVFUDd3ZRJtAgJEVei5s3IQVZy
-         /0shES6siWEwScyKaPNkk2Czhzn6e3fiX8IP8anRIR6qvqHslpKZwGmHx42pFwq4gDob
-         lXRriB2HOl+inhp1qG5DFAKmmbuffFxdUcPHhI+4bQRIaKXk1HYye+Z0wW9dWJ8TO59g
-         2i9g4eC70GzbE74irK8rz516G4hKn5nWZpr1a89iyV0M+oCihbBIMba4dOuyP+krgtWv
-         BKfgoN5elzOI6KdUSD6b8dK/spa6P3JJ4aKgaHXL9FRxVwFHtCgXrHwnfbuaYwImB1cI
-         P+KA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793715040; x=1794319840; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=uPtZiAuMvsQ4xj67j+wg/mIOE4N8PxgJKIgehU/HgNU=;
-        b=NhbLGUialYWs4Y1CdyCdn+s8oKi+U8QGxdX3eX4/8T6GIeAuvFJLVaxIxFUvU6r3OZ
-         7MdBlKHtoSW1kRLyYz51Lur+fvPyBM2v0FFuwCrwS8++GW9xZcPX3YneXXo1IIA3WBR8
-         3eTw3CauU73MVWRvnaRhvTx14ZHdDFklSA9aUtprUIHkOiu/4GfKpKpRwY1zuz4h59yH
-         U6sptna4WZO9HFvBdk/IyisJfPx7e1/hP/m3XWct2tRj65DVllrD9hffcfN6LndpzjuG
-         VwLicQ2/xpixnu7uMFauk5hnXEB232C0LsTwRYV/PFtvpxOt2SYXZfpoZpQP/3/nLMc+
-         Gb3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793715040; x=1794319840;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=uPtZiAuMvsQ4xj67j+wg/mIOE4N8PxgJKIgehU/HgNU=;
-        b=eOTxxB3ET6Ibjpqal6flSGhI0U5Q8/q3eWgm4mP5bhEkH5cNaF6rm32fvjRu32Qzc3
-         08FK41s/Kc8inCjrSZMO3lud/oNtaSP2t5pmBDUA81vVQCwhPAF3QWVO3jRxorYU39JS
-         DowtywWoQaDq36Sr2xSaTyw7svw5O/aL103Y3cGTQkFXFayPiByey9O1VRQAF2PGhlDZ
-         u9BUwo41lwehpSjqs3XujY0tzbLrIc4/Uhic7NseSMB54Pq2C+5Q0oqQBWWuwvqD3WXU
-         o1D3dJag6nUuAkQF9MzoR6XOtC/tJ4y90Ts9ywlUWbmudRH+uljaaL/trDEJgF7cohOl
-         Vw9w==
-X-Gm-Message-State: APuU4Z9QF1mLyQ5V+7Uc9N8zIZhU+p81DIrwV4PbmMwOjeCTY1EQVSf2
-	l/2M9oCzuGmh9rciLRInhrzmDplVdYKhyAnDJEXp5MK/cQ7xDLog6zMSLqWy7vzk+NmGf9zpPMw
-	XXs6ZshVROTGIa6aEtfdLcf/UtnYxwFqH4uD9O3QeMQ==
-X-Gm-Gg: AYBFou1UcvqbRQ3i4RFSvadByegrjEv/PItIqjNiY3ACjw3GB9gGL9tYCptBvkBkiIW
-	fHssCevUqlpDIZj6ZEwuuW5cI8eTAU90uqX1c+pN6Gh9Kbtk+CyzjPyiolc9V5Oebtdc2tWWAcO
-	SM/S5VI6D2nH//wXvvggKRywNowbUW9C8NV4SWuZQCKuwTTntxkzWp/r4kMJWmsF8qnLNfbBGuc
-	42qQzPdfd6O6ii+HjZRp+06ShwKp0fNlYtx+nTIj6YyKk13CQdSJGGJZhPy0Ln/BJKpp9G23tkv
-	cyeEET82a80N4pVFJUVefJTwldGiW11Lge54BynbPAmGu6Vaa6DQq1UyK1Ge8SHvxDQfEya7rmX
-	fvK4yiPNOXDcpNo4sS8cr5wAgI0+NNOsEzDMtnQ==
-X-Received: by 2002:a17:903:1ace:b0:2e9:5c29:9955 with SMTP id
- d9443c01a7336-2eb3644fa3bmr219840055ad.4.1793715040482; Tue, 03 Nov 2026
- 06:10:40 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=G/MDCWAJ
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793715176; x=1825251176;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=GEtSxpe7gQ6US0v+DeHjs5kOMzZtxFEAD5UmXw0Um+M=;
+  b=G/MDCWAJPihWNvGBHMVc2D64silIEmyMi7l6UviepbnvMnv/+ndPBidM
+   nWM1OcD8OPsyUHKgUegl1baX9SSD7pDJKo9ATnGGw9KuHPPxgLuYFcYgs
+   wdGORYmrOmcPLzutlkJ6aNgaQHMdYnWm07kxrF52bvULvlC4jNbrzUIRM
+   IcTqkFE+bwotaTTwNJQ+5nI1Ze4vRH/eAHTrhmTmK3CKmleBPfYxYoxMu
+   va479aUTVtHCFTG2CO1phGk20azLPT3PcmgHWBQrEJajryVg/Clkqragw
+   vyTt6CcX/AKvxasAZghzDNJOaASDNpxavcezmGRbsJfDFURcU9dDyUe6S
+   g==;
+X-CSE-ConnectionGUID: U5/SQhvmRkmpfyt+NXiKTw==
+X-CSE-MsgGUID: kny0DaCYTT6zzi3PpcJ+dw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11954"; a="2455525"
+X-IronPort-AV: E=Sophos;i="6.27,193,1787036400"; 
+   d="scan'208";a="2455525"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 06:12:56 -0800
+X-CSE-ConnectionGUID: ThEnGDMZQKabsvKHZ2R5FA==
+X-CSE-MsgGUID: h3UKpd6eTV6kDZLmRg6ckw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,193,1787036400"; 
+   d="scan'208";a="6772446"
+Received: from schen9-mobl4.amr.corp.intel.com (HELO [10.125.109.222]) ([10.125.109.222])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 06:12:55 -0800
+Message-ID: <e936116958efcf6b4220b1769654d60628f801af.camel@linux.intel.com>
+Subject: Re: [PATCH] HID: sensor-custom: Synchronize misc-device teardown
+ with file lifetime
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: jikos@kernel.org, jic23@kernel.org, bentiss@kernel.org
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, simeon@maryasin.name
+Date: Tue, 03 Nov 2026 06:12:54 -0800
+In-Reply-To: <20261103015734.578613-1-srinivas.pandruvada@linux.intel.com>
+References: <20261103015734.578613-1-srinivas.pandruvada@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -103,147 +83,152 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261103131127.1585884-1-lui2012qwq@gmail.com>
- <20261103131127.1585884-3-lui2012qwq@gmail.com> <sashiko-outbox-195329@kernel.org>
-In-Reply-To: <sashiko-outbox-195329@kernel.org>
-From: cy l <lui2012qwq@gmail.com>
-Date: Tue, 3 Nov 2026 22:10:27 +0800
-X-Gm-Features: AclHuK-nHRxg_AwMHq-9Y9sHupz6dUc2DZ1jKWeWqrReY7GXWkzAgdYuxCKe-lo
-Message-ID: <CAE=Q7=5eUPmNevwqQuFQBDTni5MRk=9nPkd4pPXqoWOoi7Gy+g@mail.gmail.com>
-Subject: Re: [PATCH 2/2] Input: cyapa - clamp SMBus block reads to the
- caller's buffer
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Thanks, correct. The masking predates the clamp (the out: "ret > 0 ?
-len : ret" convention), but it sits in the same length semantics, so
-v2 handles it: both branches now fail short reads with -EIO (group
-branch: ret < len; indexed loop: ret < chunk). rmi4 (patch 1/2) is
-unaffected: rmi_smb_read_block() zeroes the caller's buffer upfront,
-so a short read leaves zeros, not stack garbage.
+On Mon, 2026-11-02 at 17:57 -0800, Srinivas Pandruvada wrote:
+> The HID sensor custom misc device frees its per-sensor state in
+> remove() while userspace may still hold an open file descriptor. A
+> reader blocked in read() can remain queued on sensor_inst->wait after
+> the
+> object has been freed, and a later wakeup races with teardown and
+> touches stale memory.
+>=20
+> Synchronize the misc-device teardown with file lifetime before
+> freeing
+> the per-sensor state. Set a removal flag, reject new opens, wake
+> blocked waiters, and wait for the last open file to close before
+> deregistering the misc device and freeing the FIFO. Fail in-flight
+> read()
+> and poll() operations cleanly once removal is in progress so
+> userspace
+> cannot access freed memory after the device disappears.
+>=20
+> This avoids use-after-free on read(), poll(), release(), and open()
+> after the HID sensor custom character device has been removed
+>=20
+Hi Simeon,
 
-On Tue, Nov 3, 2026 at 9:22=E2=80=AFPM <sashiko-bot@kernel.org> wrote:
->
-> Thank you for your contribution! Sashiko AI review found 1 potential issu=
-e(s) to consider:
-> - [High] Input: cyapa - cyapa_smbus_read_block() returns full len on shor=
-t block reads
-> --
->
-> commit 17f2cef41b86752525f835330272cc728242a63c
-> Author: Chengyu Liu <lui2012qwq@gmail.com>
->
-> Input: cyapa - clamp SMBus block reads to the caller's buffer
->
-> This commit bounces SMBus block reads in cyapa_smbus_read_block() through
-> a temporary I2C_SMBUS_BLOCK_MAX buffer and clamps the copy size to the
-> caller's requested length to prevent buffer overruns.
->
-> > diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cya=
-pa_gen3.c
-> > index fc3fb954523b7..cd80ae51f4e52 100644
-> > --- a/drivers/input/mouse/cyapa_gen3.c
-> > +++ b/drivers/input/mouse/cyapa_gen3.c
-> > @@ -254,20 +254,30 @@ ssize_t cyapa_smbus_read_block(struct cyapa *cyap=
-a, u8 cmd, size_t len,
-> >               return -EINVAL;
-> >
-> >       if (SMBUS_GROUP_BLOCK_CMD_MASK & cmd) {
-> > +             u8 tmp[I2C_SMBUS_BLOCK_MAX];
-> > +
-> >               /* read specific block registers command. */
-> >               smbus_cmd =3D SMBUS_ENCODE_RW(cmd, SMBUS_READ);
-> > -             ret =3D i2c_smbus_read_block_data(client, smbus_cmd, valu=
-es);
-> > +             ret =3D i2c_smbus_read_block_data(client, smbus_cmd, tmp)=
-;
-> > +             if (ret > 0)
-> > +                     /* never trust the device-provided count */
-> > +                     memcpy(values, tmp, min_t(size_t, ret, len));
-> >               goto out;
-> >       }
-> >
-> >       ret =3D 0;
-> >       for (index =3D 0; index * I2C_SMBUS_BLOCK_MAX < len; index++) {
-> > +             u8 tmp[I2C_SMBUS_BLOCK_MAX];
-> > +             size_t chunk =3D min_t(size_t, len - index * I2C_SMBUS_BL=
-OCK_MAX,
-> > +                                  I2C_SMBUS_BLOCK_MAX);
-> > +
-> >               smbus_cmd =3D SMBUS_ENCODE_IDX(cmd, index);
-> >               smbus_cmd =3D SMBUS_ENCODE_RW(smbus_cmd, SMBUS_READ);
-> >               buf =3D values + I2C_SMBUS_BLOCK_MAX * index;
-> > -             ret =3D i2c_smbus_read_block_data(client, smbus_cmd, buf)=
-;
-> > +             ret =3D i2c_smbus_read_block_data(client, smbus_cmd, tmp)=
-;
-> >               if (ret < 0)
-> >                       goto out;
-> > +             memcpy(buf, tmp, min_t(size_t, ret, chunk));
-> >       }
->
-> [Severity: High]
-> What happens in cyapa_smbus_read_block() if the device returns a short bl=
-ock
-> count where 0 < ret < len (or 0 <=3D ret < chunk in the indexed loop)?
->
-> Both branches copy only ret bytes into values or buf, leaving the remaind=
-er
-> of the caller's buffer untouched, and then jump to out:
->
-> drivers/input/mouse/cyapa_gen3.c:cyapa_smbus_read_block() {
->         ...
-> out:
->         return ret > 0 ? len : ret;
-> }
->
-> Because cyapa_smbus_read_block() still returns the full requested len whe=
-never
-> the last i2c_smbus_read_block_data() call returned a positive count, call=
-ers
-> that pass uninitialized stack buffers and check for a full read cannot de=
-tect
-> the short read:
->
-> drivers/input/mouse/cyapa_gen3.c:cyapa_gen3_get_query_data() {
->         u8 query_data[QUERY_DATA_SIZE];
->         int ret;
->
->         /* query dataabda has 27 bytes */
->         ret =3D cyapa_read_block(cyapa, CYAPA_CMD_GROUP_QUERY, query_data=
-);
->         if (ret !=3D QUERY_DATA_SIZE)
->                 return (ret < 0) ? ret : -EIO;
->         ...
-> }
->
-> drivers/input/mouse/cyapa_gen3.c:cyapa_gen3_irq_handler() {
->         struct cyapa_reg_data data;
->         int ret;
->
->         ret =3D cyapa_read_block(cyapa, CYAPA_CMD_GROUP_DATA, (u8 *)&data=
-);
->         if (ret !=3D sizeof(data)) {
->                 dev_err(dev, "failed to read report data, (%d)\n", ret);
->                 return -EINVAL;
->         }
->         ...
-> }
->
-> Wouldn't a device returning fewer bytes than requested cause
-> cyapa_gen3_get_query_data(), cyapa_gen3_irq_handler(),
-> cyapa_gen3_try_poll_handler(), and cyapa_get_state() to consume uninitial=
-ized
-> stack memory in query_data, data, and status (and expose uninitialized by=
-tes
-> from query_data via the product_id and firmware_version sysfs attributes)=
-?
-> Should cyapa_smbus_read_block() return an error such as -EIO when ret < l=
-en
-> in the group-read branch or ret < chunk in the indexed loop?
->
-> --
-> Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103131127.15=
-85884-1-lui2012qwq@gmail.com?part=3D2
+Shashiko found issue with this change, so hold on for testing.
+
+Thanks,
+Srinivas
+
+> Reported-by: =D0=A1=D0=B5=D0=BC=D1=91=D0=BD =D0=9C=D0=B0=D1=80=D1=8C=D1=
+=8F=D1=81=D0=B8=D0=BD <simeon@maryasin.name>
+> Signed-off-by: Srinivas Pandruvada
+> <srinivas.pandruvada@linux.intel.com>
+> ---
+> =C2=A0drivers/hid/hid-sensor-custom.c | 27 +++++++++++++++++++++++++--
+> =C2=A01 file changed, 25 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
+> sensor-custom.c
+> index c2b425afd951..c9338ae47050 100644
+> --- a/drivers/hid/hid-sensor-custom.c
+> +++ b/drivers/hid/hid-sensor-custom.c
+> @@ -53,6 +53,14 @@ struct hid_sensor_custom {
+> =C2=A0	struct kfifo data_fifo;
+> =C2=A0	unsigned long misc_opened;
+> =C2=A0	wait_queue_head_t wait;
+> +	wait_queue_head_t remove_wait;
+> +	/*
+> +	 * Shared with the file operations; use
+> READ_ONCE()/WRITE_ONCE() for the
+> +	 * teardown state. The actual lifetime guarantee comes from
+> misc_opened:
+> +	 * removal waits for the last fd to close before
+> deregistering the misc
+> +	 * device and freeing the FIFO.
+> +	 */
+> +	bool removing;
+> =C2=A0	struct platform_device *custom_pdev;
+> =C2=A0};
+> =C2=A0
+> @@ -653,6 +661,9 @@ static ssize_t hid_sensor_custom_read(struct file
+> *file, char __user *buf,
+> =C2=A0	sensor_inst =3D container_of(file->private_data,
+> =C2=A0				=C2=A0=C2=A0 struct hid_sensor_custom,
+> custom_dev);
+> =C2=A0
+> +	if (READ_ONCE(sensor_inst->removing))
+> +		return -ENODEV;
+> +
+> =C2=A0	if (count < sizeof(struct hid_sensor_sample))
+> =C2=A0		return -EINVAL;
+> =C2=A0
+> @@ -662,9 +673,12 @@ static ssize_t hid_sensor_custom_read(struct
+> file *file, char __user *buf,
+> =C2=A0				return -EAGAIN;
+> =C2=A0
+> =C2=A0			ret =3D wait_event_interruptible(sensor_inst-
+> >wait,
+> +				READ_ONCE(sensor_inst->removing) ||
+> =C2=A0				!kfifo_is_empty(&sensor_inst-
+> >data_fifo));
+> =C2=A0			if (ret)
+> =C2=A0				return ret;
+> +			if (READ_ONCE(sensor_inst->removing))
+> +				return -ENODEV;
+> =C2=A0		}
+> =C2=A0		ret =3D kfifo_to_user(&sensor_inst->data_fifo, buf,
+> count,
+> =C2=A0				=C2=A0=C2=A0=C2=A0 &copied);
+> @@ -684,6 +698,7 @@ static int hid_sensor_custom_release(struct inode
+> *inode, struct file *file)
+> =C2=A0				=C2=A0=C2=A0 struct hid_sensor_custom,
+> custom_dev);
+> =C2=A0
+> =C2=A0	clear_bit(0, &sensor_inst->misc_opened);
+> +	wake_up_all(&sensor_inst->remove_wait);
+> =C2=A0
+> =C2=A0	return 0;
+> =C2=A0}
+> @@ -694,6 +709,8 @@ static int hid_sensor_custom_open(struct inode
+> *inode, struct file *file)
+> =C2=A0
+> =C2=A0	sensor_inst =3D container_of(file->private_data,
+> =C2=A0				=C2=A0=C2=A0 struct hid_sensor_custom,
+> custom_dev);
+> +	if (READ_ONCE(sensor_inst->removing))
+> +		return -ENODEV;
+> =C2=A0	/* We essentially have single reader and writer */
+> =C2=A0	if (test_and_set_bit(0, &sensor_inst->misc_opened))
+> =C2=A0		return -EBUSY;
+> @@ -712,6 +729,9 @@ static __poll_t hid_sensor_custom_poll(struct
+> file *file,
+> =C2=A0
+> =C2=A0	poll_wait(file, &sensor_inst->wait, wait);
+> =C2=A0
+> +	if (READ_ONCE(sensor_inst->removing))
+> +		return EPOLLERR;
+> +
+> =C2=A0	if (!kfifo_is_empty(&sensor_inst->data_fifo))
+> =C2=A0		mask =3D EPOLLIN | EPOLLRDNORM;
+> =C2=A0
+> @@ -736,6 +756,7 @@ static int hid_sensor_custom_dev_if_add(struct
+> hid_sensor_custom *sensor_inst)
+> =C2=A0		return ret;
+> =C2=A0
+> =C2=A0	init_waitqueue_head(&sensor_inst->wait);
+> +	init_waitqueue_head(&sensor_inst->remove_wait);
+> =C2=A0
+> =C2=A0	sensor_inst->custom_dev.minor =3D MISC_DYNAMIC_MINOR;
+> =C2=A0	sensor_inst->custom_dev.name =3D dev_name(&sensor_inst->pdev-
+> >dev);
+> @@ -751,10 +772,12 @@ static int hid_sensor_custom_dev_if_add(struct
+> hid_sensor_custom *sensor_inst)
+> =C2=A0static void hid_sensor_custom_dev_if_remove(struct hid_sensor_custo=
+m
+> =C2=A0								*sen
+> sor_inst)
+> =C2=A0{
+> -	wake_up(&sensor_inst->wait);
+> +	WRITE_ONCE(sensor_inst->removing, true);
+> +	wake_up_all(&sensor_inst->wait);
+> +	wait_event(sensor_inst->remove_wait,
+> +		=C2=A0=C2=A0 !test_bit(0, &sensor_inst->misc_opened));
+> =C2=A0	misc_deregister(&sensor_inst->custom_dev);
+> =C2=A0	kfifo_free(&sensor_inst->data_fifo);
+> -
+> =C2=A0}
+> =C2=A0
+> =C2=A0/*

@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793821204;
-	b=kTRDbx/nifpGBH9TRtVSowGz/xoxPSnsHi6acNUrmLXzoPJfHeZbA44kdiMqdo6cJM9P
-	 XJFPaYni8zjKgDDM18mdfzT2b2wlEQcpBxieFEEGnnjOMccqqBlFtYRUZbYkYs45118aP
-	 Xc9Syhu9ww0aG8nNsO+FlQKMAFQ9O6iqw2pPm8jZuHf/TzkzHCyXclBh8jx6z9rdfddrQ
-	 OdumWeJIhxsrPVlt7NRSEUV1Hm57SJ2Wi+TsLcyQq4hWeDZyL7TesjAmSZ7kOMCyV5o3g
-	 /sx0NRLa3fpWgbKIXtPCYeQpMJTYkAtpKt1vHQaPrNmCIopuj1zBLP38CGyvpmKplzQ==
+	t=1793821233;
+	b=hz+mBAMiCbNGPGu8rTne7r7iGbxPeeuf7SU3Nf+7J/DpBNQY3uQTiP/EpbiOj3QUoCzD
+	 oDsOvbaQ6Ers12C/PD2+Or7U+LvE9EUY9zg0ZoSu3AeQ5Q2u3pm+KUQD98/hfF5X9IgxU
+	 QlvLF2CBxq1mtJljkcbReCYOPUYbTzGZb+lAFE2SSW4KIUp1hVvBsewbmbCWNjklbcGSn
+	 LsnlgfDe5jxRmXoTI+i+TfxCjqrixaU3bxF6RQIQYr3bZyj3DVqR+427tkroqg6wJSG+d
+	 +z9TeAfG9AImiKfPCtswqYYWLae5vrhvB6Zd0+plnWbLnhEyd7agA4PEyFY/oPH5Tyg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793821204;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793821233;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
-	bh=I1miZOwU+uS7OyZJ+vljGqgplXbL3g+w9Z/kHpw+0Ic=;
-	b=BZIkSyvSlBgLxoksPDUZEhH95Ip1/C3w3/qpNCU3zjxWssI5tNPBgOyDfNzUsZPdfVoc
-	 kafM+gUBMf0LhfpuoXcYhKTecQ9O5G61tGVjpBvummJhPE0g3eWO/+nHRSC0MvL0WnrlW
-	 9H6Nw2pBo90dt4KBOPATabQ1NXpQvgwh0P1xI7/6XqVtyPQ3qq73I72qTmgDdDaaypp+G
-	 5lAwVLgh8QHBKkH1Cl9uzER0L1r2KfXuIa9hNiLYYMSBPCOKJMv9o8n1e4zAFg13M3Pbl
-	 XsmtqrW6L+m0Csbjj99lvZnsss73aNhKK4l2zKeXcS7mZByOG5RlI6vi9yU1GsA3zYg==
+	bh=lzi0v2Iw6r5Nf2GLOsMSQBwdPNX93e2TzGzGfD3oQvk=;
+	b=Db44dKjGlRjpwQciQWCC0TYHcnILKrGSL8VSvORW0GozggDmsn7b7XdbpvA5rYtpPw6T
+	 1XmmMOUrePp4hWC4FpegS3GqPQXGuN9NCDOXoipQVJcw6B1AJ+YaCy3+m5WxUHSUk3os4
+	 PZXy2+G1j9JuoZj0SpmfpforM9hpZ6YpYpUz1qByNVzO75mr2EDwXzvsAui3YVsL0p+4t
+	 0REbWbipZsN9OatWfgWGRMI3FbKPqab+xpPua/dW6ksWQlT+CeSZnNRhGHhQXnGVgVhkZ
+	 uM9iBfyk1zQs1/eaNEIuzG7LED66ltD3rHv/eLK+oRCgzvrprxtuBFTFZ62Gn8dTtGw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iWisENYU;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Kq+FKfxG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC72B6070F21;
-	Wed,  4 Nov 2026 19:40:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AD806080787;
+	Wed,  4 Nov 2026 19:40:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iWisENYU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 400AF1F000C1;
-	Wed,  4 Nov 2026 19:39:50 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Kq+FKfxG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0DEB1F0093A;
+	Wed,  4 Nov 2026 19:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793821203;
-	bh=I1miZOwU+uS7OyZJ+vljGqgplXbL3g+w9Z/kHpw+0Ic=;
+	s=k20260515; t=1793821233;
+	bh=lzi0v2Iw6r5Nf2GLOsMSQBwdPNX93e2TzGzGfD3oQvk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=iWisENYUjAJsAzBSE3lGImGvChgp+BG03nV/9zJNmEmVEQqMUuspDJmWqJOL8vdCY
-	 oHV2GpTw7nzhZ8YSayGsDUlJzGRv0ThytArIl/pXnKxEHGqUREbYMyptK2QRO4tWb+
-	 0MJ2nNe6OsnVhX9kRXAgGrur5t53VezJ+BwOWZY1lK1M/S2AcooFeGbuJTcHh6MMK5
-	 Q0olsGHFDarOPT5Tg5XxJr8bNViO7g5QRvPbnb/bbKcsghMepoAlwc9fQuisDpBdNj
-	 xEFmyHVac3X4qFr6hW2l+JvJkyvtiVxI0WdyYW/zK53nj9PA2sh6Z3KYMrD0GYvMbO
-	 MorJYVNGc2nSQ==
+	b=Kq+FKfxGol1yZkTvQK7XOf4MJYg3n2wT++qWRo+QnGi9jvJMQIfuuwXxBQd6HrxO9
+	 DzaQAB8BU2qMveOWYqXQf8uiF3jI1+TMalzy94+Rcd9plW4bEe5kD06s2YR2pJWce9
+	 B6hFJWwiorAIE62RUnEWt3yo5nQlNa9h0jz+aofQy/98+6YVivsZ0C7K1SwAby0aHP
+	 7T5oXbKe+XnQQnQPrW8rV5dPeOZRh0+N4R8p2Y7AHvXwgCCSGo3lTHp1Qs3mmTBfkR
+	 oBUp+SJ51x7+DV6W8OrsLZe3q3dTzc8ph41dFrQv8E2WNRYsf3TxqVqdtFkK0eHuLm
+	 os2hfJBqXQfoA==
 From: Christian Brauner <brauner@kernel.org>
 To: linux-fsdevel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>,
@@ -100,9 +100,9 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	linux-debuggers@vger.kernel.org,
 	"Christian Brauner (Amutable)" <brauner@kernel.org>,
 	Chuck Lever <cel@kernel.org>
-Subject: [PATCH RESEND v2 17/23] xtensa: simdisk: let procfs copy out reads
-Date: Wed,  4 Nov 2026 20:39:48 +0100
-Message-ID: <20261104-work-procfs-arch-v2-17-2aeb952c9597@kernel.org>
+Subject: [PATCH RESEND v2 19/23] macintosh/via-pmu: let procfs copy in writes to the options file
+Date: Wed,  4 Nov 2026 20:40:18 +0100
+Message-ID: <20261104-work-procfs-arch-v2-19-2aeb952c9597@kernel.org>
 In-Reply-To: <20261104-work-procfs-arch-v2-0-2aeb952c9597@kernel.org>
 References: <20261104-work-procfs-arch-v2-0-2aeb952c9597@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
@@ -116,49 +116,51 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1498; i=brauner@kernel.org; h=from:subject:message-id; bh=lmVHOivhxd1ieO/qCxQCbfFgZys6nsQ8zrRpqRkdZ/o=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS97mTUYCmvn7tj1bZ3nRPePsj/znEsO+Ut/5eb7fKhN Rlbli062VHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjAR3UKG/45fU9K/nja5HyLM 7nljky3/puSce6cM0zZzlOzMKnx6ch0jQ/vS7+rz7ONa9NtY1Yu1H+1jtI6Tci9wC2pP5fa2eZP IAwA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1397; i=brauner@kernel.org; h=from:subject:message-id; bh=agoZq1LJSKBxY7yRmppNE5tnXNWd/ezen+xLPyCzOnY=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS97mReIrzh9cx53/g23f7T5yBxj/3Wz2cX8wsWTF3AP 1t597qLVR2lLAxiXAyyYoosDu0m4XLLeSo2G2VqwMxhZQIZwsDFKQAT2cTOyNC6JvPZMlEVDrlF 196Vxjt56Gn83yn6YN/2thy+Tlspl+0M/+xtty1ZFrFn7v65W/6uCr1fY7JaSuT8qnn7/y2e7Ma Rt5IfAA==
 X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 Content-Transfer-Encoding: 8bit
 
-Implement ->proc_read_buf() so procfs copies what is read to userspace
-after it unpinned the entry.
+Implement ->proc_write_buf() so procfs copies in what is written before
+it pins the entry, and parse the option from that copy. Writes larger
+than PAGE_SIZE - 1 bytes fail with -EINVAL now.
 
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- arch/xtensa/platforms/iss/simdisk.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/macintosh/via-pmu.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/xtensa/platforms/iss/simdisk.c b/arch/xtensa/platforms/iss/simdisk.c
-index 26c2fa39a66e..cfddfcd06be7 100644
---- a/arch/xtensa/platforms/iss/simdisk.c
-+++ b/arch/xtensa/platforms/iss/simdisk.c
-@@ -234,7 +234,7 @@ static int simdisk_detach(struct simdisk *dev)
- 	return err;
+diff --git a/drivers/macintosh/via-pmu.c b/drivers/macintosh/via-pmu.c
+index 49f929ae10e4..079c085be5d2 100644
+--- a/drivers/macintosh/via-pmu.c
++++ b/drivers/macintosh/via-pmu.c
+@@ -913,7 +913,7 @@ static int pmu_options_proc_show(struct seq_file *m, void *v)
  }
  
--static ssize_t proc_read_simdisk(struct file *file, char __user *buf,
-+static ssize_t proc_read_simdisk(struct file *file, char *buf,
- 			size_t size, loff_t *ppos)
+ static ssize_t pmu_options_proc_write(struct file *file,
+-		const char __user *buffer, size_t count, loff_t *pos)
++		char *buffer, size_t count, loff_t *pos)
  {
- 	struct simdisk *dev = pde_data(file_inode(file));
-@@ -250,7 +250,7 @@ static ssize_t proc_read_simdisk(struct file *file, char __user *buf,
- 	len = scnprintf(temp, PAGE_SIZE + 2, "%s\n", dev->filename ?: "");
- 	spin_unlock(&dev->lock);
+ 	char tmp[33];
+ 	char *label, *val;
+@@ -923,8 +923,7 @@ static ssize_t pmu_options_proc_write(struct file *file,
+ 		return -EINVAL;
+ 	if (count > 32)
+ 		count = 32;
+-	if (copy_from_user(tmp, buffer, count))
+-		return -EFAULT;
++	memcpy(tmp, buffer, count);
+ 	tmp[count] = 0;
  
--	len = simple_read_from_buffer(buf, size, ppos, temp, len);
-+	len = memory_read_from_buffer(buf, size, ppos, temp, len);
- 	kfree(temp);
- 	return len;
- }
-@@ -280,7 +280,7 @@ static ssize_t proc_write_simdisk(struct file *file, char *buf,
- }
+ 	label = tmp;
+@@ -958,7 +957,7 @@ static ssize_t pmu_options_proc_write(struct file *file,
  
- static const struct proc_ops simdisk_proc_ops = {
--	.proc_read	= proc_read_simdisk,
-+	.proc_read_buf	= proc_read_simdisk,
- 	.proc_write_buf	= proc_write_simdisk,
- 	.proc_write_size = PAGE_SIZE,
- 	.proc_lseek	= default_llseek,
+ static const struct proc_ops pmu_options_proc_ops = {
+ 	.proc_show	= pmu_options_proc_show,
+-	.proc_write	= pmu_options_proc_write,
++	.proc_write_buf	= pmu_options_proc_write,
+ };
+ #endif
+ 
 
 -- 
 2.53.0

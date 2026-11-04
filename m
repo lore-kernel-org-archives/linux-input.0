@@ -1,56 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793757481;
-	b=SNw+kbHCbmnzuqWoFhUzNtISDKzuM+qjVTjPlaDCtd9lragGPTI4wtoKhHyA5hxdpKs1
-	 ZLM4bZFWQ98b7cFNGAQuys0igfxwtKdqlviUrrp2mITyXKNyVsQGl3zc95fHFf1n8stPZ
-	 Xo7a3EfONgwLU25J3d2d0tHTL246hLp3dJhhAWfW5qKS9bgE1OB1bIKE2Oxf+ZSLWnK5C
-	 AEW9sQWF93IaXF2ZFGgoYNCHWnBxfGxPCW6lb69f0+ddXcXblTwafE20PbBNXrHo0R1pE
-	 qZ/L19r8fmNZ3yRjUKGEweOIP4YUqJ6ggwCDe6YRSvCU88PaYYwvRUC1ABWIBW0xQKA==
+	t=1793757553;
+	b=pBVoJTpXbffDyHfjPsRHi45o98M4e/dKJfOKa3KnVUfxvuf+83VBd5iozn/d/zzDqhhr
+	 fEIDdXCNpwlilRLGTmwSeoHi7PGfZ/8DyiNwAZP6Um5mQQVFwDIYusvZTtA9c3r9TOZ1t
+	 50Rl2iuDimSMl2hlq0YzYARuMIhSSU3bH4n7G0o6SCmr325GQzcO3t3v003DwIhXSYzbr
+	 BYdb0lUBRbJlR/KceBVqEWn2MTm0qi0OyAtu6aLDFZe4t1n1Z9FeD1qPLYxN29X9MYkDg
+	 ZGK57UjXocif3Jh1CUdG9SvzKkbh7jE+9Eng+4HOTPFv6Ma8A+/i8mbaLdEfMHFE13Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793757481;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793757553;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=mYGWC8xsUuLiIPdNBLqIuGuYKKcz0EeVuH8AcrakmFM=;
-	b=z0SAqbygm9jL9i4KjpwsM3df9PbEWlRZAsgUpoXI+QSfituL1CVIcc6Y6D0hRQALp7Jv
-	 LewGiqd7Mz2dr4ECXBzFYhtmkBTq98gCI4SkVY+06/uUifj49HBS7EyZx+3vnb2+LhPBF
-	 cpd4ZGj0CtKqfvWxwbAqOZy+1G/pdq9Q8P9nvBOfQDHmPstop1N+Mjlo8NCGC8p9aQ6os
-	 c5YQa3v0DrxAgUHlaqapK4Hjfnnb0v67g41hRmL5fLhimLNfJyQ7wNDsht1C29fDl4f1/
-	 NmdFAuTIhai41W1wjd2+cxUG1vHNf5T+1aG5XgKPe+OLbeDiciIOqE+F96PpsUAS7/g==
+	bh=DVhadbPpTu5BxsO/0TOSoPZXbh7auWeR3iPIzlidq9k=;
+	b=wH8LTjw7Vucm6yD6Q3uWTrw/Bc8qOTUvP2VL+hhp6waNGV9m0Z3o7K7X79B82orX0QGH
+	 kCX70EBbzTrtlDomTJOUpd+EeYoo6j1sB87A+yIAqRvIAfPDp9FnjLG04LRdNec3QYVH3
+	 laBh36rB43sPM0kPnH93rWQmMblNnCKMrIyjzpvZ6puP+QQzfyxyyjVYQY85wGLj83Ub1
+	 jcfc8UdHK8AYR35RSFxXXvSAFQUUiPp4+T/3IH4yFqB2TwBnhsevaUh3pcw9bzQMJ81UB
+	 USxQbkO1Ee21s/1kYoe44JlWtUNB6iMPFSpIk0HlCk7VGH8ra/69wACnNcP6kBqJtAw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K9MaR+6E;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CcxzbRSh;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 935B4606A31B
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 01:58:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A6DA606A31B
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 01:59:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K9MaR+6E
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB4D1F000C1;
-	Wed,  4 Nov 2026 01:58:00 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CcxzbRSh
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04EED1F000C1;
+	Wed,  4 Nov 2026 01:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793757481;
-	bh=mYGWC8xsUuLiIPdNBLqIuGuYKKcz0EeVuH8AcrakmFM=;
+	s=k20260515; t=1793757553;
+	bh=DVhadbPpTu5BxsO/0TOSoPZXbh7auWeR3iPIzlidq9k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=K9MaR+6E7GnGuSoV3Oz8u24CT7NByrxNs9vb6c/kv+9CeLUyH8wTHrm2Jd9YeO3xw
-	 r1L1pmk35Hoao8SSMLRGlzA4DrvuWpdaqNu4s58M75bE5rSC9qdgb6KXdBtCO2iFe1
-	 rhJU+TFfm+V/0jvQmoe+lVRSDUmLNbIqOu87obDQFZmtsWjVv3SdWylaCG9lzg84dr
-	 x2EhHaWbr7IxKodT07dRDkYuE+WOkr2EcP24LxHYRV3wzJ5Y6J0vRT453Z7X3FZ3tt
-	 B/+vbnquMEnesiywQY6sXMmSih0tLLNundDMeWIHxXlKORJye7E+adIvR3cLJN8Z/j
-	 RIKB6lLOK6zlg==
-Message-ID: <sashiko-outbox-196417@kernel.org>
+	b=CcxzbRSh5opGSQZ8crWHdCOpVAks9cgSLMTKVPo20MmanhQHcm7E2nCQtt/sx4nc2
+	 vDkyt+5ZCFk/AFiYrxNndcT1xgx0UiRsqhLo7D+3lzcJkylLQDlrEi07RrbB2w1Hqd
+	 8vUi093G21h/6RKse23zAZe9UhLo9X+eH9Hp2zwHDB/xZ5mucjjGkl7zEo3wvEb2Bc
+	 GHPa8agAbLZIuez4sgyOzs4Jo2rEMTLsgxW1vCHOpLZYEWTcG2przIhxOuIZCRwqyb
+	 WkMIBZrTNY9PrDa0OV9R5yf+4Aii8Zc2VQ7S/dXKH/y1L6z6uA7aLbhblvtntWhRS8
+	 MiwoHDy7y8S7A==
+Message-ID: <sashiko-outbox-196420@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 12/18] HID: asus: add support for btn remapping
+Subject: Re: [PATCH v13 03/18] HID: asus: add gamepad configuration
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Denis Benato" <denis.benato@linux.dev>
 Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261104013935.512713-13-denis.benato@linux.dev>
+In-Reply-To: <20261104013935.512713-4-denis.benato@linux.dev>
 References: <20261104013935.512713-1-denis.benato@linux.dev>
- <20261104013935.512713-13-denis.benato@linux.dev>
+ <20261104013935.512713-4-denis.benato@linux.dev>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 01:58:00 +0000
+Date: Wed, 04 Nov 2026 01:59:12 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,279 +62,267 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] HID: asus: inverted sysfs_streq() check in find_button_by_name()
-- [Medium] HID: asus: inconsistent pair update and rollback in button_remap=
-_store()
-- [Low] HID: asus: mixed cleanup helpers and goto in button_remap_store()
+- [Medium] HID: asus: unlocked feature report transfers in hid_asus_ally_re=
+set_resume()
+- [Low] HID: asus: ally_detect_capabilities() mixes guard(mutex) with goto
+- [Low] HID: asus: open-coded sysfs group helpers in ally_prefs_setup()
 --
 
-commit 72acf6c4d3c76532f8563fc72f2841557666f18a
+commit 23ba9584ee0ff2df9f8412928af4abbe35ed412d
 Author: Denis Benato <denis.benato@linux.dev>
 
-HID: asus: add support for btn remapping
+HID: asus: add gamepad configuration
 
-This commit adds sysfs support for remapping physical buttons and assigning
-macro codes on Asus ROG Ally devices, updating the cached mappings when the
-gamepad mode changes.
+This commit adds gamepad capability detection and preference storage for
+ASUS ROG Ally devices, exposes the xbox_controller sysfs attribute, and
+waits for the gamepad MCU to report ready during reset_resume.
 
 > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> index 70c9d71fc5fa9..dcb3c9f5d23e8 100644
+> index 2a3e8c399f0aa..8277d7108bb97 100644
 > --- a/drivers/hid/hid-asus.c
 > +++ b/drivers/hid/hid-asus.c
 
 [ ... ]
 
-> @@ -978,10 +1186,587 @@ static struct ally_prefs {
->  	struct ally_joystick_resp_curve right_curve;
-> =20
->  	struct ally_turbo_config turbo;
-> +	struct ally_button_mapping button_mappings;
->  } ally_prefs =3D {
->  	.lock =3D __MUTEX_INITIALIZER(ally_prefs.lock),
->  };
-> =20
-> +/**
-> + * find_button_by_name() - Find a button code map by its name
-> + * @name: name of the button code to look up
-> + *
-> + * This function deals with data from userspace therefore it
-> + * must not trust the input blindly.
-> + *
-> + * Return: the matching button code map, or NULL if not found.
-> + */
-> +static const struct btn_code_map *find_button_by_name(const char *name)
-> +{
-> +	int i;
-> +
-> +	for (i =3D 0; i < ARRAY_SIZE(ally_btn_codes); i++) {
-> +		if (!sysfs_streq(ally_btn_codes[i].name, name))
-> +			return &ally_btn_codes[i];
-> +	}
-> +
-> +	return NULL;
-> +}
-
-[Severity: High]
-Is the sysfs_streq() condition in find_button_by_name() inverted?
-
-Unlike strcmp(), sysfs_streq() returns true when the strings match. Because
-ally_btn_codes[0] is "NONE" and ally_btn_codes[1] is "BTN_SOUTH", negating
-sysfs_streq() causes find_button_by_name("NONE") in
-ally_set_button_pair_mappings_default() to return &ally_btn_codes[1]
-(BTN_SOUTH), and causes lookups for any other button name (or invalid strin=
-gs
-written by userspace to button_remap_store()) to immediately return
-&ally_btn_codes[0] (NONE).
-
-When hid_asus_ally_init() calls ally_apply_button_mappings(), or when
-gamepad_mode_store() or button_remap_store() updates mappings, all default
-remaps resolve to NONE, all default macros resolve to BTN_SOUTH, and invalid
-button names from userspace never fail with -EINVAL.
+> @@ -762,6 +776,281 @@ static int ally_get_endpoint_address(struct hid_dev=
+ice *hdev)
+>  	return ep->desc.bEndpointAddress;
+>  }
 
 [ ... ]
 
-> +static ssize_t button_remap_store(struct device *dev,
-> +				  struct device_attribute *attr,
-> +				  const char *buf, size_t count)
+> +static int ally_detect_capabilities(struct hid_device *hdev)
 > +{
-> +	struct hid_device *hdev =3D to_hid_device(dev);
-> +	struct button_remap_attr *btn_attr =3D to_button_remap_attr(attr);
-> +	enum ally_button_id button_id =3D btn_attr->button_id;
-> +	const struct btn_code_map *old_code, *code;
-> +	const struct btn_code_map **target_map;
-> +	struct ally_button_mapping *mode_map;
-> +	enum btn_pair_index pair_idx;
-> +	struct button_pair_map *pair;
-> +	struct button_map *btn_map;
-> +	bool is_first;
-> +	int ret, i;
-> +
-> +	code =3D find_button_by_name(buf);
-> +	if (!code)
-> +		return -EINVAL;
-> +
-> +	ret =3D get_button_pair_info(button_id, &pair_idx, &is_first);
-> +	if (ret < 0)
-> +		return ret;
+> +	int ret;
 > +
 > +	guard(mutex)(&ally_prefs.lock);
 > +
-> +	/*
-> +	 * Validate the remap target while holding the lock: the
-> +	 * gamepad mode can change concurrently, and the check must
-> +	 * be done against the very mode the mapping is written to.
-> +	 */
-> +	if (!ally_remap_code_valid(button_id, ally_prefs.gamepad_mode, code,
-> +				   btn_attr->is_macro))
-> +		return -EINVAL;
+> +	ally_prefs.is_ally_x =3D (hdev->product =3D=3D USB_DEVICE_ID_ASUSTEK_RO=
+G_NKEY_ALLY_X);
 > +
-> +	/* Access the mapping for current gamepad mode */
-> +	pair =3D &ally_prefs.button_mappings.button_pairs[pair_idx - 1];
-> +	btn_map =3D is_first ? &pair->first : &pair->second;
+> +	ret =3D ally_check_capability(hdev, CMD_CHECK_XBOX_SUPPORT);
+> +	if (ret < 0)
+> +		goto ally_detect_capabilities_err;
+> +	ally_prefs.xbox_controller_support =3D ret;
 > +
-> +	target_map =3D btn_attr->is_macro ? &btn_map->macro : &btn_map->remap;
-> +	old_code =3D *target_map;
-> +	*target_map =3D code;
 > +
-> +	/* Update pair index */
-> +	pair->pair_index =3D pair_idx;
+> +	ret =3D ally_check_capability(hdev, CMD_CHECK_USER_CAL_SUPPORT);
+> +	if (ret < 0)
+> +		goto ally_detect_capabilities_err;
+> +	ally_prefs.user_cal_support =3D ret;
 > +
-> +	/*
-> +	 * Send mapping to device with the caveat that first
-> +	 * generation devices require individual button pair updates.
-> +	 */
-> +	if (ally_prefs.is_ally_x) {
-> +		ret =3D ally_set_button_mapping(hdev, pair);
-> +		if (ret < 0)
-> +			goto err_restore;
-> +	} else {
-> +		mode_map =3D &ally_prefs.button_mappings;
-> +		for (i =3D 0; i < ARRAY_SIZE(mode_map->button_pairs); i++) {
-> +			mode_map->button_pairs[i].pair_index =3D i + 1;
-> +			ret =3D ally_set_button_mapping(hdev,
-> +						      &mode_map->button_pairs[i]);
-> +			if (ret < 0) {
-> +				/*
-> +				 * Pairs are pushed one at a time. This pair
-> +				 * already reached the hardware when a later
-> +				 * pair is the one that failed.
-> +				 */
-> +				if (i > pair_idx - 1)
-> +					goto err_restore_hw;
-> +				goto err_restore;
-> +			}
-> +		}
-> +	}
-> +	sysfs_notify(&dev->kobj, ally_button_names[btn_attr->button_id],
-> +		     btn_attr->is_macro ? "macro" : "remap");
-> +	return count;
+> +	ret =3D ally_check_capability(hdev, CMD_CHECK_TURBO_SUPPORT);
+> +	if (ret < 0)
+> +		goto ally_detect_capabilities_err;
+> +	ally_prefs.turbo_support =3D ret;
 > +
-> +err_restore_hw:
-> +	*target_map =3D old_code;
+> +	ret =3D ally_check_capability(hdev, CMD_CHECK_RESP_CURVE_SUPPORT);
+> +	if (ret < 0)
+> +		goto ally_detect_capabilities_err;
+> +	ally_prefs.resp_curve_support =3D ret;
 > +
-> +	/* Try to recover the mapping presented to the user. */
-> +	ally_set_button_mapping(hdev, pair);
-> +	goto err_out;
+> +	ret =3D ally_check_capability(hdev, CMD_CHECK_DIR_TO_BTN_SUPPORT);
+> +	if (ret < 0)
+> +		goto ally_detect_capabilities_err;
+> +	ally_prefs.dir_to_btn_support =3D ret;
 > +
-> +err_restore:
-> +	*target_map =3D old_code;
+> +	ret =3D ally_check_capability(hdev, CMD_CHECK_GYRO_TO_JOYSTICK);
+> +	if (ret < 0)
+> +		goto ally_detect_capabilities_err;
+> +	ally_prefs.gyro_support =3D ret;
 > +
-> +err_out:
-> +	hid_err(hdev, "Failed to set button mapping: %d\n", ret);
+> +	ret =3D ally_check_capability(hdev, CMD_CHECK_ANTI_DEADZONE);
+> +	if (ret < 0)
+> +		goto ally_detect_capabilities_err;
+> +	ally_prefs.anti_deadzone_support =3D ret;
+> +
+> +	return 0;
+> +ally_detect_capabilities_err:
+> +	hid_err(hdev, "Failed to detect capabilities: %d\n", ret);
 > +	return ret;
 > +}
 
-[Severity: Medium]
-Does the err_restore_hw path in button_remap_store() properly roll back the
-hardware state on first-generation ROG Ally devices?
+[Severity: Low]
+This isn't a bug, but ally_detect_capabilities() in drivers/hid/hid-asus.c
+mixes guard(mutex)(&ally_prefs.lock) with goto ally_detect_capabilities_err,
+contrary to the cleanup.h convention of not mixing scope-based cleanup
+helpers with goto error paths in the same function.
 
-In ally_detect_capabilities(), ally_prefs.is_ally_x is set only for the sec=
-ond-
-generation ROG Ally X (USB_DEVICE_ID_ASUSTEK_ROG_NKEY_ALLY_X). In
-button_remap_store(), the comment says first-generation devices require
-individual button pair updates, yet the code sends a single pair when
-ally_prefs.is_ally_x is true and loops over all 9 pairs in
-mode_map->button_pairs when ally_prefs.is_ally_x is false.
-
-Furthermore, err_restore_hw is only reachable from the !ally_prefs.is_ally_x
-loop when ally_set_button_mapping() fails at iteration i > pair_idx - 1, but
-err_restore_hw then calls ally_set_button_mapping(hdev, pair) for only that
-single pair. If !ally_prefs.is_ally_x devices require all 9 pairs to be sen=
-t,
-wouldn't a single-pair update in err_restore_hw fail to restore the hardware
-mapping, or if single-pair updates work on !ally_prefs.is_ally_x, why does =
-the
-else branch send all 9 pairs?
+Since ally_check_capability() and the caller hid_asus_ally_probe() already
+log hid_err() on failure, and ally_detect_capabilities_err performs no
+resource cleanup, could each failed check in ally_detect_capabilities()
+simply return ret directly?
 
 [ ... ]
 
-> @@ -2399,11 +3200,11 @@ static void ally_btn_turbo_init_attrs(struct ally=
-_btn_sysfs_entry *entry)
-> =20
->  static struct ally_btn_sysfs_entry *ally_create_button_attributes(struct=
- hid_device *hdev)
->  {
-> +	size_t entries_attr_index;
->  	int i, ret;
-> =20
->  	scoped_guard(mutex, &ally_prefs.lock)
-> -		if (!ally_prefs.turbo_support)
-> -			return NULL;
-> +		entries_attr_index =3D ally_prefs.turbo_support ? 4 : 0;
-> =20
->  	struct ally_btn_sysfs_entry *entries __free(kfree) =3D kzalloc_objs(*en=
-tries, ALLY_BTN_MAX);
->  	if (!entries)
-> @@ -2412,13 +3213,33 @@ static struct ally_btn_sysfs_entry *ally_create_b=
-utton_attributes(struct hid_dev
->  	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
->  		entries[i].btn =3D i;
-> =20
-> -		if (!ally_btn_param(i)) {
-> -			hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-> -			ret =3D -EINVAL;
-> +		if (ally_prefs.turbo_support) {
-> +			if (!ally_btn_param(i)) {
-> +				hid_err(hdev, "Invalid button id %d for turbo attributes\n", i);
-> +				ret =3D -EINVAL;
-> +				goto ally_btn_err_cleanup;
-> +			}
+> +static int ally_prefs_setup(struct hid_device *hdev, struct ally_intf *i=
+ntf)
+> +{
+> +	int ret, i;
 > +
-> +			ally_btn_turbo_init_attrs(&entries[i]);
+> +	ret =3D ally_detect_capabilities(hdev);
+> +	if (ret)
+> +		return ret;
+> +
+> +	scoped_guard(mutex, &ally_prefs.lock) {
+> +		if (!ally_prefs.initialized) {
+> +			ally_prefs.gamepad_mode =3D 0x01;
+> +			ally_prefs.xbox_controller_enabled =3D true;
+> +			ally_prefs.initialized =3D true;
 > +		}
 > +
-> +		entries[i].remap_attr =3D button_remap_attr_create(i, false);
-> +		entries[i].macro_attr =3D button_remap_attr_create(i, true);
-> +		if (!entries[i].remap_attr || !entries[i].macro_attr) {
-> +			ret =3D -ENOMEM;
->  			goto ally_btn_err_cleanup;
->  		}
-> =20
-> -		ally_btn_turbo_init_attrs(&entries[i]);
-> +		sysfs_attr_init(&entries[i].attr_remap_available.attr);
-> +		entries[i].attr_remap_available.attr.name =3D "remap_available";
-> +		entries[i].attr_remap_available.attr.mode =3D 0444;
-> +		entries[i].attr_remap_available.show =3D btn_remap_available_show;
-> +
-> +		entries[i].attrs[entries_attr_index + 0] =3D &entries[i].remap_attr->d=
-ev_attr.attr;
-> +		entries[i].attrs[entries_attr_index + 1] =3D &entries[i].macro_attr->d=
-ev_attr.attr;
-> +		entries[i].attrs[entries_attr_index + 2] =3D &entries[i].attr_remap_av=
-ailable.attr;
-> +		entries[i].attrs[entries_attr_index + 3] =3D NULL;
-> +
->  		entries[i].group.name =3D ally_button_names[i];
->  		entries[i].group.attrs =3D entries[i].attrs;
-> =20
-> @@ -2436,6 +3257,11 @@ static struct ally_btn_sysfs_entry *ally_create_bu=
-tton_attributes(struct hid_dev
->  	while (i--)
->  		sysfs_remove_group(&hdev->dev.kobj, &entries[i].group);
-> =20
-> +	for (i =3D 0; i < ALLY_BTN_MAX; i++) {
-> +		kfree(entries[i].remap_attr);
-> +		kfree(entries[i].macro_attr);
+> +		if (intf->sysfs_live)
+> +			return 0;
 > +	}
 > +
->  	return ERR_PTR(ret);
->  }
+> +	/*
+> +	 * Create and remove sysfs groups without ally_prefs.lock. Attribute
+> +	 * methods take that lock while holding a kernfs active reference;
+> +	 * removing a group drains those references, so locking here would
+> +	 * invert the order and deadlock.
+> +	 */
+> +	for (i =3D 0; i < ARRAY_SIZE(ally_attr_groups); i++) {
+> +		ret =3D sysfs_create_group(&hdev->dev.kobj, &ally_attr_groups[i]);
+> +		if (ret) {
+> +			hid_err(hdev, "Failed to create Ally sysfs group '%s': %d\n",
+> +				ally_attr_groups[i].name ?: "", ret);
+> +			while (i--)
+> +				sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[i]);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	scoped_guard(mutex, &ally_prefs.lock) {
+> +		intf->sysfs_live =3D true;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static void ally_sysfs_remove(struct hid_device *hdev, struct ally_intf =
+*intf)
+> +{
+> +	int i;
+> +
+> +	if (!intf)
+> +		return;
+> +
+> +	if (ally_get_endpoint_address(hdev) !=3D HID_ALLY_INTF_CFG_IN)
+> +		return;
+> +
+> +	scoped_guard(mutex, &ally_prefs.lock) {
+> +		if (!intf->sysfs_live)
+> +			return;
+> +
+> +		intf->sysfs_live =3D false;
+> +	}
+> +
+> +	for (i =3D 0; i < ARRAY_SIZE(ally_attr_groups); i++)
+> +		sysfs_remove_group(&hdev->dev.kobj, &ally_attr_groups[i]);
+> +}
 
 [Severity: Low]
-As reported by Sashiko on v12 [1], this isn't a bug, but button_remap_store=
-()
-mixes guard(mutex)(&ally_prefs.lock) with goto labels (err_restore_hw,
-err_restore, and err_out) while also holding ally_prefs.lock across
-sysfs_notify(), and ally_create_button_attributes() similarly mixes
-scoped_guard() and __free(kfree) on entries with goto ally_btn_err_cleanup.
+This isn't a bug, but ally_prefs_setup() and ally_sysfs_remove() in
+drivers/hid/hid-asus.c open-code the iteration and error rollback over
+ally_attr_groups using sysfs_create_group() and sysfs_remove_group().
 
-Could button_remap_store() and ally_create_button_attributes() avoid mixing
-scope-based cleanup helpers with goto error paths (and could remap_attr and
-macro_attr be embedded directly in struct ally_btn_sysfs_entry like
-attr_turbo_period, attr_toggle_period, and attr_remap_available)?
+Could ally_attr_groups be defined with ATTRIBUTE_GROUPS() (or a
+NULL-terminated struct attribute_group pointer array) so ally_prefs_setup()
+and ally_sysfs_remove() can use sysfs_create_groups() and
+sysfs_remove_groups() instead?
 
-[1] https://lore.kernel.org/r/sashiko-outbox-192087@kernel.org
+[ ... ]
+
+> @@ -944,6 +1233,14 @@ static int hid_asus_ally_init(struct hid_device *hd=
+ev)
+>  	if (ret < 0)
+>  		hid_err(hdev, "Ally failed to init force-feedback off: %d\n", ret);
+> =20
+> +	guard(mutex)(&ally_prefs.lock);
+> +
+> +	if (ally_prefs.initialized && ally_prefs.xbox_controller_support) {
+> +		ret =3D ally_set_xbox_controller(hdev, ally_prefs.xbox_controller_enab=
+led);
+> +		if (ret < 0)
+> +			hid_warn(hdev, "Failed to apply Xbox controller mode: %d\n", ret);
+> +	}
+> +
+>  	return 0;
+>  }
+> =20
+> @@ -1038,6 +1335,12 @@ static struct ally_intf *hid_asus_ally_probe(struc=
+t hid_device *hdev)
+>  			return ERR_PTR(ret);
+>  		}
+> =20
+> +		ret =3D ally_prefs_setup(hdev, intf);
+> +		if (ret < 0) {
+> +			hid_err(hdev, "Failed to create Ally cfg: %d\n", ret);
+> +			return ERR_PTR(ret);
+> +		}
+> +
+>  		hid_asus_ally_init(hdev);
+>  		break;
+>  	case HID_ALLY_X_INTF_IN:
+> @@ -1058,7 +1361,7 @@ static struct ally_intf *hid_asus_ally_probe(struct=
+ hid_device *hdev)
+> =20
+>  static int hid_asus_ally_reset_resume(struct hid_device *hdev, struct al=
+ly_intf *intf)
+>  {
+> -	int ep;
+> +	int ep, ret;
+> =20
+>  	/*
+>  	 * The extensions failed to probe and the device is operating as a
+> @@ -1071,6 +1374,12 @@ static int hid_asus_ally_reset_resume(struct hid_d=
+evice *hdev, struct ally_intf
+>  	if (ep !=3D HID_ALLY_INTF_CFG_IN)
+>  		return 0;
+> =20
+> +	ret =3D ally_gamepad_check_ready(hdev);
+> +	if (ret < 0) {
+> +		hid_err(hdev, "ROG Ally device is not ready: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+>  	return hid_asus_ally_init(hdev);
+>  }
+
+[Severity: Medium]
+Can a concurrent write to xbox_controller_store() race with the unlocked
+feature report transfers in hid_asus_ally_reset_resume() and
+hid_asus_ally_init()?
+
+Once ally_prefs_setup() exposes the sysfs group on hdev->dev.kobj,
+xbox_controller_store() remains live across suspend and reset_resume (as
+well as during the rest of hid_asus_ally_probe()):
+
+    xbox_controller_store()
+      guard(mutex)(&ally_prefs.lock)
+      ally_set_xbox_controller()
+        ally_gamepad_send_packet()
+          ally_dev_set_report() /* feature report 0x5A */
+
+However, hid_asus_ally_reset_resume() runs ally_gamepad_check_ready()
+without holding ally_prefs.lock, where each attempt performs a two-step
+command and response sequence over USB control transfers:
+
+    hid_asus_ally_reset_resume()
+      ally_gamepad_check_ready()
+        ally_gamepad_send_receive_packet()
+          ally_dev_set_report() /* feature report 0x5A */
+          ally_dev_get_report() /* feature report 0x0D */
+
+Similarly, hid_asus_ally_init() sends ally_force_feedback_off via
+ally_gamepad_send_packet() before acquiring ally_prefs.lock.
+
+If userspace writes to xbox_controller during hid_asus_ally_reset_resume()
+or hid_asus_ally_init(), can CMD_SET_XBOX_CONTROLLER be sent before the MCU
+is ready or interleave between ally_dev_set_report() and
+ally_dev_get_report() in ally_gamepad_check_ready(), causing the readiness
+check or configuration command to fail?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104013935.5127=
-13-1-denis.benato@linux.dev?part=3D12
+13-1-denis.benato@linux.dev?part=3D3

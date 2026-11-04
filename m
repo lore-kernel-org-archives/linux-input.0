@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793795958;
-	b=Rb5ZwVYD9264MFMPl6ITzTgVnnvMOXpQFyr41N0e/vd4z7+wnBvsV+/dRg/01PT9bYtC
-	 cKvA8dWbQLj5l6yX01VBJmpkboKcxaZnQApQuMzvoxPE5TZXlOiug0Vj5LDOZpBPLYXCU
-	 +vezW+frA5kAozv3NCMViuMh59yMgHKVi1nD8ctFMBl4rqk4nKtoYJKfd3PRptwg2c7mW
-	 R6ulWlG9XJMJbr3LrDTvp91b2zRw5zJDaWAIIegQzEDV9RTqsxHMJzouv0ADH6nqrBQ8M
-	 L9WVvzRuESGm8myTHwF13GVpoO7FPhUNKkY1asIbiyIYXr/jpXOuASVNb0PpS0TeabA==
+	t=1793796046;
+	b=UlaJr+xIMoXjlW+tbp2jx++KDz3mlQ8f6tM3zH17rlmbgPYEF0rDiuztkv/dYrCk1UL9
+	 0goSYiD1xsu3jLQwuVN+C/ivuTOnNnag6InOhGGETPxfYCoXKs8kYiuKd6LbNZCR0frDN
+	 Iz9Vxt1l/nESPgYkPyGm1DSZn+8141bOady00o713hcK5NgWhqB9Q0GMLEeE4lqfQMJek
+	 E4lV1/lvxZOM4WI0lNAZCeFJq2Yst/kynxRBY6xUKSxeA8IoFhbz77zOV86xN0OUEPOig
+	 qGRg02s8aHAxxQ31G0R1WsvqLV5S9eJZ0GwDjKmmgmkIuX+PKe2h8F1rDdzjZ9/GJIQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793795958;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793796046;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=fVaNbaMznxlD1PnSfe0wBRtF8HswDfXhTha2jq+S4xY=;
-	b=mBJe8Z7I0IkF+iHzGemDBS9CsnVFGCOhX39CzkL+u+iz5ZQBdivtgT3VtHIzQ7uxOLNs
-	 2O3kFKgy/A0fyU0VtNl8bSGtLdMFzN5zY/9ZiMtLIej2uGv7eryhGw447XEr9vNLvME2v
-	 kp9y1RMlHqUX5a9E7AR3WcReq0jAM62utzYUl248UjFcideQVWEA1D9nV/AnESFCGytLY
-	 nrHSCBACGCw6OHbQI8K6fmpv6OTjEajEMlnFeiRfsasiYwmjZoMcHTbV3HRz8bzg8vB+g
-	 HJF45P8Sln4L0vyUl9soJQg1shxYBdv4D4fO5rjISEAW3RWN+mC+0Q343eH6/j5saqQ==
+	bh=L0zQlxDmOGobbEbvtBPiR2UkkBFYt7715ct0OxHv4qA=;
+	b=MVl1Td89M6oZ1aDqeTukECOXhCok1XEuTZLksomeACCdxMXdu4i5FBq+XHHKEQ7YMHBN
+	 4FWPMiQZKgJW3G5YzP0RBycMDgsCHx4rJzLm3sxNgmVdTS36IIr/jVuANf4DYjbSEDc/2
+	 zIcEJcDkK1l7UKQEuen5wJVLt1ZnZpLvKPV5Q9egVUtxnJU4TCa7HiYurio92qBoPpc0l
+	 CP9xcx9kCwEFi/rV5iJT765eb1UJtnTW5VUR+fYzHlL/nnuddKC44RPS+C0hmpAmEOopm
+	 TwmUHIHDXgrhr+sjjtBPw5XC1gaoSCXOHIbjbIZ7WLKfjrqKHazsjV9D0sjyNrwQfYg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c8hS5Cji;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SfQ66bCQ;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90360606A31B;
-	Wed,  4 Nov 2026 12:39:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0C17606A31B;
+	Wed,  4 Nov 2026 12:40:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c8hS5Cji
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A12761F000C1;
-	Wed,  4 Nov 2026 12:39:16 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SfQ66bCQ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08C391F000C1;
+	Wed,  4 Nov 2026 12:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793795957;
-	bh=fVaNbaMznxlD1PnSfe0wBRtF8HswDfXhTha2jq+S4xY=;
+	s=k20260515; t=1793796045;
+	bh=L0zQlxDmOGobbEbvtBPiR2UkkBFYt7715ct0OxHv4qA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=c8hS5CjiifhgfL8lqyTyqmggfJCpUKNcBgMOj1u/cY+UTDSVLRPeTIjBvNEPuFGfk
-	 Yc3nnDqlZ9tPOCbASUSIQdJcam7vfrbqLN2xjj2jzbD2HGD18ke04ENVLufjX2poC1
-	 5D2o0sWxf3WwC2jdXpAw/SqNZdMOH5d3g51uwqlkXlqczZAIOUxk5TQKq1yqI4jLeH
-	 Nc0iBKcxCzdfa0mANCDTTAEkkkCSMbWTcV4WoyK/ebQvhpogPaNRmVknLkbrgFokI3
-	 l/h6x+qM+QjLjrDinem5o1F7/jsw+5DBQYYGrGu9VOSs9Jh+YadEys2LMvuV9lz7wG
-	 7YcZn0DDp7rHQ==
-Message-ID: <sashiko-outbox-197277@kernel.org>
+	b=SfQ66bCQNJi8JP7xKqrVfvAGtutM77y5u410VMSielq0gf5Vf0de84HykDpZgvoWi
+	 sPX8ufSpzDMO1lSuceCCKsuC4MXEdolK+QXGkJYCGdoF9ZPyzPjddwU/TmwQlcopSt
+	 173MFaeWU+t+dLiOFs53O1e3d2bcb4auIoS77OgHYaCYnZ5Gv5B6C84AF3Ij/zmC6z
+	 ydc5lxww83ofhs5xpKreUMnBGOl4i/0sW1JcuMNVADVrNlJN7s0TMupKNV9vL7zldl
+	 TW3z7iuT642SD+GQlnOdvCNHru0h8/H87ZpvdkPijBSERr58uXumIZss85A/X5X4pi
+	 IBXtWjHuZ9ucQ==
+Message-ID: <sashiko-outbox-197282@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 3/7] input: serio: Add driver for ASUS Transformer
- dock keyboard and touchpad
+Subject: Re: [PATCH v13 4/7] input: keyboard: Add driver for ASUS
+ Transformer dock multimedia keys
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
 Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20261104122606.215629-4-clamor95@gmail.com>
+In-Reply-To: <20261104122606.215629-5-clamor95@gmail.com>
 References: <20261104122606.215629-1-clamor95@gmail.com>
- <20261104122606.215629-4-clamor95@gmail.com>
+ <20261104122606.215629-5-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 12:39:16 +0000
+Date: Wed, 04 Nov 2026 12:40:44 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -63,151 +63,129 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] input: serio: notifier order in asus_ec_kbc_probe() causes NULL de=
-ref or UAF
+- [Medium] input: keyboard: u8 overflow and page mixup in asus_ec_keys_proc=
+ess_key()
 --
 
-commit 8f5c105d6df4708eb2c002e7fe58ff80a2a0fb84
+commit ba1df1a44a7f539aae799312892bb55d53afd18c
 Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
 
-input: serio: Add driver for ASUS Transformer dock keyboard and touchpad
+input: keyboard: Add driver for ASUS Transformer dock multimedia keys
 
-This commit adds a serio driver for the keyboard and touchpad on the ASUS
-Transformer dock, registering two serio ports and a notifier on the parent
-EC to forward and remap incoming PS/2 data.
+This commit adds an input driver for the ASUS Transformer Mobile Dock
+multimedia top button row, defaulting to F1-F12 function keys and allowing
+switching to multimedia keys with ScreenLock + AltGr.
 
-> diff --git a/drivers/input/serio/asus-transformer-ec-kbc.c b/drivers/inpu=
-t/serio/asus-transformer-ec-kbc.c
+> diff --git a/drivers/input/keyboard/asus-transformer-ec-keys.c b/drivers/=
+input/keyboard/asus-transformer-ec-keys.c
 > new file mode 100644
-> index 0000000000000..cff18da6d59d7
+> index 0000000000000..5a8fb86a97555
 > --- /dev/null
-> +++ b/drivers/input/serio/asus-transformer-ec-kbc.c
+> +++ b/drivers/input/keyboard/asus-transformer-ec-keys.c
+> @@ -0,0 +1,216 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +
+> +#include <linux/array_size.h>
+> +#include <linux/err.h>
+> +#include <linux/i2c.h>
+> +#include <linux/input.h>
+> +#include <linux/mfd/asus-transformer-ec.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +
+> +#define ASUSEC_EXT_KEY_CODES		0x20
+> +
+> +struct asus_ec_keys_data {
+> +	struct notifier_block nb;
+> +	struct asusec_core *ec;
+> +	struct input_dev *xidev;
+> +	unsigned short keymap[ASUSEC_EXT_KEY_CODES * 2];
+> +	bool special_key_mode;
+> +};
 
 [ ... ]
 
-> +static int asus_ec_kbc_notify(struct notifier_block *nb,
-> +			      unsigned long action, void *data_)
+> +static int asus_ec_keys_process_key(struct input_dev *dev, u8 code)
 > +{
-
-[ ... ]
-
-> +	while (n--)
-> +		serio_interrupt(priv->sdev[port_idx], *data++, 0);
+> +	struct asus_ec_keys_data *priv =3D dev_get_drvdata(dev->dev.parent);
+> +	unsigned int key =3D 0;
+> +
+> +	if (code =3D=3D 0)
+> +		return NOTIFY_DONE;
+> +
+> +	if (priv->ec->right_alt_pressed) {
+> +		priv->ec->special_combo_triggered =3D true;
+> +
+> +		/* Flip special key mode state when pressing SCREEN LOCK + R ALT */
+> +		if (code =3D=3D 1) {
+> +			priv->special_key_mode =3D !priv->special_key_mode;
+> +			return NOTIFY_OK;
+> +		}
+> +	}
+> +
+> +	/*
+> +	 * Relocate code to second "page" if pressed state XOR's mode state
+> +	 * This way special key will invert the current mode
+> +	 */
+> +	if (priv->special_key_mode ^ priv->ec->right_alt_pressed)
+> +		code +=3D ASUSEC_EXT_KEY_CODES;
+> +
+> +	if (code < dev->keycodemax) {
+> +		unsigned short *map =3D dev->keycode;
+> +
+> +		key =3D map[code];
+> +	}
+> +
+> +	if (!key)
+> +		key =3D KEY_UNKNOWN;
+> +
+> +	asus_ec_keys_report_key(dev, code, key, 1);
+> +	asus_ec_keys_report_key(dev, code, key, 0);
 > +
 > +	return NOTIFY_OK;
 > +}
 
-[ ... ]
+[Severity: Medium]
+Should asus_ec_keys_process_key() validate that code < ASUSEC_EXT_KEY_CODES
+before setting priv->ec->special_combo_triggered and offsetting code by
+ASUSEC_EXT_KEY_CODES?
 
-> +static int asus_ec_register_serio(struct platform_device *pdev, int idx,=
- const char *name, int cmd)
-> +{
-> +	struct asus_ec_kbc_data *priv =3D platform_get_drvdata(pdev);
-> +	struct i2c_client *parent =3D priv->parent;
-> +	struct serio *port =3D kzalloc_obj(*port);
-> +
-> +	if (!port)
-> +		return -ENOMEM;
-> +
-> +	priv->sdev[idx] =3D port;
-> +	port->dev.parent =3D &pdev->dev;
-> +	port->id.type =3D SERIO_8042;
-> +	port->id.extra =3D cmd & 0xFF;
-> +	port->write =3D asus_ec_serio_write;
-> +	port->port_data =3D (void *)priv;
-> +	snprintf(port->name, sizeof(port->name), "%s %s", priv->ec->model, name=
-);
-> +	snprintf(port->phys, sizeof(port->phys), "i2c-%u-%04x/serio%d",
-> +		 i2c_adapter_id(parent->adapter), parent->addr, idx);
-> +
-> +	serio_register_port(port);
-> +
-> +	return devm_add_action_or_reset(&pdev->dev, asus_ec_serio_remove, port);
-> +}
-> +
-> +static void asus_ec_notifier_chain_unregister(void *data)
-> +{
-> +	struct asus_ec_kbc_data *priv =3D data;
-> +	struct asusec_core *ec =3D priv->ec;
-> +
-> +	blocking_notifier_chain_unregister(&ec->notify_list, &priv->nb);
-> +}
-> +
-> +static int asus_ec_kbc_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev =3D &pdev->dev;
-> +	struct asusec_core *ec =3D dev_get_drvdata(dev->parent);
-> +	struct asus_ec_kbc_data *priv;
-> +	int error;
-> +
-> +	priv =3D devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	platform_set_drvdata(pdev, priv);
-> +
-> +	priv->ec =3D ec;
-> +	priv->parent =3D to_i2c_client(dev->parent);
-> +
-> +	priv->nb.notifier_call =3D asus_ec_kbc_notify;
-> +	error =3D blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
-> +	if (error)
-> +		return dev_err_probe(dev, error, "Failed to register blocking notifier=
- chain");
-> +
-> +	error =3D devm_add_action_or_reset(dev, asus_ec_notifier_chain_unregist=
-er, priv);
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D asus_ec_register_serio(pdev, 0, "Keyboard", 0);
-> +	if (error)
-> +		return error;
-> +
-> +	error =3D asus_ec_register_serio(pdev, 1, "Touchpad", I8042_CMD_AUX_SEN=
-D);
-> +	if (error)
-> +		return error;
+In asus_ec_keys_setup_keymap(), dev->keycodemax is set to
+ARRAY_SIZE(priv->keymap) (0x40), spanning both keymap pages:
 
-[Severity: High]
-As reported by Dmitry Torokhov on v12 [1], registering the notifier before
-initializing the serio ports and without checking whether the ports are rea=
-dy
-can lead to a null pointer dereference during probe or a use-after-free
-during teardown.
+drivers/input/keyboard/asus-transformer-ec-keys.c:asus_ec_keys_setup_keymap=
+() {
+	...
+	dev->keycode =3D priv->keymap;
+	dev->keycodesize =3D sizeof(*priv->keymap);
+	dev->keycodemax =3D ARRAY_SIZE(priv->keymap);
+	...
+}
 
-In the parent MFD driver, asus_ec_probe() enables the threaded IRQ handler
-asus_ec_interrupt() before adding the child MFD devices. Once
-asus_ec_kbc_probe() calls blocking_notifier_chain_register(), an incoming EC
-keyboard or touchpad interrupt can invoke asus_ec_kbc_notify() while
-priv->sdev[0] and priv->sdev[1] are still NULL (or after priv->sdev[idx] =3D
-port in asus_ec_register_serio(), before serio_register_port() initializes
-port->lock). Passing priv->sdev[port_idx] to serio_interrupt() will then
-dereference NULL or lock an uninitialized spinlock.
+When asus_ec_keys_notify() passes data[2] to asus_ec_keys_process_key() wit=
+h a
+raw code >=3D ASUSEC_EXT_KEY_CODES (0x20), a few issues can occur:
 
-Additionally, because devm_add_action_or_reset() for
-asus_ec_notifier_chain_unregister() is registered before the
-asus_ec_serio_remove() actions in asus_ec_register_serio(), devm teardown r=
-uns
-in reverse order:
+1. If priv->ec->right_alt_pressed is true, priv->ec->special_combo_triggere=
+d is
+   set to true even for out-of-range codes.
 
-  asus_ec_serio_remove()
-    serio_unregister_port()
-      serio_disconnect_port()
-      serio_destroy_port() -> frees struct serio
-  ...
-  asus_ec_notifier_chain_unregister()
+2. When (priv->special_key_mode ^ priv->ec->right_alt_pressed) is false, a =
+raw
+   code in 0x20..0x3f passes code < dev->keycodemax (0x40) and indexes into
+   the second page (multimedia keys) in map[code] instead of reporting
+   KEY_UNKNOWN.
 
-During serio_disconnect_port(), the attached PS/2 driver sends disable/reset
-commands over I2C, causing the EC to generate ACK interrupts while priv->nb
-is still registered and priv->sdev[] holds dangling pointers to the freed
-serio ports. Can the notifier be registered after the serio ports (or gated
-on port readiness under a lock via serio start/stop or open/close callbacks)
-so that interrupts cannot reach serio_interrupt() before registration or
-after unregistration?
-
-[1] https://lore.kernel.org/r/ate5K6ZdrSoBUI08@google.com
+3. When (priv->special_key_mode ^ priv->ec->right_alt_pressed) is true, add=
+ing
+   ASUSEC_EXT_KEY_CODES (0x20) to the 8-bit u8 code overflows for raw codes=
+ in
+   0xe0..0xff, wrapping code into 0x00..0x1f (the first page of map[]) and
+   reporting the wrapped value via MSC_SCAN instead of KEY_UNKNOWN. For raw
+   codes in 0x20..0xdf, MSC_SCAN is also reported with code + 0x20 rather t=
+han
+   the raw code.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104122606.2156=
-29-1-clamor95@gmail.com?part=3D3
+29-1-clamor95@gmail.com?part=3D4

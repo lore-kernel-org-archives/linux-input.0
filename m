@@ -1,91 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793813567;
-	b=OG4FThYxbcgKrcTUs/6t6I66RSL4wlgKQvdy1FX43Kc833hDGEyRKyQd2jRTW3DVxT8D
-	 Hvbnns89kZD7z0kKcUg2DARTZgH8lomNuqld5wROpLQ2YqnLbBvx+BuX/WwoOdirgVwZg
-	 A8ZTzoOMT6H/7A6+fUKBRyaxTrlhnqVroQnNSuhdpwLdO3492e1DeCM0PB7gpXuHfLHnx
-	 +1yJzsCyettmnRaOE4JzLYk2GAHRQaMUS+tjHEGR24FWU0lXicnM/WbSmGEO2vwcOGizp
-	 4QMDVQGyo5c8R5bPVxvqtJp+VC9a6fafeGdXrpe4T1QnmxdOOcBpuxkdDVCcHrfzoHQ==
+	t=1793813667;
+	b=EzPgHRsrTruzr06knkyqrprHn1YAaG6LI6sflLAXmvusxYYBGoiTT0LGbUTqhXusZc15
+	 CIOr4O8TD4QzLdYT/4XLAcUyxpehS9R5P52hj7fQ0o7Qxpe1/Oh0jDtejP+ypSEj1O49P
+	 Sj/IwN+dQ3BTvHgGf0ZW4r3A3zQbZKKNq1/cvCAr+TEFOlRkdZVKU4t03mV7CgWt+d5jv
+	 BZj9LXoa1gNLHHjPbvuuVSx46ajqtOBf4QCPIhPeJRYlHDO9c8oL31gPMvqsMYKfgePT6
+	 D8uAu3Zj8Qpzm6jmIwYvIa1o/G15CFOiGFSQREhLpm+rMOyWMVh1A1gnaEYC/VKSWOQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793813567;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=4KWh+pCjEY3BH9ZXJBW3B3/Mt0CuTTrjLcItJI+O2b0=;
-	b=LGKzGTAo4SGnH3OPaA6NQ/5xryuvPIiKTcAJrx3bP+3N30nqjZt6NPIqXKmLV9+mK6tj
-	 tYM70qVb2sXiGN8fmEnRNCYBy30yIva6Sw1OQrgHTMSGau+YKiBqhH55Qd9NhGzKO+vL9
-	 XLfPs09dY/eD9r5nTEOSubC67yDIGWIiHDL8rtfIsAPf/TDAorHSemmk52wqK5XzpuVoG
-	 f0JC4dpV/SRj7XjrqsEFqOed90Y1EQpbj+tcRYyfko1q5zskmnYU0GwTMwXpvQ18/EdHO
-	 Y7hIrnbEC6GK5m7y7oVus3eg6v0P5OQnSLmNAqcpmaLWoZVp7mXQDqwT+eWdKmE7bnw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793813667;
+	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
+	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
+	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
+	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=AMOD33XmGyHm36xJWMnYgDFAfU9OylqTMFKngAIWEtA=;
+	b=ANXJnyy2KH1PLCKn1asFk0kvFWPvCjVeqRAJa5MlJ1gcEGtd5/w6qkRut4J9ArDtJETR
+	 bRZNNOEHJgqa9UbpMWD5Y7ZPskTK/ZYaiQYbnswIr4CG8seX+7n5iW+Hh7tuWgOiuYJ8p
+	 UNJtFcH49tzfAZWuk5buh0jhtbXnDnCu3/eMwYxhKg9a/YGIZ95bwRmpEomU3een4nTEY
+	 qWgwZ32JWftZUULYZnJLVxRAGIx+G6BvZGdqxPtAkq9kEjnQ0mYmgHgAR3RRYVDv9SrCT
+	 C8Tbdvbix+wB8fSaU1XC0Jxw0uWaShTk/sOQpP4vOA647JVqh6Wrbv17PhXAK8/aLdw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EmoIkpga;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TuIdEGHN;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649A0606B903;
-	Wed,  4 Nov 2026 17:32:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 358B5606B01C
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 17:34:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EmoIkpga
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBDFF1F000C1;
-	Wed,  4 Nov 2026 17:32:45 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TuIdEGHN
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80FA71F00A1E
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 17:34:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793813567;
-	bh=4KWh+pCjEY3BH9ZXJBW3B3/Mt0CuTTrjLcItJI+O2b0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=EmoIkpga02mtSmXYZVQn9du3LHYfYYz+585s/PS+UgjsXg/FCvOmrZxU5rFUHZ4Kc
-	 RW4rhqpS4n3dFfRKO8x+a/rqSXZeMNtqoJk/PAMvtTPHidldiR0RNWuPhkUl5Udryh
-	 K0OZRedSeEqK4PfWHQTrv308SVTAoSNO8pALhkzOLoGRqIxAXKmzlYLtjaaWK21Afk
-	 g9ZdhfQJD7HMHHghQ3kYgQdyrMOv9/7V31ENvoFGNFW4fLM8UomjBlAwSX6CbB6Whr
-	 eQxEIfy92LUpsJv+hK5fIokNxiCsnOkTzS6xufVPBmdQ1YFlhlqo+6SIaWZWwTuraz
-	 PbT3jpG2TrNIg==
-Date: Wed, 4 Nov 2026 18:32:43 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Vadim Fedorenko <vadim.fedorenko@linux.dev>, 
-	Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>, 
-	Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, 
-	Linus Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
-	Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Olivier Moysan <olivier.moysan@foss.st.com>, Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>, 
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thierry Reding <thierry.reding@kernel.org>, 
-	Jonathan Hunter <jonathanh@nvidia.com>, Fabrice Gasnier <fabrice.gasnier@foss.st.com>, 
-	Lee Jones <lee@kernel.org>, Srinivas Kandagatla <srini@kernel.org>, 
-	Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, Ulf Hansson <ulfh@kernel.org>, 
-	Hans Ulli Kroll <ulli.kroll@googlemail.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Vinod Koul <vkoul@kernel.org>, 
-	Neil Armstrong <neil.armstrong@linaro.org>, Manivannan Sadhasivam <mani@kernel.org>, 
-	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Kunihiko Hayashi <hayashi.kunihiko@socionext.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
-	Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
-	Lukasz Luba <lukasz.luba@arm.com>, Orson Zhai <orsonzhai@gmail.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
-	Paul Kocialkowski <paul.kocialkowski@bootlin.com>, Shawn Guo <shawnguo@kernel.org>, 
-	Chanh Nguyen <chanh@os.amperecomputing.com>, Alistair Francis <alistair@alistair23.me>, 
-	Julius Werner <jwerner@chromium.org>, Paul Cercueil <paul@crapouillou.net>, 
-	Dmitry Osipenko <digetx@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, Ray Jui <ray.jui@broadcom.com>, 
-	Scott Branden <scott.branden@broadcom.com>, dri-devel@lists.freedesktop.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, chrome-platform@lists.linux.dev, 
-	linux-gpio@vger.kernel.org, imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-hwmon@vger.kernel.org, linux-iio@vger.kernel.org, 
-	linux-stm32@st-md-mailman.stormreply.com, linux-sound@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-tegra@vger.kernel.org, mfd@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-mmc@vger.kernel.org, linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
-Message-ID: <20261104-vigorous-flat-dingo-3e5bd2@quoll>
-References: <20261102135330.2493332-1-robh@kernel.org>
+	s=k20260515; t=1793813666;
+	bh=AMOD33XmGyHm36xJWMnYgDFAfU9OylqTMFKngAIWEtA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=TuIdEGHN+tlSpGP2tguvWW7kLlUQWLPYjJKJSOdpszP2pLOR7WrjdSkZZ/grMbqbK
+	 +lTr56mLL+WOdircBkePq+AP1VJ8IkK1jD+a+/cNVkOM5lTrA3ra2sVKICfCT0wVFa
+	 G7aUxkwbEYQTgmz4D8gML0l5sd+AeXfF/B+yunRHPHSfp3DhyhKMZ2MO8cmr1H2mgR
+	 d2oAbezChMlOpKySp6bD7YhtrL6rY8cs9aS9v0EePA62cXO8uXedgf6WJ2JQI3RfVB
+	 sVx/vx3dq4DLpiMPLoF4zMVjw7jCtMETWhYAirt1guo5pK4CX4JT893wQit46xG65K
+	 Y99CMV8/O64SQ==
+Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-5eafb65e169so599087e0c.1
+        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 09:34:26 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvByLI3OYWB2rVnhzTKc+DJXUg+yy0qOP2ugzawWaR02IXB/UNxKXz1QY3tIOaNM2ekuUBuuWferAe3Uu2A==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8WsP0k42RSrd1+LWdo67Ud2gfxPNViKz0W8BIiR6Rf0hm+6vy8
+	4hj/P7Cndzg91/+PTw1TKGaMvirHQ73R2OkMq5PptlhXmmguBnvPT3VqyjNBrhyZX0O1piuxg9Q
+	1nRnhgF8QmK6bW1jdeskjcBwmvKnrb0U=
+X-Received: by 2002:a05:6122:180a:b0:5ec:5f1b:f725 with SMTP id
+ 71dfb90a1353d-5ec689c4d7fmr8231097e0c.23.1793813664918; Wed, 04 Nov 2026
+ 09:34:24 -0800 (PST)
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -95,59 +59,162 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20261102135330.2493332-1-robh@kernel.org>
+References: <20261104-work-procfs-bugfixes-v2-0-bbf7d5546809@kernel.org> <20261104-work-procfs-bugfixes-v2-4-bbf7d5546809@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-4-bbf7d5546809@kernel.org>
+From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
+Date: Wed, 4 Nov 2026 18:34:10 +0100
+X-Gmail-Original-Message-ID: <CAJZ5v0gnefKDcBnLzxxXPLJkYRHN9pbYH9WVFAoUGuCSOPcW1A@mail.gmail.com>
+X-Gm-Features: AclHuK8WGpfSf3TpV-YfKcvDlenGAnmL4yQTyeV9z6QpHJtyVq4G8L84EjJ5Q2g
+Message-ID: <CAJZ5v0gnefKDcBnLzxxXPLJkYRHN9pbYH9WVFAoUGuCSOPcW1A@mail.gmail.com>
+Subject: Re: [PATCH v2 04/51] PNP: isapnp: don't go on when isapnp_cfg_begin() fails
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, 
+	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, 
+	Josef Bacik <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, 
+	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, Greg Kroah-Hartman <gregkh@suse.de>, 
+	Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Jan Kara <jack@suse.com>, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
+	platform-driver-x86@vger.kernel.org, coreteam@netfilter.org, 
+	kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net, 
+	jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, 
+	samba-technical@lists.samba.org, sparclinux@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+	linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 02, 2026 at 07:53:22AM -0600, Rob Herring (Arm) wrote:
-> Unit-addresses by default (and most commonly) are hexadecimal. There's a
-> number of cases using decimal patterns. Fix all of them, limiting the
-> pattern to match the 'reg' limits if there are any.
-> 
-> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
+On Wed, Nov 4, 2026 at 6:30=E2=80=AFPM Christian Brauner <brauner@kernel.or=
+g> wrote:
+>
+> isapnp_cfg_begin() refuses a logical device number above 10 and a bad
+> card number with -EINVAL before it takes isapnp_cfg_mutex. The callers
+> that read and write the device's configuration, the proc file included,
+> don't look at that: they go on talking to whatever device the card
+> currently has selected and then unlock a mutex they never took in
+> isapnp_cfg_end(). isapnp_create_device() hands out logical device
+> numbers without a bound, so a card with twelve or more logical devices
+> gets there. Return the error instead.
+>
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+
+Acked-by: Rafael J. Wysocki (Intel) <rafael@kernel.org>
+
 > ---
->  .../bindings/display/xylon,logicvc-display.yaml      |  2 +-
->  .../devicetree/bindings/dpll/dpll-device.yaml        |  2 +-
->  .../bindings/embedded-controller/google,cros-ec.yaml |  4 ++--
->  .../intel,ixp4xx-network-processing-engine.yaml      |  2 +-
->  Documentation/devicetree/bindings/gpio/gpio-mxs.yaml |  4 ++--
->  .../devicetree/bindings/hwmon/maxim,max31790.yaml    |  2 +-
->  .../devicetree/bindings/iio/adc/st,stm32-adc.yaml    |  2 +-
->  .../bindings/iio/adc/st,stm32-dfsdm-adc.yaml         |  6 +++---
->  .../bindings/input/touchscreen/cypress,tt21000.yaml  |  2 +-
->  .../memory-controllers/ddr/jedec,sdram-channel.yaml  | 12 ++++++------
->  .../bindings/memory-controllers/ingenic,nemc.yaml    |  2 +-
->  .../memory-controllers/nvidia,tegra20-emc.yaml       |  4 ++--
->  .../devicetree/bindings/mfd/st,stm32-lptimer.yaml    |  2 +-
->  .../devicetree/bindings/mfd/st,stm32-timers.yaml     |  2 +-
->  .../devicetree/bindings/misc/qcom,fastrpc.yaml       |  2 +-
->  .../bindings/mmc/mmc-controller-common.yaml          |  2 +-
->  .../bindings/net/cortina,gemini-ethernet.yaml        |  2 +-
->  .../bindings/phy/brcm,cygnus-pcie-phy.yaml           |  2 +-
->  .../devicetree/bindings/phy/brcm,sata-phy.yaml       |  2 +-
->  .../bindings/phy/socionext,uniphier-usb2-phy.yaml    |  2 +-
->  .../devicetree/bindings/sound/qcom,q6asm-dais.yaml   |  2 +-
->  .../bindings/sound/qcom,q6dsp-lpass-ports.yaml       |  2 +-
->  .../devicetree/bindings/thermal/sprd-thermal.yaml    |  2 +-
->  23 files changed, 33 insertions(+), 33 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/display/xylon,logicvc-display.yaml b/Documentation/devicetree/bindings/display/xylon,logicvc-display.yaml
-> index 76b804b7c880..3dd54636d23d 100644
-> --- a/Documentation/devicetree/bindings/display/xylon,logicvc-display.yaml
-> +++ b/Documentation/devicetree/bindings/display/xylon,logicvc-display.yaml
-> @@ -123,7 +123,7 @@ properties:
->          const: 0
->  
->      patternProperties:
-> -      "^layer@[0-9]+$":
-> +      "^layer@[0-9a-f]+$":
-
-These two lines are looking good.
-
-Andy, it's okay if I give Rb tag?
-
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-
-Best regards,
-Krzysztof
-
+>  drivers/pnp/isapnp/core.c | 16 ++++++++++++----
+>  drivers/pnp/isapnp/proc.c |  5 ++++-
+>  sound/isa/es18xx.c        |  6 +++++-
+>  3 files changed, 21 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
+> index 219f96f2aaaf..3591a2791c1a 100644
+> --- a/drivers/pnp/isapnp/core.c
+> +++ b/drivers/pnp/isapnp/core.c
+> @@ -853,7 +853,9 @@ static int isapnp_get_resources(struct pnp_dev *dev)
+>
+>         pnp_dbg(&dev->dev, "get resources\n");
+>         pnp_init_resources(dev);
+> -       isapnp_cfg_begin(dev->card->number, dev->number);
+> +       ret =3D isapnp_cfg_begin(dev->card->number, dev->number);
+> +       if (ret)
+> +               return ret;
+>         dev->active =3D isapnp_read_byte(ISAPNP_CFG_ACTIVATE);
+>         if (!dev->active)
+>                 goto __end;
+> @@ -887,10 +889,12 @@ __end:
+>  static int isapnp_set_resources(struct pnp_dev *dev)
+>  {
+>         struct resource *res;
+> -       int tmp;
+> +       int tmp, ret;
+>
+>         pnp_dbg(&dev->dev, "set resources\n");
+> -       isapnp_cfg_begin(dev->card->number, dev->number);
+> +       ret =3D isapnp_cfg_begin(dev->card->number, dev->number);
+> +       if (ret)
+> +               return ret;
+>         dev->active =3D 1;
+>         for (tmp =3D 0; tmp < ISAPNP_MAX_PORT; tmp++) {
+>                 res =3D pnp_get_resource(dev, IORESOURCE_IO, tmp);
+> @@ -936,9 +940,13 @@ static int isapnp_set_resources(struct pnp_dev *dev)
+>
+>  static int isapnp_disable_resources(struct pnp_dev *dev)
+>  {
+> +       int ret;
+> +
+>         if (!dev->active)
+>                 return -EINVAL;
+> -       isapnp_cfg_begin(dev->card->number, dev->number);
+> +       ret =3D isapnp_cfg_begin(dev->card->number, dev->number);
+> +       if (ret)
+> +               return ret;
+>         isapnp_deactivate(dev->number);
+>         dev->active =3D 0;
+>         isapnp_cfg_end();
+> diff --git a/drivers/pnp/isapnp/proc.c b/drivers/pnp/isapnp/proc.c
+> index c1f6e6bd0eb2..b3abab24050b 100644
+> --- a/drivers/pnp/isapnp/proc.c
+> +++ b/drivers/pnp/isapnp/proc.c
+> @@ -25,6 +25,7 @@ static ssize_t isapnp_proc_bus_read(struct file *file, =
+char __user * buf,
+>         struct pnp_dev *dev =3D pde_data(file_inode(file));
+>         int pos =3D *ppos;
+>         int cnt, size =3D 256;
+> +       int ret;
+>
+>         if (pos >=3D size)
+>                 return 0;
+> @@ -37,7 +38,9 @@ static ssize_t isapnp_proc_bus_read(struct file *file, =
+char __user * buf,
+>         if (!access_ok(buf, cnt))
+>                 return -EINVAL;
+>
+> -       isapnp_cfg_begin(dev->card->number, dev->number);
+> +       ret =3D isapnp_cfg_begin(dev->card->number, dev->number);
+> +       if (ret)
+> +               return ret;
+>         for (; pos < 256 && cnt > 0; pos++, buf++, cnt--) {
+>                 unsigned char val;
+>                 val =3D isapnp_read_byte(pos);
+> diff --git a/sound/isa/es18xx.c b/sound/isa/es18xx.c
+> index 3cadbf7cf238..de1eda5a0656 100644
+> --- a/sound/isa/es18xx.c
+> +++ b/sound/isa/es18xx.c
+> @@ -1950,7 +1950,11 @@ static int snd_audiodrive_pnp_init_main(int dev, s=
+truct pnp_dev *pdev)
+>         /* ok. hack using Vendor-Defined Card-Level registers */
+>         /* skip csn and logdev initialization - already done in isapnp_co=
+nfigure */
+>         if (pnp_device_is_isapnp(pdev)) {
+> -               isapnp_cfg_begin(isapnp_card_number(pdev), isapnp_csn_num=
+ber(pdev));
+> +               int ret =3D isapnp_cfg_begin(isapnp_card_number(pdev),
+> +                                          isapnp_csn_number(pdev));
+> +
+> +               if (ret)
+> +                       return ret;
+>                 isapnp_write_byte(0x27, pnp_irq(pdev, 0));      /* Hardwa=
+re Volume IRQ Number */
+>                 if (mpu_port[dev] !=3D SNDRV_AUTO_PORT)
+>                         isapnp_write_byte(0x28, pnp_irq(pdev, 0)); /* MPU=
+-401 IRQ Number */
+>
+> --
+> 2.53.0
+>
+>

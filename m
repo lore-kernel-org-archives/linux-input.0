@@ -1,55 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793797173;
-	b=TOKkk8i8P/vNvY5oc7c6hiVAjjI380fsuquc9+lhph4avMFiF/DCtnQkVG5yrlwykDyz
-	 qmDm3g+Sp75z9Uh8dKLpNCCmCv/FpRxRVmP/8YpRy7cBTy7YCF6hoGnpiGa2mTdheVtHE
-	 9yEP4nLm173JWj7jop6uRYWLwuxV9lRI1K9VF7Qk88Cdfir4yhmMVGPzrp3g5BFgj/X4Z
-	 2zbn6O/jZQBH8bQ6Pa84rukhArv12zA0lDJgxSzUm+Sr6ud+T5ublRMl55is3UCYy2dwt
-	 OY93daXfAw2invg6HQQXme3+4YD9PvKLwmp9SVtTk0SgS/h/BEdMEWWv3QEsvGxHNYg==
+	t=1793797246;
+	b=iqnsP/wtrhjmzQr7oCUH8HDNJgwO8j58aG4Z0i6rySTe4FFLjZZuXZkZGxzyl8U2/rnq
+	 9BemSTVY47AvfA7CZ7yIoIiI6ELzbxEfjWXIQE5N7B0EmrL6vHs5JCQUK40MpPYtm5KV1
+	 iyScJj+70wOWBz5BPRAPNc8+7xQ5fSVFfitdDcf8b8vZB6K45VLAe9Ka80JPAM+lo096b
+	 GAMA3+rs7vhR+ao+D2IgccG/dUPi6Ez7KPFnjpyLt0iAM/M9hHHRSDjWCgZe7yU6wPRg6
+	 z8wGpY2c+fgsR4o33I0UPLKZgahmokppEOzCu6FjdFb1w5A+V1ByKpsF6FlJ38jYPvg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793797173;
-	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=FXIxVU2ErnALAGekxCaTow6hX1frtF5kYcG5ZZqHi8U=;
-	b=HQSeiC3GkFzRqXh7arbtqnXPgqEsKFLqNqz1fCxTIWuqXpuSXPB4UBg2rVhnVGPH1rAo
-	 04CJXSokRNQL4/Rj7Q7f9p/RXQHdwUMIAqguY1ZLcVrpzw51k1RYkbFz6TYGY/U9dAKaG
-	 BoPi9D1YXIofQgo0SE89/E2HblgmyQoqI+Vkaaxszs4N9JCF0p6EM/AOe3eko2X3cCAVJ
-	 5OJIHZN9JuyHs6fXmBHCO6frVjFhy/cITLT3V5B0K2BxfGlklYXaQVM6/ZEWG10Jg/Vpu
-	 4l03euUyfhPogukHOJUp7yu5iaNVl5WjFI8DgyOpWbw97AQgD7+5TCCki86sB8KA9uA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793797246;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=UD40//OcIuMR1lC0i06JFbRnW3uRqKUV031SU597fIQ=;
+	b=cmzQCXyhy23Ip2mCmaL81pzzhq6O+OL53NK/1i9OPuICwGoifqXuF4mcIEcWzT9uxGCZ
+	 KDAWb4vhe/yti0vhDLS3M19LhevV4bPJmAhFvcUePu43Wa8t+HcD8BJDwPQ4D82mEIBOs
+	 bIYlTLRyCKtHdKSSR+UKRKoglEJRxLy/QAjrut3boWlKfnVK8gMR5xrllAOQIiplK+9hq
+	 hr4C19lkLczJqVEk1HJKO3MQxEByKFJipmIRME/KApMDdxVzMQrNcueprM4M9LQt/w+F6
+	 eZDXLb4AGfw3Yx3sQMdQ7rvu4joSJlwVLJ+Ynur2fLwm5l9xqzy/tQ9hKPiFPwZMXVw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aDFAnskj;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eDWfVok4;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 634C4606A32C
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 12:59:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23EE1606D803;
+	Wed,  4 Nov 2026 13:00:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aDFAnskj
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A7C51F0093A
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 12:59:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eDWfVok4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 766361F00A17;
+	Wed,  4 Nov 2026 13:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793797173;
-	bh=FXIxVU2ErnALAGekxCaTow6hX1frtF5kYcG5ZZqHi8U=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=aDFAnskjLaH9szPZ+eelP8i0JxzV/ADplIik6LrHEHu3VibxmCnue2v8685Le0+dK
-	 cobUa9XuLqBS2tW+SnBCUvh8cQhdHgxXdtvxqY6d481KmL2ng4MFnFV/wR8o0C6o01
-	 btC+5MRcc1xptAPJOMRCwpQXGVWkLgyO7aE/qFzQZmJnA/7uvOuTZ5cXFi4TtKRbdN
-	 uQpNzORgEbX5APoBw/97Us7h3e9+6hbuS+tn9irYEqJKgjXIEhDnZGwPpRl8fw+BDJ
-	 cMQ6mZyfqIT1yNPf27APP/9/R6NH1INYXZdj6jZY+QL5rJzmmIH1EVVn/QwwX7d8pI
-	 Ffe0NU/NIRZ6Q==
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5bfbc25a76aso2106733e87.0
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 04:59:32 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AKwUvBynQQwjwv8Rq3OLWYTH+/ST7Xaa6BJV+uTie+XE95V7MaTJSg/tUwlQ5WVf5gmnbdCYFaehG1N5rYX/Wg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9IV2MIRxPlPIv25UyHw8Q8uBEG0cSAA25XMc3kKzJndPLR7cDe
-	3FDTPm7edbKYlks8B4r/Xq8WiBpTAOvTA+DjeWBCxC/5JtVX73fJQR39WbghLnw8CGRgfnYQG0U
-	QGbgLMIJHBdUqrk7AYkWo5sNK4BW0AyU=
-X-Received: by 2002:a05:6512:104b:b0:5bf:e241:cd4e with SMTP id
- 2adb3069b0e04-5bfe241ce90mr4030103e87.13.1793797171870; Wed, 04 Nov 2026
- 04:59:31 -0800 (PST)
+	s=k20260515; t=1793797245;
+	bh=UD40//OcIuMR1lC0i06JFbRnW3uRqKUV031SU597fIQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=eDWfVok4bq4ZGGCxgS3htSnfDgiy/4J0nrfSxz2ELTspb+LhMpNImx3ew1krnRSO0
+	 CYMtugg+D/I/qnAO4QtqmQeD2xk2mL0QF2VABQH/L2VPjOE9PypiJeRnPqmXf2Kbdj
+	 M9cjz6b4r0Pfh2xvROzYotZLrCPmB6Ew2TLt0bkoc2W9RbMEwKd1AVFdvXvwVWCFT3
+	 ceWsuOJdNttqDWWQ+wsXHiMI3LoX8Yq4J74FK6hv1lFz/bHjgGml56hvjWllwDfCq8
+	 edUe0mKlAmvsbFwp/N2Pn+/fh3gXq8W6ozahMVK0oUqypiPMQtstM7nWgC5KP3NRoa
+	 OgPDtePLycgjQ==
+Message-ID: <sashiko-outbox-197316@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RFC 1/3] dt-bindings: input: touchscreen: edt-ft5x06:
+ Add wakeup gestures
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "David Heidelberg" <david@ixit.cz>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
+In-Reply-To: <20261104-ft5x06-double-tap-v1-1-5a1bd80449cc@ixit.cz>
+References: <20261104-ft5x06-double-tap-v1-0-5a1bd80449cc@ixit.cz>
+ <20261104-ft5x06-double-tap-v1-1-5a1bd80449cc@ixit.cz>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 04 Nov 2026 13:00:45 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -58,34 +60,79 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
-In-Reply-To: <20261021015004.1537738-1-dmitry.torokhov@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 4 Nov 2026 13:59:17 +0100
-X-Gmail-Original-Message-ID: <CAD++jLkRkeftTeknrSVT9MGqA2Ep7rJ01eW+s2oFw2rj+h5HJg@mail.gmail.com>
-X-Gm-Features: AclHuK9FrROF_lbQblFxEWPuulWTuq7jZ-GLjM6cpqXKsEAap45D_vvWiQC8Ya4
-Message-ID: <CAD++jLkRkeftTeknrSVT9MGqA2Ep7rJ01eW+s2oFw2rj+h5HJg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] Input: soc_button_array - use resources to set up IRQ
- info for gpio-keys
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hansg@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Andy Shevchenko <andy@kernel.org>, linux-input@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Oct 21, 2026 at 3:50=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] dt-bindings: input: edt-ft5x06: event-* nodes encode OS policy i=
+n DT
+--
 
-> In preparation for transitioning the driver to use static device
-> properties instead of platform data to configure gpio-keys driver,
-> switch to using IRQ resources attached to the gpio-keys platform device
-> to communicate the IRQ selection.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+commit 6f5aa6f1554c8cb1ae88e2ea6e589e4befad85e1
+Author: David Heidelberg <david@ixit.cz>
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+dt-bindings: input: touchscreen: edt-ft5x06: Add wakeup gestures
 
-Yours,
-Linus Walleij
+This patch adds event child nodes to the edt-ft5x06 touchscreen binding
+to describe firmware wakeup gestures and map them to Linux input keycodes.
+
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x=
+06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.ya=
+ml
+> index 68b2f16016543..bfc540665a2d2 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> @@ -111,6 +111,25 @@ properties:
+> =20
+>    interrupt-controller: true
+> =20
+> +patternProperties:
+> +  "^event-(tap-double|swipe-(up|down|left|right))$":
+> +    type: object
+> +    $ref: ../input.yaml#
+> +    description:
+> +      A gesture the controller keeps detecting in its gesture mode, repo=
+rted
+> +      as a key on a separate input device. Gesture mode is entered when =
+the
+> +      touchscreen input device is closed or the system suspends, provided
+> +      the device may wake up the system. Only controllers whose firmware
+> +      implements the gesture registers support these nodes.
+> +
+> +    properties:
+> +      linux,code: true
+> +
+> +    required:
+> +      - linux,code
+> +
+> +    additionalProperties: false
+
+[Severity: Medium]
+Do these event-(tap-double|swipe-(up|down|left|right)) child nodes encode
+OS/userspace policy and Linux driver details rather than describing the
+hardware?
+
+Unlike physical buttons, printed touch-overlay segments (touch-overlay in
+touchscreen.yaml), or trackpad controllers with per-gesture hardware
+sensing and timing tuning registers (such as azoteq,iqs7211.yaml, which
+configures hardware duration, distance, angle, and threshold registers per
+gesture), a touchscreen panel has no board-specific physical wiring or
+markings that determine whether double-tap or directional swipe wakeup
+gestures exist or what keycode they map to.
+
+Whether the touchscreen interrupt can wake the system is already described
+by the standard wakeup-source property, and whether the controller
+supports gesture detection is determined by the controller compatible and
+firmware. Choosing which wakeup gestures are enabled during screen-off or
+system suspend and which Linux keycode (such as KEY_WAKEUP) they emit is
+runtime OS/userspace policy rather than static hardware description.
+
+Furthermore, the description documents Linux driver implementation details
+(reporting the gesture on a separate input device and entering gesture
+mode when the touchscreen input device is closed or the system suspends),
+whereas Documentation/devicetree/bindings/writing-bindings.rst specifies
+that bindings should describe hardware rather than OS or device driver
+behavior.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-ft5x06-dou=
+ble-tap-v1-0-5a1bd80449cc@ixit.cz?part=3D1

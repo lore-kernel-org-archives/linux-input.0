@@ -1,57 +1,79 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793796187;
-	b=CfGHhYqz9Xl66eIRub30hL2kleuP8DZ/SF2Nhes0s65IpEBORld2WfhEqc7AHxR07iG0
-	 LfMKGWjlr6B/xCCvuG1jnoULIMyXaCi5MPX+ge29DnElKNMR7YvlbidK353qWIggf3X3U
-	 xyC/Xs0+oX5qCIaU6Eq7tkFA44PpWNfQHHeDcQC5H1Vr4x0T0D1m48l8SARROR8ICJtii
-	 JLRok/tfXsddkLJB0DQbeRlffFJK0gDNNqjidvbfj7RlW9EQ3GejVOW6lx0ODTZDuZWDX
-	 0tH9926J7mJJn2PzeWt/Fn4FlQQ/y3Urr+OKtt0POO79SJGD+qCMkc5Fv13vOEV2Z2w==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793796187;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=AeuiRmVTbewkewJs2xRMNyhsEitP00wnZ7/PLCycRnM=;
-	b=fhgtAOviDcJZ0qlYxuHtCCVAyt/prSYhvQvf6dKCcXUbsmxLlFcuKitFpyqDsW2pWi1/
-	 Ww4cnbBMz3DF4MHMa9kjK1pKAtdkGSkJtdFwYbEq/h1yEKm4VZxT90th89NyTwCVxfsZa
-	 xiY4QPbe+gxFgR+iTy8aHAwzqfdJrfquoFyGNQMi5H8vqDP8oVNPLkNZI27+3yC5QQiBX
-	 Q5lNvco3RVZlwZ3RsHC6JwFYjM9c4scam3EsJNmkiYJt6wE8J/NjhOiiEQvS29I0uQ3Fy
-	 RYflq69lZYPHyYcYTToOVw6tIJ0Thb/kylA5faVvNK3d0wmm5Wn88OlMOrjb+7JC+eg==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LzwmnJsV;
-	arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793796943;
+	b=X37dai5K7T7vGfO2P2ANv+8xcal91YSwQGCvG4yru8JaQ0PueDcWvMy61SbnzeySUhBX
+	 Fo7mdWGc7iMb1Y9kA+h4O6IYhqGXdA5O4VMsd75zN7ghli2pvYQKqh+tTSCNgn+E+a+4X
+	 h5FEhkT48DPAdQqW5UCxPuLGYELHWUJ2R5LwvgeIYo3qsNjb3Z6AMO8y8BRvZVeZXhsZj
+	 3fLaNDQ+U4HSZSIA3VCuID/xhX1wvmAT2lgCsWcAebN8W5PITDPy0EXlUsVAdPryCk58I
+	 eUzRhgoARLfFPYARgXbC/6RqZmPpimeU5pnLr4LJQMyhjbeWxo4Iur/bXTs61qyVW4A==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793796943;
+	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=qi8G9UvFtYoe7/NNMKSW69kt3Fc1EXVO1pwg69nVuFo=;
+	b=hEyufO3c+2jjf+p/+8R3nMztRlUA7g3Uqmj0JHM7bdR04C4tFq/FnwF8AEEyrBax2Ws3
+	 5j5tmcP+WVSKzXYP1uro8Fnmq/Yqwc6GBCg87T5wgyblE5rwcUUjLG3Q5TAYL7u44IDB9
+	 Lei61pm7dVEzeXjRAvWNY7QxOEIkDWo7SUlTU9O2NWv59Zs7eXlEIetx0sCR4QzSek4Qj
+	 CFvoTMHmjFjU7MvkBwuELLHewE5nscu846gvQAQYyBMMSpDJPAhqGaV5xLXu3+Ddwm4Ck
+	 yX3jE7tGAmlinCGvUsbgyQTjl5GQbKKVomJEKefEeSZ3Xik/Ma5TDG+1RxGeo0/p9Rg==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MVdFEz7d;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B84F606A326;
-	Wed,  4 Nov 2026 12:43:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A056E606A329;
+	Wed,  4 Nov 2026 12:55:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LzwmnJsV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC1641F000C1;
-	Wed,  4 Nov 2026 12:43:06 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MVdFEz7d
+Authentication-Results: smtp.kernel.org; arc=none smtp.remote-ip=100.80.115.77
+ARC-Seal: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256; cv=none;
+	t=1793796943;
+	b=gAjlQyQKkYX3VZt594y6wxQGhNFE4NBjj9hTdXX5nRe8lD4kfD5lr9kG1pGLG4UkOWD7
+	 yV2Aq0LpNf696j/IYXn8aMM70iAFtGygLvmFrQVynAt+3V2+v65ceRt8xad7AjD/A72pF
+	 YoQgvEqbMVY1lH3PisulhlQVaRX7cI+o4+nDrYKe79eVWkY0VC26Mi/0inD61jm4nOX2B
+	 JNDBmHSYlnzIKN7HWZcoN2v3q6B0Id797U9V1NAjc5h3j9jkrmfhlBdy16TpLcD3/XZD9
+	 SoLc/28cAqSvLgQLos7gGv54tqH6tiADCYXmtLM+C0kmDuR1OgjN//LeVLbVbk8BBvA==
+ARC-Message-Signature: i=1; d=kernel.org; s=arc20260519; a=rsa-sha256;
+	c=relaxed/relaxed; t=1793796943;
+	h=DKIM-Signature:Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Message-Id:References:In-Reply-To:To:Cc:X-Mailer:
+	 X-Developer-Signature:X-Developer-Key:X-Endpoint-Received:
+	 X-Original-From:Reply-To:Content-Transfer-Encoding;
+	bh=qi8G9UvFtYoe7/NNMKSW69kt3Fc1EXVO1pwg69nVuFo=;
+	b=MNsLESujETidpsWGLoGZ2oKtTKcEm5Fkfm5raBkcnZ0KUscHgp1eONLqVG8SL8hLPh30
+	 LMorCwev8rREH2BAZZRetBe/DViwePVol2F9zHy9H68Ek+me/KGijaXIMzXpQZioQW1c3
+	 kvibBTPpYv/CAXvTGLpJeTGPogtLLCONdi11YtNJYxeozkerP1cJqNsEiBxMbA0qhUwJS
+	 xEs6aEaw/bJK9/+q0HbWKzHZVvAqdSkFHHcjkGR/V1aEHBeL1kN56/Q12sAL+oK7SHb1y
+	 pJWiujwWqkn1P0aVa7UU4UYc3G0FrSPfnk6IyMkCB87qq+wG4tMstlwvCY5wmfBdgtw==
+ARC-Authentication-Results: i=1; smtp.kernel.org; 
+	arc=none smtp.remote-ip=100.80.115.77
+Received: from lkml.kernel.org (nexus.subspace.kernel.org [100.80.115.77])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by smtp.kernel.org (Postfix) with ESMTPS id 5537D1F00A02;
+	Wed,  4 Nov 2026 12:55:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793796187;
-	bh=AeuiRmVTbewkewJs2xRMNyhsEitP00wnZ7/PLCycRnM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LzwmnJsV0E/L2zbeZJT483z8oZuOBlyAA8wmFuqC0z8p4eAxwEDoQj5LeID+9Iv6/
-	 AUtuQvb4XJCC0qhH30oQfRxjGodq05EPfMeZv6SNS7NN3+THjxWALZIZKD2D+j0fe1
-	 8SHzYFKGISjKWSYpaCCd8Hop8j3QKkjm/3X9XIAmjrv+jTwO4V+6wheEJbz24T3ZxG
-	 Q9ceAQb5CXLKJZPJYiidNxf8s20u9oNDls8VDBFF/a5QOYfp9OG73ILOm1tf/zG8KQ
-	 2Iz9bUqJCEXgWJWd2tMhB4JjUKKVJBzLMoBdoObnDlcr70ofb0Gl1Y6rv5CG2TcCih
-	 9g3bMRS4C02+g==
-Message-ID: <sashiko-outbox-197285@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 2/7] mfd: Add driver for ASUS Transformer embedded
- controller
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Svyatoslav Ryhel" <clamor95@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20261104122606.215629-3-clamor95@gmail.com>
-References: <20261104122606.215629-1-clamor95@gmail.com>
- <20261104122606.215629-3-clamor95@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 12:43:06 +0000
+	s=k20260515; t=1793796943;
+	bh=qi8G9UvFtYoe7/NNMKSW69kt3Fc1EXVO1pwg69nVuFo=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To;
+	b=MVdFEz7dYH0yB+r3y2TT/KjcqCXOoaPFdgMDpJwU0JP1q8jOgMH7JLHklZMXpI2w8
+	 qVfixBnjyHUe1K9ZiLOqBrM50ciffBz8+897/GuX7gQ9ZWo7tvYDsYtx+vpdZ+B3z+
+	 4GljQfYdceHkzz66fP7EYw9yt52EJ0sK/LByJr9ff6+MdkStlCwzuXddoTXmMBlQrH
+	 3EJD9Qxcvv2qWmyXILQO8kxvxYrM85NoB/84+oqxqBsCHC8Pt6YJEjoMt4WWh5dHqT
+	 B8o/8uhvTjszZrRF/4lDvHyTg4qnU+UrKfCDsoH8pDo4UIySb4dtcYpHvtgc0pu/qb
+	 seQ8KH76Jx8wg==
+Received: from nexus.subspace.kernel.org (localhost [IPv6:::1])
+	by lkml.kernel.org (Postfix) with ESMTP id D4CE946E3D;
+	Wed,  4 Nov 2026 12:55:41 +0000 (UTC)
+From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
+Date: Wed, 04 Nov 2026 13:54:45 +0100
+Subject: [PATCH RFC 3/3] arm64: dts: qcom: sdm845-shift-axolotl: Wake the
+ system on a touchscreen double tap
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,257 +82,82 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Message-Id: <20261104-ft5x06-double-tap-v1-3-5a1bd80449cc@ixit.cz>
+References: <20261104-ft5x06-double-tap-v1-0-5a1bd80449cc@ixit.cz>
+In-Reply-To: <20261104-ft5x06-double-tap-v1-0-5a1bd80449cc@ixit.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Abel Vesa <abelvesa@kernel.org>, 
+ =?utf-8?q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+ phone-devel@vger.kernel.org, David Heidelberg <david@ixit.cz>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1038; i=david@ixit.cz;
+ h=from:subject:message-id;
+ bh=gVCDyYfuQzZ+YQquXafcJW7FFenl4GNi6oZKBwhfrWI=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBq6ytMe815RX1a0N0eshGYgGeLRlEwiMcSDon56
+ mBRBAXxnT6JAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCausrTAAKCRBgAj/E00kg
+ cqm4D/9hDSLf2LwEVC9LRzcuRML9wLXa9giF1R67yIzc+wlg0RuW6V+WNfwYs2VAWREjIsYemqx
+ 1RwzoA46JMZEhNgxSxM8hGauxekMiuuJ76lBpBg2hiRIo78V8sdjiR3S2VftxQUzry2IhDlDO5X
+ q4yRTKnaknvOTBIy/dQsldPRWqusokHEf6Fif/HnE3MUxSDcApky/o+ZaEZvgr4k1ODn3DbQVZ/
+ ygwhqwH0HmP382ABkLUfQ0LEV+Ml2W1mv//ftrj78qlcpMFAKbixuM6Ssz4vR+JssMW110XmgYZ
+ Z6t/7zwotfdbfd61wLiGnLeyGlRhNEhMn6elfCiFXR0HEUW0YVyz9SCNv0h7tEnTP/fXV0sh+DD
+ wIDpNF73S6xMNjZ1giIi+BFu2G1cI8HwUdHnDoZtImte4AtfDhoUi9ECq4a6DOmjf0U1KLiQ47h
+ NBWSPPWMqbi7IFxlEK/B8AyqNhy4GTcvYBa3DJ6zDci72pmftDYF1adtMVT545gnXcxkP1BpQCD
+ sGvCAU8c1xhr6TF6lWPBTEexm6axM/9Xr8Hc+1pLmNgwjTFURn3zXCowdiBL3+Fidi2263oKA3T
+ GtgQOdnsDHJF0lMg7owte2up+yHxR6txVhA+Hit+o6UxTYeudJM+nH6qfSzsIcNS9E1uJXTqy8P
+ xdTasBdQuiARQPg==
+X-Developer-Key: i=david@ixit.cz; a=openpgp;
+ fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
+X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
+X-Original-From: David Heidelberg <david@ixit.cz>
+Reply-To: david@ixit.cz
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] mfd: asus-transformer-ec: UAF on dockram_ec_data in devm_asus_dock=
-ram_get()
-- [Medium] mfd: asus-transformer-ec: ec_buf clobbered in asus_ec_interrupt(=
-) on SMI
-- [Medium] mfd: asus-transformer-ec: fixed retry count in asus_ec_clear_buf=
-fer()
-- [Low] mfd: asus-transformer-ec: inverted comment in asus_ec_clear_buffer()
-- [Low] mfd: asus-transformer-ec: sibling input state in asusec_core and mf=
-d naming
---
+From: David Heidelberg <david@ixit.cz>
 
-commit 127ab1fbe238a806a6be88edfad37b1c227e1824
-Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
+The touch interrupt on GPIO 125 is routed to the PDC, so the panel can
+wake the phone. Report the controller's double tap gesture as
+KEY_WAKEUP.
 
-mfd: Add driver for ASUS Transformer embedded controller
+Signed-off-by: David Heidelberg <david@ixit.cz>
+---
+ arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-This commit adds a core MFD driver for the Nuvoton NPCE795-based embedded
-controller found in ASUS Transformer tablets and docks, handling I2C
-communication, detection, and sub-device registration.
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts b/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
+index 1b0eaeafbd517..e4eef60271c55 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
++++ b/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
+@@ -504,16 +504,22 @@ touchscreen@38 {
+ 		iovcc-supply = <&vreg_l14a_1p88>;
+ 
+ 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+ 		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
+ 		pinctrl-names = "default", "sleep";
+ 
+ 		touchscreen-size-x = <1080>;
+ 		touchscreen-size-y = <2160>;
++
++		wakeup-source;
++
++		event-tap-double {
++			linux,code = <KEY_WAKEUP>;
++		};
+ 	};
+ };
+ 
+ &i2c10 {
+ 	/* SMB1355@0x0C */
+ };
+ 
+ &i2c11 {
 
-> diff --git a/drivers/mfd/asus-transformer-ec.c b/drivers/mfd/asus-transfo=
-rmer-ec.c
-> new file mode 100644
-> index 0000000000000..2f575ecb4f58b
-> --- /dev/null
-> +++ b/drivers/mfd/asus-transformer-ec.c
-> @@ -0,0 +1,551 @@
-[ ... ]
-> +#define ASUSEC_ACCESS_TIMEOUT		300
-> +#define ASUSEC_DOCKRAM_OFFSET		2
-> +#define ASUSEC_ECREQ_DELAY		50
-> +#define ASUSEC_ECREQ_TIMEOUT		200
-> +#define ASUSEC_RESET			0
-> +#define ASUSEC_RETRY_MAX		3
-> +#define ASUSEC_RSP_BUFFER_SIZE		(ASUSEC_ENTRIES / ASUSEC_ENTRY_SIZE)
-> +#define ASUSEC_SL101_ENTRY_SIZE		8
+-- 
+2.55.0
 
-[ ... ]
 
-> +static void asus_ec_clear_buffer(struct asus_ec_data *ddata)
-> +{
-> +	int ret, retry =3D ASUSEC_RSP_BUFFER_SIZE;
-> +
-> +	/*
-> +	 * Read the buffer till we get valid data by checking ASUSEC_OBF_MASK
-> +	 * of the status byte or till we reach end of the 256 byte buffer.
-> +	 */
-> +	while (retry--) {
-> +		ret =3D i2c_smbus_read_i2c_block_data(ddata->client, ASUSEC_READ_BUF,
-> +						    ddata->info->read_size, ddata->ec_buf);
-> +		if (ret < ddata->info->read_size)
-> +			continue;
-> +
-> +		if (ddata->ec_buf[ASUSEC_IRQ_STATUS] & ASUSEC_OBF_MASK)
-> +			continue;
-> +
-> +		break;
-> +	}
-> +}
-
-[Severity: Medium]
-In asus_ec_clear_buffer(), retry is initialized to ASUSEC_RSP_BUFFER_SIZE,
-which divides ASUSEC_ENTRIES (256) by ASUSEC_ENTRY_SIZE (32) for 8
-iterations.
-
-However, each iteration reads ddata->info->read_size bytes. On the SL101
-dock variant (asus_ec_sl101_dock_data), read_size is ASUSEC_SL101_ENTRY_SIZE
-(8), so 8 iterations only drain at most 64 bytes instead of the full 256-by=
-te
-EC buffer.
-
-Should the retry count be computed from ddata->info->read_size instead of
-the fixed ASUSEC_ENTRY_SIZE?
-
-[Severity: Low]
-Also in asus_ec_clear_buffer(), the comment states "Read the buffer till we
-get valid data by checking ASUSEC_OBF_MASK", whereas the loop actually
-continues while ASUSEC_OBF_MASK is set (valid data present) and breaks once
-the buffer is empty. Should the comment say it reads until the buffer no
-longer has valid data?
-
-[ ... ]
-
-> +static void asus_ec_handle_smi(struct asus_ec_data *ddata, unsigned int =
-code)
-> +{
-> +	switch (code) {
-> +	case ASUSEC_SMI_HANDSHAKE:
-> +	case ASUSEC_SMI_RESET:
-> +		asus_ec_init(ddata);
-> +		break;
-> +	}
-> +}
-> +
-> +static irqreturn_t asus_ec_interrupt(int irq, void *dev_id)
-> +{
-> +	struct asus_ec_data *ddata =3D dev_id;
-> +	unsigned long notify_action;
-> +	int ret;
-> +
-> +	ret =3D i2c_smbus_read_i2c_block_data(ddata->client, ASUSEC_READ_BUF,
-> +					    ddata->info->read_size, ddata->ec_buf);
-> +	if (ret < ddata->info->read_size)
-> +		return IRQ_NONE;
-> +
-> +	/* Check status byte with ASUSEC_OBF_MASK if data is valid */
-> +	ret =3D ddata->ec_buf[ASUSEC_IRQ_STATUS] & ASUSEC_OBF_MASK;
-> +	if (!ret)
-> +		return IRQ_NONE;
-> +
-> +	notify_action =3D ddata->ec_buf[ASUSEC_IRQ_STATUS];
-> +	if (notify_action & ASUSEC_SMI_MASK) {
-> +		unsigned int code =3D ddata->ec_buf[ASUSEC_SMI_CODE];
-> +
-> +		asus_ec_handle_smi(ddata, code);
-> +
-> +		notify_action |=3D code << 8;
-> +	}
-> +
-> +	blocking_notifier_call_chain(&ddata->ec.notify_list, notify_action, dda=
-ta->ec_buf);
-> +
-> +	return IRQ_HANDLED;
-> +}
-
-[Severity: Medium]
-When asus_ec_interrupt() receives an SMI event with ASUSEC_SMI_HANDSHAKE or
-ASUSEC_SMI_RESET, it calls:
-
-asus_ec_interrupt()
-  -> asus_ec_handle_smi()
-       -> asus_ec_init()
-            -> asus_ec_clear_buffer()
-
-asus_ec_clear_buffer() reads into the same shared ddata->ec_buf buffer until
-ASUSEC_OBF_MASK is clear, overwriting the SMI packet that triggered the
-interrupt before blocking_notifier_call_chain() passes ddata->ec_buf to
-registered listeners. In addition, asus_ec_handle_smi() ignores the return
-value of asus_ec_init(), so notifier callbacks still run even if
-reinitialization failed.
-
-Should asus_ec_clear_buffer() use a separate buffer (or should
-asus_ec_interrupt() avoid passing a clobbered ddata->ec_buf and check for
-asus_ec_init() errors)?
-
-> +static void asus_ec_release_dockram_dev(void *client)
-> +{
-> +	i2c_unregister_device(client);
-> +}
-> +
-> +static struct i2c_client *devm_asus_dockram_get(struct device *dev)
-> +{
-> +	struct i2c_client *parent =3D to_i2c_client(dev);
-> +	struct i2c_client *dockram;
-> +	struct dockram_ec_data *ddata;
-> +	int ret;
-> +
-> +	dockram =3D i2c_new_ancillary_device(parent, "dockram",
-> +					   parent->addr + ASUSEC_DOCKRAM_OFFSET);
-> +	if (IS_ERR(dockram))
-> +		return dockram;
-> +
-> +	ret =3D devm_add_action_or_reset(dev, asus_ec_release_dockram_dev, dock=
-ram);
-> +	if (ret)
-> +		return ERR_PTR(ret);
-> +
-> +	ddata =3D devm_kzalloc(&dockram->dev, sizeof(*ddata), GFP_KERNEL);
-> +	if (!ddata)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	i2c_set_clientdata(dockram, ddata);
-> +	mutex_init(&ddata->ctl_lock);
-> +
-> +	return dockram;
-> +}
-
-[Severity: High]
-As reported by Dmitry Torokhov on v11 [1], devm_asus_dockram_get() allocates
-ddata with devm_kzalloc(&dockram->dev, ...) and attaches it via
-i2c_set_clientdata(dockram, ddata) on the ancillary dummy I2C device rather
-than the parent device dev.
-
-Because dockram is bound to the I2C dummy driver, unbinding dockram from the
-dummy driver via sysfs triggers device_unbind_cleanup(&dockram->dev), which
-frees &dockram->dev devres allocations and clears its driver_data to NULL
-while the parent MFD driver and child sub-devices remain active. Concurrent
-calls to asus_dockram_access_ctl() can then suffer a use-after-free on
-ddata->ctl_lock and ddata->ctl_buf across sleeping SMBus transfers, and
-subsequent calls will fail with -ENODEV.
-
-Could ddata be allocated with devm_kzalloc(dev, ...) on the parent device i=
-nstead?
-
-> +static const struct mfd_cell asus_ec_sl101_dock_mfd_devices[] =3D {
-> +	MFD_CELL_NAME("asus-transformer-ec-kbc"),
-> +};
-> +
-> +static const struct mfd_cell asus_ec_tf101_dock_mfd_devices[] =3D {
-> +	MFD_CELL_NAME("asus-transformer-ec-battery"),
-> +	MFD_CELL_NAME("asus-transformer-ec-charger"),
-> +	MFD_CELL_NAME("asus-transformer-ec-led"),
-> +	MFD_CELL_NAME("asus-transformer-ec-kbc"),
-> +	MFD_CELL_NAME("asus-transformer-ec-keys"),
-> +};
-> +
-> +static const struct mfd_cell asus_ec_tf201_pad_mfd_devices[] =3D {
-> +	MFD_CELL_NAME("asus-transformer-ec-battery"),
-> +	MFD_CELL_NAME("asus-transformer-ec-led"),
-> +};
-> +
-> +static const struct mfd_cell asus_ec_tf600t_pad_mfd_devices[] =3D {
-> +	MFD_CELL_NAME("asus-transformer-ec-battery"),
-> +	MFD_CELL_NAME("asus-transformer-ec-charger"),
-> +	MFD_CELL_NAME("asus-transformer-ec-led"),
-> +};
-[ ... ]
-> diff --git a/include/linux/mfd/asus-transformer-ec.h b/include/linux/mfd/=
-asus-transformer-ec.h
-> new file mode 100644
-> index 0000000000000..fda6fb08cc41a
-> --- /dev/null
-> +++ b/include/linux/mfd/asus-transformer-ec.h
-> @@ -0,0 +1,100 @@
-[ ... ]
-> +struct asusec_core {
-> +	const char *model;
-> +	const char *name;
-> +	struct i2c_client *dockram;
-> +	struct blocking_notifier_head notify_list;
-> +	u8 keyboard_mask;
-> +	bool ext_keys_enabled;
-> +	bool right_alt_pressed;
-> +	bool special_combo_triggered;
-> +};
-
-[Severity: Low]
-This isn't a bug, but in struct asusec_core, the fields ext_keys_enabled,
-right_alt_pressed, and special_combo_triggered are unused by the core MFD
-driver in drivers/mfd/asus-transformer-ec.c and appear to be private input
-state shared between sibling sub-devices. Also, the mfd_cell arrays in
-drivers/mfd/asus-transformer-ec.c (such as asus_ec_sl101_dock_mfd_devices)
-include "mfd" in their names. Would it be cleaner to avoid exposing
-sibling-specific input state in the core MFD structure and drop "mfd" from
-the cell array names in accordance with MFD conventions?
-
-[1] https://lore.kernel.org/r/d5f54636c25e0e60731adc200a63ceb5@gmail.com
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104122606.2156=
-29-1-clamor95@gmail.com?part=3D2

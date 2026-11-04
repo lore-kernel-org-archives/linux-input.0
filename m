@@ -1,100 +1,75 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793831298;
-	b=n8Fcnf8I+/WncOwvmDQ+6Fq7D69JAwzdgyyQnfECc/jVhHG0bvURekntzYps6XbOmBOc
-	 d6baqgT+fVrQyKVcgVE3eKZpGT/9XZGmUO/Ryq/nGI7+j+GHxJy90xE7/gm6tfX7v+ewA
-	 GDCcxaD9qTh9TeM/Pg5ynjUQAkFaIxAfBlO+zD7hviIwvtHa1vMztQx5c2Xvx6rUD2gHK
-	 AEnSt7FGFwZM++fuRNDV8vFe5tf0XMHiNNzOO/evwSHBbioKm7G7Soj7CiuefiuNAHv0t
-	 7o9TbEER1iCu8fJapMUO/fK7LYWG3qUkQYWhsrCQ6yqr9sRbeeTj4i8EfLgHIp/C0Ow==
+	t=1793832370;
+	b=GiPJj/b5IETTgaiAxC956zQaYbDdSyZGCxNYuLZCFetISqeOrO3uXvnnxHK/YH+Y5AdN
+	 4y8iWiN+H2uWkXG5NYIeMWDex1F6hAD7Iiwz8nY+Y/tgL3WlQEzCOoYI9bNEtMBe9C1VJ
+	 Z9NOIQQ9aeTnjEUWkEV93rwBqp+0i4UklS/GTPjExFt6z7o5tIVZHumYX25qS1/VXXXZo
+	 W/t6qH6hbIPDpGauq8KUwS60tWoCyzSZyhrKape3UE6/6HA5ZCLzUWE5ww0+Gbs2PdKIw
+	 bfE8s5rueKgjC9MAVHCQX4l3CO3W0PJYEIeu5pCJ7/8DoJ43V/TWU8KY+Kgw6AoKxOw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793831298;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:
-	 Content-Disposition;
-	bh=rORPcwpKcsLoZavTsDXE5+1r14NtYgKold9FpGxIEUA=;
-	b=JuGWvAA7O/RXCZq53lPmx1YqLrZ7oMMNS+rGFWMtCWuKz4lCb1yu8wjpziKkuaRAe3i/
-	 rsfvn5lxRAXEKyAmMdyYX2CHUaabTJTxB27B3DwqQy+/33RgNVYOwt2k4ccHn+5tjUFxN
-	 VSYneep01AvPyPzUZqeZ3OTb8nU+KhFQOHiUrGHPH2Y4WvSE0tb5mZQJGZ5wHO5ZOfXWr
-	 tCUFeND0rm0Flcnr3ttvY+OZL4xsGaA8Yan7GiLTEQxsXonDMAKdgTALqrYo4AWbPTxtY
-	 We3SWd6Nhc7Ej0n4I/OJ4iDSYmnap6uexDXyKk0dctTpFHGrPKWz9ukHNzal9gOESfg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793832370;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=XBOw8umZc0PSygGL6ZhSsNEhyMPfzoczgqWFX+5YDNY=;
+	b=Re/6Rg9jSD9Xebvi70a84ZeMmu/I2lfDULXQp8gVW/rAcQgEQo7H7Bm2B45i/4cWD2Qz
+	 bA5PiYIc9GvM4LsvRra4bsZTC675SEPOrg8kMw2nb505Tv9nEXMOEXBmWOA2oIxYMgmqJ
+	 +lHWOwBIftcc35KCKzB0hLHvHE/OhEFsHLfPgbhC0Ts/pbORmj97PoUbWtjBounXmDjiB
+	 mQfvZZDBX4X96/9TtFlVhx528WLd9pGG+gUaWMkQQO/cRYvFd1uTPq/NWJKxb2Q0AZYRH
+	 dcHEjS7kMdFBNNoIBuEl1SVfzq//hK+nG7BkfvMxHJqFrp/DW75GAm8UPQXw5VfKfrw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=VFQQwjVQ;
-	arc=none smtp.remote-ip=74.125.82.50
-Received: from mail-dl1-f50.google.com (mail-dl1-f50.google.com [74.125.82.50])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y+guEyix;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD1D8606AC39
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 22:28:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DD1D8606AC39
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F24D4606A31B;
+	Wed,  4 Nov 2026 22:46:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=VFQQwjVQ
-Received: by mail-dl1-f50.google.com with SMTP id a92af1059eb24-1a8cc11ac42so1394768c88.0
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 14:28:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793831297; x=1794436097; darn=vger.kernel.org;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=rORPcwpKcsLoZavTsDXE5+1r14NtYgKold9FpGxIEUA=;
-        b=VFQQwjVQRPQRUQLEKQZ0uCHBD6AiMJmbUbfvGwNX3j3vqFrcm5mawXNoYHM8TH+ZrU
-         7YFcdbOBvMl/K1om4r2gP5o0e/DChYOrZcoomOZeQ/QhKS5sOv8AYNGdCQHifyG4DgCt
-         7emLFI7dY/6+FylAuJsnOc6s8pU+DjJadx1aE+FM6/AWCJ3tqb1QWwgl40AkL/4DZIak
-         3GOSpOU2wPX5QgtRh1D2Z3mxwacfDT5c2IigvAgT7/f7dLbGE2xlz1uZBYjn1P4gGuSQ
-         NYuTAfgURb0t8EF4QpQEiiAFWrGwes1nrfXaPTg0vQiZBMIALZrPhfPuXnBNKj1kifZ5
-         Tsyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793831297; x=1794436097;
-        h=content-disposition:content-transfer-encoding:content-type
-         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=rORPcwpKcsLoZavTsDXE5+1r14NtYgKold9FpGxIEUA=;
-        b=ZbSQaN8yPGChVglJhUIP5LiY781Py4tuwcjcJ9Riwblix6jC5sjOa76I5oDdlH4dFv
-         7uMbuUofIraJFOApZBFgk+lR7VvqXhmqcSyY5a540h9H8pUg0yKof3BCs9VWADKBIBTG
-         C5M3RA85yeL3ZOWruAzOKtliN0O2HMjJqLAFPd2ZG8uC4jvz2B7OOVDcV0mye5Um01iI
-         nIpKkjgD8eys9feeldMHGSCtJVNwTYtHrZWBcwg6nHUC6ZzZ5oAHzp13cPRh/ZMTerYg
-         1vZ2Psn/OTBOIHEUKe2rgrmEBf5IdSfiOPGbfPFoTvyRuka3T21Pxeg1YpjA3Y8+lVTg
-         03GQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz/esVdH8ybw8I3rTcOVWS6QMbcy0V6XiNL5vBeULcTDgr1qhMVCtgNEsKgfvNouRqpXDJ0+Wt3E4twCw==@vger.kernel.org
-X-Gm-Message-State: APuU4Z+0z2LTgcxA3zqJvmXzbjNUiMcuphEvelwpPh2L/qEuyw1EWHqh
-	mvqFdBs3pahws8GgegIUjCbLub7obM9Bh10CsKs0SkS5KoeNr9krg3u4
-X-Gm-Gg: AYBFou03u67SWTcVejG3l0OwGmvZItSK5gX+7eGcurTM9q3jz68PuPTX3f0UL25jfog
-	CcBArrRN3pfjT6/IxXjet1gC3wsoJDu+h3QWpXetaB5+Uj4eS1T+BxSLfQ3wJ0Jftdj48iM9eLt
-	dlEL1UQk1Pi5FFux32G1dCoRXOP7d8lHOJqVw2gd8mSKhDY1cZGrXrjJiI4/AvO00Elr4KeicoO
-	D6pCY4bYsf8c00akN3h2fiZ64MbF78cvHartkE8mFyLVXjnnbauqaCtmtLuuNeAyhpqf6PwiJSN
-	T+ZW45zzjLQeUPcqguF56zlL4uCfuphA0VUDjHr5tdDmFAhBsFMQk5OjTj9wBQenlTQaZcGYyaf
-	mpD1h1u3Tkid1+nUtYBuGXFue8Ygw3UYPE+J2F43yJHze6ApxSTvBMkFWGs+sA6we+tiKY2xh73
-	MFyOw9weT5GbTL8yr3uZkiBJ+xGLnvXYP6n51x9xebz+n+OEzGBZ+pRRl7ojUqAyAWM48UdYP05
-	wP6vaXwkPUmaYLCOH+BZm6H2UWqQHeBRk2DSyYI3qXRMJTZ0fmIPLqjkZTif3i03wTXT2x5A8o+
-	uVT6r6J/6ATHBGUoL+nrkLBVkhhYIlrOgXbPDUzKWdJa01TyONhRfLlwvzp7DPTSysocc9QZFRg
-	3XOoXjTBudOK8prY=
-X-Received: by 2002:a05:701b:42c7:20b0:1b0:f0f5:e38f with SMTP id a92af1059eb24-1b0f0f5e3b5mr18662779c88.34.1793831296771;
-        Wed, 04 Nov 2026 14:28:16 -0800 (PST)
-Received: from localhost ([2a00:79e0:2ebe:8:c8f4:b7d9:252f:4483])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1b245c463e9sm10694316c88.14.2026.11.04.14.28.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2026 14:28:16 -0800 (PST)
-Date: Wed, 04 Nov 2026 14:28:15 -0800
-Message-ID: <f5c1435fbfa7568a107c864781897d6e@gmail.com>
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Andreas Kemnade <andreas@kemnade.info>
-Cc: bartosz.golaszewski@oss.qualcomm.com,
-	marco.crivellari@suse.com,
-	arnd@arndb.de,
-	tony@atomide.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	brgl@kernel.org
-Subject: Re: [PATCH] Input: gpio-keys - do not BUG() on requested wakeirqs
-In-Reply-To: <20261104160305.2501369-1-andreas@kemnade.info>
-References: <20261104160305.2501369-1-andreas@kemnade.info>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Y+guEyix
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C1B1F000C1;
+	Wed,  4 Nov 2026 22:45:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793832369;
+	bh=XBOw8umZc0PSygGL6ZhSsNEhyMPfzoczgqWFX+5YDNY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Y+guEyixDVYqpS8g3d4FmlRYq/qp1tQeGL16K2BSxNthPOaRsDL0VFTK+tjHByNf5
+	 UG3G3TR4IbDk5BaZwlgwVySr0HiRvL1WeYdDEujyS+zzG35LMJqu1Pm8BzfQ5Z+w4F
+	 3DGZwBGiTOYlKSVRIgaBstWj6LtjUlnMrGUfTY6AgB7LPx3pVl/0nxTfWzl1eRWVeu
+	 9SzZPPQ7yLUIbBzvzOD5olkzaVc7Od6fJQ93jvoDvEvbyLIezG28vK5PJuGqQJ/Zu+
+	 C/TFnkMniWMHftytXgdebgJiyvQu099dnGFvQXlwnwRKY6VGKt0bkFzVDUexAPr+Sm
+	 GvRbuyQmKti0Q==
+Date: Wed, 4 Nov 2026 23:45:55 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
+	Josef Bacik <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
+	NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+	Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados <joel.granados@kernel.org>, 
+	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	netdev@vger.kernel.org, ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+	coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+	sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org, 
+	Chuck Lever <cel@kernel.org>
+Subject: Re: [PATCH RESEND v2 00/30] proc: convert the fs, kernel and mm
+ entries (Part 5/7)
+Message-ID: <20261104-allein-bepacken-hitzig-5e517d3c129f@brauner>
+References: <20261104-work-procfs-v2-0-b45cd5789ac5@brauner>
+ <20261104-work-procfs-fs-v2-0-319e0f9a8aae@kernel.org>
+ <CAHk-=wj9Y9NcOesBBm+jhPjYa7qO00fD7g7uwX+H-k0-R2difA@mail.gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,44 +79,20 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+In-Reply-To: <CAHk-=wj9Y9NcOesBBm+jhPjYa7qO00fD7g7uwX+H-k0-R2difA@mail.gmail.com>
 
-Hi Andreas,
+On Wed, Nov 04, 2026 at 12:05:08PM -0800, Linus Torvalds wrote:
+> On Wed, 4 Nov 2026 at 11:49, Christian Brauner <brauner@kernel.org> wrote:
+> >
+> > Part 5/7 of "proc: move procfs to what kernfs does", on top of part 2
+> 
+> Christian - way too many patches, re-sent much too often, cc'd to way
+> too many people.
+> 
+> Nobody is going to read these repeated resends, and all you are doing
+> is clogging up peoples mailboxes.
 
-On Wed, Nov 04, 2026 at 05:03:05PM +0100, Andreas Kemnade wrote:
-> Having the IRQ handler called when enabled IRQs arrive should be considered
-> as a feature not as a bug. So do not BUG() there when this happens.
->
-> Fixes: 3717194f24922 ("Input: gpio-keys - add system suspend support for dedicated wakeirqs")
-> Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-> ---
->  drivers/input/keyboard/gpio_keys.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index fbc31c5db3db..f1c31c5366f0 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -412,7 +412,7 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
->  {
->  	struct gpio_button_data *bdata = dev_id;
->  
-> -	BUG_ON(irq != bdata->irq);
-> +	BUG_ON((irq != bdata->irq) && (irq != bdata->wakeirq));
->  
->  	if (bdata->button->wakeup) {
->  		const struct gpio_keys_button *button = bdata->button;
-
-Doesn't gpio_keys_irq_isr() have the same issue when a wakeirq is
-configured for an interrupt-only button?
-
-Also, neither gpio_keys_gpio_isr() nor gpio_keys_irq_isr() uses the irq
-argument for anything else, so instead of expanding the condition, could
-we simply drop the BUG_ON() from both handlers?
-
-Thanks.
-
--- 
-Dmitry
+I resent once after I cleaned things up post RFC and I don't plan on
+resending (one failed attempt due to my network dropping).

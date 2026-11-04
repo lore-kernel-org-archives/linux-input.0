@@ -1,58 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.28.147
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793761639;
-	b=qRws/UJCqqGXxtqbkmwAqb8XuQn/S4CTKjJd6M56GuJVj3XNqWa7XVQ3u2jWokxxCc5D
-	 Ob/f6jZTRUnOW6kfomxX1xL0Fz26YmlQ4l8bGHANaZP/rkgqDveZlzuq/31+RuWakgQGM
-	 GSEwqJ2H+2EbQJOZXVNYR0lz3iP5iInm531FqEcjNNrTEAY6MM9qRZGnB9Wa3iSf3r0cV
-	 mVzNiNgD2xj/61CPvKALV+GzSAcgDo6UcSm9A4ubX1NVxV3ACQ433jOQelr1NkM2/hRte
-	 z/fhgsDFzzEtfHIZwsPZADSSNxf+GcLTGRTlTMnTxa2X+9syM2iJ6ws4NtYpuYkb+gQ==
+	t=1793763535;
+	b=fclULdSO1UZ6LHFgDSbNGYkSl0OlJR5+wz6jSkA9mTGOs6hl6NUFTDbM7V0DS0vQeRxh
+	 t3AQguJv5CZq9On/CN7k7GElDCEhzeGNPR9cUpZdud94L8mHZpn6yYE/dOnFYFA6fBVql
+	 sul7eyS5U0Sks75Z26JpajG8qfjV/TReac3Aad9XZ+ZBIxGm1j8vyoBGpo4PS8KbNTbwz
+	 2E6bY+ElPo4xN6U7rHF3i/KR7mPLtgmUpypl+uEmVmf+yaXhPbpkV7DKTm5R7+8riyxd3
+	 Ndcn4PK97tP7U00K4cDreQYZnovQcmEDTDPSVoCqjrI5/E2LX2eiPvmNuLxW5fpjM2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793761639;
-	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:From:To:Cc:
-	 Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=MN18tqzJEFBJrqx2Me4vDHQYkvULP5aZLr3J2JMguuo=;
-	b=5Mu7jhej08MTKclx64R3hCFiTiedAtrmb8PywxNJhvRG9hF1NPuD2RYZd4PKN/LVsdie
-	 HGCDfmiwLT+zmWqNBCR2FrgtScIyGRvHp4kQ7F/J9fPo84aFqU5YYUMlx3ghqvCssMXV0
-	 JyThAYMftZu2f1vGKwSOkVCpticXYp5JQp7b5dO9QixpbhBXym7Eo0OpzLfY+AjGHgZMJ
-	 d+waOsNzKGN4MjG7awE5H3T5pzOQKAXo8WeEG6r69XdRoBbVdSru8iD81mmtw7deZxWTq
-	 tYdFBlh7AdaUQuSpYiUBCE31yhVUd1GwE3HwzDZJ7JaOPoDn3TJCQtgJ2i5KbZJmFmw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793763535;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Date:Message-ID:From:
+	 To:Cc:Subject:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Content-Disposition;
+	bh=rvyyEItMjhpjcCiR5G2iyawMRAc8IGNvunoyBM1eU1k=;
+	b=Yn9OLKd1uskRAprmJkhTXbicDYG0cmLyovf7bZX5gItUqHwuGDLL5aaVA4nYXExRTb1E
+	 iPUC4OWbBWHHaBO3bJMBvI9G8y+G8KAe8hR44zrRzBPxYKy7EzwhFZFCAOTgzVU2/iArV
+	 XYH2ChIrfcOhPr/MAUH2mJ2Qs4AWCbkI3iKXg6HedmZWO4ay3kbiLEkZNdhiqjcmXXK2V
+	 ckuFgo2SmvD4v+v/L08ltRfVq8uSPif/y4qxY1xAjKJoewK5r5Qe2IKXy5ktTtuMRBhvk
+	 YvU1uvMVjyLLw5kpuTBRU6ZPkF2XUtVqLt1T3ddxkra10knsVUeceBtMzX/6599mzpg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=xiaopeng.com;
-	spf=pass smtp.mailfrom=xiaopeng.com;
-	dkim=pass header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=E3Yu1QTs;
-	arc=none smtp.remote-ip=115.124.28.147
-Received: from out28-147.mail.aliyun.com (out28-147.mail.aliyun.com [115.124.28.147])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IMnGGHbZ;
+	arc=none smtp.remote-ip=74.125.82.172
+Received: from mail-dy1-f172.google.com (mail-dy1-f172.google.com [74.125.82.172])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 073ED606A31B;
-	Wed,  4 Nov 2026 03:07:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 073ED606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=xiaopeng.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xiaopeng.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1250D606A329
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 03:38:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1250D606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=xiaopeng.com header.i=@xiaopeng.com header.a=rsa-sha256 header.s=default header.b=E3Yu1QTs
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=xiaopeng.com; s=default;
-	t=1793761629; h=From:To:Subject:Date:Message-ID:MIME-Version;
-	bh=MN18tqzJEFBJrqx2Me4vDHQYkvULP5aZLr3J2JMguuo=;
-	b=E3Yu1QTsegSwsTeHx2m4kkEAoh21Sygnf+XL70FnlDNv379pSCg46rm9rOCrODh7e86sTWV3IpSN1Ryfo9Uokls5xnxCZbslcSwqpMvQ4OeMmJWdI3vlwiH1wCeMkRG46wFHSLxu/FeE8jVOPJjB4AnQV2mGeAADNeiGdHWy1b4=
-X-Alimail-AntiSpam:AC=CONTINUE;BC=0.1784772|-1;CH=green;DM=|CONTINUE|false|;DS=CONTINUE|ham_system_inform|0.00319118-0.000167641-0.996641;FP=972432408663265008|0|0|0|0|-1|-1|-1;HT=maildocker-contentspam033037006180;MF=zhugl3@xiaopeng.com;NM=1;PH=DS;RN=4;RT=4;SR=0;TI=SMTPD_---.jwOT4aA_1793761628;
-Received: from DESKTOP-UL5U09E.xiaopeng.local(mailfrom:zhugl3@xiaopeng.com fp:SMTPD_---.jwOT4aA_1793761628 cluster:ay29)
-          by smtp.aliyun-inc.com;
-          Wed, 04 Nov 2026 11:07:09 +0800
-From: Guanglei Zhu <zhugl3@xiaopeng.com>
-To: dmitry.torokhov@gmail.com
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=IMnGGHbZ
+Received: by mail-dy1-f172.google.com with SMTP id 5a478bee46e88-36cedf1bd63so156374eec.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 19:38:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793763534; x=1794368334; darn=vger.kernel.org;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=rvyyEItMjhpjcCiR5G2iyawMRAc8IGNvunoyBM1eU1k=;
+        b=IMnGGHbZfzS4ZMXl77G8FzBSzJN04aU4eLBtXEhq2+SM14tDfaYWKhh4FUKDjtRN1m
+         8pUDfwsP/9AEG+JbxPf7bWMErkI8kLMWHa6yJqshjWAjwwoOkWajG5XMDxrXrs1xbF3r
+         dgcH9WRjJ+Ls85cyHl8GjtuQw+we8F0IOvFL67s/MVpuRJ5Tq7QwYJ6GWKzGTYYBrnh2
+         QpL+mk1HCYGFhnhPXf3sPUWhs/FbqLyVStAk4oGTEyfH2DMGI7KrFY4BHXscStSUB5P5
+         2sFhgObS9Qru4z9ZkapYnlJo1FaEmHXb36SAUivo6oEGOWOrIB/vE0HVinok4jg5WfXW
+         62vQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793763534; x=1794368334;
+        h=content-disposition:content-transfer-encoding:content-type
+         :mime-version:references:in-reply-to:subject:cc:to:from:message-id
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=rvyyEItMjhpjcCiR5G2iyawMRAc8IGNvunoyBM1eU1k=;
+        b=oaXhMEO0RpJSaKgo52Bo/Ll7zADuQ/XPz2zyqv7KS0X3x+Tr/F7KJPEaxI4tUjUx2P
+         TNznLuan8MA0UH/z57ICYsCdpa9sFv7RI7whU9FB3yqZbF0eThLat2bzmlTq3ALAcoIs
+         e7U/t135ue3OXt6+4kfOkgolRs+Weo5GP9h24iIwz4ZZGm8fYmpoKRLhU9GqmNkWTbsT
+         vVTy8mEdbHSSdhX7FEdOYKLp1xAJfd8HqG5qJBugdB7pHU90fzM7sPyEF8Jx+GcBn5tp
+         2AI3oyPo6rZpJwNVdKH/+4D90kPzUb6vp+z+wELsKKlZJVbQUellbVAhwghHGccerSuo
+         CUqQ==
+X-Gm-Message-State: APuU4Z9zg9LUIYVID835fwHi9nuJYmQa2dzKp94pP1Hh+Wna2I7jqD9B
+	8k+5/STl46TB6XAaa28KkaoIyaz37bSSTFF1ncC5vy/CsdEiXSBPFNaN
+X-Gm-Gg: AYBFou1fBbtUFDG0Sti1KNG98lHClUvVr31SwrZOAl94FTevrqaWhiwT2S1gYelhdhM
+	KSsE4IWQVAXNWvpSkDN1nVYeuhgbG+c/euiYMRZW90HlRlT66fV/WlGnZoMI1iNvZCkNZXosmLe
+	gzpslYNsEI34PajK5ibB9K9hyrX43KkWrX1m/d2FeTyzwqLcfxC/CDFUYPMd9kc686OLRC56YYk
+	WZKs2sg1X/AcpnpC7PUuHEcbfQcr6xkPOsfxDsLToeApiGeWwSQJ6hbo6EoEx03czVtxNtcyjK0
+	pebVYMMoPQ6n0AAcHTNUK2ScEPZEe0lHHSv+PHYvrL8VLP0PWTt8k4vhoR0ec0zj4Zw7VueHTjd
+	hfRKUclru3qJZIoljkvVhfZvq0HP0LoD0mJYDplEUnrX6rQsFU4N87QQ/Zq4fFKgRMk+8WCUeUu
+	q8wD4ItUY5+ynBIu3tPJrIV7SUf8LLixuHhMenOfHAWTOopKkxqBWIZIc6aN/wvRx4hMoYv2Yp0
+	Lqnu8HxtHJ17x6jEptjGNPtLPyPeA13aYiRLm4VXPRjr2FrOT68PGzhwbgjFVGQJ6t5cfbh4lh5
+	RT9XTftoFpU1uj087GSHzRyTiKqO05hcEKaoR6ghV7xE6wsS4D4dZLzJ2z/wtTAwkUJZ
+X-Received: by 2002:a05:7300:f80e:b0:36c:98e5:a6c1 with SMTP id 5a478bee46e88-36c98e5ad0dmr4158661eec.19.1793763534132;
+        Tue, 03 Nov 2026 19:38:54 -0800 (PST)
+Received: from localhost ([2a00:79e0:2ebe:8:88b4:22ec:d621:c1b])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36ca3981ff0sm3310812eec.24.2026.11.03.19.38.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 19:38:53 -0800 (PST)
+Date: Tue, 03 Nov 2026 19:38:52 -0800
+Message-ID: <8063a24bb9f75bb9096c947d8ffa7123@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Guanglei Zhu <zhugl3@xiaopeng.com>
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	liuc63@xiaopeng.com
-Subject: [PATCH v2] Input: joydev - avoid an undefined shift in the legacy 0x read
-Date: Wed,  4 Nov 2026 11:07:08 +0800
-Message-ID: <20261104030708.791730-1-zhugl3@xiaopeng.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <auorp8LgmW8Fr9tY@google.com>
-References: <auorp8LgmW8Fr9tY@google.com>
+	liuc63@xiaopeng.com,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v2] Input: joydev - avoid signed overflow in the broken-axis correction
+In-Reply-To: <20261103085514.431010-1-zhugl3@xiaopeng.com>
+References: <20261103084135.426629-2-zhugl3@xiaopeng.com> <20261103085514.431010-1-zhugl3@xiaopeng.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -62,46 +98,66 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The legacy 0.x read path shifts the axis values by the calibration
-constants that JS_SET_CAL installs:
+Hi Guanglei,
 
-        data.x = (joydev->abs[0] / 256 + 128) >> joydev->glue.JS_CORR.x;
-        data.y = (joydev->abs[1] / 256 + 128) >> joydev->glue.JS_CORR.y;
+On Tue, Nov 03, 2026 at 04:55:14PM +0800, Guanglei Zhu wrote:
+> The JS_CORR_BROKEN correction multiplies two user-controlled 32-bit
+> values before shifting and clamping the result:
+...
+> -	case JS_CORR_BROKEN:
+> -		value = value > corr->coef[0] ? (value < corr->coef[1] ? 0 :
+> -			((corr->coef[3] * (value - corr->coef[1])) >> 14)) :
+> -			((corr->coef[2] * (value - corr->coef[0])) >> 14);
+> +	case JS_CORR_BROKEN: {
+> +		s64 tmp = value > corr->coef[0] ?
+> +			(value < corr->coef[1] ? 0 :
+> +			 (s64)corr->coef[3] * ((s64)value - corr->coef[1])) :
+> +			(s64)corr->coef[2] * ((s64)value - corr->coef[0]);
+> +
+> +		value = clamp_t(s64, tmp >> 14, -32767, 32767);
+>  		break;
+> +	}
 
-JS_CORR is copied straight from userspace as three s32 values and
-never validated, so the shift count can be negative or wider than
-the type, which is undefined behavior: the shift compiles to
-whatever the architecture does with an out-of-range count, and the
-compiler is free to assume it cannot happen.
+Assigning to value and breaking out of the switch causes value to be
+clamped a second time at the end of joydev_correct(). Also, pre-converting
+value to s64 and replacing the nested ternary with if/else statements
+avoids all the explicit (s64) casts and returns 0 immediately when the
+input is in the deadzone:
 
-Clamp the shift count to the width of the shifted value.
+static int joydev_correct(int value, struct js_corr *corr)
+{
+	s64 v64;
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Guanglei Zhu <zhugl3@xiaopeng.com>
----
-v2: drop the stable backport request - the shift result is just an
-    out-of-range axis value, not a memory safety issue.
+	switch (corr->type) {
+	case JS_CORR_NONE:
+		return clamp(value, -32767, 32767);
 
- drivers/input/joydev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+	case JS_CORR_BROKEN:
+		v64 = value;
+		if (value < corr->coef[0])
+			v64 = (v64 - corr->coef[0]) * corr->coef[2];
+		else if (value > corr->coef[0] && value > corr->coef[1])
+			v64 = (v64 - corr->coef[1]) * corr->coef[3];
+		else
+			return 0;
 
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index 32459fd..4740099 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -353,8 +353,8 @@ static ssize_t joydev_0x_read(struct joydev_client *client,
- 	for (data.buttons = i = 0; i < 32 && i < joydev->nkey; i++)
- 		data.buttons |=
- 			test_bit(joydev->keypam[i], input->key) ? (1 << i) : 0;
--	data.x = (joydev->abs[0] / 256 + 128) >> joydev->glue.JS_CORR.x;
--	data.y = (joydev->abs[1] / 256 + 128) >> joydev->glue.JS_CORR.y;
-+	data.x = (joydev->abs[0] / 256 + 128) >> clamp(joydev->glue.JS_CORR.x, 0, 31);
-+	data.y = (joydev->abs[1] / 256 + 128) >> clamp(joydev->glue.JS_CORR.y, 0, 31);
- 
- 	/*
- 	 * Reset reader's event queue
+		return clamp_val(v64 >> 14, -32767, 32767);
+
+	default:
+		return 0;
+	}
+}
+
+Also, please note that the kernel builds with -fno-strict-overflow, so
+signed overflow is defined as two's-complement wraparound rather than
+compiler undefined behavior, and please drop Fixes and Cc: stable as
+this only affects synthetic coefficients passed via JSIOCSCORR.
+
+Thanks.
+
 -- 
-2.43.0
-
+Dmitry

@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793819964;
-	b=ERbXDCOPBlHuaeLHRl34ZDgA27jsye2IHhlrQjAp2kl/gAJbbl30dgybSAwGzz8+QvZz
-	 ZrLYVUQpu8QAWh+kIaYKIiJaX3YJAR2sc+RNsNC0lQkCOa+39Xebx7roSk5DChIgdlnKX
-	 ysRH+ejiouxw0niyMSHteNbgkE/mS0F62hfA+eTwqZzQU14ibU7D5C8wkaeU77aN8D0VE
-	 qTZ8e9ztE/zi/oEfQ+fAvBDu01L0K/YFj9Onn3Pb0aiM239B/5LNdg9pbqLisDuJM55vw
-	 fyIVSH4jMpKlpVhGwMfkNKdiGCJxa9gLYsTNJ7dwWPiTO54aMCEoFaEI83VKOvMawbA==
+	t=1793819993;
+	b=MFym2OydRjdnTwbLMwhTXZEAPntJSwLAP8YhXUw+ePKFzozhWYY8SBYjqweQwJe/OCM1
+	 /5oYjogCR7p78ElyPtAS+hR6q8m3j2FiE/ufODHO8bVz1QGTnZC6+hKA7EzcySX2LuUzX
+	 uFJYTUwci8AL3FUnCe8Sqpti79OtaOsTNzR65e9Z1N39XU7gMEDvm5Zauw5J20o8sjxLS
+	 DDTIXBC3ajs53tbCZthZ0/l5qbMDFN26q04H6/fQ74UsmDxm5OtN27JwmeWDaC/CSodWt
+	 nWN9UtFToJiPrTg7MzjyBz+e6HkZLflcOtIoS0rkcTkmY4ccOl8dn8gHT/u2ZIrZg9g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793819964;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793819993;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
-	bh=+QMuJvtMuQ+CXnn6xLeWoxU7H9VJY0mzKEyTXi76/+M=;
-	b=u1Tq8Jd6wwk8QvhAjbv4gS38dUEe2kpzpUpCUz5dRbOtIDcJJJl2aHYf9ikjYcv0B+KX
-	 rtq4rNtyonakfUwydTfITqfTDJb9dsNlvY7isXlIlNtVMDGM5deTtV8Yt2nesOaPRlnZD
-	 sPFRVsejEsPh7BSEmJW+E/rJh1KzT+hjCgs8PYboLqXmxWL7Q56qHR+p0TJD7EkcKMTBh
-	 +n6DyXp6LzHDRHI6Kz/vjUKmWjzZchvyLLTiyuQ1o6KyZaBCs5bm/CAUbUu9irhntX01m
-	 tMLezODQc4cB/MOi7+4wHf1EwNJbVHScmcpcWQbBb35vn6HZO1eqYZ6z7Vq84pvU9fA==
+	bh=0oFqdYtQQ93hmf66Xu9P3kJmoMCkLJeiEqd5UgVqoAA=;
+	b=arFbcheXt5duqwn1REcfwQ+O4cbIxxreJ9qPIuzmRbTR2POQ01AYzRyoNEGbFXUiuUm0
+	 Ksu1Y6CLH15I/Yft9Ob+3J7FsxZFOHhhS7+C22eWQrgx/0YNMV8kHpcs+xRBAPxmKzX7m
+	 2OGT1FyLNfMng/28dpD6Rfy+NSfegM3oByb0iPZSZL8WwVQloq3oMNxpMCVxzeRpK0tDV
+	 A6fkjNciuoMogDJnuUeeZL/o7mxcm0Rp3s9cDAgQv0dke//RrJYbTjGp6u6U8+jd8bRLc
+	 qdeontbP91Onc+V1O5Se/Ee5M8hdoERulwrVxr36PMYGvOmB9nBdhsfKSuFp+ZlwOsQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gxIENLz0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hz+Hi3BA;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C94E606EE8C;
-	Wed,  4 Nov 2026 19:19:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 045C9606D812;
+	Wed,  4 Nov 2026 19:19:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gxIENLz0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C301F00919;
-	Wed,  4 Nov 2026 19:19:11 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hz+Hi3BA
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00FB41F00A20;
+	Wed,  4 Nov 2026 19:19:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793819964;
-	bh=+QMuJvtMuQ+CXnn6xLeWoxU7H9VJY0mzKEyTXi76/+M=;
+	s=k20260515; t=1793819992;
+	bh=0oFqdYtQQ93hmf66Xu9P3kJmoMCkLJeiEqd5UgVqoAA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=gxIENLz0UJSM86XrOE1Sp3JOvLA1u1MA6tN2TKsN8z69sY8YtYsnY9pKSo3aFOcfQ
-	 It+yrAGN09WT7v77bOcS26Rrfp6yDzWLpkBPnc74ur6LeQ3oTzrvuG6Ky0kmVgi5Bb
-	 Z3j0QjnFD8aYVcI8yWVigWpiQHEHJJZHAuuleBaspMz1mpQ5rRYAMWLJX0zRU4vJo6
-	 RVoQiNLCqpiXG3Q/pt4TC6GrXdJ/RtFA4o6YSTd9QUZ7eQ0PuRnoorZ/GGmdi0VNty
-	 8+ElarT6h6fA4UlBB9caj85En7ce0T5GP9cwgZFrj2EBL5oKo+5dRL8rx9quzBAg6O
-	 vLwWBgOdvm1Pw==
+	b=hz+Hi3BAL89sr/lh4dJvgeuEtclyRy1SO0NwI+zM8ybFv2jV939+Dv5j/nFojjivC
+	 34KWZ812aeES23dMGvAnt3ycz/SqajABSGrcdN3MX9xaOrork7AxoU/7QteXfxvHfl
+	 /V4rWTo2CoC5Jzjt8ZGo2GAXtUIc69Tn9FoUURbwhYdsskX97AesbdGMm73a/kHJmu
+	 TWwsRNLr3d8FIdQP7kWnDBE0CbOSCCNE5mAI3+7DlKk2UgHvWoVbDBDqf4bqYXIQ1F
+	 1/2Tfi4Gd8xeoe7KjATEoAV/9UDvE75iATYms6WdPb3WRBuJ8ZphmbEUZbFmU49bNO
+	 mp7Eo0gjrTdqA==
 From: Christian Brauner <brauner@kernel.org>
 To: linux-fsdevel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>,
@@ -101,9 +101,9 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	"Christian Brauner (Amutable)" <brauner@kernel.org>,
 	Chuck Lever <cel@kernel.org>,
 	stable@vger.kernel.org
-Subject: [PATCH RESEND v2 13/51] sched/psi: don't drop the last byte of a trigger write
-Date: Wed,  4 Nov 2026 20:19:09 +0100
-Message-ID: <20261104-work-procfs-bugfixes-v2-13-021c84d852e0@kernel.org>
+Subject: [PATCH RESEND v2 15/51] PCI/proc: don't truncate the position of config space accesses
+Date: Wed,  4 Nov 2026 20:19:38 +0100
+Message-ID: <20261104-work-procfs-bugfixes-v2-15-021c84d852e0@kernel.org>
 In-Reply-To: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
@@ -117,45 +117,89 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1310; i=brauner@kernel.org; h=from:subject:message-id; bh=/5ST8groFWC3ZYrB9+5K2L5OtN8hrslkTr6MpvXzbng=; b=kA0DAAoWkcYbwGV43KIByyZiAGrrgdqjlnhsS+Xn2bQzAZGlod8csUEIbzAtYr5Z7PKO7g1AP Ih1BAAWCgAdFiEEQIc0Vx6nDHizMmkokcYbwGV43KIFAmrrgdoACgkQkcYbwGV43KLVfgEA1c1M +KyfIhJG/BAv6BFn00vAnDN1zj94NkCXNtd8aaQBAIjacXos/OXrlYuIrWKCfCTQiGjILl4kpqo N1Eyu2lMK
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2714; i=brauner@kernel.org; h=from:subject:message-id; bh=57Zv3BgjxHPYJgAYtfWWUhWCD6jzurA4v7Zp2iJg+04=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9brzb+9rGxHjWvh7zmt3Cx6bFvVAJkBPctFNvxnKOf apBXbbyHaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpABNRf8Twz2qLtYhEpvbj94Wu aQbrKrb8tHnS1sSutCx7f+mETxuYtRn+Cnk3vJkpqGW+cuXUS7IR5159W7FMY03xNO+3W9a/8tV 5zgYA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 Content-Transfer-Encoding: 8bit
 
-psi_write() copies at most 32 bytes of the write into its buffer and
-terminates the buffer by overwriting its last byte. For a write shorter
-than 32 bytes that is the last byte the writer sent. A trigger written
-without a trailing newline loses its last digit then, "some 150000
-1000000" turns into "some 150000 100000", and a shorter one like
-"some 150 10000" fails with -EINVAL because the window doesn't fit
-anymore. Only writes that end in a newline parse as intended.
+proc_bus_pci_write() truncates the file position to an int. A pwrite()
+at an offset like 0xfffff000 turns it negative, the check against the
+size of the config space passes and the count it clamps to ends up
+larger than what was written. The loop then reads past the end of the
+caller's buffer and writes all of it into config space at negative
+offsets, which pci_user_write_config_*() pass on to the config
+accessors unchecked. The write also returns more than it was asked to
+write.
 
-Copy at most 31 bytes and terminate behind them.
+An offset above 4G that truncates to a small positive value writes to
+the start of config space instead. proc_bus_pci_read() keeps the
+position in an unsigned int, so a read at such an offset returns the
+start of config space instead of hitting EOF.
 
-Fixes: 0e94682b73bf ("psi: introduce psi monitor")
+Check the position against the size of the config space before
+narrowing it.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- kernel/sched/psi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/proc.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-index 7c5381423334..8b59635e95d4 100644
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -1566,11 +1566,11 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
+diff --git a/drivers/pci/proc.c b/drivers/pci/proc.c
+index 3d7a9ed5fc22..e0dc70123f82 100644
+--- a/drivers/pci/proc.c
++++ b/drivers/pci/proc.c
+@@ -32,8 +32,7 @@ static ssize_t proc_bus_pci_read(struct file *file, char __user *buf,
+ 				 size_t nbytes, loff_t *ppos)
+ {
+ 	struct pci_dev *dev = pde_data(file_inode(file));
+-	unsigned int pos = *ppos;
+-	unsigned int cnt, size;
++	unsigned int pos, cnt, size;
+ 
+ 	/*
+ 	 * Normal users can read only the standardized portion of the
+@@ -51,8 +50,9 @@ static ssize_t proc_bus_pci_read(struct file *file, char __user *buf,
  	if (!nbytes)
- 		return -EINVAL;
+ 		return 0;
  
--	buf_size = min(nbytes, sizeof(buf));
-+	buf_size = min(nbytes, sizeof(buf) - 1);
- 	if (copy_from_user(buf, user_buf, buf_size))
- 		return -EFAULT;
+-	if (pos >= size)
++	if (*ppos >= size)
+ 		return 0;
++	pos = *ppos;
+ 	if (nbytes >= size)
+ 		nbytes = size;
+ 	if (pos + nbytes > size)
+@@ -119,9 +119,8 @@ static ssize_t proc_bus_pci_write(struct file *file, const char __user *buf,
+ {
+ 	struct inode *ino = file_inode(file);
+ 	struct pci_dev *dev = pde_data(ino);
+-	int pos = *ppos;
+ 	int size = dev->cfg_size;
+-	int cnt, ret;
++	int pos, cnt, ret;
  
--	buf[buf_size - 1] = '\0';
-+	buf[buf_size] = '\0';
+ 	ret = security_locked_down(LOCKDOWN_PCI_ACCESS);
+ 	if (ret)
+@@ -130,14 +129,16 @@ static ssize_t proc_bus_pci_write(struct file *file, const char __user *buf,
+ 	if (!nbytes)
+ 		return 0;
  
- 	seq = file->private_data;
++	if (*ppos >= size)
++		return 0;
++	pos = *ppos;
++
+ 	if (resource_is_exclusive(&dev->driver_exclusive_resource, pos, nbytes)) {
+ 		pci_warn_once(dev, "%s: Unexpected write to kernel-exclusive config offset %x",
+ 			      current->comm, pos);
+ 		add_taint(TAINT_USER, LOCKDEP_STILL_OK);
+ 	}
  
+-	if (pos >= size)
+-		return 0;
+ 	if (nbytes >= size)
+ 		nbytes = size;
+ 	if (pos + nbytes > size)
 
 -- 
 2.53.0

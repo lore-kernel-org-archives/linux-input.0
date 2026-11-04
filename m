@@ -1,66 +1,53 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793790147;
-	b=gshP1D1FMjglxPcURSvu1aCz3vxc1rFt5ebfIECyGtYGa6KqQ1ePXksACJtBg3eA7v/I
-	 PHMHJ9ruZqbqrRW+6LRymVrW6GxVaPW3abEGUYXobZ6r9DMRRTptl0OCtXbyks8GLsvUk
-	 UrP+nRN+kWlbgs85pjeoR4d1VgxsTFIEIn9Rc5o/9y6oTIVl0VrquWpXn4E7fEhGS4qAJ
-	 VZE7xEw6gXrVvxK1BUHaS/TQMH0DxLSMF/v6L6r2Mu9l3akgg6jKubLT8VFV26Ns17hRS
-	 9CJqY2ML3/n619thyN1+xFnaXyqt1Zo94DS5SUK56H/G9Rp4X8BoHw5+/0h0nW1Th1w==
+	t=1793791270;
+	b=bG02A5eIz8uF+QgziEbLm0ZFDQgyc+5pbupgcSBfeyw/V0OBu7i0feJAzTTVJ7y6PghZ
+	 wGUgDp6OXSeOJljNUJuUtdcDaecwDZHRcvPUjAiHj5WpF4cVNlNReCOJDLmBqhfCULtxi
+	 2/35w8TB90ttyKtPzI97qxpL7PJSUe1svF0qLKGLluhqHYrzMWEnunxCDWMhDvAnIrxB5
+	 BGccZ9LQ0C2WG5RBw9zcory6Dot4qFU7oKnbhYOUfUhJ0JMlKKcihZNXnfsWsnys+fWXz
+	 u8Nv4AicsHoysy8J24eEYg4kd1bCQKOVaVJcOkgHDUjbdHUESKkgDV0BcLtZGMsfQJw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793790147;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793791270;
 	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 Content-Transfer-Encoding:In-Reply-To;
-	bh=7VuWj7zEvZVZovhUG6+Wn2YICpsQy6MzIBw8j4mBmkc=;
-	b=N4qKn91ISZrdL/8gBSneEnwYrLuIg0l1RSm8LTGiZp62AZ9I7DS0KUrFavNAE9z4Ofcj
-	 3cg/cEhWzarJ2sLvVVjKSgRrV1lmhgKInQb1AgpFBeYHkF8dmeoLpXOeOgosHOgi9Vid8
-	 Ko9VoMclYD6Fc7Hx74c5kq/5y6Dj+YUogPewXNWdUyf4Mhc80v1AvhO+gQ1hu32DzW1oX
-	 dM8YcAOv8i0aCVlcE6HupxFSeIC5ijQR9iMxrdDIrZHt6YYmyVO//hzLHI6hU44ZS4kt7
-	 IAHPZm5n9A4mILIdx9K22ZEN5O1Mf5qw3VY2p4aJgF7IaECApMp1DnrcdMU1eLBG+9w==
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=4dVe52eKIL/Wm59MN+NsZYYyw2EDEGnNvFkS/L+MVsE=;
+	b=OGgd7hiljqom5HSD9vaYB+ZSsn/prIxvQ78dyxjDXGnhW4tMKhW2U3XkJssyxV62QoDu
+	 56VFbnGfkehY+eSkS0nqi/M5naJRprjcrXL9Hegn/JZEiUlSBwUijUetMbh5QS+awuk8n
+	 wrA4IqJaRmZfKrWwqPw4lEdxvCux0bt2egZRkqjOcMMSkIzTCVCQki8ai7k/ktuciht5R
+	 ssFsZX7p7Fzejv/m6zt5RmqC7b1UnFlQfXceRb765BVUukPOdLFSnzV0TT6iIHD0pHhIp
+	 oOh2mT5lgm9DfGH7lLEvEh+ZMn39EIyXY3H+lLRZKX8vjShP34RvzpdNBGhbPwx6bGg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TYavcA3i;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=avReivgF;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 581ED606A335;
-	Wed,  4 Nov 2026 11:02:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D724606A31B;
+	Wed,  4 Nov 2026 11:21:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TYavcA3i
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D778B1F00919;
-	Wed,  4 Nov 2026 11:02:23 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=avReivgF
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42A891F000C1;
+	Wed,  4 Nov 2026 11:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793790146;
-	bh=7VuWj7zEvZVZovhUG6+Wn2YICpsQy6MzIBw8j4mBmkc=;
+	s=k20260515; t=1793791270;
+	bh=4dVe52eKIL/Wm59MN+NsZYYyw2EDEGnNvFkS/L+MVsE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=TYavcA3iWsNqIn2LSq2HAm/CowvFmf2BrmpRhdBUaFJu1pUOCNnlAR8n0xS2n/JMd
-	 pxm7pGu3WlBksxD8jLb8TcgR69x+mgMsM1QieFse5cQKNK0QWQCbVhmkNxkFcV3L/l
-	 OFJB1eg5Ri6Llp9lqbP+/FLgArUD7xM1Ue0tlvxoh011C5VUPWKPgQIEzXfH6dEhdt
-	 DwIbk2Jujduo9GEV8XkWgl52gzviiL8DMgrPjNnbJWYYuUs8Bylxi8WtTsKvAiwG9K
-	 NLkCpLES7XMD7/cLq2nbr/UZk7n9KJabkz6H5UYKlJxdBUGG/iGuhUB5mYow1URnWi
-	 dyjWrmmBcwoXA==
-Date: Wed, 4 Nov 2026 11:02:21 +0000
-From: Lee Jones <lee@kernel.org>
-To: Svyatoslav Ryhel <clamor95@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Pavel Machek <pavel@kernel.org>, Sebastian Reichel <sre@kernel.org>,
-	Ion Agorria <ion@agorria.com>,
-	=?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>,
-	Florian Krischer <florian.krischer@fkr.dev>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org, mfd@lists.linux.dev,
-	linux-leds@vger.kernel.org, linux-pm@vger.kernel.org
-Subject: Re: [PATCH v12 5/7] leds: Add driver for ASUS Transformer LEDs
-Message-ID: <20261104110221.GK792264@google.com>
-References: <20261019100406.103687-1-clamor95@gmail.com>
- <20261019100406.103687-6-clamor95@gmail.com>
- <179249575817.1833288.1089755405582445022@kernel.org>
- <CAPVz0n0=6Z7E9iSc84xL6Jt=Xi=a=qmSwVsT5g-LMZ+mENFkzg@mail.gmail.com>
- <20261104082839.GD792264@google.com>
- <CAPVz0n2aCy9Kx5kK1EZD3qxN=KCSf=cB7ZnP1SedrrJc13sh2g@mail.gmail.com>
+	b=avReivgFtI14XS6r47cDCZGUjiJF2p9T14/LJ4kqbxL2/hC9gPn2HcUEERj1AZlc9
+	 ARm8VPIlnkR+DDAj0edF3x8BKdGIpjEZ8V5JCDsYe24UCNnpRP1MaPUqQX2rdV3007
+	 RcFDXumcgoJrm5EdJzQmiF3VltiYVzzd3G0TGIe0kZ7HV1TQp+fmtJ7poKeZBhO0Zg
+	 vhNcU1P4Ppk5cKhnu9jcB0wI6mbi58kYWLw40ItFqvU8bPwHlI6mGz7HnGPXq8FxGg
+	 afhGqp/DZ5CC8M1rP+e/2AE3nttlmoXvEgNY8xIXOlfRGAq2D5uQX/vSnNDoRaA6DG
+	 QrB6S345tyykA==
+Date: Wed, 4 Nov 2026 12:21:06 +0100
+From: Alejandro Colomar <alx+linux-hardening@kernel.org>
+To: Mariia Nikitash <nikitash.mariiaw@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, kees@kernel.org, 
+	justinstitt@google.com, morbo@google.com
+Subject: Re: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
+Message-ID: <ausU2w4G7qluP0FU@devuan>
+References: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -70,228 +57,100 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="pp3a5jmmznjqn6wj"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAPVz0n2aCy9Kx5kK1EZD3qxN=KCSf=cB7ZnP1SedrrJc13sh2g@mail.gmail.com>
+In-Reply-To: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
 
-On Wed, 04 Nov 2026, Svyatoslav Ryhel wrote:
 
-> ср, 4 лист. 2026 р. о 10:28 Lee Jones <lee@kernel.org> пише:
-> >
-> > On Tue, 03 Nov 2026, Svyatoslav Ryhel wrote:
-> >
-> > > вт, 3 лист. 2026 р. о 16:03 Lee Jones <lee@kernel.org> пише:
-> > > >
-> > > > On Mon, 19 Oct 2026, Svyatoslav Ryhel wrote:
-> > > > > From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> > > > >
-> > > > > ASUS Transformer tablets have a green and an amber LED on both the Pad
-> > > > > and the Dock. If both LEDs are enabled simultaneously, the emitted light
-> > > > > will be yellow.
-> > > > >
-> > > > > Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > > > Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
-> > > > > Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-> > > > > ---
-> > > > >  drivers/leds/Kconfig                    |  11 +++
-> > > > >  drivers/leds/Makefile                   |   1 +
-> > > > >  drivers/leds/leds-asus-transformer-ec.c | 125 ++++++++++++++++++++++++
-> > > > >  3 files changed, 137 insertions(+)
-> > > > >  create mode 100644 drivers/leds/leds-asus-transformer-ec.c
-> > > > >
-> > > > > diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-> > > > > index 7ec2c8d785426..788e689fe875c 100644
-> > > > > --- a/drivers/leds/Kconfig
-> > > > > +++ b/drivers/leds/Kconfig
-> > > > > @@ -120,6 +120,17 @@ config LEDS_OSRAM_AMS_AS3668
-> > > > >         To compile this driver as a module, choose M here: the module
-> > > > >         will be called leds-as3668.
-> > > > >
-> > > > > +config LEDS_ASUS_TRANSFORMER_EC
-> > > > > +     tristate "LED Support for Asus Transformer charging LED"
-> > > > > +     depends on LEDS_CLASS
-> > > > > +     depends on MFD_ASUS_TRANSFORMER_EC
-> > > > > +     help
-> > > > > +       This option enables support for charging indicator on
-> > > > > +       Asus Transformer's Pad and its Dock.
-> > > > > +
-> > > > > +       To compile this driver as a module, choose M here: the module
-> > > > > +       will be called leds-asus-transformer-ec.
-> > > > > +
-> > > > >  config LEDS_AW200XX
-> > > > >       tristate "LED support for Awinic AW20036/AW20054/AW20072/AW20108"
-> > > > >       depends on LEDS_CLASS
-> > > > > diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-> > > > > index 4d4b089156e24..3da746279bb81 100644
-> > > > > --- a/drivers/leds/Makefile
-> > > > > +++ b/drivers/leds/Makefile
-> > > > > @@ -15,6 +15,7 @@ obj-$(CONFIG_LEDS_ADP5520)          += leds-adp5520.o
-> > > > >  obj-$(CONFIG_LEDS_AN30259A)          += leds-an30259a.o
-> > > > >  obj-$(CONFIG_LEDS_APU)                       += leds-apu.o
-> > > > >  obj-$(CONFIG_LEDS_ARIEL)             += leds-ariel.o
-> > > > > +obj-$(CONFIG_LEDS_ASUS_TRANSFORMER_EC)       += leds-asus-transformer-ec.o
-> > > > >  obj-$(CONFIG_LEDS_OSRAM_AMS_AS3668)  += leds-as3668.o
-> > > > >  obj-$(CONFIG_LEDS_AW200XX)           += leds-aw200xx.o
-> > > > >  obj-$(CONFIG_LEDS_AW2013)            += leds-aw2013.o
-> > > > > diff --git a/drivers/leds/leds-asus-transformer-ec.c b/drivers/leds/leds-asus-transformer-ec.c
-> > > > > new file mode 100644
-> > > > > index 0000000000000..1b129247ea6c6
-> > > > > --- /dev/null
-> > > > > +++ b/drivers/leds/leds-asus-transformer-ec.c
-> > > > > @@ -0,0 +1,125 @@
-> > > > > +// SPDX-License-Identifier: GPL-2.0-only
-> > > > > +
-> > > > > +#include <linux/err.h>
-> > > > > +#include <linux/leds.h>
-> > > > > +#include <linux/mfd/asus-transformer-ec.h>
-> > > > > +#include <linux/module.h>
-> > > > > +#include <linux/platform_device.h>
-> > > > > +#include <linux/slab.h>
-> > > > > +
-> > > > > +enum {
-> > > > > +     ASUSEC_LED_AMBER,
-> > > > > +     ASUSEC_LED_GREEN,
-> > > > > +     ASUSEC_LED_MAX
-> > > > > +};
-> > > > > +
-> > > > > +struct asus_ec_led_config {
-> > > > > +     const char *name;
-> > > > > +     unsigned int color;
-> > > > > +     u64 ctrl_bit;
-> > > > > +};
-> > > > > +
-> > > > > +struct asus_ec_led {
-> > > > > +     struct asus_ec_leds_data *ddata;
-> > > >
-> > > >
-> > > > Why do we need 'struct ' at all?
-> > > >
-> > > > If we put 'const struct asusec_core *ec;' directly into 'struct
-> > > > asus_ec_led', we can drop the outer wrapper struct and the back-pointer
-> > > > completely.
-> > > >
-> > >
-> > > You propose to allocate asus_ec_led for each led in a loop? I have not
-> > > seen this done by other leds. The asus_ec_leds_data is driver ddata,
-> > > asus_ec_led is each led individual structure.
-> >
-> > For your whole 2 LEDs, yes, I think that will be better.
-> >
-> > > > > +     struct led_classdev cdev;
-> > > > > +     u64 ctrl_bit;
-> > > > > +};
-> > > > > +
-> > > > > +struct asus_ec_leds_data {
-> > > > > +     const struct asusec_core *ec;
-> > > > > +     struct asus_ec_led leds[ASUSEC_LED_MAX];
-> > > > > +};
-> > > > > +
-> > > > > +static const struct asus_ec_led_config asus_ec_leds[] = {
-> > > > > +     [ASUSEC_LED_AMBER] = {
-> > > > > +             .name = "amber",
-> > > > > +             .color = LED_COLOR_ID_AMBER,
-> > > > > +             .ctrl_bit = ASUSEC_CTL_LED_AMBER,
-> > > > > +     },
-> > > > > +     [ASUSEC_LED_GREEN] = {
-> > > > > +             .name = "green",
-> > > > > +             .color = LED_COLOR_ID_GREEN,
-> > > > > +             .ctrl_bit = ASUSEC_CTL_LED_GREEN,
-> > > > > +     },
-> > > > > +};
-> > > > > +
-> > > > > +static enum led_brightness asus_ec_led_get_brightness(struct led_classdev *cdev)
-> > > > > +{
-> > > > > +     struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
-> > > > > +     const struct asusec_core *ec = led->ddata->ec;
-> > > > > +     u64 ctl;
-> > > > > +     int ret;
-> > > > > +
-> > > > > +     ret = asus_dockram_access_ctl(ec->dockram, &ctl, 0, 0);
-> > > >
-> > > > As requested on v6 and v8, why are we still using this bespoke accessor instead
-> > > > of Regmap?
-> > >
-> > > https://lore.kernel.org/lkml/CAPVz0n0imF_ESoGMJSrEX7NOnBShFj8wehDtQKXZV_DMcGqq=A@mail.gmail.com/
-> >
-> > Sorry, I've slept since then, and subsequently forgotten this
-> > conversation.  You can drop this request.
-> >
-> > > > > +     if (ret)
-> > > > > +             return LED_OFF;
-> > > > > +
-> > > > > +     return ctl & led->ctrl_bit ? LED_ON : LED_OFF;
-> > > > > +}
-> > > > > +
-> > > > > +static int asus_ec_led_set_brightness(struct led_classdev *cdev,
-> > > > > +                                   enum led_brightness brightness)
-> > > > > +{
-> > > > > +     struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
-> > > > > +     const struct asusec_core *ec = led->ddata->ec;
-> > > > > +
-> > > > > +     if (brightness)
-> > > > > +             return asus_dockram_access_ctl(ec->dockram, NULL,
-> > > > > +                                            led->ctrl_bit, led->ctrl_bit);
-> > > >
-> > > > Use 100-chars throughout to prevent early wrapping.
-> > > >
-> > > > > +     return asus_dockram_access_ctl(ec->dockram, NULL, led->ctrl_bit, 0);
-> > > > > +}
-> > > > > +
-> > > > > +static int asus_ec_led_probe(struct platform_device *pdev)
-> > > > > +{
-> > > > > +     const struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
-> > > > > +     struct asus_ec_leds_data *ddata;
-> > > > > +     struct device *dev = &pdev->dev;
-> > > > > +     int ret;
-> > > > > +
-> > > > > +     ddata = devm_kzalloc(dev, sizeof(*ddata), GFP_KERNEL);
-> > > > > +     if (!ddata)
-> > > > > +             return -ENOMEM;
-> > > > > +
-> > > > > +     platform_set_drvdata(pdev, ddata);
-> > > >
-> > > > What consumes this?
-> > >
-> > > Seems to be an overlook, must have forgotten to remove it during 12
-> > > iterations over last 10 month
-> >
-> > No problem, it happens.
-> >
-> > > > > +     ddata->ec = ec;
-> > > > > +
-> > > > > +     for (int i = 0; i < ASUSEC_LED_MAX; i++) {
-> > > >
-> > > > `i` isn't just a random iterator here - maybe call it `led`?
-> > > >
-> > >
-> > > This is just a disposable iterator.
-> >
-> > It's a disposable iterator that is clearly a `led`.
-> >
-> > Thus my request for and improvement in the nomenclature remains valid.
-> >
-> > > v7 seem fine https://lore.kernel.org/lkml/20260702162425.GD2108533@google.com/
-> > > v9 as well https://lore.kernel.org/lkml/20260702162425.GD2108533@google.com/
-> >
-> > These are the same link.
-> >
-> 
-> Ooops, v7 https://lore.kernel.org/lkml/20260527144619.GA671544@google.com/
-> 
-> > > Yet again complains and nits
-> >
-> > That my job.  You're welcome.  =;-)
-> >
-> > Sometimes new things are found on re-review.
-> >
-> > Apologies for the disappointment.
-> >
-> 
-> I will incorporate all your requests, but please, may you apply/check
-> v13 a bit quicker. That would be awesome.
+--pp3a5jmmznjqn6wj
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+From: Alejandro Colomar <alx+linux-hardening@kernel.org>
+To: Mariia Nikitash <nikitash.mariiaw@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, kees@kernel.org, 
+	justinstitt@google.com, morbo@google.com
+Subject: Re: [PATCH] Input: mouse: vsxxxaa: Replace strlcat() with strscpy()
+Message-ID: <ausU2w4G7qluP0FU@devuan>
+References: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <20261104062319.288360-1-nikitash.mariiaw@gmail.com>
 
-Sure.  =:-)
+Hi Mariia,
 
--- 
-Lee Jones
+> Date: 2026-11-03 22:23:18-0800
+> From: Mariia Nikitash <nikitash.mariiaw@gmail.com>
+>
+> In preparation for removing the deprecated strlcat() API[1], use
+> strscpy() to initialize the mouse device name.
+>=20
+> The destination is zero-initialized, and the constant string fits
+> within the buffer. Since the return value is unused, this preserves
+> the existing behavior.
+
+Huh!  Indeed, it was very weird that it was using strlcat(3), when
+strlcpy(3) would have been okay.  The commit that added strlcat(3) was
+obviously confused: 08ffce4560e0 (2006-06-26; "Input: fix potential
+overflows in driver/input/mouse").
+
+>=20
+> Link: https://github.com/KSPP/linux/issues/370 [1]
+> Signed-off-by: Mariia Nikitash <nikitash.mariiaw@gmail.com>
+
+Reviewed-by: Alejandro Colomar <alx@kernel.org>
+
+
+Have a lovely day!
+Alex
+
+> ---
+>  drivers/input/mouse/vsxxxaa.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/input/mouse/vsxxxaa.c b/drivers/input/mouse/vsxxxaa.c
+> index 042a17fe81db..b3a0d7ff5738 100644
+> --- a/drivers/input/mouse/vsxxxaa.c
+> +++ b/drivers/input/mouse/vsxxxaa.c
+> @@ -463,8 +463,8 @@ static int vsxxxaa_connect(struct serio *serio, struc=
+t serio_driver *drv)
+> =20
+>  	mouse->dev =3D input_dev;
+>  	mouse->serio =3D serio;
+> -	strlcat(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
+> -		 sizeof(mouse->name));
+> +	strscpy(mouse->name, "DEC VSXXX-AA/-GA mouse or VSXXX-AB digitizer",
+> +		sizeof(mouse->name));
+>  	snprintf(mouse->phys, sizeof(mouse->phys), "%s/input0", serio->phys);
+> =20
+>  	input_dev->name =3D mouse->name;
+> --=20
+> 2.43.0
+>=20
+>=20
+
+--=20
+<https://www.alejandro-colomar.es>
+
+--pp3a5jmmznjqn6wj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEES7Jt9u9GbmlWADAi64mZXMKQwqkFAmrrFSEACgkQ64mZXMKQ
+wqnq6w/+IBkkiue9TgSvhdK2C325RbtJzKEnFVjDUUCmQL/iD0TG2FfdeCJmGCn7
+rLi8Rx0NzAUEzW4fWasZyNEWz+xv+wNV1Drwc9bZK1oqOnuDXonUjYsVdGZcnWCd
+UQTUE/EgAkdLoMCkDBUcOe+Qrdt7ASCBw+MuQmrX7NMT0Jm9fiXQN2bND68hM6Ts
+zWEBA5HH+z9OzcDIEftpt3qC8TzLCJCdXE/z5lkhBllROUFg1Ps++Y2Xv2c+oggv
+2Xs97BU4BlBZugQ8fCiNM2/XQuSW52kpbHOOAk3OIp2B2Yn9DrwXrc5eVZQVNJqr
+CHX19j5yQAHYxwH2I2JXvMQCuEuuFioXiUzKn8laSl4jYX3S+One/QPuHhoowtDK
+sTMbuvlkPJS0sf8JIA9CtxgnEhsIC39LdLkmuDa09P7I8nwXm4e2+YzhQ6p3hMLZ
+lTfwx35Dwu348p9WzMGWM0MhqnPKs4IOT6HfkpNueqIYIdh0/5a+huxwL05LXnJs
+YEKXe8MgX+5Z/4qVZvTQr2YTuUKcUaFen/u8OmEh41egm2HKfgFqyvJRPgbWpM4I
+mBOQt8h+8/6GXEq9JxS2I/DPA5v74j87FZkLr/jbwP/F7NfGbeGnBEc3+SUEUwA+
+TF6HPEamC2JQkdbHTy933sPBh+iBaHiF08nX+HVUAAsAlfGgpvg=
+=yi8L
+-----END PGP SIGNATURE-----
+
+--pp3a5jmmznjqn6wj--

@@ -1,57 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793798192;
-	b=RCU5AGczPiqjnFkLLd7jiW0NcZLO7nF7GmyVSIFxScOw7LfEKsq6ia7Vtk8ipOMm7zy2
-	 kubEXGPhTnU/LS4DgO9AG34iVzJzxbOj409UIceUGfT/7NU/8MQX7GPUZh/mD55x2hsKt
-	 a3TpF1c/h2MYatkmMdA6fBr2LC6GKXi8LDuxE3fckloyYZrydHGtrnj3sfMtNUmjGMfmB
-	 ql3perBvHeD0ylnP0WlEHH4Ctf6sqFoqCvfQctVeZuiQETxJQLmnZhHoUeklcQgcyFv6t
-	 9sohopze3y5LI7jvnu3/p4KrXCuDaPniT+zhWxo1f1qQIlT2P9sOA/ki1jMQkBZLHDA==
+	t=1793798485;
+	b=WkcIstPLpc44cnL/CfuK7SRRII+shlZnj8HJjVRUQ+zz8mDQifwsOdNK1b5tyw4aquC6
+	 m4jmfJ20Z6u4cOpWGRc3szxDy5jQGKJp6K6RJywSWtlIl0nKIH+oW+AetV/mTyLJM3Wgx
+	 GPQw+3HyXrWCWcB5hLYGFmbryUjptUws6Y0d9mNjjDMn7XpCfcFpNCIXFGmuxMcpTWWGx
+	 TBCaMbhB6M3clHW7gbi3kdc3/Oakwb8WoNO7QxCL1nrdqtq2jcpRD2HXhE3v3NJNrv5+m
+	 SFoc+N82PP2gUA5bV+Nx+EG0Eo/efSbVyOYGin5QfqxuO6xFAu9Kzfi04ydLe4AUkkA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793798192;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793798485;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=lX/zgBlv6QrbW6SNvI2CtatQivqS2JnaDWpcK5hxq8g=;
-	b=mlUP6wOUiMI9SzLOkP/KcxSjTZG8HTIIqx3uD1LLmH0erEh1DrC0aJlcCGqg8AeIM2bH
-	 oxOiNLHAWSlnvK+AXkYeV2B/nbOSj+3wWKpu2QpgptdGlWEXolQkNz8lA6OKSvU6yrh/E
-	 hUqH3To6253u5GJXbAzZrVFHF/P4vKLTx1QB1Kbo5oR5+W9FWhECErzViXzf5NfwxsOOp
-	 r74j7OXaxOcGaOMSHuUXXYxVNzZs9o2dQXP/2OheGVNJGyibGKyHxNxxZDuUE6rGti02U
-	 Q42d1HXVn7EBvvBpsYwbd9/25AumKH+BKqxW0Qkeh8TgB5dt9Ujzg0wkHgZdaFJ8SfQ==
+	bh=Y+vNIXZ2savNDMBxcGYhMFEaZrz2V9RzEBPejtxKbZQ=;
+	b=cSJDKm9SeMJyuDrdr+UNqy4m0/X1iAaCraV8u/VY1HA11z48ilANgSLeuTha5xPEZmN4
+	 adJjniTWg4yby56Gk0IEjIyjhccrY1jZjlbX2qYRn2txYZ/nGLWKJWv4Cp2jrkg3FMDbB
+	 PKsB3Sav+n3nlkeJIAMyl9cJQyLgWJ6CtoLueq2pqA1tYQFr3AF4Q340n4ftnyOYlA7W5
+	 nl+qpgFVz1YOJulZ7FTIjqe/1ubttw8MDiXUG0EzxMknNmsR54bt2ZI0Wpeh/Zg5aOSZy
+	 sSTFyskSyMtG7CqXtbaCPA9X5JZWbbyQNFvbgkmC/dj5H+L4rE31wyvS5OGyQI4KuzQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UYwk0pYI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="gqQ9W/6O";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4541E606A32E;
-	Wed,  4 Nov 2026 13:16:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09227606D807;
+	Wed,  4 Nov 2026 13:21:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UYwk0pYI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C7131F00A1A;
-	Wed,  4 Nov 2026 13:16:31 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gqQ9W/6O
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53FCC1F00A17;
+	Wed,  4 Nov 2026 13:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793798191;
-	bh=lX/zgBlv6QrbW6SNvI2CtatQivqS2JnaDWpcK5hxq8g=;
+	s=k20260515; t=1793798484;
+	bh=Y+vNIXZ2savNDMBxcGYhMFEaZrz2V9RzEBPejtxKbZQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UYwk0pYItSevvjMym9EowmzfEevUTuw8026wYBZDd4IRWEOh3WiwaHP0m3DfZiy2d
-	 426uHmmFV3tu+wydc1Mi7o2DXtA1i7BXmJmm+Ub1iRnMHTgyoJ16bkoNzafwvBhqzb
-	 Aiy0lcR4qB3C7P7b3Jxd0d+H6rncb53bRd5UPebYcaBlNl1wEvxhMWyBnEJt5bwrIW
-	 TL9BXrBjY2tYyfSeEkS+WICu/gNyjDoHPKYVUD+BsGDgAR42gwNdE2wvZbeX1pGyUc
-	 85qTwNNElqYgOMsPOb3hTPifyF7nlcpSNkGRBF1okj0mdcN1shH2Hbfl3IFy7hifT2
-	 GFhsenGEf2q8g==
-Message-ID: <sashiko-outbox-197330@kernel.org>
+	b=gqQ9W/6OpPi2zdgcn6iSsaTEKioOUKVrpPTUG9PkCMJhk9xWPxHBcjRIECCoZjrQ2
+	 I6+HKsz76dNuJmRdjdIt23SFwQM+bWwZ8Lv1QfzLMVgIkHzn45P8pcGAV8pEudUKcC
+	 yRz0Q6kgBP2fKFTxH3IDsBEsB2CGoNj11+/IrkkuEgDIZP5J6KjnOrQPQhNafIp9Dv
+	 HgUatauUBVde+zeT6s1lhSnyMPmwALpsy2sk9RjYToa13krvwkWCUDJ5CBDg1jPFtp
+	 H4K8BMdpHpU+alk07AsVS2LiV9cF/14KaVd/acG4NtvkAY0TelNfYlmP8VBhF3VU1y
+	 er5XwPDNDj6iA==
+Message-ID: <sashiko-outbox-197333@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 2/3] Input: edt-ft5x06 - Add wakeup gesture support
- for FT5452
+Subject: Re: [PATCH RFC 3/3] arm64: dts: qcom: sdm845-shift-axolotl: Wake
+ the system on a touchscreen double tap
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "David Heidelberg" <david@ixit.cz>
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com
-In-Reply-To: <20261104-ft5x06-double-tap-v1-2-5a1bd80449cc@ixit.cz>
+In-Reply-To: <20261104-ft5x06-double-tap-v1-3-5a1bd80449cc@ixit.cz>
 References: <20261104-ft5x06-double-tap-v1-0-5a1bd80449cc@ixit.cz>
- <20261104-ft5x06-double-tap-v1-2-5a1bd80449cc@ixit.cz>
+ <20261104-ft5x06-double-tap-v1-3-5a1bd80449cc@ixit.cz>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 13:16:30 +0000
+Date: Wed, 04 Nov 2026 13:21:23 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -61,284 +61,171 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Medium] Input: edt-ft5x06 - in_gesture_mode desync across non-wakeup sus=
-pend/resume
-- [Medium] Input: edt-ft5x06 - IRQ race in edt_ft5x06_ts_set_gesture_mode()
-- [Medium] Input: edt-ft5x06: missing input->mutex serialization in suspend=
- and resume
-- [Low] Input: edt-ft5x06 - use __free(fwnode_handle) and explicit error re=
-turns
+- [High] arm64: dts: qcom: sdm845-shift-axolotl: touchscreen wakeup gesture=
+ fails with -EACCES
+- [Medium] Input: edt-ft5x06: stale in_gesture_mode across non-wakeup suspe=
+nd/resume
 --
 
-commit 3e641160614ae8cff0e8f98270a632d8f526b6a7
+commit b6f2bc4fb2c1b25270ce05595064b9f93a030624
 Author: David Heidelberg <david@ixit.cz>
 
-Input: edt-ft5x06 - Add wakeup gesture support for FT5452
+arm64: dts: qcom: sdm845-shift-axolotl: Wake the system on a touchscreen do=
+uble tap
 
-This commit adds wakeup gesture support for the FocalTech FT5452 touchscreen
-controller by parsing event child nodes from the device tree and reporting
-detected gestures as key events on a separate input device. Gesture mode is
-entered when the touchscreen input device is closed or during system suspend
-when wakeup is enabled.
+This commit enables wakeup-source and configures the double-tap gesture to
+report KEY_WAKEUP on the FocalTech FT5452 touchscreen controller in
+sdm845-shift-axolotl.dts.
 
-> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touch=
-screen/edt-ft5x06.c
-> index e69d64c3db2dd..fc810d68409cf 100644
-> --- a/drivers/input/touchscreen/edt-ft5x06.c
-> +++ b/drivers/input/touchscreen/edt-ft5x06.c
-[ ... ]
-> @@ -303,6 +362,11 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *=
-dev_id)
->  	int i, type, x, y, id;
->  	int error;
+> diff --git a/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts b/arch/arm=
+64/boot/dts/qcom/sdm845-shift-axolotl.dts
+> index 1b0eaeafbd517..e4eef60271c55 100644
+> --- a/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
+> +++ b/arch/arm64/boot/dts/qcom/sdm845-shift-axolotl.dts
+> @@ -509,6 +509,12 @@ touchscreen@38 {
 > =20
-> +	if (tsdata->in_gesture_mode) {
-> +		edt_ft5x06_ts_report_gesture(tsdata);
-> +		return IRQ_HANDLED;
-> +	}
+>  		touchscreen-size-x =3D <1080>;
+>  		touchscreen-size-y =3D <2160>;
 > +
-[ ... ]
-> @@ -1113,6 +1177,110 @@ static void edt_ft5x06_disable_regulators(void *a=
-rg)
->  	regulator_disable(data->iovcc);
->  }
-> =20
-> +static int edt_ft5x06_ts_set_gesture_mode(struct edt_ft5x06_ts_data *tsd=
-ata,
-> +					  bool enable)
-> +{
-> +	int err;
-> +
-> +	if (enable) {\
-> +		err =3D regmap_write(tsdata->regmap, GESTURE_REGISTER_MASK,
-> +				   tsdata->gesture_mask);
-> +		if (err)
-> +			return err;
-> +	} else {
-> +		/* let the IRQ thread read the gesture that woke us first */
-> +		synchronize_irq(tsdata->client->irq);
-> +	}
-> +
-> +	err =3D regmap_write(tsdata->regmap, GESTURE_REGISTER_EN, enable);
-> +	if (err)
-> +		return err;
-> +
-> +	tsdata->in_gesture_mode =3D enable;
-> +
-> +	return 0;
-> +}
+> +		wakeup-source;
 
 [Severity: Medium]
-Can edt_ft5x06_ts_set_gesture_mode() race with the threaded interrupt handl=
-er
-edt_ft5x06_ts_isr() while client->irq remains enabled?
+Can tsdata->in_gesture_mode in drivers/input/touchscreen/edt-ft5x06.c get
+out of sync with the hardware state across a non-wakeup suspend and resume
+cycle when wakeup-source is enabled here?
 
-When enable is true, synchronize_irq() is not called before switching modes.
-An already-triggered touch interrupt in edt_ft5x06_ts_isr() can observe
-tsdata->in_gesture_mode as true after GESTURE_REGISTER_EN is written and re=
-ad
-GESTURE_REGISTER_OUTPUT instead of touch coordinates. Conversely, if a
-gesture interrupt fires right after the sleeping regmap_write() to
-GESTURE_REGISTER_EN completes on the I2C bus, edt_ft5x06_ts_isr() can run
-before tsdata->in_gesture_mode =3D enable is stored and read normal touch d=
-ata
-instead of GESTURE_REGISTER_OUTPUT.
+When the touchscreen input device is closed (or inhibited) while
+device_may_wakeup(dev) is true, edt_ft5x06_ts_close() calls
+edt_ft5x06_ts_set_gesture_mode(tsdata, true), which programs
+GESTURE_REGISTER_MASK and GESTURE_REGISTER_EN and sets
+tsdata->in_gesture_mode =3D true:
 
-When enable is false, synchronize_irq() is called before writing 0 to
-GESTURE_REGISTER_EN while the interrupt line is still enabled. Once the
-controller receives GESTURE_REGISTER_EN =3D 0 over I2C, it resumes normal t=
-ouch
-scanning before regmap_write() returns to clear tsdata->in_gesture_mode, so=
- a
-touch interrupt in that window will see tsdata->in_gesture_mode as true in
-edt_ft5x06_ts_isr() and call edt_ft5x06_ts_report_gesture().
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_close() {
+	...
+	err =3D edt_ft5x06_ts_set_gesture_mode(tsdata, true);
+	...
+}
+
+If userspace then disables wakeup via power/wakeup before system suspend,
+edt_ft5x06_ts_suspend() sees device_may_wakeup(dev) is false and falls
+through to hibernate or power off the controller (asserting reset_gpio and
+disabling the vcc and iovcc regulators in EDT_PMODE_POWEROFF mode) without
+clearing tsdata->in_gesture_mode:
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_suspend() {
+	if (device_may_wakeup(dev)) {
+		/* the IRQ stays enabled, the PM core arms it as the wake source */
+		if (!tsdata->gesture_input || tsdata->in_gesture_mode)
+			return 0;
+
+		return edt_ft5x06_ts_set_gesture_mode(tsdata, true);
+	}
+	...
+}
+
+On resume, edt_ft5x06_ts_resume() also takes the !device_may_wakeup(dev)
+path, powering the controller back on and resetting it into normal touch
+mode while leaving tsdata->in_gesture_mode set to true:
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_resume() {
+	if (device_may_wakeup(dev)) {
+		if (!tsdata->in_gesture_mode)
+			return 0;
+		...
+	}
+	...
+}
+
+While the input device remains closed, wouldn't any touch interrupt cause
+edt_ft5x06_ts_isr() to take the tsdata->in_gesture_mode branch and call
+edt_ft5x06_ts_report_gesture() even though GESTURE_REGISTER_EN was reset to
+0 in hardware, and wouldn't a subsequent wakeup-enabled suspend skip
+re-programming gesture mode because tsdata->in_gesture_mode is still true?
 
 > +
-> +/*
-> + * The touchscreen is opened and closed by userspace, either by opening =
-and
-> + * closing its event device or through the "inhibited" attribute. Closin=
-g it
-> + * is the moment to start looking for the wakeup gestures.
-> + */
-> +static int edt_ft5x06_ts_open(struct input_dev *input)
-> +{
-> +	struct edt_ft5x06_ts_data *tsdata =3D input_get_drvdata(input);
-> +
-> +	if (!tsdata->in_gesture_mode)
-> +		return 0;
-> +
-> +	return edt_ft5x06_ts_set_gesture_mode(tsdata, false);
-> +}
-> +
-> +static void edt_ft5x06_ts_close(struct input_dev *input)
-> +{
-> +	struct edt_ft5x06_ts_data *tsdata =3D input_get_drvdata(input);
-> +	struct device *dev =3D &tsdata->client->dev;
-> +	int err;
-> +
-> +	if (!device_may_wakeup(dev))
-> +		return;
-> +
-> +	err =3D edt_ft5x06_ts_set_gesture_mode(tsdata, true);
-> +	if (err)
-> +		dev_warn(dev, "Failed to enter gesture mode: %d\n", err);
-> +}
-> +
-> +/*
-> + * The gestures detected in gesture mode are reported on their own input
-> + * device, so that they still reach userspace when the touchscreen input
-> + * device has been closed.
-> + */
-> +static int edt_ft5x06_ts_setup_gestures(struct edt_ft5x06_ts_data *tsdat=
-a)
-> +{
-> +	struct device *dev =3D &tsdata->client->dev;
-> +	struct input_dev *input =3D NULL;
-> +	struct fwnode_handle *child;
-> +	int err;
-> +
-> +	for (int i =3D 0; i < ARRAY_SIZE(edt_ft5x06_gestures); i++) {
-> +		const struct edt_ft5x06_gesture *gesture =3D &edt_ft5x06_gestures[i];
-> +		unsigned int code;
-> +
-> +		child =3D device_get_named_child_node(dev, gesture->node);
-> +		if (!child)
-> +			continue;
-> +
-> +		err =3D fwnode_property_read_u32(child, "linux,code", &code);
-> +		fwnode_handle_put(child);
-> +		if (err)
-> +			return dev_err_probe(dev, err, "%s: failed to read linux,code\n",
-> +					     gesture->node);
-> +
-> +		if (code =3D=3D KEY_RESERVED)
-> +			continue;
-> +
-> +		if (!input) {
-> +			input =3D devm_input_allocate_device(dev);
-> +			if (!input)
-> +				return -ENOMEM;
-> +
-> +			input->name =3D EDT_GESTURE_DEV_NAME;
-> +			input->id.bustype =3D BUS_I2C;
-> +		}
-> +
-> +		input_set_capability(input, EV_KEY, code);
-> +		tsdata->gesture_code[i] =3D code;
-> +		tsdata->gesture_mask |=3D BIT(gesture->id - GESTURE_ID_FIRST);
-> +	}
-> +
-> +	if (!input)
-> +		return 0;
-> +
-> +	tsdata->gesture_input =3D input;
-> +
-> +	return input_register_device(input);
-> +}
+> +		event-tap-double {
+> +			linux,code =3D <KEY_WAKEUP>;
+> +		};
 
-[Severity: Low]
-This isn't a bug, but in edt_ft5x06_ts_setup_gestures(), could child be
-declared inside the loop using __free(fwnode_handle):
+[Severity: High]
+When a double-tap gesture on touchscreen@38 wakes the system from suspend,
+does reading GESTURE_REGISTER_OUTPUT in edt_ft5x06_ts_report_gesture() fail
+with -EACCES and drop the KEY_WAKEUP event because the parent GENI I2C
+controller still has runtime PM disabled when the wakeup IRQ is retriggered?
 
-	struct fwnode_handle *child __free(fwnode_handle) =3D
-		device_get_named_child_node(dev, gesture->node);
+On sdm845-shift-axolotl.dts, touchscreen@38 is a child of i2c5
+(qcom,geni-i2c, handled by drivers/i2c/busses/i2c-qcom-geni.c). During
+suspend, edt_ft5x06_ts_suspend() leaves tsdata->client->irq enabled when
+device_may_wakeup(dev) is true:
 
-instead of calling fwnode_handle_put(child) manually?
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_suspend() {
+	if (device_may_wakeup(dev)) {
+		/* the IRQ stays enabled, the PM core arms it as the wake source */
+		if (!tsdata->gesture_input || tsdata->in_gesture_mode)
+			return 0;
 
-Also, in both edt_ft5x06_ts_setup_gestures() and edt_ft5x06_ts_resume(),
-which have multiple failure points, could the final calls to
-input_register_device(input) and edt_ft5x06_ts_set_gesture_mode(tsdata, fal=
-se)
-check err and explicitly return 0 on success to match input subsystem style
-conventions?
+		return edt_ft5x06_ts_set_gesture_mode(tsdata, true);
+	}
+	...
+}
 
-[ ... ]
-> @@ -1349,8 +1530,13 @@ static int edt_ft5x06_ts_suspend(struct device *de=
-v)
->  	struct gpio_desc *reset_gpio =3D tsdata->reset_gpio;
->  	int ret;
-> =20
-> -	if (device_may_wakeup(dev))
-> -		return 0;
-> +	if (device_may_wakeup(dev)) {
-> +		/* the IRQ stays enabled, the PM core arms it as the wake source */
-> +		if (!tsdata->gesture_input || tsdata->in_gesture_mode)
-> +			return 0;
-> +
-> +		return edt_ft5x06_ts_set_gesture_mode(tsdata, true);
-> +	}
-> =20
->  	if (tsdata->suspend_mode =3D=3D EDT_PMODE_NOT_SUPPORTED)
->  		return 0;
-> @@ -1391,8 +1577,18 @@ static int edt_ft5x06_ts_resume(struct device *dev)
->  	struct edt_ft5x06_ts_data *tsdata =3D i2c_get_clientdata(client);
->  	int ret =3D 0;
-> =20
-> -	if (device_may_wakeup(dev))
-> -		return 0;
-> +	if (device_may_wakeup(dev)) {
-> +		if (!tsdata->in_gesture_mode)
-> +			return 0;
-> +
-> +		guard(mutex)(&tsdata->input->mutex);
-> +
-> +		/* stays armed until the input device is opened again */
-> +		if (!input_device_enabled(tsdata->input))
-> +			return 0;
-> +
-> +		return edt_ft5x06_ts_set_gesture_mode(tsdata, false);
-> +	}
+In dpm_suspend_late(), device_suspend_late() calls pm_runtime_disable() on
+the parent GENI I2C controller (gi2c->se.dev), setting power.disable_depth
+to 1. In dpm_suspend_noirq(), suspend_device_irqs() -> suspend_device_irq()
+sees the wakeup IRQ is still enabled, so it sets IRQD_WAKEUP_ARMED without
+setting IRQD_IRQ_ENABLED_ON_SUSPEND. Next, geni_i2c_suspend_noirq() calls
+pm_runtime_force_suspend(gi2c->se.dev), incrementing power.disable_depth to
+2 and leaving gi2c->se.dev in RPM_SUSPENDED with power.needs_force_resume =
+=3D
+false.
 
-[Severity: Medium]
-What happens if the touchscreen input device is closed while wakeup is
-enabled, and userspace then disables wakeup via sysfs before suspending?
+When the double-tap gesture fires on GPIO 125 during suspend,
+irq_pm_handle_wakeup() clears IRQD_WAKEUP_ARMED, marks the IRQ
+IRQS_SUSPENDED | IRQS_PENDING, and increments desc->depth to 1.
 
-1. edt_ft5x06_ts_close() calls edt_ft5x06_ts_set_gesture_mode(tsdata, true),
-   which sets tsdata->in_gesture_mode =3D true.
-2. Userspace disables wakeup via power/wakeup while the input device remains
-   closed, so device_may_wakeup(dev) becomes false.
-3. On system suspend, edt_ft5x06_ts_suspend() takes the non-wakeup path and
-   hibernates or powers off the controller (asserting reset_gpio and disabl=
-ing
-   vcc/iovcc) without clearing tsdata->in_gesture_mode.
-4. On resume, edt_ft5x06_ts_resume() takes the non-wakeup path and resets or
-   wakes the controller back into normal touch mode while
-   tsdata->in_gesture_mode remains true.
+During dpm_resume_noirq(), dpm_noirq_resume_devices() runs
+geni_i2c_resume_noirq():
 
-While the input device remains closed, any touch interrupt will be handled =
-by
-edt_ft5x06_ts_isr() as a gesture via edt_ft5x06_ts_report_gesture(). In
-addition, if wakeup is later re-enabled before a subsequent suspend while t=
-he
-device is still closed, edt_ft5x06_ts_suspend() will see
-tsdata->in_gesture_mode =3D=3D true and return 0 without programming
-GESTURE_REGISTER_MASK or GESTURE_REGISTER_EN.
+drivers/i2c/busses/i2c-qcom-geni.c:geni_i2c_resume_noirq() {
+	ret =3D pm_runtime_force_resume(dev);
+	if (ret)
+		return ret;
 
-[Severity: Medium]
-Should edt_ft5x06_ts_suspend() and the initial tsdata->in_gesture_mode check
-in edt_ft5x06_ts_resume() also be serialized under tsdata->input->mutex?
+	i2c_mark_adapter_resumed(&gi2c->adap);
+	return 0;
+}
 
-edt_ft5x06_ts_open() and edt_ft5x06_ts_close() are called under
-tsdata->input->mutex from input_open_device(), input_close_device(),
-input_inhibit_device(), and input_uninhibit_device(). However,
-edt_ft5x06_ts_suspend() reads tsdata->in_gesture_mode and calls
-edt_ft5x06_ts_set_gesture_mode(tsdata, true) without holding
-tsdata->input->mutex, and edt_ft5x06_ts_resume() checks
-!tsdata->in_gesture_mode before acquiring guard(mutex)(&tsdata->input->mute=
-x).
+Because needs_force_resume is false and runtime_status is RPM_SUSPENDED,
+pm_runtime_force_resume() does not resume gi2c->se.dev and only decrements
+power.disable_depth from 2 to 1.
 
-If a deferred file release via delayed_fput_work (evdev_release() ->
-evdev_close_device() -> input_close_device()) or an in-kernel input handler
-runs concurrently with edt_ft5x06_ts_suspend() or edt_ft5x06_ts_resume(), c=
-an
-concurrent calls to edt_ft5x06_ts_set_gesture_mode() interleave I2C writes =
-to
-GESTURE_REGISTER_MASK and GESTURE_REGISTER_EN and leave
-tsdata->in_gesture_mode out of sync with the hardware?
+Still inside dpm_resume_noirq(), before dpm_resume_early() runs
+device_resume_early() to re-enable runtime PM on gi2c->se.dev,
+resume_device_irqs() -> resume_irq() -> __enable_irq() -> irq_startup() ->
+check_irq_resend() runs for tsdata->client->irq, which immediately
+retriggers the pending interrupt and wakes the threaded handler
+edt_ft5x06_ts_isr() -> edt_ft5x06_ts_report_gesture():
+
+drivers/input/touchscreen/edt-ft5x06.c:edt_ft5x06_ts_report_gesture() {
+	...
+	err =3D regmap_read(tsdata->regmap, GESTURE_REGISTER_OUTPUT, &id);
+	if (err) {
+		dev_err_ratelimited(dev, "Unable to fetch gesture, error: %d\n",
+				    err);
+		return;
+	}
+	...
+}
+
+When regmap_read() -> geni_i2c_xfer() -> pm_runtime_resume_and_get() ->
+rpm_resume() runs before device_resume_early() on gi2c->se.dev, doesn't
+rpm_resume() fail with -EACCES because gi2c->se.dev is RPM_SUSPENDED with
+power.disable_depth =3D=3D 1, causing the wakeup gesture to be lost unless
+edt-ft5x06 disables tsdata->client->irq in edt_ft5x06_ts_suspend() and
+re-enables it in edt_ft5x06_ts_resume()?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-ft5x06-dou=
-ble-tap-v1-0-5a1bd80449cc@ixit.cz?part=3D2
+ble-tap-v1-0-5a1bd80449cc@ixit.cz?part=3D3

@@ -1,100 +1,55 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.54
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793786187;
-	b=1pQgU5oU4GvbK0ogkHjD3Z7pOZXuPzPVuy9VbhYJ/EZo0DXXuDkiFalWgigtrBEnzO/E
-	 yO8sh2rDePNdSYiLxrXWnPcvt/PrlJj10q0LPW2zjrGFoGemMZRItHFW1K4SRz4S2viYE
-	 KmCBkVowAYYGSnHdgQjTt0X1xM9omuVs5CHeD0M139qq+/V8RkI+G4sbsZoxT4U8jFuxl
-	 sMuu/vY5z5GvMk8ZBYuIL84eE7j35ez8DXtFv3PJod7517UYIvBKGjZwJkLJLrbfuv62v
-	 TCBopql6TX3VlP8H/QMcO8R/7DjO70Dg4poP6vY3rXw7YO1VSy1JXAmXGgjD3INSE1Q==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793786187;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=vRF2IRPDKW7IU9GzlHV0/GWISRE9+PInmvf0t89mBAY=;
-	b=gkCDFXtkkIVvR+ndgx090GGaO73L8IZZyc+q5IU+1CR7WOraAaZnn+0fU68apxZqCY6E
-	 ZscPXEXvNx2FHn0vOmR9DnSmRlfH2wcGoczWD684fGPB/lavCsiMcNNeS3WZwO3XnZr2Y
-	 huIkFEuFgdwD0MpR/jpk5rUleZuAvFkfASpV0jgglBRRjKGndJKqnUPGlayhp5M2OEE2P
-	 5G+REmm0MMIZhGFXzMgH6dz3/yxZpKHA3Nipfaz7CS9wXANJwaqCzU3Lyj9ZMP+1tZdRV
-	 WQs6AFNmaZ89YoLnDRO0VydLPhaEEa0PbOBfkiVjLmNCHySSR+e7go9k5TLJ5O8HO2g==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=gWZhAgg9;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.54
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793789914;
+	b=1MBTMPt5w3QoNyE6kwYV8n8Lh0PYRgFye+9SobhpokkFKYd415E9zxGD1Rrg14nw9UFB
+	 d8oWxL8mFJLLa/jMNSGalLFKCEVCn3GUP9aoX5aM1JFnsbM+0nd5j7KoQeDYkYBQm3C66
+	 6NVntal75yGwoHOrQc3dtFVGVLyIkfkJ+h2vunT5ePSrnDsZ4q753/LCVuZh+739g+C08
+	 VFuGIpxxj5JRxh0qySEM8H2Eqy5Kjw48klLBxIM8uXk4tS2HZALTtrjqD5evYLg5m7D6i
+	 jP09S4pc2IJ0ArYyqjLMo3gqX/Nn2q5ajkcD0hhDwdN3kD1E0btVLK0pQI31R2iDqeA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793789914;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=UYMZYA16pBJWYaNihgVXIF9xjzU0+2ohahxkf0gwfVc=;
+	b=f+odEFr/jri0Wjc93B2AYQTAsAMhYawiEVXOdSVc3wCCnjIFUYvB2Krg0z5H1WAdxaRq
+	 XsGBSK4WqZZpbjKroRo9qcdhbwk9taUVzcnG69O5dISDsGn0JL4rzNVN1qzz1LJO+QRvt
+	 x8Wp/MtAX9Kpahssc4g6na2bOt8MpvKFQReYb2l5t4bzePgM0eF4Xy47+eU1at4n4iP7n
+	 ogQ3cQ6gyCBWAs/cmgZKZOU9aO/js7szCRgcwwcghYZestel0hYGspK1YRHs7rovVgQyV
+	 UalFbDyd0xynjrSGH2TbSmy61EOtEIicfq1wT4OzBxbQJOBH9F2tD+bbVcYpUPgq85Q==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AJVeFQnb;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96E5A606A32C
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 09:56:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 96E5A606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51A69606A31B;
+	Wed,  4 Nov 2026 10:58:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=gWZhAgg9
-Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-6b3dc272dcfso562607a12.3
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 01:56:26 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793786185; cv=none;
-        d=google.com; s=arc-20260327;
-        b=q1720/yoZK02V3vZCIi35KkJvJx5D4pBfZYASZLlNDE7NwoGDPmQbhhQA3NXJmgn87
-         PMxcV9jCsGtX46AlHBDvJISglPtGQkjEOgnkMy3PMXWpYg7IuLcpIy04cOX0eWVW52LQ
-         QE+dDyhirLdExbUN10dnlNWOojtmxRtEn7r1T7NPAdboUTqKJEFh/vxmqlZOFTCwk0u5
-         Efb1kOdMARn5f92GKOjUZxzXkGjSAc73I1alDvewkiI/YSPOQluxAJ2caCrC23vA/acq
-         TuKJKTZFGMW57sbb54YXfS6Dye1qzqgzonyH6ac095xdu225JRMyzzbysI9UlvFOeyeG
-         N7NA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=vRF2IRPDKW7IU9GzlHV0/GWISRE9+PInmvf0t89mBAY=;
-        fh=UcC90ngqAqc4GNuOhC/QSbXA65W4AiKPQffaGXIAR9M=;
-        b=QiRYK8K2R356bQg77PeeiLqEH3MzFToiGSpoCOpmFsSx+5xNVqYQdI9AHgoByBCzh2
-         rxjRfJzEPrxYW612W1QHuzU/h90rfrvNe23wFwslp8zypkUJcKJGHMzSBjb1IKpCGelj
-         UlcFqQup5q+b4rAeHhnmaac1kiAWkWBhpVhYBajOK49zuZji5D2UyEum5Qg0nAErttuB
-         JoebJuh5RKugy4OxBzUFnlJGoMesq23+eTcZBh/CdVvzq7F0uXSW7CQEgO/Sp60EfKJ0
-         OQzuMSLwwr23aFkQQ4HB00QNerd5zC7glVJe+XtwIGUy+oU4CmRQBFy0T3bkO5Q67E3u
-         ERvA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1793786185; x=1794390985; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=vRF2IRPDKW7IU9GzlHV0/GWISRE9+PInmvf0t89mBAY=;
-        b=gWZhAgg9YIDgZnOonSXVa2tZ1hGN+OASVp+1ONCoXUnNkQs077OHpb4z4VM4LYwFKP
-         R6Csqs5BBmw9gKruR6j8qPg3ia8pm20lKLdlQMfNK/q9v9dPXdbR1x+WckoqPpsyklvt
-         AyEOFpqNSzuN1tp3aEy9YT959YykKjrJv8WoA4Ig91YIVE/qkURqodbAsz+nLaLEeIvU
-         h6Xl3NcsHXmI/Y4YHK6zXc1gopt77iJnCN05JO5IHdbDnrsvlpIrA52KWgy+d7bklzGF
-         iCydvnDdwy/UG1QT4uLsUZdCkJcojYep8jGV1S0P2LuV2/D/u82cTzgQifTjhtqhJzbw
-         YroA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793786185; x=1794390985;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vRF2IRPDKW7IU9GzlHV0/GWISRE9+PInmvf0t89mBAY=;
-        b=oD0WDd+8bxZoecj2DYJmV73zSh5JDIpeHe+boLbiZ/NF/G5AgsnNBEubhIkWM2/qwl
-         CQsnPP12NSfLfQNTtNBykwIrz2bZiCVG+/pnQDYETttx6xWjHicD0tL/68zIq9YCqUH9
-         dJcpbEpQ/LIrt55WIEpZUoCShcB81la4CN8czgMSVOesIVrWEejoDWxmdMjUz2sfaki2
-         dt9rnsxYheW6LbLsWxkf/dMNBYWaKQyauSNNLJzasMn3oK1DJVRbO0zS9l5AGp+IkDOh
-         KBG/45iF71Jd7DqXgigvs9BWLIDaGnpkv+fEactcY2LXU8btvXNW4MKhwDBSY9HO3XJ3
-         z1QQ==
-X-Gm-Message-State: APuU4Z8dl8Y9wVQdLSNsAjL5MSfoC+mfINedKCBEHlPjjDpkHDv59m4m
-	fYO/dC2NUji+h4cdSzj/H2jImcCe/QFeQ9lJHKo5eyC4CDt3FGQToxGbxYrif/tQE7GTU+c5aCb
-	2rxdNzhsY7rFDVCH10nQnIX/72xSQ4Sy4rv9ePg+n
-X-Gm-Gg: AYBFou37tOVy9dwnMssckOWc4qVNLsiHTnHq9fVO+qhk6Y5v86vobx060E6mn9pfLI0
-	R66ly+1RxFrVD+OBaCPApKwpZo/qHPZz7SOtXy9dV4uwcg1tnTMbGbFkKaTn3qupyeZRfW9W1nH
-	5JKRFQcJr4B6o1Wf2VYT3Bwjgz8EF613q2t1isqycMZ1UUqgl9Gvdvgj6PzyHle1ZhkmkWZrUrp
-	l5k5/b/x5nRhAeO0YAIPgzB8y7iNlqV1GtUOIXlUvwF9zZtnmmXzQm+mJE5BhC/MaMGmLAShYcB
-	g8kUpxYe2cHPQmWHBEwsiE8Dh5m5GwDVv/H0yr9Udm+A3fSZ50rBd+YtCz0Yf/mNW1k7JIxU4qH
-	ifdQVJTwDtiIj3rbdr5p0JvKPxoKCMXznZTxNw6uAc15xpp9nyXopxpPmsSffABjNFZmUIAfUkm
-	VIZqPf2j7QN3mH
-X-Received: by 2002:a05:6402:c50c:20b0:6b3:f05e:fd79 with SMTP id
- 4fb4d7f45d1cf-6b4d497e5f9mr8204762a12.21.1793786184593; Wed, 04 Nov 2026
- 01:56:24 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AJVeFQnb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626021F000C1;
+	Wed,  4 Nov 2026 10:58:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793789914;
+	bh=UYMZYA16pBJWYaNihgVXIF9xjzU0+2ohahxkf0gwfVc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=AJVeFQnb6VpMx40meUsvImeqFm1Ho0oI2xBeCY2Vz0GN/UolsUN+T7DAr0lEVoJY+
+	 u7R9TGhgk/uITOn9aBD5Q9RSTzV6OVQ3cNn7qrk0mmniV/2Lycp/7XX77G9Gk00445
+	 tNojgdaSBrRrZzp5/EIoJb+Npm+1VC0lP75BK2PMlGQxxrCwwMy1c4EzeP4zFwPRdN
+	 Fo6X2gStnKUsBvj/JdLT4srE+fW00YDc+qFvgSOzosomKInJVKUvd/nVpBneg7NYnP
+	 Ri6Sjue8N7LMkf5EWuuG1AkFicMniK+6HxjZnyjSnai3FJxYAiJ5P8gtgn1eAXrdIy
+	 OspWeFijkhAVg==
+Date: Wed, 4 Nov 2026 10:58:29 +0000
+From: Lee Jones <lee@kernel.org>
+To: Fabio Estevam <festevam@gmail.com>
+Cc: dmitry.torokhov@gmail.com, jic23@kernel.org,
+	linux-input@vger.kernel.org, mfd@lists.linux.dev,
+	linux-iio@vger.kernel.org, stable@vger.kernel.org,
+	Marc Zyngier <maz@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>
+Subject: Re: [PATCH] mfd: mxs-lradc: Pass mapped IRQs to child devices
+Message-ID: <20261104105829.GI792264@google.com>
+References: <20261018022400.599028-1-festevam@gmail.com>
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -104,82 +59,157 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261022-evdev_syndropped_fix-v1-0-b5400740e1f7@google.com>
- <20261022-evdev_syndropped_fix-v1-1-b5400740e1f7@google.com> <aulT9-9OU5VE_PpL@google.com>
-In-Reply-To: <aulT9-9OU5VE_PpL@google.com>
-From: =?UTF-8?Q?Kornel_Dul=C4=99ba?= <korneld@google.com>
-Date: Wed, 4 Nov 2026 10:56:12 +0100
-X-Gm-Features: AclHuK8jBOCIKnQpO3m0aaz7IJblEPHIyIkKJZfCtJmy3_bgKhSECD37vY3wjso
-Message-ID: <CACF_fqmxJCQCnDXadU2MgEqkrabwNLkMy_ZQ2pdxb+3bfNsu3Q@mail.gmail.com>
-Subject: Re: [PATCH 1/2] input: evdev: Always terminate SYN_DROPPED with SYN_REPORT
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261018022400.599028-1-festevam@gmail.com>
 
-Hey,
+On Sat, 17 Oct 2026, Fabio Estevam wrote:
 
-On Tue, Nov 3, 2026 at 4:33=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Kornel,
->
-> On Thu, Oct 22, 2026 at 01:39:12PM +0000, Kornel Dul=C4=99ba wrote:
-> > Per Documentation/input/event-codes.rst, on SYN_DROPPED:
-> > "Client should ignore all events up to and including next SYN_REPORT
-> > event and query the device (using EVIOCG* ioctls) to obtain its
-> > current state."
-> >
-> > Currently, __evdev_queue_syn_dropped() queues a standalone SYN_DROPPED
-> > event without a terminating SYN_REPORT. This causes two issues:
-> >
-> > 1. The queued SYN_DROPPED event remains unreadable until the next
-> >    hardware event frame arrives and finishes with SYN_REPORT.
-> > 2. When the next hardware event frame arrives, SYN_DROPPED is prepended
-> >    to it in the same packet. Compliant userspace clients then discard
-> >    the entire hardware event frame up to its SYN_REPORT.
-> >
-> > This was discovered on an Android system with a gpio-keys backed device=
-:
-> > 1. gpio_keys_open() reports the initial state on open().
-> > 2. Android follows open() with EVIOCSCLOCKID.
-> > 3. This creates an unterminated SYN_DROPPED, causing the subsequent
-> >    event to be discarded by userspace.
-> >
-> > Fix this by appending SYN_REPORT after SYN_DROPPED in
-> > __evdev_queue_syn_dropped() and updating client->packet_head
-> > accordingly.
->
-> I do not think that injecting synthetic SYN_REPORT is a good idea: we do
-> not know at what point the clock change will arrive, it may arrive in a
-> middle of transmitting a packet, and if we discard only half of such
-> packet it will result in incomplete state being presented as complete
-> one.
+> The MFD resource tables store indices into the parent DT interrupts
+> property. Since the MFD core is given neither an IRQ domain nor a base,
+> however, it exposes those indices to child devices as though they were
+> Linux IRQ numbers.
+> 
+> The touchscreen interrupt is at DT index 0 on both supported SoCs.
+> platform_get_irq_byname() therefore rejects its child resource with:
+> 
+>  0 is an invalid IRQ number
+> 
+> On current kernels it also returns -EINVAL, preventing the touchscreen
+> driver from probing.
+> 
+> The child drivers try to map their resource values afterwards with
+> irq_of_parse_and_map(), but the touchscreen driver never reaches that
+> call for index 0. More generally, translating the parent firmware's IRQ
+> indices does not belong in the child drivers, where platform IRQ
+> resources are expected to contain mapped Linux IRQs already.
+> 
+> Have the MFD parent copy each resource template and resolve its IRQ
+> indices with platform_get_irq() before registering the child. The child
+> drivers can then request the mapped IRQs directly. Use per-device copies
+> so later instances and reprobes still start with the DT indices.
+> 
+> Apply the same fix to the ADC child, which uses the same IRQ mapping
+> scheme.
+> 
+> Tested on an i.MX28 EVK. The mxs-lradc-ts driver now probes
+> successfully, and its interrupt counters increase when the screen is
+> touched.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")
+> Closes: https://lore.kernel.org/linux-input/CAOMZO5CgTzo6GuXptD4mFTN=UsJJqpkixDW1Q64gqZGrij8+uQ@mail.gmail.com/
+> Signed-off-by: Fabio Estevam <festevam@gmail.com>
+> ---
+> This is a long-standing bug that I reported in 2020:
+> https://lore.kernel.org/linux-input/CAOMZO5CgTzo6GuXptD4mFTN=UsJJqpkixDW1Q64gqZGrij8+uQ@mail.gmail.com/
+> 
+> This patch touches MFD, IIO, and Input. Since the IRQ mapping is moved
+> into the MFD parent, I suggest merging it through the MFD tree, with
+> acks from the IIO and Input maintainers.
+> 
+> The full backtrace:
+> 
+> [   10.540505] WARNING: drivers/base/platform.c:492 at __platform_get_irq_byname+0xb4/0xcc, CPU#0: swapper/0/1
+> [   10.555516] 0 is an invalid IRQ number
+> [   10.559627] Modules linked in:
+> [   10.562849] CPU: 0 UID: 0 PID: 1 Comm: swapper/0 Not tainted 7.3.0-rc7-next-20261016-00003-g36062817a968 #17 VOLUNTARY
+> [   10.573732] Hardware name: Freescale MXS (Device Tree)
+> [   10.578934] Call trace:
+> [   10.578992]  unwind_backtrace from show_stack+0x10/0x14
+> [   10.586955]  show_stack from dump_stack_lvl+0x48/0x64
+> [   10.592170]  dump_stack_lvl from __warn+0x8c/0x190
+> [   10.597114]  __warn from warn_slowpath_fmt+0x94/0xcc
+> [   10.602232]  warn_slowpath_fmt from __platform_get_irq_byname+0xb4/0xcc
+> [   10.609027]  __platform_get_irq_byname from platform_get_irq_byname+0x10/0x30
+> [   10.616337]  platform_get_irq_byname from mxs_lradc_ts_probe+0x18c/0x378
+> [   10.623247]  mxs_lradc_ts_probe from platform_probe+0x58/0x90
+> [   10.629174]  platform_probe from really_probe+0xc4/0x2cc
+> [   10.634649]  really_probe from __driver_probe_device+0xa0/0x1e0
+> [   10.640721]  __driver_probe_device from driver_probe_device+0x30/0xc0
+> [   10.647315]  driver_probe_device from __driver_attach+0x94/0x158
+> [   10.653466]  __driver_attach from bus_for_each_dev+0x7c/0xd0
+> [   10.659280]  bus_for_each_dev from bus_add_driver+0x158/0x1fc
+> [   10.665169]  bus_add_driver from driver_register+0x7c/0x114
+> [   10.670901]  driver_register from do_one_initcall+0x60/0x294
+> [   10.676721]  do_one_initcall from kernel_init_freeable+0x19c/0x24c
+> [   10.683073]  kernel_init_freeable from kernel_init+0x14/0x10c
+> [   10.688997]  kernel_init from ret_from_fork+0x14/0x38
+> [   10.694200] Exception stack(0xc8819fb0 to 0xc8819ff8)
+> [   10.699335] 9fa0:                                     00000000 00000000 00000000 00000000
+> [   10.707591] 9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+> [   10.715843] 9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+> [   10.723117] irq event stamp: 146363
+> [   10.726729] hardirqs last  enabled at (146367): [<c00adbd8>] __nbcon_atomic_flush_pending_con+0x120/0x1c0
+> [   10.736770] hardirqs last disabled at (146372): [<c0008f38>] __irq_svc+0x58/0xb0
+> [   10.744618] softirqs last  enabled at (146362): [<c0032c20>] __irq_exit_rcu+0x148/0x1d4
+> [   10.753153] softirqs last disabled at (146385): [<c0032c20>] __irq_exit_rcu+0x148/0x1d4
+> [   10.761603] ---[ end trace 0000000000000000 ]---
+> [   10.766374] mxs-lradc-ts mxs-lradc-ts: error -EINVAL: IRQ mxs-lradc-touchscreen not found
+> [   10.766456] mxs-lradc-ts mxs-lradc-ts: probe with driver mxs-lradc-ts failed with error -22
+> 
+>  drivers/iio/adc/mxs-lradc-adc.c          |  7 +---
+>  drivers/input/touchscreen/mxs-lradc-ts.c |  7 +---
+>  drivers/mfd/mxs-lradc.c                  | 47 +++++++++++++++++++-----
+>  3 files changed, 42 insertions(+), 19 deletions(-)
 
-I don't think it's possible to flush the queue in the middle of
-receiving a packet from the input framework. The only callback evdev
-implements for parsing incoming packets is "events," which I believe
-is called only for full, SYN_REPORT-terminated frames.
+Nightmare!  Right, let's make a decision to stop kicking the can down
+the road with these hacks on hacks, and fix it properly please.
 
-The only possible scenario for flushing a partial packet is when
-userspace has read a part of a packet from the queue. In such a
-situation, userspace will only see a single SYN_REPORT, though:
+While your patch fixes the immediate symptom, keeping DT indices inside
+static 'struct resource' templates and kmemdup'ing/mutating them at
+probe time is really just building a hack on top of a hack.  This stops
+now.
 
-1. A full packet is written; userspace might have already read a part
-of it. Let's say that the remaining part is: [foo, bar, SYN_REPORT].
-2. An ioctl to change the clock is received. The queue is flushed and
-replaced with: [SYN_DROPPED, SYN_REPORT].
-3. Userspace now sees the part of the packet it managed to read, plus
-the [SYN_DROPPED, SYN_REPORT].
+Background:
 
-> Compliant userspace should not only discard events until the next
-> SYN_REPORT, but also query state via EVIOCG* to reconstruct full
-> picture. Is it not happening?
+The existing IRQ handling in this driver is a bit of a historical comedy
+of errors:
 
-Heh, good point. In my case, userspace called EVIOCGKEY(0) and
-EVIOCGSW(0), but it didn't parse the results correctly. I actually
-fixed that too, but for some reason, I didn't realize that it meant
-the kernel patches are no longer needed.
-I'm not sure if this patch is relevant anymore; sorry for the noise.
-BTW, the second patch in this series is only relevant if this one is
-applied. Because of that, I didn't respond to your comments there.
+1. The MFD driver stuffs raw DT 'interrupts' indices (0..12) into
+   DEFINE_RES_IRQ_NAMED(), which is meant for either Linux virqs or
+   hwirq offsets into an MFD irq_domain.
+
+2. It registers the child devices with neither an irq_domain nor an
+   irq_base, exposing those raw DT indices as if they were mapped
+   Linux IRQ numbers, which understandably blew up once IRQ 0
+   started being rejected by platform_get_irq_byname():
+
+     a85a6c86c25b ("driver core: platform: Clarify that IRQ 0 is invalid")).
+
+3. Both the MFD parent and the child drivers duplicate the exact same
+   lists of IRQ name strings, only for the children to loop over them
+   calling platform_get_irq_byname() to fish the raw DT index back
+   out, pass it to irq_of_parse_and_map() on the parent's of_node
+   and then register the exact same IRQ handler for every single one
+   of them.
+
+4. To top it off, the YAML DT binding added last year (009528b5aa13)
+   doesn't even match the driver's IRQ index order, since it lists
+   the touchscreen IRQ at index 6/10 instead of index 0.
+
+Solution:
+
+When the parent platform_device is created from DT, the OF core has
+already parsed and mapped all of the interrupts into the parent's
+resources.  Neither child driver actually distinguishes between its
+individual IRQs (they just loop over them and register the same handler
+for each) and both children already access the parent's ddata.
+
+Instead of jumping through all of these resource hoops, let's:
+
+ - Drop all of the static IRQ resource tables and the duplicated
+   irq_names[] string arrays across all three drivers.
+
+ - Collapse mx23_cells and mx28_cells into a single 'static const struct
+   mfd_cell' array (passing the MEM resource via the mem_base argument
+   of devm_mfd_add_devices() rather than overwriting RES_MEM manually).
+
+ - Resolve the IRQs in mxs_lradc_probe() via platform_get_irq() and
+   store them in 'struct mxs_lradc' (similar to stm32-timers.c) for the
+   children to request directly.
+
+If this all seems like too much, let me know and I'll spin-up an RFC for
+you to test.
+
+-- Lee Jones

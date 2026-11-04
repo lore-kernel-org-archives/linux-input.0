@@ -1,80 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793773961;
-	b=e3qW8VXO9JFmCt0jelM9lzO6DzFjJ/1CUf3Pa5VjEKxEYZwVxOUZDa+YzEYBX9LlL54+
-	 /m2sX5JMOEz/UNPva2nrMdrHWfKZOLomMzaUU2035zIYd6elE9DHsqmFx86FFO5lc1kFU
-	 ZfGzvnWClhannyOHHltvuw1AKSsM18hZVr9qNSFoQg/93Cu40Dzp2sDAYfd7S7pEGD2Ux
-	 iksHx+knMjYP2ZXH0WqEYb74giD97IcKaszOhm6GtZBguCEIj5j5R1A9rGYAgq3PT34UL
-	 T4fxOGhGpKSPOn0HE4JGcrtJzdHGxGNiM7ceHHSYNVGB0EdwnHe1hSpDslRM2Py6MgQ==
+	t=1793778103;
+	b=jJMGcj9mNrsh3p9Qdfz8Q81J9mpP1KH7U3Vu4O0s/dHFYd5PHG9FqU050VCPLj2fegIq
+	 OQUZcwFjpXnTgxSN1sZJ3i8JZq1PqXhotSJaqpW+j1wWogw1hRK7kuClRMCfLMb+wwOsk
+	 nH4pyNKsdokIk15tK/gjyiiBSyxqSbgGq7rhYc8zpCZ+A7DoNk9FC/qTXgguTwIaq3zM7
+	 JEfBi3SSDoy3QWZFbjaQ65SECpAjNpP5O/5G5QrhX/67GIoB/EjULFhGzz7Itzq1MBbDn
+	 hm2W7iRWA5M8RSKmcmPDsXaTcQUc7nMJODMPPD3oJwIZTb9pJcz9Cc6sj5iuxlJ/F/g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793773961;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=FKYnkzUp7dcaKwPjAS6Kzcom3HkwZDiuBk/RNxQ8hl8=;
-	b=ishsjfQiuZgvTTaY8rmcfRUYxiHirzXZEsKPbxXYIrP3qtjg+2ADtUESF90b66PluhM4
-	 gGp6KvklybL2Nri59vIRWBtUuX1t1RrbiWLd6ManGXjbEp8LFvfMvx/avJUERKqRF3Qqi
-	 DSflGmXFVviW4BXY7TAo+g+VC31M2UlJJvp3o+CCN2VSRyUAxRpVNqz6n0D/gphS3uQLv
-	 ygFX8sBRUFariVj13bXzUTiCDJhb+qua7yDcBDVmP9IVIKE+FiV0PnFrwbegXSi37LHl5
-	 xS0ovNge2Z+OEtxfoEAW6eCCN2vtiavvCO8jjvjDjiX5fjzINrfEtRhBT/o4nqWzRmQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793778103;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Disposition-Notification-To:
+	 Content-Type:Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=COWDtAifNxy9eheKajXdjw2ArjUB6Mu5k/ceulB+33A=;
+	b=vxNNHcHsEByglIo89g5DtHKq5Ookvy6sK5nU3q9oCcNEhyJRYH+iDXux5XtAOLXroYo8
+	 0kH3A1lutPyOQmPvRinkJduRjoSIVSGkWRrsoqE5kYSP5JwM3BohbyG182npvUCYyL/7o
+	 XcMXh/vNKHJJMDe36w1VEFi3bvgwQ4ImjR6lB6iijvitJyHgUxb+vkMZ8o7oqqGc5P3rI
+	 JwE8BrQwtgUlP7DkdA8X0/46eiKyT2nSvdgQYnUj7Nx2anu6QjlWrAiwWcpEfFnbyi00n
+	 6Koemgf4Pgsh/6aJ69ALR8bwG+aS48ePSPhvTHWZAfwSrnuJ6xTC1lpn7909T7VRkfA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="GSppx/29";
-	arc=none smtp.remote-ip=198.175.65.17
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=JiNghS0W;
+	arc=none smtp.remote-ip=209.85.208.51
+Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 941E0606A326;
-	Wed,  4 Nov 2026 06:32:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 941E0606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE766606A330
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 07:41:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE766606A330
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GSppx/29
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793773960; x=1825309960;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=6sHvxvkTPJCc29XYwbaFpovcVxjYO/xDqLAB4UQVgRw=;
-  b=GSppx/29BTpLIueKK4EnIsSVeyDVh00/aHzVZO4yyBEuqEyqALTZVYsR
-   uRCSbWnCI3rM6xY+DSwXG9if3BbYQ7BlMHuolkzF9g0izZw7MWx9qIz0g
-   hvEB5+4l6rKuUZxZH0h6NIGNwaNgPYTzOED0LfKzF8jM648i4GzjGNq62
-   QN4tCKPUx/P3EZTYgsfOGE0AIer1h/wxvxvjmZ5f9nGb/aXm8qiiY0Ur/
-   6pfyvErZrc7JfHrbF/YvZVj7G3IACDk1mvySgHiPMZz0n7wDEwnS/HYpD
-   G+bKK28o/j2vNFuiNp4z+mEBDDOLXsLVFAcvz40C1JgE6MI7e0V5n3Hao
-   g==;
-X-CSE-ConnectionGUID: +i1hbFZYSkawm4c1J78DuQ==
-X-CSE-MsgGUID: Bn1GLRX7QEeMcDEdDzKjPA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11955"; a="2535246"
-X-IronPort-AV: E=Sophos;i="6.27,194,1787036400"; 
-   d="scan'208";a="2535246"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2026 22:32:40 -0800
-X-CSE-ConnectionGUID: tZmulct4RrC+i109NuwCIA==
-X-CSE-MsgGUID: cn87MhLnRvCLEr+lGQUrCQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,194,1787036400"; 
-   d="scan'208";a="6539746"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by orviesa004.jf.intel.com with ESMTP; 03 Nov 2026 22:32:38 -0800
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xOUXz-00000000jsV-1DcR;
-	Wed, 04 Nov 2026 06:32:35 +0000
-Date: Wed, 4 Nov 2026 14:32:26 +0800
-From: kernel test robot <lkp@intel.com>
-To: Sanjay Govind <sanjay.govind9@gmail.com>, jikos@kernel.org,
-	bentiss@kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org,
-	Sanjay Govind <sanjay.govind9@gmail.com>
-Subject: Re: [PATCH v2] HID: santroller: add driver for Santroller controllers
-Message-ID: <202611041409.Y0jPIir1-lkp@intel.com>
-References: <20261103015335.974344-1-sanjay.govind9@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=JiNghS0W
+Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-6aa77d4d968so71485a12.0
+        for <linux-input@vger.kernel.org>; Tue, 03 Nov 2026 23:41:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793778101; x=1794382901; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=COWDtAifNxy9eheKajXdjw2ArjUB6Mu5k/ceulB+33A=;
+        b=JiNghS0WbjBhBjplbOoFlqjxzZeyvtmCJK69gYiV7tEtoa1I+21q3J2Ylf1p7L/tDZ
+         lrJVG/LZH7mUuENylhmMwA5PqSglaKNrvi7WgywMzZEUdK5OughJlpokHLxmqqgR+eeE
+         DqzpNug6VzlkuOOVJbS+nTHWlUwVdNc/GUgrFZiOpP98FV4kD9oArKwb9je036+TbePJ
+         WvnbLBZJ+7JjzlcZ4zBxZ++HpBUSS8FPfGI6NmSgschT5c0czNGij65Bn/PTLDYL7B/L
+         +Yrqk+LHo7/i0oc21yRYNeFJ50INTNV0xB1sP2/+YcER0e4mNHkF16U0idnDASxuIOfF
+         HsPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793778101; x=1794382901;
+        h=mime-version:user-agent:content-transfer-encoding:content-type
+         :disposition-notification-to:references:in-reply-to:date:cc:to:from
+         :subject:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=COWDtAifNxy9eheKajXdjw2ArjUB6Mu5k/ceulB+33A=;
+        b=OhOuQTv5IgcCPzwcIGVO8bMDMfEKGdTysm4P5WcST2pm45Qp/M6uD7epW5GiTg4VW7
+         xF27lkKrg5AL/mCR93YX7UrX883DFBvs04y4bKC4v+rgmVJb6Fy/QBLXgOHXZPl1o7cS
+         bx/HsS48mScPZJPi0sW5RraoBdRb2PjE8PPihfvzHIvcgI/6g4NT3tbjTAG3XMv98SDr
+         DOCBwfbKS4lb7GWRVYO7RGR/mxCdirkrp7iSHDNx8RGd24KuJX+R3THX/fEiapz59y7v
+         nYNo7BcvDAHQ+4SITMi3PCGO6Z1TE2iTaqpDh9asRMXnWqOfIKiAE0yVCMKB+Sa1eh0m
+         NnrA==
+X-Gm-Message-State: APuU4Z8GYJ4EI/mW+eWZTOLx1EN5ta9qWLZL40gTce2wYF1cxkTSCLrM
+	AiUm95tywx6aA0jIGO5ksMmFuNMCOZ8M5H1aMReRS/trzoKu04fOaMmMX0X+uA==
+X-Gm-Gg: AYBFou0bBQ+IrXpwUiESr59fmfSAuTBPa+arg2deU/ceqwgQ5u7ZDGy8W8rgKeXASGL
+	v+L8ExI1OfYdLDzwZijnHrJG9Uwcud2z1A0ayYsbmARi6OpoZ6sY/JrXdivEjFOeklPVUG6oNnC
+	KBlfHMhXSZj0AyfqQz/qmZyZ7gGdsn+fd9r8iSNYDDdRJuhXLAZFet4rUdU7PAHOedGbpjLFrTa
+	5geK9VUl2/2ICE6ZR7k6JVYYjtHH/olOpS1C1r3dTJAaujYDdBEXnFzbYv2ksM+Lvk6l76xJtKW
+	YNaqbVE6WIAVcsIKPAbu+5kcIGfqHdvTwslN3iyc9S//jQqt7GvfOcqOxue5ijc8pay3lrYMPnu
+	Al5Gw3aWFm/16AdGVxF1GhSWYjkmB9fzhYz9rTbl3AOL1gHiXEc2ocbUyPOQ93BesmkkhKdKWvh
+	RBXKhdix2vs403MieTUbd4SVABuGh4AWeY7BuW7sMw8p5figrqzOzb6VvNrLEUXk75ZmjR9bkki
+	8fWlzXT/6l6GiBMEBvP9nKtZOEPQS9K64+6P3EFk65es3TSuu562q0SpE6JLDLnpz24plypHao6
+	MYu7Mo02fAfedkR07kFmUsGhQrR2H2Gt6mlum6h4LxdYFpXWqaJZ0I/h6wc5QgmWTjLdceH/tpn
+	F76j/MU9VpUn7dMdVDjj/9JNn6cLQ7xV2s2U=
+X-Received: by 2002:a17:906:f15:b0:c43:f1ab:167c with SMTP id a640c23a62f3a-c4ca7970666mr1286785766b.1.1793778100876;
+        Tue, 03 Nov 2026 23:41:40 -0800 (PST)
+Received: from [192.168.1.239] (87-205-5-123.static.ip.netia.com.pl. [87.205.5.123])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c4d0e423a48sm43450366b.27.2026.11.03.23.41.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 Nov 2026 23:41:40 -0800 (PST)
+Message-ID: <c80644469f01ae6d2ba0339a7a2fcd7c6080c310.camel@gmail.com>
+Subject: Re: [PATCH v3] HID: pidff: bound the unit exponent rescaling loop
+From: Tomasz =?UTF-8?Q?Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
+To: Shengzhuo Wei <me@cherr.cc>, Oleg Makarenko <oleg@makarenk.ooo>, Jiri
+ Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+ =?UTF-8?Q?Micha=C5=82_Kope=C4=87?=
+	 <michal@nozomi.space>, Paul Dino Jones <paul@spacefreak18.xyz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Date: Wed, 04 Nov 2026 08:41:36 +0100
+In-Reply-To: <20261104-b4-pidff-rescale-exponent-v3-1-f45e64cf488c@cherr.cc>
+References: <20261104-b4-pidff-rescale-exponent-v3-1-f45e64cf488c@cherr.cc>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.62.1 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -84,39 +104,91 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261103015335.974344-1-sanjay.govind9@gmail.com>
 
-Hi Sanjay,
+On Wed, 2026-11-04 at 03:44 +0800, Shengzhuo Wei wrote:
+> pidff_rescale_time() walks the device-provided unit exponent one step
+> at a time, allowing extreme values to cause billions of iterations
+> while ff->mutex is held. In a UHID test with an INT_MIN exponent,
+> EVIOCSFF took 3.1 to 4.3 seconds to upload a finite-duration effect.
+>=20
+> Stop rescaling once scaled_time becomes zero, since further
+> multiplication or division by 10 cannot change the result. The u32
+> value becomes zero within 32 multiplications by 10, and the u16
+> input within 5 divisions. This bounds the loops while preserving
+> their results for all exponents, including wraparound.
+>=20
+> Also warn during initialization if the duration field's unit exponent
+> is outside the range -8 to 0. This helps identify unusual device
+> descriptors without logging on every effect upload or changing the
+> rescaling result.
+>=20
+> Fixes: 8713107221a8 ("HID: pidff: Rescale time values to match field unit=
+s")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Shengzhuo Wei <me@cherr.cc>
+> ---
+> Changes in v3:
+> - Declare and initialize exp at its point of use, as requested by
+>   Tomasz.
+> - Remove Tomasz's Reviewed-by at his request, since his v1 review
+>   does not apply to the updated patch.
+>=20
+> Changes in v2:
+> - Following Tomasz's suggestion, warn during initialization when
+>   the duration field's unit exponent is outside -8..0.
+> - Add Tomasz's Reviewed-by.
+>=20
+> v2: https://lore.kernel.org/r/20261102-b4-pidff-rescale-exponent-v2-1-a75=
+bcca65fd0@cherr.cc
+> v1: https://lore.kernel.org/r/20261029-b4-pidff-rescale-exponent-v1-1-3ba=
+54accf767@cherr.cc
+> ---
+>  drivers/hid/usbhid/hid-pidff.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidf=
+f.c
+> index 22951b7ecd17..7827b366fa5f 100644
+> --- a/drivers/hid/usbhid/hid-pidff.c
+> +++ b/drivers/hid/usbhid/hid-pidff.c
+> @@ -354,9 +354,9 @@ static u32 pidff_rescale_time(u16 time, struct hid_fi=
+eld *field)
+>  =09int exponent =3D field->unit_exponent;
+> =20
+>  =09pr_debug("time field exponent: %d\n", exponent);
+> -=09for (; exponent < FF_TIME_EXPONENT; exponent++)
+> +=09for (; scaled_time && exponent < FF_TIME_EXPONENT; exponent++)
+>  =09=09scaled_time *=3D 10;
+> -=09for (; exponent > FF_TIME_EXPONENT; exponent--)
+> +=09for (; scaled_time && exponent > FF_TIME_EXPONENT; exponent--)
+>  =09=09scaled_time /=3D 10;
+> =20
+>  =09pr_debug("time calculated from %d to %d\n", time, scaled_time);
+> @@ -1433,6 +1433,13 @@ static int pidff_init_fields(struct pidff_device *=
+pidff, struct input_dev *dev)
+>  =09=09return -ENODEV;
+>  =09}
+> =20
+> +=09int exp =3D pidff->set_effect[PID_DURATION].field->unit_exponent;
+> +
+> +=09if (exp < -8 || exp > 0)
+> +=09=09hid_warn(pidff->hid,
+> +=09=09=09 "duration field has unusual time unit exponent %d\n",
+> +=09=09=09 exp);
+> +
+>  =09PIDFF_FIND_FIELDS(block_load, PID_BLOCK_LOAD, 0);
+>  =09if (!pidff->block_load[PID_EFFECT_BLOCK_INDEX].value) {
+>  =09=09hid_err(pidff->hid, "unknown pid_block_load report layout\n");
+>=20
+> ---
+> base-commit: d135ab453a7400a34930bdda1ef4bdc8acfac80e
+> change-id: 20261028-b4-pidff-rescale-exponent-1d5c4e218e6d
+>=20
+> Best regards,
+> -- =20
+> Shengzhuo Wei <me@cherr.cc>
 
-kernel test robot noticed the following build errors:
+Works as expected. Thanks!
 
-[auto build test ERROR on hid/for-next]
-[also build test ERROR on linus/master next-20261030]
-[cannot apply to v7.3]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Sanjay-Govind/HID-santroller-add-driver-for-Santroller-controllers/20261103-145335
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-patch link:    https://lore.kernel.org/r/20261103015335.974344-1-sanjay.govind9%40gmail.com
-patch subject: [PATCH v2] HID: santroller: add driver for Santroller controllers
-config: sparc64-randconfig-1000-20261104 (https://download.01.org/0day-ci/archive/20261104/202611041409.Y0jPIir1-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 8.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261104/202611041409.Y0jPIir1-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202611041409.Y0jPIir1-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   sparc64-linux-ld: drivers/hid/hid-santroller.o: in function `santroller_probe.part.3':
->> hid-santroller.c:(.text+0x610): undefined reference to `hid_is_usb'
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+--=20
+Reviewed-by: Tomasz Paku=C5=82a <tomasz.pakula.oficjalny@gmail.com>

@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793820244;
-	b=I0jKhwbAVyn45WwwJgqfm3DWnMdJ7h/3H66f4wmvDbMScT6XurKHZ1+Kr2Lp1Ly63/K2
-	 lStrUEICc3b8EgnNkIbQFJz4Kxryh3IRbOdYdkMNiaxU17eqEtSwJLhspQHwRglpCXdoW
-	 5d5dVhRk0x4Bbl96FJuIJaLAHgP/I97uN5dxptXOpp+4ISljgVzthiqx2+MjmAItfAPPW
-	 Qnx/8awcRRfJ5962DB7j6aiY8koDi+Y5FK3siOC+73/oAmGYU0sydT8WPncKuWmu04BT+
-	 +irnmN59emF182or8bNEchT6tfMdriHAzE0c2n69stNiYA8im5S3XFo9uGHNk8LyfXg==
+	t=1793820273;
+	b=M7JPBU5YWOrnWb/W5qgreeQxEFtruTZzvfJptWR0iPBLh+C3YYsc7sOQXYh8eo3irg9L
+	 c+O4jauF6kxRd7Y3wYIBTRM0biJsGImDtbhJWqaUeTXbGI/h0+EbyAyrFCqxStvNtuU1E
+	 eQJGNT8xaSmW2q3MpWcSCgwpy059lUKo4PlaGtXgCGEwpSDfCuteUUqylVIS5VDmrQa4G
+	 2vYtckGuacUhrA01C6IQN1Nv3MPWwYjOGCq82Y2PUGle9xAw2haWKiFEeNNAhh7hiMlNf
+	 SPfxYMKqC2OkeMso7QTKcOsblNs7DCn6NBFV503u54d+aF44ew6RBWpkXxIm0MpoGIg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793820244;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793820273;
 	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
 	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
 	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
-	bh=H7K5JcYwiEwa4eeL0B3OVYVYuE4eo7ZLheZ5n77rVhE=;
-	b=EbtRDJD5wwlxKuCirkt+grrwBMfXIbuGf4MGREB4HaRdrJzpRS4i3Y6YiFPNgjiT/hR0
-	 sLslma2gLZ4Fz9wJxmZEI2urxHHBdlulLd3/NXt/TsP+sUTKkXFHHcZBM616qdvQSyL3M
-	 yo8wQDuioGvWpXb2bmth57hSaBC/VxYZXW5KS3SswWlAcAV52V7fL5iD06aKUylXszL4d
-	 P0x9s28EnpnXg5FiKg6pxBdbInJKfGs0th3pxCTnu4ajgOLInVFiDrhVZFzoZrjW5ltOa
-	 7BaPa0zHtpue/hz26xf+BCzvrPSlNeJi2lDWTFBypo23QxjJBcAvrHb5nIVrCh50Apw==
+	bh=iZnPQiZm1xh8fsSdf/bokwm1XgR51VX0qi8vvYA3hwA=;
+	b=t1hQmWs5w/yIa/Ucf3sYYk5nC3v+tctaS95QdIaUpEVJRkFgZ26j40Atkveo8BBRk7Gp
+	 j9+6geZWsWmQFo1sjzXJJtEXYy5X5kKgcWgGcuP7mCb75jpZ08JbV0IIy8uIesIep0yY6
+	 ov28nyumGJAvVBKjG3+LeSI3hHmZS771B/Fz0xGjNaiZRnKsPABmllZ7d9xUcQAWoOQiY
+	 Hf+qzkOmy73HkKtYsmp63cND9PYYV56IQcjUf5IpyZx+3mhkXMz3UCu8HvVCxrA+OJ80w
+	 cBzHRtGaINBp4CwUq772e1hsnU9uYhbqzyT5H9Gw4pcdJ0NAIhoNpf8FE2daULTdk9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bJLqHHf5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="OWOls/Qa";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42BE0606E808;
-	Wed,  4 Nov 2026 19:24:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 626DB606D80A;
+	Wed,  4 Nov 2026 19:24:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bJLqHHf5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1CE1F00919;
-	Wed,  4 Nov 2026 19:23:51 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OWOls/Qa
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A6D91F00919;
+	Wed,  4 Nov 2026 19:24:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793820243;
-	bh=H7K5JcYwiEwa4eeL0B3OVYVYuE4eo7ZLheZ5n77rVhE=;
+	s=k20260515; t=1793820273;
+	bh=iZnPQiZm1xh8fsSdf/bokwm1XgR51VX0qi8vvYA3hwA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=bJLqHHf5qQ9r5k8j4lX0RizveOJ91Nhl7TYYnWVh4aogp5c4fTsQ8eax4sbt0OBxb
-	 3LGXXxrD9ytPYwt1XoRKnERbxW2Tn+UK8zRCJKkRYsyQfi/PuWkuv31fYn9LUwZYjP
-	 x1XP6KYsCrbos3zXmmN9K9ptP4sseCE+7dzR7OIE9G1wPs89kTqRfIMujdLyvnG/41
-	 wd0+mMF+XHreqHHSN22Y76usuZZQiXKs5/dT12lrJaMLmtKCOmIwzbp6lxJW0ddkkF
-	 tRH0k19+WCWkxOhMnoRLDydxLurlCjL+xTlICjmEBzFnzWlSjW6fSbK8/zIHPo72+P
-	 4oFpVAHjceUQQ==
+	b=OWOls/Qat2i8BrXb5K71S2uLB9tj4kjTJEbo9UFvy20m8JsJIw6rlM5z7ZgXmAhhg
+	 DX3SJAZObSbZ0q10m0cO34TgAflLOcPAP+hEY5fVaKi7i6rKXFInKLNWloaYRSC+Ks
+	 ljGOlefMkwlxlumGHgHWbLc97n+0vZptHyvo04WmKfXqk+oQZSwiVP5UbhoSw45CC9
+	 o7GTWTT7YXcs5JwSCwntnLmjdKmMt8KgGm4sAZYEtS+zlJv61izpcMBFUi+CEbW/Cc
+	 xRBz49tKkDksLfYIDDAGshWSF63L9oy+SRRSZVZWhxGUtwnTpG3FVQOlOfqrJXfy1c
+	 nLtmp96X09lUw==
 From: Christian Brauner <brauner@kernel.org>
 To: linux-fsdevel@vger.kernel.org
 Cc: Linus Torvalds <torvalds@linux-foundation.org>,
@@ -99,11 +99,10 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
 	linux-modules@vger.kernel.org,
 	linux-debuggers@vger.kernel.org,
 	"Christian Brauner (Amutable)" <brauner@kernel.org>,
-	Chuck Lever <cel@kernel.org>,
-	stable@vger.kernel.org
-Subject: [PATCH RESEND v2 32/51] proc: resume readdir after the last name it returned
-Date: Wed,  4 Nov 2026 20:23:49 +0100
-Message-ID: <20261104-work-procfs-bugfixes-v2-32-021c84d852e0@kernel.org>
+	Chuck Lever <cel@kernel.org>
+Subject: [PATCH RESEND v2 34/51] proc: let proc_remove() remove the entry it was given
+Date: Wed,  4 Nov 2026 20:24:18 +0100
+Message-ID: <20261104-work-procfs-bugfixes-v2-34-021c84d852e0@kernel.org>
 In-Reply-To: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
@@ -117,216 +116,140 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7297; i=brauner@kernel.org; h=from:subject:message-id; bh=ZNOmyzOFl2t4htw30uUhDwZ021Jq9cqPFYbiLU1C/ng=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9bvw8+c29B390vF6dzdjab31XjS+zOW6D/PbUDb2Sk i6yQqw2HaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpABNJ8mdk2B3EIP33wna7rsrz 6TXqjfUtfy9d/9TA4Ln55+Ly5KB4T4a/kt9jDDrU5dJMlBQe2Rw/ObH6fKvKZfvDy3SzZ+dwPDj DBAA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4142; i=brauner@kernel.org; h=from:subject:message-id; bh=TWEC0A9DF1l/jNuw2UHiBUJ2nMkOgHxIGSf9WilEatA=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9bvyaox39LcDtqOvRJ4ZbOT4aq194fNEiYOO6+EM7j 5os/VhY1lHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjARG32GP1wXpkhH8H/asV76 WPuPyH/OaVaTHH7dNBF8c4GtfEmftRfD//g/MT/EQt8lq2eISbw5HcGTbfBAPPZ1g/kbd1/h09/ keAA=
 X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 Content-Transfer-Encoding: 8bit
 
-proc_readdir_de() counts the entries of a directory and resumes a
-listing at the number getdents64() stopped at. The entries are sorted
-by name, so one that is added or removed in between shifts everything
-behind it by one. Listing /proc/net/dev_snmp6 with a buffer that holds
-".", ".." and "lo" and adding a device whose name sorts before "lo"
-makes the next call return "lo" a second time. Removing one that sorted
-before the position makes the next call skip an entry instead.
+proc_remove() looks the entry up by its name in its parent and removes
+whatever it finds there:
 
-Since commit 895b4c0c79b0 ("fs/proc: fix uaf in proc_readdir_de()") an
-entry that is removed while it is being emitted also ends the listing
-right there. pde_subdir_next() finds nothing after an erased entry, so
-proc_readdir_de() reports the end of the directory and the next call
-resumes by number, skipping another entry. For /proc itself
-proc_root_readdir() takes that as the end of the static entries and
-moves on to the pids, so the rest of the static entries is missing.
-And if the position is behind the last entry when a call starts
-proc_readdir_de() returns 0, so /proc then lists no pids at all.
+  remove_proc_subtree(de->name, de->parent);
 
-So remember the name of the last entry a call emitted in the file and
-resume at the first entry after it, like kernfs resumes after the node
-it stopped at. An entry that was removed while it was emitted is
-continued after by its name as well. If the position was moved by a
-seek in between the listing counts from the start like before.
+If the entry was removed already, say along with its parent, that is
+either nothing or a different entry that got the same name in the
+meantime, and de->parent may well be gone. Two removals of the same
+entry are a bug in the caller, but going by the name turns it into
+removing an entry that belongs to somebody else.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: 895b4c0c79b0 ("fs/proc: fix uaf in proc_readdir_de()")
-Cc: stable@vger.kernel.org
+Since commit 895b4c0c79b0 ("fs/proc: fix uaf in proc_readdir_de()")
+an entry that was unlinked has an empty rb node. So check for that
+under proc_subdir_lock and otherwise remove the entry itself, with the
+loop of remove_proc_subtree() moved into a helper both of them use.
+Nothing can help a caller that passes an entry that has been freed
+already.
+
+Reported-by: Chris Mason <mason@kernel.org>
+Fixes: a8ca16ea7b0a ("proc: Supply a function to remove a proc entry by PDE")
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/proc/generic.c  | 89 ++++++++++++++++++++++++++++++++++++++++++++++--------
- fs/proc/internal.h |  1 +
- fs/proc/proc_net.c |  1 +
- fs/proc/root.c     |  1 +
- 4 files changed, 80 insertions(+), 12 deletions(-)
+ fs/proc/generic.c | 78 ++++++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 51 insertions(+), 27 deletions(-)
 
 diff --git a/fs/proc/generic.c b/fs/proc/generic.c
-index 9e59796349e1..588999058e66 100644
+index 588999058e66..9a0a2fcac7c7 100644
 --- a/fs/proc/generic.c
 +++ b/fs/proc/generic.c
-@@ -87,6 +87,28 @@ static struct proc_dir_entry *pde_subdir_find(struct proc_dir_entry *dir,
- 	return NULL;
+@@ -818,33 +818,14 @@ void remove_proc_entry(const char *name, struct proc_dir_entry *parent)
  }
+ EXPORT_SYMBOL(remove_proc_entry);
  
-+/* The first entry of @dir that sorts after @name. */
-+static struct proc_dir_entry *pde_subdir_after(struct proc_dir_entry *dir,
-+					       const char *name,
-+					       unsigned int len)
-+{
-+	struct rb_node *node = dir->subdir.rb_node, *after = NULL;
-+
-+	while (node) {
-+		struct proc_dir_entry *de = rb_entry(node,
-+						     struct proc_dir_entry,
-+						     subdir_node);
-+
-+		if (proc_match(name, de, len) < 0) {
-+			after = node;
-+			node = node->rb_left;
-+		} else {
-+			node = node->rb_right;
-+		}
-+	}
-+	return rb_entry_safe(after, struct proc_dir_entry, subdir_node);
-+}
-+
- static bool pde_subdir_insert(struct proc_dir_entry *dir,
- 			      struct proc_dir_entry *de)
- {
-@@ -278,6 +300,40 @@ struct dentry *proc_lookup(struct inode *dir, struct dentry *dentry,
- 	return proc_lookup_de(dir, dentry, PDE(dir));
- }
- 
+-int remove_proc_subtree(const char *name, struct proc_dir_entry *parent)
 +/*
-+ * Where the next readdir resumes. The entries are counted, so one that is
-+ * added or removed in front of the position would shift what the next call
-+ * returns. The name of the last entry emitted doesn't move.
++ * Remove @root, already erased from its parent, and everything below it.
++ * Called with proc_subdir_lock held for writing, returns with it dropped.
 + */
-+struct proc_dir_cursor {
-+	loff_t pos;			/* the position behind the entry */
++static int __remove_proc_subtree(struct proc_dir_entry *root)
+ {
+-	struct proc_dir_entry *root = NULL, *de, *next;
+-	const char *fn = name;
+-	unsigned int len;
+-
+-	write_lock(&proc_subdir_lock);
+-	if (__xlate_proc_name(name, &parent, &fn) != 0) {
+-		write_unlock(&proc_subdir_lock);
+-		return -ENOENT;
+-	}
+-	len = strlen(fn);
++	struct proc_dir_entry *de = root, *next;
+ 
+-	root = pde_subdir_find(parent, fn, len);
+-	if (!root) {
+-		write_unlock(&proc_subdir_lock);
+-		return -ENOENT;
+-	}
+-	if (unlikely(pde_is_permanent(root))) {
+-		write_unlock(&proc_subdir_lock);
+-		WARN(1, "removing permanent /proc entry '%s/%s'",
+-			root->parent->name, root->name);
+-		return -EINVAL;
+-	}
+-	pde_erase(root, parent);
+-
+-	de = root;
+ 	while (1) {
+ 		next = pde_subdir_first(de);
+ 		if (next) {
+@@ -872,6 +853,34 @@ int remove_proc_subtree(const char *name, struct proc_dir_entry *parent)
+ 	pde_put(root);
+ 	return 0;
+ }
++
++int remove_proc_subtree(const char *name, struct proc_dir_entry *parent)
++{
++	struct proc_dir_entry *root = NULL;
++	const char *fn = name;
 +	unsigned int len;
-+	char name[NAME_MAX + 1];
-+};
 +
-+/* If this can't remember the entry the next call counts from the start. */
-+static void proc_dir_cursor_set(struct file *file, struct proc_dir_entry *de,
-+				loff_t pos)
-+{
-+	struct proc_dir_cursor *cursor = file->private_data;
-+
-+	if (!cursor) {
-+		cursor = kmalloc(sizeof(*cursor), GFP_KERNEL);
-+		if (!cursor)
-+			return;
-+		file->private_data = cursor;
++	write_lock(&proc_subdir_lock);
++	if (__xlate_proc_name(name, &parent, &fn) != 0) {
++		write_unlock(&proc_subdir_lock);
++		return -ENOENT;
 +	}
-+	cursor->pos = pos;
-+	cursor->len = de->namelen;
-+	memcpy(cursor->name, de->name, de->namelen);
-+}
++	len = strlen(fn);
 +
-+int proc_dir_release(struct inode *inode, struct file *file)
-+{
-+	kfree(file->private_data);
-+	return 0;
-+}
-+
- /*
-  * This returns non-zero if at EOF, so that the /proc
-  * root directory can use this and check if it should
-@@ -290,23 +346,26 @@ struct dentry *proc_lookup(struct inode *dir, struct dentry *dentry,
- int proc_readdir_de(struct file *file, struct dir_context *ctx,
- 		    struct proc_dir_entry *de)
- {
-+	struct proc_dir_cursor *cursor = file->private_data;
-+	struct proc_dir_entry *dir = de;
- 	int i;
- 
- 	if (!dir_emit_dots(file, ctx))
- 		return 0;
- 
--	i = ctx->pos - 2;
- 	read_lock(&proc_subdir_lock);
--	de = pde_subdir_first(de);
--	for (;;) {
--		if (!de) {
--			read_unlock(&proc_subdir_lock);
--			return 0;
--		}
--		if (!i)
--			break;
--		de = pde_subdir_next(de);
--		i--;
-+	if (cursor && cursor->pos == ctx->pos) {
-+		/* Resume after the last entry emitted, wherever it is now. */
-+		de = pde_subdir_after(dir, cursor->name, cursor->len);
-+	} else {
-+		/* Moved by a seek, count from the start like always. */
-+		de = pde_subdir_first(dir);
-+		for (i = ctx->pos - 2; de && i; i--)
-+			de = pde_subdir_next(de);
++	root = pde_subdir_find(parent, fn, len);
++	if (!root) {
++		write_unlock(&proc_subdir_lock);
++		return -ENOENT;
 +	}
-+	if (!de) {
-+		read_unlock(&proc_subdir_lock);
-+		return 1;
- 	}
++	if (unlikely(pde_is_permanent(root))) {
++		write_unlock(&proc_subdir_lock);
++		WARN(1, "removing permanent /proc entry '%s/%s'",
++			root->parent->name, root->name);
++		return -EINVAL;
++	}
++	pde_erase(root, parent);
++	return __remove_proc_subtree(root);
++}
+ EXPORT_SYMBOL(remove_proc_subtree);
  
- 	do {
-@@ -319,8 +378,13 @@ int proc_readdir_de(struct file *file, struct dir_context *ctx,
- 			return 0;
- 		}
- 		ctx->pos++;
-+		proc_dir_cursor_set(file, de, ctx->pos);
- 		read_lock(&proc_subdir_lock);
--		next = pde_subdir_next(de);
-+		/* Removed in the meantime, go on after its name. */
-+		if (RB_EMPTY_NODE(&de->subdir_node))
-+			next = pde_subdir_after(dir, de->name, de->namelen);
-+		else
-+			next = pde_subdir_next(de);
- 		pde_put(de);
- 		de = next;
- 	} while (de);
-@@ -348,6 +412,7 @@ static const struct file_operations proc_dir_operations = {
- 	.llseek			= generic_file_llseek,
- 	.read			= generic_read_dir,
- 	.iterate_shared		= proc_readdir,
-+	.release		= proc_dir_release,
- };
+ void *proc_get_parent_data(const struct inode *inode)
+@@ -883,8 +892,23 @@ EXPORT_SYMBOL_GPL(proc_get_parent_data);
  
- static int proc_net_d_revalidate(struct inode *dir, const struct qstr *name,
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index df873df9afc5..04f7ce2b24ed 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -287,6 +287,7 @@ extern struct dentry *proc_lookup(struct inode *, struct dentry *, unsigned int)
- struct dentry *proc_lookup_de(struct inode *, struct dentry *, struct proc_dir_entry *);
- extern int proc_readdir(struct file *, struct dir_context *);
- int proc_readdir_de(struct file *, struct dir_context *, struct proc_dir_entry *);
-+int proc_dir_release(struct inode *, struct file *);
- 
- static inline void pde_get(struct proc_dir_entry *pde)
+ void proc_remove(struct proc_dir_entry *de)
  {
-diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
-index b1f5eafb069a..dbcf87a257e1 100644
---- a/fs/proc/proc_net.c
-+++ b/fs/proc/proc_net.c
-@@ -351,6 +351,7 @@ const struct file_operations proc_net_operations = {
- 	.llseek		= generic_file_llseek,
- 	.read		= generic_read_dir,
- 	.iterate_shared	= proc_tgid_net_readdir,
-+	.release	= proc_dir_release,
- };
+-	if (de)
+-		remove_proc_subtree(de->name, de->parent);
++	if (!de)
++		return;
++
++	write_lock(&proc_subdir_lock);
++	/* Removed already, maybe along with its parent. */
++	if (RB_EMPTY_NODE(&de->subdir_node)) {
++		write_unlock(&proc_subdir_lock);
++		return;
++	}
++	if (unlikely(pde_is_permanent(de))) {
++		write_unlock(&proc_subdir_lock);
++		WARN(1, "removing permanent /proc entry '%s/%s'",
++		     de->parent->name, de->name);
++		return;
++	}
++	pde_erase(de, de->parent);
++	__remove_proc_subtree(de);
+ }
+ EXPORT_SYMBOL(proc_remove);
  
- static __net_init int proc_net_ns_init(struct net *net)
-diff --git a/fs/proc/root.c b/fs/proc/root.c
-index 7fbbe92bf73a..dfee1caa26f7 100644
---- a/fs/proc/root.c
-+++ b/fs/proc/root.c
-@@ -441,6 +441,7 @@ static const struct file_operations proc_root_operations = {
- 	.read		 = generic_read_dir,
- 	.iterate_shared	 = proc_root_readdir,
- 	.llseek		= generic_file_llseek,
-+	.release	= proc_dir_release,
- };
- 
- /*
 
 -- 
 2.53.0

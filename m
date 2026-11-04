@@ -1,94 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.133.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793804463;
-	b=oISQR8CmIk8NLzbzO0hILyEj1ypSpEZ6RaDONIVTv18LojRGPjwi95xEJs22UKrxt6gk
-	 V6R/xgmkKnK1T8erRTyu2kDsTVL75rPcbW9SQvzXBMcNPO41tEo4v+KuUlM8tztEMZks6
-	 ff9n4jhGGuVL1OT2wKtJJ4qWYn4U6P9KM1akt/U+i0MEI4ctN09cDBT7euXopQsESWf0p
-	 YRt6vFKKTSdSP//+Gq0CjgO8AUFBA3miERyWPukfGTPmBwocp4QCIQpPYZjfbEuKKPCMv
-	 imksi5VLrXl9NQ2TBjVDT9vmR5zPv29j5/YJDy90rQRhg8WllzA2yzrKC2KbreRIQfw==
+	t=1793806647;
+	b=oehWV+BYx4fiZRizKg6nqkEtt9X7XCbZjDCIKkJLsx/e5i09j9ZaVXRG3mPh2hmIbg+s
+	 g+alsdt8g+YW7jdahDfcB8zfPu4Z3T6nRXLPQWe+36M64Xe6v7cOU4CL8KFu2IjOSrhFI
+	 5gzfaBVgXkUOsqnd3ijxu2Tf0u0Vq+Gu8DgObmSiJzBF2szxR+QdH/5RGg+QLmHKjcePS
+	 vJmUyKqs+2zT6bdq705QEYFh21TSdZnufn05zMef6R0bTvqCGyz4WEQRsP40qq0tcLUYB
+	 4vyoxZbTNqtPmPcqIdfEfkITyx2sHd37F45IPBch4TjP3gzGzNH3JXoFthbSWJekcwA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793804463;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=e81tcatBHOQvCatTtne4Vl4ETpILuAB3x6t6D2nRZLk=;
-	b=WdlquNnXuMzq17zZXF5+dwe4PcSEE/JlivU+X4FV7qi3j8vX5zcqgRwJV07e9Jmo96V3
-	 ZC8jRbIs3NhVjiRv7IbxcLkayGXsrLs9ZcMqNRGhxBL5g6DHvyg7EqLP7r0B2D2PdDzhC
-	 bW5rbbNgwjHeFpGvobEyeKYk/O25FahVPhBHtDLYP0wE0bRuuCzhpZa47NAos7LVKsXco
-	 L8u27YzbY4j2aHe8F9LDM2em1kodPa4Y/7x04HToq7K9V3PMLOjMPCCPHwxh5kUOUa6Gr
-	 1fQBQnoWWMdVXbAg8NspwgnHqBN/2BI0qrRtS7GzTYWH7uROmgUecmSr2EoaEABbOIw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793806647;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Scanned-By;
+	bh=6gr+1hN5mr88TUb6c1EFHl/+fcbV3ZF/wh6O3QIfUwQ=;
+	b=1ft+bNIQA/IYPnC6U6gmRdq/3soI9TgciKQ4f6cHOAEv85bOUQ1dqAuIDDrd47DxnICN
+	 K0PvmNAk2Mc96fSlj6B+LHw9K3pqEtrIn8TEggPt4mPSzl/NY/C60s7Xh5Xc25vZLIJch
+	 gvKE4LX3akQm6BMeUC6zsDmanlyh1mQc/Q6tp1RgN5ktinGfy127Ywoh8wiGRtoO0y1bB
+	 TKYlvbKj3M4hP5TjNRGRNm9Np95sN3I23eteUouv/ZLyu9DaDmLLkNYq0RbUTf53i+oEq
+	 LF+9O1T9e3jMhRcWRW1vrj4o2rX3+jaDshNWqeBNq4zQnE5srVorYbugv8TS3eD+M8w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fzZA7hIw;
-	arc=none smtp.remote-ip=74.125.82.182
-Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W0wn3z2B;
+	arc=none smtp.remote-ip=170.10.133.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89982606A334
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 15:01:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 89982606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17A6660A5BFD
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 15:37:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 17A6660A5BFD
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=fzZA7hIw
-Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-36a18fc7a38so1725379eec.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 07:01:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793804463; x=1794409263; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=e81tcatBHOQvCatTtne4Vl4ETpILuAB3x6t6D2nRZLk=;
-        b=fzZA7hIwTwFCLtV3HBfFHWeAd5CaDykpU2HEZkvxrySCFEBwVxlsb1eyI5C8dI0btQ
-         y0mAt3u0EjX5CHg1SB0EcaMpBEHVM1+hd59xcC5gw5VscTJQklG7JgNAc2uW93pE04Aj
-         tFGABa2fl93KkXxUt9jOCOU60LDZjJebHRINVV7F/saYmetX0EqsGlsr+pI7F0Zaguj1
-         ZDjJ9bLhGzJBf3f9gDuG7EXWHOxGKhbAJha7X3U2zI4ZhuJzhO6OYL4VXmvVEf3D0fqE
-         kNFnHBdaYDPm3O9Vjg3NdIKMsrknnXGY0TDErXA89YQTFYRYQSwwSLXwvEmBjy8g7L7g
-         0P1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793804463; x=1794409263;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=e81tcatBHOQvCatTtne4Vl4ETpILuAB3x6t6D2nRZLk=;
-        b=F+TKkd/KnNf6wBJYET63+TE5y6V5vJ/w8NP2Qa/RARrZeKvbmuxW7HMAp0b9+fRD8p
-         1SZA+ZGAKSTOC1YoLEsuXz4g63CefPN2aPcYzOTKFHZMT3+/MTe8ZVhQTivwSUZDc5oL
-         A0pZCG+cJSm4CN1/VvezxRYkmN38Y1pJVDuZEbUUrrIQ4L1U+Zr1HIWVin3l0sm2FMRP
-         Xia/wiziKM64hYQsEFb7Gn5oPQH+/WqFg/wyvQi2OlE77u9+QJEC5AIkFyCgBKtC7om5
-         vToG5pSQzQp5Oj9O7GvVlVQqTmdRF7KMxH9etHp/6VPVebCPpASawW/8CqEjIqiYQtqP
-         2hxg==
-X-Forwarded-Encrypted: i=1; AKwUvBw/0DuNMYdmOl0ls2tZ5FYl5sd03BrS/8XaC38aOJL2GLHzVX90aG9/+7A4T8ladjPcyo2RKo12Yihtyg==@vger.kernel.org
-X-Gm-Message-State: APuU4Z8OXFlu3BINgLBDwOIKaWS/A/mccY7V5sWhBGb8RX/tWjMz9aSQ
-	ulzon5kz39A9ywUP+C1v9gik3xmKsFPJhggw1uL5r61lLa7bvO/InY+b
-X-Gm-Gg: AYBFou28YlHuN52PnTVXiBDX/PlnKc/2ZnzWtmWD1H26fTiB8HPPIMXp7pk2MbO4/Cq
-	SZXQLJB72EqdikGJZaIufsxNGLRoejsv63kYARPrQCuxButO9YFqs81uOf9xNReFIvNVikadrM2
-	mMHuIFvdYD8PV7tr1FXp1ISL1auLHR2BjOsGgFzz6Zo2JsY+Clr7Tth4EyWX14HfdqdwW041kqb
-	KDcNxrEBOefAiLBSah39CNOCqA/l5CsVHXBqUepQ+aIw7rM7zFqsRnPNguCCtrabE/LGcZi9AQR
-	j3ikhjuaVMmOCjGqAO3Wr0jSj2Cc9BkYHaG6wdUgwdI+JDvbgEyAL3ui6hNGh+NDyPnZozf0pPq
-	G+9bJbaDmBs5IfxAF8yHrjZiuDQgXXT4O5xuf6ypu/oHlsGlKR+Ua5UFVuZhOC0anQNNpha/sSk
-	Lko9yCHn9gs2x/rb5lzv2YHlhFbq3pQRAAzFespgrAzmC9rQUokkIuRPThW99OPX4fSHvGXXq5H
-	0n1DKr6kqZ2D5IBgtJuzQSXRQSVbaqdFazPuCLlp1PXGxz42KjTWKnzwkuySJxQBU/YOK8oAHMm
-	sxnXBhga3Loo37W9UG9k6+oo6yHcyKxgxift8FCwJ53TiaeeUOd+H1tJM+Y3lJ0qW4N5jLqE1TR
-	4L7ZV4u5lzFif1FylNjNfx9oQabE=
-X-Received: by 2002:a05:693c:6092:b0:369:1084:8ee3 with SMTP id 5a478bee46e88-36a423e52c8mr28908255eec.23.1793804462315;
-        Wed, 04 Nov 2026 07:01:02 -0800 (PST)
-Received: from localhost.localdomain ([2405:201:301c:f8cd:5040:8550:f5e4:709a])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-36ca38fe477sm7347457eec.17.2026.11.04.07.00.59
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 04 Nov 2026 07:01:01 -0800 (PST)
-From: Aryan Sinha <sinha.aryan03@gmail.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: Nikolas Koesling <nikolas@koesling.info>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Aryan Sinha <sinha.aryan03@gmail.com>
-Subject: [PATCH] HID: pulsar: print the battery error with %pe
-Date: Wed,  4 Nov 2026 20:30:52 +0530
-Message-ID: <20261104150055.33028-1-sinha.aryan03@gmail.com>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W0wn3z2B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793806645;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6gr+1hN5mr88TUb6c1EFHl/+fcbV3ZF/wh6O3QIfUwQ=;
+	b=W0wn3z2BOvAbc0oeEJkHqkX2S0LSRx/eThaPn5jZL1pRaps1oGZSQqY6VV+fQdBfLFPZxh
+	qhNosmDxIFHbiZQ2ryCWQe/4RkRbU1JeGmz9ZD85jnkwSTr3S9pn78Al9r3hp5Zdk1vyYk
+	oGdHsjsGl+7qXQtH71WBwZ1CVIOwChc=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-498-khiY1PBXPvuBLjBHwqeKGA-1; Wed,
+ 04 Nov 2026 10:37:19 -0500
+X-MC-Unique: khiY1PBXPvuBLjBHwqeKGA-1
+X-Mimecast-MFC-AGG-ID: khiY1PBXPvuBLjBHwqeKGA_1793806624
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8F010180059B;
+	Wed,  4 Nov 2026 15:37:02 +0000 (UTC)
+Received: from [100.91.101.41] (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D01FD1955F06;
+	Wed,  4 Nov 2026 15:36:38 +0000 (UTC)
+Message-ID: <8f74bba9-6484-4faf-a409-ce31cb42a63c@redhat.com>
+Date: Wed, 4 Nov 2026 16:36:37 +0100
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -98,31 +71,83 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: Use hex unit address patterns
+To: "Rob Herring (Arm)" <robh@kernel.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Vadim Fedorenko <vadim.fedorenko@linux.dev>,
+ Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+ Jiri Pirko <jiri@resnulli.us>, Benson Leung <bleung@chromium.org>,
+ Guenter Roeck <groeck@chromium.org>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Jonathan Cameron <jic23@kernel.org>,
+ David Lechner <dlechner@baylibre.com>, =?UTF-8?Q?Nuno_S=C3=A1?=
+ <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Olivier Moysan <olivier.moysan@foss.st.com>,
+ Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Thierry Reding <thierry.reding@kernel.org>,
+ Jonathan Hunter <jonathanh@nvidia.com>,
+ Fabrice Gasnier <fabrice.gasnier@foss.st.com>, Lee Jones <lee@kernel.org>,
+ Srinivas Kandagatla <srini@kernel.org>,
+ Ekansh Gupta <ekansh.gupta@oss.qualcomm.com>, Ulf Hansson <ulfh@kernel.org>,
+ Hans Ulli Kroll <ulli.kroll@googlemail.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>,
+ Manivannan Sadhasivam <mani@kernel.org>, Ray Jui <rjui@broadcom.com>,
+ Scott Branden <sbranden@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, Orson Zhai <orsonzhai@gmail.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Chunyan Zhang <zhang.lyra@gmail.com>,
+ Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+ Shawn Guo <shawnguo@kernel.org>, Chanh Nguyen
+ <chanh@os.amperecomputing.com>, Alistair Francis <alistair@alistair23.me>,
+ Julius Werner <jwerner@chromium.org>, Paul Cercueil <paul@crapouillou.net>,
+ Dmitry Osipenko <digetx@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>, Ray Jui
+ <ray.jui@broadcom.com>, Scott Branden <scott.branden@broadcom.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>, dri-devel@lists.freedesktop.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, chrome-platform@lists.linux.dev,
+ linux-gpio@vger.kernel.org, imx@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-sound@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-tegra@vger.kernel.org, mfd@lists.linux.dev,
+ linux-arm-msm@vger.kernel.org, linux-mmc@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-pm@vger.kernel.org
+References: <20261102135330.2493332-1-robh@kernel.org>
+Content-Language: en-US
+From: Ivan Vecera <ivecera@redhat.com>
+In-Reply-To: <20261102135330.2493332-1-robh@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-%pe prints the symbolic errno, which is easier to read than the raw
-number from the PTR_ERR().
+On 11/2/26 14:53, Rob Herring (Arm) wrote:
+> Unit-addresses by default (and most commonly) are hexadecimal. There's a
+> number of cases using decimal patterns. Fix all of them, limiting the
+> pattern to match the 'reg' limits if there are any.
+> 
+> Signed-off-by: Rob Herring (Arm) <robh@kernel.org>
+> ---
+>   .../bindings/display/xylon,logicvc-display.yaml      |  2 +-
+>   .../devicetree/bindings/dpll/dpll-device.yaml        |  2 +-
 
-Signed-off-by: Aryan Sinha <sinha.aryan03@gmail.com>
----
- drivers/hid/hid-pulsar.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-pulsar.c b/drivers/hid/hid-pulsar.c
-index b0b34849f..ba7cc9f65 100644
---- a/drivers/hid/hid-pulsar.c
-+++ b/drivers/hid/hid-pulsar.c
-@@ -615,8 +615,8 @@ static void pulsar_init_work(struct work_struct *work)
- 	    devm_power_supply_register(&hdev->dev, &drvdata->battery.desc,
- 				       &psy_cfg);
- 	if (IS_ERR(drvdata->battery.ps)) {
--		hid_err(hdev, "failed to register battery: %ld\n",
--			PTR_ERR(drvdata->battery.ps));
-+		hid_err(hdev, "failed to register battery: %pe\n",
-+			drvdata->battery.ps);
- 		drvdata->battery.ps = NULL;
- 		return;
- 	}
--- 
-2.46.0
+Reviewed-by: Ivan Vecera <ivecera@redhat.com>
 

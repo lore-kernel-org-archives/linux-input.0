@@ -1,56 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793795622;
-	b=Dp1NM/0R58VDtLFG9BsISgJsRsvx64ZdmaOlnnGxtS19aIrRjceB1FTXcf0NGco27cxO
-	 VsPpaNFjWHCWJgnWltsmL9UT6z6HYdCxFjMaXrPVvUhml5BrTvSq4PrWinBN1Rbs9d7UT
-	 FnuW7A1iXK9Sgor7bT+TVdk+aguySbZENfmNmNzuh820bhqpDHn8C4sBMrj8sAPlDFm/l
-	 rd9gmBAx3dM1NlXEYRHM3tT4kJAHe+0wB1tAXL4xOCFDsDp7DRHwOTVhtzYzJILur5fcc
-	 L7PEtMkEWYCO2IFvLYGSSobO1RVrnpXbwamO0y/qCr6bz9/w/alvvfmVOKNud/MP6Uw==
+	t=1793795958;
+	b=Rb5ZwVYD9264MFMPl6ITzTgVnnvMOXpQFyr41N0e/vd4z7+wnBvsV+/dRg/01PT9bYtC
+	 cKvA8dWbQLj5l6yX01VBJmpkboKcxaZnQApQuMzvoxPE5TZXlOiug0Vj5LDOZpBPLYXCU
+	 +vezW+frA5kAozv3NCMViuMh59yMgHKVi1nD8ctFMBl4rqk4nKtoYJKfd3PRptwg2c7mW
+	 R6ulWlG9XJMJbr3LrDTvp91b2zRw5zJDaWAIIegQzEDV9RTqsxHMJzouv0ADH6nqrBQ8M
+	 L9WVvzRuESGm8myTHwF13GVpoO7FPhUNKkY1asIbiyIYXr/jpXOuASVNb0PpS0TeabA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793795622;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793795958;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=QTXQSnEmVHKL+w8CQeZbmsm86dtqtVVOhk3Wr0h6/Ag=;
-	b=NjmZYO0Q+CDbuDFhFZWiSXAsHWthQya5tus1Kj1WEjFUHoy0ZrM+NbO76XJ3M9y3/NEl
-	 1KI1ZX5XTcgxOwWy2YxrYJch0H8ZGtzsdRINQyLMjMuuMfp7OJRVtR095BQgwoHPWLDZ2
-	 d8TeVBoBVuazLJR24tpKUsNIy7WzMObuvOf/U/AAOr3pWMlr5EMrT4y4RT8qJXRtIYYnL
-	 iF0GEaKOTqTnZG+5UN20NQ7WE/xlxgAd0ihFF0NY0/bgbrdXm5ElTkoKomjITw3rUaHPA
-	 SDWWQYDcRQHwPzLphuDz4LonmuVhrDrqZUX1JyFZ4lUY1lx+Z4Lc5LHFHEZCMLKyz3g==
+	bh=fVaNbaMznxlD1PnSfe0wBRtF8HswDfXhTha2jq+S4xY=;
+	b=mBJe8Z7I0IkF+iHzGemDBS9CsnVFGCOhX39CzkL+u+iz5ZQBdivtgT3VtHIzQ7uxOLNs
+	 2O3kFKgy/A0fyU0VtNl8bSGtLdMFzN5zY/9ZiMtLIej2uGv7eryhGw447XEr9vNLvME2v
+	 kp9y1RMlHqUX5a9E7AR3WcReq0jAM62utzYUl248UjFcideQVWEA1D9nV/AnESFCGytLY
+	 nrHSCBACGCw6OHbQI8K6fmpv6OTjEajEMlnFeiRfsasiYwmjZoMcHTbV3HRz8bzg8vB+g
+	 HJF45P8Sln4L0vyUl9soJQg1shxYBdv4D4fO5rjISEAW3RWN+mC+0Q343eH6/j5saqQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mWQrBa18;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c8hS5Cji;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A160B606A332;
-	Wed,  4 Nov 2026 12:33:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90360606A31B;
+	Wed,  4 Nov 2026 12:39:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mWQrBa18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D09BC1F000C1;
-	Wed,  4 Nov 2026 12:33:41 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c8hS5Cji
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A12761F000C1;
+	Wed,  4 Nov 2026 12:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793795622;
-	bh=QTXQSnEmVHKL+w8CQeZbmsm86dtqtVVOhk3Wr0h6/Ag=;
+	s=k20260515; t=1793795957;
+	bh=fVaNbaMznxlD1PnSfe0wBRtF8HswDfXhTha2jq+S4xY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mWQrBa18FKsI6lxhWrrkrSSfuhMvddcRN+u6rup2OafUZPybmAhbWkM7RLKhgXfOr
-	 YyU/zMi96ebhuEsIPFTrlxd4sTs9ir6/BOO1MJU7ifdT/lgsLegD48RQqdppb5+ilO
-	 7iDA1IawvBfhfACpc92ndVn00Q8lS7mA66UP3tBI05ftKow5p7ah7SMQgR1avwAPtx
-	 ksPze51p02ZdGlWMifV5Ei9kydUk3Ikcg8grM/Hv3K2oF2j6GnZJ8Pn9d3PWwCfF5o
-	 Wuw0Ym1I3CSg8kv3hRZrpyvxh2oGdJE0YxbbASrmOF43JQXeBiQFI5UfnS5tYDDdaK
-	 eVDSysr3ZaPXg==
-Message-ID: <sashiko-outbox-197258@kernel.org>
+	b=c8hS5CjiifhgfL8lqyTyqmggfJCpUKNcBgMOj1u/cY+UTDSVLRPeTIjBvNEPuFGfk
+	 Yc3nnDqlZ9tPOCbASUSIQdJcam7vfrbqLN2xjj2jzbD2HGD18ke04ENVLufjX2poC1
+	 5D2o0sWxf3WwC2jdXpAw/SqNZdMOH5d3g51uwqlkXlqczZAIOUxk5TQKq1yqI4jLeH
+	 Nc0iBKcxCzdfa0mANCDTTAEkkkCSMbWTcV4WoyK/ebQvhpogPaNRmVknLkbrgFokI3
+	 l/h6x+qM+QjLjrDinem5o1F7/jsw+5DBQYYGrGu9VOSs9Jh+YadEys2LMvuV9lz7wG
+	 7YcZn0DDp7rHQ==
+Message-ID: <sashiko-outbox-197277@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v13 5/7] leds: Add driver for ASUS Transformer LEDs
+Subject: Re: [PATCH v13 3/7] input: serio: Add driver for ASUS Transformer
+ dock keyboard and touchpad
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Svyatoslav Ryhel" <clamor95@gmail.com>
 Cc: devicetree@vger.kernel.org, linux-input@vger.kernel.org, mfd@lists.linux.dev, linux-leds@vger.kernel.org, robh@kernel.org, conor+dt@kernel.org, dmitry.torokhov@gmail.com, lee@kernel.org
-In-Reply-To: <20261104122606.215629-6-clamor95@gmail.com>
+In-Reply-To: <20261104122606.215629-4-clamor95@gmail.com>
 References: <20261104122606.215629-1-clamor95@gmail.com>
- <20261104122606.215629-6-clamor95@gmail.com>
+ <20261104122606.215629-4-clamor95@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 04 Nov 2026 12:33:41 +0000
+Date: Wed, 04 Nov 2026 12:39:16 +0000
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -60,81 +61,153 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] leds: non-standard two-part LED name format in asus_ec_led_probe=
-()
-- [Low] leds: missing driver prefix in commit subject
+- [High] input: serio: notifier order in asus_ec_kbc_probe() causes NULL de=
+ref or UAF
 --
 
-commit 8625f763ce281e3f67385ab547a18ea8401f88e9
+commit 8f5c105d6df4708eb2c002e7fe58ff80a2a0fb84
 Author: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
 
-leds: Add driver for ASUS Transformer LEDs
+input: serio: Add driver for ASUS Transformer dock keyboard and touchpad
 
-This commit adds an LED class driver for the green and amber charging
-indicator LEDs on the ASUS Transformer Pad and Dock embedded controllers.
+This commit adds a serio driver for the keyboard and touchpad on the ASUS
+Transformer dock, registering two serio ports and a notifier on the parent
+EC to forward and remap incoming PS/2 data.
 
->     leds: Add driver for ASUS Transformer LEDs
->    =20
->     ASUS Transformer tablets have a green and an amber LED on both the Pad
->     and the Dock.
->    =20
->     Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
->     Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
->     Signed-off-by: Micha=C5=82 Miros=C5=82aw <mirq-linux@rere.qmqm.pl>
-
-[Severity: Low]
-This isn't a bug, but LED subsystem commit subjects normally include the
-driver sub-prefix in the form "leds: <driver>: <Capitalized description>".
-Should the subject line be updated to something like:
-
-  leds: asus-transformer-ec: Add driver for ASUS Transformer LEDs
-
-[ ... ]
-
-> diff --git a/drivers/leds/leds-asus-transformer-ec.c b/drivers/leds/leds-=
-asus-transformer-ec.c
+> diff --git a/drivers/input/serio/asus-transformer-ec-kbc.c b/drivers/inpu=
+t/serio/asus-transformer-ec-kbc.c
 > new file mode 100644
-> index 0000000000000..f797dcefd16e6
+> index 0000000000000..cff18da6d59d7
 > --- /dev/null
-> +++ b/drivers/leds/leds-asus-transformer-ec.c
+> +++ b/drivers/input/serio/asus-transformer-ec-kbc.c
 
 [ ... ]
 
-> +static int asus_ec_led_probe(struct platform_device *pdev)
+> +static int asus_ec_kbc_notify(struct notifier_block *nb,
+> +			      unsigned long action, void *data_)
 > +{
-> +	const struct asusec_core *ec =3D dev_get_drvdata(pdev->dev.parent);
-> +	struct device *dev =3D &pdev->dev;
-> +	struct asus_ec_led *leds;
-> +	int ret;
+
+[ ... ]
+
+> +	while (n--)
+> +		serio_interrupt(priv->sdev[port_idx], *data++, 0);
 > +
-> +	leds =3D devm_kcalloc(dev, ASUSEC_LED_MAX, sizeof(*leds), GFP_KERNEL);
-> +	if (!leds)
+> +	return NOTIFY_OK;
+> +}
+
+[ ... ]
+
+> +static int asus_ec_register_serio(struct platform_device *pdev, int idx,=
+ const char *name, int cmd)
+> +{
+> +	struct asus_ec_kbc_data *priv =3D platform_get_drvdata(pdev);
+> +	struct i2c_client *parent =3D priv->parent;
+> +	struct serio *port =3D kzalloc_obj(*port);
+> +
+> +	if (!port)
 > +		return -ENOMEM;
 > +
-> +	for (int i =3D 0; i < ASUSEC_LED_MAX; i++) {
-> +		const struct asus_ec_led_config *cfg =3D &asus_ec_leds[i];
-> +		struct asus_ec_led *led =3D &leds[i];
+> +	priv->sdev[idx] =3D port;
+> +	port->dev.parent =3D &pdev->dev;
+> +	port->id.type =3D SERIO_8042;
+> +	port->id.extra =3D cmd & 0xFF;
+> +	port->write =3D asus_ec_serio_write;
+> +	port->port_data =3D (void *)priv;
+> +	snprintf(port->name, sizeof(port->name), "%s %s", priv->ec->model, name=
+);
+> +	snprintf(port->phys, sizeof(port->phys), "i2c-%u-%04x/serio%d",
+> +		 i2c_adapter_id(parent->adapter), parent->addr, idx);
 > +
-> +		led->cdev.name =3D devm_kasprintf(dev, GFP_KERNEL, "%s:%s", ec->name, =
-cfg->name);
+> +	serio_register_port(port);
+> +
+> +	return devm_add_action_or_reset(&pdev->dev, asus_ec_serio_remove, port);
+> +}
+> +
+> +static void asus_ec_notifier_chain_unregister(void *data)
+> +{
+> +	struct asus_ec_kbc_data *priv =3D data;
+> +	struct asusec_core *ec =3D priv->ec;
+> +
+> +	blocking_notifier_chain_unregister(&ec->notify_list, &priv->nb);
+> +}
+> +
+> +static int asus_ec_kbc_probe(struct platform_device *pdev)
+> +{
+> +	struct device *dev =3D &pdev->dev;
+> +	struct asusec_core *ec =3D dev_get_drvdata(dev->parent);
+> +	struct asus_ec_kbc_data *priv;
+> +	int error;
+> +
+> +	priv =3D devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	priv->ec =3D ec;
+> +	priv->parent =3D to_i2c_client(dev->parent);
+> +
+> +	priv->nb.notifier_call =3D asus_ec_kbc_notify;
+> +	error =3D blocking_notifier_chain_register(&ec->notify_list, &priv->nb);
+> +	if (error)
+> +		return dev_err_probe(dev, error, "Failed to register blocking notifier=
+ chain");
+> +
+> +	error =3D devm_add_action_or_reset(dev, asus_ec_notifier_chain_unregist=
+er, priv);
+> +	if (error)
+> +		return error;
+> +
+> +	error =3D asus_ec_register_serio(pdev, 0, "Keyboard", 0);
+> +	if (error)
+> +		return error;
+> +
+> +	error =3D asus_ec_register_serio(pdev, 1, "Touchpad", I8042_CMD_AUX_SEN=
+D);
+> +	if (error)
+> +		return error;
 
-[Severity: Medium]
-Does formatting led->cdev.name as "%s:%s" with ec->name ("pad" or "dock")
-and cfg->name ("amber" or "green") omit the function section expected by
-the LED class naming convention?
+[Severity: High]
+As reported by Dmitry Torokhov on v12 [1], registering the notifier before
+initializing the serio ports and without checking whether the ports are rea=
+dy
+can lead to a null pointer dereference during probe or a use-after-free
+during teardown.
 
-Documentation/leds/leds-class.rst specifies the three-section
-devicename:color:function format (or color:function when devicename is
-omitted). When a two-section name containing a single colon such as
-"pad:amber" or "dock:green" is exposed in /sys/class/leds/, userspace
-tooling such as tools/leds/get_led_device_info.sh parses the first field
-(ec->name) as the color and the second field (cfg->name) as the function.
+In the parent MFD driver, asus_ec_probe() enables the threaded IRQ handler
+asus_ec_interrupt() before adding the child MFD devices. Once
+asus_ec_kbc_probe() calls blocking_notifier_chain_register(), an incoming EC
+keyboard or touchpad interrupt can invoke asus_ec_kbc_notify() while
+priv->sdev[0] and priv->sdev[1] are still NULL (or after priv->sdev[idx] =3D
+port in asus_ec_register_serio(), before serio_register_port() initializes
+port->lock). Passing priv->sdev[port_idx] to serio_interrupt() will then
+dereference NULL or lock an uninitialized spinlock.
 
-Should led->cdev.name include the function segment as well (for example,
-using LED_FUNCTION_CHARGING to form "%s:%s:" LED_FUNCTION_CHARGING)?
+Additionally, because devm_add_action_or_reset() for
+asus_ec_notifier_chain_unregister() is registered before the
+asus_ec_serio_remove() actions in asus_ec_register_serio(), devm teardown r=
+uns
+in reverse order:
+
+  asus_ec_serio_remove()
+    serio_unregister_port()
+      serio_disconnect_port()
+      serio_destroy_port() -> frees struct serio
+  ...
+  asus_ec_notifier_chain_unregister()
+
+During serio_disconnect_port(), the attached PS/2 driver sends disable/reset
+commands over I2C, causing the EC to generate ACK interrupts while priv->nb
+is still registered and priv->sdev[] holds dangling pointers to the freed
+serio ports. Can the notifier be registered after the serio ports (or gated
+on port readiness under a lock via serio start/stop or open/close callbacks)
+so that interrupts cannot reach serio_interrupt() before registration or
+after unregistration?
+
+[1] https://lore.kernel.org/r/ate5K6ZdrSoBUI08@google.com
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104122606.2156=
-29-1-clamor95@gmail.com?part=3D5
+29-1-clamor95@gmail.com?part=3D3

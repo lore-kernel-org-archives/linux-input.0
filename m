@@ -1,110 +1,80 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=198.175.65.14
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793827021;
-	b=PNUOLaGZ+bmtcj2aomMyQxJEOo2PR+9oXReT48TytTZt04vhK46XfJnjwGg9XgGPCKF4
-	 CEUqsyfC7YwzCU1z3bt+z/oM68vOnNQjgp4cxC7s2TjsV3imb1cYa0XafQ2xr49QXDWky
-	 OEkGNYBl92nCAZvHa23Y9gwClDfRWW4l9Dseurga1iwKP6Q9D0lL5ryqCWwx9JKvATdN0
-	 hSE4GSGrWHgtjBTV0qOf/nO3Es66DTsojH9I94OwaqC4UF9KESHWeiJuXRaSaoCPXsnFk
-	 qIYo2Lszcg18HnbLfckPvLYiWK2bCoFlTLHjRrl1AId5A3jrP68a3rEK2nV5u1THCag==
+	t=1793829892;
+	b=P33o2QqqpDdnkYAkrxqDktcjR6Ts/GKbP9Qa45/YsaynbNLPjGEWrAYIoHSELzp8XZoU
+	 lCh5+DrgQy7CdI5qkT3Np0wjXLMzbAL9IzUX8nunq4iJCjWXftbeR+vS41YHQqFV3wDie
+	 3Sklp3/KB9d/0E13gxK1F0LEcjEjQmBiDTO93++rvDmK82ynU6PvvEBzWAVoL+mfHl40z
+	 qg8ivhQtv8NvUzjrdf1VHzW18gGze0ao0x4382vvAQVqRPiolFW4twWuyAH2sqZ09qxb2
+	 CefTteRcjAfq93TfUgjkFHjUU8+ntkRMrPU9YUPglHXylbYIPoTZ2uyggVlyd2z80mQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793827021;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:MIME-Version:Content-Type:X-Mailer:
-	 X-Developer-Signature:X-Developer-Key:Content-Transfer-Encoding;
-	bh=zeHs9UAP7YIb3jk19VW8WXuXpSby7HHZ4SLZ7Ya7qeg=;
-	b=NJug/H7Ioiu5StT7XnG/xBB9AEC2kOTlGoMob8Jmh/2hAWFJv9eFF/HjTSOj3p8o0RZn
-	 QwuxbQB0wrAhKAh+mOOXdn7TpaL8o9H6IiglnwCyq73yjziWdXZHQ5LtOLYZc7s8uFT6h
-	 6ROcD5HYmmHxibKVXD7UGQ2RlHXHwEfU6mZYgN6uy+lboOaWBt83jtle4WPOwH3hgUw0o
-	 tszlQt1iivaDWQHF+O+k3D6Hyv+qZR+RNjuDds+htZGDL9esajIPovSox2MAKnFrAE+j+
-	 DeJ/e+PI56jhGWfySq14GTzUOGzee0Qyk0xdI/GGuWh5UmuM7LziPNS0s+tI9mAqLJw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793829892;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Message-ID:Subject:
+	 From:To:Cc:Date:In-Reply-To:References:Content-Type:
+	 Content-Transfer-Encoding:User-Agent:MIME-Version;
+	bh=bmgdedAngAFoIFwO3WI5k0FYP50TIySMVLKbAoooDiA=;
+	b=zkLKYmYJlGHscZbewSNuYbUTIIJIRR6jDCgZXSD1xPmy7DxyPl8MDyL4qvvPPVBLCIIY
+	 aoJEO8/9QPpRKtHrhiF7V6ggVUMr5GqJOjzJ/2HZdg6CYSDfgcqEISzYXNOc9mBO6W8Yy
+	 KWJOre8owVQo5lxM+0MF0jAelaiVFvARdjkYQ2a6mhUrconFUmPvO023v4Hfrnojfu6gx
+	 oMTQVw1uuAHYJCpPgF6+t59qfuVqGUuD6w1K5jfbi+Rh8pJw6zvwH3NxHLPXY3zqBZYNv
+	 7mmzFQN7rQ3OvXQF9vNvQfdjlpLHTmUO5hWjaUBAmGvCg2JP7XJahlbwKX+Qw1fr6Ng==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S3SzdWSz;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.intel.com;
+	spf=pass smtp.mailfrom=linux.intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Z7TEKmRq;
+	arc=none smtp.remote-ip=198.175.65.14
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31780606A863;
-	Wed,  4 Nov 2026 21:17:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B35BD606A335
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 22:04:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B35BD606A335
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S3SzdWSz
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07AC31F00A02;
-	Wed,  4 Nov 2026 21:16:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793827021;
-	bh=zeHs9UAP7YIb3jk19VW8WXuXpSby7HHZ4SLZ7Ya7qeg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=S3SzdWSzW86Oi7IX1tUBoRNN3T1qaKpCsD195aJc0q3DFSVT8WBvY060bSLKhgobb
-	 ozqt92gwXbw5PQb0azuNQvXlPB7WnJ6cBECkdsTADqTj+zV4KFstm2CIoVK3RnyKHw
-	 qukYCNAdRUYdRI6RQkFYFD46MOjD+1c8YqXVIsSOalpjdzN976W0rXYKybUDWkvkIa
-	 rfbNpjRPuRxsQxtxAfSij5iqz5tsGOkFhdPq9CXCzRhQ5vabAbm6JESEBXYkE7I8Zz
-	 Xcw2dOWqmhnKSnz+HejYopwm49XOlRK/JAYtCOxhFx3vpJFr7q8EZmlKY7qc7HALif
-	 bf0zrDFVpbYqg==
-From: Christian Brauner <brauner@kernel.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	Jann Horn <jannh@google.com>,
-	Josef Bacik <josef@toxicpanda.com>,
-	Chris Mason <mason@kernel.org>,
-	Jeff Layton <jlayton@kernel.org>,
-	NeilBrown <neil@brown.name>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Al Viro <viro@zeniv.linux.org.uk>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Christoph Hellwig <hch@lst.de>,
-	Greg Kroah-Hartman <gregkh@suse.de>,
-	Joel Granados <joel.granados@kernel.org>,
-	Kees Cook <kees@kernel.org>,
-	Jan Kara <jack@suse.cz>,
-	Jan Kara <jack@suse.com>,
-	linux-kernel@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	linux-wireless@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	netdev@vger.kernel.org,
-	ntfs3@lists.linux.dev,
-	platform-driver-x86@vger.kernel.org,
-	coreteam@netfilter.org,
-	kexec@lists.infradead.org,
-	linux-pci@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	netfilter-devel@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	ibm-acpi-devel@lists.sourceforge.net,
-	jfs-discussion@lists.sourceforge.net,
-	linux-alpha@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-cifs@vger.kernel.org,
-	linux-fbdev@vger.kernel.org,
-	linux-hwmon@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-sh@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	samba-technical@lists.samba.org,
-	sparclinux@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-doc@vger.kernel.org,
-	linux-serial@vger.kernel.org,
-	linux-atm-general@lists.sourceforge.net,
-	Takashi Iwai <tiwai@suse.de>,
-	linux-input@vger.kernel.org,
-	linux-raid@vger.kernel.org,
-	linux-ext4@vger.kernel.org,
-	linux-modules@vger.kernel.org,
-	linux-debuggers@vger.kernel.org,
-	"Christian Brauner (Amutable)" <brauner@kernel.org>,
-	Chuck Lever <cel@kernel.org>
-Subject: [PATCH RESEND v2 6/6] proc: drop the poll_table from ->proc_poll()
-Date: Wed,  4 Nov 2026 22:16:46 +0100
-Message-ID: <20261104-work-procfs-cleanup-v2-6-1e6687e226b1@kernel.org>
-In-Reply-To: <20261104-work-procfs-cleanup-v2-0-1e6687e226b1@kernel.org>
-References: <20261104-work-procfs-cleanup-v2-0-1e6687e226b1@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Z7TEKmRq
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1793829892; x=1825365892;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=ISKGUOX8IMj4CFP4ZkXUCJAAAaK/obCJ37UwHxQHNIo=;
+  b=Z7TEKmRqgweeBY4w2gKQNkvQtFcWD/0uY+O3Cq41GBSCjuPoPSRIj+OT
+   yG3Z+aXwpSAQHc/BprIWnGDuww+fEoPuNmCOx3kae2PRghD6FomPU19ow
+   /yvkHQ6ndvEXipkAeIKf+sILBknC6p2qFyvSGDs1QRJHAVLnmGXVGtflk
+   9lCWHgJiriio3qj4yn45oc9/L5xqverfLLIgFyLMUJGKMalRMPxcl7cml
+   dPorPfy+NZqYO0Sp6fp+osUXMqTV13uhBoB09SlPyfaJK0RnBnk2lC0NE
+   zQTCr5+mC3P+bABY73pusqIgUX/lz27pNm++IKdGDSEuhwDKCtQUtUANa
+   w==;
+X-CSE-ConnectionGUID: ZfCOPp/2RWGNAq6n+JuCQQ==
+X-CSE-MsgGUID: urqlWYUxRkiE56ZsBzuz9A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11956"; a="2489539"
+X-IronPort-AV: E=Sophos;i="6.27,196,1787036400"; 
+   d="scan'208";a="2489539"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2026 14:04:51 -0800
+X-CSE-ConnectionGUID: Y9yJlD5XSdqeBRKRZd8fHg==
+X-CSE-MsgGUID: Sq5qcaQ9SOi9mMi68YYwWQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,196,1787036400"; 
+   d="scan'208";a="6665640"
+Received: from vverma7-desk1.amr.corp.intel.com (HELO [10.125.110.69]) ([10.125.110.69])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2026 14:04:51 -0800
+Message-ID: <dcfc4211abe66f13f23cb546c478acb862a00d4d.camel@linux.intel.com>
+Subject: Re: [PATCH v2 6/7] HID: sensor: custom: Register enable attribute
+ after misc device
+From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Date: Wed, 04 Nov 2026 14:04:50 -0800
+In-Reply-To: <sashiko-outbox-198009@kernel.org>
+References: <20261104201403.2039921-1-srinivas.pandruvada@linux.intel.com>
+	 <20261104201403.2039921-7-srinivas.pandruvada@linux.intel.com>
+	 <sashiko-outbox-198009@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Post: <mailto:linux-input@vger.kernel.org>
@@ -114,161 +84,99 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-input+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5605; i=brauner@kernel.org; h=from:subject:message-id; bh=xctjOvW/3SEZoVIWJreYFKvLSI3LgHd/aggSpp1K3Wc=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9XpDCwWfSYe8eveS8yHFO7St6c86UqkTd43v8XXbxs eORD9pDOkpZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACYivoGRYdl9h7P19TJf4stb 3x3lv8VUfL7o3Cmvh99vBMo/PlY8S4bhn/KGbxquT4Jf+f7xcV3IcHfqg01FBpdsX2pJecw75bG miBMA
-X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
-Content-Transfer-Encoding: 8bit
 
-Every entry sleeps its pollers on the wait queue procfs owns for it
-now, so take the poll_table away from the method. An entry can't hand
-procfs a queue of its own anymore then, which is what went wrong for
-sunrpc, and the method only reports the mask.
+On Wed, 2026-11-04 at 20:25 +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential
+> issue(s) to consider:
+> - [Low] HID: sensor: custom: duplicate callback removal in
+> hid_sensor_custom_probe()
+> --
+>=20
+> commit 3c6fa7005fd38bc50c4da9b69a1182ec5457915f
+> Author: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+>=20
+> HID: sensor: custom: Register enable attribute after misc device
+>=20
+> This commit reorders hid_sensor_custom_probe() so
+> enable_sensor_attr_group is
+> registered after hid_sensor_custom_dev_if_add() succeeds, preventing
+> userspace
+> from enabling the sensor hub while probe can still fail.
+>=20
 
-Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
----
- arch/powerpc/kernel/rtasd.c | 2 +-
- drivers/input/input.c       | 2 +-
- drivers/md/md.c             | 2 +-
- fs/proc/inode.c             | 2 +-
- include/linux/proc_fs.h     | 9 +++++----
- kernel/sched/psi.c          | 4 ++--
- mm/swapfile.c               | 2 +-
- net/sunrpc/cache.c          | 2 +-
- sound/core/info.c           | 2 +-
- 9 files changed, 14 insertions(+), 13 deletions(-)
+Will fix in next rev as this a minor issue to readjust code.
 
-diff --git a/arch/powerpc/kernel/rtasd.c b/arch/powerpc/kernel/rtasd.c
-index 49036790b67c..34705234db57 100644
---- a/arch/powerpc/kernel/rtasd.c
-+++ b/arch/powerpc/kernel/rtasd.c
-@@ -343,7 +343,7 @@ static ssize_t rtas_log_read(struct file * file, char * buf,
- 	return error;
- }
- 
--static __poll_t rtas_log_poll(struct file *file, poll_table * wait)
-+static __poll_t rtas_log_poll(struct file *file)
- {
- 	if (rtas_log_size)
- 		return EPOLLIN | EPOLLRDNORM;
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index a984810eb80d..5a0547296c6c 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1097,7 +1097,7 @@ struct input_seq_state {
- 	int input_devices_state;
- };
- 
--static __poll_t input_proc_devices_poll(struct file *file, poll_table *wait)
-+static __poll_t input_proc_devices_poll(struct file *file)
- {
- 	struct seq_file *seq = file->private_data;
- 	struct input_seq_state *state = seq->private;
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 7560dcf0f5c8..94926a7c3d6f 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -9176,7 +9176,7 @@ static int md_seq_open(struct inode *inode, struct file *file)
- 	return 0;
- }
- 
--static __poll_t mdstat_poll(struct file *filp, poll_table *wait)
-+static __poll_t mdstat_poll(struct file *filp)
- {
- 	struct seq_file *seq = filp->private_data;
- 	__poll_t mask;
-diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-index 7f6c63885f53..c35e13b44eed 100644
---- a/fs/proc/inode.c
-+++ b/fs/proc/inode.c
-@@ -546,7 +546,7 @@ static __poll_t proc_reg_poll(struct file *file, struct poll_table_struct *pts)
- 	poll_wait(file, &pde->open->poll, pts);
- 	if (!pde_pin(pde))
- 		return DEFAULT_POLLMASK | EPOLLERR | EPOLLPRI;
--	rv = pde->proc_ops->proc_poll(file, pts);
-+	rv = pde->proc_ops->proc_poll(file);
- 	pde_unpin(pde);
- 	return rv;
- }
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index 872f3bd54c11..6e2bcdf3c1b5 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -84,11 +84,12 @@ struct proc_ops {
- 	int	(*proc_release)(struct inode *, struct file *);
- 	/*
- 	 * procfs owns a wait queue for an entry with a ->proc_poll() and
--	 * does the poll_wait() on it before it calls the method. The owner
--	 * wakes the pollers with proc_poll_notify(). A poll on a removed
--	 * entry reports EPOLLERR | EPOLLPRI.
-+	 * does the poll_wait() on it before it calls the method, which only
-+	 * reports the mask. The owner wakes the pollers with
-+	 * proc_poll_notify(). A poll on a removed entry reports
-+	 * EPOLLERR | EPOLLPRI.
- 	 */
--	__poll_t (*proc_poll)(struct file *, struct poll_table_struct *);
-+	__poll_t (*proc_poll)(struct file *);
- 	/*
- 	 * procfs pins the entry around ->proc_mmap() and wraps the
- 	 * vm_operations of the mapping so that ->open(), ->fault(),
-diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-index 9362c27d47ab..ecb9028b5c49 100644
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -1606,11 +1606,11 @@ static ssize_t psi_cpu_write(struct file *file, char *buf, size_t nbytes,
- 	return psi_write(file, buf, nbytes, PSI_CPU);
- }
- 
--static __poll_t psi_fop_poll(struct file *file, poll_table *wait)
-+static __poll_t psi_fop_poll(struct file *file)
- {
- 	struct seq_file *seq = file->private_data;
- 
--	return psi_trigger_poll(&seq->private, wait);
-+	return psi_trigger_poll(&seq->private, NULL);
- }
- 
- static int psi_fop_release(struct inode *inode, struct file *file)
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index 1d063a1cef43..e7c019871e35 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -3315,7 +3315,7 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
- }
- 
- #ifdef CONFIG_PROC_FS
--static __poll_t swaps_poll(struct file *file, poll_table *wait)
-+static __poll_t swaps_poll(struct file *file)
- {
- 	struct seq_file *seq = file->private_data;
- 
-diff --git a/net/sunrpc/cache.c b/net/sunrpc/cache.c
-index b8f70d8c3b0c..4854a42d43a2 100644
---- a/net/sunrpc/cache.c
-+++ b/net/sunrpc/cache.c
-@@ -1588,7 +1588,7 @@ static ssize_t cache_write_procfs(struct file *filp, char *buf, size_t count,
- 	return ret ? ret : count;
- }
- 
--static __poll_t cache_poll_procfs(struct file *filp, poll_table *wait)
-+static __poll_t cache_poll_procfs(struct file *filp)
- {
- 	struct cache_detail *cd = pde_data(file_inode(filp));
- 
-diff --git a/sound/core/info.c b/sound/core/info.c
-index 3439ae341e26..8e64d8e3e5b2 100644
---- a/sound/core/info.c
-+++ b/sound/core/info.c
-@@ -184,7 +184,7 @@ static ssize_t snd_info_entry_write(struct file *file, char *buffer,
- 	return size;
- }
- 
--static __poll_t snd_info_entry_poll(struct file *file, poll_table *wait)
-+static __poll_t snd_info_entry_poll(struct file *file)
- {
- 	struct snd_info_private_data *data = file->private_data;
- 	struct snd_info_entry *entry = data->entry;
+Thanks,
+Srinivas
 
--- 
-2.53.0
-
+> > diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
+> > sensor-custom.c
+> > index 4f824cadd370a..990e653995e15 100644
+> > --- a/drivers/hid/hid-sensor-custom.c
+> > +++ b/drivers/hid/hid-sensor-custom.c
+> > @@ -1059,20 +1059,21 @@ static int hid_sensor_custom_probe(struct
+> > platform_device *pdev)
+> > =C2=A0	if (ret)
+> > =C2=A0		goto err_remove_callback;
+> > =C2=A0
+> > -	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> > -				 &enable_sensor_attr_group);
+> > +	ret =3D hid_sensor_custom_dev_if_add(sensor_inst);
+> > =C2=A0	if (ret)
+> > =C2=A0		goto err_remove_attributes;
+> > =C2=A0
+> > -	ret =3D hid_sensor_custom_dev_if_add(sensor_inst);
+> > +	ret =3D sysfs_create_group(&sensor_inst->pdev->dev.kobj,
+> > +				 &enable_sensor_attr_group);
+> > =C2=A0	if (ret)
+> > -		goto err_remove_group;
+> > +		goto err_remove_dev_if;
+> > =C2=A0
+> > =C2=A0	return 0;
+> > =C2=A0
+> > -err_remove_group:
+> > -	sysfs_remove_group(&sensor_inst->pdev->dev.kobj,
+> > -			=C2=A0=C2=A0 &enable_sensor_attr_group);
+> > +err_remove_dev_if:
+> > +	sensor_hub_remove_callback(hsdev, hsdev->usage);
+> > +	hid_sensor_custom_dev_if_remove(sensor_inst);
+> > +	goto err_remove_attributes;
+> > =C2=A0err_remove_attributes:
+> > =C2=A0	hid_sensor_custom_remove_attributes(sensor_inst);
+> > =C2=A0err_remove_callback:
+>=20
+> [Severity: Low]
+> In hid_sensor_custom_probe() in drivers/hid/hid-sensor-custom.c, when
+> sysfs_create_group() for enable_sensor_attr_group fails and jumps to
+> err_remove_dev_if, sensor_hub_remove_callback(hsdev, hsdev->usage) is
+> called
+> before hid_sensor_custom_remove_attributes(sensor_inst), followed by
+> a goto to
+> the immediately following err_remove_attributes label and a
+> fallthrough to
+> err_remove_callback:
+>=20
+> err_remove_dev_if:
+> 	sensor_hub_remove_callback(hsdev, hsdev->usage);
+> 	hid_sensor_custom_dev_if_remove(sensor_inst);
+> 	goto err_remove_attributes;
+> err_remove_attributes:
+> 	hid_sensor_custom_remove_attributes(sensor_inst);
+> err_remove_callback:
+> 	sensor_hub_remove_callback(hsdev, hsdev->usage);
+>=20
+> Because hid_sensor_custom_probe() still holds the initial reference
+> on
+> sensor_inst until err_free (where kref_put() calls
+> hid_sensor_custom_free() to
+> free sensor_inst->data_fifo and sensor_inst), removing the callback
+> at
+> err_remove_dev_if unregisters the callback while the field sysfs
+> attributes are
+> still exposed, and then calls sensor_hub_remove_callback() a second
+> time at
+> err_remove_callback.
+>=20
+> Should err_remove_dev_if just call
+> hid_sensor_custom_dev_if_remove(sensor_inst)
+> and fall through to err_remove_attributes and err_remove_callback?

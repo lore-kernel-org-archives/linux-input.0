@@ -1,84 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793795197;
-	b=F0wIxX1FTIT/3nRzuAO96L2XHpnZYhNgnwqxyh0eqWP5JopQ/w+mrhR+GkWYqNghQaAG
-	 JRuOVnMQ4+8LHL/ApABLesOF3nXisw/uh3JRPPr8P1GkFa7VUZBWAJR0BVrRQ3BLUwz7O
-	 FE72giGPn+P8AWoV3YtdCiBri48RxjO2HzUu2zIcMnTkE8/pctzW8NeP7tgrLrvkCW3p3
-	 TpvSSMUVBPNbr/9MmLGCjOV64Dhoc9AME36BGcqoAZ6Fp6nV6fQ8nbhCUYTbmostzpJym
-	 FVcpvfx8ia/egFw0ZkdVYDlVAo4jL2rarf43Jj2FU5cJGpSY+TgOeQC5JfcgBeZzdzg==
+	t=1793795199;
+	b=B6QwgAOSFXChcnlX9YDtR/J6gC62KHphsCfyZgHdc/mtZNCOBv+qOsQhpoHfgDOGAsm9
+	 CMbr0WqAZDKwFCeEeMamK2qxOHeaKoEH22eUhuwOBwArfjMwB38o+P3KUEIcF9rlabKPV
+	 4dODhFItSIfmE31nIrOk8mTNUDORTJKshhBy6umil7eFJDtQC4f31u5Dp926IaYKzT2Vr
+	 OgNtfUoKpNbySbQwA5ZmEzwsz6/QoyLdIKRf02o9TzcuTfbG7nfaToMqfGRR9wvLQslS8
+	 gxrCrOkz3KaK3fqHOXMcgaLrHoNGJ88vMBDid9bH5nr1TjXTrs4QVysxI35wQZEnd+Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793795197;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793795199;
 	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
 	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
 	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 MIME-Version:Content-Type:Content-Transfer-Encoding;
-	bh=SxQIyo1i8rUtN8cIQi0PeWuiVCxCXkpVy81a4gul2ns=;
-	b=BlBikAsL3WoGNW7FCVQwpiboiM37MA5BrZtdZ5WcoI+1ZoLSclCkEOQEV5eQP3CH7r//
-	 ttUECKFhimZsz/lZxfZSS8fc3nvb82Ck68gnPDD6H1ZYxyGpmqlD1VZj+spNeQmmv5+fn
-	 ChbNjCVq03EQXs00vPhSxkVfzxk9HEjFO+5ti6X3fr9SbsT1ch9gTL4RlSPRLbvLg+2wh
-	 nycNyoFkSRtimsDZtYmfAmWNjjsxoJbzfddQS6PDEt8iwzjK1SyDmUnMNhe8EfB9PBLy2
-	 IG1/1wGvc9hBYFAfC45pfUiVGSOZUAuleChDMvNtJuHwfJe/u5G9yBnuIn8OzAtBtRw==
+	bh=WFDlyoZB7f18B/lPyVmWgAS81CxVxhcEOqRbakazlQ4=;
+	b=2t6j7g9vtEFS6/UnH5QMQepeP5uwdlepcqn379E4r3NR1yWSVm6rTuQle1OeDAp8Ve5Z
+	 SRusPw3edi0X6Sh5dQ0KRcYRYVuBXGCXEPPSctgt6Pe36KXlF/hgFTHPD84P0grG5dLgT
+	 xEvlYpEgLoftgzCGqO7esVVncZ47hC6liQiveO7v+g/SxwpcL0YYyN/8g+ZJDXD4fIZFP
+	 OaQtcb1BclCIPU7zrd3uh751jfJHpzyEuWpOsP2wyqFhpnN7FJGbpCbjdXPbSvbGvtumK
+	 D2HtCpNrhHibw9xAN2ZPevTi2W9RqgogkWeO+AkkzGvgmdmzwWRdbc0bgiajNz0QXcg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=gmail.com;
 	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=guYyfD3d;
-	arc=none smtp.remote-ip=209.85.128.54
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XRlzdsTl;
+	arc=none smtp.remote-ip=209.85.128.51
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B9DF606EE9E
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 12:26:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8B9DF606EE9E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB76606EEB7
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 12:26:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3AB76606EEB7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=guYyfD3d
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4a1fbd52ab6so4353205e9.0
-        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 04:26:36 -0800 (PST)
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=XRlzdsTl
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4a2069b9710so5384145e9.2
+        for <linux-input@vger.kernel.org>; Wed, 04 Nov 2026 04:26:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793795195; x=1794399995; darn=vger.kernel.org;
+        d=gmail.com; s=20260707; t=1793795198; x=1794399998; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=SxQIyo1i8rUtN8cIQi0PeWuiVCxCXkpVy81a4gul2ns=;
-        b=guYyfD3dz8+4XRLKrK/wqOadhFdn3VwQYXC4hjM/jI9P2wzDL7y2iFS5AdtzYQ5MF5
-         66e6k658CHP9dj0b+9hLW1RsunWnMoKBQKoBVugMrziz2/Jy9GBEodkmolbQ4yHL1ZLu
-         msJH1L1Po03+ykdGirDaL+5fgL8JxjDcW8Bye+Qb9Pe6a8J0N81p+CVfH7EpGD+KUdeb
-         TpyY9WpHh0xDV/e0dTyNWUjljog5OPOXZAKR0M1SCzBlZ0JY7J4azq9BvbcASWuHn8ci
-         P5SlLs4x8WlkbbzcpGFSh7FyltDRYN/1NXZMzzRvvhqyXpdeRPtoB6DOr9R25eLWXcl8
-         jP0Q==
+        bh=WFDlyoZB7f18B/lPyVmWgAS81CxVxhcEOqRbakazlQ4=;
+        b=XRlzdsTlcv5yguAQlfZwvH5urhWP5Fu5ti/lt6Rfa4deTLghFHWr/mJaR+9mMl+2R6
+         HVzctOqF6pmnASm0/FJRyXla1YFeGzV4D/DmYMPkUnW8Cj4VUxGTtfQwhyYUUuY0yV0l
+         Ugpv0zlC7YodevFBOzsPzYzjM9CrBMjY4fRs5pUNlaKtTv4N8xMvhVkc0Rdx3+YwmpTD
+         GJwKTZMrBg+tNi0yNHWJ7iPlOCEERe2T0GH7iPk36yXNDwWBAZm0lrkUyH6NodRsKBs6
+         HW9xw9Y2RNX4Iss2dKZ6ltj3SAwi4iJlrUbvY3aNF1yIzpeuUWBR25Euo1C5rpgry6yX
+         /JjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793795195; x=1794399995;
+        d=1e100.net; s=20260707; t=1793795198; x=1794399998;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=SxQIyo1i8rUtN8cIQi0PeWuiVCxCXkpVy81a4gul2ns=;
-        b=Dy7P7/WJRcGaUrx8A2d7o7fUCaVVBkIQx3kZfMvGkZn2dEBI0SeWPwXcw5dY+L4hVm
-         0hmRp1kMeAfU40sI+7v/mW9WPUYGs7WCqY9IX87n8105fG1C1Mwf7TJ5slgrOUKmMYYd
-         vorXa0tsjfBL+pP4mIHyV33HIrAO2tjhJK7q+JlQJ74Xu6z2yhvJZORZH9Otp/64llft
-         eeW+9QYs4aBV+l8fWEneAOVW+gKWuWfWEW1f/P7kon3X6+frZ54/2zwITSXv4WjtU4vk
-         Hymm3u9SFU8vZGjC+fV9ISnQVCzV34gmskT4Hc5x1Xs6DXXkHjs+g1qdOEufiT1RV1AH
-         e0oA==
-X-Forwarded-Encrypted: i=1; AKwUvBz0cJcfhpLVqqa9GmZ1qnC6SQoWq7Yf7FzE0Z7YAmM7MxY3QB+JtjLE4Y7dqDlIcbbAMC2eEmjg2ii+5g==@vger.kernel.org
-X-Gm-Message-State: APuU4Z9bvvf9B67rc96rIsULhpZO1BNRCRDYf+OIMFiWv+QYpByRw2LN
-	y/pr1AFLjuzOfm8ZA518+skrL6sxGXvTJjFekTogugOxXE/5MUIlqLon
-X-Gm-Gg: AYBFou0k5eOUjuW5y9z5DniJM1Agh+cARb4E8NGO+o+sEbYlofbxkjiq3L4t8KtnJLM
-	5FoYVJiRdHDAezHda+JIei+tvSTJ31CyKbI/GTPK7nQPvfPQv1SbThZ6TTYB3MEvbVLYjiV4BbP
-	wSmiI5ZuL3PvRxCJhXyW70KtlS2hDc66M9os1DIEaJ9MZHuLx/JbL/l8tT6VEZNlZ/Mzghk6OYS
-	T4m7dpe1D7QG226mVOW+77+4xFe84jabRNasMX/qs0YI5syqufRT9Bj3Q4R/cU0+NIQudqNBCY1
-	IpmSnX4OAFXYt8OZFYgTM12uiwbkdNPeGPn9rqCVO5Rj8PKCZOBrpX6hwxiDEh54RDQnzxX2kgJ
-	Vht4bruS619ZuCgs+8P4xEACFJ57Q4WxuDxLA0HmSNR166Ah/6lXufhZxdIAK6c+Z6cKVIuqpj4
-	s8QEJkAr9T5bnwNcagJSDTyGiZngIQc9d7PgACFbEw5dKZzQJG5gtISEaQomwrlVpOx6i0EVy0r
-	mfsqD+RdaPnnOFOtlpXtPiEr5z8RmIOeZn42g84Kf2B5YjfKdO9qkeXJnfa1UKQ5zOyFp6Ujxb3
-	kFKW6gllgmt/rbLLvJMsbT/JtJDfvWAxaoO+obyKXjqEl4821A==
-X-Received: by 2002:a05:600c:524b:b0:4b2:612d:908c with SMTP id 5b1f17b1804b1-4b2612d90d4mr136608635e9.34.1793795194957;
-        Wed, 04 Nov 2026 04:26:34 -0800 (PST)
+        bh=WFDlyoZB7f18B/lPyVmWgAS81CxVxhcEOqRbakazlQ4=;
+        b=mNYDF2HL7m7avVU7Wb7EMnSHC/vcymdueDGfEmxn0b3YevaOfZdFz6u/ZrHt9JatH7
+         094mcZkNDKvu2pxkB6v8XkIjqkvr9SHiVPa9zFlY8BHbF+k2NZV6aFHrEs2s04BNuiGl
+         QxgkPJ+u4ROyAOLzFzhyhnOWkB28J5DVl6sCaaqvi/AZDZwr7ONqlDfS05JfMziTByVz
+         eIsix73kgQqzhMjLc2OLLGupoaZz1dC/wKPahlayCRXXg5J+WXv3rtKtN/eb4IlkdxNU
+         +s/l5nVTWi8HxsKG++axs0uLDs8omK6G4AWadfua3XRunMvg/qLI7UOcy6DRDvjD/hJN
+         0R+w==
+X-Forwarded-Encrypted: i=1; AKwUvBw31YcQBt6WeFKYXRCWUtsmcyuZtQt5WhvA+9DmaDsxooNrc0+JRMS9OGA65wAZbeWiZubKlZAjyrxqbg==@vger.kernel.org
+X-Gm-Message-State: APuU4Z8KlRxrh+iXTmPS/6mY4CmJp9S34la9wmcHtdF7cvG+yeMl2JdK
+	HOd82QsGWBKJ4tBLcHpg5lhkA0FfkZaPCSq4V83RuOplnLxUOBqVKBsg
+X-Gm-Gg: AYBFou2VnH4qSIc0x1ZNckG09YXJ/cmVSKOofpznRX1TsL/sHGnDSbyKzT3YE++wLfM
+	rvcG/J7oNWYbvOv1TL81XIZKnrjKz+5pASfqxiBHSIqQ5f/LslXFDlf//CL9H28Lm53PYVIFsgh
+	j1RLifAnLyGGqJt01Rh0HgYL0bZ+Wc6MdubfHRm57P8tTQzz/22BTIO7MeoOCo9ck1Wqe8WjPdg
+	8lhAv59IDhDKIQkdADiWh5k9bMDlXYLKc4KGcL/08nTOSZz2mwjmkdDwtiT6/2zdBLJwRikPups
+	RhQT90FrlCx2cBA5AckyknynAQpeV03WV7g7HhwklisluLh1OgBVxqWZv4GlfaB2UiPJsjor8DU
+	k6vjPSTQ2Jrd9V/ew0J5SrsuOxylDgeTRsxxRlRMdaaJrdLpUCukL/FtWd0RzdCunDOamhkgprH
+	w0FYyLYpIyiGjh8qweM7trmZFCIIVl8IMRPtnggcX93QREdhIe1FI0qXb7PT9s59WB6IA21H7k8
+	JSnPgXHSCPO50MVHkr/pQrQ15iAEJdRo9dMOgwa9cAWlGmdIPvroInnVqk1A/ZGrFYC3W1FNfcY
+	VTRVZthVJw4woMrBYA13VJ/PMS0s+YUldk18UsqJZ0Y4ZCBBXA==
+X-Received: by 2002:a05:600c:638f:b0:4a2:1050:aff with SMTP id 5b1f17b1804b1-4ac17d16a26mr365450235e9.6.1793795197552;
+        Wed, 04 Nov 2026 04:26:37 -0800 (PST)
 Received: from xeon ([188.163.112.62])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b43da9825bsm50492415e9.15.2026.11.04.04.26.33
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b43da9825bsm50492415e9.15.2026.11.04.04.26.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Nov 2026 04:26:34 -0800 (PST)
+        Wed, 04 Nov 2026 04:26:36 -0800 (PST)
 From: Svyatoslav Ryhel <clamor95@gmail.com>
 To: Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -98,9 +98,9 @@ Cc: devicetree@vger.kernel.org,
 	mfd@lists.linux.dev,
 	linux-leds@vger.kernel.org,
 	linux-pm@vger.kernel.org
-Subject: [PATCH v13 5/7] leds: Add driver for ASUS Transformer LEDs
-Date: Wed,  4 Nov 2026 14:26:04 +0200
-Message-ID: <20261104122606.215629-6-clamor95@gmail.com>
+Subject: [PATCH v13 6/7] power: supply: Add driver for ASUS Transformer battery
+Date: Wed,  4 Nov 2026 14:26:05 +0200
+Message-ID: <20261104122606.215629-7-clamor95@gmail.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261104122606.215629-1-clamor95@gmail.com>
 References: <20261104122606.215629-1-clamor95@gmail.com>
@@ -118,172 +118,348 @@ Content-Transfer-Encoding: 8bit
 
 From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-ASUS Transformer tablets have a green and an amber LED on both the Pad
-and the Dock.
+Driver implements one battery cell per EC controller and supports reading
+of battery status for ASUS Transformer's pad and mobile dock.
 
 Co-developed-by: Svyatoslav Ryhel <clamor95@gmail.com>
 Signed-off-by: Svyatoslav Ryhel <clamor95@gmail.com>
 Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 ---
- drivers/leds/Kconfig                    |  11 +++
- drivers/leds/Makefile                   |   1 +
- drivers/leds/leds-asus-transformer-ec.c | 114 ++++++++++++++++++++++++
- 3 files changed, 126 insertions(+)
- create mode 100644 drivers/leds/leds-asus-transformer-ec.c
+ drivers/power/supply/Kconfig                  |  11 +
+ drivers/power/supply/Makefile                 |   1 +
+ .../supply/asus-transformer-ec-battery.c      | 289 ++++++++++++++++++
+ 3 files changed, 301 insertions(+)
+ create mode 100644 drivers/power/supply/asus-transformer-ec-battery.c
 
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index 7ec2c8d785426..788e689fe875c 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -120,6 +120,17 @@ config LEDS_OSRAM_AMS_AS3668
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called leds-as3668.
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index ee7dc5f2617a4..856eb81c97ae9 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -122,6 +122,17 @@ config BATTERY_CHAGALL
+ 	  This driver can also be built as a module. If so, the module will be
+ 	  called chagall-battery.
  
-+config LEDS_ASUS_TRANSFORMER_EC
-+	tristate "LED Support for Asus Transformer charging LED"
-+	depends on LEDS_CLASS
++config BATTERY_ASUS_TRANSFORMER_EC
++	tristate "Asus Transformer's battery driver"
 +	depends on MFD_ASUS_TRANSFORMER_EC
 +	help
-+	  This option enables support for charging indicator on
-+	  Asus Transformer's Pad and its Dock.
++	  Say Y to enable support for battery status access on Tegra based
++	  ASUS Transformer devices.
 +
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called leds-asus-transformer-ec.
++	  This sub-driver supports battery cells found in Asus Transformer
++	  tablets and mobile docks and controlled by a special embedded
++	  controller.
 +
- config LEDS_AW200XX
- 	tristate "LED support for Awinic AW20036/AW20054/AW20072/AW20108"
- 	depends on LEDS_CLASS
-diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
-index 4d4b089156e24..3da746279bb81 100644
---- a/drivers/leds/Makefile
-+++ b/drivers/leds/Makefile
-@@ -15,6 +15,7 @@ obj-$(CONFIG_LEDS_ADP5520)		+= leds-adp5520.o
- obj-$(CONFIG_LEDS_AN30259A)		+= leds-an30259a.o
- obj-$(CONFIG_LEDS_APU)			+= leds-apu.o
- obj-$(CONFIG_LEDS_ARIEL)		+= leds-ariel.o
-+obj-$(CONFIG_LEDS_ASUS_TRANSFORMER_EC)	+= leds-asus-transformer-ec.o
- obj-$(CONFIG_LEDS_OSRAM_AMS_AS3668)	+= leds-as3668.o
- obj-$(CONFIG_LEDS_AW200XX)		+= leds-aw200xx.o
- obj-$(CONFIG_LEDS_AW2013)		+= leds-aw2013.o
-diff --git a/drivers/leds/leds-asus-transformer-ec.c b/drivers/leds/leds-asus-transformer-ec.c
+ config BATTERY_CPCAP
+ 	tristate "Motorola CPCAP PMIC battery driver"
+ 	depends on MFD_CPCAP && IIO
+diff --git a/drivers/power/supply/Makefile b/drivers/power/supply/Makefile
+index f3c0d1006c1a2..bec4a6263048c 100644
+--- a/drivers/power/supply/Makefile
++++ b/drivers/power/supply/Makefile
+@@ -22,6 +22,7 @@ obj-$(CONFIG_TEST_POWER)	+= test_power.o
+ obj-$(CONFIG_BATTERY_88PM860X)	+= 88pm860x_battery.o
+ obj-$(CONFIG_CHARGER_ADP5061)	+= adp5061.o
+ obj-$(CONFIG_BATTERY_ACT8945A)	+= act8945a_charger.o
++obj-$(CONFIG_BATTERY_ASUS_TRANSFORMER_EC)	+= asus-transformer-ec-battery.o
+ obj-$(CONFIG_BATTERY_AXP20X)	+= axp20x_battery.o
+ obj-$(CONFIG_CHARGER_AXP20X)	+= axp20x_ac_power.o
+ obj-$(CONFIG_BATTERY_CHAGALL)	+= chagall-battery.o
+diff --git a/drivers/power/supply/asus-transformer-ec-battery.c b/drivers/power/supply/asus-transformer-ec-battery.c
 new file mode 100644
-index 0000000000000..f797dcefd16e6
+index 0000000000000..46bd50001e47d
 --- /dev/null
-+++ b/drivers/leds/leds-asus-transformer-ec.c
-@@ -0,0 +1,114 @@
-+// SPDX-License-Identifier: GPL-2.0-only
++++ b/drivers/power/supply/asus-transformer-ec-battery.c
+@@ -0,0 +1,289 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
 +
++#include <linux/array_size.h>
++#include <linux/devm-helpers.h>
 +#include <linux/err.h>
-+#include <linux/leds.h>
++#include <linux/i2c.h>
 +#include <linux/mfd/asus-transformer-ec.h>
 +#include <linux/module.h>
++#include <linux/mutex.h>
 +#include <linux/platform_device.h>
-+#include <linux/slab.h>
++#include <linux/power_supply.h>
++#include <linux/property.h>
++#include <linux/unaligned.h>
 +
-+enum {
-+	ASUSEC_LED_AMBER,
-+	ASUSEC_LED_GREEN,
-+	ASUSEC_LED_MAX
++#define ASUSEC_BATTERY_DATA_FRESH_MSEC		5000
++
++#define ASUSEC_BATTERY_DISCHARGING		BIT(6)
++#define ASUSEC_BATTERY_FULL_CHARGED		BIT(5)
++#define ASUSEC_BATTERY_NOT_CHARGING		BIT(4)
++
++#define TEMP_CELSIUS_OFFSET			2731
++
++struct asus_ec_battery_data {
++	struct asusec_core *ec;
++	struct power_supply *battery;
++	struct power_supply_desc psy_desc;
++	struct delayed_work poll_work;
++	struct mutex battery_lock; /* for data refresh */
++	unsigned long batt_data_ts;
++	int last_state;
++	u8 batt_data[ASUSEC_ENTRY_BUFSIZE];
 +};
 +
-+struct asus_ec_led_config {
-+	const char *name;
-+	unsigned int color;
-+	u64 ctrl_bit;
-+};
-+
-+struct asus_ec_led {
-+	const struct asusec_core *ec;
-+	struct led_classdev cdev;
-+	u64 ctrl_bit;
-+};
-+
-+static const struct asus_ec_led_config asus_ec_leds[] = {
-+	[ASUSEC_LED_AMBER] = {
-+		.name = "amber",
-+		.color = LED_COLOR_ID_AMBER,
-+		.ctrl_bit = ASUSEC_CTL_LED_AMBER,
-+	},
-+	[ASUSEC_LED_GREEN] = {
-+		.name = "green",
-+		.color = LED_COLOR_ID_GREEN,
-+		.ctrl_bit = ASUSEC_CTL_LED_GREEN,
-+	},
-+};
-+
-+static enum led_brightness asus_ec_led_get_brightness(struct led_classdev *cdev)
++static int asus_ec_battery_refresh(struct asus_ec_battery_data *priv)
 +{
-+	struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
-+	const struct asusec_core *ec = led->ec;
-+	u64 ctl;
-+	int ret;
++	struct i2c_client *client = priv->ec->dockram;
++	struct device *dev = &client->dev;
++	int ret = 0;
 +
-+	ret = asus_dockram_access_ctl(ec->dockram, &ctl, 0, 0);
-+	if (ret)
-+		return LED_OFF;
++	if (time_before(jiffies, priv->batt_data_ts))
++		return ret;
 +
-+	return ctl & led->ctrl_bit ? LED_ON : LED_OFF;
++	memset(priv->batt_data, 0, ASUSEC_ENTRY_BUFSIZE);
++	ret = i2c_smbus_read_i2c_block_data(client, ASUSEC_DOCKRAM_BATT_CTL,
++					    ASUSEC_ENTRY_SIZE, priv->batt_data);
++	if (ret < ASUSEC_ENTRY_SIZE)
++		return ret < 0 ? ret : -EIO;
++
++	if (priv->batt_data[0] > ASUSEC_ENTRY_SIZE) {
++		dev_err(dev, "bad data len; buffer: %*ph; ret: %d\n",
++			ASUSEC_ENTRY_BUFSIZE, priv->batt_data, ret);
++		return -EPROTO;
++	}
++
++	priv->batt_data_ts = jiffies +
++		msecs_to_jiffies(ASUSEC_BATTERY_DATA_FRESH_MSEC);
++
++	return ret;
 +}
 +
-+static int asus_ec_led_set_brightness(struct led_classdev *cdev, enum led_brightness brightness)
++static enum power_supply_property asus_ec_battery_properties[] = {
++	POWER_SUPPLY_PROP_STATUS,
++	POWER_SUPPLY_PROP_VOLTAGE_MAX,
++	POWER_SUPPLY_PROP_CURRENT_MAX,
++	POWER_SUPPLY_PROP_TEMP,
++	POWER_SUPPLY_PROP_VOLTAGE_NOW,
++	POWER_SUPPLY_PROP_CURRENT_NOW,
++	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_CHARGE_NOW,
++	POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW,
++	POWER_SUPPLY_PROP_TIME_TO_FULL_NOW,
++	POWER_SUPPLY_PROP_PRESENT,
++};
++
++static const unsigned int asus_ec_battery_prop_offs[] = {
++	[POWER_SUPPLY_PROP_STATUS] = 1,
++	[POWER_SUPPLY_PROP_VOLTAGE_MAX] = 3,
++	[POWER_SUPPLY_PROP_CURRENT_MAX] = 5,
++	[POWER_SUPPLY_PROP_TEMP] = 7,
++	[POWER_SUPPLY_PROP_VOLTAGE_NOW] = 9,
++	[POWER_SUPPLY_PROP_CURRENT_NOW] = 11,
++	[POWER_SUPPLY_PROP_CAPACITY] = 13,
++	[POWER_SUPPLY_PROP_CHARGE_NOW] = 15,
++	[POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW] = 17,
++	[POWER_SUPPLY_PROP_TIME_TO_FULL_NOW] = 19,
++};
++
++static int asus_ec_battery_get_value(struct asus_ec_battery_data *priv,
++				     enum power_supply_property psp)
 +{
-+	struct asus_ec_led *led = container_of(cdev, struct asus_ec_led, cdev);
-+	const struct asusec_core *ec = led->ec;
++	int ret, offs;
 +
-+	if (brightness)
-+		return asus_dockram_access_ctl(ec->dockram, NULL, led->ctrl_bit, led->ctrl_bit);
++	guard(mutex)(&priv->battery_lock);
 +
-+	return asus_dockram_access_ctl(ec->dockram, NULL, led->ctrl_bit, 0);
++	if (psp >= ARRAY_SIZE(asus_ec_battery_prop_offs))
++		return -EINVAL;
++
++	offs = asus_ec_battery_prop_offs[psp];
++	if (!offs)
++		return -EINVAL;
++
++	ret = asus_ec_battery_refresh(priv);
++	if (ret < 0)
++		return ret;
++
++	if (offs >= priv->batt_data[0])
++		return -ENODATA;
++
++	return get_unaligned_le16(priv->batt_data + offs);
 +}
 +
-+static int asus_ec_led_probe(struct platform_device *pdev)
++static int asus_ec_battery_get_property(struct power_supply *psy,
++					enum power_supply_property psp,
++					union power_supply_propval *val)
 +{
-+	const struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
-+	struct device *dev = &pdev->dev;
-+	struct asus_ec_led *leds;
++	struct asus_ec_battery_data *priv = power_supply_get_drvdata(psy);
 +	int ret;
 +
-+	leds = devm_kcalloc(dev, ASUSEC_LED_MAX, sizeof(*leds), GFP_KERNEL);
-+	if (!leds)
-+		return -ENOMEM;
++	switch (psp) {
++	case POWER_SUPPLY_PROP_PRESENT:
++		val->intval = 1;
++		break;
 +
-+	for (int i = 0; i < ASUSEC_LED_MAX; i++) {
-+		const struct asus_ec_led_config *cfg = &asus_ec_leds[i];
-+		struct asus_ec_led *led = &leds[i];
++	default:
++		ret = asus_ec_battery_get_value(priv, psp);
++		if (ret < 0)
++			return ret;
 +
-+		led->cdev.name = devm_kasprintf(dev, GFP_KERNEL, "%s:%s", ec->name, cfg->name);
-+		if (!led->cdev.name)
-+			return -ENOMEM;
++		val->intval = (s16)ret;
 +
-+		led->cdev.max_brightness = 1;
-+		led->cdev.color = cfg->color;
-+		led->cdev.flags = LED_CORE_SUSPENDRESUME | LED_RETAIN_AT_SHUTDOWN;
-+		led->cdev.brightness_get = asus_ec_led_get_brightness;
-+		led->cdev.brightness_set_blocking = asus_ec_led_set_brightness;
++		switch (psp) {
++		case POWER_SUPPLY_PROP_STATUS:
++			if (ret & ASUSEC_BATTERY_FULL_CHARGED)
++				val->intval = POWER_SUPPLY_STATUS_FULL;
++			else if (ret & ASUSEC_BATTERY_NOT_CHARGING)
++				val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
++			else if (ret & ASUSEC_BATTERY_DISCHARGING)
++				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++			else
++				val->intval = POWER_SUPPLY_STATUS_CHARGING;
++			break;
 +
-+		led->ec = ec;
-+		led->ctrl_bit = cfg->ctrl_bit;
++		case POWER_SUPPLY_PROP_TEMP:
++			val->intval -= TEMP_CELSIUS_OFFSET;
++			break;
 +
-+		ret = devm_led_classdev_register(dev, &led->cdev);
-+		if (ret)
-+			return dev_err_probe(dev, ret, "Failed to register %s LED\n", cfg->name);
++		case POWER_SUPPLY_PROP_CHARGE_NOW:
++		case POWER_SUPPLY_PROP_CURRENT_NOW:
++		case POWER_SUPPLY_PROP_CURRENT_MAX:
++		case POWER_SUPPLY_PROP_VOLTAGE_NOW:
++		case POWER_SUPPLY_PROP_VOLTAGE_MAX:
++			val->intval *= 1000;
++			break;
++
++		case POWER_SUPPLY_PROP_TIME_TO_EMPTY_NOW:
++		case POWER_SUPPLY_PROP_TIME_TO_FULL_NOW:
++			val->intval = ret * 60;
++			break;
++
++		default:
++			break;
++		}
++
++		break;
 +	}
 +
 +	return 0;
 +}
 +
-+static struct platform_driver asus_ec_led_driver = {
-+	.driver = {
-+		.name = "asus-transformer-ec-led",
-+	},
-+	.probe = asus_ec_led_probe,
-+};
-+module_platform_driver(asus_ec_led_driver);
++static void asus_ec_battery_poll_work(struct work_struct *work)
++{
++	struct asus_ec_battery_data *priv =
++		container_of(work, struct asus_ec_battery_data, poll_work.work);
++	int state;
 +
-+MODULE_ALIAS("platform:asus-transformer-ec-led");
++	state = asus_ec_battery_get_value(priv, POWER_SUPPLY_PROP_STATUS);
++	if (state < 0)
++		goto reschedule;
++
++	if (state & ASUSEC_BATTERY_FULL_CHARGED)
++		state = POWER_SUPPLY_STATUS_FULL;
++	else if (state & ASUSEC_BATTERY_NOT_CHARGING)
++		state = POWER_SUPPLY_STATUS_NOT_CHARGING;
++	else if (state & ASUSEC_BATTERY_DISCHARGING)
++		state = POWER_SUPPLY_STATUS_DISCHARGING;
++	else
++		state = POWER_SUPPLY_STATUS_CHARGING;
++
++	if (priv->last_state != state) {
++		priv->last_state = state;
++		power_supply_changed(priv->battery);
++	}
++
++reschedule:
++	/* continuously send uevent notification */
++	schedule_delayed_work(&priv->poll_work,
++			      msecs_to_jiffies(ASUSEC_BATTERY_DATA_FRESH_MSEC));
++}
++
++static const struct power_supply_desc asus_ec_battery_desc = {
++	.name = "asus-ec-battery",
++	.type = POWER_SUPPLY_TYPE_BATTERY,
++	.properties = asus_ec_battery_properties,
++	.num_properties = ARRAY_SIZE(asus_ec_battery_properties),
++	.get_property = asus_ec_battery_get_property,
++	.external_power_changed = power_supply_changed,
++};
++
++static int asus_ec_battery_probe(struct platform_device *pdev)
++{
++	struct asusec_core *ec = dev_get_drvdata(pdev->dev.parent);
++	struct asus_ec_battery_data *priv;
++	struct device *dev = &pdev->dev;
++	struct power_supply_config cfg = { };
++	int ret;
++
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, priv);
++
++	mutex_init(&priv->battery_lock);
++
++	priv->ec = ec;
++	priv->batt_data_ts = jiffies - 1;
++	priv->last_state = POWER_SUPPLY_STATUS_UNKNOWN;
++
++	cfg.fwnode = dev_fwnode(dev->parent);
++	cfg.drv_data = priv;
++
++	memcpy(&priv->psy_desc, &asus_ec_battery_desc, sizeof(priv->psy_desc));
++	priv->psy_desc.name = devm_kasprintf(dev, GFP_KERNEL, "%s-battery",
++					     priv->ec->name);
++	if (!priv->psy_desc.name)
++		return -ENOMEM;
++
++	priv->battery = devm_power_supply_register(dev, &priv->psy_desc, &cfg);
++	if (IS_ERR(priv->battery))
++		return dev_err_probe(dev, PTR_ERR(priv->battery),
++				     "Failed to register power supply\n");
++
++	ret = devm_delayed_work_autocancel(dev, &priv->poll_work,
++					   asus_ec_battery_poll_work);
++	if (ret)
++		return ret;
++
++	schedule_delayed_work(&priv->poll_work,
++			      msecs_to_jiffies(ASUSEC_BATTERY_DATA_FRESH_MSEC));
++
++	return 0;
++}
++
++static int __maybe_unused asus_ec_battery_suspend(struct device *dev)
++{
++	struct asus_ec_battery_data *priv = dev_get_drvdata(dev);
++
++	cancel_delayed_work_sync(&priv->poll_work);
++
++	return 0;
++}
++
++static int __maybe_unused asus_ec_battery_resume(struct device *dev)
++{
++	struct asus_ec_battery_data *priv = dev_get_drvdata(dev);
++
++	schedule_delayed_work(&priv->poll_work,
++			      msecs_to_jiffies(ASUSEC_BATTERY_DATA_FRESH_MSEC));
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(asus_ec_battery_pm_ops,
++			 asus_ec_battery_suspend, asus_ec_battery_resume);
++
++static struct platform_driver asus_ec_battery_driver = {
++	.driver = {
++		.name = "asus-transformer-ec-battery",
++		.pm = &asus_ec_battery_pm_ops,
++	},
++	.probe = asus_ec_battery_probe,
++};
++module_platform_driver(asus_ec_battery_driver);
++
++MODULE_ALIAS("platform:asus-transformer-ec-battery");
 +MODULE_AUTHOR("Michał Mirosław <mirq-linux@rere.qmqm.pl>");
 +MODULE_AUTHOR("Svyatoslav Ryhel <clamor95@gmail.com>");
-+MODULE_DESCRIPTION("ASUS Transformer's charging LED driver");
++MODULE_DESCRIPTION("ASUS Transformer's battery driver");
 +MODULE_LICENSE("GPL");
 -- 
 2.53.0

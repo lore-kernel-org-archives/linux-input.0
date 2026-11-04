@@ -1,51 +1,51 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.20
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.2
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793756496;
-	b=f4xvjQGMU58ucFTFm79z1/XWExlMUw0k2YpglrlDfThtccfCoLZ1g4J4lfoYnJgEA0j+
-	 RQ0JCALMV77cmrQDm8yvicXfIbvnT5GJ1Ckcu2+8US5aybLEol8VfA0Lpnuk90sp3HiyC
-	 h8wUZVYnbDA3fqhyQdQnZxXEpzZHOEETT+viGPYGUmcV3XbYENwpAm4AUbQVPKT3lZBlu
-	 l4ctIf2fHBHBKEsgzqzGjFo6+mwqnOmi8lHHFR6GEF0ksS9n69gw4F6IwhyOumoJBNjmM
-	 V8KnW+44bRA9Y8Q7JFY4sLODKPwP6/BGRlmRVe9uEO4ztK0IxVYErKTBzEasa3nqlzg==
+	t=1793756500;
+	b=fjDl+qiqyRx/NvPjK4LyjHVJ3q7SUbjKc9sbvBfYGtZeoj8sTCu+hwKA9Mpa7Ro0FMUB
+	 dANmAEZ4bpl/sJj+hE6IEh1UxTHN4MCeYgaSg8RQr799eZGGai3LPApvbKOCDktQKDRcu
+	 dQpJTSa2x1dF4VPaPDz5kPHHy5+nZSqYrJEa2A+MsfvkcID/7YHnmFcgR4TJ0HK5mKjpz
+	 wOg6hps+12RRDy2LMaHgOaG2mbzI0ieCcezZyGVEYe2tQbxIlYJ2FNjvLhS31w5z2eG5u
+	 zMG9RTV1ooqCpnGO+2RXhkqfXdFRkQpjuhxyHU718tnUVLGVawDFoKtwExehJG+LPpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793756496;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793756500;
 	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
 	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=5379CRQJx8I15aivicNrF0oYqHlT2w74jNzhiFSUHZA=;
-	b=me8WStIZ4oiRrPZhQXGrV268COq7NRbbpNy087actknYi8yMTJaLN7ZVupGmUB96GNIk
-	 fjcuxluSlLDhQ4A7+9ZrXr8UNmISXsjcmBLnZ4dImTsyCsDRhFNEbqV1BpYYdju6VPieD
-	 00SPo1cTYaTWBSo7vBzAACtuohOJ5EMfdqpcUUc7NnxBQtBzPLSobSC6vkLffIhPxptud
-	 iq3LmSyG97KDR75XKy8rnJ88Zj5wfQRHeXGfoje3fi4Ri15vQserLSic1JfDbn8fL+jXC
-	 t+BqetM646AyJTK67m38duY1aMDtz6jt8z9vWlBHLuZ0s2dOjVJG8l81/ot7zP0jCmw==
+	bh=0ZzqJDoeEpW5CfU+Ff49nSju2Ph/tRx20nMXNwS/YtQ=;
+	b=OUF27Zv2lsJlZgHVPLc6rinYpEzRsgc3oAH9JR7GNphH51K00viwJ1cpBYgHejkUDb8O
+	 MeMMhGMT4z2bULkoIn0bfrUVSX3Al99uXyB/P84IOXes0mhLdO5cuoebCpsoSPKKeGQuF
+	 kw9UYv0jjLQmVPQl5C+WCWyXn5P/rhvOEN5x3c925gTRfYRCXX2dLXs7dnEan232maSyW
+	 aW4obASByQgomoxfeOY/Pv3BB97uATUOeUtCr7TfK5o7ti5hmgCFcFXLIUTuDshGdgmDJ
+	 XNTmOENcasd+FY4qBH9dN4DfGrOEgGIt1vPV3ebmvDm6Ra5UwsNiwXePpPwbtLXFmuA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.dev;
 	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=vDXelbPn;
-	arc=none smtp.remote-ip=91.218.175.20
-Received: from mta0.migadu.com (out-20.mta0.migadu.com [91.218.175.20])
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=tHO4hhWF;
+	arc=none smtp.remote-ip=95.215.58.2
+Received: from mta1.migadu.com (out-2.mta1.migadu.com [95.215.58.2])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE253606D81A
-	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 01:41:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EE253606D81A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9F27606D83A
+	for <linux-input@vger.kernel.org>; Wed,  4 Nov 2026 01:41:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A9F27606D83A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=vDXelbPn
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=tHO4hhWF
 X-Envelope-To: linux-input@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=PzuoZhu6Eoqymm75/Wmyv8NSmRksFQncwoKiOhcjjSQ=;
+DKIM-Signature: a=rsa-sha256; bh=hhvXy66lGbMj0qrrceqA8gQVJhAYMN9wky8VtEvh6LA=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793756493; v=1; x=1794361293;
- b=vDXelbPnSoy8ULyAKuUgNl3sS3ZvslOYhUNpIvDRa4tQlERaH7V3pgsc7wpm1ulBOlkez7TK
- UtjDP6UkEh7rB4vLsrPZtc3HksCB4kye9JxiEYV7AS5ld51dWKLnFL+PlxYv/pfyAdh5lD+8bRF
- SCGQVdAApdyORR+GQ4vIYOXI=
+ t=1793756497; v=1; x=1794361297;
+ b=tHO4hhWFpBdhBAz/vC3/sO4c//k3HFBaoc5bEUNrbgkvmKYANOW2T0iY1iVg5mFmSn2j8pol
+ qOMR5pilmlkrmMA6uIA6UtJ3u6NniZgxDbRxx6yhQvIJ8bNc4S+jWhW58lhfLZfxaOcVVzEZXla
+ b6+EDaSMxKU8Qyv95t058jL0=
 X-Envelope-To: linux-input@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id da5024db59c4b2f1;
-	Wed, 04 Nov 2026 01:41:33 +0000
-X-Mizu-Trace-ID: da5024db59c4b2f1
+Received: by smtp.migadu.com with ESMTPS id bc5bb20736c767dc;
+	Wed, 04 Nov 2026 01:41:37 +0000
+X-Mizu-Trace-ID: bc5bb20736c767dc
 X-Migadu-Flow: FLOW_OUT
 From: Denis Benato <denis.benato@linux.dev>
 To: linux-kernel@vger.kernel.org
@@ -68,9 +68,9 @@ Cc: platform-driver-x86@vger.kernel.org,
 	"Hans de Goede" <hansg@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
 	Denis Benato <denis.benato@linux.dev>
-Subject: [PATCH v13 15/18] HID: asus: document ROG XG Mobile sysfs attributes
-Date: Wed,  4 Nov 2026 01:39:32 +0000
-Message-ID: <20261104013935.512713-16-denis.benato@linux.dev>
+Subject: [PATCH v13 16/18] HID: asus: document ROG Ally sysfs attributes
+Date: Wed,  4 Nov 2026 01:39:33 +0000
+Message-ID: <20261104013935.512713-17-denis.benato@linux.dev>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20261104013935.512713-1-denis.benato@linux.dev>
 References: <20261104013935.512713-1-denis.benato@linux.dev>
@@ -85,118 +85,419 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The driver publishes the station's model, serial, mainboard identifier,
-part number, firmware version and hardware generation as read-only
-sysfs files. Document each file: when it is created, what a read
-returns, and when that read is an empty line.
+The driver publishes the gamepad configuration of the ROG Ally
+handhelds through sysfs: the controller emulation and the
+operating mode, the per-motor vibration strength, the per-axis
+joystick calibration (dead zone, outer threshold, anti-dead
+zone and response curve), the trigger activation ranges, and
+the per-button mapping, macro and turbo settings.
+
+Document each file: where it is created, what a read returns,
+which values a write accepts, and the error returned when the
+controller lacks the capability.
 
 Signed-off-by: Denis Benato <denis.benato@linux.dev>
 ---
- .../ABI/testing/sysfs-driver-hid-asus         | 95 +++++++++++++++++++
- 1 file changed, 95 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-driver-hid-asus
+ .../ABI/testing/sysfs-driver-hid-asus         | 389 ++++++++++++++++++
+ 1 file changed, 389 insertions(+)
 
 diff --git a/Documentation/ABI/testing/sysfs-driver-hid-asus b/Documentation/ABI/testing/sysfs-driver-hid-asus
-new file mode 100644
-index 000000000000..30e0d17d4cec
---- /dev/null
+index 30e0d17d4cec..515eb7c550fc 100644
+--- a/Documentation/ABI/testing/sysfs-driver-hid-asus
 +++ b/Documentation/ABI/testing/sysfs-driver-hid-asus
-@@ -0,0 +1,95 @@
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_model
+@@ -93,3 +93,392 @@ Description:
+ 
+ 		Access: Read only
+ 		Valid values: a single line of text
++
++What:		/sys/bus/hid/drivers/asus/<dev>/xbox_controller
 +Date:		October 2026
 +Contact:	linux-input@vger.kernel.org
 +Description:
-+		Model of the connected ASUS ROG XG Mobile station, as
-+		reported by the station. An example is "GC33Y".
++		Enable or disable the Xbox controller emulation of the
++		gamepad.
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The value is one line and is never empty while the file
-+		exists.
++		The file is created on the configuration interface of a
++		bound ASUS ROG Ally or ROG Ally X controller. A read
++		returns 1 when the emulation is enabled and 0 when it
++		is disabled; the emulation is enabled by default.
++
++		Reading and writing return -EOPNOTSUPP when the
++		controller does not report the capability.
++
++		Access: Read/Write
++		Valid values: 0, 1
++
++What:		/sys/bus/hid/drivers/asus/<dev>/gamepad_mode
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Operating mode of the gamepad. In "gamepad" mode the
++		buttons report gamepad codes, in "desktop" mode they
++		report keyboard, mouse and media codes. The default
++		mode is gamepad.
++
++		The file is created on the configuration interface of a
++		bound ASUS ROG Ally or ROG Ally X controller. A switch
++		asks the controller to change mode and resets the
++		recorded button mappings to the firmware defaults of
++		the new mode, so the remap, macro and remap_available
++		files report those defaults afterwards.
++
++		Access: Read/Write
++		Valid values: "gamepad", "desktop"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/gamepad_mode_index
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		List of the operating modes the gamepad_mode file
++		accepts, space separated.
++
++		The file is created on the configuration interface of a
++		bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "gamepad desktop"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_vibration/intensity
++		/sys/bus/hid/drivers/asus/<dev>/right_vibration/intensity
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Strength of the left or the right rumble motor, in
++		percent of the maximum intensity. The controller does
++		not keep the strength across a reset: the driver sends
++		the recorded values again when it re-initializes the
++		controller.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Both
++		motors default to 100 and a write is rejected when the
++		value is above 100.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..100
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_vibration/intensity_range
++		/sys/bus/hid/drivers/asus/<dev>/right_vibration/intensity_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling intensity file accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "0 100"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/inner_threshold
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/inner_threshold
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Size of the inner dead zone of the joystick, in percent
++		of the axis range. The default is 10.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..50
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/outer_threshold
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/outer_threshold
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Outer threshold of the joystick, in percent of the axis
++		range: at and beyond this deflection the joystick
++		reports full deflection. The default is 90.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 70..100
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/inner_threshold_range
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/inner_threshold_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling inner_threshold file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "0 50"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/outer_threshold_range
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/outer_threshold_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling outer_threshold file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "70 100"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/anti_deadzone
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/anti_deadzone
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Anti-dead zone of the joystick, in percent of the axis
++		range: the deflection the controller applies to
++		counteract the inner dead zone. The default is 0.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report anti-dead zone support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..100
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/anti_deadzone_range
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/anti_deadzone_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling anti_deadzone file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "0 100"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/response_curve
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/response_curve
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Response curve of the joystick, as four points. Each
++		point is a pair: a move percentage, the deflection at
++		which the point is placed, and a response percentage,
++		applied from that point on.
++
++		The write is all-or-nothing: it is rejected when any
++		value is out of range or the move percentages are not
++		strictly increasing, and the recorded curve is left
++		untouched. The default is the linear curve
++		"0 0 33 33 66 66 100 100".
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report response curve support.
++
++		Access: Read/Write
++		Valid values: eight unsigned numbers 0..100, the move
++		ones strictly increasing
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_joystick_axis/response_curve_index
++		/sys/bus/hid/drivers/asus/<dev>/right_joystick_axis/response_curve_index
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Explanation of the format of the sibling response_curve
++		file.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
 +
 +		Access: Read only
 +		Valid values: a single line of text
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_serial
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_lower_limit
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_lower_limit
 +Date:		October 2026
 +Contact:	linux-input@vger.kernel.org
 +Description:
-+		Serial number of the connected ASUS ROG XG Mobile station,
-+		as reported by the station.
++		Lower limit of the analog trigger activation range, in
++		percent of the trigger travel: below this deflection
++		the trigger reports zero. The default is 0.
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the station did not report a
-+		serial number.
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 0..50
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_upper_limit
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_upper_limit
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Upper limit of the analog trigger activation range, in
++		percent of the trigger travel: at and beyond this
++		deflection the trigger reports full deflection. The
++		default is 100.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller. Reading
++		and writing return -EOPNOTSUPP when the controller does
++		not report user calibration support.
++
++		Access: Read/Write
++		Valid values: an unsigned number 70..100
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_lower_limit_range
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_lower_limit_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling range_lower_limit file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "0 50"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/left_trigger/range_upper_limit_range
++		/sys/bus/hid/drivers/asus/<dev>/right_trigger/range_upper_limit_range
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Range of the values the sibling range_upper_limit file
++		accepts.
++
++		The files are created on the configuration interface of
++		a bound ASUS ROG Ally or ROG Ally X controller.
++
++		Access: Read only
++		Valid values: "70 100"
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/remap
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Target the button is remapped to, by name. A write
++		sends the mapping to the controller and is rejected
++		when the name is unknown or not valid for the button
++		in the current mode; the recorded mapping is restored
++		when the controller rejects it.
++
++		"NONE" is always valid. In "gamepad" mode only gamepad
++		codes are valid, in "desktop" mode only keyboard,
++		mouse and media codes are; btn_m1 and btn_m2 accept
++		every code.
++
++		The file is created in one directory per button of the
++		configuration interface of a bound ASUS ROG Ally or
++		ROG Ally X controller. <btn> is one of: btn_a, btn_b,
++		btn_x, btn_y, btn_lb, btn_rb, dpad_up, dpad_down,
++		dpad_left, dpad_right, btn_l3, btn_r3, btn_menu,
++		btn_view, btn_m1 and btn_m2.
++
++		Access: Read/Write
++		Valid values: one name from the sibling
++		remap_available file
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/macro
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Macro target of the button, by name. The macro target
++		is not restricted by the controller mode: every name
++		the controller knows is valid for every button.
++
++		The file is created in the <btn> directories listed
++		for the remap file.
++
++		Access: Read/Write
++		Valid values: one name; the btn_m1 and btn_m2
++		remap_available files list them all
++
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/remap_available
++Date:		October 2026
++Contact:	linux-input@vger.kernel.org
++Description:
++		Names the remap file of this button accepts in the
++		current mode, space separated. The btn_m1 and btn_m2
++		files list every known name in every mode.
++
++		The file is created in the <btn> directories listed
++		for the remap file.
 +
 +		Access: Read only
 +		Valid values: a single line of text
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_mainboard
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/turbo_period
 +Date:		October 2026
 +Contact:	linux-input@vger.kernel.org
 +Description:
-+		Mainboard identifier of the connected ASUS ROG XG Mobile
-+		station, as reported by the station.
++		Repeat period of the turbo function of the button, in
++		firmware units: while turbo is on, the button is
++		automatically pressed again at this period. The period
++		0, the default, disables the function.
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the station did not report a
-+		mainboard identifier.
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
 +
-+		Access: Read only
-+		Valid values: a single line of text
++		Access: Read/Write
++		Valid values: an unsigned number 0..20
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_part_number
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/toggle_period
 +Date:		October 2026
 +Contact:	linux-input@vger.kernel.org
 +Description:
-+		Part number of the connected ASUS ROG XG Mobile station, as
-+		reported by the station.
++		Toggle period of the turbo function of the button, in
++		firmware units.
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the station did not report a
-+		part number.
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
 +
-+		Access: Read only
-+		Valid values: a single line of text
++		Access: Read/Write
++		Valid values: an unsigned number 0..255
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_firmware_version
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/turbo_period_range
 +Date:		October 2026
 +Contact:	linux-input@vger.kernel.org
 +Description:
-+		Firmware version of the connected ASUS ROG XG Mobile
-+		station, as reported by the station.
++		Range of the values the sibling turbo_period file
++		accepts.
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the version query failed or
-+		the station did not report a firmware version.
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
 +
 +		Access: Read only
-+		Valid values: a single line of text
++		Valid values: "0 20"
 +
-+What:		/sys/bus/hid/drivers/asus/<dev>/xgm_generation
++What:		/sys/bus/hid/drivers/asus/<dev>/<btn>/toggle_period_range
 +Date:		October 2026
 +Contact:	linux-input@vger.kernel.org
 +Description:
-+		Hardware generation of the connected ASUS ROG XG Mobile
-+		station, as reported by the station.
++		Range of the values the sibling toggle_period file
++		accepts.
 +
-+		The file is created only for a supported station, one whose
-+		model name starts with GC31, GC32 or GC33, and only while that
-+		station is bound.
-+		The read is an empty line when the version query failed or
-+		the station did not report a generation.
++		The file is created in the <btn> directories listed
++		for the remap file, only when the controller reports
++		turbo support.
 +
 +		Access: Read only
-+		Valid values: a single line of text
++		Valid values: "0 255"
 -- 
 2.47.3
 
